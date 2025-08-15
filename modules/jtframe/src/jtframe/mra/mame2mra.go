@@ -36,78 +36,93 @@ import (
 	. "jotego/jtframe/xmlnode"
 )
 
-func Convert(args Args) error {
+func (args *Args)Convert() error {
 	pocket_clear()
 	defer close_allzip()
-	parse_args(&args)
+	parse_args(args)
 	macros.MakeMacros(args.Core,args.Target)
 	if args.Target=="pocket" && macros.IsSet("JTFRAME_SKIP") && args.Nodbg {
 		args.SkipPocket = true
 	}
-	mra_cfg, e := ParseTomlFile(args.Core); common.MustContext(e,"while parsing TOML file")
-	mra_cfg.rbf = "jt" + args.Core
+	var e error
+	args.mra_cfg, e = ParseTomlFile(args.Core); common.MustContext(e,"while parsing TOML file")
+	args.mra_cfg.rbf = "jt" + args.Core
 	// Set the platform name if blank
-	if mra_cfg.Global.Platform == "" {
-		mra_cfg.Global.Platform = "jt" + args.Core
+	if args.mra_cfg.Global.Platform == "" {
+		args.mra_cfg.Global.Platform = "jt" + args.Core
 	}
 	if args.Show_platform {
-		fmt.Printf("%s", mra_cfg.Global.Platform)
+		fmt.Printf("%s", args.mra_cfg.Global.Platform)
 		return nil
 	}
 	if !args.SkipPocket {
-		pocket_init(mra_cfg, args)
+		pocket_init(args.mra_cfg, *args)
 	}
-	parsed_machines, parent_names := collect_machines( mra_cfg, args )
-	if len(mra_cfg.Parse.Sourcefile)==0 {
-		machine := &mra_cfg.Parse.Machine
-		parsed  := args.make_from_name(machine, mra_cfg)
+	parsed_machines, parent_names := collect_machines(args.mra_cfg, *args )
+	if len(args.mra_cfg.Parse.Sourcefile)==0 {
+		machine := &args.mra_cfg.Parse.Machine
+		parsed  := args.make_from_name(machine, args.mra_cfg)
 		parsed_machines = append(parsed_machines,parsed)
 	}
 	// Add explicit parents to the list
-	for _, p := range mra_cfg.Parse.Parents {
+	for _, p := range args.mra_cfg.Parse.Parents {
 		parent_names[p.Name] = p.Description
 	}
 	// Dump MRA is delayed for later so we get all the parent names collected
 	if Verbose || len(parsed_machines) == 0 {
 		log.Println("Total: ", len(parsed_machines), " games")
 	}
-	main_copied := args.SkipMRA
+	args.main_copied = args.SkipMRA
 	if !args.SkipMRA {
 		delete_core_mrafiles(macros.Get("CORENAME"),args.outdir)
 	}
-	valid_setnames := []string{}
-	var all_errors error
-	for _, d := range parsed_machines {
-		_, good := parent_names[d.machine.Cloneof]
-		if good || len(d.machine.Cloneof) == 0 {
-			bad_macros := d.validate_core_macros()
-			all_errors = common.JoinErrors( all_errors, bad_macros )
-			if args.PrintNames {
-				fmt.Println(d.machine.Description)
-			}
-			if !args.SkipMRA {
-				args.produce_mra_rom_nvram(d, parent_names, mra_cfg)
-				main_copied = main_copied || is_main(d.machine, mra_cfg)
-				valid_setnames = append( valid_setnames, d.machine.Name )
-			}
-			if !args.SkipPocket {
-				pocket_add(d.machine, mra_cfg, args, d.def_dipsw, d.coremod, d.mra_xml )
-			}
-		} else {
-			fmt.Printf("Skipping derivative '%s' as parent '%s' was not found\n",
-				d.machine.Name, d.machine.Cloneof)
-		}
-	}
-	dump_setnames( args.Core, valid_setnames )
-	bad_header := dump_verilog_header(args.Core, mra_cfg.Header)
+	all_errors := args.dump_setnames(parsed_machines, parent_names)
+	bad_header := dump_verilog_header(args.Core, args.mra_cfg.Header)
 	all_errors = common.JoinErrors(all_errors, bad_header )
-	if !main_copied {
+	if !args.main_copied {
 		log.Printf("Warning (%s): No single MRA was highlighted as the main one.\nSet it in the TOML file parse.main key\n", args.Core)
 	}
 	if !args.SkipPocket {
 		pocket_save()
 	}
 	return all_errors
+}
+
+func (args *Args)dump_setnames(parsed_machines []ParsedMachine, parent_names map[string]string) (all_errors error) {
+	valid_setnames := make([]string,0,32)
+	count := 0
+	for _, d := range parsed_machines {
+		_, good := parent_names[d.machine.Cloneof]
+		if args.is_skippable_setname(d.machine.Name) { continue }
+		if good || len(d.machine.Cloneof) == 0 {
+			count++
+			bad_macros := d.validate_core_macros()
+			all_errors = common.JoinErrors( all_errors, bad_macros )
+			if args.PrintNames {
+				fmt.Println(d.machine.Description)
+			}
+			if !args.SkipMRA {
+				args.produce_mra_rom_nvram(d, parent_names, args.mra_cfg)
+				args.main_copied = args.main_copied || is_main(d.machine, args.mra_cfg)
+				valid_setnames = append( valid_setnames, d.machine.Name )
+			}
+			if !args.SkipPocket {
+				pocket_add(d.machine, args.mra_cfg, *args, d.def_dipsw, d.coremod, d.mra_xml )
+			}
+		} else {
+			fmt.Printf("Skipping derivative '%s' as parent '%s' was not found\n",
+				d.machine.Name, d.machine.Cloneof)
+		}
+	}
+	if count==0 {
+		all_errors = common.JoinErrors( all_errors,fmt.Errorf("Error: no setnames dumped.") )
+	}
+	return all_errors
+}
+
+func (args *Args)is_skippable_setname(name string) bool {
+	if args.Setname=="" { return false }
+	return args.Setname!=name
 }
 
 func collect_machines(mra_cfg Mame2MRA, args Args) (machines []ParsedMachine, parent_names map[string]string) {
@@ -254,21 +269,6 @@ func (args *Args)produce_mra_rom_nvram( d ParsedMachine, parent_names map[string
 	}
 	save_nvram(d.mra_xml)
 	dump_mra(*args, d.machine, mra_cfg, d.mra_xml, parent_names)
-}
-
-func dump_setnames( corefolder string, sn []string ) {
-	fname := filepath.Join(os.Getenv("CORES"), corefolder, "ver")
-	os.MkdirAll(fname,0775)
-	fname = filepath.Join(fname, "setnames.txt" )
-	f, err := os.Create(fname)
-	defer f.Close()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	for _,each := range sn {
-		fmt.Fprintln(f,each)
-	}
 }
 
 func skip_game(machine *MachineXML, mra_cfg Mame2MRA, args Args) bool {

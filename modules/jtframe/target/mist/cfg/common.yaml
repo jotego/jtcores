@@ -35,10 +35,12 @@ jtframe/target/mist:
     get:
       - jtframe_mist_base.v
       - mist_io.sdc
-  - unless: [ SIDI128 ]
+  - unless: [ SIDI128, POCKET ]
     get:
       - sdram_clk.sdc # must come after mist_io.sdc
       # PLLs
+  - unless: [ SIDI128 ]
+    get:
       - pll.qip
 jtframe/target/mister:
   - unless: [ VERILATOR ]
