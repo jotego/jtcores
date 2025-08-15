@@ -30,7 +30,7 @@ type Args struct {
     cheatdir, pocketdir          string
     Info                         []Info
     Buttons                      string
-    Year                         string
+    Year, Setname                string
     SkipMRA, SkipPocket          bool
     SkipROM, Md5                 bool // By skipping the ROM generation,
         // the md5 will be set to None, unless Md5 is true
@@ -41,6 +41,8 @@ type Args struct {
     URL, Rom_path        string
     // private
     firmware_dir string
+    mra_cfg Mame2MRA
+    main_copied bool
 }
 
 type Selectable struct {
