@@ -20,7 +20,7 @@ RUN ARCH=$(uname -m) && \
         armv7l) ARCH=armv6l ;; \
         *) echo "Unsupported architecture: $ARCH" && exit 1 ;; \
     esac && \
-    GOVER=1.21.3 && \
+    GOVER=1.23.4 && \
     GONAME=go${GOVER}.${OS}-${ARCH}.tar.gz && \
     curl -LO https://go.dev/dl/${GONAME} && \
     tar -C /usr/local -xzf ${GONAME} && \
