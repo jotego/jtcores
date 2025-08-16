@@ -110,7 +110,7 @@ assign wring   = st[2];
 assign cr_cen  = { 1'b1, csn }; // I call it csn to avoid the confusion with the common cen (clock enable) signal
 assign cr_dsn  = 0;
 assign fb_dout =  cr_oen ? 16'd0 : cr_adq;
-assign cr_adq  = !cr_oen ? 16'hzzzz : cr_cre ? adq_reg : fb_din;
+assign cr_adq  = !cr_advn ? adq_reg : !cr_oen ? 16'hzzzz : fb_din;
 assign cr_clk  = clk;
 assign fb_over = &fb_addr;
 assign vram    = lhbl ? ln_v : vrender;
@@ -151,9 +151,7 @@ always @( posedge clk ) begin
     end
 end
 
-localparam SEQEND=16;
-
-reg [4:0] init_seq[0:SEQEND];
+reg [4:0] init_seq[0:15];
 reg [4:0] init_cnt;
 
 initial begin
@@ -172,11 +170,10 @@ initial begin
     init_seq[10] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b1 };
     init_seq[11] =  { 1'b0, 1'b0, 1'b1, 1'b0, 1'b1 };
     init_seq[12] =  { 1'b0, 1'b0, 1'b1, 1'b0, 1'b1 };
-    init_seq[13] =  { 1'b0, 1'b0, 1'b1, 1'b0, 1'b1 };
-    init_seq[14] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };
+    init_seq[13] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };
     //                cen,  cre, advn,  oen,  wen
-    init_seq[15] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 }; // idle
-    init_seq[16] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };
+    init_seq[14] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 }; // idle
+    init_seq[15] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };
 end
 
 always @( posedge clk ) begin
@@ -214,10 +211,10 @@ always @( posedge clk ) begin
         end else case( st )
             INIT: begin
                 if( init_cnt==0  ) { cr_addr, adq_reg } <= REF_CFG;
-                if( init_cnt==SEQEND ) { cr_addr, adq_reg } <= BUS_CFG;
+                if( init_cnt==15 ) { cr_addr, adq_reg } <= BUS_CFG;
                 init_cnt <= init_cnt + 1'd1;
-                { csn, cr_cre, cr_advn, cr_oen, cr_wen } <= init_seq[init_cnt[4:0]];
-                if( init_cnt==SEQEND ) st <= IDLE;
+                { csn, cr_cre, cr_advn, cr_oen, cr_wen } <= init_seq[init_cnt[3:0]];
+                if( &init_cnt ) st <= IDLE;
             end
             // Wait for requests
             IDLE: begin

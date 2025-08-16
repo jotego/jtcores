@@ -77,12 +77,14 @@ module psram64(
     inout    [15:0] adq
 );
 
-reg  [15:0] mem[0:2**22-1];
-reg  [21:0] addr;
-reg  [ 2:0] wtk;
-reg  [ 3:0] st;
-reg         wt_reg, do_rd, do_cfg;
-wire [15:0] cur_mem, wrq;
+reg  [15: 0] mem[0:2**22-1];
+reg  [15: 0] alatch;
+reg  [21: 0] addr;
+reg  [21:16] opcode;
+reg  [ 2: 0] wtk;
+reg  [ 3: 0] st;
+reg          wt_reg, do_rd;
+wire [15: 0] cur_mem, wrq;
 
 // bus configuration
 reg       bus_mode,
@@ -90,20 +92,24 @@ reg       bus_mode,
           wt_sign,
           acc_lat,    // access latency, not implemented
           wrap;       // not implemented
+reg       advn_l, cfgwr;
 reg [2:0] latency,
           burst_len;  // not implemented
 reg [1:0] drv_str;    // not implemented
-
+wire      adv_peg, bcr_sel;
 
 localparam [3:0] IDLE  = 0,
                  WAIT  = 1,
                  READ  = 2,
-                 WRITE = 3;
+                 WRITE = 3,
+                 CFG   = 4;
 
 assign cur_mem = mem[addr];
 assign adq = (!oen && !cen && st==READ) ? cur_mem : 16'hzzzz;
 assign wt  = cen ? 1'bz : wt_reg ^ ~wt_sign;
 assign wrq = { ubn ? cur_mem[15:8] : adq[15:8], lbn ? cur_mem[7:0] : adq[7:0] };
+assign adv_peg = advn & ~advn_l;
+assign bcr_sel = opcode[19:18]==2'd2; // BCR = Bus configuration reg.
 
 integer k;
 initial begin
@@ -123,10 +129,23 @@ initial begin
 end
 
 always @(posedge clk) begin
+    advn_l <= advn;
+    if( cen ) cfgwr <= 0;
+    if( !cen && adv_peg && oen ) begin
+        if( !lbn ) alatch[ 7:0] <= adq[ 7:0];
+        if( !ubn ) alatch[15:8] <= adq[15:8];
+    end
+    if( !cen && adv_peg && oen && cre ) begin
+        alatch <= adq;
+        opcode <= a;
+        cfgwr  <= 1;
+    end
+end
+
+always @(posedge clk) begin
     case( st )
         IDLE: begin
             do_rd  <= 0;
-            do_cfg <= 0;
             wt_reg <= 0;      // just a work around so it won't halt the sim
             if( !cen && !advn && !cre ) begin
                 do_rd <= wen;
@@ -134,26 +153,28 @@ always @(posedge clk) begin
                 wtk   <= 3;
                 st    <= WAIT;
             end
-            if( !cen && !advn && cre ) begin
-                if( !wen ) begin
-                    if( a[19:18]==2'd2 ) begin
-                        bus_mode   = adq[15];
-                        acc_lat    = adq[14];
-                        latency    = adq[13:11];
-                        wt_sign  = adq[10];
-                        wt_cfg = adq[8];
-                        drv_str    = adq[5:4];
-                        wrap       = adq[3];
-                        burst_len  = adq[2:0];
-                    end
+            if( !cen && cfgwr ) begin
+                st <= CFG;
+            end
+        end
+        CFG: begin
+            if(cen) begin
+                st <= IDLE;
+            end else begin
+                if( bcr_sel ) begin
+                    bus_mode  = alatch[15];
+                    acc_lat   = alatch[14];
+                    latency   = alatch[13:11];
+                    wt_sign   = alatch[10];
+                    wt_cfg    = alatch[8];
+                    drv_str   = alatch[5:4];
+                    wrap      = alatch[3];
+                    burst_len = alatch[2:0];
                 end
-                do_cfg <= 1;   // the cre function isn't implemented
-                wtk    <= 3;
-                st     <= WAIT;
             end
         end
         WAIT: begin
-            if( wtk==0 ) st <= do_cfg ? IDLE : do_rd ? READ : WRITE;
+            if( wtk==0 ) st <= do_rd ? READ : WRITE;
             wt_reg <= wtk==0;
             wtk <= wtk-1;
         end

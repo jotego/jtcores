@@ -182,7 +182,7 @@ always @(posedge clk, posedge rst) begin
         line_intn <= !(vdump==64 || vdump==128 || vdump==192);
     end
 end
-
+/* verilator tracing_off */
 jtoutrun_road u_road(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -296,7 +296,7 @@ jts16_tilemap #(.MODEL(1),.SCR2_DLY(10'd10)) u_tilemap(
     .st_dout    ( st_tile   ),
     .scr_bad    ( scr_bad   )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 `ifdef SHANON
     wire nc;
 
