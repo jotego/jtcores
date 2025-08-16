@@ -166,11 +166,7 @@ cd_ver_folder() {
     fi
 
     local ver_folder="$JTROOT/cores/$core/ver/$setname"
-    if [[ ! -d "$ver_folder" ]]; then
-        echo "[WARNING] Verification folder for setname $setname doesn't exist. It will be created"
-    fi
-
-    mkdir -p $ver_folder
+    mkdir --parents $ver_folder
     cd $ver_folder
 }
 
@@ -312,7 +308,7 @@ EOF
         echo "[WARNING] There are no valid frames yet"
         return 1
     fi
-    unzip -d $dir $dir/frames.zip
+    unzip -q -d $dir $dir/frames.zip
 }
 
 check_frames() {
@@ -408,8 +404,8 @@ upload_results() {
         2) local folder="FAIL" ;;
     esac
 
-    zip frames.zip frames/*
-    zip audio.zip test.wav
+    zip -q frames.zip frames/*
+    zip -q audio.zip test.wav
 
     if [[ ! -f "test.mp4" ]]; then
         echo "[WARNING] Generated video not found"
