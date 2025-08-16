@@ -10,6 +10,6 @@ RUN apt install make:i386 libxdmcp6:i386 libxau6:i386 libxext6:i386 libxft-dev:i
 # missing ncurses-base:i386 -y
 
 COPY 13.1 /opt/altera/13.1
-ENV PATH $PATH:/opt/altera/13.1/quartus/bin
+ENV PATH=$PATH:/opt/altera/13.1/quartus/bin
 
 ENTRYPOINT ["bash"]

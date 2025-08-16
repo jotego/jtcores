@@ -1,0 +1,131 @@
+name: Core regressions
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 20 * * 4' # runs every Thursday at 8pm
+  # pull_request:
+  # push:
+  #   branches:
+  #     - master
+
+jobs:
+  list_setnames:
+    runs-on: ubuntu-24.04
+    container:
+      image: jotego/simulator
+    outputs:
+      pairs: ${{ steps.get.outputs.pairs }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get core/setname pairs
+        id: get
+        shell: bash
+        run: |
+          JSON="["
+          first=1
+          for f in cores/*/cfg/reg.yaml; do
+            core=$(basename "$(dirname "$(dirname "$f")")")
+            for sn in $(yq -r 'keys | .[]' "$f"); do
+              if (( first )); then
+                JSON="${JSON}{\"core\":\"$core\",\"setname\":\"$sn\"}"
+                first=0
+              else
+                JSON="${JSON}, {\"core\":\"$core\",\"setname\":\"$sn\"}"
+              fi
+            done
+          done
+          JSON="${JSON}]"
+          echo "pairs=$JSON" >> "$GITHUB_OUTPUT"
+
+  make_batches:
+    runs-on: ubuntu-24.04
+    container:
+      image: jotego/simulator
+    outputs:
+      batches: ${{ steps.extract.outputs.batches }}
+    needs:
+      - list_setnames
+    steps:
+      - name: Extract batches
+        id: extract
+        env:
+          PAIRS: ${{ needs.list_setnames.outputs.pairs }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          MAX=256
+          printf '%s' "$PAIRS" > pairs.json
+          LEN=$(yq -r 'length' pairs.json)
+          if (( LEN == 0 )); then
+            echo "batches=[]" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if (( LEN < MAX )); then
+            num_batches="$LEN"
+          else
+            num_batches="$MAX"
+          fi
+          echo '[]' > batches.json
+          for ((b=0; b<num_batches; b++)); do
+            yq -i -I=0 '. += [ [] ]' batches.json
+          done
+          for ((count=0; count<LEN; count++)); do
+            item=$(yq -o=json -I=0 ".[$count]" pairs.json)
+            batch=$(( count % num_batches ))
+            yq -i -I=0 ".[$batch] += [ ${item} ]" batches.json
+          done
+          {
+            echo "batches<<EOF"
+            cat batches.json
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+  simulate:
+    name: Simulate
+    runs-on: ubuntu-24.04
+    container:
+      image: jotego/simulator
+    needs:
+      - make_batches
+
+    strategy:
+      fail-fast: false
+      matrix:
+        batch: ${{ fromJSON(needs.make_batches.outputs.batches) }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.PAT }}
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SFTP_PRIVATE_KEY }}
+
+      - name: Accept SFTP server connection
+        run: |
+          cat <<'EOF' >> /etc/ssh/ssh_config
+          Host "${{ secrets.SERVER_IP }}"
+            HostName "${{ secrets.SERVER_IP }}"
+            Port "${{ secrets.SSH_PORT }}"
+            User "${{ secrets.SSH_USER }}"
+            StrictHostKeyChecking accept-new
+          EOF
+
+      - name: Run regression
+        run: |
+          mkdir -p ~/.mame/roms
+          git config --global --add safe.directory /__w/jtcores/jtcores
+          git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
+          
+          printf '%s' '${{ toJSON(matrix.batch) }}' > batch.json
+          yq -r '.[] | .core' batch.json > cores.lst
+          yq -r '.[] | .setname' batch.json > setnames.lst
+
+          bash -c ' source setprj.sh && parallel --jobs 0 run_regression.sh {1} {2} --check --push \
+            --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SSH_USER }}" --host "${{ secrets.SERVER_IP }}" \
+            :::: cores.lst ::::+ setnames.lst'
