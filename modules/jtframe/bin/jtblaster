@@ -31,3 +31,7 @@ SUBSYSTEM=="usb", ATTR{idVendor}=="09fb", ATTR{idProduct}=="6810", MODE="666"
 FIN
 
 udevadm control --reload
+
+groupadd plugdev
+echo "You may need to add your user to the plugdev group"
+echo "> sudo usermod -aG plugdev \$USER"
