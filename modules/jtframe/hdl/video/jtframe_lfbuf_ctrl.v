@@ -75,7 +75,7 @@ localparam [21:0] BUS_CFG = {
     3'd3, // 11-13 default latency counter
     1'b1, // 10    wait is active high
     1'b0, // 9     reserved
-    1'b0, // 8     1=wait set 1 clock ahead of data
+    1'b1, // 8     1=wait set 1 clock ahead of data
     2'd0, // 6-7   reserved
     2'd1, // 4-5   drive strength (default)
     1'b1, // 3     no burst wrap
@@ -99,10 +99,11 @@ reg    [ 1:0] cntup; // change to a larger count to capture data using Signal Ta
 wire   [ 7:0] vram;  // current row (v) being processed through the external RAM
 reg    [15:0] adq_reg;
 reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
-reg           lhbl_l, do_wr, wait1,
+reg           lhbl_l, do_wr,
               csn, ln_done_l, vsl, startup;
 wire          fb_over;
 wire          wring;
+reg           wait_l;
 
 `ifdef SIMULATION
 wire   rding   = st[3]; `endif
@@ -114,7 +115,11 @@ assign cr_adq  = !cr_advn ? adq_reg : !cr_oen ? 16'hzzzz : fb_din;
 assign cr_clk  = clk;
 assign fb_over = &fb_addr;
 assign vram    = lhbl ? ln_v : vrender;
-assign scr_we  =~cr_wait & ~cr_oen;
+assign scr_we  =~wait_l & ~cr_oen;
+
+always @( posedge clk ) begin
+    wait_l <= cr_wait;
+end
 
 always @( posedge clk ) begin
     if( rst ) begin
@@ -183,12 +188,10 @@ always @( posedge clk ) begin
         fb_done  <= 0;
         rd_addr  <= 0;
         line     <= 0;
-        wait1    <= 0;
         wr_addr  <= 0;
         init_cnt <= 0;
     end else begin
         fb_done <= 0;
-        wait1   <= 0;
         cr_advn <= 1;
         if( fb_clr ) begin
             // the line is cleared outside the state machine so a
@@ -207,7 +210,7 @@ always @( posedge clk ) begin
                     8: { cr_addr, adq_reg } <= BUS_CFG;
                     default:;
                 endcase
-                if( !cr_wait || !init_wait ) begin
+                if( !wait_l || !init_wait ) begin
                     init_cnt <= init_cnt + 1'd1;
                     if( &init_cnt ) st <= IDLE;
                     { csn, cr_cre, cr_advn, cr_oen, cr_wen } <= init_seq[init_cnt[2:0]];
@@ -244,9 +247,8 @@ always @( posedge clk ) begin
                 cr_oen          <= 1;
                 cr_wen          <= ~wring;
                 st              <= wring ? WRITEOUT : READIN;
-                wait1           <= 1; // give time to cr_wait to react
             end
-            WRITEOUT: if( !cr_wait ) begin // Write line from internal BRAM to PSRAM
+            WRITEOUT: if( !wait_l ) begin // Write line from internal BRAM to PSRAM
                 if ( ~&fb_addr ) fb_addr <= fb_addr + 1'd1;
                 wr_addr <= fb_addr;
                 if( &wr_addr ) begin // This violates the max 4us time, but it is ok as refresh is not required
@@ -261,7 +263,7 @@ always @( posedge clk ) begin
             end
             READIN: begin // Read line from PSRAM
                 cr_oen <= 0;
-                if( !cr_wait ) begin
+                if( !wait_l ) begin
                     rd_addr <= rd_addr + 1'd1;
                     if( &rd_addr ) begin // 4us max /csn violated, but ok
                         csn <= 1;
