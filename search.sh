@@ -6,7 +6,9 @@ cd $JTROOT
 
 compile() {
 	find $RLS -name "*rbf_r" -delete
-	jtcore outrun -pocket -u JTFRAME_SKIP --seed $seed || return 1
+	while ! jtcore outrun -pocket -u JTFRAME_SKIP --seed $seed --nodbg; do
+		seed=$RANDOM
+	done
 	mkdir -p $dst
 	cp -r $RLS/pocket/raw/Cores $dst/"$seed"
 	echo -e "\n\n"
