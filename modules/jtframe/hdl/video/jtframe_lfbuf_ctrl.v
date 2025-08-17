@@ -48,6 +48,7 @@ module jtframe_lfbuf_ctrl #(parameter
     output reg [ 21:16] cr_addr,
     inout      [  15:0] cr_adq,
     input               cr_wait,
+    output              cr_clk,
     output reg          cr_advn,
     output reg          cr_cre,
     output     [   1:0] cr_cen, // chip enable
@@ -56,35 +57,35 @@ module jtframe_lfbuf_ctrl #(parameter
     output     [   1:0] cr_dsn
 );
 
-localparam [3:0] INIT       = { 3'd0, 1'd0 },
-                 IDLE       = { 3'd1, 1'd0 },
-                 WRITE_ADDR = { 3'd2, 1'd0 },
-                 WRITEOUT   = { 3'd2, 1'd1 },
-                 READ_ADDR  = { 3'd4, 1'd0 },
-                 READIN     = { 3'd4, 1'd1 };
+localparam [3:0] INIT       = { 3'd0, 1'd0 }, // 0
+                 IDLE       = { 3'd1, 1'd0 }, // 2
+                 WRITE_ADDR = { 3'd2, 1'd0 }, // 4
+                 WRITEOUT   = { 3'd2, 1'd1 }, // 5
+                 READ_ADDR  = { 3'd4, 1'd0 }, // 8
+                 READIN     = { 3'd4, 1'd1 }; // 9
 
 localparam AW = HW+VW;
 
 localparam [21:0] BUS_CFG = {
-    2'd0, // reserved
-    2'd2, // bus configuration register
-    2'd0, // reserved
-    1'b0, // synchronous burst access
-    1'b0, // variable latency
-    3'd3, // default latency counter
-    1'b0, // wait is active high
-    1'b0, // reserved
-    1'b0, // 1=wait set 1 clock ahead of data
-    2'd0, // reserved
-    2'd1, // drive strength (default)
-    1'b1, // no burst wrap
-    3'd7  // continuous burst
+    2'd0, // 20-21 reserved
+    2'd2, // 18-19 bus configuration register
+    2'd0, // 16-17 reserved
+    1'b0, // 15    synchronous burst access
+    1'b0, // 14    variable latency
+    3'd3, // 11-13 default latency counter
+    1'b1, // 10    wait is active high
+    1'b0, // 9     reserved
+    1'b1, // 8     1=wait set 1 clock ahead of data
+    2'd0, // 6-7   reserved
+    2'd1, // 4-5   drive strength (default)
+    1'b1, // 3     no burst wrap
+    3'd7  // 0-2   continuous burst
 }, REF_CFG = {
-    2'd0, // reserved
-    2'd0, // refresh configuration register
+    2'd0,  // reserved
+    2'd0,  // refresh configuration register
     13'd0, // reserved
-    1'b1, // deep power power down disabled
-    1'd0, // reserved
+    1'b1,  // deep power power down disabled
+    1'd0,  // reserved
     3'b100 // array not refreshed
     // 1'b1, // use bottom half of the array (or all of it)
     // AW == 21 ? 2'd0 : // full array    (4096 x 16 bits = 64Mbit per chip half)
@@ -94,14 +95,15 @@ localparam [21:0] BUS_CFG = {
 };
 
 reg    [ 3:0] st;
-reg    [ 4:0] cntup; // use a larger count to capture data using Signal Tap
-wire   [ 7:0] vram; // current row (v) being processed through the external RAM
+reg    [ 1:0] cntup; // change to a larger count to capture data using Signal Tap
+wire   [ 7:0] vram;  // current row (v) being processed through the external RAM
 reg    [15:0] adq_reg;
 reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
-reg           lhbl_l, do_wr, wait1,
+reg           lhbl_l, do_wr,
               csn, ln_done_l, vsl, startup;
 wire          fb_over;
 wire          wring;
+reg           wait_l;
 
 `ifdef SIMULATION
 wire   rding   = st[3]; `endif
@@ -109,10 +111,15 @@ assign wring   = st[2];
 assign cr_cen  = { 1'b1, csn }; // I call it csn to avoid the confusion with the common cen (clock enable) signal
 assign cr_dsn  = 0;
 assign fb_dout =  cr_oen ? 16'd0 : cr_adq;
-assign cr_adq  = !cr_oen ? 16'hzzzz : cr_cre ? adq_reg : fb_din;
+assign cr_adq  = !cr_advn ? adq_reg : !cr_oen ? 16'hzzzz : fb_din;
+assign cr_clk  = clk;
 assign fb_over = &fb_addr;
 assign vram    = lhbl ? ln_v : vrender;
-assign scr_we  = cr_wait & ~cr_oen;
+assign scr_we  =~wait_l & ~cr_oen;
+
+always @( posedge clk ) begin
+    wait_l <= cr_wait;
+end
 
 always @( posedge clk ) begin
     if( rst ) begin
@@ -149,33 +156,22 @@ always @( posedge clk ) begin
     end
 end
 
-localparam SEQEND=16;
-
-reg [4:0] init_seq[0:SEQEND];
-reg [4:0] init_cnt;
+reg [4:0] init_seq[0:7];
+reg [3:0] init_cnt;
 
 initial begin
     //                cen,  cre, advn,  oen,  wen
     init_seq[ 0] =  { 1'b1, 1'b1, 1'b1, 1'b1, 1'b1 };
-    init_seq[ 1] =  { 1'b0, 1'b1, 1'b0, 1'b1, 1'b1 };  // latch address
-    init_seq[ 2] =  { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1 };  // allow for hold time of CRE
-    init_seq[ 3] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b1 };
-    init_seq[ 4] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b0 };  // write starts
-    init_seq[ 5] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b0 };
-    init_seq[ 6] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b0 };  // cfg written
-    //                cen,  cre, advn,  oen,  wen
-    init_seq[ 7] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 }; // read
-    init_seq[ 8] =  { 1'b0, 1'b0, 1'b0, 1'b1, 1'b1 };
-    init_seq[ 9] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b1 };
-    init_seq[10] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b1 };
-    init_seq[11] =  { 1'b0, 1'b0, 1'b1, 1'b0, 1'b1 };
-    init_seq[12] =  { 1'b0, 1'b0, 1'b1, 1'b0, 1'b1 };
-    init_seq[13] =  { 1'b0, 1'b0, 1'b1, 1'b0, 1'b1 };
-    init_seq[14] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };
-    //                cen,  cre, advn,  oen,  wen
-    init_seq[15] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 }; // idle
-    init_seq[16] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };
+    init_seq[ 1] =  { 1'b0, 1'b1, 1'b0, 1'b1, 1'b0 };  // write reg
+    init_seq[ 2] =  { 1'b0, 1'b1, 1'b1, 1'b1, 1'b1 };  // stay here while WAIT is set
+    init_seq[ 3] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };  // go through a /CE high
+    init_seq[ 4] =  { 1'b0, 1'b0, 1'b0, 1'b1, 1'b1 };  // dummy read
+    init_seq[ 5] =  { 1'b0, 1'b0, 1'b1, 1'b1, 1'b1 };  // WAIT
+    init_seq[ 6] =  { 1'b0, 1'b0, 1'b1, 1'b0, 1'b1 };  // read
+    init_seq[ 7] =  { 1'b0, 1'b0, 1'b1, 1'b0, 1'b1 };  // read (same as 6)
 end
+
+wire init_wait = init_cnt[2:0]==3 || init_cnt[2:0]==6;
 
 always @( posedge clk ) begin
     if( rst ) begin
@@ -192,12 +188,10 @@ always @( posedge clk ) begin
         fb_done  <= 0;
         rd_addr  <= 0;
         line     <= 0;
-        wait1    <= 0;
         wr_addr  <= 0;
         init_cnt <= 0;
     end else begin
         fb_done <= 0;
-        wait1   <= 0;
         cr_advn <= 1;
         if( fb_clr ) begin
             // the line is cleared outside the state machine so a
@@ -211,11 +205,16 @@ always @( posedge clk ) begin
             csn <= 1;
         end else case( st )
             INIT: begin
-                if( init_cnt==0  ) { cr_addr, adq_reg } <= REF_CFG;
-                if( init_cnt==SEQEND ) { cr_addr, adq_reg } <= BUS_CFG;
-                init_cnt <= init_cnt + 1'd1;
-                { csn, cr_cre, cr_advn, cr_oen, cr_wen } <= init_seq[init_cnt[4:0]];
-                if( init_cnt==SEQEND ) st <= IDLE;
+                case(init_cnt)
+                    0: { cr_addr, adq_reg } <= REF_CFG;
+                    8: { cr_addr, adq_reg } <= BUS_CFG;
+                    default:;
+                endcase
+                if( !wait_l || !init_wait ) begin
+                    init_cnt <= init_cnt + 1'd1;
+                    if( &init_cnt ) st <= IDLE;
+                    { csn, cr_cre, cr_advn, cr_oen, cr_wen } <= init_seq[init_cnt[2:0]];
+                end
             end
             // Wait for requests
             IDLE: begin
@@ -248,9 +247,8 @@ always @( posedge clk ) begin
                 cr_oen          <= 1;
                 cr_wen          <= ~wring;
                 st              <= wring ? WRITEOUT : READIN;
-                wait1           <= 1; // give time to cr_wait to react
             end
-            WRITEOUT: if( cr_wait && !wait1 ) begin // Write line from internal BRAM to PSRAM
+            WRITEOUT: if( !wait_l ) begin // Write line from internal BRAM to PSRAM
                 if ( ~&fb_addr ) fb_addr <= fb_addr + 1'd1;
                 wr_addr <= fb_addr;
                 if( &wr_addr ) begin // This violates the max 4us time, but it is ok as refresh is not required
@@ -265,11 +263,11 @@ always @( posedge clk ) begin
             end
             READIN: begin // Read line from PSRAM
                 cr_oen <= 0;
-                if( cr_wait && !wait1 ) begin
+                if( !wait_l ) begin
                     rd_addr <= rd_addr + 1'd1;
                     if( &rd_addr ) begin // 4us max /csn violated, but ok
-                        csn    <= 1;
-                        st     <= IDLE;
+                        csn <= 1;
+                        st  <= IDLE;
                     end
                 end
             end
