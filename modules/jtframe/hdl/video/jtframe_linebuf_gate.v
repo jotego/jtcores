@@ -17,23 +17,23 @@
     Date: 07-08-2025 */
 
 module jtframe_linebuf_gate #(
-    parameter          HW      = 9, // 8,
-                       VW      = 9, // 8,
-                       PALW    = 4,
-                       HOFFSET = 0,
-                       PW      = PALW+4,
-                       HS      = 0,
-    parameter [HW-1:0] HOVER = {HW{1'd1}}, // H count at which a new line starts
-                       HSTART = HOVER,      // H count starting value
-parameter [8:0] WR_STRT=9'h060, // Positions in wr_addr skipped during blanking
-                VB_END =9'h10F, // Must be same as in vtimer
-                RST_CT =9'h058, // starting value for wr_addr
-                RD_DLY =9'h00B, // number of times to delay hdump
-                RD_END =9'h19F // Value of rd_addr when LHBL goes low
+    parameter       HW      = 9,
+                    VW      = 9,
+                    PW      = 8,
+                    HS      = 0,
+parameter [HW-1:0]  B_VIS   = 9'd37, A_VIS=9'd35, VIS=9'd304, // number of counting points before, after and during visible section
+                    RST_CT  = 9'h058,         // starting value for wr_addr
+                    RD_DLY  = 9'h00B,         // number of times to delay hdump
+                    WR_STRT = RST_CT + B_VIS, // wr_addr to start checking rom_ok & rom_cs
+                    WR_END  = WR_STRT+ VIS,   // wr_addr where
+                    RD_END  = WR_END + A_VIS, // 9'h19F // Value of rd_addr when LHBL goes low
+                    HSTART  = 9'h04F,         //
+                    VB_END  = 9'h10F          // Must be same as in vtimer
 ) (
     input               rst,
     input               clk,
     input               cen,
+    input               pxl_cen,
     input               lvbl,
     input               hs,
     input               we,
@@ -51,7 +51,7 @@ parameter [8:0] WR_STRT=9'h060, // Positions in wr_addr skipped during blanking
     output     [PW-1:0] pxl_dump
 );
 
-reg hs_cen, hs_l, done;
+reg  hs_cen, hs_l, done, fastwr;
 wire pre_lvbl;
 wire [HW-1:0] wr_addr, rd_addr;
 
@@ -61,11 +61,12 @@ always @(*) begin
     done    = wr_addr>=RD_END;
     cnt_cen = 0;
     hs_cen  = 0;
+    fastwr  = wr_addr<WR_STRT || wr_addr>WR_END && wr_addr<RD_END || hdump==HSTART;
     if(cen) begin
         cnt_cen = rom_cs & rom_ok & !done;
         if( lvbl | pre_lvbl ) hs_cen  = ~hs & /*~*/hs_l;  // starts drawing in buffer one line before lvbl is high
     end
-    if( wr_addr<WR_STRT ) cnt_cen = 1;
+    if( fastwr ) cnt_cen = cen;
 end
 
 always @(posedge clk) begin
@@ -81,7 +82,7 @@ jtframe_counter #(.W(HW),.RST_VAL(RST_CT)) u_counter(
 
 jtframe_sh #(.W(HW),.L(RD_DLY)) u_hb_dly(
     .clk        ( clk       ),
-    .clk_en     ( cen       ),
+    .clk_en     ( pxl_cen   ),
     .din        ( hdump     ),
     .drop       ( rd_addr   )
 );
