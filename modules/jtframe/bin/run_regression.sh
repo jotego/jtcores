@@ -18,9 +18,12 @@ main() {
 
     if ! cd_ver_folder; then exit 1; fi
 
+    exec 3> $setname-sim.log
+
     print_step "Simulating $setname"
     if ! simulate; then
         echo -e "\n[ERROR] Couldn't simulate\n"
+        cat $setname-sim.log
         return 1
     fi
 
@@ -181,7 +184,7 @@ simulate() {
     declare -a sim_opts
     get_opts sim_opts
 
-    jtsim -batch -load -skipROM -setname $setname "${sim_opts[@]}" 2>/dev/null
+    jtsim -batch -load -skipROM -setname $setname "${sim_opts[@]}" >&3 2>&3
     if [[ $? != 0 ]]; then return 1; fi
 
     if [[ ! -f "test.mp4" ]]; then
