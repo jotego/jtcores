@@ -181,7 +181,7 @@ simulate() {
     declare -a sim_opts
     get_opts sim_opts
 
-    jtsim -batch -load -skipROM -setname $setname "${sim_opts[@]}"
+    jtsim -batch -load -skipROM -setname $setname "${sim_opts[@]}" 2>/dev/null
     if [[ $? != 0 ]]; then return 1; fi
 
     if [[ ! -f "test.mp4" ]]; then
