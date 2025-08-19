@@ -76,14 +76,19 @@ jobs:
             batch=$(( count % num_batches ))
             yq -i -I=0 ".[$batch] += [ ${item} ]" batches.json
           done
+
+          batches_with_titles=$(yq -o=json -I=0 '
+            [ .[] | {"title": (map(.core + "/" + .setname) | join(", ")), "items": .} ]
+          ' batches.json)
+
           {
             echo "batches<<EOF"
-            cat batches.json
+            echo "$batches_with_titles"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
   simulate:
-    name: Simulate
+    name: Simulate ${{ matrix.batch.title }}
     runs-on: ubuntu-24.04
     container:
       image: jotego/simulator
@@ -118,11 +123,10 @@ jobs:
 
       - name: Run regression
         run: |
-          mkdir -p ~/.mame/roms
           git config --global --add safe.directory /__w/jtcores/jtcores
           git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
           
-          printf '%s' '${{ toJSON(matrix.batch) }}' > batch.json
+          printf '%s' '${{ toJSON(matrix.batch.items) }}' > batch.json
           yq -r '.[] | .core' batch.json > cores.lst
           yq -r '.[] | .setname' batch.json > setnames.lst
 
