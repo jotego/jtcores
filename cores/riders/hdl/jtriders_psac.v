@@ -42,7 +42,7 @@ module jtriders_psac(
     output             rom_cs,
     input              rom_ok,
 
-    output /*reg*/  [ 7:0] pxl,
+    output      [ 7:0] pxl,
 
     // IOCTL dump
     input      [4:0] ioctl_addr,
@@ -57,6 +57,7 @@ reg  [13:0] code;
 wire [12:0] x, y, encoded;
 wire        xh,yh,ob;
 wire        hflip, vflip, cen;
+wire [ 7:0] buf_din;
 reg  [ 3:0] pal;
 wire [ 3:0] vf, hf, dmux;
 reg         rst2, cen2, newroma, newroma_l, rom_ok_l;
@@ -71,11 +72,14 @@ assign hf        = {4{hflip}} ^ {x[3:0]};
 assign rom_cs    = 1 ^ (newroma | newroma_l);
 assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
+assign buf_din   = ob    ? 8'b0 : {pal,dmux};
 
 initial cen2 = 0;
-always @(posedge clk) rst2 <= rst | ~enable;
-always @(posedge clk) cen2 <= ~cen2;
+
 always @(posedge clk) begin
+    rst2 <= rst | ~enable;
+    cen2 <= ~cen2;
+
     rom_addr_l <= rom_addr;
     rom_ok_l   <= rom_ok;
     newroma_l  <= newroma;
@@ -162,7 +166,7 @@ jtframe_linebuf_gate #(.RD_DLY(15), .RST_CT(9'h041)) u_linebuf(
     .rom_cs   ( rom_cs    ),
     .rom_ok   ( rom_ok    ),
 
-    .pxl_data ({pal,dmux} ),
+    .pxl_data ( buf_din   ),
     .pxl_dump ( pxl       )
 );
 

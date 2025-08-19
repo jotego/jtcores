@@ -296,7 +296,7 @@ module jt053936_window #(parameter W=9)(
     assign xyout    = xout & yout;
     assign ob_mix_n = ~|{obx_n, oby_n, ob_win};
 
-    jt053936_outside #(10) u_hwin(clk,cen,tick_hs,nulwin,h,xmin,xmax,xout);
+    jt053936_outside #(10) u_hwin(clk,cen,tick_hs,nulwin,h,xmax,xmin,xout);
     jt053936_outside #( 9) u_vwin(clk,cen,tick_vs,nulwin,v,ymin,ymax,yout);
     jt053936_clip         u_xclip(xclip,xsum,obx_n);
     jt053936_clip         u_yclip(yclip,ysum,oby_n);
