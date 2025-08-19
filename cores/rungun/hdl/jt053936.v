@@ -53,11 +53,11 @@ module jt053936(
     wire [15:0] io_mux, xhstep, xvstep, yhstep, yvstep, xcnt0, ycnt0;
     wire [ 9:0] xmin,  xmax, hcnt0, h;
     wire [ 8:0] ymin,  ymax, vcnt0, ln0, v;
-    wire [ 1:0] hmul;
+    wire [ 1:0] hmul, vmul;
     wire [ 5:0] xclip, yclip;
     wire        ln_en, ln_rd, ln_ok;
     wire [ 5:0] ob_cfg;
-    wire        nulwin, tick_hs, tick_vs, hs_dly, vmul;
+    wire        nulwin, tick_hs, tick_vs, hs_dly;
     reg         xhmul, yhmul;
     integer k;
 
@@ -69,7 +69,7 @@ module jt053936(
     assign xhstep = mmr[ 4]; //
     assign yhstep = mmr[ 5]; //
     assign hmul   = mmr[ 6][ 7: 6];
-    assign vmul   = mmr[ 6][14];
+    assign vmul   = mmr[ 6][15:14];
     assign xclip  = mmr[ 6][ 5: 0];
     assign yclip  = mmr[ 6][13: 8];
     assign ln_en  = mmr[ 7][6];
@@ -85,8 +85,8 @@ module jt053936(
     assign dma_n  = ln_rd || !ln_en;
 
     always @(posedge clk) if(cen) begin
-        xhmul <= ln_en ? mmr[6][15] : mmr[6][6];
-        yhmul <= ln_en ? mmr[6][14] : mmr[6][6];
+        xhmul <= ln_en ? mmr[6][7 /*15*/] : mmr[6][6];
+        yhmul <= ln_en ? mmr[6][6 /*14*/] : mmr[6][6];
     end
 
     jt053936_ticks u_ticks(clk,cen,hs,vs,tick_hs,tick_vs);
@@ -119,8 +119,8 @@ module jt053936(
         .hstep      ( xhstep    ),
         .vstep      ( xvstep    ),
         .cnt0       ( xcnt0     ),
-        .hmul       ( xhmul     ),
-        .vmul       ( vmul      ),
+        .hmul       ( /*xhmul*/ hmul[0]),
+        .vmul       ( /*vmul*/  hmul[1]),
         .cnt        ( xsum      )
     );
 
@@ -134,8 +134,8 @@ module jt053936(
         .hstep      ( yhstep    ),
         .vstep      ( yvstep    ),
         .cnt0       ( ycnt0     ),
-        .hmul       ( yhmul     ),
-        .vmul       ( vmul      ),
+        .hmul       ( /*yhmul*/ vmul[0]),
+        .vmul       ( /*vmul*/  vmul[1]),
         .cnt        ( ysum      )
     );
 
@@ -245,7 +245,7 @@ module jt053936_video_counters(
     output reg [9:0] h
 );
     always @(posedge clk) if(cen) begin
-        h  <= tick_hs ?  h0 : h0+10'd1;
+        h  <= tick_hs ?  h0 : h+10'd1;
         v  <= tick_vs ?  v0 : tick_hs ?  v+9'd1 :  v;
     end
 endmodule
@@ -371,8 +371,8 @@ module jt053936_counter(
 
     always @(posedge clk) if(cen) begin
         if(up) begin
-            eff_hstep <= hmul ? {hstep,8'd0} : {{8{hstep[15]}},hstep};
-            eff_vstep <= vmul ? {vstep,8'd0} : {{8{vstep[15]}},vstep};
+            eff_hstep <= ~hmul ? {hstep,8'd0} : {{8{hstep[15]}},hstep};
+            eff_vstep <= ~vmul ? {vstep,8'd0} : {{8{vstep[15]}},vstep};
         end
         hs_mx <= ln_en ? hs_dly : hs;
         cnt   <= eff_hstep + cnt;
