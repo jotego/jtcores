@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
 BUILDER_NAME="jotego-builder"
-PLATFORMS="linux/amd64,linux/arm64"
 
 main(){
     SUCCESS=()
@@ -14,12 +13,12 @@ main(){
         docker login
     fi
 
-    build "jtcore-base" "." 
-    build "jtcore13"    "/opt/altera"
-    build "jtcore17"    "/opt/intelFPGA_lite"
-    build "jtcore20"    "/opt/intelFPGA_lite"
-    build "linter"      "."
-    build "simulator"   "."
+    build "jtcore-base" "."                     "linux/amd64,linux/arm64"
+    build "jtcore13"    "/opt/altera"           "linux/amd64"
+    build "jtcore17"    "/opt/intelFPGA_lite"   "linux/amd64"
+    build "jtcore20"    "/opt/intelFPGA_lite"   "linux/amd64"
+    build "linter"      "."                     "linux/amd64,linux/arm64"
+    build "simulator"   "$JTFRAME"              "linux/amd64,linux/arm64"
 
     print_results
 }
@@ -38,10 +37,11 @@ prepare_builder() {
 build() {
     local image=$1
     local path=$2
+    local platforms=$3
 
     echo "Building jotego/$image..."
     if $PUSH_IMAGES; then
-        if docker buildx build --platform "$PLATFORMS" --file $image.df --tag jotego/$image:latest --push $path; then
+        if docker buildx build --platform "$platforms" --file $image.df --tag jotego/$image:latest --push $path; then
             SUCCESS+=("$image")
         else
             echo "Build failed for $image"

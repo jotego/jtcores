@@ -3,9 +3,23 @@ FROM mikefarah/yq AS yqbin
 FROM jotego/linter
 LABEL maintainer=jotego@gmail.com
 
-RUN apt install --yes imagemagick perceptualdiff zip parallel ffmpeg
+RUN apt-get update && \
+    apt-get install --yes imagemagick perceptualdiff zip parallel ffmpeg && \
+    rm --recursive --force /var/lib/apt/lists/*
 
 # Yq
 COPY --from=yqbin /usr/bin/yq /usr/local/bin/yq
+
+# JTFRAME dependencies
+WORKDIR /jtframe
+COPY src/jtframe/go.mod src/jtframe/go.sum ./
+RUN go mod download
+
+WORKDIR /jtutil
+COPY src/jtutil/go.mod src/jtutil/go.sum ./
+RUN go mod download
+
+WORKDIR /
+RUN rm --recursive --force jtframe jtutil
 
 ENTRYPOINT ["bash"]
