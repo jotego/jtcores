@@ -283,6 +283,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
                 FAIL=1
             fi
         fi
+        report_sdc_problems "$RPTPATH"
         if [ "$FAIL" = 0 ]; then
             echo PASS
         else

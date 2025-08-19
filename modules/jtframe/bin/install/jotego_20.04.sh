@@ -177,10 +177,11 @@ git config --global core.autocrlf input
 git config --global pull.rebase true
 
 # Go
+GOVER=1.23.4
 if [[ "$arch" == "arch64" ]]; then
-    GONAME=go1.21.3.linux-arm64.tar.gz
+    GONAME=go${GOVER}.linux-arm64.tar.gz
 elif [[ "$arch" == "amd64" ]]; then
-    GONAME=go1.21.3.linux-amd64.tar.gz
+    GONAME=go${GOVER}.linux-amd64.tar.gz
 fi
 wget https://go.dev/dl/$GONAME
 sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf $GONAME

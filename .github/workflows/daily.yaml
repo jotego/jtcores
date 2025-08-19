@@ -6,7 +6,7 @@ on:
   repository_dispatch:
     types: rebuild
   schedule:
-    - cron: '1 0 * * *' # runs every night
+    - cron: '0 3 * * *' # runs every night at 3am
 jobs:
   list_cores:
     runs-on: ubuntu-latest

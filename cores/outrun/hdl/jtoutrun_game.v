@@ -152,7 +152,7 @@ jtframe_prom #(.AW(13),.SIMFILE("317-5021.key")) u_key(
 `else
     assign key_data = 0;
 `endif
-/* verilator tracing_off */
+/* verilator tracing_on */
 `ifndef NOMAIN
 jtoutrun_main u_main(
     .rst         ( rst48      ),
@@ -255,7 +255,7 @@ jtoutrun_main u_main(
     assign mute        = 0;
     assign creset      = 0;
 `endif
-/* verilator tracing_off */
+/* verilator tracing_on */
 `ifndef NOSUB
 jtoutrun_sub u_sub(
     .rst        ( rst48     ),

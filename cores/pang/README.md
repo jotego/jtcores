@@ -42,6 +42,7 @@ For MiST and MiSTer: games can be controlled with both game pads and keyboard. T
     R,F,G,D 2P direction
     Q,S,A   2P buttons 3,2 and 1
 
+Note that on test screen you need to use the 2P button to enter the options. You will need to plug a second controller or a keyboard to your system as the 2P button does not get mapped to the first controller.
 
 # ROM Generation
 
