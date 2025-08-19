@@ -58,7 +58,7 @@ module jt053936(
     wire        ln_en, ln_rd, ln_ok;
     wire [ 5:0] ob_cfg;
     wire        nulwin, tick_hs, tick_vs, hs_dly;
-    reg         xhmul, yhmul;
+    reg  [ 1:0] xmul, ymul;
     integer k;
 
     assign io_mux = mmr[ioctl_addr[4:1]];
@@ -85,8 +85,8 @@ module jt053936(
     assign dma_n  = ln_rd || !ln_en;
 
     always @(posedge clk) if(cen) begin
-        xhmul <= ln_en ? mmr[6][7 /*15*/] : mmr[6][6];
-        yhmul <= ln_en ? mmr[6][6 /*14*/] : mmr[6][6];
+        xmul <= ln_en ? hmul : {2{mmr[6][6]}};
+        ymul <= ln_en ? vmul : {2{mmr[6][6]}};
     end
 
     jt053936_ticks u_ticks(clk,cen,hs,vs,tick_hs,tick_vs);
@@ -119,8 +119,7 @@ module jt053936(
         .hstep      ( xhstep    ),
         .vstep      ( xvstep    ),
         .cnt0       ( xcnt0     ),
-        .hmul       ( /*xhmul*/ hmul[0]),
-        .vmul       ( /*vmul*/  hmul[1]),
+        .mul        ( xmul      ),
         .cnt        ( xsum      )
     );
 
@@ -134,8 +133,7 @@ module jt053936(
         .hstep      ( yhstep    ),
         .vstep      ( yvstep    ),
         .cnt0       ( ycnt0     ),
-        .hmul       ( /*yhmul*/ vmul[0]),
-        .vmul       ( /*vmul*/  vmul[1]),
+        .mul        ( ymul      ),
         .cnt        ( ysum      )
     );
 
@@ -362,7 +360,7 @@ endmodule
 module jt053936_counter(
     input             clk,cen,hs,hs_dly,vs,ln_en,
     input      [15:0] hstep, vstep,cnt0,
-    input             vmul, hmul,
+    input      [ 1:0] mul,
     output reg [23:0] cnt
 );
     reg [23:0] eff_hstep, eff_vstep, vcnt;
@@ -371,8 +369,8 @@ module jt053936_counter(
 
     always @(posedge clk) if(cen) begin
         if(up) begin
-            eff_hstep <= ~hmul ? {hstep,8'd0} : {{8{hstep[15]}},hstep};
-            eff_vstep <= ~vmul ? {vstep,8'd0} : {{8{vstep[15]}},vstep};
+            eff_hstep <= mul[0] ? {{8{hstep[15]}},hstep} : {hstep,8'd0};
+            eff_vstep <= mul[1] ? {{8{vstep[15]}},vstep} : {vstep,8'd0};
         end
         hs_mx <= ln_en ? hs_dly : hs;
         cnt   <= eff_hstep + cnt;
