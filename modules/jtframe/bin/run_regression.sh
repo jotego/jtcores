@@ -172,30 +172,64 @@ cd_ver_folder() {
 
 simulate() {
     if ! $local_rom; then
-        local zipfile
-        if ! get_zipfile zipfile; then
-            echo "[ERROR] Unable to find zip for $setname"
-            return 1
-        fi
-
-        local roms_dir=$(mktemp -d)
-        trap "rm -rf $roms_dir" EXIT
-        sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
-get mame/$zipfile $roms_dir
-bye
-EOF
-        if [[ ! -f "$roms_dir/$zipfile" ]]; then
-            echo "[ERROR] Cannot download ROM for $setname"
-            return 1
-        fi
-
+        local roms_dir
+        get_zips roms_dir
         jtframe mra --path $roms_dir --setname $setname
+        rm -rf $roms_dir
     fi
 
     declare -a sim_opts
     get_opts sim_opts
 
-    jtsim -batch -load -setname $setname -d JTFRAME_SIM_VIDEO "${sim_opts[@]}"
+    jtsim -batch -load -skipROM -setname $setname "${sim_opts[@]}"
+    if [[ $? != 0 ]]; then return 1; fi
+
+    if [[ ! -f "test.mp4" ]]; then
+        echo "[WARNING] Generated video not found"
+    else
+        mv "test.mp4" "$setname.mp4"
+    fi
+}
+
+get_zips() {
+    declare -n roms_dir_ref=$1
+
+    declare -a zip_names
+    if ! get_zip_names zip_names; then return 1; fi
+    
+    roms_dir_ref=$(mktemp -d)
+    trap "rm -rf $roms_dir_ref" EXIT
+
+    for zip in "${zip_names[@]}"; do
+        sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
+get mame/$zip $roms_dir_ref
+bye
+EOF
+    done
+}
+
+get_zip_names() {
+    declare -n zip_names_ref=$1
+
+    jtframe mra --skipROM
+
+    zip_names_ref=$(
+        JTBIN="$JTROOT/release" jtutil mra -c -z |
+        awk -F'|' -v setname="$setname" '
+            {
+                name = $4; zips = $5
+                gsub(/^[ \t]+|[ \t]+$/, "", name)
+                gsub(/^[ \t]+|[ \t]+$/, "", zips)
+            }
+            name == setname {
+                split(zips, a, /[ \t]+/)
+                for (i in a) print a[i]
+            }
+        '
+    )
+    readarray -t zip_names_ref <<< "$zip_names_ref"
+
+    if [[ "${#zip_names_ref[@]}" == 0 ]]; then return 1; fi
 }
 
 get_opts() {
@@ -214,12 +248,10 @@ get_opts() {
         for item in "${raw_opts[@]}"; do
             key=$(echo $item | yq '.key' -)
             value=$(echo $item | yq '.value' -)
-            if [[ $key == "frames" ]]; then
-                opts_ref+=(-video $value)
+            if [[ $key == "video" ]]; then
                 frames_found=true
-            else
-                opts_ref+=(-$key $value)
             fi
+            opts_ref+=(-$key $value)
         done
     fi
 
@@ -233,12 +265,10 @@ get_opts() {
         for item in "${raw_opts[@]}"; do
             key=$(echo $item | yq '.key' -)
             value=$(echo $item | yq '.value' -)
-            if [[ $key == "frame" || $key == "video" ]]; then
-                opts_ref+=(-video $value)
+            if [[ $key == "video" ]]; then
                 frames_found=true
-            else
-                opts_ref+=(-$key $value)
             fi
+            opts_ref+=(-$key $value)
         done
     fi
 
@@ -248,36 +278,6 @@ get_opts() {
     fi
 
     echo "[INFO] Simulation options are ${opts_ref[@]}"
-}
-
-get_zipfile() {
-    declare -n zipfile_ref=$1
-
-    jtframe mra --skipROM
-
-    zipfile_ref=$(
-        JTBIN="$JTROOT/release" jtutil mra -c -z |
-        awk -F'|' -v setname="$setname" '
-            # Erase whitespaces
-            {
-                name = $4; zips = $5
-                gsub(/^[ \t]+|[ \t]+$/, "", name)
-                gsub(/^[ \t]+|[ \t]+$/, "", zips)
-            }
-
-            # Match setname and get zip
-            name == setname {
-                n = split(zips, a, /[ \t]+/)
-                last = a[n]
-            }
-
-            END {
-                print last;
-            }
-        '
-    )
-
-    if [[ -z $zipfile_ref ]]; then return 1; fi
 }
 
 check_video() {
@@ -301,7 +301,7 @@ get_remote_frames() {
 
     echo "[INFO] Downloading remote frames for setname $setname"
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
-get regression/$core/$setname/VALID/frames.zip $dir
+get regression/$core/$setname/valid/frames.zip $dir
 bye
 EOF
     if [[ ! -f "$dir/frames.zip" ]]; then
@@ -382,7 +382,7 @@ check_frames() {
 # get_remote_audio() {
 #     echo "[INFO] Downloading remote audio for setname $setname"
 #     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
-# get regression/$core/$setname/VALID/audio.zip
+# get regression/$core/$setname/valid/audio.zip
 # bye
 # EOF
 #     if [[ ! -f "audio.zip" ]]; then return 1; fi
@@ -400,18 +400,12 @@ upload_results() {
             echo "[INFO] Results are valid. Skipping upload"
             return 0
         ;;
-        1) local folder="NOT_CHECKED" ;;
-        2) local folder="FAIL" ;;
+        1) local folder="not_checked" ;;
+        2) local folder="fail" ;;
     esac
 
     zip -q frames.zip frames/*
     zip -q audio.zip test.wav
-
-    if [[ ! -f "test.mp4" ]]; then
-        echo "[WARNING] Generated video not found"
-    else
-        zip video.zip test.mp4
-    fi
 
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
 mkdir regression
@@ -421,7 +415,7 @@ mkdir regression/$core/$setname/$folder
 cd regression/$core/$setname/$folder
 put frames.zip
 put audio.zip
-put video.zip
+put $setname.mp4
 bye
 EOF
 
