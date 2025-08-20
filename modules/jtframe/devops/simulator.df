@@ -21,16 +21,4 @@ RUN (type -p wget >/dev/null || (apt-get update && apt-get install wget --yes)) 
 # Yq
 COPY --from=yqbin /usr/bin/yq /usr/local/bin/yq
 
-# JTFRAME dependencies
-WORKDIR /jtframe
-COPY src/jtframe/go.mod src/jtframe/go.sum ./
-RUN go mod download
-
-WORKDIR /jtutil
-COPY src/jtutil/go.mod src/jtutil/go.sum ./
-RUN go mod download
-
-WORKDIR /
-RUN rm --recursive --force jtframe jtutil
-
 ENTRYPOINT ["bash"]
