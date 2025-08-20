@@ -13,12 +13,12 @@ main(){
         docker login
     fi
 
-    build "jtcore-base" "."                     "linux/amd64,linux/arm64"
+    build "jtcore-base" "$JTFRAME"              "linux/amd64,linux/arm64"
     build "jtcore13"    "/opt/altera"           "linux/amd64"
     build "jtcore17"    "/opt/intelFPGA_lite"   "linux/amd64"
     build "jtcore20"    "/opt/intelFPGA_lite"   "linux/amd64"
     build "linter"      "."                     "linux/amd64,linux/arm64"
-    build "simulator"   "$JTFRAME"              "linux/amd64,linux/arm64"
+    build "simulator"   "."                     "linux/amd64,linux/arm64"
 
     print_results
 }
