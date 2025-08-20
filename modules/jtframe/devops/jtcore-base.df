@@ -27,6 +27,18 @@ RUN ARCH=$(uname -m) && \
     rm -f ${GONAME}
 ENV PATH="$PATH:/usr/local/go/bin"
 
+# JTFRAME dependencies
+WORKDIR /jtframe
+COPY src/jtframe/go.mod src/jtframe/go.sum ./
+RUN go mod download
+
+WORKDIR /jtutil
+COPY src/jtutil/go.mod src/jtutil/go.sum ./
+RUN go mod download
+
+WORKDIR /
+RUN rm --recursive --force jtframe jtutil
+
 # iverilog compilation
 RUN apt-get install --yes --quiet build-essential git zlib1g-dev
 RUN apt-get install --yes --quiet flex gperf bison
