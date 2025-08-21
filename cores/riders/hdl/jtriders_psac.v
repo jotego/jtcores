@@ -90,7 +90,7 @@ end
 
 always @(*) begin
     tlmap_ok = encoded == encoded_l && tile==tile_l;
-    case({y[4],x[4]})
+    case(tile)
         0: {pal, code} = tblock[ 0+:18];
         1: {pal, code} = tblock[18+:18];
         2: {pal, code} = tblock[36+:18];
