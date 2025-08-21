@@ -24,6 +24,8 @@ module jtrungun_colmix(
 
     output     [11:1] pal_addr,
     input      [15:0] pal_dout,
+    // frame buffer
+    output     [15:0] pxl_buf,
     // Final pixels
     input      [ 1:0] shadow,
     input      [ 8:0] obj_pxl,
@@ -44,8 +46,10 @@ assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 assign fix_op   = fix_pxl[3:0]!=0;
 assign psc_op   = psc_pxl[3:0]!=0;
 assign obj_op   = obj_pxl[3:0]!=0;
-assign pal_addr[11]   = lrsw;
-assign pal_addr[10:1] =  fix_op ?         {2'b00,fix_pxl} :
+assign pxl_buf[15:12]=0;
+assign pxl_buf[0]=0;
+assign pxl_buf[11]   = lrsw;
+assign pxl_buf[10:1] =  fix_op ?         {2'b00,fix_pxl} :
             !psc_op || (!pri && obj_op) ? {1'b1, obj_pxl} :
                                           {2'b01,psc_pxl};
 

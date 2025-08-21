@@ -35,6 +35,16 @@ module jtrungun_video(
     input       [15:0] cpu_dout,
     input       [ 1:0] cpu_dsn,
     output      [ 7:0] vtimer_mmr,
+
+    // line-based frame buffer
+    output     [ 8:0]  ln_addr,
+    output     [15:0]  ln_data,
+    output             ln_done,
+    input              ln_hs,
+    input      [15:0]  ln_pxl,
+    input      [ 7:0]  ln_v,
+    output             ln_we,
+
     // fixed layer
     output      [12:1] vram_addr,
     input       [15:0] vram_dout,
@@ -81,15 +91,15 @@ module jtrungun_video(
 
 wire [31:0] fix_sort;
 wire [11:0] fix_code;
-wire [ 8:0] hdump, hdumpf, obj_pxl;
-wire [ 7:0] vdump, vdumpf, psc_pxl;
+wire [ 8:0] hdump, virt_hdumpf, obj_pxl, virt_hdump;
+wire [ 7:0] vdump, virt_vdumpf, psc_pxl, virt_vdump;
 wire [ 7:0] fix_raw, fix_pxl, dump_obj, obj_mmr, ccu_mmr, psac_mmr;
 wire [ 4:0] obj_prio;
 wire [ 3:0] fix_pal, ommra;
 wire [ 1:0] oram_we, shadow;
 wire        cpu_we, hld, vld;
 reg  [14:0] ioctl_adj;
-wire        iosel_obj, iosel_ccu, iosel_psc;
+wire        iosel_obj, iosel_ccu, iosel_psc, virt_hs, virt_cen;
 
 assign cpu_we    = ~rnw;
 assign oram_we   = ~cpu_dsn & {2{~rnw}};
@@ -125,9 +135,9 @@ jtrungun_vtimer u_vtimer(
     .hflip      ( ghflip        ),
     .vflip      ( gvflip        ),
     .hdump      ( hdump         ),
-    .hdumpf     ( hdumpf        ),
+    .hdumpf     (               ),
     .vdump      ( vdump         ),
-    .vdumpf     ( vdumpf        )
+    .vdumpf     (               )
 );
 
 jtk053252 u_k053252(
@@ -160,6 +170,26 @@ jtk053252 u_k053252(
     .ioctl_din  ( ccu_mmr       )
 );
 
+jtrungun_lfbuf_ctrl u_lfbuf_ctrl(
+    .clk        ( clk           ),
+    .ln_addr    ( ln_addr       ),
+    .ln_done    ( ln_done       ),
+    .ln_hs      ( ln_hs         ),
+    .ln_v       ( ln_v          ),
+    .ln_we      ( ln_we         ),
+
+    .scr_ok     ( scr_ok        ),
+    .obj_ok     ( obj_ok        ),
+    .fix_ok     ( fix_ok        ),
+    // virtual screen
+    .cen        ( virt_cen      ),
+    .hs         ( virt_hs       ),
+    .hdump      ( virt_hdump    ),
+    .vdump      ( virt_vdump    ),
+    .hdumpf     ( virt_hdumpf   ),
+    .vdumpf     ( virt_vdumpf   )
+);
+
 assign disp = 0;
 // jtframe_toggle #(.W(1)) u_disp(rst,clk,vs,disp);
 jtframe_8x8x4_packed_msb u_packed(fix_data,fix_sort);
@@ -173,10 +203,10 @@ jtframe_tilemap #(
 )u_fix(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .pxl_cen    ( pxl_cen       ),
+    .pxl_cen    ( virt_cen      ),
 
-    .vdump      ( vdumpf        ),
-    .hdump      ( hdumpf        ),
+    .vdump      ( virt_vdumpf   ),
+    .hdump      ( virt_hdumpf   ),
     .blankn     ( 1'b1          ),
     .flip       ( 1'b0          ),    // Screen flip
 
@@ -190,7 +220,7 @@ jtframe_tilemap #(
     .rom_addr   ( fix_addr      ),
     .rom_data   ( fix_sort      ),    // expects data packed as plane3,plane2,plane1,plane0, each of 8 bits
     .rom_cs     ( fix_cs        ),
-    .rom_ok     ( fix_ok        ), // zeros used if rom_ok is not high in time
+    .rom_ok     ( 1'b1          ),
 
     .pxl        ( fix_raw       )
 );
@@ -205,9 +235,9 @@ jtframe_sh #(.W(8),.L(2)) u_fixsh(
 jtrungun_psac u_psac(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
+    .pxl_cen    ( virt_cen  ),
 
-    .hs         ( hs        ),
+    .hs         ( virt_hs   ),
     .vs         ( vs        ),
     .dtackn     ( 1'b0      ),
 
@@ -227,7 +257,7 @@ jtrungun_psac u_psac(
     .rom_addr   ( scr_addr  ),
     .rom_data   ( scr_data  ),
     .rom_cs     ( scr_cs    ),
-    .rom_ok     ( scr_ok    ),
+    .rom_ok     ( 1'b1      ),
     .pxl        ( psc_pxl   ),
     // IOCTL dump
     .ioctl_addr (ioctl_addr[4:0]),
@@ -239,18 +269,18 @@ localparam [9:0] OVOFFSET = 10'h111;
 jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd3)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .pxl2_cen   ( pxl2_cen  ),
+    .pxl_cen    ( virt_cen  ),
+    .pxl2_cen   ( pxl2_cen  ),  // for DMA only
     .simson     ( 1'b0      ),
 
     .voffset    ( OVOFFSET  ),
     // Base Video (inputs)
-    .hs         ( hs        ),
+    .hs         ( virt_hs   ),
     .vs         ( vs        ),
     .lvbl       ( lvbl      ),
     .lhbl       ( lhbl      ),
-    .hdump      ( hdump     ),
-    .vdump      ({1'b1,vdump} ),
+    .hdump      ( virt_hdump),
+    .vdump      ({1'b1,virt_vdump} ),
     // CPU interface
     .ram_cs     ( objrm_cs  ),
     .ram_addr   ( addr      ),
@@ -268,7 +298,7 @@ jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd3)) u_obj(    // sp
     // ROM
     .rom_addr   ( obj_addr  ),
     .rom_data   ( obj_data  ),
-    .rom_ok     ( obj_ok    ),
+    .rom_ok     ( 1'b1      ),
     .rom_cs     ( obj_cs    ),
     .objcha_n   ( objcha_n  ),
     // pixel output
