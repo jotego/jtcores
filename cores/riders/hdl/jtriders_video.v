@@ -23,7 +23,7 @@ module jtriders_video(
     input             pxl2_cen,
 
     input             ssriders, lgtnfght, glfgreat,
-    output            cpu_n,
+    output            cpu_n, enc_done,
 
     // Base Video
     output            lhbl,
@@ -94,10 +94,15 @@ module jtriders_video(
     output            psc_cs,
     input             psc_ok,
 
-    output     [18:0] pscmap_addr,
-    input      [31:0] pscmap_data,
-    input             pscmap_ok,
-    output            pscmap_cs,
+    output     [19:1] psclo_addr,
+    input      [15:0] psclo_data,
+    input             psclo_ok,
+    output            psclo_cs,
+
+    output     [17:1] pschi_addr,
+    input      [15:0] pschi_data,
+    input             pschi_ok,
+    output            pschi_cs,
 
     output     [10:1] line_addr,
     input      [15:0] line_dout,
@@ -289,6 +294,7 @@ end
 jtriders_psac u_psac(
     .rst        ( psac_rst  ),
     .clk        ( clk       ),
+    .enc_done   ( enc_done  ),
 
     .pxl_cen    ( pxl_cen   ),
     .enable     ( glfgreat  ),
@@ -305,10 +311,15 @@ jtriders_psac u_psac(
     .dsn        ( cpu_dsn   ),
     .dma_n      (           ),
 
-    .vram_addr  (pscmap_addr),
-    .vram_data  ( pscmap_data ),
-    .vram_ok    ( pscmap_ok ),
-    .vram_cs    ( pscmap_cs ),
+    .psclo_addr ( psclo_addr),
+    .psclo_data ( psclo_data),
+    .psclo_ok   ( psclo_ok  ),
+    .psclo_cs   ( psclo_cs  ),
+
+    .pschi_addr ( pschi_addr),
+    .pschi_data ( pschi_data),
+    .pschi_ok   ( pschi_ok  ),
+    .pschi_cs   ( pschi_cs  ),
 
     .line_addr  ( line_addr ),
     .line_dout  ( line_dout ),

@@ -32,10 +32,15 @@ module jtriders_psac(
     output      [10:1] line_addr,
     input       [15:0] line_dout,
     // Tile map
-    output      [18:0] vram_addr, // 19
-    input       [31:0] vram_data,
-    input              vram_ok,
-    output             vram_cs,
+    output      [19:1] psclo_addr,
+    input       [15:0] psclo_data,
+    input              psclo_ok,
+    output             psclo_cs,
+
+    output      [17:1] pschi_addr,
+    input       [15:0] pschi_data,
+    input              pschi_ok,
+    output             pschi_cs,
     // Tiles
     output      [20:0] rom_addr,
     input       [ 7:0] rom_data,
@@ -43,6 +48,7 @@ module jtriders_psac(
     input              rom_ok,
 
     output      [ 7:0] pxl,
+    output             enc_done,
 
     // IOCTL dump
     input      [4:0] ioctl_addr,
@@ -137,11 +143,17 @@ jt053936 u_xy(
 jtglfgreat_encoder u_encoder(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .done       ( enc_done  ),
     // SDRAM
-    .pscmap_addr( vram_addr ),
-    .pscmap_data( vram_data ),
-    .pscmap_ok  ( vram_ok   ),
-    .pscmap_cs  ( vram_cs   ),
+    .psclo_addr ( psclo_addr),
+    .psclo_data ( psclo_data),
+    .psclo_ok   ( psclo_ok  ),
+    .psclo_cs   ( psclo_cs  ),
+
+    .pschi_addr ( pschi_addr),
+    .pschi_data ( pschi_data),
+    .pschi_ok   ( pschi_ok  ),
+    .pschi_cs   ( pschi_cs  ),
     // Compressed tilemap in VRAM
     .t2x2_addr  ( t2x2_addr ),
     .t2x2_din   ( t2x2_din  ),
@@ -150,7 +162,7 @@ jtglfgreat_encoder u_encoder(
     .dec_addr   ( dec_addr  ),
     .dec_dout   ( dec_dout  ),
     .dec_din    ( dec_din   ),
-    .dec_we     (dec_we     )
+    .dec_we     ( dec_we    )
 );
 
 jtframe_dual_ram #(.AW(17),.DW(13)) u_2x2tilemap (

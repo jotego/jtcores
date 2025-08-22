@@ -3,6 +3,7 @@ params:
   - { name: PCM_OFFSET,   value: "22'h010000>>1" }
   - { name: PSC_OFFSET,   value: "(`PSC_START-`GLFGREAT_BANK3)>>1" }
   - { name: PSCMAP_OFFSET,value: "(`PSCMAP_START-`GLFGREAT_BANK3)>>1" }
+  - { name: PSCHI_OFFSET, value: "(PSCMAP_OFFSET+22'h100000>>1)" }
 clocks:
   clk48:
     - freq: 16000000
@@ -72,10 +73,14 @@ sdram:
           addr_width: 21
           data_width: 8
           offset: PSC_OFFSET
-        - name: pscmap
-          addr_width: 21
-          data_width: 32
+        - name: psclo
+          addr_width: 20
+          data_width: 16
           offset: PSCMAP_OFFSET
+        - name: pschi
+          addr_width: 18
+          data_width: 16
+          offset: PSCHI_OFFSET
 bram:
   # RAM holding the MSB bits of the object tile ROM address
   - name: omsb
