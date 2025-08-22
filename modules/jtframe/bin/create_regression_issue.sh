@@ -129,7 +129,11 @@ issue() {
     declare -n args_ref=$1
     declare -a gh_args
 
-    # echo "${!args_ref[@]}" #DEBUG
+    n_issues=$(gh issue list --state open --label regression --search "${args_ref[title]} in:title" --jq length --json title)
+    if [[ $n_issues -gt 0 ]]; then 
+        echo "[WARNING] Issue already created and open"
+        return 1
+    fi
 
     for arg in "${!args_ref[@]}"; do
         value="${args_ref[$arg]}"
@@ -137,7 +141,6 @@ issue() {
     done
 
     gh issue create "${gh_args[@]}"
-    # echo "${gh_args[@]}" #DEBUG
 }
 
 parse_args() {

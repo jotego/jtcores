@@ -88,7 +88,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
   simulate:
-    name: Simulate ${{ matrix.batch.title }}
+    name: Regression ${{ matrix.batch.title }}
     runs-on: ubuntu-24.04
     container:
       image: jotego/simulator
