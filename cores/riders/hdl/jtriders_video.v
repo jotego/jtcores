@@ -148,7 +148,6 @@ assign lyro_addr   = oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
 assign cpu_n       = hdump[0]; // to be verified
-assign pscmap_cs   = 0; // glfgreat;
 
 always @(posedge clk) begin
     skip12 <= lgtnfght | glfgreat;
@@ -281,9 +280,16 @@ jtaliens_scroll #(
 );
 
 /* verilator tracing_on */
+reg psac_rst;
+
+always @(posedge clk) begin
+    psac_rst <= rst | ~glfgreat;
+end
+
 jtriders_psac u_psac(
-    .rst        ( rst       ),
+    .rst        ( psac_rst  ),
     .clk        ( clk       ),
+
     .pxl_cen    ( pxl_cen   ),
     .enable     ( glfgreat  ),
     .tmap_bank  ( psac_bank ),
@@ -300,8 +306,9 @@ jtriders_psac u_psac(
     .dma_n      (           ),
 
     .vram_addr  (pscmap_addr),
-    .vram_dout  ( pscmap_data[23:0] ),
+    .vram_data  ( pscmap_data ),
     .vram_ok    ( pscmap_ok ),
+    .vram_cs    ( pscmap_cs ),
 
     .line_addr  ( line_addr ),
     .line_dout  ( line_dout ),

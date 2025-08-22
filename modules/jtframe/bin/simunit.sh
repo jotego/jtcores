@@ -3,10 +3,16 @@
 # create a file called gather.f with the names of the files to include in the sim
 # not local to the simulation folder
 
+RUNFOLDER="."
+ALL_MACROS=
+MACRO=
+FAIL=0
+
 main() {
 	parse_args $*
 	cd_to_run_folder
 	parse_dot_simunit
+	execute_goscript
 	if [ -z "$ALL_MACROS" ]; then
 		run_one
 	else
@@ -16,14 +22,11 @@ main() {
 }
 
 parse_args() {
-	RUNFOLDER="."
-	ALL_MACROS=
-	MACRO=
-	FAIL=0
 	while [ $# -gt 0 ]; do
 		case "$1" in
 			--keep)	  KEEP_LXTFILE=1;;
 			--run)    shift; RUNFOLDER="$1";;
+			--skip)   exit_if_running_on_github;;
 			--macros) shift; ALL_MACROS="$1";;
 			--help|-h) show_help; exit 0;;
 			*)
@@ -34,13 +37,31 @@ parse_args() {
 	done
 }
 
+exit_if_running_on_github() {
+	if [ "$GITHUB_ACTIONS" = "true" ]; then
+		echo "This simulation is skipped when run on GitHub"
+		echo "PASS"
+		exit 0
+	fi
+}
+
 show_help() {
 	cat <<EOF
 simunit.sh: run unit simulations
 
+Create a .simunit file to indicate that the testbench is compatible with
+simunit.sh. This file can contain arguments to simunit.sh in its first line.
+
+If a init.go file exists, it will run before simulation with the command
+
+go run init.go
+
+Arguments:
+
 --keep		do not delete test.lxt after a PASS simulation
 --macros	comma separated list of macros. Each macro will trigger a different
             simulation.
+--skip		skip this test in GitHub actions
 --run		sets run folder
 --help, -h	this help
 EOF
@@ -52,6 +73,11 @@ parse_dot_simunit() {
 		top_line=`head --lines 1 .simunit`
 		parse_args $top_line
 	fi
+}
+
+execute_goscript() {
+	if [ -e init.go ]; then return; fi
+	go run init.go
 }
 
 run_one() {
@@ -134,7 +160,7 @@ run_simulation() {
 		-I$JTFRAME/ver/inc \
 		$JTFRAME/hdl/{video/jtframe_vtimer.v,ver/jtframe_test_clocks.v} \
 		-f$GATHER -s test -o sim -D SIMULATION $macro
-	sim -lxt > sim.log
+	sim -lxt | tee sim.log
 }
 
 eval_result() {
