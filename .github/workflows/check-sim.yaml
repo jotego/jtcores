@@ -134,6 +134,7 @@ jobs:
           yq -r '.[] | .setname' batch.json > setnames.lst
 
           grep '1942' setnames.lst || exit 1  # TESTING
+          apt update                          # TESTING
           apt install --yes gh                # TESTING
 
           job='
