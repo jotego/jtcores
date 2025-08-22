@@ -21,6 +21,7 @@ module jtriders_psac(
                        pxl_cen,  // use cen instead (see below)
                        hs, vs, dtackn, enable,
                        cs, // cs always writes
+    input       [ 8:0] hdump,
 
     input       [15:0] din,        // from CPU
     input       [ 4:1] addr,
@@ -41,40 +42,60 @@ module jtriders_psac(
     output             rom_cs,
     input              rom_ok,
 
-    output reg  [ 7:0] pxl,
+    output      [ 7:0] pxl,
 
     // IOCTL dump
     input      [4:0] ioctl_addr,
     output     [7:0] ioctl_din
 );
 
+wire [71:0] tblock;
+reg  [20:0] rom_addr_l;
 wire [ 8:0] la;
 wire [ 2:1] lh;
-wire [12:0] x, y;
+reg  [13:0] code;
+wire [12:0] x, y, encoded;
+reg  [12:0] encoded_l;
 wire        xh,yh,ob;
-wire [13:0] code;
 wire        hflip, vflip, cen;
-wire [ 3:0] pal, vf, hf, dmux;
-reg         rst2;
+wire [ 7:0] buf_din;
+reg  [ 3:0] pal;
+wire [ 3:0] vf, hf, dmux;
+reg  [ 1:0] tile_l;
+wire [ 1:0] tile;
+reg         rst2, cen2, tlmap_ok;
 
 assign line_addr = {la[7:0],lh};
 assign vram_addr = {tmap_bank,y[12:4], x[12:4]};
-assign code      = vram_dout[13:0];
+assign tile      = {y[4],x[4]};
 assign hflip     = 0;
 assign vflip     = 0;
-assign pal       = vram_dout[14+:4];
 assign vf        = {4{vflip}} ^ {y[3:0]};
 assign hf        = {4{hflip}} ^ {x[3:0]};
-assign cen       = pxl_cen & vram_ok & rom_ok;
 
-assign rom_cs    = 1;
+assign rom_cs    = tlmap_ok;
 assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
+assign buf_din   = ob    ? 8'b0          : {pal,dmux};
 
-always @(posedge clk) rst2 <= rst | ~enable;
+initial cen2 = 0;
 
-always @(posedge clk) if(cen) begin
-    pxl <= {pal,dmux};
+always @(posedge clk) begin
+    rst2 <= rst | ~enable;
+    cen2 <= ~cen2;
+
+    encoded_l <= encoded;
+    tile_l    <= tile;
+end
+
+always @(*) begin
+    tlmap_ok = encoded == encoded_l && tile==tile_l;
+    case(tile)
+        0: {pal, code} = tblock[ 0+:18];
+        1: {pal, code} = tblock[18+:18];
+        2: {pal, code} = tblock[36+:18];
+        3: {pal, code} = tblock[54+:18];
+    endcase
 end
 
 jt053936 u_xy(
@@ -104,6 +125,50 @@ jt053936 u_xy(
 
     .ioctl_addr ( ioctl_addr),
     .ioctl_din  ( ioctl_din )
+);
+
+jtframe_ram #(
+    .AW(17),.DW(13),
+    .SIMHEXFILE("reference_tilemap.hex")
+    ) u_rtmap (
+    .clk      ( clk       ),
+    .cen      ( 1'b1      ),
+    .addr     ( {vram_addr[18:10],vram_addr[8:1]}),
+    .data     ( 13'b0     ),
+    .we       ( 1'b0      ),
+    .q        ( encoded   )
+);
+
+jtframe_ram #(
+    .AW(13),.DW(72),
+    .SIMHEXFILE("compressed_tilemap.hex")
+    ) u_ctmap (
+    .clk      ( clk       ),
+    .cen      ( 1'b1      ),
+    .addr     ( encoded   ),
+    .data     ( 72'b0     ),
+    .we       ( 1'b0      ),
+    .q        ( tblock    )
+);
+
+jtframe_linebuf_gate #(.RD_DLY(15), .RST_CT(9'h041)) u_linebuf(
+    .rst      ( rst       ),
+    .clk      ( clk       ),
+    .pxl_cen  ( pxl_cen   ),
+    .cen      ( cen2      ),
+    .lvbl     ( 1'b1      ),
+    .hs       ( hs        ),
+    .cnt_cen  ( cen       ),
+  //  New line writting
+    .we       ( cen       ),
+    .hdump    ( hdump     ),
+    .vdump    ( 9'h0      ),
+  //  Previous line reading
+    .rom_cs   ( rom_cs    ),
+    .rom_ok   ( rom_ok    ),
+
+    .pxl_data ( buf_din   ),
+    .pxl_dump ( pxl       )
 );
 
 endmodule

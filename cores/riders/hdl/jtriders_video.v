@@ -148,7 +148,7 @@ assign lyro_addr   = oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
 assign cpu_n       = hdump[0]; // to be verified
-assign pscmap_cs   = glfgreat;
+assign pscmap_cs   = 0; // glfgreat;
 
 always @(posedge clk) begin
     skip12 <= lgtnfght | glfgreat;
@@ -287,6 +287,7 @@ jtriders_psac u_psac(
     .pxl_cen    ( pxl_cen   ),
     .enable     ( glfgreat  ),
     .tmap_bank  ( psac_bank ),
+    .hdump      ( hdump     ),
 
     .hs         ( hs        ),
     .vs         ( vs        ),
