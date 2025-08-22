@@ -46,9 +46,9 @@ main() {
         check_video
         check_video_ec=$?
 
-        # check_audio
-        # check_audio_ec=$?
-        # if [[ $? > check_result ]]; then check_result=$?; fi
+        check_audio
+        check_audio_ec=$?
+        if [[ $? > check_result ]]; then check_result=$?; fi
 
         case $check_video_ec in
             0)
@@ -388,7 +388,7 @@ check_frames() {
     local n_ref_frames="${#ref_frames[@]}"
 
     if [[ $n_frames -gt $n_ref_frames ]]; then
-        echo " [WARNING] There are $n_ref_frames frames available for comparison, when it is needed a minium of $n_frames"
+        echo " [WARNING] There are $n_ref_frames frames available for comparison, when it is needed a minimum of $n_frames"
         return 1
     fi
 
@@ -459,8 +459,7 @@ EOF
 
     unzip audio.zip
     rm -f audio.zip
-    mv test.wav audio.wav
-    trap "rm -f remote_audio.wav" EXIT
+    trap "rm -f audio.wav" EXIT
 }
 
 upload_results() {
@@ -484,6 +483,7 @@ upload_results() {
     esac
 
     zip -q frames.zip frames/*
+    mv test.wav audio.wav
     zip -q audio.zip audio.wav
 
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
