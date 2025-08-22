@@ -4,7 +4,7 @@ FROM jotego/linter
 LABEL maintainer=jotego@gmail.com
 
 RUN apt-get update && \
-    apt-get install --yes imagemagick perceptualdiff zip parallel ffmpeg gh && \
+    apt-get install --yes imagemagick perceptualdiff zip parallel ffmpeg && \
     rm --recursive --force /var/lib/apt/lists/*
 
 # GitHub CLI
