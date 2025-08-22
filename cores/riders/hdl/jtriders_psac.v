@@ -129,8 +129,7 @@ jt053936 u_xy(
 
 jtframe_ram #(
     .AW(17),.DW(13),
-    .SIMHEXFILE("reference_tilemap.hex"),
-    .SYNFILE(   "reference_tilemap.hex")
+    .SIMHEXFILE("reference_tilemap.hex")
     ) u_rtmap (
     .clk      ( clk       ),
     .cen      ( 1'b1      ),
@@ -142,8 +141,7 @@ jtframe_ram #(
 
 jtframe_ram #(
     .AW(13),.DW(72),
-    .SIMHEXFILE("compressed_tilemap.hex"),
-    .SYNFILE(   "compressed_tilemap.hex")
+    .SIMHEXFILE("compressed_tilemap.hex")
     ) u_ctmap (
     .clk      ( clk       ),
     .cen      ( 1'b1      ),
