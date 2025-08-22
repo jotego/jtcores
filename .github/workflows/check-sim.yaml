@@ -133,7 +133,8 @@ jobs:
           yq -r '.[] | .core' batch.json > cores.lst
           yq -r '.[] | .setname' batch.json > setnames.lst
 
-          grep '1942' setnames.lst || exit 1
+          grep '1942' setnames.lst || exit 1  # TESTING
+          apt install --yes gh                # TESTING
 
           job='
             source setprj.sh
@@ -145,5 +146,5 @@ jobs:
             create_regression_issue.sh "$ec" {1} {2} || true
             exit "$ec"
           '
-          
+
           parallel --jobs 0 --halt never "$job" :::: cores.lst ::::+ setnames.lst
