@@ -1,15 +1,15 @@
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 LABEL maintainer=jotego@gmail.com
 
-RUN apt update
+RUN apt-get update
 RUN ln -fs /usr/share/zoneinfo/Europe/Madrid /etc/localtime
-RUN apt install --yes --quiet git curl gawk
-RUN apt install --yes --quiet ca-certificates libgnutls30
-RUN apt install --yes --quiet ftp figlet xmlstarlet flex
-RUN apt install --yes --quiet rsync
+RUN apt-get install --yes --quiet git curl gawk
+RUN apt-get install --yes --quiet ca-certificates libgnutls30
+RUN apt-get install --yes --quiet ftp figlet xmlstarlet flex
+RUN apt-get install --yes --quiet rsync
 
 # Python
-RUN apt install --yes --quiet python python3-pip && pip install pypng
+RUN apt-get install --yes --quiet python3 python-is-python3 pipx python3-png
 
 # Go
 RUN ARCH=$(uname -m) && \
@@ -27,21 +27,33 @@ RUN ARCH=$(uname -m) && \
     rm -f ${GONAME}
 ENV PATH="$PATH:/usr/local/go/bin"
 
+# JTFRAME dependencies
+WORKDIR /jtframe
+COPY src/jtframe/go.mod src/jtframe/go.sum ./
+RUN go mod download
+
+WORKDIR /jtutil
+COPY src/jtutil/go.mod src/jtutil/go.sum ./
+RUN go mod download
+
+WORKDIR /
+RUN rm --recursive --force jtframe jtutil
+
 # iverilog compilation
-RUN apt install --yes --quiet --install-suggests build-essential git zlib1g-dev
-RUN apt install --yes --quiet flex gperf bison
+RUN apt-get install --yes --quiet build-essential git zlib1g-dev
+RUN apt-get install --yes --quiet flex gperf bison
 
 # Assembler tools
-RUN pip install --upgrade opbasm
-RUN apt install --yes --quiet as31
+RUN pipx install 'git+https://github.com/kevinpt/opbasm.git'
+RUN apt-get install --yes --quiet as31
 RUN cd /tmp; git clone https://github.com/jotego/asl.git; cd asl; make -j; cp alink asl p2bin p2hex pbind plist /usr/local/bin
 
 # JT core environment
 RUN mkdir /jtbin; echo export JTBIN=/jtbin >> $HOME/.bashrc
 
 # Locales
-RUN apt update
-RUN apt install locales locales-all
+RUN apt-get update
+RUN apt-get install locales locales-all
 RUN locale-gen en_US.UTF-8
 RUN echo LC_ALL=en_US.UTF-8 >> /etc/environment
 RUN echo LANG=en_US.UTF-8 >> /etc/environment
@@ -50,6 +62,6 @@ RUN echo LANG=en_US.UTF-8 >> /etc/environment
 RUN apt-get install --yes libglib2.0-0
 
 # Needed by xjtcore.sh
-RUN apt install --yes xxd
+RUN apt-get install --yes xxd
 
 ENTRYPOINT ["bash"]

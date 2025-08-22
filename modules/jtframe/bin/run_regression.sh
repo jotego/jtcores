@@ -7,7 +7,7 @@ main() {
     if [[ -z $JTROOT ]]; then
         echo "[ERROR] JTROOT environment variable not defined."
         echo "Execute 'source setprj.sh' first"
-        exit 1
+        exit 12
     fi
 
     shopt -s nullglob
@@ -16,33 +16,101 @@ main() {
 
     print_title "Launching regression for $setname"
 
-    if ! cd_ver_folder; then exit 1; fi
+    local ec=0
+
+    if ! cd_ver_folder; then exit 2; fi
+
+    exec 3> $setname-sim.log
 
     print_step "Simulating $setname"
-    if ! simulate; then
-        echo -e "\n[ERROR] Couldn't simulate\n"
-        return 1
-    fi
+    local simulate_ec=0
+    simulate
+    simulate_ec=$?
+    case $simulate_ec in
+        0) echo "[INFO] Simulation succeed" ;;
+        1)
+            echo "[ERROR] Cannot get required zips"
+            ec=11
+        ;;
+        2)
+            echo "[ERROR] Simulation failed"
+            ec=1
+        ;;
+    esac
 
-    local check_result=1
-    if $check || $local_check; then
+    local check_video_ec=0
+    local check_audio_ec=0
+
+    if ( $check || $local_check ) && [[ $simulate_ec == 0 ]]; then
         print_step "Checking simulation for $setname"
         check_video
-        check_result=$?
-        case $check_result in
-            0) echo -e "\n[INFO] Validation succeed\n" ;;
-            1) echo -e "\n[WARNING] Cannot perform validation\n" ;;
-            2) echo -e "\n[ERROR] Validation failed\n" ;;
-        esac
+        check_video_ec=$?
 
-        # check_audio
-        # if [[ $? > check_result ]]; then check_result=$?; fi
+        check_audio
+        check_audio_ec=$?
+        if [[ $? > check_result ]]; then check_result=$?; fi
+
+        case $check_video_ec in
+            0)
+                echo "[INFO] Frames validation succeed"
+                case $check_audio_ec in
+                    0)
+                        echo "[INFO] Audio validation succeed"
+                        ec=0
+                    ;;
+                    1)
+                        echo "[WARNING] Cannot perform audio validation"
+                        ec=3
+                    ;;
+                    2)
+                        echo "[ERROR] Audio validation failed"
+                        ec=4
+                    ;;
+                esac
+            ;;
+            1)
+                echo "[WARNING] Not enough frames to perform validation"
+                case $check_audio_ec in
+                    0)
+                        echo "[INFO] Audio validation succeed"
+                        ec=5
+                    ;;
+                    1)
+                        echo "[WARNING] Cannot perform audio validation"
+                        ec=6
+                    ;;
+                    2)
+                        echo "[ERROR] Audio validation failed"
+                        ec=7
+                    ;;
+                esac
+            ;;
+            2)
+                echo "[ERROR] Frames validation failed"
+                case $check_audio_ec in
+                    0)
+                        echo "[INFO] Audio validation succeed"
+                        ec=8
+                    ;;
+                    1)
+                        echo "[WARNING] Cannot perform audio validation"
+                        ec=9
+                    ;;
+                    2)
+                        echo "[ERROR] Audio validation failed"
+                        ec=10
+                    ;;
+                esac
+            ;;
+        esac
     fi
 
     if $push; then
         print_step "Uploading simulation results $setname"
-        upload_results $check_result
+        upload_results $ec
     fi
+
+    return $ec
 }
 
 parse_args() {
@@ -172,30 +240,64 @@ cd_ver_folder() {
 
 simulate() {
     if ! $local_rom; then
-        local zipfile
-        if ! get_zipfile zipfile; then
-            echo "[ERROR] Unable to find zip for $setname"
-            return 1
-        fi
-
-        local roms_dir=$(mktemp -d)
-        trap "rm -rf $roms_dir" EXIT
-        sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
-get mame/$zipfile $roms_dir
-bye
-EOF
-        if [[ ! -f "$roms_dir/$zipfile" ]]; then
-            echo "[ERROR] Cannot download ROM for $setname"
-            return 1
-        fi
-
+        local roms_dir
+        if ! get_zips roms_dir; then return 1; fi
         jtframe mra --path $roms_dir --setname $setname
+        rm -rf $roms_dir
     fi
 
     declare -a sim_opts
     get_opts sim_opts
 
-    jtsim -batch -load -setname $setname -d JTFRAME_SIM_VIDEO "${sim_opts[@]}"
+    jtsim -batch -load -skipROM -setname $setname "${sim_opts[@]}" >&3 2>&3
+    if [[ $? != 0 ]]; then return 2; fi
+
+    if [[ ! -f "test.mp4" ]]; then
+        echo "[WARNING] Generated video not found"
+    else
+        mv "test.mp4" "$setname.mp4"
+    fi
+}
+
+get_zips() {
+    declare -n roms_dir_ref=$1
+
+    declare -a zip_names
+    if ! get_zip_names zip_names; then return 1; fi
+    
+    roms_dir_ref=$(mktemp -d)
+    trap "rm -rf $roms_dir_ref" EXIT
+
+    for zip in "${zip_names[@]}"; do
+        sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
+get mame/$zip $roms_dir_ref
+bye
+EOF
+    done
+}
+
+get_zip_names() {
+    declare -n zip_names_ref=$1
+
+    jtframe mra --skipROM
+
+    zip_names_ref=$(
+        JTBIN="$JTROOT/release" jtutil mra -c -z |
+        awk -F'|' -v setname="$setname" '
+            {
+                name = $4; zips = $5
+                gsub(/^[ \t]+|[ \t]+$/, "", name)
+                gsub(/^[ \t]+|[ \t]+$/, "", zips)
+            }
+            name == setname {
+                split(zips, a, /[ \t]+/)
+                for (i in a) print a[i]
+            }
+        '
+    )
+    readarray -t zip_names_ref <<< "$zip_names_ref"
+
+    if [[ "${#zip_names_ref[@]}" == 0 ]]; then return 1; fi
 }
 
 get_opts() {
@@ -214,12 +316,10 @@ get_opts() {
         for item in "${raw_opts[@]}"; do
             key=$(echo $item | yq '.key' -)
             value=$(echo $item | yq '.value' -)
-            if [[ $key == "frames" ]]; then
-                opts_ref+=(-video $value)
+            if [[ $key == "video" ]]; then
                 frames_found=true
-            else
-                opts_ref+=(-$key $value)
             fi
+            opts_ref+=(-$key $value)
         done
     fi
 
@@ -233,12 +333,10 @@ get_opts() {
         for item in "${raw_opts[@]}"; do
             key=$(echo $item | yq '.key' -)
             value=$(echo $item | yq '.value' -)
-            if [[ $key == "frame" || $key == "video" ]]; then
-                opts_ref+=(-video $value)
+            if [[ $key == "video" ]]; then
                 frames_found=true
-            else
-                opts_ref+=(-$key $value)
             fi
+            opts_ref+=(-$key $value)
         done
     fi
 
@@ -248,36 +346,6 @@ get_opts() {
     fi
 
     echo "[INFO] Simulation options are ${opts_ref[@]}"
-}
-
-get_zipfile() {
-    declare -n zipfile_ref=$1
-
-    jtframe mra --skipROM
-
-    zipfile_ref=$(
-        JTBIN="$JTROOT/release" jtutil mra -c -z |
-        awk -F'|' -v setname="$setname" '
-            # Erase whitespaces
-            {
-                name = $4; zips = $5
-                gsub(/^[ \t]+|[ \t]+$/, "", name)
-                gsub(/^[ \t]+|[ \t]+$/, "", zips)
-            }
-
-            # Match setname and get zip
-            name == setname {
-                n = split(zips, a, /[ \t]+/)
-                last = a[n]
-            }
-
-            END {
-                print last;
-            }
-        '
-    )
-
-    if [[ -z $zipfile_ref ]]; then return 1; fi
 }
 
 check_video() {
@@ -301,7 +369,7 @@ get_remote_frames() {
 
     echo "[INFO] Downloading remote frames for setname $setname"
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
-get regression/$core/$setname/VALID/frames.zip $dir
+get regression/$core/$setname/valid/frames.zip $dir
 bye
 EOF
     if [[ ! -f "$dir/frames.zip" ]]; then
@@ -320,7 +388,7 @@ check_frames() {
     local n_ref_frames="${#ref_frames[@]}"
 
     if [[ $n_frames -gt $n_ref_frames ]]; then
-        echo " [WARNING] There are $n_ref_frames frames available for comparison, when it is needed a minium of $n_frames"
+        echo " [WARNING] There are $n_ref_frames frames available for comparison, when it is needed a minimum of $n_frames"
         return 1
     fi
 
@@ -341,77 +409,82 @@ check_frames() {
     if $failed; then return 2; fi
 }
 
-# check_audio() {
-#     local ref_audio="audio.wav"
-#     local ref_spectro="audio.png"
-#     local test_audio="test.wav"
-#     local test_spectro="test.png"
+check_audio() {
+    local ref_audio="audio.wav"
+    local ref_spectro="audio.png"
+    local test_audio="test.wav"
+    local test_spectro="test.png"
 
-#     print_step "Checking audio"
+    print_step "Checking audio"
 
-#     if [[ ! -f "$test_audio" ]]; then
-#         echo "[ERROR] Missing audio file for $core"
-#         return 2
-#     fi
+    if [[ ! -f "$test_audio" ]]; then
+        echo "[ERROR] Missing audio file for $core"
+        return 2
+    fi
 
-#     if $check; then
-#         if ! get_remote_audio; then
-#             echo "[WARNING] Cannot get remote audio"
-#             return 1;
-#         fi
-#     elif $local_check; then
-#         if [[ ! -f $LOCAL_DIR/$core/$setname/audio.wav ]]; then
-#             echo "[ERROR] Local audio doesn't exist"
-#             return 2
-#         fi
-#         mv $LOCAL_DIR/$core/$setname/audio.wav .
-#     fi
+    if $check; then
+        if ! get_remote_audio; then
+            echo "[WARNING] Cannot get remote audio"
+            return 1;
+        fi
+    elif $local_check; then
+        if [[ ! -f $LOCAL_DIR/$core/$setname/audio.wav ]]; then
+            echo "[ERROR] Local audio doesn't exist"
+            return 2
+        fi
+        mv $LOCAL_DIR/$core/$setname/audio.wav .
+    fi
 
-#     sox $ref_audio -n spectrogram -o $ref_spectro
-#     sox $test_audio -n spectrogram -o $test_spectro
+    sox $ref_audio -n spectrogram -r -o $ref_spectro
+    sox $test_audio -n spectrogram -r -o $test_spectro
 
-#     if perceptualdiff "$ref_spectro" "$test_spectro"; then
-#         echo "[INFO] Audio match"
-#         return 0
-#     else
-#         echo "[ERROR] Audio doesn't match"
-#         return 2
-#     fi
-# }
+    if perceptualdiff "$ref_spectro" "$test_spectro"; then
+        echo "[INFO] Audio match"
+        return 0
+    else
+        echo "[ERROR] Audio doesn't match"
+        sox $ref_audio -n spectrogram -o reference-spectro.png
+        sox $test_audio -n spectrogram -o test-spectro.png
+        return 2
+    fi
+}
 
-# get_remote_audio() {
-#     echo "[INFO] Downloading remote audio for setname $setname"
-#     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
-# get regression/$core/$setname/VALID/audio.zip
-# bye
-# EOF
-#     if [[ ! -f "audio.zip" ]]; then return 1; fi
+get_remote_audio() {
+    echo "[INFO] Downloading remote audio for setname $setname"
+    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
+get regression/$core/$setname/valid/audio.zip
+bye
+EOF
+    if [[ ! -f "audio.zip" ]]; then return 1; fi
 
-#     unzip audio.zip
-#     rm -f audio.zip
-#     mv test.wav audio.wav
-#     trap "rm -f remote_audio.wav" EXIT
-# }
+    unzip audio.zip
+    rm -f audio.zip
+    trap "rm -f audio.wav" EXIT
+}
 
 upload_results() {
-    local dest=$1
-    case $dest in
-        0)
-            echo "[INFO] Results are valid. Skipping upload"
-            return 0
+    local ec=$1
+    local folder=""
+    declare -a files
+    files=(frames.zip audio.zip $setname.mp4)
+
+    case $ec in
+        1)
+            folder="fail"
+            files=("$setname-sim.log")
         ;;
-        1) local folder="NOT_CHECKED" ;;
-        2) local folder="FAIL" ;;
+        3|5|6) folder="not_checked" ;;
+        4|7|10)
+            folder="fail"
+            files+=(test-spectro.png reference-spectro.png)
+        ;;
+        8|9) folder="fail" ;;
+        *) return ;;
     esac
 
     zip -q frames.zip frames/*
-    zip -q audio.zip test.wav
-
-    if [[ ! -f "test.mp4" ]]; then
-        echo "[WARNING] Generated video not found"
-    else
-        zip video.zip test.mp4
-    fi
+    mv test.wav audio.wav
+    zip -q audio.zip audio.wav
 
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
 mkdir regression
@@ -419,13 +492,9 @@ mkdir regression/$core
 mkdir regression/$core/$setname
 mkdir regression/$core/$setname/$folder
 cd regression/$core/$setname/$folder
-put frames.zip
-put audio.zip
-put video.zip
+put "${files[@]}"
 bye
 EOF
-
-    return $dest
 }
 
 main "$@"
