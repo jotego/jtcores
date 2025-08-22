@@ -132,14 +132,7 @@ jobs:
           yq -r '.[] | .core' batch.json > cores.lst
           yq -r '.[] | .setname' batch.json > setnames.lst
 
-          readarray -t setnames < setnames.lst
-          for setname in "${setnames[@]}"; do
-            if [[ $setname == "1942" ]]; then
-              found=true
-              break
-            fi
-          done
-          if ! found; then exit 1; fi
+          grep '1942' setnames.lst || exit 1
 
           parallel --jobs 0 --halt never bash -c '
             source setprj.sh
