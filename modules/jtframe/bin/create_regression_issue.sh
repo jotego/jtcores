@@ -6,7 +6,7 @@ main() {
     title="Regression [$core, $setname]"
 
     declare -A args
-    args[assignee]="jorgesg82"
+    args[assignee]="jtmiki"
     args[label]="regression"
 
     case $regression_code in
