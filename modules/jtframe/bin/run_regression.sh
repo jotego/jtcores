@@ -7,7 +7,7 @@ main() {
     if [[ -z $JTROOT ]]; then
         echo "[ERROR] JTROOT environment variable not defined."
         echo "Execute 'source setprj.sh' first"
-        exit 1
+        exit 12
     fi
 
     shopt -s nullglob
@@ -16,36 +16,101 @@ main() {
 
     print_title "Launching regression for $setname"
 
-    if ! cd_ver_folder; then exit 1; fi
+    local ec=0
+
+    if ! cd_ver_folder; then exit 2; fi
 
     exec 3> $setname-sim.log
 
     print_step "Simulating $setname"
-    if ! simulate; then
-        echo -e "\n[ERROR] Couldn't simulate\n"
-        cat $setname-sim.log
-        return 1
-    fi
+    local simulate_ec=0
+    simulate
+    simulate_ec=$?
+    case $simulate_ec in
+        0) echo "[INFO] Simulation succeed" ;;
+        1)
+            echo "[ERROR] Cannot get required zips"
+            ec=11
+        ;;
+        2)
+            echo "[ERROR] Simulation failed"
+            ec=1
+        ;;
+    esac
 
-    local check_result=1
-    if $check || $local_check; then
+    local check_video_ec=0
+    local check_audio_ec=0
+
+    if ( $check || $local_check ) && [[ $eq == 0 ]]; then
         print_step "Checking simulation for $setname"
         check_video
-        check_result=$?
-        case $check_result in
-            0) echo -e "\n[INFO] Validation succeed\n" ;;
-            1) echo -e "\n[WARNING] Cannot perform validation\n" ;;
-            2) echo -e "\n[ERROR] Validation failed\n" ;;
-        esac
+        check_video_ec=$?
 
         # check_audio
+        # check_audio_ec=$?
         # if [[ $? > check_result ]]; then check_result=$?; fi
+
+        case $check_video_ec in
+            0)
+                echo "[INFO] Frames validation succeed"
+                case $check_audio_ec in
+                    0)
+                        echo "[INFO] Audio validation succeed"
+                        ec=0
+                    ;;
+                    1)
+                        echo "[WARNING] Cannot perform audio validation"
+                        ec=3
+                    ;;
+                    2)
+                        echo "[ERROR] Audio validation failed"
+                        ec=4
+                    ;;
+                esac
+            ;;
+            1)
+                echo "[WARNING] Not enough frames to perform validation"
+                case $check_audio_ec in
+                    0)
+                        echo "[INFO] Audio validation succeed"
+                        ec=5
+                    ;;
+                    1)
+                        echo "[WARNING] Cannot perform audio validation"
+                        ec=6
+                    ;;
+                    2)
+                        echo "[ERROR] Audio validation failed"
+                        ec=7
+                    ;;
+                esac
+            ;;
+            2)
+                echo "[ERROR] Frames validation failed"
+                case $check_audio_ec in
+                    0)
+                        echo "[INFO] Audio validation succeed"
+                        ec=8
+                    ;;
+                    1)
+                        echo "[WARNING] Cannot perform audio validation"
+                        ec=9
+                    ;;
+                    2)
+                        echo "[ERROR] Audio validation failed"
+                        ec=10
+                    ;;
+                esac
+            ;;
+        esac
     fi
 
     if $push; then
         print_step "Uploading simulation results $setname"
-        upload_results $check_result
+        upload_results $ec
     fi
+
+    return $ec
 }
 
 parse_args() {
@@ -176,7 +241,7 @@ cd_ver_folder() {
 simulate() {
     if ! $local_rom; then
         local roms_dir
-        get_zips roms_dir
+        if ! get_zips roms_dir; then return 1; fi
         jtframe mra --path $roms_dir --setname $setname
         rm -rf $roms_dir
     fi
@@ -185,7 +250,7 @@ simulate() {
     get_opts sim_opts
 
     jtsim -batch -load -skipROM -setname $setname "${sim_opts[@]}" >&3 2>&3
-    if [[ $? != 0 ]]; then return 1; fi
+    if [[ $? != 0 ]]; then return 2; fi
 
     if [[ ! -f "test.mp4" ]]; then
         echo "[WARNING] Generated video not found"
@@ -397,14 +462,19 @@ check_frames() {
 # }
 
 upload_results() {
-    local dest=$1
-    case $dest in
-        0)
-            echo "[INFO] Results are valid. Skipping upload"
-            return 0
+    local ec=$1
+    local folder=""
+    declare -a files
+    files=(frames.zip audio.zip $setname.mp4)
+
+    case $ec in
+        1)
+            folder="fail"
+            files=("$setname-sim.log")
         ;;
-        1) local folder="not_checked" ;;
-        2) local folder="fail" ;;
+        4|8|10) folder="fail" ;;
+        3|5|6) folder="not_checked" ;;
+        *) return ;;
     esac
 
     zip -q frames.zip frames/*
@@ -416,13 +486,9 @@ mkdir regression/$core
 mkdir regression/$core/$setname
 mkdir regression/$core/$setname/$folder
 cd regression/$core/$setname/$folder
-put frames.zip
-put audio.zip
-put $setname.mp4
+put "${files[@]}"
 bye
 EOF
-
-    return $dest
 }
 
 main "$@"

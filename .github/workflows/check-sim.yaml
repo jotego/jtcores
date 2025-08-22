@@ -122,6 +122,8 @@ jobs:
           EOF
 
       - name: Run regression
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config --global --add safe.directory /__w/jtcores/jtcores
           git config --global --add safe.directory /__w/jtcores/jtcores/modules/jtframe/target/pocket
@@ -130,6 +132,22 @@ jobs:
           yq -r '.[] | .core' batch.json > cores.lst
           yq -r '.[] | .setname' batch.json > setnames.lst
 
-          bash -c ' source setprj.sh && parallel --jobs 0 run_regression.sh {1} {2} --check --push \
-            --port "${{ secrets.SSH_PORT }}" --user "${{ secrets.SSH_USER }}" --host "${{ secrets.SERVER_IP }}" \
-            :::: cores.lst ::::+ setnames.lst'
+          readarray -t setnames < setnames.lst
+          for setname in "${setnames[@]}"; do
+            if [[ $setname == "1942" ]]; then
+              found=true
+              break
+            fi
+          done
+          if ! found; then exit 1; fi
+
+          parallel --jobs 0 --halt never bash -c '
+            source setprj.sh
+            run_regression.sh {1} {2} --check --push \
+              --port ${{ secrets.SSH_PORT }} \
+              --user ${{ secrets.SSH_USER }} \
+              --host ${{ secrets.SERVER_IP }}
+            ec=$?
+            create_regression_issue.sh "$ec" {1} {2} || true
+            exit "$ec"
+          ' :::: cores.lst ::::+ setnames.lst
