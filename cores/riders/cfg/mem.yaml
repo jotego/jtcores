@@ -3,7 +3,7 @@ params:
   - { name: PCM_OFFSET,   value: "22'h010000>>1" }
   - { name: PSC_OFFSET,   value: "(`PSC_START-`GLFGREAT_BANK3)>>1" }
   - { name: PSCMAP_OFFSET,value: "(`PSCMAP_START-`GLFGREAT_BANK3)>>1" }
-  - { name: PSCHI_OFFSET, value: "(PSCMAP_OFFSET+22'h100000>>1)" }
+  - { name: PSCHI_OFFSET, value: "(PSCMAP_OFFSET+22'h80000)" }
 clocks:
   clk48:
     - freq: 16000000

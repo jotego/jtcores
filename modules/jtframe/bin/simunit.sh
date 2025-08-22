@@ -76,7 +76,7 @@ parse_dot_simunit() {
 }
 
 execute_goscript() {
-	if [ -e init.go ]; then return; fi
+	if [ ! -e init.go ]; then return; fi
 	go run init.go
 }
 

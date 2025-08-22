@@ -94,14 +94,14 @@ always @(posedge clk) begin
         tile0    <= 0; tile1 <= 0; tile2 <= 0; tile3 <= 0;
     end else if(!done && deleted) begin
         t2x2_we <= 0;
+        search  <= 0;
         case(st)
             0: begin {y[0],x[0]} <= 2'b00; psclo_cs <= 1; st <= 1; end
             1: if( hilo_ok ) begin tile0 <= combined; {y[0],x[0]} <= 2'b01; st <= 2; end
             2: if( hilo_ok ) begin tile1 <= combined; {y[0],x[0]} <= 2'b10; st <= 3; end
             3: if( hilo_ok ) begin tile2 <= combined; {y[0],x[0]} <= 2'b11; st <= 4; end
-            4: if( hilo_ok ) begin tile3 <= combined; {y[0],x[0]} <= 2'b00; psclo_cs <= 0; st <= 5; end
-            5: begin search <= 1; st <= 6; end
-            6: if( found ) begin
+            4: if( hilo_ok ) begin tile3 <= combined; {y[0],x[0]} <= 2'b00; psclo_cs <= 0; search <= 1; st <= 5; end
+            5: if( found ) begin
                 t2x2_we <= 1;
                 x[8:1] <= x[8:1]+1'd1;
                 if(&x[8:1]) begin
@@ -112,7 +112,6 @@ always @(posedge clk) begin
                         $display("Tilemap compression finished");
                     end
                 end
-                search <= 0;
                 st <= 0;
             end
         endcase
@@ -142,7 +141,7 @@ always @(posedge clk) begin
         if(!deleted) begin
             dec_we <= 1;
             if(dec_we) {deleted,dec_addr} <= {deleted,dec_addr}+1'd1;
-        end else begin
+        end else if(!full) begin
             found  <= 0;
             dec_we <= 0;
             case(search_st)
