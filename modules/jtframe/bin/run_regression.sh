@@ -41,7 +41,7 @@ main() {
     local check_video_ec=0
     local check_audio_ec=0
 
-    if ( $check || $local_check ) && [[ $eq == 0 ]]; then
+    if ( $check || $local_check ) && [[ $simulate_ec == 0 ]]; then
         print_step "Checking simulation for $setname"
         check_video
         check_video_ec=$?
@@ -409,57 +409,59 @@ check_frames() {
     if $failed; then return 2; fi
 }
 
-# check_audio() {
-#     local ref_audio="audio.wav"
-#     local ref_spectro="audio.png"
-#     local test_audio="test.wav"
-#     local test_spectro="test.png"
+check_audio() {
+    local ref_audio="audio.wav"
+    local ref_spectro="audio.png"
+    local test_audio="test.wav"
+    local test_spectro="test.png"
 
-#     print_step "Checking audio"
+    print_step "Checking audio"
 
-#     if [[ ! -f "$test_audio" ]]; then
-#         echo "[ERROR] Missing audio file for $core"
-#         return 2
-#     fi
+    if [[ ! -f "$test_audio" ]]; then
+        echo "[ERROR] Missing audio file for $core"
+        return 2
+    fi
 
-#     if $check; then
-#         if ! get_remote_audio; then
-#             echo "[WARNING] Cannot get remote audio"
-#             return 1;
-#         fi
-#     elif $local_check; then
-#         if [[ ! -f $LOCAL_DIR/$core/$setname/audio.wav ]]; then
-#             echo "[ERROR] Local audio doesn't exist"
-#             return 2
-#         fi
-#         mv $LOCAL_DIR/$core/$setname/audio.wav .
-#     fi
+    if $check; then
+        if ! get_remote_audio; then
+            echo "[WARNING] Cannot get remote audio"
+            return 1;
+        fi
+    elif $local_check; then
+        if [[ ! -f $LOCAL_DIR/$core/$setname/audio.wav ]]; then
+            echo "[ERROR] Local audio doesn't exist"
+            return 2
+        fi
+        mv $LOCAL_DIR/$core/$setname/audio.wav .
+    fi
 
-#     sox $ref_audio -n spectrogram -o $ref_spectro
-#     sox $test_audio -n spectrogram -o $test_spectro
+    sox $ref_audio -n spectrogram -r -o $ref_spectro
+    sox $test_audio -n spectrogram -r -o $test_spectro
 
-#     if perceptualdiff "$ref_spectro" "$test_spectro"; then
-#         echo "[INFO] Audio match"
-#         return 0
-#     else
-#         echo "[ERROR] Audio doesn't match"
-#         return 2
-#     fi
-# }
+    if perceptualdiff "$ref_spectro" "$test_spectro"; then
+        echo "[INFO] Audio match"
+        return 0
+    else
+        echo "[ERROR] Audio doesn't match"
+        sox $ref_audio -n spectrogram -o reference-spectro.png
+        sox $test_audio -n spectrogram -o test-spectro.png
+        return 2
+    fi
+}
 
-# get_remote_audio() {
-#     echo "[INFO] Downloading remote audio for setname $setname"
-#     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
-# get regression/$core/$setname/valid/audio.zip
-# bye
-# EOF
-#     if [[ ! -f "audio.zip" ]]; then return 1; fi
+get_remote_audio() {
+    echo "[INFO] Downloading remote audio for setname $setname"
+    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
+get regression/$core/$setname/valid/audio.zip
+bye
+EOF
+    if [[ ! -f "audio.zip" ]]; then return 1; fi
 
-#     unzip audio.zip
-#     rm -f audio.zip
-#     mv test.wav audio.wav
-#     trap "rm -f remote_audio.wav" EXIT
-# }
+    unzip audio.zip
+    rm -f audio.zip
+    mv test.wav audio.wav
+    trap "rm -f remote_audio.wav" EXIT
+}
 
 upload_results() {
     local ec=$1
@@ -472,13 +474,17 @@ upload_results() {
             folder="fail"
             files=("$setname-sim.log")
         ;;
-        4|8|10) folder="fail" ;;
         3|5|6) folder="not_checked" ;;
+        4|7|10)
+            folder="fail"
+            files+=(test-spectro.png reference-spectro.png)
+        ;;
+        8|9) folder="fail" ;;
         *) return ;;
     esac
 
     zip -q frames.zip frames/*
-    zip -q audio.zip test.wav
+    zip -q audio.zip audio.wav
 
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
 mkdir regression
