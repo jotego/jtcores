@@ -44,49 +44,50 @@ module jtriders_psac(
     // Tiles
     output      [20:0] rom_addr,
     input       [ 7:0] rom_data,
-    output             rom_cs,
+    output reg         rom_cs,
     input              rom_ok,
 
     output      [ 7:0] pxl,
     output             enc_done,
 
     // IOCTL dump
-    input      [4:0] ioctl_addr,
-    output     [7:0] ioctl_din
+    input       [ 4:0] ioctl_addr,
+    output      [ 7:0] ioctl_din
 );
 
 wire [71:0] tblock;
+wire [16:0] tmap_addr;
+reg  [16:0] tmapaddr_l;
 reg  [20:0] rom_addr_l;
 wire [18:0] full_addr;
 wire [ 8:0] la;
 wire [ 2:1] lh;
 reg  [13:0] code;
 wire [12:0] x, y, encoded;
-reg  [12:0] encoded_l;
 wire        xh,yh,ob;
 wire        hflip, vflip, cen;
 wire [ 7:0] buf_din;
 reg  [ 3:0] pal;
 wire [ 3:0] vf, hf, dmux;
-reg  [ 1:0] tile_l;
 wire [ 1:0] tile;
-reg         rst2, cen2, tlmap_ok;
+reg         rst2, cen2;
 // encoder
 wire [17:1] t2x2_addr;
 wire [15:0] t2x2_din;
 wire        t2x2_we, dec_we;
 wire [12:0] dec_addr;
 wire [71:0] dec_dout, dec_din;
+reg  [ 4:0] tmap_sh;
 
 assign line_addr = {la[7:0],lh};
 assign full_addr = {tmap_bank,y[12:4], x[12:4]};
+assign tmap_addr = {full_addr[18:10],full_addr[8:1]};
 assign tile      = {y[4],x[4]};
 assign hflip     = 0;
 assign vflip     = 0;
 assign vf        = {4{vflip}} ^ {y[3:0]};
 assign hf        = {4{hflip}} ^ {x[3:0]};
 
-assign rom_cs    = tlmap_ok;
 assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
 assign buf_din   = ob    ? 8'b0          : {pal,dmux};
@@ -97,12 +98,11 @@ always @(posedge clk) begin
     rst2 <= rst | ~enable;
     cen2 <= ~cen2;
 
-    encoded_l <= encoded;
-    tile_l    <= tile;
+    tmapaddr_l <= tmap_addr;
+    rom_cs     <= tmapaddr_l == tmap_addr;
 end
 
 always @(*) begin
-    tlmap_ok = encoded == encoded_l && tile==tile_l;
     case(tile)
         0: {pal, code} = tblock[ 0+:18];
         1: {pal, code} = tblock[18+:18];
@@ -110,7 +110,7 @@ always @(*) begin
         3: {pal, code} = tblock[54+:18];
     endcase
 end
-
+/* verilator tracing_off */
 jt053936 u_xy(
     .rst        ( rst2      ),
     .clk        ( clk       ),
@@ -139,7 +139,7 @@ jt053936 u_xy(
     .ioctl_addr ( ioctl_addr),
     .ioctl_din  ( ioctl_din )
 );
-
+/* verilator tracing_on */
 jtglfgreat_encoder u_encoder(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -164,7 +164,7 @@ jtglfgreat_encoder u_encoder(
     .dec_din    ( dec_din   ),
     .dec_we     ( dec_we    )
 );
-
+/* verilator tracing_off */
 jtframe_dual_ram #(.AW(17),.DW(13)) u_2x2tilemap (
     // Port 0 - programming during power up
     .clk0       ( clk       ),
@@ -174,7 +174,7 @@ jtframe_dual_ram #(.AW(17),.DW(13)) u_2x2tilemap (
     .q0         (           ),
     // Port 1 - regular access during gameplay
     .clk1       ( clk       ),
-    .addr1      ( {full_addr[18:10],full_addr[8:1]}),
+    .addr1      ( tmap_addr ),
     .data1      ( 13'b0     ),
     .we1        ( 1'b0      ),
     .q1         ( encoded   )

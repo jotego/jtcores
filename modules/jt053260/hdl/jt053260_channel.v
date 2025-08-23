@@ -20,6 +20,7 @@ module jt053260_channel(
     input                    rst,
     input                    clk,
     input                    cen,
+    input                    swap,
     // MMR interface
     input             [ 2:0] addr,
     input             [ 7:0] din,
@@ -69,7 +70,7 @@ assign pitch  = { mmr[1][3:0], mmr[0] };
 assign volume = { mmr[7][6:0] };
 
 assign nx_pitch_cnt = {1'd0, pitch_cnt } + 13'd1;
-assign nibble       = adpcm_cnt ? rom_data[7:4] : rom_data[3:0];
+assign nibble       = adpcm_cnt^swap ? rom_data[7:4] : rom_data[3:0];
 assign sample       = nx_pitch_cnt[12] & cen;
 assign svl          = {1'b0, vol_l[13-:7]};
 assign svr          = {1'b0, vol_r[13-:7]};

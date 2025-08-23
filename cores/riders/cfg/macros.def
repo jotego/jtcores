@@ -27,13 +27,9 @@ SND_RAMW=11
 
 # default EEPROM needed to prevent game from booting upside down with error
 JTFRAME_IOCTL_RD=128
+# PSAC line memory
+JTFRAME_IOCTL_RD+=2048
 debug JTFRAME_IOCTL_RD+=38977
 
-# But MiST/SiDi cannot handle that much
-[mist]
-NODIMMING
--JTFRAME_CREDITS
-
-[sidi]
-# it does not fit anymore after including glfgreat
-JTFRAME_SKIP
+[mist|sidi|pocket]
+NOPSAC

@@ -92,10 +92,12 @@ assign mmr_en  = addr[5:3]>=1 && addr[5:3]<=4;
 assign mmr_we  = {4{ cs & ~wr_n & mmr_en }} &
                  { addr[5:3]==4, addr[5:3]==3, addr[5:3]==2, addr[5:3]==1 };
 assign tst_nx  = tst_rd & ~tst_rdl;
-assign tim2_enb= test_2b[3]; // it should disable tim2 when high. Not connected for now
 assign left_en = sum_en[4:0];
 assign right_en={sum_en[5],sum_en[3:0]};
 assign aux_en  = mode[3:2];
+`ifdef SIMULATION
+assign tim2_enb= test_2b[3]; // it should disable tim2 when high. Not connected for now
+`endif
 
 always @(posedge clk) begin
     sum_en <= { {2{ch_en[4]}} & aux_en, ch_en[3:0]};
@@ -159,6 +161,7 @@ always @(posedge clk, posedge rst) begin
         tst_rd  <= 0;
         tst_rdl <= 0;
         test_2b <= 0;
+        nib_swap<= 0;
     end else begin
         tst_rdl <= tst_rd;
         if( cs ) begin
@@ -230,6 +233,7 @@ jt053260_channel u_ch0(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .cen      ( cen         ),
+    .swap     ( nib_swap    ),
 
     // MMR
     .addr     ( addr[2:0]   ),
@@ -257,6 +261,7 @@ jt053260_channel u_ch1(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .cen      ( cen         ),
+    .swap     ( nib_swap    ),
 
     // MMR
     .addr     ( addr[2:0]   ),
@@ -284,6 +289,7 @@ jt053260_channel u_ch2(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .cen      ( cen         ),
+    .swap     ( nib_swap    ),
 
     // MMR
     .addr     ( addr[2:0]   ),
@@ -311,6 +317,7 @@ jt053260_channel u_ch3(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .cen      ( cen         ),
+    .swap     ( nib_swap    ),
 
     // MMR
     .addr     ( addr[2:0]   ),

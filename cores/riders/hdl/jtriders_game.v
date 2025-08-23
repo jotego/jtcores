@@ -42,6 +42,12 @@ wire [ 7:0] platch;
 wire [ 2:0] dim;
 wire [ 1:0] oram_we;
 
+`ifdef NOPSAC
+wire [ 1:0] lmem_we;
+wire [15:0] lmem_dout, line_dout=0;
+wire [10:1] line_addr;
+`endif
+
 assign debug_view = debug_mux;
 assign ram_we     = cpu_we & ram_cs;
 assign ram_addr   = main_addr[13:1];

@@ -157,7 +157,7 @@ assign cpu_n       = hdump[0]; // to be verified
 always @(posedge clk) begin
     skip12 <= lgtnfght | glfgreat;
 end
-
+/* verilator tracing_off */
 jtriders_dump #(.FULLOBJ(1), .PSAC(1)) u_dump(
     .clk            ( clk           ),
     .dump_scr       ( dump_scr      ),
@@ -191,7 +191,7 @@ function [7:0] cgate( input [7:0] c);
     cgate = { c[7:5], 5'd0 };
 endfunction
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 // extra blanking added to help MiSTer output
 // on real hardware, it would've been manually
 // adjusted on the CRT.
@@ -284,6 +284,10 @@ jtaliens_scroll #(
     .st_dout    ( st_scr    )
 );
 
+// The 256kB compressed tilemap does not fit in the Pocket BRAM
+// It would require using one of the external memories and adding one
+// more line buffer to cache it
+`ifndef NOPSAC
 /* verilator tracing_on */
 reg psac_rst;
 
@@ -334,6 +338,10 @@ jtriders_psac u_psac(
     .ioctl_addr (dump_addr[4:0]),
     .ioctl_din  ( psac_mmr  )
 );
+`else
+assign psc_cs=0,psclo_cs=0,pschi_cs=0,psc_pxl=0, line_addr=0,
+    pschi_addr=0, psclo_addr=0,psc_addr=0,enc_done=0,psac_mmr=0;
+`endif
 
 wire [ 1:0] lyro_pri;
 wire [ 3:0] ommra;
@@ -347,7 +355,7 @@ assign orama = lgtnfght ? cpu_addr[13:1] : oram_addr;
 assign oramd = lgtnfght ? cpu_dout : oram_din;
 assign oramw = lgtnfght ? {2{cpu_we}}&~cpu_dsn : oram_we;
 assign vmux  = vrender;
-
+/* verilator tracing_off */
 jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -395,7 +403,7 @@ jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325)) u_obj(    // sprite logic
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
