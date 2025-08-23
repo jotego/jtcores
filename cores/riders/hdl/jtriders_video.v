@@ -23,7 +23,7 @@ module jtriders_video(
     input             pxl2_cen,
 
     input             ssriders, lgtnfght, glfgreat,
-    output            cpu_n,
+    output            cpu_n, enc_done,
 
     // Base Video
     output            lhbl,
@@ -94,10 +94,15 @@ module jtriders_video(
     output            psc_cs,
     input             psc_ok,
 
-    output     [18:0] pscmap_addr,
-    input      [31:0] pscmap_data,
-    input             pscmap_ok,
-    output            pscmap_cs,
+    output     [19:1] psclo_addr,
+    input      [15:0] psclo_data,
+    input             psclo_ok,
+    output            psclo_cs,
+
+    output     [17:1] pschi_addr,
+    input      [15:0] pschi_data,
+    input             pschi_ok,
+    output            pschi_cs,
 
     output     [10:1] line_addr,
     input      [15:0] line_dout,
@@ -148,12 +153,11 @@ assign lyro_addr   = oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
 assign cpu_n       = hdump[0]; // to be verified
-assign pscmap_cs   = glfgreat;
 
 always @(posedge clk) begin
     skip12 <= lgtnfght | glfgreat;
 end
-
+/* verilator tracing_off */
 jtriders_dump #(.FULLOBJ(1), .PSAC(1)) u_dump(
     .clk            ( clk           ),
     .dump_scr       ( dump_scr      ),
@@ -187,7 +191,7 @@ function [7:0] cgate( input [7:0] c);
     cgate = { c[7:5], 5'd0 };
 endfunction
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 // extra blanking added to help MiSTer output
 // on real hardware, it would've been manually
 // adjusted on the CRT.
@@ -280,13 +284,26 @@ jtaliens_scroll #(
     .st_dout    ( st_scr    )
 );
 
+// The 256kB compressed tilemap does not fit in the Pocket BRAM
+// It would require using one of the external memories and adding one
+// more line buffer to cache it
+`ifndef NOPSAC
 /* verilator tracing_on */
+reg psac_rst;
+
+always @(posedge clk) begin
+    psac_rst <= rst | ~glfgreat;
+end
+
 jtriders_psac u_psac(
-    .rst        ( rst       ),
+    .rst        ( psac_rst  ),
     .clk        ( clk       ),
+    .enc_done   ( enc_done  ),
+
     .pxl_cen    ( pxl_cen   ),
     .enable     ( glfgreat  ),
     .tmap_bank  ( psac_bank ),
+    .hdump      ( hdump     ),
 
     .hs         ( hs        ),
     .vs         ( vs        ),
@@ -298,9 +315,15 @@ jtriders_psac u_psac(
     .dsn        ( cpu_dsn   ),
     .dma_n      (           ),
 
-    .vram_addr  (pscmap_addr),
-    .vram_dout  ( pscmap_data[23:0] ),
-    .vram_ok    ( pscmap_ok ),
+    .psclo_addr ( psclo_addr),
+    .psclo_data ( psclo_data),
+    .psclo_ok   ( psclo_ok  ),
+    .psclo_cs   ( psclo_cs  ),
+
+    .pschi_addr ( pschi_addr),
+    .pschi_data ( pschi_data),
+    .pschi_ok   ( pschi_ok  ),
+    .pschi_cs   ( pschi_cs  ),
 
     .line_addr  ( line_addr ),
     .line_dout  ( line_dout ),
@@ -315,6 +338,10 @@ jtriders_psac u_psac(
     .ioctl_addr (dump_addr[4:0]),
     .ioctl_din  ( psac_mmr  )
 );
+`else
+assign psc_cs=0,psclo_cs=0,pschi_cs=0,psc_pxl=0, line_addr=0,
+    pschi_addr=0, psclo_addr=0,psc_addr=0,enc_done=0,psac_mmr=0;
+`endif
 
 wire [ 1:0] lyro_pri;
 wire [ 3:0] ommra;
@@ -328,7 +355,7 @@ assign orama = lgtnfght ? cpu_addr[13:1] : oram_addr;
 assign oramd = lgtnfght ? cpu_dout : oram_din;
 assign oramw = lgtnfght ? {2{cpu_we}}&~cpu_dsn : oram_we;
 assign vmux  = vrender;
-
+/* verilator tracing_off */
 jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -376,7 +403,7 @@ jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325)) u_obj(    // sprite logic
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),

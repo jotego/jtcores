@@ -60,6 +60,7 @@ func init() {
 	flag.BoolVarP (&mra_args.Show_platform, "show_platform", "p", false, "Show platform name and quit")
 	flag.BoolVarP (&mra_args.JTbin,         "git",           "g", false, "Save files to JTBIN")
 	flag.StringVar(&mra_args.Buttons,       "buttons",               "", "Buttons used by the game -upto six-")
+	flag.StringVar(&mra_args.Setname,       "setname",               "", "Extract only the specified setname")
 	flag.StringVar(&mra_args.URL,           "url",                "https://patreon.com/jotego", "Author's URL")
 	flag.StringVar(&mra_args.Rom_path,      "path",           mame_roms, "Path to MAME .zip files")
 }
@@ -76,15 +77,23 @@ func runMRA(cmd *cobra.Command, args []string) {
 		Must(mra.Reduce(mame_xml_path))
 	} else { // regular operation, each core name is an argument
 		cores, e := get_corenames(args); Must(e)
-		if len(cores)==0 {
-			fmt.Println("Provide at least one core name as an argument or run the program from a core folder")
-			os.Exit(1)
-		}
+		validate_mra_core_args(cores)
 		if cmd_args.clear_folders {
 			clear_folders()
 		}
 		parse_errors := parse_cores(cores)
 		Must(parse_errors)
+	}
+}
+
+func validate_mra_core_args(cores []string) {
+	if len(cores)==0 {
+		fmt.Println("Provide at least one core name as an argument or run the program from a core folder")
+		os.Exit(1)
+	}
+	if len(cores)>1 && mra_args.Setname!="" {
+		fmt.Println("Setname cannot be used when multiple cores are specified")
+		os.Exit(1)
 	}
 }
 
@@ -113,7 +122,7 @@ func parse_cores( corenames []string ) error {
 				fmt.Println("Skipping", mra_args.Core,"missing def/toml")
 				continue
 			}
-			core_errors := mra.Convert(mra_args)
+			core_errors := mra_args.Convert()
 			all_errors = JoinErrors( all_errors, core_errors )
 		}
 	}

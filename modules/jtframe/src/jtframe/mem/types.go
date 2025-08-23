@@ -41,16 +41,6 @@ type Bus interface {
     Is_nbits(n int) bool
 }
 
-type BRAMBus_Ioctl struct {
-    // Instantiating MacroEnabled anonymously does not work
-    // with the YAML package, so When and Unless are duplicated here
-    When    []string `yaml:"when"`
-    Unless  []string `yaml:"unless"`
-    Save    bool `yaml:"save"`
-    Order   int  `yaml:"order"`
-    Restore bool `yaml:"restore"`
-}
-
 type BRAMBus struct {
     // MacroEnabled
     When    []string `yaml:"when"`
@@ -82,6 +72,16 @@ type BRAMBus struct {
     } `yaml:"rom"`
     // Derived information
     PROM_offset   int // PROM offset in .rom file
+}
+
+type BRAMBus_Ioctl struct {
+    // Instantiating MacroEnabled anonymously does not work
+    // with the YAML package, so When and Unless are duplicated here
+    When    []string `yaml:"when"`
+    Unless  []string `yaml:"unless"`
+    Save    bool `yaml:"save"`
+    Order   int  `yaml:"order"`
+    Restore bool `yaml:"restore"`
 }
 
 type DownloadCfg struct {

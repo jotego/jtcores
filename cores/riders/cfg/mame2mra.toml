@@ -61,7 +61,7 @@ regions = [
 	{ name="k053245", width=16, rename="obj", machines=[ "glfgreat" ] },
 	# ROZ plane
 	{ name="zoom",  machines=["glfgreat"], rename="z-tiles", start="PSC_START" }, # 053936 tiles
-	{ name="user1", machines=["glfgreat"], rename="z-tilemap", start="PSCMAP_START" }, # 053936 tile maps
+	{ name="user1", machines=["glfgreat"], rename="z-tilemap", start="PSCMAP_START", width=16, sequence=[1,0,2,2] }, # 053936 tile maps
 
 	{ name="eeprom", skip=true }
 ]

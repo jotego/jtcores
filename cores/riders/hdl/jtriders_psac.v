@@ -21,6 +21,7 @@ module jtriders_psac(
                        pxl_cen,  // use cen instead (see below)
                        hs, vs, dtackn, enable,
                        cs, // cs always writes
+    input       [ 8:0] hdump,
 
     input       [15:0] din,        // from CPU
     input       [ 4:1] addr,
@@ -31,52 +32,85 @@ module jtriders_psac(
     output      [10:1] line_addr,
     input       [15:0] line_dout,
     // Tile map
-    output      [18:0] vram_addr, // 19
-    input       [23:0] vram_dout,
-    input              vram_ok,
+    output      [19:1] psclo_addr,
+    input       [15:0] psclo_data,
+    input              psclo_ok,
+    output             psclo_cs,
 
+    output      [17:1] pschi_addr,
+    input       [15:0] pschi_data,
+    input              pschi_ok,
+    output             pschi_cs,
     // Tiles
     output      [20:0] rom_addr,
     input       [ 7:0] rom_data,
-    output             rom_cs,
+    output reg         rom_cs,
     input              rom_ok,
 
-    output reg  [ 7:0] pxl,
+    output      [ 7:0] pxl,
+    output             enc_done,
 
     // IOCTL dump
-    input      [4:0] ioctl_addr,
-    output     [7:0] ioctl_din
+    input       [ 4:0] ioctl_addr,
+    output      [ 7:0] ioctl_din
 );
 
+wire [71:0] tblock;
+wire [16:0] tmap_addr;
+reg  [16:0] tmapaddr_l;
+reg  [20:0] rom_addr_l;
+wire [18:0] full_addr;
 wire [ 8:0] la;
 wire [ 2:1] lh;
-wire [12:0] x, y;
+reg  [13:0] code;
+wire [12:0] x, y, encoded;
 wire        xh,yh,ob;
-wire [13:0] code;
 wire        hflip, vflip, cen;
-wire [ 3:0] pal, vf, hf, dmux;
-reg         rst2;
+wire [ 7:0] buf_din;
+reg  [ 3:0] pal;
+wire [ 3:0] vf, hf, dmux;
+wire [ 1:0] tile;
+reg         rst2, cen2;
+// encoder
+wire [17:1] t2x2_addr;
+wire [15:0] t2x2_din;
+wire        t2x2_we, dec_we;
+wire [12:0] dec_addr;
+wire [71:0] dec_dout, dec_din;
+reg  [ 4:0] tmap_sh;
 
 assign line_addr = {la[7:0],lh};
-assign vram_addr = {tmap_bank,y[12:4], x[12:4]};
-assign code      = vram_dout[13:0];
+assign full_addr = {tmap_bank,y[12:4], x[12:4]};
+assign tmap_addr = {full_addr[18:10],full_addr[8:1]};
+assign tile      = {y[4],x[4]};
 assign hflip     = 0;
 assign vflip     = 0;
-assign pal       = vram_dout[14+:4];
 assign vf        = {4{vflip}} ^ {y[3:0]};
 assign hf        = {4{hflip}} ^ {x[3:0]};
-assign cen       = pxl_cen & vram_ok & rom_ok;
 
-assign rom_cs    = 1;
 assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
+assign buf_din   = ob    ? 8'b0          : {pal,dmux};
 
-always @(posedge clk) rst2 <= rst | ~enable;
+initial cen2 = 0;
 
-always @(posedge clk) if(cen) begin
-    pxl <= {pal,dmux};
+always @(posedge clk) begin
+    rst2 <= rst | ~enable;
+    cen2 <= ~cen2;
+
+    tmapaddr_l <= tmap_addr;
+    rom_cs     <= tmapaddr_l == tmap_addr;
 end
 
+always @(*) begin
+    case(tile)
+        0: {pal, code} = tblock[ 0+:18];
+        1: {pal, code} = tblock[18+:18];
+        2: {pal, code} = tblock[36+:18];
+        3: {pal, code} = tblock[54+:18];
+    endcase
+end
+/* verilator tracing_off */
 jt053936 u_xy(
     .rst        ( rst2      ),
     .clk        ( clk       ),
@@ -104,6 +138,81 @@ jt053936 u_xy(
 
     .ioctl_addr ( ioctl_addr),
     .ioctl_din  ( ioctl_din )
+);
+/* verilator tracing_on */
+jtglfgreat_encoder u_encoder(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .done       ( enc_done  ),
+    // SDRAM
+    .psclo_addr ( psclo_addr),
+    .psclo_data ( psclo_data),
+    .psclo_ok   ( psclo_ok  ),
+    .psclo_cs   ( psclo_cs  ),
+
+    .pschi_addr ( pschi_addr),
+    .pschi_data ( pschi_data),
+    .pschi_ok   ( pschi_ok  ),
+    .pschi_cs   ( pschi_cs  ),
+    // Compressed tilemap in VRAM
+    .t2x2_addr  ( t2x2_addr ),
+    .t2x2_din   ( t2x2_din  ),
+    .t2x2_we    ( t2x2_we   ),
+    // Decoder
+    .dec_addr   ( dec_addr  ),
+    .dec_dout   ( dec_dout  ),
+    .dec_din    ( dec_din   ),
+    .dec_we     ( dec_we    )
+);
+/* verilator tracing_off */
+jtframe_dual_ram #(.AW(17),.DW(13)) u_2x2tilemap (
+    // Port 0 - programming during power up
+    .clk0       ( clk       ),
+    .addr0      ( t2x2_addr ),
+    .data0      ( t2x2_din[12:0]  ),
+    .we0        ( t2x2_we   ),
+    .q0         (           ),
+    // Port 1 - regular access during gameplay
+    .clk1       ( clk       ),
+    .addr1      ( tmap_addr ),
+    .data1      ( 13'b0     ),
+    .we1        ( 1'b0      ),
+    .q1         ( encoded   )
+);
+
+jtframe_dual_ram #(.AW(13),.DW(72)) u_decoder (
+    // Port 0 - programming during power up
+    .clk0       ( clk       ),
+    .addr0      ( dec_addr  ),
+    .data0      ( dec_din   ),
+    .we0        ( dec_we    ),
+    .q0         ( dec_dout  ),
+    // Port 1 - regular access during gameplay
+    .clk1       ( clk       ),
+    .addr1      ( encoded   ),
+    .data1      ( 72'b0     ),
+    .we1        ( 1'b0      ),
+    .q1         ( tblock    )
+);
+
+jtframe_linebuf_gate #(.RD_DLY(15), .RST_CT(9'h041)) u_linebuf(
+    .rst      ( rst       ),
+    .clk      ( clk       ),
+    .pxl_cen  ( pxl_cen   ),
+    .cen      ( cen2      ),
+    .lvbl     ( 1'b1      ),
+    .hs       ( hs        ),
+    .cnt_cen  ( cen       ),
+  //  New line writting
+    .we       ( cen       ),
+    .hdump    ( hdump     ),
+    .vdump    ( 9'h0      ),
+  //  Previous line reading
+    .rom_cs   ( rom_cs    ),
+    .rom_ok   ( rom_ok    ),
+
+    .pxl_data ( buf_din   ),
+    .pxl_dump ( pxl       )
 );
 
 endmodule

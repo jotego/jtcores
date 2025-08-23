@@ -48,7 +48,6 @@ MACOS=NO
 KEEP_FX68K=
 SED="sed -i"
 SHAUP=
-FRAMERATE=
 START_TIME=$(date +%s)
 UNDEF=
 FAST=
@@ -127,10 +126,6 @@ case "$1" in
         shift
         add_macro JTFRAME_SIM_GFXEN=0x${1#0x};;
     -fast) FAST=1;;
-    -frate)
-        shift
-        FRAMERATE=$1
-        add_macro JTFRAME_SIM_VIDEO;;
     -inputs)
         if [[ $2 != -* ]]; then
             shift

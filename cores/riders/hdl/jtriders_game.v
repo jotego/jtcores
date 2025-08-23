@@ -27,7 +27,7 @@ localparam SSRIDERS = 0,
 
 /* verilator tracing_on */
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy, psac_cs, psac_bank,
-            pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, cpu_n,
+            pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, cpu_n, enc_done,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
             BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
@@ -42,6 +42,12 @@ wire [ 7:0] platch;
 wire [ 2:0] dim;
 wire [ 1:0] oram_we;
 
+`ifdef NOPSAC
+wire [ 1:0] lmem_we;
+wire [15:0] lmem_dout, line_dout=0;
+wire [10:1] line_addr;
+`endif
+
 assign debug_view = debug_mux;
 assign ram_we     = cpu_we & ram_cs;
 assign ram_addr   = main_addr[13:1];
@@ -53,7 +59,7 @@ always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
-        3: debug_mux <= { 2'b0, dimpol, dimmod, 1'b0, dim };
+        3: debug_mux <= { enc_done, 1'b0, dimpol, dimmod, 1'b0, dim };
         default: debug_mux <= 0;
     endcase
 end
@@ -180,7 +186,7 @@ jtriders_prot u_prot(
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
@@ -188,6 +194,7 @@ jtriders_video u_video (
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),
     .cpu_n          ( cpu_n         ),
+    .enc_done       ( enc_done      ),
 
     .ssriders       ( ssriders      ),
     .lgtnfght       ( lgtnfght      ),
@@ -234,10 +241,15 @@ jtriders_video u_video (
     .psc_cs         ( psc_cs        ),
     .psc_ok         ( psc_ok        ),
 
-    .pscmap_addr    ( pscmap_addr   ),
-    .pscmap_data    ( pscmap_data   ),
-    .pscmap_cs      ( pscmap_cs     ),
-    .pscmap_ok      ( pscmap_ok     ),
+    .psclo_addr     ( psclo_addr    ),
+    .psclo_data     ( psclo_data    ),
+    .psclo_ok       ( psclo_ok      ),
+    .psclo_cs       ( psclo_cs      ),
+
+    .pschi_addr     ( pschi_addr    ),
+    .pschi_data     ( pschi_data    ),
+    .pschi_ok       ( pschi_ok      ),
+    .pschi_cs       ( pschi_cs      ),
 
     .line_addr      ( line_addr     ),
     .line_dout      ( line_dout     ),

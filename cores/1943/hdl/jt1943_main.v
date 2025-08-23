@@ -204,10 +204,6 @@ always @(posedge clk, posedge rst)
     else if(cpu_cen) begin
         if( bank_cs && !wr_n ) begin
             bank     <= cpu_dout[BANK_BIT1:BANK_BIT0];
-            `ifdef SIMULATION
-                if(cpu_dout[BANK_BIT1:BANK_BIT0]!=bank)
-                    $display("INFO: Bank changed to %d", cpu_dout[4:2]);
-            `endif
         end
         if( misc_cs  && !wr_n ) begin
             CHON     <= cpu_dout[CHON_BIT];
@@ -215,10 +211,6 @@ always @(posedge clk, posedge rst)
             if( GAME==1 ) SC2ON <= cpu_dout[5]; // Star on signal for Side Arms
             sres_b   <= ~cpu_dout[SRES_BIT]; // inverted through M54532
             coin_cnt <= |cpu_dout[1:0];
-            `ifdef SIMULATION
-                if (!cpu_dout[SRES_BIT])
-                    $display("INFO: Sound CPU reset");
-            `endif
         end
         if( snd_latch_cs && !wr_n ) snd_latch <= cpu_dout;
         if( scrposv_cs ) begin
@@ -308,11 +300,6 @@ always @(*)
         4'b00_01: cpu_din = cabinet_input;
         default:  cpu_din = rom_data;
     endcase
-
-`ifdef SIMULATION
-always @(negedge rd_n)
-    if( in_cs && A[2:0]=='d7 ) $display("INFO: Security code read %m ");
-`endif
 
 // ROM ADDRESS: 32kB + 8 banks of 16kB
 always @(*) begin

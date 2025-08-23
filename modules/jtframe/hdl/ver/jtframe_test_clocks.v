@@ -45,7 +45,7 @@ initial begin
     #300 rst=0;
     #TIMEOUT
     $display("FAIL: Timeout");
-    $stop;
+    $finish;
 end
 
 initial begin

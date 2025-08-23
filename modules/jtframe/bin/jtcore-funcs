@@ -270,3 +270,33 @@ get_corename_from_folder() {
 	fi
 	echo ${defprj%%/*}
 }
+
+report_sdc_problems() {
+    local rpt_files_path="$1"
+    local sta_rpt=$(find "$rpt_files_path" -name "*sta.rpt" | head -n 1)
+    if [ ! -e "$sta_rpt" ]; then
+        echo "Cannot find STA report file in $rpt_files_path"
+        exit 1
+    fi
+    report_unknown_clocks "$sta_rpt"
+    if is_using_cram "$sta_rpt"; then
+        report_cram_warnings "$sta_rpt"
+    fi
+}
+
+report_unknown_clocks() {
+    local rpt="$1"
+    grep -i "ignored.* -clock " "$rpt"
+}
+
+is_using_cram() {
+    local rpt="$1"
+    if grep -q 'No paths exist between clock target "cram0_clk"' "$rpt"; then
+        return 1
+    fi
+}
+
+report_cram_warnings() {
+    local rpt="$1"
+    grep -i "Warning.*cram.*" "$rpt"
+}
