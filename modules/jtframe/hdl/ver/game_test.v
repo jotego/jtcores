@@ -642,7 +642,7 @@ u_game(
 `endif
 
 endmodule
-
+/* verilator tracing_on */
 module jtframe_ddr_model(
     input         clk,
     output reg    busy,

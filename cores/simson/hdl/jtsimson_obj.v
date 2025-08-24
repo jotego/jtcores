@@ -26,7 +26,7 @@ module jtsimson_obj #(parameter
     // it is never changed. Other register functions are unknown
     // so I am leaving it static for now
     K55673_DESC_SORT = 0,
-    [9:0] HOFFSET   = 10'd62
+    parameter [9:0] HOFFSET   = 10'd62
 )(
     input             rst,
     input             clk,

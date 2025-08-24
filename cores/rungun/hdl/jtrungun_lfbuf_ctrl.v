@@ -19,34 +19,39 @@
 module jtrungun_lfbuf_ctrl(
     input             clk,
     output     [ 8:0] ln_addr,
-    output            ln_done,
+    output reg        ln_done,
     input             ln_hs,
     input      [ 7:0] ln_v,
     output            ln_we,
 
-    input             scr_ok, obj_ok, fix_ok,
+    input             scr_cs, obj_cs, fix_cs,
+                      scr_ok, obj_ok, fix_ok,
                       hflip, vflip,
     // virtual screen
-    output            cen,
+    output reg        cen,
     output reg        hs,
     output reg [ 8:0] hdump,
     output     [ 8:0] hdumpf,
     output     [ 7:0] vdump, vdumpf
 );
 
-reg [10:0] nx_hdump;
-reg        lnhs_l;
+wire [9:0] nx_hdump;
+reg        lnhs_l, cen2;
+reg  [1:0] cencnt;
+wire       hs_edge;
 
 assign vdump    = ln_v;
 assign nx_hdump = {1'b0,hdump}+10'd1;
-assign cen      = &{fix_ok,scr_ok,obj_ok};
-assign ln_we    = ~ln_done;
+assign ln_we    = ~ln_done & cen;
 assign ln_addr  = hdump;
 assign hs_edge  = ln_hs & ~lnhs_l;
 assign hdumpf = {9{hflip}}^hdump,
        vdumpf = {8{vflip}}^vdump;
 
 always @(posedge clk) begin
+    cencnt <=cencnt+1'd1;
+    cen2 <= ~cen2;
+    cen <= &{fix_ok|~fix_cs,scr_ok|~scr_cs,obj_ok|~obj_cs,~ln_done,cencnt==0};
     lnhs_l <= ln_hs;
     if(cen && !ln_done) begin
         hs <= 0;

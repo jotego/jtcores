@@ -27,6 +27,8 @@ module jtrungun_video(
     output             lvbl,
     output             hs,
     output             vs,
+    output      [ 8:0] hdump,
+    output      [ 7:0] vdump,
     // CPU interface
     input              ccu_cs,   // timer
     input              psac_cs,
@@ -91,8 +93,8 @@ module jtrungun_video(
 
 wire [31:0] fix_sort;
 wire [11:0] fix_code;
-wire [ 8:0] hdump, virt_hdumpf, obj_pxl, virt_hdump;
-wire [ 7:0] vdump, virt_vdumpf, psc_pxl, virt_vdump;
+wire [ 8:0] virt_hdumpf, obj_pxl, virt_hdump;
+wire [ 7:0] virt_vdumpf, psc_pxl, virt_vdump;
 wire [ 7:0] fix_raw, fix_pxl, dump_obj, obj_mmr, ccu_mmr, psac_mmr;
 wire [ 4:0] obj_prio;
 wire [ 3:0] fix_pal, ommra;
@@ -140,6 +142,7 @@ jtrungun_vtimer u_vtimer(
     .vdumpf     (               )
 );
 
+// video timer
 jtk053252 u_k053252(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -177,6 +180,13 @@ jtrungun_lfbuf_ctrl u_lfbuf_ctrl(
     .ln_hs      ( ln_hs         ),
     .ln_v       ( ln_v          ),
     .ln_we      ( ln_we         ),
+
+    .vflip      ( gvflip        ),
+    .hflip      ( ghflip        ),
+
+    .scr_cs     ( scr_cs        ),
+    .obj_cs     ( obj_cs        ),
+    .fix_cs     ( fix_cs        ),
 
     .scr_ok     ( scr_ok        ),
     .obj_ok     ( obj_ok        ),
@@ -315,29 +325,32 @@ jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd3)) u_obj(    // sp
 );
 
 jtrungun_colmix u_colmix(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .pxl_cen    ( pxl_cen       ),
     .lrsw       ( lrsw          ),
-
-    // Base Video
-    .lhbl       ( lhbl          ),
-    .lvbl       ( lvbl          ),
     .pri        ( pri           ),
-
-    .pal_addr   ( pal_addr      ),
-    .pal_dout   ( pal_dout      ),
     // Final pixels
     .fix_pxl    ( fix_pxl       ),
     .obj_pxl    ( obj_pxl       ),
     .psc_pxl    ( psc_pxl       ),
     .shadow     ( shadow        ),
 
+    .pxl        ( ln_data       ),
+    .debug_bus  ( debug_bus     )
+);
+
+jtrungun_dim u_dim(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    // Base Video
+    .pxl_cen    ( virt_cen      ),
+    .lhbl       ( lhbl          ),
+    .lvbl       ( lvbl          ),
+
+    .pal_addr   ( pal_addr      ),
+    .pal_dout   ( pal_dout      ),
+    .pxl        ( ln_pxl        ),
     .red        ( red           ),
     .green      ( green         ),
-    .blue       ( blue          ),
-
-    .debug_bus  ( debug_bus     )
+    .blue       ( blue          )
 );
 
 endmodule
