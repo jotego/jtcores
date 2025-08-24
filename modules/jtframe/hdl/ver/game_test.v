@@ -665,7 +665,7 @@ module jtframe_ddr_model(
     reg [SW-1:0] areg;
     reg        rding, wring;
 
-    assign dout       = mem[areg];
+    assign dout = mem[areg];
 
     integer aux;
     initial begin
@@ -681,33 +681,35 @@ module jtframe_ddr_model(
         end
     end
 
-    assign busy = busy_cnt!=0 && !(rding || wring);
+    assign busy = 0; //busy_cnt==7 && !(rding || wring);
 
     always @(posedge clk) begin
         busy_cnt <= busy_cnt+1'd1;
-        dout_cnt <= dout_cnt-1'd1;
+        if(dout_cnt != 0) begin
+            dout_cnt <= dout_cnt-1'd1;
+        end else begin
+            dout_ready <= rding;
+        end
         if( cnt==0 ) begin
             rding <= 0;
             wring <= 0;
             dout_ready <= 0;
         end
-        if( (rd || we) && !busy ) begin
-            cnt      <= burstcnt;
-            areg     <= addr[SW-1:0];
-            rding    <= rd;
-            wring    <= we;
-            dout_cnt <= 15;
+        if( (wring || dout_ready) && cnt != 0 && !busy ) begin
+            cnt  <= cnt-8'd1;
+            areg <= areg + 1'd1;
         end
-        if( dout_cnt==0 ) begin
-            dout_ready <= 1;
+        if( (rd || (we&&!wring)) && !busy ) begin
+            cnt        <= burstcnt;
+            areg       <= addr[SW-1:0];
+            rding      <= rd;
+            wring      <= we;
+            dout_ready <= 0;
+            dout_cnt   <= 7;
         end
         if( wring ) begin
             for( aux=0;aux<8;aux=aux+1)
                 if( be[aux] ) mem[areg][8*aux+:8] <= din[8*aux+:8];
-        end
-        if( (wring || dout_ready) && cnt != 0 ) begin
-            cnt <= cnt-8'd1;
-            areg <= areg + 1'd1;
         end
     end
 
