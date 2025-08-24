@@ -287,8 +287,6 @@ jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd3)) u_obj(    // sp
     // Base Video (inputs)
     .hs         ( virt_hs   ),
     .vs         ( vs        ),
-    .lvbl       ( lvbl      ),
-    .lhbl       ( lhbl      ),
     .hdump      ( virt_hdump),
     .vdump      ({1'b1,virt_vdump} ),
     // CPU interface
@@ -308,7 +306,7 @@ jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd3)) u_obj(    // sp
     // ROM
     .rom_addr   ( obj_addr  ),
     .rom_data   ( obj_data  ),
-    .rom_ok     ( 1'b1      ),
+    .rom_ok     ( obj_ok    ),
     .rom_cs     ( obj_cs    ),
     .objcha_n   ( objcha_n  ),
     // pixel output

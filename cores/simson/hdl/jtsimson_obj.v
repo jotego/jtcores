@@ -39,8 +39,6 @@ module jtsimson_obj #(parameter
     input      [ 9:0] voffset,
     input             hs,
     input             vs,
-    input             lhbl, // not an input in the original
-    input             lvbl,
 
     // CPU interface
     input             ram_cs,
@@ -167,7 +165,7 @@ jt053246 #(
     // control
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
-    .vs         ( lvbl      ), // this board uses VB here, instead of VS
+    .vs         ( vs        ),
     .hs         ( hs        ),
 
     // shadow
