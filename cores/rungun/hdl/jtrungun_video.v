@@ -237,7 +237,7 @@ jtframe_tilemap #(
 
 jtframe_sh #(.W(8),.L(2)) u_fixsh(
     .clk    ( clk       ),
-    .clk_en ( pxl_cen   ),
+    .clk_en ( virt_cen  ),
     .din    ( fix_raw   ),
     .drop   ( fix_pxl   )
 );
