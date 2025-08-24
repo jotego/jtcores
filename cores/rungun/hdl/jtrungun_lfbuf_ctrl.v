@@ -49,7 +49,7 @@ assign hdumpf = {9{hflip}}^hdump,
        vdumpf = {8{vflip}}^vdump;
 
 always @(posedge clk) begin
-    cencnt <=cencnt+1'd1;
+    cencnt <= cencnt+1'd1;
     cen2 <= ~cen2;
     cen <= &{fix_ok|~fix_cs,scr_ok|~scr_cs,obj_ok|~obj_cs,~ln_done,cencnt==0};
     lnhs_l <= ln_hs;
