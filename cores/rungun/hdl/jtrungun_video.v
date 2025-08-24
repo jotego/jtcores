@@ -341,7 +341,7 @@ jtrungun_dim u_dim(
     .rst        ( rst           ),
     .clk        ( clk           ),
     // Base Video
-    .pxl_cen    ( virt_cen      ),
+    .pxl_cen    ( pxl_cen       ),
     .lhbl       ( lhbl          ),
     .lvbl       ( lvbl          ),
 

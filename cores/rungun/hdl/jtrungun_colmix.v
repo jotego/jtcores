@@ -32,14 +32,14 @@ module jtrungun_colmix(
 wire        shad, fix_op, psc_op, obj_op;
 
 assign fix_op   = fix_pxl[3:0]!=0;
-assign psc_op   = psc_pxl[3:0]!=0;
-assign obj_op   = obj_pxl[3:0]!=0;
+assign psc_op = psc_pxl[3:0]!=0;
+assign obj_op = obj_pxl[3:0]!=0;
 assign pxl[15:12]=0;
 assign pxl[11] = lrsw;
 assign pxl[ 0] = shad;
 assign pxl[10: 1] =  fix_op ?         {2'b00,fix_pxl} :
-            !psc_op || (!pri && obj_op) ? {1'b1, obj_pxl} :
-                                          {2'b01,psc_pxl};
+        !psc_op || (!pri && obj_op) ? {1'b1, obj_pxl} :
+                                      {2'b01,psc_pxl};
 
 assign shad = 0; // to do
 
