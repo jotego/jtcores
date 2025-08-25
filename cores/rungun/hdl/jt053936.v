@@ -53,12 +53,12 @@ module jt053936(
     wire [15:0] io_mux, xhstep, xvstep, yhstep, yvstep, xcnt0, ycnt0;
     wire [ 9:0] xmin,  xmax, hcnt0, h;
     wire [ 8:0] ymin,  ymax, vcnt0, ln0, v;
-    wire [ 1:0] hmul;
+    wire [ 1:0] hmul, vmul;
     wire [ 5:0] xclip, yclip;
     wire        ln_en, ln_rd, ln_ok;
     wire [ 5:0] ob_cfg;
-    wire        nulwin, tick_hs, tick_vs, hs_dly, vmul;
-    reg         xhmul, yhmul;
+    wire        nulwin, tick_hs, tick_vs, hs_dly;
+    reg  [ 1:0] xmul, ymul;
     integer k;
 
     assign io_mux = mmr[ioctl_addr[4:1]];
@@ -69,7 +69,7 @@ module jt053936(
     assign xhstep = mmr[ 4]; //
     assign yhstep = mmr[ 5]; //
     assign hmul   = mmr[ 6][ 7: 6];
-    assign vmul   = mmr[ 6][14];
+    assign vmul   = mmr[ 6][15:14];
     assign xclip  = mmr[ 6][ 5: 0];
     assign yclip  = mmr[ 6][13: 8];
     assign ln_en  = mmr[ 7][6];
@@ -85,8 +85,8 @@ module jt053936(
     assign dma_n  = ln_rd || !ln_en;
 
     always @(posedge clk) if(cen) begin
-        xhmul <= ln_en ? mmr[6][15] : mmr[6][6];
-        yhmul <= ln_en ? mmr[6][14] : mmr[6][6];
+        xmul <= ln_en ? ~hmul : {2{mmr[6][6]}};
+        ymul <= ln_en ? ~vmul : {2{mmr[6][6]}};
     end
 
     jt053936_ticks u_ticks(clk,cen,hs,vs,tick_hs,tick_vs);
@@ -119,8 +119,7 @@ module jt053936(
         .hstep      ( xhstep    ),
         .vstep      ( xvstep    ),
         .cnt0       ( xcnt0     ),
-        .hmul       ( xhmul     ),
-        .vmul       ( vmul      ),
+        .mul        ( xmul      ),
         .cnt        ( xsum      )
     );
 
@@ -134,8 +133,7 @@ module jt053936(
         .hstep      ( yhstep    ),
         .vstep      ( yvstep    ),
         .cnt0       ( ycnt0     ),
-        .hmul       ( yhmul     ),
-        .vmul       ( vmul      ),
+        .mul        ( ymul      ),
         .cnt        ( ysum      )
     );
 
@@ -298,7 +296,7 @@ module jt053936_window #(parameter W=9)(
     assign xyout    = xout & yout;
     assign ob_mix_n = ~|{obx_n, oby_n, ob_win};
 
-    jt053936_outside #(10) u_hwin(clk,cen,tick_hs,nulwin,h,xmin,xmax,xout);
+    jt053936_outside #(10) u_hwin(clk,cen,tick_hs,nulwin,h,xmax,xmin,xout);
     jt053936_outside #( 9) u_vwin(clk,cen,tick_vs,nulwin,v,ymin,ymax,yout);
     jt053936_clip         u_xclip(xclip,xsum,obx_n);
     jt053936_clip         u_yclip(yclip,ysum,oby_n);
@@ -371,7 +369,7 @@ endmodule
 module jt053936_counter(
     input             clk,cen,hs,hs_dly,vs,ln_en,
     input      [15:0] hstep, vstep,cnt0,
-    input             vmul, hmul,
+    input      [ 1:0] mul,
     output reg [23:0] cnt
 );
     reg [23:0] eff_hstep, eff_vstep, vcnt;
@@ -380,8 +378,8 @@ module jt053936_counter(
 
     always @(posedge clk) if(cen) begin
         if(up) begin
-            eff_hstep <= hmul ? {hstep,8'd0} : {{8{hstep[15]}},hstep};
-            eff_vstep <= vmul ? {vstep,8'd0} : {{8{vstep[15]}},vstep};
+            eff_hstep <= mul[0] ? {hstep,8'd0} : {{8{hstep[15]}},hstep};
+            eff_vstep <= mul[1] ? {vstep,8'd0} : {{8{vstep[15]}},vstep};
         end
         hs_mx <= ln_en ? hs_dly : hs;
         cnt   <= eff_hstep + cnt;
