@@ -42,7 +42,6 @@ main() {
     local check_audio_ec=0
 
     if ( $check || $local_check ) && [[ $simulate_ec == 0 ]]; then
-        print_step "Checking simulation for $setname"
         check_video
         check_video_ec=$?
 
@@ -106,8 +105,12 @@ main() {
     fi
 
     if $push; then
-        print_step "Uploading simulation results $setname"
-        upload_results $ec
+        if [[ $ec == 0 ]]; then
+            echo "[INFO] Regression succeed! Skiping upload"
+        else
+            print_step "Uploading simulation results for $setname"
+            upload_results $ec
+        fi
     fi
 
     return $ec
@@ -349,6 +352,8 @@ get_opts() {
 }
 
 check_video() {
+    print_step "Checking frames"
+
     if $check; then
         local frames_dir
         if ! get_remote_frames frames_dir; then return 1; fi
@@ -367,8 +372,8 @@ get_remote_frames() {
     dir=$(mktemp -d)
     trap "rm -rf $dir" EXIT
 
-    echo "[INFO] Downloading remote frames for setname $setname"
-    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
+    echo "[INFO] Downloading remote frames for $setname"
+    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
 get regression/$core/$setname/valid/frames.zip $dir
 bye
 EOF
@@ -396,7 +401,6 @@ check_frames() {
         local frame="${frames[$i]}"
         local ref_frame="${ref_frames[$i]}"
 
-        echo "Comparing $(basename $frame)..."
         local failed=false
         if perceptualdiff "$ref_frame" "$frame"; then
             echo "[INFO] $(basename $frame): match"
@@ -450,8 +454,8 @@ check_audio() {
 }
 
 get_remote_audio() {
-    echo "[INFO] Downloading remote audio for setname $setname"
-    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
+    echo "[INFO] Downloading remote audio for $setname"
+    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
 get regression/$core/$setname/valid/audio.zip
 bye
 EOF
@@ -483,18 +487,20 @@ upload_results() {
     esac
 
     zip -q frames.zip frames/*
-    mv test.wav audio.wav
+    mv --force --no-copy test.wav audio.wav
     zip -q audio.zip audio.wav
 
-    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR <<EOF
+    echo "[INFO] Starting upload"
+    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
 mkdir regression
 mkdir regression/$core
 mkdir regression/$core/$setname
 mkdir regression/$core/$setname/$folder
 cd regression/$core/$setname/$folder
-put "${files[@]}"
+$(for f in "${files[@]}"; do echo "put $f"; done)
 bye
 EOF
+    echo "[INFO] Upload finished"
 }
 
 main "$@"

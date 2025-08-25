@@ -133,7 +133,6 @@ jobs:
           printf '%s' '${{ toJSON(matrix.batch.items) }}' > batch.json
           yq -r '.[] | .core' batch.json > cores.lst
           yq -r '.[] | .setname' batch.json > setnames.lst
-
           job='
             source setprj.sh
             run_regression.sh {1} {2} --check --push \
