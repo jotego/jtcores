@@ -44,7 +44,7 @@ wire [ 1:0] oram_we;
 
 `ifdef NOPSAC
 wire [ 1:0] lmem_we;
-wire [15:0] lmem_dout, line_dout=0;
+wire [15:0] lmem_dout=0, line_dout=0;
 wire [10:1] line_addr;
 `endif
 
