@@ -75,7 +75,7 @@ reg         rst2, cen2;
 wire [17:1] t2x2_addr;
 wire [15:0] t2x2_din;
 wire        t2x2_we, dec_we;
-wire [12:0] dec_addr;
+wire [12:0] dec_addr, dec_rd;
 wire [71:0] dec_dout, dec_din;
 reg  [ 4:0] tmap_sh;
 
@@ -91,6 +91,8 @@ assign hf        = {4{hflip}} ^ {x[3:0]};
 assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
 assign buf_din   = ob    ? 8'b0          : {pal,dmux};
+assign dec_rd    = enc_done ? encoded    : dec_addr;
+assign dec_dout  = tblock;
 
 initial cen2 = 0;
 
@@ -165,34 +167,22 @@ jtglfgreat_encoder u_encoder(
     .dec_we     ( dec_we    )
 );
 /* verilator tracing_off */
-jtframe_dual_ram #(.AW(17),.DW(13)) u_2x2tilemap (
-    // Port 0 - programming during power up
-    .clk0       ( clk       ),
-    .addr0      ( t2x2_addr ),
-    .data0      ( t2x2_din[12:0]  ),
-    .we0        ( t2x2_we   ),
-    .q0         (           ),
-    // Port 1 - regular access during gameplay
-    .clk1       ( clk       ),
-    .addr1      ( tmap_addr ),
-    .data1      ( 13'b0     ),
-    .we1        ( 1'b0      ),
-    .q1         ( encoded   )
+jtframe_rpwp_ram #(.AW(17),.DW(13)) u_2x2tilemap (
+    .clk        ( clk       ),
+    .wr_addr    ( t2x2_addr ),
+    .din        ( t2x2_din[12:0]  ),
+    .we         ( t2x2_we   ),
+    .rd_addr    ( tmap_addr ),
+    .dout       ( encoded   )
 );
 
-jtframe_dual_ram #(.AW(13),.DW(72)) u_decoder (
-    // Port 0 - programming during power up
-    .clk0       ( clk       ),
-    .addr0      ( dec_addr  ),
-    .data0      ( dec_din   ),
-    .we0        ( dec_we    ),
-    .q0         ( dec_dout  ),
-    // Port 1 - regular access during gameplay
-    .clk1       ( clk       ),
-    .addr1      ( encoded   ),
-    .data1      ( 72'b0     ),
-    .we1        ( 1'b0      ),
-    .q1         ( tblock    )
+jtframe_rpwp_ram #(.AW(13),.DW(72)) u_decoder (
+    .clk        ( clk       ),
+    .wr_addr    ( dec_addr  ),
+    .din        ( dec_din   ),
+    .we         ( dec_we    ),
+    .rd_addr    ( dec_rd    ),
+    .dout       ( tblock    )
 );
 
 jtframe_linebuf_gate #(.RD_DLY(15), .RST_CT(9'h041)) u_linebuf(
