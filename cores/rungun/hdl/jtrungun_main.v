@@ -81,6 +81,7 @@ module jtrungun_main(
 );
 `ifndef NOMAIN
 wire [23:1] A;
+wire [ 2:0] FC;
 wire [15:0] sys1_dout, sys2_dout;
 reg  [15:0] cab_dout, cpu_din, cab1_dout;
 reg  [ 9:0] cab2_dout;
@@ -145,11 +146,13 @@ always @* begin
     // 056541 PAL
     boot_cs =   !ASn  &&  A[23:20]==0 && RnW && !BUSn;
     xrom_cs =   !ASn  && (A[23:20]==2 || A[23:20]==1) && !BUSn;
+    rom_cs  = boot_cs || xrom_cs;
+
     ram_cs  =   !ASn  &&  A[23:19]==5'b0011_1 && !BUSn;
     gfx_cs  =   !ASn  &&  A[23:21]==3'b011;     // $3?_???? ~$7?_????
     // dmac_cs =   !ASn  &&  A[23:19]==5'b0011_1;  // $38_???? same as RAM in PAL equations
     cpal_cs =   !ASn  &&  A[23:19]==5'b0011_0;
-    misc_cs =   !ASn  &&  A[23:21]==3'b010; // $4?_...
+    misc_cs =   !ASn  &&  A[23:21]==3'b010 && !rom_cs; // $4?_...
     // 74F138 at 11T
     vmem_cs = gfx_cs  &&  A[20:18]==5; // $74_????
     pslrm_cs= gfx_cs  &&  A[20:18]==4; // $70_... 2k PSAC line
@@ -174,7 +177,6 @@ always @* begin
 end
 
 always @* begin
-    rom_cs    = boot_cs | xrom_cs;
     main_addr = A[21:1];
     if(boot_cs) main_addr[21:20]=0;
     if(rom_cs ) case(A[21:20])
@@ -312,7 +314,7 @@ jtframe_m68k u_cpu(
     .UDSn       ( UDSn        ),
     .ASn        ( ASn         ),
     .VPAn       ( VPAn        ),
-    .FC         (             ),
+    .FC         ( FC          ),
 
     .BERRn      ( 1'b1        ),
     // Bus arbitrion

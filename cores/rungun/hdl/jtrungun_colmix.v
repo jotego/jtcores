@@ -17,53 +17,30 @@
     Date: 6-7-2025 */
 
 module jtrungun_colmix(
-    input             rst, clk, pxl_cen,
+    input             lrsw, pri,
 
-    // Base Video
-    input             lhbl, lvbl, lrsw, pri,
-
-    output     [11:1] pal_addr,
-    input      [15:0] pal_dout,
     // Final pixels
     input      [ 1:0] shadow,
     input      [ 8:0] obj_pxl,
     input      [ 7:0] fix_pxl, psc_pxl,
 
-    output     [ 7:0] red,
-    output     [ 7:0] green,
-    output     [ 7:0] blue,
-
+    // frame buffer
+    output     [15:0] pxl,
     input      [ 7:0] debug_bus
 );
 
-reg  [23:0] bgr;
-reg  [ 7:0] r8, b8, g8;
 wire        shad, fix_op, psc_op, obj_op;
 
-assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 assign fix_op   = fix_pxl[3:0]!=0;
-assign psc_op   = psc_pxl[3:0]!=0;
-assign obj_op   = obj_pxl[3:0]!=0;
-assign pal_addr[11]   = lrsw;
-assign pal_addr[10:1] =  fix_op ?         {2'b00,fix_pxl} :
-            !psc_op || (!pri && obj_op) ? {1'b1, obj_pxl} :
-                                          {2'b01,psc_pxl};
+assign psc_op = psc_pxl[3:0]!=0;
+assign obj_op = obj_pxl[3:0]!=0;
+assign pxl[15:12]=0;
+assign pxl[11] = lrsw;
+assign pxl[ 0] = shad;
+assign pxl[10: 1] =  fix_op ?         {2'b00,fix_pxl} :
+        !psc_op || (!pri && obj_op) ? {1'b1, obj_pxl} :
+                                      {2'b01,psc_pxl};
 
-assign shad      = 0; // to do
-
-function [7:0] conv58(input [4:0] cin );
-begin
-    conv58 = {cin, cin[4-:3]};
-end
-endfunction
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        bgr   <= 0;
-    end else begin
-        { b8, g8, r8 } <= {conv58(pal_dout[10+:5]),conv58(pal_dout[5+:5]),conv58(pal_dout[0+:5])};
-        if( pxl_cen ) bgr <= ~shad ? { b8, g8, r8 } : { b8>>1, g8>>1, r8>>1 };
-    end
-end
+assign shad = 0; // to do
 
 endmodule

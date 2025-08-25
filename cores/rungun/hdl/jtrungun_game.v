@@ -30,7 +30,7 @@ wire        lrsw, psac_cs, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw, pair_we,
 assign debug_view={7'd0,dma_bsy};
 assign dip_flip = ghflip ^ gvflip;
 assign psrm_dout = {psac2_dout,psac01_dout};
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtrungun_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -109,7 +109,7 @@ jtrungun_main u_main(
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtrungun_sound u_sound(
     .rst            ( rst           ),
     .clk            ( clk48         ),
@@ -161,6 +161,8 @@ jtrungun_video u_video(
     .lvbl           ( LVBL          ),
     .hs             ( HS            ),
     .vs             ( VS            ),
+    .hdump          ( game_hdump    ),
+    .vdump          ( game_vrender  ),
     // CPU interface
     .ccu_cs         ( ccu_cs        ),   // timer
     .psac_cs        ( psac_cs       ),
@@ -203,6 +205,15 @@ jtrungun_video u_video(
     .obj_data       ( obj_data      ),
     .obj_cs         ( obj_cs        ),
     .obj_ok         ( obj_ok        ),
+
+    // Frame buffer
+    .ln_addr        ( ln_addr       ),
+    .ln_data        ( ln_data       ),
+    .ln_done        ( ln_done       ),
+    .ln_hs          ( ln_hs         ),
+    .ln_pxl         ( ln_pxl        ),
+    .ln_v           ( ln_v          ),
+    .ln_we          ( ln_we         ),
     // final pixel
     .red            ( red           ),
     .green          ( green         ),

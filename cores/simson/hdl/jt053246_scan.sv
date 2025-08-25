@@ -39,7 +39,6 @@ module jt053246_scan (    // sprite logic
     input      [ 8:0] vdump,    // generated internally.
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
-    // input             vs,
     input             hs,
 
     input      [15:0] scan_even, 
@@ -167,7 +166,7 @@ always @* begin : B
 end
 
 // Table scan
-always @(posedge clk, posedge rst) begin : A
+always @(posedge clk) begin : A
     if( rst ) begin
         hs_l     <= 0;
         scan_obj <= 0;

@@ -63,7 +63,7 @@ module jtframe_lfbuf_ddr_ctrl #(parameter
 localparam AW=HW+VW+1;
 localparam [1:0] IDLE=0, READ=1, WRITE=2;
 
-reg           vsl, lhbl_l, ln_done_l, do_wr;
+reg           lhbl_l, ln_done_l, do_wr;
 reg  [   1:0] st;
 reg  [AW-1:0] act_addr;
 wire [HW-1:0] nx_rd_addr;
@@ -101,10 +101,8 @@ always @( posedge clk, posedge rst ) begin
         hlim   <= 0;
         hcnt   <= 0;
         lhbl_l <= 0;
-        vsl    <= 0;
     end else if(pxl_cen) begin
         lhbl_l  <= lhbl;
-        vsl     <= vs;
         hcnt    <= hcnt+1'd1;
         if( ~lhbl & lhbl_l ) begin // enters blanking
             hcnt   <= 0;

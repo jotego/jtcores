@@ -30,7 +30,6 @@ module jtriders_obj #(parameter
     input      [ 8:0] vdump,
     input             hs,
     input             vs,
-    input             lhbl, // not an input in the original
     input             lvbl,
     input             lgtnfght,
 

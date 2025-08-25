@@ -367,7 +367,6 @@ jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325)) u_obj(    // sprite logic
     .hs         ( hs        ),
     .vs         ( vs        ),
     .lvbl       ( lvbl      ),
-    .lhbl       ( lhbl      ),
     .hdump      ( hdump     ),
     .vdump      ( vmux      ),
     // CPU interface

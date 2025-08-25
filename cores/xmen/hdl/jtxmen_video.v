@@ -273,8 +273,6 @@ jtsimson_obj #(.RAMW(13),.SHADOW(1)) u_obj(    // sprite logic
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
-    .lvbl       ( lvbl      ),
-    .lhbl       ( lhbl      ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
     // CPU interface

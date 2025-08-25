@@ -211,6 +211,7 @@ jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
 assign obj_shd[1] = 1'b0;
 jtriders_obj #(.RAMW(ORAMW),.HFLIP_OFFSET(10'd134)) u_obj(
     .lgtnfght   ( 1'b0      ),
+    .lvbl       ( lvbl      ),
 `endif
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -220,8 +221,6 @@ jtriders_obj #(.RAMW(ORAMW),.HFLIP_OFFSET(10'd134)) u_obj(
     // Base Video (inputs)
     .hs         ( hs        ),
     .vs         ( vs        ),
-    .lvbl       ( lvbl      ),
-    .lhbl       ( lhbl      ),
     .hdump      ( hdump     ),
     .vdump      ( vrender   ),
     // CPU interface

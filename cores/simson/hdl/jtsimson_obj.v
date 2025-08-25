@@ -26,7 +26,7 @@ module jtsimson_obj #(parameter
     // it is never changed. Other register functions are unknown
     // so I am leaving it static for now
     K55673_DESC_SORT = 0,
-    [9:0] HOFFSET   = 10'd62
+    parameter [9:0] HOFFSET   = 10'd62
 )(
     input             rst,
     input             clk,
@@ -39,8 +39,6 @@ module jtsimson_obj #(parameter
     input      [ 9:0] voffset,
     input             hs,
     input             vs,
-    input             lhbl, // not an input in the original
-    input             lvbl,
 
     // CPU interface
     input             ram_cs,
@@ -167,7 +165,7 @@ jt053246 #(
     // control
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
-    .vs         ( lvbl      ), // this board uses VB here, instead of VS
+    .vs         ( vs        ),
     .hs         ( hs        ),
 
     // shadow

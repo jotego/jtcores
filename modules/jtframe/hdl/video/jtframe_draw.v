@@ -93,7 +93,7 @@ end
 
 always @(posedge clk) cen <= ~cen;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         rom_cs   <= 0;
         buf_addr <= 0;

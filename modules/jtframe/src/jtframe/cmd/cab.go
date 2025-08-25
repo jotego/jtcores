@@ -124,8 +124,19 @@ func (cab *cab_converter)make_hexfile(cabfile io.Reader) (hex []byte, e error) {
 			}
 		}
 		hex=append(hex,parsed...)
+		cab.frame_cnt += cab.count_lines(parsed)
 	}
 	return hex, nil
+}
+
+func (cab *cab_converter)count_lines( bb []byte) int {
+	lines := 0
+	for _,b := range bb {
+		if b=='\n' {
+			lines++
+		}
+	}
+	return lines
 }
 
 func (cab *cab_converter)detect_loop(tokens []string) (loopCase, error) {
@@ -150,7 +161,6 @@ func (cab *cab_converter)detect_loop(tokens []string) (loopCase, error) {
 
 func (cab *cab_converter)execute_loop(body []byte,times int) (unwrapped []byte) {
 	if times<=1 { return nil }
-	cab.frame_cnt+=times
 	unwrapped = make([]byte,0,len(body)*times)
 	for ;times>1;times-- {
 		unwrapped=append(unwrapped,body...)
@@ -187,8 +197,7 @@ func (cab *cab_converter)parse_tokens( tokens []string ) (parsed []byte, e error
 			default: return nil, fmt.Errorf("Unknown action '%s'",action)
 		}
 	}
-	parsed = make([]byte,0,2*repeat)
-	cab.frame_cnt+=repeat
+	parsed = make([]byte,0,3*repeat)
 	for ;repeat>0;repeat-- {
 		encoded := fmt.Sprintf("%x\n",value)
 		parsed=append(parsed,[]byte(encoded)...)
@@ -209,7 +218,11 @@ func (cab *cab_converter)calc_repetitions(expr string) (repeat int, valid bool) 
 			msg := fmt.Sprintf("a valid number must be entered after =\nbut found %s at line %d",expr,cab.linecnt)
 			panic(msg)
 		}
-		repeat = final_frame-cab.frame_cnt
+		repeat = final_frame-cab.frame_cnt+1
+		if repeat<0 {
+			msg := fmt.Sprintf("The frame count is already at %d, cannot wait until frame %d (at line %d)",cab.frame_cnt,final_frame,cab.linecnt)
+			panic(msg)
+		}
 		return repeat, true
 	}
 	return 1,false

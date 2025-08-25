@@ -213,10 +213,56 @@ func TestCab_upto_frame(t *testing.T) {
 200
 200
 200
+200
 4
 4
 `
 	var uut cab_converter
 	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e); return }
 	test_cab2hex_compare(converted,expected,t)
+}
+
+func TestCab_loop_count(t *testing.T) {
+	cab := strings.NewReader(`
+loop
+	2 b1
+	3
+repeat 3
+# 5*(2+3) = 15
+=20 coin
+5
+1 1p
+`)
+	expected := `100
+100
+0
+0
+0
+100
+100
+0
+0
+0
+100
+100
+0
+0
+0
+1
+1
+1
+1
+1
+1
+0
+0
+0
+0
+0
+4
+`
+	var uut cab_converter
+	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e); return }
+	test_cab2hex_compare(converted,expected,t)
+
 }
