@@ -92,25 +92,32 @@ By default, all audio output gets dumped to test.wav. If the **Audio** section o
 
 # Regression
 
-You can execute a regression for each game, using the command `run_regression.sh`. This command will execute a simulation using `jtsim` in a way you define in a configuration file inside `<core>/cfg`, called `reg.yaml`. Here, you can set the same options you can set when using `jtsim`. The syntaxis for that file is as follows:
+The script `run_regression.sh` will be used for automatic regressions triggered by GitHub Actions. It will execute a regression for all setnames that are set on the configuration files explained below. In case there were any problems when executing the regression (simulation failed, unable to get audio/frames, audio/frames validation failed...) An issue will be created on GitHub specifying why the regression failed.
+
+The script `run_regression.sh` will execute a simulation using `jtsim` in a way you define in a configuration file inside `<core>/cfg`, called `reg.yaml`. Here, you can set the same options you can set when using `jtsim`. The syntaxis for that file is as follows:
 ```yaml
 <setname_1>:
     video: number
     inputs: file
     dipsw: binary_number
-    d: MACRO
+    d: MACRO1
+    d: MACRO2
     ...
 ...
 <setname_n>:
     ...
 ```
 
+> [!NOTE]
+> GitHub will use these configuration files to decide which setnames will be used to execute the regression. All setnames that doesn't appear in those won't be included. If you want a setname to be triggered without options, just type `setname` without any option.
+
 Also, there is another `reg.yaml` file on `$JTFRAME/bin`, where you can set default options. The syntaxis is the same as above, but you don't have to specify any setname:
 ```yaml
 video: number
 inputs: file
 dipsw: binary_number
-d: MACRO
+d: MACRO1
+d: MACRO2
 ...
 ```
 
@@ -118,9 +125,9 @@ To see all options you can use in these configuration files, you can check `jtsi
 
 Also this command is ready for check if the simulation performed is valid against another one. To do so, you can use `--check` or `--local-check <folder>` flags, that allows you to compare against a remote folder in a SFTP server, or a local folder within your machine. If you decide to use a SFTP server, you must use `--port <port>`, `--host <host>` and `--user <user>` flags to set the way it has to connect to that server. Also, the server has to be already defined on known_hosts.
 
-If you use a remote SFTP server, it expects two folders, called *regression* and *mame*. You have to select the root folder on your server using `--path`. On *mame* it is expected all zips containing ROMs. On *regression*, it is expected the following structure: `regression/<core>/<setname>/VALID,NOT_CHECKED,FAIL/frames.zip,audio.zip`
-It will use that files to download and compress/uncompress the needed info for simulating and checking.
+If you use a remote SFTP server, it expects two folders, called *regression* and *mame*. You have to select the root folder on your server using `--path`. On *mame* it is expected all zips containing ROMs. On *regression*, it is expected the following structure: `regression/<core>/<setname>/VALID,NOT_CHECKED,FAIL/frames.zip,audio.zip`. It will use those files to download and compress/uncompress the needed info for simulating and checking.
 
-Also you can use `--push` flag to upload the simulation results. Depending on the validation result, it will be upload on `fail` or `not_checked` folder. You will always have to manually upload the reference frames/audio to the VALID folder.
+Also you can use `--push` flag to upload the simulation results. Depending on the validation result, it will be uploaded on `fail` or `not_checked` folder. You will always have to manually upload the reference frames/audio to the `valid` folder.
 
-This is the script used for automatic regressions triggered by GitHub Actions. It will execute a regression for all setnames that are set on `<core>/reg.yaml` files, using flags `--check` and `--push`. In case there were any problems when executing the regression (simulation failed, unable to get audio/frames, audio/frames validation failed...) An issue will be created on GitHub specifying why the regression failed.
+> [!IMPORTANT]
+> When used by GitHub Actions, the script will be executed  using flags `--check` and `--push`, and it will only pass if the validation is successfull.
