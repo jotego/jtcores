@@ -92,7 +92,7 @@ By default, all audio output gets dumped to test.wav. If the **Audio** section o
 
 # Regression
 
-The script `run_regression.sh` will be used for automatic regressions triggered by GitHub Actions. It will execute a regression for all setnames that are set on the configuration files explained below. In case there were any problems when executing the regression (simulation failed, unable to get audio/frames, audio/frames validation failed...) An issue will be created on GitHub specifying why the regression failed.
+The script `run_regression.sh` is used for automatic regressions triggered by GitHub Actions. It will execute a regression for all setnames that are set on the configuration files (explained below). In case there were any problems when executing the regression (simulation failed, unable to get audio/frames, audio/frames validation failed...) An issue will be created on GitHub specifying why the regression failed.
 
 The script `run_regression.sh` will execute a simulation using `jtsim` in a way you define in a configuration file inside `<core>/cfg`, called `reg.yaml`. Here, you can set the same options you can set when using `jtsim`. The syntaxis for that file is as follows:
 ```yaml
@@ -109,7 +109,7 @@ The script `run_regression.sh` will execute a simulation using `jtsim` in a way 
 ```
 
 > [!NOTE]
-> GitHub will use these configuration files to decide which setnames will be used to execute the regression. All setnames that doesn't appear in those won't be included. If you want a setname to be triggered without options, just type `setname` without any option.
+> GitHub will use these configuration files to decide which setnames will be used to execute the regression. All setnames that doesn't appear in those won't be included. If you want a setname to be triggered without options, just type `<setname>:` without any option.
 
 Also, there is another `reg.yaml` file on `$JTFRAME/bin`, where you can set default options. The syntaxis is the same as above, but you don't have to specify any setname:
 ```yaml
@@ -121,7 +121,8 @@ d: MACRO2
 ...
 ```
 
-To see all options you can use in these configuration files, you can check `jtsim --help`.
+> [!NOTE]
+> To see all options you can use in these configuration files, you can check `jtsim --help`.
 
 Also this command is ready for check if the simulation performed is valid against another one. To do so, you can use `--check` or `--local-check <folder>` flags, that allows you to compare against a remote folder in a SFTP server, or a local folder within your machine. If you decide to use a SFTP server, you must use `--port <port>`, `--host <host>` and `--user <user>` flags to set the way it has to connect to that server. Also, the server has to be already defined on known_hosts.
 
