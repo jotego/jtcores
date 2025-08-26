@@ -439,7 +439,15 @@ check_audio() {
         mv $LOCAL_DIR/$core/$setname/audio.wav .
     fi
 
-    sox $ref_audio -n spectrogram -r -o $ref_spectro
+    len_ref=$(soxi -D $ref_audio)
+    len_test=$(soxi -D $test_audio)
+
+    if (( $(echo "$len_ref < $len_test" | bc -l) )); then
+        echo "[WARNING] The reference audio is not long enough to validate"
+        exit 1
+    fi
+
+    sox $ref_audio -n trim 0 $len_test spectrogram -r -o $ref_spectro
     sox $test_audio -n spectrogram -r -o $test_spectro
 
     if perceptualdiff "$ref_spectro" "$test_spectro"; then
@@ -447,7 +455,7 @@ check_audio() {
         return 0
     else
         echo "[ERROR] Audio doesn't match"
-        sox $ref_audio -n spectrogram -o reference-spectro.png
+        sox $ref_audio -n trim 0 $len_test spectrogram -o reference-spectro.png
         sox $test_audio -n spectrogram -o test-spectro.png
         return 2
     fi
