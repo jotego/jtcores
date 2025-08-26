@@ -88,5 +88,5 @@ for bank in range(2):
 print("Number of individual blocks: ", len(blocks))
 print(len(newmap))
 
-create_hex_file("tilemap_2x2.hex",hexlist)
-create_hex_file("decoder.hex",newmap,1)
+create_hex_file("decoder.hex",hexlist)
+create_hex_file("tilemap_2x2.hex",newmap,1)

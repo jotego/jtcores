@@ -91,7 +91,7 @@ always @(posedge clk) begin
         done     <= 0;
         search   <= 0;
         psclo_cs <= 0;
-        tile0    <= 0; tile1 <= 0; tile2 <= 0; tile3 <= 0;
+        tile0    <= 18'h3FFFF; tile1 <= 18'h3FFFF; tile2 <= 18'h3FFFF; tile3 <= 18'h3FFFF;
     end else if(!done && deleted) begin
         t2x2_we <= 0;
         search  <= 0;
