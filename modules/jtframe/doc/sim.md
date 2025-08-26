@@ -118,8 +118,6 @@ To see all options you can use in these configuration files, you can check `jtsi
 
 Also this command is ready for check if the simulation performed is valid against another one. To do so, you can use `--check` or `--local-check <folder>` flags, that allows you to compare against a remote folder in a SFTP server, or a local folder within your machine. If you decide to use a SFTP server, you must use `--port <port>`, `--host <host>` and `--user <user>` flags to set the way it has to connect to that server. Also, the server has to be already defined on known_hosts.
 
-If you use a local folder, the frames have to be on a folder called *frames*, and the audio has to be called *audio.wav*. Also, if you don't want to download ROMs from the SFTP server, you have to set `--local-rom` flag, and it will search for ROMs on `~/.mame/roms`.
-
 If you use a remote SFTP server, it expects two folders, called *regression* and *mame*. You have to select the root folder on your server using `--path`. On *mame* it is expected all zips containing ROMs. On *regression*, it is expected the following structure: `regression/<core>/<setname>/VALID,NOT_CHECKED,FAIL/frames.zip,audio.zip`
 It will use that files to download and compress/uncompress the needed info for simulating and checking.
 
