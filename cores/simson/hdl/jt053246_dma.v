@@ -49,7 +49,7 @@ reg  [ 1:0] vs_sh;
 reg  [11:1] dma_bufa;
 reg  [15:0] dma_bufd;
 wire [ 7:0] sort_24x, sort_673;
-reg         dma_clr, dma_wait, dma_ok, dma_44, hsl;
+reg         dma_clr, dma_wait, dma_ok, dma_44, hsl, dmaen_l;
 
 assign dma_wel = dma_we & ~dma_wr_addr[1];
 assign dma_weh = dma_we &  dma_wr_addr[1];
@@ -58,6 +58,7 @@ assign dma_din     = dma_clr ? 16'h0 : dma_bufd;
 assign dma_we      = dma_clr | dma_ok;
 assign dma_wr_addr = dma_clr ? dma_addr[11:1] : dma_bufa;
 assign hs_pos  = hs & ~hsl;
+assign dmaen_pos = dma_en & ~dmaen_l;
 
 assign sort_673 = dma_data[7:0]^{8{K55673_DESC_SORT[0]}};
 assign sort_24x ={ ~k44_en & dma_data[7], k44_en ? dma_data[6:0] : ~dma_data[6:0]};
@@ -83,19 +84,14 @@ always @(posedge clk, posedge rst) begin
         dma_bsy  <= 0;
         dma_wait <= 0;
         hsl      <= 0;
+        dmaen_l  <= 0;
         flicker  <= 0;
     end else if( pxl2_cen ) begin
         hsl <= hs;
+        dmaen_l <= dma_en;
         if( hs_pos ) begin
             vs_sh    <= vs_sh<<1;
             vs_sh[0] <= vs;
-        end
-        if(!dma_bsy && ((vs_sh==2'b10 && hs_pos) || dma_44) ) begin
-            dma_bsy  <= dma_en | dma_44;
-            dma_clr  <= 1;
-            dma_wait <= !k44_en && mode8; // 8-bit speed: 595us, 16-bit: 297.5us
-            flicker  <= ~flicker;
-            dma_addr <= 0;
         end
         if( !dma_bsy ) begin
             dma_addr <= 0;
@@ -125,6 +121,16 @@ always @(posedge clk, posedge rst) begin
                 dma_addr[12:1] <= dma_addr[12:1] + 12'd2; // skip 7
                 dma_bsy <= !(&dma_addr[10:2] && (k44_en || &dma_addr[12:11]));
             end
+        end
+        // dmaen_pos is needed for rungun, not clear whether it is enough for
+        // all games. The old condition (vs_sh==2'b10 && hs_pos) is kept for
+        // scene simulations for now
+        if(!dma_bsy && (dmaen_pos || (vs_sh==2'b10 && hs_pos) || dma_44) ) begin
+            dma_bsy  <= dma_en | dma_44;
+            dma_clr  <= 1;
+            dma_wait <= !k44_en && mode8; // 8-bit speed: 595us, 16-bit: 297.5us
+            flicker  <= ~flicker;
+            dma_addr <= 0;
         end
     end
 end

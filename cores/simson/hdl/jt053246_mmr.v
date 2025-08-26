@@ -98,10 +98,7 @@ always @(posedge clk, posedge rst) begin
                 end
                 2: begin
                     if( !cpu_dsn[1] ) rmrd_addr[8:1] <= cpu_dout[15:8];
-                    if( !cpu_dsn[0] ) begin
-                        cfg <= cpu_dout[7:0];
-                        $display("OBJ CFG=%X",cpu_dout[7:0]);
-                    end
+                    if( !cpu_dsn[0] ) cfg <= cpu_dout[7:0];
                 end
                 3: begin
                     if( !cpu_dsn[1] ) rmrd_addr[22:17] <= cpu_dout[13:8];
