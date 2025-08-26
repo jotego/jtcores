@@ -89,3 +89,35 @@ Verilator simulations do not simulate the *target* but only the game top. SDRAM 
 ## Audio output
 
 By default, all audio output gets dumped to test.wav. If the **Audio** section of the **mem.yaml** file is used, then per-channel audio files can be generated too. In order to enable per-channel files, either request jtsim to dump waveforms `jtsim -w` or use the macro **JTFRAME_SIM_CH_RAW** so produce wave files without dumping logic waveforms.
+
+# Regression
+
+You can execute a regression for each game, using the command `run_regression.sh`. This command will execute a simulation using `jtsim` in a way you define in a configuration file inside `<core>/cfg`, called `reg.yaml`. Here, you can set the same options you can set when using `jtsim`. The syntaxis for that file is as follows:
+```yaml
+<setname_1>:
+    video: number
+    inputs: file
+    dipsw: binary_number
+    d: MACRO
+    ...
+...
+<setname_n>:
+    ...
+```
+
+Also, there is another `reg.yaml` file on `$JTFRAME/bin`, where you can set default options. The syntaxis is the same as above, but you don't have to specify any setname:
+```yaml
+video: number
+inputs: file
+dipsw: binary_number
+d: MACRO
+...
+```
+
+Also this command is ready for check if the simulation performed is valid against another one. To do so, you can use `--check` or `--local-check <folder>` flags, that allows you to compare against a remote folder in a SFTP server, or a local folder within your machine. If you decide to use a SFTP server, you must use `--port <port>`, `--host <host>` and `--user <user>` flags to set the way it has to connect to that server. Also, the server has to be already defined on known_hosts.
+If you use a local folder, the frames have to be on a folder called *frames*, and the audio has to be called *audio.wav*. Also, if you don't want to download ROMs from the SFTP server, you have to set `--local-rom` flag, and it will search for ROMs on `~/.mame/roms`.
+If you use a remote SFTP server, it expects two folders, called *regression* and *mame*. You have to select the root folder on your server using `--path`. On *mame* it is expected all zips containing ROMs. On *regression*, it is expected the following structure: `regression/<core>/<setname>/VALID,NOT_CHECKED,FAIL/frames.zip,audio.zip`
+It will use that files to download and compress/uncompress the needed info for simulating and checking.
+Also you can use `--push` flag to upload the simulation results. Depending on the validation result, it will be upload on `fail` or `not_checked` folder. You will always have to manually upload the reference frames/audio to the VALID folder.
+
+This is the script used for automatic regressions triggered by GitHub Actions. It will execute a regression for all setnames that are set on `<core>/reg.yaml` files, using flags `--check` and `--push`. In case there were any problems when executing the regression (simulation failed, unable to get audio/frames, audio/frames validation failed...) An issue will be created on GitHub specifying why the regression failed.
