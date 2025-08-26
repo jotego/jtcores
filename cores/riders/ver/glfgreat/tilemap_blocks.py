@@ -1,8 +1,8 @@
 # Building Blocks Tilemap
 
-A="061b07.18d"
-B="061b06.16d"
-C="061b05.15d"
+A="A.bin" # "061b07.18d"
+B="B.bin" # "061b06.16d"
+C="C.bin" # "061b05.15d"
 
 def read_file(bf):
     with open(bf, 'rb') as f:
@@ -88,5 +88,5 @@ for bank in range(2):
 print("Number of individual blocks: ", len(blocks))
 print(len(newmap))
 
-create_hex_file("compressed_tilemap.hex",hexlist)
-create_hex_file("reference_tilemap.hex",newmap,1)
+create_hex_file("tilemap_2x2.hex",hexlist)
+create_hex_file("decoder.hex",newmap,1)
