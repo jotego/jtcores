@@ -165,7 +165,7 @@ jtglfgreat_encoder u_encoder(
     .dec_we     ( dec_we    )
 );
 /* verilator tracing_off */
-jtframe_dual_ram #(.AW(17),.DW(13)) u_2x2tilemap (
+jtframe_dual_ram #(.AW(17),.DW(13),.SIMHEXFILE("tilemap_2x2.hex")) u_2x2tilemap (
     // Port 0 - programming during power up
     .clk0       ( clk       ),
     .addr0      ( t2x2_addr ),
@@ -180,7 +180,7 @@ jtframe_dual_ram #(.AW(17),.DW(13)) u_2x2tilemap (
     .q1         ( encoded   )
 );
 
-jtframe_dual_ram #(.AW(13),.DW(72)) u_decoder (
+jtframe_dual_ram #(.AW(13),.DW(72),.SIMHEXFILE("decoder.hex")) u_decoder (
     // Port 0 - programming during power up
     .clk0       ( clk       ),
     .addr0      ( dec_addr  ),

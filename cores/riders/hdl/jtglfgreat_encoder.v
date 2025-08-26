@@ -39,7 +39,7 @@ module jtglfgreat_encoder(
     output     [71:0] dec_din,
     output reg        dec_we
 );
-
+`ifndef NOMAIN
 // tilemap reader
 reg  [ 8:0] y, x;
 reg  [ 3:0] st;
@@ -181,5 +181,20 @@ always @(posedge clk) begin
         end
     end
 end
+`else
+initial begin
+    done     = 1;
+    psclo_cs = 0;
+    t2x2_we  = 0;
+    dec_addr = 0;
+    dec_we   = 0;
+end
 
+assign psclo_addr = 0;
+assign pschi_addr = 0;
+assign pschi_cs   = 0;
+assign t2x2_addr  = 0;
+assign t2x2_din   = 0;
+assign dec_din    = 0;
+`endif
 endmodule
