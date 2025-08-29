@@ -255,5 +255,7 @@ assign  snd_l    = 0;
 assign  snd_r    = 0;
 assign  st_dout  = 0;
 assign  main_din = 0;
+assign  fm_irqn  = 1;
+assign  fm_dout  = 0;
 `endif
 endmodule

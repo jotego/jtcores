@@ -474,6 +474,7 @@ jtkcpu u_cpu(
         mono       = 0;
         pal_bank   = 0;
         st_dout    = 0;
+        fm_cs      = 0;
     end
 `endif
 endmodule

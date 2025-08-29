@@ -55,7 +55,7 @@ always @(posedge clk) begin
     endcase
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_main u_main(
     .rst            ( rst48         ),
     .clk            ( clk48         ),
@@ -130,7 +130,7 @@ jtsimson_main u_main(
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_sound u_sound(
     .rst        ( rst48         ),
     .clk        ( clk48         ),
@@ -184,7 +184,7 @@ jtsimson_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
