@@ -2,4 +2,3 @@ include ../../simson/cfg/macros.def
 -JTFRAME_SDRAM96
 CORENAME=JTSURATK
 debug JTFRAME_IOCTL_RD+=8192
-JTFRAME_PROM_START=0
