@@ -39,7 +39,8 @@ module jtframe_obj_buffer #(parameter
     BLANK_DLY   = 2,
     FLIP_OFFSET = 0,
     SW          = 1,     // Shadow bits width (Use with SHADOW==1)
-    SHADOW_PEN  = ALPHA, // Value used by only-shadow sprites. Use independently from SHADOW
+    SHADOW_PEN  = ALPHA, // Value used by only-shadow sprites. Use independently from shadow bits
+                         // requires at least two clock cycles
     SHADOW      = 0,     // 1 enables shadows on data MSB
     KEEP_OLD    = 0      // Do not overwrite old non-ALPHA data
                          // requires address, data and we signals to be held
@@ -60,19 +61,31 @@ module jtframe_obj_buffer #(parameter
 
 localparam EW = SHADOW==1 ? DW-SW : DW;
 
-reg     line, last_LHBL;
-wire    new_we;
+reg     line, last_LHBL, new_we;
+wire    is_opaque, was_blank,
+        is_not_just_a_shadow, was_just_a_shadow;
 
 reg [BLANK_DLY-1:0] dly;
 wire                delete_we = dly[0];
 wire [EW-1:0]       blank_data = BLANK[EW-1:0];
 wire [DW-1:0]       dump_data;
 wire [EW-1:0]       old;
+wire                shade;
 
-assign new_we = wr_data[ALPHAW-1:0] != ALPHA[ALPHAW-1:0] && we
-    && (old[ALPHAW-1:0]==ALPHA[ALPHAW-1:0] || (KEEP_OLD==0 &&
-       ( (wr_data[ALPHAW-1:0] != SHADOW_PEN[ALPHAW-1:0] || old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0]) && SHADOW==1
-            || SHADOW==0 )));
+assign is_opaque = wr_data[ALPHAW-1:0] != ALPHA[ALPHAW-1:0] && we;
+assign was_blank = old[ALPHAW-1:0]==ALPHA[ALPHAW-1:0];
+assign is_not_just_a_shadow = wr_data[ALPHAW-1:0] != SHADOW_PEN[ALPHAW-1:0];
+assign was_just_a_shadow = old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0];
+assign shade     = wr_data[DW-1-:SW]!=0;
+
+// assign new_we = (is_opaque && is_not_just_a_shadow) &&
+//        (was_blank || (KEEP_OLD==0 &&
+       // ( ((is_not_just_a_shadow || was_just_a_shadow) && shade && SHADOW==1) || SHADOW==0 )));
+
+always @* begin
+    new_we = is_opaque && is_not_just_a_shadow;
+    if( KEEP_OLD==1 && !was_blank ) new_we = 0;
+end
 
 
 `ifdef SIMULATION
@@ -119,14 +132,13 @@ generate
                    sh_we;
         reg  [AW-1:0] sh_wa;
         wire [AW-1:0] sh0_rdmx, sh1_rdmx;
-        wire [SW-1:0] shdout0,shdout1, shadow_we;
+        wire [SW-1:0] shdout0,shdout1;
         reg  [SW-1:0] shdin;
-        reg        newwe_l, we_l;//,
+        reg        newwe_l, we_l;
 
         assign sh0_rdmx  =  line ? wr_af   : rd_addr;
         assign sh1_rdmx  = ~line ? wr_af   : rd_addr;
-        assign shadow_we = /*~*/line ? shdout0 : shdout1;
-        assign sh_we     = |shadow_we ? newwe_l : we_l;
+        assign sh_we     =  shade;
         assign sh0_wemx  =  line & sh_we;
         assign sh1_wemx  = ~line & sh_we;
         assign sh0_delmx = ~line & delete_we;
@@ -169,7 +181,6 @@ generate
             .we1    ( sh1_delmx     ),
             .q1     ( shdout1       )
         );
-
     end
 endgenerate
 
