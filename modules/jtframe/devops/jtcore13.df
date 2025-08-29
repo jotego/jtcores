@@ -1,12 +1,77 @@
-FROM jotego/jtcore-base
+FROM ubuntu:20.04
 LABEL maintainer=jotego@gmail.com
+
+RUN apt-get update
+RUN ln -fs /usr/share/zoneinfo/Europe/Madrid /etc/localtime
+RUN apt-get install --yes --quiet git curl gawk
+RUN apt-get install --yes --quiet ca-certificates libgnutls30
+RUN apt-get install --yes --quiet ftp figlet xmlstarlet flex
+RUN apt-get install --yes --quiet rsync
+
+# Python
+RUN apt-get install --yes --quiet python python3-pip && pip install pypng
+
+# Go
+RUN OS=$(uname -s | tr '[:upper:]' '[:lower:]') && \
+    GOVER=1.23.4 && \
+    GONAME=go${GOVER}.${OS}-amd64.tar.gz && \
+    curl -LO https://go.dev/dl/${GONAME} && \
+    tar -C /usr/local -xzf ${GONAME} && \
+    rm -f ${GONAME}
+ENV PATH="$PATH:/usr/local/go/bin"
+
+# JTFRAME dependencies
+WORKDIR /jtframe
+COPY src/jtframe/go.mod src/jtframe/go.sum ./
+RUN go mod download
+
+WORKDIR /jtutil
+COPY src/jtutil/go.mod src/jtutil/go.sum ./
+RUN go mod download
+
+WORKDIR /
+RUN rm --recursive --force jtframe jtutil
+
+# iverilog compilation
+RUN apt-get install --yes --quiet build-essential git zlib1g-dev
+RUN apt-get install --yes --quiet flex gperf bison
+
+# Assembler tools
+RUN pip install --upgrade opbasm
+RUN apt-get install --yes --quiet as31
+RUN cd /tmp && \
+    git clone https://github.com/jotego/asl.git && \
+    cd asl && \
+    make -j && \
+    cp alink asl p2bin p2hex pbind plist /usr/local/bin
+
+# JT core environment
+RUN mkdir /jtbin && \
+    echo export JTBIN=/jtbin >> $HOME/.bashrc
+
+# Locales
+RUN apt-get update
+RUN apt-get install locales locales-all
+RUN locale-gen en_US.UTF-8
+RUN echo LC_ALL=en_US.UTF-8 >> /etc/environment
+RUN echo LANG=en_US.UTF-8 >> /etc/environment
+
+# Needed by Quartus 17
+RUN apt-get install --yes libglib2.0-0
+
+# Needed by xjtcore.sh
+RUN apt-get install --yes xxd
 
 # 32-bit support
 RUN dpkg --add-architecture i386 && apt update
 
 # 32-bit libraries
-RUN ln -fs /usr/share/zoneinfo/Europe/Madrid /etc/localtime && apt-get install -y tzdata && dpkg-reconfigure --frontend noninteractive tzdata
-RUN apt install make:i386 libxdmcp6:i386 libxau6:i386 libxext6:i386 libxft-dev:i386 libxft2:i386 libxrender1:i386 libxt6:i386 libfontconfig1-dev:i386 libxtst6:i386 libx11-6:i386 unixodbc:i386 libzmq3-dev:i386 libxext6:i386 libxi6:i386 -y
+RUN apt-get install --yes tzdata && \
+    dpkg-reconfigure --frontend noninteractive tzdata
+RUN apt-get install --yes make:i386 libxdmcp6:i386 libxau6:i386 \
+    libxext6:i386 libxft-dev:i386 libxft2:i386 libxrender1:i386 \
+    libxt6:i386 libfontconfig1-dev:i386 libxtst6:i386 libx11-6:i386 \
+    unixodbc:i386 libzmq3-dev:i386 libxext6:i386 libxi6:i386
 # missing ncurses-base:i386 -y
 
 COPY 13.1 /opt/altera/13.1
