@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 BUILDER_NAME="jotego-builder"
+BUILDER_NAME_MULTIARCH="jotego-multiarch-builder"
 
 main(){
     SUCCESS=()
@@ -9,46 +10,60 @@ main(){
     parse_args "$@"
 
     if $PUSH_IMAGES; then
-        prepare_builder $BUILDER_NAME
+        prepare_builder true "$BUILDER_NAME_MULTIARCH"
         docker login
+    else
+        prepare_builder false "$BUILDER_NAME"
     fi
 
-    build "jtcore-base" "$JTFRAME"              "linux/amd64,linux/arm64"
-    build "jtcore13"    "/opt/altera"           "linux/amd64"
-    build "jtcore17"    "/opt/intelFPGA_lite"   "linux/amd64"
-    build "jtcore20"    "/opt/intelFPGA_lite"   "linux/amd64"
-    build "linter"      "."                     "linux/amd64,linux/arm64"
-    build "simulator"   "."                     "linux/amd64,linux/arm64"
+    build "jtcore-base" "linux/amd64,linux/arm64"   "$JTFRAME"
+    build "jtcore13"    "linux/amd64"               "$JTFRAME" "/opt/altera"
+    build "jtcore17"    "linux/amd64"               "/opt/intelFPGA_lite"
+    build "jtcore20"    "linux/amd64"               "/opt/intelFPGA_lite"
+    build "linter"      "linux/amd64,linux/arm64"
+    build "simulator"   "linux/amd64,linux/arm64"
 
     print_results
 }
 
 prepare_builder() {
-    local name=$1
-    if ! docker buildx inspect "$name" >/dev/null 2>&1; then
-        echo "Creating buildx builder '$name'..."
+    local multiarch=$1
+    local name=$2
+
+    if docker buildx inspect "$name" >/dev/null 2>&1; then
+        docker buildx use "$name"
+        docker buildx inspect --bootstrap
+        return
+    fi
+
+    echo "Creating buildx builder '$name'..."
+    if $multiarch; then 
         docker buildx create --name "$name" --driver "docker-container" --use
     else
-        docker buildx use "$name"
+        docker buildx create --name "$name" --use
     fi
     docker buildx inspect --bootstrap
 }
 
 build() {
-    local image=$1
-    local path=$2
-    local platforms=$3
+    local image=$1; shift
+    local platforms=$1; shift
+
+    local -a build_contexts=()
+    for path in "$@"; do
+        build_contexts+=( --build-context "$(basename $path)=$path" )
+    done
 
     echo "Building jotego/$image..."
     if $PUSH_IMAGES; then
-        if docker buildx build --platform "$platforms" --file $image.df --tag jotego/$image:latest --push $path; then
+        if docker buildx build "${build_contexts[@]}" --platform "$platforms" --file "$image.df" --tag "jotego/$image:latest" --push .; then
             SUCCESS+=("$image")
         else
             echo "Build failed for $image"
             FAIL+=("$image")
         fi
     else
-        if docker build --file $image.df --tag jotego/$image:latest --load $path; then
+        if docker buildx build "${build_contexts[@]}" --file "$image.df" --tag "jotego/$image:latest" --load .; then
             SUCCESS+=("$image")
         else
             echo "Build failed for $image"
