@@ -217,7 +217,13 @@ jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
     .simson     ( simson    ),
 `else
 assign obj_shd[1] = 1'b0;
-jtriders_obj #(.RAMW(ORAMW),.HFLIP_OFFSET(10'd134)) u_obj(
+jtriders_obj #(
+    .RAMW         ( ORAMW   ),
+    .HFLIP_OFFSET ( 10'd134 )
+`ifdef SURATK
+   ,.SHADOW       ( 1       )
+`endif
+) u_obj(
     .lgtnfght   ( 1'b0      ),
     .lvbl       ( lvbl      ),
 `endif
