@@ -22,8 +22,7 @@ module jtsimson_scroll(
     input             pxl_cen,
     input             pxl2_cen,
 
-    input             paroda,
-    input             simson,
+    input             paroda, simson, suratk,
     // Base Video
     output            lhbl,
     output            lvbl,
@@ -89,13 +88,18 @@ wire [ 7:0] lyrf_col,
 wire [ 2:0] hsub_a, hsub_b;
 wire        hflip_en;
 wire [12:0] pre_a, pre_b, pre_f;
+reg         parsur;
 
 assign lyrf_cs = gfx_en[0];
 assign lyra_cs = (gfx_en[1] & ~rmrd) | (rmrd & gfx_cs);
 assign lyrb_cs = gfx_en[2];
 
+always @(posedge clk) begin
+    parsur <= paroda | suratk;
+end
+
 function [19:2] sort( input [7:0] col, input [12:0] pre );
-    sort = paroda ? { pre[12:11], col[3:2],col[4],col[1:0], pre[10:0] } :
+    sort = parsur ? { pre[12:11], col[3:2],col[4],col[1:0], pre[10:0] } :
            simson ? { pre[11],    col[5:0],                 pre[10:0] } :
                     { pre[11], col[3:2], col[5:4],col[1:0], pre[10:0] };
 endfunction
@@ -111,7 +115,9 @@ assign tile_dout = rmrd ? tilerom_dout : tilemap_dout;
 always @(posedge clk) cpu_rom_dtack <= ~(rmrd & gfx_cs) | lyra_ok;
 
 function [7:0] cgate( input [7:0] c);
-    cgate = simson ? { c[7:6], 6'd0 } : {c[7:5],5'd0};
+    cgate = simson ? { c[7:6], 6'd0 } :
+            suratk ? {1'b0,c[6:5],4'd0,c[7]}
+                   : { c[7:5], 5'd0};
 endfunction
 
 jt052109 u_tilemap(

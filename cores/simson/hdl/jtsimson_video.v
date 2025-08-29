@@ -20,8 +20,7 @@ module jtsimson_video(
     input             rst,
     output            rst8,     // reset signal at 8th frame
     input             clk,
-    input             simson,
-    input             paroda,
+    input             simson, paroda, suratk,
 
     // Base Video
     input             pxl_cen,
@@ -98,9 +97,14 @@ wire [ 1:0] obj_shd;
 wire [ 4:0] obj_prio;
 wire [15:0] obj16_dout;
 wire [ 3:0] obj_amsb;
+reg         parsur;
 
-assign pal_addr    = { paroda ? pal_bank : cpu_addr[11], cpu_addr[10:0] };
+assign pal_addr    = { parsur ? pal_bank : cpu_addr[11], cpu_addr[10:0] };
 assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0]; // big endian
+
+always @(posedge clk) begin
+    parsur <= paroda | suratk;
+end
 
 // Debug
 jtriders_dump u_dump(
@@ -133,6 +137,7 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
 
     .paroda     ( paroda    ),
     .simson     ( simson    ),
+    .suratk     ( suratk    ),
     // Base Video
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
@@ -198,7 +203,7 @@ localparam ORAMW=12;
 wire [ORAMW:1] oram_a;
 wire           nc;
 
-assign oram_a = { cpu_addr[12] & ~paroda, cpu_addr[11:1] };
+assign oram_a = { cpu_addr[12] & ~parsur, cpu_addr[11:1] };
 
 /* verilator tracing_on  */
 `ifdef SIMSON
@@ -262,7 +267,7 @@ jtriders_obj #(.RAMW(ORAMW),.HFLIP_OFFSET(10'd134)) u_obj(
 );
 
 function [6:0] lyrcol( input [7:0] pxl );
-    lyrcol = paroda ? {       pxl[7:5], pxl[3:0] } :
+    lyrcol = parsur ? {       pxl[7:5], pxl[3:0] } :
                       { 1'b0, pxl[7:6], pxl[3:0] };
 endfunction
 
@@ -285,12 +290,12 @@ jtsimson_colmix u_colmix(
 
     // Final pixels
     .lyrf_pxl   ( lyrcol(lyrf_pxl) ),
-    .lyra_pxl   ( lyrcol( paroda ? lyrb_pxl[7:0] : lyra_pxl[7:0] ) ), // scroll layers swapped in Parodius
-    .lyrb_pxl   ( lyrcol( paroda ? lyra_pxl[7:0] : lyrb_pxl[7:0] ) ),
+    .lyra_pxl   ( lyrcol( parsur ? lyrb_pxl[7:0] : lyra_pxl[7:0] ) ), // scroll layers swapped in Parodius
+    .lyrb_pxl   ( lyrcol( parsur ? lyra_pxl[7:0] : lyrb_pxl[7:0] ) ),
     .lyro_pxl   ( lyro_pxl  ),
 
     .obj_prio   ( obj_prio  ),
-    .obj_shd    ( paroda ? 2'd0 : obj_shd ), // shadow resistors are not mounted in the Parodius PCB
+    .obj_shd    ( parsur ? 2'd0 : obj_shd ), // shadow resistors are not mounted in the Parodius PCB
 
     .red        ( red       ),
     .green      ( green     ),

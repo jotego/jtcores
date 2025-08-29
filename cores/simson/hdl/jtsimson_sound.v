@@ -21,7 +21,7 @@ module jtsimson_sound(
     input           clk,
     input           cen_fm,
     input           cen_fm2,
-    input           simson,
+    input           simson, suratk,
 
     // communication with main CPU
     input           snd_irq,
@@ -30,6 +30,10 @@ module jtsimson_sound(
     input           main_addr,
     input           main_rnw,
     input           mono,
+    // Surprise Attack has YM2151 connected directly to main CPU
+    input           main_fmcs,
+    output   [ 7:0] fm_dout,
+    output          fm_irqn,
     // ROM
     output   [16:0] rom_addr,
     output reg      rom_cs,
@@ -56,27 +60,38 @@ module jtsimson_sound(
     output          pcmd_cs,
     input           pcmd_ok,
     // Sound output
-    output signed [15:0] snd_l, snd_r,
+    output reg signed [15:0] snd_l, snd_r,
     // Debug
     input    [ 7:0] debug_bus,
     input    [ 5:0] snd_en,
     output   [ 7:0] st_dout
 );
 `ifndef NOSOUND
-wire signed [15:0]  fm_l,  fm_r;
-wire        [ 7:0]  cpu_dout, ram_dout, fm_dout, st_pcm, pcm_dout;
+wire signed [15:0]  fm_l, fm_r, mix_l, mix_r;
+wire        [ 7:0]  cpu_dout, ram_dout, st_pcm, pcm_dout, mux_fmdin;
 wire        [15:0]  A;
 reg         [ 7:0]  cpu_din;
-wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n,
-                    peak_l, peak_r, nmi_n;
-reg                 ram_cs, latch_cs, fm_cs, pcm_cs, bank_cs;
-wire                cpu_cen, sample;
+wire                mreq_n, rd_n, wr_n, rfsh_n,
+                    peak_l, peak_r, nmi_n,
+                    mux_a0, mux_wrn, mux_cs;
+reg                 ram_cs, latch_cs, fm_cs, pcm_cs, bank_cs, rst_z80;
+wire                sample;
 reg                 mem_acc, af, nmi_clr;
 reg         [ 2:0]  bank;
 reg         [ 3:0]  pcm_msb;
 
 assign rom_addr = simson ? { A[15] ? bank : { 2'd0, A[14] }, A[13:0] } : {1'd0,A[15:0]};
 assign st_dout  = fm_dout;
+assign mux_a0   = suratk ? main_addr : A[0];
+assign mux_wrn  = suratk ? main_rnw  : wr_n;
+assign mux_cs   = suratk ? main_fmcs : fm_cs;
+assign mux_fmdin= suratk ? main_dout : cpu_dout;
+
+always @(posedge clk) begin
+    rst_z80 <= rst | suratk;
+    snd_l   <= suratk ? fm_l : mix_l;
+    snd_r   <= suratk ? fm_r : mix_r;
+end
 
 always @(*) begin
     mem_acc  = !mreq_n && rfsh_n;
@@ -96,6 +111,26 @@ always @(*) begin
     endcase
 end
 
+always @(posedge clk) begin
+    if( rst_z80 ) begin
+        bank <= 0;
+    end else begin
+        if( bank_cs ) bank <= cpu_dout[2:0];
+    end
+end
+/* verilator tracing_off */
+jtframe_edge #(.QSET(0)) u_edge (
+    .rst    ( 1'b0      ),
+    .clk    ( clk       ),
+    .edgeof ( rst_z80 | sample ),
+    .clr    ( nmi_clr   ),
+    .q      ( nmi_n     )
+);
+
+reg [10:0] clear_addr;
+always @(posedge clk) clear_addr <= !rst ? 11'd0 : clear_addr + 1'd1;
+
+`ifndef SURATK
 always @(*) begin
     case(1'b1)
         rom_cs:  cpu_din = rom_data;
@@ -106,37 +141,18 @@ always @(*) begin
     endcase
 end
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        bank   <= 0;
-    end else begin
-        if( bank_cs ) bank <= cpu_dout[2:0];
-    end
-end
-/* verilator tracing_off */
-jtframe_edge #(.QSET(0)) u_edge (
-    .rst    ( 1'b0      ),
-    .clk    ( clk       ),
-    .edgeof ( rst | sample ),
-    .clr    ( nmi_clr   ),
-    .q      ( nmi_n     )
-);
-
-reg [10:0] clear_addr;
-always @(posedge clk) clear_addr <= !rst ? 11'd0 : clear_addr + 1'd1;
-
 /* verilator tracing_on */
 jtframe_sysz80_nvram #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
-    .rst_n      ( ~rst      ),
+    .rst_n      ( ~rst_z80  ),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
-    .cpu_cen    ( cpu_cen   ),
+    .cpu_cen    (           ),
     .int_n      ( ~snd_irq  ),
     .nmi_n      ( nmi_n     ),
     .busrq_n    ( 1'b1      ),
-    .m1_n       ( m1_n      ),
+    .m1_n       (           ),
     .mreq_n     ( mreq_n    ),
-    .iorq_n     ( iorq_n    ),
+    .iorq_n     (           ),
     .rd_n       ( rd_n      ),
     .wr_n       ( wr_n      ),
     .rfsh_n     ( rfsh_n    ),
@@ -155,20 +171,24 @@ jtframe_sysz80_nvram #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    )
 );
-/* verilator tracing_off */
+`else
+    assign rd_n=1, wr_n=1, mreq_n=1, rfsh_n=1, A=0,
+           cpu_dout=0;
+`endif
+/* verilator tracing_on */
 jt51 u_jt51(
     .rst        ( rst       ), // reset
     .clk        ( clk       ), // main clock
     .cen        ( cen_fm    ),
     .cen_p1     ( cen_fm2   ),
-    .cs_n       ( !fm_cs    ), // chip select
-    .wr_n       ( wr_n      ), // write
-    .a0         ( A[0]      ),
-    .din        ( cpu_dout  ), // data in
+    .cs_n       ( !mux_cs   ), // chip select
+    .wr_n       ( mux_wrn   ), // write
+    .a0         ( mux_a0    ),
+    .din        ( mux_fmdin ), // data in
     .dout       ( fm_dout   ), // data out
     .ct1        (           ),
     .ct2        (           ),
-    .irq_n      (           ),
+    .irq_n      ( fm_irqn   ),
     // Low resolution output (same as real chip)
     .sample     ( sample    ),
     .left       ( fm_l      ),
@@ -177,9 +197,9 @@ jt51 u_jt51(
     .xleft      (           ),
     .xright     (           )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jt053260 u_pcm(
-    .rst        ( rst       ),
+    .rst        ( rst_z80   ),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
     // Main CPU interface
@@ -221,8 +241,8 @@ jt053260 u_pcm(
     .ch_en      (snd_en[5:1]),
     .aux_l      ( fm_l      ),
     .aux_r      ( fm_r      ),
-    .snd_l      ( snd_l     ),
-    .snd_r      ( snd_r     ),
+    .snd_l      ( mix_l     ),
+    .snd_r      ( mix_r     ),
     .tim2       (           ),
     .sample     (           )
 );

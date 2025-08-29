@@ -1,0 +1,3 @@
+include ../../simson/cfg/macros.def
+-JTFRAME_SDRAM96
+CORENAME=JTSURATK

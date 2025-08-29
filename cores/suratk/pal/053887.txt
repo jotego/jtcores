@@ -1,0 +1,29 @@
+Inputs:
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 17, 18, 19
+
+Outputs:
+
+12 (Combinatorial, Output feedback output, Active low)
+13 (Combinatorial, Output feedback output, Active low)
+14 (Combinatorial, Output feedback output, Active low)
+15 (Combinatorial, No output feedback, Active low)
+16 (Combinatorial, No output feedback, Active high)
+17 (Combinatorial, Output feedback output, Active low)
+
+Equations:
+
+
+
+/PROGA16 = /A19 & /PAGED
+/PROGA15 = /UNPAGED & /A15 & PAGED + /A18 & /PAGED
+/PROGA14 = /UNPAGED & /A14 & PAGED + /A17 & /PAGED
+/PROGA13 = /UNPAGED & /A13 & PAGED + /A16 & /PAGED
+
+
+// note it is active high
+PROGCS2 = UNPAGED & PAGED +
+      UNPAGED & /A20
+
+/PROGCS1 = UNPAGED & /PAGED & /A20
+
