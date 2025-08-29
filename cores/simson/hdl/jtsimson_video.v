@@ -88,6 +88,8 @@ module jtsimson_video(
     output     [ 7:0] st_dout
 );
 
+localparam FULLOBJ = `ifdef SURATK 1 `else 0 `endif;
+
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr,
             dump_scr, scr_mmr, dump_obj, dump_pal, obj_mmr, pal_mmr;
@@ -108,7 +110,7 @@ always @(posedge clk) begin
 end
 
 // Debug
-jtriders_dump u_dump(
+jtriders_dump #(.FULLOBJ(FULLOBJ)) u_dump(
     .clk            ( clk             ),
     .dump_scr       ( dump_scr        ),
     .dump_obj       ( dump_obj        ),
