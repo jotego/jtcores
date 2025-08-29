@@ -115,7 +115,7 @@ assign snd_wrn = suratk ? ~cpu_we : ~(snd_cs & cpu_we);
 assign pal_we  = pal_cs & cpu_we;
 assign cab_rd  = joystk_cs|eeprom_cs|stsw_cs|(io_cs&(paroda|suratk));
 assign cpu_addr= A[15:0];
-assign firqn   = /*suratk ? fm_irqn :*/ firqn_ff;
+assign firqn   = suratk ? fm_irqn : firqn_ff;
 
 always @(*) begin
     case( debug_bus[1:0] )
@@ -228,7 +228,23 @@ always @(*) begin
         objreg_cs  = suratk_aux && A[6:4]==3'b010;
         pcu_cs     = suratk_aux && A[6:4]==3'b011; // 053251
         fm_cs      = suratk_aux && A[6:4]==3'b101;
-        tilesys_cs = suratk_i7n && (A[8:7]==1 || A[9:8]==1 || !A[7] || paro_i6n );
+        tilesys_cs = suratk_i7n && (A[8:7]==1 || A[9:8]==1 || !A[7] || suratk_i6n );
+    //     tilesys_cs =
+    //    (A[9:7]==3'b000 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b100 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b010 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b110 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b001 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b101 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b011 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b000 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b100 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b010 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b110 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b001 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b101 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b011 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b111 &&  suratk_i6n && !suratk_i7n);
         snd_irq    = 0;
         snd_cs     = 0;
         // 053888
