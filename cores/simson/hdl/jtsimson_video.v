@@ -91,9 +91,10 @@ module jtsimson_video(
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr,
             dump_scr, scr_mmr, dump_obj, dump_pal, obj_mmr, pal_mmr;
+wire [ 6:0] lyra_eff, lyrb_eff;
 wire [11:0] lyra_pxl, lyrb_pxl, pal_addr;
 wire [ 8:0] lyro_pxl;
-wire [ 1:0] obj_shd;
+wire [ 1:0] obj_shd, shd_eff;
 wire [ 4:0] obj_prio;
 wire [15:0] obj16_dout;
 wire [ 3:0] obj_amsb;
@@ -271,9 +272,6 @@ function [6:0] lyrcol( input [7:0] pxl );
                       { 1'b0, pxl[7:6], pxl[3:0] };
 endfunction
 
-wire [6:0] lyra_eff, lyrb_eff;
-wire [1:0] shd_eff;
-
 // scroll layers swapped in Parodius/Surprise Attack
 assign lyra_eff = lyrcol( parsur ? lyrb_pxl[7:0] : lyra_pxl[7:0] );
 assign lyrb_eff = lyrcol( parsur ? lyra_pxl[7:0] : lyrb_pxl[7:0] );
@@ -285,6 +283,7 @@ jtsimson_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
+    .dim_onlyred( parsur    ),
     // Base Video
     .pxl_cen    ( pxl_cen   ),
     .lhbl       ( lhbl      ),

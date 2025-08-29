@@ -23,6 +23,7 @@ module jtsimson_colmix(
     input             rst,
     input             clk,
 
+    input             dim_onlyred,
     // Base Video
     input             pxl_cen,
     input             lhbl,
@@ -71,7 +72,10 @@ function [23:0] dim( input [14:0] cin, input shade );
     dim = !shade? {     cin[14:10], cin[14:12],    // do not dim
                             cin[ 9: 5], cin[ 9: 7],
                             cin[ 4: 0], cin[ 4: 2] } :
-                  {   1'b0, cin[14:10], cin[14:13],    // dim
+    dim_onlyred ? {     cin[14:10], cin[14:12],    // do not dim blue/green
+                            cin[ 9: 5], cin[ 9: 7],
+                      1'b0, cin[ 4: 0], cin[ 4: 3] } : // only dim red channel
+                  {   1'b0, cin[14:10], cin[14:13], // dim all
                       1'b0, cin[ 9: 5], cin[ 9: 8],
                       1'b0, cin[ 4: 0], cin[ 4: 3] } ;
 endfunction
