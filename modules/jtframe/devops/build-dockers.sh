@@ -16,21 +16,10 @@ main(){
         prepare_builder false "$BUILDER_NAME"
     fi
 
-    declare -A CTX_BASE=(
-        [jtframe]="$JTFRAME"
-    )
-    declare -A CTX_JTCORE13=(
-        [jtframe]="$JTFRAME"
-        [altera]="/opt/altera"
-    )
-    declare -A CTX_FPGA=(
-        [intel]="/opt/intelFPGA_lite"
-    )
-
-    build "jtcore-base" "linux/amd64,linux/arm64"   CTX_BASE
-    build "jtcore13"    "linux/amd64"               CTX_JTCORE13
-    build "jtcore17"    "linux/amd64"               CTX_FPGA
-    build "jtcore20"    "linux/amd64"               CTX_FPGA
+    build "jtcore-base" "linux/amd64,linux/arm64"   "$JTFRAME"
+    build "jtcore13"    "linux/amd64"               "$JTFRAME" "/opt/altera"
+    build "jtcore17"    "linux/amd64"               "/opt/intelFPGA_lite"
+    build "jtcore20"    "linux/amd64"               "/opt/intelFPGA_lite"
     build "linter"      "linux/amd64,linux/arm64"
     build "simulator"   "linux/amd64,linux/arm64"
 
@@ -57,17 +46,13 @@ prepare_builder() {
 }
 
 build() {
-    local image=$1
-    local platforms=$2
-    local contexts_map_name=${3-}
+    local image=$1; shift
+    local platforms=$1; shift
 
     local -a build_contexts=()
-    if [[ -n "$contexts_map_name" ]]; then
-        local -n ctx_ref="$contexts_map_name"
-        for name in "${!ctx_ref[@]}"; do
-            build_contexts+=( --build-context "$name=${ctx_ref[$name]}" )
-        done
-    fi
+    for path in "$@"; do
+        build_contexts+=( --build-context "$(basename $path)=$path" )
+    done
 
     echo "Building jotego/$image..."
     if $PUSH_IMAGES; then
