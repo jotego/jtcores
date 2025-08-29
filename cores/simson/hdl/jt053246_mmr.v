@@ -79,7 +79,6 @@ always @(posedge clk, posedge rst) begin
                 4: if(!k44_en) rmrd_addr[ 8: 1] <= cpu_dout[7:0];
                 5: begin
                     cfg <= cpu_dout[7:0]; // $34 (simpsons/vendetta) $30/20 (xmen)
-                    $display("OBJ CFG=%X",cpu_dout);
                 end
                 6: if(!k44_en) rmrd_addr[22:17] <= {1'b0,cpu_dout[4:0]};
                 7: if(!k44_en) rmrd_addr[16: 9] <= cpu_dout[7:0];
@@ -100,7 +99,6 @@ always @(posedge clk, posedge rst) begin
                     if( !cpu_dsn[1] ) rmrd_addr[8:1] <= cpu_dout[15:8];
                     if( !cpu_dsn[0] ) begin
                         cfg <= cpu_dout[7:0];
-                        $display("OBJ CFG=%X",cpu_dout[7:0]);
                     end
                 end
                 3: begin
