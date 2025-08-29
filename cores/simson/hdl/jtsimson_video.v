@@ -271,6 +271,15 @@ function [6:0] lyrcol( input [7:0] pxl );
                       { 1'b0, pxl[7:6], pxl[3:0] };
 endfunction
 
+wire [6:0] lyra_eff, lyrb_eff;
+wire [1:0] shd_eff;
+
+// scroll layers swapped in Parodius/Surprise Attack
+assign lyra_eff = lyrcol( parsur ? lyrb_pxl[7:0] : lyra_pxl[7:0] );
+assign lyrb_eff = lyrcol( parsur ? lyra_pxl[7:0] : lyrb_pxl[7:0] );
+assign shd_eff  = parsur ? {1'b0, obj_shd[0] }
+                         : obj_shd;
+
 /* verilator tracing_on */
 jtsimson_colmix u_colmix(
     .rst        ( rst       ),
@@ -290,12 +299,12 @@ jtsimson_colmix u_colmix(
 
     // Final pixels
     .lyrf_pxl   ( lyrcol(lyrf_pxl) ),
-    .lyra_pxl   ( lyrcol( parsur ? lyrb_pxl[7:0] : lyra_pxl[7:0] ) ), // scroll layers swapped in Parodius
-    .lyrb_pxl   ( lyrcol( parsur ? lyra_pxl[7:0] : lyrb_pxl[7:0] ) ),
+    .lyra_pxl   ( lyra_eff  ),
+    .lyrb_pxl   ( lyrb_eff  ),
     .lyro_pxl   ( lyro_pxl  ),
 
     .obj_prio   ( obj_prio  ),
-    .obj_shd    ( parsur ? 2'd0 : obj_shd ), // shadow resistors are not mounted in the Parodius PCB
+    .obj_shd    ( shd_eff   ), // shadow resistors are not mounted on the Parodius PCB
 
     .red        ( red       ),
     .green      ( green     ),

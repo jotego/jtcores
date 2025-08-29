@@ -9920,7 +9920,7 @@
 		)
 		(uuid "12532fdd-13a6-41e2-a346-906a827cb376")
 	)
-	(label "SDO1"
+	(label "SDO0"
 		(at 189.23 134.62 180)
 		(effects
 			(font
@@ -10710,7 +10710,7 @@
 		)
 		(uuid "7c4d7c37-fc52-4dd2-88cd-f720ddf8fcfe")
 	)
-	(label "SDO1"
+	(label "SDO0"
 		(at 299.72 241.3 0)
 		(effects
 			(font
@@ -13658,7 +13658,7 @@
 			)
 			(uuid "b2a3d6c5-cb00-4070-ad32-5e14c1cea7e6")
 		)
-		(pin "SDO1" input
+		(pin "SDO0" input
 			(at 318.77 241.3 180)
 			(effects
 				(font

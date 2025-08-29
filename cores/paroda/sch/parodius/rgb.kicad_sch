@@ -9217,7 +9217,7 @@
 		)
 		(uuid "af284f18-2943-422d-9040-fdf0e4771c01")
 	)
-	(hierarchical_label "SDO1"
+	(hierarchical_label "SDO0"
 		(shape input)
 		(at 99.06 77.47 180)
 		(effects
