@@ -42,7 +42,6 @@ int main(int argc, char* argv[])
   }
   fclose(fp);
   
-  printf("Reversed %d bytes\n", size);
   fp = fopen(argv[2], "wb");
   if (fp == NULL) {
     printf("Couldn't open the file %s for output\n", argv[2]);
@@ -52,7 +51,5 @@ int main(int argc, char* argv[])
   fclose(fp);
   
   free(buf);
-  printf("Done\n");
-  
   return 0;
 }
