@@ -44,7 +44,7 @@ module jt053246_dma(
 
 parameter K55673=0, K55673_DESC_SORT=0;
 
-wire        dma_we, hs_pos;
+wire        dma_we, hs_pos, dmaen_pos;
 reg  [ 1:0] vs_sh;
 reg  [11:1] dma_bufa;
 reg  [15:0] dma_bufd;

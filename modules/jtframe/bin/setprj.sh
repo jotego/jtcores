@@ -132,11 +132,6 @@ function cdgame {
     cd "$path"
 }
 
-if [ "$1" != "--quiet" ]; then
-    echo "Use swcore <corename> to switch to a different core once you are"
-    echo "inside the cores folder"
-fi
-
 # Git prompt
 source $JTFRAME/bin/git-prompt.sh
 export GIT_PS1_SHOWUPSTREAM=
