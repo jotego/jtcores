@@ -87,7 +87,7 @@ wire [15:0] cur_mem, wrq;
 // bus configuration
 reg       bus_mode,
           wt_cfg, // not implemented
-          wt_sign,
+          wt_pol,
           acc_lat,    // access latency, not implemented
           wrap;       // not implemented
 reg [2:0] latency,
@@ -102,7 +102,7 @@ localparam [3:0] IDLE  = 0,
 
 assign cur_mem = mem[addr];
 assign adq = (!oen && !cen && st==READ) ? cur_mem : 16'hzzzz;
-assign wt  = cen ? 1'bz : wt_reg ^ ~wt_sign;
+assign wt  = cen ? 1'bz : wt_reg ^ ~wt_pol;
 assign wrq = { ubn ? cur_mem[15:8] : adq[15:8], lbn ? cur_mem[7:0] : adq[7:0] };
 
 integer k;
@@ -112,12 +112,12 @@ initial begin
     // default configuration
     acc_lat   = 0;
     burst_len = 7;
-    bus_mode  = 1;
+    bus_mode  = 1;      // asynchronous
     drv_str   = 2'd1;
     latency   = 3;
     wrap      = 1;
     wt_cfg    = 1;
-    wt_sign   = 1;
+    wt_pol    = 1;
     // clear the memory
     for(k=0;k<2**22-1;k++) mem[k] = 0;
 end
@@ -129,33 +129,35 @@ always @(posedge clk) begin
             do_cfg <= 0;
             wt_reg <= 0;      // just a work around so it won't halt the sim
             if( !cen && !advn && !cre ) begin
-                do_rd <= wen;
-                addr  <= { a, adq };
-                wtk   <= 3;
-                st    <= WAIT;
+                do_rd  <= wen;
+                addr   <= { a, adq };
+                wtk    <= 2;
+                wt_reg <= 1;
+                st     <= WAIT;
             end
             if( !cen && !advn && cre ) begin
                 if( !wen ) begin
                     if( a[19:18]==2'd2 ) begin
-                        bus_mode   = adq[15];
-                        acc_lat    = adq[14];
-                        latency    = adq[13:11];
-                        wt_sign  = adq[10];
-                        wt_cfg = adq[8];
-                        drv_str    = adq[5:4];
-                        wrap       = adq[3];
-                        burst_len  = adq[2:0];
+                        bus_mode  <= adq[15];
+                        acc_lat   <= adq[14];
+                        latency   <= adq[13:11];
+                        wt_pol    <= adq[10];
+                        wt_cfg    <= adq[8];
+                        drv_str   <= adq[5:4];
+                        wrap      <= adq[3];
+                        burst_len <= adq[2:0];
                     end
                 end
-                do_cfg <= 1;   // the cre function isn't implemented
-                wtk    <= 3;
+                do_cfg <= 1; // the cre function isn't implemented
+                wt_reg <= 1; // wait a bit
+                wtk    <= 2;
                 st     <= WAIT;
             end
         end
         WAIT: begin
             if( wtk==0 ) st <= do_cfg ? IDLE : do_rd ? READ : WRITE;
-            wt_reg <= wtk==0;
-            wtk <= wtk-1;
+            wt_reg <= wtk!=0;
+            wtk    <= wtk-1;
         end
         READ: begin
             wt_reg <= 0;

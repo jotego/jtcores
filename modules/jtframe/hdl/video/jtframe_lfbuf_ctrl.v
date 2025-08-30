@@ -99,7 +99,7 @@ reg    [ 4:0] cntup; // use a larger count to capture data using Signal Tap
 wire   [ 7:0] vram; // current row (v) being processed through the external RAM
 reg    [15:0] adq_reg;
 reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
-reg           lhbl_l, do_wr, wait1,
+reg           lhbl_l, do_wr, wait1, adq_en,
               csn, ln_done_l, vsl, startup;
 wire          fb_over;
 wire          wring;
@@ -109,10 +109,10 @@ wire   rding   = st[3]; `endif
 assign wring   = st[2];
 assign cr_cen  = { 1'b1, csn }; // I call it csn to avoid the confusion with the common cen (clock enable) signal
 assign cr_dsn  = 0;
-assign fb_dout =  cr_oen ? 16'd0 : cr_adq;
-assign cr_adq  = !cr_advn ? adq_reg : !cr_oen ? 16'hzzzz : fb_din;
+assign fb_dout = cr_oen ? 16'd0 : cr_adq;
+assign cr_adq  =!cr_oen ? 16'hzzzz : adq_en ? adq_reg : fb_din;
 assign cr_clk  = clk;
-assign fb_over = &fb_addr;
+assign fb_over =&fb_addr;
 assign vram    = lhbl ? ln_v : vrender;
 assign scr_we  = cr_wait & ~cr_oen;
 
@@ -190,10 +190,12 @@ always @( posedge clk, posedge rst ) begin
         line     <= 0;
         wait1    <= 0;
         init_cnt <= 0;
+        adq_en   <= 0;
     end else begin
         fb_done <= 0;
         wait1   <= 0;
         cr_advn <= 1;
+        if(!wait1) adq_en <= 0;
         if( fb_clr ) begin
             // the line is cleared outside the state machine so a
             // read operation can happen independently
@@ -206,6 +208,10 @@ always @( posedge clk, posedge rst ) begin
             csn <= 1;
         end else case( st )
             INIT: begin
+                case(init_cnt)
+                    1,2,7,8: adq_en <= 1;
+                    default: adq_en <= 0;
+                endcase
                 if( init_cnt==0  ) { cr_addr, adq_reg } <= REF_CFG;
                 if( init_cnt==15 ) { cr_addr, adq_reg } <= BUS_CFG;
                 init_cnt <= init_cnt + 1'd1;
@@ -240,6 +246,7 @@ always @( posedge clk, posedge rst ) begin
                 adq_reg[HW-1:0] <= wring ? wr_addr : rd_addr;
                 csn             <= 0;
                 cr_advn         <= 0;
+                adq_en          <= 1;
                 cr_oen          <= 1;
                 cr_wen          <= ~wring;
                 st              <= wring ? WRITEOUT : READIN;
