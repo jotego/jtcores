@@ -92,9 +92,10 @@ By default, all audio output gets dumped to test.wav. If the **Audio** section o
 
 # Regression
 
-The script `run_regression.sh` is used for automatic regressions triggered by GitHub Actions. It will execute a regression for all setnames that are set on the configuration files (explained below). In case there were any problems when executing the regression (simulation failed, unable to get audio/frames, audio/frames validation failed...) An issue will be created on GitHub specifying why the regression failed.
+The script `run_regression.sh` is used for automatic regressions triggered by GitHub Actions. It executes a regression for all setnames defined in the configuration files (explained below). If any problem occurs during execution (simulation failure, missing audio/frames, audio/frames validation failure, etc.), an issue will be created on GitHub specifying the reason for the failure.
 
-The script `run_regression.sh` will execute a simulation using `jtsim` in a way you define in a configuration file inside `<core>/cfg`, called `reg.yaml`. Here, you can set the same options you can set when using `jtsim`. The syntaxis for that file is as follows:
+The script `run_regression.sh` runs a simulation using `jtsim` according to the options defined in a configuration file located in `<core>/cfg`, called `reg.yaml`. In this file, you can specify the same options available when using `jtsim`. The syntax is as follows:
+
 ```yaml
 <setname_1>:
     video: number
@@ -109,9 +110,9 @@ The script `run_regression.sh` will execute a simulation using `jtsim` in a way 
 ```
 
 > [!NOTE]
-> GitHub will use these configuration files to decide which setnames will be used to execute the regression. All setnames that doesn't appear in those won't be included. If you want a setname to be triggered without options, just type `<setname>:` without any option.
+> GitHub uses these configuration files to decide which setnames will be executed during regression. Any setnames not included in these files will be skipped. If you want a setname to be triggered without options, just type <setname>: without any additional fields.
 
-Also, there is another `reg.yaml` file on `$JTFRAME/bin`, where you can set default options. The syntaxis is the same as above, but you don't have to specify any setname:
+There is also a reg.yaml file in $JTFRAME/bin, where you can define default options. The syntax is the same as above, but you do not need to specify a setname:
 ```yaml
 video: number
 inputs: file
@@ -122,13 +123,17 @@ d: MACRO2
 ```
 
 > [!NOTE]
-> To see all options you can use in these configuration files, you can check `jtsim --help`.
+> To see all available options for these configuration files, run jtsim --help.
 
-Also this command is ready for check if the simulation performed is valid against another one. To do so, you can use `--check` or `--local-check <folder>` flags, that allows you to compare against a remote folder in a SFTP server, or a local folder within your machine. If you decide to use a SFTP server, you must use `--port <port>`, `--host <host>` and `--user <user>` flags to set the way it has to connect to that server. Also, the server has to be already defined on known_hosts.
+This script also allows validating a simulation against a reference. To do this, use the --check or --local-check <folder> flags, which let you compare results against either a remote SFTP server or a local folder. If you use an SFTP server, you must also provide --port <port>, --host <host>, and --user <user> to define the connection. The server must already be registered in known_hosts.
 
-If you use a remote SFTP server, it expects two folders, called *regression* and *mame*. You have to select the root folder on your server using `--path`. On *mame* it is expected all zips containing ROMs. On *regression*, it is expected the following structure: `regression/<core>/<setname>/VALID,NOT_CHECKED,FAIL/frames.zip,audio.zip`. It will use those files to download and compress/uncompress the needed info for simulating and checking.
+When using a remote SFTP server, the following folder structure is required under the root path defined with --path:
+- mame/: contains all zipped ROMs.
+- regression/<core>/<setname>/VALID, NOT_CHECKED, FAIL/frames.zip, audio.zip: contains reference simulation results used for validation.
 
-Also you can use `--push` flag to upload the simulation results. Depending on the validation result, it will be uploaded on `fail` or `not_checked` folder. You will always have to manually upload the reference frames/audio to the `valid` folder.
+The script will download and extract the required files for simulation and comparison.
+
+You can also use the --push flag to upload your simulation results. Depending on the validation outcome, results will be uploaded to either the fail or not_checked folder. Reference frames/audio must always be uploaded manually to the valid folder.
 
 > [!IMPORTANT]
-> When used by GitHub Actions, the script will be executed  using flags `--check` and `--push`, and it will only pass if the validation is successfull.
+> When run by GitHub Actions, the script is executed with the --check and --push flags. The workflow will only pass if validation succeeds.

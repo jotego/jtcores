@@ -21,11 +21,11 @@ module jtsimson_game(
 );
 
 /* verilator tracing_off */
-wire [ 7:0] snd2main, video_dump;
+wire [ 7:0] snd2main, video_dump, fm_dout;
 wire        cpu_cen, snd_irq, rmrd, rst8, init;
-wire        pal_we, pal_bank,
+wire        pal_we, pal_bank, fm_irqn,
             cpu_we, tilesys_cs, objsys_cs, pcu_cs, objcha_n;
-wire        cpu_rnw, cpu_irqn, dma_bsy, snd_wrn, mono, objreg_cs;
+wire        cpu_rnw, cpu_irqn, dma_bsy, snd_wrn, mono, objreg_cs, main_fmcs;
 wire [ 7:0] tilesys_dout, objsys_dout,
             obj_dout, pal_dout, cpu_dout,
             st_main, st_video, st_snd;
@@ -33,7 +33,7 @@ wire        tilesys_rom_dtack;
 wire [15:0] cpu_addr;
 wire [15:0] video_dumpa;
 reg  [ 7:0] debug_mux;
-reg         simson, paroda, vendetta;
+reg         simson, paroda, vendetta, suratk;
 
 assign debug_view = debug_mux;
 assign ram_din    = cpu_dout;
@@ -42,9 +42,10 @@ assign video_dumpa= ioctl_addr[15:0]-16'h80;
 
 always @(posedge clk) begin
     if( header && prog_we && prog_addr[1:0]==0 ) begin
-        simson   <= prog_data[1:0]==0;
-        paroda   <= prog_data[1:0]==1;
-        vendetta <= prog_data[1:0]==2;
+        simson   <= prog_data[2:0]==0;
+        paroda   <= prog_data[2:0]==1;
+        vendetta <= prog_data[2:0]==2;
+        suratk   <= prog_data[2:0]==4;
     end
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
@@ -64,6 +65,11 @@ jtsimson_main u_main(
     .simson         ( simson        ),
     .paroda         ( paroda        ),
     .vendetta       ( vendetta      ),
+    .suratk         ( suratk        ),
+    // YM2151 (only suratk)
+    .fm_cs          ( main_fmcs     ),
+    .fm_dout        ( fm_dout       ),
+    .fm_irqn        ( fm_irqn       ),
 
     .cpu_addr       ( cpu_addr      ),
     .cpu_dout       ( cpu_dout      ),
@@ -124,7 +130,7 @@ jtsimson_main u_main(
     .st_dout        ( st_main       )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtsimson_sound u_sound(
     .rst        ( rst48         ),
     .clk        ( clk48         ),
@@ -132,6 +138,7 @@ jtsimson_sound u_sound(
     .cen_fm2    ( cen_fm2       ),
 
     .simson     ( simson        ),
+    .suratk     ( suratk        ),
     // communication with main CPU
     .snd_irq    ( snd_irq       ),
     .main_dout  ( cpu_dout      ),
@@ -139,6 +146,10 @@ jtsimson_sound u_sound(
     .main_addr  ( cpu_addr[0]   ),
     .main_rnw   ( snd_wrn       ),
     .mono       ( mono          ),
+    // YM2151 (only suratk)
+    .main_fmcs  ( main_fmcs     ),
+    .fm_dout    ( fm_dout       ),
+    .fm_irqn    ( fm_irqn       ),
     // ROM
     .rom_addr   ( snd_addr      ),
     .rom_cs     ( snd_cs        ),
@@ -173,7 +184,7 @@ jtsimson_sound u_sound(
     .st_dout    ( st_snd        )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtsimson_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
@@ -181,6 +192,7 @@ jtsimson_video u_video (
 
     .simson         ( simson        ),
     .paroda         ( paroda        ),
+    .suratk         ( suratk        ),
 
     // base video
     .pxl_cen        ( pxl_cen       ),

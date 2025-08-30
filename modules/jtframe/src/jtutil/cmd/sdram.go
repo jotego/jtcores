@@ -80,7 +80,11 @@ func run_sdram(cmd *cobra.Command, args []string) {
 	must(validate_wd())
 	core := derive_core_from_wd()
 	macros.MakeMacros( core, "mist" )
-	extract_sdram(core,game)
+	e := extract_sdram(core,game)
+	if e!=nil {
+		fmt.Println(e.Error())
+		os.Exit(1)
+	}
 	make_symlink(game)
 }
 
@@ -170,6 +174,7 @@ func extract_sdram( core, game string ) error {
 	if e!=nil { return fmt.Errorf("%w for bank 2",e) }
 	if nx_start<0 {
 		os.Remove("sdram_bank3.bin")
+		fmt.Println("Skippin bank3")
 		return nil
 	}
 	nx_start, e = dump("sdram_bank3.bin",rom,nx_start,0,prom_start, EIGHT_MB)
@@ -219,14 +224,18 @@ func bankOffset( reg_cnt int, hinfo mra.HeaderOffset, rom []byte ) ([]int, []str
 	}
 	if verbose {
 		fmt.Println("Offsets")
-		for k, _ := range offsets {
+		for k:=1; k<len(offsets); k++ {
 			fmt.Printf("%d %X\n",k,offsets[k])
 		}
+		fmt.Println()
 	}
 	return offsets,hinfo.Regions
 }
 
 func dump( name string, rom []byte, p0, p1, lim, fill int) (int,error) {
+	if verbose {
+		fmt.Printf("%10s p0=%08X p1=%08X lim=%08X fill=%08X\n",name,p0,p1,lim,fill)
+	}
 	if p1<=0 { p1 = lim	}
 	if verbose { fmt.Printf("%s %X -> %X\n",name,p0,p1) }
 	if p1<p0 { return 0,fmt.Errorf("start offset was beyond end offset") }

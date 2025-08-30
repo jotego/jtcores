@@ -24,8 +24,8 @@ data = [
 
 [ROM]
 regions = [
-    { name="maincpu",  machine="parodius" },
-    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="maincpu" },
+    { name="audiocpu", start="JTFRAME_BA1_START", machine="parodius" },
     { name="k053260",  start="PCM_START", rename="pcm", machine ="parodius", sequence=[0,0] },
     { name="k052109",  start="JTFRAME_BA2_START", width=32, rename="tiles" }, # tiles
     { name="k053245",  start="JTFRAME_BA3_START", width=32, rename="obj", machine="parodius" }, # sprites

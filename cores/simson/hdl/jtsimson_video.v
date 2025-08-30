@@ -20,8 +20,7 @@ module jtsimson_video(
     input             rst,
     output            rst8,     // reset signal at 8th frame
     input             clk,
-    input             simson,
-    input             paroda,
+    input             simson, paroda, suratk,
 
     // Base Video
     input             pxl_cen,
@@ -89,21 +88,29 @@ module jtsimson_video(
     output     [ 7:0] st_dout
 );
 
+localparam FULLOBJ = `ifdef SURATK 1 `else 0 `endif;
+
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire [ 7:0] lyrf_pxl, st_scr,
             dump_scr, scr_mmr, dump_obj, dump_pal, obj_mmr, pal_mmr;
+wire [ 6:0] lyra_eff, lyrb_eff;
 wire [11:0] lyra_pxl, lyrb_pxl, pal_addr;
 wire [ 8:0] lyro_pxl;
-wire [ 1:0] obj_shd;
+wire [ 1:0] obj_shd, shd_eff;
 wire [ 4:0] obj_prio;
 wire [15:0] obj16_dout;
 wire [ 3:0] obj_amsb;
+reg         parsur;
 
-assign pal_addr    = { paroda ? pal_bank : cpu_addr[11], cpu_addr[10:0] };
+assign pal_addr    = { parsur ? pal_bank : cpu_addr[11], cpu_addr[10:0] };
 assign objsys_dout = ~cpu_addr[0] ? obj16_dout[15:8] : obj16_dout[7:0]; // big endian
 
+always @(posedge clk) begin
+    parsur <= paroda | suratk;
+end
+
 // Debug
-jtriders_dump u_dump(
+jtriders_dump #(.FULLOBJ(FULLOBJ)) u_dump(
     .clk            ( clk             ),
     .dump_scr       ( dump_scr        ),
     .dump_obj       ( dump_obj        ),
@@ -133,6 +140,7 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
 
     .paroda     ( paroda    ),
     .simson     ( simson    ),
+    .suratk     ( suratk    ),
     // Base Video
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
@@ -198,7 +206,7 @@ localparam ORAMW=12;
 wire [ORAMW:1] oram_a;
 wire           nc;
 
-assign oram_a = { cpu_addr[12] & ~paroda, cpu_addr[11:1] };
+assign oram_a = { cpu_addr[12] & ~parsur, cpu_addr[11:1] };
 
 /* verilator tracing_on  */
 `ifdef SIMSON
@@ -209,7 +217,13 @@ jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
     .simson     ( simson    ),
 `else
 assign obj_shd[1] = 1'b0;
-jtriders_obj #(.RAMW(ORAMW),.HFLIP_OFFSET(10'd134)) u_obj(
+jtriders_obj #(
+    .RAMW         ( ORAMW   ),
+    .HFLIP_OFFSET ( 10'd134 )
+`ifdef SURATK
+   ,.SHADOW       ( 1       )
+`endif
+) u_obj(
     .lgtnfght   ( 1'b0      ),
     .lvbl       ( lvbl      ),
 `endif
@@ -262,15 +276,22 @@ jtriders_obj #(.RAMW(ORAMW),.HFLIP_OFFSET(10'd134)) u_obj(
 );
 
 function [6:0] lyrcol( input [7:0] pxl );
-    lyrcol = paroda ? {       pxl[7:5], pxl[3:0] } :
+    lyrcol = parsur ? {       pxl[7:5], pxl[3:0] } :
                       { 1'b0, pxl[7:6], pxl[3:0] };
 endfunction
+
+// scroll layers swapped in Parodius/Surprise Attack
+assign lyra_eff = lyrcol( parsur ? lyrb_pxl[7:0] : lyra_pxl[7:0] );
+assign lyrb_eff = lyrcol( parsur ? lyra_pxl[7:0] : lyrb_pxl[7:0] );
+assign shd_eff  = parsur ? {1'b0, obj_shd[0] }
+                         : obj_shd;
 
 /* verilator tracing_on */
 jtsimson_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
+    .dim_onlyred( parsur    ),
     // Base Video
     .pxl_cen    ( pxl_cen   ),
     .lhbl       ( lhbl      ),
@@ -285,12 +306,12 @@ jtsimson_colmix u_colmix(
 
     // Final pixels
     .lyrf_pxl   ( lyrcol(lyrf_pxl) ),
-    .lyra_pxl   ( lyrcol( paroda ? lyrb_pxl[7:0] : lyra_pxl[7:0] ) ), // scroll layers swapped in Parodius
-    .lyrb_pxl   ( lyrcol( paroda ? lyra_pxl[7:0] : lyrb_pxl[7:0] ) ),
+    .lyra_pxl   ( lyra_eff  ),
+    .lyrb_pxl   ( lyrb_eff  ),
     .lyro_pxl   ( lyro_pxl  ),
 
     .obj_prio   ( obj_prio  ),
-    .obj_shd    ( paroda ? 2'd0 : obj_shd ), // shadow resistors are not mounted in the Parodius PCB
+    .obj_shd    ( shd_eff   ), // shadow resistors are not mounted on the Parodius PCB
 
     .red        ( red       ),
     .green      ( green     ),

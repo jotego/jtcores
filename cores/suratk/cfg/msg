@@ -1,0 +1,93 @@
+         \BJTSURATK\W
+    FPGA core by \RJOTEGO\W
+     patreon.com/jotego
+
+  Version \C - \D
+
+    Based on our own PCB
+     schematics and
+    Furrtek's RE of
+    gate array chips
+  and PAL equations from
+  wiki.pldarchive.co.uk
+
+ \B______ \RDIRECTORS\B _______\W
+Bender          Chris Gelatt   
+    Frederic Mahe
+    Fulvio Venturelli
+John Lange      Martin Birkeldh
+Martin Donlon   Michael Hermann
+Rysha           Tulio Adriano  
+Ulf Skutnabba   f3bandit       
+    Gu Youqiang
+
+
+       \BThanks to\W
+\RAndrea Bogazzi  Bob Gallardo   
+\RBrian Sallee    Dan Avedikian  
+\RDaniel Bauza    ER             
+\REric Lewis      Halla          
+\RHarper Reed     Jacob Jewell   
+\RJim Sprigler    Joe Castle     
+\RKeith Nieves    Kyle Mickley   
+\RM. Fornasini    Matthew Belshan
+\RPD Lee          Pelayo Marinas 
+\RPeter Vessenes  R. Martinazzo  
+\RRenaissance 2K  RetroWilly     
+\RRobert Moran    Sayit BELET    
+\RTej Bilkhu                     
+
+ \B_________ AND __________\W
+ARCADEAGES      Adam Davis     
+Adrian Nabarro  Anders Rensberg
+Andy Palmer     Andyways       
+Blackstar       Bryan Adams    
+Carrboroman     Chris Doyle    
+Chris Harvey    Christian      
+DMG             Dan Bayley     
+Daniel Cortes   Darren Chell   
+Dave Sasser     David Moylan   
+Dean Winger     Don Gafford    
+Ed Balan        Eduardo Javier 
+Fred Jorge      Gus Douboulidis
+    Hendrik Osterholz
+    Henrik Nordstrom
+    INAKI ECHEVARRIA
+Ian Court       JPS (RetroFPGA)
+James Stroup    Jo le Zef      
+Joe Tassone     Joeri van      
+John Casey      John Silva     
+Juan Sandoval   JuanRa         
+Keith F. Kelly  Leslie Law     
+    Lukas Hinterleitner
+M. Ferguson     Marcus Hogue   
+Matt Hargett    Matthew Young  
+    Michael Ferguson
+    Michael Fleisher
+Michael Johnson Mike Phan      
+Nima            Nunzio Mannino 
+Oliver Jaksch   Oscar Laguna   
+Retro_Brewz     Richard MS     
+Rob Jenkins     Robert MacLean 
+Shane Lynch     Steven Wilson  
+The Collector   Theodore Huber 
+Thompson Orcino Torren Beitler 
+Vitor Duarte    albertprime    
+amoore2600      hyp36rmax      
+ultimatekd                     
+
+  ________________________
+
+      - Beta version -
+      Do not distribute
+
+
+      -     MiSTer   -
+      Place jtbeta.zip
+      in games/mame
+      do not unzip it
+
+      -   A. Pocket  -
+    Unzip jtbeta.zip into
+    Assets/jtpatreon/common
+

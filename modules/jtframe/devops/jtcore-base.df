@@ -29,11 +29,11 @@ ENV PATH="$PATH:/usr/local/go/bin"
 
 # JTFRAME dependencies
 WORKDIR /jtframe
-COPY src/jtframe/go.mod src/jtframe/go.sum ./
+COPY --from=jtframe src/jtframe/go.mod src/jtframe/go.sum ./
 RUN go mod download
 
 WORKDIR /jtutil
-COPY src/jtutil/go.mod src/jtutil/go.sum ./
+COPY --from=jtframe src/jtutil/go.mod src/jtutil/go.sum ./
 RUN go mod download
 
 WORKDIR /

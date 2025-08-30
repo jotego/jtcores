@@ -25,10 +25,16 @@ module jtsimson_main(
     input               paroda,
     input               simson,
     input               vendetta,
+    input               suratk,
 
     output      [ 7:0]  cpu_dout,
     output      [15:0]  cpu_addr,
     output reg          init,
+
+    // FM - only suratk
+    input       [ 7:0]  fm_dout,
+    output reg          fm_cs,
+    input               fm_irqn,
 
     output reg  [18:0]  rom_addr,
     input       [ 7:0]  rom_data,
@@ -94,21 +100,22 @@ wire        buserror;
 reg         ram_cs, banked_cs, io_cs, pal_cs, snd_cs,
             berr_l, prog_cs, eeprom_cs, joystk_cs,
             out_cs, basel_cs, cr_cs, stsw_cs, hip_cs,
-            i6n, i7n, paro_i6n, paro_i7n,
-            misc_cs, paro_aux, io_aux, // unpaged,
+            i6n, i7n, paro_i6n, paro_i7n, suratk_i6n, suratk_i7n,
+            misc_cs, paro_aux, suratk_aux, io_aux, // unpaged,
             vend_i7n, vend_i6n, vend_aux;
 wire        dtack;  // to do: add delay for io_cs
 reg         rst_cmb;
-wire        eep_rdy, eep_do, irq_mx, firqn_ff, irqn_ff, cab_rd;
+wire        eep_rdy, eep_do, irq_mx, firqn_ff, irqn_ff, cab_rd, firqn;
 reg         eep_di, eep_clk, eep_cs, irqen, firqen, WOC1, WOC0,
             bankr;
 
 assign dtack   = (~rom_cs | rom_ok) & tilesys_rom_dtack;
 assign ram_we  = ram_cs & cpu_we;
-assign snd_wrn = ~(snd_cs & cpu_we);
+assign snd_wrn = suratk ? ~cpu_we : ~(snd_cs & cpu_we);
 assign pal_we  = pal_cs & cpu_we;
-assign cab_rd  = joystk_cs|eeprom_cs|stsw_cs|(io_cs&paroda);
+assign cab_rd  = joystk_cs|eeprom_cs|stsw_cs|(io_cs&(paroda|suratk));
 assign cpu_addr= A[15:0];
+assign firqn   = suratk ? fm_irqn : firqn_ff;
 
 always @(*) begin
     case( debug_bus[1:0] )
@@ -147,6 +154,7 @@ always @(*) begin
     eeprom_cs       = 0;
     prog_cs         = 0;
     cr_cs           = 0;
+    fm_cs           = 0;
     // used only by simpsons
     i6n = ~(A[15:10]==7 || (!init && A[15:10]==6'h1f ));
     i7n = ~((A[15:10]==7 && !WOC0) || (
@@ -154,12 +162,15 @@ always @(*) begin
                     A[15:10]==7 && (WOC1  || WOC0) ));
     io_aux   = &{ ~i6n, ~i7n, A[9:7] };
     // used only by parodius
-    paro_i6n = !(A[15:10]==6'hf);
-    paro_i7n = A[15:12]==3 || (A[15:14]==1 && (!A[13]||!bankr)) || (A[15:12]==2 && (!WOC1 || A[11]));
-    paro_aux = &{ ~paro_i6n, A[9:7] };
-    misc_cs  = paro_aux && A[6:4]==3'b100;
-    out_cs   = misc_cs && A[3:2]==0;
-    basel_cs = misc_cs && A[3:2]==1;
+    paro_i6n   = !(A[15:10]==6'h0f);
+    suratk_i6n = !(A[15:10]==6'h17);
+    paro_i7n   = A[15:12]==3 || (A[15:14]==1 && (!A[13]||!bankr)) || (A[15:12]==2 && (!WOC1 || A[11]));
+    suratk_i7n = bankr ? A[15:14]==2'b01 : A[15:13]==3'b011;
+    paro_aux   = &{ ~paro_i6n,   A[9:7] };
+    suratk_aux = &{ ~suratk_i6n, A[9:7] };
+    misc_cs    = (suratk ? suratk_aux : paro_aux) && A[6:4]==3'b100;
+    out_cs     = misc_cs && A[3:2]==0;
+    basel_cs   = misc_cs && A[3:2]==1;
     // unpaged  = A[15:13]>=5;
     // used only by vendetta
     hip_cs  = 0;
@@ -198,8 +209,8 @@ always @(*) begin
         objreg_cs  = paro_aux && A[6:4]==3'b010;
         pcu_cs     = paro_aux && A[6:4]==3'b011; // 053251
         tilesys_cs = paro_i7n && (A[8:7]==1 || A[9:8]==1 || !A[7] || paro_i6n );
-        snd_irq    = misc_cs && A[3:2]==2;
-        snd_cs     = misc_cs && A[3:2]==3;
+        snd_irq    = misc_cs  && A[3:2]==2;
+        snd_cs     = misc_cs  && A[3:2]==3;
         ram_cs     = A[15:13]==0 && |{A[12:11],~WOC0};
         pal_cs     = A[15:11]==0 && WOC0;
         objsys_cs  = A[15:11]==4 && WOC1;
@@ -207,6 +218,42 @@ always @(*) begin
         rom_cs     = banked_cs || A[15];
         rom_addr[16:13] = banked_cs ? {~Aupper[2:0], A[15]} : {1'b1,A[15:13]};
         rom_addr[17] = !Aupper[3]||!banked_cs;
+        rom_addr[18] = 0;
+    end
+    if( suratk ) begin
+        cr_cs      = 0;
+        // 053884
+        joystk_cs  = suratk_aux && A[6:4]==3'b000;
+        io_cs      = suratk_aux && A[6:4]==3'b001;
+        objreg_cs  = suratk_aux && A[6:4]==3'b010;
+        pcu_cs     = suratk_aux && A[6:4]==3'b011; // 053251
+        fm_cs      = suratk_aux && A[6:4]==3'b101;
+        tilesys_cs = suratk_i7n && (A[8:7]==1 || A[9:8]==1 || !A[7] || suratk_i6n );
+    //     tilesys_cs =
+    //    (A[9:7]==3'b000 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b100 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b010 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b110 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b001 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b101 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b011 && !suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b000 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b100 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b010 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b110 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b001 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b101 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b011 &&  suratk_i6n && !suratk_i7n)
+    // || (A[9:7]==3'b111 &&  suratk_i6n && !suratk_i7n);
+        snd_irq    = 0;
+        snd_cs     = 0;
+        // 053888
+        ram_cs     = A[15:11]==1 || A[15:12]==1 || (A[15:13]==0 && !WOC1 && !WOC0);
+        objsys_cs  = A[15:11]==0 && !WOC1 &&  WOC0;
+        pal_cs     = A[15:11]==0 &&  WOC1 && !WOC0;
+        banked_cs  = A[15:13]==1 && bankr;
+        rom_cs     = banked_cs || A[15];
+        rom_addr[17:13] = banked_cs ? Aupper[4:0] : {2'b11,A[15:13]};
         rom_addr[18] = 0;
     end
     if( vendetta ) begin
@@ -240,10 +287,11 @@ always @* begin
               hip_cs     ? hip_dout     : // vendetta only
               tilesys_cs ? tilesys_dout :
               snd_cs     ? snd2main     :
+              fm_cs      ? fm_dout      : // suratk only
               (objsys_cs | cr_cs) ? objsys_dout  : 8'h00;
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         port_in   <= 0;
         rmrd      <= 0;
@@ -265,7 +313,7 @@ always @(posedge clk, posedge rst) begin
         bankr     <= 0;
     end else begin
         if( buserror ) berr_l <= 1;
-        if( paroda ) begin
+        if( paroda | suratk ) begin
             objcha_n <= 1;
             //in k053244 actually
             //if(objreg_cs && cpu_addr[3:0] == 5) objcha_n <= !cpu_dout[4];
@@ -278,7 +326,7 @@ always @(posedge clk, posedge rst) begin
             if( joystk_cs ) case( A[1:0] )
                 2'd0: port_in <= { joystick1[6:4],joystick1[1:0],joystick1[3:2],cab_1p[0] };
                 2'd1: port_in <= { joystick2[6:4],joystick2[1:0],joystick2[3:2],cab_1p[1] };
-                2'd2: port_in <= { dipsw[23:20], coin[1:0], 1'b1, service };
+                2'd2: port_in <= { dipsw[23:20], coin[1:0], dip_test, service };
                 2'd3: port_in <= dipsw[7:0];
             endcase
         end else if( vendetta ) begin
@@ -387,7 +435,7 @@ jtkcpu u_cpu(
     .dtack  ( dtack     ),
     .nmi_n  ( 1'b1      ),
     .irq_n  ( irq_mx    ),
-    .firq_n ( firqn_ff  ),
+    .firq_n ( firqn     ),
     .pcbad  ( pcbad     ),
     .buserror( buserror ),
 
@@ -426,6 +474,7 @@ jtkcpu u_cpu(
         mono       = 0;
         pal_bank   = 0;
         st_dout    = 0;
+        fm_cs      = 0;
     end
 `endif
 endmodule
