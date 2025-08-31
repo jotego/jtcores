@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REGRESSION_FILE="reg.yaml"
-DEFAULT_FRAMES=1200
+DEFAULT_FRAMES=1800
 
 main() {
     if [[ -z $JTROOT ]]; then
