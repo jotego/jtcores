@@ -37,6 +37,7 @@ module jtframe_lfbuf_line #(parameter
     // video status
     input      [VW-1:0] vrender,
     input      [HW-1:0] hdump,
+    input               hs,
     input               vs,     // vertical sync, the buffer is swapped here
     input               lvbl,   // vertical blank, active low
 

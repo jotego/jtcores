@@ -392,6 +392,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .clk        ( clk_rom       ),
             .pxl_cen    ( pxl_cen       ),
 
+            .vs         ( HS            ),
             .vs         ( VS            ),
             .lvbl       ( LVBL          ),
             .lhbl       ( LHBL          ),
@@ -457,6 +458,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .clk        ( clk_rom       ),
             .pxl_cen    ( pxl_cen       ),
 
+            .hs         ( HS            ),
             .vs         ( VS            ),
             .lvbl       ( LVBL          ),
             .lhbl       ( LHBL          ),

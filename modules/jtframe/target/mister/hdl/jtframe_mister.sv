@@ -898,6 +898,7 @@ wire rot_clk;
         .clk        ( clk_rom       ),
         .pxl_cen    ( pxl1_cen      ),
 
+        .hs         ( hs            ),
         .vs         ( vs            ),
         .lvbl       ( LVBL          ),
         .lhbl       ( LHBL          ),
