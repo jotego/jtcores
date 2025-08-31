@@ -116,20 +116,6 @@ jt1942_objram u_ram(
 wire [8:0] posx;
 wire [3:0] new_pxl;
 
-`ifdef OBJ_TEST
-    reg [15:0] test_data, td0, td1, td2;
-    always @(*)
-        case( obj_addr[14:8] )
-            7'h3b: td0 = {2{~obj_addr[3:0],obj_addr[3:0]}};
-            default: td0 = 16'd0;
-        endcase
-    always @(posedge clk) if(cen6) begin
-        td1 <= td0;
-        td2 <= td1;
-        test_data <= td2;
-    end
-`endif
-
 // draw the sprite
 jt1942_objdraw u_draw(
     .rst            ( rst           ),
@@ -149,11 +135,7 @@ jt1942_objdraw u_draw(
     .objbuf_data1   ( objbuf_data1  ),
     .objbuf_data2   ( objbuf_data2  ),
     .objbuf_data3   ( objbuf_data3  ),
-    `ifdef OBJ_TEST
-    .obj_data       ( test_data     ),
-    `else
     .obj_data       ( obj_data      ),
-    `endif
     // SDRAM interface
     .obj_addr       ( obj_addr      ),
     .obj_ok         ( obj_ok        ),
@@ -165,32 +147,21 @@ jt1942_objdraw u_draw(
     .new_pxl        ( new_pxl       )
 );
 
-`ifndef JTFRAME_LF_BUFFER
-    assign LHBL_eff = LHBL,
-           V_eff    = V;
-    jtgng_objpxl #(.PXL_DLY(PXL_DLY))u_pxlbuf(
-        .rst            ( rst           ),
-        .clk            ( clk           ),
-        .cen            ( 1'b1          ),
-        .pxl_cen        ( cen6          ),    //  6 MHz
-        // screen
-        .LHBL           ( LHBL          ),
-        .flip           ( flip          ),
-        .posx           ( posx          ),
-        .line           ( line          ),
-        // pixel data
-        .new_pxl        ( new_pxl       ),
-        .obj_pxl        ( obj_pxl       )
-    );
-`else
-    // Define the macro JTFRAME_LFBUF_CLR=15
-    assign ln_data  = {12'd0, new_pxl },
-           ln_done  = over,
-           ln_addr  = posx^9'h100, // Objects will be offset because we are not using PXL_DLY
-           ln_we    = !over && new_pxl!=4'hf,
-           LHBL_eff = ln_hs,
-           obj_pxl  = ln_pxl[3:0],
-           V_eff    = ln_v;
-`endif
+assign LHBL_eff = LHBL,
+       V_eff    = V;
+jtgng_objpxl #(.PXL_DLY(PXL_DLY))u_pxlbuf(
+    .rst            ( rst           ),
+    .clk            ( clk           ),
+    .cen            ( 1'b1          ),
+    .pxl_cen        ( cen6          ),    //  6 MHz
+    // screen
+    .LHBL           ( LHBL          ),
+    .flip           ( flip          ),
+    .posx           ( posx          ),
+    .line           ( line          ),
+    // pixel data
+    .new_pxl        ( new_pxl       ),
+    .obj_pxl        ( obj_pxl       )
+);
 
 endmodule
