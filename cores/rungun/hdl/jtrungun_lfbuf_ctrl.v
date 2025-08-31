@@ -38,19 +38,22 @@ module jtrungun_lfbuf_ctrl(
 wire [9:0] nx_hdump;
 reg        lnhs_l;
 reg  [1:0] cencnt;
-wire       hs_edge;
+wire       hs_edge, data_ok, blank_v;
 
 assign vdump    = ln_v;
 assign nx_hdump = {1'b0,hdump}+10'd1;
 assign ln_we    = ~ln_done & cen;
 assign ln_addr  = hdump;
 assign hs_edge  = ln_hs & ~lnhs_l;
-assign hdumpf = {9{hflip}}^hdump,
-       vdumpf = {8{vflip}}^vdump;
+assign hdumpf   = {9{hflip}}^hdump,
+       vdumpf   = {8{vflip}}^vdump;
+assign data_ok  = &{fix_ok|~fix_cs,scr_ok|~scr_cs,obj_ok|~obj_cs};
+assign blank_v  = ln_v=='h17;
 
 always @(posedge clk) begin
-    cencnt <= cencnt==2 ? 2'd0 : cencnt+1'd1;
-    cen <= &{fix_ok|~fix_cs,scr_ok|~scr_cs,obj_ok|~obj_cs,~ln_done,cencnt==0};
+    cencnt <= (cencnt==2 && data_ok) ? 2'd0 : cencnt!=2 ? cencnt+1'd1 : cencnt;
+    cen    <= &{data_ok,~ln_done,cencnt==2};
+    if(blank_v) cen <= ~ln_done;
     lnhs_l <= ln_hs;
     if(cen && !ln_done) begin
         hs <= 0;

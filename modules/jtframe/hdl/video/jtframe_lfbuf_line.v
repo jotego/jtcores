@@ -56,6 +56,7 @@ module jtframe_lfbuf_line #(parameter
     output     [  15:0] fb_din,
     input               fb_clr,
     input               fb_done,
+    output              virt_blank,
 
     // data read from external memory to screen buffer
     // during h blank
@@ -64,10 +65,14 @@ module jtframe_lfbuf_line #(parameter
     input               scr_we
 );
 
-reg           vsl, lvbl_l, done;
+reg           vsl, lvbl_l, hs_l, done;
+reg  [   5:0] blank_cnt=0, blank_total=0, porch;
 reg  [VW-1:0] vstart=0, vend=0;
 wire [  15:0] scr_pxl;
 reg  [   1:0] vrdy;
+wire          hs_pos;
+
+assign hs_pos = hs && !hs_l;
 
 always @(posedge clk) if(pxl_cen) ln_pxl <= scr_pxl[DW-1:0];
 
@@ -81,18 +86,25 @@ end
 `endif
 
 // Capture the vstart/vend values
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
+    hs_l <= hs;
+end
+
+always @(posedge clk) begin
     if( rst ) begin
         vrdy   <= 0;
         lvbl_l <= 0;
-    end else begin
+    end else if( hs_pos ) begin
         lvbl_l <= lvbl;
         vsl    <= vs;
+        if( !lvbl ) blank_cnt <= blank_cnt+1'd1;
         if( !lvbl &&  lvbl_l ) begin
             vrdy[0] <= 1;
             vend    <= vrender;
+            blank_total <= blank_cnt;
+            blank_cnt   <= 0;
         end
-        if(  lvbl && !lvbl_l ) begin
+        if( lvbl && !lvbl_l ) begin
             vrdy[1] <= 1;
             vstart  <= vrender;
         end
@@ -106,17 +118,26 @@ always @(posedge clk, posedge rst) begin
         frame <= 0;
         ln_hs <= 0;
         ln_v  <= 0;
+        porch <= 0;
         done  <= 0;
+        virt_blank <= 0;
     end else if(&vrdy) begin
         ln_hs <= 0;
-        if( vs && !vsl ) begin // object parsing starts during VB
+        if( vs && !vsl && hs_pos ) begin // object parsing starts during VB
             frame <= ~frame;
             ln_v  <= vstart;
             ln_hs <= 1;
+            porch <= blank_total;
+            virt_blank <= 1;
             done  <= 0;
         end
         if( fb_done && !done ) begin
-            ln_v <= ln_v + 1'd1;
+            if( porch!=0 ) begin
+                porch <= porch - 1'd1;
+            end else begin
+                virt_blank <= 0;
+                ln_v <= ln_v + 1'd1;
+            end
             if( ln_v == vend )
                 done <= 1;
             else
@@ -129,7 +150,7 @@ localparam [15:0] LFBUF_CLR = `ifndef JTFRAME_LFBUF_CLR 0 `else `JTFRAME_LFBUF_C
 
 // collect input data
 jtframe_dual_ram #(.DW(16),.AW(HW+1)) u_linein(
-    // Write to SDRAM and delete
+    // Write to big RAM and delete
     .clk0   ( clk           ),
     .data0  ( LFBUF_CLR     ),
     .addr0  ( { line^fb_clr, fb_addr } ),
@@ -145,7 +166,7 @@ jtframe_dual_ram #(.DW(16),.AW(HW+1)) u_linein(
 
 jtframe_rpwp_ram #(.DW(16),.AW(HW)) u_lineout(
     .clk    ( clk           ),
-    // Read from SDRAM, write to line buffer
+    // Read from big RAM, write to line buffer
     .din    ( fb_dout       ),
     .wr_addr( rd_addr       ),
     .we     ( scr_we        ),
