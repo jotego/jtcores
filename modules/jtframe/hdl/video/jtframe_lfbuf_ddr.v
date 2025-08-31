@@ -60,7 +60,7 @@ module jtframe_lfbuf_ddr #(parameter
     output      [7:0]   st_dout
 );
 
-wire          frame, fb_clr, fb_done, line, scr_we, virt_blank;
+wire          frame, fb_clr, fb_done, line, scr_we, fb_blank;
 wire [HW-1:0] fb_addr, rd_addr;
 wire [  15:0] fb_din, fb_dout;
 
@@ -76,13 +76,13 @@ jtframe_lfbuf_ddr_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .ln_v       ( ln_v      ),
     // data written to external memory
     .frame      ( frame     ),
+    .fb_blank   ( fb_blank  ),
     .fb_addr    ( fb_addr   ),
     .rd_addr    ( rd_addr   ),
     .fb_din     ( fb_din    ),
     .fb_dout    ( fb_dout   ),
     .fb_clr     ( fb_clr    ),
     .fb_done    ( fb_done   ),
-    .virt_blank ( virt_blank),
 
     // data read from external memory to screen buffer
     // during h blank
@@ -131,7 +131,7 @@ jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
     .fb_dout    ( fb_dout   ),
     .fb_clr     ( fb_clr    ),
     .fb_done    ( fb_done   ),
-    .virt_blank ( virt_blank),
+    .fb_blank   ( fb_blank  ),
 
     // data read from external memory to screen buffer
     // during h blank

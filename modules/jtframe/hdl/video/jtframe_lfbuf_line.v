@@ -56,7 +56,7 @@ module jtframe_lfbuf_line #(parameter
     output     [  15:0] fb_din,
     input               fb_clr,
     input               fb_done,
-    output              virt_blank,
+    output reg          fb_blank,
 
     // data read from external memory to screen buffer
     // during h blank
@@ -115,28 +115,28 @@ end
 // and dumped from there to the SDRAM
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        frame <= 0;
-        ln_hs <= 0;
-        ln_v  <= 0;
-        porch <= 0;
-        done  <= 0;
-        virt_blank <= 0;
+        frame    <= 0;
+        ln_hs    <= 0;
+        ln_v     <= 0;
+        porch    <= 0;
+        done     <= 0;
+        fb_blank <= 0;
     end else if(&vrdy) begin
         ln_hs <= 0;
         if( vs && !vsl && hs_pos ) begin // object parsing starts during VB
-            frame <= ~frame;
-            ln_v  <= vstart;
-            ln_hs <= 1;
-            porch <= blank_total;
-            virt_blank <= 1;
-            done  <= 0;
+            frame    <= ~frame;
+            ln_v     <= vstart;
+            ln_hs    <= 1;
+            porch    <= blank_total;
+            fb_blank <= 1;
+            done     <= 0;
         end
         if( fb_done && !done ) begin
             if( porch!=0 ) begin
                 porch <= porch - 1'd1;
             end else begin
-                virt_blank <= 0;
-                ln_v <= ln_v + 1'd1;
+                fb_blank <= 0;
+                ln_v     <= ln_v + 1'd1;
             end
             if( ln_v == vend )
                 done <= 1;

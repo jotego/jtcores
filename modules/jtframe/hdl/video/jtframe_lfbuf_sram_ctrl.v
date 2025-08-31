@@ -35,6 +35,7 @@ module jtframe_lfbuf_sram_ctrl #(parameter
     input               vs,
     // data written to external memory
     input               frame,
+    input               fb_blank,
     output reg [HW-1:0] fb_addr,
     input      [  15:0] fb_din,
     output reg          fb_clr,
@@ -91,7 +92,7 @@ always @(posedge clk) begin
     endcase
 end
 
-always @( posedge clk, posedge rst ) begin
+always @( posedge clk ) begin
     if( rst ) begin
         hblen  <= 0;
         hlim   <= 0;
@@ -112,7 +113,9 @@ always @( posedge clk, posedge rst ) begin
     end
 end
 
-always @( posedge clk, posedge rst ) begin
+wire skip_blank_lines = do_wr && fb_blank;
+
+always @( posedge clk ) begin
     if( rst ) begin
         sram_we  <= 1;
         sram_rd  <= 0;
@@ -149,6 +152,9 @@ always @( posedge clk, posedge rst ) begin
                     rd_addr  <= 0;
                     scr_we   <= 1;
                     st       <= READ;
+                end else if( skip_blank_lines ) begin
+                    fb_done  <= 1;
+                    do_wr    <= 0;
                 end else if( do_wr && !fb_clr &&
                     hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
                     fb_addr  <= 0;
