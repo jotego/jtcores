@@ -365,7 +365,6 @@ jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325)) u_obj(    // sprite logic
 
     // Base Video (inputs)
     .hs         ( hs        ),
-    .vs         ( vs        ),
     .lvbl       ( lvbl      ),
     .hdump      ( hdump     ),
     .vdump      ( vmux      ),

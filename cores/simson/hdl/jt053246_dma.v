@@ -28,7 +28,7 @@ module jt053246_dma(
     input             simson,
 
     input             hs,
-    input             vs,
+    input             lvbl,
 
     // External RAM
     output reg [13:1] dma_addr, // up to 16 kB
@@ -45,7 +45,7 @@ module jt053246_dma(
 parameter K55673=0, K55673_DESC_SORT=0;
 
 wire        dma_we, hs_pos;
-reg  [ 1:0] vs_sh;
+reg  [ 1:0] lvbl_sh;
 reg  [11:1] dma_bufa;
 reg  [15:0] dma_bufd;
 wire [ 7:0] sort_24x, sort_673;
@@ -87,10 +87,10 @@ always @(posedge clk, posedge rst) begin
     end else if( pxl2_cen ) begin
         hsl <= hs;
         if( hs_pos ) begin
-            vs_sh    <= vs_sh<<1;
-            vs_sh[0] <= vs;
+            lvbl_sh    <= lvbl_sh<<1;
+            lvbl_sh[0] <= lvbl;
         end
-        if(!dma_bsy && ((vs_sh==2'b10 && hs_pos) || dma_44) ) begin
+        if(!dma_bsy && ((lvbl_sh==2'b10 && hs_pos) || dma_44) ) begin
             dma_bsy  <= dma_en | dma_44;
             dma_clr  <= 1;
             dma_wait <= !k44_en && mode8; // 8-bit speed: 595us, 16-bit: 297.5us

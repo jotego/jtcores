@@ -286,7 +286,7 @@ jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd3)) u_obj(    // sp
     .voffset    ( OVOFFSET  ),
     // Base Video (inputs)
     .hs         ( virt_hs   ),
-    .vs         ( vs        ),
+    .lvbl       ( vs        ),
     .hdump      ( virt_hdump),
     .vdump      ({1'b1,virt_vdump} ),
     // CPU interface

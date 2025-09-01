@@ -225,8 +225,8 @@ jtriders_obj #(
 `endif
 ) u_obj(
     .lgtnfght   ( 1'b0      ),
-    .lvbl       ( lvbl      ),
 `endif
+    .lvbl       ( lvbl      ),
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -234,7 +234,6 @@ jtriders_obj #(
 
     // Base Video (inputs)
     .hs         ( hs        ),
-    .vs         ( vs        ),
     .hdump      ( hdump     ),
     .vdump      ( vrender   ),
     // CPU interface
