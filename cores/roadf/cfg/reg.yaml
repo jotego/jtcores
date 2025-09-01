@@ -1,2 +1,4 @@
 hyperspt:
+  inputs: reg.cab
 roadf:
+  inputs: reg.cab
