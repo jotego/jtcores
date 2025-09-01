@@ -53,7 +53,7 @@ module jt053244(    // sprite logic
     input      [ 8:0] vdump,    // generated internally.
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
-    input             vs,
+    input             lvbl,
     input             hs,
 
     // shadow
@@ -133,7 +133,7 @@ jt053246_dma u_dma(
     .simson     ( 1'b0      ),
 
     .hs         ( hs        ),
-    .vs         ( vs        ),
+    .lvbl       ( lvbl      ),
 
     // External RAM
     .dma_addr   ( dma_addr  ), // up to 16 kB

@@ -36,7 +36,6 @@
     input      [ 8:0] vdump,    // generated internally.
                                 // Hdump goes from 20 to 19F, 384 pixels
                                 // Vdump goes from F8 to 1FF, 264 lines
-    // input             vs,
     input             hs,
 
     input      [15:0] scan_even,
@@ -180,7 +179,6 @@ always @(posedge clk, posedge rst) begin
         shd      <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
-        // vs_l <= vs;
         dr_start <= 0;
         if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
             done     <= 0;

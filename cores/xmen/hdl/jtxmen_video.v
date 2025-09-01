@@ -272,7 +272,7 @@ jtsimson_obj #(.RAMW(13),.SHADOW(1)) u_obj(    // sprite logic
     .voffset    ( OVOFFSET  ),
     // Base Video (inputs)
     .hs         ( hs        ),
-    .vs         ( vs        ),
+    .lvbl       ( lvbl      ),
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
     // CPU interface

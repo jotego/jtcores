@@ -30,7 +30,6 @@ module jtriders_obj #(parameter
     input      [ 8:0] hdump,
     input      [ 8:0] vdump,
     input             hs,
-    input             vs,
     input             lvbl,
     input             lgtnfght,
 
@@ -156,7 +155,7 @@ jt053244 #(.HFLIP_OFFSET(HFLIP_OFFSET)
     // control
     .hdump      ( hdump     ),
     .vdump      ( vdump     ),
-    .vs         ( lvbl      ), // this board uses VB here, instead of VS
+    .lvbl       ( lvbl      ),
     .hs         ( hs        ),
 
     // shadow
