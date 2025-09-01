@@ -17,6 +17,7 @@ passsht:
 riotcity:
 ryukyu:
 sonicbom:
+  inputs: reg.cab
 sjryuko:
 suprleag:
 timescan:
@@ -24,4 +25,5 @@ timescan:
 toryumon:
 tturfu:
 wb3:
+  inputs: reg.cab
 wrestwar:
