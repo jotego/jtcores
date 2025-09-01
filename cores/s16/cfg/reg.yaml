@@ -5,8 +5,11 @@ alexkidd:
 bodyslam:
 fantzone:
 mjleague:
+  inputs: reg.cab
 quartet:
+  inputs: reg.cab
 quartet2a:
+  inputs: reg.cab
 sdi:
 shinobi:
 tetris:
