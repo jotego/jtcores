@@ -1,6 +1,8 @@
 bakutotu:
 blastoff:
+  inputs: reg.cab
 blazer:
+  inputs: reg.cab
 boxyboy:
 berabohm:
 dangseed:
@@ -10,10 +12,12 @@ galaga88:
 mmaze:
 pacmania:
 pistoldm:
+  inputs: reg.cab
 wldcourt:
 ws:
 quester:
 rompers:
+  inputs: reg.cab
 shadowld:
   video: 2000
 splatter:
