@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REGRESSION_FILE="reg.yaml"
-DEFAULT_FRAMES=1800
+# change default frames in $JTFRAME/bin/reg.yaml
 
 main() {
     if [[ -z $JTROOT ]]; then
@@ -344,8 +344,8 @@ get_opts() {
     fi
 
     if ! $frames_found; then
-        echo "[WARNING] frames not defined neither in global config or core config. Setting to $DEFAULT_FRAMES"
-        opts_ref+=(-video $DEFAULT_FRAMES)
+        echo "[ERROR] frames not defined neither in global config or core config."
+        exit 1
     fi
 
     echo "[INFO] Simulation options are ${opts_ref[@]}"
