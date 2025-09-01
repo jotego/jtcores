@@ -21,35 +21,86 @@ module jtframe_video_counter(
     input        clk,
     input        pxl_cen,
 
-    input        lhbl,
-    input        lvbl,
+    input        lhbl, lvbl,
+    input        vs,
     input        flip,
 
-    output [8:0] v, h
+    output       rdy,      // v*_len ready after two frames
+
+    output     [8:0] h,
+    output reg [8:0] v,
+    output reg [5:0] vbs_len,  // V blank start to VS start
+                     vsy_len,  // VS length
+                     vsa_len   // VS end to active video start
 );
 
 reg  [8:0] vcnt, hcnt;
-reg        lhbl_l;
+reg  [5:0] vaux;
+reg  [2:0] rdy_sh;
+reg        lvbl_l, lhbl_l, vs_l;
+wire       hbl_neg, vbl_neg;
 
-assign v = vcnt ^ { 1'b0, {8{flip}}};
-assign h = hcnt ^ { 1'b0, {8{flip}}};
+assign h       = hcnt ^ { 1'b0, {8{flip}}};
+assign hbl_neg = !lhbl && lhbl_l;
+assign vbl_neg = !lvbl && lvbl_l;
+assign rdy     = rdy_sh[1];
 
-always @(posedge clk) begin
+always @(posedge clk) begin : blank_edges
     if( rst ) begin
-        lhbl_l      <= 0;
-        vcnt        <= 0;
-        hcnt        <= 0;
+        vs_l   <= 0;
+        lvbl_l <= 0;
+        lhbl_l <= 0;
     end else if(pxl_cen) begin
-        lhbl_l <= lhbl & lvbl;
-        if (!lvbl) begin
-            vcnt <= 0;
-        end else if( !lhbl && lhbl_l ) begin
-            vcnt <= vcnt + 9'd1;
+        lhbl_l <= lhbl;
+        if( hbl_neg ) begin
+            vs_l   <= vs;
+            lvbl_l <= lvbl;
         end
+    end
+end
+
+always @(posedge clk) begin : frames_to_ready
+    if( rst ) begin
+        rdy_sh <= 0;
+    end else if(pxl_cen) begin
+        if( vbl_neg & hbl_neg ) rdy_sh <= {rdy_sh[1:0],1'b1};
+    end
+end
+
+always @(posedge clk) begin : horizontal_counter
+    if( rst ) begin
+        hcnt    <= 0;
+    end else if(pxl_cen) begin
         if (!lhbl) begin
             hcnt <= 0;
-        end else begin 
+        end else begin
             hcnt <= hcnt + 9'd1;
+        end
+    end
+end
+
+always @(posedge clk) begin : vertical_counter
+    if( rst ) begin
+        vcnt    <= 0;
+        vaux    <= 0;
+        vbs_len <= 0;
+        vsy_len <= 0;
+        vsa_len <= 0;
+    end else if(pxl_cen) begin
+        if (!lvbl) begin
+            if( hbl_neg ) begin
+                vaux <= vaux + 1'd1;
+                if( vs && !vs_l) begin vbs_len <= vaux; vaux <= 0; end
+                if(!vs &&  vs_l) begin vsy_len <= vaux; vaux <= 0; end
+            end
+        end else if( hbl_neg ) begin
+            vcnt <= vcnt + 9'd1;
+            if(!lvbl_l) begin
+                vaux    <= 0;
+                vsa_len <= vaux;
+                vcnt    <= 0;
+                v       <= vcnt ^ { 1'b0, {8{flip}}};
+            end
         end
     end
 end

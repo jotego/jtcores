@@ -77,7 +77,7 @@ module jtframe_mister #(parameter
     input        [15:0] ln_data,
     input               ln_done,
     input               ln_we,
-    output              ln_hs,
+    output              ln_hs, ln_vs, ln_lvbl,
     output       [15:0] ln_pxl,
     output       [ 7:0] ln_v,
 
@@ -912,6 +912,8 @@ wire rot_clk;
         .ln_hs      ( ln_hs         ),
         .ln_pxl     ( ln_pxl        ),
         .ln_v       ( ln_v          ),
+        .ln_vs      ( ln_vs         ),
+        .ln_lvbl    ( ln_lvbl       ),
         .ln_we      ( ln_we         ),
 
         .ddram_clk  ( DDRAM_CLK     ),

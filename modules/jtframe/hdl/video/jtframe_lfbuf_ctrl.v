@@ -149,6 +149,7 @@ always @( posedge clk ) begin
         ln_done_l <= ln_done;
         if( ln_done & ~ln_done_l    ) do_wr <= 1;
         if( st==WRITEOUT && fb_over ) do_wr <= 0;
+        if( st==IDLE && skip_blank_lines ) do_wr <= 0;
     end
 end
 
@@ -237,7 +238,6 @@ always @( posedge clk ) begin
                     st      <= READ_ADDR;
                 end else if( skip_blank_lines ) begin
                     fb_done  <= 1;
-                    do_wr    <= 0;
                 end else if( do_wr && !fb_clr &&
                     hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
                     csn     <= 0;

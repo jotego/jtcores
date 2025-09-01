@@ -28,7 +28,7 @@ reg [DW-1:0] ln_data=0;
 reg          ln_done=0;
 reg          ln_we=0;
 
-wire          ln_hs;
+wire          ln_hs, ln_vs, ln_lvbl;
 wire [DW-1:0] ln_pxl;
 wire [VW-1:0] ln_v;
 
@@ -114,6 +114,7 @@ jtframe_lfbuf_ddr uut(
     // video status
     .vrender    (vrender[7:0]),
     .hdump      ( hdump     ),
+    .hs         ( HS        ),
     .vs         ( VS        ),
     .lhbl       ( LHBL      ),
     .lvbl       ( LVBL      ),
@@ -125,6 +126,8 @@ jtframe_lfbuf_ddr uut(
     .ln_hs      ( ln_hs     ),
     .ln_pxl     ( ln_pxl    ),
     .ln_v       ( ln_v      ),
+    .ln_vs      ( ln_vs     ),
+    .ln_lvbl    ( ln_lvbl   ),
     .ln_we      ( ln_we     ),
 
     // DDR3 RAM

@@ -237,6 +237,8 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .ln_hs       ( ln_hs         ),
     .ln_pxl      ( ln_pxl        ),
     .ln_v        ( ln_v          ),
+    .ln_vs       ( ln_vs         ),
+    .ln_lvbl     ( ln_lvbl       ),
     .ln_we       ( ln_we         ),
 `endif
     .gfx_en      ( gfx_en        )

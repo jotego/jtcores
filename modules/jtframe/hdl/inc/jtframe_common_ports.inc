@@ -58,9 +58,9 @@
     input   [3:0]   gfx_en,
     input      [7:0] debug_bus,
     output     [7:0] debug_view,
-    // the most common case is the register
-    // Line-frame buffer for object drawing, supported only
-    // on PocketFPGA and MiSTer. It could be added to NeptUNO too
+    // Line-frame buffer. It can be used for object drawing (random access)
+    // or for full line dump.
+    // The memory holding the frame buffer depends on the target FPGA platform
 `ifdef JTFRAME_LF_BUFFER
     output   [ 7:0] game_vrender,
     output   [ 8:0] game_hdump,
@@ -68,7 +68,7 @@
     output   [15:0] ln_data,
     output          ln_done,
     output          ln_we,
-    input           ln_hs,
+    input           ln_hs, ln_vs, ln_lvbl,
     input    [15:0] ln_pxl,
     input    [ 7:0] ln_v,
 `endif

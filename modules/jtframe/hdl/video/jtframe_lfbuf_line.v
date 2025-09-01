@@ -42,7 +42,7 @@ module jtframe_lfbuf_line #(parameter
     input               lvbl,   // vertical blank, active low
 
     // core interface
-    output reg          ln_hs,
+    output reg          ln_hs, ln_vs, ln_lvbl,
     output reg [VW-1:0] ln_v,
     input      [HW-1:0] ln_addr,
     input      [DW-1:0] ln_data,
@@ -56,7 +56,7 @@ module jtframe_lfbuf_line #(parameter
     output     [  15:0] fb_din,
     input               fb_clr,
     input               fb_done,
-    output reg          fb_blank,
+    output              fb_blank,
 
     // data read from external memory to screen buffer
     // during h blank
@@ -65,12 +65,12 @@ module jtframe_lfbuf_line #(parameter
     input               scr_we
 );
 
-reg           vsl, lvbl_l, hs_l, done;
-reg  [   5:0] blank_cnt=0, blank_total=0, porch;
+reg           vsl, lvbl_l, hs_l;
+reg  [   5:0] porch;
 reg  [VW-1:0] vstart=0, vend=0;
 wire [  15:0] scr_pxl;
-reg  [   1:0] vrdy;
-wire          hs_pos;
+wire [   5:0] vbs_len, vsy_len, vsa_len;
+wire          hs_pos, info_rdy;
 
 assign hs_pos = hs && !hs_l;
 
@@ -92,24 +92,46 @@ end
 
 always @(posedge clk) begin
     if( rst ) begin
-        vrdy   <= 0;
         lvbl_l <= 0;
     end else if( hs_pos ) begin
         lvbl_l <= lvbl;
         vsl    <= vs;
-        if( !lvbl ) blank_cnt <= blank_cnt+1'd1;
         if( !lvbl &&  lvbl_l ) begin
-            vrdy[0] <= 1;
             vend    <= vrender;
-            blank_total <= blank_cnt;
-            blank_cnt   <= 0;
         end
         if( lvbl && !lvbl_l ) begin
-            vrdy[1] <= 1;
             vstart  <= vrender;
         end
     end
 end
+
+jtframe_video_counter u_counter(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+
+    .lhbl       ( ~hs           ),
+    .lvbl       ( lvbl          ),
+    .vs         ( vs            ),
+    .flip       ( 1'b0          ),
+
+    .v          (               ),
+    .h          (               ),
+    .vbs_len    ( vbs_len       ),  // V blank start to VS start
+    .vsy_len    ( vsy_len       ),  // VS length
+    .vsa_len    ( vsa_len       ),  // VS end to active video start
+    .rdy        ( info_rdy      )   // ready after two frames
+);
+
+wire      done,
+          active, // active video portion
+          vbs,    // blank start to sync start
+          vsy,    // sync start to end
+          vsa;    // sync end to active start
+reg [4:0] st;
+
+assign {done,active,vsa,vsy,vbs} = st;
+assign fb_blank = ~ln_lvbl;
 
 // count lines so objects get drawn in the line buffer
 // and dumped from there to the SDRAM
@@ -119,30 +141,36 @@ always @(posedge clk, posedge rst) begin
         ln_hs    <= 0;
         ln_v     <= 0;
         porch    <= 0;
-        done     <= 0;
-        fb_blank <= 0;
-    end else if(&vrdy) begin
+        st       <= 0;
+    end else if(info_rdy) begin
         ln_hs <= 0;
         if( vs && !vsl && hs_pos ) begin // object parsing starts during VB
             frame    <= ~frame;
             ln_v     <= vstart;
             ln_hs    <= 1;
-            porch    <= blank_total;
-            fb_blank <= 1;
-            done     <= 0;
+            ln_lvbl  <= 0;
+            porch    <= vbs_len;
+            st       <= 1;
         end
-        if( fb_done && !done ) begin
-            if( porch!=0 ) begin
+        if( fb_done && !done ) case( 1'b1 )
+            vsa,vsy,vbs: begin
                 porch <= porch - 1'd1;
-            end else begin
-                fb_blank <= 0;
-                ln_v     <= ln_v + 1'd1;
-            end
-            if( ln_v == vend )
-                done <= 1;
-            else
                 ln_hs <= 1;
-        end
+                if(porch==0) begin
+                    porch   <= vbs ? vsy_len : vsa_len;
+                    ln_vs   <= vbs;
+                    ln_lvbl <= vsa;
+                    st <= st<<1;
+                end
+            end
+            active: begin
+                ln_v     <= ln_v + 1'd1;
+                if( ln_v == vend )
+                    st <= st<<1;
+                else
+                    ln_hs <= 1;
+            end
+        endcase
     end
 end
 

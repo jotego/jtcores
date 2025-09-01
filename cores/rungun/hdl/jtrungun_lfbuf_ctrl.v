@@ -20,7 +20,7 @@ module jtrungun_lfbuf_ctrl(
     input             clk,
     output     [ 8:0] ln_addr,
     output reg        ln_done,
-    input             ln_hs,
+    input             ln_hs, ln_vs, ln_lvbl,
     input      [ 7:0] ln_v,
     output            ln_we,
 
@@ -47,7 +47,7 @@ assign ln_addr  = hdump;
 assign hs_edge  = ln_hs & ~lnhs_l;
 assign hdumpf   = {9{hflip}}^hdump,
        vdumpf   = {8{vflip}}^vdump;
-assign data_ok  = &{fix_ok|~fix_cs,scr_ok|~scr_cs,obj_ok|~obj_cs};
+assign data_ok  = ~ln_lvbl | &{fix_ok|~fix_cs,scr_ok|~scr_cs,obj_ok|~obj_cs};
 assign blank_v  = ln_v=='h17;
 
 always @(posedge clk) begin

@@ -42,7 +42,7 @@ module jtrungun_video(
     output     [ 8:0]  ln_addr,
     output     [15:0]  ln_data,
     output             ln_done,
-    input              ln_hs,
+    input              ln_hs, ln_vs, ln_lvbl,
     input      [15:0]  ln_pxl,
     input      [ 7:0]  ln_v,
     output             ln_we,
@@ -179,6 +179,8 @@ jtrungun_lfbuf_ctrl u_lfbuf_ctrl(
     .ln_done    ( ln_done       ),
     .ln_hs      ( ln_hs         ),
     .ln_v       ( ln_v          ),
+    .ln_vs      ( ln_vs         ),
+    .ln_lvbl    ( ln_lvbl       ),
     .ln_we      ( ln_we         ),
 
     .vflip      ( gvflip        ),
@@ -248,7 +250,7 @@ jtrungun_psac u_psac(
     .pxl_cen    ( virt_cen  ),
 
     .hs         ( virt_hs   ),
-    .vs         ( vs        ),
+    .vs         ( ln_vs     ),
     .dtackn     ( 1'b0      ),
 
     .cs         ( psac_cs   ), // cs always writes

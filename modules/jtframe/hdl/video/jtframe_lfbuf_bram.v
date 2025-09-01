@@ -44,7 +44,7 @@ module jtframe_lfbuf_bram #(parameter
     input      [DW-1:0] ln_data,
     input               ln_done,
     input               ln_we,
-    output              ln_hs,
+    output              ln_hs, ln_vs, ln_lvbl,
     output     [DW-1:0] ln_pxl,
     output     [VW-1:0] ln_v,
 
@@ -69,6 +69,7 @@ jtframe_lfbuf_bram_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .ln_v       ( ln_v      ),
     // data written to external memory
     .frame      ( frame     ),
+    .fb_blank   ( fb_blank  ),
     .fb_addr    ( fb_addr   ),
     .rd_addr    ( rd_addr   ),
     .fb_din     ( fb_din    ),
@@ -100,6 +101,8 @@ jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
     // core interface
     .ln_hs      ( ln_hs     ),
     .ln_v       ( ln_v      ),
+    .ln_vs      ( ln_vs     ),
+    .ln_lvbl    ( ln_lvbl   ),
     .ln_addr    ( ln_addr   ),
     .ln_data    ( ln_data   ),
     .ln_we      ( ln_we     ),
@@ -107,6 +110,7 @@ jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
 
     // data written to external memory
     .frame      ( frame     ),
+    .fb_blank   ( fb_blank  ),
     .fb_addr    ( fb_addr   ),
     .rd_addr    ( rd_addr   ),
     .fb_din     ( fb_din    ),

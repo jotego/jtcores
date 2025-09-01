@@ -387,7 +387,7 @@ assign AUDIO_S = `JTFRAME_SIGNED_SND;
 // Line-Frame buffer
 wire [ 8:0] game_hdump,   ln_addr;
 wire [ 7:0] game_vrender, ln_v;
-wire        ln_done, ln_hs, ln_we;
+wire        ln_done, ln_hs, ln_vs, ln_lvbl, ln_we;
 wire [15:0] ln_pxl, ln_data;
 
 jtframe_mister #(
@@ -444,6 +444,8 @@ u_frame(
     .ln_hs          ( ln_hs          ),
     .ln_pxl         ( ln_pxl         ),
     .ln_v           ( ln_v           ),
+    .ln_vs          ( ln_vs          ),
+    .ln_lvbl        ( ln_lvbl        ),
     .ln_we          ( ln_we          ),
 
     `ifdef JTFRAME_VERTICAL
