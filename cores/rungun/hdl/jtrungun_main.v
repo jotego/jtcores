@@ -210,7 +210,7 @@ always @(posedge clk) begin
     cab1_dout <= A[1] ? {cab_1p[3],joystick4,cab_1p[1],joystick2}:
                         {cab_1p[2],joystick3,cab_1p[0],joystick1};
     // odma=0 halts the game
-    cab2_dout <= { lrsw, odma^debug_bus[0], A[1] ? {dipsw, dip_test, 1'b1, eep_rdy, eep_do }:
+    cab2_dout <= { lrsw, odma, A[1] ? {dipsw, dip_test, 1'b1, eep_rdy, eep_do }:
                                       {service,   coin}};
     cab_dout  <= io1_cs ? cab1_dout : {6'h0, cab2_dout};
     HALTn     <= dip_pause & ~rst;
