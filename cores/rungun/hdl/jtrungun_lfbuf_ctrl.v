@@ -53,7 +53,7 @@ assign data_ok  = ~ln_lvbl | &{fix_ok|~fix_cs,scr_ok|~scr_cs,obj_ok|~obj_cs};
 assign blank_v  = ln_v=='h17;
 
 always @(posedge clk) begin
-    ln_done <= rest_done & obj_done;
+    ln_done <= rest_done && (blank_v || obj_done);
     cencnt  <= (cencnt==2 && data_ok) ? 2'd0 : cencnt!=2 ? cencnt+1'd1 : cencnt;
     cen     <= &{data_ok,cencnt==2, ~rest_done};
     if(blank_v) begin
