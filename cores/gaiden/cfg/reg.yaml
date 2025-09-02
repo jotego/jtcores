@@ -1,5 +1,6 @@
 stratof:
   video: 2200
+  inputs: reg.cab
 shadoww:
   video: 2000
 wildfang:

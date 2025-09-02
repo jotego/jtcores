@@ -3,8 +3,10 @@
   video: 2200
 avsp:
   video: 2200
+  inputs: reg.cab
 armwar:
   video: 2200
+  inputs: reg.cab
 batcir:
 csclub:
   video: 2200
@@ -15,8 +17,10 @@ dimahoo:
 ddsom:
 ddtod:
   video: 2200
+  inputs: reg.cab
 ecofghtr:
   video: 2200
+  inputs: reg.cab
 gigawing:
   video: 2200
 hsf2:
@@ -33,6 +37,7 @@ mpang:
 nwarr:
 progear:
   video: 2200
+  inputs: reg.cab
 pzloop2:
 qndream:
   video: 2200
@@ -49,6 +54,7 @@ spf2t:
   video: 2200
 ssf2t:
 ssf2:
+  inputs: reg.cab
 vhunt2:
 vsav2:
 vsav:

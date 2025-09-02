@@ -1,14 +1,19 @@
 1941:
   video: 2200
 cworld2j:
+  inputs: reg.cab
 captcomm:
   video: 2200
 cawing:
 dynwar:
+  inputs: reg.cab
 ffight:
+  inputs: reg.cab
 forgottn:
+  inputs: reg.cab
 ghouls:
   video: 2200
+  inputs: reg.cab
 gulunpa:
 knights:
   video: 2200
@@ -18,11 +23,15 @@ mpumpkin:
 megaman:
 mtwins:
   video: 2200
+  inputs: reg.cab
 mercs:
+  inputs: reg.cab
 nemo:
   video: 2200
 pang3:
+  inputs: reg.cab
 pnickj:
+  inputs: reg.cab 
 pokonyan:
 qad:
   video: 2200
@@ -37,6 +46,9 @@ kod:
   video: 2200
 3wonders:
 unsquad:
+  inputs: reg.cab
 varth:
   video: 2200
+  inputs: reg.cab
 willow:
+  inputs: reg.cab
