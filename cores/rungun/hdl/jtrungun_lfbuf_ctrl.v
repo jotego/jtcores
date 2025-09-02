@@ -18,6 +18,8 @@
 
 module jtrungun_lfbuf_ctrl(
     input             clk,
+    input             obj_done,
+
     output     [ 8:0] ln_addr,
     output reg        ln_done,
     input             ln_hs, ln_vs, ln_lvbl,
@@ -36,7 +38,7 @@ module jtrungun_lfbuf_ctrl(
 );
 
 wire [9:0] nx_hdump;
-reg        lnhs_l;
+reg        lnhs_l, rest_done;
 reg  [1:0] cencnt;
 wire       hs_edge, data_ok, blank_v;
 
@@ -51,18 +53,22 @@ assign data_ok  = ~ln_lvbl | &{fix_ok|~fix_cs,scr_ok|~scr_cs,obj_ok|~obj_cs};
 assign blank_v  = ln_v=='h17;
 
 always @(posedge clk) begin
-    cencnt <= (cencnt==2 && data_ok) ? 2'd0 : cencnt!=2 ? cencnt+1'd1 : cencnt;
-    cen    <= &{data_ok,~ln_done,cencnt==2};
-    if(blank_v) cen <= ~ln_done;
+    ln_done <= rest_done & obj_done;
+    cencnt  <= (cencnt==2 && data_ok) ? 2'd0 : cencnt!=2 ? cencnt+1'd1 : cencnt;
+    cen     <= &{data_ok,cencnt==2, ~rest_done};
+    if(blank_v) begin
+        cen <= ~ln_done;
+    end
     lnhs_l <= ln_hs;
-    if(cen && !ln_done) begin
+    if(cen && !rest_done) begin
         hs <= 0;
-        {ln_done,hdump} <= nx_hdump;
+        {rest_done,hdump} <= nx_hdump;
     end
     if( hs_edge ) begin
-        hs      <= 1;
-        hdump   <= 0;
-        ln_done <= 0;
+        hs        <= 1;
+        hdump     <= 0;
+        ln_done   <= 0;
+        rest_done <= 0;
     end
 end
 

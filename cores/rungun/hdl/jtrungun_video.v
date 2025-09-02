@@ -99,7 +99,7 @@ wire [ 7:0] fix_raw, fix_pxl, dump_obj, obj_mmr, ccu_mmr, psac_mmr;
 wire [ 4:0] obj_prio;
 wire [ 3:0] fix_pal, ommra;
 wire [ 1:0] oram_we, shadow;
-wire        cpu_we, hld, vld;
+wire        cpu_we, hld, vld, obj_done;
 reg  [14:0] ioctl_adj;
 wire        iosel_obj, iosel_ccu, iosel_psc, virt_hs, virt_cen;
 
@@ -175,6 +175,8 @@ jtk053252 u_k053252(
 
 jtrungun_lfbuf_ctrl u_lfbuf_ctrl(
     .clk        ( clk           ),
+    .obj_done   ( obj_done      ),
+
     .ln_addr    ( ln_addr       ),
     .ln_done    ( ln_done       ),
     .ln_hs      ( ln_hs         ),
@@ -219,7 +221,7 @@ jtframe_tilemap #(
 
     .vdump      ( virt_vdumpf   ),
     .hdump      ( virt_hdumpf   ),
-    .blankn     ( 1'b1          ),
+    .blankn     ( ln_lvbl       ),
     .flip       ( 1'b0          ),    // Screen flip
 
     .vram_addr  (vram_addr[11:1]),
@@ -284,11 +286,12 @@ jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd3)) u_obj(    // sp
     .pxl_cen    ( virt_cen  ),
     .pxl2_cen   ( pxl2_cen  ),  // for DMA only
     .simson     ( 1'b0      ),
+    .ln_done    ( obj_done  ),
 
     .voffset    ( OVOFFSET  ),
     // Base Video (inputs)
     .hs         ( virt_hs   ),
-    .lvbl       ( vs        ),
+    .lvbl       (~debug_bus[0] ? ~lvbl : vs   ),
     .hdump      ( virt_hdump),
     .vdump      ({1'b1,virt_vdump} ),
     // CPU interface

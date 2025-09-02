@@ -23,6 +23,7 @@ module jt053246_scan (    // sprite logic
     input             clk,
     input      [ 9:0] voffset,
 
+    output reg        done,
     // ROM addressing 22 bits in total
     output reg [15:0] code,
     // There are 22 bits communicating both chips on the PCB
@@ -73,7 +74,7 @@ reg  [ 7:0] scan_obj/*, zcode*/; // max 256 objects
 reg  [ 3:0] size;
 reg  [ 2:0] hstep, hcode, hsum, vsum;
 reg  [ 1:0] scan_sub, reserved;
-reg         inzone, hs_l, done, hdone,
+reg         inzone, hs_l, hdone,
             vmir, hmir, sq, pre_vf, pre_hf, indr,
             hmir_eff, vmir_eff, hhalf, left_wrap;
 
