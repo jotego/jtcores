@@ -225,6 +225,7 @@ jtrungun_lfbuf_ctrl u_lfbuf_ctrl(
 
     .cen        ( virt_cen      ),
     .hs         ( virt_hs       ),
+    .lhbl       (               ),
     .hdump      ( virt_hdump    ),
     .vdump      ( virt_vdump    ),
     .hdumpf     ( virt_hdumpf   ),

@@ -35,26 +35,28 @@ module jtrungun_lfbuf_ctrl(
                       hsa_len,  // HS end to active video start
 
     output reg        cen,
-    output reg        hs,
+    output reg        hs, lhbl,
     output reg [ 8:0] hdump,
     output     [ 8:0] hdumpf,
     output     [ 7:0] vdump, vdumpf
 );
 
 wire [9:0] nx_hdump;
-reg        lnhs_l, rest_done;
+reg        lnhs_l, rest_done, hbs, hsy, hsa;
+reg  [5:0] hb_cnt;  // counter for the three regios of HS
 reg  [1:0] cencnt;
-wire       hs_edge, data_ok, blank_v;
+wire       hs_edge, data_ok, blank_v, is_hblanking;
 
 assign vdump    = ln_v;
 assign nx_hdump = {1'b0,hdump}+10'd1;
-assign ln_we    = ~ln_done & cen;
+assign ln_we    = ~ln_done & ~is_hblanking & cen;
 assign ln_addr  = hdump;
 assign hs_edge  = ln_hs & ~lnhs_l;
 assign hdumpf   = {9{hflip}}^hdump,
        vdumpf   = {8{vflip}}^vdump;
-assign data_ok  = ~ln_lvbl | &{fix_ok|~fix_cs,scr_ok|~scr_cs,obj_ok|~obj_cs};
+assign data_ok  = ~ln_lvbl | is_hblanking | &{fix_ok|~fix_cs,scr_ok|~scr_cs,obj_ok|~obj_cs};
 assign blank_v  = ln_v=='h17;
+assign is_hblanking = {hsa,hsy,hbs} != 0;
 
 always @(posedge clk) begin
     ln_done <= rest_done && (blank_v || obj_done);
@@ -64,15 +66,36 @@ always @(posedge clk) begin
         cen <= ~ln_done;
     end
     lnhs_l <= ln_hs;
-    if(cen && !rest_done) begin
-        hs <= 0;
+    if(cen && !rest_done && !is_hblanking) begin
         {rest_done,hdump} <= nx_hdump;
     end
     if( hs_edge ) begin
-        hs        <= 1;
+        hbs       <= 1;
+        hb_cnt    <= hbs_len;
         hdump     <= 0;
+        lhbl      <= 0;
         ln_done   <= 0;
         rest_done <= 0;
+    end
+    if( is_hblanking ) begin
+        hb_cnt <= hb_cnt - 1'd1;
+        if(hb_cnt==0) begin
+            if(hbs) begin
+                hb_cnt <= hsy_len;
+                {hsy,hbs}<=2'b10;
+                hs <= 1;
+            end
+            if(hsy) begin
+                hs <= 0;
+                hb_cnt <= hsa_len;
+                {hsa,hsy}<=2'b10;
+            end
+            if(hsa) begin
+                lhbl <= 1;
+                hdump <= 0;
+                hsa <= 0;
+            end
+        end
     end
 end
 
