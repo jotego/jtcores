@@ -102,7 +102,7 @@ wire [ 3:0] fix_pal, ommra;
 wire [ 1:0] oram_we, shadow;
 wire        cpu_we, hld, vld, obj_done;
 reg  [14:0] ioctl_adj;
-wire        iosel_obj, iosel_ccu, iosel_psc, virt_hs, virt_cen;
+wire        iosel_obj, iosel_ccu, iosel_psc, virt_hs, virt_lhbl, virt_cen;
 
 assign cpu_we    = ~rnw;
 assign oram_we   = ~cpu_dsn & {2{~rnw}};
@@ -225,7 +225,7 @@ jtrungun_lfbuf_ctrl u_lfbuf_ctrl(
 
     .cen        ( virt_cen      ),
     .hs         ( virt_hs       ),
-    .lhbl       (               ),
+    .lhbl       ( virt_lhbl     ),
     .hdump      ( virt_hdump    ),
     .vdump      ( virt_vdump    ),
     .hdumpf     ( virt_hdumpf   ),
@@ -279,7 +279,7 @@ jtrungun_psac u_psac(
     .clk        ( clk       ),
     .pxl_cen    ( virt_cen  ),
 
-    .hs         ( virt_hs   ),
+    .hs         (~virt_lhbl ),
     .vs         ( ln_vs     ),
     .dtackn     ( 1'b0      ),
 

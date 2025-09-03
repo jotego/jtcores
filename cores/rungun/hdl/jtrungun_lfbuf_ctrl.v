@@ -72,12 +72,12 @@ always @(posedge clk) begin
     if( hs_edge ) begin
         hbs       <= 1;
         hb_cnt    <= hbs_len;
-        hdump     <= 0;
+        hdump     <= 9'd0;
         lhbl      <= 0;
         ln_done   <= 0;
         rest_done <= 0;
     end
-    if( is_hblanking ) begin
+    if( is_hblanking && cen ) begin
         hb_cnt <= hb_cnt - 1'd1;
         if(hb_cnt==0) begin
             if(hbs) begin
