@@ -63,27 +63,43 @@ localparam EW = SHADOW==1 ? DW-SW : DW;
 
 reg     line, last_LHBL, new_we;
 wire    is_opaque, was_blank,
-        is_not_just_a_shadow, was_just_a_shadow;
+        is_not_just_a_shadow, was_just_a_shadow, is_just_a_shadow;
+        // is_not_just_a_shadow_dout, is_just_a_shadow_dout, blank_dout;
 
 reg [BLANK_DLY-1:0] dly;
 wire                delete_we = dly[0];
 wire [EW-1:0]       blank_data = BLANK[EW-1:0];
 wire [DW-1:0]       dump_data;
 wire [EW-1:0]       old;
-wire                shade;
+wire                shade;//, shade_dout;
 
 assign is_opaque = wr_data[ALPHAW-1:0] != ALPHA[ALPHAW-1:0] && we;
 assign was_blank = old[ALPHAW-1:0]==ALPHA[ALPHAW-1:0];
 assign is_not_just_a_shadow = wr_data[ALPHAW-1:0] != SHADOW_PEN[ALPHAW-1:0];
+assign is_just_a_shadow     = wr_data[ALPHAW-1:0] == SHADOW_PEN[ALPHAW-1:0];
 assign was_just_a_shadow = old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0];
 assign shade     = wr_data[DW-1-:SW]!=0;
 
+// assign blank_dout                = rd_data[ALPHAW-1:0]==ALPHA[ALPHAW-1:0];
+// assign is_not_just_a_shadow_dout = rd_data[ALPHAW-1:0] != SHADOW_PEN[ALPHAW-1:0];
+// assign is_just_a_shadow_dout     = rd_data[ALPHAW-1:0] == SHADOW_PEN[ALPHAW-1:0];
+// assign shade_dout                = rd_data[DW-1-:SW]!=0;
 // assign new_we = (is_opaque && is_not_just_a_shadow) &&
 //        (was_blank || (KEEP_OLD==0 &&
        // ( ((is_not_just_a_shadow || was_just_a_shadow) && shade && SHADOW==1) || SHADOW==0 )));
-
+/*
+assign new_we = wr_data[ALPHAW-1:0] != ALPHA[ALPHAW-1:0] && we              // is_opaque
+    && (old[ALPHAW-1:0]==ALPHA[ALPHAW-1:0] ||                               // was blank
+    (KEEP_OLD==0 &&
+       ( (wr_data[ALPHAW-1:0] != SHADOW_PEN[ALPHAW-1:0] ||                  // is_not_just_a_shadow
+          old[ALPHAW-1:0]==SHADOW_PEN[ALPHAW-1:0]          ) && SHADOW==1   // was_just_a_shadow
+            || SHADOW==0 )));
+*/
 always @* begin
-    new_we = is_opaque && is_not_just_a_shadow;
+    new_we = is_opaque /*&& is_not_just_a_shadow*/;
+    if( SHADOW==1 ) begin
+        new_we = /*new_we*/is_opaque && (is_not_just_a_shadow || was_just_a_shadow || (was_blank && is_just_a_shadow));
+    end
     if( KEEP_OLD==1 && !was_blank ) new_we = 0;
 end
 
@@ -132,13 +148,41 @@ generate
                    sh_we;
         reg  [AW-1:0] sh_wa;
         wire [AW-1:0] sh0_rdmx, sh1_rdmx;
-        wire [SW-1:0] shdout0,shdout1;
+        wire [SW-1:0] shdout0,shdout1, shdold0, shdold1, shdold;
         reg  [SW-1:0] shdin;
-        reg        newwe_l, we_l;
+        reg        newwe_l, we_l, shade_l;
 
         assign sh0_rdmx  =  line ? wr_af   : rd_addr;
         assign sh1_rdmx  = ~line ? wr_af   : rd_addr;
-        assign sh_we     =  shade;
+        assign sh_we     =  shade_l; //|shdold ? newwe_l : we_l;
+        assign sh0_wemx  =  line & sh_we;
+        assign sh1_wemx  = ~line & sh_we;
+        assign sh0_delmx = ~line & delete_we;
+        assign sh1_delmx =  line & delete_we;
+        assign shdold    =  line ? shdout0 : shdout1;
+
+        always @(posedge clk) begin
+            shdin <= wr_data[DW-1-:SW];
+            sh_wa <= wr_af;
+            newwe_l <= new_we;
+            we_l    <= we;
+            shade_l    <= shade && is_just_a_shadow/* && shdold!=0*/;
+        end
+        assign dump_data[DW-1-:SW] = ~line ? shdout0 : shdout1;
+
+/*    if( SHADOW==1 ) begin
+        wire       sh0_wemx, sh1_wemx, sh0_delmx, sh1_delmx,
+                   sh_we;
+        reg  [AW-1:0] sh_wa;
+        wire [AW-1:0] sh0_rdmx, sh1_rdmx;
+        wire [SW-1:0] shdout0,shdout1, shadow_we;
+        reg  [SW-1:0] shdin;
+        reg        newwe_l, we_l;//,
+
+        assign sh0_rdmx  =  line ? wr_af   : rd_addr;
+        assign sh1_rdmx  = ~line ? wr_af   : rd_addr;
+        assign shadow_we =  line ? shdout0 : shdout1;
+        assign sh_we     = |shadow_we ? newwe_l : we_l;
         assign sh0_wemx  =  line & sh_we;
         assign sh1_wemx  = ~line & sh_we;
         assign sh0_delmx = ~line & delete_we;
@@ -150,7 +194,7 @@ generate
             newwe_l <= new_we;
             we_l    <= we;
         end
-        assign dump_data[DW-1-:SW] = ~line ? shdout0 : shdout1;
+        assign dump_data[DW-1-:SW] = ~line ? shdout0 : shdout1;*/
 
         jtframe_dual_ram #(.AW(AW),.DW(SW)) u_shadow0(
             .clk0   ( clk           ),
@@ -159,7 +203,7 @@ generate
             .data0  ( shdin         ),
             .addr0  ( sh_wa         ),
             .we0    ( sh0_wemx      ),
-            .q0     (               ),
+            .q0     ( shdold0       ),
             // Port 1
             .data1  ( {SW{1'b0}}    ),
             .addr1  ( sh0_rdmx      ),
@@ -174,7 +218,7 @@ generate
             .data0  ( shdin         ),
             .addr0  ( sh_wa         ),
             .we0    ( sh1_wemx      ),
-            .q0     (               ),
+            .q0     ( shdold1       ),
             // Port 1
             .data1  ( {SW{1'b0}}    ),
             .addr1  ( sh1_rdmx      ),
