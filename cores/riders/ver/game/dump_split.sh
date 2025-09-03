@@ -121,15 +121,12 @@ get_pal(){
 	fi
 	parse_file pal 4096 $DUAL
 }
-# dd if=$TMP      of=pal.bin     count=8  skip=$SKIP      2> /dev/null; SKIP=$((SKIP +8 ))   # 4kB
 
 get_obj(){
 	if [ $FULLOBJ = 1 ]; then
 		parse_file obj 16384 --hilo
 	else
 		parse_file obj 8192  --hilo
-		dd if=/dev/zero of=obj_lo.bin count=8 oflag=append 2> /dev/null;
-		dd if=/dev/zero of=obj_lo.bin count=8 oflag=append 2> /dev/null;
 	fi
 }
 
