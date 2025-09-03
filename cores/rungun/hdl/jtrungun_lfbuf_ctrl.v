@@ -30,7 +30,7 @@ module jtrungun_lfbuf_ctrl(
                       scr_ok, obj_ok, fix_ok,
                       hflip, vflip,
     // virtual screen
-    input  reg [ 5:0] hbs_len,  // H blank start to HS start
+    input      [ 5:0] hbs_len,  // H blank start to HS start
                       hsy_len,  // HS length
                       hsa_len,  // HS end to active video start
 

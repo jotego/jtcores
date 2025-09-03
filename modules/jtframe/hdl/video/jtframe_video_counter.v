@@ -28,8 +28,8 @@ module jtframe_video_counter(
     output       rdy,      // v*_len ready after two frames
 
     output     [8:0] h,
-    output reg [8:0] v,
-    output reg [5:0] hbs_len,  // H blank start to HS start
+    output     [8:0] v,
+    output     [5:0] hbs_len,  // H blank start to HS start
                      hsy_len,  // HS length
                      hsa_len,  // HS end to active video start
                      vbs_len,  // V blank start to HS start
