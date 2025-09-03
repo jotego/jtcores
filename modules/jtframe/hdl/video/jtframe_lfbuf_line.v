@@ -112,11 +112,15 @@ jtframe_video_counter u_counter(
 
     .lhbl       ( ~hs           ),
     .lvbl       ( lvbl          ),
+    .hs         ( hs            ),
     .vs         ( vs            ),
     .flip       ( 1'b0          ),
 
     .v          (               ),
     .h          (               ),
+    .hbs_len    (               ),
+    .hsy_len    (               ),
+    .hsa_len    (               ),
     .vbs_len    ( vbs_len       ),  // V blank start to VS start
     .vsy_len    ( vsy_len       ),  // VS length
     .vsa_len    ( vsa_len       ),  // VS end to active video start

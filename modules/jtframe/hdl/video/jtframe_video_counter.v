@@ -115,7 +115,7 @@ module jtframe_sync_blank_counter(
                      sa_len   // S end to active video start
 );
 
-    reg  [8:0] cnt,
+    reg  [8:0] cnt;
     reg  [5:0] aux;
     reg        s_l, lbl_l;
 
