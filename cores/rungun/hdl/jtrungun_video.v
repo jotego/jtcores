@@ -96,6 +96,7 @@ wire [11:0] fix_code;
 wire [ 8:0] virt_hdumpf, obj_pxl, virt_hdump;
 wire [ 7:0] virt_vdumpf, psc_pxl, virt_vdump;
 wire [ 7:0] fix_raw, fix_pxl, dump_obj, obj_mmr, ccu_mmr, psac_mmr;
+wire [ 5:0] hbs_len, hsy_len, hsa_len;
 wire [ 4:0] obj_prio;
 wire [ 3:0] fix_pal, ommra;
 wire [ 1:0] oram_we, shadow;
@@ -173,6 +174,28 @@ jtk053252 u_k053252(
     .ioctl_din  ( ccu_mmr       )
 );
 
+jtframe_video_counter u_counter(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+
+    .lhbl       ( lhbl          ),
+    .lvbl       ( 1'b0          ),
+    .hs         ( hs            ),
+    .vs         ( 1'b0          ),
+    .flip       ( 1'b0          ),
+
+    .v          (               ),
+    .h          (               ),
+    .hbs_len    ( hbs_len       ),
+    .hsy_len    ( hsy_len       ),
+    .hsa_len    ( hsa_len       ),
+    .vbs_len    (               ),
+    .vsy_len    (               ),
+    .vsa_len    (               ),
+    .rdy        (               )
+);
+
 jtrungun_lfbuf_ctrl u_lfbuf_ctrl(
     .clk        ( clk           ),
     .obj_done   ( obj_done      ),
@@ -196,6 +219,10 @@ jtrungun_lfbuf_ctrl u_lfbuf_ctrl(
     .obj_ok     ( obj_ok        ),
     .fix_ok     ( fix_ok        ),
     // virtual screen
+    .hbs_len    ( hbs_len       ),
+    .hsy_len    ( hsy_len       ),
+    .hsa_len    ( hsa_len       ),
+
     .cen        ( virt_cen      ),
     .hs         ( virt_hs       ),
     .hdump      ( virt_hdump    ),
