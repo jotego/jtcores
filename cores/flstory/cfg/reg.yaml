@@ -1,8 +1,11 @@
 bronx:
+  inputs: reg.cab
 nycaptor:
   video: 2200
+  inputs: reg.cab
 onna34ro:
 rumba:
 flstory:
+  inputs: reg.cab
 victnine:
   inputs: reg.cab
