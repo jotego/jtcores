@@ -384,8 +384,8 @@ module jt053936_counter(
         hs_mx <= ln_en ? hs_dly : hs;
         cnt   <= eff_hstep + cnt;
         if(hs_mx) begin
-            cnt  <= vcnt;
-            vcnt <= eff_vstep + (ln_en ? {cnt0,8'd0} : vcnt);
+            vcnt <= eff_vstep + vcnt;
+            cnt  <= ln_en ? eff_vstep + {cnt0,8'd0} : vcnt;
         end
         if(vs) begin
              cnt <= {cnt0,8'd0};
