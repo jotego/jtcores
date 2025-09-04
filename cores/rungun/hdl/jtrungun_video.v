@@ -308,7 +308,7 @@ jtrungun_psac u_psac(
 
 localparam [9:0] OVOFFSET = 10'h111;
 
-jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd3)) u_obj(    // sprite logic
+jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd30)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( virt_cen  ),
