@@ -78,7 +78,7 @@ assign shade            = wr_data[  DW-1-:SW] != 0;
 
 always @* begin
     new_we = is_opaque;
-    if( KEEP_OLD==1 && !was_blank || SHADOW==1 && is_just_a_shadow )
+    if( KEEP_OLD==1 && !was_blank || SHADOW==1 && is_just_a_shadow && shade)
         new_we = 0;
 end
 
@@ -123,7 +123,8 @@ jtframe_dual_ram #(.AW(AW+1),.DW(EW)) u_line(
 
 generate
     if( SHADOW==1 ) begin
-        wire          sh0_wemx, sh1_wemx, sh0_delmx, sh1_delmx;
+        wire          sh0_wemx, sh1_wemx, sh0_delmx, sh1_delmx,
+                      erase_shade, add_shade;
         reg  [AW-1:0] sh_wa;
         wire [AW-1:0] sh0_rdmx, sh1_rdmx;
         wire [SW-1:0] shdout0,shdout1;
@@ -137,10 +138,13 @@ generate
         assign sh0_delmx = ~line & delete_we;
         assign sh1_delmx =  line & delete_we;
 
+        assign erase_shade = !shade & new_we;
+        assign add_shade   =  shade & we     && is_just_a_shadow;
+
         always @(posedge clk) begin
             shdin <= wr_data[DW-1-:SW];
             sh_wa <= wr_af;
-            sh_we <= shade && is_just_a_shadow && we;
+            sh_we <= add_shade || erase_shade;
         end
         assign dump_data[DW-1-:SW] = ~line ? shdout0 : shdout1;
 
