@@ -95,7 +95,7 @@ wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
 reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
             io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn,
             pslrm_cs, psvrm_cs,
-            objch_cs, pair_cs, sdon_cs, psch_cs, rom_good, ram_good;
+            objch_cs, pair_cs, sdon_cs, psch_cs;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -105,7 +105,7 @@ assign VPAn     = ~&{A[23],~ASn};
 assign ram_dsn  = {UDSn, LDSn};
 assign ram_we   = ~RnW;
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~(rom_ok & rom_good)) | (ram_cs & ~(ram_ok & ram_good));
+assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_rnw  = RnW;
 // sys1
@@ -205,8 +205,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    rom_good  <= rom_cs & rom_ok;
-    ram_good  <= ram_cs & ram_ok;
     cab1_dout <= A[1] ? {cab_1p[3],joystick4,cab_1p[1],joystick2}:
                         {cab_1p[2],joystick3,cab_1p[0],joystick1};
     // odma=0 halts the game
