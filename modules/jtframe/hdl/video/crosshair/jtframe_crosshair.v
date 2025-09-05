@@ -74,7 +74,17 @@ jtframe_video_counter u_vidcnt(
     .lhbl       ( pre_lhbl  ),
     .lvbl       ( pre_lvbl  ),
     .v          ( vcnt      ),
-    .h          ( hcnt      )
+    .h          ( hcnt      ),
+    .hs         ( hs        ),
+    .vs         ( vs        ),
+    // unused
+    .rdy        (           ),
+    .hbs_len    (           ),
+    .hsy_len    (           ),
+    .hsa_len    (           ),
+    .vbs_len    (           ),
+    .vsy_len    (           ),
+    .vsa_len    (           )
 );
 
 jtframe_crosshair_color #(.COLORW(COLORW)) u_crosshair_color(
