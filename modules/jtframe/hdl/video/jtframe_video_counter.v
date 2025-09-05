@@ -16,6 +16,8 @@
     Version: 1.0
     Date: 25-1-2025 */
 
+// Provides H and V counters starting at zero while input
+// LHBL and LVBL last
 module jtframe_video_counter(
     input        rst,
     input        clk,
