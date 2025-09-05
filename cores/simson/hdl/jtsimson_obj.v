@@ -30,6 +30,7 @@ module jtsimson_obj #(parameter
 )(
     input             rst,
     input             clk,
+    output            ln_done,
 
     input             pxl_cen,
     input             pxl2_cen,
@@ -138,6 +139,7 @@ jt053246 #(
     .pxl_cen    ( pxl_cen   ),
     .simson     ( simson    ),
 
+    .ln_done    ( ln_done   ),
     .voffset    ( voffset   ),
     // CPU interface
     .cs         ( reg_cs    ),

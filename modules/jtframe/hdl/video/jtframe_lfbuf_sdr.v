@@ -32,6 +32,7 @@ module jtframe_lfbuf_sdr #(parameter
     // video status
     input      [VW-1:0] vrender,
     input      [HW-1:0] hdump,
+    input               hs,
     input               vs,
     input               lhbl,
     input               lvbl,
@@ -41,7 +42,7 @@ module jtframe_lfbuf_sdr #(parameter
     input      [DW-1:0] ln_data,
     input               ln_done,
     input               ln_we,
-    output              ln_hs,
+    output              ln_hs, ln_vs, ln_lvbl,
     output     [DW-1:0] ln_pxl,
     output     [VW-1:0] ln_v,
 
@@ -63,7 +64,7 @@ module jtframe_lfbuf_sdr #(parameter
     output      [7:0]   st_dout
 );
 
-wire          frame, fb_clr, fb_done, line, scr_we;
+wire          frame, fb_clr, fb_done, line, scr_we, fb_blank;
 wire [HW-1:0] fb_addr, rd_addr;
 wire [  15:0] fb_din, fb_dout;
 
@@ -79,6 +80,7 @@ jtframe_lfbuf_sdr_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .ln_v       ( ln_v      ),
     // data written to external memory
     .frame      ( frame     ),
+    .fb_blank   ( fb_blank  ),
     .fb_addr    ( fb_addr   ),
     .rd_addr    ( rd_addr   ),
     .fb_din     ( fb_din    ),
@@ -115,12 +117,15 @@ jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
     // video status
     .vrender    ( vrender   ),
     .hdump      ( hdump     ),
+    .hs         ( hs        ),
     .vs         ( vs        ),   // vertical sync, the buffer is swapped here
     .lvbl       ( lvbl      ),   // vertical blank, active low
 
     // core interface
     .ln_hs      ( ln_hs     ),
     .ln_v       ( ln_v      ),
+    .ln_vs      ( ln_vs     ),
+    .ln_lvbl    ( ln_lvbl   ),
     .ln_addr    ( ln_addr   ),
     .ln_data    ( ln_data   ),
     .ln_we      ( ln_we     ),
@@ -128,6 +133,7 @@ jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
 
     // data written to external memory
     .frame      ( frame     ),
+    .fb_blank   ( fb_blank  ),
     .fb_addr    ( fb_addr   ),
     .rd_addr    ( rd_addr   ),
     .fb_din     ( fb_din    ),

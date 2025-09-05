@@ -123,10 +123,21 @@ jtframe_video_counter u_vcounters(
 
     .lhbl       ( lhbl        ),
     .lvbl       ( lvbl        ),
+    .hs         ( 1'b0        ), // not needed if len outputs are not used
+    .vs         ( 1'b0        ), // not needed if len outputs are not used
     .flip       ( dip_flip    ),
 
     .v          ( v           ),
-    .h          ( h           )
+    .h          ( h           ),
+
+    .hbs_len    (             ),
+    .hsy_len    (             ),
+    .hsa_len    (             ),
+
+    .vbs_len    (             ),
+    .vsy_len    (             ),
+    .vsa_len    (             ),
+    .rdy        (             )
 );
 
 jtframe_debug_bus u_debug_bus(

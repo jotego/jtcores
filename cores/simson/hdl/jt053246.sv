@@ -25,6 +25,8 @@ module jt053246(    // sprite logic
     input             pxl_cen,
     input             simson,
 
+    output            ln_done,
+
     // CPU interface
     input             cs,
     input             cpu_we,
@@ -100,6 +102,7 @@ assign dma_en    = cfg[4];
 jt053246_scan #(.HOFFSET(HOFFSET),.SCAN_START(SCAN_START)) u_scan(
     .rst       ( rst        ),
     .clk       ( clk        ),
+    .done      ( ln_done    ),
     .code      ( code       ),
     .attr      ( attr       ),
     .hflip     ( hflip      ),

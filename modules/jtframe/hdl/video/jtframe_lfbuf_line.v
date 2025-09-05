@@ -37,11 +37,12 @@ module jtframe_lfbuf_line #(parameter
     // video status
     input      [VW-1:0] vrender,
     input      [HW-1:0] hdump,
+    input               hs,
     input               vs,     // vertical sync, the buffer is swapped here
     input               lvbl,   // vertical blank, active low
 
     // core interface
-    output reg          ln_hs,
+    output reg          ln_hs, ln_vs, ln_lvbl,
     output reg [VW-1:0] ln_v,
     input      [HW-1:0] ln_addr,
     input      [DW-1:0] ln_data,
@@ -55,6 +56,7 @@ module jtframe_lfbuf_line #(parameter
     output     [  15:0] fb_din,
     input               fb_clr,
     input               fb_done,
+    output              fb_blank,
 
     // data read from external memory to screen buffer
     // during h blank
@@ -63,10 +65,14 @@ module jtframe_lfbuf_line #(parameter
     input               scr_we
 );
 
-reg           vsl, lvbl_l, done;
+reg           vsl, lvbl_l, hs_l;
+reg  [   5:0] porch;
 reg  [VW-1:0] vstart=0, vend=0;
 wire [  15:0] scr_pxl;
-reg  [   1:0] vrdy;
+wire [   5:0] vbs_len, vsy_len, vsa_len;
+wire          hs_pos, info_rdy;
+
+assign hs_pos = hs && !hs_l;
 
 always @(posedge clk) if(pxl_cen) ln_pxl <= scr_pxl[DW-1:0];
 
@@ -80,47 +86,124 @@ end
 `endif
 
 // Capture the vstart/vend values
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
+    hs_l <= hs;
+end
+
+always @(posedge clk) begin
     if( rst ) begin
-        vrdy   <= 0;
         lvbl_l <= 0;
     end else begin
         lvbl_l <= lvbl;
         vsl    <= vs;
         if( !lvbl &&  lvbl_l ) begin
-            vrdy[0] <= 1;
             vend    <= vrender;
         end
-        if(  lvbl && !lvbl_l ) begin
-            vrdy[1] <= 1;
+        if( lvbl && !lvbl_l ) begin
             vstart  <= vrender;
         end
     end
 end
 
+jtframe_video_counter u_counter(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+
+    .lhbl       ( ~hs           ),
+    .lvbl       ( lvbl          ),
+    .hs         ( hs            ),
+    .vs         ( vs            ),
+    .flip       ( 1'b0          ),
+
+    .v          (               ),
+    .h          (               ),
+    .hbs_len    (               ),
+    .hsy_len    (               ),
+    .hsa_len    (               ),
+    .vbs_len    ( vbs_len       ),  // V blank start to VS start
+    .vsy_len    ( vsy_len       ),  // VS length
+    .vsa_len    ( vsa_len       ),  // VS end to active video start
+    .rdy        ( info_rdy      )   // ready after two frames
+);
+
+reg       done;
+wire      active, // active video portion
+          vbs,    // blank start to sync start
+          vsy,    // sync start to end
+          vsa;    // sync end to active start
+reg [3:0] st;
+
+localparam [3:0] ACTIVE=4'b1_000,
+                 VBTOSY=4'b0_001;
+
+`ifdef JTFRAME_LF_FULLV
+    assign {active,vsa,vsy,vbs} = st;
+    assign fb_blank =  ~ln_lvbl;
+`else
+    assign fb_blank    = 0;
+    initial begin
+        ln_vs   = 0;
+        ln_lvbl = 1;
+    end
+`endif
+
 // count lines so objects get drawn in the line buffer
 // and dumped from there to the SDRAM
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        frame <= 0;
-        ln_hs <= 0;
-        ln_v  <= 0;
-        done  <= 0;
-    end else if(&vrdy) begin
+        frame    <= 0;
+        ln_hs    <= 0;
+        ln_v     <= 0;
+        done     <= 0;
+    `ifdef JTFRAME_LF_FULLV
+        ln_vs    <= 0;
+        ln_lvbl  <= 0;
+        porch    <= 0;
+        st       <= 0;
+    `endif
+    end else if(info_rdy) begin
         ln_hs <= 0;
         if( vs && !vsl ) begin // object parsing starts during VB
             frame <= ~frame;
             ln_v  <= vstart;
             ln_hs <= 1;
             done  <= 0;
+            `ifdef JTFRAME_LF_FULLV
+                ln_lvbl <= 0;
+                porch   <= vbs_len;
+                st      <= VBTOSY;
+            `endif
         end
-        if( fb_done && !done ) begin
+        if( fb_done && !done )
+    `ifdef JTFRAME_LF_FULLV
+        case( 1'b1 )
+            vsa,vsy,vbs: begin
+                porch <= porch - 1'd1;
+                ln_hs <= 1;
+                if(porch==0) begin
+                    porch   <= vbs ? vsy_len : vsa_len;
+                    ln_vs   <= vbs;
+                    ln_lvbl <= vsa;
+                    st <= st<<1;
+                end
+            end
+            active: begin
+                ln_v     <= ln_v + 1'd1;
+                if( ln_v == vend )
+                    done <= 1;
+                else
+                    ln_hs <= 1;
+            end
+        endcase
+    `else begin
             ln_v <= ln_v + 1'd1;
             if( ln_v == vend )
                 done <= 1;
             else
                 ln_hs <= 1;
         end
+    `endif
     end
 end
 
@@ -128,7 +211,7 @@ localparam [15:0] LFBUF_CLR = `ifndef JTFRAME_LFBUF_CLR 0 `else `JTFRAME_LFBUF_C
 
 // collect input data
 jtframe_dual_ram #(.DW(16),.AW(HW+1)) u_linein(
-    // Write to SDRAM and delete
+    // Write to big RAM and delete
     .clk0   ( clk           ),
     .data0  ( LFBUF_CLR     ),
     .addr0  ( { line^fb_clr, fb_addr } ),
@@ -144,7 +227,7 @@ jtframe_dual_ram #(.DW(16),.AW(HW+1)) u_linein(
 
 jtframe_rpwp_ram #(.DW(16),.AW(HW)) u_lineout(
     .clk    ( clk           ),
-    // Read from SDRAM, write to line buffer
+    // Read from big RAM, write to line buffer
     .din    ( fb_dout       ),
     .wr_addr( rd_addr       ),
     .we     ( scr_we        ),

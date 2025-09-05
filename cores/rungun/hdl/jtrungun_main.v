@@ -142,6 +142,8 @@ assign sdon      = sdon_cs;
 
 assign lrsw      = fmode ? disp : fsel;
 
+reg [3:0] cs_count;
+
 always @* begin
     // 056541 PAL
     boot_cs =   !ASn  &&  A[23:20]==0 && RnW && !BUSn;
@@ -152,7 +154,7 @@ always @* begin
     gfx_cs  =   !ASn  &&  A[23:21]==3'b011;     // $3?_???? ~$7?_????
     // dmac_cs =   !ASn  &&  A[23:19]==5'b0011_1;  // $38_???? same as RAM in PAL equations
     cpal_cs =   !ASn  &&  A[23:19]==5'b0011_0;
-    misc_cs =   !ASn  &&  A[23:21]==3'b010 && !rom_cs; // $4?_...
+    misc_cs =   !ASn  &&  A[23:21]==3'b010; // $4?_...
     // 74F138 at 11T
     vmem_cs = gfx_cs  &&  A[20:18]==5; // $74_????
     pslrm_cs= gfx_cs  &&  A[20:18]==4; // $70_... 2k PSAC line
@@ -174,6 +176,16 @@ always @* begin
     io1_cs  = io_cs   &&  A[ 3: 2]==0;
 
     cab_cs  = io1_cs  || io2_cs;
+
+    cs_count =                                   {3'd0,rom_cs}  + {3'd0,ram_cs}
+                              + {3'd0,cpal_cs} +                  {3'd0,vmem_cs}
+             + {3'd0,pslrm_cs}+ {3'd0,psvrm_cs}+ {3'd0,psreg_cs}+ {3'd0,objrg_cs}
+             + {3'd0,objrm_cs}+ {3'd0,objch_cs}+ {3'd0,pair_cs} + {3'd0,sdon_cs}
+             + {3'd0,ccu_cs}                   + {3'd0,psch_cs} + {3'd0,sys2_cs}
+             + {3'd0,sys1_cs} + {3'd0,io2_cs}  + {3'd0,io1_cs};
+    if(cs_count>1) begin
+        $display("cs_count over 1!");
+    end
 end
 
 always @* begin
@@ -198,7 +210,7 @@ always @(posedge clk) begin
     cab1_dout <= A[1] ? {cab_1p[3],joystick4,cab_1p[1],joystick2}:
                         {cab_1p[2],joystick3,cab_1p[0],joystick1};
     // odma=0 halts the game
-    cab2_dout <= { lrsw, odma^debug_bus[0], A[1] ? {dipsw, dip_test, 1'b1, eep_rdy, eep_do }:
+    cab2_dout <= { lrsw, odma, A[1] ? {dipsw, dip_test, 1'b1, eep_rdy, eep_do }:
                                       {service,   coin}};
     cab_dout  <= io1_cs ? cab1_dout : {6'h0, cab2_dout};
     HALTn     <= dip_pause & ~rst;

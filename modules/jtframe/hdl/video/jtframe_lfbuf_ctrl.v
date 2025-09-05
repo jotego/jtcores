@@ -32,6 +32,7 @@ module jtframe_lfbuf_ctrl #(parameter
     input      [VW-1:0] ln_v,
     // data written to external memory
     input               frame,
+    input               fb_blank,
     output reg [HW-1:0] fb_addr,
     input      [  15:0] fb_din,
     output reg          fb_clr,
@@ -116,7 +117,7 @@ assign fb_over =&fb_addr;
 assign vram    = lhbl ? ln_v : vrender;
 assign scr_we  = cr_wait & ~cr_oen;
 
-always @( posedge clk, posedge rst ) begin
+always @( posedge clk ) begin
     if( rst ) begin
         hblen  <= 0;
         hlim   <= 0;
@@ -141,13 +142,14 @@ always @( posedge clk, posedge rst ) begin
     end
 end
 
-always @( posedge clk, posedge rst ) begin
+always @( posedge clk ) begin
     if( rst ) begin
         do_wr <= 0;
     end else begin
         ln_done_l <= ln_done;
         if( ln_done & ~ln_done_l    ) do_wr <= 1;
         if( st==WRITEOUT && fb_over ) do_wr <= 0;
+        if( st==IDLE && skip_blank_lines ) do_wr <= 0;
     end
 end
 
@@ -176,7 +178,9 @@ initial begin
     init_seq[15] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };
 end
 
-always @( posedge clk, posedge rst ) begin
+wire skip_blank_lines = do_wr && fb_blank;
+
+always @( posedge clk ) begin
     if( rst ) begin
         st       <= INIT;
         cr_advn  <= 0;
@@ -232,8 +236,9 @@ always @( posedge clk, posedge rst ) begin
                     rd_addr <= 0;
                     cr_oen  <= 1;
                     st      <= READ_ADDR;
-                end
-                if( do_wr && !fb_clr &&
+                end else if( skip_blank_lines ) begin
+                    fb_done  <= 1;
+                end else if( do_wr && !fb_clr &&
                     hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
                     csn     <= 0;
                     fb_addr <= 0;

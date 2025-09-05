@@ -370,7 +370,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
         wire  [ 8:0] ln_addr;
         wire  [15:0] ln_data;
         wire         ln_done;
-        wire         ln_hs;
+        wire         ln_hs, ln_vs, ln_lvbl;
         wire  [15:0] ln_pxl;
         wire  [ 7:0] ln_v;
         wire         ln_we;
@@ -392,6 +392,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .clk        ( clk_rom       ),
             .pxl_cen    ( pxl_cen       ),
 
+            .vs         ( HS            ),
             .vs         ( VS            ),
             .lvbl       ( LVBL          ),
             .lhbl       ( LHBL          ),
@@ -405,6 +406,8 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .ln_hs      ( ln_hs         ),
             .ln_pxl     ( ln_pxl        ),
             .ln_v       ( ln_v          ),
+            .ln_vs      ( ln_vs         ),
+            .ln_lvbl    ( ln_lvbl       ),
             .ln_we      ( ln_we         ),
 
             // PSRAM chip 0
@@ -457,6 +460,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .clk        ( clk_rom       ),
             .pxl_cen    ( pxl_cen       ),
 
+            .hs         ( HS            ),
             .vs         ( VS            ),
             .lvbl       ( LVBL          ),
             .lhbl       ( LHBL          ),
@@ -470,6 +474,8 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .ln_hs      ( ln_hs         ),
             .ln_pxl     ( ln_pxl        ),
             .ln_v       ( ln_v          ),
+            .ln_vs      ( ln_vs         ),
+            .ln_lvbl    ( ln_lvbl       ),
             .ln_we      ( ln_we         ),
 
             .ddram_clk  ( DDRAM_CLK     ),
@@ -607,6 +613,8 @@ u_game(
     .ln_hs       ( ln_hs          ),
     .ln_pxl      ( ln_pxl         ),
     .ln_v        ( ln_v           ),
+    .ln_vs       ( ln_vs          ),
+    .ln_lvbl     ( ln_lvbl        ),
     .ln_we       ( ln_we          ),
 `endif
 

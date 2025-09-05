@@ -486,7 +486,7 @@ wire        game_tx, game_rx;
     wire        [15:0] ln_data;
     wire               ln_done;
     wire               ln_we;
-    wire               ln_hs;
+    wire               ln_hs, ln_vs, ln_vbl;
     wire        [15:0] ln_pxl;
     wire        [ 7:0] ln_v;
 

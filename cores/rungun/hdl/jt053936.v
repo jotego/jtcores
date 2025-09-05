@@ -256,13 +256,15 @@ module jt053936_line_ram(
     output     [2:1] lh,
     output           rd, ok, hs_dly
 );
+    localparam TICKS=8;
+
     reg [3:0] cnt;
-    reg [8:0] dly;
+    reg [TICKS:0] dly;
 
     assign lh     = cnt[2:1];
     assign rd     =~cnt[3] & en;
     assign ok     = rd & ~dtackn;
-    assign hs_dly = dly[8];
+    assign hs_dly = dly[TICKS];
 
     always @(posedge clk) if(cen) begin
         la  <= tick_vs ? ln0  : tick_hs ? la +9'd1 : la;
@@ -384,8 +386,8 @@ module jt053936_counter(
         hs_mx <= ln_en ? hs_dly : hs;
         cnt   <= eff_hstep + cnt;
         if(hs_mx) begin
-            cnt  <= vcnt;
-            vcnt <= eff_vstep + (ln_en ? {cnt0,8'd0} : vcnt);
+            vcnt <= eff_vstep + vcnt;
+            cnt  <= ln_en ? eff_vstep + {cnt0,8'd0} : vcnt;
         end
         if(vs) begin
              cnt <= {cnt0,8'd0};

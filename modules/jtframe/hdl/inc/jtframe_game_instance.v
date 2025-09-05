@@ -120,6 +120,8 @@ u_game(
     .ln_hs        ( ln_hs            ),
     .ln_pxl       ( ln_pxl           ),
     .ln_v         ( ln_v             ),
+    .ln_vs        ( ln_vs            ),
+    .ln_lvbl      ( ln_lvbl          ),
     .ln_we        ( ln_we            ), `endif
 
     // Bank 0: allows R/W

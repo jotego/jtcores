@@ -210,6 +210,8 @@ jtrungun_video u_video(
     .ln_addr        ( ln_addr       ),
     .ln_data        ( ln_data       ),
     .ln_done        ( ln_done       ),
+    .ln_vs          ( ln_vs         ),
+    .ln_lvbl        ( ln_lvbl       ),
     .ln_hs          ( ln_hs         ),
     .ln_pxl         ( ln_pxl        ),
     .ln_v           ( ln_v          ),

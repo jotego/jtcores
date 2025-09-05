@@ -561,7 +561,7 @@ assign UART_TX = game_tx,
     wire        [15:0] ln_data;
     wire               ln_done;
     wire               ln_we;
-    wire               ln_hs;
+    wire               ln_hs, ln_vs, ln_lvbl;
     wire        [15:0] ln_pxl;
     wire        [ 7:0] ln_v;
 
@@ -577,6 +577,7 @@ assign UART_TX = game_tx,
         .clk        ( clk_rom2      ),
         .pxl_cen    ( pxl1_cen      ),
 
+        .hs         ( hs            ),
         .vs         ( vs            ),
         .lvbl       ( LVBL          ),
         .lhbl       ( LHBL          ),
@@ -590,6 +591,8 @@ assign UART_TX = game_tx,
         .ln_hs      ( ln_hs         ),
         .ln_pxl     ( ln_pxl        ),
         .ln_v       ( ln_v          ),
+        .ln_vs      ( ln_vs         ),
+        .ln_lvbl    ( ln_lvbl       ),
         .ln_we      ( ln_we         ),
 
         .init_n     ( pll_locked2   ),
@@ -614,6 +617,7 @@ assign UART_TX = game_tx,
         .clk        ( clk_rom       ),
         .pxl_cen    ( pxl1_cen      ),
 
+        .hs         ( hs            ),
         .vs         ( vs            ),
         .lvbl       ( LVBL          ),
         .lhbl       ( LHBL          ),
@@ -627,6 +631,8 @@ assign UART_TX = game_tx,
         .ln_hs      ( ln_hs         ),
         .ln_pxl     ( ln_pxl        ),
         .ln_v       ( ln_v          ),
+        .ln_vs      ( ln_vs         ),
+        .ln_lvbl    ( ln_lvbl       ),
         .ln_we      ( ln_we         ),
 
         .st_addr    ( st_addr       ),

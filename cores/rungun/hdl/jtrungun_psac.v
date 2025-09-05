@@ -23,6 +23,7 @@ module jtrungun_psac(
     input       [15:0] din,        // from CPU
     input       [ 4:1] addr,
     input       [ 1:0] dsn,
+    input              blankn,
     output             dma_n,
     // Lines RAM
     output      [10:1] line_addr,
@@ -61,11 +62,12 @@ assign pal       = vram_dout[19:16];
 assign vf        = {4{vflip}} ^ {y[3:0]};
 assign hf        = {4{hflip}} ^ {x[3:0]};
 
-assign rom_cs    = ~ob;
+assign rom_cs    = ~ob & blankn;
 assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
 
 always @(posedge clk) if(pxl_cen) begin
+    pxl <= 0;
     if(rom_ok) pxl <= {pal,dmux};
     if(  ob  ) pxl <= 0;
 end

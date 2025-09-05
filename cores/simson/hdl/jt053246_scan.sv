@@ -23,6 +23,7 @@ module jt053246_scan (    // sprite logic
     input             clk,
     input      [ 9:0] voffset,
 
+    output reg        done,
     // ROM addressing 22 bits in total
     output reg [15:0] code,
     // There are 22 bits communicating both chips on the PCB
@@ -59,6 +60,7 @@ module jt053246_scan (    // sprite logic
     input      [ 7:0] debug_bus
 );
 parameter [7:0] SCAN_START = 8'd0;
+parameter [8:0] BOTTOM     = 9'h1FA;
 parameter [9:0] HOFFSET    = 10'd62;
 
 localparam [11:0] MAX_ZOOMIN= 6; // a value below 3 will break the "pass" scene in run&gun
@@ -73,7 +75,7 @@ reg  [ 7:0] scan_obj/*, zcode*/; // max 256 objects
 reg  [ 3:0] size;
 reg  [ 2:0] hstep, hcode, hsum, vsum;
 reg  [ 1:0] scan_sub, reserved;
-reg         inzone, hs_l, done, hdone,
+reg         inzone, hs_l, hdone,
             vmir, hmir, sq, pre_vf, pre_hf, indr,
             hmir_eff, vmir_eff, hhalf, left_wrap;
 
@@ -186,7 +188,7 @@ always @(posedge clk) begin : A
     end else if( cen2 ) begin
         hs_l <= hs;
         dr_start <= 0;
-        if( hs && !hs_l && vdump>9'h10D && vdump<9'h1f1) begin
+        if( hs && !hs_l && vdump>9'h10D && vdump<BOTTOM) begin
             done     <= 0;
             scan_obj <= SCAN_START;
             scan_sub <= 0;
@@ -196,7 +198,7 @@ always @(posedge clk) begin : A
                 $display("Obj scan did not finish. Last obj %X",scan_obj);
                 missing <= missing + 1;
             end
-            if(vdump==9'h1f0 && missing!=0 ) begin
+            if(vdump==BOTTOM && missing!=0 ) begin
                 missing <= 0;
                 $display("%d uncompleted lines",missing);
             end
