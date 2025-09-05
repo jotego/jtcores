@@ -268,6 +268,7 @@ jtsimson_obj #(.RAMW(13),.SHADOW(1)) u_obj(    // sprite logic
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
     .simson     ( 1'b0      ),
+    .ln_done    (           ),
 
     .voffset    ( OVOFFSET  ),
     // Base Video (inputs)
