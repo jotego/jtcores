@@ -105,7 +105,7 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_video_counter u_counter(
+jtframe_blank_length u_counter(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
@@ -116,8 +116,8 @@ jtframe_video_counter u_counter(
     .vs         ( vs            ),
     .flip       ( 1'b0          ),
 
-    .v          (               ),
-    .h          (               ),
+    .v_len      (               ),
+    .h_len      (               ),
     .hbs_len    (               ),
     .hsy_len    (               ),
     .hsa_len    (               ),

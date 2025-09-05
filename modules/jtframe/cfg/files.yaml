@@ -59,6 +59,7 @@ jtframe:
       - jtframe_wirebw.v
       - jtframe_short_blank.v
       - jtframe_video_counter.v
+      - jtframe_blank_length.v
       - jtframe_font.v
       - jtframe_blank.v
   - from: video/crosshair
