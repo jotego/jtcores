@@ -1143,7 +1143,7 @@
 				(pin power_out line
 					(at 0 0 90)
 					(length 0)
-					(name "pwr"
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1176,9 +1176,9 @@
 		)
 		(symbol "power:VCC"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -1192,7 +1192,7 @@
 				)
 			)
 			(property "Value" "VCC"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1276,8 +1276,8 @@
 			(symbol "VCC_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VCC"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1600,6 +1600,16 @@
 			(type default)
 		)
 		(uuid "1c9e5575-5c4a-4803-838d-e6faa385b09d")
+	)
+	(bus
+		(pts
+			(xy 148.59 54.61) (xy 165.1 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d968474-8481-4812-a51f-9eb59b188fe3")
 	)
 	(wire
 		(pts
@@ -2591,6 +2601,16 @@
 		)
 		(uuid "97524ceb-2aec-41f0-947d-1217bf4dadc8")
 	)
+	(wire
+		(pts
+			(xy 148.59 49.53) (xy 165.1 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "989520a5-e78c-4286-911a-70c704aff6e4")
+	)
 	(bus
 		(pts
 			(xy 327.66 214.63) (xy 311.15 214.63)
@@ -2773,6 +2793,16 @@
 	)
 	(wire
 		(pts
+			(xy 165.1 52.07) (xy 148.59 52.07)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "af7e4c23-4e7c-45f1-ba18-4dd17ae427c9")
+	)
+	(wire
+		(pts
 			(xy 284.48 118.11) (xy 300.99 118.11)
 		)
 		(stroke
@@ -2830,6 +2860,16 @@
 			(type default)
 		)
 		(uuid "b5f5bd17-59e7-4960-aaa7-5b4a2710b802")
+	)
+	(bus
+		(pts
+			(xy 165.1 46.99) (xy 148.59 46.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b8ea22bb-102a-4862-b479-ce1fcda8ff3c")
 	)
 	(wire
 		(pts
@@ -3657,6 +3697,16 @@
 		)
 		(uuid "66cb6de6-39e0-4135-aed1-10b199928e22")
 	)
+	(text "PWB352020B"
+		(exclude_from_sim no)
+		(at 386.08 247.65 0)
+		(effects
+			(font
+				(size 3.81 3.81)
+			)
+		)
+		(uuid "6aeee2b4-99ce-43e1-bf26-65e2d10694f1")
+	)
 	(text "VSS"
 		(exclude_from_sim no)
 		(at 39.37 101.6 0)
@@ -3849,7 +3899,7 @@
 		)
 		(uuid "1626d50b-545e-456c-8291-e41f23cfb373")
 	)
-	(label "~{CS}"
+	(label "FM~{CS}"
 		(at 300.99 97.79 180)
 		(effects
 			(font
@@ -4088,6 +4138,16 @@
 			(justify left bottom)
 		)
 		(uuid "311d0d86-7d88-477c-81f5-b1aa89e70047")
+	)
+	(label "~{MDS}"
+		(at 148.59 49.53 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "337a7e9a-8f04-4801-a417-edac8ff1e003")
 	)
 	(label "SCR_PE"
 		(at 229.87 93.98 0)
@@ -4909,6 +4969,16 @@
 		)
 		(uuid "9a8e8693-e5f5-4003-83ac-d008765439b6")
 	)
+	(label "~{RD}"
+		(at 148.59 52.07 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9b449318-bb20-4129-817a-a46078289bcf")
+	)
 	(label "M6"
 		(at 382.27 107.95 180)
 		(effects
@@ -5009,7 +5079,7 @@
 		)
 		(uuid "a72723f1-143d-495c-a67b-c89e1e0452d4")
 	)
-	(label "~{CS}"
+	(label "FM~{CS}"
 		(at 148.59 44.45 0)
 		(effects
 			(font
@@ -5239,6 +5309,16 @@
 		)
 		(uuid "ce4b285a-858e-467b-9944-d0f7f9ba5f95")
 	)
+	(label "MAIN_DB[7..0]"
+		(at 148.59 54.61 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "cf3b59ca-f1ef-4bec-bd6e-3c46d163d0cc")
+	)
 	(label "~{OBJSET}"
 		(at 311.15 46.99 0)
 		(effects
@@ -5288,6 +5368,16 @@
 			(justify left bottom)
 		)
 		(uuid "d7d35910-44ca-4c9c-914c-5b1472638890")
+	)
+	(label "MAIN_A[19..0]"
+		(at 148.59 46.99 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d7e9d6d6-786c-4d4d-90b1-2358984a1b7a")
 	)
 	(label "2P_DOWN"
 		(at 148.59 204.47 0)
@@ -5633,7 +5723,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Special symbol for telling ERC where power comes from"
 			(at 29.21 116.84 0)
 			(effects
 				(font
@@ -5921,7 +6011,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VCC\""
 			(at 33.02 85.09 0)
 			(effects
 				(font
@@ -5986,7 +6076,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Special symbol for telling ERC where power comes from"
 			(at 44.45 78.74 0)
 			(effects
 				(font
@@ -6051,7 +6141,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Special symbol for telling ERC where power comes from"
 			(at 100.33 82.55 0)
 			(effects
 				(font
@@ -6116,7 +6206,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Special symbol for telling ERC where power comes from"
 			(at 105.41 91.44 0)
 			(effects
 				(font
@@ -6181,7 +6271,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Special symbol for telling ERC where power comes from"
 			(at 100.33 152.4 0)
 			(effects
 				(font
@@ -6246,7 +6336,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Special symbol for telling ERC where power comes from"
 			(at 29.21 82.55 0)
 			(effects
 				(font
@@ -7123,7 +7213,7 @@
 			)
 			(uuid "1306930e-54a1-4a8f-8d16-74f2af04d7d5")
 		)
-		(pin "~{CS}" output
+		(pin "FM~{CS}" output
 			(at 284.48 97.79 0)
 			(effects
 				(font
@@ -7225,44 +7315,6 @@
 			(project "surprise_attack"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8"
 					(page "10")
-				)
-			)
-		)
-	)
-	(sheet
-		(at 246.38 195.58)
-		(size 38.1 12.7)
-		(fields_autoplaced yes)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(fill
-			(color 0 0 0 0.0000)
-		)
-		(uuid "f18db35c-32e6-479e-aff8-5ae79fab5756")
-		(property "Sheetname" "description"
-			(at 246.38 194.8684 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
-		)
-		(property "Sheetfile" "description.kicad_sch"
-			(at 246.38 208.8646 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(instances
-			(project "surprise_attack"
-				(path "/0011ec10-82c4-4039-b424-337480f568e8"
-					(page "11")
 				)
 			)
 		)
@@ -8031,7 +8083,7 @@
 			)
 			(uuid "27fc371d-451e-4c51-a797-ed5cf8640644")
 		)
-		(pin "~{CS}" input
+		(pin "FM~{CS}" input
 			(at 165.1 44.45 180)
 			(effects
 				(font
@@ -8080,6 +8132,46 @@
 				(justify right)
 			)
 			(uuid "32016808-b14d-482b-b6f1-06461961a4de")
+		)
+		(pin "MAIN_A[1..0]" input
+			(at 165.1 46.99 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "7c7e7e2a-983b-4a3e-b62c-008bd27a59ce")
+		)
+		(pin "~{MDS}" input
+			(at 165.1 49.53 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "5b353a0a-7ffb-480b-87d5-e2d096c80e53")
+		)
+		(pin "~{RD}" input
+			(at 165.1 52.07 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "1bd471a5-9bd6-48bf-b7cd-22baf3bfadf9")
+		)
+		(pin "MAIN_DB[7..0]" bidirectional
+			(at 165.1 54.61 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "bf3f309e-77fe-4a72-8082-78fba4d8fa31")
 		)
 		(instances
 			(project "surprise_attack"

@@ -13,756 +13,6 @@
 		(comment 2 "JOTEGO")
 	)
 	(lib_symbols
-		(symbol "052535_1"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "U"
-				(at 5.588 10.033 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "052535_1"
-				(at 0 -6.223 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://www.jammarcade.net/konami-052535-reproduction/"
-				(at 2.54 -11.43 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "052535_1_0_0"
-				(rectangle
-					(start -8.89 8.89)
-					(end 7.62 -8.89)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 6.35) (xy 0 8.89)
-					)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(text " INPUT"
-					(at -2.921 -0.508 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "*"
-					(at -5.461 -5.969 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -5.461 -3.556 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -5.461 -0.762 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -5.461 1.778 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -5.461 4.191 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -1.651 7.62 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "5-bit video DAC"
-					(at 0 -7.62 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "ANALOG"
-					(at 2.413 0.508 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "DIGITAL"
-					(at -2.667 0.508 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "KONAMI"
-					(at 0 -4.826 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "OUTPUT"
-					(at 2.413 -0.635 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "Pull Up"
-					(at -3.556 7.747 0)
-					(effects
-						(font
-							(size 0.508 0.508)
-						)
-					)
-				)
-				(text "RGB"
-					(at 5.969 -1.651 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-			)
-			(symbol "052535_1_0_1"
-				(polyline
-					(pts
-						(xy -6.223 6.35) (xy -5.461 6.35) (xy -5.1054 7.112) (xy -4.445 5.588) (xy -3.7846 7.112) (xy -3.0988 5.588)
-						(xy -2.413 7.112) (xy -1.7526 5.588) (xy -1.397 6.35) (xy -0.127 6.35)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 0 6.35)
-					(radius 0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "052535_1_1_1"
-				(pin power_in line
-					(at 0 8.89 270)
-					(length 5.08) hide
-					(name "VCC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -13.97 6.35 0)
-					(length 5.08)
-					(name "D4"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -13.97 3.81 0)
-					(length 5.08)
-					(name "D3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -13.97 1.27 0)
-					(length 5.08)
-					(name "D2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -13.97 -1.27 0)
-					(length 5.08)
-					(name "D1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -13.97 -3.81 0)
-					(length 5.08)
-					(name "D0"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -13.97 -6.35 0)
-					(length 5.08)
-					(name "BK"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 12.7 0 180)
-					(length 5.08)
-					(name "AO"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 0 -8.89 90)
-					(length 5.08) hide
-					(name "VSS"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
-		(symbol "052535_2"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "U"
-				(at 5.588 10.033 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "052535_2"
-				(at 0 -6.223 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://www.jammarcade.net/konami-052535-reproduction/"
-				(at 2.54 -11.43 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "052535_2_0_0"
-				(rectangle
-					(start -8.89 8.89)
-					(end 7.62 -8.89)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 6.35) (xy 0 8.89)
-					)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(text " INPUT"
-					(at -2.921 -0.508 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "*"
-					(at -5.461 -5.969 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -5.461 -3.556 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -5.461 -0.762 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -5.461 1.778 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -5.461 4.191 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -1.651 7.62 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "5-bit video DAC"
-					(at 0 -7.62 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "ANALOG"
-					(at 2.413 0.508 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "DIGITAL"
-					(at -2.667 0.508 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "KONAMI"
-					(at 0 -4.826 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "OUTPUT"
-					(at 2.413 -0.635 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "Pull Up"
-					(at -3.556 7.747 0)
-					(effects
-						(font
-							(size 0.508 0.508)
-						)
-					)
-				)
-				(text "RGB"
-					(at 5.969 -1.651 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-			)
-			(symbol "052535_2_0_1"
-				(polyline
-					(pts
-						(xy -6.223 6.35) (xy -5.461 6.35) (xy -5.1054 7.112) (xy -4.445 5.588) (xy -3.7846 7.112) (xy -3.0988 5.588)
-						(xy -2.413 7.112) (xy -1.7526 5.588) (xy -1.397 6.35) (xy -0.127 6.35)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 0 6.35)
-					(radius 0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "052535_2_1_1"
-				(pin power_in line
-					(at 0 8.89 270)
-					(length 5.08) hide
-					(name "VCC"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -13.97 6.35 0)
-					(length 5.08)
-					(name "D4"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -13.97 3.81 0)
-					(length 5.08)
-					(name "D3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -13.97 1.27 0)
-					(length 5.08)
-					(name "D2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -13.97 -1.27 0)
-					(length 5.08)
-					(name "D1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -13.97 -3.81 0)
-					(length 5.08)
-					(name "D0"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -13.97 -6.35 0)
-					(length 5.08)
-					(name "BK"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 12.7 0 180)
-					(length 5.08)
-					(name "AO"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at 0 -8.89 90)
-					(length 5.08) hide
-					(name "VSS"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "74xx:74LS07"
 			(pin_names
 				(offset 1.016)
@@ -2299,7 +1549,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 5.08) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2327,6 +1577,14 @@
 						(type background)
 					)
 				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 			)
 		)
 		(symbol "jt74:74LS04"
@@ -2337,7 +1595,7 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 0 1.27 0)
+				(at -0.635 0 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -2345,7 +1603,7 @@
 				)
 			)
 			(property "Value" "74LS04"
-				(at 0 -1.27 0)
+				(at 0 -5.08 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -2727,7 +1985,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 5.08) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2753,6 +2011,14 @@
 					)
 					(fill
 						(type background)
+					)
+				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
 					)
 				)
 			)
@@ -2822,7 +2088,7 @@
 					)
 				)
 				(text "AND"
-					(at 0 2.54 0)
+					(at -2.54 2.54 0)
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -2839,22 +2105,6 @@
 				)
 				(text "In Parallel-Out"
 					(at 0 -11.43 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "NOT"
-					(at -0.635 -3.81 0)
-					(effects
-						(font
-							(size 0.762 0.762)
-						)
-					)
-				)
-				(text "NOT"
-					(at -0.635 -1.27 0)
 					(effects
 						(font
 							(size 0.762 0.762)
@@ -3075,7 +2325,7 @@
 				(pin power_in line
 					(at 0 -13.97 90)
 					(length 5.08) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3136,11 +2386,12 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at -7.62 16.51 0)
+				(at 7.62 16.51 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
+					(justify right)
 				)
 			)
 			(property "Value" "74LS245"
@@ -3586,15 +2837,16 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 0 2.54 0)
+				(at 7.62 16.51 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
+					(justify right)
 				)
 			)
 			(property "Value" "74LS273"
-				(at 2.54 -13.97 0)
+				(at 5.08 -16.51 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -3656,7 +2908,7 @@
 			)
 			(symbol "74LS273_0_0"
 				(text "flip flops"
-					(at 0 -7.62 0)
+					(at 2.54 -13.97 0)
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -3676,6 +2928,24 @@
 						)
 					)
 					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 -15.24 90)
+					(length 1.27) hide
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "10"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3856,6 +3126,24 @@
 						)
 					)
 					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 15.24 270)
+					(length 1.27) hide
+					(name "VCC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "20"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4381,9 +3669,9 @@
 		)
 		(symbol "power:VCC"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -4397,7 +3685,7 @@
 				)
 			)
 			(property "Value" "VCC"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4481,8 +3769,8 @@
 			(symbol "VCC_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VCC"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4501,9 +3789,9 @@
 		)
 		(symbol "power:VSS"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -4517,7 +3805,7 @@
 				)
 			)
 			(property "Value" "VSS"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4589,8 +3877,8 @@
 			(symbol "VSS_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VSS"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -9293,7 +8581,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 93.98 0)
 			(effects
 				(font
@@ -9397,7 +8685,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 328.93 104.14 0)
 			(effects
 				(font
@@ -9464,7 +8752,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 364.49 158.75 0)
 			(effects
 				(font
@@ -9568,7 +8856,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 381 104.14 0)
 			(effects
 				(font
@@ -9635,7 +8923,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 200.66 0)
 			(effects
 				(font
@@ -9739,7 +9027,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "quad 2-input NAND gate"
 			(at 332.74 153.67 0)
 			(effects
 				(font
@@ -9843,7 +9131,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 328.93 91.44 0)
 			(effects
 				(font
@@ -9910,7 +9198,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 306.07 57.15 0)
 			(effects
 				(font
@@ -10014,7 +9302,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 381 177.8 0)
 			(effects
 				(font
@@ -10082,7 +9370,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 328.93 46.99 0)
 			(effects
 				(font
@@ -10149,7 +9437,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 364.49 146.05 0)
 			(effects
 				(font
@@ -10252,7 +9540,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 151.13 0)
 			(effects
 				(font
@@ -10356,7 +9644,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 381 222.25 0)
 			(effects
 				(font
@@ -10423,7 +9711,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 166.37 215.9 0)
 			(effects
 				(font
@@ -10526,7 +9814,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 358.14 187.96 0)
 			(effects
 				(font
@@ -10629,7 +9917,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 85.09 0)
 			(effects
 				(font
@@ -10732,7 +10020,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 358.14 234.95 0)
 			(effects
 				(font
@@ -10836,7 +10124,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 306.07 46.99 0)
 			(effects
 				(font
@@ -10940,7 +10228,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 381 158.75 0)
 			(effects
 				(font
@@ -11007,7 +10295,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 210.82 0)
 			(effects
 				(font
@@ -11110,7 +10398,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 166.37 165.1 0)
 			(effects
 				(font
@@ -11213,7 +10501,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 358.14 222.25 0)
 			(effects
 				(font
@@ -11317,7 +10605,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VCC\""
 			(at 267.97 62.23 0)
 			(effects
 				(font
@@ -11381,7 +10669,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 102.87 0)
 			(effects
 				(font
@@ -11484,7 +10772,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 76.2 0)
 			(effects
 				(font
@@ -11588,7 +10876,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 267.97 83.82 0)
 			(effects
 				(font
@@ -11652,7 +10940,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 312.42 104.14 0)
 			(effects
 				(font
@@ -11755,7 +11043,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 181.61 0)
 			(effects
 				(font
@@ -11858,7 +11146,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Octal BUS Transceivers, 3-State outputs"
 			(at 68.58 102.87 0)
 			(effects
 				(font
@@ -11973,7 +11261,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 312.42 91.44 0)
 			(effects
 				(font
@@ -12179,7 +11467,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 160.02 0)
 			(effects
 				(font
@@ -12283,7 +11571,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "quad 2-input NAND gate"
 			(at 332.74 146.05 0)
 			(effects
 				(font
@@ -12387,7 +11675,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 381 146.05 0)
 			(effects
 				(font
@@ -12412,7 +11700,6 @@
 		)
 	)
 	(symbol
-		(lib_name "052535_1")
 		(lib_id "konami:052535")
 		(at 267.97 73.66 0)
 		(unit 1)
@@ -12543,7 +11830,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 172.72 0)
 			(effects
 				(font
@@ -12647,7 +11934,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 381 234.95 0)
 			(effects
 				(font
@@ -12714,7 +12001,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 133.35 0)
 			(effects
 				(font
@@ -12905,7 +12192,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 142.24 0)
 			(effects
 				(font
@@ -13008,7 +12295,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "quad 2-input NAND gate"
 			(at 332.74 161.29 0)
 			(effects
 				(font
@@ -13112,7 +12399,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 381 114.3 0)
 			(effects
 				(font
@@ -13180,7 +12467,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 381 187.96 0)
 			(effects
 				(font
@@ -13247,7 +12534,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 124.46 0)
 			(effects
 				(font
@@ -13350,7 +12637,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Octal BUS Transceivers, 3-State outputs"
 			(at 68.58 69.85 0)
 			(effects
 				(font
@@ -13465,7 +12752,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 363.22 114.3 0)
 			(effects
 				(font
@@ -13569,7 +12856,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 328.93 57.15 0)
 			(effects
 				(font
@@ -13636,7 +12923,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 67.31 0)
 			(effects
 				(font
@@ -13697,7 +12984,6 @@
 		)
 	)
 	(symbol
-		(lib_name "052535_2")
 		(lib_id "konami:052535")
 		(at 331.47 204.47 0)
 		(unit 1)
@@ -13828,7 +13114,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 107.95 77.47 0)
 			(effects
 				(font
@@ -13931,7 +13217,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 190.5 0)
 			(effects
 				(font
@@ -14034,7 +13320,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 363.22 104.14 0)
 			(effects
 				(font
@@ -14112,7 +13398,7 @@
 			)
 		)
 		(property "Value" "74LS273"
-			(at 137.16 83.82 0)
+			(at 134.62 77.47 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14137,7 +13423,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8-bit D Flip-Flop, reset"
 			(at 134.62 69.85 0)
 			(effects
 				(font
@@ -14200,6 +13486,12 @@
 		(pin "9"
 			(uuid "ffac9adb-ce56-407c-9634-644238a37824")
 		)
+		(pin "10"
+			(uuid "5388b017-bc32-415e-8e05-1c553a81c16a")
+		)
+		(pin "20"
+			(uuid "22ed5ae4-6439-4a49-942e-1cd74b26900f")
+		)
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/f4542c68-089e-4b0f-a6b3-8df02e621902/a6774e1c-13eb-4aac-8698-807248f75e99"
@@ -14252,7 +13544,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 196.85 114.3 0)
 			(effects
 				(font
@@ -14330,7 +13622,7 @@
 			)
 		)
 		(property "Value" "74LS273"
-			(at 137.16 116.84 0)
+			(at 134.62 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14355,7 +13647,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8-bit D Flip-Flop, reset"
 			(at 134.62 102.87 0)
 			(effects
 				(font
@@ -14418,6 +13710,12 @@
 		(pin "9"
 			(uuid "f9f8e602-e084-4ba9-97c3-811f4a86795f")
 		)
+		(pin "10"
+			(uuid "68ce7754-5768-46fe-b750-57cc4fa2be94")
+		)
+		(pin "20"
+			(uuid "0ec21737-2e37-4c76-86bf-14765c79d81c")
+		)
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/f4542c68-089e-4b0f-a6b3-8df02e621902/a6774e1c-13eb-4aac-8698-807248f75e99"
@@ -14471,7 +13769,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 358.14 177.8 0)
 			(effects
 				(font

@@ -254,7 +254,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "parodius.kicad_pro",
+    "filename": "surprise_attack.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -447,10 +447,6 @@
     [
       "8a03793f-6726-4bf5-92b8-d0b53e67a444",
       "capacitors"
-    ],
-    [
-      "f18db35c-32e6-479e-aff8-5ae79fab5756",
-      "description"
     ]
   ],
   "text_variables": {}

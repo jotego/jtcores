@@ -2060,7 +2060,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 5.08) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2088,6 +2088,14 @@
 						(type background)
 					)
 				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 			)
 		)
 		(symbol "jt74:74LS04"
@@ -2098,7 +2106,7 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 0 1.27 0)
+				(at -0.635 0 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -2106,7 +2114,7 @@
 				)
 			)
 			(property "Value" "74LS04"
-				(at 0 -1.27 0)
+				(at 0 -5.08 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -2488,7 +2496,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 5.08) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2514,6 +2522,14 @@
 					)
 					(fill
 						(type background)
+					)
+				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
 					)
 				)
 			)
@@ -3456,7 +3472,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 5.08) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3484,6 +3500,14 @@
 						(type background)
 					)
 				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 			)
 		)
 		(symbol "jt74:74LS139"
@@ -3494,7 +3518,7 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at -7.62 8.89 0)
+				(at 0 1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -3502,7 +3526,7 @@
 				)
 			)
 			(property "Value" "74LS139"
-				(at -7.62 -8.89 0)
+				(at 0 -1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -3518,7 +3542,7 @@
 					(hide yes)
 				)
 			)
-			(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS139"
+			(property "Datasheet" "https://www.ti.com/lit/ds/symlink/sn74ls139a.pdf?ts=1731778661019"
 				(at 0 0 0)
 				(effects
 					(font
@@ -3857,7 +3881,7 @@
 			(symbol "74LS139_3_0"
 				(pin power_in line
 					(at 0 7.62 270)
-					(length 5.08) hide
+					(length 1.27) hide
 					(name "VCC"
 						(effects
 							(font
@@ -3875,8 +3899,8 @@
 				)
 				(pin power_in line
 					(at 0 -7.62 90)
-					(length 5.08) hide
-					(name "VSS"
+					(length 1.27) hide
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3902,6 +3926,14 @@
 					)
 					(fill
 						(type background)
+					)
+				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
 					)
 				)
 			)
@@ -4568,7 +4600,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 5.08) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4594,6 +4626,14 @@
 					)
 					(fill
 						(type background)
+					)
+				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
 					)
 				)
 			)
@@ -5536,7 +5576,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 5.08) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5564,6 +5604,14 @@
 						(type background)
 					)
 				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 			)
 		)
 		(symbol "jt74:74LS74"
@@ -5574,7 +5622,7 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 3.81 5.08 0)
+				(at 0 1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -5582,7 +5630,7 @@
 				)
 			)
 			(property "Value" "74LS74"
-				(at 0 0 0)
+				(at 0 -1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -5599,7 +5647,7 @@
 				)
 			)
 			(property "Datasheet" "74xx/74hc_hct74.pdf"
-				(at 0 0 0)
+				(at 18.415 -8.255 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -5608,7 +5656,7 @@
 				)
 			)
 			(property "Description" "Dual D Flip-flop, Set & Reset"
-				(at 0 0 0)
+				(at 22.86 -10.16 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -5640,6 +5688,16 @@
 						(size 1.27 1.27)
 					)
 					(hide yes)
+				)
+			)
+			(symbol "74LS74_0_1"
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
 				)
 			)
 			(symbol "74LS74_1_0"
@@ -5802,7 +5860,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin input inverted
 					(at 0 -7.62 90)
 					(length 2.54)
 					(name "~{R}"
@@ -5869,7 +5927,7 @@
 						(type background)
 					)
 				)
-				(pin input line
+				(pin input inverted
 					(at 0 7.62 270)
 					(length 2.54)
 					(name "~{S}"
@@ -5910,7 +5968,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 2.54) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5942,9 +6000,9 @@
 		)
 		(symbol "power:VCC"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -5958,7 +6016,7 @@
 				)
 			)
 			(property "Value" "VCC"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -6042,8 +6100,8 @@
 			(symbol "VCC_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VCC"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -6062,9 +6120,9 @@
 		)
 		(symbol "power:VSS"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -6078,7 +6136,7 @@
 				)
 			)
 			(property "Value" "VSS"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -6150,8 +6208,8 @@
 			(symbol "VSS_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VSS"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -6240,12 +6298,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "179222a4-140d-4090-9544-8305525ab773")
-	)
-	(junction
-		(at 118.11 166.37)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "1b9232b8-f90a-448f-b2d8-00f47ff80f52")
 	)
 	(junction
 		(at 231.14 101.6)
@@ -6720,6 +6772,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f91afdeb-30a3-415b-ae91-e940aa151122")
+	)
+	(junction
+		(at 118.11 166.37)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f937b317-d558-46cf-b82e-84dbc376e554")
 	)
 	(junction
 		(at 269.24 101.6)
@@ -7935,6 +7993,16 @@
 	)
 	(wire
 		(pts
+			(xy 118.11 166.37) (xy 130.81 166.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "836a32ec-7841-4292-bf63-b90653414387")
+	)
+	(wire
+		(pts
 			(xy 194.31 166.37) (xy 194.31 165.1)
 		)
 		(stroke
@@ -8105,16 +8173,6 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 160.02) (xy 118.11 166.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a0ad5dd1-107f-418d-b9c6-1a97aab47b79")
-	)
-	(wire
-		(pts
 			(xy 167.64 113.03) (xy 167.64 119.38)
 		)
 		(stroke
@@ -8205,6 +8263,16 @@
 	)
 	(wire
 		(pts
+			(xy 118.11 160.02) (xy 118.11 166.37)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a8c7f36b-6fe0-42fa-a073-70762a8f00ce")
+	)
+	(wire
+		(pts
 			(xy 218.44 107.95) (xy 218.44 101.6)
 		)
 		(stroke
@@ -8292,16 +8360,6 @@
 			(type default)
 		)
 		(uuid "bcee99b8-cefb-47b6-a47b-6717982ecc19")
-	)
-	(wire
-		(pts
-			(xy 118.11 166.37) (xy 130.81 166.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bde835ab-2431-4b1c-a24a-a3fdac0c82b6")
 	)
 	(wire
 		(pts
@@ -9043,7 +9101,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 358.14 110.49 0)
 			(effects
 				(font
@@ -9112,7 +9170,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 205.74 110.49 0)
 			(effects
 				(font
@@ -9179,7 +9237,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 105.41 152.4 0)
 			(effects
 				(font
@@ -9284,7 +9342,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 294.64 110.49 0)
 			(effects
 				(font
@@ -9353,7 +9411,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 218.44 110.49 0)
 			(effects
 				(font
@@ -9422,7 +9480,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 193.04 110.49 0)
 			(effects
 				(font
@@ -9489,7 +9547,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 118.11 152.4 0)
 			(effects
 				(font
@@ -9592,7 +9650,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 219.71 152.4 0)
 			(effects
 				(font
@@ -9695,7 +9753,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2-input OR"
 			(at 156.21 152.4 0)
 			(effects
 				(font
@@ -9800,7 +9858,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 332.74 110.49 0)
 			(effects
 				(font
@@ -9869,7 +9927,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 231.14 110.49 0)
 			(effects
 				(font
@@ -9936,7 +9994,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 153.67 187.96 0)
 			(effects
 				(font
@@ -10041,7 +10099,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 269.24 110.49 0)
 			(effects
 				(font
@@ -10108,7 +10166,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 67.31 187.96 0)
 			(effects
 				(font
@@ -10213,7 +10271,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 180.34 110.49 0)
 			(effects
 				(font
@@ -10282,7 +10340,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Polarized capacitor, small symbol"
 			(at 40.64 110.49 0)
 			(effects
 				(font
@@ -10351,7 +10409,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 307.34 110.49 0)
 			(effects
 				(font
@@ -10418,7 +10476,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 168.91 152.4 0)
 			(effects
 				(font
@@ -10522,7 +10580,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 130.81 168.91 0)
 			(effects
 				(font
@@ -10588,7 +10646,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 370.84 110.49 0)
 			(effects
 				(font
@@ -10655,7 +10713,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 194.31 152.4 0)
 			(effects
 				(font
@@ -10759,7 +10817,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VCC\""
 			(at 130.81 137.16 0)
 			(effects
 				(font
@@ -10823,7 +10881,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 130.81 187.96 0)
 			(effects
 				(font
@@ -10926,7 +10984,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad And2"
 			(at 143.51 152.4 0)
 			(effects
 				(font
@@ -11031,7 +11089,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 91.44 110.49 0)
 			(effects
 				(font
@@ -11098,7 +11156,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 109.22 187.96 0)
 			(effects
 				(font
@@ -11201,7 +11259,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 207.01 152.4 0)
 			(effects
 				(font
@@ -11304,7 +11362,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2-input OR"
 			(at 41.91 152.4 0)
 			(effects
 				(font
@@ -11407,7 +11465,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 181.61 152.4 0)
 			(effects
 				(font
@@ -11510,7 +11568,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "quad 2-input NAND gate"
 			(at 67.31 152.4 0)
 			(effects
 				(font
@@ -11615,7 +11673,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 53.34 110.49 0)
 			(effects
 				(font
@@ -11684,7 +11742,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 66.04 110.49 0)
 			(effects
 				(font
@@ -11753,7 +11811,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 116.84 110.49 0)
 			(effects
 				(font
@@ -11811,7 +11869,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS139"
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/sn74ls139a.pdf?ts=1731778661019"
 			(at 80.01 152.4 0)
 			(effects
 				(font
@@ -11820,7 +11878,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual Decoder 1 of 4, Active low outputs"
 			(at 80.01 152.4 0)
 			(effects
 				(font
@@ -11931,7 +11989,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 104.14 110.49 0)
 			(effects
 				(font
@@ -12000,7 +12058,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 256.54 110.49 0)
 			(effects
 				(font
@@ -12069,7 +12127,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 320.04 110.49 0)
 			(effects
 				(font
@@ -12136,7 +12194,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 297.18 152.4 0)
 			(effects
 				(font
@@ -12241,7 +12299,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 129.54 110.49 0)
 			(effects
 				(font
@@ -12308,7 +12366,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 232.41 152.4 0)
 			(effects
 				(font
@@ -12411,7 +12469,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 45.72 187.96 0)
 			(effects
 				(font
@@ -12514,7 +12572,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 229.87 189.23 0)
 			(effects
 				(font
@@ -12619,7 +12677,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
 			(at 284.48 152.4 0)
 			(effects
 				(font
@@ -12722,7 +12780,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 245.11 152.4 0)
 			(effects
 				(font
@@ -12827,7 +12885,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 345.44 110.49 0)
 			(effects
 				(font
@@ -12896,7 +12954,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 154.94 110.49 0)
 			(effects
 				(font
@@ -12963,7 +13021,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 54.61 152.4 0)
 			(effects
 				(font
@@ -13068,7 +13126,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 78.74 110.49 0)
 			(effects
 				(font
@@ -13135,7 +13193,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 257.81 152.4 0)
 			(effects
 				(font
@@ -13240,7 +13298,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 142.24 110.49 0)
 			(effects
 				(font
@@ -13307,7 +13365,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2-input OR"
 			(at 270.51 152.4 0)
 			(effects
 				(font
@@ -13410,7 +13468,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual 4-input NAND"
 			(at 130.81 152.4 0)
 			(effects
 				(font
@@ -13509,7 +13567,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 383.54 110.49 0)
 			(effects
 				(font
@@ -13576,7 +13634,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 203.2 189.23 0)
 			(effects
 				(font
@@ -13679,7 +13737,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 88.9 187.96 0)
 			(effects
 				(font
@@ -13784,7 +13842,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 243.84 110.49 0)
 			(effects
 				(font
@@ -13851,7 +13909,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual 4-input NAND"
 			(at 179.07 187.96 0)
 			(effects
 				(font
@@ -13950,7 +14008,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 281.94 110.49 0)
 			(effects
 				(font
@@ -14019,7 +14077,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 167.64 110.49 0)
 			(effects
 				(font
@@ -14086,7 +14144,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 92.71 152.4 0)
 			(effects
 				(font

@@ -3378,9 +3378,10 @@
 			)
 		)
 		(symbol "Jumper:Jumper_2_Bridged"
+			(pin_numbers hide)
 			(pin_names
 				(offset 0) hide)
-			(exclude_from_sim no)
+			(exclude_from_sim yes)
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "JP"
@@ -3821,7 +3822,7 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 0 1.27 0)
+				(at -0.635 0 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -3829,7 +3830,7 @@
 				)
 			)
 			(property "Value" "74LS04"
-				(at 0 -1.27 0)
+				(at 0 -5.08 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4211,7 +4212,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 5.08) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4237,6 +4238,14 @@
 					)
 					(fill
 						(type background)
+					)
+				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
 					)
 				)
 			)
@@ -7077,9 +7086,9 @@
 		)
 		(symbol "power:VCC"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -7093,7 +7102,7 @@
 				)
 			)
 			(property "Value" "VCC"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -7177,8 +7186,8 @@
 			(symbol "VCC_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VCC"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -7197,9 +7206,9 @@
 		)
 		(symbol "power:VSS"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -7213,7 +7222,7 @@
 				)
 			)
 			(property "Value" "VSS"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -7285,8 +7294,8 @@
 			(symbol "VSS_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VSS"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -16305,7 +16314,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Polarized capacitor, small symbol"
 			(at 130.81 187.96 0)
 			(effects
 				(font
@@ -16375,7 +16384,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Polarized capacitor, small symbol"
 			(at 139.7 226.06 0)
 			(effects
 				(font
@@ -16443,7 +16452,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Generic connector, single row, 01x04, script generated"
 			(at 172.72 220.98 0)
 			(effects
 				(font
@@ -16518,7 +16527,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 71.12 175.26 0)
 			(effects
 				(font
@@ -16587,7 +16596,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 115.57 143.51 0)
 			(effects
 				(font
@@ -16837,7 +16846,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
 			(at 90.17 257.81 0)
 			(effects
 				(font
@@ -16943,7 +16952,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Polarized capacitor, small symbol"
 			(at 111.76 190.5 0)
 			(effects
 				(font
@@ -17011,7 +17020,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 43.18 144.78 0)
 			(effects
 				(font
@@ -17075,7 +17084,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 133.35 241.3 0)
 			(effects
 				(font
@@ -17144,7 +17153,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Polarized capacitor, small symbol"
 			(at 123.19 177.8 0)
 			(effects
 				(font
@@ -17211,7 +17220,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 127 138.43 0)
 			(effects
 				(font
@@ -17279,7 +17288,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Generic connector, single row, 01x04, script generated"
 			(at 198.12 171.45 0)
 			(effects
 				(font
@@ -17354,7 +17363,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 120.65 264.16 0)
 			(effects
 				(font
@@ -17422,7 +17431,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VCC\""
 			(at 281.94 81.28 0)
 			(effects
 				(font
@@ -17887,7 +17896,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 157.48 257.81 0)
 			(effects
 				(font
@@ -17954,7 +17963,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Potentiometer, US symbol"
 			(at 167.64 271.78 0)
 			(effects
 				(font
@@ -18026,7 +18035,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 66.04 261.62 0)
 			(effects
 				(font
@@ -18094,7 +18103,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VCC\""
 			(at 43.18 97.79 0)
 			(effects
 				(font
@@ -18161,7 +18170,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 133.35 232.41 0)
 			(effects
 				(font
@@ -18230,7 +18239,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Polarized capacitor, small symbol"
 			(at 109.22 121.92 0)
 			(effects
 				(font
@@ -18297,7 +18306,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 105.41 138.43 0)
 			(effects
 				(font
@@ -18365,7 +18374,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Generic connector, double row, 02x32, row letter first pin numbering scheme (pin number consists of a letter for the row and a number for the pin index in this row. a1, ..., aN; b1, ..., bN), script generated (kicad-library-utils/schlib/autogen/connector/)"
 			(at 151.13 48.26 0)
 			(effects
 				(font
@@ -18621,7 +18630,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Polarized capacitor, small symbol"
 			(at 80.01 175.26 0)
 			(effects
 				(font
@@ -18688,7 +18697,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 105.41 257.81 0)
 			(effects
 				(font
@@ -18755,7 +18764,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Generic connector, single row, 01x04, script generated"
 			(at 198.12 191.77 0)
 			(effects
 				(font
@@ -18830,7 +18839,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
 			(at 128.27 107.95 0)
 			(effects
 				(font
@@ -18936,7 +18945,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 20.32 127 0)
 			(effects
 				(font
@@ -19003,7 +19012,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 153.67 138.43 0)
 			(effects
 				(font
@@ -19072,7 +19081,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
 			(at 88.9 123.19 0)
 			(effects
 				(font
@@ -19175,7 +19184,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 242.57 165.1 0)
 			(effects
 				(font
@@ -19280,7 +19289,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Polarized capacitor, small symbol"
 			(at 144.78 172.72 0)
 			(effects
 				(font
@@ -19347,7 +19356,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 146.05 124.46 0)
 			(effects
 				(font
@@ -19416,7 +19425,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 157.48 203.2 0)
 			(effects
 				(font
@@ -19485,7 +19494,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Polarized capacitor, small symbol"
 			(at 134.62 175.26 0)
 			(effects
 				(font
@@ -19555,7 +19564,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Polarized capacitor, small symbol"
 			(at 144.78 257.81 0)
 			(effects
 				(font
@@ -19623,7 +19632,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 157.48 213.36 0)
 			(effects
 				(font
@@ -19801,7 +19810,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 135.89 115.57 0)
 			(effects
 				(font
@@ -19870,7 +19879,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Speaker"
 			(at 189.23 223.52 0)
 			(effects
 				(font
@@ -19940,7 +19949,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Polarized capacitor, small symbol"
 			(at 163.83 193.04 0)
 			(effects
 				(font
@@ -20007,7 +20016,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Potentiometer, US symbol"
 			(at 167.64 154.94 0)
 			(effects
 				(font
@@ -20077,7 +20086,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 130.81 257.81 0)
 			(effects
 				(font
@@ -20145,7 +20154,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Jumper, 2-pole, closed/bridged"
 			(at 278.13 63.5 0)
 			(effects
 				(font
@@ -20212,7 +20221,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 71.12 125.73 0)
 			(effects
 				(font
@@ -20281,7 +20290,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
 			(at 78.74 138.43 0)
 			(effects
 				(font
@@ -20387,7 +20396,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Polarized capacitor, small symbol"
 			(at 142.24 138.43 0)
 			(effects
 				(font
@@ -20455,7 +20464,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 300.99 152.4 0)
 			(effects
 				(font

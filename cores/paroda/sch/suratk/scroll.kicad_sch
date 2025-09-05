@@ -3327,9 +3327,10 @@
 			)
 		)
 		(symbol "Jumper:Jumper_2_Bridged"
+			(pin_numbers hide)
 			(pin_names
 				(offset 0) hide)
-			(exclude_from_sim no)
+			(exclude_from_sim yes)
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "JP"
@@ -3876,7 +3877,7 @@
 						)
 					)
 				)
-				(pin input inverted
+				(pin input line
 					(at -10.16 -16.51 0)
 					(length 2.54)
 					(name "CS2"
@@ -4066,7 +4067,7 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 0 1.27 0)
+				(at -0.635 0 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4074,7 +4075,7 @@
 				)
 			)
 			(property "Value" "74LS04"
-				(at 0 -1.27 0)
+				(at 0 -5.08 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4456,7 +4457,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 5.08) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4484,6 +4485,14 @@
 						(type background)
 					)
 				)
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 			)
 		)
 		(symbol "jt74:74LS74"
@@ -4494,7 +4503,7 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "U"
-				(at 3.81 5.08 0)
+				(at 0 1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4502,7 +4511,7 @@
 				)
 			)
 			(property "Value" "74LS74"
-				(at 0 0 0)
+				(at 0 -1.27 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4519,7 +4528,7 @@
 				)
 			)
 			(property "Datasheet" "74xx/74hc_hct74.pdf"
-				(at 0 0 0)
+				(at 18.415 -8.255 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4528,7 +4537,7 @@
 				)
 			)
 			(property "Description" "Dual D Flip-flop, Set & Reset"
-				(at 0 0 0)
+				(at 22.86 -10.16 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -4560,6 +4569,16 @@
 						(size 1.27 1.27)
 					)
 					(hide yes)
+				)
+			)
+			(symbol "74LS74_0_1"
+				(text "+"
+					(at 0 6.35 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
 				)
 			)
 			(symbol "74LS74_1_0"
@@ -4722,7 +4741,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin input inverted
 					(at 0 -7.62 90)
 					(length 2.54)
 					(name "~{R}"
@@ -4789,7 +4808,7 @@
 						(type background)
 					)
 				)
-				(pin input line
+				(pin input inverted
 					(at 0 7.62 270)
 					(length 2.54)
 					(name "~{S}"
@@ -4830,7 +4849,7 @@
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 2.54) hide
-					(name "VSS"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -7195,7 +7214,7 @@
 						)
 					)
 				)
-				(pin output clock
+				(pin output line
 					(at 46.99 26.67 180)
 					(length 5.08)
 					(name "M6"
@@ -7537,7 +7556,7 @@
 						)
 					)
 				)
-				(pin output clock
+				(pin output line
 					(at 46.99 24.13 180)
 					(length 5.08)
 					(name "M12"
@@ -7677,134 +7696,6 @@
 				)
 			)
 			(symbol "052109_0_0"
-				(text "*"
-					(at -35.814 -18.796 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 -16.256 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 -13.716 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 -11.43 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 -8.89 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 -6.35 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 -3.81 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 -1.27 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 1.27 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 3.81 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 6.35 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 8.89 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 11.43 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 13.97 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 16.51 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
-					(at -35.814 19.05 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
 				(text "*"
 					(at 35.56 -39.37 0)
 					(effects
@@ -8164,6 +8055,14 @@
 				)
 			)
 			(symbol "052109_1_1"
+				(text "30 pins per side"
+					(at 0 -11.43 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 				(pin power_in line
 					(at -26.67 -49.53 90)
 					(length 5.08)
@@ -11145,9 +11044,9 @@
 		)
 		(symbol "power:VCC"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -11161,7 +11060,7 @@
 				)
 			)
 			(property "Value" "VCC"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -11245,8 +11144,8 @@
 			(symbol "VCC_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VCC"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -11265,9 +11164,9 @@
 		)
 		(symbol "power:VSS"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -11281,7 +11180,7 @@
 				)
 			)
 			(property "Value" "VSS"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -11353,8 +11252,8 @@
 			(symbol "VSS_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VSS"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -26971,7 +26870,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 39.37 152.4 0)
 			(effects
 				(font
@@ -27074,7 +26973,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 381 40.64 0)
 			(effects
 				(font
@@ -27141,7 +27040,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8 resistor network, star topology, bussed resistors, small US symbol"
 			(at 33.02 29.21 0)
 			(effects
 				(font
@@ -27654,7 +27553,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Four pin crystal, GND on pins 2 and 3, small symbol"
 			(at 26.67 144.78 0)
 			(effects
 				(font
@@ -27727,7 +27626,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor, US symbol"
 			(at 388.62 31.75 0)
 			(effects
 				(font
@@ -27797,7 +27696,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor, small symbol"
 			(at 20.32 144.78 0)
 			(effects
 				(font
@@ -27865,7 +27764,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Inverter"
 			(at 39.37 144.78 0)
 			(effects
 				(font
@@ -28294,7 +28193,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8 resistor network, star topology, bussed resistors, small US symbol"
 			(at 97.79 29.21 0)
 			(effects
 				(font
@@ -28804,7 +28703,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8 resistor network, star topology, bussed resistors, small US symbol"
 			(at 54.61 29.21 0)
 			(effects
 				(font
@@ -28892,7 +28791,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
 			(at 363.22 40.64 0)
 			(effects
 				(font
@@ -28995,7 +28894,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Dual D Flip-flop, Set & Reset"
 			(at 68.58 144.78 0)
 			(effects
 				(font
@@ -29099,7 +28998,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Generic connector, double row, 02x32, row letter first pin numbering scheme (pin number consists of a letter for the row and a number for the pin index in this row. a1, ..., aN; b1, ..., bN), script generated (kicad-library-utils/schlib/autogen/connector/)"
 			(at 147.32 95.25 0)
 			(effects
 				(font
@@ -29352,7 +29251,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Jumper, 2-pole, closed/bridged"
 			(at 353.06 128.27 0)
 			(effects
 				(font
@@ -29564,7 +29463,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Jumper, 2-pole, closed/bridged"
 			(at 322.58 137.16 0)
 			(effects
 				(font
@@ -29813,7 +29712,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 58.42 267.97 0)
 			(effects
 				(font
@@ -29877,7 +29776,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "8 resistor network, star topology, bussed resistors, small US symbol"
 			(at 76.2 29.21 0)
 			(effects
 				(font
@@ -29966,7 +29865,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VCC\""
 			(at 58.42 171.45 0)
 			(effects
 				(font
