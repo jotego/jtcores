@@ -67,7 +67,7 @@ func make_clocks( cfg *MemConfig ) {
 				case "clk48": ratio = 1.0
 				case "clk96": ratio = 2.0
 				}
-				if v.ClkName == "clk48" { v.ClkName = "clk" }
+				if v.ClkName == "clk48" && !mode96 { v.ClkName = "clk" }
 			}
 			v.KHz = int(float64(fmhz)*ratio/1000)
 			v.OutStr = ""
