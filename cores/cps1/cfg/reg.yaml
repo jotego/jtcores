@@ -1,5 +1,6 @@
 1941:
   video: 2200
+  inputs: ../game/b1.cab
 cworld2j:
   inputs: reg.cab
 captcomm:
@@ -15,12 +16,14 @@ ghouls:
   video: 2200
   inputs: reg.cab
 gulunpa:
+  inputs: ../game/b1.cab
 knights:
   video: 2200
 msword:
   video: 2200
 mpumpkin:
 megaman:
+  inputs: ../game/b1.cab
 mtwins:
   video: 2200
   inputs: reg.cab
@@ -37,10 +40,15 @@ qad:
   video: 2200
 qtono2j:
   video: 2200
+  inputs: reg.cab
 sf2ce:
+  inputs: reg.cab
 sf2hf:
+  inputs: reg.cab
 sf2:
+  inputs: reg.cab
 sfzch:
+  inputs: reg.cab
 strider:
 kod:
   video: 2200
