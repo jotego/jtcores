@@ -78,12 +78,7 @@ wire        cpu_cen, cpu_cenb;
 wire        turbo, skip_en, video_flip;
 reg         rst_game;
 
-`ifdef JTCPS_TURBO
-assign turbo = 1;
-`else
-assign turbo = status[6];
-`endif
-
+`include "turbo.vh"
 assign skip_en  = status[7];
 assign snd_vu   = 0;
 assign snd_peak = 0;

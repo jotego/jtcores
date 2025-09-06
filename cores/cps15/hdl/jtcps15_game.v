@@ -74,11 +74,7 @@ wire        cpu_cen, cpu_cenb;
 wire        turbo;
 reg         rst_game;
 
-`ifdef JTCPS_TURBO
-assign turbo = 1;
-`else
-assign turbo = status[6];
-`endif
+`include "turbo.vh"
 
 assign snd_vu     = 0;
 assign debug_view = 0;
