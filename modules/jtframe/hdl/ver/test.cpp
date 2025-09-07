@@ -47,7 +47,6 @@
     #define _JTFRAME_COLORW 4
 #endif
 
-
 #ifndef _JTFRAME_GAMEPLL
     #define _JTFRAME_GAMEPLL "jtframe_pll6000"
 #endif
@@ -62,6 +61,12 @@ using namespace std;
 
 #ifndef _JTFRAME_SIM_DIPS
     #define _JTFRAME_SIM_DIPS 0xffffffff
+#endif
+
+#if _JTFRAME_SIM96 || _JTFRAME_SDRAM96
+const bool use96 = true;
+#else
+const bool use96 = false;
 #endif
 
 #define ANSI_COLOR_RED     "\x1b[31m"
@@ -135,6 +140,63 @@ public:
     void update();
     void dump();
 };
+
+
+////// Clock advance
+class MultiClock {
+protected:
+    int cnt;
+    UUT& game;
+public:
+    MultiClock(UUT& g) : game(g) { cnt=0; }
+    virtual void half_period()=0;
+};
+
+class MultiClock48 : MultiClock {
+public:
+    MultiClock48(UUT& g) : MultiClock(g) { }
+    virtual void half_period();
+};
+
+class MultiClock96 : MultiClock {
+public:
+    MultiClock96(UUT& g) : MultiClock(g) { }
+    virtual void half_period();
+};
+
+class MultiClockSim96 : MultiClock {
+public:
+    virtual void half_period();
+};
+
+MultiClock* MakeMultiClock(UUT& game) {
+    return use96 ? (MultiClock*)new MultiClock96(game):
+                   (MultiClock*)new MultiClock48(game);
+}
+
+void MultiClock48::half_period() {
+    // keep order so clk signals are in phase
+    game.clk24 = (cnt>>1)&1;
+    cnt++;
+    game.clk   =  cnt    &1;
+#ifdef _JTFRAME_CLK48
+    game.clk48 =  game.clk;
+#endif
+}
+
+void MultiClock96::half_period() {
+    // keep order so clk signals are in phase
+    game.clk48 = (cnt>>1)&1;
+    cnt++;
+    cnt&=7;
+    game.clk24 = (cnt>6 || cnt<=2) ? 1 : 0;
+    game.clk96 =  cnt    &1;
+#ifdef _JTFRAME_SDRAM96
+    game.clk   =  game.clk96;
+#else
+    game.clk   =  game.clk48;
+#endif
+}
 
 class SimInputs {
     ifstream fin;
@@ -430,6 +492,7 @@ class JTSim {
     WaveWritter wav;
     string convert_options;
     int coremod;
+    MultiClock *multi_clock;
 
     void parse_args( int argc, char *argv[] );
     void measure_screen_rate();
@@ -735,13 +798,9 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
     last_VS   = 0;
     char *opt = getenv("CONVERT_OPTIONS");
     if ( opt!=NULL ) convert_options = opt;
+    multi_clock = MakeMultiClock(g);
     get_coremod();
     // Derive the clock speed from _JTFRAME_PLL
-    bool use96 = false;
-#if _JTFRAME_SIM96 || _JTFRAME_SDRAM96
-    use96 = true;
-#endif
-
 #ifdef _JTFRAME_PLL
     semi_period = (vluint64_t)(1e12/(16.0*_JTFRAME_PLL*1000.0));
 #else
@@ -811,6 +870,8 @@ JTSim::~JTSim() {
 #ifdef _DUMP
     delete tracer;
 #endif
+    delete multi_clock;
+    multi_clock = NULL;
 }
 
 void JTSim::clock(int n) {
@@ -821,16 +882,7 @@ void JTSim::clock(int n) {
 #endif
     while( n-- > 0 ) {
         int cur_dwn = game.ioctl_rom | game.dwnld_busy;
-        game.clk24 = (ticks & ((JTFRAME_CLK96||JTFRAME_SDRAM96) ? 2 : 1)) == 0 ? 0 : 1;
-#ifdef _JTFRAME_CLK48
-    game.clk48 = 1-game.clk48;
-#endif
-#ifdef _JTFRAME_SIM96
-        game.clk96 = 1;
-        game.clk   = 1-game.clk;
-#else
-        game.clk = 1;
-#endif
+        multi_clock->half_period();
         game.eval();
         if( game.contextp()->gotFinish() ) return;
         sdram.update();
@@ -858,11 +910,7 @@ void JTSim::clock(int n) {
 #ifdef _DUMP
         if( tracer && dump_ok ) tracer->dump(simtime);
 #endif
-#ifdef _JTFRAME_SIM96
-        game.clk96 = 0;
-#else
-        game.clk = 0;
-#endif
+        multi_clock->half_period();
         game.eval();
         if( game.contextp()->gotFinish() ) return;
         sdram.update();

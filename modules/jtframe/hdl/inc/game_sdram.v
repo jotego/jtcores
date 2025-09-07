@@ -83,9 +83,7 @@ assign pass_io = header | ioctl_ram;
 assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? ioctl_addr : ioctl_addr - HEADER_LEN `else ioctl_addr `endif ;
 
 wire rst_h, rst24_h, rst48_h, hold_rst;
-`ifdef JTFRAME_CLK48
-wire clk48=clk;
-`endif
+
 /* verilator tracing_off */
 jtframe_rsthold u_hold(
     .rst    ( rst       ),
