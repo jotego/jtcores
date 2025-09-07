@@ -67,35 +67,6 @@ always @(posedge clk) begin
     vrom_reg <= LVBL || (V==9'hf0 || V==9'hf );
 end
 
-/////////////////////////////////////
-// 48 MHz based clock enable signals
-`ifndef JTFRAME_CLK96
-jtframe_cen48 u_cen48(
-    .clk    ( clk           ),
-    .cen16  ( pxl2_cen      ),
-    .cen16b (               ),
-    .cen12  (               ),
-    .cen12b (               ),
-    .cen8   ( pxl_cen       ),
-    .cen6   (               ),
-    .cen6b  (               ),
-    .cen4   (               ),
-    .cen4_12(               ),
-    .cen3   (               ),
-    .cen3q  (               ),
-    .cen3qb (               ),
-    .cen3b  (               ),
-    .cen1p5 (               ),
-    .cen1p5b(               )
-);
-`else
-jtframe_cen96 u_cen96(
-    .clk    ( clk           ),
-    .cen16  ( pxl2_cen      ),
-    .cen8   ( pxl_cen       )
-);
-`endif
-
 wire       RnW;
 // sound
 wire [7:0] snd_latch;
