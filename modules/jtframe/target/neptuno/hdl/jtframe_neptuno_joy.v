@@ -68,7 +68,7 @@ assign controls = { controls_s[8:5], ~btn_n_s[2] | controls_s[4], controls_s[3:2
 assign osd = osd_s;
 assign mc_reset = ~btn_n_s[3];
 
-`ifdef JTFRAME_CLK96 
+`ifdef JTFRAME_SDRAM96
     `define CLK_SPEED 96000
 `else
     `define CLK_SPEED 48000

@@ -22,8 +22,6 @@ reg [4:0]joy_count = 5'd0;
 
 `ifdef JTFRAME_SDRAM96
 assign JOY_CLK = JCLOCKS[4]; //con 3 Funciona = 3Mhz
-`elsif JTFRAME_CLK96
-assign JOY_CLK = JCLOCKS[4]; //con 3 Funciona = 3Mhz
 `else
 assign JOY_CLK = JCLOCKS[3]; //con 3 Funciona = 3Mhz
 `endif

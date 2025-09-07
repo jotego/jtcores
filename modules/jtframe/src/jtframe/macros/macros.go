@@ -1,19 +1,19 @@
 /*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	JTFRAME program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	JTFRAME program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
 
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Date: 4-1-2025 */
+	Author: Jose Tejada Gomez. Twitter: @topapate
+	Date: 4-1-2025 */
 
 package macros
 
@@ -29,8 +29,8 @@ import (
 	"strings"
 	"time"
 
-    "jotego/jtframe/betas"
-    . "jotego/jtframe/common"
+	"jotego/jtframe/betas"
+	. "jotego/jtframe/common"
 )
 
 // returns true if the .def file section changes
@@ -252,7 +252,8 @@ func fill_defaults(core, target string) {
 		"JTFRAME_DEBUG_VPOS":    "4",
 		"JTFRAME_DIALEMU_LEFT":  "5",
 		"JTFRAME_DIPBASE":      "16",
-		"JTFRAME_SHIFT":	     "0",
+		"JTFRAME_SHIFT":         "0",
+		"JTFRAME_MR_FASTIO":     "0",
 		"JTFRAME_SIGNED_SND":    "1",
 		"JTFRAME_TIMESTAMP":fmt.Sprintf("%d", time.Now().Unix()),
 		"CORENAME": core,
@@ -339,7 +340,7 @@ func make_clocks(target string) (mclk int) {
 	} else {
 		Set("JTFRAME_PLL6000","")
 	}
-	if IsSet("JTFRAME_CLK96") || IsSet("JTFRAME_SDRAM96") {
+	if IsSet("JTFRAME_SDRAM96") {
 		mclk *= 2
 	}
 	Set("JTFRAME_MCLK", fmt.Sprintf("%d",mclk))

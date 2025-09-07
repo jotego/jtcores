@@ -96,12 +96,7 @@ assign pll_locked = pll0_lock & pll1_lock & pll2_lock;
 `else
     assign clk_rom = clk48;
 `endif
-`ifdef JTFRAME_CLK96
-    assign clk_sys   = clk96; // it is possible to use clk48 instead but
-        // video mixer doesn't work well in HQ mode
-`else
-    assign clk_sys   = clk_rom;
-`endif
+assign clk_sys = clk_rom;
 
 jtframe_rst_sync u_reset96(
     .rst        ( game_rst  ),

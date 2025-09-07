@@ -119,13 +119,13 @@ function [DW-1:0] blend(
         ave(a[COLORW-1:0],b[COLORW-1:0]) };
 endfunction
 
-`ifdef JTFRAME_CLK96
-localparam CLKSTEPS=8;
-localparam [CLKSTEPS-1:0] BLEND_ST = 8'b10;
-`else
+// `ifdef JTFRAME_SDRAM96
+// localparam CLKSTEPS=8;
+// localparam [CLKSTEPS-1:0] BLEND_ST = 8'b10;
+// `else
 localparam CLKSTEPS=4;
 localparam [CLKSTEPS-1:0] BLEND_ST = 2;
-`endif
+// `endif
 
 localparam [CLKSTEPS-1:0] PURE_ST  = 0;
 reg alt_pxl=0; // this is needed in case pxl2_cen and pxl_cen are not aligned.

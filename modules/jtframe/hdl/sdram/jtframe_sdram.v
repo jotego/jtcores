@@ -143,7 +143,7 @@ end
 reg refresh_cycle;
 reg [1:0] refresh_sr;
 
-`ifdef JTFRAME_CLK96
+`ifdef JTFRAME_SDRAM96
 // 96 MHz operation
 localparam [ 7:0] ST_ZERO   = 8'h1, ST_ONE = 8'h2, ST_TWO = 8'h4, ST_THREE = 8'h8, ST_FIVE = 8'h20, ST_SIX = 8'h40;
 localparam [ 7:0] ST_NOP    = 8'b1111_1010;

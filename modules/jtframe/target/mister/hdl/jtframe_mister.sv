@@ -200,16 +200,6 @@ module jtframe_mister #(parameter
     input     [ 7:0]  st_dout
 );
 
-`ifndef JTFRAME_MR_FASTIO
-    `ifdef JTFRAME_CLK96
-        `define JTFRAME_MR_FASTIO 1
-    `else
-      `define JTFRAME_MR_FASTIO 0
-    `endif
-`endif
-
-localparam JTFRAME_MR_FASTIO=`JTFRAME_MR_FASTIO;
-
 wire [21:0] gamma_bus;
 wire [31:0] timestamp;
 wire [ 7:0] ioctl_index;
@@ -487,7 +477,7 @@ assign joystick2 = joyusb_2;
     assign hps_din = ioctl_din;
 `endif
 
-hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(JTFRAME_MR_FASTIO) ) u_hps_io
+hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO) ) u_hps_io
 (
     .clk_sys         ( clk_rom        ),
     .HPS_BUS         ( HPS_BUS        ),

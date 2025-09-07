@@ -47,7 +47,7 @@ func find_div( fin, fout float64) (int, int) {
 func make_clocks( cfg *MemConfig ) {
 	max := func( a,b int ) int { if a>b { return a } else { return b } }
 
-	mode96 := macros.IsSet("JTFRAME_SDRAM96") || macros.IsSet("JTFRAME_CLK96")
+	mode96 := macros.IsSet("JTFRAME_SDRAM96")
 	fmhz := macros.GetInt("JTFRAME_MCLK")
 
 	for key, list := range cfg.Clocks {

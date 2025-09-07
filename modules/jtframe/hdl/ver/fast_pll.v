@@ -55,8 +55,6 @@ module jtframe_pll0(
     real sdram_delay = `SDRAM_DELAY;
     `ifdef JTFRAME_SDRAM96
         assign #sdram_delay c0 = c2;    // use the high speed clock
-    `elsif JTFRAME_CLK96
-        assign #sdram_delay c0 = c2;    // use the high speed clock
     `else
         assign #sdram_delay c0 = c1;
     `endif

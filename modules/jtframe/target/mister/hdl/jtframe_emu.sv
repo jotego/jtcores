@@ -271,11 +271,7 @@ jtframe_rst_sync u_reset24(
     assign clk_sys = clk96;
 `else
     assign clk_rom = clk48;
-    `ifdef JTFRAME_CLK96
-    assign clk_sys = clk96;
-    `else
     assign clk_sys = clk48;
-    `endif
 `endif
 
 assign clk_pico = clk48;
