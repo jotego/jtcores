@@ -106,6 +106,13 @@ module jtriders_video(
 
     output     [10:1] line_addr,
     input      [15:0] line_dout,
+
+    output     [17:1] t2x2_addr,
+    output     [15:0] t2x2_din,
+    output     [ 1:0] t2x2_we,
+    output     [17:1] tmap_addr,
+    input      [15:0] encoded,
+
     // Color
     input      [ 2:0] dim,
     input             dimmod,
@@ -328,6 +335,11 @@ jtriders_psac u_psac(
     .line_addr  ( line_addr ),
     .line_dout  ( line_dout ),
 
+    .t2x2_addr  ( t2x2_addr ),
+    .t2x2_din   ( t2x2_din  ),
+    .t2x2_we    ( t2x2_we   ),
+    .tmap_addr  ( tmap_addr ),
+    .encoded    ( encoded   ),
     // Tiles
     .rom_addr   ( psc_addr  ),
     .rom_data   ( psc_data  ),
@@ -340,7 +352,8 @@ jtriders_psac u_psac(
 );
 `else
 assign psc_cs=0,psclo_cs=0,pschi_cs=0,psc_pxl=0, line_addr=0,
-    pschi_addr=0, psclo_addr=0,psc_addr=0,enc_done=0,psac_mmr=0;
+    pschi_addr=0, psclo_addr=0,psc_addr=0,enc_done=0,psac_mmr=0,
+    t2x2_addr=0,t2x2_din=0,t2x2_we=0,tmap_addr=0;
 `endif
 
 wire [ 1:0] lyro_pri;

@@ -253,6 +253,12 @@ jtriders_video u_video (
 
     .line_addr      ( line_addr     ),
     .line_dout      ( line_dout     ),
+
+    .t2x2_addr      ( t2x2_addr     ),
+    .t2x2_din       ( t2x2_din      ),
+    .t2x2_we        ( t2x2_we       ),
+    .tmap_addr      ( tmap_addr     ),
+    .encoded        ( encoded       ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),
     .lyrb_addr      ( lyrb_addr     ),
