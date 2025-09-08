@@ -215,6 +215,7 @@ wire [9:0] voffset = simson ? 10'h117 : 10'h107;
 jtsimson_obj #(.RAMW(ORAMW)) u_obj(    // sprite logic
     .voffset    ( voffset   ),
     .simson     ( simson    ),
+    .ln_done    (           ),
 `else
 assign obj_shd[1] = 1'b0;
 jtriders_obj #(
@@ -231,7 +232,6 @@ jtriders_obj #(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
-    .ln_done    (           ),
 
     // Base Video (inputs)
     .hs         ( hs        ),
