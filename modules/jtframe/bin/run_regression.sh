@@ -124,7 +124,7 @@ parse_args() {
     local_rom=false
     push=false
 
-    if [[ $1 == --help ]]; then
+    if [[ $1 == --help || $1 == -h ]]; then
         echo "Usage: $0 <core> <setname> [--frames <number_of_frames>] [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
         echo ""
         print_help
@@ -143,7 +143,7 @@ parse_args() {
         --local-check) shift; local_check=true; LOCAL_DIR="$1" ;;
         --local-rom) local_rom=true ;;
         --push) push=true ;;
-        --help)
+        -h|--help)
             echo "Usage: $0 <core> <setname> [--frames <number_of_frames>] [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
             echo ""
             print_help
