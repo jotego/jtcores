@@ -41,3 +41,7 @@ NODIMMING
 
 [mist|sidi|pocket]
 NOPSAC
+
+[pocket]
+# Needed for glfgreat
+JTFRAME_SRAM
