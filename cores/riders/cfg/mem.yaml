@@ -112,7 +112,7 @@ bram:
       rw: true
   # PSAC Tilemap 2x2
   - name: t2x2
-    unless: [ NOPSAC ]
+    unless: [ NOPSAC, POCKET ]
     data_width: 16
     addr_width: 18
     sim_file: true
