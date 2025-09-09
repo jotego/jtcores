@@ -14,6 +14,10 @@ if [[ $FSIZE -gt 0x8821 ]]; then
 	jtutil drop1     < "CC.bin" >  "C.bin"
 
 	python ../glfgreat/tilemap_blocks.py
+
+	cut -c2-5 tilemap_2x2.hex | xxd -r -p > t2x2.bin
+	jtutil drop1 -l  < "t2x2.bin" >  "t2x2_hi.bin"
+	jtutil drop1     < "t2x2.bin" >  "t2x2_lo.bin"
 fi
 
 ../game/dump_split.sh -f "rest.bin" --fullobj $PSAC
