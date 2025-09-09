@@ -46,6 +46,9 @@ wire [ 1:0] oram_we;
 wire [ 1:0] lmem_we;
 wire [15:0] lmem_dout=0, line_dout=0;
 wire [10:1] line_addr;
+wire [17:1] tx2x2_addr, tmap_addr;
+wire [15:0] t2x2_din, encoded=0;
+wire [ 1:0] t2x2_we;
 `endif
 
 assign debug_view = debug_mux;
