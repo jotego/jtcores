@@ -62,8 +62,8 @@ always @(posedge clk) begin
     case( debug_bus[7:6] )
         0: debug_mux <= st_main;
         1: debug_mux <= st_video;
+        2: debug_mux <= { 4'd0,glfgreat,lgtnfght,tmnt2,ssriders };
         3: debug_mux <= { enc_done, 1'b0, dimpol, dimmod, 1'b0, dim };
-        default: debug_mux <= 0;
     endcase
 end
 

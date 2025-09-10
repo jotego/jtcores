@@ -132,6 +132,7 @@ module jtriders_video(
     output     [ 7:0] st_dout
 );
 
+wire [31:0] sort_f, sort_a, sort_b;
 wire [21:2] lyro_prea;
 wire [15:0] cpu_saddr, dump_addr;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
@@ -160,6 +161,15 @@ assign lyro_addr   = oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
 assign cpu_n       = hdump[0]; // to be verified
+
+assign sort_f = sort_glfgreat(lyrf_data);
+assign sort_a = sort_glfgreat(lyra_data);
+assign sort_b = sort_glfgreat(lyrb_data);
+
+function [31:0] sort_glfgreat( input [31:0] raw);
+    sort_glfgreat = raw;
+    if(glfgreat) sort_glfgreat[23:8] = {raw[15:8],raw[23:16]};
+endfunction
 
 always @(posedge clk) begin
     skip12 <= lgtnfght | glfgreat;
@@ -266,11 +276,11 @@ jtaliens_scroll #(
     .lyra_cs    ( lyra_cs   ),
     .lyrb_cs    ( lyrb_cs   ),
 
-    .lyrf_data  ( lyrf_data ),
-    .lyra_data  ( lyra_data ),
-    .lyrb_data  ( lyrb_data ),
+    .lyrf_data  ( sort_f    ),
+    .lyra_data  ( sort_a    ),
+    .lyrb_data  ( sort_b    ),
 
-    .lyra_ok    ( lyra_ok ),
+    .lyra_ok    ( lyra_ok   ),
 
     // Final pixels
     .lyrf_blnk_n(lyrf_blnk_n),
@@ -308,7 +318,6 @@ jtriders_psac u_psac(
     .enc_done   ( enc_done  ),
 
     .pxl_cen    ( pxl_cen   ),
-    .enable     ( glfgreat  ),
     .tmap_bank  ( psac_bank ),
     .hdump      ( hdump     ),
 
