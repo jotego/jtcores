@@ -30,8 +30,8 @@ module jtglfgreat_encoder(
     input             pschi_ok,
     output            pschi_cs,
     // Compressed tilemap in VRAM
-    output     [17:1] t2x2_addr,
-    output     [15:0] t2x2_din,
+    output reg [17:1] t2x2_addr,
+    output reg [15:0] t2x2_din,
     output reg        t2x2_we,
     // Decoder
     output reg [12:0] dec_addr,
@@ -61,8 +61,6 @@ reg         deleted, found, full;
 
 assign psclo_addr = {bank,y,x};
 assign pschi_addr = {bank,y,x[8:2]};
-assign t2x2_addr  = {bank,y[8:1],x[8:1]};
-assign t2x2_din   = {3'd0,dec_addr};
 assign dec_din    = tile2x2;
 assign tile2x2    = {tile3,tile2,tile1,tile0};
 assign pschi_cs   = psclo_cs;
@@ -91,6 +89,8 @@ always @(posedge clk) begin
         done     <= 0;
         search   <= 0;
         psclo_cs <= 0;
+        t2x2_addr<= 0;
+        t2x2_din <= 0;
         tile0    <= 18'h3FFFF; tile1 <= 18'h3FFFF; tile2 <= 18'h3FFFF; tile3 <= 18'h3FFFF;
     end else if(!done && deleted) begin
         t2x2_we <= 0;
@@ -102,7 +102,9 @@ always @(posedge clk) begin
             3: if( hilo_ok ) begin tile2 <= combined; {y[0],x[0]} <= 2'b11; st <= 4; end
             4: if( hilo_ok ) begin tile3 <= combined; {y[0],x[0]} <= 2'b00; psclo_cs <= 0; search <= 1; st <= 5; end
             5: if( found ) begin
-                t2x2_we <= 1;
+                t2x2_we   <= 1;
+                t2x2_addr <= {bank,y[8:1],x[8:1]};
+                t2x2_din  <= {3'd0,dec_addr};
                 x[8:1] <= x[8:1]+1'd1;
                 if(&x[8:1]) begin
                     {bank,y[8:1]} <= {bank,y[8:1]}+1'd1;
