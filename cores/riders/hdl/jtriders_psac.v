@@ -19,7 +19,7 @@
 module jtriders_psac(
     input              rst, clk,
                        pxl_cen,  // use cen instead (see below)
-                       hs, vs, dtackn, enable,
+                       hs, vs, dtackn,
                        cs, // cs always writes
     input       [ 8:0] hdump,
 
@@ -77,7 +77,7 @@ wire [ 7:0] buf_din;
 reg  [ 3:0] pal;
 wire [ 3:0] vf, hf, dmux;
 wire [ 1:0] tile;
-reg         rst2, cen2;
+reg         cen2;
 // encoder
 wire        dec_we, t2x2_we_pre;
 wire [12:0] dec_addr;
@@ -101,7 +101,6 @@ assign t2x2_we   = {2{t2x2_we_pre}};
 initial cen2 = 0;
 
 always @(posedge clk) begin
-    rst2 <= rst | ~enable;
     cen2 <= ~cen2;
 
     tmapaddr_l <= tmap_addr;
@@ -118,7 +117,7 @@ always @(*) begin
 end
 /* verilator tracing_on */
 jt053936 u_xy(
-    .rst        ( rst2      ),
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
 

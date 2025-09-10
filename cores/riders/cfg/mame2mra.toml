@@ -53,8 +53,10 @@ regions = [
 	# tiles
 	{ name="k052109", width=32 },
 	{ name="k052109", width=32, machines=["glfgreat"], parts=[
-		{name="061d13.12k", crc="9f999f0b",  map="2010"},
-		{name="061d14.12l", crc="b9440924",  map="0201"},
+		{name="061d14.12l", crc="b9440924",  map="0021"},
+		{name="061d13.12k", crc="9f999f0b",  map="2100"},
+		# {name="061d14.12l", crc="b9440924",  map="0201"},
+		# {name="061d13.12k", crc="9f999f0b",  map="2010"},
 	] },
 	# sprites
 	{ name="k053245", width=32, rename="obj", machines=[ "ssriders", "tmnt2", "lgtnfght" ] },
