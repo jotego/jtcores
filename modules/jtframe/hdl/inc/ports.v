@@ -1,7 +1,7 @@
 `ifdef JTFRAME_SRAM
     output    [16:0]  sram_addr,
-    input     [15:0]  sram_din,
-    output    [15:0]  sram_dout,
+    output    [15:0]  sram_din,
+    input     [15:0]  sram_dout,
     output            sram_wen,
     output    [ 1:0]  sram_dsn,
     input             sram_ok,
