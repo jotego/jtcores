@@ -57,7 +57,6 @@ module jtriders_psac(
     output      [17:1] tmap_addr,
     input       [15:0] encoded,
 
-
     // IOCTL dump
     input       [ 4:0] ioctl_addr,
     output      [ 7:0] ioctl_din
@@ -169,7 +168,7 @@ jtglfgreat_encoder u_encoder(
     .dec_din    ( dec_din   ),
     .dec_we     ( dec_we    )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtframe_dual_ram #(.AW(13),.DW(72),.SIMHEXFILE("decoder.hex")) u_decoder (
     // Port 0 - programming during power up
     .clk0       ( clk       ),
@@ -204,5 +203,37 @@ jtframe_linebuf_gate #(.RD_DLY(15), .RST_CT(9'h041)) u_linebuf(
     .pxl_data ( buf_din   ),
     .pxl_dump ( pxl       )
 );
+
+`ifdef SIMULATION
+reg [8:0] ln_cnt, pxl_cnt, ln_tot, pxl_tot;
+reg       hs_l, start;
+wire      cnt_check;
+
+always @(posedge clk) hs_l <= hs;
+assign cnt_check = ln_tot==pxl_tot;
+
+always @(posedge clk) begin
+    if(rst) begin
+        {ln_cnt,pxl_cnt, ln_tot, pxl_tot} <= 0;
+        start  <= 0;
+    end else if( ~hs & hs_l ) begin
+        start <= 1;
+        if(start) begin
+            ln_cnt    <= 0;      pxl_cnt   <= 0;
+            ln_tot    <= ln_cnt; pxl_tot   <= pxl_cnt;
+            if( enc_done && !cnt_check) begin
+                $display("ERROR: not enough cen pulses provided to psac");
+                $display("Received=%d. Needed=%d", ln_tot, pxl_tot);
+                $finish;
+            end
+        end
+    end else if(start) begin
+        if(cen)
+            ln_cnt  <= ln_cnt +1'd1;
+        if(pxl_cen)
+            pxl_cnt <= pxl_cnt+1'd1;
+    end
+end
+`endif
 
 endmodule
