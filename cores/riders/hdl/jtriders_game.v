@@ -46,9 +46,24 @@ wire [ 1:0] oram_we;
 wire [ 1:0] lmem_we;
 wire [15:0] lmem_dout=0, line_dout=0;
 wire [10:1] line_addr;
-wire [17:1] tx2x2_addr, tmap_addr;
+wire [17:1] t2x2_addr, tmap_addr;
 wire [15:0] t2x2_din, encoded=0;
 wire [ 1:0] t2x2_we;
+`endif
+wire        tmap_ok;
+`ifdef POCKET
+wire [17:1] t2x2_addr, tmap_addr;
+wire [15:0] t2x2_din, encoded;
+wire [ 1:0] t2x2_we;
+
+assign sram_addr =  enc_done ? tmap_addr : t2x2_addr;
+assign sram_din  =  t2x2_din;
+assign sram_wen  = ~t2x2_we[0];
+assign sram_dsn  =  0;
+assign encoded   =  sram_dout;
+assign tmap_ok   =  sram_ok;
+`else
+assign tmap_ok   = 1;
 `endif
 
 assign debug_view = debug_mux;
@@ -261,6 +276,7 @@ jtriders_video u_video (
     .t2x2_din       ( t2x2_din      ),
     .t2x2_we        ( t2x2_we       ),
     .tmap_addr      ( tmap_addr     ),
+    .tmap_ok        ( tmap_ok       ),
     .encoded        ( encoded       ),
     // SDRAM
     .lyra_addr      ( lyra_addr     ),

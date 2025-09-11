@@ -55,6 +55,7 @@ module jtriders_psac(
     output      [15:0] t2x2_din,
     output      [ 1:0] t2x2_we,
     output      [17:1] tmap_addr,
+    input              tmap_ok,
     input       [15:0] encoded,
 
     // IOCTL dump
