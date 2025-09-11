@@ -27,8 +27,8 @@ parameter [HW-1:0]  B_VIS   = 9'd37, A_VIS=9'd35, VIS=9'd304, // number of count
                     WR_STRT = RST_CT + B_VIS, // wr_addr to start checking rom_ok & rom_cs
                     WR_END  = WR_STRT+ VIS,   // wr_addr where stops checking rom_ok & rom_cs
                     RD_END  = WR_END + A_VIS, //
-                    TOT_PLS = 9'd384,         // number of pxl_cen pulses in a line
-                    PLS_END = RST_CT+TOT_PLS, // value of wr_addr to stop cnt_cen
+                    HTOT    = 9'd384,         // number of pxl_cen pulses in a line
+                    HEND    = RST_CT + HTOT,  // value of wr_addr to stop cnt_cen
                     VB_END  = 9'h10F          // Must be same as in vtimer
 ) (
     input               rst,
@@ -62,7 +62,7 @@ always @(*) begin
     done    = wr_addr>=RD_END;
     cnt_cen = 0;
     hs_cen  = 0;
-    fastwr  = wr_addr<WR_STRT || wr_addr>WR_END && wr_addr<RD_END || hs && wr_addr < PLS_END; // It is needed for psac to have some pulse during hs
+    fastwr  = wr_addr<WR_STRT || wr_addr>WR_END && wr_addr<RD_END || hs && wr_addr < HEND; // It is needed for psac to have some pulse during hs
     if(cen) begin
         cnt_cen = rom_cs & rom_ok & !done;
         if( lvbl | pre_lvbl ) hs_cen  = ~hs & hs_l;  // starts drawing in buffer one line before lvbl is high
