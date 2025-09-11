@@ -6,6 +6,7 @@ FSIZE=$(wc -c <"rest.bin")
 if [[ $FSIZE -gt 0x8821 ]]; then
 	PSAC="--psac_mmr"
 
+	jtutil sdram
 	dd if=sdram_bank3.bin of=AB.bin skip=3584 count=1024 bs=1024
 	dd if=sdram_bank3.bin of=CC.bin skip=4608 count=256  bs=1024
 
