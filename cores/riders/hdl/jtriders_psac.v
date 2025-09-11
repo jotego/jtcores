@@ -205,18 +205,29 @@ jtframe_linebuf_gate #(.RD_DLY(15), .RST_CT(9'h041)) u_linebuf(
 );
 
 `ifdef SIMULATION
-reg [8:0] ln_cnt, pxl_cnt;
-reg       cnt_check, hs_l;
-initial {ln_cnt,pxl_cnt, cnt_check} = 0;
+reg [8:0] ln_cnt, pxl_cnt, ln_tot, pxl_tot;
+reg       hs_l, start;
+wire      cnt_check;
 
 always @(posedge clk) hs_l <= hs;
+assign cnt_check = ln_tot==pxl_tot;
 
 always @(posedge clk) begin
-    if( hs & ~hs_l ) begin
-        ln_cnt    <= 0;
-        pxl_cnt   <= 0;
-        cnt_check <= ln_cnt==pxl_cnt;
-    end else begin
+    if(rst) begin
+        {ln_cnt,pxl_cnt, ln_tot, pxl_tot} <= 0;
+        start  <= 0;
+    end else if( ~hs & hs_l ) begin
+        start <= 1;
+        if(start) begin
+            ln_cnt    <= 0;      pxl_cnt   <= 0;
+            ln_tot    <= ln_cnt; pxl_tot   <= pxl_cnt;
+            if( enc_done && !cnt_check) begin
+                $display("ERROR: not enough cen pulses provided to psac");
+                $display("Received=%d. Needed=%d", ln_tot, pxl_tot);
+                $finish;
+            end
+        end
+    end else if(start) begin
         if(cen)
             ln_cnt  <= ln_cnt +1'd1;
         if(pxl_cen)
