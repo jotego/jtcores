@@ -44,7 +44,6 @@ module jtrungun_lfbuf_ctrl(
 wire [9:0] nx_hdump;
 reg  [8:0] start_lhbl, end_lhbl;
 reg        lnhs_l, rest_done;
-reg  [5:0] hb_cnt;  // counter for the three regios of HS
 reg  [1:0] cencnt;
 wire       hs_edge, data_ok, blank_v, is_hblanking;
 
@@ -76,7 +75,6 @@ always @(posedge clk) begin
         {rest_done,hdump} <= nx_hdump;
     end
     if( hs_edge ) begin
-        hb_cnt    <= hbs_len;
         hdump     <= 9'd0;
         hs        <= 1;
         lhbl      <= 0;

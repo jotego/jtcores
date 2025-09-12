@@ -16,13 +16,13 @@ main(){
         prepare_builder false "$BUILDER_NAME"
     fi
 
-    build "jtcore-base" "linux/amd64,linux/arm64"   "$JTFRAME"
-    build "jtcore13"    "linux/amd64"               "$JTFRAME" "/opt/altera"
-    build "jtcore17"    "linux/amd64"               "/opt/intelFPGA_lite"
-    build "jtcore20"    "linux/amd64"               "/opt/intelFPGA_lite"
+    # build "jtcore-base" "linux/amd64,linux/arm64"   "$JTFRAME"
+    # build "jtcore13"    "linux/amd64"               "$JTFRAME" "/opt/altera"
+    # build "jtcore17"    "linux/amd64"               "/opt/intelFPGA_lite"
+    # build "jtcore20"    "linux/amd64"               "/opt/intelFPGA_lite"
     build "jtcore24"    "linux/amd64"               "/opt/intelFPGA_lite"
-    build "linter"      "linux/amd64,linux/arm64"
-    build "simulator"   "linux/amd64,linux/arm64"
+    # build "linter"      "linux/amd64,linux/arm64"
+    # build "simulator"   "linux/amd64,linux/arm64"
 
     print_results
 }
