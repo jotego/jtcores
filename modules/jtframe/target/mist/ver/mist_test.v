@@ -22,7 +22,7 @@ wire [ 1:0] SDRAM_BA;
 wire SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE,  SDRAM_nCAS,
      SDRAM_nRAS, SDRAM_nCS,  SDRAM_CLK,  SDRAM_CKE;
 
-wire [5:0] VGA_R, VGA_G, VGA_B;
+wire [7:0] VGA_R, VGA_G, VGA_B;
 // the pxl_ wires represent the core pure output
 // regardless of the scan doubler or the composity sync
 wire pxl_clk, pxl_cen, pxl_vb, pxl_hb;
@@ -54,9 +54,9 @@ test_harness #(.sdram_instance(0),.GAME_ROMNAME("rom.bin"),
     // Video dumping. VGA_ signals are equal to game signals in simulation.
     .HS          ( pxl_hb    ),
     .VS          ( pxl_vb    ),
-    .red         ( VGA_R[5:2]),
-    .green       ( VGA_G[5:2]),
-    .blue        ( VGA_B[5:2]),
+    .red         ( VGA_R[7-:4]),
+    .green       ( VGA_G[7-:4]),
+    .blue        ( VGA_B[7-:4]),
     .frame_cnt   ( frame_cnt ),
     // SDRAM
     .SDRAM_DQ    ( SDRAM_DQ  ),
