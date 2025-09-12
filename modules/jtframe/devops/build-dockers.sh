@@ -20,6 +20,7 @@ main(){
     build "jtcore13"    "linux/amd64"               "$JTFRAME" "/opt/altera"
     build "jtcore17"    "linux/amd64"               "/opt/intelFPGA_lite"
     build "jtcore20"    "linux/amd64"               "/opt/intelFPGA_lite"
+    build "jtcore24"    "linux/amd64"               "/opt/intelFPGA_lite"
     build "linter"      "linux/amd64,linux/arm64"
     build "simulator"   "linux/amd64,linux/arm64"
 
@@ -51,7 +52,7 @@ build() {
 
     local -a build_contexts=()
     for path in "$@"; do
-        build_contexts+=( --build-context "$(basename $path)=$path" )
+        build_contexts+=( --build-context "$(basename $path | tr [:upper:] [:lower:])=$path" )
     done
 
     echo "Building jotego/$image..."
