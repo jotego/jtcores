@@ -115,7 +115,6 @@ mist_top UUT(
     .SPI_SCK    ( SPI_SCK   ),
     .SPI_SS2    ( SPI_SS2   ),
     .SPI_SS3    ( SPI_SS3   ),
-    .SPI_SS4    ( 1'b0      ),
     .CONF_DATA0 ( CONF_DATA0),
     // sound
     .AUDIO_L    ( AUDIO_L   ),

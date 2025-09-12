@@ -190,6 +190,9 @@ func dump_verilog(def map[string]string, fmtstr string, esc_quotes bool) {
                     fmt.Println( e )
                     os.Exit(1)
                 }
+                if macros.IsSet("NCVERILOG") {
+                    apost="'"
+                }
                 if vint < 512 {
                     v = "9"+apost+"d"+v
                 } else {

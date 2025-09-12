@@ -94,9 +94,9 @@ module mist_top #(parameter
     `endif
     `ifdef MIST_I2S_AUDIO_HDMI
     output          HDMI_MCLK,
-    output          HDMI_BCK,
-    output          HDMI_LRCK,
-    output          HDMI_SDATA,
+    output reg      HDMI_BCK,
+    output reg      HDMI_LRCK,
+    output reg      HDMI_SDATA,
     `endif
     `ifdef MIST_SPDIF_AUDIO
     output          SPDIF,
@@ -523,9 +523,6 @@ assign UART_TX = game_tx,
        game_rx = UART_RX;
 `endif
 
-`include "jtframe_game_instance.v"
-
-
 `ifdef MIST_USE_SDRAM2
     // implement video buffer in the second SDRAM chip (sidi128)
     wire pll_locked2, clk_rom2;
@@ -553,7 +550,6 @@ assign UART_TX = game_tx,
 `endif
 
 `ifdef JTFRAME_LF_BUFFER
-
     // line-frame buffer
     wire        [ 7:0] game_vrender;
     wire        [ 8:0] game_hdump;
@@ -640,5 +636,7 @@ assign UART_TX = game_tx,
     );
 `endif
 `endif
+
+`include "jtframe_game_instance.v"
 
 endmodule
