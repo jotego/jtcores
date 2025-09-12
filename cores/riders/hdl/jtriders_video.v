@@ -111,7 +111,8 @@ module jtriders_video(
     output     [15:0] t2x2_din,
     output     [ 1:0] t2x2_we,
     output     [17:1] tmap_addr,
-    input      [15:0] encoded,
+    input             tmap_ok,
+    input      [15:0] tmap_dout,
 
     // Color
     input      [ 2:0] dim,
@@ -348,7 +349,8 @@ jtriders_psac u_psac(
     .t2x2_din   ( t2x2_din  ),
     .t2x2_we    ( t2x2_we   ),
     .tmap_addr  ( tmap_addr ),
-    .encoded    ( encoded   ),
+    .tmap_ok    ( tmap_ok   ),
+    .tmap_dout  ( tmap_dout ),
     // Tiles
     .rom_addr   ( psc_addr  ),
     .rom_data   ( psc_data  ),

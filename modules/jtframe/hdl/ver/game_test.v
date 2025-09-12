@@ -219,6 +219,11 @@ wire        prog_rdy;
 wire [15:0] data_read;
 wire        SDRAM_DQML;     // SDRAM Low-byte Data Mask
 wire        SDRAM_DQMH;     // SDRAM High-byte Data Mask
+// SRAM
+wire [16:0]  sram_addr;
+wire [15:0]  sram_din, sram_dout;
+wire [ 1:0]  sram_dsn;
+wire         sram_wen, sram_ok;
 
 assign SDRAM_DQM= { SDRAM_DQMH, SDRAM_DQML };
 
@@ -262,6 +267,18 @@ endgenerate
 // clock is shifted or not.
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 wire prog_en = ioctl_rom | dwnld_busy;
+
+`ifdef JTFRAME_SRAM
+    // SRAM
+    assign sram_ok=1; // to do: change it to proper delay
+    jtframe_ram16 #(.AW(18))u_sram(
+        .clk    ( clk48     ),
+        .data   ( sram_din  ),
+        .addr   ( sram_addr ),
+        .we     ( ~sram_dsn ),
+        .q      ( sram_dout )
+    );
+`endif
 
 jtframe_sdram64 #(
     .AW           ( SDRAMW        ),
@@ -588,7 +605,15 @@ u_game(
     .prog_rd    ( prog_rd       ),
     .prog_we    ( prog_we       ),
     .prog_mask  ( prog_mask     ),
-
+`ifdef JTFRAME_SRAM
+    // SRAM
+    .sram_addr   ( sram_addr      ),
+    .sram_din    ( sram_din       ),
+    .sram_dout   ( sram_dout      ),
+    .sram_wen    ( sram_wen       ),
+    .sram_dsn    ( sram_dsn       ),
+    .sram_ok     ( sram_ok        ),
+`endif
     // DIP switches
     .status      ( status[31:0]   ),
     .dip_pause   ( dip_pause      ),

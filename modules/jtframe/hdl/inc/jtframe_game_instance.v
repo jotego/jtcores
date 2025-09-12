@@ -18,7 +18,13 @@
 
 // Game instantiation. Shared by all target top-level modules
 
+
 localparam STARTW=4;
+
+wire [16:0]  sram_addr;
+wire [15:0]  sram_din, sram_dout;
+wire [ 1:0]  sram_dsn;
+wire         sram_wen, sram_ok;
 
 `ifdef SIMULATION
 assign sim_hb         = ~LHBL;
@@ -150,6 +156,16 @@ u_game(
     .prog_dok   ( prog_dok      ),
     .prog_dst   ( prog_dst      ),
     .prog_data  ( prog_data     ),
+
+`ifdef JTFRAME_SRAM
+    // SRAM
+    .sram_addr  ( sram_addr     ),
+    .sram_din   ( sram_din      ),
+    .sram_dout  ( sram_dout     ),
+    .sram_wen   ( sram_wen      ),
+    .sram_dsn   ( sram_dsn      ),
+    .sram_ok    ( sram_ok       ),
+`endif
 
     // common ROM-load interface
     .prog_addr  ( prog_addr     ),

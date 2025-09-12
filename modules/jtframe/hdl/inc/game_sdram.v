@@ -192,6 +192,15 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     {{ else }}{{ if not $bus.ROM.Offset }}{{end}}
     {{- end}}
 {{- end}}
+`ifdef JTFRAME_SRAM
+    // SRAM
+    .sram_addr  ( sram_addr     ),
+    .sram_din   ( sram_din      ),
+    .sram_dout  ( sram_dout     ),
+    .sram_wen   ( sram_wen      ),
+    .sram_dsn   ( sram_dsn      ),
+    .sram_ok    ( sram_ok       ),
+`endif
     // PROM writting
     .ioctl_addr   ( pass_io ? ioctl_addr       : ioctl_addr_noheader  ),
     .prog_addr    ( pass_io ? ioctl_addr[21:0] : raw_addr      ),
