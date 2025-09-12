@@ -56,7 +56,7 @@ module jtriders_psac(
     output      [ 1:0] t2x2_we,
     output      [17:1] tmap_addr,
     input              tmap_ok,
-    input       [15:0] encoded,
+    input       [15:0] tmap_dout,
 
     // IOCTL dump
     input       [ 4:0] ioctl_addr,
@@ -82,6 +82,7 @@ reg         cen2;
 wire        dec_we, t2x2_we_pre;
 wire [12:0] dec_addr;
 wire [71:0] dec_dout, dec_din;
+reg  [12:0] encoded;
 reg  [ 4:0] tmap_sh;
 
 assign line_addr = {la[7:0],lh};
@@ -106,6 +107,13 @@ always @(posedge clk) begin
     tmapaddr_l <= tmap_addr;
     rom_cs     <= tmapaddr_l == tmap_addr;
 end
+
+`ifdef POCKET
+always @(posedge clk)
+    if(tmap_ok) encoded <= tmap_dout[12:0];
+`else
+always @(*)     encoded  = tmap_dout[12:0];
+`endif
 
 always @(*) begin
     case(tile)
@@ -179,7 +187,7 @@ jtframe_dual_ram #(.AW(13),.DW(72),.SIMHEXFILE("decoder.hex")) u_decoder (
     .q0         ( dec_dout  ),
     // Port 1 - regular access during gameplay
     .clk1       ( clk       ),
-    .addr1      (encoded[12:0]),
+    .addr1      ( encoded   ),
     .data1      ( 72'b0     ),
     .we1        ( 1'b0      ),
     .q1         ( tblock    )

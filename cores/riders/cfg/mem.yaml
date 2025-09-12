@@ -119,4 +119,4 @@ bram:
     rw: true
     dual_port:
       name: tmap
-      dout: encoded
+      dout: tmap_dout
