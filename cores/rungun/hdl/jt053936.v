@@ -159,15 +159,21 @@ module jt053936(
         .ob         ( ob        )
     );
 
-    task mmr_write();
+    task mmr_write(); begin
         if( !dsn[0] ) mmr[addr][ 7:0] <= din[ 7:0];
         if( !dsn[1] ) mmr[addr][15:8] <= din[15:8];
+    end
     endtask
 
     always @(posedge clk) if(cen) begin
         {x,xh} <= xsum[23:10];
         {y,yh} <= ysum[23:10];
     end
+
+`ifdef SIMULATION
+    integer i;
+    reg [7:0] mmr_init[0:31];
+`endif
 
     always @(posedge clk) begin
         if( rst ) begin
@@ -196,8 +202,7 @@ module jt053936(
         ioctl_din <= ioctl_addr[0] ? io_mux[15:8] : io_mux[7:0];
     end
 `ifdef SIMULATION
-    integer f, i, fcnt, err;
-    reg [7:0] mmr_init[0:31];
+    integer f, fcnt, err;
     initial begin
         f=$fopen("psac.bin","rb");
         if( f!=0 ) begin
@@ -207,7 +212,7 @@ module jt053936(
                 $display("WARNING: Missing %d bytes for %m.mmr",32-fcnt);
             end
         end else begin
-            for(i=0;i<32;i++) mmr_init[i] = 0;
+            for(i=0;i<32;i=i+1) mmr_init[i] = 0;
         end
         $fclose(f);
     end

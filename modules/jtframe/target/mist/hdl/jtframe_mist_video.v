@@ -109,8 +109,7 @@ jtframe_wirebw #(.WIN(COLORW), .WOUT(CLROUTW)) u_wirebw(
 /* verilator lint_off WIDTHTRUNC */
 /* verilator lint_off WIDTHEXPAND */
 /* verilator lint_off SELRANGE */
-function [7:0] extend8;
-    input [CLROUTW-1:0] a;
+function [7:0] extend8(input [CLROUTW-1:0] a); begin
     extend8[7-:CLROUTW] = a;
     if( CLROUTW >= 8) extend8 = a[CLROUTW-1-: 8];
     case( CLROUTW )
@@ -121,7 +120,7 @@ function [7:0] extend8;
         7: extend8[0]   =   a[CLROUTW-1];
         default: ;
     endcase
-endfunction
+end endfunction
 /* verilator lint_on WIDTHTRUNC */
 /* verilator lint_on WIDTHEXPAND */
 /* verilator lint_on SELRANGE */
@@ -248,7 +247,7 @@ RGBtoYPbPr #(VGA_DW) u_rgb2ypbpr(
     .de_out    ( video_de  )
 );
 
-function [7:0] extend8v( input [VGA_DW-1:0] a);
+function [7:0] extend8v( input [VGA_DW-1:0] a); begin
     extend8v[7-:VGA_DW] = a;
     if( VGA_DW >= 8) extend8v = a[VGA_DW-1-: 8];
     case( VGA_DW )
@@ -259,7 +258,7 @@ function [7:0] extend8v( input [VGA_DW-1:0] a);
         7: extend8v[0]   =   a[VGA_DW-1];
         default: ;
     endcase
-endfunction
+end endfunction
 
 wire        hsync_c, vsync_c, csync_c;
 wire [23:0] colours;

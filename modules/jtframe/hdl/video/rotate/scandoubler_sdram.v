@@ -64,8 +64,6 @@ module scandoubler_sdram (
 	output reg         vidout_ack    // Valid data available.
 );
 
-`default_nettype none
-
 localparam RASCAS_DELAY   = 3'd2;   // tRCD=20ns -> 2 cycles@96MHz
 localparam BURST_LENGTH   = 3'b011; // 000=1, 001=2, 010=4, 011=8
 localparam ACCESS_TYPE    = 1'b0;   // 0=sequential, 1=interleaved
@@ -99,6 +97,8 @@ reg [4:0] t = STATE_FIRST;
 // wait 1ms (32 8Mhz cycles) after FPGA config is done before going
 // into normal operation. Initialize the ram in the last 16 reset cycles (cycles 15-0)
 reg [4:0] reset = 5'h1f;
+reg       vidwrite = 0;
+reg       vidread  = 0;
 always @(posedge clk or posedge init) begin
 	if(init) begin
 		reset <= 5'h1f;
@@ -157,10 +157,8 @@ reg        rom_port;
 reg        we_latch;
 reg        drive_dq;
 
-reg        vidwrite = 0;
 reg        vidwrite_next;
 
-reg        vidread = 0;
 
 assign vidin_ack = vidwrite_next;
 

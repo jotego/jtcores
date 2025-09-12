@@ -37,14 +37,17 @@ module {{ .Module }}(
     output reg [7:0] st_dout
 );
 
+localparam SIZE={{.Size}};
 parameter SIMFILE="rest.bin",
           SEEK=0;
 parameter [SIZE*8-1:0] INIT=0; // from high to low regs {mmr[3],mmr[2],mmr[1],mmr[0]}
 
-localparam SIZE={{.Size}};
 
 reg  [ 7:0] mmr[0:SIZE-1];
 integer     i;
+`ifdef SIMULATION
+reg [7:0] mmr_init[0:SIZE-1];
+`endif
 {{ range .Regs }}{{ if not .Wr_event }}
 assign {{.Name}} = { {{ range .Chunks }}
     mmr[{{.Byte}}][{{if eq .Msb .Lsb}}{{.Msb}}{{else}}{{.Msb}}:{{.Lsb}}{{end}}],
@@ -77,7 +80,6 @@ end
 `ifdef SIMULATION
 /* verilator tracing_off */
 integer f, fcnt, err;
-reg [7:0] mmr_init[0:SIZE-1];
 initial begin
     f=$fopen(SIMFILE,"rb");
     err=$fseek(f,SEEK,0);
@@ -94,7 +96,7 @@ initial begin
             {{- end }}{{ end }}
         end
     end else begin
-        for(i=0;i<SIZE;i++) mmr_init[i] = 0;
+        for(i=0;i<SIZE;i=i+1) mmr_init[i] = 0;
     end
     $fclose(f);
 end

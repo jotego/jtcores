@@ -66,7 +66,7 @@ module jtframe_multiway_emu_analog(
 
     reg [1:0] multi;
 
-    function pwm( input invert, rawin, input [7:0] range); begin
+    function pwm( input invert, rawin, input [7:0] range); begin : _pwm
         reg disabled;
         reg [7:0] abs;
         abs = {8{invert}}^range;

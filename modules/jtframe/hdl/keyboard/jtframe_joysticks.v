@@ -231,7 +231,7 @@ module jtframe_joy_rotate(
     input      [9:0] raw1, raw2, raw3, raw4,
     output reg [9:0] joy1, joy2, joy3, joy4
 );
-    function [9:0] apply_rotation(input [9:0] joy_in); begin
+    function [9:0] apply_rotation(input [9:0] joy_in); begin : _apply_rotation
         reg [3:0] flipped;
         flipped = rot_ccw ?
              { joy_in[0], joy_in[1], joy_in[3], joy_in[2] }:
