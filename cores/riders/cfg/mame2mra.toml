@@ -17,6 +17,9 @@ skip = { bootlegs=true, machines=[
 	"prmrsocr",
 	# ROM regions names
 	"asterix",
+], setnames=[
+	# Missing ADC implementation
+	"glfgreatj"
 ]}
 
 debug={machines=["tmnt2"]}

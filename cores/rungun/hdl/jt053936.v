@@ -96,6 +96,7 @@ module jt053936(
     jt053936_video_counters u_vid(rst,clk,cen,tick_hs,tick_vs,vcnt0,hcnt0,v,h);
 
     jt053936_line_ram u_line_ram(
+        .rst        ( rst       ),
         .clk        ( clk       ),
         .cen        ( cen       ),
         .dtackn     ( dtackn    ),
