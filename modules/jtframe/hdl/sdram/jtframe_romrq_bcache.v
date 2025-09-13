@@ -188,7 +188,9 @@ always @(posedge clk, posedge rst) begin
         if( req && !last_req ) begin
             if( waiting ) begin
                 $display("ERROR: %m new request without finishing the previous");
+`ifndef JTFRAME_SIM_SDRAM_NONSTOP
                 $finish;
+`endif
             end
             last_addr <= addr;
             waiting <= 1;
@@ -196,12 +198,16 @@ always @(posedge clk, posedge rst) begin
         if( din_ok && we ) waiting <= 0;
         if( waiting && !addr_ok ) begin
             $display("ERROR: %m data request interrupted");
+`ifndef JTFRAME_SIM_SDRAM_NONSTOP
             $finish;
+`endif
         end
         if( addr != last_addr && addr_ok) begin
             if( waiting ) begin
                 $display("ERROR: %m address changed at time %t",$time);
+`ifndef JTFRAME_SIM_SDRAM_NONSTOP
                 #40 $finish;
+`endif
             end else waiting <= !hit0 && !hit1;
         end
     end

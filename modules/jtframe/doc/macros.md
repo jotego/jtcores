@@ -113,6 +113,7 @@ different underlying modules.
 
 Macro                    | Target  |  Usage
 -------------------------|---------|----------------------
+JTFRAME_VZ80             |         | Selects the Verilog translation of T80 VHDL code
 JTFRAME_J68              |         | Selects J68_CPU as M68000 module (default fx68k)
 
 # SDRAM Banks

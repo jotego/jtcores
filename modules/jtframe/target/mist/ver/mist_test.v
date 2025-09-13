@@ -146,5 +146,4 @@ assign pxl_hb  = VGA_HS;
 assign dwnld_busy = 0;
 `endif
 
-
 endmodule

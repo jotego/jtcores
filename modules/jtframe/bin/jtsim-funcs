@@ -109,7 +109,7 @@ has_parent() {
 }
 
 clean_up() {
-    rm -f video.pipe frame.raw \
+    rm -f frame.raw \
        game.f  jtsim.f  jtsim_vhdl.f simfile.f *bak *.def \
        make.log defmacros.h filtered.f microrom.mem nanorom.mem
     if [ -z "$TESTCPP" ]; then rm -f test.cpp; fi

@@ -76,7 +76,7 @@ always @(posedge pxl_clk) if( pxl_cen && hvinfo_done<1 ) begin
         vcnt<=0;
         if( hvinfo_done==0 && vcnt>0 && hcnt>0 ) begin
             finfo  = $fopen("video.info","w");
-            $fdisplay( finfo, "1%d\n%1d\n", hcnt, vcnt );
+            $fdisplay( finfo, "%1d\n%1d\n", hcnt, vcnt );
             $display( "Visible screen size: %1dx%1d\n", hcnt, vcnt );
             $fclose(finfo);
             hvinfo_done <= 1;

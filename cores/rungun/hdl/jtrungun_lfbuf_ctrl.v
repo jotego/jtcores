@@ -21,7 +21,7 @@ module jtrungun_lfbuf_ctrl(
     input             obj_done,
 
     output     [ 8:0] ln_addr,
-    output reg        ln_done,
+    output reg        ln_done=0,
     input             ln_hs, ln_vs, ln_lvbl,
     input      [ 7:0] ln_v,
     output            ln_we,
@@ -34,17 +34,17 @@ module jtrungun_lfbuf_ctrl(
                       hsy_len,  // HS length
                       hsa_len,  // HS end to active video start
 
-    output reg        cen,
-    output reg        hs, lhbl,
-    output reg [ 8:0] hdump,
+    output reg        cen=0,
+    output reg        hs=0, lhbl=0,
+    output reg [ 8:0] hdump=0,
     output     [ 8:0] hdumpf,
     output     [ 7:0] vdump, vdumpf
 );
 
 wire [9:0] nx_hdump;
-reg  [8:0] start_lhbl, end_lhbl;
-reg        lnhs_l, rest_done;
-reg  [1:0] cencnt;
+reg  [8:0] start_lhbl=0, end_lhbl=0;
+reg        lnhs_l=0, rest_done=0;
+reg  [1:0] cencnt=0;
 wire       hs_edge, data_ok, blank_v, is_hblanking;
 
 assign vdump    = ln_v;
