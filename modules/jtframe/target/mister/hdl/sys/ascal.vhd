@@ -103,7 +103,7 @@ USE ieee.numeric_std.ALL;
 -- DOWNSCALE : True=Support downscaling False=Downscaling disabled
 -- BYTESWAP  : Little/Big endian byte swap
 -- FRAC      : Fractional bits, subpixel resolution
--- OHRES     : Max. output horizontal resolution. Must be a power of two.
+-- OHRES     : Max. output horizontal resolution. 1024, 2048, 2304, 2560, 4096
 --             (Used for sizing line buffers)
 -- IHRES     : Max. input horizontal resolution. Must be a power of two.
 --             (Used for sizing line buffers)
@@ -125,7 +125,7 @@ ENTITY ascal IS
 		ADAPTIVE     : boolean := true;
 		DOWNSCALE_NN : boolean := false;
 		FRAC         : natural RANGE 4 TO 8 :=4;
-		OHRES        : natural RANGE 1 TO 4096 :=2048;
+		OHRES        : natural RANGE 1 TO 4096 :=2304;
 		IHRES        : natural RANGE 1 TO 2048 :=2048;
 		N_DW         : natural RANGE 64 TO 128 := 128;
 		N_AW         : natural RANGE 8 TO 32 := 32;
@@ -210,9 +210,10 @@ ENTITY ascal IS
 		i_vdmax : OUT natural RANGE 0 TO 4095;
 
 		-- Output video parameters
-		run    : IN std_logic :='1'; -- 1=Enable output image. 0=No image
-		freeze : IN std_logic :='0'; -- 1=Disable framebuffer writes
-		mode   : IN unsigned(4 DOWNTO 0);
+		run       : IN std_logic :='1'; -- 1=Enable output image. 0=No image
+		freeze    : IN std_logic :='0'; -- 1=Disable framebuffer writes
+		mode      : IN unsigned(4 DOWNTO 0);
+ 		bob_deint : IN std_logic := '0';
 		-- SYNC  |_________________________/"""""""""\_______|
 		-- DE    |""""""""""""""""""\________________________|
 		-- RGB   |    <#IMAGE#>      ^HDISP                  |
@@ -267,6 +268,9 @@ ENTITY ascal IS
 BEGIN
 	ASSERT N_DW=64 OR N_DW=128 REPORT "DW" SEVERITY failure;
 
+	ASSERT OHRES = 1024 OR OHRES = 2048 OR OHRES = 2304 OR
+	       OHRES = 2560 OR OHRES = 4096 REPORT "OHRES" SEVERITY failure;
+
 END ENTITY ascal;
 
 --##############################################################################
@@ -298,9 +302,38 @@ ARCHITECTURE rtl OF ascal IS
 	END FUNCTION to_std_logic;
 
 	----------------------------------------------------------
+	FUNCTION ohres_h(CONSTANT r : natural) RETURN natural IS
+	BEGIN
+		CASE r IS
+			WHEN 1024   => RETURN 1024;
+			WHEN 2048   => RETURN 2048;
+			WHEN OTHERS => RETURN 4096;
+		END CASE;
+	END FUNCTION;
+	FUNCTION ohres_l(CONSTANT r : natural) RETURN natural IS
+	BEGIN
+		CASE r IS
+			WHEN 1024               => RETURN 1024;
+			WHEN 2048 | 2304 | 2560 => RETURN 2048;
+			WHEN OTHERS             => RETURN 4096;
+		END CASE;
+	END FUNCTION;
+	FUNCTION ohres_m(CONSTANT r : natural) RETURN natural IS
+	BEGIN
+		CASE r IS
+			WHEN 1024 | 2048 | 2304 => RETURN 256;
+			WHEN OTHERS             => RETURN 512;
+		END CASE;
+	END FUNCTION;
+
+	CONSTANT OHRESH : natural := ohres_h(OHRES);
+	CONSTANT OHRESL : natural := ohres_l(OHRES);
+	CONSTANT OHRESM : natural := ohres_m(OHRES);
+
+	----------------------------------------------------------
 	CONSTANT NB_BURST : natural :=ilog2(N_BURST);
-	CONSTANT NB_LA : natural :=ilog2(N_DW/8); -- Low address bits
-	CONSTANT BLEN : natural :=N_BURST / N_DW * 8; -- Burst length
+	CONSTANT NB_LA    : natural :=ilog2(N_DW/8); -- Low address bits
+	CONSTANT BLEN     : natural :=N_BURST / N_DW * 8; -- Burst length
 
 	----------------------------------------------------------
 	TYPE arr_dw IS  ARRAY (natural RANGE <>) OF unsigned(N_DW-1 DOWNTO 0);
@@ -328,6 +361,7 @@ ARCHITECTURE rtl OF ascal IS
 	SIGNAL i_pvs,i_pfl,i_pde,i_pce : std_logic;
 	SIGNAL i_ppix : type_pix;
 	SIGNAL i_freeze : std_logic;
+	SIGNAL i_bob_deint : std_logic;
 	SIGNAL i_count : unsigned(2 DOWNTO 0);
 	SIGNAL i_hsize,i_hmin,i_hmax,i_hcpt : uint12;
 	SIGNAL i_hrsize,i_vrsize : uint12;
@@ -343,6 +377,7 @@ ARCHITECTURE rtl OF ascal IS
 	SIGNAL i_de_delay : natural RANGE 0 TO 31;
 	SIGNAL i_intercnt : natural RANGE 0 TO 3;
 	SIGNAL i_inter,i_half,i_flm : std_logic;
+	SIGNAL i_wfl : std_logic_vector(2 DOWNTO 0);
 	SIGNAL i_write,i_wreq,i_alt,i_line,i_wline,i_wline_mem : std_logic;
 	SIGNAL i_walt,i_walt_mem,i_wreq_mem : std_logic;
 	SIGNAL i_wdelay : natural RANGE 0 TO 7;
@@ -372,7 +407,7 @@ ARCHITECTURE rtl OF ascal IS
 	SIGNAL i_hacc,i_vacc     : uint13;
 	SIGNAL i_hdown,i_vdown   : std_logic;
 	SIGNAL i_divcpt : natural RANGE 0 TO 36;
-	SIGNAL i_lwad,i_lrad : natural RANGE 0 TO OHRES-1;
+	SIGNAL i_lwad,i_lrad : natural RANGE 0 TO OHRESH-1;
 	SIGNAL i_lwr,i_bil : std_logic;
 	SIGNAL i_ldw,i_ldrm : type_pix;
 	SIGNAL i_hpixp,i_hpix0,i_hpix1,i_hpix2,i_hpix3,i_hpix4 : type_pix;
@@ -420,6 +455,8 @@ ARCHITECTURE rtl OF ascal IS
 	-- Output
 	SIGNAL o_run : std_logic;
 	SIGNAL o_freeze : std_logic;
+	SIGNAL o_bob_deint : std_logic;
+	SIGNAL o_iwfl : std_logic_vector(2 DOWNTO 0);
 	SIGNAL o_mode,o_hmode,o_vmode : unsigned(4 DOWNTO 0);
 	SIGNAL o_format : unsigned(5 DOWNTO 0);
 	SIGNAL o_fb_pal_dr : unsigned(23 DOWNTO 0);
@@ -466,13 +503,21 @@ ARCHITECTURE rtl OF ascal IS
 	SIGNAL o_reset_na : std_logic;
 	SIGNAL o_dpram : arr_dw(0 TO BLEN*2-1);
 	ATTRIBUTE ramstyle OF o_dpram : SIGNAL IS "no_rw_check";
-	SIGNAL o_line0,o_line1,o_line2,o_line3 : arr_pix(0 TO OHRES-1);
+	SIGNAL o_line0,o_line1,o_line2,o_line3 : arr_pix(0 TO OHRESL-1);
+	SIGNAL o_linf0,o_linf1,o_linf2,o_linf3 : arr_pix(0 TO OHRESM-1);
+
 	ATTRIBUTE ramstyle OF o_line0 : SIGNAL IS "no_rw_check";
 	ATTRIBUTE ramstyle OF o_line1 : SIGNAL IS "no_rw_check";
 	ATTRIBUTE ramstyle OF o_line2 : SIGNAL IS "no_rw_check";
 	ATTRIBUTE ramstyle OF o_line3 : SIGNAL IS "no_rw_check";
-	SIGNAL o_wadl,o_radl0,o_radl1,o_radl2,o_radl3 : natural RANGE 0 TO OHRES-1;
-	SIGNAL o_ldw,o_ldr0,o_ldr1,o_ldr2,o_ldr3 : type_pix;
+	ATTRIBUTE ramstyle OF o_linf0 : SIGNAL IS "no_rw_check";
+	ATTRIBUTE ramstyle OF o_linf1 : SIGNAL IS "no_rw_check";
+	ATTRIBUTE ramstyle OF o_linf2 : SIGNAL IS "no_rw_check";
+	ATTRIBUTE ramstyle OF o_linf3 : SIGNAL IS "no_rw_check";
+	SIGNAL o_wadl,o_radl0,o_radl1,o_radl2,o_radl3 : natural RANGE 0 TO OHRESH-1;
+	SIGNAL o_ldr0,o_ldr1,o_ldr2,o_ldr3,o_ldw : type_pix;
+	SIGNAL o_ler0,o_ler1,o_ler2,o_ler3       : type_pix;
+	SIGNAL o_lex0,o_lex1,o_lex2,o_lex3       : std_logic;
 	SIGNAL o_wr : unsigned(3 DOWNTO 0);
 	SIGNAL o_hcpt,o_vcpt,o_vcpt_pre,o_vcpt_pre2,o_vcpt_pre3,o_vcpt2 : uint12;
 	SIGNAL o_ihsize,o_ihsizem,o_ivsize : uint12;
@@ -482,7 +527,7 @@ ARCHITECTURE rtl OF ascal IS
 	SIGNAL o_hfrac : arr_frac(0 TO 9);
 	ATTRIBUTE ramstyle OF o_hfrac : SIGNAL IS "logic"; -- avoid blockram shift register
 
-	SIGNAL o_hacc,o_hacc_ini,o_hacc_next,o_vacc,o_vacc_next,o_vacc_ini : natural RANGE 0 TO 4*OHRES-1;
+	SIGNAL o_hacc,o_hacc_ini,o_hacc_next,o_vacc,o_vacc_next,o_vacc_ini : natural RANGE 0 TO 4*OHRESH-1;
 	SIGNAL o_hsv,o_vsv,o_dev,o_pev,o_bzl,o_end : unsigned(0 TO 11);
 	SIGNAL o_hsp,o_vss : std_logic;
 	SIGNAL o_vcarrym,o_prim : boolean;
@@ -500,15 +545,15 @@ ARCHITECTURE rtl OF ascal IS
 	TYPE arr_uint4 IS ARRAY (natural RANGE <>) OF natural RANGE 0 TO 15;
 	SIGNAL o_off : arr_uint4(0 TO 2);
 	SIGNAL o_bibu : std_logic :='0';
-	SIGNAL o_dcptv : arr_uint12(1 TO 14);
-	SIGNAL o_dcpt : uint12;
+	SIGNAL o_dcptv : arr_uint12(13 TO 14);
+	SIGNAL o_dcpt_clr, o_dcpt_inc : std_logic;
+	SIGNAL o_dcptv_clr, o_dcptv_inc : std_logic_vector(1 TO 12);
 	SIGNAL o_hpixs,o_hpix0,o_hpix1,o_hpix2,o_hpix3 : type_pix;
 	SIGNAL o_hpixq : arr_pixq(2 TO 8);
 	ATTRIBUTE ramstyle OF o_hpixq : SIGNAL IS "logic"; -- avoid blockram shift register
 	SIGNAL o_vpixq, o_vpixq_pre : arr_pix(0 TO 3);
 	SIGNAL o_vpix_outer : arr_pix(0 TO 2);
 	SIGNAL o_vpix_inner : arr_pix(0 TO 6);
-
 
 	SIGNAL o_vpe : std_logic;
 	SIGNAL o_div : arr_div(0 TO 2); --uint12;
@@ -539,11 +584,11 @@ ARCHITECTURE rtl OF ascal IS
 		END CASE;
 	END FUNCTION;
 
-	FUNCTION shift_ipack( i_dw   : unsigned(N_DW-1 DOWNTO 0);
-								 acpt   : natural RANGE 0 TO 15;
-								 shift  : unsigned(0 TO 119);
-								 pix    : type_pix;
-								 format : unsigned(1 DOWNTO 0)) RETURN unsigned IS
+	FUNCTION shift_ipack(i_dw   : unsigned(N_DW-1 DOWNTO 0);
+	                     acpt   : natural RANGE 0 TO 15;
+	                     shift  : unsigned(0 TO 119);
+	                     pix    : type_pix;
+	                     format : unsigned(1 DOWNTO 0)) RETURN unsigned IS
 		VARIABLE dw : unsigned(N_DW-1 DOWNTO 0);
 	BEGIN
 		dw:=i_dw;
@@ -1141,6 +1186,7 @@ BEGIN
 			i_pushhead<='0';
 			i_eol<='0'; -- End Of Line
 			i_freeze <=freeze; -- <ASYNC>
+			i_bob_deint <= bob_deint;
 			i_iauto<=iauto; -- <ASYNC>
 			i_wreq<='0';
 			i_wr<='0';
@@ -1201,11 +1247,13 @@ BEGIN
 					i_vcpt<=0;
 					IF i_inter='1' AND i_flm='0' AND i_half='0' AND INTER THEN
 						i_line<='1';
+						i_wfl(o_ibuf1) <= '0';
 						i_adrsi<=to_unsigned(N_BURST * i_hburst,32) +
 									to_unsigned(N_BURST * to_integer(
 									unsigned'("00") & to_std_logic(HEADER)),32);
 					ELSE
 						i_line<='0';
+						i_wfl(o_ibuf0) <= '1';
 						i_adrsi<=to_unsigned(N_BURST * to_integer(
 									 unsigned'("00") & to_std_logic(HEADER)),32);
 					END IF;
@@ -1215,8 +1263,8 @@ BEGIN
 														i_vcpt>=i_vmin AND i_vcpt<=i_vmax);
 
 				-- Detects end of frame for triple buffering.
-				i_endframe0<=i_vs AND (NOT i_inter OR i_flm);
-				i_endframe1<=i_vs AND (NOT i_inter OR NOT i_flm);
+				i_endframe0<=i_vs AND (NOT i_inter OR i_flm OR i_bob_deint);
+				i_endframe1<=i_vs AND (NOT i_inter OR NOT i_flm OR i_bob_deint);
 
 				i_vss<=to_std_logic(i_vcpt>=i_vmin AND i_vcpt<=i_vmax);
 
@@ -1464,12 +1512,12 @@ BEGIN
 			-- Push pixels to downscaling line buffer
 			i_lwr<=i_hnp4 AND i_ven5 AND i_pce;
 			IF i_lwr='1' THEN
-				i_lwad<=(i_lwad+1) MOD OHRES;
+				i_lwad<=(i_lwad+1) MOD OHRESH;
 			END IF;
 			i_ldw<=i_hpix;
 
 			IF i_hnp3='1' AND i_ven4='1' AND i_pce='1' THEN
-				i_lrad<=(i_lrad+1) MOD OHRES;
+				i_lrad<=(i_lrad+1) MOD OHRESH;
 			END IF;
 
 			------------------------------------------------------
@@ -1828,7 +1876,7 @@ BEGIN
 		VARIABLE shift_v : unsigned(0 TO N_DW+15);
 		VARIABLE hpix_v : type_pix;
 		VARIABLE hcarry_v,vcarry_v : boolean;
-		VARIABLE dif_v : natural RANGE 0 TO 8*OHRES-1;
+		VARIABLE dif_v : natural RANGE 0 TO 8*OHRESH-1;
 		VARIABLE off_v : natural RANGE 0 TO 15;
 	BEGIN
 		IF o_reset_na='0' THEN
@@ -1881,6 +1929,8 @@ BEGIN
 			o_isync <= '0';
 			o_isync2 <= o_isync;
 			o_freeze <= freeze;
+			o_bob_deint <= bob_deint;
+			o_iwfl <= i_wfl;
 			o_inter  <=i_inter; -- <ASYNC>
 			o_iendframe0<=i_endframe0; -- <ASYNC>
 			o_iendframe02<=o_iendframe0;
@@ -2113,7 +2163,26 @@ BEGIN
 			o_read<=o_read_pre AND o_run;
 			o_rline<=o_vacpt(0); -- Even/Odd line for interlaced video
 
-			o_adrs_pre<=to_integer(o_vacpt) * to_integer(o_stride);
+			----
+			-- When bob deinterlacing we read lines from one buffer (the most current) but we read them twice
+			-- (in contrast to weave deinterlacing where we read each 480p line from alternating buffers)
+			-- To counteract the severe vibrating/motion with bob deinterlacing, we need to offset one field
+			-- by a half-line. This is done by only reading the first line of the 'even' frame once
+
+			IF o_inter='1' AND o_bob_deint='1' THEN
+				IF o_iwfl(o_obuf0)='0' THEN
+					IF o_vacpt=0 OR o_rline='1' THEN
+						o_adrs_pre <= to_integer(o_vacpt) * to_integer(o_stride);
+					ELSE
+						o_adrs_pre <= (to_integer(o_vacpt)-1) * to_integer(o_stride);
+					END IF;
+				ELSE
+					o_adrs_pre <= to_integer(o_vacpt(11 DOWNTO 1) & "0") * to_integer(o_stride);
+				END IF;
+			ELSE
+				o_adrs_pre<=to_integer(o_vacpt) * to_integer(o_stride);
+			END IF;
+
 			IF o_adrsa='1' THEN
 				IF o_fload=2 THEN
 					o_adrs<=to_unsigned(o_hbcpt * N_BURST,32);
@@ -2130,6 +2199,9 @@ BEGIN
 			------------------------------------------------------
 			-- Copy from buffered memory to pixel lines
 			o_sh<='0';
+			o_dcpt_clr <= '0';
+			o_dcpt_inc <= '0';
+
 			CASE o_copy IS
 				WHEN sWAIT =>
 					o_copyv(0)<='0';
@@ -2148,7 +2220,7 @@ BEGIN
 						o_hacc     <=o_hacc_ini;
 						o_hacc_next<=o_hacc_ini + 2*o_ihsize;
 						o_hacpt    <=x"000";
-						o_dcpt<=0;
+						o_dcpt_clr <= '1';
 						o_dshi<=2;
 						o_acpt<=0;
 						o_first<='1';
@@ -2176,17 +2248,17 @@ BEGIN
 				WHEN sCOPY =>
 					-- dshi : Force shift first two or three pixels of each line
 					IF o_dshi=0 THEN
-						dif_v:=(o_hacc_next - 2*o_hsize + (8*OHRES)) MOD (8*OHRES);
-						IF dif_v>=4*OHRES THEN
+						dif_v:=(o_hacc_next - 2*o_hsize + (8*OHRESH)) MOD (8*OHRESH);
+						IF dif_v>=4*OHRESH THEN
 							o_hacc<=o_hacc_next;
 							o_hacc_next<=o_hacc_next + 2*o_ihsize;
 							hcarry_v:=false;
 						ELSE
 							o_hacc<=dif_v;
-							o_hacc_next<=(dif_v + 2*o_ihsize + (4*OHRES)) MOD (4*OHRES);
+							o_hacc_next<=(dif_v + 2*o_ihsize + (4*OHRESH)) MOD (4*OHRESH);
 							hcarry_v:=true;
 						END IF;
-						o_dcpt<=(o_dcpt+1) MOD 4096;
+						o_dcpt_inc <= '1';
 					ELSE
 						o_dshi<=o_dshi-1;
 						hcarry_v:=false;
@@ -2556,13 +2628,19 @@ BEGIN
 			o_hfrac(2 TO 9) <= o_hfrac(1 TO 8);
 
 			o_copyv(1 TO 14)<=o_copyv(0 TO 13);
+			o_dcptv_clr(1 TO 12)<=o_dcpt_clr & o_dcptv_clr(1 TO 11);
+			o_dcptv_inc(1 TO 12)<=o_dcpt_inc & o_dcptv_inc(1 TO 11);
 
-			o_dcptv(1)<=o_dcpt;
-			IF o_dcptv(1)>=o_hsize THEN
-				o_copyv(2)<='0';
+			IF o_dcptv_clr(12)='1' THEN
+				o_dcptv(13) <= 0;
+			ELSIF o_dcptv_inc(12)='1' THEN
+				o_dcptv(13) <= (o_dcptv(13) + 1) MOD OHRESH;
 			END IF;
-			o_dcptv(2)<=o_dcptv(1) MOD OHRES;
-			o_dcptv(3 TO 14)<=o_dcptv(2 TO 13);
+			o_dcptv(14)<=o_dcptv(13);
+
+			IF o_dcptv(13)>=o_hsize THEN
+				o_copyv(14)<='0';
+			END IF;
 
 			-- C2
 			o_hpixq(2)<=(o_hpix3,o_hpix2,o_hpix1,o_hpix0);
@@ -2655,17 +2733,39 @@ BEGIN
 	OLBUF:PROCESS(o_clk) IS
 	BEGIN
 		IF rising_edge(o_clk) THEN
+			-----------------------------------------------
 			-- WRITES
-			IF o_wr(0)='1' THEN o_line0(o_wadl)<=o_ldw; END IF;
-			IF o_wr(1)='1' THEN o_line1(o_wadl)<=o_ldw; END IF;
-			IF o_wr(2)='1' THEN o_line2(o_wadl)<=o_ldw; END IF;
-			IF o_wr(3)='1' THEN o_line3(o_wadl)<=o_ldw; END IF;
+			IF o_wr(0)='1' AND o_wadl < OHRESL  THEN o_line0(o_wadl MOD OHRESL)<=o_ldw; END IF;
+			IF o_wr(1)='1' AND o_wadl < OHRESL  THEN o_line1(o_wadl MOD OHRESL)<=o_ldw; END IF;
+			IF o_wr(2)='1' AND o_wadl < OHRESL  THEN o_line2(o_wadl MOD OHRESL)<=o_ldw; END IF;
+			IF o_wr(3)='1' AND o_wadl < OHRESL  THEN o_line3(o_wadl MOD OHRESL)<=o_ldw; END IF;
+			IF OHRES = 2304 OR OHRES = 2560 THEN
+				IF o_wr(0)='1' AND o_wadl >= OHRESL THEN o_linf0(o_wadl MOD OHRESM)<=o_ldw; END IF;
+				IF o_wr(1)='1' AND o_wadl >= OHRESL THEN o_linf1(o_wadl MOD OHRESM)<=o_ldw; END IF;
+				IF o_wr(2)='1' AND o_wadl >= OHRESL THEN o_linf2(o_wadl MOD OHRESM)<=o_ldw; END IF;
+				IF o_wr(3)='1' AND o_wadl >= OHRESL THEN o_linf3(o_wadl MOD OHRESM)<=o_ldw; END IF;
+			END IF;
 
+			-----------------------------------------------
 			-- READS
-			o_ldr0<=o_line0(o_radl0);
-			o_ldr1<=o_line1(o_radl1);
-			o_ldr2<=o_line2(o_radl2);
-			o_ldr3<=o_line3(o_radl3);
+			o_ldr0<=o_line0(o_radl0 MOD OHRESL);
+			o_ldr1<=o_line1(o_radl1 MOD OHRESL);
+			o_ldr2<=o_line2(o_radl2 MOD OHRESL);
+			o_ldr3<=o_line3(o_radl3 MOD OHRESL);
+
+			IF OHRES = 2304 OR OHRES = 2560 THEN
+				o_ler0<=o_linf0(o_radl0 MOD OHRESM);
+				o_ler1<=o_linf1(o_radl1 MOD OHRESM);
+				o_ler2<=o_linf2(o_radl2 MOD OHRESM);
+				o_ler3<=o_linf3(o_radl3 MOD OHRESM);
+			END IF;
+
+			o_lex0 <= to_std_logic(o_radl0 >= OHRESL);
+			o_lex1 <= to_std_logic(o_radl1 >= OHRESL);
+			o_lex2 <= to_std_logic(o_radl2 >= OHRESL);
+			o_lex3 <= to_std_logic(o_radl3 >= OHRESL);
+			-----------------------------------------------
+
 		END IF;
 	END PROCESS OLBUF;
 
@@ -2756,16 +2856,17 @@ BEGIN
 	VSCAL:PROCESS(o_clk) IS
 		VARIABLE pixq_v : arr_pix(0 TO 3);
 		VARIABLE vlumpix_v : type_pix;
-		VARIABLE r1_v, r2_v : natural RANGE 0 TO OHRES-1;
+		VARIABLE r1_v, r2_v : natural RANGE 0 TO OHRESH-1;
 		VARIABLE fracnn_v : std_logic;
+		VARIABLE o_l0_v, o_l1_v, o_l2_v, o_l3_v : type_pix;
 	BEGIN
 		IF rising_edge(o_clk) THEN
 			IF o_ce='1' THEN
 				o_v_hmin_adj<=o_hmin + 5;
 
 				fracnn_v := o_vfrac(o_vfrac'left);
-				r1_v := (o_hcpt - o_v_hmin_adj + OHRES) MOD OHRES;
-				r2_v := (o_hcpt - o_hmin + OHRES) MOD OHRES;
+				r1_v := (o_hcpt - o_v_hmin_adj + OHRESH) MOD OHRESH;
+				r2_v := (o_hcpt - o_hmin       + OHRESH) MOD OHRESH;
 
 				-- CYCLE 1 -----------------------------------------
 				-- Read mem
@@ -2792,11 +2893,16 @@ BEGIN
 
 				-- CYCLE 2 -----------------------------------------
 				-- Lines reordering
+				IF o_lex0='0' THEN o_l0_v := o_ldr0; ELSE o_l0_v := o_ler0; END IF;
+				IF o_lex1='0' THEN o_l1_v := o_ldr1; ELSE o_l1_v := o_ler1; END IF;
+				IF o_lex2='0' THEN o_l2_v := o_ldr2; ELSE o_l2_v := o_ler2; END IF;
+				IF o_lex3='0' THEN o_l3_v := o_ldr3; ELSE o_l3_v := o_ler3; END IF;
+
 				CASE o_vacptl IS
-					WHEN "10"   => pixq_v:=(o_ldr0,o_ldr1,o_ldr2,o_ldr3);
-					WHEN "11"   => pixq_v:=(o_ldr1,o_ldr2,o_ldr3,o_ldr0);
-					WHEN "00"   => pixq_v:=(o_ldr2,o_ldr3,o_ldr0,o_ldr1);
-					WHEN OTHERS => pixq_v:=(o_ldr3,o_ldr0,o_ldr1,o_ldr2);
+					WHEN "10"   => pixq_v:=(o_l0_v,o_l1_v,o_l2_v,o_l3_v);
+					WHEN "11"   => pixq_v:=(o_l1_v,o_l2_v,o_l3_v,o_l0_v);
+					WHEN "00"   => pixq_v:=(o_l2_v,o_l3_v,o_l0_v,o_l1_v);
+					WHEN OTHERS => pixq_v:=(o_l3_v,o_l0_v,o_l1_v,o_l2_v);
 				END CASE;
 
 				IF fracnn_v = '0' THEN

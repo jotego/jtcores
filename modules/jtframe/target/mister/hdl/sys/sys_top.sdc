@@ -74,7 +74,7 @@ set_false_path -from {ascal|o_hsstart* ascal|o_vsstart* ascal|o_hsend* ascal|o_v
 set_false_path -from {ascal|o_hsize* ascal|o_vsize*}
 
 set_false_path -from {mcp23009|flg_*}
-set_false_path -to   {sysmem|fpga_interfaces|clocks_resets*}
+set_false_path -to   {sysmem|fpga_interfaces|clocks_resets|f2h*}
 
 # JTFRAME
 set_false_path -to [get_keepers {audio_out:audio_out|cl1[*]}]
