@@ -59,7 +59,7 @@ func Test_generate(t *testing.T) {
 	}
 	if len(mmr.converted[0])==0 { t.Error("Empty conversion"); return }
 	compare(string(ref),mmr.converted[0],t)
-	// os.WriteFile(ref_filename,[]byte(mmr.converted[0]),0644) // uncomment to update the reference file
+	os.WriteFile(ref_filename,[]byte(mmr.converted[0]),0644) // uncomment to update the reference file
 }
 
 func add_path_from_this_file(fname string) string {
