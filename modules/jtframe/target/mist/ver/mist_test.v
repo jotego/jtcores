@@ -27,6 +27,14 @@ wire [7:0] VGA_R, VGA_G, VGA_B;
 // regardless of the scan doubler or the composity sync
 wire pxl_clk, pxl_cen, pxl_vb, pxl_hb;
 
+`ifdef MIST_DUAL_SDRAM
+wire [12:0] SDRAM2_A;
+wire [15:0] SDRAM2_DQ;
+wire        SDRAM2_DQML, SDRAM2_DQMH, SDRAM2_nWE, SDRAM2_nCAS, SDRAM2_nRAS,
+            SDRAM2_nCS, SDRAM2_CLK, SDRAM2_CKE;
+wire [ 1:0] SDRAM2_BA;
+`endif
+
 mist_dump u_dump(
     .VGA_VS     ( pxl_vb    ),
     .led        ( led       ),
@@ -54,9 +62,9 @@ test_harness #(.sdram_instance(0),.GAME_ROMNAME("rom.bin"),
     // Video dumping. VGA_ signals are equal to game signals in simulation.
     .HS          ( pxl_hb    ),
     .VS          ( pxl_vb    ),
-    .red         ( VGA_R[7-:4]),
-    .green       ( VGA_G[7-:4]),
-    .blue        ( VGA_B[7-:4]),
+    .red         ( VGA_R     ),
+    .green       ( VGA_G     ),
+    .blue        ( VGA_B     ),
     .frame_cnt   ( frame_cnt ),
     // SDRAM
     .SDRAM_DQ    ( SDRAM_DQ  ),
@@ -70,6 +78,20 @@ test_harness #(.sdram_instance(0),.GAME_ROMNAME("rom.bin"),
     .SDRAM_BA    ( SDRAM_BA  ),
     .SDRAM_CLK   ( SDRAM_CLK ),
     .SDRAM_CKE   ( SDRAM_CKE ),
+`ifdef MIST_DUAL_SDRAM
+    // Second SDRAM (used for frame buffer)
+    .SDRAM2_A   ( SDRAM2_A      ),
+    .SDRAM2_DQ  ( SDRAM2_DQ     ),
+    .SDRAM2_DQML( SDRAM2_DQML   ),
+    .SDRAM2_DQMH( SDRAM2_DQMH   ),
+    .SDRAM2_nWE ( SDRAM2_nWE    ),
+    .SDRAM2_nCAS( SDRAM2_nCAS   ),
+    .SDRAM2_nRAS( SDRAM2_nRAS   ),
+    .SDRAM2_nCS ( SDRAM2_nCS    ),
+    .SDRAM2_BA  ( SDRAM2_BA     ),
+    .SDRAM2_CLK ( SDRAM2_CLK    ),
+    .SDRAM2_CKE ( SDRAM2_CKE    ),
+`endif
     // unused
     .H0          ( 1'bz      ),
     .autorefresh ( 1'bz      ),
@@ -105,10 +127,24 @@ mist_top UUT(
     .SDRAM_BA   ( SDRAM_BA  ),
     .SDRAM_CLK  ( SDRAM_CLK ),
     .SDRAM_CKE  ( SDRAM_CKE ),
-    `ifdef SIM_UART
+`ifdef SIM_UART
     .UART_RX    ( UART_RX   ),
     .UART_TX    ( UART_TX   ),
-    `endif
+`endif
+`ifdef MIST_DUAL_SDRAM
+    // Second SDRAM (used for frame buffer)
+    .SDRAM2_A   ( SDRAM2_A      ),
+    .SDRAM2_DQ  ( SDRAM2_DQ     ),
+    .SDRAM2_DQML( SDRAM2_DQML   ),
+    .SDRAM2_DQMH( SDRAM2_DQMH   ),
+    .SDRAM2_nWE ( SDRAM2_nWE    ),
+    .SDRAM2_nCAS( SDRAM2_nCAS   ),
+    .SDRAM2_nRAS( SDRAM2_nRAS   ),
+    .SDRAM2_nCS ( SDRAM2_nCS    ),
+    .SDRAM2_BA  ( SDRAM2_BA     ),
+    .SDRAM2_CLK ( SDRAM2_CLK    ),
+    .SDRAM2_CKE ( SDRAM2_CKE    ),
+`endif
     // SPI interface to arm io controller
     .SPI_DO     ( SPI_DO    ),
     .SPI_DI     ( SPI_DI    ),

@@ -78,7 +78,16 @@ module jtframe_mist_video #(parameter
     output             sd_cas,
     output             sd_cke
 );
+`ifdef SIMULATION
+always @* begin
+    video_hs = game_hs;
+    video_vs = game_vs;
+end
 
+assign video_r = game_rgb[3*VGA_DW-1-:COLORW];
+assign video_g = game_rgb[2*VGA_DW-1-:COLORW];
+assign video_b = game_rgb[  VGA_DW-1-:COLORW];
+`else
 // Limited bandwidth for video signal
 localparam CLROUTW = COLORW < 5 ? COLORW+1 : COLORW;
 
@@ -311,5 +320,5 @@ always @(posedge clk) begin
         video_vs <= 1'b1;
     end
 end
-
+`endif
 endmodule

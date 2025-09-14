@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 22-2-2019 */
 
-// This is the MiST top level
+// This is the MiST/SiDi128 top level
 module mist_top #(parameter
     VGA_DW = `ifdef MIST_VGA_8BIT 8 `else 6 `endif
 )(

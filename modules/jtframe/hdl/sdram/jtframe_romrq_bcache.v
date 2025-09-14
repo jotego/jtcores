@@ -179,15 +179,22 @@ jtframe_romrq_stats u_stats(
 reg [AW-1:0] last_addr;
 reg          waiting, last_req;
 
+integer addr_warn_cnt=0, req_warn_cnt=0;
+localparam MAX_WARN_CNT=200;
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         waiting <= 0;
         last_req <= 0;
     end else begin
         last_req <= req;
-        if( req && !last_req ) begin
+        if( req && !last_req && req_warn_cnt<MAX_WARN_CNT ) begin
             if( waiting ) begin
+                req_warn_cnt <= req_warn_cnt+1;
                 $display("ERROR: %m new request without finishing the previous");
+                if(req_warn_cnt==MAX_WARN_CNT-1) begin
+                    $display("Maximum warning count reached further warnings will be supressed");
+                end
 `ifndef JTFRAME_SIM_SDRAM_NONSTOP
                 $finish;
 `endif
@@ -202,9 +209,13 @@ always @(posedge clk, posedge rst) begin
             $finish;
 `endif
         end
-        if( addr != last_addr && addr_ok) begin
+        if( addr != last_addr && addr_ok && addr_warn_cnt<MAX_WARN_CNT ) begin
             if( waiting ) begin
+                addr_warn_cnt <= addr_warn_cnt+1;
                 $display("ERROR: %m address changed at time %t",$time);
+                if(addr_warn_cnt==MAX_WARN_CNT-1) begin
+                    $display("Maximum warning count reached further warnings will be supressed");
+                end
 `ifndef JTFRAME_SIM_SDRAM_NONSTOP
                 #40 $finish;
 `endif
