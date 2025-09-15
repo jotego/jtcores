@@ -70,9 +70,7 @@ reg  [   5:0] porch;
 reg  [VW-1:0] vstart=0, vend=0;
 wire [  15:0] scr_pxl;
 wire [   5:0] vbs_len, vsy_len, vsa_len;
-wire          hs_pos, info_rdy;
-
-assign hs_pos = hs && !hs_l;
+wire          info_rdy;
 
 always @(posedge clk) if(pxl_cen) ln_pxl <= scr_pxl[DW-1:0];
 
@@ -114,7 +112,6 @@ jtframe_blank_length u_counter(
     .lvbl       ( lvbl          ),
     .hs         ( hs            ),
     .vs         ( vs            ),
-    .flip       ( 1'b0          ),
 
     .v_len      (               ),
     .h_len      (               ),
@@ -177,8 +174,7 @@ always @(posedge clk, posedge rst) begin
         end
         if( fb_done && !done )
     `ifdef JTFRAME_LF_FULLV
-        case( 1'b1 )
-            vsa,vsy,vbs: begin
+            if({vsa,vsy,vbs}!=0) begin
                 porch <= porch - 1'd1;
                 ln_hs <= 1;
                 if(porch==0) begin
@@ -187,15 +183,13 @@ always @(posedge clk, posedge rst) begin
                     ln_lvbl <= vsa;
                     st <= st<<1;
                 end
-            end
-            active: begin
-                ln_v     <= ln_v + 1'd1;
+            end else if(active) begin
+                ln_v <= ln_v + 1'd1;
                 if( ln_v == vend )
                     done <= 1;
                 else
                     ln_hs <= 1;
             end
-        endcase
     `else begin
             ln_v <= ln_v + 1'd1;
             if( ln_v == vend )

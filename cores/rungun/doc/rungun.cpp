@@ -829,7 +829,7 @@ ROM_START( runguna )
 	/* sound program */
 	ROM_REGION( 0x030000, "soundcpu", 0 )
 	ROM_LOAD("1.13g",  0x000000, 0x20000, CRC(c0b35df9) SHA1(a0c73d993eb32bd0cd192351b5f86794efd91949) )
-	ROM_RELOAD(         0x010000, 0x20000 )
+	ROM_RELOAD(        0x010000, 0x20000 )
 
 	/* '936 tiles */
 	ROM_REGION( 0x400000, "gfx1", 0)

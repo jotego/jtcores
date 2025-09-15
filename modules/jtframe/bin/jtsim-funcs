@@ -109,7 +109,7 @@ has_parent() {
 }
 
 clean_up() {
-    rm -f video.pipe frame.raw \
+    rm -f frame.raw \
        game.f  jtsim.f  jtsim_vhdl.f simfile.f *bak *.def \
        make.log defmacros.h filtered.f microrom.mem nanorom.mem
     if [ -z "$TESTCPP" ]; then rm -f test.cpp; fi
@@ -334,6 +334,10 @@ run_coverage() {
 }
 
 convert_raw2wav() {
+    if [ ! -e $JTUTIL/bin/raw2wav ]; then
+        echo "Bypassing sound.raw conversion to wav file as raw2wav was not found"
+        return
+    fi
 	if [ -e sound.raw ]; then
 	    $JTUTIL/bin/raw2wav $SAMPLING_RATE < sound.raw
 	    rm -f sound.raw

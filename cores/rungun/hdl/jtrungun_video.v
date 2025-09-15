@@ -114,7 +114,7 @@ assign fix_pal  = vram_dout[15:12];
 assign fix_code = vram_dout[11: 0];
 
 localparam [19:0] IOCTL_RD_SIZE=`JTFRAME_IOCTL_RD;
-localparam [14:0] IOADDR0 = IOCTL_RD_SIZE[14:0]-15'd8192-15'd16*4;
+localparam [14:0] IOADDR0 = IOCTL_RD_SIZE[14:0]-15'd8192-15'd64;
 
 always @(posedge clk) begin
     ioctl_adj <= ioctl_addr - IOADDR0;
@@ -174,7 +174,7 @@ jtk053252 u_k053252(
     .ioctl_din  ( ccu_mmr       )
 );
 
-jtframe_video_counter u_counter(
+jtframe_blank_length u_counter(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
@@ -183,10 +183,9 @@ jtframe_video_counter u_counter(
     .lvbl       ( 1'b0          ),
     .hs         ( hs            ),
     .vs         ( 1'b0          ),
-    .flip       ( 1'b0          ),
 
-    .v          (               ),
-    .h          (               ),
+    .v_len      (               ),
+    .h_len      (               ),
     .hbs_len    ( hbs_len       ),
     .hsy_len    ( hsy_len       ),
     .hsa_len    ( hsa_len       ),
@@ -311,7 +310,7 @@ jtrungun_psac u_psac(
 
 localparam [9:0] OVOFFSET = 10'h111;
 
-jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd11)) u_obj(    // sprite logic
+jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd18)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( virt_cen  ),

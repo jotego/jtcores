@@ -185,6 +185,7 @@ always @(posedge clk) begin : A
         indr     <= 0;
         hhalf    <= 0;
         shd      <= 0;
+        done     <= 0;
     end else if( cen2 ) begin
         hs_l <= hs;
         dr_start <= 0;

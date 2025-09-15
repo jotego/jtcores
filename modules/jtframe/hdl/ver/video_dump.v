@@ -31,11 +31,10 @@ module video_dump(
     input        pxl_cen,
     input        pxl_hb,
     input        pxl_vb,
-    input [ 3:0] red,
-    input [ 3:0] green,
-    input [ 3:0] blue,
+    input [ 7:0] red,
+    input [ 7:0] green,
+    input [ 7:0] blue,
     input [31:0] frame_cnt
-    //input        downloading
 );
 
 
@@ -57,7 +56,7 @@ initial begin
     fvideo = $fopen(`DUMP_VIDEO_FNAME,"wb");
 end
 
-wire [31:0] video_dump = { 8'hff, {2{blue}}, {2{green}}, {2{red}} };
+wire [31:0] video_dump = { 6'h0,last_vb,last_hb, blue, green, red };
 
 // Define VIDEO_START with the first frame number for which
 // video will be dumped. If undefined, it will start from frame 0
@@ -76,7 +75,7 @@ always @(posedge pxl_clk) if( pxl_cen && hvinfo_done<1 ) begin
         vcnt<=0;
         if( hvinfo_done==0 && vcnt>0 && hcnt>0 ) begin
             finfo  = $fopen("video.info","w");
-            $fdisplay( finfo, "1%d\n%1d\n", hcnt, vcnt );
+            $fdisplay( finfo, "%1d\n%1d\n", hcnt, vcnt );
             $display( "Visible screen size: %1dx%1d\n", hcnt, vcnt );
             $fclose(finfo);
             hvinfo_done <= 1;

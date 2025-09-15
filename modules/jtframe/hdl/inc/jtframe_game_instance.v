@@ -56,16 +56,6 @@ assign sim_dwnld_busy = dwnld_busy;
 `endif
 `endif
 
-// `ifndef JTFRAME_LF_BUFFER
-//     assign game_vrender = 0,
-//            game_hdump   = 0,
-//            ln_addr      = 0,
-//            ln_data      = 0,
-//            ln_done      = 0,
-//            ln_we        = 0;
-// `endif
-
-
 `GAMETOP
 u_game(
     .rst         ( game_rst       ),

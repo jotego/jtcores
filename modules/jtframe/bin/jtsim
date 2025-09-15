@@ -337,8 +337,8 @@ fi
 # Non Verilator sims do image conversion via raw2png
 if [[ "$VIDEO_DUMP" = TRUE && $SIMULATOR != verilator ]]; then
     rm -f video.pipe
-    mkfifo video.pipe
-    raw2png -w $JTFRAME_WIDTH -h $JTFRAME_HEIGHT -f video.pipe : $CONVERT_OPTIONS&
+    # mkfifo video.pipe
+    # raw2png -w $JTFRAME_WIDTH -h $JTFRAME_HEIGHT -f video.pipe : $CONVERT_OPTIONS&
 fi
 
 # Link to hex files in HDL folder

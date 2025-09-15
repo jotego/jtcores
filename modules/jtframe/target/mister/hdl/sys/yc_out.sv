@@ -46,7 +46,14 @@ module yc_out
 	output reg	  csync_o,
 	output reg	  de_o
 );
-
+`ifdef NCVERILOG
+initial begin
+    hsync_o=0;
+    vsync_o=0;
+    csync_o=0;
+    de_o=0;
+end
+`else
 wire [7:0] red = din[23:16];
 wire [7:0] green = din[15:8];
 wire [7:0] blue = din[7:0];
@@ -228,6 +235,5 @@ always_ff @(posedge clk) begin
 end
 
 assign dout = {C, Y, 8'd0};
-
+`endif
 endmodule
-

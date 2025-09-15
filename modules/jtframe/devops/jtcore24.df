@@ -1,0 +1,12 @@
+FROM jotego/jtcore-base
+LABEL maintainer=jotego@gmail.com
+
+RUN mkdir -p /opt/intelFPGA_lite/24.1std
+COPY --from=intelfpga_lite 24.1std/devdata   /opt/intelFPGA_lite/24.1std/devdata
+COPY --from=intelfpga_lite 24.1std/ip        /opt/intelFPGA_lite/24.1std/ip
+COPY --from=intelfpga_lite 24.1std/licenses  /opt/intelFPGA_lite/24.1std/licenses
+COPY --from=intelfpga_lite 24.1std/logs      /opt/intelFPGA_lite/24.1std/logs
+COPY --from=intelfpga_lite 24.1std/quartus   /opt/intelFPGA_lite/24.1std/quartus
+ENV PATH=$PATH:/opt/intelFPGA_lite/24.1std/quartus/bin
+
+ENTRYPOINT ["bash"]

@@ -23,7 +23,6 @@ module jtframe_blank_length(
 
     input        lhbl, lvbl,
     input        hs, vs,
-    input        flip,
 
     output       rdy,      // v*_len ready after two frames
 
@@ -71,7 +70,6 @@ module jtframe_blank_length(
         .pxl_cen    ( pxl_cen       ),
         .cnt_cen    ( 1'b1          ),
 
-        .flip       ( flip          ),
         .s          ( hs            ),
         .lbl        ( lhbl          ),
 
@@ -88,7 +86,6 @@ module jtframe_blank_length(
         .pxl_cen    ( pxl_cen       ),
         .cnt_cen    ( hbl_neg       ),
 
-        .flip       ( flip          ),
         .s          ( vs            ),
         .lbl        ( lvbl          ),
 
@@ -104,7 +101,7 @@ endmodule
 //////////////////////////////////////////////////////////
 module jtframe_sync_blank_counter(
     input       rst, clk,
-                flip, s, lbl,
+                s, lbl,
                 pxl_cen,
                 cnt_cen,
 
@@ -152,7 +149,7 @@ module jtframe_sync_blank_counter(
                     aux    <= 0;
                     sa_len <= aux;
                     cnt    <= 0;
-                    total  <= cnt ^ { 1'b0, {8{flip}}};
+                    total  <= cnt;
                 end
             end
         end

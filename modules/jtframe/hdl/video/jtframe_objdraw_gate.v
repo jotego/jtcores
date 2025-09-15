@@ -42,14 +42,14 @@ module jtframe_objdraw_gate #( parameter
     HFIX  =  1,    // Fixes some problems, but it may create others. Turn it off if objects are not rendered on part of the screen
     LATCH =  0,    // If set, latches code, xpos, ysub, hflip, vflip and pal when draw is set and busy is low
     FLIP_OFFSET=0, // Added to ~hdump when flip==1 and HJUMP==0
-    SHADOW     =0, // 1 for shadows
-    SW         =1, // Shadow bits width (Use with SHADOW==1)
     KEEP_OLD   =0, // new writes do not overwrite old ones (reverse priority)
-    SHADOW_PEN = ALPHA, // Value used by only-shadow sprites. Use independently from SHADOW
-    // object line buffer
     BUFDLY     =0, // extra latency to add to buf_addr and buf_we, use if buf_din is not combinational
     ALPHAW     =4,
     ALPHA      =0,
+    SHADOW     =0, // 1 for shadows
+    SW         =1, // Shadow bits width (Use with SHADOW==1)
+    SHADOW_PEN = ALPHA, // Value used by only-shadow sprites. Use independently from SHADOW
+    // object line buffer
     PACKED     =0  // 0 if rom_data is { plane3, plane2, plane1, plane0 }, 8 bits each
                    // 1 if rom_data packs the 4 planes in nibbles
 )(

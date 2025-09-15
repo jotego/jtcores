@@ -34,10 +34,10 @@ module jtframe_objdraw #( parameter
     LATCH =  0,
     FLIP_OFFSET=0,
     KEEP_OLD  = 0,
+    ALPHA     = 0,
     SHADOW    = 0,
     SHADOW_PEN  = ALPHA,
     SW        = 1,
-    ALPHA     = 0,
     PACKED    = 0
 )(
     input               rst,

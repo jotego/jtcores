@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 16-3-2025 */
 
-module jtframe_ioctl_range #(
+module jtframe_ioctl_range #( parameter
     SDRAMW = 22,
     DW     =  8,
     AW     =  8,

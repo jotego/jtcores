@@ -21,7 +21,8 @@ module jtrungun_main(
     input                lvbl,
     input                disp,
 
-    output reg    [21:1] main_addr,
+    output        [21:1] rom_addr,
+    output        [12:1] cpu_addr,
     output        [ 1:0] ram_dsn,
     output               ram_we,
     output        [15:0] cpu_dout,
@@ -92,7 +93,7 @@ wire        cpu_cen, cpu_cenb, bus_dtackn, dtackn, VPAn,
             fmode, fsel, l5mas, l3mas, l2mas, int5, l_r,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs,
             eep_rdy, eep_do, eep_di, eep_clk, eep_cs;
-reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
+reg         gfx_cs, sys2_cs, sys1_cs, vmem_cs,
             io1_cs, io2_cs, io_cs, misc_cs, cpal_cs, cab_cs, HALTn,
             pslrm_cs, psvrm_cs,
             objch_cs, pair_cs, sdon_cs, psch_cs;
@@ -101,6 +102,8 @@ reg         boot_cs, xrom_cs, gfx_cs, sys2_cs, sys1_cs, vmem_cs,
 wire [23:0] A_full = {A,1'b0};
 `endif
 
+assign cpu_addr = A[12:1];
+assign rom_addr ={A[20],A[21],A[19:1]};
 assign VPAn     = ~&{A[23],~ASn};
 assign ram_dsn  = {UDSn, LDSn};
 assign ram_we   = ~RnW;
@@ -146,15 +149,12 @@ reg [3:0] cs_count;
 
 always @* begin
     // 056541 PAL
-    boot_cs =   !ASn  &&  A[23:20]==0 && RnW && !BUSn;
-    xrom_cs =   !ASn  && (A[23:20]==2 || A[23:20]==1) && !BUSn;
-    rom_cs  = boot_cs || xrom_cs;
-
+    rom_cs  =   !ASn  &&  A[23:20] <4'b0011   && !BUSn;
     ram_cs  =   !ASn  &&  A[23:19]==5'b0011_1 && !BUSn;
-    gfx_cs  =   !ASn  &&  A[23:21]==3'b011;     // $3?_???? ~$7?_????
-    // dmac_cs =   !ASn  &&  A[23:19]==5'b0011_1;  // $38_???? same as RAM in PAL equations
     cpal_cs =   !ASn  &&  A[23:19]==5'b0011_0;
-    misc_cs =   !ASn  &&  A[23:21]==3'b010; // $4?_...
+    gfx_cs  =   !ASn  &&  A[23:21]==3'b011;     // $6?_???? ~$7?_????
+    misc_cs =   !ASn  &&  A[23:21]==3'b010;     // $4?_...
+//  dmac_cs =   !ASn  &&  A[23:19]==5'b0011_1;  // $38_???? same as RAM in PAL equations
     // 74F138 at 11T
     vmem_cs = gfx_cs  &&  A[20:18]==5; // $74_????
     pslrm_cs= gfx_cs  &&  A[20:18]==4; // $70_... 2k PSAC line
@@ -168,7 +168,7 @@ always @* begin
     sdon_cs = misc_cs &&  A[20:18]==5;
     ccu_cs  = misc_cs &&  A[20:18]==3;
     io_cs   = misc_cs &&  A[20:18]==2;
-    psch_cs = misc_cs &&  A[20:19]==0;
+    psch_cs = misc_cs &&  A[20:19]==0; // covers A[20:18]==0/==1
 
     sys2_cs = io_cs   &&  A[ 3: 2]==3;
     sys1_cs = io_cs   &&  A[ 3: 2]==2;
@@ -185,17 +185,8 @@ always @* begin
              + {3'd0,sys1_cs} + {3'd0,io2_cs}  + {3'd0,io1_cs};
     if(cs_count>1) begin
         $display("cs_count over 1!");
+        $finish;
     end
-end
-
-always @* begin
-    main_addr = A[21:1];
-    if(boot_cs) main_addr[21:20]=0;
-    if(rom_cs ) case(A[21:20])
-        1: main_addr[21:20] = 2'b10;
-        2: main_addr[21:20] = 2'b01;
-        default:;
-    endcase
 end
 
 always @* begin

@@ -21,6 +21,7 @@ module jtrungun_game(
 );
 
 wire [23:0] psrm_dout;
+wire [12:1] cpu_addr;
 wire [15:0] omem_dout;
 wire [ 7:0] vtimer_mmr, st_main, st_snd, pair_dout;
 wire [ 3:0] psac_bank;
@@ -51,7 +52,8 @@ jtrungun_main u_main(
     .psac_bank      ( psac_bank     ),
     .vtimer_mmr     ( vtimer_mmr    ),
 
-    .main_addr      ( main_addr     ),
+    .cpu_addr       ( cpu_addr      ),
+    .rom_addr       ( main_addr     ),
     .rom_data       ( main_data     ),
     .rom_cs         ( main_cs       ),
     .rom_ok         ( main_ok       ),
@@ -109,7 +111,7 @@ jtrungun_main u_main(
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtrungun_sound u_sound(
     .rst            ( rst           ),
     .clk            ( clk48         ),
@@ -119,7 +121,7 @@ jtrungun_sound u_sound(
     // communication with main CPU
     .main_dout      ( cpu_dout[15:8]),  // bus access for Punk Shot
     .pair_dout      ( pair_dout     ),
-    .main_addr      ( main_addr[4:1]),
+    .main_addr      ( cpu_addr[4:1] ),
     .pair_we        ( pair_we       ),
 
     .snd_irq        ( sdon          ),
@@ -144,7 +146,7 @@ jtrungun_sound u_sound(
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtrungun_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -166,7 +168,7 @@ jtrungun_video u_video(
     // CPU interface
     .ccu_cs         ( ccu_cs        ),   // timer
     .psac_cs        ( psac_cs       ),
-    .addr           (main_addr[12:1]),
+    .addr           ( cpu_addr      ),
     .rnw            ( cpu_rnw       ),
     .cpu_dout       ( cpu_dout      ),
     .cpu_dsn        ( ram_dsn       ),
