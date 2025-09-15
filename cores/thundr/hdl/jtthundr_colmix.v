@@ -39,7 +39,7 @@ localparam [2:0] ALPHA=7,BG_PXL=3'b111, BG_PRIO=3'b0;
 localparam [3:0] OALPHA=15;
 
 reg [10:0] scr1_dly;
-reg [ 2:0] bg_prio;
+reg [ 2:0] bg_prio, scr1_pri_dly;
 reg        scrwin, scr1win;
 wire       scr1_op, scr0_op, obj_op;
 
@@ -52,12 +52,12 @@ always @* begin
     scrwin  = bg_prio > obj_prio || !obj_op;
 end
 
-always @(posedge clk) if(pxl_cen) scr1_dly <= scr1_pxl;
+always @(posedge clk) if(pxl_cen) {scr1_dly, scr1_pri_dly} <= {scr1_pxl, scr1_prio};
 
 always @(posedge clk) if(pxl2_cen) begin
     objpal_addr <= obj_pxl;
     { bg_prio, scrpal_addr } <=
-        scr1win ? {scr1_prio,scr1_dly} :
+        scr1win ? {scr1_pri_dly,scr1_dly} :
         scr0_op ? {scr0_prio,scr0_pxl} :
                   {BG_PRIO, backcolor,  BG_PXL} ;
 end
