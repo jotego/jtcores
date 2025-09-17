@@ -74,7 +74,8 @@ module jtframe_tilemap #( parameter
 );
 
 reg   [DW-1:0]    pxl_data;
-reg [PALW-1:0]    cur_pal, nx_pal;
+reg   [CW-1:0]    fcode;
+reg [PALW-1:0]    cur_pal, nx_pal, flip_pal;
 wire              vflip_g, xhflip;
 reg               hflip_g, nx_hf;
 reg  [HDUMPW-1:0] heff, hoff;
@@ -86,6 +87,8 @@ assign veff = FLIP_VDUMP ? vdump ^ { FLIP_MSB[0]&flip, {VDUMPW-1{flip}}} : vdump
 always @* begin
     hoff = hdump - HDUMP_OFFSET[HDUMPW-1:0];
     heff = FLIP_HDUMP ? hoff ^ {HDUMPW{flip}} : hoff;
+    if(hflip_g)
+        heff = heff -9'h8;
 end
 
 initial begin
@@ -127,6 +130,7 @@ end
 integer i;
 always @* begin
     pxl[PW-1-:PALW] = cur_pal;
+    if(xhflip) pxl[PW-1-:PALW] = flip_pal;
     for(i=0;i<BPP;i=i+1) begin
         if( hflip_g )
             pxl[i] = pxl_data[i<<3];
@@ -145,20 +149,24 @@ always @(posedge clk) begin
         rom_addr <= 0;
         pxl_data <= 0;
         cur_pal  <= 0;
+        fcode    <= 0;
+        flip_pal <= 0;
         hflip_g  <= 0;
     end else if(pxl_cen) begin
         heff_l <= heff[3];
         hmsb_l <= hdump[7];
+        fcode  <= code;
         if( zero ) begin
             rom_cs <= ~rst & blankn;
             rom_addr[0+:VW] <= veff[0+:VW]^{VW{vflip_g}};
-            rom_addr[VR-1-:CW] <= code;
+            rom_addr[VR-1-:CW] <= xhflip ? fcode : code;
             if( SIZE==16 ) rom_addr[VW]      <= heff[3]^xhflip;
             if( SIZE==32 ) rom_addr[VW+1-:2] <= heff[4:3]^{2{xhflip}};
             pxl_data <= rom_ok ? rom_data : {DW{1'b0}};
             // draw information is eight pixels behind
             nx_pal   <= pal;
             cur_pal  <= nx_pal;
+            flip_pal <= cur_pal;
             nx_hf    <= xhflip;
             hflip_g  <= nx_hf;
         end else begin
