@@ -120,7 +120,7 @@ wire [10:1] vram_raw;
 
 assign vram_addr = wndrplnt ? {vram_raw[5:1], vram_raw[10:6]} : vram_raw;
 
-jtframe_tilemap #(.PW(6),.CW(10),.XOR_HFLIP(1)) u_fix(
+jtframe_tilemap #(.PW(6),.CW(10),.XOR_HFLIP(1),.FLIP_DLY(1)) u_fix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -145,7 +145,7 @@ jtframe_tilemap #(.PW(6),.CW(10),.XOR_HFLIP(1)) u_fix(
     .pxl        ( { fix_pxl[4:3], fix_pxl[2:0], nc } ) // the fix layer is only 3 bpp
 );
 
-jtframe_scroll #(.SIZE(16),.PW(8),.VA(10),.CW(11),.XOR_HFLIP(1)) u_scroll(
+jtframe_scroll #(.SIZE(16),.PW(8),.VA(10),.CW(11),.XOR_HFLIP(1),.FLIP_DLY(1)) u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
