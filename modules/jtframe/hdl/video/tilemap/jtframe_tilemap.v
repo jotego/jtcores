@@ -88,7 +88,7 @@ always @* begin
     hoff = hdump - HDUMP_OFFSET[HDUMPW-1:0];
     heff = FLIP_HDUMP ? hoff ^ {HDUMPW{flip}} : hoff;
     if(hflip_g)
-        heff = heff -9'h8;
+        heff = heff +{{HDUMPW-3{1'b1}},3'b0};
 end
 
 initial begin
