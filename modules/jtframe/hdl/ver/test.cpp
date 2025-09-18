@@ -505,7 +505,7 @@ class JTSim {
     SDRAM sdram;
     SimInputs sim_inputs;
     Download dwn;
-    int frame_cnt, last_LVBL, last_VS;
+    int frame_cnt, last_LVBL, last_VS, last_flip;
     // Video dump
     struct t_dump{
         ofstream fout;
@@ -551,6 +551,12 @@ class JTSim {
         }
     }
     void reset(int r);
+    void report_flip_changes() {
+        if( !game.rst ) {
+            if( last_flip != game.dip_flip ) fputs("\ndip_flip toggled\n", stderr);
+        }
+        last_flip = game.dip_flip;
+    }
 public:
     int finish_time, finish_frame, totalh, totalw, activeh, activew;
     float vrate;
@@ -977,6 +983,7 @@ void JTSim::video_dump() {
             activew= cntw[1];
             cntw[0]=0; cntw[1]=0;
             if( !game.LVBL && LVBLl!=0 ) {
+                report_flip_changes();
                 totalh = cnth[0];
                 activeh= cnth[1];
                 cnth[0]=0; cnth[1]=0;
