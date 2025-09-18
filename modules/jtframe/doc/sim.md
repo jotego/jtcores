@@ -97,17 +97,22 @@ The script `run_regression.sh` is used for automatic regressions triggered by Gi
 The script `run_regression.sh` runs a simulation using `jtsim` according to the options defined in a configuration file located in `<core>/cfg`, called `reg.yaml`. In this file, you can specify the same options available when using `jtsim`. The syntax is as follows:
 
 ```yaml
-<setname_1>:
+1942:
     video: number
-    inputs: file
+    inputs: reg.cab
     dipsw: binary_number
     d: MACRO1
     d: MACRO2
     ...
+1942-flip:
+    inputs: ../setname1/reg.cab
+    dipsw: ef77
 ...
-<setname_n>:
+higemaru:
     ...
 ```
+
+You can simulate the same setname with different options by adding a suffix after the setname using a hyphen to separate them, such as in `1942-flip`
 
 > [!NOTE]
 > GitHub uses these configuration files to decide which setnames will be executed during regression. Any setnames not included in these files will be skipped. If you want a setname to be triggered without options, just type <setname>: without any additional fields.

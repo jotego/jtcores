@@ -1,5 +1,8 @@
 1942:
   inputs: reg.cab
+1942-flip:
+  inputs: ../1942/reg.cab
+  dipsw: ef77
 higemaru:
   inputs: reg.cab
 vulgus:

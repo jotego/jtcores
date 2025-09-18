@@ -1,6 +1,5 @@
 #!/bin/bash
 
-REGRESSION_FILE="reg.yaml"
 # change default frames in $JTFRAME/bin/reg.yaml
 
 main() {
@@ -20,7 +19,7 @@ main() {
 
     if ! cd_ver_folder; then exit 2; fi
 
-    exec 3> $setname-sim.log
+    exec 3> $fullname-sim.log
 
     print_step "Simulating $setname"
     local simulate_ec=0
@@ -133,7 +132,7 @@ parse_args() {
         exit 1
     fi
     core=$1; shift
-    setname=$1; shift
+    parse_setname $1; shift
 
     while [[ $# -gt 0 ]]; do case $1 in
         --path) shift; REMOTE_DIR="$1" ;;
@@ -204,6 +203,12 @@ By default, simulations are extracted without validation or upload.
 EOF
 }
 
+parse_setname() {
+    fullname="$1"
+    local rest
+    IFS="-" read setname rest <<< "$fullname"
+}
+
 print_title() {
     local title="$1"
     local border_char="*"
@@ -232,7 +237,7 @@ cd_ver_folder() {
         return 1
     fi
 
-    local ver_folder="$JTROOT/cores/$core/ver/$setname"
+    local ver_folder="$JTROOT/cores/$core/ver/$fullname"
     mkdir --parents $ver_folder
     cd $ver_folder
 }
@@ -251,7 +256,12 @@ simulate() {
     get_opts sim_opts
 
     jtsim -batch -load -skipROM -setname $setname "${sim_opts[@]}" >&3 2>&3
-    if [[ $? != 0 ]]; then return 2; fi
+    if [[ $? != 0 ]]; then
+        if $local_rom; then
+            cat $fullname-sim.log
+        fi
+        return 2;
+    fi
 
     if [[ ! -f "test.mp4" ]]; then
         echo "[WARNING] Generated video not found"
@@ -304,8 +314,8 @@ get_zip_names() {
 get_opts() {
     declare -n opts_ref=$1
 
-    local global_cfg_file="$JTROOT/modules/jtframe/bin/$REGRESSION_FILE"
-    local local_cfg_file="$JTROOT/cores/$core/cfg/$REGRESSION_FILE"
+    local global_cfg_file="$JTROOT/modules/jtframe/bin/reg.yaml"
+    local local_cfg_file="$JTROOT/cores/$core/cfg/reg.yaml"
 
     local frames_found=false
 
@@ -327,10 +337,10 @@ get_opts() {
     # --- Parse core config ---
     if [[ ! -f $local_cfg_file ]]; then
         echo "[WARNING] Cannot find local configuration file for $core regressions. Searched in $local_cfg_file"
-    elif [[ $(yq ".$setname" $local_cfg_file) == "null" ]]; then
-        echo "[WARNING] $setname is not meant to execute a regression. You shouldn't be requesting it"
+    elif [[ $(yq ".$fullname" $local_cfg_file) == "null" ]]; then
+        echo "[WARNING] $fullname is not meant to execute a regression. You shouldn't be requesting it"
     else
-        readarray raw_opts < <(yq -o=j -I=0 ".$setname | to_entries[]" $local_cfg_file)
+        readarray raw_opts < <(yq -o=j -I=0 ".$fullname | to_entries[]" $local_cfg_file)
         for item in "${raw_opts[@]}"; do
             key=$(echo $item | yq '.key' -)
             value=$(echo $item | yq '.value' -)
@@ -481,7 +491,7 @@ upload_results() {
     case $ec in
         1)
             folder="fail"
-            files=("$setname-sim.log")
+            files=("$fullname-sim.log")
         ;;
         3|5|6) folder="not_checked" ;;
         4|7|10)
