@@ -129,7 +129,7 @@ parse_args() {
         exit 0
     fi
     if [[ $# -lt 2 ]]; then
-        echo "Usage: $0 <core> <setname> [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
+        echo "Usage: $0 <core> <setname> [other args]"
         exit 1
     fi
     core=$1; shift
@@ -243,6 +243,8 @@ simulate() {
         if ! get_zips roms_dir; then return 1; fi
         jtframe mra --path $roms_dir --setname $setname
         rm -rf $roms_dir
+    else
+        jtframe mra --setname $setname
     fi
 
     declare -a sim_opts
