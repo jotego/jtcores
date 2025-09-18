@@ -125,27 +125,23 @@ parse_args() {
     push=false
 
     if [[ $1 == --help || $1 == -h ]]; then
-        echo "Usage: $0 <core> <setname> [--frames <number_of_frames>] [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
-        echo ""
         print_help
         exit 0
     fi
     if [[ $# -lt 2 ]]; then
-        echo "Usage: $0 <core> <setname> [--frames <number_of_frames>] [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
+        echo "Usage: $0 <core> <setname> [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
         exit 1
     fi
     core=$1; shift
     setname=$1; shift
 
-    while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+    while [[ $# -gt 0 ]]; do case $1 in
         --path) shift; REMOTE_DIR="$1" ;;
         --check) check=true ;;
         --local-check) shift; local_check=true; LOCAL_DIR="$1" ;;
         --local-rom) local_rom=true ;;
         --push) push=true ;;
         -h|--help)
-            echo "Usage: $0 <core> <setname> [--frames <number_of_frames>] [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
-            echo ""
             print_help
             exit 0
             ;;
@@ -162,7 +158,6 @@ parse_args() {
         --user) shift; SFTP_USER=$1 ;;
         *)
             echo "[ERROR] Unknown option: $1"
-            echo "Usage: $0 <core> <setname> [--frames <number_of_frames>] [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]"
             exit 1
             ;;
     esac; shift; done
@@ -177,12 +172,13 @@ parse_args() {
 }
 
 print_help() {
-    cat <<'EOF'
+    cat << EOF
 Run a simulation for the specified setname.
 If the corresponding folder doesn't exist it will be created.
 
+Usage: run_regression.sh <core> <setname> [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]
+
 Options:
-  --frames N                Run simulations with N frames (default: 100).
   --path REMOTE_DIR         Specify the REMOTE_DIR path (default: domains/jotego.es).
                             Be sure to have the right permissions on the directory you specify.
   --check                   Validate extracted simulation against reference results stored
