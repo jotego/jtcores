@@ -282,24 +282,14 @@ assign st_dout  = 0;
 assign secreq   = 0;
 assign mcu_din  = 0;
 assign dsn      = 3;
-// Read the scroll values in simulation
-reg [8:0] scrfile[0:1];
 
-initial begin
-    // $readmemh( "scrpos.hex", scrfile);
-    scrx = scrfile[0];
-    // scry = scrfile[1];
-end
-always @(negedge LVBL) begin
-    scrx <= scrx+1'd1;
-end
 always @(posedge clk) dmarq <= LVBL;
 
 `endif
 
 jtframe_simdumper #(.DW(19)) dumper(
     .clk        ( clk           ),
-    .data       ( {flip,scry,`ifndef NOMAIN scrx `else scrfile[0] `endif} ),
+    .data       ( {flip,scry,scrx} ),
     .ioctl_addr ( ioctl_addr    ),
     .ioctl_din  ( ioctl_din     )
 );
