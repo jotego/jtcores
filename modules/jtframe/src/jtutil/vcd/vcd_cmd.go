@@ -62,7 +62,7 @@ type Comparator struct{
     kmax int
 }
 
-func NewComparator(ss vcdData) Comparator {
+func NewComparator(ss VCDData) Comparator {
     var cmp Comparator
     cmp.alu_busy   = ss.Get(find_similar( "alu_busy", ss ))
     cmp.str_busy   = ss.Get(find_similar( "str_busy", ss ))
@@ -71,7 +71,7 @@ func NewComparator(ss vcdData) Comparator {
     return cmp
 }
 
-func Prompt( vcd, trace *LnFile, ss vcdData, mame_alias mameAlias ) {
+func Prompt( vcd, trace *LnFile, ss VCDData, mame_alias mameAlias ) {
     fses, e := os.Create("trace.ses") // echo all session commands to a file
     defer fses.Close()
     must(e)
@@ -418,7 +418,7 @@ func mvVCD( vcd *LnFile, sim_st *SimState, hier *Hierarchy, expr string, scope s
     return false
 }
 
-func find_similar( name string, ss vcdData ) string {
+func find_similar( name string, ss VCDData ) string {
     pc := ""
     for _, each := range ss {
         if strings.ToLower(each.Name)==name {
@@ -443,7 +443,7 @@ func find_similar( name string, ss vcdData ) string {
     return pc
 }
 
-func findCommonScope( ss vcdData ) string {
+func findCommonScope( ss VCDData ) string {
     scope := ""
     var tokens []string
     first := true
@@ -474,7 +474,7 @@ func findCommonScope( ss vcdData ) string {
 }
 
 // t must be MAME-name=VCD-name
-func parseAlias( t []string, ss vcdData, mame_alias mameAlias ) {
+func parseAlias( t []string, ss VCDData, mame_alias mameAlias ) {
     main_loop:
     for _,each := range t {
         if each[0]=='-' {
@@ -502,7 +502,7 @@ func parseAlias( t []string, ss vcdData, mame_alias mameAlias ) {
 }
 
 // display all signals, or only the ones with partial string matches in the t []string
-func display( t []string, vcd, trace *LnFile, ss vcdData, scope string ) {
+func display( t []string, vcd, trace *LnFile, ss VCDData, scope string ) {
     fmt.Printf("Trace at line %d - VCD at line %d (time %s)\n",
         trace.line, vcd.line, formatTime(vcd.time))
     sorted := make([]struct{
@@ -766,7 +766,7 @@ func (cmp *Comparator)matchTrace( file *LnFile, sim_st *SimState, mame_alias mam
 }
 
 
-func MakeAlias( trace string, ss vcdData ) mameAlias {
+func MakeAlias( trace string, ss VCDData ) mameAlias {
     mame_alias := make(mameAlias)
     tokens := strings.Split(trace,",")
     if len(tokens)==0 { return mame_alias }

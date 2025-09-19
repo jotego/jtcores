@@ -1091,24 +1091,24 @@ void WaveWritter::Constructor( const char *filename, int sample_rate, bool hex )
     char zero=0;
     for( int k=0; k<45; k++ ) fsnd.write( &zero, 1 );
     fsnd.seekp(0);
-    fsnd.write( "RIFF", 4 );
+    fsnd.write( "RIFF", 4 ); // @ 0
     fsnd.seekp(8);
-    fsnd.write( "WAVEfmt ", 8 );
+    fsnd.write( "WAVEfmt ", 8 );  // @ 8
     int32_t number32 = 16;
-    fsnd.write( (char*)&number32, 4 );
+    fsnd.write( (char*)&number32, 4 ); // @ 16
     int16_t number16 = 1;
-    fsnd.write( (char*) &number16, 2);
+    fsnd.write( (char*) &number16, 2); // @ 20
     number16=2;
-    fsnd.write( (char*) &number16, 2);
+    fsnd.write( (char*) &number16, 2); // @ 22
     number32 = sample_rate;
-    fsnd.write( (char*)&number32, 4 );
+    fsnd.write( (char*)&number32, 4 ); // @ 26
     number32 = sample_rate*2*2;
-    fsnd.write( (char*)&number32, 4 );
+    fsnd.write( (char*)&number32, 4 ); // @ 30
     number16=2*2;   // Block align
-    fsnd.write( (char*) &number16, 2);
+    fsnd.write( (char*) &number16, 2); // @ 32
     number16=16;
-    fsnd.write( (char*) &number16, 2);
-    fsnd.write( "data", 4 );
+    fsnd.write( (char*) &number16, 2); // @ 34
+    fsnd.write( "data", 4 ); // @ 36
     fsnd.seekp(44);
 }
 

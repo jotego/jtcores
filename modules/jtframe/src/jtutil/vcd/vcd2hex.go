@@ -26,7 +26,7 @@ import (
 // Creates a hex file to be used in
 // verilog and the accompanying verilog file
 // to read it
-func (this *LnFile) DumpHex(ss vcdData, fname string) (e error) {
+func (this *LnFile) DumpHex(ss VCDData, fname string) (e error) {
 	f, e := os.Create(fname + ".bin"); if e!=nil { return e }
 	lines := 0
 	tbw := 64

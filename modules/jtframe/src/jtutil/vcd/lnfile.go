@@ -31,22 +31,22 @@ type LnFile struct{
     fname string
 }
 
-func (this *LnFile) Open(fname string) {
+func (ln *LnFile) Open(fname string) {
     var e error
-    this.f, e = os.Open(fname)
+    ln.f, e = os.Open(fname)
     if e != nil {
         log.Fatal(e)
     }
-    this.fname=fname
-    this.scn = bufio.NewScanner(this.f)
-    this.line = 0
+    ln.fname=fname
+    ln.scn = bufio.NewScanner(ln.f)
+    ln.line = 0
 }
 
-func (this *LnFile) Scan() bool {
-    if this.scn.Scan() {
-        this.line++
-        if this.scn.Err()!=nil {
-            log.Fatal(this.scn.Err())
+func (ln *LnFile) Scan() bool {
+    if ln.scn.Scan() {
+        ln.line++
+        if ln.scn.Err()!=nil {
+            log.Fatal(ln.scn.Err())
         }
         return true
     } else {
@@ -54,13 +54,17 @@ func (this *LnFile) Scan() bool {
     }
 }
 
-func (this *LnFile) Close() {
-    if this.f != nil {
-        this.f.Close()
+func (ln *LnFile) Close() {
+    if ln.f != nil {
+        ln.f.Close()
     }
 }
 
-func (this *LnFile) Text() string {
-    return this.scn.Text()
+func (ln *LnFile) Time() uint64 {
+    return ln.time
+}
+
+func (ln *LnFile) Text() string {
+    return ln.scn.Text()
 }
 

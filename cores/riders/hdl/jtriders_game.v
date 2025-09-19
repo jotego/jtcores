@@ -204,7 +204,7 @@ jtriders_prot u_prot(
     .debug_bus  ( debug_bus )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),

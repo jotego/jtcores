@@ -24,7 +24,7 @@ import(
 )
 
 type SimState struct{
-	data vcdData
+	data VCDData
 	ram []byte
 }
 

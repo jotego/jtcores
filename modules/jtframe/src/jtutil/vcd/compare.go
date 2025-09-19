@@ -31,7 +31,7 @@ type CmpArgs struct {
 
 type cmpData struct {
     file   *LnFile
-    data    vcdData
+    data    VCDData
     signal *VCDSignal
     resets []*VCDSignal
 }

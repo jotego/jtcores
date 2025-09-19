@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 
+	"jtutil/cmd/wav"
 	"github.com/spf13/cobra"
 )
 
@@ -40,6 +41,20 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose")
+	add_wav_cmd()
+}
+
+func add_wav_cmd() {
+	var wavCmd = &cobra.Command{
+		Use:   "wav [test.vcd]",
+		Short: "Creates a WAV file from the given VCD dump",
+		Run: wav.RunWavCmd,
+		Args: cobra.MaximumNArgs(1),
+	}
+	wavCmd.Flags().StringP("output","o","vcd.wav","output file name")
+	wavCmd.Flags().StringP("signal","s","","signal name")
+	wavCmd.Flags().BoolP  ("skip","k",false,"skip initial silence in input file")
+	rootCmd.AddCommand(wavCmd)
 }
 
 func must(e... error) {
