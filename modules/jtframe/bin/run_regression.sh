@@ -510,9 +510,9 @@ upload_results() {
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
 mkdir regression
 mkdir regression/$core
-mkdir regression/$core/$setname
-mkdir regression/$core/$setname/$folder
-cd regression/$core/$setname/$folder
+mkdir regression/$core/$fullname
+mkdir regression/$core/$fullname/$folder
+cd regression/$core/$fullname/$folder
 $(for f in "${files[@]}"; do echo "put $f"; done)
 bye
 EOF
