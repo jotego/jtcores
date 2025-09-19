@@ -229,6 +229,6 @@ initial begin
     rom_cs   = 0;
     pcm_addr = 0;
 end
-assign {rom_addr, pcm_cs, psg0, psg1, pcm} = 0;
+assign {rom_addr, pcm_cs, psg0, psg1, pcm,st_dout} = 0;
 `endif
 endmodule

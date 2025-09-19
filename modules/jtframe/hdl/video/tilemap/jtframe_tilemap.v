@@ -34,6 +34,7 @@ module jtframe_tilemap #( parameter
     FLIP_MSB     = 1, // set to 0 for scroll tile maps
     FLIP_HDUMP   = 1,
     FLIP_VDUMP   = 1,
+    ROM_HFLIP    = 1,
     XOR_HFLIP    = 0,  // set to 1 so hflip gets ^ with flip
     XOR_VFLIP    = 0,  // set to 1 so vflip gets ^ with flip
     HDUMP_OFFSET = 0,  // adds an offset to hdump
@@ -153,8 +154,8 @@ always @(posedge clk) begin
             rom_cs <= ~rst & blankn;
             rom_addr[0+:VW] <= veff[0+:VW]^{VW{vflip_g}};
             rom_addr[VR-1-:CW] <= code;
-            if( SIZE==16 ) rom_addr[VW]      <= heff[3]^xhflip;
-            if( SIZE==32 ) rom_addr[VW+1-:2] <= heff[4:3]^{2{xhflip}};
+            if( SIZE==16 ) rom_addr[VW]      <= heff[  3]^  (xhflip&ROM_HFLIP[0]);
+            if( SIZE==32 ) rom_addr[VW+1-:2] <= heff[4:3]^{2{xhflip&ROM_HFLIP[0]}};
             pxl_data <= rom_ok ? rom_data : {DW{1'b0}};
             // draw information is eight pixels behind
             nx_pal   <= pal;
