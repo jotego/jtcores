@@ -33,7 +33,6 @@ module jtframe_scroll #( parameter
     // override VH and HW only for non rectangular tiles
     VW   = SIZE==8 ? 3 : SIZE==16 ? 4:5,
     HW   = VW,
-    FLIP_DLY  = 0,
     XOR_HFLIP = 0, // set to 1 so hflip gets ^ with flip
     XOR_VFLIP = 0, // set to 1 so vflip gets ^ with flip
     HJUMP     = 1, // set to 0 for linear hdump starting at zero after HB
@@ -106,7 +105,6 @@ jtframe_tilemap #(
     .FLIP_HDUMP ( 0         ), // hdump is already flipped, don't flip it again
     .FLIP_VDUMP ( 0         ), // same for vdump
     .FLIP_MSB   ( 0         ),
-    .FLIP_DLY   ( FLIP_DLY  ),
     .XOR_HFLIP  ( XOR_HFLIP ),
     .XOR_VFLIP  ( XOR_VFLIP ),
     .VW         ( VW        ),
