@@ -276,6 +276,6 @@ initial begin
     rom_cs  = 0;
     m2s     = 0;
 end
-assign {cpu_dout,wr_n,rom_addr} = 0;
+assign {cpu_dout,wr_n,rom_addr,form0,st_dout} = 0;
 `endif
 endmodule
