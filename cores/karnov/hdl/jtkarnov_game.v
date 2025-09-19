@@ -46,7 +46,8 @@ assign objram_we  = {2{objram_cs & ~main_wrn}} & ~main_dsn;
 assign sdtkn = 0;
 
 always @(posedge clk) begin
-    if( ioctl_addr=='h163 ) wndrplnt <= prog_data==2;
+    if( ioctl_addr=='h163 && !ioctl_ram )
+        wndrplnt <= prog_data==2;
 end
 
 jtkarnov_main u_main(
@@ -106,6 +107,8 @@ jtkarnov_main u_main(
     .dipsw      ( dipsw[15:0]   ),
 
     // Debug
+    .ioctl_addr ( ioctl_addr[1:0]),
+    .ioctl_din  ( ioctl_din     ),
     .st_addr    ( debug_bus     ),
     .st_dout    ( st_main       )
 );

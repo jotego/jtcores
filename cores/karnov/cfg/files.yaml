@@ -25,6 +25,9 @@ jtframe:
     unless: [NOMCU]
     get:
       - jtframe_8751.yaml
+  - from: debug
+    get:
+      - jtframe_simdumper.v
   - from: ram
     get:
       - jtframe_ram.v

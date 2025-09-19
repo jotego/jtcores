@@ -55,12 +55,14 @@ bram:
     data_width: 16
     addr_width: 11
     sim_file: true
+    ioctl: { save: true, order: 0 }
     dual_port: { name: main, we: vram_we, rw: true }
 
   - name: scrram
     data_width: 16
     addr_width: 11
     sim_file: true
+    ioctl: { save: true, order: 1 }
     dual_port: { name: main, we: scrram_we, rw: true }
 
   - name: objram
@@ -68,6 +70,7 @@ bram:
     addr_width: 12
     addr: dma_addr
     sim_file: true
+    ioctl: { save: true, order: 2 }
     dual_port: { name: main, we: objram_we, rw: true }
 
   - name: objbuf
