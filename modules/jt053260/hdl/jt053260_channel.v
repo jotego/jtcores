@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 14-4-2023 */
 
-module jt053260_channel(
+module jt053260_channel#(parameter TESTRD=0)(
     input                    rst,
     input                    clk,
     input                    cen,
@@ -44,7 +44,7 @@ module jt053260_channel(
 
 // MMR
 reg         [ 7:0] mmr[0:7];
-wire        [20:0] start;
+wire        [20:0] start, neg_cnt;
 wire        [15:0] length;
 wire        [11:0] pitch;
 wire        [ 6:0] volume;
@@ -54,18 +54,20 @@ reg         [11:0] pitch_cnt;
 reg  signed [ 7:0] pre_snd;
 wire signed [ 7:0] fade_out;
 reg  signed [ 7:0] kadpcm;
-reg                adpcm_cnt, keyon_l;
+reg                adpcm_cnt, keyon_l, tsten_l;
 
 wire        [12:0] nx_pitch_cnt;
 wire signed [15:0] mul_l, mul_r;
 wire signed [ 7:0] svl, svr;
 reg         [13:0] vol_l, vol_r;
 wire        [ 3:0] nibble;
+wire               tst_mode;
 
-assign start  = { mmr[6][4:0], mmr[5], mmr[4] };
-assign length = { mmr[3], mmr[2] };
-assign pitch  = { mmr[1][3:0], mmr[0] };
-assign volume = { mmr[7][6:0] };
+assign start    = { mmr[6][4:0], mmr[5], mmr[4] };
+assign length   = { mmr[3], mmr[2] };
+assign pitch    = { mmr[1][3:0], mmr[0] };
+assign volume   = { mmr[7][6:0] };
+assign tst_mode = tst_en && TESTRD==1;
 
 assign nx_pitch_cnt = {1'd0, pitch_cnt } + 13'd1;
 assign nibble       = adpcm_cnt^swap ? rom_data[7:4] : rom_data[3:0];
@@ -74,8 +76,9 @@ assign svl          = {1'b0, vol_l[13-:7]};
 assign svr          = {1'b0, vol_r[13-:7]};
 assign mul_l        = pre_snd * svl;
 assign mul_r        = pre_snd * svr;
-assign match         = cnt == length;
+assign match        = cnt == length;
 assign fade_out     = pre_snd >>> 1;
+assign neg_cnt      = -{5'd0,cnt};
 
 always @* begin
     case ( nibble )
@@ -98,7 +101,7 @@ always @* begin
     endcase
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         mmr[0] <= 0; mmr[1] <= 0; mmr[2] <= 0; mmr[3] <= 0;
         mmr[4] <= 0; mmr[5] <= 0; mmr[6] <= 0; mmr[7] <= 0;
@@ -118,53 +121,57 @@ always @(posedge clk) begin
     end
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
+    rom_addr <= start + (swap ? neg_cnt : {5'd0,cnt});
+end
+
+always @(posedge clk) begin
     if( rst ) begin
-        rom_addr  <= 0;
         cnt       <= 0;
         adpcm_cnt <= 0;
         pitch_cnt <= 0;
         rom_cs    <= 0;
         bsy       <= 0;
         keyon_l   <= 0;
+        tsten_l   <= 0;
     end else begin
-        rom_cs  <= 1;
-        if( cen    ) begin
+        if( cen ) begin
+            rom_cs  <= 1;
+            tsten_l <= tst_en;
             keyon_l <= keyon;
-            if( !keyon_l && keyon ) bsy <= 1;
-        end
-        if( !keyon ) begin
-            if(!tst_en || we) begin
-                // the first byte is not ADPCM data
-                rom_addr <= start+{20'd0,~tst_en};
-            end else if( tst_en && tst_nx ) begin
-                rom_addr <= rom_addr+1'd1;
+            if( !keyon_l && keyon ) begin
+                bsy       <= 1;
+                cnt       <= 0;
+                adpcm_cnt <= 1;
+                pitch_cnt <= pitch;
             end
-            cnt       <= 0;
-            adpcm_cnt <= 1;
-            pre_snd   <= 0;
-            rom_cs    <= tst_en;
-            pitch_cnt <= pitch;
-            bsy       <= 0;
-        end else if( cen && bsy ) begin
-            pitch_cnt <= nx_pitch_cnt[12] ? pitch : nx_pitch_cnt[11:0];
-            if( nx_pitch_cnt[12] ) begin
-                // ROM address increment and sample cnt increment
-                adpcm_cnt <= ~adpcm_cnt;
-                if( !adpcm_cnt || !adpcm_en ) begin
-                    rom_addr <= rom_addr + 1'd1;
-                    cnt <= cnt + 1'd1;
-                    if( match ) begin
-                        if( loop ) begin
-                            rom_addr <= start;
-                            cnt      <= 0;
-                        end else begin
-                            bsy <= 0;
+            if( !keyon ) begin
+                pre_snd <= 0;
+                rom_cs  <= 0;
+                bsy     <= 0;
+            end else if( bsy ) begin
+                pitch_cnt <= nx_pitch_cnt[12] ? pitch : nx_pitch_cnt[11:0];
+                if( nx_pitch_cnt[12] ) begin
+                    // ROM address increment and sample cnt increment
+                    adpcm_cnt <= ~adpcm_cnt;
+                    if( !adpcm_cnt || !adpcm_en ) begin
+                        cnt <= cnt + 1'd1;
+                        if( match ) begin
+                            if( loop ) begin
+                                cnt      <= 0;
+                            end else begin
+                                bsy <= 0;
+                            end
                         end
                     end
+                    pre_snd <= adpcm_en ? pre_snd + kadpcm : rom_data;
                 end
-                pre_snd <= adpcm_en ? pre_snd + kadpcm : rom_data;
             end
+        end
+        // not under cen control
+        if( tst_mode ) begin
+            rom_cs <= 1;
+            if( tst_nx ) cnt <= cnt+1'd1;
         end
     end
 end

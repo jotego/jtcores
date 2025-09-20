@@ -71,7 +71,7 @@ reg    [ 7:0] pm2s[0:1];
 reg    [ 7:0] ps2m[0:1];
 
 reg    [ 5:0] sum_en;
-reg    [ 3:0] keyon, mode;
+reg    [ 3:0] keyon, mode, nib_swap;
 wire   [ 3:0] match, bsy, mmr_we;
 wire   [ 4:0] left_en, right_en;
 reg    [ 3:0] adpcm_en, loop;
@@ -83,7 +83,7 @@ wire signed [15:0] ch0_snd_l, ch1_snd_l, ch2_snd_l, ch3_snd_l,
 
 reg    [ 6:0] pan0_l, pan0_r, pan1_l, pan1_r,
               pan2_l, pan2_r, pan3_l, pan3_r;
-reg           tst_rd, tst_rdl, nib_swap;
+reg           tst_rd, tst_rdl;
 wire          mmr_en, tst_nx;
 wire   [ 1:0] aux_en;
 
@@ -129,7 +129,7 @@ jtframe_limsum u_sumr(
     .peak   (           )
 );
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         snd_l   <= 0;
         snd_r   <= 0;
@@ -145,7 +145,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 // Interface with main CPU
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         pm2s[0] <= 0;
         pm2s[1] <= 0;
@@ -156,7 +156,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 // Interface with sound CPU
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         ps2m[0] <= 0; ps2m[1] <= 0;
         ch0_pan <= 0; ch1_pan <= 0; ch2_pan <= 0; ch3_pan <= 0;
@@ -172,8 +172,8 @@ always @(posedge clk, posedge rst) begin
             if ( !wr_n ) begin
                 case ( addr )
                     2,3:   ps2m[addr[0]] <= din;
-                    6'h28: { nib_swap, keyon } <= { din[7], din[3:0] };
-                    6'h2A: { adpcm_en, loop } <= din;
+                    6'h28: { nib_swap, keyon } <= din;
+                    6'h2A: { adpcm_en, loop  } <= din;
                     6'h2B: test_2b <= din;
                     6'h2C: { ch1_pan, ch0_pan } <= din[5:0];
                     6'h2D: { ch3_pan, ch2_pan } <= din[5:0];
@@ -233,11 +233,11 @@ always @* begin
     pan3_r = pan_dec_r( ch3_pan );
 end
 
-jt053260_channel u_ch0(
+jt053260_channel #(.TESTRD(1)) u_ch0(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .cen      ( cen         ),
-    .swap     ( nib_swap    ),
+    .swap     ( nib_swap[0] ),
 
     // MMR
     .addr     ( addr[2:0]   ),
@@ -266,7 +266,7 @@ jt053260_channel u_ch1(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .cen      ( cen         ),
-    .swap     ( nib_swap    ),
+    .swap     ( nib_swap[1] ),
 
     // MMR
     .addr     ( addr[2:0]   ),
@@ -295,7 +295,7 @@ jt053260_channel u_ch2(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .cen      ( cen         ),
-    .swap     ( nib_swap    ),
+    .swap     ( nib_swap[2] ),
 
     // MMR
     .addr     ( addr[2:0]   ),
@@ -324,7 +324,7 @@ jt053260_channel u_ch3(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .cen      ( cen         ),
-    .swap     ( nib_swap    ),
+    .swap     ( nib_swap[3] ),
 
     // MMR
     .addr     ( addr[2:0]   ),

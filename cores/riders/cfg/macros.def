@@ -23,8 +23,6 @@ GLFGREAT_BANK3=0x250000
 PSC_START=0x450000
 PSCMAP_START=0x5D0000
 
-SND_RAMW=11
-
 # default EEPROM needed to prevent game from booting upside down with error
 JTFRAME_IOCTL_RD=128
 # PSAC line memory

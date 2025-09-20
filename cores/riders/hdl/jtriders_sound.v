@@ -85,7 +85,7 @@ assign cpu_din  = rom_cs ? rom_data   :
                   k60_cs ? k60_dout   :
                   fm_cs  ? fm_dout    : 8'h0;
 assign cen_ws   = (ram_cs | rom_cs) ? cen_4 : cen_8; // wait state for RAM/ROM access
-assign cen_g    = glfgreat ? cen_fm : cen_ws;
+assign cen_g    = (glfgreat | lgtnfght) ? cen_fm : cen_ws;
 
 assign main_dmux= glfgreat ? main_dout[15:8] : main_dout[7:0];
 
@@ -147,7 +147,7 @@ jtframe_edge #(.QSET(0),.ATRST(0)) u_edge (
 );
 
 /* verilator tracing_off */
-jtframe_sysz80 #(`ifdef SND_RAMW .RAM_AW(`SND_RAMW), `endif .CLR_INT(1),.RECOVERY(0)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(11), .CLR_INT(1), .RECOVERY(0)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen_g     ),
