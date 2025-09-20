@@ -52,9 +52,9 @@ wire        [ 6:0] volume;
 reg         [15:0] cnt, inc;
 reg         [11:0] pitch_cnt;
 reg  signed [ 7:0] pre_snd;
-wire signed [ 7:0] fade_out;
-reg  signed [ 7:0] kadpcm;
-reg                adpcm_cnt, keyon_l, tsten_l;
+reg  signed [ 7:0] kadpcm, adpcm_sat, adpcm_lim;
+reg  signed [ 8:0] adpcm_full;
+reg                adpcm_cnt, keyon_l, adpcm_over;
 
 wire        [12:0] nx_pitch_cnt;
 wire signed [15:0] mul_l, mul_r;
@@ -77,7 +77,6 @@ assign svr          = {1'b0, vol_r[13-:7]};
 assign mul_l        = pre_snd * svl;
 assign mul_r        = pre_snd * svr;
 assign match        = cnt == length;
-assign fade_out     = pre_snd >>> 1;
 assign neg_cnt      = -{5'd0,cnt};
 
 always @* begin
@@ -125,6 +124,13 @@ always @(posedge clk) begin
     rom_addr <= start + (swap ? neg_cnt : {5'd0,cnt});
 end
 
+always @* begin
+    adpcm_full = {pre_snd[7], pre_snd} + {kadpcm[7],kadpcm};
+    adpcm_sat  = {adpcm_full[8],{7{~adpcm_full[8]}}};
+    adpcm_over = adpcm_full[8]!=adpcm_full[7];
+    adpcm_lim  = adpcm_over ? adpcm_sat : adpcm_full[7:0];
+end
+
 always @(posedge clk) begin
     if( rst ) begin
         cnt       <= 0;
@@ -133,11 +139,9 @@ always @(posedge clk) begin
         rom_cs    <= 0;
         bsy       <= 0;
         keyon_l   <= 0;
-        tsten_l   <= 0;
     end else begin
         if( cen ) begin
             rom_cs  <= 1;
-            tsten_l <= tst_en;
             keyon_l <= keyon;
             if( !keyon_l && keyon ) begin
                 bsy       <= 1;
@@ -164,7 +168,7 @@ always @(posedge clk) begin
                             end
                         end
                     end
-                    pre_snd <= adpcm_en ? pre_snd + kadpcm : rom_data;
+                    pre_snd <= adpcm_en ? adpcm_lim : rom_data;
                 end
             end
         end

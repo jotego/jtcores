@@ -65,6 +65,7 @@ module jt053260(
     // output              cen_e,    // M6809 clock
     // output              cen_q     // M6809 clock
 );
+
 wire signed [15:0] pre_l, pre_r;
 reg    [ 7:0] test_2b;
 reg    [ 7:0] pm2s[0:1];
@@ -84,7 +85,7 @@ wire signed [15:0] ch0_snd_l, ch1_snd_l, ch2_snd_l, ch3_snd_l,
 reg    [ 6:0] pan0_l, pan0_r, pan1_l, pan1_r,
               pan2_l, pan2_r, pan3_l, pan3_r;
 reg           tst_rd, tst_rdl;
-wire          mmr_en, tst_nx;
+wire          mmr_en, tst_nx, peak_l, peak_r;
 wire   [ 1:0] aux_en;
 
 assign sample  = |{ch0_sample,ch1_sample,ch2_sample,ch3_sample};
@@ -116,7 +117,7 @@ jtframe_limsum u_suml(
     .parts  ( {aux_l, ch3_snd_l, ch2_snd_l, ch1_snd_l, ch0_snd_l} ),
     .en     ( left_en   ),
     .sum    ( pre_l     ),
-    .peak   (           )
+    .peak   ( peak_l    )
 );
 
 jtframe_limsum u_sumr(
@@ -126,7 +127,7 @@ jtframe_limsum u_sumr(
     .parts  ( {aux_r, ch3_snd_r, ch2_snd_r, ch1_snd_r, ch0_snd_r} ),
     .en     ( right_en  ),
     .sum    ( pre_r     ),
-    .peak   (           )
+    .peak   ( peak_r    )
 );
 
 always @(posedge clk) begin
