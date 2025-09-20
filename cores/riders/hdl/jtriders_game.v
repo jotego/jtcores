@@ -322,6 +322,7 @@ jtriders_sound u_sound(
 
     .lgtnfght   ( lgtnfght      ),
     .glfgreat   ( glfgreat      ),
+    .ssriders   ( ssriders      ),
 
     // communication with main CPU
     .main_dout  ( ram_din       ),

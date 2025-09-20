@@ -72,7 +72,7 @@ reg    [ 7:0] ps2m[0:1];
 
 reg    [ 5:0] sum_en;
 reg    [ 3:0] keyon, mode;
-wire   [ 3:0] bsy, mmr_we;
+wire   [ 3:0] match, bsy, mmr_we;
 wire   [ 4:0] left_en, right_en;
 reg    [ 3:0] adpcm_en, loop;
 reg    [ 2:0] ch0_pan, ch1_pan, ch2_pan, ch3_pan;
@@ -97,6 +97,10 @@ assign right_en={sum_en[5],sum_en[3:0]};
 assign aux_en  = mode[3:2];
 `ifdef SIMULATION
 assign tim2_enb= test_2b[3]; // it should disable tim2 when high. Not connected for now
+wire any_wr = cs & ~wr_n;
+wire kon_wr = cs & ~wr_n && (addr==6'h28);
+wire global_wr = cs & ~wr_n && (addr>=6'h28);
+wire any_rd = cs & ~rd_n;
 `endif
 
 always @(posedge clk) begin
@@ -179,7 +183,7 @@ always @(posedge clk, posedge rst) begin
             end
             if (!rd_n) case ( addr )
                 0,1:     dout <= pm2s[addr[0]];
-                6'h29:   dout <= {4'd0,bsy};
+                6'h29:   dout <= {match,bsy};
                 6'h2E:   begin
                     if( !tst_rd ) dout <= mode[0] ? roma_data : 8'd0;
                     tst_rd <= 1;
@@ -248,6 +252,7 @@ jt053260_channel u_ch0(
     .loop     ( loop[0]     ),
     .sample   ( ch0_sample  ),
     .bsy      ( bsy[0]      ),
+    .match    ( match[0]    ),
 
     .rom_addr ( roma_addr   ),
     .rom_data ( roma_data   ),
@@ -276,6 +281,7 @@ jt053260_channel u_ch1(
     .loop     ( loop[1]     ),
     .sample   ( ch1_sample  ),
     .bsy      ( bsy[1]      ),
+    .match    ( match[1]    ),
 
     .rom_addr ( romb_addr   ),
     .rom_data ( romb_data   ),
@@ -304,6 +310,7 @@ jt053260_channel u_ch2(
     .loop     ( loop[2]     ),
     .sample   ( ch2_sample  ),
     .bsy      ( bsy[2]      ),
+    .match    ( match[2]    ),
 
     .rom_addr ( romc_addr   ),
     .rom_data ( romc_data   ),
@@ -332,6 +339,7 @@ jt053260_channel u_ch3(
     .loop     ( loop[3]     ),
     .sample   ( ch3_sample  ),
     .bsy      ( bsy[3]      ),
+    .match    ( match[3]    ),
 
     .rom_addr ( romd_addr   ),
     .rom_data ( romd_data   ),
