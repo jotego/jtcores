@@ -163,34 +163,15 @@ always @(negedge clk48) begin
     rstn <= ~rst;
 end
 
-//always @(posedge clk48, posedge rst) begin
 always @(*) begin
-    //if ( rst ) begin
-    //    rom_cs    <= 0;
-    //    rom_addr  <= 16'd0;
-    //    ram_cs    <= 0;
-    //    bank_cs   <= 0;
-    //    qsnd_wr   <= 0;
-    //    qsnd_rd   <= 0;
-    //end else begin
-        rom_cs  = !bus_mreqn && (!bus_A[15] || bus_A[15:14]==2'b10);
-        //if(!bus_mreqn) begin
-        rom_addr = (bus_A[15] ? ({ 1'b0, bank, bus_A[13:0] } + 19'h8000) : { 4'b0, bus_A[14:0] });
-//            rom_addr = (~mreq_n & main_busakn) ?
-//                // Z80
-//                (bus_A[15] ? ({ 1'b0, bank, bus_A[13:0] } + 19'h8000) : { 4'b0, bus_A[14:0] }) :
-//                // M68000
-//                main_addr[19:1];
-        //end
-        ram_cs   = !bus_mreqn && (bus_A[15:12] == 4'hc || bus_A[15:12]==4'hf);
-        qsnd_wr  = !bus_mreqn && !bus_wrn && (bus_A[15:12] == 4'hd && bus_A[2:0]<=3'd2);
-        bank_cs  = !bus_mreqn && !bus_wrn && (bus_A[15:12] == 4'hd && bus_A[2:0]==3'd3);
-        qsnd_rd  = !bus_mreqn && !rd_n && (bus_A[15:12] == 4'hd && bus_A[2:0]==3'd7);
-   // end
+    rom_cs  = !bus_mreqn && (!bus_A[15] || bus_A[15:14]==2'b10);
+    rom_addr = (bus_A[15] ? ({ 1'b0, bank, bus_A[13:0] } + 19'h8000) : { 4'b0, bus_A[14:0] });
+    ram_cs   = !bus_mreqn && (bus_A[15:12] == 4'hc || bus_A[15:12]==4'hf);
+    qsnd_wr  = !bus_mreqn && !bus_wrn && (bus_A[15:12] == 4'hd && bus_A[2:0]<=3'd2);
+    bank_cs  = !bus_mreqn && !bus_wrn && (bus_A[15:12] == 4'hd && bus_A[2:0]==3'd3);
+    qsnd_rd  = !bus_mreqn && !rd_n && (bus_A[15:12] == 4'hd && bus_A[2:0]==3'd7);
 end
 
-// wire qs0l_w = qsnd_wr && A[2:0]==2'd0;
-// wire qs0h_w = qsnd_wr && A[2:0]==2'd1;
 wire qs1l_w = qsnd_wr && A[2:0]==2;
 reg [23:0] cpu2dsp_s;
 
@@ -396,8 +377,7 @@ always @(posedge clk96, posedge rst) begin
             qsnd_addr[15:0] <= dsp_pbus_out;
         end
         if( dsp_ab[15] && dsp_cen_cko ) begin
-            qsnd_addr[22:16] <= dsp_ab[6:0];/*{ dsp_ab[2:0], dsp_ab[4], dsp_ab[5],
-                dsp_ab[6], dsp_ab[7] };*/
+            qsnd_addr[22:16] <= dsp_ab[6:0];
         end
     end
 end
@@ -433,7 +413,7 @@ jtdsp16 u_dsp16(
     .sadd       ( dsp_sadd      ),  // serial address
     .psel       ( dsp_psel      ),  // peripheral select
     .ser_out    (               ),  // debug output to bypass the serial register
-        // Unused by QSound firmware:
+    // Unused by QSound firmware:
     .ose        (               ),  // output shift register empty
     .old        (               ),  // output load
     .ibf        (               ),  // input buffer full
