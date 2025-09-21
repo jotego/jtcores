@@ -54,10 +54,13 @@
 using namespace std;
 
 #ifdef _JTFRAME_SDRAM_LARGE
-    const int BANK_LEN = 0x100'0000;
+    const int COLW     = 10;
 #else
-    const int BANK_LEN = 0x080'0000;
+    const int COLW     = 9;
 #endif
+const int BANK_LEN = 0x4000 << COLW;
+const int AMASK    = (BANK_LEN>>1)-1;
+const int COLMASK  = (1<<COLW)-1;
 
 #ifndef _JTFRAME_SIM_DIPS
     #define _JTFRAME_SIM_DIPS 0xffffffff
@@ -682,12 +685,12 @@ void SDRAM::update() {
             change_burst();
         }
         if( !dut.SDRAM_nRAS && dut.SDRAM_nCAS && dut.SDRAM_nWE ) { // Row address - Activate command
-            ba_addr[ cur_ba ] = dut.SDRAM_A << 9; // 32MB module
-            ba_addr[ cur_ba ] &= 0x3fffff;
+            ba_addr[ cur_ba ] = dut.SDRAM_A << COLW;
+            ba_addr[ cur_ba ] &= AMASK;
         }
         if( dut.SDRAM_nRAS && !dut.SDRAM_nCAS ) {
-            ba_addr[ cur_ba ] &= ~0x1ff;
-            ba_addr[ cur_ba ] |= (dut.SDRAM_A & 0x1ff);
+            ba_addr[ cur_ba ] &= ~COLMASK;
+            ba_addr[ cur_ba ] |= (dut.SDRAM_A & COLMASK);
             if( dut.SDRAM_nWE ) { // enque read
                 rd_st[ cur_ba ] = burst_len+2;
             } else {
@@ -700,14 +703,7 @@ void SDRAM::update() {
         }
         int ba_busy=-1;
         for( int k=0; k<4; k++ ) {
-            // switch( k ) {
-            //  case 0: dut.SDRAM_BA_ADDR0 = ba_addr[0]; break;
-            //  case 1: dut.SDRAM_BA_ADDR1 = ba_addr[1]; break;
-            //  case 2: dut.SDRAM_BA_ADDR2 = ba_addr[2]; break;
-            //  case 3: dut.SDRAM_BA_ADDR3 = ba_addr[3]; break;
-            // }
             if( rd_st[k]>0 && rd_st[k]<=burst_len ) { // Tested with 32 and 64-bit reads (JTFRAME_BAx_LEN=64)
-                // May fail when using 96MHz for SDRAM. Needs investigation
                 if( ba_busy>=0 && maxwarn>0 ) {
                     maxwarn--;
                     fputs("WARNING: (test.cpp) SDRAM reads clashed. This may happen if only some banks are used for longer bursts.\n",stderr);
@@ -719,11 +715,11 @@ void SDRAM::update() {
                 dut.SDRAM_DQ = data_read;
                 if( burst_len>1 ) {
                     // Increase the column within the burst
-                    auto col = ba_addr[k]&0x1ff;
+                    auto col = ba_addr[k]&COLMASK;
                     auto col_inc = (col+1) & ~burst_mask;
                     col &= burst_mask;
                     col |= col_inc;
-                    ba_addr[k] &= ~0x1ff;
+                    ba_addr[k] &= ~COLMASK;
                     ba_addr[k] |= col;
                 }
                 ba_busy = k;
@@ -1147,7 +1143,6 @@ int main(int argc, char *argv[]) {
         UUT game{&context};
         JTSim sim(game, argc, argv);
         int ticks_48kHz = sim.time2ticks(20'833'333);
-        fprintf(stderr,"%d ticks per 48kHz sample\n",ticks_48kHz);
         while( !sim.done() ) {
             sim.clock(ticks_48kHz); // this will dump at 48kHz sampling rate
             sim.update_wav(); // Other clock rates will not have exact wav dumps

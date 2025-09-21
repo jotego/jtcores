@@ -114,10 +114,10 @@ jtcps15_qsnd_cen u_dspcen(
     .r_out       ( right       ),
     .resample48  ( sample      )
 );
-
 `else
 reg rdy_reads, last_rd;
-assign      dsp_rdy_n = rdy_reads;
+assign dsp_rdy_n = rdy_reads;
+assign left=0, right=0, sample=0;
 
 always @(posedge clk48, posedge rst) begin
     if( rst ) begin
@@ -436,6 +436,7 @@ assign dsp_pods_n   = 1;
 assign dsp_pids_n   = 1;
 assign dsp_do       = 1;
 assign dsp_ock      = 1;
+assign dsp_cen_cko  = 0;
 assign dsp_doen     = 0;
 assign dsp_sadd     = 0;
 assign dsp_psel     = 0;
