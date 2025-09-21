@@ -147,26 +147,35 @@ class MultiClock {
 protected:
     int cnt;
     UUT& game;
+    vluint64_t semi;
 public:
-    MultiClock(UUT& g) : game(g) { cnt=0; }
-    virtual void half_period()=0;
+    MultiClock(UUT& g) : game(g) {
+        cnt=0;
+#ifdef _JTFRAME_PLL
+        semi = (vluint64_t)(1e12/(16.0*_JTFRAME_PLL*1000.0));
+#else
+        semi = (vluint64_t)10416; // 48MHz
+#endif
+    }
+    virtual void advance_half_period()=0;
+    virtual vluint64_t get_semi_period() { return semi; }
 };
 
 class MultiClock48 : MultiClock {
 public:
     MultiClock48(UUT& g) : MultiClock(g) { }
-    virtual void half_period();
+    virtual void advance_half_period();
 };
 
 class MultiClock96 : MultiClock {
 public:
-    MultiClock96(UUT& g) : MultiClock(g) { }
-    virtual void half_period();
+    MultiClock96(UUT& g) : MultiClock(g) { semi/=2; }
+    virtual void advance_half_period();
 };
 
 class MultiClockSim96 : MultiClock {
 public:
-    virtual void half_period();
+    virtual void advance_half_period();
 };
 
 MultiClock* MakeMultiClock(UUT& game) {
@@ -174,7 +183,7 @@ MultiClock* MakeMultiClock(UUT& game) {
                    (MultiClock*)new MultiClock48(game);
 }
 
-void MultiClock48::half_period() {
+void MultiClock48::advance_half_period() {
     // keep order so clk signals are in phase
     game.clk24 = (cnt>>1)&1;
     cnt++;
@@ -184,7 +193,7 @@ void MultiClock48::half_period() {
 #endif
 }
 
-void MultiClock96::half_period() {
+void MultiClock96::advance_half_period() {
     // keep order so clk signals are in phase
     game.clk48 = (cnt>>1)&1;
     cnt++;
@@ -488,7 +497,6 @@ const int VIDEO_BUFLEN = _JTFRAME_WIDTH*_JTFRAME_HEIGHT;
 
 class JTSim {
     vluint64_t simtime;
-    vluint64_t semi_period;
     WaveWritter wav;
     string convert_options;
     int coremod;
@@ -571,6 +579,7 @@ public:
     JTSim( UUT& g, int argc, char *argv[] );
     ~JTSim();
     void clock(int n);
+    int time2ticks(vluint64_t time_in_ps) { return int(time_in_ps/(2L*multi_clock->get_semi_period())); }
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -807,13 +816,8 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
     multi_clock = MakeMultiClock(g);
     get_coremod();
     // Derive the clock speed from _JTFRAME_PLL
-#ifdef _JTFRAME_PLL
-    semi_period = (vluint64_t)(1e12/(16.0*_JTFRAME_PLL*1000.0));
-#else
-    semi_period = (vluint64_t)10416; // 48MHz
-#endif
-    if (use96) semi_period /= 2;
-    fprintf(stderr,"Simulation clock period set to %d ps (%.3f MHz)\n", ((int)semi_period<<1), 1e6/(semi_period<<1));
+    fprintf(stderr,"Simulation clock period set to %d ps (%.3f MHz)\n",
+        ((int)multi_clock->get_semi_period()<<1), 1e6/(multi_clock->get_semi_period()<<1));
 #ifdef _LOADROM
     download = true;
 #else
@@ -888,7 +892,7 @@ void JTSim::clock(int n) {
 #endif
     while( n-- > 0 ) {
         int cur_dwn = game.ioctl_rom | game.dwnld_busy;
-        multi_clock->half_period();
+        multi_clock->advance_half_period();
         game.eval();
         if( game.contextp()->gotFinish() ) return;
         sdram.update();
@@ -912,15 +916,15 @@ void JTSim::clock(int n) {
         reset( simtime < RST_DLY*1000'000L ? 1 : 0);
 #endif
         last_dwnd = cur_dwn;
-        simtime += semi_period;
+        simtime += multi_clock->get_semi_period();
 #ifdef _DUMP
         if( tracer && dump_ok ) tracer->dump(simtime);
 #endif
-        multi_clock->half_period();
+        multi_clock->advance_half_period();
         game.eval();
         if( game.contextp()->gotFinish() ) return;
         sdram.update();
-        simtime += semi_period;
+        simtime += multi_clock->get_semi_period();
         ticks++;
 
 #ifdef _DUMP
@@ -1142,8 +1146,10 @@ int main(int argc, char *argv[]) {
     try {
         UUT game{&context};
         JTSim sim(game, argc, argv);
+        int ticks_48kHz = sim.time2ticks(20'833'333);
+        fprintf(stderr,"%d ticks per 48kHz sample\n",ticks_48kHz);
         while( !sim.done() ) {
-            sim.clock(1'000); // this will dump at 48kHz sampling rate
+            sim.clock(ticks_48kHz); // this will dump at 48kHz sampling rate
             sim.update_wav(); // Other clock rates will not have exact wav dumps
             if( sim.get_frame()==3 ) {
                 if( sim.activeh != _JTFRAME_HEIGHT || sim.activew != _JTFRAME_WIDTH ) {
