@@ -463,8 +463,8 @@ check_audio() {
         return 0
     else
         echo "[ERROR] Audio doesn't match"
-        sox $ref_audio -n trim 0 $len_test spectrogram -o reference-spectro.png
-        sox $test_audio -n spectrogram -o test-spectro.png
+        sox $ref_audio -n trim 0 $len_test spectrogram -o reference-spectrum.png
+        sox $test_audio -n spectrogram -o test-spectrum.png
         return 2
     fi
 }
@@ -496,7 +496,7 @@ upload_results() {
         3|5|6) folder="not_checked" ;;
         4|7|10)
             folder="fail"
-            files+=(test-spectro.png reference-spectro.png)
+            files+=(test-spectrum.png reference-spectrum.png)
         ;;
         8|9) folder="fail" ;;
         *) return ;;
