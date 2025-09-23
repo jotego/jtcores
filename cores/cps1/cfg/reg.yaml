@@ -7,8 +7,8 @@ captcomm:
   video: 2200
 cawing:
 dynwar:
-  inputs: reg.cab
   video: 2200
+  inputs: reg.cab
 ffight:
   inputs: reg.cab
 forgottn:
