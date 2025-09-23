@@ -12,6 +12,8 @@ csclub:
   video: 2200
 cybots:
 dstlk:
+  video: 2200
+  inputs: reg.cab
 dimahoo:
   video: 2200
 ddsom:
@@ -30,6 +32,8 @@ jyangoku:
 mmatrix:
   video: 2200
 msh:
+  video: 2200
+  inputs: reg.cab
 mshvsf:
 mvsc:
   video: 2200
@@ -65,3 +69,5 @@ vsav:
   video: 2200
 xmvsf:
 xmcota:
+  video: 2200
+  inputs: reg.cab
