@@ -28,9 +28,11 @@ choko:
   video: 2200
 jyangoku:
 mmatrix:
+  video: 2200
 msh:
 mshvsf:
 mvsc:
+  video: 2200
 megaman2:
   video: 2200
 mpang:
@@ -56,7 +58,10 @@ ssf2t:
 ssf2:
   inputs: reg.cab
 vhunt2:
+  video: 2200
 vsav2:
+  video: 2200
 vsav:
+  video: 2200
 xmvsf:
 xmcota:
