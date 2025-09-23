@@ -330,7 +330,7 @@ int fileLength( const char *name ) {
 
 class Download {
     UUT& dut;
-    int addr, din, ticks,len, cart_start, nvram_start;
+    int addr, din, ticks, zeroat, len, cart_start, nvram_start;
     char *buf, *iodin;
     bool done, cart, nvram, full_download, iodump_busy;
     int read_buf() {
@@ -407,7 +407,7 @@ public:
                 fputs("Short ROM download\n",stderr);
             }
         }
-        ticks = 0;
+        ticks = 0; zeroat = 0;
         done = false;
         dut.ioctl_rom = 1;
         dut.ioctl_addr = 0;
@@ -416,7 +416,7 @@ public:
         addr = -1;
     }
     void update() {
-        dut.ioctl_wr = 0;
+        if(ticks==zeroat) dut.ioctl_wr = 0;
         if( dut.ioctl_rom ) step_download();
         if( iodump_busy ) iodump_step();
     }
@@ -447,6 +447,7 @@ public:
                 case 1:
                     if( addr < len ) {
                         dut.ioctl_wr = 1;
+                        zeroat = ticks+2;
                     } else {
 #ifdef _JTFRAME_IOCTL_RD
                         dut.ioctl_ram   = 0;
