@@ -6,9 +6,11 @@ cworld2j:
 captcomm:
   video: 2200
 cawing:
+  video: 2200
+  inputs: ../game/b1.cab
 dynwar:
   video: 2200
-  inputs: reg.cab
+  inputs: ../game/b1.cab
 ffight:
   inputs: reg.cab
 forgottn:
@@ -58,6 +60,6 @@ unsquad:
   inputs: reg.cab
 varth:
   video: 2200
-  inputs: reg.cab
+  inputs: ../game/b1.cab
 willow:
   inputs: reg.cab
