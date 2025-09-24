@@ -502,6 +502,7 @@ upload_results() {
         *) return ;;
     esac
 
+    delete_duplicated_frames
     zip -q frames.zip frames/*
     mv --force --no-copy test.wav audio.wav
     zip -q audio.zip audio.wav
@@ -517,6 +518,23 @@ $(for f in "${files[@]}"; do echo "put $f"; done)
 bye
 EOF
     echo "[INFO] Upload finished"
+}
+
+delete_duplicated_frames() {
+    local first=true
+    local last
+    for i in frames/frame*jpg; do
+        if $first; then
+            first=false
+            last=$i
+            continue
+        fi
+        if diff -q $last $i; then
+            rm $i
+            continue
+        fi
+        last=$i
+    done
 }
 
 main "$@"
