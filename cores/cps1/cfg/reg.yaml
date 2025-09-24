@@ -51,7 +51,6 @@ sf2hf:
 sf2:
   inputs: reg.cab
 sfzch:
-  inputs: reg.cab
 strider:
 kod:
   video: 2200
