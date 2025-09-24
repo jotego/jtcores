@@ -6,14 +6,17 @@ cworld2j:
 captcomm:
   video: 2200
 cawing:
+  video: 2200
+  inputs: ../game/b1.cab
 dynwar:
-  inputs: reg.cab
+  video: 2200
+  inputs: ../game/b1.cab
 ffight:
   inputs: reg.cab
 forgottn:
   inputs: reg.cab
 ghouls:
-  video: 2200
+  video: 2400
   inputs: reg.cab
 gulunpa:
   inputs: ../game/b1.cab
@@ -48,7 +51,6 @@ sf2hf:
 sf2:
   inputs: reg.cab
 sfzch:
-  inputs: reg.cab
 strider:
 kod:
   video: 2200
@@ -57,6 +59,6 @@ unsquad:
   inputs: reg.cab
 varth:
   video: 2200
-  inputs: reg.cab
+  inputs: ../game/b1.cab
 willow:
   inputs: reg.cab
