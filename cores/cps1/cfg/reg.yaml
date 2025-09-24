@@ -16,7 +16,7 @@ ffight:
 forgottn:
   inputs: reg.cab
 ghouls:
-  video: 2200
+  video: 2400
   inputs: reg.cab
 gulunpa:
   inputs: ../game/b1.cab
