@@ -59,6 +59,8 @@ sgemf:
 spf2t:
   video: 2200
 ssf2t:
+  video: 2200
+  inputs: reg.cab
 ssf2:
   inputs: reg.cab
 vhunt2:
