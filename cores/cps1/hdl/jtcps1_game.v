@@ -365,6 +365,7 @@ assign snd_addr   = 0;
 assign snd_cs     = 0;
 assign snd_left   = 0;
 assign snd_right  = 0;
+assign snd_peak   = 0;
 assign adpcm_addr = 0;
 assign adpcm_cs   = 0;
 assign sample     = 0;

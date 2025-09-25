@@ -416,7 +416,11 @@ public:
         addr = -1;
     }
     void update() {
+#ifdef _JTFRAME_SIM96
         if(ticks==zeroat) dut.ioctl_wr = 0;
+#else
+        dut.ioctl_wr = 0;
+#endif
         if( dut.ioctl_rom ) step_download();
         if( iodump_busy ) iodump_step();
     }
