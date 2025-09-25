@@ -6,7 +6,7 @@ module clock_divider_fract (
     input wire [31:0] i_step,
     output reg o_stb
 );
-    reg [31:0] counter=32'd0;
+    reg [31:0] counter=33'd0;
 
     always @(posedge i_clk) begin
         if(i_rst) //synchronous reset
