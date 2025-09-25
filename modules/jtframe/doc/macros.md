@@ -61,6 +61,7 @@ JTFRAME_MOUSE_NOEMU      |         | Disables mouse emulation via joystick
 JTFRAME_MR_DDR           | MiSTer  | Defined internally. Do not define manually.
 JTFRAME_MR_DDRLOAD       | MiSTer  | ROM download process uses the DDR as proxy
 JTFRAME_MR_FASTIO        | MiSTer  | 16-bit ROM load in MiSTer. Set by default if CLK96 is set
+JTFRAME_NO_ANALOGIZER    | Pocket  | Disables analog video output and SNAC controllers through cartridge pins. Defined by default if JTFRAME_RELEASE is not defined
 JTFRAME_NO_DB15          | MiSTer  | Disables DB15 controller modules
 JTFRAME_NOSTA            |         | jtcore will not check STA and will produce a PASS regardless of it
 JTFRAME_NOHOLDBUS        |         | Reduces bus noise (non-interleaved SDRAM controller)

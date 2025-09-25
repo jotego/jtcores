@@ -52,8 +52,8 @@ jobs:
       - id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: release
-          path: release-q20-${{ matrix.core }}
+          name: release-q20-${{ matrix.core }}
+          path: release
           retention-days: 1
 
   upload:

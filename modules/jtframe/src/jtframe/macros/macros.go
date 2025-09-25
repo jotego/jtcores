@@ -263,6 +263,9 @@ func fill_defaults(core, target string) {
 	if IsSet("JTFRAME_JOY1_POS") {
 		default_values["JTFRAME_DIPBASE"]="20"
 	}
+	if !IsSet(JTFRAME_RELEASE) {
+		default_values["JTFRAME_NO_ANALOGIZER"]=""
+	}
 	for key,val := range default_values {
 		if !IsSet(key) {
 			Set(key, val)
