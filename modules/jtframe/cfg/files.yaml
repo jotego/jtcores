@@ -118,3 +118,16 @@ jtframe:
       - analogizer_psx.sv
       - dualshock_controller.v
       - psx_control.v
+  # JVS controller support (part of analogizer)
+  - from: analogizer/jvs
+    when: [ POCKET ]
+    get:
+      - jvs_com.sv
+      - jvs_ctrl.sv
+      - uart_rx.v
+      - uart_tx.v
+  - from: analogizer/jvs/rtl
+    when: [ POCKET ]
+    get:
+      - jvs_defs_pkg.sv
+      - jvs_node_info_pkg.sv
