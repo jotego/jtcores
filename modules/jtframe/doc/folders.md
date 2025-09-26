@@ -70,47 +70,72 @@ Will include the file *common.def*, then define several macros and concatenate m
 
 Macros are evaluated with `jtframe cfgstr <corename>`
 
-### Design Source Files
+### Design Source Files - files.yaml
 
 As QIP files are cumbersome and specific to Quartus only, it is possible to bypass them and use a YAML format, like this:
 
 ```
-game:
-  - from: cps1
-    get:
-      - jtcps1_game.v
-      - jtcps1_main.v
-      - jtcps1_sound.v
-      - common.yaml
+riders:
+  - get:
+    - "jtriders_*.v"
+    - "*.sv"
+    - common.yaml
+aliens:
+  - get:
+    - jtaliens_scroll.v
+    - jt052109.v
+    - jt051962.v
 jtframe:
-  - from: sound
+  - get:
+    - jtframe_edge.v
+    - jtframe_counter.v
+  - from: video
     get:
-      - jtframe_uprate2_fir.yaml
-      - jtframe_pole.v
-modules:
-  jt:
-    - name: jt51
-    - name: jt6295
-  other:
-    - from: jteeprom/hdl
-      get:
-      - jt9346.v
-```
-
-Each `from` key represents the location to gather the files from and it is combined with the upper key to make the full folder. For instance:
-
-```
-game:
-  - from: cps1
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+      - jtframe_linebuf.v
+      - jtframe_linebuf_gate.v
+  - from: video/tilemap
     get:
-    - jtcps1_game.v
+      - jtframe_tilemap.v
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml
+jt51:
+jt053260:
+jteeprom:
+  - get:
+    - jt5911.sv
 ```
 
-will get the files `$CORES/cps1/hdl/jtcps1_game.v`
+The first keyword from each block should refer to a folder in either `$CORES` (i.e. `riders`, `aliens`...) or `$MODULES` (i.e. `jtframe`, `jt51`...). Using the `get` key will gather all referenced files from inside the `hdl` folder inside said core or module, along with the `from` key you can reference subfolders from within `hdl`. For instance:
+```
+jframe:
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
+```
+will get the file `$MODULES/jtframe/hdl/video/tilemap/jtframe_tilemap.v`
+
+Further options that be combined with `get` or `from | get` are `unless` and `when`. After these keys, you can mention a macro list in square brackets: `[ MACRO1, MACRO2 ]`.
+If using `when`, the files will be gathered only if any of these macros is defined. `Unless` works the other way: files are always gathered except when none of these macros is defined
+
+To gather several files with similar names or the same extension, you can use `get` with a string using an asteriks in the changing section. For example:
+
+```
+riders:
+  - get:
+    - "jtriders_*.v"
+    - "*.sv"
+```
+will look in the folder `$CORES/riders/hdl/`, bringing all files with the extension `.sv` and all files with the extension `.v` with a name starting with `jtriders_`.
+
+Alternatively to this method, in the first example, we can also reference a `$CORE` or `$MODULES` folder without giving any specific inputs, to bring all files referenced in their own `cfg/files.yaml`.
 
 Files from the key `jtframe` are based in folder `$JTFRAME/HDL`. Files from `jt` modules will look directly for a file in `$MODULES/name/hdl/name.yaml`. And files from `other` are based in `$MODULES`
 
-There is also a `target:` section but unless you are creating a new target for JTFRAME, you should not use it. Games cores should not directly reference files in the JTFRAME/target folder. An example of the `target:` section can be seen in [mist](../target/mist/common.yaml).
+It is also possible to reference a `target`, but unless you are creating a new target for JTFRAME, you should not do it. Games cores should not directly reference files in the JTFRAME/target folder. An example of the `target:` section can be seen in [mist](../target/mist/common.yaml).
 
 The utility `jtframe files` translates the yaml files to two files: a game.qip and a target.qip for compilation and a game.f and target.f for simulation. The compilation script [jtcore](../bin/jtcore) calls jtfiles in order to obtain the compilation files.
 To get the simulation files call jtfiles as:
