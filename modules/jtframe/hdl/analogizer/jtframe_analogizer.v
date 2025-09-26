@@ -85,7 +85,7 @@ openFPGA_Pocket_Analogizer_SNAC u_snac_controller(
     .i_clk            ( clk              ),
     .i_rst            ( rst              ),
     .conf_AB          ( conf_AB          ),
-    .game_cont_type   ( snac_cont[4:0]   ),
+    .game_cont_type   ( 5'h14            ),
     .p1_btn_state     ( snac_p1          ),
     .p2_btn_state     ( snac_p2          ),
     .p3_btn_state     ( snac_p3          ),
