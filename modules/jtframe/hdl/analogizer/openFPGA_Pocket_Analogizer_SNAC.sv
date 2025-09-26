@@ -191,6 +191,7 @@ module openFPGA_Pocket_Analogizer_SNAC #(parameter MASTER_CLK_FREQ=50_000_000)
     localparam GC_PSX_FAST        = 5'h11; //17 PSX 250KHz
     localparam GC_PSX_ANALOG      = 5'h12; //16 PSX 125KHz
     localparam GC_PSX_ANALOG_FAST = 5'h13; //17 PSX 250KHz
+    localparam GC_JVS             = 5'h14; //20 JVS RS485/RS232
 
     //Configuration:
     localparam CONF_A = 1'b0;
@@ -219,6 +220,7 @@ module openFPGA_Pocket_Analogizer_SNAC #(parameter MASTER_CLK_FREQ=50_000_000)
     reg serlat_ena;
     reg pce_ena;
     reg psx_ena;
+    reg jvs_ena;
 
     always @(posedge i_clk) begin
         case (game_cont_type)
@@ -276,6 +278,9 @@ module openFPGA_Pocket_Analogizer_SNAC #(parameter MASTER_CLK_FREQ=50_000_000)
             GC_PCE_MULTITAP: begin
                 pce_ena    <= 1'b1;
                 strobe_step_size <= pce_fast_pstep;
+            end
+            GC_JVS: begin
+                jvs_ena    <= 1'b1;
             end
 
             default: begin//disabled
@@ -421,6 +426,42 @@ pcengine_game_controller_multitap #(.MASTER_CLK_FREQ(MASTER_CLK_FREQ)) pcegmutit
     .i_dat({SNAC_IN7,SNAC_IO3_A,SNAC_IO6_A,SNAC_IN4}) //data from controller
 );
 
+    //JVS game controller interface
+    wire [15:0] jvs_p1 /* synthesis keep */;
+    wire [31:0] jvs_joy1 /* synthesis keep */;
+    wire [15:0] jvs_p2 /* synthesis keep */;
+    wire [31:0] jvs_joy2 /* synthesis keep */;
+    wire [15:0] jvs_p3 /* synthesis keep */;
+    wire [31:0] jvs_joy3 /* synthesis keep */;
+    wire [15:0] jvs_p4 /* synthesis keep */;
+    wire [31:0] jvs_joy4 /* synthesis keep */;
+    wire jvs_coin1;
+    wire jvs_coin2;
+
+    wire JVS_UART_TX /* synthesis keep */;
+    wire JVS_485_DIR /* synthesis keep */;
+
+    jvs_ctrl #(.MASTER_CLK_FREQ(MASTER_CLK_FREQ)) jvs_inst (
+        .i_clk(i_clk),
+        .i_rst(reset_on_change),
+        .i_ena(jvs_ena),
+
+        .i_uart_rx(SNAC_IN4),
+        .o_uart_tx(JVS_UART_TX),
+        .o_rx485_dir(JVS_485_DIR),
+
+        .p1_btn_state(jvs_p1),
+        .p1_joy_state(jvs_joy1),
+        .p2_btn_state(jvs_p2),
+        .p2_joy_state(jvs_joy2),
+        .p3_btn_state(jvs_p3),
+        //.p3_joy_state(jvs_joy3),
+        .p4_btn_state(jvs_p4),
+        //.p4_joy_state(jvs_joy4),
+        .coin1(jvs_coin1),
+        .coin2(jvs_coin2),
+    );
+
     always @(*) begin
         p1_joy_state = 32'h80808080; //analog stick neutral position value
         p2_joy_state = 32'h80808080; //analog stick neutral position value
@@ -468,6 +509,18 @@ pcengine_game_controller_multitap #(.MASTER_CLK_FREQ(MASTER_CLK_FREQ)) pcegmutit
             p2_joy_state = psx_joy2;
             p3_btn_state = 16'h0;
             p4_btn_state = 16'h0;
+        end
+        GC_JVS: begin
+            SNAC_OUT1 = JVS_UART_TX;
+            SNAC_OUT2 = JVS_485_DIR;
+            p1_btn_state = jvs_p1;
+            p1_joy_state = jvs_joy1;
+            p2_btn_state = jvs_p2;
+            p2_joy_state = jvs_joy2;
+            p3_btn_state = jvs_p3; 
+            //p3_joy_state = jvs_joy3;
+            p4_btn_state = jvs_p4;
+            //p4_joy_state = jvs_joy4;
         end
         default: begin
             SNAC_OUT1 = 1'b0;
