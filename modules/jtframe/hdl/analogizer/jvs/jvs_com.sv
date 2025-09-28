@@ -1,3 +1,4 @@
+//import jvs_com_pkg::*;
 //////////////////////////////////////////////////////////////////////
 // JVS Communication Module (jvs_com.sv)
 // ALPHA Version - JVS Protocol Communication Layer
@@ -46,6 +47,7 @@ module jvs_com
     
     // High-level Protocol Interface - RX Path
     output reg [7:0]    rx_byte,       // Current data byte
+    output reg          rx_ready,      // Data in rx_byte is valid (for BRAM timing)
     input  wire         rx_next,       // Pulse to get next byte
     output reg [BUFFER_ADDR_BITS-1:0] rx_remaining, // Auto-sized bytes remaining counter
     output reg [7:0]    src_node,      // Source node of response
@@ -66,8 +68,8 @@ module jvs_com
 );
 
     // RS485 Timing Constants (in clock cycles at 48MHz)
-    localparam logic [15:0] RS485_SETUP_CYCLES = MASTER_CLK_FREQ / 100_000; // ~10µs
-    localparam logic [15:0] RS485_HOLD_CYCLES = MASTER_CLK_FREQ / 33_333; // ~30µs
+    localparam [15:0] RS485_SETUP_CYCLES = MASTER_CLK_FREQ / 100_000; // ~10µs
+    localparam [15:0] RS485_HOLD_CYCLES = MASTER_CLK_FREQ / 33_333; // ~30µs
     
     // JVS Protocol Constants
     localparam JVS_CHECKSUM_SIZE = 1;      // Checksum is 1 byte
@@ -83,6 +85,7 @@ module jvs_com
     localparam [3:0] TX_NODE         = 4'h3;
     localparam [3:0] TX_LENGTH       = 4'h4;
     localparam [3:0] TX_DATA         = 4'h5;
+    localparam [3:0] TX_DATA_READ    = 4'hA;  // Wait for BRAM read data
     localparam [3:0] TX_CHECKSUM     = 4'h6;
     localparam [3:0] TX_TRANSMIT_BYTE = 4'h7;
     localparam [3:0] TX_TRANSMIT_BYTE_DONE = 4'h8;
@@ -96,6 +99,7 @@ module jvs_com
     localparam [3:0] RX_DATA        = 4'h4;
     localparam [3:0] RX_CHECKSUM    = 4'h5;
     localparam [3:0] RX_VALIDATE    = 4'h6;
+    localparam [3:0] RX_VALIDATE_READ = 4'h8;  // Wait for BRAM read during validation
     localparam [3:0] RX_ESCAPE_WAIT = 4'h7;
     
     // JVS Protocol Constants
@@ -132,19 +136,31 @@ module jvs_com
     reg         tx_escape_pending;
     reg [7:0]   tx_escape_byte;
 
-    // TX Data Buffer Management
-    reg [7:0]   tx_data_buffer [0:JVS_BUFFER_SIZE-1]; // Buffer for pushed data (parameterized)
+    // TX Data Buffer Management (BRAM-based)
     reg [BUFFER_ADDR_BITS-1:0] tx_data_count;         // Auto-sized byte counter
     reg [7:0]   tx_dst_node_latched;    // Latched destination node
     reg         tx_commit_pending;      // Commit pending processing
     
+    // TX BRAM interface signals - now internal
+    reg                        tx_bram_wr_en;
+    reg [BUFFER_ADDR_BITS-1:0] tx_bram_wr_addr;
+    reg [7:0]                  tx_bram_wr_data;
+    reg                        tx_bram_rd_en;
+    reg [BUFFER_ADDR_BITS-1:0] tx_bram_rd_addr;
+    reg [7:0]                  tx_bram_rd_data;
+    reg                        tx_bram_rd_valid;
+
+    // TX BRAM array - integrated Block RAM
+    (* ram_style = "block" *) reg [7:0] tx_bram_array [0:JVS_BUFFER_SIZE-1];
+    reg tx_bram_rd_en_d1; // Pipeline register for tx valid signal
+
     // Command FIFO for multi-command frame tracking
     reg [7:0]   cmd_fifo [0:CMD_FIFO_SIZE-1];          // FIFO to store commands (parameterized)
     reg [CMD_ADDR_BITS-1:0] cmd_write_ptr;             // Auto-sized write pointer
     reg [CMD_ADDR_BITS-1:0] cmd_read_ptr;              // Auto-sized read pointer
     reg [CMD_ADDR_BITS:0]   cmd_count;                 // Auto-sized counter with overflow bit
     reg         cmd_fifo_init;          // Pulse to initialize command FIFO reading
-    
+
     // RX State Machine
     reg [3:0]   rx_state;
     reg [BUFFER_ADDR_BITS-1:0] rx_data_idx;           // Auto-sized for buffer indexing
@@ -153,9 +169,21 @@ module jvs_com
     reg         rx_escape_mode;
     reg [7:0]   rx_byte_buffer;
     reg [BUFFER_ADDR_BITS-1:0] rx_length_internal;    // Auto-sized length storage
-    reg [7:0]   rx_buffer [0:JVS_BUFFER_SIZE-1];      // Internal RX data buffer (parameterized)
     reg [BUFFER_ADDR_BITS-1:0] rx_read_idx;           // Auto-sized read index
     reg         rx_complete_pulse;  // One-cycle pulse for rx_complete
+
+    // RX BRAM interface signals - now internal
+    reg                        rx_bram_wr_en;
+    reg [BUFFER_ADDR_BITS-1:0] rx_bram_wr_addr;
+    reg [7:0]                  rx_bram_wr_data;
+    reg                        rx_bram_rd_en;
+    reg [BUFFER_ADDR_BITS-1:0] rx_bram_rd_addr;
+    reg [7:0]                  rx_bram_rd_data;
+    reg                        rx_bram_rd_valid;
+
+    // RX BRAM array - integrated Block RAM
+    (* ram_style = "block" *) reg [7:0] rx_bram_array [0:JVS_BUFFER_SIZE-1];
+    reg rx_bram_rd_en_d1; // Pipeline register for rx valid signal
     
     // Internal frame buffers
     reg [7:0]   tx_frame_node;
@@ -167,6 +195,7 @@ module jvs_com
     wire tx_cmd_push_negedge = tx_cmd_push_d & ~tx_cmd_push;
     wire tx_data_push_negedge = tx_data_push_d & ~tx_data_push;
     wire commit_negedge = commit_d & ~commit;
+
     
     //////////////////////////////////////////////////////////////////////
     // Buffer copying eliminated - using tx_data_buffer directly
@@ -195,6 +224,58 @@ module jvs_com
         .o_Rx_DV(uart_rx_valid),
         .o_Rx_Byte(uart_rx_data)
     );
+    
+    //////////////////////////////////////////////////////////////////////
+    // Integrated BRAM Logic - TX and RX Block RAMs
+    //////////////////////////////////////////////////////////////////////
+
+    // TX BRAM Logic - integrated read/write operations
+    always @(posedge clk_sys) begin
+        if (reset) begin
+            tx_bram_rd_data <= 8'h0;
+            tx_bram_rd_valid <= 1'b0;
+            tx_bram_rd_en_d1 <= 1'b0;
+            // Note: BRAM contents not cleared on reset for performance
+        end else begin
+            // TX Write operation
+            if (tx_bram_wr_en) begin
+                tx_bram_array[tx_bram_wr_addr] <= tx_bram_wr_data;
+            end
+
+            // TX Read operation with 1-cycle latency
+            if (tx_bram_rd_en) begin
+                tx_bram_rd_data <= tx_bram_array[tx_bram_rd_addr];
+            end
+
+            // TX Valid signal follows read enable with 1-cycle delay
+            tx_bram_rd_en_d1 <= tx_bram_rd_en;
+            tx_bram_rd_valid <= tx_bram_rd_en_d1;
+        end
+    end
+
+    // RX BRAM Logic - integrated read/write operations
+    always @(posedge clk_sys) begin
+        if (reset) begin
+            rx_bram_rd_data <= 8'h0;
+            rx_bram_rd_valid <= 1'b0;
+            rx_bram_rd_en_d1 <= 1'b0;
+            // Note: BRAM contents not cleared on reset for performance
+        end else begin
+            // RX Write operation
+            if (rx_bram_wr_en) begin
+                rx_bram_array[rx_bram_wr_addr] <= rx_bram_wr_data;
+            end
+
+            // RX Read operation with 1-cycle latency
+            if (rx_bram_rd_en) begin
+                rx_bram_rd_data <= rx_bram_array[rx_bram_rd_addr];
+            end
+
+            // RX Valid signal follows read enable with 1-cycle delay
+            rx_bram_rd_en_d1 <= rx_bram_rd_en;
+            rx_bram_rd_valid <= rx_bram_rd_en_d1;
+        end
+    end
     
     //////////////////////////////////////////////////////////////////////
     // RS485 Control Logic
@@ -230,8 +311,8 @@ module jvs_com
             // Handle command push - store in FIFO on negedge for better timing
             if (tx_cmd_push_negedge && tx_ready && cmd_count < 16) begin
                 cmd_fifo[cmd_write_ptr] <= tx_data;
-                cmd_write_ptr <= cmd_write_ptr + 1;
-                cmd_count <= cmd_count + 1;
+                cmd_write_ptr <= cmd_write_ptr + 1'b1;
+                cmd_count <= cmd_count + 1'b1;
 
                 // Log command push and current FIFO state
                 $write("[%0t] JVS_COM: CMD PUSH 0x%02X -> FIFO[%0d], count=%0d, FIFO: [", $time, tx_data, cmd_write_ptr, cmd_count + 1);
@@ -260,8 +341,8 @@ module jvs_com
                 end
                 $display("]");
 
-                cmd_read_ptr <= cmd_read_ptr + 1;
-                cmd_count <= cmd_count - 1;
+                cmd_read_ptr <= cmd_read_ptr + 1'b1;
+                cmd_count <= cmd_count - 1'b1;
 
                 // Update src_cmd with next command if available
                 // Use the incremented read pointer value (will be available next cycle)
@@ -305,10 +386,20 @@ module jvs_com
             tx_cmd_push_d <= 1'b0;
             tx_data_push_d <= 1'b0;
             commit_d <= 1'b0;
+            
+            // Initialize TX BRAM control signals
+            tx_bram_wr_en <= 1'b0;
+            tx_bram_wr_addr <= 0;
+            tx_bram_wr_data <= 0;
+            tx_bram_rd_en <= 1'b0;
+            tx_bram_rd_addr <= 0;
         end else begin
             tx_state_debug <= tx_state;
             uart_tx_dv <= 1'b0; // Default, pulse when needed
-
+            
+            // Default TX BRAM control signals
+            tx_bram_wr_en <= 1'b0;
+            tx_bram_rd_en <= 1'b0;
 
             // Update edge detection registers
             tx_cmd_push_d <= tx_cmd_push;
@@ -324,7 +415,9 @@ module jvs_com
 
                     // Handle data and command push on negedge for better timing
                     if ((tx_data_push_negedge || tx_cmd_push_negedge) && tx_ready) begin
-                        tx_data_buffer[tx_data_count] <= tx_data;
+                        tx_bram_wr_en <= 1'b1;
+                        tx_bram_wr_addr <= tx_data_count;
+                        tx_bram_wr_data <= tx_data;
                         tx_data_count <= tx_data_count + 1;
 
                         // Store first CMD for backward compatibility
@@ -408,28 +501,38 @@ module jvs_com
                 
                 TX_DATA: begin
                     if (tx_data_idx < tx_data_count) begin
-                        if (needs_escape(tx_data_buffer[tx_data_idx])) begin
+                        // Issue BRAM read request
+                        tx_bram_rd_en <= 1'b1;
+                        tx_bram_rd_addr <= tx_data_idx;
+                        tx_state <= TX_DATA_READ;
+                    end else begin
+                        tx_state <= TX_CHECKSUM;
+                    end
+                end
+                
+                TX_DATA_READ: begin
+                    // Wait for BRAM read data to be valid
+                    if (tx_bram_rd_valid) begin
+                        if (needs_escape(tx_bram_rd_data)) begin
                             if (!tx_escape_pending) begin
                                 uart_tx_byte <= JVS_ESCAPE;
                                 tx_escape_pending <= 1'b1;
-                                tx_escape_byte <= get_escape_byte(tx_data_buffer[tx_data_idx]);
-                                tx_next_state <= TX_DATA;  // Revenir pour envoyer l'échappement
+                                tx_escape_byte <= get_escape_byte(tx_bram_rd_data);
+                                tx_next_state <= TX_DATA_READ;  // Revenir pour envoyer l'échappement
                             end else begin
                                 uart_tx_byte <= tx_escape_byte;
                                 tx_escape_pending <= 1'b0;
-                                tx_checksum <= tx_checksum + tx_data_buffer[tx_data_idx];
+                                tx_checksum <= tx_checksum + tx_bram_rd_data;
                                 tx_data_idx <= tx_data_idx + 1;
                                 tx_next_state <= TX_DATA;  // Continuer avec le prochain byte
                             end
                         end else begin
-                            uart_tx_byte <= tx_data_buffer[tx_data_idx];
-                            tx_checksum <= tx_checksum + tx_data_buffer[tx_data_idx];
+                            uart_tx_byte <= tx_bram_rd_data;
+                            tx_checksum <= tx_checksum + tx_bram_rd_data;
                             tx_data_idx <= tx_data_idx + 1;
                             tx_next_state <= TX_DATA;  // Continuer avec le prochain byte
                         end
                         tx_state <= TX_TRANSMIT_BYTE;
-                    end else begin
-                        tx_state <= TX_CHECKSUM;
                     end
                 end
                 
@@ -502,6 +605,7 @@ module jvs_com
             rx_state <= RX_IDLE;
             rx_complete <= 1'b0;
             rx_error <= 1'b0;
+            rx_ready <= 1'b0;
             rx_data_idx <= 0;
             rx_checksum_calc <= 0;
             rx_escape_mode <= 1'b0;
@@ -511,12 +615,23 @@ module jvs_com
             cmd_fifo_init <= 1'b0;
             rx_to_tx_pending <= 1'b0;
             src_cmd_status <= 8'h00;  // No STATUS received yet
+            
+            // Initialize RX BRAM control signals
+            rx_bram_wr_en <= 1'b0;
+            rx_bram_wr_addr <= 0;
+            rx_bram_wr_data <= 0;
+            rx_bram_rd_en <= 1'b0;
+            rx_bram_rd_addr <= 0;
         end else begin
             rx_state_debug <= rx_state;
             rx_complete <= rx_complete_pulse; // Connect to pulse register
             rx_error <= 1'b0; // Default
             cmd_fifo_init <= 1'b0; // Default, pulse when initializing command FIFO
             rx_complete_pulse <= 1'b0; // Default pulse to 0
+            
+            // Default RX BRAM control signals
+            rx_bram_wr_en <= 1'b0;
+            rx_bram_rd_en <= 1'b0;
 
             // Log RX state changes for simulation
             if (rx_state_debug != rx_state) begin
@@ -564,7 +679,9 @@ module jvs_com
                         end
                         if (handle_escape_rx(uart_rx_data, rx_escape_mode, rx_byte_buffer)) begin
                             if (rx_data_idx < rx_length_internal - 1) begin
-                                rx_buffer[rx_data_idx] <= rx_byte_buffer;
+                                rx_bram_wr_en <= 1'b1;
+                                rx_bram_wr_addr <= rx_data_idx;
+                                rx_bram_wr_data <= rx_byte_buffer;
                                 rx_checksum_calc <= rx_checksum_calc + rx_byte_buffer;
                                 rx_data_idx <= rx_data_idx + 1;
                             end else begin
@@ -586,20 +703,38 @@ module jvs_com
                     // Initialize command FIFO reading - start with first command
                     cmd_fifo_init <= 1'b1;
 
-                    // Setup sequential read interface - start from REPORT byte (skip STATUS)
-                    src_cmd_status <= rx_buffer[0];  // Store STATUS directly
+                    // Issue BRAM reads for STATUS and first REPORT byte
+                    rx_bram_rd_en <= 1'b1;
+                    rx_bram_rd_addr <= 0;  // Read STATUS first
                     rx_read_idx <= 1;
-                    rx_byte <= rx_buffer[1];  // REPORT byte ready (STATUS already decoded)
                     rx_remaining <= rx_length_internal - 2;
-                    rx_complete_pulse <= 1'b1;  // Generate one-cycle pulse
-
-                    // Set flag to indicate we need to transition to TX mode for response
-                    rx_to_tx_pending <= 1'b1;
+                    rx_state <= RX_VALIDATE_READ;
                 end else begin
                     checksum_errors_count <= checksum_errors_count + 1;
                     rx_error <= 1'b1;
+                    rx_state <= RX_IDLE;
                 end
-                rx_state <= RX_IDLE;
+            end
+            
+            // RX_VALIDATE_READ state - wait for BRAM data and setup interface
+            if (rx_state == RX_VALIDATE_READ) begin
+                if (rx_bram_rd_valid) begin
+                    if (rx_bram_rd_addr == 0) begin
+                        // First read: STATUS byte
+                        src_cmd_status <= rx_bram_rd_data;
+                        // Issue read for first REPORT byte
+                        rx_read_idx <= rx_read_idx + 1; 
+                        rx_bram_rd_en <= 1'b1;
+                        rx_bram_rd_addr <= rx_read_idx;
+                    end else begin
+                        // Second read: first REPORT byte
+                        rx_byte <= rx_bram_rd_data;  // REPORT byte ready
+                        rx_ready <= 1'b1;           // Signal that rx_byte is valid
+                        rx_complete_pulse <= 1'b1;  // Generate one-cycle pulse
+                        rx_to_tx_pending <= 1'b1;
+                        rx_state <= RX_IDLE;
+                    end
+                end
             end
 
             // Handle transition from RX to TX when processing is done
@@ -608,17 +743,25 @@ module jvs_com
                 // Force TX mode for response transmission
                 // Note: rs485_tx_enable will be managed by TX state machine
             end
+            
+            // Handle rx_next sequential read interface using BRAM
+            if (rx_next && rx_remaining > 0) begin
+                rx_bram_rd_en <= 1'b1;
+                rx_bram_rd_addr <= rx_read_idx + 1;
+                rx_read_idx <= rx_read_idx + 1;
+                rx_remaining <= rx_remaining - 1;
+                rx_ready <= 1'b0;  // Clear ready until new data is available
+            end
+            
+            // Update rx_byte when BRAM read data is valid
+            if (rx_bram_rd_valid) begin
+                rx_byte <= rx_bram_rd_data;
+                rx_ready <= 1'b1;  // Signal that rx_byte is valid
+            end
+            
+            // Always output current command count
+            src_cmd_count <= cmd_count;
         end
-        
-        // Handle rx_next sequential read interface
-        if (rx_next && rx_remaining > 0) begin
-            rx_read_idx <= rx_read_idx + 1;
-            rx_byte <= rx_buffer[rx_read_idx + 1];
-            rx_remaining <= rx_remaining - 1;
-        end
-        
-        // Always output current command count
-        src_cmd_count <= cmd_count;
     end
     
     //////////////////////////////////////////////////////////////////////
@@ -638,31 +781,54 @@ module jvs_com
             get_escape_byte = data;
     endfunction
     
-    function automatic handle_escape_rx(
+    // Helper function to decode escape sequences - returns decoded data and control signals
+    function automatic [9:0] handle_escape_rx_func(
+        input [7:0] rx_byte,
+        input logic escape_mode
+    );
+        logic [7:0] decoded_byte;
+        logic new_escape_mode;
+        logic byte_valid;
+        
+        if (escape_mode) begin
+            if (rx_byte == JVS_ESC_SYNC) begin
+                decoded_byte = JVS_SYNC;
+                new_escape_mode = 1'b0;
+                byte_valid = 1'b1;
+            end else if (rx_byte == JVS_ESC_ESC) begin
+                decoded_byte = JVS_ESCAPE;
+                new_escape_mode = 1'b0;
+                byte_valid = 1'b1;
+            end else begin
+                decoded_byte = 8'h00;
+                new_escape_mode = 1'b0;
+                byte_valid = 1'b0; // Invalid escape sequence
+            end
+        end else if (rx_byte == JVS_ESCAPE) begin
+            decoded_byte = 8'h00;
+            new_escape_mode = 1'b1;
+            byte_valid = 1'b0;
+        end else begin
+            decoded_byte = rx_byte;
+            new_escape_mode = 1'b0;
+            byte_valid = 1'b1;
+        end
+        
+        // Pack results: [9] = byte_valid, [8] = new_escape_mode, [7:0] = decoded_byte
+        handle_escape_rx_func = {byte_valid, new_escape_mode, decoded_byte};
+    endfunction
+    
+    // Legacy wrapper to maintain compatibility
+    function automatic logic handle_escape_rx(
         input [7:0] rx_byte,
         ref logic escape_mode,
         ref [7:0] decoded_byte
     );
-        if (escape_mode) begin
-            if (rx_byte == JVS_ESC_SYNC) begin
-                decoded_byte = JVS_SYNC;
-                escape_mode = 1'b0;
-                handle_escape_rx = 1'b1;
-            end else if (rx_byte == JVS_ESC_ESC) begin
-                decoded_byte = JVS_ESCAPE;
-                escape_mode = 1'b0;
-                handle_escape_rx = 1'b1;
-            end else begin
-                escape_mode = 1'b0;
-                handle_escape_rx = 1'b0; // Invalid escape sequence
-            end
-        end else if (rx_byte == JVS_ESCAPE) begin
-            escape_mode = 1'b1;
-            handle_escape_rx = 1'b0;
-        end else begin
-            decoded_byte = rx_byte;
-            handle_escape_rx = 1'b1;
-        end
+        logic [9:0] result;
+        result = handle_escape_rx_func(rx_byte, escape_mode);
+        decoded_byte = result[7:0];
+        escape_mode = result[8];
+        handle_escape_rx = result[9];
     endfunction
 
 endmodule
