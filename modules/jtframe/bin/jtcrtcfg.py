@@ -135,12 +135,21 @@ Please, select the option corresponding to your controller.
 
 Letter | Option
 -------|--------------------------------------------|
-   A   | None                                       |
-   B   | DB15 Normal                                |
-   C   | NES                                        |
-   D   | SNES                                       |
-   E   | PCE 2BTN/6BTN                              |
-   F   | PCE Multitap                               |
+       |                                 uuua fecb  |
+   A   | None                 0x00    8b'0000 0000  |
+   B   | DB15 Normal          0x01    8b'0000 0001  |
+   C   | NES                  0x02    8b'0000 0010  |
+   D   | SNES                 0x03    8b'0000 0011  |
+   E   | PCE 2BTN             0x04    8b'0000 0100  |
+   F   | PCE 6BTN             0x05    8b'0000 0101  |
+   G   | PCE Multitap         0x06    8b'0000 0110  |
+   H   | DB15 Fast            0x09    8b'0000 1001  |
+   I   | SNES Swap            0x0B    8b'0000 1011  |
+   J   | PSX Digital          0x10    8b'0001 0000  |
+   K   | PSX Digital Fast     0x11    8b'0001 0001  |
+   L   | PSX Analog           0x12    8b'0001 0010  |
+   M   | PSX Analog Fast      0x13    8b'0001 0011  |
+   N   | JVS                  0x14    8b'0001 0100  |
 ----------------------------------------------------|
 
 Your selection:    """
@@ -153,7 +162,19 @@ snac.dict = {
     "c" : [0],
     "b" : [0],
 }
-snac.replace = {"a": "", "e":"eb", "f":"ec","d":"cb"}
+snac.replace = {
+    "a": "",
+    "d":"cb",
+    "f":"eb",
+    "g":"ec",
+    "h":"fb",
+    "i":"fcb",
+    "j":"a",
+    "k":"ab",
+    "l":"ac",
+    "m":"acb",
+    "n": "ae"
+}
 
 filepath  = create_in_pocket(do=sd)
 filepath2 = create_in_release(do=rel)
