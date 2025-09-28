@@ -26,18 +26,25 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
     input logic i_sense,      // JVS SENSE line (read-only for master)
     output logic o_rx485_dir, // RS485 transceiver direction control (0=RX, 1=TX)
     
-    // Output registers compatible with Analogue Pocket SNAC format
-    output logic [15:0] p1_btn_state,   // Player 1 button states
-    output logic [31:0] p1_joy_state,   // Player 1 analog stick states
-    output logic [15:0] p2_btn_state,   // Player 2 button states
-    output logic [31:0] p2_joy_state,   // Player 2 analog stick states
-    output logic [15:0] p3_btn_state,   // Player 3 button states (reserved)
-    output logic [15:0] p4_btn_state,    // Player 4 button states (reserved)
+    // Output registers for direct interface
+    output logic [15:0] player1_input_switch, // Player 1 digital input switches
+    output logic [15:0] player2_input_switch, // Player 2 digital input switches
+    output logic [15:0] player3_input_switch, // Player 3 digital input switches
+    output logic [15:0] player4_input_switch, // Player 4 digital input switches
+    // Output registers for analog interfaces
+    output logic [15:0] analog_ch1,    // Analog channel 1 (16-bit)
+    output logic [15:0] analog_ch2,    // Analog channel 2 (16-bit)
+    output logic [15:0] analog_ch3,    // Analog channel 3 (16-bit)
+    output logic [15:0] analog_ch4,    // Analog channel 4 (16-bit)
+    output logic [15:0] analog_ch5,    // Analog channel 5 (16-bit)
+    output logic [15:0] analog_ch6,    // Analog channel 6 (16-bit)
+    output logic [15:0] analog_ch7,    // Analog channel 7 (16-bit)
+    output logic [15:0] analog_ch8,    // Analog channel 8 (16-bit)
     
     // Screen position outputs (light gun/touch screen) - raw 16-bit data
+    output logic has_screen_pos,        // Device supports screen position inputs
     output logic [15:0] screen_pos_x,   // Screen X position (16-bit from JVS)
     output logic [15:0] screen_pos_y,   // Screen Y position (16-bit from JVS)
-    output logic has_screen_pos,        // Device supports screen position inputs
 
     // Coin counter outputs (up to 4 coin slots)
     output logic [15:0] coin_count[4],  // Coin counters for each slot (16-bit values)
@@ -46,15 +53,15 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
     output logic coin3,                 // Coin increase signal for slot 3
     output logic coin4,                 // Coin increase signal for slot 4
     
-    // GPIO control from SNAC
-    input logic [7:0] gpio_output_value, // GPIO output value from SNAC (0x80=active, 0x00=inactive)
+    // Digital output from SNAC
+    input logic [15:0] output_digital_ch1, // Digital output channel 1 from SNAC
 
     //JVS node information structure
     output logic jvs_data_ready,
     output jvs_node_info_t jvs_nodes,
     //RAM interface for node names (for debug/display purposes)
     output logic [7:0] node_name_rd_data,
-    input logic [6:0] node_name_rd_addr
+    input logic [jvs_node_info_pkg::NAME_BRAM_ADDR_BITS-1:0] node_name_rd_addr  // Calculated address width based on BRAM size
 ); 
 
     localparam UART_CLKS_PER_BIT = MASTER_CLK_FREQ / 115200;
@@ -82,6 +89,7 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
     
     // RX interface signals
     logic [7:0] com_rx_byte;        // Current data byte from RX
+    logic       com_rx_ready;       // Data in com_rx_byte is valid (BRAM timing)
     logic       com_rx_next;        // Pulse to get next RX byte
     logic [7:0] com_rx_remaining;   // Bytes remaining (0 = current is last)
     logic [7:0] com_src_node;       // Source node of response
@@ -91,6 +99,7 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
     logic [4:0] com_src_cmd_count;  // Number of commands available in FIFO
     logic       com_rx_complete;    // Pulse when RX frame complete
     logic       com_rx_error;       // RX checksum or format error
+
 
     // Debug/Status signals from jvs_com
     logic [3:0] com_tx_state_debug;
@@ -105,6 +114,10 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
 
     // Name copying variables for device identification parsing
     logic [7:0] copy_write_idx;         // Write index for name copying
+
+    // Checksum calculation variables for BRAM optimization
+    logic [15:0] name_checksum_crc;     // Current CRC16 checksum being calculated
+    logic [jvs_node_info_pkg::NAME_BRAM_ADDR_BITS-1:0] name_bram_write_addr;  // Current BRAM write address
 
     logic [3:0] current_player;
     logic [7:0] current_channel;
@@ -139,6 +152,7 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
         
         // RX Interface
         .rx_byte(com_rx_byte),
+        .rx_ready(com_rx_ready),
         .rx_next(com_rx_next),
         .rx_remaining(com_rx_remaining),
         .src_node(com_src_node),
@@ -177,7 +191,7 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
     localparam logic [31:0] JVSREV_TO_COMMVER_DELAY = MASTER_CLK_FREQ / 1000; // 1ms delay after JVSREV
     localparam logic [31:0] COMMVER_TO_FEATURES_DELAY = MASTER_CLK_FREQ / 1000; // 1ms delay after COMMVER
     localparam logic [31:0] FEATURES_TO_IDLE_DELAY = MASTER_CLK_FREQ / 500; // 2ms delay after FEATURES
-    localparam logic [31:0] POLLING_INTERVAL_DELAY = MASTER_CLK_FREQ / 1000; // 1ms delay between polling cycles
+    localparam logic [31:0] POLLING_INTERVAL_DELAY = MASTER_CLK_FREQ / 100; // 5ms delay between polling cycles (required for SEGA 838-13683B, newer cards tested working with 1ms)
 
     // JVS Frame structure constants for better code readability
     localparam JVS_SYNC_POS = 8'd0;          // Position of sync byte (E0)
@@ -363,13 +377,14 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
 `endif
 
     //=========================================================================
-    // RAM for current node name during reception
-    (* ramstyle = "M10K" *) logic [7:0] node_name_ram [0:jvs_node_info_pkg::NODE_NAME_SIZE -1];
+    // RAM for all node names (optimized BRAM storage)
+    // Each node occupies NODE_NAME_SIZE bytes at address: node_index * NODE_NAME_SIZE
+    (* ramstyle = "M10K" *) logic [7:0] node_name_ram [0:(jvs_node_info_pkg::MAX_JVS_NODES * jvs_node_info_pkg::NODE_NAME_SIZE) - 1];
 
 ////initial content for simulation without JVS device
 `ifdef USE_DUMMY_JVS_DATA
     initial begin
-        $readmemh("jvs_device_name.mem", node_name_ram); //null terminated string "namco ltd.;NAJV2;Ver1.00;JPN,Multipurpose."
+        $readmemh("jvs_device_name.mem", node_name_ram, 0, jvs_node_info_pkg::NODE_NAME_SIZE-1); //null terminated string "namco ltd.;NAJV2;Ver1.00;JPN,Multipurpose."
     end
 `endif
 
@@ -429,12 +444,18 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
             cmd_pos <= 8'h0; // genrale parsing pointer
 
             // Initialize output button and joystick states
-            p1_btn_state <= 16'h0000;           // All buttons released
-            p1_joy_state <= 32'h80808080;       // Analog sticks centered (0x80 = center)
-            p2_btn_state <= 16'h0000;
-            p2_joy_state <= 32'h80808080;
-            p3_btn_state <= 16'h0000;
-            p4_btn_state <= 16'h0000;
+            player1_input_switch <= 16'h0000;  // All switches off
+            analog_ch1 <= 16'h8000;            // Analog channel 1 centered
+            analog_ch2 <= 16'h8000;            // Analog channel 2 centered
+            analog_ch3 <= 16'h8000;            // Analog channel 3 centered
+            analog_ch4 <= 16'h8000;            // Analog channel 4 centered
+            analog_ch5 <= 16'h8000;            // Analog channel 5 centered
+            analog_ch6 <= 16'h8000;            // Analog channel 6 centered
+            analog_ch7 <= 16'h8000;            // Analog channel 7 centered
+            analog_ch8 <= 16'h8000;            // Analog channel 8 centered
+            player2_input_switch <= 16'h0000;  // All switches off
+            player3_input_switch <= 16'h0000;  // All switches off
+            player4_input_switch <= 16'h0000;  // All switches off
 
             // Initialize coin counters
             coin_count[0] <= 16'h0000;
@@ -719,6 +740,9 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                             // Check REPORT byte
                             if (com_rx_byte == REPORT_NORMAL) begin
                                 copy_write_idx <= 8'd0;  // Reset write index for name copying
+                                // Initialize checksum calculation and BRAM address
+                                name_checksum_crc <= 16'h0000;  // Simple sum checksum initial value
+                                name_bram_write_addr <= (current_device_addr - 1) * jvs_node_info_pkg::NODE_NAME_SIZE;
                                 com_rx_next <= 1'b1;     // Advance to first name character
                                 main_state <= STATE_RX_NEXT;
                             end else begin
@@ -730,17 +754,19 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                             if (com_rx_remaining > 0) begin // > 1 because we need to leave room for checksum
                                 if (com_rx_byte == 8'h00) begin
                                     // Found null terminator, store it and finish copying
-                                    jvs_nodes_r.node_name[current_device_addr - 1][copy_write_idx] <= 8'h00;
-                                    node_name_ram[copy_write_idx] <= 8'h00; // Also update RAM for OSD
+                                    node_name_ram[name_bram_write_addr + copy_write_idx] <= 8'h00; // Store in BRAM
+                                    // Store final checksum in node info structure
+                                    jvs_nodes_r.node_name_checksum[current_device_addr - 1] <= name_checksum_crc;
                                     cmd_pos <= 8'd0;  // Reset position for next command
                                     // Add delay before sending CMDREV command
                                     delay_counter <= IOIDENT_TO_CMDREV_DELAY;
                                     return_state <= STATE_SEND_CMDREV;
                                     main_state <= STATE_MAIN_TIMER_DELAY;
                                 end else if (copy_write_idx < jvs_node_info_pkg::NODE_NAME_SIZE - 1) begin
-                                    // Copy character to node name buffer
-                                    jvs_nodes_r.node_name[current_device_addr - 1][copy_write_idx] <= com_rx_byte;
-                                    node_name_ram[copy_write_idx] <= com_rx_byte; // Also update RAM for OSD
+                                    // Store character in BRAM and update checksum
+                                    node_name_ram[name_bram_write_addr + copy_write_idx] <= com_rx_byte;
+                                    // Simple checksum update (sum of bytes for simplicity)
+                                    name_checksum_crc <= name_checksum_crc + com_rx_byte;
                                     copy_write_idx <= copy_write_idx + 1;
                                     com_rx_next <= 1'b1;     // Advance to first name character
                                     main_state <= STATE_RX_NEXT;
@@ -984,6 +1010,7 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                 end
 
                 RX_PARSE_FEATURES: begin
+                    $display("RX_PARSE_FEATURES");
                     return_state <= RX_PARSE_FEATURES;
                     case (cmd_pos)
                         3'd0: begin
@@ -1001,6 +1028,7 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                     endcase
                 end
                 RX_PARSE_FEATURES_FUNCS: begin
+                    $display("RX_PARSE_FEATURES_FUNC com_rx_remaining(%d), cmd_pos(%d), com_rx_byte(0x%02x)", com_rx_remaining, cmd_pos, com_rx_byte);
                     return_state <= RX_PARSE_FEATURES_FUNCS;
                     if (com_rx_remaining > 0) begin
                         case (cmd_pos)
@@ -1407,12 +1435,12 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                                         main_state <= STATE_TX_NEXT;     // Go to TX_NEXT
                                     end
                                     3'd2: begin
-                                        com_tx_data <= gpio_output_value; // Set GPIO1 to current value from SNAC
+                                        com_tx_data <= output_digital_ch1[7:0]; // Set GPIO1 to current value from SNAC
                                         com_tx_data_push <= 1'b1;        // Push as data
                                         main_state <= STATE_TX_NEXT;     // Go to TX_NEXT
                                     end
                                     3'd3: begin
-                                        com_tx_data <= 8'hA0;            // do not know what A is for, but taken from TC4 capture
+                                        com_tx_data <= output_digital_ch1[15:8]; // Use MSB from SNAC module
                                         com_tx_data_push <= 1'b1;        // Push as data
                                         main_state <= STATE_TX_NEXT;     // Go to TX_NEXT
                                     end
@@ -1524,6 +1552,9 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                                         // Check REPORT byte
                                         if (com_rx_byte == REPORT_NORMAL) begin
                                             copy_write_idx <= 8'd0;  // Reset write index for name copying
+                                            // Initialize checksum calculation and BRAM address
+                                            name_checksum_crc <= 16'h0000;  // Simple sum checksum initial value
+                                            name_bram_write_addr <= (current_device_addr - 1) * jvs_node_info_pkg::NODE_NAME_SIZE;
                                             return_state <= RX_PARSE_INPUT_CMD;
                                             main_state <= STATE_RX_NEXT;
                                             com_rx_next <= 1'b1;
@@ -1536,25 +1567,33 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                                         if (com_rx_remaining > 0) begin
                                             if (com_rx_byte == 8'h00) begin
                                                 // Found null terminator, store it and finish copying
-                                                jvs_nodes_r.node_name[current_device_addr - 1][copy_write_idx] <= 8'h00;
+                                                node_name_ram[name_bram_write_addr + copy_write_idx] <= 8'h00; // Store in BRAM
+                                                // Store final checksum in node info structure
+                                                jvs_nodes_r.node_name_checksum[current_device_addr - 1] <= name_checksum_crc;
                                                 cmd_pos <= 8'd0;
                                                 main_state <= STATE_SEND_CMDREV;
                                             end else if (copy_write_idx < jvs_node_info_pkg::NODE_NAME_SIZE - 1) begin
-                                                // Store character and advance
-                                                jvs_nodes_r.node_name[current_device_addr - 1][copy_write_idx] <= com_rx_byte;
+                                                // Store character in BRAM and update checksum
+                                                node_name_ram[name_bram_write_addr + copy_write_idx] <= com_rx_byte;
+                                                // Simple checksum update (sum of bytes for simplicity)
+                                                name_checksum_crc <= name_checksum_crc + com_rx_byte;
                                                 copy_write_idx <= copy_write_idx + 1;
                                                 return_state <= RX_PARSE_INPUT_CMD;
                                                 main_state <= STATE_RX_NEXT;
                                                 com_rx_next <= 1'b1;
                                             end else begin
                                                 // Name too long, truncate and finish
-                                                jvs_nodes_r.node_name[current_device_addr - 1][copy_write_idx] <= 8'h00;
+                                                node_name_ram[name_bram_write_addr + copy_write_idx] <= 8'h00; // Store in BRAM
+                                                // Store final checksum in node info structure
+                                                jvs_nodes_r.node_name_checksum[current_device_addr - 1] <= name_checksum_crc;
                                                 cmd_pos <= 8'd0;
                                                 main_state <= STATE_SEND_CMDREV;
                                             end
                                         end else begin
                                             // No more data, finish name copy
-                                            jvs_nodes_r.node_name[current_device_addr - 1][copy_write_idx] <= 8'h00;
+                                            node_name_ram[name_bram_write_addr + copy_write_idx] <= 8'h00; // Store in BRAM
+                                            // Store final checksum in node info structure
+                                            jvs_nodes_r.node_name_checksum[current_device_addr - 1] <= name_checksum_crc;
                                             cmd_pos <= 8'd0;
                                             main_state <= STATE_SEND_CMDREV;
                                         end
@@ -1893,18 +1932,18 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                         4'd0: begin // Player 1
                             if (cmd_pos == 1) begin
                                 // First player data byte
-                                p1_btn_state[15] <= com_rx_byte[7];  // START
-                                p1_btn_state[14] <= com_rx_byte[6];  // SELECT/SERVICE
-                                p1_btn_state[0]  <= com_rx_byte[5];  // UP
-                                p1_btn_state[1]  <= com_rx_byte[4];  // DOWN
-                                p1_btn_state[2]  <= com_rx_byte[3];  // LEFT
-                                p1_btn_state[3]  <= com_rx_byte[2];  // RIGHT
-                                p1_btn_state[4]  <= com_rx_byte[1];  // A (push1)
-                                p1_btn_state[5]  <= com_rx_byte[0];  // B (push2)
+                                player1_input_switch[15] <= com_rx_byte[7];  // START
+                                player1_input_switch[14] <= com_rx_byte[6];  // SELECT/SERVICE
+                                player1_input_switch[0]  <= com_rx_byte[5];  // UP
+                                player1_input_switch[1]  <= com_rx_byte[4];  // DOWN
+                                player1_input_switch[2]  <= com_rx_byte[3];  // LEFT
+                                player1_input_switch[3]  <= com_rx_byte[2];  // RIGHT
+                                player1_input_switch[4]  <= com_rx_byte[1];  // A (push1)
+                                player1_input_switch[5]  <= com_rx_byte[0];  // B (push2)
 
                                 if (jvs_nodes_r.node_buttons[current_device_addr - 1] <= 8) begin
                                     // Only 1 byte per player, clear unused bits and advance to next player
-                                    p1_btn_state[13:6] <= 8'b00000000;
+                                    player1_input_switch[13:6] <= 8'b00000000;
                                     current_player <= current_player + 1;
                                     cmd_pos <= 0;
                                 end
@@ -1912,14 +1951,14 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                                 com_rx_next <= 1'b1;
                             end else if (cmd_pos == 2 && jvs_nodes_r.node_buttons[current_device_addr - 1] > 8) begin
                                 // Second player data byte (additional buttons)
-                                p1_btn_state[6] <= com_rx_byte[7];   // X (push3)
-                                p1_btn_state[7] <= com_rx_byte[6];   // Y (push4)
-                                p1_btn_state[8] <= com_rx_byte[5];   // push5 -> L1
-                                p1_btn_state[9] <= com_rx_byte[4];   // push6 -> R1
-                                p1_btn_state[10] <= com_rx_byte[3];  // push7 -> L2
-                                p1_btn_state[11] <= com_rx_byte[2];  // push8 -> R2
-                                p1_btn_state[12] <= com_rx_byte[1];  // push9 -> L3
-                                p1_btn_state[13] <= com_rx_byte[0];  // push10 -> R3
+                                player1_input_switch[6] <= com_rx_byte[7];   // X (push3)
+                                player1_input_switch[7] <= com_rx_byte[6];   // Y (push4)
+                                player1_input_switch[8] <= com_rx_byte[5];   // push5 -> L1
+                                player1_input_switch[9] <= com_rx_byte[4];   // push6 -> R1
+                                player1_input_switch[10] <= com_rx_byte[3];  // push7 -> L2
+                                player1_input_switch[11] <= com_rx_byte[2];  // push8 -> R2
+                                player1_input_switch[12] <= com_rx_byte[1];  // push9 -> L3
+                                player1_input_switch[13] <= com_rx_byte[0];  // push10 -> R3
                                 // Advance to next player
                                 current_player <= current_player + 1;
                                 cmd_pos <= 0; // Reset for next player
@@ -1931,18 +1970,18 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                         4'd1: begin // Player 2
                             if (cmd_pos == 1) begin
                                 // First player data byte
-                                p2_btn_state[15] <= com_rx_byte[7];  // START
-                                p2_btn_state[14] <= com_rx_byte[6];  // SELECT/SERVICE
-                                p2_btn_state[0]  <= com_rx_byte[5];  // UP
-                                p2_btn_state[1]  <= com_rx_byte[4];  // DOWN
-                                p2_btn_state[2]  <= com_rx_byte[3];  // LEFT
-                                p2_btn_state[3]  <= com_rx_byte[2];  // RIGHT
-                                p2_btn_state[4]  <= com_rx_byte[1];  // A (push1)
-                                p2_btn_state[5]  <= com_rx_byte[0];  // B (push2)
+                                player2_input_switch[15] <= com_rx_byte[7];  // START
+                                player2_input_switch[14] <= com_rx_byte[6];  // SELECT/SERVICE
+                                player2_input_switch[0]  <= com_rx_byte[5];  // UP
+                                player2_input_switch[1]  <= com_rx_byte[4];  // DOWN
+                                player2_input_switch[2]  <= com_rx_byte[3];  // LEFT
+                                player2_input_switch[3]  <= com_rx_byte[2];  // RIGHT
+                                player2_input_switch[4]  <= com_rx_byte[1];  // A (push1)
+                                player2_input_switch[5]  <= com_rx_byte[0];  // B (push2)
 
                                 if (jvs_nodes_r.node_buttons[current_device_addr - 1] <= 8) begin
                                     // Only 1 byte per player, clear unused bits and advance to next player
-                                    p2_btn_state[13:6] <= 8'b00000000;
+                                    player2_input_switch[13:6] <= 8'b00000000;
                                     current_player <= current_player + 1;
                                     cmd_pos <= 0;
                                 end
@@ -1950,14 +1989,90 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                                 com_rx_next <= 1'b1;
                             end else if (cmd_pos == 2 && jvs_nodes_r.node_buttons[current_device_addr - 1] > 8) begin
                                 // Second player data byte (additional buttons) - match your reference bit mapping
-                                p2_btn_state[6] <= com_rx_byte[7];   // X (push3)
-                                p2_btn_state[7] <= com_rx_byte[6];   // Y (push4)
-                                p2_btn_state[8] <= com_rx_byte[5];   // push5 -> L1
-                                p2_btn_state[9] <= com_rx_byte[4];   // push6 -> R1
-                                p2_btn_state[10] <= com_rx_byte[3];  // push7 -> L2
-                                p2_btn_state[11] <= com_rx_byte[2];  // push8 -> R2
+                                player2_input_switch[6] <= com_rx_byte[7];   // X (push3)
+                                player2_input_switch[7] <= com_rx_byte[6];   // Y (push4)
+                                player2_input_switch[8] <= com_rx_byte[5];   // push5 -> L1
+                                player2_input_switch[9] <= com_rx_byte[4];   // push6 -> R1
+                                player2_input_switch[10] <= com_rx_byte[3];  // push7 -> L2
+                                player2_input_switch[11] <= com_rx_byte[2];  // push8 -> R2
                                 // Clear unused upper bits for consistency with reference
-                                p2_btn_state[13:12] <= 2'b00;
+                                player2_input_switch[13:12] <= 2'b00;
+                                // Advance to next player
+                                current_player <= current_player + 1;
+                                cmd_pos <= 0; // Reset for next player
+                                main_state <= STATE_RX_NEXT;
+                                com_rx_next <= 1'b1;
+                            end
+                        end
+
+                        4'd2: begin // Player 3
+                            if (cmd_pos == 1) begin
+                                // First player data byte
+                                player3_input_switch[15] <= com_rx_byte[7];  // START
+                                player3_input_switch[14] <= com_rx_byte[6];  // SELECT/SERVICE
+                                player3_input_switch[0]  <= com_rx_byte[5];  // UP
+                                player3_input_switch[1]  <= com_rx_byte[4];  // DOWN
+                                player3_input_switch[2]  <= com_rx_byte[3];  // LEFT
+                                player3_input_switch[3]  <= com_rx_byte[2];  // RIGHT
+                                player3_input_switch[4]  <= com_rx_byte[1];  // A (push1)
+                                player3_input_switch[5]  <= com_rx_byte[0];  // B (push2)
+
+                                if (jvs_nodes_r.node_buttons[current_device_addr - 1] <= 8) begin
+                                    // Only 1 byte per player, clear unused bits and advance to next player
+                                    player3_input_switch[13:6] <= 8'b00000000;
+                                    current_player <= current_player + 1;
+                                    cmd_pos <= 0;
+                                end
+                                main_state <= STATE_RX_NEXT;
+                                com_rx_next <= 1'b1;
+                            end else if (cmd_pos == 2 && jvs_nodes_r.node_buttons[current_device_addr - 1] > 8) begin
+                                // Second player data byte (additional buttons)
+                                player3_input_switch[6] <= com_rx_byte[7];   // X (push3)
+                                player3_input_switch[7] <= com_rx_byte[6];   // Y (push4)
+                                player3_input_switch[8] <= com_rx_byte[5];   // push5 -> L1
+                                player3_input_switch[9] <= com_rx_byte[4];   // push6 -> R1
+                                player3_input_switch[10] <= com_rx_byte[3];  // push7 -> L2
+                                player3_input_switch[11] <= com_rx_byte[2];  // push8 -> R2
+                                // Clear unused upper bits for consistency
+                                player3_input_switch[13:12] <= 2'b00;
+                                // Advance to next player
+                                current_player <= current_player + 1;
+                                cmd_pos <= 0; // Reset for next player
+                                main_state <= STATE_RX_NEXT;
+                                com_rx_next <= 1'b1;
+                            end
+                        end
+
+                        4'd3: begin // Player 4
+                            if (cmd_pos == 1) begin
+                                // First player data byte
+                                player4_input_switch[15] <= com_rx_byte[7];  // START
+                                player4_input_switch[14] <= com_rx_byte[6];  // SELECT/SERVICE
+                                player4_input_switch[0]  <= com_rx_byte[5];  // UP
+                                player4_input_switch[1]  <= com_rx_byte[4];  // DOWN
+                                player4_input_switch[2]  <= com_rx_byte[3];  // LEFT
+                                player4_input_switch[3]  <= com_rx_byte[2];  // RIGHT
+                                player4_input_switch[4]  <= com_rx_byte[1];  // A (push1)
+                                player4_input_switch[5]  <= com_rx_byte[0];  // B (push2)
+
+                                if (jvs_nodes_r.node_buttons[current_device_addr - 1] <= 8) begin
+                                    // Only 1 byte per player, clear unused bits and advance to next player
+                                    player4_input_switch[13:6] <= 8'b00000000;
+                                    current_player <= current_player + 1;
+                                    cmd_pos <= 0;
+                                end
+                                main_state <= STATE_RX_NEXT;
+                                com_rx_next <= 1'b1;
+                            end else if (cmd_pos == 2 && jvs_nodes_r.node_buttons[current_device_addr - 1] > 8) begin
+                                // Second player data byte (additional buttons)
+                                player4_input_switch[6] <= com_rx_byte[7];   // X (push3)
+                                player4_input_switch[7] <= com_rx_byte[6];   // Y (push4)
+                                player4_input_switch[8] <= com_rx_byte[5];   // push5 -> L1
+                                player4_input_switch[9] <= com_rx_byte[4];   // push6 -> R1
+                                player4_input_switch[10] <= com_rx_byte[3];  // push7 -> L2
+                                player4_input_switch[11] <= com_rx_byte[2];  // push8 -> R2
+                                // Clear unused upper bits for consistency
+                                player4_input_switch[13:12] <= 2'b00;
                                 // Advance to next player
                                 current_player <= current_player + 1;
                                 cmd_pos <= 0; // Reset for next player
@@ -1981,7 +2096,7 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                                         current_player <= current_player + 1;
                                         cmd_pos <= 0;
                                     end
-                                    main_state <= STATE_FATAL_ERROR;
+                                    main_state <= STATE_RX_NEXT;
                                     com_rx_next <= 1'b1;
                                 end
                                 if (cmd_pos == 2 && jvs_nodes_r.node_buttons[current_device_addr - 1] > 8) begin
@@ -2060,43 +2175,39 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                             3'd2: begin // Parse byte 2 of current channel then jump to next channel if needed
                                 // Assign analog values based on current channel
                                 case (current_channel)
-                                    4'd0: begin // Channel 1 - P1 X axis
-                                        if (jvs_nodes_r.node_players[current_device_addr - 1] == 1) begin
-                                            p1_joy_state[31:20] <= ~{temp_high_byte, com_rx_byte[7:4]};
-                                        end else begin
-                                            p1_joy_state[31:24] <= temp_high_byte;
-                                            p1_joy_state[23:16] <= com_rx_byte;
-                                        end
+                                    4'd0: begin // Channel 1 - Analog channel 1
+                                        analog_ch1 <= {temp_high_byte, com_rx_byte};
                                     end
-                                    4'd1: begin // Channel 2 - P1 Y axis
-                                        if (jvs_nodes_r.node_players[current_device_addr - 1] == 1) begin
-                                            p1_joy_state[15:4] <= {temp_high_byte, com_rx_byte[7:4]};
-                                        end else begin
-                                            p1_joy_state[15:8] <= temp_high_byte;
-                                            p1_joy_state[7:0] <= com_rx_byte;
-                                        end
+                                    4'd1: begin // Channel 2 - Analog channel 2
+                                        analog_ch2 <= {temp_high_byte, com_rx_byte};
                                     end
-                                    4'd2: begin // Channel 3 - P2 X axis or screen X for 1 player
+                                    4'd2: begin // Channel 3 - Analog channel 3
+                                        analog_ch3 <= {temp_high_byte, com_rx_byte};
+                                        // Also update screen position if single player for compatibility
                                         if (jvs_nodes_r.node_players[current_device_addr - 1] == 1) begin
                                             screen_pos_x <= {temp_high_byte, com_rx_byte};
-                                        end else begin
-                                            p2_joy_state[31:24] <= temp_high_byte;
-                                            p2_joy_state[23:16] <= com_rx_byte;
                                         end
                                     end
-                                    4'd3: begin // Channel 4 - P2 Y axis or screen Y for 1 player
+                                    4'd3: begin // Channel 4 - Analog channel 4
+                                        analog_ch4 <= {temp_high_byte, com_rx_byte};
+                                        // Also update screen position if single player for compatibility
                                         if (jvs_nodes_r.node_players[current_device_addr - 1] == 1) begin
                                             screen_pos_y <= {temp_high_byte, com_rx_byte};
-                                        end else begin
-                                            p2_joy_state[15:8] <= temp_high_byte;
-                                            p2_joy_state[7:0] <= com_rx_byte;
                                         end
                                     end
-                                    4'd4: begin // Channel 5 - Screen X
-                                        screen_pos_x <= {temp_high_byte, com_rx_byte};
+                                    4'd4: begin // Channel 5 - Analog channel 5
+                                        analog_ch5 <= {temp_high_byte, com_rx_byte};
+                                        screen_pos_x <= {temp_high_byte, com_rx_byte}; // Keep screen compatibility
                                     end
-                                    4'd5: begin // Channel 6 - Screen Y
-                                        screen_pos_y <= {temp_high_byte, com_rx_byte};
+                                    4'd5: begin // Channel 6 - Analog channel 6
+                                        analog_ch6 <= {temp_high_byte, com_rx_byte};
+                                        screen_pos_y <= {temp_high_byte, com_rx_byte}; // Keep screen compatibility
+                                    end
+                                    4'd6: begin // Channel 7 - Analog channel 7
+                                        analog_ch7 <= {temp_high_byte, com_rx_byte};
+                                    end
+                                    4'd7: begin // Channel 8 - Analog channel 8
+                                        analog_ch8 <= {temp_high_byte, com_rx_byte};
                                     end
                                     default: ; // Additional channels - no assignment
                                 endcase
@@ -2321,7 +2432,14 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                                 CMD_FEATCHK: main_state <= RX_PARSE_FEATURES;
                                 CMD_ANLINP: begin
                                     // Initialize analog parsing variables
-                                    p1_joy_state <= 32'h00000000;
+                                    analog_ch1 <= 16'h8000;
+                                    analog_ch2 <= 16'h8000;
+                                    analog_ch3 <= 16'h8000;
+                                    analog_ch4 <= 16'h8000;
+                                    analog_ch5 <= 16'h8000;
+                                    analog_ch6 <= 16'h8000;
+                                    analog_ch7 <= 16'h8000;
+                                    analog_ch8 <= 16'h8000;
                                     current_channel <= 4'd0;
                                     cmd_pos <= 1; // Initialize to 1 for generic parsing (STATE_RX_NEXT returns to 1, not 0)
                                     main_state <= RX_PARSE_ANLINP;
@@ -2384,8 +2502,12 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                 end
                 STATE_RX_NEXT: begin
                     com_rx_next <= 0;
-                    cmd_pos <= cmd_pos + 1;
-                    main_state <= return_state;
+                    // Wait for BRAM read to complete (com_rx_ready = 1)
+                    if (com_rx_ready) begin
+                        cmd_pos <= cmd_pos + 1;
+                        main_state <= return_state;
+                    end
+                    // Stay in this state until data is ready
                 end
 
                 //-------------------------------------------------------------
@@ -2427,13 +2549,10 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                         end
                         $display("  node_has_backup: %b", jvs_nodes_r.node_has_backup[dev]);
                         
-                        // Display device name
-                        $write("  device_name: \"");
-                        for (int i = 0; i < jvs_node_info_pkg::NODE_NAME_SIZE; i++) begin
-                            if (jvs_nodes_r.node_name[dev][i] == 8'h00) break;
-                            $write("%c", jvs_nodes_r.node_name[dev][i]);
-                        end
-                        $display("\"");
+                        // Display device name checksum (name stored in BRAM)
+                        $write("  device_name_checksum: 0x%04x", jvs_nodes_r.node_name_checksum[dev]);
+                        $write("  (name stored in BRAM at addr %d)", dev * jvs_node_info_pkg::NODE_NAME_SIZE);
+                        $display("");
                     end
                     $display("[CONTROLLER][FATAL_ERROR] === END JVS_NODES_R DUMP ===");
                     

@@ -5,10 +5,16 @@ package jvs_node_info_pkg;
   parameter int NODE_NAME_SIZE  = 100;
   parameter int JVS_COIN_MAX    = 4;
 
+  // Parameters for BRAM-based name storage optimization
+  parameter int NAME_BRAM_SIZE      = MAX_JVS_NODES * NODE_NAME_SIZE;  // Taille calculée: nodes × taille_nom
+  parameter int NAME_BRAM_ADDR_BITS = $clog2(NAME_BRAM_SIZE);          // Bits d'adresse calculés automatiquement
+
 	typedef struct {
 		logic [7:0] node_count;
 		logic [7:0] node_id [0:MAX_JVS_NODES-1];           // Node ID (address)
-		logic [7:0] node_name [0:MAX_JVS_NODES-1][0:NODE_NAME_SIZE-1]; // Device name from IOIDENT command
+		// Device name optimization: replaced full name storage with checksum + BRAM mapping
+		// Names stored in BRAM at fixed positions: node_index * NODE_NAME_SIZE
+		logic [15:0] node_name_checksum [0:MAX_JVS_NODES-1]; // Checksum du nom (16 bits)
 		logic [7:0] node_cmd_ver [0:MAX_JVS_NODES-1];      // Command version for each node
 		logic [7:0] node_jvs_ver [0:MAX_JVS_NODES-1];      // JVS version for each node  
 		logic [7:0] node_com_ver [0:MAX_JVS_NODES-1];      // Communication version for each node
