@@ -1,4 +1,4 @@
-name: Core regressions
+name: Core regression
 
 on:
   workflow_dispatch:
@@ -143,5 +143,4 @@ jobs:
             # create_regression_issue.sh "$ec" {1} {2} || true
             exit "$ec"
           '
-
           parallel --jobs 0 --halt never "$job" :::: cores.lst ::::+ setnames.lst
