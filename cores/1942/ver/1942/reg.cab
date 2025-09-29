@@ -1,4 +1,9 @@
 50
 3 coin
-4
+12
 1 1P
+# fire 4 shots per second
+loop
+	14
+	1 b1
+repeat 100
