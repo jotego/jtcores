@@ -410,15 +410,18 @@ check_frames() {
         local ref_frame="${ref_frames[$i]}"
 
         local failed=false
-        if perceptualdiff "$ref_frame" "$frame"; then
-            echo "[INFO] $(basename $frame): match"
-        else
+        if ! perceptualdiff "$ref_frame" "$frame"; then
             echo "[WARNING] $(basename $frame): difference detected"
             local failed=true
+            break
         fi
     done
 
-    if $failed; then return 2; fi
+    if $failed; then
+        return 2
+    else
+        echo "[INFO] All frames matched the reference"
+    fi
 }
 
 check_audio() {
