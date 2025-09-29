@@ -489,6 +489,7 @@ upload_results() {
     files=(frames.zip audio.zip $setname.mp4)
 
     case $ec in
+        0) files=();;
         1)
             folder="fail"
             files=("$fullname-sim.log")
@@ -502,10 +503,7 @@ upload_results() {
         *) return ;;
     esac
 
-    delete_duplicated_frames
-    zip -q frames.zip frames/*
-    mv --force --no-copy test.wav audio.wav
-    zip -q audio.zip audio.wav
+    if [ $ec != 0 ]; then prepare_zip_files; fi
 
     echo "[INFO] Starting upload"
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
@@ -514,10 +512,18 @@ mkdir regression/$core
 mkdir regression/$core/$fullname
 mkdir regression/$core/$fullname/$folder
 cd regression/$core/$fullname/$folder
+rm -rf not_checked fail
 $(for f in "${files[@]}"; do echo "put $f"; done)
 bye
 EOF
     echo "[INFO] Upload finished"
+}
+
+prepare_zip_files() {
+    delete_duplicated_frames
+    zip -q frames.zip frames/*
+    mv --force --no-copy test.wav audio.wav
+    zip -q audio.zip audio.wav
 }
 
 delete_duplicated_frames() {
