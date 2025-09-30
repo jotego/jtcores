@@ -111,8 +111,7 @@ always @(posedge clk) begin
         1: cabinet <= { joystick1[4], joystick1[1:0], joystick1[5],
                         joystick2[4], joystick2[1:0], joystick2[5] };
         2: cabinet <= dipsw_a;
-        3: cabinet <= { dipsw_b[0], dipsw_b[1], dipsw_b[2], dipsw_b[3],
-                        dipsw_b[4], dipsw_b[5], dipsw_b[6], dipsw_b[7] };
+        3: cabinet <= dipsw_b;
     endcase
     cpu_din <= rom_cs  ? rom_data  :
                vram_cs ? vram_dout :
