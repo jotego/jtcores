@@ -29,10 +29,12 @@ extra=[
 ]
 
 [header]
-info="bit 0 -> enable non-symmetric speed in Tehkan WC bootleg"
+info=""""bit 0 -> enable non-symmetric speed in Tehkan WC bootleg
+              bit 1 -> No DIPSW1"""
 fill=0
 data = [
-	{ setname="tehkanwch", data="01" }
+	{ setname="tehkanwch", data="01" },
+	{ setname="gridiron",  data="02" }
 ]
 
 [ROM]
