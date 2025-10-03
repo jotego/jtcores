@@ -75,11 +75,13 @@ module openFPGA_Pocket_Analogizer_SNAC #(parameter MASTER_CLK_FREQ=50_000_000)
     input      [ 4:0] game_cont_type, //0-15 Conf. A, 16-31 Conf. B
     //input wire [2:0] game_cont_sample_rate, //0 compatibility mode (slowest), 1 normal mode, 2 fast mode, 3 superfast mode
     output reg [15:0] p1_btn_state,
+    output reg [31:0] p1_joy_state,
     output reg [15:0] p2_btn_state,
+    output reg [31:0] p2_joy_state,
     output reg [15:0] p3_btn_state,
     output reg [15:0] p4_btn_state,
     // output reg        busy,
-    //SNAC Pocket cartridge port interface (see graph above)   
+    //SNAC Pocket cartridge port interface (see graph above)
     output reg [ 7:4] cart_bk0_out,        // Unused ??
     input      [ 7:4] cart_bk0_in,
     output reg        cart_bk0_dir,
@@ -98,12 +100,13 @@ module openFPGA_Pocket_Analogizer_SNAC #(parameter MASTER_CLK_FREQ=50_000_000)
 reg snac_out1;       // cart_tran_bank1[6]                                           D-
 reg snac_out2;       // cart_tran_bank1[7]                                           D+
 reg snac_io3_A;      // Conf.A: cart_tran_bank0[4] (in),  Conf.B: pin30(out)         RX-
-reg snac_io3_B=0;    // Conf.A: cart_tran_bank0[4] (in),  Conf.B: pin30(out)         RX-
+wire snac_io3_B;     // Conf.B: pin30(out) PSX_CLK                                   RX-
 reg snac_in4;        // cart_tran_bank0[7]                                           RX+
 wire snac_io5_A;     // Conf.A: pin30(out),               Conf.B: cart_tran_bank1[6] GND_D
-// reg snac_io5_B;   // Conf.A: pin30(out),               Conf.B: cart_tran_bank1[6] GND_D
+wire snac_io5_B = cart_bk0_in[6]; // Conf.B: cart_tran_bank1[6] PSX_ACK             GND_D
 reg snac_io6_A;      // Conf.A: pin31(in),                Conf.B: pin31(out)         TX-
-// reg snac_io6_B=0; // Conf.A: pin31(in),                Conf.B: pin31(out)         TX-
+wire snac_io6_B;     // Conf.B: pin31(out) PSX_CMD                                   TX-
+//wire [3:0] dbg_tx_w; // PSX debug
 reg snac_in7;        // cart_tran_bank0[5]                                           TX+
 
 //calculate step sizes for fract clock enables
@@ -112,6 +115,10 @@ localparam pce_fast_polling_freq        =  80_000;  //  80_000 /  5  = 16K sampl
 localparam snes_compat_polling_freq     =  50_000;  //
 localparam serlatch_normal_polling_freq =  200_000; //  200_000 / 25 =  8K samples/sec DB15    200_000 / 18 = 11.11K samples/sec NES/SNES
 localparam serlatch_fast_polling_freq   =  400_000; //  400_000 / 25 = 16K samples/sec DB15    400_000 / 18 = 22.22K samples/sec NES/SNES
+localparam psx_normal_polling_freq      =  125_000;
+localparam psx_fast_polling_freq        =  250_000;
+localparam psx_ultra_fast_polling_freq  =  500_000;
+localparam psx_multitap_polling_freq    =  1_000_000;
 
 //the FSM is clocked 2x the polling freq.
 localparam [32:0] MAX_INT = 33'h0ffffffff;
@@ -120,6 +127,10 @@ localparam [32:0] pce_fast_pstep        = ((MAX_INT / (MASTER_CLK_FREQ / 1000)) 
 localparam [32:0] serlatch_normal_pstep = ((MAX_INT / (MASTER_CLK_FREQ / 1000)) * serlatch_normal_polling_freq * 2) / 1000;
 localparam [32:0] serlatch_fast_pstep   = ((MAX_INT / (MASTER_CLK_FREQ / 1000)) * serlatch_fast_polling_freq   * 2) / 1000;
 localparam [32:0] snes_compat_pstep     = ((MAX_INT / (MASTER_CLK_FREQ / 1000)) * snes_compat_polling_freq     * 2) / 1000;
+localparam [32:0] psx_fast_pstep        = ((MAX_INT / (MASTER_CLK_FREQ / 1000)) * psx_fast_polling_freq        * 2) / 1000;
+localparam [32:0] psx_normal_pstep      = ((MAX_INT / (MASTER_CLK_FREQ / 1000)) * psx_normal_polling_freq      * 2) / 1000;
+localparam [32:0] psx_ultra_fast_pstep  = ((MAX_INT / (MASTER_CLK_FREQ / 1000)) * psx_ultra_fast_polling_freq  * 2) / 1000;
+localparam [32:0] psx_multitap_pstep    = ((MAX_INT / (MASTER_CLK_FREQ / 1000)) * psx_multitap_polling_freq    * 2) / 1000;
 
 //Supported game controller types
 localparam GC_DISABLED     = 5'h0;
@@ -131,7 +142,10 @@ localparam GC_PCE_6BTN     = 5'h5;
 localparam GC_PCE_MULTITAP = 5'h6;
 localparam GC_DB15_FAST    = 5'h9;
 localparam GC_SNES_SWAP    = 5'hB;
-//parameter GC_PSX= 5'h16;
+localparam GC_PSX             = 5'h10; //16 PSX 125KHz
+localparam GC_PSX_FAST        = 5'h11; //17 PSX 250KHz
+localparam GC_PSX_ANALOG      = 5'h12; //16 PSX 125KHz
+localparam GC_PSX_ANALOG_FAST = 5'h13; //17 PSX 250KHz
 
 //Configuration:
 localparam CONF_A = 1'b0;
@@ -152,27 +166,21 @@ always @(posedge i_clk) begin
     end
 end
 
+wire psx_ena = (game_cont_type == GC_PSX            ) ||
+               (game_cont_type == GC_PSX_ANALOG      ) ||
+               (game_cont_type == GC_PSX_FAST        ) ||
+               (game_cont_type == GC_PSX_ANALOG_FAST );
+
 always @(posedge i_clk) begin
-
     case (game_cont_type)
-        GC_DB15: begin
-            strobe_step_size <= serlatch_normal_pstep;
-        end
-        GC_DB15_FAST: begin
-            strobe_step_size <= serlatch_fast_pstep;
-        end
-        GC_NES, GC_SNES, GC_SNES_SWAP: begin
-            strobe_step_size <= snes_compat_pstep;
-        end
-        GC_PCE_2BTN, GC_PCE_6BTN: begin
-            strobe_step_size <= pce_normal_pstep;
-        end
-        GC_PCE_MULTITAP: begin
-            strobe_step_size <= pce_fast_pstep;
-        end
-
-        default: //disabled
-            strobe_step_size <= 33'h0;
+        GC_DB15:                          strobe_step_size <= serlatch_normal_pstep;
+        GC_DB15_FAST:                     strobe_step_size <= serlatch_fast_pstep;
+        GC_NES, GC_SNES, GC_SNES_SWAP:   strobe_step_size <= snes_compat_pstep;
+        GC_PCE_2BTN, GC_PCE_6BTN:         strobe_step_size <= pce_normal_pstep;
+        GC_PCE_MULTITAP:                  strobe_step_size <= pce_fast_pstep;
+        GC_PSX, GC_PSX_ANALOG:            strobe_step_size <= psx_normal_pstep;
+        GC_PSX_FAST, GC_PSX_ANALOG_FAST:  strobe_step_size <= psx_fast_pstep;
+        default:                          strobe_step_size <= 33'h0;
     endcase
 end
 
@@ -185,7 +193,6 @@ always @(posedge i_clk) begin
             cart_pin30_dir                 <= 1'b1;                                           //OUTPUT
             cart_pin30_out                 <= snac_io5_A;
             cart_pin31_dir                 <= 1'b0;                                           //INPUT
-            cart_pin31_out                 <= 1'b0;
             snac_io6_A                     <= cart_pin31_in;
         end
         CONF_B: begin
@@ -195,7 +202,7 @@ always @(posedge i_clk) begin
             cart_pin30_dir                 <= 1'b1;                                           //OUTPUT
             cart_pin30_out                 <= snac_io3_B;
             cart_pin31_dir                 <= 1'b1;                                           //OUTPUT
-            // cart_pin31_out                 <= snac_io6_B;
+            cart_pin31_out                 <= snac_io6_B;
         end
     endcase
 end
@@ -285,8 +292,39 @@ pcengine_game_controller_multitap #(.MASTER_CLK_FREQ(MASTER_CLK_FREQ)) pcegmutit
     .i_dat({snac_in7,snac_io3_A,snac_io6_A,snac_in4}) //data from controller
 );
 
+//PSX game controller for 1/2 players
+wire [15:0] psx_key1, psx_key2;
+wire [31:0] psx_joy1, psx_joy2;
+wire PSX_snac_out1 ;
+wire PSX_snac_out2 ;
+
+analogizer_psx #(.MASTER_CLK_FREQ(MASTER_CLK_FREQ)) psx
+(
+    .i_clk(i_clk),
+    .i_rst(reset_on_change),
+    .i_ena(psx_ena),
+    .i_stb(stb_clk),
+    .key1(psx_key1),            // P1 DPAD
+    .joy1(psx_joy1),            // P1 STICK
+    .key2(psx_key2),            // P2 DPAD
+    .joy2(psx_joy2),            // P2 STICK
+    .i_VIB_SW1(2'b0),            // PSX RUMBLE (unused)
+    .i_VIB_DAT1(8'h0),           // PSX RUMBLE (unused)
+    .i_VIB_SW2(2'b0),            // PSX RUMBLE (unused)
+    .i_VIB_DAT2(8'h0),           // PSX RUMBLE (unused)
+    .PSX_CLK(snac_io3_B),
+    .PSX_DAT(snac_in4),
+    .PSX_CMD(snac_io6_B),
+    .PSX_ATT1(PSX_snac_out1),
+    .PSX_ATT2(PSX_snac_out2),
+    .PSX_ACK(snac_io5_B)
+//    .DBG_TX(dbg_tx_w)
+);
+
 always @(*) begin
     cart_bk0_out = 4'hZ;
+    p1_joy_state = 32'h80808080; //analog stick neutral position value
+    p2_joy_state = 32'h80808080; //analog stick neutral position value
 
     case(game_cont_type)
     GC_DISABLED: begin
@@ -321,6 +359,16 @@ always @(*) begin
         p2_btn_state = pce_multitap_p2;
         p3_btn_state = pce_multitap_p3;
         p4_btn_state = pce_multitap_p4;
+    end
+    GC_PSX, GC_PSX_ANALOG, GC_PSX_FAST, GC_PSX_ANALOG_FAST: begin
+        snac_out1 = PSX_snac_out1;
+        snac_out2 = PSX_snac_out2;
+        p1_btn_state = psx_key1;
+        p1_joy_state = psx_joy1;
+        p2_btn_state = psx_key2;
+        p2_joy_state = psx_joy2;
+        p3_btn_state = 16'h0;
+        p4_btn_state = 16'h0;
     end
     default: begin
         snac_out1 = 1'b0;
