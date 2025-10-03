@@ -97,7 +97,7 @@ endfunction
 
 assign rom_cs    = ~objcha_n | pre_cs;
 assign rom_addr  = !objcha_n ? rmrd_addr[21:2] :
-    { |pre_addr[22:21], pre_addr[20:13], paroda_conv(pre_addr[12:7]), pre_addr[5], pre_addr[6],  pre_addr[4:2] };
+    { pre_addr[21], pre_addr[20:13], paroda_conv(pre_addr[12:7]), pre_addr[5], pre_addr[6],  pre_addr[4:2] };
 
 assign cpu_din   = !objcha_n ? rmrd_addr[1] ? rom_data[31:16] : rom_data[15:0] :
                     ram_data;
