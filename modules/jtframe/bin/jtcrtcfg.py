@@ -141,6 +141,8 @@ Letter | Option
    D   | SNES                                       |
    E   | PCE 2BTN/6BTN                              |
    F   | PCE Multitap                               |
+   G   | PSX Digital                                |
+   H   | PSX Analog                                 |
 ----------------------------------------------------|
 
 Your selection:    """
@@ -153,7 +155,15 @@ snac.dict = {
     "c" : [0],
     "b" : [0],
 }
-snac.replace = {"a": "", "e":"eb", "f":"ec","d":"cb"}
+
+snac.replace = {
+    "a": "",
+    "d":"cb",
+    "e":"eb",
+    "f":"ec",
+    "g":"a",
+    "h":"ac",
+}
 
 filepath  = create_in_pocket(do=sd)
 filepath2 = create_in_release(do=rel)
