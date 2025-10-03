@@ -1306,7 +1306,7 @@ inline uint32_t tmnt2_state::tmnt2_get_word( uint32_t addr )
 void tmnt2_state::tmnt2_put_word( uint32_t addr, uint16_t data )
 {
 	uint32_t offs;
-	if (addr >= 0x180000 / 2 && addr <= 0x183fff / 2)
+	if (addr >= 0x18'0000 / 2 && addr <= 0x183fff / 2)
 	{
 		m_spriteram[addr - 0x180000 / 2] = data;
 		offs = addr - 0x180000 / 2;
@@ -1334,13 +1334,13 @@ void tmnt2_state::tmnt2_1c0800_w(offs_t offset, uint16_t data, uint16_t mem_mask
 		return;
 
 	mcu = m_tmnt2_1c0800;
-	if ((mcu[8] & 0xff00) != 0x8200)
+	if ((mcu[8] & 0xff00) != 0x8200) // if ((mcu[8] & 0x0200) == 0)
 		return;
 
 	src_addr = (mcu[0] | (mcu[1] & 0xff) << 16) >> 1;
 	dst_addr = (mcu[2] | (mcu[3] & 0xff) << 16) >> 1;
 	mod_addr = (mcu[4] | (mcu[5] & 0xff) << 16) >> 1;
-	zlock    = (mcu[8] & 0xff) == 0x0001;
+	zlock    = (mcu[8] & 0xff) == 0x0001; // mcu[8]&1;
 
 	for (i = 0; i < 4; i++)
 		src[i] = tmnt2_get_word(src_addr + i);

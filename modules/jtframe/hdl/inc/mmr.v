@@ -15,16 +15,18 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 20-10-2023 */
-
+{{ $is_16bit := 0 }}{{ if eq .Dw 16 }}{{ $is_16bit = 1 }}{{ end }}
 module {{ .Module }}(
     input             rst,
     input             clk,
 
     input             cs,
-    input       [{{.AMSB}}:0] addr,
+    input       [{{.AMSB}}:{{$is_16bit}}] addr,
     input             rnw,
-    input       [7:0] din, {{ if not .Read_only }}
-    output reg  [7:0] dout, {{- end }}
+    input       [{{ sub .Dw 1 }}:0] din, {{ if not .Read_only }}
+    output reg  [{{ sub .Dw 1 }}:0] dout, {{- end }}{{ if $is_16bit }}
+    input       [1:0] dsn,
+    {{- end }}
     {{ range .Regs }}
     output {{if .Wr_event }}reg  {{else}}{{if eq .Dw 1}}     {{else}}[{{ sub .Dw 1 }}:0]{{end}}{{ end }} {{ .Name }},
     {{- end }}
@@ -65,13 +67,16 @@ always @(posedge clk) begin
         {{.Name}} <= 0; {{ end }}{{- end }}{{ if not .Read_only }}
     dout <= 0; {{- end }}
     end else begin{{ range .Regs }}{{ if .Wr_event }}
-        {{.Name}} <= 0; {{ end }}{{- end }}{{ if not .Read_only }}
-        dout      <= mmr[addr];{{- end }}
+        {{.Name}} <= 0; {{ end }}{{- end }}{{ if not .Read_only }}{{ if $is_16bit }}
+        dout      <= {mmr[{addr,1'b1}],mmr[{addr,1'b0}]};{{else}}
+        dout      <= mmr[addr];{{end}}{{- end }}
         st_dout   <= mmr[debug_bus[{{.AMSB}}:0]];
         ioctl_din <= mmr[ioctl_addr];
-        if( cs & ~rnw ) begin
-            mmr[addr]<=din;{{ range .Regs }}{{ if .Wr_event }}
-            if(addr=={{.Wr_addr}}) {{.Name}} <= 1; {{ end }}{{- end }}
+        if( cs & ~rnw ) begin{{ if $is_16bit }}
+            if(!dsn[0]) mmr[{addr,1'b0}]<=din[ 7:0];
+            if(!dsn[1]) mmr[{addr,1'b1}]<=din[15:8];{{else}}
+            mmr[addr]<=din;{{end}}{{ range .Regs }}{{ if .Wr_event }}
+            if({{ if $is_16bit }}{addr,~dsn[1]}{{else}}addr{{end}}=={{.Wr_addr}}) {{.Name}} <= 1; {{ end }}{{- end }}
         end
         i = 0; // for Quartus linter
     end

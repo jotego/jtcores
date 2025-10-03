@@ -53653,14 +53653,6 @@
 				)
 			)
 			(text "*"
-				(at -22.86 -21.59 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "*"
 				(at -21.59 -34.29 0)
 				(effects
 					(font
@@ -53678,6 +53670,14 @@
 			)
 			(text "*"
 				(at -21.59 -24.13 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(text "*"
+				(at -19.05 -21.59 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -53781,7 +53781,7 @@
 				)
 			)
 			(pin tri_state inverted
-				(at -31.75 -21.59 0)
+				(at 31.75 -19.05 180)
 				(length 5.08)
 				(name "~{AS}"
 					(effects
@@ -54806,8 +54806,8 @@
 					)
 				)
 			)
-			(pin output inverted
-				(at 31.75 -13.97 180)
+			(pin input inverted
+				(at -31.75 -21.59 0)
 				(length 5.08)
 				(name "~{DTACK}"
 					(effects

@@ -3957,14 +3957,6 @@
 					)
 				)
 				(text "*"
-					(at -22.86 -21.59 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "*"
 					(at -21.59 -34.29 0)
 					(effects
 						(font
@@ -3982,6 +3974,14 @@
 				)
 				(text "*"
 					(at -21.59 -24.13 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(text "*"
+					(at -19.05 -21.59 0)
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -4085,7 +4085,7 @@
 					)
 				)
 				(pin tri_state inverted
-					(at -31.75 -21.59 0)
+					(at 31.75 -19.05 180)
 					(length 5.08)
 					(name "~{AS}"
 						(effects
@@ -5110,8 +5110,8 @@
 						)
 					)
 				)
-				(pin output inverted
-					(at 31.75 -13.97 180)
+				(pin input inverted
+					(at -31.75 -21.59 0)
 					(length 5.08)
 					(name "~{DTACK}"
 						(effects
@@ -6640,16 +6640,6 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 147.32) (xy 151.13 147.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1a03b5da-21b6-4182-ae2f-79133dbfbdd7")
-	)
-	(wire
-		(pts
 			(xy 214.63 119.38) (xy 228.6 119.38)
 		)
 		(stroke
@@ -6790,7 +6780,7 @@
 	)
 	(wire
 		(pts
-			(xy 214.63 142.24) (xy 219.71 142.24)
+			(xy 214.63 142.24) (xy 227.33 142.24)
 		)
 		(stroke
 			(width 0)
@@ -6930,7 +6920,7 @@
 	)
 	(wire
 		(pts
-			(xy 219.71 142.24) (xy 219.71 153.67)
+			(xy 227.33 142.24) (xy 227.33 153.67)
 		)
 		(stroke
 			(width 0)
@@ -7250,7 +7240,7 @@
 	)
 	(wire
 		(pts
-			(xy 219.71 161.29) (xy 219.71 170.18)
+			(xy 227.33 161.29) (xy 227.33 170.18)
 		)
 		(stroke
 			(width 0)
@@ -7437,6 +7427,16 @@
 			(type default)
 		)
 		(uuid "7d1737c2-37be-40a7-bafb-1c7f267d174c")
+	)
+	(wire
+		(pts
+			(xy 220.98 144.78) (xy 214.63 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7fb80d24-bc17-4cfa-ac3d-4aa86e161f73")
 	)
 	(wire
 		(pts
@@ -7650,7 +7650,7 @@
 	)
 	(wire
 		(pts
-			(xy 214.63 139.7) (xy 220.98 139.7)
+			(xy 151.13 147.32) (xy 144.78 147.32)
 		)
 		(stroke
 			(width 0)
@@ -7920,7 +7920,7 @@
 	)
 	(wire
 		(pts
-			(xy 219.71 170.18) (xy 193.04 170.18)
+			(xy 227.33 170.18) (xy 193.04 170.18)
 		)
 		(stroke
 			(width 0)
@@ -8879,7 +8879,6 @@
 	)
 	(label "MAIN_A17"
 		(at 77.47 240.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8890,7 +8889,6 @@
 	)
 	(label "RD8"
 		(at 284.48 109.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8901,7 +8899,6 @@
 	)
 	(label "RDB11"
 		(at 228.6 116.84 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8912,7 +8909,6 @@
 	)
 	(label "RD2"
 		(at 284.48 78.74 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8923,7 +8919,6 @@
 	)
 	(label "RDB[15..0]"
 		(at 219.71 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8934,7 +8929,6 @@
 	)
 	(label "~{IO}"
 		(at 109.22 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8945,7 +8939,6 @@
 	)
 	(label "MAIN_A8"
 		(at 140.97 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8956,7 +8949,6 @@
 	)
 	(label "RDB5"
 		(at 228.6 101.6 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8967,7 +8959,6 @@
 	)
 	(label "MAIN_A3"
 		(at 140.97 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8978,7 +8969,6 @@
 	)
 	(label "RDB5"
 		(at 233.68 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8989,7 +8979,6 @@
 	)
 	(label "RD12"
 		(at 284.48 119.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9000,7 +8989,6 @@
 	)
 	(label "MAIN_A19"
 		(at 77.47 229.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9011,7 +8999,6 @@
 	)
 	(label "RDB15"
 		(at 233.68 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9022,7 +9009,6 @@
 	)
 	(label "MAIN_A18"
 		(at 140.97 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9033,7 +9019,6 @@
 	)
 	(label "RDB1"
 		(at 228.6 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9044,7 +9029,6 @@
 	)
 	(label "MAIN_A15"
 		(at 140.97 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9055,7 +9039,6 @@
 	)
 	(label "RDB7"
 		(at 233.68 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9066,7 +9049,6 @@
 	)
 	(label "RDB12"
 		(at 233.68 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9077,7 +9059,6 @@
 	)
 	(label "RD4"
 		(at 284.48 83.82 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9088,7 +9069,6 @@
 	)
 	(label "RD14"
 		(at 284.48 124.46 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9099,7 +9079,6 @@
 	)
 	(label "RDB14"
 		(at 233.68 124.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9110,7 +9089,6 @@
 	)
 	(label "RD7"
 		(at 284.48 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9121,7 +9099,6 @@
 	)
 	(label "RDB8"
 		(at 228.6 109.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9132,7 +9109,6 @@
 	)
 	(label "MAIN_A5"
 		(at 140.97 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9143,7 +9119,6 @@
 	)
 	(label "MAIN_A23"
 		(at 77.47 219.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9154,7 +9129,6 @@
 	)
 	(label "MAIN_A20"
 		(at 140.97 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9165,7 +9139,6 @@
 	)
 	(label "MAIN_A11"
 		(at 140.97 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9176,7 +9149,6 @@
 	)
 	(label "RD1"
 		(at 284.48 76.2 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9187,7 +9159,6 @@
 	)
 	(label "MAIN_A21"
 		(at 140.97 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9198,7 +9169,6 @@
 	)
 	(label "RDB6"
 		(at 233.68 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9209,7 +9179,6 @@
 	)
 	(label "RDB0"
 		(at 228.6 88.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9220,7 +9189,6 @@
 	)
 	(label "RDB8"
 		(at 233.68 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9231,7 +9199,6 @@
 	)
 	(label "RDB9"
 		(at 228.6 111.76 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9242,7 +9209,6 @@
 	)
 	(label "MAIN_A16"
 		(at 140.97 106.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9253,7 +9219,6 @@
 	)
 	(label "MAIN_A12"
 		(at 140.97 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9264,7 +9229,6 @@
 	)
 	(label "RDB7"
 		(at 228.6 106.68 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9275,7 +9239,6 @@
 	)
 	(label "RDB10"
 		(at 228.6 114.3 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9286,7 +9249,6 @@
 	)
 	(label "RDB0"
 		(at 233.68 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9297,7 +9259,6 @@
 	)
 	(label "MAIN_A10"
 		(at 140.97 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9308,7 +9269,6 @@
 	)
 	(label "RD5"
 		(at 284.48 86.36 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9319,7 +9279,6 @@
 	)
 	(label "MAIN_A7"
 		(at 140.97 129.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9330,7 +9289,6 @@
 	)
 	(label "VCC"
 		(at 73.66 246.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9341,7 +9299,6 @@
 	)
 	(label "MAIN_A19"
 		(at 140.97 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9352,7 +9309,6 @@
 	)
 	(label "MAIN_A6"
 		(at 140.97 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9363,7 +9319,6 @@
 	)
 	(label "RDB4"
 		(at 233.68 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9374,7 +9329,6 @@
 	)
 	(label "RDB12"
 		(at 228.6 119.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9385,7 +9339,6 @@
 	)
 	(label "RD11"
 		(at 284.48 116.84 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9396,7 +9349,6 @@
 	)
 	(label "MAIN_A9"
 		(at 140.97 124.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9407,7 +9359,6 @@
 	)
 	(label "RDB4"
 		(at 228.6 99.06 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9418,7 +9369,6 @@
 	)
 	(label "RDB3"
 		(at 228.6 96.52 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9429,7 +9379,6 @@
 	)
 	(label "MPDS"
 		(at 109.22 167.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9440,7 +9389,6 @@
 	)
 	(label "MAIN_A22"
 		(at 140.97 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9451,7 +9399,6 @@
 	)
 	(label "MAIN_A2"
 		(at 140.97 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9462,7 +9409,6 @@
 	)
 	(label "MAIN_A11"
 		(at 77.47 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9473,7 +9419,6 @@
 	)
 	(label "RD13"
 		(at 284.48 121.92 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9484,7 +9429,6 @@
 	)
 	(label "RDB11"
 		(at 233.68 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9495,7 +9439,6 @@
 	)
 	(label "RDB14"
 		(at 228.6 124.46 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9506,7 +9449,6 @@
 	)
 	(label "RDB6"
 		(at 228.6 104.14 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9517,7 +9459,6 @@
 	)
 	(label "MAIN_A20"
 		(at 77.47 227.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9528,7 +9469,6 @@
 	)
 	(label "RDB2"
 		(at 233.68 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9539,7 +9479,6 @@
 	)
 	(label "RDB3"
 		(at 233.68 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9550,7 +9489,6 @@
 	)
 	(label "RD9"
 		(at 284.48 111.76 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9561,7 +9499,6 @@
 	)
 	(label "RD3"
 		(at 284.48 81.28 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9572,7 +9509,6 @@
 	)
 	(label "MAIN_A22"
 		(at 77.47 222.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9583,7 +9519,6 @@
 	)
 	(label "MAIN_A4"
 		(at 140.97 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9594,7 +9529,6 @@
 	)
 	(label "RDB15"
 		(at 228.6 127 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9605,7 +9539,6 @@
 	)
 	(label "RDB13"
 		(at 233.68 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9616,7 +9549,6 @@
 	)
 	(label "RDB1"
 		(at 233.68 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9627,7 +9559,6 @@
 	)
 	(label "MAIN_A17"
 		(at 140.97 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9638,7 +9569,6 @@
 	)
 	(label "RD15"
 		(at 284.48 127 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9649,7 +9579,6 @@
 	)
 	(label "VCC"
 		(at 105.41 201.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9660,7 +9589,6 @@
 	)
 	(label "RD6"
 		(at 284.48 88.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9671,7 +9599,6 @@
 	)
 	(label "RDB9"
 		(at 233.68 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9682,7 +9609,6 @@
 	)
 	(label "MAIN_A21"
 		(at 77.47 224.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9693,7 +9619,6 @@
 	)
 	(label "MAIN_A14"
 		(at 140.97 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9704,7 +9629,6 @@
 	)
 	(label "MAIN_A1"
 		(at 140.97 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9715,7 +9639,6 @@
 	)
 	(label "RD0"
 		(at 284.48 73.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9726,7 +9649,6 @@
 	)
 	(label "MAIN_A18"
 		(at 77.47 232.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9737,7 +9659,6 @@
 	)
 	(label "RDB2"
 		(at 228.6 93.98 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9748,7 +9669,6 @@
 	)
 	(label "MAIN_A13"
 		(at 140.97 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9759,7 +9679,6 @@
 	)
 	(label "RDB13"
 		(at 228.6 121.92 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9770,7 +9689,6 @@
 	)
 	(label "MAIN_A23"
 		(at 140.97 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9781,7 +9699,6 @@
 	)
 	(label "RD10"
 		(at 284.48 114.3 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9792,7 +9709,6 @@
 	)
 	(label "RDB10"
 		(at 233.68 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9804,7 +9720,6 @@
 	(hierarchical_label "MRAM~{OE}~{WR}"
 		(shape output)
 		(at 123.19 227.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9814,21 +9729,19 @@
 		(uuid "003cf0cd-f63e-4144-8ab5-386a05129372")
 	)
 	(hierarchical_label "~{DTACK}"
-		(shape output)
-		(at 220.98 139.7 0)
-		(fields_autoplaced yes)
+		(shape input)
+		(at 144.78 147.32 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left)
+			(justify right)
 		)
 		(uuid "0dc7b05d-f29a-402c-a9ee-ca03352a0e74")
 	)
 	(hierarchical_label "~{BGACK}"
 		(shape output)
 		(at 220.98 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9840,7 +9753,6 @@
 	(hierarchical_label "PQ"
 		(shape input)
 		(at 44.45 240.03 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9852,7 +9764,6 @@
 	(hierarchical_label "M16"
 		(shape input)
 		(at 144.78 162.56 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9864,7 +9775,6 @@
 	(hierarchical_label "~{IO}"
 		(shape output)
 		(at 123.19 222.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9876,7 +9786,6 @@
 	(hierarchical_label "PDS"
 		(shape input)
 		(at 58.42 228.6 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9888,7 +9797,6 @@
 	(hierarchical_label "~{COLOR}"
 		(shape output)
 		(at 123.19 219.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9900,7 +9808,6 @@
 	(hierarchical_label "MRW"
 		(shape input)
 		(at 317.5 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9912,7 +9819,6 @@
 	(hierarchical_label "~{BG}"
 		(shape input)
 		(at 144.78 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9924,7 +9830,6 @@
 	(hierarchical_label "~{MDTACK}"
 		(shape output)
 		(at 123.19 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9936,7 +9841,6 @@
 	(hierarchical_label "MAIN_A[23..1]"
 		(shape input)
 		(at 132.08 86.36 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9948,7 +9852,6 @@
 	(hierarchical_label "~{OBJ}"
 		(shape input)
 		(at 339.09 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9960,7 +9863,6 @@
 	(hierarchical_label "MROM~{OE}2"
 		(shape output)
 		(at 123.19 229.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9972,7 +9874,6 @@
 	(hierarchical_label "IO"
 		(shape input)
 		(at 83.82 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9984,7 +9885,6 @@
 	(hierarchical_label "OBJ~{SET}"
 		(shape input)
 		(at 339.09 129.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9996,7 +9896,6 @@
 	(hierarchical_label "~{IPL0}"
 		(shape output)
 		(at 220.98 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10008,7 +9907,6 @@
 	(hierarchical_label "OBJMPX"
 		(shape input)
 		(at 85.09 217.17 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10020,7 +9918,6 @@
 	(hierarchical_label "~{BR}"
 		(shape output)
 		(at 220.98 129.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10032,7 +9929,6 @@
 	(hierarchical_label "~{OBJ}"
 		(shape output)
 		(at 123.19 214.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10044,7 +9940,6 @@
 	(hierarchical_label "~{SYSRES}"
 		(shape input)
 		(at 144.78 154.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10053,22 +9948,9 @@
 		)
 		(uuid "85bf10ec-3722-4725-8376-1b50e15ccb44")
 	)
-	(hierarchical_label "~{AS}"
-		(shape input)
-		(at 144.78 147.32 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "89c40cde-b61d-4a87-935b-0e9c379fb27c")
-	)
 	(hierarchical_label "PDS"
 		(shape input)
 		(at 83.82 170.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10080,7 +9962,6 @@
 	(hierarchical_label "~{VPA}"
 		(shape input)
 		(at 85.09 212.09 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10092,7 +9973,6 @@
 	(hierarchical_label "~{LDS}"
 		(shape input)
 		(at 144.78 152.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10104,7 +9984,6 @@
 	(hierarchical_label "~{OBJSET}"
 		(shape output)
 		(at 123.19 217.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10116,7 +9995,6 @@
 	(hierarchical_label "~{UDS}"
 		(shape input)
 		(at 144.78 149.86 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10128,7 +10006,6 @@
 	(hierarchical_label "MROM~{OE}1"
 		(shape output)
 		(at 123.19 232.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10140,7 +10017,6 @@
 	(hierarchical_label "~{AS}"
 		(shape input)
 		(at 85.09 214.63 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10149,10 +10025,20 @@
 		)
 		(uuid "cd5d9faa-16ef-4b89-b2e9-81c072b9e38e")
 	)
+	(hierarchical_label "~{AS}"
+		(shape bidirectional)
+		(at 220.98 144.78 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e7c5ddc0-608c-42d9-aa99-e73b77097837")
+	)
 	(hierarchical_label "~{VRAM}"
 		(shape output)
 		(at 123.19 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10164,7 +10050,6 @@
 	(hierarchical_label "MB~{OE}"
 		(shape output)
 		(at 123.19 224.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10176,7 +10061,6 @@
 	(hierarchical_label "OBJMPX"
 		(shape input)
 		(at 317.5 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10188,7 +10072,6 @@
 	(hierarchical_label "RD[15..0]"
 		(shape tri_state)
 		(at 295.91 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10367,7 +10250,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 219.71 157.48 0)
+		(at 227.33 157.48 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -10375,7 +10258,7 @@
 		(dnp no)
 		(uuid "329ed905-32fc-48c2-9ea2-803c83909fdb")
 		(property "Reference" "R1"
-			(at 223.52 156.21 0)
+			(at 231.14 156.21 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10383,7 +10266,7 @@
 			)
 		)
 		(property "Value" "1KΩ"
-			(at 223.52 158.75 0)
+			(at 231.14 158.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10391,7 +10274,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 220.726 157.734 90)
+			(at 228.346 157.734 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10400,7 +10283,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 219.71 157.48 0)
+			(at 227.33 157.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10409,7 +10292,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 219.71 157.48 0)
+			(at 227.33 157.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)

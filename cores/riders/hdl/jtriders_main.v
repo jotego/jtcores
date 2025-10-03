@@ -19,16 +19,15 @@
 module jtriders_main(
     input                rst,
     input                clk, // 48 MHz
-    input                lgtnfght,
-    input                glfgreat,
+    input                lgtnfght, glfgreat, tmnt2, ssriders,
     input                LVBL, dma_bsy,
     input                cpu_n,       // low when CPU can access video RAM
 
     output        [19:1] main_addr,
     output        [ 1:0] ram_dsn, lmem_we,
-    output        [15:0] cpu_dout,
-    input                BRn,
-    input                BGACKn,
+    output        [15:0] bus_din,
+    input                riders_brn,
+    input                riders_bgackn,
     output               BGn,
     // 8-bit interface
     output               cpu_we,
@@ -39,6 +38,19 @@ module jtriders_main(
     output               snd_wrn,   // K053260 (PCM sound)
     input         [ 7:0] snd2main,  // K053260 (PCM sound)
     output reg           sndon,     // irq trigger
+
+    // TMNT sprite chip
+    output               tmnt_cs,
+    input                tmnt_asn,
+    input         [23:1] tmnt_addr,
+    input         [15:0] tmnt_din,
+    output        [15:0] tmnt_dout,
+    input         [ 1:0] tmnt_dsn,
+    input                tmnt_wrn,
+    output               tmnt_dtack_n,
+
+    input                tmnt_brn,
+    input                tmnt_bgackn,
 
     output reg           rom_cs,
     output reg           ram_cs,
@@ -56,7 +68,7 @@ module jtriders_main(
     input                vdtac,
     input                tile_irqn,
     input                prot_irqn,
-    output reg           prot_cs,
+    output               riders_cs,
 
     // Object RAM containing ROM address MSB bits, used in tmnt2
     output               omsb_we,
@@ -86,16 +98,16 @@ module jtriders_main(
     input         [ 7:0] debug_bus
 );
 `ifndef NOMAIN
-wire [23:1] A;
-wire        cpu_cen, cpu_cenb;
-wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
+wire [23:1] A, a_mx;
+wire        cpu_cen, cpu_cenb, asn_mx;
+wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn, BRn, BGACKn;
 wire [ 2:0] FC;
 reg  [ 2:0] IPLn, riders_dim;
 reg         cab_cs, snd_cs, iowr_hi, iowr_lo, iowr_cs, HALTn,
             eep_di, eep_clk, eep_cs, omsb_cs, pslrm_cs, psvrm_cs,
-            riders_son, riders_rmrd, adc_cs, out_cs, hit_cs;
+            riders_son, riders_rmrd, adc_cs, out_cs, hit_cs, prot_cs;
 reg  [15:0] cpu_din, cab_dout;
-wire [15:0] glfgreat_cab;
+wire [15:0] glfgreat_cab, cpu_dout;
 wire [ 7:0] riders_cab, lgtnfght_cab;
 wire [ 2:0] lgtnfght_dim;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn, adc=0;
@@ -105,21 +117,32 @@ wire        dtac_mux, lgtnfght_son, lgtnfght_rmrd;
 wire [23:0] A_full = {A,1'b0};
 `endif
 
-assign main_addr= lgtnfght ? {2'd0,A[17:1]} : A[19:1];
-assign ram_dsn  = {UDSn, LDSn};
+assign a_mx     = ~tmnt_bgackn ? tmnt_addr : A;
+assign main_addr= lgtnfght ? {2'd0,A[17:1]} : a_mx[19:1];
+assign ram_dsn  = ~tmnt_bgackn ? tmnt_dsn : {UDSn, LDSn};
 assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
-assign BUSn     = ASn | (LDSn & UDSn);
+assign BUSn     = asn_mx | &ram_dsn;
 
-assign cpu_we   = ~RnW;
-assign omsb_we  = omsb_cs && cpu_we && !LDSn;
-assign omsb_addr= { cbnk, A[6:1] };
+assign cpu_we   = ~tmnt_bgackn ? ~tmnt_wrn : ~RnW;
+assign omsb_we  = omsb_cs && cpu_we && !ram_dsn[0];
+assign omsb_addr= { cbnk, a_mx[6:1] };
 assign lmem_we  = ~ram_dsn & {2{ pslrm_cs & ~RnW}};
 
 assign st_dout  = 0; //{ rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = (lgtnfght | glfgreat) ? ~&{A[23],~ASn} : ~&{BGACKn, FC[1:0], ~ASn};
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW & (glfgreat ? ~UDSn : ~LDSn));
+
+assign riders_cs= prot_cs & ssriders;
+// tmnt2 sprite chip
+assign tmnt_cs  = prot_cs & tmnt2;
+assign asn_mx   = ~tmnt_bgackn ? tmnt_asn : ASn;
+assign tmnt_dout= cpu_din;
+assign bus_din  = ~tmnt_bgackn ? tmnt_din : cpu_dout;
+assign BRn      = riders_brn    & tmnt_brn;
+assign BGACKn   = riders_bgackn & tmnt_bgackn;
+assign tmnt_dtack_n = DTACKn;
 
 reg none_cs/*, wdog*/;
 // not following the PALs as the dumps from PLD Archive are not readable
@@ -149,11 +172,11 @@ always @* begin
     out_cs     = 0;
     hit_cs     = 0;
     // wdog     = 0;
-    if(!ASn) begin if(lgtnfght) casez(A[20:16])
+    if(!asn_mx) begin if(lgtnfght) casez(A[20:16])
         5'o0?: rom_cs = 1;
         5'o10: pal_cs = 1;      // 0x08'0000
         5'o11: ram_cs = ~BUSn;  // 0x09'0000
-        5'o12: case(A[5:3])     // 0x0A'0000
+        5'o12: case(a_mx[5:3])     // 0x0A'0000
             0,1,2: cab_cs = 1;  // 0x0A'0000~B
             3: iowr_cs = 1;     // 0x0A'0018
             4: snd_cs  = 1;
@@ -187,13 +210,13 @@ always @* begin
         10'b10_????_????: vram_cs = 1;     // 20'0000 ~ 2F'FFFF - LS139 @ 3F
         10'b11_????_????: psvrm_cs= 1;     // 30'0000 ~ 3F'FFFF - LS139 @ 3F
         default:;
-    endcase end else case(A[23:20]) // tmnt2/ssriders
+    endcase end else case(a_mx[23:20]) // tmnt2/ssriders
         0: rom_cs = 1;
-        1: case(A[19:18])
-            0: ram_cs  = A[14] & ~BUSn;
+        1: case(a_mx[19:18])
+            0: ram_cs  = a_mx[14] & ~BUSn;
             1: pal_cs  = 1;  // 14'xxxx
             2: obj_cs  = 1;  // 18'xxxx (not all A bits go to OBJ chip 053245)
-            3: case(A[11:8]) // decoder 13G (pdf page 16)
+            3: case(a_mx[11:8]) // decoder 13G (pdf page 16)
               0,1: cab_cs  = 1;
                 2: iowr_lo = 1; // EEPROM
                 3: iowr_hi = 1;
@@ -204,12 +227,12 @@ always @* begin
             endcase
             default:;
         endcase
-        5: case(A[19:16])
+        5: case(a_mx[19:16])
             4'ha: objreg_cs = 1;
-            4'hc: case(A[11:8]) // 13G
+            4'hc: case(a_mx[11:8]) // 13G
                 6: begin
-                    snd_cs     = !A[2]; // 053260
-                    riders_son =  A[2];
+                    snd_cs     = !a_mx[2]; // 053260
+                    riders_son =  a_mx[2];
                 end
                 7: pcu_cs = 1;      // 053251
                 default:;
@@ -246,7 +269,7 @@ always @(posedge clk) begin
                omsb_cs  ? {8'd0,omsb_dout} :
                cab_cs   ? cab_dout         : 16'h0;
     if(out_cs) begin // glfgreat
-        rmrd <= cpu_dout[4];
+        rmrd      <= cpu_dout[4];
         psac_bank <= cpu_dout[5];
     end
 end
@@ -255,7 +278,7 @@ jtriders_cab u_riders_cab(
     .clk        ( clk           ),
     .cpu_cen    ( cpu_cen       ),
     .cs         ( cab_cs        ),
-    .addr       ( A[8:1]        ),
+    .addr       ( a_mx[8:1]     ),
     .IPLn       ( IPLn          ),
     .LVBL       ( LVBL          ),
     .eep_do     ( eep_do        ),
@@ -305,14 +328,14 @@ jtlgtnfght_cab u_lgtnfght_cab(
 );
 
 jtlgtnfght_com u_lgtnfght_com(
-    .clk    ( clk           ),
-    .din    ( cpu_dout      ),
-    .dsn    ( {UDSn,LDSn}   ),
-    .rnw    ( RnW           ),
-    .cs     ( iowr_cs       ),
-    .cl     ( lgtnfght_dim  ),
-    .sndon  ( lgtnfght_son  ),
-    .vromrd ( lgtnfght_rmrd )
+    .clk        ( clk           ),
+    .din        ( cpu_dout      ),
+    .dsn        ( {UDSn,LDSn}   ),
+    .rnw        ( RnW           ),
+    .cs         ( iowr_cs       ),
+    .cl         ( lgtnfght_dim  ),
+    .sndon      ( lgtnfght_son  ),
+    .vromrd     ( lgtnfght_rmrd )
 );
 
 always @(posedge clk, posedge rst) begin
@@ -360,8 +383,8 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
-    .ASn        ( ASn       ),
-    .DSn        ({UDSn,LDSn}),
+    .ASn        ( asn_mx    ),
+    .DSn        ( ram_dsn   ),
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
     .DTACKn     ( DTACKn    ),

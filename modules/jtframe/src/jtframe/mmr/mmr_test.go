@@ -45,7 +45,7 @@ func Test_generate(t *testing.T) {
 		corename: "shouse",
 	}
 	e := yaml.Unmarshal( []byte(text), &mmr.cfg ); if e != nil { t.Error(e) }
-	mmr.generate()
+	e = mmr.generate(); if e != nil { t.Error(e); return }
 	if total:=len(mmr.converted); total!=1 {
 		t.Errorf("Expected one conversion, got %d",total)
 		return

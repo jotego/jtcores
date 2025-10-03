@@ -191,7 +191,7 @@ always @(posedge clk, posedge rst) begin
                 0: begin
                     hhalf <= 0;
                     { sq, pre_vf, pre_hf, size } <= scan_even[14:8];
-                    code    <= {2'b0, scan_odd[13:0]};
+                    code    <= {1'b0, scan_odd[14:0]}; // bit 14 needed for tmnt2
                     pri <= scan_even[6:0];
                     hstep   <= 0;
                     hz_keep <= 0;

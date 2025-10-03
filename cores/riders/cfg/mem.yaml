@@ -21,6 +21,7 @@ clocks:
       gate: [ pcma, pcmb, pcmc, pcmd ]
 audio:
   rsum: 1k
+  gain: 0.9
   channels:
     # using same filtering as TMNT. Values in SSRIDERS board must be reviewed
     - { name: k60,   module: jt053260, rsum: 1k, rc: [ { r: 609, c: 33n } ] }

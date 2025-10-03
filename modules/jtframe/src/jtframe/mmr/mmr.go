@@ -45,6 +45,7 @@ type MMRdef struct {
 	Regs []Register
 	Read_only bool
 	No_core_name bool `yaml:"no_core_name"`
+	Dw int
 	// Added by jtframe
 	AMSB int
 	Module string
@@ -91,6 +92,7 @@ func (mmr *mmr_gen) generate() (e error) {
 	mmr.converted=make([]string,len(mmr.cfg))
 	for k, _ := range mmr.cfg {
 		mmr.bits=make([]int,1024*8)
+		if mmr.cfg[k].Dw==0 { mmr.cfg[k].Dw=8 }
 		if mmr.cfg[k].No_core_name {
 			mmr.cfg[k].Module=fmt.Sprintf("jt%s_mmr", mmr.cfg[k].Name )
 		} else {

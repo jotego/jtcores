@@ -22,7 +22,7 @@ module jtriders_video(
     input             pxl_cen,
     input             pxl2_cen,
 
-    input             ssriders, lgtnfght, glfgreat,
+    input             ssriders, lgtnfght, glfgreat, tmnt2,
     output            cpu_n, enc_done,
 
     // Base Video
@@ -157,8 +157,7 @@ assign cpu_saddr = skip12 ? { cpu_addr[16:15], cpu_dsn[1], cpu_addr[14:13], cpu_
 assign cpu_d8    = ~cpu_dsn[1] ? cpu_dout[15:8] : cpu_dout[7:0];
 // Object ROM address MSB might come from a RAM
 assign oaread_addr = lyro_prea[21:13];
-assign lyro_addr   = oaread_en ? {1'b0,oaread_dout, lyro_prea[12:2]} :
-                                 {1'b0,lyro_prea[20:2]};
+assign lyro_addr   = { tmnt2 & lyro_prea[21], lyro_prea[20:2] };
 assign lyro_cs     = lyro_precs;
 assign dump_other  = {2'd0,dimpol, dimmod, 1'b0, dim};
 assign cpu_n       = hdump[0]; // to be verified

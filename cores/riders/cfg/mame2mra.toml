@@ -22,8 +22,6 @@ skip = { bootlegs=true, machines=[
 	"glfgreatj"
 ]}
 
-debug={machines=["tmnt2"]}
-
 [buttons]
 names = [
 	{ machine="ssriders", names="Shoot,Jump" },

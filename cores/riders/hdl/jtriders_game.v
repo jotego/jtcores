@@ -29,7 +29,7 @@ localparam SSRIDERS = 0,
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy, psac_cs, psac_bank,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, cpu_n, enc_done,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
-            BGn, BRn, BGACKn, prot_irqn, prot_cs, objreg_cs, oram_cs;
+            BGn, riders_brn, riders_bgackn, prot_irqn, riders_cs, objreg_cs, oram_cs;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
 wire [15:0] video_dumpa;
 wire [13:1] oram_addr;
@@ -41,6 +41,11 @@ wire [ 7:0] tilesys_dout, snd2main,
 wire [ 7:0] platch;
 wire [ 2:0] dim;
 wire [ 1:0] oram_we;
+
+wire        tmnt_asn, tmnt_wrn, tmnt_brn, tmnt_bgackn, tmnt_cs, tmnt_dtack_n;
+wire [23:1] tmnt_addr;
+wire [15:0] tmnt_din, tmnt_dout;
+wire [ 1:0] tmnt_dsn;
 
 `ifdef NOPSAC
 wire [ 1:0] lmem_we;
@@ -70,7 +75,7 @@ assign debug_view = debug_mux;
 assign ram_we     = cpu_we & ram_cs;
 assign ram_addr   = main_addr[13:1];
 assign omsb_din   = ram_din[7:0];
-assign oaread_en  = tmnt2;
+assign oaread_en  = 1'b0; // tmnt2;
 assign video_dumpa= ioctl_addr[15:0]-16'h80; // subtract NVRAM offset
 
 always @(posedge clk) begin
@@ -91,27 +96,41 @@ always @(posedge clk) begin
     end
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .lgtnfght       ( lgtnfght      ),
     .glfgreat       ( glfgreat      ),
+    .tmnt2          ( tmnt2         ),
+    .ssriders       ( ssriders      ),
 
     .LVBL           ( LVBL          ),
     .cpu_we         ( cpu_we        ),
-    .cpu_dout       ( ram_din       ),
+    .bus_din        ( ram_din       ),
     .vdtac          ( vdtac         ),
     .tile_irqn      ( tile_irqn     ),
     .cpu_n          ( cpu_n         ),
 
-    // protection chip
-    .BGACKn         ( BGACKn        ),
-    .BRn            ( BRn           ),
+    // ssriders sprite chip
+    .riders_bgackn  ( riders_bgackn ),
+    .riders_brn     ( riders_brn    ),
     .BGn            ( BGn           ),
     .prot_irqn      ( prot_irqn     ),
-    .prot_cs        ( prot_cs       ),
+    .riders_cs      ( riders_cs     ),
     .prot_dout      ( prot_dout     ),
+
+    // TMNT sprite chip
+    .tmnt_cs        ( tmnt_cs       ),
+    .tmnt_asn       ( tmnt_asn      ),
+    .tmnt_addr      ( tmnt_addr     ),
+    .tmnt_din       ( tmnt_din      ),
+    .tmnt_dout      ( tmnt_dout     ),
+    .tmnt_dsn       ( tmnt_dsn      ),
+    .tmnt_wrn       ( tmnt_wrn      ),
+    .tmnt_dtack_n   ( tmnt_dtack_n  ),
+    .tmnt_brn       ( tmnt_brn      ),
+    .tmnt_bgackn    ( tmnt_bgackn   ),
 
     .main_addr      ( main_addr     ),
     .rom_data       ( main_data     ),
@@ -177,31 +196,57 @@ jtriders_main u_main(
 
 /* verilator tracing_off */
 jtriders_prot u_prot(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen_16     ( cen_16    ),
-    .cen_8      ( cen_8     ),
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen_16     ( cen_16        ),
+    .cen_8      ( cen_8         ),
 
-    .cs         ( prot_cs   ),
+    .cs         ( riders_cs     ),
     .addr       (main_addr[13:1]),
-    .cpu_we     ( cpu_we    ),
-    .din        ( ram_din   ), // = cpu_dout
-    .dout       ( prot_dout ),
-    .ram_we     ( ram_we    ), // includes ram_cs as part of ram_we
-    .dsn        ( ram_dsn   ),
+    .cpu_we     ( cpu_we        ),
+    .din        ( ram_din       ), // = cpu_dout
+    .dout       ( prot_dout     ),
+    .ram_we     ( ram_we        ), // includes ram_cs as part of ram_we
+    .dsn        ( ram_dsn       ),
     // DMA
-    .objsys_cs  ( objsys_cs ),
-    .oram_cs    ( oram_cs   ),
-    .oram_addr  ( oram_addr ),
-    .oram_din   ( oram_din  ),
-    .oram_dout  ( oram_dout ),
-    .oram_we    ( oram_we   ),
-    .irqn       ( prot_irqn ),
-    .BRn        ( BRn       ),
-    .BGn        ( BGn       ),
-    .BGACKn     ( BGACKn    ),
+    .objsys_cs  ( objsys_cs     ),
+    .oram_cs    ( oram_cs       ),
+    .oram_addr  ( oram_addr     ),
+    .oram_din   ( oram_din      ),
+    .oram_dout  ( oram_dout     ),
+    .oram_we    ( oram_we       ),
+    .irqn       ( prot_irqn     ),
+    .BRn        ( riders_brn    ),
+    .BGACKn     (riders_bgackn  ),
+    .BGn        ( BGn           ),
 
-    .debug_bus  ( debug_bus )
+    .debug_bus  ( debug_bus     )
+);
+
+/* verilator tracing_on */
+jtriders_tmnt2 u_tmnt2(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen        ( cen_16        ),
+
+    .cs         ( tmnt_cs       ),
+    .addr       (main_addr[4:1] ),
+    .dsn        ( ram_dsn       ),
+    .din        ( ram_din       ), // = cpu_dout
+    .cpu_we     ( cpu_we        ),
+    .dtack_n    ( tmnt_dtack_n  ),
+
+    // DMA
+    .bus_asn    ( tmnt_asn      ),
+    .bus_addr   ( tmnt_addr     ),
+    .bus_din    ( tmnt_din      ),
+    .bus_dout   ( tmnt_dout     ),
+    .bus_dsn    ( tmnt_dsn      ),
+    .bus_wrn    ( tmnt_wrn      ),
+
+    .BRn        ( tmnt_brn      ),
+    .BGn        ( BGn           ),
+    .BGACKn     (tmnt_bgackn    )
 );
 
 /* verilator tracing_off */
@@ -217,6 +262,7 @@ jtriders_video u_video (
     .ssriders       ( ssriders      ),
     .lgtnfght       ( lgtnfght      ),
     .glfgreat       ( glfgreat      ),
+    .tmnt2          ( tmnt2         ),
 
     .tile_irqn      ( tile_irqn     ),
     .tile_nmin      (               ),
@@ -310,7 +356,7 @@ jtriders_video u_video (
     .st_dout        ( st_video      )
 );
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtriders_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
