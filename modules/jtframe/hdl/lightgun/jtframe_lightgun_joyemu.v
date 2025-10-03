@@ -1,0 +1,73 @@
+/*  This file is part of JTFRAME.
+    JTFRAME program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTFRAME program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
+    Version: 1.0
+    Date: 02-10-2025 */
+
+module jtframe_lightgun_joyemu(
+    input            clk,
+    output           strobe,
+    input      [1:0] rotate,
+    input      [3:0] game_joy,
+    input      [7:0] debug_bus,
+    output     [8:0] x, y
+);
+
+parameter W = 384, H = 224;
+
+reg  [7:0] dx_in, dy_in;
+wire [7:0] dx, dy;
+wire [6:0] base_val;
+reg  [3:0] cen/*, joy_on*/;
+reg        joy_on;
+wire       joystr;
+
+initial cen=1;
+assign  joystr = cen[3] & joy_on;
+assign  base_val = 7'h8 + debug_bus[6:0];
+
+always @(posedge clk) begin
+    cen    <= {cen[2:0],cen[3]};//~cen;
+    joy_on <= |game_joy;
+    {dx_in, dy_in} <= 0;
+    if(game_joy[0]) dx_in <= {1'b0, base_val};
+    if(game_joy[1]) dx_in <= {1'b1,-base_val};
+    if(game_joy[2]) dy_in <= {1'b1,-base_val};
+    if(game_joy[3]) dy_in <= {1'b0, base_val};
+end
+
+jtframe_mouse_rotation u_rotation(
+    .clk        ( clk      ),
+    .strobe     ( joystr   ),
+    .strobe_dly ( strobe   ),
+    .rotate     ( rotate   ),
+    .dx_in      ( dx_in    ),
+    .dy_in      ( dy_in    ),
+    .dx         ( dx       ),
+    .dy         ( dy       )
+);
+
+jtframe_mouse_abspos #(.W(W),.H(H)
+) u_abspos(
+    .clk        ( clk      ),
+    .dx         ( dx       ),
+    .dy         ( dy       ),
+    .strobe     ( strobe   ),
+    .x          ( x        ),
+    .y          ( y        )
+);
+
+
+endmodule

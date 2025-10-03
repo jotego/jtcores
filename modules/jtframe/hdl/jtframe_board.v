@@ -256,7 +256,7 @@ wire LHBLs;
 
 assign sensty    = status[33:32]; // MiST should drive these pins
 assign joy1_pos  = status[19:18];
-assign gun_crossh_en = status[9];
+assign gun_crossh_en = `ifdef JTFRAME_LIGHTGUN_ON 1'b1; `else status[9]; `endif
 
 jtframe_coremod u_coremod(
     .core_mod       ( core_mod      ),
