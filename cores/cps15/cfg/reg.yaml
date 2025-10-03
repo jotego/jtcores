@@ -7,4 +7,5 @@ punisher:
   video: 2200
   inputs: reg.cab
 wof:
+  video: 2200
   inputs: reg.cab

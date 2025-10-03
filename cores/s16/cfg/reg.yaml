@@ -7,6 +7,7 @@ fantzone:
 mjleague:
   inputs: reg.cab
 quartet:
+  video: 2200
   inputs: reg.cab
 quartet2a:
   inputs: reg.cab
