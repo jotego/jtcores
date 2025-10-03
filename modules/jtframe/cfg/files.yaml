@@ -123,3 +123,9 @@ jtframe:
       - jtframe_vumeter.sv
       - jtframe_st2mono.v
       - jtframe_gainmux.v
+  # Analogizer support (for Pocket platform with analog video output)
+  - from: analogizer
+    when: [ POCKET ]
+    get:
+      - analogizer_psx.sv
+      - dualshock_controller.v
