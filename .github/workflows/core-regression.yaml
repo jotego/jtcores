@@ -2,8 +2,8 @@ name: Core regression
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: '0 20 * * 4' # runs every Thursday at 8pm
+  schedule:
+    - cron: '0 20 * * 7' # runs every Sunday at 8pm
   # pull_request:
   # push:
   #   branches:
