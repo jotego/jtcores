@@ -378,7 +378,7 @@ assign orama = lgtnfght ? cpu_addr[13:1] : oram_addr;
 assign oramd = lgtnfght ? cpu_dout : oram_din;
 assign oramw = lgtnfght ? {2{cpu_we}}&~cpu_dsn : oram_we;
 assign vmux  = vrender;
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),

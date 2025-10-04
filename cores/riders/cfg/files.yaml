@@ -6,3 +6,6 @@ riders:
 rungun:
   - get:
     - jt053936.v
+jtframe:
+  - get:
+    - jtframe_toggle.v

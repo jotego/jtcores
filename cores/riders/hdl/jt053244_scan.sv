@@ -157,8 +157,17 @@ always @* begin
         3: vsum = ydiff[6:4]^{3{vflip}};
     endcase
 end
+`ifndef JTFRAME_RELEASE
+wire flicker;
 
+jtframe_toggle #(.W(1))u_toggle(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
 
+    .toggle ( hs        ),
+    .q      ( flicker   )
+);
+`endif
 // Table scan
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -195,8 +204,8 @@ always @(posedge clk, posedge rst) begin
                     pri <= scan_even[6:0];
                     hstep   <= 0;
                     hz_keep <= 0;
-                    // if( !scan_even[15]  || scan_obj[6:0]!=5  ) begin
-                    if( !scan_even[15] /*`ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif*/ ) begin
+                    // if( !scan_even[15]  || scan_obj[6:0]!=2  ) begin
+                    if( !scan_even[15] `ifndef JTFRAME_RELEASE || (scan_obj[6:0]==debug_bus[6:0] && flicker) `endif ) begin
                         scan_sub <= 0;
                         scan_obj <= scan_obj + 1'd1;
                         if( last_obj ) done <= 1;

@@ -249,7 +249,7 @@ jtriders_tmnt2 u_tmnt2(
     .BGACKn     (tmnt_bgackn    )
 );
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtriders_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
