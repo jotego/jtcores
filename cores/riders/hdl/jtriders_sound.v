@@ -68,8 +68,9 @@ wire        [20:0]  rawa_addr, rawb_addr, rawc_addr, rawd_addr;
 wire        [15:0]  A;
 wire signed [15:0]  fm_l,  fm_r;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n, tim2,
-                    cpu_cen, sample, upper4k, cen_g, int_n, cen_ws,
-                    mem_f8, mem_fa, mem_fc, mem_acc, mem_upper;
+                    cpu_cen, sample, upper4k, cen_g, int_n,
+                    cen_ws, wait_cs, wait_clr,
+                    mem_f8, mem_fa, mem_fc, mem_acc, mem_upper, skip_cen;
 reg                 ram_cs, fm_cs,  k60_cs,  nmi_cs;
 
 assign int_n    = glfgreat ? ~tim2 : ~snd_irq;
@@ -84,10 +85,20 @@ assign cpu_din  = rom_cs ? rom_data   :
                   ram_cs ? ram_dout   :
                   k60_cs ? k60_dout   :
                   fm_cs  ? fm_dout    : 8'h0;
-assign cen_ws   = (ram_cs | rom_cs) ? cen_4 : cen_8; // wait state for RAM/ROM access
+assign wait_cs  = rom_cs | ram_cs;
+assign wait_clr = cen_8 & skip_cen;
+assign cen_ws   = cen_8 & ~skip_cen; // wait state for RAM/ROM access
 assign cen_g    = (glfgreat | lgtnfght) ? cen_fm : cen_ws;
 
 assign main_dmux= glfgreat ? main_dout[15:8] : main_dout[7:0];
+
+jtframe_edge u_wait(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( wait_cs   ),
+    .clr    ( wait_clr  ),
+    .q      ( skip_cen  )
+);
 
 always @* begin
     pcma_addr = rawa_addr;
@@ -147,7 +158,7 @@ jtframe_edge #(.QSET(0),.ATRST(0)) u_edge (
 );
 
 /* verilator tracing_off */
-jtframe_sysz80 #(.RAM_AW(11), .CLR_INT(1), .RECOVERY(0)) u_cpu(
+jtframe_sysz80 #(.RAM_AW(11), .CLR_INT(1), .RECOVERY(1)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen_g     ),
