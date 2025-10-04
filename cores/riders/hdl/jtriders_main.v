@@ -451,12 +451,13 @@ jtframe_m68k u_cpu(
         rom_cs    = 0;
         sndon     = 0;
         vram_cs   = 0;
-        prot_cs   = 0;
+        riders_cs = 0;
+        tmnt_cs   = 0;
         psreg_cs  = 0;
         psac_bank = 0;
     end
     assign
-        cpu_dout  = 0,
+        bus_din   = 0,
         cpu_we    = 0,
         main_addr = 0,
         ram_dsn   = 0,
@@ -468,6 +469,8 @@ jtframe_m68k u_cpu(
         omsb_addr = 0,
         omsb_we   = 0,
         BGn       = 0,
-        nv_we     = 0;
+        nv_we     = 0,
+        tmnt_dout = 0,
+        tmnt_dtack_n = 1;
 `endif
 endmodule
