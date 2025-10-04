@@ -11,6 +11,7 @@ package jvs_node_info_pkg;
 
 	typedef struct {
 		logic [7:0] node_count;
+		logic [3:0] player_count;
 		logic [7:0] node_id [0:MAX_JVS_NODES-1];           // Node ID (address)
 		// Device name optimization: replaced full name storage with checksum + BRAM mapping
 		// Names stored in BRAM at fixed positions: node_index * NODE_NAME_SIZE
