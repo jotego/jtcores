@@ -255,6 +255,7 @@ simulate() {
     declare -a sim_opts
     get_opts sim_opts
 
+    create_nvram_files
     jtsim -batch -load -skipROM -setname $setname "${sim_opts[@]}" >&3 2>&3
     if [[ $? != 0 ]]; then
         if $local_rom; then
@@ -268,6 +269,10 @@ simulate() {
     else
         mv "test.mp4" "$setname.mp4"
     fi
+}
+
+create_nvram_files() {
+    jtutil sdram $setname
 }
 
 get_zips() {
