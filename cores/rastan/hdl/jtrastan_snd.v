@@ -47,14 +47,14 @@ module jtrastan_snd(
 wire               cen4, cen2, pcm_cen, nc;
 wire signed [15:0] pre_snd, left_opm, right_opm;
 wire signed [11:0] pcm_snd;
-wire               int_n;
+wire               int_n, rfsh_n;
 wire        [15:0] A;
 wire        [ 7:0] dout, opm_dout, ram_dout;
 wire        [ 3:0] pc6_dout;
 reg                opm_cs, opl_cs, ram_cs, pc6_cs;
 reg                pcm_rst, pcm_stop, pcm_start, pcm_addr_cs;
 wire               rd_n, wr_n, mreq_n, nmi_n;
-wire               ct1, ct2, vclk, pc6_rst;
+wire               ct1, ct2, vclk, pc6_rst, mem_acc;
 reg                nibble_sel, vclk_l, snd_rstn;
 reg         [15:0] pcm_cnt;
 wire        [ 3:0] pcm_nibble;
@@ -62,6 +62,7 @@ reg         [ 7:0] din;
 wire               main_cs;
 
 assign main_cs    = sn_rd | sn_we;
+assign mem_acc    = rfsh_n && !mreq_n;
 assign rom_addr   = A[14] ? { ct2, ct1, A[13:0]  } : A;
 assign pcm_nibble = !nibble_sel ? pcm_data[7:4] : pcm_data[3:0];
 
@@ -70,7 +71,7 @@ always @(posedge clk) begin
 end
 
 // PCM controller
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         pcm_addr   <= 0;
         pcm_cs     <= 0;
@@ -95,21 +96,21 @@ always @(posedge clk, posedge rst) begin
 end
 
 always @* begin
-    rom_cs      = !A[15] && !rd_n;
+    rom_cs      = !A[15] && !rd_n && mem_acc;
     ram_cs      = 0;
     opm_cs      = 0;
     pc6_cs      = 0;
     pcm_addr_cs = 0;
     pcm_start   = 0;
     pcm_stop    = 0;
-    if( !mreq_n && A[15]) begin
+    if( mem_acc && A[15]) begin
         case( A[14:12] )
             0: ram_cs = 1;
             1: opm_cs = 1;
             2: pc6_cs = 1;
-            3: pcm_addr_cs = 1;
-            4: pcm_start = 1;
-            5: pcm_stop  = 1;
+            3: pcm_addr_cs = !wr_n;
+            4: pcm_start   = !wr_n;
+            5: pcm_stop    = !wr_n;
             default:;
         endcase
     end
@@ -120,7 +121,7 @@ always @(posedge clk) begin
             ram_cs ? ram_dout :
             opm_cs ? opm_dout :
             pc6_cs ? { 4'hf, pc6_dout } :
-            8'hff;
+                     8'h00;
 end
 
 jtframe_frac_cen #(.WC(11)) u_cpucen(
@@ -172,7 +173,7 @@ jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
     .iorq_n     (           ),
     .rd_n       ( rd_n      ),
     .wr_n       ( wr_n      ),
-    .rfsh_n     (           ),
+    .rfsh_n     ( rfsh_n    ),
     .halt_n     (           ),
     .busak_n    (           ),
     .A          ( A         ),
@@ -184,22 +185,7 @@ jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    )
 );
-/*
-jtopl u_opl(
-    .rst    ( rst       ),        // rst should be at least 6 clk&cen cycles long
-    .clk    ( clk       ),        // CPU clock
-    .cen    ( cen       ),        // optional clock enable, it not needed leave as 1'b1
-    .din    ( din       ),
-    .addr   ( A[0]      ),
-    .cs_n   ( cs_n      ),
-    .wr_n   ( wr_n      ),
-    .dout   ( opl_dout  ),
-    .irq_n  ( irqn_opl  ),
-    // combined output
-    .snd    ( snd_opl   ),
-    .sample ( spl_opl   )
-);
-*/
+
 jt51 u_jt51(
     .rst    ( ~snd_rstn ),
     .clk    ( clk       ),
