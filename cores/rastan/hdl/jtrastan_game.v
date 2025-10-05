@@ -87,14 +87,12 @@ jtrastan_main u_main(
 );
 
 jtrastan_snd u_sound(
-    .rst        ( rst24         ),
-    .clk        ( clk24         ), // 24 MHz
-    .cen4       ( cen24_4       ),
-    .cen2       ( cen24_2       ),
-
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen4       ( cen4          ),
+    .cen2       ( cen2          ),
+    .cen_pcm    ( cen_pcm       ),
     // From main CPU
-    .rst48      ( rst           ),
-    .clk48      ( clk           ),
     .main_addr  (main_addr[1]   ),
     .main_dout  (main_dout[3:0] ),
     .main_din   ( sn_dout       ),

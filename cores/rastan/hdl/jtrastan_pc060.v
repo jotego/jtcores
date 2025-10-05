@@ -20,16 +20,15 @@
 // it lacks the mute output for the amp
 
 module jtrastan_pc060(
-    input           rst48,
-    input           clk48,
+    input           rst,
+    input           clk,
+
     input     [3:0] main_dout,
     output    [3:0] main_din,
     input           main_addr,
     input           main_rnw,
     input           main_cs,
 
-    input           rst24,
-    input           clk24,
     input     [3:0] snd_dout,
     output    [3:0] snd_din,
     input           snd_addr,
@@ -50,11 +49,12 @@ module jtrastan_pc060(
     assign snd_nmin   = nmi_enb || snd_full[1:0]==0;
     assign main_din   = main_ptr[2] ? status : main_ram;
     assign snd_din    =  snd_ptr[2] ? status : snd_ram;
+    assign snd_rst    = subrst;
+
 
     jtrastan_pc060_unit u_main(
-        .rst        ( rst48     ),
-        .clk        ( clk48     ),
-        .clk_other  ( clk24     ),
+        .rst        ( rst       ),
+        .clk        ( clk       ),
 
         .din        ( main_dout ),
         .cs         ( main_cs   ),
@@ -75,9 +75,8 @@ module jtrastan_pc060(
     );
 
     jtrastan_pc060_unit u_snd(
-        .rst        ( rst24     ),
-        .clk        ( clk24     ),
-        .clk_other  ( clk48     ),
+        .rst        ( rst       ),
+        .clk        ( clk       ),
 
         .din        ( snd_dout  ),
         .cs         (  snd_cs   ),
@@ -97,23 +96,16 @@ module jtrastan_pc060(
         .flag       ( nmi_enb   )
     );
 
-    jtframe_sync #(.W(1),.LATCHIN(1)) u_sync1(
-        .clk_in ( clk48     ),
-        .clk_out( clk24     ),
-        .raw    ( subrst    ),
-        .sync   ( snd_rst   )
-    );
-
     // Force 1kB RAM to be used, so synthesis works
     jtframe_dual_ram #(.DW(4),.AW(10)) u_share(
         // Port 0: main
-        .clk0   ( clk48         ),
+        .clk0   ( clk           ),
         .data0  ( main_dout     ),
         .addr0  ( { 7'd0,main_ramwr, main_ptr[1:0] } ),
         .we0    ( main_ramwr    ),
         .q0     ( main_ram      ),
         // Port 1: sound sub CPU
-        .clk1   ( clk24         ),
+        .clk1   ( clk           ),
         .addr1  ( { 7'd0,~snd_ramwr, snd_ptr[1:0] } ),
         .data1  ( snd_dout      ),
         .we1    ( snd_ramwr     ),
@@ -129,7 +121,6 @@ endmodule
 module jtrastan_pc060_unit(
     input            rst,
     input            clk,
-    input            clk_other,
     input            cs,
     input            a,
     input            we,
@@ -153,14 +144,7 @@ module jtrastan_pc060_unit(
 
     assign ram_we = cs & we & a & ~ptr[3] & ~ptr[2];
 
-    jtframe_sync #(.W(2),.LATCHIN(1)) u_sync2(
-        .clk_in ( clk_other  ),
-        .clk_out( clk        ),
-        .raw    ( set_full   ),
-        .sync   ( set_full_s )
-    );
-
-    always @(posedge clk, posedge rst) begin
+    always @(posedge clk) begin
         if( rst ) begin
             flag    <= 0;
             ptr     <= 0;
@@ -172,8 +156,8 @@ module jtrastan_pc060_unit(
             al  <= a;
             if( other_full[0] ) full_rq[0] <= 0;
             if( other_full[1] ) full_rq[1] <= 0;
-            if( set_full_s[0] ) is_full[0] <= 1;
-            if( set_full_s[1] ) is_full[1] <= 1;
+            if( set_full  [0] ) is_full[0] <= 1;
+            if( set_full  [1] ) is_full[1] <= 1;
 
             if( ~cs & csl ) begin
                 if( wel && !al )

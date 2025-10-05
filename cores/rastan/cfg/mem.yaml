@@ -3,11 +3,14 @@ params:
   - { name: VRAM_OFFSET, value: "22'h11_0000" }
   - { name:  PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1"}
 clocks:
-  clk24:
+  clk48:
     - freq: 4000000
       outputs:
-        - cen24_4
-        - cen24_2
+        - cen4
+        - cen2
+    - freq: 384000
+      outputs:
+        - cen_pcm
 audio:
   rsum: 10k
   channels:
