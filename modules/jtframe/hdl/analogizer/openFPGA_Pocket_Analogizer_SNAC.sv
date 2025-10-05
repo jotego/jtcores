@@ -552,10 +552,11 @@ pcengine_game_controller_multitap #(.MASTER_CLK_FREQ(MASTER_CLK_FREQ)) pcegmutit
         GC_JVS: begin
             SNAC_OUT1 = JVS_UART_TX;
             SNAC_OUT2 = JVS_485_DIR;
-            p1_btn_state = jvs_player1_input_switch;
-            p2_btn_state = jvs_player2_input_switch;
-            p3_btn_state = jvs_player3_input_switch;
-            p4_btn_state = jvs_player4_input_switch;
+            // Map coin inputs to SELECT button (bit 14) for each player
+            p1_btn_state = {jvs_player1_input_switch[15], jvs_coin1, jvs_player1_input_switch[13:0]};
+            p2_btn_state = {jvs_player2_input_switch[15], jvs_coin2, jvs_player2_input_switch[13:0]};
+            p3_btn_state = {jvs_player3_input_switch[15], jvs_coin3, jvs_player3_input_switch[13:0]};
+            p4_btn_state = {jvs_player4_input_switch[15], jvs_coin4, jvs_player4_input_switch[13:0]};
             // Special analog mapping logic based on number of players
             if (jvs_nodes.node_players[0] == 1) begin // Time crisis 4 light gun mode
                 // Single player mode (Time Crisis style)

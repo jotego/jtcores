@@ -329,7 +329,9 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
 
     // Temporary variables for parsing
     logic [7:0] current_func_code; // Store current function being parsed
+
     logic [3:0] current_coin;      // Current coin slot being parsed (0-3)
+    logic [3:0] global_coin;      // Current coin slot being parsed (0-3)
     logic [1:0] temp_coin_condition;
     logic [5:0] temp_counter_msb;
 
@@ -507,6 +509,7 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                             current_device_addr <= 8'h01;  // Reset to first node
                             jvs_data_ready_joy <= 1'b1;
                             global_player <= 4'd0;
+                            global_coin <= 4'd0;
                             delay_counter <= POLLING_INTERVAL_DELAY;
                             main_state <= STATE_MAIN_TIMER_DELAY;
                             return_state <= STATE_SEND_INPUTS;
@@ -522,6 +525,7 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                         current_device_addr <= 8'h01;
                         jvs_data_ready_joy <= 1'b1;
                         global_player <= 4'd0;
+                        global_coin <= 4'd0;
                         // If we have only one node set a polling delay
                         delay_counter <= POLLING_INTERVAL_DELAY;
                         main_state <= STATE_MAIN_TIMER_DELAY;
@@ -1191,6 +1195,7 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                     // Mark that we're now in polling mode (initialization complete)
                     if (polling_mode == 1'b0) begin
                         global_player <= 4'd0;
+                        global_coin <= 4'd0;
                         jvs_data_ready_init <= 1'b1;
                     end
                     polling_mode <= 1'b1;
@@ -1755,7 +1760,6 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                                             return_state <= RX_PARSE_INPUT_CMD;
                                             main_state <= STATE_RX_NEXT;
                                             com_rx_next <= 1'b1;
-                                            current_coin <= 0; // Initialize coin counter for parsing
                                         end else begin
                                             com_src_cmd_next <= 1'b1;
                                             cmd_pos <= 0;
@@ -1768,7 +1772,7 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                                     3'd1: begin
                                         // Dispatch to specialized COININP state
                                         current_coin <= 0; // Initialize coin counter for parsing
-                                        return_state <= RX_PARSE_COININP;
+                                        cmd_pos <= 0;
                                         main_state <= RX_PARSE_COININP;
                                     end
                                 endcase
@@ -2127,39 +2131,46 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                     end
                 end
 
-                RX_PARSE_COININP: begin
+                RX_PARSE_COININP: begin // E0 00 1F 01 01 00 00 00 00 00 01 00 0A 80 00
                     if (com_rx_remaining > 0) begin
-                        // Parse coin data (2 bytes per coin slot)
-                        case (cmd_pos)
-                            3'd1: begin // Parse byte 1 of current coin slot
-                                // Format: [condition(2 bits) counter_MSB(6 bits)]
-                                temp_coin_condition <= com_rx_byte[7:6];  // Top 2 bits = condition
-                                temp_counter_msb <= com_rx_byte[5:0];     // Bottom 6 bits = counter MSB
-                                return_state <= RX_PARSE_COININP;
-                                main_state <= STATE_RX_NEXT;
-                                com_rx_next <= 1'b1;
-                            end
-                            3'd2: begin // Parse byte 2 of current coin slot then jump to next slot if needed
-                                // Store complete coin data for this slot
-                                coin_count[current_coin] <= {temp_counter_msb, com_rx_byte}; // 14-bit counter stored in 16-bit
-                                
-                                // Set coin increase signals based on condition (10 = increase)
-                                case (current_coin)
-                                    0: coin1 <= (temp_coin_condition == 2'b10);
-                                    1: coin2 <= (temp_coin_condition == 2'b10);
-                                    2: coin3 <= (temp_coin_condition == 2'b10);
-                                    3: coin4 <= (temp_coin_condition == 2'b10);
-                                endcase
-                                
-                                // Check if we need to parse the next coin slot
-                                if (current_coin >= (jvs_nodes_r.node_coin_slots[current_device_addr - 1] - 1)) begin
-                                    // Coin parsing complete, advance to next command
-                                    cmd_pos <= 0;
-                                    com_src_cmd_next <= 1'b1;
-                                    return_state <= RX_PARSE_INPUT_CMD;
+                        // Check if we need to parse the next coin slot
+                        if (current_coin >= jvs_nodes_r.node_coin_slots[current_device_addr - 1]) begin
+                            // Coin parsing complete, advance to next command
+                            global_coin <= global_coin + jvs_nodes_r.node_coin_slots[current_device_addr - 1];
+                            cmd_pos <= 0;
+                            com_src_cmd_next <= 1'b1;
+                            return_state <= RX_PARSE_INPUT_CMD;
+                            main_state <= STATE_RX_NEXT;
+                            com_rx_next <= 1'b1;
+                        end else begin
+                            // Parse coin data (2 bytes per coin slot)
+                            case (cmd_pos)
+                                3'd0: begin // Parse byte 1 of current coin slot
+                                    // Format: [condition(2 bits) counter_MSB(6 bits)]
+                                    temp_coin_condition <= com_rx_byte[7:6];  // Top 2 bits = condition
+                                    temp_counter_msb <= com_rx_byte[5:0];     // Bottom 6 bits = counter MSB
+                                    return_state <= RX_PARSE_COININP;
                                     main_state <= STATE_RX_NEXT;
                                     com_rx_next <= 1'b1;
-                                end else begin
+                                end
+                                3'd1: begin // Parse byte 2 of current coin slot then jump to next slot if needed
+                                    // Store complete coin data for this slot
+                                    if({temp_counter_msb, com_rx_byte} > coin_count[global_coin + current_coin]) begin
+                                        coin_count[global_coin + current_coin] <= coin_count[global_coin + current_coin] + 1;
+                                        case (global_coin + current_coin)
+                                            0: coin1 <= 1'b1;
+                                            1: coin2 <= 1'b1;
+                                            2: coin3 <= 1'b1;
+                                            3: coin4 <= 1'b1;
+                                        endcase                                        
+                                    end else begin
+                                        case (global_coin + current_coin)
+                                            0: coin1 <= 1'b0;
+                                            1: coin2 <= 1'b0;
+                                            2: coin3 <= 1'b0;
+                                            3: coin4 <= 1'b0;
+                                        endcase
+                                    end
                                     // Parse next coin slot
                                     current_coin <= current_coin + 1;
                                     cmd_pos <= 0; // Reset to parse next coin's first byte
@@ -2167,14 +2178,8 @@ module jvs_ctrl #(parameter MASTER_CLK_FREQ = 50_000_000)
                                     main_state <= STATE_RX_NEXT;
                                     com_rx_next <= 1'b1;
                                 end
-                            end
-                        endcase
-                    end else begin
-                        // No more data, return to command dispatcher
-                        cmd_pos <= 0;
-                        com_src_cmd_next <= 1'b1;
-                        return_state <= RX_PARSE_INPUT_CMD;
-                        main_state <= return_state;
+                            endcase
+                        end
                     end
                 end
 
