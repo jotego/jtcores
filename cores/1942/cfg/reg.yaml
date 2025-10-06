@@ -1,5 +1,6 @@
 1942:
   inputs: reg.cab
+  video: 1000
 1942-flip:
   inputs: ../1942/reg.cab
   dipsw: ef77
