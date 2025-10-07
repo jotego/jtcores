@@ -11,6 +11,7 @@ batcir:
 csclub:
   video: 2200
 cybots:
+  inputs: reg.cab
 dstlk:
   video: 2200
   inputs: reg.cab
@@ -35,16 +36,22 @@ msh:
   video: 2200
   inputs: reg.cab
 mshvsf:
+  video: 2200
+  inputs: reg.cab
 mvsc:
   video: 2200
 megaman2:
   video: 2200
 mpang:
 nwarr:
+  video: 2200
+  inputs: reg.cab
 progear:
   video: 2200
   inputs: reg.cab
 pzloop2:
+  video: 2000
+  inputs: reg.cab
 qndream:
   video: 2200
 ringdest:
@@ -62,6 +69,7 @@ ssf2t:
   video: 2200
   inputs: reg.cab
 ssf2:
+  video: 2000
   inputs: reg.cab
 vhunt2:
   video: 2200
@@ -70,6 +78,7 @@ vsav2:
 vsav:
   video: 2200
 xmvsf:
+  video: 2000
 xmcota:
   video: 2200
   inputs: reg.cab
