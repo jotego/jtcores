@@ -26,22 +26,21 @@ module jtrastan_pc060(
     input     [3:0] main_dout,
     output    [3:0] main_din,
     input           main_addr,
-    input           main_rnw,
-    input           main_cs,
+    input           main_rd,
+    input           main_we,
 
     input     [3:0] snd_dout,
     output    [3:0] snd_din,
     input           snd_addr,
-    input           snd_rnw,
-    input           snd_cs,
+    input           snd_rd,
+    input           snd_we,
     output          snd_nmin,
     output          snd_rst
 );
 
     wire [3:0] snd_ptr, main_ptr, status;
     wire [3:0] main_ram, snd_ram;
-    wire       main_ramwr, snd_ramwr,
-               nmi_enb, subrst;
+    wire       nmi_enb, subrst;
     wire [1:0] set_sndst,  snd_full,
                set_mainst, main_full;
 
@@ -51,16 +50,14 @@ module jtrastan_pc060(
     assign snd_din    =  snd_ptr[2] ? status : snd_ram;
     assign snd_rst    = subrst;
 
-
     jtrastan_pc060_unit u_main(
         .rst        ( rst       ),
         .clk        ( clk       ),
 
         .din        ( main_dout ),
-        .cs         ( main_cs   ),
         .a          ( main_addr ),
-        .we         ( ~main_rnw ),
-        .ram_we     ( main_ramwr),
+        .rd         ( main_rd   ),
+        .we         ( main_we   ),
 
         // other CPU buffer
         .full_rq    ( set_sndst ), // request setting other_full
@@ -79,10 +76,9 @@ module jtrastan_pc060(
         .clk        ( clk       ),
 
         .din        ( snd_dout  ),
-        .cs         (  snd_cs   ),
         .a          (  snd_addr ),
-        .we         ( ~snd_rnw  ),
-        .ram_we     ( snd_ramwr ),
+        .rd         (  snd_rd   ),
+        .we         (  snd_we   ),
 
         // other CPU buffer
         .full_rq    ( set_mainst), // request setting other_full
@@ -101,14 +97,14 @@ module jtrastan_pc060(
         // Port 0: main
         .clk0   ( clk           ),
         .data0  ( main_dout     ),
-        .addr0  ( { 7'd0,main_ramwr, main_ptr[1:0] } ),
-        .we0    ( main_ramwr    ),
+        .addr0  ( { 5'd0,main_we, main_ptr[3:0] } ), // main reads low half, writes upper half
+        .we0    ( main_we       ),
         .q0     ( main_ram      ),
         // Port 1: sound sub CPU
         .clk1   ( clk           ),
-        .addr1  ( { 7'd0,~snd_ramwr, snd_ptr[1:0] } ),
+        .addr1  ( { 5'd0,~snd_we, snd_ptr[3:0] } ), // sound reads upper half, writes lower half
         .data1  ( snd_dout      ),
-        .we1    ( snd_ramwr     ),
+        .we1    ( snd_we        ),
         .q1     ( snd_ram       )
     );
 
@@ -121,10 +117,9 @@ endmodule
 module jtrastan_pc060_unit(
     input            rst,
     input            clk,
-    input            cs,
     input            a,
+    input            rd,
     input            we,
-    output           ram_we,
     input      [3:0] din,
 
     // other CPU buffer
@@ -138,11 +133,10 @@ module jtrastan_pc060_unit(
     output reg [3:0] ptr,
     output reg       flag       // set writting to 5, cleared with 6
 );
-    reg        csl, wel, al;
+    reg        evnt, al;
     reg  [4:0] cnt;
+    reg  [3:0] dinl, written;
     wire [1:0] set_full_s;
-
-    assign ram_we = cs & we & a & ~ptr[3] & ~ptr[2];
 
     always @(posedge clk) begin
         if( rst ) begin
@@ -151,34 +145,32 @@ module jtrastan_pc060_unit(
             full_rq <= 0;
             is_full <= 0;
         end else begin
-            wel <= we;
-            csl <= cs;
-            al  <= a;
+            evnt <= rd | we;
+            al   <= a;
+            dinl <= din;
             if( other_full[0] ) full_rq[0] <= 0;
             if( other_full[1] ) full_rq[1] <= 0;
             if( set_full  [0] ) is_full[0] <= 1;
             if( set_full  [1] ) is_full[1] <= 1;
 
-            if( ~cs & csl ) begin
-                if( wel && !al )
-                    ptr <= din;
-                else begin
-                    if( !ptr[2] ) ptr <= ptr + 4'd1;
-                    case( ptr )
-                        1:  if( wel )
-                                full_rq[0] <= 1;
-                            else
-                                is_full[0] <= 0;
-                        3:  if( wel )
-                                full_rq[1] <= 1;
-                            else
-                                is_full[1] <= 0;
-                        4: flag <= din[0];
-                        5: flag <= 1;
-                        6: flag <= 0;
-                        default:;
-                    endcase
-                end
+            if( we && !a ) ptr <= din;
+            if( we &&  a ) written <= dinl;
+            if( (rd|we) && !evnt && a ) begin
+                if( ptr<4 ) ptr <= ptr + 4'd1;
+                case( ptr )
+                    1:  if( we )
+                            full_rq[0] <= 1;
+                        else
+                            is_full[0] <= 0;
+                    3:  if( we )
+                            full_rq[1] <= 1;
+                        else
+                            is_full[1] <= 0;
+                    4: flag <= dinl[0];
+                    5: flag <= 1;
+                    6: flag <= 0;
+                    default:;
+                endcase
             end
         end
     end

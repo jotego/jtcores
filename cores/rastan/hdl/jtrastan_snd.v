@@ -57,12 +57,13 @@ reg                nibble_sel, vclk_l, snd_rstn;
 reg         [15:0] pcm_cnt;
 wire        [ 3:0] pcm_nibble;
 reg         [ 7:0] din;
-wire               main_cs;
+wire               pc60_rd, pc60_we;
 
-assign main_cs    = sn_rd | sn_we;
 assign mem_acc    = rfsh_n && !mreq_n;
 assign rom_addr   = A[14] ? { ct2, ct1, A[13:0]  } : A;
 assign pcm_nibble = !nibble_sel ? pcm_data[7:4] : pcm_data[3:0];
+assign pc60_rd    = pc6_cs && !rd_n;
+assign pc60_we    = pc6_cs && !wr_n;
 
 always @(posedge clk) begin
     snd_rstn <= ~(rst | pc6_rst);
@@ -129,14 +130,14 @@ jtrastan_pc060 u_pc060(
     .main_dout  ( main_dout ),
     .main_din   ( main_din  ),
     .main_addr  ( main_addr ),
-    .main_rnw   ( main_rnw  ),
-    .main_cs    ( main_cs   ),
+    .main_rd    ( sn_rd     ),
+    .main_we    ( sn_we     ),
 
     .snd_dout   ( dout[3:0] ),
     .snd_din    ( pc6_dout  ),
     .snd_addr   ( A[0]      ),
-    .snd_rnw    ( wr_n      ),
-    .snd_cs     ( pc6_cs    ),
+    .snd_rd     ( pc60_rd   ),
+    .snd_we     ( pc60_we   ),
     .snd_nmin   ( nmi_n     ),
     .snd_rst    ( pc6_rst   )
 );

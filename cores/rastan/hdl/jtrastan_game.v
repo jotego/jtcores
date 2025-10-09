@@ -35,7 +35,7 @@ assign ram_addr = ram_cs ? {4'd0, main_addr[13:1] } : { 2'b10, main_addr[15:1] }
 assign ram_we   = xram_cs & ~main_rnw;
 assign xram_cs  = ram_cs | vram_cs;
 assign ram_dsn  = main_dsn;
-
+/* verilator tracing_off */
 jtrastan_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ), // 48 MHz
@@ -85,7 +85,7 @@ jtrastan_main u_main(
     .dipsw_a    (dipsw[ 7:0]),
     .dipsw_b    (dipsw[15:8])
 );
-
+/* verilator tracing_on */
 jtrastan_snd u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -114,7 +114,7 @@ jtrastan_snd u_sound(
     .fm_r       ( fm_r          ),
     .pcm        ( pcm           )
 );
-
+/* verilator tracing_off */
 jtrastan_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),

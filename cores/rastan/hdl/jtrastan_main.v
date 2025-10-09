@@ -178,9 +178,9 @@ always @* begin
             0: out_cs     = 1;
             1: otport1_cs = 1;
             //2: wdog_cs    = 1;
-            3: sn_we      = 1;
+            3: sn_we      = !LDSn;
             4: inport_cs  = 1;
-            7: sn_rd      = 1;
+            7: sn_rd      = !LDSn;
             default:;
         endcase
     end
