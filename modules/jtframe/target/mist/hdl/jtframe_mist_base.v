@@ -147,9 +147,9 @@ wire        ioctl_download, ioctl_upload;
 wire [7:0]   scan2x_r, scan2x_g, scan2x_b;
 wire         scan2x_hs, scan2x_vs, scan2x_de, scan2x_enb;
 
-assign ioctl_rom   =  ioctl_index == IDX_ROM && ioctl_download;
+assign ioctl_rom   =  ioctl_index == IDX_ROM   && ioctl_download;
 assign ioctl_ram   = (ioctl_index == IDX_NVRAM && ioctl_download) || ioctl_upload;
-assign ioctl_cheat = ioctl_index == IDX_CHEAT && ioctl_download;
+assign ioctl_cheat =  ioctl_index == IDX_CHEAT && ioctl_download;
 
 // unsupported by user_io
 assign joyana_l3 = 0;
