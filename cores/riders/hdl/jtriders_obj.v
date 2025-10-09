@@ -86,7 +86,6 @@ wire        hflip, vflip, hz_keep, pre_cs;
 wire [ 9:0] hpos;
 wire [ 3:0] ysub;
 wire [11:0] hzoom;
-wire [31:0] sorted;
 wire        pen15;
 
 wire scr_hflip, scr_vflip;
@@ -119,8 +118,6 @@ assign pen_eff = (pre_pxl[15:14]==0 || !pen15) ? pre_pxl[3:0] : 4'd0; // real co
 assign shd     =  pre_pxl[14];
 assign prio    =  {1'd1,pre_pxl[10:9],2'd0} ;
 assign pxl     = gfx_en[3] ? {pre_pxl[8:4], pen_eff} : 9'd0;
-
-assign sorted = rom_data;
 
 jt053244 #(.HFLIP_OFFSET(HFLIP_OFFSET)
     )u_scan(    // sprite logic
@@ -201,7 +198,7 @@ jtframe_objdraw #(
     .rom_addr   ( pre_addr      ),
     .rom_cs     ( pre_cs        ),
     .rom_ok     ( rom_ok        ),
-    .rom_data   ( sorted        ),
+    .rom_data   ( rom_data      ),
 
     .pxl        ( pre_pxl       )
 );

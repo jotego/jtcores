@@ -19,7 +19,7 @@
 module jtriders_tmnt2(
     input                rst,
     input                clk,
-    input                cen,
+    input                cen,   // 16 MHz
 
     input                cs,
     input         [ 4:1] addr,
@@ -41,15 +41,21 @@ module jtriders_tmnt2(
     output reg           BGACKn
 );
 
-wire        dma_on, enable, zlock, hflip;
+wire        dma_on, enable, zlock, hflip, xylock;
 wire [23:0] src, dst, mod_addr;
 reg  [23:1] a;
 wire [23:1] next_a, next_aw, cmod_a, attr_a, xmod_a, ymod_a, zmod_a, xzoom_a, yzoom_a;
-reg  [15:0] code, i, cmod, xoff, yoff, xpos, ypos;
+reg  [15:0] code, cmod, xoff, yoff, xpos, ypos, xzoom, yzoom, xoff_lock, yoff_lock;
+wire [14:0] xlin, ylin;
+wire [15:0] xadj, yadj;
+wire [ 9:0] xmant, xlog, ymant, ylog;
+wire [ 8:0] xfrac, yfrac;
 reg  [ 7:0] attr1;
 reg  [ 9:5] attr2;
 reg  [ 4:0] cbase, color;
 reg  [ 5:0] st;
+reg  [ 1:0] xztype, yztype;
+wire [ 1:0] pre_xztype, pre_yztype;
 reg         start;
 
 assign bus_addr = a;
@@ -65,6 +71,7 @@ assign ymod_a  = mod_addr[23:1] + 23'h7;
 assign zmod_a  = mod_addr[23:1] + 23'h8;
 assign xzoom_a = mod_addr[23:1] + (23'h1c>>1);
 assign yzoom_a = mod_addr[23:1] + (23'h1e>>1);
+assign xylock  = attr2[5] && (~|{xzoom[15:9],xzoom[7:0]});
 
 jtriders_tmnt2_mmr u_mmr(
     .rst        ( rst       ),
@@ -89,6 +96,71 @@ jtriders_tmnt2_mmr u_mmr(
     // Debug
     .debug_bus  (  8'd0     ),
     .st_dout    (           )
+);
+
+jtriders_tmnt2_zoom u_xzoom(
+    .clk        ( clk       ),
+    .xylock     ( xylock    ),
+
+    .mant       ( xmant     ),
+    .frac       ( xfrac     ),
+    .log        ( xlog      ),
+    .lin        ( xlin      ),
+    .offset     ( xoff      ),
+    .zoom       ( xzoom     ),
+    .ztype      ( pre_xztype),
+    .adj        ( xadj      )
+);
+
+jtriders_tmnt2_zoom u_yzoom(
+    .clk        ( clk       ),
+    .xylock     ( xylock    ),
+
+    .mant       ( ymant     ),
+    .frac       ( yfrac     ),
+    .log        ( ylog      ),
+    .lin        ( ylin      ),
+    .offset     ( yoff      ),
+    .zoom       ( yzoom     ),
+    .ztype      ( pre_yztype),
+    .adj        ( yadj      )
+);
+
+jtframe_dual_ram #(
+    .DW        ( 9                  ),
+    .SYNFILE   ("../../hdl/log2.hex")
+)u_log(
+    .clk0       ( clk               ),
+    .clk1       ( clk               ),
+    // Port 0
+    .data0      ( 9'h0              ),
+    .addr0      ( xmant             ),
+    .we0        ( 1'b0              ),
+    .q0         ( xfrac             ),
+    // Port 1
+    .data1      ( 9'h0              ),
+    .addr1      ( ymant             ),
+    .we1        ( 1'b0              ),
+    .q1         ( yfrac             )
+);
+
+jtframe_dual_ram #(
+    .DW        ( 15                 ),
+    .AW        ( 10                 ),
+    .SYNFILE   ("../../hdl/exp2.hex")
+)u_exp(
+    .clk0       ( clk               ),
+    .clk1       ( clk               ),
+    // Port 0
+    .data0      ( 15'h0             ),
+    .addr0      ( xlog[9:0]         ),
+    .we0        ( 1'b0              ),
+    .q0         ( xlin              ),
+    // Port 1
+    .data1      ( 15'h0             ),
+    .addr1      ( 10'b0             ),
+    .we1        ( 1'b0              ),
+    .q1         ( ylin              )
 );
 
 always @(posedge clk) begin
@@ -138,26 +210,41 @@ always @(posedge clk) begin
                       if(hflip) xoff <= -xoff;
                       bus_asn <= 1;
                 end
-            15: begin a <= xmod_a; bus_asn <= 0; if(dtack_n) st <= st; end
-            16: begin xpos <= xoff + bus_dout; bus_asn <= 1; end
-            17: begin a <= ymod_a; bus_asn <= 0; if(dtack_n) st <= st; end
-            18: begin ypos <= yoff + bus_dout; bus_asn <= 1; end
-            19: begin a <= zmod_a; bus_asn <= 0; if(dtack_n) st <= st; end
-            20: begin if(!zlock) ypos <= ypos + bus_dout; bus_asn <= 1; end
 
-            21: begin a <= dst[23:1]; bus_asn <= 0; bus_wrn <= 0; bus_din <= {attr1,8'd0}; if(dtack_n) st<=st; end
-            22: begin a <= next_aw;   bus_asn <= 1; end // +2
-            23: begin                 bus_asn <= 0; bus_din <= code; if(dtack_n) st<=st; end
-            24: begin a <= next_aw;   bus_asn <= 1; end // +4
-            25: begin                 bus_asn <= 0; bus_din <= ypos; if(dtack_n) st<=st; end
-            26: begin a <= next_aw;   bus_asn <= 1; end // +6
-            27: begin                 bus_asn <= 0; bus_din <= xpos; if(dtack_n) st<=st; end
-            28: begin a <= next_aw;   bus_asn <= 1; end // +8
-            29: begin a <= next_aw;   bus_asn <= 1; end // +10
-            30: begin a <= next_aw;   bus_asn <= 1; end // +12
-            31: begin                 bus_asn <= 0; bus_din <= {6'd0,attr2,color}; if(dtack_n) st<=st; end
-            32: begin                 bus_asn <= 1; BRn<= 1; bus_wrn <= 1; if(!BGn) st <= st; end
-            33: begin BGACKn <= 1; st <= 0; end
+            15: begin a <= xzoom_a;      bus_asn <= 0; if(dtack_n) st <= st; end
+            16: begin xzoom <= bus_dout; bus_asn <= 1; end
+            17: begin a <= yzoom_a;      bus_asn <= 0; if(dtack_n) st <= st; end
+            18: begin
+                yzoom     <= attr1[6] ? xzoom : bus_dout;
+                bus_asn   <= 1;
+                xztype    <= pre_xztype;
+                xoff_lock <= xadj;
+            end
+            19: begin a <= xmod_a; bus_asn <= 0; if(dtack_n) st <= st; end
+            20: begin
+                xpos      <= xoff_lock + bus_dout;
+                bus_asn   <= 1;
+                yztype    <= pre_yztype;
+                yoff_lock <= yadj;
+            end
+            21: begin a <= ymod_a; bus_asn <= 0; if(dtack_n) st <= st; end
+            22: begin ypos <= yoff_lock + bus_dout; bus_asn <= 1; end
+            23: begin a <= zmod_a; bus_asn <= 0; if(dtack_n) st <= st; end
+            24: begin if(!zlock) ypos <= ypos + bus_dout; bus_asn <= 1; end
+
+            25: begin a <= dst[23:1]; bus_asn <= 0; bus_wrn <= 0; bus_din <= {attr1,8'd0}; if(dtack_n) st<=st; end
+            26: begin a <= next_aw;   bus_asn <= 1; end // +2
+            27: begin                 bus_asn <= 0; bus_din <= code; if(dtack_n) st<=st; end
+            28: begin a <= next_aw;   bus_asn <= 1; end // +4
+            29: begin                 bus_asn <= 0; bus_din <= ypos; if(dtack_n) st<=st; end
+            30: begin a <= next_aw;   bus_asn <= 1; end // +6
+            31: begin                 bus_asn <= 0; bus_din <= xpos; if(dtack_n) st<=st; end
+            32: begin a <= next_aw;   bus_asn <= 1; end // +8
+            33: begin a <= next_aw;   bus_asn <= 1; end // +10
+            34: begin a <= next_aw;   bus_asn <= 1; end // +12
+            35: begin                 bus_asn <= 0; bus_din <= {6'd0,attr2,color}; if(dtack_n) st<=st; end
+            36: begin                 bus_asn <= 1; BRn<= 1; bus_wrn <= 1; if(!BGn) st <= st; end
+            37: begin BGACKn <= 1; st <= 0; end
         endcase
     end
 end
