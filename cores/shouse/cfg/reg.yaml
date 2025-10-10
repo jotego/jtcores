@@ -6,13 +6,19 @@ blazer:
 boxyboy:
 berabohm:
 dangseed:
-  video: 2200
+  video: 2000
+  inputs: reg.cab
 dspirit:
 faceoff:
+  video: 2000
+  inputs: reg.cab
 galaga88:
+  video: 2000
+  inputs: reg.cab
 mmaze:
 pacmania:
 pistoldm:
+  video: 2000
   inputs: reg.cab
 wldcourt:
 ws:
