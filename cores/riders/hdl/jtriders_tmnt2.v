@@ -40,7 +40,7 @@ module jtriders_tmnt2(
     input                BGn,
     output reg           BGACKn
 );
-
+`ifndef NOTMNT2
 wire        dma_on, enable, zlock, hflip, xylock;
 wire [23:0] src, dst, mod_addr;
 reg  [23:1] a;
@@ -248,5 +248,15 @@ always @(posedge clk) begin
         endcase
     end
 end
-
+`else
+assign bus_addr = 0;
+assign bus_dsn  = 3;
+initial begin
+    bus_asn     = 1;
+    bus_din     = 1;
+    bus_wrn     = 1;
+    BRn         = 1;
+    BGACKn      = 1;
+end
+`endif
 endmodule

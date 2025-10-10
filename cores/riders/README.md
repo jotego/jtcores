@@ -23,7 +23,7 @@ This FPGA core is compatible with the following arcade PCBs:
 - Lightning Fighters (Trigon)
 - Golfing Greats
 
-Due to limitations in the internal RAM memory of small FPGA devices, Golfing Greats will not run on MiST/SiDi FPGAs.
+Due to limitations in the internal RAM memory of small FPGA devices, Golfing Greats will not run on MiST/SiDi FPGAs and TMNT2 will not work on SiDi.
 
 # Game Configuration
 
