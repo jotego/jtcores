@@ -65,7 +65,7 @@ data=[
         51 51 51 ff ff ff ff ff """},
 ]
 
-[rom]
+[ROM]
 regions=[
     # The Q-Sound may fail because the dl-1425.bin length is larger than 0x2000
     { name="maincpu", width=16, reverse=true, reverse_only=[8] },
@@ -81,3 +81,15 @@ order=[
     "maincpu", "audiocpu", "qsound",
     "gfx","firmware"
 ]
+
+nvram={ defaults=[
+    { setnames=["wof","wofa","wofch","wofj","wofu","wofr1"], data="""\
+        92 10 31 00 54 4B 32 51 00 01 01 00 00 00 03 01
+        03 06 4E 75 92 10 31 00 54 4B 32 51 00 01 00 00
+        00 00 03 01 02 75 30 2D FA 8C B0 68 00 60 6C 0C
+        4E 75 30 2D FA 8C B0 68 00 60 6E F4 70 00 31 40
+        00 20 10 2D FF 88 D0 40 32 3B 00 06 4E FB 10 02
+        00 1C 00 6C 07 46 00 C0 07 52 01 AE 07 86 03 D4
+        03 E8 07 C6 04 F8 05 98 06 66 07 CE 10 28 00 28
+        32 3B 00 06 4E FB 10 02 00 06 00 1E 00 3C 54 28"""},
+]}
