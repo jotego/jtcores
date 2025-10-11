@@ -421,7 +421,7 @@ public:
 #else
         dut.ioctl_wr = 0;
 #endif
-        if( dut.ioctl_rom ) step_download();
+        if( dut.ioctl_rom || dut.ioctl_ram ) step_download();
         if( iodump_busy ) iodump_step();
     }
     void step_download() {
@@ -444,6 +444,7 @@ public:
                     if( nvram && addr>=nvram_start) {
                         dut.ioctl_addr -= nvram_start;
                         dut.ioctl_ram = 1;
+                        dut.ioctl_rom = 0;
                     }
 #endif
                     dut.ioctl_dout = read_buf();
@@ -579,7 +580,8 @@ public:
     bool done() {
         if( game.contextp()->gotFinish() ) return true;
         return (finish_frame>0 ? frame_cnt > finish_frame :
-                simtime/1000'000'000 >= finish_time ) && (!game.ioctl_rom && !game.dwnld_busy);
+                simtime/1000'000'000 >= finish_time ) &&
+               (!game.ioctl_rom && !game.ioctl_ram && !game.dwnld_busy);
     };
     UUT& game;
     int get_frame() { return frame_cnt; }
@@ -892,7 +894,7 @@ void JTSim::clock(int n) {
     n <<= 2;
 #endif
     while( n-- > 0 ) {
-        int cur_dwn = game.ioctl_rom | game.dwnld_busy;
+        int cur_dwn = game.ioctl_rom | game.ioctl_ram | game.dwnld_busy;
         multi_clock->advance_half_period();
         game.eval();
         if( game.contextp()->gotFinish() ) return;
