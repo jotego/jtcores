@@ -5,7 +5,9 @@ bayroute:
 bullet:
 cotton:
   inputs: reg.cab
-dunkshot:
+# dunkshot does not boot up in simulation. The FD1089 data does not get
+# decoded correctly. It works on the FPGA though. Same with s16's afighter
+# dunkshot:
 ddux:
 eswat:
 exctleag:
