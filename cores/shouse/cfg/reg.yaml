@@ -21,6 +21,8 @@ pistoldm:
   video: 2000
   inputs: reg.cab
 wldcourt:
+  video: 2000
+  inputs: reg.cab
 ws:
 quester:
 rompers:
