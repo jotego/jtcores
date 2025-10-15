@@ -133,6 +133,8 @@ module jtriders_video(
     output     [ 7:0] st_dout
 );
 
+localparam SHADOW = `ifdef NOSHADOW 0 `else 1 `endif;
+
 wire [31:0] sort_f, sort_a, sort_b;
 wire [21:2] lyro_prea;
 wire [15:0] cpu_saddr, dump_addr;
@@ -379,7 +381,7 @@ assign oramd = lgtnfght ? cpu_dout : oram_din;
 assign oramw = lgtnfght ? {2{cpu_we}}&~cpu_dsn : oram_we;
 assign vmux  = vrender;
 /* verilator tracing_on */
-jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325),.SHADOW (1)) u_obj(    // sprite logic
+jtriders_obj #(.RAMW(13),.HFLIP_OFFSET(10'd325),.SHADOW(SHADOW)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
