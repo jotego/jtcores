@@ -18,6 +18,7 @@
 
 module jtframe_lightgun_joyemu(
     input            clk,
+    input            vs_edge,
     output           strobe,
     input      [1:0] rotate,
     input      [3:0] game_joy,
@@ -30,22 +31,22 @@ parameter W = 384, H = 224;
 reg  [7:0] dx_in, dy_in;
 wire [7:0] dx, dy;
 wire [6:0] base_val;
-reg  [3:0] cen/*, joy_on*/;
-reg        joy_on;
-wire       joystr;
+reg        joystr;
+wire       joy_on;
 
-initial cen=1;
-assign  joystr = cen[3] & joy_on;
-assign  base_val = 7'h8 + debug_bus[6:0];
+assign base_val =  7'h7 + debug_bus[6:0];
+assign joy_on   = |game_joy;
 
 always @(posedge clk) begin
-    cen    <= {cen[2:0],cen[3]};//~cen;
-    joy_on <= |game_joy;
-    {dx_in, dy_in} <= 0;
-    if(game_joy[0]) dx_in <= {1'b0, base_val};
-    if(game_joy[1]) dx_in <= {1'b1,-base_val};
-    if(game_joy[2]) dy_in <= {1'b1,-base_val};
-    if(game_joy[3]) dy_in <= {1'b0, base_val};
+    joystr <= 0;
+    if(vs_edge) begin
+        joystr <= joy_on;
+        {dx_in, dy_in} <= 0;
+        if(game_joy[0]) dx_in <= {1'b0, base_val};
+        if(game_joy[1]) dx_in <= {1'b1,-base_val};
+        if(game_joy[2]) dy_in <= {1'b1,-base_val};
+        if(game_joy[3]) dy_in <= {1'b0, base_val};
+    end
 end
 
 jtframe_mouse_rotation u_rotation(

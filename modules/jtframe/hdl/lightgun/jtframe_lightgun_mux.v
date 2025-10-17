@@ -19,6 +19,7 @@
 module jtframe_lightgun_mux(
     input         rst,
     input         clk,
+    input         vs_edge,
     input  [ 7:0] debug_bus,
     input         gun_crossh_en,
     input  [ 1:0] rotate,
@@ -73,6 +74,7 @@ jtframe_lightgun_scaler #(.W(W),.H(H)
 jtframe_lightgun_joyemu #(.W(W),.H(H)
 ) u_lightgun_joy(
     .clk        ( clk             ),
+    .vs_edge    ( vs_edge         ),
     .strobe     ( j_strobe        ),
     .rotate     ( rotate          ),
     .game_joy   ( game_joy        ),

@@ -24,6 +24,7 @@ module jtframe_lightgun (
     input         gun_crossh_en,
     input  [ 1:0] rotate,
     input  [ 3:0] game_joy1,
+    input  [ 3:0] game_joy2,
     input  [15:0] joyana1,
     input  [15:0] joyana2,
     input  [15:0] mouse_1p,
@@ -47,16 +48,18 @@ parameter WIDTH = 384, HEIGHT = 224,
 `ifdef JTFRAME_LIGHTGUN
 
 wire [1:0] strobe;
+wire       vs_edge;
 
 jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
     .XOFFSET(XOFFSET),.YOFFSET(YOFFSET)
 ) u_crosshair_left(
     .rst          ( rst             ),
     .clk          ( clk             ),
+    .vs_edge      ( vs_edge         ),
     .debug_bus    ( debug_bus       ),
     .gun_crossh_en( gun_crossh_en   ),
     .rotate       ( rotate          ),
-    .game_joy     (~game_joy1       ),
+    .game_joy     ( game_joy1       ),
     .joyana       ( joyana1         ),
     .mouse        ( mouse_1p        ),
     .mouse_strobe ( mouse_strobe[0] ),
@@ -72,10 +75,11 @@ jtframe_lightgun_mux #(.W(WIDTH),.H(HEIGHT),
 ) u_crosshair_center(
     .rst          ( rst             ),
     .clk          ( clk             ),
+    .vs_edge      ( vs_edge         ),
     .debug_bus    ( debug_bus       ),
     .gun_crossh_en( gun_crossh_en   ),
     .rotate       ( rotate          ),
-    .game_joy     ( 4'b0            ),
+    .game_joy     ( game_joy2       ),
     .joyana       ( joyana2         ),
     .mouse        ( mouse_2p        ),
     .mouse_strobe ( mouse_strobe[1] ),
@@ -92,6 +96,7 @@ jtframe_crosshair_disable u_crosshair_disable(
     .clk        ( clk             ),
     .vs         ( vs              ),
     .strobe     ( strobe          ),
+    .pulse      ( vs_edge         ),
     .en_b       ( cross_disable   )
 );
 
