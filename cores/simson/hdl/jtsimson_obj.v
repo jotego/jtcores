@@ -26,6 +26,8 @@ module jtsimson_obj #(parameter
     // it is never changed. Other register functions are unknown
     // so I am leaving it static for now
     K55673_DESC_SORT = 0,
+    // Set high to trigger DMA on the edge dma_en signal
+    EDGE_TRIGGER = 0,
     parameter [9:0] HOFFSET   = 10'd62
 )(
     input             rst,
@@ -131,6 +133,7 @@ assign sorted = PACKED==1 ? sort_packed : rom_data;
 jt053246 #(
     .K55673          ( K55673           ),
     .K55673_DESC_SORT( K55673_DESC_SORT ),
+    .EDGE_TRIGGER    ( EDGE_TRIGGER     ),
     .HOFFSET         ( HOFFSET          )
 ) u_scan (    // sprite logic
     .rst        ( rst       ),

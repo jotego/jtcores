@@ -42,7 +42,7 @@ module jt053246_dma(
     output reg        flicker
 );
 
-parameter K55673=0, K55673_DESC_SORT=0;
+parameter K55673=0, K55673_DESC_SORT=0, EDGE_TRIGGER=0;
 
 wire        dma_we, hs_pos;
 reg  [ 1:0] lvbl_sh;
@@ -72,7 +72,19 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-always @(posedge clk, posedge rst) begin
+reg trigger_two_lines_after_lvbl, trigger_at_dmaen, trigger, dmaen_l;
+
+always @* begin
+    trigger_two_lines_after_lvbl = dma_en && (lvbl_sh==2'b10 && hs_pos);
+    trigger_at_dmaen = ~dma_en & dmaen_l;
+    trigger = EDGE_TRIGGER==1 ? trigger_at_dmaen : trigger_two_lines_after_lvbl;
+end
+
+always @(posedge clk) if(pxl2_cen) begin
+    dmaen_l <= dma_en;
+end
+
+always @(posedge clk) begin
     if( rst ) begin
         dma_bsy  <= 0;
         dma_clr  <= 0;
@@ -90,8 +102,8 @@ always @(posedge clk, posedge rst) begin
             lvbl_sh    <= lvbl_sh<<1;
             lvbl_sh[0] <= lvbl;
         end
-        if(!dma_bsy && ((lvbl_sh==2'b10 && hs_pos) || dma_44) ) begin
-            dma_bsy  <= dma_en | dma_44;
+        if(!dma_bsy && (trigger || (dma_44&&dma_en)) ) begin
+            dma_bsy  <= 1;
             dma_clr  <= 1;
             dma_wait <= !k44_en && mode8; // 8-bit speed: 595us, 16-bit: 297.5us
             flicker  <= ~flicker;

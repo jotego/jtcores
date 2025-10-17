@@ -149,8 +149,8 @@ reg [3:0] cs_count;
 
 always @* begin
     // 056541 PAL
-    rom_cs  =   !ASn  &&  A[23:20] <4'b0011   && !BUSn;
-    ram_cs  =   !ASn  &&  A[23:19]==5'b0011_1 && !BUSn;
+    rom_cs  =   !BUSn &&  A[23:20] <4'b0011;
+    ram_cs  =   !BUSn &&  A[23:19]==5'b0011_1;
     cpal_cs =   !ASn  &&  A[23:19]==5'b0011_0;
     gfx_cs  =   !ASn  &&  A[23:21]==3'b011;     // $6?_???? ~$7?_????
     misc_cs =   !ASn  &&  A[23:21]==3'b010;     // $4?_...
@@ -220,7 +220,7 @@ end
 jtframe_edge u_lvbl(
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .edgeof ( lvbl      ),
+    .edgeof (~lvbl      ),
     .clr    (~l5mas     ),
     .q      ( int5      )
 );

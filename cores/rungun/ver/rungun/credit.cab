@@ -1,3 +1,4 @@
+# jtsim -video 450 -w 380 -inputs credit.cab
 # skips the RUN&GUN logo
 loop
 	1 b1
@@ -20,9 +21,9 @@ loop
 	1
 repeat 50
 
-# try to start the game
+# try to move the selector
 =400
 loop
-	1 b1
-	1
+	1 down
+	4
 repeat 50
