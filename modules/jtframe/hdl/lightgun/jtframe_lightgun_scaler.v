@@ -42,10 +42,10 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    strobe <= joyana != joya_l;
-    joya_l <= joyana;
     x      <= x_next[8:0];
     y      <= y_next[8:0];
+    strobe <= |joyana;
+    if(strobe) strobe <= 0;
 end
 
 endmodule
