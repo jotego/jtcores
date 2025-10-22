@@ -35,7 +35,7 @@ module jtframe_lightgun_position(
 
 parameter XOFFSET=0, YOFFSET=0;
 
-always @(posedge clk) strobe <= m_strobe | (a_strobe & gun_crossh_en) | (j_strobe & gun_crossh_en);
+always @(posedge clk) strobe <= m_strobe | (a_strobe & gun_crossh_en) | j_strobe;
 
 always @(posedge clk) begin
     if(rst) begin

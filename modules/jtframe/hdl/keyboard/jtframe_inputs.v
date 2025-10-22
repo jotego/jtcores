@@ -270,6 +270,7 @@ jtframe_lightgun #(.WIDTH(WIDTH), .HEIGHT(HEIGHT)
     .debug_bus    ( debug_bus     ),
     .gun_crossh_en( gun_crossh_en ),
     .rotate       ( rotate        ),
+    .sensty       ( sensty        ),
     .cross_disable( cross_disable ),
     .game_joy1    ( board_joy1[3:0] | key_joy1[3:0]  ),
     .game_joy2    ( board_joy2[3:0] | key_joy2[3:0]  ),

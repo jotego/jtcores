@@ -21,6 +21,7 @@ module jtframe_lightgun_joyemu(
     input            vs_edge,
     output           strobe,
     input      [1:0] rotate,
+    input      [1:0] sensty,
     input      [3:0] game_joy,
     input      [7:0] debug_bus,
     output     [8:0] x, y
@@ -30,12 +31,22 @@ parameter W = 384, H = 224;
 
 reg  [7:0] dx_in, dy_in;
 wire [7:0] dx, dy;
-wire [6:0] base_val;
+reg  [6:0] base_val;
 reg        joystr;
 wire       joy_on;
 
-assign base_val =  7'h7 + debug_bus[6:0];
 assign joy_on   = |game_joy;
+
+always @(*) begin
+    base_val =  7'h7 /*+ debug_bus[6:0]*/;
+    case (sensty)
+        1: base_val = base_val + 7'h2;
+        0: base_val = base_val + 7'h0;
+        3: base_val = base_val - 7'h2;
+        2: base_val = base_val - 7'h4;
+        default :;
+    endcase
+end
 
 always @(posedge clk) begin
     joystr <= 0;
