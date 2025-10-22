@@ -339,7 +339,8 @@ jtframe_m68k u_cpu(
         vmem_we   = 0, cpu_dout = 0, ccu_cs = 0, cpal_we = 0,
         ram_we    = 0, psreg_cs = 0,
         cpu_rnw   = 1,
-        main_addr = 0,
+        cpu_addr  = 0,
+        rom_addr  = 0,
         ram_dsn   = 0, objrm_cs = 0, sdon = 0, objrg_cs=0, objcha_n=1,
         st_dout   = 0, lmem_we = 0, pmem01_we = 0, pmem_addr = 0,
         nv_addr   = 0, nv_din  = 0, nv_we = 0, pmem2_we = 0, pair_we=0;
