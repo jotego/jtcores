@@ -406,20 +406,17 @@ module jt053936_counter(
     output reg [23:0] cnt
 );
     reg [23:0] eff_hstep, eff_vstep, vcnt;
-    reg        hs_mx;
     wire up  = ln_en ? hs_dly : vs;
 
     always @(posedge clk) if(rst) begin
         cnt   <= 0;
-        hs_mx <= 0;
     end else if(cen) begin
         if(up) begin
             eff_hstep <= mul[0] ? {hstep,8'd0} : {{8{hstep[15]}},hstep};
             eff_vstep <= mul[1] ? {vstep,8'd0} : {{8{vstep[15]}},vstep};
         end
-        hs_mx <= ln_en ? hs_dly : hs;
         cnt   <= eff_hstep + cnt;
-        if(hs_mx) begin
+        if(hs) begin
             vcnt <= eff_vstep + vcnt;
             cnt  <= ln_en ? eff_vstep + {cnt0,8'd0} : vcnt;
         end
