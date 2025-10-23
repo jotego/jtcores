@@ -102,7 +102,7 @@ always @(posedge clk) begin
             lvbl_sh    <= lvbl_sh<<1;
             lvbl_sh[0] <= lvbl;
         end
-        if(!dma_bsy && (trigger || (dma_44&&dma_en)) ) begin
+        if(!dma_bsy && (trigger || dma_44) ) begin
             dma_bsy  <= 1;
             dma_clr  <= 1;
             dma_wait <= !k44_en && mode8; // 8-bit speed: 595us, 16-bit: 297.5us
