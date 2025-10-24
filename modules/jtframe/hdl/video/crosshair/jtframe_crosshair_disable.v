@@ -21,10 +21,9 @@ module jtframe_crosshair_disable #(parameter CNTW=8)(
     input        clk,
     input        vs,
     input  [1:0] strobe,
+    output       pulse,
     output [1:0] en_b
 );
-
-wire pulse;
 
 jtframe_countup #(.W(CNTW)
 )crosshair_left(

@@ -24,6 +24,8 @@ module jtframe_lightgun_position(
     input             m_strobe,
     input      [ 8:0] a_x, a_y, // analog stick
     input             a_strobe,
+    input      [ 8:0] j_x, j_y, // dpad
+    input             j_strobe,
     output reg [ 8:0] x,
     output reg [ 8:0] y,
     output reg [ 8:0] x_abs,
@@ -33,7 +35,7 @@ module jtframe_lightgun_position(
 
 parameter XOFFSET=0, YOFFSET=0;
 
-always @(posedge clk) strobe <= m_strobe | (a_strobe & gun_crossh_en);
+always @(posedge clk) strobe <= m_strobe | (a_strobe & gun_crossh_en) | j_strobe;
 
 always @(posedge clk) begin
     if(rst) begin
@@ -43,6 +45,10 @@ always @(posedge clk) begin
         x <= x_abs + XOFFSET[8:0];
         y <= y_abs + YOFFSET[8:0];
 
+        if (j_strobe) begin
+            x_abs <= j_x;
+            y_abs <= j_y;
+        end
         if (a_strobe) begin
             x_abs <= a_x;
             y_abs <= a_y;

@@ -19,8 +19,12 @@
 module jtframe_lightgun_mux(
     input         rst,
     input         clk,
+    input         vs_edge,
+    input  [ 7:0] debug_bus,
     input         gun_crossh_en,
     input  [ 1:0] rotate,
+    input  [ 1:0] sensty,
+    input  [ 3:0] game_joy,
     input  [15:0] joyana,
     input  [15:0] mouse,
     input         mouse_strobe,
@@ -33,9 +37,10 @@ module jtframe_lightgun_mux(
 
 parameter W = 384, H = 224, XOFFSET=0, YOFFSET=0;
 
-wire [8:0] mouse_x, mouse_y, joyana_x, joyana_y;
+wire [8:0] mouse_x, mouse_y, joyana_x, joyana_y,
+           joy_x, joy_y;
 wire [7:0] dx, dy;
-wire       a_strobe, mouse_strobe_dly;
+wire       a_strobe, mouse_strobe_dly, j_strobe;
 
 jtframe_mouse_rotation u_mouse_rotation(
     .clk          ( clk                 ),
@@ -67,6 +72,19 @@ jtframe_lightgun_scaler #(.W(W),.H(H)
     .y          ( joyana_y        )
 );
 
+jtframe_lightgun_joyemu #(.W(W),.H(H)
+) u_lightgun_joy(
+    .clk        ( clk             ),
+    .vs_edge    ( vs_edge         ),
+    .strobe     ( j_strobe        ),
+    .rotate     ( rotate          ),
+    .sensty     ( sensty          ),
+    .game_joy   ( game_joy        ),
+    .debug_bus  ( debug_bus       ),
+    .x          ( joy_x           ),
+    .y          ( joy_y           )
+);
+
 jtframe_lightgun_position #(
     .XOFFSET(XOFFSET),.YOFFSET(YOFFSET)
 ) u_lightgun_position(
@@ -79,6 +97,9 @@ jtframe_lightgun_position #(
     .a_x        ( joyana_x        ),
     .a_y        ( joyana_y        ),
     .a_strobe   ( a_strobe        ),
+    .j_x        ( joy_x           ),
+    .j_y        ( joy_y           ),
+    .j_strobe   ( j_strobe        ),
     .x          ( gun_x           ),
     .y          ( gun_y           ),
     .x_abs      ( cross_x         ),
