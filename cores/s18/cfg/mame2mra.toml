@@ -5,7 +5,6 @@ debug = { machines=[
     # VDP priority bad
     "hamaway",
     # bad tile mapping
-    "wwallyj",
     "ddcrew",
 ]}
 skip.bootlegs=true
