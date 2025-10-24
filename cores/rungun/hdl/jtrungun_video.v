@@ -91,6 +91,8 @@ module jtrungun_video(
     input            ioctl_ram
 );
 
+localparam EDGE_TRIGGER = `ifndef NOMAIN 1 `else 0 `endif;
+
 wire [31:0] fix_sort;
 wire [11:0] fix_code;
 wire [ 8:0] virt_hdumpf, obj_pxl, virt_hdump;
@@ -308,9 +310,10 @@ jtrungun_psac u_psac(
     .ioctl_din  ( psac_mmr  )
 );
 
-localparam [9:0] OVOFFSET = 10'h111;
+localparam [9:0] OVOFFSET = 10'h10f;
 
-jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),.HOFFSET(10'd18),.EDGE_TRIGGER(1)) u_obj(    // sprite logic
+jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),
+               .HOFFSET(10'd2),.EDGE_TRIGGER(EDGE_TRIGGER)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( virt_cen  ),
