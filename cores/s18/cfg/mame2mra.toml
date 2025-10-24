@@ -69,7 +69,7 @@ data = [
     # 5987 board
     # ddcrewu, ddcrew1, ddcrewj might be different
     # wwally's machine may be in a different MAME file, not segas18
-    { machines=["desertbr","wwallyj"], offset=0x18, data="02" }, # 5987 with 2MB ROM
+    { machines=["desertbr","wwallyj","aquario"], offset=0x18, data="02" }, # 5987 with 2MB ROM
     { machines=["cltchitr", "ddcrew","lghost"], offset=0x18, data="04" },
     # single-game boards
     { machine="hamaway",  offset=0x18, data="08" }, # 837-7525
@@ -84,6 +84,7 @@ regions = [
     # ROM order might be wrong for hamaway tiles
     { name="tiles",       frac={ bytes=1, parts=4}, sequence=[0,2,4,4,1,3,5,5], len=0x200000, machine="hamaway"},
     { name="sprites",     width=16, reverse=true },
+    { name="sprites",     width=16, reverse=true, no_offset=true, rom_len=0x100000, machine="aquario" },
     { name="maincpu:key" },
     { name="mcu"         },
 ]
