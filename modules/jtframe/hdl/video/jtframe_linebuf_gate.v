@@ -21,7 +21,7 @@ module jtframe_linebuf_gate #(
                     VW      = 9,
                     PW      = 8,
                     HS      = 0,
-parameter [HW-1:0]  B_VIS   = 9'd37, A_VIS=9'd35, VIS=9'd304, // number of counting points before, after and during visible section
+parameter [HW-1:0]  B_VIS   = 9'd30, A_VIS=9'd37, VIS=9'd304, // number of counting points before, after and during visible section
                     RST_CT  = 9'h058,         // starting value for wr_addr
                     RD_DLY  = 9'h00B,         // number of times to delay hdump
                     WR_STRT = RST_CT + B_VIS, // wr_addr to start checking rom_ok & rom_cs

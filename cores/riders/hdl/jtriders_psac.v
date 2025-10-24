@@ -193,7 +193,7 @@ jtframe_dual_ram #(.AW(13),.DW(72),.SIMHEXFILE("decoder.hex")) u_decoder (
     .q1         ( tblock    )
 );
 
-jtframe_linebuf_gate #(.RD_DLY(15), .RST_CT(9'h041)) u_linebuf(
+jtframe_linebuf_gate #(.RD_DLY(21), .RST_CT(9'h044)) u_linebuf(
     .rst      ( rst       ),
     .clk      ( clk       ),
     .pxl_cen  ( pxl_cen   ),

@@ -109,8 +109,7 @@ module jt053936(
         .la         ( la        ),
         .lh         ( lh        ),
         .rd         ( ln_rd     ),
-        .ok         ( ln_ok     ),
-        .hs_dly     ( hs_dly    )
+        .ok         ( ln_ok     )
     );
 
     jt053936_counter u_hcnt(
@@ -120,7 +119,6 @@ module jt053936(
         .ln_en      ( ln_en     ),
         .vs         ( tick_vs   ),
         .hs         ( tick_hs   ),
-        .hs_dly     ( hs_dly    ),
         .hstep      ( xhstep    ),
         .vstep      ( xvstep    ),
         .cnt0       ( xcnt0     ),
@@ -135,7 +133,6 @@ module jt053936(
         .ln_en      ( ln_en     ),
         .vs         ( tick_vs   ),
         .hs         ( tick_hs   ),
-        .hs_dly     ( hs_dly    ),
         .hstep      ( yhstep    ),
         .vstep      ( yvstep    ),
         .cnt0       ( ycnt0     ),
@@ -274,26 +271,21 @@ module jt053936_line_ram(
     input      [8:0] ln0,
     output reg [8:0] la,
     output     [2:1] lh,
-    output           rd, ok, hs_dly
+    output           rd, ok
 );
-    localparam TICKS=8;
 
     reg [3:0] cnt;
-    reg [TICKS:0] dly;
 
     assign lh     = cnt[2:1];
     assign rd     =~cnt[3] & en;
     assign ok     = rd & ~dtackn;
-    assign hs_dly = dly[TICKS];
 
     always @(posedge clk) if(rst) begin
         la  <= 0;
         cnt <= 0;
-        dly <= 0;
     end else if(cen) begin
         la  <= tick_vs ? ln0  : tick_hs ? la +9'd1 : la;
         cnt <= tick_hs ? 4'd0 : ok      ? cnt+4'd1 : cnt;
-        dly <= tick_hs ? 9'd1 : dly<<1;
     end
 endmodule
 
@@ -400,23 +392,26 @@ endmodule
 
 /////////////////////////////////////////////////////
 module jt053936_counter(
-    input             rst, clk,cen,hs,hs_dly,vs,ln_en,
+    input             rst, clk,cen,hs,vs,ln_en,
     input      [15:0] hstep, vstep,cnt0,
     input      [ 1:0] mul,
     output reg [23:0] cnt
 );
     reg [23:0] eff_hstep, eff_vstep, vcnt;
-    wire up  = ln_en ? hs_dly : vs;
+    wire up  = ln_en ? hs : vs;
+    reg  hs_l;
 
     always @(posedge clk) if(rst) begin
         cnt   <= 0;
+        hs_l  <= 0;
     end else if(cen) begin
         if(up) begin
             eff_hstep <= mul[0] ? {hstep,8'd0} : {{8{hstep[15]}},hstep};
             eff_vstep <= mul[1] ? {vstep,8'd0} : {{8{vstep[15]}},vstep};
         end
         cnt   <= eff_hstep + cnt;
-        if(hs) begin
+        hs_l  <= hs;
+        if(hs_l) begin
             vcnt <= eff_vstep + vcnt;
             cnt  <= ln_en ? eff_vstep + {cnt0,8'd0} : vcnt;
         end
