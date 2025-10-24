@@ -35,16 +35,16 @@ reg  [6:0] base_val;
 reg        joystr;
 wire       joy_on;
 
-assign joy_on   = |game_joy;
+assign joy_on = |game_joy;
 
 always @(*) begin
-    base_val =  7'h7 /*+ debug_bus[6:0]*/;
+    base_val =  7'h7;
     case (sensty)
         1: base_val = base_val + 7'h2;
         0: base_val = base_val + 7'h0;
         3: base_val = base_val - 7'h2;
         2: base_val = base_val - 7'h4;
-        default :;
+        default:;
     endcase
 end
 
@@ -80,6 +80,5 @@ jtframe_mouse_abspos #(.W(W),.H(H)
     .x          ( x        ),
     .y          ( y        )
 );
-
 
 endmodule
