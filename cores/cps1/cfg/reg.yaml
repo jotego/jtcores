@@ -22,6 +22,7 @@ gulunpa:
   inputs: ../game/b1.cab
 knights:
   video: 2200
+  inputs: reg.cab
 msword:
   video: 2200
 mpumpkin:
