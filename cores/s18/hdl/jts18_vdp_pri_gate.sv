@@ -33,8 +33,8 @@ wire [6:0] acond;
 always @( posedge clk ) begin
     {i7, i6}  <= obj_prio;
      i3 <= !fix;
-     i4 <=  obj;
-     i5 <= !sa && s1_pri;
+     i4 <= !sa;
+     i5 <=  obj&& s1_pri;
      i8 <=  s1_pri && s2_pri;
      i9 <= !sb && s2_pri;
  end
@@ -56,17 +56,13 @@ always @( posedge clk ) begin
     lyr_bus   <= { s1_pri&s2_pri, obj, s2_pri^s1_pri, s1_pri, s2_pri};
     LVBL_l    <= LVBL;
     buttons_l <= buttons;
-    acond_s <= acond;
+    acond_s   <= acond;
 
-    {i7, i6}  <= objs;
+    {i7, i6} <= objs;
     {i8, i4} <= {lyr_bus_out[4:3]};
      i3 <= !fix;
-     // i5 <= !sa;
-     // i9 <= !sb;
-     // if( debug_bus[6] ) begin
-        i5 <= !sa && s1_pri;
-        i9 <= !sb && s2_pri;
-     // end
+     i5 <= !sa && s1_pri;
+     i9 <= !sb && s2_pri;
 end
 
 assign st_show = debug_bus[7] ? {vdp_prio, obj_cnt} : (debug_bus[0]? {1'b0, acond_s} : {1'b0, lyr_cnt}) ;
