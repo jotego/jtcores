@@ -84,7 +84,7 @@ jtframe_blank #(.DLY(4),.DW(24)) u_blank(
     .rgb_out    ( {red,green,blue} )
 );
 
-jts18_vdp_pri_test #( .VBLs(80)) u_vdp_test(
+jts18_vdp_pri_test u_vdp_test(
     .clk        ( clk       ),
     .rst        ( rst       ),
     .debug_bus  ( debug_bus ),
