@@ -1,12 +1,6 @@
 [parse]
 sourcefile=[ "segas18.cpp" ]
 
-debug = { machines=[
-    # VDP priority bad
-    "hamaway",
-    # bad tile mapping
-    "ddcrew",
-]}
 skip.bootlegs=true
 # incomplete machine description in MAME
 skip.machine="pontoon"
