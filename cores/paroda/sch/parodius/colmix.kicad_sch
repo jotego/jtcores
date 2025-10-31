@@ -9852,6 +9852,7 @@
 	)
 	(label "VSS"
 		(at 205.74 87.63 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9862,6 +9863,7 @@
 	)
 	(label "CO10"
 		(at 210.82 149.86 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9872,6 +9874,7 @@
 	)
 	(label "DSB7"
 		(at 144.78 175.26 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9882,6 +9885,7 @@
 	)
 	(label "MCO5"
 		(at 252.73 111.76 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9892,6 +9896,7 @@
 	)
 	(label "RGB3"
 		(at 311.15 125.73 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9902,6 +9907,7 @@
 	)
 	(label "MCO10"
 		(at 254 140.97 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9912,6 +9918,7 @@
 	)
 	(label "MCO~{WR}H"
 		(at 304.8 187.96 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9922,6 +9929,7 @@
 	)
 	(label "SDO0"
 		(at 189.23 134.62 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9932,6 +9940,7 @@
 	)
 	(label "MCO8"
 		(at 254 74.93 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9942,6 +9951,7 @@
 	)
 	(label "MCO9"
 		(at 260.35 135.89 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9952,6 +9962,7 @@
 	)
 	(label "CO3"
 		(at 191.77 109.22 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9962,6 +9973,7 @@
 	)
 	(label "VCC"
 		(at 227.33 208.28 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9972,6 +9984,7 @@
 	)
 	(label "RGB[15..0]"
 		(at 299.72 236.22 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9982,6 +9995,7 @@
 	)
 	(label "MAIN_A2"
 		(at 205.74 63.5 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9992,6 +10006,7 @@
 	)
 	(label "CO5"
 		(at 210.82 110.49 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10002,6 +10017,7 @@
 	)
 	(label "MCO1"
 		(at 260.35 67.31 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10012,6 +10028,7 @@
 	)
 	(label "CO1"
 		(at 191.77 104.14 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10022,6 +10039,7 @@
 	)
 	(label "MCO3"
 		(at 260.35 72.39 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10032,6 +10050,7 @@
 	)
 	(label "CO[11..1]"
 		(at 185.42 71.12 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10042,6 +10061,7 @@
 	)
 	(label "VSS"
 		(at 158.75 80.01 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10052,6 +10072,7 @@
 	)
 	(label "PALETTE~{CS}"
 		(at 205.74 158.75 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10062,6 +10083,7 @@
 	)
 	(label "M6"
 		(at 213.36 218.44 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10072,6 +10094,7 @@
 	)
 	(label "MCO6"
 		(at 254 143.51 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10082,6 +10105,7 @@
 	)
 	(label "MAIN_DB[7..0]"
 		(at 118.11 60.96 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10092,6 +10116,7 @@
 	)
 	(label "CO8"
 		(at 210.82 118.11 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10102,6 +10127,7 @@
 	)
 	(label "RGB9"
 		(at 311.15 69.85 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10112,6 +10138,7 @@
 	)
 	(label "VSS"
 		(at 114.3 80.01 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10122,6 +10149,7 @@
 	)
 	(label "RGB4"
 		(at 311.15 128.27 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10132,6 +10160,7 @@
 	)
 	(label "DFI0"
 		(at 106.68 166.37 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10142,6 +10171,7 @@
 	)
 	(label "RGB5"
 		(at 311.15 130.81 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10152,6 +10182,7 @@
 	)
 	(label "MAIN_A1"
 		(at 205.74 60.96 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10162,6 +10193,7 @@
 	)
 	(label "MAIN_A1"
 		(at 152.4 60.96 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10172,6 +10204,7 @@
 	)
 	(label "DFI7"
 		(at 121.92 166.37 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10182,6 +10215,7 @@
 	)
 	(label "MCO~{OE}"
 		(at 264.16 148.59 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10192,6 +10226,7 @@
 	)
 	(label "DSB5"
 		(at 139.7 175.26 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10202,6 +10237,7 @@
 	)
 	(label "MAIN_DB0"
 		(at 134.62 63.5 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10212,6 +10248,7 @@
 	)
 	(label "MCO9"
 		(at 260.35 87.63 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10222,6 +10259,7 @@
 	)
 	(label "DFI3"
 		(at 114.3 166.37 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10232,6 +10270,7 @@
 	)
 	(label "PALETTE~{CS}"
 		(at 205.74 85.09 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10242,6 +10281,7 @@
 	)
 	(label "VCC"
 		(at 125.73 76.2 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10252,6 +10292,7 @@
 	)
 	(label "MAIN_A6"
 		(at 205.74 100.33 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10262,6 +10303,7 @@
 	)
 	(label "OBJPXL7"
 		(at 78.74 147.32 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10272,6 +10314,7 @@
 	)
 	(label "CO8"
 		(at 191.77 121.92 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10282,6 +10325,7 @@
 	)
 	(label "MAIN_A3"
 		(at 157.48 60.96 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10292,6 +10336,7 @@
 	)
 	(label "CO11"
 		(at 191.77 129.54 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10302,6 +10347,7 @@
 	)
 	(label "DSB6"
 		(at 142.24 175.26 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10312,6 +10358,7 @@
 	)
 	(label "CO2"
 		(at 191.77 106.68 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10322,6 +10369,7 @@
 	)
 	(label "CO3"
 		(at 210.82 78.74 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10332,6 +10380,7 @@
 	)
 	(label "RGB8"
 		(at 311.15 67.31 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10342,6 +10391,7 @@
 	)
 	(label "CO10"
 		(at 191.77 127 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10352,6 +10402,7 @@
 	)
 	(label "MAIN_DB5"
 		(at 147.32 63.5 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10362,6 +10413,7 @@
 	)
 	(label "VCC"
 		(at 205.74 190.5 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10372,6 +10424,7 @@
 	)
 	(label "CO7"
 		(at 191.77 119.38 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10382,6 +10435,7 @@
 	)
 	(label "MCO11"
 		(at 252.73 106.68 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10392,6 +10446,7 @@
 	)
 	(label "~{CS}"
 		(at 80.01 76.2 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10402,6 +10457,7 @@
 	)
 	(label "DSB1"
 		(at 132.08 175.26 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10412,6 +10468,7 @@
 	)
 	(label "DFI2"
 		(at 111.76 166.37 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10422,6 +10479,7 @@
 	)
 	(label "RGB7"
 		(at 311.15 135.89 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10432,6 +10490,7 @@
 	)
 	(label "CO9"
 		(at 210.82 147.32 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10442,6 +10501,7 @@
 	)
 	(label "OBJPXL2"
 		(at 78.74 134.62 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10452,6 +10512,7 @@
 	)
 	(label "RGB1"
 		(at 311.15 120.65 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10462,6 +10523,7 @@
 	)
 	(label "M6"
 		(at 299.72 233.68 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10472,6 +10534,7 @@
 	)
 	(label "MCO4"
 		(at 252.73 104.14 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10482,6 +10545,7 @@
 	)
 	(label "DSA1"
 		(at 152.4 182.88 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10492,6 +10556,7 @@
 	)
 	(label "MAIN_DB1"
 		(at 137.16 63.5 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10502,6 +10567,7 @@
 	)
 	(label "RGB13"
 		(at 311.15 80.01 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10512,6 +10578,7 @@
 	)
 	(label "CO6"
 		(at 210.82 113.03 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10522,6 +10589,7 @@
 	)
 	(label "MCO9"
 		(at 252.73 109.22 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10532,6 +10600,7 @@
 	)
 	(label "BRITEN"
 		(at 242.57 215.9 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10542,6 +10611,7 @@
 	)
 	(label "PALETTE~{CS}"
 		(at 205.74 121.92 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10552,6 +10622,7 @@
 	)
 	(label "MAIN_A0"
 		(at 205.74 176.53 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10562,6 +10633,7 @@
 	)
 	(label "MCO2"
 		(at 260.35 69.85 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10572,6 +10644,7 @@
 	)
 	(label "MCO2"
 		(at 260.35 118.11 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10582,6 +10655,7 @@
 	)
 	(label "VSS"
 		(at 264.16 146.05 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10592,6 +10666,7 @@
 	)
 	(label "RGB14"
 		(at 311.15 82.55 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10602,6 +10677,7 @@
 	)
 	(label "OBJPXL5"
 		(at 78.74 142.24 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10612,6 +10688,7 @@
 	)
 	(label "MCO~{WR}L"
 		(at 264.16 151.13 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10622,6 +10699,7 @@
 	)
 	(label "BRITEN"
 		(at 299.72 218.44 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10632,6 +10710,7 @@
 	)
 	(label "DFI6"
 		(at 119.38 166.37 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10642,6 +10721,7 @@
 	)
 	(label "~{COCEL}"
 		(at 259.08 182.88 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10652,6 +10732,7 @@
 	)
 	(label "VCC"
 		(at 218.44 224.79 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10662,6 +10743,7 @@
 	)
 	(label "OBJPXL0"
 		(at 78.74 129.54 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10672,6 +10754,7 @@
 	)
 	(label "VSS"
 		(at 165.1 72.39 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10682,6 +10765,7 @@
 	)
 	(label "MCO7"
 		(at 260.35 138.43 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10692,6 +10776,7 @@
 	)
 	(label "VSS"
 		(at 205.74 198.12 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10702,6 +10787,7 @@
 	)
 	(label "DSA5"
 		(at 160.02 182.88 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10712,6 +10798,7 @@
 	)
 	(label "SDO0"
 		(at 299.72 241.3 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10722,6 +10809,7 @@
 	)
 	(label "CO7"
 		(at 210.82 115.57 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10732,6 +10820,7 @@
 	)
 	(label "~{COCEL}"
 		(at 299.72 220.98 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10742,6 +10831,7 @@
 	)
 	(label "OBJPXL1"
 		(at 78.74 132.08 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10752,6 +10842,7 @@
 	)
 	(label "VSS"
 		(at 205.74 124.46 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10762,6 +10853,7 @@
 	)
 	(label "RGB10"
 		(at 311.15 72.39 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10772,6 +10864,7 @@
 	)
 	(label "CO4"
 		(at 210.82 81.28 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10782,6 +10875,7 @@
 	)
 	(label "DSA3"
 		(at 157.48 182.88 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10792,6 +10886,7 @@
 	)
 	(label "MCO~{WR}H"
 		(at 264.16 100.33 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10802,6 +10897,7 @@
 	)
 	(label "OBJPXL4"
 		(at 78.74 139.7 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10812,6 +10908,7 @@
 	)
 	(label "MAIN_A4"
 		(at 205.74 68.58 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10822,6 +10919,7 @@
 	)
 	(label "DSA0"
 		(at 149.86 182.88 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10832,6 +10930,7 @@
 	)
 	(label "MAIN_DB2"
 		(at 139.7 63.5 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10842,6 +10941,7 @@
 	)
 	(label "MAIN_A9"
 		(at 205.74 134.62 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10852,6 +10952,7 @@
 	)
 	(label "RGB11"
 		(at 311.15 74.93 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10862,6 +10963,7 @@
 	)
 	(label "MAIN_A3"
 		(at 205.74 66.04 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10872,6 +10974,7 @@
 	)
 	(label "DSB3"
 		(at 137.16 175.26 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10882,6 +10985,7 @@
 	)
 	(label "MCO3"
 		(at 260.35 125.73 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10892,6 +10996,7 @@
 	)
 	(label "MAIN_A7"
 		(at 205.74 102.87 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10902,6 +11007,7 @@
 	)
 	(label "MCO4"
 		(at 260.35 128.27 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10912,6 +11018,7 @@
 	)
 	(label "MCO5"
 		(at 260.35 123.19 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10922,6 +11029,7 @@
 	)
 	(label "~{CS}"
 		(at 191.77 101.6 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10932,6 +11040,7 @@
 	)
 	(label "VSS"
 		(at 205.74 154.94 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10942,6 +11051,7 @@
 	)
 	(label "MCO7"
 		(at 254 146.05 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10952,6 +11062,7 @@
 	)
 	(label "MCO~{OE}"
 		(at 264.16 97.79 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10962,6 +11073,7 @@
 	)
 	(label "DSA2"
 		(at 154.94 182.88 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10972,6 +11084,7 @@
 	)
 	(label "DSA6"
 		(at 162.56 182.88 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10982,6 +11095,7 @@
 	)
 	(label "RGB15"
 		(at 311.15 85.09 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10992,6 +11106,7 @@
 	)
 	(label "~{COCEH}"
 		(at 299.72 223.52 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11002,6 +11117,7 @@
 	)
 	(label "VSS"
 		(at 264.16 95.25 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11012,6 +11128,7 @@
 	)
 	(label "RGB2"
 		(at 311.15 123.19 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11022,6 +11139,7 @@
 	)
 	(label "MCO6"
 		(at 260.35 80.01 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11032,6 +11150,7 @@
 	)
 	(label "MCO6"
 		(at 260.35 120.65 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11042,6 +11161,7 @@
 	)
 	(label "MCO7"
 		(at 260.35 82.55 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11052,6 +11172,7 @@
 	)
 	(label "CO9"
 		(at 191.77 124.46 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11062,6 +11183,7 @@
 	)
 	(label "DSB0"
 		(at 129.54 175.26 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11072,6 +11194,7 @@
 	)
 	(label "RGB[15..0]"
 		(at 327.66 64.77 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11082,6 +11205,7 @@
 	)
 	(label "MAIN_A10"
 		(at 205.74 137.16 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11092,6 +11216,7 @@
 	)
 	(label "MAIN_DB4"
 		(at 144.78 63.5 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11102,6 +11227,7 @@
 	)
 	(label "MCO3"
 		(at 254 72.39 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11112,6 +11238,7 @@
 	)
 	(label "RGB0"
 		(at 311.15 118.11 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11122,6 +11249,7 @@
 	)
 	(label "RGB12"
 		(at 311.15 77.47 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11132,6 +11260,7 @@
 	)
 	(label "DFI5"
 		(at 116.84 166.37 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11142,6 +11271,7 @@
 	)
 	(label "CO4"
 		(at 191.77 111.76 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11152,6 +11282,7 @@
 	)
 	(label "DFI1"
 		(at 109.22 166.37 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11162,6 +11293,7 @@
 	)
 	(label "MCO8"
 		(at 260.35 85.09 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11172,6 +11304,7 @@
 	)
 	(label "MCO1"
 		(at 254 67.31 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11182,6 +11315,7 @@
 	)
 	(label "CO1"
 		(at 210.82 73.66 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11192,6 +11326,7 @@
 	)
 	(label "MCO2"
 		(at 254 69.85 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11202,6 +11337,7 @@
 	)
 	(label "MCO1"
 		(at 260.35 143.51 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11212,6 +11348,7 @@
 	)
 	(label "MCO4"
 		(at 260.35 74.93 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11222,6 +11359,7 @@
 	)
 	(label "VSS"
 		(at 124.46 170.18 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11232,6 +11370,7 @@
 	)
 	(label "MAIN_A8"
 		(at 205.74 105.41 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11242,6 +11381,7 @@
 	)
 	(label "MCO10"
 		(at 260.35 133.35 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11252,6 +11392,7 @@
 	)
 	(label "CO11"
 		(at 210.82 152.4 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11262,6 +11403,7 @@
 	)
 	(label "MCO11"
 		(at 260.35 92.71 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11272,6 +11414,7 @@
 	)
 	(label "OBJPXL3"
 		(at 78.74 137.16 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11282,6 +11425,7 @@
 	)
 	(label "MCO11"
 		(at 260.35 130.81 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11292,6 +11436,7 @@
 	)
 	(label "VSS"
 		(at 205.74 161.29 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11302,6 +11447,7 @@
 	)
 	(label "VSS"
 		(at 147.32 170.18 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11312,6 +11458,7 @@
 	)
 	(label "OBJPXL8"
 		(at 78.74 149.86 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11322,6 +11469,7 @@
 	)
 	(label "MCO8"
 		(at 260.35 140.97 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11332,6 +11480,7 @@
 	)
 	(label "MAIN_A0"
 		(at 180.34 179.07 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11342,6 +11491,7 @@
 	)
 	(label "MCO[11..1]"
 		(at 246.38 62.23 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11352,6 +11502,7 @@
 	)
 	(label "DSB2"
 		(at 134.62 175.26 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11362,6 +11513,7 @@
 	)
 	(label "PALETTE~{CS}"
 		(at 205.74 142.24 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11372,6 +11524,7 @@
 	)
 	(label "RGB6"
 		(at 311.15 133.35 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11382,6 +11535,7 @@
 	)
 	(label "MAIN_A5"
 		(at 205.74 97.79 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11392,6 +11546,7 @@
 	)
 	(label "MCO~{WR}L"
 		(at 304.8 180.34 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11402,6 +11557,7 @@
 	)
 	(label "MAIN_A2"
 		(at 154.94 60.96 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11412,6 +11568,7 @@
 	)
 	(label "CO2"
 		(at 210.82 76.2 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11422,6 +11579,7 @@
 	)
 	(label "MCO5"
 		(at 260.35 77.47 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11432,6 +11590,7 @@
 	)
 	(label "MAIN_A0"
 		(at 149.86 60.96 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11442,6 +11601,7 @@
 	)
 	(label "BRIT"
 		(at 189.23 137.16 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11452,6 +11612,7 @@
 	)
 	(label "BRIT"
 		(at 213.36 215.9 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11462,6 +11623,7 @@
 	)
 	(label "CO6"
 		(at 191.77 116.84 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11472,6 +11634,7 @@
 	)
 	(label "CO5"
 		(at 191.77 114.3 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11482,6 +11645,7 @@
 	)
 	(label "OBJPXL6"
 		(at 78.74 144.78 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11492,6 +11656,7 @@
 	)
 	(label "DSA7"
 		(at 165.1 182.88 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11502,6 +11667,7 @@
 	)
 	(label "MAIN_DB3"
 		(at 142.24 63.5 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11512,6 +11678,7 @@
 	)
 	(label "MCO10"
 		(at 260.35 90.17 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11522,6 +11689,7 @@
 	)
 	(label "VSS"
 		(at 90.17 111.76 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11532,6 +11700,7 @@
 	)
 	(label "~{COCEH}"
 		(at 259.08 185.42 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11543,6 +11712,7 @@
 	(hierarchical_label "~{PCU_CS}"
 		(shape input)
 		(at 50.8 78.74 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11554,6 +11724,7 @@
 	(hierarchical_label "PALETTE~{CS}"
 		(shape input)
 		(at 214.63 195.58 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11565,6 +11736,7 @@
 	(hierarchical_label "PR13"
 		(shape input)
 		(at 109.22 76.2 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11576,6 +11748,7 @@
 	(hierarchical_label "DFI[7..0]"
 		(shape input)
 		(at 96.52 168.91 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11587,6 +11760,7 @@
 	(hierarchical_label "~{VBLANK}"
 		(shape input)
 		(at 308.61 228.6 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11598,6 +11772,7 @@
 	(hierarchical_label "DSA[7..0]"
 		(shape input)
 		(at 142.24 185.42 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11609,6 +11784,7 @@
 	(hierarchical_label "PALETTE~{CS}"
 		(shape input)
 		(at 311.15 215.9 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11620,6 +11796,7 @@
 	(hierarchical_label "MBRIT[2..0]"
 		(shape input)
 		(at 311.15 213.36 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11631,6 +11808,7 @@
 	(hierarchical_label "PAL_BANK"
 		(shape input)
 		(at 214.63 139.7 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11642,6 +11820,7 @@
 	(hierarchical_label "OBJPXL[8..0]"
 		(shape input)
 		(at 72.39 132.08 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11653,6 +11832,7 @@
 	(hierarchical_label "SDI0"
 		(shape input)
 		(at 162.56 77.47 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11664,6 +11844,7 @@
 	(hierarchical_label "R{slash}~{W}"
 		(shape input)
 		(at 50.8 73.66 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11675,6 +11856,7 @@
 	(hierarchical_label "~{WDOGRST}"
 		(shape input)
 		(at 307.34 226.06 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11686,6 +11868,7 @@
 	(hierarchical_label "~{MDS}"
 		(shape input)
 		(at 276.86 184.15 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11697,6 +11880,7 @@
 	(hierarchical_label "BLUE"
 		(shape output)
 		(at 365.76 218.44 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11708,6 +11892,7 @@
 	(hierarchical_label "RED"
 		(shape output)
 		(at 365.76 213.36 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11719,6 +11904,7 @@
 	(hierarchical_label "M6"
 		(shape input)
 		(at 167.64 77.47 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11730,6 +11916,7 @@
 	(hierarchical_label "PR14"
 		(shape input)
 		(at 106.68 76.2 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11741,6 +11928,7 @@
 	(hierarchical_label "~{HBLANK}"
 		(shape input)
 		(at 308.61 231.14 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11752,6 +11940,7 @@
 	(hierarchical_label "GREEN"
 		(shape output)
 		(at 365.76 215.9 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11763,6 +11952,7 @@
 	(hierarchical_label "MAIN_A[10..0]"
 		(shape input)
 		(at 113.03 58.42 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11774,6 +11964,7 @@
 	(hierarchical_label "DSB[7..0]"
 		(shape input)
 		(at 121.92 177.8 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11785,6 +11976,7 @@
 	(hierarchical_label "MAIN_DB[7..0]"
 		(shape bidirectional)
 		(at 313.69 238.76 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
