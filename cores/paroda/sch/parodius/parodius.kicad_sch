@@ -3681,6 +3681,7 @@
 	)
 	(label "GND"
 		(at 44.45 83.82 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3691,6 +3692,7 @@
 	)
 	(label "DSA[7..0]"
 		(at 311.15 212.09 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3701,6 +3703,7 @@
 	)
 	(label "2P_LEFT"
 		(at 148.59 196.85 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3711,6 +3714,7 @@
 	)
 	(label "1P_BTN_4"
 		(at 39.37 142.24 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3721,6 +3725,7 @@
 	)
 	(label "COIN_1"
 		(at 148.59 234.95 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3731,6 +3736,7 @@
 	)
 	(label "2P_BTN_3"
 		(at 148.59 194.31 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3741,6 +3747,7 @@
 	)
 	(label "COIN_2"
 		(at 100.33 119.38 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3751,6 +3758,7 @@
 	)
 	(label "RED"
 		(at 39.37 109.22 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3761,6 +3769,7 @@
 	)
 	(label "SC~{CS}"
 		(at 219.71 39.37 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3771,6 +3780,7 @@
 	)
 	(label "2P_SELECT"
 		(at 100.33 144.78 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3781,6 +3791,7 @@
 	)
 	(label "MBRIT[2..0]"
 		(at 311.15 214.63 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3791,6 +3802,7 @@
 	)
 	(label "SPEAKER(-)"
 		(at 100.33 104.14 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3801,6 +3813,7 @@
 	)
 	(label "MAIN_A[19..0]"
 		(at 311.15 102.87 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3811,6 +3824,7 @@
 	)
 	(label "1P_RIGHT"
 		(at 39.37 132.08 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3821,6 +3835,7 @@
 	)
 	(label "SERVICE1"
 		(at 100.33 114.3 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3831,6 +3846,7 @@
 	)
 	(label "COIN_1"
 		(at 39.37 119.38 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3841,6 +3857,7 @@
 	)
 	(label "1P_BTN_2"
 		(at 39.37 137.16 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3851,6 +3868,7 @@
 	)
 	(label "1P_LEFT"
 		(at 39.37 129.54 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3861,6 +3879,7 @@
 	)
 	(label "~{RD}"
 		(at 148.59 181.61 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3871,6 +3890,7 @@
 	)
 	(label "VSS"
 		(at 46.99 149.86 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3881,6 +3901,7 @@
 	)
 	(label "WD_OUT2"
 		(at 148.59 173.99 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3891,6 +3912,7 @@
 	)
 	(label "~{WDOGRST}"
 		(at 311.15 204.47 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3901,6 +3923,7 @@
 	)
 	(label "PALETTE~{CS}"
 		(at 300.99 115.57 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3911,6 +3934,7 @@
 	)
 	(label "VSS"
 		(at 96.52 83.82 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3921,6 +3945,7 @@
 	)
 	(label "~{PCU_CS}"
 		(at 300.99 102.87 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3931,6 +3956,7 @@
 	)
 	(label "VCC_CAB"
 		(at 100.33 88.9 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3941,6 +3967,7 @@
 	)
 	(label "1P_BTN_3"
 		(at 148.59 191.77 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3951,6 +3978,7 @@
 	)
 	(label "2P_UP"
 		(at 148.59 224.79 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3961,6 +3989,7 @@
 	)
 	(label "PQ"
 		(at 382.27 95.25 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3971,6 +4000,7 @@
 	)
 	(label "GREEN"
 		(at 100.33 109.22 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3981,6 +4011,7 @@
 	)
 	(label "SC~{CS}"
 		(at 148.59 120.65 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3991,6 +4022,7 @@
 	)
 	(label "~{VSYNC}"
 		(at 311.15 44.45 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4001,6 +4033,7 @@
 	)
 	(label "2P_BTN_1"
 		(at 100.33 134.62 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4011,6 +4044,7 @@
 	)
 	(label "GM12"
 		(at 311.15 52.07 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4021,6 +4055,7 @@
 	)
 	(label "~{VCS}"
 		(at 311.15 97.79 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4031,6 +4066,7 @@
 	)
 	(label "~{JOYSTK}"
 		(at 300.99 110.49 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4041,6 +4077,7 @@
 	)
 	(label "VSS"
 		(at 96.52 91.44 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4051,6 +4088,7 @@
 	)
 	(label "~{OBJRAM_CS}"
 		(at 311.15 49.53 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4061,6 +4099,7 @@
 	)
 	(label "~{WDOGRST}"
 		(at 148.59 41.91 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4071,6 +4110,7 @@
 	)
 	(label "VSS"
 		(at 38.1 91.44 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4081,6 +4121,7 @@
 	)
 	(label "SCR_PE"
 		(at 229.87 97.79 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4091,6 +4132,7 @@
 	)
 	(label "~{WDRST}"
 		(at 311.15 92.71 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4101,6 +4143,7 @@
 	)
 	(label "~{OBJSET}"
 		(at 300.99 113.03 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4111,6 +4154,7 @@
 	)
 	(label "SH1"
 		(at 219.71 44.45 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4121,6 +4165,7 @@
 	)
 	(label "DSB[7..0]"
 		(at 311.15 181.61 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4131,6 +4176,7 @@
 	)
 	(label "SND_D[7..0]"
 		(at 219.71 92.71 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4141,6 +4187,7 @@
 	)
 	(label "R{slash}~{W}"
 		(at 148.59 113.03 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4151,6 +4198,7 @@
 	)
 	(label "2P_BTN_2"
 		(at 100.33 137.16 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4161,6 +4209,7 @@
 	)
 	(label "SERVICE1"
 		(at 148.59 242.57 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4171,6 +4220,7 @@
 	)
 	(label "SPEAKER(+)"
 		(at 219.71 97.79 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4181,6 +4231,7 @@
 	)
 	(label "DFI[7..0]"
 		(at 382.27 110.49 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4191,6 +4242,7 @@
 	)
 	(label "~{WDOGRST}"
 		(at 382.27 130.81 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4201,6 +4253,7 @@
 	)
 	(label "BLUE"
 		(at 382.27 173.99 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4211,6 +4264,7 @@
 	)
 	(label "2P_BTN_2"
 		(at 148.59 219.71 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4221,6 +4275,7 @@
 	)
 	(label "SND_D[7..0]"
 		(at 219.71 49.53 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4231,6 +4286,7 @@
 	)
 	(label "PAL_BANK"
 		(at 311.15 194.31 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4241,6 +4297,7 @@
 	)
 	(label "SCR_PE"
 		(at 382.27 97.79 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4251,6 +4308,7 @@
 	)
 	(label "1P_LEFT"
 		(at 148.59 201.93 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4261,6 +4319,7 @@
 	)
 	(label "~{SOREG}"
 		(at 148.59 107.95 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4271,6 +4330,7 @@
 	)
 	(label "1P_UP"
 		(at 148.59 232.41 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4281,6 +4341,7 @@
 	)
 	(label "~{RD}"
 		(at 300.99 95.25 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4291,6 +4352,7 @@
 	)
 	(label "PALETTE~{CS}"
 		(at 311.15 199.39 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4301,6 +4363,7 @@
 	)
 	(label "WD_OUT2"
 		(at 300.99 138.43 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4311,6 +4374,7 @@
 	)
 	(label "MAIN_A[19..0]"
 		(at 148.59 168.91 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4321,6 +4385,7 @@
 	)
 	(label "PR14"
 		(at 311.15 189.23 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4331,6 +4396,7 @@
 	)
 	(label "~{WDOGRST}"
 		(at 148.59 115.57 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4341,6 +4407,7 @@
 	)
 	(label "VCC"
 		(at 96.52 86.36 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4351,6 +4418,7 @@
 	)
 	(label "MAIN_A[19..0]"
 		(at 148.59 105.41 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4361,6 +4429,7 @@
 	)
 	(label "~{CSYNC}"
 		(at 382.27 125.73 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4371,6 +4440,7 @@
 	)
 	(label "M6"
 		(at 311.15 171.45 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4381,6 +4451,7 @@
 	)
 	(label "+12V"
 		(at 38.1 93.98 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4391,6 +4462,7 @@
 	)
 	(label "SO~{CLK}"
 		(at 219.71 54.61 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4401,6 +4473,7 @@
 	)
 	(label "IOCS"
 		(at 148.59 189.23 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4411,6 +4484,7 @@
 	)
 	(label "MAIN_A[19..0]"
 		(at 311.15 196.85 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4421,6 +4495,7 @@
 	)
 	(label "COIN_CNT_1"
 		(at 219.71 168.91 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4431,6 +4506,7 @@
 	)
 	(label "SERVICE2"
 		(at 39.37 114.3 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4441,6 +4517,7 @@
 	)
 	(label "2P_UP"
 		(at 100.33 124.46 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4451,6 +4528,7 @@
 	)
 	(label "2P_BTN_4"
 		(at 100.33 142.24 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4461,6 +4539,7 @@
 	)
 	(label "1P_BTN_2"
 		(at 148.59 209.55 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4471,6 +4550,7 @@
 	)
 	(label "GM12"
 		(at 382.27 135.89 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4481,6 +4561,7 @@
 	)
 	(label "COIN_CNT_1"
 		(at 39.37 99.06 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4491,6 +4572,7 @@
 	)
 	(label "RED"
 		(at 382.27 168.91 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4501,6 +4583,7 @@
 	)
 	(label "~{VBLANK}"
 		(at 311.15 201.93 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4511,6 +4594,7 @@
 	)
 	(label "SDI0"
 		(at 311.15 209.55 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4521,6 +4605,7 @@
 	)
 	(label "RMSCR~{RD}"
 		(at 229.87 92.71 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4531,6 +4616,7 @@
 	)
 	(label "OBJPXL[8..0]"
 		(at 311.15 168.91 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4541,6 +4627,7 @@
 	)
 	(label "~{VBLANK}"
 		(at 382.27 118.11 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4551,6 +4638,7 @@
 	)
 	(label "~{RCS0}"
 		(at 382.27 102.87 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4561,6 +4649,7 @@
 	)
 	(label "~{OUTCS}"
 		(at 300.99 130.81 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4571,6 +4660,7 @@
 	)
 	(label "PAL_BANK"
 		(at 300.99 133.35 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4581,6 +4671,7 @@
 	)
 	(label "MAIN~{IRQ}"
 		(at 229.87 102.87 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4591,6 +4682,7 @@
 	)
 	(label "2P_START"
 		(at 100.33 121.92 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4601,6 +4693,7 @@
 	)
 	(label "~{HBLANK}"
 		(at 311.15 176.53 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4611,6 +4704,7 @@
 	)
 	(label "SH1"
 		(at 148.59 100.33 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4621,6 +4715,7 @@
 	)
 	(label "1P_DOWN"
 		(at 148.59 199.39 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4631,6 +4726,7 @@
 	)
 	(label "~{RCS0}"
 		(at 311.15 57.15 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4641,6 +4737,7 @@
 	)
 	(label "~{MDS}"
 		(at 300.99 128.27 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4651,6 +4748,7 @@
 	)
 	(label "~{RESET}"
 		(at 229.87 95.25 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4661,6 +4759,7 @@
 	)
 	(label "VCC"
 		(at 33.02 88.9 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4671,6 +4770,7 @@
 	)
 	(label "COIN_CNT_2"
 		(at 219.71 171.45 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4681,6 +4781,7 @@
 	)
 	(label "1P_START"
 		(at 148.59 229.87 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4691,6 +4792,7 @@
 	)
 	(label "1P_BTN_3"
 		(at 39.37 139.7 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4701,6 +4803,7 @@
 	)
 	(label "MAIN_DB[7..0]"
 		(at 311.15 207.01 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4711,6 +4814,7 @@
 	)
 	(label "SH2"
 		(at 219.71 46.99 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4721,6 +4825,7 @@
 	)
 	(label "OBJPXL[8..0]"
 		(at 381 41.91 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4731,6 +4836,7 @@
 	)
 	(label "R{slash}~{W}"
 		(at 300.99 120.65 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4741,6 +4847,7 @@
 	)
 	(label "DSA[7..0]"
 		(at 382.27 133.35 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4751,6 +4858,7 @@
 	)
 	(label "~{RD}"
 		(at 311.15 64.77 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4761,6 +4869,7 @@
 	)
 	(label "+12V"
 		(at 148.59 92.71 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4771,6 +4880,7 @@
 	)
 	(label "DSB[7..0]"
 		(at 382.27 115.57 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4781,6 +4891,7 @@
 	)
 	(label "~{VCS}"
 		(at 300.99 107.95 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4791,6 +4902,7 @@
 	)
 	(label "COIN_CNT_2"
 		(at 100.33 99.06 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4801,6 +4913,7 @@
 	)
 	(label "~{CSYNC}"
 		(at 100.33 111.76 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4811,6 +4924,7 @@
 	)
 	(label "2P_RIGHT"
 		(at 100.33 132.08 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4821,6 +4935,7 @@
 	)
 	(label "SND_A[15..0]"
 		(at 219.71 52.07 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4831,6 +4946,7 @@
 	)
 	(label "PR13"
 		(at 381 46.99 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4841,6 +4957,7 @@
 	)
 	(label "S~{RD}"
 		(at 148.59 110.49 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4851,6 +4968,7 @@
 	)
 	(label "2P_DOWN"
 		(at 100.33 127 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4861,6 +4979,7 @@
 	)
 	(label "SPEAKER(-)"
 		(at 219.71 100.33 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4871,6 +4990,7 @@
 	)
 	(label "SDI0"
 		(at 381 52.07 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4881,6 +5001,7 @@
 	)
 	(label "VSS"
 		(at 96.52 149.86 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4891,6 +5012,7 @@
 	)
 	(label "BLUE"
 		(at 39.37 111.76 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4901,6 +5023,7 @@
 	)
 	(label "~{VSYNC}"
 		(at 382.27 128.27 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4911,6 +5034,7 @@
 	)
 	(label "M6"
 		(at 382.27 107.95 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4921,6 +5045,7 @@
 	)
 	(label "R{slash}~{W}"
 		(at 311.15 191.77 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4931,6 +5056,7 @@
 	)
 	(label "MAIN_A[19..0]"
 		(at 300.99 123.19 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4941,6 +5067,7 @@
 	)
 	(label "AUX1"
 		(at 219.71 41.91 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4951,6 +5078,7 @@
 	)
 	(label "1P_UP"
 		(at 39.37 124.46 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4961,6 +5089,7 @@
 	)
 	(label "~{OUTCS}"
 		(at 148.59 179.07 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4971,6 +5100,7 @@
 	)
 	(label "~{PCU_CS}"
 		(at 311.15 184.15 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4981,6 +5111,7 @@
 	)
 	(label "SND_A[15..0]"
 		(at 148.59 97.79 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4991,6 +5122,7 @@
 	)
 	(label "M12"
 		(at 229.87 105.41 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5001,6 +5133,7 @@
 	)
 	(label "PR13"
 		(at 311.15 186.69 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5011,6 +5144,7 @@
 	)
 	(label "~{MDS}"
 		(at 311.15 59.69 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5021,6 +5155,7 @@
 	)
 	(label "+12V"
 		(at 148.59 184.15 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5031,6 +5166,7 @@
 	)
 	(label "1P_START"
 		(at 39.37 121.92 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5041,6 +5177,7 @@
 	)
 	(label "1P_DOWN"
 		(at 39.37 127 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5051,6 +5188,7 @@
 	)
 	(label "~{WDRST}"
 		(at 219.71 173.99 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5061,6 +5199,7 @@
 	)
 	(label "~{HSYNC}"
 		(at 382.27 123.19 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5071,6 +5210,7 @@
 	)
 	(label "MAIN_DB[7..0]"
 		(at 219.71 95.25 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5081,6 +5221,7 @@
 	)
 	(label "SH2"
 		(at 148.59 102.87 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5091,6 +5232,7 @@
 	)
 	(label "S~{RD}"
 		(at 219.71 59.69 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5101,6 +5243,7 @@
 	)
 	(label "~{HSYNC}"
 		(at 311.15 41.91 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5111,6 +5254,7 @@
 	)
 	(label "IOCS"
 		(at 300.99 105.41 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5121,6 +5265,7 @@
 	)
 	(label "CPU~{EN}"
 		(at 148.59 186.69 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5131,6 +5276,7 @@
 	)
 	(label "WD_OUT1"
 		(at 148.59 176.53 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5141,6 +5287,7 @@
 	)
 	(label "AUX1"
 		(at 148.59 95.25 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5151,6 +5298,7 @@
 	)
 	(label "R{slash}~{W}"
 		(at 311.15 39.37 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5161,6 +5309,7 @@
 	)
 	(label "~{MDS}"
 		(at 311.15 173.99 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5171,6 +5320,7 @@
 	)
 	(label "~{JOYSTK}"
 		(at 148.59 222.25 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5181,6 +5331,7 @@
 	)
 	(label "1P_RIGHT"
 		(at 148.59 207.01 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5191,6 +5342,7 @@
 	)
 	(label "MAIN_DB[7..0]"
 		(at 382.27 113.03 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5201,6 +5353,7 @@
 	)
 	(label "2P_RIGHT"
 		(at 148.59 214.63 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5211,6 +5364,7 @@
 	)
 	(label "PR14"
 		(at 381 49.53 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5221,6 +5375,7 @@
 	)
 	(label "MBRIT[2..0]"
 		(at 300.99 140.97 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5231,6 +5386,7 @@
 	)
 	(label "~{OBJSET}"
 		(at 311.15 46.99 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5241,6 +5397,7 @@
 	)
 	(label "COIN_2"
 		(at 148.59 237.49 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5251,6 +5408,7 @@
 	)
 	(label "MAIN_DB[7..0]"
 		(at 300.99 125.73 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5261,6 +5419,7 @@
 	)
 	(label "1P_SELECT"
 		(at 39.37 144.78 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5271,6 +5430,7 @@
 	)
 	(label "RMSCR~{RD}"
 		(at 311.15 100.33 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5281,6 +5441,7 @@
 	)
 	(label "2P_DOWN"
 		(at 148.59 204.47 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5291,6 +5452,7 @@
 	)
 	(label "WD_OUT1"
 		(at 300.99 135.89 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5301,6 +5463,7 @@
 	)
 	(label "1P_BTN_1"
 		(at 148.59 212.09 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5311,6 +5474,7 @@
 	)
 	(label "1P_BTN_1"
 		(at 39.37 134.62 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5321,6 +5485,7 @@
 	)
 	(label "S~{CLK}"
 		(at 219.71 57.15 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5331,6 +5496,7 @@
 	)
 	(label "~{SOREG}"
 		(at 300.99 100.33 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5341,6 +5507,7 @@
 	)
 	(label "GREEN"
 		(at 382.27 171.45 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5351,6 +5518,7 @@
 	)
 	(label "MAIN~{IRQ}"
 		(at 382.27 92.71 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5361,6 +5529,7 @@
 	)
 	(label "~{RD}"
 		(at 311.15 95.25 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5371,6 +5540,7 @@
 	)
 	(label "~{OBJRAM_CS}"
 		(at 300.99 118.11 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5381,6 +5551,7 @@
 	)
 	(label "+12V"
 		(at 99.06 93.98 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5391,6 +5562,7 @@
 	)
 	(label "MAIN_DB[7..0]"
 		(at 381 39.37 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5401,6 +5573,7 @@
 	)
 	(label "PQ"
 		(at 229.87 100.33 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5411,6 +5584,7 @@
 	)
 	(label "~{RESET}"
 		(at 382.27 100.33 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5421,6 +5595,7 @@
 	)
 	(label "~{HBLANK}"
 		(at 382.27 120.65 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5431,6 +5606,7 @@
 	)
 	(label "S~{CLK}"
 		(at 148.59 118.11 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5441,6 +5617,7 @@
 	)
 	(label "2P_START"
 		(at 148.59 227.33 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5451,6 +5628,7 @@
 	)
 	(label "2P_BTN_1"
 		(at 148.59 217.17 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5461,6 +5639,7 @@
 	)
 	(label "MAIN_DB[7..0]"
 		(at 148.59 171.45 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5471,6 +5650,7 @@
 	)
 	(label "~{SOON}"
 		(at 300.99 92.71 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5481,6 +5661,7 @@
 	)
 	(label "M12"
 		(at 382.27 105.41 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5491,6 +5672,7 @@
 	)
 	(label "2P_LEFT"
 		(at 100.33 129.54 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5501,6 +5683,7 @@
 	)
 	(label "DFI[7..0]"
 		(at 311.15 179.07 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5511,6 +5694,7 @@
 	)
 	(label "SERVICE2"
 		(at 148.59 240.03 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5521,6 +5705,7 @@
 	)
 	(label "CPU~{EN}"
 		(at 381 44.45 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5531,6 +5716,7 @@
 	)
 	(label "SO~{CLK}"
 		(at 148.59 123.19 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5541,6 +5727,7 @@
 	)
 	(label "SPEAKER(+)"
 		(at 39.37 104.14 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5551,6 +5738,7 @@
 	)
 	(label "2P_BTN_3"
 		(at 100.33 139.7 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5561,6 +5749,7 @@
 	)
 	(label "M6"
 		(at 311.15 54.61 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5571,6 +5760,7 @@
 	)
 	(label "MAIN_A[19..0]"
 		(at 311.15 62.23 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5581,6 +5771,7 @@
 	)
 	(label "~{SOON}"
 		(at 148.59 39.37 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6367,16 +6558,6 @@
 			)
 			(uuid "2084b352-01df-45b4-a36b-97add4c496dd")
 		)
-		(pin "M12" output
-			(at 365.76 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "ed69b464-fe5e-4bb1-a24b-069f6dbbbaf3")
-		)
 		(pin "~{VCS}" input
 			(at 327.66 97.79 180)
 			(effects
@@ -6526,6 +6707,16 @@
 				(justify left)
 			)
 			(uuid "31c4df53-6360-4d36-98cd-357b6e5ce0cd")
+		)
+		(pin "M12" output
+			(at 365.76 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "81a79821-1edf-4a19-b1d2-ba071d90f2c8")
 		)
 		(instances
 			(project "parodius"

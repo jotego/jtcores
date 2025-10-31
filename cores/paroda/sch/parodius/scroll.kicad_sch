@@ -22771,6 +22771,7 @@
 	)
 	(label "SCRAMA4"
 		(at 179.07 233.68 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22781,6 +22782,7 @@
 	)
 	(label "~{ROE1}"
 		(at 179.07 264.16 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22791,6 +22793,7 @@
 	)
 	(label "MAIN_A14"
 		(at 46.99 231.14 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22801,6 +22804,7 @@
 	)
 	(label "GFXROMA8"
 		(at 128.27 85.09 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22811,6 +22815,7 @@
 	)
 	(label "VD0"
 		(at 224.79 167.64 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22821,6 +22826,7 @@
 	)
 	(label "VD10"
 		(at 224.79 226.06 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22831,6 +22837,7 @@
 	)
 	(label "GFXROMA13"
 		(at 171.45 72.39 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22841,6 +22848,7 @@
 	)
 	(label "VD[15..0]"
 		(at 237.49 165.1 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22851,6 +22859,7 @@
 	)
 	(label "GFXROMD27"
 		(at 233.68 132.08 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22861,6 +22870,7 @@
 	)
 	(label "GFXROMD8"
 		(at 233.68 64.77 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22871,6 +22881,7 @@
 	)
 	(label "SCRAMA0"
 		(at 173.99 223.52 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22881,6 +22892,7 @@
 	)
 	(label "GFXROMD15"
 		(at 233.68 82.55 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22891,6 +22903,7 @@
 	)
 	(label "VD8"
 		(at 224.79 220.98 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22901,6 +22914,7 @@
 	)
 	(label "GFXROMD30"
 		(at 261.62 140.97 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22911,6 +22925,7 @@
 	)
 	(label "GFXROMA12"
 		(at 171.45 69.85 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22921,6 +22936,7 @@
 	)
 	(label "GFXROMD31"
 		(at 165.1 128.27 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22931,6 +22947,7 @@
 	)
 	(label "MAIN_A1"
 		(at 46.99 198.12 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22941,6 +22958,7 @@
 	)
 	(label "GFXROMA12"
 		(at 176.53 74.93 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22951,6 +22969,7 @@
 	)
 	(label "GFXROMD8"
 		(at 128.27 110.49 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22961,6 +22980,7 @@
 	)
 	(label "~{RWE1}"
 		(at 179.07 261.62 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22971,6 +22991,7 @@
 	)
 	(label "RMSCR~{RD}"
 		(at 46.99 236.22 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22981,6 +23002,7 @@
 	)
 	(label "GFXROMA[17..0]"
 		(at 151.13 41.91 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22991,6 +23013,7 @@
 	)
 	(label "VSS"
 		(at 177.8 91.44 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23001,6 +23024,7 @@
 	)
 	(label "VSS"
 		(at 345.44 132.08 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23011,6 +23035,7 @@
 	)
 	(label "GFXROMD21"
 		(at 233.68 116.84 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23021,6 +23046,7 @@
 	)
 	(label "SCRAMA6"
 		(at 179.07 238.76 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23031,6 +23057,7 @@
 	)
 	(label "ZA4H"
 		(at 109.22 160.02 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23041,6 +23068,7 @@
 	)
 	(label "GFXROMD11"
 		(at 233.68 72.39 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23051,6 +23079,7 @@
 	)
 	(label "SCRAMA2"
 		(at 173.99 228.6 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23061,6 +23090,7 @@
 	)
 	(label "GFXROMD2"
 		(at 27.94 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23071,6 +23101,7 @@
 	)
 	(label "GFXROMA11"
 		(at 171.45 67.31 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23081,6 +23112,7 @@
 	)
 	(label "GFXROMD13"
 		(at 233.68 77.47 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23091,6 +23123,7 @@
 	)
 	(label "SCRAMA8"
 		(at 179.07 243.84 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23101,6 +23134,7 @@
 	)
 	(label "GFXROMD24"
 		(at 165.1 110.49 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23111,6 +23145,7 @@
 	)
 	(label "~{RD}"
 		(at 302.26 134.62 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23121,6 +23156,7 @@
 	)
 	(label "DFI7"
 		(at 325.12 26.67 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23131,6 +23167,7 @@
 	)
 	(label "GFXROMD28"
 		(at 97.79 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23141,6 +23178,7 @@
 	)
 	(label "GFXROMD7"
 		(at 233.68 62.23 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23151,6 +23189,7 @@
 	)
 	(label "ZA2H"
 		(at 281.94 135.89 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23161,6 +23200,7 @@
 	)
 	(label "SCRAMA5"
 		(at 179.07 236.22 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23171,6 +23211,7 @@
 	)
 	(label "ZB1H"
 		(at 121.92 160.02 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23181,6 +23222,7 @@
 	)
 	(label "ZA1H"
 		(at 114.3 160.02 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23191,6 +23233,7 @@
 	)
 	(label "ZB4H"
 		(at 116.84 160.02 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23201,6 +23244,7 @@
 	)
 	(label "SCRAMA9"
 		(at 179.07 246.38 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23211,6 +23255,7 @@
 	)
 	(label "MAIN_DB4"
 		(at 356.87 69.85 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23221,6 +23266,7 @@
 	)
 	(label "GFXROMD24"
 		(at 238.76 105.41 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23231,6 +23277,7 @@
 	)
 	(label "GFXROMD22"
 		(at 238.76 100.33 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23241,6 +23288,7 @@
 	)
 	(label "MAIN_DB6"
 		(at 137.16 275.59 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23251,6 +23299,7 @@
 	)
 	(label "~{ROE2}"
 		(at 179.07 210.82 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23261,6 +23310,7 @@
 	)
 	(label "GFXROMD29"
 		(at 165.1 123.19 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23271,6 +23321,7 @@
 	)
 	(label "GFXROMA3"
 		(at 176.53 52.07 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23281,6 +23332,7 @@
 	)
 	(label "GFXROMD19"
 		(at 238.76 92.71 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23291,6 +23343,7 @@
 	)
 	(label "GFXROMD0"
 		(at 238.76 44.45 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23301,6 +23354,7 @@
 	)
 	(label "GFXROMA11"
 		(at 176.53 132.08 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23311,6 +23365,7 @@
 	)
 	(label "DSB6"
 		(at 356.87 97.79 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23321,6 +23376,7 @@
 	)
 	(label "VCC"
 		(at 144.78 50.8 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23331,6 +23387,7 @@
 	)
 	(label "GFXROMA5"
 		(at 171.45 208.28 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23341,6 +23398,7 @@
 	)
 	(label "GFXROMD20"
 		(at 165.1 100.33 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23351,6 +23409,7 @@
 	)
 	(label "SCRAMA9"
 		(at 173.99 246.38 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23361,6 +23420,7 @@
 	)
 	(label "GFXROMD2"
 		(at 233.68 49.53 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23371,6 +23431,7 @@
 	)
 	(label "ZB2H"
 		(at 119.38 160.02 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23381,6 +23442,7 @@
 	)
 	(label "GFXROMA9"
 		(at 128.27 87.63 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23391,6 +23453,7 @@
 	)
 	(label "COL6"
 		(at 307.34 134.62 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23401,6 +23464,7 @@
 	)
 	(label "GFXROMD20"
 		(at 76.2 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23411,6 +23475,7 @@
 	)
 	(label "VD8"
 		(at 101.6 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23421,6 +23486,7 @@
 	)
 	(label "DFI2"
 		(at 312.42 26.67 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23431,6 +23497,7 @@
 	)
 	(label "GFXROMA10"
 		(at 176.53 129.54 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23441,6 +23508,7 @@
 	)
 	(label "SCRAMA11"
 		(at 173.99 251.46 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23451,6 +23519,7 @@
 	)
 	(label "MAIN_A12"
 		(at 46.99 226.06 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23461,6 +23530,7 @@
 	)
 	(label "GFXROMA5"
 		(at 176.53 57.15 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23471,6 +23541,7 @@
 	)
 	(label "VSS"
 		(at 24.13 152.4 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23481,6 +23552,7 @@
 	)
 	(label "GFXROMA6"
 		(at 171.45 210.82 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23491,6 +23563,7 @@
 	)
 	(label "GFXROMA7"
 		(at 176.53 121.92 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23501,6 +23574,7 @@
 	)
 	(label "~{ROE2}"
 		(at 99.06 160.02 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23511,6 +23585,7 @@
 	)
 	(label "~{WDOGRST}"
 		(at 46.99 243.84 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23521,6 +23596,7 @@
 	)
 	(label "~{BE}"
 		(at 299.72 134.62 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23531,6 +23607,7 @@
 	)
 	(label "GFXROMD26"
 		(at 165.1 115.57 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23541,6 +23618,7 @@
 	)
 	(label "GFXROMD31"
 		(at 264.16 140.97 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23551,6 +23629,7 @@
 	)
 	(label "GFXROMA2"
 		(at 128.27 69.85 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23561,6 +23640,7 @@
 	)
 	(label "MAIN_A7"
 		(at 46.99 213.36 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23571,6 +23651,7 @@
 	)
 	(label "GFXROMD15"
 		(at 238.76 82.55 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23581,6 +23662,7 @@
 	)
 	(label "SCRAMA3"
 		(at 179.07 231.14 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23591,6 +23673,7 @@
 	)
 	(label "GFXROMD15"
 		(at 128.27 128.27 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23601,6 +23684,7 @@
 	)
 	(label "GFXROMA16"
 		(at 171.45 190.5 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23611,6 +23695,7 @@
 	)
 	(label "SCRAMA12"
 		(at 179.07 200.66 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23621,6 +23706,7 @@
 	)
 	(label "GFXROMD10"
 		(at 238.76 69.85 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23631,6 +23717,7 @@
 	)
 	(label "GFXROMD1"
 		(at 128.27 92.71 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23641,6 +23728,7 @@
 	)
 	(label "MAIN_DB2"
 		(at 127 275.59 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23651,6 +23739,7 @@
 	)
 	(label "COL6"
 		(at 127 156.21 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23661,6 +23750,7 @@
 	)
 	(label "GFXROMD17"
 		(at 68.58 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23671,6 +23761,7 @@
 	)
 	(label "SCRAMA6"
 		(at 179.07 185.42 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23681,6 +23772,7 @@
 	)
 	(label "GFXROMD16"
 		(at 233.68 104.14 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23691,6 +23783,7 @@
 	)
 	(label "GFXROMA6"
 		(at 128.27 80.01 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23701,6 +23794,7 @@
 	)
 	(label "GFXROMD5"
 		(at 128.27 102.87 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23711,6 +23805,7 @@
 	)
 	(label "MAIN_DB7"
 		(at 139.7 275.59 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23721,6 +23816,7 @@
 	)
 	(label "GFXROMD28"
 		(at 233.68 134.62 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23731,6 +23827,7 @@
 	)
 	(label "GFXROMD30"
 		(at 233.68 139.7 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23741,6 +23838,7 @@
 	)
 	(label "GFXROMD9"
 		(at 233.68 67.31 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23751,6 +23849,7 @@
 	)
 	(label "GFXROMA2"
 		(at 176.53 109.22 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23761,6 +23860,7 @@
 	)
 	(label "MAIN_A3"
 		(at 46.99 203.2 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23771,6 +23871,7 @@
 	)
 	(label "M24"
 		(at 276.86 135.89 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23781,6 +23882,7 @@
 	)
 	(label "COL7"
 		(at 124.46 156.21 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23791,6 +23893,7 @@
 	)
 	(label "DFI0"
 		(at 307.34 26.67 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23801,6 +23904,7 @@
 	)
 	(label "GFXROMD30"
 		(at 165.1 125.73 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23811,6 +23915,7 @@
 	)
 	(label "DSB5"
 		(at 356.87 95.25 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23821,6 +23926,7 @@
 	)
 	(label "~{RWE1}"
 		(at 104.14 160.02 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23831,6 +23937,7 @@
 	)
 	(label "DSB3"
 		(at 356.87 90.17 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23841,6 +23948,7 @@
 	)
 	(label "GFXROMA13"
 		(at 176.53 77.47 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23851,6 +23959,7 @@
 	)
 	(label "GFXROMA14"
 		(at 137.16 156.21 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23861,6 +23970,7 @@
 	)
 	(label "MAIN_A11"
 		(at 46.99 223.52 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23871,6 +23981,7 @@
 	)
 	(label "SCRAMA2"
 		(at 179.07 175.26 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23881,6 +23992,7 @@
 	)
 	(label "GFXROMD31"
 		(at 105.41 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23891,6 +24003,7 @@
 	)
 	(label "VD4"
 		(at 91.44 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23901,6 +24014,7 @@
 	)
 	(label "GFXROMA0"
 		(at 128.27 64.77 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23911,6 +24025,7 @@
 	)
 	(label "GFXROMD23"
 		(at 165.1 107.95 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23921,6 +24036,7 @@
 	)
 	(label "MAIN_DB5"
 		(at 134.62 275.59 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23931,6 +24047,7 @@
 	)
 	(label "VSS"
 		(at 316.23 132.08 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23941,6 +24058,7 @@
 	)
 	(label "GFXROMA7"
 		(at 128.27 82.55 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23951,6 +24069,7 @@
 	)
 	(label "GFXROMD18"
 		(at 238.76 90.17 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23961,6 +24080,7 @@
 	)
 	(label "GFXROMD12"
 		(at 233.68 74.93 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23971,6 +24091,7 @@
 	)
 	(label "VD15"
 		(at 224.79 238.76 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23981,6 +24102,7 @@
 	)
 	(label "GFXROMD7"
 		(at 128.27 107.95 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23991,6 +24113,7 @@
 	)
 	(label "GFXROMA4"
 		(at 176.53 114.3 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24001,6 +24124,7 @@
 	)
 	(label "VD14"
 		(at 224.79 236.22 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24011,6 +24135,7 @@
 	)
 	(label "MAIN_DB0"
 		(at 121.92 275.59 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24021,6 +24146,7 @@
 	)
 	(label "VSS"
 		(at 144.78 139.7 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24031,6 +24157,7 @@
 	)
 	(label "GFXROMD6"
 		(at 238.76 59.69 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24041,6 +24168,7 @@
 	)
 	(label "GFXROMA17"
 		(at 176.53 147.32 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24051,6 +24179,7 @@
 	)
 	(label "GFXROMD18"
 		(at 71.12 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24061,6 +24190,7 @@
 	)
 	(label "GFXROMD31"
 		(at 233.68 142.24 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24071,6 +24201,7 @@
 	)
 	(label "GFXROMA8"
 		(at 176.53 64.77 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24081,6 +24212,7 @@
 	)
 	(label "DFI5"
 		(at 320.04 26.67 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24091,6 +24223,7 @@
 	)
 	(label "GFXROMD10"
 		(at 49.53 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24101,6 +24234,7 @@
 	)
 	(label "GFXROMD30"
 		(at 102.87 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24111,6 +24245,7 @@
 	)
 	(label "DSA7"
 		(at 271.78 20.32 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24121,6 +24256,7 @@
 	)
 	(label "GFXROMA0"
 		(at 171.45 195.58 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24131,6 +24267,7 @@
 	)
 	(label "GFXROMD24"
 		(at 233.68 124.46 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24141,6 +24278,7 @@
 	)
 	(label "GFXROMA6"
 		(at 176.53 59.69 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24151,6 +24289,7 @@
 	)
 	(label "MAIN_DB1"
 		(at 356.87 62.23 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24161,6 +24300,7 @@
 	)
 	(label "SCRAMA10"
 		(at 179.07 248.92 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24171,6 +24311,7 @@
 	)
 	(label "GFXROMD8"
 		(at 238.76 64.77 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24181,6 +24322,7 @@
 	)
 	(label "GFXROMA14"
 		(at 176.53 80.01 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24191,6 +24333,7 @@
 	)
 	(label "~{RCS1}"
 		(at 179.07 256.54 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24201,6 +24344,7 @@
 	)
 	(label "GFXROMD5"
 		(at 233.68 57.15 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24211,6 +24355,7 @@
 	)
 	(label "MAIN_A10"
 		(at 46.99 220.98 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24221,6 +24366,7 @@
 	)
 	(label "ZB1H"
 		(at 292.1 135.89 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24231,6 +24377,7 @@
 	)
 	(label "MAIN_A6"
 		(at 46.99 210.82 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24241,6 +24388,7 @@
 	)
 	(label "GFXROMD0"
 		(at 22.86 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24251,6 +24399,7 @@
 	)
 	(label "MAIN_DB6"
 		(at 137.16 275.59 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24261,6 +24410,7 @@
 	)
 	(label "GFXROMA1"
 		(at 176.53 46.99 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24271,6 +24421,7 @@
 	)
 	(label "VD3"
 		(at 224.79 175.26 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24281,6 +24432,7 @@
 	)
 	(label "SCRAMA10"
 		(at 173.99 248.92 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24291,6 +24443,7 @@
 	)
 	(label "GFXROMD0"
 		(at 233.68 44.45 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24301,6 +24454,7 @@
 	)
 	(label "GFXROMD4"
 		(at 128.27 100.33 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24311,6 +24465,7 @@
 	)
 	(label "GFXROMD29"
 		(at 233.68 137.16 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24321,6 +24476,7 @@
 	)
 	(label "GFXROMD23"
 		(at 233.68 121.92 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24331,6 +24487,7 @@
 	)
 	(label "GFXROMD10"
 		(at 128.27 115.57 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24341,6 +24498,7 @@
 	)
 	(label "GFXROMA1"
 		(at 128.27 67.31 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24351,6 +24509,7 @@
 	)
 	(label "GFXROMA16"
 		(at 176.53 85.09 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24361,6 +24520,7 @@
 	)
 	(label "GFXROMD25"
 		(at 233.68 127 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24371,6 +24531,7 @@
 	)
 	(label "SCRAMA8"
 		(at 173.99 243.84 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24381,6 +24542,7 @@
 	)
 	(label "GFXROMA14"
 		(at 171.45 74.93 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24391,6 +24553,7 @@
 	)
 	(label "GFXROMD9"
 		(at 128.27 113.03 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24401,6 +24564,7 @@
 	)
 	(label "GFXROMD21"
 		(at 165.1 102.87 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24411,6 +24575,7 @@
 	)
 	(label "SCRAMA6"
 		(at 173.99 238.76 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24421,6 +24586,7 @@
 	)
 	(label "GFXROMA11"
 		(at 142.24 156.21 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24431,6 +24597,7 @@
 	)
 	(label "VD6"
 		(at 224.79 182.88 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24441,6 +24608,7 @@
 	)
 	(label "VD12"
 		(at 111.76 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24451,6 +24619,7 @@
 	)
 	(label "VSS"
 		(at 160.02 87.63 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24461,6 +24630,7 @@
 	)
 	(label "MAIN_DB6"
 		(at 356.87 74.93 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24471,6 +24641,7 @@
 	)
 	(label "GFXROMD12"
 		(at 238.76 74.93 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24481,6 +24652,7 @@
 	)
 	(label "GFXROMD[31..0]"
 		(at 242.57 144.78 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24491,6 +24663,7 @@
 	)
 	(label "GFXROMD25"
 		(at 90.17 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24501,6 +24674,7 @@
 	)
 	(label "GFXROMD19"
 		(at 233.68 111.76 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24511,6 +24685,7 @@
 	)
 	(label "VD6"
 		(at 96.52 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24521,6 +24696,7 @@
 	)
 	(label "ZA1H"
 		(at 284.48 135.89 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24531,6 +24707,7 @@
 	)
 	(label "SCRAMA1"
 		(at 179.07 172.72 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24541,6 +24718,7 @@
 	)
 	(label "GFXROMA0"
 		(at 176.53 44.45 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24551,6 +24729,7 @@
 	)
 	(label "GFXROMD4"
 		(at 233.68 54.61 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24561,6 +24740,7 @@
 	)
 	(label "VD13"
 		(at 224.79 233.68 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24571,6 +24751,7 @@
 	)
 	(label "GFXROMD26"
 		(at 238.76 110.49 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24581,6 +24762,7 @@
 	)
 	(label "MAIN_A13"
 		(at 46.99 228.6 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24591,6 +24773,7 @@
 	)
 	(label "SCRAMA3"
 		(at 173.99 231.14 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24601,6 +24784,7 @@
 	)
 	(label "DSA6"
 		(at 274.32 20.32 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24611,6 +24795,7 @@
 	)
 	(label "VD11"
 		(at 224.79 228.6 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24621,6 +24806,7 @@
 	)
 	(label "GFXROMA5"
 		(at 176.53 116.84 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24631,6 +24817,7 @@
 	)
 	(label "~{BE}"
 		(at 68.58 161.29 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24641,6 +24828,7 @@
 	)
 	(label "~{RCS1}"
 		(at 91.44 160.02 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24651,6 +24839,7 @@
 	)
 	(label "SCRAMA11"
 		(at 179.07 198.12 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24661,6 +24850,7 @@
 	)
 	(label "GFXROMA1"
 		(at 176.53 106.68 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24671,6 +24861,7 @@
 	)
 	(label "GFXROMD25"
 		(at 238.76 107.95 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24681,6 +24872,7 @@
 	)
 	(label "DSB1"
 		(at 356.87 85.09 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24691,6 +24883,7 @@
 	)
 	(label "GFXROMA13"
 		(at 176.53 137.16 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24701,6 +24894,7 @@
 	)
 	(label "SCRAMA2"
 		(at 179.07 228.6 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24711,6 +24905,7 @@
 	)
 	(label "VD11"
 		(at 109.22 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24721,6 +24916,7 @@
 	)
 	(label "GFXROMD16"
 		(at 165.1 90.17 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24731,6 +24927,7 @@
 	)
 	(label "SCRAMA4"
 		(at 173.99 233.68 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24741,6 +24938,7 @@
 	)
 	(label "SCRAMA12"
 		(at 179.07 254 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24751,6 +24949,7 @@
 	)
 	(label "GFXROMA1"
 		(at 171.45 198.12 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24761,6 +24960,7 @@
 	)
 	(label "VD7"
 		(at 224.79 185.42 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24771,6 +24971,7 @@
 	)
 	(label "MAIN_A15"
 		(at 46.99 233.68 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24781,6 +24982,7 @@
 	)
 	(label "VD10"
 		(at 106.68 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24791,6 +24993,7 @@
 	)
 	(label "GFXROMA16"
 		(at 176.53 144.78 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24801,6 +25004,7 @@
 	)
 	(label "MAIN_A0"
 		(at 46.99 195.58 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24811,6 +25015,7 @@
 	)
 	(label "COL5"
 		(at 309.88 134.62 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24821,6 +25026,7 @@
 	)
 	(label "MAIN_DB3"
 		(at 356.87 67.31 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24831,6 +25037,7 @@
 	)
 	(label "MAIN_DB1"
 		(at 124.46 275.59 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24841,6 +25048,7 @@
 	)
 	(label "GFXROMA15"
 		(at 176.53 142.24 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24851,6 +25059,7 @@
 	)
 	(label "GFXROMD0"
 		(at 128.27 90.17 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24861,6 +25070,7 @@
 	)
 	(label "SCRAMA12"
 		(at 173.99 254 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24871,6 +25081,7 @@
 	)
 	(label "GFXROMD14"
 		(at 128.27 125.73 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24881,6 +25092,7 @@
 	)
 	(label "GFXROMD29"
 		(at 238.76 118.11 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24891,6 +25103,7 @@
 	)
 	(label "GFXROMA12"
 		(at 139.7 156.21 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24901,6 +25114,7 @@
 	)
 	(label "GFXROMD6"
 		(at 233.68 59.69 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24911,6 +25125,7 @@
 	)
 	(label "GFXROMD23"
 		(at 238.76 102.87 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24921,6 +25136,7 @@
 	)
 	(label "GFXROMA4"
 		(at 176.53 54.61 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24931,6 +25147,7 @@
 	)
 	(label "MAIN_DB6"
 		(at 356.87 74.93 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24941,6 +25158,7 @@
 	)
 	(label "VD5"
 		(at 224.79 180.34 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24951,6 +25169,7 @@
 	)
 	(label "GFXROMA14"
 		(at 176.53 139.7 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24961,6 +25180,7 @@
 	)
 	(label "SCRAMA7"
 		(at 173.99 241.3 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24971,6 +25191,7 @@
 	)
 	(label "GFXROMA9"
 		(at 171.45 218.44 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24981,6 +25202,7 @@
 	)
 	(label "GFXROMD13"
 		(at 128.27 123.19 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24991,6 +25213,7 @@
 	)
 	(label "GFXROMA4"
 		(at 171.45 205.74 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25001,6 +25224,7 @@
 	)
 	(label "VSS"
 		(at 177.8 151.13 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25011,6 +25235,7 @@
 	)
 	(label "SCRAMA1"
 		(at 173.99 226.06 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25021,6 +25246,7 @@
 	)
 	(label "GFXROMD11"
 		(at 128.27 118.11 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25031,6 +25257,7 @@
 	)
 	(label "GFXROMD9"
 		(at 238.76 67.31 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25041,6 +25268,7 @@
 	)
 	(label "GFXROMD23"
 		(at 83.82 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25051,6 +25279,7 @@
 	)
 	(label "GFXROMA12"
 		(at 176.53 134.62 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25061,6 +25290,7 @@
 	)
 	(label "DSA3"
 		(at 281.94 20.32 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25071,6 +25301,7 @@
 	)
 	(label "GFXROMD22"
 		(at 81.28 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25081,6 +25312,7 @@
 	)
 	(label "VD2"
 		(at 86.36 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25091,6 +25323,7 @@
 	)
 	(label "GFXROMA8"
 		(at 171.45 215.9 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25101,6 +25334,7 @@
 	)
 	(label "SCRAMA0"
 		(at 179.07 223.52 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25111,6 +25345,7 @@
 	)
 	(label "MAIN_DB[7..0]"
 		(at 156.21 278.13 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25121,6 +25356,7 @@
 	)
 	(label "GFXROMD6"
 		(at 128.27 105.41 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25131,6 +25367,7 @@
 	)
 	(label "VD9"
 		(at 224.79 223.52 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25141,6 +25378,7 @@
 	)
 	(label "GFXROMD1"
 		(at 238.76 46.99 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25151,6 +25389,7 @@
 	)
 	(label "GFXROMA17"
 		(at 176.53 87.63 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25161,6 +25400,7 @@
 	)
 	(label "GFXROMD13"
 		(at 238.76 77.47 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25171,6 +25411,7 @@
 	)
 	(label "SCRAMA8"
 		(at 179.07 190.5 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25181,6 +25422,7 @@
 	)
 	(label "GFXROMA2"
 		(at 176.53 49.53 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25191,6 +25433,7 @@
 	)
 	(label "MAIN_DB5"
 		(at 356.87 72.39 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25201,6 +25444,7 @@
 	)
 	(label "SCRAMA3"
 		(at 179.07 177.8 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25211,6 +25455,7 @@
 	)
 	(label "ZA2H"
 		(at 111.76 160.02 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25221,6 +25466,7 @@
 	)
 	(label "GFXROMA2"
 		(at 171.45 200.66 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25231,6 +25477,7 @@
 	)
 	(label "GFXROMD28"
 		(at 165.1 120.65 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25241,6 +25488,7 @@
 	)
 	(label "COL5"
 		(at 129.54 156.21 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25251,6 +25499,7 @@
 	)
 	(label "GFXROMD19"
 		(at 165.1 97.79 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25261,6 +25510,7 @@
 	)
 	(label "GFXROMA4"
 		(at 128.27 74.93 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25271,6 +25521,7 @@
 	)
 	(label "GFXROMD25"
 		(at 165.1 113.03 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25281,6 +25532,7 @@
 	)
 	(label "GFXROMD14"
 		(at 233.68 80.01 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25291,6 +25543,7 @@
 	)
 	(label "GFXROMD17"
 		(at 165.1 92.71 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25301,6 +25554,7 @@
 	)
 	(label "DSA5"
 		(at 276.86 20.32 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25311,6 +25565,7 @@
 	)
 	(label "VCC"
 		(at 179.07 259.08 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25321,6 +25576,7 @@
 	)
 	(label "GFXROMD3"
 		(at 233.68 52.07 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25331,6 +25587,7 @@
 	)
 	(label "GFXROMD2"
 		(at 128.27 95.25 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25341,6 +25598,7 @@
 	)
 	(label "GFXROMD7"
 		(at 238.76 62.23 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25351,6 +25609,7 @@
 	)
 	(label "VD1"
 		(at 224.79 170.18 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25361,6 +25620,7 @@
 	)
 	(label "VD12"
 		(at 224.79 231.14 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25371,6 +25631,7 @@
 	)
 	(label "~{ROE1}"
 		(at 96.52 160.02 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25381,6 +25642,7 @@
 	)
 	(label "VCC"
 		(at 179.07 205.74 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25391,6 +25653,7 @@
 	)
 	(label "~{WDRST}"
 		(at 53.34 142.24 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25401,6 +25664,7 @@
 	)
 	(label "MAIN_A9"
 		(at 46.99 218.44 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25411,6 +25675,7 @@
 	)
 	(label "MAIN_A1"
 		(at 274.32 135.89 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25421,6 +25686,7 @@
 	)
 	(label "GFXROMD12"
 		(at 54.61 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25431,6 +25697,7 @@
 	)
 	(label "GFXROMA10"
 		(at 171.45 220.98 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25441,6 +25708,7 @@
 	)
 	(label "GFXROMD16"
 		(at 66.04 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25451,6 +25719,7 @@
 	)
 	(label "GFXROMA11"
 		(at 176.53 72.39 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25461,6 +25730,7 @@
 	)
 	(label "VCC"
 		(at 388.62 22.86 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25471,6 +25741,7 @@
 	)
 	(label "ZB4H"
 		(at 287.02 135.89 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25481,6 +25752,7 @@
 	)
 	(label "VD1"
 		(at 83.82 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25491,6 +25763,7 @@
 	)
 	(label "GFXROMD6"
 		(at 38.1 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25501,6 +25774,7 @@
 	)
 	(label "GFXROMA8"
 		(at 176.53 124.46 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25511,6 +25785,7 @@
 	)
 	(label "GFXROMD28"
 		(at 238.76 115.57 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25521,6 +25796,7 @@
 	)
 	(label "DFI1"
 		(at 309.88 26.67 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25531,6 +25807,7 @@
 	)
 	(label "SCRAMA7"
 		(at 179.07 187.96 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25541,6 +25818,7 @@
 	)
 	(label "VD4"
 		(at 224.79 177.8 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25551,6 +25829,7 @@
 	)
 	(label "VCC"
 		(at 53.34 22.86 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25561,6 +25840,7 @@
 	)
 	(label "VD7"
 		(at 99.06 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25571,6 +25851,7 @@
 	)
 	(label "DFI6"
 		(at 322.58 26.67 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25581,6 +25862,7 @@
 	)
 	(label "~{RWE2}"
 		(at 179.07 208.28 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25591,6 +25873,7 @@
 	)
 	(label "~{VCS}"
 		(at 48.26 190.5 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25601,6 +25884,7 @@
 	)
 	(label "GFXROMA9"
 		(at 176.53 67.31 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25611,6 +25895,7 @@
 	)
 	(label "GFXROMA3"
 		(at 128.27 72.39 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25621,6 +25906,7 @@
 	)
 	(label "VCC"
 		(at 331.47 29.21 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25631,6 +25917,7 @@
 	)
 	(label "GFXROMD21"
 		(at 238.76 97.79 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25641,6 +25928,7 @@
 	)
 	(label "ZB2H"
 		(at 289.56 135.89 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25651,6 +25939,7 @@
 	)
 	(label "GFXROMD19"
 		(at 73.66 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25661,6 +25950,7 @@
 	)
 	(label "MAIN_A8"
 		(at 46.99 215.9 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25671,6 +25961,7 @@
 	)
 	(label "GFXROMD4"
 		(at 33.02 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25681,6 +25972,7 @@
 	)
 	(label "SCRAMA[12..0]"
 		(at 193.04 163.83 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25691,6 +25983,7 @@
 	)
 	(label "GFXROMD14"
 		(at 59.69 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25701,6 +25994,7 @@
 	)
 	(label "DSB0"
 		(at 356.87 82.55 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25711,6 +26005,7 @@
 	)
 	(label "SCRAMA9"
 		(at 179.07 193.04 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25721,6 +26016,7 @@
 	)
 	(label "GFXROMA0"
 		(at 176.53 104.14 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25731,6 +26027,7 @@
 	)
 	(label "GFXROMD27"
 		(at 238.76 113.03 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25741,6 +26038,7 @@
 	)
 	(label "GFXROMD2"
 		(at 238.76 49.53 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25751,6 +26049,7 @@
 	)
 	(label "VD9"
 		(at 104.14 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25761,6 +26060,7 @@
 	)
 	(label "GFXROMD20"
 		(at 233.68 114.3 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25771,6 +26071,7 @@
 	)
 	(label "SCRAMA7"
 		(at 179.07 241.3 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25781,6 +26082,7 @@
 	)
 	(label "GFXROMA3"
 		(at 176.53 111.76 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25791,6 +26093,7 @@
 	)
 	(label "GFXROMD9"
 		(at 46.99 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25801,6 +26104,7 @@
 	)
 	(label "GFXROMD18"
 		(at 165.1 95.25 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25811,6 +26115,7 @@
 	)
 	(label "VD5"
 		(at 93.98 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25821,6 +26126,7 @@
 	)
 	(label "GFXROMD12"
 		(at 128.27 120.65 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25831,6 +26137,7 @@
 	)
 	(label "SCRAMA4"
 		(at 179.07 180.34 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25841,6 +26148,7 @@
 	)
 	(label "GFXROMD8"
 		(at 44.45 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25851,6 +26159,7 @@
 	)
 	(label "GFXROMA10"
 		(at 171.45 64.77 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25861,6 +26170,7 @@
 	)
 	(label "GFXROMA17"
 		(at 171.45 193.04 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25871,6 +26181,7 @@
 	)
 	(label "MAIN_DB0"
 		(at 356.87 59.69 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25881,6 +26192,7 @@
 	)
 	(label "VD2"
 		(at 224.79 172.72 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25891,6 +26203,7 @@
 	)
 	(label "DSA2"
 		(at 284.48 20.32 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25901,6 +26214,7 @@
 	)
 	(label "GFXROMD11"
 		(at 238.76 72.39 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25911,6 +26225,7 @@
 	)
 	(label "GFXROMD29"
 		(at 100.33 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25921,6 +26236,7 @@
 	)
 	(label "COL7"
 		(at 304.8 134.62 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25931,6 +26247,7 @@
 	)
 	(label "GFXROMA7"
 		(at 171.45 213.36 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25941,6 +26258,7 @@
 	)
 	(label "SCRAMA11"
 		(at 179.07 251.46 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25951,6 +26269,7 @@
 	)
 	(label "GFXROMD27"
 		(at 165.1 118.11 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25961,6 +26280,7 @@
 	)
 	(label "ZA4H"
 		(at 279.4 135.89 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25971,6 +26291,7 @@
 	)
 	(label "GFXROMD3"
 		(at 238.76 52.07 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25981,6 +26302,7 @@
 	)
 	(label "VCC"
 		(at 177.8 154.94 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25991,6 +26313,7 @@
 	)
 	(label "GFXROMA15"
 		(at 171.45 77.47 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26001,6 +26324,7 @@
 	)
 	(label "M24"
 		(at 48.26 193.04 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26011,6 +26335,7 @@
 	)
 	(label "GFXROMD4"
 		(at 238.76 54.61 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26021,6 +26346,7 @@
 	)
 	(label "VCC"
 		(at 177.8 95.25 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26031,6 +26357,7 @@
 	)
 	(label "GFXROMD16"
 		(at 238.76 85.09 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26041,6 +26368,7 @@
 	)
 	(label "GFXROMD10"
 		(at 233.68 69.85 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26051,6 +26379,7 @@
 	)
 	(label "GFXROMA16"
 		(at 171.45 80.01 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26061,6 +26390,7 @@
 	)
 	(label "VSS"
 		(at 266.7 135.89 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26071,6 +26401,7 @@
 	)
 	(label "GFXROMD22"
 		(at 165.1 105.41 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26081,6 +26412,7 @@
 	)
 	(label "MAIN_A0"
 		(at 271.78 135.89 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26091,6 +26423,7 @@
 	)
 	(label "GFXROMD27"
 		(at 95.25 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26101,6 +26434,7 @@
 	)
 	(label "MAIN_DB7"
 		(at 356.87 77.47 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26111,6 +26445,7 @@
 	)
 	(label "GFXROMA9"
 		(at 176.53 127 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26121,6 +26456,7 @@
 	)
 	(label "GFXROMD18"
 		(at 233.68 109.22 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26131,6 +26467,7 @@
 	)
 	(label "GFXROMD5"
 		(at 238.76 57.15 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26141,6 +26478,7 @@
 	)
 	(label "VCC"
 		(at 26.67 138.43 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26151,6 +26489,7 @@
 	)
 	(label "GFXROMA13"
 		(at 132.08 156.21 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26161,6 +26500,7 @@
 	)
 	(label "GFXROMA6"
 		(at 176.53 119.38 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26171,6 +26511,7 @@
 	)
 	(label "GFXROMD3"
 		(at 30.48 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26181,6 +26522,7 @@
 	)
 	(label "VSS"
 		(at 322.58 147.32 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26191,6 +26533,7 @@
 	)
 	(label "DSA1"
 		(at 287.02 20.32 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26201,6 +26544,7 @@
 	)
 	(label "GFXROMD3"
 		(at 128.27 97.79 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26211,6 +26555,7 @@
 	)
 	(label "GFXROMA15"
 		(at 176.53 82.55 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26221,6 +26566,7 @@
 	)
 	(label "VD14"
 		(at 116.84 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26231,6 +26577,7 @@
 	)
 	(label "SCRAMA5"
 		(at 179.07 182.88 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26241,6 +26588,7 @@
 	)
 	(label "~{RWE2}"
 		(at 106.68 160.02 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26251,6 +26599,7 @@
 	)
 	(label "GFXROMD24"
 		(at 87.63 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26261,6 +26610,7 @@
 	)
 	(label "SCRAMA0"
 		(at 179.07 170.18 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26271,6 +26621,7 @@
 	)
 	(label "GFXROMA15"
 		(at 134.62 156.21 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26281,6 +26632,7 @@
 	)
 	(label "GFXROMD13"
 		(at 57.15 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26291,6 +26643,7 @@
 	)
 	(label "GFXROMD26"
 		(at 92.71 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26301,6 +26654,7 @@
 	)
 	(label "GFXROMD20"
 		(at 238.76 95.25 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26311,6 +26665,7 @@
 	)
 	(label "GFXROMA10"
 		(at 176.53 69.85 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26321,6 +26676,7 @@
 	)
 	(label "VD3"
 		(at 88.9 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26331,6 +26687,7 @@
 	)
 	(label "MAIN_DB2"
 		(at 356.87 64.77 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26341,6 +26698,7 @@
 	)
 	(label "VD0"
 		(at 81.28 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26351,6 +26709,7 @@
 	)
 	(label "GFXROMA3"
 		(at 171.45 203.2 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26361,6 +26720,7 @@
 	)
 	(label "GFXROMD22"
 		(at 233.68 119.38 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26371,6 +26731,7 @@
 	)
 	(label "DFI3"
 		(at 314.96 26.67 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26381,6 +26742,7 @@
 	)
 	(label "GFXROMD26"
 		(at 233.68 129.54 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26391,6 +26753,7 @@
 	)
 	(label "GFXROMA7"
 		(at 176.53 62.23 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26401,6 +26764,7 @@
 	)
 	(label "GFXROMD1"
 		(at 233.68 46.99 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26411,6 +26775,7 @@
 	)
 	(label "GFXROMD7"
 		(at 40.64 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26421,6 +26786,7 @@
 	)
 	(label "VD15"
 		(at 119.38 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26431,6 +26797,7 @@
 	)
 	(label "VD13"
 		(at 114.3 278.13 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26441,6 +26808,7 @@
 	)
 	(label "GFXROMD15"
 		(at 62.23 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26451,6 +26819,7 @@
 	)
 	(label "~{VCS}"
 		(at 297.18 135.89 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26461,6 +26830,7 @@
 	)
 	(label "SCRAMA1"
 		(at 179.07 226.06 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26471,6 +26841,7 @@
 	)
 	(label "GFXROMD5"
 		(at 35.56 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26481,6 +26852,7 @@
 	)
 	(label "MAIN_DB4"
 		(at 132.08 275.59 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26491,6 +26863,7 @@
 	)
 	(label "GFXROMD17"
 		(at 238.76 87.63 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26501,6 +26874,7 @@
 	)
 	(label "DSB2"
 		(at 356.87 87.63 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26511,6 +26885,7 @@
 	)
 	(label "GFXROMD1"
 		(at 25.4 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26521,6 +26896,7 @@
 	)
 	(label "GFXROMD11"
 		(at 52.07 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26531,6 +26907,7 @@
 	)
 	(label "SCRAMA10"
 		(at 179.07 195.58 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26541,6 +26918,7 @@
 	)
 	(label "MAIN_A5"
 		(at 46.99 208.28 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26551,6 +26929,7 @@
 	)
 	(label "DSA0"
 		(at 289.56 20.32 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26561,6 +26940,7 @@
 	)
 	(label "GFXROMA5"
 		(at 128.27 77.47 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26571,6 +26951,7 @@
 	)
 	(label "~{WDOGRST}"
 		(at 269.24 135.89 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26581,6 +26962,7 @@
 	)
 	(label "VSS"
 		(at 179.07 203.2 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26591,6 +26973,7 @@
 	)
 	(label "VCC"
 		(at 68.58 133.35 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26601,6 +26984,7 @@
 	)
 	(label "DSB7"
 		(at 356.87 100.33 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26611,6 +26995,7 @@
 	)
 	(label "MAIN_A4"
 		(at 46.99 205.74 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26621,6 +27006,7 @@
 	)
 	(label "MAIN_DB3"
 		(at 129.54 275.59 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26631,6 +27017,7 @@
 	)
 	(label "SCRAMA5"
 		(at 173.99 236.22 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26641,6 +27028,7 @@
 	)
 	(label "GFXROMD17"
 		(at 233.68 106.68 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26651,6 +27039,7 @@
 	)
 	(label "GFXROMD14"
 		(at 238.76 80.01 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26661,6 +27050,7 @@
 	)
 	(label "MAIN_A2"
 		(at 46.99 200.66 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26671,6 +27061,7 @@
 	)
 	(label "GFXROMA17"
 		(at 171.45 82.55 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26681,6 +27072,7 @@
 	)
 	(label "GFXROMD21"
 		(at 78.74 45.72 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26692,6 +27084,7 @@
 	(hierarchical_label "MAIN~{IRQ}"
 		(shape output)
 		(at 78.74 167.64 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26703,6 +27096,7 @@
 	(hierarchical_label "MAIN_DB[7..0]"
 		(shape bidirectional)
 		(at 365.76 80.01 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26714,6 +27108,7 @@
 	(hierarchical_label "~{VBLANK}"
 		(shape output)
 		(at 292.1 31.75 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26725,6 +27120,7 @@
 	(hierarchical_label "~{WDRST}"
 		(shape input)
 		(at 62.23 153.67 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26736,6 +27132,7 @@
 	(hierarchical_label "MAIN_A[15..0]"
 		(shape input)
 		(at 31.75 198.12 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26747,6 +27144,7 @@
 	(hierarchical_label "~{RESET}"
 		(shape output)
 		(at 71.12 167.64 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26758,6 +27156,7 @@
 	(hierarchical_label "PQ"
 		(shape output)
 		(at 83.82 167.64 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26769,6 +27168,7 @@
 	(hierarchical_label "RMSCR~{RD}"
 		(shape input)
 		(at 294.64 130.81 270)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26780,6 +27180,7 @@
 	(hierarchical_label "~{VSYNC}"
 		(shape output)
 		(at 299.72 31.75 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26791,6 +27192,7 @@
 	(hierarchical_label "~{RCS0}"
 		(shape output)
 		(at 88.9 167.64 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26802,6 +27204,7 @@
 	(hierarchical_label "~{HSYNC}"
 		(shape output)
 		(at 302.26 31.75 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26813,6 +27216,7 @@
 	(hierarchical_label "~{CSYNC}"
 		(shape output)
 		(at 393.7 40.64 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26824,6 +27228,7 @@
 	(hierarchical_label "DSA[7..0]"
 		(shape output)
 		(at 269.24 17.78 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26832,9 +27237,10 @@
 		)
 		(uuid "903635b2-3e93-4d51-a64b-c9dc4905b0e2")
 	)
-	(hierarchical_label "GM12"
+	(hierarchical_label "M12"
 		(shape output)
 		(at 160.02 187.96 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26846,6 +27252,7 @@
 	(hierarchical_label "~{WDOGRST}"
 		(shape output)
 		(at 83.82 142.24 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26857,6 +27264,7 @@
 	(hierarchical_label "SCR_PE"
 		(shape output)
 		(at 86.36 167.64 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26868,6 +27276,7 @@
 	(hierarchical_label "~{RD}"
 		(shape input)
 		(at 46.99 241.3 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26879,6 +27288,7 @@
 	(hierarchical_label "DSB[7..0]"
 		(shape output)
 		(at 365.76 85.09 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26890,6 +27300,7 @@
 	(hierarchical_label "M6"
 		(shape output)
 		(at 351.79 54.61 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26901,6 +27312,7 @@
 	(hierarchical_label "DFI[7..0]"
 		(shape output)
 		(at 330.2 24.13 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26912,6 +27324,7 @@
 	(hierarchical_label "~{HBLANK}"
 		(shape output)
 		(at 294.64 31.75 90)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26923,6 +27336,7 @@
 	(hierarchical_label "~{VCS}"
 		(shape input)
 		(at 46.99 238.76 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26931,9 +27345,10 @@
 		)
 		(uuid "dc4d8ed8-077e-4b8a-ac4e-89cdeab92a61")
 	)
-	(hierarchical_label "M12"
+	(hierarchical_label "GM12"
 		(shape output)
 		(at 351.79 57.15 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
