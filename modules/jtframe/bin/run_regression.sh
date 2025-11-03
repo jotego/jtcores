@@ -549,7 +549,7 @@ delete_duplicated_frames() {
             last=$i
             continue
         fi
-        if diff -q $last $i; then
+        if diff -q $last $i > /dev/null; then
             rm $i
             continue
         fi
