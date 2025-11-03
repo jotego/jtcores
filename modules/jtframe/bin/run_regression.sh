@@ -372,6 +372,7 @@ get_opts() {
 
 check_video() {
     print_step "Checking frames"
+    delete_duplicated_frames
 
     if $check; then
         local frames_dir
@@ -534,7 +535,6 @@ EOF
 }
 
 prepare_zip_files() {
-    delete_duplicated_frames
     zip -q frames.zip frames/*
     mv --force --no-copy test.wav audio.wav
     zip -q audio.zip audio.wav
