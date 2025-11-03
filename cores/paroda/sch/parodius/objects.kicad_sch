@@ -22797,7 +22797,6 @@
 	)
 	(label "OBJROMA9"
 		(at 143.51 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22808,7 +22807,6 @@
 	)
 	(label "OBJROMD28"
 		(at 391.16 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22819,7 +22817,6 @@
 	)
 	(label "MAIN_DB7"
 		(at 218.44 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22830,7 +22827,6 @@
 	)
 	(label "OBJROMD20"
 		(at 369.57 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22841,7 +22837,6 @@
 	)
 	(label "ORAMA10"
 		(at 208.28 118.11 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22852,7 +22847,6 @@
 	)
 	(label "OBJROMD12"
 		(at 77.47 179.07 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22863,7 +22857,6 @@
 	)
 	(label "OBJROMD3"
 		(at 358.14 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22874,7 +22867,6 @@
 	)
 	(label "OBJRAMD5"
 		(at 262.89 181.61 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22885,7 +22877,6 @@
 	)
 	(label "OBJROMD29"
 		(at 383.54 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22896,7 +22887,6 @@
 	)
 	(label "OBJROMA13"
 		(at 24.13 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22907,7 +22897,6 @@
 	)
 	(label "OBJROMD14"
 		(at 386.08 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22918,7 +22907,6 @@
 	)
 	(label "HP6"
 		(at 337.82 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22929,7 +22917,6 @@
 	)
 	(label "MAIN_A2"
 		(at 279.4 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22940,7 +22927,6 @@
 	)
 	(label "~{HIT}"
 		(at 350.52 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22951,7 +22937,6 @@
 	)
 	(label "OBJROMA17"
 		(at 340.36 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22962,7 +22947,6 @@
 	)
 	(label "BR2"
 		(at 125.73 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22973,7 +22957,6 @@
 	)
 	(label "OBJROMD5"
 		(at 328.93 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22984,7 +22967,6 @@
 	)
 	(label "OBJROMD1"
 		(at 332.74 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22995,7 +22977,6 @@
 	)
 	(label "OBJROMA0"
 		(at 325.12 83.82 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23006,7 +22987,6 @@
 	)
 	(label "OBJROMD8"
 		(at 350.52 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23017,7 +22997,6 @@
 	)
 	(label "OBJROMA6"
 		(at 340.36 83.82 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23028,7 +23007,6 @@
 	)
 	(label "VSS"
 		(at 24.13 260.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23039,7 +23017,6 @@
 	)
 	(label "OBJROMA5"
 		(at 133.35 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23050,7 +23027,6 @@
 	)
 	(label "OBJROMA5"
 		(at 337.82 83.82 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23061,7 +23037,6 @@
 	)
 	(label "MAIN_DB3"
 		(at 279.4 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23072,7 +23047,6 @@
 	)
 	(label "OBJROMA12"
 		(at 24.13 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23083,7 +23057,6 @@
 	)
 	(label "MAIN_A1"
 		(at 85.09 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23094,7 +23067,6 @@
 	)
 	(label "OBJROMA10"
 		(at 322.58 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23105,7 +23077,6 @@
 	)
 	(label "OBJRAMD7"
 		(at 262.89 186.69 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23116,7 +23087,6 @@
 	)
 	(label "OBJROMD31"
 		(at 388.62 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23127,7 +23097,6 @@
 	)
 	(label "OBJROMA6"
 		(at 24.13 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23138,7 +23107,6 @@
 	)
 	(label "OBJROMD6"
 		(at 77.47 163.83 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23149,7 +23117,6 @@
 	)
 	(label "OBJROMD26"
 		(at 400.05 142.24 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23160,7 +23127,6 @@
 	)
 	(label "OBJROMD20"
 		(at 360.68 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23171,7 +23137,6 @@
 	)
 	(label "HP2"
 		(at 161.29 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23182,7 +23147,6 @@
 	)
 	(label "OBJROMD6"
 		(at 365.76 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23193,7 +23157,6 @@
 	)
 	(label "ORAMA5"
 		(at 208.28 130.81 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23204,7 +23167,6 @@
 	)
 	(label "VSS"
 		(at 292.1 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23215,7 +23177,6 @@
 	)
 	(label "OBJPXL3"
 		(at 396.24 180.34 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23226,7 +23187,6 @@
 	)
 	(label "BR0"
 		(at 358.14 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23237,7 +23197,6 @@
 	)
 	(label "OBJRAMD6"
 		(at 208.28 168.91 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23248,7 +23207,6 @@
 	)
 	(label "OBJRAMD6"
 		(at 262.89 133.35 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23259,7 +23217,6 @@
 	)
 	(label "PL4"
 		(at 176.53 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23270,7 +23227,6 @@
 	)
 	(label "OBJROMD23"
 		(at 377.19 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23281,7 +23237,6 @@
 	)
 	(label "OBJROMA17"
 		(at 163.83 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23292,7 +23247,6 @@
 	)
 	(label "OBJROMD20"
 		(at 400.05 127 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23303,7 +23257,6 @@
 	)
 	(label "OBJROMD0"
 		(at 350.52 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23314,7 +23267,6 @@
 	)
 	(label "SHADOW"
 		(at 320.04 204.47 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23325,7 +23277,6 @@
 	)
 	(label "ORAMA1"
 		(at 214.63 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23336,7 +23287,6 @@
 	)
 	(label "OBJROMD0"
 		(at 330.2 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23347,7 +23297,6 @@
 	)
 	(label "OBJROMA5"
 		(at 24.13 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23358,7 +23307,6 @@
 	)
 	(label "OBJROMD16"
 		(at 350.52 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23369,7 +23317,6 @@
 	)
 	(label "OBJROMA15"
 		(at 24.13 186.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23380,7 +23327,6 @@
 	)
 	(label "HP9"
 		(at 345.44 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23391,7 +23337,6 @@
 	)
 	(label "OBJROMA11"
 		(at 325.12 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23402,7 +23347,6 @@
 	)
 	(label "OBJROMD13"
 		(at 383.54 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23413,7 +23357,6 @@
 	)
 	(label "OBJROMA2"
 		(at 330.2 83.82 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23424,7 +23367,6 @@
 	)
 	(label "MAIN_DB7"
 		(at 279.4 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23435,7 +23377,6 @@
 	)
 	(label "OBJROMD17"
 		(at 361.95 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23446,7 +23387,6 @@
 	)
 	(label "OBJRAMD5"
 		(at 262.89 130.81 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23457,7 +23397,6 @@
 	)
 	(label "OBJROMD22"
 		(at 374.65 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23468,7 +23407,6 @@
 	)
 	(label "PL1"
 		(at 304.8 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23479,7 +23417,6 @@
 	)
 	(label "OBJROMD19"
 		(at 400.05 124.46 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23490,7 +23427,6 @@
 	)
 	(label "HP5"
 		(at 335.28 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23501,7 +23437,6 @@
 	)
 	(label "OBJRAMD3"
 		(at 262.89 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23512,7 +23447,6 @@
 	)
 	(label "MAIN_DB5"
 		(at 279.4 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23523,7 +23457,6 @@
 	)
 	(label "~{RCS0}"
 		(at 281.94 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23534,7 +23467,6 @@
 	)
 	(label "~{HSYNC}"
 		(at 281.94 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23545,7 +23477,6 @@
 	)
 	(label "OBJPXL2"
 		(at 396.24 182.88 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23556,7 +23487,6 @@
 	)
 	(label "OBJROMD22"
 		(at 365.76 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23567,7 +23497,6 @@
 	)
 	(label "OBJROMA9"
 		(at 24.13 236.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23578,7 +23507,6 @@
 	)
 	(label "OBJROMA12"
 		(at 151.13 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23589,7 +23517,6 @@
 	)
 	(label "OBJROMA2"
 		(at 24.13 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23600,7 +23527,6 @@
 	)
 	(label "OBJROMD28"
 		(at 400.05 147.32 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23611,7 +23537,6 @@
 	)
 	(label "OBJROMD11"
 		(at 358.14 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23622,7 +23547,6 @@
 	)
 	(label "OBJROMD31"
 		(at 77.47 251.46 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23633,7 +23557,6 @@
 	)
 	(label "OBJROMD11"
 		(at 345.44 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23644,7 +23567,6 @@
 	)
 	(label "~{HIT}"
 		(at 138.43 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23655,7 +23577,6 @@
 	)
 	(label "OBJROMD6"
 		(at 331.47 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23666,7 +23587,6 @@
 	)
 	(label "OBJROMD14"
 		(at 365.76 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23677,7 +23597,6 @@
 	)
 	(label "OBJROMD26"
 		(at 375.92 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23688,7 +23607,6 @@
 	)
 	(label "MAIN_A3"
 		(at 85.09 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23699,7 +23617,6 @@
 	)
 	(label "MAIN_A1"
 		(at 279.4 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23710,7 +23627,6 @@
 	)
 	(label "OBJROMA4"
 		(at 335.28 83.82 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23721,7 +23637,6 @@
 	)
 	(label "OBJROMD21"
 		(at 372.11 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23732,7 +23647,6 @@
 	)
 	(label "OBJROMA2"
 		(at 125.73 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23743,7 +23657,6 @@
 	)
 	(label "OBJRAMD0"
 		(at 208.28 153.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23754,7 +23667,6 @@
 	)
 	(label "OBJRAMD4"
 		(at 262.89 128.27 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23765,7 +23677,6 @@
 	)
 	(label "OBJROMD23"
 		(at 400.05 134.62 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23776,7 +23687,6 @@
 	)
 	(label "MAIN_DB1"
 		(at 279.4 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23787,7 +23697,6 @@
 	)
 	(label "OBJROMD15"
 		(at 388.62 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23798,7 +23707,6 @@
 	)
 	(label "BR1"
 		(at 360.68 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23809,7 +23717,6 @@
 	)
 	(label "MAIN_A0"
 		(at 279.4 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23820,7 +23727,6 @@
 	)
 	(label "AR2"
 		(at 373.38 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23831,7 +23737,6 @@
 	)
 	(label "VSS"
 		(at 93.98 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23842,7 +23747,6 @@
 	)
 	(label "MAIN_DB0"
 		(at 218.44 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23853,7 +23757,6 @@
 	)
 	(label "HRFP"
 		(at 133.35 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23864,7 +23767,6 @@
 	)
 	(label "OBJROMD30"
 		(at 77.47 248.92 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23875,7 +23777,6 @@
 	)
 	(label "OBJROMA12"
 		(at 327.66 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23886,7 +23787,6 @@
 	)
 	(label "OBJROMD24"
 		(at 77.47 233.68 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23897,7 +23797,6 @@
 	)
 	(label "OBJROMA8"
 		(at 24.13 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23908,7 +23807,6 @@
 	)
 	(label "HP7"
 		(at 148.59 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23919,7 +23817,6 @@
 	)
 	(label "PL1"
 		(at 184.15 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23930,7 +23827,6 @@
 	)
 	(label "M6"
 		(at 281.94 185.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23941,7 +23837,6 @@
 	)
 	(label "HP5"
 		(at 153.67 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23952,7 +23847,6 @@
 	)
 	(label "PL2"
 		(at 181.61 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23963,7 +23857,6 @@
 	)
 	(label "OBJROMD13"
 		(at 350.52 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23974,7 +23867,6 @@
 	)
 	(label "OBJPXL4"
 		(at 396.24 177.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23985,7 +23877,6 @@
 	)
 	(label "MAIN_A3"
 		(at 279.4 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23996,7 +23887,6 @@
 	)
 	(label "OBJROMD20"
 		(at 77.47 223.52 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24007,7 +23897,6 @@
 	)
 	(label "OBJROMA16"
 		(at 24.13 254 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24018,7 +23907,6 @@
 	)
 	(label "VCC"
 		(at 311.15 55.88 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24029,7 +23917,6 @@
 	)
 	(label "OBJROMD29"
 		(at 400.05 149.86 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24040,7 +23927,6 @@
 	)
 	(label "OBJRAMD0"
 		(at 262.89 168.91 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24051,7 +23937,6 @@
 	)
 	(label "OBJROMD27"
 		(at 388.62 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24062,7 +23947,6 @@
 	)
 	(label "HRFP"
 		(at 355.6 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24073,7 +23957,6 @@
 	)
 	(label "OBJROMD28"
 		(at 381 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24084,7 +23967,6 @@
 	)
 	(label "OBJROMD10"
 		(at 375.92 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24095,7 +23977,6 @@
 	)
 	(label "OBJROMD9"
 		(at 373.38 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24106,7 +23987,6 @@
 	)
 	(label "OBJROMD11"
 		(at 77.47 176.53 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24117,7 +23997,6 @@
 	)
 	(label "OBJROMA16"
 		(at 161.29 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24128,7 +24007,6 @@
 	)
 	(label "ORAMA0"
 		(at 208.28 143.51 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24139,7 +24017,6 @@
 	)
 	(label "ORAMA4"
 		(at 214.63 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24150,7 +24027,6 @@
 	)
 	(label "OBJROMA7"
 		(at 24.13 231.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24161,7 +24037,6 @@
 	)
 	(label "OBJROMD18"
 		(at 77.47 218.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24172,7 +24047,6 @@
 	)
 	(label "HP6"
 		(at 151.13 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24183,7 +24057,6 @@
 	)
 	(label "OBJROMD17"
 		(at 77.47 215.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24194,7 +24067,6 @@
 	)
 	(label "OBJROMD13"
 		(at 77.47 181.61 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24205,7 +24077,6 @@
 	)
 	(label "OBJROMA8"
 		(at 345.44 83.82 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24216,7 +24087,6 @@
 	)
 	(label "OBJROMD16"
 		(at 77.47 213.36 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24227,7 +24097,6 @@
 	)
 	(label "HP1"
 		(at 325.12 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24238,7 +24107,6 @@
 	)
 	(label "PL6"
 		(at 317.5 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24249,7 +24117,6 @@
 	)
 	(label "~{OBJRAM_RD}"
 		(at 172.72 222.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24260,7 +24127,6 @@
 	)
 	(label "OBJROMD19"
 		(at 77.47 220.98 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24271,7 +24137,6 @@
 	)
 	(label "~{OBJSET}"
 		(at 281.94 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24282,7 +24147,6 @@
 	)
 	(label "MAIN_DB4"
 		(at 218.44 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24293,7 +24157,6 @@
 	)
 	(label "OBJROMD30"
 		(at 400.05 152.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24304,7 +24167,6 @@
 	)
 	(label "OBJROMD9"
 		(at 77.47 171.45 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24315,7 +24177,6 @@
 	)
 	(label "OBJROMD10"
 		(at 342.9 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24326,7 +24187,6 @@
 	)
 	(label "ORAMA6"
 		(at 214.63 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24337,7 +24197,6 @@
 	)
 	(label "OBJROMD16"
 		(at 400.05 116.84 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24348,7 +24207,6 @@
 	)
 	(label "VSS"
 		(at 347.98 59.69 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24359,7 +24217,6 @@
 	)
 	(label "OBJROMD9"
 		(at 340.36 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24370,7 +24227,6 @@
 	)
 	(label "CLAT"
 		(at 140.97 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24381,7 +24237,6 @@
 	)
 	(label "OBJROMD24"
 		(at 370.84 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24392,7 +24247,6 @@
 	)
 	(label "AR1"
 		(at 118.11 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24403,7 +24257,6 @@
 	)
 	(label "OBJROMD27"
 		(at 77.47 241.3 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24414,7 +24267,6 @@
 	)
 	(label "OBJROMD18"
 		(at 355.6 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24425,7 +24277,6 @@
 	)
 	(label "OBJROMA0"
 		(at 24.13 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24436,7 +24287,6 @@
 	)
 	(label "HP1"
 		(at 163.83 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24447,7 +24297,6 @@
 	)
 	(label "OBJROMA9"
 		(at 24.13 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24458,7 +24307,6 @@
 	)
 	(label "OBJROMA6"
 		(at 135.89 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24469,7 +24317,6 @@
 	)
 	(label "OBJROMD5"
 		(at 363.22 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24480,7 +24327,6 @@
 	)
 	(label "OBJPXL5"
 		(at 396.24 175.26 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24491,7 +24337,6 @@
 	)
 	(label "MAIN_DB2"
 		(at 218.44 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24502,7 +24347,6 @@
 	)
 	(label "HP4"
 		(at 156.21 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24513,7 +24357,6 @@
 	)
 	(label "VCC"
 		(at 347.98 16.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24524,7 +24367,6 @@
 	)
 	(label "OBJROMD0"
 		(at 316.23 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24535,7 +24377,6 @@
 	)
 	(label "OBJROMA[18..0]"
 		(at 134.62 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24546,7 +24387,6 @@
 	)
 	(label "OBJROMD24"
 		(at 381 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24557,7 +24397,6 @@
 	)
 	(label "PL3"
 		(at 309.88 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24568,7 +24407,6 @@
 	)
 	(label "BR[2..0]"
 		(at 347.98 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24579,7 +24417,6 @@
 	)
 	(label "OBJROMA6"
 		(at 24.13 228.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24590,7 +24427,6 @@
 	)
 	(label "PL0"
 		(at 186.69 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24601,7 +24437,6 @@
 	)
 	(label "OBJRAMD4"
 		(at 208.28 163.83 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24612,7 +24447,6 @@
 	)
 	(label "OBJROMD29"
 		(at 393.7 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24623,7 +24457,6 @@
 	)
 	(label "OBJROMD16"
 		(at 359.41 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24634,7 +24467,6 @@
 	)
 	(label "OBJROMD25"
 		(at 383.54 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24645,7 +24477,6 @@
 	)
 	(label "HP3"
 		(at 158.75 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24656,7 +24487,6 @@
 	)
 	(label "OBJROMD17"
 		(at 400.05 119.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24667,7 +24497,6 @@
 	)
 	(label "PL6"
 		(at 171.45 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24678,7 +24507,6 @@
 	)
 	(label "CPU~{EN}"
 		(at 173.99 245.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24689,7 +24517,6 @@
 	)
 	(label "MAIN_DB2"
 		(at 279.4 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24700,7 +24527,6 @@
 	)
 	(label "CLAT"
 		(at 347.98 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24711,7 +24537,6 @@
 	)
 	(label "OBJRAMD3"
 		(at 208.28 161.29 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24722,7 +24547,6 @@
 	)
 	(label "VCC"
 		(at 24.13 264.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24733,7 +24557,6 @@
 	)
 	(label "ORAMA3"
 		(at 208.28 135.89 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24744,7 +24567,6 @@
 	)
 	(label "VSS"
 		(at 220.98 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24755,7 +24577,6 @@
 	)
 	(label "OBJROMD14"
 		(at 77.47 184.15 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24766,7 +24587,6 @@
 	)
 	(label "OBJROMA11"
 		(at 24.13 241.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24777,7 +24597,6 @@
 	)
 	(label "OBJROMA10"
 		(at 146.05 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24788,7 +24607,6 @@
 	)
 	(label "OBJROMD25"
 		(at 373.38 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24799,7 +24617,6 @@
 	)
 	(label "OBJROMD18"
 		(at 364.49 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24810,7 +24627,6 @@
 	)
 	(label "OBJROMD27"
 		(at 378.46 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24821,7 +24637,6 @@
 	)
 	(label "OBJROMD8"
 		(at 77.47 168.91 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24832,7 +24647,6 @@
 	)
 	(label "OBJROMA3"
 		(at 128.27 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24843,7 +24657,6 @@
 	)
 	(label "OBJPXL1"
 		(at 396.24 185.42 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24854,7 +24667,6 @@
 	)
 	(label "~{VSYNC}"
 		(at 281.94 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24865,7 +24677,6 @@
 	)
 	(label "~{ZLD}"
 		(at 353.06 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24876,7 +24687,6 @@
 	)
 	(label "OBJROMA7"
 		(at 342.9 83.82 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24887,7 +24697,6 @@
 	)
 	(label "MAIN_A6"
 		(at 85.09 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24898,7 +24707,6 @@
 	)
 	(label "OBJRAMD1"
 		(at 208.28 156.21 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24909,7 +24717,6 @@
 	)
 	(label "~{OBJSET}"
 		(at 111.76 224.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24920,7 +24727,6 @@
 	)
 	(label "MAIN_A9"
 		(at 85.09 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24931,7 +24737,6 @@
 	)
 	(label "PL5"
 		(at 314.96 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24942,7 +24747,6 @@
 	)
 	(label "OBJROMA14"
 		(at 332.74 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24953,7 +24757,6 @@
 	)
 	(label "OBJROMD8"
 		(at 370.84 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24964,7 +24767,6 @@
 	)
 	(label "ORAMA7"
 		(at 214.63 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24975,7 +24777,6 @@
 	)
 	(label "HP2"
 		(at 327.66 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24986,7 +24787,6 @@
 	)
 	(label "MAIN_A8"
 		(at 85.09 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24997,7 +24797,6 @@
 	)
 	(label "OBJROMD26"
 		(at 77.47 238.76 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25008,7 +24807,6 @@
 	)
 	(label "MAIN_A10"
 		(at 85.09 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25019,7 +24817,6 @@
 	)
 	(label "HP0"
 		(at 166.37 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25030,7 +24827,6 @@
 	)
 	(label "MAIN_DB0"
 		(at 279.4 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25041,7 +24837,6 @@
 	)
 	(label "ORAMA8"
 		(at 208.28 123.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25052,7 +24847,6 @@
 	)
 	(label "ORAMA[10..0]"
 		(at 227.33 111.76 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25063,7 +24857,6 @@
 	)
 	(label "OBJROMD5"
 		(at 77.47 161.29 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25074,7 +24867,6 @@
 	)
 	(label "ORAMA2"
 		(at 214.63 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25085,7 +24877,6 @@
 	)
 	(label "MAIN_DB5"
 		(at 218.44 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25096,7 +24887,6 @@
 	)
 	(label "OBJROMD4"
 		(at 77.47 158.75 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25107,7 +24897,6 @@
 	)
 	(label "OBJRAMD1"
 		(at 262.89 171.45 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25118,7 +24907,6 @@
 	)
 	(label "OBJROMD23"
 		(at 77.47 231.14 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25129,7 +24917,6 @@
 	)
 	(label "OBJROMD12"
 		(at 381 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25140,7 +24927,6 @@
 	)
 	(label "OBJROMA0"
 		(at 24.13 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25151,7 +24937,6 @@
 	)
 	(label "OBJROMA10"
 		(at 24.13 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25162,7 +24947,6 @@
 	)
 	(label "OBJRAMD6"
 		(at 262.89 184.15 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25173,7 +24957,6 @@
 	)
 	(label "BROK"
 		(at 365.76 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25184,7 +24967,6 @@
 	)
 	(label "AR0"
 		(at 368.3 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25195,7 +24977,6 @@
 	)
 	(label "OBJROMA16"
 		(at 337.82 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25206,7 +24987,6 @@
 	)
 	(label "OBJROMD30"
 		(at 396.24 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25217,7 +24997,6 @@
 	)
 	(label "~{ZLD}"
 		(at 135.89 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25228,7 +25007,6 @@
 	)
 	(label "OBJROMA4"
 		(at 24.13 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25239,7 +25017,6 @@
 	)
 	(label "OBJRAMD3"
 		(at 262.89 176.53 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25250,7 +25027,6 @@
 	)
 	(label "OBJROMA1"
 		(at 24.13 215.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25261,7 +25037,6 @@
 	)
 	(label "OBJROMA17"
 		(at 24.13 256.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25272,7 +25047,6 @@
 	)
 	(label "OBJROMD9"
 		(at 353.06 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25283,7 +25057,6 @@
 	)
 	(label "PL3"
 		(at 179.07 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25294,7 +25067,6 @@
 	)
 	(label "VCC"
 		(at 24.13 199.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25305,7 +25077,6 @@
 	)
 	(label "OBJROMD2"
 		(at 321.31 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25316,7 +25087,6 @@
 	)
 	(label "~{RD}"
 		(at 281.94 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25327,7 +25097,6 @@
 	)
 	(label "OBJROMA18"
 		(at 342.9 59.69 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25338,7 +25107,6 @@
 	)
 	(label "SHADOW"
 		(at 168.91 208.28 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25349,7 +25117,6 @@
 	)
 	(label "OBJROMD17"
 		(at 353.06 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25360,7 +25127,6 @@
 	)
 	(label "OBJROMA4"
 		(at 24.13 223.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25371,7 +25137,6 @@
 	)
 	(label "ORAMA6"
 		(at 208.28 128.27 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25382,7 +25147,6 @@
 	)
 	(label "OBJPXL7"
 		(at 396.24 170.18 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25393,7 +25157,6 @@
 	)
 	(label "VCC"
 		(at 372.11 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25404,7 +25167,6 @@
 	)
 	(label "OBJROMA10"
 		(at 24.13 238.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25415,7 +25177,6 @@
 	)
 	(label "GM12"
 		(at 281.94 187.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25426,7 +25187,6 @@
 	)
 	(label "OBJROMD15"
 		(at 77.47 186.69 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25437,7 +25197,6 @@
 	)
 	(label "OBJROMD6"
 		(at 345.44 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25448,7 +25207,6 @@
 	)
 	(label "OBJPXL6"
 		(at 396.24 172.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25459,7 +25217,6 @@
 	)
 	(label "OBJROMD18"
 		(at 400.05 121.92 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25470,7 +25227,6 @@
 	)
 	(label "OBJROMD0"
 		(at 77.47 148.59 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25481,7 +25237,6 @@
 	)
 	(label "AR[2..0]"
 		(at 381 213.36 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25492,7 +25247,6 @@
 	)
 	(label "ORAMA9"
 		(at 214.63 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25503,7 +25257,6 @@
 	)
 	(label "OBJRAMD2"
 		(at 262.89 123.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25514,7 +25267,6 @@
 	)
 	(label "OBJROMA3"
 		(at 24.13 220.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25525,7 +25277,6 @@
 	)
 	(label "OBJROMA14"
 		(at 156.21 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25536,7 +25287,6 @@
 	)
 	(label "ORAMA2"
 		(at 208.28 138.43 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25547,7 +25297,6 @@
 	)
 	(label "OBJPXL8"
 		(at 396.24 167.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25558,7 +25307,6 @@
 	)
 	(label "OBJROMD1"
 		(at 77.47 151.13 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25569,7 +25317,6 @@
 	)
 	(label "OBJROMD3"
 		(at 77.47 156.21 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25580,7 +25327,6 @@
 	)
 	(label "OBJROMA16"
 		(at 24.13 189.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25591,7 +25337,6 @@
 	)
 	(label "MAIN_DB3"
 		(at 218.44 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25602,7 +25347,6 @@
 	)
 	(label "ORAMA1"
 		(at 208.28 140.97 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25613,7 +25357,6 @@
 	)
 	(label "OBJROMD14"
 		(at 353.06 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25624,7 +25367,6 @@
 	)
 	(label "OBJROMA14"
 		(at 24.13 248.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25635,7 +25377,6 @@
 	)
 	(label "OBJRAMD2"
 		(at 208.28 158.75 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25646,7 +25387,6 @@
 	)
 	(label "OBJROMD11"
 		(at 378.46 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25657,7 +25397,6 @@
 	)
 	(label "OBJROMD26"
 		(at 386.08 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25668,7 +25407,6 @@
 	)
 	(label "OBJROMA1"
 		(at 327.66 83.82 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25679,7 +25417,6 @@
 	)
 	(label "OBJROMD15"
 		(at 400.05 114.3 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25690,7 +25427,6 @@
 	)
 	(label "OBJROMD19"
 		(at 358.14 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25701,7 +25437,6 @@
 	)
 	(label "ORAMA8"
 		(at 214.63 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25712,7 +25447,6 @@
 	)
 	(label "OBJROMD7"
 		(at 368.3 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25723,7 +25457,6 @@
 	)
 	(label "~{OBJRAM_CS}"
 		(at 50.8 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25734,7 +25467,6 @@
 	)
 	(label "OBJROMD8"
 		(at 337.82 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25745,7 +25477,6 @@
 	)
 	(label "OBJROMD2"
 		(at 335.28 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25756,7 +25487,6 @@
 	)
 	(label "OBJROMD10"
 		(at 77.47 173.99 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25767,7 +25497,6 @@
 	)
 	(label "OBJROMA12"
 		(at 24.13 243.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25778,7 +25507,6 @@
 	)
 	(label "BR1"
 		(at 128.27 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25789,7 +25517,6 @@
 	)
 	(label "OBJROMD31"
 		(at 398.78 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25800,7 +25527,6 @@
 	)
 	(label "OBJROMA17"
 		(at 24.13 191.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25811,7 +25537,6 @@
 	)
 	(label "HP7"
 		(at 340.36 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25822,7 +25547,6 @@
 	)
 	(label "OBJROMD28"
 		(at 77.47 243.84 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25833,7 +25557,6 @@
 	)
 	(label "OBJROMD24"
 		(at 400.05 137.16 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25844,7 +25567,6 @@
 	)
 	(label "OBJROMD31"
 		(at 400.05 154.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25855,7 +25577,6 @@
 	)
 	(label "OBJROMD3"
 		(at 337.82 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25866,7 +25587,6 @@
 	)
 	(label "MAIN_A2"
 		(at 85.09 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25877,7 +25597,6 @@
 	)
 	(label "HP3"
 		(at 330.2 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25888,7 +25607,6 @@
 	)
 	(label "MAIN_DB7"
 		(at 218.44 186.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25899,7 +25617,6 @@
 	)
 	(label "OBJROMD1"
 		(at 353.06 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25910,7 +25627,6 @@
 	)
 	(label "PL2"
 		(at 307.34 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25921,7 +25637,6 @@
 	)
 	(label "OBJROMD4"
 		(at 326.39 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25932,7 +25647,6 @@
 	)
 	(label "AR2"
 		(at 115.57 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25943,7 +25657,6 @@
 	)
 	(label "OBJROMA1"
 		(at 24.13 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25954,7 +25667,6 @@
 	)
 	(label "OBJROMA1"
 		(at 123.19 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25965,7 +25677,6 @@
 	)
 	(label "PL4"
 		(at 312.42 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25976,7 +25687,6 @@
 	)
 	(label "OBJRAMD7"
 		(at 262.89 135.89 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25987,7 +25697,6 @@
 	)
 	(label "OBJROMA14"
 		(at 24.13 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25998,7 +25707,6 @@
 	)
 	(label "AROK"
 		(at 113.03 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26009,7 +25717,6 @@
 	)
 	(label "OBJROMD13"
 		(at 363.22 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26020,7 +25727,6 @@
 	)
 	(label "OBJROMA9"
 		(at 347.98 83.82 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26031,7 +25737,6 @@
 	)
 	(label "AR1"
 		(at 370.84 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26042,7 +25747,6 @@
 	)
 	(label "OBJROMD5"
 		(at 342.9 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26053,7 +25757,6 @@
 	)
 	(label "OBJROMD25"
 		(at 400.05 139.7 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26064,7 +25767,6 @@
 	)
 	(label "OBJROMD29"
 		(at 77.47 246.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26075,7 +25777,6 @@
 	)
 	(label "OBJROMA2"
 		(at 24.13 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26086,7 +25787,6 @@
 	)
 	(label "BROK"
 		(at 123.19 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26097,7 +25797,6 @@
 	)
 	(label "MAIN_DB6"
 		(at 279.4 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26108,7 +25807,6 @@
 	)
 	(label "MAIN_A7"
 		(at 85.09 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26119,7 +25817,6 @@
 	)
 	(label "OBJROMD7"
 		(at 77.47 166.37 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26130,7 +25827,6 @@
 	)
 	(label "MAIN_A4"
 		(at 85.09 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26141,7 +25837,6 @@
 	)
 	(label "OBJROMD21"
 		(at 400.05 129.54 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26152,7 +25847,6 @@
 	)
 	(label "OBJPXL0"
 		(at 396.24 187.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26163,7 +25857,6 @@
 	)
 	(label "OBJROMD21"
 		(at 363.22 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26174,7 +25867,6 @@
 	)
 	(label "OBJROMA0"
 		(at 120.65 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26185,7 +25877,6 @@
 	)
 	(label "PL0"
 		(at 302.26 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26196,7 +25887,6 @@
 	)
 	(label "~{RD}"
 		(at 147.32 219.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26207,7 +25897,6 @@
 	)
 	(label "OBJROMD[31..0]"
 		(at 257.81 248.92 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26218,7 +25907,6 @@
 	)
 	(label "OBJROMD7"
 		(at 334.01 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26229,7 +25917,6 @@
 	)
 	(label "ORAMA5"
 		(at 214.63 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26240,7 +25927,6 @@
 	)
 	(label "OBJROMD4"
 		(at 360.68 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26251,7 +25937,6 @@
 	)
 	(label "MAIN_A5"
 		(at 85.09 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26262,7 +25947,6 @@
 	)
 	(label "OBJRAMD2"
 		(at 262.89 173.99 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26273,7 +25957,6 @@
 	)
 	(label "OBJROMD22"
 		(at 77.47 228.6 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26284,7 +25967,6 @@
 	)
 	(label "OBJROMD22"
 		(at 400.05 132.08 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26295,7 +25977,6 @@
 	)
 	(label "OBJROMD25"
 		(at 77.47 236.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26306,7 +25987,6 @@
 	)
 	(label "OBJROMD15"
 		(at 355.6 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26317,7 +25997,6 @@
 	)
 	(label "OBJROMD1"
 		(at 318.77 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26328,7 +26007,6 @@
 	)
 	(label "OBJRAMD7"
 		(at 208.28 171.45 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26339,7 +26017,6 @@
 	)
 	(label "OBJROMD2"
 		(at 77.47 153.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26350,7 +26027,6 @@
 	)
 	(label "OBJROMD10"
 		(at 355.6 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26361,7 +26037,6 @@
 	)
 	(label "ORAMA0"
 		(at 214.63 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26372,7 +26047,6 @@
 	)
 	(label "OBJROMA13"
 		(at 24.13 246.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26383,7 +26057,6 @@
 	)
 	(label "MAIN_A0"
 		(at 85.09 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26394,7 +26067,6 @@
 	)
 	(label "OBJROMD23"
 		(at 368.3 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26405,7 +26077,6 @@
 	)
 	(label "OBJROMD19"
 		(at 367.03 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26416,7 +26087,6 @@
 	)
 	(label "OBJRAMD1"
 		(at 262.89 120.65 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26427,7 +26097,6 @@
 	)
 	(label "OBJROMA18"
 		(at 166.37 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26438,7 +26107,6 @@
 	)
 	(label "OBJRAMD4"
 		(at 262.89 179.07 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26449,7 +26117,6 @@
 	)
 	(label "OBJROMA15"
 		(at 158.75 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26460,7 +26127,6 @@
 	)
 	(label "VSS"
 		(at 24.13 195.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26471,7 +26137,6 @@
 	)
 	(label "OBJROMD4"
 		(at 340.36 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26482,7 +26147,6 @@
 	)
 	(label "OBJROMD12"
 		(at 347.98 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26493,7 +26157,6 @@
 	)
 	(label "OBJROMA4"
 		(at 130.81 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26504,7 +26167,6 @@
 	)
 	(label "VSS"
 		(at 400.05 76.2 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26515,7 +26177,6 @@
 	)
 	(label "OBJROMA7"
 		(at 24.13 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26526,7 +26187,6 @@
 	)
 	(label "PL5"
 		(at 173.99 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26537,7 +26197,6 @@
 	)
 	(label "MAIN_DB1"
 		(at 218.44 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26548,7 +26207,6 @@
 	)
 	(label "OBJROMD27"
 		(at 400.05 144.78 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26559,7 +26217,6 @@
 	)
 	(label "OBJROMA13"
 		(at 330.2 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26570,7 +26227,6 @@
 	)
 	(label "HP4"
 		(at 332.74 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26581,7 +26237,6 @@
 	)
 	(label "ORAMA4"
 		(at 208.28 133.35 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26592,7 +26247,6 @@
 	)
 	(label "MAIN_DB4"
 		(at 279.4 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26603,7 +26257,6 @@
 	)
 	(label "HP8"
 		(at 146.05 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26614,7 +26267,6 @@
 	)
 	(label "OBJROMD21"
 		(at 77.47 226.06 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26625,7 +26277,6 @@
 	)
 	(label "OBJROMA7"
 		(at 138.43 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26636,7 +26287,6 @@
 	)
 	(label "ORAMA7"
 		(at 208.28 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26647,7 +26297,6 @@
 	)
 	(label "OBJROMA3"
 		(at 24.13 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26658,7 +26307,6 @@
 	)
 	(label "HP0"
 		(at 322.58 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26669,7 +26317,6 @@
 	)
 	(label "BR0"
 		(at 130.81 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26680,7 +26327,6 @@
 	)
 	(label "OBJROMA5"
 		(at 24.13 226.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26691,7 +26337,6 @@
 	)
 	(label "OBJROMA3"
 		(at 332.74 83.82 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26702,7 +26347,6 @@
 	)
 	(label "PL[6..0]"
 		(at 288.29 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26713,7 +26357,6 @@
 	)
 	(label "ORAMA3"
 		(at 214.63 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26724,7 +26367,6 @@
 	)
 	(label "OBJRAMD0"
 		(at 262.89 118.11 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26735,7 +26377,6 @@
 	)
 	(label "OBJROMA8"
 		(at 24.13 233.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26746,7 +26387,6 @@
 	)
 	(label "OBJROMA15"
 		(at 24.13 251.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26757,7 +26397,6 @@
 	)
 	(label "OBJRAMD[7..0]"
 		(at 262.89 156.21 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26768,7 +26407,6 @@
 	)
 	(label "AR0"
 		(at 120.65 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26779,7 +26417,6 @@
 	)
 	(label "HP9"
 		(at 143.51 207.01 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26790,7 +26427,6 @@
 	)
 	(label "OBJROMA8"
 		(at 140.97 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26801,7 +26437,6 @@
 	)
 	(label "OBJROMA11"
 		(at 24.13 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26812,7 +26447,6 @@
 	)
 	(label "HP8"
 		(at 342.9 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26823,7 +26457,6 @@
 	)
 	(label "OBJROMD12"
 		(at 360.68 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26834,7 +26467,6 @@
 	)
 	(label "OBJROMD30"
 		(at 386.08 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26845,7 +26477,6 @@
 	)
 	(label "OBJROMD7"
 		(at 347.98 92.71 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26856,7 +26487,6 @@
 	)
 	(label "HP[9..0]"
 		(at 314.96 210.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26867,7 +26497,6 @@
 	)
 	(label "BR2"
 		(at 363.22 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26878,7 +26507,6 @@
 	)
 	(label "ORAMA10"
 		(at 214.63 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26889,7 +26517,6 @@
 	)
 	(label "OBJROMA15"
 		(at 335.28 48.26 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26900,7 +26527,6 @@
 	)
 	(label "AROK"
 		(at 375.92 203.2 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26911,7 +26537,6 @@
 	)
 	(label "ORAMA9"
 		(at 208.28 120.65 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26922,7 +26547,6 @@
 	)
 	(label "OBJROMD3"
 		(at 323.85 39.37 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26933,7 +26557,6 @@
 	)
 	(label "OBJROMA11"
 		(at 148.59 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26944,7 +26567,6 @@
 	)
 	(label "OBJROMD2"
 		(at 355.6 85.09 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26955,7 +26577,6 @@
 	)
 	(label "OBJRAMD5"
 		(at 208.28 166.37 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26966,7 +26587,6 @@
 	)
 	(label "OBJROMA13"
 		(at 153.67 96.52 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26978,7 +26598,6 @@
 	(hierarchical_label "CPU~{EN}"
 		(shape output)
 		(at 184.15 105.41 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26990,7 +26609,6 @@
 	(hierarchical_label "R{slash}~{W}"
 		(shape input)
 		(at 55.88 128.27 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27002,7 +26620,6 @@
 	(hierarchical_label "MAIN_A[10..0]"
 		(shape input)
 		(at 78.74 82.55 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27014,7 +26631,6 @@
 	(hierarchical_label "GM12"
 		(shape input)
 		(at 115.57 104.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27026,7 +26642,6 @@
 	(hierarchical_label "~{HSYNC}"
 		(shape input)
 		(at 99.06 123.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27038,7 +26653,6 @@
 	(hierarchical_label "PR13"
 		(shape output)
 		(at 391.16 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27050,7 +26664,6 @@
 	(hierarchical_label "PR14"
 		(shape output)
 		(at 391.16 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27062,7 +26675,6 @@
 	(hierarchical_label "MAIN_DB[7..0]"
 		(shape tri_state)
 		(at 210.82 200.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27074,7 +26686,6 @@
 	(hierarchical_label "~{MDS}"
 		(shape input)
 		(at 288.29 152.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27086,7 +26697,6 @@
 	(hierarchical_label "~{RCS0}"
 		(shape input)
 		(at 99.06 120.65 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27098,7 +26708,6 @@
 	(hierarchical_label "M6"
 		(shape input)
 		(at 118.11 104.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27110,7 +26719,6 @@
 	(hierarchical_label "OBJPXL[8..0]"
 		(shape output)
 		(at 398.78 195.58 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27122,7 +26730,6 @@
 	(hierarchical_label "~{RD}"
 		(shape input)
 		(at 113.03 104.14 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27134,7 +26741,6 @@
 	(hierarchical_label "~{VSYNC}"
 		(shape input)
 		(at 99.06 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27146,7 +26752,6 @@
 	(hierarchical_label "~{OBJSET}"
 		(shape input)
 		(at 99.06 128.27 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27158,7 +26763,6 @@
 	(hierarchical_label "~{OBJRAM_CS}"
 		(shape input)
 		(at 147.32 237.49 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -27170,7 +26774,6 @@
 	(hierarchical_label "SDI0"
 		(shape output)
 		(at 391.16 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
