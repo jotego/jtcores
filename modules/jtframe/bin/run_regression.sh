@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # change default frames in $JTFRAME/bin/reg.yaml
+TODELETE=()
 
 main() {
     if [[ -z $JTROOT ]]; then
@@ -10,6 +11,7 @@ main() {
     fi
 
     shopt -s nullglob
+    trap clean_up INT KILL EXIT
 
     parse_args "$@"
 
@@ -113,6 +115,10 @@ main() {
     fi
 
     return $ec
+}
+
+clean_up() {
+    rm -rf "${main[@]}"
 }
 
 parse_args() {
@@ -282,7 +288,7 @@ get_zips() {
     if ! get_zip_names zip_names; then return 1; fi
     
     roms_dir_ref=$(mktemp -d)
-    trap "rm -rf $roms_dir_ref" EXIT
+    TODELETE+=($roms_dir_ref)
 
     for zip in "${zip_names[@]}"; do
         sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
@@ -383,7 +389,7 @@ check_video() {
 get_remote_frames() {
     declare -n dir=$1
     dir=$(mktemp -d)
-    trap "rm -rf $dir" EXIT
+    TODELETE+=($dir)
 
     echo "[INFO] Downloading remote frames for $setname"
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
@@ -406,7 +412,7 @@ check_frames() {
     local n_ref_frames="${#ref_frames[@]}"
 
     if [[ $n_frames -gt $n_ref_frames ]]; then
-        echo " [WARNING] There are $n_ref_frames frames available for comparison, when it is needed a minimum of $n_frames"
+        echo "[WARNING] The valid folder contains $n_ref_frames frames but the new simulation has $n_frames"
         return 1
     fi
 
@@ -487,7 +493,7 @@ EOF
 
     unzip audio.zip
     rm -f audio.zip
-    trap "rm -f audio.wav" EXIT
+    TODELETE+=(`realpath audio.wav`)
 }
 
 upload_results() {
