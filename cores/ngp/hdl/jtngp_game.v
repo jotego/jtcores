@@ -27,11 +27,9 @@ wire [ 7:0] snd_latch, main_latch, ioctl_pal, ioctl_main,
 wire [ 1:0] cpu_we, shd_we;
 reg  [ 7:0] st_mux;
 reg  [ 3:0] cart_size;
-wire [ 1:0] pressed_b;
-reg         pressed_l, pwr_press;
 wire        gfx_cs,
             flash0_cs, flash0_rdy, flash0_ok,
-            flash1_cs, flash1_rdy, flash1_ok, f1g_gcs;
+            flash1_cs, flash1_rdy, flash1_ok, f1g_gcs, pwr_press;
 wire        snd_ack, snd_nmi, snd_irq, mute_enb, snd_rstn, ioctl_rest, mode;
 wire        hirq, virq, main_int5, pwr_button, poweron, halted;
 reg         cart_l;
@@ -75,19 +73,7 @@ end
 
 assign ioctl_din = ioctl_addr[7] ? ioctl_pal : ioctl_main;
 
-always @(posedge clk) begin
-    pressed_l <= ~pressed_b[0];
-    pwr_press <= ~&{pressed_b[0],pressed_l};
-end
-
-jtframe_crosshair_disable #(.CNTW(7)) u_power_onoff(
-    .rst        ( rst             ),
-    .clk        ( clk             ),
-    .vs         ( VS              ),
-    .strobe     ( {1'b1,coin[0]}  ),
-    .pulse      (                 ),
-    .en_b       ( pressed_b       )
-);
+jtngp_pwr u_power_onoff(rst, clk, VS, coin[0], pwr_press);
 
 /* verilator tracing_on */
 jtngp_main u_main(
