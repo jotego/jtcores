@@ -1,1 +1,0 @@
-../../../riders/ver/game/dump_split.sh
