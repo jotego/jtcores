@@ -1,5 +1,5 @@
 [parse]
-sourcefile=[ "parodius.cpp" ]
+sourcefile=[ "parodius.cpp","surpratk.cpp"  ]
 
 [Audio]
 volume = [
@@ -9,6 +9,7 @@ volume = [
 [buttons]
 names = [
     { names="Power-up,Shoot,Missile/Bell", machine="parodius" },
+    { names="Shot,Jump", machine="suratk" },
 ]
 
 [dipsw]
@@ -17,17 +18,20 @@ delete=[{names=["Unused","Unknown"]}]
 [header]
 info = """ Header to identify the PCB type
         Byte 0 = 1 - Parodius
+        Byte 0 = 4 - Surprise Attack
                  """
 data = [
     { machine="parodius", offset=0, data="01" },
+    { machine="suratk",   offset=0, data="04" },
 ]
 
 [ROM]
 regions = [
     { name="maincpu" },
-    { name="audiocpu", start="JTFRAME_BA1_START", machine="parodius" },
-    { name="k053260",  start="PCM_START", rename="pcm", machine ="parodius", sequence=[0,0] },
+    { name="audiocpu", start="JTFRAME_BA1_START",       machine="parodius" },
+    { name="k053260",  start="PCM_START", rename="pcm", machine="parodius", sequence=[0,0] },
     { name="k052109",  start="JTFRAME_BA2_START", width=32, rename="tiles" }, # tiles
+    { name="k053244",  start="JTFRAME_BA3_START", width=32, rename="obj", machine="suratk"   }, # sprites
     { name="k053245",  start="JTFRAME_BA3_START", width=32, rename="obj", machine="parodius" }, # sprites
     { name="eeprom",   skip=true },
     { name="plds",     skip=true },
