@@ -842,11 +842,12 @@ localparam [RFSH_WC-1:0] RFSH_M  = 6144;
 localparam               RFSH_WC =   12;
 localparam [RFSH_WC-1:0] RFSH_M  = 3072; // one refresh every ~64us
 `endif
+localparam [RFSH_WC-1:0] RFSH_N  = 1;
 wire [1:0] rfsh;
 
-jtframe_frac_cen #(.WC(12)) u_rfsh(
+jtframe_frac_cen #(.WC(RFSH_WC)) u_rfsh(
     .clk    ( clk_rom   ),
-    .n      ( 10'b1     ),
+    .n      ( RFSH_N    ),
     .m      ( RFSH_M    ),
     .cen    ( rfsh      ),
     .cenb   (           )
