@@ -394,7 +394,7 @@ function [COLW*3-1:0] extend;
     end
 endfunction
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         show        <= 0;
         hide        <= 0;

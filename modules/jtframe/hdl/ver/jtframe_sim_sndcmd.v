@@ -49,7 +49,7 @@ always @(cmdcnt) begin
     cur_cmd   = cmd_list  [ (ptr<<3)-1 -: 8];
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         cmdcnt <= 0;
         framecnt <= 1;

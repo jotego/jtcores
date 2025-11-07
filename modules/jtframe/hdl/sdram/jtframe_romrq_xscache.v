@@ -59,7 +59,7 @@ generate
         assign din_ok = drdy;
         assign din_mux={din,din_lo};
 
-        always @(posedge clk, posedge rst) begin
+        always @(posedge clk) begin
             if( rst ) begin
                 drdy   <= 0;
                 din_lo <= 0;

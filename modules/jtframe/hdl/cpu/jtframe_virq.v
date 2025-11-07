@@ -33,7 +33,7 @@ module jtframe_virq(
 
 reg last_LVBL, last_cin, skip;
 
-always @(posedge clk, posedge rst) begin : int_gen
+always @(posedge clk) begin : int_gen
     if( rst ) begin
         custom_n <= 1;
         blin_n   <= 1;

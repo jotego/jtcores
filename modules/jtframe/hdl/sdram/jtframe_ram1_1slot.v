@@ -58,7 +58,7 @@ module jtframe_ram1_1slot #(parameter
 wire req, req_rnw;
 reg  we;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         we           <= 0;
         sdram_rd     <= 0;

@@ -86,7 +86,7 @@ assign sample_up  = sample & ~sl;
 
 always @(posedge clk) rst <= rst_sys;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         LVBLl     <= 0;
         st_dout   <= 0;

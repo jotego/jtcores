@@ -287,7 +287,7 @@ jtframe_romrq #(.AW(SLOT8_AW),.DW(SLOT8_DW)) u_slot8(
 
 wire [8:0] active = ~data_sel & req;
 
-always @(posedge clk, posedge rst)
+always @(posedge clk)
 if( rst ) begin
     sdram_addr <= 22'd0;
     sdram_rd  <=  1'b0;

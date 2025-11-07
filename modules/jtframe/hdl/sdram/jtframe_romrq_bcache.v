@@ -88,7 +88,7 @@ end
 
 // reg [1:0] ok_sr;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         good         <= 0;
         cached_data0 <= 0;
@@ -182,7 +182,7 @@ reg          waiting, last_req;
 integer addr_warn_cnt=0, req_warn_cnt=0;
 localparam MAX_WARN_CNT=200;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         waiting <= 0;
         last_req <= 0;
@@ -245,7 +245,7 @@ module jtframe_romrq_stats(
 integer cur, longest, shortest, total, acc_cnt;
 reg cnt_en, last_req, first;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         cur      <= 0;
         longest  <= 0;

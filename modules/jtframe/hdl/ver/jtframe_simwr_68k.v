@@ -43,7 +43,7 @@ initial begin
     file=$fopen(SIMFILE,"r");
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         A    <= 0;
         dout <= 0;

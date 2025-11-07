@@ -33,7 +33,7 @@ module jtframe_bram_dma #( parameter
 
 reg sl;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         we   <= 0;
         addr <= 0;

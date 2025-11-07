@@ -50,7 +50,7 @@ wire v = |signs & ~&signs; // overflow
 assign sgain = {1'b0,gain};
 assign full  = sin * sgain;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         mul <= 0;
         peak <= 0;

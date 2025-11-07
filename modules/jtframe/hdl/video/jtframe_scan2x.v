@@ -131,7 +131,7 @@ localparam [CLKSTEPS-1:0] PURE_ST  = 0;
 reg alt_pxl=0; // this is needed in case pxl2_cen and pxl_cen are not aligned.
 reg [CLKSTEPS-1:0] mixst;
 
-always@(posedge clk or posedge rst) begin
+always@(posedge clk) begin
     if( rst ) begin
         preout <= {DW{1'b0}};
     end else begin

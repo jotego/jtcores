@@ -40,7 +40,7 @@ initial begin : read_sim_inputs
     $readmemh( "sim_inputs.hex", sim_inputs );
 end
 
-always @(negedge vs, posedge rst) begin
+always @(negedge vs) begin
     if( rst ) begin
         frame_cnt <= 0;
     end else begin

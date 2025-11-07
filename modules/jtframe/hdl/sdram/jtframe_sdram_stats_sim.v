@@ -151,7 +151,7 @@ reg [12:0] row;
 
 wire act = cmd==4'd3 && sdram_ba==BA;
 
-always @(posedge clk or posedge rst) begin
+always @(posedge clk) begin
     if(rst) begin
         count <= 0;
         longest <= 0;

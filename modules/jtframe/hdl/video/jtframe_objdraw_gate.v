@@ -171,7 +171,7 @@ generate
         // Instead of configuring this per game using macros, I have opted for detecting
         // the situation generally and fixing it. The readout count will keep increasing
         // until HS is hit.
-        always @(posedge clk, posedge rst) begin
+        always @(posedge clk) begin
             if( rst ) begin
                 hdfix <= 0;
             end else if(pxl_cen) begin

@@ -232,7 +232,7 @@ always @(*) begin
 end
 
 // ports
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         p1ddr <= 0;
         p2ddr <= 0;
@@ -348,7 +348,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 // interrupts
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         irq_ocf <= 0;
         irq_icf <= 0;
@@ -369,7 +369,7 @@ wire [7:0] ramAE=ram[8'hae];
 wire [7:0] ram92=ram[8'h92];
 assign buf_dout = bdout_aux;
 
-always @(posedge clk,posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         for(rk=0;rk<256;rk=rk+1) ram[rk]=0;
         bdout_aux <= 0;
@@ -391,7 +391,7 @@ jtframe_ram #(.AW(8)) u_buffer( // internal RAM
 
 // reg [7:0] tracka, trackd;
 
-// always @(posedge clk, posedge rst) begin
+// always @(posedge clk) begin
 //     if( rst ) begin
 //         tracka <= 0;
 //         trackd <= 0;

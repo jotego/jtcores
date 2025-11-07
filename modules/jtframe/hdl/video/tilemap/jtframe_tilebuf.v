@@ -51,7 +51,7 @@ assign hnext = hscan + 1'd1;
 assign we    = pxl2_cen & rom_ok & !done;
 assign scan_cen = pxl2_cen & rom_ok;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         hscan <= {HW{1'b0}};
         vscan <= {VW{1'b0}};

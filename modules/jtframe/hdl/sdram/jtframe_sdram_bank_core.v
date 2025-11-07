@@ -195,7 +195,7 @@ always @(*) begin
     next_ba3 = next( ba3_st, 2'd3 );
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         ba0_st   <= { {STW-1{1'b0}}, 1'd1 };
         ba1_st   <= { {STW-1{1'b0}}, 1'd1 };

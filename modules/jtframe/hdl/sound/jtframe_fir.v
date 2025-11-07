@@ -68,7 +68,7 @@ function signed [15:0] sat;
     sat = a[35:32] == {4{a[31]}} ? a[31:16] : { a[35], {15{~a[35]}} };
 endfunction
 
-always@(posedge clk, posedge rst) begin
+always@(posedge clk) begin
     if( rst ) begin
         l_out <= 0;
         r_out <= 0;

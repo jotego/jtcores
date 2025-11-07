@@ -35,7 +35,7 @@ wire signed [W-1:0] dcrm_snd;
 reg         [W-1:0] base_snd;
 wire signed [ 15:0] dcrm16 = { dcrm_snd, dcrm_snd[W-2:W-WD-1] };
 
-always @(posedge clk, posedge rst ) begin
+always @(posedge clk) begin
     if( rst ) begin
         base_snd <= {W{1'd0}};
     end else if(sample) begin

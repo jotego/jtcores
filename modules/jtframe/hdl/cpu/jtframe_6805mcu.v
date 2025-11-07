@@ -78,7 +78,7 @@ end
 // Ports
 always @(posedge clk) if(rst) mor <= rom_data;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         pa_latch <= 0; pa_ddr <= 0;
         pb_latch <= 0; pb_ddr <= 0;

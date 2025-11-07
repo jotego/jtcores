@@ -52,7 +52,7 @@ module jtframe_rec_inputs(
                          recwsh[0] ?            recin : fdiff;
     wire        rec_we = recwsh!= 0 || !rec_clrd;
 
-    always @(posedge clk, posedge rst) begin
+    always @(posedge clk) begin
         if( rst ) begin
             reca     <= 0;
             recin    <= 0;

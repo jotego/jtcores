@@ -35,7 +35,7 @@ always @* begin
         nines[i] = cnt[(i*4)+:4]==4'h9;
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         cnt[3:0] <= 0;
     end else begin
@@ -49,7 +49,7 @@ end
 
 generate
     for( k=1; k<DIGITS; k=k+1 ) begin : upper_bcds
-        always @(posedge clk, posedge rst) begin
+        always @(posedge clk) begin
             if( rst ) begin
                 cnt[k*4+:4] <= 0;
             end else begin

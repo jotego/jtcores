@@ -50,7 +50,7 @@ wire prog_rq = prog_en &(prog_wr | prog_rd);
 
 generate
     if( LATCH==1 ) begin
-        always @(posedge clk, posedge rst) begin
+        always @(posedge clk) begin
             if( rst ) begin
                 ba0_addr_l <= 0;
                 ba1_addr_l <= 0;

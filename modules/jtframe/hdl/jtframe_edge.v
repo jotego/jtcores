@@ -33,7 +33,7 @@ module jtframe_edge #(parameter
         edge_l <= edgeof;
     end
 
-    always @(posedge clk,posedge rst) begin
+    always @(posedge clk) begin
         if( rst ) begin
             q <= ATRST;
         end else begin
@@ -60,7 +60,7 @@ module jtframe_edge_pulse #(parameter
 
     reg sigin_l;
 
-    always @(posedge clk,posedge rst) begin
+    always @(posedge clk) begin
         if( rst ) begin
             pulse <= INVERT[0];
             sigin_l <= 0;

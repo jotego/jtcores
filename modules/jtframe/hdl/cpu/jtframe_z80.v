@@ -298,7 +298,7 @@ module jtframe_z80_devwait (
         if( M1_WAIT>0 ) begin
             reg [M1_WAIT-1:0] wsh;
             reg m1n_l;
-            always @(posedge clk, negedge rst_n ) begin
+            always @(posedge clk) begin
                 if( !rst_n ) begin
                     wsh <= 0;
                 end else if(cen) begin

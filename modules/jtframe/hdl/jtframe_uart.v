@@ -50,7 +50,7 @@ parameter [4:0] CLK_DIVIDER  = 28,
 reg  [4:0] clk_cnt;
 reg zero;
 
-always @(posedge clk or posedge rst) begin : clock_divider
+always @(posedge clk) begin : clock_divider
     if(rst) begin
         clk_cnt <= CLK_DIVIDER - 5'b1;
         zero    <= 1'b0;
@@ -79,7 +79,7 @@ reg [4:0] rx_divcnt;
 reg [3:0] rx_bitcnt;
 reg [7:0] rx_reg;
 
-always @(posedge clk or posedge rst) begin : rx_logic
+always @(posedge clk) begin : rx_logic
     if(rst) begin
         rx_rdy    <= 0;     // output data is valid
         rx_busy   <= 0;
@@ -123,7 +123,7 @@ reg [3:0] tx_bitcnt;
 reg [4:0] tx_divcnt;
 reg [7:0] tx_reg;
 
-always @(posedge clk or posedge rst) begin :tx_logic
+always @(posedge clk) begin :tx_logic
     if(rst) begin
         tx_busy   <= 0;
         uart_tx   <= 1;

@@ -133,7 +133,7 @@ generate
     if( MUXLATCH ) begin
         reg post_ack;
 
-        always @(posedge clk, posedge rst) begin
+        always @(posedge clk) begin
             if( rst ) begin
                 { fifo_addr, fifo_rd, fifo_wr, fifo_ba } <= {RQW{1'b0}};
                 post_ack <= 0;
@@ -153,7 +153,7 @@ generate
 endgenerate
 
 `ifdef JTFRAME_SDRAM_REPACK
-always @(posedge clk, posedge rst ) begin
+always @(posedge clk) begin
     if( rst )begin
         ba0_rdy <= 0;
         ba1_rdy <= 0;
@@ -189,7 +189,7 @@ end
 `endif
 
 // Produce one refresh cycle after each programming write
-always @(posedge clk, posedge rst ) begin
+always @(posedge clk) begin
     if( rst )
         ctl_rfsh_en <= 0;
     else begin
@@ -243,7 +243,7 @@ always @(*) begin
     if( BWAIT_EN && bwait!=5'd0 ) mux_data = {RQW-2{1'd0}};
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         queue   <= 4'd0;
         ba_last <= 2'd0;

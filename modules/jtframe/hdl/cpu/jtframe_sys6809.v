@@ -219,7 +219,7 @@ module jtframe_sys6809_dma #( parameter
     assign irq_ack = {BA,BS}==2'b01;
     assign bg      = {BA,BS}==2'b11; // this will toggle once every 16 cycles when granted
 
-    always @(posedge clk, negedge rstn) begin
+    always @(posedge clk) begin
         if( !rstn )
             VMA <= 1;
         else

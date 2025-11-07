@@ -43,7 +43,7 @@ initial begin
 end
 
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst )
         error <= 1'b0;
     else if(cen) begin

@@ -43,7 +43,7 @@ module jtframe_mixer_en #(parameter W0=16,W1=16,W2=16,W3=16,WOUT=16)(
 
 reg [7:0] g0, g1, g2, g3;
 
-always @(posedge clk,posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         g0 <= 0;
         g1 <= 0;
