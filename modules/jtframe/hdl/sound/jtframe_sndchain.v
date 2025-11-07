@@ -74,7 +74,7 @@ always @* begin
     scld[WOS-1-:WO]={sin[WS-1-:W], {WO-W{1'b0}}};
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         sout <= 0;
         peak <= 0;

@@ -47,7 +47,7 @@ always @* begin
     end
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         paddle <= 0;
         hwpadl <= 0;

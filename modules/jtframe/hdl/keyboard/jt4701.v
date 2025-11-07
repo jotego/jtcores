@@ -67,7 +67,7 @@ jt4701_axis u_axisy(
     .step       (           )
 );
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         cfn  <= 1;
         sfn  <= 1;
@@ -189,7 +189,7 @@ reg last_pulse;
 
 always @(posedge clk) last_pulse <= pulse;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         dial <= 2'b0;
     end else if( pulse && !last_pulse && (inc||dec)) begin

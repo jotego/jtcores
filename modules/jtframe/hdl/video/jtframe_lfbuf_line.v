@@ -147,7 +147,7 @@ localparam [3:0] ACTIVE=4'b1_000,
 
 // count lines so objects get drawn in the line buffer
 // and dumped from there to the SDRAM
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         frame    <= 0;
         ln_hs    <= 0;

@@ -46,7 +46,7 @@ generate
         // This is useful when the input signal is below 1kHz
         reg [9:0] div;
         assign cen = div==999;
-        always @(posedge clk, posedge rst) begin
+        always @(posedge clk) begin
             if( rst ) begin
                 div <= 0;
             end else begin
@@ -59,7 +59,7 @@ endgenerate
 // Frequency reporting
 assign cnt_event = pulse & ~pulse_l;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         freq_cnt <= 0;
         fworst   <= {DIGITS*4{1'b1}};

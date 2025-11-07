@@ -54,7 +54,7 @@ function signed [15:0] sat;
     sat = a[35:30] == {6{a[29]}} ? a[29:14] : { a[35], {15{~a[35]}} };
 endfunction
 
-always@(posedge clk, posedge rst) begin
+always@(posedge clk) begin
     if( rst ) begin
         l_out <= 16'd0;
         r_out <= 16'd0;

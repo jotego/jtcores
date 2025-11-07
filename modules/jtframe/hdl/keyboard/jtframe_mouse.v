@@ -78,7 +78,7 @@ assign joy1_off = ~joy1 &  joy1_l;
 assign joy2_on  =  joy2 & ~joy2_l;
 assign joy2_off = ~joy2 &  joy2_l;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         mouse_1p <= 0;
         mouse_2p <= 0;

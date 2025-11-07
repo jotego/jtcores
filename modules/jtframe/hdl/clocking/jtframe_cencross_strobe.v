@@ -31,7 +31,7 @@ module jtframe_cencross_strobe(
 reg  last, st_latch;
 wire st_edge = stin && !last;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if(rst) begin
         last     <= 1'b0;
         st_latch <= 1'b0;
@@ -42,7 +42,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if(rst) begin
         stout    <= 1'b0;
     end else  if(cen) begin

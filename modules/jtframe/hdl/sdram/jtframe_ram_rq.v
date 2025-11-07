@@ -65,7 +65,7 @@ module jtframe_ram_rq #(parameter
     // wire   cs_negedge = !addr_ok && last_cs;
     assign erase_bsy = ERASE[0] && !erased;
 
-    always @(posedge clk, posedge rst) begin
+    always @(posedge clk) begin
         if( rst ) begin
             last_cs   <= 0;
             req       <= 0;

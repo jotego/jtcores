@@ -55,7 +55,7 @@ jtframe_enlarger #(.W(4)) u_enlarger(
 
 ///////////////// LED is on while
 // ioctl_rom, PLL lock lost, OSD is shown or in reset state
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         led <= POL[0];
     end else begin

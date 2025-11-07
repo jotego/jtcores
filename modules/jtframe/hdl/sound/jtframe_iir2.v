@@ -43,7 +43,7 @@ assign x0  = sin;
 assign sout= sum[(WS*2-1-G)-:WS];
 assign sum = xb0+xb1+xb2-ya1-ya2;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
     end else begin
         if(sample) begin

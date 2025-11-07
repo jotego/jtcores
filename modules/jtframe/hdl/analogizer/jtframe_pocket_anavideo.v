@@ -77,7 +77,7 @@ function [5:0] extend6;
     endcase
 endfunction
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         {cart1_vdir, cart2_vdir, cart3_vdir} <= 3'b0;
          cart1_vid  <= 5'h0;     cart2_vid   <= 8'h0;

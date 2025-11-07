@@ -32,7 +32,7 @@ module jtframe_rtc(
 
 reg [9:0] cnt;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         { hour, min, sec } <= `ifndef JTFRAME_SIM_RTC 0 `else `JTFRAME_SIM_RTC `endif;
         cnt <= 0;

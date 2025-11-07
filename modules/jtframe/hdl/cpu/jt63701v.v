@@ -183,7 +183,7 @@ always @(*) begin
 end
 
 // ports
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         p1ddr <= 0;
         p2ddr <= 0;
@@ -268,7 +268,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 // interrupts
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         irq_ocf <= 0;
         irq_icf <= 0;

@@ -38,7 +38,7 @@ always @(posedge clk) begin
     vol   <= vol16[15] ? 8'hff : vol16[14-:8];
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         knob   <= 8'h80; // matching value in game_test.v
         vs_l   <= 0;

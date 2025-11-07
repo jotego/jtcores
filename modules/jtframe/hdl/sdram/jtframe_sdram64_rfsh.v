@@ -70,7 +70,7 @@ wire   [CW:0] next_cnt;
 
 assign next_cnt = {1'b0, cnt} + RFSHCNT[CW-1:0];
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         st      <= 1;
         cmd     <= CMD_NOP;

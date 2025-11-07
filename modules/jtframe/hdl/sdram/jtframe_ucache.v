@@ -67,7 +67,7 @@ always @* begin
     hit = |match;
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         valid   <= 0;
         wr_indx <= 0;

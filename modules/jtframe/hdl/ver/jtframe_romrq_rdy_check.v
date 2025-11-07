@@ -31,7 +31,7 @@ reg  [3:0] busy, ackd, last_rq;
 wire [3:0] rq = ba_rd | ba_wr;
 wire [3:0] rq_edge = rq & ~last_rq;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         busy <= 0;
         ackd <= 0;

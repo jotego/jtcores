@@ -236,7 +236,7 @@ always @(posedge clk) begin
     end
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         prio_lfsr <= 1;
     end else begin

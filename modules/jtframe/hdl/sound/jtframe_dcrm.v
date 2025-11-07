@@ -60,7 +60,7 @@ always @(posedge clk) begin
     end
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         integ <= {SW+DW+1{1'b0}};
         error <= {SW+DW+1{1'b0}};

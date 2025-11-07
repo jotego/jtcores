@@ -84,7 +84,7 @@ jtframe_dual_ram #(.DW(16), .AW(9), .SYNFILE(COEFFS)) u_ram(
     .q1     ( ram_dout      )
 );
 
-always@(posedge clk, posedge rst) begin
+always@(posedge clk) begin
     if( rst ) begin
         dout  <= 16'd0;
         pt_rd <= 8'd0;
