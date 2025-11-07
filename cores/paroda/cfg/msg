@@ -4,16 +4,18 @@
 
   Version \C - \D
 
-  Based on PCB schematics,
-  chip data from Furrtek
-  & Caius, MAME docs and
-   our own lab research
+   Based on PCB schematics,
+   chip data from Furrtek
+    & Caius, MAME docs,
+    PAL equations from
+   wiki.pldarchive.co.uk
+  and our own lab research
 
         Reviewed by
     the \RJTAlpha team\W
 
  \B______ \RPRODUCERS\B _______\W
-           Luke Rowe
+        Luke Rowe
 
  \B______ \RDIRECTORS\B _______\W
     Blue Abs    Bender
