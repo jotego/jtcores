@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -113,6 +114,7 @@ func MakeMacros(core, target string, extra... string) {
 	clean_osd_macro()
 	check_colorw()
 	mclk := make_clocks(target)
+	set_sdram_refresh_rate( int64(mclk) )
 	add_subcarrier_clk( int64(mclk) )
 	make_beta_macros(core, target)
 }
@@ -373,6 +375,15 @@ func check_colorw() {
 	if colorw<4 || colorw>8 {
 		log.Fatal("JTFRAME: macro JTFRAME_COLORW must be between 4 and 8")
 	}
+}
+
+func set_sdram_refresh_rate( mclk int64 ) {
+	const freq_64us = float64(15625)
+	divider := float64(mclk) / freq_64us
+	bitwidth := int(math.Ceil(math.Log2(divider)))
+	Set("JTFRAME_RFSH_WC",fmt.Sprintf("%d",bitwidth))
+	Set("JTFRAME_RFSH_N", fmt.Sprintf("%d'd1",bitwidth))
+	Set("JTFRAME_RFSH_M", fmt.Sprintf("%d'd%.0f",bitwidth,divider))
 }
 
 func add_subcarrier_clk( mclk int64 ) {

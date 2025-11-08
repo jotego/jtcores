@@ -835,22 +835,15 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     end
 `endif
 
-`ifdef JTFRAME_SDRAM96
-localparam               RFSH_WC =   13;
-localparam [RFSH_WC-1:0] RFSH_M  = 6144;
-`else
-localparam               RFSH_WC =   12;
-localparam [RFSH_WC-1:0] RFSH_M  = 3072; // one refresh every ~64us
-`endif
-localparam [RFSH_WC-1:0] RFSH_N  = 1;
 wire [1:0] rfsh;
 
-jtframe_frac_cen #(.WC(RFSH_WC)) u_rfsh(
-    .clk    ( clk_rom   ),
-    .n      ( RFSH_N    ),
-    .m      ( RFSH_M    ),
-    .cen    ( rfsh      ),
-    .cenb   (           )
+// Automatic JTFRAME macros set a 64us refresh period
+jtframe_frac_cen #(.WC(`JTFRAME_RFSH_WC)) u_rfsh(
+    .clk    ( clk_rom           ),
+    .n      ( `JTFRAME_RFSH_N   ),
+    .m      ( `JTFRAME_RFSH_M   ),
+    .cen    ( rfsh              ),
+    .cenb   (                   )
 );
 
 // support for 48MHz

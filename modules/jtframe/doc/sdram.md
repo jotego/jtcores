@@ -211,6 +211,10 @@ For small shifts, the synthesizer will be able to align the SDRAM data and clock
 
 There are three different SDRAM controllers in JTFRAME. They all work and are stable, however only the latest one is connected to jtframe_board. The others are left for reference.
 
+## SDRAM Refresh Rate
+
+The SDRAM controller is set to go into refresh mode once every 64us, regardless of the core frequency. The numerical constants used to calculate the clock divider are set by `jtframe cfgstr` during compilation. These constants are contained in macros named `JTFRAME_RFSH_*`
+
 ## JTFRAME_SDRAM
 
 **jtframe_sdram** is a generic SDRAM controller that runs upto 48MHz because it is designed for CL=2. It mainly serves for reading ROMs from the SDRAM but it has some support for writting (apart from the initial ROM download process).

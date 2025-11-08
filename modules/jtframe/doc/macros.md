@@ -78,6 +78,9 @@ JTFRAME_PADDLE_MAX       |         | Maximum paddle value used by jtframe_paddle
 JTFRAME_PLL              |         | PLL module name to be used. PLL names must end in the pixel clock frequency in kHz
 JTFRAME_PXLCLK           |         | 6 or 8. Defines de pixel clock. See [clocks](clocks.md)
 JTFRAME_RELEASE          |         | Disables debug control via keyboard
+JTFRAME_RFSH_WC          |         | Automatic. Used by SDRAM refresh in jtframe_board
+JTFRAME_RFSH_N           |         | Automatic. Used by SDRAM refresh in jtframe_board
+JTFRAME_RFSH_M           |         | Automatic. Used by SDRAM refresh in jtframe_board
 JTFRAME_ROTATE           |         | Enables more rotate options in the OSD
 JTFRAME_SCAN2X_NOBLEND   | MiST    | Disables pixel blending
 JTFRAME_SRAM             | Pocket  | Enables SRAM ports at the game module
