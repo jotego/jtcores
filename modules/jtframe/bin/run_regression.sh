@@ -505,7 +505,7 @@ upload_results() {
 
     case $ec in
         0) files=();;
-        1)
+        1|2)
             folder="fail"
             files=("$fullname-sim.log")
         ;;
