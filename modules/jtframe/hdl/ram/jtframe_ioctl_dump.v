@@ -90,12 +90,15 @@ end
 `endif
 
 reg  [ 5:0] sel;
-wire [23:0] part_addr;
+reg  [23:0] part_addr, ioctl_adl;
 reg  [23:0] offset;
 
-assign part_addr = ioctl_addr - offset;
+always @(posedge clk) begin
+    ioctl_adl <= ioctl_addr;
+    part_addr <= ioctl_addr - offset;
+end
 
-assign addr0_mx = ioctl_ram ? ioctl_addr[(AW0!=0?AW0-1:0):(AW0!=0?DW0>>4:0)] : addr0;
+assign addr0_mx = ioctl_ram ?  ioctl_adl[(AW0!=0?AW0-1:0):(AW0!=0?DW0>>4:0)] : addr0;
 assign addr1_mx = ioctl_ram ?  part_addr[(AW1!=0?AW1-1:0):(AW1!=0?DW1>>4:0)] : addr1;
 assign addr2_mx = ioctl_ram ?  part_addr[(AW2!=0?AW2-1:0):(AW2!=0?DW2>>4:0)] : addr2;
 assign addr3_mx = ioctl_ram ?  part_addr[(AW3!=0?AW3-1:0):(AW3!=0?DW3>>4:0)] : addr3;
