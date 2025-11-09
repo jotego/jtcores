@@ -31,14 +31,21 @@ module jtframe_rsthold(
 `endif    
 );
 
-always @(negedge clk)   rst_h   <= rst   || hold;
+always @(posedge clk) begin
+    rst_h <= rst || hold;
+end
 
 reg hold24;
-always @(posedge clk24) hold24  <= hold;
-always @(negedge clk24) rst24_h <= rst24 || hold24;
+always @(posedge clk24) begin
+    hold24  <= hold;
+    rst24_h <= rst24 || hold24;
+end
 `ifdef JTFRAME_CLK48
 reg hold48;
-always @(posedge clk48) hold48  <= hold;
-always @(negedge clk48) rst48_h <= rst48 || hold48; `endif
+always @(posedge clk48) begin
+    hold48  <= hold;
+    rst48_h <= rst48 || hold48;
+end
+`endif
 
 endmodule
