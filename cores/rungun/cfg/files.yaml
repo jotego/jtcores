@@ -37,6 +37,9 @@ jtframe:
     get:
       - jtframe_dual_ram16.v
       - jtframe_dual_nvram16.v
+  - from: clocking
+    get:
+      - jtframe_crossclk_cen.v
 jt539:
 jteeprom:
   - get:

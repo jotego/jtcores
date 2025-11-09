@@ -34,16 +34,20 @@ assign debug_view={7'd0,dma_bsy};
 assign dip_flip = ghflip ^ gvflip;
 assign psrm_dout = {psac2_dout,psac01_dout};
 
+always @(posedge clk48) begin
+    rst_main  <= rst48;
+    rst_snd   <= rst48;
+end
+
 always @(posedge clk) begin
-    rst_main  <= rst;
-    rst_snd   <= rst;
     rst_video <= rst;
 end
 
 /* verilator tracing_on */
 jtrungun_main u_main(
-    .rst            ( rst_main      ),
-    .clk            ( clk           ),
+    .rst            ( rst48         ),
+    .clk            ( clk48         ),
+    .clk96          ( clk96         ),
     .pxl_cen        ( pxl_cen       ),
     .lvbl           ( LVBL          ),
 

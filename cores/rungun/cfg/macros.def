@@ -37,7 +37,7 @@ JTFRAME_IOCTL_RD+=32
 
 JTFRAME_CREDITS_HSTART=64
 
-# for now
+[pocket]
 JTFRAME_NOSTA
 
 [sidi128]

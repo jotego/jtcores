@@ -17,7 +17,7 @@
     Date: 4-7-2025 */
 
 module jtrungun_main(
-    input                rst, clk, pxl_cen,
+    input                rst, clk, pxl_cen, clk96,
     input                lvbl,
     input                disp,
 
@@ -265,9 +265,18 @@ jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
     .dump_flag  (           )
 );
 
+wire pxl48_cen;
+
+jtframe_crossclk_cen u_crosscen(
+    .clk_in     ( clk96     ),     // fast clock
+    .cen_in     ( pxl_cen   ),
+    .clk_out    ( clk       ),    // slow clock
+    .cen_out    ( pxl48_cen )
+);
+
 jtrungun_dtack u_dtack(
     .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
+    .pxl_cen    ( pxl48_cen ),
     .bus_dtackn ( bus_dtackn),
     .fix_cs     ( vmem_cs   ),
     .dsn        ( ram_dsn   ),
@@ -285,11 +294,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 5'd1      ),  // numerator
-`ifdef JTFRAME_SDRAM96
-    .den        ( 6'd6      ),  // denominator, 6 (16MHz)
-`else
-    .den        ( 6'd3      ),  // denominator, 3 (16MHz)
-`endif
+    .den        ( 6'd3      ),  // denominator, 3 (48/3=16MHz)
     .DTACKn     ( bus_dtackn),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
