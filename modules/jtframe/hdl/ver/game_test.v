@@ -280,6 +280,17 @@ wire prog_en = ioctl_rom | dwnld_busy;
     );
 `endif
 
+wire [1:0] rfsh;
+
+// Automatic JTFRAME macros set a 64us refresh period
+jtframe_frac_cen #(.WC(`JTFRAME_RFSH_WC)) u_rfsh(
+    .clk    ( clk_rom           ),
+    .n      ( `JTFRAME_RFSH_N   ),
+    .m      ( `JTFRAME_RFSH_M   ),
+    .cen    ( rfsh              ),
+    .cenb   (                   )
+);
+
 jtframe_sdram64 #(
     .AW           ( SDRAMW        ),
     .BA0_LEN      ( BA0_LEN       ),
@@ -361,7 +372,7 @@ jtframe_sdram64 #(
 
     // Common signals
     .dout       ( data_read     ),
-    .rfsh       ( !prog_en & ~LHBL ) // Do not refresh during programming
+    .rfsh       ( !prog_en & rfsh[0] ) // Do not refresh during programming
                                      // the verilator code sends the data too fast
 );
 /* verilator tracing_off */
