@@ -27,13 +27,22 @@ wire [ 7:0] vtimer_mmr, st_main, st_snd, pair_dout;
 wire [ 3:0] psac_bank;
 wire        lrsw, psac_cs, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw, pair_we,
             sdon, objrg_cs, objrm_cs, objcha_n, dma_bsy;
+reg         rst_main, rst_snd, rst_video;
+
 
 assign debug_view={7'd0,dma_bsy};
 assign dip_flip = ghflip ^ gvflip;
 assign psrm_dout = {psac2_dout,psac01_dout};
+
+always @(posedge clk) begin
+    rst_main  <= rst;
+    rst_snd   <= rst;
+    rst_video <= rst;
+end
+
 /* verilator tracing_on */
 jtrungun_main u_main(
-    .rst            ( rst           ),
+    .rst            ( rst_main      ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
     .lvbl           ( LVBL          ),
@@ -113,7 +122,7 @@ jtrungun_main u_main(
 );
 /* verilator tracing_off */
 jtrungun_sound u_sound(
-    .rst            ( rst           ),
+    .rst            ( rst_snd       ),
     .clk            ( clk48         ),
     .cen_8          ( cen_8         ),
     .cen_pcm        ( cen_pcm       ),
@@ -148,7 +157,7 @@ jtrungun_sound u_sound(
 );
 /* verilator tracing_on */
 jtrungun_video u_video(
-    .rst            ( rst           ),
+    .rst            ( rst_video     ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
     .pxl2_cen       ( pxl2_cen      ),
