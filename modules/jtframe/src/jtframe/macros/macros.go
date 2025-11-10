@@ -378,8 +378,8 @@ func check_colorw() {
 }
 
 func set_sdram_refresh_rate( mclk int64 ) {
-	const freq_64us = float64(128000)
-	divider := float64(mclk) / freq_64us
+	const freq_period_7812ns = float64(128000)
+	divider := float64(mclk) / freq_period_7812ns
 	bitwidth := int(math.Ceil(math.Log2(divider)))
 	Set("JTFRAME_RFSH_WC",fmt.Sprintf("%d",bitwidth))
 	Set("JTFRAME_RFSH_N", fmt.Sprintf("%d'd1",bitwidth))
