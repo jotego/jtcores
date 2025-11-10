@@ -35,6 +35,12 @@ end endfunction
 //     check_ofs = adj!=a;
 // end endfunction
 
+reg [13:0] last_addr;
+
+always @(posedge clk) begin
+    last_addr <= ioctl_addr[13:0];
+end
+
 initial begin
     ioctl_ram  = 0;
     ioctl_wr   = 0;
@@ -64,16 +70,17 @@ initial begin
     repeat(500) begin
         ioctl_dout = $random;
         ioctl_addr[14:0] = $random;
-        #10;
+        @(posedge clk);
+        @(posedge clk);
         assert_msg(din0_mx==ioctl_dout,"signals to memories must follow IOCTL when ioctl_ram is high");
         assert_msg(din5_mx==ioctl_dout,"signals to memories must follow IOCTL when ioctl_ram is high");
-        assert_msg(addr0_mx==ioctl_addr[9:0],"addr0_mx must track ioctl_addr");
+        assert_msg(addr0_mx==last_addr[9:0],"addr0_mx must track ioctl_addr");
         assert_msg(check_sel(0,1024,          uut.sel[0]), "block 0 must be selected" );
         assert_msg(check_sel(1024,  1024  +1024*4,uut.sel[1]), "block 1 must be selected" );
         assert_msg(check_sel(1024*5,1024*5+1024*8,uut.sel[2]), "block 2 must be selected" );
-        assert_msg( ioctl_addr[ 9:0]            ==addr0_mx || !uut.sel[0],"block 0 address is not shifted correctly");
-        assert_msg((ioctl_addr[12:0]-13'd1024  )==addr1_mx || !uut.sel[1],"block 1 address is not shifted correctly");
-        assert_msg((ioctl_addr[13:0]-14'd1024*5)==addr2_mx || !uut.sel[2],"block 2 address is not shifted correctly");
+        assert_msg( last_addr[ 9:0]            ==addr0_mx || !uut.sel[0],"block 0 address is not shifted correctly");
+        assert_msg((last_addr[12:0]-13'd1024  )==addr1_mx || !uut.sel[1],"block 1 address is not shifted correctly");
+        assert_msg((last_addr[13:0]-14'd1024*5)==addr2_mx || !uut.sel[2],"block 2 address is not shifted correctly");
     end
     pass();
 end
