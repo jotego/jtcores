@@ -305,6 +305,7 @@ jtrungun_psac u_psac(
     .rom_cs     ( scr_cs    ),
     .rom_ok     ( scr_ok    ),
     .pxl        ( psc_pxl   ),
+    .gfx_en     ( gfx_en    ),
     // IOCTL dump
     .ioctl_addr (ioctl_addr[4:0]),
     .ioctl_din  ( psac_mmr  )
@@ -370,6 +371,7 @@ jtrungun_colmix u_colmix(
     .shadow     ( shadow        ),
 
     .pxl        ( ln_data       ),
+    .gfx_en     ( gfx_en        ),
     .debug_bus  ( debug_bus     )
 );
 
