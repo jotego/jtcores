@@ -40,6 +40,7 @@ module jtrungun_psac(
 
     output reg  [ 7:0] pxl,
 
+    input      [3:0] gfx_en,
     // IOCTL dump
     input      [4:0] ioctl_addr,
     output     [7:0] ioctl_din
@@ -51,6 +52,7 @@ wire [12:0] x, y;
 wire        xh,yh,ob;
 wire [13:0] code;
 wire        hflip, vflip;
+wire [ 7:0] pre_pxl;
 wire [ 3:0] pal, vf, hf, dmux;
 
 assign line_addr = {la[7:0],lh};
@@ -61,6 +63,7 @@ assign vflip     = vram_dout[15];
 assign pal       = vram_dout[19:16];
 assign vf        = {4{vflip}} ^ {y[3:0]};
 assign hf        = {4{hflip}} ^ {x[3:0]};
+assign pre_pxl   = gfx_en[1] ? {pal,dmux} : 8'b0;
 
 assign rom_cs    = ~ob & blankn;
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
@@ -71,7 +74,7 @@ end
 
 always @(posedge clk) if(pxl_cen) begin
     pxl <= 0;
-    if(rom_ok) pxl <= {pal,dmux};
+    if(rom_ok) pxl <= pre_pxl;
     if(  ob  ) pxl <= 0;
 end
 

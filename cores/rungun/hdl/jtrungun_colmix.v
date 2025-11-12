@@ -26,12 +26,13 @@ module jtrungun_colmix(
 
     // frame buffer
     output     [15:0] pxl,
+    input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus
 );
 
 wire        shad, fix_op, psc_op, obj_op;
 
-assign fix_op   = fix_pxl[3:0]!=0;
+assign fix_op = fix_pxl[3:0]!=0 && gfx_en[0];
 assign psc_op = psc_pxl[3:0]!=0;
 assign obj_op = obj_pxl[3:0]!=0;
 assign pxl[15:12]=0;
