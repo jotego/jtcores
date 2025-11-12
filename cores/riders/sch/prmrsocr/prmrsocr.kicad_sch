@@ -1393,6 +1393,16 @@
 	)
 	(wire
 		(pts
+			(xy 284.48 143.51) (xy 299.72 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0897f87a-7beb-4b7b-8a9f-a0801d240ef6")
+	)
+	(wire
+		(pts
 			(xy 148.59 199.39) (xy 165.1 199.39)
 		)
 		(stroke
@@ -1603,6 +1613,16 @@
 	)
 	(wire
 		(pts
+			(xy 317.5 67.31) (xy 327.66 67.31)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d966997-c105-42d7-9e58-b00c1b83584f")
+	)
+	(wire
+		(pts
 			(xy 88.9 88.9) (xy 100.33 88.9)
 		)
 		(stroke
@@ -1620,16 +1640,6 @@
 			(type default)
 		)
 		(uuid "1f46705b-8172-4441-8c6d-20ab3b41ea84")
-	)
-	(wire
-		(pts
-			(xy 284.48 113.03) (xy 300.99 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "208e914d-7a06-4253-a362-7308dbc0aa20")
 	)
 	(bus
 		(pts
@@ -1820,6 +1830,16 @@
 			(type default)
 		)
 		(uuid "40182e24-3586-4203-a5f0-0f57e633d1f8")
+	)
+	(bus
+		(pts
+			(xy 327.66 69.85) (xy 311.15 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4202bcc2-a0e8-4f59-a12d-046fd3656ee9")
 	)
 	(wire
 		(pts
@@ -2111,6 +2131,16 @@
 		)
 		(uuid "67a217a4-a84e-4535-8896-bdf234d1f6b0")
 	)
+	(bus
+		(pts
+			(xy 311.15 46.99) (xy 327.66 46.99)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "680dc08b-78b5-4f32-a520-515ff7542916")
+	)
 	(wire
 		(pts
 			(xy 100.33 149.86) (xy 100.33 152.4)
@@ -2140,16 +2170,6 @@
 			(type default)
 		)
 		(uuid "6a1d05af-1f2d-4e5b-8c69-7afbc8567e9c")
-	)
-	(wire
-		(pts
-			(xy 311.15 46.99) (xy 327.66 46.99)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6bccdbc2-d034-4094-858d-61a4f99c14c9")
 	)
 	(wire
 		(pts
@@ -3401,6 +3421,16 @@
 		)
 		(uuid "fccf51da-941b-486b-a99e-a13cdeffbfd3")
 	)
+	(bus
+		(pts
+			(xy 284.48 113.03) (xy 300.99 113.03)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd15b015-3881-477c-8865-21607bdceb07")
+	)
 	(wire
 		(pts
 			(xy 148.59 184.15) (xy 165.1 184.15)
@@ -3889,6 +3919,16 @@
 		)
 		(uuid "1a61255d-c174-4089-8b2b-5ec6f297e65d")
 	)
+	(label "MBRIT[2..0]"
+		(at 311.15 69.85 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1d354654-15e1-4fb5-b485-c6a22f525315")
+	)
 	(label "~{WDOGRST}"
 		(at 311.15 204.47 0)
 		(effects
@@ -4099,7 +4139,7 @@
 		)
 		(uuid "341b2137-9547-4d93-a177-4b93ed1ad0bf")
 	)
-	(label "~{OBJSET}"
+	(label "~{OBJSET}[1..0]"
 		(at 300.99 113.03 180)
 		(effects
 			(font
@@ -4789,6 +4829,16 @@
 		)
 		(uuid "84d111fb-81aa-4d7c-a86f-fc2b44be2034")
 	)
+	(label "P1401"
+		(at 299.72 143.51 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "873a7e71-c96f-433a-9bfb-4c7336cc91cc")
+	)
 	(label "COIN_CNT_2"
 		(at 100.33 99.06 180)
 		(effects
@@ -5079,6 +5129,16 @@
 		)
 		(uuid "b80180fa-9ed4-4048-a365-595247fd106a")
 	)
+	(label "P1401"
+		(at 317.5 67.31 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b8cf4535-f71b-4ae4-86db-4fa8cc9034ed")
+	)
 	(label "SH2"
 		(at 148.59 102.87 0)
 		(effects
@@ -5229,7 +5289,7 @@
 		)
 		(uuid "ce4b285a-858e-467b-9944-d0f7f9ba5f95")
 	)
-	(label "~{OBJSET}"
+	(label "~{OBJSET}[1..0]"
 		(at 311.15 46.99 0)
 		(effects
 			(font
@@ -6905,7 +6965,7 @@
 	)
 	(sheet
 		(at 246.38 90.17)
-		(size 38.1 53.34)
+		(size 38.1 58.42)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -6925,7 +6985,7 @@
 			)
 		)
 		(property "Sheetfile" "main.kicad_sch"
-			(at 246.38 144.0946 0)
+			(at 246.38 149.1746 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6992,16 +7052,6 @@
 				(justify right)
 			)
 			(uuid "c5be710f-9193-41fd-93ec-0bf822aa67b1")
-		)
-		(pin "~{OBJSET}" output
-			(at 284.48 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "829fa3f4-f42a-4572-a69f-02dfa01ab93d")
 		)
 		(pin "PALETTE~{CS}" output
 			(at 284.48 115.57 0)
@@ -7182,6 +7232,26 @@
 				(justify right)
 			)
 			(uuid "2f8b532d-df45-44fb-9624-e51d85fdd698")
+		)
+		(pin "~{P1401}" output
+			(at 284.48 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "1f007ca6-80be-425e-8dae-37751dc6a07d")
+		)
+		(pin "~{OBJSET}[1..0]" output
+			(at 284.48 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "81bf7747-abca-48dc-98f9-5a490f6ae170")
 		)
 		(instances
 			(project "prmrsocr"
@@ -7735,7 +7805,7 @@
 	)
 	(sheet
 		(at 327.66 36.83)
-		(size 38.1 33.02)
+		(size 38.1 35.56)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -7755,7 +7825,7 @@
 			)
 		)
 		(property "Sheetfile" "objects.kicad_sch"
-			(at 327.66 70.4346 0)
+			(at 327.66 72.9746 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7782,16 +7852,6 @@
 				(justify left)
 			)
 			(uuid "ff01edbc-3b38-48bc-acd5-e61e452f40fd")
-		)
-		(pin "~{OBJSET}" input
-			(at 327.66 46.99 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "2af8c30b-bd62-4dbf-a373-35a08dc4f962")
 		)
 		(pin "~{OBJRAM_CS}" input
 			(at 327.66 49.53 180)
@@ -7932,6 +7992,36 @@
 				(justify left)
 			)
 			(uuid "599de357-c39c-4210-af65-81242bc98f2a")
+		)
+		(pin "~{P1401}" input
+			(at 327.66 67.31 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "9d102107-8646-4a37-a142-6ced4b7b734f")
+		)
+		(pin "~{OBJSET}[1..0]" input
+			(at 327.66 46.99 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "0d23886f-03e3-4b5e-ab73-a035a0609c5b")
+		)
+		(pin "MBRIT1" input
+			(at 327.66 69.85 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "e841f4c6-47d7-4687-951e-8e165205290d")
 		)
 		(instances
 			(project "prmrsocr"
