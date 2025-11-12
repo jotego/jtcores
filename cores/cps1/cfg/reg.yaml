@@ -21,7 +21,8 @@ ghouls:
 gulunpa:
   inputs: ../game/b1.cab
 knights:
-  video: 2200
+  video: 2400
+  inputs: reg.cab
 msword:
   video: 2200
 mpumpkin:
@@ -61,4 +62,5 @@ varth:
   video: 2200
   inputs: ../game/b1.cab
 willow:
+  video: 2200
   inputs: reg.cab
