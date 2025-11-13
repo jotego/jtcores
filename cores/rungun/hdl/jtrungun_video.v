@@ -252,7 +252,7 @@ jtframe_tilemap #(
 
     .vdump      ( virt_vdumpf   ),
     .hdump      ( virt_hdumpf   ),
-    .blankn     ( blankn        ),
+    .blankn     ( 1'b1          ),
     .flip       ( 1'b0          ),    // Screen flip
 
     .vram_addr  (vram_addr[11:1]),
