@@ -23,7 +23,7 @@ names = [
 
 [dipsw]
 # not real DIP switches, wrongly identified in MAME
-delete=[ {names=["Freeze","Field Bit (DEBUG)"] }]
+delete=[ {names=["Freeze","Field Bit (DEBUG)","Bit2 (Unknown)","Bit7 (Unknown)"] }]
 
 [ROM]
 regions = [
