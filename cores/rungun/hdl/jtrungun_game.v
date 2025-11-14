@@ -45,7 +45,7 @@ end
 
 /* verilator tracing_on */
 jtrungun_main u_main(
-    .rst            ( rst48         ),
+    .rst            ( rst_main      ),
     .clk            ( clk48         ),
     .clk96          ( clk96         ),
     .pxl_cen        ( pxl_cen       ),
