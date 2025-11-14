@@ -420,7 +420,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .clk        ( clk_rom       ),
             .pxl_cen    ( pxl_cen       ),
 
-            .vs         ( HS            ),
+            .hs         ( HS            ),
             .vs         ( VS            ),
             .lvbl       ( LVBL          ),
             .lhbl       ( LHBL          ),
