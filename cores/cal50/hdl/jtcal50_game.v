@@ -127,8 +127,8 @@ jtcal50_video u_video(
     .vflag_cs       ( vflag_cs      ),
     .vram_dout      ( vram_dout     ),
 
-    .pal_cs         ( pal_cs        ),
-    .pal_dout       ( pal_dout      ),
+    .pal_addr       ( palrd_addr    ),
+    .pal_data       ( pal_data      ),
 
     // SDRAM
     .scr_addr       ( scr_addr      ),

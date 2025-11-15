@@ -30,11 +30,9 @@ module jtcal50_video(
     output              VS,
     output              flip,
     output     [ 8:0]   hdump,
-    // PROMs
-    input      [ 9:0]   prog_addr,
-    input      [ 7:0]   prog_data,
-    input               prom_we,
-    input               colprom_en,
+    // Palette
+    output     [ 9:1]   pal_addr,
+    input      [15:0]   pal_data,
     // CPU      interface
     input               cpu_rnw,
     input      [12:0]   cpu_addr,
@@ -152,6 +150,9 @@ jtcal50_colmix u_colmix(
     // Screen
     .LHBL       ( LHBL           ),
     .LVBL       ( LVBL           ),
+    // RAM
+    .pal_addr   ( pal_addr       ),
+    .pal_data   ( pal_data       ),
     // Colour output
     .scr_pxl    ( scr_pxl        ),
     .obj_pxl    ( obj_pxl        ),

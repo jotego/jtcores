@@ -27,7 +27,7 @@ module jtcal50_colmix(
     input  [8:0] obj_pxl,
 
     output [9:1] pal_addr,
-    input [15:0] pal_dout,
+    input [15:0] pal_data,
 
     input  [7:0] debug_bus,
     input  [3:0] gfx_en,
@@ -64,12 +64,12 @@ always @(posedge clk) begin
 `ifdef GRAY
         rgb <= ~{3{ {coll[3:0]}, 1'b0 } };
 `else
-        rgb <= { pal_dout[6:0], pall };
+        rgb <= { pal_data[6:0], pall };
 `endif
         half <= 1;
         coll <= col_addr;
     end
-    pall <= pal_dout;
+    pall <= pal_data;
 end
 
 endmodule
