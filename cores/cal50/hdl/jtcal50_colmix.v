@@ -14,9 +14,9 @@
 
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
-    Date: 18-9-2022 */
+    Date: 15-11-2025 */
 
-module jtkiwi_colmix(
+module jtcal50_colmix(
     input        clk,
     input        clk_cpu,
     input        pxl_cen,
@@ -37,11 +37,6 @@ module jtkiwi_colmix(
     input        cpu2_rnw,
     input  [9:0] cpu2_addr,
 
-    input  [9:0] prog_addr,
-    input  [7:0] prog_data,
-    input        prom_we,
-    input        colprom_en,
-
     input  [7:0] debug_bus,
     input  [3:0] gfx_en,
     output [4:0] red,
@@ -57,17 +52,12 @@ reg  [14:0] rgb;
 wire        pal_we;
 wire        blank;
 reg         half, obj_sel;
-// PROM variation
-wire [15:0] prom_dout;
-wire        promhi_we, promlo_we;
+wire [ 3:0] sort;
 
 assign pal_addr = { coll, half };
 assign pal_we   = (pal_cs & ~cpu_rnw) | (pal2_cs & ~cpu2_rnw);
 assign blank    = ~(LVBL & LHBL);
 assign {red,green,blue} = {15{~blank}} & rgb;
-// PROM
-assign promhi_we = prom_we & ~prog_addr[9];
-assign promlo_we = prom_we &  prog_addr[9];
 
 always @* begin
     obj_sel = obj_pxl[3:0] != 4'h0;
@@ -85,13 +75,19 @@ always @(posedge clk) begin
 `ifdef GRAY
         rgb <= ~{3{ {coll[3:0]}, 1'b0 } };
 `else
-        rgb <= colprom_en ? prom_dout[14:0] : { pal_dout[6:0], pall };
+        rgb <= { pal_dout[6:0], pall };
 `endif
         half <= 1;
         coll <= col_addr;
     end
     pall <= pal_dout;
 end
+
+jtframe_sort u_sort(
+    .debug_bus  ( debug_bus ),
+    .busin      ( col_addr[3:0]    ),
+    .busout     ( sort  )
+);
 
 // Palette RAM X1-007 chip
 jtframe_dual_ram #(.AW(10),.SIMFILE("pal.bin")) u_comm(
@@ -107,27 +103,6 @@ jtframe_dual_ram #(.AW(10),.SIMFILE("pal.bin")) u_comm(
     .data1  (              ),
     .we1    ( 1'b0         ),
     .q1     ( pal_dout     )
-);
-
-// PROM for Extermination
-jtframe_prom #( .AW(9), .SIMFILE("../../../../rom/extrmatn/b06-09.15f")) u_promhi(
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    .data   ( prog_data ),
-    .rd_addr( col_addr  ),
-    .wr_addr( prog_addr[8:0]  ),
-    .we     ( promhi_we ),
-    .q      ( prom_dout[15:8] )
-);
-
-jtframe_prom #( .AW(9), .SIMFILE("../../../../rom/extrmatn/b06-08.17f")) u_promlo(
-    .clk    ( clk       ),
-    .cen    ( 1'b1      ),
-    .data   ( prog_data ),
-    .rd_addr( col_addr  ),
-    .wr_addr( prog_addr[8:0] ),
-    .we     ( promlo_we ),
-    .q      ( prom_dout[7:0] )
 );
 
 endmodule
