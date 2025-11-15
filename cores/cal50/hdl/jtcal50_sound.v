@@ -19,21 +19,24 @@
 module jtcal50_main(
     input              clk,        // 24 MHz
     input              rst,
-    input              cen3,
-    input              cen1p5,
+    input              cen2,
     input              LVBL,
-    input              v8,
+    input              cen244,
 
     input       [ 7:0] snd_cmd,
-    output      [ 7:0] snd_st,
+    output      [ 7:0] snd_rply,
 
+    // PCM
+    output      [19:0] pcma_addr,
+    output      [ 7:0] pcma_data,
+    output             pcma_cs,
     // ROM
     input              rom_ok,
     output reg         rom_cs,
     output      [17:0] rom_addr,
     input       [ 7:0] rom_data
 );
-`ifndef NOMAIN
+`ifndef NOSOUND
 wire [15:0] A;
 wire [ 4:0] rom_upper;
 reg  [ 7:0] cpu_din;
@@ -46,8 +49,11 @@ wire        rdy, nmi_n, nmi_clrn, irqn, irq_clrn, mute;
 assign rom_addr  = { rom_upper, A[12:0] };
 assign rom_upper = banked ? {1'b0,bank}+5'h1 : {3'b0,A[14:13]}
 assign rdy       = ~rom_cs | rom_ok;
-assign nmi_n     = LVBL & dip_pause;
+assign nmi_n     = LVBL;
 assign {bank,nmi_clrn,irq_clrn,mute} = cfg[7:1];
+
+assign pcma_addr = 0;
+assign pcma_cs = 0;
 
 always @* begin
     x1pcm_cs = A[15:12]<=1;
@@ -64,7 +70,7 @@ jtframe_8bit_reg u_st(
     .wr_n       ( rnw       ),
     .din        ( cpu_dout  ),
     .cs         ( st_cs     ),
-    .dout       ( snd_st    )
+    .dout       ( snd_rply  )
 );
 
 jtframe_8bit_reg u_cfg(
@@ -114,7 +120,7 @@ wire [7:0] nc;
 T65 u_cpu(
     .Mode   ( 2'd0      ),  // 6502 mode
     .Res_n  ( ~rst      ),
-    .Enable ( cen1p5    ),
+    .Enable ( cen2      ),
     .Clk    ( clk       ),
     .Rdy    ( rdy       ),
     .Abort_n( 1'b1      ),
@@ -134,7 +140,6 @@ T65 u_cpu(
     .DI     ( cpu_din   ),
     .DO     ( cpu_dout  )
 );
-
 `else
     initial rom_cs   = 0;
     assign  pal_cs   = 0;

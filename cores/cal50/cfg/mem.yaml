@@ -5,7 +5,10 @@ clocks:
   clk48:
     - freq: 2000000
       outputs:
-        - cen_2
+        - cen2
+    - freq: 244
+      outputs:
+        - cen244
 sdram:
   banks:
     - buses:
@@ -23,7 +26,7 @@ sdram:
         - name: snd
           addr_width: 18
           data_width: 8
-        - name: pcm
+        - name: pcma
           addr_width: 20
           data_width: 8
           offset: PCM_OFFSET

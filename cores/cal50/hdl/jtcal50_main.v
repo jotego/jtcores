@@ -18,10 +18,10 @@
 
 module jtcal50_main(
     input                rst, clk, pxl_cen,
-    input                lvbl, quarter,
+    input                lvbl, cen244,
 
     output        [19:1] rom_addr,
-    output        [12:1] cpu_addr,
+    output        [12:0] cpu_addr,
     output        [ 1:0] ram_dsn,
     output               ram_we,
     output        [15:0] cpu_dout,
@@ -30,7 +30,7 @@ module jtcal50_main(
     output               cpu_rnw,
     // Sound interface
     output        [ 7:0] snd_cmd,
-    input         [ 7:0] snd_st,
+    input         [ 7:0] snd_rply,
     // Video interface
 
     output reg           rom_cs,
@@ -43,8 +43,8 @@ module jtcal50_main(
     input                rom_ok,
 
     // Cabinet
-    input         [ 6:0] joystick1,
-    input         [ 6:0] joystick2,
+    input         [ 5:0] joystick1,
+    input         [ 5:0] joystick2,
     input         [ 1:0] cab_1p,
     input         [ 1:0] coin,
     input                service,
@@ -65,13 +65,13 @@ wire        int4ms, int16ms,
             cpu_cen, cpu_cenb, dtackn, VPAn, HALTn,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs;
 reg         ipl2_cs, ipl1_cs, nvram_cs, dips_cs, pal_cs, tlc_cs, tlv_cs,
-            joy_cs, snd_cs, ram_cs;
+            cab_cs, snd_cs, ram_cs;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
 `endif
 
-assign cpu_addr = A[12:1];
+assign cpu_addr = A[13:1];
 assign rom_addr = A[19:1];
 assign VPAn     = ~&{A[23],~ASn};
 assign ram_dsn  = {UDSn, LDSn};
@@ -91,7 +91,7 @@ always @* begin
     pal_cs   = !ASn  &&  A[23:20]==7;
     tlc_cs   = !ASn  &&  A[23:20]==8;  // tiles configuration
     tlv_cs   = !ASn  &&  A[23:20]==9;  // tiles VRAM
-    joy_cs   = !ASn  &&  A[23:20]==10;
+    cab_cs   = !ASn  &&  A[23:20]==10;
     snd_cs   = !ASn  &&  A[23:20]==11;
     // SETA X1-001 chip
     vflag_cs = !ASn  &&  A[23:20]==12;
@@ -108,10 +108,18 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    HALTn   <= dip_pause & ~rst;
-    cpu_din <= rom_cs   ? rom_data          :
-               ram_cs   ? ram_dout          :
-               cab_cs   ? cab_dout          : 16'h0;
+    HALTn    <= dip_pause & ~rst;
+    case(A[4:1])
+        0: cab_dout <= {8'd0,cab_1p[0], 1'b1, joystick1};
+        1: cab_dout <= {8'd0,cab_1p[1], 1'b1, joystick2};
+        4: cab_dout <= {8'd0,coin[0],coin[1],service,tilt,4'hf};
+        // 8: rotation
+    endcase
+    cpu_din  <= rom_cs   ? rom_data   :
+                ram_cs   ? ram_dout   :
+                snd_cs   ? snd_rply   :
+                dips_cs  ? dipsw      :
+                cab_cs   ? cab_dout   : 16'h0;
 end
 
 /* verilator tracing_off */
@@ -126,7 +134,7 @@ jtframe_edge u_lvbl(
 jtframe_edge u_lvbl(
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .edgeof ( quarter   ),
+    .edgeof ( cen244    ),
     .clr    ( ipl2_cs   ),
     .q      ( int4ms    )
 );
@@ -205,17 +213,5 @@ jtframe_m68k u_cpu(
         ram_cs    = 0;
         rom_cs    = 0;
     end
-    assign
-        gvflip    = 0,
-        ghflip    = 0,
-        pri       = 0, lrsw = 1, vmem_addr = 0, cpal_addr = 0, psac_bank = 0,
-        vmem_we   = 0, cpu_dout = 0, ccu_cs = 0, cpal_we = 0,
-        ram_we    = 0, psreg_cs = 0,
-        cpu_rnw   = 1,
-        cpu_addr  = 0,
-        rom_addr  = 0,
-        ram_dsn   = 0, objrm_cs = 0, sdon = 0, objrg_cs=0, objcha_n=1,
-        st_dout   = 0, lmem_we = 0, pmem01_we = 0, pmem_addr = 0,
-        nv_addr   = 0, nv_din  = 0, nv_we = 0, pmem2_we = 0, pair_we=0;
 `endif
 endmodule

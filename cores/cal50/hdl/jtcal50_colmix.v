@@ -32,11 +32,6 @@ module jtcal50_colmix(
     output [7:0] cpu_din,
     input        pal_cs,
 
-    input        pal2_cs,
-    input  [7:0] cpu2_dout,
-    input        cpu2_rnw,
-    input  [9:0] cpu2_addr,
-
     input  [7:0] debug_bus,
     input  [3:0] gfx_en,
     output [4:0] red,
@@ -52,10 +47,9 @@ reg  [14:0] rgb;
 wire        pal_we;
 wire        blank;
 reg         half, obj_sel;
-wire [ 3:0] sort;
 
 assign pal_addr = { coll, half };
-assign pal_we   = (pal_cs & ~cpu_rnw) | (pal2_cs & ~cpu2_rnw);
+assign pal_we   =  pal_cs & ~cpu_rnw;
 assign blank    = ~(LVBL & LHBL);
 assign {red,green,blue} = {15{~blank}} & rgb;
 
@@ -83,19 +77,13 @@ always @(posedge clk) begin
     pall <= pal_dout;
 end
 
-jtframe_sort u_sort(
-    .debug_bus  ( debug_bus ),
-    .busin      ( col_addr[3:0]    ),
-    .busout     ( sort  )
-);
-
 // Palette RAM X1-007 chip
 jtframe_dual_ram #(.AW(10),.SIMFILE("pal.bin")) u_comm(
     .clk0   ( clk_cpu      ),
     .clk1   ( clk          ),
     // Main/Sub CPU
-    .addr0  ( pal2_cs ? cpu2_addr : cpu_addr ),
-    .data0  ( pal2_cs ? cpu2_dout : cpu_dout ),
+    .addr0  ( cpu_addr     ),
+    .data0  ( cpu_dout     ),
     .we0    ( pal_we       ),
     .q0     ( cpu_din      ),
     // Color mixer

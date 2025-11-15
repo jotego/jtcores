@@ -165,11 +165,6 @@ jtcal50_colmix u_colmix(
     .cpu_dout   ( cpu_dout       ),
     .cpu_din    ( pal_dout       ),
     .pal_cs     ( pal_cs         ),
-    // Sub-CPU interface
-    .pal2_cs    ( pal2_cs        ),
-    .cpu2_addr  ( cpu2_addr[9:0] ),
-    .cpu2_rnw   ( cpu2_rnw       ),
-    .cpu2_dout  ( cpu2_dout      ),
     // Colour output
     .scr_pxl    ( scr_pxl        ),
     .obj_pxl    ( obj_pxl        ),
