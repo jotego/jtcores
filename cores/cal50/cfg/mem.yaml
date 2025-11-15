@@ -26,7 +26,7 @@ sdram:
         - name: snd
           addr_width: 18
           data_width: 8
-        - name: pcma
+        - name: pcm
           addr_width: 20
           data_width: 8
           offset: PCM_OFFSET
@@ -45,3 +45,20 @@ sdram:
         - name: obj
           addr_width: 20
           data_width: 32
+bram:
+  - name: pal
+    addr_width: 10
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[9:1]
+    rw: true
+    dual_port:
+      name: palrd
+      dout: pal_data
+
+  - name: nvram
+    addr_width: 12
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[11:1]
+    rw: true

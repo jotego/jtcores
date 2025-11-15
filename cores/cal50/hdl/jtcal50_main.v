@@ -31,11 +31,14 @@ module jtcal50_main(
     // Sound interface
     output        [ 7:0] snd_cmd,
     input         [ 7:0] snd_rply,
-    // Video interface
 
     output reg           rom_cs,
     output reg           ram_cs,
-    output reg           vflag_cs, vctrl_cs, // same as in jtkiwi
+    output        [ 1:0] nvram_we,
+    input         [15:0] nvram_dout,
+    // Video interface
+    output reg           pal_cs, vflag_cs, vctrl_cs, // same as in jtkiwi
+    input         [15:0] pal_dout,
 
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
@@ -64,7 +67,7 @@ reg  [ 2:0] IPLn;
 wire        int4ms, int16ms,
             cpu_cen, cpu_cenb, dtackn, VPAn, HALTn,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs;
-reg         ipl2_cs, ipl1_cs, nvram_cs, dips_cs, pal_cs, tlc_cs, tlv_cs,
+reg         ipl2_cs, ipl1_cs, nvram_cs, dips_cs, tlc_cs, tlv_cs,
             cab_cs, snd_cs, ram_cs;
 
 `ifdef SIMULATION
@@ -80,6 +83,7 @@ assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_rnw  = RnW;
+assign nvram_we = ~ram_dsn & {2{nvram_cs&~RnW}};
 
 always @* begin
     rom_cs   = !BUSn &&  A[23:20]==0;
@@ -117,6 +121,7 @@ always @(posedge clk) begin
     endcase
     cpu_din  <= rom_cs   ? rom_data   :
                 ram_cs   ? ram_dout   :
+                nvram_cs ? nvram_dout :
                 snd_cs   ? snd_rply   :
                 dips_cs  ? dipsw      :
                 cab_cs   ? cab_dout   : 16'h0;

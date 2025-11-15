@@ -36,8 +36,6 @@ module jtcal50_video(
     input               prom_we,
     input               colprom_en,
     // CPU      interface
-    input               pal_cs,
-    output     [ 7:0]   pal_dout,
     input               cpu_rnw,
     input      [12:0]   cpu_addr,
     input      [ 7:0]   cpu_dout,
@@ -45,11 +43,6 @@ module jtcal50_video(
     input               vctrl_cs,
     input               vflag_cs,
     output     [ 7:0]   vram_dout,
-    // Sub-CPU interface
-    input               pal2_cs,
-    input      [ 7:0]   cpu2_dout,
-    input               cpu2_rnw,
-    input      [ 9:0]   cpu2_addr,
     // SDRAM interface
     output     [20:2]   scr_addr,
     input      [31:0]   scr_data,
@@ -159,12 +152,6 @@ jtcal50_colmix u_colmix(
     // Screen
     .LHBL       ( LHBL           ),
     .LVBL       ( LVBL           ),
-    // CPU interface
-    .cpu_addr   ( cpu_addr[9:0]  ),
-    .cpu_rnw    ( cpu_rnw        ),
-    .cpu_dout   ( cpu_dout       ),
-    .cpu_din    ( pal_dout       ),
-    .pal_cs     ( pal_cs         ),
     // Colour output
     .scr_pxl    ( scr_pxl        ),
     .obj_pxl    ( obj_pxl        ),

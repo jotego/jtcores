@@ -22,7 +22,8 @@ module jtcal50_game(
 
 wire [13:1] cpu_addr;
 wire [ 7:0] snd_cmd, snd_rply, st_main, st_snd;
-wire        vctrl_cs, vflag_cs;
+wire [15:0] pal_dout;
+wire        vctrl_cs, vflag_cs, pal_cs;
 
 /* verilator tracing_on */
 jtcal50_main u_main(
@@ -43,6 +44,9 @@ jtcal50_main u_main(
     .rom_data       ( main_data     ),
     .rom_cs         ( main_cs       ),
     .rom_ok         ( main_ok       ),
+    // NVRAM
+    .nvram_we       ( nvram_we      ),
+    .nvram_dout     ( nvram_dout    ),
     // RAM
     .ram_dsn        ( ram_dsn       ),
     .ram_we         ( ram_we        ),
@@ -56,13 +60,9 @@ jtcal50_main u_main(
     .joystick2      ( joystick2     ),
     .service        ( service       ),
     .tilt           ( tilt          ),
-    // objects
-    .objrg_cs       ( objrg_cs      ),
-    .objrm_cs       ( objrm_cs      ),
-    .odma           ( dma_bsy       ),
-    .objcha_n       ( objcha_n      ),
-
-    .cpal_addr      ( cpal_addr     ),
+    // video
+    .pal_cs         ( pal_cs        ),
+    .pal_dout       ( pal_dout      ),
 
     // Sound
     .snd_cmd        ( snd_cmd       ),
@@ -90,9 +90,9 @@ jtcal50_sound u_sound(
     .rom_data       ( snd_data      ),
     .rom_ok         ( snd_ok        ),
     // ADPCM ROM
-    .pcma_addr      ( pcma_addr     ),
-    .pcma_data      ( pcma_data     ),
-    .pcma_cs        ( pcma_cs       ),
+    .pcm_addr       ( pcm_addr      ),
+    .pcm_data       ( pcm_data      ),
+    .pcm_cs         ( pcm_cs        ),
     // Debug
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )
@@ -129,11 +129,6 @@ jtcal50_video u_video(
 
     .pal_cs         ( pal_cs        ),
     .pal_dout       ( pal_dout      ),
-
-    .pal2_cs        ( pal2_cs       ),
-    .cpu2_dout      ( shr_din       ),
-    .cpu2_rnw       ( sub_rnw       ),
-    .cpu2_addr      ( shr_addr[9:0] ),
 
     // SDRAM
     .scr_addr       ( scr_addr      ),
