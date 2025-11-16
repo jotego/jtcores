@@ -47,12 +47,7 @@ module jtkiwi_gfx #(
     input               vram_cs,
     input               vctrl_cs,
     input               vflag_cs,
-    output     [ 7:0]   cpu_din,
-    // direct output without 8-bit multiplexer
-    output     [15:0]   vram_dout,
-    output     [ 7:0]   yram_dout,
-    output reg          yram_cs,
-
+    output [CPUW-1:0]   cpu_din,
     // SDRAM interface
     output     [20:2]   scr_addr,
     input      [31:0]   scr_data,
@@ -80,17 +75,18 @@ wire [ 7:0] scol_addr;
 reg  [ 7:0] attr, xpos, ypos;
 reg  [ 7:0] cfg[0:3], flag;
 reg         scan_cen, done, dr_start, dr_busy,
-            match, xflip, yflip, cfg_cs;
+            match, xflip, yflip, cfg_cs, yram_cs;
 reg  [ 2:0] st;
 reg  [13:0] code;
 reg  [ 1:0] cen_cnt;
 wire        tm_page, obj_bufb;
-wire [15:0] code_dout, col_xmsb;
+wire [15:0] code_dout, col_xmsb, vram_dout;
 wire [ 3:0] col_cfg;
 wire [ 1:0] col0;
 reg         tm_cen, lut_cen;
 // Objects
 wire [ 8:0] y_addr;
+wire [CPUW-1:0] yram_dout;
 
 `ifdef SIMULATION
 wire [7:0] cfg0 = cfg[0], cfg1 = cfg[1], cfg2 = cfg[2], cfg3 = cfg[3];
@@ -106,9 +102,16 @@ assign tm_page  = cfg[1][6];
 assign obj_bufb = cfg[1][5];
 assign col_cfg  = cfg[1][3:0];
 assign col_xmsb = { cfg[3], cfg[2] };
-assign cpu_din  = yram_cs ? yram_dout :
-                  vram_cs ? (cpu_addr[12] ? vram_dout[15:8] : vram_dout[7:0]) : 8'h00;
+generate
+    if(CPUW==8) begin
+        assign cpu_din  = yram_cs ? yram_dout[7:0] :
+                          vram_cs ? (cpu_addr[12] ? vram_dout[15:8] : vram_dout[7:0]) : 8'h00;
+    end else begin
+        assign cpu_din  = yram_cs ? yram_dout :
+                          vram_cs ? vram_dout : 16'h00;
 
+    end
+endgenerate
 always @* begin
     yram_cs = 0;
     cfg_cs  = 0;
@@ -302,19 +305,42 @@ jtframe_dual_ram16 #(.AW(12),
 
 // This memory is internal to the SETA-X1-001 chip
 // this is called spriteylow by MAME
-jtframe_dual_ram #(.AW(10),.SIMFILE("col.bin")) u_yram(
-    .clk0   ( clk_cpu    ),
-    .clk1   ( clk        ),
-    // Main CPU
-    .addr0  (cpu_addr[9:0]),
-    .data0  (cpu_dout[7:0]),
-    .we0    ( yram_we    ),
-    .q0     ( yram_dout  ),
-    // GFX
-    .addr1  ( col_addr   ),
-    .data1  ( 8'd0       ),
-    .we1    ( 1'd0       ),
-    .q1     ( col_data   )
-);
+
+generate
+    if( CPUW==8) begin
+        jtframe_dual_ram #(.AW(10),.SIMFILE("col.bin")) u_yram(
+            .clk0   ( clk_cpu    ),
+            .clk1   ( clk        ),
+            // Main CPU
+            .addr0  (cpu_addr[9:0]),
+            .data0  (cpu_dout[7:0]),
+            .we0    ( yram_we    ),
+            .q0     ( yram_dout  ),
+            // GFX
+            .addr1  ( col_addr   ),
+            .data1  ( 8'd0       ),
+            .we1    ( 1'd0       ),
+            .q1     ( col_data   )
+        );
+    end else begin
+        wire [ 1:0] yram_we16 = {2{yram_we}} & ~cpu_dsn;
+        wire [15:0] col16;
+        assign col_data = col_addr[0] ? col16[8+:8] : col16[0+:8];
+        jtframe_dual_ram16 #(.AW(9)) u_yram(
+            .clk0   ( clk_cpu    ),
+            .clk1   ( clk        ),
+            // Main CPU
+            .addr0  (cpu_addr[8:0]),
+            .data0  ( cpu_dout   ),
+            .we0    ( yram_we16  ),
+            .q0     ( yram_dout  ),
+            // GFX
+            .addr1  (col_addr[9:1]),
+            .data1  ( 16'd0       ),
+            .we1    ( 2'd0       ),
+            .q1     ( col16      )
+        );
+    end
+endgenerate
 
 endmodule

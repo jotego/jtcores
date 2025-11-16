@@ -43,6 +43,8 @@ g,go                compare MAME and simulation until a discrepancy cannot be re
 h,hierarchy         shows the signal hierarchy in the simulation
 i,ignore foo boo    ignores the given MAME variables in comparison. Shows the
                     list of ignored variables if called without names
+kmax [newmax]       sets the maximum number of VCD cycles to advance before the
+                    comparison is deemed bad.
 mask name FF        sets bit masks for signals. Bits set at 1 will be ignored.
 match-vcd           moves MAME forward until it matches simulation vcd
 match-trace         moves the simulation forward until it matches MAME trace
@@ -291,6 +293,7 @@ func Prompt( vcd, trace *LnFile, ss VCDData, mame_alias mameAlias ) {
             mame_st.data, good = nxTraceChange( trace, mame_st )
             if good {
                 mame_st.data.showDiff(old_data)
+                cmd_diff()
             }
         }
         case "mv","mv-vcd": {
@@ -312,9 +315,17 @@ func Prompt( vcd, trace *LnFile, ss VCDData, mame_alias mameAlias ) {
             if !mvTrace( trace, mame_st, expr ) { break prompt_loop } // EOF
         }
         case "match-vcd": { // moves the trace until it matches the VCD data
+            if len(tokens)!=1 {
+                fmt.Printf("match-vcd does not take arguments\n")
+                break
+            }
             matchVCD( trace, sim_st, mame_st, ignore )
         }
         case "match-trace": { // moves the VCD until it matches MAME data
+            if len(tokens)!=1 {
+                fmt.Printf("match-trace does not take arguments\n")
+                break
+            }
             cmp.matchTrace( vcd, sim_st, mame_alias, mame_st, ignore )
         }
         case "?","help": {

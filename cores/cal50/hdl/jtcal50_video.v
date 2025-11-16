@@ -62,11 +62,6 @@ module jtcal50_video(
 
 wire [ 8:0] vrender, vrender1, hdump, vdump;
 wire [ 8:0] scr_pxl, obj_pxl;
-wire [15:0] vd16;
-wire [ 7:0] vd8;
-wire        yram_cs;
-
-assign vram_dout = yram_cs ? {2{vd8}} : vd16;
 
 // Measured on PCB
 // 64us per line, 8us blanking
@@ -120,12 +115,9 @@ jtkiwi_gfx #(.CPUW(16)) u_gfx(
     .cpu_addr   ( cpu_addr       ),
     .cpu_rnw    ( cpu_rnw        ),
     .cpu_dout   ( cpu_dout       ),
-    .cpu_din    (                ),
+    .cpu_din    ( vram_dout      ),
     // 16-bit interface
     .cpu_dsn    ( cpu_dsn        ),
-    .yram_cs    ( yram_cs        ),
-    .yram_dout  ( vd8            ),
-    .vram_dout  ( vd16           ),
     // SDRAM
     .scr_addr   ( scr_addr       ),
     .scr_data   ( scr_data       ),
