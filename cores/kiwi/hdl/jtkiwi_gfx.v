@@ -20,7 +20,9 @@
 // in this module, based. When H4 is high, the
 // GPU is in control. When H4 is low, it's the CPU
 
-module jtkiwi_gfx(
+module jtkiwi_gfx #(
+    parameter CPUW=8
+)(
     input               rst,
     input               clk,
     input               clk_cpu,
@@ -39,12 +41,17 @@ module jtkiwi_gfx(
     input      [ 8:0]   hdump,
 
     input               cpu_rnw,
+    input      [ 1:0]   cpu_dsn,    // ignored for CPUW==8
     input      [12:0]   cpu_addr,
-    input      [ 7:0]   cpu_dout,
+    input  [CPUW-1:0]   cpu_dout,
     input               vram_cs,
     input               vctrl_cs,
     input               vflag_cs,
     output     [ 7:0]   cpu_din,
+    // direct output without 8-bit multiplexer
+    output     [15:0]   vram_dout,
+    output     [ 7:0]   yram_dout,
+    output reg          yram_cs,
 
     // SDRAM interface
     output     [20:2]   scr_addr,
@@ -68,18 +75,17 @@ wire [ 1:0] vram_we;
 wire [11:0] tm_addr, lut_addr;
 reg  [11:0] code_addr;
 reg  [ 9:0] col_addr;
-wire [ 7:0] yram_dout, col_data;
+wire [ 7:0] col_data;
 wire [ 7:0] scol_addr;
 reg  [ 7:0] attr, xpos, ypos;
 reg  [ 7:0] cfg[0:3], flag;
 reg         scan_cen, done, dr_start, dr_busy,
-            match, xflip, yflip,
-            yram_cs, cfg_cs;
+            match, xflip, yflip, cfg_cs;
 reg  [ 2:0] st;
 reg  [13:0] code;
 reg  [ 1:0] cen_cnt;
 wire        tm_page, obj_bufb;
-wire [15:0] vram_dout, code_dout, col_xmsb;
+wire [15:0] code_dout, col_xmsb;
 wire [ 3:0] col_cfg;
 wire [ 1:0] col0;
 reg         tm_cen, lut_cen;
@@ -90,7 +96,8 @@ wire [ 8:0] y_addr;
 wire [7:0] cfg0 = cfg[0], cfg1 = cfg[1], cfg2 = cfg[2], cfg3 = cfg[3];
 `endif
 
-assign vram_we  = {2{vram_cs  & ~cpu_rnw}} & { cpu_addr[12], ~cpu_addr[12] };
+assign vram_we  = {2{vram_cs  & ~cpu_rnw}} & (
+                    CPUW==8 ? { cpu_addr[12], ~cpu_addr[12] } : ~cpu_dsn );
 assign yram_we  = yram_cs & ~cpu_rnw;
 assign flip     = ~cfg[0][6]; // only flip y?
 assign video_en = cfg[0][4]; // uncertain
@@ -139,8 +146,8 @@ always @(posedge clk, posedge rst) begin
     end else
 `endif
     begin
-        if( cfg_cs  ) cfg[ cpu_addr[1:0] ] <= cpu_dout;
-        if( vflag_cs ) flag <= cpu_dout;
+        if( cfg_cs   ) cfg[ cpu_addr[1:0] ] <= cpu_dout[7:0];
+        if( vflag_cs ) flag <= cpu_dout[7:0];
     end
 end
 
@@ -268,6 +275,8 @@ always @(posedge clk) begin
     end
 end
 
+wire [15:0] vram_d16 = {cpu_dout[CPUW-1-:8], cpu_dout[7:0]};
+
 jtframe_dual_ram16 #(.AW(12),
     .SIMFILE_LO("vram_lo.bin"),
     .SIMFILE_HI("vram_hi.bin")
@@ -278,7 +287,7 @@ jtframe_dual_ram16 #(.AW(12),
     // probably the CPU should be WAIT-ed during DMA access, but it's
     // very fast, thus there's no overlap with CPU VRAM access
     .addr0  ( dma_bsy ? {dma_tm ^ tm_page ^ dma_st, dma_tm, dma_addr} : cpu_addr[11:0] ),
-    .data0  ( dma_bsy ? vram_dout : {2{cpu_dout}}  ),
+    .data0  ( dma_bsy ? vram_dout : vram_d16  ),
     .we0    ( dma_bsy ? {2{dma_st}} : vram_we ),
     .q0     ( vram_dout  ),
     // GFX

@@ -21,9 +21,16 @@ module jtcal50_game(
 );
 
 wire [13:1] cpu_addr;
-wire [ 7:0] snd_cmd, snd_rply, st_main, st_snd;
+wire [ 7:0] snd_cmd, snd_rply, st_main, st_snd, st_video;
 wire [15:0] vram_dout;
-wire        set_cmd, vram_cs, vctrl_cs, vflag_cs, pal_cs;
+wire        cpu_ldwn, set_cmd, flip, cpu_rnw,
+            vram_cs, vctrl_cs, vflag_cs, pal_cs;
+
+assign debug_view = st_video;
+assign dip_flip   = ~flip;
+assign fix_addr   = 0;
+assign fix_cs     = 0;
+assign cpu_ldwn   = cpu_rnw | ram_dsn[0];
 
 /* verilator tracing_on */
 jtcal50_main u_main(
@@ -57,8 +64,8 @@ jtcal50_main u_main(
     .ram_cs         ( ram_cs        ),
     .ram_ok         ( ram_ok        ),
     // cabinet I/O
-    .cab_1p         ( cab_1p        ),
-    .coin           ( coin          ),
+    .cab_1p         ( cab_1p[1:0]   ),
+    .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1     ),
     .joystick2      ( joystick2     ),
     .service        ( service       ),
@@ -72,6 +79,7 @@ jtcal50_main u_main(
     // Sound
     .snd_cmd        ( snd_cmd       ),
     .snd_rply       ( snd_rply      ),
+    .set_cmd        ( set_cmd       ),
     // DIP switches
     .dipsw          ( dipsw[15:0]   ),
     .dip_pause      ( dip_pause     ),
@@ -105,6 +113,9 @@ jtcal50_sound u_sound(
     .pcm_addr       ( pcm_addr      ),
     .pcm_data       ( pcm_data      ),
     .pcm_cs         ( pcm_cs        ),
+    // Sound
+    .snd            ( snd           ),
+    .sample         ( sample        ),
     // Debug
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )
@@ -117,17 +128,16 @@ jtcal50_video u_video(
 
     .pxl2_cen       ( pxl2_cen      ),
     .pxl_cen        ( pxl_cen       ),
-    .hb_dly         ( hb_dly        ),
     .LHBL           ( LHBL          ),
     .LVBL           ( LVBL          ),
     .HS             ( HS            ),
     .VS             ( VS            ),
     .flip           ( flip          ),
-    .hdump          ( hdump         ),
     // GFX - CPU interface
-    .cpu_rnw        ( cpu_rnw       ),
+    .cpu_rnw        ( cpu_ldwn      ),
+    .cpu_dsn        ( ram_dsn       ),
     .cpu_addr       ( cpu_addr      ),
-    .cpu_dout       ( cpu_dout      ),
+    .cpu_dout       ( cpu_dout[7:0] ),
 
     .vram_cs        ( vram_cs       ),
     .vctrl_cs       ( vctrl_cs      ),
@@ -154,7 +164,7 @@ jtcal50_video u_video(
     // Test
     .gfx_en         ( gfx_en        ),
     .debug_bus      ( debug_bus     ),
-    .st_dout        ( gfx_st        )
+    .st_dout        ( st_video      )
 );
 
 endmodule

@@ -22,14 +22,12 @@ module jtcal50_video(
     input               clk_cpu,
     input               pxl2_cen,
     input               pxl_cen,
-    input               hb_dly,
 
     output              LHBL,
     output              LVBL,
     output              HS,
     output              VS,
     output              flip,
-    output     [ 8:0]   hdump,
     // Palette
     output     [ 9:1]   pal_addr,
     input      [15:0]   pal_data,
@@ -37,10 +35,11 @@ module jtcal50_video(
     input               cpu_rnw,
     input      [12:0]   cpu_addr,
     input      [ 7:0]   cpu_dout,
+    input      [ 1:0]   cpu_dsn,
     input               vram_cs,
     input               vctrl_cs,
     input               vflag_cs,
-    output     [ 7:0]   vram_dout,
+    output     [15:0]   vram_dout,
     // SDRAM interface
     output     [20:2]   scr_addr,
     input      [31:0]   scr_data,
@@ -61,17 +60,13 @@ module jtcal50_video(
     output     [ 7:0]   st_dout
 );
 
-wire [ 8:0] vrender, vrender1, vdump;
+wire [ 8:0] vrender, vrender1, hdump, vdump;
 wire [ 8:0] scr_pxl, obj_pxl;
-reg  [ 7:0] LHBL_l;
-wire        preLHBL;
+wire [15:0] vd16;
+wire [ 7:0] vd8;
+wire        yram_cs;
 
-assign LHBL = hb_dly ? LHBL_l[4] : preLHBL; // used by JTKIWI
-
-always @(posedge clk) begin
-    LHBL_l <= LHBL_l<<1;
-    LHBL_l[0] <= preLHBL;
-end
+assign vram_dout = yram_cs ? {2{vd8}} : vd16;
 
 // Measured on PCB
 // 64us per line, 8us blanking
@@ -84,7 +79,7 @@ jtframe_vtimer #(
     .HCNT_END( 9'd511 ),
     .V_START ( 9'd000 ),
     .VS_START( 9'd252 ),
-    .VS_END  ( 8'd260 ),
+    .VS_END  ( 9'd260 ),
     .VB_START( 9'd239 ),
     .VB_END  ( 9'd271 ),
     .VCNT_END( 9'd271 )
@@ -97,7 +92,7 @@ jtframe_vtimer #(
     .H          ( hdump      ),
     .Hinit      (            ),
     .Vinit      (            ),
-    .LHBL       ( preLHBL    ),
+    .LHBL       ( LHBL       ),
     .LVBL       ( LVBL       ),
     .HS         ( HS         ),
     .VS         ( VS         )
@@ -122,10 +117,15 @@ jtkiwi_gfx u_gfx(
     .vram_cs    ( vram_cs        ),
     .vctrl_cs   ( vctrl_cs       ),
     .vflag_cs   ( vflag_cs       ),
-    .cpu_din    ( vram_dout      ),
     .cpu_addr   ( cpu_addr       ),
     .cpu_rnw    ( cpu_rnw        ),
     .cpu_dout   ( cpu_dout       ),
+    .cpu_din    (                ),
+    // 16-bit interface
+    .cpu_dsn    ( cpu_dsn        ),
+    .yram_cs    ( yram_cs        ),
+    .yram_dout  ( vd8            ),
+    .vram_dout  ( vd16           ),
     // SDRAM
     .scr_addr   ( scr_addr       ),
     .scr_data   ( scr_data       ),

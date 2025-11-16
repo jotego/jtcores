@@ -56,11 +56,7 @@ end
 
 always @(posedge clk) begin
     if( pxl_cen ) begin
-`ifdef GRAY
-        rgb <= ~{3{ {coll[3:0]}, 1'b0 } };
-`else
-        rgb <= { pal_data[6:0], pall };
-`endif
+        rgb <= pal_data[14:0];
         pal_addr <= col_addr;
     end
 end

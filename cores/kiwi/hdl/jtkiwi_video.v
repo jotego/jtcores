@@ -134,6 +134,10 @@ jtkiwi_gfx u_gfx(
     .cpu_addr   ( cpu_addr       ),
     .cpu_rnw    ( cpu_rnw        ),
     .cpu_dout   ( cpu_dout       ),
+    // 16-bit interface -unused-
+    .cpu_dsn    ( 2'b00          ),
+    .vram_dout  (                ),
+    .yram_dout  (                ),
     // SDRAM
     .scr_addr   ( scr_addr       ),
     .scr_data   ( scr_data       ),

@@ -1,10 +1,7 @@
+cal50:
+  - get: [ "*.v" ]
 kiwi:
   - get:
-    - jtkiwi_game.v
-    - jtkiwi_main.v
-    - jtkiwi_video.v
-    - jtkiwi_colmix.v
-    - jtkiwi_snd.v
     - jtkiwi_gfx.v
     - jtkiwi_obj.v
     - jtkiwi_draw.v
@@ -12,10 +9,8 @@ kiwi:
 jtframe:
   - get:
       - jtframe_ff.v
-  - from: clocking
-    get:
-      - jtframe_cen48.v
-      - jtframe_cen24.v
+      - jtframe_8bit_reg.v
+      - jtframe_edge.v
   - from: ram
     get:
       - jtframe_ram.v
@@ -25,14 +20,7 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
-      - jtframe_blank.v
   - from: cpu
     get:
-      # Z80
-      - jtframe_z80.yaml
-      # MCU
-      - jtframe_i8742.v
-      - upi41.yaml
-jt12:
-  - get:
-    - jt03.yaml
+      - t65.yaml
+      - jtframe_m68k.yaml
