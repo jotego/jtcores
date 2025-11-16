@@ -77,7 +77,7 @@ module jtframe_68kdtack_cen
 
 localparam CW=W+WD;
 
-reg [CW-1:0] cencnt=0;
+reg [CW-1:0] cencnt=0, missing;
 reg  [1:0]   waitsh;
 wire         halt, delayed;
 wire [W-1:0] num2 = { num, 1'b0 }; // num x 2
@@ -120,13 +120,32 @@ always @(posedge clk) begin : dtack_gen
 end
 
 always @* begin
-    cencnt_nx = over && !halt ? {1'b0,cencnt}+num2-den : { 1'b0, cencnt}+num2;
+    cencnt_nx = over ? {1'b0,cencnt}+num2-den : { 1'b0, cencnt}+num2;
+end
+
+reg over_l;
+wire recover = ASn && missing>0 && !over;
+
+always @(posedge clk) begin
+    over_l <= over;
+end
+
+always @(posedge clk) begin
+    if( rst ) begin
+        missing <= 0;
+    end else if( cpu_cen ) begin
+        if( delayed ) begin
+            missing <= missing + 1;
+        end else if( recover ) begin
+            missing <= missing - 1;
+        end
+    end
 end
 
 always @(posedge clk) begin
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
     if( rst ) cencnt <= 0;
-    if( over || rst || halt ) begin
+    if( over || rst || recover) begin
         cpu_cen  <= risefall;
         cpu_cenb <= ~risefall;
         risefall <= ~risefall;

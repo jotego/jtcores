@@ -20,9 +20,9 @@ initial begin
             else if(asn) begin
                 asn = $random;
                 if(!asn && ($random%100)>5) begin
-                    bus_busy = 0; // set it to 1 to test recovery
+                    bus_busy = 1;
                     if(bus_busy) begin
-                        repeat( $random % 7 ) @(posedge clk);
+                        repeat( $random % 12 ) @(posedge clk);
                     end
                     bus_busy=0;
                 end
