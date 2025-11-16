@@ -37,25 +37,38 @@ end endtask
 initial begin
     asn=1;
     bus_busy=0;
+    // 8MHz test
+    // used in CPS1, sf, rastan
     num=1;
     den=5'd6;
-    // 8MHz test
     repeat (20) @(posedge hs);
     assert_msg(uut.fave==16'h800,"frequency must be 8MHz sharp");
     repeat (120) begin
         random_asn_pulses();
-        assert_msg(uut.fave<16'h808,"frequency is over  8.08MHz");
-        assert_msg(uut.fave>16'h792,"frequency is below 7.92MHz");
+        assert_msg(uut.fave<16'h804,"frequency is over  8.04MHz");
+        assert_msg(uut.fave>16'h796,"frequency is below 7.96MHz");
+    end
+    // 9MHz test
+    // used in twin16 (with different PLL, resulting a bit over 9MHz)
+    num=4'd3;
+    den=5'd16;
+    repeat (40) @(posedge hs);
+    assert_msg(uut.fave==16'h0900,"frequency must be 9.00MHz sharp");
+    repeat (120) begin
+        random_asn_pulses();
+        assert_msg(uut.fave<16'h0905,"frequency is over 100.5%%");
+        assert_msg(uut.fave>16'h895,"frequency is below 99.5%%");
     end
     // 10MHz test
+    // used in Toki, CPS1 (turbo)
     num=4'd5;
     den=5'd24;
     repeat (40) @(posedge hs);
     assert_msg(uut.fave==16'h1000,"frequency must be 10MHz sharp");
     repeat (120) begin
         random_asn_pulses();
-        assert_msg(uut.fave<16'h1011,"frequency is over  10.11MHz");
-        assert_msg(uut.fave>16'h990,"frequency is below 9.90MHz");
+        assert_msg(uut.fave<16'h1006,"frequency is over  10.06MHz");
+        assert_msg(uut.fave>16'h994,"frequency is below 9.94MHz");
     end
     // 12MHz test
     num=4'd1;
@@ -64,8 +77,19 @@ initial begin
     assert_msg(uut.fave==16'h1200,"frequency must be 12MHz sharp");
     repeat (120) begin
         random_asn_pulses();
-        assert_msg(uut.fave<16'h1213,"frequency is over  12.13MHz");
-        assert_msg(uut.fave>16'h1188,"frequency is below 11.88MHz");
+        assert_msg(uut.fave<16'h1208,"frequency is over  12.08MHz");
+        assert_msg(uut.fave>16'h1192,"frequency is below 11.92MHz");
+    end
+    // 16MHz test
+    // riders, xmen, rungun
+    num=4'd1;
+    den=5'd3;
+    repeat (60) @(posedge hs);
+    assert_msg(uut.fave>=16'h1599&&uut.fave<=16'h1601,"frequency must be 16MHz sharp");
+    repeat (120) begin
+        random_asn_pulses();
+        assert_msg(uut.fave<16'h1608,"frequency too fast +0.5%%");
+        assert_msg(uut.fave>16'h1592,"frequency too slow -0.5%%");
     end
     pass();
 end
