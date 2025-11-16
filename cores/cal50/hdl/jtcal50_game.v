@@ -22,8 +22,8 @@ module jtcal50_game(
 
 wire [13:1] cpu_addr;
 wire [ 7:0] snd_cmd, snd_rply, st_main, st_snd;
-wire [15:0] pal_dout;
-wire        vctrl_cs, vflag_cs, pal_cs;
+wire [15:0] vram_dout;
+wire        set_cmd, vram_cs, vctrl_cs, vflag_cs, pal_cs;
 
 /* verilator tracing_on */
 jtcal50_main u_main(
@@ -35,11 +35,14 @@ jtcal50_main u_main(
 
     .vctrl_cs       ( vctrl_cs      ),
     .vflag_cs       ( vflag_cs      ),
+    .vram_cs        ( vram_cs       ),
+    .vram_dout      ( vram_dout     ),
 
     .cpu_rnw        ( cpu_rnw       ),
     .cpu_dout       ( cpu_dout      ),
 
     .cpu_addr       ( cpu_addr      ),
+    .ram_addr       ( ram_addr      ),
     .rom_addr       ( main_addr     ),
     .rom_data       ( main_data     ),
     .rom_cs         ( main_cs       ),
@@ -61,8 +64,10 @@ jtcal50_main u_main(
     .service        ( service       ),
     .tilt           ( tilt          ),
     // video
-    .pal_cs         ( pal_cs        ),
+    .pal_we         ( pal_we        ),
     .pal_dout       ( pal_dout      ),
+    .tlv_we         ( tlv_we        ),
+    .tlv_dout       ( tlv_dout      ),
 
     // Sound
     .snd_cmd        ( snd_cmd       ),
@@ -80,16 +85,23 @@ jtcal50_sound u_sound(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .cen2           ( cen2          ),
+    .cen244         ( cen244        ),
 
     // communication with main CPU
     .snd_cmd        ( snd_cmd       ),
     .snd_rply       ( snd_rply      ),
+    .set_cmd        ( set_cmd       ),
     // ROM
     .rom_addr       ( snd_addr      ),
     .rom_cs         ( snd_cs        ),
     .rom_data       ( snd_data      ),
     .rom_ok         ( snd_ok        ),
-    // ADPCM ROM
+    // PCM RAM
+    .pcmram_we      ( pcmram_we     ),
+    .pcmram_din     ( pcmram_din    ),
+    .pcmram_dout    ( pcmram_dout   ),
+    .pcmram_addr    ( pcmram_addr   ),
+    // PCM ROM
     .pcm_addr       ( pcm_addr      ),
     .pcm_data       ( pcm_data      ),
     .pcm_cs         ( pcm_cs        ),
@@ -112,11 +124,6 @@ jtcal50_video u_video(
     .VS             ( VS            ),
     .flip           ( flip          ),
     .hdump          ( hdump         ),
-    // PROMs
-    .prom_we        ( colprom_we    ),
-    .prog_addr      ( prog_addr[9:0]),
-    .prog_data      ( prog_data     ),
-    .colprom_en     ( colprom_en    ),
     // GFX - CPU interface
     .cpu_rnw        ( cpu_rnw       ),
     .cpu_addr       ( cpu_addr      ),

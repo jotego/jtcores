@@ -1,5 +1,5 @@
 params:
-  - { name: RAM_OFFSET,   value: "22'h200000" }
+  - { name: RAM_OFFSET,   value: "22'h20_0000" }
   - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
 clocks:
   clk48:
@@ -13,9 +13,8 @@ sdram:
   banks:
     - buses:
         - name: ram
-          addr_width: 17
+          addr_width: 17   # extra bit for buf_cs
           data_width: 16
-          addr: main_addr[16:1]
           din: cpu_dout
           offset: RAM_OFFSET
           rw: true
@@ -55,10 +54,24 @@ bram:
     dual_port:
       name: palrd
       dout: pal_data
-
+  # X1-012 Video RAM
+  - name: tlv
+    addr_width: 14
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[13:1]
+    rw: true
+    # dual_port:
+    #   name: tlrd
+    #   dout: tlram_data
   - name: nvram
     addr_width: 12
     data_width: 16
     din: cpu_dout
     addr: main_addr[11:1]
+    rw: true
+  # PCM chip
+  - name: pcmram
+    addr_width: 13
+    data_width: 8
     rw: true

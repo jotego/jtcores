@@ -16,20 +16,24 @@
     Version: 1.0
     Date: 15-11-2025 */
 
-module jtcal50_main(
+module jtcal50_sound(
     input              clk,        // 24 MHz
     input              rst,
     input              cen2,
-    input              LVBL,
     input              cen244,
 
     input       [ 7:0] snd_cmd,
     output      [ 7:0] snd_rply,
-
-    // PCM
-    output      [19:0] pcma_addr,
-    output      [ 7:0] pcma_data,
-    output             pcma_cs,
+    input              set_cmd,
+    // PCM RAM
+    output             pcmram_we,
+    output      [ 7:0] pcmram_din,
+    input       [ 7:0] pcmram_dout,
+    output      [12:0] pcmram_addr,
+    // PCM ROM
+    output      [19:0] pcm_addr,
+    output      [ 7:0] pcm_data,
+    output             pcm_cs,
     // ROM
     input              rom_ok,
     output reg         rom_cs,
@@ -40,20 +44,22 @@ module jtcal50_main(
 wire [15:0] A;
 wire [ 4:0] rom_upper;
 reg  [ 7:0] cpu_din;
-wire [ 7:0] cfg;
+wire [ 7:0] nc, cfg, cpu_dout;
 wire [ 3:0] bank;
 reg         bank_cs, banked, st_cs, cmd_cs, x1pcm_cs;
-wire        rdy, nmi_n, nmi_clrn, irqn, irq_clrn, mute;
+wire        rdy, nmi_n, nmi_clrn, irqn, irq_clrn, mute, rnw;
 
 // $4'0000 (256kB), 16 pages of 8kB each (128kB) plus $4000 (16kB) Fixed
 assign rom_addr  = { rom_upper, A[12:0] };
 assign rom_upper = banked ? {1'b0,bank}+5'h1 : {3'b0,A[14:13]}
 assign rdy       = ~rom_cs | rom_ok;
-assign nmi_n     = LVBL;
 assign {bank,nmi_clrn,irq_clrn,mute} = cfg[7:1];
 
-assign pcma_addr = 0;
-assign pcma_cs = 0;
+assign pcmram_we   = pcmram_cs & ~rnw;
+assign pcmram_din  = cpu_dout;
+assign pcmram_addr = A[12:0];
+assign pcma_addr   = 0;
+assign pcma_cs     = 0;
 
 always @* begin
     x1pcm_cs = A[15:12]<=1;
@@ -63,6 +69,22 @@ always @* begin
     rom_cs   = A[15] && rnw;
     st_cs    = A[15:12]==4'hc && !rnw;
 end
+
+jtframe_edge #(.QSET(0)) u_244hz(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( cen244    ),
+    .clr    (~irq_clrn  ),
+    .q      ( irqn      )
+);
+
+jtframe_edge #(.QSET(0)) u_244hz(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( set_cmd   ),
+    .clr    (~nmi_clrn  ),
+    .q      ( nmi_n     )
+);
 
 jtframe_8bit_reg u_st(
     .rst        ( rst       ),
@@ -88,34 +110,6 @@ always @(posedge clk) begin
               cmd_cs      ? snd_cmd  : 8'h0;
 end
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        bank      <= 0;
-        snd_latch <= 0;
-        scrpos    <= 0;
-        flip      <= 0;
-    end else begin
-        if( bank_cs ) bank <= cpu_dout[0];
-        if( snd_irq ) snd_latch <= cpu_dout;
-        if( scrpos0_cs ) scrpos[7:0] <= cpu_dout;
-        if( scrpos1_cs ) scrpos[9:8] <= cpu_dout[1:0];
-        if( flip_cs ) flip <= ~cpu_dout[0];
-    end
-end
-
-jtframe_ff u_ff (
-    .clk    ( clk       ),
-    .rst    ( rst       ),
-    .cen    ( cen1p5    ),
-    .din    ( 1'b1      ),
-    .q      (           ),
-    .qn     ( irqn      ),
-    .set    ( 1'b0      ),
-    .clr    ( irq_clr   ),
-    .sigedge( v8        )
-);
-
-wire [7:0] nc;
 /* verilator tracing_off */
 T65 u_cpu(
     .Mode   ( 2'd0      ),  // 6502 mode

@@ -17,36 +17,32 @@
     Date: 15-11-2025 */
 
 module jtcal50_colmix(
-    input        clk,
-    input        clk_cpu,
-    input        pxl_cen,
-    input        LHBL,
-    input        LVBL,
+    input             clk,
+    input             clk_cpu,
+    input             pxl_cen,
+    input             LHBL,
+    input             LVBL,
 
-    input  [8:0] scr_pxl,
-    input  [8:0] obj_pxl,
+    input      [ 8:0] scr_pxl,
+    input      [ 8:0] obj_pxl,
 
-    output [9:1] pal_addr,
-    input [15:0] pal_data,
+    output reg [ 9:1] pal_addr,
+    input      [15:0] pal_data,
 
-    input  [7:0] debug_bus,
-    input  [3:0] gfx_en,
-    output [4:0] red,
-    output [4:0] green,
-    output [4:0] blue
+    input      [ 7:0] debug_bus,
+    input      [ 3:0] gfx_en,
+    output     [ 4:0] red,
+    output     [ 4:0] green,
+    output     [ 4:0] blue
 );
 
-reg  [ 7:0] pall;
-reg  [ 8:0] coll, col_addr;
+reg  [ 8:0] col_addr;
 reg  [14:0] rgb;
-wire        pal_we;
 wire        blank;
-reg         half, obj_sel;
+reg         obj_sel;
 
-assign pal_addr = { coll, half };
-assign pal_we   =  pal_cs & ~cpu_rnw;
 assign blank    = ~(LVBL & LHBL);
-assign {red,green,blue} = {15{~blank}} & rgb;
+assign {red,green,blue} = blank ? 15'd0 : rgb;
 
 always @* begin
     obj_sel = obj_pxl[3:0] != 4'h0;
@@ -59,17 +55,14 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    half <= ~half;
     if( pxl_cen ) begin
 `ifdef GRAY
         rgb <= ~{3{ {coll[3:0]}, 1'b0 } };
 `else
         rgb <= { pal_data[6:0], pall };
 `endif
-        half <= 1;
-        coll <= col_addr;
+        pal_addr <= col_addr;
     end
-    pall <= pal_data;
 end
 
 endmodule

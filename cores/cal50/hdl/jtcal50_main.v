@@ -21,6 +21,7 @@ module jtcal50_main(
     input                lvbl, cen244,
 
     output        [19:1] rom_addr,
+    output        [17:1] ram_addr,
     output        [12:0] cpu_addr,
     output        [ 1:0] ram_dsn,
     output               ram_we,
@@ -31,14 +32,18 @@ module jtcal50_main(
     // Sound interface
     output        [ 7:0] snd_cmd,
     input         [ 7:0] snd_rply,
+    output               set_cmd,
 
     output reg           rom_cs,
     output reg           ram_cs,
+    output        [ 1:0] pal_we,
     output        [ 1:0] nvram_we,
+    input         [15:0] pal_dout,
     input         [15:0] nvram_dout,
     // Video interface
-    output reg           pal_cs, vflag_cs, vctrl_cs, // same as in jtkiwi
-    input         [15:0] pal_dout,
+    output reg           vram_cs, vflag_cs, vctrl_cs, // same as in jtkiwi
+    input         [15:0] pal_dout, tlv_dout, vram_dout,
+    output        [ 1:0] tlv_we,
 
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
@@ -68,7 +73,7 @@ wire        int4ms, int16ms,
             cpu_cen, cpu_cenb, dtackn, VPAn, HALTn,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs;
 reg         ipl2_cs, ipl1_cs, nvram_cs, dips_cs, tlc_cs, tlv_cs,
-            cab_cs, snd_cs, ram_cs;
+            pal_cs, cab_cs, snd_cs, ram_cs;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -83,18 +88,23 @@ assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_rnw  = RnW;
+assign ram_addr = { buf_cs, cpu_addr[15:1] };
 assign nvram_we = ~ram_dsn & {2{nvram_cs&~RnW}};
+assign pal_we   = ~ram_dsn & {2{  pal_cs&~RnW}};
+assign tlv_we   = ~ram_dsn & {2{  tlv_cs&~RnW}};
+assign set_cmd  =  snd_cs & ~(RnW | LDSn);
 
 always @* begin
     rom_cs   = !BUSn &&  A[23:20]==0;
     ipl2_cs  = !ASn  &&  A[23:20]==1;
-    nvram_cs = !BUSn &&  A[23:19]==2;
+    nvram_cs = !ASn  &&  A[23:19]==2;
     ipl1_cs  = !ASn  &&  A[23:20]==3;
 //  wdog_cs  = !ASn  &&  A[23:20]==4;
     dips_cs  = !ASn  &&  A[23:20]==6;
     pal_cs   = !ASn  &&  A[23:20]==7;
     tlc_cs   = !ASn  &&  A[23:20]==8;  // tiles configuration
-    tlv_cs   = !ASn  &&  A[23:20]==9;  // tiles VRAM
+    tlv_cs   = !ASn  &&  A[23:20]==9 && !A[14];  // tiles VRAM
+    buf_cs   = !BUSn &&  A[23:20]==9 &&  A[14];  // tiles VRAM related? extra RAM
     cab_cs   = !ASn  &&  A[23:20]==10;
     snd_cs   = !ASn  &&  A[23:20]==11;
     // SETA X1-001 chip
@@ -102,7 +112,8 @@ always @* begin
     vctrl_cs = !ASn  &&  A[23:20]==13;
     vram_cs  = !ASn  &&  A[23:20]==14;
 
-    ram_cs   = !ASn  &&  A[23:20]==15;
+    ram_cs   = !BUSn &&  A[23:20]==15;
+    if(buf_cs) ram_cs = 1;
 end
 
 always @* begin
@@ -122,6 +133,9 @@ always @(posedge clk) begin
     cpu_din  <= rom_cs   ? rom_data   :
                 ram_cs   ? ram_dout   :
                 nvram_cs ? nvram_dout :
+    (vram_cs | vctrl_cs) ? vram_dout  :
+                pal_cs   ? pal_dout   :
+                tlv_cs   ? tlv_dout   :
                 snd_cs   ? snd_rply   :
                 dips_cs  ? dipsw      :
                 cab_cs   ? cab_dout   : 16'h0;
@@ -145,22 +159,12 @@ jtframe_edge u_lvbl(
 );
 
 jtframe_8bit_reg u_snd(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .wr_n       ( RnW       ),
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .wr_n       ( RnW | LDSn    ),
     .din        ( cpu_dout[7:0] ),
-    .cs         ( snd_cs    ),
-    .dout       ( snd_cmd   )
-);
-
-jtframe_16bit_reg u_sys2(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .wr_n       ( RnW       ),
-    .dsn        ( ram_dsn   ),
-    .din        ( cpu_dout  ),
-    .cs         ( sys2_cs   ),
-    .dout       ( sys2_dout )
+    .cs         ( snd_cs        ),
+    .dout       ( snd_cmd       )
 );
 
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
