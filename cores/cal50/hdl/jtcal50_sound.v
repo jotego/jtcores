@@ -57,7 +57,7 @@ wire        rdy, nmi_n, nmi_clrn, irqn, irq_clrn, mute, rnw;
 
 // $4'0000 (256kB), 16 pages of 8kB each (128kB) plus $4000 (16kB) Fixed
 assign rom_addr  = { rom_upper, A[12:0] };
-assign rom_upper = banked ? {1'b0,bank}+5'h1 : {3'b0,A[14:13]};
+assign rom_upper = banked ? {1'b0,bank}+5'h1 : {4'b00,A[13]};
 assign rdy       = ~rom_cs | rom_ok;
 assign {bank,nmi_clrn,irq_clrn,mute} = cfg[7:1];
 
@@ -74,7 +74,7 @@ always @* begin
     x1pcm_cs = A[15:12]<=1;
     cmd_cs   = A[15:12]==4 &&  rnw;
     bank_cs  = A[15:12]==4 && !rnw;
-    banked   = A[15:12]<=4'hc && A[15];
+    banked   = A[15:12]< 4'hc && A[15];
     rom_cs   = A[15] && rnw;
     st_cs    = A[15:12]==4'hc && !rnw;
 end

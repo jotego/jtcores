@@ -79,7 +79,7 @@ localparam CW=W+WD;
 
 reg [CW-1:0] cencnt=0;
 reg  [1:0]   waitsh;
-wire         halt;
+wire         halt, delayed;
 wire [W-1:0] num2 = { num, 1'b0 }; // num x 2
 wire over = cencnt>den-num2;
 reg  [CW:0] cencnt_nx=0;
@@ -94,8 +94,8 @@ reg         risefall=0, wait1;
     wire rstl=0;
 `endif
 
-assign halt = !rstl && RECOVERY==1 && !ASn && {waitsh,wait1}==0 && (bus_cs && bus_busy && !bus_legit);
-
+assign delayed = !rstl && !ASn && {waitsh,wait1}==0 && (bus_cs && bus_busy && !bus_legit);
+assign halt    = delayed && RECOVERY==1;
 
 always @(posedge clk) begin : dtack_gen
     if( rst ) begin
@@ -142,11 +142,12 @@ end
 
 // Frequency reporting
 wire [3:0] nc1, nc2;
+wire       eff_cen = cpu_cen && !delayed;
 
 jtframe_freqinfo #(.DIGITS(5),.MFREQ(MFREQ)) u_freq(
     .rst    ( rst               ),
     .clk    ( clk               ),
-    .pulse  ( cpu_cen && !halt  ),
+    .pulse  ( eff_cen           ),
     .fave   ( { fave, nc1 }     ),
     .fworst ( { fworst, nc2 }   )
 );

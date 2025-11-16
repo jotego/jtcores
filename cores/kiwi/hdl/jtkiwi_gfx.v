@@ -67,7 +67,7 @@ module jtkiwi_gfx #(
     output      [ 8:0]  scr_pxl,
     output      [ 8:0]  obj_pxl,
     input       [ 7:0]  debug_bus,
-    output      [ 7:0]  st_dout
+    output reg  [ 7:0]  st_dout
 );
 
 wire        yram_we, video_en;
@@ -108,7 +108,6 @@ assign col_cfg  = cfg[1][3:0];
 assign col_xmsb = { cfg[3], cfg[2] };
 assign cpu_din  = yram_cs ? yram_dout :
                   vram_cs ? (cpu_addr[12] ? vram_dout[15:8] : vram_dout[7:0]) : 8'h00;
-assign st_dout  = { flip, video_en, col0, col_cfg };
 
 always @* begin
     yram_cs = 0;
@@ -120,7 +119,11 @@ always @* begin
     endcase
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
+    st_dout <= debug_bus[0] ? flag : { flip, video_en, col0, col_cfg };
+end
+
+always @(posedge clk) begin
     if( rst ) begin
         cen_cnt <= 0;
         tm_cen  <= 0;
@@ -304,7 +307,7 @@ jtframe_dual_ram #(.AW(10),.SIMFILE("col.bin")) u_yram(
     .clk1   ( clk        ),
     // Main CPU
     .addr0  (cpu_addr[9:0]),
-    .data0  ( cpu_dout   ),
+    .data0  (cpu_dout[7:0]),
     .we0    ( yram_we    ),
     .q0     ( yram_dout  ),
     // GFX

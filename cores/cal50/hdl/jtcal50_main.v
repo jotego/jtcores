@@ -142,7 +142,7 @@ always @(posedge clk) begin
                 cab_cs   ? {8'd0,cab_dout} : 16'h0;
 end
 
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtframe_edge u_16ms(
     .rst    ( rst       ),
     .clk    ( clk       ),
@@ -168,7 +168,7 @@ jtframe_8bit_reg u_snd(
     .dout       ( snd_cmd       )
 );
 
-jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
+jtframe_68kdtack_cen #(.W(6),.RECOVERY(0)) u_bus_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),

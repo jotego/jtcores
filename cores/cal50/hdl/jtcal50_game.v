@@ -120,7 +120,7 @@ jtcal50_sound u_sound(
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtcal50_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -137,7 +137,7 @@ jtcal50_video u_video(
     .cpu_rnw        ( cpu_ldwn      ),
     .cpu_dsn        ( ram_dsn       ),
     .cpu_addr       ( cpu_addr      ),
-    .cpu_dout       ( cpu_dout[7:0] ),
+    .cpu_dout       ( cpu_dout      ),
 
     .vram_cs        ( vram_cs       ),
     .vctrl_cs       ( vctrl_cs      ),

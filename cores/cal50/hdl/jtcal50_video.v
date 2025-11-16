@@ -34,7 +34,7 @@ module jtcal50_video(
     // CPU      interface
     input               cpu_rnw,
     input      [12:0]   cpu_addr,
-    input      [ 7:0]   cpu_dout,
+    input      [15:0]   cpu_dout,
     input      [ 1:0]   cpu_dsn,
     input               vram_cs,
     input               vctrl_cs,
@@ -73,9 +73,9 @@ assign vram_dout = yram_cs ? {2{vd8}} : vd16;
 // 17.45ms per frame, 2.05ms blanking, 512.5us sync (centered)
 jtframe_vtimer #(
     .HB_END  ( 9'd0   ),
-    .HB_START( 9'd448 ),
-    .HS_START( 9'd464 ),
-    .HS_END  ( 9'd496 ),
+    .HB_START( 9'd384 ),
+    .HS_START( 9'd416 ),
+    .HS_END  ( 9'd480 ),
     .HCNT_END( 9'd511 ),
     .V_START ( 9'd000 ),
     .VS_START( 9'd252 ),
@@ -98,7 +98,7 @@ jtframe_vtimer #(
     .VS         ( VS         )
 );
 
-jtkiwi_gfx u_gfx(
+jtkiwi_gfx #(.CPUW(16)) u_gfx(
     .rst        ( rst            ),
     .clk        ( clk            ),
     .clk_cpu    ( clk_cpu        ),
