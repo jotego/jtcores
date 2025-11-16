@@ -16,7 +16,7 @@ task random_asn_pulses(); begin
             asn = 1;
         else if(asn) begin
             asn = $random;
-            if(!asn && ($random%100)>5) begin
+            if(!asn && ($random%100)>15) begin
                 bus_busy = 1;
                 if(bus_busy) begin
                     repeat( $random % 12 ) @(posedge clk);
@@ -56,6 +56,16 @@ initial begin
         random_asn_pulses();
         assert_msg(uut.fave<16'h1011,"frequency is over  10.11MHz");
         assert_msg(uut.fave>16'h990,"frequency is below 9.90MHz");
+    end
+    // 12MHz test
+    num=4'd1;
+    den=5'd4;
+    repeat (40) @(posedge hs);
+    assert_msg(uut.fave==16'h1200,"frequency must be 12MHz sharp");
+    repeat (120) begin
+        random_asn_pulses();
+        assert_msg(uut.fave<16'h1213,"frequency is over  12.13MHz");
+        assert_msg(uut.fave>16'h1188,"frequency is below 11.88MHz");
     end
     pass();
 end

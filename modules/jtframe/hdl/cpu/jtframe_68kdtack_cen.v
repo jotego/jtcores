@@ -133,10 +133,11 @@ end
 always @(posedge clk) begin
     if( rst ) begin
         missing <= 0;
-    end else if( cpu_cen ) begin
-        if( delayed ) begin
+    end else begin
+        if( delayed && (cpu_cen|cpu_cenb) ) begin
             missing <= missing + 1;
-        end else if( recover ) begin
+        end
+        if( recover ) begin
             missing <= missing - 1;
         end
     end
