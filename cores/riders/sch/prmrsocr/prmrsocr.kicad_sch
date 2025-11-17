@@ -7430,6 +7430,44 @@
 		)
 	)
 	(sheet
+		(at 246.38 222.25)
+		(size 38.1 30.48)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "d3c9105a-5122-4b1e-b00b-76c0d0a9af40")
+		(property "Sheetname" "psac"
+			(at 246.38 221.5384 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "psac.kicad_sch"
+			(at 246.38 253.3146 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "prmrsocr"
+				(path "/0011ec10-82c4-4039-b424-337480f568e8"
+					(page "12")
+				)
+			)
+		)
+	)
+	(sheet
 		(at 246.38 195.58)
 		(size 38.1 12.7)
 		(fields_autoplaced yes)

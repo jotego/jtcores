@@ -12361,6 +12361,110 @@
 		)
 	)
 	(symbol
+		(lib_id "jt74:74LS257")
+		(at 302.26 228.6 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8a65bec9-b2c1-435a-910b-c505ca190b30")
+		(property "Reference" "D42"
+			(at 309.88 209.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS257"
+			(at 299.212 247.523 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 302.26 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.alldatasheet.com/view.jsp?Searchword=74ls257%20datasheet&gclid=Cj0KCQiA3eGfBhCeARIsACpJNU-kUMLua0E2pvumk71ERiGV7USA82I7nAyd0KyVBNZdXHEZ1zQ9oIQaAmxLEALw_wcB"
+			(at 307.848 251.841 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 302.26 228.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5dd44481-b336-4682-b7d3-845c8877cd4a")
+		)
+		(pin "10"
+			(uuid "a0b1f456-38a1-4773-acfd-c664c7bcd37d")
+		)
+		(pin "11"
+			(uuid "093f72fd-789f-41f0-b405-640dafbecf0f")
+		)
+		(pin "12"
+			(uuid "74d4aea5-ea9e-40b3-92ef-548436c40e24")
+		)
+		(pin "13"
+			(uuid "3311faea-01ce-457f-bd8d-80379e337e95")
+		)
+		(pin "14"
+			(uuid "4e4a3b15-39c0-4bd5-9a05-42c36067675f")
+		)
+		(pin "15"
+			(uuid "9181277e-3e0b-49cf-8210-4fd3e715db90")
+		)
+		(pin "2"
+			(uuid "c52987d5-2183-4c73-ad41-11f59e8d99dc")
+		)
+		(pin "3"
+			(uuid "4c19d2d6-fedb-4b33-8f88-ce73c300e6e9")
+		)
+		(pin "4"
+			(uuid "c1b4f7e1-1972-4b55-936d-468774af3c8d")
+		)
+		(pin "5"
+			(uuid "f6a76b2b-472f-47f2-b41b-50939693cea5")
+		)
+		(pin "6"
+			(uuid "529afc2c-21ee-4968-ab34-8b2bc19e9186")
+		)
+		(pin "7"
+			(uuid "0c45d97f-51d6-4541-b88f-ae016e384c38")
+		)
+		(pin "9"
+			(uuid "723445ff-97fd-4b70-a6ee-cc4620764e2f")
+		)
+		(instances
+			(project "prmrsocr"
+				(path "/0011ec10-82c4-4039-b424-337480f568e8/738db462-ecf7-4782-b6c0-b51ff05271c0"
+					(reference "D42")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "jt74:74LS04")
 		(at 203.2 143.51 0)
 		(unit 3)
@@ -13528,6 +13632,110 @@
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/738db462-ecf7-4782-b6c0-b51ff05271c0"
 					(reference "SW1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "jt74:74LS257")
+		(at 302.26 187.96 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f3825d15-633c-433b-85f0-f658af396610")
+		(property "Reference" "D41"
+			(at 309.88 168.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS257"
+			(at 299.212 206.883 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 302.26 187.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.alldatasheet.com/view.jsp?Searchword=74ls257%20datasheet&gclid=Cj0KCQiA3eGfBhCeARIsACpJNU-kUMLua0E2pvumk71ERiGV7USA82I7nAyd0KyVBNZdXHEZ1zQ9oIQaAmxLEALw_wcB"
+			(at 307.848 211.201 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 302.26 187.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "c580084e-e6c2-4301-b0d0-36e238edb44d")
+		)
+		(pin "10"
+			(uuid "d2b0e668-4fee-4cad-b977-416e7245b578")
+		)
+		(pin "11"
+			(uuid "4dd6cda1-be4a-4b9a-96d5-12249b6b8e30")
+		)
+		(pin "12"
+			(uuid "31fdb015-cae5-4c2d-9685-0ac9e339792b")
+		)
+		(pin "13"
+			(uuid "b9a34ea4-b39d-4618-889e-ea735b4b8df2")
+		)
+		(pin "14"
+			(uuid "36c5c25e-4c85-4a63-a653-2e21da431ca9")
+		)
+		(pin "15"
+			(uuid "f039b61d-b4f5-4a55-9f81-2c7003c2f739")
+		)
+		(pin "2"
+			(uuid "ee3672e9-6cd7-4399-9559-c9455991b069")
+		)
+		(pin "3"
+			(uuid "0d31d541-ba8b-49d2-afa8-10956b57d9be")
+		)
+		(pin "4"
+			(uuid "a0af0edb-b603-4cbe-a196-529b98234939")
+		)
+		(pin "5"
+			(uuid "342986f1-3440-4e1b-9ae6-835227d00e20")
+		)
+		(pin "6"
+			(uuid "170afa79-faf1-4d50-98ca-6fd4875310cc")
+		)
+		(pin "7"
+			(uuid "7eb57dfb-3388-42a8-ada2-92c7c95dbaa7")
+		)
+		(pin "9"
+			(uuid "d5b5df6a-272f-4b96-bb76-307b89c8d0c7")
+		)
+		(instances
+			(project "prmrsocr"
+				(path "/0011ec10-82c4-4039-b424-337480f568e8/738db462-ecf7-4782-b6c0-b51ff05271c0"
+					(reference "D41")
 					(unit 1)
 				)
 			)
