@@ -4585,6 +4585,1536 @@
 				)
 			)
 		)
+		(symbol "konami:053936"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U44"
+				(at 1.27 11.938 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "053936"
+				(at 1.016 2.54 0)
+				(effects
+					(font
+						(size 2.54 2.54)
+						(thickness 0.508)
+						(bold yes)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 3.81 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://github.com/furrtek/VGChips/tree/master/Konami"
+				(at 2.54 -24.384 0)
+				(effects
+					(font
+						(size 1.016 1.016)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Z-layer generator"
+				(at 2.286 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "053936_0_1"
+				(rectangle
+					(start -25.4 26.67)
+					(end 30.48 -30.48)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "053936_1_0"
+				(pin tri_state line
+					(at 33.02 21.59 180)
+					(length 2.54)
+					(name "Y8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 1.27 180)
+					(length 2.54)
+					(name "Y0"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 -1.27 180)
+					(length 2.54)
+					(name "YH"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -27.94 12.7 0)
+					(length 2.54)
+					(name "VSS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "12"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 -3.81 180)
+					(length 2.54)
+					(name "X12"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "13"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 -6.35 180)
+					(length 2.54)
+					(name "X11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "14"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 -8.89 180)
+					(length 2.54)
+					(name "X10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "15"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 -11.43 180)
+					(length 2.54)
+					(name "X9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "16"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 -13.97 180)
+					(length 2.54)
+					(name "X8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "17"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 -16.51 180)
+					(length 2.54)
+					(name "X7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "18"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 -19.05 180)
+					(length 2.54)
+					(name "X6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "19"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -27.94 10.16 0)
+					(length 2.54)
+					(name "VSS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 -21.59 180)
+					(length 2.54)
+					(name "X5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "20"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 -24.13 180)
+					(length 2.54)
+					(name "X4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "21"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 -26.67 180)
+					(length 2.54)
+					(name "X3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "22"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -27.94 15.24 0)
+					(length 2.54)
+					(name "VSS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "23"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 26.67 -33.02 90)
+					(length 2.54)
+					(name "X2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "24"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 24.13 -33.02 90)
+					(length 2.54)
+					(name "X1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "25"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 21.59 -33.02 90)
+					(length 2.54)
+					(name "X0"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "26"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 19.05 -33.02 90)
+					(length 2.54)
+					(name "XH"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "27"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input inverted
+					(at 16.51 -33.02 90)
+					(length 2.54)
+					(name "NOE"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "28"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 13.97 -33.02 90)
+					(length 2.54)
+					(name "D0"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "29"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 19.05 180)
+					(length 2.54)
+					(name "Y7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 11.43 -33.02 90)
+					(length 2.54)
+					(name "D1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "30"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 8.89 -33.02 90)
+					(length 2.54)
+					(name "D2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "31"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 6.35 -33.02 90)
+					(length 2.54)
+					(name "D3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "32"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -20.32 29.21 270)
+					(length 2.54)
+					(name "VCC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "33"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 3.81 -33.02 90)
+					(length 2.54)
+					(name "D4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "34"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 1.27 -33.02 90)
+					(length 2.54)
+					(name "D5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "35"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -1.27 -33.02 90)
+					(length 2.54)
+					(name "D6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "36"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -3.81 -33.02 90)
+					(length 2.54)
+					(name "D7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "37"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -6.35 -33.02 90)
+					(length 2.54)
+					(name "D8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "38"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -8.89 -33.02 90)
+					(length 2.54)
+					(name "D9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "39"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 16.51 180)
+					(length 2.54)
+					(name "Y6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -11.43 -33.02 90)
+					(length 2.54)
+					(name "D10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "40"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -13.97 -33.02 90)
+					(length 2.54)
+					(name "D11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "41"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -16.51 -33.02 90)
+					(length 2.54)
+					(name "VSS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "42"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -19.05 -33.02 90)
+					(length 2.54)
+					(name "D12"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "43"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -21.59 -33.02 90)
+					(length 2.54)
+					(name "D13"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "44"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 -25.4 0)
+					(length 2.54)
+					(name "D14"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "45"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 -22.86 0)
+					(length 2.54)
+					(name "D15"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "46"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output inverted
+					(at -17.78 29.21 270)
+					(length 2.54)
+					(name "NDMA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "47"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input inverted
+					(at -15.24 29.21 270)
+					(length 2.54)
+					(name "NDTACK"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "48"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 -20.32 0)
+					(length 2.54)
+					(name "LH0"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "49"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 13.97 180)
+					(length 2.54)
+					(name "Y5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 -17.78 0)
+					(length 2.54)
+					(name "LH1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "50"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 -15.24 0)
+					(length 2.54)
+					(name "LH2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "51"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -27.94 17.78 0)
+					(length 2.54)
+					(name "VSS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "52"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 -12.7 0)
+					(length 2.54)
+					(name "LA0"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "53"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 -10.16 0)
+					(length 2.54)
+					(name "LA1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "54"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 -7.62 0)
+					(length 2.54)
+					(name "LA2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "55"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 -5.08 0)
+					(length 2.54)
+					(name "LA3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "56"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 -2.54 0)
+					(length 2.54)
+					(name "LA4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "57"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 0 0)
+					(length 2.54)
+					(name "LA5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "58"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 2.54 0)
+					(length 2.54)
+					(name "LA6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "59"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 11.43 180)
+					(length 2.54)
+					(name "Y4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 5.08 0)
+					(length 2.54)
+					(name "LA7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "60"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at -27.94 7.62 0)
+					(length 2.54)
+					(name "LA8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "61"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input inverted
+					(at -12.7 29.21 270)
+					(length 2.54)
+					(name "NLOE"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "62"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -27.94 20.32 0)
+					(length 2.54)
+					(name "VSS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "63"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input clock
+					(at -10.16 29.21 270)
+					(length 2.54)
+					(name "CLK"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "64"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -7.62 29.21 270)
+					(length 2.54)
+					(name "HSYNC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "65"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -5.08 29.21 270)
+					(length 2.54)
+					(name "VSYNC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "66"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input inverted
+					(at -2.54 29.21 270)
+					(length 2.54)
+					(name "NUCS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "67"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input inverted
+					(at 0 29.21 270)
+					(length 2.54)
+					(name "NLCS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "68"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input inverted
+					(at 2.54 29.21 270)
+					(length 2.54)
+					(name "NWCS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "69"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 8.89 180)
+					(length 2.54)
+					(name "Y3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 5.08 29.21 270)
+					(length 2.54)
+					(name "A4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "70"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 7.62 29.21 270)
+					(length 2.54)
+					(name "A3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "71"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 10.16 29.21 270)
+					(length 2.54)
+					(name "A2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "72"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -27.94 22.86 0)
+					(length 2.54)
+					(name "VCC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "73"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 12.7 29.21 270)
+					(length 2.54)
+					(name "A1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "74"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input inverted
+					(at 15.24 29.21 270)
+					(length 2.54)
+					(name "N16/8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "75"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output inverted
+					(at 17.78 29.21 270)
+					(length 2.54)
+					(name "NOB"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "76"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 20.32 29.21 270)
+					(length 2.54)
+					(name "Y12"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "77"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 22.86 29.21 270)
+					(length 2.54)
+					(name "Y11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "78"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 25.4 29.21 270)
+					(length 2.54)
+					(name "Y10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "79"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 6.35 180)
+					(length 2.54)
+					(name "Y2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 27.94 29.21 270)
+					(length 2.54)
+					(name "Y9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "80"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin tri_state line
+					(at 33.02 3.81 180)
+					(length 2.54)
+					(name "Y1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "053936_1_1"
+				(text "25 pins top/bottom\n15 pins left/right"
+					(at 3.048 -13.97 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(text "KONAMI"
+					(at 2.032 6.096 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(text "PSAC UNIT"
+					(at 2.54 -1.778 0)
+					(effects
+						(font
+							(size 2.54 2.54)
+						)
+					)
+				)
+			)
+		)
 	)
 	(junction
 		(at 78.74 104.14)
@@ -8464,6 +9994,308 @@
 			(project "prmrsocr"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/d3c9105a-5122-4b1e-b00b-76c0d0a9af40"
 					(reference "14F41")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "konami:053936")
+		(at 336.55 30.48 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8528f464-9d17-4766-936e-f16d381ff5f1")
+		(property "Reference" "U44"
+			(at 337.82 18.542 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "053936"
+			(at 337.566 27.94 0)
+			(effects
+				(font
+					(size 2.54 2.54)
+					(thickness 0.508)
+					(bold yes)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 340.36 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://github.com/furrtek/VGChips/tree/master/Konami"
+			(at 339.09 54.864 0)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Z-layer generator"
+			(at 338.836 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "79"
+			(uuid "ae00b0f5-cb5f-47fb-a9d2-bb845280ba01")
+		)
+		(pin "76"
+			(uuid "b3c020cd-54df-4331-8aa4-7c2aecec84eb")
+		)
+		(pin "75"
+			(uuid "4b3cfbd4-1d9d-41c9-9740-b64f9672e66a")
+		)
+		(pin "58"
+			(uuid "4eba25ad-6d65-486f-aa32-ee955479336e")
+		)
+		(pin "6"
+			(uuid "8f8f288a-2f80-450c-b870-e0121b07f8e0")
+		)
+		(pin "41"
+			(uuid "af9bc0bd-b5d2-4e05-9c16-7d073ff57984")
+		)
+		(pin "9"
+			(uuid "3b8e95e1-6d4a-4634-b2b6-8cc1bd3a4522")
+		)
+		(pin "72"
+			(uuid "d5ae36bb-2810-431a-8f69-bc967efcdf0f")
+		)
+		(pin "23"
+			(uuid "dbcac946-c8ca-47ec-8574-838e1c9d06e8")
+		)
+		(pin "45"
+			(uuid "07334277-91b8-4e2a-ba7b-be30578de282")
+		)
+		(pin "66"
+			(uuid "2d9d75c2-749e-464f-a39a-52bce21675fa")
+		)
+		(pin "17"
+			(uuid "ca5b9678-c50d-4e65-9569-8241f2a62d7c")
+		)
+		(pin "29"
+			(uuid "2e6335e0-4362-42d1-b8c0-fd56f1a5ded8")
+		)
+		(pin "64"
+			(uuid "0980c6ee-70b8-4398-be1d-cf1dcc7d81d4")
+		)
+		(pin "43"
+			(uuid "e8c34e3b-f25f-48bd-aaa7-50cb6ee9b140")
+		)
+		(pin "71"
+			(uuid "505a8325-a699-44e8-9437-aa0415fdd709")
+		)
+		(pin "63"
+			(uuid "69ec593c-1fd5-49f6-99ab-2710e8a3ffbc")
+		)
+		(pin "80"
+			(uuid "be31cb9b-fe31-41df-b00a-886f0307b037")
+		)
+		(pin "4"
+			(uuid "a8ecef2e-c372-459b-a750-1d185ee1280e")
+		)
+		(pin "55"
+			(uuid "71d89dfd-267d-4a60-b267-4b3d42240224")
+		)
+		(pin "30"
+			(uuid "4fc6a829-f02b-49f8-b780-3f90493b3f5a")
+		)
+		(pin "38"
+			(uuid "fe3ef6ea-0128-4d3a-828a-7a6070460cdf")
+		)
+		(pin "78"
+			(uuid "d86c2f91-e84b-4380-91cf-c2e5d92f23bf")
+		)
+		(pin "22"
+			(uuid "43c1c67f-852d-4479-a3d5-f3b584d79ea0")
+		)
+		(pin "36"
+			(uuid "77fcf483-eeb0-415c-8529-65c6002fc516")
+		)
+		(pin "21"
+			(uuid "8c9dd45d-a397-4a81-aa98-48299ee6c6b0")
+		)
+		(pin "14"
+			(uuid "d5762aa8-84e4-4ffd-98e0-125d0c66be87")
+		)
+		(pin "5"
+			(uuid "06d69ee0-6fef-4ddc-9933-37e64d8a2d91")
+		)
+		(pin "26"
+			(uuid "c7cc3814-170f-4d31-8ca6-ff750380986e")
+		)
+		(pin "37"
+			(uuid "2dfe964e-b246-4326-895a-1678b61447c1")
+		)
+		(pin "25"
+			(uuid "33c0b580-fef6-4aee-8729-882ba2285260")
+		)
+		(pin "42"
+			(uuid "6ad1c260-7420-4df6-8c3f-4b89c697dd38")
+		)
+		(pin "39"
+			(uuid "c59a4432-d346-4541-9e6f-67b06740fe4a")
+		)
+		(pin "24"
+			(uuid "9d846e4e-b91c-4253-9db8-952a95ac9a1e")
+		)
+		(pin "69"
+			(uuid "f7f153d9-fcaf-492d-96a5-db2789d161af")
+		)
+		(pin "53"
+			(uuid "1c30fea7-40e4-4196-9484-9d53632cc52c")
+		)
+		(pin "52"
+			(uuid "c964e6db-4ac4-407f-ae1b-a34f8885866d")
+		)
+		(pin "27"
+			(uuid "f3437826-58b5-42dd-84fc-f85a800b8e46")
+		)
+		(pin "70"
+			(uuid "319f85b0-b95a-4103-893b-9e3983fccc28")
+		)
+		(pin "10"
+			(uuid "ff11c83c-9cc3-45b1-aae8-fe3aacb486cb")
+		)
+		(pin "15"
+			(uuid "d0320a7e-2b29-4150-860e-e6826896e51f")
+		)
+		(pin "31"
+			(uuid "d4021040-ab35-4788-a278-4b9a6da590fa")
+		)
+		(pin "44"
+			(uuid "83312ebc-1736-41e3-a55c-5809d5b6611a")
+		)
+		(pin "46"
+			(uuid "005daac7-e2c6-4ba5-a7fe-c8cedd329fb4")
+		)
+		(pin "60"
+			(uuid "81be51f8-b434-4d69-aa6a-3a6e04b6363b")
+		)
+		(pin "47"
+			(uuid "a5ccecb9-b571-4703-8f24-d8739c8b0c19")
+		)
+		(pin "40"
+			(uuid "a096c9b5-83f8-47d9-8b4f-9beee9fd04d5")
+		)
+		(pin "77"
+			(uuid "21003f66-9ee1-46f8-aaad-e5869e877e21")
+		)
+		(pin "8"
+			(uuid "6e36646b-af3c-4458-9d55-d935b4c29100")
+		)
+		(pin "7"
+			(uuid "78422401-abcf-4b99-8a10-f8e15a6bd716")
+		)
+		(pin "59"
+			(uuid "7037f781-db74-4a68-9d95-548b6af04bce")
+		)
+		(pin "3"
+			(uuid "f30d55cf-c10c-45bf-9b99-b0a407fa1063")
+		)
+		(pin "28"
+			(uuid "31d29059-3a6b-4988-adc9-90a3ca0e49c3")
+		)
+		(pin "54"
+			(uuid "da5ced4b-3c5c-4cce-a580-481d62ac4e2b")
+		)
+		(pin "16"
+			(uuid "3856ff8b-e041-421c-a6de-e3367583fd36")
+		)
+		(pin "65"
+			(uuid "aa739994-85cc-4f86-ba29-31e762a08f5d")
+		)
+		(pin "74"
+			(uuid "fc4411e7-5eea-4c0a-94bd-5106a645c39d")
+		)
+		(pin "56"
+			(uuid "da249bb3-1c05-4318-8713-1dd0a8b6e513")
+		)
+		(pin "51"
+			(uuid "0fef6b48-b7e1-4ed7-a3a3-e31a78720f11")
+		)
+		(pin "1"
+			(uuid "8d9ed470-90e2-4474-a4d2-08fb082a7690")
+		)
+		(pin "13"
+			(uuid "be7080f3-9b2f-476f-a301-6b7c12fbc9a5")
+		)
+		(pin "57"
+			(uuid "3144cc8a-8f79-4762-9f42-23bf986076ea")
+		)
+		(pin "20"
+			(uuid "33cf7887-3a01-4988-97d9-6962e41b21be")
+		)
+		(pin "34"
+			(uuid "ae92ef21-68cd-4872-9d7b-732afd835a47")
+		)
+		(pin "48"
+			(uuid "7c3d7fcd-e5d0-4426-92c0-bb4789e97637")
+		)
+		(pin "49"
+			(uuid "6e3d93c5-216e-43ec-b28e-c17c3307a265")
+		)
+		(pin "35"
+			(uuid "a6fa5a1b-bc86-40e9-ac42-bf6d0e259905")
+		)
+		(pin "73"
+			(uuid "1d60eb33-391f-46f3-b512-0dcdc154b0f1")
+		)
+		(pin "61"
+			(uuid "de2915a2-444c-42b1-b9ba-d0879b44d5f7")
+		)
+		(pin "33"
+			(uuid "bf9b8924-db51-4728-9661-274fde6b7a4a")
+		)
+		(pin "32"
+			(uuid "9ed89d8c-f5bc-4940-8007-295127b851a0")
+		)
+		(pin "12"
+			(uuid "f3b73001-e57b-4712-ac78-d15c2171a169")
+		)
+		(pin "11"
+			(uuid "aa8de4ff-8fde-4018-8858-9cb86208d191")
+		)
+		(pin "2"
+			(uuid "003e4bf0-47ba-4b28-b8d9-78a3fe1049ae")
+		)
+		(pin "50"
+			(uuid "9b9e9590-74ff-4f78-a668-b6fc92e8a2a3")
+		)
+		(pin "19"
+			(uuid "2f9b19f8-fed9-4c45-84d5-1a7c76d9154c")
+		)
+		(pin "18"
+			(uuid "6abed92c-3037-42fe-a1c7-9c8d5fff3e6b")
+		)
+		(pin "68"
+			(uuid "e6e8f25d-01bd-4343-998e-056528822227")
+		)
+		(pin "67"
+			(uuid "6c90b524-1f48-4cbb-b80e-552772c85bd5")
+		)
+		(pin "62"
+			(uuid "8aac14fd-6686-4a48-ad51-ff2708c04ce8")
+		)
+		(instances
+			(project ""
+				(path "/0011ec10-82c4-4039-b424-337480f568e8/d3c9105a-5122-4b1e-b00b-76c0d0a9af40"
+					(reference "U44")
 					(unit 1)
 				)
 			)
