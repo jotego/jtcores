@@ -60,7 +60,7 @@ module jt053246_scan (    // sprite logic
     input      [ 7:0] debug_bus
 );
 parameter [7:0] SCAN_START = 8'd0;
-parameter [8:0] BOTTOM     = 9'h1FA;
+parameter [8:0] BOTTOM     = 9'h1F8;
 parameter [9:0] HOFFSET    = 10'd62;
 
 localparam [11:0] MAX_ZOOMIN= 6; // a value below 3 will break the "pass" scene in run&gun
