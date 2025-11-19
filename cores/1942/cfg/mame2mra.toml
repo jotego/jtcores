@@ -4,6 +4,7 @@ author=["jotego"]
 [parse]
 sourcefile=[ "1942.cpp", "vulgus.cpp", "higemaru.cpp" ]
 skip.setnames=[
+    "1942iti",
     "1942abl",
     "1942p",
     "1942fpa",
