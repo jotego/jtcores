@@ -378,12 +378,23 @@ func check_colorw() {
 }
 
 func set_sdram_refresh_rate( mclk int64 ) {
-	const freq_period_7812ns = float64(128000)
-	divider := float64(mclk) / freq_period_7812ns
+	const sdram_refresh_spec     = float64(128000)
+	const field_tested_for_years = float64( 15625) // used until commit 91841df549070
+	const compromise             = field_tested_for_years*2
+	refresh_freq := compromise
+	is_sdram_hot := mclk>90000000
+	if is_sdram_hot {
+		refresh_freq = refresh_more_often(refresh_freq)
+	}
+	divider := float64(mclk) / refresh_freq
 	bitwidth := int(math.Ceil(math.Log2(divider)))
 	Set("JTFRAME_RFSH_WC",fmt.Sprintf("%d",bitwidth))
 	Set("JTFRAME_RFSH_N", fmt.Sprintf("%d'd1",bitwidth))
 	Set("JTFRAME_RFSH_M", fmt.Sprintf("%d'd%.0f",bitwidth,divider))
+}
+
+func refresh_more_often( freq float64 ) float64 {
+	return freq*2
 }
 
 func add_subcarrier_clk( mclk int64 ) {
