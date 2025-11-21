@@ -83,7 +83,7 @@ localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_CFG   = 2; // interrupt control, ROM read
 // K55673 seems to have fewer objects. Or maybe the lower half
 // is used for the second screen on Run'n Gun (?)
-localparam [7:0] SCAN_START = K55673==1 ? 8'h80 : 8'h0;
+localparam [7:0] SCAN_START = K55673==1 ? 8'h40 : 8'h0;
 
 wire [15:0] scan_even, scan_odd, dma_din;
 wire [11:2] scan_addr;
