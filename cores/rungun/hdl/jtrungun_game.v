@@ -29,6 +29,16 @@ wire        lrsw, psac_cs, ccu_cs, disp, gvflip, ghflip, pri, cpu_rnw, pair_we,
             sdon, objrg_cs, objrm_cs, objcha_n, dma_bsy;
 reg         rst_main, rst_snd, rst_video;
 
+`ifndef POCKET
+wire       ram_cs;
+reg        ram_ok;
+wire [1:0] ram_dsn;
+
+assign ram_we = {2{~cpu_rnw & ram_cs}} & ~ram_dsn;
+always @(posedge clk48) ram_ok <= ram_cs;
+`else
+assign ram_we = ~cpu_rnw;
+`endif
 
 assign debug_view={7'd0,dma_bsy};
 assign dip_flip = ghflip ^ gvflip;
@@ -72,7 +82,6 @@ jtrungun_main u_main(
     .rom_ok         ( main_ok       ),
     // RAM
     .ram_dsn        ( ram_dsn       ),
-    .ram_we         ( ram_we        ),
     .ram_dout       ( ram_data      ),
     .ram_cs         ( ram_cs        ),
     .ram_ok         ( ram_ok        ),

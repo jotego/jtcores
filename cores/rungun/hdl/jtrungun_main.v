@@ -24,7 +24,6 @@ module jtrungun_main(
     output        [21:1] rom_addr,
     output        [12:1] cpu_addr,
     output        [ 1:0] ram_dsn,
-    output               ram_we,
     output        [15:0] cpu_dout,
     input         [ 7:0] vtimer_mmr,
     // 8-bit interface
@@ -106,7 +105,6 @@ assign cpu_addr = A[12:1];
 assign rom_addr ={A[20],A[21],A[19:1]};
 assign VPAn     = ~&{A[23],~ASn};
 assign ram_dsn  = {UDSn, LDSn};
-assign ram_we   = ~RnW;
 assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);

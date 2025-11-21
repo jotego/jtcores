@@ -452,7 +452,7 @@ jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     .addr   ( {{$bus.Addr}} ),
     .data   ( {{$bus.Din }} ),
     .we     ( {{$bus.We  }} ),
-    .q      ( {{$bus.Name}}_dout )
+    .q      ( {{$bus.Dout}} )
 );{{ end }}
 {{ end }}{{end}}
 
