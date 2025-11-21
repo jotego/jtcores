@@ -91,7 +91,7 @@ module jtroadf_obj(
     input        [15:0] ioctl_addr
 );
 
-parameter [7:0] HOFFSET = 8'd5;
+parameter [7:0] HOFFSET = 8'd6; // smaller numbers shift objects to the left
 //localparam [5:0] MAXOBJ = 6'd23;
 
 wire [ 7:0] obj1_dout, obj2_dout,
