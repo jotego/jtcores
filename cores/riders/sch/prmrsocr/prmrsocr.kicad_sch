@@ -2583,7 +2583,7 @@
 	)
 	(bus
 		(pts
-			(xy 312.42 105.41) (xy 327.66 105.41)
+			(xy 311.15 105.41) (xy 327.66 105.41)
 		)
 		(stroke
 			(width 0)
@@ -4420,7 +4420,7 @@
 		(uuid "432796e4-37ad-4e1a-bb15-6c9926565b74")
 	)
 	(label "MAIN_ABUF[5..0]"
-		(at 312.42 105.41 0)
+		(at 311.15 105.41 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7383,6 +7383,36 @@
 			)
 			(uuid "8e0c22e2-1ff5-4fc6-8ddd-3c1f6fe10e0e")
 		)
+		(pin "16HP8" output
+			(at 246.38 113.03 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "89d3d881-4688-49b0-8e1c-e92bc0d7f8fe")
+		)
+		(pin "11HP6" output
+			(at 246.38 110.49 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "c0b29774-9550-4d6a-861b-712e9e4592ff")
+		)
+		(pin "MAIN_D[15..0]" bidirectional
+			(at 246.38 115.57 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "51076e31-1317-4b27-8e60-e4c848c6f111")
+		)
 		(instances
 			(project "prmrsocr"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8"
@@ -7462,7 +7492,7 @@
 		(instances
 			(project "prmrsocr"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8"
-					(page "12")
+					(page "11")
 				)
 			)
 		)
@@ -7500,7 +7530,7 @@
 		(instances
 			(project "prmrsocr"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8"
-					(page "11")
+					(page "12")
 				)
 			)
 		)

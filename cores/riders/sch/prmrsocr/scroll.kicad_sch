@@ -22716,16 +22716,6 @@
 		)
 		(uuid "627c1f44-7e01-4ed3-8d9f-48418f639271")
 	)
-	(text "12HP4"
-		(exclude_from_sim no)
-		(at 83.82 159.258 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "638a9c18-ae9b-4650-8eb3-98598e2ac68d")
-	)
 	(text "SCRB"
 		(exclude_from_sim no)
 		(at 367.03 90.17 0)
