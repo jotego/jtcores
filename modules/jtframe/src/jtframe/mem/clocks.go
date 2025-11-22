@@ -26,24 +26,6 @@ import (
 	"jotego/jtframe/macros"
 )
 
-func find_div( fin, fout float64) (int, int) {
-	best_n, best_d := 0.0, 0.0
-	best := float64(fin)
-	ratio := fout/fin
-
-   	for d:=1.0; d<1024*64; d++ {
-   		n := math.Round(ratio*d)
-    	f := fin*n/d
-        err := math.Abs(fout-f);
-        if( err < best ) {
-            best_n = n;
-            best_d = d;
-            best = err;
-        }
-    }
-    return int(best_n), int(best_d)
-}
-
 func make_clocks( cfg *MemConfig ) {
 	for base_clk, cen_entries := range cfg.Clocks {
 		for k, cen_cfg := range cen_entries {
@@ -135,4 +117,22 @@ func (cen_cfg *ClockCfg)set_factors() {
 		fmt.Printf("Cannot build clock enable signal %s\n",cen_cfg.OutStr)
 		os.Exit(1)
 	}
+}
+
+func find_div( fin, fout float64) (int, int) {
+	best_n, best_d := 0.0, 0.0
+	best := float64(fin)
+	ratio := fout/fin
+
+   	for d:=1.0; d<1024*64; d++ {
+   		n := math.Round(ratio*d)
+    	f := fin*n/d
+        err := math.Abs(fout-f);
+        if( err < best ) {
+            best_n = n;
+            best_d = d;
+            best = err;
+        }
+    }
+    return int(best_n), int(best_d)
 }
