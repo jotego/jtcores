@@ -60,7 +60,7 @@ module jt053246_scan (    // sprite logic
     input      [ 7:0] debug_bus
 );
 parameter [7:0] SCAN_START = 8'd0;
-parameter [8:0] BOTTOM     = 9'h1FA;
+parameter [8:0] BOTTOM     = 9'h1F7;
 parameter [9:0] HOFFSET    = 10'd62;
 
 localparam [11:0] MAX_ZOOMIN= 6; // a value below 3 will break the "pass" scene in run&gun
@@ -189,7 +189,7 @@ always @(posedge clk) begin : A
     end else if( cen2 ) begin
         hs_l <= hs;
         dr_start <= 0;
-        if( hs && !hs_l && vdump>9'h10D && vdump<BOTTOM) begin
+        if( hs && !hs_l && vdump>9'h10D && vdump<=BOTTOM) begin
             done     <= 0;
             scan_obj <= SCAN_START;
             scan_sub <= 0;

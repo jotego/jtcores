@@ -26,6 +26,7 @@ sdram:
   banks:
     - buses:
         - name: ram
+          when: [ POCKET ]
           addr_width: 17
           data_width: 16
           addr: main_addr[16:1]
@@ -60,6 +61,14 @@ sdram:
           addr_width: 23
           data_width: 32
 bram:
+  - name: ram
+    unless: [ POCKET ]
+    addr_width: 17
+    data_width: 16
+    addr: main_addr[16:1]
+    din: cpu_dout
+    dout: ram_data
+    rw: true
   # EEROM - ER5911
   - name: nvram
     addr_width: 7

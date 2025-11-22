@@ -24,7 +24,6 @@ module jtrungun_main(
     output        [21:1] rom_addr,
     output        [12:1] cpu_addr,
     output        [ 1:0] ram_dsn,
-    output               ram_we,
     output        [15:0] cpu_dout,
     input         [ 7:0] vtimer_mmr,
     // 8-bit interface
@@ -106,7 +105,6 @@ assign cpu_addr = A[12:1];
 assign rom_addr ={A[20],A[21],A[19:1]};
 assign VPAn     = ~&{A[23],~ASn};
 assign ram_dsn  = {UDSn, LDSn};
-assign ram_we   = ~RnW;
 assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
@@ -343,7 +341,7 @@ jtframe_m68k u_cpu(
         ghflip    = 0,
         pri       = 0, lrsw = 1, vmem_addr = 0, cpal_addr = 0, psac_bank = 0,
         vmem_we   = 0, cpu_dout = 0, ccu_cs = 0, cpal_we = 0,
-        ram_we    = 0, psreg_cs = 0,
+        psreg_cs  = 0,
         cpu_rnw   = 1,
         cpu_addr  = 0,
         rom_addr  = 0,
