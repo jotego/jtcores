@@ -74,8 +74,8 @@ always @* begin
     x1pcm_cs = A[15:12]<=1;
     cmd_cs   = A[15:12]==4 &&  rnw;
     bank_cs  = A[15:12]==4 && !rnw;
-    banked   = A[15:12]< 4'hc && A[15];
     rom_cs   = A[15] && rnw;
+    banked   =!A[14];
     st_cs    = A[15:12]==4'hc && !rnw;
 end
 

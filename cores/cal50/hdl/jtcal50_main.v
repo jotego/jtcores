@@ -98,12 +98,13 @@ assign st_dout  = 0;
 always @* begin
     rom_cs   = !BUSn &&  A[23:20]==0;
     ipl2_cs  = !ASn  &&  A[23:20]==1;
-    nvram_cs = !ASn  &&  A[23:19]==2;
+    nvram_cs = !ASn  &&  A[23:20]==2;
     ipl1_cs  = !ASn  &&  A[23:20]==3;
 //  wdog_cs  = !ASn  &&  A[23:20]==4;
+//  ????_cs  = !ASn  &&  A[23:20]==5;
     dips_cs  = !ASn  &&  A[23:20]==6;
     pal_cs   = !ASn  &&  A[23:20]==7;
-    tlc_cs   = !ASn  &&  A[23:20]==8;  // tiles configuration
+    tlc_cs   = !ASn  &&  A[23:20]==8 && !RnW;  // tiles configuration
     tlv_cs   = !ASn  &&  A[23:20]==9 && !A[14];  // tiles VRAM
     buf_cs   = !BUSn &&  A[23:20]==9 &&  A[14];  // tiles VRAM related? extra RAM
     cab_cs   = !ASn  &&  A[23:20]==10;
@@ -168,7 +169,7 @@ jtframe_8bit_reg u_snd(
     .dout       ( snd_cmd       )
 );
 
-jtframe_68kdtack_cen #(.W(6),.RECOVERY(0)) u_bus_dtack(
+jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
