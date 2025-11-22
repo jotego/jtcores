@@ -32,6 +32,17 @@ assign fix_addr   = 0;
 assign fix_cs     = 0;
 assign cpu_ldwn   = cpu_rnw | ram_dsn[0];
 
+reg        LHBL_l;
+reg  [5:0] cnt244;
+wire [6:0] nx_244 = {1'b0,cnt244} + 6'd1;
+reg        cen244;
+
+always @(posedge clk) begin
+    LHBL_l <= LHBL;
+    cen244 <= 0;
+    if( LHBL & ~LHBL_l ) {cen244,cnt244} <= nx_244;
+end
+
 /* verilator tracing_on */
 jtcal50_main u_main(
     .rst            ( rst           ),

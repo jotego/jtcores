@@ -6,9 +6,6 @@ clocks:
     - freq: 2000000
       outputs:
         - cen2
-    - freq: 244
-      outputs:
-        - cen244
 sdram:
   banks:
     - buses:
