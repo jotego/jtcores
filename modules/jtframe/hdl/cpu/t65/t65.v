@@ -1,4 +1,5 @@
 // Converted from T65 VHDL code using GHDL 3.0.0-dev (v2.0.0-1267-gd82550423) [Dunoon edition]
+/* verilator tracing_off */
 module t65_alu
   (input  [1:0] mode,
    input  [3:0] op,
@@ -4972,6 +4973,9 @@ module T65
    output VPA,
    output [23:0] A,
    output [7:0] DO);
+`ifdef VERILATOR_KEEP_CPU
+/* verilator tracing_on */
+`endif
   wire [15:0] abc;
   wire [15:0] x;
   wire [15:0] y;
@@ -4997,6 +5001,7 @@ module T65
   wire rstcycle;
   wire irqcycle;
   wire nmicycle;
+/* verilator tracing_off */
   wire so_n_o;
   wire irq_n_o;
   wire nmi_n_o;

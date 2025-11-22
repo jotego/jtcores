@@ -119,7 +119,6 @@ always @(posedge clk) begin
               cmd_cs      ? snd_cmd     : 8'h0;
 end
 
-/* verilator tracing_off */
 T65 u_cpu(
     .Mode   ( 2'd0      ),  // 6502 mode
     .Res_n  ( ~rst      ),
