@@ -122,6 +122,8 @@ type ClockCfg struct {
     OutStr  string
     Comment string
     Busy    string
+    // private
+    ratio   float64
 }
 
 type IoctlBus struct{ // not a YAML type
