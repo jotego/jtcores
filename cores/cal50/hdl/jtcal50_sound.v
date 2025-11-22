@@ -52,12 +52,12 @@ wire [ 4:0] rom_upper;
 reg  [ 7:0] cpu_din;
 wire [ 7:0] nc, cfg, cpu_dout;
 wire [ 3:0] bank;
-reg         bank_cs, banked, st_cs, cmd_cs, x1pcm_cs;
+reg         cfg_cs, bank_cs, st_cs, cmd_cs, x1pcm_cs;
 wire        rdy, nmi_n, nmi_clrn, irqn, irq_clrn, mute, rnw;
 
 // $4'0000 (256kB), 16 pages of 8kB each (128kB) plus $4000 (16kB) Fixed
 assign rom_addr  = { rom_upper, A[12:0] };
-assign rom_upper = banked ? {1'b0,bank}+5'h1 : {4'b00,A[13]};
+assign rom_upper = bank_cs ? {bank,A[13]} : {4'b00,A[13]};
 assign rdy       = ~rom_cs | rom_ok;
 assign {bank,nmi_clrn,irq_clrn,mute} = cfg[7:1];
 
@@ -73,9 +73,9 @@ assign sample      = 0;
 always @* begin
     x1pcm_cs = A[15:12]<=1;
     cmd_cs   = A[15:12]==4 &&  rnw;
-    bank_cs  = A[15:12]==4 && !rnw;
+    cfg_cs   = A[15:12]==4 && !rnw;
     rom_cs   = A[15] && rnw;
-    banked   =!A[14];
+    bank_cs  = A[15:14]==2;
     st_cs    = A[15:12]==4'hc && !rnw;
 end
 
@@ -109,7 +109,7 @@ jtframe_8bit_reg u_cfg(
     .clk        ( clk       ),
     .wr_n       ( rnw       ),
     .din        ( cpu_dout  ),
-    .cs         ( bank_cs   ),
+    .cs         ( cfg_cs   ),
     .dout       ( cfg       )
 );
 
