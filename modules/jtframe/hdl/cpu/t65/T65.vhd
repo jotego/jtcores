@@ -218,7 +218,7 @@ begin
 			Write       => Write
 			);
 
-	alu : T65_ALU
+	inst_alu : T65_ALU
 		port map(
 			Mode => Mode_r,
 			Op => ALU_Op_r,

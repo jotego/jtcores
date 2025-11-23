@@ -121,12 +121,14 @@ end
 
 localparam R65C02=2'b01;
 
+wire ceng = cen2 & (rom_ok | ~rom_cs);
+
 T65 u_cpu(
     .Mode   ( R65C02    ),
     .Res_n  ( ~rst      ),
-    .Enable ( cen2      ),
+    .Enable ( ceng      ),
     .Clk    ( clk       ),
-    .Rdy    ( rdy       ),
+    .Rdy    ( 1'b1      ),
     .Abort_n( 1'b1      ),
     .IRQ_n  ( irqn      ),
     .NMI_n  ( nmi_n     ),

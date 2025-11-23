@@ -1,5 +1,3 @@
-// Converted from T65 VHDL code using GHDL 3.0.0-dev (v2.0.0-1267-gd82550423) [Dunoon edition]
-/* verilator tracing_off */
 module t65_alu
   (input  [1:0] mode,
    input  [3:0] op,
@@ -18,106 +16,102 @@ module t65_alu
   wire sbc_v;
   wire sbc_n;
   wire [7:0] sbc_q;
-  wire [3:0] n2531_o;
-  wire n2532_o;
-  wire [4:0] n2533_o;
-  wire [6:0] n2534_o;
   wire [3:0] n2535_o;
+  wire n2536_o;
   wire [4:0] n2537_o;
   wire [6:0] n2538_o;
-  wire [6:0] n2539_o;
-  wire [3:0] n2540_o;
-  wire n2541_o;
-  wire [4:0] n2542_o;
+  wire [3:0] n2539_o;
+  wire [4:0] n2541_o;
+  wire [6:0] n2542_o;
   wire [6:0] n2543_o;
   wire [3:0] n2544_o;
+  wire n2545_o;
   wire [4:0] n2546_o;
   wire [6:0] n2547_o;
-  wire [6:0] n2548_o;
-  wire [3:0] n2549_o;
-  wire n2551_o;
-  wire [3:0] n2552_o;
-  wire n2554_o;
+  wire [3:0] n2548_o;
+  wire [4:0] n2550_o;
+  wire [6:0] n2551_o;
+  wire [6:0] n2552_o;
+  wire [3:0] n2553_o;
   wire n2555_o;
+  wire [3:0] n2556_o;
   wire n2558_o;
-  wire [4:0] n2559_o;
-  wire n2561_o;
+  wire n2559_o;
   wire n2562_o;
-  wire n2563_o;
-  wire [5:0] n2564_o;
-  wire [5:0] n2566_o;
-  wire [5:0] n2567_o;
+  wire [4:0] n2563_o;
+  wire n2565_o;
+  wire n2566_o;
+  wire n2567_o;
   wire [5:0] n2568_o;
-  wire n2569_o;
-  wire [6:0] n2570_o;
-  wire n2571_o;
-  wire [6:0] n2572_o;
+  wire [5:0] n2570_o;
+  wire [5:0] n2571_o;
+  wire [5:0] n2572_o;
   wire n2573_o;
-  wire n2574_o;
-  wire [3:0] n2575_o;
-  wire [4:0] n2576_o;
-  wire [6:0] n2577_o;
-  wire [3:0] n2578_o;
+  wire [6:0] n2574_o;
+  wire n2575_o;
+  wire [6:0] n2576_o;
+  wire n2577_o;
+  wire n2578_o;
+  wire [3:0] n2579_o;
   wire [4:0] n2580_o;
   wire [6:0] n2581_o;
-  wire [6:0] n2582_o;
-  wire n2583_o;
-  wire n2584_o;
-  wire n2585_o;
-  wire n2586_o;
+  wire [3:0] n2582_o;
+  wire [4:0] n2584_o;
+  wire [6:0] n2585_o;
+  wire [6:0] n2586_o;
   wire n2587_o;
   wire n2588_o;
   wire n2589_o;
   wire n2590_o;
   wire n2591_o;
-  wire [4:0] n2592_o;
+  wire n2592_o;
+  wire n2593_o;
   wire n2594_o;
   wire n2595_o;
-  wire n2596_o;
-  wire [5:0] n2597_o;
-  wire [5:0] n2599_o;
-  wire [5:0] n2600_o;
+  wire [4:0] n2596_o;
+  wire n2598_o;
+  wire n2599_o;
+  wire n2600_o;
   wire [5:0] n2601_o;
-  wire n2602_o;
-  wire [6:0] n2603_o;
-  wire n2604_o;
-  wire [6:0] n2605_o;
+  wire [5:0] n2603_o;
+  wire [5:0] n2604_o;
+  wire [5:0] n2605_o;
   wire n2606_o;
-  wire n2607_o;
-  wire [6:0] n2608_o;
-  wire [3:0] n2609_o;
-  wire [6:0] n2610_o;
-  wire [3:0] n2611_o;
-  wire [7:0] n2612_o;
-  wire n2621_o;
-  wire n2622_o;
-  wire n2623_o;
-  wire n2624_o;
-  wire [3:0] n2625_o;
-  wire [4:0] n2626_o;
-  wire [6:0] n2627_o;
-  wire [3:0] n2628_o;
+  wire [6:0] n2607_o;
+  wire n2608_o;
+  wire [6:0] n2609_o;
+  wire n2610_o;
+  wire n2611_o;
+  wire [6:0] n2612_o;
+  wire [3:0] n2613_o;
+  wire [6:0] n2614_o;
+  wire [3:0] n2615_o;
+  wire [7:0] n2616_o;
+  wire n2625_o;
+  wire n2626_o;
+  wire n2627_o;
+  wire n2628_o;
+  wire [3:0] n2629_o;
   wire [4:0] n2630_o;
-  wire [5:0] n2631_o;
-  wire [6:0] n2632_o;
-  wire [6:0] n2633_o;
-  wire [3:0] n2634_o;
-  wire [4:0] n2636_o;
-  wire [5:0] n2637_o;
+  wire [6:0] n2631_o;
+  wire [3:0] n2632_o;
+  wire [4:0] n2634_o;
+  wire [5:0] n2635_o;
+  wire [6:0] n2636_o;
+  wire [6:0] n2637_o;
   wire [3:0] n2638_o;
-  wire n2639_o;
   wire [4:0] n2640_o;
   wire [5:0] n2641_o;
-  wire [5:0] n2642_o;
-  wire [3:0] n2643_o;
-  wire n2645_o;
-  wire [3:0] n2646_o;
-  wire n2648_o;
+  wire [3:0] n2642_o;
+  wire n2643_o;
+  wire [4:0] n2644_o;
+  wire [5:0] n2645_o;
+  wire [5:0] n2646_o;
+  wire [3:0] n2647_o;
   wire n2649_o;
+  wire [3:0] n2650_o;
   wire n2652_o;
   wire n2653_o;
-  wire n2654_o;
-  wire n2655_o;
   wire n2656_o;
   wire n2657_o;
   wire n2658_o;
@@ -127,563 +121,567 @@ module t65_alu
   wire n2662_o;
   wire n2663_o;
   wire n2664_o;
-  wire [4:0] n2665_o;
-  wire [4:0] n2667_o;
-  wire [4:0] n2668_o;
+  wire n2665_o;
+  wire n2666_o;
+  wire n2667_o;
+  wire n2668_o;
   wire [4:0] n2669_o;
-  wire [3:0] n2670_o;
+  wire [4:0] n2671_o;
   wire [4:0] n2672_o;
-  wire [5:0] n2673_o;
+  wire [4:0] n2673_o;
   wire [3:0] n2674_o;
-  wire n2675_o;
-  wire n2676_o;
-  wire [6:0] n2677_o;
-  wire n2678_o;
-  wire [4:0] n2679_o;
-  wire [5:0] n2680_o;
-  wire [5:0] n2681_o;
+  wire [4:0] n2676_o;
+  wire [5:0] n2677_o;
+  wire [3:0] n2678_o;
+  wire n2679_o;
+  wire n2680_o;
+  wire [6:0] n2681_o;
   wire n2682_o;
   wire [4:0] n2683_o;
-  wire [4:0] n2685_o;
-  wire [4:0] n2686_o;
+  wire [5:0] n2684_o;
+  wire [5:0] n2685_o;
+  wire n2686_o;
   wire [4:0] n2687_o;
-  wire n2688_o;
   wire [4:0] n2689_o;
   wire [4:0] n2690_o;
-  wire n2691_o;
+  wire [4:0] n2691_o;
   wire n2692_o;
-  wire [5:0] n2693_o;
-  wire [5:0] n2694_o;
-  wire [3:0] n2695_o;
-  wire [6:0] n2696_o;
-  wire [3:0] n2697_o;
-  wire [7:0] n2698_o;
-  wire [7:0] n2704_o;
-  wire n2706_o;
-  wire [7:0] n2707_o;
-  wire n2709_o;
-  wire [7:0] n2710_o;
-  wire n2712_o;
-  wire n2714_o;
+  wire [4:0] n2693_o;
+  wire [4:0] n2694_o;
+  wire n2695_o;
+  wire n2696_o;
+  wire [5:0] n2697_o;
+  wire [5:0] n2698_o;
+  wire [3:0] n2699_o;
+  wire [6:0] n2700_o;
+  wire [3:0] n2701_o;
+  wire [7:0] n2702_o;
+  wire [7:0] n2708_o;
+  wire n2710_o;
+  wire [7:0] n2711_o;
+  wire n2713_o;
+  wire [7:0] n2714_o;
   wire n2716_o;
   wire n2718_o;
-  wire n2719_o;
-  wire n2721_o;
+  wire n2720_o;
+  wire n2722_o;
   wire n2723_o;
-  wire [6:0] n2724_o;
-  wire [7:0] n2726_o;
+  wire n2725_o;
   wire n2727_o;
-  wire n2729_o;
-  wire [6:0] n2730_o;
+  wire [6:0] n2728_o;
+  wire [7:0] n2730_o;
   wire n2731_o;
-  wire [7:0] n2732_o;
   wire n2733_o;
+  wire [6:0] n2734_o;
   wire n2735_o;
-  wire [6:0] n2736_o;
-  wire [7:0] n2738_o;
+  wire [7:0] n2736_o;
+  wire n2737_o;
   wire n2739_o;
-  wire n2741_o;
-  wire n2742_o;
-  wire [6:0] n2743_o;
-  wire [7:0] n2744_o;
+  wire [6:0] n2740_o;
+  wire [7:0] n2742_o;
+  wire n2743_o;
   wire n2745_o;
-  wire n2747_o;
-  wire n2748_o;
-  wire n2750_o;
-  wire [7:0] n2752_o;
+  wire n2746_o;
+  wire [6:0] n2747_o;
+  wire [7:0] n2748_o;
+  wire n2749_o;
+  wire n2751_o;
+  wire n2752_o;
   wire n2754_o;
   wire [7:0] n2756_o;
   wire n2758_o;
-  wire [13:0] n2759_o;
-  wire n2760_o;
-  reg n2761_o;
+  wire [7:0] n2760_o;
   wire n2762_o;
-  reg n2763_o;
-  wire n2765_o;
-  reg [7:0] n2767_o;
+  wire [13:0] n2763_o;
+  wire n2764_o;
+  reg n2765_o;
+  wire n2766_o;
+  reg n2767_o;
   wire n2769_o;
-  wire n2771_o;
+  reg [7:0] n2771_o;
   wire n2773_o;
-  wire n2774_o;
-  wire n2776_o;
+  wire n2775_o;
   wire n2777_o;
-  wire [7:0] n2778_o;
+  wire n2778_o;
   wire n2780_o;
-  wire n2783_o;
-  wire n2785_o;
-  wire n2786_o;
-  wire n2788_o;
-  wire n2791_o;
-  wire [3:0] n2792_o;
-  wire n2793_o;
-  reg n2794_o;
-  reg n2795_o;
+  wire n2781_o;
+  wire [7:0] n2782_o;
+  wire n2784_o;
+  wire n2787_o;
+  wire n2789_o;
+  wire n2790_o;
+  wire n2792_o;
+  wire n2795_o;
   wire [3:0] n2796_o;
-  wire [7:0] n2798_o;
-  assign p_out = n2798_o;
-  assign q = n2767_o;
+  wire n2797_o;
+  reg n2798_o;
+  reg n2799_o;
+  wire [3:0] n2800_o;
+  wire [7:0] n2802_o;
+  assign p_out = n2802_o;
+  assign q = n2771_o;
   /* T65_ALU.vhd:79:21  */
-  assign adc_z = n2558_o; // (signal)
+  assign adc_z = n2562_o; // (signal)
   /* T65_ALU.vhd:80:21  */
-  assign adc_c = n2607_o; // (signal)
+  assign adc_c = n2611_o; // (signal)
   /* T65_ALU.vhd:81:21  */
-  assign adc_v = n2591_o; // (signal)
+  assign adc_v = n2595_o; // (signal)
   /* T65_ALU.vhd:82:21  */
-  assign adc_n = n2583_o; // (signal)
+  assign adc_n = n2587_o; // (signal)
   /* T65_ALU.vhd:83:21  */
-  assign adc_q = n2612_o; // (signal)
+  assign adc_q = n2616_o; // (signal)
   /* T65_ALU.vhd:84:21  */
-  assign sbc_z = n2652_o; // (signal)
+  assign sbc_z = n2656_o; // (signal)
   /* T65_ALU.vhd:85:21  */
-  assign sbc_c = n2654_o; // (signal)
+  assign sbc_c = n2658_o; // (signal)
   /* T65_ALU.vhd:86:21  */
-  assign sbc_v = n2661_o; // (signal)
+  assign sbc_v = n2665_o; // (signal)
   /* T65_ALU.vhd:87:21  */
-  assign sbc_n = n2662_o; // (signal)
+  assign sbc_n = n2666_o; // (signal)
   /* T65_ALU.vhd:88:21  */
-  assign sbc_q = n2698_o; // (signal)
+  assign sbc_q = n2702_o; // (signal)
   /* T65_ALU.vhd:97:43  */
-  assign n2531_o = busa[3:0];
+  assign n2535_o = busa[3:0];
   /* T65_ALU.vhd:97:62  */
-  assign n2532_o = p_in[0];
+  assign n2536_o = p_in[0];
   /* T65_ALU.vhd:97:56  */
-  assign n2533_o = {n2531_o, n2532_o};
+  assign n2537_o = {n2535_o, n2536_o};
   /* T65_ALU.vhd:97:23  */
-  assign n2534_o = {2'b0, n2533_o};  //  uext
-  /* T65_ALU.vhd:97:98  */
-  assign n2535_o = busb[3:0];
-  /* T65_ALU.vhd:97:111  */
-  assign n2537_o = {n2535_o, 1'b1};
-  /* T65_ALU.vhd:97:78  */
   assign n2538_o = {2'b0, n2537_o};  //  uext
+  /* T65_ALU.vhd:97:98  */
+  assign n2539_o = busb[3:0];
+  /* T65_ALU.vhd:97:111  */
+  assign n2541_o = {n2539_o, 1'b1};
+  /* T65_ALU.vhd:97:78  */
+  assign n2542_o = {2'b0, n2541_o};  //  uext
   /* T65_ALU.vhd:97:76  */
-  assign n2539_o = n2534_o + n2538_o;
+  assign n2543_o = n2538_o + n2542_o;
   /* T65_ALU.vhd:98:43  */
-  assign n2540_o = busa[7:4];
+  assign n2544_o = busa[7:4];
   /* T65_ALU.vhd:98:60  */
-  assign n2541_o = n2539_o[5];
+  assign n2545_o = n2543_o[5];
   /* T65_ALU.vhd:98:56  */
-  assign n2542_o = {n2540_o, n2541_o};
+  assign n2546_o = {n2544_o, n2545_o};
   /* T65_ALU.vhd:98:23  */
-  assign n2543_o = {2'b0, n2542_o};  //  uext
-  /* T65_ALU.vhd:98:91  */
-  assign n2544_o = busb[7:4];
-  /* T65_ALU.vhd:98:104  */
-  assign n2546_o = {n2544_o, 1'b1};
-  /* T65_ALU.vhd:98:71  */
   assign n2547_o = {2'b0, n2546_o};  //  uext
+  /* T65_ALU.vhd:98:91  */
+  assign n2548_o = busb[7:4];
+  /* T65_ALU.vhd:98:104  */
+  assign n2550_o = {n2548_o, 1'b1};
+  /* T65_ALU.vhd:98:71  */
+  assign n2551_o = {2'b0, n2550_o};  //  uext
   /* T65_ALU.vhd:98:69  */
-  assign n2548_o = n2543_o + n2547_o;
+  assign n2552_o = n2547_o + n2551_o;
   /* T65_ALU.vhd:105:22  */
-  assign n2549_o = n2539_o[4:1];
+  assign n2553_o = n2543_o[4:1];
   /* T65_ALU.vhd:105:35  */
-  assign n2551_o = n2549_o == 4'b0000;
+  assign n2555_o = n2553_o == 4'b0000;
   /* T65_ALU.vhd:105:45  */
-  assign n2552_o = n2548_o[4:1];
+  assign n2556_o = n2552_o[4:1];
   /* T65_ALU.vhd:105:58  */
-  assign n2554_o = n2552_o == 4'b0000;
+  assign n2558_o = n2556_o == 4'b0000;
   /* T65_ALU.vhd:105:39  */
-  assign n2555_o = n2551_o & n2554_o;
+  assign n2559_o = n2558_o & n2555_o;
   /* T65_ALU.vhd:105:17  */
-  assign n2558_o = n2555_o ? 1'b1 : 1'b0;
+  assign n2562_o = n2559_o ? 1'b1 : 1'b0;
   /* T65_ALU.vhd:111:22  */
-  assign n2559_o = n2539_o[5:1];
+  assign n2563_o = n2543_o[5:1];
   /* T65_ALU.vhd:111:35  */
-  assign n2561_o = $unsigned(n2559_o) > $unsigned(5'b01001);
+  assign n2565_o = $unsigned(n2563_o) > $unsigned(5'b01001);
   /* T65_ALU.vhd:111:47  */
-  assign n2562_o = p_in[3];
+  assign n2566_o = p_in[3];
   /* T65_ALU.vhd:111:39  */
-  assign n2563_o = n2561_o & n2562_o;
+  assign n2567_o = n2566_o & n2565_o;
   /* T65_ALU.vhd:112:45  */
-  assign n2564_o = n2539_o[6:1];
+  assign n2568_o = n2543_o[6:1];
   /* T65_ALU.vhd:112:58  */
-  assign n2566_o = n2564_o + 6'b000110;
-  assign n2567_o = n2539_o[6:1];
+  assign n2570_o = n2568_o + 6'b000110;
+  assign n2571_o = n2543_o[6:1];
   /* T65_ALU.vhd:111:17  */
-  assign n2568_o = n2563_o ? n2566_o : n2567_o;
-  assign n2569_o = n2539_o[0];
-  /* T65_MCode.vhd:404:33  */
-  assign n2570_o = {n2568_o, n2569_o};
+  assign n2572_o = n2567_o ? n2570_o : n2571_o;
+  assign n2573_o = n2543_o[0];
+  /* T65_MCode.vhd:408:33  */
+  assign n2574_o = {n2572_o, n2573_o};
   /* T65_ALU.vhd:115:24  */
-  assign n2571_o = n2570_o[6];
-  /* T65_MCode.vhd:403:38  */
-  assign n2572_o = {n2568_o, n2569_o};
+  assign n2575_o = n2574_o[6];
+  /* T65_MCode.vhd:407:38  */
+  assign n2576_o = {n2572_o, n2573_o};
   /* T65_ALU.vhd:115:33  */
-  assign n2573_o = n2572_o[5];
+  assign n2577_o = n2576_o[5];
   /* T65_ALU.vhd:115:28  */
-  assign n2574_o = n2571_o | n2573_o;
+  assign n2578_o = n2575_o | n2577_o;
   /* T65_ALU.vhd:116:43  */
-  assign n2575_o = busa[7:4];
+  assign n2579_o = busa[7:4];
   /* T65_ALU.vhd:116:56  */
-  assign n2576_o = {n2575_o, n2574_o};
+  assign n2580_o = {n2579_o, n2578_o};
   /* T65_ALU.vhd:116:23  */
-  assign n2577_o = {2'b0, n2576_o};  //  uext
-  /* T65_ALU.vhd:116:87  */
-  assign n2578_o = busb[7:4];
-  /* T65_ALU.vhd:116:100  */
-  assign n2580_o = {n2578_o, 1'b1};
-  /* T65_ALU.vhd:116:67  */
   assign n2581_o = {2'b0, n2580_o};  //  uext
+  /* T65_ALU.vhd:116:87  */
+  assign n2582_o = busb[7:4];
+  /* T65_ALU.vhd:116:100  */
+  assign n2584_o = {n2582_o, 1'b1};
+  /* T65_ALU.vhd:116:67  */
+  assign n2585_o = {2'b0, n2584_o};  //  uext
   /* T65_ALU.vhd:116:65  */
-  assign n2582_o = n2577_o + n2581_o;
+  assign n2586_o = n2581_o + n2585_o;
   /* T65_ALU.vhd:118:28  */
-  assign n2583_o = n2582_o[4];
+  assign n2587_o = n2586_o[4];
   /* T65_ALU.vhd:119:29  */
-  assign n2584_o = n2582_o[4];
+  assign n2588_o = n2586_o[4];
   /* T65_ALU.vhd:119:41  */
-  assign n2585_o = busa[7];
+  assign n2589_o = busa[7];
   /* T65_ALU.vhd:119:33  */
-  assign n2586_o = n2584_o ^ n2585_o;
+  assign n2590_o = n2588_o ^ n2589_o;
   /* T65_ALU.vhd:119:59  */
-  assign n2587_o = busa[7];
+  assign n2591_o = busa[7];
   /* T65_ALU.vhd:119:71  */
-  assign n2588_o = busb[7];
+  assign n2592_o = busb[7];
   /* T65_ALU.vhd:119:63  */
-  assign n2589_o = n2587_o ^ n2588_o;
+  assign n2593_o = n2591_o ^ n2592_o;
   /* T65_ALU.vhd:119:50  */
-  assign n2590_o = ~n2589_o;
+  assign n2594_o = ~n2593_o;
   /* T65_ALU.vhd:119:46  */
-  assign n2591_o = n2586_o & n2590_o;
+  assign n2595_o = n2590_o & n2594_o;
   /* T65_ALU.vhd:125:22  */
-  assign n2592_o = n2582_o[5:1];
+  assign n2596_o = n2586_o[5:1];
   /* T65_ALU.vhd:125:35  */
-  assign n2594_o = $unsigned(n2592_o) > $unsigned(5'b01001);
+  assign n2598_o = $unsigned(n2596_o) > $unsigned(5'b01001);
   /* T65_ALU.vhd:125:47  */
-  assign n2595_o = p_in[3];
+  assign n2599_o = p_in[3];
   /* T65_ALU.vhd:125:39  */
-  assign n2596_o = n2594_o & n2595_o;
+  assign n2600_o = n2599_o & n2598_o;
   /* T65_ALU.vhd:126:45  */
-  assign n2597_o = n2582_o[6:1];
+  assign n2601_o = n2586_o[6:1];
   /* T65_ALU.vhd:126:58  */
-  assign n2599_o = n2597_o + 6'b000110;
-  assign n2600_o = n2582_o[6:1];
+  assign n2603_o = n2601_o + 6'b000110;
+  assign n2604_o = n2586_o[6:1];
   /* T65_ALU.vhd:125:17  */
-  assign n2601_o = n2596_o ? n2599_o : n2600_o;
-  assign n2602_o = n2582_o[0];
-  assign n2603_o = {n2601_o, n2602_o};
+  assign n2605_o = n2600_o ? n2603_o : n2604_o;
+  assign n2606_o = n2586_o[0];
+  assign n2607_o = {n2605_o, n2606_o};
   /* T65_ALU.vhd:129:28  */
-  assign n2604_o = n2603_o[6];
-  assign n2605_o = {n2601_o, n2602_o};
+  assign n2608_o = n2607_o[6];
+  assign n2609_o = {n2605_o, n2606_o};
   /* T65_ALU.vhd:129:37  */
-  assign n2606_o = n2605_o[5];
+  assign n2610_o = n2609_o[5];
   /* T65_ALU.vhd:129:32  */
-  assign n2607_o = n2604_o | n2606_o;
-  assign n2608_o = {n2601_o, n2602_o};
+  assign n2611_o = n2608_o | n2610_o;
+  assign n2612_o = {n2605_o, n2606_o};
   /* T65_ALU.vhd:131:45  */
-  assign n2609_o = n2608_o[4:1];
-  assign n2610_o = {n2568_o, n2569_o};
+  assign n2613_o = n2612_o[4:1];
+  assign n2614_o = {n2572_o, n2573_o};
   /* T65_ALU.vhd:131:62  */
-  assign n2611_o = n2610_o[4:1];
+  assign n2615_o = n2614_o[4:1];
   /* T65_ALU.vhd:131:58  */
-  assign n2612_o = {n2609_o, n2611_o};
+  assign n2616_o = {n2613_o, n2615_o};
   /* T65_ALU.vhd:139:26  */
-  assign n2621_o = p_in[0];
+  assign n2625_o = p_in[0];
   /* T65_ALU.vhd:139:44  */
-  assign n2622_o = op[0];
+  assign n2626_o = op[0];
   /* T65_ALU.vhd:139:38  */
-  assign n2623_o = ~n2622_o;
+  assign n2627_o = ~n2626_o;
   /* T65_ALU.vhd:139:35  */
-  assign n2624_o = n2621_o | n2623_o;
+  assign n2628_o = n2625_o | n2627_o;
   /* T65_ALU.vhd:140:43  */
-  assign n2625_o = busa[3:0];
+  assign n2629_o = busa[3:0];
   /* T65_ALU.vhd:140:56  */
-  assign n2626_o = {n2625_o, n2624_o};
+  assign n2630_o = {n2629_o, n2628_o};
   /* T65_ALU.vhd:140:23  */
-  assign n2627_o = {2'b0, n2626_o};  //  uext
+  assign n2631_o = {2'b0, n2630_o};  //  uext
   /* T65_ALU.vhd:140:87  */
-  assign n2628_o = busb[3:0];
+  assign n2632_o = busb[3:0];
   /* T65_ALU.vhd:140:100  */
-  assign n2630_o = {n2628_o, 1'b1};
+  assign n2634_o = {n2632_o, 1'b1};
   /* T65_ALU.vhd:140:67  */
-  assign n2631_o = {1'b0, n2630_o};  //  uext
+  assign n2635_o = {1'b0, n2634_o};  //  uext
   /* T65_ALU.vhd:140:65  */
-  assign n2632_o = {1'b0, n2631_o};  //  uext
+  assign n2636_o = {1'b0, n2635_o};  //  uext
   /* T65_ALU.vhd:140:65  */
-  assign n2633_o = n2627_o - n2632_o;
+  assign n2637_o = n2631_o - n2636_o;
   /* T65_ALU.vhd:141:43  */
-  assign n2634_o = busa[7:4];
+  assign n2638_o = busa[7:4];
   /* T65_ALU.vhd:141:56  */
-  assign n2636_o = {n2634_o, 1'b0};
+  assign n2640_o = {n2638_o, 1'b0};
   /* T65_ALU.vhd:141:23  */
-  assign n2637_o = {1'b0, n2636_o};  //  uext
-  /* T65_ALU.vhd:141:89  */
-  assign n2638_o = busb[7:4];
-  /* T65_ALU.vhd:141:106  */
-  assign n2639_o = n2633_o[5];
-  /* T65_ALU.vhd:141:102  */
-  assign n2640_o = {n2638_o, n2639_o};
-  /* T65_ALU.vhd:141:69  */
   assign n2641_o = {1'b0, n2640_o};  //  uext
+  /* T65_ALU.vhd:141:89  */
+  assign n2642_o = busb[7:4];
+  /* T65_ALU.vhd:141:106  */
+  assign n2643_o = n2637_o[5];
+  /* T65_ALU.vhd:141:102  */
+  assign n2644_o = {n2642_o, n2643_o};
+  /* T65_ALU.vhd:141:69  */
+  assign n2645_o = {1'b0, n2644_o};  //  uext
   /* T65_ALU.vhd:141:67  */
-  assign n2642_o = n2637_o - n2641_o;
+  assign n2646_o = n2641_o - n2645_o;
   /* T65_ALU.vhd:148:22  */
-  assign n2643_o = n2633_o[4:1];
+  assign n2647_o = n2637_o[4:1];
   /* T65_ALU.vhd:148:35  */
-  assign n2645_o = n2643_o == 4'b0000;
+  assign n2649_o = n2647_o == 4'b0000;
   /* T65_ALU.vhd:148:45  */
-  assign n2646_o = n2642_o[4:1];
+  assign n2650_o = n2646_o[4:1];
   /* T65_ALU.vhd:148:58  */
-  assign n2648_o = n2646_o == 4'b0000;
+  assign n2652_o = n2650_o == 4'b0000;
   /* T65_ALU.vhd:148:39  */
-  assign n2649_o = n2645_o & n2648_o;
+  assign n2653_o = n2652_o & n2649_o;
   /* T65_ALU.vhd:148:17  */
-  assign n2652_o = n2649_o ? 1'b1 : 1'b0;
+  assign n2656_o = n2653_o ? 1'b1 : 1'b0;
   /* T65_ALU.vhd:154:32  */
-  assign n2653_o = n2642_o[5];
+  assign n2657_o = n2646_o[5];
   /* T65_ALU.vhd:154:26  */
-  assign n2654_o = ~n2653_o;
+  assign n2658_o = ~n2657_o;
   /* T65_ALU.vhd:155:29  */
-  assign n2655_o = n2642_o[4];
+  assign n2659_o = n2646_o[4];
   /* T65_ALU.vhd:155:41  */
-  assign n2656_o = busa[7];
+  assign n2660_o = busa[7];
   /* T65_ALU.vhd:155:33  */
-  assign n2657_o = n2655_o ^ n2656_o;
+  assign n2661_o = n2659_o ^ n2660_o;
   /* T65_ALU.vhd:155:55  */
-  assign n2658_o = busa[7];
+  assign n2662_o = busa[7];
   /* T65_ALU.vhd:155:67  */
-  assign n2659_o = busb[7];
+  assign n2663_o = busb[7];
   /* T65_ALU.vhd:155:59  */
-  assign n2660_o = n2658_o ^ n2659_o;
+  assign n2664_o = n2662_o ^ n2663_o;
   /* T65_ALU.vhd:155:46  */
-  assign n2661_o = n2657_o & n2660_o;
+  assign n2665_o = n2661_o & n2664_o;
   /* T65_ALU.vhd:156:28  */
-  assign n2662_o = n2642_o[4];
+  assign n2666_o = n2646_o[4];
   /* T65_ALU.vhd:158:24  */
-  assign n2663_o = p_in[3];
+  assign n2667_o = p_in[3];
   /* T65_ALU.vhd:159:30  */
-  assign n2664_o = n2633_o[5];
+  assign n2668_o = n2637_o[5];
   /* T65_ALU.vhd:160:53  */
-  assign n2665_o = n2633_o[5:1];
+  assign n2669_o = n2637_o[5:1];
   /* T65_ALU.vhd:160:66  */
-  assign n2667_o = n2665_o - 5'b00110;
-  assign n2668_o = n2633_o[5:1];
+  assign n2671_o = n2669_o - 5'b00110;
+  assign n2672_o = n2637_o[5:1];
   /* T65_ALU.vhd:159:25  */
-  assign n2669_o = n2664_o ? n2667_o : n2668_o;
+  assign n2673_o = n2668_o ? n2671_o : n2672_o;
   /* T65_ALU.vhd:162:51  */
-  assign n2670_o = busa[7:4];
+  assign n2674_o = busa[7:4];
   /* T65_ALU.vhd:162:64  */
-  assign n2672_o = {n2670_o, 1'b0};
+  assign n2676_o = {n2674_o, 1'b0};
   /* T65_ALU.vhd:162:31  */
-  assign n2673_o = {1'b0, n2672_o};  //  uext
+  assign n2677_o = {1'b0, n2676_o};  //  uext
   /* T65_ALU.vhd:162:97  */
-  assign n2674_o = busb[7:4];
-  assign n2675_o = n2633_o[0];
-  assign n2676_o = n2633_o[6];
-  assign n2677_o = {n2676_o, n2669_o, n2675_o};
+  assign n2678_o = busb[7:4];
+  assign n2679_o = n2637_o[0];
+  assign n2680_o = n2637_o[6];
+  assign n2681_o = {n2680_o, n2673_o, n2679_o};
   /* T65_ALU.vhd:162:114  */
-  assign n2678_o = n2677_o[6];
+  assign n2682_o = n2681_o[6];
   /* T65_ALU.vhd:162:110  */
-  assign n2679_o = {n2674_o, n2678_o};
+  assign n2683_o = {n2678_o, n2682_o};
   /* T65_ALU.vhd:162:77  */
-  assign n2680_o = {1'b0, n2679_o};  //  uext
+  assign n2684_o = {1'b0, n2683_o};  //  uext
   /* T65_ALU.vhd:162:75  */
-  assign n2681_o = n2673_o - n2680_o;
+  assign n2685_o = n2677_o - n2684_o;
   /* T65_ALU.vhd:163:30  */
-  assign n2682_o = n2681_o[5];
+  assign n2686_o = n2685_o[5];
   /* T65_ALU.vhd:164:53  */
-  assign n2683_o = n2681_o[5:1];
+  assign n2687_o = n2685_o[5:1];
   /* T65_ALU.vhd:164:66  */
-  assign n2685_o = n2683_o - 5'b00110;
-  assign n2686_o = n2681_o[5:1];
+  assign n2689_o = n2687_o - 5'b00110;
+  assign n2690_o = n2685_o[5:1];
   /* T65_ALU.vhd:163:25  */
-  assign n2687_o = n2682_o ? n2685_o : n2686_o;
-  assign n2688_o = n2681_o[0];
-  assign n2689_o = n2633_o[5:1];
+  assign n2691_o = n2686_o ? n2689_o : n2690_o;
+  assign n2692_o = n2685_o[0];
+  assign n2693_o = n2637_o[5:1];
   /* T65_ALU.vhd:158:17  */
-  assign n2690_o = n2663_o ? n2669_o : n2689_o;
-  assign n2691_o = n2633_o[6];
-  assign n2692_o = n2633_o[0];
-  assign n2693_o = {n2687_o, n2688_o};
+  assign n2694_o = n2667_o ? n2673_o : n2693_o;
+  assign n2695_o = n2637_o[6];
+  assign n2696_o = n2637_o[0];
+  assign n2697_o = {n2691_o, n2692_o};
   /* T65_ALU.vhd:158:17  */
-  assign n2694_o = n2663_o ? n2693_o : n2642_o;
+  assign n2698_o = n2667_o ? n2697_o : n2646_o;
   /* T65_ALU.vhd:168:45  */
-  assign n2695_o = n2694_o[4:1];
-  assign n2696_o = {n2691_o, n2690_o, n2692_o};
+  assign n2699_o = n2698_o[4:1];
+  assign n2700_o = {n2695_o, n2694_o, n2696_o};
   /* T65_ALU.vhd:168:62  */
-  assign n2697_o = n2696_o[4:1];
+  assign n2701_o = n2700_o[4:1];
   /* T65_ALU.vhd:168:58  */
-  assign n2698_o = {n2695_o, n2697_o};
+  assign n2702_o = {n2699_o, n2701_o};
   /* T65_ALU.vhd:183:37  */
-  assign n2704_o = busa | busb;
+  assign n2708_o = busa | busb;
   /* T65_ALU.vhd:181:17  */
-  assign n2706_o = op == 4'b0000;
+  assign n2710_o = op == 4'b0000;
   /* T65_ALU.vhd:186:37  */
-  assign n2707_o = busa & busb;
+  assign n2711_o = busa & busb;
   /* T65_ALU.vhd:184:17  */
-  assign n2709_o = op == 4'b0001;
+  assign n2713_o = op == 4'b0001;
   /* T65_ALU.vhd:189:37  */
-  assign n2710_o = busa ^ busb;
+  assign n2714_o = busa ^ busb;
   /* T65_ALU.vhd:187:17  */
-  assign n2712_o = op == 4'b0010;
+  assign n2716_o = op == 4'b0010;
   /* T65_ALU.vhd:190:17  */
-  assign n2714_o = op == 4'b0011;
+  assign n2718_o = op == 4'b0011;
   /* T65_ALU.vhd:195:17  */
-  assign n2716_o = op == 4'b0101;
+  assign n2720_o = op == 4'b0101;
   /* T65_ALU.vhd:195:29  */
-  assign n2718_o = op == 4'b1101;
+  assign n2722_o = op == 4'b1101;
   /* T65_ALU.vhd:195:29  */
-  assign n2719_o = n2716_o | n2718_o;
+  assign n2723_o = n2720_o | n2722_o;
   /* T65_ALU.vhd:197:17  */
-  assign n2721_o = op == 4'b0110;
+  assign n2725_o = op == 4'b0110;
   /* T65_ALU.vhd:200:17  */
-  assign n2723_o = op == 4'b0111;
+  assign n2727_o = op == 4'b0111;
   /* T65_ALU.vhd:207:36  */
-  assign n2724_o = busa[6:0];
+  assign n2728_o = busa[6:0];
   /* T65_ALU.vhd:207:49  */
-  assign n2726_o = {n2724_o, 1'b0};
+  assign n2730_o = {n2728_o, 1'b0};
   /* T65_ALU.vhd:208:46  */
-  assign n2727_o = busa[7];
+  assign n2731_o = busa[7];
   /* T65_ALU.vhd:205:17  */
-  assign n2729_o = op == 4'b1000;
+  assign n2733_o = op == 4'b1000;
   /* T65_ALU.vhd:211:36  */
-  assign n2730_o = busa[6:0];
+  assign n2734_o = busa[6:0];
   /* T65_ALU.vhd:211:55  */
-  assign n2731_o = p_in[0];
+  assign n2735_o = p_in[0];
   /* T65_ALU.vhd:211:49  */
-  assign n2732_o = {n2730_o, n2731_o};
+  assign n2736_o = {n2734_o, n2735_o};
   /* T65_ALU.vhd:212:46  */
-  assign n2733_o = busa[7];
+  assign n2737_o = busa[7];
   /* T65_ALU.vhd:209:17  */
-  assign n2735_o = op == 4'b1001;
+  assign n2739_o = op == 4'b1001;
   /* T65_ALU.vhd:215:42  */
-  assign n2736_o = busa[7:1];
+  assign n2740_o = busa[7:1];
   /* T65_ALU.vhd:215:36  */
-  assign n2738_o = {1'b0, n2736_o};
+  assign n2742_o = {1'b0, n2740_o};
   /* T65_ALU.vhd:216:46  */
-  assign n2739_o = busa[0];
+  assign n2743_o = busa[0];
   /* T65_ALU.vhd:213:17  */
-  assign n2741_o = op == 4'b1010;
+  assign n2745_o = op == 4'b1010;
   /* T65_ALU.vhd:219:36  */
-  assign n2742_o = p_in[0];
+  assign n2746_o = p_in[0];
   /* T65_ALU.vhd:219:51  */
-  assign n2743_o = busa[7:1];
+  assign n2747_o = busa[7:1];
   /* T65_ALU.vhd:219:45  */
-  assign n2744_o = {n2742_o, n2743_o};
+  assign n2748_o = {n2746_o, n2747_o};
   /* T65_ALU.vhd:220:46  */
-  assign n2745_o = busa[0];
+  assign n2749_o = busa[0];
   /* T65_ALU.vhd:217:17  */
-  assign n2747_o = op == 4'b1011;
+  assign n2751_o = op == 4'b1011;
   /* T65_ALU.vhd:223:46  */
-  assign n2748_o = busb[6];
+  assign n2752_o = busb[6];
   /* T65_ALU.vhd:221:17  */
-  assign n2750_o = op == 4'b1100;
+  assign n2754_o = op == 4'b1100;
   /* T65_ALU.vhd:226:64  */
-  assign n2752_o = busa - 8'b00000001;
+  assign n2756_o = busa - 8'b00000001;
   /* T65_ALU.vhd:224:17  */
-  assign n2754_o = op == 4'b1110;
+  assign n2758_o = op == 4'b1110;
   /* T65_ALU.vhd:229:64  */
-  assign n2756_o = busa + 8'b00000001;
+  assign n2760_o = busa + 8'b00000001;
   /* T65_ALU.vhd:227:17  */
-  assign n2758_o = op == 4'b1111;
-  assign n2759_o = {n2758_o, n2754_o, n2750_o, n2747_o, n2741_o, n2735_o, n2729_o, n2723_o, n2721_o, n2719_o, n2714_o, n2712_o, n2709_o, n2706_o};
-  assign n2760_o = p_in[0];
+  assign n2762_o = op == 4'b1111;
+  assign n2763_o = {n2762_o, n2758_o, n2754_o, n2751_o, n2745_o, n2739_o, n2733_o, n2727_o, n2725_o, n2723_o, n2718_o, n2716_o, n2713_o, n2710_o};
+  assign n2764_o = p_in[0];
   /* T65_ALU.vhd:180:17  */
   always @*
-    case (n2759_o)
-      14'b10000000000000: n2761_o = n2760_o;
-      14'b01000000000000: n2761_o = n2760_o;
-      14'b00100000000000: n2761_o = n2760_o;
-      14'b00010000000000: n2761_o = n2745_o;
-      14'b00001000000000: n2761_o = n2739_o;
-      14'b00000100000000: n2761_o = n2733_o;
-      14'b00000010000000: n2761_o = n2727_o;
-      14'b00000001000000: n2761_o = sbc_c;
-      14'b00000000100000: n2761_o = sbc_c;
-      14'b00000000010000: n2761_o = n2760_o;
-      14'b00000000001000: n2761_o = adc_c;
-      14'b00000000000100: n2761_o = n2760_o;
-      14'b00000000000010: n2761_o = n2760_o;
-      14'b00000000000001: n2761_o = n2760_o;
-      default: n2761_o = n2760_o;
+    case (n2763_o)
+      14'b10000000000000: n2765_o = n2764_o;
+      14'b01000000000000: n2765_o = n2764_o;
+      14'b00100000000000: n2765_o = n2764_o;
+      14'b00010000000000: n2765_o = n2749_o;
+      14'b00001000000000: n2765_o = n2743_o;
+      14'b00000100000000: n2765_o = n2737_o;
+      14'b00000010000000: n2765_o = n2731_o;
+      14'b00000001000000: n2765_o = sbc_c;
+      14'b00000000100000: n2765_o = sbc_c;
+      14'b00000000010000: n2765_o = n2764_o;
+      14'b00000000001000: n2765_o = adc_c;
+      14'b00000000000100: n2765_o = n2764_o;
+      14'b00000000000010: n2765_o = n2764_o;
+      14'b00000000000001: n2765_o = n2764_o;
+      default: n2765_o = n2764_o;
     endcase
-  assign n2762_o = p_in[6];
+  assign n2766_o = p_in[6];
   /* T65_ALU.vhd:180:17  */
   always @*
-    case (n2759_o)
-      14'b10000000000000: n2763_o = n2762_o;
-      14'b01000000000000: n2763_o = n2762_o;
-      14'b00100000000000: n2763_o = n2748_o;
-      14'b00010000000000: n2763_o = n2762_o;
-      14'b00001000000000: n2763_o = n2762_o;
-      14'b00000100000000: n2763_o = n2762_o;
-      14'b00000010000000: n2763_o = n2762_o;
-      14'b00000001000000: n2763_o = sbc_v;
-      14'b00000000100000: n2763_o = n2762_o;
-      14'b00000000010000: n2763_o = n2762_o;
-      14'b00000000001000: n2763_o = adc_v;
-      14'b00000000000100: n2763_o = n2762_o;
-      14'b00000000000010: n2763_o = n2762_o;
-      14'b00000000000001: n2763_o = n2762_o;
-      default: n2763_o = n2762_o;
+    case (n2763_o)
+      14'b10000000000000: n2767_o = n2766_o;
+      14'b01000000000000: n2767_o = n2766_o;
+      14'b00100000000000: n2767_o = n2752_o;
+      14'b00010000000000: n2767_o = n2766_o;
+      14'b00001000000000: n2767_o = n2766_o;
+      14'b00000100000000: n2767_o = n2766_o;
+      14'b00000010000000: n2767_o = n2766_o;
+      14'b00000001000000: n2767_o = sbc_v;
+      14'b00000000100000: n2767_o = n2766_o;
+      14'b00000000010000: n2767_o = n2766_o;
+      14'b00000000001000: n2767_o = adc_v;
+      14'b00000000000100: n2767_o = n2766_o;
+      14'b00000000000010: n2767_o = n2766_o;
+      14'b00000000000001: n2767_o = n2766_o;
+      default: n2767_o = n2766_o;
     endcase
-  assign n2765_o = p_in[7];
+  assign n2769_o = p_in[7];
   /* T65_ALU.vhd:180:17  */
   always @*
-    case (n2759_o)
-      14'b10000000000000: n2767_o = n2756_o;
-      14'b01000000000000: n2767_o = n2752_o;
-      14'b00100000000000: n2767_o = busa;
-      14'b00010000000000: n2767_o = n2744_o;
-      14'b00001000000000: n2767_o = n2738_o;
-      14'b00000100000000: n2767_o = n2732_o;
-      14'b00000010000000: n2767_o = n2726_o;
-      14'b00000001000000: n2767_o = sbc_q;
-      14'b00000000100000: n2767_o = busa;
-      14'b00000000010000: n2767_o = busa;
-      14'b00000000001000: n2767_o = adc_q;
-      14'b00000000000100: n2767_o = n2710_o;
-      14'b00000000000010: n2767_o = n2707_o;
-      14'b00000000000001: n2767_o = n2704_o;
-      default: n2767_o = busa;
+    case (n2763_o)
+      14'b10000000000000: n2771_o = n2760_o;
+      14'b01000000000000: n2771_o = n2756_o;
+      14'b00100000000000: n2771_o = busa;
+      14'b00010000000000: n2771_o = n2748_o;
+      14'b00001000000000: n2771_o = n2742_o;
+      14'b00000100000000: n2771_o = n2736_o;
+      14'b00000010000000: n2771_o = n2730_o;
+      14'b00000001000000: n2771_o = sbc_q;
+      14'b00000000100000: n2771_o = busa;
+      14'b00000000010000: n2771_o = busa;
+      14'b00000000001000: n2771_o = adc_q;
+      14'b00000000000100: n2771_o = n2714_o;
+      14'b00000000000010: n2771_o = n2711_o;
+      14'b00000000000001: n2771_o = n2708_o;
+      default: n2771_o = busa;
     endcase
   /* T65_ALU.vhd:234:17  */
-  assign n2769_o = op == 4'b0011;
+  assign n2773_o = op == 4'b0011;
   /* T65_ALU.vhd:237:17  */
-  assign n2771_o = op == 4'b0110;
+  assign n2775_o = op == 4'b0110;
   /* T65_ALU.vhd:237:29  */
-  assign n2773_o = op == 4'b0111;
+  assign n2777_o = op == 4'b0111;
   /* T65_ALU.vhd:237:29  */
-  assign n2774_o = n2771_o | n2773_o;
+  assign n2778_o = n2775_o | n2777_o;
   /* T65_ALU.vhd:240:17  */
-  assign n2776_o = op == 4'b0100;
+  assign n2780_o = op == 4'b0100;
   /* T65_ALU.vhd:242:46  */
-  assign n2777_o = busb[7];
+  assign n2781_o = busb[7];
   /* T65_ALU.vhd:243:34  */
-  assign n2778_o = busa & busb;
+  assign n2782_o = busa & busb;
   /* T65_ALU.vhd:243:44  */
-  assign n2780_o = n2778_o == 8'b00000000;
+  assign n2784_o = n2782_o == 8'b00000000;
   /* T65_ALU.vhd:243:25  */
-  assign n2783_o = n2780_o ? 1'b1 : 1'b0;
+  assign n2787_o = n2784_o ? 1'b1 : 1'b0;
   /* T65_ALU.vhd:241:17  */
-  assign n2785_o = op == 4'b1100;
+  assign n2789_o = op == 4'b1100;
   /* T65_ALU.vhd:249:45  */
-  assign n2786_o = n2767_o[7];
+  assign n2790_o = n2771_o[7];
   /* T65_ALU.vhd:250:32  */
-  assign n2788_o = n2767_o == 8'b00000000;
+  assign n2792_o = n2771_o == 8'b00000000;
   /* T65_ALU.vhd:250:25  */
-  assign n2791_o = n2788_o ? 1'b1 : 1'b0;
-  assign n2792_o = {n2785_o, n2776_o, n2774_o, n2769_o};
-  assign n2793_o = p_in[1];
+  assign n2795_o = n2792_o ? 1'b1 : 1'b0;
+  assign n2796_o = {n2789_o, n2780_o, n2778_o, n2773_o};
+  assign n2797_o = p_in[1];
   /* T65_ALU.vhd:233:17  */
   always @*
-    case (n2792_o)
-      4'b1000: n2794_o = n2783_o;
-      4'b0100: n2794_o = n2793_o;
-      4'b0010: n2794_o = sbc_z;
-      4'b0001: n2794_o = adc_z;
-      default: n2794_o = n2791_o;
+    case (n2796_o)
+      4'b1000: n2798_o = n2787_o;
+      4'b0100: n2798_o = n2797_o;
+      4'b0010: n2798_o = sbc_z;
+      4'b0001: n2798_o = adc_z;
+      default: n2798_o = n2795_o;
     endcase
   /* T65_ALU.vhd:233:17  */
   always @*
-    case (n2792_o)
-      4'b1000: n2795_o = n2777_o;
-      4'b0100: n2795_o = n2765_o;
-      4'b0010: n2795_o = sbc_n;
-      4'b0001: n2795_o = adc_n;
-      default: n2795_o = n2786_o;
+    case (n2796_o)
+      4'b1000: n2799_o = n2781_o;
+      4'b0100: n2799_o = n2769_o;
+      4'b0010: n2799_o = sbc_n;
+      4'b0001: n2799_o = adc_n;
+      default: n2799_o = n2790_o;
     endcase
-  assign n2796_o = p_in[5:2];
-  assign n2798_o = {n2795_o, n2763_o, n2796_o, n2794_o, n2761_o};
+  assign n2800_o = p_in[5:2];
+  assign n2802_o = {n2799_o, n2767_o, n2800_o, n2798_o, n2765_o};
 endmodule
 
 module t65_mcode
@@ -930,608 +928,610 @@ module t65_mcode
   wire n1338_o;
   wire n1340_o;
   wire n1342_o;
-  wire [30:0] n1343_o;
-  wire n1345_o;
+  wire n1344_o;
+  wire [30:0] n1345_o;
   wire n1347_o;
-  wire [1:0] n1348_o;
-  reg [2:0] n1350_o;
-  wire n1352_o;
-  wire n1354_o;
-  wire n1355_o;
-  wire n1363_o;
-  wire n1365_o;
-  wire n1366_o;
-  wire n1368_o;
+  wire n1349_o;
+  wire [1:0] n1350_o;
+  reg [2:0] n1352_o;
+  wire [2:0] n1354_o;
+  wire n1356_o;
+  wire n1358_o;
+  wire n1359_o;
+  wire n1367_o;
   wire n1369_o;
-  wire n1371_o;
+  wire n1370_o;
   wire n1372_o;
-  wire n1380_o;
-  wire n1382_o;
-  wire n1383_o;
-  wire [30:0] n1384_o;
+  wire n1373_o;
+  wire n1375_o;
+  wire n1376_o;
+  wire n1384_o;
   wire n1386_o;
-  wire n1388_o;
-  wire [1:0] n1389_o;
-  reg [2:0] n1391_o;
-  wire n1393_o;
-  wire n1395_o;
-  wire n1396_o;
-  wire [30:0] n1397_o;
+  wire n1387_o;
+  wire [30:0] n1388_o;
+  wire n1390_o;
+  wire n1392_o;
+  wire [1:0] n1393_o;
+  reg [2:0] n1395_o;
+  wire n1397_o;
   wire n1399_o;
-  wire n1401_o;
-  wire [1:0] n1402_o;
-  reg n1405_o;
-  wire n1407_o;
-  wire [30:0] n1408_o;
-  wire n1410_o;
-  wire n1412_o;
-  wire [1:0] n1413_o;
-  reg [2:0] n1415_o;
-  wire n1417_o;
-  wire [14:0] n1421_o;
-  reg [2:0] n1427_o;
-  reg [2:0] n1429_o;
-  reg [1:0] n1431_o;
-  reg [2:0] n1432_o;
-  reg [1:0] n1434_o;
-  reg n1436_o;
-  reg n1438_o;
-  reg n1441_o;
-  reg n1443_o;
-  reg n1446_o;
-  reg n1448_o;
+  wire n1400_o;
+  wire [30:0] n1401_o;
+  wire n1403_o;
+  wire n1405_o;
+  wire [1:0] n1406_o;
+  reg n1409_o;
+  wire n1411_o;
+  wire [30:0] n1412_o;
+  wire n1414_o;
+  wire n1416_o;
+  wire [1:0] n1417_o;
+  reg [2:0] n1419_o;
+  wire n1421_o;
+  wire [14:0] n1425_o;
+  reg [2:0] n1431_o;
+  reg [2:0] n1433_o;
+  reg [1:0] n1435_o;
+  reg [2:0] n1436_o;
+  reg [1:0] n1438_o;
+  reg n1440_o;
+  reg n1442_o;
+  reg n1445_o;
+  reg n1447_o;
   reg n1450_o;
   reg n1452_o;
   reg n1454_o;
   reg n1456_o;
-  wire n1458_o;
-  wire n1460_o;
-  wire n1461_o;
-  wire n1463_o;
+  reg n1458_o;
+  reg n1460_o;
+  wire n1462_o;
   wire n1464_o;
-  wire n1466_o;
+  wire n1465_o;
   wire n1467_o;
-  wire n1469_o;
+  wire n1468_o;
   wire n1470_o;
-  wire [1:0] n1471_o;
+  wire n1471_o;
   wire n1473_o;
-  wire n1475_o;
-  wire [30:0] n1476_o;
-  wire n1478_o;
-  wire n1480_o;
+  wire n1474_o;
+  wire [1:0] n1475_o;
+  wire n1477_o;
+  wire n1479_o;
+  wire [30:0] n1480_o;
   wire n1482_o;
   wire n1484_o;
-  wire [2:0] n1485_o;
-  wire n1487_o;
-  wire n1490_o;
-  wire n1492_o;
+  wire n1486_o;
+  wire n1488_o;
+  wire [2:0] n1489_o;
+  wire n1491_o;
   wire n1494_o;
-  wire [5:0] n1495_o;
-  reg [1:0] n1501_o;
-  reg [1:0] n1504_o;
-  reg [1:0] n1507_o;
-  reg n1510_o;
-  reg n1513_o;
-  reg n1516_o;
-  reg n1519_o;
-  reg n1521_o;
-  wire n1523_o;
-  wire n1525_o;
-  wire n1526_o;
-  wire [30:0] n1527_o;
+  wire n1496_o;
+  wire n1498_o;
+  wire [5:0] n1499_o;
+  reg [1:0] n1505_o;
+  reg [1:0] n1508_o;
+  reg [1:0] n1511_o;
+  reg n1514_o;
+  reg n1517_o;
+  reg n1520_o;
+  reg n1523_o;
+  reg n1525_o;
+  wire n1527_o;
   wire n1529_o;
-  wire n1531_o;
-  wire [1:0] n1532_o;
-  reg [1:0] n1535_o;
-  wire n1537_o;
-  wire n1539_o;
-  wire n1540_o;
-  wire [30:0] n1541_o;
+  wire n1530_o;
+  wire [30:0] n1531_o;
+  wire n1533_o;
+  wire n1535_o;
+  wire [1:0] n1536_o;
+  reg [1:0] n1539_o;
+  wire n1541_o;
   wire n1543_o;
-  wire n1545_o;
-  wire [1:0] n1548_o;
-  wire n1550_o;
-  wire [1:0] n1551_o;
-  reg [1:0] n1553_o;
-  wire n1555_o;
-  wire n1557_o;
-  wire n1558_o;
-  wire [30:0] n1559_o;
-  wire [2:0] n1560_o;
+  wire n1544_o;
+  wire [30:0] n1545_o;
+  wire n1547_o;
+  wire n1549_o;
+  wire [1:0] n1552_o;
+  wire n1554_o;
+  wire [1:0] n1555_o;
+  reg [1:0] n1557_o;
+  wire n1559_o;
+  wire n1561_o;
   wire n1562_o;
-  wire n1565_o;
-  wire n1567_o;
-  wire [2:0] n1568_o;
-  wire n1570_o;
-  wire n1573_o;
-  wire n1575_o;
+  wire [30:0] n1563_o;
+  wire [2:0] n1564_o;
+  wire n1566_o;
+  wire n1569_o;
+  wire n1571_o;
+  wire [2:0] n1572_o;
+  wire n1574_o;
   wire n1577_o;
-  wire [2:0] n1578_o;
-  reg [1:0] n1581_o;
-  reg [1:0] n1584_o;
-  reg n1587_o;
-  reg n1589_o;
+  wire n1579_o;
+  wire n1581_o;
+  wire [2:0] n1582_o;
+  reg [1:0] n1585_o;
+  reg [1:0] n1588_o;
   reg n1591_o;
-  wire n1593_o;
-  wire [1:0] n1594_o;
-  wire n1596_o;
-  wire [1:0] n1597_o;
-  wire n1599_o;
+  reg n1593_o;
+  reg n1595_o;
+  wire n1597_o;
+  wire [1:0] n1598_o;
   wire n1600_o;
-  wire [30:0] n1601_o;
+  wire [1:0] n1601_o;
   wire n1603_o;
-  wire n1605_o;
+  wire n1604_o;
+  wire [30:0] n1605_o;
   wire n1607_o;
   wire n1609_o;
-  wire [3:0] n1610_o;
-  reg [1:0] n1615_o;
-  reg [1:0] n1618_o;
-  reg n1621_o;
-  reg n1624_o;
-  reg n1627_o;
-  reg n1630_o;
+  wire n1611_o;
+  wire n1613_o;
+  wire [3:0] n1614_o;
+  reg [1:0] n1619_o;
+  reg [1:0] n1622_o;
+  reg n1625_o;
+  reg n1628_o;
+  reg n1631_o;
   reg n1634_o;
-  wire [1:0] n1635_o;
-  wire n1637_o;
-  wire n1639_o;
-  wire [30:0] n1640_o;
-  wire n1642_o;
-  wire [2:0] n1643_o;
-  wire n1645_o;
-  wire n1648_o;
-  wire n1650_o;
+  reg n1638_o;
+  wire [1:0] n1639_o;
+  wire n1641_o;
+  wire n1643_o;
+  wire [30:0] n1644_o;
+  wire n1646_o;
+  wire [2:0] n1647_o;
+  wire n1649_o;
   wire n1652_o;
-  wire [2:0] n1653_o;
-  reg [1:0] n1656_o;
-  reg [1:0] n1659_o;
-  reg n1662_o;
-  reg n1664_o;
-  wire [2:0] n1667_o;
-  wire [1:0] n1668_o;
-  wire [1:0] n1669_o;
-  wire n1670_o;
-  wire n1672_o;
+  wire n1654_o;
+  wire n1656_o;
+  wire [2:0] n1657_o;
+  reg [1:0] n1660_o;
+  reg [1:0] n1663_o;
+  reg n1666_o;
+  reg n1668_o;
+  wire [2:0] n1671_o;
+  wire [1:0] n1672_o;
+  wire [1:0] n1673_o;
   wire n1674_o;
-  wire n1675_o;
-  wire n1677_o;
+  wire n1676_o;
   wire n1678_o;
-  wire n1680_o;
+  wire n1679_o;
+  wire n1681_o;
   wire n1682_o;
-  wire n1683_o;
-  wire n1685_o;
+  wire n1684_o;
   wire n1686_o;
-  wire [1:0] n1687_o;
+  wire n1687_o;
   wire n1689_o;
-  wire [4:0] n1690_o;
-  wire n1692_o;
+  wire n1690_o;
+  wire [1:0] n1691_o;
   wire n1693_o;
-  wire n1694_o;
-  wire n1695_o;
-  wire [30:0] n1696_o;
+  wire [4:0] n1694_o;
+  wire n1696_o;
+  wire n1697_o;
   wire n1698_o;
-  wire n1700_o;
-  wire [1:0] n1701_o;
-  reg [1:0] n1705_o;
-  reg n1708_o;
-  wire [30:0] n1709_o;
-  wire n1711_o;
-  wire n1713_o;
-  wire [1:0] n1716_o;
-  wire n1718_o;
-  wire [1:0] n1721_o;
-  wire n1723_o;
-  wire n1725_o;
-  wire [1:0] n1728_o;
-  wire [1:0] n1731_o;
-  wire [1:0] n1734_o;
-  wire n1736_o;
-  wire n1738_o;
-  wire [3:0] n1739_o;
-  reg [1:0] n1741_o;
+  wire n1699_o;
+  wire [30:0] n1700_o;
+  wire n1702_o;
+  wire n1704_o;
+  wire [1:0] n1705_o;
+  reg [1:0] n1709_o;
+  reg n1712_o;
+  wire [30:0] n1713_o;
+  wire n1715_o;
+  wire n1717_o;
+  wire [1:0] n1720_o;
+  wire n1722_o;
+  wire [1:0] n1725_o;
+  wire n1727_o;
+  wire n1729_o;
+  wire [1:0] n1732_o;
+  wire [1:0] n1735_o;
+  wire [1:0] n1738_o;
+  wire n1740_o;
+  wire n1742_o;
+  wire [3:0] n1743_o;
   reg [1:0] n1745_o;
-  reg [1:0] n1747_o;
-  reg n1751_o;
-  reg n1754_o;
-  reg n1757_o;
-  wire [2:0] n1760_o;
-  wire [1:0] n1762_o;
-  wire [1:0] n1763_o;
-  wire [1:0] n1765_o;
-  wire n1766_o;
-  wire n1768_o;
+  reg [1:0] n1749_o;
+  reg [1:0] n1751_o;
+  reg n1755_o;
+  reg n1758_o;
+  reg n1761_o;
+  wire [2:0] n1764_o;
+  wire [1:0] n1766_o;
+  wire [1:0] n1767_o;
+  wire [1:0] n1769_o;
   wire n1770_o;
-  wire [30:0] n1771_o;
-  wire [2:0] n1772_o;
+  wire n1772_o;
   wire n1774_o;
-  wire n1777_o;
-  wire n1779_o;
+  wire [30:0] n1775_o;
+  wire [2:0] n1776_o;
+  wire n1778_o;
   wire n1781_o;
-  wire [2:0] n1782_o;
-  wire n1784_o;
-  wire n1787_o;
-  wire n1789_o;
+  wire n1783_o;
+  wire n1785_o;
+  wire [2:0] n1786_o;
+  wire n1788_o;
   wire n1791_o;
-  wire [3:0] n1792_o;
-  reg [1:0] n1795_o;
+  wire n1793_o;
+  wire n1795_o;
+  wire [3:0] n1796_o;
   reg [1:0] n1799_o;
-  reg n1802_o;
-  reg n1805_o;
-  reg n1807_o;
+  reg [1:0] n1803_o;
+  reg n1806_o;
   reg n1809_o;
-  wire [2:0] n1811_o;
-  wire [1:0] n1812_o;
-  wire [1:0] n1813_o;
-  wire [1:0] n1815_o;
-  wire n1817_o;
-  wire n1818_o;
-  wire n1819_o;
+  reg n1811_o;
+  reg n1813_o;
+  wire [2:0] n1815_o;
+  wire [1:0] n1816_o;
+  wire [1:0] n1817_o;
+  wire [1:0] n1819_o;
   wire n1821_o;
+  wire n1822_o;
   wire n1823_o;
   wire n1825_o;
-  wire [1:0] n1826_o;
-  wire n1828_o;
-  wire [1:0] n1829_o;
-  wire n1831_o;
+  wire n1827_o;
+  wire n1829_o;
+  wire [1:0] n1830_o;
   wire n1832_o;
-  wire [30:0] n1833_o;
+  wire [1:0] n1833_o;
   wire n1835_o;
-  wire n1837_o;
+  wire n1836_o;
+  wire [30:0] n1837_o;
   wire n1839_o;
   wire n1841_o;
   wire n1843_o;
-  wire [4:0] n1844_o;
-  reg [1:0] n1849_o;
+  wire n1845_o;
+  wire n1847_o;
+  wire [4:0] n1848_o;
   reg [1:0] n1853_o;
-  reg n1856_o;
-  reg n1859_o;
-  reg n1862_o;
-  reg n1865_o;
+  reg [1:0] n1857_o;
+  reg n1860_o;
+  reg n1863_o;
+  reg n1866_o;
   reg n1869_o;
   reg n1873_o;
-  wire [1:0] n1874_o;
-  wire n1876_o;
-  wire n1878_o;
-  wire [30:0] n1879_o;
-  wire n1881_o;
-  wire n1883_o;
-  wire [2:0] n1884_o;
-  wire n1886_o;
-  wire n1889_o;
-  wire n1891_o;
+  reg n1877_o;
+  wire [1:0] n1878_o;
+  wire n1880_o;
+  wire n1882_o;
+  wire [30:0] n1883_o;
+  wire n1885_o;
+  wire n1887_o;
+  wire [2:0] n1888_o;
+  wire n1890_o;
   wire n1893_o;
-  wire [3:0] n1894_o;
-  reg [1:0] n1897_o;
+  wire n1895_o;
+  wire n1897_o;
+  wire [3:0] n1898_o;
   reg [1:0] n1901_o;
-  reg n1904_o;
-  reg n1907_o;
-  reg n1909_o;
-  wire [2:0] n1912_o;
-  wire [1:0] n1913_o;
-  wire [1:0] n1914_o;
-  wire n1915_o;
-  wire n1917_o;
+  reg [1:0] n1905_o;
+  reg n1908_o;
+  reg n1911_o;
+  reg n1913_o;
+  wire [2:0] n1916_o;
+  wire [1:0] n1917_o;
+  wire [1:0] n1918_o;
   wire n1919_o;
-  wire n1920_o;
   wire n1921_o;
   wire n1923_o;
   wire n1924_o;
-  wire n1926_o;
+  wire n1925_o;
+  wire n1927_o;
   wire n1928_o;
-  wire n1929_o;
-  wire n1931_o;
+  wire n1930_o;
   wire n1932_o;
-  wire [2:0] n1935_o;
-  wire [30:0] n1936_o;
-  wire n1938_o;
-  wire n1940_o;
+  wire n1933_o;
+  wire n1935_o;
+  wire n1936_o;
+  wire [2:0] n1939_o;
+  wire [30:0] n1940_o;
   wire n1942_o;
-  wire [2:0] n1943_o;
-  reg [1:0] n1947_o;
-  reg n1950_o;
-  reg n1953_o;
-  wire n1955_o;
-  wire [1:0] n1956_o;
-  wire n1958_o;
-  wire n1960_o;
-  wire [30:0] n1961_o;
-  wire n1963_o;
-  wire n1965_o;
+  wire n1944_o;
+  wire n1946_o;
+  wire [2:0] n1947_o;
+  reg [1:0] n1951_o;
+  reg n1954_o;
+  reg n1957_o;
+  wire n1959_o;
+  wire [1:0] n1960_o;
+  wire n1962_o;
+  wire n1964_o;
+  wire [30:0] n1965_o;
   wire n1967_o;
   wire n1969_o;
-  wire [2:0] n1970_o;
-  wire n1972_o;
-  wire n1975_o;
-  wire n1978_o;
-  wire n1980_o;
+  wire n1971_o;
+  wire n1973_o;
+  wire [2:0] n1974_o;
+  wire n1976_o;
+  wire n1979_o;
   wire n1982_o;
-  wire [5:0] n1983_o;
-  reg [2:0] n1985_o;
-  reg [1:0] n1991_o;
-  reg [1:0] n1994_o;
-  reg [1:0] n1999_o;
-  reg n2001_o;
-  reg n2004_o;
-  reg n2007_o;
-  reg n2010_o;
-  reg n2012_o;
-  wire n2014_o;
-  wire n2016_o;
-  wire n2017_o;
-  wire [1:0] n2018_o;
+  wire n1984_o;
+  wire n1986_o;
+  wire [5:0] n1987_o;
+  reg [2:0] n1989_o;
+  reg [1:0] n1995_o;
+  reg [1:0] n1998_o;
+  reg [1:0] n2003_o;
+  reg n2005_o;
+  reg n2008_o;
+  reg n2011_o;
+  reg n2014_o;
+  reg n2016_o;
+  wire n2018_o;
   wire n2020_o;
-  wire [1:0] n2021_o;
-  wire n2023_o;
+  wire n2021_o;
+  wire [1:0] n2022_o;
   wire n2024_o;
-  wire [30:0] n2025_o;
+  wire [1:0] n2025_o;
   wire n2027_o;
-  wire n2029_o;
+  wire n2028_o;
+  wire [30:0] n2029_o;
   wire n2031_o;
   wire n2033_o;
   wire n2035_o;
-  wire [4:0] n2036_o;
-  reg [1:0] n2042_o;
-  reg [1:0] n2045_o;
-  reg n2048_o;
-  reg n2051_o;
-  reg n2054_o;
-  reg n2057_o;
-  reg n2060_o;
+  wire n2037_o;
+  wire n2039_o;
+  wire [4:0] n2040_o;
+  reg [1:0] n2046_o;
+  reg [1:0] n2049_o;
+  reg n2052_o;
+  reg n2055_o;
+  reg n2058_o;
+  reg n2061_o;
   reg n2064_o;
-  wire [1:0] n2065_o;
-  wire n2067_o;
-  wire n2069_o;
-  wire [30:0] n2070_o;
-  wire n2072_o;
-  wire n2074_o;
-  wire [3:0] n2075_o;
-  wire n2077_o;
-  wire n2080_o;
-  wire [2:0] n2081_o;
-  wire n2083_o;
-  wire n2086_o;
-  wire n2088_o;
+  reg n2068_o;
+  wire [1:0] n2069_o;
+  wire n2071_o;
+  wire n2073_o;
+  wire [30:0] n2074_o;
+  wire n2076_o;
+  wire n2078_o;
+  wire [3:0] n2079_o;
+  wire n2081_o;
+  wire n2084_o;
+  wire [2:0] n2085_o;
+  wire n2087_o;
   wire n2090_o;
-  wire [3:0] n2091_o;
-  reg [1:0] n2095_o;
-  reg [1:0] n2098_o;
-  reg n2101_o;
-  reg n2103_o;
-  reg n2106_o;
-  reg n2108_o;
-  wire [2:0] n2111_o;
-  wire [1:0] n2112_o;
-  wire [1:0] n2113_o;
-  wire n2114_o;
-  wire n2116_o;
-  wire n2117_o;
-  wire n2119_o;
+  wire n2092_o;
+  wire n2094_o;
+  wire [3:0] n2095_o;
+  reg [1:0] n2099_o;
+  reg [1:0] n2102_o;
+  reg n2105_o;
+  reg n2107_o;
+  reg n2110_o;
+  reg n2112_o;
+  wire [2:0] n2115_o;
+  wire [1:0] n2116_o;
+  wire [1:0] n2117_o;
+  wire n2118_o;
+  wire n2120_o;
   wire n2121_o;
-  wire n2122_o;
-  wire n2124_o;
+  wire n2123_o;
   wire n2125_o;
-  wire n2127_o;
+  wire n2126_o;
+  wire n2128_o;
   wire n2129_o;
-  wire n2130_o;
-  wire n2132_o;
+  wire n2131_o;
   wire n2133_o;
-  wire n2135_o;
+  wire n2134_o;
   wire n2136_o;
-  wire [1:0] n2137_o;
+  wire n2137_o;
   wire n2139_o;
-  wire n2141_o;
-  wire [30:0] n2142_o;
-  wire n2144_o;
-  wire n2146_o;
+  wire n2140_o;
+  wire [1:0] n2141_o;
+  wire n2143_o;
+  wire n2145_o;
+  wire [30:0] n2146_o;
   wire n2148_o;
-  wire [2:0] n2149_o;
-  wire n2151_o;
-  wire n2154_o;
-  wire n2157_o;
-  wire n2159_o;
+  wire n2150_o;
+  wire n2152_o;
+  wire [2:0] n2153_o;
+  wire n2155_o;
+  wire n2158_o;
   wire n2161_o;
-  wire [4:0] n2162_o;
-  reg [2:0] n2164_o;
-  reg [1:0] n2168_o;
+  wire n2163_o;
+  wire n2165_o;
+  wire [4:0] n2166_o;
+  reg [2:0] n2168_o;
   reg [1:0] n2172_o;
   reg [1:0] n2176_o;
-  reg n2178_o;
-  reg n2181_o;
-  reg n2184_o;
-  reg n2186_o;
-  wire n2188_o;
-  wire n2190_o;
-  wire n2191_o;
-  wire [1:0] n2192_o;
+  reg [1:0] n2180_o;
+  reg n2182_o;
+  reg n2185_o;
+  reg n2188_o;
+  reg n2190_o;
+  wire n2192_o;
   wire n2194_o;
-  wire [1:0] n2195_o;
-  wire n2197_o;
+  wire n2195_o;
+  wire [1:0] n2196_o;
   wire n2198_o;
-  wire [30:0] n2199_o;
+  wire [1:0] n2199_o;
   wire n2201_o;
-  wire n2203_o;
+  wire n2202_o;
+  wire [30:0] n2203_o;
   wire n2205_o;
   wire n2207_o;
   wire n2209_o;
   wire n2211_o;
-  wire [5:0] n2212_o;
-  reg [2:0] n2214_o;
-  reg [1:0] n2220_o;
+  wire n2213_o;
+  wire n2215_o;
+  wire [5:0] n2216_o;
+  reg [2:0] n2218_o;
   reg [1:0] n2224_o;
   reg [1:0] n2228_o;
-  reg n2231_o;
-  reg n2234_o;
-  reg n2237_o;
-  reg n2240_o;
-  reg n2243_o;
+  reg [1:0] n2232_o;
+  reg n2235_o;
+  reg n2238_o;
+  reg n2241_o;
+  reg n2244_o;
   reg n2247_o;
-  wire [1:0] n2248_o;
-  wire n2250_o;
-  wire n2252_o;
-  wire [30:0] n2253_o;
-  wire n2255_o;
-  wire n2257_o;
+  reg n2251_o;
+  wire [1:0] n2252_o;
+  wire n2254_o;
+  wire n2256_o;
+  wire [30:0] n2257_o;
   wire n2259_o;
-  wire [2:0] n2262_o;
-  wire n2264_o;
-  wire [2:0] n2265_o;
-  wire n2267_o;
-  wire n2270_o;
-  wire n2273_o;
-  wire n2275_o;
+  wire n2261_o;
+  wire n2263_o;
+  wire [2:0] n2266_o;
+  wire n2268_o;
+  wire [2:0] n2269_o;
+  wire n2271_o;
+  wire n2274_o;
   wire n2277_o;
-  wire [4:0] n2278_o;
-  reg [2:0] n2279_o;
-  reg [1:0] n2283_o;
+  wire n2279_o;
+  wire n2281_o;
+  wire [4:0] n2282_o;
+  reg [2:0] n2283_o;
   reg [1:0] n2287_o;
   reg [1:0] n2291_o;
-  reg n2293_o;
-  reg n2296_o;
-  reg n2299_o;
-  reg n2301_o;
-  wire [2:0] n2304_o;
-  wire [2:0] n2305_o;
-  wire [1:0] n2306_o;
-  wire [1:0] n2307_o;
-  wire [1:0] n2308_o;
-  wire n2310_o;
-  wire n2311_o;
-  wire n2313_o;
+  reg [1:0] n2295_o;
+  reg n2297_o;
+  reg n2300_o;
+  reg n2303_o;
+  reg n2305_o;
+  wire [2:0] n2308_o;
+  wire [2:0] n2309_o;
+  wire [1:0] n2310_o;
+  wire [1:0] n2311_o;
+  wire [1:0] n2312_o;
+  wire n2314_o;
   wire n2315_o;
-  wire n2316_o;
   wire n2317_o;
   wire n2319_o;
   wire n2320_o;
-  wire n2322_o;
+  wire n2321_o;
+  wire n2323_o;
   wire n2324_o;
-  wire n2325_o;
-  wire n2327_o;
+  wire n2326_o;
   wire n2328_o;
-  wire n2330_o;
+  wire n2329_o;
   wire n2331_o;
-  wire [12:0] n2332_o;
-  reg [2:0] n2338_o;
-  reg [2:0] n2340_o;
-  reg [1:0] n2342_o;
+  wire n2332_o;
+  wire n2334_o;
+  wire n2335_o;
+  wire [12:0] n2336_o;
+  reg [2:0] n2342_o;
   reg [2:0] n2344_o;
   reg [1:0] n2346_o;
-  reg [1:0] n2349_o;
-  reg n2352_o;
-  reg n2355_o;
-  reg n2358_o;
-  reg n2361_o;
-  reg n2364_o;
-  reg n2367_o;
-  reg n2370_o;
-  reg n2372_o;
-  reg n2375_o;
+  reg [2:0] n2348_o;
+  reg [1:0] n2350_o;
+  reg [1:0] n2353_o;
+  reg n2356_o;
+  reg n2359_o;
+  reg n2362_o;
+  reg n2365_o;
+  reg n2368_o;
+  reg n2371_o;
+  reg n2374_o;
   reg n2376_o;
-  reg n2378_o;
-  reg n2381_o;
-  reg n2384_o;
-  reg n2387_o;
-  reg n2390_o;
-  reg n2393_o;
-  reg n2396_o;
-  reg n2399_o;
-  wire [1:0] n2404_o;
-  wire [2:0] n2405_o;
-  wire [2:0] n2406_o;
-  wire n2408_o;
-  wire n2410_o;
-  wire n2411_o;
-  wire n2413_o;
+  reg n2379_o;
+  reg n2380_o;
+  reg n2382_o;
+  reg n2385_o;
+  reg n2388_o;
+  reg n2391_o;
+  reg n2394_o;
+  reg n2397_o;
+  reg n2400_o;
+  reg n2403_o;
+  wire [1:0] n2408_o;
+  wire [2:0] n2409_o;
+  wire [2:0] n2410_o;
+  wire n2412_o;
+  wire n2414_o;
   wire n2415_o;
-  wire [2:0] n2416_o;
-  reg [3:0] n2421_o;
-  wire n2423_o;
-  wire n2425_o;
-  wire n2426_o;
-  wire n2428_o;
+  wire n2417_o;
+  wire n2419_o;
+  wire [2:0] n2420_o;
+  reg [3:0] n2425_o;
+  wire n2427_o;
   wire n2429_o;
-  wire [2:0] n2430_o;
+  wire n2430_o;
   wire n2432_o;
-  wire n2434_o;
-  wire n2435_o;
-  wire n2437_o;
-  wire [1:0] n2438_o;
-  reg [3:0] n2442_o;
-  wire n2444_o;
-  wire [2:0] n2445_o;
-  wire n2447_o;
-  reg [3:0] n2450_o;
-  wire n2452_o;
-  wire [2:0] n2453_o;
-  wire n2455_o;
-  reg [3:0] n2458_o;
-  wire [2:0] n2459_o;
-  reg [3:0] n2460_o;
-  wire n2462_o;
-  wire [2:0] n2464_o;
+  wire n2433_o;
+  wire [2:0] n2434_o;
+  wire n2436_o;
+  wire n2438_o;
+  wire n2439_o;
+  wire n2441_o;
+  wire [1:0] n2442_o;
+  reg [3:0] n2446_o;
+  wire n2448_o;
+  wire [2:0] n2449_o;
+  wire n2451_o;
+  reg [3:0] n2454_o;
+  wire n2456_o;
+  wire [2:0] n2457_o;
+  wire n2459_o;
+  reg [3:0] n2462_o;
+  wire [2:0] n2463_o;
+  reg [3:0] n2464_o;
   wire n2466_o;
   wire [2:0] n2468_o;
-  wire [2:0] n2469_o;
-  wire [2:0] n2470_o;
-  wire n2472_o;
-  wire [3:0] n2474_o;
-  wire [3:0] n2475_o;
-  wire n2477_o;
-  wire [2:0] n2478_o;
-  wire n2480_o;
-  wire [3:0] n2482_o;
-  wire [3:0] n2483_o;
-  wire n2485_o;
-  wire [2:0] n2486_o;
-  wire n2488_o;
-  wire [3:0] n2491_o;
-  wire n2493_o;
-  wire [2:0] n2494_o;
+  wire n2470_o;
+  wire [2:0] n2472_o;
+  wire [2:0] n2473_o;
+  wire [2:0] n2474_o;
+  wire n2476_o;
+  wire [3:0] n2478_o;
+  wire [3:0] n2479_o;
+  wire n2481_o;
+  wire [2:0] n2482_o;
+  wire n2484_o;
+  wire [3:0] n2486_o;
+  wire [3:0] n2487_o;
+  wire n2489_o;
+  wire [2:0] n2490_o;
+  wire n2492_o;
   wire [3:0] n2495_o;
-  reg [3:0] n2496_o;
-  wire n2498_o;
-  wire [2:0] n2499_o;
-  wire n2501_o;
-  wire n2503_o;
-  wire [2:0] n2505_o;
-  wire [2:0] n2507_o;
-  wire [3:0] n2508_o;
-  wire [3:0] n2509_o;
-  wire [3:0] n2510_o;
-  reg [3:0] n2512_o;
-  wire [2:0] n2513_o;
-  wire [2:0] n2514_o;
-  wire [2:0] n2515_o;
-  wire [2:0] n2516_o;
-  reg [2:0] n2517_o;
-  wire n2518_o;
-  wire n2519_o;
-  wire n2520_o;
-  reg n2521_o;
-  wire [3:0] n2523_o;
-  assign lcycle = n2338_o;
-  assign alu_op = n2523_o;
-  assign set_busa_to = n2340_o;
-  assign set_addr_to = n2342_o;
-  assign write_data = n2344_o;
-  assign jump = n2346_o;
-  assign baadd = n2349_o;
-  assign breakatna = n2352_o;
-  assign adadd = n2355_o;
-  assign addy = n2358_o;
-  assign pcadd = n2361_o;
-  assign inc_s = n2364_o;
-  assign dec_s = n2367_o;
-  assign lda = n2370_o;
-  assign ldp = n2372_o;
-  assign ldx = n2375_o;
-  assign ldy = n2376_o;
-  assign lds = n2378_o;
-  assign lddi = n2381_o;
-  assign ldalu = n2384_o;
-  assign ldad = n2387_o;
-  assign ldbal = n2390_o;
-  assign ldbah = n2393_o;
-  assign savep = n2396_o;
-  assign write = n2399_o;
+  wire n2497_o;
+  wire [2:0] n2498_o;
+  wire [3:0] n2499_o;
+  reg [3:0] n2500_o;
+  wire n2502_o;
+  wire [2:0] n2503_o;
+  wire n2505_o;
+  wire n2507_o;
+  wire [2:0] n2509_o;
+  wire [2:0] n2511_o;
+  wire [3:0] n2512_o;
+  wire [3:0] n2513_o;
+  wire [3:0] n2514_o;
+  reg [3:0] n2516_o;
+  wire [2:0] n2517_o;
+  wire [2:0] n2518_o;
+  wire [2:0] n2519_o;
+  wire [2:0] n2520_o;
+  reg [2:0] n2521_o;
+  wire n2522_o;
+  wire n2523_o;
+  wire n2524_o;
+  reg n2525_o;
+  wire [3:0] n2527_o;
+  assign lcycle = n2342_o;
+  assign alu_op = n2527_o;
+  assign set_busa_to = n2344_o;
+  assign set_addr_to = n2346_o;
+  assign write_data = n2348_o;
+  assign jump = n2350_o;
+  assign baadd = n2353_o;
+  assign breakatna = n2356_o;
+  assign adadd = n2359_o;
+  assign addy = n2362_o;
+  assign pcadd = n2365_o;
+  assign inc_s = n2368_o;
+  assign dec_s = n2371_o;
+  assign lda = n2374_o;
+  assign ldp = n2376_o;
+  assign ldx = n2379_o;
+  assign ldy = n2380_o;
+  assign lds = n2382_o;
+  assign lddi = n2385_o;
+  assign ldalu = n2388_o;
+  assign ldad = n2391_o;
+  assign ldbal = n2394_o;
+  assign ldbah = n2397_o;
+  assign savep = n2400_o;
+  assign write = n2403_o;
   /* T65_MCode.vhd:106:16  */
   assign branch = n937_o; // (signal)
   /* T65_MCode.vhd:110:16  */
@@ -1759,7 +1759,7 @@ module t65_mcode
   /* T65_MCode.vhd:202:62  */
   assign n1035_o = n1033_o == 2'b10;
   /* T65_MCode.vhd:202:43  */
-  assign n1036_o = n1032_o & n1035_o;
+  assign n1036_o = n1035_o & n1032_o;
   /* T65_MCode.vhd:202:17  */
   assign n1038_o = n1036_o ? 3'b000 : n1016_o;
   /* T65_MCode.vhd:206:24  */
@@ -2058,7 +2058,7 @@ module t65_mcode
   /* T65_MCode.vhd:306:54  */
   assign n1188_o = ir[1];
   /* T65_MCode.vhd:306:48  */
-  assign n1189_o = n1187_o & n1188_o;
+  assign n1189_o = n1188_o & n1187_o;
   /* T65_MCode.vhd:306:33  */
   assign n1192_o = n1189_o ? 3'b001 : 3'b010;
   /* T65_MCode.vhd:309:38  */
@@ -2135,7 +2135,7 @@ module t65_mcode
   /* T65_MCode.vhd:331:54  */
   assign n1238_o = ir[1];
   /* T65_MCode.vhd:331:48  */
-  assign n1239_o = n1237_o & n1238_o;
+  assign n1239_o = n1238_o & n1237_o;
   /* T65_MCode.vhd:331:33  */
   assign n1242_o = n1239_o ? 3'b001 : 3'b011;
   /* T65_MCode.vhd:334:40  */
@@ -2314,364 +2314,328 @@ module t65_mcode
   assign n1340_o = mode != 2'b00;
   /* T65_MCode.vhd:390:33  */
   assign n1342_o = n1340_o ? 1'b1 : n1022_o;
-  /* T65_MCode.vhd:393:38  */
-  assign n1343_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:394:33  */
-  assign n1345_o = n1343_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:395:33  */
-  assign n1347_o = n1343_o == 31'b0000000000000000000000000000001;
-  assign n1348_o = {n1347_o, n1345_o};
+  /* T65_MCode.vhd:393:39  */
+  assign n1344_o = ir == 8'b00011010;
+  /* T65_MCode.vhd:396:46  */
+  assign n1345_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:397:41  */
+  assign n1347_o = n1345_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:398:41  */
+  assign n1349_o = n1345_o == 31'b0000000000000000000000000000001;
+  assign n1350_o = {n1349_o, n1347_o};
+  /* T65_MCode.vhd:396:41  */
+  always @*
+    case (n1350_o)
+      2'b10: n1352_o = 3'b100;
+      2'b01: n1352_o = n1038_o;
+      default: n1352_o = n1038_o;
+    endcase
   /* T65_MCode.vhd:393:33  */
-  always @*
-    case (n1348_o)
-      2'b10: n1350_o = 3'b100;
-      2'b01: n1350_o = n1038_o;
-      default: n1350_o = n1038_o;
-    endcase
+  assign n1354_o = n1344_o ? 3'b001 : n1352_o;
   /* T65_MCode.vhd:388:25  */
-  assign n1352_o = ir == 8'b00011010;
+  assign n1356_o = ir == 8'b00011010;
   /* T65_MCode.vhd:388:41  */
-  assign n1354_o = ir == 8'b00111010;
+  assign n1358_o = ir == 8'b00111010;
   /* T65_MCode.vhd:388:41  */
-  assign n1355_o = n1352_o | n1354_o;
-  /* T65_MCode.vhd:399:25  */
-  assign n1363_o = ir == 8'b00001010;
-  /* T65_MCode.vhd:399:41  */
-  assign n1365_o = ir == 8'b00101010;
-  /* T65_MCode.vhd:399:41  */
-  assign n1366_o = n1363_o | n1365_o;
-  /* T65_MCode.vhd:399:54  */
-  assign n1368_o = ir == 8'b01001010;
-  /* T65_MCode.vhd:399:54  */
-  assign n1369_o = n1366_o | n1368_o;
-  /* T65_MCode.vhd:399:67  */
-  assign n1371_o = ir == 8'b01101010;
-  /* T65_MCode.vhd:399:67  */
-  assign n1372_o = n1369_o | n1371_o;
-  /* T65_MCode.vhd:408:25  */
-  assign n1380_o = ir == 8'b10001010;
-  /* T65_MCode.vhd:408:41  */
-  assign n1382_o = ir == 8'b10011000;
-  /* T65_MCode.vhd:408:41  */
-  assign n1383_o = n1380_o | n1382_o;
-  /* T65_MCode.vhd:418:38  */
-  assign n1384_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:419:33  */
-  assign n1386_o = n1384_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:420:33  */
-  assign n1388_o = n1384_o == 31'b0000000000000000000000000000001;
-  assign n1389_o = {n1388_o, n1386_o};
-  /* T65_MCode.vhd:418:33  */
+  assign n1359_o = n1356_o | n1358_o;
+  /* T65_MCode.vhd:403:25  */
+  assign n1367_o = ir == 8'b00001010;
+  /* T65_MCode.vhd:403:41  */
+  assign n1369_o = ir == 8'b00101010;
+  /* T65_MCode.vhd:403:41  */
+  assign n1370_o = n1367_o | n1369_o;
+  /* T65_MCode.vhd:403:54  */
+  assign n1372_o = ir == 8'b01001010;
+  /* T65_MCode.vhd:403:54  */
+  assign n1373_o = n1370_o | n1372_o;
+  /* T65_MCode.vhd:403:67  */
+  assign n1375_o = ir == 8'b01101010;
+  /* T65_MCode.vhd:403:67  */
+  assign n1376_o = n1373_o | n1375_o;
+  /* T65_MCode.vhd:412:25  */
+  assign n1384_o = ir == 8'b10001010;
+  /* T65_MCode.vhd:412:41  */
+  assign n1386_o = ir == 8'b10011000;
+  /* T65_MCode.vhd:412:41  */
+  assign n1387_o = n1384_o | n1386_o;
+  /* T65_MCode.vhd:422:38  */
+  assign n1388_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:423:33  */
+  assign n1390_o = n1388_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:424:33  */
+  assign n1392_o = n1388_o == 31'b0000000000000000000000000000001;
+  assign n1393_o = {n1392_o, n1390_o};
+  /* T65_MCode.vhd:422:33  */
   always @*
-    case (n1389_o)
-      2'b10: n1391_o = 3'b001;
-      2'b01: n1391_o = n1038_o;
-      default: n1391_o = n1038_o;
+    case (n1393_o)
+      2'b10: n1395_o = 3'b001;
+      2'b01: n1395_o = n1038_o;
+      default: n1395_o = n1038_o;
     endcase
-  /* T65_MCode.vhd:416:25  */
-  assign n1393_o = ir == 8'b10101010;
-  /* T65_MCode.vhd:416:41  */
-  assign n1395_o = ir == 8'b10101000;
-  /* T65_MCode.vhd:416:41  */
-  assign n1396_o = n1393_o | n1395_o;
-  /* T65_MCode.vhd:426:38  */
-  assign n1397_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:427:33  */
-  assign n1399_o = n1397_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:429:33  */
-  assign n1401_o = n1397_o == 31'b0000000000000000000000000000001;
-  assign n1402_o = {n1401_o, n1399_o};
-  /* T65_MCode.vhd:426:33  */
+  /* T65_MCode.vhd:420:25  */
+  assign n1397_o = ir == 8'b10101010;
+  /* T65_MCode.vhd:420:41  */
+  assign n1399_o = ir == 8'b10101000;
+  /* T65_MCode.vhd:420:41  */
+  assign n1400_o = n1397_o | n1399_o;
+  /* T65_MCode.vhd:430:38  */
+  assign n1401_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:431:33  */
+  assign n1403_o = n1401_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:433:33  */
+  assign n1405_o = n1401_o == 31'b0000000000000000000000000000001;
+  assign n1406_o = {n1405_o, n1403_o};
+  /* T65_MCode.vhd:430:33  */
   always @*
-    case (n1402_o)
-      2'b10: n1405_o = 1'b0;
-      2'b01: n1405_o = 1'b1;
-      default: n1405_o = 1'b0;
+    case (n1406_o)
+      2'b10: n1409_o = 1'b0;
+      2'b01: n1409_o = 1'b1;
+      default: n1409_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:424:25  */
-  assign n1407_o = ir == 8'b10011010;
-  /* T65_MCode.vhd:435:38  */
-  assign n1408_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:436:33  */
-  assign n1410_o = n1408_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:437:33  */
-  assign n1412_o = n1408_o == 31'b0000000000000000000000000000001;
-  assign n1413_o = {n1412_o, n1410_o};
-  /* T65_MCode.vhd:435:33  */
+  /* T65_MCode.vhd:428:25  */
+  assign n1411_o = ir == 8'b10011010;
+  /* T65_MCode.vhd:439:38  */
+  assign n1412_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:440:33  */
+  assign n1414_o = n1412_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:441:33  */
+  assign n1416_o = n1412_o == 31'b0000000000000000000000000000001;
+  assign n1417_o = {n1416_o, n1414_o};
+  /* T65_MCode.vhd:439:33  */
   always @*
-    case (n1413_o)
-      2'b10: n1415_o = 3'b100;
-      2'b01: n1415_o = n1038_o;
-      default: n1415_o = n1038_o;
+    case (n1417_o)
+      2'b10: n1419_o = 3'b100;
+      2'b01: n1419_o = n1038_o;
+      default: n1419_o = n1038_o;
     endcase
-  /* T65_MCode.vhd:432:25  */
-  assign n1417_o = ir == 8'b10111010;
-  assign n1421_o = {n1417_o, n1407_o, n1396_o, n1383_o, n1372_o, n1355_o, n1338_o, n1328_o, n1318_o, n1301_o, n1235_o, n1185_o, n1155_o, n1119_o, n1082_o};
+  /* T65_MCode.vhd:436:25  */
+  assign n1421_o = ir == 8'b10111010;
+  assign n1425_o = {n1421_o, n1411_o, n1400_o, n1387_o, n1376_o, n1359_o, n1338_o, n1328_o, n1318_o, n1301_o, n1235_o, n1185_o, n1155_o, n1119_o, n1082_o};
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
-      15'b100000000000000: n1427_o = 3'b001;
-      15'b010000000000000: n1427_o = 3'b001;
-      15'b001000000000000: n1427_o = 3'b001;
-      15'b000100000000000: n1427_o = 3'b001;
-      15'b000010000000000: n1427_o = 3'b001;
-      15'b000001000000000: n1427_o = 3'b001;
-      15'b000000100000000: n1427_o = 3'b001;
-      15'b000000010000000: n1427_o = 3'b001;
-      15'b000000001000000: n1427_o = 3'b001;
-      15'b000000000100000: n1427_o = n1242_o;
-      15'b000000000010000: n1427_o = n1192_o;
-      15'b000000000001000: n1427_o = 3'b101;
-      15'b000000000000100: n1427_o = 3'b101;
-      15'b000000000000010: n1427_o = 3'b101;
-      15'b000000000000001: n1427_o = 3'b110;
-      default: n1427_o = 3'b001;
-    endcase
-  /* T65_MCode.vhd:210:25  */
-  always @*
-    case (n1421_o)
-      15'b100000000000000: n1429_o = n1415_o;
-      15'b010000000000000: n1429_o = n1038_o;
-      15'b001000000000000: n1429_o = n1391_o;
-      15'b000100000000000: n1429_o = n1038_o;
-      15'b000010000000000: n1429_o = 3'b001;
-      15'b000001000000000: n1429_o = n1350_o;
-      15'b000000100000000: n1429_o = n1336_o;
-      15'b000000010000000: n1429_o = n1326_o;
-      15'b000000001000000: n1429_o = n1038_o;
-      15'b000000000100000: n1429_o = n1280_o;
-      15'b000000000010000: n1429_o = n1038_o;
-      15'b000000000001000: n1429_o = n1038_o;
-      15'b000000000000100: n1429_o = n1133_o;
-      15'b000000000000010: n1429_o = n1038_o;
-      15'b000000000000001: n1429_o = n1038_o;
-      default: n1429_o = n1038_o;
+    case (n1425_o)
+      15'b100000000000000: n1431_o = 3'b001;
+      15'b010000000000000: n1431_o = 3'b001;
+      15'b001000000000000: n1431_o = 3'b001;
+      15'b000100000000000: n1431_o = 3'b001;
+      15'b000010000000000: n1431_o = 3'b001;
+      15'b000001000000000: n1431_o = 3'b001;
+      15'b000000100000000: n1431_o = 3'b001;
+      15'b000000010000000: n1431_o = 3'b001;
+      15'b000000001000000: n1431_o = 3'b001;
+      15'b000000000100000: n1431_o = n1242_o;
+      15'b000000000010000: n1431_o = n1192_o;
+      15'b000000000001000: n1431_o = 3'b101;
+      15'b000000000000100: n1431_o = 3'b101;
+      15'b000000000000010: n1431_o = 3'b101;
+      15'b000000000000001: n1431_o = 3'b110;
+      default: n1431_o = 3'b001;
     endcase
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
-      15'b100000000000000: n1431_o = 2'b00;
-      15'b010000000000000: n1431_o = 2'b00;
-      15'b001000000000000: n1431_o = 2'b00;
-      15'b000100000000000: n1431_o = 2'b00;
-      15'b000010000000000: n1431_o = 2'b00;
-      15'b000001000000000: n1431_o = 2'b00;
-      15'b000000100000000: n1431_o = 2'b00;
-      15'b000000010000000: n1431_o = 2'b00;
-      15'b000000001000000: n1431_o = 2'b00;
-      15'b000000000100000: n1431_o = n1284_o;
-      15'b000000000010000: n1431_o = n1217_o;
-      15'b000000000001000: n1431_o = n1172_o;
-      15'b000000000000100: n1431_o = n1139_o;
-      15'b000000000000010: n1431_o = n1099_o;
-      15'b000000000000001: n1431_o = n1060_o;
-      default: n1431_o = 2'b00;
+    case (n1425_o)
+      15'b100000000000000: n1433_o = n1419_o;
+      15'b010000000000000: n1433_o = n1038_o;
+      15'b001000000000000: n1433_o = n1395_o;
+      15'b000100000000000: n1433_o = n1038_o;
+      15'b000010000000000: n1433_o = 3'b001;
+      15'b000001000000000: n1433_o = n1354_o;
+      15'b000000100000000: n1433_o = n1336_o;
+      15'b000000010000000: n1433_o = n1326_o;
+      15'b000000001000000: n1433_o = n1038_o;
+      15'b000000000100000: n1433_o = n1280_o;
+      15'b000000000010000: n1433_o = n1038_o;
+      15'b000000000001000: n1433_o = n1038_o;
+      15'b000000000000100: n1433_o = n1133_o;
+      15'b000000000000010: n1433_o = n1038_o;
+      15'b000000000000001: n1433_o = n1038_o;
+      default: n1433_o = n1038_o;
     endcase
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
-      15'b100000000000000: n1432_o = n1019_o;
-      15'b010000000000000: n1432_o = n1019_o;
-      15'b001000000000000: n1432_o = n1019_o;
-      15'b000100000000000: n1432_o = n1019_o;
-      15'b000010000000000: n1432_o = n1019_o;
-      15'b000001000000000: n1432_o = n1019_o;
-      15'b000000100000000: n1432_o = n1019_o;
-      15'b000000010000000: n1432_o = n1019_o;
-      15'b000000001000000: n1432_o = n1019_o;
-      15'b000000000100000: n1432_o = n1019_o;
-      15'b000000000010000: n1432_o = n1218_o;
-      15'b000000000001000: n1432_o = n1019_o;
-      15'b000000000000100: n1432_o = n1019_o;
-      15'b000000000000010: n1432_o = n1102_o;
-      15'b000000000000001: n1432_o = n1064_o;
-      default: n1432_o = n1019_o;
+    case (n1425_o)
+      15'b100000000000000: n1435_o = 2'b00;
+      15'b010000000000000: n1435_o = 2'b00;
+      15'b001000000000000: n1435_o = 2'b00;
+      15'b000100000000000: n1435_o = 2'b00;
+      15'b000010000000000: n1435_o = 2'b00;
+      15'b000001000000000: n1435_o = 2'b00;
+      15'b000000100000000: n1435_o = 2'b00;
+      15'b000000010000000: n1435_o = 2'b00;
+      15'b000000001000000: n1435_o = 2'b00;
+      15'b000000000100000: n1435_o = n1284_o;
+      15'b000000000010000: n1435_o = n1217_o;
+      15'b000000000001000: n1435_o = n1172_o;
+      15'b000000000000100: n1435_o = n1139_o;
+      15'b000000000000010: n1435_o = n1099_o;
+      15'b000000000000001: n1435_o = n1060_o;
+      default: n1435_o = 2'b00;
     endcase
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
-      15'b100000000000000: n1434_o = 2'b00;
-      15'b010000000000000: n1434_o = 2'b00;
-      15'b001000000000000: n1434_o = 2'b00;
-      15'b000100000000000: n1434_o = 2'b00;
-      15'b000010000000000: n1434_o = 2'b00;
-      15'b000001000000000: n1434_o = 2'b00;
-      15'b000000100000000: n1434_o = 2'b00;
-      15'b000000010000000: n1434_o = 2'b00;
-      15'b000000001000000: n1434_o = n1310_o;
-      15'b000000000100000: n1434_o = 2'b00;
-      15'b000000000010000: n1434_o = 2'b00;
-      15'b000000000001000: n1434_o = n1176_o;
-      15'b000000000000100: n1434_o = n1142_o;
-      15'b000000000000010: n1434_o = n1106_o;
-      15'b000000000000001: n1434_o = n1067_o;
-      default: n1434_o = 2'b00;
+    case (n1425_o)
+      15'b100000000000000: n1436_o = n1019_o;
+      15'b010000000000000: n1436_o = n1019_o;
+      15'b001000000000000: n1436_o = n1019_o;
+      15'b000100000000000: n1436_o = n1019_o;
+      15'b000010000000000: n1436_o = n1019_o;
+      15'b000001000000000: n1436_o = n1019_o;
+      15'b000000100000000: n1436_o = n1019_o;
+      15'b000000010000000: n1436_o = n1019_o;
+      15'b000000001000000: n1436_o = n1019_o;
+      15'b000000000100000: n1436_o = n1019_o;
+      15'b000000000010000: n1436_o = n1218_o;
+      15'b000000000001000: n1436_o = n1019_o;
+      15'b000000000000100: n1436_o = n1019_o;
+      15'b000000000000010: n1436_o = n1102_o;
+      15'b000000000000001: n1436_o = n1064_o;
+      default: n1436_o = n1019_o;
     endcase
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
-      15'b100000000000000: n1436_o = 1'b0;
-      15'b010000000000000: n1436_o = 1'b0;
-      15'b001000000000000: n1436_o = 1'b0;
-      15'b000100000000000: n1436_o = 1'b0;
-      15'b000010000000000: n1436_o = 1'b0;
-      15'b000001000000000: n1436_o = 1'b0;
-      15'b000000100000000: n1436_o = 1'b0;
-      15'b000000010000000: n1436_o = 1'b0;
-      15'b000000001000000: n1436_o = 1'b0;
-      15'b000000000100000: n1436_o = n1287_o;
-      15'b000000000010000: n1436_o = 1'b0;
-      15'b000000000001000: n1436_o = n1180_o;
-      15'b000000000000100: n1436_o = n1147_o;
-      15'b000000000000010: n1436_o = 1'b0;
-      15'b000000000000001: n1436_o = 1'b0;
-      default: n1436_o = 1'b0;
+    case (n1425_o)
+      15'b100000000000000: n1438_o = 2'b00;
+      15'b010000000000000: n1438_o = 2'b00;
+      15'b001000000000000: n1438_o = 2'b00;
+      15'b000100000000000: n1438_o = 2'b00;
+      15'b000010000000000: n1438_o = 2'b00;
+      15'b000001000000000: n1438_o = 2'b00;
+      15'b000000100000000: n1438_o = 2'b00;
+      15'b000000010000000: n1438_o = 2'b00;
+      15'b000000001000000: n1438_o = n1310_o;
+      15'b000000000100000: n1438_o = 2'b00;
+      15'b000000000010000: n1438_o = 2'b00;
+      15'b000000000001000: n1438_o = n1176_o;
+      15'b000000000000100: n1438_o = n1142_o;
+      15'b000000000000010: n1438_o = n1106_o;
+      15'b000000000000001: n1438_o = n1067_o;
+      default: n1438_o = 2'b00;
     endcase
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
-      15'b100000000000000: n1438_o = 1'b0;
-      15'b010000000000000: n1438_o = 1'b0;
-      15'b001000000000000: n1438_o = 1'b0;
-      15'b000100000000000: n1438_o = 1'b0;
-      15'b000010000000000: n1438_o = 1'b0;
-      15'b000001000000000: n1438_o = 1'b0;
-      15'b000000100000000: n1438_o = 1'b0;
-      15'b000000010000000: n1438_o = 1'b0;
-      15'b000000001000000: n1438_o = 1'b0;
-      15'b000000000100000: n1438_o = 1'b0;
-      15'b000000000010000: n1438_o = n1221_o;
-      15'b000000000001000: n1438_o = 1'b0;
-      15'b000000000000100: n1438_o = 1'b0;
-      15'b000000000000010: n1438_o = n1110_o;
-      15'b000000000000001: n1438_o = n1072_o;
-      default: n1438_o = 1'b0;
+    case (n1425_o)
+      15'b100000000000000: n1440_o = 1'b0;
+      15'b010000000000000: n1440_o = 1'b0;
+      15'b001000000000000: n1440_o = 1'b0;
+      15'b000100000000000: n1440_o = 1'b0;
+      15'b000010000000000: n1440_o = 1'b0;
+      15'b000001000000000: n1440_o = 1'b0;
+      15'b000000100000000: n1440_o = 1'b0;
+      15'b000000010000000: n1440_o = 1'b0;
+      15'b000000001000000: n1440_o = 1'b0;
+      15'b000000000100000: n1440_o = n1287_o;
+      15'b000000000010000: n1440_o = 1'b0;
+      15'b000000000001000: n1440_o = n1180_o;
+      15'b000000000000100: n1440_o = n1147_o;
+      15'b000000000000010: n1440_o = 1'b0;
+      15'b000000000000001: n1440_o = 1'b0;
+      default: n1440_o = 1'b0;
     endcase
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
-      15'b100000000000000: n1441_o = n1022_o;
-      15'b010000000000000: n1441_o = n1022_o;
-      15'b001000000000000: n1441_o = n1022_o;
-      15'b000100000000000: n1441_o = 1'b1;
-      15'b000010000000000: n1441_o = 1'b1;
-      15'b000001000000000: n1441_o = n1342_o;
-      15'b000000100000000: n1441_o = n1022_o;
-      15'b000000010000000: n1441_o = n1022_o;
-      15'b000000001000000: n1441_o = n1022_o;
-      15'b000000000100000: n1441_o = n1263_o;
-      15'b000000000010000: n1441_o = n1022_o;
-      15'b000000000001000: n1441_o = n1022_o;
-      15'b000000000000100: n1441_o = n1022_o;
-      15'b000000000000010: n1441_o = n1022_o;
-      15'b000000000000001: n1441_o = n1022_o;
-      default: n1441_o = n1022_o;
+    case (n1425_o)
+      15'b100000000000000: n1442_o = 1'b0;
+      15'b010000000000000: n1442_o = 1'b0;
+      15'b001000000000000: n1442_o = 1'b0;
+      15'b000100000000000: n1442_o = 1'b0;
+      15'b000010000000000: n1442_o = 1'b0;
+      15'b000001000000000: n1442_o = 1'b0;
+      15'b000000100000000: n1442_o = 1'b0;
+      15'b000000010000000: n1442_o = 1'b0;
+      15'b000000001000000: n1442_o = 1'b0;
+      15'b000000000100000: n1442_o = 1'b0;
+      15'b000000000010000: n1442_o = n1221_o;
+      15'b000000000001000: n1442_o = 1'b0;
+      15'b000000000000100: n1442_o = 1'b0;
+      15'b000000000000010: n1442_o = n1110_o;
+      15'b000000000000001: n1442_o = n1072_o;
+      default: n1442_o = 1'b0;
     endcase
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
-      15'b100000000000000: n1443_o = 1'b0;
-      15'b010000000000000: n1443_o = 1'b0;
-      15'b001000000000000: n1443_o = 1'b0;
-      15'b000100000000000: n1443_o = 1'b0;
-      15'b000010000000000: n1443_o = 1'b0;
-      15'b000001000000000: n1443_o = 1'b0;
-      15'b000000100000000: n1443_o = 1'b0;
-      15'b000000010000000: n1443_o = 1'b0;
-      15'b000000001000000: n1443_o = 1'b0;
-      15'b000000000100000: n1443_o = n1266_o;
-      15'b000000000010000: n1443_o = 1'b0;
-      15'b000000000001000: n1443_o = 1'b0;
-      15'b000000000000100: n1443_o = n1150_o;
-      15'b000000000000010: n1443_o = 1'b0;
-      15'b000000000000001: n1443_o = 1'b0;
-      default: n1443_o = 1'b0;
+    case (n1425_o)
+      15'b100000000000000: n1445_o = n1022_o;
+      15'b010000000000000: n1445_o = n1022_o;
+      15'b001000000000000: n1445_o = n1022_o;
+      15'b000100000000000: n1445_o = 1'b1;
+      15'b000010000000000: n1445_o = 1'b1;
+      15'b000001000000000: n1445_o = n1342_o;
+      15'b000000100000000: n1445_o = n1022_o;
+      15'b000000010000000: n1445_o = n1022_o;
+      15'b000000001000000: n1445_o = n1022_o;
+      15'b000000000100000: n1445_o = n1263_o;
+      15'b000000000010000: n1445_o = n1022_o;
+      15'b000000000001000: n1445_o = n1022_o;
+      15'b000000000000100: n1445_o = n1022_o;
+      15'b000000000000010: n1445_o = n1022_o;
+      15'b000000000000001: n1445_o = n1022_o;
+      default: n1445_o = n1022_o;
     endcase
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
-      15'b100000000000000: n1446_o = 1'b1;
-      15'b010000000000000: n1446_o = n1025_o;
-      15'b001000000000000: n1446_o = n1025_o;
-      15'b000100000000000: n1446_o = n1025_o;
-      15'b000010000000000: n1446_o = n1025_o;
-      15'b000001000000000: n1446_o = n1025_o;
-      15'b000000100000000: n1446_o = 1'b1;
-      15'b000000010000000: n1446_o = n1025_o;
-      15'b000000001000000: n1446_o = n1025_o;
-      15'b000000000100000: n1446_o = n1267_o;
-      15'b000000000010000: n1446_o = n1025_o;
-      15'b000000000001000: n1446_o = n1025_o;
-      15'b000000000000100: n1446_o = n1025_o;
-      15'b000000000000010: n1446_o = n1025_o;
-      15'b000000000000001: n1446_o = n1025_o;
-      default: n1446_o = n1025_o;
+    case (n1425_o)
+      15'b100000000000000: n1447_o = 1'b0;
+      15'b010000000000000: n1447_o = 1'b0;
+      15'b001000000000000: n1447_o = 1'b0;
+      15'b000100000000000: n1447_o = 1'b0;
+      15'b000010000000000: n1447_o = 1'b0;
+      15'b000001000000000: n1447_o = 1'b0;
+      15'b000000100000000: n1447_o = 1'b0;
+      15'b000000010000000: n1447_o = 1'b0;
+      15'b000000001000000: n1447_o = 1'b0;
+      15'b000000000100000: n1447_o = n1266_o;
+      15'b000000000010000: n1447_o = 1'b0;
+      15'b000000000001000: n1447_o = 1'b0;
+      15'b000000000000100: n1447_o = n1150_o;
+      15'b000000000000010: n1447_o = 1'b0;
+      15'b000000000000001: n1447_o = 1'b0;
+      default: n1447_o = 1'b0;
     endcase
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
-      15'b100000000000000: n1448_o = n1028_o;
-      15'b010000000000000: n1448_o = n1028_o;
-      15'b001000000000000: n1448_o = n1028_o;
-      15'b000100000000000: n1448_o = n1028_o;
-      15'b000010000000000: n1448_o = n1028_o;
-      15'b000001000000000: n1448_o = n1028_o;
-      15'b000000100000000: n1448_o = n1028_o;
-      15'b000000010000000: n1448_o = 1'b1;
-      15'b000000001000000: n1448_o = n1028_o;
-      15'b000000000100000: n1448_o = n1268_o;
-      15'b000000000010000: n1448_o = n1028_o;
-      15'b000000000001000: n1448_o = n1028_o;
-      15'b000000000000100: n1448_o = n1028_o;
-      15'b000000000000010: n1448_o = n1028_o;
-      15'b000000000000001: n1448_o = n1028_o;
-      default: n1448_o = n1028_o;
+    case (n1425_o)
+      15'b100000000000000: n1450_o = 1'b1;
+      15'b010000000000000: n1450_o = n1025_o;
+      15'b001000000000000: n1450_o = n1025_o;
+      15'b000100000000000: n1450_o = n1025_o;
+      15'b000010000000000: n1450_o = n1025_o;
+      15'b000001000000000: n1450_o = n1025_o;
+      15'b000000100000000: n1450_o = 1'b1;
+      15'b000000010000000: n1450_o = n1025_o;
+      15'b000000001000000: n1450_o = n1025_o;
+      15'b000000000100000: n1450_o = n1267_o;
+      15'b000000000010000: n1450_o = n1025_o;
+      15'b000000000001000: n1450_o = n1025_o;
+      15'b000000000000100: n1450_o = n1025_o;
+      15'b000000000000010: n1450_o = n1025_o;
+      15'b000000000000001: n1450_o = n1025_o;
+      default: n1450_o = n1025_o;
     endcase
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
-      15'b100000000000000: n1450_o = 1'b0;
-      15'b010000000000000: n1450_o = n1405_o;
-      15'b001000000000000: n1450_o = 1'b0;
-      15'b000100000000000: n1450_o = 1'b0;
-      15'b000010000000000: n1450_o = 1'b0;
-      15'b000001000000000: n1450_o = 1'b0;
-      15'b000000100000000: n1450_o = 1'b0;
-      15'b000000010000000: n1450_o = 1'b0;
-      15'b000000001000000: n1450_o = 1'b0;
-      15'b000000000100000: n1450_o = 1'b0;
-      15'b000000000010000: n1450_o = 1'b0;
-      15'b000000000001000: n1450_o = 1'b0;
-      15'b000000000000100: n1450_o = 1'b0;
-      15'b000000000000010: n1450_o = 1'b0;
-      15'b000000000000001: n1450_o = 1'b0;
-      default: n1450_o = 1'b0;
+    case (n1425_o)
+      15'b100000000000000: n1452_o = n1028_o;
+      15'b010000000000000: n1452_o = n1028_o;
+      15'b001000000000000: n1452_o = n1028_o;
+      15'b000100000000000: n1452_o = n1028_o;
+      15'b000010000000000: n1452_o = n1028_o;
+      15'b000001000000000: n1452_o = n1028_o;
+      15'b000000100000000: n1452_o = n1028_o;
+      15'b000000010000000: n1452_o = 1'b1;
+      15'b000000001000000: n1452_o = n1028_o;
+      15'b000000000100000: n1452_o = n1268_o;
+      15'b000000000010000: n1452_o = n1028_o;
+      15'b000000000001000: n1452_o = n1028_o;
+      15'b000000000000100: n1452_o = n1028_o;
+      15'b000000000000010: n1452_o = n1028_o;
+      15'b000000000000001: n1452_o = n1028_o;
+      default: n1452_o = n1028_o;
     endcase
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
-      15'b100000000000000: n1452_o = 1'b0;
-      15'b010000000000000: n1452_o = 1'b0;
-      15'b001000000000000: n1452_o = 1'b0;
-      15'b000100000000000: n1452_o = 1'b0;
-      15'b000010000000000: n1452_o = 1'b0;
-      15'b000001000000000: n1452_o = 1'b0;
-      15'b000000100000000: n1452_o = 1'b0;
-      15'b000000010000000: n1452_o = 1'b0;
-      15'b000000001000000: n1452_o = 1'b0;
-      15'b000000000100000: n1452_o = 1'b0;
-      15'b000000000010000: n1452_o = 1'b0;
-      15'b000000000001000: n1452_o = n1183_o;
-      15'b000000000000100: n1452_o = n1153_o;
-      15'b000000000000010: n1452_o = n1113_o;
-      15'b000000000000001: n1452_o = n1075_o;
-      default: n1452_o = 1'b0;
-    endcase
-  /* T65_MCode.vhd:210:25  */
-  always @*
-    case (n1421_o)
+    case (n1425_o)
       15'b100000000000000: n1454_o = 1'b0;
-      15'b010000000000000: n1454_o = 1'b0;
+      15'b010000000000000: n1454_o = n1409_o;
       15'b001000000000000: n1454_o = 1'b0;
       15'b000100000000000: n1454_o = 1'b0;
       15'b000010000000000: n1454_o = 1'b0;
@@ -2679,7 +2643,7 @@ module t65_mcode
       15'b000000100000000: n1454_o = 1'b0;
       15'b000000010000000: n1454_o = 1'b0;
       15'b000000001000000: n1454_o = 1'b0;
-      15'b000000000100000: n1454_o = n1290_o;
+      15'b000000000100000: n1454_o = 1'b0;
       15'b000000000010000: n1454_o = 1'b0;
       15'b000000000001000: n1454_o = 1'b0;
       15'b000000000000100: n1454_o = 1'b0;
@@ -2689,7 +2653,7 @@ module t65_mcode
     endcase
   /* T65_MCode.vhd:210:25  */
   always @*
-    case (n1421_o)
+    case (n1425_o)
       15'b100000000000000: n1456_o = 1'b0;
       15'b010000000000000: n1456_o = 1'b0;
       15'b001000000000000: n1456_o = 1'b0;
@@ -2700,2255 +2664,2295 @@ module t65_mcode
       15'b000000010000000: n1456_o = 1'b0;
       15'b000000001000000: n1456_o = 1'b0;
       15'b000000000100000: n1456_o = 1'b0;
-      15'b000000000010000: n1456_o = n1224_o;
-      15'b000000000001000: n1456_o = 1'b0;
-      15'b000000000000100: n1456_o = 1'b0;
-      15'b000000000000010: n1456_o = n1117_o;
-      15'b000000000000001: n1456_o = n1080_o;
+      15'b000000000010000: n1456_o = 1'b0;
+      15'b000000000001000: n1456_o = n1183_o;
+      15'b000000000000100: n1456_o = n1153_o;
+      15'b000000000000010: n1456_o = n1113_o;
+      15'b000000000000001: n1456_o = n1075_o;
       default: n1456_o = 1'b0;
     endcase
+  /* T65_MCode.vhd:210:25  */
+  always @*
+    case (n1425_o)
+      15'b100000000000000: n1458_o = 1'b0;
+      15'b010000000000000: n1458_o = 1'b0;
+      15'b001000000000000: n1458_o = 1'b0;
+      15'b000100000000000: n1458_o = 1'b0;
+      15'b000010000000000: n1458_o = 1'b0;
+      15'b000001000000000: n1458_o = 1'b0;
+      15'b000000100000000: n1458_o = 1'b0;
+      15'b000000010000000: n1458_o = 1'b0;
+      15'b000000001000000: n1458_o = 1'b0;
+      15'b000000000100000: n1458_o = n1290_o;
+      15'b000000000010000: n1458_o = 1'b0;
+      15'b000000000001000: n1458_o = 1'b0;
+      15'b000000000000100: n1458_o = 1'b0;
+      15'b000000000000010: n1458_o = 1'b0;
+      15'b000000000000001: n1458_o = 1'b0;
+      default: n1458_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:210:25  */
+  always @*
+    case (n1425_o)
+      15'b100000000000000: n1460_o = 1'b0;
+      15'b010000000000000: n1460_o = 1'b0;
+      15'b001000000000000: n1460_o = 1'b0;
+      15'b000100000000000: n1460_o = 1'b0;
+      15'b000010000000000: n1460_o = 1'b0;
+      15'b000001000000000: n1460_o = 1'b0;
+      15'b000000100000000: n1460_o = 1'b0;
+      15'b000000010000000: n1460_o = 1'b0;
+      15'b000000001000000: n1460_o = 1'b0;
+      15'b000000000100000: n1460_o = 1'b0;
+      15'b000000000010000: n1460_o = n1224_o;
+      15'b000000000001000: n1460_o = 1'b0;
+      15'b000000000000100: n1460_o = 1'b0;
+      15'b000000000000010: n1460_o = n1117_o;
+      15'b000000000000001: n1460_o = n1080_o;
+      default: n1460_o = 1'b0;
+    endcase
   /* T65_MCode.vhd:207:17  */
-  assign n1458_o = n1039_o == 5'b00000;
+  assign n1462_o = n1039_o == 5'b00000;
   /* T65_MCode.vhd:207:30  */
-  assign n1460_o = n1039_o == 5'b01000;
+  assign n1464_o = n1039_o == 5'b01000;
   /* T65_MCode.vhd:207:30  */
-  assign n1461_o = n1458_o | n1460_o;
+  assign n1465_o = n1462_o | n1464_o;
   /* T65_MCode.vhd:207:40  */
-  assign n1463_o = n1039_o == 5'b01010;
+  assign n1467_o = n1039_o == 5'b01010;
   /* T65_MCode.vhd:207:40  */
-  assign n1464_o = n1461_o | n1463_o;
+  assign n1468_o = n1465_o | n1467_o;
   /* T65_MCode.vhd:207:50  */
-  assign n1466_o = n1039_o == 5'b11000;
+  assign n1470_o = n1039_o == 5'b11000;
   /* T65_MCode.vhd:207:50  */
-  assign n1467_o = n1464_o | n1466_o;
+  assign n1471_o = n1468_o | n1470_o;
   /* T65_MCode.vhd:207:60  */
-  assign n1469_o = n1039_o == 5'b11010;
+  assign n1473_o = n1039_o == 5'b11010;
   /* T65_MCode.vhd:207:60  */
-  assign n1470_o = n1467_o | n1469_o;
-  /* T65_MCode.vhd:460:30  */
-  assign n1471_o = ir[7:6];
-  /* T65_MCode.vhd:460:43  */
-  assign n1473_o = n1471_o != 2'b10;
-  /* T65_MCode.vhd:460:25  */
-  assign n1475_o = n1473_o ? 1'b1 : n1022_o;
-  /* T65_MCode.vhd:463:30  */
-  assign n1476_o = {28'b0, mcycle};  //  uext
+  assign n1474_o = n1471_o | n1473_o;
+  /* T65_MCode.vhd:464:30  */
+  assign n1475_o = ir[7:6];
+  /* T65_MCode.vhd:464:43  */
+  assign n1477_o = n1475_o != 2'b10;
   /* T65_MCode.vhd:464:25  */
-  assign n1478_o = n1476_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:465:25  */
-  assign n1480_o = n1476_o == 31'b0000000000000000000000000000001;
+  assign n1479_o = n1477_o ? 1'b1 : n1022_o;
+  /* T65_MCode.vhd:467:30  */
+  assign n1480_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:468:25  */
+  assign n1482_o = n1480_o == 31'b0000000000000000000000000000000;
   /* T65_MCode.vhd:469:25  */
-  assign n1482_o = n1476_o == 31'b0000000000000000000000000000010;
-  /* T65_MCode.vhd:472:25  */
-  assign n1484_o = n1476_o == 31'b0000000000000000000000000000011;
-  /* T65_MCode.vhd:478:38  */
-  assign n1485_o = ir[7:5];
-  /* T65_MCode.vhd:478:51  */
-  assign n1487_o = n1485_o == 3'b100;
-  /* T65_MCode.vhd:478:33  */
-  assign n1490_o = n1487_o ? 1'b1 : 1'b0;
+  assign n1484_o = n1480_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:473:25  */
+  assign n1486_o = n1480_o == 31'b0000000000000000000000000000010;
   /* T65_MCode.vhd:476:25  */
-  assign n1492_o = n1476_o == 31'b0000000000000000000000000000100;
-  /* T65_MCode.vhd:482:25  */
-  assign n1494_o = n1476_o == 31'b0000000000000000000000000000101;
-  assign n1495_o = {n1494_o, n1492_o, n1484_o, n1482_o, n1480_o, n1478_o};
-  /* T65_MCode.vhd:463:25  */
+  assign n1488_o = n1480_o == 31'b0000000000000000000000000000011;
+  /* T65_MCode.vhd:482:38  */
+  assign n1489_o = ir[7:5];
+  /* T65_MCode.vhd:482:51  */
+  assign n1491_o = n1489_o == 3'b100;
+  /* T65_MCode.vhd:482:33  */
+  assign n1494_o = n1491_o ? 1'b1 : 1'b0;
+  /* T65_MCode.vhd:480:25  */
+  assign n1496_o = n1480_o == 31'b0000000000000000000000000000100;
+  /* T65_MCode.vhd:486:25  */
+  assign n1498_o = n1480_o == 31'b0000000000000000000000000000101;
+  assign n1499_o = {n1498_o, n1496_o, n1488_o, n1486_o, n1484_o, n1482_o};
+  /* T65_MCode.vhd:467:25  */
   always @*
-    case (n1495_o)
-      6'b100000: n1501_o = 2'b00;
-      6'b010000: n1501_o = 2'b11;
-      6'b001000: n1501_o = 2'b10;
-      6'b000100: n1501_o = 2'b10;
-      6'b000010: n1501_o = 2'b10;
-      6'b000001: n1501_o = 2'b00;
-      default: n1501_o = 2'b00;
+    case (n1499_o)
+      6'b100000: n1505_o = 2'b00;
+      6'b010000: n1505_o = 2'b11;
+      6'b001000: n1505_o = 2'b10;
+      6'b000100: n1505_o = 2'b10;
+      6'b000010: n1505_o = 2'b10;
+      6'b000001: n1505_o = 2'b00;
+      default: n1505_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:463:25  */
+  /* T65_MCode.vhd:467:25  */
   always @*
-    case (n1495_o)
-      6'b100000: n1504_o = 2'b00;
-      6'b010000: n1504_o = 2'b00;
-      6'b001000: n1504_o = 2'b00;
-      6'b000100: n1504_o = 2'b00;
-      6'b000010: n1504_o = 2'b01;
-      6'b000001: n1504_o = 2'b00;
-      default: n1504_o = 2'b00;
+    case (n1499_o)
+      6'b100000: n1508_o = 2'b00;
+      6'b010000: n1508_o = 2'b00;
+      6'b001000: n1508_o = 2'b00;
+      6'b000100: n1508_o = 2'b00;
+      6'b000010: n1508_o = 2'b01;
+      6'b000001: n1508_o = 2'b00;
+      default: n1508_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:463:25  */
+  /* T65_MCode.vhd:467:25  */
   always @*
-    case (n1495_o)
-      6'b100000: n1507_o = 2'b00;
-      6'b010000: n1507_o = 2'b00;
-      6'b001000: n1507_o = 2'b01;
-      6'b000100: n1507_o = 2'b00;
-      6'b000010: n1507_o = 2'b00;
-      6'b000001: n1507_o = 2'b00;
-      default: n1507_o = 2'b00;
+    case (n1499_o)
+      6'b100000: n1511_o = 2'b00;
+      6'b010000: n1511_o = 2'b00;
+      6'b001000: n1511_o = 2'b01;
+      6'b000100: n1511_o = 2'b00;
+      6'b000010: n1511_o = 2'b00;
+      6'b000001: n1511_o = 2'b00;
+      default: n1511_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:463:25  */
+  /* T65_MCode.vhd:467:25  */
   always @*
-    case (n1495_o)
-      6'b100000: n1510_o = 1'b0;
-      6'b010000: n1510_o = 1'b0;
-      6'b001000: n1510_o = 1'b0;
-      6'b000100: n1510_o = 1'b1;
-      6'b000010: n1510_o = 1'b0;
-      6'b000001: n1510_o = 1'b0;
-      default: n1510_o = 1'b0;
+    case (n1499_o)
+      6'b100000: n1514_o = 1'b0;
+      6'b010000: n1514_o = 1'b0;
+      6'b001000: n1514_o = 1'b0;
+      6'b000100: n1514_o = 1'b1;
+      6'b000010: n1514_o = 1'b0;
+      6'b000001: n1514_o = 1'b0;
+      default: n1514_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:463:25  */
+  /* T65_MCode.vhd:467:25  */
   always @*
-    case (n1495_o)
-      6'b100000: n1513_o = 1'b0;
-      6'b010000: n1513_o = 1'b0;
-      6'b001000: n1513_o = 1'b0;
-      6'b000100: n1513_o = 1'b0;
-      6'b000010: n1513_o = 1'b1;
-      6'b000001: n1513_o = 1'b0;
-      default: n1513_o = 1'b0;
+    case (n1499_o)
+      6'b100000: n1517_o = 1'b0;
+      6'b010000: n1517_o = 1'b0;
+      6'b001000: n1517_o = 1'b0;
+      6'b000100: n1517_o = 1'b0;
+      6'b000010: n1517_o = 1'b1;
+      6'b000001: n1517_o = 1'b0;
+      default: n1517_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:463:25  */
+  /* T65_MCode.vhd:467:25  */
   always @*
-    case (n1495_o)
-      6'b100000: n1516_o = 1'b0;
-      6'b010000: n1516_o = 1'b0;
-      6'b001000: n1516_o = 1'b1;
-      6'b000100: n1516_o = 1'b0;
-      6'b000010: n1516_o = 1'b0;
-      6'b000001: n1516_o = 1'b0;
-      default: n1516_o = 1'b0;
+    case (n1499_o)
+      6'b100000: n1520_o = 1'b0;
+      6'b010000: n1520_o = 1'b0;
+      6'b001000: n1520_o = 1'b1;
+      6'b000100: n1520_o = 1'b0;
+      6'b000010: n1520_o = 1'b0;
+      6'b000001: n1520_o = 1'b0;
+      default: n1520_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:463:25  */
+  /* T65_MCode.vhd:467:25  */
   always @*
-    case (n1495_o)
-      6'b100000: n1519_o = 1'b0;
-      6'b010000: n1519_o = 1'b1;
-      6'b001000: n1519_o = 1'b0;
-      6'b000100: n1519_o = 1'b0;
-      6'b000010: n1519_o = 1'b0;
-      6'b000001: n1519_o = 1'b0;
-      default: n1519_o = 1'b0;
+    case (n1499_o)
+      6'b100000: n1523_o = 1'b0;
+      6'b010000: n1523_o = 1'b1;
+      6'b001000: n1523_o = 1'b0;
+      6'b000100: n1523_o = 1'b0;
+      6'b000010: n1523_o = 1'b0;
+      6'b000001: n1523_o = 1'b0;
+      default: n1523_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:463:25  */
+  /* T65_MCode.vhd:467:25  */
   always @*
-    case (n1495_o)
-      6'b100000: n1521_o = 1'b0;
-      6'b010000: n1521_o = n1490_o;
-      6'b001000: n1521_o = 1'b0;
-      6'b000100: n1521_o = 1'b0;
-      6'b000010: n1521_o = 1'b0;
-      6'b000001: n1521_o = 1'b0;
-      default: n1521_o = 1'b0;
+    case (n1499_o)
+      6'b100000: n1525_o = 1'b0;
+      6'b010000: n1525_o = n1494_o;
+      6'b001000: n1525_o = 1'b0;
+      6'b000100: n1525_o = 1'b0;
+      6'b000010: n1525_o = 1'b0;
+      6'b000001: n1525_o = 1'b0;
+      default: n1525_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:456:17  */
-  assign n1523_o = n1039_o == 5'b00001;
-  /* T65_MCode.vhd:456:30  */
-  assign n1525_o = n1039_o == 5'b00011;
-  /* T65_MCode.vhd:456:30  */
-  assign n1526_o = n1523_o | n1525_o;
+  /* T65_MCode.vhd:460:17  */
+  assign n1527_o = n1039_o == 5'b00001;
+  /* T65_MCode.vhd:460:30  */
+  assign n1529_o = n1039_o == 5'b00011;
+  /* T65_MCode.vhd:460:30  */
+  assign n1530_o = n1527_o | n1529_o;
+  /* T65_MCode.vhd:495:30  */
+  assign n1531_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:496:25  */
+  assign n1533_o = n1531_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:497:25  */
+  assign n1535_o = n1531_o == 31'b0000000000000000000000000000001;
+  assign n1536_o = {n1535_o, n1533_o};
+  /* T65_MCode.vhd:495:25  */
+  always @*
+    case (n1536_o)
+      2'b10: n1539_o = 2'b01;
+      2'b01: n1539_o = 2'b00;
+      default: n1539_o = 2'b00;
+    endcase
+  /* T65_MCode.vhd:491:17  */
+  assign n1541_o = n1039_o == 5'b01001;
   /* T65_MCode.vhd:491:30  */
-  assign n1527_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:492:25  */
-  assign n1529_o = n1527_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:493:25  */
-  assign n1531_o = n1527_o == 31'b0000000000000000000000000000001;
-  assign n1532_o = {n1531_o, n1529_o};
-  /* T65_MCode.vhd:491:25  */
+  assign n1543_o = n1039_o == 5'b01011;
+  /* T65_MCode.vhd:491:30  */
+  assign n1544_o = n1541_o | n1543_o;
+  /* T65_MCode.vhd:508:30  */
+  assign n1545_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:509:25  */
+  assign n1547_o = n1545_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:511:39  */
+  assign n1549_o = ir == 8'b10100010;
+  /* T65_MCode.vhd:511:33  */
+  assign n1552_o = n1549_o ? 2'b01 : 2'b00;
+  /* T65_MCode.vhd:510:25  */
+  assign n1554_o = n1545_o == 31'b0000000000000000000000000000001;
+  assign n1555_o = {n1554_o, n1547_o};
+  /* T65_MCode.vhd:508:25  */
   always @*
-    case (n1532_o)
-      2'b10: n1535_o = 2'b01;
-      2'b01: n1535_o = 2'b00;
-      default: n1535_o = 2'b00;
+    case (n1555_o)
+      2'b10: n1557_o = n1552_o;
+      2'b01: n1557_o = 2'b00;
+      default: n1557_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:487:17  */
-  assign n1537_o = n1039_o == 5'b01001;
-  /* T65_MCode.vhd:487:30  */
-  assign n1539_o = n1039_o == 5'b01011;
-  /* T65_MCode.vhd:487:30  */
-  assign n1540_o = n1537_o | n1539_o;
+  /* T65_MCode.vhd:504:17  */
+  assign n1559_o = n1039_o == 5'b00010;
   /* T65_MCode.vhd:504:30  */
-  assign n1541_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:505:25  */
-  assign n1543_o = n1541_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:507:39  */
-  assign n1545_o = ir == 8'b10100010;
-  /* T65_MCode.vhd:507:33  */
-  assign n1548_o = n1545_o ? 2'b01 : 2'b00;
-  /* T65_MCode.vhd:506:25  */
-  assign n1550_o = n1541_o == 31'b0000000000000000000000000000001;
-  assign n1551_o = {n1550_o, n1543_o};
-  /* T65_MCode.vhd:504:25  */
-  always @*
-    case (n1551_o)
-      2'b10: n1553_o = n1548_o;
-      2'b01: n1553_o = 2'b00;
-      default: n1553_o = 2'b00;
-    endcase
-  /* T65_MCode.vhd:500:17  */
-  assign n1555_o = n1039_o == 5'b00010;
-  /* T65_MCode.vhd:500:30  */
-  assign n1557_o = n1039_o == 5'b10010;
-  /* T65_MCode.vhd:500:30  */
-  assign n1558_o = n1555_o | n1557_o;
-  /* T65_MCode.vhd:521:30  */
-  assign n1559_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:523:38  */
-  assign n1560_o = ir[7:5];
-  /* T65_MCode.vhd:523:51  */
-  assign n1562_o = n1560_o == 3'b001;
-  /* T65_MCode.vhd:523:33  */
-  assign n1565_o = n1562_o ? 1'b1 : 1'b0;
-  /* T65_MCode.vhd:522:25  */
-  assign n1567_o = n1559_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:529:38  */
-  assign n1568_o = ir[7:5];
-  /* T65_MCode.vhd:529:51  */
-  assign n1570_o = n1568_o == 3'b100;
-  /* T65_MCode.vhd:529:33  */
-  assign n1573_o = n1570_o ? 1'b1 : 1'b0;
+  assign n1561_o = n1039_o == 5'b10010;
+  /* T65_MCode.vhd:504:30  */
+  assign n1562_o = n1559_o | n1561_o;
+  /* T65_MCode.vhd:525:30  */
+  assign n1563_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:527:38  */
+  assign n1564_o = ir[7:5];
+  /* T65_MCode.vhd:527:51  */
+  assign n1566_o = n1564_o == 3'b001;
+  /* T65_MCode.vhd:527:33  */
+  assign n1569_o = n1566_o ? 1'b1 : 1'b0;
   /* T65_MCode.vhd:526:25  */
-  assign n1575_o = n1559_o == 31'b0000000000000000000000000000001;
-  /* T65_MCode.vhd:533:25  */
-  assign n1577_o = n1559_o == 31'b0000000000000000000000000000010;
-  assign n1578_o = {n1577_o, n1575_o, n1567_o};
-  /* T65_MCode.vhd:521:25  */
+  assign n1571_o = n1563_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:533:38  */
+  assign n1572_o = ir[7:5];
+  /* T65_MCode.vhd:533:51  */
+  assign n1574_o = n1572_o == 3'b100;
+  /* T65_MCode.vhd:533:33  */
+  assign n1577_o = n1574_o ? 1'b1 : 1'b0;
+  /* T65_MCode.vhd:530:25  */
+  assign n1579_o = n1563_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:537:25  */
+  assign n1581_o = n1563_o == 31'b0000000000000000000000000000010;
+  assign n1582_o = {n1581_o, n1579_o, n1571_o};
+  /* T65_MCode.vhd:525:25  */
   always @*
-    case (n1578_o)
-      3'b100: n1581_o = 2'b00;
-      3'b010: n1581_o = 2'b10;
-      3'b001: n1581_o = 2'b00;
-      default: n1581_o = 2'b00;
+    case (n1582_o)
+      3'b100: n1585_o = 2'b00;
+      3'b010: n1585_o = 2'b10;
+      3'b001: n1585_o = 2'b00;
+      default: n1585_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:521:25  */
+  /* T65_MCode.vhd:525:25  */
   always @*
-    case (n1578_o)
-      3'b100: n1584_o = 2'b00;
-      3'b010: n1584_o = 2'b01;
-      3'b001: n1584_o = 2'b00;
-      default: n1584_o = 2'b00;
+    case (n1582_o)
+      3'b100: n1588_o = 2'b00;
+      3'b010: n1588_o = 2'b01;
+      3'b001: n1588_o = 2'b00;
+      default: n1588_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:521:25  */
+  /* T65_MCode.vhd:525:25  */
   always @*
-    case (n1578_o)
-      3'b100: n1587_o = 1'b0;
-      3'b010: n1587_o = 1'b1;
-      3'b001: n1587_o = 1'b0;
-      default: n1587_o = 1'b0;
-    endcase
-  /* T65_MCode.vhd:521:25  */
-  always @*
-    case (n1578_o)
-      3'b100: n1589_o = 1'b0;
-      3'b010: n1589_o = 1'b0;
-      3'b001: n1589_o = n1565_o;
-      default: n1589_o = 1'b0;
-    endcase
-  /* T65_MCode.vhd:521:25  */
-  always @*
-    case (n1578_o)
+    case (n1582_o)
       3'b100: n1591_o = 1'b0;
-      3'b010: n1591_o = n1573_o;
+      3'b010: n1591_o = 1'b1;
       3'b001: n1591_o = 1'b0;
       default: n1591_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:517:17  */
-  assign n1593_o = n1039_o == 5'b00100;
-  /* T65_MCode.vhd:541:30  */
-  assign n1594_o = ir[7:6];
-  /* T65_MCode.vhd:541:43  */
-  assign n1596_o = n1594_o != 2'b10;
-  /* T65_MCode.vhd:541:57  */
-  assign n1597_o = ir[1:0];
-  /* T65_MCode.vhd:541:70  */
-  assign n1599_o = n1597_o == 2'b10;
-  /* T65_MCode.vhd:541:51  */
-  assign n1600_o = n1596_o & n1599_o;
-  /* T65_MCode.vhd:544:38  */
-  assign n1601_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:545:33  */
-  assign n1603_o = n1601_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:525:25  */
+  always @*
+    case (n1582_o)
+      3'b100: n1593_o = 1'b0;
+      3'b010: n1593_o = 1'b0;
+      3'b001: n1593_o = n1569_o;
+      default: n1593_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:525:25  */
+  always @*
+    case (n1582_o)
+      3'b100: n1595_o = 1'b0;
+      3'b010: n1595_o = n1577_o;
+      3'b001: n1595_o = 1'b0;
+      default: n1595_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:521:17  */
+  assign n1597_o = n1039_o == 5'b00100;
+  /* T65_MCode.vhd:545:30  */
+  assign n1598_o = ir[7:6];
+  /* T65_MCode.vhd:545:43  */
+  assign n1600_o = n1598_o != 2'b10;
+  /* T65_MCode.vhd:545:57  */
+  assign n1601_o = ir[1:0];
+  /* T65_MCode.vhd:545:70  */
+  assign n1603_o = n1601_o == 2'b10;
+  /* T65_MCode.vhd:545:51  */
+  assign n1604_o = n1603_o & n1600_o;
+  /* T65_MCode.vhd:548:38  */
+  assign n1605_o = {28'b0, mcycle};  //  uext
   /* T65_MCode.vhd:549:33  */
-  assign n1605_o = n1601_o == 31'b0000000000000000000000000000010;
+  assign n1607_o = n1605_o == 31'b0000000000000000000000000000001;
   /* T65_MCode.vhd:553:33  */
-  assign n1607_o = n1601_o == 31'b0000000000000000000000000000011;
-  /* T65_MCode.vhd:558:33  */
-  assign n1609_o = n1601_o == 31'b0000000000000000000000000000100;
-  assign n1610_o = {n1609_o, n1607_o, n1605_o, n1603_o};
-  /* T65_MCode.vhd:544:33  */
+  assign n1609_o = n1605_o == 31'b0000000000000000000000000000010;
+  /* T65_MCode.vhd:557:33  */
+  assign n1611_o = n1605_o == 31'b0000000000000000000000000000011;
+  /* T65_MCode.vhd:562:33  */
+  assign n1613_o = n1605_o == 31'b0000000000000000000000000000100;
+  assign n1614_o = {n1613_o, n1611_o, n1609_o, n1607_o};
+  /* T65_MCode.vhd:548:33  */
   always @*
-    case (n1610_o)
-      4'b1000: n1615_o = 2'b00;
-      4'b0100: n1615_o = 2'b10;
-      4'b0010: n1615_o = 2'b10;
-      4'b0001: n1615_o = 2'b10;
-      default: n1615_o = 2'b00;
+    case (n1614_o)
+      4'b1000: n1619_o = 2'b00;
+      4'b0100: n1619_o = 2'b10;
+      4'b0010: n1619_o = 2'b10;
+      4'b0001: n1619_o = 2'b10;
+      default: n1619_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:544:33  */
+  /* T65_MCode.vhd:548:33  */
   always @*
-    case (n1610_o)
-      4'b1000: n1618_o = 2'b00;
-      4'b0100: n1618_o = 2'b00;
-      4'b0010: n1618_o = 2'b00;
-      4'b0001: n1618_o = 2'b01;
-      default: n1618_o = 2'b00;
+    case (n1614_o)
+      4'b1000: n1622_o = 2'b00;
+      4'b0100: n1622_o = 2'b00;
+      4'b0010: n1622_o = 2'b00;
+      4'b0001: n1622_o = 2'b01;
+      default: n1622_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:544:33  */
+  /* T65_MCode.vhd:548:33  */
   always @*
-    case (n1610_o)
-      4'b1000: n1621_o = 1'b0;
-      4'b0100: n1621_o = 1'b0;
-      4'b0010: n1621_o = 1'b1;
-      4'b0001: n1621_o = 1'b0;
-      default: n1621_o = 1'b0;
+    case (n1614_o)
+      4'b1000: n1625_o = 1'b0;
+      4'b0100: n1625_o = 1'b0;
+      4'b0010: n1625_o = 1'b1;
+      4'b0001: n1625_o = 1'b0;
+      default: n1625_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:544:33  */
+  /* T65_MCode.vhd:548:33  */
   always @*
-    case (n1610_o)
-      4'b1000: n1624_o = 1'b0;
-      4'b0100: n1624_o = 1'b1;
-      4'b0010: n1624_o = 1'b0;
-      4'b0001: n1624_o = 1'b0;
-      default: n1624_o = 1'b0;
+    case (n1614_o)
+      4'b1000: n1628_o = 1'b0;
+      4'b0100: n1628_o = 1'b1;
+      4'b0010: n1628_o = 1'b0;
+      4'b0001: n1628_o = 1'b0;
+      default: n1628_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:544:33  */
+  /* T65_MCode.vhd:548:33  */
   always @*
-    case (n1610_o)
-      4'b1000: n1627_o = 1'b0;
-      4'b0100: n1627_o = 1'b0;
-      4'b0010: n1627_o = 1'b0;
-      4'b0001: n1627_o = 1'b1;
-      default: n1627_o = 1'b0;
+    case (n1614_o)
+      4'b1000: n1631_o = 1'b0;
+      4'b0100: n1631_o = 1'b0;
+      4'b0010: n1631_o = 1'b0;
+      4'b0001: n1631_o = 1'b1;
+      default: n1631_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:544:33  */
+  /* T65_MCode.vhd:548:33  */
   always @*
-    case (n1610_o)
-      4'b1000: n1630_o = 1'b0;
-      4'b0100: n1630_o = 1'b1;
-      4'b0010: n1630_o = 1'b0;
-      4'b0001: n1630_o = 1'b0;
-      default: n1630_o = 1'b0;
-    endcase
-  /* T65_MCode.vhd:544:33  */
-  always @*
-    case (n1610_o)
+    case (n1614_o)
       4'b1000: n1634_o = 1'b0;
       4'b0100: n1634_o = 1'b1;
-      4'b0010: n1634_o = 1'b1;
+      4'b0010: n1634_o = 1'b0;
       4'b0001: n1634_o = 1'b0;
       default: n1634_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:563:38  */
-  assign n1635_o = ir[7:6];
-  /* T65_MCode.vhd:563:51  */
-  assign n1637_o = n1635_o != 2'b10;
-  /* T65_MCode.vhd:563:33  */
-  assign n1639_o = n1637_o ? 1'b1 : n1022_o;
-  /* T65_MCode.vhd:566:38  */
-  assign n1640_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:548:33  */
+  always @*
+    case (n1614_o)
+      4'b1000: n1638_o = 1'b0;
+      4'b0100: n1638_o = 1'b1;
+      4'b0010: n1638_o = 1'b1;
+      4'b0001: n1638_o = 1'b0;
+      default: n1638_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:567:38  */
+  assign n1639_o = ir[7:6];
+  /* T65_MCode.vhd:567:51  */
+  assign n1641_o = n1639_o != 2'b10;
   /* T65_MCode.vhd:567:33  */
-  assign n1642_o = n1640_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:571:46  */
-  assign n1643_o = ir[7:5];
-  /* T65_MCode.vhd:571:59  */
-  assign n1645_o = n1643_o == 3'b100;
-  /* T65_MCode.vhd:571:41  */
-  assign n1648_o = n1645_o ? 1'b1 : 1'b0;
-  /* T65_MCode.vhd:568:33  */
-  assign n1650_o = n1640_o == 31'b0000000000000000000000000000001;
-  /* T65_MCode.vhd:575:33  */
-  assign n1652_o = n1640_o == 31'b0000000000000000000000000000010;
-  assign n1653_o = {n1652_o, n1650_o, n1642_o};
-  /* T65_MCode.vhd:566:33  */
+  assign n1643_o = n1641_o ? 1'b1 : n1022_o;
+  /* T65_MCode.vhd:570:38  */
+  assign n1644_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:571:33  */
+  assign n1646_o = n1644_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:575:46  */
+  assign n1647_o = ir[7:5];
+  /* T65_MCode.vhd:575:59  */
+  assign n1649_o = n1647_o == 3'b100;
+  /* T65_MCode.vhd:575:41  */
+  assign n1652_o = n1649_o ? 1'b1 : 1'b0;
+  /* T65_MCode.vhd:572:33  */
+  assign n1654_o = n1644_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:579:33  */
+  assign n1656_o = n1644_o == 31'b0000000000000000000000000000010;
+  assign n1657_o = {n1656_o, n1654_o, n1646_o};
+  /* T65_MCode.vhd:570:33  */
   always @*
-    case (n1653_o)
-      3'b100: n1656_o = 2'b00;
-      3'b010: n1656_o = 2'b10;
-      3'b001: n1656_o = 2'b00;
-      default: n1656_o = 2'b00;
+    case (n1657_o)
+      3'b100: n1660_o = 2'b00;
+      3'b010: n1660_o = 2'b10;
+      3'b001: n1660_o = 2'b00;
+      default: n1660_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:566:33  */
+  /* T65_MCode.vhd:570:33  */
   always @*
-    case (n1653_o)
-      3'b100: n1659_o = 2'b00;
-      3'b010: n1659_o = 2'b01;
-      3'b001: n1659_o = 2'b00;
-      default: n1659_o = 2'b00;
+    case (n1657_o)
+      3'b100: n1663_o = 2'b00;
+      3'b010: n1663_o = 2'b01;
+      3'b001: n1663_o = 2'b00;
+      default: n1663_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:566:33  */
+  /* T65_MCode.vhd:570:33  */
   always @*
-    case (n1653_o)
-      3'b100: n1662_o = 1'b0;
-      3'b010: n1662_o = 1'b1;
-      3'b001: n1662_o = 1'b0;
-      default: n1662_o = 1'b0;
+    case (n1657_o)
+      3'b100: n1666_o = 1'b0;
+      3'b010: n1666_o = 1'b1;
+      3'b001: n1666_o = 1'b0;
+      default: n1666_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:566:33  */
+  /* T65_MCode.vhd:570:33  */
   always @*
-    case (n1653_o)
-      3'b100: n1664_o = 1'b0;
-      3'b010: n1664_o = n1648_o;
-      3'b001: n1664_o = 1'b0;
-      default: n1664_o = 1'b0;
+    case (n1657_o)
+      3'b100: n1668_o = 1'b0;
+      3'b010: n1668_o = n1652_o;
+      3'b001: n1668_o = 1'b0;
+      default: n1668_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:541:25  */
-  assign n1667_o = n1600_o ? 3'b100 : 3'b010;
-  /* T65_MCode.vhd:541:25  */
-  assign n1668_o = n1600_o ? n1615_o : n1656_o;
-  /* T65_MCode.vhd:541:25  */
-  assign n1669_o = n1600_o ? n1618_o : n1659_o;
-  /* T65_MCode.vhd:541:25  */
-  assign n1670_o = n1600_o ? n1022_o : n1639_o;
-  /* T65_MCode.vhd:541:25  */
-  assign n1672_o = n1600_o ? n1621_o : 1'b0;
-  /* T65_MCode.vhd:541:25  */
-  assign n1674_o = n1600_o ? n1624_o : 1'b0;
-  /* T65_MCode.vhd:541:25  */
-  assign n1675_o = n1600_o ? n1627_o : n1662_o;
-  /* T65_MCode.vhd:541:25  */
-  assign n1677_o = n1600_o ? n1630_o : 1'b0;
-  /* T65_MCode.vhd:541:25  */
-  assign n1678_o = n1600_o ? n1634_o : n1664_o;
-  /* T65_MCode.vhd:538:17  */
-  assign n1680_o = n1039_o == 5'b00101;
-  /* T65_MCode.vhd:538:30  */
-  assign n1682_o = n1039_o == 5'b00110;
-  /* T65_MCode.vhd:538:30  */
-  assign n1683_o = n1680_o | n1682_o;
-  /* T65_MCode.vhd:538:40  */
-  assign n1685_o = n1039_o == 5'b00111;
-  /* T65_MCode.vhd:538:40  */
-  assign n1686_o = n1683_o | n1685_o;
-  /* T65_MCode.vhd:584:30  */
-  assign n1687_o = ir[7:6];
-  /* T65_MCode.vhd:584:43  */
-  assign n1689_o = n1687_o == 2'b01;
-  /* T65_MCode.vhd:584:56  */
-  assign n1690_o = ir[4:0];
-  /* T65_MCode.vhd:584:69  */
-  assign n1692_o = n1690_o == 5'b01100;
-  /* T65_MCode.vhd:584:50  */
-  assign n1693_o = n1689_o & n1692_o;
-  /* T65_MCode.vhd:586:38  */
-  assign n1694_o = ir[5];
-  /* T65_MCode.vhd:586:42  */
-  assign n1695_o = ~n1694_o;
-  /* T65_MCode.vhd:589:46  */
-  assign n1696_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:590:41  */
-  assign n1698_o = n1696_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:545:25  */
+  assign n1671_o = n1604_o ? 3'b100 : 3'b010;
+  /* T65_MCode.vhd:545:25  */
+  assign n1672_o = n1604_o ? n1619_o : n1660_o;
+  /* T65_MCode.vhd:545:25  */
+  assign n1673_o = n1604_o ? n1622_o : n1663_o;
+  /* T65_MCode.vhd:545:25  */
+  assign n1674_o = n1604_o ? n1022_o : n1643_o;
+  /* T65_MCode.vhd:545:25  */
+  assign n1676_o = n1604_o ? n1625_o : 1'b0;
+  /* T65_MCode.vhd:545:25  */
+  assign n1678_o = n1604_o ? n1628_o : 1'b0;
+  /* T65_MCode.vhd:545:25  */
+  assign n1679_o = n1604_o ? n1631_o : n1666_o;
+  /* T65_MCode.vhd:545:25  */
+  assign n1681_o = n1604_o ? n1634_o : 1'b0;
+  /* T65_MCode.vhd:545:25  */
+  assign n1682_o = n1604_o ? n1638_o : n1668_o;
+  /* T65_MCode.vhd:542:17  */
+  assign n1684_o = n1039_o == 5'b00101;
+  /* T65_MCode.vhd:542:30  */
+  assign n1686_o = n1039_o == 5'b00110;
+  /* T65_MCode.vhd:542:30  */
+  assign n1687_o = n1684_o | n1686_o;
+  /* T65_MCode.vhd:542:40  */
+  assign n1689_o = n1039_o == 5'b00111;
+  /* T65_MCode.vhd:542:40  */
+  assign n1690_o = n1687_o | n1689_o;
+  /* T65_MCode.vhd:588:30  */
+  assign n1691_o = ir[7:6];
+  /* T65_MCode.vhd:588:43  */
+  assign n1693_o = n1691_o == 2'b01;
+  /* T65_MCode.vhd:588:56  */
+  assign n1694_o = ir[4:0];
+  /* T65_MCode.vhd:588:69  */
+  assign n1696_o = n1694_o == 5'b01100;
+  /* T65_MCode.vhd:588:50  */
+  assign n1697_o = n1696_o & n1693_o;
+  /* T65_MCode.vhd:590:38  */
+  assign n1698_o = ir[5];
+  /* T65_MCode.vhd:590:42  */
+  assign n1699_o = ~n1698_o;
+  /* T65_MCode.vhd:593:46  */
+  assign n1700_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:594:41  */
+  assign n1702_o = n1700_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:597:41  */
+  assign n1704_o = n1700_o == 31'b0000000000000000000000000000010;
+  assign n1705_o = {n1704_o, n1702_o};
   /* T65_MCode.vhd:593:41  */
-  assign n1700_o = n1696_o == 31'b0000000000000000000000000000010;
-  assign n1701_o = {n1700_o, n1698_o};
-  /* T65_MCode.vhd:589:41  */
   always @*
-    case (n1701_o)
-      2'b10: n1705_o = 2'b10;
-      2'b01: n1705_o = 2'b01;
-      default: n1705_o = 2'b00;
+    case (n1705_o)
+      2'b10: n1709_o = 2'b10;
+      2'b01: n1709_o = 2'b01;
+      default: n1709_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:589:41  */
+  /* T65_MCode.vhd:593:41  */
   always @*
-    case (n1701_o)
-      2'b10: n1708_o = 1'b0;
-      2'b01: n1708_o = 1'b1;
-      default: n1708_o = 1'b0;
+    case (n1705_o)
+      2'b10: n1712_o = 1'b0;
+      2'b01: n1712_o = 1'b1;
+      default: n1712_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:600:46  */
-  assign n1709_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:601:41  */
-  assign n1711_o = n1709_o == 31'b0000000000000000000000000000001;
-  /* T65_MCode.vhd:607:57  */
-  assign n1713_o = mode != 2'b00;
-  /* T65_MCode.vhd:607:49  */
-  assign n1716_o = n1713_o ? 2'b10 : 2'b00;
-  /* T65_MCode.vhd:610:57  */
-  assign n1718_o = mode == 2'b00;
-  /* T65_MCode.vhd:610:49  */
-  assign n1721_o = n1718_o ? 2'b11 : 2'b00;
+  /* T65_MCode.vhd:604:46  */
+  assign n1713_o = {28'b0, mcycle};  //  uext
   /* T65_MCode.vhd:605:41  */
-  assign n1723_o = n1709_o == 31'b0000000000000000000000000000010;
-  /* T65_MCode.vhd:615:57  */
-  assign n1725_o = mode == 2'b00;
-  /* T65_MCode.vhd:615:49  */
-  assign n1728_o = n1725_o ? 2'b11 : 2'b00;
-  /* T65_MCode.vhd:615:49  */
-  assign n1731_o = n1725_o ? 2'b00 : 2'b01;
-  /* T65_MCode.vhd:615:49  */
-  assign n1734_o = n1725_o ? 2'b01 : 2'b00;
-  /* T65_MCode.vhd:613:41  */
-  assign n1736_o = n1709_o == 31'b0000000000000000000000000000011;
-  /* T65_MCode.vhd:621:41  */
-  assign n1738_o = n1709_o == 31'b0000000000000000000000000000100;
-  assign n1739_o = {n1738_o, n1736_o, n1723_o, n1711_o};
-  /* T65_MCode.vhd:600:41  */
+  assign n1715_o = n1713_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:611:57  */
+  assign n1717_o = mode != 2'b00;
+  /* T65_MCode.vhd:611:49  */
+  assign n1720_o = n1717_o ? 2'b10 : 2'b00;
+  /* T65_MCode.vhd:614:57  */
+  assign n1722_o = mode == 2'b00;
+  /* T65_MCode.vhd:614:49  */
+  assign n1725_o = n1722_o ? 2'b11 : 2'b00;
+  /* T65_MCode.vhd:609:41  */
+  assign n1727_o = n1713_o == 31'b0000000000000000000000000000010;
+  /* T65_MCode.vhd:619:57  */
+  assign n1729_o = mode == 2'b00;
+  /* T65_MCode.vhd:619:49  */
+  assign n1732_o = n1729_o ? 2'b11 : 2'b00;
+  /* T65_MCode.vhd:619:49  */
+  assign n1735_o = n1729_o ? 2'b00 : 2'b01;
+  /* T65_MCode.vhd:619:49  */
+  assign n1738_o = n1729_o ? 2'b01 : 2'b00;
+  /* T65_MCode.vhd:617:41  */
+  assign n1740_o = n1713_o == 31'b0000000000000000000000000000011;
+  /* T65_MCode.vhd:625:41  */
+  assign n1742_o = n1713_o == 31'b0000000000000000000000000000100;
+  assign n1743_o = {n1742_o, n1740_o, n1727_o, n1715_o};
+  /* T65_MCode.vhd:604:41  */
   always @*
-    case (n1739_o)
-      4'b1000: n1741_o = 2'b00;
-      4'b0100: n1741_o = n1728_o;
-      4'b0010: n1741_o = n1721_o;
-      4'b0001: n1741_o = 2'b00;
-      default: n1741_o = 2'b00;
-    endcase
-  /* T65_MCode.vhd:600:41  */
-  always @*
-    case (n1739_o)
-      4'b1000: n1745_o = 2'b10;
-      4'b0100: n1745_o = n1731_o;
-      4'b0010: n1745_o = n1716_o;
-      4'b0001: n1745_o = 2'b01;
+    case (n1743_o)
+      4'b1000: n1745_o = 2'b00;
+      4'b0100: n1745_o = n1732_o;
+      4'b0010: n1745_o = n1725_o;
+      4'b0001: n1745_o = 2'b00;
       default: n1745_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:600:41  */
+  /* T65_MCode.vhd:604:41  */
   always @*
-    case (n1739_o)
-      4'b1000: n1747_o = 2'b00;
-      4'b0100: n1747_o = n1734_o;
-      4'b0010: n1747_o = 2'b00;
-      4'b0001: n1747_o = 2'b00;
-      default: n1747_o = 2'b00;
+    case (n1743_o)
+      4'b1000: n1749_o = 2'b10;
+      4'b0100: n1749_o = n1735_o;
+      4'b0010: n1749_o = n1720_o;
+      4'b0001: n1749_o = 2'b01;
+      default: n1749_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:600:41  */
+  /* T65_MCode.vhd:604:41  */
   always @*
-    case (n1739_o)
-      4'b1000: n1751_o = 1'b0;
-      4'b0100: n1751_o = 1'b1;
-      4'b0010: n1751_o = 1'b0;
-      4'b0001: n1751_o = 1'b1;
-      default: n1751_o = 1'b0;
+    case (n1743_o)
+      4'b1000: n1751_o = 2'b00;
+      4'b0100: n1751_o = n1738_o;
+      4'b0010: n1751_o = 2'b00;
+      4'b0001: n1751_o = 2'b00;
+      default: n1751_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:600:41  */
+  /* T65_MCode.vhd:604:41  */
   always @*
-    case (n1739_o)
-      4'b1000: n1754_o = 1'b0;
-      4'b0100: n1754_o = 1'b0;
-      4'b0010: n1754_o = 1'b0;
-      4'b0001: n1754_o = 1'b1;
-      default: n1754_o = 1'b0;
+    case (n1743_o)
+      4'b1000: n1755_o = 1'b0;
+      4'b0100: n1755_o = 1'b1;
+      4'b0010: n1755_o = 1'b0;
+      4'b0001: n1755_o = 1'b1;
+      default: n1755_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:600:41  */
+  /* T65_MCode.vhd:604:41  */
   always @*
-    case (n1739_o)
-      4'b1000: n1757_o = 1'b0;
-      4'b0100: n1757_o = 1'b0;
-      4'b0010: n1757_o = 1'b1;
-      4'b0001: n1757_o = 1'b0;
-      default: n1757_o = 1'b0;
+    case (n1743_o)
+      4'b1000: n1758_o = 1'b0;
+      4'b0100: n1758_o = 1'b0;
+      4'b0010: n1758_o = 1'b0;
+      4'b0001: n1758_o = 1'b1;
+      default: n1758_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:586:33  */
-  assign n1760_o = n1695_o ? 3'b010 : 3'b100;
-  /* T65_MCode.vhd:586:33  */
-  assign n1762_o = n1695_o ? 2'b00 : n1741_o;
-  /* T65_MCode.vhd:586:33  */
-  assign n1763_o = n1695_o ? n1705_o : n1745_o;
-  /* T65_MCode.vhd:586:33  */
-  assign n1765_o = n1695_o ? 2'b00 : n1747_o;
-  /* T65_MCode.vhd:586:33  */
-  assign n1766_o = n1695_o ? n1708_o : n1751_o;
-  /* T65_MCode.vhd:586:33  */
-  assign n1768_o = n1695_o ? 1'b0 : n1754_o;
-  /* T65_MCode.vhd:586:33  */
-  assign n1770_o = n1695_o ? 1'b0 : n1757_o;
-  /* T65_MCode.vhd:628:38  */
-  assign n1771_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:630:46  */
-  assign n1772_o = ir[7:5];
-  /* T65_MCode.vhd:630:59  */
-  assign n1774_o = n1772_o == 3'b001;
-  /* T65_MCode.vhd:630:41  */
-  assign n1777_o = n1774_o ? 1'b1 : 1'b0;
-  /* T65_MCode.vhd:629:33  */
-  assign n1779_o = n1771_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:604:41  */
+  always @*
+    case (n1743_o)
+      4'b1000: n1761_o = 1'b0;
+      4'b0100: n1761_o = 1'b0;
+      4'b0010: n1761_o = 1'b1;
+      4'b0001: n1761_o = 1'b0;
+      default: n1761_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:590:33  */
+  assign n1764_o = n1699_o ? 3'b010 : 3'b100;
+  /* T65_MCode.vhd:590:33  */
+  assign n1766_o = n1699_o ? 2'b00 : n1745_o;
+  /* T65_MCode.vhd:590:33  */
+  assign n1767_o = n1699_o ? n1709_o : n1749_o;
+  /* T65_MCode.vhd:590:33  */
+  assign n1769_o = n1699_o ? 2'b00 : n1751_o;
+  /* T65_MCode.vhd:590:33  */
+  assign n1770_o = n1699_o ? n1712_o : n1755_o;
+  /* T65_MCode.vhd:590:33  */
+  assign n1772_o = n1699_o ? 1'b0 : n1758_o;
+  /* T65_MCode.vhd:590:33  */
+  assign n1774_o = n1699_o ? 1'b0 : n1761_o;
+  /* T65_MCode.vhd:632:38  */
+  assign n1775_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:634:46  */
+  assign n1776_o = ir[7:5];
+  /* T65_MCode.vhd:634:59  */
+  assign n1778_o = n1776_o == 3'b001;
+  /* T65_MCode.vhd:634:41  */
+  assign n1781_o = n1778_o ? 1'b1 : 1'b0;
   /* T65_MCode.vhd:633:33  */
-  assign n1781_o = n1771_o == 31'b0000000000000000000000000000001;
-  /* T65_MCode.vhd:639:46  */
-  assign n1782_o = ir[7:5];
-  /* T65_MCode.vhd:639:59  */
-  assign n1784_o = n1782_o == 3'b100;
-  /* T65_MCode.vhd:639:41  */
-  assign n1787_o = n1784_o ? 1'b1 : 1'b0;
-  /* T65_MCode.vhd:636:33  */
-  assign n1789_o = n1771_o == 31'b0000000000000000000000000000010;
-  /* T65_MCode.vhd:643:33  */
-  assign n1791_o = n1771_o == 31'b0000000000000000000000000000011;
-  assign n1792_o = {n1791_o, n1789_o, n1781_o, n1779_o};
-  /* T65_MCode.vhd:628:33  */
+  assign n1783_o = n1775_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:637:33  */
+  assign n1785_o = n1775_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:643:46  */
+  assign n1786_o = ir[7:5];
+  /* T65_MCode.vhd:643:59  */
+  assign n1788_o = n1786_o == 3'b100;
+  /* T65_MCode.vhd:643:41  */
+  assign n1791_o = n1788_o ? 1'b1 : 1'b0;
+  /* T65_MCode.vhd:640:33  */
+  assign n1793_o = n1775_o == 31'b0000000000000000000000000000010;
+  /* T65_MCode.vhd:647:33  */
+  assign n1795_o = n1775_o == 31'b0000000000000000000000000000011;
+  assign n1796_o = {n1795_o, n1793_o, n1785_o, n1783_o};
+  /* T65_MCode.vhd:632:33  */
   always @*
-    case (n1792_o)
-      4'b1000: n1795_o = 2'b00;
-      4'b0100: n1795_o = 2'b11;
-      4'b0010: n1795_o = 2'b00;
-      4'b0001: n1795_o = 2'b00;
-      default: n1795_o = 2'b00;
-    endcase
-  /* T65_MCode.vhd:628:33  */
-  always @*
-    case (n1792_o)
+    case (n1796_o)
       4'b1000: n1799_o = 2'b00;
-      4'b0100: n1799_o = 2'b01;
-      4'b0010: n1799_o = 2'b01;
+      4'b0100: n1799_o = 2'b11;
+      4'b0010: n1799_o = 2'b00;
       4'b0001: n1799_o = 2'b00;
       default: n1799_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:628:33  */
+  /* T65_MCode.vhd:632:33  */
   always @*
-    case (n1792_o)
-      4'b1000: n1802_o = 1'b0;
-      4'b0100: n1802_o = 1'b0;
-      4'b0010: n1802_o = 1'b1;
-      4'b0001: n1802_o = 1'b0;
-      default: n1802_o = 1'b0;
+    case (n1796_o)
+      4'b1000: n1803_o = 2'b00;
+      4'b0100: n1803_o = 2'b01;
+      4'b0010: n1803_o = 2'b01;
+      4'b0001: n1803_o = 2'b00;
+      default: n1803_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:628:33  */
+  /* T65_MCode.vhd:632:33  */
   always @*
-    case (n1792_o)
-      4'b1000: n1805_o = 1'b0;
-      4'b0100: n1805_o = 1'b1;
-      4'b0010: n1805_o = 1'b0;
-      4'b0001: n1805_o = 1'b0;
-      default: n1805_o = 1'b0;
+    case (n1796_o)
+      4'b1000: n1806_o = 1'b0;
+      4'b0100: n1806_o = 1'b0;
+      4'b0010: n1806_o = 1'b1;
+      4'b0001: n1806_o = 1'b0;
+      default: n1806_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:628:33  */
+  /* T65_MCode.vhd:632:33  */
   always @*
-    case (n1792_o)
-      4'b1000: n1807_o = 1'b0;
-      4'b0100: n1807_o = 1'b0;
-      4'b0010: n1807_o = 1'b0;
-      4'b0001: n1807_o = n1777_o;
-      default: n1807_o = 1'b0;
-    endcase
-  /* T65_MCode.vhd:628:33  */
-  always @*
-    case (n1792_o)
+    case (n1796_o)
       4'b1000: n1809_o = 1'b0;
-      4'b0100: n1809_o = n1787_o;
+      4'b0100: n1809_o = 1'b1;
       4'b0010: n1809_o = 1'b0;
       4'b0001: n1809_o = 1'b0;
       default: n1809_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:584:25  */
-  assign n1811_o = n1693_o ? n1760_o : 3'b011;
-  /* T65_MCode.vhd:584:25  */
-  assign n1812_o = n1693_o ? n1762_o : n1795_o;
-  /* T65_MCode.vhd:584:25  */
-  assign n1813_o = n1693_o ? n1763_o : n1799_o;
-  /* T65_MCode.vhd:584:25  */
-  assign n1815_o = n1693_o ? n1765_o : 2'b00;
-  /* T65_MCode.vhd:584:25  */
-  assign n1817_o = n1693_o ? n1766_o : 1'b0;
-  /* T65_MCode.vhd:584:25  */
-  assign n1818_o = n1693_o ? n1768_o : n1802_o;
-  /* T65_MCode.vhd:584:25  */
-  assign n1819_o = n1693_o ? n1770_o : n1805_o;
-  /* T65_MCode.vhd:584:25  */
-  assign n1821_o = n1693_o ? 1'b0 : n1807_o;
-  /* T65_MCode.vhd:584:25  */
-  assign n1823_o = n1693_o ? 1'b0 : n1809_o;
-  /* T65_MCode.vhd:581:17  */
-  assign n1825_o = n1039_o == 5'b01100;
-  /* T65_MCode.vhd:652:30  */
-  assign n1826_o = ir[7:6];
-  /* T65_MCode.vhd:652:43  */
-  assign n1828_o = n1826_o != 2'b10;
-  /* T65_MCode.vhd:652:57  */
-  assign n1829_o = ir[1:0];
-  /* T65_MCode.vhd:652:70  */
-  assign n1831_o = n1829_o == 2'b10;
-  /* T65_MCode.vhd:652:51  */
-  assign n1832_o = n1828_o & n1831_o;
-  /* T65_MCode.vhd:655:38  */
-  assign n1833_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:656:33  */
-  assign n1835_o = n1833_o == 31'b0000000000000000000000000000001;
-  /* T65_MCode.vhd:659:33  */
-  assign n1837_o = n1833_o == 31'b0000000000000000000000000000010;
-  /* T65_MCode.vhd:663:33  */
-  assign n1839_o = n1833_o == 31'b0000000000000000000000000000011;
-  /* T65_MCode.vhd:667:33  */
-  assign n1841_o = n1833_o == 31'b0000000000000000000000000000100;
-  /* T65_MCode.vhd:672:33  */
-  assign n1843_o = n1833_o == 31'b0000000000000000000000000000101;
-  assign n1844_o = {n1843_o, n1841_o, n1839_o, n1837_o, n1835_o};
-  /* T65_MCode.vhd:655:33  */
+  /* T65_MCode.vhd:632:33  */
   always @*
-    case (n1844_o)
-      5'b10000: n1849_o = 2'b00;
-      5'b01000: n1849_o = 2'b11;
-      5'b00100: n1849_o = 2'b11;
-      5'b00010: n1849_o = 2'b11;
-      5'b00001: n1849_o = 2'b00;
-      default: n1849_o = 2'b00;
+    case (n1796_o)
+      4'b1000: n1811_o = 1'b0;
+      4'b0100: n1811_o = 1'b0;
+      4'b0010: n1811_o = 1'b0;
+      4'b0001: n1811_o = n1781_o;
+      default: n1811_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:655:33  */
+  /* T65_MCode.vhd:632:33  */
   always @*
-    case (n1844_o)
+    case (n1796_o)
+      4'b1000: n1813_o = 1'b0;
+      4'b0100: n1813_o = n1791_o;
+      4'b0010: n1813_o = 1'b0;
+      4'b0001: n1813_o = 1'b0;
+      default: n1813_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:588:25  */
+  assign n1815_o = n1697_o ? n1764_o : 3'b011;
+  /* T65_MCode.vhd:588:25  */
+  assign n1816_o = n1697_o ? n1766_o : n1799_o;
+  /* T65_MCode.vhd:588:25  */
+  assign n1817_o = n1697_o ? n1767_o : n1803_o;
+  /* T65_MCode.vhd:588:25  */
+  assign n1819_o = n1697_o ? n1769_o : 2'b00;
+  /* T65_MCode.vhd:588:25  */
+  assign n1821_o = n1697_o ? n1770_o : 1'b0;
+  /* T65_MCode.vhd:588:25  */
+  assign n1822_o = n1697_o ? n1772_o : n1806_o;
+  /* T65_MCode.vhd:588:25  */
+  assign n1823_o = n1697_o ? n1774_o : n1809_o;
+  /* T65_MCode.vhd:588:25  */
+  assign n1825_o = n1697_o ? 1'b0 : n1811_o;
+  /* T65_MCode.vhd:588:25  */
+  assign n1827_o = n1697_o ? 1'b0 : n1813_o;
+  /* T65_MCode.vhd:585:17  */
+  assign n1829_o = n1039_o == 5'b01100;
+  /* T65_MCode.vhd:656:30  */
+  assign n1830_o = ir[7:6];
+  /* T65_MCode.vhd:656:43  */
+  assign n1832_o = n1830_o != 2'b10;
+  /* T65_MCode.vhd:656:57  */
+  assign n1833_o = ir[1:0];
+  /* T65_MCode.vhd:656:70  */
+  assign n1835_o = n1833_o == 2'b10;
+  /* T65_MCode.vhd:656:51  */
+  assign n1836_o = n1835_o & n1832_o;
+  /* T65_MCode.vhd:659:38  */
+  assign n1837_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:660:33  */
+  assign n1839_o = n1837_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:663:33  */
+  assign n1841_o = n1837_o == 31'b0000000000000000000000000000010;
+  /* T65_MCode.vhd:667:33  */
+  assign n1843_o = n1837_o == 31'b0000000000000000000000000000011;
+  /* T65_MCode.vhd:671:33  */
+  assign n1845_o = n1837_o == 31'b0000000000000000000000000000100;
+  /* T65_MCode.vhd:676:33  */
+  assign n1847_o = n1837_o == 31'b0000000000000000000000000000101;
+  assign n1848_o = {n1847_o, n1845_o, n1843_o, n1841_o, n1839_o};
+  /* T65_MCode.vhd:659:33  */
+  always @*
+    case (n1848_o)
       5'b10000: n1853_o = 2'b00;
-      5'b01000: n1853_o = 2'b00;
-      5'b00100: n1853_o = 2'b00;
-      5'b00010: n1853_o = 2'b01;
-      5'b00001: n1853_o = 2'b01;
+      5'b01000: n1853_o = 2'b11;
+      5'b00100: n1853_o = 2'b11;
+      5'b00010: n1853_o = 2'b11;
+      5'b00001: n1853_o = 2'b00;
       default: n1853_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:655:33  */
+  /* T65_MCode.vhd:659:33  */
   always @*
-    case (n1844_o)
-      5'b10000: n1856_o = 1'b0;
-      5'b01000: n1856_o = 1'b0;
-      5'b00100: n1856_o = 1'b1;
-      5'b00010: n1856_o = 1'b0;
-      5'b00001: n1856_o = 1'b0;
-      default: n1856_o = 1'b0;
+    case (n1848_o)
+      5'b10000: n1857_o = 2'b00;
+      5'b01000: n1857_o = 2'b00;
+      5'b00100: n1857_o = 2'b00;
+      5'b00010: n1857_o = 2'b01;
+      5'b00001: n1857_o = 2'b01;
+      default: n1857_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:655:33  */
+  /* T65_MCode.vhd:659:33  */
   always @*
-    case (n1844_o)
-      5'b10000: n1859_o = 1'b0;
-      5'b01000: n1859_o = 1'b1;
-      5'b00100: n1859_o = 1'b0;
-      5'b00010: n1859_o = 1'b0;
-      5'b00001: n1859_o = 1'b0;
-      default: n1859_o = 1'b0;
+    case (n1848_o)
+      5'b10000: n1860_o = 1'b0;
+      5'b01000: n1860_o = 1'b0;
+      5'b00100: n1860_o = 1'b1;
+      5'b00010: n1860_o = 1'b0;
+      5'b00001: n1860_o = 1'b0;
+      default: n1860_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:655:33  */
+  /* T65_MCode.vhd:659:33  */
   always @*
-    case (n1844_o)
-      5'b10000: n1862_o = 1'b0;
-      5'b01000: n1862_o = 1'b0;
-      5'b00100: n1862_o = 1'b0;
-      5'b00010: n1862_o = 1'b0;
-      5'b00001: n1862_o = 1'b1;
-      default: n1862_o = 1'b0;
+    case (n1848_o)
+      5'b10000: n1863_o = 1'b0;
+      5'b01000: n1863_o = 1'b1;
+      5'b00100: n1863_o = 1'b0;
+      5'b00010: n1863_o = 1'b0;
+      5'b00001: n1863_o = 1'b0;
+      default: n1863_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:655:33  */
+  /* T65_MCode.vhd:659:33  */
   always @*
-    case (n1844_o)
-      5'b10000: n1865_o = 1'b0;
-      5'b01000: n1865_o = 1'b0;
-      5'b00100: n1865_o = 1'b0;
-      5'b00010: n1865_o = 1'b1;
-      5'b00001: n1865_o = 1'b0;
-      default: n1865_o = 1'b0;
+    case (n1848_o)
+      5'b10000: n1866_o = 1'b0;
+      5'b01000: n1866_o = 1'b0;
+      5'b00100: n1866_o = 1'b0;
+      5'b00010: n1866_o = 1'b0;
+      5'b00001: n1866_o = 1'b1;
+      default: n1866_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:655:33  */
+  /* T65_MCode.vhd:659:33  */
   always @*
-    case (n1844_o)
+    case (n1848_o)
       5'b10000: n1869_o = 1'b0;
-      5'b01000: n1869_o = 1'b1;
+      5'b01000: n1869_o = 1'b0;
       5'b00100: n1869_o = 1'b0;
-      5'b00010: n1869_o = 1'b0;
+      5'b00010: n1869_o = 1'b1;
       5'b00001: n1869_o = 1'b0;
       default: n1869_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:655:33  */
+  /* T65_MCode.vhd:659:33  */
   always @*
-    case (n1844_o)
+    case (n1848_o)
       5'b10000: n1873_o = 1'b0;
       5'b01000: n1873_o = 1'b1;
-      5'b00100: n1873_o = 1'b1;
+      5'b00100: n1873_o = 1'b0;
       5'b00010: n1873_o = 1'b0;
       5'b00001: n1873_o = 1'b0;
       default: n1873_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:678:38  */
-  assign n1874_o = ir[7:6];
-  /* T65_MCode.vhd:678:51  */
-  assign n1876_o = n1874_o != 2'b10;
-  /* T65_MCode.vhd:678:33  */
-  assign n1878_o = n1876_o ? 1'b1 : n1022_o;
-  /* T65_MCode.vhd:681:38  */
-  assign n1879_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:682:33  */
-  assign n1881_o = n1879_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:683:33  */
-  assign n1883_o = n1879_o == 31'b0000000000000000000000000000001;
-  /* T65_MCode.vhd:689:46  */
-  assign n1884_o = ir[7:5];
-  /* T65_MCode.vhd:689:59  */
-  assign n1886_o = n1884_o == 3'b100;
-  /* T65_MCode.vhd:689:41  */
-  assign n1889_o = n1886_o ? 1'b1 : 1'b0;
-  /* T65_MCode.vhd:686:33  */
-  assign n1891_o = n1879_o == 31'b0000000000000000000000000000010;
-  /* T65_MCode.vhd:693:33  */
-  assign n1893_o = n1879_o == 31'b0000000000000000000000000000011;
-  assign n1894_o = {n1893_o, n1891_o, n1883_o, n1881_o};
-  /* T65_MCode.vhd:681:33  */
+  /* T65_MCode.vhd:659:33  */
   always @*
-    case (n1894_o)
-      4'b1000: n1897_o = 2'b00;
-      4'b0100: n1897_o = 2'b11;
-      4'b0010: n1897_o = 2'b00;
-      4'b0001: n1897_o = 2'b00;
-      default: n1897_o = 2'b00;
+    case (n1848_o)
+      5'b10000: n1877_o = 1'b0;
+      5'b01000: n1877_o = 1'b1;
+      5'b00100: n1877_o = 1'b1;
+      5'b00010: n1877_o = 1'b0;
+      5'b00001: n1877_o = 1'b0;
+      default: n1877_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:681:33  */
+  /* T65_MCode.vhd:682:38  */
+  assign n1878_o = ir[7:6];
+  /* T65_MCode.vhd:682:51  */
+  assign n1880_o = n1878_o != 2'b10;
+  /* T65_MCode.vhd:682:33  */
+  assign n1882_o = n1880_o ? 1'b1 : n1022_o;
+  /* T65_MCode.vhd:685:38  */
+  assign n1883_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:686:33  */
+  assign n1885_o = n1883_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:687:33  */
+  assign n1887_o = n1883_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:693:46  */
+  assign n1888_o = ir[7:5];
+  /* T65_MCode.vhd:693:59  */
+  assign n1890_o = n1888_o == 3'b100;
+  /* T65_MCode.vhd:693:41  */
+  assign n1893_o = n1890_o ? 1'b1 : 1'b0;
+  /* T65_MCode.vhd:690:33  */
+  assign n1895_o = n1883_o == 31'b0000000000000000000000000000010;
+  /* T65_MCode.vhd:697:33  */
+  assign n1897_o = n1883_o == 31'b0000000000000000000000000000011;
+  assign n1898_o = {n1897_o, n1895_o, n1887_o, n1885_o};
+  /* T65_MCode.vhd:685:33  */
   always @*
-    case (n1894_o)
+    case (n1898_o)
       4'b1000: n1901_o = 2'b00;
-      4'b0100: n1901_o = 2'b01;
-      4'b0010: n1901_o = 2'b01;
+      4'b0100: n1901_o = 2'b11;
+      4'b0010: n1901_o = 2'b00;
       4'b0001: n1901_o = 2'b00;
       default: n1901_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:681:33  */
+  /* T65_MCode.vhd:685:33  */
   always @*
-    case (n1894_o)
-      4'b1000: n1904_o = 1'b0;
-      4'b0100: n1904_o = 1'b0;
-      4'b0010: n1904_o = 1'b1;
-      4'b0001: n1904_o = 1'b0;
-      default: n1904_o = 1'b0;
+    case (n1898_o)
+      4'b1000: n1905_o = 2'b00;
+      4'b0100: n1905_o = 2'b01;
+      4'b0010: n1905_o = 2'b01;
+      4'b0001: n1905_o = 2'b00;
+      default: n1905_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:681:33  */
+  /* T65_MCode.vhd:685:33  */
   always @*
-    case (n1894_o)
-      4'b1000: n1907_o = 1'b0;
-      4'b0100: n1907_o = 1'b1;
-      4'b0010: n1907_o = 1'b0;
-      4'b0001: n1907_o = 1'b0;
-      default: n1907_o = 1'b0;
+    case (n1898_o)
+      4'b1000: n1908_o = 1'b0;
+      4'b0100: n1908_o = 1'b0;
+      4'b0010: n1908_o = 1'b1;
+      4'b0001: n1908_o = 1'b0;
+      default: n1908_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:681:33  */
+  /* T65_MCode.vhd:685:33  */
   always @*
-    case (n1894_o)
-      4'b1000: n1909_o = 1'b0;
-      4'b0100: n1909_o = n1889_o;
-      4'b0010: n1909_o = 1'b0;
-      4'b0001: n1909_o = 1'b0;
-      default: n1909_o = 1'b0;
+    case (n1898_o)
+      4'b1000: n1911_o = 1'b0;
+      4'b0100: n1911_o = 1'b1;
+      4'b0010: n1911_o = 1'b0;
+      4'b0001: n1911_o = 1'b0;
+      default: n1911_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:652:25  */
-  assign n1912_o = n1832_o ? 3'b101 : 3'b011;
-  /* T65_MCode.vhd:652:25  */
-  assign n1913_o = n1832_o ? n1849_o : n1897_o;
-  /* T65_MCode.vhd:652:25  */
-  assign n1914_o = n1832_o ? n1853_o : n1901_o;
-  /* T65_MCode.vhd:652:25  */
-  assign n1915_o = n1832_o ? n1022_o : n1878_o;
-  /* T65_MCode.vhd:652:25  */
-  assign n1917_o = n1832_o ? n1856_o : 1'b0;
-  /* T65_MCode.vhd:652:25  */
-  assign n1919_o = n1832_o ? n1859_o : 1'b0;
-  /* T65_MCode.vhd:652:25  */
-  assign n1920_o = n1832_o ? n1862_o : n1904_o;
-  /* T65_MCode.vhd:652:25  */
-  assign n1921_o = n1832_o ? n1865_o : n1907_o;
-  /* T65_MCode.vhd:652:25  */
-  assign n1923_o = n1832_o ? n1869_o : 1'b0;
-  /* T65_MCode.vhd:652:25  */
-  assign n1924_o = n1832_o ? n1873_o : n1909_o;
-  /* T65_MCode.vhd:649:17  */
-  assign n1926_o = n1039_o == 5'b01101;
-  /* T65_MCode.vhd:649:30  */
-  assign n1928_o = n1039_o == 5'b01110;
-  /* T65_MCode.vhd:649:30  */
-  assign n1929_o = n1926_o | n1928_o;
-  /* T65_MCode.vhd:649:40  */
-  assign n1931_o = n1039_o == 5'b01111;
-  /* T65_MCode.vhd:649:40  */
-  assign n1932_o = n1929_o | n1931_o;
-  /* T65_MCode.vhd:707:25  */
-  assign n1935_o = branch ? 3'b011 : 3'b001;
-  /* T65_MCode.vhd:720:30  */
-  assign n1936_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:726:33  */
-  assign n1938_o = n1936_o == 31'b0000000000000000000000000000001;
-  /* T65_MCode.vhd:740:33  */
-  assign n1940_o = n1936_o == 31'b0000000000000000000000000000010;
-  /* T65_MCode.vhd:752:33  */
-  assign n1942_o = n1936_o == 31'b0000000000000000000000000000011;
-  assign n1943_o = {n1942_o, n1940_o, n1938_o};
-  /* T65_MCode.vhd:720:25  */
+  /* T65_MCode.vhd:685:33  */
   always @*
-    case (n1943_o)
-      3'b100: n1947_o = 2'b00;
-      3'b010: n1947_o = 2'b11;
-      3'b001: n1947_o = 2'b01;
-      default: n1947_o = 2'b00;
+    case (n1898_o)
+      4'b1000: n1913_o = 1'b0;
+      4'b0100: n1913_o = n1893_o;
+      4'b0010: n1913_o = 1'b0;
+      4'b0001: n1913_o = 1'b0;
+      default: n1913_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:720:25  */
+  /* T65_MCode.vhd:656:25  */
+  assign n1916_o = n1836_o ? 3'b101 : 3'b011;
+  /* T65_MCode.vhd:656:25  */
+  assign n1917_o = n1836_o ? n1853_o : n1901_o;
+  /* T65_MCode.vhd:656:25  */
+  assign n1918_o = n1836_o ? n1857_o : n1905_o;
+  /* T65_MCode.vhd:656:25  */
+  assign n1919_o = n1836_o ? n1022_o : n1882_o;
+  /* T65_MCode.vhd:656:25  */
+  assign n1921_o = n1836_o ? n1860_o : 1'b0;
+  /* T65_MCode.vhd:656:25  */
+  assign n1923_o = n1836_o ? n1863_o : 1'b0;
+  /* T65_MCode.vhd:656:25  */
+  assign n1924_o = n1836_o ? n1866_o : n1908_o;
+  /* T65_MCode.vhd:656:25  */
+  assign n1925_o = n1836_o ? n1869_o : n1911_o;
+  /* T65_MCode.vhd:656:25  */
+  assign n1927_o = n1836_o ? n1873_o : 1'b0;
+  /* T65_MCode.vhd:656:25  */
+  assign n1928_o = n1836_o ? n1877_o : n1913_o;
+  /* T65_MCode.vhd:653:17  */
+  assign n1930_o = n1039_o == 5'b01101;
+  /* T65_MCode.vhd:653:30  */
+  assign n1932_o = n1039_o == 5'b01110;
+  /* T65_MCode.vhd:653:30  */
+  assign n1933_o = n1930_o | n1932_o;
+  /* T65_MCode.vhd:653:40  */
+  assign n1935_o = n1039_o == 5'b01111;
+  /* T65_MCode.vhd:653:40  */
+  assign n1936_o = n1933_o | n1935_o;
+  /* T65_MCode.vhd:711:25  */
+  assign n1939_o = branch ? 3'b011 : 3'b001;
+  /* T65_MCode.vhd:724:30  */
+  assign n1940_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:730:33  */
+  assign n1942_o = n1940_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:744:33  */
+  assign n1944_o = n1940_o == 31'b0000000000000000000000000000010;
+  /* T65_MCode.vhd:756:33  */
+  assign n1946_o = n1940_o == 31'b0000000000000000000000000000011;
+  assign n1947_o = {n1946_o, n1944_o, n1942_o};
+  /* T65_MCode.vhd:724:25  */
   always @*
-    case (n1943_o)
-      3'b100: n1950_o = 1'b0;
-      3'b010: n1950_o = 1'b1;
-      3'b001: n1950_o = 1'b0;
-      default: n1950_o = 1'b0;
+    case (n1947_o)
+      3'b100: n1951_o = 2'b00;
+      3'b010: n1951_o = 2'b11;
+      3'b001: n1951_o = 2'b01;
+      default: n1951_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:720:25  */
+  /* T65_MCode.vhd:724:25  */
   always @*
-    case (n1943_o)
-      3'b100: n1953_o = 1'b0;
-      3'b010: n1953_o = 1'b0;
-      3'b001: n1953_o = 1'b1;
-      default: n1953_o = 1'b0;
+    case (n1947_o)
+      3'b100: n1954_o = 1'b0;
+      3'b010: n1954_o = 1'b1;
+      3'b001: n1954_o = 1'b0;
+      default: n1954_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:699:17  */
-  assign n1955_o = n1039_o == 5'b10000;
-  /* T65_MCode.vhd:764:30  */
-  assign n1956_o = ir[7:6];
-  /* T65_MCode.vhd:764:43  */
-  assign n1958_o = n1956_o != 2'b10;
-  /* T65_MCode.vhd:764:25  */
-  assign n1960_o = n1958_o ? 1'b1 : n1022_o;
-  /* T65_MCode.vhd:767:30  */
-  assign n1961_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:724:25  */
+  always @*
+    case (n1947_o)
+      3'b100: n1957_o = 1'b0;
+      3'b010: n1957_o = 1'b0;
+      3'b001: n1957_o = 1'b1;
+      default: n1957_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:703:17  */
+  assign n1959_o = n1039_o == 5'b10000;
+  /* T65_MCode.vhd:768:30  */
+  assign n1960_o = ir[7:6];
+  /* T65_MCode.vhd:768:43  */
+  assign n1962_o = n1960_o != 2'b10;
   /* T65_MCode.vhd:768:25  */
-  assign n1963_o = n1961_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:769:25  */
-  assign n1965_o = n1961_o == 31'b0000000000000000000000000000001;
+  assign n1964_o = n1962_o ? 1'b1 : n1022_o;
+  /* T65_MCode.vhd:771:30  */
+  assign n1965_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:772:25  */
+  assign n1967_o = n1965_o == 31'b0000000000000000000000000000000;
   /* T65_MCode.vhd:773:25  */
-  assign n1967_o = n1961_o == 31'b0000000000000000000000000000010;
+  assign n1969_o = n1965_o == 31'b0000000000000000000000000000001;
   /* T65_MCode.vhd:777:25  */
-  assign n1969_o = n1961_o == 31'b0000000000000000000000000000011;
-  /* T65_MCode.vhd:784:38  */
-  assign n1970_o = ir[7:5];
-  /* T65_MCode.vhd:784:51  */
-  assign n1972_o = n1970_o == 3'b100;
-  /* T65_MCode.vhd:784:33  */
-  assign n1975_o = n1972_o ? 1'b0 : 1'b1;
-  /* T65_MCode.vhd:784:33  */
-  assign n1978_o = n1972_o ? 1'b1 : 1'b0;
-  /* T65_MCode.vhd:782:25  */
-  assign n1980_o = n1961_o == 31'b0000000000000000000000000000100;
-  /* T65_MCode.vhd:790:25  */
-  assign n1982_o = n1961_o == 31'b0000000000000000000000000000101;
-  assign n1983_o = {n1982_o, n1980_o, n1969_o, n1967_o, n1965_o, n1963_o};
-  /* T65_MCode.vhd:767:25  */
+  assign n1971_o = n1965_o == 31'b0000000000000000000000000000010;
+  /* T65_MCode.vhd:781:25  */
+  assign n1973_o = n1965_o == 31'b0000000000000000000000000000011;
+  /* T65_MCode.vhd:788:38  */
+  assign n1974_o = ir[7:5];
+  /* T65_MCode.vhd:788:51  */
+  assign n1976_o = n1974_o == 3'b100;
+  /* T65_MCode.vhd:788:33  */
+  assign n1979_o = n1976_o ? 1'b0 : 1'b1;
+  /* T65_MCode.vhd:788:33  */
+  assign n1982_o = n1976_o ? 1'b1 : 1'b0;
+  /* T65_MCode.vhd:786:25  */
+  assign n1984_o = n1965_o == 31'b0000000000000000000000000000100;
+  /* T65_MCode.vhd:794:25  */
+  assign n1986_o = n1965_o == 31'b0000000000000000000000000000101;
+  assign n1987_o = {n1986_o, n1984_o, n1973_o, n1971_o, n1969_o, n1967_o};
+  /* T65_MCode.vhd:771:25  */
   always @*
-    case (n1983_o)
-      6'b100000: n1985_o = n1038_o;
-      6'b010000: n1985_o = n1038_o;
-      6'b001000: n1985_o = 3'b011;
-      6'b000100: n1985_o = n1038_o;
-      6'b000010: n1985_o = n1038_o;
-      6'b000001: n1985_o = n1038_o;
-      default: n1985_o = n1038_o;
+    case (n1987_o)
+      6'b100000: n1989_o = n1038_o;
+      6'b010000: n1989_o = n1038_o;
+      6'b001000: n1989_o = 3'b011;
+      6'b000100: n1989_o = n1038_o;
+      6'b000010: n1989_o = n1038_o;
+      6'b000001: n1989_o = n1038_o;
+      default: n1989_o = n1038_o;
     endcase
-  /* T65_MCode.vhd:767:25  */
+  /* T65_MCode.vhd:771:25  */
   always @*
-    case (n1983_o)
-      6'b100000: n1991_o = 2'b00;
-      6'b010000: n1991_o = 2'b11;
-      6'b001000: n1991_o = 2'b11;
-      6'b000100: n1991_o = 2'b10;
-      6'b000010: n1991_o = 2'b10;
-      6'b000001: n1991_o = 2'b00;
-      default: n1991_o = 2'b00;
+    case (n1987_o)
+      6'b100000: n1995_o = 2'b00;
+      6'b010000: n1995_o = 2'b11;
+      6'b001000: n1995_o = 2'b11;
+      6'b000100: n1995_o = 2'b10;
+      6'b000010: n1995_o = 2'b10;
+      6'b000001: n1995_o = 2'b00;
+      default: n1995_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:767:25  */
+  /* T65_MCode.vhd:771:25  */
   always @*
-    case (n1983_o)
-      6'b100000: n1994_o = 2'b00;
-      6'b010000: n1994_o = 2'b00;
-      6'b001000: n1994_o = 2'b00;
-      6'b000100: n1994_o = 2'b00;
-      6'b000010: n1994_o = 2'b01;
-      6'b000001: n1994_o = 2'b00;
-      default: n1994_o = 2'b00;
+    case (n1987_o)
+      6'b100000: n1998_o = 2'b00;
+      6'b010000: n1998_o = 2'b00;
+      6'b001000: n1998_o = 2'b00;
+      6'b000100: n1998_o = 2'b00;
+      6'b000010: n1998_o = 2'b01;
+      6'b000001: n1998_o = 2'b00;
+      default: n1998_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:767:25  */
+  /* T65_MCode.vhd:771:25  */
   always @*
-    case (n1983_o)
-      6'b100000: n1999_o = 2'b00;
-      6'b010000: n1999_o = 2'b11;
-      6'b001000: n1999_o = 2'b10;
-      6'b000100: n1999_o = 2'b01;
-      6'b000010: n1999_o = 2'b00;
-      6'b000001: n1999_o = 2'b00;
-      default: n1999_o = 2'b00;
+    case (n1987_o)
+      6'b100000: n2003_o = 2'b00;
+      6'b010000: n2003_o = 2'b11;
+      6'b001000: n2003_o = 2'b10;
+      6'b000100: n2003_o = 2'b01;
+      6'b000010: n2003_o = 2'b00;
+      6'b000001: n2003_o = 2'b00;
+      default: n2003_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:767:25  */
+  /* T65_MCode.vhd:771:25  */
   always @*
-    case (n1983_o)
-      6'b100000: n2001_o = 1'b0;
-      6'b010000: n2001_o = n1975_o;
-      6'b001000: n2001_o = 1'b0;
-      6'b000100: n2001_o = 1'b0;
-      6'b000010: n2001_o = 1'b0;
-      6'b000001: n2001_o = 1'b0;
-      default: n2001_o = 1'b0;
+    case (n1987_o)
+      6'b100000: n2005_o = 1'b0;
+      6'b010000: n2005_o = n1979_o;
+      6'b001000: n2005_o = 1'b0;
+      6'b000100: n2005_o = 1'b0;
+      6'b000010: n2005_o = 1'b0;
+      6'b000001: n2005_o = 1'b0;
+      default: n2005_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:767:25  */
+  /* T65_MCode.vhd:771:25  */
   always @*
-    case (n1983_o)
-      6'b100000: n2004_o = 1'b0;
-      6'b010000: n2004_o = 1'b0;
-      6'b001000: n2004_o = 1'b0;
-      6'b000100: n2004_o = 1'b0;
-      6'b000010: n2004_o = 1'b1;
-      6'b000001: n2004_o = 1'b0;
-      default: n2004_o = 1'b0;
+    case (n1987_o)
+      6'b100000: n2008_o = 1'b0;
+      6'b010000: n2008_o = 1'b0;
+      6'b001000: n2008_o = 1'b0;
+      6'b000100: n2008_o = 1'b0;
+      6'b000010: n2008_o = 1'b1;
+      6'b000001: n2008_o = 1'b0;
+      default: n2008_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:767:25  */
+  /* T65_MCode.vhd:771:25  */
   always @*
-    case (n1983_o)
-      6'b100000: n2007_o = 1'b0;
-      6'b010000: n2007_o = 1'b0;
-      6'b001000: n2007_o = 1'b0;
-      6'b000100: n2007_o = 1'b1;
-      6'b000010: n2007_o = 1'b0;
-      6'b000001: n2007_o = 1'b0;
-      default: n2007_o = 1'b0;
+    case (n1987_o)
+      6'b100000: n2011_o = 1'b0;
+      6'b010000: n2011_o = 1'b0;
+      6'b001000: n2011_o = 1'b0;
+      6'b000100: n2011_o = 1'b1;
+      6'b000010: n2011_o = 1'b0;
+      6'b000001: n2011_o = 1'b0;
+      default: n2011_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:767:25  */
+  /* T65_MCode.vhd:771:25  */
   always @*
-    case (n1983_o)
-      6'b100000: n2010_o = 1'b0;
-      6'b010000: n2010_o = 1'b0;
-      6'b001000: n2010_o = 1'b1;
-      6'b000100: n2010_o = 1'b0;
-      6'b000010: n2010_o = 1'b0;
-      6'b000001: n2010_o = 1'b0;
-      default: n2010_o = 1'b0;
+    case (n1987_o)
+      6'b100000: n2014_o = 1'b0;
+      6'b010000: n2014_o = 1'b0;
+      6'b001000: n2014_o = 1'b1;
+      6'b000100: n2014_o = 1'b0;
+      6'b000010: n2014_o = 1'b0;
+      6'b000001: n2014_o = 1'b0;
+      default: n2014_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:767:25  */
+  /* T65_MCode.vhd:771:25  */
   always @*
-    case (n1983_o)
-      6'b100000: n2012_o = 1'b0;
-      6'b010000: n2012_o = n1978_o;
-      6'b001000: n2012_o = 1'b0;
-      6'b000100: n2012_o = 1'b0;
-      6'b000010: n2012_o = 1'b0;
-      6'b000001: n2012_o = 1'b0;
-      default: n2012_o = 1'b0;
+    case (n1987_o)
+      6'b100000: n2016_o = 1'b0;
+      6'b010000: n2016_o = n1982_o;
+      6'b001000: n2016_o = 1'b0;
+      6'b000100: n2016_o = 1'b0;
+      6'b000010: n2016_o = 1'b0;
+      6'b000001: n2016_o = 1'b0;
+      default: n2016_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:760:17  */
-  assign n2014_o = n1039_o == 5'b10001;
-  /* T65_MCode.vhd:760:30  */
-  assign n2016_o = n1039_o == 5'b10011;
-  /* T65_MCode.vhd:760:30  */
-  assign n2017_o = n2014_o | n2016_o;
-  /* T65_MCode.vhd:798:30  */
-  assign n2018_o = ir[7:6];
-  /* T65_MCode.vhd:798:43  */
-  assign n2020_o = n2018_o != 2'b10;
-  /* T65_MCode.vhd:798:57  */
-  assign n2021_o = ir[1:0];
-  /* T65_MCode.vhd:798:70  */
-  assign n2023_o = n2021_o == 2'b10;
-  /* T65_MCode.vhd:798:51  */
-  assign n2024_o = n2020_o & n2023_o;
-  /* T65_MCode.vhd:801:38  */
-  assign n2025_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:802:33  */
-  assign n2027_o = n2025_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:764:17  */
+  assign n2018_o = n1039_o == 5'b10001;
+  /* T65_MCode.vhd:764:30  */
+  assign n2020_o = n1039_o == 5'b10011;
+  /* T65_MCode.vhd:764:30  */
+  assign n2021_o = n2018_o | n2020_o;
+  /* T65_MCode.vhd:802:30  */
+  assign n2022_o = ir[7:6];
+  /* T65_MCode.vhd:802:43  */
+  assign n2024_o = n2022_o != 2'b10;
+  /* T65_MCode.vhd:802:57  */
+  assign n2025_o = ir[1:0];
+  /* T65_MCode.vhd:802:70  */
+  assign n2027_o = n2025_o == 2'b10;
+  /* T65_MCode.vhd:802:51  */
+  assign n2028_o = n2027_o & n2024_o;
+  /* T65_MCode.vhd:805:38  */
+  assign n2029_o = {28'b0, mcycle};  //  uext
   /* T65_MCode.vhd:806:33  */
-  assign n2029_o = n2025_o == 31'b0000000000000000000000000000010;
-  /* T65_MCode.vhd:809:33  */
-  assign n2031_o = n2025_o == 31'b0000000000000000000000000000011;
+  assign n2031_o = n2029_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:810:33  */
+  assign n2033_o = n2029_o == 31'b0000000000000000000000000000010;
   /* T65_MCode.vhd:813:33  */
-  assign n2033_o = n2025_o == 31'b0000000000000000000000000000100;
-  /* T65_MCode.vhd:818:33  */
-  assign n2035_o = n2025_o == 31'b0000000000000000000000000000101;
-  assign n2036_o = {n2035_o, n2033_o, n2031_o, n2029_o, n2027_o};
-  /* T65_MCode.vhd:801:33  */
+  assign n2035_o = n2029_o == 31'b0000000000000000000000000000011;
+  /* T65_MCode.vhd:817:33  */
+  assign n2037_o = n2029_o == 31'b0000000000000000000000000000100;
+  /* T65_MCode.vhd:822:33  */
+  assign n2039_o = n2029_o == 31'b0000000000000000000000000000101;
+  assign n2040_o = {n2039_o, n2037_o, n2035_o, n2033_o, n2031_o};
+  /* T65_MCode.vhd:805:33  */
   always @*
-    case (n2036_o)
-      5'b10000: n2042_o = 2'b00;
-      5'b01000: n2042_o = 2'b10;
-      5'b00100: n2042_o = 2'b10;
-      5'b00010: n2042_o = 2'b10;
-      5'b00001: n2042_o = 2'b10;
-      default: n2042_o = 2'b00;
+    case (n2040_o)
+      5'b10000: n2046_o = 2'b00;
+      5'b01000: n2046_o = 2'b10;
+      5'b00100: n2046_o = 2'b10;
+      5'b00010: n2046_o = 2'b10;
+      5'b00001: n2046_o = 2'b10;
+      default: n2046_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:801:33  */
+  /* T65_MCode.vhd:805:33  */
   always @*
-    case (n2036_o)
-      5'b10000: n2045_o = 2'b00;
-      5'b01000: n2045_o = 2'b00;
-      5'b00100: n2045_o = 2'b00;
-      5'b00010: n2045_o = 2'b00;
-      5'b00001: n2045_o = 2'b01;
-      default: n2045_o = 2'b00;
+    case (n2040_o)
+      5'b10000: n2049_o = 2'b00;
+      5'b01000: n2049_o = 2'b00;
+      5'b00100: n2049_o = 2'b00;
+      5'b00010: n2049_o = 2'b00;
+      5'b00001: n2049_o = 2'b01;
+      default: n2049_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:801:33  */
+  /* T65_MCode.vhd:805:33  */
   always @*
-    case (n2036_o)
-      5'b10000: n2048_o = 1'b0;
-      5'b01000: n2048_o = 1'b0;
-      5'b00100: n2048_o = 1'b0;
-      5'b00010: n2048_o = 1'b1;
-      5'b00001: n2048_o = 1'b0;
-      default: n2048_o = 1'b0;
+    case (n2040_o)
+      5'b10000: n2052_o = 1'b0;
+      5'b01000: n2052_o = 1'b0;
+      5'b00100: n2052_o = 1'b0;
+      5'b00010: n2052_o = 1'b1;
+      5'b00001: n2052_o = 1'b0;
+      default: n2052_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:801:33  */
+  /* T65_MCode.vhd:805:33  */
   always @*
-    case (n2036_o)
-      5'b10000: n2051_o = 1'b0;
-      5'b01000: n2051_o = 1'b0;
-      5'b00100: n2051_o = 1'b1;
-      5'b00010: n2051_o = 1'b0;
-      5'b00001: n2051_o = 1'b0;
-      default: n2051_o = 1'b0;
+    case (n2040_o)
+      5'b10000: n2055_o = 1'b0;
+      5'b01000: n2055_o = 1'b0;
+      5'b00100: n2055_o = 1'b1;
+      5'b00010: n2055_o = 1'b0;
+      5'b00001: n2055_o = 1'b0;
+      default: n2055_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:801:33  */
+  /* T65_MCode.vhd:805:33  */
   always @*
-    case (n2036_o)
-      5'b10000: n2054_o = 1'b0;
-      5'b01000: n2054_o = 1'b1;
-      5'b00100: n2054_o = 1'b0;
-      5'b00010: n2054_o = 1'b0;
-      5'b00001: n2054_o = 1'b0;
-      default: n2054_o = 1'b0;
+    case (n2040_o)
+      5'b10000: n2058_o = 1'b0;
+      5'b01000: n2058_o = 1'b1;
+      5'b00100: n2058_o = 1'b0;
+      5'b00010: n2058_o = 1'b0;
+      5'b00001: n2058_o = 1'b0;
+      default: n2058_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:801:33  */
+  /* T65_MCode.vhd:805:33  */
   always @*
-    case (n2036_o)
-      5'b10000: n2057_o = 1'b0;
-      5'b01000: n2057_o = 1'b0;
-      5'b00100: n2057_o = 1'b0;
-      5'b00010: n2057_o = 1'b0;
-      5'b00001: n2057_o = 1'b1;
-      default: n2057_o = 1'b0;
+    case (n2040_o)
+      5'b10000: n2061_o = 1'b0;
+      5'b01000: n2061_o = 1'b0;
+      5'b00100: n2061_o = 1'b0;
+      5'b00010: n2061_o = 1'b0;
+      5'b00001: n2061_o = 1'b1;
+      default: n2061_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:801:33  */
+  /* T65_MCode.vhd:805:33  */
   always @*
-    case (n2036_o)
-      5'b10000: n2060_o = 1'b0;
-      5'b01000: n2060_o = 1'b1;
-      5'b00100: n2060_o = 1'b0;
-      5'b00010: n2060_o = 1'b0;
-      5'b00001: n2060_o = 1'b0;
-      default: n2060_o = 1'b0;
-    endcase
-  /* T65_MCode.vhd:801:33  */
-  always @*
-    case (n2036_o)
+    case (n2040_o)
       5'b10000: n2064_o = 1'b0;
       5'b01000: n2064_o = 1'b1;
-      5'b00100: n2064_o = 1'b1;
+      5'b00100: n2064_o = 1'b0;
       5'b00010: n2064_o = 1'b0;
       5'b00001: n2064_o = 1'b0;
       default: n2064_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:823:38  */
-  assign n2065_o = ir[7:6];
-  /* T65_MCode.vhd:823:51  */
-  assign n2067_o = n2065_o != 2'b10;
-  /* T65_MCode.vhd:823:33  */
-  assign n2069_o = n2067_o ? 1'b1 : n1022_o;
-  /* T65_MCode.vhd:826:38  */
-  assign n2070_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:805:33  */
+  always @*
+    case (n2040_o)
+      5'b10000: n2068_o = 1'b0;
+      5'b01000: n2068_o = 1'b1;
+      5'b00100: n2068_o = 1'b1;
+      5'b00010: n2068_o = 1'b0;
+      5'b00001: n2068_o = 1'b0;
+      default: n2068_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:827:38  */
+  assign n2069_o = ir[7:6];
+  /* T65_MCode.vhd:827:51  */
+  assign n2071_o = n2069_o != 2'b10;
   /* T65_MCode.vhd:827:33  */
-  assign n2072_o = n2070_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:828:33  */
-  assign n2074_o = n2070_o == 31'b0000000000000000000000000000001;
-  /* T65_MCode.vhd:835:47  */
-  assign n2075_o = ir[3:0];
-  /* T65_MCode.vhd:835:60  */
-  assign n2077_o = n2075_o == 4'b0110;
-  /* T65_MCode.vhd:835:41  */
-  assign n2080_o = n2077_o ? 1'b1 : 1'b0;
-  /* T65_MCode.vhd:839:46  */
-  assign n2081_o = ir[7:5];
-  /* T65_MCode.vhd:839:59  */
-  assign n2083_o = n2081_o == 3'b100;
-  /* T65_MCode.vhd:839:41  */
-  assign n2086_o = n2083_o ? 1'b1 : 1'b0;
+  assign n2073_o = n2071_o ? 1'b1 : n1022_o;
+  /* T65_MCode.vhd:830:38  */
+  assign n2074_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:831:33  */
+  assign n2076_o = n2074_o == 31'b0000000000000000000000000000000;
   /* T65_MCode.vhd:832:33  */
-  assign n2088_o = n2070_o == 31'b0000000000000000000000000000010;
-  /* T65_MCode.vhd:843:33  */
-  assign n2090_o = n2070_o == 31'b0000000000000000000000000000011;
-  assign n2091_o = {n2090_o, n2088_o, n2074_o, n2072_o};
-  /* T65_MCode.vhd:826:33  */
+  assign n2078_o = n2074_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:839:47  */
+  assign n2079_o = ir[3:0];
+  /* T65_MCode.vhd:839:60  */
+  assign n2081_o = n2079_o == 4'b0110;
+  /* T65_MCode.vhd:839:41  */
+  assign n2084_o = n2081_o ? 1'b1 : 1'b0;
+  /* T65_MCode.vhd:843:46  */
+  assign n2085_o = ir[7:5];
+  /* T65_MCode.vhd:843:59  */
+  assign n2087_o = n2085_o == 3'b100;
+  /* T65_MCode.vhd:843:41  */
+  assign n2090_o = n2087_o ? 1'b1 : 1'b0;
+  /* T65_MCode.vhd:836:33  */
+  assign n2092_o = n2074_o == 31'b0000000000000000000000000000010;
+  /* T65_MCode.vhd:847:33  */
+  assign n2094_o = n2074_o == 31'b0000000000000000000000000000011;
+  assign n2095_o = {n2094_o, n2092_o, n2078_o, n2076_o};
+  /* T65_MCode.vhd:830:33  */
   always @*
-    case (n2091_o)
-      4'b1000: n2095_o = 2'b00;
-      4'b0100: n2095_o = 2'b10;
-      4'b0010: n2095_o = 2'b10;
-      4'b0001: n2095_o = 2'b00;
-      default: n2095_o = 2'b00;
+    case (n2095_o)
+      4'b1000: n2099_o = 2'b00;
+      4'b0100: n2099_o = 2'b10;
+      4'b0010: n2099_o = 2'b10;
+      4'b0001: n2099_o = 2'b00;
+      default: n2099_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:826:33  */
+  /* T65_MCode.vhd:830:33  */
   always @*
-    case (n2091_o)
-      4'b1000: n2098_o = 2'b00;
-      4'b0100: n2098_o = 2'b00;
-      4'b0010: n2098_o = 2'b01;
-      4'b0001: n2098_o = 2'b00;
-      default: n2098_o = 2'b00;
+    case (n2095_o)
+      4'b1000: n2102_o = 2'b00;
+      4'b0100: n2102_o = 2'b00;
+      4'b0010: n2102_o = 2'b01;
+      4'b0001: n2102_o = 2'b00;
+      default: n2102_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:826:33  */
+  /* T65_MCode.vhd:830:33  */
   always @*
-    case (n2091_o)
-      4'b1000: n2101_o = 1'b0;
-      4'b0100: n2101_o = 1'b1;
-      4'b0010: n2101_o = 1'b0;
-      4'b0001: n2101_o = 1'b0;
-      default: n2101_o = 1'b0;
+    case (n2095_o)
+      4'b1000: n2105_o = 1'b0;
+      4'b0100: n2105_o = 1'b1;
+      4'b0010: n2105_o = 1'b0;
+      4'b0001: n2105_o = 1'b0;
+      default: n2105_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:826:33  */
+  /* T65_MCode.vhd:830:33  */
   always @*
-    case (n2091_o)
-      4'b1000: n2103_o = 1'b0;
-      4'b0100: n2103_o = n2080_o;
-      4'b0010: n2103_o = 1'b0;
-      4'b0001: n2103_o = 1'b0;
-      default: n2103_o = 1'b0;
+    case (n2095_o)
+      4'b1000: n2107_o = 1'b0;
+      4'b0100: n2107_o = n2084_o;
+      4'b0010: n2107_o = 1'b0;
+      4'b0001: n2107_o = 1'b0;
+      default: n2107_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:826:33  */
+  /* T65_MCode.vhd:830:33  */
   always @*
-    case (n2091_o)
-      4'b1000: n2106_o = 1'b0;
-      4'b0100: n2106_o = 1'b0;
-      4'b0010: n2106_o = 1'b1;
-      4'b0001: n2106_o = 1'b0;
-      default: n2106_o = 1'b0;
+    case (n2095_o)
+      4'b1000: n2110_o = 1'b0;
+      4'b0100: n2110_o = 1'b0;
+      4'b0010: n2110_o = 1'b1;
+      4'b0001: n2110_o = 1'b0;
+      default: n2110_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:826:33  */
+  /* T65_MCode.vhd:830:33  */
   always @*
-    case (n2091_o)
-      4'b1000: n2108_o = 1'b0;
-      4'b0100: n2108_o = n2086_o;
-      4'b0010: n2108_o = 1'b0;
-      4'b0001: n2108_o = 1'b0;
-      default: n2108_o = 1'b0;
+    case (n2095_o)
+      4'b1000: n2112_o = 1'b0;
+      4'b0100: n2112_o = n2090_o;
+      4'b0010: n2112_o = 1'b0;
+      4'b0001: n2112_o = 1'b0;
+      default: n2112_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:798:25  */
-  assign n2111_o = n2024_o ? 3'b101 : 3'b011;
-  /* T65_MCode.vhd:798:25  */
-  assign n2112_o = n2024_o ? n2042_o : n2095_o;
-  /* T65_MCode.vhd:798:25  */
-  assign n2113_o = n2024_o ? n2045_o : n2098_o;
-  /* T65_MCode.vhd:798:25  */
-  assign n2114_o = n2024_o ? n2048_o : n2101_o;
-  /* T65_MCode.vhd:798:25  */
-  assign n2116_o = n2024_o ? 1'b0 : n2103_o;
-  /* T65_MCode.vhd:798:25  */
-  assign n2117_o = n2024_o ? n1022_o : n2069_o;
-  /* T65_MCode.vhd:798:25  */
-  assign n2119_o = n2024_o ? n2051_o : 1'b0;
-  /* T65_MCode.vhd:798:25  */
-  assign n2121_o = n2024_o ? n2054_o : 1'b0;
-  /* T65_MCode.vhd:798:25  */
-  assign n2122_o = n2024_o ? n2057_o : n2106_o;
-  /* T65_MCode.vhd:798:25  */
-  assign n2124_o = n2024_o ? n2060_o : 1'b0;
-  /* T65_MCode.vhd:798:25  */
-  assign n2125_o = n2024_o ? n2064_o : n2108_o;
-  /* T65_MCode.vhd:795:17  */
-  assign n2127_o = n1039_o == 5'b10100;
-  /* T65_MCode.vhd:795:30  */
-  assign n2129_o = n1039_o == 5'b10101;
-  /* T65_MCode.vhd:795:30  */
-  assign n2130_o = n2127_o | n2129_o;
-  /* T65_MCode.vhd:795:40  */
-  assign n2132_o = n1039_o == 5'b10110;
-  /* T65_MCode.vhd:795:40  */
-  assign n2133_o = n2130_o | n2132_o;
-  /* T65_MCode.vhd:795:50  */
-  assign n2135_o = n1039_o == 5'b10111;
-  /* T65_MCode.vhd:795:50  */
-  assign n2136_o = n2133_o | n2135_o;
-  /* T65_MCode.vhd:853:30  */
-  assign n2137_o = ir[7:6];
-  /* T65_MCode.vhd:853:43  */
-  assign n2139_o = n2137_o != 2'b10;
-  /* T65_MCode.vhd:853:25  */
-  assign n2141_o = n2139_o ? 1'b1 : n1022_o;
-  /* T65_MCode.vhd:856:30  */
-  assign n2142_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:802:25  */
+  assign n2115_o = n2028_o ? 3'b101 : 3'b011;
+  /* T65_MCode.vhd:802:25  */
+  assign n2116_o = n2028_o ? n2046_o : n2099_o;
+  /* T65_MCode.vhd:802:25  */
+  assign n2117_o = n2028_o ? n2049_o : n2102_o;
+  /* T65_MCode.vhd:802:25  */
+  assign n2118_o = n2028_o ? n2052_o : n2105_o;
+  /* T65_MCode.vhd:802:25  */
+  assign n2120_o = n2028_o ? 1'b0 : n2107_o;
+  /* T65_MCode.vhd:802:25  */
+  assign n2121_o = n2028_o ? n1022_o : n2073_o;
+  /* T65_MCode.vhd:802:25  */
+  assign n2123_o = n2028_o ? n2055_o : 1'b0;
+  /* T65_MCode.vhd:802:25  */
+  assign n2125_o = n2028_o ? n2058_o : 1'b0;
+  /* T65_MCode.vhd:802:25  */
+  assign n2126_o = n2028_o ? n2061_o : n2110_o;
+  /* T65_MCode.vhd:802:25  */
+  assign n2128_o = n2028_o ? n2064_o : 1'b0;
+  /* T65_MCode.vhd:802:25  */
+  assign n2129_o = n2028_o ? n2068_o : n2112_o;
+  /* T65_MCode.vhd:799:17  */
+  assign n2131_o = n1039_o == 5'b10100;
+  /* T65_MCode.vhd:799:30  */
+  assign n2133_o = n1039_o == 5'b10101;
+  /* T65_MCode.vhd:799:30  */
+  assign n2134_o = n2131_o | n2133_o;
+  /* T65_MCode.vhd:799:40  */
+  assign n2136_o = n1039_o == 5'b10110;
+  /* T65_MCode.vhd:799:40  */
+  assign n2137_o = n2134_o | n2136_o;
+  /* T65_MCode.vhd:799:50  */
+  assign n2139_o = n1039_o == 5'b10111;
+  /* T65_MCode.vhd:799:50  */
+  assign n2140_o = n2137_o | n2139_o;
+  /* T65_MCode.vhd:857:30  */
+  assign n2141_o = ir[7:6];
+  /* T65_MCode.vhd:857:43  */
+  assign n2143_o = n2141_o != 2'b10;
   /* T65_MCode.vhd:857:25  */
-  assign n2144_o = n2142_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:858:25  */
-  assign n2146_o = n2142_o == 31'b0000000000000000000000000000001;
+  assign n2145_o = n2143_o ? 1'b1 : n1022_o;
+  /* T65_MCode.vhd:860:30  */
+  assign n2146_o = {28'b0, mcycle};  //  uext
   /* T65_MCode.vhd:861:25  */
-  assign n2148_o = n2142_o == 31'b0000000000000000000000000000010;
-  /* T65_MCode.vhd:869:38  */
-  assign n2149_o = ir[7:5];
-  /* T65_MCode.vhd:869:51  */
-  assign n2151_o = n2149_o == 3'b100;
-  /* T65_MCode.vhd:869:33  */
-  assign n2154_o = n2151_o ? 1'b0 : 1'b1;
-  /* T65_MCode.vhd:869:33  */
-  assign n2157_o = n2151_o ? 1'b1 : 1'b0;
-  /* T65_MCode.vhd:867:25  */
-  assign n2159_o = n2142_o == 31'b0000000000000000000000000000011;
-  /* T65_MCode.vhd:875:25  */
-  assign n2161_o = n2142_o == 31'b0000000000000000000000000000100;
-  assign n2162_o = {n2161_o, n2159_o, n2148_o, n2146_o, n2144_o};
-  /* T65_MCode.vhd:856:25  */
+  assign n2148_o = n2146_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:862:25  */
+  assign n2150_o = n2146_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:865:25  */
+  assign n2152_o = n2146_o == 31'b0000000000000000000000000000010;
+  /* T65_MCode.vhd:873:38  */
+  assign n2153_o = ir[7:5];
+  /* T65_MCode.vhd:873:51  */
+  assign n2155_o = n2153_o == 3'b100;
+  /* T65_MCode.vhd:873:33  */
+  assign n2158_o = n2155_o ? 1'b0 : 1'b1;
+  /* T65_MCode.vhd:873:33  */
+  assign n2161_o = n2155_o ? 1'b1 : 1'b0;
+  /* T65_MCode.vhd:871:25  */
+  assign n2163_o = n2146_o == 31'b0000000000000000000000000000011;
+  /* T65_MCode.vhd:879:25  */
+  assign n2165_o = n2146_o == 31'b0000000000000000000000000000100;
+  assign n2166_o = {n2165_o, n2163_o, n2152_o, n2150_o, n2148_o};
+  /* T65_MCode.vhd:860:25  */
   always @*
-    case (n2162_o)
-      5'b10000: n2164_o = n1038_o;
-      5'b01000: n2164_o = n1038_o;
-      5'b00100: n2164_o = 3'b011;
-      5'b00010: n2164_o = n1038_o;
-      5'b00001: n2164_o = n1038_o;
-      default: n2164_o = n1038_o;
+    case (n2166_o)
+      5'b10000: n2168_o = n1038_o;
+      5'b01000: n2168_o = n1038_o;
+      5'b00100: n2168_o = 3'b011;
+      5'b00010: n2168_o = n1038_o;
+      5'b00001: n2168_o = n1038_o;
+      default: n2168_o = n1038_o;
     endcase
-  /* T65_MCode.vhd:856:25  */
+  /* T65_MCode.vhd:860:25  */
   always @*
-    case (n2162_o)
-      5'b10000: n2168_o = 2'b00;
-      5'b01000: n2168_o = 2'b11;
-      5'b00100: n2168_o = 2'b11;
-      5'b00010: n2168_o = 2'b00;
-      5'b00001: n2168_o = 2'b00;
-      default: n2168_o = 2'b00;
-    endcase
-  /* T65_MCode.vhd:856:25  */
-  always @*
-    case (n2162_o)
+    case (n2166_o)
       5'b10000: n2172_o = 2'b00;
-      5'b01000: n2172_o = 2'b00;
-      5'b00100: n2172_o = 2'b01;
-      5'b00010: n2172_o = 2'b01;
+      5'b01000: n2172_o = 2'b11;
+      5'b00100: n2172_o = 2'b11;
+      5'b00010: n2172_o = 2'b00;
       5'b00001: n2172_o = 2'b00;
       default: n2172_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:856:25  */
+  /* T65_MCode.vhd:860:25  */
   always @*
-    case (n2162_o)
+    case (n2166_o)
       5'b10000: n2176_o = 2'b00;
-      5'b01000: n2176_o = 2'b11;
-      5'b00100: n2176_o = 2'b10;
-      5'b00010: n2176_o = 2'b00;
+      5'b01000: n2176_o = 2'b00;
+      5'b00100: n2176_o = 2'b01;
+      5'b00010: n2176_o = 2'b01;
       5'b00001: n2176_o = 2'b00;
       default: n2176_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:856:25  */
+  /* T65_MCode.vhd:860:25  */
   always @*
-    case (n2162_o)
-      5'b10000: n2178_o = 1'b0;
-      5'b01000: n2178_o = n2154_o;
-      5'b00100: n2178_o = 1'b0;
-      5'b00010: n2178_o = 1'b0;
-      5'b00001: n2178_o = 1'b0;
-      default: n2178_o = 1'b0;
+    case (n2166_o)
+      5'b10000: n2180_o = 2'b00;
+      5'b01000: n2180_o = 2'b11;
+      5'b00100: n2180_o = 2'b10;
+      5'b00010: n2180_o = 2'b00;
+      5'b00001: n2180_o = 2'b00;
+      default: n2180_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:856:25  */
+  /* T65_MCode.vhd:860:25  */
   always @*
-    case (n2162_o)
-      5'b10000: n2181_o = 1'b0;
-      5'b01000: n2181_o = 1'b0;
-      5'b00100: n2181_o = 1'b0;
-      5'b00010: n2181_o = 1'b1;
-      5'b00001: n2181_o = 1'b0;
-      default: n2181_o = 1'b0;
+    case (n2166_o)
+      5'b10000: n2182_o = 1'b0;
+      5'b01000: n2182_o = n2158_o;
+      5'b00100: n2182_o = 1'b0;
+      5'b00010: n2182_o = 1'b0;
+      5'b00001: n2182_o = 1'b0;
+      default: n2182_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:856:25  */
+  /* T65_MCode.vhd:860:25  */
   always @*
-    case (n2162_o)
-      5'b10000: n2184_o = 1'b0;
-      5'b01000: n2184_o = 1'b0;
-      5'b00100: n2184_o = 1'b1;
-      5'b00010: n2184_o = 1'b0;
-      5'b00001: n2184_o = 1'b0;
-      default: n2184_o = 1'b0;
+    case (n2166_o)
+      5'b10000: n2185_o = 1'b0;
+      5'b01000: n2185_o = 1'b0;
+      5'b00100: n2185_o = 1'b0;
+      5'b00010: n2185_o = 1'b1;
+      5'b00001: n2185_o = 1'b0;
+      default: n2185_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:856:25  */
+  /* T65_MCode.vhd:860:25  */
   always @*
-    case (n2162_o)
-      5'b10000: n2186_o = 1'b0;
-      5'b01000: n2186_o = n2157_o;
-      5'b00100: n2186_o = 1'b0;
-      5'b00010: n2186_o = 1'b0;
-      5'b00001: n2186_o = 1'b0;
-      default: n2186_o = 1'b0;
+    case (n2166_o)
+      5'b10000: n2188_o = 1'b0;
+      5'b01000: n2188_o = 1'b0;
+      5'b00100: n2188_o = 1'b1;
+      5'b00010: n2188_o = 1'b0;
+      5'b00001: n2188_o = 1'b0;
+      default: n2188_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:849:17  */
-  assign n2188_o = n1039_o == 5'b11001;
-  /* T65_MCode.vhd:849:30  */
-  assign n2190_o = n1039_o == 5'b11011;
-  /* T65_MCode.vhd:849:30  */
-  assign n2191_o = n2188_o | n2190_o;
-  /* T65_MCode.vhd:884:30  */
-  assign n2192_o = ir[7:6];
-  /* T65_MCode.vhd:884:43  */
-  assign n2194_o = n2192_o != 2'b10;
-  /* T65_MCode.vhd:884:57  */
-  assign n2195_o = ir[1:0];
-  /* T65_MCode.vhd:884:70  */
-  assign n2197_o = n2195_o == 2'b10;
-  /* T65_MCode.vhd:884:51  */
-  assign n2198_o = n2194_o & n2197_o;
-  /* T65_MCode.vhd:887:38  */
-  assign n2199_o = {28'b0, mcycle};  //  uext
-  /* T65_MCode.vhd:888:33  */
-  assign n2201_o = n2199_o == 31'b0000000000000000000000000000001;
-  /* T65_MCode.vhd:891:33  */
-  assign n2203_o = n2199_o == 31'b0000000000000000000000000000010;
-  /* T65_MCode.vhd:897:33  */
-  assign n2205_o = n2199_o == 31'b0000000000000000000000000000011;
-  /* T65_MCode.vhd:900:33  */
-  assign n2207_o = n2199_o == 31'b0000000000000000000000000000100;
+  /* T65_MCode.vhd:860:25  */
+  always @*
+    case (n2166_o)
+      5'b10000: n2190_o = 1'b0;
+      5'b01000: n2190_o = n2161_o;
+      5'b00100: n2190_o = 1'b0;
+      5'b00010: n2190_o = 1'b0;
+      5'b00001: n2190_o = 1'b0;
+      default: n2190_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:853:17  */
+  assign n2192_o = n1039_o == 5'b11001;
+  /* T65_MCode.vhd:853:30  */
+  assign n2194_o = n1039_o == 5'b11011;
+  /* T65_MCode.vhd:853:30  */
+  assign n2195_o = n2192_o | n2194_o;
+  /* T65_MCode.vhd:888:30  */
+  assign n2196_o = ir[7:6];
+  /* T65_MCode.vhd:888:43  */
+  assign n2198_o = n2196_o != 2'b10;
+  /* T65_MCode.vhd:888:57  */
+  assign n2199_o = ir[1:0];
+  /* T65_MCode.vhd:888:70  */
+  assign n2201_o = n2199_o == 2'b10;
+  /* T65_MCode.vhd:888:51  */
+  assign n2202_o = n2201_o & n2198_o;
+  /* T65_MCode.vhd:891:38  */
+  assign n2203_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:892:33  */
+  assign n2205_o = n2203_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:895:33  */
+  assign n2207_o = n2203_o == 31'b0000000000000000000000000000010;
+  /* T65_MCode.vhd:901:33  */
+  assign n2209_o = n2203_o == 31'b0000000000000000000000000000011;
   /* T65_MCode.vhd:904:33  */
-  assign n2209_o = n2199_o == 31'b0000000000000000000000000000101;
-  /* T65_MCode.vhd:909:33  */
-  assign n2211_o = n2199_o == 31'b0000000000000000000000000000110;
-  assign n2212_o = {n2211_o, n2209_o, n2207_o, n2205_o, n2203_o, n2201_o};
-  /* T65_MCode.vhd:887:33  */
+  assign n2211_o = n2203_o == 31'b0000000000000000000000000000100;
+  /* T65_MCode.vhd:908:33  */
+  assign n2213_o = n2203_o == 31'b0000000000000000000000000000101;
+  /* T65_MCode.vhd:913:33  */
+  assign n2215_o = n2203_o == 31'b0000000000000000000000000000110;
+  assign n2216_o = {n2215_o, n2213_o, n2211_o, n2209_o, n2207_o, n2205_o};
+  /* T65_MCode.vhd:891:33  */
   always @*
-    case (n2212_o)
-      6'b100000: n2214_o = n1038_o;
-      6'b010000: n2214_o = n1038_o;
-      6'b001000: n2214_o = n1038_o;
-      6'b000100: n2214_o = n1038_o;
-      6'b000010: n2214_o = 3'b010;
-      6'b000001: n2214_o = n1038_o;
-      default: n2214_o = n1038_o;
+    case (n2216_o)
+      6'b100000: n2218_o = n1038_o;
+      6'b010000: n2218_o = n1038_o;
+      6'b001000: n2218_o = n1038_o;
+      6'b000100: n2218_o = n1038_o;
+      6'b000010: n2218_o = 3'b010;
+      6'b000001: n2218_o = n1038_o;
+      default: n2218_o = n1038_o;
     endcase
-  /* T65_MCode.vhd:887:33  */
+  /* T65_MCode.vhd:891:33  */
   always @*
-    case (n2212_o)
-      6'b100000: n2220_o = 2'b00;
-      6'b010000: n2220_o = 2'b11;
-      6'b001000: n2220_o = 2'b11;
-      6'b000100: n2220_o = 2'b11;
-      6'b000010: n2220_o = 2'b11;
-      6'b000001: n2220_o = 2'b00;
-      default: n2220_o = 2'b00;
-    endcase
-  /* T65_MCode.vhd:887:33  */
-  always @*
-    case (n2212_o)
+    case (n2216_o)
       6'b100000: n2224_o = 2'b00;
-      6'b010000: n2224_o = 2'b00;
-      6'b001000: n2224_o = 2'b00;
-      6'b000100: n2224_o = 2'b00;
-      6'b000010: n2224_o = 2'b01;
-      6'b000001: n2224_o = 2'b01;
+      6'b010000: n2224_o = 2'b11;
+      6'b001000: n2224_o = 2'b11;
+      6'b000100: n2224_o = 2'b11;
+      6'b000010: n2224_o = 2'b11;
+      6'b000001: n2224_o = 2'b00;
       default: n2224_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:887:33  */
+  /* T65_MCode.vhd:891:33  */
   always @*
-    case (n2212_o)
+    case (n2216_o)
       6'b100000: n2228_o = 2'b00;
       6'b010000: n2228_o = 2'b00;
       6'b001000: n2228_o = 2'b00;
-      6'b000100: n2228_o = 2'b11;
-      6'b000010: n2228_o = 2'b10;
-      6'b000001: n2228_o = 2'b00;
+      6'b000100: n2228_o = 2'b00;
+      6'b000010: n2228_o = 2'b01;
+      6'b000001: n2228_o = 2'b01;
       default: n2228_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:887:33  */
+  /* T65_MCode.vhd:891:33  */
   always @*
-    case (n2212_o)
-      6'b100000: n2231_o = 1'b0;
-      6'b010000: n2231_o = 1'b0;
-      6'b001000: n2231_o = 1'b1;
-      6'b000100: n2231_o = 1'b0;
-      6'b000010: n2231_o = 1'b0;
-      6'b000001: n2231_o = 1'b0;
-      default: n2231_o = 1'b0;
+    case (n2216_o)
+      6'b100000: n2232_o = 2'b00;
+      6'b010000: n2232_o = 2'b00;
+      6'b001000: n2232_o = 2'b00;
+      6'b000100: n2232_o = 2'b11;
+      6'b000010: n2232_o = 2'b10;
+      6'b000001: n2232_o = 2'b00;
+      default: n2232_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:887:33  */
+  /* T65_MCode.vhd:891:33  */
   always @*
-    case (n2212_o)
-      6'b100000: n2234_o = 1'b0;
-      6'b010000: n2234_o = 1'b1;
-      6'b001000: n2234_o = 1'b0;
-      6'b000100: n2234_o = 1'b0;
-      6'b000010: n2234_o = 1'b0;
-      6'b000001: n2234_o = 1'b0;
-      default: n2234_o = 1'b0;
+    case (n2216_o)
+      6'b100000: n2235_o = 1'b0;
+      6'b010000: n2235_o = 1'b0;
+      6'b001000: n2235_o = 1'b1;
+      6'b000100: n2235_o = 1'b0;
+      6'b000010: n2235_o = 1'b0;
+      6'b000001: n2235_o = 1'b0;
+      default: n2235_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:887:33  */
+  /* T65_MCode.vhd:891:33  */
   always @*
-    case (n2212_o)
-      6'b100000: n2237_o = 1'b0;
-      6'b010000: n2237_o = 1'b0;
-      6'b001000: n2237_o = 1'b0;
-      6'b000100: n2237_o = 1'b0;
-      6'b000010: n2237_o = 1'b0;
-      6'b000001: n2237_o = 1'b1;
-      default: n2237_o = 1'b0;
+    case (n2216_o)
+      6'b100000: n2238_o = 1'b0;
+      6'b010000: n2238_o = 1'b1;
+      6'b001000: n2238_o = 1'b0;
+      6'b000100: n2238_o = 1'b0;
+      6'b000010: n2238_o = 1'b0;
+      6'b000001: n2238_o = 1'b0;
+      default: n2238_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:887:33  */
+  /* T65_MCode.vhd:891:33  */
   always @*
-    case (n2212_o)
-      6'b100000: n2240_o = 1'b0;
-      6'b010000: n2240_o = 1'b0;
-      6'b001000: n2240_o = 1'b0;
-      6'b000100: n2240_o = 1'b0;
-      6'b000010: n2240_o = 1'b1;
-      6'b000001: n2240_o = 1'b0;
-      default: n2240_o = 1'b0;
+    case (n2216_o)
+      6'b100000: n2241_o = 1'b0;
+      6'b010000: n2241_o = 1'b0;
+      6'b001000: n2241_o = 1'b0;
+      6'b000100: n2241_o = 1'b0;
+      6'b000010: n2241_o = 1'b0;
+      6'b000001: n2241_o = 1'b1;
+      default: n2241_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:887:33  */
+  /* T65_MCode.vhd:891:33  */
   always @*
-    case (n2212_o)
-      6'b100000: n2243_o = 1'b0;
-      6'b010000: n2243_o = 1'b1;
-      6'b001000: n2243_o = 1'b0;
-      6'b000100: n2243_o = 1'b0;
-      6'b000010: n2243_o = 1'b0;
-      6'b000001: n2243_o = 1'b0;
-      default: n2243_o = 1'b0;
+    case (n2216_o)
+      6'b100000: n2244_o = 1'b0;
+      6'b010000: n2244_o = 1'b0;
+      6'b001000: n2244_o = 1'b0;
+      6'b000100: n2244_o = 1'b0;
+      6'b000010: n2244_o = 1'b1;
+      6'b000001: n2244_o = 1'b0;
+      default: n2244_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:887:33  */
+  /* T65_MCode.vhd:891:33  */
   always @*
-    case (n2212_o)
+    case (n2216_o)
       6'b100000: n2247_o = 1'b0;
       6'b010000: n2247_o = 1'b1;
-      6'b001000: n2247_o = 1'b1;
+      6'b001000: n2247_o = 1'b0;
       6'b000100: n2247_o = 1'b0;
       6'b000010: n2247_o = 1'b0;
       6'b000001: n2247_o = 1'b0;
       default: n2247_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:914:38  */
-  assign n2248_o = ir[7:6];
-  /* T65_MCode.vhd:914:51  */
-  assign n2250_o = n2248_o != 2'b10;
-  /* T65_MCode.vhd:914:33  */
-  assign n2252_o = n2250_o ? 1'b1 : n1022_o;
-  /* T65_MCode.vhd:917:38  */
-  assign n2253_o = {28'b0, mcycle};  //  uext
+  /* T65_MCode.vhd:891:33  */
+  always @*
+    case (n2216_o)
+      6'b100000: n2251_o = 1'b0;
+      6'b010000: n2251_o = 1'b1;
+      6'b001000: n2251_o = 1'b1;
+      6'b000100: n2251_o = 1'b0;
+      6'b000010: n2251_o = 1'b0;
+      6'b000001: n2251_o = 1'b0;
+      default: n2251_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:918:38  */
+  assign n2252_o = ir[7:6];
+  /* T65_MCode.vhd:918:51  */
+  assign n2254_o = n2252_o != 2'b10;
   /* T65_MCode.vhd:918:33  */
-  assign n2255_o = n2253_o == 31'b0000000000000000000000000000000;
-  /* T65_MCode.vhd:919:33  */
-  assign n2257_o = n2253_o == 31'b0000000000000000000000000000001;
-  /* T65_MCode.vhd:926:48  */
-  assign n2259_o = ir == 8'b10111110;
-  /* T65_MCode.vhd:926:41  */
-  assign n2262_o = n2259_o ? 3'b011 : 3'b010;
+  assign n2256_o = n2254_o ? 1'b1 : n1022_o;
+  /* T65_MCode.vhd:921:38  */
+  assign n2257_o = {28'b0, mcycle};  //  uext
   /* T65_MCode.vhd:922:33  */
-  assign n2264_o = n2253_o == 31'b0000000000000000000000000000010;
-  /* T65_MCode.vhd:936:46  */
-  assign n2265_o = ir[7:5];
-  /* T65_MCode.vhd:936:59  */
-  assign n2267_o = n2265_o == 3'b100;
-  /* T65_MCode.vhd:936:41  */
-  assign n2270_o = n2267_o ? 1'b0 : 1'b1;
-  /* T65_MCode.vhd:936:41  */
-  assign n2273_o = n2267_o ? 1'b1 : 1'b0;
-  /* T65_MCode.vhd:934:33  */
-  assign n2275_o = n2253_o == 31'b0000000000000000000000000000011;
-  /* T65_MCode.vhd:942:33  */
-  assign n2277_o = n2253_o == 31'b0000000000000000000000000000100;
-  assign n2278_o = {n2277_o, n2275_o, n2264_o, n2257_o, n2255_o};
-  /* T65_MCode.vhd:917:33  */
+  assign n2259_o = n2257_o == 31'b0000000000000000000000000000000;
+  /* T65_MCode.vhd:923:33  */
+  assign n2261_o = n2257_o == 31'b0000000000000000000000000000001;
+  /* T65_MCode.vhd:930:48  */
+  assign n2263_o = ir == 8'b10111110;
+  /* T65_MCode.vhd:930:41  */
+  assign n2266_o = n2263_o ? 3'b011 : 3'b010;
+  /* T65_MCode.vhd:926:33  */
+  assign n2268_o = n2257_o == 31'b0000000000000000000000000000010;
+  /* T65_MCode.vhd:940:46  */
+  assign n2269_o = ir[7:5];
+  /* T65_MCode.vhd:940:59  */
+  assign n2271_o = n2269_o == 3'b100;
+  /* T65_MCode.vhd:940:41  */
+  assign n2274_o = n2271_o ? 1'b0 : 1'b1;
+  /* T65_MCode.vhd:940:41  */
+  assign n2277_o = n2271_o ? 1'b1 : 1'b0;
+  /* T65_MCode.vhd:938:33  */
+  assign n2279_o = n2257_o == 31'b0000000000000000000000000000011;
+  /* T65_MCode.vhd:946:33  */
+  assign n2281_o = n2257_o == 31'b0000000000000000000000000000100;
+  assign n2282_o = {n2281_o, n2279_o, n2268_o, n2261_o, n2259_o};
+  /* T65_MCode.vhd:921:33  */
   always @*
-    case (n2278_o)
-      5'b10000: n2279_o = n1038_o;
-      5'b01000: n2279_o = n1038_o;
-      5'b00100: n2279_o = n2262_o;
-      5'b00010: n2279_o = n1038_o;
-      5'b00001: n2279_o = n1038_o;
-      default: n2279_o = n1038_o;
+    case (n2282_o)
+      5'b10000: n2283_o = n1038_o;
+      5'b01000: n2283_o = n1038_o;
+      5'b00100: n2283_o = n2266_o;
+      5'b00010: n2283_o = n1038_o;
+      5'b00001: n2283_o = n1038_o;
+      default: n2283_o = n1038_o;
     endcase
-  /* T65_MCode.vhd:917:33  */
+  /* T65_MCode.vhd:921:33  */
   always @*
-    case (n2278_o)
-      5'b10000: n2283_o = 2'b00;
-      5'b01000: n2283_o = 2'b11;
-      5'b00100: n2283_o = 2'b11;
-      5'b00010: n2283_o = 2'b00;
-      5'b00001: n2283_o = 2'b00;
-      default: n2283_o = 2'b00;
-    endcase
-  /* T65_MCode.vhd:917:33  */
-  always @*
-    case (n2278_o)
+    case (n2282_o)
       5'b10000: n2287_o = 2'b00;
-      5'b01000: n2287_o = 2'b00;
-      5'b00100: n2287_o = 2'b01;
-      5'b00010: n2287_o = 2'b01;
+      5'b01000: n2287_o = 2'b11;
+      5'b00100: n2287_o = 2'b11;
+      5'b00010: n2287_o = 2'b00;
       5'b00001: n2287_o = 2'b00;
       default: n2287_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:917:33  */
+  /* T65_MCode.vhd:921:33  */
   always @*
-    case (n2278_o)
+    case (n2282_o)
       5'b10000: n2291_o = 2'b00;
-      5'b01000: n2291_o = 2'b11;
-      5'b00100: n2291_o = 2'b10;
-      5'b00010: n2291_o = 2'b00;
+      5'b01000: n2291_o = 2'b00;
+      5'b00100: n2291_o = 2'b01;
+      5'b00010: n2291_o = 2'b01;
       5'b00001: n2291_o = 2'b00;
       default: n2291_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:917:33  */
+  /* T65_MCode.vhd:921:33  */
   always @*
-    case (n2278_o)
-      5'b10000: n2293_o = 1'b0;
-      5'b01000: n2293_o = n2270_o;
-      5'b00100: n2293_o = 1'b0;
-      5'b00010: n2293_o = 1'b0;
-      5'b00001: n2293_o = 1'b0;
-      default: n2293_o = 1'b0;
+    case (n2282_o)
+      5'b10000: n2295_o = 2'b00;
+      5'b01000: n2295_o = 2'b11;
+      5'b00100: n2295_o = 2'b10;
+      5'b00010: n2295_o = 2'b00;
+      5'b00001: n2295_o = 2'b00;
+      default: n2295_o = 2'b00;
     endcase
-  /* T65_MCode.vhd:917:33  */
+  /* T65_MCode.vhd:921:33  */
   always @*
-    case (n2278_o)
-      5'b10000: n2296_o = 1'b0;
-      5'b01000: n2296_o = 1'b0;
-      5'b00100: n2296_o = 1'b0;
-      5'b00010: n2296_o = 1'b1;
-      5'b00001: n2296_o = 1'b0;
-      default: n2296_o = 1'b0;
+    case (n2282_o)
+      5'b10000: n2297_o = 1'b0;
+      5'b01000: n2297_o = n2274_o;
+      5'b00100: n2297_o = 1'b0;
+      5'b00010: n2297_o = 1'b0;
+      5'b00001: n2297_o = 1'b0;
+      default: n2297_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:917:33  */
+  /* T65_MCode.vhd:921:33  */
   always @*
-    case (n2278_o)
-      5'b10000: n2299_o = 1'b0;
-      5'b01000: n2299_o = 1'b0;
-      5'b00100: n2299_o = 1'b1;
-      5'b00010: n2299_o = 1'b0;
-      5'b00001: n2299_o = 1'b0;
-      default: n2299_o = 1'b0;
+    case (n2282_o)
+      5'b10000: n2300_o = 1'b0;
+      5'b01000: n2300_o = 1'b0;
+      5'b00100: n2300_o = 1'b0;
+      5'b00010: n2300_o = 1'b1;
+      5'b00001: n2300_o = 1'b0;
+      default: n2300_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:917:33  */
+  /* T65_MCode.vhd:921:33  */
   always @*
-    case (n2278_o)
-      5'b10000: n2301_o = 1'b0;
-      5'b01000: n2301_o = n2273_o;
-      5'b00100: n2301_o = 1'b0;
-      5'b00010: n2301_o = 1'b0;
-      5'b00001: n2301_o = 1'b0;
-      default: n2301_o = 1'b0;
+    case (n2282_o)
+      5'b10000: n2303_o = 1'b0;
+      5'b01000: n2303_o = 1'b0;
+      5'b00100: n2303_o = 1'b1;
+      5'b00010: n2303_o = 1'b0;
+      5'b00001: n2303_o = 1'b0;
+      default: n2303_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:884:25  */
-  assign n2304_o = n2198_o ? 3'b110 : 3'b100;
-  /* T65_MCode.vhd:884:25  */
-  assign n2305_o = n2198_o ? n2214_o : n2279_o;
-  /* T65_MCode.vhd:884:25  */
-  assign n2306_o = n2198_o ? n2220_o : n2283_o;
-  /* T65_MCode.vhd:884:25  */
-  assign n2307_o = n2198_o ? n2224_o : n2287_o;
-  /* T65_MCode.vhd:884:25  */
-  assign n2308_o = n2198_o ? n2228_o : n2291_o;
-  /* T65_MCode.vhd:884:25  */
-  assign n2310_o = n2198_o ? 1'b0 : n2293_o;
-  /* T65_MCode.vhd:884:25  */
-  assign n2311_o = n2198_o ? n1022_o : n2252_o;
-  /* T65_MCode.vhd:884:25  */
-  assign n2313_o = n2198_o ? n2231_o : 1'b0;
-  /* T65_MCode.vhd:884:25  */
-  assign n2315_o = n2198_o ? n2234_o : 1'b0;
-  /* T65_MCode.vhd:884:25  */
-  assign n2316_o = n2198_o ? n2237_o : n2296_o;
-  /* T65_MCode.vhd:884:25  */
-  assign n2317_o = n2198_o ? n2240_o : n2299_o;
-  /* T65_MCode.vhd:884:25  */
-  assign n2319_o = n2198_o ? n2243_o : 1'b0;
-  /* T65_MCode.vhd:884:25  */
-  assign n2320_o = n2198_o ? n2247_o : n2301_o;
-  /* T65_MCode.vhd:880:17  */
-  assign n2322_o = n1039_o == 5'b11100;
-  /* T65_MCode.vhd:880:30  */
-  assign n2324_o = n1039_o == 5'b11101;
-  /* T65_MCode.vhd:880:30  */
-  assign n2325_o = n2322_o | n2324_o;
-  /* T65_MCode.vhd:880:40  */
-  assign n2327_o = n1039_o == 5'b11110;
-  /* T65_MCode.vhd:880:40  */
-  assign n2328_o = n2325_o | n2327_o;
-  /* T65_MCode.vhd:880:50  */
-  assign n2330_o = n1039_o == 5'b11111;
-  /* T65_MCode.vhd:880:50  */
-  assign n2331_o = n2328_o | n2330_o;
-  assign n2332_o = {n2331_o, n2191_o, n2136_o, n2017_o, n1955_o, n1932_o, n1825_o, n1686_o, n1593_o, n1558_o, n1540_o, n1526_o, n1470_o};
+  /* T65_MCode.vhd:921:33  */
+  always @*
+    case (n2282_o)
+      5'b10000: n2305_o = 1'b0;
+      5'b01000: n2305_o = n2277_o;
+      5'b00100: n2305_o = 1'b0;
+      5'b00010: n2305_o = 1'b0;
+      5'b00001: n2305_o = 1'b0;
+      default: n2305_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:888:25  */
+  assign n2308_o = n2202_o ? 3'b110 : 3'b100;
+  /* T65_MCode.vhd:888:25  */
+  assign n2309_o = n2202_o ? n2218_o : n2283_o;
+  /* T65_MCode.vhd:888:25  */
+  assign n2310_o = n2202_o ? n2224_o : n2287_o;
+  /* T65_MCode.vhd:888:25  */
+  assign n2311_o = n2202_o ? n2228_o : n2291_o;
+  /* T65_MCode.vhd:888:25  */
+  assign n2312_o = n2202_o ? n2232_o : n2295_o;
+  /* T65_MCode.vhd:888:25  */
+  assign n2314_o = n2202_o ? 1'b0 : n2297_o;
+  /* T65_MCode.vhd:888:25  */
+  assign n2315_o = n2202_o ? n1022_o : n2256_o;
+  /* T65_MCode.vhd:888:25  */
+  assign n2317_o = n2202_o ? n2235_o : 1'b0;
+  /* T65_MCode.vhd:888:25  */
+  assign n2319_o = n2202_o ? n2238_o : 1'b0;
+  /* T65_MCode.vhd:888:25  */
+  assign n2320_o = n2202_o ? n2241_o : n2300_o;
+  /* T65_MCode.vhd:888:25  */
+  assign n2321_o = n2202_o ? n2244_o : n2303_o;
+  /* T65_MCode.vhd:888:25  */
+  assign n2323_o = n2202_o ? n2247_o : 1'b0;
+  /* T65_MCode.vhd:888:25  */
+  assign n2324_o = n2202_o ? n2251_o : n2305_o;
+  /* T65_MCode.vhd:884:17  */
+  assign n2326_o = n1039_o == 5'b11100;
+  /* T65_MCode.vhd:884:30  */
+  assign n2328_o = n1039_o == 5'b11101;
+  /* T65_MCode.vhd:884:30  */
+  assign n2329_o = n2326_o | n2328_o;
+  /* T65_MCode.vhd:884:40  */
+  assign n2331_o = n1039_o == 5'b11110;
+  /* T65_MCode.vhd:884:40  */
+  assign n2332_o = n2329_o | n2331_o;
+  /* T65_MCode.vhd:884:50  */
+  assign n2334_o = n1039_o == 5'b11111;
+  /* T65_MCode.vhd:884:50  */
+  assign n2335_o = n2332_o | n2334_o;
+  assign n2336_o = {n2335_o, n2195_o, n2140_o, n2021_o, n1959_o, n1936_o, n1829_o, n1690_o, n1597_o, n1562_o, n1544_o, n1530_o, n1474_o};
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2338_o = n2304_o;
-      13'b0100000000000: n2338_o = 3'b100;
-      13'b0010000000000: n2338_o = n2111_o;
-      13'b0001000000000: n2338_o = 3'b101;
-      13'b0000100000000: n2338_o = n1935_o;
-      13'b0000010000000: n2338_o = n1912_o;
-      13'b0000001000000: n2338_o = n1811_o;
-      13'b0000000100000: n2338_o = n1667_o;
-      13'b0000000010000: n2338_o = 3'b010;
-      13'b0000000001000: n2338_o = 3'b001;
-      13'b0000000000100: n2338_o = 3'b001;
-      13'b0000000000010: n2338_o = 3'b101;
-      13'b0000000000001: n2338_o = n1427_o;
-      default: n2338_o = 3'b001;
-    endcase
-  /* T65_MCode.vhd:206:17  */
-  always @*
-    case (n2332_o)
-      13'b1000000000000: n2340_o = n2305_o;
-      13'b0100000000000: n2340_o = n2164_o;
-      13'b0010000000000: n2340_o = n1038_o;
-      13'b0001000000000: n2340_o = n1985_o;
-      13'b0000100000000: n2340_o = n1038_o;
-      13'b0000010000000: n2340_o = n1038_o;
-      13'b0000001000000: n2340_o = n1038_o;
-      13'b0000000100000: n2340_o = n1038_o;
-      13'b0000000010000: n2340_o = n1038_o;
-      13'b0000000001000: n2340_o = n1038_o;
-      13'b0000000000100: n2340_o = n1038_o;
-      13'b0000000000010: n2340_o = n1038_o;
-      13'b0000000000001: n2340_o = n1429_o;
-      default: n2340_o = n1038_o;
-    endcase
-  /* T65_MCode.vhd:206:17  */
-  always @*
-    case (n2332_o)
-      13'b1000000000000: n2342_o = n2306_o;
-      13'b0100000000000: n2342_o = n2168_o;
-      13'b0010000000000: n2342_o = n2112_o;
-      13'b0001000000000: n2342_o = n1991_o;
-      13'b0000100000000: n2342_o = 2'b00;
-      13'b0000010000000: n2342_o = n1913_o;
-      13'b0000001000000: n2342_o = n1812_o;
-      13'b0000000100000: n2342_o = n1668_o;
-      13'b0000000010000: n2342_o = n1581_o;
-      13'b0000000001000: n2342_o = 2'b00;
-      13'b0000000000100: n2342_o = 2'b00;
-      13'b0000000000010: n2342_o = n1501_o;
+    case (n2336_o)
+      13'b1000000000000: n2342_o = n2308_o;
+      13'b0100000000000: n2342_o = 3'b100;
+      13'b0010000000000: n2342_o = n2115_o;
+      13'b0001000000000: n2342_o = 3'b101;
+      13'b0000100000000: n2342_o = n1939_o;
+      13'b0000010000000: n2342_o = n1916_o;
+      13'b0000001000000: n2342_o = n1815_o;
+      13'b0000000100000: n2342_o = n1671_o;
+      13'b0000000010000: n2342_o = 3'b010;
+      13'b0000000001000: n2342_o = 3'b001;
+      13'b0000000000100: n2342_o = 3'b001;
+      13'b0000000000010: n2342_o = 3'b101;
       13'b0000000000001: n2342_o = n1431_o;
-      default: n2342_o = 2'b00;
+      default: n2342_o = 3'b001;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2344_o = n1019_o;
-      13'b0100000000000: n2344_o = n1019_o;
-      13'b0010000000000: n2344_o = n1019_o;
-      13'b0001000000000: n2344_o = n1019_o;
-      13'b0000100000000: n2344_o = n1019_o;
-      13'b0000010000000: n2344_o = n1019_o;
-      13'b0000001000000: n2344_o = n1019_o;
-      13'b0000000100000: n2344_o = n1019_o;
-      13'b0000000010000: n2344_o = n1019_o;
-      13'b0000000001000: n2344_o = n1019_o;
-      13'b0000000000100: n2344_o = n1019_o;
-      13'b0000000000010: n2344_o = n1019_o;
-      13'b0000000000001: n2344_o = n1432_o;
-      default: n2344_o = n1019_o;
+    case (n2336_o)
+      13'b1000000000000: n2344_o = n2309_o;
+      13'b0100000000000: n2344_o = n2168_o;
+      13'b0010000000000: n2344_o = n1038_o;
+      13'b0001000000000: n2344_o = n1989_o;
+      13'b0000100000000: n2344_o = n1038_o;
+      13'b0000010000000: n2344_o = n1038_o;
+      13'b0000001000000: n2344_o = n1038_o;
+      13'b0000000100000: n2344_o = n1038_o;
+      13'b0000000010000: n2344_o = n1038_o;
+      13'b0000000001000: n2344_o = n1038_o;
+      13'b0000000000100: n2344_o = n1038_o;
+      13'b0000000000010: n2344_o = n1038_o;
+      13'b0000000000001: n2344_o = n1433_o;
+      default: n2344_o = n1038_o;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2346_o = n2307_o;
+    case (n2336_o)
+      13'b1000000000000: n2346_o = n2310_o;
       13'b0100000000000: n2346_o = n2172_o;
-      13'b0010000000000: n2346_o = n2113_o;
-      13'b0001000000000: n2346_o = n1994_o;
-      13'b0000100000000: n2346_o = n1947_o;
-      13'b0000010000000: n2346_o = n1914_o;
-      13'b0000001000000: n2346_o = n1813_o;
-      13'b0000000100000: n2346_o = n1669_o;
-      13'b0000000010000: n2346_o = n1584_o;
-      13'b0000000001000: n2346_o = n1553_o;
-      13'b0000000000100: n2346_o = n1535_o;
-      13'b0000000000010: n2346_o = n1504_o;
-      13'b0000000000001: n2346_o = n1434_o;
+      13'b0010000000000: n2346_o = n2116_o;
+      13'b0001000000000: n2346_o = n1995_o;
+      13'b0000100000000: n2346_o = 2'b00;
+      13'b0000010000000: n2346_o = n1917_o;
+      13'b0000001000000: n2346_o = n1816_o;
+      13'b0000000100000: n2346_o = n1672_o;
+      13'b0000000010000: n2346_o = n1585_o;
+      13'b0000000001000: n2346_o = 2'b00;
+      13'b0000000000100: n2346_o = 2'b00;
+      13'b0000000000010: n2346_o = n1505_o;
+      13'b0000000000001: n2346_o = n1435_o;
       default: n2346_o = 2'b00;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2349_o = n2308_o;
-      13'b0100000000000: n2349_o = n2176_o;
-      13'b0010000000000: n2349_o = 2'b00;
-      13'b0001000000000: n2349_o = n1999_o;
-      13'b0000100000000: n2349_o = 2'b00;
-      13'b0000010000000: n2349_o = 2'b00;
-      13'b0000001000000: n2349_o = n1815_o;
-      13'b0000000100000: n2349_o = 2'b00;
-      13'b0000000010000: n2349_o = 2'b00;
-      13'b0000000001000: n2349_o = 2'b00;
-      13'b0000000000100: n2349_o = 2'b00;
-      13'b0000000000010: n2349_o = n1507_o;
-      13'b0000000000001: n2349_o = 2'b00;
-      default: n2349_o = 2'b00;
+    case (n2336_o)
+      13'b1000000000000: n2348_o = n1019_o;
+      13'b0100000000000: n2348_o = n1019_o;
+      13'b0010000000000: n2348_o = n1019_o;
+      13'b0001000000000: n2348_o = n1019_o;
+      13'b0000100000000: n2348_o = n1019_o;
+      13'b0000010000000: n2348_o = n1019_o;
+      13'b0000001000000: n2348_o = n1019_o;
+      13'b0000000100000: n2348_o = n1019_o;
+      13'b0000000010000: n2348_o = n1019_o;
+      13'b0000000001000: n2348_o = n1019_o;
+      13'b0000000000100: n2348_o = n1019_o;
+      13'b0000000000010: n2348_o = n1019_o;
+      13'b0000000000001: n2348_o = n1436_o;
+      default: n2348_o = n1019_o;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2352_o = n2310_o;
-      13'b0100000000000: n2352_o = n2178_o;
-      13'b0010000000000: n2352_o = 1'b0;
-      13'b0001000000000: n2352_o = n2001_o;
-      13'b0000100000000: n2352_o = 1'b0;
-      13'b0000010000000: n2352_o = 1'b0;
-      13'b0000001000000: n2352_o = 1'b0;
-      13'b0000000100000: n2352_o = 1'b0;
-      13'b0000000010000: n2352_o = 1'b0;
-      13'b0000000001000: n2352_o = 1'b0;
-      13'b0000000000100: n2352_o = 1'b0;
-      13'b0000000000010: n2352_o = 1'b0;
-      13'b0000000000001: n2352_o = 1'b0;
-      default: n2352_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2350_o = n2311_o;
+      13'b0100000000000: n2350_o = n2176_o;
+      13'b0010000000000: n2350_o = n2117_o;
+      13'b0001000000000: n2350_o = n1998_o;
+      13'b0000100000000: n2350_o = n1951_o;
+      13'b0000010000000: n2350_o = n1918_o;
+      13'b0000001000000: n2350_o = n1817_o;
+      13'b0000000100000: n2350_o = n1673_o;
+      13'b0000000010000: n2350_o = n1588_o;
+      13'b0000000001000: n2350_o = n1557_o;
+      13'b0000000000100: n2350_o = n1539_o;
+      13'b0000000000010: n2350_o = n1508_o;
+      13'b0000000000001: n2350_o = n1438_o;
+      default: n2350_o = 2'b00;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2355_o = 1'b0;
-      13'b0100000000000: n2355_o = 1'b0;
-      13'b0010000000000: n2355_o = n2114_o;
-      13'b0001000000000: n2355_o = 1'b0;
-      13'b0000100000000: n2355_o = 1'b0;
-      13'b0000010000000: n2355_o = 1'b0;
-      13'b0000001000000: n2355_o = 1'b0;
-      13'b0000000100000: n2355_o = 1'b0;
-      13'b0000000010000: n2355_o = 1'b0;
-      13'b0000000001000: n2355_o = 1'b0;
-      13'b0000000000100: n2355_o = 1'b0;
-      13'b0000000000010: n2355_o = n1510_o;
-      13'b0000000000001: n2355_o = 1'b0;
-      default: n2355_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2353_o = n2312_o;
+      13'b0100000000000: n2353_o = n2180_o;
+      13'b0010000000000: n2353_o = 2'b00;
+      13'b0001000000000: n2353_o = n2003_o;
+      13'b0000100000000: n2353_o = 2'b00;
+      13'b0000010000000: n2353_o = 2'b00;
+      13'b0000001000000: n2353_o = n1819_o;
+      13'b0000000100000: n2353_o = 2'b00;
+      13'b0000000010000: n2353_o = 2'b00;
+      13'b0000000001000: n2353_o = 2'b00;
+      13'b0000000000100: n2353_o = 2'b00;
+      13'b0000000000010: n2353_o = n1511_o;
+      13'b0000000000001: n2353_o = 2'b00;
+      default: n2353_o = 2'b00;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2358_o = 1'b0;
-      13'b0100000000000: n2358_o = 1'b0;
-      13'b0010000000000: n2358_o = n2116_o;
-      13'b0001000000000: n2358_o = 1'b0;
-      13'b0000100000000: n2358_o = 1'b0;
-      13'b0000010000000: n2358_o = 1'b0;
-      13'b0000001000000: n2358_o = 1'b0;
-      13'b0000000100000: n2358_o = 1'b0;
-      13'b0000000010000: n2358_o = 1'b0;
-      13'b0000000001000: n2358_o = 1'b0;
-      13'b0000000000100: n2358_o = 1'b0;
-      13'b0000000000010: n2358_o = 1'b0;
-      13'b0000000000001: n2358_o = 1'b0;
-      default: n2358_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2356_o = n2314_o;
+      13'b0100000000000: n2356_o = n2182_o;
+      13'b0010000000000: n2356_o = 1'b0;
+      13'b0001000000000: n2356_o = n2005_o;
+      13'b0000100000000: n2356_o = 1'b0;
+      13'b0000010000000: n2356_o = 1'b0;
+      13'b0000001000000: n2356_o = 1'b0;
+      13'b0000000100000: n2356_o = 1'b0;
+      13'b0000000010000: n2356_o = 1'b0;
+      13'b0000000001000: n2356_o = 1'b0;
+      13'b0000000000100: n2356_o = 1'b0;
+      13'b0000000000010: n2356_o = 1'b0;
+      13'b0000000000001: n2356_o = 1'b0;
+      default: n2356_o = 1'b0;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2361_o = 1'b0;
-      13'b0100000000000: n2361_o = 1'b0;
-      13'b0010000000000: n2361_o = 1'b0;
-      13'b0001000000000: n2361_o = 1'b0;
-      13'b0000100000000: n2361_o = n1950_o;
-      13'b0000010000000: n2361_o = 1'b0;
-      13'b0000001000000: n2361_o = 1'b0;
-      13'b0000000100000: n2361_o = 1'b0;
-      13'b0000000010000: n2361_o = 1'b0;
-      13'b0000000001000: n2361_o = 1'b0;
-      13'b0000000000100: n2361_o = 1'b0;
-      13'b0000000000010: n2361_o = 1'b0;
-      13'b0000000000001: n2361_o = 1'b0;
-      default: n2361_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2359_o = 1'b0;
+      13'b0100000000000: n2359_o = 1'b0;
+      13'b0010000000000: n2359_o = n2118_o;
+      13'b0001000000000: n2359_o = 1'b0;
+      13'b0000100000000: n2359_o = 1'b0;
+      13'b0000010000000: n2359_o = 1'b0;
+      13'b0000001000000: n2359_o = 1'b0;
+      13'b0000000100000: n2359_o = 1'b0;
+      13'b0000000010000: n2359_o = 1'b0;
+      13'b0000000001000: n2359_o = 1'b0;
+      13'b0000000000100: n2359_o = 1'b0;
+      13'b0000000000010: n2359_o = n1514_o;
+      13'b0000000000001: n2359_o = 1'b0;
+      default: n2359_o = 1'b0;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2364_o = 1'b0;
-      13'b0100000000000: n2364_o = 1'b0;
-      13'b0010000000000: n2364_o = 1'b0;
-      13'b0001000000000: n2364_o = 1'b0;
-      13'b0000100000000: n2364_o = 1'b0;
-      13'b0000010000000: n2364_o = 1'b0;
-      13'b0000001000000: n2364_o = 1'b0;
-      13'b0000000100000: n2364_o = 1'b0;
-      13'b0000000010000: n2364_o = 1'b0;
-      13'b0000000001000: n2364_o = 1'b0;
-      13'b0000000000100: n2364_o = 1'b0;
-      13'b0000000000010: n2364_o = 1'b0;
-      13'b0000000000001: n2364_o = n1436_o;
-      default: n2364_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2362_o = 1'b0;
+      13'b0100000000000: n2362_o = 1'b0;
+      13'b0010000000000: n2362_o = n2120_o;
+      13'b0001000000000: n2362_o = 1'b0;
+      13'b0000100000000: n2362_o = 1'b0;
+      13'b0000010000000: n2362_o = 1'b0;
+      13'b0000001000000: n2362_o = 1'b0;
+      13'b0000000100000: n2362_o = 1'b0;
+      13'b0000000010000: n2362_o = 1'b0;
+      13'b0000000001000: n2362_o = 1'b0;
+      13'b0000000000100: n2362_o = 1'b0;
+      13'b0000000000010: n2362_o = 1'b0;
+      13'b0000000000001: n2362_o = 1'b0;
+      default: n2362_o = 1'b0;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2367_o = 1'b0;
-      13'b0100000000000: n2367_o = 1'b0;
-      13'b0010000000000: n2367_o = 1'b0;
-      13'b0001000000000: n2367_o = 1'b0;
-      13'b0000100000000: n2367_o = 1'b0;
-      13'b0000010000000: n2367_o = 1'b0;
-      13'b0000001000000: n2367_o = 1'b0;
-      13'b0000000100000: n2367_o = 1'b0;
-      13'b0000000010000: n2367_o = 1'b0;
-      13'b0000000001000: n2367_o = 1'b0;
-      13'b0000000000100: n2367_o = 1'b0;
-      13'b0000000000010: n2367_o = 1'b0;
-      13'b0000000000001: n2367_o = n1438_o;
-      default: n2367_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2365_o = 1'b0;
+      13'b0100000000000: n2365_o = 1'b0;
+      13'b0010000000000: n2365_o = 1'b0;
+      13'b0001000000000: n2365_o = 1'b0;
+      13'b0000100000000: n2365_o = n1954_o;
+      13'b0000010000000: n2365_o = 1'b0;
+      13'b0000001000000: n2365_o = 1'b0;
+      13'b0000000100000: n2365_o = 1'b0;
+      13'b0000000010000: n2365_o = 1'b0;
+      13'b0000000001000: n2365_o = 1'b0;
+      13'b0000000000100: n2365_o = 1'b0;
+      13'b0000000000010: n2365_o = 1'b0;
+      13'b0000000000001: n2365_o = 1'b0;
+      default: n2365_o = 1'b0;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2370_o = n2311_o;
-      13'b0100000000000: n2370_o = n2141_o;
-      13'b0010000000000: n2370_o = n2117_o;
-      13'b0001000000000: n2370_o = n1960_o;
-      13'b0000100000000: n2370_o = n1022_o;
-      13'b0000010000000: n2370_o = n1915_o;
-      13'b0000001000000: n2370_o = n1022_o;
-      13'b0000000100000: n2370_o = n1670_o;
-      13'b0000000010000: n2370_o = n1022_o;
-      13'b0000000001000: n2370_o = n1022_o;
-      13'b0000000000100: n2370_o = 1'b1;
-      13'b0000000000010: n2370_o = n1475_o;
-      13'b0000000000001: n2370_o = n1441_o;
-      default: n2370_o = n1022_o;
+    case (n2336_o)
+      13'b1000000000000: n2368_o = 1'b0;
+      13'b0100000000000: n2368_o = 1'b0;
+      13'b0010000000000: n2368_o = 1'b0;
+      13'b0001000000000: n2368_o = 1'b0;
+      13'b0000100000000: n2368_o = 1'b0;
+      13'b0000010000000: n2368_o = 1'b0;
+      13'b0000001000000: n2368_o = 1'b0;
+      13'b0000000100000: n2368_o = 1'b0;
+      13'b0000000010000: n2368_o = 1'b0;
+      13'b0000000001000: n2368_o = 1'b0;
+      13'b0000000000100: n2368_o = 1'b0;
+      13'b0000000000010: n2368_o = 1'b0;
+      13'b0000000000001: n2368_o = n1440_o;
+      default: n2368_o = 1'b0;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2372_o = 1'b0;
-      13'b0100000000000: n2372_o = 1'b0;
-      13'b0010000000000: n2372_o = 1'b0;
-      13'b0001000000000: n2372_o = 1'b0;
-      13'b0000100000000: n2372_o = 1'b0;
-      13'b0000010000000: n2372_o = 1'b0;
-      13'b0000001000000: n2372_o = 1'b0;
-      13'b0000000100000: n2372_o = 1'b0;
-      13'b0000000010000: n2372_o = 1'b0;
-      13'b0000000001000: n2372_o = 1'b0;
-      13'b0000000000100: n2372_o = 1'b0;
-      13'b0000000000010: n2372_o = 1'b0;
-      13'b0000000000001: n2372_o = n1443_o;
-      default: n2372_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2371_o = 1'b0;
+      13'b0100000000000: n2371_o = 1'b0;
+      13'b0010000000000: n2371_o = 1'b0;
+      13'b0001000000000: n2371_o = 1'b0;
+      13'b0000100000000: n2371_o = 1'b0;
+      13'b0000010000000: n2371_o = 1'b0;
+      13'b0000001000000: n2371_o = 1'b0;
+      13'b0000000100000: n2371_o = 1'b0;
+      13'b0000000010000: n2371_o = 1'b0;
+      13'b0000000001000: n2371_o = 1'b0;
+      13'b0000000000100: n2371_o = 1'b0;
+      13'b0000000000010: n2371_o = 1'b0;
+      13'b0000000000001: n2371_o = n1442_o;
+      default: n2371_o = 1'b0;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2375_o = n1025_o;
-      13'b0100000000000: n2375_o = n1025_o;
-      13'b0010000000000: n2375_o = n1025_o;
-      13'b0001000000000: n2375_o = n1025_o;
-      13'b0000100000000: n2375_o = n1025_o;
-      13'b0000010000000: n2375_o = n1025_o;
-      13'b0000001000000: n2375_o = n1025_o;
-      13'b0000000100000: n2375_o = n1025_o;
-      13'b0000000010000: n2375_o = n1025_o;
-      13'b0000000001000: n2375_o = 1'b1;
-      13'b0000000000100: n2375_o = n1025_o;
-      13'b0000000000010: n2375_o = n1025_o;
-      13'b0000000000001: n2375_o = n1446_o;
-      default: n2375_o = n1025_o;
+    case (n2336_o)
+      13'b1000000000000: n2374_o = n2315_o;
+      13'b0100000000000: n2374_o = n2145_o;
+      13'b0010000000000: n2374_o = n2121_o;
+      13'b0001000000000: n2374_o = n1964_o;
+      13'b0000100000000: n2374_o = n1022_o;
+      13'b0000010000000: n2374_o = n1919_o;
+      13'b0000001000000: n2374_o = n1022_o;
+      13'b0000000100000: n2374_o = n1674_o;
+      13'b0000000010000: n2374_o = n1022_o;
+      13'b0000000001000: n2374_o = n1022_o;
+      13'b0000000000100: n2374_o = 1'b1;
+      13'b0000000000010: n2374_o = n1479_o;
+      13'b0000000000001: n2374_o = n1445_o;
+      default: n2374_o = n1022_o;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2376_o = n1028_o;
-      13'b0100000000000: n2376_o = n1028_o;
-      13'b0010000000000: n2376_o = n1028_o;
-      13'b0001000000000: n2376_o = n1028_o;
-      13'b0000100000000: n2376_o = n1028_o;
-      13'b0000010000000: n2376_o = n1028_o;
-      13'b0000001000000: n2376_o = n1028_o;
-      13'b0000000100000: n2376_o = n1028_o;
-      13'b0000000010000: n2376_o = n1028_o;
-      13'b0000000001000: n2376_o = n1028_o;
-      13'b0000000000100: n2376_o = n1028_o;
-      13'b0000000000010: n2376_o = n1028_o;
-      13'b0000000000001: n2376_o = n1448_o;
-      default: n2376_o = n1028_o;
+    case (n2336_o)
+      13'b1000000000000: n2376_o = 1'b0;
+      13'b0100000000000: n2376_o = 1'b0;
+      13'b0010000000000: n2376_o = 1'b0;
+      13'b0001000000000: n2376_o = 1'b0;
+      13'b0000100000000: n2376_o = 1'b0;
+      13'b0000010000000: n2376_o = 1'b0;
+      13'b0000001000000: n2376_o = 1'b0;
+      13'b0000000100000: n2376_o = 1'b0;
+      13'b0000000010000: n2376_o = 1'b0;
+      13'b0000000001000: n2376_o = 1'b0;
+      13'b0000000000100: n2376_o = 1'b0;
+      13'b0000000000010: n2376_o = 1'b0;
+      13'b0000000000001: n2376_o = n1447_o;
+      default: n2376_o = 1'b0;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2378_o = 1'b0;
-      13'b0100000000000: n2378_o = 1'b0;
-      13'b0010000000000: n2378_o = 1'b0;
-      13'b0001000000000: n2378_o = 1'b0;
-      13'b0000100000000: n2378_o = 1'b0;
-      13'b0000010000000: n2378_o = 1'b0;
-      13'b0000001000000: n2378_o = 1'b0;
-      13'b0000000100000: n2378_o = 1'b0;
-      13'b0000000010000: n2378_o = 1'b0;
-      13'b0000000001000: n2378_o = 1'b0;
-      13'b0000000000100: n2378_o = 1'b0;
-      13'b0000000000010: n2378_o = 1'b0;
-      13'b0000000000001: n2378_o = n1450_o;
-      default: n2378_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2379_o = n1025_o;
+      13'b0100000000000: n2379_o = n1025_o;
+      13'b0010000000000: n2379_o = n1025_o;
+      13'b0001000000000: n2379_o = n1025_o;
+      13'b0000100000000: n2379_o = n1025_o;
+      13'b0000010000000: n2379_o = n1025_o;
+      13'b0000001000000: n2379_o = n1025_o;
+      13'b0000000100000: n2379_o = n1025_o;
+      13'b0000000010000: n2379_o = n1025_o;
+      13'b0000000001000: n2379_o = 1'b1;
+      13'b0000000000100: n2379_o = n1025_o;
+      13'b0000000000010: n2379_o = n1025_o;
+      13'b0000000000001: n2379_o = n1450_o;
+      default: n2379_o = n1025_o;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2381_o = n2313_o;
-      13'b0100000000000: n2381_o = 1'b0;
-      13'b0010000000000: n2381_o = n2119_o;
-      13'b0001000000000: n2381_o = 1'b0;
-      13'b0000100000000: n2381_o = n1953_o;
-      13'b0000010000000: n2381_o = n1917_o;
-      13'b0000001000000: n2381_o = n1817_o;
-      13'b0000000100000: n2381_o = n1672_o;
-      13'b0000000010000: n2381_o = 1'b0;
-      13'b0000000001000: n2381_o = 1'b0;
-      13'b0000000000100: n2381_o = 1'b0;
-      13'b0000000000010: n2381_o = 1'b0;
-      13'b0000000000001: n2381_o = n1452_o;
-      default: n2381_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2380_o = n1028_o;
+      13'b0100000000000: n2380_o = n1028_o;
+      13'b0010000000000: n2380_o = n1028_o;
+      13'b0001000000000: n2380_o = n1028_o;
+      13'b0000100000000: n2380_o = n1028_o;
+      13'b0000010000000: n2380_o = n1028_o;
+      13'b0000001000000: n2380_o = n1028_o;
+      13'b0000000100000: n2380_o = n1028_o;
+      13'b0000000010000: n2380_o = n1028_o;
+      13'b0000000001000: n2380_o = n1028_o;
+      13'b0000000000100: n2380_o = n1028_o;
+      13'b0000000000010: n2380_o = n1028_o;
+      13'b0000000000001: n2380_o = n1452_o;
+      default: n2380_o = n1028_o;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2384_o = n2315_o;
-      13'b0100000000000: n2384_o = 1'b0;
-      13'b0010000000000: n2384_o = n2121_o;
-      13'b0001000000000: n2384_o = 1'b0;
-      13'b0000100000000: n2384_o = 1'b0;
-      13'b0000010000000: n2384_o = n1919_o;
-      13'b0000001000000: n2384_o = 1'b0;
-      13'b0000000100000: n2384_o = n1674_o;
-      13'b0000000010000: n2384_o = 1'b0;
-      13'b0000000001000: n2384_o = 1'b0;
-      13'b0000000000100: n2384_o = 1'b0;
-      13'b0000000000010: n2384_o = 1'b0;
-      13'b0000000000001: n2384_o = 1'b0;
-      default: n2384_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2382_o = 1'b0;
+      13'b0100000000000: n2382_o = 1'b0;
+      13'b0010000000000: n2382_o = 1'b0;
+      13'b0001000000000: n2382_o = 1'b0;
+      13'b0000100000000: n2382_o = 1'b0;
+      13'b0000010000000: n2382_o = 1'b0;
+      13'b0000001000000: n2382_o = 1'b0;
+      13'b0000000100000: n2382_o = 1'b0;
+      13'b0000000010000: n2382_o = 1'b0;
+      13'b0000000001000: n2382_o = 1'b0;
+      13'b0000000000100: n2382_o = 1'b0;
+      13'b0000000000010: n2382_o = 1'b0;
+      13'b0000000000001: n2382_o = n1454_o;
+      default: n2382_o = 1'b0;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2387_o = 1'b0;
-      13'b0100000000000: n2387_o = 1'b0;
-      13'b0010000000000: n2387_o = n2122_o;
-      13'b0001000000000: n2387_o = n2004_o;
-      13'b0000100000000: n2387_o = 1'b0;
-      13'b0000010000000: n2387_o = 1'b0;
-      13'b0000001000000: n2387_o = 1'b0;
-      13'b0000000100000: n2387_o = n1675_o;
-      13'b0000000010000: n2387_o = n1587_o;
-      13'b0000000001000: n2387_o = 1'b0;
-      13'b0000000000100: n2387_o = 1'b0;
-      13'b0000000000010: n2387_o = n1513_o;
-      13'b0000000000001: n2387_o = 1'b0;
-      default: n2387_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2385_o = n2317_o;
+      13'b0100000000000: n2385_o = 1'b0;
+      13'b0010000000000: n2385_o = n2123_o;
+      13'b0001000000000: n2385_o = 1'b0;
+      13'b0000100000000: n2385_o = n1957_o;
+      13'b0000010000000: n2385_o = n1921_o;
+      13'b0000001000000: n2385_o = n1821_o;
+      13'b0000000100000: n2385_o = n1676_o;
+      13'b0000000010000: n2385_o = 1'b0;
+      13'b0000000001000: n2385_o = 1'b0;
+      13'b0000000000100: n2385_o = 1'b0;
+      13'b0000000000010: n2385_o = 1'b0;
+      13'b0000000000001: n2385_o = n1456_o;
+      default: n2385_o = 1'b0;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2390_o = n2316_o;
-      13'b0100000000000: n2390_o = n2181_o;
-      13'b0010000000000: n2390_o = 1'b0;
-      13'b0001000000000: n2390_o = n2007_o;
-      13'b0000100000000: n2390_o = 1'b0;
-      13'b0000010000000: n2390_o = n1920_o;
-      13'b0000001000000: n2390_o = n1818_o;
-      13'b0000000100000: n2390_o = 1'b0;
-      13'b0000000010000: n2390_o = 1'b0;
-      13'b0000000001000: n2390_o = 1'b0;
-      13'b0000000000100: n2390_o = 1'b0;
-      13'b0000000000010: n2390_o = n1516_o;
-      13'b0000000000001: n2390_o = 1'b0;
-      default: n2390_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2388_o = n2319_o;
+      13'b0100000000000: n2388_o = 1'b0;
+      13'b0010000000000: n2388_o = n2125_o;
+      13'b0001000000000: n2388_o = 1'b0;
+      13'b0000100000000: n2388_o = 1'b0;
+      13'b0000010000000: n2388_o = n1923_o;
+      13'b0000001000000: n2388_o = 1'b0;
+      13'b0000000100000: n2388_o = n1678_o;
+      13'b0000000010000: n2388_o = 1'b0;
+      13'b0000000001000: n2388_o = 1'b0;
+      13'b0000000000100: n2388_o = 1'b0;
+      13'b0000000000010: n2388_o = 1'b0;
+      13'b0000000000001: n2388_o = 1'b0;
+      default: n2388_o = 1'b0;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2393_o = n2317_o;
-      13'b0100000000000: n2393_o = n2184_o;
-      13'b0010000000000: n2393_o = 1'b0;
-      13'b0001000000000: n2393_o = n2010_o;
-      13'b0000100000000: n2393_o = 1'b0;
-      13'b0000010000000: n2393_o = n1921_o;
-      13'b0000001000000: n2393_o = n1819_o;
-      13'b0000000100000: n2393_o = 1'b0;
-      13'b0000000010000: n2393_o = 1'b0;
-      13'b0000000001000: n2393_o = 1'b0;
-      13'b0000000000100: n2393_o = 1'b0;
-      13'b0000000000010: n2393_o = n1519_o;
-      13'b0000000000001: n2393_o = 1'b0;
-      default: n2393_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2391_o = 1'b0;
+      13'b0100000000000: n2391_o = 1'b0;
+      13'b0010000000000: n2391_o = n2126_o;
+      13'b0001000000000: n2391_o = n2008_o;
+      13'b0000100000000: n2391_o = 1'b0;
+      13'b0000010000000: n2391_o = 1'b0;
+      13'b0000001000000: n2391_o = 1'b0;
+      13'b0000000100000: n2391_o = n1679_o;
+      13'b0000000010000: n2391_o = n1591_o;
+      13'b0000000001000: n2391_o = 1'b0;
+      13'b0000000000100: n2391_o = 1'b0;
+      13'b0000000000010: n2391_o = n1517_o;
+      13'b0000000000001: n2391_o = 1'b0;
+      default: n2391_o = 1'b0;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2396_o = n2319_o;
-      13'b0100000000000: n2396_o = 1'b0;
-      13'b0010000000000: n2396_o = n2124_o;
-      13'b0001000000000: n2396_o = 1'b0;
-      13'b0000100000000: n2396_o = 1'b0;
-      13'b0000010000000: n2396_o = n1923_o;
-      13'b0000001000000: n2396_o = n1821_o;
-      13'b0000000100000: n2396_o = n1677_o;
-      13'b0000000010000: n2396_o = n1589_o;
-      13'b0000000001000: n2396_o = 1'b0;
-      13'b0000000000100: n2396_o = 1'b0;
-      13'b0000000000010: n2396_o = 1'b0;
-      13'b0000000000001: n2396_o = n1454_o;
-      default: n2396_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2394_o = n2320_o;
+      13'b0100000000000: n2394_o = n2185_o;
+      13'b0010000000000: n2394_o = 1'b0;
+      13'b0001000000000: n2394_o = n2011_o;
+      13'b0000100000000: n2394_o = 1'b0;
+      13'b0000010000000: n2394_o = n1924_o;
+      13'b0000001000000: n2394_o = n1822_o;
+      13'b0000000100000: n2394_o = 1'b0;
+      13'b0000000010000: n2394_o = 1'b0;
+      13'b0000000001000: n2394_o = 1'b0;
+      13'b0000000000100: n2394_o = 1'b0;
+      13'b0000000000010: n2394_o = n1520_o;
+      13'b0000000000001: n2394_o = 1'b0;
+      default: n2394_o = 1'b0;
     endcase
   /* T65_MCode.vhd:206:17  */
   always @*
-    case (n2332_o)
-      13'b1000000000000: n2399_o = n2320_o;
-      13'b0100000000000: n2399_o = n2186_o;
-      13'b0010000000000: n2399_o = n2125_o;
-      13'b0001000000000: n2399_o = n2012_o;
-      13'b0000100000000: n2399_o = 1'b0;
-      13'b0000010000000: n2399_o = n1924_o;
-      13'b0000001000000: n2399_o = n1823_o;
-      13'b0000000100000: n2399_o = n1678_o;
-      13'b0000000010000: n2399_o = n1591_o;
-      13'b0000000001000: n2399_o = 1'b0;
-      13'b0000000000100: n2399_o = 1'b0;
-      13'b0000000000010: n2399_o = n1521_o;
-      13'b0000000000001: n2399_o = n1456_o;
-      default: n2399_o = 1'b0;
+    case (n2336_o)
+      13'b1000000000000: n2397_o = n2321_o;
+      13'b0100000000000: n2397_o = n2188_o;
+      13'b0010000000000: n2397_o = 1'b0;
+      13'b0001000000000: n2397_o = n2014_o;
+      13'b0000100000000: n2397_o = 1'b0;
+      13'b0000010000000: n2397_o = n1925_o;
+      13'b0000001000000: n2397_o = n1823_o;
+      13'b0000000100000: n2397_o = 1'b0;
+      13'b0000000010000: n2397_o = 1'b0;
+      13'b0000000001000: n2397_o = 1'b0;
+      13'b0000000000100: n2397_o = 1'b0;
+      13'b0000000000010: n2397_o = n1523_o;
+      13'b0000000000001: n2397_o = 1'b0;
+      default: n2397_o = 1'b0;
     endcase
-  /* T65_MCode.vhd:955:24  */
-  assign n2404_o = ir[1:0];
-  /* T65_MCode.vhd:958:32  */
-  assign n2405_o = ir[4:2];
-  /* T65_MCode.vhd:960:40  */
-  assign n2406_o = ir[7:5];
-  /* T65_MCode.vhd:961:33  */
-  assign n2408_o = n2406_o == 3'b110;
-  /* T65_MCode.vhd:961:44  */
-  assign n2410_o = n2406_o == 3'b111;
-  /* T65_MCode.vhd:961:44  */
-  assign n2411_o = n2408_o | n2410_o;
+  /* T65_MCode.vhd:206:17  */
+  always @*
+    case (n2336_o)
+      13'b1000000000000: n2400_o = n2323_o;
+      13'b0100000000000: n2400_o = 1'b0;
+      13'b0010000000000: n2400_o = n2128_o;
+      13'b0001000000000: n2400_o = 1'b0;
+      13'b0000100000000: n2400_o = 1'b0;
+      13'b0000010000000: n2400_o = n1927_o;
+      13'b0000001000000: n2400_o = n1825_o;
+      13'b0000000100000: n2400_o = n1681_o;
+      13'b0000000010000: n2400_o = n1593_o;
+      13'b0000000001000: n2400_o = 1'b0;
+      13'b0000000000100: n2400_o = 1'b0;
+      13'b0000000000010: n2400_o = 1'b0;
+      13'b0000000000001: n2400_o = n1458_o;
+      default: n2400_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:206:17  */
+  always @*
+    case (n2336_o)
+      13'b1000000000000: n2403_o = n2324_o;
+      13'b0100000000000: n2403_o = n2190_o;
+      13'b0010000000000: n2403_o = n2129_o;
+      13'b0001000000000: n2403_o = n2016_o;
+      13'b0000100000000: n2403_o = 1'b0;
+      13'b0000010000000: n2403_o = n1928_o;
+      13'b0000001000000: n2403_o = n1827_o;
+      13'b0000000100000: n2403_o = n1682_o;
+      13'b0000000010000: n2403_o = n1595_o;
+      13'b0000000001000: n2403_o = 1'b0;
+      13'b0000000000100: n2403_o = 1'b0;
+      13'b0000000000010: n2403_o = n1525_o;
+      13'b0000000000001: n2403_o = n1460_o;
+      default: n2403_o = 1'b0;
+    endcase
+  /* T65_MCode.vhd:959:24  */
+  assign n2408_o = ir[1:0];
+  /* T65_MCode.vhd:962:32  */
+  assign n2409_o = ir[4:2];
+  /* T65_MCode.vhd:964:40  */
+  assign n2410_o = ir[7:5];
+  /* T65_MCode.vhd:965:33  */
+  assign n2412_o = n2410_o == 3'b110;
+  /* T65_MCode.vhd:965:44  */
+  assign n2414_o = n2410_o == 3'b111;
+  /* T65_MCode.vhd:965:44  */
+  assign n2415_o = n2412_o | n2414_o;
+  /* T65_MCode.vhd:968:33  */
+  assign n2417_o = n2410_o == 3'b101;
+  /* T65_MCode.vhd:971:33  */
+  assign n2419_o = n2410_o == 3'b001;
+  assign n2420_o = {n2419_o, n2417_o, n2415_o};
   /* T65_MCode.vhd:964:33  */
-  assign n2413_o = n2406_o == 3'b101;
-  /* T65_MCode.vhd:967:33  */
-  assign n2415_o = n2406_o == 3'b001;
-  assign n2416_o = {n2415_o, n2413_o, n2411_o};
-  /* T65_MCode.vhd:960:33  */
   always @*
-    case (n2416_o)
-      3'b100: n2421_o = 4'b1100;
-      3'b010: n2421_o = 4'b0101;
-      3'b001: n2421_o = 4'b0110;
-      default: n2421_o = 4'b0100;
+    case (n2420_o)
+      3'b100: n2425_o = 4'b1100;
+      3'b010: n2425_o = 4'b0101;
+      3'b001: n2425_o = 4'b0110;
+      default: n2425_o = 4'b0100;
     endcase
-  /* T65_MCode.vhd:959:25  */
-  assign n2423_o = n2405_o == 3'b000;
-  /* T65_MCode.vhd:959:36  */
-  assign n2425_o = n2405_o == 3'b001;
-  /* T65_MCode.vhd:959:36  */
-  assign n2426_o = n2423_o | n2425_o;
-  /* T65_MCode.vhd:959:44  */
-  assign n2428_o = n2405_o == 3'b011;
-  /* T65_MCode.vhd:959:44  */
-  assign n2429_o = n2426_o | n2428_o;
-  /* T65_MCode.vhd:975:40  */
-  assign n2430_o = ir[7:5];
-  /* T65_MCode.vhd:976:33  */
-  assign n2432_o = n2430_o == 3'b111;
-  /* T65_MCode.vhd:976:44  */
-  assign n2434_o = n2430_o == 3'b110;
-  /* T65_MCode.vhd:976:44  */
-  assign n2435_o = n2432_o | n2434_o;
+  /* T65_MCode.vhd:963:25  */
+  assign n2427_o = n2409_o == 3'b000;
+  /* T65_MCode.vhd:963:36  */
+  assign n2429_o = n2409_o == 3'b001;
+  /* T65_MCode.vhd:963:36  */
+  assign n2430_o = n2427_o | n2429_o;
+  /* T65_MCode.vhd:963:44  */
+  assign n2432_o = n2409_o == 3'b011;
+  /* T65_MCode.vhd:963:44  */
+  assign n2433_o = n2430_o | n2432_o;
+  /* T65_MCode.vhd:979:40  */
+  assign n2434_o = ir[7:5];
+  /* T65_MCode.vhd:980:33  */
+  assign n2436_o = n2434_o == 3'b111;
+  /* T65_MCode.vhd:980:44  */
+  assign n2438_o = n2434_o == 3'b110;
+  /* T65_MCode.vhd:980:44  */
+  assign n2439_o = n2436_o | n2438_o;
+  /* T65_MCode.vhd:983:33  */
+  assign n2441_o = n2434_o == 3'b100;
+  assign n2442_o = {n2441_o, n2439_o};
   /* T65_MCode.vhd:979:33  */
-  assign n2437_o = n2430_o == 3'b100;
-  assign n2438_o = {n2437_o, n2435_o};
-  /* T65_MCode.vhd:975:33  */
   always @*
-    case (n2438_o)
-      2'b10: n2442_o = 4'b1110;
-      2'b01: n2442_o = 4'b1111;
-      default: n2442_o = 4'b1101;
+    case (n2442_o)
+      2'b10: n2446_o = 4'b1110;
+      2'b01: n2446_o = 4'b1111;
+      default: n2446_o = 4'b1101;
     endcase
-  /* T65_MCode.vhd:974:25  */
-  assign n2444_o = n2405_o == 3'b010;
-  /* T65_MCode.vhd:987:40  */
-  assign n2445_o = ir[7:5];
-  /* T65_MCode.vhd:988:33  */
-  assign n2447_o = n2445_o == 3'b100;
-  /* T65_MCode.vhd:987:33  */
+  /* T65_MCode.vhd:978:25  */
+  assign n2448_o = n2409_o == 3'b010;
+  /* T65_MCode.vhd:991:40  */
+  assign n2449_o = ir[7:5];
+  /* T65_MCode.vhd:992:33  */
+  assign n2451_o = n2449_o == 3'b100;
+  /* T65_MCode.vhd:991:33  */
   always @*
-    case (n2447_o)
-      1'b1: n2450_o = 4'b1101;
-      default: n2450_o = 4'bX;
+    case (n2451_o)
+      1'b1: n2454_o = 4'b1101;
+      default: n2454_o = 4'bX;
     endcase
-  /* T65_MCode.vhd:986:25  */
-  assign n2452_o = n2405_o == 3'b110;
-  /* T65_MCode.vhd:995:40  */
-  assign n2453_o = ir[7:5];
-  /* T65_MCode.vhd:996:33  */
-  assign n2455_o = n2453_o == 3'b101;
-  /* T65_MCode.vhd:995:33  */
-  always @*
-    case (n2455_o)
-      1'b1: n2458_o = 4'b1101;
-      default: n2458_o = 4'b0100;
-    endcase
-  assign n2459_o = {n2452_o, n2444_o, n2429_o};
-  /* T65_MCode.vhd:958:25  */
+  /* T65_MCode.vhd:990:25  */
+  assign n2456_o = n2409_o == 3'b110;
+  /* T65_MCode.vhd:999:40  */
+  assign n2457_o = ir[7:5];
+  /* T65_MCode.vhd:1000:33  */
+  assign n2459_o = n2457_o == 3'b101;
+  /* T65_MCode.vhd:999:33  */
   always @*
     case (n2459_o)
-      3'b100: n2460_o = n2450_o;
-      3'b010: n2460_o = n2442_o;
-      3'b001: n2460_o = n2421_o;
-      default: n2460_o = n2458_o;
+      1'b1: n2462_o = 4'b1101;
+      default: n2462_o = 4'b0100;
     endcase
-  /* T65_MCode.vhd:956:17  */
-  assign n2462_o = n2404_o == 2'b00;
-  /* T65_MCode.vhd:1007:49  */
-  assign n2464_o = ir[7:5];
-  /* T65_MCode.vhd:1004:17  */
-  assign n2466_o = n2404_o == 2'b01;
-  /* T65_MCode.vhd:1012:49  */
+  assign n2463_o = {n2456_o, n2448_o, n2433_o};
+  /* T65_MCode.vhd:962:25  */
+  always @*
+    case (n2463_o)
+      3'b100: n2464_o = n2454_o;
+      3'b010: n2464_o = n2446_o;
+      3'b001: n2464_o = n2425_o;
+      default: n2464_o = n2462_o;
+    endcase
+  /* T65_MCode.vhd:960:17  */
+  assign n2466_o = n2408_o == 2'b00;
+  /* T65_MCode.vhd:1011:49  */
   assign n2468_o = ir[7:5];
-  /* T65_MCode.vhd:1013:32  */
-  assign n2469_o = ir[7:5];
-  /* T65_MCode.vhd:1015:38  */
-  assign n2470_o = ir[4:2];
-  /* T65_MCode.vhd:1015:51  */
-  assign n2472_o = n2470_o == 3'b110;
-  assign n2474_o = {1'b1, n2468_o};
-  /* T65_MCode.vhd:1015:33  */
-  assign n2475_o = n2472_o ? 4'b1111 : n2474_o;
-  /* T65_MCode.vhd:1014:25  */
-  assign n2477_o = n2469_o == 3'b000;
-  /* T65_MCode.vhd:1020:38  */
-  assign n2478_o = ir[4:2];
-  /* T65_MCode.vhd:1020:51  */
-  assign n2480_o = n2478_o == 3'b110;
-  assign n2482_o = {1'b1, n2468_o};
-  /* T65_MCode.vhd:1020:33  */
-  assign n2483_o = n2480_o ? 4'b1110 : n2482_o;
-  /* T65_MCode.vhd:1019:25  */
-  assign n2485_o = n2469_o == 3'b001;
-  /* T65_MCode.vhd:1025:38  */
-  assign n2486_o = ir[4:2];
-  /* T65_MCode.vhd:1025:51  */
-  assign n2488_o = n2486_o == 3'b010;
-  /* T65_MCode.vhd:1025:33  */
-  assign n2491_o = n2488_o ? 4'b0101 : 4'b0100;
-  /* T65_MCode.vhd:1024:25  */
-  assign n2493_o = n2469_o == 3'b100;
-  assign n2494_o = {n2493_o, n2485_o, n2477_o};
-  assign n2495_o = {1'b1, n2468_o};
-  /* T65_MCode.vhd:1013:25  */
+  /* T65_MCode.vhd:1008:17  */
+  assign n2470_o = n2408_o == 2'b01;
+  /* T65_MCode.vhd:1016:49  */
+  assign n2472_o = ir[7:5];
+  /* T65_MCode.vhd:1017:32  */
+  assign n2473_o = ir[7:5];
+  /* T65_MCode.vhd:1019:38  */
+  assign n2474_o = ir[4:2];
+  /* T65_MCode.vhd:1019:51  */
+  assign n2476_o = n2474_o == 3'b110;
+  assign n2478_o = {1'b1, n2472_o};
+  /* T65_MCode.vhd:1019:33  */
+  assign n2479_o = n2476_o ? 4'b1111 : n2478_o;
+  /* T65_MCode.vhd:1018:25  */
+  assign n2481_o = n2473_o == 3'b000;
+  /* T65_MCode.vhd:1024:38  */
+  assign n2482_o = ir[4:2];
+  /* T65_MCode.vhd:1024:51  */
+  assign n2484_o = n2482_o == 3'b110;
+  assign n2486_o = {1'b1, n2472_o};
+  /* T65_MCode.vhd:1024:33  */
+  assign n2487_o = n2484_o ? 4'b1110 : n2486_o;
+  /* T65_MCode.vhd:1023:25  */
+  assign n2489_o = n2473_o == 3'b001;
+  /* T65_MCode.vhd:1029:38  */
+  assign n2490_o = ir[4:2];
+  /* T65_MCode.vhd:1029:51  */
+  assign n2492_o = n2490_o == 3'b010;
+  /* T65_MCode.vhd:1029:33  */
+  assign n2495_o = n2492_o ? 4'b0101 : 4'b0100;
+  /* T65_MCode.vhd:1028:25  */
+  assign n2497_o = n2473_o == 3'b100;
+  assign n2498_o = {n2497_o, n2489_o, n2481_o};
+  assign n2499_o = {1'b1, n2472_o};
+  /* T65_MCode.vhd:1017:25  */
   always @*
-    case (n2494_o)
-      3'b100: n2496_o = n2491_o;
-      3'b010: n2496_o = n2483_o;
-      3'b001: n2496_o = n2475_o;
-      default: n2496_o = n2495_o;
+    case (n2498_o)
+      3'b100: n2500_o = n2495_o;
+      3'b010: n2500_o = n2487_o;
+      3'b001: n2500_o = n2479_o;
+      default: n2500_o = n2499_o;
     endcase
-  /* T65_MCode.vhd:1009:17  */
-  assign n2498_o = n2404_o == 2'b10;
-  /* T65_MCode.vhd:1036:32  */
-  assign n2499_o = ir[7:5];
-  /* T65_MCode.vhd:1037:25  */
-  assign n2501_o = n2499_o == 3'b100;
-  /* T65_MCode.vhd:1040:43  */
-  assign n2503_o = mcycle == 3'b000;
-  /* T65_MCode.vhd:1042:65  */
-  assign n2505_o = ir[7:5];
-  /* T65_MCode.vhd:1045:65  */
-  assign n2507_o = ir[7:5];
-  assign n2508_o = {1'b1, n2507_o};
-  assign n2509_o = {1'b0, n2505_o};
-  /* T65_MCode.vhd:1040:33  */
-  assign n2510_o = n2503_o ? n2509_o : n2508_o;
-  /* T65_MCode.vhd:1036:25  */
+  /* T65_MCode.vhd:1013:17  */
+  assign n2502_o = n2408_o == 2'b10;
+  /* T65_MCode.vhd:1040:32  */
+  assign n2503_o = ir[7:5];
+  /* T65_MCode.vhd:1041:25  */
+  assign n2505_o = n2503_o == 3'b100;
+  /* T65_MCode.vhd:1044:43  */
+  assign n2507_o = mcycle == 3'b000;
+  /* T65_MCode.vhd:1046:65  */
+  assign n2509_o = ir[7:5];
+  /* T65_MCode.vhd:1049:65  */
+  assign n2511_o = ir[7:5];
+  assign n2512_o = {1'b1, n2511_o};
+  assign n2513_o = {1'b0, n2509_o};
+  /* T65_MCode.vhd:1044:33  */
+  assign n2514_o = n2507_o ? n2513_o : n2512_o;
+  /* T65_MCode.vhd:1040:25  */
   always @*
-    case (n2501_o)
-      1'b1: n2512_o = 4'b0100;
-      default: n2512_o = n2510_o;
+    case (n2505_o)
+      1'b1: n2516_o = 4'b0100;
+      default: n2516_o = n2514_o;
     endcase
-  assign n2513_o = {n2498_o, n2466_o, n2462_o};
-  assign n2514_o = n2460_o[2:0];
-  assign n2515_o = n2496_o[2:0];
-  assign n2516_o = n2512_o[2:0];
-  /* T65_MCode.vhd:955:17  */
+  assign n2517_o = {n2502_o, n2470_o, n2466_o};
+  assign n2518_o = n2464_o[2:0];
+  assign n2519_o = n2500_o[2:0];
+  assign n2520_o = n2516_o[2:0];
+  /* T65_MCode.vhd:959:17  */
   always @*
-    case (n2513_o)
-      3'b100: n2517_o = n2515_o;
-      3'b010: n2517_o = n2464_o;
-      3'b001: n2517_o = n2514_o;
-      default: n2517_o = n2516_o;
-    endcase
-  assign n2518_o = n2460_o[3];
-  assign n2519_o = n2496_o[3];
-  assign n2520_o = n2512_o[3];
-  /* T65_MCode.vhd:955:17  */
-  always @*
-    case (n2513_o)
+    case (n2517_o)
       3'b100: n2521_o = n2519_o;
-      3'b010: n2521_o = 1'b0;
+      3'b010: n2521_o = n2468_o;
       3'b001: n2521_o = n2518_o;
       default: n2521_o = n2520_o;
     endcase
-  assign n2523_o = {n2521_o, n2517_o};
+  assign n2522_o = n2464_o[3];
+  assign n2523_o = n2500_o[3];
+  assign n2524_o = n2516_o[3];
+  /* T65_MCode.vhd:959:17  */
+  always @*
+    case (n2517_o)
+      3'b100: n2525_o = n2523_o;
+      3'b010: n2525_o = 1'b0;
+      3'b001: n2525_o = n2522_o;
+      default: n2525_o = n2524_o;
+    endcase
+  assign n2527_o = {n2525_o, n2521_o};
 endmodule
 
 module T65
@@ -5118,8 +5122,10 @@ module T65
   wire mcode_ldbah;
   wire mcode_savep;
   wire mcode_write;
-  wire [7:0] alu_n129;
-  wire [7:0] alu_p_out;
+  wire [7:0] inst_alu_n129;
+  wire [7:0] inst_alu_n130;
+  wire [7:0] inst_alu_p_out;
+  wire [7:0] inst_alu_q;
   wire n137_o;
   wire n139_o;
   wire n140_o;
@@ -5654,8 +5660,10 @@ module T65
   assign busa_r = n879_q; // (signal)
   /* T65.vhd:136:16  */
   assign busb = n881_q; // (signal)
+  /* T65.vhd:137:16  */
+  assign alu_q = inst_alu_n130; // (signal)
   /* T65.vhd:138:16  */
-  assign p_out = alu_n129; // (signal)
+  assign p_out = inst_alu_n129; // (signal)
   /* T65.vhd:141:16  */
   assign lcycle = mcode_n54; // (signal)
   /* T65.vhd:142:16  */
@@ -5727,13 +5735,13 @@ module T65
   /* T65.vhd:183:68  */
   assign n27_o = n25_o == 2'b11;
   /* T65.vhd:183:49  */
-  assign n28_o = n24_o & n27_o;
+  assign n28_o = n27_o & n24_o;
   /* T65.vhd:183:85  */
   assign n29_o = mcycle[2:1];
   /* T65.vhd:183:98  */
   assign n31_o = n29_o != 2'b00;
   /* T65.vhd:183:75  */
-  assign n32_o = n28_o & n31_o;
+  assign n32_o = n31_o & n28_o;
   /* T65.vhd:183:21  */
   assign n33_o = n32_o ? 1'b0 : 1'b1;
   /* T65.vhd:184:53  */
@@ -5743,7 +5751,7 @@ module T65
   /* T65.vhd:184:61  */
   assign n40_o = n37_o | n39_o;
   /* T65.vhd:184:41  */
-  assign n41_o = irqcycle & n40_o;
+  assign n41_o = n40_o & irqcycle;
   /* T65.vhd:184:21  */
   assign n42_o = n41_o ? 1'b0 : 1'b1;
   /* T65.vhd:185:39  */
@@ -5838,16 +5846,18 @@ module T65
     .savep(mcode_savep),
     .write(mcode_write));
   /* T65.vhd:228:34  */
-  assign alu_n129 = alu_p_out; // (signal)
+  assign inst_alu_n129 = inst_alu_p_out; // (signal)
+  /* T65.vhd:229:30  */
+  assign inst_alu_n130 = inst_alu_q; // (signal)
   /* T65.vhd:221:9  */
-  t65_alu alu (
+  t65_alu inst_alu (
     .mode(mode_r),
     .op(alu_op_r),
     .busa(busa_r),
     .busb(busb),
     .p_in(p),
-    .p_out(alu_p_out),
-    .q(alu_q));
+    .p_out(inst_alu_p_out),
+    .q(inst_alu_q));
   /* T65.vhd:234:26  */
   assign n137_o = ~Res_n;
   /* T65.vhd:255:44  */
@@ -5861,7 +5871,7 @@ module T65
   /* T65.vhd:267:72  */
   assign n144_o = ~nmicycle;
   /* T65.vhd:267:59  */
-  assign n145_o = n143_o & n144_o;
+  assign n145_o = n144_o & n143_o;
   /* T65.vhd:268:58  */
   assign n147_o = pc + 16'b0000000000000001;
   /* T65.vhd:271:59  */
@@ -5869,7 +5879,7 @@ module T65
   /* T65.vhd:271:41  */
   assign n151_o = n149_o ? 8'b00000000 : DI;
   /* T65.vhd:264:33  */
-  assign n152_o = n142_o & n145_o;
+  assign n152_o = n145_o & n142_o;
   /* T65.vhd:280:33  */
   assign n156_o = brk ? 2'b00 : set_addr_to;
   /* T65.vhd:287:48  */
@@ -5877,7 +5887,7 @@ module T65
   /* T65.vhd:289:61  */
   assign n160_o = ~rstcycle;
   /* T65.vhd:289:48  */
-  assign n161_o = dec_s & n160_o;
+  assign n161_o = n160_o & dec_s;
   /* T65.vhd:290:48  */
   assign n163_o = s - 16'b0000000000000001;
   assign n165_o = n163_o[7:0];
@@ -5901,15 +5911,15 @@ module T65
   /* T65.vhd:296:63  */
   assign n179_o = mcycle == 3'b001;
   /* T65.vhd:296:52  */
-  assign n180_o = n177_o & n179_o;
+  assign n180_o = n179_o & n177_o;
   /* T65.vhd:296:84  */
   assign n181_o = ~irqcycle;
   /* T65.vhd:296:71  */
-  assign n182_o = n180_o & n181_o;
+  assign n182_o = n181_o & n180_o;
   /* T65.vhd:296:103  */
   assign n183_o = ~nmicycle;
   /* T65.vhd:296:90  */
-  assign n184_o = n182_o & n183_o;
+  assign n184_o = n183_o & n182_o;
   /* T65.vhd:297:50  */
   assign n186_o = pc + 16'b0000000000000001;
   /* T65.vhd:304:52  */
@@ -5987,35 +5997,35 @@ module T65
   assign n242_o = {n230_o, n222_o};
   assign n244_o = {n175_o, n170_o};
   /* T65.vhd:254:25  */
-  assign n252_o = really_rdy & n142_o;
+  assign n252_o = n142_o & really_rdy;
   /* T65.vhd:254:25  */
-  assign n253_o = really_rdy & n142_o;
+  assign n253_o = n142_o & really_rdy;
   /* T65.vhd:253:19  */
-  assign n259_o = Enable & really_rdy;
+  assign n259_o = really_rdy & Enable;
   /* T65.vhd:253:19  */
-  assign n260_o = Enable & really_rdy;
+  assign n260_o = really_rdy & Enable;
   /* T65.vhd:253:19  */
-  assign n261_o = Enable & really_rdy;
+  assign n261_o = really_rdy & Enable;
   /* T65.vhd:253:19  */
-  assign n262_o = Enable & really_rdy;
+  assign n262_o = really_rdy & Enable;
   /* T65.vhd:253:19  */
-  assign n263_o = Enable & really_rdy;
+  assign n263_o = really_rdy & Enable;
   /* T65.vhd:253:19  */
-  assign n264_o = Enable & really_rdy;
+  assign n264_o = really_rdy & Enable;
   /* T65.vhd:253:19  */
-  assign n265_o = Enable & really_rdy;
+  assign n265_o = really_rdy & Enable;
   /* T65.vhd:253:19  */
-  assign n266_o = Enable & n252_o;
+  assign n266_o = n252_o & Enable;
   /* T65.vhd:253:19  */
-  assign n267_o = Enable & n253_o;
+  assign n267_o = n253_o & Enable;
   /* T65.vhd:253:19  */
-  assign n268_o = Enable & really_rdy;
+  assign n268_o = really_rdy & Enable;
   /* T65.vhd:253:19  */
-  assign n269_o = Enable & really_rdy;
+  assign n269_o = really_rdy & Enable;
   /* T65.vhd:253:19  */
-  assign n270_o = Enable & really_rdy;
+  assign n270_o = really_rdy & Enable;
   /* T65.vhd:253:19  */
-  assign n271_o = Enable & really_rdy;
+  assign n271_o = really_rdy & Enable;
   /* T65.vhd:326:29  */
   assign n315_o = pc[7:0];
   /* T65.vhd:326:20  */
@@ -6039,13 +6049,13 @@ module T65
   /* T65.vhd:344:56  */
   assign n336_o = n335_o | ldy;
   /* T65.vhd:334:33  */
-  assign n339_o = n328_o & lda;
+  assign n339_o = lda & n328_o;
   /* T65.vhd:334:33  */
-  assign n341_o = n328_o & ldx;
+  assign n341_o = ldx & n328_o;
   /* T65.vhd:334:33  */
-  assign n343_o = n328_o & ldy;
+  assign n343_o = ldy & n328_o;
   /* T65.vhd:334:33  */
-  assign n344_o = n328_o & n336_o;
+  assign n344_o = n336_o & n328_o;
   /* T65.vhd:354:38  */
   assign n347_o = ir[4:0];
   /* T65.vhd:354:51  */
@@ -6205,11 +6215,11 @@ module T65
   /* T65.vhd:384:65  */
   assign n475_o = ~rstcycle;
   /* T65.vhd:384:52  */
-  assign n476_o = n474_o & n475_o;
+  assign n476_o = n475_o & n474_o;
   /* T65.vhd:384:91  */
   assign n477_o = nmicycle | irqcycle;
   /* T65.vhd:384:71  */
-  assign n478_o = n476_o & n477_o;
+  assign n478_o = n477_o & n476_o;
   /* T65.vhd:385:21  */
   assign n480_o = mcycle == 3'b011;
   /* T65.vhd:388:24  */
@@ -6262,7 +6272,7 @@ module T65
   /* T65.vhd:384:33  */
   assign n515_o = n478_o ? n504_o : n514_o;
   /* T65.vhd:384:33  */
-  assign n516_o = n478_o & n480_o;
+  assign n516_o = n480_o & n478_o;
   assign n517_o = n405_o[1];
   assign n518_o = alu_q[3];
   assign n519_o = p_out[3];
@@ -6279,38 +6289,38 @@ module T65
   /* T65.vhd:393:58  */
   assign n526_o = ~SO_n;
   /* T65.vhd:393:49  */
-  assign n527_o = so_n_o & n526_o;
+  assign n527_o = n526_o & so_n_o;
   /* T65.vhd:393:33  */
   assign n529_o = n527_o ? 1'b1 : n429_o;
   /* T65.vhd:396:62  */
   assign n531_o = mode_r != 2'b00;
   /* T65.vhd:396:51  */
-  assign n532_o = rstcycle & n531_o;
+  assign n532_o = n531_o & rstcycle;
   assign n536_o = {1'b0, 1'b1};
   assign n537_o = {n525_o, n515_o};
   /* T65.vhd:396:33  */
   assign n538_o = n532_o ? n536_o : n537_o;
   /* T65.vhd:333:25  */
-  assign n543_o = really_rdy & n339_o;
+  assign n543_o = n339_o & really_rdy;
   /* T65.vhd:333:25  */
-  assign n545_o = really_rdy & n341_o;
+  assign n545_o = n341_o & really_rdy;
   /* T65.vhd:333:25  */
-  assign n547_o = really_rdy & n343_o;
+  assign n547_o = n343_o & really_rdy;
   assign n548_o = {n457_o, n529_o, 1'b1, n505_o, n538_o, n450_o, n413_o};
   /* T65.vhd:332:19  */
-  assign n555_o = Enable & n543_o;
+  assign n555_o = n543_o & Enable;
   /* T65.vhd:332:19  */
-  assign n557_o = Enable & n545_o;
+  assign n557_o = n545_o & Enable;
   /* T65.vhd:332:19  */
-  assign n559_o = Enable & n547_o;
+  assign n559_o = n547_o & Enable;
   /* T65.vhd:332:19  */
-  assign n560_o = Enable & really_rdy;
+  assign n560_o = really_rdy & Enable;
   /* T65.vhd:332:19  */
-  assign n562_o = Enable & really_rdy;
+  assign n562_o = really_rdy & Enable;
   /* T65.vhd:332:19  */
-  assign n563_o = Enable & really_rdy;
+  assign n563_o = really_rdy & Enable;
   /* T65.vhd:332:19  */
-  assign n564_o = Enable & really_rdy;
+  assign n564_o = really_rdy & Enable;
   /* T65.vhd:420:26  */
   assign n579_o = ~Res_n;
   /* T65.vhd:436:77  */
@@ -6418,17 +6428,17 @@ module T65
   assign n646_o = ldbah ? DI : n633_o;
   assign n650_o = {n645_o, n642_o};
   /* T65.vhd:428:19  */
-  assign n654_o = Enable & Rdy;
+  assign n654_o = Rdy & Enable;
   /* T65.vhd:428:19  */
-  assign n655_o = Enable & Rdy;
+  assign n655_o = Rdy & Enable;
   /* T65.vhd:428:19  */
-  assign n656_o = Enable & Rdy;
+  assign n656_o = Rdy & Enable;
   /* T65.vhd:428:19  */
-  assign n657_o = Enable & Rdy;
+  assign n657_o = Rdy & Enable;
   /* T65.vhd:428:19  */
-  assign n658_o = Enable & Rdy;
+  assign n658_o = Rdy & Enable;
   /* T65.vhd:428:19  */
-  assign n659_o = Enable & Rdy;
+  assign n659_o = Rdy & Enable;
   /* T65.vhd:494:40  */
   assign n679_o = bal[8];
   /* T65.vhd:494:33  */
@@ -6564,7 +6574,7 @@ module T65
   /* T65.vhd:546:75  */
   assign n757_o = ~n756_o;
   /* T65.vhd:546:61  */
-  assign n758_o = n755_o & n757_o;
+  assign n758_o = n757_o & n755_o;
   /* T65.vhd:546:41  */
   assign n761_o = n758_o ? 1'b1 : 1'b0;
   /* T65.vhd:544:41  */
@@ -6580,25 +6590,25 @@ module T65
   /* T65.vhd:556:60  */
   assign n779_o = ~NMI_n;
   /* T65.vhd:556:50  */
-  assign n780_o = nmi_n_o & n779_o;
+  assign n780_o = n779_o & nmi_n_o;
   /* T65.vhd:556:33  */
   assign n782_o = n780_o ? 1'b1 : n778_o;
   /* T65.vhd:538:25  */
-  assign n784_o = really_rdy & n754_o;
+  assign n784_o = n754_o & really_rdy;
   /* T65.vhd:538:25  */
-  assign n785_o = really_rdy & n754_o;
+  assign n785_o = n754_o & really_rdy;
   /* T65.vhd:538:25  */
-  assign n786_o = really_rdy & n754_o;
+  assign n786_o = n754_o & really_rdy;
   /* T65.vhd:537:19  */
-  assign n788_o = Enable & really_rdy;
+  assign n788_o = really_rdy & Enable;
   /* T65.vhd:537:19  */
-  assign n789_o = Enable & n784_o;
+  assign n789_o = n784_o & Enable;
   /* T65.vhd:537:19  */
-  assign n790_o = Enable & n785_o;
+  assign n790_o = n785_o & Enable;
   /* T65.vhd:537:19  */
-  assign n791_o = Enable & n786_o;
+  assign n791_o = n786_o & Enable;
   /* T65.vhd:537:19  */
-  assign n792_o = Enable & really_rdy;
+  assign n792_o = really_rdy & Enable;
   assign n809_o = abc[7:0];
   /* T65.vhd:331:17  */
   assign n810_o = n555_o ? alu_q : n809_o;

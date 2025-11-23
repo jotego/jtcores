@@ -390,12 +390,16 @@ begin
 				if Mode /= "00" then
 					LDA <= '1'; -- A
 				end if;
-				case to_integer(unsigned(MCycle)) is
-				when 0 =>
-				when 1 =>
-					Set_BusA_To <= "100"; -- S
-				when others =>
-				end case;
+				if IR = "00011010" then -- INCA
+					Set_BusA_To <= "001"; -- A
+				else
+					case to_integer(unsigned(MCycle)) is
+					when 0 =>
+					when 1 =>
+						Set_BusA_To <= "100"; -- S
+					when others =>
+					end case;
+				end if;
 			when "00001010" | "00101010" | "01001010" | "01101010" =>
 				-- ASL, ROL, LSR, ROR
 				LDA <= '1'; -- A
