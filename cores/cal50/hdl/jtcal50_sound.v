@@ -119,8 +119,10 @@ always @(posedge clk) begin
               cmd_cs      ? snd_cmd     : 8'h0;
 end
 
+localparam R65C02=2'b01;
+
 T65 u_cpu(
-    .Mode   ( 2'd0      ),  // 6502 mode
+    .Mode   ( R65C02    ),
     .Res_n  ( ~rst      ),
     .Enable ( cen2      ),
     .Clk    ( clk       ),
