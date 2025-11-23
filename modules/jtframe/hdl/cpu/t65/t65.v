@@ -4973,6 +4973,8 @@ module T65
    output VPA,
    output [23:0] A,
    output [7:0] DO);
+  // non standard register names
+  wire [15:0] s;
 `ifdef VERILATOR_KEEP_CPU
 /* verilator tracing_on */
 `endif
@@ -4987,7 +4989,6 @@ module T65
   wire [7:0] pbr;
   wire [7:0] dbr;
   wire [15:0] pc;
-  wire [15:0] s;
   wire ef_i;
   wire mf_i;
   wire xf_i;
@@ -5001,6 +5002,11 @@ module T65
   wire rstcycle;
   wire irqcycle;
   wire nmicycle;
+`ifdef VERILATOR_KEEP_CPU
+  // regular register names for debugging
+  wire [7:0]  a = abc[7:0];
+  wire [7:0] sp = s[7:0];
+`endif
 /* verilator tracing_off */
   wire so_n_o;
   wire irq_n_o;
