@@ -49215,6 +49215,24 @@
 					)
 				)
 			)
+			(pin no_connect line
+				(at 41.91 20.32 180)
+				(length 5.08)
+				(name "N.C"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "26"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
 			(pin input line
 				(at -30.48 39.37 270)
 				(length 5.08)
@@ -49244,24 +49262,6 @@
 					)
 				)
 				(number "28"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin no_connect line
-				(at 41.91 20.32 180)
-				(length 5.08)
-				(name "N.C"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "29"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -53702,7 +53702,7 @@
 				)
 			)
 			(pin power_in line
-				(at -27.94 12.7 0)
+				(at -27.94 10.16 0)
 				(length 2.54)
 				(name "VSS"
 					(effects
@@ -53846,7 +53846,7 @@
 				)
 			)
 			(pin power_in line
-				(at -27.94 10.16 0)
+				(at -27.94 7.62 0)
 				(length 2.54)
 				(name "VSS"
 					(effects
@@ -53918,7 +53918,7 @@
 				)
 			)
 			(pin power_in line
-				(at -27.94 15.24 0)
+				(at -27.94 12.7 0)
 				(length 2.54)
 				(name "VSS"
 					(effects
@@ -54295,8 +54295,8 @@
 					)
 				)
 			)
-			(pin input line
-				(at -16.51 -33.02 90)
+			(pin power_in line
+				(at -27.94 15.24 0)
 				(length 2.54)
 				(name "VSS"
 					(effects
@@ -54314,7 +54314,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -19.05 -33.02 90)
+				(at -16.51 -33.02 90)
 				(length 2.54)
 				(name "D12"
 					(effects
@@ -54332,7 +54332,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -21.59 -33.02 90)
+				(at -19.05 -33.02 90)
 				(length 2.54)
 				(name "D13"
 					(effects
@@ -54350,7 +54350,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 -25.4 0)
+				(at -27.94 -27.94 0)
 				(length 2.54)
 				(name "D14"
 					(effects
@@ -54368,7 +54368,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 -22.86 0)
+				(at -27.94 -25.4 0)
 				(length 2.54)
 				(name "D15"
 					(effects
@@ -54422,7 +54422,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 -20.32 0)
+				(at -27.94 -22.86 0)
 				(length 2.54)
 				(name "LH0"
 					(effects
@@ -54458,7 +54458,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 -17.78 0)
+				(at -27.94 -20.32 0)
 				(length 2.54)
 				(name "LH1"
 					(effects
@@ -54476,7 +54476,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 -15.24 0)
+				(at -27.94 -17.78 0)
 				(length 2.54)
 				(name "LH2"
 					(effects
@@ -54512,7 +54512,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 -12.7 0)
+				(at -27.94 -15.24 0)
 				(length 2.54)
 				(name "LA0"
 					(effects
@@ -54530,7 +54530,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 -10.16 0)
+				(at -27.94 -12.7 0)
 				(length 2.54)
 				(name "LA1"
 					(effects
@@ -54548,7 +54548,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 -7.62 0)
+				(at -27.94 -10.16 0)
 				(length 2.54)
 				(name "LA2"
 					(effects
@@ -54566,7 +54566,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 -5.08 0)
+				(at -27.94 -7.62 0)
 				(length 2.54)
 				(name "LA3"
 					(effects
@@ -54584,7 +54584,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 -2.54 0)
+				(at -27.94 -5.08 0)
 				(length 2.54)
 				(name "LA4"
 					(effects
@@ -54602,7 +54602,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 0 0)
+				(at -27.94 -2.54 0)
 				(length 2.54)
 				(name "LA5"
 					(effects
@@ -54620,7 +54620,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 2.54 0)
+				(at -27.94 0 0)
 				(length 2.54)
 				(name "LA6"
 					(effects
@@ -54656,7 +54656,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 5.08 0)
+				(at -27.94 2.54 0)
 				(length 2.54)
 				(name "LA7"
 					(effects
@@ -54674,7 +54674,7 @@
 				)
 			)
 			(pin tri_state line
-				(at -27.94 7.62 0)
+				(at -27.94 5.08 0)
 				(length 2.54)
 				(name "LA8"
 					(effects
