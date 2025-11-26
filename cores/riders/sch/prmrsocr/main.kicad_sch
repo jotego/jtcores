@@ -16746,7 +16746,7 @@
 	)
 	(wire
 		(pts
-			(xy 266.7 107.95) (xy 274.32 107.95)
+			(xy 266.7 107.95) (xy 278.13 107.95)
 		)
 		(stroke
 			(width 0)
@@ -18666,6 +18666,16 @@
 	)
 	(wire
 		(pts
+			(xy 245.11 276.86) (xy 236.22 276.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "616f5424-d7da-4b09-9e7b-d8b0e9360281")
+	)
+	(wire
+		(pts
 			(xy 95.25 270.51) (xy 133.35 270.51)
 		)
 		(stroke
@@ -20493,16 +20503,6 @@
 			(type default)
 		)
 		(uuid "a3fd8c91-ae5c-46fd-ba3b-a4463f26315d")
-	)
-	(wire
-		(pts
-			(xy 243.84 276.86) (xy 236.22 276.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a404f908-917a-4221-839b-ab76706e990a")
 	)
 	(wire
 		(pts
@@ -23619,6 +23619,16 @@
 		)
 		(uuid "25453e2f-228e-4821-81c5-8a4f24c08da2")
 	)
+	(label "MCO~{WR}H"
+		(at 245.11 276.86 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "256f1a9f-8422-4d0b-a214-56c642264b22")
+	)
 	(label "MAIN_A1"
 		(at 233.68 36.83 0)
 		(effects
@@ -23949,16 +23959,6 @@
 		)
 		(uuid "39087a0c-5d72-4c41-a50d-da92b19ae514")
 	)
-	(label "4GP13"
-		(at 274.32 107.95 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "395d7213-b399-464d-b760-a7886c901999")
-	)
 	(label "~{AS}"
 		(at 247.65 274.32 0)
 		(effects
@@ -24009,7 +24009,7 @@
 		)
 		(uuid "3da48c87-f84a-481f-baa1-9d20511268ea")
 	)
-	(label "MAIN_A1"
+	(label "MAIN_A2"
 		(at 233.68 134.62 0)
 		(effects
 			(font
@@ -24489,7 +24489,7 @@
 		)
 		(uuid "5da67400-043a-4528-a76c-7a19eb704140")
 	)
-	(label "~{VPA}"
+	(label "VSS"
 		(at 187.96 110.49 0)
 		(effects
 			(font
@@ -24619,7 +24619,7 @@
 		)
 		(uuid "67fd1300-12aa-49f7-a9c3-30e40cc4d1c3")
 	)
-	(label "9DP21"
+	(label "MCO~{WR}L"
 		(at 397.51 53.34 0)
 		(effects
 			(font
@@ -24788,6 +24788,16 @@
 			(justify left bottom)
 		)
 		(uuid "73d24047-fcf8-476e-981f-d7d251360f14")
+	)
+	(label "PALETTE~{CS}"
+		(at 278.13 107.95 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "74808c9f-1fd8-4213-911a-9c99e457885e")
 	)
 	(label "3GA P4"
 		(at 20.32 44.45 0)
@@ -26628,16 +26638,6 @@
 			(justify left bottom)
 		)
 		(uuid "fb778b32-b744-4dd9-8996-6fc5441efe90")
-	)
-	(label "8DP21"
-		(at 243.84 276.86 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "fbdbb186-5780-4cc5-8921-bff3319b113f")
 	)
 	(label "VCC"
 		(at 157.48 248.92 0)
