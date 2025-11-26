@@ -7489,6 +7489,66 @@
 				(justify left top)
 			)
 		)
+		(pin "MBRIT[2..0]" input
+			(at 246.38 226.06 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "1b909fb6-a137-4850-8f31-1daf17885a64")
+		)
+		(pin "M6" input
+			(at 246.38 228.6 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "32605da0-ba1b-4fa3-8891-9c31f3244da6")
+		)
+		(pin "~{VSYNC}" input
+			(at 246.38 231.14 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "8c252f3a-d2a3-42f4-9a8a-32338db5abab")
+		)
+		(pin "~{HSYNC}" input
+			(at 246.38 233.68 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "f6d5a4f4-7a91-47bc-bd98-66a0586922a5")
+		)
+		(pin "MAIN_D[15..0]" bidirectional
+			(at 246.38 236.22 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "1960f1be-b704-47f9-b6c1-3618739606d1")
+		)
+		(pin "MAIN_LA[10..0]" bidirectional
+			(at 246.38 238.76 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "9f5fb3cd-853e-49eb-9bf6-bf06d8e7baae")
+		)
 		(instances
 			(project "prmrsocr"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8"
