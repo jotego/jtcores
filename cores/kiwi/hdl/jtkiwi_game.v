@@ -34,7 +34,7 @@ wire        cpu_rnw, vctrl_cs, vflag_cs,
 reg         hb_dly=0, dip_flip_xor=0,
             coin_xor=0, banked_ram=0,
             kageki=0, kabuki=0, kabuki_mod = 0, service_xor=0,
-            colprom_en=0, mcu_en=0, aid_en, fast_fm=0;
+            colprom_en=0, mcu_en=0, aid_en, fast_fm=0, drtoppel=0;
 
 assign dip_flip   = ~flip ^ dip_flip_xor;
 assign debug_view = st_addr[7:6]==0 ? { hb_dly, dip_flip_xor, coin_xor, banked_ram,
@@ -60,7 +60,7 @@ always @(posedge clk) begin
             { hb_dly, dip_flip_xor, coin_xor, banked_ram,
               kageki, kabuki, colprom_en, mcu_en } <= prog_data;
         else if( prog_addr==1 )
-            { kabuki_mod, fast_fm, aid_en, service_xor } <= prog_data[3:0];
+            { drtoppel, kabuki_mod, fast_fm, aid_en, service_xor } <= prog_data[4:0];
     end
 end
 
@@ -126,6 +126,7 @@ jtkiwi_video u_video(
     .VS             ( VS            ),
     .flip           ( flip          ),
     .hdump          ( hdump         ),
+    .drtoppel       ( drtoppel      ),
     // PROMs
     .prom_we        ( colprom_we    ),
     .prog_addr      ( prog_addr[9:0]),
