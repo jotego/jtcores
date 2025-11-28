@@ -39,9 +39,9 @@ module jtframe_short_blank #(parameter WIDTH=511, HEIGHT=264) (
 
 reg  [8:0] clip, ln_count=0, max_ln_count2,
            pxl_count=0, max_pxl_count, max_pxl_count2;
-reg        lhbs=0, lvbs=0;
-reg        last_hb=0, last_vb=0, last_hs=0;
 wire [8:0] ln_count_nx, pxl_count_nx;
+reg        lhbs=0, lvbs=0,
+           last_hb=0, last_vb=0, last_hs=0;
 
 assign hb_out = !h_en ? LHBL : lhbs;
 assign vb_out = !v_en ? LVBL : lvbs;
