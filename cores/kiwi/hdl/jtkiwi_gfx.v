@@ -33,6 +33,7 @@ module jtkiwi_gfx(
     input               hs,
     input               vs,
     output              flip,
+    input               drtoppel,
 
     input      [ 8:0]   vdump,
     input      [ 8:0]   vrender,
@@ -166,6 +167,7 @@ jtkiwi_tilemap u_tilemap(
     .hs         ( hs        ),
     .flip       ( flip      ),
     .page       ( tm_page   ),
+    .drtoppel   ( drtoppel  ),
 
     .col_xmsb   ( col_xmsb  ),
     .col_cfg    ( col_cfg   ),
