@@ -4189,6 +4189,15 @@
 		(uuid "f36c599b-90d5-4449-a7cd-0de8b1b77cf4")
 	)
 	(bus_entry
+		(at 203.2 137.16)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f747921c-6bf8-43e3-9c7a-b6f70f4f691c")
+	)
+	(bus_entry
 		(at 160.02 182.88)
 		(size -2.54 2.54)
 		(stroke
@@ -5124,16 +5133,6 @@
 			(type default)
 		)
 		(uuid "4f733d4f-682c-4f4e-b3e2-221c735b370c")
-	)
-	(wire
-		(pts
-			(xy 217.17 139.7) (xy 214.63 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "509fc8e1-7423-44f1-b299-9e63ad1a0b02")
 	)
 	(wire
 		(pts
@@ -6447,13 +6446,23 @@
 	)
 	(wire
 		(pts
-			(xy 179.07 134.62) (xy 189.23 134.62)
+			(xy 179.07 134.62) (xy 182.88 134.62)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "b65c1a3a-670d-47e1-99aa-c731c39e1ee7")
+	)
+	(bus
+		(pts
+			(xy 203.2 134.62) (xy 203.2 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b737260e-f864-4ab7-8866-127b0ca496c6")
 	)
 	(wire
 		(pts
@@ -6584,6 +6593,16 @@
 			(type default)
 		)
 		(uuid "c2e389af-031c-4bcf-9d26-dd0819dca074")
+	)
+	(wire
+		(pts
+			(xy 205.74 139.7) (xy 217.17 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c3d7bca2-f325-4269-9a44-1a5a52655064")
 	)
 	(bus
 		(pts
@@ -7623,7 +7642,7 @@
 		)
 		(uuid "09c77e21-0c0a-4a33-8447-eb04870ebdd7")
 	)
-	(label "MCO5"
+	(label "MCO8"
 		(at 252.73 111.76 180)
 		(effects
 			(font
@@ -7643,7 +7662,7 @@
 		)
 		(uuid "108d95e6-28da-422e-a1c1-e987cf53e643")
 	)
-	(label "MCO10"
+	(label "MCO9"
 		(at 254 140.97 180)
 		(effects
 			(font
@@ -7653,17 +7672,7 @@
 		)
 		(uuid "10f0d322-abc8-48ee-a61d-cbbd596e7023")
 	)
-	(label "SDO0"
-		(at 189.23 134.62 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "12eb2863-e6a1-4d3c-9bc5-a366751d736d")
-	)
-	(label "MCO8"
+	(label "MCO4"
 		(at 254 74.93 180)
 		(effects
 			(font
@@ -7853,7 +7862,7 @@
 		)
 		(uuid "2af4a71e-baf4-4f91-b144-d3875c605d8b")
 	)
-	(label "MCO6"
+	(label "MCO10"
 		(at 254 143.51 180)
 		(effects
 			(font
@@ -8133,7 +8142,7 @@
 		)
 		(uuid "51a9647c-8f11-4d07-9ab1-d9d7ae2e65c2")
 	)
-	(label "MCO11"
+	(label "MCO6"
 		(at 252.73 106.68 180)
 		(effects
 			(font
@@ -8243,7 +8252,7 @@
 		)
 		(uuid "5c85e67c-19f8-489b-a6b1-a696d08cb738")
 	)
-	(label "MCO4"
+	(label "MCO5"
 		(at 252.73 104.14 180)
 		(effects
 			(font
@@ -8293,7 +8302,7 @@
 		)
 		(uuid "623f0eec-a67e-4a82-bfa8-a0ca3e762cd3")
 	)
-	(label "MCO9"
+	(label "MCO7"
 		(at 252.73 109.22 180)
 		(effects
 			(font
@@ -8623,7 +8632,7 @@
 		)
 		(uuid "9c15cd25-6f7f-4c02-bb2a-1ef1bf4ab1f6")
 	)
-	(label "MCO7"
+	(label "MCO11"
 		(at 254 146.05 180)
 		(effects
 			(font
@@ -8773,6 +8782,16 @@
 		)
 		(uuid "b800c286-9f4c-40be-b15d-92ed8ed2c284")
 	)
+	(label "~{RD}"
+		(at 205.74 142.24 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b89e57c3-301d-47d6-b2ae-0c51118edb83")
+	)
 	(label "RGB0"
 		(at 311.15 118.11 180)
 		(effects
@@ -8892,6 +8911,16 @@
 			(justify left bottom)
 		)
 		(uuid "c86e1a43-7ea8-46ff-9db2-44c7c1e7be4a")
+	)
+	(label "MAIN_A11"
+		(at 205.74 139.7 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c8c07471-bc85-44f0-8d64-dc94860fb6f1")
 	)
 	(label "VSS"
 		(at 124.46 170.18 90)
@@ -9032,16 +9061,6 @@
 			(justify left bottom)
 		)
 		(uuid "e20be497-5093-4670-a369-f2a71e258814")
-	)
-	(label "PALETTE~{CS}"
-		(at 205.74 142.24 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "e696f5c9-56ba-4250-80f3-387348d2053b")
 	)
 	(label "RGB6"
 		(at 311.15 133.35 180)
@@ -9249,6 +9268,17 @@
 		)
 		(uuid "37780f39-f2a0-458b-a8c6-341700baa7f2")
 	)
+	(hierarchical_label "SDO0"
+		(shape output)
+		(at 182.88 134.62 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "41f857e7-2e9c-476a-b039-e6f06875d573")
+	)
 	(hierarchical_label "MBRIT[2..0]"
 		(shape input)
 		(at 311.15 213.36 180)
@@ -9259,17 +9289,6 @@
 			(justify right)
 		)
 		(uuid "4237459b-fe73-4a45-a61d-bed9fab4322e")
-	)
-	(hierarchical_label "PAL_BANK"
-		(shape input)
-		(at 214.63 139.7 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "483c7151-2dff-4b9f-be24-a8ef34531d64")
 	)
 	(hierarchical_label "OBJPXL[8..0]"
 		(shape input)

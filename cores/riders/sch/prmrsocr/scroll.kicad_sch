@@ -11409,10 +11409,10 @@
 		(uuid "2bde3997-a9a6-4268-b779-fe7667bd0437")
 	)
 	(junction
-		(at 31.75 144.78)
+		(at 46.99 144.78)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "2bde583b-9680-442c-8771-91d8e9811327")
+		(uuid "2cc23916-b974-46ef-92a6-51a75279120c")
 	)
 	(junction
 		(at 316.23 128.27)
@@ -15358,16 +15358,6 @@
 			(type default)
 		)
 		(uuid "13f45418-eac3-42f8-9a78-c64519597ae7")
-	)
-	(wire
-		(pts
-			(xy 46.99 152.4) (xy 46.99 193.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "143e74f0-da80-43b8-a9e8-349d4081ff8f")
 	)
 	(wire
 		(pts
@@ -19521,6 +19511,16 @@
 	)
 	(wire
 		(pts
+			(xy 46.99 144.78) (xy 60.96 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9a09d864-917f-44e2-9e4b-03372ade99d8")
+	)
+	(wire
+		(pts
 			(xy 119.38 264.16) (xy 119.38 278.13)
 		)
 		(stroke
@@ -20881,16 +20881,6 @@
 	)
 	(wire
 		(pts
-			(xy 31.75 144.78) (xy 31.75 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ca2d8551-57b1-4a9f-ac15-5ea47de7838f")
-	)
-	(wire
-		(pts
 			(xy 179.07 185.42) (xy 193.04 185.42)
 		)
 		(stroke
@@ -21108,6 +21098,16 @@
 			(type default)
 		)
 		(uuid "d426ad4c-57c2-4cae-8d2a-c07a813d5159")
+	)
+	(wire
+		(pts
+			(xy 46.99 144.78) (xy 46.99 193.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d45e0be7-0878-4711-8292-3330ba67dc86")
 	)
 	(bus
 		(pts
@@ -22341,16 +22341,6 @@
 	)
 	(wire
 		(pts
-			(xy 46.99 144.78) (xy 60.96 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fc52c8aa-f7b2-4c11-8382-9f721ea3d67b")
-	)
-	(wire
-		(pts
 			(xy 345.44 74.93) (xy 356.87 74.93)
 		)
 		(stroke
@@ -22683,16 +22673,6 @@
 			"eio8O4hGlZ6+YhiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRgV538AZVSFE5de"
 			"GbwAAAAASUVORK5CYII="
 		)
-	)
-	(text "7B2\n"
-		(exclude_from_sim no)
-		(at 362.204 45.466 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "1600dc98-938c-457d-a5d2-a26a637e9112")
 	)
 	(text "FIX"
 		(exclude_from_sim no)
@@ -23479,16 +23459,6 @@
 			(justify right bottom)
 		)
 		(uuid "313bc22b-cafa-45e2-8cb5-0dd4438e400e")
-	)
-	(label "~{WDOGRST}"
-		(at 46.99 243.84 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "3231040d-d8c9-4a49-9d8f-04defc135d60")
 	)
 	(label "~{BE}"
 		(at 299.72 134.62 90)
@@ -26230,6 +26200,16 @@
 		)
 		(uuid "e580184f-dbc7-4b6c-8eb5-9a23f3d3a768")
 	)
+	(label "~{RESET}"
+		(at 83.82 142.24 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e5eaf2cd-bb7f-45e1-ad29-56fb8618a564")
+	)
 	(label "VD14"
 		(at 116.84 278.13 90)
 		(effects
@@ -26570,7 +26550,7 @@
 		)
 		(uuid "f6d9d4d2-6ab7-4589-9752-176ea990bd02")
 	)
-	(label "~{WDOGRST}"
+	(label "~{RESET}"
 		(at 269.24 135.89 90)
 		(effects
 			(font
@@ -26670,6 +26650,17 @@
 		)
 		(uuid "ff852690-95ea-4c2f-a294-8288a641b4be")
 	)
+	(hierarchical_label "~{RESET}"
+		(shape input)
+		(at 46.99 243.84 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "0877520b-4e61-447d-be9b-80f19e2006fb")
+	)
 	(hierarchical_label "MAIN~{IRQ}"
 		(shape output)
 		(at 78.74 167.64 90)
@@ -26714,7 +26705,7 @@
 		)
 		(uuid "3b39f9aa-7bd5-41af-8f9b-2eae4fa091b6")
 	)
-	(hierarchical_label "~{RESET}"
+	(hierarchical_label "~{RST}"
 		(shape output)
 		(at 71.12 167.64 90)
 		(effects
@@ -26823,17 +26814,6 @@
 			(justify right)
 		)
 		(uuid "a1a4604e-bacb-41f2-b24c-1564131f4266")
-	)
-	(hierarchical_label "~{WDOGRST}"
-		(shape output)
-		(at 83.82 142.24 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "af1ce932-9253-45e8-974e-93894ee00f74")
 	)
 	(hierarchical_label "MAIN_ABUF[5..0]"
 		(shape input)
@@ -26946,112 +26926,8 @@
 		(uuid "feb9d7c2-9fc2-4ef4-94e2-40f563f576d1")
 	)
 	(symbol
-		(lib_id "jt74:74LS04")
-		(at 39.37 152.4 0)
-		(mirror x)
-		(unit 3)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "0667bc32-5b60-42e1-bd8f-511899652bd7")
-		(property "Reference" "H21"
-			(at 39.37 153.67 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "74LS04"
-			(at 39.37 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 39.37 152.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS04"
-			(at 39.37 152.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 39.37 152.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "2038ead8-3046-4c21-8ce1-f51f1a9ff54f")
-		)
-		(pin "2"
-			(uuid "764c90dc-06b5-432d-abac-6d9587eee952")
-		)
-		(pin "3"
-			(uuid "904adfe9-84bb-4489-add0-20c97ec22c43")
-		)
-		(pin "4"
-			(uuid "d278f02f-b65f-4f81-baef-e9924e8b6761")
-		)
-		(pin "5"
-			(uuid "0f9c71c0-db72-470e-8508-ef442c4c9280")
-		)
-		(pin "6"
-			(uuid "698dbd6f-b8e5-4c72-a247-3c4d064f0460")
-		)
-		(pin "8"
-			(uuid "e5c85407-84c6-4508-8812-59fc66bb026c")
-		)
-		(pin "9"
-			(uuid "854bfa69-0824-46c1-aa51-90e45cdfe1e7")
-		)
-		(pin "10"
-			(uuid "d6349179-5661-4b6e-bfc4-3526f8c81949")
-		)
-		(pin "11"
-			(uuid "96a94637-263b-42fa-88bf-1bb86dd6a079")
-		)
-		(pin "12"
-			(uuid "62355347-c4e9-4a5e-8d37-886cf9007c2c")
-		)
-		(pin "13"
-			(uuid "7a4007f4-d4b7-4bc5-bdd0-40eb6330ce79")
-		)
-		(pin "14"
-			(uuid "a006fc79-4876-472a-9e35-c7a9a2680ba8")
-		)
-		(pin "7"
-			(uuid "c5476475-213c-4a46-a598-830637dd2631")
-		)
-		(instances
-			(project "parodius"
-				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "H21")
-					(unit 3)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "74xx:74LS07")
-		(at 363.22 31.75 0)
+		(at 363.22 40.64 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -27059,7 +26935,7 @@
 		(dnp no)
 		(uuid "11ed9cb9-8a6b-4935-94f1-3a88b31a1107")
 		(property "Reference" "7B2"
-			(at 362.458 29.718 0)
+			(at 362.458 38.608 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27067,7 +26943,7 @@
 			)
 		)
 		(property "Value" "74LS07"
-			(at 362.458 32.258 0)
+			(at 362.458 41.148 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27075,7 +26951,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 363.22 31.75 0)
+			(at 363.22 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27084,7 +26960,7 @@
 			)
 		)
 		(property "Datasheet" "www.ti.com/lit/ds/symlink/sn74ls07.pdf"
-			(at 363.22 31.75 0)
+			(at 363.22 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27093,7 +26969,7 @@
 			)
 		)
 		(property "Description" "Hex Buffers and Drivers With Open Collector High Voltage Outputs"
-			(at 363.22 31.75 0)
+			(at 363.22 40.64 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -27161,7 +27037,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "158e7140-1442-4c8e-a361-6cc74ab0ff14")
-		(property "Reference" "R20"
+		(property "Reference" "R15"
 			(at 379.73 43.18 90)
 			(effects
 				(font
@@ -27213,7 +27089,7 @@
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "R20")
+					(reference "R15")
 					(unit 1)
 				)
 			)
@@ -27316,7 +27192,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "22b74f12-35f3-4977-8f0a-918b3a3bcaa7")
-		(property "Reference" "J15"
+		(property "Reference" "13J"
 			(at 298.45 74.93 0)
 			(effects
 				(font
@@ -27723,7 +27599,7 @@
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "J15")
+					(reference "13J")
 					(unit 1)
 				)
 			)
@@ -27814,7 +27690,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4213ad41-908a-49f9-a18a-a2c04c24ef09")
-		(property "Reference" "R18"
+		(property "Reference" "R16"
 			(at 392.43 31.75 0)
 			(effects
 				(font
@@ -27866,7 +27742,7 @@
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "R18")
+					(reference "R16")
 					(unit 1)
 				)
 			)
@@ -27937,110 +27813,6 @@
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
 					(reference "CP1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "jt74:74LS04")
-		(at 39.37 144.78 0)
-		(mirror x)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "54e5e807-ff63-4ed0-a18e-a330248470bf")
-		(property "Reference" "H21"
-			(at 39.37 146.05 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "74LS04"
-			(at 39.37 143.51 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 39.37 144.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS04"
-			(at 39.37 144.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 39.37 144.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "9bf017ac-7fa7-4346-8398-e806f6acaff2")
-		)
-		(pin "2"
-			(uuid "0a4e147c-c5fd-485b-b6bb-61f7dcffb304")
-		)
-		(pin "3"
-			(uuid "ec33d335-4f74-47f3-b748-d73fcb2daa86")
-		)
-		(pin "4"
-			(uuid "39154d9b-52f9-4786-b826-273e10f59297")
-		)
-		(pin "5"
-			(uuid "53f75c49-94e2-4117-8f7e-585286c6e597")
-		)
-		(pin "6"
-			(uuid "1e9047bf-5b58-4891-bf47-0b2ca46da4d8")
-		)
-		(pin "8"
-			(uuid "615825ea-573b-45fc-8cd8-0ac9fe150966")
-		)
-		(pin "9"
-			(uuid "348ec7e2-b133-41f8-91fb-2ae88b2f11f1")
-		)
-		(pin "10"
-			(uuid "38158cca-c48f-4624-be00-f162684ee7d3")
-		)
-		(pin "11"
-			(uuid "1e0efcdd-11e2-42e2-92ae-e4572299933f")
-		)
-		(pin "12"
-			(uuid "8e7264de-d66c-434c-94e9-207d17065204")
-		)
-		(pin "13"
-			(uuid "e39a3f18-9fca-477c-9712-2989105900c9")
-		)
-		(pin "14"
-			(uuid "50b5c3c9-8e41-4564-8f9f-969156ab7033")
-		)
-		(pin "7"
-			(uuid "c26c8195-f472-471f-be8b-e8b94b8872dc")
-		)
-		(instances
-			(project "parodius"
-				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "H21")
 					(unit 1)
 				)
 			)
@@ -28469,7 +28241,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6c1aa2b7-785e-459c-b9b6-0c7437fc2aeb")
-		(property "Reference" "J20"
+		(property "Reference" "16J"
 			(at 105.41 210.82 0)
 			(effects
 				(font
@@ -28876,7 +28648,7 @@
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "J20")
+					(reference "16J")
 					(unit 1)
 				)
 			)
@@ -28971,109 +28743,6 @@
 		)
 	)
 	(symbol
-		(lib_id "74xx:74LS07")
-		(at 363.22 40.64 0)
-		(unit 3)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "777236a5-fee1-4ce2-8c89-4c3d7c849454")
-		(property "Reference" "C15"
-			(at 363.22 39.37 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "74LS07"
-			(at 363.22 41.91 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 363.22 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "www.ti.com/lit/ds/symlink/sn74ls07.pdf"
-			(at 363.22 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 363.22 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "27acc6d7-934b-4748-9492-56817a7b8cf9")
-		)
-		(pin "2"
-			(uuid "3bc97429-f00c-44b7-9670-5861c68a63f4")
-		)
-		(pin "3"
-			(uuid "54ca24e1-c521-46ac-8907-598cdb236bcc")
-		)
-		(pin "4"
-			(uuid "16e723a0-2343-48de-9aec-e71bc6f13ec6")
-		)
-		(pin "5"
-			(uuid "a6a5cf9c-88bb-46ee-a23d-d1a986c17d3b")
-		)
-		(pin "6"
-			(uuid "fbc0cfa5-439c-4d3a-a080-9c6b20318124")
-		)
-		(pin "8"
-			(uuid "056cd8c1-1307-4fc8-804b-54aaa2b9a482")
-		)
-		(pin "9"
-			(uuid "27e7c38a-bb89-4dd7-9de9-5eb9cf115791")
-		)
-		(pin "10"
-			(uuid "ad5a1abf-53a9-409f-85c8-73661d0a6400")
-		)
-		(pin "11"
-			(uuid "0f2d5de6-9437-4c15-a1da-5c03cf1ab652")
-		)
-		(pin "12"
-			(uuid "f1d08cbd-47da-4a34-8269-0e45bf0da009")
-		)
-		(pin "13"
-			(uuid "90267ab6-c204-4149-89b6-281d4565908f")
-		)
-		(pin "14"
-			(uuid "c67a535e-188b-4aef-8ffc-781548dd1b63")
-		)
-		(pin "7"
-			(uuid "19c0a375-673b-4744-bf21-1558118ca2d1")
-		)
-		(instances
-			(project "parodius"
-				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "C15")
-					(unit 3)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "jt74:74LS74")
 		(at 68.58 144.78 0)
 		(unit 2)
@@ -29082,7 +28751,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7e33ed3c-4ba7-485f-b942-29f7d4c933a1")
-		(property "Reference" "H22"
+		(property "Reference" "7H"
 			(at 72.39 138.43 0)
 			(effects
 				(font
@@ -29090,7 +28759,7 @@
 				)
 			)
 		)
-		(property "Value" "74LS74"
+		(property "Value" "74F74"
 			(at 68.58 144.78 0)
 			(effects
 				(font
@@ -29170,7 +28839,7 @@
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "H22")
+					(reference "7H")
 					(unit 2)
 				)
 			)
@@ -29704,6 +29373,110 @@
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
 					(reference "JP6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "jt74:74LS04")
+		(at 39.37 144.78 0)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d10785c3-6898-4586-9961-f3401e024945")
+		(property "Reference" "11G1"
+			(at 39.116 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "74LS04"
+			(at 39.116 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 39.37 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS04"
+			(at 39.37 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 39.37 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0292d789-5e4f-4585-ac86-462e7219bc63")
+		)
+		(pin "2"
+			(uuid "ae470a07-02f3-47e9-98a5-9d3731f1d218")
+		)
+		(pin "3"
+			(uuid "ec33d335-4f74-47f3-b748-d73fcb2daa86")
+		)
+		(pin "4"
+			(uuid "39154d9b-52f9-4786-b826-273e10f59297")
+		)
+		(pin "5"
+			(uuid "53f75c49-94e2-4117-8f7e-585286c6e597")
+		)
+		(pin "6"
+			(uuid "1e9047bf-5b58-4891-bf47-0b2ca46da4d8")
+		)
+		(pin "8"
+			(uuid "615825ea-573b-45fc-8cd8-0ac9fe150966")
+		)
+		(pin "9"
+			(uuid "348ec7e2-b133-41f8-91fb-2ae88b2f11f1")
+		)
+		(pin "10"
+			(uuid "38158cca-c48f-4624-be00-f162684ee7d3")
+		)
+		(pin "11"
+			(uuid "1e0efcdd-11e2-42e2-92ae-e4572299933f")
+		)
+		(pin "12"
+			(uuid "8e7264de-d66c-434c-94e9-207d17065204")
+		)
+		(pin "13"
+			(uuid "e39a3f18-9fca-477c-9712-2989105900c9")
+		)
+		(pin "14"
+			(uuid "50b5c3c9-8e41-4564-8f9f-969156ab7033")
+		)
+		(pin "7"
+			(uuid "c26c8195-f472-471f-be8b-e8b94b8872dc")
+		)
+		(instances
+			(project "prmrsocr"
+				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
+					(reference "11G1")
 					(unit 1)
 				)
 			)

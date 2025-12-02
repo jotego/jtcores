@@ -1511,6 +1511,16 @@
 		)
 		(uuid "151391ab-3cc2-4a1e-aa78-58c77dd03c78")
 	)
+	(polyline
+		(pts
+			(xy 39.37 116.84) (xy 46.99 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "15a9fe9d-6610-44b0-ab1f-7b8ef81546e0")
+	)
 	(bus
 		(pts
 			(xy 165.1 105.41) (xy 148.59 105.41)
@@ -1630,6 +1640,16 @@
 			(type default)
 		)
 		(uuid "1e588eec-b768-4b2f-ab39-3b4139bd0919")
+	)
+	(polyline
+		(pts
+			(xy 46.99 116.84) (xy 50.8 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1ec233f6-778b-4add-961b-575a502ba14a")
 	)
 	(wire
 		(pts
@@ -3725,6 +3745,36 @@
 			"eio8O4hGlZ6+YhiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRgV538AZVSFE5de"
 			"GbwAAAAASUVORK5CYII="
 		)
+	)
+	(text_box "CONEXION OF THE BIT 15 IS IN DUBT OF BEING SOMENTHING.\n-CHECK MAME REPORT.\n-CHECK CABINET PAGE."
+		(exclude_from_sim no)
+		(at 35.56 63.5 0)
+		(size 66.04 7.62)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill
+			(type none)
+		)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left top)
+		)
+		(uuid "ff2b2764-3db5-4f2a-bae2-b1373d951b7d")
+	)
+	(text "TEST"
+		(exclude_from_sim no)
+		(at 39.37 116.84 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3df05393-b0b2-4d5d-8092-51cb83ad2a80")
 	)
 	(text "TEST"
 		(exclude_from_sim no)
