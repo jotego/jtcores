@@ -44,6 +44,7 @@ data = [
 	{ machine="glfgreat", offset=15, data="08" },
 ]
 offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "obj"] }
+frames = [ { machine="tmnt2", width=8 }, ]
 
 [ROM]
 regions = [
