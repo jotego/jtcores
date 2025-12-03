@@ -9376,15 +9376,6 @@
 		(uuid "6fb94106-9ee6-45e3-8eda-1eae3169e2cc")
 	)
 	(bus_entry
-		(at 279.4 196.85)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "71b8eefa-e72c-464e-9337-6ae068c2e252")
-	)
-	(bus_entry
 		(at 279.4 163.83)
 		(size -2.54 -2.54)
 		(stroke
@@ -10096,15 +10087,6 @@
 		(uuid "fa0c00c8-7c52-4c66-8983-ac99a455a575")
 	)
 	(bus_entry
-		(at 400.05 74.93)
-		(size -2.54 -2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fb71d396-a246-486a-9665-31a41c0306c7")
-	)
-	(bus_entry
 		(at 402.59 74.93)
 		(size -2.54 -2.54)
 		(stroke
@@ -10760,16 +10742,6 @@
 			(type default)
 		)
 		(uuid "199c7d6b-a82a-413b-acf2-ba7be12a3813")
-	)
-	(bus
-		(pts
-			(xy 276.86 191.77) (xy 276.86 194.31)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "19ffb82b-475b-4d9d-8453-8628e66785e9")
 	)
 	(wire
 		(pts
@@ -11441,16 +11413,6 @@
 		)
 		(uuid "44e4cf09-12d5-4ac0-aa28-a5020183d2d2")
 	)
-	(bus
-		(pts
-			(xy 400.05 74.93) (xy 400.05 77.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "460b79e0-eb84-484c-a8b9-6e01487f6132")
-	)
 	(wire
 		(pts
 			(xy 105.41 248.92) (xy 111.76 248.92)
@@ -11823,7 +11785,7 @@
 	)
 	(wire
 		(pts
-			(xy 154.94 168.91) (xy 163.83 168.91)
+			(xy 156.21 168.91) (xy 163.83 168.91)
 		)
 		(stroke
 			(width 0)
@@ -12313,7 +12275,7 @@
 	)
 	(wire
 		(pts
-			(xy 397.51 72.39) (xy 386.08 72.39)
+			(xy 386.08 72.39) (xy 400.05 72.39)
 		)
 		(stroke
 			(width 0)
@@ -13570,16 +13532,6 @@
 			(type default)
 		)
 		(uuid "bd6c7fef-a74a-4b94-be64-476467e126f5")
-	)
-	(wire
-		(pts
-			(xy 400.05 72.39) (xy 397.51 72.39)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "be14a0e8-5d5b-4b49-9b93-8e340f7f1733")
 	)
 	(bus
 		(pts
@@ -15072,6 +15024,16 @@
 		)
 		(uuid "06b3f57a-23e2-4b48-8e4c-9daef56e9881")
 	)
+	(label "SNDR_D15"
+		(at 396.24 199.39 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "07aadc39-c31f-4ac0-b330-9ae166125423")
+	)
 	(label "SNRD_D6"
 		(at 321.31 176.53 180)
 		(effects
@@ -15082,7 +15044,7 @@
 		)
 		(uuid "09febbd7-b542-45a2-9902-649b3805c483")
 	)
-	(label "SNRD_D15"
+	(label "SNDR_D15"
 		(at 279.4 161.29 0)
 		(effects
 			(font
@@ -15131,16 +15093,6 @@
 			(justify right bottom)
 		)
 		(uuid "101baf76-3735-44a5-a48a-97d0dabbca08")
-	)
-	(label "SNRD_D0"
-		(at 397.51 161.29 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "10aa2c83-7f43-4463-8cf7-879444c56f25")
 	)
 	(label "VCC"
 		(at 276.86 15.24 270)
@@ -15231,6 +15183,16 @@
 			(justify left bottom)
 		)
 		(uuid "20135c8a-15c0-4ac3-aca4-ef8ad4b22566")
+	)
+	(label "SNDR_A[19..0]"
+		(at 383.54 144.78 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "227da1b8-7676-4fe3-a6f6-85f2b4503331")
 	)
 	(label "SNDR_A0"
 		(at 279.4 163.83 0)
@@ -15332,16 +15294,6 @@
 		)
 		(uuid "2b68297f-9836-42bc-9ad0-c29f97cf4bd9")
 	)
-	(label "~{CS}"
-		(at 285.75 201.93 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "2c32acc7-7217-42b2-8a2e-a4010aafe9c5")
-	)
 	(label "~{RFSH}"
 		(at 156.21 151.13 0)
 		(effects
@@ -15392,6 +15344,16 @@
 		)
 		(uuid "32d18ba3-c32b-4710-809f-e3ccee32fdfa")
 	)
+	(label "SNDR_D[8..0]"
+		(at 370.84 223.52 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "32d4ecd4-431a-419b-b75c-a084693abd3c")
+	)
 	(label "SND_D5"
 		(at 252.73 135.89 180)
 		(effects
@@ -15432,7 +15394,7 @@
 		)
 		(uuid "362af499-835a-4304-b61e-84fad6c7017b")
 	)
-	(label "SNRD_D1"
+	(label "SNDR_D1"
 		(at 397.51 54.61 180)
 		(effects
 			(font
@@ -15441,16 +15403,6 @@
 			(justify right bottom)
 		)
 		(uuid "36d8e41d-3e90-4c46-bb91-3c7e879e762c")
-	)
-	(label "SNRD_D7"
-		(at 397.51 179.07 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "379d986a-6b5e-4e2c-a32a-d381f9207494")
 	)
 	(label "SNDR_A7"
 		(at 341.63 179.07 0)
@@ -15461,16 +15413,6 @@
 			(justify left bottom)
 		)
 		(uuid "38614011-0af2-46c5-becb-cd536885e55c")
-	)
-	(label "SNRD_D1"
-		(at 397.51 163.83 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "3a216ea3-ad71-44c3-946a-c80da9b3d04d")
 	)
 	(label "SND_D7"
 		(at 257.81 95.25 0)
@@ -15532,6 +15474,16 @@
 		)
 		(uuid "3fee27e7-10fd-4203-9fd6-a906643117a8")
 	)
+	(label "SNDR_D5"
+		(at 396.24 173.99 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "406120b5-3d01-4479-beed-3749bb1517d4")
+	)
 	(label "SND_D4"
 		(at 257.81 87.63 0)
 		(effects
@@ -15572,7 +15524,7 @@
 		)
 		(uuid "43b85b9e-862c-4a75-9a63-fd5c4d8712ac")
 	)
-	(label "SNRD_D4"
+	(label "SNDR_D4"
 		(at 397.51 62.23 180)
 		(effects
 			(font
@@ -15662,16 +15614,6 @@
 		)
 		(uuid "4bcfe702-f146-4a55-9841-c0afdd5056f8")
 	)
-	(label "SNRD_D3"
-		(at 397.51 168.91 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "4d3e2a76-a344-4628-b4bc-d501bb0202e4")
-	)
 	(label "~{OE}2"
 		(at 309.88 16.51 270)
 		(effects
@@ -15692,7 +15634,7 @@
 		)
 		(uuid "4e791cc1-4051-45fd-93ed-ca5f4c88b41f")
 	)
-	(label "SND_D15"
+	(label "SNDR_D15"
 		(at 397.51 72.39 180)
 		(effects
 			(font
@@ -15712,7 +15654,7 @@
 		)
 		(uuid "50dbb313-8754-4982-945c-f1ffb7c87184")
 	)
-	(label "SNRD_D5"
+	(label "SNDR_D5"
 		(at 397.51 64.77 180)
 		(effects
 			(font
@@ -15742,7 +15684,7 @@
 		)
 		(uuid "53b18d24-78a5-453c-9f6e-c2509b4b8071")
 	)
-	(label "SNRD_D7"
+	(label "SNDR_D7"
 		(at 397.51 69.85 180)
 		(effects
 			(font
@@ -15761,16 +15703,6 @@
 			(justify left bottom)
 		)
 		(uuid "5476f4ed-589e-424b-9879-b713d8f2c488")
-	)
-	(label "SNRD_D6"
-		(at 397.51 176.53 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "55a3d98b-c509-45c0-91d9-8c4d4ba959a9")
 	)
 	(label "SND_D2"
 		(at 252.73 128.27 180)
@@ -15801,6 +15733,16 @@
 			(justify left bottom)
 		)
 		(uuid "57cf743a-4b58-49d4-be26-ed3b0edb7913")
+	)
+	(label "SND_A[15..0]"
+		(at 222.25 29.21 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "588c78a0-aa2b-4036-99e0-30dc3d560827")
 	)
 	(label "SND_A5"
 		(at 213.36 135.89 0)
@@ -15932,16 +15874,6 @@
 		)
 		(uuid "677e26e6-63ed-4e4b-a358-e0d23071ed4e")
 	)
-	(label "SNRD_D5"
-		(at 397.51 173.99 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "67a74494-3d08-4623-8764-48ee5f01e2fe")
-	)
 	(label "VSS"
 		(at 347.98 217.17 0)
 		(effects
@@ -16032,7 +15964,7 @@
 		)
 		(uuid "6e1b39ed-dbb0-4ce9-9171-81796f90e49e")
 	)
-	(label "SNRD_D0"
+	(label "SNDR_D0"
 		(at 397.51 52.07 180)
 		(effects
 			(font
@@ -16132,7 +16064,7 @@
 		)
 		(uuid "75d2c795-0f77-4a4a-a6eb-edea7b4e3dba")
 	)
-	(label "SNRD_D3"
+	(label "SNDR_D3"
 		(at 397.51 59.69 180)
 		(effects
 			(font
@@ -16202,16 +16134,6 @@
 		)
 		(uuid "7aa15466-a91a-4555-a792-8de3aa5b7a40")
 	)
-	(label "SNRD_D2"
-		(at 397.51 166.37 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "7cb0cc1b-cf79-49df-bcae-ce7b72d8134a")
-	)
 	(label "S~{CS}"
 		(at 109.22 243.84 180)
 		(effects
@@ -16251,6 +16173,16 @@
 			(justify left bottom)
 		)
 		(uuid "80f932a4-74dc-405c-a151-4667fc944459")
+	)
+	(label "SNDR_D4"
+		(at 396.24 171.45 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "8400327e-4312-4b63-9123-f56635799e22")
 	)
 	(label "SND_D4"
 		(at 252.73 133.35 180)
@@ -16301,6 +16233,16 @@
 			(justify left bottom)
 		)
 		(uuid "882a54cd-62da-4a26-9cba-b54c90dc769d")
+	)
+	(label "S~{WR}"
+		(at 156.21 168.91 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8912a601-06b5-4fa9-84fc-7ef1d985d8fe")
 	)
 	(label "VSS"
 		(at 261.62 74.93 0)
@@ -16381,6 +16323,16 @@
 			(justify left bottom)
 		)
 		(uuid "8d76a694-232f-47aa-ba71-ce9857cb25d8")
+	)
+	(label "SNDR_D0"
+		(at 396.24 161.29 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "8d785aa5-b170-429c-9d5f-438be76d84ff")
 	)
 	(label "SND_A2"
 		(at 256.54 36.83 0)
@@ -16632,6 +16584,16 @@
 		)
 		(uuid "ad8ea089-efd4-4643-81bf-9ac311a91faf")
 	)
+	(label "SND_D[7..0]"
+		(at 238.76 181.61 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b00d0a35-3d43-46d1-9388-db5c60b3f0c6")
+	)
 	(label "SNDR_A3"
 		(at 387.35 82.55 0)
 		(effects
@@ -16792,6 +16754,16 @@
 		)
 		(uuid "c4aa794c-aa23-42d8-8e9a-d55293458212")
 	)
+	(label "SNDR_D3"
+		(at 396.24 168.91 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c5485d0a-b22e-4d5d-a852-acb556086d64")
+	)
 	(label "SNDR_A11"
 		(at 279.4 191.77 0)
 		(effects
@@ -16812,6 +16784,16 @@
 		)
 		(uuid "c855402d-add3-45d1-a753-c16bc49c63e1")
 	)
+	(label "SNDR_D1"
+		(at 396.24 163.83 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "cbf0ee26-eb8a-406d-af3a-195cff15542f")
+	)
 	(label "~{CE}"
 		(at 347.98 212.09 0)
 		(effects
@@ -16822,7 +16804,7 @@
 		)
 		(uuid "cc824a7a-d185-47f5-9904-9089b8cb4435")
 	)
-	(label "SNRD_D2"
+	(label "SNDR_D2"
 		(at 397.51 57.15 180)
 		(effects
 			(font
@@ -16951,6 +16933,16 @@
 			(justify left bottom)
 		)
 		(uuid "d8a36086-1819-4e1e-8b4b-183a2dbc8bf7")
+	)
+	(label "SNDR_D2"
+		(at 396.24 166.37 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "da6204ed-4dc7-495b-ab91-846e72ead737")
 	)
 	(label "SND_A12"
 		(at 208.28 153.67 180)
@@ -17132,7 +17124,7 @@
 		)
 		(uuid "e7792c44-947c-48e5-bc10-42a0646ff64a")
 	)
-	(label "SNRD_D6"
+	(label "SNDR_D6"
 		(at 397.51 67.31 180)
 		(effects
 			(font
@@ -17161,6 +17153,16 @@
 			(justify left bottom)
 		)
 		(uuid "e97e1d03-7edd-4cf8-8e5a-9b2d76b027fe")
+	)
+	(label "SNDR_D6"
+		(at 396.24 176.53 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "ea7295bb-81d5-4e70-86e4-da20018d9453")
 	)
 	(label "SNDR_A1"
 		(at 387.35 77.47 0)
@@ -17332,16 +17334,6 @@
 		)
 		(uuid "f6a9cfc0-cb58-4c77-92c2-5adfb3b1b557")
 	)
-	(label "SNRD_D15"
-		(at 397.51 199.39 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f865bb95-90c3-43fd-ba61-ddb9a273d585")
-	)
 	(label "~{RFSH}"
 		(at 72.39 243.84 0)
 		(effects
@@ -17391,16 +17383,6 @@
 			(justify right bottom)
 		)
 		(uuid "fb9b7cdc-71d1-4241-bd42-45099703dc98")
-	)
-	(label "SNRD_D4"
-		(at 397.51 171.45 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "fbb88163-0e66-4675-b2e3-b0841aab5aa4")
 	)
 	(label "SND_D1"
 		(at 116.84 240.03 0)
@@ -17452,6 +17434,16 @@
 		)
 		(uuid "fee9710f-4a8a-4f38-afe0-67d797a11c94")
 	)
+	(label "SNDR_D7"
+		(at 396.24 179.07 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "ffb8aeb2-1f1b-4921-81d3-a2abff960714")
+	)
 	(hierarchical_label "1.54CLK"
 		(shape output)
 		(at 375.92 21.59 0)
@@ -17474,17 +17466,6 @@
 		)
 		(uuid "863a25e4-3764-426d-bf61-a42fdd81261c")
 	)
-	(hierarchical_label "S~{WR}"
-		(shape output)
-		(at 154.94 168.91 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "c32f5396-7ea2-48a6-8d2a-44a15df9a283")
-	)
 	(hierarchical_label "S~{RD}"
 		(shape output)
 		(at 157.48 162.56 0)
@@ -17495,6 +17476,17 @@
 			(justify left)
 		)
 		(uuid "ce7d231a-5313-4463-81eb-7fa7d4213412")
+	)
+	(hierarchical_label "~{CS}"
+		(shape input)
+		(at 285.75 201.93 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "d1867260-0c92-4ec8-9e49-527d3387cdb6")
 	)
 	(hierarchical_label "~{RESET}"
 		(shape input)

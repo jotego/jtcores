@@ -4406,16 +4406,6 @@
 	)
 	(wire
 		(pts
-			(xy 205.74 85.09) (xy 217.17 85.09)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "15096acc-40d3-4a84-a4d6-cb3b472ecfed")
-	)
-	(wire
-		(pts
 			(xy 152.4 158.75) (xy 152.4 182.88)
 		)
 		(stroke
@@ -4833,16 +4823,6 @@
 			(type default)
 		)
 		(uuid "3a7a938e-e012-4ccc-a22f-071490ed7810")
-	)
-	(wire
-		(pts
-			(xy 205.74 142.24) (xy 217.17 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3aa0e02e-06a4-4d6f-8b8f-8ae7c89e6dde")
 	)
 	(wire
 		(pts
@@ -5394,16 +5374,6 @@
 		)
 		(uuid "63298e23-ee28-40ff-8dc9-21a88021a9ef")
 	)
-	(bus
-		(pts
-			(xy 318.77 213.36) (xy 311.15 213.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "63773d3f-b7b3-4464-91ac-bc859e8beb39")
-	)
 	(wire
 		(pts
 			(xy 298.45 130.81) (xy 311.15 130.81)
@@ -5786,7 +5756,7 @@
 	)
 	(wire
 		(pts
-			(xy 179.07 101.6) (xy 191.77 101.6)
+			(xy 179.07 101.6) (xy 187.96 101.6)
 		)
 		(stroke
 			(width 0)
@@ -7294,6 +7264,16 @@
 		)
 		(uuid "f53ace75-211a-4ed7-bc62-d058b375d708")
 	)
+	(wire
+		(pts
+			(xy 209.55 142.24) (xy 217.17 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f888406c-2adc-444d-ac10-7696e815cf89")
+	)
 	(bus
 		(pts
 			(xy 256.54 69.85) (xy 256.54 72.39)
@@ -8012,16 +7992,6 @@
 		)
 		(uuid "3c77b4ab-005a-4823-aeb9-4ce14e71bcc7")
 	)
-	(label "PALETTE~{CS}"
-		(at 205.74 85.09 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "3d622e25-ff5d-46ef-9cb9-8b8e28ea8476")
-	)
 	(label "VCC"
 		(at 125.73 76.2 0)
 		(effects
@@ -8612,16 +8582,6 @@
 		)
 		(uuid "98c40f4d-64fa-462a-b2fb-3e039fc71531")
 	)
-	(label "~{CS}"
-		(at 191.77 101.6 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "9b88a28b-5f09-4863-9444-49aa3a9730a0")
-	)
 	(label "VSS"
 		(at 205.74 154.94 0)
 		(effects
@@ -8781,16 +8741,6 @@
 			(justify right bottom)
 		)
 		(uuid "b800c286-9f4c-40be-b15d-92ed8ed2c284")
-	)
-	(label "~{RD}"
-		(at 205.74 142.24 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b89e57c3-301d-47d6-b2ae-0c51118edb83")
 	)
 	(label "RGB0"
 		(at 311.15 118.11 180)
@@ -9213,6 +9163,17 @@
 		)
 		(uuid "09c65af6-dbb9-471b-8efc-9c78ce8d0f44")
 	)
+	(hierarchical_label "PALETTE~{CS}"
+		(shape input)
+		(at 217.17 85.09 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "0a4397ae-8ca9-44eb-b4d9-e11d227067b2")
+	)
 	(hierarchical_label "DSB[7..0]"
 		(shape input)
 		(at 142.24 185.42 180)
@@ -9279,17 +9240,6 @@
 		)
 		(uuid "41f857e7-2e9c-476a-b039-e6f06875d573")
 	)
-	(hierarchical_label "MBRIT[2..0]"
-		(shape input)
-		(at 311.15 213.36 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "4237459b-fe73-4a45-a61d-bed9fab4322e")
-	)
 	(hierarchical_label "OBJPXL[8..0]"
 		(shape input)
 		(at 78.74 132.08 180)
@@ -9334,6 +9284,17 @@
 		)
 		(uuid "ad66a4e6-686a-496b-8129-fdf6f2ab44ad")
 	)
+	(hierarchical_label "~{RD}"
+		(shape input)
+		(at 209.55 142.24 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "bb75dbb9-ae16-47d6-a9b0-8c69e95affa8")
+	)
 	(hierarchical_label "RED"
 		(shape output)
 		(at 365.76 213.36 0)
@@ -9368,7 +9329,7 @@
 		(uuid "d1134622-69b9-4910-ad47-ac88ef2a53a4")
 	)
 	(hierarchical_label "PSPXL[6..0]"
-		(shape output)
+		(shape input)
 		(at 72.39 109.22 180)
 		(effects
 			(font
@@ -9410,6 +9371,17 @@
 			(justify right)
 		)
 		(uuid "de195051-7b8f-45a3-98c5-161b20f322d1")
+	)
+	(hierarchical_label "~{CS}"
+		(shape input)
+		(at 187.96 101.6 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e0f35ed6-d71f-40fa-8779-5488bbe272c4")
 	)
 	(hierarchical_label "MAIN_DB[7..0]"
 		(shape bidirectional)
@@ -10723,16 +10695,6 @@
 				(justify left)
 			)
 			(uuid "7a1a8ab0-be9c-420a-8089-6b5cdbde9629")
-		)
-		(pin "MBRIT[2..0]" input
-			(at 318.77 213.36 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "ec8ce089-e5fc-4355-9448-e8586cebf636")
 		)
 		(instances
 			(project "prmrsocr"

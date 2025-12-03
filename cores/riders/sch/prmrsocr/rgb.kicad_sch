@@ -7045,16 +7045,6 @@
 		)
 		(uuid "33c5286a-42ec-4b21-9db0-7135913a47ff")
 	)
-	(label "~{RD}"
-		(at 55.88 115.57 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "3549904c-1287-4380-98f1-04ee252773fb")
-	)
 	(label "R2"
 		(at 175.26 190.5 0)
 		(effects
@@ -7625,16 +7615,6 @@
 		)
 		(uuid "e05e187f-e3cb-468d-80be-219331617624")
 	)
-	(label "~{RD}"
-		(at 50.8 113.03 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "e6e3eb93-6f98-4846-8397-1c22f01f4415")
-	)
 	(label "PALETTE~{CS}"
 		(at 43.18 115.57 0)
 		(effects
@@ -7735,6 +7715,17 @@
 			(justify right)
 		)
 		(uuid "4039e749-c7f6-47d7-928b-2686d034fefd")
+	)
+	(hierarchical_label "~{RD}"
+		(shape input)
+		(at 50.8 113.03 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "53a377fa-a77a-45cd-a33d-17077b0ec369")
 	)
 	(hierarchical_label "BLUE"
 		(shape output)

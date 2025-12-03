@@ -31539,7 +31539,7 @@
 		)
 		(uuid "9fbac101-5b9c-4767-823d-4af96c8d18b9")
 	)
-	(label "GM12"
+	(label "M12"
 		(at 281.94 187.96 0)
 		(effects
 			(font
@@ -31898,16 +31898,6 @@
 			(justify left bottom)
 		)
 		(uuid "b58d7de4-e763-4079-90f8-cc61f223169b")
-	)
-	(label "~{OBJRAM_CS}"
-		(at 25.4 130.81 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b5e3a120-fcf8-4823-8607-014ff59fa75b")
 	)
 	(label "OBJROMD8"
 		(at 323.85 39.37 90)
@@ -33345,7 +33335,7 @@
 		)
 		(uuid "36fb3339-d08d-4c13-9be7-64a67cc749f4")
 	)
-	(hierarchical_label "GM12"
+	(hierarchical_label "M12"
 		(shape input)
 		(at 115.57 104.14 90)
 		(effects

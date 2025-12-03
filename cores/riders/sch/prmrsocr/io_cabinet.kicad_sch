@@ -7524,16 +7524,6 @@
 		)
 		(uuid "2c968e8b-13f6-4bab-82eb-1a01ea5de6d3")
 	)
-	(label "CPU~{EN}"
-		(at 204.47 140.97 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "2e5fc6e8-7730-472b-938a-326a82671fc4")
-	)
 	(label "I1P_BTN_3"
 		(at 123.19 100.33 180)
 		(effects
@@ -8523,7 +8513,7 @@
 		)
 		(uuid "603a4f77-a44e-4849-9aed-ffafdac42879")
 	)
-	(hierarchical_label "MAIN_D[15..0]"
+	(hierarchical_label "MAIN_D[7..0]"
 		(shape tri_state)
 		(at 250.19 68.58 180)
 		(effects
@@ -8566,6 +8556,17 @@
 			(justify right)
 		)
 		(uuid "7a4f3414-541f-43c8-85f0-7fd5555ce350")
+	)
+	(hierarchical_label "CPU~{EN}"
+		(shape input)
+		(at 204.47 140.97 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8d98361c-7d3a-48d6-a6d1-053591fef387")
 	)
 	(hierarchical_label "COIN_CNT_1"
 		(shape output)
