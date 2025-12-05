@@ -27,6 +27,7 @@ module jtframe_lfbuf_cram #(parameter
 )(
     input               rst,     // hold in reset for >150 us
     input               clk,
+    input               clk48,
     input               pxl_cen,
 
     // video status
@@ -59,14 +60,21 @@ module jtframe_lfbuf_cram #(parameter
     output              cr_wen
 );
 
-wire          frame, fb_clr, fb_done, line, scr_we, fb_blank;
+wire          frame, fb_clr, fb_done, line, scr_we, fb_blank, pxl48_cen;
 wire [HW-1:0] fb_addr, rd_addr;
 wire [  15:0] fb_din, fb_dout;
 
+jtframe_crossclk_cen u_crosscen(
+    .clk_in     ( clk       ),    // fast clock
+    .cen_in     ( pxl_cen   ),
+    .clk_out    ( clk48     ),    // slow clock
+    .cen_out    ( pxl48_cen )
+);
+
 jtframe_lfbuf_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
+    .clk        ( clk48     ),
+    .pxl_cen    ( pxl48_cen ),
 
     .lhbl       ( lhbl      ),
     .vs         ( vs        ),
@@ -104,6 +112,7 @@ jtframe_lfbuf_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
 jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .clk_ctrl   ( clk48     ),
     .pxl_cen    ( pxl_cen   ),
     // video status
     .vrender    ( vrender   ),
