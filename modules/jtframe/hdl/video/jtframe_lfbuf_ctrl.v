@@ -74,7 +74,7 @@ localparam [21:0] BUS_CFG = {
     1'b0, // synchronous burst access
     1'b0, // variable latency
     3'd3, // default latency counter
-    1'b0, // wait is active high
+    1'b0, // wait is active low
     1'b0, // reserved
     1'b0, // 1=wait set 1 clock ahead of data
     2'd0, // reserved
@@ -125,12 +125,14 @@ always @( posedge clk ) begin
         lhbl_l <= 0;
         vsl    <= 0;
         cntup  <= 0;
-        startup<= 0;
+        startup<= `ifdef SIMULATION 1 `else 0 `endif ;
     end else if(pxl_cen) begin
         lhbl_l  <= lhbl;
         vsl     <= vs;
         hcnt    <= hcnt+1'd1;
+`ifndef SIMULATION
         startup <= &cntup;
+`endif
         if( ~lhbl & lhbl_l ) begin // enters blanking
             hcnt   <= 0;
             hlim   <= hcnt - hblen; // H limit below which we allow do_wr events
