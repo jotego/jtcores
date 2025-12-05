@@ -289,7 +289,7 @@
 		)
 		(uuid "b5604a4b-096b-4ac6-a7eb-26afab1f0f3d")
 	)
-	(text "Video Hardware : 052109 051962 053245 053244 053251\n\nKNOWN KONAMI TMNT2 BASED GAME LIST\nDetana!! Twin Bee / Bells & Whistles / Here Comes Twinbee!!\nGolfing Greats\nLightning Fighters / Trigon\nParodius / Parodius DA!\nPremier Soccer\nQuiz Gakumon no Susume\nRollergames\nSunset Riders\nSurprise Attack\nTeenage Mutant Ninja Turtles : Turtles in Time \n"
+	(text "Video Hardware : 052109 051962 053245-A 053244-A 053251\n\nKNOWN KONAMI TMNT2 BASED GAME LIST\nDetana!! Twin Bee / Bells & Whistles / Here Comes Twinbee!!\nGolfing Greats\nLightning Fighters / Trigon\nParodius / Parodius DA!\nPremier Soccer\nQuiz Gakumon no Susume\nRollergames\nSunset Riders\nSurprise Attack\nTeenage Mutant Ninja Turtles : Turtles in Time \n"
 		(exclude_from_sim no)
 		(at 128.27 200.66 0)
 		(effects

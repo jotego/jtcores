@@ -7804,17 +7804,6 @@
 		)
 		(uuid "d0177728-5c9e-493c-a931-aafed03db2eb")
 	)
-	(hierarchical_label "~{COCEL}"
-		(shape input)
-		(at 2.54 73.66 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "eb676260-5890-4ac2-8052-c6b333e0969b")
-	)
 	(hierarchical_label "PALETTE~{CS}"
 		(shape input)
 		(at 55.88 82.55 180)
@@ -7949,7 +7938,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "10fae659-939f-4eb3-9824-a8cb12c11ac0")
-		(property "Reference" "7J41"
+		(property "Reference" "7J"
 			(at 149.606 164.846 0)
 			(effects
 				(font
@@ -8037,7 +8026,7 @@
 		(instances
 			(project "prmrsocr"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/f4542c68-089e-4b0f-a6b3-8df02e621902/a6774e1c-13eb-4aac-8698-807248f75e99"
-					(reference "7J41")
+					(reference "7J")
 					(unit 3)
 				)
 			)
@@ -8567,7 +8556,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "40dd9bec-e96b-45f7-ba6b-6b3b74d81b10")
-		(property "Reference" "7B41"
+		(property "Reference" "7B"
 			(at 245.11 94.234 0)
 			(effects
 				(font
@@ -8655,7 +8644,7 @@
 		(instances
 			(project "prmrsocr"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/f4542c68-089e-4b0f-a6b3-8df02e621902/a6774e1c-13eb-4aac-8698-807248f75e99"
-					(reference "7B41")
+					(reference "7B")
 					(unit 3)
 				)
 			)
@@ -9950,7 +9939,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ad01e78c-d6b8-457e-8554-4e1d40211a67")
-		(property "Reference" "7B41"
+		(property "Reference" "7B"
 			(at 244.094 229.616 0)
 			(effects
 				(font
@@ -10038,7 +10027,7 @@
 		(instances
 			(project "prmrsocr"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/f4542c68-089e-4b0f-a6b3-8df02e621902/a6774e1c-13eb-4aac-8698-807248f75e99"
-					(reference "7B41")
+					(reference "7B")
 					(unit 6)
 				)
 			)
@@ -10053,7 +10042,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b317fd94-37d6-4c56-a282-f683dcbcdba2")
-		(property "Reference" "7B41"
+		(property "Reference" "7B"
 			(at 245.11 144.526 0)
 			(effects
 				(font
@@ -10141,7 +10130,7 @@
 		(instances
 			(project "prmrsocr"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/f4542c68-089e-4b0f-a6b3-8df02e621902/a6774e1c-13eb-4aac-8698-807248f75e99"
-					(reference "7B41")
+					(reference "7B")
 					(unit 2)
 				)
 			)

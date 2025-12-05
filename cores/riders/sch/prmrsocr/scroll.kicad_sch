@@ -26792,7 +26792,7 @@
 		)
 		(uuid "a1a4604e-bacb-41f2-b24c-1564131f4266")
 	)
-	(hierarchical_label "MAIN_ABUF[5..0]"
+	(hierarchical_label "MAIN_ABUF[6..1]"
 		(shape input)
 		(at 29.21 198.12 180)
 		(effects
@@ -26814,7 +26814,7 @@
 		)
 		(uuid "c0eedae4-1bb6-413f-a3a1-e393281981c6")
 	)
-	(hierarchical_label "MAIN_A[15..0]"
+	(hierarchical_label "MAIN_A[16..0]"
 		(shape input)
 		(at 29.21 213.36 180)
 		(effects
@@ -28726,7 +28726,7 @@
 			)
 		)
 		(property "Value" "74F74"
-			(at 68.58 144.78 0)
+			(at 69.088 145.034 0)
 			(effects
 				(font
 					(size 1.27 1.27)
