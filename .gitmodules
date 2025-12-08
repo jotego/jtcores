@@ -49,3 +49,7 @@
 [submodule "modules/jt539"]
 	path = modules/jt539
 	url = https://github.com/jotego/jt539.git
+[submodule "modules/jt680x/crasm"]
+	path = modules/jt680x/crasm
+	url = git@github.com:colinbourassa/crasm.git
+

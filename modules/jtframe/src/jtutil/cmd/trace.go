@@ -101,6 +101,13 @@ trace debug.trace,maincpu,noloop,{tracelog "PC=%4X,AF=%4X,BC=%4X,DE=%4X,HL=%4X,A
 trace off
 trace debug.trace,sub,noloop,{tracelog "PC=%X,S=%X,X=%X,CC=%X,A=%X,B=%X,frame_cnt=%x* ",pc,s,x,cc|c0,a,b,frame}
 `
+		case "6502":
+			s=`focus 1
+trace off
+trace debug.trace,sub,noloop,{tracelog "PC=%X,S=%X,X=%X,Y=%X,A=%X,P=%X,IR=%X,frame_cnt=%x* ",pc,sp&0xff,x,y,a,p&0xef,ir,frame}
+x=0
+p=30
+`
 		case "6805":
 			s=`focus 1
 trace off

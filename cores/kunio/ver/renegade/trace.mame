@@ -1,0 +1,9 @@
+focus 0
+trace off
+trace debug.trace,maincpu,noloop,{tracelog "PC=%04X,S=%02X,X=%02X,Y=%02X,A=%02X,P=%02X,IR=%02X,frame_cnt=%03x* ",pc,sp&0xff,x,y,a,p&0xef,ir,frame}
+x=0
+p=30
+
+gtime 400
+traceflush
+quit

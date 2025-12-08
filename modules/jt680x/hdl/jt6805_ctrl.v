@@ -50,7 +50,6 @@ module jt6805_ctrl(
 
 wire [4:0] jsr_sel;
 reg  [2:0] iv_sel;
-reg        irq_l, pendng;
 wire       halt, swi, ni;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
@@ -59,18 +58,14 @@ always @(posedge clk, posedge rst) begin
         uaddr   <= IVRD_SEQA;
         jsr_ret <= 0;
         iv      <= 7;
-        pendng  <= 0;
     end else if(cen) begin
-        irq_l <= irq;
-        if( irq & ~irq_l ) pendng <= 1;
         if(~halt&~stop) uaddr[3:0] <= nx_ualo;
         if( swi ) iv <= 6;
         if( ni | halt | stop) begin
             uaddr <= { md[7:0], 4'd0 };
             if( ~i ) begin
-                if( pendng ) begin
+                if( irq ) begin
                     iv     <= 5;
-                    pendng <= 0;
                     uaddr  <= ISRV_SEQA; // irq service
                 end else if( tirq ) begin
                     iv    <= 4;

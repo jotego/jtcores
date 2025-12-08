@@ -195,11 +195,11 @@ jt5205 #(.INTERPOL(0)) u_decod(
 );
 
 `else
-    assign peak     = 0;
-    assign sound    = 0;
     assign pcm_cs   = 0;
     initial rom_cs  = 0;
     assign pcm_addr = 0;
     assign rom_addr = 0;
+    assign pcm      = 0;
+    assign fm       = 0;
 `endif
 endmodule
