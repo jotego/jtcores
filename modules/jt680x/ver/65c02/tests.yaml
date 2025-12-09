@@ -471,6 +471,14 @@ trb_tsb:
     - { asm: "LDA #$FF", check: "A=$FF,n=1"}
     - { asm: "TSB $0",   check: "z=1"  }
     - { asm: "LDY $0",   check: "Y=$FF,z=0"}
+    - { asm: "LDA #$ff", check: "A=$ff,n=1"}
+    - { asm: "STA $1234"                   }
+    - { asm: "LDA #$80", check: "A=$80"    }
+    - { asm: "TRB $1234",check: "z=1"      }
+    - { asm: "LDY #$7F", check: "Y=$7F,n=0,z=0"}
+    - { asm: "CPY $1234",check: "z=1,c=1"  }
+    - { asm: "TSB $1234",check: "z=1"      }
+    - { asm: "LDA $1234",check: "a=$FF,n=1,z=0"}
 brk:
   mem:
     - { data: "00 70", from: 0xfffe }

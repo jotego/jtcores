@@ -61,7 +61,7 @@ ops:
   - { name: ADC, op: 0x61, cycles: 7, ctl: { op0: md, op1: a, addr: indx, ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
   - { name: ADC, op: 0x71, cycles: 6, ctl: { op0: md, op1: a, addr: indy, ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
   - { name: ADC, op: 0x72, cycles: 6, ctl: { op0: md, op1: a, addr: ind,  ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
-  - { name: ADC, op: 0x65, cycles: 5, ctl: { op0: md, op1: a, addr: zp,   ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
+  - { name: ADC, op: 0x65, cycles: 4, ctl: { op0: md, op1: a, addr: zp,   ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
   - { name: ADC, op: 0x75, cycles: 5, ctl: { op0: md, op1: a, addr: zpx,  ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
   - { name: ADC, op: 0x69, cycles: 3, ctl: { op0: md, op1: a, addr: imm,  ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
   - { name: ADC, op: 0x79, cycles: 5, ctl: { op0: md, op1: a, addr: absy, ld: a, alu: add, carry: cin, cc: nvzc, adj: daa }}
@@ -140,7 +140,7 @@ ops:
   - { name: ASL, op: 0x1E, cycles: 7, ctl: { op0: md, addr: absx,       alu: lsl, wr: wr, cc: nzc }}
 
   - { name: LSR, op: 0x46, cycles: 5, ctl: { op0: md, addr: zp,         alu: lsr, wr: wr, cc: nzc }}
-  - { name: LSR, op: 0x56, cycles: 6, ctl: { op0: md, addr: zp,         alu: lsrx,wr: wr, cc: nzc }}
+  - { name: LSR, op: 0x56, cycles: 6, ctl: { op0: md, addr: zpx,        alu: lsr, wr: wr, cc: nzc }}
   - { name: LSRA,op: 0x4A, cycles: 2, ctl: { op0: a,             ld: a, alu: lsr,         cc: nzc }}
   - { name: LSR, op: 0x4E, cycles: 6, ctl: { op0: md, addr: abs,        alu: lsr, wr: wr, cc: nzc }}
   - { name: LSR, op: 0x5E, cycles: 7, ctl: { op0: md, addr: absx,       alu: lsr, wr: wr, cc: nzc }}
@@ -267,11 +267,11 @@ ops:
   - { name: BBS6, op: 0xEF, cycles: 6, ctl: { alu: bset, addr: zp }}
   - { name: BBS7, op: 0xFF, cycles: 6, ctl: { alu: bset, addr: zp }}
 
-  - { name: TSB, op: 0x04, cycles: 5, ctl: { op0: a, op1: md, alu: tsb, addr: zp, wr: wr, cc: z }}
-  - { name: TSB, op: 0x0C, cycles: 6, ctl: { op0: a, op1: md, alu: tsb, addr: zp, wr: wr, cc: z }}
+  - { name: TSB, op: 0x04, cycles: 5, ctl: { op0: a, op1: md, alu: tsb, addr: zp,  wr: wr, cc: z }}
+  - { name: TSB, op: 0x0C, cycles: 6, ctl: { op0: a, op1: md, alu: tsb, addr: abs, wr: wr, cc: z }}
 
-  - { name: TRB, op: 0x14, cycles: 5, ctl: { op0: a, op1: md, alu: trb, addr: zp, wr: wr, cc: z }}
-  - { name: TRB, op: 0x1C, cycles: 6, ctl: { op0: a, op1: md, alu: trb, addr: zp, wr: wr, cc: z }}
+  - { name: TRB, op: 0x14, cycles: 5, ctl: { op0: a, op1: md, alu: trb, addr: zp,  wr: wr, cc: z }}
+  - { name: TRB, op: 0x1C, cycles: 6, ctl: { op0: a, op1: md, alu: trb, addr: abs, wr: wr, cc: z }}
 
   - { name: RTI, op: 0x40, cycles: 6 }
   - { name: BRK, op: 0x00, cycles: 7 }
