@@ -52,8 +52,8 @@ module jtcop_bac06 #(
     input             rst,
     input             clk,        // 12MHz original
     input             clk_cpu,
-    inout             pxl2_cen,   // 12 MHz
-    inout             pxl_cen,    //  6 MHz
+    input             pxl2_cen,   // 12 MHz
+    input             pxl_cen,    //  6 MHz
 
     input             mode_cs,
     inout             flip,       // set by master BAC06
@@ -206,16 +206,6 @@ generate
         wire [8:0] vrender1;
         assign flip  = mode[0][7];
         assign vload = vrender1==7; // second last line before the end of V blank
-
-        jtframe_cen48 u_cen(
-            .clk    ( clk       ),    // 48 MHz
-            .cen6   ( pxl_cen   ),
-            .cen12  ( pxl2_cen  ),
-            // unused
-            .cen16(), .cen8(), .cen4(), .cen4_12(), .cen3(),
-            .cen3q(), .cen1p5(), .cen16b(), .cen12b(),
-            .cen6b(), .cen3b(), .cen3qb(), .cen1p5b()
-        );
 
         jtframe_vtimer #(
             .VB_START   ( 9'hf7     ),

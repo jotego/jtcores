@@ -90,6 +90,8 @@ assign sta_video  = st_addr;
 assign ram_we     = ~main_rnw;
 assign ba2mcu_we  = ~ba2mcu_rnw;
 assign ba2mcu_din = {2{ba2mcu_dout}};
+assign cen_opl    = cen3;
+assign cen_opn    = cen1p5;
 
 always @(posedge clk) begin
     st_mux <= 0;
@@ -100,18 +102,7 @@ always @(posedge clk) begin
         3: st_mux <= std_video;
     endcase
 end
-/* verilator tracing_off */
-jtframe_cen48 u_cen(
-    .clk    ( clk       ),
-    .cen3   ( cen_opl   ),
-    .cen1p5 ( cen_opn   ),
-    .cen8   (           ),
-    // unused
-    .cen12(), .cen6(),   .cen4(),
-    .cen3q(), .cen12b(), .cen6b(),
-    .cen3b(), .cen3qb(), .cen1p5b(),
-    .cen16(), .cen16b(), .cen4_12()
-);
+
 /* verilator tracing_off */
 jtcop_main u_main(
     .rst        ( rst       ),

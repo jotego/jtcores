@@ -7,6 +7,12 @@ params:
   - { name: MCU_OFFSET,  value: "`MCU_OFFSET"  }
   - { name: SND_OFFSET,  value: "(`SND_START-`JTFRAME_BA1_START)>>1" }
   - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+clocks:
+  clk:
+    - freq: 3000000
+      outputs:
+        - cen3
+        - cen1p5
 download:
   post_addr: true
   post_data: true
