@@ -293,6 +293,7 @@ jtcop_video u_video(
 jtcop_snd u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .cen6       ( cen6      ),
     .cen_opn    ( cen_opn   ),
     .cen_opl    ( cen_opl   ),
 

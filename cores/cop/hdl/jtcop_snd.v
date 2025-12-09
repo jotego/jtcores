@@ -19,6 +19,7 @@
 module jtcop_snd(
     input                rst,
     input                clk,
+    input                cen6,
     input                cen_opn,
     input                cen_opl,
 
@@ -54,15 +55,14 @@ wire [ 7:0] cpu_dout, opl_dout, opn_dout, ram_dout, oki_dout;
 reg  [ 7:0] cpu_din, dev_mux;
 reg         nmin, opl_cs, opn_cs, ram_cs, bank_cs,
             nmi_clr, oki_cs, dev_cs;
-wire        irqn, ram_we, cpu_rnw, oki_wrn, rdy;
+wire        irqn, ram_we, cpu_rnw, oki_wrn;
 wire        opn_irqn, opl_irqn;
 
 
 assign irqn     = KARNOV ? opl_irqn : opn_irqn & opl_irqn;
-assign ram_we   = ram_cs & ~cpu_rnw;
-assign oki_wrn  = ~(oki_cs & ~cpu_rnw);
+assign ram_we   = ram_cs & cpu_wr;
+assign oki_wrn  = ~(oki_cs & cpu_wr);
 assign rom_addr = cpu_addr;
-assign rdy      = ~rom_cs | rom_ok;
 assign status   = { 1'b0, opn_irqn, opl_irqn, opn_dout[7], oki_dout[3:0]};
 
 always @(posedge clk, posedge rst) begin
@@ -145,28 +145,19 @@ end
 // As the sound tempo comes from interruptions,
 // cycle recovery isn't probably needed
 wire [7:0] nc;
-T65 u_cpu(
-    .Mode   ( 2'd0      ),  // 6502 mode
-    .Res_n  ( ~rst      ),
-    .Enable ( cen_opn   ),
-    .Clk    ( clk       ),
-    .Rdy    ( rdy       ),
-    .Abort_n( 1'b1      ),
-    .IRQ_n  ( irqn      ),
-    .NMI_n  ( nmin      ),
-    .SO_n   ( 1'b1      ),
-    .R_W_n  ( cpu_rnw   ),
-    .Sync   (           ),
-    .EF     (           ),
-    .MF     (           ),
-    .XF     (           ),
-    .ML_n   (           ),
-    .VP_n   (           ),
-    .VDA    (           ),
-    .VPA    (           ),
-    .A      ({nc,cpu_addr}),
-    .DI     ( cpu_din   ),
-    .DO     ( cpu_dout  )
+wire cpu_wr;
+assign cpu_rnw = ~cpu_wr;
+
+jt65c02 u_cpu(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .cen    ( cen6      ),  // crystal clock freq. = 4x E pin freq.
+    .irq    (~irqn      ),
+    .nmi    (~nmin      ),
+    .wr     ( cpu_wr    ),
+    .addr   ( cpu_addr  ), // always valid
+    .din    ( cpu_din   ),
+    .dout   ( cpu_dout  )
 );
 
 jtframe_ram #(.AW(11)) u_ram(
