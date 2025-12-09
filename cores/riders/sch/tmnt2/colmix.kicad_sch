@@ -435,7 +435,7 @@
 					)
 				)
 				(text "CHIP SELECT INPUT"
-					(at 22.86 17.78 0)
+					(at 21.59 17.78 0)
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -444,14 +444,6 @@
 				)
 				(text "COLOR INPUTS"
 					(at -21.59 12.7 0)
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(text "COLOR OUTPUTS"
-					(at 20.32 15.24 0)
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -476,6 +468,14 @@
 				)
 			)
 			(symbol "053251_1_0"
+				(text "COLOR OUTPUTS"
+					(at 20.32 15.24 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 				(text "PRIORITY CONTROL UNIT"
 					(at 0 -3.81 0)
 					(effects
@@ -486,6 +486,14 @@
 				)
 			)
 			(symbol "053251_1_1"
+				(text "30 pins top/bottom\n20 pins left/right"
+					(at 0 -12.7 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
 				(pin input line
 					(at -15.24 39.37 270)
 					(length 5.08)
@@ -828,6 +836,24 @@
 						)
 					)
 				)
+				(pin no_connect line
+					(at 41.91 20.32 180)
+					(length 5.08)
+					(name "N.C"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "26"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
 				(pin input line
 					(at -30.48 39.37 270)
 					(length 5.08)
@@ -857,24 +883,6 @@
 						)
 					)
 					(number "28"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at 41.91 20.32 180)
-					(length 5.08)
-					(name "N.C"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "29"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -6623,7 +6631,7 @@
 		(pin "29"
 			(uuid "e75f2ffb-967e-408e-be8c-40437059cadc")
 		)
-		(pin "29"
+		(pin "26"
 			(uuid "e75f2ffb-967e-408e-be8c-40437059cadd")
 		)
 		(pin "3"

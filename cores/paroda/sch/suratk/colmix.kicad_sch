@@ -3132,6 +3132,24 @@
 						)
 					)
 				)
+				(pin no_connect line
+					(at 41.91 20.32 180)
+					(length 5.08)
+					(name "N.C"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "26"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
 				(pin input line
 					(at -30.48 39.37 270)
 					(length 5.08)
@@ -3161,24 +3179,6 @@
 						)
 					)
 					(number "28"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin no_connect line
-					(at 41.91 20.32 180)
-					(length 5.08)
-					(name "N.C"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "29"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -12229,7 +12229,7 @@
 		(pin "64"
 			(uuid "20cef811-13cf-455a-8e41-72238487254f")
 		)
-		(pin "29"
+		(pin "26"
 			(uuid "9f0cdda4-a4f0-4294-acbc-65efc83a4e1b")
 		)
 		(pin "33"
