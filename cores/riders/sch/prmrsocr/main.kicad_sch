@@ -4356,6 +4356,150 @@
 				)
 			)
 		)
+		(symbol "Jumper:Jumper_2_Bridged"
+			(pin_names
+				(offset 0) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "JP"
+				(at 0 1.905 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Jumper_2_Bridged"
+				(at 0 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Jumper, 2-pole, closed/bridged"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "Jumper SPST"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Jumper* TestPoint*2Pads* TestPoint*Bridge*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Jumper_2_Bridged_0_0"
+				(circle
+					(center -2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "Jumper_2_Bridged_0_1"
+				(arc
+					(start 1.524 0.254)
+					(mid 0 0.762)
+					(end -1.524 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "Jumper_2_Bridged_1_1"
+				(pin passive line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name "B"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "Memory_EPROM:27C040"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -16245,6 +16389,16 @@
 	)
 	(wire
 		(pts
+			(xy 280.67 132.08) (xy 267.97 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "02f75b6e-8e21-4fb7-92a5-8945461106ec")
+	)
+	(wire
+		(pts
 			(xy 210.82 52.07) (xy 203.2 52.07)
 		)
 		(stroke
@@ -16342,6 +16496,16 @@
 			(type default)
 		)
 		(uuid "07ba1c0c-8b4d-4a9f-bdd3-67903695607c")
+	)
+	(wire
+		(pts
+			(xy 250.19 124.46) (xy 256.54 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "088236f4-5e05-4fcd-8e85-ffb6518126e4")
 	)
 	(bus
 		(pts
@@ -20195,16 +20359,6 @@
 	)
 	(wire
 		(pts
-			(xy 340.36 189.23) (xy 347.98 189.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a3fd8c91-ae5c-46fd-ba3b-a4463f26315d")
-	)
-	(wire
-		(pts
 			(xy 273.05 45.72) (xy 288.29 45.72)
 		)
 		(stroke
@@ -20712,6 +20866,16 @@
 			(type default)
 		)
 		(uuid "b57e4938-65af-4c65-8213-574935cd2de7")
+	)
+	(wire
+		(pts
+			(xy 273.05 124.46) (xy 266.7 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b5e8a65f-7a68-4d8c-bc0d-02c43b1a2928")
 	)
 	(wire
 		(pts
@@ -21343,6 +21507,16 @@
 		)
 		(uuid "d1ed50d8-425a-44ee-bb04-674b5a6b0d41")
 	)
+	(wire
+		(pts
+			(xy 251.46 132.08) (xy 257.81 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d2741ff6-8e2d-4358-ac0f-a777acbac798")
+	)
 	(bus
 		(pts
 			(xy 40.64 93.98) (xy 40.64 107.95)
@@ -21962,6 +22136,16 @@
 			(type default)
 		)
 		(uuid "f36d631b-a507-487b-a103-e0e6b2aebb2d")
+	)
+	(wire
+		(pts
+			(xy 342.9 189.23) (xy 347.98 189.23)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f5890bf9-2619-4658-b8e8-d45e6e8d64b9")
 	)
 	(wire
 		(pts
@@ -23557,6 +23741,16 @@
 		)
 		(uuid "598c70fa-6cae-4210-9faf-6c5d21c1a412")
 	)
+	(label "VCC"
+		(at 250.19 124.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5a838186-c080-449e-afff-9ece424a93c3")
+	)
 	(label "MAIN_A7"
 		(at 157.48 231.14 0)
 		(effects
@@ -24027,16 +24221,6 @@
 		)
 		(uuid "7f1bdf42-2788-438b-acfc-fa069f3c8599")
 	)
-	(label "GND"
-		(at 340.36 189.23 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7f99e85b-8a44-4d85-a816-7c0480756ffe")
-	)
 	(label "MAIN_D5"
 		(at 43.18 161.29 0)
 		(effects
@@ -24046,6 +24230,16 @@
 			(justify left bottom)
 		)
 		(uuid "7fe02180-72c5-479f-81b6-9579f1d2f6be")
+	)
+	(label "VCC"
+		(at 251.46 132.08 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "808a741f-c641-4ac7-ae64-4fa1e969684b")
 	)
 	(label "MAIN_DB0"
 		(at 87.63 73.66 180)
@@ -24657,6 +24851,16 @@
 		)
 		(uuid "b17a27ac-86e0-40af-9202-c8182aaee868")
 	)
+	(label "MAIN_A18"
+		(at 280.67 132.08 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b17bdfca-bd12-48c7-a0db-c81f577b6a44")
+	)
 	(label "MAIN_A16"
 		(at 327.66 166.37 0)
 		(effects
@@ -25007,6 +25211,16 @@
 		)
 		(uuid "ccbdac1c-4318-4a2c-af21-84cd202898d6")
 	)
+	(label "R{slash}~{W}"
+		(at 273.05 124.46 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "cccd4e39-777b-4177-b1b6-4b32355fed43")
+	)
 	(label "VSS"
 		(at 260.35 250.19 0)
 		(effects
@@ -25186,6 +25400,16 @@
 			(justify left bottom)
 		)
 		(uuid "dd4f8626-1a0c-47e1-9f03-eaf98b22c50b")
+	)
+	(label "GND"
+		(at 342.9 189.23 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "df5fdfa0-0e11-4a90-a91b-8c83133fd26c")
 	)
 	(label "~{HALT}"
 		(at 280.67 88.9 0)
@@ -27709,6 +27933,73 @@
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/7d4ab3ba-37fa-4111-bbdb-c99f1a708a52"
 					(reference "11G1")
 					(unit 3)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:Jumper_2_Bridged")
+		(at 261.62 124.46 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "3077d0f4-fe02-4556-b017-c8547ac63c8b")
+		(property "Reference" "JP4"
+			(at 261.62 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jp_2_Bridged"
+			(at 261.62 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 261.62 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 261.62 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 261.62 124.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "442b3d2c-fd37-4f45-a804-438d9f7be38c")
+		)
+		(pin "2"
+			(uuid "072e29ec-3cb6-4e90-b788-4f54d7093188")
+		)
+		(instances
+			(project "prmrsocr"
+				(path "/0011ec10-82c4-4039-b424-337480f568e8/7d4ab3ba-37fa-4111-bbdb-c99f1a708a52"
+					(reference "JP4")
+					(unit 1)
 				)
 			)
 		)
@@ -30708,6 +30999,73 @@
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/7d4ab3ba-37fa-4111-bbdb-c99f1a708a52"
 					(reference "7G")
 					(unit 2)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:Jumper_2_Bridged")
+		(at 262.89 132.08 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d3bfcfa4-fb78-4b4b-9921-5bd9fa5062e2")
+		(property "Reference" "JP5"
+			(at 262.89 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jp_2_Bridged"
+			(at 262.89 129.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 262.89 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 262.89 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 262.89 132.08 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a065f7c3-9a4f-4f0d-b977-fe698178b4c6")
+		)
+		(pin "2"
+			(uuid "cb01c5f6-b2f5-4dc5-86c9-801efc04f255")
+		)
+		(instances
+			(project "prmrsocr"
+				(path "/0011ec10-82c4-4039-b424-337480f568e8/7d4ab3ba-37fa-4111-bbdb-c99f1a708a52"
+					(reference "JP5")
+					(unit 1)
 				)
 			)
 		)

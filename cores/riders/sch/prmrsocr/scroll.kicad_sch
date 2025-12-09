@@ -11624,6 +11624,12 @@
 		(color 0 0 0 0)
 		(uuid "ef56b507-8682-406d-b2fb-48d44a349279")
 	)
+	(junction
+		(at 40.64 182.88)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ff276f0f-0c05-4859-9647-0db5667c8e4a")
+	)
 	(no_connect
 		(at 264.16 34.29)
 		(uuid "078686a1-9a86-4b84-9339-fc9e73945dea")
@@ -11671,10 +11677,6 @@
 	(no_connect
 		(at 81.28 170.18)
 		(uuid "4950a2e7-1f92-4731-9545-277cf0107984")
-	)
-	(no_connect
-		(at 113.03 151.13)
-		(uuid "4d3a3770-5ee4-4547-bff5-1b214c3ba4b9")
 	)
 	(no_connect
 		(at 345.44 110.49)
@@ -14819,16 +14821,6 @@
 	)
 	(wire
 		(pts
-			(xy 124.46 151.13) (xy 123.19 151.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "040434b1-5bd1-4f47-aadd-c241783a8969")
-	)
-	(wire
-		(pts
 			(xy 179.07 231.14) (xy 193.04 231.14)
 		)
 		(stroke
@@ -16577,6 +16569,16 @@
 		)
 		(uuid "36378d26-559a-4d3d-8ec8-a96b96f5924c")
 	)
+	(wire
+		(pts
+			(xy 40.64 186.69) (xy 40.64 182.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "36a3d43a-68a2-4000-9eca-1fd5459cc196")
+	)
 	(polyline
 		(pts
 			(xy 119.38 17.78) (xy 17.78 17.78)
@@ -17416,16 +17418,6 @@
 			(type default)
 		)
 		(uuid "5300b0b8-0da7-44df-8353-c0de13b0116a")
-	)
-	(polyline
-		(pts
-			(xy 105.41 151.13) (xy 113.03 151.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "531f4cc8-81a9-4a87-8b3e-0091dc5b48d2")
 	)
 	(bus
 		(pts
@@ -19179,6 +19171,16 @@
 	)
 	(wire
 		(pts
+			(xy 29.21 182.88) (xy 29.21 186.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8d6a8458-c422-4304-afe8-4de4c506ae21")
+	)
+	(wire
+		(pts
 			(xy 179.07 208.28) (xy 193.04 208.28)
 		)
 		(stroke
@@ -20047,6 +20049,16 @@
 		)
 		(uuid "b0c87a44-e7e3-46f7-bcb2-a70d2af99afa")
 	)
+	(wire
+		(pts
+			(xy 124.46 156.21) (xy 124.46 170.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b0d40192-755e-4d8d-9b56-4f568f7c800a")
+	)
 	(bus
 		(pts
 			(xy 64.77 50.8) (xy 68.58 50.8)
@@ -20606,16 +20618,6 @@
 			(type default)
 		)
 		(uuid "c44a898c-94c1-4fb0-ae34-0e3231a0ca3f")
-	)
-	(wire
-		(pts
-			(xy 124.46 151.13) (xy 124.46 170.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c4cc1bfc-9aa5-47e4-b4fc-34f08aeca6c6")
 	)
 	(bus
 		(pts
@@ -21909,6 +21911,26 @@
 	)
 	(wire
 		(pts
+			(xy 39.37 182.88) (xy 40.64 182.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "efaf9f59-a748-40ed-a8ea-4115a88dcb62")
+	)
+	(wire
+		(pts
+			(xy 29.21 186.69) (xy 40.64 186.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "effd762f-929d-4a3f-a74e-6e04e9934793")
+	)
+	(wire
+		(pts
 			(xy 332.74 128.27) (xy 330.2 128.27)
 		)
 		(stroke
@@ -22056,6 +22078,16 @@
 			(type default)
 		)
 		(uuid "f44cc2b6-abdb-476e-8ab9-80551b9ef5af")
+	)
+	(wire
+		(pts
+			(xy 40.64 182.88) (xy 58.42 182.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f4f73a37-f5ee-46d2-90d4-c0cb5695d050")
 	)
 	(wire
 		(pts
@@ -22694,17 +22726,6 @@
 			(justify left bottom)
 		)
 		(uuid "904bfe94-53c9-43f0-8b7c-7754e5093f71")
-	)
-	(text "TEST\n\n"
-		(exclude_from_sim no)
-		(at 105.41 152.4 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "94e875d4-b86a-4cfa-80bd-e62fa23a9f63")
 	)
 	(text "24MHz"
 		(exclude_from_sim no)
@@ -26995,6 +27016,73 @@
 		)
 	)
 	(symbol
+		(lib_id "Jumper:Jumper_2_Bridged")
+		(at 34.29 182.88 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "151d69ed-2eff-4e42-b558-b400495376aa")
+		(property "Reference" "JP42"
+			(at 34.29 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Jp_2_Bridged"
+			(at 34.29 180.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 34.29 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 34.29 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 34.29 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "10722bf0-9672-4081-8082-fc62775e4599")
+		)
+		(pin "2"
+			(uuid "a6f08f20-2e7c-4a69-a507-1ac1450380d1")
+		)
+		(instances
+			(project "prmrsocr"
+				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
+					(reference "JP42")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R_US")
 		(at 381 40.64 90)
 		(unit 1)
@@ -27070,7 +27158,7 @@
 		(on_board yes)
 		(dnp yes)
 		(uuid "19fd4cfe-6459-4879-97fe-e8ac6023ce2e")
-		(property "Reference" "RA8"
+		(property "Reference" "RA20"
 			(at 27.94 24.13 0)
 			(effects
 				(font
@@ -27143,7 +27231,7 @@
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "RA8")
+					(reference "RA20")
 					(unit 1)
 				)
 			)
@@ -28119,7 +28207,7 @@
 		(on_board yes)
 		(dnp yes)
 		(uuid "67ea7ccb-b5c2-46dd-ace7-9fd3e319bba1")
-		(property "Reference" "RA10"
+		(property "Reference" "RA23"
 			(at 92.71 24.13 0)
 			(effects
 				(font
@@ -28192,7 +28280,7 @@
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "RA10")
+					(reference "RA23")
 					(unit 1)
 				)
 			)
@@ -28629,7 +28717,7 @@
 		(on_board yes)
 		(dnp yes)
 		(uuid "6faa0376-1c72-4baf-aed7-5a71247b31a8")
-		(property "Reference" "RA13"
+		(property "Reference" "RA21"
 			(at 49.53 24.13 0)
 			(effects
 				(font
@@ -28702,7 +28790,7 @@
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "RA13")
+					(reference "RA21")
 					(unit 1)
 				)
 			)
@@ -29060,73 +29148,6 @@
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
 					(reference "CN7")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Jumper:Jumper_2_Bridged")
-		(at 118.11 151.13 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8bf704a0-49e4-45b9-bea9-5a55585e5bca")
-		(property "Reference" "JP5"
-			(at 118.11 152.4 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Jp_2_Bridged"
-			(at 118.11 148.59 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 118.11 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 118.11 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 118.11 151.13 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "b19d435c-b857-4adb-bd3d-6e353ba1c6e4")
-		)
-		(pin "2"
-			(uuid "473c6bc6-b960-4535-9e6c-150943e813f4")
-		)
-		(instances
-			(project "parodius"
-				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "JP5")
 					(unit 1)
 				)
 			)
@@ -29703,7 +29724,7 @@
 		(on_board yes)
 		(dnp yes)
 		(uuid "f6ff5102-cd81-473c-bb78-bac551d27643")
-		(property "Reference" "RA12"
+		(property "Reference" "RA22"
 			(at 71.12 24.13 0)
 			(effects
 				(font
@@ -29776,7 +29797,7 @@
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/71593c72-d5d9-4c4f-ae59-12397f6ecdda"
-					(reference "RA12")
+					(reference "RA22")
 					(unit 1)
 				)
 			)

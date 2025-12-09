@@ -9568,7 +9568,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6c43cded-c118-4c63-b26c-01485fcd00e5")
-		(property "Reference" "JP1"
+		(property "Reference" "JP1_"
 			(at 67.056 197.612 0)
 			(effects
 				(font
@@ -9622,7 +9622,7 @@
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/738db462-ecf7-4782-b6c0-b51ff05271c0"
-					(reference "JP1")
+					(reference "JP1_")
 					(unit 1)
 				)
 			)
@@ -10509,7 +10509,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c8716f44-a0a5-4b47-9949-37c46a790148")
-		(property "Reference" "JP7"
+		(property "Reference" "JP1"
 			(at 53.34 181.61 90)
 			(effects
 				(font
@@ -10517,7 +10517,7 @@
 				)
 			)
 		)
-		(property "Value" "Jp2 Open"
+		(property "Value" "Jp1 Open"
 			(at 52.07 184.15 90)
 			(effects
 				(font
@@ -10561,7 +10561,7 @@
 		(instances
 			(project "parodius"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8/738db462-ecf7-4782-b6c0-b51ff05271c0"
-					(reference "JP7")
+					(reference "JP1")
 					(unit 1)
 				)
 			)
