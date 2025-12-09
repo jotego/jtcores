@@ -8,5 +8,6 @@ jtframe:
   - from: cpu
     get:
       - jtframe_8751.yaml
-      - t65.yaml
-
+jt680x:
+  - get:
+    - jt65c02.yaml

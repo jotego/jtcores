@@ -8,7 +8,7 @@ cop:
 jtframe:
   - get:
       - jtframe_ff.v
-  - from: cpu
-    get:
-      - t65.yaml
 HUC6280:
+jt680x:
+  - get:
+    - jt65c02.yaml

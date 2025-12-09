@@ -276,6 +276,7 @@ jtkarnov_video u_video(
 jtcop_snd #(.KARNOV(1)) u_sound(
     .rst        ( rst24     ),
     .clk        ( clk24     ),
+    .cen6       ( cen6      ),
     .cen_opn    ( cen_opn   ),
     .cen_opl    ( cen_opl   ),
 

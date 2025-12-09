@@ -7,8 +7,10 @@ clocks:
       outputs:
         - cen_mcu
         - cen_nc
-    - freq: 3000000
+    - freq: 6000000
+      gate: [ snd ]
       outputs:
+        - cen6
         - cen_opl
         - cen_opn
 audio:
