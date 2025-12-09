@@ -131,6 +131,7 @@ wire      active, // active video portion
           vsy,    // sync start to end
           vsa;    // sync end to active start
 reg [3:0] st;
+reg [VW-1:0] ln_v_l;
 
 localparam [3:0] ACTIVE=4'b1_000,
                  VBTOSY=4'b0_001;
@@ -153,6 +154,7 @@ always @(posedge clk) begin
         frame    <= 0;
         ln_hs    <= 0;
         ln_v     <= 0;
+        ln_v_l   <= 0;
         done     <= 0;
     `ifdef JTFRAME_LF_FULLV
         ln_vs    <= 0;
@@ -162,6 +164,7 @@ always @(posedge clk) begin
     `endif
     end else if(info_rdy) begin
         ln_hs <= 0;
+        ln_v_l<= ln_v;
         if( vs && !vsl ) begin // object parsing starts during VB
             frame <= ~frame;
             ln_v  <= vstart;
@@ -173,7 +176,7 @@ always @(posedge clk) begin
                 st      <= VBTOSY;
             `endif
         end
-        if( fb_done && !done && clk_ctrl )
+        if( fb_done && !done && ln_v==ln_v_l )
     `ifdef JTFRAME_LF_FULLV
             if({vsa,vsy,vbs}!=0) begin
                 porch <= porch - 1'd1;
