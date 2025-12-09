@@ -158,7 +158,9 @@ lint_core() {
 	local core="$1"
 	local log=`mktemp`
 	local fail
-	if ! $JTFRAME/bin/lint-one.sh $core > /dev/null 2> $log; then
+    # using sidi128 version to avoid linter error on MiSTer because of
+    # using PauloBlaze module (VHDL) and verilator not finding the module
+	if ! $JTFRAME/bin/lint-one.sh $core -sidi128 > /dev/null 2> $log; then
 		cat $log
 		fail=1
 	fi

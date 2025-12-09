@@ -62,7 +62,7 @@ module jt680x_ctrl(
 wire [4:0] jsr_sel;
 reg  [2:0] iv_sel;
 wire       halt, swi, ni, still;
-reg        nmi_l;
+reg        nmi_l, pendng;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
 assign still = ni & ext_halt;
@@ -70,20 +70,25 @@ assign still = ni & ext_halt;
 // reg [255:0] ops, ops_old;
 // integer k;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
+    if(cen) nmi_l <= nmi;
+end
+
+always @(posedge clk) begin
     if( rst ) begin
         uaddr      <= IVRD_SEQA;
         jsr_ret    <= 0;
         iv         <= 4'o17; // reset vector
         ba         <= 0;
         stack_busy <= 1;
+        pendng     <= 0;
     end else if(cen) begin
+        if( nmi & ~nmi_l ) pendng <= 1;
         if(!halt && !still) uaddr[3:0] <= nx_ualo;
         if( swi ) iv <= 4'o15; // lowest priority
         if(  halt | (ni & ext_halt) ) ba<=1;
         if( ~halt & ~ext_halt       ) ba<=0;
         if( ni | halt ) begin
-            nmi_l <= nmi;
             if( !still ) begin
                 uaddr <= { md[7:0], 4'd0 };
                 stack_busy <= 0;
@@ -105,10 +110,11 @@ always @(posedge clk, posedge rst) begin
                 if( irq_icf) begin iv <= 4'o13; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_busy<=1; end
                 if( irq    ) begin iv <= 4'o14; uaddr <= alt ? IVRD_SEQA : ISRV_SEQA; stack_busy<=1; end // highest priority
             end
-            if( nmi & ~nmi_l ) begin
+            if( pendng ) begin
                 iv <= 4'o16;
                 uaddr <= ISRV_SEQA;
                 stack_busy <= 1;
+                pendng <= 0;
             end
         end
         if( jsr_en ) begin

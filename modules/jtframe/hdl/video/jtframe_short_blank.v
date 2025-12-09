@@ -37,31 +37,29 @@ module jtframe_short_blank #(parameter WIDTH=511, HEIGHT=264) (
     output  vb_out
 );
 
-reg [5:0] clip;
-reg [5:0] max_pxl_count;
-reg [7:0] ln_count=0;
-reg [8:0] ln_count2=0, max_ln_count2;
-reg [8:0] max_pxl_count2;
-reg [8:0] pxl_count=0;
-reg       lhbs, lvbs;
-reg       last_hb=0, last_vb=0, last_hs=0;
+reg  [8:0] clip, ln_count=0, max_ln_count,
+           pxl_count=0, max_pxl_count;
+wire [8:0] ln_count_nx, pxl_count_nx;
+reg        lhbs=0, lvbs=0,
+           last_hb=0, last_vb=0, last_hs=0;
 
 assign hb_out = !h_en ? LHBL : lhbs;
 assign vb_out = !v_en ? LVBL : lvbs;
+assign pxl_count_nx = pxl_count + 1'b1;
+assign ln_count_nx  = ln_count  + 1'b1;
 
 always @(*) begin
-    clip           = wide ? 6'd16 : 6'd8;
-    max_pxl_count  = clip-6'd2;
-    max_pxl_count2 = WIDTH[8:0] -{3'b0, clip}-9'd2;
-    max_ln_count2  = HEIGHT[8:0]-{3'b0, clip}-9'd2;
+    clip          = wide ? 9'd16 : 9'd8;
+    max_pxl_count = WIDTH[ 8:0] - clip;
+    max_ln_count  = HEIGHT[8:0] - clip;
 end
 
 always @(posedge clk) if(pxl_cen) begin
     last_hb    <= LHBL;
     pxl_count  <= pxl_count  + 1'b1;
-    if( LHBL && !last_hb) pxl_count  <= 0;
-    if(pxl_count     ==max_pxl_count2)        lhbs <= 0;
-    if(pxl_count[5:0]==max_pxl_count && LHBL) lhbs <= 1;
+    if( LHBL && !last_hb)     pxl_count  <= 1;
+    if(pxl_count_nx==max_pxl_count) lhbs <= 0;
+    if(pxl_count_nx==clip  && LHBL) lhbs <= 1;
 end
 
 always @(posedge clk) begin
@@ -69,11 +67,9 @@ always @(posedge clk) begin
     if(HS) last_vb <= LVBL;
     if(HS && !last_hs) begin
         ln_count  <= ln_count +  1'b1;
-        ln_count2 <= ln_count2 + 1'b1;
-        if( LVBL && !last_vb) ln_count  <= 0;
-        if(!LVBL &&  last_vb) ln_count2 <= 0; 
-        if(ln_count2==max_ln_count2)               lvbs <= 0;
-        if(ln_count=={2'b0,max_pxl_count} && LVBL) lvbs <= 1;
+        if( LVBL && !last_vb)    ln_count  <= 0;
+        if(ln_count_nx==max_ln_count) lvbs <= 0;
+        if(ln_count_nx==clip && LVBL) lvbs <= 1;
     end      
 end
 

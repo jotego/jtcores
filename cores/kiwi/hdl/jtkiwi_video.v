@@ -23,6 +23,7 @@ module jtkiwi_video(
     input               pxl2_cen,
     input               pxl_cen,
     input               hb_dly,
+    input               drtoppel,
 
     output              LHBL,
     output              LVBL,
@@ -119,6 +120,7 @@ jtkiwi_gfx u_gfx(
     // .prom_we    ( prom_we        ),
     // Screen
     .flip       ( flip           ),
+    .drtoppel   ( drtoppel       ),
     .LHBL       ( LHBL           ),
     .LVBL       ( LVBL           ),
     .vs         ( VS             ),

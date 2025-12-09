@@ -1,0 +1,538 @@
+lda_imm:
+  test:
+    - { asm: "LDA #$A0", check: "A=$A0, n=1, z=0" }
+    - { asm: "LDA #$B0", check: "A=$B0          " }
+    - { asm: "LDA #$C0", check: "A=$C0          " }
+    - { asm: "LDA #$20", check: "A=$20, n=0, z=0" }
+    - { asm: "LDA #$00", check: "A=$00,      z=1" }
+lda_zp:
+  mem:
+    - data: |
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E FF
+  test:
+    - { asm: "LDA $12", check: "A=$02, n=0, z=0" }
+    - { asm: "LDA $16", check: "A=$06, n=0, z=0" }
+    - { asm: "LDA $18", check: "A=$08, n=0, z=0" }
+    - { asm: "LDA $00", check: "A=$00, n=0, z=1" }
+    - { asm: "LDA $1F", check: "A=$FF, n=1, z=0" }
+lda_zpxy: # zp,x zp,y
+  mem:
+    - data: |
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 01 02 03 ca 05 06 fe 08 09 0A 0B 0C 0D 0E FF
+  test:
+    - { asm: "LDX #$4",   check: "X=$4,  n=0, z=0" }
+    - { asm: "LDA $10,x", check: "A=$ca, n=1, z=0" }
+    - { asm: "LDY #$7",   check: "Y=$7,  n=0, z=0" }
+    - { asm: "LDA $10,y", check: "A=$fe, n=1, z=0" }
+    - { asm: "LDA #$20",  check: "A=$20, n=0, z=0" }
+lda_abs: # abs abs,x abs,y
+  mem:
+    - { from: 0x0710, data: "FA" }
+    - { from: 0x07f0, data: "55" }
+    - { from: 0x0700, data: "A0" }
+    - { from: 0x0800, data: "B0" }
+  test:
+    - { asm: "LDX #$1",    check: "X=$1,  n=0, z=0" }
+    - { asm: "LDA $7FF,X", check: "A=$B0, n=1, z=0" }
+    - { asm: "LDA $0710",  check: "A=$FA, n=1, z=0" }
+    - { asm: "LDY #$2",    check: "Y=$2,  n=0, z=0" }
+    - { asm: "LDA $7EE,Y", check: "A=$55, n=0, z=0" }
+    - { asm: "LDA #$00",   check: "A=$00, n=0, z=1" }
+lda_ind: # ind ind,x ind,y
+  mem:
+    - data: |
+        00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+        10 00 87 40 00 00 00 00 00 00 00 00 00 00 00 00
+        20 00 00 00 00 00 00 00 00 00 83 10 00 00 FE 80
+    - { from: 0x1083, data: "FA" }
+    - { from: 0x4087, data: "55" }
+    - { from: 0x8000, data: "A0" }
+    - { from: 0x8100, data: "B0" }
+    - { from: 0x80FE, data: "32" }
+  test:
+    - { asm: "LDA ($2A)",   check: "A=$FA, n=1, z=0" }
+    - { asm: "LDA ($12)",   check: "A=$55, n=0, z=0" }
+    - { asm: "LDX #$2",     check: "X=$2,  n=0, z=0" }
+    - { asm: "LDA ($2C,X)", check: "A=$32, n=0, z=0" }
+    - { asm: "LDY #$2",     check: "Y=$2,  n=0, z=0" }
+    - { asm: "LDA ($2E),Y", check: "A=$B0, n=1, z=0" }
+    - { asm: "LDA #$00",    check: "A=$00, n=0, z=1" }
+orand:
+  mem:
+    - data: |
+        00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+        10 00 18 40 00 00 00 00 00 00 00 00 00 00 00 00
+  test:
+    - { asm: "ORA #$AA",    check: "A=$AA, n=1" }
+    - { asm: "ORA #$55",    check: "A=$FF     " }
+    - { asm: "AND #$81",    check: "A=$81, n=1" }
+    - { asm: "ORA $12",     check: "A=$99"      }
+    - { asm: "LDX #3",      check: "X=3,   n=0" }
+    - { asm: "AND $0,X",    check: "A=1"        }
+sta:
+  mem:
+    - data: |
+        00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+        00 80 10 90 10 08
+  test:
+    - { asm: "LDA #$55",   check: "A=$55"      }
+    - { asm: "STA $05"                         } # zp
+    - { asm: "LDA #0",     check: "A=0, z=1"   }
+    - { asm: "ADC $05",    check: "A=$55, z=0" }
+    - { asm: "LDX #3",     check: "X=3"        } # zpx
+    - { asm: "ADC $2,X",   check: "A=$AA, n=1,v=1" }
+    - { asm: "STA $1234"                       } # abs
+    - { asm: "ADC $1234",  check: "A=$54, n=0, c=1" }
+    - { asm: "STA $1234,x"                     } # abs,x
+    - { asm: "ADC $1234,x",check: "A=$a9, n=1, c=0" }
+    - { asm: "LDY #8",     check: "Y=8,   n=0" }
+    - { asm: "STA $1000,Y"                     } # abs,y
+    - { asm: "ADC $1008",  check: "A=$52, n=0, c=1" }
+    - { asm: "STA ($10)"                       } # ind -> 8000
+    - { asm: "ADC #$A",    check: "A=$5d, c=0,v=0" }
+    - { asm: "LDX #2",     check: "X=2"        }
+    - { asm: "STA ($10,X)"                     } # ind,x -> 9010
+    - { asm: "ADC #$A",    check: "A=$67"      }
+    - { asm: "STA ($10),Y"                     } # (ind),y -> 8008
+    - { asm: "LDA $8000",  check: "A=$52"      }
+    - { asm: "LDA $9010",  check: "A=$5d"      }
+    - { asm: "LDA $8008",  check: "A=$67"      }
+stx:
+  test:
+    - { asm: "LDX #5",    check: "X=5"   }
+    - { asm: "LDY #8",    check: "Y=8"   }
+    - { asm: "STX $0"                    }
+    - { asm: "LDA $0",    check: "A=5"   }
+    - { asm: "STX $0,Y"                  }
+    - { asm: "ADC $8",    check: "A=$A"  }
+    - { asm: "STX $1034"                 }
+    - { asm: "LDA $1034", check: "A=5"   }
+sty:
+  test:
+    - { asm: "LDY #5",    check: "Y=5"   }
+    - { asm: "LDX #8",    check: "X=8"   }
+    - { asm: "STY $0"                    }
+    - { asm: "LDA $0",    check: "A=5"   }
+    - { asm: "STY $0,X"                  }
+    - { asm: "ADC $8",    check: "A=$A"  }
+    - { asm: "STY $1034"                 }
+    - { asm: "LDA $1034", check: "A=5"   }
+eor:
+  test:
+    - { asm: "LDA #$5A",    check: "A=$5A"      }
+    - { asm: "LDX #$A5",    check: "X=$A5, n=1" }
+    - { asm: "STX $05"                          }
+    - { asm: "EOR $05",     check: "A=$FF"      }
+sub:
+  mem:
+    - data: "04 32 01"
+  test:
+    - { asm: "SEC",     check: "C=1"   }
+    - { asm: "LDA #$35", check: "A=$35" }
+    - { asm: "SBC $0",   check: "A=$31" }
+    - { asm: "SBC $1",   check: "A=$FF, c=0, n=1"}
+    - { asm: "SBC #0",   check: "A=$FE, c=1"     }
+    - { asm: "CMP #$FE", check: "z=1, n=0"       }
+    - { asm: "CPX $1",   check: "z=0, n=1, c=0"  }
+    - { asm: "LDX #$32", check: "X=$32, n=0"     }
+    - { asm: "CPX $1",   check: "z=1, n=0, c=1"  }
+sub16:
+  mem:
+    #        00 01 02 03 04 05
+    - data: "34 10 55 08 DF 07"
+  test:
+    # 1034 - 0855 = 7DF
+    - { asm: "SEC",     check: "C=1"   }
+    - { asm: "LDA $0",  check: "A=$34" }
+    - { asm: "SBC $2",  check: "A=$df,c=0,n=1" }
+    - { asm: "LDA $1",  check: "A=$10,n=0" }
+    - { asm: "SBC $3",  check: "A=$07,c=1" }
+
+cpy:
+  test:
+    - { asm: "CPY #0",   check: "z=1,c=1"        }
+    - { asm: "LDY #$AC", check: "y=$ac, z=0, n=1"}
+    - { asm: "STY $1234"                         }
+    - { asm: "CPY $1234",check: "z=1, n=0,c=1"   }
+    - { asm: "LDA #$FF", check: "a=$ff, z=0,n=1" }
+    - { asm: "STA $5"                            }
+    - { asm: "CPY $5",   check: "n=1, c=0"       }
+asla:
+  test:
+    - { asm: "LDA #$55", check: "A=$55"           }
+    - { asm: "ASL     ", check: "A=$AA, n=1"      }
+    - { asm: "ASL     ", check: "A=$54, n=0, c=1" }
+asl:
+  mem:
+    - data: "01 02 09"
+  test:
+    - { asm: "ASL $0" }
+    - { asm: "LDA $0", check: "A=2" }
+    - { asm: "ASL $0" }
+    - { asm: "ASL $0" }
+    - { asm: "LDA #8", check: "A=8" }
+    - { asm: "CMP $0", check: "z=1,c=1"  }
+    - { asm: "LDX #2", check: "X=2, z=0" }
+    - { asm: "ASL $0,X", check: "c=0"    }
+    - { asm: "LDA $2",  check: "A=$12"   }
+lsr:
+  mem:
+    - data: "00 01 02 03 FF"
+  test:
+    - { asm: "LSR $4" }
+    - { asm: "LDA $4", check: "A=$7F, C=1" }
+    - { asm: "LSR",    check: "A=$3F"      }
+rol_ror:
+  mem:
+    - data: "80 01 81"
+  test:
+    - { asm: "ROL $0",  check: "c=1,z=1"      }
+    - { asm: "ROL $1",  check: "c=0,z=0"      }
+    - { asm: "CMP $0",  check: "z=1,c=1"      }
+    - { asm: "LDA $1",  check: "A=3,z=0"      }
+    - { asm: "ROL",     check: "A=7,c=0"      }
+    - { asm: "ORA #$80",check: "A=$87,n=1"    }
+    - { asm: "ROL",     check: "A=$0e,n=0,c=1"}
+    - { asm: "ROR",     check: "A=$87,n=1,c=0"}
+    - { asm: "ROL",     check: "A=$0e,n=0,c=1"}
+    - { asm: "NOP" }
+    - { asm: "ROR $0",  check: "n=1,c=0"      }
+ldx:
+  mem:
+    - { data: "00 02 04 06 08 0A 0C 0E 10 12" }
+  test:
+    - { asm: "LDY #5",     check: "Y=5"      }
+    - { asm: "LDX $0,Y",   check: "X=$A"     }
+    - { asm: "STX $1234"                     }
+    - { asm: "LDY $1234",  check: "Y=$A"     }
+    - { asm: "LDX #0",     check: "X=$0, z=1"}
+    - { asm: "LDY #$34",   check: "Y=$34,z=0"}
+    - { asm: "LDX $1200,Y",check: "X=$A"     }
+set_clr:
+  test:
+    - { asm: "SEC", check: "c=1" }
+    - { asm: "SED", check: "d=1" }
+    - { asm: "SEI", check: "i=1" }
+    - { asm: "CLC", check: "c=0" }
+    - { asm: "CLD", check: "d=0" }
+    - { asm: "CLI", check: "i=0" }
+bit_rmb:
+  mem:
+    - { data: "FF" }
+  test:
+    - { asm: "RMB0 $0" }
+    - { asm: "LDA  $0", check: "A=$FE,n=1" }
+    - { asm: "RMB1 $0" }
+    - { asm: "LDA  $0", check: "A=$FC"     }
+    - { asm: "RMB2 $0" }
+    - { asm: "LDA  $0", check: "A=$F8"     }
+    - { asm: "RMB3 $0" }
+    - { asm: "LDA  $0", check: "A=$F0"     }
+    - { asm: "RMB4 $0" }
+    - { asm: "LDA  $0", check: "A=$E0"     }
+    - { asm: "RMB5 $0" }
+    - { asm: "LDA  $0", check: "A=$C0"     }
+    - { asm: "RMB6 $0" }
+    - { asm: "LDA  $0", check: "A=$80    " }
+    - { asm: "RMB7 $0" }
+    - { asm: "LDA  $0", check: "A=$00,z=1,n=0" }
+bit_smb:
+  mem:
+    - { data: "00" }
+  test:
+    - { asm: "SMB0 $0" }
+    - { asm: "LDA  $0", check: "A=$01" }
+    - { asm: "SMB1 $0" }
+    - { asm: "LDA  $0", check: "A=$03"     }
+    - { asm: "SMB2 $0" }
+    - { asm: "LDA  $0", check: "A=$07"     }
+    - { asm: "SMB3 $0" }
+    - { asm: "LDA  $0", check: "A=$0F"     }
+    - { asm: "SMB4 $0" }
+    - { asm: "LDA  $0", check: "A=$1F"     }
+    - { asm: "SMB5 $0" }
+    - { asm: "LDA  $0", check: "A=$3F"     }
+    - { asm: "SMB6 $0" }
+    - { asm: "LDA  $0", check: "A=$7F"     }
+    - { asm: "SMB7 $0" }
+    - { asm: "LDA  $0", check: "A=$FF,n=1" }
+dec:
+  test:
+    - { asm: "DEC $0",  check: "n=1"       }
+    - { asm: "LDA $0",  check: "A=$FF"     }
+    - { asm: "DEC",     check: "A=$FE"     }
+    - { asm: "LDX #4",  check: "X=4,n=0"   }
+    - { asm: "SEC",     check: "c=1"       }
+    - { asm: "DEC $0,X",check: "n=1"       }
+    - { asm: "LDA $4",  check: "A=$FF"     }
+inc:
+  test:
+    - { asm: "DEC $0",  check: "n=1"       }
+    - { asm: "INC $0",  check: "n=0,z=1"   }
+    - { asm: "INC",     check: "A=1,z=0"   }
+    - { asm: "LDX #4",  check: "X=4,n=0"   }
+    - { asm: "SEC",     check: "c=1"       }
+    - { asm: "INC $0,X"                    }
+    - { asm: "LDA $4",  check: "A=$1"      }
+stz:
+  mem:
+    - { data: "11 22 33 44 55 66 77 88" }
+  test:
+    - { asm: "STZ $0,X"                   }
+    - { asm: "LDA $0,X", check: "z=1"     }
+    - { asm: "INX",      check: "X=1, z=0"}
+    - { asm: "STZ $1"                     }
+    - { asm: "LDA $0,X", check: "z=1"     }
+    - { asm: "INX",      check: "X=2, z=0"}
+    - { asm: "STX $1202"                  }
+    - { asm: "LDA $1202", check: "A=2"    }
+    - { asm: "STZ $1202"                  }
+    - { asm: "LDA $1202", check: "A=0,z=1"}
+    - { asm: "LDA #$F0",  check: "A=$F0,n=1,z=0"}
+    - { asm: "STA $1202"                  }
+    - { asm: "STZ $1200,X"                }
+    - { asm: "LDA $1202", check: "A=0,z=1,n=0"}
+iny:
+  test:
+    - { asm: "INY",      check: "y=1" }
+    - { asm: "LDY #$7F", check: "y=$7f" }
+    - { asm: "INY",      check: "y=$80,n=1" }
+    - { asm: "LDY #$ff", check: "y=$ff" }
+    - { asm: "INY",      check: "y=$0,z=1,n=0" }
+trf:
+  test:
+    - { asm: "LDA #$55",   check: "a=$55"        }
+    - { asm: "TAY",        check: "y=$55"        }
+    - { asm: "TAX",        check: "x=$55"        }
+    - { asm: "INY",        check: "y=$56"        }
+    - { asm: "TYA",        check: "a=$56"        }
+    - { asm: "LDX #$80",   check: "x=$80,n=1"    }
+    - { asm: "LDA #0",     check: "a=0,z=1,n=0"  }
+    - { asm: "TXA",        check: "a=$80,z=0,n=1"}
+    - { asm: "TXS",        check: "s=$80"        }
+    - { asm: "LDX #0",     check: "x=0,n=0,z=1"  }
+    - { asm: "TSX",        check: "x=$80,n=1,z=0"}
+push:
+  mem:
+    - { data: "55 55 55 55", from: 0x1FC }
+  test:
+    - { asm: "LDX #$FF",  check: "x=$ff, n=1" }
+    - { asm: "TXS",       check: "s=$ff"      }
+    - { asm: "PHX",       check: "s=$fe"      }
+    - { asm: "LDA $1FF",  check: "a=$ff"      }
+    - { asm: "PHY",       check: "s=$fd"      }
+    - { asm: "LDA $1FE",  check: "a=0,n=0,z=1"}
+    - { asm: "LDA #$23",  check: "a=$23,z=0"  }
+    - { asm: "PHA",       check: "s=$fc"      }
+    - { asm: "LDX $1FD",  check: "x=$23"      }
+pul:
+  mem:
+    - { data: "22 83 44 00", from: 0x1FC }
+  test:
+    - { asm: "LDX #$FB",  check: "x=$fb, n=1" }
+    - { asm: "TXS",       check: "s=$fb"      }
+    - { asm: "PLA",       check: "a=$22,n=0,s=$fc"  }
+    - { asm: "NOP" }
+    - { asm: "PLX",       check: "x=$83,n=1,s=$fd"  }
+    - { asm: "NOP" }
+    - { asm: "PLY",       check: "y=$44,n=0,s=$fe"  }
+    - { asm: "NOP" }
+    - { asm: "PLA",       check: "a=$0,n=0,z=1,s=$ff" }
+jmp:
+  mem:
+    - { data: "50 E0", from: 0x2030     }
+    - { data: "FF 80", from: 0x3000     }
+  test:
+    - { asm: "JMP $D000"                }
+    - { asm: "*=$D000"                  }
+    - { asm: "LDA #$55", check: "A=$55" }
+    - { asm: "NOP"                      }
+    - { asm: "LDX #$30", check: "X=$30" }
+    - { asm: "NOP"                      }
+    - { asm: "JMP ($2000,X)"            }
+    - { asm: "*=$E050"                  }
+    - { asm: "LDA #$20", check: "A=$20" }
+    - { asm: "LDX #$70", check: "X=$70" }
+    - { asm: "JMP ($3000)"              }
+    - { asm: "*=$80FF"                  }
+    - { asm: "LDA #$FE", check: "A=$FE,n=1" }
+bit:
+  mem:
+    - { data: "FF 40 41 0C" }
+    - { data: "6F 00 80 0C", from: 0x2000 }
+  test:
+    - { asm: "BIT #$FF",   check: "z=1,n=1,v=1" }
+    - { asm: "LDA #$F",    check: "A=$F,z=0,n=0"}
+    - { asm: "BIT $3",     check: "z=0,n=0,v=0" }
+    - { asm: "LDX #2",     check: "x=2"         }
+    - { asm: "BIT 0,X",    check: "v=1"         }
+    - { asm: "BIT $2000,X",check: "n=1,v=0,z=1" }
+    - { asm: "BIT $2000",  check: "n=0,v=1,z=0" }
+    - { asm: "CLV",        check: "v=0"         }
+dexy:
+  test:
+    - { asm: "INX", check: "x=1"      }
+    - { asm: "DEX", check: "x=0, z=1" }
+    - { asm: "INY", check: "y=1, z=0" }
+    - { asm: "DEY", check: "y=0, z=1" }
+jsr:
+  test:
+    - { asm: "LDX #$FF",  check: "x=$FF, n=1"  }
+    - { asm: "TXS",       check: "s=$FF"       }
+    - { asm: "JSR $E000", check: "s=$FD"       }
+    - { asm: "*=$E000"                         }
+    - { asm: "LDX #$20",  check: "x=$20,n=0"   }
+    - { asm: "RTS",       check: "s=$ff"       }
+    - { asm: "*=$F006"                         }
+    - { asm: "TXA",       check: "a=$20"       }
+    - { asm: "CMP #$20",  check: "z=1,c=1"     }
+php:
+  test:
+    - { asm: "SEC",    check: "c=1"     }
+    - { asm: "SED",    check: "d=1"     }
+    - { asm: "SEI",    check: "i=1"     }
+    - { asm: "PHP",    check: "s=$fc"   }
+    - { asm: "NOP" }
+    - { asm: "LDA #$FF", check: "a=$ff,n=1"}
+    - { asm: "PLA",  check: "s=$fd,a=$2d,n=0"}
+    - { asm: "NOP"                  }
+    - { asm: "PHP",    check: "s=$fc"   }
+    - { asm: "NOP"                      }
+    - { asm: "CLC",    check: "c=0"     }
+    - { asm: "CLD",    check: "d=0"     }
+    - { asm: "CLI",    check: "i=0"     }
+    - { asm: "PLP", check: "c=1,d=1,i=1,s=$fd"}
+adc_ov:
+  test:
+    - { asm: "LDA #$7F", check: "a=$7f"            }
+    - { asm: "ADC #1",   check: "v=1,a=$80,n=1"    }
+    - { asm: "ADC #$40", check: "v=0,a=$C0"        }
+    - { asm: "ADC #$80", check: "v=1,a=$40,n=0,c=1"}
+sbc_ov:
+  test:
+    - { asm: "SEC",      check: "c=1"              }
+    - { asm: "SBC #1",   check: "v=0,a=$FF,n=1,c=0"}
+    - { asm: "SBC #$7F", check: "v=1,a=$7F,n=0,c=1"}
+    - { asm: "SBC #$80", check: "v=1,a=$FF,n=1,c=0"}
+bra_fwd:
+  test:
+    - { asm: "        BRA LABEL0"}
+    - { asm: "LABEL1  BRA LABEL1"}
+    - { asm: "LABEL0  LDA #$20", check: "A=$20"}
+    - { asm: "LABEL2  BRA LABEL2"}
+bra_back:
+  test:
+    - { asm: "LABEL1  NOP       "}
+    - { asm: "        BRA LABEL1"}
+    - { asm: "        LDA #$20"  }
+bcs:
+  test:
+    - { asm: "SEC",                check: "c=1" }
+    - { asm: "        BCS LABEL1"}
+    - { asm: "        LDA #$20"  }    # fail here
+    - { asm: "LABEL1  NOP       "}
+    - { asm: "CLC",                check: "c=0" }
+    - { asm: "        BCC LABEL2"}
+    - { asm: "        LDA #$20"  }    # fail here
+    - { asm: "LABEL2  NOP       "}
+beq:
+  test:
+    - { asm: "        LDA #0",  check: "z=1" }
+    - { asm: "        BEQ LABEL0"            }
+    - { asm: "        LDA #$20"              }    # fail here
+    - { asm: "*=$F07F"                       }
+    - { asm: "LABEL0  BEQ LABEL1"            }
+    - { asm: "        LDA #$20"              }    # fail here
+    - { asm: "*=$F100"                       }
+    - { asm: "LABEL1  BEQ LABEL1"            }
+bbs_bbr:
+  mem:
+    - { data: "01 02 04 08 10 20 40 80" }
+  test:
+    - { asm: "BBS0 $0,LABEL1" }
+    - { asm: "LDA #$20"        }  # fail here
+    - { asm: "LABEL1 BBR0 $0,LABEL1" }
+    - { asm: "       BBS1 $1,LABEL2" }
+    - { asm: "LDA #$20"              }  # fail here
+    # the check comes one instruction ahead because the
+    # test vectors and the execution order does not match
+    - { asm: "LABEL2 BBR1 $1,LABEL1", check: "a=4" }
+    - { asm: "LDA #$04"}
+trb_tsb:
+  mem:
+    - { data: "01 02 04 08 10 20 40 80" }
+  test:
+    - { asm: "LDA #1",   check: "A=1" }
+    - { asm: "TRB $0",   check: "z=0" }
+    - { asm: "LDA $0",   check: "A=0, z=1"}
+    - { asm: "TSB $0",   check: "z=0" }
+    - { asm: "LDA #$FF", check: "A=$FF,n=1"}
+    - { asm: "TSB $0",   check: "z=1"  }
+    - { asm: "LDY $0",   check: "Y=$FF,z=0"}
+    - { asm: "LDA #$ff", check: "A=$ff,n=1"}
+    - { asm: "STA $1234"                   }
+    - { asm: "LDA #$80", check: "A=$80"    }
+    - { asm: "TRB $1234",check: "z=1"      }
+    - { asm: "LDY #$7F", check: "Y=$7F,n=0,z=0"}
+    - { asm: "CPY $1234",check: "z=1,c=1"  }
+    - { asm: "TSB $1234",check: "z=1"      }
+    - { asm: "LDA $1234",check: "a=$FF,n=1,z=0"}
+brk:
+  mem:
+    - { data: "00 70", from: 0xfffe }
+  test:
+    - { asm: "TXS", check: "S=0" }
+    - { asm: "LDA #$20", check: "A=$20" }
+    - { asm: "BRK",      check: "S=$FD" }
+    - { asm: "NOP",                     } # padding after BRK
+    - { asm: "LDX #$5",  check: "A=$40,S=$0" }
+    - { asm: "NOP",      check: "X=$5"       }
+    - { asm: "LABEL1 BRA LABEL1" }
+    - { asm: "*=$7000"           }
+    - { asm: "LDA #$40", check: "A=$40, S=$FD" }
+    - { asm: "RTI",      check: "S=0"          }
+irq:
+  mem:
+    - { data: "00 70", from: 0xfffe }     # interrupt vector
+  test:
+    # checks and instructions are not executed in the
+    # same order, hence the visual discrepancy
+    - { asm: "TXS", check: "S=0" }
+    - { asm: "STA $4010"                } # IRQ pin set high
+    - { asm: "CLI",      check: "i=0"   } # enable interrupts
+    - { asm: "NOP"                      }
+    - { asm: "LDA #$20", check: "i=1,s=$fd"   }
+    - { asm: "LDX #$5",                 }
+    - { asm: "NOP",      check: "A=$40,S=0,i=0" }
+    - { asm: "LABEL1 BRA LABEL1" }
+    - { asm: "*=$7000"           }
+    - { asm: "STA $4011", check: "A=$20" } # IRQ pin cleared
+    - { asm: "LDA #$40",  check: "X=5"   }
+    - { asm: "RTI",              }
+nmi:
+  mem:
+    - { data: "00 70", from: 0xfffa }     # interrupt vector (NMI)
+  test:
+    # checks and instructions are not executed in the
+    # same order, hence the visual discrepancy
+    - { asm: "TXS", check: "S=0" }
+    - { asm: "STA $4000"                } # IRQ pin set high
+    - { asm: "NOP",  check: "i=1,s=$fd" }
+    - { asm: "LDA #$20", check: "i=1"         }
+    - { asm: "LDX #$5",  check: "a=$40" }
+    - { asm: "NOP",      check: "A=$40,S=0" }
+    - { asm: "LABEL1 BRA LABEL1" }
+    - { asm: "*=$7000"           }
+    - { asm: "STA $4001", check: "A=$20" } # IRQ pin cleared
+    - { asm: "LDA #$40",  check: "X=5"   }
+    - { asm: "RTI",              }
+daa:
+  test:
+    - { asm: "SED",      check: "D=1"   }
+    - { asm: "LDA #$19", check: "A=$19" }
+    - { asm: "ADC #$01", check: "A=$20" }
+    - { asm: "NOP" }
+    - { asm: "SEC",      check: "C=1"   }
+    - { asm: "SBC #$01", check: "A=$19" }

@@ -1,136 +1,184 @@
-`timescale 1ns/1ps
-
 module test;
 
-reg clk, pxl_cen;
-reg [4:0] clip;
-reg [0:0] v_en=0,h_en=0, wd=0,fin=0;
+wire      rst, clk, pxl_cen, lhbl, lvbl;
+`include "test_tasks.vh"
 
-wire LHBL, LVBL, lhbs, lvbs, HS;
+localparam HEIGHT = 240, WIDTH=280, CLIP=8;
+
+reg    v_en,h_en, wd, h_rise, v_rise, start, sign=0;
+wire   lhbs, lvbs, hs, hs_edge, vs;
+string hstring, vstring;
+
+integer hcnt=0, vcnt=0, framecnt, hclip, vclip;
+
+always @(posedge clk) begin
+    if(rst) {hcnt, vcnt, h_rise, v_rise} <= 0;
+    else begin
+        if(pxl_cen) begin
+            hcnt <= 0;
+            if(lhbl != lhbs) hcnt <= hcnt + 1;
+        end
+        if(hs_edge) begin
+            vcnt <= 0;
+            if(lvbl != lvbs) vcnt <= vcnt + 1;
+        end
+
+        if( hs ) h_rise <= 1;
+        if(lhbs) h_rise <= 0;
+        if( vs ) v_rise <= 1;
+        if(lvbs) v_rise <= 0;
+    end
+end
+
+always @(posedge clk) if(pxl_cen && start) check_line();
+always @(posedge clk) if(hs_edge && start) check_vertical();
 
 initial begin
-    clk = 0;
-    pxl_cen = 0;
-    forever #(83.333/2) clk = ~clk;
+    start=0;
+    crop_disabled();
+    crop_8_pxl();
+    new_frame(); // 0
+
+    start=1;
+
+    new_frame(); // 1
+    crop_16_pxl();
+
+    new_frame(); // 2
+    enable_v_crop();
+    crop_8_pxl();
+
+    new_frame(); // 3
+    crop_16_pxl();
+
+    new_frame(); // 4
+    enable_h_crop();
+    disable_v_crop();
+    crop_8_pxl();
+
+    new_frame(); // 5
+    crop_16_pxl();
+
+
+    new_frame(); // 6
+    enable_v_crop();
+    crop_8_pxl();
+
+    new_frame(); // 7
+    crop_16_pxl();
+
+    new_frame(); // 8
+    crop_disabled();
+    crop_8_pxl();
+
+    new_frame(); // 9
+    start = 0;
+    pass();
 end
 
-//initial #(16600*1000*4) $finish;
+task crop_disabled();
+    disable_h_crop();
+    disable_v_crop();
+endtask
 
-reg [4:0] left=0, right=0, down=0, up=0;
+task disable_v_crop();
+    v_en = 0;
+endtask
 
-always @(posedge clk) pxl_cen <= ~pxl_cen;
+task disable_h_crop();
+    h_en = 0;
+endtask
 
-integer hcnt=0, vcnt=0, framecnt=0, change=0;
+task enable_v_crop();
+    v_en = 1;
+endtask
 
-always @(*) begin
-    clip = !v_en&&!h_en? 0 : wd? 16 : 8;
-end
+task enable_h_crop();
+    h_en = 1;
+endtask
 
-always @(posedge clk) if(pxl_cen) begin
-    hcnt <= hcnt==383 ? 0 : hcnt + 1;
-    if( hcnt == 256+32 )  begin
-        vcnt <= vcnt+1;
-        if( vcnt == 224 ) begin
-            framecnt <= framecnt + 1;
-            change <= change+1;
-        end
-        if( vcnt == 256 ) vcnt <= 0;
-    end
-    if( change == 3 ) begin
-        change <= 0;
-        //en_wd <= en_wd+1;
-        {fin,wd,v_en,h_en} <= {fin,wd,v_en,h_en}+3'd1;
-        //$display("Change \nFrame=%d  en=%b  wide=%b  Clip=%d",
-            //framecnt, en_wd[1], en_wd[0], clip);
-        //$display("Horizontal count = %d",pxl_cnt);
-    end;
-    if (fin) $finish;
-end
+task crop_8_pxl();
+    wd = 0;
+    set_new_clip();
+endtask
 
-reg [4:0] hs_cnt;
+task crop_16_pxl();
+    wd = 1;
+    set_new_clip();
+endtask
 
-always @(posedge HS) begin
-    if (!lvbs && LVBL) hs_cnt<=hs_cnt+1;
-    if (lvbs==LVBL) begin
-        if (hs_cnt != 0) begin       
-            if (lvbs)    up <= hs_cnt;
-            if (!lvbs) down <= hs_cnt;
-        end
-        hs_cnt <=0;
-    end
-end
+task new_frame();
+    wait(vs==1) @(posedge clk);
+    wait(vs==0) @(posedge clk);
+endtask
 
-reg [4:0] pxl_cnt;
+task set_new_clip();
+    @(posedge clk);
+    hclip = h_en ? CLIP << wd : 0;
+    vclip = v_en ? CLIP << wd : 0;
+endtask
 
-always @(posedge clk) if (pxl_cen) begin
-    if (!lhbs && LHBL) pxl_cnt<=pxl_cnt+1;
-    if (lhbs==LHBL) begin
-        pxl_cnt <=0;
-        if (pxl_cnt != 0) begin
-            if (lhbs)  right <= pxl_cnt;
-            if (!lhbs) left  <= pxl_cnt;
-        end
-    end
-end
+task check_line();
+    if(lhbl==0)
+        assert_msg(lhbs==0, "lhbs should not be up when lhbl is low");
+    else if(lhbs==0) begin
+        if(h_rise==1) begin @(posedge lhbs);
+            hstring = $sformatf("left horizontal clip (%1d) is not as expected (%1d)",hcnt,hclip);
+            assert_msg(hcnt==hclip, hstring); end
+        if(h_rise==0) begin @(negedge lhbl);
+            hstring = $sformatf("right horizontal clip (%1d) is not as expected (%1d)",hcnt,hclip);
+            assert_msg(hcnt==hclip, hstring); end
+    end else
+        assert_msg(lhbs==1, "lhbs shoudl be up");
+endtask
 
+task check_vertical();
+    if(lvbl==0)
+        assert_msg(lvbs==0, "lhbs should not be up when lhbl is low");
+    else if(lvbs==0) begin
+        if(v_rise==1) begin @(posedge lvbs);
+            vstring = $sformatf("upper vertical clip (%1d) is not as expected (%1d)",vcnt,vclip);
+            assert_msg(vcnt==vclip, vstring); end
+        if(v_rise==0) begin @(negedge lvbl);
+            vstring = $sformatf("down vertical clip (%1d) is not as expected (%1d)",vcnt,vclip);
+            assert_msg(vcnt==vclip, vstring); end
+    end else
+        assert_msg(lvbs==1, "lhbs shoudl be up");
+endtask
 
-initial begin
-    #10 $display("-----------------------------------------------------------------------------------------\n",
-        "|\tH_Enable\tV_Enable\tWide\tLeft\tRight\tDown\tUp\tExpected|");
-    $monitor("|\t%b\t\t%b\t\t%b\t%d\t%d\t%d\t%d\t%d\t|", 
-        h_en,v_en, wd, left, right,down,up,clip);
-end
-
-//always @(lhbs == LHBL) if (pxl_cnt!= 0) $display("Horizontal count = %d",pxl_cnt);
-
-jtframe_vtimer #(
-    .HCNT_START ( 9'h020    ),
-    .HCNT_END   ( 9'h19F    ),
-    .HB_START   ( 9'h19F    ),
-    .HB_END     ( 9'h05F    ),  // 10.6 us
-    .HS_START   ( 9'h039    ),
-    .HS_END     ( 9'h059    ),  //  5.33 us
-
-    .V_START    ( 9'h0F8    ),
-    .VB_START   ( 9'h1F0    ),
-    .VB_END     ( 9'h110    ),  //  2.56 ms
-    .VS_START   ( 9'h1FF    ),
-    .VS_END     ( 9'h0FF    ),
-    .VCNT_END   ( 9'h1FF    )   // 16.896 ms (59.18Hz)
-) u_vtimer(
+jtframe_test_clocks #(.MAXFRAMES(9), .TIMEOUT(200_000_000)) clocks(
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .vdump      (           ),
-    .vrender    (           ),
-    .vrender1   (           ),
-    .H          (           ),
-    .Hinit      (           ),
-    .Vinit      (           ),
-    .LHBL       (  LHBL     ),
-    .LVBL       (  LVBL     ),
-    .HS         (  HS       ),
-    .VS         (           )
+    .lhbl       ( lhbl      ),
+    .lvbl       ( lvbl      ),
+    .hs         ( hs        ),
+    .vs         ( vs        ),
+    .framecnt   ( framecnt  )
+);
+
+jtframe_edge cnt_pulse(
+    .rst   ( rst     ),
+    .clk   ( clk     ),
+    .edgeof( hs      ),
+    .clr   ( hs_edge ),
+    .q     ( hs_edge )
 );
 
 jtframe_short_blank #(
-    .WIDTH (384),
-    .HEIGHT (264)
+    .WIDTH (WIDTH),
+    .HEIGHT(HEIGHT)
 ) u_short_blank(
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .LHBL       ( LHBL      ),
-    .LVBL       ( LVBL      ),
-    .h_en       ( h_en[0]   ),
-    .v_en       ( v_en[0]   ),
-    .wide       ( wd[0]     ),
-    .HS         ( HS        ),
-    .hb_out     (   lhbs    ),
-    .vb_out     (   lvbs    )
+    .clk        ( clk     ),
+    .pxl_cen    ( pxl_cen ),
+    .LHBL       ( lhbl    ),
+    .LVBL       ( lvbl    ),
+    .h_en       ( h_en    ),
+    .v_en       ( v_en    ),
+    .wide       ( wd      ),
+    .HS         ( hs      ),
+    .hb_out     ( lhbs    ),
+    .vb_out     ( lvbs    )
 );
-
-initial begin
-    $dumpfile("test.lxt");
-    $dumpvars;
-end
 
 endmodule

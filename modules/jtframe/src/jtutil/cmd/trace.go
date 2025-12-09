@@ -104,8 +104,7 @@ trace debug.trace,sub,noloop,{tracelog "PC=%X,S=%X,X=%X,CC=%X,A=%X,B=%X,frame_cn
 		case "6502":
 			s=`focus 1
 trace off
-trace debug.trace,sub,noloop,{tracelog "PC=%X,SP=%X,X=%X,Y=%X,A=%X,P=%X,IR=%X,frame_cnt=%x* ",pc,sp&0xff,x,y,a,p,ir,frame}
-sp=0
+trace debug.trace,sub,noloop,{tracelog "PC=%X,S=%X,X=%X,Y=%X,A=%X,P=%X,IR=%X,frame_cnt=%x* ",pc,sp&0xff,x,y,a,p&0xef,ir,frame}
 x=0
 p=30
 `

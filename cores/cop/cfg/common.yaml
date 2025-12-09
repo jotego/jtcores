@@ -23,10 +23,6 @@ jtframe:
   - from: keyboard
     get:
       - jt4701.v
-  - from: clocking
-    get:
-      - jtframe_cen24.v
-      - jtframe_cen48.v
   - from: video
     get:
       - jtframe_vtimer.v

@@ -20,8 +20,8 @@ module jtcop_video(
     input              rst,
     input              clk,
     input              clk_cpu,
-    output             pxl2_cen,  // pixel clock enable (2x)
-    output             pxl_cen,   // pixel clock enable
+    input              pxl2_cen,  // pixel clock enable (2x)
+    input              pxl_cen,   // pixel clock enable
     input       [ 1:0] game_id,
 
     input              ioctl_ram,

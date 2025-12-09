@@ -42,6 +42,7 @@ assign dummy_addr=0;
 jtkunio_main u_main(
     .rst         ( rst24        ),
     .clk         ( clk24        ),
+    .cen6        ( cen6         ),
     .cen3        ( cen3         ),
     .cen1p5      ( cen1p5       ),
     .LVBL        ( LVBL         ),

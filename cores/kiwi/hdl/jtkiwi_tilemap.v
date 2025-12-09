@@ -29,6 +29,7 @@ module jtkiwi_tilemap(
     input               hs,
     input               flip,
     input               page,
+    input               drtoppel,
     input      [15:0]   col_xmsb,
     input      [ 3:0]   col_cfg,
     input      [ 1:0]   col0,
@@ -109,6 +110,7 @@ always @(posedge clk, posedge rst) begin
                 2: begin
                     { hflip, vflip } <= tm_data[15:14];
                     code <= tm_data[13:0];
+                    if(drtoppel) code <= {1'b0, tm_data[12:0]};
                 end
                 3: begin
                     if( !dr_busy )  begin
