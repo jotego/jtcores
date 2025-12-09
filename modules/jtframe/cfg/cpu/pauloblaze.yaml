@@ -1,0 +1,11 @@
+jtframe:
+  - unless: [VERILATOR,IVERILOG]
+    from: cpu/pauloblaze
+    get:
+      - op_codes.vhd
+      - alu.vhd
+      - decoder.vhd
+      - io_module.vhd
+      - pauloBlaze.vhd
+      - program_counter.vhd
+      - regFile.vhd

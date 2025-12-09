@@ -89,7 +89,7 @@ jtframe:
   # Cheat system (enabled with JTFRAME_CHEAT)
   - from: cpu
     get:
-      - pauloblaze.qip
+      - pauloblaze.yaml
   - from: cheat
     get:
       - jtframe_cheat.v
