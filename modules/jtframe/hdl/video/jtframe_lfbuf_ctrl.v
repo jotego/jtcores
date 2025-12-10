@@ -125,12 +125,12 @@ always @( posedge clk ) begin
         lhbl_l <= 0;
         vsl    <= 0;
         cntup  <= 0;
-        startup<= `ifdef SIMULATION 1 `else 0 `endif ;
+        startup<= `ifdef NOMAIN 1 `else 0 `endif ;
     end else if(pxl_cen) begin
         lhbl_l  <= lhbl;
         vsl     <= vs;
         hcnt    <= hcnt+1'd1;
-`ifndef SIMULATION
+`ifndef NOMAIN
         startup <= &cntup;
 `endif
         if( ~lhbl & lhbl_l ) begin // enters blanking
