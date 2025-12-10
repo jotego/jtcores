@@ -20,6 +20,7 @@
 module jtcop_snd(
     input                rst,
     input                clk,   // use 24 MHz
+    input                cen6,
     input                cen_opn,
     input                cen_opl,
 
