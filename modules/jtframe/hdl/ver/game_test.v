@@ -418,6 +418,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
         jtframe_lfbuf_cram u_lf_buf(
             .rst        ( rst           ),
             .clk        ( clk_rom       ),
+            .clk48      ( clk48         ),
             .pxl_cen    ( pxl_cen       ),
 
             .hs         ( HS            ),

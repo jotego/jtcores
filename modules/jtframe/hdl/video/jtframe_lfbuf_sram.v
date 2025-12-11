@@ -98,6 +98,7 @@ jtframe_lfbuf_sram_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
 jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .clk_ctrl   ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
     // video status

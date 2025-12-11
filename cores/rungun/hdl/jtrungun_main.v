@@ -181,10 +181,12 @@ always @* begin
              + {3'd0,objrm_cs}+ {3'd0,objch_cs}+ {3'd0,pair_cs} + {3'd0,sdon_cs}
              + {3'd0,ccu_cs}                   + {3'd0,psch_cs} + {3'd0,sys2_cs}
              + {3'd0,sys1_cs} + {3'd0,io2_cs}  + {3'd0,io1_cs};
+    `ifdef SIMULATION
     if(cs_count>1) begin
         $display("cs_count over 1!");
         $finish;
     end
+    `endif
 end
 
 always @* begin
