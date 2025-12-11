@@ -53,7 +53,7 @@ reg  [ 7:0] cpu_din;
 wire [ 7:0] nc, cfg, cpu_dout;
 wire [ 3:0] bank;
 reg         cfg_cs, bank_cs, st_cs, cmd_cs, x1pcm_cs;
-wire        rdy, nmi_n, nmi_clrn, irqn, irq_clrn, mute, rnw;
+wire        rdy, nmi, nmi_clrn, irq, irq_clrn, mute, rnw, cpu_wr;
 
 // $4'0000 (256kB), 16 pages of 8kB each (128kB) plus $4000 (16kB) Fixed
 assign rom_addr  = { rom_upper, A[12:0] };
@@ -69,6 +69,7 @@ assign pcm_cs      = 0;
 assign st_dout     = 0;
 assign snd         = 0;
 assign sample      = 0;
+assign rnw = ~cpu_wr;
 
 always @* begin
     x1pcm_cs = A[15:12]<=1;
@@ -79,20 +80,20 @@ always @* begin
     st_cs    = A[15:12]==4'hc && !rnw;
 end
 
-jtframe_edge #(.QSET(0)) u_244hz(
+jtframe_edge u_244hz(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .edgeof ( cen244    ),
     .clr    (~irq_clrn  ),
-    .q      ( irqn      )
+    .q      ( irq       )
 );
 
-jtframe_edge #(.QSET(0)) u_cmd(
+jtframe_edge u_cmd(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .edgeof ( set_cmd   ),
     .clr    (~nmi_clrn  ),
-    .q      ( nmi_n     )
+    .q      ( nmi       )
 );
 
 jtframe_8bit_reg u_st(
@@ -113,38 +114,22 @@ jtframe_8bit_reg u_cfg(
     .dout       ( cfg       )
 );
 
-always @(posedge clk) begin
-    cpu_din <=rom_cs      ? rom_data    :
+always @* begin
+    cpu_din = rom_cs      ? rom_data    :
               x1pcm_cs    ? pcmram_dout :
               cmd_cs      ? snd_cmd     : 8'h0;
 end
 
-localparam R65C02=2'b01;
-
-wire ceng = cen2 & (rom_ok | ~rom_cs);
-
-T65 u_cpu(
-    .Mode   ( R65C02    ),
-    .Res_n  ( ~rst      ),
-    .Enable ( ceng      ),
-    .Clk    ( clk       ),
-    .Rdy    ( 1'b1      ),
-    .Abort_n( 1'b1      ),
-    .IRQ_n  ( irqn      ),
-    .NMI_n  ( nmi_n     ),
-    .SO_n   ( 1'b1      ),
-    .R_W_n  ( rnw       ),
-    .Sync   (           ),
-    .EF     (           ),
-    .MF     (           ),
-    .XF     (           ),
-    .ML_n   (           ),
-    .VP_n   (           ),
-    .VDA    (           ),
-    .VPA    (           ),
-    .A      ( {nc,A}    ),
-    .DI     ( cpu_din   ),
-    .DO     ( cpu_dout  )
+jt65c02 u_cpu(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .cen    ( cen2      ),  // crystal clock freq. = 4x E pin freq.
+    .irq    ( irq       ),
+    .nmi    ( nmi       ),
+    .wr     ( cpu_wr    ),
+    .addr   ( A         ), // always valid
+    .din    ( cpu_din   ),
+    .dout   ( cpu_dout  )
 );
 `else
     initial rom_cs   = 0;

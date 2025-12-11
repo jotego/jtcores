@@ -4,6 +4,7 @@ params:
 clocks:
   clk48:
     - freq: 2000000
+      gate: [ snd ]
       outputs:
         - cen2
 sdram:

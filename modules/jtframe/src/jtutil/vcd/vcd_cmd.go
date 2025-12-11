@@ -20,7 +20,6 @@ package vcd
 import(
     "bufio"
     "fmt"
-    "log"
     "os"
     "sort"
     "slices"
@@ -51,27 +50,16 @@ match-trace         moves the simulation forward until it matches MAME trace
 mt,mt-trace foo     moves MAME forward until the given condition is met
                     start hex numbers with $ for comparison
 mv,mv-vcd foo       moves simulation forward until the given condition is met
+o,option foo        sets processing options
+    foo[=false/true]
+    retry               when a difference is found, a step-trace is executed
+                        if there are no differences, the comparison continues
 p,print             evaluates an expression. Use to test conditions
 q,quit              quits the program
 .,source foo        executes the commands in the given file
 s,step              forwards simulation by one relevant change
 set vcd-name=value  alters the value of a simulation signal
 st,step-trace       forwards MAME trace by one relevant change`
-
-// keep making this class bigger as refactoring progress
-type Comparator struct{
-    alu_busy, str_busy, stack_busy *VCDSignal
-    kmax int
-}
-
-func NewComparator(ss VCDData) Comparator {
-    var cmp Comparator
-    cmp.alu_busy   = ss.Get(find_similar( "alu_busy", ss ))
-    cmp.str_busy   = ss.Get(find_similar( "str_busy", ss ))
-    cmp.stack_busy = ss.Get(find_similar( "stack_busy", ss ))
-    cmp.kmax = 4
-    return cmp
-}
 
 func Prompt( vcd, trace *LnFile, ss VCDData, mame_alias mameAlias ) {
     fses, e := os.Create("trace.ses") // echo all session commands to a file
@@ -82,7 +70,7 @@ func Prompt( vcd, trace *LnFile, ss VCDData, mame_alias mameAlias ) {
     nested[0] = bufio.NewScanner(os.Stdin)
     scn := nested[0]
     pc_name := find_similar( "pc", ss)
-    cmp := NewComparator(ss)
+    cmp := NewComparator(ss,vcd,trace)
 
     scope := findCommonScope(ss)
     fmt.Printf("At scope %s\n",scope)
@@ -127,7 +115,7 @@ func Prompt( vcd, trace *LnFile, ss VCDData, mame_alias mameAlias ) {
         if len(tokens)==0 { continue }
         if( nested[0]!=scn ) { fmt.Println(">",lt) } // echo if we are parsing a file
         switch tokens[0] {
-        case "g","go": cmp.searchDiff( vcd, trace, sim_st, mame_st, ignore )
+        case "g","go": cmp.searchDiff(sim_st, mame_st, ignore )
         case "ds","display": {
             var t []string
             if len(tokens)>1 { t = tokens[1:]}
@@ -249,6 +237,15 @@ func Prompt( vcd, trace *LnFile, ss VCDData, mame_alias mameAlias ) {
                 default: fmt.Println("Wrong number of arguments")
             }
         }
+        case "o","option": {
+            if len(tokens)==1 {
+                cmp.show_options()
+            } else if len(tokens)>2 {
+                fmt.Println("Too many options. Use: option foo[=true/false]")
+            } else {
+                print_error( cmp.set_option(tokens[1]) )
+            }
+        }
         case "p","print": {
             valueMap := HierValues( hier )
             expr := replaceHex(strings.Join(tokens[1:],""))
@@ -284,13 +281,13 @@ func Prompt( vcd, trace *LnFile, ss VCDData, mame_alias mameAlias ) {
             break
         }
         case "s","step": {
-            cmp.nxVCDChange( vcd, sim_st, mame_st.alias )
+            cmp.nxVCDChange( sim_st, mame_st.alias )
             cmd_diff()
         }
         case "st","step-trace": {
             old_data := mame_st.data
             var good bool
-            mame_st.data, good = nxTraceChange( trace, mame_st )
+            mame_st.data, good = cmp.nxTraceChange( mame_st )
             if good {
                 mame_st.data.showDiff(old_data)
                 cmd_diff()
@@ -319,14 +316,14 @@ func Prompt( vcd, trace *LnFile, ss VCDData, mame_alias mameAlias ) {
                 fmt.Printf("match-vcd does not take arguments\n")
                 break
             }
-            matchVCD( trace, sim_st, mame_st, ignore )
+            cmp.matchVCD( sim_st, mame_st, ignore )
         }
         case "match-trace": { // moves the VCD until it matches MAME data
             if len(tokens)!=1 {
                 fmt.Printf("match-trace does not take arguments\n")
                 break
             }
-            cmp.matchTrace( vcd, sim_st, mame_alias, mame_st, ignore )
+            cmp.matchTrace( sim_st, mame_st, mame_alias, ignore )
         }
         case "?","help": {
             fmt.Println(CMD_HELP)
@@ -611,172 +608,6 @@ func diff( st *MAMEState, context string, verbose bool, ignore *boolSet ) int {
     return d
 }
 
-func (cmp *Comparator) nxVCDChange( file *LnFile, sim_st *SimState, mame_alias mameAlias ) (int,bool) {
-    l0 := file.line
-    changed := false
-    irq_bsy := sim_st.data.Get("TOP.game_test.u_game.u_game.u_main.u_cpu.u_ctrl.u_ucode.irq_bsy")
-    was_irq := irq_bsy!=nil && irq_bsy.Value!=0
-    was_stack := cmp.stack_busy!=nil && cmp.stack_busy.Value!=0
-    was_alu   := cmp.alu_busy!=nil   && cmp.alu_busy.Value!=0
-    was_str   := cmp.str_busy!=nil   && cmp.str_busy.Value!=0
-    for file.Scan() {
-        txt := file.Text()
-        if txt[0]=='#' {
-            file.time, _ = strconv.ParseUint( txt[1:],10,64 )
-            if changed {
-                break
-            } else {
-                continue
-            }
-        }
-        a, v := parseValue(txt)
-        assign( a, v, sim_st.data )
-        p,_ := sim_st.data[a]
-        if p==nil {
-            log.Fatal("Error: bad pointer to VCDSignal\n")
-        }
-        // Skip busy sections
-        if cmp.alu_busy!=nil && cmp.alu_busy.Value==1 {
-            was_alu = true
-            continue
-        } else if was_alu {
-            changed = true
-            break
-        }
-        if cmp.str_busy!=nil && cmp.str_busy.Value==1 {
-            was_str = true
-            continue
-        } else if was_str {
-            changed = true
-            break
-        }
-        if cmp.stack_busy!=nil && cmp.stack_busy.Value==1 {
-            was_stack = true
-            continue
-        } else if was_stack {
-            changed = true
-            break
-        }
-        if irq_bsy!=nil && irq_bsy.Value==1 {
-            if !was_irq {
-                was_irq=true
-                fmt.Println("VCD enters IRQ")
-            }
-            continue  // fly over the interrupt
-        } else if was_irq {
-            changed = true
-            break
-        }
-        for _,v := range mame_alias {
-            if p==v {
-                changed = true
-                // fmt.Printf("%s=%X\n",p.FullName(),p.Value)
-                break
-            }
-        }
-    }
-    if !changed {
-        fmt.Printf("Reached EOF of VCD file after ")
-    }
-    return file.line-l0, changed
-}
-
-func nxTraceChange( trace *LnFile, mame_st *MAMEState ) (NameValue,bool) {
-    // l0 := trace.line
-    for trace.Scan() {
-        old := mame_st.data
-        mame_st.data = parseTrace(trace.Text())
-        for name, _ := range mame_st.alias {
-            if mame_st.data[name] != old[name] {
-                // fmt.Printf(">%s changed\n",name)
-                // fmt.Printf("trace +%d lines\n",trace.line-l0)
-                return mame_st.data,true
-            }
-        }
-    }
-    fmt.Printf("Trace EOF\n")
-    return mame_st.data,false
-}
-
-func (cmp *Comparator)searchDiff( vcd,trace *LnFile, sim_st *SimState, mame_st *MAMEState,
-        ignore *boolSet ) {
-    if mame_st.data==nil || len(mame_st.data)==0 {
-        trace.Scan()
-        mame_st.data = parseTrace(trace.Text())
-    }
-
-    var good bool
-    tvcd := vcd.time
-    var div_time uint64
-    main_loop:
-    for {
-        mame_st.data, good = nxTraceChange( trace, mame_st )
-        if !good { break }
-        div_time = vcd.time
-        for k:=0;k<cmp.kmax;k++ {
-            if diff( mame_st, "", false, ignore )==0 { continue main_loop }
-            _, good := cmp.nxVCDChange( vcd, sim_st, mame_st.alias )
-            if !good { break }
-            // fmt.Printf("+%d VCD lines\n",lines)
-        }
-        if diff( mame_st, "", false, ignore )!=0 {
-            break
-        }
-    }
-    fmt.Printf("+%s\n", formatTime(vcd.time-tvcd))
-    // display the difference
-    diff( mame_st, fmt.Sprintf("trace at %d - vcd time %s (diverged at %s)",
-        trace.line,formatTime(vcd.time), formatTime(div_time)), true, ignore )
-}
-
-func matchVCD( trace *LnFile, sim_st *SimState, mame_st *MAMEState, ignore *boolSet ) bool {
-    if mame_st.data==nil || len(mame_st.data)==0 {
-        trace.Scan()
-        mame_st.data = parseTrace(trace.Text())
-    }
-    line0 := trace.line
-    var good, matched bool
-    for {
-        mame_st.data, good = nxTraceChange( trace, mame_st )
-        matched = diff( mame_st, "", false, ignore )==0
-        if !good || matched { break }
-    }
-    // display the difference
-    if !matched {
-        fmt.Printf("Impossible to match MAME to VCD")
-        diff( mame_st, fmt.Sprintf("trace at %d",trace.line), true, ignore )
-    } else {
-        fmt.Printf("VCD matched by advancing MAME trace(+ %d lines)\n",trace.line-line0)
-    }
-    return matched
-}
-
-func (cmp *Comparator)matchTrace( file *LnFile, sim_st *SimState, mame_alias mameAlias,
-        mame_st *MAMEState, ignore *boolSet ) bool {
-    var good, matched bool
-    total_lines := 0
-    time0 := file.time
-    for {
-        lines := 0
-        lines, good = cmp.nxVCDChange( file, sim_st, mame_alias )
-        total_lines += lines
-        matched = diff( mame_st, "", false, ignore )==0
-        if !good || matched { break }
-    }
-    // display the difference
-    if !matched {
-        fmt.Printf("Impossible to match VCD to MAME")
-        diff( mame_st, fmt.Sprintf("sim at time %d",file.time), true, ignore )
-    } else {
-        time1 := file.time
-        delta := time1-time0
-        fmt.Printf("MAME trace matched by advancing the VCD by %d lines (%s)\n",
-            total_lines, formatTime(delta))
-    }
-    return matched
-}
-
-
 func MakeAlias( trace string, ss VCDData ) mameAlias {
     mame_alias := make(mameAlias)
     tokens := strings.Split(trace,",")
@@ -825,3 +656,7 @@ func print_assembler_code(line string) {
     }
 }
 
+func print_error( e error ) {
+    if e==nil { return }
+    fmt.Println(e)
+}

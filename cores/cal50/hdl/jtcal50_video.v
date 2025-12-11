@@ -99,6 +99,7 @@ jtkiwi_gfx #(.CPUW(16)) u_gfx(
     .clk_cpu    ( clk_cpu        ),
     .pxl_cen    ( pxl_cen        ),
     .pxl2_cen   ( pxl2_cen       ),
+    .drtoppel   ( 1'b0           ),
     // Screen
     .flip       ( flip           ),
     .LHBL       ( LHBL           ),

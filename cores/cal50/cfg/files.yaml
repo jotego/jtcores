@@ -22,5 +22,7 @@ jtframe:
       - jtframe_vtimer.v
   - from: cpu
     get:
-      - t65.yaml
       - jtframe_m68k.yaml
+jt680x:
+  - get:
+    - jt65c02.yaml
