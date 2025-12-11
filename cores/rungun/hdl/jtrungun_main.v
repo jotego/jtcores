@@ -185,7 +185,8 @@ always @* begin
     if(cs_count>1) begin
         $display("cs_count over 1!");
         $finish;
-    end `endif
+    end
+    `endif
 end
 
 always @* begin
