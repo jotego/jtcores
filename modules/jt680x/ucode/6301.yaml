@@ -274,16 +274,16 @@ ops:
   - { name: UNDOC2, op: 0x13, cycles: 3 }
 
   # New instructions, not present in 6801
-  - { name: AIM,  op: 0x71, ctl: { alu: AND, addr: dir, wr: wr, cc: nzv0 }, cycles: 6 }
-  - { name: AIM,  op: 0x61, ctl: { alu: AND, addr: idx, wr: wr, cc: nzv0 }, cycles: 7 }
-  - { name: OIM,  op: 0x72, ctl: { alu: OR,  addr: dir, wr: wr, cc: nzv0 }, cycles: 6 }
-  - { name: OIM,  op: 0x62, ctl: { alu: OR,  addr: idx, wr: wr, cc: nzv0 }, cycles: 7 }
-  - { name: EIM,  op: 0x75, ctl: { alu: EOR, addr: dir, wr: wr, cc: nzv0 }, cycles: 6 }
-  - { name: EIM,  op: 0x65, ctl: { alu: EOR, addr: idx, wr: wr, cc: nzv0 }, cycles: 7 }
-  - { name: TIM,  op: 0x7b, ctl: { alu: AND, addr: dir,         cc: nzv0 }, cycles: 6 }
-  - { name: TIM,  op: 0x6b, ctl: { alu: AND, addr: idx,         cc: nzv0 }, cycles: 7 }
-  - { name: XGDX, op: 0x18,                                                 cycles: 2 }
-  - { name: SLP,  op: 0x1a,                                                 cycles: 4 }
+  - { name: AIM,  op: 0x71, ctl: { alu: AND, addr: dir, wr: wr, cc: nzv0, idle6: idle6 }, cycles: 6 }
+  - { name: AIM,  op: 0x61, ctl: { alu: AND, addr: idx, wr: wr, cc: nzv0, idle6: idle6 }, cycles: 7 }
+  - { name: OIM,  op: 0x72, ctl: { alu: OR,  addr: dir, wr: wr, cc: nzv0, idle6: idle6 }, cycles: 6 }
+  - { name: OIM,  op: 0x62, ctl: { alu: OR,  addr: idx, wr: wr, cc: nzv0, idle6: idle6 }, cycles: 7 }
+  - { name: EIM,  op: 0x75, ctl: { alu: EOR, addr: dir, wr: wr, cc: nzv0, idle6: idle6 }, cycles: 6 }
+  - { name: EIM,  op: 0x65, ctl: { alu: EOR, addr: idx, wr: wr, cc: nzv0, idle6: idle6 }, cycles: 7 }
+  - { name: TIM,  op: 0x7b, ctl: { alu: AND, addr: dir,         cc: nzv0               }, cycles: 4 }
+  - { name: TIM,  op: 0x6b, ctl: { alu: AND, addr: idx,         cc: nzv0               }, cycles: 5 }
+  - { name: XGDX, op: 0x18,                                                               cycles: 2 }
+  - { name: SLP,  op: 0x1a,                                                               cycles: 4 }
 ucode:
   - mnemo: [ MUL ]
     seq:
@@ -305,7 +305,7 @@ ucode:
   # 1st operand as immediate, then read operand and write result to memory, 6/7 cycles
   - mnemo: [ AIM, OIM, EIM, TIM ]
     seq:
-      - idle6_jsr, inc_pc
+      - ${idle6}_jsr, inc_pc
       - fetch, alt
       - ${addr}_jsr inc_pc
       - ld0_opnd
