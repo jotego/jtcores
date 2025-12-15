@@ -6,7 +6,7 @@
 	(paper "A3")
 	(title_block
 		(title "Premier Soccer")
-		(date "2023-05-09")
+		(date "2025-12-15")
 		(rev "José Tejada")
 		(company "JOTEGO")
 		(comment 1 "www.patreon.com/jotego")
@@ -28633,25 +28633,6 @@
 		)
 		(uuid "c64813bf-a116-4678-a8c3-df5f9401c1e4")
 	)
-	(text_box "PREVIOUSLY IN PARODIUS THIS CONNECTION OCCUPIED THE PLACE OF P1401\n"
-		(exclude_from_sim no)
-		(at 21.59 115.57 0)
-		(size 20.32 11.43)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left top)
-		)
-		(uuid "d9e39ff6-bdda-4237-9f86-d8060afc87a8")
-	)
 	(text "ROM's MASK OF THE SPRITES"
 		(exclude_from_sim no)
 		(at 35.052 144.526 0)
@@ -28826,7 +28807,7 @@
 		)
 		(uuid "0805bb99-3acd-4dfb-9af3-c8d9518148fc")
 	)
-	(label "7J_6"
+	(label "CPUA1"
 		(at 124.46 24.13 0)
 		(effects
 			(font
@@ -28906,7 +28887,7 @@
 		)
 		(uuid "0d2b1a8a-ad9d-494f-8949-223ef0357053")
 	)
-	(label "7J_3"
+	(label "CPUA5"
 		(at 97.79 21.59 0)
 		(effects
 			(font
@@ -29516,7 +29497,7 @@
 		)
 		(uuid "2c47c1da-d552-4ddd-bd51-b2d32baea912")
 	)
-	(label "7J_11"
+	(label "CPUA6"
 		(at 184.15 36.83 0)
 		(effects
 			(font
@@ -30426,7 +30407,7 @@
 		)
 		(uuid "59d12451-6078-490d-b10a-ad61c0f574ca")
 	)
-	(label "7J_11"
+	(label "CPUA6"
 		(at 97.79 49.53 0)
 		(effects
 			(font
@@ -31126,7 +31107,7 @@
 		)
 		(uuid "821b1829-fec4-4ccc-b3c2-f7238ed73497")
 	)
-	(label "7J_3"
+	(label "CPUA5"
 		(at 124.46 34.29 0)
 		(effects
 			(font
@@ -31356,7 +31337,7 @@
 		)
 		(uuid "8f02de2e-a15a-4cfd-8c6a-9540c7560d68")
 	)
-	(label "7J_11"
+	(label "CPUA6"
 		(at 124.46 36.83 0)
 		(effects
 			(font
@@ -32296,7 +32277,7 @@
 		)
 		(uuid "c2528dd9-2e85-46c8-992b-36131604f509")
 	)
-	(label "7J_6"
+	(label "CPUA1"
 		(at 184.15 24.13 0)
 		(effects
 			(font
@@ -32526,7 +32507,7 @@
 		)
 		(uuid "ceab376b-d7ec-47e6-a029-021eb2fe5ccd")
 	)
-	(label "7J_3"
+	(label "CPUA5"
 		(at 184.15 34.29 0)
 		(effects
 			(font
@@ -32706,7 +32687,7 @@
 		)
 		(uuid "da11d7c6-c1fd-4e73-b763-37b9b24a36bf")
 	)
-	(label "7J_6"
+	(label "CPUA1"
 		(at 97.79 38.1 0)
 		(effects
 			(font
@@ -33527,7 +33508,7 @@
 		)
 		(uuid "79681537-c6f1-408b-a14d-7d9b3f2defe9")
 	)
-	(hierarchical_label "~{P1401}"
+	(hierarchical_label "~{OBJ_CS}"
 		(shape input)
 		(at 153.67 242.57 180)
 		(effects
@@ -33604,7 +33585,7 @@
 		)
 		(uuid "da02ad20-4a34-410e-960d-3d0e9fcebea1")
 	)
-	(hierarchical_label "~{P1401}"
+	(hierarchical_label "~{OBJ_CS}"
 		(shape input)
 		(at 62.23 133.35 180)
 		(effects
@@ -36531,7 +36512,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2-input OR"
 			(at 69.85 130.81 0)
 			(effects
 				(font

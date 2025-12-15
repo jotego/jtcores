@@ -6,6 +6,7 @@
 	(paper "A3")
 	(title_block
 		(title "Premier Soccer")
+		(date "2025-12-15")
 		(company "JOTEGO")
 		(comment 1 "www.patreon.com/jotego")
 		(comment 2 "JOTEGO")
@@ -9154,8 +9155,8 @@
 		(uuid "13349582-1ac3-45d6-b5df-9cb8d02fbeb9")
 	)
 	(bus_entry
-		(at 133.35 113.03)
-		(size 2.54 -2.54)
+		(at 135.89 120.65)
+		(size -2.54 -2.54)
 		(stroke
 			(width 0)
 			(type default)
@@ -12933,16 +12934,6 @@
 	)
 	(wire
 		(pts
-			(xy 354.33 91.44) (xy 354.33 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "114e0e29-d6ad-4f9d-a752-be572f1798c1")
-	)
-	(wire
-		(pts
 			(xy 77.47 189.23) (xy 85.09 189.23)
 		)
 		(stroke
@@ -14150,16 +14141,6 @@
 			(type default)
 		)
 		(uuid "31205e24-aa95-4319-a37d-829c94c81064")
-	)
-	(bus
-		(pts
-			(xy 139.7 110.49) (xy 135.89 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "31653341-1f64-4db0-99e0-05cabedc5745")
 	)
 	(bus
 		(pts
@@ -15693,7 +15674,7 @@
 	)
 	(wire
 		(pts
-			(xy 133.35 163.83) (xy 142.24 163.83)
+			(xy 274.32 99.06) (xy 280.67 99.06)
 		)
 		(stroke
 			(width 0)
@@ -16883,16 +16864,6 @@
 	)
 	(wire
 		(pts
-			(xy 133.35 113.03) (xy 133.35 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "76875442-95ed-4e30-ae77-60ce6a80f996")
-	)
-	(wire
-		(pts
 			(xy 359.41 146.05) (xy 367.03 146.05)
 		)
 		(stroke
@@ -17650,6 +17621,16 @@
 			(type default)
 		)
 		(uuid "8cab6c29-8f6f-4639-825b-1dbfc09d06fd")
+	)
+	(wire
+		(pts
+			(xy 354.33 86.36) (xy 354.33 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8cc7c194-5130-4c0e-8e74-22428e74cdf8")
 	)
 	(bus
 		(pts
@@ -19713,6 +19694,16 @@
 	)
 	(bus
 		(pts
+			(xy 133.35 115.57) (xy 133.35 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf3885a1-7bcc-4e23-b2c1-697d7217ce46")
+	)
+	(bus
+		(pts
 			(xy 359.41 115.57) (xy 359.41 118.11)
 		)
 		(stroke
@@ -20243,7 +20234,7 @@
 	)
 	(wire
 		(pts
-			(xy 162.56 163.83) (xy 157.48 163.83)
+			(xy 295.91 99.06) (xy 354.33 99.06)
 		)
 		(stroke
 			(width 0)
@@ -20693,7 +20684,7 @@
 	)
 	(wire
 		(pts
-			(xy 133.35 120.65) (xy 142.24 120.65)
+			(xy 135.89 120.65) (xy 142.24 120.65)
 		)
 		(stroke
 			(width 0)
@@ -23215,16 +23206,6 @@
 		)
 		(uuid "39c0f405-cd8a-4c36-b704-ddd0a01b01a5")
 	)
-	(label "NOE"
-		(at 162.56 163.83 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "3a14ceb4-ec2d-470f-b20a-9eb7ff681089")
-	)
 	(label "DZ13"
 		(at 212.09 46.99 180)
 		(effects
@@ -23346,7 +23327,7 @@
 		(uuid "3f15cebc-2046-48c5-95fe-cb93ba852530")
 	)
 	(label "MBRIT2"
-		(at 134.62 120.65 0)
+		(at 135.89 120.65 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -25626,7 +25607,7 @@
 		(uuid "bc5869d0-904d-4f7e-b771-a82485f96f4f")
 	)
 	(label "11H2P6"
-		(at 133.35 163.83 0)
+		(at 274.32 99.06 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -26980,7 +26961,7 @@
 		)
 		(uuid "2fe31f99-d2b3-4e58-b170-18b436b2b612")
 	)
-	(hierarchical_label "4GP9"
+	(hierarchical_label "~{NWCS}"
 		(shape input)
 		(at 340.36 22.86 90)
 		(effects
@@ -27092,12 +27073,12 @@
 	)
 	(hierarchical_label "MBRIT[2..0]"
 		(shape input)
-		(at 139.7 110.49 0)
+		(at 133.35 115.57 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left)
+			(justify right)
 		)
 		(uuid "d2a602d8-ff28-4752-bfdf-2b6c0d4e2437")
 	)
@@ -28852,16 +28833,15 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS04")
-		(at 149.86 163.83 0)
+		(at 288.29 99.06 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "7da22342-e4a3-4f5b-8722-6d041316dca6")
 		(property "Reference" "10G"
-			(at 149.86 154.94 0)
+			(at 287.782 97.282 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28869,7 +28849,7 @@
 			)
 		)
 		(property "Value" "74LS04"
-			(at 149.86 157.48 0)
+			(at 287.782 99.822 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28877,7 +28857,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 149.86 163.83 0)
+			(at 288.29 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28886,7 +28866,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/gpn/sn74LS04"
-			(at 149.86 163.83 0)
+			(at 288.29 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28895,7 +28875,7 @@
 			)
 		)
 		(property "Description" "Hex Inverter"
-			(at 149.86 163.83 0)
+			(at 288.29 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)

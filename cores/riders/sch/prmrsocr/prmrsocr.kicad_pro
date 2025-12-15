@@ -358,11 +358,23 @@
           "label": "DNP",
           "name": "${DNP}",
           "show": true
+        },
+        {
+          "group_by": false,
+          "label": "#",
+          "name": "${ITEM_NUMBER}",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Descripción",
+          "name": "Description",
+          "show": false
         }
       ],
       "filter_string": "",
       "group_symbols": true,
-      "name": "Grouped By Value",
+      "name": "",
       "sort_asc": true,
       "sort_field": "Reference"
     },
@@ -455,10 +467,6 @@
     [
       "d3c9105a-5122-4b1e-b00b-76c0d0a9af40",
       "psac"
-    ],
-    [
-      "f18db35c-32e6-479e-aff8-5ae79fab5756",
-      "description"
     ]
   ],
   "text_variables": {}
