@@ -69,7 +69,7 @@ module jtframe_ioctl_dump #(parameter
     output  [(AW5==0?0:AW5-1):(AW5==0?0:DW5>>4)] addr5_mx,
 
     input      [ 1:0] we0, we1, we2, we3, we4, we5,
-    output reg [ 1:0] we0_mx, we1_mx, we2_mx, we3_mx, we4_mx, we5_mx,
+    output     [ 1:0] we0_mx, we1_mx, we2_mx, we3_mx, we4_mx, we5_mx,
 
     input      [23:0] ioctl_addr,
     input             ioctl_ram,
@@ -89,6 +89,7 @@ initial begin // assertions
 end
 `endif
 
+reg  [ 1:0] we0_io, we1_io, we2_io, we3_io, we4_io, we5_io;
 reg  [ 5:0] sel;
 reg  [23:0] part_addr, ioctl_adl;
 reg  [23:0] offset;
@@ -105,9 +106,16 @@ assign addr3_mx = ioctl_ram ?  part_addr[(AW3!=0?AW3-1:0):(AW3!=0?DW3>>4:0)] : a
 assign addr4_mx = ioctl_ram ?  part_addr[(AW4!=0?AW4-1:0):(AW4!=0?DW4>>4:0)] : addr4;
 assign addr5_mx = ioctl_ram ?  part_addr[(AW5!=0?AW5-1:0):(AW5!=0?DW5>>4:0)] : addr5;
 
+assign we0_mx   = ioctl_ram ?  we0_io : we0;
+assign we1_mx   = ioctl_ram ?  we1_io : we1;
+assign we2_mx   = ioctl_ram ?  we2_io : we2;
+assign we3_mx   = ioctl_ram ?  we3_io : we3;
+assign we4_mx   = ioctl_ram ?  we4_io : we4;
+assign we5_mx   = ioctl_ram ?  we5_io : we5;
+
 always @(posedge clk)  begin
-    we0_mx <= we0;       we1_mx <= we1;       we2_mx <= we2;
-    we3_mx <= we3;       we4_mx <= we4;       we5_mx <= we5;
+    we0_io <= 0;       we1_io <= 0;       we2_io <= 0;
+    we3_io <= 0;       we4_io <= 0;       we5_io <= 0;
     ioctl_din <= sel[0] ? ( (DW0==16 && ioctl_addr[0]) ? dout0[DW0-1 -:8] : dout0[7:0]) :
                  sel[1] ? ( (DW1==16 && ioctl_addr[0]) ? dout1[DW1-1 -:8] : dout1[7:0]) :
                  sel[2] ? ( (DW2==16 && ioctl_addr[0]) ? dout2[DW2-1 -:8] : dout2[7:0]) :
@@ -115,13 +123,13 @@ always @(posedge clk)  begin
                  sel[4] ? ( (DW4==16 && ioctl_addr[0]) ? dout4[DW4-1 -:8] : dout4[7:0]) :
                  sel[5] ? ( (DW5==16 && ioctl_addr[0]) ? dout5[DW5-1 -:8] : dout5[7:0]) :
                  ioctl_aux;
-    if(ioctl_ram) begin
-        if(sel[0] && ioctl_wr) we0_mx <= { ioctl_addr[0], ~ioctl_addr[0] || DW0==8 }; else we0_mx <= 0;
-        if(sel[1] && ioctl_wr) we1_mx <= { ioctl_addr[0], ~ioctl_addr[0] || DW1==8 }; else we1_mx <= 0;
-        if(sel[2] && ioctl_wr) we2_mx <= { ioctl_addr[0], ~ioctl_addr[0] || DW2==8 }; else we2_mx <= 0;
-        if(sel[3] && ioctl_wr) we3_mx <= { ioctl_addr[0], ~ioctl_addr[0] || DW3==8 }; else we3_mx <= 0;
-        if(sel[4] && ioctl_wr) we4_mx <= { ioctl_addr[0], ~ioctl_addr[0] || DW4==8 }; else we4_mx <= 0;
-        if(sel[5] && ioctl_wr) we5_mx <= { ioctl_addr[0], ~ioctl_addr[0] || DW5==8 }; else we5_mx <= 0;
+    if(ioctl_ram && ioctl_wr) begin
+        if(sel[0]) we0_io <= { ioctl_addr[0], ~ioctl_addr[0] || DW0==8 };
+        if(sel[1]) we1_io <= { ioctl_addr[0], ~ioctl_addr[0] || DW1==8 };
+        if(sel[2]) we2_io <= { ioctl_addr[0], ~ioctl_addr[0] || DW2==8 };
+        if(sel[3]) we3_io <= { ioctl_addr[0], ~ioctl_addr[0] || DW3==8 };
+        if(sel[4]) we4_io <= { ioctl_addr[0], ~ioctl_addr[0] || DW4==8 };
+        if(sel[5]) we5_io <= { ioctl_addr[0], ~ioctl_addr[0] || DW5==8 };
     end
 end
 
