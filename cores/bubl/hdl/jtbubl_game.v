@@ -71,8 +71,8 @@ jtbubl_main u_main(
     .main_rom_data  ( main_data     ),
     // Sub CPU ROM
     .sub_rom_addr   ( sub_addr      ),
-    .sub_rom_cs     ( sub_cs        ),
-    .sub_rom_ok     ( sub_ok        ),
+    .sub_rom_cs     (               ),
+    .sub_rom_ok     ( 1'b1          ),
     .sub_rom_data   ( sub_data      ),
     // MCU ROM
     .mcu_rom_addr   ( mcu_addr      ),

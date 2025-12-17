@@ -1,14 +1,14 @@
 params:
-  - { name: SUB_OFFSET, value: "22'h2_8000 >> 1" }
+  - { name: SUB_OFFSET, value: "24'h2_8000 >> 1" }
 clocks:
   clk48:
     - freq: 6000000
-      gate: [ "main", "sub", "snd" ]
+      gate: [ "main", "snd" ]
       outputs:
         - cen6
         - cen3
     - freq: 4000000
-      gate: [ "main", "sub", "snd" ]
+      gate: [ "main", "snd" ]
       outputs:
         - cen4
 audio:
@@ -24,10 +24,6 @@ sdram:
         - name: main
           addr_width: 18
           data_width: 8
-        - name: sub
-          addr_width: 15
-          data_width: 8
-          offset: SUB_OFFSET
     - buses:
         - name: snd
           addr_width: 15
@@ -37,6 +33,11 @@ sdram:
           addr_width: 19
           data_width: 32
 bram:
+  - name: sub
+    addr_width: 15
+    data_width: 8
+    rom:
+      offset: SUB_OFFSET
   - name: mcu
     addr_width: 12
     data_width: 8
