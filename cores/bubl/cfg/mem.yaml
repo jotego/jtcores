@@ -3,12 +3,10 @@ params:
 clocks:
   clk48:
     - freq: 6000000
-      gate: [ "main" ]
       outputs:
         - cen6
         - cen3
     - freq: 4000000
-      gate: [ "main" ]
       outputs:
         - cen4
 audio:
@@ -21,15 +19,17 @@ audio:
 sdram:
   banks:
     - buses:
-        - name: main
-          addr_width: 18
-          data_width: 8
     - buses:
     - buses:
         - name: gfx
           addr_width: 19
           data_width: 32
 bram:
+  - name: main
+    addr_width: 18
+    data_width: 8
+    rom:
+      offset: 0
   - name: snd
     addr_width: 15
     data_width: 8

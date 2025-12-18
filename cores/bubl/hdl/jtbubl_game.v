@@ -66,8 +66,8 @@ jtbubl_main u_main(
     .bootleg        ( bootleg       ),
     // Main CPU ROM
     .main_rom_addr  ( main_addr     ),
-    .main_rom_cs    ( main_cs       ),
-    .main_rom_ok    ( main_ok       ),
+    .main_rom_cs    (               ),
+    .main_rom_ok    ( 1'b1          ),
     .main_rom_data  ( main_data     ),
     // Sub CPU ROM
     .sub_rom_addr   ( sub_addr      ),
