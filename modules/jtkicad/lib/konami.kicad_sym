@@ -66604,10 +66604,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at -59.69 -16.51 0)
 				(length 5.08)
-				(name "N.C"
+				(name "TIM"
 					(effects
 						(font
 							(size 1.27 1.27)
