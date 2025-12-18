@@ -177,9 +177,9 @@ jtbubl_sound u_sound(
     .main_flag  ( main_flag     ),
     // ROM
     .rom_addr   ( snd_addr      ),
-    .rom_cs     ( snd_cs        ),
+    .rom_cs     (               ),
     .rom_data   ( snd_data      ),
-    .rom_ok     ( snd_ok        ),
+    .rom_ok     ( 1'b1          ),
 
     // Sound output
     .fm03       ( fm03          ),
