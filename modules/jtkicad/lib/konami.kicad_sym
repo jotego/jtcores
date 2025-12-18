@@ -39245,10 +39245,10 @@
 			(pin input line
 				(at 36.83 -46.99 90)
 				(length 5.08)
-				(name "AROK"
+				(name "AR2"
 					(effects
 						(font
-							(size 1.016 1.016)
+							(size 1.27 1.27)
 						)
 					)
 				)
@@ -39281,7 +39281,7 @@
 			(pin input line
 				(at 34.29 -46.99 90)
 				(length 5.08)
-				(name "AR2"
+				(name "AR1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39299,7 +39299,7 @@
 			(pin input line
 				(at 31.75 -46.99 90)
 				(length 5.08)
-				(name "AR1"
+				(name "AR0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39317,7 +39317,7 @@
 			(pin input line
 				(at 29.21 -46.99 90)
 				(length 5.08)
-				(name "AR0"
+				(name "AROK"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39335,7 +39335,7 @@
 			(pin input line
 				(at 26.67 -46.99 90)
 				(length 5.08)
-				(name "BROK"
+				(name "BR2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39353,7 +39353,7 @@
 			(pin input line
 				(at 24.13 -46.99 90)
 				(length 5.08)
-				(name "BR2"
+				(name "BR1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39371,7 +39371,7 @@
 			(pin input line
 				(at 21.59 -46.99 90)
 				(length 5.08)
-				(name "BR1"
+				(name "BR0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39389,7 +39389,7 @@
 			(pin input line
 				(at 19.05 -46.99 90)
 				(length 5.08)
-				(name "BR0"
+				(name "BR0K"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39497,7 +39497,7 @@
 			(pin input line
 				(at 8.89 -46.99 90)
 				(length 5.08)
-				(name "CLAT"
+				(name "HP9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39515,7 +39515,7 @@
 			(pin input line
 				(at 6.35 -46.99 90)
 				(length 5.08)
-				(name "HP9"
+				(name "HP8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39533,7 +39533,7 @@
 			(pin input line
 				(at 3.81 -46.99 90)
 				(length 5.08)
-				(name "HP8"
+				(name "HP7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39569,7 +39569,7 @@
 			(pin input line
 				(at 1.27 -46.99 90)
 				(length 5.08)
-				(name "HP7"
+				(name "HP6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39587,7 +39587,7 @@
 			(pin input line
 				(at -1.27 -46.99 90)
 				(length 5.08)
-				(name "HP6"
+				(name "HP5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39605,7 +39605,7 @@
 			(pin input line
 				(at -3.81 -46.99 90)
 				(length 5.08)
-				(name "HP5"
+				(name "HP4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39641,7 +39641,7 @@
 			(pin input line
 				(at -6.35 -46.99 90)
 				(length 5.08)
-				(name "HP4"
+				(name "HP3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39677,7 +39677,7 @@
 			(pin input line
 				(at -8.89 -46.99 90)
 				(length 5.08)
-				(name "HP3"
+				(name "HP2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39695,7 +39695,7 @@
 			(pin input line
 				(at -11.43 -46.99 90)
 				(length 5.08)
-				(name "HP2"
+				(name "HP1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39713,7 +39713,7 @@
 			(pin input line
 				(at -13.97 -46.99 90)
 				(length 5.08)
-				(name "HP1"
+				(name "HP0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39731,7 +39731,7 @@
 			(pin input line
 				(at -16.51 -46.99 90)
 				(length 5.08)
-				(name "HP0"
+				(name "SHADOW"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39749,7 +39749,7 @@
 			(pin input line
 				(at -19.05 -46.99 90)
 				(length 5.08)
-				(name "SHADOW"
+				(name "PL6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39767,7 +39767,7 @@
 			(pin input line
 				(at -21.59 -46.99 90)
 				(length 5.08)
-				(name "PL6"
+				(name "PL5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39785,7 +39785,7 @@
 			(pin input line
 				(at -24.13 -46.99 90)
 				(length 5.08)
-				(name "PL5"
+				(name "PL4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39803,7 +39803,7 @@
 			(pin input line
 				(at -26.67 -46.99 90)
 				(length 5.08)
-				(name "PL4"
+				(name "PL3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39839,7 +39839,7 @@
 			(pin input line
 				(at -29.21 -46.99 90)
 				(length 5.08)
-				(name "PL3"
+				(name "PL2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39875,7 +39875,7 @@
 			(pin input line
 				(at -31.75 -46.99 90)
 				(length 5.08)
-				(name "PL2"
+				(name "PL1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39893,7 +39893,7 @@
 			(pin input line
 				(at -34.29 -46.99 90)
 				(length 5.08)
-				(name "PL1"
+				(name "PL0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39911,7 +39911,7 @@
 			(pin input line
 				(at -36.83 -46.99 90)
 				(length 5.08)
-				(name "PL0"
+				(name "CLAT"
 					(effects
 						(font
 							(size 1.27 1.27)
