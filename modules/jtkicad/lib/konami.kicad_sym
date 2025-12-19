@@ -66442,10 +66442,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at 16.51 59.69 270)
 				(length 5.08)
-				(name "N.C"
+				(name "ROBS"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -66460,10 +66460,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at 13.97 59.69 270)
 				(length 5.08)
-				(name "N.C"
+				(name "ROWP"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -66550,10 +66550,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at 1.27 59.69 270)
 				(length 5.08)
-				(name "N.C"
+				(name "RA23"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -66568,10 +66568,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at -1.27 59.69 270)
 				(length 5.08)
-				(name "N.C"
+				(name "RA22"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -66586,10 +66586,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at -3.81 59.69 270)
 				(length 5.08)
-				(name "N.C"
+				(name "RA21"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -66802,10 +66802,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at -59.69 -19.05 0)
 				(length 5.08)
-				(name "N.C"
+				(name "CLK2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -67000,10 +67000,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at -59.69 -21.59 0)
 				(length 5.08)
-				(name "N.C"
+				(name "CLK3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -67612,7 +67612,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin output line
 				(at 44.45 59.69 270)
 				(length 5.08)
 				(name "PCM1"
@@ -67630,7 +67630,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin output line
 				(at 46.99 59.69 270)
 				(length 5.08)
 				(name "PCM2"
@@ -67666,10 +67666,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at -59.69 -49.53 0)
 				(length 5.08)
-				(name "N.C"
+				(name "AXDT"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -67720,10 +67720,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at -59.69 16.51 0)
 				(length 5.08)
-				(name "N.C"
+				(name "REDL"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -67738,10 +67738,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at 59.69 49.53 180)
 				(length 5.08)
-				(name "N.C"
+				(name "REDL"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -67756,10 +67756,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at 59.69 46.99 180)
 				(length 5.08)
-				(name "N.C"
+				(name "FRDL"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -67774,7 +67774,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin output line
 				(at 41.91 59.69 270)
 				(length 5.08)
 				(name "PCM0"
@@ -68152,10 +68152,10 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at 59.69 39.37 180)
 				(length 5.08)
-				(name "N.C"
+				(name "DTACK"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -68512,7 +68512,7 @@
 					)
 				)
 			)
-			(pin bidirectional inverted
+			(pin input inverted
 				(at 59.69 31.75 180)
 				(length 5.08)
 				(name "~{RESET}"
@@ -71640,6 +71640,54 @@
 						)
 					)
 				)
+			)
+		)
+	)
+	(symbol "54986_A"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 	)
@@ -81588,6 +81636,54 @@
 						)
 					)
 				)
+			)
+		)
+	)
+	(symbol "connector_1x32_33-64"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "connector1x32"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 	)
