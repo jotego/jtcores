@@ -66,13 +66,13 @@ jtbubl_main u_main(
     .bootleg        ( bootleg       ),
     // Main CPU ROM
     .main_rom_addr  ( main_addr     ),
-    .main_rom_cs    (               ),
-    .main_rom_ok    ( 1'b1          ),
+    .main_rom_cs    ( main_cs       ),
+    .main_rom_ok    ( main_ok       ),
     .main_rom_data  ( main_data     ),
     // Sub CPU ROM
     .sub_rom_addr   ( sub_addr      ),
-    .sub_rom_cs     (               ),
-    .sub_rom_ok     ( 1'b1          ),
+    .sub_rom_cs     ( sub_cs        ),
+    .sub_rom_ok     ( sub_ok        ),
     .sub_rom_data   ( sub_data      ),
     // MCU ROM
     .mcu_rom_addr   ( mcu_addr      ),
@@ -177,9 +177,9 @@ jtbubl_sound u_sound(
     .main_flag  ( main_flag     ),
     // ROM
     .rom_addr   ( snd_addr      ),
-    .rom_cs     (               ),
+    .rom_cs     ( snd_cs        ),
     .rom_data   ( snd_data      ),
-    .rom_ok     ( 1'b1          ),
+    .rom_ok     ( snd_ok        ),
 
     // Sound output
     .fm03       ( fm03          ),

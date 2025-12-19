@@ -277,7 +277,7 @@ jtframe_dual_ram #(.AW(13)) u_work(
     .clk1   ( clk             ),
     .data1  ( sub_dout        ),
     .addr1  ( sub_addr[12:0]  ),
-    .we1    ( ~sub_wrn & sub_work_cs       ),
+    .we1    ( ~sub_wrn & sub_work_cs ),
     .q1     ( work2sub_dout   )
 );
 
@@ -334,6 +334,12 @@ jtframe_z80 u_maincpu(
     .dout     ( main_dout      )
 );
 
+wire [1:0] main_wait;
+wire       sub_wait;
+
+assign main_wait = { sde & main_work_cs, vram_cs & h1 } & ~debug_bus[1:0];
+assign sub_wait  = (main_work_cs & ~sde) & sub_work_cs  & ~debug_bus[1];
+
 jtframe_z80wait #(.DEVCNT(2),.RECOVERY(0)) u_mainwait(
     .rst_n    ( main_rst_n      ),
     .clk      ( clk             ),
@@ -344,7 +350,7 @@ jtframe_z80wait #(.DEVCNT(2),.RECOVERY(0)) u_mainwait(
     .mreq_n   ( main_mreq_n     ),
     .iorq_n   ( main_iorq_n     ),
     .busak_n  ( 1'b1            ),
-    .dev_busy ( { vram_cs & h1, sde & main_work_cs }    ),
+    .dev_busy ( main_wait       ),
     // SDRAM gating managed in mem.yaml
     .rom_cs   ( 1'b0            ),
     .rom_ok   ( 1'b1            )
@@ -384,7 +390,7 @@ jtframe_z80wait #(.DEVCNT(1),.RECOVERY(0)) u_subwait(
     .mreq_n   ( sub_mreq_n      ),
     .iorq_n   ( sub_iorq_n      ),
     .busak_n  ( 1'b1            ),
-    .dev_busy ( (main_work_cs & ~sde) & sub_work_cs ),
+    .dev_busy ( sub_wait        ),
     // SDRAM gating managed in mem.yaml
     .rom_cs   ( 1'b0            ),
     .rom_ok   ( 1'b1            )
