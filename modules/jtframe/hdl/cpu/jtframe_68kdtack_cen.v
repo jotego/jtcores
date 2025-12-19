@@ -62,6 +62,7 @@ module jtframe_68kdtack_cen
     input         bus_cs,
     input         bus_busy,
     input         bus_legit,
+    input         bus_ack, // do not recover cycles if another CPU has the bus
     input         ASn,  // DTACKn set low at the next cpu_cen after ASn goes low
     input [1:0]   DSn,  // If DSn goes high, DTACKn is reset high
     input [W-2:0] num,  // numerator
@@ -124,7 +125,7 @@ always @* begin
 end
 
 reg over_l;
-wire recover = ASn && missing>0 && !over;
+wire recover = ASn && missing>0 && !over && !bus_ack;
 
 always @(posedge clk) begin
     over_l <= over;

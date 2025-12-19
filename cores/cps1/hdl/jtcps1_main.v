@@ -426,6 +426,7 @@ jtframe_68kdtack_cen #(.MFREQ(48000),.WAIT1(1)) u_dtack(
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
+    .bus_ack    ( 1'b0      ),
     .ASn        ( ASn | dtack_clr ),
     .DSn        ( {UDSn, LDSn} ),
     .num        ( cen_num  ),

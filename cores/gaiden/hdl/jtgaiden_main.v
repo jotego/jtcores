@@ -212,6 +212,7 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'd0      ),
+    .bus_ack    ( 1'd0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 7'd24     ),  // 9.216 MHz

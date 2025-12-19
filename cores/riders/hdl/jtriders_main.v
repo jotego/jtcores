@@ -383,6 +383,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
+    .bus_ack    ( 1'b0      ),
     .ASn        ( asn_mx    ),
     .DSn        ( ram_dsn   ),
     .num        ( 5'd1      ),  // numerator
