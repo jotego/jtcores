@@ -6,7 +6,7 @@
 	(paper "A3")
 	(title_block
 		(title "Premier Soccer")
-		(date "2023-05-09")
+		(date "2025-12-15")
 		(rev "José Tejada")
 		(company "JOTEGO")
 		(comment 1 "www.patreon.com/jotego")
@@ -10010,10 +10010,10 @@
 				(pin input line
 					(at 36.83 -46.99 90)
 					(length 5.08)
-					(name "AROK"
+					(name "AR2"
 						(effects
 							(font
-								(size 1.016 1.016)
+								(size 1.27 1.27)
 							)
 						)
 					)
@@ -10046,7 +10046,7 @@
 				(pin input line
 					(at 34.29 -46.99 90)
 					(length 5.08)
-					(name "AR2"
+					(name "AR1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10064,7 +10064,7 @@
 				(pin input line
 					(at 31.75 -46.99 90)
 					(length 5.08)
-					(name "AR1"
+					(name "AR0"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10082,7 +10082,7 @@
 				(pin input line
 					(at 29.21 -46.99 90)
 					(length 5.08)
-					(name "AR0"
+					(name "AROK"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10100,7 +10100,7 @@
 				(pin input line
 					(at 26.67 -46.99 90)
 					(length 5.08)
-					(name "BROK"
+					(name "BR2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10118,7 +10118,7 @@
 				(pin input line
 					(at 24.13 -46.99 90)
 					(length 5.08)
-					(name "BR2"
+					(name "BR1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10136,7 +10136,7 @@
 				(pin input line
 					(at 21.59 -46.99 90)
 					(length 5.08)
-					(name "BR1"
+					(name "BR0"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10154,7 +10154,7 @@
 				(pin input line
 					(at 19.05 -46.99 90)
 					(length 5.08)
-					(name "BR0"
+					(name "BR0K"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10262,7 +10262,7 @@
 				(pin input line
 					(at 8.89 -46.99 90)
 					(length 5.08)
-					(name "CLAT"
+					(name "HP9"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10280,7 +10280,7 @@
 				(pin input line
 					(at 6.35 -46.99 90)
 					(length 5.08)
-					(name "HP9"
+					(name "HP8"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10298,7 +10298,7 @@
 				(pin input line
 					(at 3.81 -46.99 90)
 					(length 5.08)
-					(name "HP8"
+					(name "HP7"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10334,7 +10334,7 @@
 				(pin input line
 					(at 1.27 -46.99 90)
 					(length 5.08)
-					(name "HP7"
+					(name "HP6"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10352,7 +10352,7 @@
 				(pin input line
 					(at -1.27 -46.99 90)
 					(length 5.08)
-					(name "HP6"
+					(name "HP5"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10370,7 +10370,7 @@
 				(pin input line
 					(at -3.81 -46.99 90)
 					(length 5.08)
-					(name "HP5"
+					(name "HP4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10406,7 +10406,7 @@
 				(pin input line
 					(at -6.35 -46.99 90)
 					(length 5.08)
-					(name "HP4"
+					(name "HP3"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10442,7 +10442,7 @@
 				(pin input line
 					(at -8.89 -46.99 90)
 					(length 5.08)
-					(name "HP3"
+					(name "HP2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10460,7 +10460,7 @@
 				(pin input line
 					(at -11.43 -46.99 90)
 					(length 5.08)
-					(name "HP2"
+					(name "HP1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10478,7 +10478,7 @@
 				(pin input line
 					(at -13.97 -46.99 90)
 					(length 5.08)
-					(name "HP1"
+					(name "HP0"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10496,7 +10496,7 @@
 				(pin input line
 					(at -16.51 -46.99 90)
 					(length 5.08)
-					(name "HP0"
+					(name "SHADOW"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10514,7 +10514,7 @@
 				(pin input line
 					(at -19.05 -46.99 90)
 					(length 5.08)
-					(name "SHADOW"
+					(name "PL6"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10532,7 +10532,7 @@
 				(pin input line
 					(at -21.59 -46.99 90)
 					(length 5.08)
-					(name "PL6"
+					(name "PL5"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10550,7 +10550,7 @@
 				(pin input line
 					(at -24.13 -46.99 90)
 					(length 5.08)
-					(name "PL5"
+					(name "PL4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10568,7 +10568,7 @@
 				(pin input line
 					(at -26.67 -46.99 90)
 					(length 5.08)
-					(name "PL4"
+					(name "PL3"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10604,7 +10604,7 @@
 				(pin input line
 					(at -29.21 -46.99 90)
 					(length 5.08)
-					(name "PL3"
+					(name "PL2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10640,7 +10640,7 @@
 				(pin input line
 					(at -31.75 -46.99 90)
 					(length 5.08)
-					(name "PL2"
+					(name "PL1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10658,7 +10658,7 @@
 				(pin input line
 					(at -34.29 -46.99 90)
 					(length 5.08)
-					(name "PL1"
+					(name "PL0"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -10676,7 +10676,7 @@
 				(pin input line
 					(at -36.83 -46.99 90)
 					(length 5.08)
-					(name "PL0"
+					(name "CLAT"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -28595,63 +28595,6 @@
 		)
 		(uuid "279c5810-0a72-48cb-b6fc-072b052f5eaf")
 	)
-	(text_box "The connections between chips 45 and 44 do not match the chip schematic, both in the \"shadow\" and the \"clat\"."
-		(exclude_from_sim no)
-		(at 295.91 217.17 0)
-		(size 31.75 11.43)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left top)
-		)
-		(uuid "7569ff45-3d96-44ee-af60-b203ae6e0021")
-	)
-	(text_box "There are considerable differences in the connections between the homonymous versions 053244 and 053245. Please note"
-		(exclude_from_sim no)
-		(at 331.47 217.17 0)
-		(size 41.91 11.43)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left top)
-		)
-		(uuid "c64813bf-a116-4678-a8c3-df5f9401c1e4")
-	)
-	(text_box "PREVIOUSLY IN PARODIUS THIS CONNECTION OCCUPIED THE PLACE OF P1401\n"
-		(exclude_from_sim no)
-		(at 21.59 115.57 0)
-		(size 20.32 11.43)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left top)
-		)
-		(uuid "d9e39ff6-bdda-4237-9f86-d8060afc87a8")
-	)
 	(text "ROM's MASK OF THE SPRITES"
 		(exclude_from_sim no)
 		(at 35.052 144.526 0)
@@ -28826,7 +28769,7 @@
 		)
 		(uuid "0805bb99-3acd-4dfb-9af3-c8d9518148fc")
 	)
-	(label "7J_6"
+	(label "CPUA1"
 		(at 124.46 24.13 0)
 		(effects
 			(font
@@ -28906,7 +28849,7 @@
 		)
 		(uuid "0d2b1a8a-ad9d-494f-8949-223ef0357053")
 	)
-	(label "7J_3"
+	(label "CPUA5"
 		(at 97.79 21.59 0)
 		(effects
 			(font
@@ -29516,7 +29459,7 @@
 		)
 		(uuid "2c47c1da-d552-4ddd-bd51-b2d32baea912")
 	)
-	(label "7J_11"
+	(label "CPUA6"
 		(at 184.15 36.83 0)
 		(effects
 			(font
@@ -30426,7 +30369,7 @@
 		)
 		(uuid "59d12451-6078-490d-b10a-ad61c0f574ca")
 	)
-	(label "7J_11"
+	(label "CPUA6"
 		(at 97.79 49.53 0)
 		(effects
 			(font
@@ -31126,7 +31069,7 @@
 		)
 		(uuid "821b1829-fec4-4ccc-b3c2-f7238ed73497")
 	)
-	(label "7J_3"
+	(label "CPUA5"
 		(at 124.46 34.29 0)
 		(effects
 			(font
@@ -31356,7 +31299,7 @@
 		)
 		(uuid "8f02de2e-a15a-4cfd-8c6a-9540c7560d68")
 	)
-	(label "7J_11"
+	(label "CPUA6"
 		(at 124.46 36.83 0)
 		(effects
 			(font
@@ -32296,7 +32239,7 @@
 		)
 		(uuid "c2528dd9-2e85-46c8-992b-36131604f509")
 	)
-	(label "7J_6"
+	(label "CPUA1"
 		(at 184.15 24.13 0)
 		(effects
 			(font
@@ -32526,7 +32469,7 @@
 		)
 		(uuid "ceab376b-d7ec-47e6-a029-021eb2fe5ccd")
 	)
-	(label "7J_3"
+	(label "CPUA5"
 		(at 184.15 34.29 0)
 		(effects
 			(font
@@ -32706,7 +32649,7 @@
 		)
 		(uuid "da11d7c6-c1fd-4e73-b763-37b9b24a36bf")
 	)
-	(label "7J_6"
+	(label "CPUA1"
 		(at 97.79 38.1 0)
 		(effects
 			(font
@@ -33527,7 +33470,7 @@
 		)
 		(uuid "79681537-c6f1-408b-a14d-7d9b3f2defe9")
 	)
-	(hierarchical_label "~{P1401}"
+	(hierarchical_label "~{OBJ_CS}"
 		(shape input)
 		(at 153.67 242.57 180)
 		(effects
@@ -33604,7 +33547,7 @@
 		)
 		(uuid "da02ad20-4a34-410e-960d-3d0e9fcebea1")
 	)
-	(hierarchical_label "~{P1401}"
+	(hierarchical_label "~{OBJ_CS}"
 		(shape input)
 		(at 62.23 133.35 180)
 		(effects
@@ -36531,7 +36474,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Quad 2-input OR"
 			(at 69.85 130.81 0)
 			(effects
 				(font
