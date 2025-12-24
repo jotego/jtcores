@@ -137,9 +137,10 @@ always @(posedge clk) begin
 end
 
 `ifdef SIMULATION
-reg [15:0] Apure;
+reg [15:0] Apure,Bpure;
 
 always @(posedge clk) if(!main_macc_n) Apure = main_addr;
+always @(posedge clk) if(!sub_macc_n)  Bpure = sub_addr;
 `endif
 
 // Watchdog and main CPU reset
@@ -214,7 +215,7 @@ always @(posedge clk ) begin
             if(!tokio) begin
                 sub_rst_n <= cpu_dout[4];
                 mcu_rst   <= ~cpu_dout[5];
-                if( cpu_dout[5]  &&  mcu_rst ) $display("MCU reset over");
+                if(  cpu_dout[5] &&  mcu_rst ) $display("MCU reset over");
                 if( ~cpu_dout[5] && ~mcu_rst ) $display("MCU reset");
             end else begin
                 sub_rst_n <= 1;

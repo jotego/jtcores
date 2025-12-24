@@ -25,7 +25,6 @@
  
  // Z80(NMOS)
 
-/* verilator tracing_off */
 module z80cpu
 	(
 	input MCLK,
@@ -577,6 +576,18 @@ module z80cpu
 	wire [15:0] rpullup2_comb[1:0];
 	reg [15:0] regs[11:0][1:0];
 	reg [15:0] regs2[1:0][1:0];
+
+`ifdef VERILATOR_KEEP_CPU
+`ifdef SIMULATION
+	/* verilator tracing_on */
+	wire [15:0] af = regs [ 0][0],
+	            de = regs [ 7][0],
+	            R  = regs2[ 1][0],
+	            SP = regs2[10][0],
+	            WZ = regs2[11][0],
+	            hl = regs [ 5][0];
+`endif
+`endif
 	
 	reg [15:0] w514 = 16'h0;
 	reg [15:0] w515 = 16'h0;
