@@ -266,6 +266,7 @@ always @(*) begin
     work_addr= lde ? main_addr[12:0] : sub_addr[12:0];
 end
 */
+
 // Time shared
 jtframe_dual_ram #(.AW(13)) u_work(
     .clk0   ( clk             ),
@@ -334,6 +335,8 @@ jtframe_z80 u_maincpu(
     .dout     ( main_dout      )
 );
 
+wire main_wait = { vram_cs & h1, sde & main_work_cs };
+
 jtframe_z80wait #(.DEVCNT(2),.RECOVERY(0)) u_mainwait(
     .rst_n    ( main_rst_n      ),
     .clk      ( clk             ),
@@ -344,7 +347,7 @@ jtframe_z80wait #(.DEVCNT(2),.RECOVERY(0)) u_mainwait(
     .mreq_n   ( main_mreq_n     ),
     .iorq_n   ( main_iorq_n     ),
     .busak_n  ( 1'b1            ),
-    .dev_busy ( { vram_cs & h1, sde & main_work_cs }    ),
+    .dev_busy ( main_wait       ),
     // SDRAM gating managed in mem.yaml
     .rom_cs   ( 1'b0            ),
     .rom_ok   ( 1'b1            )
@@ -374,6 +377,8 @@ jtframe_z80 u_subcpu(
     .dout     ( sub_dout       )
 );
 
+wire sub_wait = (main_work_cs & ~sde) & sub_work_cs;
+
 jtframe_z80wait #(.DEVCNT(1),.RECOVERY(0)) u_subwait(
     .rst_n    ( sub_rst_n       ),
     .clk      ( clk             ),
@@ -384,7 +389,7 @@ jtframe_z80wait #(.DEVCNT(1),.RECOVERY(0)) u_subwait(
     .mreq_n   ( sub_mreq_n      ),
     .iorq_n   ( sub_iorq_n      ),
     .busak_n  ( 1'b1            ),
-    .dev_busy ( (main_work_cs & ~sde) & sub_work_cs ),
+    .dev_busy ( sub_wait        ),
     // SDRAM gating managed in mem.yaml
     .rom_cs   ( 1'b0            ),
     .rom_ok   ( 1'b1            )
