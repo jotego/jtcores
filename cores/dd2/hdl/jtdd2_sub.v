@@ -45,7 +45,7 @@ module jtdd2_sub(
 );
 
 (*keep*) reg         shared_cs, nmi_ack;
-(*keep*) wire        rnw, int_n, mreq_n, busak_n;
+(*keep*) wire        rnw, int_n, mreq_n, rfsh_n, busak_n;
 wire [15:0] A;
 wire [ 7:0] cpu_dout;
 reg  [ 7:0] cpu_din;
@@ -87,7 +87,7 @@ always @(*) begin
     shared_cs   = 1'b0;
     mcu_irqmain = 1'b0;
     nmi_ack     = 1'b0;
-    if( !mreq_n ) begin
+    if( !mreq_n && rfsh_n ) begin
         if( A[15:14]!=2'b11 )
             rom_cs    = 1'b1; // < Cxxx
         else begin
@@ -125,7 +125,7 @@ jtframe_z80_romwait #(.RECOVERY(0)) u_sub(
     .iorq_n     (               ),
     .rd_n       (               ),
     .wr_n       ( rnw           ),
-    .rfsh_n     (               ),
+    .rfsh_n     ( rfsh_n        ),
     .halt_n     (               ),
     .busak_n    ( busak_n       ),
     .A          ( A             ),

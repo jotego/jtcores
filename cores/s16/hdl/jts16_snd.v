@@ -51,7 +51,7 @@ module jts16_snd(
 `ifndef NOSOUND
 wire [15:0] A;
 reg         fm_cs, latch_cs, ram_cs;
-wire        mreq_n, iorq_n, int_n, nmi_n;
+wire        mreq_n, rfsh_n, iorq_n, int_n, nmi_n;
 wire        WRn;
 reg  [ 7:0] din, pcm_cmd;
 reg         rom_ok2;
@@ -66,15 +66,15 @@ assign ack      = latch_cs;
 assign cmd_cs   = !iorq_n && A[7:6]==2 && !wr_n; // 80
 
 always @(*) begin
-    latch_cs = (!mreq_n &&  A[15:12]==4'he && A[11]) // e800
+    latch_cs = (!mreq_n && rfsh_n && A[15:12]==4'he && A[11]) // e800
              || (!iorq_n &&  A[7:6]==3);
 
     fm_cs    = !iorq_n && A[7:6]==0;
 end
 
 always @(posedge clk) begin
-    ram_cs   <=  !mreq_n && &A[15:11];
-    rom_cs   <=  !mreq_n && !A[15];
+    ram_cs   <=  !mreq_n && rfsh_n && &A[15:11];
+    rom_cs   <=  !mreq_n && rfsh_n && !A[15];
     rom_ok2  <= rom_ok;
     if( cmd_cs ) pcm_cmd <= dout;
 
@@ -110,7 +110,7 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

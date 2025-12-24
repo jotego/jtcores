@@ -43,7 +43,7 @@ wire [ 7:0] ram_dout, dout;
 wire        irq_ack, int_n;
 wire        psg1_cen, psg2_cen;
 reg         ram_cs;
-wire        mreq_n, iorq_n, m1_n;
+wire        mreq_n, rfsh_n, iorq_n, m1_n;
 wire [15:0] A;
 reg  [ 3:0] rc_en;
 wire        rdy1, rdy2;
@@ -92,7 +92,7 @@ always @* begin
     rcen_cs    = 0;
     cnt_cs     = 0;
     latch_cs   = 0;
-    if( !mreq_n ) begin
+    if( !mreq_n && rfsh_n ) begin
         case(A[15:13])
             0,1: rom_cs    = 1;
             2: ram_cs      = 1; // 4000
@@ -168,7 +168,7 @@ jtframe_sysz80 #(.RAM_AW(10)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       (             ),
     .wr_n       (             ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

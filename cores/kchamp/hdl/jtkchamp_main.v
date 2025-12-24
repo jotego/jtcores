@@ -53,13 +53,13 @@ module jtkchamp_main(
     input              rom_ok
 );
 
-wire        m1_n, mreq_n, iorq_n, rd_n, wr_n,
+wire        m1_n, mreq_n, rfsh_n, iorq_n, rd_n, wr_n,
             bus_cen, nmi_n;
 reg         nmi_on, bus_bsyn, iord_cs, iowr_cs;
 reg  [ 7:0] cpu_din, cab_dout, dec, ctrl_1p, ctrl_2p;
 wire [15:0] A;
 wire [ 7:0] ram_dout;
-reg         ram_cs, snd_rst_rq;
+reg         macc_n, ram_cs, snd_rst_rq;
 
 assign bus_addr = A;
 assign bus_cen  = bus_bsyn & cen_3;
@@ -68,20 +68,21 @@ assign cpu_rnw  = wr_n;
 // The address decoder is a bit different for
 // the encrypted version
 always @* begin
+    macc_n  = mreq_n | ~rfsh_n;
     iord_cs = !iorq_n && !rd_n;
     iowr_cs = !iorq_n && !wr_n;
     if(enc) begin // kchampvs
-        rom_cs  = !mreq_n && A[15:13]!=6;
-        ram_cs  = !mreq_n && A[15:12]==4'hc;
-        vram_cs = !mreq_n && A[15:11]==5'b1101_0; // c0
-        oram_cs = !mreq_n && A[15:11]==5'b1101_1; // c8
+        rom_cs  = !macc_n && A[15:13]!=6;
+        ram_cs  = !macc_n && A[15:12]==4'hc;
+        vram_cs = !macc_n && A[15:11]==5'b1101_0; // c0
+        oram_cs = !macc_n && A[15:11]==5'b1101_1; // c8
         snd_req = iowr_cs && A[7:6]==1;
         snd_rst_rq = 0;
     end else begin // kchamp
-        rom_cs  = !mreq_n && A[15:13]<6;
-        ram_cs  = !mreq_n && A[15:12]==4'hc;
-        vram_cs = !mreq_n && A[15:11]==5'b1110_0; // e0
-        oram_cs = !mreq_n && A[15:11]==5'b1110_1; // e8, should it be ea?
+        rom_cs  = !macc_n && A[15:13]<6;
+        ram_cs  = !macc_n && A[15:12]==4'hc;
+        vram_cs = !macc_n && A[15:11]==5'b1110_0; // e0
+        oram_cs = !macc_n && A[15:11]==5'b1110_1; // e8, should it be ea?
         snd_req = iowr_cs && A[7:3]==5'b1010_1; // a8
         snd_rst_rq = iord_cs && A[7:3]==5'b1010_1; // a8
     end
@@ -179,7 +180,7 @@ jtframe_sysz80 #(.RAM_AW(12)) u_cpu(
     .iorq_n     ( iorq_n    ),
     .rd_n       ( rd_n      ),
     .wr_n       ( wr_n      ),
-    .rfsh_n     (           ),
+    .rfsh_n     ( rfsh_n    ),
     .halt_n     (           ),
     .busak_n    (           ),
     .A          ( A         ),

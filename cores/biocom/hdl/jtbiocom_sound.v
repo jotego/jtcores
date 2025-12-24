@@ -67,7 +67,7 @@ always @(posedge clk) begin
     fm_cs    <= 1'b0;
     mcu_cs   <= 1'b0;
     rom2_ok  <= rom_ok;
-    if(!mreq_n) begin
+    if(!mreq_n && rfsh_n) begin
         if( LAYOUT==9 ) begin // Stret Fighter
              casez( A[15:13] )
                 3'b0??: begin

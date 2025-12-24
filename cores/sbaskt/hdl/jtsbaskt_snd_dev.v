@@ -30,6 +30,7 @@ module jtsbaskt_snd_dev #(
     input       [ 7:0]  din,
     output      [ 7:0]  ram_dout,
     output              mreq_n,
+    output              rfsh_n,
     // Misc
     input               ram_cs,
     input               cnt_cs,
@@ -178,7 +179,7 @@ jtframe_sysz80 #(.RAM_AW(RAM_AW)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       (             ),
     .wr_n       (             ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

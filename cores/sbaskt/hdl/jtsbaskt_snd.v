@@ -55,7 +55,7 @@ localparam CNTW=11;
 reg  [ 7:0] din;
 wire [ 7:0] ram_dout, latch;
 reg         ram_cs;
-wire        mreq_n;
+wire        mreq_n, rfsh_n;
 wire [15:0] A;
 reg  [ 2:0] cap_en;
 reg         vlm_rst, vlm_st, vlm_sel;
@@ -91,7 +91,7 @@ always @* begin
     rdac_cs     = 0;
     psgdata_cs  = 0;
     psg_cs      = 0;
-    if( !mreq_n ) begin
+    if( !mreq_n && rfsh_n ) begin
         case(A[15:13])
             0,1: rom_cs    = 1;
             2: ram_cs      = 1; // 4000
@@ -128,6 +128,7 @@ jtsbaskt_snd_dev #( .RAM_AW(RAM_AW),.CNTW(CNTW)) u_dev(
     .din        ( din       ),
     .ram_dout   ( ram_dout  ),
     .mreq_n     ( mreq_n    ),
+    .rfsh_n     ( rfsh_n    ),
     // Misc
     .ram_cs     ( ram_cs    ),
     .psg_cs     ( psg_cs    ),
