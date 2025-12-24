@@ -119,7 +119,7 @@ assign vram_cs = 0;
 assign pal_cs  = 0;
 assign black_n = 1;
 `endif
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtbubl_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -158,12 +158,13 @@ jtbubl_video u_video(
     // Test
     .gfx_en         ( gfx_en        )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 `ifndef NOSOUND
 jtbubl_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ), // 24 MHz
     .rstn       ( snd_rstn_eff  ),
+    .cen6       ( cen6          ),
     .cen3       ( cen3          ),
 
     .tokio      ( tokio         ),

@@ -25,6 +25,7 @@
  
  // Z80(NMOS)
 
+/* verilator tracing_off */
 module z80cpu
 	(
 	input MCLK,

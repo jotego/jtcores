@@ -20,7 +20,7 @@ i8 = i1 = clk
 
 Outputs:
 
-12 SCI (Combinatorial, Output feedback output, Active low)
+12 SC1 (Combinatorial, Output feedback output, Active low)
 13 (Combinatorial, Output feedback output, Active low)
 14 (Registered, Output feedback registered, Active low)
 15 (Registered, Output feedback registered, Active low)
@@ -31,7 +31,7 @@ Outputs:
 
 
 // combinational outputs
-/o12 = SCI input of MCU
+/o12 = SC1 input of MCU, pin 39
 /o13 = low if MCU drives the memory
 /o18 = mux select. if low main CPU drives the memory
                   if high MCU drives the memory

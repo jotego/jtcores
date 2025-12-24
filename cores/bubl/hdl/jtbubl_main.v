@@ -136,6 +136,12 @@ always @(posedge clk) begin
     if(cen12) clk6 <= ~clk6;
 end
 
+`ifdef SIMULATION
+reg [15:0] Apure;
+
+always @(posedge clk) if(!main_macc_n) Apure = main_addr;
+`endif
+
 // Watchdog and main CPU reset
 always @(posedge clk) begin
     if( rst ) begin
@@ -254,9 +260,9 @@ always @(*) begin
     sub_macc_n =  sub_mreq_n | ~sub_rfsh_n;
     sub_rom_cs = !sub_macc_n && !sub_addr[15];
     if(tokio)
-        sub_work_cs    = !sub_macc_n && sub_addr[15:13]==3'b100;
+        sub_work_cs = !sub_macc_n && sub_addr[15:13]==3'b100;
     else // Bubble Bobble
-        sub_work_cs    = !sub_macc_n && sub_addr[15:13]==3'b111;
+        sub_work_cs = !sub_macc_n && sub_addr[15:13]==3'b111;
 end
 
 // Sub CPU input mux
@@ -265,20 +271,28 @@ always @(posedge clk) begin
                sub_work_cs ? work2sub_dout : 8'hff );
 end
 
+wire work_swe = ~sub_wrn  & sde;
+wire work_lwe = ~main_wrn & lde;
+
 // Time shared
 jtframe_dual_ram #(.AW(13)) u_work(
     .clk0   ( clk             ),
     .data0  ( main_dout       ),
     .addr0  ( main_addr[12:0] ),
-    .we0    ( ~main_wrn & lde ),
+    .we0    ( work_lwe        ),
     .q0     ( work2main_dout  ),
     // Sub CPU
     .clk1   ( clk             ),
     .data1  ( sub_dout        ),
     .addr1  ( sub_addr[12:0]  ),
-    .we1    ( ~sub_wrn & sub_work_cs       ),
+    .we1    ( work_swe        ),
     .q1     ( work2sub_dout   )
 );
+
+`ifdef SIMULATION
+    always @(posedge work_lwe) $display("MAIN %X <- %X",main_addr[12:0],main_dout);
+    always @(posedge work_swe) $display("SUB  %X <- %X",sub_addr[12:0],sub_dout);
+`endif
 
 /////////////////////////////////////////
 // Main CPU
@@ -294,21 +308,19 @@ always @(posedge clk, posedge rst) begin
     else if(cen6) h1<=~h1;
 end
 
-always @(posedge clk, negedge main_rst_n) begin
-    if( !main_rst_n )
+always @(posedge clk) begin
+    if( !main_work_cs) begin
         lde <= 0;
-    else begin
-        lde <= main_work_cs;
+    end else if(!sde) begin
+        lde <= 1;
     end
 end
 
-always @(posedge clk, negedge sub_rst_n) begin
-    if( !sub_rst_n )
+always @(posedge clk) begin
+    if( !sub_work_cs) begin
         sde <= 0;
-    else begin
-        if( !sub_work_cs )
-            sde <= 0;
-        else if( !main_work_cs ) sde <= 1;
+    end else if( !main_work_cs ) begin
+        sde <= 1;
     end
 end
 
@@ -338,7 +350,7 @@ jtframe_z80 u_maincpu(
 /////////////////////////////////////////
 // Sub CPU
 
-wire sub_wait_n = ~((main_work_cs & ~sde) & sub_work_cs);
+wire sub_wait_n = ~( ~sde & sub_work_cs);
 
 jtframe_z80 u_subcpu(
     .rst_n    ( sub_rst_n      ),
@@ -390,7 +402,7 @@ jtframe_ff u_mcu2main (
     .sigedge( tokio ? VBL_gated : p1_out[6] )
 );
 
-// Time shared
+// Time shared - IC16
 jtframe_dual_ram #(.AW(10)) u_comm(
     .clk0   ( clk              ),
     .clk1   ( clk              ),
@@ -435,17 +447,16 @@ always @(posedge clk) begin
 end
 
 reg [5:0] clrcnt;
-reg       last_sub_int_n;
-reg       mcuirq;
+reg       sub_intn_l, mcuirq;
 
 always @(posedge clk) begin
     if( mcu_rst ) begin
-        clrcnt <= 0;
-        last_sub_int_n <= 1;
-        mcuirq <= 0;
+        clrcnt     <= 0;
+        mcuirq     <= 0;
+        sub_intn_l <= 1;
     end else if(cen_mcu) begin
-        last_sub_int_n <= sub_int_n;
-        if( last_sub_int_n && !sub_int_n ) begin
+        sub_intn_l <= sub_int_n;
+        if( sub_intn_l && !sub_int_n ) begin
             clrcnt <= 0;
             mcuirq <= 1;
         end else if(mcuirq) begin

@@ -1,7 +1,7 @@
 params:
   - { name: SUB_OFFSET, value: "24'h2_8000 >> 1" }
 clocks:
-  clk48:
+  clk:
     - freq: 12000000
       outputs:
         - cen12

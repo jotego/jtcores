@@ -20,7 +20,7 @@ module jtbubl_sound(
     input             rst,    // System reset
     input             rstn,   // from Main
     input             clk,
-    input             cen3,   //  3   MHz
+    input             cen6, cen3,
 
     input             tokio,
     // Interface with main CPU
@@ -136,10 +136,14 @@ jtframe_ff u_flag(
     .sigedge( snd_stb  )
 );
 
+reg clk3=0;
+
+always @(posedge clk) if(cen6) clk3 <= ~clk3;
+
 jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(0)) u_cpu(
     .rst_n      ( snd_rstn    ),
     .clk        ( clk         ),
-    .cen        ( cen3        ),
+    .cen        ( clk3        ),
     .cpu_cen    (             ),
     .int_n      ( int_n       ),
     .nmi_n      ( nmi_n       ),
