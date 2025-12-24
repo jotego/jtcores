@@ -131,7 +131,7 @@ func (cmp *Comparator)searchDiff(sim_st *SimState, mame_st *MAMEState,
         mame_st.data = parseTrace(cmp.trace.Text())
     }
 
-    var good, retried bool
+    var good bool
     tvcd := cmp.vcd.time
     var div_time uint64
     main_loop:
@@ -145,13 +145,11 @@ func (cmp *Comparator)searchDiff(sim_st *SimState, mame_st *MAMEState,
             if !vcdok { break }
         }
         if diff( mame_st, "", false, ignore )!=0 {
-            if cmp.retry_step && !retried {
-                retried = true
+            if cmp.retry_step {
                 var traceok bool
                 mame_st.data, traceok = cmp.nxTraceChange(mame_st)
                 if !traceok { break }
                 if diff( mame_st, "", false, ignore )==0 {
-                    fmt.Println("retried")
                     continue
                 }
             }

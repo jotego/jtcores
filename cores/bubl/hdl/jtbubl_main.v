@@ -91,7 +91,7 @@ reg         h1;
 wire [11:0] mcu_bus;
 wire [15:0] main_addr, sub_addr;
 wire        main_mreq_n, main_iorq_n, main_rdn, main_wrn, main_rfsh_n;
-wire        sub_mreq_n,  sub_iorq_n,  sub_rd_n,  sub_wrn, sub_halt_n;
+wire        sub_mreq_n,  sub_iorq_n,  sub_rd_n,  sub_wrn, sub_halt_n, sub_rfsh_n;
 wire        mcu_stn, mcu_irqn;
 reg         rammcu_we, rammcu_cs;
 reg         main_work_cs, mcram_cs, // shared memories
@@ -146,6 +146,17 @@ always @(posedge clk, posedge rst) begin
         main_rst_n <= ~wdog_cnt[7];
     end
 end
+
+`ifdef SIMULATION
+reg [15:0] Apure, Bpure;
+
+wire main_macc_n = main_mreq_n || !main_rfsh_n;
+wire sub_macc_n  = sub_mreq_n  || !sub_rfsh_n;
+
+always @(posedge clk) if(!main_macc_n) Apure = main_addr;
+always @(posedge clk) if(!sub_macc_n)  Bpure = sub_addr;
+`endif
+
 
 // Main CPU address decoder
 always @(*) begin
@@ -266,20 +277,29 @@ always @(*) begin
     work_addr= lde ? main_addr[12:0] : sub_addr[12:0];
 end
 */
+
+wire work_lwe = ~main_wrn & lde;
+wire work_swe = ~sub_wrn & sub_work_cs;
+
 // Time shared
 jtframe_dual_ram #(.AW(13)) u_work(
     .clk0   ( clk             ),
     .data0  ( main_dout       ),
     .addr0  ( main_addr[12:0] ),
-    .we0    ( ~main_wrn & lde ),
+    .we0    ( work_lwe        ),
     .q0     ( work2main_dout  ),
     // Sub CPU
     .clk1   ( clk             ),
     .data1  ( sub_dout        ),
     .addr1  ( sub_addr[12:0]  ),
-    .we1    ( ~sub_wrn & sub_work_cs       ),
+    .we1    ( work_swe        ),
     .q1     ( work2sub_dout   )
 );
+
+// `ifdef SIMULATION
+//     always @(posedge work_lwe) $display("MAIN %X <- %X",main_addr[12:0],main_dout);
+//     always @(posedge work_swe) $display("SUB  %X <- %X",sub_addr[12:0],sub_dout);
+// `endif
 
 /////////////////////////////////////////
 // Main CPU
@@ -366,7 +386,7 @@ jtframe_z80 u_subcpu(
     .iorq_n   ( sub_iorq_n     ),
     .rd_n     ( sub_rd_n       ),
     .wr_n     ( sub_wrn        ),
-    .rfsh_n   (                ),
+    .rfsh_n   ( sub_rfsh_n     ),
     .halt_n   ( sub_halt_n     ),
     .busak_n  (                ),
     .A        ( sub_addr       ),

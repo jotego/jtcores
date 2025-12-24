@@ -118,6 +118,12 @@ always @* begin
     if(buf_cs) ram_cs = 1;
 end
 
+reg [7:0] dipsw_mx;
+
+always @* begin
+    dipsw_mx = A[1] ? dipsw[15:8] : dipsw[7:0];
+end
+
 always @* begin
     IPLn = 7;
     if( int16ms ) IPLn[1] = 0;
@@ -139,7 +145,7 @@ always @(posedge clk) begin
                 pal_cs   ? pal_dout        :
                 tlv_cs   ? tlv_dout        :
                 snd_cs   ? {8'd0,snd_rply} :
-                dips_cs  ? dipsw           :
+                dips_cs  ? {8'hff,dipsw_mx}:
                 cab_cs   ? {8'd0,cab_dout} : 16'h0;
 end
 
