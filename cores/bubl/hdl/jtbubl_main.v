@@ -102,7 +102,7 @@ wire        mcram_we, sub_int_n, main_int_n;
 reg  [ 2:0] bank;
 reg         main_rst_n, sub_rst_n, mcu_rst;
 reg  [ 7:0] wdog_cnt, int_vector;
-reg         last_VBL;
+reg         VBL_l;
 
 wire [ 7:0] work2main_dout, work2sub_dout;
 wire        sub_m1_n, main_m1_n;
@@ -148,10 +148,10 @@ always @(posedge clk) begin
         main_rst_n <= 0;
         wdog_cnt   <= 8'd0;
     end else begin
-        last_VBL  <= VBL_gated;
+        VBL_l <= VBL_gated;
         if( tres_cs )
             wdog_cnt <= 8'd0;
-        else if( !VBL_gated && last_VBL ) wdog_cnt <= wdog_cnt + 8'd1;
+        else if( !VBL_gated && VBL_l ) wdog_cnt <= wdog_cnt + 8'd1;
         main_rst_n <= ~wdog_cnt[7];
     end
 end
@@ -289,10 +289,10 @@ jtframe_dual_ram #(.AW(13)) u_work(
     .q1     ( work2sub_dout   )
 );
 
-`ifdef SIMULATION
-    always @(posedge work_lwe) $display("MAIN %X <- %X",main_addr[12:0],main_dout);
-    always @(posedge work_swe) $display("SUB  %X <- %X",sub_addr[12:0],sub_dout);
-`endif
+// `ifdef SIMULATION
+//     always @(posedge work_lwe) $display("MAIN %X <- %X",main_addr[12:0],main_dout);
+//     always @(posedge work_swe) $display("SUB  %X <- %X",sub_addr[12:0],sub_dout);
+// `endif
 
 /////////////////////////////////////////
 // Main CPU
@@ -428,7 +428,7 @@ always @(posedge clk) begin
             2'd1: p3_in <= dipsw_b;
             2'd2: p3_in <= {1'b1, cab_1p[0], joystick1[5:0] };
             2'd3: p3_in <= {1'b1, cab_1p[1], joystick2[5:0] };
-        endcase // mcu_bus[1:0]
+        endcase
     end
 end
 
@@ -490,7 +490,6 @@ always @(posedge clk) begin
                 rammcu_we <= 0;
             end
         end else begin
-            //rammcu_cs <= 0;
             rammcu_we <= 0;
         end
     end
