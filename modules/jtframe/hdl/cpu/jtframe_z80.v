@@ -417,27 +417,55 @@ module jtframe_z80 (
     `endif
     `endif
 
-    T80s u_cpu(
-        .RESET_n    ( rst_n       ),
-        .CLK        ( clk         ),
-        .CEN        ( cen         ),
-        .WAIT_n     ( wait_n      ),
-        .INT_n      ( int_n_pin   ),
-        .NMI_n      ( nmi_n       ),
-        .RD_n       ( rd_n        ),
-        .WR_n       ( wr_n        ),
-        .A          ( A           ),
-        .DI         ( din         ),
-        .DOUT       ( dout        ),
-        .IORQ_n     ( iorq_n      ),
-        .M1_n       ( m1_n        ),
-        .MREQ_n     ( mreq_n      ),
-        .BUSRQ_n    ( busrq_n     ),
-        .BUSAK_n    ( busak_n     ),
-        .RFSH_n     ( rfsh_n      ),
-        .OUT0       ( 1'b0        ),
-        .HALT_n     ( halt_n      )
+
+    z80cpu u_maincpu(
+        .MCLK       ( clk       ),
+        .CLK        ( cen       ),
+        .ADDRESS    ( A         ),
+        .ADDRESS_z  (           ),
+        .DATA_i     ( din       ),
+        .DATA_o     ( dout      ),
+        .DATA_z     (           ),
+        .M1         ( m1_n      ),
+        .MREQ       ( mreq_n    ),
+        .MREQ_z     (           ),
+        .IORQ       ( iorq_n    ),
+        .IORQ_z     (           ),
+        .RD         ( rd_n      ),
+        .RD_z       (           ),
+        .WR         ( wr_n      ),
+        .WR_z       (           ),
+        .RFSH       ( rfsh_n    ),
+        .HALT       ( halt_n    ),
+        .WAIT       ( wait_n    ),
+        .INT        ( int_n     ),
+        .NMI        ( nmi_n     ),
+        .RESET      ( rst_n     ),
+        .BUSRQ      ( busrq_n   ),
+        .BUSAK      ( busak_n   )
     );
+
+    // T80s u_cpu(
+    //     .RESET_n    ( rst_n       ),
+    //     .CLK        ( clk         ),
+    //     .CEN        ( cen         ),
+    //     .WAIT_n     ( wait_n      ),
+    //     .INT_n      ( int_n_pin   ),
+    //     .NMI_n      ( nmi_n       ),
+    //     .RD_n       ( rd_n        ),
+    //     .WR_n       ( wr_n        ),
+    //     .A          ( A           ),
+    //     .DI         ( din         ),
+    //     .DOUT       ( dout        ),
+    //     .IORQ_n     ( iorq_n      ),
+    //     .M1_n       ( m1_n        ),
+    //     .MREQ_n     ( mreq_n      ),
+    //     .BUSRQ_n    ( busrq_n     ),
+    //     .BUSAK_n    ( busak_n     ),
+    //     .RFSH_n     ( rfsh_n      ),
+    //     .OUT0       ( 1'b0        ),
+    //     .HALT_n     ( halt_n      )
+    // );
 
     /* verilator tracing_on */
 

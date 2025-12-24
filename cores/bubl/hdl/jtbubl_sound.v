@@ -34,7 +34,6 @@ module jtbubl_sound(
     output     [14:0] rom_addr,
     output reg        rom_cs,
     input      [ 7:0] rom_data,
-    input             rom_ok,
 
     // Sound output
     output signed [15:0] fm03, fm26,

@@ -19,7 +19,7 @@
 module jtbubl_main(
     input               rst,
     input               clk,
-    input               cen6,
+    input               cen12, cen6,
     input               cen3,
     input               cen4,
 
@@ -55,13 +55,11 @@ module jtbubl_main(
     // Main CPU ROM interface
     output     [17:0]   main_rom_addr,
     output reg          main_rom_cs,
-    input               main_rom_ok,
     input      [ 7:0]   main_rom_data,
 
     // Sub CPU ROM interface
     output     [14:0]   sub_rom_addr,
     output reg          sub_rom_cs,
-    input               sub_rom_ok,
     input      [ 7:0]   sub_rom_data,
 
     // MCU ROM interface
@@ -92,8 +90,8 @@ wire [11:0] mcu_bus;
 wire [15:0] main_addr, sub_addr;
 wire        main_mreq_n, main_iorq_n, main_rdn, main_wrn, main_rfsh_n;
 wire        sub_mreq_n,  sub_iorq_n,  sub_rd_n,  sub_wrn, sub_halt_n;
-wire        mcu_stn, mcu_irqn;
-reg         rammcu_we, rammcu_cs;
+wire        sub_rfsh_n, mcu_stn, mcu_irqn;
+reg         rammcu_we, rammcu_cs, main_macc_n, sub_macc_n;
 reg         main_work_cs, mcram_cs, // shared memories
             tres_cs,  // watchdog reset
             main2sub_nmi, mcu_cs,
@@ -114,8 +112,9 @@ wire        main_halt_n;
 reg         lde, sde; // original signal names: lde = main drives, sde = sub drives
 wire        VBL_gated;
 wire        sub_int_ack, main_int_ack;
+reg         clk6=0;
 
-assign      sub_int_ack = ~sub_iorq_n & ~sub_m1_n;
+assign      sub_int_ack  = ~sub_iorq_n  & ~sub_m1_n;
 assign      main_int_ack = ~main_iorq_n & ~main_m1_n;
 
 
@@ -133,8 +132,12 @@ assign      p1_in[3:2]   = ~coin;
 assign      p1_in[1:0]   = { service, tilt };
 assign      mcu_bus      = { p2_out[3:0], p4_out };
 
+always @(posedge clk) begin
+    if(cen12) clk6 <= ~clk6;
+end
+
 // Watchdog and main CPU reset
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         main_rst_n <= 0;
         wdog_cnt   <= 8'd0;
@@ -149,26 +152,27 @@ end
 
 // Main CPU address decoder
 always @(*) begin
-    main_rom_cs    = !main_mreq_n && (!main_addr[15] || main_addr[15:14]==2'b10); // 0000-7FFF and 8000-BFFF
-    vram_cs        = !main_mreq_n && main_addr[15:13]==3'b110; // C000-DCFF
-    main_work_cs   = !main_mreq_n && main_addr[15:13]==3'b111 && main_addr[12:11]!=2'b11; //E000-F7FF
-    pal_cs         = !main_mreq_n && main_addr[15: 9]==7'b1111_100; // F800-F9FF
+    main_macc_n     =  main_mreq_n | ~main_rfsh_n;
+    main_rom_cs     = !main_macc_n && (!main_addr[15] || main_addr[15:14]==2'b10); // 0000-7FFF and 8000-BFFF
+    vram_cs         = !main_macc_n && main_addr[15:13]==3'b110; // C000-DCFF
+    main_work_cs    = !main_macc_n && main_addr[15:13]==3'b111 && main_addr[12:11]!=2'b11; //E000-F7FF
+    pal_cs          = !main_macc_n && main_addr[15: 9]==7'b1111_100; // F800-F9FF
     if( tokio ) begin
-        sound_cs    = !main_mreq_n && main_addr[15: 8]==8'hFC && !main_addr[7];
-        misc_cs     = !main_mreq_n && main_addr[15: 8]==8'hFA &&  main_addr[7] && !main_wrn;
-        flip_cs     = !main_mreq_n && main_addr[15: 8]==8'hFB && !main_addr[7] && !main_wrn;
-        main2sub_nmi= !main_mreq_n && main_addr[15: 8]==8'hFB &&  main_addr[7] && !main_wrn;
-        tres_cs     = !main_mreq_n && main_addr[15: 8]==8'hFA && !main_addr[7]; // watchdog
-        mcu_cs      = !main_mreq_n && main_addr[15: 9]==7'b1111_111; // FE
+        sound_cs    = !main_macc_n && main_addr[15: 8]==8'hFC && !main_addr[7];
+        misc_cs     = !main_macc_n && main_addr[15: 8]==8'hFA &&  main_addr[7] && !main_wrn;
+        flip_cs     = !main_macc_n && main_addr[15: 8]==8'hFB && !main_addr[7] && !main_wrn;
+        main2sub_nmi= !main_macc_n && main_addr[15: 8]==8'hFB &&  main_addr[7] && !main_wrn;
+        tres_cs     = !main_macc_n && main_addr[15: 8]==8'hFA && !main_addr[7]; // watchdog
+        mcu_cs      = !main_macc_n && main_addr[15: 9]==7'b1111_111; // FE
         mcram_cs    = 0;
-        cabinet_cs  = !main_mreq_n && main_addr[15: 7]==9'b1111_1010_0 && main_wrn;
+        cabinet_cs  = !main_macc_n && main_addr[15: 7]==9'b1111_1010_0 && main_wrn;
     end else begin // Bubble Bobble
-        sound_cs    = !main_mreq_n && main_addr[15: 8]==8'hFA && !main_addr[7];
-        misc_cs     = !main_mreq_n && main_addr[15: 8]==8'hFB && main_addr[7:6]==2'b01 && !main_wrn;
+        sound_cs    = !main_macc_n && main_addr[15: 8]==8'hFA && !main_addr[7];
+        misc_cs     = !main_macc_n && main_addr[15: 8]==8'hFB && main_addr[7:6]==2'b01 && !main_wrn;
         flip_cs     = 0; // misc_cs used instead
-        main2sub_nmi= !main_mreq_n && main_addr[15: 8]==8'hFB && main_addr[7:6]==2'b00 && !main_wrn;
-        tres_cs     = !main_mreq_n && main_addr[15: 8]==8'hFA && main_addr[7];
-        mcram_cs    = !main_mreq_n && main_addr[15:10]==6'b1111_11; // FC
+        main2sub_nmi= !main_macc_n && main_addr[15: 8]==8'hFB && main_addr[7:6]==2'b00 && !main_wrn;
+        tres_cs     = !main_macc_n && main_addr[15: 8]==8'hFA && main_addr[7];
+        mcram_cs    = !main_macc_n && main_addr[15:10]==6'b1111_11; // FC
         mcu_cs      = 0;
         cabinet_cs  = 0;
     end
@@ -247,11 +251,12 @@ jtframe_ff u_flag(
 
 // Sub CPU address decoder
 always @(*) begin
-    sub_rom_cs     = !sub_mreq_n && !sub_addr[15];
+    sub_macc_n =  sub_mreq_n | ~sub_rfsh_n;
+    sub_rom_cs = !sub_macc_n && !sub_addr[15];
     if(tokio)
-        sub_work_cs    = !sub_mreq_n &&  sub_addr[15:13]==3'b100;
+        sub_work_cs    = !sub_macc_n && sub_addr[15:13]==3'b100;
     else // Bubble Bobble
-        sub_work_cs    = !sub_mreq_n &&  sub_addr[15:13]==3'b111;
+        sub_work_cs    = !sub_macc_n && sub_addr[15:13]==3'b111;
 end
 
 // Sub CPU input mux
@@ -259,13 +264,7 @@ always @(posedge clk) begin
     sub_din <= sub_rom_cs  ? sub_rom_data : (
                sub_work_cs ? work2sub_dout : 8'hff );
 end
-/*
-always @(*) begin
-    work_din = lde ? main_dout : sub_dout;
-    work_we  = lde ? ~main_wrn : ~sub_wrn;
-    work_addr= lde ? main_addr[12:0] : sub_addr[12:0];
-end
-*/
+
 // Time shared
 jtframe_dual_ram #(.AW(13)) u_work(
     .clk0   ( clk             ),
@@ -313,11 +312,13 @@ always @(posedge clk, negedge sub_rst_n) begin
     end
 end
 
+wire main_wait_n = ~|{ vram_cs & h1, sde & main_work_cs };
+
 jtframe_z80 u_maincpu(
     .rst_n    ( main_rst_n     ),
     .clk      ( clk            ),
-    .cen      ( cen_main       ),
-    .wait_n   ( 1'b1           ),
+    .cen      ( clk6           ),
+    .wait_n   ( main_wait_n    ),
     .int_n    ( main_int_n     ),
     .nmi_n    ( 1'b1           ),
     .busrq_n  ( 1'b1           ),
@@ -334,30 +335,16 @@ jtframe_z80 u_maincpu(
     .dout     ( main_dout      )
 );
 
-jtframe_z80wait #(.DEVCNT(2),.RECOVERY(0)) u_mainwait(
-    .rst_n    ( main_rst_n      ),
-    .clk      ( clk             ),
-    .cen_in   ( cen6            ),
-    .cen_out  ( cen_main        ),
-    .gate     (                 ),
-    // cycle recovery
-    .mreq_n   ( main_mreq_n     ),
-    .iorq_n   ( main_iorq_n     ),
-    .busak_n  ( 1'b1            ),
-    .dev_busy ( { vram_cs & h1, sde & main_work_cs }    ),
-    // SDRAM gating managed in mem.yaml
-    .rom_cs   ( 1'b0            ),
-    .rom_ok   ( 1'b1            )
-);
-
 /////////////////////////////////////////
 // Sub CPU
+
+wire sub_wait_n = ~((main_work_cs & ~sde) & sub_work_cs);
 
 jtframe_z80 u_subcpu(
     .rst_n    ( sub_rst_n      ),
     .clk      ( clk            ),
-    .cen      ( cen_sub        ),
-    .wait_n   ( 1'b1           ),
+    .cen      ( clk6           ),
+    .wait_n   ( sub_wait_n     ),
     .int_n    ( sub_int_n      ),
     .nmi_n    ( ~main2sub_nmi  ),
     .busrq_n  ( 1'b1           ),
@@ -366,28 +353,12 @@ jtframe_z80 u_subcpu(
     .iorq_n   ( sub_iorq_n     ),
     .rd_n     ( sub_rd_n       ),
     .wr_n     ( sub_wrn        ),
-    .rfsh_n   (                ),
+    .rfsh_n   ( sub_rfsh_n     ),
     .halt_n   ( sub_halt_n     ),
     .busak_n  (                ),
     .A        ( sub_addr       ),
     .din      ( sub_din        ),
     .dout     ( sub_dout       )
-);
-
-jtframe_z80wait #(.DEVCNT(1),.RECOVERY(0)) u_subwait(
-    .rst_n    ( sub_rst_n       ),
-    .clk      ( clk             ),
-    .cen_in   ( cen6            ),
-    .cen_out  ( cen_sub         ),
-    .gate     (                 ),
-    // cycle recovery
-    .mreq_n   ( sub_mreq_n      ),
-    .iorq_n   ( sub_iorq_n      ),
-    .busak_n  ( 1'b1            ),
-    .dev_busy ( (main_work_cs & ~sde) & sub_work_cs ),
-    // SDRAM gating managed in mem.yaml
-    .rom_cs   ( 1'b0            ),
-    .rom_ok   ( 1'b1            )
 );
 
 jtframe_ff u_subint(
