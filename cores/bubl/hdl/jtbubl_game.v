@@ -53,7 +53,7 @@ always @(posedge clk) begin
         default: debug_mux <= 0;
     endcase
 end
-
+/* verilator tracing_off */
 `ifndef NOMAIN
 jtbubl_main u_main(
     .rst            ( rst           ),
@@ -120,7 +120,7 @@ assign vram_cs = 0;
 assign pal_cs  = 0;
 assign black_n = 1;
 `endif
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtbubl_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -159,7 +159,7 @@ jtbubl_video u_video(
     // Test
     .gfx_en         ( gfx_en        )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 `ifndef NOSOUND
 jtbubl_sound u_sound(
     .rst        ( rst           ),
