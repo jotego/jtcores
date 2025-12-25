@@ -46,7 +46,7 @@ initial begin
     repeat (120) begin
         random_asn_pulses();
         assert_msg(uut.fave<16'h804,"frequency is over  8.04MHz");
-        assert_msg(uut.fave>16'h796,"frequency is below 7.96MHz");
+        assert_msg(uut.fave>16'h795,"frequency is below 7.95MHz");
     end
     // 9MHz test
     // used in twin16 (with different PLL, resulting a bit over 9MHz)

@@ -80,11 +80,11 @@ localparam CW=W+WD;
 
 reg [CW-1:0] cencnt=0, missing;
 reg  [1:0]   waitsh;
-wire         halt, delayed;
+wire         halt, delayed, nx_dtackn;
 wire [W-1:0] num2 = { num, 1'b0 }; // num x 2
 wire over = cencnt>den-num2;
 reg  [CW:0] cencnt_nx=0;
-reg         risefall=0, wait1;
+reg         risefall=0, wait1, rec_ok;
 
 `ifdef SIMULATION
     // This is needed to prevent X's at the start of simulation
@@ -95,14 +95,16 @@ reg         risefall=0, wait1;
     wire rstl=0;
 `endif
 
-assign delayed = !rstl && !ASn && {waitsh,wait1}==0 && (bus_cs && bus_busy && !bus_legit);
-assign halt    = delayed && RECOVERY==1;
+assign delayed   = !rstl && !ASn && {waitsh,wait1}==0 && (bus_cs && bus_busy && !bus_legit);
+assign halt      = delayed && RECOVERY==1;
+assign nx_dtackn = DTACKn && bus_cs && bus_busy;
 
 always @(posedge clk) begin : dtack_gen
     if( rst ) begin
         DTACKn <= 1;
         waitsh <= 0;
         wait1  <= 0;
+        rec_ok <= 1;
     end else begin
         if( ASn | &DSn ) begin // DSn is needed for read-modify-write cycles
                // performed on the SDRAM. Just checking the DSn rising edge
@@ -110,11 +112,13 @@ always @(posedge clk) begin : dtack_gen
             DTACKn <= 1;
             wait1  <= 1; // gives a clock cycle to bus_busy to toggle
             waitsh <= {wait3,wait2};
+            rec_ok <= 1;
         end else if( !ASn && (cpu_cen || WAIT1==0) ) begin
             wait1 <= 0;
             if( cpu_cen ) waitsh <= waitsh>>1;
             if( waitsh==0 && !wait1 ) begin
-                DTACKn <= DTACKn && bus_cs && bus_busy;
+                DTACKn <= nx_dtackn;
+                rec_ok <=~nx_dtackn;
             end
         end
     end
@@ -125,7 +129,7 @@ always @* begin
 end
 
 reg over_l;
-wire recover = ASn && missing>0 && !over && !bus_ack;
+wire recover = rec_ok && missing>0 && !over && !bus_ack;
 
 always @(posedge clk) begin
     over_l <= over;
