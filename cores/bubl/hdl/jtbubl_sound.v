@@ -46,13 +46,12 @@ wire        [15:0] A;
 wire               iorq_n, m1_n, wr_n, rd_n;
 wire        [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
 reg                ram_cs, fm1_cs, fm0_cs, io_cs, nmi_en, macc_n;
-wire               mreq_n, rfsh_n;
+wire               mreq_n, rfsh_n, nmi_n;
 reg         [ 7:0] din;
 wire        [ 9:0] pre_psg;
 wire               intn_fm0, intn_fm1;
 wire               int_n;
 wire               flag_clr;
-wire               nmi_n, rfsh_n;
 wire               snd_rstn = ~rst & rstn;
 
 assign int_n      = intn_fm0 & intn_fm1;
