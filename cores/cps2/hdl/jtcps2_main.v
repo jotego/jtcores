@@ -354,18 +354,6 @@ end
 
 wire asn_eff = ASn || (main2qs_cs && qs_busakn_s);
 
-// CPU speed should be set with 200/600=1/3 of 48MHz = 16MHz
-// But the clock recovery logic cannot handle well all the SDRAM
-// latency in this core. Targeting a slightly larger frequency
-// with 205/600 => 16.4MHz, results in an effective frequency very close
-// to 16MHz. See https://github.com/jotego/jtcores/issues/1295
-`ifndef JTFRAME_RELEASE
-reg [8:0] adj;
-always @(posedge clk) begin
-    adj <= 9'd205 + {2'd0,debug_bus[6:0]};
-end
-`endif
-
 jtframe_68kdtack_cen #(.W(10),.MFREQ(48000)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -377,12 +365,8 @@ jtframe_68kdtack_cen #(.W(10),.MFREQ(48000)) u_dtack(
     .bus_ack    ( busack    ),
     .ASn        ( asn_eff   ),
     .DSn        ( {UDSn, LDSn} ),
-`ifndef JTFRAME_RELEASE
-    .num        ( adj       ),
-`else
-    .num        ( 9'd205    ),
-`endif
-    .den        (10'd600    ),
+    .num        ( 9'd1      ),
+    .den        (10'd3      ),
     .DTACKn     ( DTACKn    ),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
