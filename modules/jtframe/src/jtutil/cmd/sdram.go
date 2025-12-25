@@ -236,6 +236,12 @@ func dump( name string, rom []byte, p0, p1, lim, fill int) (int,error) {
 	if verbose {
 		fmt.Printf("%10s p0=%08X p1=%08X lim=%08X fill=%08X\n",name,p0,p1,lim,fill)
 	}
+	if p0 >= len(rom) {
+		if verbose {
+			fmt.Printf("%s seems unused. Skipping it\n",name)
+		}
+		return 0, nil
+	}
 	if p1<=0 { p1 = lim	}
 	if verbose { fmt.Printf("%s %X -> %X\n",name,p0,p1) }
 	if p1<p0 { return 0,fmt.Errorf("start offset was beyond end offset") }
