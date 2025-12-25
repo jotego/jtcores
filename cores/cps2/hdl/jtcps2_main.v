@@ -104,7 +104,7 @@ wire        cen16, cen16b;
 reg  [15:0] in0, in1, in2;
 reg         in0_cs, in1_cs, in2_cs, vol_cs, out_cs, obank_cs;
 
-wire [15:0] rom_dec;
+wire [15:0] rom_dec, fave;
 
 wire        dec_en;
 wire        BRn, BGACKn, BGn;
@@ -142,10 +142,12 @@ assign oram_cs  = ~BUSn & (dsn_dly ? reg_oram_cs : pre_oram_cs);
 assign ppu_rstn = 1'b1;
 
 always @(posedge clk) begin
-    case( debug_bus[1:0] )
-        2: st_dout <= spin1p[7:0];
-        3: st_dout <= {4'd0, spin1p[11:8] };
-        default: st_dout <= { 2'd0, dir2p, dir1p, 2'd0, dipsw[0], paddle_en };
+    case( debug_bus[7] )
+        0: st_dout <= fave[15:8];
+        1: st_dout <= fave[7:0];
+        // 2: st_dout <= spin1p[7:0];
+        // 3: st_dout <= {4'd0, spin1p[11:8] };
+        // default: st_dout <= { 2'd0, dir2p, dir1p, 2'd0, dipsw[0], paddle_en };
     endcase
 end
 
@@ -234,7 +236,7 @@ always @(posedge clk, posedge rst) begin
                 eeprom_sdi  <= cpu_dout[12];
                 eeprom_sclk <= cpu_dout[13];
                 eeprom_scs  <= cpu_dout[14];
-                if( joymode==ECOFGT ) paddle_en <= cpu_dout[8]^debug_bus[0];
+                if( joymode==ECOFGT ) paddle_en <= cpu_dout[8];
             end
             if( !LDSWn && joymode==PUZZL2 ) begin
                 paddle_en <= ~cpu_dout[1];
@@ -352,7 +354,21 @@ end
 
 wire asn_eff = ASn || (main2qs_cs && qs_busakn_s);
 
-jtframe_68kdtack_cen #(.MFREQ(48000)) u_dtack(
+// CPU speed should be set with 200/600=1/3 of 48MHz = 16MHz
+// But the clock recovery logic cannot handle well all the SDRAM
+// latency in this core. Targeting a slightly larger frequency
+// with 205/600 => 16.4MHz, results in an effective frequency very close
+// to 16MHz. See https://github.com/jotego/jtcores/issues/1295
+reg [8:0] adj;
+`ifndef JTFRAME_RELEASE
+always @(posedge clk) begin
+    adj <= 9'd205 + {2'd0,debug_bus[6:0]};
+end
+`else
+initial adj=9'd205;
+`endif
+
+jtframe_68kdtack_cen #(.W(10),.MFREQ(48000)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cen16     ),
@@ -363,13 +379,13 @@ jtframe_68kdtack_cen #(.MFREQ(48000)) u_dtack(
     .bus_ack    ( busack    ),
     .ASn        ( asn_eff   ),
     .DSn        ( {UDSn, LDSn} ),
-    .num        ( 4'd1      ),
-    .den        ( 5'd3      ),
+    .num        ( adj       ),
+    .den        (10'd600    ),
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b1      ),
+    .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
     // unused
-    .fave       (           ),
+    .fave       ( fave      ),
     .fworst     (           )
 );
 

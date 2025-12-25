@@ -85,7 +85,7 @@ assign snd_peak = 0;
 
 assign ba1_din=0, ba2_din=0, ba3_din=0,
        ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
-/* verilator tracing_off */
+
 // CPU clock enable signals come from 48MHz domain
 jtframe_cen48 u_cen48(
     .clk        ( clk48         ),
@@ -234,7 +234,7 @@ always @(negedge clk) begin
 end
 
 assign dip_flip = video_flip;
-
+/* verilator tracing_off */
 jtcps1_video #(REGSIZE) u_video(
     .rst            ( rst_video     ),
     .clk            ( clk_gfx       ),
