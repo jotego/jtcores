@@ -91,9 +91,6 @@ wire [7:0]  z80_dout;
 wire        z80_rd_n;
 
 z80_cs u_z80cs(
-  .z80_mreq_n ( z80_mreq_n  ),
-  .z80_rfsh_n ( z80_rfsh_n  ),
-
   .z80_addr(z80_addr),
   .z80_wr_n(z80_wr_n),
   .z80_rd_n(z80_rd_n),
@@ -124,7 +121,7 @@ wire       decrypt_rom_ok;
 reg        decrypt_rom_cs_seibu;
 
 wire       z80_m1_n;   //m1 low => opcode
-wire       z80_mreq_n, z80_rfsh_n;
+wire       z80_mreq_n;
 wire       z80_wait_n;
 
 sei80bu u_sei80bu(
@@ -215,7 +212,7 @@ jtframe_z80 u_z80(
     .iorq_n(z80_iorq_n),
     .rd_n(z80_rd_n), 
     .wr_n(z80_wr_n),
-    .rfsh_n(z80_rfsh_n),
+    .rfsh_n(),
     .halt_n(), 
     .busak_n(),
 
