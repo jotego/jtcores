@@ -350,27 +350,26 @@ always @(posedge clk, posedge rst) begin
         qs_busakn_s <= main2qs_busakn;
 end
 
-wire asn_eff = ASn || (main2qs_cs && qs_busakn_s);
+reg fail_cnt_ok;
 
-jtframe_68kdtack_cen #(.MFREQ(48000)) u_dtack(
+jtcps2_dtack u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cpu_cen    ( cen16     ),
-    .cpu_cenb   ( cen16b    ),
+    .cen16      ( cen16     ),
+    .cen16b     ( cen16b    ),
+
+    .ASn        ( ASn       ),
+    .UDSn       ( UDSn      ),
+    .LDSn       ( LDSn      ),
+    .one_wait   ( one_wait  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
-    .bus_ack    ( busack    ),
-    .ASn        ( asn_eff   ),
-    .DSn        ( {UDSn, LDSn} ),
-    .num        ( 4'd1      ),
-    .den        ( 5'd3      ),
-    .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b1      ),
-    .wait3      ( 1'b0      ),
-    // unused
-    .fave       (           ),
-    .fworst     (           )
+    .busack     ( busack    ),
+
+    .main2qs_cs ( main2qs_cs  ),
+    .qs_busakn_s( qs_busakn_s ),
+
+    .DTACKn     ( DTACKn    )
 );
 
 jtcps2_decrypt u_decrypt(
