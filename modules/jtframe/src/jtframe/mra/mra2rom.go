@@ -35,13 +35,13 @@ import (
 )
 
 // save2disk = false is uselful to update the md5 calculation only
-func mra2rom(root *XMLNode, save2disk bool, zippath string) {
-	e := save_rom(root, save2disk, zippath )
-	if e!=nil { fmt.Println(e) }
+func Mra2rom(root *XMLNode, save2disk bool, zippath string) (e error) {
+	e = save_rom(root, save2disk, zippath )
 	if save2disk {
 		save_coremod(root)
 		make_dip_file(root)
 	}
+	return e
 }
 
 func save_coremod(root *XMLNode) {
@@ -88,7 +88,7 @@ func save_rom(root *XMLNode, save2disk bool, zippath string) error {
 			}
 		}
 	}
-	if len(zf)==0 { return fmt.Errorf("%-10s cannot find %s",setname.GetText(), zipe.Error()) }
+	if len(zf)==0 { return fmt.Errorf("%-10s cannot find %s in path %s",setname.GetText(), zipe.Error(),zippath) }
 	if Verbose {
 		fmt.Println("**** Creating .rom file for", setname.GetText())
 	}
@@ -191,8 +191,9 @@ func parts2rom(zf []*zip.ReadCloser, n *XMLNode, rb *[]byte) (fail error) {
 }
 
 func readrom(allzips []*zip.ReadCloser, n *XMLNode) (rdin []byte, fail error) {
+	valid_crc := n.GetAttr("crc")!=""
 	crc, err := strconv.ParseUint(strings.ToLower(n.GetAttr("crc")), 16, 32)
-	if err != nil {
+	if err != nil && valid_crc {
 		fmt.Println(err)
 	}
 	crc = crc & 0xffffffff
@@ -200,6 +201,7 @@ func readrom(allzips []*zip.ReadCloser, n *XMLNode) (rdin []byte, fail error) {
 lookup:
 	// try to find the file using CRC
 	for _, each := range allzips {
+		if !valid_crc { break }
 		for _, file := range each.File {
 			if file.CRC32 == uint32(crc) {
 				f = file
