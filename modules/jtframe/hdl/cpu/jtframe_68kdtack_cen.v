@@ -167,7 +167,11 @@ end
 
 // Frequency reporting
 wire [3:0] nc1, nc2;
-wire       eff_cen = cpu_cen && !delayed;
+reg        eff_cen;
+
+always @(posedge clk) begin
+    eff_cen <= cpu_cen && (!delayed || bus_ack);
+end
 
 jtframe_freqinfo #(.DIGITS(5),.MFREQ(MFREQ)) u_freq(
     .rst    ( rst               ),
