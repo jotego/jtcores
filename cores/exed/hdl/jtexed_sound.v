@@ -39,7 +39,7 @@ module jtexed_sound(
 );
 
 `ifndef NOSOUND
-wire        mreq_n, rd_n, wr_n;
+wire        mreq_n, rfsh_n, rd_n, wr_n;
 reg         ay1_cs, ay0_cs, latch_cs, ram_cs, psg2_wr, psg1_wr, sndint_l;
 reg         reset_n=0, ay_rstn=0;
 reg  [ 7:0] AH, din;
@@ -77,7 +77,7 @@ always @(*) begin
     psg1_wr  = 0;
     psg2_wr  = 0;
     ay0_cs   = 0;
-    if( !mreq_n ) casez(A[15:13])
+    if( !mreq_n && rfsh_n ) casez(A[15:13])
         3'b00?: rom_cs   = 1'b1;
         3'b010: ram_cs   = 1'b1;
         3'b011: latch_cs = 1'b1;
@@ -113,7 +113,7 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

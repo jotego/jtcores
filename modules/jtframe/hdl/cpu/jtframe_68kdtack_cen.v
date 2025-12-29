@@ -62,6 +62,7 @@ module jtframe_68kdtack_cen
     input         bus_cs,
     input         bus_busy,
     input         bus_legit,
+    input         bus_ack, // do not recover cycles if another CPU has the bus
     input         ASn,  // DTACKn set low at the next cpu_cen after ASn goes low
     input [1:0]   DSn,  // If DSn goes high, DTACKn is reset high
     input [W-2:0] num,  // numerator
@@ -77,11 +78,11 @@ module jtframe_68kdtack_cen
 
 localparam CW=W+WD;
 
-reg [CW-1:0] cencnt=0, missing;
+reg [CW-1:0] cencnt=0;
 reg  [1:0]   waitsh;
-wire         halt, delayed;
 wire [W-1:0] num2 = { num, 1'b0 }; // num x 2
-wire over = cencnt>den-num2;
+wire         recover, delayed;
+wire         over = cencnt>den-num2;
 reg  [CW:0] cencnt_nx=0;
 reg         risefall=0, wait1;
 
@@ -93,9 +94,6 @@ reg         risefall=0, wait1;
     // Not needed in synthesis
     wire rstl=0;
 `endif
-
-assign delayed = !rstl && !ASn && {waitsh,wait1}==0 && (bus_cs && bus_busy && !bus_legit);
-assign halt    = delayed && RECOVERY==1;
 
 always @(posedge clk) begin : dtack_gen
     if( rst ) begin
@@ -123,31 +121,33 @@ always @* begin
     cencnt_nx = over ? {1'b0,cencnt}+num2-den : { 1'b0, cencnt}+num2;
 end
 
-reg over_l;
-wire recover = ASn && missing>0 && !over;
+generate if (RECOVERY==1) begin
+    reg [CW-1:0] missing;
+    assign recover =  ASn && missing>0 && !over && !bus_ack;
+    assign delayed = !ASn && !rstl && {waitsh,wait1}==0 && (bus_cs && bus_busy && !bus_legit);
 
-always @(posedge clk) begin
-    over_l <= over;
-end
-
-always @(posedge clk) begin
-    if( rst ) begin
-        missing <= 0;
-    end else begin
-        if( delayed && (cpu_cen|cpu_cenb) ) begin
-            missing <= missing + 1;
-        end
-        if( recover ) begin
-            missing <= missing - 1;
+    always @(posedge clk) begin
+        if( rst ) begin
+            missing <= 0;
+        end else begin
+            if( delayed && (cpu_cen|cpu_cenb) ) begin
+                missing <= missing + 1'b1;
+            end
+            if( recover ) begin
+                missing <= missing - 1'b1;
+            end
         end
     end
-end
+end else begin
+    assign recover=0;
+    assign delayed=0;
+end endgenerate
 
 always @(posedge clk) begin
     cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
     if( rst ) cencnt <= 0;
     if( over || rst || recover) begin
-        cpu_cen  <= risefall;
+        cpu_cen  <=  risefall;
         cpu_cenb <= ~risefall;
         risefall <= ~risefall;
     end else begin

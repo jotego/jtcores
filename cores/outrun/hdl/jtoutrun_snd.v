@@ -53,7 +53,7 @@ module jtoutrun_snd(
 
 wire [15:0] A;
 reg         fm_cs, mapper_cs, ram_cs, pcm_ce;
-wire        mreq_n, iorq_n, int_n;
+wire        mreq_n, rfsh_n, iorq_n, int_n;
 reg  [ 7:0] cpu_din, pcmgain, fmgain;
 wire [ 7:0] cpu_dout, fm_dout, ram_dout, pcm_dout;
 wire        nmi_n, wr_n, rd_n, m1_n;
@@ -72,9 +72,9 @@ assign pcm_addr   =
     { pcm_pre[18:16], 1'b0, pcm_pre[14:0] } : pcm_pre;
 
 always @(*) begin
-    ram_cs = !mreq_n && &A[15:11]; // 0xf8~
-    rom_cs = !mreq_n &&  A[15:12]!=4'hf;
-    pcm_ce = !mreq_n &&  A[15:11]==5'b11110;
+    ram_cs = !mreq_n && rfsh_n && &A[15:11]; // 0xf8~
+    rom_cs = !mreq_n && rfsh_n &&  A[15:12]!=4'hf;
+    pcm_ce = !mreq_n && rfsh_n &&  A[15:11]==5'b11110;
 
     // Port Map
     fm_cs     = !iorq_n && m1_n && A[7:6]==0;
@@ -103,7 +103,7 @@ jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(1)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

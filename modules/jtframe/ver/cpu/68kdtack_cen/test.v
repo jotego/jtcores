@@ -102,6 +102,7 @@ jtframe_68kdtack_cen #(.RECOVERY(1),.MFREQ(48000))uut(
     .bus_cs     ( bus_busy  ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
+    .bus_ack    ( 1'b0      ),
     .ASn        ( asn       ),  // DTACKn set low at the next cpu_cen after ASn goes low
     .DSn        ( {2{asn}}  ),  // If DSn goes high, DTACKn is reset high
     .num        ( num       ),  // numerator

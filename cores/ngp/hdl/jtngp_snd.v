@@ -50,7 +50,7 @@ wire [ 1:0] ram_bwe;
 reg  [ 7:0] cpu_din;
 wire [ 7:0] ram_lsb, ram_msb, cpu_dout;
 reg         ram_cs, psg_cs, latch_cs, intset_cs;
-wire        wr_n, m1_n, mreq_n, iorq_n, rdy;
+wire        wr_n, m1_n, mreq_n, rfsh_n, iorq_n, rdy;
 
 always @(posedge clk) begin
     case( debug_bus[1:0] )
@@ -69,10 +69,10 @@ assign snd_l = { 1'b0, snd_dacl, 7'd0 } + { snd_psg[11], snd_psg, 3'd0 };
 assign snd_r = { 1'b0, snd_dacr, 7'd0 } + { snd_psg[11], snd_psg, 3'd0 };
 
 always @* begin
-    ram_cs    = !mreq_n && cpu_addr[15:14]==0;
-    psg_cs    = !mreq_n && cpu_addr[15:14]==1;
-    latch_cs  = !mreq_n && cpu_addr[15:14]==2; // part of main's IO map
-    intset_cs = !mreq_n && cpu_addr[15:14]==3;
+    ram_cs    = !mreq_n && rfsh_n && cpu_addr[15:14]==0;
+    psg_cs    = !mreq_n && rfsh_n && cpu_addr[15:14]==1;
+    latch_cs  = !mreq_n && rfsh_n && cpu_addr[15:14]==2; // part of main's IO map
+    intset_cs = !mreq_n && rfsh_n && cpu_addr[15:14]==3;
 end
 
 always @(posedge clk) begin
@@ -137,7 +137,7 @@ jtframe_z80 #(.CLR_INT(1)) u_cpu(
     .iorq_n     ( iorq_n    ),
     .rd_n       (           ),
     .wr_n       ( wr_n      ),
-    .rfsh_n     (           ),
+    .rfsh_n     ( rfsh_n    ),
     .halt_n     (           ),
     .busak_n    (           ),
     .wait_n     ( 1'b1      ),

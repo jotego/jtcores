@@ -5989,6 +5989,10 @@
 		(uuid "e6175ef0-0c3f-411f-8af7-ba03e0d62746")
 	)
 	(no_connect
+		(at 227.33 177.8)
+		(uuid "43c47f81-d924-4ebc-93da-ef4bf3e10ae3")
+	)
+	(no_connect
 		(at 303.53 146.05)
 		(uuid "44ab33b2-7b82-4b99-9620-4f24506b77fd")
 	)
@@ -6015,6 +6019,24 @@
 	(no_connect
 		(at 337.82 143.51)
 		(uuid "fb3d83ad-7c4c-4845-a943-a037d13e13eb")
+	)
+	(bus_entry
+		(at 313.69 119.38)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0b26810f-e5d2-4020-bad7-a17e97b64109")
+	)
+	(bus_entry
+		(at 313.69 116.84)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "13316e07-8a97-48d5-9378-6e860b0bcd87")
 	)
 	(bus_entry
 		(at 265.43 111.76)
@@ -6195,6 +6217,15 @@
 			(type default)
 		)
 		(uuid "97e6c265-1229-44bd-80b4-ecb8d658913d")
+	)
+	(bus_entry
+		(at 313.69 121.92)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a704f8c4-9a82-48b1-aab2-4de226a719af")
 	)
 	(bus_entry
 		(at 265.43 143.51)
@@ -6916,6 +6947,16 @@
 			(type default)
 		)
 		(uuid "4922da38-9bec-4c12-847b-32aa2739b905")
+	)
+	(bus
+		(pts
+			(xy 316.23 119.38) (xy 316.23 121.92)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4ae12c72-2d8e-4524-8972-4ca4c75c59f8")
 	)
 	(wire
 		(pts
@@ -8197,6 +8238,16 @@
 		)
 		(uuid "eee5747f-858d-477d-a6f1-b59149ea96d6")
 	)
+	(bus
+		(pts
+			(xy 316.23 121.92) (xy 316.23 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eeeb7783-f61e-42db-8c49-23463361a28d")
+	)
 	(wire
 		(pts
 			(xy 135.89 110.49) (xy 146.05 110.49)
@@ -8256,6 +8307,16 @@
 			(type default)
 		)
 		(uuid "f5a7d648-5824-4ded-bd19-25a349cec270")
+	)
+	(bus
+		(pts
+			(xy 316.23 119.38) (xy 320.04 119.38)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f83bdba4-ca0d-4950-a31d-b120ad47e20b")
 	)
 	(wire
 		(pts
@@ -8768,6 +8829,16 @@
 		)
 		(uuid "2f287506-6ee0-4d72-93a3-31bf5d1b3588")
 	)
+	(label "MBRIT2"
+		(at 307.34 121.92 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3057e3c6-afb5-4e14-b7ba-348583c20a6f")
+	)
 	(label "MAIN_D3"
 		(at 262.89 187.96 180)
 		(effects
@@ -8928,6 +8999,16 @@
 		)
 		(uuid "6870d62a-4601-4acc-ae02-2d8fca4a279a")
 	)
+	(label "MBRIT0"
+		(at 307.34 116.84 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6a19a6ea-0702-407a-b722-700bc37b7928")
+	)
 	(label "MAIN_D6"
 		(at 262.89 236.22 180)
 		(effects
@@ -8937,6 +9018,16 @@
 			(justify right bottom)
 		)
 		(uuid "6edf2eac-4975-4465-843b-ead8a05c0191")
+	)
+	(label "MBRIT1"
+		(at 307.34 119.38 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7373109f-514b-40f0-94d2-52d27eb02899")
 	)
 	(label "MAIN_D11"
 		(at 254 93.98 0)
@@ -9481,17 +9572,6 @@
 		)
 		(uuid "1243993f-6db6-4157-9451-294b7deedb2e")
 	)
-	(hierarchical_label "ZBANK"
-		(shape output)
-		(at 313.69 116.84 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "15fce956-2272-4b15-b869-b92c041c4d7e")
-	)
 	(hierarchical_label "SERVICE1"
 		(shape input)
 		(at 135.89 82.55 180)
@@ -9590,17 +9670,6 @@
 			(justify left)
 		)
 		(uuid "603a4f77-a44e-4849-9aed-ffafdac42879")
-	)
-	(hierarchical_label "OBANK"
-		(shape output)
-		(at 313.69 119.38 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "6e4c1ca9-b2bc-4c1c-b494-27ffdac175a5")
 	)
 	(hierarchical_label "IOCS"
 		(shape input)
@@ -9756,17 +9825,6 @@
 		)
 		(uuid "ae64bf0c-18c1-4cb1-8193-c1e3e8b6056d")
 	)
-	(hierarchical_label "ZRMCK"
-		(shape output)
-		(at 313.69 121.92 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "b33ae5ff-5d39-440d-b352-222273a36625")
-	)
 	(hierarchical_label "1P_BTN_1"
 		(shape input)
 		(at 135.89 148.59 180)
@@ -9876,6 +9934,17 @@
 			(justify right)
 		)
 		(uuid "e6ed71f2-5588-4788-8ac4-98c998ecb45f")
+	)
+	(hierarchical_label "MBRIT[2..0]"
+		(shape output)
+		(at 320.04 119.38 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "f235cc19-431e-441f-b176-88663dde48d6")
 	)
 	(hierarchical_label "WD_OUT1"
 		(shape input)

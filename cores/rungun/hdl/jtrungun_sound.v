@@ -44,16 +44,19 @@ module jtrungun_sound(
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
 );
+
+parameter PRMR=0;
+
 wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, ctl,
                     k39a_dout, k39b_dout, latch_dout, sta_dout, stb_dout;
 wire        [ 3:0]  rom_hi;
 wire        [ 3:0]  bank;
 wire        [15:0]  A;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
-                    cpu_cen, latch_we, tima, timb,
+                    cpu_cen, latch_we, tima,
                     latch_intn, int_n, nmi_clr;
 reg                 ram_cs, k21_cs, k39a_cs, k39b_cs, mem_acc,
-                    bank_cs, wreq;
+                    bank_cs;
 
 assign rom_hi   = A[15] ? bank : {3'd0, A[14]};
 assign rom_addr = {rom_hi[2:0], A[13:0]};
@@ -69,7 +72,6 @@ assign cpu_din  = rom_cs  ? rom_data   :
 
 always @(*) begin
     mem_acc =!mreq_n  && rfsh_n;
-    wreq    =!m1_n    &&(!A[15] || !A[14]);
     rom_cs  = mem_acc &&(!A[15] || !A[14]);
     ram_cs  = mem_acc &&  A[15:13]==3'b110;     // Cxxx
     k39a_cs = mem_acc &&  A[15:10]==6'b1110_00; // E0xx
@@ -107,13 +109,16 @@ jt054321 u_54321(
     .int_n      ( int_n     )
 );
 `ifndef NOSOUND
-jtframe_sysz80 #(.RAM_AW(13), .CLR_INT(1)) u_cpu(
+
+wire eff_nmin = PRMR==1 ? tima : nmi_n;
+
+jtframe_sysz80 #(.RAM_AW(13)) u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen_8     ),  // wait states ignored
     .cpu_cen    ( cpu_cen   ),
     .int_n      ( int_n     ),
-    .nmi_n      ( nmi_n     ),
+    .nmi_n      ( eff_nmin  ),
     .busrq_n    ( 1'b1      ),
     .m1_n       ( m1_n      ),
     .mreq_n     ( mreq_n    ),
@@ -133,13 +138,17 @@ jtframe_sysz80 #(.RAM_AW(13), .CLR_INT(1)) u_cpu(
     .rom_ok     ( rom_ok    )
 );
 
+wire [8:0] ma;
+
+assign ma = PRMR==1 ? A[8:0] : {A[9],A[7:0]};
+
 jt539 u_k54539a(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_pcm   ),
     .timeout    ( tima      ),
     // CPU interface
-    .addr       ({A[9],A[7:0]}),
+    .addr       ( ma        ),
     .we         ( ~wr_n     ),
     .rd         ( ~rd_n     ),
     .cs         ( k39a_cs   ),
@@ -157,29 +166,35 @@ jt539 u_k54539a(
     .st_dout    ( sta_dout  )
 );
 
-jt539 u_k54539b(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen        ( cen_pcm   ),
-    .timeout    ( timb      ),
-    // CPU interface
-    .addr       ({A[9],A[7:0]}),
-    .we         ( ~wr_n     ),
-    .rd         ( ~rd_n     ),
-    .cs         ( k39b_cs   ),
-    .din        ( cpu_dout  ),
-    .dout       ( k39b_dout ),
-    // ROM
-    .rom_cs     ( pcmb_cs   ),
-    .rom_addr   ( pcmb_addr ),
-    .rom_data   ( pcmb_data ),
-    // Sound output
-    .left       ( k539b_l   ),
-    .right      ( k539b_r   ),
-    // debug
-    .debug_bus  ( debug_bus ),
-    .st_dout    ( stb_dout  )
-);
+generate if(PRMR==0)
+    jt539 u_k54539b(
+        .rst        ( rst       ),
+        .clk        ( clk       ),
+        .cen        ( cen_pcm   ),
+        .timeout    (           ),
+        // CPU interface
+        .addr       ({A[9],A[7:0]}),
+        .we         ( ~wr_n     ),
+        .rd         ( ~rd_n     ),
+        .cs         ( k39b_cs   ),
+        .din        ( cpu_dout  ),
+        .dout       ( k39b_dout ),
+        // ROM
+        .rom_cs     ( pcmb_cs   ),
+        .rom_addr   ( pcmb_addr ),
+        .rom_data   ( pcmb_data ),
+        // Sound output
+        .left       ( k539b_l   ),
+        .right      ( k539b_r   ),
+        // debug
+        .debug_bus  ( debug_bus ),
+        .st_dout    ( stb_dout  )
+    );
+else // 2nd jt539 not present in prmrsocr
+    assign k539b_l=0, k539b_r=0, k39b_dout=0,
+           pcmb_cs=0, pcmb_addr=0;
+endgenerate
+
 `else
 assign k539a_l=0, k539a_r=0, k539b_l=0, k539b_r=0,
        m1_n=1, mreq_n=1, rfsh_n=1, wr_n=1, A=0, cpu_dout=0, iorq_n=1, tima=0,

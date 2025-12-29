@@ -57,7 +57,7 @@ reg ram_cs, latch_cs, oki_cs, fm_cs;
 wire oki_wrn = oki_cs & ~wr_n;
 assign rom_addr = A[14:0];
 
-wire mreq_n;
+wire mreq_n, rfsh_n;
 
 always @(*) begin
     ram_cs   = 1'b0;
@@ -65,7 +65,7 @@ always @(*) begin
     fm_cs    = 1'b0;
     oki_cs   = 1'b0;
     rom_cs   = 1'b0;
-    if(!mreq_n) begin
+    if(!mreq_n && rfsh_n) begin
         if(A[15]) begin
             case(A[14:11])
                 4'b0000: ram_cs   = 1'b1; // 8000-87ff
@@ -115,7 +115,7 @@ jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(0)) u_cpu(
     .iorq_n     (               ),
     .rd_n       (               ),
     .wr_n       ( wr_n          ),
-    .rfsh_n     (               ),
+    .rfsh_n     ( rfsh_n        ),
     .halt_n     (               ),
     .busak_n    (               ),
     .A          ( A             ),

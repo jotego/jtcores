@@ -51,7 +51,7 @@ module jts18_sound(
 );
 `ifndef NOSOUND
 
-wire        io_wrn, rd_n, wr_n, int_n, mreq_n, iorq_n, m1_n, nmi_n;
+wire        io_wrn, rd_n, wr_n, int_n, mreq_n, rfsh_n, iorq_n, m1_n, nmi_n;
 wire [15:0] A;
 wire [ 7:0] dout, ram_dout, din, pcmctl_dout, fm0_dout, fm1_dout;
 reg  [ 7:0] bank, dmux;
@@ -78,10 +78,10 @@ wire underA = A[15:12]<4'ha;
 wire underC = A[15:12]<4'hc;
 
 always @(*) begin
-    ram_cs  = !mreq_n && &A[15:13];
-    bank_cs = !mreq_n && (!underA && underC);
-    pcm_cs  = !mreq_n && (!underC && A[15:12]<4'he);
-    rom_cs  = !mreq_n &&   underC;
+    ram_cs  = !mreq_n && rfsh_n && &A[15:13];
+    bank_cs = !mreq_n && rfsh_n && (!underA && underC);
+    pcm_cs  = !mreq_n && rfsh_n && (!underC && A[15:12]<4'he);
+    rom_cs  = !mreq_n && rfsh_n &&   underC;
 
     // Port Map
     { fm0_cs, fm1_cs, bkreg_cs, mapper_cs } = 0;
@@ -193,7 +193,7 @@ jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(1)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

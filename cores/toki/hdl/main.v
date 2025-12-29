@@ -209,6 +209,7 @@ jtframe_68kdtack_cen  u_dtack(
     .bus_cs     (bus_cs),
     .bus_busy   (bus_busy),
     .bus_legit  (1'b0),
+    .bus_ack    ( 1'b0      ),
     .ASn        (cpu_as_n),
     .DSn        ({cpu_uds_n, cpu_lds_n}), 
     .num        (cen_num),

@@ -387,7 +387,7 @@ void tmnt2_state::k053244_word_noA1_w(offs_t offset, uint16_t data, uint16_t mem
 
 void prmrsocr_state::prmrsocr_sound_irq_w(uint16_t data)
 {
-	m_audiocpu->set_input_line_and_vector(0, HOLD_LINE, 0xff); // Z80
+	m_audiocpu->set_input_line(0, HOLD_LINE); // Z80
 }
 
 void prmrsocr_state::prmrsocr_audio_bankswitch_w(uint8_t data)

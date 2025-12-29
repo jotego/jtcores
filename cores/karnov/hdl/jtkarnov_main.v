@@ -225,6 +225,7 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( bus_legit ),
+    .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ( dsn       ),
     .num        ( 7'd5      ),  // numerator

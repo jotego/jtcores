@@ -1,0 +1,6 @@
+trace off
+focus 1
+trace snd.trace,audiocpu,noloop,{tracelog "PC=%4X,AF=%4X,BC=%4X,DE=%4X,HL=%4X,IX=%4X,IY=%4X,SP=%4X,* ",pc,af,bc,de,hl,ix,iy,sp}
+
+gtime 1000
+traceflush

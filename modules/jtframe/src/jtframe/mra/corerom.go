@@ -84,9 +84,11 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 		// Do not skip empty regions, in case they have a minimum length to fill
 		// Proceed with the ROM listing
 		if delta := fill_upto(&pos, reg_cfg.start, p); delta < 0 {
-			if len(reg_roms)!=0 { fmt.Printf(
-				"\tstart offset overcome by 0x%X while parsing region %s in %s\n",
-				-delta, reg, machine.Name)
+			if len(reg_roms)!=0 {
+				fixed_start := reg_cfg.start-delta
+				fmt.Printf(
+				"%-10s (%s) start offset overcome by 0x%X. Try using 0x%X\n",
+				machine.Name, reg, -delta,fixed_start)
 			}
 		}
 		sdram_bank_comment(p, pos, macros.CopyToMap())

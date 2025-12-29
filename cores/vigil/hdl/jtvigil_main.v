@@ -69,7 +69,7 @@ reg         rst_n, ram_cs, dip1_cs, dip2_cs,
             out2_cs, bank_cs,
             scr1pos_cs, scr2pos_cs, scr2col_cs;
 reg         flipr;
-wire        rd_n, wr_n, mreq_n, iorq_n;
+wire        rd_n, wr_n, mreq_n, rfsh_n, iorq_n;
 wire        int_n;
 
 assign main_rnw = wr_n;
@@ -80,11 +80,11 @@ always @(posedge clk) rst_n <= ~rst;
 
 always @* begin
     // Memory mapped
-    rom_cs  = !mreq_n && ( !A[15] || A[15:14]==2'b10 ); // 16kB Banks x 8 = 128
-    ram_cs  = !mreq_n && A[15:12]==4'he;
-    scr_cs  = !mreq_n && A[15:12]==4'hd;
-    pal_cs  = !mreq_n && A[15:11]==5'b11001; // C8
-    obj_cs  = !mreq_n && A[15:11]==5'b11000 && !wr_n; // C0
+    rom_cs  = !mreq_n && rfsh_n && ( !A[15] || A[15:14]==2'b10 ); // 16kB Banks x 8 = 128
+    ram_cs  = !mreq_n && rfsh_n && A[15:12]==4'he;
+    scr_cs  = !mreq_n && rfsh_n && A[15:12]==4'hd;
+    pal_cs  = !mreq_n && rfsh_n && A[15:11]==5'b11001; // C8
+    obj_cs  = !mreq_n && rfsh_n && A[15:11]==5'b11000 && !wr_n; // C0
     // IO mapped
     in0_cs  = !iorq_n && !rd_n && A[2:0]==0;
     in1_cs  = !iorq_n && !rd_n && A[2:0]==1;
@@ -166,7 +166,7 @@ jtframe_sysz80 #(
     .iorq_n     ( iorq_n    ),
     .rd_n       ( rd_n      ),
     .wr_n       ( wr_n      ),
-    .rfsh_n     (           ),
+    .rfsh_n     ( rfsh_n    ),
     .halt_n     (           ),
     .busak_n    (           ),
     .A          ( A         ),

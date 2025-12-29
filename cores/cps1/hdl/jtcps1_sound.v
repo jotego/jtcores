@@ -55,7 +55,7 @@ wire        [15:0] A;
 reg                fm_cs, latch0_cs, latch1_cs, ram_cs, oki_cs, oki7_cs, bank_cs,
                    oki7, bank, latch_cs, dev_cs, mem_cs, rom_ok2;
 wire               cen_fm, cen_fm2, cen_oki, nc, cpu_cen, io_cs,
-                   peak_l, peak_r, pcm_en, fm_en, iorq_n, m1_n,
+                   peak_l, peak_r, pcm_en, fm_en, iorq_n, m1_n, rfsh_n,
                    mreq_n, int_n, WRn, oki_wrn, rd_n, wr_n, RAM_we;
 
 assign RAM_we   = ram_cs && !WRn;
@@ -64,7 +64,7 @@ assign adpcm_cs = 1'b1;
 assign oki_wrn  = ~(oki_cs & ~WRn);
 assign pcm_en   = 1; //~debug_bus[0];
 assign fm_en    = 1; //~debug_bus[1];
-assign io_cs    = !mreq_n && A[15:12] == 4'b1111;
+assign io_cs    = !mreq_n && rfsh_n && A[15:12] == 4'b1111;
 assign pcmbase  = pcm_en ? 8'h18 : 8'h0;
 
 always @(posedge clk) begin
@@ -146,9 +146,9 @@ always @(posedge clk) begin
         latch0_cs <= 1'b0;
         latch1_cs <= 1'b0;
     end else begin
-        rom_cs    <= !mreq_n && !rd_n && (!A[15] || A[15:14]==2'b10);
+        rom_cs    <= rfsh_n && !mreq_n && !rd_n && (!A[15] || A[15:14]==2'b10);
         rom_addr  <= A[15] ? { 1'b1, bank, A[13:0] } : { 1'b0, A[14:0] };
-        ram_cs    <= !mreq_n && A[15:12] == 4'b1101;
+        ram_cs    <= rfsh_n && !mreq_n && A[15:12] == 4'b1101;
         fm_cs     <= io_cs && A[3:1]==3'd0;
         oki_cs    <= io_cs && A[3:1]==3'd1;
         bank_cs   <= io_cs && A[3:1]==3'd2;
@@ -215,7 +215,7 @@ jtframe_z80_romwait u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

@@ -15742,6 +15742,15 @@
 		(uuid "2910288f-ab4b-41cf-8c3e-27c7f154d93e")
 	)
 	(bus_entry
+		(at 19.05 199.39)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "29b6e55a-507b-4317-b2e6-9c6d72561aff")
+	)
+	(bus_entry
 		(at 224.79 24.13)
 		(size 2.54 2.54)
 		(stroke
@@ -16991,6 +17000,15 @@
 			(type default)
 		)
 		(uuid "7fbe5992-2526-429c-a8f9-78eb0be21ae2")
+	)
+	(bus_entry
+		(at 19.05 261.62)
+		(size 2.54 -2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7ff8b10e-0b07-4e38-b6d6-948bca1b3871")
 	)
 	(bus_entry
 		(at 163.83 208.28)
@@ -24221,6 +24239,16 @@
 		)
 		(uuid "91f0da7c-f9dd-4e58-894d-e91dd89a96dd")
 	)
+	(bus
+		(pts
+			(xy 19.05 261.62) (xy 19.05 275.59)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "91fe91b8-de79-456f-a2c9-841e6b81b076")
+	)
 	(wire
 		(pts
 			(xy 196.85 168.91) (xy 208.28 168.91)
@@ -25952,6 +25980,16 @@
 		)
 		(uuid "be95a819-bde8-420d-9958-a0b5439cb5c8")
 	)
+	(bus
+		(pts
+			(xy 19.05 199.39) (xy 19.05 261.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf24d796-d849-4378-b1d0-c4e1899ee9d7")
+	)
 	(wire
 		(pts
 			(xy 115.57 210.82) (xy 115.57 201.93)
@@ -26391,6 +26429,16 @@
 			(type default)
 		)
 		(uuid "c9c09ce5-bb65-4d44-8253-937e0695dcf1")
+	)
+	(bus
+		(pts
+			(xy 19.05 275.59) (xy 25.4 275.59)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "caa51a3f-3dd9-4174-952f-e937cb7d5db0")
 	)
 	(wire
 		(pts
@@ -27732,6 +27780,16 @@
 			(type default)
 		)
 		(uuid "ee9c668b-9531-4001-ba9f-ecb6cb880390")
+	)
+	(wire
+		(pts
+			(xy 21.59 259.08) (xy 33.02 259.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eed6df21-dc3b-4ba7-b526-225923807314")
 	)
 	(wire
 		(pts
@@ -31501,7 +31559,7 @@
 		)
 		(uuid "9e9a38d3-946d-4511-8846-c89873d1dec9")
 	)
-	(label "OBANK"
+	(label "MBRIT1"
 		(at 21.59 196.85 0)
 		(effects
 			(font
@@ -33191,6 +33249,16 @@
 		)
 		(uuid "fca4b2e8-3db6-49a3-a0a6-8e8fc7b34e8e")
 	)
+	(label "MBRIT1"
+		(at 21.59 259.08 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "fccdbfad-decb-4739-a4be-0bd5bda47aae")
+	)
 	(label "OBJROMA15"
 		(at 335.28 48.26 270)
 		(effects
@@ -33280,6 +33348,17 @@
 			(justify left bottom)
 		)
 		(uuid "ffed7278-606a-4f68-83e0-cded03f5d993")
+	)
+	(hierarchical_label "MBRIT[2..0]"
+		(shape input)
+		(at 25.4 275.59 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "0a293115-c527-4a13-9927-c3a793c43b32")
 	)
 	(hierarchical_label "~{RD}"
 		(shape input)
@@ -33390,17 +33469,6 @@
 			(justify right)
 		)
 		(uuid "79681537-c6f1-408b-a14d-7d9b3f2defe9")
-	)
-	(hierarchical_label "OBANK"
-		(shape input)
-		(at 33.02 259.08 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "93d97c94-d96b-4521-a1c6-6454f840cdb3")
 	)
 	(hierarchical_label "~{OBJ_CS}"
 		(shape input)

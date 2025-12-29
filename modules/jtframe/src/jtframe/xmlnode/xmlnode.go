@@ -32,6 +32,7 @@ type XMLNode struct {
 	comment    bool
 	attr       []XMLAttr
 	children   []*XMLNode
+	parent	   *XMLNode
 	depth      int
 	indent_txt bool
 }
@@ -62,6 +63,7 @@ func (n *XMLNode) GetChildren() ([]*XMLNode) {
 func (n *XMLNode) AddNode(names ...string) *XMLNode {
 	var child XMLNode
 	child.name = names[0]
+	child.parent = n
 	n.children = append(n.children, &child)
 	child.depth = n.depth + 1
 	if len(names) > 1 {
@@ -85,6 +87,7 @@ func (n *XMLNode) RmNode( rm *XMLNode ) {
 
 // Inserts a copy of a node
 func (n *XMLNode) InsertNode( child XMLNode ) *XMLNode {
+	child.parent = n
 	n.children = append(n.children, &child)
 	child.depth = n.depth + 1
 	return &child
@@ -252,4 +255,8 @@ func (n *XMLNode)find_rec(name string, prev []*XMLNode) (all []*XMLNode) {
 		all = child.find_rec(name,all)
 	}
 	return all
+}
+
+func (n *XMLNode)Parent() *XMLNode {
+	return n.parent
 }

@@ -141,7 +141,7 @@ jtrungun_sound u_sound(
     .cen_pcm        ( cen_pcm       ),
 
     // communication with main CPU
-    .main_dout      ( cpu_dout[15:8]),  // bus access for Punk Shot
+    .main_dout      ( cpu_dout[15:8]),
     .pair_dout      ( pair_dout     ),
     .main_addr      ( cpu_addr[4:1] ),
     .pair_we        ( pair_we       ),
