@@ -238,6 +238,7 @@ jtcps1_dma u_dma(
     .pxl2_cen       ( pxl2_cen          ),
     .pxl_cen        ( pxl_cen           ),
     .HB             ( HB                ),
+    .raster         ( raster            ),
     .vrender1       ( vrender1          ),
     .flip           ( flip              ),
 

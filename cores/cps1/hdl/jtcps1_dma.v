@@ -50,7 +50,7 @@ module jtcps1_dma(
     input              pxl_cen,
     input              pxl2_cen,
 
-    input              HB,
+    input              HB, raster,
     input      [ 8:0]  vrender1, // 2 lines ahead of vdump
     input              flip,
 
@@ -130,6 +130,7 @@ reg  [ 2:0] active, swap, pal_rd_page, pal_wr_page;
 
 wire [ TASKW-1:0] next_step_task, next_task;
 reg  [ TASKW-1:0] tasks, step_task, cur_task;
+wire              set_tasks;
 
 reg         last_HB, line_req, last_pal_dma_ok, pal_busy;
 reg         rd_bank, wr_bank, adv, check_adv;
@@ -264,11 +265,23 @@ end
 assign vram_cs        = br;
 assign next_step_task = step_task<<1;
 assign next_task      = step_task & tasks;
+assign set_tasks      = line_req && step[0];
 
 always @(posedge clk) if(HB) begin
     vscr1 <= vpos1 + vrenderf;
     vscr2 <= vpos2 + vrenderf;
     vscr3 <= vpos3 + vrenderf;
+end
+
+reg pre_dirty, dirty;
+
+always @(posedge clk) begin
+    if( raster ) pre_dirty <= 1;
+    if( HB ) begin
+        pre_dirty <= 0;
+        dirty     <= pre_dirty;
+    end
+    if( pxl2_cen && set_tasks ) dirty <= 0;
 end
 
 `ifdef SIMULATION
@@ -344,7 +357,7 @@ always @(posedge clk) begin
             // note that adding 2 to vrender does create problems in the top horizontal line
         end
 
-        if( line_req && step[0] ) begin
+        if( set_tasks ) begin
             line_req    <= 0;
             obj_busy    <= 0;
             pal_busy    <= 0;
@@ -372,9 +385,9 @@ always @(posedge clk) begin
                 pal_cnt          <= 9'd0;
             end
             tasks[ROW ] <= row_en & tile_ok;
-            tasks[SCR1] <= scrdma_en[1] && vscr1[2:0]==3'd0 && tile_ok;
-            tasks[SCR2] <= scrdma_en[2] && ( vscr2[3:0]=={ flip, 3'd0 } && tile_ok);
-            tasks[SCR3] <= scrdma_en[3] && ((vscr3[3:0]=={ flip, 3'd0 } && tile_ok) || tile_vs);
+            tasks[SCR1] <= scrdma_en[1] && (dirty ||   vscr1[2:0]==3'd0          ) && tile_ok;
+            tasks[SCR2] <= scrdma_en[2] && (dirty || ( vscr2[3:0]=={ flip, 3'd0 }) && tile_ok);
+            tasks[SCR3] <= scrdma_en[3] && (dirty || ((vscr3[3:0]=={ flip, 3'd0 }) && tile_ok) || tile_vs);
             scr_cnt     <= 8'd0;
             check_adv   <= 1;
             row_scr     <= row_en ? row_scr_next : {12'b0, hpos2[3:0] };
