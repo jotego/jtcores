@@ -265,7 +265,7 @@ assign vram_cs        = br;
 assign next_step_task = step_task<<1;
 assign next_task      = step_task & tasks;
 
-always @(posedge clk) begin
+always @(posedge clk) if(HB) begin
     vscr1 <= vpos1 + vrenderf;
     vscr2 <= vpos2 + vrenderf;
     vscr3 <= vpos3 + vrenderf;
