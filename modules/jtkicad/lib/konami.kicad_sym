@@ -68206,7 +68206,7 @@
 					)
 				)
 			)
-			(pin power_in line
+			(pin input line
 				(at -45.72 59.69 270)
 				(length 5.08)
 				(name "DTS1"
@@ -68224,7 +68224,7 @@
 					)
 				)
 			)
-			(pin power_in line
+			(pin input line
 				(at 16.51 -59.69 90)
 				(length 5.08)
 				(name "DTS2"
@@ -68263,7 +68263,7 @@
 			(pin power_in line
 				(at 19.05 -59.69 90)
 				(length 5.08)
-				(name "UK"
+				(name "VSS"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -68317,7 +68317,7 @@
 			(pin power_in line
 				(at 21.59 -59.69 90)
 				(length 5.08)
-				(name "VSS"
+				(name "TS1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -68335,7 +68335,7 @@
 			(pin power_in line
 				(at 24.13 -59.69 90)
 				(length 5.08)
-				(name "UK"
+				(name "TS2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -68386,7 +68386,7 @@
 					)
 				)
 			)
-			(pin power_in line
+			(pin input line
 				(at 26.67 -59.69 90)
 				(length 5.08)
 				(name "USE2"
@@ -68404,7 +68404,7 @@
 					)
 				)
 			)
-			(pin power_in line
+			(pin input line
 				(at 29.21 -59.69 90)
 				(length 5.08)
 				(name "DLY"
@@ -68530,7 +68530,7 @@
 					)
 				)
 			)
-			(pin power_in line
+			(pin input line
 				(at 34.29 -59.69 90)
 				(length 5.08)
 				(name "ADDA"
@@ -68548,7 +68548,7 @@
 					)
 				)
 			)
-			(pin power_in line
+			(pin input line
 				(at -40.64 59.69 270)
 				(length 5.08)
 				(name "YMD"
@@ -68566,7 +68566,7 @@
 					)
 				)
 			)
-			(pin power_in line
+			(pin input line
 				(at 36.83 -59.69 90)
 				(length 5.08)
 				(name "RRMD"
