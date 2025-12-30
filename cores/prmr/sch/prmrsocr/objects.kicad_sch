@@ -14939,12 +14939,6 @@
 		(uuid "73178763-0994-4697-b26c-bd2db11f47a6")
 	)
 	(junction
-		(at 257.81 251.46)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "778b0e0c-4103-4e9b-ae9c-81717527cda8")
-	)
-	(junction
 		(at 33.02 200.66)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -19809,7 +19803,7 @@
 	)
 	(wire
 		(pts
-			(xy 281.94 147.32) (xy 292.1 147.32)
+			(xy 279.4 147.32) (xy 292.1 147.32)
 		)
 		(stroke
 			(width 0)
@@ -21050,16 +21044,6 @@
 	)
 	(wire
 		(pts
-			(xy 279.4 152.4) (xy 292.1 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3df22c18-4c15-45b2-8016-0b83dd2cc518")
-	)
-	(wire
-		(pts
 			(xy 196.85 242.57) (xy 214.63 242.57)
 		)
 		(stroke
@@ -21360,16 +21344,6 @@
 	)
 	(wire
 		(pts
-			(xy 292.1 144.78) (xy 289.56 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "45c6ae99-93ce-477d-81ad-d803c8a399fa")
-	)
-	(wire
-		(pts
 			(xy 400.05 59.69) (xy 400.05 72.39)
 		)
 		(stroke
@@ -21380,7 +21354,7 @@
 	)
 	(wire
 		(pts
-			(xy 281.94 149.86) (xy 292.1 149.86)
+			(xy 279.4 149.86) (xy 292.1 149.86)
 		)
 		(stroke
 			(width 0)
@@ -22911,16 +22885,6 @@
 	)
 	(bus
 		(pts
-			(xy 257.81 251.46) (xy 402.59 251.46)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6fbbe6b9-d8b0-4e90-a069-24a79a95ee12")
-	)
-	(bus
-		(pts
 			(xy 370.84 87.63) (xy 373.38 87.63)
 		)
 		(stroke
@@ -24321,7 +24285,7 @@
 	)
 	(wire
 		(pts
-			(xy 281.94 142.24) (xy 292.1 142.24)
+			(xy 279.4 142.24) (xy 292.1 142.24)
 		)
 		(stroke
 			(width 0)
@@ -26012,7 +25976,7 @@
 	)
 	(bus
 		(pts
-			(xy 80.01 251.46) (xy 257.81 251.46)
+			(xy 80.01 251.46) (xy 402.59 251.46)
 		)
 		(stroke
 			(width 0)
@@ -27412,7 +27376,7 @@
 	)
 	(wire
 		(pts
-			(xy 281.94 139.7) (xy 292.1 139.7)
+			(xy 279.4 139.7) (xy 292.1 139.7)
 		)
 		(stroke
 			(width 0)
@@ -28091,16 +28055,6 @@
 		)
 		(uuid "f7f53cdc-3702-4143-9899-f216607489f6")
 	)
-	(bus
-		(pts
-			(xy 257.81 245.11) (xy 257.81 251.46)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f810459c-b7e4-4af7-9922-fe35bc4f3217")
-	)
 	(wire
 		(pts
 			(xy 279.4 157.48) (xy 292.1 157.48)
@@ -28576,25 +28530,6 @@
 			"GbwAAAAASUVORK5CYII="
 		)
 	)
-	(text_box "The 4G is an 8-output active low demultiplexer, where one of the enable inputs can be used as the data input and the others as control signals."
-		(exclude_from_sim no)
-		(at 146.05 256.54 0)
-		(size 39.37 11.43)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left top)
-		)
-		(uuid "279c5810-0a72-48cb-b6fc-072b052f5eaf")
-	)
 	(text "ROM's MASK OF THE SPRITES"
 		(exclude_from_sim no)
 		(at 35.052 144.526 0)
@@ -28616,16 +28551,6 @@
 			(justify right bottom)
 		)
 		(uuid "3b323e5a-cec7-4a28-a0f7-34cc658cbcc0")
-	)
-	(text "Por el momento"
-		(exclude_from_sim no)
-		(at 203.454 143.51 0)
-		(effects
-			(font
-				(size 0.889 0.889)
-			)
-		)
-		(uuid "7a4cd48a-3ffd-44b1-89ca-67001345e407")
 	)
 	(text "NOT POPULATED"
 		(exclude_from_sim no)
@@ -29470,7 +29395,7 @@
 		(uuid "2d6840f4-288c-47c2-97b8-640376ad40f7")
 	)
 	(label "~{RCS0}"
-		(at 281.94 147.32 0)
+		(at 279.4 147.32 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -29480,7 +29405,7 @@
 		(uuid "2dae1947-3c28-48a7-a419-cf1e7f454602")
 	)
 	(label "~{HSYNC}"
-		(at 281.94 139.7 0)
+		(at 279.4 139.7 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -29618,16 +29543,6 @@
 			(justify right bottom)
 		)
 		(uuid "30958131-fb5a-4699-a8e4-d18d6cc40bff")
-	)
-	(label "MAIN_A0"
-		(at 279.4 152.4 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "3101a854-fe7f-4c2a-a2a2-8cd555243a26")
 	)
 	(label "OBJROMD23"
 		(at 77.47 248.92 180)
@@ -30410,7 +30325,7 @@
 		(uuid "5b694817-c760-49c4-bf18-dd05dbafadf6")
 	)
 	(label "~{OBJSET}1"
-		(at 281.94 149.86 0)
+		(at 279.4 149.86 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -31050,7 +30965,7 @@
 		(uuid "8124841d-525e-4113-956d-ba241ad5e772")
 	)
 	(label "~{VSYNC}"
-		(at 281.94 142.24 0)
+		(at 279.4 142.24 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -32580,7 +32495,7 @@
 		(uuid "d58e9df4-6022-4426-943f-a13b18d8313c")
 	)
 	(label "OBJROMD[31..0]"
-		(at 257.81 245.11 180)
+		(at 259.08 251.46 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -32719,7 +32634,7 @@
 		)
 		(uuid "dfa70769-a45e-4d9c-b083-3539c7c51d5e")
 	)
-	(label "MAIN_A0"
+	(label "~{LDS}"
 		(at 85.09 135.89 0)
 		(effects
 			(font
@@ -33362,7 +33277,7 @@
 	)
 	(hierarchical_label "~{RD}"
 		(shape input)
-		(at 289.56 144.78 180)
+		(at 292.1 144.78 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -33436,6 +33351,17 @@
 			(justify right)
 		)
 		(uuid "4e0ba24b-f9d1-4b6e-b691-1e6ff191868f")
+	)
+	(hierarchical_label "~{LDS}"
+		(shape input)
+		(at 292.1 152.4 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "59c31f6a-9a85-4101-8b6c-4408624ecfbe")
 	)
 	(hierarchical_label "PR13"
 		(shape output)

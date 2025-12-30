@@ -2373,6 +2373,16 @@
 	)
 	(wire
 		(pts
+			(xy 327.66 59.69) (xy 311.15 59.69)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "701b4490-de46-4e9d-834f-a6a70b3b818a")
+	)
+	(wire
+		(pts
 			(xy 193.04 41.91) (xy 201.93 41.91)
 		)
 		(stroke
@@ -2800,6 +2810,16 @@
 			(type default)
 		)
 		(uuid "9f1ab529-655e-4ac4-a656-f3d7b588f927")
+	)
+	(wire
+		(pts
+			(xy 327.66 123.19) (xy 311.15 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9fe2fdcc-1fb4-4115-9d81-6f0de4a73a08")
 	)
 	(wire
 		(pts
@@ -3240,6 +3260,16 @@
 			(type default)
 		)
 		(uuid "cfc28ba3-4c10-4b48-b67a-4cd03c9fe2f8")
+	)
+	(wire
+		(pts
+			(xy 246.38 220.98) (xy 231.14 220.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d01bdb0e-fcd7-4f6e-b462-880278490566")
 	)
 	(wire
 		(pts
@@ -4068,6 +4098,16 @@
 		)
 		(uuid "0cef457c-8803-49d5-abd1-44cbcfc52ca4")
 	)
+	(label "~{LDS}"
+		(at 231.14 220.98 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0e5dffb9-f045-4bd2-9344-f6d67399b997")
+	)
 	(label "MAIN_ABUF[5..0]"
 		(at 365.76 54.61 0)
 		(effects
@@ -4518,7 +4558,7 @@
 		)
 		(uuid "353919d7-47b2-4596-addc-61e8a22ffdb7")
 	)
-	(label "MAIN_A0"
+	(label "~{LDS}"
 		(at 138.43 212.09 0)
 		(effects
 			(font
@@ -4557,6 +4597,16 @@
 			(justify left bottom)
 		)
 		(uuid "36d2ae88-ac77-4653-8c33-9ec01843d5d4")
+	)
+	(label "~{LDS}"
+		(at 311.15 59.69 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "37e773ff-4a42-4029-8f94-b8a5d5fdba8f")
 	)
 	(label "2P_BTN_2"
 		(at 100.33 137.16 180)
@@ -4928,7 +4978,7 @@
 		)
 		(uuid "5d7ec212-d801-474e-97d0-87a69a699a09")
 	)
-	(label "MAIN_A0"
+	(label "~{LDS}"
 		(at 299.72 92.71 180)
 		(effects
 			(font
@@ -5027,6 +5077,16 @@
 			(justify right bottom)
 		)
 		(uuid "6a2d1bd3-c063-49ae-a3a9-f0a046e2faa5")
+	)
+	(label "~{LDS}"
+		(at 311.15 123.19 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6ac1ecbe-a96c-4311-9143-64b24102a282")
 	)
 	(label "~{RCS0}"
 		(at 382.27 107.95 180)
@@ -5288,7 +5348,7 @@
 		)
 		(uuid "8f91ec97-2837-4465-b93c-0598247c276b")
 	)
-	(label "3GP9"
+	(label "~{PSAC}"
 		(at 231.14 218.44 0)
 		(effects
 			(font
@@ -5338,7 +5398,7 @@
 		)
 		(uuid "963a182b-9e0a-4c9e-9a65-9b6ca2d2c5b2")
 	)
-	(label "3GP9"
+	(label "~{PSAC}"
 		(at 299.72 125.73 180)
 		(effects
 			(font
@@ -5718,6 +5778,16 @@
 		)
 		(uuid "ce06da93-96e4-4a98-b6a4-cebdc77dd6da")
 	)
+	(label "~{MRESET}"
+		(at 138.43 63.5 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "cfaca910-9482-4795-9c06-1ef88b23b561")
+	)
 	(label "SDON"
 		(at 138.43 60.96 0)
 		(effects
@@ -5848,16 +5918,6 @@
 		)
 		(uuid "e0c4dbb3-81d6-46b1-9155-3de09cd67b29")
 	)
-	(label "MRESET"
-		(at 138.43 63.5 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "e1f881cd-abe5-4110-94f5-0d63a8d5338d")
-	)
 	(label "M6"
 		(at 231.14 182.88 0)
 		(effects
@@ -5888,7 +5948,7 @@
 		)
 		(uuid "e4c75819-4b60-40c3-a3f7-9e06455bbe04")
 	)
-	(label "MRESET"
+	(label "~{MRESET}"
 		(at 299.72 123.19 180)
 		(effects
 			(font
@@ -7046,6 +7106,16 @@
 			)
 			(uuid "442e2d3e-41dc-42e5-870f-32ad8fbff641")
 		)
+		(pin "~{LDS}" input
+			(at 327.66 123.19 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "feb79c6e-e4b2-45ce-bb9e-e535783cf237")
+		)
 		(instances
 			(project "prmrsocr"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8"
@@ -7414,7 +7484,7 @@
 			)
 			(uuid "3e86d857-b9e9-4bae-b2e0-69655196ecf9")
 		)
-		(pin "MAIN_A0" input
+		(pin "~{LDS}" input
 			(at 154.94 212.09 180)
 			(effects
 				(font
@@ -7752,7 +7822,7 @@
 			)
 			(uuid "0d44252a-d7b7-4cbc-ac3e-991f9ee92859")
 		)
-		(pin "MRESET" output
+		(pin "~{MRESET}" output
 			(at 284.48 123.19 0)
 			(effects
 				(font
@@ -7762,7 +7832,7 @@
 			)
 			(uuid "49706197-cd84-4461-b05a-fb6021627a35")
 		)
-		(pin "3GP9" output
+		(pin "~{PSAC}" output
 			(at 284.48 125.73 0)
 			(effects
 				(font
@@ -7802,7 +7872,7 @@
 			)
 			(uuid "559d49b2-8b11-45f4-8b0b-527a828998e7")
 		)
-		(pin "MAIN_A0" output
+		(pin "~{LDS}" output
 			(at 284.48 92.71 0)
 			(effects
 				(font
@@ -7880,7 +7950,7 @@
 	)
 	(sheet
 		(at 246.38 176.53)
-		(size 38.1 43.18)
+		(size 38.1 48.26)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -7891,7 +7961,7 @@
 		)
 		(uuid "d3c9105a-5122-4b1e-b00b-76c0d0a9af40")
 		(property "Sheetname" "psac"
-			(at 246.38 175.8184 0)
+			(at 246.38 174.5484 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -7900,7 +7970,7 @@
 			)
 		)
 		(property "Sheetfile" "psac.kicad_sch"
-			(at 246.38 220.2946 0)
+			(at 246.38 225.3746 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8068,7 +8138,7 @@
 			)
 			(uuid "b8b4b311-3a08-4d82-9cee-24678d7a8080")
 		)
-		(pin "3GP9" input
+		(pin "~{PSAC}" input
 			(at 246.38 218.44 180)
 			(effects
 				(font
@@ -8077,6 +8147,16 @@
 				(justify left)
 			)
 			(uuid "e14ce9ce-525c-4870-9182-923a31703c22")
+		)
+		(pin "~{LDS}" input
+			(at 246.38 220.98 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "f961803b-73e7-45e2-8b9c-32f15b6736dc")
 		)
 		(instances
 			(project "prmrsocr"
@@ -8584,6 +8664,16 @@
 			)
 			(uuid "95f7f697-d12b-4887-97a1-1f6837d1469c")
 		)
+		(pin "~{LDS}" input
+			(at 327.66 59.69 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "0a545800-fad6-48e7-a453-846d40a52fe7")
+		)
 		(instances
 			(project "prmrsocr"
 				(path "/0011ec10-82c4-4039-b424-337480f568e8"
@@ -8752,7 +8842,7 @@
 			)
 			(uuid "6935168d-ecad-4614-838d-06b7a16bb988")
 		)
-		(pin "MRESET" input
+		(pin "~{MRESET}" input
 			(at 154.94 63.5 180)
 			(effects
 				(font

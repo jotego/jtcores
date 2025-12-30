@@ -21343,16 +21343,6 @@
 		)
 		(uuid "8e3fb70e-30f7-4001-9848-80eb1e27d7c8")
 	)
-	(wire
-		(pts
-			(xy 294.64 194.31) (xy 300.99 194.31)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8f001f09-e21d-44da-86a3-a63b5d99b7e3")
-	)
 	(bus
 		(pts
 			(xy 123.19 125.73) (xy 123.19 128.27)
@@ -28483,16 +28473,6 @@
 		)
 		(uuid "cd3b70e8-e0d6-44cd-b872-d44cd1f74c88")
 	)
-	(label "MAIN_A0"
-		(at 294.64 194.31 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "cd4cbee3-8457-4eef-a1ca-1d998c494940")
-	)
 	(label "GFXROMA3"
 		(at 176.53 111.76 0)
 		(effects
@@ -28833,7 +28813,7 @@
 		)
 		(uuid "df78352c-5929-4248-bf69-9ea030651cab")
 	)
-	(label "MAIN_A0"
+	(label "~{LDS}"
 		(at 271.78 135.89 90)
 		(effects
 			(font
@@ -29484,6 +29464,17 @@
 			(justify left)
 		)
 		(uuid "10dc7c60-a5c3-41c8-a69c-80696ae57827")
+	)
+	(hierarchical_label "~{LDS}"
+		(shape input)
+		(at 300.99 194.31 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "15e452c8-2c40-4159-b65a-d4a261a270ac")
 	)
 	(hierarchical_label "MAIN_DB[7..0]"
 		(shape bidirectional)

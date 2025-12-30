@@ -13275,6 +13275,16 @@
 		)
 		(uuid "564d3817-68c6-481a-b0d8-2093901eb7dc")
 	)
+	(bus
+		(pts
+			(xy 168.91 19.05) (xy 168.91 20.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "56fd8f4c-3871-4032-a7c8-bbd97f8ca1f5")
+	)
 	(wire
 		(pts
 			(xy 158.75 40.64) (xy 148.59 40.64)
@@ -16137,7 +16147,7 @@
 	)
 	(wire
 		(pts
-			(xy 285.75 190.5) (xy 290.83 190.5)
+			(xy 283.21 190.5) (xy 290.83 190.5)
 		)
 		(stroke
 			(width 0)
@@ -16224,16 +16234,6 @@
 			(type default)
 		)
 		(uuid "f7bdc7ce-eba9-4313-b040-e31e5298e592")
-	)
-	(bus
-		(pts
-			(xy 168.91 17.78) (xy 168.91 20.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f8db1d1f-b0fd-4ec5-9438-850528f6c43f")
 	)
 	(wire
 		(pts
@@ -16899,7 +16899,7 @@
 		)
 		(uuid "24005aca-6489-44f1-90af-9ac02a411a84")
 	)
-	(label "MAIN_A0"
+	(label "~{LDS}"
 		(at 41.91 153.67 0)
 		(effects
 			(font
@@ -17779,7 +17779,7 @@
 		)
 		(uuid "7b5af114-d76d-4abc-9739-2f863d83d6f6")
 	)
-	(label "MAIN_A0"
+	(label "~{LDS}"
 		(at 173.99 106.68 180)
 		(effects
 			(font
@@ -18479,7 +18479,7 @@
 		)
 		(uuid "c9fd16c1-1aff-4361-960d-4d1304b83a7f")
 	)
-	(label "MAIN_A0"
+	(label "~{LDS}"
 		(at 26.67 100.33 0)
 		(effects
 			(font
@@ -18720,12 +18720,12 @@
 		(uuid "dd4f8626-1a0c-47e1-9f03-eaf98b22c50b")
 	)
 	(label "GND"
-		(at 285.75 190.5 180)
+		(at 283.21 190.5 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
 		(uuid "df5fdfa0-0e11-4a90-a91b-8c83133fd26c")
 	)
@@ -19274,7 +19274,7 @@
 		)
 		(uuid "7cdd325c-3ed1-405c-b6be-a1a410f75104")
 	)
-	(hierarchical_label "MRESET"
+	(hierarchical_label "~{MRESET}"
 		(shape output)
 		(at 196.85 105.41 0)
 		(effects
@@ -19296,7 +19296,7 @@
 		)
 		(uuid "84c997a3-b743-4c30-885d-32568debcf6c")
 	)
-	(hierarchical_label "3GP9"
+	(hierarchical_label "~{PSAC}"
 		(shape output)
 		(at 307.34 209.55 0)
 		(effects
@@ -19353,7 +19353,7 @@
 	)
 	(hierarchical_label "MAIN_D[15..0]"
 		(shape bidirectional)
-		(at 168.91 17.78 0)
+		(at 168.91 19.05 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19472,7 +19472,7 @@
 		)
 		(uuid "fb23a6fe-1683-48d2-b344-6aefe86513a6")
 	)
-	(hierarchical_label "MAIN_A0"
+	(hierarchical_label "~{LDS}"
 		(shape output)
 		(at 248.92 90.17 0)
 		(effects
@@ -21149,6 +21149,7 @@
 		(lib_id "jt74:74LS00")
 		(at 345.44 201.93 0)
 		(unit 1)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -21679,6 +21680,7 @@
 		(lib_id "jt74:74LS32")
 		(at 259.08 204.47 0)
 		(unit 4)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -23003,6 +23005,7 @@
 		(lib_id "jt74:74LS00")
 		(at 41.91 97.79 0)
 		(unit 2)
+		(convert 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
