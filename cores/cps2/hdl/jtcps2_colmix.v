@@ -16,10 +16,10 @@
     Version: 1.0
     Date: 27-1-2021 */
 
-
 module jtcps2_colmix(
     input              rst,
     input              clk,
+    input              LVBL,
     input              pxl_cen,
 
     input              objcfg_cs,
@@ -41,7 +41,7 @@ localparam [3:1] OBJ_PRIO = 3'b010;
 
 reg         obj1st, obj_sel;
 reg  [ 3:0] scr_prio;
-reg  [15:0] lyr_prio;
+reg  [15:0] lyr_prio, cur_prio;
 
 wire [2:0] obj_prio = obj_pxl[11:9],
            scr_lyr  = scr_pxl[11:9];
@@ -55,20 +55,24 @@ endfunction
 
 always @(*) begin
     case( scr_lyr )
-        1: scr_prio = lyr_prio[ 7: 4];
-        2: scr_prio = lyr_prio[11: 8];
-        3: scr_prio = lyr_prio[15:12];
+        1: scr_prio = cur_prio[ 7: 4];
+        2: scr_prio = cur_prio[11: 8];
+        3: scr_prio = cur_prio[15:12];
         default: scr_prio = 4'd7;
     endcase
     obj1st = obj_prio > scr_prio[2:0];
     obj_sel = ~blank(obj_pxl) & (obj1st | blank(scr_pxl));
 end
 
+reg LVBL_l;
+
 always @(posedge clk) begin
+    LVBL_l <= LVBL;
     if( objcfg_cs && addr[3:1]==OBJ_PRIO) begin
         if( dsn[1] ) lyr_prio[15:8] <= cpu_dout[15:8];
         if( dsn[0] ) lyr_prio[ 7:0] <= cpu_dout[ 7:0];
     end
+    if( !LVBL && LVBL_l ) cur_prio <= lyr_prio;
 end
 
 always @(posedge clk) if(pxl_cen) begin
