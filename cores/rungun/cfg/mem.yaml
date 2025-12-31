@@ -7,9 +7,7 @@ clocks:
     - freq: 8000000
       outputs:
         - cen_8
-    # adjusted for pitch
-    # - freq: 18432000
-    - freq: 12288000
+    - freq: 18432000
       gate: [pcma,pcmb]
       outputs:
         - cen_pcm

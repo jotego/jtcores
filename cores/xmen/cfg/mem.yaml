@@ -9,12 +9,7 @@ clocks:
         - cen_8
         - cen_4   # cen_fm
         - cen_2   # cen_fm2
-    # adjusted for pitch
-    # - freq: 18432000
-    - freq: 12288000
-    # - freq: 5926736
-    # - freq: 12315757
-    # - freq: 11853472
+    - freq: 18432000
       gate: [pcm]
       outputs:
         - cen_pcm
