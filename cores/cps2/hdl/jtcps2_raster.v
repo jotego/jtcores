@@ -41,8 +41,8 @@ wire       mode;
 wire       step, restart;
 reg        cnt4; // 4MHz
 wire       cen4;
-wire       set_irq = zero[2] & (|zero[1:0]);
-reg        irqsh;
+wire       set_irq = zero[2] & (|zero[1:0]) & up;
+reg        irqsh, up;
 
 assign cen4  = pxl_cen & cnt4;
 assign mode  = cpu_dout[15];    // 1 will update the count immediately,
@@ -58,6 +58,7 @@ always @(posedge clk) begin
     cnt_dout <= cnt_sel[0] ? dout0 : (cnt_sel[1] ? dout1 : dout2);
     if( pxl_cen ) begin
         cnt4    <= ~cnt4;
+        up      <= line_inc;
     end
     // interrupt pulse lasts at least one pixel, so the CPU cupnowcan
     // catch it
