@@ -120,6 +120,7 @@ wire busreq_cpu = busreq & ~turbo;
 wire busack_cpu;
 
 `ifndef NOMAIN
+/* verilator tracing_off */
 jtcps2_main u_main(
     .rst        ( rst_game          ),
     .clk_rom    ( clk               ),
@@ -234,7 +235,7 @@ always @(negedge clk) begin
 end
 
 assign dip_flip = video_flip;
-
+/* verilator tracing_on */
 jtcps1_video #(REGSIZE) u_video(
     .rst            ( rst_video     ),
     .clk            ( clk_gfx       ),
@@ -347,6 +348,7 @@ wire vol_up   = ~(coin[0] | joystick1[3]);
 wire vol_down = ~(coin[0] | joystick1[2]);
 
 `ifndef NOMAIN
+/* verilator tracing_off */
 jtcps15_sound u_sound(
     .rst        ( qsnd_rst          ),
     .clk48      ( clk48             ),
@@ -399,7 +401,7 @@ jtcps15_sound u_sound(
     assign qsnd_cs   = 0;
     assign qsnd_addr = 0;
 `endif
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtcps1_sdram #(.CPS(2), .REGSIZE(REGSIZE)) u_sdram (
     .rst         ( rst_sdram     ),
     .clk         ( clk           ),
