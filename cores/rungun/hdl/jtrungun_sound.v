@@ -139,6 +139,7 @@ jtframe_sysz80 #(.RAM_AW(13)) u_cpu(
 );
 
 wire [8:0] ma;
+wire [1:0] nca;
 
 assign ma = PRMR==1 ? A[8:0] : {A[9],A[7:0]};
 
@@ -166,7 +167,9 @@ jt539 u_k54539a(
     .st_dout    ( sta_dout  )
 );
 
-generate if(PRMR==0)
+generate if(PRMR==0) begin
+    wire [1:0] ncb;
+
     jt539 u_k54539b(
         .rst        ( rst       ),
         .clk        ( clk       ),
@@ -190,10 +193,10 @@ generate if(PRMR==0)
         .debug_bus  ( debug_bus ),
         .st_dout    ( stb_dout  )
     );
-else // 2nd jt539 not present in prmrsocr
+end else begin // 2nd jt539 not present in prmrsocr
     assign k539b_l=0, k539b_r=0, k39b_dout=0,
            pcmb_cs=0, pcmb_addr=0;
-endgenerate
+end endgenerate
 
 `else
 assign k539a_l=0, k539a_r=0, k539b_l=0, k539b_r=0,

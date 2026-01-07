@@ -8,16 +8,14 @@ clocks:
     - freq: 8000000
       outputs:
         - cen_8
-    # adjusted for pitch
-    # - freq: 18432000
-    - freq: 12288000
+    - freq: 18432000
       gate: [ pcm ]
       outputs:
         - cen_pcm
 audio:
   rsum: 2k
   channels:
-    # using same filtering as TMNT. Values in SSRIDERS board must be reviewed
+    # using same filtering as TMNT.
     - { name: k539, module: jt054539, rsum: 2k, rc: [ { r: 4.7k, c: 2.2n } ] }
 sdram:
   banks:

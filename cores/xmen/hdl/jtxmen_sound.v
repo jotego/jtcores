@@ -59,7 +59,7 @@ reg         [ 3:0]  bank;
 wire        [15:0]  A;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
                     cpu_cen, cen_g, fm_intn, latch_we, cen_fm, cen_fm2,
-                    latch_intn, int_n, nmi_trig, nmi_clr, nc;
+                    latch_intn, int_n, nmi_trig, nmi_clr;
 reg                 ram_cs, fm_cs,  k39_cs, mem_acc,
                     nmi_clrr, bank_we, k21_cs;
 
@@ -153,7 +153,10 @@ jt51 u_jt51(
     .xleft      ( fm_l      ),
     .xright     ( fm_r      )
 );
+
 /* verilator tracing_on */
+wire nc;
+
 jt539 u_k54539(
     .rst        ( rst       ),
     .clk        ( clk       ),

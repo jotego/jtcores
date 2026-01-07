@@ -8182,6 +8182,7 @@
 					)
 				)
 				(pin input line
+
 					(at -45.72 59.69 270)
 					(length 5.08)
 					(name "DTS1"
@@ -8524,6 +8525,7 @@
 					)
 				)
 				(pin input line
+
 					(at -40.64 59.69 270)
 					(length 5.08)
 					(name "YMD"
@@ -14433,6 +14435,16 @@
 			(type default)
 		)
 		(uuid "87f0714e-ca1b-4284-a471-499eb07dd971")
+	)
+	(wire
+		(pts
+			(xy 255.27 21.59) (xy 255.27 27.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "88684704-19ee-461d-ae6f-8e057df4bda8")
 	)
 	(wire
 		(pts
