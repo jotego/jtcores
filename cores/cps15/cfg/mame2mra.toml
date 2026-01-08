@@ -13,8 +13,9 @@ delete=[{names=["Unused","Unknown"]}]
 [buttons]
 names=[
     { names="Attack,Jump" },
-    { machine="slammast",  names="Attack,Jump,Pin" },
+    { machine="slammast", names="Attack,Jump,Pin"  },
     { machine="mbombrd",  names="Grab,Attack,Jump" },
+    { machine="wofch",    names="Attack,Jump,Mega" },
 ]
 
 [header]
