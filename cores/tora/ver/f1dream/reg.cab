@@ -2,3 +2,7 @@
 3 coin
 4
 1 1P
+loop
+  14
+  1 b1
+repeat 100
