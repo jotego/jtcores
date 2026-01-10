@@ -291,7 +291,7 @@ make_verilator_command() {
 "       --timescale 1ps/1ps "\
 "       $JTFRAME/hdl/ver/game_test.v $JTFRAME/hdl/video/jtframe_lfbuf*.v $JTFRAME/hdl/ver/psram128.v $SIMARGS "\
 "       -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal "\
-"       -o sim "\
+"       -o sim --quiet-stats"\
 "       $EXTRA $TRACE --prefix UUT --assert "\
 "       --cc test.cpp --exe $SIMULATOR_EXTRA $COV "\
 "       -Wwarn-UNDRIVEN --waiver-output waiver $GAME_VLT $VERILATOR_SAFE "

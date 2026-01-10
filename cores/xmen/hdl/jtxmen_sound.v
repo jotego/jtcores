@@ -155,7 +155,7 @@ jt51 u_jt51(
 );
 
 /* verilator tracing_on */
-wire nc;
+wire [2:0] nc;
 
 jt539 u_k54539(
     .rst        ( rst       ),

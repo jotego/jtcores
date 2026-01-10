@@ -157,7 +157,7 @@ jt539 u_k54539a(
     .dout       ( k39a_dout ),
     // ROM
     .rom_cs     ( pcma_cs   ),
-    .rom_addr   ( pcma_addr ),
+    .rom_addr   ( {nca,pcma_addr} ),
     .rom_data   ( pcma_data ),
     // Sound output
     .left       ( k539a_l   ),
@@ -184,7 +184,7 @@ generate if(PRMR==0) begin
         .dout       ( k39b_dout ),
         // ROM
         .rom_cs     ( pcmb_cs   ),
-        .rom_addr   ( pcmb_addr ),
+        .rom_addr   ( {ncb,pcmb_addr} ),
         .rom_data   ( pcmb_data ),
         // Sound output
         .left       ( k539b_l   ),
