@@ -45,6 +45,9 @@ assign pwr_button = pwr_press & ~&{~ioctl_cart,cart_l,halted}; // active low, po
 assign f1g_gcs  = cart_size[3] & flash1_cs;
 assign f1g_dout = cart_size[3] ? flash1_dout : 16'd0;
 
+assign {sav_change, sav_din } = 0;
+assign {flash_addr, flash_cs} = 0;
+
 `ifdef CARTSIZE initial cart_size=`CARTSIZE; `endif
 always @(posedge clk) begin
     if( ioctl_cart && !cart_l ) cart_size <= 0;

@@ -41,6 +41,7 @@ module jtframe_mister #(parameter
     input           game_tx,
     output          game_rx,
     output          show_osd,
+    input           OSD_STATUS,
     // Base video
     input [COLORW-1:0] game_r, game_g, game_b,
     input           LHBL,
@@ -125,6 +126,12 @@ module jtframe_mister #(parameter
     input               dwnld_busy,
     output              ioctl_rom,
     output              ioctl_cart,
+    // Save/Load
+    input               sav_change,
+    output              sav_ld,
+    input        [15:0] sav_din,
+    output       [15:0] sav_dout,
+    output       [15:0] sav_addr,
 
     input  [SDRAMW-1:0] prog_addr,
     input        [15:0] prog_data,
@@ -269,6 +276,10 @@ reg         en216p;
 reg   [4:0] voff;
 reg         pxl1_cen;
 
+// Save/Load
+wire [ 1:0] ram_save;
+wire        ram_load;
+
 wire  [7:0] target_info;
 
 assign game_paddle_3 = paddle_3;
@@ -311,6 +322,8 @@ jtframe_mister_status u_status(
     .hoffset        ( hoffset        ),
     .hsize_enable   ( hsize_enable   ),
     .hsize_scale    ( hsize_scale    ),
+    .ram_save       ( ram_save       ),
+    .ram_load       ( ram_load       ),
     .gun_border_en  ( gun_border_en  ),
     .uart_en        ( uart_en        )
 );
@@ -500,7 +513,19 @@ hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO) ) u_hps_io
     .ioctl_upload    ( hps_upload     ),
     // NVRAM support
     .ioctl_rd        (                ), // no need
-
+    `ifdef JTFRAME_SAVEGAME
+    .sd_lba          ( sd_lba         ), // input
+    .sd_rd           ( sd_rd          ), // input
+    .sd_wr           ( sd_wr          ), // input
+    .sd_ack          ( sd_ack         ), // output
+    .sd_buff_addr    ( sd_buff_addr   ), // output
+    .sd_buff_dout    ( sav_dout       ), // output
+    .sd_buff_din     ( sav_din        ), // input
+    .sd_buff_wr      ( sd_buff_wr     ), // output
+    .img_mounted     ( img_mounted    ), // output
+    .img_readonly    ( img_readonly   ), // output
+    .img_size        ( img_size       ), // output
+    `endif
     .joy_raw         ( joystick1[5:0] ), // DB15 control
     .joystick_0      ( joyusb_1       ),
     .joystick_1      ( joyusb_2       ),
@@ -535,6 +560,35 @@ hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO) ) u_hps_io
     .ps2_mouse_ext   (                ),
     .ioctl_file_ext  (                )
 );
+
+`ifdef JTFRAME_SAVEGAME
+wire [31:0] sd_lba;
+wire [ 7:0] sd_buff_addr;
+wire        sd_ack, sd_wr, sd_rd, sd_buff_wr;
+wire [63:0] img_mounted;
+wire        img_mounted, img_readonly;
+
+assign sav_addr = {sd_lba[7:0], sd_buff_addr};
+assign sav_ld   = sd_buff_wr & sd_ack;
+
+jtframe_mister_cartsave u_save(
+    .clk         ( clk_sys      ),
+    .OSD_STATUS  ( OSD_STATUS   ),
+    .img_size    ( img_size     ),
+    .img_mounted ( img_mounted  ),
+    .img_readonly( img_readonly ),
+    .ram_save    ( ram_save     ),
+    .ram_load    ( ram_load     ),
+    .downloading ( ioctl_cart   ),
+    .bk_change   ( sav_change   ),
+    .sd_ack      ( sd_ack       ),
+    .sd_rd       ( sd_rd        ),
+    .sd_wr       ( sd_wr        ),
+    .sd_lba      ( sd_lba       )
+);
+`else
+    assign {sav_dout, sav_addr, sav_ld} = 0;
+`endif
 
 `ifndef DEBUG_NOHDMI
     // scales base video horizontally
