@@ -72,3 +72,10 @@
     input    [15:0] ln_pxl,
     input    [ 7:0] ln_v,
 `endif
+`ifdef JTFRAME_SAVEGAME
+    output            sav_change,
+    input             sav_ld,
+    output    [15:0]  sav_din,
+    input     [15:0]  sav_dout,
+    input     [15:0]  sav_addr,
+`endif

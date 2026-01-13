@@ -201,6 +201,15 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .sram_dsn   ( sram_dsn      ),
     .sram_ok    ( sram_ok       ),
 `endif
+
+`ifdef JTFRAME_SAVEGAME
+    // Save/Load
+    .sav_change ( sav_change    ),
+    .sav_ld     ( sav_ld        ),
+    .sav_din    ( sav_din       ),
+    .sav_dout   ( sav_dout      ),
+    .sav_addr   ( sav_addr      ),
+`endif
     // PROM writting
     .ioctl_addr   ( pass_io ? ioctl_addr       : ioctl_addr_noheader  ),
     .prog_addr    ( pass_io ? ioctl_addr[21:0] : raw_addr      ),

@@ -33,6 +33,11 @@ sdram:
           data_width: 16
           # rw: true
           offset: MB2
+        - name: flash
+          addr_width: 21
+          data_width: 16
+          # rw: true
+          # do_not_erase: true
 
 bram: # 64+8+4+16=92kB
   - name: rom # 64 kB
