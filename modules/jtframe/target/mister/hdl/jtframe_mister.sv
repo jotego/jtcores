@@ -514,13 +514,13 @@ hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO) ) u_hps_io
     // NVRAM support
     .ioctl_rd        (                ), // no need
     `ifdef JTFRAME_SAVEGAME
-    .sd_lba          ( sd_lba         ), // input
+    .sd_lba          ( '{sd_lba}         ), // input
     .sd_rd           ( sd_rd          ), // input
     .sd_wr           ( sd_wr          ), // input
     .sd_ack          ( sd_ack         ), // output
     .sd_buff_addr    ( sd_buff_addr   ), // output
     .sd_buff_dout    ( sav_dout       ), // output
-    .sd_buff_din     ( sav_din        ), // input
+    .sd_buff_din     ( '{sav_din}        ), // input
     .sd_buff_wr      ( sd_buff_wr     ), // output
     .img_mounted     ( img_mounted    ), // output
     .img_readonly    ( img_readonly   ), // output
@@ -565,7 +565,7 @@ hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO) ) u_hps_io
 wire [31:0] sd_lba;
 wire [ 7:0] sd_buff_addr;
 wire        sd_ack, sd_wr, sd_rd, sd_buff_wr;
-wire [63:0] img_mounted;
+wire [63:0] img_size;
 wire        img_mounted, img_readonly;
 
 assign sav_addr = {sd_lba[7:0], sd_buff_addr};
