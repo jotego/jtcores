@@ -225,11 +225,17 @@ add_macro() {
 
 has_macro() {
     local name="$1"
-    test ! -z "`get_macro $1`"
+    IFS=',' read -ra allmacros <<< "$ALLMACROS"
+    for macro in "${allmacros[@]}"; do
+        local macro_name="${macro%%=*}"
+        if [ $name = $macro_name ]; then return 0; fi
+    done
+    return 1
 }
 
 get_macro() {
     local name="$1"
+    local allmacros=()
     if [ -z "$name" ]; then return; fi
     IFS=',' read -ra allmacros <<< "$ALLMACROS"
     for macro in "${allmacros[@]}"; do

@@ -12,13 +12,9 @@ clocks:
       outputs:
         - cen_pcm
 audio:
-  # using same mixing as MAME for now
-  # same filter as X-Men
-  rsum: 2k
-  gain: 0.6
+  gain: 1.99
   channels:
-    - { name: k539a,   module: jt054539, rsum: 2k, rc: [ { r: 4.7k, c: 2.2n } ] }
-    - { name: k539b,   module: jt054539, rsum: 2k, rc: [ { r: 4.7k, c: 2.2n } ], pre: 0.6 }
+    - { name: k539,   module: jt054539, rsum: 2k, rc: [ { r: 4.7k, c: 2.2n } ] }
 ports:
   - { name: cpu_dout, msb: 15 }
 sdram:

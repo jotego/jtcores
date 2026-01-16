@@ -14,11 +14,9 @@ clocks:
       outputs:
         - cen_pcm
 audio:
-  rsum: 2k
-  gain: 0.7
+  gain: 1.99
   channels:
-    - { name: fm,     module: jt51,     rsum: 1k,  rc: [ { r: 4.7k, c: 2.2n } ] }
-    - { name: k539,   module: jt054539, rsum: 960, rc: [ { r: 4.7k, c: 2.2n } ] }
+    - { name: k539,   module: jt054539, rsum: 1k, rc: [ { r: 4.7k, c: 2.2n } ] }
 sdram:
   banks:
     - buses:

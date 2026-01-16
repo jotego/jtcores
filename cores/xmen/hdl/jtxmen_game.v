@@ -221,8 +221,6 @@ jtxmen_sound u_sound(
     .pcm_dout   ( pcm_data      ),
     .pcm_cs     ( pcm_cs        ),
     // Sound output
-    .fm_l       ( fm_l          ),
-    .fm_r       ( fm_r          ),
     .k539_l     ( k539_l        ),
     .k539_r     ( k539_r        ),
     // Debug

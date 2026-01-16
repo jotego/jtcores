@@ -391,7 +391,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
 );
 `endif
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 `ifdef JTFRAME_LF_BUFFER
         wire  [ 7:0] game_vrender;
         wire  [ 8:0] game_hdump;
@@ -522,7 +522,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
         );
     `endif
 `endif
-
+/* verilator tracing_on */
 //////// GAME MODULE
 `GAMETOP
 u_game(

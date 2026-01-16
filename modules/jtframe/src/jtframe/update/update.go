@@ -177,8 +177,9 @@ func dump_output(cfg Config) {
 	}
 	appendif(cfg.Defs!="", strings.Split(cfg.Defs, ",")...)
 	appendif(cfg.Private, "JTFRAME_OSDCOLOR=(6'h20)")
-	appendif(cfg.Nohdmi, "MISTER_DEBUG_NOHDMI")
+	appendif(cfg.Nohdmi, "MISTER_DEBUG_NOHDMI", "JTFRAME_NOHQ2X", "MISTER_DISABLE_YC" )
 	appendif(cfg.Nosnd, "NOSOUND")
+	appendif( cfg.Nohdmi || cfg.Nosnd, "JTFRAME_OSD_NOLOGO", "JTFRAME_NOSTA" )
 	nokey := func( s string ) bool { // systems that do not work with jtbeta.zip
 		return s=="mist" || s=="sidi"
 	}

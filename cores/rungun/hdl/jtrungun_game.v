@@ -40,7 +40,7 @@ always @(posedge clk48) ram_ok <= ram_cs;
 assign ram_we = ~cpu_rnw;
 `endif
 
-assign debug_view={7'd0,dma_bsy};
+assign debug_view=st_snd;
 assign dip_flip = ghflip ^ gvflip;
 assign psrm_dout = {psac2_dout,psac01_dout};
 
@@ -160,10 +160,8 @@ jtrungun_sound u_sound(
     .pcma_cs        ( pcma_cs       ),
     .pcmb_cs        ( pcmb_cs       ),
     // Sound output
-    .k539a_l        ( k539a_l       ),
-    .k539a_r        ( k539a_r       ),
-    .k539b_l        ( k539b_l       ),
-    .k539b_r        ( k539b_r       ),
+    .k539_l         ( k539_l        ),
+    .k539_r         ( k539_r        ),
     // Debug
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )

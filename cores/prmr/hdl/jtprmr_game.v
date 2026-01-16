@@ -228,10 +228,8 @@ jtrungun_sound #(.PRMR(1)) u_sound(
     .pcma_cs        ( pcm_cs        ),
     .pcmb_cs        (               ),
     // Sound output
-    .k539a_l        ( k539_l        ),
-    .k539a_r        ( k539_r        ),
-    .k539b_l        (               ),
-    .k539b_r        (               ),
+    .k539_l         ( k539_l        ),
+    .k539_r         ( k539_r        ),
     // Debug
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )

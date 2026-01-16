@@ -19,14 +19,14 @@ parse_args() {
                 PROG=TRUE
                 SKIP_COMPILE=TRUE;;
             --quick|-q)
-                MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
+                MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X JTFRAME_NOSTA"
                 UNMACROS="$UNMACROS JTFRAME_CREDITS";;
             -qs)
                 MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X"
                 UNMACROS="$UNMACROS JTFRAME_CREDITS";;
             --skip | -s) SKIP_COMPILE=TRUE;;
             --quicker|-qq)
-                MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
+                MACROS="$MACROS NOSOUND JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC JTFRAME_NOSTA"
                 UNMACROS="$UNMACROS JTFRAME_CREDITS"
                 TARGET=mister;;
             -mr)
@@ -36,7 +36,7 @@ parse_args() {
                 if [ -z "$1" ]; then echo "Error: expecting word after --mrpasswd"; exit 1; fi
                 MISTERPASSWD=$1;;
             -mrq)
-                MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC"
+                MACROS="$MACROS JTFRAME_OSD_NOLOGO JTFRAME_NOHQ2X MISTER_DEBUG_NOHDMI MISTER_DISABLE_YC JTFRAME_NOSTA"
                 UNMACROS="$UNMACROS JTFRAME_CREDITS"
                 TARGET=mister;;
             --nodbg) NODBG=--nodbg; MACROS="$MACROS JTFRAME_RELEASE=1";;

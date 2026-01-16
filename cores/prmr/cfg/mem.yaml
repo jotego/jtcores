@@ -13,7 +13,7 @@ clocks:
       outputs:
         - cen_pcm
 audio:
-  rsum: 2k
+  gain: 1.99
   channels:
     # using same filtering as TMNT.
     - { name: k539, module: jt054539, rsum: 2k, rc: [ { r: 4.7k, c: 2.2n } ] }
