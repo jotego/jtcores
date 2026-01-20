@@ -1,7 +1,7 @@
 {{- /* https://github.com/MiSTer-devel/Wiki_MiSTer/wiki/Core-configuration-string */ -}}
 {{.CORENAME}};;
 {{ if .JTFRAME_OSD_LOAD }}          F,rom;                    {{ end }}
-{{ if .JTFRAME_CART_OFFSET }}       FS4,ngpngc;                {{ end }}
+{{ if .JTFRAME_CART_OFFSET }}       FS4,ngpngc;               {{ end }}
 {{ if not (.JTFRAME_NOMRA_DIP) }}   DIP;                      {{ end }}
 {{ if .JTFRAME_CHEAT }}             CHEAT;                    {{ end }}
     P1,Video;
