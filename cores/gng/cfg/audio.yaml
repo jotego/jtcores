@@ -1,5 +1,6 @@
 # referenced in other cores for 8-bit CAPCOM hardware
 audio:
+  gain: 0.6
   channels:
     # PSG rsum: 4.7 kOhm + parallel(0.25,1k)
     - { name: psg0, module: jt03_psg, rsum: 4.9k }

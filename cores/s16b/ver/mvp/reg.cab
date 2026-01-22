@@ -6,3 +6,7 @@
 3 b2
 6
 3 b2
+loop
+  14
+  1 b1
+repeat 100

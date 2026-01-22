@@ -45,14 +45,13 @@ module jtbubl_sound(
 wire        [15:0] A;
 wire               iorq_n, m1_n, wr_n, rd_n;
 wire        [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
-reg                ram_cs, fm1_cs, fm0_cs, io_cs, nmi_en;
-wire               mreq_n, rfsh_n;
+reg                ram_cs, fm1_cs, fm0_cs, io_cs, nmi_en, macc_n;
+wire               mreq_n, rfsh_n, nmi_n;
 reg         [ 7:0] din;
 wire        [ 9:0] pre_psg;
 wire               intn_fm0, intn_fm1;
 wire               int_n;
 wire               flag_clr;
-wire               nmi_n;
 wire               snd_rstn = ~rst & rstn;
 
 assign int_n      = intn_fm0 & intn_fm1;
@@ -64,16 +63,17 @@ always @(posedge clk) psg <= tokio ? pre_psg>>2 : pre_psg;
 
 
 always @(*) begin
-    rom_cs = !mreq_n && !A[15];
-    ram_cs = !mreq_n &&  A[15] && A[14:12]==3'b00;
+    macc_n =  mreq_n | ~rfsh_n;
+    rom_cs = !macc_n && !A[15];
+    ram_cs = !macc_n &&  A[15] && A[14:12]==3'b00;
     if( tokio ) begin
-        fm0_cs = !mreq_n && A[15:12]==4'b1011; // YM2203
+        fm0_cs = !macc_n && A[15:12]==4'b1011; // YM2203
         fm1_cs = 0;
-        io_cs  = !mreq_n && (A[15:12]==4'b1001 || A[15:12]==4'b1010);
+        io_cs  = !macc_n && (A[15:12]==4'b1001 || A[15:12]==4'b1010);
     end else begin
-        fm0_cs = !mreq_n && A[15] && A[14:12]==3'b01; // YM2203
-        fm1_cs = !mreq_n && A[15] && A[14:12]==3'b10; // OPL
-        io_cs  = !mreq_n && A[15] && A[14:12]==3'b11;
+        fm0_cs = !macc_n && A[15] && A[14:12]==3'b01; // YM2203
+        fm1_cs = !macc_n && A[15] && A[14:12]==3'b10; // OPL
+        io_cs  = !macc_n && A[15] && A[14:12]==3'b11;
     end
 end
 
@@ -150,7 +150,7 @@ jtframe_sysz80 #(.RAM_AW(13),.RECOVERY(0)) u_cpu(
     .iorq_n     (             ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

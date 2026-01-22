@@ -40,7 +40,7 @@ always @(posedge clk48) ram_ok <= ram_cs;
 assign ram_we = ~cpu_rnw;
 `endif
 
-assign debug_view={7'd0,dma_bsy};
+assign debug_view=st_snd;
 assign dip_flip = ghflip ^ gvflip;
 assign psrm_dout = {psac2_dout,psac01_dout};
 
@@ -53,7 +53,7 @@ always @(posedge clk) begin
     rst_video <= rst;
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtrungun_main u_main(
     .rst            ( rst_main      ),
     .clk            ( clk48         ),
@@ -133,7 +133,7 @@ jtrungun_main u_main(
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtrungun_sound u_sound(
     .rst            ( rst_snd       ),
     .clk            ( clk48         ),
@@ -141,7 +141,7 @@ jtrungun_sound u_sound(
     .cen_pcm        ( cen_pcm       ),
 
     // communication with main CPU
-    .main_dout      ( cpu_dout[15:8]),  // bus access for Punk Shot
+    .main_dout      ( cpu_dout[15:8]),
     .pair_dout      ( pair_dout     ),
     .main_addr      ( cpu_addr[4:1] ),
     .pair_we        ( pair_we       ),
@@ -160,15 +160,13 @@ jtrungun_sound u_sound(
     .pcma_cs        ( pcma_cs       ),
     .pcmb_cs        ( pcmb_cs       ),
     // Sound output
-    .k539a_l        ( k539a_l       ),
-    .k539a_r        ( k539a_r       ),
-    .k539b_l        ( k539b_l       ),
-    .k539b_r        ( k539b_r       ),
+    .k539_l         ( k539_l        ),
+    .k539_r         ( k539_r        ),
     // Debug
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )
 );
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtrungun_video u_video(
     .rst            ( rst_video     ),
     .clk            ( clk           ),

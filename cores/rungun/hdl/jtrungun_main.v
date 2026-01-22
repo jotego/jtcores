@@ -181,10 +181,12 @@ always @* begin
              + {3'd0,objrm_cs}+ {3'd0,objch_cs}+ {3'd0,pair_cs} + {3'd0,sdon_cs}
              + {3'd0,ccu_cs}                   + {3'd0,psch_cs} + {3'd0,sys2_cs}
              + {3'd0,sys1_cs} + {3'd0,io2_cs}  + {3'd0,io1_cs};
+    `ifdef SIMULATION
     if(cs_count>1) begin
         $display("cs_count over 1!");
         $finish;
     end
+    `endif
 end
 
 always @* begin
@@ -289,6 +291,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
+    .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     .num        ( 5'd1      ),  // numerator

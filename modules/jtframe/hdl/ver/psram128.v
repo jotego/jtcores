@@ -117,7 +117,7 @@ initial begin
     latency   = 3;
     wrap      = 1;
     wt_cfg    = 1;
-    wt_pol    = 1;
+    wt_pol    = 0;
     // clear the memory
     for(k=0;k<2**22-1;k++) mem[k] = 0;
 end

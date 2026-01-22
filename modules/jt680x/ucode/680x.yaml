@@ -137,7 +137,6 @@ ucode:
       - fetch, inc_pc
       - # idle
       - # idle
-      - # idle
       - ld0_opnd
       - x_rmux, ld1_opnd
       - add_alu, ea_ld

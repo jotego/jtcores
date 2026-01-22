@@ -52,7 +52,7 @@ reg  [ 2:0] bank;
 reg         rst_n, ram_cs,
             fm_cs, latch_cs, irq_clr,
             hi_cs, lo_cs, cnt_cs, pcm_rd;
-wire        rd_n, wr_n, mreq_n, iorq_n;
+wire        rd_n, wr_n, mreq_n, rfsh_n, iorq_n;
 reg         main_intn;
 wire        fm_intn, int_cs, m1_n;
 
@@ -66,8 +66,8 @@ always @(posedge clk) rst_n <= ~rst;
 
 always @* begin
     // Memory mapped
-    rom_cs  = !mreq_n && A[15:12]!=4'hf;
-    ram_cs  = !mreq_n && A[15:12]==4'hf;
+    rom_cs  = !mreq_n && rfsh_n && A[15:12]!=4'hf;
+    ram_cs  = !mreq_n && rfsh_n && A[15:12]==4'hf;
     // IO mapped R/W
     fm_cs   = !iorq_n && !A[7];
     // IO mapped reads
@@ -140,7 +140,7 @@ jtframe_sysz80 #(
     .iorq_n     ( iorq_n    ),
     .rd_n       ( rd_n      ),
     .wr_n       ( wr_n      ),
-    .rfsh_n     (           ),
+    .rfsh_n     ( rfsh_n    ),
     .halt_n     (           ),
     .busak_n    (           ),
     .A          ( A         ),

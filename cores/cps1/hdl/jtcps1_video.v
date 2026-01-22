@@ -606,6 +606,7 @@ jtcps2_colmix u_objmix(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .LVBL       ( LVBL          ),
 
     .objcfg_cs  ( objcfg_cs     ),
     .addr       ( addr[3:1]     ),

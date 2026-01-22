@@ -53,7 +53,7 @@ wire        [ 7:0] dout, opm_dout, ram_dout;
 wire        [ 3:0] pc6_dout;
 reg                opm_cs, opl_cs, ram_cs, pc6_cs;
 reg                pcm_rst, pcm_stop, pcm_start, pcm_addr_cs;
-wire               rd_n, wr_n, mreq_n, nmi_n;
+wire               rd_n, wr_n, mreq_n, rfsh_n, nmi_n;
 wire               ct1, ct2, vclk, pc6_rst;
 reg                nibble_sel, vclk_l, snd_rstn;
 reg         [15:0] pcm_cnt;
@@ -102,7 +102,7 @@ always @* begin
     pcm_addr_cs = 0;
     pcm_start   = 0;
     pcm_stop    = 0;
-    if( !mreq_n && A[15]) begin
+    if( !mreq_n && rfsh_n && A[15]) begin
         case( A[14:12] )
             0: ram_cs = 1;
             1: opm_cs = 1;
@@ -172,7 +172,7 @@ jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
     .iorq_n     (           ),
     .rd_n       ( rd_n      ),
     .wr_n       ( wr_n      ),
-    .rfsh_n     (           ),
+    .rfsh_n     ( rfsh_n    ),
     .halt_n     (           ),
     .busak_n    (           ),
     .A          ( A         ),

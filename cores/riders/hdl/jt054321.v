@@ -40,7 +40,7 @@ reg [7:0] snd_latch[0:2];
 reg [5:0] vol;
 reg       sndon_l;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) begin
         int_n   <= 1;
         sndon_l <= 0;
@@ -51,10 +51,10 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if(rst) begin
         vol          <= 0;
-        // active       <= 0;
+        // active    <= 0;
         snd_latch[0] <= 0;
         snd_latch[1] <= 0;
         snd_latch[2] <= 0;

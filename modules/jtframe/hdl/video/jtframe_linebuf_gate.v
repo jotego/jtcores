@@ -30,33 +30,33 @@ parameter [HW-1:0]  B_VIS   = 9'd30, A_VIS=9'd37, VIS=9'd304, // number of count
                     HTOT    = 9'd384,         // number of pxl_cen pulses in a line
                     HEND    = RST_CT + HTOT,  // value of wr_addr to stop cnt_cen
                     VB_END  = 9'h10F          // Must be same as in vtimer
-) (
-    input               rst,
-    input               clk,
-    input               cen,
-    input               pxl_cen,
-    input               lvbl,
-    input               hs,
-    input               we,
+)(
+    input           rst,
+    input           clk,
+    input           cen,
+    input           pxl_cen,
+    input           lvbl,
+    input           hs,
+    input           we,
 
     // screen
-    input      [HW-1:0] hdump,
-    input      [VW-1:0] vdump,
+    input  [HW-1:0] hdump,
+    input  [VW-1:0] vdump,
 
     // to graphics block
-    input      [PW-1:0] pxl_data,
-    input               rom_ok,     // SDRAM output
-    input               rom_cs,
-    output   reg        cnt_cen,
+    input  [PW-1:0] pxl_data,
+    input           rom_ok,     // SDRAM output
+    input           rom_cs,
+    output reg      cnt_cen,
 
-    output     [PW-1:0] pxl_dump
+    output [PW-1:0] pxl_dump
 );
 
 reg  hs_cen, hs_l, done, fastwr;
-wire pre_lvbl;
+wire last_line;
 wire [HW-1:0] wr_addr, rd_addr;
 
-assign pre_lvbl  = vdump==VB_END;
+assign last_line = vdump==VB_END;
 
 always @(*) begin
     done    = wr_addr>=RD_END;
@@ -64,14 +64,14 @@ always @(*) begin
     hs_cen  = 0;
     fastwr  = wr_addr<WR_STRT || wr_addr>WR_END && wr_addr<RD_END || hs && wr_addr < HEND; // It is needed for psac to have some pulse during hs
     if(cen) begin
-        cnt_cen = rom_cs & rom_ok & !done;
-        if( lvbl | pre_lvbl ) hs_cen  = ~hs & hs_l;  // starts drawing in buffer one line before lvbl is high
+        cnt_cen = (~rom_cs | rom_ok) & !done;
+        if( lvbl || last_line ) hs_cen = ~hs & hs_l;  // starts drawing in buffer one line before lvbl is high
     end
     if( fastwr ) cnt_cen = cen;
 end
 
 always @(posedge clk) begin
-    if(cen) hs_l     <= hs;
+    if(cen) hs_l <= hs;
 end
 
 jtframe_counter #(.W(HW),.RST_VAL(RST_CT)) u_counter(

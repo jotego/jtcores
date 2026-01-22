@@ -4,8 +4,9 @@ OTHER=
 SCENE=
 BATCH=
 CRC=
-if [ $(basename $(pwd)) = ssriders ]; then SSRIDERS=1; else SSRIDERS=;fi
-#if [ $(basename $(pwd)) = vendetta ]; then VENDETTA=1; else VENDETTA=;fi
+CORENAME=$(basename $(pwd))
+if [ $CORENAME = ssriders ]; then SSRIDERS=1; else SSRIDERS=;fi
+#if [ $CORENAME = vendetta ]; then VENDETTA=1; else VENDETTA=;fi
 
 while [ $# -gt 0 ]; do
     case $1 in

@@ -1,0 +1,70 @@
+[global]
+author=["jotego"]
+
+[parse]
+# most games in tmnt2 are covered in the riders core
+sourcefile=[ "tmnt2.cpp" ]
+skip = { bootlegs=true, machines=[
+	# in JTTMNT
+	"tmnt2",
+	"ssriders",
+	"glfgreat",
+	"tmnt",
+	"mia",
+	"punkshot",
+	"lgtnfght",
+	# not covered yet
+	"blswhstl",
+	"cuebrick",
+	"blswhstl",
+	"qgakumon",
+	"thndrx2",
+]}
+
+[buttons]
+names = [
+	{ machine="prmrsocr", names="Shoot,Pass" },
+]
+
+[header]
+info="Offsets for each ROM region. Byte 15 = game selection."
+data = [
+	{ machine="prmrsocr", offset=15, data="01" },
+]
+offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "obj"] }
+
+[ROM]
+regions = [
+	{ name="maincpu", width=16, reverse=true  },
+
+	{ name="audiocpu", no_offset=true },
+	{ name="k054539", rename="pcm" },
+	# tiles
+	{ name="k052109", width=32, parts=[
+		{name="101a12.12l", crc="33530d7f",  map="0021"},
+		{name="101a11.12k", crc="7f773271",  map="2100"},
+	] },
+	# sprites
+	{ name="k053245", width=16, rename="obj", start="JTFRAME_BA3_START" },
+	# ROZ plane
+	{ name="zoom",  rename="z-tiles", start="PSC_START" }, # 053936 tiles
+	# 053936 tile maps
+	{ name="user1", rename="z-tilemap", start="PSCMAP_START", width=16, sequence=[1,0] },
+
+	{ name="eeprom", skip=true }
+]
+
+order=["maincpu","audiocpu","pcm","k052109","obj", "z-tiles", "z-tilemap"]
+
+nvram={ Defaults=[
+	{ machine="prmrsocr",data="""\
+		03 f1 fc 0e 91 01 45 41 42 00 00 00 02 03 80 14
+		ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+		ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+		ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+		ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+		ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+		ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+		ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+	"""},
+]}

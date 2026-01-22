@@ -47,7 +47,7 @@ module jtkchamp_snd(
 //                  PCM_GAIN = 8'h0c,
 //                  DAC_GAIN = 8'h02;
 
-wire        m1_n, mreq_n, iorq_n, rd_n, wr_n,
+wire        m1_n, mreq_n, iorq_n, rfsh_n, rd_n, wr_n,
             wcen, vcen, int_n, tempo_n;
 reg         nmi_on, iord_cs, iowr_cs, pcm_cs, ctrl_cs,
             latch_cs, dac_cs, pcm_nmin;
@@ -57,7 +57,7 @@ reg  [ 1:0] ctrl;
 wire [15:0] A;
 wire [ 7:0] ram_dout, cpu_dout;
 wire [ 3:0] pcm_din;
-reg         ram_cs, pcm_sel, tempo_en;
+reg         ram_cs, pcm_sel, tempo_en, macc_n;
 reg  [ 1:0] bdir, bc1;
 // sound signals
 wire        nmi_n;
@@ -71,18 +71,19 @@ assign nmi_n    = enc ? pcm_nmin : tempo_n;
 assign psg0bc   = {1'b0,psg0b}+{1'b0,psg0c};
 
 always @* begin
+    macc_n    =  mreq_n | ~rfsh_n;
     iord_cs   = !iorq_n && !rd_n;
     iowr_cs   = !iorq_n && !wr_n;
     if( enc ) begin
-        rom_cs    = !mreq_n && A[14:13]!=3;
-        ram_cs    = !mreq_n && A[14:13]==3;
+        rom_cs    = !macc_n && A[14:13]!=3;
+        ram_cs    = !macc_n && A[14:13]==3;
         latch_cs  = iord_cs && A[1:0]==1;
         dac_cs    = 0;
         bc1[0]    = (iowr_cs && A[2:0]==1) || (iord_cs && A[1:0]==0);
         bc1[1]    = (iowr_cs && A[2:0]==3) || (iord_cs && A[1:0]==2);
     end else begin
-        rom_cs    = !mreq_n && A[15:13]!=7;
-        ram_cs    = !mreq_n && A[15:13]==7;
+        rom_cs    = !macc_n && A[15:13]!=7;
+        ram_cs    = !macc_n && A[15:13]==7;
         latch_cs  = iord_cs && A[2:0]==6;
         dac_cs    = iowr_cs && A[2:0]==4;
         bc1[0]    = iowr_cs && A[2:0]==1;
@@ -164,7 +165,7 @@ jtframe_sysz80 #(.RAM_AW(11),.RECOVERY(1)) u_cpu(
     .iorq_n     ( iorq_n    ),
     .rd_n       ( rd_n      ),
     .wr_n       ( wr_n      ),
-    .rfsh_n     (           ),
+    .rfsh_n     ( rfsh_n    ),
     .halt_n     (           ),
     .busak_n    (           ),
     .A          ( A         ),

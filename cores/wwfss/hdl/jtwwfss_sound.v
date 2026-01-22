@@ -49,7 +49,7 @@ reg         [ 7:0] din;
 wire        [ 7:0] ram_dout, dout, oki_dout, fm_dout;
 wire        [15:0] A;
 reg                fm_cs, ram_cs, oki_cs, latch_cs;
-wire               iorq_n, m1_n, mreq_n, int_n, oki_wrn, rd_n, wr_n, nmi_n;
+wire               iorq_n, m1_n, mreq_n, rfsh_n, int_n, oki_wrn, rd_n, wr_n, nmi_n;
 
 assign pcm_cs   = 1;
 assign oki_wrn  = ~(oki_cs & ~wr_n);
@@ -62,7 +62,7 @@ always @* begin
     oki_cs   = 0;
     latch_cs = 0;
 
-    if( A[15:14]==2'b10 && !mreq_n ) case(A[13:11])
+    if( A[15:14]==2'b10 && !mreq_n && rfsh_n ) case(A[13:11])
         0: ram_cs   = 1;
         1: fm_cs    = 1;
         3: oki_cs   = 1;
@@ -100,7 +100,7 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

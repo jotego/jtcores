@@ -1,0 +1,88 @@
+         \BJTPRMR\W
+    FPGA core by \RJOTEGO\W
+     patreon.com/jotego
+
+  Version \C - \D
+
+      Based on the PCB
+      schematics and chip
+         measurements
+
+
+ \B______ \RDIRECTORS\B _______\W
+Andrea Bogazzi  Bender
+Chris Gelatt    Fabio Michelin
+    Frederic Mahe
+    Fulvio Venturelli
+John Lange      M. Fornasini
+Martin Birkeldh Martin Donlon  
+Tulio Adriano   Ulf Skutnabba
+f3bandit        Go Youqiang
+
+
+       \BThanks to\W
+\R    Alexander Facchini
+\RBob Gallardo    Brian Sallee
+\RDan Avedikian   Daniel Bauza
+\RER              Halla
+\RHarper Reed     Jacob Jewell
+\RJim Sprigler    Joe Castle
+\RKyle Mickley    Matthew Belshan
+\RPD Lee          Pelayo Marinas 
+\RPeter Vessenes  R. Martinazzo  
+\RRenaissance 2K  RetroWilly     
+\RRobert Moran    Sayit BELET    
+\RTej Bilkhu
+
+ \B_________ AND __________\W
+ARCADEAGES      Adam Davis     
+Adrian Nabarro  Anders Rensberg
+Andy Palmer     Andyways       
+Blackstar       Bryan Adams
+Carrboroman     Chris Doyle
+Chris Harvey    Christian
+DMG             Dan Bayley
+Daniel Cortes   Darren Chell
+Dave Sasser     David Moylan
+Dean Winger     Don Gafford
+Ed Balan        Eduardo Javier
+Fred Jorge      Gus Douboulidis
+    Hendrik Osterholz
+    INAKI ECHEVARRIA
+Ian Court       JPS (RetroFPGA)
+James Stroup    Jo le Zef      
+Joe Tassone     Joeri van      
+John Casey      John Silva
+Juan Sandoval   JuanRa
+Keith F. Kelly  Leslie Law
+    Lukas Hinterleitner
+M. Ferguson     Matt Hargett
+    Matthew Young
+    Michael Ferguson
+    Michael Fleisher
+Michael Johnson Mike Phan      
+Nima            Nunzio Mannino 
+Oliver Jaksch   Oscar Laguna   
+Retro_Brewz     Richard MS
+Rob Jenkins     Robert MacLean
+Shane Lynch     Steven Wilson  
+The Collector   Theodore Huber
+Thompson Orcino Torren Beitler
+Vitor Duarte    albertprime
+amoore2600      ultimatekd
+
+  ________________________
+
+      - Beta version -
+      Do not distribute
+
+
+      -     MiSTer   -
+      Place jtbeta.zip
+      in games/mame
+      do not unzip it
+
+      -   A. Pocket  -
+    Unzip jtbeta.zip into
+    Assets/jtpatreon/common
+

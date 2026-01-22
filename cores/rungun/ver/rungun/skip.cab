@@ -1,5 +1,6 @@
+# jtsim -video 200 -w 100 -inputs skip.cab
 # skips the RUN&GUN logo
 loop
-1 b1
-1
-repeat 300
+        1 b1
+        1
+repeat 50

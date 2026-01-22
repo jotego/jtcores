@@ -8,7 +8,6 @@ cps2:
     - jtcps2_obj_scan.v
     - jtcps2_colmix.v
     - jtcps2_raster.v
-    - jtcps2_dtack.v
       # Encryption
     - jtcps2_keyload.v
     - jtcps2_decrypt.v

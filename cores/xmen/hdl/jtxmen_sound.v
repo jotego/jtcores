@@ -43,7 +43,7 @@ module jtxmen_sound(
     input    [ 7:0] pcm_dout,
     output          pcm_cs,
     // Sound output
-    output     signed [15:0] fm_l, fm_r, k539_l, k539_r,
+    output     signed [15:0] k539_l, k539_r,
     // Debug
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
@@ -59,9 +59,10 @@ reg         [ 3:0]  bank;
 wire        [15:0]  A;
 wire                m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, nmi_n,
                     cpu_cen, cen_g, fm_intn, latch_we, cen_fm, cen_fm2,
-                    latch_intn, int_n, nmi_trig, nmi_clr, nc;
+                    latch_intn, int_n, nmi_trig, nmi_clr;
 reg                 ram_cs, fm_cs,  k39_cs, mem_acc,
                     nmi_clrr, bank_we, k21_cs;
+wire  signed [15:0] fm_l, fm_r;
 
 assign int_n    = latch_intn;
 assign nmi_trig = fm_intn;
@@ -153,8 +154,11 @@ jt51 u_jt51(
     .xleft      ( fm_l      ),
     .xright     ( fm_r      )
 );
+
 /* verilator tracing_on */
-jt539 u_k54539(
+wire [2:0] nc;
+
+jt539 #(.VOLSHIFT(1)) u_k54539(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_pcm   ),
@@ -170,6 +174,9 @@ jt539 u_k54539(
     .rom_cs     ( pcm_cs    ),
     .rom_addr   ({nc,pcm_addr}),
     .rom_data   ( pcm_dout  ),
+    // YM input
+    .aux_l      ( fm_l      ),
+    .aux_r      ( fm_r      ),
     // Sound output
     .left       ( k539_l    ),
     .right      ( k539_r    ),

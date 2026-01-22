@@ -33,6 +33,7 @@ module jtframe_lfbuf_line #(parameter
 )(
     input               rst,
     input               clk,
+    input               clk_ctrl,
     input               pxl_cen,
     // video status
     input      [VW-1:0] vrender,
@@ -130,6 +131,7 @@ wire      active, // active video portion
           vsy,    // sync start to end
           vsa;    // sync end to active start
 reg [3:0] st;
+reg fbd_l;
 
 localparam [3:0] ACTIVE=4'b1_000,
                  VBTOSY=4'b0_001;
@@ -153,6 +155,7 @@ always @(posedge clk) begin
         ln_hs    <= 0;
         ln_v     <= 0;
         done     <= 0;
+        fbd_l    <= 0;
     `ifdef JTFRAME_LF_FULLV
         ln_vs    <= 0;
         ln_lvbl  <= 0;
@@ -161,6 +164,7 @@ always @(posedge clk) begin
     `endif
     end else if(info_rdy) begin
         ln_hs <= 0;
+        fbd_l <= fb_done;
         if( vs && !vsl ) begin // object parsing starts during VB
             frame <= ~frame;
             ln_v  <= vstart;
@@ -172,7 +176,7 @@ always @(posedge clk) begin
                 st      <= VBTOSY;
             `endif
         end
-        if( fb_done && !done )
+        if( fb_done && !fbd_l && !done )
     `ifdef JTFRAME_LF_FULLV
             if({vsa,vsy,vbs}!=0) begin
                 porch <= porch - 1'd1;
@@ -206,7 +210,7 @@ localparam [15:0] LFBUF_CLR = `ifndef JTFRAME_LFBUF_CLR 0 `else `JTFRAME_LFBUF_C
 // collect input data
 jtframe_dual_ram #(.DW(16),.AW(HW+1)) u_linein(
     // Write to big RAM and delete
-    .clk0   ( clk           ),
+    .clk0   ( clk_ctrl      ),
     .data0  ( LFBUF_CLR     ),
     .addr0  ( { line^fb_clr, fb_addr } ),
     .we0    ( fb_clr        ),
@@ -219,15 +223,19 @@ jtframe_dual_ram #(.DW(16),.AW(HW+1)) u_linein(
     .q1     (               )
 );
 
-jtframe_rpwp_ram #(.DW(16),.AW(HW)) u_lineout(
-    .clk    ( clk           ),
+jtframe_dual_ram #(.DW(16),.AW(HW)) u_lineout(
     // Read from big RAM, write to line buffer
-    .din    ( fb_dout       ),
-    .wr_addr( rd_addr       ),
-    .we     ( scr_we        ),
+    .clk0   ( clk_ctrl      ),
+    .data0  ( fb_dout       ),
+    .addr0  ( rd_addr       ),
+    .we0    ( scr_we        ),
+    .q0     (               ),
     // Read from line buffer to screen
-    .rd_addr( hdump         ),
-    .dout   ( scr_pxl       )
+    .clk1   ( clk           ),
+    .data1  ( 16'b0         ),
+    .addr1  ( hdump         ),
+    .we1    ( 1'b0          ), // the core should not send transparent pixels
+    .q1     ( scr_pxl       )
 );
 
 endmodule

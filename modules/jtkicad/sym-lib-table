@@ -37,4 +37,5 @@
   (lib (name "ga_capcom")(type "KiCad")(uri "${MODULES}/jtkicad/lib/ga_capcom.kicad_sym")(options "")(descr "Capcom IC's - inside view"))
   (lib (name "ga_fujitsu_uhb")(type "KiCad")(uri "${MODULES}/jtkicad/lib/ga_fujitsu_uhb.kicad_sym")(options "")(descr "Fujitsu UHB gate array cell library"))
   (lib (name "ga_nec_upd65")(type "KiCad")(uri "${MODULES}/jtkicad/lib/ga_nec_upd65.kicad_sym")(options "")(descr "NEC UPD65 gate array cell library"))
+  (lib (name "kaneko")(type "KiCad")(uri "${KIPRJMOD}/kaneko.kicad_sym")(options "")(descr ""))
 )

@@ -124,7 +124,7 @@ jtxmen_main u_main(
 assign oram_we   = ~ram_dsn & {2{cpu_we}};
 assign oram_addr = {main_addr[6:5], main_addr[1], main_addr[13:7], main_addr[4:2]};
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtxmen_video u_video (
     .rst            ( rst           ),
     .rst8           ( rst8          ),
@@ -221,8 +221,6 @@ jtxmen_sound u_sound(
     .pcm_dout   ( pcm_data      ),
     .pcm_cs     ( pcm_cs        ),
     // Sound output
-    .fm_l       ( fm_l          ),
-    .fm_r       ( fm_r          ),
     .k539_l     ( k539_l        ),
     .k539_r     ( k539_r        ),
     // Debug

@@ -7,19 +7,14 @@ clocks:
     - freq: 8000000
       outputs:
         - cen_8
-    # adjusted for pitch
-    # - freq: 18432000
-    - freq: 12288000
+    - freq: 18432000
       gate: [pcma,pcmb]
       outputs:
         - cen_pcm
 audio:
-  # using same mixing as MAME for now
-  # same filter as X-Men
-  rsum: 2k
+  gain: 1.99
   channels:
-    - { name: k539a,   module: jt054539, rsum: 2k, rc: [ { r: 4.7k, c: 2.2n } ] }
-    - { name: k539b,   module: jt054539, rsum: 2k, rc: [ { r: 4.7k, c: 2.2n } ], pre: 0.6 }
+    - { name: k539,   module: jt054539, rsum: 2k, rc: [ { r: 4.7k, c: 2.2n } ] }
 ports:
   - { name: cpu_dout, msb: 15 }
 sdram:

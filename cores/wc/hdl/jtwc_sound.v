@@ -55,7 +55,6 @@ wire signed [11:0] pcm_raw;
 
 assign rom_addr = A[13:0];
 assign pcm_cs   = 1;
-assign rfsh_n   = 0;
 assign st_dout  = { pcm_en, 3'd0, gain };
 
 // AY0
@@ -80,7 +79,7 @@ always @* begin
     latch_cs = 0;
     ay0_cs   = 0;
     ay1_cs   = 0;
-    if( !mreq_n && !rfsh_n ) casez(A[15:14])
+    if( !mreq_n && rfsh_n ) casez(A[15:14])
         0: rom_cs   = 1;
         1: ram_cs   = 1;
         2: if(!wr_n) case(A[1:0])
@@ -148,7 +147,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(1)) u_cpu(
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
     .wr_n       ( wr_n        ),
-    .rfsh_n     (             ),
+    .rfsh_n     ( rfsh_n      ),
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),

@@ -265,7 +265,8 @@ func (args *Args)produce_mra_rom_nvram( d ParsedMachine, parent_names map[string
 			fmt.Printf("ROM path %s is invalid. Provide a valid path to zip files in MAME format\nor call jtframe mra skipping .rom file generation.\n",args.Rom_path)
 			os.Exit(1)
 		}
-		mra2rom(d.mra_xml, !args.SkipROM, args.Rom_path)
+		e := Mra2rom(d.mra_xml, !args.SkipROM, args.Rom_path)
+		if e!=nil { fmt.Println(e) }
 	}
 	save_nvram(d.mra_xml)
 	dump_mra(*args, d.machine, mra_cfg, d.mra_xml, parent_names)

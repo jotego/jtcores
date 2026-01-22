@@ -118,7 +118,7 @@ always @(*) begin
 end
 
 function [2:0] rev3( input [6:0] x );
-    rev3 = {x[4]&x[0], x[5]&x[2], x[6]&x[1]}; // merge buttons and directions
+    rev3 = {x[4]&x[0], x[5], x[6]&x[1]}; // merge buttons and directions
 endfunction
 
 always @(posedge clk) begin
