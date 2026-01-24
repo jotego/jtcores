@@ -36,6 +36,7 @@ wire [7:0] anded;
 reg        v8, c8, cx, n8, z8, cinv;
 wire       tsb_trb;
 reg  [7:0] daa, das;
+reg  [3:0] addlow;
 reg        valid_hi, valid_lo;
 reg        h;
 
@@ -45,6 +46,10 @@ assign anded   = op0 & op1;
 assign tsb_trb = alu_sel==TSB_ALU || alu_sel==TRB_ALU;
 
 always @* begin
+    {h, addlow} = {1'b0, op0[3:0]}+{1'b0, op1[3:0]}+{4'd0,cx};
+end
+
+always @* begin
     case( carry_sel )
         CIN_CARRY: cx = cin;
         // MSB_CARRY: cx = op0[7];
@@ -52,22 +57,23 @@ always @* begin
         ONE_CARRY: cx = 1;
         default:   cx = 0;
     endcase
+end
 
+always @* begin
     rslt = op0;
     c8   = 0;
-    h    = 0;
     v8   = 0;
     cinv = 0;
     case( alu_sel )
         ADD_ALU: begin
-            {h,  rslt[ 3:0]} = {1'b0, op0[ 3:0]}+{1'b0, op1[ 3:0]}+{4'd0,cx};
-            {c8,  rslt[ 7:4]} = {1'b0, op0[ 7:4]}+{1'b0, op1[ 7:4]}+{4'd0,h};
-            v8  = &{op0[7],op1[7],~rslt[7]}|&{~op0[7],~op1[7],rslt[7]};
+            rslt[3:0] = addlow;
+            {c8, rslt[7:4]} = {1'b0, op0[7:4]}+{1'b0, op1[7:4]}+{4'd0,h};
+            v8 = &{op0[7],op1[7],~rslt[7]}|&{~op0[7],~op1[7],rslt[7]};
         end
         SUB_ALU: begin
-            {cinv,rslt} = {1'b0, op0}-{1'b0,op1}-{8'b0,~cx};
-            c8  = ~cinv;
-            v8  = &{op0[ 7],~op1[7],~rslt[7]}|&{~op0[7],op1[7],rslt[7]};
+            {cinv,rslt} = {1'b0,op0}-{1'b0,op1}-{8'b0,~cx};
+            c8 = ~cinv;
+            v8 = &{op0[7],~op1[7],~rslt[7]}|&{~op0[7],op1[7],rslt[7]};
         end
         DAA_ALU: rslt = op0[7:0]+daa;
         DAS_ALU: rslt = op0[7:0]-das;
