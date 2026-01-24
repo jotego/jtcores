@@ -30,6 +30,7 @@ module jt65c02_regs(
     input             fetch,
     input             inc_pc,
     input             wr,
+    output reg        rd,
     input             stcy, brcy,
     output reg        pcpage,
     input      [ 1:0] ea_sel,
@@ -39,10 +40,9 @@ module jt65c02_regs(
     input      [ 3:0] rmux_sel,
     // ALU
     input      [ 7:0] rslt,
-    input             rslt_h,
     input      [ 3:0] rslt_cc,
     output reg [ 7:0] op0, op1,
-    output reg        h,c,i,calt,d,
+    output reg        c,i,calt,d,
     output reg        brok,
     // external bus
     input      [ 7:0] din,
@@ -80,11 +80,12 @@ always @* begin
           default: rmux = md;
     endcase
     case( ea_sel )
-        S_EA:  addr = { 8'd1, s };
-        M_EA:  addr = ea;
-        M1_EA: addr = ea+16'd1;
-        default: addr = pc;
+        S_EA:    begin rd=1;     addr = { 8'd1, s };  end
+        M_EA:    begin rd=1;     addr = ea;           end
+        M1_EA:   begin rd=1;     addr = ea+16'd1;     end
+        default: begin rd=fetch; addr = pc;           end
     endcase
+    if( wr ) rd=0;
     dout = md[7:0];
 end
 
@@ -102,7 +103,7 @@ always @( posedge clk, posedge rst ) begin
         ea  <= 0;
         pc  <= 0;
         pcpage <= 0;
-        {v,h,n,z,c,d,calt} <= 0;
+        {v,n,z,c,d,calt} <= 0;
     end else if( cen ) begin
         pcpage <= 0;
         if( fetch  ) begin

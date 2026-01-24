@@ -23,10 +23,8 @@ module jt65c02_alu(
     input   [ 1:0] carry_sel,
     input   [ 3:0] alu_sel,
     input          cin, calt,
-    input          hin,
     input   [ 7:0] op0, op1, ir,
 
-    output reg        ho,
     output reg [ 7:0] rslt,
     output     [ 3:0] rslt_cc
 );
@@ -39,7 +37,7 @@ reg        v8, c8, cx, n8, z8, cinv;
 wire       tsb_trb;
 reg  [7:0] daa, das;
 reg        valid_hi, valid_lo;
-
+reg        h;
 
 assign rslt_cc = {n8,v8,z8,c8};
 assign bsel    = ir[6:4];
@@ -57,12 +55,13 @@ always @* begin
 
     rslt = op0;
     c8   = 0;
-    ho   = 0;
+    h    = 0;
     v8   = 0;
+    cinv = 0;
     case( alu_sel )
         ADD_ALU: begin
-            {ho,  rslt[ 3:0]} = {1'b0, op0[ 3:0]}+{1'b0, op1[ 3:0]}+{4'd0,cx};
-            {c8,  rslt[ 7:4]} = {1'b0, op0[ 7:4]}+{1'b0, op1[ 7:4]}+{4'd0,ho};
+            {h,  rslt[ 3:0]} = {1'b0, op0[ 3:0]}+{1'b0, op1[ 3:0]}+{4'd0,cx};
+            {c8,  rslt[ 7:4]} = {1'b0, op0[ 7:4]}+{1'b0, op1[ 7:4]}+{4'd0,h};
             v8  = &{op0[7],op1[7],~rslt[7]}|&{~op0[7],~op1[7],rslt[7]};
         end
         SUB_ALU: begin
@@ -100,13 +99,13 @@ always @* begin
     valid_lo = (op0[3:0] <= 9);
     valid_hi = (op0[7:4] <= 9);
 
-    daa = cin?(hin?8'h66:  valid_lo ? 8'h60 : 8'h66) :
-          hin           ? (valid_hi ? 8'h06 : 8'h66) :
+    daa = cin?(h?8'h66:  valid_lo ? 8'h60 : 8'h66) :
+          h           ? (valid_hi ? 8'h06 : 8'h66) :
           valid_lo      ? (valid_hi ? 8'h00 : 8'h60) :
           op0[7:4] <= 8 ? 8'h06 : 8'h66;
     // das: only the carry sign is different
-    das =~cin?(hin?8'h66:  valid_lo ? 8'h60 : 8'h66) :
-          hin           ? (valid_hi ? 8'h06 : 8'h66) :
+    das =~cin?(h?8'h66:  valid_lo ? 8'h60 : 8'h66) :
+          h           ? (valid_hi ? 8'h06 : 8'h66) :
           valid_lo      ? (valid_hi ? 8'h00 : 8'h60) :
           op0[7:4] <= 8 ? 8'h06 : 8'h66;
 end
