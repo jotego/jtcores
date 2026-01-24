@@ -5,7 +5,7 @@ module test;
 reg         rst, clk, cen=0, nmi=0, irq=0;
 reg  [ 7:0] mem[0:65535];
 reg  [ 7:0] din;
-wire        wr;
+wire        rd, wr;
 wire [ 7:0] dout;
 wire [15:0] addr;
 reg  [39:0] vectors[0:255];
@@ -94,7 +94,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    din <= mem[addr];
+    if( rd ) din <= mem[addr];
     if( wr ) mem[addr] <= dout;
 end
 
@@ -105,6 +105,7 @@ jt65c02 uut(
     .irq        ( irq       ),
     .nmi        ( nmi       ),
     .wr         ( wr        ),
+    .rd         ( rd        ),
     .addr       ( addr      ),
     .din        ( din       ),
     .dout       ( dout      )

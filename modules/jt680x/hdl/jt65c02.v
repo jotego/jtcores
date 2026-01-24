@@ -28,6 +28,7 @@ module jt65c02(
     input             irq,
     input             nmi,
     output            wr,
+    output            rd,
     output     [15:0] addr, // always valid
     input      [ 7:0] din,
     output     [ 7:0] dout
@@ -36,7 +37,7 @@ module jt65c02(
 wire [7:0] op0, op1, rslt,md, ir;
 wire [3:0] rslt_cc;
 wire [2:0] iv;
-wire       h, d, rslt_h, c, i, calt, brcy, stcy;
+wire       d, c, i, calt, brcy, stcy;
 
 wire [3:0] alu_sel;
 wire [3:0] cc_sel;
@@ -95,10 +96,8 @@ jt65c02_alu u_alu(
     .alu_sel    ( alu_sel   ),
     .cin        ( c         ),
     .calt       ( calt      ),
-    .hin        ( h         ),
     .op0        ( op0       ),
     .op1        ( op1       ),
-    .ho         ( rslt_h    ),
     .rslt       ( rslt      ),
     .rslt_cc    ( rslt_cc   )
 );
@@ -117,6 +116,7 @@ jt65c02_regs u_regs(
     .fetch      ( fetch     ),
     .inc_pc     ( inc_pc    ),
     .wr         ( wr        ),
+    .rd         ( rd        ),
     .ea_sel     ( ea_sel    ),
     .brcy       ( brcy      ),
     .stcy       ( stcy      ),
@@ -131,11 +131,9 @@ jt65c02_regs u_regs(
     .iv         ( iv        ),
     // ALU
     .rslt       ( rslt      ),
-    .rslt_h     ( rslt_h    ),
     .rslt_cc    ( rslt_cc   ),
     .op0        ( op0       ),
     .op1        ( op1       ),
-    .h          ( h         ),
     .c          ( c         ),
     .calt       ( calt      ),
     .din        ( din       ),

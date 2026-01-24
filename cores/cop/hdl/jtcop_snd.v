@@ -57,13 +57,14 @@ reg         nmin, opl_cs, opn_cs, ram_cs, bank_cs,
             nmi_clr, oki_cs, dev_cs;
 wire        irqn, ram_we, cpu_rnw, oki_wrn;
 wire        opn_irqn, opl_irqn;
-
+wire        cpu_acc;
 
 assign irqn     = KARNOV ? opl_irqn : opn_irqn & opl_irqn;
 assign ram_we   = ram_cs & cpu_wr;
 assign oki_wrn  = ~(oki_cs & cpu_wr);
 assign rom_addr = cpu_addr;
 assign status   = { 1'b0, opn_irqn, opl_irqn, opn_dout[7], oki_dout[3:0]};
+assign cpu_acc  = cpu_rd | cpu_wr;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -78,7 +79,7 @@ always @(posedge clk, posedge rst) begin
         opl_cs  <= 0;
         nmi_clr <= 0;
         oki_cs  <= 0;
-        if( KARNOV ) begin
+        if( KARNOV==1 && cpu_acc ) begin
             bank_cs <= 0;
             rom_cs  <= cpu_addr[15];
             if( !cpu_addr[15] ) begin
@@ -89,7 +90,7 @@ always @(posedge clk, posedge rst) begin
                     3: opl_cs  <= 1;
                 endcase
             end
-        end else begin
+        end else if(cpu_acc) begin
             bank_cs <= BANKS && cpu_addr[15] && !cpu_rnw;
             rom_cs  <= |cpu_addr[15:14]; // some games only use bit 15
             if(cpu_addr[15:14]==0) begin
@@ -145,7 +146,7 @@ end
 // As the sound tempo comes from interruptions,
 // cycle recovery isn't probably needed
 wire [7:0] nc;
-wire cpu_wr;
+wire cpu_wr, cpu_rd;
 assign cpu_rnw = ~cpu_wr;
 
 jt65c02 u_cpu(
@@ -154,6 +155,7 @@ jt65c02 u_cpu(
     .cen    ( cen6      ),  // crystal clock freq. = 4x E pin freq.
     .irq    (~irqn      ),
     .nmi    (~nmin      ),
+    .rd     ( cpu_rd    ),
     .wr     ( cpu_wr    ),
     .addr   ( cpu_addr  ), // always valid
     .din    ( cpu_din   ),

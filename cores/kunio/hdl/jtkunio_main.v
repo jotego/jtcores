@@ -67,7 +67,7 @@ wire [ 7:0] mcu_dout;
 reg         bank, bank_cs, io_cs, flip_cs,
             scrpos0_cs, scrpos1_cs, cab_cs,
             irq_clr, nmi_clr, mcu_clr, main2mcu_cs, mcu2main_cs;
-wire        rdy, irq, nmi, cpu_wr,
+wire        rdy, irq, nmi, cpu_wr, cpu_rd, cpu_acc,
             mcu_stn, mcu_irqn;
 
 assign rom_addr = { cpu_addr[15], cpu_addr[15] ? cpu_addr[14] : bank, cpu_addr[13:0] };
@@ -75,6 +75,7 @@ assign rdy      = ~rom_cs | rom_ok;
 assign bus_addr = cpu_addr[12:0];
 assign nmi      = ~(LVBL & dip_pause);
 assign cpu_rnw  = ~cpu_wr;
+assign cpu_acc  =  cpu_wr | cpu_rd;
 
 always @* begin
     rom_cs      = 0;
@@ -95,8 +96,8 @@ always @* begin
     mcu_clr     = 0;
     cab_cs      = 0;
     if( cpu_addr[15:14]>= 1 ) begin
-        rom_cs = 1;
-    end else begin
+        rom_cs = cpu_rd;
+    end else if(cpu_acc) begin
         case( cpu_addr[13:11] )
             0,1,2,3: ram_cs = 1; // 8kB in total, the character VRAM is the upper 2kB. Merged in the same chips.
             4: objram_cs = 1;
@@ -182,6 +183,7 @@ jt65c02 u_cpu(
     .irq    ( irq       ),
     .nmi    ( nmi       ),
     .wr     ( cpu_wr    ),
+    .rd     ( cpu_rd    ),
     .addr   ( cpu_addr  ), // always valid
     .din    ( cpu_din   ),
     .dout   ( cpu_dout  )
