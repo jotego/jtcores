@@ -53,7 +53,8 @@ reg  [ 7:0] cpu_din;
 wire [ 7:0] nc, cfg, cpu_dout;
 wire [ 3:0] bank;
 reg         cfg_cs, bank_cs, st_cs, cmd_cs, x1pcm_cs;
-wire        rdy, nmi, nmi_clrn, irq, irq_clrn, mute, rnw, cpu_wr;
+wire        rdy, nmi, nmi_clrn, irq, irq_clrn, mute, rnw,
+            cpu_wr, cpu_rd, cpu_acc;
 
 // $4'0000 (256kB), 16 pages of 8kB each (128kB) plus $4000 (16kB) Fixed
 assign rom_addr  = { rom_upper, A[12:0] };
@@ -69,15 +70,16 @@ assign pcm_cs      = 0;
 assign st_dout     = 0;
 assign snd         = 0;
 assign sample      = 0;
-assign rnw = ~cpu_wr;
+assign rnw         =~cpu_wr;
+assign cpu_acc     = cpu_wr | cpu_rd;
 
 always @* begin
-    x1pcm_cs = A[15:12]<=1;
-    cmd_cs   = A[15:12]==4 &&  rnw;
-    cfg_cs   = A[15:12]==4 && !rnw;
-    rom_cs   = A[15] && rnw;
-    bank_cs  = A[15:14]==2;
-    st_cs    = A[15:12]==4'hc && !rnw;
+    x1pcm_cs = cpu_acc && A[15:12]<=1;
+    cmd_cs   = cpu_rd  && A[15:12]==4;
+    cfg_cs   = cpu_wr  && A[15:12]==4;
+    rom_cs   = cpu_rd  && A[15];
+    bank_cs  = cpu_rd  && A[15:14]==2;
+    st_cs    = cpu_wr  && A[15:12]==4'hc;
 end
 
 jtframe_edge u_244hz(
@@ -126,6 +128,7 @@ jt65c02 u_cpu(
     .cen    ( cen2      ),  // crystal clock freq. = 4x E pin freq.
     .irq    ( irq       ),
     .nmi    ( nmi       ),
+    .rd     ( cpu_rd    ),
     .wr     ( cpu_wr    ),
     .addr   ( A         ), // always valid
     .din    ( cpu_din   ),
