@@ -28,4 +28,4 @@ sdram:
       - name: obj
         addr_width: 17
         data_width: 16
-        cs: LVBL
+        cs: 1'b1
