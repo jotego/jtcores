@@ -33,6 +33,11 @@ module jtngp_flash(
     output            rdy,      // rdy / ~bsy pin
     output            cpu_ok,   // read data available
 
+    // save/load memory
+    output reg [15:1] flash_addr,
+    output reg [15:0] flash_din,
+    output reg [ 1:0] flash_we,
+
     // interface to SDRAM
     output reg [20:1] cart_addr,
     output reg        cart_we,
@@ -143,12 +148,34 @@ end
 
 `ifdef SIMULATION
 reg cart_wel;
+reg [20:1] auto_addr=0;
+wire autoprog = st==AUTOPROG;
 
 always @(posedge clk) begin
     cart_wel <= cart_we;
     if( cart_we && !cart_wel ) $display("Flash written to");
 end
+
+always @(posedge clk) begin
+    if(eff_addr>auto_addr && autoprog && we_edge)
+        auto_addr <= eff_addr;
+end
 `endif
+
+always @(posedge clk) begin
+    if(rst) begin
+        flash_addr <= 0;
+        flash_din  <= 0;
+        flash_we   <= 0;
+    end else begin
+        flash_we   <= 0;
+        if(prog_bsy) begin
+            flash_addr <= cart_addr[15:1];
+            flash_din  <= cart_din;
+            flash_we   <= {2{cart_we & cart_ok}};
+        end
+    end
+end
 
 always @(posedge clk, posedge rst ) begin
     if( rst ) begin
