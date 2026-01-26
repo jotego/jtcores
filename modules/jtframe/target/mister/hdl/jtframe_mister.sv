@@ -128,9 +128,9 @@ module jtframe_mister #(parameter
     output              ioctl_cart,
     // Save/Load
     input               sav_change,
-    output              sav_ld,
+    output reg          sav_ld,
     input        [15:0] sav_din,
-    output       [15:0] sav_dout,
+    output reg   [15:0] sav_dout,
     output       [15:0] sav_addr,
 
     input  [SDRAMW-1:0] prog_addr,
@@ -327,7 +327,11 @@ jtframe_mister_status u_status(
     .gun_border_en  ( gun_border_en  ),
     .uart_en        ( uart_en        )
 );
-
+wire [7:0] sd_data = debug_bus[3]? sav_dout[15:8]:
+                     debug_bus[2]? sav_dout[7:0] :
+                     debug_bus[1]? sd_lba       :
+                     debug_bus[0]? sd_buff_addr :
+                     {|img_size, img_readonly, img_mounted, sd_rd, /*sd_wr*/ioctl_cart, /*sav_change*/sav_ld, sd_ack, bk_ena};
 jtframe_target_info u_target_info(
     .clk            ( clk_sys        ),
     .joyana_l1      ( joyana_l1      ),
@@ -345,7 +349,7 @@ jtframe_target_info u_target_info(
     .game_paddle_2  ( game_paddle_2  ),
     .dial_x         ( dial_x         ),
     .dial_y         ( dial_y         ),
-    .st_lpbuf       ( st_lpbuf       ),
+    .st_lpbuf       ( sd_data/*st_lpbuf*/       ),
     .ioctl_lock     ( ioctl_lock     ),
     .ioctl_cart     ( ioctl_cart     ),
     .ioctl_ram      ( ioctl_ram      ),
@@ -514,13 +518,13 @@ hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO) ) u_hps_io
     // NVRAM support
     .ioctl_rd        (                ), // no need
     `ifdef JTFRAME_SAVEGAME
-    .sd_lba          ( '{sd_lba}         ), // input
+    .sd_lba          ('{sd_lba}       ), // input
     .sd_rd           ( sd_rd          ), // input
     .sd_wr           ( sd_wr          ), // input
     .sd_ack          ( sd_ack         ), // output
     .sd_buff_addr    ( sd_buff_addr   ), // output
-    .sd_buff_dout    ( sav_dout       ), // output
-    .sd_buff_din     ( '{sav_din}        ), // input
+    .sd_buff_dout    ( sd_buff_dout   ), // output
+    .sd_buff_din     ('{sd_buff_din}  ), // input
     .sd_buff_wr      ( sd_buff_wr     ), // output
     .img_mounted     ( img_mounted    ), // output
     .img_readonly    ( img_readonly   ), // output
@@ -561,15 +565,29 @@ hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO) ) u_hps_io
     .ioctl_file_ext  (                )
 );
 
+initial {sav_dout, sav_ld} = 0;
+
 `ifdef JTFRAME_SAVEGAME
 wire [31:0] sd_lba;
-wire [ 7:0] sd_buff_addr;
-wire        sd_ack, sd_wr, sd_rd, sd_buff_wr;
+wire [15:0] sv_addr;
+reg  [15:0] ld_addr;
+wire [ 7:0] sd_buff_addr, sd_buff_din, sd_buff_dout;
+wire        bk_ena, sd_ack, sd_wr, sd_rd, sd_buff_wr;
 wire [63:0] img_size;
 wire        img_mounted, img_readonly;
 
-assign sav_addr = {sd_lba[7:0], sd_buff_addr};
-assign sav_ld   = sd_buff_wr & sd_ack;
+assign sv_addr     = {sd_lba[7:0], sd_buff_addr};
+assign sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
+assign sav_addr    = sd_buff_wr     ? ld_addr       : sv_addr;
+
+always @(clk_sys) begin
+    ld_addr <= sv_addr;
+    sav_ld  <= sd_buff_wr & sd_ack & sd_buff_addr[0];
+    if(sd_buff_addr[0])
+        sav_dout[15:8] <= sd_buff_dout;
+    else
+        sav_dout[ 7:0] <= sd_buff_dout;
+end
 
 jtframe_mister_cartsave u_save(
     .clk         ( clk_sys      ),
@@ -578,16 +596,17 @@ jtframe_mister_cartsave u_save(
     .img_mounted ( img_mounted  ),
     .img_readonly( img_readonly ),
     .ram_save    ( ram_save     ),
-    .ram_load    ( ram_load     ),
+    .ram_load    ( ram_load | debug_bus[7]     ),
     .downloading ( ioctl_cart   ),
     .bk_change   ( sav_change   ),
     .sd_ack      ( sd_ack       ),
     .sd_rd       ( sd_rd        ),
     .sd_wr       ( sd_wr        ),
+    .bk_ena      ( bk_ena ),
     .sd_lba      ( sd_lba       )
 );
 `else
-    assign {sav_dout, sav_addr, sav_ld} = 0;
+assign sav_addr = 0;
 `endif
 
 `ifndef DEBUG_NOHDMI

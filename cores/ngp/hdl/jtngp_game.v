@@ -45,8 +45,12 @@ assign pwr_button = pwr_press & ~&{~ioctl_cart,cart_l,halted}; // active low, po
 assign f1g_gcs  = cart_size[3] & flash1_cs;
 assign f1g_dout = cart_size[3] ? flash1_dout : 16'd0;
 
-assign {sav_change, sav_din } = 0;
-assign {flash_addr, flash_cs} = 0;
+assign sav_din    = svld_data;
+assign sav_change = |flash_we;
+assign svld_dout  = sav_dout;
+assign svld_addr  = debug_bus[5]? {11'b0, debug_bus[3:0]} : sav_addr[15:1];
+// assign svld_addr  =  sav_addr[15:1];
+assign svld_we    = {2{sav_ld}};
 
 `ifdef CARTSIZE initial cart_size=`CARTSIZE; `endif
 always @(posedge clk) begin
@@ -72,6 +76,7 @@ always @(posedge clk) begin
             3: st_mux <= { mode, 4'd0, snd_nmi, snd_irq, snd_rstn };
         endcase
     endcase
+    st_mux <= debug_bus[4] ? sav_din[15:8] : sav_din[7:0]; // Remove
 end
 
 assign ioctl_din = ioctl_addr[7] ? ioctl_pal : ioctl_main;
@@ -158,7 +163,10 @@ jtngp_flash u_flash0(
     .cpu_din    (flash0_dout),
     .rdy        ( flash0_rdy),      // rdy / ~bsy pin
     .cpu_ok     ( flash0_ok ),   // read data available
-
+    // save/load memory
+    .flash_addr ( flash_addr),
+    .flash_din  ( flash_din ),
+    .flash_we   ( flash_we  ),
     // interface to SDRAM
     .cart_addr  ( cart0_addr),
     .cart_we    ( cart0_we  ),
@@ -182,7 +190,10 @@ jtngp_flash u_flash1(
     .cpu_din    (flash1_dout),
     .rdy        ( flash1_rdy),      // rdy / ~bsy pin
     .cpu_ok     ( flash1_ok ),   // read data available
-
+    // save/load memory
+    .flash_addr (           ),
+    .flash_din  (           ),
+    .flash_we   (           ),
     // interface to SDRAM
     .cart_addr  ( cart1_addr),
     .cart_we    (           ),

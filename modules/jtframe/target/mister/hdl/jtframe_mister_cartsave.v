@@ -27,14 +27,14 @@ module jtframe_mister_cartsave (
     input             bk_change,
     input             sd_ack,
     output reg [31:0] sd_lba,
-    output reg        sd_rd,
+    output reg        sd_rd, bk_ena,
     output reg        sd_wr
 );
 
 /////////////////////////  BRAM SAVE/LOAD  /////////////////////////////
 
 wire bk_load, bk_save;
-reg  bk_ena,  bk_loading, bk_state;
+reg  /*bk_ena,*/  bk_loading, bk_state;
 reg  sav_pending;
 reg  old_downloading, old_load, old_save, old_ack,
      old_change;
@@ -62,7 +62,7 @@ always @(posedge clk) begin
 		bk_ena <= 1;
 
 	old_change <= bk_change;
-	if (~old_change & bk_change & ~OSD_STATUS)
+	if (bk_ena/*~old_change*/ & bk_change & ~OSD_STATUS)
 		sav_pending <= 1;
 	else if (bk_state)
 		sav_pending <= 0;
