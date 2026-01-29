@@ -226,9 +226,9 @@ wire [ 1:0]  sram_dsn;
 wire         sram_wen, sram_ok;
 // Save/Load
 wire [15:0]  sav_din, sav_dout, sav_addr;
-wire         sav_change, sav_ld;
+wire         sav_change, sav_ld, sav_file;
 
-assign {sav_dout, sav_addr, sav_ld} = 0;
+assign {sav_dout, sav_addr, sav_ld, sav_file} = 0;
 
 assign SDRAM_DQM= { SDRAM_DQMH, SDRAM_DQML };
 
@@ -634,6 +634,7 @@ u_game(
 `ifdef JTFRAME_SAVEGAME
     // Save/Load
     .sav_change ( sav_change    ),
+    .sav_file   ( sav_file      ),
     .sav_ld     ( sav_ld        ),
     .sav_din    ( sav_din       ),
     .sav_dout   ( sav_dout      ),

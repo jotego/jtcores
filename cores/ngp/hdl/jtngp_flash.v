@@ -46,6 +46,7 @@ module jtngp_flash(
     input      [15:0] cart_data,
     output reg [ 1:0] cart_dsn,
     output reg [15:0] cart_din
+    , output reg [7:0] auto_addr_max, auto_addr_min
 );
 
 localparam [3:0] DEV_2F_4 = 8, //   4 MB
@@ -146,21 +147,30 @@ always @* begin
     end
 end
 
+
 `ifdef SIMULATION
 reg cart_wel;
-reg [20:1] auto_addr=0;
-wire autoprog = st==AUTOPROG;
-
 always @(posedge clk) begin
     cart_wel <= cart_we;
     if( cart_we && !cart_wel ) $display("Flash written to");
 end
-
-always @(posedge clk) begin
-    if(eff_addr>auto_addr && autoprog && we_edge)
-        auto_addr <= eff_addr;
-end
 `endif
+
+
+reg [7:0] auto_max, auto_min;
+always @(posedge clk, posedge rst) begin
+    if(rst) begin
+       auto_addr_max <= 0;
+       auto_addr_min <= 8'hFF;
+       auto_max <= 0;
+       auto_min <= 8'hFF;
+    end else if(prog_bsy && |prog_st) begin
+        if(cart_addr[20:5] > {auto_max,auto_addr_max})
+            {auto_max,auto_addr_max} <= cart_addr[20:5];
+        if(cart_addr[20:5] < {auto_min,auto_addr_min})
+            {auto_min,auto_addr_min} <= cart_addr[20:5];
+    end
+end
 
 always @(posedge clk) begin
     if(rst) begin
@@ -172,7 +182,7 @@ always @(posedge clk) begin
         if(prog_bsy) begin
             flash_addr <= cart_addr[15:1];
             flash_din  <= cart_din;
-            flash_we   <= {2{cart_we & cart_ok}};
+            flash_we   <= {2{cart_we & cart_ok}} & ~cart_dsn;
         end
     end
 end

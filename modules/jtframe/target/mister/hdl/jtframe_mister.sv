@@ -128,10 +128,11 @@ module jtframe_mister #(parameter
     output              ioctl_cart,
     // Save/Load
     input               sav_change,
+    output reg          sav_file,
     output reg          sav_ld,
     input        [15:0] sav_din,
     output reg   [15:0] sav_dout,
-    output       [15:0] sav_addr,
+    output reg   [15:0] sav_addr,
 
     input  [SDRAMW-1:0] prog_addr,
     input        [15:0] prog_data,
@@ -494,7 +495,7 @@ assign joystick2 = joyusb_2;
     assign hps_din = ioctl_din;
 `endif
 
-hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO) ) u_hps_io
+hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO), .BLKSZ(1) ) u_hps_io
 (
     .clk_sys         ( clk_rom        ),
     .HPS_BUS         ( HPS_BUS        ),
@@ -565,24 +566,30 @@ hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO) ) u_hps_io
     .ioctl_file_ext  (                )
 );
 
-initial {sav_dout, sav_ld} = 0;
+initial {sav_dout, sav_ld, sav_file} = 0;
 
 `ifdef JTFRAME_SAVEGAME
 wire [31:0] sd_lba;
-wire [15:0] sv_addr;
+reg  [15:0] sv_addr;
 reg  [15:0] ld_addr;
-wire [ 7:0] sd_buff_addr, sd_buff_din, sd_buff_dout;
+reg  [ 7:0] sd_buff_din;
+wire [ 7:0] sd_buff_addr, sd_buff_dout;
 wire        bk_ena, sd_ack, sd_wr, sd_rd, sd_buff_wr;
 wire [63:0] img_size;
 wire        img_mounted, img_readonly;
 
-assign sv_addr     = {sd_lba[7:0], sd_buff_addr};
-assign sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
-assign sav_addr    = sd_buff_wr     ? ld_addr       : sv_addr;
+
+always @* begin
+    sav_file    =|img_size & bk_ena;
+    sav_addr    = sd_buff_wr     ? ld_addr       : sv_addr;
+    sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
+    sv_addr     ={sd_lba[7:0], sd_buff_addr};
+
+end
 
 always @(clk_sys) begin
-    ld_addr <= sv_addr;
-    sav_ld  <= sd_buff_wr & sd_ack & sd_buff_addr[0];
+    ld_addr  <= sv_addr;
+    sav_ld   <= sd_buff_wr & sd_ack & sd_buff_addr[0];
     if(sd_buff_addr[0])
         sav_dout[15:8] <= sd_buff_dout;
     else
@@ -596,7 +603,7 @@ jtframe_mister_cartsave u_save(
     .img_mounted ( img_mounted  ),
     .img_readonly( img_readonly ),
     .ram_save    ( ram_save     ),
-    .ram_load    ( ram_load | debug_bus[7]     ),
+    .ram_load    ( ram_load     ),
     .downloading ( ioctl_cart   ),
     .bk_change   ( sav_change   ),
     .sd_ack      ( sd_ack       ),

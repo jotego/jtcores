@@ -205,6 +205,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
 `ifdef JTFRAME_SAVEGAME
     // Save/Load
     .sav_change ( sav_change    ),
+    .sav_file   ( sav_file      ),
     .sav_ld     ( sav_ld        ),
     .sav_din    ( sav_din       ),
     .sav_dout   ( sav_dout      ),
