@@ -47,69 +47,18 @@ assign f1g_gcs  = cart_size[3] & flash1_cs;
 assign f1g_dout = cart_size[3] ? flash1_dout : 16'd0;
 
 assign sav_din    = svld_data;
-assign sav_change = |flash_we |  rstr_bsy;
-assign svld_addr  = rstr_bsy  ?  rstr_addr   : sav_addr[15:1];
-assign svld_dout  = rstr_rom  ?  gs0_data    : sav_dout;
-assign svld_we    = rstr_rom  ? {2{rstr_we}} : {2{sav_ld}};
+assign sav_change = |flash_we;
+assign svld_addr  = sav_addr[15:1];
+assign svld_dout  = sav_dout;
+assign svld_we    = {2{sav_ld}};
 
-wire        rstr_done, rstr_bsy;
-reg         rstr_ld, rstr_we, rstr_cs, rstr_rom, ld_l, rst_l;
-wire [15:1] rstr_addr_nx;
-reg  [15:1] rstr_addr;
-reg  [ 2:0] rstr_st;
-reg  [ 1:0] rstr_dsn;
+wire flash_buff_init = cart_l && !ioctl_cart && !sav_file;
+wire flash_new_load  = ld_l   && !sav_ld     && &sav_addr[14:8];
+reg  ld_l;
+always @(posedge clk) ld_l  <= sav_ld;
 
 assign {gs1_cs, gs1_addr}=0;
-assign gs0_addr = rstr_addr;
-assign gs0_din  = svld_data;
-assign gs0_dsn  = rstr_dsn;
-assign gs0_we   = rstr_we & rstr_ld;
-assign gs0_cs   = rstr_cs;
-
-assign rstr_done = &rstr_addr;
-assign rstr_bsy  = rstr_rom | rstr_ld;
-assign rstr_addr_nx = rstr_addr + 15'b1;
-
-always @(posedge clk, posedge rst) begin
-    if(rst) begin
-        ld_l <= 0;
-        rstr_addr <=15'h7FFF;
-        rstr_dsn <= 2'b11;
-        rstr_ld  <= 0;
-        rstr_rom <= 0;
-        rstr_cs  <= 0;
-        rstr_we  <= 0;
-        rstr_st  <= 0;
-    end else begin
-        ld_l  <= sav_ld;
-        rst_l <= rst;
-        if(sav_ld) {rstr_rom, rstr_ld} <= 0;
-        else if( rstr_rom | rstr_ld ) begin
-            rstr_st <= rstr_st + 1'd1;
-            case( rstr_st )
-                0: { rstr_addr, rstr_we, rstr_cs } <= { rstr_addr_nx, 2'b01 };
-                2: if( !gs0_ok ) rstr_st <= 2; else   rstr_cs <= 0;
-                3: { rstr_dsn,  rstr_cs, rstr_we } <= { {2{~rstr_ld}}, rstr_ld, 1'b1  };
-                4: if( !gs0_ok && rstr_ld ) rstr_st <= 4; else { rstr_we, rstr_cs, rstr_dsn } <= 4'b11;
-                5: if( rstr_done ) { rstr_ld, rstr_rom } <= 0;
-            endcase
-        end begin
-            // If no save file at boot, fill buffer from sdram block
-            // if(cart_l & ~ioctl_cart & ~sav_file /*|| (~rst && rst_l)*/) begin
-            if(cart_l && !ioctl_cart && !sav_file) begin
-                rstr_rom  <= 1;
-                rstr_st   <= 0;
-                rstr_addr <= 15'h7FFF;
-            end else
-            //After loading buffer from save file, write in sdram
-            if(ld_l && &sav_addr[14:8]) begin
-                rstr_ld   <= 1;
-                rstr_st   <= 0;
-                rstr_addr <= 15'h7FFF;
-            end
-        end
-    end
-end
+assign gs0_din  = flash_dout;
 
 `ifdef CARTSIZE initial cart_size=`CARTSIZE; `endif
 always @(posedge clk) begin
@@ -135,10 +84,6 @@ always @(posedge clk) begin
             3: st_mux <= { mode, 4'd0, snd_nmi, snd_irq, snd_rstn };
         endcase
     endcase
-    // st_mux <= debug_bus[4] ? auto_addr_max : auto_addr_min; // Remove
-    st_mux <= {rstr_ld, rstr_rom, rstr_cs, rstr_done, sav_file, rstr_we, rstr_dsn};
-    if(debug_bus[5])
-        st_mux <= debug_bus[4] ? rstr_addr[15:8] : {rstr_addr[7:1],1'b0}; // Remove
 end
 
 assign ioctl_din = ioctl_addr[7] ? ioctl_pal : ioctl_main;
@@ -236,9 +181,15 @@ jtngp_flash u_flash0(
     .cart_ok    ( cart0_ok  ),
     .cart_data  ( cart0_data),
     .cart_dsn   ( cart0_dsn ),
-    .cart_din   ( cart0_din )
-    , .auto_addr_max(auto_addr_max),
-    .auto_addr_min(auto_addr_min)
+    .cart_din   ( cart0_din ),
+    .flash_init ( flash_buff_init),
+    .new_load   ( flash_new_load ),
+    .gs_ok      ( gs0_ok     ),
+    .gs_data    ( gs0_data   ),
+    .gs_addr    ( gs0_addr   ),
+    .gs_dsn     ( gs0_dsn    ),
+    .gs_we      ( gs0_we     ),
+    .gs_cs      ( gs0_cs     )
 );
 
 jtngp_flash u_flash1(
@@ -265,8 +216,15 @@ jtngp_flash u_flash1(
     .cart_ok    ( cart1_ok  ),
     .cart_data  ( cart1_data),
     .cart_dsn   (           ),
-    .cart_din   (           )
-    ,.auto_addr_min(), .auto_addr_max()
+    .cart_din   (           ),
+    .gs_ok      ( 1'b0      ),
+    .flash_init ( 1'b0      ),
+    .new_load   ( 1'b0      ),
+    .gs_data    ( 16'b0     ),
+    .gs_addr    (           ),
+    .gs_dsn     (           ),
+    .gs_we      (           ),
+    .gs_cs      (           )
 );
 /* verilator tracing_off */
 jtngp_snd u_snd(

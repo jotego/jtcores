@@ -45,8 +45,16 @@ module jtngp_flash(
     input             cart_ok,
     input      [15:0] cart_data,
     output reg [ 1:0] cart_dsn,
-    output reg [15:0] cart_din
-    , output reg [7:0] auto_addr_max, auto_addr_min
+    output reg [15:0] cart_din,
+
+    input             flash_init,
+    input             new_load,
+    input             gs_ok,
+    input      [15:0] gs_data,
+    output reg [15:1] gs_addr,
+    output reg [ 1:0] gs_dsn,
+    output reg        gs_we,
+    output reg        gs_cs
 );
 
 localparam [3:0] DEV_2F_4 = 8, //   4 MB
@@ -157,32 +165,55 @@ end
 `endif
 
 
-reg [7:0] auto_max, auto_min;
-always @(posedge clk, posedge rst) begin
-    if(rst) begin
-       auto_addr_max <= 0;
-       auto_addr_min <= 8'hFF;
-       auto_max <= 0;
-       auto_min <= 8'hFF;
-    end else if(prog_bsy && |prog_st) begin
-        if(cart_addr[20:5] > {auto_max,auto_addr_max})
-            {auto_max,auto_addr_max} <= cart_addr[20:5];
-        if(cart_addr[20:5] < {auto_min,auto_addr_min})
-            {auto_min,auto_addr_min} <= cart_addr[20:5];
-    end
-end
+wire        rstr_done;
+reg         rstr_ld, rstr_rom, ld_l, rst_l;
+wire [15:1] gs_addr_nx;
+reg  [ 2:0] rstr_st;
+
+assign rstr_done = &gs_addr;
+assign gs_addr_nx = gs_addr + 15'b1;
 
 always @(posedge clk) begin
     if(rst) begin
         flash_addr <= 0;
         flash_din  <= 0;
         flash_we   <= 0;
+
+        gs_addr <=15'h7FFF;
+        gs_dsn <= 2'b11;
+        rstr_ld  <= 0;
+        rstr_rom <= 0;
+        gs_cs  <= 0;
+        gs_we  <= 0;
+        rstr_st  <= 0;
     end else begin
         flash_we   <= 0;
         if(prog_bsy) begin
             flash_addr <= cart_addr[15:1];
             flash_din  <= cart_din;
             flash_we   <= {2{cart_we & cart_ok}} & ~cart_dsn;
+        end else if( rstr_rom | rstr_ld ) begin
+            rstr_st <= rstr_st + 1'd1;
+            case( rstr_st )
+                0: { gs_addr, flash_addr, gs_we, flash_we, gs_cs } <= { {2{gs_addr_nx}}, 4'b0001 };
+                2: if( !gs_ok ) rstr_st <= 2; else begin flash_din <= gs_data; gs_cs <= 0; end
+                3: { gs_dsn,  gs_cs, gs_we, flash_we } <=  rstr_ld ? 6'b001100 : 6'b110011;
+                4: if( !gs_ok && rstr_ld ) rstr_st <= 4; else { gs_we, gs_cs, flash_we, gs_dsn } <= 6'b11;
+                5: if( rstr_done ) { rstr_ld, rstr_rom } <= 0;
+            endcase
+        end begin
+            // If no save file at boot, fill buffer from sdram block
+            if( flash_init ) begin
+                rstr_rom  <= 1;
+                rstr_st   <= 0;
+                gs_addr <= 15'h7FFF;
+            end else
+            //After loading buffer from save file, write in sdram
+            if( new_load ) begin
+                rstr_ld   <= 1;
+                rstr_st   <= 0;
+                gs_addr <= 15'h7FFF;
+            end
         end
     end
 end
