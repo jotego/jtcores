@@ -1,5 +1,6 @@
 params:
   - { name: MB2, value: "22'h10_0000" }
+  - { name: SV0, value: "22'h1E_0000" }
 clocks:
   clk:
     - freq: 1024
@@ -23,11 +24,21 @@ sdram:
   banks:
     -
     - buses:
+        - name: gs0
+          addr_width: 16
+          data_width: 16
+          rw: true
+          offset: SV0
         - name: cart0
           addr_width: 21
           data_width: 16
           rw: true
           do_not_erase: true
+        - name: gs1
+          addr_width: 16
+          data_width: 16
+          # rw: true
+          offset: SV0
         - name: cart1
           addr_width: 21
           data_width: 16
