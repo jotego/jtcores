@@ -128,11 +128,11 @@ module jtframe_mister #(parameter
     output              ioctl_cart,
     // Save/Load
     input               sav_change,
-    output reg          sav_file,
-    output reg          sav_ld,
+    output              sav_file,
+    output              sav_ld,
     input        [15:0] sav_din,
-    output reg   [15:0] sav_dout,
-    output reg   [15:0] sav_addr,
+    output       [15:0] sav_dout,
+    output       [15:0] sav_addr,
 
     input  [SDRAMW-1:0] prog_addr,
     input        [15:0] prog_data,
@@ -566,35 +566,13 @@ hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO), .BLKSZ(1) ) u_h
     .ioctl_file_ext  (                )
 );
 
-initial {sav_dout, sav_ld, sav_file} = 0;
-
 `ifdef JTFRAME_SAVEGAME
 wire [31:0] sd_lba;
-reg  [15:0] sv_addr;
-reg  [15:0] ld_addr;
 reg  [ 7:0] sd_buff_din;
 wire [ 7:0] sd_buff_addr, sd_buff_dout;
 wire        bk_ena, sd_ack, sd_wr, sd_rd, sd_buff_wr;
 wire [63:0] img_size;
 wire        img_mounted, img_readonly;
-
-
-always @* begin
-    sav_file    =|img_size & bk_ena;
-    sav_addr    = sd_buff_wr     ? ld_addr       : sv_addr;
-    sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
-    sv_addr     ={sd_lba[7:0], sd_buff_addr};
-
-end
-
-always @(clk_sys) begin
-    ld_addr  <= sv_addr;
-    sav_ld   <= sd_buff_wr & sd_ack & sd_buff_addr[0];
-    if(sd_buff_addr[0])
-        sav_dout[15:8] <= sd_buff_dout;
-    else
-        sav_dout[ 7:0] <= sd_buff_dout;
-end
 
 jtframe_mister_cartsave u_save(
     .clk         ( clk_sys      ),
@@ -605,15 +583,24 @@ jtframe_mister_cartsave u_save(
     .ram_save    ( ram_save     ),
     .ram_load    ( ram_load     ),
     .downloading ( ioctl_cart   ),
-    .bk_change   ( sav_change   ),
+    .sd_buff_addr( sd_buff_addr ),
+    .sd_buff_dout( sd_buff_dout ),
+    .sd_buff_din ( sd_buff_din  ),
+    .sd_buff_wr  ( sd_buff_wr   ),
     .sd_ack      ( sd_ack       ),
     .sd_rd       ( sd_rd        ),
     .sd_wr       ( sd_wr        ),
-    .bk_ena      ( bk_ena ),
-    .sd_lba      ( sd_lba       )
+    .bk_ena      ( bk_ena       ),
+    .sd_lba      ( sd_lba       ),
+    .sav_change  ( sav_change   ),
+    .sav_din     ( sav_din      ),
+    .sav_dout    ( sav_dout     ),
+    .sav_addr    ( sav_addr     ),
+    .sav_file    ( sav_file     ),
+    .sav_ld      ( sav_ld       )
 );
 `else
-assign sav_addr = 0;
+assign {sav_addr, sav_dout, sav_ld, sav_file} = 0
 `endif
 
 `ifndef DEBUG_NOHDMI

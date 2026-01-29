@@ -24,29 +24,61 @@ module jtframe_mister_cartsave (
     input      [ 1:0] ram_save,
     input             ram_load,
     input             downloading, // ioctl_cart
-    input             bk_change,
+    input 	   [ 7:0] sd_buff_addr,
+    input 	   [ 7:0] sd_buff_dout,
+    output reg [ 7:0] sd_buff_din,
+    input 			  sd_buff_wr,
     input             sd_ack,
     output reg [31:0] sd_lba,
-    output reg        sd_rd, bk_ena,
-    output reg        sd_wr
+    output reg        sd_rd,
+    output reg        sd_wr,
+    output reg        bk_ena,
+    // Core
+    input             sav_change,
+    input      [15:0] sav_din,
+    output reg [15:0] sav_dout,
+    output reg [15:0] sav_addr,
+    output reg        sav_file,
+    output reg        sav_ld
+
 );
 
 /////////////////////////  BRAM SAVE/LOAD  /////////////////////////////
 
+reg  [15:0] sv_addr;
+reg  [15:0] ld_addr;
+
+always @* begin
+    sav_file    =|img_size & bk_ena;
+    sav_addr    = sd_buff_wr     ? ld_addr       : sv_addr;
+    sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
+    sv_addr     ={sd_lba[7:0], sd_buff_addr};
+
+end
+
+always @(posedge clk) begin
+    ld_addr  <= sv_addr;
+    sav_ld   <= sd_buff_wr & sd_ack & sd_buff_addr[0];
+    if(sd_buff_addr[0])
+        sav_dout[15:8] <= sd_buff_dout;
+    else
+        sav_dout[ 7:0] <= sd_buff_dout;
+end
+
 wire bk_load, bk_save;
-reg  /*bk_ena,*/  bk_loading, bk_state;
+reg  bk_loading, bk_state;
 reg  sav_pending;
-reg  old_downloading, old_load, old_save, old_ack,
-     old_change;
+reg  old_downloading, old_load, old_save, old_ack;
 
 initial begin
 	old_downloading = 0;
 	sav_pending     = 0;
-	old_load = 0; old_save   = 0;
-	old_ack  = 0; old_change = 0;
- 	bk_ena     = 0;
-	bk_state   = 0;
-	bk_loading = 0;
+	old_load        = 0;
+	old_save        = 0;
+	old_ack         = 0;
+ 	bk_ena          = 0;
+	bk_state        = 0;
+	bk_loading      = 0;
 end
 
 assign bk_save = ram_save[1] | (sav_pending & OSD_STATUS & ram_save[0]);
@@ -61,14 +93,11 @@ always @(posedge clk) begin
 	if(downloading && img_mounted && !img_readonly)
 		bk_ena <= 1;
 
-	old_change <= bk_change;
-	if (bk_ena/*~old_change*/ & bk_change & ~OSD_STATUS)
+	if (bk_ena & sav_change & ~OSD_STATUS)
 		sav_pending <= 1;
 	else if (bk_state)
 		sav_pending <= 0;
 end
-
-
 
 always @(posedge clk) begin
 	old_load <= bk_load;
