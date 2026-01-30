@@ -35,7 +35,7 @@ module jtframe_gated_cen #( parameter
     input              rst,
     input              clk,
     input              busy,
-    output reg [W-1:0] cen,
+    output     [W-1:0] cen,
 
     output     [ 15:0] fave, fworst // average cpu_cen frequency in kHz
 );

@@ -1,3 +1,4 @@
 #!/bin/bash
-jtsim -video 660 -w 590 -load -inputs sound.cab
+# dump withload should be 590
+jtsim -video 1060 -w 750 -load -inputs sound.cab
 
