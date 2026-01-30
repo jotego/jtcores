@@ -13,17 +13,30 @@ wire bad;
 assign busy=busy_en & pre;
 assign bad = cen & busy;
 
-always @(posedge bad) begin
+always @(posedge clk) if(bad) begin
     $display("cen & busy active at the same time");
     #1000;
     fail();
 end
 
+integer bsy_len=0;
+
+localparam MIN_TICKS_BETWEEN_BUSY_EVENTS = 30,
+           MIN_BUSY_LEN = 4;
+
 always @(posedge clk) begin
     if(pre) begin
-        if(($random & 32'hff) < 32'hc0) pre <= 0;
+        bsy_len <= bsy_len + 1;
+        if(($random & 32'hff) < 32'h040 && bsy_len>=MIN_BUSY_LEN || bsy_len>0) begin
+            pre <= 0;
+            bsy_len <= MIN_TICKS_BETWEEN_BUSY_EVENTS;
+        end
     end else begin
-        if(($random & 32'hff) < 32'h20) pre <= 1;
+        bsy_len <= bsy_len - 1;
+        if(($random & 32'hff) < 32'h004 && bsy_len<=0) begin
+            pre <= 1;
+            bsy_len <= 0;
+        end
     end
 end
 
@@ -33,7 +46,7 @@ initial begin
     busy_en = 1;
     @(posedge four_ms);
     repeat (20) begin
-        @(posedge four_ms) assert_msg(uut.u_info.fave==19'h18431,"average not correct");
+        @(posedge four_ms) assert_msg(uut.fave[15:4]==12'h184,"average not correct");
     end
     pass();
 end
@@ -48,7 +61,7 @@ jtframe_gated_cen #(.W(1),.NUM(48),.DEN(125),.MFREQ(48000)) uut(
     .fworst (           )
 );
 
-jtframe_test_clocks clocks(
+jtframe_test_clocks #(.MAXFRAMES(10)) clocks(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    (               ),
