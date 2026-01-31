@@ -29,7 +29,6 @@ func RunWavCmd(cmd *cobra.Command, args []string) {
 	if len(args)>0 { parser.input_fname = args[0] }
 
 	parser.signal_name,_  = cmd.Flags().GetString("signal")
-	parser.output_fname,_ = cmd.Flags().GetString("output")
 	parser.skip_silence,_ = cmd.Flags().GetBool("skip")
 	e := parser.Parse()
 	if e!=nil {
@@ -42,32 +41,31 @@ func (w *wav_parser_t)Parse() error {
 	w.lnfile.Open(w.input_fname)
 	defer w.lnfile.Close()
 	w.ss = vcd.GetSignals(w.lnfile)
-	e := w.validate_signals(); if e!=nil { return e }
-	w.wav_file = MakeWav()
-	w.move_vcd_data_to_wav()
-	return w.wav_file.Dump(w.output_fname)
+	dumped := 0
+	for _, w.signal = range w.ss {
+		name := w.signal.Name
+		if ! w.is_match(name) { continue }
+		w.wav_file = MakeWav()
+		w.lnfile.Reset()
+		w.move_vcd_data_to_wav()
+		e := w.wav_file.Dump(name+".wav")
+		if e!=nil { return e }
+		dumped++
+	}
+	if dumped==0 {
+		return fmt.Errorf("No signals dumped")
+	}
+	return nil
+}
+
+func (w *wav_parser_t)is_match(name string) bool {
+	dont_filter := w.signal_name==""
+	return strings.Contains(w.signal_name,name) || dont_filter
 }
 
 func (w *wav_parser_t)validate_signals() error {
 	if len(w.ss)==0 {
 		return fmt.Errorf("Empty VCD file")
-	}
-	if w.signal_name=="" {
-		if len(w.ss)==1 {
-			for name,sgn := range w.ss {
-				w.signal_name = name
-				w.signal = sgn
-				return nil
-			}
-		} else {
-			all_names := w.collect_signal_names()
-			return fmt.Errorf("No signal name provided but VCD has multiple options:\n%s", all_names)
-		}
-	}
-	e := w.find_signal()
-	if e!=nil {
-		all_names := w.collect_signal_names()
-		return fmt.Errorf("%w.\nValid names:\n %s", e, all_names)
 	}
 	return nil
 }

@@ -59,8 +59,10 @@ always @(posedge clk) begin
     if( pxl_cen ) begin
         cnt4    <= ~cnt4;
     end
-    // interrupt pulse lasts at least one pixel, so the CPU cupnowcan
-    // catch it
+end
+
+// interrupt pulse lasts at least one pixel, so the CPU can catch it
+always @(posedge clk) if(cen4) begin
     if( set_irq )
         { raster, irqsh } <= 2'b11;
     else if( pxl_cen ) begin

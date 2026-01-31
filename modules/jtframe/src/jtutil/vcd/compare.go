@@ -18,10 +18,13 @@
 package vcd
 
 import (
+    "errors"
     "fmt"
     "strings"
     "os"
 )
+
+var Verbose bool
 
 type CmpArgs struct {
     Ignore_rst bool
@@ -58,7 +61,7 @@ func mv_reset( cmpd *cmpData ) {
     }
 }
 
-func CompareAll( fnames []string, args CmpArgs ) {
+func CompareAll( fnames []string, args CmpArgs ) error {
     var c [2]cmpData
     for k,_ := range c{
         c[k].file = &LnFile{}
@@ -72,21 +75,7 @@ func CompareAll( fnames []string, args CmpArgs ) {
     if c[0].resets!=nil {
         fmt.Println("rst signals found")
     }
-    pairs := make(map[string]*VCDSignal)
-    k:=0
-    // find each signal pair in the other set
-    for _, signal := range c[0].data {
-        matched := c[1].data.Get( signal.FullName() )
-        if matched == nil {
-            for _, each := range c[1].data {
-                fmt.Println(each.FullName())
-            }
-            fmt.Println("Cannot find pair for signal ", signal.FullName())
-            return
-        }
-        pairs[signal.alias] = matched
-        k++
-    }
+    pairs, e := match_signals(c); if e!=nil { return e }
     // function to compare the two sets
     equal := func() (bool, string, uint64, uint64) {
         for ref, cmp := range pairs {
@@ -127,6 +116,45 @@ func CompareAll( fnames []string, args CmpArgs ) {
             break
         }
     }
+    return nil
+}
+
+func match_signals(c [2]cmpData) (pairs map[string]*VCDSignal, e error) {
+    pairs = make(map[string]*VCDSignal)
+    unmatched := make([]*VCDSignal,0,len(c[0].data))
+    // find each signal pair in the other set
+    for _, signal := range c[0].data {
+        matched := c[1].data.Get( signal.FullName() )
+        if matched != nil {
+            pairs[signal.alias] = matched
+        } else {
+            all_with_same_name := c[1].data.GetAll(signal.Name,false)
+            switch len(all_with_same_name) {
+                case 1: {
+                    pairs[signal.alias]=all_with_same_name[0]
+                    if Verbose {
+                        fmt.Println("Partial match:",signal.FullName(),all_with_same_name[0].FullName())
+                    }
+                }
+            default: unmatched = append(unmatched,signal)
+            }
+        }
+    }
+    return pairs, format_unmatched_error(unmatched)
+}
+
+func format_unmatched_error(unmatched []*VCDSignal) error {
+    if len(unmatched)==0 { return nil }
+    var sb strings.Builder
+    first := true
+    for _,signal := range unmatched {
+        if !first {
+            sb.WriteString(", ")
+        }
+        sb.WriteString(signal.FullName())
+        first = false
+    }
+    return errors.New(sb.String())
 }
 
 func Compare( fnames []string, sname string, args CmpArgs ) {
