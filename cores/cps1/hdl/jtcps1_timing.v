@@ -90,10 +90,9 @@ always @(posedge clk) if(cen8) begin
         vdump   <= vrender;
         { VB, shVB[1] } <= shVB;
         // What's the right value for the frame start (FI) signal
-        // 261 fails miserably in Cammy's stage
-        // 255 works for Cammy, but is it right?
-        //frame_start <= vrender1==(9'd255 + { debug_bus[7], debug_bus });
-        frame_start <= vrender1==9'd255;
+        // 260 works well in Cammy's stage and xmvsf (see issue 610)
+        // frame_start <= vrender1==(9'd260 + { debug_bus[7], debug_bus });
+        frame_start <= vrender1==9'd260;
     end else begin
         frame_start <= 0;
     end
