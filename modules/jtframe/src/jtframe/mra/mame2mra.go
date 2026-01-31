@@ -362,20 +362,10 @@ func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode
 	}
 	// Redirect clones to their own folder
 	main_mra := is_main(machine,mra_cfg)
-	if machine.Cloneof!="" && !main_mra {
-		pure_name := parent_names[machine.Cloneof]
-		pure_name = strings.ReplaceAll(pure_name, ":", "")
-		if k := strings.Index(pure_name, "("); k != -1 {
-			pure_name = pure_name[0:k]
-		}
-		if k := strings.Index(pure_name, " - "); k != -1 {
-			pure_name = pure_name[0:k]
-		}
-		pure_name = strings.ReplaceAll(pure_name, "/", "") // Prevent the creation of folders!
-		pure_name = strings.TrimSpace(pure_name)
-		pure_name = rm_spsp(pure_name)
-		fname = filepath.Join(args.altdir, "_"+pure_name)
-
+	if is_alternative := machine.Cloneof!="" && !main_mra; is_alternative {
+		parent_name := parent_names[machine.Cloneof]
+		group_name := get_altdir_name(parent_name)
+		fname = filepath.Join(args.altdir, "_"+group_name)
 		err := os.MkdirAll(fname, 0775)
 		if err != nil && !os.IsExist(err) {
 			log.Fatal(err, fname)
@@ -388,6 +378,30 @@ func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode
 	b.WriteString(mra_xml.Dump())
 	b.WriteString("\n")
 	os.WriteFile(fname, []byte(b.String()), 0666)
+}
+
+func get_altdir_name(parent_name string) string {
+	pure_name := strings.ReplaceAll(parent_name, ":", "")
+	if k := strings.Index(pure_name, "("); k != -1 {
+		pure_name = pure_name[0:k]
+	}
+	if k := strings.Index(pure_name, " - "); k != -1 {
+		left := pure_name[0:k]
+		right := pure_name[k+3:]
+		if prefer_right_half(right) {
+			pure_name = right
+		} else {
+			pure_name = left
+		}
+	}
+	pure_name = strings.ReplaceAll(pure_name, "/", "") // Prevent the creation of folders!
+	pure_name = strings.TrimSpace(pure_name)
+	pure_name = rm_spsp(pure_name)
+	return pure_name
+}
+
+func prefer_right_half(right string) bool {
+	return strings.HasPrefix(right,"Turtles in Time")
 }
 
 func mra_disclaimer(machine *MachineXML, year string) string {

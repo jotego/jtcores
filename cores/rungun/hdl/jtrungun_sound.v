@@ -212,7 +212,7 @@ generate if(PRMR==0) begin
     assign k539_l = k539a_l,
            k539_r = k539a_r;
 end else begin // 2nd jt539 not present in prmrsocr
-    assign auxa_l = 0, auxa_r = 0, k539b_l=0, k539b_r=0, k39b_dout=0,
+    assign auxa_l = 0, auxa_r = 0, k39b_dout=0,
            pcmb_cs=0, pcmb_addr=0, stb_dout=0,
            k539_l = k539a_l, k539_r = k539a_r;
 end endgenerate

@@ -26,6 +26,7 @@ import (
 type LnFile struct{
     f *os.File
     line int    // line count
+    reset_line int // line at which the file can be reset
     scn *bufio.Scanner
     time uint64
     fname string
@@ -38,6 +39,10 @@ func (ln *LnFile) Open(fname string) {
         log.Fatal(e)
     }
     ln.fname=fname
+    ln.make_scanner()
+}
+
+func (ln *LnFile) make_scanner() {
     ln.scn = bufio.NewScanner(ln.f)
     ln.line = 0
 }
@@ -58,6 +63,18 @@ func (ln *LnFile) Close() {
     if ln.f != nil {
         ln.f.Close()
     }
+}
+
+func (ln *LnFile)SetResetLine() {
+    ln.reset_line = ln.line
+}
+
+func (ln *LnFile) Reset() {
+    if ln.f==nil { return }
+    ln.f.Seek(0,0)
+    ln.time = 0
+    ln.make_scanner()
+    for ln.line!=ln.reset_line && ln.Scan() { }
 }
 
 func (ln *LnFile) Time() uint64 {

@@ -152,6 +152,8 @@ func GetScope( name string ) (string, string) {
 	return strings.Join(tokens[0:len(tokens)-1],"."), tokens[len(tokens)-1]
 }
 
+// GetAll returns all signals with the same name. The scope is ignored if
+// matchScope is set to false
 func (this VCDData)GetAll(name string, matchScope bool) []*VCDSignal {
 	if name=="" { return nil }
 	r := make([]*VCDSignal,0,1)
@@ -538,6 +540,7 @@ func GetSignals( file *LnFile ) VCDData {
             }
         }
     }
+    file.SetResetLine()
     return ss
 }
 

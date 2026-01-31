@@ -51,8 +51,7 @@ func add_wav_cmd() {
 		Run: wav.RunWavCmd,
 		Args: cobra.MaximumNArgs(1),
 	}
-	wavCmd.Flags().StringP("output","o","vcd.wav","output file name")
-	wavCmd.Flags().StringP("signal","s","","signal name")
+	wavCmd.Flags().StringP("signal","s","","All signals with partial matches to this name will be dumped")
 	wavCmd.Flags().BoolP  ("skip","k",false,"skip initial silence in input file")
 	rootCmd.AddCommand(wavCmd)
 }

@@ -35,35 +35,49 @@ module jtframe_gated_cen #( parameter
     input              rst,
     input              clk,
     input              busy,
-    output reg [W-1:0] cen,
+    output     [W-1:0] cen,
 
     output     [ 15:0] fave, fworst // average cpu_cen frequency in kHz
 );
 
 localparam NUM2   = NUM<<1,
-           DIGITS = (MFREQ*NUM)/DEN>9999 ? 5 : 4;
+           DIGITS = (MFREQ*NUM)/DEN>9999 ? 5 : 4,
+           MAXOUT = {CW{1'b1}};
 
 wire          over;
-wire [  CW:0] cencnt_nx, sum;
-reg  [CW-1:0] cencnt=0;
-reg  [ W-1:0] toggle=0, toggle_l=0;
+wire [  CW:0] cencnt_nx, sum, alt, rec_nx;
+reg  [CW-1:0] cencnt=0, rec;
+reg  [ W-1:0] toggle=0, toggle_l=0, pre=0;
 wire [DIGITS*4-1:0] full_ave, full_worst;
-wire          cnt_en = !busy || rst;
+wire          glitch, cnt_en;
 integer       i;
 
+assign cnt_en    = !busy || rst;
+assign glitch    = pre[0] & busy;
+assign cen       = pre & {W{~busy}};
 assign over      = cencnt > DEN[CW-1:0]-NUM2[CW-1:0];
 assign cencnt_nx = {1'b0,cencnt}+NUM2[CW:0] - ((over && cnt_en) ? DEN[CW:0] : {CW+1{1'b0}});
+assign rec_nx    = {1'b0,cencnt}+NUM2[CW:0];
+assign alt       = {1'b0,rec}+(NUM2[CW:0]<<1);
 assign fave      = full_ave[  DIGITS*4-1-:16];
 assign fworst    = full_worst[DIGITS*4-1-:16];
 
+function [CW-1:0] clip(input [CW:0]a); begin
+    clip = a[CW] ? MAXOUT : a[CW-1:0];
+end endfunction
+
 always @(posedge clk) begin
-    cencnt  <= cencnt_nx[CW] ? {CW{1'b1}} : cencnt_nx[CW-1:0];
+    cencnt <= clip(cencnt_nx);
+    rec    <= clip(rec_nx);
+    if(glitch) begin
+        cencnt <= clip(alt);
+    end
     if( over && cnt_en ) begin
         toggle <= toggle + 1'd1;
         toggle_l <= toggle;
-        cen <= ~toggle & toggle_l;
+        pre <= ~toggle & toggle_l;
     end else begin
-        cen <= 0;
+        pre <= 0;
     end
 end
 
@@ -72,9 +86,8 @@ reg bad=0, rst2=1, busy2=0;
 reg [2:0] badcnt=0;
 
 always @(posedge clk) begin
-    if( cen[0] ) rst2<=rst;
-    busy2 <= busy;
-    if( !rst2 && busy2 && cen!=0 ) begin
+    if( pre[0] ) rst2<=rst;
+    if( !rst2 && busy && cen!=0 ) begin
         $display("%m cen active while busy was high. Is busy dependent on a different clock domain?");
         bad<=1;
     end

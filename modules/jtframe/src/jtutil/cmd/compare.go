@@ -50,7 +50,10 @@ Not providing a signal name will compare all signals in the VCD
 		if len(args)==3 {
 			vcd.Compare( args[0:2], args[2], cmpArgs )
 		} else {
-			vcd.CompareAll( args[0:2], cmpArgs )
+			e := vcd.CompareAll( args[0:2], cmpArgs )
+			if e!=nil {
+				fmt.Println(e)
+			}
 		}
 	},
 	Args: cobra.MinimumNArgs(2),
@@ -87,9 +90,10 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	compareCmd.Flags().BoolVarP(&cmpArgs.Ignore_rst, "rst", "r", false, "ignore while any signal called rst is high")
-	compareCmd.Flags().IntVarP(&cmpArgs.Mismatch_n,"mismatch", "m", 1, "stop at the given mismatch occurence")
-	compareCmd.Flags().StringVarP(&t0,"time", "t", "0", "time at which comparison starts (scientific suffixes accepted)")
-	compareCmd.Flags().StringVarP(&t0b,"time_b", "b", "0", "time at which comparison starts for the B (right) VCD. Same as --time if --time_b is ommitted")
+	compareCmd.Flags().BoolVarP  (&cmpArgs.Ignore_rst, "rst",      "r", false, "ignore while any signal called rst is high")
+	compareCmd.Flags().BoolVarP  (&vcd.Verbose,        "verbose",  "v", false, "verbose")
+	compareCmd.Flags().IntVarP   (&cmpArgs.Mismatch_n, "mismatch", "m",     1, "stop at the given mismatch occurence")
+	compareCmd.Flags().StringVarP(&t0,                 "time",     "t",   "0", "time at which comparison starts (scientific suffixes accepted)")
+	compareCmd.Flags().StringVarP(&t0b,                "time_b",   "b",   "0", "time at which comparison starts for the B (right) VCD. Same as --time if --time_b is ommitted")
 }
 

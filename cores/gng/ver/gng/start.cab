@@ -1,0 +1,8 @@
+# jtsim -video 250 -w 220 -q -inputs start.cab
+210
+loop
+3 coin
+4
+2 1p
+4
+repeat 100
