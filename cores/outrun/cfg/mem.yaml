@@ -12,14 +12,13 @@ params:
 clocks:
   clk48:
     - freq: 8000000
+      gate: [ pcm ]
       outputs:
         - cen_pcm
+    - freq: 4000000
+      outputs:
         - cen_fm
         - cen_fm2
-    - freq: 5000000
-      outputs:
-        - cen_snd
-        - cen_nc
 sdram:
   banks:
     # Bank 0 for the main and sub CPUs
