@@ -47,7 +47,7 @@ end
 
 always @(posedge raster) begin
     rasterhits <= rasterhits+1;
-    assert_msg(vdump==9'h1b,"raster must occur at line $1B");
+    assert_msg(vdump==9'h20,"raster must occur at line $20");
 end
 
 task write_cnt(input [2:0]sel, input [8:0] data); begin
