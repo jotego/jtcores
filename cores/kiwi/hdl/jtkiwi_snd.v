@@ -81,7 +81,7 @@ module jtkiwi_snd(
     // Sound output
     output signed [15:0] fm,
     output        [ 9:0] psg,
-    output        [ 7:0] pcm,
+    output        [ 9:0] pcm,
     // Debug
     input      [ 7:0]    debug_bus,
     input      [ 7:0]    st_addr,
@@ -117,7 +117,7 @@ assign p2_din   = { 6'h3f, tilt, service };
 assign pcm_cs   = kageki;
 assign mcu_we   = {2{mcu_cs & ~wr_n}} & { A[0], ~A[0] };
 assign mcu_rd   = {2{mcu_cs & ~rd_n}} & { A[0], ~A[0] };
-assign pcm      = kabuki ? portb_dout : pcm_re;
+assign pcm      = kabuki ? {2'b0,portb_dout} : {pcm_re,2'b0};
 
 assign irq_ack = /*!m1_n &&*/ !iorq_n; // The original PCB just uses iorq_n,
     // the orthodox way to do it is to use m1_n too
