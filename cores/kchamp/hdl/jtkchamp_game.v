@@ -40,7 +40,7 @@ wire        snd_rstn, snd_req, v6;
 reg  [24:0] dwn_addr;
 wire [ 7:0] pre_data;
 
-assign flip       = (dip_flip^debug_bus[1]) ^ (main_flip^debug_bus[0]);
+assign flip       = dip_flip ^ main_flip;
 assign debug_view = {3'd0, enc, 2'd0, link_joys, flip};
 assign link_joys  = `ifdef POCKET 1'b0 `else dipsw[8] `endif ;
 
