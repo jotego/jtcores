@@ -39,6 +39,7 @@ wire LHBL_obj, LVBL_obj;
 wire preLHBL, preLVBL;
 
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
+assign debug_view = {6'd0, dip_flip, flip};
 
 jtgng_timer u_timer(
     .clk       ( clk      ),
@@ -87,7 +88,7 @@ wire prom_6l_we  = prom_we && ioctl_addr[11:8]==11;
 reg video_flip;
 
 always @(posedge clk)
-    video_flip <= dip_flip; // Original 1943 did not have this DIP bit.
+    video_flip <= dip_flip ^ flip; // Original 1943 did not have this DIP bit.
 
 localparam [25:0]   MAP1_START = `MAP1_START,
                     SCR1_START = `SCR1_START,
@@ -222,10 +223,10 @@ jtgng_sound u_sound (
     .psg0           ( psg0       ),
     .psg1           ( psg1       ),
     .debug_bus      ( debug_bus  ),
-    .debug_view     ( debug_view ),
+    .debug_view     (            ),
     // unused
-    .mcu_sdin       ( 8'd0           ),
-    .mcu_srd        (                )
+    .mcu_sdin       ( 8'd0       ),
+    .mcu_srd        (            )
 );
 
 jt1943_video u_video(

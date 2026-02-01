@@ -56,6 +56,7 @@ assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 assign obj_addr[14:1]  = pre_obj_addr[13:0];
 assign obj_addr[17:15] = pre_obj_addr[15:14] == 2'b11 ? obj_bank + 3'b011 : {1'b0, pre_obj_addr[15:14]};
+assign debug_view = {6'd0, dip_flip, flip};
 
 always @* begin
     post_addr = prog_addr;
@@ -168,14 +169,14 @@ jtgng_sound u_sound (
     .psg0           ( psg0           ),
     .psg1           ( psg1           ),
     .debug_bus      ( debug_bus      ),
-    .debug_view     ( debug_view     ),
+    .debug_view     (                ),
     // unused
     .mcu_sdin       ( 8'd0           ),
     .mcu_srd        (                )
 );
 
 always @(posedge clk)
-    video_flip <= dip_flip; // Original Gun Smoke did not have this DIP bit.
+    video_flip <= dip_flip ^ flip; // Original Gun Smoke did not have this DIP bit.
 
 jt1943_video #(
     .CHAR_PAL      ( "../../../rom/gunsmoke/g-01.03b" ),
