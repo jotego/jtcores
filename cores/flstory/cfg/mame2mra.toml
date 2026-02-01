@@ -74,7 +74,7 @@ PCBs = [
 data = [
 	{ pcb_id=true, offset=0 },
 	{ machines=["onna34ro"],            offset=1, data="01" },
-	{ machines=["rumba"],               offset=1, data="12" },
+	{ machines=["rumba"],               offset=1, data="10" },
 	# Disable MCU
 	{ setname="onna34roa",              offset=2, data="01" },
 	# Enable sub Z80 and number of banks

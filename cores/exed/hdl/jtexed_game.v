@@ -20,7 +20,7 @@ module jtexed_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-assign debug_view = 0;
+assign debug_view = { 7'd0, dip_flip };
 
 wire [8:0] V, H;
 

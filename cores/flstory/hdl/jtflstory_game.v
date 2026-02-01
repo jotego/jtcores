@@ -38,7 +38,7 @@ reg         mcu_rst, osdflip;
 assign sha_addr   = {sha_hi,  bus_addr[10:0]};
 assign sha_hi     = large_sha ? bus_addr[12:11] : 2'd0;
 assign bus_a0     = bus_addr[0];
-assign dip_flip   = gvflip | ghflip;
+assign dip_flip   = osdflip_en ? ~dipsw[OSDFLIP_BIT] : (gvflip | ghflip);
 assign ioctl_din  = {mute,scr_flen, gvflip, ghflip, pal_bank, scr_bank};
 assign debug_view = st_mux;
 assign user1_addr = sub_addr;
@@ -46,7 +46,7 @@ assign user1_addr = sub_addr;
 localparam OSDFLIP_BIT=24;
 
 always @(posedge clk) begin
-    st_mux  <= debug_bus[7] ? st_snd : {1'b0,clip,no_used,mute,gfxcfg,mirror,gvflip,ghflip};
+    st_mux  <= debug_bus[7] ? st_snd : {osdflip_en,clip,no_used,mute,gfxcfg,mirror,gvflip,ghflip};
     osdflip <= osdflip_en & dipsw[OSDFLIP_BIT];
 end
 

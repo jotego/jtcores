@@ -206,7 +206,7 @@ always @(posedge clk) begin
         end
         if (brt_cs ) scr_br <= cpu_dout[2:0];
         if( flip_cs ) begin
-            flip     <= ~cpu_dout[7]^hige;
+            flip     <= ~cpu_dout[7];
             sres_b   <= ~cpu_dout[4];   // only Vulgus/1942
             coin_cnt <= ~cpu_dout[0];
         end
