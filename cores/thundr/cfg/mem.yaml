@@ -17,6 +17,7 @@ clocks:
         - cen_c30
 audio:
   rsum: 18k
+  gain: 1.99 # See issue 1275
   channels:
     - { name: fm, module: jt51, rsum: 4.7k, rc: [{ r: 1rout, c: 2.2n }], pre: 0.5 } # it should be pre=2.2
     # to do: variable gain for PCM
