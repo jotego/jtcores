@@ -11,7 +11,7 @@ main() {
     fi
 
     shopt -s nullglob
-    trap clean_up INT KILL EXIT
+    trap clean_up INT EXIT
 
     parse_args "$@"
 
@@ -48,7 +48,6 @@ main() {
 
         check_audio
         check_audio_ec=$?
-        if [[ $? > check_result ]]; then check_result=$?; fi
 
         case $check_video_ec in
             0)
@@ -118,7 +117,7 @@ main() {
 }
 
 clean_up() {
-    rm -rf "${main[@]}"
+    rm -rf "${TODELETE[@]}"
 }
 
 parse_args() {
@@ -291,10 +290,7 @@ get_zips() {
     TODELETE+=($roms_dir_ref)
 
     for zip in "${zip_names[@]}"; do
-        sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
-get mame/$zip $roms_dir_ref
-bye
-EOF
+        get_with_retry $zip $roms_dir_ref
     done
 }
 
@@ -320,6 +316,35 @@ get_zip_names() {
     readarray -t zip_names_ref <<< "$zip_names_ref"
 
     if [[ "${#zip_names_ref[@]}" == 0 ]]; then return 1; fi
+}
+
+get_with_retry() {
+    local zip="$1"
+    local roms_dir_ref="$2"
+    local attempts=8
+    while [ $attempts -gt 0 ]; do
+        if get_zip_via_ftp $zip $roms_dir_ref; then break; fi
+        attempts=$((attempts-1))
+        random_wait
+    done
+    if [ $attempts -gt 0 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+get_zip_via_ftp() {
+    local zip="$1"
+    local roms_dir_ref="$2"
+    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
+get mame/$zip $roms_dir_ref
+bye
+EOF
+}
+
+random_wait() {
+    sleep $((RANDOM%30))
 }
 
 get_opts() {
@@ -367,7 +392,7 @@ get_opts() {
         exit 1
     fi
 
-    echo "[INFO] Simulation options are ${opts_ref[@]}"
+    echo "[INFO] Simulation options are ${opts_ref[*]}"
 }
 
 check_video() {
@@ -377,7 +402,7 @@ check_video() {
     if $check; then
         local frames_dir
         if ! get_remote_frames frames_dir; then return 1; fi
-        check_frames $frames_dir/frames
+        check_frames "$frames_dir/frames"
         return $?
     fi
 
@@ -388,9 +413,9 @@ check_video() {
 }
 
 get_remote_frames() {
-    declare -n dir=$1
+    declare -n dir="$1"
     dir=$(mktemp -d)
-    TODELETE+=($dir)
+    TODELETE+=("$dir")
 
     echo "[INFO] Downloading remote frames for $setname"
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
@@ -518,7 +543,7 @@ upload_results() {
         *) return ;;
     esac
 
-    if [ $ec != 0 ]; then prepare_zip_files; fi
+    if [ "$ec" != 0 ]; then prepare_zip_files; fi
 
     echo "[INFO] Starting upload"
     sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
