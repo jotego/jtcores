@@ -128,6 +128,7 @@ module jtframe_mister #(parameter
     output              ioctl_cart,
     // Save/Load
     input               sav_change,
+    input               sav_wait,
     output              sav_file,
     output              sav_ld,
     input        [15:0] sav_din,
@@ -495,7 +496,13 @@ assign joystick2 = joyusb_2;
     assign hps_din = ioctl_din;
 `endif
 
-hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO), .BLKSZ(1) ) u_hps_io
+localparam SDWAIT = `ifdef JTFRAME_SAVEGAME 1 `else 0 `endif;
+
+hps_io #(
+    .STRLEN(1024),.PS2DIV(32),
+    .WIDE(`JTFRAME_MR_FASTIO),
+    .BLKSZ(1),.SDWAIT(SDWAIT)
+) u_hps_io
 (
     .clk_sys         ( clk_rom        ),
     .HPS_BUS         ( HPS_BUS        ),
@@ -527,6 +534,7 @@ hps_io #( .STRLEN(1024), .PS2DIV(32), .WIDE(`JTFRAME_MR_FASTIO), .BLKSZ(1) ) u_h
     .sd_buff_dout    ( sd_buff_dout   ), // output
     .sd_buff_din     ('{sd_buff_din}  ), // input
     .sd_buff_wr      ( sd_buff_wr     ), // output
+    .sd_wait         ( sd_wait        ), // input
     .img_mounted     ( img_mounted    ), // output
     .img_readonly    ( img_readonly   ), // output
     .img_size        ( img_size       ), // output
@@ -573,6 +581,7 @@ wire [ 7:0] sd_buff_addr, sd_buff_dout;
 wire        bk_ena, sd_ack, sd_wr, sd_rd, sd_buff_wr;
 wire [63:0] img_size;
 wire        img_mounted, img_readonly;
+wire        sd_wait;
 
 jtframe_mister_cartsave u_save(
     .clk         ( clk_sys      ),
@@ -592,7 +601,9 @@ jtframe_mister_cartsave u_save(
     .sd_wr       ( sd_wr        ),
     .bk_ena      ( bk_ena       ),
     .sd_lba      ( sd_lba       ),
+    .sd_wait     ( sd_wait      ),
     .sav_change  ( sav_change   ),
+    .sav_wait    ( sav_wait     ),
     .sav_din     ( sav_din      ),
     .sav_dout    ( sav_dout     ),
     .sav_addr    ( sav_addr     ),

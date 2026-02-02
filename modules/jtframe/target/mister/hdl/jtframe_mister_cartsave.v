@@ -33,8 +33,10 @@ module jtframe_mister_cartsave (
     output reg        sd_rd,
     output reg        sd_wr,
     output reg        bk_ena,
+    output reg        sd_wait,
     // Core
     input             sav_change,
+    input             sav_wait,
     input      [15:0] sav_din,
     output reg [15:0] sav_dout,
     output reg [15:0] sav_addr,
@@ -79,6 +81,11 @@ initial begin
  	bk_ena          = 0;
 	bk_state        = 0;
 	bk_loading      = 0;
+	sd_wait         = 0;
+end
+
+always @(posedge clk) begin
+	sd_wait <= sav_wait;
 end
 
 assign bk_save = ram_save[1] | (sav_pending & OSD_STATUS & ram_save[0]);

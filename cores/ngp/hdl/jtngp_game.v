@@ -51,6 +51,7 @@ assign sav_change = |flash_we;
 assign svld_addr  = sav_addr[15:1];
 assign svld_dout  = sav_dout;
 assign svld_we    = {2{sav_ld}};
+assign sav_wait   = 1'b0;
 
 wire flash_buff_init = cart_l && !ioctl_cart && !sav_file;
 wire flash_new_load  = ld_l   && !sav_ld     && &sav_addr[14:8];

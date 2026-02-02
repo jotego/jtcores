@@ -536,6 +536,7 @@ u_frame(
     .dwnld_busy     ( dwnld_busy     ),
     // Save/Load
     .sav_change     ( sav_change     ),
+    .sav_wait       ( sav_wait       ),
     .sav_file       ( sav_file       ),
     .sav_ld         ( sav_ld         ),
     .sav_din        ( sav_din        ),

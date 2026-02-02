@@ -27,7 +27,7 @@
 // VDNUM 1..10
 // BLKSZ 0..7: 0 = 128, 1 = 256, 2 = 512(default), .. 7 = 16384
 //
-module hps_io #(parameter CONF_STR="", CONF_STR_BRAM=1, PS2DIV=0, WIDE=0, VDNUM=1, BLKSZ=2, PS2WE=0, STRLEN=$size(CONF_STR)>>3)
+module hps_io #(parameter CONF_STR="", CONF_STR_BRAM=1, PS2DIV=0, WIDE=0, VDNUM=1, BLKSZ=2, SDWAIT=0, PS2WE=0, STRLEN=$size(CONF_STR)>>3)
 (
 	input             clk_sys,
 	inout      [48:0] HPS_BUS,
@@ -137,6 +137,7 @@ module hps_io #(parameter CONF_STR="", CONF_STR_BRAM=1, PS2DIV=0, WIDE=0, VDNUM=
 	output reg [DW:0] sd_buff_dout,
 	input      [DW:0] sd_buff_din[VDNUM],
 	output reg        sd_buff_wr,
+	input             sd_wait,
 
 	// ARM -> FPGA download
 	output reg        ioctl_download = 0, // signal indicating an active download
@@ -183,6 +184,7 @@ wire        fp_enable= HPS_BUS[35];
 wire        io_wide  = (WIDE) ? 1'b1 : 1'b0;
 wire [15:0] io_din   = HPS_BUS[31:16];
 reg  [15:0] io_dout;
+wire        sd_wait_i = SDWAIT ? sd_wait : 1'b0;
 
 assign HPS_BUS[37]   = ioctl_wait;
 assign HPS_BUS[36]   = clk_sys;
@@ -288,9 +290,14 @@ always@(posedge clk_sys) begin : uio_block
 	old_info <= info_req;
 	if(~old_info & info_req) info_n <= info;
 
-	sd_buff_wr <= b_wr[0];
-	if(b_wr[2] && (~&sd_buff_addr)) sd_buff_addr <= sd_buff_addr + 1'b1;
-	b_wr <= (b_wr<<1);
+	if(!sd_wait_i) begin
+		sd_buff_wr <= b_wr[0];
+		if(b_wr[2] && (~&sd_buff_addr)) sd_buff_addr <= sd_buff_addr + 1'b1;
+		b_wr <= (b_wr<<1);
+	end else begin
+		sd_buff_wr <= 0;
+		b_wr <= 0;
+	end
 
 	if(PS2DIV) {kbd_rd,kbd_we,mouse_rd,mouse_we} <= 0;
 
@@ -323,8 +330,8 @@ always@(posedge clk_sys) begin : uio_block
 
 			casex(io_din)
 				  'h16: begin io_dout <= {1'b1, sd_blk_cnt[sdn], BLKSZ[2:0], sdn, sd_wr[sdn], sd_rd[sdn]}; sdn_r <= sdn; end
-				'h0X17,
-				'h0X18: begin sd_ack <= disk[VD:0]; sdn_ack <= io_din[11:8]; end
+				'hX017,
+				'hX018: begin sd_ack <= disk[VD:0]; sdn_ack <= io_din[11:8]; end
 				  'h29: io_dout <= {4'hA, stflg};
 `ifdef MISTER_DISABLE_ADAPTIVE
 				  'h2B: io_dout <= {HPS_BUS[48:46],4'b0110};
@@ -334,6 +341,7 @@ always@(posedge clk_sys) begin : uio_block
 				  'h2F: io_dout <= 1;
 				  'h32: io_dout <= gamma_bus[21];
 				  'h36: begin io_dout <= info_n; info_n <= 0; end
+				  'h44: io_dout <= {15'd0, sd_wait_i};
 				  'h39: io_dout <= 1;
 				  'h3C: if(upload_req) begin io_dout <= {ioctl_upload_index, 8'd1}; upload_req <= 0; end
 				  'h3E: io_dout <= 1; // shadow mask
@@ -345,7 +353,8 @@ always@(posedge clk_sys) begin : uio_block
 				'h053F: io_dout <= joystick_5_rumble;
 			endcase
 
-			sd_buff_addr <= 0;
+			if(!(io_din[15] && (io_din[7:0] == 8'h17 || io_din[7:0] == 8'h18)))
+				sd_buff_addr <= 0;
 			if(io_din == 5) ps2_key_raw <= 0;
 		end else begin
 
@@ -405,15 +414,19 @@ always@(posedge clk_sys) begin : uio_block
 
 				// send sector IO -> FPGA
 				// flag that download begins
-				'h0X17: begin
-							sd_buff_dout <= io_din[DW:0];
-							b_wr <= 1;
+				'hX017: begin
+							if(!sd_wait_i) begin
+								sd_buff_dout <= io_din[DW:0];
+								b_wr <= 1;
+							end
 						end
 
 				// reading sd card write data
-				'h0X18: begin
-							if(~&sd_buff_addr) sd_buff_addr <= sd_buff_addr + 1'b1;
-							io_dout <= sd_buff_din[sdn_ack];
+				'hX018: begin
+							if(!sd_wait_i) begin
+								if(~&sd_buff_addr) sd_buff_addr <= sd_buff_addr + 1'b1;
+								io_dout <= sd_buff_din[sdn_ack];
+							end
 						end
 
 				// joystick left analog
