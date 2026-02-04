@@ -31,9 +31,9 @@ info = """ Header to identify the PCB type
 """
 data = [
     { machine="vulgus",   offset=0, data="01" },
-    { machine="higemaru", offset=0, data="02" },
+    { machine="higemaru", offset=0, data="02 01" },
     # vulgusa is flipped relative to the others
-    # { setname = "vulgusa", offset=1, data="01" },
+    { setname = "vulgusa", offset=1, data="01" },
 ]
 
 [buttons]
