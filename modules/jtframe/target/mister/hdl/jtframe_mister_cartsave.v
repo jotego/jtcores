@@ -40,8 +40,8 @@ module jtframe_mister_cartsave (
     input      [15:0] sav_din,
     output reg [15:0] sav_dout,
     output reg [15:0] sav_addr,
-    output reg        sav_file,
-    output reg        sav_ld
+    output reg [ 1:0] sav_wr,
+    output reg        sav_ack
 
 );
 
@@ -51,16 +51,16 @@ reg  [15:0] sv_addr;
 reg  [15:0] ld_addr;
 
 always @* begin
-    sav_file    =|img_size & bk_ena;
-    sav_addr    = sd_buff_wr     ? ld_addr       : sv_addr;
+    sav_addr    = {sd_lba[7:0], sd_buff_addr[7:1],1'b0}; // sd_buff_wr     ? ld_addr       : sv_addr;
     sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
-    sv_addr     ={sd_lba[7:0], sd_buff_addr};
-
+    // sv_addr     ={sd_lba[7:0], sd_buff_addr};
+    sav_wr      = sd_buff_wr & sav_ack ? /*{sd_buff_addr[0],~sd_buff_addr[0]}*/2'b11 : 2'b00;
+	sd_wait     = sav_wait;
+    sav_ack     = sd_ack && (sd_buff_addr[0]^sd_buff_wr);
 end
 
 always @(posedge clk) begin
-    ld_addr  <= sv_addr;
-    sav_ld   <= sd_buff_wr & sd_ack & sd_buff_addr[0];
+    // ld_addr  <= sv_addr;
     if(sd_buff_addr[0])
         sav_dout[15:8] <= sd_buff_dout;
     else
@@ -82,10 +82,6 @@ initial begin
 	bk_state        = 0;
 	bk_loading      = 0;
 	sd_wait         = 0;
-end
-
-always @(posedge clk) begin
-	sd_wait <= sav_wait;
 end
 
 assign bk_save = ram_save[1] | (sav_pending & OSD_STATUS & ram_save[0]);

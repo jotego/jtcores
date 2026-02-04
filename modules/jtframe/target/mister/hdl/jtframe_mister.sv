@@ -129,8 +129,8 @@ module jtframe_mister #(parameter
     // Save/Load
     input               sav_change,
     input               sav_wait,
-    output              sav_file,
-    output              sav_ld,
+    output       [ 1:0] sav_wr,
+    output              sav_ack,
     input        [15:0] sav_din,
     output       [15:0] sav_dout,
     output       [15:0] sav_addr,
@@ -333,7 +333,7 @@ wire [7:0] sd_data = debug_bus[3]? sav_dout[15:8]:
                      debug_bus[2]? sav_dout[7:0] :
                      debug_bus[1]? sd_lba       :
                      debug_bus[0]? sd_buff_addr :
-                     {|img_size, img_readonly, img_mounted, sd_rd, /*sd_wr*/ioctl_cart, /*sav_change*/sav_ld, sd_ack, bk_ena};
+                     {|img_size, img_readonly, img_mounted, sd_rd, /*sd_wr*/ioctl_cart, /*sav_change*/sav_wr[0], sd_ack, bk_ena};
 jtframe_target_info u_target_info(
     .clk            ( clk_sys        ),
     .joyana_l1      ( joyana_l1      ),
@@ -607,11 +607,11 @@ jtframe_mister_cartsave u_save(
     .sav_din     ( sav_din      ),
     .sav_dout    ( sav_dout     ),
     .sav_addr    ( sav_addr     ),
-    .sav_file    ( sav_file     ),
-    .sav_ld      ( sav_ld       )
+    .sav_ack     ( sav_ack      ),
+    .sav_wr      ( sav_wr       )
 );
 `else
-assign {sav_addr, sav_dout, sav_ld, sav_file} = 0
+assign {sav_addr, sav_dout, sav_wr, sav_ack} = 0
 `endif
 
 `ifndef DEBUG_NOHDMI
