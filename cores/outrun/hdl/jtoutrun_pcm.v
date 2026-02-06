@@ -193,7 +193,7 @@ always @(posedge clk) begin
             4: delta            <= cfg_data;
             5: loop_addr[15: 8] <= cfg_data;
             6: loop_addr[23:16] <= cfg_data;
-            7: if( cur_addr[23:16] > cfg_data ) begin
+            7: if( cur_addr[23:16] == (cfg_data + 8'b1) ) begin
                 if( cfg_en[1] ) begin
                     cfg_en[0]     <= 1; // no loop
                     cur_addr[7:0] <= 0;
