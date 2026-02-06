@@ -48,7 +48,7 @@ module jtngp_flash(
     input      [ 1:0] sav_wr,
     input             sav_ack,
     output reg [15:0] sav_din,
-    output reg        sav_wait,
+    output /*reg*/        sav_wait,
 
     input      [15:0] gs_data,
     output reg [15:0] gs_din,
@@ -166,11 +166,9 @@ always @(posedge clk) begin
 end
 `endif
 
-wire        rstr_nx;
-reg  [15:0] sa_l;
 reg  [ 2:0] rstr_st;
-
-assign rstr_nx = sav_addr != sa_l;
+reg         pending;
+assign sav_wait = pending;
 
 always @(posedge clk) begin
     if(rst) begin
@@ -178,21 +176,24 @@ always @(posedge clk) begin
         gs_dsn  <= 2'b11;
         gs_cs   <= 0;
         gs_we   <= 0;
+        pending <= 0;
         rstr_st <= 0;
     end else begin
-        sa_l <= sav_addr;
-        if( sav_ack ) begin
+        if( sav_ack && !pending ) begin
+            pending <= 1;
+            rstr_st <= 0;
+        end
+        if( pending ) begin
             rstr_st <= rstr_st + 1'd1;
             case( rstr_st )
-                0: { gs_addr, gs_we, gs_cs, sav_wait } <= { sav_addr[15:1], 3'b011 };
+                0: { gs_addr, gs_we, gs_cs } <= { sav_addr[15:1], 2'b01 };
                 2: if( !gs_ok   ) rstr_st <= 2; else begin sav_din <= gs_data; gs_din <= sav_dout; gs_cs <= 0; end
                 3: { gs_dsn, gs_we, gs_cs } <= {~sav_wr,|sav_wr, 1'b1};
-                4: if( !gs_ok   ) rstr_st <= 4; else { sav_wait, gs_we, gs_cs, gs_dsn } <= 5'b11;
-                5: if( !rstr_nx ) rstr_st <= 5; else { rstr_st, sav_wait } <= 4'b1;
+                4: if( !gs_ok   ) rstr_st <= 4; else { pending, gs_we, gs_cs, gs_dsn } <= 5'b11;
+                // 5: rstr_st  <= 0;
             endcase
         end else begin
             rstr_st  <= 0;
-            // sav_wait <= 0;
         end
     end
 end

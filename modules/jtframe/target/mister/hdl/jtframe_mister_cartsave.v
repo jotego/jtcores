@@ -47,37 +47,47 @@ module jtframe_mister_cartsave (
 
 /////////////////////////  BRAM SAVE/LOAD  /////////////////////////////
 
-reg  [15:0] sv_addr;
-reg  [15:0] ld_addr;
+reg  [ 7:0] old_addr;
+wire rw_word, rd_word, wr_word;
+
+assign rw_word = sd_active && sd_buff_addr[0];
+assign wr_word = rw_word   && sd_buff_wr;
+assign rd_word = rw_word   &&(sd_buff_addr != old_addr);
 
 always @* begin
-    sav_addr    = {sd_lba[7:0], sd_buff_addr[7:1],1'b0}; // sd_buff_wr     ? ld_addr       : sv_addr;
+    sav_addr    = {sd_lba[7:0], sd_buff_addr[7:1],1'b0};
     sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
-    // sv_addr     ={sd_lba[7:0], sd_buff_addr};
-    sav_wr      = sd_buff_wr & sav_ack ? /*{sd_buff_addr[0],~sd_buff_addr[0]}*/2'b11 : 2'b00;
+    sav_wr      = wr_word ? 2'b11 : 2'b00;
 	sd_wait     = sav_wait;
-    sav_ack     = sd_ack && (sd_buff_addr[0]^sd_buff_wr);
+    sav_ack     = rd_word | wr_word;
 end
 
 always @(posedge clk) begin
-    // ld_addr  <= sv_addr;
-    if(sd_buff_addr[0])
-        sav_dout[15:8] <= sd_buff_dout;
-    else
-        sav_dout[ 7:0] <= sd_buff_dout;
+    if(~old_ack & sd_ack)
+    	sd_active <= 1;
+    else if(~sd_ack & old_ack)
+    	sd_active <= 0;
+    if(sd_active && sd_buff_wr)
+    	if(sd_buff_addr[0])
+    	    sav_dout[15:8] <= sd_buff_dout;
+    	else
+    	    sav_dout[ 7:0] <= sd_buff_dout;
 end
 
 wire bk_load, bk_save;
 reg  bk_loading, bk_state;
 reg  sav_pending;
-reg  old_downloading, old_load, old_save, old_ack;
+reg  old_downloading, old_load, old_save, old_ack, sd_active;
 
 initial begin
 	old_downloading = 0;
 	sav_pending     = 0;
+	sav_dout        = 0;
+	sd_active       = 0;
 	old_load        = 0;
 	old_save        = 0;
 	old_ack         = 0;
+	old_addr        = 0;
  	bk_ena          = 0;
 	bk_state        = 0;
 	bk_loading      = 0;
@@ -106,6 +116,7 @@ always @(posedge clk) begin
 	old_load <= bk_load;
 	old_save <= bk_save;
 	old_ack  <= sd_ack;
+	old_addr <= sd_buff_addr;
 
 	if(~old_ack & sd_ack) {sd_rd, sd_wr} <= 0;
 
