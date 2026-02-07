@@ -551,3 +551,14 @@ rename_ext_file() {
     if [[ -z "$old_name" || ! -e "$old_name" ]]; then return 1; fi
     mv "$old_name" $folder/dump.bin
 }
+
+check_jtframe_macro_name() {
+    local name="$1"
+    if [ -z "$name" ]; then return; fi
+    if [[ $name != JTFRAME_* && $name != VERILATOR_* ]]; then return; fi
+    if ! grep -q -w $name $JTFRAME/doc/macros.md; then
+        echo "Cannot find macro $name in macros.md"
+        echo "Is the spelling right?"
+        return 1
+    fi
+}
