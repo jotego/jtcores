@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 8-7-2025 */
-
+/* verilator tracing_off */
 module jtframe_8bit_reg(
     // do not change port order
     // as this module is intended for direct instantiation

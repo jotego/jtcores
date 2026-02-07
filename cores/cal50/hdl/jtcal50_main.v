@@ -174,7 +174,7 @@ jtframe_8bit_reg u_snd(
     .cs         ( snd_cs        ),
     .dout       ( snd_cmd       )
 );
-
+/* verilator tracing_off */
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -195,7 +195,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .fave       (           ),
     .fworst     (           )
 );
-
+/* verilator tracing_on */
 jtframe_m68k u_cpu(
     .clk        ( clk         ),
     .rst        ( rst         ),

@@ -15,7 +15,7 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Version: 1.0
     Date: 17-12-2022 */
-
+/* verilator tracing_off */
 module jtframe_edge #(parameter
     QSET=1,         // q value when set
     ATRST=~QSET[0]  // q value at rst event
