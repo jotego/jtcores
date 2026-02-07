@@ -22,8 +22,8 @@ module jtframe_mos6502(
     input             rst,
     input             clk,        // This must be 8x faster than cen (16x desired CPU speed)
     input             cen,        // This must be 2x faster that the desired CPU speed
-    // cen clock recovery is troublesome because there must be 8 clock tickes in between cen pulses
-    // that requires a clk of 48MHz for a 1.5MHz operation, but this module does not synthesize well
+    // cen clock recovery is troublesome because there must be 8 clock ticks in between cen pulses
+    // that requires a clock of 48MHz for a 1.5MHz operation, but this module does not synthesize well
     // at that speed
 
     // Same polarity as the original signals

@@ -20,6 +20,7 @@ module jt680x(
     input             rst,
     input             clk,
     input             cen,  // crystal clock freq. = 4x E pin freq.
+    output            rd,
     output            wr,
     output     [15:0] addr, // always valid
     input      [ 7:0] din,

@@ -233,6 +233,21 @@ module LOGIC (
     input  [`NUM_NODES-1:0] i,
     output [`NUM_NODES-1:0] o);
 
+    wire [7:0] a = {o[`NODE_a7],o[`NODE_a6],o[`NODE_a5],o[`NODE_a4],
+                    o[`NODE_a3],o[`NODE_a2],o[`NODE_a1],o[`NODE_a0]};
+    wire [7:0] sp= {o[`NODE_s7],o[`NODE_s6],o[`NODE_s5],o[`NODE_s4],
+                    o[`NODE_s3],o[`NODE_s2],o[`NODE_s1],o[`NODE_s0]};
+    wire [7:0]ir = {o[`NODE_ir7],o[`NODE_ir6],o[`NODE_ir5],o[`NODE_ir4],
+                    o[`NODE_ir3],o[`NODE_ir2],o[`NODE_ir1],o[`NODE_ir0]};
+    wire [7:0] x = {o[`NODE_x7],o[`NODE_x6],o[`NODE_x5],o[`NODE_x4],
+                    o[`NODE_x3],o[`NODE_x2],o[`NODE_x1],o[`NODE_x0]};
+    wire [7:0] y = {o[`NODE_y7],o[`NODE_y6],o[`NODE_y5],o[`NODE_y4],
+                    o[`NODE_y3],o[`NODE_y2],o[`NODE_y1],o[`NODE_y0]};
+    wire[15:0] pc= {o[`NODE_pch7],o[`NODE_pch6],o[`NODE_pch5],o[`NODE_pch4],
+                    o[`NODE_pch3],o[`NODE_pch2],o[`NODE_pch1],o[`NODE_pch0],
+                    o[`NODE_pcl7],o[`NODE_pcl6],o[`NODE_pcl5],o[`NODE_pcl4],
+                    o[`NODE_pcl3],o[`NODE_pcl2],o[`NODE_pcl1],o[`NODE_pcl0]};
+
     assign o[674] = i[192]|i[256];
     assign o[928] = i[1077]|i[829];
     assign o[522] = i[197]|i[403];

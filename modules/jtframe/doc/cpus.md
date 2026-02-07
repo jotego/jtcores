@@ -56,6 +56,10 @@ The netlist to verilog conversion requires a clock at least 16x faster than the 
 
 Because of the issue with the ready signal, the recommended CPU core is the T65 one. T65 also has a smaller footprint.
 
+## 65C02
+
+This CPU is different from the 6502: it has more instructions. The T65 module does not implement it correctly, failing for op codes such as $1A = INC A, or $B2 = LDA ($dir)
+
 ## VHDL
 
 Verilator cannot simulate VHDL. It is possible to run mixed language simulations in _jtframe_ by using _modelsim_ in the simulation with `jtsim -modelsim`. However, this is very slow. In order to speed it up, convert the modules to verilog first using [ghdl](https://github.com/ghdl).
