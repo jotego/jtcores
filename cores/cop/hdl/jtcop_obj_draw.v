@@ -52,7 +52,7 @@ wire [7:0] buf_wdata;
 reg        buf_we;
 reg        cen2;
 reg  [2:0] nsize, ncnt;
-reg  [1:0] msize; // n = horizontal tiles, m = vertical tiles, like in JTCORES1
+reg  [1:0] msize; // n = horizontal tiles, m = vertical tiles, like in CPS1
 reg        hflip, vflip;
 
 wire [ 8:0] ypos;
