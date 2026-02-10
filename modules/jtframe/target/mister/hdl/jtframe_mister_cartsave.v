@@ -45,21 +45,50 @@ module jtframe_mister_cartsave (
 
 );
 
+wire save_busy = sav_wait;
+wire bk_busy   = bk_state == 1;
+reg  save_rd, save_wr;
+reg  save_wait, bsy_l;
+// reg [18:0] sav_addr;
+
+always @(posedge clk) begin
+	bsy_l <= save_busy;
+	if(~save_busy & ~save_rd & ~save_wr) save_wait <= 0;
+
+	if(~bk_busy) begin
+		sav_addr  <= 16'hFF;
+		save_wait <= 0;
+	end
+	else if(sd_ack & ~save_busy ) begin
+		if(~bk_loading && (sav_addr != {sd_lba[7:0], sd_buff_addr})) begin
+			save_rd   <= 1;
+			sav_addr  <= {sd_lba[7:0], sd_buff_addr};
+			save_wait <= 1;
+		end
+		if(bk_loading && sd_buff_wr) begin
+			save_wr   <= 1;
+			sav_addr  <= {sd_lba[7:0], sd_buff_addr};
+			save_wait <= 1;
+			sav_wr    <= {~sd_buff_addr[0],sd_buff_addr[0]};
+		end
+	end
+	if(~bk_busy | save_busy) {save_rd, save_wr} <= 0;
+end
+
 /////////////////////////  BRAM SAVE/LOAD  /////////////////////////////
 
-reg  [ 7:0] old_addr;
-wire rw_word, rd_word, wr_word;
-
-assign rw_word = sd_active && sd_buff_addr[0];
-assign wr_word = rw_word   && sd_buff_wr;
-assign rd_word = rw_word   &&(sd_buff_addr != old_addr);
 
 always @* begin
-    sav_addr    = {sd_lba[7:0], sd_buff_addr[7:1],1'b0};
+    // sav_addr    = {sd_lba[7:0], sd_buff_addr[7:1],1'b0};
+    // sav_wr      = wr_word ? 2'b11 : 2'b00;
     sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
-    sav_wr      = wr_word ? 2'b11 : 2'b00;
-	sd_wait     = sav_wait;
-    sav_ack     = rd_word | wr_word;
+	sd_wait     = save_wait;
+    sav_ack     = save_wait; // save_rd | sav_wr;
+    if(sd_active && sd_buff_wr)
+    	if(sd_buff_addr[0])
+    	    sav_dout[15:8] = sd_buff_dout;
+    	else
+    	    sav_dout[ 7:0] = sd_buff_dout;
 end
 
 always @(posedge clk) begin
@@ -67,11 +96,6 @@ always @(posedge clk) begin
     	sd_active <= 1;
     else if(~sd_ack & old_ack)
     	sd_active <= 0;
-    if(sd_active && sd_buff_wr)
-    	if(sd_buff_addr[0])
-    	    sav_dout[15:8] <= sd_buff_dout;
-    	else
-    	    sav_dout[ 7:0] <= sd_buff_dout;
 end
 
 wire bk_load, bk_save;
@@ -87,7 +111,6 @@ initial begin
 	old_load        = 0;
 	old_save        = 0;
 	old_ack         = 0;
-	old_addr        = 0;
  	bk_ena          = 0;
 	bk_state        = 0;
 	bk_loading      = 0;
@@ -116,7 +139,6 @@ always @(posedge clk) begin
 	old_load <= bk_load;
 	old_save <= bk_save;
 	old_ack  <= sd_ack;
-	old_addr <= sd_buff_addr;
 
 	if(~old_ack & sd_ack) {sd_rd, sd_wr} <= 0;
 
@@ -128,13 +150,13 @@ always @(posedge clk) begin
 			sd_rd <=  bk_load;
 			sd_wr <= ~bk_load;
 		end
-		if(old_downloading & ~downloading & |img_size & bk_ena) begin
-			bk_state <= 1;
-			bk_loading <= 1;
-			sd_lba <= 0;
-			sd_rd <= 1;
-			sd_wr <= 0;
-		end
+		// if(old_downloading & ~downloading & |img_size & bk_ena) begin
+			// bk_state <= 1;
+			// bk_loading <= 1;
+			// sd_lba <= 0;
+			// sd_rd <= 1;
+			// sd_wr <= 0;
+		// end
 	end else begin
 		if(old_ack & ~sd_ack) begin
 			if(&sd_lba[6:0]) begin

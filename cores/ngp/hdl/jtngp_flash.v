@@ -48,7 +48,7 @@ module jtngp_flash(
     input      [ 1:0] sav_wr,
     input             sav_ack,
     output reg [15:0] sav_din,
-    output /*reg*/        sav_wait,
+    output reg        sav_wait,
 
     input      [15:0] gs_data,
     output reg [15:0] gs_din,
@@ -168,9 +168,34 @@ end
 
 reg  [ 2:0] rstr_st;
 reg         pending;
-assign sav_wait = pending;
+// assign sav_wait = ~gs_ok/*pending*/;
 
+always @(*) begin
+    gs_addr = sav_addr[15:1];
+    gs_din  = sav_dout;
+    gs_cs   = sav_ack;
+    gs_we   = |sav_wr;
+    gs_dsn  = ~sav_wr;
+    sav_din = gs_data;
+end
+
+reg ok_l, ok_ll, ack_l, ack_ll;
+initial sav_wait = 0;
 always @(posedge clk) begin
+    ok_l  <= gs_ok;
+    ok_ll <= ok_l;
+    ack_l <= sav_ack;
+    ack_ll<= ack_l;
+    if(sav_ack) begin
+        if(ack_l && ack_ll)
+            sav_wait <= ~gs_ok;
+        if(~ack_l)
+            sav_wait <= 1;
+    end else
+        sav_wait = 0;
+end
+
+/*always @(posedge clk) begin
     if(rst) begin
         gs_addr <= 0;
         gs_dsn  <= 2'b11;
@@ -196,7 +221,7 @@ always @(posedge clk) begin
             rstr_st  <= 0;
         end
     end
-end
+end*/
 
 always @(posedge clk, posedge rst ) begin
     if( rst ) begin

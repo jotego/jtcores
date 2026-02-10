@@ -496,12 +496,8 @@ assign joystick2 = joyusb_2;
     assign hps_din = ioctl_din;
 `endif
 
-localparam SDWAIT = `ifdef JTFRAME_SAVEGAME 1 `else 0 `endif;
-
 hps_io #(
-    .STRLEN(1024),.PS2DIV(32),
-    .WIDE(`JTFRAME_MR_FASTIO),
-    .BLKSZ(1),.SDWAIT(SDWAIT)
+    .STRLEN(1024),.PS2DIV(32),.WIDE(`JTFRAME_MR_FASTIO),.BLKSZ(1)
 ) u_hps_io
 (
     .clk_sys         ( clk_rom        ),
@@ -521,7 +517,7 @@ hps_io #(
     .ioctl_dout      ( hps_dout       ),
     .ioctl_din       ( hps_din        ),
     .ioctl_index     ( hps_index      ),
-    .ioctl_wait      ( hps_wait       ),
+    .ioctl_wait      ( hps_wait     | sd_wait  ),
     .ioctl_upload    ( hps_upload     ),
     // NVRAM support
     .ioctl_rd        (                ), // no need
@@ -534,7 +530,7 @@ hps_io #(
     .sd_buff_dout    ( sd_buff_dout   ), // output
     .sd_buff_din     ('{sd_buff_din}  ), // input
     .sd_buff_wr      ( sd_buff_wr     ), // output
-    .sd_wait         ( sd_wait        ), // input
+    // .sd_wait         ( sd_wait        ), // input
     .img_mounted     ( img_mounted    ), // output
     .img_readonly    ( img_readonly   ), // output
     .img_size        ( img_size       ), // output
