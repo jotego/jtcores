@@ -1,0 +1,41 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "downtown.cpp" ]
+
+debug.Machines=[
+	"downtown",
+	"twineagl",
+	"arbalest",
+	"metafox"
+]
+
+# Different format for GFX ROMs
+skip.Machines=[
+	"tndrcade",
+	"usclssic",
+]
+
+[buttons]
+names = [
+    { machine="calibr50", names="Shoot,Grenade" },
+]
+
+
+[dipsw]
+delete= [ {names=["Copyright / License", "Licensed To"] }]
+
+[ROM]
+regions = [
+    { name="maincpu", width=16, reverse=true, no_offset=true  },
+
+    { name="sub",   start="JTFRAME_BA1_START", no_offset=true },
+    { name="x1snd", start="PCM_START"         },
+
+    { name="tiles",   width=16, start="JTFRAME_BA2_START", no_offset=true },
+    { name="sprites", width=32, start="JTFRAME_BA3_START", no_offset=true },
+    { name="proms", skip=true }
+]
+
+order=["maincpu","sub","x1snd","tiles","sprites"]

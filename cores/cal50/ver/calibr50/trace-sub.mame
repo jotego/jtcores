@@ -1,0 +1,8 @@
+focus 1
+trace off
+trace sub.trace,sub,noloop,{tracelog "PC=%X,SP=%X,X=%X,Y=%X,A=%X,P=%X,IR=%X,frame_cnt=%x* ",pc,sp&0xff,x,y,a,p,ir,frame}
+sp=0
+x=0
+p=30
+gtime 700
+traceflush

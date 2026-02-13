@@ -1,0 +1,28 @@
+cal50:
+  - get: [ "*.v" ]
+kiwi:
+  - get:
+    - jtkiwi_gfx.v
+    - jtkiwi_obj.v
+    - jtkiwi_draw.v
+    - jtkiwi_tilemap.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+      - jtframe_8bit_reg.v
+      - jtframe_edge.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram16.v
+      - jtframe_obj_buffer.v
+      - jtframe_prom.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+  - from: cpu
+    get:
+      - jtframe_m68k.yaml
+jt680x:
+  - get:
+    - jt65c02.yaml
