@@ -607,7 +607,7 @@ jtframe_mister_cartsave u_save(
     .sav_wr      ( sav_wr       )
 );
 `else
-assign {sav_addr, sav_dout, sav_wr, sav_ack} = 0
+assign {sav_addr, sav_dout, sav_wr, sav_ack} = 0;
 `endif
 
 `ifndef DEBUG_NOHDMI
