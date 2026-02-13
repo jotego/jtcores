@@ -15,7 +15,7 @@ else
     # Find out whether the jtframe file is older
     # than the JTFRAME's commit
     cd $JTFRAME > /dev/null
-    COMMIT_DATE=`date -d "$(git show -s --format=%ci)" +"%s"`
+    COMMIT_DATE=$(git show -s --format=%ct)
     COMPILED_DATE=`stat -c %Y $BIN`
     if [ $COMPILED_DATE -lt $COMMIT_DATE ]; then
         RECOMPILE=TRUE
