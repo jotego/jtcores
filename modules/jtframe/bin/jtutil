@@ -15,7 +15,7 @@ else
     cd $JTFRAME > /dev/null
     COMMIT_DATE=$(git show -s --format=%ct)
     COMPILED_DATE=$(stat -c %Y $BIN)
-    if [ $COMPILED_DATE -lt $COMMIT_DATE ]; then
+    if (( $COMPILED_DATE < $COMMIT_DATE )) ; then
         RECOMPILE=TRUE
     fi
     cd - > /dev/null
