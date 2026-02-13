@@ -16,7 +16,7 @@ else
     # than the JTFRAME's commit
     cd $JTFRAME > /dev/null
     COMMIT_DATE=$(git show -s --format=%ct)
-    COMPILED_DATE=`stat -c %Y $BIN`
+    COMPILED_DATE=$(stat -c %Y $BIN)
     if [ $COMPILED_DATE -lt $COMMIT_DATE ]; then
         RECOMPILE=TRUE
     fi
