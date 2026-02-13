@@ -316,8 +316,10 @@ always @(posedge clk) begin
 `ifdef CPS15
     if( joy_cs ) begin
         sys_data     <= { joystick2[7:0], joystick1[7:0] };
-        sys_data[7]  <= joystick3[6]; // button 3
-        sys_data[15] <= joystick4[6]; // button 3
+        if(!charger) begin
+            sys_data[7]  <= joystick3[6]; // button 3
+            sys_data[15] <= joystick4[6]; // button 3
+        end
     end else if( joy3_cs )
         sys_data <= { 2{cab_1p[2], coin[2], joystick3[5:0] }};
     else if( joy4_cs )
