@@ -23,8 +23,8 @@ module jtcal50_main(
     output        [19:1] rom_addr,
     output        [16:1] ram_addr,
     output        [12:0] cpu_addr,
-    output        [ 1:0] ram_dsn,
-    output               ram_we,
+    output        [ 1:0] cpu_dsn,
+    output        [ 1:0] ram_we,
     output        [15:0] cpu_dout,
 
     // 8-bit interface
@@ -35,7 +35,6 @@ module jtcal50_main(
     output               set_cmd,
 
     output reg           rom_cs,
-    output reg           ram_cs,
     output        [ 1:0] pal_we,
     output        [ 1:0] nvram_we,
     input         [15:0] nvram_dout,
@@ -46,7 +45,6 @@ module jtcal50_main(
 
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
-    input                ram_ok,
     input                rom_ok,
 
     // Cabinet
@@ -65,10 +63,12 @@ module jtcal50_main(
 `ifndef NOMAIN
 wire [23:1] A;
 wire [ 2:0] FC;
+wire [15:0] fave;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 reg  [ 9:0] cab2_dout;
 reg  [ 2:0] IPLn;
+reg         ram_cs;
 wire        int4ms, int16ms,
             cpu_cen, cpu_cenb, dtackn, VPAn,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs;
@@ -82,16 +82,16 @@ wire [23:0] A_full = {A,1'b0};
 assign cpu_addr = A[13:1];
 assign rom_addr = A[19:1];
 assign VPAn     = ~&{A[23],~ASn};
-assign ram_dsn  = {UDSn, LDSn};
-assign ram_we   = ~RnW;
+assign cpu_dsn  = {UDSn, LDSn};
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
+assign bus_busy = (rom_cs & ~rom_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_rnw  = RnW;
 assign ram_addr = { buf_cs, A[15:1] };
-assign nvram_we = ~ram_dsn & {2{nvram_cs&~RnW}};
-assign pal_we   = ~ram_dsn & {2{  pal_cs&~RnW}};
-assign tlv_we   = ~ram_dsn & {2{  tlv_cs&~RnW}};
+assign ram_we   = ~cpu_dsn & {2{ram_cs & ~RnW}};
+assign nvram_we = ~cpu_dsn & {2{nvram_cs&~RnW}};
+assign pal_we   = ~cpu_dsn & {2{  pal_cs&~RnW}};
+assign tlv_we   = ~cpu_dsn & {2{  tlv_cs&~RnW}};
 assign set_cmd  =  snd_cs & ~(RnW | LDSn);
 assign st_dout  = 0;
 
@@ -121,7 +121,7 @@ end
 reg [7:0] dipsw_mx;
 
 always @* begin
-    dipsw_mx = A[1] ? dipsw[15:8] : dipsw[7:0];
+    dipsw_mx = A[1] ? dipsw[7:0] : dipsw[15:8];
 end
 
 always @* begin
@@ -192,7 +192,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
     // Frequency report
-    .fave       (           ),
+    .fave       ( fave      ),
     .fworst     (           )
 );
 /* verilator tracing_on */

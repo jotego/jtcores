@@ -1,6 +1,5 @@
 params:
-  - { name: RAM_OFFSET,   value: "22'h20_0000" }
-  - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
 clocks:
   clk48:
     - freq: 2000000
@@ -10,12 +9,6 @@ clocks:
 sdram:
   banks:
     - buses:
-        - name: ram
-          addr_width: 17   # extra bit for buf_cs
-          data_width: 16
-          din: cpu_dout
-          offset: RAM_OFFSET
-          rw: true
         - name: main
           addr_width: 20
           data_width: 16
@@ -43,6 +36,12 @@ sdram:
           addr_width: 21
           data_width: 32
 bram:
+  - name: ram
+    addr_width: 17   # extra bit for buf_cs
+    data_width: 16
+    din: cpu_dout
+    offset: RAM_OFFSET
+    rw: true
   - name: pal
     addr_width: 10
     data_width: 16

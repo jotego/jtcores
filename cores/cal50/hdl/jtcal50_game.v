@@ -21,6 +21,7 @@ module jtcal50_game(
 );
 
 wire [13:1] cpu_addr;
+wire [ 1:0] cpu_dsn;
 wire [ 7:0] snd_cmd, snd_rply, st_main, st_snd, st_video;
 wire [15:0] vram_dout;
 wire        cpu_ldwn, set_cmd, flip, cpu_rnw,
@@ -30,7 +31,7 @@ assign debug_view = st_video;
 assign dip_flip   = ~flip;
 assign fix_addr   = 0;
 assign fix_cs     = 0;
-assign cpu_ldwn   = cpu_rnw | ram_dsn[0];
+assign cpu_ldwn   = cpu_rnw | cpu_dsn[0];
 
 reg        LHBL_l;
 reg  [5:0] cnt244;
@@ -60,6 +61,7 @@ jtcal50_main u_main(
     .cpu_dout       ( cpu_dout      ),
 
     .cpu_addr       ( cpu_addr      ),
+    .cpu_dsn        ( cpu_dsn       ),
     .ram_addr       ( ram_addr      ),
     .rom_addr       ( main_addr     ),
     .rom_data       ( main_data     ),
@@ -69,11 +71,8 @@ jtcal50_main u_main(
     .nvram_we       ( nvram_we      ),
     .nvram_dout     ( nvram_dout    ),
     // RAM
-    .ram_dsn        ( ram_dsn       ),
     .ram_we         ( ram_we        ),
-    .ram_dout       ( ram_data      ),
-    .ram_cs         ( ram_cs        ),
-    .ram_ok         ( ram_ok        ),
+    .ram_dout       ( ram_dout      ),
     // cabinet I/O
     .cab_1p         ( cab_1p[1:0]   ),
     .coin           ( coin[1:0]     ),
@@ -146,7 +145,7 @@ jtcal50_video u_video(
     .flip           ( flip          ),
     // GFX - CPU interface
     .cpu_rnw        ( cpu_ldwn      ),
-    .cpu_dsn        ( ram_dsn       ),
+    .cpu_dsn        ( cpu_dsn       ),
     .cpu_addr       ( cpu_addr      ),
     .cpu_dout       ( cpu_dout      ),
 
