@@ -1,4 +1,4 @@
-# jtsim -q -video 560 -w 520 -inputs game.cab
+#!/usr/bin/env -S bashc -c 'exec jtsim -q -video 560 -w 520 -inputs "$0" "$@"'
 440
 loop
 2 coin

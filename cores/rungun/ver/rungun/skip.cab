@@ -1,4 +1,4 @@
-# jtsim -video 200 -w 100 -inputs skip.cab
+#!/usr/bin/env -S bash -c 'exec jtsim -video 200 -w 100 -inputs "$0" "$@"'
 # skips the RUN&GUN logo
 loop
         1 b1

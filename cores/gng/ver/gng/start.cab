@@ -1,4 +1,4 @@
-# jtsim -video 250 -w 220 -q -inputs start.cab
+#!/usr/bin/env -S bashc -c 'exec jtsim -video 250 -w 220 -q -inputs "$0" "$@"'
 210
 loop
 3 coin
