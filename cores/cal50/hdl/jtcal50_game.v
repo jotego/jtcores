@@ -27,7 +27,7 @@ wire [15:0] vram_dout;
 wire        cpu_ldwn, set_cmd, flip, cpu_rnw,
             vram_cs, vctrl_cs, vflag_cs, pal_cs;
 
-assign debug_view = st_video;
+assign debug_view = debug_bus[7] ? st_video : st_snd;
 assign dip_flip   = ~flip;
 assign fix_addr   = 0;
 assign fix_cs     = 0;
@@ -104,6 +104,7 @@ jtcal50_sound u_sound(
     .clk            ( clk           ),
     .cen2           ( cen2          ),
     .cen244         ( cen244        ),
+    .cen_pcm        ( cen_pcm       ),
 
     // communication with main CPU
     .snd_cmd        ( snd_cmd       ),
@@ -114,18 +115,13 @@ jtcal50_sound u_sound(
     .rom_cs         ( snd_cs        ),
     .rom_data       ( snd_data      ),
     .rom_ok         ( snd_ok        ),
-    // PCM RAM
-    .pcmram_we      ( pcmram_we     ),
-    .pcmram_din     ( pcmram_din    ),
-    .pcmram_dout    ( pcmram_dout   ),
-    .pcmram_addr    ( pcmram_addr   ),
     // PCM ROM
     .pcm_addr       ( pcm_addr      ),
     .pcm_data       ( pcm_data      ),
     .pcm_cs         ( pcm_cs        ),
     // Sound
-    .snd            ( snd           ),
-    .sample         ( sample        ),
+    .snd            ( pcm           ),
+    .mute           ( mute          ),
     // Debug
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )

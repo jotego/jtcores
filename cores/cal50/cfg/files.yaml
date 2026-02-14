@@ -26,3 +26,4 @@ jtframe:
 jt680x:
   - get:
     - jt65c02.yaml
+jtx1010:

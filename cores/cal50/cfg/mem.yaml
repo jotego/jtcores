@@ -6,6 +6,13 @@ clocks:
       gate: [ snd ]
       outputs:
         - cen2
+    - freq: 1600000
+      outputs:
+        - cen_pcm
+audio:
+  mute: true
+  channels:
+    - { name: pcm, data_width: 16, rsum:  47k, rc: [{ r: 100, c: 100n }] }
 sdram:
   banks:
     - buses:
@@ -66,9 +73,4 @@ bram:
     data_width: 16
     din: cpu_dout
     addr: main_addr[11:1]
-    rw: true
-  # PCM chip
-  - name: pcmram
-    addr_width: 13
-    data_width: 8
     rw: true

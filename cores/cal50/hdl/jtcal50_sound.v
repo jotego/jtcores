@@ -17,19 +17,13 @@
     Date: 15-11-2025 */
 
 module jtcal50_sound(
-    input              clk,        // 24 MHz
+    input              clk,
     input              rst,
-    input              cen2,
-    input              cen244,
+    input              cen2, cen244, cen_pcm,
 
     input       [ 7:0] snd_cmd,
     output      [ 7:0] snd_rply,
     input              set_cmd,
-    // PCM RAM
-    output             pcmram_we,
-    output      [ 7:0] pcmram_din,
-    input       [ 7:0] pcmram_dout,
-    output      [12:0] pcmram_addr,
     // PCM ROM
     output      [19:0] pcm_addr,
     input       [ 7:0] pcm_data,
@@ -40,8 +34,8 @@ module jtcal50_sound(
     output      [17:0] rom_addr,
     input       [ 7:0] rom_data,
     // Sound
-    output      [15:0] snd,
-    output             sample,
+    output signed [15:0] snd,
+    output             mute,
     // Debug
     input       [ 7:0] debug_bus,
     output      [ 7:0] st_dout
@@ -50,26 +44,18 @@ module jtcal50_sound(
 wire [15:0] A;
 wire [ 4:0] rom_upper;
 reg  [ 7:0] cpu_din;
-wire [ 7:0] nc, cfg, cpu_dout;
+wire [ 7:0] nc, cfg, cpu_dout, pcm_dout;
 wire [ 3:0] bank;
 reg         cfg_cs, bank_cs, st_cs, cmd_cs, x1pcm_cs;
-wire        rdy, nmi, nmi_clrn, irq, irq_clrn, mute, rnw,
+wire        nmi, nmi_clrn, irq, irq_clrn, rnw,
             cpu_wr, cpu_rd, cpu_acc;
 
 // $4'0000 (256kB), 16 pages of 8kB each (128kB) plus $4000 (16kB) Fixed
 assign rom_addr  = { rom_upper, A[12:0] };
 assign rom_upper = bank_cs ? {bank,A[13]} : {4'b00,A[13]};
-assign rdy       = ~rom_cs | rom_ok;
 assign {bank,nmi_clrn,irq_clrn,mute} = cfg[7:1];
 
-assign pcmram_we   = x1pcm_cs & ~rnw;
-assign pcmram_din  = cpu_dout;
-assign pcmram_addr = A[12:0];
-assign pcm_addr    = 0;
-assign pcm_cs      = 0;
-assign st_dout     = 0;
-assign snd         = 0;
-assign sample      = 0;
+assign st_dout     = {7'd0,mute};
 assign rnw         =~cpu_wr;
 assign cpu_acc     = cpu_wr | cpu_rd;
 
@@ -117,10 +103,33 @@ jtframe_8bit_reg u_cfg(
 );
 
 always @* begin
-    cpu_din = rom_cs      ? rom_data    :
-              x1pcm_cs    ? pcmram_dout :
-              cmd_cs      ? snd_cmd     : 8'h0;
+    cpu_din = rom_cs   ? rom_data :
+              x1pcm_cs ? pcm_dout :
+              cmd_cs   ? snd_cmd  : 8'h0;
 end
+
+jtx1010 u_pcm(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( cen_pcm   ),
+
+    // CPU interface
+    .cpu_addr   ( A[12:0]   ),
+    .cpu_dout   ( cpu_dout  ),
+    .cpu_din    ( pcm_dout  ),
+    .cpu_wr     ( cpu_wr    ),
+    .cpu_cs     ( x1pcm_cs  ),
+
+    // ROM interface
+    .rom_addr   ( pcm_addr  ),
+    .rom_data   ( pcm_data  ),
+    .rom_cs     ( pcm_cs    ),
+
+    // sound output
+    .snd_left   (           ),
+    .snd_right  ( snd       ),
+    .sample     (           )
+);
 
 jt65c02 u_cpu(
     .rst    ( rst       ),

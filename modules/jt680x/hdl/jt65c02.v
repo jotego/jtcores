@@ -84,7 +84,10 @@ jt65c02_ctrl u_ctrl(
     .ld_sel     ( ld_sel    ),
     .alu_sel    ( alu_sel   ),
     .cc_sel     ( cc_sel    ),
-    .rmux_sel   ( rmux_sel  )
+    .rmux_sel   ( rmux_sel  ),
+    // simulation outputs as ports so they do not cause
+    // warnings in Quartus
+    .stack_busy (           )
 );
 
 jt65c02_alu u_alu(

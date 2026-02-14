@@ -41,7 +41,9 @@ module jt65c02_ctrl(
     output [3:0] ld_sel,
     output [3:0] alu_sel,
     output [3:0] cc_sel,
-    output [3:0] rmux_sel
+    output [3:0] rmux_sel,
+    // simulation outputs
+    output reg stack_busy
 );
 
 `include "65c02_param.vh"
@@ -53,7 +55,7 @@ localparam [2:0] NMI_VECTOR   = 5,
 
 wire [4:0] jsr_sel;
 reg  [2:0] iv_sel;
-reg        nmi_l, pendng, stack_busy;
+reg        nmi_l, pendng;
 wire       halt, swi, waiting;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 wire       wait4cy, dclrni, nobr;
