@@ -70,13 +70,13 @@ namespace {
 /* this structure defines the parameters for a channel */
 struct X1_010_CHANNEL
 {
-	unsigned char   status;
-	unsigned char   volume;                     //        volume / wave form no.
-	unsigned char   frequency;                  //     frequency / pitch lo
-	unsigned char   pitch_hi;                   //      reserved / pitch hi
-	unsigned char   start;                      // start address / envelope time
-	unsigned char   end;                        //   end address / envelope no.
-	unsigned char   reserve[2];
+	unsigned char   status;                     // 0
+	unsigned char   volume;                     // 1       volume / wave form no.
+	unsigned char   frequency;                  // 2    frequency / pitch lo
+	unsigned char   pitch_hi;                   // 3     reserved / pitch hi
+	unsigned char   start;                      // 4 start address / envelope time
+	unsigned char   end;                        // 5  end address / envelope no.
+	unsigned char   reserve[2];                 // 6,7
 };
 
 } // anonymous namespace

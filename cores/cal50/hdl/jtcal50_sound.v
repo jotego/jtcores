@@ -114,7 +114,7 @@ jtx1010 u_pcm(
     .cen        ( cen_pcm   ),
 
     // CPU interface
-    .cpu_addr   ( A[12:0]   ),
+    .cpu_addr   ( {~A[12],A[11:0]} ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_din    ( pcm_dout  ),
     .cpu_wr     ( cpu_wr    ),

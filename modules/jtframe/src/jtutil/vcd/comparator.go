@@ -190,8 +190,10 @@ func (cmp *Comparator)matchTrace( sim_st *SimState,
 
 func (cmp *Comparator)nxTraceChange( mame_st *MAMEState ) (NameValue,bool) {
     for cmp.trace.Scan() {
+        next_regs := parseTrace(cmp.trace.Text())
+        if len(next_regs)==0 { continue }
         old := mame_st.data
-        mame_st.data = parseTrace(cmp.trace.Text())
+        mame_st.data = next_regs
         for name, _ := range mame_st.alias {
             if mame_st.data[name] != old[name] {
                 return mame_st.data,true

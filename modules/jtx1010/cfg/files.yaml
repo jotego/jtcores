@@ -1,3 +1,6 @@
 jtx1010:
   - get:
     - jtx1010.sv
+    - jtx1010_pcm.sv
+    - jtx1010_wav.sv
+    - jtx1010_acc.sv

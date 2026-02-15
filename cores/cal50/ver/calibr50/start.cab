@@ -1,0 +1,5 @@
+#!/usr/bin/env -S bash -c 'exec jtsim -video 202 -w 146 -inputs "$0" "$@"'
+150 
+2 coin
+2
+2 1p

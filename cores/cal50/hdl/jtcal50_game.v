@@ -44,7 +44,7 @@ always @(posedge clk) begin
     if( LHBL & ~LHBL_l ) {cen244,cnt244} <= nx_244;
 end
 
-/* verilator tracing_on */
+/* verilator tracing_off */
 jtcal50_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
