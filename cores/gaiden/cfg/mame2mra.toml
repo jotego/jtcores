@@ -46,11 +46,11 @@ regions = [
 	{ name="oki", start="PCM_START" },
 	{ name="mcu", skip=true },	# no dumps known
 	{ name="mcu", skip=true, machine="wildfang" },
-	{ name="gfx1", start="JTFRAME_BA2_START", reverse=true },
-	{ name="gfx4", start="OBJ_START", width=16, reverse=true }, # objects
-	{ name="gfx2", start="JTFRAME_BA3_START", reverse=true }, # background
-	{ name="gfx3", start="GFX3_START", reverse=true },        # foreground
+	{ name="txtiles", start="JTFRAME_BA2_START", reverse=true },
+	{ name="sprites", start="OBJ_START", width=16, reverse=true }, # objects
+	{ name="bgtiles", start="JTFRAME_BA3_START", reverse=true }, # background
+	{ name="fgtiles", start="GFX3_START", reverse=true },        # foreground
 ]
 
 order = [ "maincpu", "audiocpu", "oki",
-	"gfx1","gfx4","gfx2", "gfx3" ]
+	"txtiles","sprites","bgtiles", "fgtiles" ]
