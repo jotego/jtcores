@@ -1,4 +1,4 @@
-name: Verilator linter
+name: Verilator/MRA linter
 
 on:
   workflow_dispatch:
@@ -22,3 +22,4 @@ jobs:
       run: |
         # pwd will be: /home/runner/work/jtcores/jtcores
         docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/bin/lint-all.sh
+        docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/bin/lint-mra.sh
