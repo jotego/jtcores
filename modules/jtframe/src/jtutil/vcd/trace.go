@@ -20,12 +20,14 @@ func parseTrace( s string ) NameValue {
 func (tp *trace_parser_t)Parse(s string) NameValue {
     tp.line = s
     tp.nv = make(NameValue)
-    tp.notify_interrupts()
+    tp.split()
+    tp.print_events()
     tp.parse_tokens()
     return tp.nv
 }
 
-func (tp *trace_parser_t)notify_interrupts() {
+// split takes apart the assignment part and the comments after *
+func (tp *trace_parser_t)split() {
     k := strings.Index(tp.line,"*")
     if k==-1 {
         tp.regs=tp.line
@@ -33,12 +35,18 @@ func (tp *trace_parser_t)notify_interrupts() {
     }
     tp.rest = tp.line[k:]
     tp.regs = tp.line[0:k]
+}
+
+func (tp *trace_parser_t)print_events() {
     if k:=strings.Index(tp.rest,"RTI");k!=-1 {
         tp.nv["RTI"]=1
         fmt.Printf("MAME RTI\n")
     }
     if k:=strings.Index(tp.rest,"868D");k!=-1 {
         fmt.Printf("MAME enters IRQ\n")
+    }
+    if k:=strings.Index(tp.line,"interrupt");k!=-1 {
+        fmt.Println(tp.line)
     }
 }
 
