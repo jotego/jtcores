@@ -10,21 +10,20 @@ skip.setnames=[
     "ddragon2",
     "ddragon2u",
     "ddragon2j",
-    "ddragon2b",
+    "ddragonja",
+    "ddragon2bl",
     "tstrike",
     "tstrikea",
     "ddungeon",
     "ddungeone",
     "darktowr",
     "toffy",
+    "toffya",
     "stoffy",
     "stoffyu",
     # broken bootlegs (three M6809 instead of two plus MCU)
-    "ddragonb", "ddragonba",
-    "ddragon6809", "ddragon6809a",
-
-    "ddragonbla","toffya",
-    "ddragonja","ddragon2bl"
+    "ddragonbl", "ddragonbla",
+    "ddragon6809", "ddragon6809a"
 ]
 
 [Audio]
