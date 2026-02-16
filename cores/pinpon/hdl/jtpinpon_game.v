@@ -70,8 +70,8 @@ jtpinpon_main u_main(
     // cabinet I/O
     .cab_1p         ( cab_1p[1:0]   ),
     .coin           ( coin[1:0]     ),
-    .joystick1      ( joystick1     ),
-    .joystick2      ( joystick2     ),
+    .joystick1      ( joystick1[5:0]),
+    .joystick2      ( joystick2[5:0]),
     .service        ( service       ),
     // GFX
     .cpu_dout       ( cpu_dout      ),
