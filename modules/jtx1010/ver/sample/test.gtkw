@@ -1,0 +1,35 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Mon Feb 16 16:15:17 2026
+[*]
+[dumpfile] "/home/jtejada/jtcores/modules/jtx1010/ver/sample/test.fst"
+[dumpfile_mtime] "Mon Feb 16 15:49:20 2026"
+[dumpfile_size] 16203516
+[savefile] "/home/jtejada/jtcores/modules/jtx1010/ver/sample/test.gtkw"
+[timestart] 15625
+[size] 1266 1005
+[pos] -1 -1
+*-39.408974 532000000000 5504938700000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.jtx1010.
+[sst_width] 278
+[signals_width] 277
+[sst_expanded] 1
+[sst_vpaned_height] 422
+@28
+TOP.jtx1010.cfg_we
+TOP.jtx1010.env_we
+TOP.jtx1010.mmr_we
+TOP.jtx1010.wav_we
+@22
+TOP.jtx1010.keyon[15:0]
+TOP.jtx1010.din[7:0]
+TOP.jtx1010.addr[12:0]
+@8421
+TOP.jtx1010.left[15:0]
+@22
+TOP.jtx1010.right[15:0]
+@28
+TOP.jtx1010.rom_cs
+[pattern_trace] 1
+[pattern_trace] 0

@@ -23,12 +23,12 @@ module jtx1010_acc(
     input        [ 4:0] st,
     input signed [15:0] wav_l, wav_r, pcm_l, pcm_r,
     output reg          sample,
-    output reg signed [15:0] snd_l, snd_r
+    output reg signed [15:0] snd_l, snd_r, mux_l
 );
 
 localparam WAV=1;
 
-reg signed [15:0] mux_l, mux_r, acc_l=0, acc_r=0;
+reg signed [15:0] mux_r, acc_l=0, acc_r=0;
 
 always_comb begin
     mux_l = cfg[WAV] ? wav_l : pcm_l;

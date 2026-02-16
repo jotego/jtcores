@@ -22,11 +22,11 @@ module jtx1010(
     input              cen, // usually 16MHz
 
     // CPU interface
-    input       [12:0] cpu_addr,
-    input       [ 7:0] cpu_dout,
-    output      [ 7:0] cpu_din,
-    input              cpu_wr,
-    input              cpu_cs,
+    input       [12:0] addr,
+    input       [ 7:0] din,
+    output      [ 7:0] dout,
+    input              we,
+    input              cs,
 
     // ROM interface
     output      [19:0] rom_addr,
@@ -34,22 +34,23 @@ module jtx1010(
     output             rom_cs,      // rom_ok not needed
 
     // sound output
-    output signed [15:0] snd_left,
-    output signed [15:0] snd_right,
+    output signed [15:0] left,
+    output signed [15:0] right,
     output             sample
 );
 
-wire        env_cs = cpu_addr>='h80 && !cpu_addr[12];
-wire        wav_cs = cpu_addr[12];
-wire        mmr_cs = cpu_addr<'h80;
-wire        mmr_we = cpu_cs && cpu_wr && mmr_cs;
-wire        wav_we = cpu_cs && cpu_wr && wav_cs;
-wire        env_we = cpu_cs && cpu_wr && env_cs;
+wire        env_cs = addr>='h80 && !addr[12];
+wire        wav_cs = addr[12];
+wire        mmr_cs = addr<'h80;
+wire        mmr_we = cs && we && mmr_cs;
+wire        wav_we = cs && we && wav_cs;
+wire        env_we = cs && we && env_cs;
 reg  [ 7:0] cfg_din, cpu_wav, cpu_mmr, cpu_env;
 wire [ 7:0] cfg;
 wire [ 3:0] ch;
 wire [ 4:0] st;
-wire [15:0] keyon, pcm_l, pcm_r, wav_l, wav_r;
+wire [15:0] keyon /* verilator public */;
+wire [15:0] pcm_l, pcm_r, wav_l, wav_r,mux_l;
 wire [ 7:0] cfg_data, wav_data, env_data;
 reg  [11:0] wav_addr=0; // not implemented
 reg  [11:0] env_addr=0; // not implemented
@@ -57,13 +58,17 @@ reg         cfg_we, kon;
 wire        up;
 
 `ifdef SIMULATION
-wire        mmr_rd = cpu_cs && !cpu_wr && mmr_cs;
-wire        wav_rd = cpu_cs && !cpu_wr && wav_cs;
-wire        env_rd = cpu_cs && !cpu_wr && env_cs;
+wire        mmr_rd = cs && !we && mmr_cs;
+wire        wav_rd = cs && !we && wav_cs;
+wire        env_rd = cs && !we && env_cs;
+reg signed [15:0] sim_sample[0:15] /* verilator public */;
+always @(posedge clk) if(cen) begin
+    if(&st) sim_sample[ch] = mux_l;
+end
 `endif
 
-assign cpu_din = wav_cs ? cpu_wav :
-                 env_cs ? cpu_env : cpu_mmr;
+assign dout = wav_cs ? cpu_wav :
+              env_cs ? cpu_env : cpu_mmr;
 
 localparam KEYON=0, WAV=1;
 wire keyoff;
@@ -78,8 +83,8 @@ end
 jtframe_dual_ram #(.AW(7)) u_mmr(
     // Port 0: CPU
     .clk0   ( clk       ),
-    .data0  ( cpu_dout  ),
-    .addr0  (cpu_addr[6:0]),
+    .data0  ( din       ),
+    .addr0  (addr[6:0]),
     .we0    ( mmr_we    ),
     .q0     ( cpu_mmr   ),
     // Port 1
@@ -93,8 +98,8 @@ jtframe_dual_ram #(.AW(7)) u_mmr(
 jtframe_dual_ram #(.AW(12)) u_env(
     // Port 0: CPU
     .clk0   ( clk       ),
-    .data0  ( cpu_dout  ),
-    .addr0  (cpu_addr[11:0]),
+    .data0  ( din       ),
+    .addr0  (addr[11:0]),
     .we0    ( env_we    ),
     .q0     ( cpu_env   ),
     // Port 1
@@ -108,8 +113,8 @@ jtframe_dual_ram #(.AW(12)) u_env(
 jtframe_dual_ram #(.AW(12)) u_waves(
     // Port 0: CPU
     .clk0   ( clk       ),
-    .data0  ( cpu_dout  ),
-    .addr0  (cpu_addr[11:0]),
+    .data0  ( din       ),
+    .addr0  (addr[11:0]),
     .we0    ( wav_we    ),
     .q0     ( cpu_wav   ),
     // Port 1
@@ -133,8 +138,9 @@ jtx1010_acc u_acc(
     .wav_l      ( wav_l     ),
     .wav_r      ( wav_r     ),
 
-    .snd_l      ( snd_left  ),
-    .snd_r      ( snd_right ),
+    .mux_l      ( mux_l     ),  // for debugging
+    .snd_l      ( left      ),
+    .snd_r      ( right     ),
     .sample     ( sample    )
 );
 
