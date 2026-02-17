@@ -49,8 +49,8 @@ wire prom_1d = prom_sel[0];
 wire prom_2d = prom_sel[1];
 wire prom_3d = prom_sel[2];
 // wire prom_1h = prom_sel[3];
-wire prom_6l = prom_sel[4];
-// wire prom_6e = prom_sel[5];
+// wire prom_6e = prom_sel[4];
+wire prom_6l = prom_sel[5];
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
