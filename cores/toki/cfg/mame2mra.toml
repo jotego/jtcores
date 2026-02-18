@@ -21,14 +21,14 @@ delete=[
 
 [ROM]
 regions=[
-    { name="maincpu", no_offset=true, width=16, reverse=true },
-    { name="gfx1", no_offset=true },
-    { name="gfx2", no_offset=true  },
-    { name="gfx3", no_offset=true  },
-    { name="gfx4", no_offset=true  },
+    { name="maincpu",  no_offset=true, width=16, reverse=true },
+    { name="chars",    no_offset=true },
+    { name="sprites",  no_offset=true },
+    { name="bgtiles",  no_offset=true },
+    { name="fgtiles",  no_offset=true },
     { name="audiocpu", no_offset=true },
-    { name="oki", no_offset=true },
-    { name="proms", no_offset=true },
+    { name="oki",      no_offset=true },
+    { name="proms",    no_offset=true },
 ]
 
-order=[ "maincpu", "gfx1", "gfx2", "gfx3", "gfx4", "audiocpu", "oki", "proms" ]
+order=[ "maincpu", "chars", "sprites", "bgtiles", "fgtiles", "audiocpu", "oki", "proms" ]
