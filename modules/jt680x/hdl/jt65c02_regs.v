@@ -116,6 +116,7 @@ always @( posedge clk, posedge rst ) begin
         endcase
         case( cc_sel )
               NZ_CC:    {n,z  } <= {rslt_cc[3],rslt_cc[1]};
+            NZCP_CC:  if(d) {n,z,c} <= {rslt_cc[3], rslt_cc[1:0]};
              XXZ_CC:    {n,v,z} <= {op0[7:6],rslt_cc[1]};
             NVZC_CC:  {n,v,z,c} <= rslt_cc;
              NZC_CC:  {n,  z,c} <= {rslt_cc[3],rslt_cc[1:0]};

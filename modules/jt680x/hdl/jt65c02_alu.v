@@ -38,12 +38,19 @@ wire       tsb_trb;
 reg  [7:0] daa, das;
 reg  [3:0] addlow;
 reg        valid_hi, valid_lo;
-reg        h;
+reg        h, h_l;
 
 assign rslt_cc = {n8,v8,z8,c8};
 assign bsel    = ir[6:4];
 assign anded   = op0 & op1;
 assign tsb_trb = alu_sel==TSB_ALU || alu_sel==TRB_ALU;
+
+always @(posedge clk) begin
+    case(alu_sel)
+        ADD_ALU,SUB_ALU: h_l <= h;
+        default:;
+    endcase
+end
 
 always @* begin
     {h, addlow} = {1'b0, op0[3:0]}+{1'b0, op1[3:0]}+{4'd0,cx};
@@ -75,8 +82,11 @@ always @* begin
             c8 = ~cinv;
             v8 = &{op0[7],~op1[7],~rslt[7]}|&{~op0[7],op1[7],rslt[7]};
         end
-        DAA_ALU: rslt = op0[7:0]+daa;
-        DAS_ALU: rslt = op0[7:0]-das;
+        DAA_ALU: {c8,rslt} = {1'b0,op0[7:0]}+{1'b0,daa};
+        DAS_ALU: begin
+            {cinv,rslt} = {1'b0,op0[7:0]}-{1'd0,das};
+            c8=das[7:4]!=6;
+        end
         AND_ALU: rslt = anded;
         TRB_ALU: rslt =~op0 & op1; // op0 must be A register
 OR_ALU, TSB_ALU: rslt = op0 | op1;
@@ -106,12 +116,12 @@ always @* begin
     valid_hi = (op0[7:4] <= 9);
 
     daa = cin?(h?8'h66:  valid_lo ? 8'h60 : 8'h66) :
-          h           ? (valid_hi ? 8'h06 : 8'h66) :
+          h_l         ? (valid_hi ? 8'h06 : 8'h66) :
           valid_lo      ? (valid_hi ? 8'h00 : 8'h60) :
           op0[7:4] <= 8 ? 8'h06 : 8'h66;
     // das: only the carry sign is different
-    das =~cin?(h?8'h66:  valid_lo ? 8'h60 : 8'h66) :
-          h           ? (valid_hi ? 8'h06 : 8'h66) :
+    das =~cin?(h_l?8'h66:valid_lo ? 8'h60 : 8'h66) :
+          h_l         ? (valid_hi ? 8'h06 : 8'h66) :
           valid_lo      ? (valid_hi ? 8'h00 : 8'h60) :
           op0[7:4] <= 8 ? 8'h06 : 8'h66;
 end

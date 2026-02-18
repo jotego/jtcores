@@ -563,6 +563,20 @@ ucode:
       - add_alu, s_ld
       - s_ea
       - s_ea, fetch, ret_jsr
+  - name: daa
+    start: 0xe3
+    seq:
+      - a_rmux, ld0_opnd
+      - daa_alu, nzcp_cc, a_ld
+      -
+      - ni
+  - name: das
+    start: 0xf3
+    seq:
+      - a_rmux, ld0_opnd
+      - das_alu, nzcp_cc, a_ld
+      -
+      - ni
 ############ Instructions
   - mnemo: [
       # Operand from memory (${addr}!=nil)
@@ -583,11 +597,11 @@ ucode:
       - ${addr}_jsr, inc_pc
       - ${op0}_rmux, ld0_opnd
       - ${op1}_rmux, ld1_opnd, fetch
-      - ${alu}_alu, ${carry}_carry, alu16=${alu16}, ${ld}_ld, ${cc}_cc, dclrni
-      - a_rmux, ld0_opnd
-      - ${adj}_alu, a_ld
-      - #idle
-      - ni
+      - # idle
+      - # idle
+      - # idle
+      - ${alu}_alu, ${carry}_carry, alu16=${alu16}, ${ld}_ld, ${cc}_cc
+      - ${adj}_bcd, ni
   # write 8-bit registers. Data to write in op0
   - mnemo: [ STA, STX, STY, STZ ]
     seq:

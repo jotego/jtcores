@@ -55,10 +55,11 @@ localparam [2:0] NMI_VECTOR   = 5,
 
 wire [4:0] jsr_sel;
 reg  [2:0] iv_sel;
+wire [1:0] bcd_sel;
 reg        nmi_l, pendng;
 wire       halt, swi, waiting;
 wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
-wire       wait4cy, dclrni, nobr;
+wire       wait4cy, nobr;
 
 reg [2:0] waitcnt;
 assign waiting = ~waitcnt[2];
@@ -75,11 +76,19 @@ always @(posedge clk) begin
 end
 
 wire enable = cen && !halt && !waiting;
-wire next_instruction = ni || (dclrni && !d);
+wire next_instruction = ni && !do_bcd;
+wire do_bcd = bcd_sel!=0 && d;
 
 always @(posedge clk) begin
     if(enable | rst) nmi_l <= nmi;
 end
+
+task jump_subroutine(input [11:0]jmp); begin
+    uaddr        <= jmp;
+    jsr_ret      <= uaddr;
+    jsr_ret[3:0] <= nx_ualo;
+end
+endtask
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -110,10 +119,13 @@ always @(posedge clk) begin
             end
         end
         if( jsr_en ) begin
-            uaddr        <= jsr_ua;
-            jsr_ret      <= uaddr;
-            jsr_ret[3:0] <= nx_ualo;
+            jump_subroutine(jsr_ua);
         end
+        if(d) case(bcd_sel)
+            DAA_BCD: jump_subroutine(DAA_SEQA);
+            DAS_BCD: jump_subroutine(DAS_SEQA);
+            default:;
+        endcase
         // special jumps to comply with extra clock cycles
         if( nobr && !brok ) begin
             uaddr <= NOBRANCH_SEQA;

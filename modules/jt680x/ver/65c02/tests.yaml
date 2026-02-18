@@ -129,7 +129,7 @@ sub:
   mem:
     - data: "04 32 01"
   test:
-    - { asm: "SEC",     check: "C=1"   }
+    - { asm: "SEC",      check: "C=1"   }
     - { asm: "LDA #$35", check: "A=$35" }
     - { asm: "SBC $0",   check: "A=$31" }
     - { asm: "SBC $1",   check: "A=$FF, c=0, n=1"}
@@ -528,11 +528,40 @@ nmi:
     - { asm: "STA $4001", check: "A=$20" } # IRQ pin cleared
     - { asm: "LDA #$40",  check: "X=5"   }
     - { asm: "RTI",              }
-daa:
+daa_adc:
   test:
     - { asm: "SED",      check: "D=1"   }
     - { asm: "LDA #$19", check: "A=$19" }
     - { asm: "ADC #$01", check: "A=$20" }
+    - { asm: "CLC",      check: "C=0"   }
+    - { asm: "ADC #$79", check: "A=$99,V=1,N=1" }
     - { asm: "NOP" }
+    - { asm: "ADC #1",   check: "A=$00,C=1,N=0,V=0,Z=1"}
+daa_sbc:
+  test:
+    - { asm: "SED",      check: "D=1"   }
+    - { asm: "LDA #$20", check: "A=$20" }
     - { asm: "SEC",      check: "C=1"   }
-    - { asm: "SBC #$01", check: "A=$19" }
+    - { asm: "SBC #$01", check: "A=$19,C=1" }
+    - { asm: "NOP" }
+daa_sbc2:
+  test:
+    - { asm: "SED",      check: "D=1"   }
+    - { asm: "SEC",      check: "C=1"   }
+    - { asm: "LDA #$46", check: "A=$46" }
+    - { asm: "SBC #$12", check: "A=$34,C=1" }
+    - { asm: "NOP" }
+daa_sbc3:
+  test:
+    - { asm: "SED",      check: "D=1"   }
+    - { asm: "CLC",      check: "C=0"   }
+    - { asm: "LDA #$32", check: "A=$32" }
+    - { asm: "SBC #$02", check: "A=$29,C=1" }
+    - { asm: "NOP" }
+daa_sbc4:
+  test:
+    - { asm: "SED",      check: "D=1"   }
+    - { asm: "SEC",      check: "C=1"   }
+    - { asm: "LDA #$21", check: "A=$21" }
+    - { asm: "SBC #$34", check: "A=$87,C=0,N=1" }
+    - { asm: "NOP" }

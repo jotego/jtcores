@@ -54,23 +54,23 @@ initial begin
 end
 
 // finish once all expected instructions have been executed
-reg check_at_cen;
+reg failed=0;
 integer OPCNT=`OPCNT;
 
 always @(posedge uut.u_ctrl.next_instruction) begin
-    opcnt <= opcnt+1;
+    if(!uut.u_ctrl.do_bcd) opcnt <= opcnt+1;
     if(opcnt==(2+OPCNT)) begin
         $display("PASS");
         $finish;
     end
     if(opcnt>2 && state !== cur) begin
-        check_at_cen <= 1;
+        if(!uut.u_ctrl.do_bcd) failed <= 1;
     end else begin
-        check_at_cen <= 0;
+        failed <= 0;
     end
 end
 
-always @(posedge clk) if(cen && check_at_cen) begin
+always @(posedge clk) if(cen && failed) begin
     if(opcnt>2 && state !== cur) begin
         $display("Vector comparison failed at instruction %0d.\nFAIL",opcnt-2);
         #20 $finish;
