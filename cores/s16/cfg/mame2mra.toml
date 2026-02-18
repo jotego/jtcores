@@ -122,15 +122,15 @@ regions = [
     { name="gfx1",          start="JTFRAME_BA2_START", width=32, sequence=[0,1,2,2] },
     { name="sprites",       start="JTFRAME_BA3_START", width=16, reverse=true, rom_len=0x10000, no_offset=true },
     { name="maincpu:key",   start="MAINKEY_START", len=0x2000 },
-    { name="n7751",         start="N7751_START", len=0x400 },
-    { name="n7751data",     start="PCM_START" },
+    { name="upd7751",       start="N7751_START",   len=0x400 },
+    { name="upd7751data",   start="PCM_START" },
     { name="fd1089",        start="FD1089_START" },
     { name="plds",          skip=true }
 ]
 # { name="myregion", reorder=[3,2,1,0] } # reorder files inside a region
 order = [
-    "maincpu", "soundcpu", "n7751data", "gfx1",
-    "sprites", "mcu", "maincpu:key", "n7751"
+    "maincpu", "soundcpu", "upd7751data", "gfx1",
+    "sprites", "mcu", "maincpu:key", "upd7751"
 ]
 
 remove = [
