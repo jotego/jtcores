@@ -15,7 +15,7 @@ delete=[{names=["Unused","Unknown"]}]
 [ROM]
 regions=[
     {name="maincpu", no_offset=true },
-    {name="gfx", width=16 },
+    {name="gfx", width=16, reverse=true },
 ]
 order=[
     "maincpu","gfx","proms"
