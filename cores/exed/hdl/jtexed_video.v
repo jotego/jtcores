@@ -97,16 +97,16 @@ localparam LAYOUT     = 11;
 
 localparam SCR_OFFSET = 2;
 
-localparam PROM_CHAR   = 3,
-           PROM_SCR1   = 5,
-           PROM_SCR2L4 = 4,
-           PROM_OBJ_LO = 6,
-           PROM_OBJ_HI = 7,
+localparam PROM_CHAR   = 4,
+           PROM_SCR1   = 6,
+           PROM_SCR2L4 = 5,
+           PROM_OBJ_LO = 7,
+           PROM_OBJ_HI = 8,
            PROM_PRIO   =11,
            PROM_SCR2L3 =10,
-           PROM_RED    = 0,
-           PROM_GREEN  = 1,
-           PROM_BLUE   = 2;
+           PROM_RED    = 1,
+           PROM_GREEN  = 2,
+           PROM_BLUE   = 3;
 
 wire [3:0] char_pxl;
 wire [7:0] obj_pxl;
