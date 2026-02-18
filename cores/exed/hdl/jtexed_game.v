@@ -39,7 +39,7 @@ wire cen12, cen8, cen6, cen3, cen1p5;
 wire char_on, scr1_on, scr2_on, obj_on;
 
 // PROMs
-localparam PROM_IRQ = 8;
+localparam PROM_IRQ = 0;
 reg  [11:0] prom;
 
 assign pxl2_cen = cen12;

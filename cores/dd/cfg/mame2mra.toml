@@ -10,17 +10,19 @@ skip.setnames=[
     "ddragon2",
     "ddragon2u",
     "ddragon2j",
-    "ddragon2b",
+    "ddragonja",
+    "ddragon2bl",
     "tstrike",
     "tstrikea",
     "ddungeon",
     "ddungeone",
     "darktowr",
     "toffy",
+    "toffya",
     "stoffy",
     "stoffyu",
     # broken bootlegs (three M6809 instead of two plus MCU)
-    "ddragonb", "ddragonba",
+    "ddragonbl", "ddragonbla",
     "ddragon6809", "ddragon6809a"
 ]
 
@@ -45,16 +47,16 @@ rename = [
 regions=[
     { name="maincpu", sequence=[1,2,3,3,4] },
     { name="soundcpu", no_offset=true, start="JTFRAME_BA1_START" },
-    { name="gfx1", start="JTFRAME_BA2_START" }, # char
-    { name="gfx3", width=16, no_offset=true, sequence=[0,2,1,3], start="SCR_START" }, # scroll
-    { name="gfx2", width=16, no_offset=true, sequence=[0,4,1,5,2,6,3,7], start="JTFRAME_BA3_START" },  # objects
+    { name="chars", start="JTFRAME_BA2_START" }, # char
+    { name="tiles",   width=16, no_offset=true, sequence=[0,2,1,3], start="SCR_START" }, # scroll
+    { name="sprites", width=16, no_offset=true, sequence=[0,4,1,5,2,6,3,7], start="JTFRAME_BA3_START" },  # objects
     { name="proms", sequence=[0] } # the second PROM is not used
 ]
 
 order=[
     "maincpu", "soundcpu",
     "adpcm1", "adpcm2",
-    "gfx1", "gfx3", "gfx2",
+    "chars", "tiles", "sprites",
     "sub", "proms"
 ]
 

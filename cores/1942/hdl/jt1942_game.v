@@ -56,7 +56,7 @@ assign prom_scr_we   = prom_we && prog_addr[11:8]==4; // sb-4.d6
 assign prom_obj_we   = prom_we && prog_addr[11:8]==(!hige ? 4'd5 : 4'd2); // sb-8.k3
 assign prom_d1_we    = prom_we && prog_addr[11:8]==6; // sb-2.d1 -- unused by Vulgus
 assign prom_d2_we    = prom_we && prog_addr[11:8]==7; // sb-3.d2 -- unused by Vulgus
-assign prom_irq_we   = prom_we && prog_addr[11:8]==(!hige ? 4'd8 : 4'd3); // sb-1.k6
+assign prom_irq_we   = prom_we && prog_addr[11:8]==(!hige ? 4'd9 : 4'd4); // sb-1.k6
 
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;

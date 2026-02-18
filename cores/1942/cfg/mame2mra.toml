@@ -66,10 +66,10 @@ regions=[
     { machine="vulgus", name="chars", start="JTFRAME_BA2_START", reverse=true, rename="gfx1" },
     { machine="vulgus", name="sprites", width=16, sequence=[0,2,1,3], rename="gfx3" },
     { machine="vulgus", name="tiles", width=32, sequence=[0,2,4,4,1,3,5,5], start="JTFRAME_BA3_START", rename="gfx2" },
-    { machine="vulgus", name="proms", start="JTFRAME_PROM_START", sequence=[0,1,2,3,5,4,0,0,6,7] },
+    { machine="vulgus", name="proms", start="JTFRAME_PROM_START", sequence=[0,1,2,3,5,4,0,0,6] },
 ]
 
 order=["maincpu","audiocpu","gfx1", "gfx3", "gfx2",
     "palproms",
-    "charprom","tileprom", "sprprom", "proms"
+    "charprom","tileprom", "sprprom", "proms", "irqprom"
 ]

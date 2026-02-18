@@ -45,11 +45,11 @@ regions = [
 		{name="101a11.12k", crc="7f773271",  map="2100"},
 	] },
 	# sprites
-	{ name="k053245", width=16, rename="obj", start="JTFRAME_BA3_START" },
+	{ name="k053245",  width=16, rename="obj", start="JTFRAME_BA3_START" },
 	# ROZ plane
-	{ name="zoom",  rename="z-tiles", start="PSC_START" }, # 053936 tiles
+	{ name="zoom",     rename="z-tiles",   start="PSC_START" }, # 053936 tiles
 	# 053936 tile maps
-	{ name="user1", rename="z-tilemap", start="PSCMAP_START", width=16, sequence=[1,0] },
+	{ name="zoomtmap", rename="z-tilemap", start="PSCMAP_START", width=16, sequence=[1,0] },
 
 	{ name="eeprom", skip=true }
 ]

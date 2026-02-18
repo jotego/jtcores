@@ -126,7 +126,7 @@ defaults=[
 
 [ROM]
 regions = [
-    { name="user1", rom_len=0x20000 },
+    { name="mainrom",  rom_len=0x20000 },
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="voice",    start="PCM_START"  },
     { name="c123tmap:mask",    start="JTFRAME_BA2_START" },
@@ -136,7 +136,7 @@ regions = [
 ]
 
 order = [
-    "user1", "audiocpu", "voice",
+    "mainrom", "audiocpu", "voice",
     "c123tmap:mask", "c123tmap", "sprite", "mcu"
 ]
 
