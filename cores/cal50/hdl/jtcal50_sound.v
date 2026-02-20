@@ -136,16 +136,16 @@ jtx1010 u_pcm(
 );
 
 jt65c02 u_cpu(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .cen    ( cen2      ),  // crystal clock freq. = 4x E pin freq.
-    .irq    ( irq       ),
-    .nmi    ( nmi       ),
-    .rd     ( cpu_rd    ),
-    .wr     ( cpu_wr    ),
-    .addr   ( A         ), // always valid
-    .din    ( cpu_din   ),
-    .dout   ( cpu_dout  )
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( cen2      ),  // crystal clock freq. = 4x E pin freq.
+    .irq        ( irq       ),
+    .nmi        ( nmi       ),
+    .rd         ( cpu_rd    ),
+    .wr         ( cpu_wr    ),
+    .addr       ( A         ), // always valid
+    .din        ( cpu_din   ),
+    .dout       ( cpu_dout  )
 );
 `else
     initial rom_cs   = 0;

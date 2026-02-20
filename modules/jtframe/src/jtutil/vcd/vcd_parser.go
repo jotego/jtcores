@@ -143,6 +143,17 @@ func (this VCDData)Get(name string) *VCDSignal {
 	return nil
 }
 
+func (this VCDData)GetAllNameMatches(name string) (matched []*VCDSignal) {
+	if name=="" { return nil }
+	matched=make([]*VCDSignal,0,8)
+	for _,each := range this {
+		if each.Name==name {
+			matched=append(matched,each)
+		}
+	}
+	return matched
+}
+
 // gets the scope part of a hierarchinal signal name
 func GetScope( name string ) (string, string) {
 	tokens := strings.Split(name,".")
@@ -421,7 +432,6 @@ func (file *LnFile) NextVCD( ss VCDData ) bool {
             file.time, _ = strconv.ParseUint( txt[1:],10,64 )
             return true
         }
-        // fmt.Printf("\t%s\n",txt)
         a, v := parseValue(txt)
         assign( a, v, ss )
     }
@@ -455,6 +465,13 @@ func (file *LnFile) MoveTo( ss VCDData, t0 uint64 ) bool {
 	good := true
 	for file.time<t0 && good { good = file.NextVCD(ss) }
 	return good
+}
+
+func LoadVCD( filename string ) (*LnFile,VCDData) {
+	ln_file := & LnFile{}
+	ln_file.Open(filename)
+	vcd_data := GetSignals(ln_file)
+	return ln_file,vcd_data
 }
 
 func GetSignals( file *LnFile ) VCDData {

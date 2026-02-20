@@ -19,11 +19,22 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
+	"jtutil/vcd"
 )
 
-// vcdCmd represents the vcd command
+func init() {
+	rootCmd.AddCommand(vcdCmd)
+
+	vcdCmd.AddCommand(csvCmd)
+	csvCmd.Flags().BoolVarP  (&csv_converter.DumpTime,       "dump-time", "t", true, "dump the VCD as the first CSV column")
+	csvCmd.Flags().StringVarP(&csv_converter.OutputFileName, "output", "o", "", "name of the output file")
+	csvCmd.Flags().StringSliceVarP(&csv_converter.MustBeSet, "must-be-set", "1", nil, "comma separated list of signals that must be high in order to dump the line")
+
+}
+
 var vcdCmd = &cobra.Command{
 	Use:   "vcd",
 	Short: "VCD file manipulation",
@@ -34,17 +45,17 @@ var vcdCmd = &cobra.Command{
 	Args: cobra.NoArgs,
 }
 
-func init() {
-	rootCmd.AddCommand(vcdCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// vcdCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// vcdCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+var csvCmd = &cobra.Command{
+	Use:   "csv file.vcd",
+	Short: "Converts vcd file to csv",
+	Run: func(cmd *cobra.Command, args []string) {
+		e := csv_converter.Convert(args[0])
+		if e!=nil {
+			fmt.Println(e)
+			os.Exit(1)
+		}
+	},
+	Args: cobra.MinimumNArgs(1),
 }
 
+var csv_converter vcd.CSVConverter
