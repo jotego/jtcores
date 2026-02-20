@@ -45,21 +45,29 @@ module jtframe_mister_cartsave (
 
 );
 
-wire save_busy = sav_wait;
-wire bk_busy   = bk_state == 1;
 reg  save_rd, save_wr;
 reg  save_wait, bsy_l;
 // reg [18:0] sav_addr;
+wire bk_load, bk_save;
+reg  bk_loading, bk_state;
+reg  sav_pending;
+reg  old_downloading, old_load, old_save, old_ack, sd_active;
+wire save_busy = sav_wait;
+wire bk_busy   = bk_state == 1;
 
 always @(posedge clk) begin
 	bsy_l <= save_busy;
-	if(~save_busy & ~save_rd & ~save_wr) save_wait <= 0;
+	if(~save_busy & ~save_rd & ~save_wr) begin
+		save_wait <= 0;
+		if(save_wait)
+	    	sd_buff_din <= sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
+	end
 
 	if(~bk_busy) begin
 		sav_addr  <= 16'hFF;
 		save_wait <= 0;
 	end
-	else if(sd_ack & ~save_busy ) begin
+	else if(sd_ack & ~save_busy & (~save_wait)) begin
 		if(~bk_loading && (sav_addr != {sd_lba[7:0], sd_buff_addr})) begin
 			save_rd   <= 1;
 			sav_addr  <= {sd_lba[7:0], sd_buff_addr};
@@ -77,14 +85,14 @@ end
 
 /////////////////////////  BRAM SAVE/LOAD  /////////////////////////////
 
-
+initial sav_dout = 0;
 always @* begin
     // sav_addr    = {sd_lba[7:0], sd_buff_addr[7:1],1'b0};
     // sav_wr      = wr_word ? 2'b11 : 2'b00;
-    sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
+    // sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
 	sd_wait     = save_wait;
     sav_ack     = save_wait; // save_rd | sav_wr;
-    if(sd_active && sd_buff_wr)
+    // if(sd_active && sd_buff_wr)
     	if(sd_buff_addr[0])
     	    sav_dout[15:8] = sd_buff_dout;
     	else
@@ -98,16 +106,14 @@ always @(posedge clk) begin
     	sd_active <= 0;
 end
 
-wire bk_load, bk_save;
-reg  bk_loading, bk_state;
-reg  sav_pending;
-reg  old_downloading, old_load, old_save, old_ack, sd_active;
 
 initial begin
 	old_downloading = 0;
 	sav_pending     = 0;
 	sav_dout        = 0;
+	sav_ack         = 0;
 	sd_active       = 0;
+	sav_wr          = 0;
 	old_load        = 0;
 	old_save        = 0;
 	old_ack         = 0;
@@ -115,6 +121,11 @@ initial begin
 	bk_state        = 0;
 	bk_loading      = 0;
 	sd_wait         = 0;
+	sd_buff_din     = 0;
+	sd_rd           = 0;
+	sd_wr           = 0;
+	sd_lba          = 0;
+	sd_buff_din =0;
 end
 
 assign bk_save = ram_save[1] | (sav_pending & OSD_STATUS & ram_save[0]);
