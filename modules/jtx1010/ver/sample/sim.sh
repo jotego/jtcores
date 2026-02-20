@@ -44,7 +44,7 @@ clock ticks,address,data
 Use $0 [filename.csv[.gz]] [other arguments]
 
 -t, --time	simulate up to this time in ms
--w, --keep	creates a .fst file
+-w, --keep	creates a .fst file, optionally -w start-time
 -h, --help  this screen
 EOF
 }

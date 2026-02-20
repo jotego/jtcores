@@ -1,35 +1,74 @@
 [*]
 [*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
-[*] Mon Feb 16 16:15:17 2026
+[*] Fri Feb 20 09:21:59 2026
 [*]
 [dumpfile] "/home/jtejada/jtcores/modules/jtx1010/ver/sample/test.fst"
-[dumpfile_mtime] "Mon Feb 16 15:49:20 2026"
-[dumpfile_size] 16203516
+[dumpfile_mtime] "Fri Feb 20 08:25:22 2026"
+[dumpfile_size] 783089674
 [savefile] "/home/jtejada/jtcores/modules/jtx1010/ver/sample/test.gtkw"
-[timestart] 15625
-[size] 1266 1005
-[pos] -1 -1
-*-39.408974 532000000000 5504938700000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 9153740000000
+[size] 2532 1005
+[pos] -77 -24
+*-28.254433 -1 5504938700000 33743750000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.jtx1010.
+[treeopen] TOP.jtx1010.u_waves.
 [sst_width] 278
 [signals_width] 277
 [sst_expanded] 1
-[sst_vpaned_height] 422
-@28
-TOP.jtx1010.cfg_we
-TOP.jtx1010.env_we
-TOP.jtx1010.mmr_we
-TOP.jtx1010.wav_we
-@22
-TOP.jtx1010.keyon[15:0]
-TOP.jtx1010.din[7:0]
-TOP.jtx1010.addr[12:0]
-@8421
+[sst_vpaned_height] 279
+@8420
 TOP.jtx1010.left[15:0]
-@22
+@c08421
 TOP.jtx1010.right[15:0]
 @28
-TOP.jtx1010.rom_cs
+(0)TOP.jtx1010.right[15:0]
+(1)TOP.jtx1010.right[15:0]
+(2)TOP.jtx1010.right[15:0]
+(3)TOP.jtx1010.right[15:0]
+(4)TOP.jtx1010.right[15:0]
+(5)TOP.jtx1010.right[15:0]
+(6)TOP.jtx1010.right[15:0]
+(7)TOP.jtx1010.right[15:0]
+(8)TOP.jtx1010.right[15:0]
+(9)TOP.jtx1010.right[15:0]
+(10)TOP.jtx1010.right[15:0]
+(11)TOP.jtx1010.right[15:0]
+(12)TOP.jtx1010.right[15:0]
+(13)TOP.jtx1010.right[15:0]
+(14)TOP.jtx1010.right[15:0]
+(15)TOP.jtx1010.right[15:0]
+@1401201
+-group_end
+@22
+TOP.jtx1010.u_acc.ch[3:0]
+@c08420
+TOP.jtx1010.sim_sample[13][15:0]
+@28
+(0)TOP.jtx1010.sim_sample[13][15:0]
+(1)TOP.jtx1010.sim_sample[13][15:0]
+(2)TOP.jtx1010.sim_sample[13][15:0]
+(3)TOP.jtx1010.sim_sample[13][15:0]
+(4)TOP.jtx1010.sim_sample[13][15:0]
+(5)TOP.jtx1010.sim_sample[13][15:0]
+(6)TOP.jtx1010.sim_sample[13][15:0]
+(7)TOP.jtx1010.sim_sample[13][15:0]
+(8)TOP.jtx1010.sim_sample[13][15:0]
+(9)TOP.jtx1010.sim_sample[13][15:0]
+(10)TOP.jtx1010.sim_sample[13][15:0]
+(11)TOP.jtx1010.sim_sample[13][15:0]
+(12)TOP.jtx1010.sim_sample[13][15:0]
+(13)TOP.jtx1010.sim_sample[13][15:0]
+(14)TOP.jtx1010.sim_sample[13][15:0]
+(15)TOP.jtx1010.sim_sample[13][15:0]
+@1401200
+-group_end
+@20000
+-
+-
+@22
+TOP.jtx1010.cfg[7:0]
+TOP.jtx1010.u_wav_fsm.wav_l[15:0]
+TOP.jtx1010.u_acc.mux_l[15:0]
 [pattern_trace] 1
 [pattern_trace] 0

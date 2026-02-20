@@ -12,7 +12,7 @@ clocks:
 audio:
   mute: true
   channels:
-    - { name: pcm, data_width: 16, rsum:  47k, rc: [{ r: 100, c: 100n }] }
+    - { name: pcm, stereo: true, data_width: 16, rsum:  47k, rc: [{ r: 100, c: 100n }] }
 sdram:
   banks:
     - buses:

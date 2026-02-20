@@ -34,8 +34,8 @@ module jtcal50_sound(
     output      [17:0] rom_addr,
     input       [ 7:0] rom_data,
     // Sound
-    output signed [15:0] snd,
-    output             mute,
+    output signed [15:0] snd_left, snd_right,
+    output reg         mute,
     // Debug
     input       [ 7:0] debug_bus,
     output      [ 7:0] st_dout
@@ -48,16 +48,20 @@ wire [ 7:0] nc, cfg, cpu_dout, pcm_dout;
 wire [ 3:0] bank;
 reg         cfg_cs, bank_cs, st_cs, cmd_cs, x1pcm_cs;
 wire        nmi, nmi_clrn, irq, irq_clrn, rnw,
-            cpu_wr, cpu_rd, cpu_acc;
+            cpu_wr, cpu_rd, cpu_acc, mute_n;
 
 // $4'0000 (256kB), 16 pages of 8kB each (128kB) plus $4000 (16kB) Fixed
 assign rom_addr  = { rom_upper, A[12:0] };
 assign rom_upper = bank_cs ? {bank,A[13]} : {4'b00,A[13]};
-assign {bank,nmi_clrn,irq_clrn,mute} = cfg[7:1];
+assign {bank,nmi_clrn,irq_clrn,mute_n} = cfg[7:1];
 
 assign st_dout     = {7'd0,mute};
 assign rnw         =~cpu_wr;
 assign cpu_acc     = cpu_wr | cpu_rd;
+
+always @(posedge clk) begin
+    mute <= ~mute_n;
+end
 
 always @* begin
     x1pcm_cs = cpu_acc && A[15:12]<=1;
@@ -114,11 +118,11 @@ jtx1010 u_pcm(
     .cen        ( cen_pcm   ),
 
     // CPU interface
-    .cpu_addr   ( {~A[12],A[11:0]} ),
-    .cpu_dout   ( cpu_dout  ),
-    .cpu_din    ( pcm_dout  ),
-    .cpu_wr     ( cpu_wr    ),
-    .cpu_cs     ( x1pcm_cs  ),
+    .addr       ( {~A[12],A[11:0]} ),
+    .din        ( cpu_dout  ),
+    .dout       ( pcm_dout  ),
+    .we         ( cpu_wr    ),
+    .cs         ( x1pcm_cs  ),
 
     // ROM interface
     .rom_addr   ( pcm_addr  ),
@@ -126,8 +130,8 @@ jtx1010 u_pcm(
     .rom_cs     ( pcm_cs    ),
 
     // sound output
-    .snd_left   (           ),
-    .snd_right  ( snd       ),
+    .left       ( snd_left  ),
+    .right      ( snd_right ),
     .sample     (           )
 );
 

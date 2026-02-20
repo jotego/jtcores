@@ -42,7 +42,7 @@ reg  [15:0] buf_l, pitch;
 reg         we;
 
 reg signed [15:0] mul;
-reg signed [ 7:0] mul_in2;
+reg signed [ 7:0] mul_in1,mul_in2;
 reg        [ 3:0] mul_in;
 
 assign wav_addr = {wav_id,wav_cnt[16:10]};
@@ -50,7 +50,8 @@ assign env_addr = {env_id,env_cnt[16:10]};
 
 always_comb begin
     mul_in2 = cfg[KEYON] & ~keyoff ? wav_data : 8'd0;
-    mul = {4'd0,mul_in} * mul_in2;
+    mul_in1 = {4'd0,mul_in};
+    mul = mul_in1 * mul_in2;
 end
 
 reg [16:0] muxin, nx_env, nx_wav;
