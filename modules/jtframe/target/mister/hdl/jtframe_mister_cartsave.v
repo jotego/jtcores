@@ -45,20 +45,18 @@ module jtframe_mister_cartsave (
 
 );
 
-reg  save_rd, save_wr;
-reg  save_wait, bsy_l;
-// reg [18:0] sav_addr;
+reg  save_rd, save_wr, save_wait, sav_pending,
+     bk_loading, bk_state, full, sd_active,
+     old_downloading, old_load, old_save, old_ack;
 wire bk_load, bk_save;
-reg  bk_loading, bk_state;
-reg  sav_pending;
-reg  old_downloading, old_load, old_save, old_ack, sd_active;
 wire save_busy = sav_wait;
 wire bk_busy   = bk_state == 1;
 
 always @(posedge clk) begin
-	bsy_l <= save_busy;
 	if(~save_busy & ~save_rd & ~save_wr) begin
 		save_wait <= 0;
+		sav_wr    <= 0;
+		full      <= 0;
 		if(save_wait)
 	    	sd_buff_din <= sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
 	end
@@ -66,37 +64,39 @@ always @(posedge clk) begin
 	if(~bk_busy) begin
 		sav_addr  <= 16'hFF;
 		save_wait <= 0;
+		sav_wr    <= 0;
+		full      <= 0;
 	end
-	else if(sd_ack & ~save_busy & (~save_wait)) begin
+	else if(sd_ack & ~save_busy & ~save_wait ) begin
 		if(~bk_loading && (sav_addr != {sd_lba[7:0], sd_buff_addr})) begin
 			save_rd   <= 1;
 			sav_addr  <= {sd_lba[7:0], sd_buff_addr};
 			save_wait <= 1;
+			full      <= 1;
 		end
 		if(bk_loading && sd_buff_wr) begin
 			save_wr   <= 1;
-			sav_addr  <= {sd_lba[7:0], sd_buff_addr};
+			sav_addr  <= {sd_lba[7:0], sd_buff_addr[6:0],1'b0};
 			save_wait <= 1;
-			sav_wr    <= {~sd_buff_addr[0],sd_buff_addr[0]};
+			full      <= 0;
 		end
+	end
+	if(sd_active && sd_buff_wr) begin
+		if(save_wr) begin
+			sav_wr <= 2'b11;
+			full   <= 1'b1;
+    	   	sav_dout[15:8] <= sd_buff_dout;
+		end	else
+    	   	sav_dout[ 7:0] <= sd_buff_dout;
 	end
 	if(~bk_busy | save_busy) {save_rd, save_wr} <= 0;
 end
 
 /////////////////////////  BRAM SAVE/LOAD  /////////////////////////////
 
-initial sav_dout = 0;
 always @* begin
-    // sav_addr    = {sd_lba[7:0], sd_buff_addr[7:1],1'b0};
-    // sav_wr      = wr_word ? 2'b11 : 2'b00;
-    // sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
 	sd_wait     = save_wait;
-    sav_ack     = save_wait; // save_rd | sav_wr;
-    // if(sd_active && sd_buff_wr)
-    	if(sd_buff_addr[0])
-    	    sav_dout[15:8] = sd_buff_dout;
-    	else
-    	    sav_dout[ 7:0] = sd_buff_dout;
+    sav_ack     = save_wait & full;
 end
 
 always @(posedge clk) begin
@@ -109,23 +109,23 @@ end
 
 initial begin
 	old_downloading = 0;
-	sav_pending     = 0;
-	sav_dout        = 0;
-	sav_ack         = 0;
-	sd_active       = 0;
-	sav_wr          = 0;
 	old_load        = 0;
 	old_save        = 0;
 	old_ack         = 0;
- 	bk_ena          = 0;
+  	bk_ena          = 0;
 	bk_state        = 0;
 	bk_loading      = 0;
+	sav_pending     = 0;
+	sav_dout        = 0;
+	sav_ack         = 0;
+	sav_dout        = 0;
+	sav_wr          = 0;
+	sd_active       = 0;
 	sd_wait         = 0;
-	sd_buff_din     = 0;
 	sd_rd           = 0;
 	sd_wr           = 0;
 	sd_lba          = 0;
-	sd_buff_din =0;
+	sd_buff_din     = 0;
 end
 
 assign bk_save = ram_save[1] | (sav_pending & OSD_STATUS & ram_save[0]);

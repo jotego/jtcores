@@ -353,16 +353,14 @@ integer fd;
 reg file_open;
 reg hps_ready;
 
-reg [3:0] hps_state;
-reg [7:0] hps_idx;
 reg [31:0] hps_lba;
-reg hps_op_write;
-reg [1:0] hps_read_pending;
-reg hps_saw_wait;
-integer hps_latency;
-integer hps_strobe_div;
-localparam integer HPS_STROBE_DIV = 2;
+reg [ 7:0] hps_idx;
+reg [ 3:0] hps_state;
+reg [ 1:0] hps_read_pending;
+reg hps_op_write, hps_saw_wait;
+integer hps_latency, hps_strobe_div;
 
+localparam HPS_STROBE_DIV = 2;
 localparam HPS_IDLE    = 4'd0;
 localparam HPS_LAT     = 4'd1;
 localparam HPS_PRE0    = 4'd2;
@@ -392,7 +390,7 @@ initial begin
     @(negedge rst);
     repeat (2) @(posedge clk);
 
-    io_enable = 1'b1; // io_enable
+    io_enable = 1'b1;
     wait (hps_ready);
 
     forever begin
@@ -509,10 +507,10 @@ task wait_save_done;
         while (!(sd_lba[6:0] == 7'h7F && sd_ack == 0 && sd_wr == 0)) begin
             @(posedge clk);
             timeout_s = timeout_s + 1;
-            // if (timeout_s > 200000) begin
-                // $display("FAIL: save timeout");
-                // $finish;
-            // end
+            if (timeout_s > 32'h200000) begin
+                $display("FAIL: save timeout");
+                $finish;
+            end
         end
     end
 endtask
@@ -524,7 +522,7 @@ task wait_load_done;
         while (!(sd_lba[6:0] == 7'h7F && sd_ack == 0 && sd_rd == 0)) begin
             @(posedge clk);
             timeout_l = timeout_l + 1;
-            if (timeout_l > 200000) begin
+            if (timeout_l > 32'h200000) begin
                 $display("FAIL: load timeout");
                 $finish;
             end
@@ -577,9 +575,8 @@ initial begin
     end
     check_save=0;
 
-    ram_load = 1;
-    @(posedge clk);
-    ram_load = 0;
+    @(posedge clk) ram_load = 1;
+    @(posedge clk) ram_load = 0;
     loading=1;
 
     wait_load_done();
