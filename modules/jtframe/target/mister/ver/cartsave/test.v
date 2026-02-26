@@ -358,9 +358,11 @@ reg [ 7:0] hps_idx;
 reg [ 3:0] hps_state;
 reg [ 1:0] hps_read_pending;
 reg hps_op_write, hps_saw_wait;
-integer hps_latency, hps_strobe_div;
+integer hps_latency, hps_tick;
+reg [7:0] hps_last_byte;
 
-localparam HPS_STROBE_DIV = 2;
+localparam HPS_STROBE_DIV = 10;
+localparam HPS_GAP_WRITE = 1;
 localparam HPS_IDLE    = 4'd0;
 localparam HPS_LAT     = 4'd1;
 localparam HPS_PRE0    = 4'd2;
@@ -385,7 +387,8 @@ initial begin
     hps_read_pending = 2'd0;
     hps_saw_wait = 0;
     hps_latency = 0;
-    hps_strobe_div = 0;
+    hps_tick = 0;
+    hps_last_byte = 8'h00;
 
     @(negedge rst);
     repeat (2) @(posedge clk);
@@ -424,7 +427,7 @@ initial begin
                     io_din <= hps_op_write ? 16'h0018 : 16'h0017;
                     io_strobe <= 1'b1;
                     hps_idx <= 0;
-                    hps_strobe_div <= 0;
+                    hps_tick <= 0;
                     hps_read_pending <= 2'd0;
                     hps_saw_wait <= 0;
                     if (hps_op_write && !file_open) begin
@@ -456,6 +459,7 @@ initial begin
                 end else if (hps_op_write) begin
                     if (hps_read_pending == 2'd1) begin
                         io_byte <= HPS_BUS[7:0];
+                        hps_last_byte <= HPS_BUS[7:0];
                         sd_image_write[{hps_lba[6:0], hps_idx}] <= HPS_BUS[7:0];
                         if (file_open) $fwrite(fd, "%c", HPS_BUS[7:0]);
                         hps_read_pending <= 2'd0;
@@ -463,23 +467,32 @@ initial begin
                         else hps_idx <= hps_idx + 1'b1;
                     end else if (hps_read_pending != 2'd0) begin
                         hps_read_pending <= hps_read_pending - 1'b1;
-                    end else if (!sd_wait && hps_strobe_div == 0) begin
-                        io_din <= 16'h0000;
-                        io_strobe <= 1'b1;
-                        hps_read_pending <= 2'd2;
-                        hps_strobe_div <= HPS_STROBE_DIV - 1;
-                    end else if (hps_strobe_div != 0) begin
-                        hps_strobe_div <= hps_strobe_div - 1;
+                    end else if (hps_tick == 0) begin
+                        hps_tick <= HPS_STROBE_DIV - 1;
+                        if (!sd_wait) begin
+                            io_din <= 16'h0000;
+                            io_strobe <= 1'b1;
+                            hps_read_pending <= 2'd2;
+                        end else if (HPS_GAP_WRITE) begin
+                            sd_image_write[{hps_lba[6:0], hps_idx}] <= hps_last_byte;
+                            if (file_open) $fwrite(fd, "%c", hps_last_byte);
+                            if (hps_idx == 8'hFF) hps_state <= HPS_DROP0;
+                            else hps_idx <= hps_idx + 1'b1;
+                        end
+                    end else begin
+                        hps_tick <= hps_tick - 1'b1;
                     end
                 end else begin
-                    if (!sd_wait && hps_strobe_div == 0) begin
-                        io_din <= {8'h00, sd_image_read[{hps_lba[6:0], hps_idx}]};
-                        io_strobe <= 1'b1;
-                        if (hps_idx == 8'hFF) hps_state <= HPS_DROP0;
-                        else hps_idx <= hps_idx + 1'b1;
-                        hps_strobe_div <= HPS_STROBE_DIV - 1;
-                    end else if (hps_strobe_div != 0) begin
-                        hps_strobe_div <= hps_strobe_div - 1;
+                    if (hps_tick == 0) begin
+                        hps_tick <= HPS_STROBE_DIV - 1;
+                        if (!sd_wait) begin
+                            io_din <= {8'h00, sd_image_read[{hps_lba[6:0], hps_idx}]};
+                            io_strobe <= 1'b1;
+                            if (hps_idx == 8'hFF) hps_state <= HPS_DROP0;
+                            else hps_idx <= hps_idx + 1'b1;
+                        end
+                    end else begin
+                        hps_tick <= hps_tick - 1'b1;
                     end
                 end
             end
