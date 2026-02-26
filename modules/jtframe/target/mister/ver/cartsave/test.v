@@ -3,10 +3,12 @@
 
 module test;
 
-localparam integer BLOCK_BYTES = 256;
-localparam integer BLOCKS       = 128;
-localparam integer TOTAL_BYTES  = BLOCK_BYTES * BLOCKS;
-localparam integer STRLEN       = 1024;
+localparam BLOCK_BYTES = 256;
+localparam BLOCKS      = 128;
+localparam TOTAL_BYTES = BLOCK_BYTES * BLOCKS;
+localparam STRLEN      = 1024;
+localparam SDIN_LEAD   = 2; // cycles before sav_wait deassert
+
 
 wire clk;
 wire rst;
@@ -86,6 +88,7 @@ assign sd_buff_addr      = sd_buff_addr_wide[7:0];
 assign sd_buff_dout      = sd_buff_dout_wide[7:0];
 
 localparam integer SAVE_AW = 14;
+wire [15:0] ram_q0;
 wire [15:0] ram_q1;
 reg  [15:0] ram_d1;
 reg  [SAVE_AW:1] ram_a1;
@@ -100,13 +103,14 @@ jtframe_dual_ram16 #(
     .data0 ( sav_dout            ),
     .addr0 ( sav_addr[SAVE_AW:1] ),
     .we0   ( sav_wr              ),
-    .q0    ( sav_din             ),
+    .q0    ( ram_q0              ),
     .clk1  ( clk                 ),
     .data1 ( ram_d1              ),
     .addr1 ( ram_a1              ),
     .we1   ( ram_we1             ),
     .q1    ( ram_q1              )
 );
+assign sav_din = sav_din_r;
 
 // HPS IO instance (same as jtframe_mister.sv)
 /* verilator lint_off PINMISSING */
@@ -222,6 +226,7 @@ hps_io #(
 jtframe_mister_cartsave uut(
     .clk         ( clk          ),
     .OSD_STATUS  ( OSD_STATUS   ),
+    .io_strobe   ( HPS_BUS[33]  ),
     .img_size    ( img_size     ),
     .img_mounted ( img_mounted  ),
     .img_readonly( img_readonly ),
@@ -274,8 +279,10 @@ always @(posedge clk) begin
         sav_delay   <= $urandom_range(3, 9);
         sav_wait    <= 1;
     end else if (sav_pending) begin
+        if (sav_delay == SDIN_LEAD) begin
+            sav_din_r <= ram_q0;
+        end
         if (sav_delay == 0) begin
-            sav_din_r   <= sav_din;
             sav_wait    <= 0;
             sav_pending <= 0;
         end else begin
@@ -361,7 +368,7 @@ reg hps_op_write, hps_saw_wait;
 integer hps_latency, hps_tick;
 reg [7:0] hps_last_byte;
 
-localparam HPS_STROBE_DIV = 10;
+localparam HPS_STROBE_DIV = 11;
 localparam HPS_GAP_WRITE = 1;
 localparam HPS_IDLE    = 4'd0;
 localparam HPS_LAT     = 4'd1;

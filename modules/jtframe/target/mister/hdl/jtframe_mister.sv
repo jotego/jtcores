@@ -582,6 +582,7 @@ wire        sd_wait;
 jtframe_mister_cartsave u_save(
     .clk         ( clk_sys      ),
     .OSD_STATUS  ( OSD_STATUS   ),
+    .io_strobe   ( HPS_BUS[33]  ),
     .img_size    ( img_size     ),
     .img_mounted ( img_mounted  ),
     .img_readonly( img_readonly ),

@@ -18,6 +18,7 @@
 module jtframe_mister_cartsave (
     input             clk,
     input             OSD_STATUS,
+    input             io_strobe,
     input      [63:0] img_size,
     input             img_mounted,
     input             img_readonly,
@@ -46,7 +47,7 @@ module jtframe_mister_cartsave (
 );
 
 reg  save_rd, save_wr, save_wait, sav_pending,
-     bk_loading, bk_state, full, sd_active,
+     bk_loading, bk_state, full, sd_active, stb_l,
      old_downloading, old_load, old_save, old_ack;
 wire bk_load, bk_save;
 wire save_busy = sav_wait;
@@ -62,23 +63,23 @@ always @(posedge clk) begin
 	end
 
 	if(~bk_busy) begin
-		sav_addr  <= 16'hFF;
+		// sav_addr  <= 16'hFF;
 		save_wait <= 0;
 		sav_wr    <= 0;
 		full      <= 0;
 	end
-	else if(sd_ack & ~save_busy & ~save_wait ) begin
-		if(~bk_loading && (sav_addr != {sd_lba[7:0], sd_buff_addr})) begin
+	else if(sd_ack /*& ~save_busy*/ & ~save_wait & (io_strobe | stb_l)) begin
+		if(~bk_loading /*&& (sav_addr != {sd_lba[7:0], sd_buff_addr})*/) begin
 			save_rd   <= 1;
-			sav_addr  <= {sd_lba[7:0], sd_buff_addr};
+			// sav_addr  <= {sd_lba[7:0], sd_buff_addr};
 			save_wait <= 1;
 			full      <= 1;
 		end
-		if(bk_loading && sd_buff_wr) begin
+		if(bk_loading /*&& sd_buff_wr*/) begin
 			save_wr   <= 1;
-			sav_addr  <= {sd_lba[7:0], sd_buff_addr[6:0],1'b0};
+			// sav_addr  <= {sd_lba[7:0], sd_buff_addr[6:0],1'b0};
 			save_wait <= 1;
-			full      <= 0;
+			full      <= 1;
 		end
 	end
 	if(sd_active && sd_buff_wr) begin
@@ -95,8 +96,14 @@ end
 /////////////////////////  BRAM SAVE/LOAD  /////////////////////////////
 
 always @* begin
-	sd_wait     = save_wait;
+	sd_wait     = save_wait & (save_rd | save_wr | sav_wait);
     sav_ack     = save_wait & full;
+	sav_addr  = {sd_lba[7:0], sd_buff_addr};
+	// if(bk_loading)
+		// sav_addr  = {sd_lba[7:0], sd_buff_addr};
+	if(~bk_busy)
+		sav_addr  = 16'hFF;
+	// sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
 end
 
 always @(posedge clk) begin
@@ -150,6 +157,7 @@ always @(posedge clk) begin
 	old_load <= bk_load;
 	old_save <= bk_save;
 	old_ack  <= sd_ack;
+	stb_l    <= io_strobe;
 
 	if(~old_ack & sd_ack) {sd_rd, sd_wr} <= 0;
 
