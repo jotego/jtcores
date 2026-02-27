@@ -352,7 +352,7 @@ task hps_init;
         @(posedge clk);
         io_enable = 1'b1;
         @(posedge clk);
-        hps_set_img(TOTAL_BYTES);
+        hps_set_img(64'd0);
     end
 endtask
 
@@ -577,6 +577,7 @@ initial begin
     hps_ready = 1;
 
     downloading = 1;
+    hps_set_img(TOTAL_BYTES);
     repeat (10) @(posedge clk);
     downloading = 0;
 
@@ -586,6 +587,7 @@ initial begin
     saving=1;
 
     wait_save_done();
+    hps_set_img(TOTAL_BYTES);
     saving=0; check_save=1;
 
     for (i = 0; i < TOTAL_BYTES; i = i + 1) begin

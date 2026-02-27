@@ -166,24 +166,18 @@ always @(posedge clk) begin
 end
 `endif
 
-reg  [ 2:0] rstr_st;
-reg         pending;
-// assign sav_wait = ~gs_ok/*pending*/;
-
 always @(*) begin
     gs_addr = sav_addr[15:1];
     gs_din  = sav_dout;
-    gs_cs   = sav_ack;
+    gs_cs   = sav_ack & ~&sav_wr;
     gs_we   = |sav_wr;
     gs_dsn  = ~sav_wr;
     sav_din = gs_data;
 end
 
-reg ok_l, ok_ll, ack_l, ack_ll;
+reg ack_l, ack_ll;
 initial sav_wait = 0;
 always @(posedge clk) begin
-    ok_l  <= gs_ok;
-    ok_ll <= ok_l;
     ack_l <= sav_ack;
     ack_ll<= ack_l;
     if(sav_ack) begin
@@ -194,34 +188,6 @@ always @(posedge clk) begin
     end else
         sav_wait = 0;
 end
-
-/*always @(posedge clk) begin
-    if(rst) begin
-        gs_addr <= 0;
-        gs_dsn  <= 2'b11;
-        gs_cs   <= 0;
-        gs_we   <= 0;
-        pending <= 0;
-        rstr_st <= 0;
-    end else begin
-        if( sav_ack && !pending ) begin
-            pending <= 1;
-            rstr_st <= 0;
-        end
-        if( pending ) begin
-            rstr_st <= rstr_st + 1'd1;
-            case( rstr_st )
-                0: { gs_addr, gs_we, gs_cs } <= { sav_addr[15:1], 2'b01 };
-                2: if( !gs_ok   ) rstr_st <= 2; else begin sav_din <= gs_data; gs_din <= sav_dout; gs_cs <= 0; end
-                3: { gs_dsn, gs_we, gs_cs } <= {~sav_wr,|sav_wr, 1'b1};
-                4: if( !gs_ok   ) rstr_st <= 4; else { pending, gs_we, gs_cs, gs_dsn } <= 5'b11;
-                // 5: rstr_st  <= 0;
-            endcase
-        end else begin
-            rstr_st  <= 0;
-        end
-    end
-end*/
 
 always @(posedge clk, posedge rst ) begin
     if( rst ) begin

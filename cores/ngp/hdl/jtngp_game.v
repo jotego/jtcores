@@ -47,6 +47,7 @@ assign f1g_gcs  = cart_size[3] & flash1_cs;
 assign f1g_dout = cart_size[3] ? flash1_dout : 16'd0;
 
 assign sav_change = cart0_we;
+assign gs0_addr[20:16] = debug_bus[7]? debug_bus[4:0] : 5'h1E; //debug_bus[4:0];
 
 assign {gs1_cs, gs1_addr}=0;
 
@@ -178,7 +179,7 @@ jtngp_flash u_flash0(
     .gs_ok      ( gs0_ok    ),
     .gs_data    ( gs0_data  ),
     .gs_din     ( gs0_din   ),
-    .gs_addr    ( gs0_addr  ),
+    .gs_addr    ( gs0_addr[15:1]  ),
     .gs_dsn     ( gs0_dsn   ),
     .gs_we      ( gs0_we    ),
     .gs_cs      ( gs0_cs    )

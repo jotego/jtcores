@@ -64,26 +64,27 @@ always @(posedge clk) begin
 	end
 
 	if(~bk_busy) begin
-		// sav_addr  <= 16'hFF;
 		save_wait <= 0;
 		sav_wr    <= 0;
 	end
-	else if(sd_ack /*& ~save_busy*/ & ~save_wait & (io_strobe | stb_l)) begin
-		if(~bk_loading /*&& (sav_addr != {sd_lba[7:0], sd_buff_addr})*/) begin
+	else if(sd_ack & ~save_wait & (io_strobe | stb_l)) begin
+		if(~bk_loading) begin
 			save_rd   <= 1;
 			save_wait <= 1;
+			sav_wr    <= 0;
 			ld        <= 0;
 		end
-		if(bk_loading & io_strobe /*&& sd_buff_wr*/) begin
+		if(bk_loading & io_strobe) begin
 			ld_addr     <= {sd_lba[7:0], sd_buff_addr[7:0]};
 			save_wr     <= 1;
+			sav_wr      <= 2'b11;
 			save_wait   <= 1;
 			ld          <= 1;
 		end
 	end
 	if(sd_active && sd_buff_wr) begin
-			sav_wr <= {sd_buff_addr[0],~sd_buff_addr[0]};//2'b11;
-		if(sd_buff_addr[0]/*save_wr*/) begin
+			sav_wr <= {sd_buff_addr[0],~sd_buff_addr[0]};
+		if(sd_buff_addr[0]) begin
     	   	sav_dout[15:8] <= sd_buff_dout;
 		end	else
     	   	sav_dout[ 7:0] <= sd_buff_dout;
@@ -97,13 +98,10 @@ always @* begin
 	sd_wait     = save_wait & (save_rd | save_wr | sav_wait);
     sav_ack     = save_wait;
 	sav_addr  = {sd_lba[7:0], sd_buff_addr};
-	// if(bk_loading)
-		// sav_addr  = {sd_lba[7:0], sd_buff_addr};
 	if(~bk_busy)
 		sav_addr = 16'hFF;
 	if(bk_loading | ld)
 		sav_addr = ld_addr;
-	// sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
 end
 
 always @(posedge clk) begin
@@ -169,13 +167,13 @@ always @(posedge clk) begin
 			sd_rd <=  bk_load;
 			sd_wr <= ~bk_load;
 		end
-		// if(old_downloading & ~downloading & |img_size & bk_ena) begin
-			// bk_state <= 1;
-			// bk_loading <= 1;
-			// sd_lba <= 0;
-			// sd_rd <= 1;
-			// sd_wr <= 0;
-		// end
+		if(old_downloading & ~downloading & |img_size & bk_ena) begin
+			bk_state <= 1;
+			bk_loading <= 1;
+			sd_lba <= 0;
+			sd_rd <= 1;
+			sd_wr <= 0;
+		end
 	end else begin
 		if(old_ack & ~sd_ack) begin
 			if(&sd_lba[6:0]) begin

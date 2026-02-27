@@ -25,7 +25,8 @@ sdram:
     -
     - buses:
         - name: gs0
-          addr_width: 16
+          addr_width: 21
+          # addr_width: 16
           data_width: 16
           rw: true
           # offset: SV0
