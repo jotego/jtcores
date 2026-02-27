@@ -589,7 +589,8 @@ initial begin
     saving=0; check_save=1;
 
     for (i = 0; i < TOTAL_BYTES; i = i + 1) begin
-        reg [7:0] b;
+        reg [7:0] b, write;
+        write = sd_image_write[i];
         ram_read_byte(i[15:0], b);
         assert_msg(sd_image_write[i] == b, "save data mismatch");
     end
@@ -603,7 +604,8 @@ initial begin
     loading=0;check_load=1;
 
     for (i = 0; i < TOTAL_BYTES; i = i + 1) begin
-        reg [7:0] b;
+        reg [7:0] b, read;
+        read = sd_image_read[i];
         ram_read_byte(i[15:0], b);
         assert_msg(b == sd_image_read[i], "load data mismatch");
     end

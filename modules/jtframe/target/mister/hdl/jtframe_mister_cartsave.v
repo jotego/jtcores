@@ -46,8 +46,9 @@ module jtframe_mister_cartsave (
 
 );
 
+reg [15:0] ld_addr;
 reg  save_rd, save_wr, save_wait, sav_pending,
-     bk_loading, bk_state, full, sd_active, stb_l,
+     bk_loading, bk_state, ld, sd_active, stb_l,
      old_downloading, old_load, old_save, old_ack;
 wire bk_load, bk_save;
 wire save_busy = sav_wait;
@@ -57,7 +58,7 @@ always @(posedge clk) begin
 	if(~save_busy & ~save_rd & ~save_wr) begin
 		save_wait <= 0;
 		sav_wr    <= 0;
-		full      <= 0;
+		ld        <= 0;
 		if(save_wait)
 	    	sd_buff_din <= sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
 	end
@@ -66,26 +67,23 @@ always @(posedge clk) begin
 		// sav_addr  <= 16'hFF;
 		save_wait <= 0;
 		sav_wr    <= 0;
-		full      <= 0;
 	end
 	else if(sd_ack /*& ~save_busy*/ & ~save_wait & (io_strobe | stb_l)) begin
 		if(~bk_loading /*&& (sav_addr != {sd_lba[7:0], sd_buff_addr})*/) begin
 			save_rd   <= 1;
-			// sav_addr  <= {sd_lba[7:0], sd_buff_addr};
 			save_wait <= 1;
-			full      <= 1;
+			ld        <= 0;
 		end
-		if(bk_loading /*&& sd_buff_wr*/) begin
-			save_wr   <= 1;
-			// sav_addr  <= {sd_lba[7:0], sd_buff_addr[6:0],1'b0};
-			save_wait <= 1;
-			full      <= 1;
+		if(bk_loading & io_strobe /*&& sd_buff_wr*/) begin
+			ld_addr     <= {sd_lba[7:0], sd_buff_addr[7:0]};
+			save_wr     <= 1;
+			save_wait   <= 1;
+			ld          <= 1;
 		end
 	end
 	if(sd_active && sd_buff_wr) begin
-		if(save_wr) begin
-			sav_wr <= 2'b11;
-			full   <= 1'b1;
+			sav_wr <= {sd_buff_addr[0],~sd_buff_addr[0]};//2'b11;
+		if(sd_buff_addr[0]/*save_wr*/) begin
     	   	sav_dout[15:8] <= sd_buff_dout;
 		end	else
     	   	sav_dout[ 7:0] <= sd_buff_dout;
@@ -97,12 +95,14 @@ end
 
 always @* begin
 	sd_wait     = save_wait & (save_rd | save_wr | sav_wait);
-    sav_ack     = save_wait & full;
+    sav_ack     = save_wait;
 	sav_addr  = {sd_lba[7:0], sd_buff_addr};
 	// if(bk_loading)
 		// sav_addr  = {sd_lba[7:0], sd_buff_addr};
 	if(~bk_busy)
-		sav_addr  = 16'hFF;
+		sav_addr = 16'hFF;
+	if(bk_loading | ld)
+		sav_addr = ld_addr;
 	// sd_buff_din = sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
 end
 
