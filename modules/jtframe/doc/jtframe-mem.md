@@ -107,7 +107,8 @@ sdram:
           cs: myown_cs # use a cs signal not based on the bus name
           addr: myown_addr # use a cs signal not based on the bus name
           gfx_sort:hhvvv/hhvvvv/hhvvvvx(x/xx) # moves h bits after v bits
-          gfx_sort: hvvv # makes it vvvh useful for 4-bit encodings
+                               # the x means bits used for something else
+          gfx_sort: hvvv(x) # makes it vvvh useful for 4-bit encodings
           gfx_sort_en: signal to and with gfx_sort to isolate sort convention for only a game
           do_not_erase: true # for rw slots, do not clear upon reset
         - name: another bus...

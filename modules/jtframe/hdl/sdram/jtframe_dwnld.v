@@ -85,9 +85,9 @@ always @(*) begin
     header    = HEADER!=0 && ioctl_addr < HEADER && ioctl_rom;
     nohdr_addr = ioctl_addr-HEADER;
     part_addr  = nohdr_addr;
-    if( gfx4_en  ) part_addr[GFX8B0 +:4] = { nohdr_addr[GFX8B0 +:3], nohdr_addr[GFX8B0+3 +:1] }; // HVVV   -> VVVH
-    if( gfx8_en  ) part_addr[GFX8B0 +:5] = { nohdr_addr[GFX8B0 +:3], nohdr_addr[GFX8B0+3 +:2] }; // HHVVV  -> VVVHH
-    if( gfx16_en ) part_addr[GFX16B0+:6] = { nohdr_addr[GFX16B0+:4], nohdr_addr[GFX16B0+4+:2] }; // HHVVVV -> VVVVHH
+    if( gfx4_en   ) part_addr[GFX8B0 +:4] = { nohdr_addr[GFX8B0 +:3], nohdr_addr[GFX8B0+3 +:1] }; // HVVV   -> VVVH
+    if( gfx8_en   ) part_addr[GFX8B0 +:5] = { nohdr_addr[GFX8B0 +:3], nohdr_addr[GFX8B0+3 +:2] }; // HHVVV  -> VVVHH
+    if( gfx16_en  ) part_addr[GFX16B0+:6] = { nohdr_addr[GFX16B0+:4], nohdr_addr[GFX16B0+4+:2] }; // HHVVVV -> VVVVHH
     if( gfx16b_en ) part_addr[GFX16B0+:6] = { nohdr_addr[GFX16B0+5], nohdr_addr[GFX16B0+:3],nohdr_addr[GFX16B0+3+:2] }; // VHHVVV -> VVVVHH
 end
 
