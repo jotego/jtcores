@@ -1,0 +1,16 @@
+- name: x1012
+  no_core_name: true
+  size: 8
+  dw: 16
+  regs:
+    - name: hpos
+      dw: 16
+      at: "1,0"
+    - name: vpos
+      dw: 16
+      at: "3,2"
+    # other bits unknown
+    - name: bank
+      dw: 1
+      at: "4[4]"
+
