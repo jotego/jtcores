@@ -46,10 +46,11 @@ func Run(args Args) (e error) {
 		extra_macros=[]string{macros.JTFRAME_RELEASE}
 	}
 	macros.MakeMacros(args.Core,args.Target, extra_macros...)
-	if !Parse_file(args.Core, "mem.yaml", &cfg) {
+	if e:=Parse_file(args.Core, "mem.yaml", &cfg); e!=nil {
 		// the mem.yaml file does not exist, that's
 		// normally ok
-		return
+		fmt.Println(e)
+		os.Exit(1)
 	}
 	if e = bankOffset( &cfg, args.Core ); e!=nil { return e }
 	// Checks
@@ -136,7 +137,7 @@ var funcMap = template.FuncMap{
 	"is_nbits":        is_nbits,
 }
 
-func Parse_file(core, filename string, cfg *MemConfig) bool {
+func Parse_file(core, filename string, cfg *MemConfig) error {
 	read_yaml(core,filename,cfg)
 	parse_include_files(core,cfg)
 	// Reload the YAML to overwrite values that the included files may have set
@@ -165,16 +166,16 @@ func Parse_file(core, filename string, cfg *MemConfig) bool {
 	for _, bank := range cfg.SDRAM.Banks {
 		for _, each := range bank.Buses {
 			switch each.Gfx {
-				case "", "hvvv", "hhvvv", "hhvvvv", "hhvvvx", "hhvvvvx", "hhvvvxx", "hhvvvvxx",
+				case "", "hvvv", "hvvvx",
+					 "hhvvv", "hhvvvv", "hhvvvx", "hhvvvvx", "hhvvvxx", "hhvvvvxx",
 					 "vhhvvv","vhhvvvx","vhhvvvxx": break
 				default: {
-					fmt.Printf("Unsupported gfx_sort %s\n", each.Gfx)
-					return false
+					return fmt.Errorf("Unsupported gfx_sort %s", each.Gfx)
 				}
 			}
 		}
 	}
-	return true
+	return nil
 }
 
 func parse_include_files(core string, cfg *MemConfig) {
