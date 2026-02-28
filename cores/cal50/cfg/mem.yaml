@@ -28,9 +28,10 @@ sdram:
           data_width: 8
           offset: PCM_OFFSET
     - buses:
-        - name: fix
+        - name: tile
           addr_width: 21
-          data_width:  16
+          data_width: 32
+          gfx_sort: hvvvx
     # Bank 3 for graphics. The multiplexed access
     # would've been inside the SETA chip in the original
     # whereas I'm taking out of the core and into the
@@ -49,15 +50,6 @@ bram:
     din: cpu_dout
     offset: RAM_OFFSET
     rw: true
-  - name: pal
-    addr_width: 10
-    data_width: 16
-    din: cpu_dout
-    addr: main_addr[9:1]
-    rw: true
-    dual_port:
-      name: palrd
-      dout: pal_data
   # X1-012 Video RAM
   - name: tlv
     addr_width: 14
@@ -65,9 +57,53 @@ bram:
     din: cpu_dout
     addr: main_addr[13:1]
     rw: true
-    # dual_port:
-    #   name: tlrd
-    #   dout: tlram_data
+    ioctl:
+      save: true
+      order: 0
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: tlrd
+      dout: tlrd_data
+  # Palette RAM
+  - name: pal
+    addr_width: 10
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[9:1]
+    rw: true
+    ioctl:
+      save: true
+      order: 1
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: palrd
+      dout: pal_data
+  # X1-001 internal RAM
+  - name: yram
+    addr_width: 10
+    data_width: 8
+    din: cpu_dout[7:0]
+    addr: main_addr[10:1]
+    rw: true
+    ioctl:
+      save: true
+      order: 2
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: col
+      dout: col_data
+  # X1-001 external video RAM
+  - name: dma
+    addr_width: 13
+    data_width: 16
+    rw: true
+    ioctl:
+      save: true
+      order: 3
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: code
+      dout: code_dout
   - name: nvram
     addr_width: 12
     data_width: 16

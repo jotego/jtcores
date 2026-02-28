@@ -40,6 +40,7 @@ module jtcal50_main(
     input         [15:0] nvram_dout,
     // Video interface
     output reg           vram_cs, vflag_cs, vctrl_cs, // same as in jtkiwi
+                         tctrl_cs, // X1-012 control
     input         [15:0] pal_dout, tlv_dout, vram_dout,
     output        [ 1:0] tlv_we,
 
@@ -72,7 +73,7 @@ reg         ram_cs;
 wire        int4ms, int16ms,
             cpu_cen, cpu_cenb, dtackn, VPAn,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs;
-reg         ipl2_cs, ipl1_cs, nvram_cs, dips_cs, tlc_cs, tlv_cs,
+reg         ipl2_cs, ipl1_cs, nvram_cs, dips_cs, tlv_cs,
             buf_cs, pal_cs, cab_cs, snd_cs, HALTn;
 
 `ifdef SIMULATION
@@ -104,17 +105,17 @@ always @* begin
 //  ????_cs  = !ASn  &&  A[23:20]==5;
     dips_cs  = !ASn  &&  A[23:20]==6;
     pal_cs   = !ASn  &&  A[23:20]==7;
-    tlc_cs   = !ASn  &&  A[23:20]==8 && !RnW;  // tiles configuration
+    tctrl_cs = !ASn  &&  A[23:20]==8 && !RnW;  // tiles configuration
     tlv_cs   = !ASn  &&  A[23:20]==9 && !A[14];  // tiles VRAM
     buf_cs   = !BUSn &&  A[23:20]==9 &&  A[14];  // tiles VRAM related? extra RAM
-    cab_cs   = !ASn  &&  A[23:20]==10;
-    snd_cs   = !ASn  &&  A[23:20]==11;
+    cab_cs   = !ASn  &&  A[23:20]==4'hA;
+    snd_cs   = !ASn  &&  A[23:20]==4'hB;
     // SETA X1-001 chip
-    vflag_cs = !ASn  &&  A[23:20]==12;
-    vctrl_cs = !ASn  &&  A[23:20]==13;
-    vram_cs  = !ASn  &&  A[23:20]==14;
+    vflag_cs = !ASn  &&  A[23:20]==4'hC;
+    vctrl_cs = !ASn  &&  A[23:20]==4'hD;
+    vram_cs  = !ASn  &&  A[23:20]==4'hE;
 
-    ram_cs   = !BUSn &&  A[23:20]==15;
+    ram_cs   = !BUSn &&  A[23:20]==4'hF;
     if(buf_cs) ram_cs = 1;
 end
 
@@ -228,8 +229,24 @@ jtframe_m68k u_cpu(
 );
 `else
     initial begin
-        ram_cs    = 0;
         rom_cs    = 0;
     end
+    assign rom_addr  = 0,
+           ram_addr  = 0,
+           cpu_addr  = 0,
+           cpu_dsn   = 3,
+           ram_we    = 0,
+           cpu_dout  = 0,
+           cpu_rnw   = 1,
+           snd_cmd   = 0,
+           set_cmd   = 0,
+           pal_we    = 0,
+           nvram_we  = 0,
+           vram_cs   = 0,
+           vflag_cs  = 0,
+           vctrl_cs  = 0,
+           tctrl_cs  = 0,
+           tlv_we    = 0,
+           st_dout   = 0;
 `endif
 endmodule

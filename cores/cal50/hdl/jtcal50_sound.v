@@ -148,15 +148,18 @@ jt65c02 u_cpu(
     .dout       ( cpu_dout  )
 );
 `else
-    initial rom_cs   = 0;
-    assign  pal_cs   = 0;
-    assign  ram_cs   = 0;
-    assign  snd_irq  = 0;
-    assign  snd_latch= 0;
-    assign  rom_addr = 0;
-    assign  mcu_addr = 0;
-    assign  A = 0;
-    assign  rnw  = 1;
-    assign  cpu_dout = 0;
+    initial begin
+        rom_cs = 0;
+        mute   = 0;
+    end
+    assign  rom_addr = 0,
+            snd_rply = 0,
+            pcm_addr = 0,
+            pcm_cs   = 0,
+            snd_left = 0,
+            snd_right= 0,
+            snd_right= 0,
+            st_dout  = 0;
+
 `endif
 endmodule

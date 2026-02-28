@@ -21,8 +21,8 @@ module jtkiwi_game(
 );
 
 wire        sub_rnw, shr_cs, mshramen, snd_rstn;
-wire [ 7:0] shr_din, shr_dout, main_st, gfx_st, snd_st,
-            vram_dout, pal_dout, cpu_dout;
+wire [ 7:0] shr_din, shr_dout, main_st, gfx_st, snd_st, other_st,
+            vram_dout, pal_dout;
 wire [ 8:0] hdump;
 wire [ 1:0] eff_coin;
 wire [12:0] shr_addr, cpu_addr;
@@ -37,10 +37,11 @@ reg         hb_dly=0, dip_flip_xor=0,
             colprom_en=0, mcu_en=0, aid_en, fast_fm=0, drtoppel=0;
 
 assign dip_flip   = ~flip ^ dip_flip_xor;
-assign debug_view = st_addr[7:6]==0 ? { hb_dly, dip_flip_xor, coin_xor, banked_ram,
-                                        kageki, kabuki, colprom_en, mcu_en } :
+assign other_st   = { hb_dly, dip_flip_xor, coin_xor,   banked_ram,
+                      kageki, kabuki,       colprom_en, mcu_en };
+assign debug_view = st_addr[7:6]==0 ? gfx_st  :
                     st_addr[7:6]==1 ? main_st :
-                    st_addr[7:6]==2 ? gfx_st  : snd_st;
+                    st_addr[7:6]==2 ? other_st  : snd_st;
 assign colprom_we = prom_we && prog_addr[15:10]==0;
 assign mcuprom_we = prom_we && prog_addr >= `MCU_START;
 assign st_dout    = debug_view;
@@ -149,6 +150,19 @@ jtkiwi_video u_video(
     .cpu2_dout      ( shr_din       ),
     .cpu2_rnw       ( sub_rnw       ),
     .cpu2_addr      ( shr_addr[9:0] ),
+
+    // X1-001 Internal RAM
+    .col_addr       ( col_addr      ),
+    .col_data       ( col_data      ),
+    .yram_dout      ( yram_dout     ),
+    .yram_we        ( yram_we       ),
+    // X1-001 External VRAM
+    .dma_addr       ( dma_addr      ),
+    .dma_din        ( dma_din       ),
+    .dma_we         ( dma_we        ),
+    .dma_dout       ( dma_dout      ),
+    .code_dout      ( code_dout     ),
+    .code_addr      ( code_addr     ),
 
     // SDRAM
     .scr_addr       ( scr_addr      ),

@@ -23,8 +23,8 @@ module jtcal50_colmix(
     input             LHBL,
     input             LVBL,
 
-    input      [ 8:0] scr_pxl,
-    input      [ 8:0] obj_pxl,
+    input      [ 8:0] scr_pxl,      // unused ?
+    input      [ 8:0] obj_pxl, tiles_pxl,
 
     output reg [ 9:1] pal_addr,
     input      [15:0] pal_data,
@@ -38,19 +38,21 @@ module jtcal50_colmix(
 
 reg  [ 8:0] col_addr;
 reg  [14:0] rgb;
+wire [ 8:0] obj_srt;
 wire        blank;
 reg         obj_sel;
 
 assign blank    = ~(LVBL & LHBL);
 assign {red,green,blue} = blank ? 15'd0 : rgb;
+assign obj_srt = {obj_pxl[8:4],obj_pxl[1],obj_pxl[3],obj_pxl[0],obj_pxl[2]};
 
 always @* begin
-    obj_sel = obj_pxl[3:0] != 4'h0;
+    obj_sel = obj_srt[3:0] != 4'h0;
     case( {gfx_en[3],gfx_en[0]})
         2'b00: col_addr = 0;
-        2'b01: col_addr = scr_pxl;
-        2'b10: col_addr = obj_pxl;
-        2'b11: col_addr = obj_sel ? obj_pxl : scr_pxl; // simple priority for now.
+        2'b01: col_addr = tiles_pxl;
+        2'b10: col_addr = obj_srt;
+        2'b11: col_addr = obj_sel ? obj_srt : tiles_pxl; // simple priority for now.
     endcase
 end
 

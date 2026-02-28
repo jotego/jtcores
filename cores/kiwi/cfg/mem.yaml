@@ -62,3 +62,21 @@ bram:
     data_width: 8
     rw: true
     # offset: BRAM_OFFSET
+  # X1-001 internal RAM
+  - name: yram
+    addr_width: 10
+    data_width: 8
+    din: cpu_dout
+    addr: main_addr[9:0]
+    rw: true
+    dual_port:
+      name: col
+      dout: col_data
+  # X1-001 external video RAM
+  - name: dma
+    addr_width: 13
+    data_width: 16
+    rw: true
+    dual_port:
+      name: code
+      dout: code_dout
