@@ -244,8 +244,17 @@ func (parsed *ParsedMachine) validate_lightgun(context string) error {
 }
 
 func (parsed *ParsedMachine) validate_paddle(context string) error {
-	if !macros.IsSet("JTFRAME_NOMULTIWAY") && parsed.has_paddle() {
+	if !parsed.has_paddle_or_dial() { return nil }
+	if !macros.IsSet("JTFRAME_NOMULTIWAY") {
 		e := fmt.Errorf("%s uses a paddle but 24-way joystick emulation is enabled. This can create problems. See https://github.com/jotego/jtcores/issues/1001. Set JTFRAME_NOMULTIWAY",context)
+		return e
+	}
+	if parsed.machine.Dial() && !macros.IsSet("JTFRAME_DIAL") {
+		e := fmt.Errorf("%s uses a dial, but JTFRAME_DIAL is missing in macros.def", context)
+		return e
+	}
+	if parsed.machine.HasPaddle() && !macros.IsSet("JTFRAME_PADDLE") {
+		e := fmt.Errorf("%s uses a paddle, but JTFRAME_PADDLE is missing in macros.def", context)
 		return e
 	}
 	return nil
@@ -255,7 +264,7 @@ func (parsed *ParsedMachine)has_lightgun() bool {
 	return parsed.coremod&COREMOD_LIGHTGUN!=0
 }
 
-func (parsed *ParsedMachine)has_paddle() bool {
+func (parsed *ParsedMachine)has_paddle_or_dial() bool {
 	return parsed.machine.Dial() || parsed.machine.HasPaddle()
 }
 
