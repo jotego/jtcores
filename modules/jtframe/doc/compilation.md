@@ -7,7 +7,7 @@ All JT arcade cores depend on JTFRAME for compilation. You need to follow the jt
 - Ubuntu 20.04
 - Install Quartus 13.1 to compile for MiST, SiDi and the Pocket in `/opt/altera/13.1`
 - Install Quartus 17 or higher to compile for MiSTer in `/opt/intelFPGA_lite`
-- Run the [../bin/jotego_20.04.sh](jotego_20.04.sh) script to get other required packages in place
+- Run [`../bin/install/jotego_20.04.sh`](../bin/install/jotego_20.04.sh) to install the expected packages
 
 For parallel compilation across network machines, create a file `$HOME/.parallel/sshloginfile` with one host name per line. Configure SSH correctly across the machines, using `ssh-copy-id`, etc.
 
@@ -35,7 +35,7 @@ That should produce the MiST output. If you have a fresh linux installation, you
 * Now go to the `core-folder` and run `source setprj.sh`
 * Now you can compile the core using the `jtcore` script.
 
-The output file is stored in **releases/target** where target stands for the FPGA platform (mist, mister, etc.). Most platforms use files with a .rbf extension, but some use a different extension -though the underlying file type is the same.
+The default output root is `$JTROOT/release` (for example `$JTROOT/release/mister` or `$JTROOT/release/mist`). Most platforms use files with a `.rbf` extension, but some use a different extension even though the underlying type is equivalent.
 
 ## jtcore
 

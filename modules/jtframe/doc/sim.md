@@ -20,17 +20,10 @@ number with inputs coded. Active high only:
 
 bit  | meaning
 -----|------------
-0    | coin 1
-1    | coin 2
-2    | 1P start
-3    | 2P start
-4    | right   (may vary with each game)
-5    | left    (may vary with each game)
-6    | down    (may vary with each game)
-7    | up      (may vary with each game)
-8    | Button 1
-9    | Button 2
-10   | Test button
+3:0  | {start[1:0], service, coin[0]}
+7:4  | 1P joystick {up, down, left, right}
+10:8 | buttons {B3, B2, B1}
+11   | test button
 
 Each line will be applied on a new frame.
 
@@ -53,7 +46,7 @@ A model for SDRAM mt48lc16m16a2 is included in JTFRAME. The model will load the 
 
 The current contents of the SDRAM can be dumped at the beginning of each frame (falling edge of vertical blank) if **JTFRAME_SAVESDRAM** is defined. Because this is quite an overhead, it is possible to restrict it to dump only a certain **DUMP_START** frame count has been reached. All frames will be dumped after it. The macro **DUMP_START** is the same one used for setting the start of signal dump to the __VCD__ file.
 
-To simulate the SDRAM load operation use **-load** on sim.sh. The normal download speed 1/270ns=3.7MHz. This is faster than the real systems but speeds up simulation. It is possible to slow it down by adding dead clock cycles to each transfer. The macro **JTFRAME_SIM_LOAD_EXTRA** can be defined with the required number of extra cycles.
+To simulate the SDRAM load operation use `jtsim -load`. The normal download speed 1/270ns=3.7MHz. This is faster than the real systems but speeds up simulation. It is possible to slow it down by adding dead clock cycles to each transfer. The macro **JTFRAME_SIM_LOAD_EXTRA** can be defined with the required number of extra cycles.
 
 ## SDRAM Preparation
 
@@ -101,8 +94,7 @@ The script `run_regression.sh` runs a simulation using `jtsim` according to the 
     video: number
     inputs: reg.cab
     dipsw: binary_number
-    d: MACRO1
-    d: MACRO2
+    d: MACRO1,MACRO2
     ...
 1942-flip:
     inputs: ../setname1/reg.cab
@@ -122,8 +114,7 @@ There is also a reg.yaml file in $JTFRAME/bin, where you can define default opti
 video: number
 inputs: file
 dipsw: binary_number
-d: MACRO1
-d: MACRO2
+d: MACRO1,MACRO2
 ...
 ```
 
@@ -132,9 +123,9 @@ d: MACRO2
 
 This script also allows validating a simulation against a reference. To do this, use the --check or --local-check <folder> flags, which let you compare results against either a remote SFTP server or a local folder. If you use an SFTP server, you must also provide --port <port>, --host <host>, and --user <user> to define the connection. The server must already be registered in known_hosts.
 
-When using a remote SFTP server, the following folder structure is required under the root path defined with --path:
+When using a remote SFTP server, the following folder structure is required under the root path defined with `--path`:
 - mame/: contains all zipped ROMs.
-- regression/<core>/<setname>/VALID, NOT_CHECKED, FAIL/frames.zip, audio.zip: contains reference simulation results used for validation.
+- regression/<core>/<setname>/valid, not_checked, fail/: contains reference and uploaded simulation results.
 
 The script will download and extract the required files for simulation and comparison.
 

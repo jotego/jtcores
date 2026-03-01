@@ -2,19 +2,17 @@ Parses the core's mame2mra.toml file to generate MRA files.
 
 If called with --reduce, the argument must be the path to mame.xml,
 otherwise the file mame.xml in $JTROOT/doc/mame.xml will be used. The tool
-should be used to update $JTROOT/doc/mame.xml with new data each tiem a new
-core is added. The core folder should contain both the .def and .toml files,
-defining at least the MAME source file and the core name.
+should be used to update $JTROOT/doc/mame.xml with new data each time a new
+core is added. The core folder should contain both cfg/macros.def and
+cfg/mame2mra.toml.
 
-Each repository is meant to have a reduced mame.xml file in $ROM as
+Each repository is meant to have a reduced mame.xml file in $JTROOT/doc as
 part of the source file commited in git.
 
 The output will either be created in $JTROOT/release or in $JTBIN
 depending on the --git argument.
 
-Macros in macros.def are parsed for the "mister" target. This is relevant when
-for some macros like JTFRAME_IOCTL_RD, which may have different values for
-debugging in MiST without affecting the MRA generation.
+Macros in macros.def are parsed by the MRA flow before conversion.
 
 TOML elements (see full reference in mame2mra.go)
 

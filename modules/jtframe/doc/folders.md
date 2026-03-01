@@ -5,7 +5,7 @@ Each time you want to work on your project you need to source the file *setprj.s
 - **JTROOT**, pointing to the folder from where you cloned jtcores
 - **CORES**, points to `$JTROOT/cores`
 - **JTFRAME**, points to `$JTROOT/modules/jtframe`
-- **MODULES**, points to `$JTROOT/modules/modules`
+- **MODULES**, points to `$JTROOT/modules`
 
 ## Folder and File Locations
 
@@ -37,7 +37,7 @@ These scripts will delete the previous contents of those folders, so a fresh tes
 
 ### Macro definition
 
-Macros for each core are defined in a **.def** file. This file is expected to be in the **hdl** folder. The syntax is:
+Macros for each core are defined in `cfg/macros.def`. The syntax is:
 
 * Each line contains a macro definition, with an optional value after `=`
 * A value definition can be concatenated to a previos value by usin `+=` instead of `=`
@@ -47,7 +47,7 @@ Macros for each core are defined in a **.def** file. This file is expected to be
 
 Example:
 
-```
+```text
 include common.def
 
 CPS1
@@ -133,21 +133,27 @@ will look in the folder `$CORES/riders/hdl/`, bringing all files with the extens
 
 Alternatively to this method, in the first example, we can also reference a `$CORE` or `$MODULES` folder without giving any specific inputs, to bring all files referenced in their own `cfg/files.yaml`.
 
-Files from the key `jtframe` are based in folder `$JTFRAME/HDL`. Files from `jt` modules will look directly for a file in `$MODULES/name/hdl/name.yaml`. And files from `other` are based in `$MODULES`
+Files from the key `jtframe` are based in folder `$JTFRAME/hdl`.  
+Each top-level YAML key is resolved as a folder inside `$CORES` or `$MODULES`.
 
 It is also possible to reference a `target`, but unless you are creating a new target for JTFRAME, you should not do it. Games cores should not directly reference files in the JTFRAME/target folder. An example of the `target:` section can be seen in [mist](../target/mist/common.yaml).
 
-The utility `jtframe files` translates the yaml files to two files: a game.qip and a target.qip for compilation and a game.f and target.f for simulation. The compilation script [jtcore](../bin/jtcore) calls jtfiles in order to obtain the compilation files.
-To get the simulation files call jtfiles as:
+The utility `jtframe files` translates YAML files to:
+
+- `files.qip` for synthesis
+- `game.f` and `jtsim_vhdl.f` for simulation
+
+The compilation script [jtcore](../bin/jtcore) calls `jtframe files`.
+To generate simulation files call:
 
 `jtframe files sim corename --target mister`
 
-From the folder where you want the files game.f and target.f to be produced.
+from the folder where you want `game.f` and `jtsim_vhdl.f` to be produced.
 
 ### Other Configuration Files
 
 The game memory interface can be described in the file mem.yaml, described [here](sdram.md). Using a *mem.yaml* file will generate all the RTL for the SDRAM controller automatically.
 
-The generation of MRA files from MAME's database is done by defining the translation in the file *cfg/mame2mra.toml* and using `jtframe mra <corename>`. This will also generate the PocketFPGA files is the Pocket submodule is available.
+The generation of MRA files from MAME's database is done by defining the translation in *cfg/mame2mra.toml* and using `jtframe mra <corename>`. By default this reads `$JTROOT/doc/mame.xml`. This also generates Pocket files when Pocket support is available.
 
 The pause screen message is defined in the *cfg/msg* file.

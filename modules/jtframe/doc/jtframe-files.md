@@ -1,19 +1,25 @@
-The project files are defined in cores/corename/files.yaml.
-jtframe files command will also add the required files for the
-selected compilation or simulation target.
+Project files are defined in `cores/<corename>/cfg/files.yaml`.
+The `jtframe files` command merges those with framework files and target files.
 
-The first argument selects simulation (sim) or synthesis (output). The
-synthesis output consists of .qip files compatible with Intel Quartus.
+Command syntax:
 
-A third option is "plain", which simply generates a plain text file with
-the file names and path used.
+`jtframe files <sim|syn|plain> <core-name> [--target target] [--macro A,B,...] [--rel] [--local]`
 
-The simulation output creates two files:
+- `sim` generates simulation file lists
+- `syn` generates Quartus assignments
+- `plain` generates a plain list of files
+
+Output files:
 
 - game.f for all verilog files
 - jtsim_vhdl.f for all VHDL files
+- files.qip for synthesis (`syn` mode)
+- files for plain text output (`plain` mode)
 
-For synthesis a `files.qip` is generated at the core/target folder.
+The `--target` flag also includes:
+
+- `$JTFRAME/target/<target>/cfg/files.yaml`
+- `$JTFRAME/target/<target>/cfg/sim.yaml` (only in `sim` mode)
 
 The yaml file is composed of several sections, which can only appear once:
 
