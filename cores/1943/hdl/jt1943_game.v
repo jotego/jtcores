@@ -90,22 +90,6 @@ reg video_flip;
 always @(posedge clk)
     video_flip <= dip_flip ^ flip; // Original 1943 did not have this DIP bit.
 
-localparam [25:0]   MAP1_START = `MAP1_START,
-                    SCR1_START = `SCR1_START,
-                    OBJ_START  = `OBJ_START,
-                    PROM_START = `JTFRAME_PROM_START;
-
-always @* begin
-    post_addr = prog_addr;
-    if(ioctl_addr>=MAP1_START ) begin
-        if( ioctl_addr < SCR1_START) begin // MAP1+MAP2
-            post_addr[3:0] = {prog_addr[2:0],prog_addr[3]};
-        end else if( ioctl_addr >= OBJ_START && ioctl_addr < PROM_START ) begin
-            post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
-        end
-    end
-end
-
 // 1943 board supports three buttons, but the software only uses two
 // to perform a loop with the plane, you have to press buttons 1 and 2
 // this is hard to do.

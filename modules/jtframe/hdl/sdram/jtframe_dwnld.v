@@ -42,6 +42,7 @@ module jtframe_dwnld(
     input                gfx8_en,   // HHVVV  -> VVVHH
     input                gfx16_en,  // HHVVVV -> VVVVHH
     input                gfx16b_en, // VHHVVV -> VVVVHH
+    input                gfx16c_en, //  HVVVV -> VVVVH
 
     output reg           prom_we,
     output reg           header,
@@ -89,6 +90,7 @@ always @(*) begin
     if( gfx8_en   ) part_addr[GFX8B0 +:5] = { nohdr_addr[GFX8B0 +:3], nohdr_addr[GFX8B0+3 +:2] }; // HHVVV  -> VVVHH
     if( gfx16_en  ) part_addr[GFX16B0+:6] = { nohdr_addr[GFX16B0+:4], nohdr_addr[GFX16B0+4+:2] }; // HHVVVV -> VVVVHH
     if( gfx16b_en ) part_addr[GFX16B0+:6] = { nohdr_addr[GFX16B0+5], nohdr_addr[GFX16B0+:3],nohdr_addr[GFX16B0+3+:2] }; // VHHVVV -> VVVVHH
+    if( gfx16c_en ) part_addr[GFX16B0+:5] = { nohdr_addr[GFX16B0+:4], nohdr_addr[GFX16B0+4+:1] }; //  HVVVV -> VVVVH
 end
 
 `ifdef SIMULATION `ifdef JTFRAME_PROM_START `ifndef LOADROM

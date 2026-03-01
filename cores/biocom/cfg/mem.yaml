@@ -20,8 +20,6 @@ audio:
   rsum: 27k
   channels:
     - { name: fm, module: jt51, rsum: 27k, rc: [{r: 1rout, c: 3.3n }]}
-download:
-  post_addr: true
 sdram:
   banks:
     - buses:
@@ -43,6 +41,7 @@ sdram:
         addr_width: 18
         data_width: 16
         cs: LVBL
+        gfx_sort: hvvvvxx
     - buses:
       - name: snd
         addr_width: 15

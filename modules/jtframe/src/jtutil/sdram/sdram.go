@@ -21,9 +21,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"jotego/jtframe/macros"
+	"jotego/jtframe/mem"
 	"jotego/jtframe/mra"
 )
 
@@ -128,21 +130,34 @@ func readROM(game string) []byte {
 		fmt.Println("The ROM length must be even")
 		os.Exit(1)
 	}
-	// Swap the bytes so sdram.bin files get written correctly as 16-bit words.
-	swapBytes(rom, 0)
 	return rom
 }
 
 func extractSDRAM(core, game string) error {
 	const eightMB = 8 * 1024 * 1024
 	rom := readROM(game)
+	memCfg, err := parseMemConfig(core)
+	if err != nil {
+		return err
+	}
+	if memCfg.Download.Pre_addr || memCfg.Download.Post_addr || memCfg.Download.Post_data {
+		return fmt.Errorf("jtutil sdram does not support download address/data transforms (pre_addr/post_addr/post_data) in mem.yaml")
+	}
+	romForOffsets := make([]byte, len(rom))
+	copy(romForOffsets, rom)
+	swapBytes(romForOffsets, 0)
 	mraCfg, err := mra.ParseTomlFile(core)
 	if err != nil {
 		return err
 	}
 	regCnt := len(mraCfg.Header.Offset.Regions)
 	hinfo := mraCfg.Header.Offset
-	offsets, reg := bankOffset(regCnt, hinfo, rom)
+	offsets, reg := bankOffset(regCnt, hinfo, romForOffsets)
+	if err = applyGfxSort(memCfg, game, rom, offsets); err != nil {
+		return err
+	}
+	// Swap the bytes so sdram.bin files get written correctly as 16-bit words.
+	swapBytes(rom, 0)
 	header := macros.GetInt("JTFRAME_HEADER")
 	promStart := offsets[4]
 	nxStart, err := dump("sdram_bank0.bin", rom, header, offsets[1], promStart, eightMB)
@@ -228,6 +243,231 @@ func bankOffset(regCnt int, hinfo mra.HeaderOffset, rom []byte) ([]int, []string
 		fmt.Println()
 	}
 	return offsets, hinfo.Regions
+}
+
+func parseMemConfig(core string) (*mem.MemConfig, error) {
+	var cfg mem.MemConfig
+	if err := mem.Parse_file(core, "mem.yaml", &cfg); err != nil {
+		return nil, fmt.Errorf("cannot parse mem.yaml: %w", err)
+	}
+	return &cfg, nil
+}
+
+func applyGfxSort(cfg *mem.MemConfig, game string, rom []byte, offsets []int) error {
+	if len(cfg.SDRAM.Banks) == 0 {
+		return nil
+	}
+	resolver := newExpressionResolver(cfg.Params)
+	for bankIdx := 0; bankIdx < len(cfg.SDRAM.Banks) && bankIdx < 4; bankIdx++ {
+		bankStart, bankEnd := bankBounds(bankIdx, offsets, len(rom))
+		if bankEnd <= bankStart {
+			continue
+		}
+		buses := cfg.SDRAM.Banks[bankIdx].Buses
+		for busIdx, bus := range buses {
+			gfx := strings.TrimSpace(bus.Gfx)
+			if gfx == "" {
+				continue
+			}
+			if strings.TrimSpace(bus.Gfx_en) != "" {
+				if !shouldApplyGfxEn(bus.Gfx_en, game) {
+					if verbose {
+						fmt.Printf("Skipping conditional gfx_sort %-8s on bus=%s (gfx_sort_en=%s)\n", gfx, bus.Name, bus.Gfx_en)
+					}
+					continue
+				}
+			}
+			busStart := bankStart
+			if strings.TrimSpace(bus.Offset) != "" {
+				offsetWords, err := resolver.eval(bus.Offset)
+				if err != nil {
+					return fmt.Errorf("cannot evaluate offset for bus %s in bank %d: %w", bus.Name, bankIdx, err)
+				}
+				if offsetWords < 0 {
+					return fmt.Errorf("negative offset for bus %s in bank %d: %d", bus.Name, bankIdx, offsetWords)
+				}
+				busStart += offsetWords << 1
+			}
+			if busStart >= bankEnd {
+				continue
+			}
+			if bus.Addr_width < 0 || bus.Addr_width >= strconv.IntSize {
+				return fmt.Errorf("invalid addr_width %d for bus %s", bus.Addr_width, bus.Name)
+			}
+			size := 1 << bus.Addr_width
+			if size <= 0 {
+				return fmt.Errorf("invalid addr_width %d for bus %s", bus.Addr_width, bus.Name)
+			}
+			busEnd := busStart + size
+			if busEnd > bankEnd || busEnd < busStart {
+				busEnd = bankEnd
+			}
+			if busIdx+1 < len(buses) && strings.TrimSpace(bus.Gfx_en) == "" {
+				nextOffsetText := strings.TrimSpace(buses[busIdx+1].Offset)
+				if nextOffsetText != "" {
+					nextOffsetWords, err := resolver.eval(nextOffsetText)
+					if err != nil {
+						return fmt.Errorf("cannot evaluate next offset for bus %s in bank %d: %w", buses[busIdx+1].Name, bankIdx, err)
+					}
+					nextStart := bankStart + (nextOffsetWords << 1)
+					if nextStart >= busStart && nextStart < busEnd {
+						busEnd = nextStart
+					}
+				}
+			}
+			if err := applyGfxSortRange(rom, busStart, busEnd, gfx); err != nil {
+				return fmt.Errorf("cannot apply gfx_sort %s on bus %s in bank %d: %w", gfx, bus.Name, bankIdx, err)
+			}
+			if verbose {
+				fmt.Printf("Applied gfx_sort %-8s to bank=%d bus=%s range=%X-%X\n", gfx, bankIdx, bus.Name, busStart, busEnd)
+			}
+		}
+	}
+	return nil
+}
+
+func shouldApplyGfxEn(expr, game string) bool {
+	name := strings.TrimSpace(strings.ToLower(expr))
+	if name == "" {
+		return true
+	}
+	g := strings.ToLower(game)
+	if strings.HasPrefix(name, "not_") {
+		term := strings.TrimPrefix(name, "not_")
+		return !strings.Contains(g, term)
+	}
+	return strings.Contains(g, name)
+}
+
+func bankBounds(bankIdx int, offsets []int, romLen int) (int, int) {
+	header := macros.GetInt("JTFRAME_HEADER")
+	start := header
+	switch bankIdx {
+	case 1:
+		start = offsets[1]
+	case 2:
+		start = offsets[2]
+	case 3:
+		start = offsets[3]
+	}
+	end := romLen
+	switch bankIdx {
+	case 0:
+		end = offsets[1]
+	case 1:
+		end = offsets[2]
+	case 2:
+		end = offsets[3]
+	case 3:
+		end = offsets[4]
+	}
+	if start < 0 {
+		start = 0
+	}
+	if end < 0 {
+		end = 0
+	}
+	if start > romLen {
+		start = romLen
+	}
+	if end > romLen {
+		end = romLen
+	}
+	return start, end
+}
+
+func applyGfxSortRange(rom []byte, start, end int, pattern string) error {
+	if start < 0 || end < start || end > len(rom) {
+		return fmt.Errorf("invalid range %d:%d for ROM len %d", start, end, len(rom))
+	}
+	gfx, err := parseGfxPattern(pattern)
+	if err != nil {
+		return err
+	}
+	section := make([]byte, end-start)
+	copy(section, rom[start:end])
+	sorted := make([]byte, len(section))
+	header := macros.GetInt("JTFRAME_HEADER")
+	for srcIdx := range section {
+		srcAbs := start + srcIdx
+		srcNoHdr := srcAbs - header
+		dstNoHdr := remapAddressBits(srcNoHdr, gfx)
+		dstAbs := dstNoHdr + header
+		dstIdx := dstAbs - start
+		if dstIdx < 0 || dstIdx >= len(section) {
+			return fmt.Errorf("mapped index %d outside range of %d", dstIdx, len(section))
+		}
+		sorted[dstIdx] = section[srcIdx]
+	}
+	copy(rom[start:end], sorted)
+	return nil
+}
+
+type gfxPattern struct {
+	mode string
+	b0   int
+}
+
+func parseGfxPattern(pattern string) (gfxPattern, error) {
+	pattern = strings.TrimSpace(pattern)
+	if pattern == "" {
+		return gfxPattern{}, nil
+	}
+	b0 := 0
+	for strings.HasSuffix(pattern, "x") {
+		b0++
+		pattern = strings.TrimSuffix(pattern, "x")
+	}
+	switch pattern {
+	case "hvvv":
+		return gfxPattern{mode: "gfx4", b0: b0}, nil
+	case "hvvvv":
+		return gfxPattern{mode: "gfx16c", b0: b0}, nil
+	case "hhvvv":
+		return gfxPattern{mode: "gfx8", b0: b0}, nil
+	case "hhvvvv":
+		return gfxPattern{mode: "gfx16", b0: b0}, nil
+	case "vhhvvv":
+		return gfxPattern{mode: "gfx16b", b0: b0}, nil
+	default:
+		return gfxPattern{}, fmt.Errorf("unsupported gfx_sort pattern %q", pattern)
+	}
+}
+
+func remapAddressBits(addr int, gfx gfxPattern) int {
+	if gfx.mode == "" {
+		return addr
+	}
+	b0 := gfx.b0
+	switch gfx.mode {
+	case "gfx4":
+		return remapBits(addr, b0, []int{3, 0, 1, 2})
+	case "gfx16c":
+		return remapBits(addr, b0, []int{4, 0, 1, 2, 3})
+	case "gfx8":
+		return remapBits(addr, b0, []int{3, 4, 0, 1, 2})
+	case "gfx16":
+		return remapBits(addr, b0, []int{4, 5, 0, 1, 2, 3})
+	case "gfx16b":
+		return remapBits(addr, b0, []int{3, 4, 0, 1, 2, 5})
+	default:
+		return addr
+	}
+}
+
+func remapBits(addr, b0 int, dstToSrc []int) int {
+	maxBit := b0 + len(dstToSrc)
+	if maxBit >= strconv.IntSize {
+		return addr
+	}
+	mask := ((1 << len(dstToSrc)) - 1) << b0
+	out := addr & ^mask
+	for dstOffset, srcOffset := range dstToSrc {
+		if ((addr >> (b0 + srcOffset)) & 1) != 0 {
+			out |= 1 << (b0 + dstOffset)
+		}
+	}
+	return out
 }
 
 func dump(name string, rom []byte, p0, p1, lim, fill int) (int, error) {

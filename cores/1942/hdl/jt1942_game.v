@@ -67,13 +67,7 @@ assign chram_dout = cpu_AB[10] ? chram_o16[15:8] : chram_o16[7:0];
 assign chram_din  = {2{cpu_dout}};
 assign chram_addr = cpu_AB[9:0];
 assign chram_we   = {2{char_cs&~wr_n}} & {cpu_AB[10],~cpu_AB[10]};
-
-always @* begin
-    post_addr = prog_addr;
-    if( ioctl_addr[24:8]>=OBJ_START[24:8] && ioctl_addr[24:8]<BA3_START[24:8] && !hige ) begin // bypass the header in the comparison
-        post_addr[5:1] = { post_addr[4:1], post_addr[5] };
-    end
-end
+assign not_higemaru = ~hige;
 
 always @(posedge clk) begin
     hige <= game_id==HIGEMARU;

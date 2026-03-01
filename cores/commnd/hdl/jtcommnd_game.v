@@ -59,15 +59,6 @@ assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dip_flip = flip;
 assign debug_view = 0;
 
-localparam OBJ_START = `JTFRAME_BA2_START + (`OBJ_OFFSET<<1);
-
-always @* begin
-    post_addr = prog_addr;
-    if( ioctl_addr[24:0]>=OBJ_START[24:0] && ioctl_addr<`JTFRAME_BA3_START ) begin
-        post_addr[5:1] = { post_addr[4:1], post_addr[5] };
-    end
-end
-
 jtgng_timer u_timer(
     .clk       ( clk      ),
     .cen6      ( cen6     ),

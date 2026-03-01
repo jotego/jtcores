@@ -39,15 +39,6 @@ assign dip_flip   = flip^game_cfg;
 assign scr_part   = scr0 ? { scr_data[27:24], scr_data[19:16], scr_data[11: 8], scr_data[ 3: 0] } :
                            { scr_data[31:28], scr_data[23:20], scr_data[15:12], scr_data[ 7: 4] };
 
-localparam [25:0]   OBJ_START  = `JTFRAME_BA3_START;
-
-always @* begin
-    post_addr = prog_addr;
-    if( ioctl_addr >= OBJ_START ) begin
-        post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
-    end
-end
-
 always @(posedge clk) begin
     if( header && prog_addr[4:0]==0 && prog_we ) game_cfg <= prog_data[0];
 end

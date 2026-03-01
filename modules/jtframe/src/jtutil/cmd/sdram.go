@@ -54,6 +54,14 @@ simulation for these cores by setting the SIM_LOAD_PROM macro.
 
 The result will only be correct for cores that do not transform download data on
 the fly.
+
+When a core defines ` + "`" + `sdram.banks[].buses[].gfx_sort` + "`" + ` in mem.yaml, jtutil sdram
+applies the same byte-address reordering used by the JTFRAME download path.
+Per-bus ` + "`" + `offset` + "`" + ` and ` + "`" + `addr_width` + "`" + ` are honored, including offsets that
+come from ` + "`" + `params` + "`" + ` expressions with macro references.
+If a bus defines ` + "`" + `gfx_sort_en` + "`" + `, jtutil sdram applies it automatically when the
+enable signal name matches the game name. The game name is derived from the
+current folder (or from the explicit command argument).
 `,
 	Run:  run_sdram,
 	Args: cobra.MaximumNArgs(1),

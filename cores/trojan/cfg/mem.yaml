@@ -3,8 +3,6 @@ params:
   - { name: SCR2_OFFSET, value: "(`SCR2_START-`JTFRAME_BA2_START)>>1" }
   - { name: SCR_OFFSET,  value: "(`SCR_START -`JTFRAME_BA3_START)>>1" }
   - { name: OBJ_OFFSET,  value: "(`OBJ_START -`JTFRAME_BA3_START)>>1" }
-download:
-  post_addr: true
 clocks:
   clk48:
     - freq: 12000000
@@ -70,5 +68,6 @@ sdram:
         addr_width: 19
         data_width: 16
         offset: OBJ_OFFSET
+        gfx_sort: hvvvvxx
         cs: 1'b1
 

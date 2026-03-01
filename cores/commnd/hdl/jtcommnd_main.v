@@ -89,11 +89,11 @@ module jtcommnd_main(
     input    [7:0]     dipsw_a,
     input    [7:0]     dipsw_b
 );
+parameter GAME=0;
 `ifndef NOMAIN
 // 0: Commando
 // 1: Section Z
 // 3: EXEDEXES
-parameter GAME=0;
 localparam  COMMANDO = 0,
             SECTIONZ = 1,
             EXEDEXES = 3;

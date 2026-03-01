@@ -14,8 +14,8 @@ clocks:
         - cen6
         - cen3
         - cen1p5
-download:
-  post_addr: true
+ports:
+  - { name: not_higemaru }
 sdram:
   banks:
     - buses:
@@ -34,6 +34,8 @@ sdram:
       - name: obj
         addr_width: 16
         data_width: 16
+        gfx_sort: hvvvvxx
+        gfx_sort_en: not_higemaru
         offset: OBJ_OFFSET
         cs: 1'b1
     - buses:

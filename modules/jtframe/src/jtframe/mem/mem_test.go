@@ -19,8 +19,8 @@ package mem
 
 import (
 	"encoding/json"
-	"path/filepath"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
@@ -31,67 +31,73 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func TestDelete_optional_IOCTL( t *testing.T ) {
+func TestDelete_optional_IOCTL(t *testing.T) {
 	cfg := MemConfig{
 		BRAM: []BRAMBus{
 			BRAMBus{
 				Name: "onlydebug",
 				Ioctl: BRAMBus_Ioctl{
-					Order: 0,
+					Order:   0,
 					Restore: true,
-					Unless: []string{"JTFRAME_RELEASE"},
+					Unless:  []string{"JTFRAME_RELEASE"},
 				},
 			},
 			BRAMBus{
 				Name: "onlyrelease",
 				Ioctl: BRAMBus_Ioctl{
-					Order: 0,
+					Order:   0,
 					Restore: true,
-					When: []string{"JTFRAME_RELEASE"},
+					When:    []string{"JTFRAME_RELEASE"},
 				},
 			},
 			BRAMBus{
 				Name: "onlypocket",
 				Ioctl: BRAMBus_Ioctl{
-					Order: 1,
+					Order:   1,
 					Restore: true,
-					When: []string{"POCKET"},
+					When:    []string{"POCKET"},
 				},
 			},
 		},
 	}
 	copy, e := json.Marshal(cfg)
-	if e!=nil { t.Error(e); return }
-	macros_debug_pocket:=map[string]string{
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	macros_debug_pocket := map[string]string{
 		"POCKET": "",
 	}
 	macros.MakeFromMap(macros_debug_pocket)
 	delete_optional_ioctl(cfg.BRAM)
-	if count_ioctl_buses(cfg.BRAM,t)!=2 {
-		show_ioctl(cfg.BRAM,t)
+	if count_ioctl_buses(cfg.BRAM, t) != 2 {
+		show_ioctl(cfg.BRAM, t)
 		t.Error("Expected only entries for POCKET and debug")
 	}
 
-	macros_release_mister:=map[string]string{
-		"MISTER": "",
+	macros_release_mister := map[string]string{
+		"MISTER":          "",
 		"JTFRAME_RELEASE": "",
 	}
 
 	// restores the test data
-	if e := json.Unmarshal(copy,&cfg); e!=nil { t.Error(e); return }
+	if e := json.Unmarshal(copy, &cfg); e != nil {
+		t.Error(e)
+		return
+	}
 	macros.MakeFromMap(macros_release_mister)
 	delete_optional_ioctl(cfg.BRAM)
-	if count:=count_ioctl_buses(cfg.BRAM,t);count!=1 {
-		t.Logf("Found %d IOCTL buses.\nDump",count)
-		show_ioctl(cfg.BRAM,t)
+	if count := count_ioctl_buses(cfg.BRAM, t); count != 1 {
+		t.Logf("Found %d IOCTL buses.\nDump", count)
+		show_ioctl(cfg.BRAM, t)
 		t.Error("Expected only the entry for MiSTer")
 	}
 }
 
 func count_ioctl_buses(bram_buses []BRAMBus, t *testing.T) int {
 	total := 0
-	for _,bus := range bram_buses {
-		if bus.Ioctl.Save || bus.Ioctl.Restore || bus.Ioctl.Order>0 {
+	for _, bus := range bram_buses {
+		if bus.Ioctl.Save || bus.Ioctl.Restore || bus.Ioctl.Order > 0 {
 			t.Log(bus.Name)
 			total++
 		}
@@ -99,8 +105,8 @@ func count_ioctl_buses(bram_buses []BRAMBus, t *testing.T) int {
 	return total
 }
 
-func show_ioctl( bram_buses []BRAMBus, t *testing.T) {
-	for _,bus := range bram_buses {
+func show_ioctl(bram_buses []BRAMBus, t *testing.T) {
+	for _, bus := range bram_buses {
 		t.Log(bus.Name)
 		t.Log(bus.Ioctl)
 	}
@@ -113,47 +119,77 @@ unless: [ UNLESS_MACRO ]
 rw: true
 `
 	var bram BRAMBus
-	if e:=yaml.Unmarshal([]byte(sample),&bram); e!=nil { t.Error(e) }
-	if bram.Name!="sample_BRAM" { t.Errorf("Bad name: %s",bram.Name)}
-	if slices.Compare(bram.When,[]string{"WHEN_MACRO"})!=0 { t.Errorf("Bad 'when' field: %s",bram.When)}
-	if slices.Compare(bram.Unless,[]string{"UNLESS_MACRO"})!=0 { t.Errorf("Bad 'unless' field: %s",bram.Unless)}
-	if !bram.Rw { t.Errorf("Bad RW (should be true)")}
-	macros.MakeFromMap(map[string]string{"WHEN_MACRO":""})
-	if !bram.Enabled() { t.Errorf("Should have been enabled")}
+	if e := yaml.Unmarshal([]byte(sample), &bram); e != nil {
+		t.Error(e)
+	}
+	if bram.Name != "sample_BRAM" {
+		t.Errorf("Bad name: %s", bram.Name)
+	}
+	if slices.Compare(bram.When, []string{"WHEN_MACRO"}) != 0 {
+		t.Errorf("Bad 'when' field: %s", bram.When)
+	}
+	if slices.Compare(bram.Unless, []string{"UNLESS_MACRO"}) != 0 {
+		t.Errorf("Bad 'unless' field: %s", bram.Unless)
+	}
+	if !bram.Rw {
+		t.Errorf("Bad RW (should be true)")
+	}
+	macros.MakeFromMap(map[string]string{"WHEN_MACRO": ""})
+	if !bram.Enabled() {
+		t.Errorf("Should have been enabled")
+	}
 
-	macros.MakeFromMap(map[string]string{"xx":""})
-	if  bram.Enabled() { t.Errorf("Should have been disabled")}
+	macros.MakeFromMap(map[string]string{"xx": ""})
+	if bram.Enabled() {
+		t.Errorf("Should have been disabled")
+	}
 
 	macros.MakeFromMap(nil)
-	if  bram.Enabled() { t.Errorf("Should have been disabled")}
+	if bram.Enabled() {
+		t.Errorf("Should have been disabled")
+	}
 }
 
 func Test_delete_optional_bram(t *testing.T) {
-	sample:=`bram:
+	sample := `bram:
   - {name: always }
   - {name: not_pocket, unless: [ POCKET ] }
   - {name: only_pocket, when: [ POCKET ] }
 `
 	var cfg MemConfig
-	if e:=yaml.Unmarshal([]byte(sample),&cfg); e!=nil { t.Error(e); return }
-	macros.MakeFromMap(map[string]string{ "POCKET": "" })
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Error(e)
+		return
+	}
+	macros.MakeFromMap(map[string]string{"POCKET": ""})
 	delete_optional_bram(&cfg)
 	var always, not_pocket, only_pocket bool
-	for _,bram := range cfg.BRAM {
+	for _, bram := range cfg.BRAM {
 		switch bram.Name {
-			case "always": always=true
-			case "not_pocket": not_pocket=true
-			case "only_pocket": only_pocket=true
+		case "always":
+			always = true
+		case "not_pocket":
+			not_pocket = true
+		case "only_pocket":
+			only_pocket = true
 		}
 	}
-	if total:=len(cfg.BRAM);total!=2 { t.Errorf("Expecting 2 elements, found %d",total)}
-	if !always { t.Error("Missing 'always'")}
-	if not_pocket { t.Error("'not_pocket' should not appear")}
-	if !only_pocket { t.Error("missing 'only_pocket")}
+	if total := len(cfg.BRAM); total != 2 {
+		t.Errorf("Expecting 2 elements, found %d", total)
+	}
+	if !always {
+		t.Error("Missing 'always'")
+	}
+	if not_pocket {
+		t.Error("'not_pocket' should not appear")
+	}
+	if !only_pocket {
+		t.Error("missing 'only_pocket")
+	}
 }
 
 func Test_delete_optional_sdram(t *testing.T) {
-	sample:=`sdram:
+	sample := `sdram:
   banks:
     - buses:
       - {name: always }
@@ -169,42 +205,60 @@ func Test_delete_optional_sdram(t *testing.T) {
       - {name: not_pocket3, unless: [ POCKET ] }
 `
 	var cfg MemConfig
-	if e:=yaml.Unmarshal([]byte(sample),&cfg); e!=nil { t.Error(e); return }
-	if len(cfg.SDRAM.Banks)!=3 { t.Errorf("Expecting 3 SDRAM banks"); return}
-	for k:=0;k<3;k++ {
-		if total:=len(cfg.SDRAM.Banks[k].Buses); total!=3 {
-			t.Errorf("Expecting 3 SDRAM buses at bank %d. Found %d",k,total);
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Error(e)
+		return
+	}
+	if len(cfg.SDRAM.Banks) != 3 {
+		t.Errorf("Expecting 3 SDRAM banks")
+		return
+	}
+	for k := 0; k < 3; k++ {
+		if total := len(cfg.SDRAM.Banks[k].Buses); total != 3 {
+			t.Errorf("Expecting 3 SDRAM buses at bank %d. Found %d", k, total)
 			return
 		}
 	}
 
-	macros.MakeFromMap(map[string]string{ "POCKET": "" })
+	macros.MakeFromMap(map[string]string{"POCKET": ""})
 	delete_optional_sdram(&cfg)
 
-	if len(cfg.SDRAM.Banks)!=3 { t.Errorf("Expecting 3 SDRAM banks"); return }
-	for k:=0;k<2;k++ {
-		if total:=len(cfg.SDRAM.Banks[k].Buses); total!=2 {
-			t.Errorf("Expecting 2 SDRAM buses at bank %d. Found %d",k,total);
+	if len(cfg.SDRAM.Banks) != 3 {
+		t.Errorf("Expecting 3 SDRAM banks")
+		return
+	}
+	for k := 0; k < 2; k++ {
+		if total := len(cfg.SDRAM.Banks[k].Buses); total != 2 {
+			t.Errorf("Expecting 2 SDRAM buses at bank %d. Found %d", k, total)
 			return
 		}
 	}
-	if len(cfg.SDRAM.Banks[2].Buses)!=0 {
+	if len(cfg.SDRAM.Banks[2].Buses) != 0 {
 		t.Errorf("Bank 2 should be empty")
 	}
 
 	var always, not_pocket, only_pocket bool
-	for k:=0;k<2;k++  {
+	for k := 0; k < 2; k++ {
 		for _, bus := range cfg.SDRAM.Banks[k].Buses {
-			t.Logf("bank[%d]: %s",k,bus.Name)
+			t.Logf("bank[%d]: %s", k, bus.Name)
 			switch bus.Name {
-				case "always": always=true
-				case "not_pocket": not_pocket=true
-				case "only_pocket": only_pocket=true
+			case "always":
+				always = true
+			case "not_pocket":
+				not_pocket = true
+			case "only_pocket":
+				only_pocket = true
 			}
 		}
-		if !always { t.Errorf("Missing 'always' at bank %d",k)}
-		if not_pocket { t.Errorf("'not_pocket' should not appear at bank %d",k)}
-		if !only_pocket { t.Errorf("missing 'only_pocket at bank %d",k)}
+		if !always {
+			t.Errorf("Missing 'always' at bank %d", k)
+		}
+		if not_pocket {
+			t.Errorf("'not_pocket' should not appear at bank %d", k)
+		}
+		if !only_pocket {
+			t.Errorf("missing 'only_pocket at bank %d", k)
+		}
 	}
 }
 
@@ -217,11 +271,22 @@ sdram:
         - name: cart0
 `
 	var cfg MemConfig
-	e := unmarshal([]byte(mem_yaml),&cfg)
-	if e!=nil { t.Error(e); return }
-	if total:=len(cfg.SDRAM.Banks);total!=2 {t.Errorf("Expecting 2 banks, got %d",total); return}
-	if total:=len(cfg.SDRAM.Banks[1].Buses);total!=1 {t.Errorf("Expecting 2 buses on bank 1, got %d",total); return}
-	if cfg.SDRAM.Banks[1].Buses[0].Name!="cart0" { t.Error("Bus 0 of Bank 1 is not named cart0") }
+	e := unmarshal([]byte(mem_yaml), &cfg)
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	if total := len(cfg.SDRAM.Banks); total != 2 {
+		t.Errorf("Expecting 2 banks, got %d", total)
+		return
+	}
+	if total := len(cfg.SDRAM.Banks[1].Buses); total != 1 {
+		t.Errorf("Expecting 2 buses on bank 1, got %d", total)
+		return
+	}
+	if cfg.SDRAM.Banks[1].Buses[0].Name != "cart0" {
+		t.Error("Bus 0 of Bank 1 is not named cart0")
+	}
 }
 
 const BRAM_YAML = `
@@ -246,54 +311,62 @@ bram:
 
 func Test_prom_start(t *testing.T) {
 	var cfg MemConfig
-	e := unmarshal([]byte(BRAM_YAML),&cfg)
-	if e!=nil { t.Error(e); return }
+	e := unmarshal([]byte(BRAM_YAML), &cfg)
+	if e != nil {
+		t.Error(e)
+		return
+	}
 	cfg.calc_prom_we()
-	expected := []int{0,0x100,0x300,0x320}
-	for k,bram := range cfg.BRAM {
+	expected := []int{0, 0x100, 0x300, 0x320}
+	for k, bram := range cfg.BRAM {
 		if bram.PROM_offset != expected[k] {
 			t.Errorf("Wrong start for PROM %d. Got %X, wanted %X",
-				k,bram.PROM_offset,expected[k])
+				k, bram.PROM_offset, expected[k])
 		}
 	}
 }
 
 func Test_prom_template(t *testing.T) {
 	var cfg MemConfig
-	e := unmarshal([]byte(BRAM_YAML),&cfg)
-	if e!=nil { t.Error(e); return }
+	e := unmarshal([]byte(BRAM_YAML), &cfg)
+	if e != nil {
+		t.Error(e)
+		return
+	}
 	cfg.check_bram()
 	cfg.calc_prom_we()
 	tpl := get_prom_dwnld_template(t)
 	var verilog strings.Builder
-	for _,bram := range cfg.BRAM {
-		tpl.Execute(&verilog,bram)
+	for _, bram := range cfg.BRAM {
+		tpl.Execute(&verilog, bram)
 	}
-	expected_fname := filepath.Join(os.Getenv("JTFRAME"),"src","jtframe","mem","prom_test.out")
-	compare_string_with_file(verilog.String(),expected_fname,t)
+	expected_fname := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "prom_test.out")
+	compare_string_with_file(verilog.String(), expected_fname, t)
 }
 
-func compare_string_with_file(got, fname string,t *testing.T) {
+func compare_string_with_file(got, fname string, t *testing.T) {
 	expected, e := os.ReadFile(fname)
-	if e!=nil { t.Error(e) }
-	bad:=false
-	if got!=string(expected) {
+	if e != nil {
+		t.Error(e)
+	}
+	bad := false
+	if got != string(expected) {
 		e := string(expected)
 		line := 1
 		col := 1
-		for k,_ := range got {
-			if k>=len(e) {
-				t.Logf("Result is too long. Difference at line %d, column %d",line,col)
-				bad=true
+		for k, _ := range got {
+			if k >= len(e) {
+				t.Logf("Result is too long. Difference at line %d, column %d", line, col)
+				bad = true
 				break
 			}
-			if got[k]!=e[k] {
-				t.Logf("Difference at line %d, column %d",line,col)
-				bad=true
+			if got[k] != e[k] {
+				t.Logf("Difference at line %d, column %d", line, col)
+				bad = true
 				break
 			}
 			col++
-			if got[k]=='\n' {
+			if got[k] == '\n' {
 				line++
 				col = 1
 			}
@@ -305,14 +378,35 @@ func compare_string_with_file(got, fname string,t *testing.T) {
 	}
 }
 
-func get_prom_dwnld_template(t *testing.T) *template.Template{
-	prom_dwnld := filepath.Join(os.Getenv("JTFRAME"),"hdl","inc","prom_dwnld.v")
+func get_prom_dwnld_template(t *testing.T) *template.Template {
+	prom_dwnld := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "prom_dwnld.v")
 	tpl := template.New("prom_dwnld.v")
 	tpl.Funcs(funcMap)
 	_, e := tpl.ParseFiles(prom_dwnld)
-	if e!=nil {
+	if e != nil {
 		t.Error(e)
 		t.FailNow()
 	}
 	return tpl
+}
+
+func Test_fill_gfx_sort_rejects_conflicting_gfx16b0(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Banks: []SDRAMBank{
+				{
+					Buses: []SDRAMBus{
+						{Name: "a", Addr_width: 16, Gfx: "hhvvvv"},
+						{Name: "b", Addr_width: 16, Gfx: "hvvvvx"},
+					},
+				},
+			},
+		},
+	}
+	defer func() {
+		if recover() == nil {
+			t.Fatal("fill_gfx_sort should panic when gfx16 and gfx16c require different bit0")
+		}
+	}()
+	fill_gfx_sort(&cfg)
 }

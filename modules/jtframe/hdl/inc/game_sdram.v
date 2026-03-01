@@ -77,7 +77,7 @@ wire        pass_io;
     {{- range $v }}
     {{- range .Outputs }}
 wire {{ . }}; {{ end }}{{ end }}{{ end }}
-wire gfx4_en, gfx8_en, gfx16_en, gfx16b_en, ioctl_dwn;
+wire gfx4_en, gfx8_en, gfx16_en, gfx16b_en, gfx16c_en, ioctl_dwn;
 
 assign pass_io = header | ioctl_ram;
 assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? ioctl_addr : ioctl_addr - HEADER_LEN `else ioctl_addr `endif ;
@@ -259,6 +259,7 @@ assign gfx4_en   = {{ .Gfx4 }}
 assign gfx8_en   = {{ .Gfx8 }}
 assign gfx16_en  = {{ .Gfx16 }}
 assign gfx16b_en = {{ .Gfx16b }}
+assign gfx16c_en = {{ .Gfx16c }}
 assign ioctl_dwn = ioctl_rom | ioctl_cart;
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 jtframe_dwnld #(
@@ -293,6 +294,7 @@ jtframe_dwnld #(
     .gfx8_en      ( gfx8_en        ),
     .gfx16_en     ( gfx16_en       ),
     .gfx16b_en    ( gfx16b_en      ),
+    .gfx16c_en    ( gfx16c_en      ),
     .prog_addr    ( raw_addr       ),
     .prog_data    ( raw_data       ),
     .prog_mask    ( prog_mask      ), // active low

@@ -21,9 +21,6 @@ audio:
     # this is equivalent, especially around the cut-off frequency
     - { name: pcm0,  module: jt5205, rsum: 10k, rc: [{r: 10k, c: 22n},{r: 15k, c: 22n}], pre: 0.45 }
     - { name: pcm1,  module: jt5205, rsum: 10k, rc: [{r: 10k, c: 22n},{r: 15k, c: 22n}], pre: 0.45 }
-
-download:
-  post_addr: true
 sdram:
   banks:
     - buses:
@@ -72,6 +69,7 @@ sdram:
         addr_width: 22
         data_width: 16
         offset: OBJ_OFFSET
+        gfx_sort: hvvvvxx
         cs: vrom_cs
 
 

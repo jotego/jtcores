@@ -34,26 +34,14 @@ wire [ 8:0] scr1pos;
 wire [10:0] scr2pos;
 wire [ 2:0] scr2col;
 wire        flip, scr2enb;
-wire        is_tiles, is_obj;
 
 // Cabinet inputs
 assign dip_flip   = ~flip;
 assign debug_view = debug_mux;
 
-assign is_tiles  = prog_ba==2 && ioctl_addr[24:0]<SCR2_START;
-assign is_obj    = prog_ba==3;
 assign pal1_we   = ~main_rnw & pal_cs;
 assign scr1_we   = ~main_rnw & scr1_ramcs;
 assign ioctl_din = dump_mux;
-
-always @* begin
-    post_addr = prog_addr;
-    // moves the H address bit to the LSBs
-    if( is_tiles )
-        post_addr[3:0] = { prog_addr[2:0], prog_addr[3] };
-    if( is_obj )
-        post_addr[5:0] = { prog_addr[3:0], prog_addr[5:4] };
-end
 
 always @(posedge clk) begin
     case(ioctl_addr[1:0])

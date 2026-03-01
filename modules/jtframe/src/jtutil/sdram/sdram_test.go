@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"jotego/jtframe/macros"
 )
 
 func TestSwapBytes(t *testing.T) {
@@ -220,6 +222,89 @@ func TestDumpRemovesEmptyRegionFile(t *testing.T) {
 	if !os.IsNotExist(err) {
 		t.Fatalf("empty.bin should be removed, stat err=%v", err)
 	}
+}
+
+func TestRemapAddressBitsHvvvx(t *testing.T) {
+	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER": "0"})
+	gfx, err := parseGfxPattern("hvvvx")
+	if err != nil {
+		t.Fatalf("parseGfxPattern returned error: %v", err)
+	}
+	got := make([]int, 16)
+	for k := range got {
+		got[k] = remapAddressBits(k, gfx)
+	}
+	want := []int{0, 1, 4, 5, 8, 9, 12, 13, 16, 17, 20, 21, 24, 25, 28, 29}
+	if !bytes.Equal(intsToBytes(got), intsToBytes(want)) {
+		t.Fatalf("hvvvx mapping mismatch: got=%v want=%v", got, want)
+	}
+}
+
+func TestApplyGfxSortRangeHvvvx(t *testing.T) {
+	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER": "0"})
+	rom := make([]byte, 32)
+	for k := range rom {
+		rom[k] = byte(k)
+	}
+	err := applyGfxSortRange(rom, 0, len(rom), "hvvvx")
+	if err != nil {
+		t.Fatalf("applyGfxSortRange returned error: %v", err)
+	}
+	gfx, err := parseGfxPattern("hvvvx")
+	if err != nil {
+		t.Fatalf("parseGfxPattern returned error: %v", err)
+	}
+	for src := 0; src < len(rom); src++ {
+		dst := remapAddressBits(src, gfx)
+		if rom[dst] != byte(src) {
+			t.Fatalf("wrong byte at dst=%d: got=%d want=%d", dst, rom[dst], src)
+		}
+	}
+}
+
+func TestApplyGfxSortRangeHvvvv(t *testing.T) {
+	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER": "0"})
+	rom := make([]byte, 32)
+	for k := range rom {
+		rom[k] = byte(k)
+	}
+	err := applyGfxSortRange(rom, 0, len(rom), "hvvvv")
+	if err != nil {
+		t.Fatalf("applyGfxSortRange returned error: %v", err)
+	}
+	gfx, err := parseGfxPattern("hvvvv")
+	if err != nil {
+		t.Fatalf("parseGfxPattern returned error: %v", err)
+	}
+	for src := 0; src < len(rom); src++ {
+		dst := remapAddressBits(src, gfx)
+		if rom[dst] != byte(src) {
+			t.Fatalf("wrong byte at dst=%d: got=%d want=%d", dst, rom[dst], src)
+		}
+	}
+}
+
+func TestShouldApplyGfxEn(t *testing.T) {
+	if !shouldApplyGfxEn("not_higemaru", "1942") {
+		t.Fatalf("not_higemaru should apply for game 1942")
+	}
+	if shouldApplyGfxEn("not_higemaru", "higemaru") {
+		t.Fatalf("not_higemaru should not apply for game higemaru")
+	}
+	if shouldApplyGfxEn("metrocrs", "rthunder") {
+		t.Fatalf("metrocrs should not apply for game rthunder")
+	}
+	if !shouldApplyGfxEn("metrocrs", "metrocrs") {
+		t.Fatalf("metrocrs should apply for game metrocrs")
+	}
+}
+
+func intsToBytes(ref []int) []byte {
+	aux := make([]byte, len(ref))
+	for k := range ref {
+		aux[k] = byte(ref[k])
+	}
+	return aux
 }
 
 func mustMkdirAll(t *testing.T, path string) {
