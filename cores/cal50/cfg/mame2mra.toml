@@ -24,7 +24,10 @@ names = [
 
 
 [dipsw]
-delete= [ {names=["Copyright / License", "Licensed To"] }]
+delete= [
+	{names=["Copyright / License", "Licensed To"] },
+	{names=["Coinage Type"], machine="calibr50"   },
+]
 
 [ROM]
 regions = [
