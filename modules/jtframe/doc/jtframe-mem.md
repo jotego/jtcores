@@ -1,6 +1,6 @@
 # Parses the core's YAML file to generate RTL files.
 
-The YAML file name must be mem.yaml and be stored in cores/corename/cfg
+The YAML file name must be `mem.yaml` and be stored in `cores/corename/cfg`.
 The output files are stored in cores/corename/target where target is
 one of the names in the $JTFRAME/target folder (mist, mister, etc.).
 
@@ -12,7 +12,7 @@ Example with YM3012 having both channels connected to the summing net via:
 
 - 1kOhm, 33pF parallel, 1kOhm, 4.7uF series, 1.2kOhm
 
-The RC resistors is the parallel of 1k and 1+1.2
+The RC resistance is the parallel equivalent of 1k and 1+1.2.
 
 ``` YAML
 - {name: fm,  module: jt51, rsum:  3.2k,  rc: [{ r:  687, c: 33n  }, {r: 1rout, c: 2.2n }] }
@@ -42,11 +42,11 @@ download:
     post_addr: false  # modify the address value going into the SDRAM
     post_data: false  # modify the data byte going into the SDRAM
     noswab: false     # Reverse all bytes, avoid using it and modify the MRA instead
-# Connect addtional output ports from the game module
+# Connect additional output ports from the game module
 ports:
     - { name: foo_data, msb: 15, lsb: 0, input:true }
     - { name: foo_cs }
-# Instantiates a differente game module
+# Instantiates a different game module
 game: othergame
 
 # Generate clock-enable signals

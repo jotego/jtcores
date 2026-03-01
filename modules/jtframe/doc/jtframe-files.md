@@ -21,15 +21,14 @@ The `--target` flag also includes:
 - `$JTFRAME/target/<target>/cfg/files.yaml`
 - `$JTFRAME/target/<target>/cfg/sim.yaml` (only in `sim` mode)
 
-The yaml file is composed of several sections, which can only appear once:
+The YAML file is composed of several sections, each of which can only appear once:
 
 - core-name: get files from a given core folder
-- module-name: get files from a give folder in modules
+- module-name: get files from a given folder in modules
 
 # Search rules:
 
-- If only a path is specified, the files cfg/files.yaml in it is looked for and
-used
+- If only a path is specified, `cfg/files.yaml` in that path is used
 - HDL files are looked for in the `hdl` folder
 - SDC, QIP files must be in the `syn` folder
 - YAML files used to generate more files must be in `cfg`

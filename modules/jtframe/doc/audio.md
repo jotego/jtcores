@@ -1,6 +1,6 @@
 # Audio Processing (Filters!)
 
-There are some facilities to help with the upsampling needed for the DACs. Some modules need a hex file containing the value of the coefficients to be copied into the MiST(er) folder for compilation. The hex files are available in hdl/sound folder.
+There are facilities to help with the upsampling needed for DACs. Some modules need a hex file containing coefficient values to be copied into the MiST(er) folder for compilation. The hex files are available in the `hdl/sound` folder.
 
 ## jtframe_fir
 
@@ -16,14 +16,14 @@ This covers the usual situation of having two JT49 instances in a core. This mod
 
 # Audio Parameters in mem.yaml
 
-Schematic information can be translated to parameters in mem.yaml to automatically compute low-pass filters and gain balance
+Schematic information can be translated to parameters in `mem.yaml` to automatically compute low-pass filters and gain balance.
 
 ![Filter example](images/rsum1.png)
 
 ```
 rsum: 1k+1k+1.2k = 3.2k
 rc: [ r: 1k, c: 33n ]
-``
+```
 
 If the filter is of second order without an amplifier separating each filter pole, an equivalent 2-stage single-pole filter must be calculated. See the image below.
 

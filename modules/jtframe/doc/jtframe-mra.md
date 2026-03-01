@@ -7,7 +7,7 @@ core is added. The core folder should contain both cfg/macros.def and
 cfg/mame2mra.toml.
 
 Each repository is meant to have a reduced mame.xml file in $JTROOT/doc as
-part of the source file commited in git.
+part of the source file committed in git.
 
 The output will either be created in $JTROOT/release or in $JTBIN
 depending on the --git argument.
@@ -39,7 +39,7 @@ display_modes=[ 0x61 ] # add extra display modes for Analogue Pocket
 
 [cheat]
 # Cheat file is read by default from cores/core/cheat/machine.s
-# It can disabled globally or skipped based on machine/setname
+# It can be disabled globally or skipped based on machine/setname
 disable=false
 files=[
 	{ filename="sameforall.s" }, # use the same file for all games
@@ -81,7 +81,7 @@ PCBs = [
 ]
 # explicit data assignment in the TOML
 data = [
-	{ pcb_id = true, offset=0 } # filled with the PCB array innformation
+	{ pcb_id = true, offset=0 } # filled with the PCB array information
 	{ machine="...", setname="...", dev="...", offset=3, data="12 32 43 ..." },
 	...
 ]
@@ -99,7 +99,7 @@ offset = { start=0, bits=8, reverse=true, regions=["maincpu","gfx1"...]}
 # if there are black bars on the side of the image
 # because of black tiles rendered by the software in some games, but not all
 # this can be removed by the framework. In some cases, the value will be taken
-# from MAME correctly, but in others with assymetrical bands, a compromise
+# from MAME correctly, but in others with asymmetrical bands, a compromise
 # value must be set here.
 # MAME may have wrong information too. The explicit definition here will
 # override the calculation derived from MAME.

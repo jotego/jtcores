@@ -46,7 +46,7 @@ H Frame | Meaning
 00      |  No frame
 01      |  8-pixel frame
 10      | 16-pixel frame
-11      |  rserverd
+11      |  reserved
 
 The volume is defined in the TOML file **Audio** section like this:
 
@@ -106,7 +106,7 @@ The first one defines the start address, and the second the number of address bi
 
 The MRA file must include `<nvram index="2" size="2048"/>`. MiSTer will create a dump file each time the `save settings` option is selected in the OSD.
 
-At the time of writting, MiSTer firmware doesn't handle correctly NVRAM sizes equal or above 64kB.
+At the time of writing, MiSTer firmware does not correctly handle NVRAM sizes equal to or above 64kB.
 
 # Memory RTL Generator
 
@@ -164,7 +164,7 @@ bram:
     ioctl: { save: true, order: 0 }
 ```
 
-This will generate the right code for the BRAM instantiation with dumping through IOCTL and an auxiliarry *dump2bin.sh* in the *ver/game* folder to help convert the file(s) to simulation format. The macro **JTFRAME_SIM_IODUMP** works in Verilator to simulate the IOCTL process and generate a dump file within the simulator.
+This will generate the right code for the BRAM instantiation with dumping through IOCTL and an auxiliary *dump2bin.sh* in the *ver/game* folder to help convert the file(s) to simulation format. The macro **JTFRAME_SIM_IODUMP** works in Verilator to simulate the IOCTL process and generate a dump file within the simulator.
 
 Look at the cores using *mem.yaml* and at the Go source code to understand how the *mem.yaml* works. Also, look at the tool help with `jtframe mem -h`
 
@@ -190,7 +190,7 @@ Following the standard [naming convention](style.md) for memories, 8-bit memory 
 
 ## Address Mapping and Data Transformation during Downloading
 
-The lines in and out of the automatic jtframe_dwnld instance can be send through the game module in order to change the address mapping or modify the data bits. An example of this situation is _jtmikie_ in the [jtkicker](https://github.com/jotego/jtkicker) repository.
+The lines in and out of the automatic jtframe_dwnld instance can be sent through the game module in order to change the address mapping or modify the data bits. An example of this situation is _jtmikie_ in the [jtkicker](https://github.com/jotego/jtkicker) repository.
 
 The following diagram shows how three _virtual_ multiplexers can be individually enabled in the *mem.yaml* file in order to manipulate the SDRAM programming signals.
 
@@ -205,7 +205,7 @@ SDRAM clock can be shifted with respect to the internal clock (clk_rom in the di
 
 ![SDRAM clock forwarded](sdram_dly.png)
 
-For small shifts, the synthesizer will be able to align the SDRAM data and clock with the internal core clok (clk_rom). But if the shift is large enough, the SDRAM may be operating at a different state and the SDRAM controller has to adjust the state count to reflect that. This is achieved by defining the macro **JTFRAME_SHIFT**. Ideally, the shift needed should be close to zero. But, some platforms synthesize better using SDRAM shifts. This cannot be changed per-core, but per-target. If the target platform shifts the clock, it will define the macro in its _target.def_ file and set the gamepll settings accordingly.
+For small shifts, the synthesizer will be able to align the SDRAM data and clock with the internal core clock (clk_rom). But if the shift is large enough, the SDRAM may be operating at a different state and the SDRAM controller has to adjust the state count to reflect that. This is achieved by defining the macro **JTFRAME_SHIFT**. Ideally, the shift needed should be close to zero. But, some platforms synthesize better using SDRAM shifts. This cannot be changed per-core, but per-target. If the target platform shifts the clock, it will define the macro in its _target.def_ file and set the gamepll settings accordingly.
 
 # SDRAM Controller
 
@@ -217,7 +217,7 @@ The SDRAM controller is set to go into refresh mode once every 64us, regardless 
 
 ## JTFRAME_SDRAM
 
-**jtframe_sdram** is a generic SDRAM controller that runs upto 48MHz because it is designed for CL=2. It mainly serves for reading ROMs from the SDRAM but it has some support for writting (apart from the initial ROM download process).
+**jtframe_sdram** is a generic SDRAM controller that runs up to 48MHz because it is designed for CL=2. It mainly serves for reading ROMs from the SDRAM but it has some support for writing (apart from the initial ROM download process).
 
 This module may result in timing errors in MiSTer because sometimes the compiler does not assign the input flip flops from SDRAM_DQ at the pads. In order to avoid this, you can define the macro **JTFRAME_SDRAM_REPACK**. This will add one extra stage of data latching, which seems to allow the fitter to use the pad flip flops. This does delay data availability by one clock cycle. Some cores in MiSTer do synthesize with pad FF without the need of this option. Use it if you find setup timing violation about the SDRAM_DQ pins.
 
@@ -228,7 +228,7 @@ SDRAM is treated in top level modules as a read-only memory (except for the down
 
 These signals should be used in combination with the rest of prog_ and sdram_ signals in order to control the SDRAM.
 
-The data bus is held down all the time and only released when the SDRAM is expected to use it. This behaviour can be reverted using **JTFRAME_NOHOLDBUS**. When this macro is defined, the bus will only be held while writting data and released the rest of the time. For 48MHz operation, holding the bus works better. For 96MHz it doesn't seem to matter.
+The data bus is held down all the time and only released when the SDRAM is expected to use it. This behaviour can be reverted using **JTFRAME_NOHOLDBUS**. When this macro is defined, the bus will only be held while writing data and released the rest of the time. For 48MHz operation, holding the bus works better. For 96MHz it does not seem to matter.
 
 In simulation data from the SDRAM can be double checked in the jtframe_rom/ram_xslots modules if **JTFRAME_SDRAM_CHECK** is defined. The simulation will stop if the read data does not meet the expected values.
 
@@ -354,7 +354,7 @@ Bit | Use                                        |
 ----|--------------------------------------------|
 11  | Enable Analogic Video Output               |
 10  | Bypass Video Mist Module and direct assign |
- 9  | Set YPbPr outout                           |
+ 9  | Set YPbPr output                           |
  8  | Set Composite Video (default to NTSC)      |
  7  | Enable PAL Composite Video                 |
  6  | Unused                                     |

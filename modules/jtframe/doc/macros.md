@@ -76,7 +76,7 @@ JTFRAME_OSDCOLOR         |         | Sets the OSD colour. Use 0x30 for red.
 JTFRAME_PADDLE           |         | Enables paddle inputs to the game module
 JTFRAME_PADDLE_MAX       |         | Maximum paddle value used by jtframe_paddle (mouse-to-paddle emulation)
 JTFRAME_PLL              |         | PLL module name to be used. PLL names must end in the pixel clock frequency in kHz
-JTFRAME_PXLCLK           |         | 6 or 8. Defines de pixel clock. See [clocks](clocks.md)
+JTFRAME_PXLCLK           |         | 6 or 8. Defines the pixel clock. See [clocks](clocks.md)
 JTFRAME_RELEASE          |         | Disables debug control via keyboard
 JTFRAME_RFSH_WC          |         | Automatic. Used by SDRAM refresh in jtframe_board
 JTFRAME_RFSH_N           |         | Automatic. Used by SDRAM refresh in jtframe_board
@@ -112,7 +112,7 @@ Follow the character coding documented in [osd.md](osd.md)
 
 # Device Selection
 
-The wrappers jtframe_m68k and jtframe_z80 offer an uniform interface for
+The wrappers jtframe_m68k and jtframe_z80 offer a uniform interface for
 different underlying modules.
 
 Macro                    | Target  |  Usage
@@ -127,9 +127,9 @@ Macro                    | Target  |  Usage
 JTFRAME_BA1_START        |         | Start of bank 1
 JTFRAME_BA2_START        |         | Start of bank 2
 JTFRAME_BA3_START        |         | Start of bank 3
-JTFRAME_BA1_WEN          |         | Enables writting on bank 1
-JTFRAME_BA2_WEN          |         | Enables writting on bank 2
-JTFRAME_BA3_WEN          |         | Enables writting on bank 3
+JTFRAME_BA1_WEN          |         | Enables writing on bank 1
+JTFRAME_BA2_WEN          |         | Enables writing on bank 2
+JTFRAME_BA3_WEN          |         | Enables writing on bank 3
 JTFRAME_PROM_START       |         | PROM signals starts here
 JTFRAME_SDRAM_ADQM       | MiSTer  | A12 and A11 are equal to DQMH/L
 JTFRAME_SDRAM_BWAIT      |         | Adds a wait cycle in the SDRAM

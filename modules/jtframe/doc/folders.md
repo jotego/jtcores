@@ -28,7 +28,7 @@ release  | $JTROOT         | Do not add to git. Mock-up release folder for tests
 
 A special git repository for binaries is expected to exist for all JTFRAME based cores. The environment variable **JTBIN** should point to it. Many utilities will store files in it when called with the `--git` option.
 
-Files from JTBIN can be transfered to a SD card or to the MiSTer filesystem by using
+Files from JTBIN can be transferred to an SD card or to the MiSTer filesystem by using
 
 - jtbin2mr.sh, copies to a JTBIN folder in MiSTer over ssh
 - jtbin2sd.sh, copies to a SD card named MIST or SIDI
@@ -40,8 +40,8 @@ These scripts will delete the previous contents of those folders, so a fresh tes
 Macros for each core are defined in `cfg/macros.def`. The syntax is:
 
 * Each line contains a macro definition, with an optional value after `=`
-* A value definition can be concatenated to a previos value by usin `+=` instead of `=`
-* Each time a line starts with `[name]`, then a section starts that apply only to the FPGA platform called *name*
+* A value definition can be concatenated to a previous value by using `+=` instead of `=`
+* Each time a line starts with `[name]`, a section starts that applies only to the FPGA platform called *name*
 * It is possible to include another file by using `include myfile.def`
 * `#` marks a comment
 
@@ -118,10 +118,10 @@ jframe:
 ```
 will get the file `$MODULES/jtframe/hdl/video/tilemap/jtframe_tilemap.v`
 
-Further options that be combined with `get` or `from | get` are `unless` and `when`. After these keys, you can mention a macro list in square brackets: `[ MACRO1, MACRO2 ]`.
-If using `when`, the files will be gathered only if any of these macros is defined. `Unless` works the other way: files are always gathered except when none of these macros is defined
+Further options that can be combined with `get` or `from | get` are `unless` and `when`. After these keys, you can mention a macro list in square brackets: `[ MACRO1, MACRO2 ]`.
+If using `when`, the files will be gathered only if any of these macros is defined. `unless` works the other way: files are always gathered except when none of these macros is defined.
 
-To gather several files with similar names or the same extension, you can use `get` with a string using an asteriks in the changing section. For example:
+To gather several files with similar names or the same extension, you can use `get` with a string using an asterisk in the changing section. For example:
 
 ```
 riders:
