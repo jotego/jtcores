@@ -27,7 +27,8 @@
 // VDNUM 1..10
 // BLKSZ 0..7: 0 = 128, 1 = 256, 2 = 512(default), .. 7 = 16384
 //
-module hps_io #(parameter CONF_STR="", CONF_STR_BRAM=1, PS2DIV=0, WIDE=0, VDNUM=1, BLKSZ=2, PS2WE=0, STRLEN=$size(CONF_STR)>>3)
+module hps_io #(parameter CONF_STR="", CONF_STR_BRAM=1, PS2DIV=0, WIDE=0, VDNUM=1, BLKSZ=2, PS2WE=0, STRLEN=$size(CONF_STR)>>3,
+	DW = (WIDE) ? 15 : 7, AW = (WIDE) ? 12 : 13, VD = VDNUM-1)
 (
 	input             clk_sys,
 	inout      [48:0] HPS_BUS,
@@ -173,9 +174,9 @@ module hps_io #(parameter CONF_STR="", CONF_STR_BRAM=1, PS2DIV=0, WIDE=0, VDNUM=
 assign EXT_BUS[31:16] = HPS_BUS[31:16];
 assign EXT_BUS[35:33] = HPS_BUS[35:33];
 
-localparam DW = (WIDE) ? 15 : 7;
-localparam AW = (WIDE) ? 12 : 13;
-localparam VD = VDNUM-1;
+// localparam DW = (WIDE) ? 15 : 7;
+// localparam AW = (WIDE) ? 12 : 13;
+// localparam VD = VDNUM-1;
 
 wire        io_strobe= HPS_BUS[33];
 wire        io_enable= HPS_BUS[34];
@@ -183,6 +184,7 @@ wire        fp_enable= HPS_BUS[35];
 wire        io_wide  = (WIDE) ? 1'b1 : 1'b0;
 wire [15:0] io_din   = HPS_BUS[31:16];
 reg  [15:0] io_dout;
+reg  [15:0] fp_dout;
 
 assign HPS_BUS[37]   = ioctl_wait;
 assign HPS_BUS[36]   = clk_sys;
@@ -199,7 +201,7 @@ assign direct_video = cfg[10];
 
 reg [3:0] sdn;
 reg [3:0] sd_rrb = 0;
-always_comb begin
+always @* begin
 	int n, i;
 
 	sdn = 0;
@@ -211,8 +213,10 @@ always_comb begin
 end
 
 /////////////////////////////////////////////////////////
+localparam MAX_W = $clog2((64 > (STRLEN+2)) ? 64 : (STRLEN+2))-1;
 
 wire [15:0] vc_dout;
+reg  [MAX_W:0] byte_cnt;
 video_calc video_calc
 (
 	.clk_100(HPS_BUS[43]),
@@ -233,7 +237,6 @@ video_calc video_calc
 
 /////////////////////////////////////////////////////////
 
-localparam MAX_W = $clog2((64 > (STRLEN+2)) ? 64 : (STRLEN+2))-1;
 
 wire [7:0] conf_byte;
 generate
@@ -245,36 +248,44 @@ generate
 	end
 endgenerate
 
-assign     gamma_bus[20:0] = {clk_sys, gamma_en, gamma_wr, gamma_wr_addr, gamma_value};
 reg        gamma_en;
 reg        gamma_wr;
 reg  [9:0] gamma_wr_addr;
 reg  [7:0] gamma_value;
+assign     gamma_bus[20:0] = {clk_sys, gamma_en, gamma_wr, gamma_wr_addr, gamma_value};
 
 reg [31:0] ps2_key_raw = 0;
 wire       pressed  = (ps2_key_raw[15:8] != 8'hf0);
 wire       extended = (~pressed ? (ps2_key_raw[23:16] == 8'he0) : (ps2_key_raw[15:8] == 8'he0));
 
-reg [MAX_W:0] byte_cnt;
 reg   [3:0] sdn_ack;
 wire [15:0] disk = 16'd1 << io_din[11:8];
 
+reg  [2:0] b_wr;
+reg  [3:0] stick_idx;
+reg  [3:0] pdsp_idx;
+reg        ps2skip = 0;
+reg  [3:0] stflg = 0;
+reg[127:0] status_req;
+reg        old_status_set = 0;
+reg        old_upload_req = 0;
+reg        upload_req = 0;
+reg        old_info = 0;
+reg  [7:0] info_n = 0;
+reg [15:0] tmp1;
+reg  [7:0] tmp2;
+reg  [3:0] sdn_r;
+reg        kbd_we;
+reg        kbd_rd;
+reg  [7:0] kbd_data;
+reg  [7:0] mouse_data;
+reg        mouse_we;
+reg        mouse_rd;
+wire [8:0] kbd_data_host;
+wire [8:0] mouse_data_host;
+
 always@(posedge clk_sys) begin : uio_block
 	reg [15:0] cmd;
-	reg  [2:0] b_wr;
-	reg  [3:0] stick_idx;
-	reg  [3:0] pdsp_idx;
-	reg        ps2skip = 0;
-	reg  [3:0] stflg = 0;
-	reg[127:0] status_req;
-	reg        old_status_set = 0;
-	reg        old_upload_req = 0;
-	reg        upload_req = 0;
-	reg        old_info = 0;
-	reg  [7:0] info_n = 0;
-	reg [15:0] tmp1;
-	reg  [7:0] tmp2;
-	reg  [3:0] sdn_r;
 
 	old_status_set <= status_set;
 	if(~old_status_set & status_set) begin
@@ -563,11 +574,6 @@ generate
 			end
 		end
 
-		reg  [7:0] kbd_data;
-		reg        kbd_we;
-		wire [8:0] kbd_data_host;
-		reg        kbd_rd;
-
 		ps2_device keyboard
 		(
 			.clk_sys(clk_sys),
@@ -578,6 +584,7 @@ generate
 			.ps2_clk(clk_ps2),
 			.ps2_clk_out(ps2_kbd_clk_out),
 			.ps2_dat_out(ps2_kbd_data_out),
+			.tx_empty   (),
 
 			.ps2_clk_in(ps2_kbd_clk_in  || !PS2WE),
 			.ps2_dat_in(ps2_kbd_data_in || !PS2WE),
@@ -585,11 +592,6 @@ generate
 			.rdata(kbd_data_host),
 			.rd(kbd_rd)
 		);
-
-		reg  [7:0] mouse_data;
-		reg        mouse_we;
-		wire [8:0] mouse_data_host;
-		reg        mouse_rd;
 
 		ps2_device mouse
 		(
@@ -601,6 +603,7 @@ generate
 			.ps2_clk(clk_ps2),
 			.ps2_clk_out(ps2_mouse_clk_out),
 			.ps2_dat_out(ps2_mouse_data_out),
+			.tx_empty   (),
 
 			.ps2_clk_in(ps2_mouse_clk_in  || !PS2WE),
 			.ps2_dat_in(ps2_mouse_data_in || !PS2WE),
@@ -624,13 +627,12 @@ localparam FIO_FILE_TX_DAT  = 8'h54;
 localparam FIO_FILE_INDEX   = 8'h55;
 localparam FIO_FILE_INFO    = 8'h56;
 
-reg [15:0] fp_dout;
+reg        has_cmd;
+reg [26:0] addr;
+reg        wr;
 always@(posedge clk_sys) begin : fio_block
 	reg [15:0] cmd;
 	reg  [2:0] cnt;
-	reg        has_cmd;
-	reg [26:0] addr;
-	reg        wr;
 
 	ioctl_rd <= 0;
 	ioctl_wr <= wr;
@@ -876,6 +878,18 @@ module video_calc
 	input       [4:0] par_num,
 	output reg [15:0] dout
 );
+reg [31:0] vid_hcnt = 0;
+reg [31:0] vid_vcnt = 0;
+reg [31:0] vid_ccnt = 0;
+reg  [7:0] vid_nres = 0;
+reg  [1:0] vid_int  = 0;
+reg  [7:0] vid_pixrep;
+reg [15:0] vid_de_h;
+reg  [7:0] vid_de_v;
+reg [31:0] vid_htime = 0;
+reg [31:0] vid_vtime = 0;
+reg [31:0] vid_pix = 0;
+reg [31:0] vid_vtime_hdmi;
 
 always @(posedge clk_sys) begin
 	case(par_num)
@@ -901,25 +915,18 @@ always @(posedge clk_sys) begin
 	endcase
 end
 
-reg [31:0] vid_hcnt = 0;
-reg [31:0] vid_vcnt = 0;
-reg [31:0] vid_ccnt = 0;
-reg  [7:0] vid_nres = 0;
-reg  [1:0] vid_int  = 0;
-reg  [7:0] vid_pixrep;
-reg [15:0] vid_de_h;
-reg  [7:0] vid_de_v;
+
+integer hcnt;
+integer vcnt;
+integer ccnt;
+reg [7:0] pcnt;
+reg [7:0] de_v;
+reg [15:0] de_h;
+reg old_vs = 0, old_hs = 0, old_hs_vclk = 0, old_de = 0, old_de_vclk = 0, old_de1 = 0, old_vmode = 0;
+reg [3:0] resto = 0;
 
 always @(posedge clk_vid) begin
-	integer hcnt;
-	integer vcnt;
-	integer ccnt;
-	reg [7:0] pcnt;
-	reg [7:0] de_v;
-	reg [15:0] de_h;
-	reg old_vs = 0, old_hs = 0, old_hs_vclk = 0, old_de = 0, old_de_vclk = 0, old_de1 = 0, old_vmode = 0;
-	reg [3:0] resto = 0;
-	reg calch = 0;
+	reg calch;
 
 	if(calch & de) ccnt <= ccnt + 1;
 	pcnt <= pcnt + 1'd1;
@@ -969,14 +976,10 @@ always @(posedge clk_vid) begin
 	end
 end
 
-reg [31:0] vid_htime = 0;
-reg [31:0] vid_vtime = 0;
-reg [31:0] vid_pix = 0;
-
 always @(posedge clk_100) begin
 	integer vtime, htime, hcnt;
 	reg old_vs, old_hs, old_vs2, old_hs2, old_de, old_de2;
-	reg calch = 0;
+	reg calch;
 
 	old_vs <= vs;
 	old_hs <= hs;
@@ -1008,7 +1011,6 @@ always @(posedge clk_100) begin
 	if(old_de2 & ~old_de) calch <= 0;
 end
 
-reg [31:0] vid_vtime_hdmi;
 always @(posedge clk_100) begin
 	integer vtime;
 	reg old_vs, old_vs2;

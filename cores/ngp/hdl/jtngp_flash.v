@@ -40,7 +40,23 @@ module jtngp_flash(
     input             cart_ok,
     input      [15:0] cart_data,
     output reg [ 1:0] cart_dsn,
-    output reg [15:0] cart_din
+    output reg [15:0] cart_din,
+
+    // save/load memory
+    input      [15:0] sav_addr,
+    input      [15:0] sav_dout,
+    input      [ 1:0] sav_wr,
+    input             sav_ack,
+    output reg [15:0] sav_din,
+    output reg        sav_wait,
+
+    input      [15:0] gs_data,
+    output reg [15:0] gs_din,
+    output reg [15:1] gs_addr,
+    output reg [ 1:0] gs_dsn,
+    input             gs_ok,
+    output reg        gs_we,
+    output reg        gs_cs
 );
 
 localparam [3:0] DEV_2F_4 = 8, //   4 MB
@@ -141,14 +157,37 @@ always @* begin
     end
 end
 
+
 `ifdef SIMULATION
 reg cart_wel;
-
 always @(posedge clk) begin
     cart_wel <= cart_we;
     if( cart_we && !cart_wel ) $display("Flash written to");
 end
 `endif
+
+always @(*) begin
+    gs_addr = sav_addr[15:1];
+    gs_din  = sav_dout;
+    gs_cs   = sav_ack & ~&sav_wr;
+    gs_we   = |sav_wr;
+    gs_dsn  = ~sav_wr;
+    sav_din = gs_data;
+end
+
+reg ack_l, ack_ll;
+initial sav_wait = 0;
+always @(posedge clk) begin
+    ack_l <= sav_ack;
+    ack_ll<= ack_l;
+    if(sav_ack) begin
+        if(ack_l && ack_ll)
+            sav_wait <= ~gs_ok;
+        if(~ack_l)
+            sav_wait <= 1;
+    end else
+        sav_wait = 0;
+end
 
 always @(posedge clk, posedge rst ) begin
     if( rst ) begin
