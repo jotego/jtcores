@@ -169,14 +169,14 @@ end
 always @(*) begin
     gs_addr = sav_addr[15:1];
     gs_din  = sav_dout;
-    gs_cs   = sav_ack & ~&sav_wr;
+    gs_cs   = sav_ack;
     gs_we   = |sav_wr;
     gs_dsn  = ~sav_wr;
     sav_din = gs_data;
 end
 
 reg ack_l, ack_ll;
-initial sav_wait = 0;
+initial {sav_wait,ack_l, ack_ll} = 0;
 always @(posedge clk) begin
     ack_l <= sav_ack;
     ack_ll<= ack_l;
@@ -186,7 +186,7 @@ always @(posedge clk) begin
         if(~ack_l)
             sav_wait <= 1;
     end else
-        sav_wait = 0;
+        sav_wait <= 0;
 end
 
 always @(posedge clk, posedge rst ) begin

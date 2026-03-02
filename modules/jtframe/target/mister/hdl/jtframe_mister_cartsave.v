@@ -47,7 +47,7 @@ module jtframe_mister_cartsave (
 );
 
 reg [15:0] ld_addr;
-reg  save_rd, save_wr, save_wait, sav_pending,
+reg  save_rd, save_wr, save_wait, sav_pending, ack,
      bk_loading, bk_state, ld, sd_active, stb_l,
      old_downloading, old_load, old_save, old_ack;
 wire bk_load, bk_save;
@@ -59,6 +59,7 @@ always @(posedge clk) begin
 		save_wait <= 0;
 		sav_wr    <= 0;
 		ld        <= 0;
+		ack       <= 0;
 		if(save_wait)
 	    	sd_buff_din <= sd_buff_addr[0]? sav_din[15:8] : sav_din[7:0];
 	end
@@ -66,24 +67,29 @@ always @(posedge clk) begin
 	if(~bk_busy) begin
 		save_wait <= 0;
 		sav_wr    <= 0;
+		ack       <= 0;
+		ld        <= 0;
 	end
 	else if(sd_ack & ~save_wait & (io_strobe | stb_l)) begin
 		if(~bk_loading) begin
 			save_rd   <= 1;
 			save_wait <= 1;
 			sav_wr    <= 0;
+			ack       <= 1;
 			ld        <= 0;
 		end
 		if(bk_loading & io_strobe) begin
-			ld_addr     <= {sd_lba[7:0], sd_buff_addr[7:0]};
-			save_wr     <= 1;
-			sav_wr      <= 2'b11;
-			save_wait   <= 1;
-			ld          <= 1;
+			ld_addr   <= {sd_lba[7:0], sd_buff_addr[7:0]};
+			save_wr   <= 1;
+			save_wait <= 1;
+			sav_wr    <= 0;
+			ack       <= 0;
+			ld        <= 1;
 		end
 	end
 	if(sd_active && sd_buff_wr) begin
-			sav_wr <= {sd_buff_addr[0],~sd_buff_addr[0]};
+		sav_wr <= {sd_buff_addr[0],~sd_buff_addr[0]};
+		ack    <= 1;
 		if(sd_buff_addr[0]) begin
     	   	sav_dout[15:8] <= sd_buff_dout;
 		end	else
@@ -96,7 +102,7 @@ end
 
 always @* begin
 	sd_wait     = save_wait & (save_rd | save_wr | sav_wait);
-    sav_ack     = save_wait;
+    sav_ack     = save_wait & ack;
 	sav_addr  = {sd_lba[7:0], sd_buff_addr};
 	if(~bk_busy)
 		sav_addr = 16'hFF;
