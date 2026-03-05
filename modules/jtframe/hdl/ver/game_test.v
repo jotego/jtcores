@@ -226,7 +226,7 @@ wire [ 1:0]  sram_dsn;
 wire         sram_wen, sram_ok;
 // Save/Load
 wire [15:0]  sav_din, sav_dout, sav_addr;
-wire         sav_change, sav_wait, sav_ack;
+wire         sav_change, sav_wait, sav_done, sav_ack;
 wire [ 1:0]  sav_wr;
 
 assign {sav_dout, sav_addr, sav_wr, sav_ack} = 0;
@@ -636,6 +636,7 @@ u_game(
     // Save/Load
     .sav_change ( sav_change    ),
     .sav_wait   ( sav_wait      ),
+    .sav_done   ( sav_done      ),
     .sav_wr     ( sav_wr        ),
     .sav_ack    ( sav_ack       ),
     .sav_din    ( sav_din       ),

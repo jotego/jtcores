@@ -39,6 +39,8 @@ wire [1:0]  sav_wr;
 wire        sav_ack;
 wire [15:0] sav_din;
 reg  [15:0] sav_din_r;
+wire        sav_done;
+assign sav_done = 1'b0;
 
 wire        img_mounted;
 wire        img_readonly;
@@ -245,6 +247,7 @@ jtframe_mister_cartsave uut(
     .sd_wait     ( sd_wait      ),
     .sav_change  ( sav_change   ),
     .sav_wait    ( sav_wait     ),
+    .sav_done    ( sav_done     ),
     .sav_din     ( sav_din      ),
     .sav_dout    ( sav_dout     ),
     .sav_addr    ( sav_addr     ),

@@ -129,6 +129,7 @@ module jtframe_mister #(parameter
     // Save/Load
     input               sav_change,
     input               sav_wait,
+    input               sav_done,
     output       [ 1:0] sav_wr,
     output              sav_ack,
     input        [15:0] sav_din,
@@ -530,7 +531,7 @@ hps_io #(
     .sd_buff_dout    ( sd_buff_dout   ), // output
     .sd_buff_din     ('{sd_buff_din}  ), // input
     .sd_buff_wr      ( sd_buff_wr     ), // output
-    // .sd_wait         ( sd_wait        ), // input
+    .sd_blk_cnt      ('{6'b0}         ), // input
     .img_mounted     ( img_mounted    ), // output
     .img_readonly    ( img_readonly   ), // output
     .img_size        ( img_size       ), // output
@@ -601,6 +602,7 @@ jtframe_mister_cartsave u_save(
     .sd_wait     ( sd_wait      ),
     .sav_change  ( sav_change   ),
     .sav_wait    ( sav_wait     ),
+    .sav_done    ( sav_done     ),
     .sav_din     ( sav_din      ),
     .sav_dout    ( sav_dout     ),
     .sav_addr    ( sav_addr     ),

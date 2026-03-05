@@ -43,20 +43,24 @@ module jtngp_flash(
     output reg [15:0] cart_din,
 
     // save/load memory
+    input             cart,
     input      [15:0] sav_addr,
     input      [15:0] sav_dout,
     input      [ 1:0] sav_wr,
     input             sav_ack,
     output reg [15:0] sav_din,
+    output reg        sav_done,
     output reg        sav_wait,
+    output reg        sav_change,
 
     input      [15:0] gs_data,
     output reg [15:0] gs_din,
-    output reg [15:1] gs_addr,
+    output reg [20:1] gs_addr,
     output reg [ 1:0] gs_dsn,
     input             gs_ok,
     output reg        gs_we,
     output reg        gs_cs
+    // , output reg [15:0] auto_addr_max, auto_addr_min
 );
 
 localparam [3:0] DEV_2F_4 = 8, //   4 MB
@@ -166,27 +170,73 @@ always @(posedge clk) begin
 end
 `endif
 
-always @(*) begin
-    gs_addr = sav_addr[15:1];
-    gs_din  = sav_dout;
-    gs_cs   = sav_ack;
-    gs_we   = |sav_wr;
-    gs_dsn  = ~sav_wr;
-    sav_din = gs_data;
+reg  [12:0] auto_addr_max, auto_addr_min;
+reg         ack_l, ack_ll;
+wire [12:0] eff_sblk;
+wire [ 7:0] lba;
+wire        sav_minmax;
+
+assign sav_minmax =~|sav_addr[ 7:2];
+assign lba        =  sav_addr[15:8] - 8'b1;
+assign eff_sblk   = auto_addr_min   +{5'b0,lba};
+always @(posedge clk) begin
+    if(cart) begin
+       ack_l         <= 0;
+       ack_ll        <= 0;
+       sav_wait      <= 0;
+       sav_change    <= 0;
+       auto_addr_max <= 0;
+       auto_addr_min <= 13'h1FFF;
+    end else begin
+        {ack_l, ack_ll} <= {sav_ack, ack_l};
+        if(prog_bsy && |prog_st) begin
+            sav_change <= 1;
+            if(cart_addr[20:8] > auto_addr_max)
+                auto_addr_max <= cart_addr[20:8];
+            if(cart_addr[20:8] < auto_addr_min)
+                auto_addr_min <= cart_addr[20:8];
+        end
+        if(sav_ack) begin
+            sav_change <= 0;
+            if(ack_l && ack_ll)
+                sav_wait <= ~gs_ok;
+                if(&lba) sav_wait <= 0;
+            if(~ack_l)
+                sav_wait <= 1;
+            if(&lba && gs_we && sav_minmax) begin
+                case (sav_addr[1:0])
+                    0: auto_addr_max[ 7:0] <= sav_dout[ 7:0];
+                    1: auto_addr_max[12:8] <= sav_dout[12:8];
+                    2: auto_addr_min[ 7:0] <= sav_dout[ 7:0];
+                    3: auto_addr_min[12:8] <= sav_dout[12:8];
+                    default:;
+                endcase
+            end
+        end else
+            sav_wait <= 0;
+    end
 end
 
-reg ack_l, ack_ll;
-initial {sav_wait,ack_l, ack_ll} = 0;
-always @(posedge clk) begin
-    ack_l <= sav_ack;
-    ack_ll<= ack_l;
-    if(sav_ack) begin
-        if(ack_l && ack_ll)
-            sav_wait <= ~gs_ok;
-        if(~ack_l)
-            sav_wait <= 1;
-    end else
-        sav_wait <= 0;
+always @(*) begin
+    gs_addr  = {eff_sblk,sav_addr[7:1]};
+    gs_din   = sav_dout;
+    gs_cs    = sav_ack;
+    gs_we    = |sav_wr;
+    gs_dsn   = ~sav_wr;
+    sav_din  = gs_data;
+    sav_done = eff_sblk==auto_addr_max;
+    if(&lba) begin
+        gs_cs   = 0;
+        gs_we   = 0;
+        sav_din = 0;
+        if(sav_minmax) begin
+            if(sav_addr[1])
+                sav_din = {3'b0, auto_addr_max};
+            else
+                sav_din = {3'b0, auto_addr_min};
+
+        end
+    end
 end
 
 always @(posedge clk, posedge rst ) begin

@@ -206,6 +206,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     // Save/Load
     .sav_change ( sav_change    ),
     .sav_wait   ( sav_wait      ),
+    .sav_done   ( sav_done      ),
     .sav_wr     ( sav_wr        ),
     .sav_ack    ( sav_ack       ),
     .sav_din    ( sav_din       ),

@@ -38,6 +38,7 @@ module jtframe_mister_cartsave (
     // Core
     input             sav_change,
     input             sav_wait,
+    input             sav_done,
     input      [15:0] sav_din,
     output reg [15:0] sav_dout,
     output reg [15:0] sav_addr,
@@ -182,7 +183,7 @@ always @(posedge clk) begin
 		end
 	end else begin
 		if(old_ack & ~sd_ack) begin
-			if(&sd_lba[6:0]) begin
+			if(&sd_lba[6:0] | sav_done) begin
 				bk_loading <= 0;
 				bk_state <= 0;
 			end else begin

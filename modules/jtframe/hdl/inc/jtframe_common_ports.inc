@@ -75,6 +75,7 @@
 `ifdef JTFRAME_SAVEGAME
     output            sav_change,
     output            sav_wait,
+    output            sav_done,
     input      [ 1:0] sav_wr,
     input             sav_ack,
     output    [15:0]  sav_din,
