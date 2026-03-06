@@ -5,22 +5,22 @@
   Version \C - \D
 
        PCB donated by
+       Kristian Hall
 
       Based on the PCB
       schematics and chip
          measurements
 
-        Thanks to Skutis for
-        the PCB schematics
+      Thanks to Skutis for
+      the PCB schematics
 
  \B______ \RDIRECTORS\B _______\W
-Andrea Bogazzi  Bender         
+Andrea Bogazzi  Go Youqiang         
 Fabio Michelin  Frederic Mahe  
     Fulvio Venturelli
 M. Fornasini    Martin Birkeldh
 Martin Donlon   Tulio Adriano  
-Ulf Skutnabba   f3bandit       
-有强 谷                           
+Ulf Skutnabba   f3bandit                                 
 
 
        \BThanks to\W
@@ -33,48 +33,49 @@ Ulf Skutnabba   f3bandit
 \RKyle Mickley    Matthew Belshan
 \RNick Chapman    PD Lee         
 \RPatricio Gomez  Pelayo Marinas 
-\RPeter Vessenes  R. Martinazzo  
+\R       Peter Vessenes    
 \RRenaissance 2K  RetroWilly     
 \RRobert Moran    Sayit BELET    
 \RTej Bilkhu      oldmanoftheSEA 
 
  \B_________ AND __________\W
-ARCADEAGES      Adam Davis     
-Adrian Nabarro  Anders Rensberg
-Andy Palmer     Andyways       
-Blackstar       Bryan Adams    
-Carrboroman     Chris Doyle    
-Chris Harvey    Christian      
-DMG             Dan Bayley     
-Daniel Cortes   Darren Chell   
-Dave Sasser     David Moylan   
-Dean Winger     Don Gafford    
-Ed Balan        Eduardo Javier 
-Fred Jorge      Gus Douboulidis
+Adam Davis      Adrian Nabarro
+albertprime     Anders Rensberg 
+Andrew Moore    Andy Palmer
+Andyways        ARCADEAGES
+Bryan Adams     Carrboroman
+Christian       Chris Doyle    
+Chris Harvey    Dan Bayley
+Daniel Cortes   Darren Chell  
+Dave Sasser     David Moylan 
+Dean Winger     DMG
+Don Gafford     Ed Balan
+Eduardo Javier  Fred Jorge
+    Gus Douboulidis
     Hendrik Osterholz
+hyp36rmax       Ian Court
     INAKI ECHEVARRIA
-Ian Court       JPS (RetroFPGA)
+    JPS (RetroFPGA)
 James Stroup    Jo le Zef      
 Joe Tassone     Joeri van      
 John Casey      John Silva     
 Juan Sandoval   JuanRa         
 Keith F. Kelly  Leslie Law     
     Lukas Hinterleitner
-M. Ferguson     Matt Hargett   
-    Matthew Young
+Matt Hargett   Matthew Young
     Michael Ferguson
     Michael Fleisher
-Michael Johnson Mike Phan      
-Nima            Nunzio Mannino 
-Oliver Jaksch   Oscar Laguna   
+    Michael Johnson 
+Mike Phan       Nima
+Nunzio Mannino  Oliver Jaksch
+Oliver Wndmth   Oscar Laguna   
 Retro_Brewz     Richard MS     
 Rob Jenkins     Robert MacLean 
-Shane Lynch     Steven Wilson  
-The Collector   Theodore Huber 
-Thompson Orcino Torren Beitler 
-Vitor Duarte    albertprime    
-amoore2600      hyp36rmax      
-ultimatekd                     
+Steven Wilson   The Collector   
+Theodore Huber  Thompson Orcino 
+Torren Beitler  ultimatekd
+Vitor Duarte       
+      
 
   ________________________
 
