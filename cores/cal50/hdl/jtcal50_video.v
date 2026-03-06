@@ -29,6 +29,7 @@ module jtcal50_video(
     output              HS,
     output              VS,
     output              flip,
+    output     [ 8:0]   hdump,
     // Palette
     output     [ 9:1]   pal_addr,
     input      [15:0]   pal_data,
@@ -83,7 +84,7 @@ module jtcal50_video(
     output reg [ 7:0]   st_dout
 );
 
-wire [ 8:0] vrender, vrender1, hdump, vdump;
+wire [ 8:0] vrender, vrender1, vdump;
 wire [ 8:0] scr_pxl, obj_pxl, tiles_pxl;
 wire [ 7:0] st_tiles, st_kiwi;
 

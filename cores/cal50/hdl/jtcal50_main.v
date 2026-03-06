@@ -19,6 +19,7 @@
 module jtcal50_main(
     input                rst, clk, pxl_cen,
     input                lvbl, cen244,
+    input         [ 1:0] hdump,
 
     output        [19:1] rom_addr,
     output        [16:1] ram_addr,
@@ -33,6 +34,7 @@ module jtcal50_main(
     output        [ 7:0] snd_cmd,
     input         [ 7:0] snd_rply,
     output               set_cmd,
+    output           reg snd_rst,
 
     output reg           rom_cs,
     output        [ 1:0] pal_we,
@@ -65,6 +67,7 @@ module jtcal50_main(
 `ifndef NOMAIN
 wire [23:1] A;
 wire [ 2:0] FC;
+wire [ 7:0] coin_coil;
 wire [15:0] fave;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
@@ -74,8 +77,8 @@ reg         ram_cs;
 wire        int4ms, int16ms,
             cpu_cen, cpu_cenb, dtackn, VPAn,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs;
-reg         ipl2_cs, ipl1_cs, nvram_cs, dips_cs, tlv_cs,
-            buf_cs, pal_cs, cab_cs, snd_cs, HALTn;
+reg         ipl2_cs, ipl1_cs, nvram_cs, dips_cs, tlv_cs, coil_cs,
+            buf_cs, pal_cs, cab_cs, snd_cs, HALTn, vgfx_cs, vgfx_bsy;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -86,7 +89,7 @@ assign rom_addr = A[19:1];
 assign VPAn     = ~&{A[23],~ASn};
 assign cpu_dsn  = {UDSn, LDSn};
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok);
+assign bus_busy = (rom_cs & ~rom_ok) | vgfx_bsy;
 assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_rnw  = RnW;
 assign ram_addr = { buf_cs, A[15:1] };
@@ -96,6 +99,7 @@ assign pal_we   = ~cpu_dsn & {2{  pal_cs&~RnW}};
 assign tlv_we   = ~cpu_dsn & {2{  tlv_cs&~RnW}};
 assign set_cmd  =  snd_cs & ~(RnW | LDSn);
 assign st_dout  = 0;
+assign vgfx_cs  = vram_cs | vflag_cs | vctrl_cs;
 
 always @* begin
     rom_cs   = !BUSn &&  A[23:20]==0;
@@ -103,18 +107,19 @@ always @* begin
     nvram_cs = !ASn  &&  A[23:20]==2;
     ipl1_cs  = !ASn  &&  A[23:20]==3;
 //  wdog_cs  = !ASn  &&  A[23:20]==4;
-//  ????_cs  = !ASn  &&  A[23:20]==5;
+    coil_cs  = !ASn  &&  A[23:20]==5;
     dips_cs  = !ASn  &&  A[23:20]==6;
     pal_cs   = !ASn  &&  A[23:20]==7;
-    tctrl_cs = !ASn  &&  A[23:20]==8 && !RnW;  // tiles configuration
-    tlv_cs   = !ASn  &&  A[23:20]==9 && !A[14];  // tiles VRAM
-    buf_cs   = !BUSn &&  A[23:20]==9 &&  A[14];  // tiles VRAM related? extra RAM
-    cab_cs   = !ASn  &&  A[23:20]==4'hA;
-    snd_cs   = !ASn  &&  A[23:20]==4'hB;
+
+    tctrl_cs = !ASn  && !A[16] && A[23:20]==8 && !RnW;    // tiles configuration
+    tlv_cs   = !ASn  && !A[16] && A[23:20]==9 && !A[14];  // tiles VRAM
+    buf_cs   = !BUSn && !A[16] && A[23:20]==9 &&  A[14];  // tiles VRAM related? extra RAM
+    cab_cs   = !ASn  && !A[16] && A[23:20]==4'hA;
+    snd_cs   = !ASn  && !A[16] && A[23:20]==4'hB;
     // SETA X1-001 chip
-    vflag_cs = !ASn  &&  A[23:20]==4'hC;
-    vctrl_cs = !ASn  &&  A[23:20]==4'hD;
-    vram_cs  = !ASn  &&  A[23:20]==4'hE;
+    vflag_cs = !ASn  && !A[16] && A[23:20]==4'hC;
+    vctrl_cs = !ASn  && !A[16] && A[23:20]==4'hD && (A[9:8]!=3 || !LDSn);
+    vram_cs  = !ASn  && !A[16] && A[23:20]==4'hE;
 
     ram_cs   = !BUSn &&  A[23:20]==4'hF;
     if(buf_cs) ram_cs = 1;
@@ -137,8 +142,15 @@ wire [7:0] dial_dout;
 wire       dial_cs = cab_cs && A[4:3]==2;
 
 always @(posedge clk) begin
-    HALTn <= dip_pause & ~rst;
+    if(!vgfx_cs)
+        vgfx_bsy <= 0;
+    else if(pxl_cen) vgfx_cs <= hdump==3;
+end
+
+always @(posedge clk) begin
+    HALTn    <= dip_pause & ~rst;
     dial_rst <= 0;
+    snd_rst  <= ~coin_coil[4];
     casez(A[4:1])
               0: cab_dout <= {cab_1p[0], 1'b1, joystick1};
               1: cab_dout <= {cab_1p[1], 1'b1, joystick2};
@@ -201,6 +213,15 @@ jtframe_8bit_reg u_snd(
     .cs         ( snd_cs        ),
     .dout       ( snd_cmd       )
 );
+
+jtframe_8bit_reg u_coil(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .wr_n       ( RnW | LDSn    ),
+    .din        ( cpu_dout[7:0] ),
+    .cs         ( coil_cs       ),
+    .dout       ( coin_coil     )
+);
 /* verilator tracing_off */
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_bus_dtack(
     .rst        ( rst       ),
@@ -256,6 +277,7 @@ jtframe_m68k u_cpu(
 `else
     initial begin
         rom_cs    = 0;
+        snd_rst   = 1;
     end
     assign rom_addr  = 0,
            ram_addr  = 0,

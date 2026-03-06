@@ -22,9 +22,10 @@ module jtcal50_game(
 
 wire [13:1] cpu_addr;
 wire [ 1:0] cpu_dsn;
+wire [ 8:0] hdump;
 wire [ 7:0] snd_cmd, snd_rply, st_main, st_snd, st_video;
 wire [15:0] vram_dout;
-wire        set_cmd, flip, cpu_rnw, cen244,
+wire        set_cmd, flip, cpu_rnw, cen244, snd_rst,
             vram_cs, vctrl_cs, vflag_cs, pal_cs, tctrl_cs;
 
 assign debug_view = debug_bus[7] ? st_snd : st_video;
@@ -37,6 +38,7 @@ jtcal50_main u_main(
     .pxl_cen        ( pxl_cen       ),
     .cen244         ( cen244        ),
     .lvbl           ( LVBL          ),
+    .hdump          ( hdump[1:0]    ),
 
     .tctrl_cs       ( tctrl_cs      ),
     .vctrl_cs       ( vctrl_cs      ),
@@ -76,6 +78,7 @@ jtcal50_main u_main(
     .tlv_dout       ( tlv_dout      ),
 
     // Sound
+    .snd_rst        ( snd_rst       ),
     .snd_cmd        ( snd_cmd       ),
     .snd_rply       ( snd_rply      ),
     .set_cmd        ( set_cmd       ),
@@ -87,9 +90,9 @@ jtcal50_main u_main(
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtcal50_sound u_sound(
-    .rst            ( rst           ),
+    .rst            ( snd_rst       ),
     .clk            ( clk           ),
     .cen2           ( cen2          ),
     .cen244         ( cen244        ),
@@ -129,6 +132,7 @@ jtcal50_video u_video(
     .LVBL           ( LVBL          ),
     .HS             ( HS            ),
     .VS             ( VS            ),
+    .hdump          ( hdump         ),
     .flip           ( flip          ),
     // GFX - CPU interface
     .cpu_rnw        ( cpu_rnw       ),
