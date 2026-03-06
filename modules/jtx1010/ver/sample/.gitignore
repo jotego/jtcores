@@ -1,0 +1,7 @@
+*.log
+*.csv
+*.bin
+*.fst
+*.wav
+*.hex
+obj_dir

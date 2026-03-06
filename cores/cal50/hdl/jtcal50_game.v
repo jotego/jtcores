@@ -94,7 +94,7 @@ jtcal50_main u_main(
 jtcal50_sound u_sound(
     .rst            ( snd_rst       ),
     .clk            ( clk           ),
-    .cen2           ( cen2          ),
+    .cen8           ( cen8          ),
     .cen244         ( cen244        ),
     .cen_pcm        ( cen_pcm       ),
 

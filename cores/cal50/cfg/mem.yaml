@@ -5,7 +5,7 @@ clocks:
     - freq: 8000000
       gate: [ snd ]
       outputs:
-        - cen2
+        - cen8
     - freq: 1600000
       outputs:
         - cen_pcm

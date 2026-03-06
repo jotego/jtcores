@@ -19,7 +19,7 @@
 module jtcal50_sound(
     input              clk,
     input              rst,
-    input              cen2, cen244, cen_pcm,
+    input              cen8, cen244, cen_pcm,
 
     input       [ 7:0] snd_cmd,
     output      [ 7:0] snd_rply,
@@ -138,7 +138,7 @@ jtx1010 u_pcm(
 jt65c02 u_cpu(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen        ( cen2      ),  // crystal clock freq. = 4x E pin freq.
+    .cen        ( cen8      ),  // crystal clock freq. = 4x E pin freq.
     .irq        ( irq       ),
     .nmi        ( nmi       ),
     .rd         ( cpu_rd    ),
