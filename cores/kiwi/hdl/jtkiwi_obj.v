@@ -28,7 +28,7 @@ module jtkiwi_obj(
     input               flip,
     input               page,
 
-    output     [11:0]   lut_addr,
+    output     [12:1]   lut_addr,
     input      [15:0]   lut_data,
 
     output     [ 8:0]   y_addr,

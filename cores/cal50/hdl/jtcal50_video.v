@@ -113,8 +113,8 @@ jtframe_vtimer #(
     .V_START ( 9'd000 ),
     .VS_START( 9'd252 ),
     .VS_END  ( 9'd260 ),
-    .VB_START( 9'd239 ),
-    .VB_END  ( 9'd271 ),
+    .VB_START( 9'd240 ),
+    .VB_END  ( 9'd000 ),
     .VCNT_END( 9'd271 )
 ) u_timer(
     .clk        ( clk        ),
@@ -130,7 +130,7 @@ jtframe_vtimer #(
     .HS         ( HS         ),
     .VS         ( VS         )
 );
-
+/* verilator tracing_off */
 jtx1012 u_tiles(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -164,7 +164,7 @@ jtx1012 u_tiles(
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_tiles      )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtkiwi_gfx #(.CPUW(16)) u_gfx(
     .rst        ( rst            ),
     .clk        ( clk            ),

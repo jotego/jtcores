@@ -54,6 +54,7 @@ module jtcal50_main(
     input         [ 1:0] cab_1p,
     input         [ 1:0] coin,
     input                service,
+    input         [ 1:0] dial_x, dial_y,
     input         [15:0] dipsw,
     input                dip_pause,
     input                dip_test,
@@ -131,13 +132,19 @@ always @* begin
     if( int4ms  ) IPLn[2] = 0;
 end
 
+reg        dial_rst;
+wire [7:0] dial_dout;
+wire       dial_cs = cab_cs && A[4:3]==2;
+
 always @(posedge clk) begin
     HALTn <= dip_pause & ~rst;
-    case(A[4:1])
-        0: cab_dout <= {cab_1p[0], 1'b1, joystick1};
-        1: cab_dout <= {cab_1p[1], 1'b1, joystick2};
-        4: cab_dout <= {coin[0],coin[1],service,tilt,4'hf};
-        // 8: rotation
+    dial_rst <= 0;
+    casez(A[4:1])
+              0: cab_dout <= {cab_1p[0], 1'b1, joystick1};
+              1: cab_dout <= {cab_1p[1], 1'b1, joystick2};
+              4: cab_dout <= {coin[0],coin[1],service,tilt,4'hf};
+        4'b10??: cab_dout <= dial_dout;
+        4'b11??: dial_rst <= cab_cs;
     endcase
     cpu_din  <= rom_cs   ? rom_data        :
                 ram_cs   ? ram_dout        :
@@ -149,6 +156,25 @@ always @(posedge clk) begin
                 dips_cs  ? {8'hff,dipsw_mx}:
                 cab_cs   ? {8'd0,cab_dout} : 16'h0;
 end
+
+jt4701 u_dial(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .x_in       ( {dial_x[0],dial_x[1]} ),
+    .y_in       ( {dial_y[0],dial_y[1]} ),
+    .rightn     ( 1'b1      ),
+    .leftn      ( 1'b1      ),
+    .middlen    ( 1'b1      ),
+    .x_rst      ( dial_rst  ),
+    .y_rst      ( dial_rst  ),
+    .csn        (~dial_cs   ),        // clear flags
+    .uln        ( A[1]      ),        // byte selection
+    .xn_y       ( A[2]      ),        // select x or y for reading
+    .cfn        (           ),        // counter flag
+    .sfn        (           ),        // switch flag
+    .dir        (           ),
+    .dout       ( dial_dout )
+);
 
 /* verilator tracing_on */
 jtframe_edge u_16ms(

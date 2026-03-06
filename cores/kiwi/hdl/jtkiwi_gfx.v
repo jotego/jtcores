@@ -82,7 +82,8 @@ module jtkiwi_gfx #(
 
 wire        video_en;
 wire [ 1:0] vram_we;
-wire [11:0] tm_addr, lut_addr;
+wire [11:0] tm_addr;
+wire [12:1] lut_addr, dma_txa;
 wire [ 7:0] scol_addr;
 reg  [ 7:0] attr, xpos, ypos;
 reg  [ 7:0] cfg[0:3], flag;
@@ -91,8 +92,8 @@ reg         scan_cen, done, dr_start, dr_busy,
 reg  [ 2:0] st;
 reg  [13:0] code;
 reg  [ 1:0] cen_cnt;
-wire        tm_page, obj_bufb, obj_page, obj_pg_en;
-wire [15:0] col_xmsb;
+wire        tm_page, obj_bufb, obj_page, obj_pg_en, dma_src;
+wire [15:0] col_xmsb, vram_d16;
 wire [ 3:0] col_cfg;
 wire [ 1:0] col0;
 reg         tm_cen, lut_cen;
@@ -109,14 +110,30 @@ assign yram_we  = yram_cs && !cpu_rnw && (CPUW==8 || !cpu_dsn[0]);
 assign flip     =~cfg[0][6]; // only flip y?
 assign video_en = cfg[0][4]; // uncertain
 assign col0     = cfg[0][1:0]; // start column in the tilemap VRAM
-assign obj_pg_en= cfg[0][3]; // uncertain
+assign obj_pg_en= cfg[0][3];   // uncertain. only cal50 keeps it low
 assign tm_page  = cfg[1][6];
 assign obj_bufb = cfg[1][5];
-assign obj_page = tm_page ^ ~obj_bufb;
+assign obj_page = obj_pg_en ? tm_page ^ ~obj_bufb : 1'b1;
+assign dma_src  = obj_pg_en ? tm_page ^  dma_tm   : 1'b0;
 assign col_cfg  = cfg[1][3:0];
 assign col_xmsb = { cfg[3], cfg[2] };
+assign dma_addr = dma_bsy ? dma_txa : cpu_addr[11:0];
+assign dma_txa  ={dma_src ^ dma_st, dma_tm, dma_cnt};
 assign dma_din  = dma_bsy ? dma_data   : vram_d16;
 assign dma_we   = dma_bsy ? dma_bsy_we : vram_we;
+
+assign vram_d16 = {cpu_dout[CPUW-1-:8], cpu_dout[7:0]};
+
+
+`ifdef SIMULATION
+wire obj_writes = !dma_bsy && vram_we!=0 && cpu_addr[10]==0;
+reg [12:1] latched_a;
+/* verilator lint_off LATCH */
+always @* begin
+    if(obj_writes) latched_a = cpu_addr[11:0];
+end
+/* verilator lint_on LATCH */
+`endif
 
 generate
     if(CPUW==8) begin
@@ -276,11 +293,9 @@ wire       dma_bsy = dma_obj | dma_tm;
 // Sprite DMA starts with VBLANK
 // Tilemap DMA starts with writing to cfg[1]
 wire cfg_we = cfg_cs && !cpu_rnw && (CPUW==8 || !cpu_dsn[0]);
-wire auto_dma = (!obj_bufb || !obj_pg_en) && pg_change;
+wire auto_dma = !obj_pg_en && pg_change;
 reg  [15:0] dma_data;
-wire [12:1] dma_txa  = {dma_tm ^ tm_page ^ dma_st, dma_tm, dma_cnt};
 
-assign      dma_addr =  dma_bsy ? dma_txa : cpu_addr[11:0];
 wire [ 1:0] dma_bsy_we = {2{dma_st}};
 wire        vb_starts = !LVBL && LVBL_l;
 reg         tm_page_l;
@@ -289,11 +304,12 @@ wire        pg_change = tm_page != tm_page_l;
 always @(posedge clk) begin
     if (cfg_we && cpu_addr[1:0] == 1 && !cpu_dout[5]) dma_start <= 1;
     LVBL_l <= LVBL;
-    if(vb_starts) tm_page_l <= tm_page;
-    if (auto_dma && vb_starts) begin
+    tm_page_l <= tm_page;
+    if (auto_dma) begin
         // Start sprite dma_bsy
         dma_cnt <= 0;
         dma_obj <= 1;
+        dma_tm  <= 0;
         dma_st  <= 0;
     end else if (dma_start && !dma_bsy) begin
         // Start tilemap dma_bsy
@@ -317,27 +333,5 @@ always @(posedge clk) begin
         end
     end
 end
-
-wire [15:0] vram_d16 = {cpu_dout[CPUW-1-:8], cpu_dout[7:0]};
-
-// jtframe_dual_ram16 #(.AW(12),
-//     .SIMFILE_LO("vram_lo.bin"),
-//     .SIMFILE_HI("vram_hi.bin")
-// ) u_vram(
-//     .clk0   ( clk_cpu    ),
-//     .clk1   ( clk        ),
-//     // Main CPU
-//     // probably the CPU should be WAIT-ed during DMA access, but it's
-//     // very fast, thus there's no overlap with CPU VRAM access
-//     .addr0  ( dma_bsy ? dma_addr : cpu_addr[11:0] ),
-//     .data0  ( dma_bsy ? dma_data      : vram_d16       ),
-//     .we0    ( dma_bsy ? dma_bsy_we        : vram_we        ),
-//     .q0     ( dma_dout  ),
-//     // GFX
-//     .addr1  ( code_addr  ),
-//     .data1  ( 16'd0      ),
-//     .we1    ( 2'd0       ),
-//     .q1     ( code_dout  )
-// );
 
 endmodule
