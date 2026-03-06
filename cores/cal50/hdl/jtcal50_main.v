@@ -75,10 +75,10 @@ reg  [ 9:0] cab2_dout;
 reg  [ 2:0] IPLn;
 reg         ram_cs;
 wire        int4ms, int16ms,
-            cpu_cen, cpu_cenb, dtackn, VPAn,
+            cpu_cen, cpu_cenb, dtackn, VPAn, vgfx_cs,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs;
 reg         ipl2_cs, ipl1_cs, nvram_cs, dips_cs, tlv_cs, coil_cs,
-            buf_cs, pal_cs, cab_cs, snd_cs, HALTn, vgfx_cs, vgfx_bsy;
+            buf_cs, pal_cs, cab_cs, snd_cs, HALTn, vgfx_bsy;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};

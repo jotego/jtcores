@@ -15,13 +15,12 @@
       the PCB schematics
 
  \B______ \RDIRECTORS\B _______\W
-Andrea Bogazzi  Go Youqiang         
+Andrea Bogazzi  Go Youqiang
 Fabio Michelin  Frederic Mahe  
     Fulvio Venturelli
 M. Fornasini    Martin Birkeldh
 Martin Donlon   Tulio Adriano  
-Ulf Skutnabba   f3bandit                                 
-
+Ulf Skutnabba   f3bandit
 
        \BThanks to\W
 \R    Alexander Facchini
@@ -33,21 +32,21 @@ Ulf Skutnabba   f3bandit
 \RKyle Mickley    Matthew Belshan
 \RNick Chapman    PD Lee         
 \RPatricio Gomez  Pelayo Marinas 
-\R       Peter Vessenes    
+\R       Peter Vessenes
 \RRenaissance 2K  RetroWilly     
 \RRobert Moran    Sayit BELET    
 \RTej Bilkhu      oldmanoftheSEA 
 
  \B_________ AND __________\W
 Adam Davis      Adrian Nabarro
-albertprime     Anders Rensberg 
+albertprime     Anders Rensberg
 Andrew Moore    Andy Palmer
 Andyways        ARCADEAGES
 Bryan Adams     Carrboroman
-Christian       Chris Doyle    
+Christian       Chris Doyle
 Chris Harvey    Dan Bayley
-Daniel Cortes   Darren Chell  
-Dave Sasser     David Moylan 
+Daniel Cortes   Darren Chell
+Dave Sasser     David Moylan
 Dean Winger     DMG
 Don Gafford     Ed Balan
 Eduardo Javier  Fred Jorge
@@ -65,17 +64,16 @@ Keith F. Kelly  Leslie Law
 Matt Hargett   Matthew Young
     Michael Ferguson
     Michael Fleisher
-    Michael Johnson 
+    Michael Johnson
 Mike Phan       Nima
 Nunzio Mannino  Oliver Jaksch
-Oliver Wndmth   Oscar Laguna   
+Oliver Wndmth   Oscar Laguna
 Retro_Brewz     Richard MS     
 Rob Jenkins     Robert MacLean 
-Steven Wilson   The Collector   
-Theodore Huber  Thompson Orcino 
+Steven Wilson   The Collector
+Theodore Huber  Thompson Orcino
 Torren Beitler  ultimatekd
-Vitor Duarte       
-      
+Vitor Duarte
 
   ________________________
 
@@ -91,4 +89,3 @@ Vitor Duarte
       -   A. Pocket  -
     Unzip jtbeta.zip into
     Assets/jtpatreon/common
-
