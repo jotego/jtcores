@@ -92,7 +92,7 @@ jtcal50_main u_main(
 );
 /* verilator tracing_on */
 jtcal50_sound u_sound(
-    .rst            ( snd_rst       ),
+    .rst            ( rst           ),
     .clk            ( clk           ),
     .cen2           ( cen2          ),
     .cen244         ( cen244        ),

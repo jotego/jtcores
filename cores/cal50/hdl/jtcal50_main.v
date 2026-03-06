@@ -88,7 +88,7 @@ assign cpu_addr = A[13:1];
 assign rom_addr = A[19:1];
 assign VPAn     = ~&{A[23],~ASn};
 assign cpu_dsn  = {UDSn, LDSn};
-assign bus_cs   = rom_cs | ram_cs;
+assign bus_cs   = rom_cs | vgfx_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | vgfx_bsy;
 assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_rnw  = RnW;
@@ -144,7 +144,7 @@ wire       dial_cs = cab_cs && A[4:3]==2;
 always @(posedge clk) begin
     if(!vgfx_cs)
         vgfx_bsy <= 0;
-    else if(pxl_cen) vgfx_cs <= hdump==3;
+    else if(pxl_cen) vgfx_bsy <= hdump==3;
 end
 
 always @(posedge clk) begin
