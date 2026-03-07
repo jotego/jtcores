@@ -5,16 +5,16 @@ params:
   - { name: OBJ_OFFSET,  value: "(`OBJ_START -`JTFRAME_BA3_START)>>1" }
 clocks:
   clk48:
-    - freq: 12000000
+    - freq: 12M
       outputs:
         - cen12
         - cen6
         - cen3
         - cen1p5
-    - freq: 8000000
+    - freq: 8M
       outputs:
         - cen8
-    - freq: 384000
+    - freq: 384k
       outputs:
         - cenp384
 audio:

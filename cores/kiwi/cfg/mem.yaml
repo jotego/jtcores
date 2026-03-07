@@ -4,7 +4,7 @@ params:
   - name: BRAM_OFFSET
 clocks:
   clk48:
-    - freq: 12000000
+    - freq: 12M
       gate: [ main, sub ]
       outputs:
         - dummy12

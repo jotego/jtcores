@@ -4,12 +4,12 @@ params:
   - { name: SCR2_OFFSET,  value: "(`SCR2_START-`SCR1_START)>>1"  }
 clocks:
   clk48:
-    - freq: 6000000
+    - freq: 6M
       outputs:
         - cen6
         - cen3
         - cen1p5
-    - freq: 8000000
+    - freq: 8M
       outputs:
         - cen8
 # resistor values are not shown in the schematics, likely to be

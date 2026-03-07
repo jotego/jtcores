@@ -6,15 +6,15 @@ clocks:
   clk:
     # Main CPU uses 4MHz crystal (checked on original board)
     # although the manual refers to the crystal as 3 or 4MHz in different locations
-    - freq: 4000000
+    - freq: 4M
       outputs:
         - cen_cpu
     # 18.432 divided by 6
-    - freq: 3072000
+    - freq: 3072k
       outputs:
         - cen_psg1
         - cen_psg2
-    - freq: 400000
+    - freq: 400k
       outputs:
         - cen_pcm
 audio:

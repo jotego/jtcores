@@ -8,7 +8,7 @@ clocks:
   # MC6809 module is problematic at 48MHz, hence using clk24
   # Not a problem for accuracy as there is an NMI based handshaking between main and mcu
   clk24:
-    - freq: 6000000
+    - freq: 6M
       gate: [ main, snd ]
       outputs:
         - cen6
@@ -20,7 +20,7 @@ clocks:
         - cen_fm
         - cen_fm2
   clk:
-    - freq: 12000000
+    - freq: 12M
       gate: [ mcu ]
       outputs:
         - mcu_cen12

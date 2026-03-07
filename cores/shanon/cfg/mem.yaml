@@ -13,11 +13,11 @@ params:
   - { name: RD1_OFFSET,  value: RD0_OFFSET+26'h4000 }
 clocks:
   clk48:
-    - freq: 8000000
+    - freq: 8M
       gate: [ pcm ]
       outputs:
         - cen_pcm
-    - freq: 4000000
+    - freq: 4M
       outputs:
         - cen_fm
         - cen_fm2

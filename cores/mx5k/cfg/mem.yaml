@@ -4,7 +4,7 @@ params:
   - { name: PCM_OFFSET, value: "`PCM_START >> 1" }
 clocks:
   clk24:
-    - freq: 12000000
+    - freq: 12M
       gate: [ "main", "snd" ]
       outputs:
         - cen3

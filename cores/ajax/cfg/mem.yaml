@@ -5,7 +5,7 @@ params:
   - { name: PSAC_OFFSET,value: "(`PSAC_START-`JTFRAME_BA3_START) >> 1" }
 clocks:
   clk48:
-    - freq: 24000000
+    - freq: 24M
       outputs:
         - cen24
         - cen12
@@ -14,7 +14,7 @@ clocks:
         - cen_fm
         - cen_fm2
   clk24:
-    - freq: 3000000
+    - freq: 3M
       outputs:
         - cen3
 audio:

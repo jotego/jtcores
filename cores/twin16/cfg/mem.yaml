@@ -12,11 +12,11 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
-    - freq: 640000
+    - freq: 640k
       outputs:
         - cen_640
         - cen_320
-    - freq: 1536000
+    - freq: 1536k
       outputs:
         - cen_1m5
 audio:

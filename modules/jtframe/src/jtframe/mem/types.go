@@ -112,7 +112,7 @@ type Port struct {
 type ClockCfg struct {
 	Div     int      `yaml:"div"` // only div or freq may be used
 	Mul     int      `yaml:"mul"` // defaults to 1 if missing
-	Freq    float64  `yaml:"freq"`
+	Freq    string   `yaml:"freq"`
 	Outputs []string `yaml:"outputs"`
 	Gate    []string `yaml:"gate"` // SDRAM buses that will halt the clock enable
 	// values for jtframe_frac_cen instantiation
@@ -124,6 +124,7 @@ type ClockCfg struct {
 	Busy    string
 	// private
 	ratio float64
+	freq  float64
 }
 
 type IoctlBus struct { // not a YAML type

@@ -2,11 +2,11 @@ params:
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
 clocks:
   clk48:
-    - freq: 8000000
+    - freq: 8 MHz
       gate: [ snd ]
       outputs:
         - cen8
-    - freq: 1600000
+    - freq: 16 MHz
       outputs:
         - cen_pcm
 audio:

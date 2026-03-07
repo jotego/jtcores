@@ -2,7 +2,7 @@ params:
   - { name: OBJ_OFFSET }
 clocks:
   clk48:
-    - freq: 12000000
+    - freq: 12M
       outputs:
         - cen12
         - cen6

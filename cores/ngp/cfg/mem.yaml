@@ -9,11 +9,11 @@ clocks:
       outputs:
         - v0_cen          # pxl_cen, but I cannot use that name here
         - v1_cen
-    - freq: 6144000
+    - freq: 6144k
       outputs:
         - cen6
         - cen3
-    - freq: 25000000
+    - freq: 25M
       outputs:
         - cpu_cen
         - phi1_cen        # 12.5MHz, MCU timer base

@@ -7,7 +7,7 @@ params:
     value: "'h30000"
 clocks:
   clk24:
-    - freq: 6000000
+    - freq: 6M
       gate: [ main, snd ]
       outputs:
         - cen6

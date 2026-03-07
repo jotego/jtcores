@@ -4,10 +4,10 @@ params:
   - { name: FIX_OFFSET,   value: "(`FIX_START-`JTFRAME_BA2_START)>>1" }
 clocks:
   clk48:
-    - freq: 8000000
+    - freq: 8M
       outputs:
         - cen_8
-    - freq: 18432000
+    - freq: 18432k
       gate: [pcma,pcmb]
       outputs:
         - cen_pcm

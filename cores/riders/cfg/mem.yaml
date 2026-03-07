@@ -6,7 +6,7 @@ params:
   - { name: PSCHI_OFFSET, value: "(PSCMAP_OFFSET+22'h80000)" }
 clocks:
   clk48:
-    - freq: 16000000
+    - freq: 16M
       outputs:
         - cen_16
         - cen_8

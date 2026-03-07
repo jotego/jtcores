@@ -3,11 +3,11 @@ params:
   - { name: SCR_OFFSET, value: "32'h4000" }
 clocks:
   clk24:
-    - freq: 8000000
+    - freq: 8M
       outputs:
         - cen_mcu
         - cen_nc
-    - freq: 6000000
+    - freq: 6M
       gate: [ snd ]
       outputs:
         - cen6

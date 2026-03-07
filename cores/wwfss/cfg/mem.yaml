@@ -12,7 +12,7 @@ clocks:
       outputs:
         - cen_fm
         - cen_fm2
-    - freq: 1056000
+    - freq: 1056k
       outputs:
         - cen_oki
 audio:

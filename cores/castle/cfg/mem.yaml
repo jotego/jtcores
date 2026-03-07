@@ -2,7 +2,7 @@ params:
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START) >> 1" }
 clocks:
   clk48:
-    - freq: 24000000
+    - freq: 24M
       outputs:
         - cen24
         - cen12
