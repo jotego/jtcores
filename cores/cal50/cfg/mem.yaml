@@ -111,3 +111,8 @@ bram:
     din: cpu_dout
     addr: main_addr[11:1]
     rw: true
+    ioctl:
+      save: true
+      restore: true
+      order: 0
+      when: [ JTFRAME_RELEASE ]
