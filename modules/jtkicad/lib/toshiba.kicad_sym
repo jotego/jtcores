@@ -2668,8 +2668,8 @@
 		)
 		(symbol "TD62064_1_1"
 			(pin power_in line
-				(at -7.62 -2.54 0)
-				(length 2.54)
+				(at -10.16 -2.54 0)
+				(length 5.08)
 				(name "VCC"
 					(effects
 						(font
@@ -2685,9 +2685,9 @@
 					)
 				)
 			)
-			(pin no_connect line
-				(at -7.62 -7.62 0)
-				(length 2.54)
+			(pin passive line
+				(at -10.16 -7.62 0)
+				(length 5.08)
 				(name "NC"
 					(effects
 						(font
@@ -2704,8 +2704,8 @@
 				)
 			)
 			(pin input line
-				(at -7.62 5.08 0)
-				(length 2.54)
+				(at -10.16 5.08 0)
+				(length 5.08)
 				(name "I3"
 					(effects
 						(font
@@ -2722,8 +2722,8 @@
 				)
 			)
 			(pin power_in line
-				(at 7.62 -7.62 180)
-				(length 2.54)
+				(at 10.16 -7.62 180)
+				(length 5.08)
 				(name "VSS"
 					(effects
 						(font
@@ -2740,8 +2740,8 @@
 				)
 			)
 			(pin power_in line
-				(at 7.62 -10.16 180)
-				(length 2.54)
+				(at 10.16 -10.16 180)
+				(length 5.08)
 				(name "VSS"
 					(effects
 						(font
@@ -2758,8 +2758,8 @@
 				)
 			)
 			(pin input line
-				(at -7.62 2.54 0)
-				(length 2.54)
+				(at -10.16 2.54 0)
+				(length 5.08)
 				(name "I4"
 					(effects
 						(font
@@ -2775,9 +2775,9 @@
 					)
 				)
 			)
-			(pin no_connect line
-				(at -7.62 -10.16 0)
-				(length 2.54)
+			(pin passive line
+				(at -10.16 -10.16 0)
+				(length 5.08)
 				(name "NC"
 					(effects
 						(font
@@ -2794,8 +2794,8 @@
 				)
 			)
 			(pin open_collector line
-				(at 7.62 2.54 180)
-				(length 2.54)
+				(at 10.16 2.54 180)
+				(length 5.08)
 				(name "O4"
 					(effects
 						(font
@@ -2812,8 +2812,8 @@
 				)
 			)
 			(pin open_collector line
-				(at 7.62 10.16 180)
-				(length 2.54)
+				(at 10.16 10.16 180)
+				(length 5.08)
 				(name "O1"
 					(effects
 						(font
@@ -2830,8 +2830,8 @@
 				)
 			)
 			(pin input line
-				(at -7.62 10.16 0)
-				(length 2.54)
+				(at -10.16 10.16 0)
+				(length 5.08)
 				(name "I1"
 					(effects
 						(font
@@ -2848,8 +2848,8 @@
 				)
 			)
 			(pin power_in line
-				(at 7.62 -2.54 180)
-				(length 2.54)
+				(at 10.16 -2.54 180)
+				(length 5.08)
 				(name "VSS"
 					(effects
 						(font
@@ -2866,8 +2866,8 @@
 				)
 			)
 			(pin power_in line
-				(at 7.62 -5.08 180)
-				(length 2.54)
+				(at 10.16 -5.08 180)
+				(length 5.08)
 				(name "VSS"
 					(effects
 						(font
@@ -2884,8 +2884,8 @@
 				)
 			)
 			(pin input line
-				(at -7.62 7.62 0)
-				(length 2.54)
+				(at -10.16 7.62 0)
+				(length 5.08)
 				(name "I2"
 					(effects
 						(font
@@ -2902,8 +2902,8 @@
 				)
 			)
 			(pin open_collector line
-				(at 7.62 7.62 180)
-				(length 2.54)
+				(at 10.16 7.62 180)
+				(length 5.08)
 				(name "O2"
 					(effects
 						(font
@@ -2920,8 +2920,8 @@
 				)
 			)
 			(pin power_in line
-				(at -7.62 -5.08 0)
-				(length 2.54)
+				(at -10.16 -5.08 0)
+				(length 5.08)
 				(name "VCC"
 					(effects
 						(font
@@ -2938,8 +2938,8 @@
 				)
 			)
 			(pin open_collector line
-				(at 7.62 5.08 180)
-				(length 2.54)
+				(at 10.16 5.08 180)
+				(length 5.08)
 				(name "O3"
 					(effects
 						(font
