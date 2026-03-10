@@ -185,16 +185,16 @@ endtask
 task fill_gs_mem_pattern;
     input [7:0] seed;
     integer blk, off;
-    reg [12:0] effb;
     reg [20:1] addr;
-    reg [15:0] word;
+    reg [12:0] effb;
+    reg [ 7:0] word;
     begin
         for (blk = minb; blk <= maxb; blk = blk + 1) begin
             effb = blk[12:0];
             for (off = 0; off < BLOCK_BYTES; off = off + 1) begin
                 ram_a1  = {effb, off[7:1]};
-                word    = {8'h00, seed} ^ {8'h00, off[7:0]} ^ {8'h00, effb[7:0]};
-                ram_d1  = {2{word[7:0]}};
+                word    = seed ^ off[7:0] ^ effb[7:0];
+                ram_d1  = {2{word}};
                 ram_we1 = {off[0],~off[0]};
                 repeat(2) @(posedge clk);
             end
@@ -209,10 +209,10 @@ task prepare_load_buffer;
     input [ 7:0] seed;
     integer addr;
     integer total_blocks;
-    reg [7:0] lba;
-    reg [12:0] effb;
     reg [20:1] gs_addr_local;
     reg [15:0] word;
+    reg [12:0] effb;
+    reg [ 7:0] lba;
     begin
         total_blocks = (maxb - minb + 1) + 1;
         for (addr = 0; addr < total_blocks*BLOCK_BYTES; addr = addr + 1) begin
@@ -243,10 +243,8 @@ task check_save_buffer;
     input [7:0] seed;
     integer addr;
     integer total_blocks;
-    reg [7:0] lba;
     reg [12:0] effb;
-    reg [15:0] word;
-    reg [7:0] exp, got;
+    reg [ 7:0] lba, exp, got;
     begin
         total_blocks = (maxb - minb + 1) + 1;
         for (addr = 0; addr < total_blocks*BLOCK_BYTES; addr = addr + 1) begin
@@ -263,8 +261,7 @@ task check_save_buffer;
             end else begin
                 lba  = addr[15:8] - 8'd1;
                 effb = minb + lba;
-                word = {8'h00, seed} ^ {8'h00, addr[7:0]} ^ {8'h00, effb[7:0]};
-                exp  = word[7:0];
+                exp = seed ^ addr[7:0] ^ effb[7:0];
             end
             got = hps.save_buf[addr];
             @(posedge clk)
@@ -273,6 +270,32 @@ task check_save_buffer;
                 $display("FAIL: save mismatch addr %0d got %02x exp %02x", addr, hps.save_buf[addr], exp);
                 repeat (10) @(posedge clk);
                 $finish;
+            end
+        end
+    end
+endtask
+
+task check_ram_after_load;
+    input [7:0] seed;
+    integer blk, off;
+    reg [12:0] effb;
+    reg [15:0] got;
+    reg [ 7:0] exp;
+    begin
+        check_minmax();
+        ram_we1 = 2'b00;
+        for (blk = minb; blk <= maxb; blk = blk + 1) begin
+            effb = blk[12:0];
+            for (off = 0; off < BLOCK_BYTES; off = off + 2) begin
+                ram_a1 = {effb,  off[7:1]};
+                exp    =  seed ^ off[7:0] ^ effb[7:0];
+                @(posedge clk);
+                @(posedge clk);
+                got = off[0] ? ram_q1[15:8] : ram_q1[7:0];
+                if (got !== exp) begin
+                    $display("FAIL: ram mismatch addr %0d got %04x exp %04x", ram_a1, got, exp);
+                    $finish;
+                end
             end
         end
     end
@@ -312,6 +335,15 @@ task wait_save_done;
     end
 endtask
 
+task check_minmax;
+    begin
+        if (u_flash.auto_addr_min !== minb[12:0] || u_flash.auto_addr_max !== maxb[12:0]) begin
+            $display("FAIL: auto_addr mismatch min %0h/%0h max %0h/%0h", u_flash.auto_addr_min, minb[12:0], u_flash.auto_addr_max, maxb[12:0]);
+            $finish;
+        end
+    end
+endtask
+
 // ------------------------------------------------------------
 // Main test
 // ------------------------------------------------------------
@@ -345,16 +377,10 @@ initial begin
     downloading = 1;
     repeat (4) @(posedge clk);
     downloading = 0;
-    wait (sd_rd);
-    wait (!sd_rd);
+    wait (sd_rd); wait (!sd_rd);
 
-    // load path first: prepare .sav (header + data)
-    // check auto_addr min/max set by header
     wait_load_done();
-    if (u_flash.auto_addr_min !== minb[12:0] || u_flash.auto_addr_max !== maxb[12:0]) begin
-        $display("FAIL: auto_addr mismatch min %0h/%0h max %0h/%0h", u_flash.auto_addr_min, minb[12:0], u_flash.auto_addr_max, maxb[12:0]);
-        $finish;
-    end
+    check_ram_after_load(8'h5A);
 
     // save path: fill gs_mem and check save buffer
     fill_gs_mem_pattern(8'hA2);
@@ -363,13 +389,13 @@ initial begin
     ram_save = 2'b10;
     @(posedge clk);
     ram_save = 2'b00;
-    wait (sd_wr);
-    wait (!sd_wr);
+    wait (sd_wr); wait (!sd_wr);
     wait_save_done();
     check_save_buffer(8'hA2);
 
     pass();
 end
+
 
 jtframe_test_clocks clocks(
     .rst (     ),
@@ -400,8 +426,8 @@ endmodule
 // Minimal HPS model (no HPS bus, only what cartsave needs)
 // ------------------------------------------------------------------
 module hps_io_simple #(
-    parameter integer BLOCK_BYTES = 256,
-    parameter integer MAX_BYTES   = 4096
+    parameter BLOCK_BYTES = 256,
+    parameter MAX_BYTES   = 4096
 ) (
     input             clk,
     input             rst,
