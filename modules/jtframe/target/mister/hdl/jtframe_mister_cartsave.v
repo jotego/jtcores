@@ -138,6 +138,7 @@ initial begin
 	sd_wr           = 0;
 	sd_lba          = 0;
 	sd_buff_din     = 0;
+	ld_addr         = 0;
 end
 
 assign bk_save = ram_save[1] | (sav_pending & OSD_STATUS & ram_save[0]);

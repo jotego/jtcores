@@ -176,9 +176,12 @@ wire [12:0] eff_sblk;
 wire [ 7:0] lba;
 wire        sav_minmax;
 
-assign sav_minmax =~|sav_addr[ 7:2];
-assign lba        =  sav_addr[15:8] - 8'b1;
-assign eff_sblk   = auto_addr_min   +{5'b0,lba};
+initial auto_addr_max = 0;
+initial auto_addr_min = 13'h1FFF;
+initial sav_change    = 0;
+assign  sav_minmax =~|sav_addr[ 7:2];
+assign  lba        =  sav_addr[15:8] - 8'b1;
+assign  eff_sblk   = auto_addr_min   +{5'b0,lba};
 always @(posedge clk) begin
     if(cart) begin
        ack_l         <= 0;
@@ -198,9 +201,10 @@ always @(posedge clk) begin
         end
         if(sav_ack) begin
             sav_change <= 0;
-            if(ack_l && ack_ll)
+            if(ack_l && ack_ll) begin
                 sav_wait <= ~gs_ok;
                 if(&lba) sav_wait <= 0;
+            end
             if(~ack_l)
                 sav_wait <= 1;
             if(&lba && gs_we && sav_minmax) begin
@@ -227,13 +231,12 @@ always @(*) begin
     sav_done = eff_sblk==auto_addr_max;
     if(&lba) begin
         gs_cs   = 0;
-        gs_we   = 0;
         sav_din = 0;
         if(sav_minmax) begin
             if(sav_addr[1])
-                sav_din = {3'b0, auto_addr_max};
-            else
                 sav_din = {3'b0, auto_addr_min};
+            else
+                sav_din = {3'b0, auto_addr_max};
 
         end
     end
