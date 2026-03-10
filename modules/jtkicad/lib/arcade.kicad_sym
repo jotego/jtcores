@@ -35858,7 +35858,7 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin input line
 				(at -3.81 -19.05 0)
 				(length 3.81)
 				(name "COIN_CNT_1"
@@ -36002,7 +36002,7 @@
 					)
 				)
 			)
-			(pin passive line
+			(pin input line
 				(at 31.75 -19.05 180)
 				(length 3.81)
 				(name "COIN_CNT_2"

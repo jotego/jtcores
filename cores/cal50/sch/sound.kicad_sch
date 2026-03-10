@@ -7495,7 +7495,7 @@
 				)
 			)
 		)
-		(symbol "skutis:X1-010"
+		(symbol "seta:X1-010"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -7579,7 +7579,7 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin passive line
 					(at -12.7 -46.99 0)
 					(length 5.08)
 					(name "UK"
@@ -7795,7 +7795,7 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin passive line
 					(at -12.7 -44.45 0)
 					(length 5.08)
 					(name "UK"
@@ -8209,7 +8209,7 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin passive line
 					(at -12.7 -39.37 0)
 					(length 5.08)
 					(name "UK"
@@ -8227,7 +8227,7 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin passive line
 					(at -12.7 -41.91 0)
 					(length 5.08)
 					(name "UK"
@@ -9192,12 +9192,28 @@
 		(uuid "629ba642-ac8e-478f-b624-972245f33f14")
 	)
 	(no_connect
+		(at 215.9 255.27)
+		(uuid "6cb76a8d-09fb-4c4a-8d52-997afb2abab4")
+	)
+	(no_connect
+		(at 215.9 257.81)
+		(uuid "6da641d2-5ddc-42c2-b146-462ac9f9168e")
+	)
+	(no_connect
 		(at 241.3 270.51)
 		(uuid "9c69da86-c227-4b07-bfd8-d6d7a6dc343c")
 	)
 	(no_connect
+		(at 215.9 252.73)
+		(uuid "beff9125-faa9-4fc3-8dbf-96ed71a9b13d")
+	)
+	(no_connect
 		(at 241.3 124.46)
 		(uuid "e707ce43-a913-4cc3-a212-72627f6858cb")
+	)
+	(no_connect
+		(at 215.9 260.35)
+		(uuid "ed1d18aa-149b-4920-a214-23af897d4a1e")
 	)
 	(no_connect
 		(at 88.9 231.14)
@@ -18071,7 +18087,6 @@
 	)
 	(label "PCMA16"
 		(at 287.02 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18082,7 +18097,6 @@
 	)
 	(label "SD4"
 		(at 157.48 241.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18093,7 +18107,6 @@
 	)
 	(label "PCMA2"
 		(at 287.02 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18104,7 +18117,6 @@
 	)
 	(label "PCMD7"
 		(at 314.96 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18115,7 +18127,6 @@
 	)
 	(label "PCMA7"
 		(at 287.02 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18126,7 +18137,6 @@
 	)
 	(label "PCMA9"
 		(at 287.02 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18137,7 +18147,6 @@
 	)
 	(label "PCMA11"
 		(at 241.3 201.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18148,7 +18157,6 @@
 	)
 	(label "PCMA12"
 		(at 241.3 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18159,7 +18167,6 @@
 	)
 	(label "SD7"
 		(at 157.48 248.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18170,7 +18177,6 @@
 	)
 	(label "SD0"
 		(at 241.3 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18181,7 +18187,6 @@
 	)
 	(label "PCMD7"
 		(at 209.55 33.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18192,7 +18197,6 @@
 	)
 	(label "MD5"
 		(at 140.97 54.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18203,7 +18207,6 @@
 	)
 	(label "SA13"
 		(at 132.08 251.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18214,7 +18217,6 @@
 	)
 	(label "PCMA3"
 		(at 287.02 27.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18225,7 +18227,6 @@
 	)
 	(label "PCMA13"
 		(at 287.02 53.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18236,7 +18237,6 @@
 	)
 	(label "SR~{W}"
 		(at 67.31 261.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18247,7 +18247,6 @@
 	)
 	(label "PCMA11"
 		(at 351.79 49.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18258,7 +18257,6 @@
 	)
 	(label "RA17"
 		(at 140.97 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18269,7 +18267,6 @@
 	)
 	(label "SA2"
 		(at 132.08 223.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18280,7 +18277,6 @@
 	)
 	(label "SR~{W}"
 		(at 48.26 276.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18291,7 +18287,6 @@
 	)
 	(label "SD6"
 		(at 64.77 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18302,7 +18297,6 @@
 	)
 	(label "PCMA9"
 		(at 287.02 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18313,7 +18307,6 @@
 	)
 	(label "PCMD7"
 		(at 209.55 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18324,7 +18317,6 @@
 	)
 	(label "SD4"
 		(at 241.3 40.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18335,7 +18327,6 @@
 	)
 	(label "~{SWR}"
 		(at 83.82 74.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18346,7 +18337,6 @@
 	)
 	(label "SD5"
 		(at 102.87 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18357,7 +18347,6 @@
 	)
 	(label "SD3"
 		(at 102.87 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18368,7 +18357,6 @@
 	)
 	(label "BNK2"
 		(at 110.49 124.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18379,7 +18367,6 @@
 	)
 	(label "LD1"
 		(at 241.3 229.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18390,7 +18377,6 @@
 	)
 	(label "PCMA3"
 		(at 287.02 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18401,7 +18387,6 @@
 	)
 	(label "PCMD2"
 		(at 314.96 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18412,7 +18397,6 @@
 	)
 	(label "~{SIRQCLR}"
 		(at 34.29 199.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18423,7 +18407,6 @@
 	)
 	(label "PCMA8"
 		(at 287.02 40.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18434,7 +18417,6 @@
 	)
 	(label "PCMA2"
 		(at 287.02 25.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18445,7 +18427,6 @@
 	)
 	(label "PCMD3"
 		(at 379.73 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18456,7 +18437,6 @@
 	)
 	(label "SD1"
 		(at 111.76 64.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18467,7 +18447,6 @@
 	)
 	(label "SD0"
 		(at 102.87 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18478,7 +18457,6 @@
 	)
 	(label "~{PCMRAMEN}"
 		(at 241.3 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18489,7 +18467,6 @@
 	)
 	(label "PCMD5"
 		(at 209.55 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18500,7 +18477,6 @@
 	)
 	(label "SA5"
 		(at 88.9 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18511,7 +18487,6 @@
 	)
 	(label "PCMA1"
 		(at 241.3 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18522,7 +18497,6 @@
 	)
 	(label "SA8"
 		(at 210.82 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18533,7 +18507,6 @@
 	)
 	(label "PCMA0"
 		(at 351.79 21.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18544,7 +18517,6 @@
 	)
 	(label "SA12"
 		(at 186.69 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18555,7 +18527,6 @@
 	)
 	(label "PCMA12"
 		(at 351.79 52.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18566,7 +18537,6 @@
 	)
 	(label "SD4"
 		(at 111.76 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18577,7 +18547,6 @@
 	)
 	(label "RD3"
 		(at 241.3 255.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18588,7 +18557,6 @@
 	)
 	(label "MD6"
 		(at 73.66 21.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18599,7 +18567,6 @@
 	)
 	(label "SD2"
 		(at 111.76 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18610,7 +18577,6 @@
 	)
 	(label "SD5"
 		(at 157.48 243.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18621,7 +18587,6 @@
 	)
 	(label "SA15"
 		(at 21.59 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18632,7 +18597,6 @@
 	)
 	(label "PCMA3"
 		(at 241.3 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18643,7 +18607,6 @@
 	)
 	(label "CLK2M'"
 		(at 67.31 256.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18654,7 +18617,6 @@
 	)
 	(label "SD5"
 		(at 64.77 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18665,7 +18627,6 @@
 	)
 	(label "SA2"
 		(at 210.82 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18676,7 +18637,6 @@
 	)
 	(label "PCMA7"
 		(at 241.3 191.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18687,7 +18647,6 @@
 	)
 	(label "~{PCMRAMOE}"
 		(at 241.3 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18698,7 +18657,6 @@
 	)
 	(label "SA1"
 		(at 210.82 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18709,7 +18667,6 @@
 	)
 	(label "PCMA14"
 		(at 241.3 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18720,7 +18677,6 @@
 	)
 	(label "SD3"
 		(at 111.76 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18731,7 +18687,6 @@
 	)
 	(label "SD3"
 		(at 64.77 193.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18742,7 +18697,6 @@
 	)
 	(label "PCMA10"
 		(at 241.3 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18753,7 +18707,6 @@
 	)
 	(label "SA0"
 		(at 88.9 185.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18764,7 +18717,6 @@
 	)
 	(label "PCMD1"
 		(at 379.73 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18775,7 +18727,6 @@
 	)
 	(label "SD5"
 		(at 241.3 38.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18786,7 +18737,6 @@
 	)
 	(label "SA3"
 		(at 132.08 226.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18797,7 +18747,6 @@
 	)
 	(label "SA8"
 		(at 132.08 238.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18808,7 +18757,6 @@
 	)
 	(label "PCMD5"
 		(at 379.73 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18819,7 +18767,6 @@
 	)
 	(label "MD6"
 		(at 140.97 52.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18830,7 +18777,6 @@
 	)
 	(label "SA0"
 		(at 210.82 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18841,7 +18787,6 @@
 	)
 	(label "SD0"
 		(at 64.77 185.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18852,7 +18797,6 @@
 	)
 	(label "SA9"
 		(at 210.82 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18863,7 +18807,6 @@
 	)
 	(label "PCMA4"
 		(at 287.02 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18874,7 +18817,6 @@
 	)
 	(label "SA7"
 		(at 210.82 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18885,7 +18827,6 @@
 	)
 	(label "~{SNMICLR}"
 		(at 34.29 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18896,7 +18837,6 @@
 	)
 	(label "PCMD7"
 		(at 379.73 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18907,7 +18847,6 @@
 	)
 	(label "SD6"
 		(at 111.76 52.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18918,7 +18857,6 @@
 	)
 	(label "PCMA11"
 		(at 241.3 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18929,7 +18867,6 @@
 	)
 	(label "PCMD1"
 		(at 209.55 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18940,7 +18877,6 @@
 	)
 	(label "SD2"
 		(at 111.76 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18951,7 +18887,6 @@
 	)
 	(label "SA0"
 		(at 132.08 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18962,7 +18897,6 @@
 	)
 	(label "SD1"
 		(at 64.77 187.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18973,7 +18907,6 @@
 	)
 	(label "RD2"
 		(at 241.3 252.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18984,7 +18917,6 @@
 	)
 	(label "SD1"
 		(at 157.48 233.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18995,7 +18927,6 @@
 	)
 	(label "PCMA4"
 		(at 241.3 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19006,7 +18937,6 @@
 	)
 	(label "SA15"
 		(at 109.22 269.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19017,7 +18947,6 @@
 	)
 	(label "~{PCMROMEN}"
 		(at 283.21 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19028,7 +18957,6 @@
 	)
 	(label "SA9"
 		(at 132.08 241.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19039,7 +18967,6 @@
 	)
 	(label "MD4"
 		(at 73.66 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19050,7 +18977,6 @@
 	)
 	(label "PCMA12"
 		(at 241.3 204.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19061,7 +18987,6 @@
 	)
 	(label "PCMD5"
 		(at 314.96 45.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19072,7 +18997,6 @@
 	)
 	(label "PCMA3"
 		(at 241.3 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19083,7 +19007,6 @@
 	)
 	(label "PCMD5"
 		(at 209.55 38.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19094,7 +19017,6 @@
 	)
 	(label "MD7"
 		(at 140.97 49.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19105,7 +19027,6 @@
 	)
 	(label "SD6"
 		(at 241.3 35.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19116,7 +19037,6 @@
 	)
 	(label "PCMD1"
 		(at 314.96 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19127,7 +19047,6 @@
 	)
 	(label "~{PCMRAMOE}"
 		(at 347.98 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19138,7 +19057,6 @@
 	)
 	(label "PCMA1"
 		(at 287.02 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19149,7 +19067,6 @@
 	)
 	(label "MD3"
 		(at 140.97 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19160,7 +19077,6 @@
 	)
 	(label "SA9"
 		(at 88.9 208.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19171,7 +19087,6 @@
 	)
 	(label "SA6"
 		(at 132.08 233.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19182,7 +19097,6 @@
 	)
 	(label "SA14"
 		(at 88.9 220.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19193,7 +19107,6 @@
 	)
 	(label "PCMA6"
 		(at 241.3 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19204,7 +19117,6 @@
 	)
 	(label "SD2"
 		(at 102.87 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19215,7 +19127,6 @@
 	)
 	(label "PCMD4"
 		(at 314.96 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19226,7 +19137,6 @@
 	)
 	(label "PCMD2"
 		(at 209.55 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19237,7 +19147,6 @@
 	)
 	(label "PCMA3"
 		(at 351.79 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19248,7 +19157,6 @@
 	)
 	(label "PCMD3"
 		(at 314.96 40.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19259,7 +19167,6 @@
 	)
 	(label "PCMA15"
 		(at 287.02 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19270,7 +19177,6 @@
 	)
 	(label "~{SNMICLR}"
 		(at 140.97 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19281,7 +19187,6 @@
 	)
 	(label "SA7"
 		(at 132.08 236.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19292,7 +19197,6 @@
 	)
 	(label "PCMA10"
 		(at 287.02 45.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19303,7 +19207,6 @@
 	)
 	(label "PCMD7"
 		(at 314.96 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19314,7 +19217,6 @@
 	)
 	(label "PCMA1"
 		(at 241.3 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19325,7 +19227,6 @@
 	)
 	(label "SA2"
 		(at 88.9 190.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19336,7 +19237,6 @@
 	)
 	(label "PCMD4"
 		(at 209.55 40.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19347,7 +19247,6 @@
 	)
 	(label "PCMA2"
 		(at 351.79 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19358,7 +19257,6 @@
 	)
 	(label "SD2"
 		(at 157.48 236.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19369,7 +19267,6 @@
 	)
 	(label "PCMA8"
 		(at 287.02 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19380,7 +19277,6 @@
 	)
 	(label "PCMA11"
 		(at 287.02 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19391,7 +19287,6 @@
 	)
 	(label "BNK1"
 		(at 110.49 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19402,7 +19297,6 @@
 	)
 	(label "BNK3"
 		(at 140.97 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19413,7 +19307,6 @@
 	)
 	(label "MD2"
 		(at 140.97 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19424,7 +19317,6 @@
 	)
 	(label "PCMA18"
 		(at 287.02 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19435,7 +19327,6 @@
 	)
 	(label "PCMA0"
 		(at 287.02 20.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19446,7 +19337,6 @@
 	)
 	(label "RD1"
 		(at 241.3 250.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19457,7 +19347,6 @@
 	)
 	(label "SD6"
 		(at 102.87 21.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19468,7 +19357,6 @@
 	)
 	(label "SA4"
 		(at 210.82 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19479,7 +19367,6 @@
 	)
 	(label "SA5"
 		(at 210.82 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19490,7 +19377,6 @@
 	)
 	(label "SD7"
 		(at 111.76 49.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19501,7 +19387,6 @@
 	)
 	(label "BNK0"
 		(at 110.49 129.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19512,7 +19397,6 @@
 	)
 	(label "PCMA9"
 		(at 241.3 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19523,7 +19407,6 @@
 	)
 	(label "RD5"
 		(at 241.3 260.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19534,7 +19417,6 @@
 	)
 	(label "PCMA19"
 		(at 265.43 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19545,7 +19427,6 @@
 	)
 	(label "PCMD1"
 		(at 209.55 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19556,7 +19437,6 @@
 	)
 	(label "PCMA10"
 		(at 241.3 199.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19567,7 +19447,6 @@
 	)
 	(label "~{PCMBUSZ}"
 		(at 186.69 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19578,7 +19457,6 @@
 	)
 	(label "LD6"
 		(at 241.3 242.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19589,7 +19467,6 @@
 	)
 	(label "PCMA5"
 		(at 287.02 33.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19600,7 +19477,6 @@
 	)
 	(label "LD2"
 		(at 241.3 232.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19611,7 +19487,6 @@
 	)
 	(label "PCMA6"
 		(at 241.3 189.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19622,7 +19497,6 @@
 	)
 	(label "~{PCMRAMWR}"
 		(at 347.98 64.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19633,7 +19507,6 @@
 	)
 	(label "SD0"
 		(at 111.76 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19644,7 +19517,6 @@
 	)
 	(label "MD4"
 		(at 140.97 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19655,7 +19527,6 @@
 	)
 	(label "PCMD0"
 		(at 209.55 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19666,7 +19537,6 @@
 	)
 	(label "PCMA11"
 		(at 287.02 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19677,7 +19547,6 @@
 	)
 	(label "LD0"
 		(at 241.3 227.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19688,7 +19557,6 @@
 	)
 	(label "PCMA17"
 		(at 241.3 217.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19699,7 +19567,6 @@
 	)
 	(label "PCMA6"
 		(at 287.02 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19710,7 +19577,6 @@
 	)
 	(label "PCMA13"
 		(at 287.02 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19721,7 +19587,6 @@
 	)
 	(label "PCMD1"
 		(at 314.96 35.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19732,7 +19597,6 @@
 	)
 	(label "PCMA7"
 		(at 351.79 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19743,7 +19607,6 @@
 	)
 	(label "RA14"
 		(at 129.54 254 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19754,7 +19617,6 @@
 	)
 	(label "SA10"
 		(at 88.9 210.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19765,7 +19627,6 @@
 	)
 	(label "PCMA0"
 		(at 241.3 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19776,7 +19637,6 @@
 	)
 	(label "PCMA5"
 		(at 241.3 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19787,7 +19647,6 @@
 	)
 	(label "PCMA4"
 		(at 241.3 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19798,7 +19657,6 @@
 	)
 	(label "PCMD[7..0]"
 		(at 199.39 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19809,7 +19667,6 @@
 	)
 	(label "~{PCMRAM}"
 		(at 201.93 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19820,7 +19677,6 @@
 	)
 	(label "PCMA10"
 		(at 287.02 106.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19831,7 +19687,6 @@
 	)
 	(label "RA16"
 		(at 140.97 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19842,7 +19697,6 @@
 	)
 	(label "PCMA16"
 		(at 241.3 214.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19853,7 +19707,6 @@
 	)
 	(label "SR~{W}"
 		(at 88.9 243.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19864,7 +19717,6 @@
 	)
 	(label "SA10"
 		(at 210.82 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19875,7 +19727,6 @@
 	)
 	(label "BNK2"
 		(at 140.97 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19886,7 +19737,6 @@
 	)
 	(label "RD4"
 		(at 241.3 257.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19897,7 +19747,6 @@
 	)
 	(label "PCMA14"
 		(at 287.02 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19908,7 +19757,6 @@
 	)
 	(label "~{PCMRAMWR}"
 		(at 241.3 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19919,7 +19767,6 @@
 	)
 	(label "SA1"
 		(at 132.08 220.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19930,7 +19777,6 @@
 	)
 	(label "PCMA5"
 		(at 241.3 186.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19941,7 +19787,6 @@
 	)
 	(label "MD0"
 		(at 140.97 67.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19952,7 +19797,6 @@
 	)
 	(label "PCMA15"
 		(at 241.3 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19963,7 +19807,6 @@
 	)
 	(label "LD3"
 		(at 241.3 234.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19974,7 +19817,6 @@
 	)
 	(label "RD7"
 		(at 241.3 265.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19985,7 +19827,6 @@
 	)
 	(label "SD6"
 		(at 111.76 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19996,7 +19837,6 @@
 	)
 	(label "PCMD0"
 		(at 314.96 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20007,7 +19847,6 @@
 	)
 	(label "PCMA12"
 		(at 287.02 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20018,7 +19857,6 @@
 	)
 	(label "SA11"
 		(at 210.82 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20029,7 +19867,6 @@
 	)
 	(label "SD0"
 		(at 157.48 231.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20040,7 +19877,6 @@
 	)
 	(label "MD2"
 		(at 73.66 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20051,7 +19887,6 @@
 	)
 	(label "RA16"
 		(at 129.54 259.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20062,7 +19897,6 @@
 	)
 	(label "PCMD6"
 		(at 379.73 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20073,7 +19907,6 @@
 	)
 	(label "SA7"
 		(at 88.9 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20084,7 +19917,6 @@
 	)
 	(label "PCMD3"
 		(at 314.96 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20095,7 +19927,6 @@
 	)
 	(label "~{PCMBUSZ}"
 		(at 205.74 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20106,7 +19937,6 @@
 	)
 	(label "PCMA4"
 		(at 287.02 30.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20117,7 +19947,6 @@
 	)
 	(label "PCMA5"
 		(at 287.02 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20128,7 +19957,6 @@
 	)
 	(label "PCMA15"
 		(at 287.02 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20139,7 +19967,6 @@
 	)
 	(label "SA1"
 		(at 88.9 187.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20150,7 +19977,6 @@
 	)
 	(label "PCMA9"
 		(at 241.3 196.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20161,7 +19987,6 @@
 	)
 	(label "PCMA18"
 		(at 287.02 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20172,7 +19997,6 @@
 	)
 	(label "PCMA4"
 		(at 351.79 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20183,7 +20007,6 @@
 	)
 	(label "SA6"
 		(at 88.9 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20194,7 +20017,6 @@
 	)
 	(label "~{SRD}"
 		(at 132.08 271.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20205,7 +20027,6 @@
 	)
 	(label "LD5"
 		(at 241.3 240.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20216,7 +20037,6 @@
 	)
 	(label "PCMA2"
 		(at 241.3 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20227,7 +20047,6 @@
 	)
 	(label "SA4"
 		(at 88.9 195.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20238,7 +20057,6 @@
 	)
 	(label "~{SIRQCLR}"
 		(at 140.97 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20249,7 +20067,6 @@
 	)
 	(label "PCMD2"
 		(at 379.73 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20260,7 +20077,6 @@
 	)
 	(label "PCMD6"
 		(at 209.55 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20271,7 +20087,6 @@
 	)
 	(label "MD3"
 		(at 73.66 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20282,7 +20097,6 @@
 	)
 	(label "PCMD4"
 		(at 314.96 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20293,7 +20107,6 @@
 	)
 	(label "RD6"
 		(at 241.3 262.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20304,7 +20117,6 @@
 	)
 	(label "PCMA17"
 		(at 287.02 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20315,7 +20127,6 @@
 	)
 	(label "RA15"
 		(at 129.54 256.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20326,7 +20137,6 @@
 	)
 	(label "~{PCMRAMEN}"
 		(at 347.98 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20337,7 +20147,6 @@
 	)
 	(label "BNK1"
 		(at 140.97 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20348,7 +20157,6 @@
 	)
 	(label "SD3"
 		(at 111.76 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20359,7 +20167,6 @@
 	)
 	(label "PCMD3"
 		(at 209.55 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20370,7 +20177,6 @@
 	)
 	(label "PCMA8"
 		(at 241.3 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20381,7 +20187,6 @@
 	)
 	(label "~{PCMRAM}"
 		(at 186.69 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20392,7 +20197,6 @@
 	)
 	(label "SA8"
 		(at 88.9 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20403,7 +20207,6 @@
 	)
 	(label "SD3"
 		(at 241.3 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20414,7 +20217,6 @@
 	)
 	(label "MD5"
 		(at 73.66 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20425,7 +20227,6 @@
 	)
 	(label "PCMD6"
 		(at 314.96 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20436,7 +20237,6 @@
 	)
 	(label "SD1"
 		(at 111.76 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20447,7 +20247,6 @@
 	)
 	(label "PCMD5"
 		(at 314.96 106.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20458,7 +20257,6 @@
 	)
 	(label "PCMA8"
 		(at 351.79 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20469,7 +20267,6 @@
 	)
 	(label "~{SWR}"
 		(at 88.9 271.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20480,7 +20277,6 @@
 	)
 	(label "PCMA14"
 		(at 287.02 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20491,7 +20287,6 @@
 	)
 	(label "PCMA17"
 		(at 287.02 124.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20502,7 +20297,6 @@
 	)
 	(label "SD1"
 		(at 102.87 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20513,7 +20307,6 @@
 	)
 	(label "SA14"
 		(at 21.59 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20524,7 +20317,6 @@
 	)
 	(label "SA4"
 		(at 132.08 228.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20535,7 +20327,6 @@
 	)
 	(label "SD4"
 		(at 64.77 195.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20546,7 +20337,6 @@
 	)
 	(label "SA13"
 		(at 88.9 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20557,7 +20347,6 @@
 	)
 	(label "SD3"
 		(at 157.48 238.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20568,7 +20357,6 @@
 	)
 	(label "PCMD6"
 		(at 314.96 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20579,7 +20367,6 @@
 	)
 	(label "PCMD0"
 		(at 209.55 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20590,7 +20377,6 @@
 	)
 	(label "BNK3"
 		(at 110.49 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20601,7 +20387,6 @@
 	)
 	(label "CLK2M'"
 		(at 88.9 238.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20612,7 +20397,6 @@
 	)
 	(label "~{PCMBUSZ}"
 		(at 204.47 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20623,7 +20407,6 @@
 	)
 	(label "PCMA9"
 		(at 351.79 44.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20634,7 +20417,6 @@
 	)
 	(label "SA15"
 		(at 88.9 223.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20645,7 +20427,6 @@
 	)
 	(label "SR~{W}"
 		(at 212.09 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20656,7 +20437,6 @@
 	)
 	(label "RA14"
 		(at 140.97 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20667,7 +20447,6 @@
 	)
 	(label "SD7"
 		(at 111.76 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20678,7 +20457,6 @@
 	)
 	(label "SA[15..0]"
 		(at 105.41 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20689,7 +20467,6 @@
 	)
 	(label "BNK0"
 		(at 140.97 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20700,7 +20477,6 @@
 	)
 	(label "SA12"
 		(at 88.9 215.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20711,7 +20487,6 @@
 	)
 	(label "RA15"
 		(at 140.97 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20722,7 +20497,6 @@
 	)
 	(label "SD[7..0]"
 		(at 106.68 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20733,7 +20507,6 @@
 	)
 	(label "~{PCMROMEN}"
 		(at 241.3 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20744,7 +20517,6 @@
 	)
 	(label "~{SWR}"
 		(at 86.36 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20755,7 +20527,6 @@
 	)
 	(label "PCMA13"
 		(at 241.3 207.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20766,7 +20537,6 @@
 	)
 	(label "SD5"
 		(at 111.76 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20777,7 +20547,6 @@
 	)
 	(label "PCMD0"
 		(at 314.96 33.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20788,7 +20557,6 @@
 	)
 	(label "PCMA7"
 		(at 287.02 38.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20799,7 +20567,6 @@
 	)
 	(label "PCMA5"
 		(at 351.79 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20810,7 +20577,6 @@
 	)
 	(label "PCMA19"
 		(at 283.21 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20821,7 +20587,6 @@
 	)
 	(label "PCMA0"
 		(at 241.3 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20832,7 +20597,6 @@
 	)
 	(label "PCMA6"
 		(at 351.79 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20843,7 +20607,6 @@
 	)
 	(label "MD7"
 		(at 73.66 19.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20854,7 +20617,6 @@
 	)
 	(label "PCMA2"
 		(at 241.3 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20865,7 +20627,6 @@
 	)
 	(label "SD5"
 		(at 111.76 54.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20876,7 +20637,6 @@
 	)
 	(label "PCMD6"
 		(at 209.55 35.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20887,7 +20647,6 @@
 	)
 	(label "MD1"
 		(at 140.97 64.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20898,7 +20657,6 @@
 	)
 	(label "LD4"
 		(at 241.3 237.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20909,7 +20667,6 @@
 	)
 	(label "PCMA10"
 		(at 351.79 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20920,7 +20677,6 @@
 	)
 	(label "SD2"
 		(at 241.3 45.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20931,7 +20687,6 @@
 	)
 	(label "~{PCMBUSZ}"
 		(at 241.3 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20942,7 +20697,6 @@
 	)
 	(label "SD7"
 		(at 64.77 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20953,7 +20707,6 @@
 	)
 	(label "SD7"
 		(at 102.87 19.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20964,7 +20717,6 @@
 	)
 	(label "PCMA8"
 		(at 241.3 194.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20975,7 +20727,6 @@
 	)
 	(label "PCMA0"
 		(at 287.02 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20986,7 +20737,6 @@
 	)
 	(label "SA3"
 		(at 210.82 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20997,7 +20747,6 @@
 	)
 	(label "PCMD0"
 		(at 379.73 21.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21008,7 +20757,6 @@
 	)
 	(label "SA11"
 		(at 132.08 246.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21019,7 +20767,6 @@
 	)
 	(label "PCMA1"
 		(at 287.02 22.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21030,7 +20777,6 @@
 	)
 	(label "PCMD4"
 		(at 209.55 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21041,7 +20787,6 @@
 	)
 	(label "SR~{W}"
 		(at 210.82 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21052,7 +20797,6 @@
 	)
 	(label "PCMD2"
 		(at 314.96 38.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21063,7 +20807,6 @@
 	)
 	(label "SA10"
 		(at 132.08 243.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21074,7 +20817,6 @@
 	)
 	(label "PCMA19"
 		(at 241.3 222.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21085,7 +20827,6 @@
 	)
 	(label "PCMA7"
 		(at 241.3 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21096,7 +20837,6 @@
 	)
 	(label "MD0"
 		(at 73.66 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21107,7 +20847,6 @@
 	)
 	(label "SD1"
 		(at 241.3 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21118,7 +20857,6 @@
 	)
 	(label "~{PCMROMEN}"
 		(at 283.21 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21129,7 +20867,6 @@
 	)
 	(label "PCMA12"
 		(at 287.02 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21140,7 +20877,6 @@
 	)
 	(label "SD7"
 		(at 241.3 33.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21151,7 +20887,6 @@
 	)
 	(label "SA11"
 		(at 88.9 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21162,7 +20897,6 @@
 	)
 	(label "SD2"
 		(at 64.77 190.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21173,7 +20907,6 @@
 	)
 	(label "PCMA1"
 		(at 351.79 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21184,7 +20917,6 @@
 	)
 	(label "SD4"
 		(at 111.76 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21195,7 +20927,6 @@
 	)
 	(label "BNK[3..0]"
 		(at 127 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21206,7 +20937,6 @@
 	)
 	(label "PCMD3"
 		(at 209.55 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21217,7 +20947,6 @@
 	)
 	(label "MD1"
 		(at 73.66 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21228,7 +20957,6 @@
 	)
 	(label "~{SRD}"
 		(at 88.9 259.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21239,7 +20967,6 @@
 	)
 	(label "PCMA[19..0]"
 		(at 260.35 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21250,7 +20977,6 @@
 	)
 	(label "PCMA18"
 		(at 241.3 219.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21261,7 +20987,6 @@
 	)
 	(label "SA12"
 		(at 132.08 248.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21272,7 +20997,6 @@
 	)
 	(label "LD7"
 		(at 241.3 245.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21283,7 +21007,6 @@
 	)
 	(label "~{SRD}"
 		(at 52.07 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21294,7 +21017,6 @@
 	)
 	(label "SD6"
 		(at 157.48 246.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21305,7 +21027,6 @@
 	)
 	(label "RA17"
 		(at 129.54 261.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21316,7 +21037,6 @@
 	)
 	(label "S~{R}W"
 		(at 67.31 274.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21327,7 +21047,6 @@
 	)
 	(label "PCMD4"
 		(at 379.73 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21338,7 +21057,6 @@
 	)
 	(label "SA6"
 		(at 210.82 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21349,7 +21067,6 @@
 	)
 	(label "RA[17..14]"
 		(at 133.35 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21360,7 +21077,6 @@
 	)
 	(label "SD0"
 		(at 111.76 67.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21371,7 +21087,6 @@
 	)
 	(label "SD4"
 		(at 102.87 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21382,7 +21097,6 @@
 	)
 	(label "RD0"
 		(at 241.3 247.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21393,7 +21107,6 @@
 	)
 	(label "SA5"
 		(at 132.08 231.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21404,7 +21117,6 @@
 	)
 	(label "PCMD2"
 		(at 209.55 45.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21415,7 +21127,6 @@
 	)
 	(label "SA3"
 		(at 88.9 193.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21426,7 +21137,6 @@
 	)
 	(label "~{PCMRAM}"
 		(at 52.07 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21437,7 +21147,6 @@
 	)
 	(label "CLK2M'"
 		(at 67.31 269.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21448,7 +21157,6 @@
 	)
 	(label "PCMA16"
 		(at 287.02 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21459,7 +21167,6 @@
 	)
 	(label "PCMA6"
 		(at 287.02 35.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21471,7 +21178,6 @@
 	(hierarchical_label "LD[7..0]"
 		(shape output)
 		(at 250.19 224.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21483,7 +21189,6 @@
 	(hierarchical_label "~{SCPUWR}"
 		(shape input)
 		(at 36.83 226.06 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21495,7 +21200,6 @@
 	(hierarchical_label "CK16M3"
 		(shape input)
 		(at 215.9 148.59 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21507,7 +21211,6 @@
 	(hierarchical_label "~{SCPURD}"
 		(shape input)
 		(at 115.57 74.93 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21519,7 +21222,6 @@
 	(hierarchical_label "~{SCPUWR}"
 		(shape input)
 		(at 215.9 158.75 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21531,7 +21233,6 @@
 	(hierarchical_label "CLK2M''"
 		(shape output)
 		(at 241.3 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21543,7 +21244,6 @@
 	(hierarchical_label "MD[7..0]"
 		(shape bidirectional)
 		(at 68.58 16.51 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21555,7 +21255,6 @@
 	(hierarchical_label "RD[7..0]"
 		(shape output)
 		(at 250.19 245.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21567,7 +21266,6 @@
 	(hierarchical_label "HBLK64"
 		(shape input)
 		(at 36.83 207.01 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21579,7 +21277,6 @@
 	(hierarchical_label "~{SCPUWR}"
 		(shape input)
 		(at 77.47 41.91 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21591,7 +21288,6 @@
 	(hierarchical_label "CLK2M"
 		(shape input)
 		(at 68.58 236.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21603,7 +21299,6 @@
 	(hierarchical_label "~{SCPURST}"
 		(shape input)
 		(at 68.58 208.28 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21615,7 +21310,6 @@
 	(hierarchical_label "MD[7..0]"
 		(shape bidirectional)
 		(at 149.86 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21627,7 +21321,6 @@
 	(hierarchical_label "CK8M'"
 		(shape output)
 		(at 241.3 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21639,7 +21332,6 @@
 	(hierarchical_label "~{SCPURST}"
 		(shape input)
 		(at 115.57 109.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21651,7 +21343,6 @@
 	(hierarchical_label "~{SNDMUTE}"
 		(shape output)
 		(at 140.97 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24263,7 +23954,7 @@
 		)
 	)
 	(symbol
-		(lib_id "skutis:X1-010")
+		(lib_id "seta:X1-010")
 		(at 228.6 213.36 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -24288,7 +23979,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 215.9 143.51 0)
+			(at 215.9 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24297,7 +23988,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 215.9 143.51 0)
+			(at 215.9 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)

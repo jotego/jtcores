@@ -2862,7 +2862,7 @@
 				)
 			)
 		)
-		(symbol "skutis:x1-012"
+		(symbol "seta:x1-012"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -10871,61 +10871,6 @@
 		)
 		(uuid "ffcdd339-ebfb-4410-a3f0-6974ec7b4423")
 	)
-	(text "53"
-		(exclude_from_sim no)
-		(at 242.57 95.25 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "071e3994-d162-472e-8a1a-0f0a67c0e696")
-	)
-	(text "57"
-		(exclude_from_sim no)
-		(at 247.65 147.32 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "1485dd81-773f-4210-8821-1392dc32b518")
-	)
-	(text "50"
-		(exclude_from_sim no)
-		(at 247.65 165.1 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "17d9106d-09d5-426b-8de5-b8b1202c12a1")
-	)
-	(text "60"
-		(exclude_from_sim no)
-		(at 242.57 77.47 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "185530ba-3ed1-4076-8ec1-22cd36a07fa4")
-	)
-	(text "59"
-		(exclude_from_sim no)
-		(at 247.65 142.24 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "1b7d2bc2-b233-4321-97db-c5f739a911f7")
-	)
 	(text "odd byte"
 		(exclude_from_sim no)
 		(at 281.94 111.76 0)
@@ -10935,259 +10880,6 @@
 			)
 		)
 		(uuid "1d18b2ab-d680-4a31-be8f-b2d1a96d5a27")
-	)
-	(text "Kortslutning nånstans mellan\nMA11 och MA12. Ej i CPU."
-		(exclude_from_sim no)
-		(at 186.69 41.91 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "1e83a56a-0f14-4b4f-b717-f10a6ea838e0")
-	)
-	(text "52"
-		(exclude_from_sim no)
-		(at 247.65 160.02 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "1f7c6eed-ad81-4ced-9957-0d64b13bfba6")
-	)
-	(text "60"
-		(exclude_from_sim no)
-		(at 247.65 139.7 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "23a314fe-35b4-43a5-94ba-6d0d465f3501")
-	)
-	(text "43"
-		(exclude_from_sim no)
-		(at 242.57 120.65 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "28e63af3-0c75-4c59-b7cc-c47baf711e20")
-	)
-	(text "42"
-		(exclude_from_sim no)
-		(at 247.65 185.42 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "397aad23-a7f3-48b1-940b-f3ec2aec1a4c")
-	)
-	(text "58"
-		(exclude_from_sim no)
-		(at 247.65 144.78 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "3adad731-792c-43ac-a27c-6305bca61110")
-	)
-	(text "57"
-		(exclude_from_sim no)
-		(at 242.57 85.09 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "412e1eb4-c909-4590-b607-26cf54d03860")
-	)
-	(text "46"
-		(exclude_from_sim no)
-		(at 242.57 113.03 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "414c673d-82f3-4c50-8150-bc7c2217f5f7")
-	)
-	(text "45"
-		(exclude_from_sim no)
-		(at 247.65 177.8 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "41e881ba-a30d-4cab-8759-9f730ae13fdd")
-	)
-	(text "52"
-		(exclude_from_sim no)
-		(at 242.57 97.79 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "49c0d276-0855-415a-824f-05ccacfbfa77")
-	)
-	(text "44"
-		(exclude_from_sim no)
-		(at 242.57 118.11 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "507a6aec-8f81-40c0-a4bf-1fb208cf41b4")
-	)
-	(text "54"
-		(exclude_from_sim no)
-		(at 242.57 92.71 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "60e3726a-8222-4e81-9f01-adfd3728e233")
-	)
-	(text "51"
-		(exclude_from_sim no)
-		(at 247.65 162.56 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "78f04fa3-a666-48e6-a9a1-ccf442b732c3")
-	)
-	(text "54"
-		(exclude_from_sim no)
-		(at 247.65 154.94 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7be2623f-c8dd-43c8-bdbb-ae3737012429")
-	)
-	(text "51"
-		(exclude_from_sim no)
-		(at 242.57 100.33 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7ceee77f-91dd-4f62-9044-f905a4d9d33f")
-	)
-	(text "48"
-		(exclude_from_sim no)
-		(at 242.57 107.95 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "86b8302b-2df2-4651-8db2-4fff6c6b1527")
-	)
-	(text "55"
-		(exclude_from_sim no)
-		(at 242.57 90.17 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "8d085c05-ba88-4df2-9566-cd80757917e1")
-	)
-	(text "46"
-		(exclude_from_sim no)
-		(at 247.65 175.26 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "91b1e4bd-ffe2-4c32-9e9f-06bf8c19eebd")
-	)
-	(text "55"
-		(exclude_from_sim no)
-		(at 247.65 152.4 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "96328194-f1f6-4af5-9041-2883e2db9899")
-	)
-	(text "59"
-		(exclude_from_sim no)
-		(at 242.57 80.01 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "97f91d90-6892-4172-8076-18e91dc563b3")
-	)
-	(text "43"
-		(exclude_from_sim no)
-		(at 247.65 182.88 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "9d2be0e5-b399-4201-af86-fb118cc6e1ef")
-	)
-	(text "44"
-		(exclude_from_sim no)
-		(at 247.65 180.34 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "9f6f6772-1287-45cb-8418-45fcc6b629fc")
-	)
-	(text "58"
-		(exclude_from_sim no)
-		(at 242.57 82.55 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "a49dcc44-eac5-4e48-a53e-e6d01a8791f2")
 	)
 	(text "Even byte"
 		(exclude_from_sim no)
@@ -11199,130 +10891,8 @@
 		)
 		(uuid "ae33f584-f0ef-45fb-951f-f1915a0386a6")
 	)
-	(text "53"
-		(exclude_from_sim no)
-		(at 247.65 157.48 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b7505b59-742d-4271-acf5-69d9ae0a3f35")
-	)
-	(text "49"
-		(exclude_from_sim no)
-		(at 247.65 167.64 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "bd8b9f79-6836-413f-81a6-bd96cec61476")
-	)
-	(text "50"
-		(exclude_from_sim no)
-		(at 242.57 102.87 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "c6ed2d2d-a298-4a3c-9582-58aa26361c1a")
-	)
-	(text "49"
-		(exclude_from_sim no)
-		(at 242.57 105.41 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d0cc490c-21e6-4c5b-9986-d093e993cd44")
-	)
-	(text "47"
-		(exclude_from_sim no)
-		(at 247.65 172.72 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d538a2d2-0e1e-42f9-ba2c-b172fad62138")
-	)
-	(text "48"
-		(exclude_from_sim no)
-		(at 247.65 170.18 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "db61224e-78ea-4d81-b183-199996c812e4")
-	)
-	(text "42"
-		(exclude_from_sim no)
-		(at 242.57 123.19 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "eb1e48df-2661-4cfb-8005-60005c818043")
-	)
-	(text "47"
-		(exclude_from_sim no)
-		(at 242.57 110.49 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "eb28c1ab-aac9-46e4-a530-06008d2413c1")
-	)
-	(text "45"
-		(exclude_from_sim no)
-		(at 242.57 115.57 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f10e9a78-c9d4-4032-8eae-7d1155acc43a")
-	)
-	(text "56"
-		(exclude_from_sim no)
-		(at 247.65 149.86 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f1f466c6-9fe6-4354-b643-dae40aff53e1")
-	)
-	(text "56"
-		(exclude_from_sim no)
-		(at 242.57 87.63 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f8f2d8be-956f-4f8d-b529-81d993a7a816")
-	)
 	(label "TMD11"
 		(at 182.88 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11333,7 +10903,6 @@
 	)
 	(label "TMD14"
 		(at 137.16 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11344,7 +10913,6 @@
 	)
 	(label "TMA6"
 		(at 110.49 124.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11355,7 +10923,6 @@
 	)
 	(label "TMD12"
 		(at 182.88 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11366,7 +10933,6 @@
 	)
 	(label "~{TMUW}"
 		(at 214.63 69.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11377,7 +10943,6 @@
 	)
 	(label "TA2"
 		(at 214.63 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11388,7 +10953,6 @@
 	)
 	(label "TMD3"
 		(at 182.88 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11399,7 +10963,6 @@
 	)
 	(label "TA14"
 		(at 256.54 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11410,7 +10973,6 @@
 	)
 	(label "TMD6"
 		(at 137.16 196.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11421,7 +10983,6 @@
 	)
 	(label "MA7"
 		(at 184.15 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11432,7 +10993,6 @@
 	)
 	(label "TMA8"
 		(at 110.49 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11443,7 +11003,6 @@
 	)
 	(label "TMD5"
 		(at 182.88 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11454,7 +11013,6 @@
 	)
 	(label "TA11"
 		(at 256.54 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11465,7 +11023,6 @@
 	)
 	(label "TC12"
 		(at 280.67 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11476,7 +11033,6 @@
 	)
 	(label "TMA10"
 		(at 214.63 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11487,7 +11043,6 @@
 	)
 	(label "TA9"
 		(at 214.63 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11498,7 +11053,6 @@
 	)
 	(label "TA6"
 		(at 214.63 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11509,7 +11063,6 @@
 	)
 	(label "TMD9"
 		(at 137.16 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11520,7 +11073,6 @@
 	)
 	(label "TMA2"
 		(at 110.49 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11531,7 +11083,6 @@
 	)
 	(label "TUK72"
 		(at 214.63 194.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11542,7 +11093,6 @@
 	)
 	(label "TMD4"
 		(at 137.16 201.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11553,7 +11103,6 @@
 	)
 	(label "TMA9"
 		(at 110.49 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11564,7 +11113,6 @@
 	)
 	(label "TMA11"
 		(at 214.63 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11575,7 +11123,6 @@
 	)
 	(label "TMA10"
 		(at 110.49 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11586,7 +11133,6 @@
 	)
 	(label "TMA10"
 		(at 110.49 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11597,7 +11143,6 @@
 	)
 	(label "MD12"
 		(at 106.68 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11608,7 +11153,6 @@
 	)
 	(label "MA6"
 		(at 184.15 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11619,7 +11163,6 @@
 	)
 	(label "TMD9"
 		(at 137.16 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11630,7 +11173,6 @@
 	)
 	(label "TA9"
 		(at 256.54 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11641,7 +11183,6 @@
 	)
 	(label "TC1"
 		(at 280.67 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11652,7 +11193,6 @@
 	)
 	(label "TA3"
 		(at 256.54 85.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11663,7 +11203,6 @@
 	)
 	(label "TC8"
 		(at 280.67 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11674,7 +11213,6 @@
 	)
 	(label "TA12"
 		(at 256.54 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11685,7 +11223,6 @@
 	)
 	(label "TC4"
 		(at 280.67 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11696,7 +11233,6 @@
 	)
 	(label "TC9"
 		(at 280.67 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11707,7 +11243,6 @@
 	)
 	(label "TMA3"
 		(at 110.49 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11718,7 +11253,6 @@
 	)
 	(label "TMA5"
 		(at 214.63 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11729,7 +11263,6 @@
 	)
 	(label "TMD14"
 		(at 137.16 124.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11740,7 +11273,6 @@
 	)
 	(label "TMD8"
 		(at 182.88 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11751,7 +11283,6 @@
 	)
 	(label "~{TMUDS}"
 		(at 96.52 186.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11762,7 +11293,6 @@
 	)
 	(label "TA18"
 		(at 256.54 185.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11773,7 +11303,6 @@
 	)
 	(label "~{TMU}"
 		(at 97.79 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11784,7 +11313,6 @@
 	)
 	(label "MD8"
 		(at 106.68 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11795,7 +11323,6 @@
 	)
 	(label "TC0"
 		(at 280.67 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11806,7 +11333,6 @@
 	)
 	(label "TMD0"
 		(at 137.16 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11817,7 +11343,6 @@
 	)
 	(label "TA13"
 		(at 256.54 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11828,7 +11353,6 @@
 	)
 	(label "TA[18..0]"
 		(at 231.14 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11839,7 +11363,6 @@
 	)
 	(label "TA10"
 		(at 256.54 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11850,7 +11373,6 @@
 	)
 	(label "~{TWR}"
 		(at 181.61 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11861,7 +11383,6 @@
 	)
 	(label "TMA0"
 		(at 110.49 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11872,7 +11393,6 @@
 	)
 	(label "TMD1"
 		(at 182.88 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11883,7 +11403,6 @@
 	)
 	(label "MD4"
 		(at 106.68 201.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11894,7 +11413,6 @@
 	)
 	(label "TA11"
 		(at 214.63 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11905,7 +11423,6 @@
 	)
 	(label "~{TCOE}"
 		(at 255.27 193.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11916,7 +11433,6 @@
 	)
 	(label "TA9"
 		(at 256.54 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11927,7 +11443,6 @@
 	)
 	(label "TA15"
 		(at 256.54 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11938,7 +11453,6 @@
 	)
 	(label "MA1"
 		(at 184.15 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11949,7 +11463,6 @@
 	)
 	(label "TMD[15..0]"
 		(at 157.48 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11960,7 +11473,6 @@
 	)
 	(label "MD13"
 		(at 106.68 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11971,7 +11483,6 @@
 	)
 	(label "TA3"
 		(at 256.54 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11982,7 +11493,6 @@
 	)
 	(label "TA18"
 		(at 214.63 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11993,7 +11503,6 @@
 	)
 	(label "TMD13"
 		(at 182.88 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12004,7 +11513,6 @@
 	)
 	(label "TUK71"
 		(at 214.63 191.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12015,7 +11523,6 @@
 	)
 	(label "MA3"
 		(at 184.15 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12026,7 +11533,6 @@
 	)
 	(label "TA12"
 		(at 256.54 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12037,7 +11543,6 @@
 	)
 	(label "TMA7"
 		(at 214.63 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12048,7 +11553,6 @@
 	)
 	(label "TUK70"
 		(at 214.63 189.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12059,7 +11563,6 @@
 	)
 	(label "TA18"
 		(at 256.54 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12070,7 +11573,6 @@
 	)
 	(label "TA10"
 		(at 256.54 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12081,7 +11583,6 @@
 	)
 	(label "TA15"
 		(at 214.63 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12092,7 +11593,6 @@
 	)
 	(label "TMA4"
 		(at 110.49 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12103,7 +11603,6 @@
 	)
 	(label "TUK61"
 		(at 214.63 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12114,7 +11613,6 @@
 	)
 	(label "MD0"
 		(at 106.68 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12125,7 +11623,6 @@
 	)
 	(label "MA10"
 		(at 184.15 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12136,7 +11633,6 @@
 	)
 	(label "TMD2"
 		(at 137.16 207.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12147,7 +11643,6 @@
 	)
 	(label "TA11"
 		(at 256.54 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12158,7 +11653,6 @@
 	)
 	(label "TUK64"
 		(at 214.63 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12169,7 +11663,6 @@
 	)
 	(label "TMA6"
 		(at 110.49 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12180,7 +11673,6 @@
 	)
 	(label "TA4"
 		(at 214.63 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12191,7 +11683,6 @@
 	)
 	(label "TMA12"
 		(at 110.49 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12202,7 +11693,6 @@
 	)
 	(label "TA2"
 		(at 256.54 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12213,7 +11703,6 @@
 	)
 	(label "TC5"
 		(at 280.67 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12224,7 +11713,6 @@
 	)
 	(label "MD14"
 		(at 106.68 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12235,7 +11723,6 @@
 	)
 	(label "TA17"
 		(at 256.54 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12246,7 +11733,6 @@
 	)
 	(label "TA15"
 		(at 256.54 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12257,7 +11743,6 @@
 	)
 	(label "TMA12"
 		(at 110.49 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12268,7 +11753,6 @@
 	)
 	(label "TA16"
 		(at 214.63 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12279,7 +11763,6 @@
 	)
 	(label "MA13"
 		(at 184.15 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12290,7 +11773,6 @@
 	)
 	(label "TA17"
 		(at 214.63 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12301,7 +11783,6 @@
 	)
 	(label "TMA7"
 		(at 110.49 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12312,7 +11793,6 @@
 	)
 	(label "TMD[4..0]"
 		(at 154.94 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12323,7 +11803,6 @@
 	)
 	(label "MD15"
 		(at 106.68 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12334,7 +11813,6 @@
 	)
 	(label "TMD3"
 		(at 137.16 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12345,7 +11823,6 @@
 	)
 	(label "~{TML}"
 		(at 214.63 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12356,7 +11833,6 @@
 	)
 	(label "TMD7"
 		(at 137.16 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12367,7 +11843,6 @@
 	)
 	(label "TMA1"
 		(at 214.63 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12378,7 +11853,6 @@
 	)
 	(label "TMA3"
 		(at 110.49 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12389,7 +11863,6 @@
 	)
 	(label "MA5"
 		(at 184.15 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12400,7 +11873,6 @@
 	)
 	(label "TA8"
 		(at 214.63 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12411,7 +11883,6 @@
 	)
 	(label "TMA7"
 		(at 110.49 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12422,7 +11893,6 @@
 	)
 	(label "TA4"
 		(at 256.54 87.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12433,7 +11903,6 @@
 	)
 	(label "TC6"
 		(at 280.67 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12444,7 +11913,6 @@
 	)
 	(label "MA11"
 		(at 184.15 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12455,7 +11923,6 @@
 	)
 	(label "TC7"
 		(at 280.67 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12466,7 +11933,6 @@
 	)
 	(label "TMA[12..0]"
 		(at 170.18 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12477,7 +11943,6 @@
 	)
 	(label "TA3"
 		(at 214.63 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12488,7 +11953,6 @@
 	)
 	(label "TMA5"
 		(at 110.49 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12499,7 +11963,6 @@
 	)
 	(label "~{TCOE}"
 		(at 255.27 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12510,7 +11973,6 @@
 	)
 	(label "TA10"
 		(at 214.63 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12521,7 +11983,6 @@
 	)
 	(label "MA12"
 		(at 184.15 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12532,7 +11993,6 @@
 	)
 	(label "TMA11"
 		(at 110.49 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12543,7 +12003,6 @@
 	)
 	(label "TMD8"
 		(at 137.16 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12554,7 +12013,6 @@
 	)
 	(label "~{TMUW}"
 		(at 97.79 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12565,7 +12023,6 @@
 	)
 	(label "TMD13"
 		(at 137.16 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12576,7 +12033,6 @@
 	)
 	(label "TMA0"
 		(at 214.63 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12587,7 +12043,6 @@
 	)
 	(label "TA6"
 		(at 256.54 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12598,7 +12053,6 @@
 	)
 	(label "TA17"
 		(at 256.54 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12609,7 +12063,6 @@
 	)
 	(label "TMD7"
 		(at 182.88 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12620,7 +12073,6 @@
 	)
 	(label "MA2"
 		(at 184.15 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12631,7 +12083,6 @@
 	)
 	(label "TMA12"
 		(at 214.63 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12642,7 +12093,6 @@
 	)
 	(label "MD11"
 		(at 106.68 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12653,7 +12103,6 @@
 	)
 	(label "TMA4"
 		(at 110.49 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12664,7 +12113,6 @@
 	)
 	(label "TA7"
 		(at 256.54 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12675,7 +12123,6 @@
 	)
 	(label "TMA2"
 		(at 110.49 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12686,7 +12133,6 @@
 	)
 	(label "TMA2"
 		(at 214.63 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12697,7 +12143,6 @@
 	)
 	(label "TMD15"
 		(at 137.16 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12708,7 +12153,6 @@
 	)
 	(label "TMD0"
 		(at 182.88 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12719,7 +12163,6 @@
 	)
 	(label "TMD10"
 		(at 137.16 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12730,7 +12173,6 @@
 	)
 	(label "~{TMLW}"
 		(at 97.79 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12741,7 +12183,6 @@
 	)
 	(label "TA2"
 		(at 256.54 82.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12752,7 +12193,6 @@
 	)
 	(label "TA13"
 		(at 214.63 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12763,7 +12203,6 @@
 	)
 	(label "TC14"
 		(at 280.67 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12774,7 +12213,6 @@
 	)
 	(label "TMD6"
 		(at 137.16 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12785,7 +12223,6 @@
 	)
 	(label "TA14"
 		(at 256.54 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12796,7 +12233,6 @@
 	)
 	(label "TMA0"
 		(at 110.49 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12807,7 +12243,6 @@
 	)
 	(label "TMD11"
 		(at 137.16 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12818,7 +12253,6 @@
 	)
 	(label "~{TMLW}"
 		(at 214.63 67.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12829,7 +12263,6 @@
 	)
 	(label "TMD7"
 		(at 137.16 194.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12840,7 +12273,6 @@
 	)
 	(label "TMA3"
 		(at 214.63 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12851,7 +12283,6 @@
 	)
 	(label "TA7"
 		(at 256.54 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12862,7 +12293,6 @@
 	)
 	(label "TMA4"
 		(at 214.63 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12873,7 +12303,6 @@
 	)
 	(label "TA5"
 		(at 214.63 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12884,7 +12313,6 @@
 	)
 	(label "TA8"
 		(at 256.54 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12895,7 +12323,6 @@
 	)
 	(label "TMD3"
 		(at 137.16 204.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12906,7 +12333,6 @@
 	)
 	(label "MD9"
 		(at 106.68 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12917,7 +12343,6 @@
 	)
 	(label "TC3"
 		(at 280.67 97.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12928,7 +12353,6 @@
 	)
 	(label "MD3"
 		(at 106.68 204.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12939,7 +12363,6 @@
 	)
 	(label "MD1"
 		(at 106.68 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12950,7 +12373,6 @@
 	)
 	(label "TA14"
 		(at 214.63 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12961,7 +12383,6 @@
 	)
 	(label "TMD15"
 		(at 137.16 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12972,7 +12393,6 @@
 	)
 	(label "MD10"
 		(at 106.68 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12983,7 +12403,6 @@
 	)
 	(label "TA12"
 		(at 214.63 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12994,7 +12413,6 @@
 	)
 	(label "TA0"
 		(at 214.63 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13005,7 +12423,6 @@
 	)
 	(label "TUK62"
 		(at 214.63 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13016,7 +12433,6 @@
 	)
 	(label "~{TMUDS}"
 		(at 214.63 74.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13027,7 +12443,6 @@
 	)
 	(label "TMD13"
 		(at 137.16 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13038,7 +12453,6 @@
 	)
 	(label "TUK63"
 		(at 214.63 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13049,7 +12463,6 @@
 	)
 	(label "TMA6"
 		(at 214.63 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13060,7 +12473,6 @@
 	)
 	(label "TA1"
 		(at 256.54 80.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13071,7 +12483,6 @@
 	)
 	(label "TMD14"
 		(at 182.88 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13082,7 +12493,6 @@
 	)
 	(label "TMA9"
 		(at 214.63 97.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13093,7 +12503,6 @@
 	)
 	(label "TMD15"
 		(at 182.88 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13104,7 +12513,6 @@
 	)
 	(label "MD7"
 		(at 106.68 194.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13115,7 +12523,6 @@
 	)
 	(label "MD2"
 		(at 106.68 207.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13126,7 +12533,6 @@
 	)
 	(label "TA6"
 		(at 256.54 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13137,7 +12543,6 @@
 	)
 	(label "MD6"
 		(at 106.68 196.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13148,7 +12553,6 @@
 	)
 	(label "~{TCOE}"
 		(at 214.63 80.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13159,7 +12563,6 @@
 	)
 	(label "~{TMLDS}"
 		(at 96.52 219.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13170,7 +12573,6 @@
 	)
 	(label "TUK69"
 		(at 214.63 186.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13181,7 +12583,6 @@
 	)
 	(label "TMD1"
 		(at 137.16 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13192,7 +12593,6 @@
 	)
 	(label "TMD11"
 		(at 137.16 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13203,7 +12603,6 @@
 	)
 	(label "TMD9"
 		(at 182.88 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13214,7 +12613,6 @@
 	)
 	(label "TMD10"
 		(at 182.88 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13225,7 +12623,6 @@
 	)
 	(label "TA0"
 		(at 256.54 77.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13236,7 +12633,6 @@
 	)
 	(label "MD5"
 		(at 106.68 199.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13247,7 +12643,6 @@
 	)
 	(label "TA1"
 		(at 256.54 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13258,7 +12653,6 @@
 	)
 	(label "TC11"
 		(at 280.67 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13269,7 +12663,6 @@
 	)
 	(label "TMA11"
 		(at 110.49 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13280,7 +12673,6 @@
 	)
 	(label "TMD5"
 		(at 137.16 199.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13291,7 +12683,6 @@
 	)
 	(label "TA5"
 		(at 256.54 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13302,7 +12693,6 @@
 	)
 	(label "TA8"
 		(at 256.54 97.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13313,7 +12703,6 @@
 	)
 	(label "TMA8"
 		(at 214.63 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13324,7 +12713,6 @@
 	)
 	(label "TMA1"
 		(at 110.49 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13335,7 +12723,6 @@
 	)
 	(label "TMD12"
 		(at 137.16 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13346,7 +12733,6 @@
 	)
 	(label "TMD10"
 		(at 137.16 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13357,7 +12743,6 @@
 	)
 	(label "TMD2"
 		(at 137.16 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13368,7 +12753,6 @@
 	)
 	(label "TMD5"
 		(at 137.16 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13379,7 +12763,6 @@
 	)
 	(label "TA4"
 		(at 256.54 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13390,7 +12773,6 @@
 	)
 	(label "TMD1"
 		(at 137.16 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13401,7 +12783,6 @@
 	)
 	(label "MA9"
 		(at 184.15 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13412,7 +12793,6 @@
 	)
 	(label "MA8"
 		(at 184.15 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13423,7 +12803,6 @@
 	)
 	(label "TC13"
 		(at 280.67 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13434,7 +12813,6 @@
 	)
 	(label "TA7"
 		(at 214.63 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13445,7 +12823,6 @@
 	)
 	(label "TA13"
 		(at 256.54 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13456,7 +12833,6 @@
 	)
 	(label "TMD2"
 		(at 182.88 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13467,7 +12843,6 @@
 	)
 	(label "TC15"
 		(at 280.67 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13478,7 +12853,6 @@
 	)
 	(label "TMD6"
 		(at 182.88 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13489,7 +12863,6 @@
 	)
 	(label "TMA9"
 		(at 110.49 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13500,7 +12873,6 @@
 	)
 	(label "TMA1"
 		(at 110.49 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13511,7 +12883,6 @@
 	)
 	(label "~{TMU}"
 		(at 214.63 64.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13522,7 +12893,6 @@
 	)
 	(label "MA4"
 		(at 184.15 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13533,7 +12903,6 @@
 	)
 	(label "TMD4"
 		(at 182.88 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13544,7 +12913,6 @@
 	)
 	(label "TC10"
 		(at 280.67 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13555,7 +12923,6 @@
 	)
 	(label "TA16"
 		(at 256.54 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13566,7 +12933,6 @@
 	)
 	(label "TMA8"
 		(at 110.49 129.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13577,7 +12943,6 @@
 	)
 	(label "TMD0"
 		(at 137.16 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13588,7 +12953,6 @@
 	)
 	(label "~{TMLDS}"
 		(at 214.63 72.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13599,7 +12963,6 @@
 	)
 	(label "TMD12"
 		(at 137.16 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13610,7 +12973,6 @@
 	)
 	(label "~{TML}"
 		(at 97.79 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13621,7 +12983,6 @@
 	)
 	(label "TA16"
 		(at 256.54 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13632,7 +12993,6 @@
 	)
 	(label "TA0"
 		(at 256.54 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13643,7 +13003,6 @@
 	)
 	(label "TMA5"
 		(at 110.49 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13654,7 +13013,6 @@
 	)
 	(label "TA5"
 		(at 256.54 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13665,7 +13023,6 @@
 	)
 	(label "TC2"
 		(at 280.67 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13676,7 +13033,6 @@
 	)
 	(label "TMD8"
 		(at 137.16 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13687,7 +13043,6 @@
 	)
 	(label "TA1"
 		(at 214.63 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13698,7 +13053,6 @@
 	)
 	(label "TMD4"
 		(at 137.16 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13710,7 +13064,6 @@
 	(hierarchical_label "GXSNC"
 		(shape input)
 		(at 189.23 74.93 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13722,7 +13075,6 @@
 	(hierarchical_label "M~{R}W"
 		(shape input)
 		(at 111.76 217.17 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13734,7 +13086,6 @@
 	(hierarchical_label "~{MUDS}"
 		(shape input)
 		(at 189.23 95.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13746,7 +13097,6 @@
 	(hierarchical_label "TC[15..0]"
 		(shape output)
 		(at 290.83 87.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13758,7 +13108,6 @@
 	(hierarchical_label "~{RST}"
 		(shape input)
 		(at 189.23 62.23 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13770,7 +13119,6 @@
 	(hierarchical_label "CK16M3"
 		(shape input)
 		(at 189.23 64.77 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13782,7 +13130,6 @@
 	(hierarchical_label "MR~{W}"
 		(shape input)
 		(at 161.29 90.17 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13794,7 +13141,6 @@
 	(hierarchical_label "~{TDTACK}"
 		(shape output)
 		(at 214.63 85.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13806,7 +13152,6 @@
 	(hierarchical_label "H1"
 		(shape input)
 		(at 161.29 92.71 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13818,7 +13163,6 @@
 	(hierarchical_label "MD[15..0]"
 		(shape bidirectional)
 		(at 101.6 158.75 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13830,7 +13174,6 @@
 	(hierarchical_label "X1-001:44"
 		(shape input)
 		(at 189.23 77.47 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13842,7 +13185,6 @@
 	(hierarchical_label "TUK[61..72]"
 		(shape output)
 		(at 228.6 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13854,7 +13196,6 @@
 	(hierarchical_label "~{TMRAM}"
 		(shape input)
 		(at 189.23 102.87 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13866,7 +13207,6 @@
 	(hierarchical_label "~{HSYNC'}"
 		(shape input)
 		(at 189.23 69.85 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13878,7 +13218,6 @@
 	(hierarchical_label "TMD[4..0]"
 		(shape bidirectional)
 		(at 165.1 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13890,7 +13229,6 @@
 	(hierarchical_label "~{MLDS}"
 		(shape input)
 		(at 189.23 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13902,7 +13240,6 @@
 	(hierarchical_label "MA[13..1]"
 		(shape input)
 		(at 179.07 105.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13914,7 +13251,6 @@
 	(hierarchical_label "~{VBLK}"
 		(shape input)
 		(at 189.23 67.31 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13926,7 +13262,6 @@
 	(hierarchical_label "~{TMCTRL}"
 		(shape input)
 		(at 189.23 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13938,7 +13273,6 @@
 	(hierarchical_label "M~{R}W"
 		(shape input)
 		(at 111.76 184.15 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15905,7 +15239,7 @@
 		)
 	)
 	(symbol
-		(lib_id "skutis:x1-012")
+		(lib_id "seta:x1-012")
 		(at 201.93 133.35 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -15930,7 +15264,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 209.55 41.91 0)
+			(at 209.55 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15939,7 +15273,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 209.55 41.91 0)
+			(at 209.55 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15948,7 +15282,7 @@
 			)
 		)
 		(property "Description" "SETA Tilemap Layer Chip"
-			(at 201.93 24.13 0)
+			(at 203.2 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)

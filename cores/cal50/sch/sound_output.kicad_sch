@@ -5960,7 +5960,6 @@
 	)
 	(label "LD'2"
 		(at 121.92 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5971,7 +5970,6 @@
 	)
 	(label "LD'1"
 		(at 113.03 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5982,7 +5980,6 @@
 	)
 	(label "LD'6"
 		(at 121.92 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5993,7 +5990,6 @@
 	)
 	(label "LD0"
 		(at 83.82 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6004,7 +6000,6 @@
 	)
 	(label "LD'[7..0]"
 		(at 119.38 146.05 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6015,7 +6010,6 @@
 	)
 	(label "RD'0"
 		(at 113.03 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6026,7 +6020,6 @@
 	)
 	(label "LD6"
 		(at 83.82 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6037,7 +6030,6 @@
 	)
 	(label "RD2"
 		(at 83.82 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6048,7 +6040,6 @@
 	)
 	(label "LD3"
 		(at 83.82 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6059,7 +6050,6 @@
 	)
 	(label "RD4"
 		(at 83.82 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6070,7 +6060,6 @@
 	)
 	(label "RD'2"
 		(at 113.03 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6081,7 +6070,6 @@
 	)
 	(label "LD2"
 		(at 83.82 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6092,7 +6080,6 @@
 	)
 	(label "RD'7"
 		(at 121.92 201.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6103,7 +6090,6 @@
 	)
 	(label "RD'2"
 		(at 121.92 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6114,7 +6100,6 @@
 	)
 	(label "RD'4"
 		(at 121.92 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6125,7 +6110,6 @@
 	)
 	(label "LD5"
 		(at 83.82 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6136,7 +6120,6 @@
 	)
 	(label "LD'3"
 		(at 113.03 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6147,7 +6130,6 @@
 	)
 	(label "RD0"
 		(at 83.82 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6158,7 +6140,6 @@
 	)
 	(label "LD'4"
 		(at 113.03 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6169,7 +6150,6 @@
 	)
 	(label "LD'5"
 		(at 113.03 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6180,7 +6160,6 @@
 	)
 	(label "RD5"
 		(at 83.82 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6191,7 +6170,6 @@
 	)
 	(label "RD'1"
 		(at 113.03 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6202,7 +6180,6 @@
 	)
 	(label "RD'1"
 		(at 121.92 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6213,7 +6190,6 @@
 	)
 	(label "RD'6"
 		(at 121.92 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6224,7 +6200,6 @@
 	)
 	(label "LD7"
 		(at 83.82 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6235,7 +6210,6 @@
 	)
 	(label "LD'5"
 		(at 121.92 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6246,7 +6220,6 @@
 	)
 	(label "LD'4"
 		(at 121.92 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6257,7 +6230,6 @@
 	)
 	(label "RD'6"
 		(at 113.03 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6268,7 +6240,6 @@
 	)
 	(label "RD6"
 		(at 83.82 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6279,7 +6250,6 @@
 	)
 	(label "LD'2"
 		(at 113.03 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6290,7 +6260,6 @@
 	)
 	(label "RD'0"
 		(at 121.92 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6301,7 +6270,6 @@
 	)
 	(label "LD'1"
 		(at 121.92 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6312,7 +6280,6 @@
 	)
 	(label "RD'3"
 		(at 113.03 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6323,7 +6290,6 @@
 	)
 	(label "LD1"
 		(at 83.82 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6334,7 +6300,6 @@
 	)
 	(label "LD'7"
 		(at 121.92 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6345,7 +6310,6 @@
 	)
 	(label "LD'6"
 		(at 113.03 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6356,7 +6320,6 @@
 	)
 	(label "RD7"
 		(at 83.82 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6367,7 +6330,6 @@
 	)
 	(label "RD'5"
 		(at 113.03 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6378,7 +6340,6 @@
 	)
 	(label "RD'7"
 		(at 113.03 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6389,7 +6350,6 @@
 	)
 	(label "LD4"
 		(at 83.82 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6400,7 +6360,6 @@
 	)
 	(label "RD'5"
 		(at 121.92 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6411,7 +6370,6 @@
 	)
 	(label "RD'4"
 		(at 113.03 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6422,7 +6380,6 @@
 	)
 	(label "RD3"
 		(at 83.82 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6433,7 +6390,6 @@
 	)
 	(label "RD'[7..0]"
 		(at 119.38 196.85 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6444,7 +6400,6 @@
 	)
 	(label "LD'3"
 		(at 121.92 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6455,7 +6410,6 @@
 	)
 	(label "RD1"
 		(at 83.82 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6466,7 +6420,6 @@
 	)
 	(label "RD'3"
 		(at 121.92 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6477,7 +6430,6 @@
 	)
 	(label "LD'0"
 		(at 113.03 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6488,7 +6440,6 @@
 	)
 	(label "LD'0"
 		(at 121.92 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6499,7 +6450,6 @@
 	)
 	(label "LD'7"
 		(at 113.03 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6511,7 +6461,6 @@
 	(hierarchical_label "SOUND"
 		(shape output)
 		(at 325.12 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6523,7 +6472,6 @@
 	(hierarchical_label "LD[7..0]"
 		(shape input)
 		(at 78.74 113.03 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6535,7 +6483,6 @@
 	(hierarchical_label "~{SNDMUTE}"
 		(shape input)
 		(at 87.63 140.97 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6547,7 +6494,6 @@
 	(hierarchical_label "SPK-"
 		(shape output)
 		(at 369.57 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6559,7 +6505,6 @@
 	(hierarchical_label "CK8M"
 		(shape input)
 		(at 87.63 138.43 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6571,7 +6516,6 @@
 	(hierarchical_label "RD[7..0]"
 		(shape input)
 		(at 78.74 162.56 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6583,7 +6527,6 @@
 	(hierarchical_label "CK8M"
 		(shape input)
 		(at 87.63 187.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6595,7 +6538,6 @@
 	(hierarchical_label "SPK+"
 		(shape output)
 		(at 369.57 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6607,7 +6549,6 @@
 	(hierarchical_label "~{SNDMUTE}"
 		(shape input)
 		(at 87.63 190.5 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

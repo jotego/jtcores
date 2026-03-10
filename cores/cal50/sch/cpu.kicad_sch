@@ -20675,17 +20675,6 @@
 		)
 		(uuid "ffa20da8-58fc-4365-8155-ab28583112a9")
 	)
-	(text "Verkar vara kortis mellan\nMA3 och MA4 också"
-		(exclude_from_sim no)
-		(at 250.19 36.83 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "00241054-8db5-4186-b379-cec0a726dc87")
-	)
 	(text "~{MFC} is active during interrupts."
 		(exclude_from_sim no)
 		(at 219.71 219.71 0)
@@ -20698,7 +20687,6 @@
 	)
 	(label "MA2"
 		(at 294.64 195.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20709,7 +20697,6 @@
 	)
 	(label "~{MAS}"
 		(at 201.93 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20720,7 +20707,6 @@
 	)
 	(label "MA6"
 		(at 368.3 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20731,7 +20717,6 @@
 	)
 	(label "MA10"
 		(at 294.64 215.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20742,7 +20727,6 @@
 	)
 	(label "MA14"
 		(at 294.64 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20753,7 +20737,6 @@
 	)
 	(label "MD6"
 		(at 387.35 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20764,7 +20747,6 @@
 	)
 	(label "MA9"
 		(at 368.3 49.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20775,7 +20757,6 @@
 	)
 	(label "MD5"
 		(at 40.64 243.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20786,7 +20767,6 @@
 	)
 	(label "MA18"
 		(at 294.64 236.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20797,7 +20777,6 @@
 	)
 	(label "~{MROMH}"
 		(at 360.68 242.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20808,7 +20787,6 @@
 	)
 	(label "MA15"
 		(at 361.95 234.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20819,7 +20797,6 @@
 	)
 	(label "MA5"
 		(at 218.44 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20830,7 +20807,6 @@
 	)
 	(label "MA19"
 		(at 294.64 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20841,7 +20817,6 @@
 	)
 	(label "MA9"
 		(at 361.95 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20852,7 +20827,6 @@
 	)
 	(label "MD6"
 		(at 322.58 210.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20863,7 +20837,6 @@
 	)
 	(label "~{MUDS}"
 		(at 201.93 207.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20874,7 +20847,6 @@
 	)
 	(label "~{MRMDTCK}"
 		(at 69.85 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20885,7 +20857,6 @@
 	)
 	(label "MA9"
 		(at 218.44 44.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20896,7 +20867,6 @@
 	)
 	(label "~{SNDRW}"
 		(at 124.46 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20907,7 +20877,6 @@
 	)
 	(label "MD2"
 		(at 393.7 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20918,7 +20887,6 @@
 	)
 	(label "MA4"
 		(at 368.3 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20929,7 +20897,6 @@
 	)
 	(label "MD1"
 		(at 189.23 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20940,7 +20907,6 @@
 	)
 	(label "MD3"
 		(at 322.58 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20951,7 +20917,6 @@
 	)
 	(label "MD13"
 		(at 321.31 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20962,7 +20927,6 @@
 	)
 	(label "MA9"
 		(at 109.22 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20973,7 +20937,6 @@
 	)
 	(label "MD3"
 		(at 393.7 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20984,7 +20947,6 @@
 	)
 	(label "MD4"
 		(at 393.7 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -20995,7 +20957,6 @@
 	)
 	(label "MD4"
 		(at 321.31 30.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21006,7 +20967,6 @@
 	)
 	(label "MD8"
 		(at 321.31 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21017,7 +20977,6 @@
 	)
 	(label "M~{R}W'"
 		(at 295.91 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21028,7 +20987,6 @@
 	)
 	(label "CC1"
 		(at 69.85 251.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21039,7 +20997,6 @@
 	)
 	(label "MA8"
 		(at 294.64 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21050,7 +21007,6 @@
 	)
 	(label "~{MAS}"
 		(at 39.37 194.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21061,7 +21017,6 @@
 	)
 	(label "MA21"
 		(at 218.44 74.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21072,7 +21027,6 @@
 	)
 	(label "MA17"
 		(at 294.64 233.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21083,7 +21037,6 @@
 	)
 	(label "MA16"
 		(at 36.83 224.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21094,7 +21047,6 @@
 	)
 	(label "MA15"
 		(at 361.95 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21105,7 +21057,6 @@
 	)
 	(label "~{MFC}"
 		(at 39.37 191.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21116,7 +21067,6 @@
 	)
 	(label "MA19"
 		(at 218.44 69.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21127,7 +21077,6 @@
 	)
 	(label "MA20"
 		(at 218.44 72.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21138,7 +21087,6 @@
 	)
 	(label "MD7"
 		(at 322.58 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21149,7 +21097,6 @@
 	)
 	(label "~{MUDS}"
 		(at 237.49 87.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21160,7 +21107,6 @@
 	)
 	(label "MA1"
 		(at 361.95 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21171,7 +21117,6 @@
 	)
 	(label "MD15"
 		(at 387.35 217.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21182,7 +21127,6 @@
 	)
 	(label "MD1"
 		(at 40.64 238.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21193,7 +21137,6 @@
 	)
 	(label "~{MAS}"
 		(at 167.64 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21204,7 +21147,6 @@
 	)
 	(label "MA5"
 		(at 295.91 30.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21215,7 +21157,6 @@
 	)
 	(label "MD2"
 		(at 40.64 248.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21226,7 +21167,6 @@
 	)
 	(label "MA13"
 		(at 218.44 54.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21237,7 +21177,6 @@
 	)
 	(label "MA2"
 		(at 368.3 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21248,7 +21187,6 @@
 	)
 	(label "MFC2"
 		(at 201.93 228.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21259,7 +21197,6 @@
 	)
 	(label "MA5"
 		(at 295.91 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21270,7 +21207,6 @@
 	)
 	(label "MA2"
 		(at 295.91 22.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21281,7 +21217,6 @@
 	)
 	(label "MA15"
 		(at 295.91 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21292,7 +21227,6 @@
 	)
 	(label "MA4"
 		(at 361.95 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21303,7 +21237,6 @@
 	)
 	(label "~{MLW}"
 		(at 335.28 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21314,7 +21247,6 @@
 	)
 	(label "MD11"
 		(at 189.23 52.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21325,7 +21257,6 @@
 	)
 	(label "MA6"
 		(at 361.95 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21336,7 +21267,6 @@
 	)
 	(label "~{MRAM}"
 		(at 69.85 224.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21347,7 +21277,6 @@
 	)
 	(label "M~{R}W'"
 		(at 295.91 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21358,7 +21287,6 @@
 	)
 	(label "MA9"
 		(at 294.64 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21369,7 +21297,6 @@
 	)
 	(label "MD8"
 		(at 322.58 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21380,7 +21307,6 @@
 	)
 	(label "~{MROML}"
 		(at 69.85 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21391,7 +21317,6 @@
 	)
 	(label "MD12"
 		(at 321.31 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21402,7 +21327,6 @@
 	)
 	(label "MA15"
 		(at 294.64 228.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21413,7 +21337,6 @@
 	)
 	(label "MA1"
 		(at 368.3 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21424,7 +21347,6 @@
 	)
 	(label "MA4"
 		(at 218.44 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21435,7 +21357,6 @@
 	)
 	(label "MA16"
 		(at 361.95 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21446,7 +21367,6 @@
 	)
 	(label "MA12"
 		(at 361.95 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21457,7 +21377,6 @@
 	)
 	(label "MFC"
 		(at 39.37 222.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21468,7 +21387,6 @@
 	)
 	(label "MA17"
 		(at 294.64 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21479,7 +21397,6 @@
 	)
 	(label "MA1"
 		(at 322.58 233.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21490,7 +21407,6 @@
 	)
 	(label "MA3"
 		(at 294.64 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21501,7 +21417,6 @@
 	)
 	(label "MA3"
 		(at 295.91 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21512,7 +21427,6 @@
 	)
 	(label "MD15"
 		(at 321.31 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21523,7 +21437,6 @@
 	)
 	(label "~{NVRAM}"
 		(at 69.85 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21534,7 +21447,6 @@
 	)
 	(label "MD8"
 		(at 189.23 44.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21545,7 +21457,6 @@
 	)
 	(label "MA3"
 		(at 294.64 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21556,7 +21467,6 @@
 	)
 	(label "~{HIRST}"
 		(at 149.86 77.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21567,7 +21477,6 @@
 	)
 	(label "MD5"
 		(at 322.58 208.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21578,7 +21487,6 @@
 	)
 	(label "MD14"
 		(at 322.58 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21589,7 +21497,6 @@
 	)
 	(label "~{WDRST}"
 		(at 124.46 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21600,7 +21507,6 @@
 	)
 	(label "MD4"
 		(at 322.58 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21611,7 +21517,6 @@
 	)
 	(label "MD4"
 		(at 387.35 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21622,7 +21527,6 @@
 	)
 	(label "MA14"
 		(at 294.64 226.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21633,7 +21537,6 @@
 	)
 	(label "MA17"
 		(at 218.44 64.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21644,7 +21547,6 @@
 	)
 	(label "MD2"
 		(at 321.31 25.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21655,7 +21557,6 @@
 	)
 	(label "MD11"
 		(at 321.31 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21666,7 +21567,6 @@
 	)
 	(label "MA10"
 		(at 295.91 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21677,7 +21577,6 @@
 	)
 	(label "MA1"
 		(at 322.58 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21688,7 +21587,6 @@
 	)
 	(label "MA8"
 		(at 361.95 217.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21699,7 +21597,6 @@
 	)
 	(label "MA5"
 		(at 368.3 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21710,7 +21607,6 @@
 	)
 	(label "VGFX"
 		(at 102.87 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21721,7 +21617,6 @@
 	)
 	(label "MA22"
 		(at 218.44 77.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21732,7 +21627,6 @@
 	)
 	(label "MD12"
 		(at 322.58 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21743,7 +21637,6 @@
 	)
 	(label "MA3"
 		(at 361.95 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21754,7 +21647,6 @@
 	)
 	(label "~{SNDRW}"
 		(at 83.82 210.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21765,7 +21657,6 @@
 	)
 	(label "MA12"
 		(at 361.95 227.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21776,7 +21667,6 @@
 	)
 	(label "~{VIRST}"
 		(at 124.46 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21787,7 +21677,6 @@
 	)
 	(label "MD4"
 		(at 40.64 246.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21798,7 +21687,6 @@
 	)
 	(label "MA5"
 		(at 361.95 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21809,7 +21697,6 @@
 	)
 	(label "MA1"
 		(at 218.44 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21820,7 +21707,6 @@
 	)
 	(label "MA2"
 		(at 361.95 201.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21831,7 +21717,6 @@
 	)
 	(label "MA5"
 		(at 361.95 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21842,7 +21727,6 @@
 	)
 	(label "MD3"
 		(at 189.23 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21853,7 +21737,6 @@
 	)
 	(label "MA11"
 		(at 294.64 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21864,7 +21747,6 @@
 	)
 	(label "~{VGFX2}"
 		(at 85.09 217.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21875,7 +21757,6 @@
 	)
 	(label "MD3"
 		(at 387.35 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21886,7 +21767,6 @@
 	)
 	(label "MD0"
 		(at 40.64 251.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21897,7 +21777,6 @@
 	)
 	(label "CC2"
 		(at 69.85 238.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21908,7 +21787,6 @@
 	)
 	(label "MA11"
 		(at 295.91 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21919,7 +21797,6 @@
 	)
 	(label "MD11"
 		(at 387.35 207.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21930,7 +21807,6 @@
 	)
 	(label "MA7"
 		(at 294.64 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21941,7 +21817,6 @@
 	)
 	(label "~{PALET}"
 		(at 124.46 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21952,7 +21827,6 @@
 	)
 	(label "~{MRAM}"
 		(at 295.91 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21963,7 +21837,6 @@
 	)
 	(label "MA8"
 		(at 218.44 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21974,7 +21847,6 @@
 	)
 	(label "MA13"
 		(at 361.95 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21985,7 +21857,6 @@
 	)
 	(label "MD0"
 		(at 321.31 20.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -21996,7 +21867,6 @@
 	)
 	(label "M~{R}W'"
 		(at 368.3 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22007,7 +21877,6 @@
 	)
 	(label "MD10"
 		(at 189.23 49.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22018,7 +21887,6 @@
 	)
 	(label "MD1"
 		(at 321.31 22.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22029,7 +21897,6 @@
 	)
 	(label "MD1"
 		(at 322.58 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22040,7 +21907,6 @@
 	)
 	(label "~{SNDRW}"
 		(at 151.13 194.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22051,7 +21917,6 @@
 	)
 	(label "M~{R}W'"
 		(at 293.37 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22062,7 +21927,6 @@
 	)
 	(label "MD9"
 		(at 321.31 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22073,7 +21937,6 @@
 	)
 	(label "MA4"
 		(at 361.95 207.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22084,7 +21947,6 @@
 	)
 	(label "MD2"
 		(at 387.35 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22095,7 +21957,6 @@
 	)
 	(label "MD7"
 		(at 189.23 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22106,7 +21967,6 @@
 	)
 	(label "~{MRAM}"
 		(at 295.91 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22117,7 +21977,6 @@
 	)
 	(label "MD9"
 		(at 322.58 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22128,7 +21987,6 @@
 	)
 	(label "MA8"
 		(at 295.91 38.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22139,7 +21997,6 @@
 	)
 	(label "~{VIRST}"
 		(at 69.85 186.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22150,7 +22007,6 @@
 	)
 	(label "M~{R}W'"
 		(at 360.68 245.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22161,7 +22017,6 @@
 	)
 	(label "MD7"
 		(at 393.7 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22172,7 +22027,6 @@
 	)
 	(label "MA21"
 		(at 36.83 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22183,7 +22037,6 @@
 	)
 	(label "MA13"
 		(at 295.91 106.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22194,7 +22047,6 @@
 	)
 	(label "~{MRMDTCK}"
 		(at 124.46 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22205,7 +22057,6 @@
 	)
 	(label "MA6"
 		(at 218.44 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22216,7 +22067,6 @@
 	)
 	(label "M~{R}W'"
 		(at 292.1 246.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22227,7 +22077,6 @@
 	)
 	(label "MD0"
 		(at 189.23 24.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22238,7 +22087,6 @@
 	)
 	(label "MD6"
 		(at 393.7 44.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22249,7 +22097,6 @@
 	)
 	(label "~{COINCOIL}"
 		(at 69.85 191.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22260,7 +22107,6 @@
 	)
 	(label "MD0"
 		(at 387.35 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22271,7 +22117,6 @@
 	)
 	(label "MA9"
 		(at 295.91 40.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22282,7 +22127,6 @@
 	)
 	(label "MA7"
 		(at 294.64 208.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22293,7 +22137,6 @@
 	)
 	(label "MD14"
 		(at 387.35 214.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22304,7 +22147,6 @@
 	)
 	(label "MA7"
 		(at 218.44 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22315,7 +22157,6 @@
 	)
 	(label "MA21"
 		(at 36.83 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22326,7 +22167,6 @@
 	)
 	(label "~{COINCOIL}"
 		(at 124.46 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22337,7 +22177,6 @@
 	)
 	(label "MA8"
 		(at 295.91 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22348,7 +22187,6 @@
 	)
 	(label "~{MLDS}"
 		(at 237.49 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22359,7 +22197,6 @@
 	)
 	(label "MA12"
 		(at 295.91 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22370,7 +22207,6 @@
 	)
 	(label "~{NVRAM}"
 		(at 334.01 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22381,7 +22217,6 @@
 	)
 	(label "~{VGFX1'}"
 		(at 96.52 217.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22392,7 +22227,6 @@
 	)
 	(label "MD9"
 		(at 387.35 201.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22403,7 +22237,6 @@
 	)
 	(label "MFC1"
 		(at 218.44 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22414,7 +22247,6 @@
 	)
 	(label "MA21"
 		(at 36.83 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22425,7 +22257,6 @@
 	)
 	(label "MD3"
 		(at 40.64 241.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22436,7 +22267,6 @@
 	)
 	(label "MA11"
 		(at 361.95 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22447,7 +22277,6 @@
 	)
 	(label "~{MROMH}"
 		(at 69.85 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22458,7 +22287,6 @@
 	)
 	(label "MA14"
 		(at 361.95 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22469,7 +22297,6 @@
 	)
 	(label "MA2"
 		(at 218.44 26.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22480,7 +22307,6 @@
 	)
 	(label "MA15"
 		(at 295.91 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22491,7 +22317,6 @@
 	)
 	(label "~{NVRAM}"
 		(at 124.46 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22502,7 +22327,6 @@
 	)
 	(label "MA1"
 		(at 361.95 199.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22513,7 +22337,6 @@
 	)
 	(label "MA6"
 		(at 294.64 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22524,7 +22347,6 @@
 	)
 	(label "~{SNDRW}"
 		(at 151.13 186.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22535,7 +22357,6 @@
 	)
 	(label "MA15"
 		(at 294.64 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22546,7 +22367,6 @@
 	)
 	(label "MA19"
 		(at 36.83 151.13 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22557,7 +22377,6 @@
 	)
 	(label "MA3"
 		(at 361.95 204.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22568,7 +22387,6 @@
 	)
 	(label "~{MLW}"
 		(at 151.13 199.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22579,7 +22397,6 @@
 	)
 	(label "MA12"
 		(at 294.64 220.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22590,7 +22407,6 @@
 	)
 	(label "~{MLDS}"
 		(at 201.93 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22601,7 +22417,6 @@
 	)
 	(label "~{VGFX2}"
 		(at 149.86 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22612,7 +22427,6 @@
 	)
 	(label "MD5"
 		(at 321.31 33.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22623,7 +22437,6 @@
 	)
 	(label "MD12"
 		(at 189.23 54.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22634,7 +22447,6 @@
 	)
 	(label "MA14"
 		(at 332.74 236.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22645,7 +22457,6 @@
 	)
 	(label "~{HIRST}"
 		(at 69.85 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22656,7 +22467,6 @@
 	)
 	(label "MA8"
 		(at 368.3 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22667,7 +22477,6 @@
 	)
 	(label "MA16"
 		(at 294.64 231.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22678,7 +22487,6 @@
 	)
 	(label "MA4"
 		(at 294.64 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22689,7 +22497,6 @@
 	)
 	(label "~{MFC}"
 		(at 167.64 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22700,7 +22507,6 @@
 	)
 	(label "MA16"
 		(at 294.64 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22711,7 +22517,6 @@
 	)
 	(label "MA22"
 		(at 36.83 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22722,7 +22527,6 @@
 	)
 	(label "MA11"
 		(at 368.3 54.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22733,7 +22537,6 @@
 	)
 	(label "MD15"
 		(at 189.23 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22744,7 +22547,6 @@
 	)
 	(label "MA18"
 		(at 218.44 67.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22755,7 +22557,6 @@
 	)
 	(label "MD2"
 		(at 189.23 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22766,7 +22567,6 @@
 	)
 	(label "MA9"
 		(at 294.64 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22777,7 +22577,6 @@
 	)
 	(label "MA3"
 		(at 218.44 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22788,7 +22587,6 @@
 	)
 	(label "MD9"
 		(at 189.23 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22799,7 +22597,6 @@
 	)
 	(label "MA3"
 		(at 368.3 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22810,7 +22607,6 @@
 	)
 	(label "MA8"
 		(at 294.64 210.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22821,7 +22617,6 @@
 	)
 	(label "MD1"
 		(at 393.7 31.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22832,7 +22627,6 @@
 	)
 	(label "MD4"
 		(at 189.23 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22843,7 +22637,6 @@
 	)
 	(label "M~{R}W'"
 		(at 220.98 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22854,7 +22647,6 @@
 	)
 	(label "MD8"
 		(at 387.35 199.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22865,7 +22657,6 @@
 	)
 	(label "~{NVRAM}"
 		(at 124.46 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22876,7 +22667,6 @@
 	)
 	(label "MA4"
 		(at 295.91 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22887,7 +22677,6 @@
 	)
 	(label "MA8"
 		(at 361.95 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22898,7 +22687,6 @@
 	)
 	(label "MA7"
 		(at 361.95 214.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22909,7 +22697,6 @@
 	)
 	(label "MA5"
 		(at 294.64 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22920,7 +22707,6 @@
 	)
 	(label "MA14"
 		(at 295.91 53.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22931,7 +22717,6 @@
 	)
 	(label "MR~{W}"
 		(at 201.93 201.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22942,7 +22727,6 @@
 	)
 	(label "MA10"
 		(at 295.91 43.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22953,7 +22737,6 @@
 	)
 	(label "MD0"
 		(at 393.7 29.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22964,7 +22747,6 @@
 	)
 	(label "MA1"
 		(at 295.91 20.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22975,7 +22757,6 @@
 	)
 	(label "MA20"
 		(at 36.83 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22986,7 +22767,6 @@
 	)
 	(label "MD14"
 		(at 321.31 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -22997,7 +22777,6 @@
 	)
 	(label "MA2"
 		(at 294.64 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23008,7 +22787,6 @@
 	)
 	(label "~{VRAMWE}"
 		(at 149.86 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23019,7 +22797,6 @@
 	)
 	(label "MD7"
 		(at 321.31 38.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23030,7 +22807,6 @@
 	)
 	(label "MR~{W}"
 		(at 201.93 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23041,7 +22817,6 @@
 	)
 	(label "~{VIRST}"
 		(at 149.86 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23052,7 +22827,6 @@
 	)
 	(label "MFC2"
 		(at 218.44 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23063,7 +22837,6 @@
 	)
 	(label "MA3"
 		(at 295.91 25.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23074,7 +22847,6 @@
 	)
 	(label "MD10"
 		(at 321.31 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23085,7 +22857,6 @@
 	)
 	(label "MA11"
 		(at 218.44 49.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23096,7 +22867,6 @@
 	)
 	(label "MA18"
 		(at 294.64 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23107,7 +22877,6 @@
 	)
 	(label "MA23"
 		(at 218.44 80.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23118,7 +22887,6 @@
 	)
 	(label "~{MRAM}"
 		(at 124.46 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23129,7 +22897,6 @@
 	)
 	(label "MD5"
 		(at 393.7 41.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23140,7 +22907,6 @@
 	)
 	(label "MA10"
 		(at 368.3 52.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23151,7 +22917,6 @@
 	)
 	(label "MD0"
 		(at 322.58 195.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23162,7 +22927,6 @@
 	)
 	(label "MA13"
 		(at 361.95 229.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23173,7 +22937,6 @@
 	)
 	(label "MD15"
 		(at 322.58 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23184,7 +22947,6 @@
 	)
 	(label "MR~{W}"
 		(at 237.49 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23195,7 +22957,6 @@
 	)
 	(label "MA7"
 		(at 295.91 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23206,7 +22967,6 @@
 	)
 	(label "MA20"
 		(at 36.83 207.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23217,7 +22977,6 @@
 	)
 	(label "MA5"
 		(at 294.64 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23228,7 +22987,6 @@
 	)
 	(label "~{MROML}"
 		(at 292.1 248.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23239,7 +22997,6 @@
 	)
 	(label "MD10"
 		(at 387.35 204.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23250,7 +23007,6 @@
 	)
 	(label "MA12"
 		(at 295.91 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23261,7 +23017,6 @@
 	)
 	(label "MD13"
 		(at 322.58 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23272,7 +23027,6 @@
 	)
 	(label "MD14"
 		(at 189.23 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23283,7 +23037,6 @@
 	)
 	(label "MD13"
 		(at 387.35 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23294,7 +23047,6 @@
 	)
 	(label "MA7"
 		(at 368.3 44.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23305,7 +23057,6 @@
 	)
 	(label "MA[23..1]"
 		(at 234.95 17.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23316,7 +23067,6 @@
 	)
 	(label "MA11"
 		(at 294.64 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23327,7 +23077,6 @@
 	)
 	(label "MA4"
 		(at 294.64 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23338,7 +23087,6 @@
 	)
 	(label "~{MLDS}"
 		(at 201.93 196.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23349,7 +23097,6 @@
 	)
 	(label "MA11"
 		(at 295.91 45.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23360,7 +23107,6 @@
 	)
 	(label "MD5"
 		(at 387.35 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23371,7 +23117,6 @@
 	)
 	(label "~{MROML}"
 		(at 293.37 185.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23382,7 +23127,6 @@
 	)
 	(label "MA10"
 		(at 361.95 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23393,7 +23137,6 @@
 	)
 	(label "MA23"
 		(at 36.83 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23404,7 +23147,6 @@
 	)
 	(label "MA2"
 		(at 361.95 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23415,7 +23157,6 @@
 	)
 	(label "~{MUW}"
 		(at 295.91 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23426,7 +23167,6 @@
 	)
 	(label "MA23"
 		(at 36.83 219.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23437,7 +23177,6 @@
 	)
 	(label "MA15"
 		(at 218.44 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23448,7 +23187,6 @@
 	)
 	(label "MA13"
 		(at 295.91 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23459,7 +23197,6 @@
 	)
 	(label "MA10"
 		(at 361.95 222.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23470,7 +23207,6 @@
 	)
 	(label "~{MLW}"
 		(at 295.91 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23481,7 +23217,6 @@
 	)
 	(label "MA13"
 		(at 294.64 223.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23492,7 +23227,6 @@
 	)
 	(label "~{DIPSW}"
 		(at 124.46 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23503,7 +23237,6 @@
 	)
 	(label "~{HIRST}"
 		(at 124.46 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23514,7 +23247,6 @@
 	)
 	(label "MD3"
 		(at 321.31 27.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23525,7 +23257,6 @@
 	)
 	(label "MA14"
 		(at 218.44 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23536,7 +23267,6 @@
 	)
 	(label "MA10"
 		(at 218.44 46.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23547,7 +23277,6 @@
 	)
 	(label "MA14"
 		(at 295.91 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23558,7 +23287,6 @@
 	)
 	(label "MA9"
 		(at 361.95 219.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23569,7 +23297,6 @@
 	)
 	(label "MA4"
 		(at 295.91 27.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23580,7 +23307,6 @@
 	)
 	(label "M~{R}W'"
 		(at 151.13 191.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23591,7 +23317,6 @@
 	)
 	(label "MA13"
 		(at 294.64 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23602,7 +23327,6 @@
 	)
 	(label "MFC1"
 		(at 201.93 231.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23613,7 +23337,6 @@
 	)
 	(label "MA23"
 		(at 36.83 196.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23624,7 +23347,6 @@
 	)
 	(label "MD6"
 		(at 321.31 35.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23635,7 +23357,6 @@
 	)
 	(label "~{MLDS}"
 		(at 135.89 224.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23646,7 +23367,6 @@
 	)
 	(label "LC1"
 		(at 69.85 248.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23657,7 +23377,6 @@
 	)
 	(label "MA7"
 		(at 295.91 35.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23668,7 +23387,6 @@
 	)
 	(label "~{MROMH}"
 		(at 360.68 189.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23679,7 +23397,6 @@
 	)
 	(label "MA2"
 		(at 295.91 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23690,7 +23407,6 @@
 	)
 	(label "MA12"
 		(at 294.64 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23701,7 +23417,6 @@
 	)
 	(label "MA20"
 		(at 36.83 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23712,7 +23427,6 @@
 	)
 	(label "MA6"
 		(at 361.95 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23723,7 +23437,6 @@
 	)
 	(label "M~{R}W"
 		(at 201.93 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23734,7 +23447,6 @@
 	)
 	(label "MD11"
 		(at 322.58 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23745,7 +23457,6 @@
 	)
 	(label "MD7"
 		(at 387.35 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23756,7 +23467,6 @@
 	)
 	(label "LC2"
 		(at 69.85 241.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23767,7 +23477,6 @@
 	)
 	(label "VGFX"
 		(at 172.72 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23778,7 +23487,6 @@
 	)
 	(label "MA16"
 		(at 332.74 241.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23789,7 +23497,6 @@
 	)
 	(label "MA12"
 		(at 218.44 52.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23800,7 +23507,6 @@
 	)
 	(label "MA19"
 		(at 294.64 238.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23811,7 +23517,6 @@
 	)
 	(label "MR~{W}"
 		(at 201.93 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23822,7 +23527,6 @@
 	)
 	(label "MA11"
 		(at 361.95 224.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23833,7 +23537,6 @@
 	)
 	(label "~{MFC}"
 		(at 224.79 231.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23844,7 +23547,6 @@
 	)
 	(label "MD6"
 		(at 189.23 39.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23855,7 +23557,6 @@
 	)
 	(label "~{COINCOIL}"
 		(at 35.56 256.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23866,7 +23567,6 @@
 	)
 	(label "MA22"
 		(at 36.83 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23877,7 +23577,6 @@
 	)
 	(label "MA10"
 		(at 294.64 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23888,7 +23587,6 @@
 	)
 	(label "MD13"
 		(at 189.23 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23899,7 +23597,6 @@
 	)
 	(label "~{VRAMWE}"
 		(at 83.82 222.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23910,7 +23607,6 @@
 	)
 	(label "MFC0"
 		(at 201.93 233.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23921,7 +23617,6 @@
 	)
 	(label "~{MUDS}"
 		(at 201.93 187.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23932,7 +23627,6 @@
 	)
 	(label "MD2"
 		(at 322.58 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23943,7 +23637,6 @@
 	)
 	(label "MA7"
 		(at 361.95 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23954,7 +23647,6 @@
 	)
 	(label "MFC0"
 		(at 218.44 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23965,7 +23657,6 @@
 	)
 	(label "MA16"
 		(at 218.44 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23976,7 +23667,6 @@
 	)
 	(label "MA1"
 		(at 295.91 76.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23987,7 +23677,6 @@
 	)
 	(label "MD10"
 		(at 322.58 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -23998,7 +23687,6 @@
 	)
 	(label "MD12"
 		(at 387.35 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24009,7 +23697,6 @@
 	)
 	(label "MA6"
 		(at 294.64 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24020,7 +23707,6 @@
 	)
 	(label "MA8"
 		(at 109.22 214.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24031,7 +23717,6 @@
 	)
 	(label "MA6"
 		(at 295.91 33.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24042,7 +23727,6 @@
 	)
 	(label "MA6"
 		(at 295.91 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24053,7 +23737,6 @@
 	)
 	(label "MD1"
 		(at 387.35 148.59 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24064,7 +23747,6 @@
 	)
 	(label "~{MAS}"
 		(at 238.76 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24075,7 +23757,6 @@
 	)
 	(label "MA9"
 		(at 295.91 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24086,7 +23767,6 @@
 	)
 	(label "MFC"
 		(at 224.79 243.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24097,7 +23777,6 @@
 	)
 	(label "~{VGFX1'}"
 		(at 149.86 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24108,7 +23787,6 @@
 	)
 	(label "M~{R}W'"
 		(at 360.68 191.77 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24119,7 +23797,6 @@
 	)
 	(label "MA22"
 		(at 36.83 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24130,7 +23807,6 @@
 	)
 	(label "MD5"
 		(at 189.23 36.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24142,7 +23818,6 @@
 	(hierarchical_label "~{TDTACK}"
 		(shape input)
 		(at 124.46 113.03 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24154,7 +23829,6 @@
 	(hierarchical_label "MR~{W}"
 		(shape output)
 		(at 236.22 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24166,7 +23840,6 @@
 	(hierarchical_label "~{VBLK}"
 		(shape input)
 		(at 130.81 88.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24178,7 +23851,6 @@
 	(hierarchical_label "~{VGFX1}"
 		(shape output)
 		(at 175.26 215.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24190,7 +23862,6 @@
 	(hierarchical_label "MD[15..0]"
 		(shape bidirectional)
 		(at 189.23 20.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24202,7 +23873,6 @@
 	(hierarchical_label "~{MLW}"
 		(shape output)
 		(at 222.25 199.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24214,7 +23884,6 @@
 	(hierarchical_label "~{DIPSW}"
 		(shape output)
 		(at 69.85 194.31 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24226,7 +23895,6 @@
 	(hierarchical_label "~{RST3}"
 		(shape input)
 		(at 355.6 62.23 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24238,7 +23906,6 @@
 	(hierarchical_label "~{VGFX}"
 		(shape output)
 		(at 172.72 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24250,7 +23917,6 @@
 	(hierarchical_label "~{TMRAM}"
 		(shape output)
 		(at 69.85 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24262,7 +23928,6 @@
 	(hierarchical_label "H'1"
 		(shape input)
 		(at 76.2 95.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24274,7 +23939,6 @@
 	(hierarchical_label "PXCKSEL"
 		(shape input)
 		(at 101.6 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24286,7 +23950,6 @@
 	(hierarchical_label "~{PALET}"
 		(shape output)
 		(at 69.85 196.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24298,7 +23961,6 @@
 	(hierarchical_label "LC[2..1]"
 		(shape output)
 		(at 88.9 259.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24310,7 +23972,6 @@
 	(hierarchical_label "~{SCPUWR}"
 		(shape output)
 		(at 172.72 196.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24322,7 +23983,6 @@
 	(hierarchical_label "~{VRAMWE}"
 		(shape output)
 		(at 85.09 226.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24334,7 +23994,6 @@
 	(hierarchical_label "~{TMCTRL}"
 		(shape output)
 		(at 69.85 207.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24346,7 +24005,6 @@
 	(hierarchical_label "~{SCPURST}"
 		(shape output)
 		(at 69.85 246.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24358,7 +24016,6 @@
 	(hierarchical_label "HBLK64"
 		(shape input)
 		(at 148.59 67.31 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24370,7 +24027,6 @@
 	(hierarchical_label "~{SCPURD}"
 		(shape output)
 		(at 172.72 189.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24382,7 +24038,6 @@
 	(hierarchical_label "M~{R}W2"
 		(shape output)
 		(at 237.49 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24394,7 +24049,6 @@
 	(hierarchical_label "~{WDRST}"
 		(shape output)
 		(at 81.28 189.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24406,7 +24060,6 @@
 	(hierarchical_label "~{RST2}"
 		(shape input)
 		(at 195.58 87.63 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24418,7 +24071,6 @@
 	(hierarchical_label "CC[2..1]"
 		(shape output)
 		(at 88.9 256.54 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24430,7 +24082,6 @@
 	(hierarchical_label "~{VGFX2}"
 		(shape output)
 		(at 83.82 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24442,7 +24093,6 @@
 	(hierarchical_label "MA[13..1]"
 		(shape output)
 		(at 247.65 20.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24454,7 +24104,6 @@
 	(hierarchical_label "MCLK"
 		(shape input)
 		(at 195.58 67.31 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24466,7 +24115,6 @@
 	(hierarchical_label "~{IORD}"
 		(shape output)
 		(at 69.85 212.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24478,7 +24126,6 @@
 	(hierarchical_label "H'0"
 		(shape input)
 		(at 76.2 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24490,7 +24137,6 @@
 	(hierarchical_label "~{RST}"
 		(shape input)
 		(at 44.45 261.62 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24502,7 +24148,6 @@
 	(hierarchical_label "~{RST3}"
 		(shape input)
 		(at 355.6 71.12 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24514,7 +24159,6 @@
 	(hierarchical_label "~{MUW}"
 		(shape output)
 		(at 222.25 209.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24526,7 +24170,6 @@
 	(hierarchical_label "~{MUDS}"
 		(shape output)
 		(at 236.22 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24538,7 +24181,6 @@
 	(hierarchical_label "~{MLDS}"
 		(shape output)
 		(at 236.22 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24550,7 +24192,6 @@
 	(hierarchical_label "M~{R}W"
 		(shape output)
 		(at 237.49 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -24562,7 +24203,6 @@
 	(hierarchical_label "~{RST}"
 		(shape input)
 		(at 195.58 90.17 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

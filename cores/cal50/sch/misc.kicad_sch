@@ -9941,7 +9941,7 @@
 					)
 				)
 				(pin power_in line
-					(at 1.27 -7.62 90)
+					(at 0 -7.62 90)
 					(length 5.08) hide
 					(name "GND"
 						(effects
@@ -14574,19 +14574,8 @@
 		)
 		(uuid "ff183957-569e-4fa8-b4ac-e2736fbf3792")
 	)
-	(text "Uppdater i JT LS14, MC14584 - Sned power"
-		(exclude_from_sim no)
-		(at 151.13 199.39 0)
-		(effects
-			(font
-				(size 2.54 2.54)
-			)
-		)
-		(uuid "2a716c63-6d15-475c-8089-9be260500792")
-	)
 	(label "CK16M1"
 		(at 87.63 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14597,7 +14586,6 @@
 	)
 	(label "H'0"
 		(at 139.7 97.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14608,7 +14596,6 @@
 	)
 	(label "H2"
 		(at 110.49 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14619,7 +14606,6 @@
 	)
 	(label "H0"
 		(at 110.49 97.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14630,7 +14616,6 @@
 	)
 	(label "PXCK1'"
 		(at 139.7 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14641,7 +14626,6 @@
 	)
 	(label "PXCK1''"
 		(at 146.05 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14652,7 +14636,6 @@
 	)
 	(label "PXCK1''"
 		(at 177.8 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14663,7 +14646,6 @@
 	)
 	(label "PXCK1'"
 		(at 139.7 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14674,7 +14656,6 @@
 	)
 	(label "H1"
 		(at 175.26 82.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14685,7 +14666,6 @@
 	)
 	(label "H'1"
 		(at 139.7 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14696,7 +14676,6 @@
 	)
 	(label "PXCK2'"
 		(at 139.7 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14707,7 +14686,6 @@
 	)
 	(label "H'2"
 		(at 139.7 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14718,7 +14696,6 @@
 	)
 	(label "H1"
 		(at 110.49 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14730,7 +14707,6 @@
 	(hierarchical_label "PXCK1"
 		(shape input)
 		(at 114.3 92.71 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14742,7 +14718,6 @@
 	(hierarchical_label "PXCK2"
 		(shape input)
 		(at 78.74 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14754,7 +14729,6 @@
 	(hierarchical_label "MCLK"
 		(shape output)
 		(at 139.7 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14766,7 +14740,6 @@
 	(hierarchical_label "~{RST3}"
 		(shape output)
 		(at 397.51 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14778,7 +14751,6 @@
 	(hierarchical_label "H[2..0]"
 		(shape input)
 		(at 101.6 74.93 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14790,7 +14762,6 @@
 	(hierarchical_label "~{WDRST}"
 		(shape input)
 		(at 294.64 85.09 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14802,7 +14773,6 @@
 	(hierarchical_label "H''1"
 		(shape output)
 		(at 200.66 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14814,7 +14784,6 @@
 	(hierarchical_label "CK8M'"
 		(shape input)
 		(at 113.03 166.37 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14826,7 +14795,6 @@
 	(hierarchical_label "CK8M"
 		(shape output)
 		(at 165.1 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14838,7 +14806,6 @@
 	(hierarchical_label "CLK2M"
 		(shape output)
 		(at 173.99 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14850,7 +14817,6 @@
 	(hierarchical_label "~{RST}"
 		(shape output)
 		(at 397.51 53.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14862,7 +14828,6 @@
 	(hierarchical_label "CLK2M''"
 		(shape input)
 		(at 73.66 118.11 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14874,7 +14839,6 @@
 	(hierarchical_label "PXCKSEL"
 		(shape output)
 		(at 189.23 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14886,7 +14850,6 @@
 	(hierarchical_label "CK16M3"
 		(shape output)
 		(at 149.86 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14898,7 +14861,6 @@
 	(hierarchical_label "PXCK2"
 		(shape input)
 		(at 114.3 107.95 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14910,7 +14872,6 @@
 	(hierarchical_label "H'[2..0]"
 		(shape output)
 		(at 153.67 85.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14922,7 +14883,6 @@
 	(hierarchical_label "CK16M2"
 		(shape output)
 		(at 87.63 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14934,7 +14894,6 @@
 	(hierarchical_label "~{H1}"
 		(shape output)
 		(at 196.85 82.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14946,7 +14905,6 @@
 	(hierarchical_label "PXCK1"
 		(shape input)
 		(at 78.74 104.14 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14958,7 +14916,6 @@
 	(hierarchical_label "~{RST2}"
 		(shape output)
 		(at 397.51 34.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14970,7 +14927,6 @@
 	(hierarchical_label "PXCK2"
 		(shape input)
 		(at 181.61 119.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -19488,7 +19444,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 264.16 259.08 0)
+		(at 262.89 259.08 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -19497,7 +19453,7 @@
 		(fields_autoplaced yes)
 		(uuid "4f08e11f-c420-4b42-b05c-0acfa22e8914")
 		(property "Reference" "#PWR0291"
-			(at 264.16 265.43 0)
+			(at 262.89 265.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19506,7 +19462,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 264.16 264.16 0)
+			(at 262.89 264.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19514,7 +19470,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 264.16 259.08 0)
+			(at 262.89 259.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19523,7 +19479,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 264.16 259.08 0)
+			(at 262.89 259.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19532,7 +19488,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 264.16 259.08 0)
+			(at 262.89 259.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20281,10 +20237,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "5d65ba02-9fab-4b69-bba1-32df4d06fe58")
 		(property "Reference" "E0"
-			(at 218.44 250.1899 0)
+			(at 209.55 250.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26346,7 +26301,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 297.18 219.71 0)
+		(at 295.91 219.71 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -26355,7 +26310,7 @@
 		(fields_autoplaced yes)
 		(uuid "cf58f962-005b-44d4-96a5-0162144ad4ac")
 		(property "Reference" "#PWR0294"
-			(at 297.18 226.06 0)
+			(at 295.91 226.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26364,7 +26319,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 297.18 224.79 0)
+			(at 295.91 224.79 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26372,7 +26327,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 297.18 219.71 0)
+			(at 295.91 219.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26381,7 +26336,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 297.18 219.71 0)
+			(at 295.91 219.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -26390,7 +26345,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 297.18 219.71 0)
+			(at 295.91 219.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -28324,7 +28279,7 @@
 			)
 		)
 		(property "Value" "74LS08"
-			(at 218.44 252.73 0)
+			(at 209.55 252.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
