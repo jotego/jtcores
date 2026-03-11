@@ -1,24 +1,9 @@
 #!/bin/bash -e
 main(){
 	parse_split_args "$@"
-
-
 	find_cart_name
 	find_save_file
 	set_saveparams
-	# set_input_file
-#
-	# get_nvram    # 128 bytes
-	# get_psac     # 2  kB
-	# get_scroll   # 16 kB or 24 kB
-	# get_pal      # 4  kB
-	# get_obj      # 8  kB or 16 kB
-	# get_psac_mmr # 32 bytes
-	# get_pal_mmr  # 16 bytes
-	# get_scr_mmr  # 8  bytes
-	# get_obj_mmr  # 8  bytes
-	# get_other    # 1  byte
-
 	call_jtsim
 }
 

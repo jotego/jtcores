@@ -118,7 +118,6 @@ always @(posedge clk) begin
     	sd_active <= 0;
 end
 
-
 initial begin
 	old_downloading = 0;
 	old_load        = 0;

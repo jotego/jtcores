@@ -46,9 +46,6 @@ assign pwr_button = pwr_press & ~&{~ioctl_cart,cart_l,halted}; // active low, po
 assign f1g_gcs  = cart_size[3] & flash1_cs;
 assign f1g_dout = cart_size[3] ? flash1_dout : 16'd0;
 
-// assign sav_change = cart0_we;
-// assign gs0_addr[20:16] = debug_bus[7]? debug_bus[4:0] : 5'h1E; //debug_bus[4:0];
-
 assign {gs1_cs, gs1_addr}=0;
 assign new_cart = ioctl_cart && !cart_l;
 
@@ -76,8 +73,6 @@ always @(posedge clk) begin
             3: st_mux <= { mode, 4'd0, snd_nmi, snd_irq, snd_rstn };
         endcase
     endcase
-    // st_mux <= debug_bus[1]? (debug_bus[0]? auto_addr_max[7:0] : auto_addr_max[15:8]) :
-                            // (debug_bus[0]? auto_addr_min[7:0] : auto_addr_min[15:8]);
 end
 
 assign ioctl_din = ioctl_addr[7] ? ioctl_pal : ioctl_main;
@@ -164,6 +159,7 @@ jtngp_flash u_flash0(
     .cpu_din    (flash0_dout),
     .rdy        ( flash0_rdy),      // rdy / ~bsy pin
     .cpu_ok     ( flash0_ok ),   // read data available
+
     // interface to SDRAM
     .cart_addr  ( cart0_addr),
     .cart_we    ( cart0_we  ),
@@ -189,7 +185,6 @@ jtngp_flash u_flash0(
     .gs_dsn     ( gs0_dsn   ),
     .gs_we      ( gs0_we    ),
     .gs_cs      ( gs0_cs    )
-    // ,.auto_addr_max(auto_addr_max), .auto_addr_min(auto_addr_min)
 );
 
 jtngp_flash u_flash1(
@@ -230,7 +225,6 @@ jtngp_flash u_flash1(
     .gs_dsn     (           ),
     .gs_we      (           ),
     .gs_cs      (           )
-    // ,.auto_addr_max(), .auto_addr_min()
 );
 /* verilator tracing_off */
 jtngp_snd u_snd(

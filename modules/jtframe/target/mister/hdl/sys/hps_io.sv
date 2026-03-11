@@ -174,10 +174,6 @@ module hps_io #(parameter CONF_STR="", CONF_STR_BRAM=1, PS2DIV=0, WIDE=0, VDNUM=
 assign EXT_BUS[31:16] = HPS_BUS[31:16];
 assign EXT_BUS[35:33] = HPS_BUS[35:33];
 
-// localparam DW = (WIDE) ? 15 : 7;
-// localparam AW = (WIDE) ? 12 : 13;
-// localparam VD = VDNUM-1;
-
 wire        io_strobe= HPS_BUS[33];
 wire        io_enable= HPS_BUS[34];
 wire        fp_enable= HPS_BUS[35];

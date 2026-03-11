@@ -79,12 +79,3 @@ bram: # 64+8+4+16=92kB
   #   data_width: 16
   #   rw: true
   #   ioctl: { save: true }
-
-  # - name: flash
-  #   addr_width: 16
-  #   data_width: 16
-  #   rw: true
-  #   dual_port:
-  #     name: svld
-  #     dout: svld_data
-  #     rw: true
