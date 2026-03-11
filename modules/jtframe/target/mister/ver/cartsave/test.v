@@ -71,18 +71,12 @@ assign gamma_bus = 22'd0;
 assign EXT_BUS   = 36'd0;
 
 // hps_io SD arrays (VDNUM=1)
-wire [31:0] sd_lba_arr    [0:0];
-wire [5:0]  sd_blk_cnt_arr[0:0];
-wire [7:0]  sd_buff_din_arr [0:0];
 wire [7:0]  sd_buff_dout_wide;
 wire [13:0] sd_buff_addr_wide;
 wire [0:0]  sd_rd_arr;
 wire [0:0]  sd_wr_arr;
 wire [0:0]  sd_ack_arr;
 
-assign sd_lba_arr[0]     = sd_lba;
-assign sd_blk_cnt_arr[0] = 6'd0;
-assign sd_buff_din_arr[0]= sd_buff_din;
 assign sd_rd_arr[0]      = sd_rd;
 assign sd_wr_arr[0]      = sd_wr;
 assign sd_ack            = sd_ack_arr[0];
@@ -141,15 +135,15 @@ hps_io #(
     .img_readonly    ( img_readonly  ),
     .img_size        ( img_size      ),
 
-    .sd_lba          ( sd_lba_arr     ),
-    .sd_blk_cnt      ( sd_blk_cnt_arr),
-    .sd_rd           ( sd_rd_arr      ),
-    .sd_wr           ( sd_wr_arr      ),
-    .sd_ack          ( sd_ack_arr     ),
+    .sd_lba          ('{sd_lba}      ),
+    .sd_blk_cnt      ('{6'b0}        ),
+    .sd_rd           ( sd_rd_arr     ),
+    .sd_wr           ( sd_wr_arr     ),
+    .sd_ack          ( sd_ack_arr    ),
 
     .sd_buff_addr    ( sd_buff_addr_wide ),
     .sd_buff_dout    ( sd_buff_dout_wide ),
-    .sd_buff_din     ( sd_buff_din_arr   ),
+    .sd_buff_din     ('{sd_buff_din}     ),
     .sd_buff_wr      ( sd_buff_wr        ),
 
     .ioctl_download  (               ),
