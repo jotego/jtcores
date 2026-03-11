@@ -330,11 +330,7 @@ jtframe_mister_status u_status(
     .gun_border_en  ( gun_border_en  ),
     .uart_en        ( uart_en        )
 );
-wire [7:0] sd_data = debug_bus[3]? sav_dout[15:8]:
-                     debug_bus[2]? sav_dout[7:0] :
-                     debug_bus[1]? sd_lba       :
-                     debug_bus[0]? sd_buff_addr :
-                     {|img_size, img_readonly, img_mounted, sd_rd, /*sd_wr*/ioctl_cart, /*sav_change*/sav_wr[0], sd_ack, bk_ena};
+
 jtframe_target_info u_target_info(
     .clk            ( clk_sys        ),
     .joyana_l1      ( joyana_l1      ),
@@ -352,7 +348,7 @@ jtframe_target_info u_target_info(
     .game_paddle_2  ( game_paddle_2  ),
     .dial_x         ( dial_x         ),
     .dial_y         ( dial_y         ),
-    .st_lpbuf       ( sd_data/*st_lpbuf*/       ),
+    .st_lpbuf       ( st_lpbuf       ),
     .ioctl_lock     ( ioctl_lock     ),
     .ioctl_cart     ( ioctl_cart     ),
     .ioctl_ram      ( ioctl_ram      ),
@@ -571,6 +567,7 @@ hps_io #(
     .ioctl_file_ext  (                )
 );
 
+wire        sd_wait;
 `ifdef JTFRAME_SAVEGAME
 wire [31:0] sd_lba;
 reg  [ 7:0] sd_buff_din;
@@ -578,7 +575,6 @@ wire [ 7:0] sd_buff_addr, sd_buff_dout;
 wire        bk_ena, sd_ack, sd_wr, sd_rd, sd_buff_wr;
 wire [63:0] img_size;
 wire        img_mounted, img_readonly;
-wire        sd_wait;
 
 jtframe_mister_cartsave u_save(
     .clk         ( clk_sys      ),
@@ -610,7 +606,7 @@ jtframe_mister_cartsave u_save(
     .sav_wr      ( sav_wr       )
 );
 `else
-assign {sav_addr, sav_dout, sav_wr, sav_ack} = 0;
+assign {sav_addr, sav_dout, sav_wr, sav_ack, sd_wait} = 0;
 `endif
 
 `ifndef DEBUG_NOHDMI
