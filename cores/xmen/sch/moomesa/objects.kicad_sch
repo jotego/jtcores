@@ -32395,6 +32395,17 @@
 		)
 		(uuid "5d5ef6ae-df56-487a-9b55-db6ccebd95bd")
 	)
+	(hierarchical_label "~{LDS}"
+		(shape input)
+		(at 278.13 45.72 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "6a3da0ab-0a5d-4b18-9a27-2a496ad1e9f4")
+	)
 	(hierarchical_label "ORAM~{WE}L"
 		(shape input)
 		(at 314.96 181.61 180)
