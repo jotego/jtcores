@@ -106,8 +106,8 @@ end
 // 64us per line, 8us blanking
 // 17.45ms per frame, 2.05ms blanking, 512.5us sync (centered)
 jtframe_vtimer #(
-    .HB_END  ( 9'd0   ),
-    .HB_START( 9'd384 ),
+    .HB_END  ( 9'd4   ),
+    .HB_START( 9'd380 ),
     .HS_START( 9'd416 ),
     .HS_END  ( 9'd480 ),
     .HCNT_END( 9'd511 ),
