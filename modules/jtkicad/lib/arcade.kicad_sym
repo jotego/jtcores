@@ -41901,7 +41901,7 @@
 				)
 			)
 		)
-		(property "Value" "MB3735"
+		(property "Value" "MB3730A"
 			(at 0 12.7 0)
 			(effects
 				(font
@@ -41918,7 +41918,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://citylan.it/images/8/82/Mb3735.pdf"
+		(property "Datasheet" "https://panda-bg.com/resources/prod_834_1136-027305-mb3730-fujitsu.pdf"
 			(at 5.08 -15.24 0)
 			(effects
 				(font
