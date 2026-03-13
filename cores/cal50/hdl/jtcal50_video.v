@@ -165,6 +165,13 @@ jtx1012 u_tiles(
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_tiles      )
 );
+
+localparam [8:0] VADJ = 9'd8,HADJ=9'd5;
+
+wire [8:0] vdump_adj   = vdump   + VADJ,
+           vrender_adj = vrender + VADJ,
+           hdump_adj   = hdump   + HADJ;
+
 /* verilator tracing_on */
 jtkiwi_gfx #(.CPUW(16)) u_gfx(
     .rst        ( rst            ),
@@ -179,9 +186,9 @@ jtkiwi_gfx #(.CPUW(16)) u_gfx(
     .LVBL       ( LVBL           ),
     .vs         ( VS             ),
     .hs         ( HS             ),
-    .vdump      ( vdump          ),
-    .vrender    ( vrender        ),
-    .hdump      ( hdump          ),
+    .vdump      ( vdump_adj      ),
+    .vrender    ( vrender_adj    ),
+    .hdump      ( hdump_adj      ),
     // CPU interface
     .vram_cs    ( vram_cs        ),
     .vctrl_cs   ( vctrl_cs       ),

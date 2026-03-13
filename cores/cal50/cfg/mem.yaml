@@ -12,8 +12,12 @@ clocks:
 audio:
   mute: true
   channels:
-    # using the same FIR filter as S18 until the PCB filter values are known
-    - { name: pcm, stereo: true, data_width: 16, rsum:  47k, fir: fir_192k_13k.csv }
+    # The system has two different anti-aliasing filters applied to the
+    # left/right outputs of the PCM chip. Then, the two outputs are mixed
+    # in a single mono sound. The anti-aliasing filters are 4th order, so
+    # the damping is quite aggressive
+    - { name: pcm_4k, data_width: 16, rsum:  47k, fir: fir_192k_4k.csv }
+    - { name: pcm_8k, data_width: 16, rsum:  47k, fir: fir_192k_8k.csv }
 sdram:
   banks:
     - buses:

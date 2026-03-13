@@ -112,8 +112,8 @@ jtcal50_sound u_sound(
     .pcm_data       ( pcm_data      ),
     .pcm_cs         ( pcm_cs        ),
     // Sound
-    .snd_left       ( pcm_l         ),
-    .snd_right      ( pcm_r         ),
+    .snd_left       ( pcm_8k        ),
+    .snd_right      ( pcm_4k        ),
     .mute           ( mute          ),
     // Debug
     .debug_bus      ( debug_bus     ),

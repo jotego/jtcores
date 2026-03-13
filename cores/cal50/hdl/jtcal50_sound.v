@@ -34,6 +34,8 @@ module jtcal50_sound(
     output      [17:0] rom_addr,
     input       [ 7:0] rom_data,
     // Sound
+    // left channel is used for music and goes to a 8kHz antialising filter
+    // right channel is used for bass and sound effects, 4kHz antialising
     output signed [15:0] snd_left, snd_right,
     output reg         mute,
     // Debug
