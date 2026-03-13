@@ -5886,7 +5886,7 @@
 	)
 	(wire
 		(pts
-			(xy 285.75 109.22) (xy 302.26 109.22)
+			(xy 285.75 99.06) (xy 302.26 99.06)
 		)
 		(stroke
 			(width 0)
@@ -6426,7 +6426,7 @@
 	)
 	(wire
 		(pts
-			(xy 285.75 116.84) (xy 302.26 116.84)
+			(xy 285.75 106.68) (xy 302.26 106.68)
 		)
 		(stroke
 			(width 0)
@@ -6526,7 +6526,7 @@
 	)
 	(wire
 		(pts
-			(xy 285.75 114.3) (xy 302.26 114.3)
+			(xy 285.75 104.14) (xy 302.26 104.14)
 		)
 		(stroke
 			(width 0)
@@ -6636,7 +6636,7 @@
 	)
 	(wire
 		(pts
-			(xy 285.75 111.76) (xy 302.26 111.76)
+			(xy 285.75 101.6) (xy 302.26 101.6)
 		)
 		(stroke
 			(width 0)
@@ -6696,7 +6696,7 @@
 	)
 	(bus
 		(pts
-			(xy 285.75 119.38) (xy 302.26 119.38)
+			(xy 285.75 109.22) (xy 302.26 109.22)
 		)
 		(stroke
 			(width 0)
@@ -8616,7 +8616,7 @@
 	)
 	(wire
 		(pts
-			(xy 285.75 106.68) (xy 302.26 106.68)
+			(xy 285.75 96.52) (xy 302.26 96.52)
 		)
 		(stroke
 			(width 0)
@@ -9476,7 +9476,7 @@
 	)
 	(bus
 		(pts
-			(xy 285.75 121.92) (xy 302.26 121.92)
+			(xy 285.75 111.76) (xy 302.26 111.76)
 		)
 		(stroke
 			(width 0)
@@ -11447,7 +11447,7 @@
 		(uuid "2df70a46-49d9-4064-a2f5-a110d2b93174")
 	)
 	(label "OBJ~{CS}"
-		(at 302.26 114.3 180)
+		(at 302.26 104.14 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11787,7 +11787,7 @@
 		(uuid "4333348e-3772-46ee-96cd-152b95bb5c77")
 	)
 	(label "MAIN_A[23..0]"
-		(at 302.26 119.38 180)
+		(at 302.26 109.22 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12057,7 +12057,7 @@
 		(uuid "5aac1c99-9ade-46c5-a7f8-5bc4bff78fa9")
 	)
 	(label "~{LDS}"
-		(at 302.26 109.22 180)
+		(at 302.26 99.06 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12157,7 +12157,7 @@
 		(uuid "6210b48a-5c2d-492c-ab13-2b19eff95964")
 	)
 	(label "MAIN_D[15..0]"
-		(at 302.26 121.92 180)
+		(at 302.26 111.76 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13027,7 +13027,7 @@
 		(uuid "a46d749e-95c6-48b3-a232-0d4a676016dd")
 	)
 	(label "R{slash}~{W}"
-		(at 302.26 116.84 180)
+		(at 302.26 106.68 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13517,7 +13517,7 @@
 		(uuid "c8af7bc1-0012-46db-9d53-8937f459fad6")
 	)
 	(label "M~{RD}"
-		(at 302.26 111.76 180)
+		(at 302.26 101.6 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -14037,7 +14037,7 @@
 		(uuid "f83b7c5c-307f-4464-b020-89c0cb5fa04a")
 	)
 	(label "~{UDS}"
-		(at 302.26 106.68 180)
+		(at 302.26 96.52 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15927,7 +15927,7 @@
 			(at 328.93 29.7684 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 3.81 3.81)
 				)
 				(justify left bottom)
 			)
@@ -16085,7 +16085,7 @@
 			(at 166.37 37.3884 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 3.81 3.81)
 				)
 				(justify left bottom)
 			)
@@ -16273,7 +16273,7 @@
 			(at 166.37 138.9884 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 3.81 3.81)
 				)
 				(justify left bottom)
 			)
@@ -16961,7 +16961,7 @@
 			(at 328.93 88.1884 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 3.81 3.81)
 				)
 				(justify left bottom)
 			)
@@ -17259,7 +17259,7 @@
 			(at 166.37 88.1884 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 3.81 3.81)
 				)
 				(justify left bottom)
 			)
@@ -17527,7 +17527,7 @@
 			(at 247.65 138.9884 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 3.81 3.81)
 				)
 				(justify left bottom)
 			)
@@ -17818,7 +17818,7 @@
 		)
 	)
 	(sheet
-		(at 247.65 88.9)
+		(at 247.65 78.74)
 		(size 38.1 46.99)
 		(fields_autoplaced yes)
 		(stroke
@@ -17830,16 +17830,16 @@
 		)
 		(uuid "ca074bfa-b681-46d6-bd0f-c893aacc5720")
 		(property "Sheetname" "main"
-			(at 247.65 88.1884 0)
+			(at 247.65 78.0284 0)
 			(effects
 				(font
-					(size 1.27 1.27)
+					(size 3.81 3.81)
 				)
 				(justify left bottom)
 			)
 		)
 		(property "Sheetfile" "main.kicad_sch"
-			(at 247.65 136.4746 0)
+			(at 247.65 126.3146 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17848,7 +17848,7 @@
 			)
 		)
 		(pin "MAIN_D[15..0]" bidirectional
-			(at 285.75 121.92 0)
+			(at 285.75 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17858,7 +17858,7 @@
 			(uuid "3b8e672f-9c32-41c4-b86b-1e2b7a81123d")
 		)
 		(pin "OBJ~{CS}" output
-			(at 285.75 114.3 0)
+			(at 285.75 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17868,7 +17868,7 @@
 			(uuid "82c63a4b-01ab-44e9-9ce2-d5f720ba099f")
 		)
 		(pin "R{slash}~{W}" output
-			(at 285.75 116.84 0)
+			(at 285.75 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17878,7 +17878,7 @@
 			(uuid "3f7ffd0e-86cd-454b-946a-61ae52bb431c")
 		)
 		(pin "~{LDS}" output
-			(at 285.75 109.22 0)
+			(at 285.75 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17888,7 +17888,7 @@
 			(uuid "e2303276-3084-49fb-9ecb-8360f0db91b6")
 		)
 		(pin "~{UDS}" output
-			(at 285.75 106.68 0)
+			(at 285.75 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17898,7 +17898,7 @@
 			(uuid "7373b0e6-d1cc-44b4-9f40-e3009f40ee25")
 		)
 		(pin "M~{RD}" output
-			(at 285.75 111.76 0)
+			(at 285.75 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17908,7 +17908,7 @@
 			(uuid "8040687d-0174-4f12-8266-5d377f39d716")
 		)
 		(pin "~{SYSRES}" input
-			(at 285.75 132.08 0)
+			(at 285.75 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
