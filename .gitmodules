@@ -1,3 +1,6 @@
+[submodule "cores/cps3"]
+	path = cores/cps3
+	url = https://github.com/jotego/cps3.git
 [submodule "modules/fx68k"]
 	path = modules/fx68k
 	url = https://github.com/jtfpga/fx68k
