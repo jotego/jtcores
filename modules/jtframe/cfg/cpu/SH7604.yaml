@@ -1,0 +1,19 @@
+jtframe:
+  - from: cpu/sh7604
+    get:
+      - SH_pkg.sv
+      - SH_regfile.sv
+      - SH_core.sv
+      - SH7604_pkg.sv
+      - CACHE.sv
+      - BSC.sv
+      - DMAC.sv
+      - UBC.sv
+      - INTC.sv
+      - FRT.sv
+      - WDT.sv
+      - SCI.sv
+      - DIVU.sv
+      - MULT.sv
+      - MSBY.sv
+      - SH7604.sv
