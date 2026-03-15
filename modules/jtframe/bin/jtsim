@@ -378,9 +378,9 @@ if [ $GATES = NO ]; then
             fi;;
     esac
     cat game.f jtsim.f >> tmp.f
-    cat tmp.f | envsubst | grep -v "^#" | xargs realpath --relative-to=. | sort | uniq > game_env.f
+    cat tmp.f | envsubst | grep -v "^#" | xargs realpath --relative-to=. | awk '!seen[$0]++' > game_env.f
     # Sort and delete duplicates
-    emulate_F game_env.f | sort | uniq > filtered.f
+    emulate_F game_env.f | awk '!seen[$0]++' > filtered.f
     rm -f game_env.f tmp.f
 else
     prepare_gatelevel_sim
@@ -552,4 +552,3 @@ if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
         display_scene_frame&
     fi
 fi
-
