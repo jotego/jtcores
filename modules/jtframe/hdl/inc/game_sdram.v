@@ -21,6 +21,7 @@ localparam [25:0] BA2_START  =`ifdef JTFRAME_BA2_START  `JTFRAME_BA2_START  `els
 localparam [25:0] BA3_START  =`ifdef JTFRAME_BA3_START  `JTFRAME_BA3_START  `else 26'd0 `endif;
 localparam [25:0] PROM_START =`ifdef JTFRAME_PROM_START `JTFRAME_PROM_START `else 26'd0 `endif;
 localparam [25:0] HEADER_LEN =`ifdef JTFRAME_HEADER     `JTFRAME_HEADER     `else 26'd0 `endif;
+localparam        SDRAMW     =`ifdef JTFRAME_SDRAM_LARGE 24 `else 23 `endif;
 /* verilator lint_on WIDTH */
 
 {{ range .Params }}
@@ -66,7 +67,9 @@ wire [ 1:0] {{.Name}}_dsn;
 {{end}}{{end}}
 {{- end}}
 wire        prom_we, header;
-wire [21:0] raw_addr, post_addr;
+wire [SDRAMW-2:0] raw_addr, post_addr;
+wire [SDRAMW-2:0] ioctl_prog_addr   = ioctl_addr[SDRAMW-2:0];
+wire [SDRAMW-2:0] sdram_offset_zero = {(SDRAMW-1){1'b0}};
 wire [25:0] pre_addr, dwnld_addr, ioctl_addr_noheader;
 wire [ 7:0] post_data;
 wire [15:0] raw_data;
@@ -203,7 +206,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
 `endif
     // PROM writting
     .ioctl_addr   ( pass_io ? ioctl_addr       : ioctl_addr_noheader  ),
-    .prog_addr    ( pass_io ? ioctl_addr[21:0] : raw_addr      ),
+    .prog_addr    ( pass_io ? ioctl_prog_addr : raw_addr      ),
     .prog_data    ( pass_io ? ioctl_dout       : raw_data[7:0] ),
     .prog_we      ( pass_io ? ioctl_wr         : prog_we       ),
     .prog_ba      ( prog_ba        ), // prog_ba supplied in case it helps re-mapping addresses
@@ -263,6 +266,7 @@ assign gfx16c_en = {{ .Gfx16c }}
 assign ioctl_dwn = ioctl_rom | ioctl_cart;
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 jtframe_dwnld #(
+    .SDRAMW     ( SDRAMW       ),
 `ifdef JTFRAME_HEADER
     .HEADER    ( `JTFRAME_HEADER   ),
 `endif{{ if .Balut }}
@@ -319,6 +323,7 @@ jtframe_headerbyte #(.AW(6)) u_pcbid(
 {{ range $bank, $each:=.SDRAM.Banks }}
 {{- if gt (len .Buses) 0 }}
 jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
+    .SDRAMW(SDRAMW-1),
 {{- $first := true}}
 {{- range $index, $each:=.Buses}}
     {{- if $first}}{{$first = false}}{{else}}, {{end}}
@@ -326,7 +331,7 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     {{- if .Rw }}{{ with .Dont_erase }}
     .SLOT{{$index}}_ERASE(0),{{end}}
     {{- else}}{{- with .Offset }}
-    .SLOT{{$index}}_OFFSET({{.}}[21:0]),{{end}}{{end}}
+    .SLOT{{$index}}_OFFSET({{.}}[SDRAMW-2:0]),{{end}}{{end}}
     {{- with .Cache_size }}
     .CACHE{{$index}}_SIZE({{.}}),{{end}}
     .SLOT{{$index}}_AW({{ slot_addr_width . }}),
@@ -357,7 +362,7 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .slot{{$index2}}_wen   ( {{.Name}}_we    ),
     .slot{{$index2}}_din   ( {{if .Din}}{{.Din}}{{else}}{{.Name}}_din{{end}}   ),
     .slot{{$index2}}_wrmask( {{if .Dsn}}{{.Dsn}}{{else}}{{.Name}}_dsn{{end}}   ),
-    .slot{{$index2}}_offset( {{if .Offset }}{{.Offset}}[21:0]{{else}}22'd0{{end}} ),
+    .slot{{$index2}}_offset( {{if .Offset }}{{.Offset}}[SDRAMW-2:0]{{else}}sdram_offset_zero{{end}} ),
     {{- else }}
     {{- if not $is_rom }}
     .slot{{$index2}}_clr   ( 1'b0       ), // only 1'b0 supported in mem.yaml

@@ -25,14 +25,22 @@
     output          sample,
 {{ end }}
     // Memory ports
+`ifdef JTFRAME_SDRAM_LARGE
+    input   [22:0]  prog_addr,
+`else
     input   [21:0]  prog_addr,
+`endif
     input   [ 7:0]  prog_data,
     input           prog_we,
     input   [ 1:0]  prog_ba,
     input   [25:0]  ioctl_addr,
     input           prom_we,
 {{- if .Download.Post_addr }}
+`ifdef JTFRAME_SDRAM_LARGE
+    output reg [22:0] post_addr,
+`else
     output reg [21:0] post_addr,
+`endif
 {{end}}
 {{- if .Download.Pre_addr }}
     output reg [25:0] pre_addr,
