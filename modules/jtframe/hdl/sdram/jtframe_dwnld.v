@@ -31,7 +31,7 @@ module jtframe_dwnld(
     input      [25:0]    ioctl_addr, // max 64 MB
     input      [ 7:0]    ioctl_dout,
     input                ioctl_wr,
-    output reg [22:1]    prog_addr,
+    output reg [SDRAMW-1:1] prog_addr,
     output     [15:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
@@ -49,6 +49,7 @@ module jtframe_dwnld(
     input                sdram_ack
 );
 /* verilator lint_off WIDTH */
+parameter        SDRAMW    = 23; // bank size, default = 8MB for 32MB SDRAM
 parameter        SIMFILE   = "rom.bin";
 parameter [25:0] PROM_START= `ifdef JTFRAME_PROM_START `JTFRAME_PROM_START `else ~26'd0 `endif;
 parameter [25:0] BA1_START = ~26'd0,
@@ -147,11 +148,11 @@ endgenerate
 always @(posedge clk) begin
     if ( ioctl_wr && ioctl_rom && !header ) begin
         if( is_prom ) begin
-            prog_addr <= part_addr[21:0];
+            prog_addr <= part_addr[SDRAMW-2:0];
             prom_we   <= 1;
             prog_we   <= 0;
         end else begin
-            prog_addr <= eff_addr[22:1];
+            prog_addr <= eff_addr[SDRAMW-1:1];
             prom_we   <= 0;
             prog_we   <= 1;
             prog_ba   <= bank;
@@ -215,7 +216,7 @@ always @(posedge clk) begin
         prog_we   <= 0;
         prog_mask <= 2'b11;
         data_out  <= mem[dumpcnt];
-        prog_addr <= dumpcnt[21:0]-HEADER;
+        prog_addr <= dumpcnt[SDRAMW-2:0]-HEADER;
         dumpcnt   <= dumpcnt+1;
     end else begin
         prom_we <= 0;
