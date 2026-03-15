@@ -134,7 +134,6 @@ func readROM(game string) []byte {
 }
 
 func extractSDRAM(core, game string) error {
-	const eightMB = 8 * 1024 * 1024
 	rom := readROM(game)
 	memCfg, err := parseMemConfig(core)
 	if err != nil {
@@ -143,24 +142,25 @@ func extractSDRAM(core, game string) error {
 	if memCfg.Download.Pre_addr || memCfg.Download.Post_addr || memCfg.Download.Post_data {
 		return fmt.Errorf("jtutil sdram does not support download address/data transforms (pre_addr/post_addr/post_data) in mem.yaml")
 	}
-	romForOffsets := make([]byte, len(rom))
-	copy(romForOffsets, rom)
-	swapBytes(romForOffsets, 0)
 	mraCfg, err := mra.ParseTomlFile(core)
 	if err != nil {
 		return err
 	}
 	regCnt := len(mraCfg.Header.Offset.Regions)
 	hinfo := mraCfg.Header.Offset
-	offsets, reg := bankOffset(regCnt, hinfo, romForOffsets)
+	offsets, reg, err := bankOffset(regCnt, hinfo, rom)
+	if err != nil {
+		return err
+	}
 	if err = applyGfxSort(memCfg, game, rom, offsets); err != nil {
 		return err
 	}
 	// Swap the bytes so sdram.bin files get written correctly as 16-bit words.
 	swapBytes(rom, 0)
 	header := macros.GetInt("JTFRAME_HEADER")
+	bankFill := sdramBankSize()
 	promStart := offsets[4]
-	nxStart, err := dump("sdram_bank0.bin", rom, header, offsets[1], promStart, eightMB)
+	nxStart, err := dump("sdram_bank0.bin", rom, header, offsets[1], promStart, bankFill)
 	if err != nil {
 		return fmt.Errorf("%w for bank 0", err)
 	}
@@ -170,7 +170,7 @@ func extractSDRAM(core, game string) error {
 		os.Remove("sdram_bank3.bin")
 		return nil
 	}
-	nxStart, err = dump("sdram_bank1.bin", rom, nxStart, offsets[2], promStart, eightMB)
+	nxStart, err = dump("sdram_bank1.bin", rom, nxStart, offsets[2], promStart, bankFill)
 	if err != nil {
 		return fmt.Errorf("%w for bank 1", err)
 	}
@@ -179,7 +179,7 @@ func extractSDRAM(core, game string) error {
 		os.Remove("sdram_bank3.bin")
 		return nil
 	}
-	nxStart, err = dump("sdram_bank2.bin", rom, nxStart, offsets[3], promStart, eightMB)
+	nxStart, err = dump("sdram_bank2.bin", rom, nxStart, offsets[3], promStart, bankFill)
 	if err != nil {
 		return fmt.Errorf("%w for bank 2", err)
 	}
@@ -188,7 +188,7 @@ func extractSDRAM(core, game string) error {
 		fmt.Println("Skippin bank3")
 		return nil
 	}
-	nxStart, err = dump("sdram_bank3.bin", rom, nxStart, 0, promStart, eightMB)
+	nxStart, err = dump("sdram_bank3.bin", rom, nxStart, 0, promStart, bankFill)
 	if err != nil {
 		return fmt.Errorf("%w for bank 3", err)
 	}
@@ -209,7 +209,18 @@ func extractSDRAM(core, game string) error {
 	return nil
 }
 
-func bankOffset(regCnt int, hinfo mra.HeaderOffset, rom []byte) ([]int, []string) {
+func sdramBankSize() int {
+	const (
+		eightMB   = 8 * 1024 * 1024
+		sixteenMB = 2 * eightMB
+	)
+	if macros.IsSet("JTFRAME_SDRAM_LARGE") {
+		return sixteenMB
+	}
+	return eightMB
+}
+
+func bankOffset(regCnt int, hinfo mra.HeaderOffset, rom []byte) ([]int, []string, error) {
 	header := macros.GetInt("JTFRAME_HEADER")
 	if regCnt < 5 {
 		regCnt = 5
@@ -227,9 +238,15 @@ func bankOffset(regCnt int, hinfo mra.HeaderOffset, rom []byte) ([]int, []string
 	}
 	// Final values from header (if defined).
 	for k := 1; k < len(hinfo.Regions); k++ {
-		pos := int(rom[hinfo.Start+(k<<1)]) << 8
-		pos |= int(rom[hinfo.Start+(k<<1)+1])
+		idx := hinfo.Start + (k << 1)
+		if idx+1 >= len(rom) {
+			return nil, nil, fmt.Errorf("wrong header: offset index %d for %s is outside ROM length %X", idx, hinfo.Regions[k], len(rom))
+		}
+		pos := (int(rom[idx]) << 8) | int(rom[idx+1])
 		pos <<= hinfo.Bits
+		if pos+header > len(rom) {
+			return nil, nil, fmt.Errorf("wrong header: computed offset %X for %s exceeds ROM length %X", pos+header, hinfo.Regions[k], len(rom))
+		}
 		offsets[k] = pos + header
 		if verbose {
 			fmt.Printf("%-4d %-20s %X\n", k, hinfo.Regions[k], offsets[k])
@@ -242,7 +259,7 @@ func bankOffset(regCnt int, hinfo mra.HeaderOffset, rom []byte) ([]int, []string
 		}
 		fmt.Println()
 	}
-	return offsets, hinfo.Regions
+	return offsets, hinfo.Regions, nil
 }
 
 func parseMemConfig(core string) (*mem.MemConfig, error) {
@@ -500,7 +517,7 @@ func dump(name string, rom []byte, p0, p1, lim, fill int) (int, error) {
 	if err := os.WriteFile(name, rom[p0:p1], 0664); err != nil {
 		return 0, err
 	}
-	// Complement up to 8MB.
+	// Complement up to the SDRAM bank size.
 	sz := p1 - p0
 	if sz >= fill {
 		return p1, nil

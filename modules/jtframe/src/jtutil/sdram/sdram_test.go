@@ -224,6 +224,26 @@ func TestDumpRemovesEmptyRegionFile(t *testing.T) {
 	}
 }
 
+func TestSdramBankSizeDefaultsTo8MB(t *testing.T) {
+	macros.MakeFromMap(map[string]string{})
+	got := sdramBankSize()
+	want := 8 * 1024 * 1024
+	if got != want {
+		t.Fatalf("sdramBankSize default mismatch: got=%d want=%d", got, want)
+	}
+}
+
+func TestSdramBankSizeUsesLargeMacroFallback(t *testing.T) {
+	macros.MakeFromMap(map[string]string{
+		"JTFRAME_SDRAM_LARGE": "1",
+	})
+	got := sdramBankSize()
+	want := 16 * 1024 * 1024
+	if got != want {
+		t.Fatalf("sdramBankSize large mismatch: got=%d want=%d", got, want)
+	}
+}
+
 func TestRemapAddressBitsHvvvx(t *testing.T) {
 	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER": "0"})
 	gfx, err := parseGfxPattern("hvvvx")
