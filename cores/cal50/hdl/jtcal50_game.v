@@ -65,8 +65,8 @@ jtcal50_main u_main(
     // cabinet I/O
     .cab_1p         ( cab_1p[1:0]   ),
     .coin           ( coin[1:0]     ),
-    .joystick1      ( joystick1     ),
-    .joystick2      ( joystick2     ),
+    .joystick1      ( joystick1[5:0]),
+    .joystick2      ( joystick2[5:0]),
     .dial_x         ( dial_x        ),
     .dial_y         ( dial_y        ),
     .service        ( service       ),
