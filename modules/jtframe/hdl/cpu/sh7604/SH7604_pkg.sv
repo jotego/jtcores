@@ -1,3 +1,6 @@
+`ifndef SH7604_PKG_SV
+`define SH7604_PKG_SV
+
 package SH7604_PKG;
 
 	//INTC
@@ -502,3 +505,5 @@ package SH7604_PKG;
 	parameter bit [7:0] SBYCR_INIT = 8'h00;
 	
 endpackage
+
+`endif

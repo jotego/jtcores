@@ -1,3 +1,6 @@
+`ifndef SH2_PKG_SV
+`define SH2_PKG_SV
+
 package SH2_PKG;
 
 	typedef enum bit[2:0] {
@@ -1440,3 +1443,5 @@ package SH2_PKG;
 	endfunction
 	
 endpackage
+
+`endif
