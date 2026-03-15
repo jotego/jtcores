@@ -98,7 +98,7 @@ module SH_core
 	
 `ifdef DEBUG
 	assign REGS_RAN = EN ? ID_DECI.RA.N : DBG_REGN;
-`elsif
+`else
 	assign REGS_RAN = ID_DECI.RA.N;
 `endif
 	assign REGS_RBN = ID_DECI.RB.N;

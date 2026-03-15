@@ -33,7 +33,7 @@ module SH7604_WDT
 	output            IBUS_ACT,
 	
 	output            ITI_IRQ,
-	output            OVF,
+	output reg        OVF,
 	output            PRES,
 	output            MRES
 );
@@ -117,6 +117,7 @@ module SH7604_WDT
 	wire REG_SEL = (IBUS_A >= 32'hFFFFFE80 && IBUS_A <= 32'hFFFFFE8F);
 	bit  [ 7: 0] OPEN_BUS;
 	bit          IBUS_REQ_OLD;
+	bit  [ 7: 0] REG_DO;
 	always @(posedge CLK or negedge RST_N) begin
 		bit          TM_EN;
 		bit          OVF_SET;
@@ -204,7 +205,6 @@ module SH7604_WDT
 	
 	assign ITI_IRQ = WTCSR.OVF;
 	
-	bit  [ 7: 0] REG_DO;
 	bit  [ 1: 0] BUSY;
 	always @(posedge CLK or negedge RST_N) begin
 		if (!RST_N) begin
