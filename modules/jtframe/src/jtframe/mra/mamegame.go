@@ -24,8 +24,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 type MachineXML struct {
@@ -44,7 +44,7 @@ type MachineXML struct {
 		Clock int    `xml:"clock,attr"`
 	} `xml:"chip"`
 	Display MameDisplay `xml:"display"`
-	Sound struct {
+	Sound   struct {
 		Channels int `xml:"channels"`
 	} `xml:"sound"`
 	Input struct {
@@ -61,8 +61,8 @@ type MachineXML struct {
 }
 
 // implements Matcher interface
-func (machine *MachineXML)IsMatch(m Matchable) bool {
-	return m.Match(machine)>0
+func (machine *MachineXML) IsMatch(m Matchable) bool {
+	return m.Match(machine) > 0
 }
 
 type MameROM struct {
@@ -74,14 +74,14 @@ type MameROM struct {
 	Status     string `xml:"status,attr"`
 	Offset     int
 	// filled by mame2mra.go
-	group int // interleave group to which the ROM belongs
-	wlen  int // word length in bytes
-	clen  int // byte count to dump
-	used  int // consumed bytes
+	group        int // interleave group to which the ROM belongs
+	wlen         int // word length in bytes
+	clen         int // byte count to dump
+	used         int // consumed bytes
 	split_offset int
-	show_len bool
-	add_offset int
-	mapstr string
+	show_len     bool
+	add_offset   int
+	mapstr       string
 }
 
 type MameDevice struct {
@@ -105,7 +105,7 @@ type MachineDIP struct {
 		Value    int    `xml:"value,attr"`
 	} `xml:"condition"`
 	Diplocation []Diplocation `xml:"diplocation"`
-	Dipvalue MAMEDIPValues `xml:"dipvalue"`
+	Dipvalue    MAMEDIPValues `xml:"dipvalue"`
 	// calculated by JTFRAME after reading XML
 	lsb, msb, full_mask, offset int
 }
@@ -138,12 +138,12 @@ type Diplocation struct {
 }
 
 func (machine *MachineXML) Find(machine_options []Selectable) int {
-    for k, option := range machine_options {
-        if option.Match(machine)>0 {
-            return k
-        }
-    }
-    return -1
+	for k, option := range machine_options {
+		if option.Match(machine) > 0 {
+			return k
+		}
+	}
+	return -1
 }
 
 type MameXML struct {
@@ -161,24 +161,25 @@ func Mame_version() string {
 	return "0" + mame_version[2:] // converts 0.232 to 0232
 }
 
-func (this *MachineXML)Dial() bool {
+func (this *MachineXML) Dial() bool {
 	for _, each := range this.Input.Control {
 		switch strings.ToLower(each.Type) {
-			case "dial","positional": return true
+		case "dial", "positional":
+			return true
 		}
 	}
 	return false
 }
 
-func (this *MachineXML)HasPaddle() bool {
+func (this *MachineXML) HasPaddle() bool {
 	for _, each := range this.Input.Control {
 		switch strings.ToLower(each.Type) {
-			case "paddle": return true
+		case "paddle":
+			return true
 		}
 	}
 	return false
 }
-
 
 func FamilyName(machine *MachineXML) string {
 	if machine.Cloneof != "" {
@@ -201,6 +202,12 @@ func NewExtractor(path string) *Extractor {
 
 	ex.decoder = xml.NewDecoder(ex.file)
 	return &ex
+}
+
+func (ex *Extractor) Close() {
+	if ex.file != nil {
+		ex.file.Close()
+	}
 }
 
 func (ex *Extractor) Extract(cfg ParseCfg) *MachineXML {
@@ -255,9 +262,11 @@ loop_machines:
 								}
 							}
 						}
-						year, e := strconv.Atoi( strings.ReplaceAll(machine.Year,"?","0"))
-						if e!=nil { year=2100 }
-						if device_ok && !machine.Ismechanical && year>=cfg.Older {
+						year, e := strconv.Atoi(strings.ReplaceAll(machine.Year, "?", "0"))
+						if e != nil {
+							year = 2100
+						}
+						if device_ok && !machine.Ismechanical && year >= cfg.Older {
 							tidyup(&machine)
 							break loop_machines
 						} else {
@@ -298,5 +307,5 @@ func tidyup(machine *MachineXML) {
 		sort.Sort(machine.Dipswitch[k].Dipvalue)
 	}
 	// Remove / from game descriptions
-	machine.Description=strings.ReplaceAll(machine.Description,"/","-")
+	machine.Description = strings.ReplaceAll(machine.Description, "/", "-")
 }

@@ -6,6 +6,10 @@ should be used to update $JTROOT/doc/mame.xml with new data each time a new
 core is added. The core folder should contain both cfg/macros.def and
 cfg/mame2mra.toml.
 
+If `$JTROOT/doc/custom.xml` exists, it is parsed after `mame.xml` and merged
+into the machine list. Entries with the same machine name override the one
+coming from `mame.xml`.
+
 Each repository is meant to have a reduced mame.xml file in $JTROOT/doc as
 part of the source file committed in git.
 
