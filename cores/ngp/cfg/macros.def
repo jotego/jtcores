@@ -7,6 +7,7 @@ GAMETOP=jtngp_game_sdram
 
 [*]
 COLMIX=jtngp_colmix
+JTFRAME_SAVEGAME
 
 JTFRAME_STEREO
 JTFRAME_JOY_RLDU

@@ -1,0 +1,21 @@
+110
+loop
+	1
+	b1
+repeat 200
+loop
+	1
+	2 b2 b1
+	4
+repeat 14
+=800
+loop
+	1
+	2 b1
+repeat 3
+20
+loop
+	1
+	2 down
+repeat 5
+2 b1

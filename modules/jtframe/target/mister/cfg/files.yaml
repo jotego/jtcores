@@ -11,6 +11,9 @@ jtframe/target/mister:
     - sys.qip
     - pll.qip
     - joydb15.v
+  - when: [ JTFRAME_SAVEGAME ]
+    get:
+      - jtframe_mister_cartsave.v
   - when: [ JTFRAME_PLL6000 ]
     get:
       - pll6000.qip

@@ -31,9 +31,10 @@ wire        gfx_cs,
             flash0_cs, flash0_rdy, flash0_ok,
             flash1_cs, flash1_rdy, flash1_ok, f1g_gcs, pwr_press;
 wire        snd_ack, snd_nmi, snd_irq, mute_enb, snd_rstn, ioctl_rest, mode;
-wire        hirq, virq, main_int5, pwr_button, poweron, halted;
+wire        hirq, virq, main_int5, pwr_button, poweron, halted, new_cart;
 reg         cart_l;
 wire signed [ 7:0] snd_dacl, snd_dacr;
+wire [15:0] auto_addr_max, auto_addr_min;
 
 assign debug_view = st_mux;
 assign ioctl_rest = ioctl_ram && ioctl_wr && ioctl_addr[13:0]>14'h3000; // ports and RTC are dumped after 12kB of RAM
@@ -45,9 +46,12 @@ assign pwr_button = pwr_press & ~&{~ioctl_cart,cart_l,halted}; // active low, po
 assign f1g_gcs  = cart_size[3] & flash1_cs;
 assign f1g_dout = cart_size[3] ? flash1_dout : 16'd0;
 
+assign {gs1_cs, gs1_addr}=0;
+assign new_cart = ioctl_cart && !cart_l;
+
 `ifdef CARTSIZE initial cart_size=`CARTSIZE; `endif
 always @(posedge clk) begin
-    if( ioctl_cart && !cart_l ) cart_size <= 0;
+    if( new_cart ) cart_size <= 0;
     if( prog_ba==1 && !ioctl_ram && ioctl_wr ) begin
         if( prog_addr[17] && cart_size<4'd1 ) cart_size <= 4'b0001;
         if( prog_addr[18] && cart_size<4'd2 ) cart_size <= 4'b0010;
@@ -163,7 +167,24 @@ jtngp_flash u_flash0(
     .cart_ok    ( cart0_ok  ),
     .cart_data  ( cart0_data),
     .cart_dsn   ( cart0_dsn ),
-    .cart_din   ( cart0_din )
+    .cart_din   ( cart0_din ),
+    // save/load memory
+    .cart       ( new_cart  ),
+    .sav_addr   ( sav_addr  ),
+    .sav_dout   ( sav_dout  ),
+    .sav_din    ( sav_din   ),
+    .sav_wr     ( sav_wr    ),
+    .sav_wait   ( sav_wait  ),
+    .sav_done   ( sav_done  ),
+    .sav_ack    ( sav_ack   ),
+    .sav_change ( sav_change),
+    .gs_ok      ( gs0_ok    ),
+    .gs_data    ( gs0_data  ),
+    .gs_din     ( gs0_din   ),
+    .gs_addr    ( gs0_addr  ),
+    .gs_dsn     ( gs0_dsn   ),
+    .gs_we      ( gs0_we    ),
+    .gs_cs      ( gs0_cs    )
 );
 
 jtngp_flash u_flash1(
@@ -179,7 +200,6 @@ jtngp_flash u_flash1(
     .cpu_din    (flash1_dout),
     .rdy        ( flash1_rdy),      // rdy / ~bsy pin
     .cpu_ok     ( flash1_ok ),   // read data available
-
     // interface to SDRAM
     .cart_addr  ( cart1_addr),
     .cart_we    (           ),
@@ -187,7 +207,24 @@ jtngp_flash u_flash1(
     .cart_ok    ( cart1_ok  ),
     .cart_data  ( cart1_data),
     .cart_dsn   (           ),
-    .cart_din   (           )
+    .cart_din   (           ),
+    // save/load memory
+    .cart       ( new_cart  ),
+    .sav_addr   ( 16'b0     ),
+    .sav_dout   ( 16'b0     ),
+    .sav_din    (           ),
+    .sav_wr     ( 2'b0      ),
+    .sav_wait   (           ),
+    .sav_done   (           ),
+    .sav_ack    ( 1'b0      ),
+    .sav_change (           ),
+    .gs_ok      ( 1'b0      ),
+    .gs_data    ( 16'b0     ),
+    .gs_addr    (           ),
+    .gs_din     (           ),
+    .gs_dsn     (           ),
+    .gs_we      (           ),
+    .gs_cs      (           )
 );
 /* verilator tracing_off */
 jtngp_snd u_snd(
