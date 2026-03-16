@@ -127,10 +127,6 @@ parse_args() {
     local_check=false
     local_rom=false
     push=false
-    SFTP_RETRY_ATTEMPTS="${SFTP_RETRY_ATTEMPTS:-8}"
-    SFTP_RETRY_BASE_DELAY="${SFTP_RETRY_BASE_DELAY:-2}"
-    SFTP_RETRY_MAX_DELAY="${SFTP_RETRY_MAX_DELAY:-30}"
-    SFTP_CONNECT_TIMEOUT="${SFTP_CONNECT_TIMEOUT:-15}"
 
     if [[ $1 == --help || $1 == -h ]]; then
         print_help
@@ -294,10 +290,7 @@ get_zips() {
     TODELETE+=($roms_dir_ref)
 
     for zip in "${zip_names[@]}"; do
-        if ! get_with_retry $zip $roms_dir_ref; then
-            echo "[ERROR] Failed to download required file $zip"
-            return 1
-        fi
+        get_with_retry $zip $roms_dir_ref
     done
 }
 
@@ -328,71 +321,30 @@ get_zip_names() {
 get_with_retry() {
     local zip="$1"
     local roms_dir_ref="$2"
-    local attempts="$SFTP_RETRY_ATTEMPTS"
-    local attempt=1
-
-    while test $attempt -le $attempts; do
-        if get_zip_via_ftp $zip $roms_dir_ref; then
-            return 0
-        fi
-        if test $attempt -lt $attempts; then
-            local wait_time
-            wait_time=$(retry_wait_seconds "$attempt")
-            echo "[WARNING] Download attempt $attempt/$attempts failed for $zip. Retrying in ${wait_time}s"
-            sleep "$wait_time"
-        fi
-        attempt=$((attempt+1))
+    local attempts=8
+    while [ $attempts -gt 0 ]; do
+        if get_zip_via_ftp $zip $roms_dir_ref; then break; fi
+        attempts=$((attempts-1))
+        random_wait
     done
-    return 1
+    if [ $attempts -gt 0 ]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 get_zip_via_ftp() {
     local zip="$1"
     local roms_dir_ref="$2"
-    local dst="$roms_dir_ref/$zip"
-    local tmp="${dst}.part"
-
-    rm -f "$tmp" "$dst"
-
-    if ! sftp \
-        -oBatchMode=yes \
-        -oConnectTimeout="$SFTP_CONNECT_TIMEOUT" \
-        -oConnectionAttempts=1 \
-        -P "$SSH_PORT" \
-        "$SFTP_USER@$SFTP_HOST:$REMOTE_DIR" >/dev/null 2>&1 <<EOF
-get mame/$zip $tmp
+    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
+get mame/$zip $roms_dir_ref
 bye
 EOF
-    then
-        rm -f "$tmp"
-        return 1
-    fi
-
-    if ! test -s "$tmp"; then
-        rm -f "$tmp"
-        return 1
-    fi
-
-    if ! unzip -tq "$tmp" >/dev/null 2>&1; then
-        rm -f "$tmp"
-        return 1
-    fi
-
-    mv "$tmp" "$dst"
 }
 
-retry_wait_seconds() {
-    local attempt="$1"
-    local delay="$SFTP_RETRY_BASE_DELAY"
-    local max_delay="$SFTP_RETRY_MAX_DELAY"
-    local jitter=$((RANDOM % (SFTP_RETRY_BASE_DELAY + 1)))
-
-    delay=$((delay << (attempt-1)))
-    if test $delay -gt $max_delay; then
-        delay="$max_delay"
-    fi
-
-    echo $((delay + jitter))
+random_wait() {
+    sleep $((RANDOM%30))
 }
 
 get_opts() {
