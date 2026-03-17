@@ -29043,16 +29043,6 @@
 		)
 		(uuid "ee26ad2f-e409-4296-aa85-bbb0dc3add4e")
 	)
-	(label "55"
-		(at 212.09 274.32 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "ee27a900-4a03-4663-abc5-adeb9d36b87d")
-	)
 	(label "ACOL1"
 		(at 382.27 85.09 180)
 		(effects

@@ -580,28 +580,12 @@
       "Root"
     ],
     [
-      "b264451b-9240-46ab-8702-bb19e9f53be3",
-      "capacitors"
-    ],
-    [
-      "aa6d1b84-7765-4237-a6fb-f8a8326f204f",
-      "colmix"
-    ],
-    [
-      "66df6e6f-8a17-45ae-8d04-0c9d05a2f819",
-      "io_cabinet"
-    ],
-    [
       "ca074bfa-b681-46d6-bd0f-c893aacc5720",
       "main"
     ],
     [
       "1a029c0e-12d5-4795-adb6-f17942ed0576",
       "objects"
-    ],
-    [
-      "737007ab-8903-4b75-8234-88a6bd03200a",
-      "pcm"
     ],
     [
       "69500b94-8c19-4a00-b0e7-41ededd006b7",
@@ -612,12 +596,40 @@
       "sound"
     ],
     [
-      "25476b44-bfe5-4531-8366-df0d153c2ef2",
-      "rgb"
+      "aa6d1b84-7765-4237-a6fb-f8a8326f204f",
+      "colmix"
+    ],
+    [
+      "66df6e6f-8a17-45ae-8d04-0c9d05a2f819",
+      "io_cabinet"
+    ],
+    [
+      "b264451b-9240-46ab-8702-bb19e9f53be3",
+      "capacitors"
     ],
     [
       "02a22e30-c37a-4d68-8130-809ddcd7b7a6",
       "054986A"
+    ],
+    [
+      "25476b44-bfe5-4531-8366-df0d153c2ef2",
+      "RGB"
+    ],
+    [
+      "5143cceb-3e9b-4592-8fd1-f2bbeb2d9ab3",
+      "RED"
+    ],
+    [
+      "3c7473f3-f9b8-4141-b40d-17974ada0e5c",
+      "GREEN"
+    ],
+    [
+      "32879b93-8b17-43c3-ad39-5287ebe1252a",
+      "BLUE"
+    ],
+    [
+      "43fea6b8-9cbc-473e-b300-7e583461d459",
+      "BRIT"
     ]
   ],
   "text_variables": {}
