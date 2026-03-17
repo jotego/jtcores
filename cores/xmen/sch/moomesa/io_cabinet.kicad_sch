@@ -3934,6 +3934,12 @@
 		(color 0 0 0 0)
 		(uuid "ba88f094-70de-4806-867d-1f9b472a472e")
 	)
+	(junction
+		(at 140.97 53.34)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f70177f5-2189-4777-a86a-5a37194ad735")
+	)
 	(no_connect
 		(at 303.53 223.52)
 		(uuid "059d6acd-1d40-4b4d-b559-06c568796da8")
@@ -4297,6 +4303,16 @@
 			(type default)
 		)
 		(uuid "01dc86b3-5996-4069-96f4-86812396c75a")
+	)
+	(wire
+		(pts
+			(xy 140.97 53.34) (xy 135.89 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "02eae215-6e6f-4391-9c56-c3506ae55312")
 	)
 	(wire
 		(pts
@@ -5128,6 +5144,16 @@
 		)
 		(uuid "6400fd38-15e6-4c3a-9cd3-0eaba2af0725")
 	)
+	(wire
+		(pts
+			(xy 140.97 41.91) (xy 140.97 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "64f248b8-2ea8-418a-b812-ccc39acce585")
+	)
 	(bus
 		(pts
 			(xy 269.24 45.72) (xy 269.24 53.34)
@@ -5210,7 +5236,7 @@
 	)
 	(wire
 		(pts
-			(xy 153.67 53.34) (xy 147.32 53.34)
+			(xy 158.75 53.34) (xy 152.4 53.34)
 		)
 		(stroke
 			(width 0)
@@ -5437,6 +5463,16 @@
 			(type default)
 		)
 		(uuid "8763ac0c-4151-4c87-a680-246118683163")
+	)
+	(wire
+		(pts
+			(xy 147.32 41.91) (xy 140.97 41.91)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8823822e-7f13-4235-b1a9-b75c6bcbc0cd")
 	)
 	(wire
 		(pts
@@ -6310,7 +6346,7 @@
 	)
 	(wire
 		(pts
-			(xy 139.7 53.34) (xy 135.89 53.34)
+			(xy 144.78 53.34) (xy 140.97 53.34)
 		)
 		(stroke
 			(width 0)
@@ -7403,6 +7439,16 @@
 		)
 		(uuid "87909075-70bd-4ae0-962a-0ed9c5b0f10f")
 	)
+	(label "G5P3"
+		(at 147.32 41.91 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "87f82bea-d5fc-434c-8ca3-255f734be2e1")
+	)
 	(label "I4P_DOWN"
 		(at 73.66 138.43 180)
 		(effects
@@ -7654,7 +7700,7 @@
 		(uuid "ba689acb-61b8-4139-87ed-118e49def5c3")
 	)
 	(label "~{SYNC}"
-		(at 153.67 53.34 180)
+		(at 158.75 53.34 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9323,7 +9369,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 143.51 53.34 90)
+		(at 148.59 53.34 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9332,7 +9378,7 @@
 		(fields_autoplaced yes)
 		(uuid "547a5576-a255-4a5f-bad3-4e50f6701049")
 		(property "Reference" "R3"
-			(at 143.51 46.99 90)
+			(at 148.59 46.99 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9340,7 +9386,7 @@
 			)
 		)
 		(property "Value" "100Ω"
-			(at 143.51 49.53 90)
+			(at 148.59 49.53 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9348,7 +9394,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 143.764 52.324 90)
+			(at 148.844 52.324 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9357,7 +9403,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 143.51 53.34 0)
+			(at 148.59 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9366,7 +9412,7 @@
 			)
 		)
 		(property "Description" "Resistor, US symbol"
-			(at 143.51 53.34 0)
+			(at 148.59 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)

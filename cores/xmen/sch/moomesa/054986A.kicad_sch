@@ -5869,10 +5869,6 @@
 		(uuid "258559ef-c156-4f98-83e0-a9fda5ea9688")
 	)
 	(no_connect
-		(at 78.74 109.22)
-		(uuid "25aefa01-5f3d-446d-857a-5f51cc442d77")
-	)
-	(no_connect
 		(at 85.09 140.97)
 		(uuid "27f231c8-0db5-4948-b4c0-904dd7b7e0eb")
 	)
@@ -5903,10 +5899,6 @@
 	(no_connect
 		(at 215.9 50.8)
 		(uuid "40d93ad3-1e85-499c-a05c-63ed26e490aa")
-	)
-	(no_connect
-		(at 215.9 48.26)
-		(uuid "42c09811-1718-4077-ab40-cdc1388583f1")
 	)
 	(no_connect
 		(at 91.44 53.34)
@@ -5991,10 +5983,6 @@
 	(no_connect
 		(at 215.9 60.96)
 		(uuid "bc160e90-5d81-4ff8-9e2a-bd937d51a545")
-	)
-	(no_connect
-		(at 203.2 48.26)
-		(uuid "bdb94a4f-c6e4-45b5-8a49-71f2d7b70822")
 	)
 	(no_connect
 		(at 203.2 93.98)
@@ -6800,6 +6788,16 @@
 	)
 	(wire
 		(pts
+			(xy 224.79 48.26) (xy 215.9 48.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5d55d3cb-fea4-4a6a-8621-9934d39623f3")
+	)
+	(wire
+		(pts
 			(xy 218.44 101.6) (xy 218.44 99.06)
 		)
 		(stroke
@@ -7360,6 +7358,16 @@
 	)
 	(wire
 		(pts
+			(xy 194.31 48.26) (xy 203.2 48.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b3d09a56-1a2b-411a-9fa6-2629273d0bb4")
+	)
+	(wire
+		(pts
 			(xy 224.79 53.34) (xy 215.9 53.34)
 		)
 		(stroke
@@ -7517,6 +7525,16 @@
 			(type default)
 		)
 		(uuid "cbc4643d-1dde-4fd6-9f64-d48c794a88a6")
+	)
+	(wire
+		(pts
+			(xy 71.12 109.22) (xy 78.74 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cdaeb22d-78b8-47f1-801f-bb19af62ed24")
 	)
 	(wire
 		(pts
@@ -8163,6 +8181,16 @@
 		)
 		(uuid "1be3053a-d295-42e2-9188-2a83c93d59fe")
 	)
+	(label "R{slash}W"
+		(at 107.95 60.96 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1c664729-5a7f-45b9-b094-ef224ff1b6cc")
+	)
 	(label "MAIN_D6"
 		(at 176.53 66.04 180)
 		(effects
@@ -8453,6 +8481,16 @@
 		)
 		(uuid "5a65c523-5117-4cbe-9880-e8a5d58159ef")
 	)
+	(label "R{slash}W"
+		(at 100.33 121.92 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "5b02ece2-416e-46ad-ac71-8120324897ec")
+	)
 	(label "MAIN_D3"
 		(at 100.33 96.52 180)
 		(effects
@@ -8723,6 +8761,16 @@
 		)
 		(uuid "852bb495-3273-4e99-9fb8-f86b2b07b672")
 	)
+	(label "SDON"
+		(at 224.79 48.26 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "8800b3f8-a95e-4518-889c-38e281affb7d")
+	)
 	(label "S~{WR}"
 		(at 224.79 53.34 180)
 		(effects
@@ -8762,6 +8810,16 @@
 			(justify left bottom)
 		)
 		(uuid "8f20e8e3-e5c2-4d5a-b70c-9d96a527a8bb")
+	)
+	(label "R{slash}W"
+		(at 72.39 121.92 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "90133140-01a2-4b57-bdf0-a3e88913121e")
 	)
 	(label "SND_D3"
 		(at 224.79 81.28 180)
@@ -9093,6 +9151,16 @@
 		)
 		(uuid "ca3d74b1-c0b3-4588-85ba-3abc41c4e040")
 	)
+	(label "PAIR~{CS}"
+		(at 71.12 109.22 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "cbc94501-43af-4bc0-a638-67d477e8b4d0")
+	)
 	(label "MAIN_A1"
 		(at 69.85 111.76 0)
 		(effects
@@ -9123,15 +9191,15 @@
 		)
 		(uuid "d4d6709a-54aa-4eca-88a2-8b2f14261911")
 	)
-	(label "OER"
-		(at 107.95 60.96 0)
+	(label "SDON"
+		(at 194.31 48.26 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "d5550d4a-add4-4f42-b113-1dee46389ac5")
+		(uuid "d852da4b-387c-4f91-b6d9-9593e3bac579")
 	)
 	(label "PCM1"
 		(at 107.95 88.9 0)
@@ -9173,16 +9241,6 @@
 		)
 		(uuid "dfbbeb98-691a-40ac-8898-0dad44f3ad61")
 	)
-	(label "OER"
-		(at 100.33 121.92 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "e098563e-a74c-46d9-8c1b-2077f9b37c1f")
-	)
 	(label "S~{RST}"
 		(at 176.53 101.6 180)
 		(effects
@@ -9212,16 +9270,6 @@
 			(justify left bottom)
 		)
 		(uuid "ec6ffc20-5664-400c-93dc-8aac467c580d")
-	)
-	(label "OER"
-		(at 72.39 121.92 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "ed0774ec-ebb1-43ef-91ac-0585fb12b946")
 	)
 	(label "SND_D6"
 		(at 224.79 73.66 180)
