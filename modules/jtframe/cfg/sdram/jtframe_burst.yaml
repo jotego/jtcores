@@ -1,0 +1,11 @@
+jtframe:
+  - from: sdram
+    get:
+      - jtframe_burst_sdram.v
+      - jtframe_burst_mode.v
+      - jtframe_burst_ctrl.v
+      - jtframe_burst_mux.v
+      - jtframe_burst_io.v
+      - jtframe_sdram64_bank.v
+      - jtframe_sdram64_init.v
+      - jtframe_sdram64_rfsh.v
