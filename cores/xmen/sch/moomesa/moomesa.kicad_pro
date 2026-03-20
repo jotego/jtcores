@@ -527,13 +527,25 @@
           "label": "DNP",
           "name": "${DNP}",
           "show": true
+        },
+        {
+          "group_by": false,
+          "label": "#",
+          "name": "${ITEM_NUMBER}",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Descripción",
+          "name": "Description",
+          "show": false
         }
       ],
       "filter_string": "",
       "group_symbols": true,
-      "name": "Grouped By Value",
+      "name": "",
       "sort_asc": true,
-      "sort_field": "Referencia"
+      "sort_field": "Reference"
     },
     "connection_grid_size": 50.0,
     "drawing": {
@@ -608,6 +620,10 @@
       "capacitors"
     ],
     [
+      "e541ef39-8726-4753-affa-473a754d10da",
+      "not_populated"
+    ],
+    [
       "02a22e30-c37a-4d68-8130-809ddcd7b7a6",
       "054986A"
     ],
@@ -616,20 +632,8 @@
       "RGB"
     ],
     [
-      "5143cceb-3e9b-4592-8fd1-f2bbeb2d9ab3",
-      "RED"
-    ],
-    [
-      "3c7473f3-f9b8-4141-b40d-17974ada0e5c",
-      "GREEN"
-    ],
-    [
-      "32879b93-8b17-43c3-ad39-5287ebe1252a",
-      "BLUE"
-    ],
-    [
-      "43fea6b8-9cbc-473e-b300-7e583461d459",
-      "BRIT"
+      "6e0ae0e5-778c-4129-bb53-5e4cfa6361f0",
+      "053252"
     ]
   ],
   "text_variables": {}

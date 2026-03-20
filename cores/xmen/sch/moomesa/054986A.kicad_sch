@@ -4,6 +4,9 @@
 	(generator_version "8.0")
 	(uuid "b66f74db-0aef-4ead-9816-5bbf1d9d8f62")
 	(paper "A4")
+	(title_block
+		(title "Wild West C.O.W.-Boys of Moo Mesa")
+	)
 	(lib_symbols
 		(symbol "Connector_Generic:Conn_02x32_Row_Letter_First"
 			(pin_names
@@ -5897,10 +5900,6 @@
 		(uuid "3f6ee91c-b247-415a-892c-3d7253b58841")
 	)
 	(no_connect
-		(at 215.9 50.8)
-		(uuid "40d93ad3-1e85-499c-a05c-63ed26e490aa")
-	)
-	(no_connect
 		(at 91.44 53.34)
 		(uuid "44ef5a64-0cb0-4866-9331-27ed6d3ec872")
 	)
@@ -6047,10 +6046,6 @@
 	(no_connect
 		(at 203.2 109.22)
 		(uuid "fa40fc29-8dae-4840-9d6b-376d5e5406e5")
-	)
-	(no_connect
-		(at 203.2 50.8)
-		(uuid "fa8a4b3a-0ca3-47db-acf7-f45ba428191b")
 	)
 	(bus_entry
 		(at 67.31 83.82)
@@ -6788,7 +6783,17 @@
 	)
 	(wire
 		(pts
-			(xy 224.79 48.26) (xy 215.9 48.26)
+			(xy 194.31 50.8) (xy 203.2 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5cc50133-6955-4bfd-9283-df8eb482b5e3")
+	)
+	(wire
+		(pts
+			(xy 217.17 48.26) (xy 215.9 48.26)
 		)
 		(stroke
 			(width 0)
@@ -7055,6 +7060,16 @@
 			(type default)
 		)
 		(uuid "8719bb30-dcae-48ea-9374-48710123abbb")
+	)
+	(wire
+		(pts
+			(xy 217.17 50.8) (xy 215.9 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "881baca4-b005-45ea-b8fd-349cf6c352b3")
 	)
 	(wire
 		(pts
@@ -7528,16 +7543,6 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 109.22) (xy 78.74 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cdaeb22d-78b8-47f1-801f-bb19af62ed24")
-	)
-	(wire
-		(pts
 			(xy 218.44 104.14) (xy 218.44 101.6)
 		)
 		(stroke
@@ -7858,6 +7863,16 @@
 	)
 	(wire
 		(pts
+			(xy 77.47 109.22) (xy 78.74 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fbde3368-e056-440e-9972-e1a35bd05b92")
+	)
+	(wire
+		(pts
 			(xy 215.9 99.06) (xy 218.44 99.06)
 		)
 		(stroke
@@ -8080,6 +8095,16 @@
 			"eio8O4hGlZ6+YhiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRgV538AZVSFE5de"
 			"GbwAAAAASUVORK5CYII="
 		)
+	)
+	(label "SND~{IORQ}"
+		(at 194.31 50.8 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "009bc317-a5c0-416f-9ca7-859513d74810")
 	)
 	(label "SND_D2"
 		(at 224.79 83.82 180)
@@ -8761,16 +8786,6 @@
 		)
 		(uuid "852bb495-3273-4e99-9fb8-f86b2b07b672")
 	)
-	(label "SDON"
-		(at 224.79 48.26 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "8800b3f8-a95e-4518-889c-38e281affb7d")
-	)
 	(label "S~{WR}"
 		(at 224.79 53.34 180)
 		(effects
@@ -9151,16 +9166,6 @@
 		)
 		(uuid "ca3d74b1-c0b3-4588-85ba-3abc41c4e040")
 	)
-	(label "PAIR~{CS}"
-		(at 71.12 109.22 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "cbc94501-43af-4bc0-a638-67d477e8b4d0")
-	)
 	(label "MAIN_A1"
 		(at 69.85 111.76 0)
 		(effects
@@ -9353,6 +9358,17 @@
 		)
 		(uuid "521f36b6-4421-49d1-83de-b88dd0b080bb")
 	)
+	(hierarchical_label "SDON"
+		(shape input)
+		(at 217.17 48.26 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "6506263b-4de4-4648-8230-eb277ddbe9bf")
+	)
 	(hierarchical_label "MAIN_A[4..1]"
 		(shape bidirectional)
 		(at 60.96 114.3 180)
@@ -9375,6 +9391,17 @@
 		)
 		(uuid "b61af890-9370-405e-af88-1a1df3decf98")
 	)
+	(hierarchical_label "PAIR~{CS}"
+		(shape input)
+		(at 77.47 109.22 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c64ed867-6dd9-4ca0-b07d-d25aab610848")
+	)
 	(hierarchical_label "1.54CLK"
 		(shape input)
 		(at 78.74 71.12 180)
@@ -9385,6 +9412,17 @@
 			(justify right)
 		)
 		(uuid "d2ff7db7-5e28-4745-862d-375aba673980")
+	)
+	(hierarchical_label "SND~{IORQ}"
+		(shape input)
+		(at 217.17 50.8 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e67ddf57-2ac8-4596-8143-2e07bab543c4")
 	)
 	(symbol
 		(lib_id "Device:R_US")
