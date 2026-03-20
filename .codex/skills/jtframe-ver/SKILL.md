@@ -1,7 +1,6 @@
 ---
 name: create unit simulations
-description: Build simunit-compatible RTL unit tests under a ver directory so
-they run both locally and in GitHub Actions
+description: Build simunit-compatible RTL unit tests under a ver directory so they run both locally and in GitHub Actions
 ---
 
 # Purpose

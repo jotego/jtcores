@@ -17,6 +17,7 @@ rm -f $TMP
 # restore all environment variables
 export JTROOT=$(pwd)
 export JTFRAME=$JTROOT/modules/jtframe
+export CODEX_HOME=$JTROOT/.codex
 
 source $JTFRAME/bin/setprj.sh
 cd $JTROOT

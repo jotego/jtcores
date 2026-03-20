@@ -1,8 +1,12 @@
 ---
-name: edit Go files
-description: Modify Go programming to introduce new behavior or modify the 
-existing one in the jtframe and jtutil commands
+name: edit jtframe or jtutil commands
+description: Modify Go programming to introduce new behavior or modify the existing one in the jtframe and jtutil commands
 ---
+
+# Source Files
+
+The source files are in $JTFRAME/src/jtframe for the jtframe utility and
+$JTFRAME/src/jtutil for jtutil.
 
 # Coding Style
 
