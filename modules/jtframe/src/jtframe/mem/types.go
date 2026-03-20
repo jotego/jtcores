@@ -19,7 +19,6 @@ package mem
 
 import (
 	"fmt"
-	"math/bits"
 	"regexp"
 	"strconv"
 	"strings"
@@ -83,40 +82,30 @@ type BRAMBus struct {
 	PROM_offset int // PROM offset in .rom file
 }
 
-func parseBRAMSize(raw interface{}) (int, error) {
-	sizeText := fmt.Sprint(raw)
-	sizeText = strings.TrimSpace(sizeText)
-	if sizeText == "" {
+func parse_memory_size(size_text string) (int, error) {
+	size_text = strings.TrimSpace(size_text)
+	if size_text == "" {
 		return 0, fmt.Errorf("size cannot be empty")
 	}
-
-	parts := regexp.MustCompile(`^(\d+)(?:\s*(B|k|kB))?$`).FindStringSubmatch(sizeText)
+	parts := regexp.MustCompile(`^(\d+)(?:\s*(B|k|kB|M|MB))?$`).FindStringSubmatch(size_text)
 	if parts == nil {
-		return 0, fmt.Errorf("size must be an integer number of bytes, or use the exact suffixes B, k or kB")
+		return 0, fmt.Errorf("size must be an integer number of bytes, or use the exact suffixes B, k, kB, M or MB")
 	}
-
-	sizeValue, err := strconv.Atoi(parts[1])
+	size_value, err := strconv.Atoi(parts[1])
 	if err != nil {
-		return 0, fmt.Errorf("size must be an integer number of bytes, or use the exact suffixes B, k or kB")
+		return 0, fmt.Errorf("size must be an integer number of bytes, or use the exact suffixes B, k, kB, M or MB")
 	}
-	if sizeValue <= 0 {
+	if size_value <= 0 {
 		return 0, fmt.Errorf("size must be greater than zero")
 	}
-
 	multiplier := 1
 	switch parts[2] {
 	case "k", "kB":
 		multiplier = 1024
+	case "M", "MB":
+		multiplier = 1024 * 1024
 	}
-
-	sizeBytes := sizeValue * multiplier
-	if sizeBytes > 512*1024 {
-		return 0, fmt.Errorf("size %d bytes exceeds 512kB", sizeBytes)
-	}
-	if sizeBytes&(sizeBytes-1) != 0 {
-		return 0, fmt.Errorf("size %d bytes is not an exact power of two", sizeBytes)
-	}
-	return bits.Len(uint(sizeBytes)) - 1, nil
+	return size_value * multiplier, nil
 }
 
 type BRAMBus_Ioctl struct {
@@ -271,7 +260,10 @@ type MemConfig struct {
 }
 
 type SDRAMCfg struct {
-	Banks []SDRAMBank `yaml:"banks"`
+	Banks       []SDRAMBank      `yaml:"banks"`
+	Burst       string           `yaml:"burst"`
+	Cache_lines []SDRAMCacheLine `yaml:"cache-lines"`
+	Burst_len   int
 }
 
 type SDRAMBank struct {
@@ -298,6 +290,80 @@ type SDRAMBus struct {
 	Cs         string `yaml:"cs"`
 	Gfx        string `yaml:"gfx_sort"`
 	Gfx_en     string `yaml:"gfx_sort_en"`
+}
+
+type SDRAMCacheLine struct {
+	When   []string `yaml:"when"`
+	Unless []string `yaml:"unless"`
+	Name   string
+	Cache  SDRAMCacheCfg  `yaml:"cache"`
+	At     SDRAMCacheAddr `yaml:"at"`
+	Total  int
+}
+
+type SDRAMCacheCfg struct {
+	Blocks     int    `yaml:"blocks"`
+	Size       string `yaml:"size"`
+	Data_width int    `yaml:"data_width"`
+	Size_bytes int
+}
+
+type SDRAMCacheAddr struct {
+	Bank         int    `yaml:"bank"`
+	Start        string `yaml:"start"`
+	Length       string `yaml:"length"`
+	Length_bytes int
+}
+
+func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type raw_line struct {
+		When   []string       `yaml:"when"`
+		Unless []string       `yaml:"unless"`
+		Cache  SDRAMCacheCfg  `yaml:"cache"`
+		At     SDRAMCacheAddr `yaml:"at"`
+	}
+	var raw_map map[string]interface{}
+	if err := unmarshal(&raw_map); err != nil {
+		return err
+	}
+	var aux raw_line
+	if err := unmarshal(&aux); err != nil {
+		return err
+	}
+	line.When = aux.When
+	line.Unless = aux.Unless
+	line.Cache = aux.Cache
+	line.At = aux.At
+	for key := range raw_map {
+		switch key {
+		case "when", "unless", "cache", "at":
+		default:
+			if line.Name != "" {
+				return fmt.Errorf("cache line entries must declare exactly one name")
+			}
+			line.Name = key
+		}
+	}
+	if line.Name == "" {
+		return fmt.Errorf("cache line entries must declare exactly one name")
+	}
+	return nil
+}
+
+func (addr *SDRAMCacheAddr) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type raw_addr struct {
+		Bank   int    `yaml:"bank"`
+		Start  string `yaml:"start"`
+		Length string `yaml:"length"`
+	}
+	var aux raw_addr
+	if err := unmarshal(&aux); err != nil {
+		return err
+	}
+	addr.Bank = aux.Bank
+	addr.Start = aux.Start
+	addr.Length = aux.Length
+	return nil
 }
 
 type Optional interface {

@@ -264,7 +264,7 @@ func bankOffset(regCnt int, hinfo mra.HeaderOffset, rom []byte) ([]int, []string
 
 func parseMemConfig(core string) (*mem.MemConfig, error) {
 	var cfg mem.MemConfig
-	if err := mem.Parse_file(core, "mem.yaml", &cfg); err != nil {
+	if err := mem.ParseFile(core, "mem.yaml", &cfg); err != nil {
 		return nil, fmt.Errorf("cannot parse mem.yaml: %w", err)
 	}
 	return &cfg, nil

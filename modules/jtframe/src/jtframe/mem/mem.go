@@ -24,8 +24,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/bits"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -48,7 +50,7 @@ func Run(args Args) (e error) {
 		extra_macros = []string{macros.JTFRAME_RELEASE}
 	}
 	macros.MakeMacros(args.Core, args.Target, extra_macros...)
-	if e := Parse_file(args.Core, "mem.yaml", &cfg); e != nil {
+	if e := ParseFile(args.Core, "mem.yaml", &cfg); e != nil {
 		// the mem.yaml file does not exist, that's
 		// normally ok
 		fmt.Println(e)
@@ -58,7 +60,7 @@ func Run(args Args) (e error) {
 		return e
 	}
 	// Checks
-	if e = cfg.check_banks(); e != nil {
+	if e = cfg.check_sdram(); e != nil {
 		return e
 	}
 	if e = cfg.check_bram(); e != nil {
@@ -68,7 +70,7 @@ func Run(args Args) (e error) {
 	// Data arrangement
 	fill_implicit_ports(&cfg)
 	make_ioctl(&cfg)
-	fill_gfx_sort(&cfg)
+	cfg.fill_gfx_sort()
 	// Fill the clock configuration
 	make_clocks(&cfg)
 	// Audio configuration
@@ -157,7 +159,7 @@ var funcMap = template.FuncMap{
 	"is_nbits":        is_nbits,
 }
 
-func Parse_file(core, filename string, cfg *MemConfig) error {
+func ParseFile(core, filename string, cfg *MemConfig) error {
 	if err := read_yaml(core, filename, cfg); err != nil {
 		return err
 	}
@@ -167,7 +169,18 @@ func Parse_file(core, filename string, cfg *MemConfig) error {
 		return err
 	}
 	delete_optional(cfg)
-	// Update the MemType strings
+	cfg.normalize_sdram_banks()
+	cfg.normalize_bram_data_width()
+	if err := cfg.normalize_bram(); err != nil {
+		return err
+	}
+	if err := cfg.check_gfx_sort(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (cfg *MemConfig) normalize_sdram_banks() {
 	for k, bank := range cfg.SDRAM.Banks {
 		ram_cnt := 0
 		for j, each := range bank.Buses {
@@ -184,16 +197,17 @@ func Parse_file(core, filename string, cfg *MemConfig) error {
 			cfg.SDRAM.Banks[k].MemType = "rom"
 		}
 	}
-	// Make data_width 8 if it is missing
+}
+
+func (cfg *MemConfig) normalize_bram_data_width() {
 	for k, each := range cfg.BRAM {
 		if each.Data_width == 0 {
 			cfg.BRAM[k].Data_width = 8
 		}
 	}
-	if err := normalize_bram(cfg); err != nil {
-		return err
-	}
-	// check that gfx_sort expressions are supported
+}
+
+func (cfg *MemConfig) check_gfx_sort() error {
 	for _, bank := range cfg.SDRAM.Banks {
 		for _, each := range bank.Buses {
 			switch each.Gfx {
@@ -201,18 +215,15 @@ func Parse_file(core, filename string, cfg *MemConfig) error {
 				"hvvvv", "hvvvvx", "hvvvvxx",
 				"hhvvv", "hhvvvv", "hhvvvx", "hhvvvvx", "hhvvvxx", "hhvvvvxx",
 				"vhhvvv", "vhhvvvx", "vhhvvvxx":
-				break
 			default:
-				{
-					return fmt.Errorf("Unsupported gfx_sort %s", each.Gfx)
-				}
+				return fmt.Errorf("Unsupported gfx_sort %s", each.Gfx)
 			}
 		}
 	}
 	return nil
 }
 
-func normalize_bram(cfg *MemConfig) error {
+func (cfg *MemConfig) normalize_bram() error {
 	for k := range cfg.BRAM {
 		bram := &cfg.BRAM[k]
 		if bram.Size == nil {
@@ -222,11 +233,17 @@ func normalize_bram(cfg *MemConfig) error {
 			return fmt.Errorf("BRAM %s cannot define both size and addr_width", bram.Name)
 		}
 
-		addrWidth, err := parseBRAMSize(bram.Size)
+		size_bytes, err := parse_memory_size(fmt.Sprint(bram.Size))
 		if err != nil {
 			return fmt.Errorf("invalid size for BRAM %s: %w", bram.Name, err)
 		}
-		bram.Addr_width = addrWidth
+		if size_bytes > 512*1024 {
+			return fmt.Errorf("invalid size for BRAM %s: size %d bytes exceeds 512kB", bram.Name, size_bytes)
+		}
+		if size_bytes&(size_bytes-1) != 0 {
+			return fmt.Errorf("invalid size for BRAM %s: size %d bytes is not an exact power of two", bram.Name, size_bytes)
+		}
+		bram.Addr_width = bits.Len(uint(size_bytes)) - 1
 	}
 	return nil
 }
@@ -245,7 +262,7 @@ func parse_include_files(core string, cfg *MemConfig) {
 		if entry.Core == "" {
 			entry.Core = core
 		}
-		Parse_file(entry.Core, entry.File, cfg)
+		ParseFile(entry.Core, entry.File, cfg)
 	}
 }
 
@@ -298,6 +315,16 @@ func delete_optional_sdram(cfg *MemConfig) {
 		enabled := find_enabled(optional)
 		cfg.SDRAM.Banks[k].Buses = copy_enabled(cfg.SDRAM.Banks[k].Buses, enabled)
 	}
+	total := len(cfg.SDRAM.Cache_lines)
+	if total == 0 {
+		return
+	}
+	optional := make([]Optional, total)
+	for k := range cfg.SDRAM.Cache_lines {
+		optional[k] = &cfg.SDRAM.Cache_lines[k]
+	}
+	enabled := find_enabled(optional)
+	cfg.SDRAM.Cache_lines = copy_enabled(cfg.SDRAM.Cache_lines, enabled)
 }
 
 func delete_optional_bram(cfg *MemConfig) {
@@ -474,6 +501,20 @@ func bankOffset(cfg *MemConfig, corename string) (e error) {
 	return nil
 }
 
+func (cfg *MemConfig) check_sdram() error {
+	if len(cfg.SDRAM.Banks) > 0 && len(cfg.SDRAM.Cache_lines) > 0 {
+		return fmt.Errorf("jtframe mem: sdram.banks and sdram.cache-lines cannot be defined at the same time")
+	}
+	if len(cfg.SDRAM.Banks) > 0 {
+		return cfg.check_banks()
+	}
+	if err := cfg.check_cache_lines(); err != nil {
+		return err
+	}
+	cfg.mark_all_banks_unused()
+	return nil
+}
+
 func (cfg *MemConfig) check_banks() error {
 	// Check that the arguments make sense
 	if len(cfg.SDRAM.Banks) > 4 || len(cfg.SDRAM.Banks) == 0 {
@@ -551,6 +592,118 @@ Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 		}
 	}
 	return nil
+}
+
+func (cfg *MemConfig) check_cache_lines() error {
+	if len(cfg.SDRAM.Cache_lines) == 0 || len(cfg.SDRAM.Cache_lines) > 8 {
+		return fmt.Errorf("jtframe mem: the number of cache-lines must be between 1 and 8 but %d were found", len(cfg.SDRAM.Cache_lines))
+	}
+	param_names := make(map[string]bool, len(cfg.Params))
+	for _, each := range cfg.Params {
+		param_names[each.Name] = true
+	}
+	total_cache, max_cache_size, err := cfg.parse_cache_lines(param_names)
+	if err != nil {
+		return err
+	}
+	if total_cache >= 512*1024 {
+		return fmt.Errorf("jtframe mem: cache-lines use %d bytes of BRAM, which must stay below 512kB", total_cache)
+	}
+	burst_len := max_cache_size
+	if cfg.SDRAM.Burst != "" {
+		var err error
+		burst_len, err = parse_memory_size(cfg.SDRAM.Burst)
+		if err != nil {
+			return fmt.Errorf("jtframe mem: invalid sdram.burst: %w", err)
+		}
+	} else {
+		cfg.SDRAM.Burst = format_memory_size(max_cache_size)
+	}
+	if burst_len&(burst_len-1) != 0 {
+		return fmt.Errorf("jtframe mem: burst size %d bytes is not an exact power of two", burst_len)
+	}
+	burst_limit := 512
+	if macros.IsSet("JTFRAME_SDRAM_LARGE") {
+		burst_limit = 1024
+	}
+	if burst_len > burst_limit {
+		return fmt.Errorf("jtframe mem: burst size %d bytes exceeds the %d-byte limit", burst_len, burst_limit)
+	}
+	cfg.SDRAM.Burst_len = burst_len
+	if Verbose {
+		cfg.report_cache_lines(total_cache)
+	}
+	return nil
+}
+
+func (cfg *MemConfig) mark_all_banks_unused() {
+	for k := 0; k < 4; k++ {
+		cfg.Unused[k] = true
+	}
+}
+
+func (cfg *MemConfig) parse_cache_lines(param_names map[string]bool) (total_cache, max_cache_size int, err error) {
+	for k := range cfg.SDRAM.Cache_lines {
+		line := &cfg.SDRAM.Cache_lines[k]
+		if line.Cache.Blocks == 0 {
+			return 0, 0, fmt.Errorf("jtframe mem: cache-line %s must define cache.blocks and it cannot be zero", line.Name)
+		}
+		switch line.Cache.Data_width {
+		case 8, 16, 32:
+		default:
+			return 0, 0, fmt.Errorf("jtframe mem: cache-line %s uses unsupported data_width %d", line.Name, line.Cache.Data_width)
+		}
+		size_bytes, e := parse_memory_size(line.Cache.Size)
+		if e != nil {
+			return 0, 0, fmt.Errorf("jtframe mem: invalid cache size for %s: %w", line.Name, e)
+		}
+		if size_bytes&(size_bytes-1) != 0 {
+			return 0, 0, fmt.Errorf("jtframe mem: cache-line %s uses a cache size of %d bytes, which is not an exact power of two", line.Name, size_bytes)
+		}
+		line.Cache.Size_bytes = size_bytes
+		if size_bytes > max_cache_size {
+			max_cache_size = size_bytes
+		}
+		length_bytes, e := parse_memory_size(line.At.Length)
+		if e != nil {
+			return 0, 0, fmt.Errorf("jtframe mem: invalid length for %s: %w", line.Name, e)
+		}
+		line.At.Length_bytes = length_bytes
+		if line.At.Start != "" && !param_names[line.At.Start] {
+			if !strings.HasPrefix(line.At.Start, "0x") && !strings.HasPrefix(line.At.Start, "0X") {
+				return 0, 0, fmt.Errorf("jtframe mem: cache-line %s start must match a parameter name or an explicit hexadecimal value", line.Name)
+			}
+			if _, e := strconv.ParseUint(line.At.Start[2:], 16, 64); e != nil {
+				return 0, 0, fmt.Errorf("jtframe mem: cache-line %s start must match a parameter name or an explicit hexadecimal value", line.Name)
+			}
+		}
+		line.Total = line.Cache.Blocks * size_bytes
+		total_cache += line.Total
+	}
+	return total_cache, max_cache_size, nil
+}
+
+func (cfg *MemConfig) report_cache_lines(total_cache int) {
+	fmt.Println("SDRAM cache lines:")
+	fmt.Printf("%-12s %8s %8s %10s\n", "name", "blocks", "size", "total")
+	for _, line := range cfg.SDRAM.Cache_lines {
+		fmt.Printf("%-12s %8d %8s %10s\n",
+			line.Name,
+			line.Cache.Blocks,
+			format_memory_size(line.Cache.Size_bytes),
+			format_memory_size(line.Total))
+	}
+	fmt.Printf("%-12s %8s %8s %10s\n", "TOTAL", "", "", format_memory_size(total_cache))
+}
+
+func format_memory_size(size_bytes int) string {
+	if size_bytes%(1024*1024) == 0 {
+		return fmt.Sprintf("%dMB", size_bytes/(1024*1024))
+	}
+	if size_bytes%1024 == 0 {
+		return fmt.Sprintf("%dkB", size_bytes/1024)
+	}
+	return fmt.Sprintf("%dB", size_bytes)
 }
 
 func report_bad_int(macro_name string) bool {
@@ -861,7 +1014,7 @@ func check_ioctl_size(dump_size int) {
 
 const NOGFXRANGE = "0;"
 
-func fill_gfx_sort(cfg *MemConfig) {
+func (cfg *MemConfig) fill_gfx_sort() {
 	// this will not merge correctly hhvvv and hhvvvx used together, that's
 	// not supported in jtframe_dwnld at the moment
 	var b04, b08, b016, b016b, b016c int

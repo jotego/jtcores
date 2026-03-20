@@ -164,7 +164,7 @@ func Test_BRAMBus_Size_To_AddrWidth(t *testing.T) {
 	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
 		t.Fatal(e)
 	}
-	if e := normalize_bram(&cfg); e != nil {
+	if e := cfg.normalize_bram(); e != nil {
 		t.Fatal(e)
 	}
 
@@ -181,6 +181,26 @@ func Test_BRAMBus_Size_To_AddrWidth(t *testing.T) {
 		if bram.Addr_width != expected[bram.Name] {
 			t.Errorf("Wrong addr_width for %s. Got %d, wanted %d",
 				bram.Name, bram.Addr_width, expected[bram.Name])
+		}
+	}
+}
+
+func Test_parse_memory_size(t *testing.T) {
+	cases := map[string]int{
+		"1024":  1024,
+		"1k":    1024,
+		"1kB":   1024,
+		"1 kB":  1024,
+		"1MB":   1024 * 1024,
+		"8 MB":  8 * 1024 * 1024,
+	}
+	for raw, expected := range cases {
+		got, err := parse_memory_size(raw)
+		if err != nil {
+			t.Fatalf("Unexpected error for %s: %v", raw, err)
+		}
+		if got != expected {
+			t.Fatalf("Wrong size for %s. Got %d, wanted %d", raw, got, expected)
 		}
 	}
 }
@@ -202,9 +222,196 @@ func Test_BRAMBus_Size_Rejections(t *testing.T) {
 			t.Errorf("Unexpected YAML error for %s: %v", sample, e)
 			continue
 		}
-		if e := normalize_bram(&cfg); e == nil {
+		if e := cfg.normalize_bram(); e == nil {
 			t.Errorf("Expected size validation to fail for %s", sample)
 		}
+	}
+}
+
+func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
+	sample := `sdram:
+  cache-lines:
+    - tiles:
+      cache: { blocks: 32, size: 1kB, data_width: 32 }
+      at:    { bank: 3, start: CHAR, length: 8MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if len(cfg.SDRAM.Cache_lines) != 1 {
+		t.Fatalf("Wrong cache-line count. Got %d, wanted 1", len(cfg.SDRAM.Cache_lines))
+	}
+	line := cfg.SDRAM.Cache_lines[0]
+	if line.Name != "tiles" {
+		t.Fatalf("Wrong cache-line name. Got %s", line.Name)
+	}
+	if line.At.Start != "CHAR" {
+		t.Fatalf("Wrong cache-line start. Got %s", line.At.Start)
+	}
+}
+
+func Test_check_sdram_cache_lines(t *testing.T) {
+	cfg := MemConfig{
+		Params: []Param{{Name: "CHAR"}},
+		SDRAM: SDRAMCfg{
+			Cache_lines: []SDRAMCacheLine{
+				{
+					Name: "tiles",
+					Cache: SDRAMCacheCfg{
+						Blocks:     32,
+						Size:       "1kB",
+						Data_width: 32,
+					},
+					At: SDRAMCacheAddr{
+						Bank:   3,
+						Start:  "CHAR",
+						Length: "8MB",
+					},
+				},
+				{
+					Name: "pal",
+					Cache: SDRAMCacheCfg{
+						Blocks:     8,
+						Size:       "512B",
+						Data_width: 16,
+					},
+					At: SDRAMCacheAddr{
+						Length: "256kB",
+					},
+				},
+			},
+		},
+	}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+	if cfg.SDRAM.Burst_len != 1024 {
+		t.Fatalf("Wrong burst length. Got %d, wanted 1024", cfg.SDRAM.Burst_len)
+	}
+	if cfg.SDRAM.Burst != "1kB" {
+		t.Fatalf("Wrong default burst. Got %s, wanted 1kB", cfg.SDRAM.Burst)
+	}
+	if cfg.SDRAM.Cache_lines[0].Total != 32*1024 {
+		t.Fatalf("Wrong total cache size. Got %d", cfg.SDRAM.Cache_lines[0].Total)
+	}
+}
+
+func Test_check_sdram_cache_lines_rejects(t *testing.T) {
+	cases := []MemConfig{
+		{
+			SDRAM: SDRAMCfg{
+				Banks:       []SDRAMBank{{}},
+				Cache_lines: []SDRAMCacheLine{{Name: "tiles"}},
+			},
+		},
+		{
+			SDRAM: SDRAMCfg{
+				Cache_lines: []SDRAMCacheLine{{
+					Name: "tiles",
+					Cache: SDRAMCacheCfg{
+						Blocks:     0,
+						Size:       "1kB",
+						Data_width: 32,
+					},
+					At: SDRAMCacheAddr{Length: "8MB"},
+				}},
+			},
+		},
+		{
+			SDRAM: SDRAMCfg{
+				Cache_lines: []SDRAMCacheLine{{
+					Name: "tiles",
+					Cache: SDRAMCacheCfg{
+						Blocks:     1,
+						Size:       "1kB",
+						Data_width: 24,
+					},
+					At: SDRAMCacheAddr{Length: "8MB"},
+				}},
+			},
+		},
+		{
+			SDRAM: SDRAMCfg{
+				Cache_lines: []SDRAMCacheLine{{
+					Name: "tiles",
+					Cache: SDRAMCacheCfg{
+						Blocks:     1,
+						Size:       "1kB",
+						Data_width: 16,
+					},
+					At: SDRAMCacheAddr{
+						Start:  "UNKNOWN",
+						Length: "8MB",
+					},
+				}},
+			},
+		},
+	}
+	for _, cfg := range cases {
+		macros.MakeFromMap(nil)
+		if e := cfg.check_sdram(); e == nil {
+			t.Fatal("Expected cache-line validation to fail")
+		}
+	}
+}
+
+func Test_check_sdram_rejects_empty_definition(t *testing.T) {
+	cfg := MemConfig{}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected empty SDRAM definition to fail")
+	}
+}
+
+func Test_check_sdram_cache_lines_accepts_hex_start(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lines: []SDRAMCacheLine{
+				{
+					Name: "tiles",
+					Cache: SDRAMCacheCfg{
+						Blocks:     1,
+						Size:       "512B",
+						Data_width: 16,
+					},
+					At: SDRAMCacheAddr{
+						Start:  "0x100",
+						Length: "256kB",
+					},
+				},
+			},
+		},
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+}
+
+func Test_check_sdram_cache_lines_rejects_decimal_start(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lines: []SDRAMCacheLine{
+				{
+					Name: "tiles",
+					Cache: SDRAMCacheCfg{
+						Blocks:     1,
+						Size:       "512B",
+						Data_width: 16,
+					},
+					At: SDRAMCacheAddr{
+						Start:  "256",
+						Length: "256kB",
+					},
+				},
+			},
+		},
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected decimal cache-line start to fail")
 	}
 }
 
@@ -227,7 +434,7 @@ func Test_ParseFile_Converts_BRAM_Size(t *testing.T) {
 	}
 
 	var cfg MemConfig
-	if e := Parse_file("sizeparse", "mem.yaml", &cfg); e != nil {
+	if e := ParseFile("sizeparse", "mem.yaml", &cfg); e != nil {
 		t.Fatal(e)
 	}
 
@@ -485,13 +692,13 @@ func Test_fill_gfx_sort_rejects_conflicting_gfx16b0(t *testing.T) {
 	cfg := MemConfig{
 		SDRAM: SDRAMCfg{
 			Banks: []SDRAMBank{
-				{
-					Buses: []SDRAMBus{
-						{Name: "a", Addr_width: 16, Gfx: "hhvvvv"},
-						{Name: "b", Addr_width: 16, Gfx: "hvvvvx"},
+					{
+						Buses: []SDRAMBus{
+							{Name: "a", Addr_width: 16, Gfx: "hhvvvv"},
+							{Name: "b", Addr_width: 16, Offset: "16'h100", Gfx: "hvvvvx"},
+						},
 					},
 				},
-			},
 		},
 	}
 	defer func() {
@@ -499,5 +706,5 @@ func Test_fill_gfx_sort_rejects_conflicting_gfx16b0(t *testing.T) {
 			t.Fatal("fill_gfx_sort should panic when gfx16 and gfx16c require different bit0")
 		}
 	}()
-	fill_gfx_sort(&cfg)
+	cfg.fill_gfx_sort()
 }

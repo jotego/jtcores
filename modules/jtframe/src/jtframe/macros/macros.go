@@ -32,6 +32,8 @@ import (
 
 	"jotego/jtframe/betas"
 	. "jotego/jtframe/common"
+
+	"gopkg.in/yaml.v2"
 )
 
 // returns true if the .def file section changes
@@ -103,6 +105,9 @@ func MakeMacros(core, target string, extra... string) {
 	// Memory templates require JTFRAME_MEMGEN
 	if mem_managed {
 		Set("JTFRAME_MEMGEN","")
+	}
+	if uses_sdram_cache(core) {
+		Set("JTFRAME_SDRAM_CACHE", "")
 	}
 	make_commit_macro()
 	fill_defaults(core, target)
@@ -218,6 +223,55 @@ func is_mem_managed(corename string) bool {
 	f, e := os.Open( filepath.Join(os.Getenv("CORES"), corename,"cfg","mem.yaml"))
 	f.Close()
 	return e==nil
+}
+
+func uses_sdram_cache(corename string) bool {
+	visited := make(map[string]bool)
+	return uses_sdram_cache_file(corename, "mem.yaml", visited)
+}
+
+func uses_sdram_cache_file(corename, filename string, visited map[string]bool) bool {
+	type include_entry struct {
+		Core string `yaml:"core"`
+		File string `yaml:"file"`
+	}
+	type mem_probe struct {
+		Include []include_entry `yaml:"include"`
+		SDRAM struct {
+			Cache_lines []interface{} `yaml:"cache-lines"`
+		} `yaml:"sdram"`
+	}
+	fullname := ConfigFilePath(corename, filename)
+	if visited[fullname] || !FileExists(fullname) {
+		return false
+	}
+	visited[fullname] = true
+	buf, err := os.ReadFile(fullname)
+	if err != nil {
+		return false
+	}
+	var probe mem_probe
+	if err := yaml.Unmarshal(buf, &probe); err != nil {
+		return false
+	}
+	if len(probe.SDRAM.Cache_lines) > 0 {
+		return true
+	}
+	for _, each := range probe.Include {
+		if each.File == "" && each.Core == "" {
+			continue
+		}
+		if each.File == "" {
+			each.File = "mem.yaml"
+		}
+		if each.Core == "" {
+			each.Core = corename
+		}
+		if uses_sdram_cache_file(each.Core, each.File, visited) {
+			return true
+		}
+	}
+	return false
 }
 
 func set_separator(target string) {
