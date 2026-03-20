@@ -170,6 +170,27 @@ For core tests, source the same `setprj.sh` from the repository root and run:
 simunit.sh --run cores/thundr/ver/cenloop
 ```
 
+# Waveforms
+
+If `jtframe_test_clocks` is used in the test, the waveforms will be automatically
+saved. Using that module helps making the different tests more consistent.
+
+If `jtframe_test_clocks` is not used, the simulation waveforms should be saved by adding:
+
+```verilog
+initial begin
+    $dumpfile("test.lxt");
+    $dumpvars;
+    $dumpon;
+end
+```
+
+to test.v
+
+# Documentation
+
+Add a README.md file at the test folder explaining what the test does.
+
 # Examples
 
 Use these folders as references:
