@@ -150,6 +150,97 @@ rw: true
 	}
 }
 
+func Test_BRAMBus_Size_To_AddrWidth(t *testing.T) {
+	sample := `bram:
+  - { name: plain_bytes, size: 1024 }
+  - { name: bytes_suffix, size: 1024B }
+  - { name: kilobytes_suffix, size: 1kB }
+  - { name: kilobytes_no_b, size: 1k }
+  - { name: kilobytes_spaced, size: "1 kB" }
+  - { name: kilobytes_spaced_no_b, size: "1 k" }
+  - { name: max_size, size: 512kB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if e := normalize_bram(&cfg); e != nil {
+		t.Fatal(e)
+	}
+
+	expected := map[string]int{
+		"plain_bytes":           10,
+		"bytes_suffix":          10,
+		"kilobytes_suffix":      10,
+		"kilobytes_no_b":        10,
+		"kilobytes_spaced":      10,
+		"kilobytes_spaced_no_b": 10,
+		"max_size":              19,
+	}
+	for _, bram := range cfg.BRAM {
+		if bram.Addr_width != expected[bram.Name] {
+			t.Errorf("Wrong addr_width for %s. Got %d, wanted %d",
+				bram.Name, bram.Addr_width, expected[bram.Name])
+		}
+	}
+}
+
+func Test_BRAMBus_Size_Rejections(t *testing.T) {
+	cases := []string{
+		`bram: [ { name: mixed, addr_width: 10, size: 1kB } ]`,
+		`bram: [ { name: not_power_of_two, size: 3kB } ]`,
+		`bram: [ { name: too_large, size: 1024kB } ]`,
+		`bram: [ { name: bad_suffix, size: 1KB } ]`,
+		`bram: [ { name: bad_suffix_lower, size: 1kb } ]`,
+		`bram: [ { name: bad_suffix_spaced, size: "1 KB" } ]`,
+		`bram: [ { name: bad_suffix_spaced_lower, size: "1 kb" } ]`,
+	}
+
+	for _, sample := range cases {
+		var cfg MemConfig
+		if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+			t.Errorf("Unexpected YAML error for %s: %v", sample, e)
+			continue
+		}
+		if e := normalize_bram(&cfg); e == nil {
+			t.Errorf("Expected size validation to fail for %s", sample)
+		}
+	}
+}
+
+func Test_ParseFile_Converts_BRAM_Size(t *testing.T) {
+	root := t.TempDir()
+	t.Setenv("JTROOT", root)
+
+	cfgDir := filepath.Join(root, "cores", "sizeparse", "cfg")
+	if e := os.MkdirAll(cfgDir, 0o755); e != nil {
+		t.Fatal(e)
+	}
+
+	memPath := filepath.Join(cfgDir, "mem.yaml")
+	memYaml := `bram:
+  - { name: spaced_kilo, size: "1 kB" }
+  - { name: plain_kilo, size: "1k" }
+`
+	if e := os.WriteFile(memPath, []byte(memYaml), 0o644); e != nil {
+		t.Fatal(e)
+	}
+
+	var cfg MemConfig
+	if e := Parse_file("sizeparse", "mem.yaml", &cfg); e != nil {
+		t.Fatal(e)
+	}
+
+	if len(cfg.BRAM) != 2 {
+		t.Fatalf("Wrong BRAM count. Got %d, wanted 2", len(cfg.BRAM))
+	}
+	for _, bram := range cfg.BRAM {
+		if bram.Addr_width != 10 {
+			t.Errorf("Wrong addr_width for %s. Got %d, wanted 10", bram.Name, bram.Addr_width)
+		}
+	}
+}
+
 func Test_delete_optional_bram(t *testing.T) {
 	sample := `bram:
   - {name: always }

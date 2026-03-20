@@ -17,6 +17,14 @@
 
 package mem
 
+import (
+	"fmt"
+	"math/bits"
+	"regexp"
+	"strconv"
+	"strings"
+)
+
 var Verbose bool
 
 type Args struct {
@@ -47,6 +55,7 @@ type BRAMBus struct {
 	Unless []string `yaml:"unless"`
 
 	Name       string        `yaml:"name"`
+	Size       interface{}   `yaml:"size"`
 	Addr_width int           `yaml:"addr_width"` // Width for counting all *bytes*
 	Data_width int           `yaml:"data_width"`
 	Rw         bool          `yaml:"rw"`
@@ -72,6 +81,42 @@ type BRAMBus struct {
 	} `yaml:"rom"`
 	// Derived information
 	PROM_offset int // PROM offset in .rom file
+}
+
+func parseBRAMSize(raw interface{}) (int, error) {
+	sizeText := fmt.Sprint(raw)
+	sizeText = strings.TrimSpace(sizeText)
+	if sizeText == "" {
+		return 0, fmt.Errorf("size cannot be empty")
+	}
+
+	parts := regexp.MustCompile(`^(\d+)(?:\s*(B|k|kB))?$`).FindStringSubmatch(sizeText)
+	if parts == nil {
+		return 0, fmt.Errorf("size must be an integer number of bytes, or use the exact suffixes B, k or kB")
+	}
+
+	sizeValue, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return 0, fmt.Errorf("size must be an integer number of bytes, or use the exact suffixes B, k or kB")
+	}
+	if sizeValue <= 0 {
+		return 0, fmt.Errorf("size must be greater than zero")
+	}
+
+	multiplier := 1
+	switch parts[2] {
+	case "k", "kB":
+		multiplier = 1024
+	}
+
+	sizeBytes := sizeValue * multiplier
+	if sizeBytes > 512*1024 {
+		return 0, fmt.Errorf("size %d bytes exceeds 512kB", sizeBytes)
+	}
+	if sizeBytes&(sizeBytes-1) != 0 {
+		return 0, fmt.Errorf("size %d bytes is not an exact power of two", sizeBytes)
+	}
+	return bits.Len(uint(sizeBytes)) - 1, nil
 }
 
 type BRAMBus_Ioctl struct {

@@ -54,24 +54,42 @@ func Run(args Args) (e error) {
 		fmt.Println(e)
 		os.Exit(1)
 	}
-	if e = bankOffset( &cfg, args.Core ); e!=nil { return e }
+	if e = bankOffset(&cfg, args.Core); e != nil {
+		return e
+	}
 	// Checks
-	if e = cfg.check_banks(); e!=nil { return e }
-	if e = cfg.check_bram (); e!=nil { return e }
+	if e = cfg.check_banks(); e != nil {
+		return e
+	}
+	if e = cfg.check_bram(); e != nil {
+		return e
+	}
 	cfg.calc_prom_we()
 	// Data arrangement
-	fill_implicit_ports( &cfg )
-	make_ioctl( &cfg )
-	fill_gfx_sort( &cfg )
+	fill_implicit_ports(&cfg)
+	make_ioctl(&cfg)
+	fill_gfx_sort(&cfg)
 	// Fill the clock configuration
-	make_clocks( &cfg )
+	make_clocks(&cfg)
 	// Audio configuration
-	e = Make_audio( &cfg, args.Core, args.get_path("",false) ); if e!=nil { return e }
+	e = Make_audio(&cfg, args.Core, args.get_path("", false))
+	if e != nil {
+		return e
+	}
 	// Execute the template
 	cfg.Core = args.Core
-	e = make_sdram(args, &cfg);     if e!=nil { return e }
-	e = add_game_ports(args, &cfg); if e!=nil { return e }
-	e = make_dump2bin(args.Core, &cfg); if e!=nil { return e }
+	e = make_sdram(args, &cfg)
+	if e != nil {
+		return e
+	}
+	e = add_game_ports(args, &cfg)
+	if e != nil {
+		return e
+	}
+	e = make_dump2bin(args.Core, &cfg)
+	if e != nil {
+		return e
+	}
 	return nil
 }
 
@@ -88,27 +106,27 @@ func (arg Args) get_path(fname string, prefix bool) string {
 }
 
 // Template helper functions: implementation of "Bus" interface (see types.go)
-func (bus SDRAMBus) Get_aw() int { return bus.Addr_width }
-func (bus BRAMBus)  Get_aw() int { return bus.Addr_width }
-func (bus AudioCh)  Get_aw() int { return bus.Data_width }
-func (bus SDRAMBus) Get_dw() int { return bus.Data_width }
-func (bus BRAMBus)  Get_dw() int { return bus.Data_width }
-func (bus AudioCh)  Get_dw() int { return bus.Data_width }
-func (bus SDRAMBus) Get_dname() string { return bus.Name+"_data" }
-func (bus BRAMBus)  Get_dname() string {
-	if bus.ROM.Offset!="" {
-		return bus.Name+"_data"
+func (bus SDRAMBus) Get_aw() int       { return bus.Addr_width }
+func (bus BRAMBus) Get_aw() int        { return bus.Addr_width }
+func (bus AudioCh) Get_aw() int        { return bus.Data_width }
+func (bus SDRAMBus) Get_dw() int       { return bus.Data_width }
+func (bus BRAMBus) Get_dw() int        { return bus.Data_width }
+func (bus AudioCh) Get_dw() int        { return bus.Data_width }
+func (bus SDRAMBus) Get_dname() string { return bus.Name + "_data" }
+func (bus BRAMBus) Get_dname() string {
+	if bus.ROM.Offset != "" {
+		return bus.Name + "_data"
 	} else {
-		return bus.Name+"_dout"
+		return bus.Name + "_dout"
 	}
 }
-func (bus AudioCh)  Get_dname() string   { return bus.Name }
+func (bus AudioCh) Get_dname() string    { return bus.Name }
 func (bus SDRAMBus) Is_wr() bool         { return bus.Rw }
-func (bus AudioCh)  Is_wr() bool         { return false }
-func (bus BRAMBus)  Is_wr() bool         { return bus.Rw || bus.Dual_port.Rw }
+func (bus AudioCh) Is_wr() bool          { return false }
+func (bus BRAMBus) Is_wr() bool          { return bus.Rw || bus.Dual_port.Rw }
 func (bus SDRAMBus) Is_nbits(n int) bool { return bus.Data_width == n }
-func (bus BRAMBus)  Is_nbits(n int) bool { return bus.Data_width == n }
-func (bus AudioCh)  Is_nbits(n int) bool { return bus.Data_width == n }
+func (bus BRAMBus) Is_nbits(n int) bool  { return bus.Data_width == n }
+func (bus AudioCh) Is_nbits(n int) bool  { return bus.Data_width == n }
 
 func addr_range(bus Bus) string {
 	return fmt.Sprintf("[%2d:%d]", bus.Get_aw()-1, bus.Get_dw()>>4)
@@ -140,10 +158,14 @@ var funcMap = template.FuncMap{
 }
 
 func Parse_file(core, filename string, cfg *MemConfig) error {
-	read_yaml(core, filename, cfg)
+	if err := read_yaml(core, filename, cfg); err != nil {
+		return err
+	}
 	parse_include_files(core, cfg)
 	// Reload the YAML to overwrite values that the included files may have set
-	read_yaml(core, filename, cfg)
+	if err := read_yaml(core, filename, cfg); err != nil {
+		return err
+	}
 	delete_optional(cfg)
 	// Update the MemType strings
 	for k, bank := range cfg.SDRAM.Banks {
@@ -168,6 +190,9 @@ func Parse_file(core, filename string, cfg *MemConfig) error {
 			cfg.BRAM[k].Data_width = 8
 		}
 	}
+	if err := normalize_bram(cfg); err != nil {
+		return err
+	}
 	// check that gfx_sort expressions are supported
 	for _, bank := range cfg.SDRAM.Banks {
 		for _, each := range bank.Buses {
@@ -187,21 +212,46 @@ func Parse_file(core, filename string, cfg *MemConfig) error {
 	return nil
 }
 
+func normalize_bram(cfg *MemConfig) error {
+	for k := range cfg.BRAM {
+		bram := &cfg.BRAM[k]
+		if bram.Size == nil {
+			continue
+		}
+		if bram.Addr_width != 0 {
+			return fmt.Errorf("BRAM %s cannot define both size and addr_width", bram.Name)
+		}
+
+		addrWidth, err := parseBRAMSize(bram.Size)
+		if err != nil {
+			return fmt.Errorf("invalid size for BRAM %s: %w", bram.Name, err)
+		}
+		bram.Addr_width = addrWidth
+	}
+	return nil
+}
+
 func parse_include_files(core string, cfg *MemConfig) {
 	include_copy := make([]Include, len(cfg.Include))
 	copy(include_copy, cfg.Include)
 	cfg.Include = nil
 	for _, entry := range include_copy {
-		if entry.File=="" && entry.Core=="" { continue }
-		if entry.File == "" { entry.File = "mem.yaml" }
-		if entry.Core == "" { entry.Core=core }
+		if entry.File == "" && entry.Core == "" {
+			continue
+		}
+		if entry.File == "" {
+			entry.File = "mem.yaml"
+		}
+		if entry.Core == "" {
+			entry.Core = core
+		}
 		Parse_file(entry.Core, entry.File, cfg)
 	}
 }
 
 // used for testing the yaml package
 func unmarshal(buffer []byte, storage any) error {
-	return yaml.Unmarshal(buffer,storage)
+	return yaml.Unmarshal(buffer, storage)
 }
 
 func read_yaml(core, filename string, cfg *MemConfig) (e error) {
@@ -238,20 +288,24 @@ func delete_optional(cfg *MemConfig) {
 func delete_optional_sdram(cfg *MemConfig) {
 	for k, _ := range cfg.SDRAM.Banks {
 		total := len(cfg.SDRAM.Banks[k].Buses)
-		if total==0 { continue }
-		optional := make([]Optional,total)
-		for j,_ := range cfg.SDRAM.Banks[k].Buses {
-			optional[j]=&cfg.SDRAM.Banks[k].Buses[j]
+		if total == 0 {
+			continue
+		}
+		optional := make([]Optional, total)
+		for j, _ := range cfg.SDRAM.Banks[k].Buses {
+			optional[j] = &cfg.SDRAM.Banks[k].Buses[j]
 		}
 		enabled := find_enabled(optional)
-		cfg.SDRAM.Banks[k].Buses = copy_enabled(cfg.SDRAM.Banks[k].Buses,enabled)
+		cfg.SDRAM.Banks[k].Buses = copy_enabled(cfg.SDRAM.Banks[k].Buses, enabled)
 	}
 }
 
 func delete_optional_bram(cfg *MemConfig) {
 	total := len(cfg.BRAM)
-	if total==0 { return }
-	optional := make([]Optional,total)
+	if total == 0 {
+		return
+	}
+	optional := make([]Optional, total)
 	for k, _ := range cfg.BRAM {
 		optional[k] = &cfg.BRAM[k]
 	}
@@ -284,10 +338,12 @@ func copy_enabled[Slice ~[]E, E any](ref Slice, valid []int) (copy Slice) {
 	if len(valid) > len(ref) {
 		panic(fmt.Errorf("Not enough elements in ref slice"))
 	}
-	if len(valid)==len(ref) { return ref }
-	copy = make(Slice,0,len(valid))
-	for _,copy_idx := range valid {
-		copy=append(copy,ref[copy_idx])
+	if len(valid) == len(ref) {
+		return ref
+	}
+	copy = make(Slice, 0, len(valid))
+	for _, copy_idx := range valid {
+		copy = append(copy, ref[copy_idx])
 	}
 	return copy
 }
@@ -300,10 +356,14 @@ func make_sdram(finder path_finder, cfg *MemConfig) (e error) {
 	prom_dwnld := filepath.Join(tpath, "prom_dwnld.v")
 	t := template.New("game_sdram.v").Funcs(funcMap).Funcs(sprig.FuncMap())
 	t.Funcs(audio_template_functions)
-	_, e = t.ParseFiles(game_audio,game_sdram,ioctl_dump,prom_dwnld)
-	if e!=nil { return e }
+	_, e = t.ParseFiles(game_audio, game_sdram, ioctl_dump, prom_dwnld)
+	if e != nil {
+		return e
+	}
 	var buffer bytes.Buffer
-	if e = t.Execute(&buffer, cfg); e!= nil { return e }
+	if e = t.Execute(&buffer, cfg); e != nil {
+		return e
+	}
 	// Dump the file
 	outpath := finder.get_path("_game_sdram.v", true)
 	ioutil.WriteFile(outpath, buffer.Bytes(), 0644)
@@ -315,9 +375,14 @@ func add_game_ports(args Args, cfg *MemConfig) (e error) {
 	found := false
 
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "hdl", "inc", "ports.v")
-	t,e := template.New("ports.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath); if e!=nil { return e }
+	t, e := template.New("ports.v").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath)
+	if e != nil {
+		return e
+	}
 	var buffer bytes.Buffer
-	if e = t.Execute(&buffer, cfg); e!=nil { return e }
+	if e = t.Execute(&buffer, cfg); e != nil {
+		return e
+	}
 	outpath := "jt" + args.Core + "_game.v"
 	outpath = filepath.Join(os.Getenv("CORES"), args.Core, "hdl", outpath)
 	f, err := os.Open(outpath)
@@ -369,27 +434,41 @@ func add_game_ports(args Args, cfg *MemConfig) (e error) {
 	return nil
 }
 
-func make_dump2bin( corename string, cfg *MemConfig) (e error) {
-	if len(cfg.Ioctl.Buses )==0 { return }
+func make_dump2bin(corename string, cfg *MemConfig) (e error) {
+	if len(cfg.Ioctl.Buses) == 0 {
+		return
+	}
 	tpath := filepath.Join(os.Getenv("JTFRAME"), "src", "jtframe", "mem", "dump2bin.sh")
-	t, e := template.New("dump2bin.sh").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath); if e!=nil { return e }
+	t, e := template.New("dump2bin.sh").Funcs(funcMap).Funcs(sprig.FuncMap()).ParseFiles(tpath)
+	if e != nil {
+		return e
+	}
 	var buffer bytes.Buffer
-	if e = t.Execute(&buffer, cfg); e!=nil { return e }
+	if e = t.Execute(&buffer, cfg); e != nil {
+		return e
+	}
 	// Dump the file
 	outpath := filepath.Join(os.Getenv("CORES"), corename, "ver", "game")
 	os.MkdirAll(outpath, 0777) // derivative cores may not have a permanent hdl folder
-	outpath = filepath.Join( outpath, "dump2bin.sh")
-	e = ioutil.WriteFile(outpath, buffer.Bytes(), 0755); if e!=nil { return e }
+	outpath = filepath.Join(outpath, "dump2bin.sh")
+	e = ioutil.WriteFile(outpath, buffer.Bytes(), 0755)
+	if e != nil {
+		return e
+	}
 	if Verbose {
 		fmt.Printf("%s created\n", outpath)
 	}
 	return nil
 }
 
-func bankOffset( cfg *MemConfig, corename string) (e error) {
+func bankOffset(cfg *MemConfig, corename string) (e error) {
 	mra_cfg, e := mra.ParseTomlFile(corename)
-	if e!=nil { return e }
-	if len(mra_cfg.Header.Offset.Regions)==0 { return nil }
+	if e != nil {
+		return e
+	}
+	if len(mra_cfg.Header.Offset.Regions) == 0 {
+		return nil
+	}
 	cfg.Balut = 1
 	cfg.Lutsh = mra_cfg.Header.Offset.Bits
 	return nil
@@ -486,9 +565,11 @@ func (cfg *MemConfig) check_bram() error {
 	prom_cnt := 0
 	for k, _ := range cfg.BRAM {
 		bram := &cfg.BRAM[k]
-		if !bram.Prom { continue }
-		if bram.Data_width>8 {
-			return fmt.Errorf("PROM BRAM blocks must be 8-bit wide or less but BRAM %s requires %d bits",bram.Name, bram.Data_width )
+		if !bram.Prom {
+			continue
+		}
+		if bram.Data_width > 8 {
+			return fmt.Errorf("PROM BRAM blocks must be 8-bit wide or less but BRAM %s requires %d bits", bram.Name, bram.Data_width)
 		}
 		if bram.Data_width > 8 {
 			return fmt.Errorf("PROM BRAM blocks must be 8-bit wide or less but BRAM %s requires %d bits", bram.Name, bram.Data_width)
@@ -813,7 +894,7 @@ func (cfg *MemConfig) make_gfx_ranges(match string) (ranges []string, b0 int) {
 				continue
 			}
 			start_offset := make([]string, len(bank_start))
-			copy(start_offset,bank_start)
+			copy(start_offset, bank_start)
 			if each.Offset != "" {
 				start_offset = append(start_offset, fmt.Sprintf("(%s<<1)", each.Offset))
 			}
