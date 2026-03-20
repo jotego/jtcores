@@ -123,14 +123,14 @@ endgenerate
     wire    swap_ar     = 1;
 `endif
 
+initial osd_pause = 0;
+`ifndef JTFRAME_OSD_NOCREDITS
+`ifndef MISTER // Only MiST and derivatives can pause via the OSD
 always @* begin
-    osd_pause = 0;
-    `ifndef JTFRAME_OSD_NOCREDITS
-    `ifndef MISTER // Only MiST and derivatives can pause via the OSD
         osd_pause = status[12];
-    `endif
-    `endif
 end
+`endif
+`endif
 
 // all signals that are not direct re-wirings are latched
 always @(posedge clk) begin
