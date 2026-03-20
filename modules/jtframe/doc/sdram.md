@@ -254,6 +254,16 @@ Frequency  |  Efficiency  |  Data throughput  | Latency (min)  | Latency (ave) |
 
 Note that latency results are simulated with refresh and write cycles enabled.
 
+## JTFRAME_BURST_SDRAM
+
+**jtframe_burst_sdram** is a sequential burst controller with the same SDRAM
+pinout and programming interface used by **jtframe_sdram64**. During normal
+operation it exposes a single runtime port with `ack`, `dst`, `dok` and `rdy`
+handshakes for short or full-page read and write bursts.
+
+See [JTFRAME Burst SDRAM](burst_sdram.md) for the runtime interface and usage
+details.
+
 ## SDRAM Catalogue
 
 ID  | Part No          | Units | Size

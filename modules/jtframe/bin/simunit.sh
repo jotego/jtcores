@@ -127,7 +127,7 @@ lint_uut() {
 	if [[ $macro != *JTFRAME_MCLK* ]]; then
 		macro="$macro -DJTFRAME_MCLK=48000000"
 	fi
-	verilator --lint-only -f $GATHER --top-module $top $macro
+	verilator --lint-only -Wno-TIMESCALEMOD -f $GATHER --top-module $top $macro
 }
 
 get_top_module() {

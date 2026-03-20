@@ -106,6 +106,8 @@ reg  [25:0] offset;
 reg  [25:0] eff_addr;
 reg [2*5*8-1:0] ba_start=0; // 16 bits per offset
 
+initial prog_ba = 0;
+
 always @(*) begin
     case( bank )
         2'd0: offset = 0;
@@ -119,7 +121,7 @@ end
 
 generate
     if( BALUT==0 || !BA_EN ) begin
-        always @(*) begin
+        always @(part_addr) begin
             bank = !BA_EN ? 2'd0 : ( /* verilator lint_off UNSIGNED */
                     part_addr >= BA3_START ? 2'd3 : (
                     part_addr >= BA2_START ? 2'd2 : (
