@@ -1,5 +1,5 @@
 ---
-name: create unit simulations
+name: create unit simulations and test benches
 description: Build simunit-compatible RTL unit tests under a ver directory so they run both locally and in GitHub Actions
 ---
 
