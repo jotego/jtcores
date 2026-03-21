@@ -34,7 +34,7 @@ module jtframe_cache #(parameter
 
     output     [EW-1:1]     ext_addr,
     input      [15:0]       ext_din,
-    output reg              ext_req,
+    output reg              ext_rd,
     input                   ext_ack,
     input                   ext_dst,
     input                   ext_rdy
@@ -48,6 +48,7 @@ localparam integer OFFW   = DEPTH < 2 ? 1 : $clog2(DEPTH);
 localparam integer TAGW   = UW - OFFW;
 localparam integer WORDS  = BLKSIZE >> 1;
 localparam integer WW     = WORDS < 2 ? 1 : $clog2(WORDS);
+localparam [WW-1:0] LAST_WORD = WW'(WORDS-1);
 
 reg [TAGW-1:0] tag_mem[0:BLOCKS-1];
 reg [BLOCKS-1:0] valid;
@@ -80,7 +81,10 @@ wire          wr_en      = wait_data && (fill_active || ext_dst);
 
 wire [DW-1:0] hit_data;
 wire          fill_capture;
+wire          fill_last;
 wire [DW-1:0] fill_capture_data;
+
+assign fill_last = fill_word == LAST_WORD;
 
 integer i;
 
@@ -229,7 +233,7 @@ always @(posedge clk) begin
         valid       <= 0;
         dout        <= 0;
         ok          <= 0;
-        ext_req     <= 0;
+        ext_rd      <= 0;
         pend_addr   <= 0;
         pend_tag    <= 0;
         pend_off    <= 0;
@@ -268,7 +272,7 @@ always @(posedge clk) begin
             pend_off    <= req_off;
             fill_blk    <= victim;
             fill_word   <= 0;
-            ext_req     <= 1;
+            ext_rd      <= 1;
             miss_busy   <= 1;
             wait_data   <= 0;
             fill_active <= 0;
@@ -276,15 +280,15 @@ always @(posedge clk) begin
             hit_sel     <= 0;
         end
 
-        if( ext_req && ext_ack ) begin
-            ext_req   <= 0;
+        if( ext_rd && ext_ack ) begin
             wait_data <= 1;
         end
 
         if( wr_en ) begin
-            fill_active <= !ext_rdy;
+            fill_active <= !(ext_rdy || fill_last);
             if( fill_capture ) fill_resp <= fill_capture_data;
-            fill_word <= fill_word + 1'd1;
+            if( fill_last ) ext_rd <= 0;
+            fill_word <= fill_last ? 0 : fill_word + 1'd1;
             if( ext_rdy ) begin
                 valid[fill_blk] <= 1;
                 tag_mem[fill_blk] <= pend_tag;
@@ -293,6 +297,15 @@ always @(posedge clk) begin
                 fill_done <= 1;
                 fill_word <= 0;
             end
+        end
+
+        if( wait_data && ext_rdy && !wr_en ) begin
+            valid[fill_blk] <= 1;
+            tag_mem[fill_blk] <= pend_tag;
+            miss_busy <= 0;
+            wait_data <= 0;
+            fill_done <= 1;
+            fill_word <= 0;
         end
     end
 end

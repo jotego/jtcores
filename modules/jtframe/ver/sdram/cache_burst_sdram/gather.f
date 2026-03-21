@@ -1,0 +1,13 @@
+$JTFRAME/hdl/jtframe_cache.v
+$JTFRAME/hdl/ram/jtframe_dual_ram.v
+$JTFRAME/ver/sdram/burst_sdram_inc/jtframe_burst_sdram.v
+$JTFRAME/hdl/sdram/jtframe_burst_sdram.v
+$JTFRAME/hdl/sdram/jtframe_burst_mode.v
+$JTFRAME/hdl/sdram/jtframe_burst_ctrl.v
+$JTFRAME/hdl/sdram/jtframe_burst_mux.v
+$JTFRAME/hdl/sdram/jtframe_burst_io.v
+$JTFRAME/hdl/sdram/jtframe_sdram64_init.v
+$JTFRAME/hdl/sdram/jtframe_sdram64_rfsh.v
+$JTFRAME/hdl/sdram/jtframe_sdram64_bank.v
+$JTFRAME/hdl/sdram/jtframe_dwnld.v
+$JTFRAME/hdl/ver/mt48lc16m16a2.v

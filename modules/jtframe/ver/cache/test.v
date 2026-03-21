@@ -14,7 +14,7 @@ wire rst, clk;
 reg  [AW-1:0] mem8 [0:(1<<AW)-1];
 wire [AW-1:1] ext_addr8, ext_addr16, ext_addr32;
 reg  [15:0] ext_din8, ext_din16, ext_din32;
-wire ext_req8, ext_req16, ext_req32;
+wire ext_rd8, ext_rd16, ext_rd32;
 reg  ext_ack8, ext_ack16, ext_ack32;
 reg  ext_dst8, ext_dst16, ext_dst32;
 reg  ext_rdy8, ext_rdy16, ext_rdy32;
@@ -187,16 +187,22 @@ task drive_ext8;
             ext_ack8 <= 0;
             ext_dst8 <= 0;
             ext_rdy8 <= 0;
-            if(ext_req8) begin
+            if(ext_rd8) begin
                 ext_ack8 <= 1;
                 base = { ext_addr8, 1'b0 };
                 @(posedge clk);
+                #1 assert_msg(ext_rd8, "DW8 ext_rd dropped before refill data started");
                 ext_ack8 <= 0;
                 for(n=0; n<(BLKSIZE>>1); n=n+1) begin
+                    assert_msg(ext_rd8, "DW8 ext_rd must stay high through the refill burst");
                     ext_din8 <= { mem8[base + (n<<1) + 1], mem8[base + (n<<1)] };
                     ext_dst8 <= n==0;
                     ext_rdy8 <= n==(BLKSIZE>>1)-1;
                     @(posedge clk);
+                    #1 if(n==(BLKSIZE>>1)-1)
+                        assert_msg(!ext_rd8, "DW8 ext_rd must clear after the refill burst ends");
+                    else
+                        assert_msg(ext_rd8, "DW8 ext_rd dropped before the refill burst completed");
                     ext_dst8 <= 0;
                     ext_rdy8 <= 0;
                 end
@@ -214,16 +220,22 @@ task drive_ext16;
             ext_ack16 <= 0;
             ext_dst16 <= 0;
             ext_rdy16 <= 0;
-            if(ext_req16) begin
+            if(ext_rd16) begin
                 ext_ack16 <= 1;
                 base = { ext_addr16, 1'b0 };
                 @(posedge clk);
+                #1 assert_msg(ext_rd16, "DW16 ext_rd dropped before refill data started");
                 ext_ack16 <= 0;
                 for(n=0; n<(BLKSIZE>>1); n=n+1) begin
+                    assert_msg(ext_rd16, "DW16 ext_rd must stay high through the refill burst");
                     ext_din16 <= { mem8[base + (n<<1) + 1], mem8[base + (n<<1)] };
                     ext_dst16 <= n==0;
                     ext_rdy16 <= n==(BLKSIZE>>1)-1;
                     @(posedge clk);
+                    #1 if(n==(BLKSIZE>>1)-1)
+                        assert_msg(!ext_rd16, "DW16 ext_rd must clear after the refill burst ends");
+                    else
+                        assert_msg(ext_rd16, "DW16 ext_rd dropped before the refill burst completed");
                     ext_dst16 <= 0;
                     ext_rdy16 <= 0;
                 end
@@ -241,16 +253,22 @@ task drive_ext32;
             ext_ack32 <= 0;
             ext_dst32 <= 0;
             ext_rdy32 <= 0;
-            if(ext_req32) begin
+            if(ext_rd32) begin
                 ext_ack32 <= 1;
                 base = { ext_addr32, 1'b0 };
                 @(posedge clk);
+                #1 assert_msg(ext_rd32, "DW32 ext_rd dropped before refill data started");
                 ext_ack32 <= 0;
                 for(n=0; n<(BLKSIZE>>1); n=n+1) begin
+                    assert_msg(ext_rd32, "DW32 ext_rd must stay high through the refill burst");
                     ext_din32 <= { mem8[base + (n<<1) + 1], mem8[base + (n<<1)] };
                     ext_dst32 <= n==0;
                     ext_rdy32 <= n==(BLKSIZE>>1)-1;
                     @(posedge clk);
+                    #1 if(n==(BLKSIZE>>1)-1)
+                        assert_msg(!ext_rd32, "DW32 ext_rd must clear after the refill burst ends");
+                    else
+                        assert_msg(ext_rd32, "DW32 ext_rd dropped before the refill burst completed");
                     ext_dst32 <= 0;
                     ext_rdy32 <= 0;
                 end
@@ -279,7 +297,7 @@ jtframe_cache #(
     .ok         ( ok8       ),
     .ext_addr   ( ext_addr8    ),
     .ext_din    ( ext_din8  ),
-    .ext_req    ( ext_req8  ),
+    .ext_rd     ( ext_rd8   ),
     .ext_ack    ( ext_ack8  ),
     .ext_dst    ( ext_dst8  ),
     .ext_rdy    ( ext_rdy8  )
@@ -300,7 +318,7 @@ jtframe_cache #(
     .ok         ( ok16      ),
     .ext_addr   ( ext_addr16   ),
     .ext_din    ( ext_din16 ),
-    .ext_req    ( ext_req16 ),
+    .ext_rd     ( ext_rd16  ),
     .ext_ack    ( ext_ack16 ),
     .ext_dst    ( ext_dst16 ),
     .ext_rdy    ( ext_rdy16 )
@@ -321,7 +339,7 @@ jtframe_cache #(
     .ok         ( ok32      ),
     .ext_addr   ( ext_addr32   ),
     .ext_din    ( ext_din32 ),
-    .ext_req    ( ext_req32 ),
+    .ext_rd     ( ext_rd32  ),
     .ext_ack    ( ext_ack32 ),
     .ext_dst    ( ext_dst32 ),
     .ext_rdy    ( ext_rdy32 )
