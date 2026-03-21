@@ -167,58 +167,6 @@ module jtframe_board #(parameter
     input         [7:0] debug_view
 );
 
-`ifdef JTFRAME_BA0_AUTOPRECH
-    localparam BA0_AUTOPRECH = `JTFRAME_BA0_AUTOPRECH;
-`else
-    localparam BA0_AUTOPRECH = 0;
-`endif
-
-`ifdef JTFRAME_BA1_AUTOPRECH
-    localparam BA1_AUTOPRECH = `JTFRAME_BA1_AUTOPRECH;
-`else
-    localparam BA1_AUTOPRECH = 0;
-`endif
-
-`ifdef JTFRAME_BA2_AUTOPRECH
-    localparam BA2_AUTOPRECH = `JTFRAME_BA2_AUTOPRECH;
-`else
-    localparam BA2_AUTOPRECH = 0;
-`endif
-
-`ifdef JTFRAME_BA3_AUTOPRECH
-    localparam BA3_AUTOPRECH = `JTFRAME_BA3_AUTOPRECH;
-`else
-    localparam BA3_AUTOPRECH = 0;
-`endif
-    localparam SDRAM_SHIFT = `JTFRAME_SHIFT ^^ `JTFRAME_180SHIFT;
-
-// sdram bank lengths
-localparam
-`ifdef JTFRAME_BA0_LEN
-    BA0_LEN                 = `JTFRAME_BA0_LEN,
-`else
-    BA0_LEN                 = 32,
-`endif
-
-`ifdef JTFRAME_BA1_LEN
-    BA1_LEN                 = `JTFRAME_BA1_LEN,
-`else
-    BA1_LEN                 = 32,
-`endif
-
-`ifdef JTFRAME_BA2_LEN
-    BA2_LEN                 = `JTFRAME_BA2_LEN,
-`else
-    BA2_LEN                 = 32,
-`endif
-
-`ifdef JTFRAME_BA3_LEN
-    BA3_LEN                 = `JTFRAME_BA3_LEN,
-`else
-    BA3_LEN                 = 32,
-`endif
-    PROG_LEN = 32;
-
 wire         osd_pause;
 wire         key_shift, key_ctrl, key_alt,
              vol_up,   vol_down;
@@ -835,62 +783,26 @@ jtframe_crosshair #(.COLORW(COLORW)) u_crosshair(
     end
 `endif
 
-wire [1:0] rfsh;
-
-// Automatic JTFRAME macros set a 64us refresh period
-jtframe_frac_cen #(.WC(`JTFRAME_RFSH_WC)) u_rfsh(
-    .clk    ( clk_rom           ),
-    .n      ( `JTFRAME_RFSH_N   ),
-    .m      ( `JTFRAME_RFSH_M   ),
-    .cen    ( rfsh              ),
-    .cenb   (                   )
-);
-
-// support for 48MHz
-// Above 64MHz HF should be 1. SHIFTED depends on whether the SDRAM
-// clock is shifted or not.
-// Writting on each bank must be selectively enabled with macros
-// in order to ease the placing of the SDRAM data signals in pad registers
-// MiSTer can place them in the pads if only one bank is used for writting
-// Not placing them in pads may create timing problems, especially at 96MHz
-// ie, the core may compile correctly but data transfer may fail.
-jtframe_sdram64 #(
-    .AW           ( SDRAMW        ),
-    .BA0_LEN      ( BA0_LEN       ),
-    .BA1_LEN      ( BA1_LEN       ),
-    .BA2_LEN      ( BA2_LEN       ),
-    .BA3_LEN      ( BA3_LEN       ),
-    .BA0_AUTOPRECH( BA0_AUTOPRECH ),
-    .BA1_AUTOPRECH( BA1_AUTOPRECH ),
-    .BA2_AUTOPRECH( BA2_AUTOPRECH ),
-    .BA3_AUTOPRECH( BA3_AUTOPRECH ),
-`ifdef JTFRAME_BA1_WEN
-    .BA1_WEN      ( 1             ), `endif
-`ifdef JTFRAME_BA2_WEN
-    .BA2_WEN      ( 1             ), `endif
-`ifdef JTFRAME_BA3_WEN
-    .BA3_WEN      ( 1             ), `endif
-    .PROG_LEN     ( PROG_LEN      ),
-    .MISTER       ( MISTER        ),
-`ifdef JTFRAME_SDRAM96
-    .HF(1),
-    .SHIFTED(0)
-`else
-    .HF(0),
-    .SHIFTED      ( SDRAM_SHIFT   )
-`endif
+jtframe_board_sdram #(
+    .SDRAMW     ( SDRAMW        ),
+    .MISTER     ( MISTER        )
 ) u_sdram(
     .rst        ( rst           ),
-    .clk        ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2
+    .clk        ( clk_rom       ),
     .init       ( sdram_init    ),
+    .prog_en    ( prog_en       ),
 
     .ba0_addr   ( bax_addr      ),
     .ba1_addr   ( ba1_addr      ),
     .ba2_addr   ( ba2_addr      ),
     .ba3_addr   ( ba3_addr      ),
+    .burst_addr ( ba0_addr      ),
+    .burst_ba   ( bax_rd[3:2]   ),
+    .burst_rd   ( bax_rd[0]     ),
+    .burst_wr   ( bax_wr[0]     ),
 
-    .rd         ( bax_rd        ),
-    .wr         ( bax_wr        ),
+    .ba_rd      ( bax_rd        ),
+    .ba_wr      ( bax_wr        ),
     .ba0_din    ( bax_din       ),
     .ba0_dsn    ( bax_dsn       ),
     .ba1_din    ( ba1_din       ),
@@ -899,28 +811,27 @@ jtframe_sdram64 #(
     .ba2_dsn    ( ba2_dsn       ),
     .ba3_din    ( ba3_din       ),
     .ba3_dsn    ( ba3_dsn       ),
+    .burst_din  ( ba0_din       ),
 
-    .rdy        ( bax_rdy       ),
-    .ack        ( bax_ack       ),
-    .dok        ( ba_dok        ),
-    .dst        ( bax_dst       ),
+    .ba_rdy     ( bax_rdy       ),
+    .ba_ack     ( bax_ack       ),
+    .ba_dok     ( ba_dok        ),
+    .ba_dst     ( bax_dst       ),
 
     // ROM-load interface
-    .prog_en    ( prog_en       ),
     .prog_addr  ( prog_addr     ),
     .prog_ba    ( prog_ba       ),
     .prog_rd    ( prog_rd       ),
-    .prog_wr    ( prog_we       ),
-    .prog_din   ( prog_data     ),
+    .prog_we    ( prog_we       ),
+    .prog_data  ( prog_data     ),
     .prog_dsn   ( prog_dsn      ),
     .prog_rdy   ( prog_rdy      ),
     .prog_dst   ( prog_dst      ),
     .prog_dok   ( prog_dok      ),
     .prog_ack   ( prog_ack      ),
-    // SDRAM interface
     .sdram_dq   ( SDRAM_DQ      ),
-`ifdef VERILATOR // to avoid a warning
-    .sdram_din  (               ),
+`ifdef VERILATOR
+    .din        (               ),
 `endif
     .sdram_a    ( SDRAM_A       ),
     .sdram_dqml ( SDRAM_DQML    ),
@@ -931,35 +842,7 @@ jtframe_sdram64 #(
     .sdram_ncs  ( SDRAM_nCS     ),
     .sdram_ba   ( SDRAM_BA      ),
     .sdram_cke  ( SDRAM_CKE     ),
-
-    // Common signals
-    .dout       ( sdram_dout    ),
-    .rfsh       ( rfsh[0]       )
+    .dout       ( sdram_dout    )
 );
-
-`ifdef SIMULATION
-    jtframe_romrq_rdy_check u_rdy_check(
-        .rst       ( rst        ),
-        .clk       ( clk_rom    ),
-        .ba_rd     ( ba_rd      ),
-        .ba_wr     ( ba_wr      ),
-        .ba_ack    ( ba_ack     ),
-        .ba_rdy    ( ba_rdy     )
-    );
-
-    `ifdef JTFRAME_SDRAM_STATS
-    jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats_sim(
-        .rst        ( rst           ),
-        .clk        ( clk_rom       ),
-        // SDRAM interface
-        .sdram_a    ( SDRAM_A       ),
-        .sdram_ba   ( SDRAM_BA      ),
-        .sdram_nwe  ( SDRAM_nWE     ),
-        .sdram_ncas ( SDRAM_nCAS    ),
-        .sdram_nras ( SDRAM_nRAS    ),
-        .sdram_ncs  ( SDRAM_nCS     )
-    );
-    `endif
-`endif
 
 endmodule

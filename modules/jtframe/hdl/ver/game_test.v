@@ -140,63 +140,11 @@ module game_test(
     localparam SDRAMW=22; // 32 MB
 `endif
 
-`ifdef JTFRAME_BA0_AUTOPRECH
-    localparam BA0_AUTOPRECH = `JTFRAME_BA0_AUTOPRECH;
-`else
-    // if only one bank is used, it makes to precharge as default option
-    localparam BA0_AUTOPRECH = 1;
-`endif
-
-`ifdef JTFRAME_BA1_AUTOPRECH
-    localparam BA1_AUTOPRECH = `JTFRAME_BA1_AUTOPRECH;
-`else
-    localparam BA1_AUTOPRECH = 0;
-`endif
-
-`ifdef JTFRAME_BA2_AUTOPRECH
-    localparam BA2_AUTOPRECH = `JTFRAME_BA2_AUTOPRECH;
-`else
-    localparam BA2_AUTOPRECH = 0;
-`endif
-
-`ifdef JTFRAME_BA3_AUTOPRECH
-    localparam BA3_AUTOPRECH = `JTFRAME_BA3_AUTOPRECH;
-`else
-    localparam BA3_AUTOPRECH = 0;
-`endif
-
 `ifdef JTFRAME_COLORW
     localparam COLORW=`JTFRAME_COLORW;
 `else
     localparam COLORW=4;
 `endif
-
-// sdram bank lengths
-localparam
-`ifdef JTFRAME_BA0_LEN
-    BA0_LEN                 = `JTFRAME_BA0_LEN,
-`else
-    BA0_LEN                 = 32,
-`endif
-
-`ifdef JTFRAME_BA1_LEN
-    BA1_LEN                 = `JTFRAME_BA1_LEN,
-`else
-    BA1_LEN                 = 32,
-`endif
-
-`ifdef JTFRAME_BA2_LEN
-    BA2_LEN                 = `JTFRAME_BA2_LEN,
-`else
-    BA2_LEN                 = 32,
-`endif
-
-`ifdef JTFRAME_BA3_LEN
-    BA3_LEN                 = `JTFRAME_BA3_LEN,
-`else
-    BA3_LEN                 = 32,
-`endif
-    PROG_LEN = 32;
 
 wire [SDRAMW-1:0] ba0_addr;
 wire [SDRAMW-1:0] ba1_addr;
@@ -280,57 +228,26 @@ wire prog_en = ioctl_rom | dwnld_busy;
     );
 `endif
 
-wire [1:0] rfsh;
-
-// Automatic JTFRAME macros set a 64us refresh period
-jtframe_frac_cen #(.WC(`JTFRAME_RFSH_WC)) u_rfsh(
-    .clk    ( clk_rom           ),
-    .n      ( `JTFRAME_RFSH_N   ),
-    .m      ( `JTFRAME_RFSH_M   ),
-    .cen    ( rfsh              ),
-    .cenb   (                   )
-);
-
-jtframe_sdram64 #(
-    .AW           ( SDRAMW        ),
-    .BA0_LEN      ( BA0_LEN       ),
-    .BA1_LEN      ( BA1_LEN       ),
-    .BA2_LEN      ( BA2_LEN       ),
-    .BA3_LEN      ( BA3_LEN       ),
-    .BA0_AUTOPRECH( BA0_AUTOPRECH ),
-    .BA1_AUTOPRECH( BA1_AUTOPRECH ),
-    .BA2_AUTOPRECH( BA2_AUTOPRECH ),
-    .BA3_AUTOPRECH( BA3_AUTOPRECH ),
-    .PROG_LEN     ( PROG_LEN      ),
-    .MISTER       ( 0             ),
-`ifdef JTFRAME_BA1_WEN
-    .BA1_WEN      ( 1             ), `endif
-`ifdef JTFRAME_BA2_WEN
-    .BA2_WEN      ( 1             ), `endif
-`ifdef JTFRAME_BA3_WEN
-    .BA3_WEN      ( 1             ), `endif
-`ifdef JTFRAME_SDRAM96
-    .HF(1)
-`else
-    .HF(0),
-    `ifdef JTFRAME_180SHIFT
-        .SHIFTED(0)
-    `else
-        .SHIFTED(1)
-    `endif
-`endif
+jtframe_board_sdram #(
+    .SDRAMW     ( SDRAMW        ),
+    .MISTER     ( 0             )
 ) u_sdram(
     .rst        ( sdram_rst     ),
-    .clk        ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2
+    .clk        ( clk_rom       ),
     .init       ( sdram_init    ),
+    .prog_en    ( prog_en       ),
 
     .ba0_addr   ( ba0_addr      ),
     .ba1_addr   ( ba1_addr      ),
     .ba2_addr   ( ba2_addr      ),
     .ba3_addr   ( ba3_addr      ),
+    .burst_addr ( ba0_addr      ),
+    .burst_ba   ( ba_rd[3:2]    ),
+    .burst_rd   ( ba_rd[0]      ),
+    .burst_wr   ( ba_wr[0]      ),
 
-    .rd         ( ba_rd         ),
-    .wr         ( ba_wr         ),
+    .ba_rd      ( ba_rd         ),
+    .ba_wr      ( ba_wr         ),
     .ba0_din    ( ba0_din       ),
     .ba0_dsn    ( ba0_dsn       ),
     .ba1_din    ( ba1_din       ),
@@ -339,27 +256,26 @@ jtframe_sdram64 #(
     .ba2_dsn    ( ba2_dsn       ),
     .ba3_din    ( ba3_din       ),
     .ba3_dsn    ( ba3_dsn       ),
+    .burst_din  ( ba0_din       ),
 
-    .rdy        ( ba_rdy        ),
-    .ack        ( ba_ack        ),
-    .dok        ( ba_dok        ),
-    .dst        ( ba_dst        ),
+    .ba_rdy     ( ba_rdy        ),
+    .ba_ack     ( ba_ack        ),
+    .ba_dok     ( ba_dok        ),
+    .ba_dst     ( ba_dst        ),
 
     // ROM-load interface
-    .prog_en    ( prog_en       ),
     .prog_addr  ( prog_addr     ),
     .prog_ba    ( prog_ba       ),
     .prog_rd    ( prog_rd       ),
-    .prog_wr    ( prog_we       ),
-    .prog_din   ( prog_data     ),
+    .prog_we    ( prog_we       ),
+    .prog_data  ( prog_data     ),
     .prog_dsn   ( prog_mask     ),
     .prog_rdy   ( prog_rdy      ),
     .prog_dst   ( prog_dst      ),
     .prog_dok   ( prog_dok      ),
     .prog_ack   ( prog_ack      ),
-    // SDRAM interface
     .sdram_dq   ( SDRAM_DQ      ),
-    .sdram_din  ( SDRAM_DIN     ),
+    .din        ( SDRAM_DIN     ),
     .sdram_a    ( SDRAM_A       ),
     .sdram_dqml ( SDRAM_DQML    ),
     .sdram_dqmh ( SDRAM_DQMH    ),
@@ -369,11 +285,7 @@ jtframe_sdram64 #(
     .sdram_ncs  ( SDRAM_nCS     ),
     .sdram_ba   ( SDRAM_BA      ),
     .sdram_cke  ( SDRAM_CKE     ),
-
-    // Common signals
-    .dout       ( data_read     ),
-    .rfsh       ( !prog_en & rfsh[0] ) // Do not refresh during programming
-                                     // the verilator code sends the data too fast
+    .dout       ( data_read     )
 );
 /* verilator tracing_off */
 
