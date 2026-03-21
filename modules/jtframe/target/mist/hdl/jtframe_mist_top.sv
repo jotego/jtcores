@@ -397,6 +397,12 @@ u_frame(
     // ROM access from game
     .ba0_addr   ( ba0_addr      ), .ba1_addr   ( ba1_addr      ),
     .ba2_addr   ( ba2_addr      ), .ba3_addr   ( ba3_addr      ),
+`ifdef JTFRAME_SDRAM_CACHE
+    .burst_addr ( burst_addr    ),
+    .burst_ba   ( burst_ba      ),
+    .burst_rd   ( burst_rd      ),
+    .burst_wr   ( burst_wr      ),
+`endif
     .ba_rd      ( ba_rd         ), .ba_wr      ( ba_wr         ),
     .ba_dst     ( ba_dst        ), .ba_dok     ( ba_dok        ),
     .ba_rdy     ( ba_rdy        ), .ba_ack     ( ba_ack        ),
@@ -404,6 +410,9 @@ u_frame(
     .ba1_din    ( ba1_din       ), .ba1_dsn    ( ba1_dsn       ),
     .ba2_din    ( ba2_din       ), .ba2_dsn    ( ba2_dsn       ),
     .ba3_din    ( ba3_din       ), .ba3_dsn    ( ba3_dsn       ),
+`ifdef JTFRAME_SDRAM_CACHE
+    .burst_din  ( burst_din     ),
+`endif
 
     // ROM-load interface
     .prog_addr  ( prog_addr     ),

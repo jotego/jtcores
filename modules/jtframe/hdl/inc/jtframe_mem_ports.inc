@@ -23,9 +23,22 @@
         output [21:0]
     `endif
         ba0_addr, ba1_addr, ba2_addr, ba3_addr,
+`ifdef JTFRAME_SDRAM_CACHE
+    `ifdef JTFRAME_SDRAM_LARGE
+        output [22:0]
+    `else
+        output [21:0]
+    `endif
+        burst_addr,
+    output [ 1:0] burst_ba,
+    output         burst_rd, burst_wr,
+`endif
     output [ 3:0] ba_rd, ba_wr,
     input  [ 3:0] ba_dst, ba_dok, ba_rdy, ba_ack,
     output [15:0] ba0_din, ba1_din, ba2_din, ba3_din,
+`ifdef JTFRAME_SDRAM_CACHE
+    output [15:0] burst_din,
+`endif
     output [ 1:0] ba0_dsn, ba1_dsn, ba2_dsn, ba3_dsn,
     output [15:0]  prog_data,
     input          prog_rdy, prog_ack, prog_dst, prog_dok,

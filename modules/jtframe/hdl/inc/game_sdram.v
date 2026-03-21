@@ -84,6 +84,13 @@ wire gfx4_en, gfx8_en, gfx16_en, gfx16b_en, gfx16c_en, ioctl_dwn;
 
 assign pass_io = header | ioctl_ram;
 assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? ioctl_addr : ioctl_addr - HEADER_LEN `else ioctl_addr `endif ;
+`ifdef JTFRAME_SDRAM_CACHE
+assign burst_addr = { (SDRAMW-1){1'b0} };
+assign burst_ba   = 2'd0;
+assign burst_rd   = 1'b0;
+assign burst_wr   = 1'b0;
+assign burst_din  = 16'd0;
+`endif
 
 wire rst_h, rst24_h, rst48_h, hold_rst;
 
