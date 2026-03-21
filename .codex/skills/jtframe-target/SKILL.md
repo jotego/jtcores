@@ -28,3 +28,5 @@ For MiSTer test compilations use:
 `jtcore kicker -mister -qq`
 
 because `-qq` excludes the HDMI modules from the test, and hence runs much faster
+
+You can run this test in parallel for the three targets if needed.
