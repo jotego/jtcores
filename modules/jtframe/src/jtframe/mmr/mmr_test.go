@@ -62,6 +62,26 @@ func Test_generate(t *testing.T) {
 	// os.WriteFile(ref_filename,[]byte(mmr.converted[0]),0644) // uncomment to update the reference file
 }
 
+func Test_parse_hex_range(t *testing.T) {
+	reg := Register{
+		Name: "hex_range",
+		At: "0x00[1:0], 0x01",
+	}
+	var mmr = mmr_gen{
+		bits: make([]int,1024*8),
+	}
+	e := reg.parse_chunks(&mmr); if e != nil { t.Fatal(e) }
+	if len(reg.Chunks) != 2 {
+		t.Fatalf("Expected 2 chunks, got %d",len(reg.Chunks))
+	}
+	if reg.Chunks[0] != (Chunk{Byte: 0, Msb: 1, Lsb: 0}) {
+		t.Fatalf("Unexpected first chunk: %+v",reg.Chunks[0])
+	}
+	if reg.Chunks[1] != (Chunk{Byte: 1, Msb: 7, Lsb: 0}) {
+		t.Fatalf("Unexpected second chunk: %+v",reg.Chunks[1])
+	}
+}
+
 func add_path_from_this_file(fname string) string {
 	_,file,_,_ := runtime.Caller(0)
 	dirname := filepath.Dir(file)

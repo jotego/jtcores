@@ -178,7 +178,7 @@ func (reg *Register)parse_chunks(ck checker) error {
 			continue
 		}
 		// match number[number:number]
-		re = regexp.MustCompile(`(^[0-9A-Fa-f]+|^0[0-7]+|^\d+)\[([0-9A-Fa-f]+|0[0-7]+|\d+):([0-9A-Fa-f]+|0[0-7]+|\d+)\]$`)
+		re = regexp.MustCompile(`^(0[xX][0-9A-Fa-f]+|0[0-7]+|\d+)\[(0[xX][0-9A-Fa-f]+|0[0-7]+|\d+):(0[xX][0-9A-Fa-f]+|0[0-7]+|\d+)\]$`)
 			matches = re.FindStringSubmatch(ss[m])
 		if len(matches)==4 {
 			a, _ = strconv.ParseInt( matches[1], 0, 16 )
