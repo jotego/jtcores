@@ -66,6 +66,11 @@ wire {{ data_range . }} {{.Name}}_din;
 wire [ 1:0] {{.Name}}_dsn;
 {{end}}{{end}}
 {{- end}}
+{{- range .SDRAM.Cache_lines}}
+wire {{ cache_line_addr_range . }} {{.Name}}_addr;
+wire [{{ sub .Cache.Data_width 1 }}:0] {{.Name}}_data;
+wire        {{.Name}}_cs, {{.Name}}_ok;
+{{- end}}
 wire        prom_we, header;
 wire [SDRAMW-2:0] raw_addr, post_addr;
 wire [SDRAMW-2:0] ioctl_prog_addr   = ioctl_addr[SDRAMW-2:0];
@@ -85,11 +90,13 @@ wire gfx4_en, gfx8_en, gfx16_en, gfx16b_en, gfx16c_en, ioctl_dwn;
 assign pass_io = header | ioctl_ram;
 assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? ioctl_addr : ioctl_addr - HEADER_LEN `else ioctl_addr `endif ;
 `ifdef JTFRAME_SDRAM_CACHE
+{{- if eq (len .SDRAM.Cache_lines) 0 }}
 assign burst_addr = { (SDRAMW-1){1'b0} };
 assign burst_ba   = 2'd0;
 assign burst_rd   = 1'b0;
 assign burst_wr   = 1'b0;
 assign burst_din  = 16'd0;
+{{- end }}
 `endif
 
 wire rst_h, rst24_h, rst48_h, hold_rst;
@@ -181,6 +188,14 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .{{.Name}}   ( {{.Name}} ),
     {{- end}}
     // Memory interface - SDRAM
+    {{- if gt (len .SDRAM.Cache_lines) 0 }}
+    {{- range .SDRAM.Cache_lines}}
+    .{{.Name}}_addr ( {{.Name}}_addr ),
+    .{{.Name}}_cs   ( {{.Name}}_cs   ),
+    .{{.Name}}_ok   ( {{.Name}}_ok   ),
+    .{{.Name}}_data ( {{.Name}}_data ),
+    {{- end}}
+    {{- else }}
     {{- range .SDRAM.Banks}}
     {{- range .Buses}}{{if not .Addr}}
     .{{.Name}}_addr ( {{.Name}}_addr ),{{end}}{{ if not .Cs}}
@@ -193,6 +208,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     {{if not .Din}}.{{.Name}}_din  ( {{.Name}}_din  ),{{end}}
     {{- end}}
     {{end}}
+    {{- end}}
     {{- end}}
     // Memory interface - BRAM
 {{ range $cnt, $bus:=.BRAM -}}
@@ -327,6 +343,43 @@ jtframe_headerbyte #(.AW(6)) u_pcbid(
 );
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 {{ $assign_holdrst := true }}
+{{- if gt (len .SDRAM.Cache_lines) 0 }}
+jtframe_cache_mux #(
+    .SDRAM_AW ( SDRAMW ){{- range $index, $line := .SDRAM.Cache_lines }},
+    .AW{{$index}}      ( {{ cache_line_aw $line }} ),
+    .BLOCKS{{$index}}  ( {{ $line.Cache.Blocks }} ),
+    .BLKSIZE{{$index}} ( {{ $line.Cache.Size_bytes }} ),
+    .DW{{$index}}      ( {{ printf "%2d" $line.Cache.Data_width }} ),
+    .BA{{$index}}      ( {{ $line.At.Bank }} ),
+    .OFFSET{{$index}}  ( {{ if $line.At.Start }}{{ $line.At.Start }}{{ else }}0{{ end }} ){{- end }}
+) u_cache(
+    .rst       ( rst      ),
+    .clk       ( clk      ),
+{{- range $index, $line := .SDRAM.Cache_lines}}
+    .addr{{$index}} ( {{ $line.Name }}_addr ),
+    .dout{{$index}} ( {{ $line.Name }}_data ),
+    .rd{{$index}}   ( {{ $line.Name }}_cs   ),
+    .ok{{$index}}   ( {{ $line.Name }}_ok   ),
+{{- end}}
+{{- range $index, $_ := until 8}}
+{{- if ge $index (len $.SDRAM.Cache_lines) }}
+    .addr{{$index}} ( 0    ),
+    .dout{{$index}} (      ),
+    .rd{{$index}}   ( 1'b0 ),
+    .ok{{$index}}   (      ),
+{{- end}}
+{{- end}}
+    .addr      ( burst_addr ),
+    .ba        ( burst_ba   ),
+    .rd        ( burst_rd   ),
+    .din       ( data_read  ),
+    .ack       ( burst_ack   ),
+    .dst       ( burst_dst   ),
+    .rdy       ( burst_rdy   )
+);
+assign burst_wr  = 1'b0;
+assign burst_din = 16'd0;
+{{- else }}
 {{ range $bank, $each:=.SDRAM.Banks }}
 {{- if gt (len .Buses) 0 }}
 jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
@@ -395,6 +448,7 @@ assign ba_wr[{{$bank}}] = 0;
 assign ba{{$bank}}_din  = 0;
 assign ba{{$bank}}_dsn  = 3;
 {{- end}}{{- end }}{{end}}
+{{- end}}
 {{ if $assign_holdrst }}assign hold_rst=0;{{end}}
 {{ range $index, $each:=.Unused }}
 {{- with . -}}

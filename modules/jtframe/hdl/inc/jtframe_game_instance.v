@@ -137,6 +137,12 @@ u_game(
     .ba_dok     ( ba_dok        ),
     .ba_rdy     ( ba_rdy        ),
     .ba_ack     ( ba_ack        ),
+`ifdef JTFRAME_SDRAM_CACHE
+    .burst_dst  ( burst_dst     ),
+    .burst_dok  ( burst_dok     ),
+    .burst_rdy  ( burst_rdy     ),
+    .burst_ack  ( burst_ack     ),
+`endif
     .ba0_din    ( ba0_din       ),
     .ba0_dsn    ( ba0_dsn       ),
     .ba1_din    ( ba1_din       ),

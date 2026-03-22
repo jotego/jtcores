@@ -146,12 +146,23 @@ func slot_addr_width(bus SDRAMBus) string {
 	}
 }
 
+func cache_line_aw(line SDRAMCacheLine) int {
+	return bits.Len(uint(line.At.Length_bytes)) - 1
+}
+
+func cache_line_addr_range(line SDRAMCacheLine) string {
+	aw0 := line.Cache.Data_width >> 4
+	return fmt.Sprintf("[%2d:%d]", cache_line_aw(line)-1, aw0)
+}
+
 func data_name(bus Bus) string     { return bus.Get_dname() }
 func writeable(bus Bus) bool       { return bus.Is_wr() }
 func is_nbits(bus Bus, n int) bool { return bus.Is_nbits(n) }
 
 var funcMap = template.FuncMap{
 	"addr_range":      addr_range,
+	"cache_line_aw":   cache_line_aw,
+	"cache_line_addr_range": cache_line_addr_range,
 	"data_range":      data_range,
 	"slot_addr_width": slot_addr_width,
 	"data_name":       data_name,

@@ -71,10 +71,19 @@ module jtframe_mist #(parameter
     output             prog_ack,
     // ROM access from game
     input [SDRAMW-1:0] ba0_addr,ba1_addr,ba2_addr,ba3_addr,
+`ifdef JTFRAME_SDRAM_CACHE
+    input [SDRAMW-1:0] burst_addr,
+    input        [1:0] burst_ba,
+    input              burst_rd, burst_wr,
+    output             burst_ack, burst_dst, burst_dok, burst_rdy,
+`endif
     input        [3:0] ba_rd,   ba_wr,
     output       [3:0] ba_ack,  ba_rdy,  ba_dst,  ba_dok,
     input       [15:0] ba0_din, ba1_din, ba2_din, ba3_din,
     input       [ 1:0] ba0_dsn, ba1_dsn, ba2_dsn, ba3_dsn,
+`ifdef JTFRAME_SDRAM_CACHE
+    input       [15:0] burst_din,
+`endif
     output      [15:0] sdram_dout,
     // UART
     input              uart_rx,
@@ -454,6 +463,10 @@ jtframe_board #(
     .burst_ba   ( burst_ba      ),
     .burst_rd   ( burst_rd      ),
     .burst_wr   ( burst_wr      ),
+    .burst_ack  ( burst_ack     ),
+    .burst_dst  ( burst_dst     ),
+    .burst_dok  ( burst_dok     ),
+    .burst_rdy  ( burst_rdy     ),
 `endif
     .ba_rd      ( ba_rd         ),
     .ba_wr      ( ba_wr         ),

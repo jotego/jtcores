@@ -249,6 +249,10 @@ jtframe_board_sdram #(
     .burst_ba   ( ba_rd[3:2]    ),
     .burst_rd   ( ba_rd[0]      ),
     .burst_wr   ( ba_wr[0]      ),
+    .burst_ack  (               ),
+    .burst_rdy  (               ),
+    .burst_dst  (               ),
+    .burst_dok  (               ),
 
     .ba_rd      ( ba_rd         ),
     .ba_wr      ( ba_wr         ),

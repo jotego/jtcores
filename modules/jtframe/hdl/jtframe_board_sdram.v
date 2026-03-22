@@ -63,6 +63,10 @@ module jtframe_board_sdram #(
     input            [15:0] ba3_din,
     input             [1:0] ba3_dsn,
     input            [15:0] burst_din,
+    output                  burst_ack,
+    output                  burst_rdy,
+    output                  burst_dst,
+    output                  burst_dok,
     output            [3:0] ba_ack,
     output            [3:0] ba_rdy,
     output            [3:0] ba_dst,
@@ -173,15 +177,10 @@ assign rfsh_g = rfsh[0];
 `endif
 
 `ifdef JTFRAME_SDRAM_CACHE
-    wire        cache_ack;
-    wire        cache_dst;
-    wire        cache_dok;
-    wire        cache_rdy;
-
-    assign ba_ack = { 3'd0, cache_ack };
-    assign ba_dst = { 3'd0, cache_dst };
-    assign ba_dok = { 3'd0, cache_dok };
-    assign ba_rdy = { 3'd0, cache_rdy };
+    assign ba_ack    = 4'd0;
+    assign ba_dst    = 4'd0;
+    assign ba_dok    = 4'd0;
+    assign ba_rdy    = 4'd0;
 
     jtframe_burst_sdram #(
         .AW         ( SDRAMW        ),
@@ -199,10 +198,10 @@ assign rfsh_g = rfsh[0];
         .wr         ( burst_wr      ),
         .din        ( burst_din     ),
         .dout       ( dout          ),
-        .ack        ( cache_ack     ),
-        .dst        ( cache_dst     ),
-        .dok        ( cache_dok     ),
-        .rdy        ( cache_rdy     ),
+        .ack        ( burst_ack     ),
+        .dst        ( burst_dst     ),
+        .dok        ( burst_dok     ),
+        .rdy        ( burst_rdy     ),
 
         .prog_en    ( prog_en       ),
         .prog_addr  ( prog_addr     ),
@@ -233,6 +232,10 @@ assign rfsh_g = rfsh[0];
         .sdram_cke  ( sdram_cke     )
     );
 `else
+    assign burst_ack = 1'b0;
+    assign burst_dst = 1'b0;
+    assign burst_dok = 1'b0;
+    assign burst_rdy = 1'b0;
     // Above 64MHz HF should be 1. SHIFTED depends on whether the SDRAM
     // clock is shifted or not.
     // Writting on each bank must be selectively enabled with macros

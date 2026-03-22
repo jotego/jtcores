@@ -37,6 +37,7 @@
     input  [ 3:0] ba_dst, ba_dok, ba_rdy, ba_ack,
     output [15:0] ba0_din, ba1_din, ba2_din, ba3_din,
 `ifdef JTFRAME_SDRAM_CACHE
+    input          burst_dst, burst_dok, burst_rdy, burst_ack,
     output [15:0] burst_din,
 `endif
     output [ 1:0] ba0_dsn, ba1_dsn, ba2_dsn, ba3_dsn,

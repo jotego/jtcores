@@ -59,6 +59,7 @@ module jtframe_board #(parameter
     input  [SDRAMW-1:0] burst_addr,
     input         [1:0] burst_ba,
     input               burst_rd, burst_wr,
+    output              burst_ack, burst_dst, burst_dok, burst_rdy,
 `endif
     input         [3:0] ba_rd,   ba_wr,
     output        [3:0] ba_ack,  ba_rdy,  ba_dst,  ba_dok,
@@ -809,11 +810,19 @@ jtframe_board_sdram #(
     .burst_ba   ( burst_ba      ),
     .burst_rd   ( burst_rd      ),
     .burst_wr   ( burst_wr      ),
+    .burst_ack  ( burst_ack     ),
+    .burst_dst  ( burst_dst     ),
+    .burst_dok  ( burst_dok     ),
+    .burst_rdy  ( burst_rdy     ),
 `else
     .burst_addr ( {SDRAMW{1'b0}} ),
     .burst_ba   ( 2'd0          ),
     .burst_rd   ( 1'b0          ),
     .burst_wr   ( 1'b0          ),
+    .burst_ack  (               ),
+    .burst_dst  (               ),
+    .burst_dok  (               ),
+    .burst_rdy  (               ),
 `endif
 
     .ba_rd      ( bax_rd        ),
