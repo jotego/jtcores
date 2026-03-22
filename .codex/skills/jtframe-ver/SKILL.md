@@ -35,6 +35,8 @@ Keep `.simunit` empty unless you need one of the options described below.
 The common pattern is:
 
 ```verilog
+`timescale 1ns / 1ps
+
 module test;
 
 `include "test_tasks.vh"
