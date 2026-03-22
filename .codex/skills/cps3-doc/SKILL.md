@@ -1,6 +1,6 @@
 ---
-name: CPS3 document update
-description: review the MAME implementation of the CPS3 hardware and update the file $JTROOT/cores/cps3/doc/gfx.md
+name: Questions about the CPS3 hardware and CPS3 documentation update
+description: Read the current cps3/doc/gfx.md and the MAME implementation to answer questions about the CPS3 hardware. Update the file $JTROOT/cores/cps3/doc/gfx.md if inconsistencies or more information is needed.
 ---
 
 - The MAME repository is at $JTROOT/../mame
