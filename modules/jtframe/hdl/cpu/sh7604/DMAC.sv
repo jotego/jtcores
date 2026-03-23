@@ -77,7 +77,7 @@ module SH7604_DMAC (
 		return res;
 	endfunction
 	
-	wire REG1_SEL = (IBUS_A == 32'hFFFFFE71 || IBUS_A == 32'hFFFFFE72);
+	wire REG1_SEL = (IBUS_A >= 32'hFFFFFE71 && IBUS_A <= 32'hFFFFFE72);
 	wire REG2_SEL = (IBUS_A >= 32'hFFFFFF80 && IBUS_A <= 32'hFFFFFFB3);
 
 	wire CH_EN[2] = '{DMAOR.DME & CHCR[0].DE, DMAOR.DME & CHCR[1].DE};
