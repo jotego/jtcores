@@ -83,3 +83,11 @@
     output   [ 1:0] {{.Name}}_dsn,{{end}}{{end }}
     input           {{.Name}}_ok{{end}}
 {{- end}}
+{{- $last := len .SDRAM.Cache_lines }}
+{{- $last = sub $last 1}}
+{{- range $k,$v := .SDRAM.Cache_lines}}
+    input    {{ data_range $v }} {{$v.Name}}_data,
+    output          {{$v.Name}}_cs,
+    output   {{ addr_range $v }} {{$v.Name}}_addr,
+    input           {{$v.Name}}_ok{{ if ne $k $last }},{{end}}
+{{- end}}

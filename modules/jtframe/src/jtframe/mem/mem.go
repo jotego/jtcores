@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"math/bits"
 	"os"
 	"path/filepath"
@@ -108,12 +109,14 @@ func (arg Args) get_path(fname string, prefix bool) string {
 }
 
 // Template helper functions: implementation of "Bus" interface (see types.go)
-func (bus SDRAMBus) Get_aw() int       { return bus.Addr_width }
-func (bus BRAMBus) Get_aw() int        { return bus.Addr_width }
-func (bus AudioCh) Get_aw() int        { return bus.Data_width }
-func (bus SDRAMBus) Get_dw() int       { return bus.Data_width }
-func (bus BRAMBus) Get_dw() int        { return bus.Data_width }
-func (bus AudioCh) Get_dw() int        { return bus.Data_width }
+func (bus SDRAMBus) Get_aw() int        { return bus.Addr_width }
+func (bus BRAMBus) Get_aw() int         { return bus.Addr_width }
+func (bus AudioCh) Get_aw() int         { return bus.Data_width }
+func (bus SDRAMBus) Get_dw() int        { return bus.Data_width }
+func (bus BRAMBus) Get_dw() int         { return bus.Data_width }
+func (bus AudioCh) Get_dw() int         { return bus.Data_width }
+func (bus SDRAMCacheLine) Get_dw() int { return bus.Cache.Data_width }
+func (bus SDRAMCacheLine) Get_aw() int { return int(math.Log2(float64(bus.At.Length_bytes))) }
 func (bus SDRAMBus) Get_dname() string { return bus.Name + "_data" }
 func (bus BRAMBus) Get_dname() string {
 	if bus.ROM.Offset != "" {
@@ -123,12 +126,15 @@ func (bus BRAMBus) Get_dname() string {
 	}
 }
 func (bus AudioCh) Get_dname() string    { return bus.Name }
+func (bus SDRAMCacheLine) Get_dname() string { return bus.Name}
 func (bus SDRAMBus) Is_wr() bool         { return bus.Rw }
 func (bus AudioCh) Is_wr() bool          { return false }
 func (bus BRAMBus) Is_wr() bool          { return bus.Rw || bus.Dual_port.Rw }
+func (bus SDRAMCacheLine) Is_wr() bool   { return bus.Rw }
 func (bus SDRAMBus) Is_nbits(n int) bool { return bus.Data_width == n }
 func (bus BRAMBus) Is_nbits(n int) bool  { return bus.Data_width == n }
 func (bus AudioCh) Is_nbits(n int) bool  { return bus.Data_width == n }
+func (bus SDRAMCacheLine) Is_nbits(n int) bool  { return bus.Cache.Data_width == n }
 
 func addr_range(bus Bus) string {
 	return fmt.Sprintf("[%2d:%d]", bus.Get_aw()-1, bus.Get_dw()>>4)

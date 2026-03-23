@@ -157,7 +157,7 @@ wire [15:0] burst_din;
 wire [ 1:0] ba0_dsn, ba1_dsn, ba2_dsn, ba3_dsn;
 wire [ 1:0] burst_ba;
 wire [ 3:0] ba_rd, ba_wr, ba_ack, ba_dst, ba_dok, ba_rdy;
-wire         burst_rd, burst_wr;
+wire        burst_rd, burst_wr, burst_ack, burst_rdy, burst_dst, burst_dok;
 
 wire [15:0] prog_data;
 wire [ 1:0] prog_mask;
@@ -245,14 +245,14 @@ jtframe_board_sdram #(
     .ba1_addr   ( ba1_addr      ),
     .ba2_addr   ( ba2_addr      ),
     .ba3_addr   ( ba3_addr      ),
-    .burst_addr ( ba0_addr      ),
-    .burst_ba   ( ba_rd[3:2]    ),
-    .burst_rd   ( ba_rd[0]      ),
-    .burst_wr   ( ba_wr[0]      ),
-    .burst_ack  (               ),
-    .burst_rdy  (               ),
-    .burst_dst  (               ),
-    .burst_dok  (               ),
+    .burst_addr ( burst_addr    ),
+    .burst_ba   ( burst_ba      ),
+    .burst_rd   ( burst_rd      ),
+    .burst_wr   ( burst_wr      ),
+    .burst_ack  ( burst_ack     ),
+    .burst_rdy  ( burst_rdy     ),
+    .burst_dst  ( burst_dst     ),
+    .burst_dok  ( burst_dok     ),
 
     .ba_rd      ( ba_rd         ),
     .ba_wr      ( ba_wr         ),
@@ -442,6 +442,10 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
         );
     `endif
 `endif
+`ifndef JTFRAME_SDRAM_CACHE
+assign burst_addr=0, burst_ba=0, burst_rd=0, burst_wr=0,
+       burst_ack=0, burst_rdy=0, burst_dst=0, burst_dok=0;
+`endif
 /* verilator tracing_on */
 //////// GAME MODULE
 `GAMETOP
@@ -515,6 +519,10 @@ u_game(
     .burst_ba   ( burst_ba      ),
     .burst_rd   ( burst_rd      ),
     .burst_wr   ( burst_wr      ),
+    .burst_ack  ( burst_ack     ),
+    .burst_rdy  ( burst_rdy     ),
+    .burst_dst  ( burst_dst     ),
+    .burst_dok  ( burst_dok     ),
 `endif
     .ba_rd      ( ba_rd         ),
     .ba_wr      ( ba_wr         ),

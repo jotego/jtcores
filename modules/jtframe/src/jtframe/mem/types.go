@@ -295,9 +295,10 @@ type SDRAMBus struct {
 type SDRAMCacheLine struct {
 	When   []string `yaml:"when"`
 	Unless []string `yaml:"unless"`
-	Name   string
+	Name     string `yaml:"name"`
 	Cache  SDRAMCacheCfg  `yaml:"cache"`
 	At     SDRAMCacheAddr `yaml:"at"`
+	Rw	bool `yaml:"rw"`
 	Total  int
 }
 
@@ -315,12 +316,15 @@ type SDRAMCacheAddr struct {
 	Length_bytes int
 }
 
+// This function checks the syntax in the mem.yaml file and it applies the
+// read values to *line
 func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type raw_line struct {
 		When   []string       `yaml:"when"`
 		Unless []string       `yaml:"unless"`
 		Cache  SDRAMCacheCfg  `yaml:"cache"`
 		At     SDRAMCacheAddr `yaml:"at"`
+		Name   string         `yaml:"name"`
 	}
 	var raw_map map[string]interface{}
 	if err := unmarshal(&raw_map); err != nil {
@@ -334,18 +338,16 @@ func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) err
 	line.Unless = aux.Unless
 	line.Cache = aux.Cache
 	line.At = aux.At
+	line.Name = aux.Name
 	for key := range raw_map {
 		switch key {
-		case "when", "unless", "cache", "at":
+		case "name","when", "unless", "cache", "at", "rw":
 		default:
-			if line.Name != "" {
-				return fmt.Errorf("cache line entries must declare exactly one name")
-			}
-			line.Name = key
+			return fmt.Errorf("Unexpected field %s in cache line",key)
 		}
 	}
 	if line.Name == "" {
-		return fmt.Errorf("cache line entries must declare exactly one name")
+		return fmt.Errorf("cache line entries must a name")
 	}
 	return nil
 }

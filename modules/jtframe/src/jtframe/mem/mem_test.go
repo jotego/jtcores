@@ -231,7 +231,7 @@ func Test_BRAMBus_Size_Rejections(t *testing.T) {
 func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
 	sample := `sdram:
   cache-lines:
-    - tiles:
+    - name: tiles
       cache: { blocks: 32, size: 1kB, data_width: 32 }
       at:    { bank: 3, start: CHAR, length: 8MB }
 `
