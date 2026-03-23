@@ -62,7 +62,7 @@ module SH7604_MULT (
 			// synopsys translate_on
 		end
 		else begin
-			if (MAC_SEL && MAC_WE && EN && CE_R) begin
+			if ((MAC_SEL != 2'b00) && MAC_WE && EN && CE_R) begin
 				MM_DONE <= 1;
 				case (MAC_OP) 
 					4'b0100,			//LDS Rm,MACx
@@ -116,11 +116,12 @@ module SH7604_MULT (
 						end
 					end
 					4'b1111: {MACH,MACL} <= '0;
+					default:;
 				endcase
 			end
 			
 			if (!MM_DONE && CE_R) begin
-				if (MM_CYC) MM_CYC <= MM_CYC - 2'd1;
+				if (MM_CYC != 2'd0) MM_CYC <= MM_CYC - 2'd1;
 				if (MM_CYC == 2'd1) MM_DONE <= 1;
 			end
 			

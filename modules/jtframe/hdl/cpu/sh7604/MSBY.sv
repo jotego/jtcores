@@ -69,7 +69,7 @@ module SH7604_MSBY (
 		end
 	end
 	
-	assign IBUS_DO = REG_SEL ? REG_DO : 8'h00;
+	assign IBUS_DO = REG_SEL ? REG_DO : 32'h00000000;
 	assign IBUS_BUSY = 0;
 	assign IBUS_ACT = REG_SEL;
 	

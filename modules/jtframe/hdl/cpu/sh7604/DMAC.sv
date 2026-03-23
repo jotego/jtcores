@@ -227,18 +227,18 @@ module SH7604_DMAC (
 					if (&CHCR[DMA_CH].TS || CHCR[DMA_CH].SM == 2'b01) SAR[DMA_CH] <= SAR[DMA_CH] + AR_INC;
 					else if                (CHCR[DMA_CH].SM == 2'b10) SAR[DMA_CH] <= SAR[DMA_CH] - AR_INC;
 					
-					if (!CHCR[DMA_CH].TA && !LW_CNT) begin
+					if (!CHCR[DMA_CH].TA && (LW_CNT == 2'd0)) begin
 						DMA_RD <= 0;
 						DMA_WR <= 1;
 						DMA_BURST <= &CHCR[DMA_CH].TS;
 						DMA_LOCK <= CHCR[DMA_CH].TB | &CHCR[DMA_CH].TS;
 						LW_CNT <= &CHCR[DMA_CH].TS ? 2'd3 : 2'd0;
 						CH_REQ_CLR[DMA_CH] <= 1;
-						if (!TCR_NEXT) begin
+						if (TCR_NEXT == 24'd0) begin
 							DMA_LOCK <= 0;
 						end
 					end
-					else if (CHCR[DMA_CH].TA && !CHCR[DMA_CH].AM && !LW_CNT) begin
+					else if (CHCR[DMA_CH].TA && !CHCR[DMA_CH].AM && (LW_CNT == 2'd0)) begin
 						CH_REQ_CLR[DMA_CH] <= 1;
 						DMA_REQ_CLR <= 1;
 						LW_CNT <= &CHCR[DMA_CH].TS ? 2'd3 : 2'd0;
@@ -246,7 +246,7 @@ module SH7604_DMAC (
 						if (!CHCR[DMA_CH].TB) DMA_RD <= 0;
 						
 						TCR[DMA_CH] <= TCR_NEXT;
-						if (!TCR_NEXT) begin
+						if (TCR_NEXT == 24'd0) begin
 							CHCR[DMA_CH].TE <= 1;
 							DMA_RD <= 0;
 							DMA_BURST <= 0;
@@ -262,7 +262,7 @@ module SH7604_DMAC (
 					if (LW_CNT == 2'd1) begin
 						if (!CHCR[DMA_CH].TB) DMA_LOCK <= 0;
 					end 
-					if (!LW_CNT || !TCR_NEXT) begin
+					if ((LW_CNT == 2'd0) || (TCR_NEXT == 24'd0)) begin
 						if (!CHCR[DMA_CH].TA) begin
 							DMA_WR <= 0;
 							if (CHCR[DMA_CH].TB) begin
@@ -286,7 +286,7 @@ module SH7604_DMAC (
 					if (TCR_NEXT == 24'd1) begin
 						if (&CHCR[DMA_CH].TS) DMA_LOCK <= 0;
 					end
-					if (!TCR_NEXT) begin
+					if (TCR_NEXT == 24'd0) begin
 						CHCR[DMA_CH].TE <= 1;
 						DMA_RD <= 0;
 						DMA_WR <= 0;
@@ -294,7 +294,7 @@ module SH7604_DMAC (
 					end
 				end
 				
-				if (LW_CNT) LW_CNT <= LW_CNT - 2'd1;
+				if (LW_CNT != 2'd0) LW_CNT <= LW_CNT - 2'd1;
 				else LW_CNT <= &CHCR[DMA_CH].TS ? 2'd3 : 2'd0;
 					
 				RD_BUF[1] <= RD_BUF[0];
@@ -335,6 +335,7 @@ module SH7604_DMAC (
 					case ({IBUS_A[5:2],2'b00})
 						6'h0C: CHCR_TE_OLD[0] <= CHCR[0].TE;
 						6'h1C: CHCR_TE_OLD[1] <= CHCR[1].TE;
+						default:;
 					endcase
 				end
 			end

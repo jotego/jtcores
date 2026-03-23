@@ -172,11 +172,11 @@ module SH7604_DIVU (
 					5'h00: DVSR <= IBUS_DI & DVSR_WMASK;
 					5'h04: {DVDNTH,DVDNTL} <= {{32{IBUS_DI[31]}},IBUS_DI} & {DVDNT_WMASK,DVDNT_WMASK};
 					5'h08: begin
-						if (IBUS_BA[3:2]) DVCR[31:16] <= IBUS_DI[31:16] & DVCR_WMASK[31:16];
-						if (IBUS_BA[1:0]) DVCR[15:0]  <= IBUS_DI[15:0]  & DVCR_WMASK[15:0];
+						if (IBUS_BA[3:2] != 2'b00) DVCR[31:16] <= IBUS_DI[31:16] & DVCR_WMASK[31:16];
+						if (IBUS_BA[1:0] != 2'b00) DVCR[15:0]  <= IBUS_DI[15:0]  & DVCR_WMASK[15:0];
 					end
 					5'h0C: begin
-						if (IBUS_BA[1:0]) VCRDIV[15:0] <= IBUS_DI[15:0] & VCRDIV_WMASK[15:0];
+						if (IBUS_BA[1:0] != 2'b00) VCRDIV[15:0] <= IBUS_DI[15:0] & VCRDIV_WMASK[15:0];
 					end
 					5'h10: DVDNTH <= IBUS_DI & DVDNT_WMASK;
 					5'h14: DVDNTL <= IBUS_DI & DVDNT_WMASK;

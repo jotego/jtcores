@@ -83,37 +83,37 @@ module SH7604_UBC
 			else if (REG_SEL && IBUS_WE && IBUS_REQ) begin
 				case ({IBUS_A[5:2],2'b00})
 					6'h00: begin
-						if (IBUS_BA[3:2]) BARAH <= IBUS_DI[31:16] & BARx_WMASK;
-						if (IBUS_BA[1:0]) BARAL <= IBUS_DI[15:0]  & BARx_WMASK;
+						if (IBUS_BA[3:2] != 2'b00) BARAH <= IBUS_DI[31:16] & BARx_WMASK;
+						if (IBUS_BA[1:0] != 2'b00) BARAL <= IBUS_DI[15:0]  & BARx_WMASK;
 					end
 					6'h04: begin
-						if (IBUS_BA[3:2]) BAMRAH <= IBUS_DI[31:16] & BAMRx_WMASK;
-						if (IBUS_BA[1:0]) BAMRAL <= IBUS_DI[15:0]  & BAMRx_WMASK;
+						if (IBUS_BA[3:2] != 2'b00) BAMRAH <= IBUS_DI[31:16] & BAMRx_WMASK;
+						if (IBUS_BA[1:0] != 2'b00) BAMRAL <= IBUS_DI[15:0]  & BAMRx_WMASK;
 					end
 					6'h08: begin
-						if (IBUS_BA[3:2]) BBRA <= IBUS_DI[31:16] & BBRx_WMASK;
+						if (IBUS_BA[3:2] != 2'b00) BBRA <= IBUS_DI[31:16] & BBRx_WMASK;
 					end
 					6'h20: begin
-						if (IBUS_BA[3:2]) BARBH <= IBUS_DI[31:16] & BARx_WMASK;
-						if (IBUS_BA[1:0]) BARBL <= IBUS_DI[15:0]  & BARx_WMASK;
+						if (IBUS_BA[3:2] != 2'b00) BARBH <= IBUS_DI[31:16] & BARx_WMASK;
+						if (IBUS_BA[1:0] != 2'b00) BARBL <= IBUS_DI[15:0]  & BARx_WMASK;
 					end
 					6'h24: begin
-						if (IBUS_BA[3:2]) BAMRBH <= IBUS_DI[31:16] & BAMRx_WMASK;
-						if (IBUS_BA[1:0]) BAMRBL <= IBUS_DI[15:0]  & BAMRx_WMASK;
+						if (IBUS_BA[3:2] != 2'b00) BAMRBH <= IBUS_DI[31:16] & BAMRx_WMASK;
+						if (IBUS_BA[1:0] != 2'b00) BAMRBL <= IBUS_DI[15:0]  & BAMRx_WMASK;
 					end
 					6'h28: begin
-						if (IBUS_BA[3:2]) BBRB <= IBUS_DI[31:16] & BBRx_WMASK;
+						if (IBUS_BA[3:2] != 2'b00) BBRB <= IBUS_DI[31:16] & BBRx_WMASK;
 					end
 					6'h30: begin
-						if (IBUS_BA[3:2]) BDRBH <= IBUS_DI[31:16] & BDRB_WMASK;
-						if (IBUS_BA[1:0]) BDRBL <= IBUS_DI[15:0]  & BDRB_WMASK;
+						if (IBUS_BA[3:2] != 2'b00) BDRBH <= IBUS_DI[31:16] & BDRB_WMASK;
+						if (IBUS_BA[1:0] != 2'b00) BDRBL <= IBUS_DI[15:0]  & BDRB_WMASK;
 					end
 					6'h34: begin
-						if (IBUS_BA[3:2]) BDMRBH <= IBUS_DI[31:16] & BDMRB_WMASK;
-						if (IBUS_BA[1:0]) BDMRBL <= IBUS_DI[15:0]  & BDMRB_WMASK;
+						if (IBUS_BA[3:2] != 2'b00) BDMRBH <= IBUS_DI[31:16] & BDMRB_WMASK;
+						if (IBUS_BA[1:0] != 2'b00) BDMRBL <= IBUS_DI[15:0]  & BDMRB_WMASK;
 					end
 					6'h38: begin
-						if (IBUS_BA[3:2]) BRCR <= IBUS_DI[31:16] & BRCR_WMASK;
+						if (IBUS_BA[3:2] != 2'b00) BRCR <= IBUS_DI[31:16] & BRCR_WMASK;
 					end
 					default:;
 				endcase

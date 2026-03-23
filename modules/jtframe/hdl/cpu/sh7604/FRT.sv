@@ -173,7 +173,7 @@ module SH7604_FRT (
 	bit [ 7: 0] REG_DO;
 	bit         BUSY;
 	always @(posedge CLK or negedge RST_N) begin
-		bit [31: 0] OCR;
+		bit [15: 0] OCR;
 		
 		if (!RST_N) begin
 			TIER <= TIER_INIT;

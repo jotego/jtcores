@@ -238,7 +238,7 @@ module SH_core
 					SAVE_IR <= BUS_DI[15:0];
 				end
 				
-				if (!ID_DECI.LST) begin
+				if (ID_DECI.LST == 3'd0) begin
 					PIPE.ID.IR <= NEW_IR;
 					PIPE.ID.PC <= PC;
 				end
@@ -257,7 +257,7 @@ module SH_core
 					INT_REQ_LATCH <= 0;
 				end
 			
-				if (ID_DECI.LST && STATE == ID_DECI.LST) begin
+				if ((ID_DECI.LST != 3'd0) && (STATE == ID_DECI.LST)) begin
 					PIPE.ID <= SAVE_ID;
 				end
 			end
@@ -269,7 +269,6 @@ module SH_core
 	//**********************************************************
 	assign ID_STALL = BUS_STALL | INST_SPLIT;
 	
-	assign BR_COND = ID_DECI.BR.BI & ((SR_T == ID_DECI.BR.BCV) | (ID_DECI.BR.BT == UCB));
 	wire ID_DELAY_SLOT = ~PIPE.EX.DI.BR.BI & (PIPE.EX.DI.BR.BT == CB | PIPE.EX.DI.BR.BT == UCB);
 	
 	wire [15:0] DEC_IR = (INT_REQ | INT_REQ_LATCH) && !ID_DELAY_SLOT && !IFID_STALL ? 16'hF100 : 
@@ -277,10 +276,15 @@ module SH_core
 								ID_DELAY_SLOT && !PIPE.EX.DI.BR.BD ? 16'h0009 :
 								IFID_STALL ? PIPE.EX.IR : PIPE.ID.IR;
 								
-	assign ID_DECI = Decode(DEC_IR, STATE, BR_COND, VER);
+	DecInstr_t ID_DECI_RAW;
+	wire BR_COND_DEC;
+	assign ID_DECI_RAW = Decode(DEC_IR, STATE, 1'b0, VER);
+	assign BR_COND_DEC = ID_DECI_RAW.BR.BI & ((SR_T == ID_DECI_RAW.BR.BCV) | (ID_DECI_RAW.BR.BT == UCB));
+	assign BR_COND = BR_COND_DEC;
+	assign ID_DECI = Decode(DEC_IR, STATE, BR_COND_DEC, VER);
 	
 	
-	wire BP_T_EXID = ID_DECI.BR.BI & ID_DECI.BR.BT == CB & PIPE.EX.DI.CTRL.W & PIPE.EX.DI.CTRL.S == SR_;
+	wire BP_T_EXID = ID_DECI_RAW.BR.BI & ID_DECI_RAW.BR.BT == CB & PIPE.EX.DI.CTRL.W & PIPE.EX.DI.CTRL.S == SR_;
 	always_comb begin
 		if (BP_T_EXID) begin
 			SR_T = SR_NEW.T;
@@ -389,6 +393,7 @@ module SH_core
 			ZERO:   temp = 32'h00000000;
 			ONE:    temp = 32'h00000001;
 			VECT:   temp = {{24{1'b0}},      vec};
+			default: temp = 32'h00000000;
 		endcase
 		
 		if (PIPE.EX.DI.BR.BI) begin
@@ -405,6 +410,7 @@ module SH_core
 			SR_:  SCR_VAL = SR & 32'h000003F3;
 			GBR_: SCR_VAL = GBR;
 			VBR_: SCR_VAL = VBR;
+			default: SCR_VAL = 32'h00000000;
 		endcase
 		
 		if (BP_A_EXEX) begin
@@ -520,7 +526,7 @@ module SH_core
 		endcase
 		
 		adder_a = PIPE.EX.DI.ALU.OP == DIV ? {ALU_A[30:0],SR.T} : ALU_A;
-		adder_code = PIPE.EX.DI.ALU.OP == DIV ? {1'b0,SR.M~^SR.Q} : PIPE.EX.DI.ALU.CD;
+		adder_code = PIPE.EX.DI.ALU.OP == DIV ? {3'b000,(SR.M ~^ SR.Q)} : PIPE.EX.DI.ALU.CD;
 		adder_cmp = PIPE.EX.DI.ALU.CMP;
 		{ADDER_C,ADDER_RES} = Adder(adder_a,ALU_B,SR.T,adder_code);
 		ADDER_V = ~((ALU_A[31] ^ ALU_B[31]) ^ adder_code[0]) & (ALU_A[31] ^ ADDER_RES[31]);
@@ -554,32 +560,36 @@ module SH_core
 						2'b11: ALU_T = ge_hs & ~eq;
 						default:;
 					endcase
-					2'b10: ALU_T <= ADDER_C;
-					2'b11: ALU_T <= ADDER_V;
+					2'b10: ALU_T = ADDER_C;
+					2'b11: ALU_T = ADDER_V;
 					default:;
 				endcase
-			LOG: ALU_T <= PIPE.EX.DI.ALU.CD[3] ? str_eq : LOG_Z;
-			SHIFT: ALU_T <= SHIFT_C;
-			DIV: ALU_T <= ADDER_C;
+			LOG: ALU_T = PIPE.EX.DI.ALU.CD[3] ? str_eq : LOG_Z;
+			SHIFT: ALU_T = SHIFT_C;
+			DIV: ALU_T = ADDER_C;
 			default:;
 		endcase
 	end
 	
 	bit [31: 0] MA_ADDR;
 	always_comb begin
+		MA_ADDR = ALU_RES;
 		case (PIPE.EX.DI.MEM.ADDS)
 			ALUA:    MA_ADDR = REG_A;
 			ALUB:    MA_ADDR = REG_B;
 			ALURES:  MA_ADDR = ALU_RES;
+			default:;
 		endcase
 	end
 	
 	bit [31: 0] MA_WD;
 	always_comb begin
+		MA_WD = ALU_RES;
 		case (PIPE.EX.DI.MEM.WDS)
 			ALUA: MA_WD = REG_A;
 			ALUB: MA_WD = REG_B;
 			ALURES: MA_WD = ALU_RES;
+			default:;
 		endcase
 	end
 	
@@ -641,6 +651,7 @@ module SH_core
 				SR_NEW.T = 0;
 			end
 			IMSK: SR_NEW.I = INT_LVL_LATCH;
+			default:;
 		endcase
 	end
 	

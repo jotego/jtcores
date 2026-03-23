@@ -89,10 +89,10 @@ module SH2_regfile (
 			GR0 <= '0;
 		end
 		else if (EN) begin
-			if (WAE && !WA_ADDR && CE) begin
+			if (WAE && (WA_ADDR == 5'd0) && CE) begin
 				GR0 <= WA_D;
 			end
-			if (WBE_LATCH && !WB_ADDR_LATCH) begin
+			if (WBE_LATCH && (WB_ADDR_LATCH == 5'd0)) begin
 				GR0 <= WB_D_LATCH;
 			end
 		end
@@ -151,10 +151,10 @@ module SH2_regfile (
 			GR0 <= '0;
 		end
 		else if (EN) begin
-			if (WAE && !WA_ADDR && CE) begin
+			if (WAE && (WA_ADDR == 5'd0) && CE) begin
 				GR0 <= WA_D;
 			end
-			if (WBE_LATCH && !WB_ADDR_LATCH) begin
+			if (WBE_LATCH && (WB_ADDR_LATCH == 5'd0)) begin
 				GR0 <= WB_D_LATCH;
 			end
 		end
