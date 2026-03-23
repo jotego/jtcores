@@ -133,6 +133,8 @@ class SDRAM {
     //int last_rd[5];
     char header[32];
     int burst_len, burst_mask;
+    bool burst_full_page;
+    int decode_burst_length(int mode);
     int read_offset( int region );
     int read_bank( char *bank, int addr );
     void write_bank16( char *bank,  int addr, int val, int dm /* act. low */ );
@@ -646,14 +648,27 @@ void SDRAM::dump() {
     delete[] aux;
 }
 
+int SDRAM::decode_burst_length(int mode) {
+    switch( mode & 7 ) {
+        case 0: return 1;
+        case 1: return 2;
+        case 2: return 4;
+        case 3: return 8;
+        case 7: return 1 << COLW;
+        default:
+            throw "\nERROR: (test.cpp) unsupported SDRAM burst length encoding in mode register\n";
+    }
+}
+
 void SDRAM::change_burst() {
     int mode = dut.SDRAM_A;
-    burst_len = 1 << (mode&3);
-    // for(int k=0; k<4; k++ ) ba_blen[k]=burst_len+1;
+    burst_len = decode_burst_length(mode);
+    burst_full_page = (mode & 7) == 7;
     burst_mask = ~(burst_len-1);
-    fprintf(stderr, "SDRAM burst mode changed to %d mask 0x%X -> ",  burst_len, burst_mask );
-    if( burst_len>4 ) {
-        throw "\nERROR: (test.cpp)  support for bursts larger than 4 is not implemented in test.cpp\n";
+    if( burst_full_page ) {
+        fprintf(stderr, "SDRAM burst mode changed to full-page (%d words) mask 0x%X -> ", burst_len, burst_mask );
+    } else {
+        fprintf(stderr, "SDRAM burst mode changed to %d mask 0x%X -> ", burst_len, burst_mask );
     }
     // Update bank burst lengths
 #ifdef _JTFRAME_BA0_LEN
@@ -753,6 +768,7 @@ SDRAM::SDRAM(UUT& _dut) : dut(_dut) {
     const int MAXBANK=3;
     banks[0] = nullptr;
     burst_len= 1;
+    burst_full_page = false;
     for( int k=0; k<4; k++ ) {
         banks[k] = new char[BANK_LEN];
         rd_st[k]=0;
