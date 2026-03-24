@@ -2,7 +2,7 @@ jtframe:
   - from: sdram
     get:
       - jtframe_cache_mux.v
-      - jtframe_cache.v
+      - jtframe_cache.sv
       - jtframe_burst_sdram.v
       - jtframe_burst_mode.v
       - jtframe_burst_ctrl.v
