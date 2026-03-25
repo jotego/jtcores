@@ -17635,6 +17635,16 @@
 	)
 	(wire
 		(pts
+			(xy 246.38 198.12) (xy 256.54 198.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "35f1aa70-5439-412a-bab4-a236687dbe01")
+	)
+	(wire
+		(pts
 			(xy 123.19 124.46) (xy 123.19 130.81)
 		)
 		(stroke
@@ -19245,7 +19255,7 @@
 	)
 	(wire
 		(pts
-			(xy 300.99 163.83) (xy 281.94 163.83)
+			(xy 283.21 163.83) (xy 281.94 163.83)
 		)
 		(stroke
 			(width 0)
@@ -22433,16 +22443,6 @@
 		)
 		(uuid "a2c93b68-c107-4c6a-879e-a6db31a7db92")
 	)
-	(wire
-		(pts
-			(xy 246.38 200.66) (xy 256.54 200.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a2de39bc-ecfc-4e72-8cb1-dc5b2c0cdd63")
-	)
 	(bus
 		(pts
 			(xy 242.57 251.46) (xy 242.57 254)
@@ -23535,7 +23535,7 @@
 	)
 	(wire
 		(pts
-			(xy 300.99 166.37) (xy 281.94 166.37)
+			(xy 283.21 166.37) (xy 281.94 166.37)
 		)
 		(stroke
 			(width 0)
@@ -25005,16 +25005,6 @@
 	)
 	(wire
 		(pts
-			(xy 246.38 198.12) (xy 256.54 198.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dbebfd5f-2577-4bcc-a7db-0fb44ff00c54")
-	)
-	(wire
-		(pts
 			(xy 24.13 140.97) (xy 35.56 140.97)
 		)
 		(stroke
@@ -25042,6 +25032,16 @@
 			(type default)
 		)
 		(uuid "dc66704b-7cda-43c7-9c0f-8c64a07f2b71")
+	)
+	(wire
+		(pts
+			(xy 246.38 200.66) (xy 256.54 200.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dc758e27-a73f-403a-8cfb-bd969dab3bac")
 	)
 	(wire
 		(pts
@@ -27309,12 +27309,12 @@
 		(uuid "14a57bd3-e58b-47a3-bc9a-506acd58c33d")
 	)
 	(label "MAIN_A15"
-		(at 246.38 200.66 0)
+		(at 255.27 200.66 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "14f2638c-9d53-4ded-8c8d-7990abd0f61c")
 	)
@@ -28608,16 +28608,6 @@
 		)
 		(uuid "4b691f25-5894-4409-a733-42e8d1490dbc")
 	)
-	(label "G5P13"
-		(at 300.99 166.37 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "4bf3ea1c-990a-45ee-81f9-b3b34954e1f1")
-	)
 	(label "G2D7"
 		(at 133.35 130.81 90)
 		(effects
@@ -28659,12 +28649,12 @@
 		(uuid "4df183bb-1bce-4407-aaad-586976c6a2ae")
 	)
 	(label "MAIN_A14"
-		(at 246.38 198.12 0)
+		(at 255.27 198.12 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "4e1c5812-9ee8-4df2-a851-d3dc21598071")
 	)
@@ -30778,16 +30768,6 @@
 		)
 		(uuid "aa3e1f59-748f-4fa6-8330-33047b4d48be")
 	)
-	(label "G5P11"
-		(at 300.99 163.83 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "aacb1b59-96b1-49c9-908a-1ac65eaae9a3")
-	)
 	(label "OBJROMD'6"
 		(at 156.21 261.62 180)
 		(effects
@@ -32608,6 +32588,17 @@
 		)
 		(uuid "fe5ea1fd-d4d1-4766-8813-205cf9b420d8")
 	)
+	(hierarchical_label "G5P11"
+		(shape input)
+		(at 283.21 163.83 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "089e33c3-f41e-4a2a-b96e-b0f29936412c")
+	)
 	(hierarchical_label "OBJDMA"
 		(shape output)
 		(at 354.33 25.4 90)
@@ -32750,6 +32741,17 @@
 			(justify left)
 		)
 		(uuid "8f4f2d8d-55a2-40af-a32a-f9759bdd9aae")
+	)
+	(hierarchical_label "G5P13"
+		(shape input)
+		(at 283.21 166.37 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "9150a5d6-c141-4026-bdb2-8568bb0bbd83")
 	)
 	(hierarchical_label "XOBJROMD[31..0]"
 		(shape output)
@@ -35227,7 +35229,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "cf82755c-c4c9-43b8-b518-0f44d102c800")
-		(property "Reference" "G6"
+		(property "Reference" "G6B"
 			(at 261.62 215.9 0)
 			(effects
 				(font
@@ -35327,7 +35329,7 @@
 		(instances
 			(project "moomesa"
 				(path "/45e9fe2d-9112-4e6d-bd21-a45253e31d3f/1a029c0e-12d5-4795-adb6-f17942ed0576"
-					(reference "G6")
+					(reference "G6B")
 					(unit 1)
 				)
 			)
@@ -35342,7 +35344,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d00954fd-858d-4054-9c71-5f118dda66af")
-		(property "Reference" "G7"
+		(property "Reference" "G7B"
 			(at 261.62 250.19 0)
 			(effects
 				(font
@@ -35442,7 +35444,7 @@
 		(instances
 			(project "moomesa"
 				(path "/45e9fe2d-9112-4e6d-bd21-a45253e31d3f/1a029c0e-12d5-4795-adb6-f17942ed0576"
-					(reference "G7")
+					(reference "G7B")
 					(unit 1)
 				)
 			)
