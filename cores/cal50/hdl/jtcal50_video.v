@@ -112,8 +112,8 @@ jtframe_vtimer #(
     .HS_END  ( 9'd480 ),
     .HCNT_END( 9'd511 ),
     .V_START ( 9'd000 ),
-    .VS_START( 9'd252 ),
-    .VS_END  ( 9'd260 ),
+    .VS_START( 9'd253 ),
+    .VS_END  ( 9'd261 ),
     .VB_START( 9'd240 ),
     .VB_END  ( 9'd000 ),
     .VCNT_END( 9'd271 )
