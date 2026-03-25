@@ -10730,6 +10730,7 @@
 	)
 	(label "VSS"
 		(at 321.945 111.76 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10740,6 +10741,7 @@
 	)
 	(label "VSS"
 		(at 72.39 212.725 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10750,6 +10752,7 @@
 	)
 	(label "+12V"
 		(at 92.71 205.105 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10760,6 +10763,7 @@
 	)
 	(label "VSS"
 		(at 360.68 227.33 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10770,6 +10774,7 @@
 	)
 	(label "VSS"
 		(at 113.03 111.125 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10780,6 +10785,7 @@
 	)
 	(label "VSS"
 		(at 95.25 111.125 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10790,6 +10796,7 @@
 	)
 	(label "OUT-1"
 		(at 215.9 67.945 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10800,6 +10807,7 @@
 	)
 	(label "VSS"
 		(at 106.68 178.435 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10810,6 +10818,7 @@
 	)
 	(label "VSS"
 		(at 113.03 222.885 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10820,6 +10829,7 @@
 	)
 	(label "CTLREF"
 		(at 172.085 220.345 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10831,6 +10841,7 @@
 	)
 	(label "VSS"
 		(at 92.71 222.885 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10841,6 +10852,7 @@
 	)
 	(label "SHDB0"
 		(at 353.06 191.77 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10851,6 +10863,7 @@
 	)
 	(label "SHDB6"
 		(at 353.06 176.53 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10861,6 +10874,7 @@
 	)
 	(label "SPEAKER+"
 		(at 401.32 209.55 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10871,6 +10885,7 @@
 	)
 	(label "VSS"
 		(at 377.19 111.76 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10881,6 +10896,7 @@
 	)
 	(label "SHAB1"
 		(at 353.06 194.31 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10891,6 +10907,7 @@
 	)
 	(label "VCC_AMP"
 		(at 326.39 62.23 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10901,6 +10918,7 @@
 	)
 	(label "VSS"
 		(at 125.73 213.995 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10911,6 +10929,7 @@
 	)
 	(label "VCC_AMP"
 		(at 346.71 201.93 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10921,6 +10940,7 @@
 	)
 	(label "VSS"
 		(at 177.8 71.755 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10931,6 +10951,7 @@
 	)
 	(label "VSS"
 		(at 310.515 64.77 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10941,6 +10962,7 @@
 	)
 	(label "VSS"
 		(at 102.87 222.885 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10951,6 +10973,7 @@
 	)
 	(label "SHDB5"
 		(at 353.06 179.07 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10961,6 +10984,7 @@
 	)
 	(label "VSS"
 		(at 184.15 188.595 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10971,6 +10995,7 @@
 	)
 	(label "VSS"
 		(at 97.79 192.405 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10981,6 +11006,7 @@
 	)
 	(label "VSS"
 		(at 280.035 73.66 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10991,6 +11017,7 @@
 	)
 	(label "VSS"
 		(at 152.4 191.135 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11001,6 +11028,7 @@
 	)
 	(label "VSS"
 		(at 325.12 185.42 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11011,6 +11039,7 @@
 	)
 	(label "VSS"
 		(at 125.73 97.155 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11021,6 +11050,7 @@
 	)
 	(label "VSS"
 		(at 156.21 74.295 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11031,6 +11061,7 @@
 	)
 	(label "+12V"
 		(at 95.25 88.265 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11041,6 +11072,7 @@
 	)
 	(label "AVSS"
 		(at 335.28 199.39 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11051,6 +11083,7 @@
 	)
 	(label "VSS"
 		(at 186.69 35.56 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11061,6 +11094,7 @@
 	)
 	(label "VSS"
 		(at 375.92 227.33 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11071,6 +11105,7 @@
 	)
 	(label "IN-2"
 		(at 57.15 194.945 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11081,6 +11116,7 @@
 	)
 	(label "SHDB2"
 		(at 353.06 186.69 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11091,6 +11127,7 @@
 	)
 	(label "VSS"
 		(at 302.26 215.9 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11101,6 +11138,7 @@
 	)
 	(label "IN-2"
 		(at 70.485 175.26 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11111,6 +11149,7 @@
 	)
 	(label "SHDB4"
 		(at 353.06 181.61 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11121,6 +11160,7 @@
 	)
 	(label "VSS"
 		(at 106.68 61.595 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11131,6 +11171,7 @@
 	)
 	(label "SHDB1"
 		(at 353.06 189.23 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11141,6 +11182,7 @@
 	)
 	(label "CTLREF"
 		(at 72.39 234.315 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11152,6 +11194,7 @@
 	)
 	(label "VSS"
 		(at 45.72 207.645 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11162,6 +11205,7 @@
 	)
 	(label "VSS"
 		(at 104.14 111.125 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11172,6 +11216,7 @@
 	)
 	(label "CTLREF"
 		(at 165.735 139.7 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11183,6 +11228,7 @@
 	)
 	(label "VSS"
 		(at 339.725 72.39 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11193,6 +11239,7 @@
 	)
 	(label "SHAB0"
 		(at 353.06 196.85 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11203,6 +11250,7 @@
 	)
 	(label "AVSS"
 		(at 381 199.39 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11213,6 +11261,7 @@
 	)
 	(label "SPEAKER-"
 		(at 401.32 215.9 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11223,6 +11272,7 @@
 	)
 	(label "VCC"
 		(at 325.12 193.04 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11233,6 +11283,7 @@
 	)
 	(label "VSS"
 		(at 134.62 179.705 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11243,6 +11294,7 @@
 	)
 	(label "VSS"
 		(at 139.7 62.865 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11253,6 +11305,7 @@
 	)
 	(label "CTLREF"
 		(at 204.47 178.435 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11265,6 +11318,7 @@
 	)
 	(label "VSS"
 		(at 198.12 83.185 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11275,6 +11329,7 @@
 	)
 	(label "VSS"
 		(at 72.39 212.725 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11285,6 +11340,7 @@
 	)
 	(label "VSS"
 		(at 334.645 72.39 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11295,6 +11351,7 @@
 	)
 	(label "VSS"
 		(at 80.01 74.295 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11305,6 +11362,7 @@
 	)
 	(label "+12V"
 		(at 347.98 199.39 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11315,6 +11373,7 @@
 	)
 	(label "OUT-1"
 		(at 172.72 197.485 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11325,6 +11384,7 @@
 	)
 	(label "+12V"
 		(at 184.15 164.465 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11335,6 +11395,7 @@
 	)
 	(label "IN-1"
 		(at 70.485 182.245 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11345,6 +11406,7 @@
 	)
 	(label "VSS"
 		(at 352.425 111.76 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11355,6 +11417,7 @@
 	)
 	(label "VSS"
 		(at 306.705 99.06 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11365,6 +11428,7 @@
 	)
 	(label "+12V"
 		(at 186.69 43.815 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11375,6 +11439,7 @@
 	)
 	(label "CTLREF"
 		(at 73.66 149.225 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11386,6 +11451,7 @@
 	)
 	(label "SHDB3"
 		(at 353.06 184.15 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11396,6 +11462,7 @@
 	)
 	(label "VSS"
 		(at 52.07 93.345 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11406,6 +11473,7 @@
 	)
 	(label "VSS"
 		(at 134.62 62.865 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11416,6 +11484,7 @@
 	)
 	(label "VCC"
 		(at 295.91 187.96 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11426,6 +11495,7 @@
 	)
 	(label "VCC"
 		(at 381 203.2 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11436,6 +11506,7 @@
 	)
 	(label "CTLREF"
 		(at 46.99 119.38 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11447,6 +11518,7 @@
 	)
 	(label "VCC"
 		(at 358.14 203.2 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11457,6 +11529,7 @@
 	)
 	(label "VSS"
 		(at 379.73 196.85 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11467,6 +11540,7 @@
 	)
 	(label "SHDB7"
 		(at 353.06 173.99 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11477,6 +11551,7 @@
 	)
 	(label "IN-1"
 		(at 82.55 197.485 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11487,6 +11562,7 @@
 	)
 	(label "CTLREF"
 		(at 174.625 96.52 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11499,6 +11575,7 @@
 	(hierarchical_label "AMUTE"
 		(shape input)
 		(at 324.485 115.57 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11510,6 +11587,7 @@
 	(hierarchical_label "SPEAKER+"
 		(shape output)
 		(at 383.54 83.82 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11521,6 +11599,7 @@
 	(hierarchical_label "SPEAKER-"
 		(shape output)
 		(at 357.505 88.9 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11532,6 +11611,7 @@
 	(hierarchical_label "~{SHARD}"
 		(shape input)
 		(at 360.68 168.91 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11543,6 +11623,7 @@
 	(hierarchical_label "PBAL"
 		(shape input)
 		(at 52.07 111.76 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11555,6 +11636,7 @@
 	(hierarchical_label "PULL-D7"
 		(shape passive)
 		(at 153.035 20.955 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11566,6 +11648,7 @@
 	(hierarchical_label "SHDB[0..7]"
 		(shape bidirectional)
 		(at 346.71 168.91 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11577,6 +11660,7 @@
 	(hierarchical_label "TONEB"
 		(shape input)
 		(at 41.91 194.945 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11588,6 +11672,7 @@
 	(hierarchical_label "BAL"
 		(shape input)
 		(at 74.93 226.06 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11599,6 +11684,7 @@
 	(hierarchical_label "TONEA"
 		(shape input)
 		(at 68.58 197.485 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11610,6 +11696,7 @@
 	(hierarchical_label "PTREBLE"
 		(shape input)
 		(at 170.815 104.775 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11621,6 +11708,7 @@
 	(hierarchical_label "PVOL"
 		(shape input)
 		(at 76.835 157.48 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11633,6 +11721,7 @@
 	(hierarchical_label "~{MAxD4}"
 		(shape input)
 		(at 360.68 166.37 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11644,6 +11733,7 @@
 	(hierarchical_label "SHAB[0..1]"
 		(shape input)
 		(at 346.71 191.77 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11655,6 +11745,7 @@
 	(hierarchical_label "AVSS"
 		(shape passive)
 		(at 389.89 199.39 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11666,6 +11757,7 @@
 	(hierarchical_label "~{MRST}"
 		(shape input)
 		(at 360.68 163.83 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11677,6 +11769,7 @@
 	(hierarchical_label "PSG"
 		(shape input)
 		(at 48.26 80.645 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11688,6 +11781,7 @@
 	(hierarchical_label "TREBLE"
 		(shape input)
 		(at 152.4 227.965 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11699,6 +11793,7 @@
 	(hierarchical_label "~{SHAWE}"
 		(shape input)
 		(at 336.55 153.67 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11710,6 +11805,7 @@
 	(hierarchical_label "VOL"
 		(shape input)
 		(at 154.94 264.795 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11721,6 +11817,7 @@
 	(hierarchical_label "BASS"
 		(shape input)
 		(at 153.67 244.475 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11732,6 +11829,7 @@
 	(hierarchical_label "PBASS"
 		(shape input)
 		(at 160.655 149.225 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

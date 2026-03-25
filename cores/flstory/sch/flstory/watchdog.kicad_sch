@@ -3645,6 +3645,7 @@
 	)
 	(label "VCC"
 		(at 171.45 137.16 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3655,6 +3656,7 @@
 	)
 	(label "VSS"
 		(at 189.23 147.32 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3666,6 +3668,7 @@
 	(hierarchical_label "~{WDOG}"
 		(shape input)
 		(at 156.21 160.02 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3677,6 +3680,7 @@
 	(hierarchical_label "VBLK"
 		(shape input)
 		(at 170.18 167.64 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3688,6 +3692,7 @@
 	(hierarchical_label "~{MRST}"
 		(shape output)
 		(at 246.38 130.81 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

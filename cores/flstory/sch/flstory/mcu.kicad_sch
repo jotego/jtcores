@@ -6165,6 +6165,7 @@
 	)
 	(label "PA0"
 		(at 184.15 78.74 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6175,6 +6176,7 @@
 	)
 	(label "PA5"
 		(at 186.69 152.4 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6185,6 +6187,7 @@
 	)
 	(label "MD3"
 		(at 227.33 157.48 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6195,6 +6198,7 @@
 	)
 	(label "~{ALE}0"
 		(at 167.64 106.68 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6205,6 +6209,7 @@
 	)
 	(label "MA12"
 		(at 223.52 73.66 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6215,6 +6220,7 @@
 	)
 	(label "PA7"
 		(at 184.785 124.46 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6225,6 +6231,7 @@
 	)
 	(label "PA1"
 		(at 175.895 191.77 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6235,6 +6242,7 @@
 	)
 	(label "PA5"
 		(at 175.895 186.69 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6245,6 +6253,7 @@
 	)
 	(label "SHDB1"
 		(at 227.33 194.31 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6255,6 +6264,7 @@
 	)
 	(label "~{LWR}"
 		(at 190.5 207.01 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6265,6 +6275,7 @@
 	)
 	(label "SHDB3"
 		(at 227.33 196.85 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6275,6 +6286,7 @@
 	)
 	(label "~{MCU}"
 		(at 184.15 96.52 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6285,6 +6297,7 @@
 	)
 	(label "PA2"
 		(at 184.785 111.76 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6295,6 +6308,7 @@
 	)
 	(label "PA3"
 		(at 175.895 189.23 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6305,6 +6319,7 @@
 	)
 	(label "PA0"
 		(at 167.64 71.12 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6315,6 +6330,7 @@
 	)
 	(label "SHDB7"
 		(at 139.7 184.15 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6325,6 +6341,7 @@
 	)
 	(label "MA4"
 		(at 223.52 109.22 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6335,6 +6352,7 @@
 	)
 	(label "PA5"
 		(at 184.785 121.92 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6345,6 +6363,7 @@
 	)
 	(label "~{OBF}"
 		(at 158.75 135.89 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6355,6 +6374,7 @@
 	)
 	(label "PA6"
 		(at 186.69 149.86 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6365,6 +6385,7 @@
 	)
 	(label "PA4"
 		(at 184.785 109.22 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6375,6 +6396,7 @@
 	)
 	(label "VCC"
 		(at 144.78 146.05 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6385,6 +6407,7 @@
 	)
 	(label "MA3"
 		(at 223.52 119.38 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6395,6 +6418,7 @@
 	)
 	(label "~{LRD}"
 		(at 90.17 96.52 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6405,6 +6429,7 @@
 	)
 	(label "PA1"
 		(at 184.15 81.28 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6415,6 +6440,7 @@
 	)
 	(label "PA7"
 		(at 184.15 88.9 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6425,6 +6451,7 @@
 	)
 	(label "PA1"
 		(at 167.64 73.66 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6435,6 +6462,7 @@
 	)
 	(label "PA5"
 		(at 186.69 199.39 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6445,6 +6473,7 @@
 	)
 	(label "SHDB2"
 		(at 139.7 196.85 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6455,6 +6484,7 @@
 	)
 	(label "PA2"
 		(at 184.15 76.2 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6465,6 +6495,7 @@
 	)
 	(label "PA4"
 		(at 186.69 186.69 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6475,6 +6506,7 @@
 	)
 	(label "MA13"
 		(at 223.52 86.36 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6485,6 +6517,7 @@
 	)
 	(label "PA3"
 		(at 186.69 196.85 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6495,6 +6528,7 @@
 	)
 	(label "MD7"
 		(at 227.33 147.32 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6505,6 +6539,7 @@
 	)
 	(label "PA4"
 		(at 167.64 81.28 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6515,6 +6550,7 @@
 	)
 	(label "PA4"
 		(at 186.69 154.94 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6525,6 +6561,7 @@
 	)
 	(label "SHDB2"
 		(at 227.33 189.23 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6535,6 +6572,7 @@
 	)
 	(label "VSS"
 		(at 130.81 135.89 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6545,6 +6583,7 @@
 	)
 	(label "MD5"
 		(at 227.33 152.4 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6555,6 +6594,7 @@
 	)
 	(label "~{LRD}"
 		(at 135.89 209.55 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6565,6 +6605,7 @@
 	)
 	(label "PA3"
 		(at 186.69 157.48 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6575,6 +6616,7 @@
 	)
 	(label "PA6"
 		(at 175.895 201.93 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6585,6 +6627,7 @@
 	)
 	(label "MD1"
 		(at 227.33 162.56 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6595,6 +6638,7 @@
 	)
 	(label "~{LWR}"
 		(at 130.81 138.43 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6605,6 +6649,7 @@
 	)
 	(label "SHDB5"
 		(at 139.7 186.69 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6615,6 +6660,7 @@
 	)
 	(label "MA5"
 		(at 223.52 121.92 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6625,6 +6671,7 @@
 	)
 	(label "SHDB1"
 		(at 139.7 191.77 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6635,6 +6682,7 @@
 	)
 	(label "MD0"
 		(at 227.33 165.1 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6645,6 +6693,7 @@
 	)
 	(label "PA0"
 		(at 184.785 114.3 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6655,6 +6704,7 @@
 	)
 	(label "PA3"
 		(at 184.15 83.82 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6665,6 +6715,7 @@
 	)
 	(label "MA9"
 		(at 223.52 81.28 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6675,6 +6726,7 @@
 	)
 	(label "VSS"
 		(at 132.08 91.44 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6685,6 +6737,7 @@
 	)
 	(label "PA1"
 		(at 184.785 116.84 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6695,6 +6748,7 @@
 	)
 	(label "PA2"
 		(at 175.895 196.85 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6705,6 +6759,7 @@
 	)
 	(label "IBF"
 		(at 167.64 111.76 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6715,6 +6770,7 @@
 	)
 	(label "PA2"
 		(at 186.69 189.23 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6725,6 +6781,7 @@
 	)
 	(label "SHDB0"
 		(at 139.7 194.31 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6735,6 +6792,7 @@
 	)
 	(label "PA1"
 		(at 186.69 194.31 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6745,6 +6803,7 @@
 	)
 	(label "MD6"
 		(at 227.33 149.86 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6755,6 +6814,7 @@
 	)
 	(label "~{ALE}1"
 		(at 184.15 93.98 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6765,6 +6825,7 @@
 	)
 	(label "SHDB7"
 		(at 227.33 201.93 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6775,6 +6836,7 @@
 	)
 	(label "MA2"
 		(at 223.52 111.76 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6785,6 +6847,7 @@
 	)
 	(label "MA14"
 		(at 223.52 71.12 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6795,6 +6858,7 @@
 	)
 	(label "PA4"
 		(at 184.15 73.66 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6805,6 +6869,7 @@
 	)
 	(label "~{MCU}"
 		(at 190.5 172.72 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6815,6 +6880,7 @@
 	)
 	(label "PA1"
 		(at 186.69 162.56 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6825,6 +6891,7 @@
 	)
 	(label "MA6"
 		(at 223.52 106.68 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6835,6 +6902,7 @@
 	)
 	(label "PA7"
 		(at 186.69 201.93 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6845,6 +6913,7 @@
 	)
 	(label "MA10"
 		(at 223.52 76.2 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6855,6 +6924,7 @@
 	)
 	(label "PA6"
 		(at 186.69 184.15 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6865,6 +6935,7 @@
 	)
 	(label "PA3"
 		(at 184.785 119.38 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6875,6 +6946,7 @@
 	)
 	(label "VSS"
 		(at 132.08 96.52 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6885,6 +6957,7 @@
 	)
 	(label "PA7"
 		(at 186.69 147.32 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6895,6 +6968,7 @@
 	)
 	(label "PA2"
 		(at 167.64 76.2 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6905,6 +6979,7 @@
 	)
 	(label "PA0"
 		(at 186.69 165.1 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6915,6 +6990,7 @@
 	)
 	(label "~{CWR}"
 		(at 190.5 170.18 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6925,6 +7001,7 @@
 	)
 	(label "SHDB0"
 		(at 227.33 191.77 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6935,6 +7012,7 @@
 	)
 	(label "SHDB3"
 		(at 139.7 189.23 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6945,6 +7023,7 @@
 	)
 	(label "PA4"
 		(at 175.895 199.39 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6955,6 +7034,7 @@
 	)
 	(label "~{ALE}1"
 		(at 167.64 109.22 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6965,6 +7045,7 @@
 	)
 	(label "PA7"
 		(at 175.895 184.15 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6975,6 +7056,7 @@
 	)
 	(label "PA6"
 		(at 184.15 71.12 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6985,6 +7067,7 @@
 	)
 	(label "MA11"
 		(at 223.52 83.82 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6995,6 +7078,7 @@
 	)
 	(label "PA3"
 		(at 167.64 78.74 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7005,6 +7089,7 @@
 	)
 	(label "~{LRD}"
 		(at 167.64 93.98 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7015,6 +7100,7 @@
 	)
 	(label "~{MCU}"
 		(at 167.64 116.84 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7025,6 +7111,7 @@
 	)
 	(label "PA6"
 		(at 167.64 86.36 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7035,6 +7122,7 @@
 	)
 	(label "MA7"
 		(at 223.52 124.46 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7045,6 +7133,7 @@
 	)
 	(label "MA0"
 		(at 223.52 114.3 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7055,6 +7144,7 @@
 	)
 	(label "PA5"
 		(at 167.64 83.82 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7065,6 +7155,7 @@
 	)
 	(label "SHDB5"
 		(at 227.33 199.39 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7075,6 +7166,7 @@
 	)
 	(label "VSS"
 		(at 90.17 93.98 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7085,6 +7177,7 @@
 	)
 	(label "SHDB4"
 		(at 139.7 199.39 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7095,6 +7188,7 @@
 	)
 	(label "PA0"
 		(at 175.895 194.31 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7105,6 +7199,7 @@
 	)
 	(label "PA[0..7]"
 		(at 191.77 66.04 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7115,6 +7210,7 @@
 	)
 	(label "SHDB6"
 		(at 227.33 184.15 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7125,6 +7221,7 @@
 	)
 	(label "MD2"
 		(at 227.33 160.02 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7135,6 +7232,7 @@
 	)
 	(label "MA8"
 		(at 223.52 78.74 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7145,6 +7243,7 @@
 	)
 	(label "VCC"
 		(at 132.08 93.98 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7155,6 +7254,7 @@
 	)
 	(label "PA5"
 		(at 184.15 86.36 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7165,6 +7265,7 @@
 	)
 	(label "PA2"
 		(at 186.69 160.02 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7175,6 +7276,7 @@
 	)
 	(label "PA6"
 		(at 184.785 106.68 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7185,6 +7287,7 @@
 	)
 	(label "SHDB4"
 		(at 227.33 186.69 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7195,6 +7298,7 @@
 	)
 	(label "PA7"
 		(at 167.64 88.9 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7205,6 +7309,7 @@
 	)
 	(label "PA0"
 		(at 186.69 191.77 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7215,6 +7320,7 @@
 	)
 	(label "MA15"
 		(at 223.52 88.9 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7225,6 +7331,7 @@
 	)
 	(label "~{OBF}"
 		(at 167.64 114.3 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7235,6 +7342,7 @@
 	)
 	(label "IBF"
 		(at 114.3 93.98 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7245,6 +7353,7 @@
 	)
 	(label "MD4"
 		(at 227.33 154.94 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7255,6 +7364,7 @@
 	)
 	(label "MA1"
 		(at 223.52 116.84 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7265,6 +7375,7 @@
 	)
 	(label "SHDB6"
 		(at 139.7 201.93 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7275,6 +7386,7 @@
 	)
 	(label "~{LWR}"
 		(at 167.64 96.52 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7285,6 +7397,7 @@
 	)
 	(label "~{ALE}0"
 		(at 189.23 129.54 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7296,6 +7409,7 @@
 	(hierarchical_label "~{SPC1}"
 		(shape input)
 		(at 191.77 209.55 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7307,6 +7421,7 @@
 	(hierarchical_label "~{CWR}"
 		(shape output)
 		(at 167.64 101.6 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7318,6 +7433,7 @@
 	(hierarchical_label "~{MRST}"
 		(shape input)
 		(at 99.06 124.46 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7329,6 +7445,7 @@
 	(hierarchical_label "MD[0..7]"
 		(shape tri_state)
 		(at 233.68 167.64 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7340,6 +7457,7 @@
 	(hierarchical_label "H0"
 		(shape input)
 		(at 132.08 88.9 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7351,6 +7469,7 @@
 	(hierarchical_label "~{MCU}"
 		(shape input)
 		(at 170.18 132.08 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7362,6 +7481,7 @@
 	(hierarchical_label "MA[0..15]"
 		(shape tri_state)
 		(at 226.06 63.5 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7373,6 +7493,7 @@
 	(hierarchical_label "~{BUSRQ}"
 		(shape output)
 		(at 167.64 99.06 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7384,6 +7505,7 @@
 	(hierarchical_label "~{MCUINT}"
 		(shape output)
 		(at 116.84 104.14 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7395,6 +7517,7 @@
 	(hierarchical_label "~{SPC0}"
 		(shape input)
 		(at 96.52 87.63 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7406,6 +7529,7 @@
 	(hierarchical_label "OBF"
 		(shape output)
 		(at 153.67 140.97 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7417,6 +7541,7 @@
 	(hierarchical_label "~{SPC0}"
 		(shape input)
 		(at 142.24 207.01 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7428,6 +7553,7 @@
 	(hierarchical_label "~{SPC1}"
 		(shape input)
 		(at 99.06 129.54 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7439,6 +7565,7 @@
 	(hierarchical_label "SHDB[0..7]"
 		(shape tri_state)
 		(at 234.95 204.47 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -7450,6 +7577,7 @@
 	(hierarchical_label "~{CRD}"
 		(shape output)
 		(at 167.64 104.14 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

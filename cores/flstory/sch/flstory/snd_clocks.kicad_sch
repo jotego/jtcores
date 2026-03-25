@@ -5190,6 +5190,7 @@
 	)
 	(label "VSS"
 		(at 225.425 156.21 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5200,6 +5201,7 @@
 	)
 	(label "VCC"
 		(at 151.13 134.62 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5210,6 +5212,7 @@
 	)
 	(label "VSS"
 		(at 184.15 148.59 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5220,6 +5223,7 @@
 	)
 	(label "VCC"
 		(at 152.4 151.13 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5230,6 +5234,7 @@
 	)
 	(label "VCC"
 		(at 197.485 106.68 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5240,6 +5245,7 @@
 	)
 	(label "VCC"
 		(at 119.38 113.665 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5250,6 +5256,7 @@
 	)
 	(label "VSS"
 		(at 259.08 179.07 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5260,6 +5267,7 @@
 	)
 	(label "VCC"
 		(at 313.69 168.91 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5270,6 +5278,7 @@
 	)
 	(label "VSS"
 		(at 225.425 171.45 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5280,6 +5289,7 @@
 	)
 	(label "VCC"
 		(at 196.215 90.805 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5290,6 +5300,7 @@
 	)
 	(label "VCC"
 		(at 215.265 123.19 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5301,6 +5312,7 @@
 	(hierarchical_label "CLK2"
 		(shape output)
 		(at 217.17 140.97 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5312,6 +5324,7 @@
 	(hierarchical_label "~{SCE8}"
 		(shape input)
 		(at 201.295 113.03 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5323,6 +5336,7 @@
 	(hierarchical_label "~{INT}"
 		(shape output)
 		(at 338.455 173.99 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5334,6 +5348,7 @@
 	(hierarchical_label "~{M1}"
 		(shape input)
 		(at 303.53 186.69 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5345,6 +5360,7 @@
 	(hierarchical_label "CLK4"
 		(shape output)
 		(at 132.08 119.38 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5356,6 +5372,7 @@
 	(hierarchical_label "VCC"
 		(shape passive)
 		(at 323.85 160.02 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5367,6 +5384,7 @@
 	(hierarchical_label "~{WAIT}"
 		(shape output)
 		(at 226.06 113.03 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5378,6 +5396,7 @@
 	(hierarchical_label "VSS"
 		(shape passive)
 		(at 93.98 175.26 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5389,6 +5408,7 @@
 	(hierarchical_label "~{IORQ}"
 		(shape input)
 		(at 303.53 191.77 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5400,6 +5420,7 @@
 	(hierarchical_label "~{SCLK}"
 		(shape output)
 		(at 185.42 162.56 0)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5411,6 +5432,7 @@
 	(hierarchical_label "~{MSM}"
 		(shape input)
 		(at 116.84 133.35 180)
+		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
