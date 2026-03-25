@@ -8625,7 +8625,6 @@
 	)
 	(label "SBA5"
 		(at 177.8 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8636,7 +8635,6 @@
 	)
 	(label "SBA14"
 		(at 281.94 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8647,7 +8645,6 @@
 	)
 	(label "SBD2"
 		(at 327.66 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8658,7 +8655,6 @@
 	)
 	(label "SBA1"
 		(at 172.72 95.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8669,7 +8665,6 @@
 	)
 	(label "SBA5"
 		(at 172.72 105.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8680,7 +8675,6 @@
 	)
 	(label "SBA3"
 		(at 172.72 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8691,7 +8685,6 @@
 	)
 	(label "SBA2"
 		(at 172.72 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8702,7 +8695,6 @@
 	)
 	(label "SBD3"
 		(at 276.86 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8713,7 +8705,6 @@
 	)
 	(label "SBA10"
 		(at 285.75 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8724,7 +8715,6 @@
 	)
 	(label "SBA1"
 		(at 234.95 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8735,7 +8725,6 @@
 	)
 	(label "SBD1"
 		(at 165.1 138.43 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8746,7 +8735,6 @@
 	)
 	(label "SBA3"
 		(at 177.8 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8757,7 +8745,6 @@
 	)
 	(label "SBA6"
 		(at 172.72 107.95 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8768,7 +8755,6 @@
 	)
 	(label "SBA6"
 		(at 234.95 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8779,7 +8765,6 @@
 	)
 	(label "SBD4"
 		(at 226.06 102.87 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8790,7 +8775,6 @@
 	)
 	(label "SBA13"
 		(at 177.8 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8801,7 +8785,6 @@
 	)
 	(label "SBA7"
 		(at 177.8 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8812,7 +8795,6 @@
 	)
 	(label "SBD5"
 		(at 327.66 105.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8823,7 +8805,6 @@
 	)
 	(label "SBD1"
 		(at 327.66 95.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8834,7 +8815,6 @@
 	)
 	(label "SBA0"
 		(at 177.8 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8845,7 +8825,6 @@
 	)
 	(label "SBA8"
 		(at 285.75 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8856,7 +8835,6 @@
 	)
 	(label "SBD0"
 		(at 226.06 92.71 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8867,7 +8845,6 @@
 	)
 	(label "VCC"
 		(at 134.62 208.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8878,7 +8855,6 @@
 	)
 	(label "SBA12"
 		(at 234.95 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8889,7 +8865,6 @@
 	)
 	(label "SBD5"
 		(at 276.86 105.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8900,7 +8875,6 @@
 	)
 	(label "SBA9"
 		(at 234.95 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8911,7 +8885,6 @@
 	)
 	(label "VSS"
 		(at 120.65 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8922,7 +8895,6 @@
 	)
 	(label "SBA9"
 		(at 285.75 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8933,7 +8905,6 @@
 	)
 	(label "SBD7"
 		(at 327.66 110.49 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8944,7 +8915,6 @@
 	)
 	(label "~{SBINT}"
 		(at 113.03 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8955,7 +8925,6 @@
 	)
 	(label "SBD2"
 		(at 276.86 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8966,7 +8935,6 @@
 	)
 	(label "~{MSx0}"
 		(at 185.42 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8977,7 +8945,6 @@
 	)
 	(label "SBA8"
 		(at 234.95 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8988,7 +8955,6 @@
 	)
 	(label "~{SBINT}"
 		(at 148.59 198.12 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8999,7 +8965,6 @@
 	)
 	(label "SBD0"
 		(at 327.66 92.71 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9010,7 +8975,6 @@
 	)
 	(label "SBD6"
 		(at 276.86 107.95 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9021,7 +8985,6 @@
 	)
 	(label "SBA3"
 		(at 285.75 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9032,7 +8995,6 @@
 	)
 	(label "SBA12"
 		(at 285.75 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9043,7 +9005,6 @@
 	)
 	(label "~{SBIORQ}"
 		(at 105.41 184.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9054,7 +9015,6 @@
 	)
 	(label "SBD4"
 		(at 165.1 146.05 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9065,7 +9025,6 @@
 	)
 	(label "SBA2"
 		(at 234.95 97.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9076,7 +9035,6 @@
 	)
 	(label "SBD7"
 		(at 276.86 110.49 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9087,7 +9045,6 @@
 	)
 	(label "SBA11"
 		(at 172.72 120.65 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9098,7 +9055,6 @@
 	)
 	(label "SBA12"
 		(at 177.8 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9109,7 +9065,6 @@
 	)
 	(label "~{MSx4}"
 		(at 236.22 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9120,7 +9075,6 @@
 	)
 	(label "SBA3"
 		(at 234.95 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9131,7 +9085,6 @@
 	)
 	(label "SBA13"
 		(at 285.75 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9142,7 +9095,6 @@
 	)
 	(label "SBA15"
 		(at 172.72 130.81 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9153,7 +9105,6 @@
 	)
 	(label "SBD4"
 		(at 327.66 102.87 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9164,7 +9115,6 @@
 	)
 	(label "SBA7"
 		(at 172.72 110.49 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9175,7 +9125,6 @@
 	)
 	(label "SBA0"
 		(at 285.75 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9186,7 +9135,6 @@
 	)
 	(label "SBA9"
 		(at 172.72 115.57 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9197,7 +9145,6 @@
 	)
 	(label "VCC"
 		(at 97.79 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9208,7 +9155,6 @@
 	)
 	(label "SBD6"
 		(at 226.06 107.95 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9219,7 +9165,6 @@
 	)
 	(label "~{SBIORQ}"
 		(at 285.75 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9230,7 +9175,6 @@
 	)
 	(label "SBA10"
 		(at 234.95 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9241,7 +9185,6 @@
 	)
 	(label "SBD7"
 		(at 226.06 110.49 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9252,7 +9195,6 @@
 	)
 	(label "SBD1"
 		(at 226.06 95.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9263,7 +9205,6 @@
 	)
 	(label "SBD3"
 		(at 327.66 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9274,7 +9215,6 @@
 	)
 	(label "SBA12"
 		(at 172.72 123.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9285,7 +9225,6 @@
 	)
 	(label "SBA6"
 		(at 285.75 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9296,7 +9235,6 @@
 	)
 	(label "SBD2"
 		(at 165.1 140.97 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9307,7 +9245,6 @@
 	)
 	(label "SBA9"
 		(at 177.8 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9318,7 +9255,6 @@
 	)
 	(label "SBA7"
 		(at 234.95 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9329,7 +9265,6 @@
 	)
 	(label "SBA8"
 		(at 177.8 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9340,7 +9275,6 @@
 	)
 	(label "SBD5"
 		(at 165.1 148.59 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9351,7 +9285,6 @@
 	)
 	(label "SBA8"
 		(at 172.72 113.03 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9362,7 +9295,6 @@
 	)
 	(label "SBA5"
 		(at 234.95 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9373,7 +9305,6 @@
 	)
 	(label "~{SBRD}"
 		(at 185.42 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9384,7 +9315,6 @@
 	)
 	(label "SBA10"
 		(at 177.8 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9395,7 +9325,6 @@
 	)
 	(label "SBA10"
 		(at 172.72 118.11 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9406,7 +9335,6 @@
 	)
 	(label "SBA4"
 		(at 285.75 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9417,7 +9345,6 @@
 	)
 	(label "SBA11"
 		(at 285.75 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9428,7 +9355,6 @@
 	)
 	(label "SBA6"
 		(at 177.8 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9439,7 +9365,6 @@
 	)
 	(label "~{SBWR}"
 		(at 185.42 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9450,7 +9375,6 @@
 	)
 	(label "SBA1"
 		(at 285.75 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9461,7 +9385,6 @@
 	)
 	(label "SBA15"
 		(at 140.97 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9472,7 +9395,6 @@
 	)
 	(label "SBA5"
 		(at 285.75 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9483,7 +9405,6 @@
 	)
 	(label "~{MSx8}"
 		(at 179.07 179.07 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9494,7 +9415,6 @@
 	)
 	(label "~{MSx4}"
 		(at 179.07 176.53 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9505,7 +9425,6 @@
 	)
 	(label "SBA2"
 		(at 177.8 97.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9516,7 +9435,6 @@
 	)
 	(label "SBA11"
 		(at 234.95 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9527,7 +9445,6 @@
 	)
 	(label "SBD4"
 		(at 276.86 102.87 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9538,7 +9455,6 @@
 	)
 	(label "~{SBWR}"
 		(at 236.22 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9549,7 +9465,6 @@
 	)
 	(label "SBA14"
 		(at 172.72 128.27 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9560,7 +9475,6 @@
 	)
 	(label "SBD6"
 		(at 327.66 107.95 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9571,7 +9485,6 @@
 	)
 	(label "SBA7"
 		(at 285.75 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9582,7 +9495,6 @@
 	)
 	(label "SBA4"
 		(at 177.8 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9593,7 +9505,6 @@
 	)
 	(label "SBA0"
 		(at 234.95 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9604,7 +9515,6 @@
 	)
 	(label "SBA11"
 		(at 177.8 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9615,7 +9525,6 @@
 	)
 	(label "SBD3"
 		(at 226.06 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9626,7 +9535,6 @@
 	)
 	(label "SBD5"
 		(at 226.06 105.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9637,7 +9545,6 @@
 	)
 	(label "SBD1"
 		(at 276.86 95.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9648,7 +9555,6 @@
 	)
 	(label "SBD2"
 		(at 226.06 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9659,7 +9565,6 @@
 	)
 	(label "SBD0"
 		(at 165.1 135.89 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9670,7 +9575,6 @@
 	)
 	(label "SBA4"
 		(at 234.95 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9681,7 +9585,6 @@
 	)
 	(label "SBA1"
 		(at 177.8 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9692,7 +9595,6 @@
 	)
 	(label "SBD6"
 		(at 165.1 151.13 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9703,7 +9605,6 @@
 	)
 	(label "SBA4"
 		(at 172.72 102.87 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9714,7 +9615,6 @@
 	)
 	(label "SBD0"
 		(at 276.86 92.71 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9725,7 +9625,6 @@
 	)
 	(label "~{MSx0}"
 		(at 179.07 173.99 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9736,7 +9635,6 @@
 	)
 	(label "SBA14"
 		(at 140.97 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9747,7 +9645,6 @@
 	)
 	(label "SBA0"
 		(at 172.72 92.71 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9758,7 +9655,6 @@
 	)
 	(label "SBA2"
 		(at 285.75 97.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9769,7 +9665,6 @@
 	)
 	(label "SBA13"
 		(at 172.72 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9780,7 +9675,6 @@
 	)
 	(label "SBD3"
 		(at 165.1 143.51 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9791,7 +9685,6 @@
 	)
 	(label "SBA13"
 		(at 234.95 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9802,7 +9695,6 @@
 	)
 	(label "SBD7"
 		(at 165.1 153.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9814,7 +9706,6 @@
 	(hierarchical_label "SBA[0..15]"
 		(shape output)
 		(at 295.91 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9826,7 +9717,6 @@
 	(hierarchical_label "SBCLK"
 		(shape input)
 		(at 77.47 100.33 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9838,7 +9728,6 @@
 	(hierarchical_label "~{SBRST}"
 		(shape input)
 		(at 95.25 90.17 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9850,7 +9739,6 @@
 	(hierarchical_label "~{MSpC}"
 		(shape output)
 		(at 179.07 181.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9862,7 +9750,6 @@
 	(hierarchical_label "VBLK"
 		(shape input)
 		(at 120.65 200.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9874,7 +9761,6 @@
 	(hierarchical_label "SBD[0..7]"
 		(shape output)
 		(at 337.82 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9886,7 +9772,6 @@
 	(hierarchical_label "~{MRST}"
 		(shape input)
 		(at 95.25 95.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9898,7 +9783,6 @@
 	(hierarchical_label "~{SBREQ}"
 		(shape input)
 		(at 113.03 140.97 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9910,7 +9794,6 @@
 	(hierarchical_label "~{SBRD}"
 		(shape output)
 		(at 111.76 135.89 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9922,7 +9805,6 @@
 	(hierarchical_label "~{SBWAIT}"
 		(shape input)
 		(at 113.03 123.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9934,7 +9816,6 @@
 	(hierarchical_label "~{SBWR}"
 		(shape output)
 		(at 111.76 138.43 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9946,7 +9827,6 @@
 	(hierarchical_label "~{SBNMI}"
 		(shape input)
 		(at 113.03 107.95 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)

@@ -9261,7 +9261,6 @@
 	)
 	(label "~{MSxC}"
 		(at 91.44 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9272,7 +9271,6 @@
 	)
 	(label "MA1"
 		(at 252.73 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9283,7 +9281,6 @@
 	)
 	(label "SBD6"
 		(at 298.45 193.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9294,7 +9291,6 @@
 	)
 	(label "SHAB3"
 		(at 300.99 55.88 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9305,7 +9301,6 @@
 	)
 	(label "SHAB11"
 		(at 91.44 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9316,7 +9311,6 @@
 	)
 	(label "VCC"
 		(at 157.48 105.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9327,7 +9321,6 @@
 	)
 	(label "MA8"
 		(at 252.73 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9338,7 +9331,6 @@
 	)
 	(label "SHDB3"
 		(at 347.98 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9349,7 +9341,6 @@
 	)
 	(label "SHDB3"
 		(at 342.9 161.29 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9360,7 +9351,6 @@
 	)
 	(label "SHAB3"
 		(at 308.61 87.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9371,7 +9361,6 @@
 	)
 	(label "MA9"
 		(at 252.73 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9382,7 +9371,6 @@
 	)
 	(label "SHDB0"
 		(at 342.9 190.5 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9393,7 +9381,6 @@
 	)
 	(label "SBD7"
 		(at 298.45 190.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9404,7 +9391,6 @@
 	)
 	(label "SBA4"
 		(at 252.73 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9415,7 +9401,6 @@
 	)
 	(label "SHDB1"
 		(at 342.9 156.21 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9426,7 +9411,6 @@
 	)
 	(label "MQxC"
 		(at 257.81 106.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9437,7 +9421,6 @@
 	)
 	(label "SHDB1"
 		(at 342.9 193.04 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9448,7 +9431,6 @@
 	)
 	(label "SHAB1"
 		(at 300.99 50.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9459,7 +9441,6 @@
 	)
 	(label "~{MRST}"
 		(at 347.98 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9470,7 +9451,6 @@
 	)
 	(label "SHAB2"
 		(at 308.61 85.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9481,7 +9461,6 @@
 	)
 	(label "SHAB10"
 		(at 91.44 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9492,7 +9471,6 @@
 	)
 	(label "~{MSpC}'"
 		(at 71.12 172.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9503,7 +9481,6 @@
 	)
 	(label "SHAB7"
 		(at 300.99 91.44 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9514,7 +9491,6 @@
 	)
 	(label "SBA1"
 		(at 252.73 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9525,7 +9501,6 @@
 	)
 	(label "SHAB10"
 		(at 300.99 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9536,7 +9511,6 @@
 	)
 	(label "SHDB1"
 		(at 347.98 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9547,7 +9521,6 @@
 	)
 	(label "SBA13"
 		(at 40.64 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9558,7 +9531,6 @@
 	)
 	(label "~{MSxE}"
 		(at 66.04 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9569,7 +9541,6 @@
 	)
 	(label "MA11"
 		(at 252.73 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9580,7 +9551,6 @@
 	)
 	(label "~{MSpC}"
 		(at 257.81 73.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9591,7 +9561,6 @@
 	)
 	(label "SBA11"
 		(at 252.73 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9602,7 +9571,6 @@
 	)
 	(label "SHDB7"
 		(at 342.9 208.28 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9613,7 +9581,6 @@
 	)
 	(label "SHDB2"
 		(at 342.9 85.09 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9624,7 +9591,6 @@
 	)
 	(label "SHDB2"
 		(at 342.9 158.75 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9635,7 +9601,6 @@
 	)
 	(label "MD3"
 		(at 300.99 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9646,7 +9611,6 @@
 	)
 	(label "SHAB1"
 		(at 308.61 82.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9657,7 +9621,6 @@
 	)
 	(label "MA12"
 		(at 91.44 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9668,7 +9631,6 @@
 	)
 	(label "~{MSxD}"
 		(at 92.71 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9679,7 +9641,6 @@
 	)
 	(label "~{SBRD}"
 		(at 303.53 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9690,7 +9651,6 @@
 	)
 	(label "SBA12"
 		(at 91.44 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9701,7 +9661,6 @@
 	)
 	(label "SHDB1"
 		(at 342.9 82.55 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9712,7 +9671,6 @@
 	)
 	(label "~{MAxD0}"
 		(at 149.86 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9723,7 +9681,6 @@
 	)
 	(label "SBA9"
 		(at 252.73 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9734,7 +9691,6 @@
 	)
 	(label "~{SOECLK}"
 		(at 41.91 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9745,7 +9701,6 @@
 	)
 	(label "SBA0"
 		(at 252.73 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9756,7 +9711,6 @@
 	)
 	(label "MD0"
 		(at 300.99 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9767,7 +9721,6 @@
 	)
 	(label "~{SHACS}"
 		(at 307.34 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9778,7 +9731,6 @@
 	)
 	(label "SHAB6"
 		(at 300.99 88.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9789,7 +9741,6 @@
 	)
 	(label "SBA5"
 		(at 252.73 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9800,7 +9751,6 @@
 	)
 	(label "SHDB6"
 		(at 342.9 95.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9811,7 +9761,6 @@
 	)
 	(label "MA10"
 		(at 252.73 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9822,7 +9771,6 @@
 	)
 	(label "~{MSpC}"
 		(at 257.81 146.05 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9833,7 +9781,6 @@
 	)
 	(label "SBA7"
 		(at 252.73 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9844,7 +9791,6 @@
 	)
 	(label "~{MPCP'}"
 		(at 208.28 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9855,7 +9801,6 @@
 	)
 	(label "SHDB7"
 		(at 342.9 171.45 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9866,7 +9811,6 @@
 	)
 	(label "SBD0"
 		(at 298.45 208.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9877,7 +9821,6 @@
 	)
 	(label "~{MSxE}"
 		(at 77.47 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9888,7 +9831,6 @@
 	)
 	(label "MD7"
 		(at 300.99 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9899,7 +9841,6 @@
 	)
 	(label "SHDB4"
 		(at 342.9 90.17 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9910,7 +9851,6 @@
 	)
 	(label "MA6"
 		(at 252.73 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9921,7 +9861,6 @@
 	)
 	(label "SHAB9"
 		(at 300.99 123.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9932,7 +9871,6 @@
 	)
 	(label "MD4"
 		(at 300.99 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9943,7 +9881,6 @@
 	)
 	(label "SBD5"
 		(at 298.45 195.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9954,7 +9891,6 @@
 	)
 	(label "MQxC"
 		(at 257.81 143.51 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9965,7 +9901,6 @@
 	)
 	(label "SHDB4"
 		(at 342.9 200.66 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9976,7 +9911,6 @@
 	)
 	(label "~{MSxC}"
 		(at 77.47 152.4 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9987,7 +9921,6 @@
 	)
 	(label "SBD4"
 		(at 298.45 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9998,7 +9931,6 @@
 	)
 	(label "SBA12"
 		(at 40.64 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10009,7 +9941,6 @@
 	)
 	(label "SHDB2"
 		(at 347.98 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10020,7 +9951,6 @@
 	)
 	(label "MA7"
 		(at 252.73 91.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10031,7 +9961,6 @@
 	)
 	(label "~{MSpC}'"
 		(at 93.98 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10042,7 +9971,6 @@
 	)
 	(label "SHDB7"
 		(at 342.9 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10053,7 +9981,6 @@
 	)
 	(label "~{MSpC}"
 		(at 257.81 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10064,7 +9991,6 @@
 	)
 	(label "VCC"
 		(at 58.42 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10075,7 +10001,6 @@
 	)
 	(label "SBA2"
 		(at 252.73 60.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10086,7 +10011,6 @@
 	)
 	(label "SHAB8"
 		(at 308.61 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10097,7 +10021,6 @@
 	)
 	(label "SBD3"
 		(at 298.45 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10108,7 +10031,6 @@
 	)
 	(label "SBD2"
 		(at 298.45 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10119,7 +10041,6 @@
 	)
 	(label "~{MSxD}"
 		(at 77.47 154.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10130,7 +10051,6 @@
 	)
 	(label "~{MWR}"
 		(at 306.07 176.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10141,7 +10061,6 @@
 	)
 	(label "~{SHARD}"
 		(at 172.72 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10152,7 +10071,6 @@
 	)
 	(label "SHDB5"
 		(at 342.9 92.71 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10163,7 +10081,6 @@
 	)
 	(label "SHDB0"
 		(at 347.98 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10174,7 +10091,6 @@
 	)
 	(label "MD1"
 		(at 300.99 168.91 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10185,7 +10101,6 @@
 	)
 	(label "SHAB11"
 		(at 300.99 128.27 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10196,7 +10111,6 @@
 	)
 	(label "SHAB0"
 		(at 300.99 48.26 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10207,7 +10121,6 @@
 	)
 	(label "SBA3"
 		(at 252.73 58.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10218,7 +10131,6 @@
 	)
 	(label "~{MSxF}"
 		(at 77.47 160.02 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10229,7 +10141,6 @@
 	)
 	(label "~{MSxF}"
 		(at 66.04 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10240,7 +10151,6 @@
 	)
 	(label "SBA6"
 		(at 252.73 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10251,7 +10161,6 @@
 	)
 	(label "SHAB2"
 		(at 300.99 53.34 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10262,7 +10171,6 @@
 	)
 	(label "MQxC"
 		(at 306.07 179.07 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10273,7 +10181,6 @@
 	)
 	(label "SHAB10"
 		(at 308.61 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10284,7 +10191,6 @@
 	)
 	(label "MD6"
 		(at 300.99 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10295,7 +10201,6 @@
 	)
 	(label "SHDB4"
 		(at 342.9 163.83 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10306,7 +10211,6 @@
 	)
 	(label "SHDB6"
 		(at 342.9 168.91 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10317,7 +10221,6 @@
 	)
 	(label "MA5"
 		(at 252.73 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10328,7 +10231,6 @@
 	)
 	(label "MD5"
 		(at 300.99 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10339,7 +10241,6 @@
 	)
 	(label "SHAB0"
 		(at 308.61 80.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10350,7 +10251,6 @@
 	)
 	(label "SBA8"
 		(at 252.73 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10361,7 +10261,6 @@
 	)
 	(label "SHAB7"
 		(at 308.61 97.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10372,7 +10271,6 @@
 	)
 	(label "SHAB5"
 		(at 300.99 86.36 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10383,7 +10281,6 @@
 	)
 	(label "SHDB5"
 		(at 342.9 203.2 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10394,7 +10291,6 @@
 	)
 	(label "SHAB0"
 		(at 172.72 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10405,7 +10301,6 @@
 	)
 	(label "MD2"
 		(at 300.99 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10416,7 +10311,6 @@
 	)
 	(label "SHDB3"
 		(at 342.9 87.63 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10427,7 +10321,6 @@
 	)
 	(label "MA3"
 		(at 252.73 55.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10438,7 +10331,6 @@
 	)
 	(label "SMRQ"
 		(at 63.5 167.64 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10449,7 +10341,6 @@
 	)
 	(label "SBA10"
 		(at 252.73 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10460,7 +10351,6 @@
 	)
 	(label "~{SHAWR}"
 		(at 149.86 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10471,7 +10361,6 @@
 	)
 	(label "SHAB1"
 		(at 172.72 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10482,7 +10371,6 @@
 	)
 	(label "SHAB5"
 		(at 308.61 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10493,7 +10381,6 @@
 	)
 	(label "SHAB8"
 		(at 300.99 120.65 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10504,7 +10391,6 @@
 	)
 	(label "MA4"
 		(at 252.73 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10515,7 +10401,6 @@
 	)
 	(label "SHDB0"
 		(at 342.9 153.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10526,7 +10411,6 @@
 	)
 	(label "MQxC"
 		(at 257.81 71.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10537,7 +10421,6 @@
 	)
 	(label "?"
 		(at 166.37 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10548,7 +10431,6 @@
 	)
 	(label "SBD1"
 		(at 298.45 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10559,7 +10441,6 @@
 	)
 	(label "MA2"
 		(at 252.73 53.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10570,7 +10451,6 @@
 	)
 	(label "~{MPCP'}"
 		(at 347.98 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10581,7 +10461,6 @@
 	)
 	(label "SHAB9"
 		(at 308.61 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10592,7 +10471,6 @@
 	)
 	(label "~{SHACS}"
 		(at 166.37 123.19 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10603,7 +10481,6 @@
 	)
 	(label "SHDB3"
 		(at 342.9 198.12 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10614,7 +10491,6 @@
 	)
 	(label "SHDB6"
 		(at 342.9 205.74 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10625,7 +10501,6 @@
 	)
 	(label "SHDB2"
 		(at 342.9 195.58 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10636,7 +10511,6 @@
 	)
 	(label "SHAB6"
 		(at 308.61 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10647,7 +10521,6 @@
 	)
 	(label "MA0"
 		(at 252.73 48.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10658,7 +10531,6 @@
 	)
 	(label "SHDB5"
 		(at 342.9 166.37 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10669,7 +10541,6 @@
 	)
 	(label "SHAB4"
 		(at 300.99 83.82 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10680,7 +10551,6 @@
 	)
 	(label "SHAB4"
 		(at 308.61 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10691,7 +10561,6 @@
 	)
 	(label "SHDB0"
 		(at 342.9 80.01 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10703,7 +10572,6 @@
 	(hierarchical_label "SHDB[0..7]"
 		(shape bidirectional)
 		(at 349.25 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10715,7 +10583,6 @@
 	(hierarchical_label "~{MRD}"
 		(shape input)
 		(at 93.98 133.35 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10727,7 +10594,6 @@
 	(hierarchical_label "~{SBRD}"
 		(shape input)
 		(at 91.44 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10739,7 +10605,6 @@
 	(hierarchical_label "~{MAxD4}"
 		(shape output)
 		(at 127 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10751,7 +10616,6 @@
 	(hierarchical_label "~{MSpC}"
 		(shape input)
 		(at 93.98 143.51 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10763,7 +10627,6 @@
 	(hierarchical_label "~{MAxD}"
 		(shape input)
 		(at 95.25 205.74 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10775,7 +10638,6 @@
 	(hierarchical_label "~{MMxD}"
 		(shape input)
 		(at 93.98 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10787,7 +10649,6 @@
 	(hierarchical_label "~{SHARD}"
 		(shape output)
 		(at 166.37 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10799,7 +10660,6 @@
 	(hierarchical_label "~{SPC0}"
 		(shape output)
 		(at 209.55 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10811,7 +10671,6 @@
 	(hierarchical_label "~{MWR}"
 		(shape input)
 		(at 93.98 154.94 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10823,7 +10682,6 @@
 	(hierarchical_label "~{MMxE}"
 		(shape input)
 		(at 68.58 138.43 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10835,7 +10693,6 @@
 	(hierarchical_label "~{MSpC}"
 		(shape input)
 		(at 40.64 160.02 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10847,7 +10704,6 @@
 	(hierarchical_label "~{MAxD0}"
 		(shape output)
 		(at 127 198.12 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10859,7 +10715,6 @@
 	(hierarchical_label "MD[0..7]"
 		(shape bidirectional)
 		(at 288.29 173.99 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10871,7 +10726,6 @@
 	(hierarchical_label "MQxC*"
 		(shape input)
 		(at 93.98 177.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10883,7 +10737,6 @@
 	(hierarchical_label "~{SBRST}"
 		(shape output)
 		(at 379.73 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10895,7 +10748,6 @@
 	(hierarchical_label "COINLOCK"
 		(shape output)
 		(at 379.73 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10907,7 +10759,6 @@
 	(hierarchical_label "MQxC"
 		(shape input)
 		(at 93.98 146.05 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10919,7 +10770,6 @@
 	(hierarchical_label "~{MAxDC}"
 		(shape output)
 		(at 127 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10931,7 +10781,6 @@
 	(hierarchical_label "~{MAxD8}"
 		(shape output)
 		(at 127 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10943,7 +10792,6 @@
 	(hierarchical_label "~{SHAWE}"
 		(shape output)
 		(at 166.37 132.08 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10955,7 +10803,6 @@
 	(hierarchical_label "~{SBWR}"
 		(shape input)
 		(at 93.98 172.72 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10967,7 +10814,6 @@
 	(hierarchical_label "SBA[0..13]"
 		(shape input)
 		(at 242.57 140.97 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10979,7 +10825,6 @@
 	(hierarchical_label "SBD[0..7]"
 		(shape bidirectional)
 		(at 288.29 187.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10991,7 +10836,6 @@
 	(hierarchical_label "~{SHAWE}"
 		(shape input)
 		(at 314.96 113.03 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11003,7 +10847,6 @@
 	(hierarchical_label "~{MSpC}"
 		(shape input)
 		(at 306.07 215.9 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11015,7 +10858,6 @@
 	(hierarchical_label "SHAB[0..11]"
 		(shape output)
 		(at 307.34 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11027,7 +10869,6 @@
 	(hierarchical_label "~{VRAM}"
 		(shape output)
 		(at 166.37 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11039,7 +10880,6 @@
 	(hierarchical_label "~{SBNMI}"
 		(shape output)
 		(at 209.55 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11051,7 +10891,6 @@
 	(hierarchical_label "~{MMxC}"
 		(shape input)
 		(at 93.98 138.43 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11063,7 +10902,6 @@
 	(hierarchical_label "~{SHARD}"
 		(shape input)
 		(at 314.96 110.49 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11075,7 +10913,6 @@
 	(hierarchical_label "MA[0..12]"
 		(shape input)
 		(at 246.38 50.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11087,7 +10924,6 @@
 	(hierarchical_label "~{MMxF}"
 		(shape input)
 		(at 68.58 133.35 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11099,7 +10935,6 @@
 	(hierarchical_label "~{SPC1}"
 		(shape output)
 		(at 209.55 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11111,7 +10946,6 @@
 	(hierarchical_label "~{WDOG}"
 		(shape output)
 		(at 209.55 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
