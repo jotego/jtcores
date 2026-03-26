@@ -24,10 +24,10 @@ reg         sav_wait;
 
 wire [7:0]  sd_buff_addr;
 wire [7:0]  sd_buff_dout;
-wire [7:0]  sd_buff_din;
+wire [7:0]  sd_buff_din[1];
 wire        sd_buff_wr;
 wire        sd_ack;
-wire [31:0] sd_lba;
+wire [31:0] sd_lba [1];
 wire        sd_rd;
 wire        sd_wr;
 wire        bk_ena;
@@ -135,7 +135,7 @@ hps_io #(
     .img_readonly    ( img_readonly  ),
     .img_size        ( img_size      ),
 
-    .sd_lba          ('{sd_lba}      ),
+    .sd_lba          ( sd_lba        ),
     .sd_blk_cnt      ('{6'b0}        ),
     .sd_rd           ( sd_rd_arr     ),
     .sd_wr           ( sd_wr_arr     ),
@@ -143,7 +143,7 @@ hps_io #(
 
     .sd_buff_addr    ( sd_buff_addr_wide ),
     .sd_buff_dout    ( sd_buff_dout_wide ),
-    .sd_buff_din     ('{sd_buff_din}     ),
+    .sd_buff_din     ( sd_buff_din       ),
     .sd_buff_wr      ( sd_buff_wr        ),
 
     .ioctl_download  (               ),
@@ -231,10 +231,10 @@ jtframe_mister_cartsave uut(
     .downloading ( downloading  ),
     .sd_buff_addr( sd_buff_addr ),
     .sd_buff_dout( sd_buff_dout ),
-    .sd_buff_din ( sd_buff_din  ),
+    .sd_buff_din ( sd_buff_din[0]),
     .sd_buff_wr  ( sd_buff_wr   ),
     .sd_ack      ( sd_ack       ),
-    .sd_lba      ( sd_lba       ),
+    .sd_lba      ( sd_lba[0]    ),
     .sd_rd       ( sd_rd        ),
     .sd_wr       ( sd_wr        ),
     .bk_ena      ( bk_ena       ),
@@ -409,7 +409,7 @@ initial begin
             HPS_IDLE: begin
                 if (hps_ready && (sd_wr || sd_rd)) begin
                     hps_op_write <= sd_wr;
-                    hps_lba <= sd_lba;
+                    hps_lba <= sd_lba[0];
                     hps_latency <= $urandom_range(3, 9);
                     hps_state <= HPS_LAT;
                 end
@@ -521,7 +521,7 @@ integer timeout_s;
 task wait_save_done;
     begin
         timeout_s = 0;
-        while (!(sd_lba[6:0] == 7'h7F && sd_ack == 0 && sd_wr == 0)) begin
+        while (!(sd_lba[0][6:0] == 7'h7F && sd_ack == 0 && sd_wr == 0)) begin
             @(posedge clk);
             timeout_s = timeout_s + 1;
             if (timeout_s > 32'h200000) begin
@@ -536,7 +536,7 @@ integer timeout_l;
 task wait_load_done;
     begin
         timeout_l = 0;
-        while (!(sd_lba[6:0] == 7'h7F && sd_ack == 0 && sd_rd == 0)) begin
+        while (!(sd_lba[0][6:0] == 7'h7F && sd_ack == 0 && sd_rd == 0)) begin
             @(posedge clk);
             timeout_l = timeout_l + 1;
             if (timeout_l > 32'h200000) begin
