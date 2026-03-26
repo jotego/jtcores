@@ -112,7 +112,7 @@ hps_io #(
     .img_size        ( img_size      ),
 
     .sd_lba          ( sd_lba        ),
-    .sd_blk_cnt      ('{6'b0}        ),
+    .sd_blk_cnt      ( sd_blk_cnt    ),
     .sd_rd           ( sd_rd         ),
     .sd_wr           ( sd_wr         ),
     .sd_ack          ( sd_ack        ),
