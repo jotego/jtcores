@@ -128,8 +128,6 @@ initial begin
 	bk_loading      = 0;
 	sav_pending     = 0;
 	sav_dout        = 0;
-	sav_ack         = 0;
-	sav_dout        = 0;
 	sav_wr          = 0;
 	sd_active       = 0;
 	sd_wait         = 0;

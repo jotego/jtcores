@@ -34,7 +34,6 @@ wire        snd_ack, snd_nmi, snd_irq, mute_enb, snd_rstn, ioctl_rest, mode;
 wire        hirq, virq, main_int5, pwr_button, poweron, halted, new_cart;
 reg         cart_l;
 wire signed [ 7:0] snd_dacl, snd_dacr;
-wire [15:0] auto_addr_max, auto_addr_min;
 
 assign debug_view = st_mux;
 assign ioctl_rest = ioctl_ram && ioctl_wr && ioctl_addr[13:0]>14'h3000; // ports and RTC are dumped after 12kB of RAM

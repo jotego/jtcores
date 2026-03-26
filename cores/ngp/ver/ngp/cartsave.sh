@@ -47,16 +47,16 @@ find_cart_name(){
 	if [ -z "$IF0" ]; then
 		if [ -z "$FNAME" ]; then
 			echo "Could not determine game name. Provide a name to look for cartridge using --game"
-			exit 0
+			exit 1
 		fi
 		matches=("carts/${FNAME}"*"${ROMEXT}")
 		if [[ $matches == *"*${ROMEXT}" ]]; then
 			echo "No match found for '$FNAME'"
-			exit 0
+			exit 1
 		elif [[ "${#matches[@]}" -gt 1 ]]; then
 			echo "More than one match found for '$FNAME':"
 			printf '%s\n' "${matches[@]}"
-			exit 0
+			exit 1
 		else
 			IF0="$matches"
 			if [[ $VERBOSE == 1 ]]; then
@@ -70,16 +70,16 @@ find_save_file(){
 	if [ -z "$IF1" ]; then
 		if [ -z "$FNAME" ]; then
 			echo "Could not determine game name. Provide a name to look for cartridge using --game"
-			exit 0
+			exit 1
 		fi
 		smatch=("saves/${FNAME}"*"${SAVEXT}")
 		if [[ $smatch == *"*${SAVEXT}" ]]; then
 			echo "No save file found for '$FNAME'"
-			exit 0
+			exit 1
 		elif [[ "${#smatch[@]}" -gt 1 ]]; then
 			echo "More than one save file found for '$FNAME':"
 			printf '%s\n' "${smatch[@]}"
-			exit 0
+			exit 1
 		else
 			IF1="$smatch"
 			if [[ $VERBOSE == 1 ]]; then
