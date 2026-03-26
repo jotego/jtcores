@@ -25,6 +25,7 @@ reg         sav_wait;
 wire [7:0]  sd_buff_addr;
 wire [7:0]  sd_buff_dout;
 wire [7:0]  sd_buff_din[1];
+wire [5:0]  sd_blk_cnt[1];
 wire        sd_buff_wr;
 wire        sd_ack;
 wire [31:0] sd_lba [1];
@@ -73,15 +74,10 @@ assign EXT_BUS   = 36'd0;
 // hps_io SD arrays (VDNUM=1)
 wire [7:0]  sd_buff_dout_wide;
 wire [13:0] sd_buff_addr_wide;
-wire [0:0]  sd_rd_arr;
-wire [0:0]  sd_wr_arr;
-wire [0:0]  sd_ack_arr;
 
-assign sd_rd_arr[0]      = sd_rd;
-assign sd_wr_arr[0]      = sd_wr;
-assign sd_ack            = sd_ack_arr[0];
-assign sd_buff_addr      = sd_buff_addr_wide[7:0];
-assign sd_buff_dout      = sd_buff_dout_wide[7:0];
+assign sd_buff_addr  = sd_buff_addr_wide[7:0];
+assign sd_buff_dout  = sd_buff_dout_wide[7:0];
+assign sd_blk_cnt[0] = 6'b0;
 
 localparam integer SAVE_AW = 14;
 wire [15:0] ram_q0;
@@ -137,9 +133,9 @@ hps_io #(
 
     .sd_lba          ( sd_lba        ),
     .sd_blk_cnt      ('{6'b0}        ),
-    .sd_rd           ( sd_rd_arr     ),
-    .sd_wr           ( sd_wr_arr     ),
-    .sd_ack          ( sd_ack_arr    ),
+    .sd_rd           ( sd_rd         ),
+    .sd_wr           ( sd_wr         ),
+    .sd_ack          ( sd_ack        ),
 
     .sd_buff_addr    ( sd_buff_addr_wide ),
     .sd_buff_dout    ( sd_buff_dout_wide ),
