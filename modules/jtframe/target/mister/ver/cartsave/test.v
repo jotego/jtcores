@@ -8,80 +8,61 @@ localparam BLOCKS      = 128;
 localparam TOTAL_BYTES = BLOCK_BYTES * BLOCKS;
 localparam STRLEN      = 1024;
 localparam SDIN_LEAD   = 2; // cycles before sav_wait deassert
+localparam SAVE_AW = 14;
 
 
-wire clk;
-wire rst;
+wire clk, rst;
 
 `include "test_tasks.vh"
 
 reg         OSD_STATUS;
 reg         downloading;
-reg [1:0]   ram_save;
+reg  [ 1:0] ram_save;
 reg         ram_load;
-reg         sav_change;
-reg         sav_wait;
 
-wire [7:0]  sd_buff_addr;
-wire [7:0]  sd_buff_dout;
-wire [7:0]  sd_buff_din[1];
-wire [5:0]  sd_blk_cnt[1];
-wire        sd_buff_wr;
-wire        sd_ack;
 wire [31:0] sd_lba [1];
-wire        sd_rd;
-wire        sd_wr;
-wire        bk_ena;
-wire        sd_wait;
+wire [ 7:0] sd_buff_din[1];
+wire [ 7:0] sd_buff_addr, sd_buff_dout;
+wire [ 5:0] sd_blk_cnt[1];
+wire        sd_buff_wr, sd_ack, sd_wait,
+            sd_rd, sd_wr, bk_ena;
 
-wire [15:0] sav_dout;
-wire [15:0] sav_addr;
-wire [1:0]  sav_wr;
-wire        sav_ack;
-wire [15:0] sav_din;
-reg  [15:0] sav_din_r;
-wire        sav_done;
-assign sav_done = 1'b0;
+reg  [15:0] sav_din;
+wire [15:0] sav_dout, sav_addr;
+wire [ 1:0] sav_wr;
+wire        sav_ack,  sav_done;
+reg         sav_wait, sav_change;
 
-wire        img_mounted;
-wire        img_readonly;
 wire [63:0] img_size;
+wire        img_mounted, img_readonly;
 
-reg  [7:0] sd_image_read  [0:TOTAL_BYTES-1];
-reg  [7:0] sd_image_write [0:TOTAL_BYTES-1];
-integer i;
-integer j;
-reg [7:0] io_byte;
+reg  [ 7:0] sd_image_read  [0:TOTAL_BYTES-1];
+reg  [ 7:0] sd_image_write [0:TOTAL_BYTES-1];
+reg  [ 7:0] io_byte;
+integer     i, j;
 
 // HPS bus (minimal drive for IO)
 wire [48:0] HPS_BUS;
-reg         io_strobe;
-reg         io_enable;
-reg         fp_enable;
 reg  [15:0] io_din;
+wire [13:0] sd_buff_addr_wide;
+reg         io_strobe, io_enable, fp_enable;
 
 // inouts for hps_io
-wire [21:0] gamma_bus;
 wire [35:0] EXT_BUS;
+wire [21:0] gamma_bus;
 
-assign HPS_BUS[35] = fp_enable;
-assign HPS_BUS[34] = io_enable;
-assign HPS_BUS[33] = io_strobe;
+assign HPS_BUS[   35] = fp_enable;
+assign HPS_BUS[   34] = io_enable;
+assign HPS_BUS[   33] = io_strobe;
 assign HPS_BUS[31:16] = io_din;
-assign gamma_bus = 22'd0;
-assign EXT_BUS   = 36'd0;
+assign gamma_bus      = 22'd0;
+assign EXT_BUS        = 36'd0;
 
-// hps_io SD arrays (VDNUM=1)
-wire [7:0]  sd_buff_dout_wide;
-wire [13:0] sd_buff_addr_wide;
-
+assign sav_done = 1'b0;
 assign sd_buff_addr  = sd_buff_addr_wide[7:0];
-assign sd_buff_dout  = sd_buff_dout_wide[7:0];
 assign sd_blk_cnt[0] = 6'b0;
 
-localparam integer SAVE_AW = 14;
-wire [15:0] ram_q0;
-wire [15:0] ram_q1;
+wire [15:0] ram_q0, ram_q1;
 reg  [15:0] ram_d1;
 reg  [SAVE_AW:1] ram_a1;
 reg  [1:0]  ram_we1;
@@ -102,7 +83,6 @@ jtframe_dual_ram16 #(
     .we1   ( ram_we1             ),
     .q1    ( ram_q1              )
 );
-assign sav_din = sav_din_r;
 
 // HPS IO instance (same as jtframe_mister.sv)
 /* verilator lint_off PINMISSING */
@@ -138,9 +118,9 @@ hps_io #(
     .sd_ack          ( sd_ack        ),
 
     .sd_buff_addr    ( sd_buff_addr_wide ),
-    .sd_buff_dout    ( sd_buff_dout_wide ),
-    .sd_buff_din     ( sd_buff_din       ),
-    .sd_buff_wr      ( sd_buff_wr        ),
+    .sd_buff_dout    ( sd_buff_dout  ),
+    .sd_buff_din     ( sd_buff_din   ),
+    .sd_buff_wr      ( sd_buff_wr    ),
 
     .ioctl_download  (               ),
     .ioctl_wr        (               ),
@@ -263,7 +243,7 @@ endtask
 // emulate SDRAM ok -> sav_wait (random 3-9 cycles after sav_ack)
 reg sav_pending, ack_l;
 integer sav_delay;
-initial sav_din_r = 0;
+initial sav_din = 0;
 
 always @(posedge clk) begin
     ack_l <= sav_ack;
@@ -273,7 +253,7 @@ always @(posedge clk) begin
         sav_wait    <= 1;
     end else if (sav_pending) begin
         if (sav_delay == SDIN_LEAD) begin
-            sav_din_r <= ram_q0;
+            sav_din <= ram_q0;
         end
         if (sav_delay == 0) begin
             sav_wait    <= 0;
@@ -350,16 +330,14 @@ task hps_init;
 endtask
 
 integer fd;
-reg file_open;
-reg hps_ready;
+reg file_open, hps_ready;
 
 reg [31:0] hps_lba;
-reg [ 7:0] hps_idx;
+reg [ 7:0] hps_idx, hps_last_byte;
 reg [ 3:0] hps_state;
 reg [ 1:0] hps_read_pending;
-reg hps_op_write, hps_saw_wait;
-integer hps_latency, hps_tick;
-reg [7:0] hps_last_byte;
+reg        hps_op_write, hps_saw_wait;
+integer    hps_latency, hps_tick;
 
 localparam HPS_STROBE_DIV = 11;
 localparam HPS_GAP_WRITE = 1;
