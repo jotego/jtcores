@@ -418,6 +418,7 @@ u_frame(
     .game_rx        ( game_rx        ), // core-specific UART
     .game_tx        ( game_tx        ),
     .show_osd       ( show_osd       ),
+    .OSD_STATUS     ( OSD_STATUS     ),
     // Base video
     .game_r         ( red            ),
     .game_g         ( green          ),
@@ -552,6 +553,15 @@ u_frame(
     .ioctl_rom      ( ioctl_rom      ),
     .ioctl_cart     ( ioctl_cart     ),
     .dwnld_busy     ( dwnld_busy     ),
+    // Save/Load
+    .sav_change     ( sav_change     ),
+    .sav_wait       ( sav_wait       ),
+    .sav_done       ( sav_done       ),
+    .sav_wr         ( sav_wr         ),
+    .sav_ack        ( sav_ack        ),
+    .sav_din        ( sav_din        ),
+    .sav_dout       ( sav_dout       ),
+    .sav_addr       ( sav_addr       ),
 //////////// board
     .rst            ( rst            ),
     .rst_n          ( rst_n          ), // unused

@@ -82,6 +82,7 @@ bit     |  meaning                | Enabled with macro
 13-15   | Reserved for core use   | CORE_OSD (option char: D,E,F)
 16-17   | Aspect Ratio            | MiSTer only, visibility masked
 18-19   | Joystick 1 position     | JTFRAME_JOY1_POS
+20-22   | Game saves options      | JTFRAME_SAVEGAME
 32-33   | Spinner sensitivity     | MiSTer/Pocket only
 37-38   | User output options     | MiSTer, selects DB15, UART, etc.
 39-40   | Rotate options (MiSTer) | JTFRAME_VERTICAL && JTFRAME_ROTATE (see below)
