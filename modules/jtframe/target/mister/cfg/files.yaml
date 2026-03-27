@@ -11,6 +11,9 @@ jtframe/target/mister:
     - sys.qip
     - pll.qip
     - joydb15.v
+  - when: [ JTFRAME_PLL5369 ]
+    get:
+      - pll5369.qip
   - when: [ JTFRAME_PLL6000 ]
     get:
       - pll6000.qip
