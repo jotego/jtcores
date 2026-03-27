@@ -82,7 +82,6 @@ func make_patch_data(core string) ([]rom_patch, error) {
 
 func create_base_rom(core string) ([]byte, error) {
 	cmd := exec.Command("jtframe", "mra", core,
-		"--setname", patchArgs.setname,
 		"--path", patchArgs.rom_path,
 		"--skipMRA",
 		"--skipPocket")
