@@ -301,14 +301,14 @@ always @(posedge clk) begin
             active     <= 1'b1;
             active_sel <= next_sel;
             case( next_sel )
-                3'd0: begin addr <= ext_addr0 + OFFSET0; ba <= BA0[1:0]; end
-                3'd1: begin addr <= ext_addr1 + OFFSET1; ba <= BA1[1:0]; end
-                3'd2: begin addr <= ext_addr2 + OFFSET2; ba <= BA2[1:0]; end
-                3'd3: begin addr <= ext_addr3 + OFFSET3; ba <= BA3[1:0]; end
-                3'd4: begin addr <= ext_addr4 + OFFSET4; ba <= BA4[1:0]; end
-                3'd5: begin addr <= ext_addr5 + OFFSET5; ba <= BA5[1:0]; end
-                3'd6: begin addr <= ext_addr6 + OFFSET6; ba <= BA6[1:0]; end
-                default: begin addr <= ext_addr7 + OFFSET7; ba <= BA7[1:0]; end
+                3'd0: begin addr <= ext_addr0 + OFFSET0[0+:SDRAM_AW-1]; ba <= BA0[1:0]; end
+                3'd1: begin addr <= ext_addr1 + OFFSET1[0+:SDRAM_AW-1]; ba <= BA1[1:0]; end
+                3'd2: begin addr <= ext_addr2 + OFFSET2[0+:SDRAM_AW-1]; ba <= BA2[1:0]; end
+                3'd3: begin addr <= ext_addr3 + OFFSET3[0+:SDRAM_AW-1]; ba <= BA3[1:0]; end
+                3'd4: begin addr <= ext_addr4 + OFFSET4[0+:SDRAM_AW-1]; ba <= BA4[1:0]; end
+                3'd5: begin addr <= ext_addr5 + OFFSET5[0+:SDRAM_AW-1]; ba <= BA5[1:0]; end
+                3'd6: begin addr <= ext_addr6 + OFFSET6[0+:SDRAM_AW-1]; ba <= BA6[1:0]; end
+                default: begin addr <= ext_addr7 + OFFSET7[0+:SDRAM_AW-1]; ba <= BA7[1:0]; end
             endcase
         end
     end
