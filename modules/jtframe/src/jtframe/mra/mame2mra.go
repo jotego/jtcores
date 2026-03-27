@@ -442,26 +442,43 @@ func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode
 }
 
 func make_mra_filename(args Args, machine *MachineXML, mra_cfg Mame2MRA, game_name string, parent_names map[string]string) string {
-	fname := args.outdir
 	if args.cur_alt_version != "" {
-		err := os.MkdirAll(args.altdir, 0775)
+		alt_parent_dir := get_alt_patch_dir(args, machine, mra_cfg, parent_names)
+		err := os.MkdirAll(alt_parent_dir, 0775)
 		if err != nil && !os.IsExist(err) {
-			log.Fatal(err, args.altdir)
+			log.Fatal(err, alt_parent_dir)
 		}
-		return filepath.Join(args.altdir, fmt.Sprintf("(%s)%s.mra", args.cur_alt_version, fix_filename(game_name)))
+		return filepath.Join(alt_parent_dir, fmt.Sprintf("(%s)%s.mra", args.cur_alt_version, fix_filename(game_name)))
 	}
-	// Redirect clones to their own folder
-	main_mra := is_main(machine, mra_cfg)
-	if is_alternative := machine.Cloneof != "" && !main_mra; is_alternative {
-		parent_name := parent_names[machine.Cloneof]
-		group_name := get_altdir_name(parent_name)
-		fname = filepath.Join(args.altdir, "_"+group_name)
+	alt_parent_dir := get_alt_parent_dir(args, machine, mra_cfg, parent_names)
+	fname := args.outdir
+	if alt_parent_dir != args.altdir {
+		fname = alt_parent_dir
 		err := os.MkdirAll(fname, 0775)
 		if err != nil && !os.IsExist(err) {
 			log.Fatal(err, fname)
 		}
 	}
 	return fname + "/" + fix_filename(game_name) + ".mra"
+}
+
+func get_alt_patch_dir(args Args, machine *MachineXML, mra_cfg Mame2MRA, parent_names map[string]string) string {
+	parent_dir := get_alt_parent_dir(args, machine, mra_cfg, parent_names)
+	if parent_dir != args.altdir {
+		return parent_dir
+	}
+	group_name := get_altdir_name(machine.Description)
+	return filepath.Join(args.altdir, "_"+group_name)
+}
+
+func get_alt_parent_dir(args Args, machine *MachineXML, mra_cfg Mame2MRA, parent_names map[string]string) string {
+	main_mra := is_main(machine, mra_cfg)
+	if machine.Cloneof == "" || main_mra {
+		return args.altdir
+	}
+	parent_name := parent_names[machine.Cloneof]
+	group_name := get_altdir_name(parent_name)
+	return filepath.Join(args.altdir, "_"+group_name)
 }
 
 func get_altdir_name(parent_name string) string {
