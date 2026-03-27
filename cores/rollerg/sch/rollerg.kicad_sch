@@ -3549,6 +3549,44 @@
 		)
 	)
 	(sheet
+		(at 246.38 185.42)
+		(size 53.34 20.32)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "842affe1-cb83-4d7d-8c91-491301a77554")
+		(property "Sheetname" "Capacitors"
+			(at 246.38 184.7084 0)
+			(effects
+				(font
+					(size 3.81 3.81)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Capacitors.kicad_sch"
+			(at 246.38 206.3246 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "rollerg"
+				(path "/bb61a05c-9ea0-4d47-a326-1f7e835840f3"
+					(page "7")
+				)
+			)
+		)
+	)
+	(sheet
 		(at 175.26 185.42)
 		(size 53.34 69.85)
 		(fields_autoplaced yes)
@@ -3582,6 +3620,44 @@
 			(project "rollerg"
 				(path "/bb61a05c-9ea0-4d47-a326-1f7e835840f3"
 					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 246.38 215.9)
+		(size 53.34 20.32)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "d83b6c8c-c605-4236-a48a-2a1594c9ef57")
+		(property "Sheetname" "Not_Populated"
+			(at 246.38 215.1884 0)
+			(effects
+				(font
+					(size 3.81 3.81)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Not_Populated.kicad_sch"
+			(at 246.38 236.8046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "rollerg"
+				(path "/bb61a05c-9ea0-4d47-a326-1f7e835840f3"
+					(page "8")
 				)
 			)
 		)
