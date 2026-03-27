@@ -130,7 +130,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 	previous.add_length(pos)
 	make_devROM(p, machine, cfg, &pos)
 	p.AddComment(fmt.Sprintf("Total 0x%X bytes - %d kBytes", pos, pos>>10))
-	make_patches(p, machine, cfg )
+	make_patches(p, machine, cfg, args )
 	if e:=cfg.Header.FillData(reg_offsets, pos, machine); e!= nil { return e }
 	return nil
 }
@@ -250,20 +250,26 @@ func sdram_bank_comment(root *XMLNode, pos int, macros map[string]string) {
 	}
 }
 
-func make_patches(root *XMLNode, machine *MachineXML, cfg Mame2MRA) {
+func make_patches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	header := macros.GetInt("JTFRAME_HEADER")
-	warned := true
+	warned := false
 	for _, each := range cfg.ROM.Patches {
-		if each.Match(machine) > 0 {
-			if header != 0 && !warned {
-				warned = true
-				root.AddComment(fmt.Sprintf("Adding %d bytes to the patch offset to make up for the MRA header",
-					header))
-			}
-			// apply the patch
-			root.AddNode("patch", each.Data).AddAttr("offset", fmt.Sprintf("0x%X", each.Offset+header))
+		if each.Match(machine) == 0 || patch_is_skipped(each.Altversion, args.cur_alt_version) { continue }
+		if header != 0 && !warned {
+			warned = true
+			root.AddComment(fmt.Sprintf("Adding %d bytes to the patch offset to make up for the MRA header",
+				header))
 		}
+		// apply the patch
+		root.AddNode("patch", each.Data).AddAttr("offset", fmt.Sprintf("0x%X", each.Offset+header))
 	}
+}
+
+func patch_is_skipped( patch_altversion, selected_altversion string ) bool {
+	if selected_altversion=="" {
+		return patch_altversion!=""
+	}
+	return patch_altversion != selected_altversion
 }
 
 func make_frac(parent *XMLNode, reg_cfg *RegCfg, reg_roms []MameROM) int {
