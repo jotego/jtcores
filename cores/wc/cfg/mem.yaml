@@ -115,6 +115,3 @@ bram:
     addr_width: 11
     data_width: 32
     rw: true
-    # ioctl:
-    #   save: true
-    #   order: 3
