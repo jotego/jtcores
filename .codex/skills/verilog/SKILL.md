@@ -8,6 +8,12 @@ description: you are asked to write a new verilog module or edit an old one
 - prefix `nx_` to mark the next signal, like a combinational nx_a assigned to a register in `a <= nx_a`
 - sufix `_l` to mark the last (_latched_) value of a signal
 
+# Arithmetics
+
+- Do not multiply by a power of 2 to shift left a number, concatenate zeros instead
+- Ask before using the division operator
+- Keep the code synthesizable
+
 # Optimization
 
 Because the target hardware is FPGA, registering signals after a combinational function comes for free, as the flip flop is part of the logic element of the FPGA. When it does not affect the signal flow, register signals to ease timing.
