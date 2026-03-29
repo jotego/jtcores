@@ -468,12 +468,9 @@ localparam JTFRAME_PROM_START=`JTFRAME_PROM_START;
 {{- else if $bus.Dual_port.Name }}
 // Dual port BRAM for {{$bus.Name}} and {{$bus.Dual_port.Name}}
 jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}}32{{end}} #(
-    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if $bus.Sim_file }},
-    {{ if eq $bus.Data_width 16 }}.SIMFILE_LO("{{$bus.Name}}_lo.bin"),
-    .SIMFILE_HI("{{$bus.Name}}_hi.bin"){{else if eq $bus.Data_width 32}}.SIMFILE_0("{{$bus.Name}}_0.bin"),
-    .SIMFILE_1("{{$bus.Name}}_1.bin"),
-    .SIMFILE_2("{{$bus.Name}}_2.bin"),
-    .SIMFILE_3("{{$bus.Name}}_3.bin"){{else}}.SIMFILE("{{$bus.Name}}.bin"){{end}}{{end}}
+    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if or (eq $bus.Data_width 16) (eq $bus.Data_width 32) }},
+    .ENDIAN(0){{end}}{{ if $bus.Sim_file }},
+    .SIMFILE("{{$bus.Name}}.bin"){{else}}{{end}}
 ) u_bram_{{$bus.Name}}(
     // Port 0 - {{$bus.Name}}
     .clk0   ( clk ),
@@ -513,13 +510,10 @@ jtframe_bram_rom #(
 {{else}}
 // BRAM for {{$bus.Name}}
 jtframe_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}}32{{end}} #(
-    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }},
+    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if or (eq $bus.Data_width 16) (eq $bus.Data_width 32) }},
+    .ENDIAN(0){{end}}{{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }},
     .DW({{$bus.Data_width}}){{end}}{{- if $bus.Sim_file }},
-    {{ if eq $bus.Data_width 16 }}.SIMFILE_LO("{{$bus.Name}}_lo.bin"),
-    .SIMFILE_HI("{{$bus.Name}}_hi.bin"){{else if eq $bus.Data_width 32}}.SIMFILE_0("{{$bus.Name}}_0.bin"),
-    .SIMFILE_1("{{$bus.Name}}_1.bin"),
-    .SIMFILE_2("{{$bus.Name}}_2.bin"),
-    .SIMFILE_3("{{$bus.Name}}_3.bin"){{else}}.SIMFILE("{{$bus.Name}}.bin"){{end}}{{end}}
+    .SIMFILE("{{$bus.Name}}.bin"){{end}}
 ) u_bram_{{$bus.Name}}(
     .clk    ( clk  ),{{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }}
     .cen    ( 1'b1 ),{{end}}

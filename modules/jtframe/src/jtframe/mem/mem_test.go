@@ -826,17 +826,16 @@ func Test_game_sdram_template_uses_32bit_bram_wrappers(t *testing.T) {
 	checks := []string{
 		"jtframe_ram32 #(",
 		"jtframe_dual_ram32 #(",
-		".SIMFILE_0(\"fb_0.bin\")",
-		".SIMFILE_3(\"fb_3.bin\")",
-		".SIMFILE_0(\"scene_0.bin\")",
-		".SIMFILE_3(\"scene_3.bin\")",
+		".ENDIAN(0)",
+		".SIMFILE(\"fb.bin\")",
+		".SIMFILE(\"scene.bin\")",
 		".we0",
 		"scene_we",
 		".we1",
 		"video_we",
 		"wire    [3:0]video_we;",
-		".AW(9)",
-		".AW(12-2)",
+		".AW(11)",
+		".AW(12)",
 	}
 	for _, each := range checks {
 		if !strings.Contains(out, each) {
@@ -845,6 +844,9 @@ func Test_game_sdram_template_uses_32bit_bram_wrappers(t *testing.T) {
 	}
 	if strings.Contains(out, ".DW(32)") {
 		t.Fatalf("generated template should not pass .DW(32) to jtframe_ram32\n%s", out)
+	}
+	if strings.Contains(out, ".SIMFILE_0(") || strings.Contains(out, ".SIMFILE_3(") {
+		t.Fatalf("generated template should not emit per-lane binary SIMFILE parameters\n%s", out)
 	}
 }
 

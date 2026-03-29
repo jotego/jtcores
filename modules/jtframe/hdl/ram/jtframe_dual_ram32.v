@@ -23,10 +23,12 @@
 //      SIMHEXFILE_* => hexadecimal files to load during simulation
 
 module jtframe_dual_ram32 #(parameter AW=10,
-    SIMFILE_0="", SIMHEXFILE_0="",
-    SIMFILE_1="", SIMHEXFILE_1="",
-    SIMFILE_2="", SIMHEXFILE_2="",
-    SIMFILE_3="", SIMHEXFILE_3="",
+    SIMFILE="",
+    SIMHEXFILE_0="",
+    SIMHEXFILE_1="",
+    SIMHEXFILE_2="",
+    SIMHEXFILE_3="",
+    ENDIAN=0,
     VERBOSE=0,          // set to 1 to display memory writes
     VERBOSE_OFFSET=0    // value added to the address when displaying
 )(
@@ -43,6 +45,11 @@ module jtframe_dual_ram32 #(parameter AW=10,
     input   [ 3:0] we1,
     output  [31:0] q1
 );
+
+localparam BYTE0_SEL = ENDIAN ? 3 : 0;
+localparam BYTE1_SEL = ENDIAN ? 2 : 1;
+localparam BYTE2_SEL = ENDIAN ? 1 : 2;
+localparam BYTE3_SEL = ENDIAN ? 0 : 3;
 
 `ifdef SIMULATION
 generate
@@ -75,8 +82,10 @@ endgenerate
 jtframe_dual_ram #(
     .DW        ( 8             ),
     .AW        ( AW-2          ),
-    .SIMFILE   ( SIMFILE_0     ),
-    .SIMHEXFILE( SIMHEXFILE_0  )  )
+    .SIMFILE   ( SIMFILE       ),
+    .SIMHEXFILE( SIMHEXFILE_0  ),
+    .SIMFILE_BYTE( BYTE0_SEL   ),
+    .FULL_DW   ( 32            )  )
 u_byte0(
     .clk0       ( clk0              ),
     .clk1       ( clk1              ),
@@ -93,8 +102,10 @@ u_byte0(
 jtframe_dual_ram #(
     .DW        ( 8             ),
     .AW        ( AW-2          ),
-    .SIMFILE   ( SIMFILE_1     ),
-    .SIMHEXFILE( SIMHEXFILE_1  )  )
+    .SIMFILE   ( SIMFILE       ),
+    .SIMHEXFILE( SIMHEXFILE_1  ),
+    .SIMFILE_BYTE( BYTE1_SEL   ),
+    .FULL_DW   ( 32            )  )
 u_byte1(
     .clk0       ( clk0              ),
     .clk1       ( clk1              ),
@@ -111,8 +122,10 @@ u_byte1(
 jtframe_dual_ram #(
     .DW        ( 8             ),
     .AW        ( AW-2          ),
-    .SIMFILE   ( SIMFILE_2     ),
-    .SIMHEXFILE( SIMHEXFILE_2  )  )
+    .SIMFILE   ( SIMFILE       ),
+    .SIMHEXFILE( SIMHEXFILE_2  ),
+    .SIMFILE_BYTE( BYTE2_SEL   ),
+    .FULL_DW   ( 32            )  )
 u_byte2(
     .clk0       ( clk0              ),
     .clk1       ( clk1              ),
@@ -129,8 +142,10 @@ u_byte2(
 jtframe_dual_ram #(
     .DW        ( 8             ),
     .AW        ( AW-2          ),
-    .SIMFILE   ( SIMFILE_3     ),
-    .SIMHEXFILE( SIMHEXFILE_3  )  )
+    .SIMFILE   ( SIMFILE       ),
+    .SIMHEXFILE( SIMHEXFILE_3  ),
+    .SIMFILE_BYTE( BYTE3_SEL   ),
+    .FULL_DW   ( 32            )  )
 u_byte3(
     .clk0       ( clk0              ),
     .clk1       ( clk1              ),
