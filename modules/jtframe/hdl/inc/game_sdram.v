@@ -51,7 +51,7 @@ wire mute;
 // BRAM buses
 {{- range $cnt, $bus:=.BRAM }}
 {{ if .Dual_port.Name }}
-{{ if not .Dual_port.We }}wire    {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}}{{.Dual_port.Name}}_we; // Dual port for {{.Dual_port.Name}}
+{{ if not .Dual_port.We }}wire    {{ if gt (div .Data_width 8) 1 }}[{{sub (div .Data_width 8) 1}}:0]{{else}}      {{end}}{{.Dual_port.Name}}_we; // Dual port for {{.Dual_port.Name}}
 {{end}}{{end}}
 {{- end}}
 // SDRAM buses
@@ -467,10 +467,13 @@ localparam JTFRAME_PROM_START=`JTFRAME_PROM_START;
 {{- if $bus.Prom }}{{template "prom_dwnld.v" $bus}}
 {{- else if $bus.Dual_port.Name }}
 // Dual port BRAM for {{$bus.Name}} and {{$bus.Dual_port.Name}}
-jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
+jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}}32{{end}} #(
     .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if $bus.Sim_file }},
     {{ if eq $bus.Data_width 16 }}.SIMFILE_LO("{{$bus.Name}}_lo.bin"),
-    .SIMFILE_HI("{{$bus.Name}}_hi.bin"){{else}}.SIMFILE("{{$bus.Name}}.bin"){{end}}{{end}}
+    .SIMFILE_HI("{{$bus.Name}}_hi.bin"){{else if eq $bus.Data_width 32}}.SIMFILE_0("{{$bus.Name}}_0.bin"),
+    .SIMFILE_1("{{$bus.Name}}_1.bin"),
+    .SIMFILE_2("{{$bus.Name}}_2.bin"),
+    .SIMFILE_3("{{$bus.Name}}_3.bin"){{else}}.SIMFILE("{{$bus.Name}}.bin"){{end}}{{end}}
 ) u_bram_{{$bus.Name}}(
     // Port 0 - {{$bus.Name}}
     .clk0   ( clk ),
@@ -478,7 +481,7 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     .data0  ( {{$bus.Din}}  ),
     .we0    ( {{ if $bus.We }} {{$bus.We}}{{else}}{{$bus.Name}}_we{{end}} ), {{ else }}
     .data0  ( {{$bus.Data_width}}'h0 ),
-    .we0    ( {{ if eq $bus.Data_width 16 }}2'd0{{else}}1'd0{{end}} ),{{end}}
+    .we0    ( {{ printf "%d'd0" (div $bus.Data_width 8) }} ),{{end}}
     .q0     ( {{$bus.Name}}_dout ),
     // Port 1 - {{$bus.Dual_port.Name}}
     .clk1   ( clk ),
@@ -509,13 +512,16 @@ jtframe_bram_rom #(
 
 {{else}}
 // BRAM for {{$bus.Name}}
-jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
-    .AW({{ sub $bus.Addr_width (div $bus.Data_width 16)}}){{ if ne $bus.Data_width 16}},
+jtframe_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}}32{{end}} #(
+    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }},
     .DW({{$bus.Data_width}}){{end}}{{- if $bus.Sim_file }},
     {{ if eq $bus.Data_width 16 }}.SIMFILE_LO("{{$bus.Name}}_lo.bin"),
-    .SIMFILE_HI("{{$bus.Name}}_hi.bin"){{else}}.SIMFILE("{{$bus.Name}}.bin"){{end}}{{end}}
+    .SIMFILE_HI("{{$bus.Name}}_hi.bin"){{else if eq $bus.Data_width 32}}.SIMFILE_0("{{$bus.Name}}_0.bin"),
+    .SIMFILE_1("{{$bus.Name}}_1.bin"),
+    .SIMFILE_2("{{$bus.Name}}_2.bin"),
+    .SIMFILE_3("{{$bus.Name}}_3.bin"){{else}}.SIMFILE("{{$bus.Name}}.bin"){{end}}{{end}}
 ) u_bram_{{$bus.Name}}(
-    .clk    ( clk  ),{{ if ne $bus.Data_width 16 }}
+    .clk    ( clk  ),{{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }}
     .cen    ( 1'b1 ),{{end}}
     .addr   ( {{$bus.Addr}} ),
     .data   ( {{$bus.Din }} ),

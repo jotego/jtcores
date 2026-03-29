@@ -109,12 +109,12 @@ func (arg Args) get_path(fname string, prefix bool) string {
 }
 
 // Template helper functions: implementation of "Bus" interface (see types.go)
-func (bus SDRAMBus) Get_aw() int        { return bus.Addr_width }
-func (bus BRAMBus) Get_aw() int         { return bus.Addr_width }
-func (bus AudioCh) Get_aw() int         { return bus.Data_width }
-func (bus SDRAMBus) Get_dw() int        { return bus.Data_width }
-func (bus BRAMBus) Get_dw() int         { return bus.Data_width }
-func (bus AudioCh) Get_dw() int         { return bus.Data_width }
+func (bus SDRAMBus) Get_aw() int       { return bus.Addr_width }
+func (bus BRAMBus) Get_aw() int        { return bus.Addr_width }
+func (bus AudioCh) Get_aw() int        { return bus.Data_width }
+func (bus SDRAMBus) Get_dw() int       { return bus.Data_width }
+func (bus BRAMBus) Get_dw() int        { return bus.Data_width }
+func (bus AudioCh) Get_dw() int        { return bus.Data_width }
 func (bus SDRAMCacheLine) Get_dw() int { return bus.Cache.Data_width }
 func (bus SDRAMCacheLine) Get_aw() int { return int(math.Log2(float64(bus.At.Length_bytes))) }
 func (bus SDRAMBus) Get_dname() string { return bus.Name + "_data" }
@@ -125,16 +125,16 @@ func (bus BRAMBus) Get_dname() string {
 		return bus.Name + "_dout"
 	}
 }
-func (bus AudioCh) Get_dname() string    { return bus.Name }
-func (bus SDRAMCacheLine) Get_dname() string { return bus.Name}
-func (bus SDRAMBus) Is_wr() bool         { return bus.Rw }
-func (bus AudioCh) Is_wr() bool          { return false }
-func (bus BRAMBus) Is_wr() bool          { return bus.Rw || bus.Dual_port.Rw }
-func (bus SDRAMCacheLine) Is_wr() bool   { return bus.Rw }
-func (bus SDRAMBus) Is_nbits(n int) bool { return bus.Data_width == n }
-func (bus BRAMBus) Is_nbits(n int) bool  { return bus.Data_width == n }
-func (bus AudioCh) Is_nbits(n int) bool  { return bus.Data_width == n }
-func (bus SDRAMCacheLine) Is_nbits(n int) bool  { return bus.Cache.Data_width == n }
+func (bus AudioCh) Get_dname() string          { return bus.Name }
+func (bus SDRAMCacheLine) Get_dname() string   { return bus.Name }
+func (bus SDRAMBus) Is_wr() bool               { return bus.Rw }
+func (bus AudioCh) Is_wr() bool                { return false }
+func (bus BRAMBus) Is_wr() bool                { return bus.Rw || bus.Dual_port.Rw }
+func (bus SDRAMCacheLine) Is_wr() bool         { return bus.Rw }
+func (bus SDRAMBus) Is_nbits(n int) bool       { return bus.Data_width == n }
+func (bus BRAMBus) Is_nbits(n int) bool        { return bus.Data_width == n }
+func (bus AudioCh) Is_nbits(n int) bool        { return bus.Data_width == n }
+func (bus SDRAMCacheLine) Is_nbits(n int) bool { return bus.Cache.Data_width == n }
 
 func addr_range(bus Bus) string {
 	return fmt.Sprintf("[%2d:%d]", bus.Get_aw()-1, bus.Get_dw()>>4)
@@ -164,16 +164,18 @@ func cache_line_addr_range(line SDRAMCacheLine) string {
 func data_name(bus Bus) string     { return bus.Get_dname() }
 func writeable(bus Bus) bool       { return bus.Is_wr() }
 func is_nbits(bus Bus, n int) bool { return bus.Is_nbits(n) }
+func byte_en_width(dw int) int     { return dw >> 3 }
 
 var funcMap = template.FuncMap{
-	"addr_range":      addr_range,
-	"cache_line_aw":   cache_line_aw,
+	"addr_range":            addr_range,
+	"cache_line_aw":         cache_line_aw,
 	"cache_line_addr_range": cache_line_addr_range,
-	"data_range":      data_range,
-	"slot_addr_width": slot_addr_width,
-	"data_name":       data_name,
-	"writeable":       writeable,
-	"is_nbits":        is_nbits,
+	"data_range":            data_range,
+	"slot_addr_width":       slot_addr_width,
+	"data_name":             data_name,
+	"writeable":             writeable,
+	"is_nbits":              is_nbits,
+	"byte_en_width":         byte_en_width,
 }
 
 func ParseFile(core, filename string, cfg *MemConfig) error {
@@ -868,9 +870,8 @@ func fill_implicit_ports(cfg *MemConfig) {
 				name = each.We
 			}
 			we_port := Port{Name: name}
-			// only 16 bit memories have byte select
-			if each.Data_width == 16 {
-				we_port.MSB = 1
+			if width := each.Data_width >> 3; width > 1 {
+				we_port.MSB = width - 1
 			}
 			add(we_port)
 		}
@@ -897,7 +898,7 @@ func fill_implicit_ports(cfg *MemConfig) {
 				if each.Dual_port.We != "" {
 					add(Port{
 						Name: each.Dual_port.We,
-						MSB:  each.Data_width >> 4, // 8->0, 16->1
+						MSB:  (each.Data_width >> 3) - 1,
 					})
 				}
 			} else {
@@ -965,13 +966,13 @@ func make_ioctl(cfg *MemConfig) int {
 		if ioinfo.DW == 8 {
 			ioinfo.We = "1'b0"
 		} else {
-			ioinfo.We = "2'b0"
+			ioinfo.We = fmt.Sprintf("%d'd0", ioinfo.DW>>3)
 		}
 		if each.Ioctl.Restore {
 			if each.Rw {
 				ioinfo.We = each.We
 				if each.We == "" {
-					ioinfo.We = "2'b0"
+					ioinfo.We = fmt.Sprintf("%d'd0", each.Data_width>>3)
 				}
 			}
 			each.We = each.Name + "_wemx"

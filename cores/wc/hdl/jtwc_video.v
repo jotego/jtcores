@@ -51,7 +51,7 @@ module jtwc_video(
     output     [10:2] fb_addr,
     output     [31:0] fb_din,
     input      [31:0] fb_dout,
-    output            fb_we,
+    output     [ 3:0] fb_we,
     //      ROM
     output     [15:2] obj_addr,
     input      [31:0] obj_data,
