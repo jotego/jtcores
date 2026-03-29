@@ -7,6 +7,28 @@ description: you are asked to write a new verilog module or edit an old one
 
 - prefix `nx_` to mark the next signal, like a combinational nx_a assigned to a register in `a <= nx_a`
 - sufix `_l` to mark the last (_latched_) value of a signal
+- group wire and reg declarations of related signals instead of having one line per declaration
+
+# Port connections
+
+- Do not connect expressions to ports. Only connect signals to ports. For instance, instead of
+
+
+```verilog
+mymodule foo(
+	.din ( din & cen )
+);
+```
+
+```verilog
+wire din_gated = din & cen;
+
+mymodule foo(
+	.din ( din_gated )
+);
+```
+
+So port connections remind clear.
 
 # Arithmetics
 
