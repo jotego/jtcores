@@ -506,6 +506,7 @@ wire        game_tx, game_rx;
     wire               ln_done;
     wire               ln_we;
     wire               ln_hs, ln_vs, ln_vbl;
+    wire        [15:0] ln_dout;
     wire        [15:0] ln_pxl;
     wire        [ 7:0] ln_v;
 
@@ -532,6 +533,7 @@ wire        game_tx, game_rx;
         .ln_data    ( ln_data       ),
         .ln_done    ( ln_done       ),
         .ln_hs      ( ln_hs         ),
+        .ln_dout    ( ln_dout       ),
         .ln_pxl     ( ln_pxl        ),
         .ln_v       ( ln_v          ),
         .ln_we      ( ln_we         ),

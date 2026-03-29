@@ -122,6 +122,7 @@ module game_test(
     // output   [15:0] ln_data,
     // output          ln_done,
     // input           ln_hs,
+    // input    [15:0] ln_dout,
     // input    [15:0] ln_pxl,
     // input    [ 7:0] ln_v,
     // output          ln_we,
@@ -319,6 +320,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
         wire  [15:0] ln_data;
         wire         ln_done;
         wire         ln_hs, ln_vs, ln_lvbl;
+        wire  [15:0] ln_dout;
         wire  [15:0] ln_pxl;
         wire  [ 7:0] ln_v;
         wire         ln_we;
@@ -353,6 +355,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .ln_data    ( ln_data       ),
             .ln_done    ( ln_done       ),
             .ln_hs      ( ln_hs         ),
+            .ln_dout    ( ln_dout       ),
             .ln_pxl     ( ln_pxl        ),
             .ln_v       ( ln_v          ),
             .ln_vs      ( ln_vs         ),
@@ -421,6 +424,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .ln_data    ( ln_data       ),
             .ln_done    ( ln_done       ),
             .ln_hs      ( ln_hs         ),
+            .ln_dout    ( ln_dout       ),
             .ln_pxl     ( ln_pxl        ),
             .ln_v       ( ln_v          ),
             .ln_vs      ( ln_vs         ),
@@ -585,6 +589,7 @@ u_game(
     .ln_data     ( ln_data        ),
     .ln_done     ( ln_done        ),
     .ln_hs       ( ln_hs          ),
+    .ln_dout     ( ln_dout        ),
     .ln_pxl      ( ln_pxl         ),
     .ln_v        ( ln_v           ),
     .ln_vs       ( ln_vs          ),

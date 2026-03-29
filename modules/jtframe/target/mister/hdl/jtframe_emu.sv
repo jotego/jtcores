@@ -392,7 +392,7 @@ assign AUDIO_S = `JTFRAME_SIGNED_SND;
 wire [ 8:0] game_hdump,   ln_addr;
 wire [ 7:0] game_vrender, ln_v;
 wire        ln_done, ln_hs, ln_vs, ln_lvbl, ln_we;
-wire [15:0] ln_pxl, ln_data;
+wire [15:0] ln_dout, ln_pxl, ln_data;
 
 jtframe_mister #(
     .SDRAMW         ( SDRAMW         ),
@@ -446,6 +446,7 @@ u_frame(
     .ln_data        ( ln_data        ),
     .ln_done        ( ln_done        ),
     .ln_hs          ( ln_hs          ),
+    .ln_dout        ( ln_dout        ),
     .ln_pxl         ( ln_pxl         ),
     .ln_v           ( ln_v           ),
     .ln_vs          ( ln_vs          ),

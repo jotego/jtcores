@@ -29,6 +29,7 @@ reg          ln_done=0;
 reg          ln_we=0;
 
 wire          ln_hs, ln_vs, ln_lvbl;
+wire [DW-1:0] ln_dout;
 wire [DW-1:0] ln_pxl;
 wire [VW-1:0] ln_v;
 
@@ -124,6 +125,7 @@ jtframe_lfbuf_ddr uut(
     .ln_data    ( ln_data   ),
     .ln_done    ( ln_done   ),
     .ln_hs      ( ln_hs     ),
+    .ln_dout    ( ln_dout   ),
     .ln_pxl     ( ln_pxl    ),
     .ln_v       ( ln_v      ),
     .ln_vs      ( ln_vs     ),

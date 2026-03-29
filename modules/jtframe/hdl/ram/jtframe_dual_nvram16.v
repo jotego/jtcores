@@ -22,8 +22,8 @@
 // - 1B port,  8-bit read/write
 
 module jtframe_dual_nvram16 #(parameter AW=10,
-    SIMFILE_LO="", SIMHEXFILE_LO="",
-    SIMFILE_HI="", SIMHEXFILE_HI=""
+    SIMFILE="", ENDIAN=0,
+    SIMHEXFILE_LO="", SIMHEXFILE_HI=""
 )(
     // Port 0 - full RW, 16-bit access
     input          clk0,
@@ -43,16 +43,20 @@ module jtframe_dual_nvram16 #(parameter AW=10,
     output  [ 7:0] q1b
 );
 
+localparam LO_BYTE = ENDIAN ? 1 : 0;
+localparam HI_BYTE = ENDIAN ? 0 : 1;
+
 wire [1:0] we1;
 
 assign we1 = {2{we1b}} & { addr1b[0], ~addr1b[0]};
 assign q1b = addr1b[0] ? q1a[15:8] : q1a[7:0];
 
-
 jtframe_dual_nvram #(
+    .FULL_DW   ( 16            ),
+    .SIMFILE_BYTE( LO_BYTE     ),
     .DW        ( 8             ),
     .AW        ( AW            ),
-    .SIMFILE   ( SIMFILE_LO    ),
+    .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_LO )  )
 u_lo(
     .clk0       ( clk0              ),
@@ -72,9 +76,11 @@ u_lo(
 );
 
 jtframe_dual_nvram #(
+    .FULL_DW   ( 16            ),
+    .SIMFILE_BYTE( HI_BYTE     ),
     .DW        ( 8             ),
     .AW        ( AW            ),
-    .SIMFILE   ( SIMFILE_HI    ),
+    .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_HI )  )
 u_hi(
     .clk0       ( clk0              ),

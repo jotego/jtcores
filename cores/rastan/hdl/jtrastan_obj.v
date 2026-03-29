@@ -169,10 +169,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_dual_nvram16 #(
-    .SIMFILE_LO("obj_lo.bin"),
-    .SIMFILE_HI("obj_hi.bin")
-) u_ram(
+jtframe_dual_nvram16 #(.SIMFILE("obj.bin")) u_ram(
     // Port 0
     .clk0   ( clk       ),
     .data0  ( main_dout ),

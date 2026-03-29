@@ -268,6 +268,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .ln_data     ( ln_data       ),
     .ln_done     ( ln_done       ),
     .ln_hs       ( ln_hs         ),
+    .ln_dout     ( ln_dout       ),
     .ln_pxl      ( ln_pxl        ),
     .ln_v        ( ln_v          ),
     .ln_vs       ( ln_vs         ),

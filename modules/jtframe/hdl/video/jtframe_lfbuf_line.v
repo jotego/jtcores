@@ -48,6 +48,7 @@ module jtframe_lfbuf_line #(parameter
     input      [HW-1:0] ln_addr,
     input      [DW-1:0] ln_data,
     input               ln_we,
+    output     [DW-1:0] ln_dout,
     output reg [DW-1:0] ln_pxl,
 
     // data written to external memory
@@ -69,7 +70,7 @@ module jtframe_lfbuf_line #(parameter
 reg           vsl, lvbl_l, hs_l;
 reg  [   5:0] porch;
 reg  [VW-1:0] vstart=0, vend=0;
-wire [  15:0] scr_pxl;
+wire [  15:0] linein_pxl, scr_pxl;
 wire [   5:0] vbs_len, vsy_len, vsa_len;
 wire          info_rdy;
 
@@ -220,8 +221,10 @@ jtframe_dual_ram #(.DW(16),.AW(HW+1)) u_linein(
     .data1  ( { {16-DW{1'b0}}, ln_data } ),
     .addr1  ( { line, ln_addr } ),
     .we1    ( ln_we         ), // the core should not send transparent pixels
-    .q1     (               )
+    .q1     ( linein_pxl    )
 );
+
+assign ln_dout = linein_pxl[DW-1:0];
 
 jtframe_dual_ram #(.DW(16),.AW(HW)) u_lineout(
     // Read from big RAM, write to line buffer

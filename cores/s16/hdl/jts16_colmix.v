@@ -58,9 +58,8 @@ assign gpal  = { pal[ 7:4], pal[13] };
 assign bpal  = { pal[11:8], pal[14] };
 
 jtframe_dual_ram16 #(
-    .AW        (11          ),
-    .SIMFILE_LO("pal_lo.bin"),
-    .SIMFILE_HI("pal_hi.bin")
+    .AW     ( 11      ),
+    .SIMFILE("pal.bin")
 ) u_ram(
     .clk0   ( clk       ),
     .clk1   ( clk       ),

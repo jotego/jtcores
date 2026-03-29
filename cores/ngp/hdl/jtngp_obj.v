@@ -76,9 +76,8 @@ assign lut_addr = { 1'b0, scan_addr };
 assign cpu_din = obj2_cs ? {4'd0,pre_din[11:8],4'd0,pre_din[3:0]} : pre_din;
 
 jtframe_dual_ram16 #(
-    .AW         (  8          ),
-    .SIMFILE_LO ("obj_lo.bin" ),
-    .SIMFILE_HI ("obj_hi.bin" )
+    .AW      (  8       ),
+    .SIMFILE ("obj.bin" )
     // ,.VERBOSE(1),.VERBOSE_OFFSET('h8800)
 ) u_objram(
     // Port 0

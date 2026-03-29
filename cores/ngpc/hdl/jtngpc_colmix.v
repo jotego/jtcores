@@ -123,8 +123,7 @@ assign ioctl_din = ioctl_addr[0] ? palo[8+:8] : palo[0+:8];
 
 jtframe_dual_ram16 #(
     .AW(8),
-    .SIMFILE_LO("pal_lo.bin"),
-    .SIMFILE_HI("pal_hi.bin")
+    .SIMFILE("pal.bin")
 ) u_colpal(
     // Port 0
     .clk0       ( clk       ),

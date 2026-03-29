@@ -70,8 +70,7 @@ assign we = ~dswn & {2{char_cs}};
 
 jtframe_dual_ram16 #(
     .AW(11),
-    .SIMFILE_LO("char_lo.bin"),
-    .SIMFILE_HI("char_hi.bin")
+    .SIMFILE("char.bin")
 ) u_ram(
     .clk0   ( clk       ),
     .clk1   ( clk       ),
