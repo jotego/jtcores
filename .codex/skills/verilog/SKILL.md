@@ -24,6 +24,10 @@ For example, if you have to make a calculation from input signals that should be
 
 When instantiating modules in a core, you may need to add the path to the file in the core cfg/files.yaml files
 
+# Temporary Build Folders
+
+Core folders (those in `cores/core-name`) may contain temporary build folders named after JTFRAME targets like `mister`, `mist`, `sidi128`, `sidi` and `pocket`. While the contents of these folders may be useful during debugging, these are not source code folders. No edits should be done inside these folders.
+
 # Linting
 
 For isolated files use `verilator --lint-only --timescale 1ns/1ps` for linting.
