@@ -20672,7 +20672,7 @@
 		)
 		(uuid "1d43f9a1-9c0a-46ff-8238-bac822ff723e")
 	)
-	(label "M12"
+	(label "M12B"
 		(at 281.94 187.96 0)
 		(effects
 			(font
@@ -23980,7 +23980,7 @@
 		)
 		(uuid "62b856f2-e80b-4b79-929a-1e6f3f17629c")
 	)
-	(hierarchical_label "M12"
+	(hierarchical_label "M12B"
 		(shape input)
 		(at 115.57 104.14 90)
 		(effects
