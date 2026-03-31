@@ -3397,7 +3397,45 @@
 		)
 	)
 	(sheet
-		(at 176.53 33.02)
+		(at 246.38 231.14)
+		(size 53.34 15.24)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "15815882-649a-4e2b-b52b-42807d916c40")
+		(property "Sheetname" "IO_Cabinet"
+			(at 246.38 229.1584 0)
+			(effects
+				(font
+					(size 3.81 3.81)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "IO_Cabinet.kicad_sch"
+			(at 246.38 246.9646 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "rollerg"
+				(path "/bb61a05c-9ea0-4d47-a326-1f7e835840f3"
+					(page "9")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 176.53 25.4)
 		(size 52.07 64.77)
 		(fields_autoplaced yes)
 		(stroke
@@ -3409,7 +3447,7 @@
 		)
 		(uuid "1c077b40-48fd-443d-9d28-2e0cfc8f47ec")
 		(property "Sheetname" "Main"
-			(at 176.53 32.3084 0)
+			(at 176.53 24.6884 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3418,7 +3456,7 @@
 			)
 		)
 		(property "Sheetfile" "Main.kicad_sch"
-			(at 176.53 98.3746 0)
+			(at 176.53 90.7546 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3435,7 +3473,7 @@
 		)
 	)
 	(sheet
-		(at 176.53 107.95)
+		(at 176.53 100.33)
 		(size 52.07 68.58)
 		(fields_autoplaced yes)
 		(stroke
@@ -3447,7 +3485,7 @@
 		)
 		(uuid "352c0ec6-92f1-4542-b6d5-7e0d5161301b")
 		(property "Sheetname" "Objects"
-			(at 176.53 107.2384 0)
+			(at 176.53 99.6184 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3456,7 +3494,7 @@
 			)
 		)
 		(property "Sheetfile" "Objects.kicad_sch"
-			(at 176.53 177.1146 0)
+			(at 176.53 169.4946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3473,7 +3511,7 @@
 		)
 	)
 	(sheet
-		(at 246.38 107.95)
+		(at 246.38 100.33)
 		(size 53.34 68.58)
 		(fields_autoplaced yes)
 		(stroke
@@ -3485,7 +3523,7 @@
 		)
 		(uuid "5a8ab8b7-3ac6-4f89-ae9d-d6c160a4b9b3")
 		(property "Sheetname" "PSAC"
-			(at 246.38 105.9684 0)
+			(at 246.38 98.3484 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3494,7 +3532,7 @@
 			)
 		)
 		(property "Sheetfile" "PSAC.kicad_sch"
-			(at 246.38 177.1146 0)
+			(at 246.38 169.4946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3511,7 +3549,7 @@
 		)
 	)
 	(sheet
-		(at 246.38 33.02)
+		(at 246.38 25.4)
 		(size 53.34 64.77)
 		(fields_autoplaced yes)
 		(stroke
@@ -3523,7 +3561,7 @@
 		)
 		(uuid "62e436b2-8a20-4c87-a30f-72bf52ffbdff")
 		(property "Sheetname" "Sound"
-			(at 246.38 31.0384 0)
+			(at 246.38 23.4184 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3532,7 +3570,7 @@
 			)
 		)
 		(property "Sheetfile" "Sound.kicad_sch"
-			(at 246.38 98.3746 0)
+			(at 246.38 90.7546 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3549,8 +3587,8 @@
 		)
 	)
 	(sheet
-		(at 246.38 185.42)
-		(size 53.34 20.32)
+		(at 246.38 177.8)
+		(size 53.34 15.24)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -3561,7 +3599,7 @@
 		)
 		(uuid "842affe1-cb83-4d7d-8c91-491301a77554")
 		(property "Sheetname" "Capacitors"
-			(at 246.38 184.7084 0)
+			(at 246.38 175.8184 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3570,7 +3608,7 @@
 			)
 		)
 		(property "Sheetfile" "Capacitors.kicad_sch"
-			(at 246.38 206.3246 0)
+			(at 246.38 193.6246 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3587,8 +3625,8 @@
 		)
 	)
 	(sheet
-		(at 175.26 185.42)
-		(size 53.34 69.85)
+		(at 176.53 177.8)
+		(size 52.07 69.85)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -3599,7 +3637,7 @@
 		)
 		(uuid "cd979c46-d08f-4757-a941-ca76db01cdcb")
 		(property "Sheetname" "Scroll"
-			(at 175.26 184.7084 0)
+			(at 176.53 175.8184 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3608,7 +3646,7 @@
 			)
 		)
 		(property "Sheetfile" "Scroll.kicad_sch"
-			(at 175.26 255.8546 0)
+			(at 176.53 248.2346 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3625,8 +3663,8 @@
 		)
 	)
 	(sheet
-		(at 246.38 215.9)
-		(size 53.34 20.32)
+		(at 246.38 204.47)
+		(size 53.34 15.24)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -3637,7 +3675,7 @@
 		)
 		(uuid "d83b6c8c-c605-4236-a48a-2a1594c9ef57")
 		(property "Sheetname" "Not_Populated"
-			(at 246.38 215.1884 0)
+			(at 246.38 202.4884 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3646,7 +3684,7 @@
 			)
 		)
 		(property "Sheetfile" "Not_Populated.kicad_sch"
-			(at 246.38 236.8046 0)
+			(at 246.38 220.2946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
