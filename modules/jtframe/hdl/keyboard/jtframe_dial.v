@@ -39,7 +39,14 @@ module jtframe_dial(
 localparam B0 = `JTFRAME_DIALEMU_LEFT,
            B1 = B0+1;
 
-reg   [3:0] line_cnt, act_line;
+localparam EMUSEN0 = `ifdef JTFRAME_DIAL_EMUSENS `JTFRAME_DIAL_EMUSENS
+                     `else  15 `endif,
+           EMUSEN1 = EMUSEN0 - (EMUSEN0>>2),
+           EMUSEN2 = EMUSEN1 - (EMUSEN0>>2),
+           EMUSEN3 = EMUSEN2 - (EMUSEN0>>2),
+           SENSZ   = $clog2(EMUSEN0);
+
+reg [SENSZ:0] line_cnt, act_line;
 reg   [7:0] cnt1, cnt2;
 reg         lhbl_l, lvbl_l, sel;
 reg         i_1p, d_1p, inc_1p, inc_2p,
@@ -61,10 +68,10 @@ assign frame    = lvbl & ~lvbl_l;
 
 always @* begin
     case( sensty ) // how often is the joystick check?
-        1: { mouse_sens, act_line } = { 2'd3, 4'b1111 }; // 4 pulses per frame
-        0: { mouse_sens, act_line } = { 2'd2, 4'b1110 };
-        3: { mouse_sens, act_line } = { 2'd1, 4'b1100 };
-        2: { mouse_sens, act_line } = { 2'd0, 4'b1000 }; // once every frame
+        1: { mouse_sens, act_line } = { 2'd3, EMUSEN0[SENSZ:0] }; // max pulses per frame
+        0: { mouse_sens, act_line } = { 2'd2, EMUSEN1[SENSZ:0] };
+        3: { mouse_sens, act_line } = { 2'd1, EMUSEN2[SENSZ:0] };
+        2: { mouse_sens, act_line } = { 2'd0, EMUSEN3[SENSZ:0] }; // once every frame
     endcase
     up_joy = line_cnt[3] & line;
     i_1p = sel ? !joystick1[B0] : mouse_sel_x ? mouse_inc_x :  cnt1[7];
@@ -109,7 +116,8 @@ always @(posedge clk) begin
     lvbl_l    <= lvbl;
     cen       <= ~cen;
 
-    if( line  ) line_cnt <= line_cnt << 1;
+    if( line & |line_cnt )
+                line_cnt <= line_cnt - 1'b1;
     if( frame ) line_cnt <= act_line;
     up_1p <= up_joy;
     up_2p <= up_joy;
