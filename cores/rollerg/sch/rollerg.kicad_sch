@@ -1563,10 +1563,6 @@
 		(uuid "fb99e541-e444-4232-9106-9c9b14a6e8cb")
 	)
 	(no_connect
-		(at 54.61 114.3)
-		(uuid "14dc4aa5-15bf-4256-a042-a9cdfb65bed2")
-	)
-	(no_connect
 		(at 90.17 154.94)
 		(uuid "2898222e-f9f9-4aeb-ad00-19515eaf8992")
 	)
@@ -1585,10 +1581,6 @@
 	(no_connect
 		(at 90.17 157.48)
 		(uuid "68aeab60-fc05-4ae9-8a07-fc80dfe14ac0")
-	)
-	(no_connect
-		(at 90.17 114.3)
-		(uuid "698541ce-57cd-4753-b332-be9ff0b62cf6")
 	)
 	(no_connect
 		(at 54.61 154.94)
@@ -1966,6 +1958,16 @@
 	)
 	(wire
 		(pts
+			(xy 90.17 114.3) (xy 101.6 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bdccd4fc-86f6-4aa0-8bb0-6d4c5922fc3e")
+	)
+	(wire
+		(pts
 			(xy 100.33 102.87) (xy 100.33 105.41)
 		)
 		(stroke
@@ -2013,6 +2015,16 @@
 			(type default)
 		)
 		(uuid "d511a377-a4ba-4b5f-903e-04a96ac62f31")
+	)
+	(wire
+		(pts
+			(xy 41.91 114.3) (xy 54.61 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d5908593-fa56-4867-845c-f9b07feee30d")
 	)
 	(wire
 		(pts
@@ -2623,6 +2635,16 @@
 		)
 		(uuid "0b370d3a-76a4-4077-8d9b-acf653c0209b")
 	)
+	(label "COIN_CNT_2"
+		(at 101.6 114.3 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "0b5eec09-a141-4c6f-bd5b-d12eef263d87")
+	)
 	(label "+12V"
 		(at 44.45 110.49 0)
 		(effects
@@ -2792,6 +2814,16 @@
 			(justify right bottom)
 		)
 		(uuid "9a248ae1-b155-4caa-9547-f5296c7c2529")
+	)
+	(label "COIN_CNT_1"
+		(at 41.91 114.3 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9bdc2d40-9891-44de-83bd-363208dafe6d")
 	)
 	(label "1P_RIGHT"
 		(at 100.33 147.32 180)
@@ -3397,8 +3429,8 @@
 		)
 	)
 	(sheet
-		(at 246.38 231.14)
-		(size 53.34 15.24)
+		(at 165.1 191.77)
+		(size 52.07 41.91)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0.1524)
@@ -3409,7 +3441,7 @@
 		)
 		(uuid "15815882-649a-4e2b-b52b-42807d916c40")
 		(property "Sheetname" "IO_Cabinet"
-			(at 246.38 229.1584 0)
+			(at 165.1 189.7884 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3418,7 +3450,7 @@
 			)
 		)
 		(property "Sheetfile" "IO_Cabinet.kicad_sch"
-			(at 246.38 246.9646 0)
+			(at 165.1 234.2646 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3435,7 +3467,7 @@
 		)
 	)
 	(sheet
-		(at 176.53 25.4)
+		(at 165.1 39.37)
 		(size 52.07 64.77)
 		(fields_autoplaced yes)
 		(stroke
@@ -3447,7 +3479,7 @@
 		)
 		(uuid "1c077b40-48fd-443d-9d28-2e0cfc8f47ec")
 		(property "Sheetname" "Main"
-			(at 176.53 24.6884 0)
+			(at 165.1 38.6584 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3456,7 +3488,7 @@
 			)
 		)
 		(property "Sheetfile" "Main.kicad_sch"
-			(at 176.53 90.7546 0)
+			(at 165.1 104.7246 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3473,7 +3505,7 @@
 		)
 	)
 	(sheet
-		(at 176.53 100.33)
+		(at 165.1 114.3)
 		(size 52.07 68.58)
 		(fields_autoplaced yes)
 		(stroke
@@ -3485,7 +3517,7 @@
 		)
 		(uuid "352c0ec6-92f1-4542-b6d5-7e0d5161301b")
 		(property "Sheetname" "Objects"
-			(at 176.53 99.6184 0)
+			(at 165.1 113.5884 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3494,7 +3526,7 @@
 			)
 		)
 		(property "Sheetfile" "Objects.kicad_sch"
-			(at 176.53 169.4946 0)
+			(at 165.1 183.4646 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3511,7 +3543,7 @@
 		)
 	)
 	(sheet
-		(at 246.38 100.33)
+		(at 234.95 114.3)
 		(size 53.34 68.58)
 		(fields_autoplaced yes)
 		(stroke
@@ -3523,7 +3555,7 @@
 		)
 		(uuid "5a8ab8b7-3ac6-4f89-ae9d-d6c160a4b9b3")
 		(property "Sheetname" "PSAC"
-			(at 246.38 98.3484 0)
+			(at 234.95 112.3184 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3532,7 +3564,7 @@
 			)
 		)
 		(property "Sheetfile" "PSAC.kicad_sch"
-			(at 246.38 169.4946 0)
+			(at 234.95 183.4646 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3549,7 +3581,7 @@
 		)
 	)
 	(sheet
-		(at 246.38 25.4)
+		(at 234.95 39.37)
 		(size 53.34 64.77)
 		(fields_autoplaced yes)
 		(stroke
@@ -3561,7 +3593,7 @@
 		)
 		(uuid "62e436b2-8a20-4c87-a30f-72bf52ffbdff")
 		(property "Sheetname" "Sound"
-			(at 246.38 23.4184 0)
+			(at 234.95 37.3884 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3570,7 +3602,7 @@
 			)
 		)
 		(property "Sheetfile" "Sound.kicad_sch"
-			(at 246.38 90.7546 0)
+			(at 234.95 104.7246 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3587,7 +3619,7 @@
 		)
 	)
 	(sheet
-		(at 246.38 177.8)
+		(at 234.95 191.77)
 		(size 53.34 15.24)
 		(fields_autoplaced yes)
 		(stroke
@@ -3599,7 +3631,7 @@
 		)
 		(uuid "842affe1-cb83-4d7d-8c91-491301a77554")
 		(property "Sheetname" "Capacitors"
-			(at 246.38 175.8184 0)
+			(at 234.95 189.7884 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3608,7 +3640,7 @@
 			)
 		)
 		(property "Sheetfile" "Capacitors.kicad_sch"
-			(at 246.38 193.6246 0)
+			(at 234.95 207.5946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3625,45 +3657,7 @@
 		)
 	)
 	(sheet
-		(at 176.53 177.8)
-		(size 52.07 69.85)
-		(fields_autoplaced yes)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(fill
-			(color 0 0 0 0.0000)
-		)
-		(uuid "cd979c46-d08f-4757-a941-ca76db01cdcb")
-		(property "Sheetname" "Scroll"
-			(at 176.53 175.8184 0)
-			(effects
-				(font
-					(size 3.81 3.81)
-				)
-				(justify left bottom)
-			)
-		)
-		(property "Sheetfile" "Scroll.kicad_sch"
-			(at 176.53 248.2346 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(instances
-			(project "rollerg"
-				(path "/bb61a05c-9ea0-4d47-a326-1f7e835840f3"
-					(page "4")
-				)
-			)
-		)
-	)
-	(sheet
-		(at 246.38 204.47)
+		(at 234.95 218.44)
 		(size 53.34 15.24)
 		(fields_autoplaced yes)
 		(stroke
@@ -3675,7 +3669,7 @@
 		)
 		(uuid "d83b6c8c-c605-4236-a48a-2a1594c9ef57")
 		(property "Sheetname" "Not_Populated"
-			(at 246.38 202.4884 0)
+			(at 234.95 216.4584 0)
 			(effects
 				(font
 					(size 3.81 3.81)
@@ -3684,7 +3678,7 @@
 			)
 		)
 		(property "Sheetfile" "Not_Populated.kicad_sch"
-			(at 246.38 220.2946 0)
+			(at 234.95 234.2646 0)
 			(effects
 				(font
 					(size 1.27 1.27)
