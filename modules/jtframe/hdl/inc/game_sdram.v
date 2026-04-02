@@ -470,7 +470,7 @@ localparam JTFRAME_PROM_START=`JTFRAME_PROM_START;
 // Dual port BRAM for {{$bus.Name}} and {{$bus.Dual_port.Name}}
 jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}}32{{end}} #(
     .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if or (eq $bus.Data_width 16) (eq $bus.Data_width 32) }},
-    .ENDIAN(0){{end}}{{ if $bus.Sim_file }},
+    .ENDIAN({{if $bus.Sim_big_endian}}1{{else}}0{{end}}){{end}}{{ if $bus.Sim_file }},
     .SIMFILE("{{$bus.Name}}.bin"){{else}}{{end}}
 ) u_bram_{{$bus.Name}}(
     // Port 0 - {{$bus.Name}}
@@ -512,7 +512,7 @@ jtframe_bram_rom #(
 // BRAM for {{$bus.Name}}
 jtframe_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}}32{{end}} #(
     .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if or (eq $bus.Data_width 16) (eq $bus.Data_width 32) }},
-    .ENDIAN(0){{end}}{{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }},
+    .ENDIAN({{if $bus.Sim_big_endian}}1{{else}}0{{end}}){{end}}{{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }},
     .DW({{$bus.Data_width}}){{end}}{{- if $bus.Sim_file }},
     .SIMFILE("{{$bus.Name}}.bin"){{end}}
 ) u_bram_{{$bus.Name}}(

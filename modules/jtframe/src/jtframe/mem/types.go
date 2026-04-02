@@ -53,19 +53,20 @@ type BRAMBus struct {
 	When   []string `yaml:"when"`
 	Unless []string `yaml:"unless"`
 
-	Name       string        `yaml:"name"`
-	Size       interface{}   `yaml:"size"`
-	Addr_width int           `yaml:"addr_width"` // Width for counting all *bytes*
-	Data_width int           `yaml:"data_width"`
-	Rw         bool          `yaml:"rw"`
-	We         string        `yaml:"we"`
-	Addr       string        `yaml:"addr"`
-	Din        string        `yaml:"din"`  // optional name for din signal
-	Dout       string        `yaml:"dout"` // optional name for dout signal
-	Sim_file   bool          `yaml:"sim_file"`
-	Prom       bool          `yaml:"prom"` // program contents after JTFRAME_PROM_START
-	Ioctl      BRAMBus_Ioctl `yaml:"ioctl"`
-	Dual_port  struct {
+	Name           string        `yaml:"name"`
+	Size           interface{}   `yaml:"size"`
+	Addr_width     int           `yaml:"addr_width"` // Width for counting all *bytes*
+	Data_width     int           `yaml:"data_width"`
+	Rw             bool          `yaml:"rw"`
+	We             string        `yaml:"we"`
+	Addr           string        `yaml:"addr"`
+	Din            string        `yaml:"din"`  // optional name for din signal
+	Dout           string        `yaml:"dout"` // optional name for dout signal
+	Sim_file       bool          `yaml:"sim_file"`
+	Sim_big_endian bool          `yaml:"sim_big_endian"`
+	Prom           bool          `yaml:"prom"` // program contents after JTFRAME_PROM_START
+	Ioctl          BRAMBus_Ioctl `yaml:"ioctl"`
+	Dual_port      struct {
 		Name string `yaml:"name"`
 		Addr string `yaml:"addr"` // may be needed if the RAM is 8 bits, but the dual port comes from a 16-bit address bus, so [...:1] should be added
 		Din  string `yaml:"din"`  // optional name for din signal
@@ -293,12 +294,12 @@ type SDRAMBus struct {
 }
 
 type SDRAMCacheLine struct {
-	When   []string `yaml:"when"`
-	Unless []string `yaml:"unless"`
-	Name     string `yaml:"name"`
+	When   []string       `yaml:"when"`
+	Unless []string       `yaml:"unless"`
+	Name   string         `yaml:"name"`
 	Cache  SDRAMCacheCfg  `yaml:"cache"`
 	At     SDRAMCacheAddr `yaml:"at"`
-	Rw	bool `yaml:"rw"`
+	Rw     bool           `yaml:"rw"`
 	Total  int
 }
 
@@ -341,9 +342,9 @@ func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) err
 	line.Name = aux.Name
 	for key := range raw_map {
 		switch key {
-		case "name","when", "unless", "cache", "at", "rw":
+		case "name", "when", "unless", "cache", "at", "rw":
 		default:
-			return fmt.Errorf("Unexpected field %s in cache line",key)
+			return fmt.Errorf("Unexpected field %s in cache line", key)
 		}
 	}
 	if line.Name == "" {

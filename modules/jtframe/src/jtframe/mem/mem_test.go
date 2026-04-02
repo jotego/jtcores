@@ -230,6 +230,53 @@ func Test_BRAMBus_Size_Rejections(t *testing.T) {
 	}
 }
 
+func Test_BRAMBus_SimBigEndian_Unmarshal(t *testing.T) {
+	sample := `bram:
+  - { name: default_little, size: 1kB }
+  - { name: explicit_big, size: 1kB, sim_big_endian: true }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if cfg.BRAM[0].Sim_big_endian {
+		t.Fatalf("Expected sim_big_endian to default to false")
+	}
+	if !cfg.BRAM[1].Sim_big_endian {
+		t.Fatalf("Expected sim_big_endian to unmarshal as true")
+	}
+}
+
+func Test_BRAMBus_SimBigEndian_Validation(t *testing.T) {
+	cfg := MemConfig{
+		BRAM: []BRAMBus{
+			{
+				Name:           "bytes",
+				Data_width:     8,
+				Sim_big_endian: true,
+			},
+			{
+				Name:           "words",
+				Data_width:     16,
+				Sim_big_endian: true,
+			},
+			{
+				Name:           "longs",
+				Data_width:     32,
+				Sim_big_endian: true,
+			},
+		},
+	}
+	if e := cfg.normalize_bram(); e == nil {
+		t.Fatalf("Expected 8-bit big-endian BRAM to be rejected")
+	}
+
+	cfg.BRAM = cfg.BRAM[1:]
+	if e := cfg.normalize_bram(); e != nil {
+		t.Fatalf("Expected 16-bit and 32-bit big-endian BRAMs to be accepted: %v", e)
+	}
+}
+
 func Test_fill_implicit_ports_expands_32bit_bram_write_enable(t *testing.T) {
 	cfg := MemConfig{
 		BRAM: []BRAMBus{

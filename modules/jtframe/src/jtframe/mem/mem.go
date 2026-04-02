@@ -245,6 +245,9 @@ func (cfg *MemConfig) check_gfx_sort() error {
 func (cfg *MemConfig) normalize_bram() error {
 	for k := range cfg.BRAM {
 		bram := &cfg.BRAM[k]
+		if bram.Sim_big_endian && bram.Data_width == 8 {
+			return fmt.Errorf("BRAM %s cannot use sim_big_endian with 8-bit data width", bram.Name)
+		}
 		if bram.Size == nil {
 			continue
 		}
