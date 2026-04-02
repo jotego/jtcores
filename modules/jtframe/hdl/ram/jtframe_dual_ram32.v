@@ -28,7 +28,7 @@ module jtframe_dual_ram32 #(parameter AW=10,
     SIMHEXFILE_1="",
     SIMHEXFILE_2="",
     SIMHEXFILE_3="",
-    ENDIAN=0,
+    ENDIAN=0,           // 0 == little endian: low byte comes first
     VERBOSE=0,          // set to 1 to display memory writes
     VERBOSE_OFFSET=0    // value added to the address when displaying
 )(
