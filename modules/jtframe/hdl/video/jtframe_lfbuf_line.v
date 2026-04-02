@@ -71,7 +71,6 @@ reg           vsl, lvbl_l, hs_l;
 reg  [   5:0] porch;
 reg  [VW-1:0] vstart=0, vend=0;
 wire [  15:0] linein_pxl, scr_pxl;
-wire [   5:0] vbs_len, vsy_len, vsa_len;
 wire          info_rdy;
 
 always @(posedge clk) if(pxl_cen) ln_pxl <= scr_pxl[DW-1:0];
@@ -105,32 +104,8 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_blank_length u_counter(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .pxl_cen    ( pxl_cen       ),
-
-    .lhbl       ( ~hs           ),
-    .lvbl       ( lvbl          ),
-    .hs         ( hs            ),
-    .vs         ( vs            ),
-
-    .v_len      (               ),
-    .h_len      (               ),
-    .hbs_len    (               ),
-    .hsy_len    (               ),
-    .hsa_len    (               ),
-    .vbs_len    ( vbs_len       ),  // V blank start to VS start
-    .vsy_len    ( vsy_len       ),  // VS length
-    .vsa_len    ( vsa_len       ),  // VS end to active video start
-    .rdy        ( info_rdy      )   // ready after two frames
-);
 
 reg       done;
-wire      active, // active video portion
-          vbs,    // blank start to sync start
-          vsy,    // sync start to end
-          vsa;    // sync end to active start
 reg [3:0] st;
 reg fbd_l;
 
@@ -138,13 +113,39 @@ localparam [3:0] ACTIVE=4'b1_000,
                  VBTOSY=4'b0_001;
 
 `ifdef JTFRAME_LF_FULLV
+    wire [5:0] vbs_len, vsy_len, vsa_len;
+    wire       active, // active video portion
+               vbs,    // blank start to sync start
+               vsy,    // sync start to end
+               vsa;    // sync end to active start
     assign {active,vsa,vsy,vbs} = st;
     assign fb_blank =  ~ln_lvbl;
+
+    jtframe_blank_length u_counter(
+        .rst        ( rst           ),
+        .clk        ( clk           ),
+        .pxl_cen    ( pxl_cen       ),
+
+        .lhbl       ( ~hs           ),
+        .lvbl       ( lvbl          ),
+        .hs         ( hs            ),
+        .vs         ( vs            ),
+
+        .v_len      (               ),
+        .h_len      (               ),
+        .hbs_len    (               ),
+        .hsy_len    (               ),
+        .hsa_len    (               ),
+        .vbs_len    ( vbs_len       ),  // V blank start to VS start
+        .vsy_len    ( vsy_len       ),  // VS length
+        .vsa_len    ( vsa_len       ),  // VS end to active video start
+        .rdy        ( info_rdy      )   // ready after two frames
+    );
 `else
-    assign fb_blank    = 0;
-    initial begin
-        ln_vs   = 0;
-        ln_lvbl = 1;
+    assign fb_blank = 0, info_rdy = 1;
+    always @* begin
+        ln_vs   = vs;
+        ln_lvbl = lvbl;
     end
 `endif
 

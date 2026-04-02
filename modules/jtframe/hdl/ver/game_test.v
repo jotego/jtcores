@@ -312,7 +312,11 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
 );
 `endif
 
-/* verilator tracing_off */
+`ifdef VERILATOR_KEEP_LFBUF
+    /* verilator tracing_on */
+`else
+    /* verilator tracing_off */
+`endif
 `ifdef JTFRAME_LF_BUFFER
         wire  [ 7:0] game_vrender;
         wire  [ 8:0] game_hdump;
