@@ -140,6 +140,10 @@ If the block needs a non-default master clock, set it through `.simunit`:
 --macros JTFRAME_MCLK=49152000
 ```
 
+# Memories
+
+If the unit under test (UUT) is connected to a memory bigger than 32 bytes (i.e. its address width is bigger than 5 bits), then assume in the test that the external memory will come from a `jtframe_*ram*` module. Use the right RAM module in JTFRAME to fit the needs of the UUT, rather than using directly a verilog array. This is important because the JTFRAME RAM module will introduce a 1-clock delay, which the UUT normally needs to take into account.
+
 # Authoring Checklist
 
 1. Put the test in its own folder under `ver`
