@@ -54,6 +54,7 @@ jtframe:
     when: [ SIMULATION ]
     get:
       - jtframe_romrq_rdy_check.v
+      - jtframe_ddr_model.v
   - from: lightgun
     get:
       - "*.v"
