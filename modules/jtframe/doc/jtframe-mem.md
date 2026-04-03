@@ -115,6 +115,8 @@ sdram:
           gfx_sort: hvvv(x) # makes it vvvh useful for 4-bit encodings
           gfx_sort_en: signal to and with gfx_sort to isolate sort convention for only a game
           do_not_erase: true # for rw slots, do not clear upon reset
+          simfile: tiles.bin # optional, used only by jtutil sdram --sim
+          sim_big_endian: true # optional for 16/32-bit simfile loads; invalid for 8-bit buses
         - name: another bus...
           when: [ POCKET ]        # use when/unless to set conditions that enabled or disabled the buses
     - buses: # same for bank 1
@@ -134,10 +136,13 @@ sdram:
         bank: 3
         offset: TILES
         length: 8MB
+      simfile: tilechar.bin
+      sim_big_endian: true
       # Cache lines are bank-relative and use 16-bit SDRAM word units for offset
       # offset must be either a parameter name or an explicit hexadecimal value
       # length is the address space exposed to the cache client
       # cache-lines generate jtframe_cache/jtframe_cache_mux based SDRAM access
+      # simfile and sim_big_endian are only consumed by jtutil sdram --sim
 # BRAM connections
 bram:
     - name: vram

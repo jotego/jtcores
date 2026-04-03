@@ -578,6 +578,9 @@ Set JTFRAME_HEADER in macros.def and define a [header.offset] in mame2mra.toml`)
 		}
 		total_ram := 0
 		for _, bus := range each.Buses {
+			if bus.Sim_big_endian && bus.Data_width == 8 {
+				return fmt.Errorf("jtframe mem: SDRAM bus %s in bank %d cannot use sim_big_endian with 8-bit data width", bus.Name, k)
+			}
 			if bus.Rw {
 				total_ram++
 			}
@@ -687,6 +690,9 @@ func (cfg *MemConfig) parse_cache_lines(param_values map[string]string) (total_c
 		case 8, 16, 32:
 		default:
 			return 0, 0, fmt.Errorf("jtframe mem: cache-line %s uses unsupported data_width %d", line.Name, line.Cache.Data_width)
+		}
+		if line.Sim_big_endian && line.Cache.Data_width == 8 {
+			return 0, 0, fmt.Errorf("jtframe mem: cache-line %s cannot use sim_big_endian with 8-bit data width", line.Name)
 		}
 		size_bytes, e := parse_memory_size(line.Cache.Size)
 		if e != nil {

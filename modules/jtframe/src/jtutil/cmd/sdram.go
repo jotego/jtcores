@@ -25,6 +25,8 @@ import (
 	sdramexec "jtutil/sdram"
 )
 
+var sdram_sim bool
+
 // sdramCmd represents the sdram command
 var sdramCmd = &cobra.Command{
 	Use:   "sdram [game-name]",
@@ -62,6 +64,12 @@ come from ` + "`" + `params` + "`" + ` expressions with macro references.
 If a bus defines ` + "`" + `gfx_sort_en` + "`" + `, jtutil sdram applies it automatically when the
 enable signal name matches the game name. The game name is derived from the
 current folder (or from the explicit command argument).
+
+If ` + "`" + `--sim` + "`" + ` is used, jtutil sdram also patches the generated SDRAM bank files with
+the ` + "`" + `simfile` + "`" + ` entries defined in ` + "`" + `sdram.banks[].buses[]` + "`" + ` and
+` + "`" + `sdram.cache-lines[]` + "`" + `. Files are copied in place at the bank-relative
+offset defined in mem.yaml, with optional 16/32-bit byte swapping when
+` + "`" + `sim_big_endian` + "`" + ` is true.
 `,
 	Run:  run_sdram,
 	Args: cobra.MaximumNArgs(1),
@@ -69,10 +77,11 @@ current folder (or from the explicit command argument).
 
 func init() {
 	rootCmd.AddCommand(sdramCmd)
+	sdramCmd.Flags().BoolVar(&sdram_sim, "sim", false, "Apply mem.yaml simfile overlays to SDRAM bank files")
 }
 
 func run_sdram(cmd *cobra.Command, args []string) {
-	err := sdramexec.Run(args, verbose)
+	err := sdramexec.Run(args, verbose, sdram_sim)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)

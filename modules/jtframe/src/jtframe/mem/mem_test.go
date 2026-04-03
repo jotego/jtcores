@@ -360,6 +360,8 @@ func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
     - name: tiles
       cache: { blocks: 32, size: 1kB, data_width: 32 }
       at:    { bank: 3, offset: CHAR, length: 8MB }
+      simfile: tilechar.bin
+      sim_big_endian: true
 `
 	var cfg MemConfig
 	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
@@ -375,6 +377,12 @@ func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
 	if line.At.Offset != "CHAR" {
 		t.Fatalf("Wrong cache-line offset. Got %s", line.At.Offset)
 	}
+	if line.Simfile != "tilechar.bin" {
+		t.Fatalf("Wrong cache-line simfile. Got %s", line.Simfile)
+	}
+	if !line.Sim_big_endian {
+		t.Fatalf("Expected cache-line sim_big_endian to unmarshal as true")
+	}
 }
 
 func Test_SDRAMCacheLine_Unmarshal_RejectsStart(t *testing.T) {
@@ -387,6 +395,28 @@ func Test_SDRAMCacheLine_Unmarshal_RejectsStart(t *testing.T) {
 	var cfg MemConfig
 	if e := yaml.Unmarshal([]byte(sample), &cfg); e == nil {
 		t.Fatal("Expected cache-line start field to be rejected")
+	}
+}
+
+func Test_SDRAMBus_Simfile_Unmarshal(t *testing.T) {
+	sample := `sdram:
+  banks:
+    - buses:
+        - name: tiles
+          addr_width: 12
+          data_width: 16
+          simfile: tiles.bin
+          sim_big_endian: true
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if got := cfg.SDRAM.Banks[0].Buses[0].Simfile; got != "tiles.bin" {
+		t.Fatalf("Wrong bus simfile. Got %s", got)
+	}
+	if !cfg.SDRAM.Banks[0].Buses[0].Sim_big_endian {
+		t.Fatalf("Expected bus sim_big_endian to unmarshal as true")
 	}
 }
 
@@ -556,6 +586,20 @@ func Test_check_sdram_cache_lines_rejects(t *testing.T) {
 				}},
 			},
 		},
+		{
+			SDRAM: SDRAMCfg{
+				Cache_lines: []SDRAMCacheLine{{
+					Name: "tiles",
+					Cache: SDRAMCacheCfg{
+						Blocks:     1,
+						Size:       "1kB",
+						Data_width: 8,
+					},
+					At:             SDRAMCacheAddr{Length: "8MB"},
+					Sim_big_endian: true,
+				}},
+			},
+		},
 	}
 	for _, cfg := range cases {
 		macros.MakeFromMap(nil)
@@ -570,6 +614,23 @@ func Test_check_sdram_rejects_empty_definition(t *testing.T) {
 	macros.MakeFromMap(nil)
 	if e := cfg.check_sdram(); e == nil {
 		t.Fatal("Expected empty SDRAM definition to fail")
+	}
+}
+
+func Test_check_sdram_rejects_8bit_big_endian_bank_simfile(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Banks: []SDRAMBank{{
+				Buses: []SDRAMBus{{
+					Name:           "tiles",
+					Data_width:     8,
+					Sim_big_endian: true,
+				}},
+			}},
+		},
+	}
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected 8-bit bank sim_big_endian to fail")
 	}
 }
 
