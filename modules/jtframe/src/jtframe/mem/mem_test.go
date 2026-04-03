@@ -392,7 +392,7 @@ func Test_SDRAMCacheLine_Unmarshal_RejectsStart(t *testing.T) {
 
 func Test_check_sdram_cache_lines(t *testing.T) {
 	cfg := MemConfig{
-		Params: []Param{{Name: "CHAR"}},
+		Params: []Param{{Name: "CHAR", Value: "22'h100"}},
 		SDRAM: SDRAMCfg{
 			Cache_lines: []SDRAMCacheLine{
 				{
@@ -434,6 +434,75 @@ func Test_check_sdram_cache_lines(t *testing.T) {
 	}
 	if cfg.SDRAM.Cache_lines[0].Total != 32*1024 {
 		t.Fatalf("Wrong total cache size. Got %d", cfg.SDRAM.Cache_lines[0].Total)
+	}
+}
+
+func Test_check_sdram_cache_lines_accepts_exact_bank_end(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lines: []SDRAMCacheLine{{
+				Name: "tiles",
+				Cache: SDRAMCacheCfg{
+					Blocks:     1,
+					Size:       "512B",
+					Data_width: 32,
+				},
+				At: SDRAMCacheAddr{
+					Offset: "0x3FF000",
+					Length: "8kB",
+				},
+			}},
+		},
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+}
+
+func Test_check_sdram_cache_lines_rejects_bank_overflow(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lines: []SDRAMCacheLine{{
+				Name: "tiles",
+				Cache: SDRAMCacheCfg{
+					Blocks:     1,
+					Size:       "512B",
+					Data_width: 32,
+				},
+				At: SDRAMCacheAddr{
+					Offset: "0x3FF000",
+					Length: "16kB",
+				},
+			}},
+		},
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected cache-line bank overflow to fail")
+	}
+}
+
+func Test_check_sdram_cache_lines_accepts_large_bank_overflow_case(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lines: []SDRAMCacheLine{{
+				Name: "tiles",
+				Cache: SDRAMCacheCfg{
+					Blocks:     1,
+					Size:       "512B",
+					Data_width: 32,
+				},
+				At: SDRAMCacheAddr{
+					Offset: "0x3FF000",
+					Length: "16kB",
+				},
+			}},
+		},
+	}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
 	}
 }
 

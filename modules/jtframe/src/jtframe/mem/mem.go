@@ -620,11 +620,20 @@ func (cfg *MemConfig) check_cache_lines() error {
 	if len(cfg.SDRAM.Cache_lines) == 0 || len(cfg.SDRAM.Cache_lines) > 8 {
 		return fmt.Errorf("jtframe mem: the number of cache-lines must be between 1 and 8 but %d were found", len(cfg.SDRAM.Cache_lines))
 	}
-	param_names := make(map[string]bool, len(cfg.Params))
+	param_values := make(map[string]string, len(cfg.Params))
 	for _, each := range cfg.Params {
-		param_names[each.Name] = true
+		if each.Value != "" {
+			param_values[each.Name] = each.Value
+		} else {
+			param_values[each.Name] = "`" + each.Name
+		}
 	}
-	total_cache, max_cache_size, err := cfg.parse_cache_lines(param_names)
+	old_macros := macros.CopyToMap()
+	defer macros.MakeFromMap(old_macros)
+	for name, value := range param_values {
+		macros.Set(name, value)
+	}
+	total_cache, max_cache_size, err := cfg.parse_cache_lines(param_values)
 	if err != nil {
 		return err
 	}
@@ -664,7 +673,11 @@ func (cfg *MemConfig) mark_all_banks_unused() {
 	}
 }
 
-func (cfg *MemConfig) parse_cache_lines(param_names map[string]bool) (total_cache, max_cache_size int, err error) {
+func (cfg *MemConfig) parse_cache_lines(param_values map[string]string) (total_cache, max_cache_size int, err error) {
+	bank_size_bytes := int64(8 * 1024 * 1024)
+	if macros.IsSet("JTFRAME_SDRAM_LARGE") {
+		bank_size_bytes = 16 * 1024 * 1024
+	}
 	for k := range cfg.SDRAM.Cache_lines {
 		line := &cfg.SDRAM.Cache_lines[k]
 		if line.Cache.Blocks == 0 {
@@ -691,7 +704,7 @@ func (cfg *MemConfig) parse_cache_lines(param_names map[string]bool) (total_cach
 			return 0, 0, fmt.Errorf("jtframe mem: invalid length for %s: %w", line.Name, e)
 		}
 		line.At.Length_bytes = length_bytes
-		if line.At.Offset != "" && !param_names[line.At.Offset] {
+		if line.At.Offset != "" && param_values[line.At.Offset] == "" {
 			if !strings.HasPrefix(line.At.Offset, "0x") && !strings.HasPrefix(line.At.Offset, "0X") {
 				return 0, 0, fmt.Errorf("jtframe mem: cache-line %s offset must match a parameter name or an explicit hexadecimal value", line.Name)
 			}
@@ -699,10 +712,25 @@ func (cfg *MemConfig) parse_cache_lines(param_names map[string]bool) (total_cach
 				return 0, 0, fmt.Errorf("jtframe mem: cache-line %s offset must match a parameter name or an explicit hexadecimal value", line.Name)
 			}
 		}
+		offset_words, e := resolve_cache_line_offset_words(line.At.Offset, param_values)
+		if e != nil {
+			return 0, 0, fmt.Errorf("jtframe mem: invalid offset for cache-line %s: %w", line.Name, e)
+		}
+		offset_bytes := offset_words << 1
+		if offset_bytes+int64(length_bytes) > bank_size_bytes {
+			return 0, 0, fmt.Errorf("jtframe mem: cache-line %s exceeds bank %d size (%d bytes offset + %d bytes length > %d bytes)", line.Name, line.At.Bank, offset_bytes, length_bytes, bank_size_bytes)
+		}
 		line.Total = line.Cache.Blocks * size_bytes
 		total_cache += line.Total
 	}
 	return total_cache, max_cache_size, nil
+}
+
+func resolve_cache_line_offset_words(offset string, param_values map[string]string) (int64, error) {
+	if offset == "" {
+		return 0, nil
+	}
+	return macros.Eval(offset)
 }
 
 func (cfg *MemConfig) report_cache_lines(total_cache int) {
