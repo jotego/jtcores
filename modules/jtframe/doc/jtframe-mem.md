@@ -148,6 +148,7 @@ bram:
       [addr:]
       [din:]
       [sim_file: true]
+      [sim_big_endian: true] # optional for 16/32-bit SIMFILE loads; default is little-endian
       ioctl:  # optionally dump to RAM file (mainly MiST/SiDi)
         save: true # a dump2bin.sh file will be generated in the sim folder
         restore: true # whether to load it upon core boot
@@ -166,6 +167,9 @@ bram:
       addr_width: 12
       data_width: 8
       sim_file: required if load is skipped
+      # sim_file defaults to little-endian lane mapping
+      # sim_big_endian: true swaps the byte lanes for 16/32-bit BRAMs
+      # sim_big_endian is invalid for 8-bit BRAMs
       rom:
         offset: position in prog_addr*2, with the bank number taking bits 24:23
     # BRAM used as PROM. Data width must be 8 or less
