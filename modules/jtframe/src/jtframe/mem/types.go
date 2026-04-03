@@ -312,7 +312,7 @@ type SDRAMCacheCfg struct {
 
 type SDRAMCacheAddr struct {
 	Bank         int    `yaml:"bank"`
-	Start        string `yaml:"start"`
+	Offset       string `yaml:"offset"`
 	Length       string `yaml:"length"`
 	Length_bytes int
 }
@@ -356,16 +356,29 @@ func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) err
 func (addr *SDRAMCacheAddr) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type raw_addr struct {
 		Bank   int    `yaml:"bank"`
-		Start  string `yaml:"start"`
+		Offset string `yaml:"offset"`
 		Length string `yaml:"length"`
+	}
+	var raw_map map[string]interface{}
+	if err := unmarshal(&raw_map); err != nil {
+		return err
 	}
 	var aux raw_addr
 	if err := unmarshal(&aux); err != nil {
 		return err
 	}
 	addr.Bank = aux.Bank
-	addr.Start = aux.Start
+	addr.Offset = aux.Offset
 	addr.Length = aux.Length
+	for key := range raw_map {
+		switch key {
+		case "bank", "offset", "length":
+		case "start":
+			return fmt.Errorf("Unexpected field %s in cache line address; use offset instead", key)
+		default:
+			return fmt.Errorf("Unexpected field %s in cache line address", key)
+		}
+	}
 	return nil
 }
 

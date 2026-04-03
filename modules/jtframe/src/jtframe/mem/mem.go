@@ -691,12 +691,12 @@ func (cfg *MemConfig) parse_cache_lines(param_names map[string]bool) (total_cach
 			return 0, 0, fmt.Errorf("jtframe mem: invalid length for %s: %w", line.Name, e)
 		}
 		line.At.Length_bytes = length_bytes
-		if line.At.Start != "" && !param_names[line.At.Start] {
-			if !strings.HasPrefix(line.At.Start, "0x") && !strings.HasPrefix(line.At.Start, "0X") {
-				return 0, 0, fmt.Errorf("jtframe mem: cache-line %s start must match a parameter name or an explicit hexadecimal value", line.Name)
+		if line.At.Offset != "" && !param_names[line.At.Offset] {
+			if !strings.HasPrefix(line.At.Offset, "0x") && !strings.HasPrefix(line.At.Offset, "0X") {
+				return 0, 0, fmt.Errorf("jtframe mem: cache-line %s offset must match a parameter name or an explicit hexadecimal value", line.Name)
 			}
-			if _, e := strconv.ParseUint(line.At.Start[2:], 16, 64); e != nil {
-				return 0, 0, fmt.Errorf("jtframe mem: cache-line %s start must match a parameter name or an explicit hexadecimal value", line.Name)
+			if _, e := strconv.ParseUint(line.At.Offset[2:], 16, 64); e != nil {
+				return 0, 0, fmt.Errorf("jtframe mem: cache-line %s offset must match a parameter name or an explicit hexadecimal value", line.Name)
 			}
 		}
 		line.Total = line.Cache.Blocks * size_bytes

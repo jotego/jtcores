@@ -352,7 +352,7 @@ jtframe_cache_mux #(
     .BLKSIZE{{$index}} ( {{ $line.Cache.Size_bytes }} ),
     .DW{{$index}}      ( {{ printf "%2d" $line.Cache.Data_width }} ),
     .BA{{$index}}      ( {{ $line.At.Bank }} ),
-    .OFFSET{{$index}}  ( {{ if $line.At.Start }}{{ $line.At.Start }}{{ else }}0{{ end }} ){{- end }}
+    .OFFSET{{$index}}  ( {{ if $line.At.Offset }}{{ $line.At.Offset }}{{ else }}0{{ end }} ){{- end }}
 ) u_cache(
     .rst       ( rst      ),
     .clk       ( clk      ),

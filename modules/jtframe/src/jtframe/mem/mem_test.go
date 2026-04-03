@@ -359,7 +359,7 @@ func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
   cache-lines:
     - name: tiles
       cache: { blocks: 32, size: 1kB, data_width: 32 }
-      at:    { bank: 3, start: CHAR, length: 8MB }
+      at:    { bank: 3, offset: CHAR, length: 8MB }
 `
 	var cfg MemConfig
 	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
@@ -372,8 +372,21 @@ func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
 	if line.Name != "tiles" {
 		t.Fatalf("Wrong cache-line name. Got %s", line.Name)
 	}
-	if line.At.Start != "CHAR" {
-		t.Fatalf("Wrong cache-line start. Got %s", line.At.Start)
+	if line.At.Offset != "CHAR" {
+		t.Fatalf("Wrong cache-line offset. Got %s", line.At.Offset)
+	}
+}
+
+func Test_SDRAMCacheLine_Unmarshal_RejectsStart(t *testing.T) {
+	sample := `sdram:
+  cache-lines:
+    - name: tiles
+      cache: { blocks: 32, size: 1kB, data_width: 32 }
+      at:    { bank: 3, start: CHAR, length: 8MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e == nil {
+		t.Fatal("Expected cache-line start field to be rejected")
 	}
 }
 
@@ -391,7 +404,7 @@ func Test_check_sdram_cache_lines(t *testing.T) {
 					},
 					At: SDRAMCacheAddr{
 						Bank:   3,
-						Start:  "CHAR",
+						Offset: "CHAR",
 						Length: "8MB",
 					},
 				},
@@ -468,7 +481,7 @@ func Test_check_sdram_cache_lines_rejects(t *testing.T) {
 						Data_width: 16,
 					},
 					At: SDRAMCacheAddr{
-						Start:  "UNKNOWN",
+						Offset: "UNKNOWN",
 						Length: "8MB",
 					},
 				}},
@@ -491,7 +504,7 @@ func Test_check_sdram_rejects_empty_definition(t *testing.T) {
 	}
 }
 
-func Test_check_sdram_cache_lines_accepts_hex_start(t *testing.T) {
+func Test_check_sdram_cache_lines_accepts_hex_offset(t *testing.T) {
 	cfg := MemConfig{
 		SDRAM: SDRAMCfg{
 			Cache_lines: []SDRAMCacheLine{
@@ -503,7 +516,7 @@ func Test_check_sdram_cache_lines_accepts_hex_start(t *testing.T) {
 						Data_width: 16,
 					},
 					At: SDRAMCacheAddr{
-						Start:  "0x100",
+						Offset: "0x100",
 						Length: "256kB",
 					},
 				},
@@ -516,7 +529,7 @@ func Test_check_sdram_cache_lines_accepts_hex_start(t *testing.T) {
 	}
 }
 
-func Test_check_sdram_cache_lines_rejects_decimal_start(t *testing.T) {
+func Test_check_sdram_cache_lines_rejects_decimal_offset(t *testing.T) {
 	cfg := MemConfig{
 		SDRAM: SDRAMCfg{
 			Cache_lines: []SDRAMCacheLine{
@@ -528,7 +541,7 @@ func Test_check_sdram_cache_lines_rejects_decimal_start(t *testing.T) {
 						Data_width: 16,
 					},
 					At: SDRAMCacheAddr{
-						Start:  "256",
+						Offset: "256",
 						Length: "256kB",
 					},
 				},
@@ -537,7 +550,7 @@ func Test_check_sdram_cache_lines_rejects_decimal_start(t *testing.T) {
 	}
 	macros.MakeFromMap(nil)
 	if e := cfg.check_sdram(); e == nil {
-		t.Fatal("Expected decimal cache-line start to fail")
+		t.Fatal("Expected decimal cache-line offset to fail")
 	}
 }
 

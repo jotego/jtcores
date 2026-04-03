@@ -93,11 +93,15 @@ audio:
 
 # Details about the SDRAM usage
 sdram:
+  # Use either banks or cache-lines, but not both at the same time
   banks:
     - buses: # connections to bank 0
         - name:
           addr_width:
           data_width: # 8, 16 or 32. It will affect the LSB start of addr_width
+          offset: GFXBASE # optional bank-relative SDRAM offset
+                          # offset uses 16-bit SDRAM word units, not bytes
+                          # this matches the generated RTL SLOT*_OFFSET semantics
           cache_size: 4 # default 0, will use the regular jtframe_romrq_bcache
                         # change it to !=0 to use jtframe_romrq_dcache, that will cache
                         # the served data to the game, rather than all the data coming
@@ -120,6 +124,20 @@ sdram:
         - name: another bus...
     - buses: # same for bank 3
         - name: another bus...
+  cache-lines:
+    - name: tiles
+      cache:
+        blocks: 32
+        size: 1kB
+        data_width: 32
+      at:
+        bank: 3
+        offset: TILES
+        length: 8MB
+      # Cache lines are bank-relative and use 16-bit SDRAM word units for offset
+      # offset must be either a parameter name or an explicit hexadecimal value
+      # length is the address space exposed to the cache client
+      # cache-lines generate jtframe_cache/jtframe_cache_mux based SDRAM access
 # BRAM connections
 bram:
     - name: vram
