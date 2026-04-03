@@ -16,7 +16,9 @@
     Version: 1.0
     Date: 8-7-2025 */
 /* verilator tracing_off */
-module jtframe_8bit_reg(
+module jtframe_8bit_reg #(
+    parameter SIMFILE="" // use to apply a different reset value during sims
+)(
     // do not change port order
     // as this module is intended for direct instantiation
     input             rst,
@@ -27,9 +29,38 @@ module jtframe_8bit_reg(
     output reg [ 7:0] dout
 );
 
+`ifdef SIMULATION
+reg [7:0] sim_rst, sim_load[0:0];
+integer   f, rdcnt;
+
+initial begin
+    sim_rst     = 0;
+    sim_load[0] = 0;
+    if( SIMFILE != "" ) begin
+        f = $fopen(SIMFILE,"rb");
+        if( f != 0 ) begin
+            rdcnt = $fread(sim_load, f);
+            $fclose(f);
+            sim_rst = sim_load[0];
+            $display("INFO: %m %s (%0d bytes)", SIMFILE, rdcnt);
+            if( rdcnt < 1 ) begin
+                $display("WARNING: SIMFILE %s is empty for %m", SIMFILE);
+            end
+        end else begin
+            $display("ERROR: cannot load file %s for %m", SIMFILE);
+            $finish;
+        end
+    end
+end
+`endif
+
 always @(posedge clk) begin
     if(rst) begin
+    `ifdef SIMULATION
+        dout <= sim_rst;
+    `else
         dout <= 0;
+    `endif
     end else begin
         if( cs && !wr_n ) begin
             dout[ 7:0] <= din[ 7:0];
