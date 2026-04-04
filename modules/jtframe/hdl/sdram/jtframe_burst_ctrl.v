@@ -75,7 +75,7 @@ reg         burst_write;
 reg         burst_first;
 reg         post_write_read_wait;
 
-wire [12:0] burst_row = AW == 22 ? burst_addr[AW-1:AW-13] : burst_addr[AW-2:AW-14];
+wire [12:0] burst_row = burst_addr[AW-1:COLW];
 wire [COLW-1:0] burst_col = burst_addr[COLW-1:0];
 wire [ 9:0] burst_col_a = { {(10-COLW){1'b0}}, burst_col };
 wire        page_last = &burst_col;
