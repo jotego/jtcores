@@ -168,22 +168,22 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
         always @(negedge downloading) begin : dump_contents
             integer dumpcnt,f;
             f=$fopen("sdram_bank0.hex","w");
-            for( dumpcnt=0; dumpcnt<mem_sizes; dumpcnt=dumpcnt+1)
+            for( dumpcnt=0; dumpcnt<=mem_sizes; dumpcnt=dumpcnt+1)
                 $fwrite(f,"%h\n",Bank0[dumpcnt]);
             $fclose(f);
             // Bank 1
             f=$fopen("sdram_bank1.hex","w");
-            for( dumpcnt=0; dumpcnt<mem_sizes; dumpcnt=dumpcnt+1)
+            for( dumpcnt=0; dumpcnt<=mem_sizes; dumpcnt=dumpcnt+1)
                 $fwrite(f,"%h\n",Bank1[dumpcnt]);
             $fclose(f);
             // Bank 2
             f=$fopen("sdram_bank2.hex","w");
-            for( dumpcnt=0; dumpcnt<mem_sizes; dumpcnt=dumpcnt+1)
+            for( dumpcnt=0; dumpcnt<=mem_sizes; dumpcnt=dumpcnt+1)
                 $fwrite(f,"%h\n",Bank2[dumpcnt]);
             $fclose(f);
             // Bank 2
             f=$fopen("sdram_bank3.hex","w");
-            for( dumpcnt=0; dumpcnt<mem_sizes; dumpcnt=dumpcnt+1)
+            for( dumpcnt=0; dumpcnt<=mem_sizes; dumpcnt=dumpcnt+1)
                 $fwrite(f,"%h\n",Bank3[dumpcnt]);
             $fclose(f);
             $display("INFO: SDRAM memory content dumped to sdram_bank?.hex at %t",$time);
@@ -203,7 +203,7 @@ module mt48lc16m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm,
         begin : dump_contents_frame
             integer dumpcnt,f;
             f=$fopen("sdram_last.hex","w");
-            for( dumpcnt=0; dumpcnt<4096*1024; dumpcnt=dumpcnt+1)
+            for( dumpcnt=0; dumpcnt<=mem_sizes; dumpcnt=dumpcnt+1)
                 $fwrite(f,"%h\n",Bank0[dumpcnt]);
             $fclose(f);
         end
