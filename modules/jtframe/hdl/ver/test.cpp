@@ -129,10 +129,10 @@ public:
 class SDRAM {
     UUT& dut;
     char *banks[4];
-    int rd_st[4], ba_blen[4], ba_addr[4];
+    int rd_st[4], rd_left[4], ba_blen[4], ba_addr[4];
     //int last_rd[5];
     char header[32];
-    int burst_len, burst_mask;
+    int burst_len, burst_mask, cas_latency;
     bool burst_full_page;
     int decode_burst_length(int mode);
     int read_offset( int region );
@@ -664,11 +664,14 @@ void SDRAM::change_burst() {
     int mode = dut.SDRAM_A;
     burst_len = decode_burst_length(mode);
     burst_full_page = (mode & 7) == 7;
+    cas_latency = (mode >> 4) & 7;
     burst_mask = ~(burst_len-1);
     if( burst_full_page ) {
-        fprintf(stderr, "SDRAM burst mode changed to full-page (%d words) mask 0x%X -> ", burst_len, burst_mask );
+        fprintf(stderr, "SDRAM burst mode changed to full-page (%d words) CAS=%d mask 0x%X -> ",
+            burst_len, cas_latency, burst_mask );
     } else {
-        fprintf(stderr, "SDRAM burst mode changed to %d mask 0x%X -> ", burst_len, burst_mask );
+        fprintf(stderr, "SDRAM burst mode changed to %d CAS=%d mask 0x%X -> ",
+            burst_len, cas_latency, burst_mask );
     }
     // Update bank burst lengths
 #ifdef _JTFRAME_BA0_LEN
@@ -702,52 +705,71 @@ void SDRAM::update() {
     bool neg_edge = !dut.SDRAM_CLK && last_clk;
     int cur_ba = dut.SDRAM_BA;
     cur_ba &= 3;
-    if( !dut.SDRAM_nCS && neg_edge ) {
-        if( !dut.SDRAM_nRAS && !dut.SDRAM_nCAS && !dut.SDRAM_nWE ) { // Mode register
-            change_burst();
-        }
-        if( !dut.SDRAM_nRAS && dut.SDRAM_nCAS && dut.SDRAM_nWE ) { // Row address - Activate command
-            ba_addr[ cur_ba ] = dut.SDRAM_A << COLW;
-            ba_addr[ cur_ba ] &= AMASK;
-        }
-        if( dut.SDRAM_nRAS && !dut.SDRAM_nCAS ) {
-            ba_addr[ cur_ba ] &= ~COLMASK;
-            ba_addr[ cur_ba ] |= (dut.SDRAM_A & COLMASK);
-            if( dut.SDRAM_nWE ) { // enque read
-                rd_st[ cur_ba ] = burst_len+2;
-            } else {
-                int dqm = dut.SDRAM_DQM;
-                // cout << "Write bank " << cur_ba <<
-                //         " ADDR = " << std::hex << ba_addr[cur_ba] <<
-                //         " DATA = " << dut.SDRAM_DIN << " Mask = " << dqm << std::dec<< '\n';
-                write_bank16( banks[cur_ba], ba_addr[cur_ba], dut.SDRAM_DIN, dqm );
+    if( neg_edge ) {
+        if( !dut.SDRAM_nCS ) {
+            if( !dut.SDRAM_nRAS && !dut.SDRAM_nCAS && !dut.SDRAM_nWE ) { // Mode register
+                change_burst();
+            }
+            if( !dut.SDRAM_nRAS && dut.SDRAM_nCAS && dut.SDRAM_nWE ) { // Row address - Activate command
+                ba_addr[ cur_ba ] = dut.SDRAM_A << COLW;
+                ba_addr[ cur_ba ] &= AMASK;
+            }
+            if( !dut.SDRAM_nRAS && dut.SDRAM_nCAS && !dut.SDRAM_nWE ) { // Precharge / Precharge all
+                if( dut.SDRAM_A & 0x400 ) {
+                    for( int k=0; k<4; k++ ) {
+                        rd_st[k] = 0;
+                        rd_left[k] = 0;
+                    }
+                } else {
+                    rd_st[cur_ba] = 0;
+                    rd_left[cur_ba] = 0;
+                }
+            }
+            if( dut.SDRAM_nRAS && !dut.SDRAM_nCAS ) {
+                ba_addr[ cur_ba ] &= ~COLMASK;
+                ba_addr[ cur_ba ] |= (dut.SDRAM_A & COLMASK);
+                if( dut.SDRAM_nWE ) { // enque read
+                    rd_st[ cur_ba ] = cas_latency;
+                    rd_left[ cur_ba ] = burst_full_page ? -1 : burst_len;
+                } else {
+                    int dqm = dut.SDRAM_DQM;
+                    // cout << "Write bank " << cur_ba <<
+                    //         " ADDR = " << std::hex << ba_addr[cur_ba] <<
+                    //         " DATA = " << dut.SDRAM_DIN << " Mask = " << dqm << std::dec<< '\n';
+                    write_bank16( banks[cur_ba], ba_addr[cur_ba], dut.SDRAM_DIN, dqm );
+                }
+            }
+            if( dut.SDRAM_nRAS && dut.SDRAM_nCAS && !dut.SDRAM_nWE ) { // Burst stop
+                for( int k=0; k<4; k++ ) {
+                    if( rd_left[k] != 0 ) {
+                        if( rd_left[k] < 0 || rd_left[k] > cas_latency ) rd_left[k] = cas_latency;
+                    }
+                }
             }
         }
         int ba_busy=-1;
         for( int k=0; k<4; k++ ) {
-            if( rd_st[k]>0 && rd_st[k]<=burst_len ) { // Tested with 32 and 64-bit reads (JTFRAME_BAx_LEN=64)
+            if( rd_st[k] > 0 ) {
+                rd_st[k]--;
+            } else if( rd_left[k] != 0 ) {
                 if( ba_busy>=0 && maxwarn>0 ) {
                     maxwarn--;
                     fputs("WARNING: (test.cpp) SDRAM reads clashed. This may happen if only some banks are used for longer bursts.\n",stderr);
                     // fprintf(stderr,"\tba_blen[%d]=%d\n\tba_blen[%d]=%d\n", ba_busy, ba_blen[ba_busy], k, ba_blen[k]);
                 }
-                // if( rd_st[k]==burst_len ) printf("Read start\n");
                 auto data_read = read_bank( banks[k], ba_addr[k] );
                 //cout << "Read " << std::hex << data_read << " from bank " << k << '\n';
                 dut.SDRAM_DQ = data_read;
-                if( burst_len>1 ) {
-                    // Increase the column within the burst
-                    auto col = ba_addr[k]&COLMASK;
-                    auto col_inc = (col+1) & ~burst_mask;
-                    col &= burst_mask;
-                    col |= col_inc;
-                    ba_addr[k] &= ~COLMASK;
-                    ba_addr[k] |= col;
-                }
+                // Increase the column within the burst.
+                auto col = ba_addr[k]&COLMASK;
+                auto col_inc = (col+1) & ~burst_mask;
+                col &= burst_mask;
+                col |= col_inc;
+                ba_addr[k] &= ~COLMASK;
+                ba_addr[k] |= col;
+                if( rd_left[k] > 0 ) rd_left[k]--;
                 ba_busy = k;
             }
-            if(rd_st[k]>0) rd_st[k]--;
-            if(rd_st[k]==(burst_len+1-ba_blen[k])) rd_st[k]=0;
         }
     }
     last_clk = dut.SDRAM_CLK;
@@ -768,10 +790,12 @@ SDRAM::SDRAM(UUT& _dut) : dut(_dut) {
     const int MAXBANK=3;
     banks[0] = nullptr;
     burst_len= 1;
+    cas_latency = 2;
     burst_full_page = false;
     for( int k=0; k<4; k++ ) {
         banks[k] = new char[BANK_LEN];
         rd_st[k]=0;
+        rd_left[k]=0;
         ba_addr[k]=0;
         // delete the content
         memset( banks[k], 0, BANK_LEN );
