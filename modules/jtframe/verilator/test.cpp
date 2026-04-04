@@ -29,8 +29,9 @@
 #include <sys/stat.h>
 #include "UUT.h"
 #include "defmacros.h"
+#include "sdram.h"
+#include "wavewritter.h"
 
-// fork
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -52,15 +53,6 @@
 #endif
 
 using namespace std;
-
-#ifdef _JTFRAME_SDRAM_LARGE
-    const int COLW     = 10;
-#else
-    const int COLW     = 9;
-#endif
-const int BANK_LEN = 0x4000 << COLW;
-const int AMASK    = (BANK_LEN>>1)-1;
-const int COLMASK  = (1<<COLW)-1;
 
 #ifndef _JTFRAME_SIM_DIPS
     #define _JTFRAME_SIM_DIPS 0xffffffff
@@ -110,44 +102,6 @@ void storeCRC( char *data, int len ) {
     }
 }
 
-class WaveWritter {
-    std::ofstream fsnd, fhex;
-    std::string name;
-    bool dump_hex;
-    void Constructor(const char *filename, int sample_rate, bool hex );
-public:
-    WaveWritter(const char *filename, int sample_rate, bool hex ) {
-        Constructor( filename, sample_rate, hex );
-    }
-    WaveWritter(const std::string &filename, int sample_rate, bool hex ) {
-        Constructor( filename.c_str(), sample_rate, hex );
-    }
-    void write( int16_t *lr );
-    ~WaveWritter();
-};
-
-class SDRAM {
-    UUT& dut;
-    char *banks[4];
-    int rd_st[4], rd_left[4], ba_blen[4], ba_addr[4];
-    //int last_rd[5];
-    char header[32];
-    int burst_len, burst_mask, cas_latency;
-    bool burst_full_page;
-    int decode_burst_length(int mode);
-    int read_offset( int region );
-    int read_bank( char *bank, int addr );
-    void write_bank16( char *bank,  int addr, int val, int dm /* act. low */ );
-    void change_burst();
-public:
-    SDRAM(UUT& _dut);
-    ~SDRAM();
-    void update();
-    void dump();
-};
-
-
-////// Clock advance
 class MultiClock {
 protected:
     int cnt;
@@ -159,7 +113,7 @@ public:
 #ifdef _JTFRAME_PLL
         semi = (vluint64_t)(1e12/(16.0*_JTFRAME_PLL*1000.0));
 #else
-        semi = (vluint64_t)10416; // 48MHz
+        semi = (vluint64_t)10416;
 #endif
     }
     virtual void advance_half_period()=0;
@@ -189,7 +143,6 @@ MultiClock* MakeMultiClock(UUT& game) {
 }
 
 void MultiClock48::advance_half_period() {
-    // keep order so clk signals are in phase
     game.clk24 = (cnt>>1)&1;
     cnt++;
     game.clk   =  cnt    &1;
@@ -199,7 +152,6 @@ void MultiClock48::advance_half_period() {
 }
 
 void MultiClock96::advance_half_period() {
-    // keep order so clk signals are in phase
     game.clk48 = (cnt>>1)&1;
     cnt++;
     cnt&=7;
@@ -231,7 +183,7 @@ public:
         dut.tilt      = 1;
         dut.dip_test  = 1;
 #ifdef _JTFRAME_OSD_FLIP
-        dut.dip_flip  = 1; // Disable OSD-based flip
+        dut.dip_flip  = 1;
 #endif
 #ifdef _SIM_INPUTS
         line = 0;
@@ -297,9 +249,9 @@ public:
         }
     }
     void apply_joystick(unsigned v) {
-        dut.joystick1 = 0x30f | ((v>>4)&0xf0); // buttons 1~4
-        v >>= 4;    // directions:
-        dut.joystick1    = (dut.joystick1&0xf0) | (v&0xf); // _JTFRAME_JOY_UDLR
+        dut.joystick1 = 0x30f | ((v>>4)&0xf0);
+        v >>= 4;
+        dut.joystick1    = (dut.joystick1&0xf0) | (v&0xf);
 #ifdef _JTFRAME_JOY_LRUD
         dut.joystick1    = (dut.joystick1&0xf0) | ((v&3)<<2) | ((v>>2)&3);
 #endif
@@ -353,13 +305,13 @@ public:
             int cart_len = fileLength("cart.bin");
             if( cart_len > 0 ) {
                 cart = true;
-                cart_start = len; // starts after rom.bin
+                cart_start = len;
                 len += cart_len;
             }
             int nvram_len = fileLength("nvram.bin");
             if( nvram_len > 0 ) {
                 nvram = true;
-                nvram_start = len; // starts after cart.bin
+                nvram_start = len;
                 len += nvram_len;
             }
 
@@ -399,7 +351,7 @@ public:
     };
     bool FullDownload() { return full_download; }
     void start( bool download ) {
-        full_download = download; // At least the first 32 bytes will always be downloaded
+        full_download = download;
         if( !full_download ) {
             if ( len > 32 ) {
                 fputs("ROM download shortened to 32 bytes.\n",stderr);
@@ -433,7 +385,7 @@ public:
 #else
             const int STEP=15;
 #endif
-            switch( ticks & STEP ) { // ~ 12 MBytes/s - at 6MHz jtframe_sdram64 misses writes
+            switch( ticks & STEP ) {
                 case 0:
                     addr++;
                     dut.ioctl_addr = addr;
@@ -517,15 +469,14 @@ class JTSim {
     void measure_screen_rate();
     void video_dump();
     void get_coremod();
-    bool trace;   // trace enable or not
-    bool dump_ok; // can we dump? (provided trace is enabled)
+    bool trace;
+    bool dump_ok;
     bool download;
     VerilatedVcdC* tracer;
     SDRAM sdram;
     SimInputs sim_inputs;
     Download dwn;
     int frame_cnt, last_LVBL, last_VS, last_flip;
-    // Video dump
     struct t_dump{
         ofstream fout;
         int k, half;
@@ -594,251 +545,6 @@ public:
     int time2ticks(vluint64_t time_in_ps) { return int(time_in_ps/(2L*multi_clock->get_semi_period())); }
 };
 
-////////////////////////////////////////////////////////////////////////
-//////////////////////// SDRAM /////////////////////////////////////////
-
-
-int SDRAM::read_bank( char *bank, int addr ) {
-    const int mask = (BANK_LEN>>1)-1; // 8/16MB in 16-bit words
-    addr &= mask;
-    int16_t *b16 =(int16_t*)bank;
-    int v = b16[addr]&0xffff;
-    return v;
-}
-
-void SDRAM::write_bank16( char *bank, int addr, int val, int dm /* act. low */ ) {
-    const int mask = (BANK_LEN>>1)-1; // 8/16MB in 16-bit words
-    addr &= mask;
-    int16_t *b16 =(int16_t*)bank;
-
-    int v = (int)b16[addr];
-    if( (dm&1) == 0 ) {
-        v &= 0xff00;
-        v |= val&0xff;
-    }
-    if( (dm&2) == 0 ) {
-        v &= 0xff;
-        v |= val&0xff00;
-    }
-    v &= 0xffff;
-    b16[addr] = (int16_t)v;
-}
-
-void SDRAM::dump() {
-    char *aux=new char[BANK_LEN];
-    for( int k=0; k<4; k++ ) {
-        char fname[32];
-        snprintf(fname,32,"sdram_bank%d.bin",k);
-        ofstream fout(fname,ios_base::binary);
-        if( !fout.good() ) {
-            fprintf(stderr,"ERROR: (test.cpp) creating %s\n", fname );
-        }
-        // reverse bytes because 16-bit access operation
-        // use the wrong endianness in intel machines
-        // this makes the dump compatible with other verilog simulators
-        for( int j=0;j<BANK_LEN;j++) {
-            aux[j^1] = banks[k][j];
-        }
-        fout.write(aux,BANK_LEN);
-        if( !fout.good() ) {
-            fprintf(stderr, "ERROR: (test.cpp) saving to %s\n", fname );
-        }
-        fprintf(stderr,"\t%s dumped\n", fname );
-    }
-    delete[] aux;
-}
-
-int SDRAM::decode_burst_length(int mode) {
-    switch( mode & 7 ) {
-        case 0: return 1;
-        case 1: return 2;
-        case 2: return 4;
-        case 3: return 8;
-        case 7: return 1 << COLW;
-        default:
-            throw "\nERROR: (test.cpp) unsupported SDRAM burst length encoding in mode register\n";
-    }
-}
-
-void SDRAM::change_burst() {
-    int mode = dut.SDRAM_A;
-    burst_len = decode_burst_length(mode);
-    burst_full_page = (mode & 7) == 7;
-    cas_latency = (mode >> 4) & 7;
-    burst_mask = ~(burst_len-1);
-    if( burst_full_page ) {
-        fprintf(stderr, "SDRAM burst mode changed to full-page (%d words) CAS=%d mask 0x%X -> ",
-            burst_len, cas_latency, burst_mask );
-    } else {
-        fprintf(stderr, "SDRAM burst mode changed to %d CAS=%d mask 0x%X -> ",
-            burst_len, cas_latency, burst_mask );
-    }
-    // Update bank burst lengths
-#ifdef _JTFRAME_BA0_LEN
-    ba_blen[0] = (_JTFRAME_BA0_LEN>>4)+1;
-#else
-    ba_blen[0] = 3; // default burst is 2, then +1 for read logic
-#endif
-#ifdef _JTFRAME_BA1_LEN
-    ba_blen[1] = (_JTFRAME_BA1_LEN>>4)+1;
-#else
-    ba_blen[1] = 3; // default burst is 2, then +1 for read logic
-#endif
-#ifdef _JTFRAME_BA2_LEN
-    ba_blen[2] = (_JTFRAME_BA2_LEN>>4)+1;
-#else
-    ba_blen[2] = 3; // default burst is 2, then +1 for read logic
-#endif
-#ifdef _JTFRAME_BA3_LEN
-    ba_blen[3] = (_JTFRAME_BA3_LEN>>4)+1;
-#else
-    ba_blen[3] = 3; // default burst is 2, then +1 for read logic
-#endif
-    fprintf(stderr,"burst per bank = {");
-    for(int k=0, first=1; k<4; k++, first=0 ) fprintf(stderr,"%s %d", first ? "" : ",", ba_blen[k]-1);
-    fprintf(stderr," }\n");
-}
-
-void SDRAM::update() {
-    static auto last_clk = dut.SDRAM_CLK;
-    static int maxwarn=25;
-    bool neg_edge = !dut.SDRAM_CLK && last_clk;
-    int cur_ba = dut.SDRAM_BA;
-    cur_ba &= 3;
-    if( neg_edge ) {
-        if( !dut.SDRAM_nCS ) {
-            if( !dut.SDRAM_nRAS && !dut.SDRAM_nCAS && !dut.SDRAM_nWE ) { // Mode register
-                change_burst();
-            }
-            if( !dut.SDRAM_nRAS && dut.SDRAM_nCAS && dut.SDRAM_nWE ) { // Row address - Activate command
-                ba_addr[ cur_ba ] = dut.SDRAM_A << COLW;
-                ba_addr[ cur_ba ] &= AMASK;
-            }
-            if( !dut.SDRAM_nRAS && dut.SDRAM_nCAS && !dut.SDRAM_nWE ) { // Precharge / Precharge all
-                if( dut.SDRAM_A & 0x400 ) {
-                    for( int k=0; k<4; k++ ) {
-                        rd_st[k] = 0;
-                        rd_left[k] = 0;
-                    }
-                } else {
-                    rd_st[cur_ba] = 0;
-                    rd_left[cur_ba] = 0;
-                }
-            }
-            if( dut.SDRAM_nRAS && !dut.SDRAM_nCAS ) {
-                ba_addr[ cur_ba ] &= ~COLMASK;
-                ba_addr[ cur_ba ] |= (dut.SDRAM_A & COLMASK);
-                if( dut.SDRAM_nWE ) { // enque read
-                    rd_st[ cur_ba ] = cas_latency;
-                    rd_left[ cur_ba ] = burst_full_page ? -1 : burst_len;
-                } else {
-                    int dqm = dut.SDRAM_DQM;
-                    // cout << "Write bank " << cur_ba <<
-                    //         " ADDR = " << std::hex << ba_addr[cur_ba] <<
-                    //         " DATA = " << dut.SDRAM_DIN << " Mask = " << dqm << std::dec<< '\n';
-                    write_bank16( banks[cur_ba], ba_addr[cur_ba], dut.SDRAM_DIN, dqm );
-                }
-            }
-            if( dut.SDRAM_nRAS && dut.SDRAM_nCAS && !dut.SDRAM_nWE ) { // Burst stop
-                for( int k=0; k<4; k++ ) {
-                    if( rd_left[k] != 0 ) {
-                        if( rd_left[k] < 0 || rd_left[k] > cas_latency ) rd_left[k] = cas_latency;
-                    }
-                }
-            }
-        }
-        int ba_busy=-1;
-        for( int k=0; k<4; k++ ) {
-            if( rd_st[k] > 0 ) {
-                rd_st[k]--;
-            } else if( rd_left[k] != 0 ) {
-                if( ba_busy>=0 && maxwarn>0 ) {
-                    maxwarn--;
-                    fputs("WARNING: (test.cpp) SDRAM reads clashed. This may happen if only some banks are used for longer bursts.\n",stderr);
-                    // fprintf(stderr,"\tba_blen[%d]=%d\n\tba_blen[%d]=%d\n", ba_busy, ba_blen[ba_busy], k, ba_blen[k]);
-                }
-                auto data_read = read_bank( banks[k], ba_addr[k] );
-                //cout << "Read " << std::hex << data_read << " from bank " << k << '\n';
-                dut.SDRAM_DQ = data_read;
-                // Increase the column within the burst.
-                auto col = ba_addr[k]&COLMASK;
-                auto col_inc = (col+1) & ~burst_mask;
-                col &= burst_mask;
-                col |= col_inc;
-                ba_addr[k] &= ~COLMASK;
-                ba_addr[k] |= col;
-                if( rd_left[k] > 0 ) rd_left[k]--;
-                ba_busy = k;
-            }
-        }
-    }
-    last_clk = dut.SDRAM_CLK;
-}
-
-
-int SDRAM::read_offset( int region ) {
-    if( region>=32 ) {
-        region = 0;
-        printf("ERROR: (test.cpp)  tried to read past the header\n");
-        return 0;
-    }
-    int offset = (((int)header[region]<<8) | ((int)header[region+1]&0xff)) & 0xffff;
-    return offset<<8;
-}
-
-SDRAM::SDRAM(UUT& _dut) : dut(_dut) {
-    const int MAXBANK=3;
-    banks[0] = nullptr;
-    burst_len= 1;
-    cas_latency = 2;
-    burst_full_page = false;
-    for( int k=0; k<4; k++ ) {
-        banks[k] = new char[BANK_LEN];
-        rd_st[k]=0;
-        rd_left[k]=0;
-        ba_addr[k]=0;
-        // delete the content
-        memset( banks[k], 0, BANK_LEN );
-        // Try to load a file for it
-        char fname[32];
-        snprintf(fname,32,"sdram_bank%d.bin",k);
-        ifstream fin( fname, ios_base::binary );
-        if( fin ) {
-            fin.seekg( 0, fin.end );
-            auto len = fin.tellg();
-            fin.seekg( 0, fin.beg );
-            if( len>BANK_LEN ) len=BANK_LEN;
-            char *aux=new char[BANK_LEN];
-            fin.read( aux, len );
-            auto pos = fin.tellg();
-            fprintf(stderr, "Read %X from %s\n", (int)pos, fname );
-            // reverse the byte order
-            for( int j=0;j<pos;j++) {
-                banks[k][j] = aux[j^1];
-            }
-            delete []aux;
-            // Reset the rest of the SDRAM bank
-            if( pos<BANK_LEN )
-                memset( (void*)&banks[k][pos], 0, BANK_LEN-pos);
-        }
-#ifndef _LOADROM
-        else {
-            if( k<=MAXBANK ) fprintf( stderr, "WARNING: (test.cpp) %s not found\n", fname);
-        }
-#endif
-    }
-}
-
-SDRAM::~SDRAM() {
-    for( int k=0; k<4; k++ ) {
-        delete [] banks[k];
-        banks[k] = nullptr;
-    }
-}
-
-////////////////////////////////////////////////////////////////////////
-//////////////////////// JTSIM /////////////////////////////////////////
-
 void JTSim::reset( int v ) {
     game.rst = v;
 #ifdef _JTFRAME_SIM96
@@ -858,7 +564,6 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
     if ( opt!=NULL ) convert_options = opt;
     multi_clock = MakeMultiClock(g);
     get_coremod();
-    // Derive the clock speed from _JTFRAME_PLL
     fprintf(stderr,"Simulation clock period set to %d ps (%.3f MHz)\n",
         ((int)multi_clock->get_semi_period()<<1), 1e6/(multi_clock->get_semi_period()<<1));
 #ifdef _LOADROM
@@ -882,15 +587,15 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
     }
 #endif
 #ifdef _JTFRAME_SIM_GFXEN
-    game.gfx_en=_JTFRAME_SIM_GFXEN;    // enable selected layers
+    game.gfx_en=_JTFRAME_SIM_GFXEN;
 #else
-    game.gfx_en=0xf;    // enable all layers
+    game.gfx_en=0xf;
 #endif
     game.dipsw=_JTFRAME_SIM_DIPS;
     fprintf(stderr,"DIP sw set to %X\n",game.dipsw);
     reset(0);
-    game.sdram_rst = 0; // the initial non-reset time should be short or JTKCPU
-    clock(24);          // will signal a bus error
+    game.sdram_rst = 0;
+    clock(24);
     game.sdram_rst = 1;
     reset(1);
     clock(48);
@@ -899,9 +604,7 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
     game.rst96 = 0;
 #endif
     clock(10);
-    // Wait for the SDRAM initialization
     for( int k=0; k<1000 && game.sdram_init==1; k++ ) clock(1000);
-    // Download the game ROM
     dwn.start(download);
 }
 
@@ -941,21 +644,15 @@ void JTSim::clock(int n) {
         sdram.update();
         dwn.update();
         if( !cur_dwn && last_dwnd ) {
-            // Download finished
             fprintf(stderr,"\nROM file transfered (frame %d)\n",frame_cnt);
             if( finish_time>0 ) finish_time += simtime/1000'000'000;
             if( finish_frame>0 && _DUMP_START==0 ) {
-                finish_frame += frame_cnt; // the finish frame value is
-                // counted from the time the download finishes, unless
-                // _DUMP_START was set by calling jtsim -w frame#
-                // in that case the total frame count will include the download
-                // frames to avoid situations where the finish_frame could
-                // be lower than the -w frame#, which would be confusing
+                finish_frame += frame_cnt;
             }
             if ( dwn.FullDownload() ) sdram.dump();
             reset(0);
         }
-#ifdef _RST_DLY // reset delay in us
+#ifdef _RST_DLY
         reset( simtime < RST_DLY*1000'000L ? 1 : 0);
 #endif
         last_dwnd = cur_dwn;
@@ -973,10 +670,9 @@ void JTSim::clock(int n) {
 #ifdef _DUMP
         if( tracer && dump_ok ) tracer->dump(simtime);
 #endif
-        // frame counter & inputs
         if( game.VS && !last_VS ) {
             measure_screen_rate();
-            fprintf(stderr,ANSI_COLOR_RED "%X" ANSI_COLOR_RESET, frame_cnt&0xf); // do not flush the streams. It can mess up
+            fprintf(stderr,ANSI_COLOR_RED "%X" ANSI_COLOR_RESET, frame_cnt&0xf);
             frame_cnt++;
 #ifdef _JTFRAME_SIM_IODUMP
             if( frame_cnt==_JTFRAME_SIM_IODUMP ) dwn.iodump_start();
@@ -985,17 +681,15 @@ void JTSim::clock(int n) {
                 dump_ok = 1;
                 fprintf(stderr,"\nDump starts (frame %d)\n", frame_cnt);
             }
-            // the display and fdisplay output of the verilog files
             if( (frame_cnt & 0x3f)==0 ) fprintf(stderr," - " ANSI_COLOR_YELLOW "%4d\n", frame_cnt);
 #ifdef _JTFRAME_SIM_DEBUG
             game.debug_bus++;
 #endif
         }
-        if( game.VS && !last_VS && (sim_inputs.is_controlling_reset() || !game.rst) ) sim_inputs.next();    // sim inputs are applied when entering sync
+        if( game.VS && !last_VS && (sim_inputs.is_controlling_reset() || !game.rst) ) sim_inputs.next();
         last_LVBL = game.LVBL;
         last_VS   = game.VS;
 
-        // Video dump
         video_dump();
     }
 }
@@ -1012,7 +706,6 @@ void JTSim::video_dump() {
     static int cntw[2], cnth[2];
     static int last_pxlcen=0;
     if( game.pxl_cen && !last_pxlcen ) {
-        // Dump the video
         if( game.LHBL && game.LVBL && frame_cnt>0 ) {
             const int MASK = (1<<_JTFRAME_COLORW)-1;
             int red   = game.red   & MASK;
@@ -1024,7 +717,6 @@ void JTSim::video_dump() {
                 ( color8(red  )       );
             dump.push( mix );
         }
-        // Count the video size
         if( !game.LHBL && LHBLl!=0 ) {
             totalw = cntw[0];
             activew= cntw[1];
@@ -1038,8 +730,6 @@ void JTSim::video_dump() {
                 int CCW = (coremod&4)>>2;
                 CCW ^= game.dip_flip&1;
                 if( dump.diff() ) {
-                    // converts image to jpg in a different fork
-                    // I suppose a thread would be faster...
                     if( fork()==0 ) {
                         int len = (activew*activeh)<<2;
                         storeCRC(dump.prev_buffer(),len);
@@ -1051,7 +741,7 @@ void JTSim::video_dump() {
                             snprintf(exes,512,"convert -filter Point "
                                 "-size %dx%d %s -depth 8 RGBA:frame.raw %s frames/frame_%05d.jpg",
                                 activew, activeh,
-                                (coremod&1) ? (CCW ? "-rotate -90" : "-rotate 90") : "", // rotate vertical games
+                                (coremod&1) ? (CCW ? "-rotate -90" : "-rotate 90") : "",
                                 convert_options.c_str(), frame_cnt);
                             if( system(exes) ) {
                                 printf("WARNING: (test.cpp) convert tool did not succeed\n");
@@ -1113,72 +803,12 @@ void JTSim::parse_args( int argc, char *argv[] ) {
     #endif
 }
 
-void WaveWritter::write( int16_t* lr ) {
-    fsnd.write( (char*)lr, sizeof(int16_t)*2 );
-    if( dump_hex ) {
-        fhex << hex << lr[0] << '\n';
-        fhex << hex << lr[1] << '\n';
-    }
-}
-
-void WaveWritter::Constructor( const char *filename, int sample_rate, bool hex ) {
-    name = filename;
-    fsnd.open(filename, ios_base::binary);
-    dump_hex = hex;
-    if( dump_hex ) {
-        char *hexname;
-        hexname = new char[strlen(filename)+1];
-        strcpy(hexname,filename);
-        strcpy( hexname+strlen(filename)-4, ".hex" );
-        cerr << "Hex file " << hexname << '\n';
-        fhex.open(hexname);
-        delete[] hexname;
-    }
-    // write header
-    char zero=0;
-    for( int k=0; k<45; k++ ) fsnd.write( &zero, 1 );
-    fsnd.seekp(0);
-    fsnd.write( "RIFF", 4 ); // @ 0
-    fsnd.seekp(8);
-    fsnd.write( "WAVEfmt ", 8 );  // @ 8
-    int32_t number32 = 16;
-    fsnd.write( (char*)&number32, 4 ); // @ 16
-    int16_t number16 = 1;
-    fsnd.write( (char*) &number16, 2); // @ 20
-    number16=2;
-    fsnd.write( (char*) &number16, 2); // @ 22
-    number32 = sample_rate;
-    fsnd.write( (char*)&number32, 4 ); // @ 26
-    number32 = sample_rate*2*2;
-    fsnd.write( (char*)&number32, 4 ); // @ 30
-    number16=2*2;   // Block align
-    fsnd.write( (char*) &number16, 2); // @ 32
-    number16=16;
-    fsnd.write( (char*) &number16, 2); // @ 34
-    fsnd.write( "data", 4 ); // @ 36
-    fsnd.seekp(44);
-}
-
-WaveWritter::~WaveWritter() {
-    int32_t number32;
-    streampos file_length = fsnd.tellp();
-    number32 = (int32_t)file_length-8;
-    fsnd.seekp(4);
-    fsnd.write( (char*)&number32, 4);
-    fsnd.seekp(40);
-    number32 = (int32_t)file_length-44;
-    fsnd.write( (char*)&number32, 4);
-}
-
 void report_vrate( float vrate ) {
     printf("\nFrame rate: %.2f Hz\n",vrate);
     ofstream framerate("framerate");
     framerate << vrate;
     framerate.close();
 }
-
-////////////////////////////////////////////////////
-// Main
 
 int main(int argc, char *argv[]) {
     VerilatedContext context;
@@ -1191,8 +821,8 @@ int main(int argc, char *argv[]) {
         JTSim sim(game, argc, argv);
         int ticks_48kHz = sim.time2ticks(20'833'333);
         while( !sim.done() ) {
-            sim.clock(ticks_48kHz); // this will dump at 48kHz sampling rate
-            sim.update_wav(); // Other clock rates will not have exact wav dumps
+            sim.clock(ticks_48kHz);
+            sim.update_wav();
             if( sim.get_frame()==3 ) {
                 if( sim.activeh != _JTFRAME_HEIGHT || sim.activew != _JTFRAME_WIDTH ) {
                     fprintf(stderr, "\nERROR: (test.cpp)  video size mismatch. Macros define it as %dx%d but the core outputs %dx%d\n",
@@ -1201,8 +831,6 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
-        // wait until all child processes created with fork() are completed
-        // before exiting.
         while(wait(NULL) != -1);
 #ifdef _COVERAGE
         mkdir("logs",0755)==0;

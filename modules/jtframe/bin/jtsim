@@ -491,7 +491,17 @@ verilator)
         export CPPFLAGS="$CPPFLAGS -DVERILATOR_TRACE"
     fi
     if [ -z "$TESTCPP" ]; then
-        cp $JTFRAME/hdl/ver/test.cpp .
+        cp $JTFRAME/verilator/test.cpp .
+        cp $JTFRAME/verilator/sdram.cpp .
+        cp $JTFRAME/verilator/sdram.h .
+        cp $JTFRAME/verilator/wavewritter.cpp .
+        cp $JTFRAME/verilator/wavewritter.h .
+    else
+        [ -e test.cpp ] || cp $JTFRAME/verilator/test.cpp .
+        [ -e sdram.cpp ] || cp $JTFRAME/verilator/sdram.cpp .
+        [ -e sdram.h ] || cp $JTFRAME/verilator/sdram.h .
+        [ -e wavewritter.cpp ] || cp $JTFRAME/verilator/wavewritter.cpp .
+        [ -e wavewritter.h ] || cp $JTFRAME/verilator/wavewritter.h .
     fi
     # verilog to C++ conversion
     GAME_VLT=
