@@ -78,6 +78,7 @@ module jtframe_mister #(parameter
     input               ln_done,
     input               ln_we,
     output              ln_hs, ln_vs, ln_lvbl,
+    output       [15:0] ln_dout,
     output       [15:0] ln_pxl,
     output       [ 7:0] ln_v,
 
@@ -922,6 +923,7 @@ wire rot_clk;
         .ln_data    ( ln_data       ),
         .ln_done    ( ln_done       ),
         .ln_hs      ( ln_hs         ),
+        .ln_dout    ( ln_dout       ),
         .ln_pxl     ( ln_pxl        ),
         .ln_v       ( ln_v          ),
         .ln_vs      ( ln_vs         ),

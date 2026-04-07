@@ -55,8 +55,7 @@ end
 
 jtframe_dual_ram16 #(
     .AW(11),
-    .SIMFILE_LO("obj_lo.bin"),
-    .SIMFILE_HI("obj_hi.bin")
+    .SIMFILE("obj.bin")
 ) u_ram(
     .clk0   ( clk       ),
     .clk1   ( clk       ),

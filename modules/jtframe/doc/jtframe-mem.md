@@ -93,11 +93,15 @@ audio:
 
 # Details about the SDRAM usage
 sdram:
+  # Use either banks or cache-lines, but not both at the same time
   banks:
     - buses: # connections to bank 0
         - name:
           addr_width:
           data_width: # 8, 16 or 32. It will affect the LSB start of addr_width
+          offset: GFXBASE # optional bank-relative SDRAM offset
+                          # offset uses 16-bit SDRAM word units, not bytes
+                          # this matches the generated RTL SLOT*_OFFSET semantics
           cache_size: 4 # default 0, will use the regular jtframe_romrq_bcache
                         # change it to !=0 to use jtframe_romrq_dcache, that will cache
                         # the served data to the game, rather than all the data coming
@@ -111,6 +115,8 @@ sdram:
           gfx_sort: hvvv(x) # makes it vvvh useful for 4-bit encodings
           gfx_sort_en: signal to and with gfx_sort to isolate sort convention for only a game
           do_not_erase: true # for rw slots, do not clear upon reset
+          simfile: tiles.bin # optional, used only by jtutil sdram --sim
+          sim_big_endian: true # optional for 16/32-bit simfile loads; invalid for 8-bit buses
         - name: another bus...
           when: [ POCKET ]        # use when/unless to set conditions that enabled or disabled the buses
     - buses: # same for bank 1
@@ -120,6 +126,23 @@ sdram:
         - name: another bus...
     - buses: # same for bank 3
         - name: another bus...
+  cache-lines:
+    - name: tiles
+      cache:
+        blocks: 32
+        size: 1kB
+        data_width: 32
+      at:
+        bank: 3
+        offset: TILES
+        length: 8MB
+      simfile: tilechar.bin
+      sim_big_endian: true
+      # Cache lines are bank-relative and use 16-bit SDRAM word units for offset
+      # offset must be either a parameter name or an explicit hexadecimal value
+      # length is the address space exposed to the cache client
+      # cache-lines generate jtframe_cache/jtframe_cache_mux based SDRAM access
+      # simfile and sim_big_endian are only consumed by jtutil sdram --sim
 # BRAM connections
 bram:
     - name: vram
@@ -130,6 +153,7 @@ bram:
       [addr:]
       [din:]
       [sim_file: true]
+      [sim_big_endian: true] # optional for 16/32-bit SIMFILE loads; default is little-endian
       ioctl:  # optionally dump to RAM file (mainly MiST/SiDi)
         save: true # a dump2bin.sh file will be generated in the sim folder
         restore: true # whether to load it upon core boot
@@ -148,6 +172,9 @@ bram:
       addr_width: 12
       data_width: 8
       sim_file: required if load is skipped
+      # sim_file defaults to little-endian lane mapping
+      # sim_big_endian: true swaps the byte lanes for 16/32-bit BRAMs
+      # sim_big_endian is invalid for 8-bit BRAMs
       rom:
         offset: position in prog_addr*2, with the bank number taking bits 24:23
     # BRAM used as PROM. Data width must be 8 or less

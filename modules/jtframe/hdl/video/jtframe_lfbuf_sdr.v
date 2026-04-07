@@ -43,6 +43,7 @@ module jtframe_lfbuf_sdr #(parameter
     input               ln_done,
     input               ln_we,
     output              ln_hs, ln_vs, ln_lvbl,
+    output     [DW-1:0] ln_dout,
     output     [DW-1:0] ln_pxl,
     output     [VW-1:0] ln_v,
 
@@ -130,6 +131,7 @@ jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
     .ln_addr    ( ln_addr   ),
     .ln_data    ( ln_data   ),
     .ln_we      ( ln_we     ),
+    .ln_dout    ( ln_dout   ),
     .ln_pxl     ( ln_pxl    ),
 
     // data written to external memory

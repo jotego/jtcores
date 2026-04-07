@@ -1,4 +1,4 @@
-/*  This file is part of JT_FRAME.
+/*  This file is part of JTFRAME.
     JTFRAME program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -53,6 +53,7 @@ func init() {
 	flag.BoolVarP (&mra_args.SkipMRA,       "skipMRA",       "s", false, "Do not generate MRA files")
 	flag.BoolVarP (&mra_args.SkipROM,       "skipROM",       "n", false, "Do not generate .rom files")
 	flag.BoolVarP (&mra_args.MainOnly,      "mainonly",      "o", false, "Only parse the main version of each game")
+	flag.BoolVar  (&mra_args.Alt,           "alt",                false, "Generate only alternative MRA files")
 	flag.BoolVar  (&mra_args.Nodbg,         "nodbg",              false, "Do not parse games in debug phase")
 	flag.BoolVarP (&mra_args.Md5,           "md5",           "m", false, "Calculate MD5 sum even if the ROM is not saved")
 	flag.BoolVar  (&mra_args.PrintNames,    "names",              false, "Print out the title of each game supported")
@@ -68,6 +69,10 @@ func init() {
 
 func runMRA(cmd *cobra.Command, args []string) {
 	mra.Verbose = verbose
+	if mra_args.Alt {
+		mra_args.SkipPocket = true
+		mra_args.SkipROM = true
+	}
 	if cmd_args.reduce {
 		if len(args)<1 {
 			fmt.Println("Expected one argument with the path mame.xml")

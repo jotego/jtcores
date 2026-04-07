@@ -123,10 +123,7 @@ always @(posedge clk_gfx) begin
     clr_addr <= clr_addr+1'd1;
 end
 
-jtframe_dual_ram16 #(
-    .AW(AW-2)
-    // ,.SIMFILE_LO("objx_lo.bin"), .SIMFILE_HI("objx_hi.bin")
-) u_x(
+jtframe_dual_ram16 #(.AW(AW-2)) u_x(
     .clk0       ( clk_cpu      ),
     .clk1       ( clk_gfx      ),
     // Port 0: CPU
@@ -141,10 +138,7 @@ jtframe_dual_ram16 #(
     .q1         ( obj_x        )
 );
 
-jtframe_dual_ram16 #(
-    .AW(AW-2)
-    // ,.SIMFILE_LO("objy_lo.bin"), .SIMFILE_HI("objy_hi.bin")
-) u_y(
+jtframe_dual_ram16 #(.AW(AW-2)) u_y(
     .clk0       ( clk_cpu      ),
     .clk1       ( clk_gfx      ),
     // Port 0: CPU
@@ -159,10 +153,7 @@ jtframe_dual_ram16 #(
     .q1         ( obj_y        )
 );
 
-jtframe_dual_ram16 #(
-    .AW(AW-2)
-    // ,.SIMFILE_LO("objattr_lo.bin"), .SIMFILE_HI("objattr_hi.bin")
-) u_attr(
+jtframe_dual_ram16 #(.AW(AW-2)) u_attr(
     .clk0       ( clk_cpu      ),
     .clk1       ( clk_gfx      ),
     // Port 0: CPU
@@ -177,10 +168,7 @@ jtframe_dual_ram16 #(
     .q1         ( obj_attr     )
 );
 
-jtframe_dual_ram16 #(
-    .AW(AW-2)
-    // ,.SIMFILE_LO("objcode_lo.bin"), .SIMFILE_HI("objcode_hi.bin")
-) u_code(
+jtframe_dual_ram16 #(.AW(AW-2)) u_code(
     .clk0       ( clk_cpu      ),
     .clk1       ( clk_gfx      ),
     // Port 0: CPU

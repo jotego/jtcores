@@ -17,8 +17,7 @@
     Date: 23-3-2022 */
 
 module jtngp_scr #( parameter
-    SIMFILE_LO = "scr1_lo.bin",
-    SIMFILE_HI = "scr1_hi.bin"
+    SIMFILE = "scr1.bin"
 )(
     input             rst,
     input             clk,
@@ -65,9 +64,8 @@ always @(posedge clk) if(we!=0) { chk_a, chk_d } <= { cpu_addr, cpu_dout & {{8{w
 `endif
 // 2048 bytes = 32x32 characters
 jtframe_dual_ram16 #(
-    .AW         (  10         ),
-    .SIMFILE_LO ( SIMFILE_LO  ),
-    .SIMFILE_HI ( SIMFILE_HI  )
+    .AW      (  10      ),
+    .SIMFILE ( SIMFILE  )
 ) u_ram(
     // Port 0
     .clk0   ( clk       ),

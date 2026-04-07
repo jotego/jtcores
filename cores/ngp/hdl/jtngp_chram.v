@@ -76,9 +76,8 @@ reg [12:1] chk_a=0;
 always @(posedge clk) if(we!=0) { chk_a, chk_d } <= { cpu_addr, cpu_dout & {{8{we[1]}},{8{we[0]}}} };
 `endif
 jtframe_dual_ram16 #(
-    .AW         ( 12            ),  // 4kB
-    .SIMFILE_LO ("ch_lo.bin"    ),
-    .SIMFILE_HI ("ch_hi.bin"    )
+    .AW      ( 12      ),  // 4kB
+    .SIMFILE ("ch.bin" )
 ) u_chram(
     // Port 0
     .clk0   ( clk        ),

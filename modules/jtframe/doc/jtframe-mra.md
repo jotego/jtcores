@@ -26,6 +26,12 @@ Orientation={ Fixed=true } # use when rotation CW/CCW information from MAME is n
 
 [parse]
 sourcefile=[ "mamefile1.cpp", "mamefile2.cpp"... ]
+# Explicit parent sets to keep clone families together when the parent
+# is not part of the selected sourcefile list. The description is used
+# to name alternate folders.
+parents=[
+    { name="parentset", description="Parent Description" }
+]
 skip.Setnames=["willskip1","willskip2"]
 skip.Bootlegs=true # to skip bootlegs
 debug={ # do not parse when --nodbg is set

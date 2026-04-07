@@ -53,19 +53,20 @@ type BRAMBus struct {
 	When   []string `yaml:"when"`
 	Unless []string `yaml:"unless"`
 
-	Name       string        `yaml:"name"`
-	Size       interface{}   `yaml:"size"`
-	Addr_width int           `yaml:"addr_width"` // Width for counting all *bytes*
-	Data_width int           `yaml:"data_width"`
-	Rw         bool          `yaml:"rw"`
-	We         string        `yaml:"we"`
-	Addr       string        `yaml:"addr"`
-	Din        string        `yaml:"din"`  // optional name for din signal
-	Dout       string        `yaml:"dout"` // optional name for dout signal
-	Sim_file   bool          `yaml:"sim_file"`
-	Prom       bool          `yaml:"prom"` // program contents after JTFRAME_PROM_START
-	Ioctl      BRAMBus_Ioctl `yaml:"ioctl"`
-	Dual_port  struct {
+	Name           string        `yaml:"name"`
+	Size           interface{}   `yaml:"size"`
+	Addr_width     int           `yaml:"addr_width"` // Width for counting all *bytes*
+	Data_width     int           `yaml:"data_width"`
+	Rw             bool          `yaml:"rw"`
+	We             string        `yaml:"we"`
+	Addr           string        `yaml:"addr"`
+	Din            string        `yaml:"din"`  // optional name for din signal
+	Dout           string        `yaml:"dout"` // optional name for dout signal
+	Sim_file       bool          `yaml:"sim_file"`
+	Sim_big_endian bool          `yaml:"sim_big_endian"`
+	Prom           bool          `yaml:"prom"` // program contents after JTFRAME_PROM_START
+	Ioctl          BRAMBus_Ioctl `yaml:"ioctl"`
+	Dual_port      struct {
 		Name string `yaml:"name"`
 		Addr string `yaml:"addr"` // may be needed if the RAM is 8 bits, but the dual port comes from a 16-bit address bus, so [...:1] should be added
 		Din  string `yaml:"din"`  // optional name for din signal
@@ -277,29 +278,33 @@ type SDRAMBus struct {
 	When   []string `yaml:"when"`
 	Unless []string `yaml:"unless"`
 
-	Name       string `yaml:"name"`
-	Offset     string `yaml:"offset"`
-	Addr       string `yaml:"addr"`
-	Addr_width int    `yaml:"addr_width"` // Width for counting all *bytes*
-	Data_width int    `yaml:"data_width"`
-	Cache_size int    `yaml:"cache_size"`
-	Rw         bool   `yaml:"rw"`
-	Dont_erase bool   `yaml:"do_not_erase"`
-	Dsn        string `yaml:"dsn"` // optional name for dsn signal
-	Din        string `yaml:"din"` // optional name for din signal
-	Cs         string `yaml:"cs"`
-	Gfx        string `yaml:"gfx_sort"`
-	Gfx_en     string `yaml:"gfx_sort_en"`
+	Name           string `yaml:"name"`
+	Offset         string `yaml:"offset"`
+	Addr           string `yaml:"addr"`
+	Addr_width     int    `yaml:"addr_width"` // Width for counting all *bytes*
+	Data_width     int    `yaml:"data_width"`
+	Cache_size     int    `yaml:"cache_size"`
+	Rw             bool   `yaml:"rw"`
+	Dont_erase     bool   `yaml:"do_not_erase"`
+	Dsn            string `yaml:"dsn"` // optional name for dsn signal
+	Din            string `yaml:"din"` // optional name for din signal
+	Cs             string `yaml:"cs"`
+	Gfx            string `yaml:"gfx_sort"`
+	Gfx_en         string `yaml:"gfx_sort_en"`
+	Simfile        string `yaml:"simfile"`
+	Sim_big_endian bool   `yaml:"sim_big_endian"`
 }
 
 type SDRAMCacheLine struct {
-	When   []string `yaml:"when"`
-	Unless []string `yaml:"unless"`
-	Name     string `yaml:"name"`
-	Cache  SDRAMCacheCfg  `yaml:"cache"`
-	At     SDRAMCacheAddr `yaml:"at"`
-	Rw	bool `yaml:"rw"`
-	Total  int
+	When           []string       `yaml:"when"`
+	Unless         []string       `yaml:"unless"`
+	Name           string         `yaml:"name"`
+	Cache          SDRAMCacheCfg  `yaml:"cache"`
+	At             SDRAMCacheAddr `yaml:"at"`
+	Rw             bool           `yaml:"rw"`
+	Simfile        string         `yaml:"simfile"`
+	Sim_big_endian bool           `yaml:"sim_big_endian"`
+	Total          int
 }
 
 type SDRAMCacheCfg struct {
@@ -311,7 +316,7 @@ type SDRAMCacheCfg struct {
 
 type SDRAMCacheAddr struct {
 	Bank         int    `yaml:"bank"`
-	Start        string `yaml:"start"`
+	Offset       string `yaml:"offset"`
 	Length       string `yaml:"length"`
 	Length_bytes int
 }
@@ -320,11 +325,14 @@ type SDRAMCacheAddr struct {
 // read values to *line
 func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type raw_line struct {
-		When   []string       `yaml:"when"`
-		Unless []string       `yaml:"unless"`
-		Cache  SDRAMCacheCfg  `yaml:"cache"`
-		At     SDRAMCacheAddr `yaml:"at"`
-		Name   string         `yaml:"name"`
+		When           []string       `yaml:"when"`
+		Unless         []string       `yaml:"unless"`
+		Cache          SDRAMCacheCfg  `yaml:"cache"`
+		At             SDRAMCacheAddr `yaml:"at"`
+		Name           string         `yaml:"name"`
+		Rw             bool           `yaml:"rw"`
+		Simfile        string         `yaml:"simfile"`
+		Sim_big_endian bool           `yaml:"sim_big_endian"`
 	}
 	var raw_map map[string]interface{}
 	if err := unmarshal(&raw_map); err != nil {
@@ -339,11 +347,14 @@ func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) err
 	line.Cache = aux.Cache
 	line.At = aux.At
 	line.Name = aux.Name
+	line.Rw = aux.Rw
+	line.Simfile = aux.Simfile
+	line.Sim_big_endian = aux.Sim_big_endian
 	for key := range raw_map {
 		switch key {
-		case "name","when", "unless", "cache", "at", "rw":
+		case "name", "when", "unless", "cache", "at", "rw", "simfile", "sim_big_endian":
 		default:
-			return fmt.Errorf("Unexpected field %s in cache line",key)
+			return fmt.Errorf("Unexpected field %s in cache line", key)
 		}
 	}
 	if line.Name == "" {
@@ -355,16 +366,29 @@ func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) err
 func (addr *SDRAMCacheAddr) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type raw_addr struct {
 		Bank   int    `yaml:"bank"`
-		Start  string `yaml:"start"`
+		Offset string `yaml:"offset"`
 		Length string `yaml:"length"`
+	}
+	var raw_map map[string]interface{}
+	if err := unmarshal(&raw_map); err != nil {
+		return err
 	}
 	var aux raw_addr
 	if err := unmarshal(&aux); err != nil {
 		return err
 	}
 	addr.Bank = aux.Bank
-	addr.Start = aux.Start
+	addr.Offset = aux.Offset
 	addr.Length = aux.Length
+	for key := range raw_map {
+		switch key {
+		case "bank", "offset", "length":
+		case "start":
+			return fmt.Errorf("Unexpected field %s in cache line address; use offset instead", key)
+		default:
+			return fmt.Errorf("Unexpected field %s in cache line address", key)
+		}
+	}
 	return nil
 }
 

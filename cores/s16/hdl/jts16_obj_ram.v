@@ -38,8 +38,7 @@ wire [ 1:0] cpu_we = ~dswn & {2{obj_cs}};
 
 jtframe_dual_ram16 #(
     .AW(10),
-    .SIMFILE_LO("obj_lo.bin"),
-    .SIMFILE_HI("obj_hi.bin")
+    .SIMFILE("obj.bin")
 ) u_ram(
     .clk0   ( clk       ),
     .clk1   ( clk       ),

@@ -3,8 +3,18 @@ author=["jotego"]
 
 [parse]
 sourcefile=[ "trackfld.cpp" ]
-skip.bootlegs=true
-skip.setnames=["mastkin","wizzquiz","wizzquiza","reaktor","trackfldu"]
+skip.setnames=[
+    "mastkin","wizzquiz","wizzquiza","reaktor","trackfldu",
+    # ROM offset problems
+    "atlantol","hipoly","hyprolyma",
+    # unlisted regions
+    "hyprolymba","hyprolymb",
+    # different memory map
+    "yieartf"
+]
+parents = [
+    { name="yiear", Description="Yie Ar Kungfu" }
+]
 
 [Audio]
 volume = [

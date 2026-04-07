@@ -413,20 +413,24 @@
       "Root"
     ],
     [
-      "805fec21-08ac-4fe3-ba05-5c1ef8326531",
-      "Cabinet"
+      "ee9a6692-7e20-4076-8da2-ad8bb94039e5",
+      "Main"
     ],
     [
       "c390cb2e-f868-499c-8d5c-c75efb799de2",
       "Video"
     ],
     [
-      "ee9a6692-7e20-4076-8da2-ad8bb94039e5",
-      "Main"
-    ],
-    [
       "dceca2ed-c4f4-4b96-afed-6e3228263183",
       "Sound"
+    ],
+    [
+      "805fec21-08ac-4fe3-ba05-5c1ef8326531",
+      "Cabinet"
+    ],
+    [
+      "4c9355f7-e735-4a81-bcef-ca22027377c8",
+      "Shared"
     ],
     [
       "b3195ec8-4a0e-4706-a564-dff00e24157a",
@@ -435,10 +439,6 @@
     [
       "92d6dbb9-9ff6-4cee-b616-807a1eab1d93",
       "Sub"
-    ],
-    [
-      "f566b6cb-2bad-4085-a0a3-8260db2e02fc",
-      "Analog"
     ],
     [
       "ff374925-5a69-4797-8d83-abcb6aadd80e",
@@ -453,20 +453,8 @@
       "Video RAM"
     ],
     [
-      "4c9355f7-e735-4a81-bcef-ca22027377c8",
-      "Shared"
-    ],
-    [
-      "d2dafa65-7b54-4d44-b53d-e4413c9de3b9",
-      "MCU"
-    ],
-    [
       "7fbb623a-ecfc-43d4-9109-67cffb38e389",
       "Palette"
-    ],
-    [
-      "dcf0a762-6f50-4e5d-aab5-5bb9d3148dc4",
-      "Watchdog"
     ],
     [
       "1af4ccb3-690b-4ad5-98c7-ebb6bbd9993e",
@@ -475,6 +463,18 @@
     [
       "51a2aea8-e32a-40d2-8f40-8bd1aacb4e40",
       "Line buffer"
+    ],
+    [
+      "d2dafa65-7b54-4d44-b53d-e4413c9de3b9",
+      "MCU"
+    ],
+    [
+      "dcf0a762-6f50-4e5d-aab5-5bb9d3148dc4",
+      "Watchdog"
+    ],
+    [
+      "f566b6cb-2bad-4085-a0a3-8260db2e02fc",
+      "Analog"
     ],
     [
       "ae4b6ec6-8c85-4200-965a-bd5292c28f91",

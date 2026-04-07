@@ -113,11 +113,7 @@ jtframe_blank #(.DLY(2),.DW(24)) u_blank(
 );
 
 // Red - Green palette RAM
-jtframe_dual_ram16 #(
-    .AW        ( 10          ),
-    .SIMFILE_LO("pal0_lo.bin"),
-    .SIMFILE_HI("pal0_hi.bin")
-) u_ram_gr(
+jtframe_dual_ram16 #(.AW(10)) u_ram_gr(
     // CPU writes
     .clk0   ( clk_cpu   ),
     .addr0  ( cpu_addr  ),

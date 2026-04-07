@@ -73,11 +73,16 @@ func (args *Args) Convert() error {
 	if Verbose || len(parsed_machines) == 0 {
 		log.Println("Total: ", len(parsed_machines), " games")
 	}
-	args.main_copied = args.SkipMRA
-	if !args.SkipMRA {
+	args.main_copied = args.SkipMRA || args.Alt
+	if !args.SkipMRA && !args.Alt {
 		delete_core_mrafiles(macros.Get("CORENAME"), args.outdir)
 	}
-	all_errors := args.dump_setnames(parsed_machines, parent_names)
+	var all_errors error
+	if args.Alt {
+		all_errors = args.dump_alt_setnames(parsed_machines, parent_names)
+	} else {
+		all_errors = args.dump_setnames(parsed_machines, parent_names)
+	}
 	bad_header := dump_verilog_header(args.Core, args.mra_cfg.Header)
 	all_errors = common.JoinErrors(all_errors, bad_header)
 	if !args.main_copied {
@@ -121,6 +126,40 @@ func (args *Args) dump_setnames(parsed_machines []ParsedMachine, parent_names ma
 		all_errors = common.JoinErrors(all_errors, fmt.Errorf("Error: no setnames dumped."))
 	}
 	return all_errors
+}
+
+func (args *Args) dump_alt_setnames(parsed_machines []ParsedMachine, parent_names map[string]string) (all_errors error) {
+	count := 0
+	for _, d := range parsed_machines {
+		_, good := parent_names[d.machine.Cloneof]
+		if args.is_skippable_setname(d.machine.Name) {
+			continue
+		}
+		if !good && len(d.machine.Cloneof) != 0 {
+			fmt.Printf("Skipping derivative '%s' as parent '%s' was not found\n",
+				d.machine.Name, d.machine.Cloneof)
+			continue
+		}
+		for _, altversion := range collect_alt_versions(d.machine, args.mra_cfg) {
+			alt_args := *args
+			alt_args.cur_alt_version = altversion
+			alt_xml, _, _ := make_mra(d.machine, args.mra_cfg, alt_args)
+			dump_mra(alt_args, d.machine, args.mra_cfg, alt_xml, parent_names)
+			count++
+		}
+	}
+	return all_errors
+}
+
+func collect_alt_versions(machine *MachineXML, cfg Mame2MRA) []string {
+	all_versions := make([]string, 0, 8)
+	for _, each := range cfg.ROM.Patches {
+		if each.Altversion == "" || each.Match(machine) == 0 || slices.Contains(all_versions, each.Altversion) {
+			continue
+		}
+		all_versions = append(all_versions, each.Altversion)
+	}
+	return all_versions
 }
 
 func (args *Args) is_skippable_setname(name string) bool {
@@ -381,7 +420,6 @@ func is_main(machine *MachineXML, mra_cfg Mame2MRA) bool {
 }
 
 func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode, parent_names map[string]string) {
-	fname := args.outdir
 	game_name := strings.ReplaceAll(mra_xml.GetNode("name").GetText(), ":", "")
 	game_name = strings.ReplaceAll(game_name, "/", "-")
 	// Create the output directory
@@ -394,24 +432,53 @@ func dump_mra(args Args, machine *MachineXML, mra_cfg Mame2MRA, mra_xml *XMLNode
 			log.Fatal(err, args.outdir)
 		}
 	}
-	// Redirect clones to their own folder
-	main_mra := is_main(machine, mra_cfg)
-	if is_alternative := machine.Cloneof != "" && !main_mra; is_alternative {
-		parent_name := parent_names[machine.Cloneof]
-		group_name := get_altdir_name(parent_name)
-		fname = filepath.Join(args.altdir, "_"+group_name)
-		err := os.MkdirAll(fname, 0775)
-		if err != nil && !os.IsExist(err) {
-			log.Fatal(err, fname)
-		}
-	}
-	fname += "/" + fix_filename(game_name) + ".mra"
+	fname := make_mra_filename(args, machine, mra_cfg, game_name, parent_names)
 	// fmt.Println("Output to ", fname)
 	var b strings.Builder
 	b.WriteString(mra_disclaimer(machine, args.Year))
 	b.WriteString(mra_xml.Dump())
 	b.WriteString("\n")
 	os.WriteFile(fname, []byte(b.String()), 0666)
+}
+
+func make_mra_filename(args Args, machine *MachineXML, mra_cfg Mame2MRA, game_name string, parent_names map[string]string) string {
+	if args.cur_alt_version != "" {
+		alt_parent_dir := get_alt_patch_dir(args, machine, mra_cfg, parent_names)
+		err := os.MkdirAll(alt_parent_dir, 0775)
+		if err != nil && !os.IsExist(err) {
+			log.Fatal(err, alt_parent_dir)
+		}
+		return filepath.Join(alt_parent_dir, fmt.Sprintf("(%s)%s.mra", args.cur_alt_version, fix_filename(game_name)))
+	}
+	alt_parent_dir := get_alt_parent_dir(args, machine, mra_cfg, parent_names)
+	fname := args.outdir
+	if alt_parent_dir != args.altdir {
+		fname = alt_parent_dir
+		err := os.MkdirAll(fname, 0775)
+		if err != nil && !os.IsExist(err) {
+			log.Fatal(err, fname)
+		}
+	}
+	return fname + "/" + fix_filename(game_name) + ".mra"
+}
+
+func get_alt_patch_dir(args Args, machine *MachineXML, mra_cfg Mame2MRA, parent_names map[string]string) string {
+	parent_dir := get_alt_parent_dir(args, machine, mra_cfg, parent_names)
+	if parent_dir != args.altdir {
+		return parent_dir
+	}
+	group_name := get_altdir_name(machine.Description)
+	return filepath.Join(args.altdir, "_"+group_name)
+}
+
+func get_alt_parent_dir(args Args, machine *MachineXML, mra_cfg Mame2MRA, parent_names map[string]string) string {
+	main_mra := is_main(machine, mra_cfg)
+	if machine.Cloneof == "" || main_mra {
+		return args.altdir
+	}
+	parent_name := parent_names[machine.Cloneof]
+	group_name := get_altdir_name(parent_name)
+	return filepath.Join(args.altdir, "_"+group_name)
 }
 
 func get_altdir_name(parent_name string) string {
