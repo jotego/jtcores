@@ -414,6 +414,10 @@
     [
       "15815882-649a-4e2b-b52b-42807d916c40",
       "IO_Cabinet"
+    ],
+    [
+      "ca3386bd-c37d-476a-bf28-530d63ff5e75",
+      "RGB"
     ]
   ],
   "text_variables": {}
