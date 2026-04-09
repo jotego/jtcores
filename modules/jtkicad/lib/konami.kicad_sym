@@ -52256,7 +52256,7 @@
 					)
 				)
 			)
-			(pin output inverted
+			(pin input inverted
 				(at -16.51 -25.4 0)
 				(length 5.08)
 				(name "SEL0"
@@ -52274,7 +52274,7 @@
 					)
 				)
 			)
-			(pin output inverted
+			(pin input inverted
 				(at -16.51 -22.86 0)
 				(length 5.08)
 				(name "SEL1"
@@ -52670,7 +52670,7 @@
 					)
 				)
 			)
-			(pin output inverted
+			(pin input inverted
 				(at -16.51 -20.32 0)
 				(length 5.08)
 				(name "SEL2"
