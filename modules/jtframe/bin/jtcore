@@ -154,7 +154,7 @@ make_macros_env_vars
 # lower case version
 corename=${CORENAME,,}
 
-if [ -v JTFRAME_SKIP ]; then
+if [ -v $JTFRAME_SKIP ]; then
     echo "Compilation skipped for $TARGET because of JTFRAME_SKIP"
     echo "Use -u JTFRAME_SKIP to override this."
     echo "PASS"
