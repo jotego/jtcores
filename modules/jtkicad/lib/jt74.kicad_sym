@@ -5191,7 +5191,7 @@
 				)
 			)
 			(pin power_in line
-				(at 1.27 -7.62 90)
+				(at 0 -7.62 90)
 				(length 5.08) hide
 				(name "GND"
 					(effects

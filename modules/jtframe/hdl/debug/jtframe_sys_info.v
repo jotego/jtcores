@@ -132,7 +132,7 @@ always @(posedge clk) begin
             2: st_dout <= stats; // SDRAM stats
             3: case( st_addr[5:4] )
                 0: st_dout <= { core_mod[3:0], dial_x, game_led, dip_flip };
-                1: case(st_addr[3:0])
+                1: case(st_addr[2:0])
                     0: st_dout <= game_joy1[7:0];
                     1: st_dout <= {game_coin[0],game_start[0],game_joy1[9:4]};
                     2: st_dout <= {rot,game_tilt,game_test,game_service,game_coin[1:0],game_start[1:0]};
@@ -148,7 +148,7 @@ always @(posedge clk) begin
                     2: st_dout <= gun_2p_x[8:1];
                     3: st_dout <= gun_2p_y[8:1];
                 endcase
-                default:; // 3
+                default: st_dout <= 0; // 3
             endcase
             default: st_dout <= 0;
         endcase

@@ -21,6 +21,7 @@ localparam [25:0] BA2_START  =`ifdef JTFRAME_BA2_START  `JTFRAME_BA2_START  `els
 localparam [25:0] BA3_START  =`ifdef JTFRAME_BA3_START  `JTFRAME_BA3_START  `else 26'd0 `endif;
 localparam [25:0] PROM_START =`ifdef JTFRAME_PROM_START `JTFRAME_PROM_START `else 26'd0 `endif;
 localparam [25:0] HEADER_LEN =`ifdef JTFRAME_HEADER     `JTFRAME_HEADER     `else 26'd0 `endif;
+localparam        SDRAMW     =`ifdef JTFRAME_SDRAM_LARGE 24 `else 23 `endif;
 /* verilator lint_on WIDTH */
 
 {{ range .Params }}
@@ -50,7 +51,7 @@ wire mute;
 // BRAM buses
 {{- range $cnt, $bus:=.BRAM }}
 {{ if .Dual_port.Name }}
-{{ if not .Dual_port.We }}wire    {{ if eq .Data_width 16 }}[ 1:0]{{else}}      {{end}}{{.Dual_port.Name}}_we; // Dual port for {{.Dual_port.Name}}
+{{ if not .Dual_port.We }}wire    {{ if gt (div .Data_width 8) 1 }}[{{sub (div .Data_width 8) 1}}:0]{{else}}      {{end}}{{.Dual_port.Name}}_we; // Dual port for {{.Dual_port.Name}}
 {{end}}{{end}}
 {{- end}}
 // SDRAM buses
@@ -65,8 +66,15 @@ wire {{ data_range . }} {{.Name}}_din;
 wire [ 1:0] {{.Name}}_dsn;
 {{end}}{{end}}
 {{- end}}
+{{- range .SDRAM.Cache_lines}}
+wire {{ cache_line_addr_range . }} {{.Name}}_addr;
+wire [{{ sub .Cache.Data_width 1 }}:0] {{.Name}}_data;
+wire        {{.Name}}_cs, {{.Name}}_ok;
+{{- end}}
 wire        prom_we, header;
-wire [21:0] raw_addr, post_addr;
+wire [SDRAMW-2:0] raw_addr, post_addr;
+wire [SDRAMW-2:0] ioctl_prog_addr   = ioctl_addr[SDRAMW-2:0];
+wire [SDRAMW-2:0] sdram_offset_zero = {(SDRAMW-1){1'b0}};
 wire [25:0] pre_addr, dwnld_addr, ioctl_addr_noheader;
 wire [ 7:0] post_data;
 wire [15:0] raw_data;
@@ -77,10 +85,19 @@ wire        pass_io;
     {{- range $v }}
     {{- range .Outputs }}
 wire {{ . }}; {{ end }}{{ end }}{{ end }}
-wire gfx4_en, gfx8_en, gfx16_en, gfx16b_en, ioctl_dwn;
+wire gfx4_en, gfx8_en, gfx16_en, gfx16b_en, gfx16c_en, ioctl_dwn;
 
 assign pass_io = header | ioctl_ram;
 assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? ioctl_addr : ioctl_addr - HEADER_LEN `else ioctl_addr `endif ;
+`ifdef JTFRAME_SDRAM_CACHE
+{{- if eq (len .SDRAM.Cache_lines) 0 }}
+assign burst_addr = { (SDRAMW-1){1'b0} };
+assign burst_ba   = 2'd0;
+assign burst_rd   = 1'b0;
+assign burst_wr   = 1'b0;
+assign burst_din  = 16'd0;
+{{- end }}
+`endif
 
 wire rst_h, rst24_h, rst48_h, hold_rst;
 
@@ -171,6 +188,14 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .{{.Name}}   ( {{.Name}} ),
     {{- end}}
     // Memory interface - SDRAM
+    {{- if gt (len .SDRAM.Cache_lines) 0 }}
+    {{- range .SDRAM.Cache_lines}}
+    .{{.Name}}_addr ( {{.Name}}_addr ),
+    .{{.Name}}_cs   ( {{.Name}}_cs   ),
+    .{{.Name}}_ok   ( {{.Name}}_ok   ),
+    .{{.Name}}_data ( {{.Name}}_data ),
+    {{- end}}
+    {{- else }}
     {{- range .SDRAM.Banks}}
     {{- range .Buses}}{{if not .Addr}}
     .{{.Name}}_addr ( {{.Name}}_addr ),{{end}}{{ if not .Cs}}
@@ -183,6 +208,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     {{if not .Din}}.{{.Name}}_din  ( {{.Name}}_din  ),{{end}}
     {{- end}}
     {{end}}
+    {{- end}}
     {{- end}}
     // Memory interface - BRAM
 {{ range $cnt, $bus:=.BRAM -}}
@@ -215,7 +241,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
 `endif
     // PROM writting
     .ioctl_addr   ( pass_io ? ioctl_addr       : ioctl_addr_noheader  ),
-    .prog_addr    ( pass_io ? ioctl_addr[21:0] : raw_addr      ),
+    .prog_addr    ( pass_io ? ioctl_prog_addr : raw_addr      ),
     .prog_data    ( pass_io ? ioctl_dout       : raw_data[7:0] ),
     .prog_we      ( pass_io ? ioctl_wr         : prog_we       ),
     .prog_ba      ( prog_ba        ), // prog_ba supplied in case it helps re-mapping addresses
@@ -254,6 +280,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .ln_data     ( ln_data       ),
     .ln_done     ( ln_done       ),
     .ln_hs       ( ln_hs         ),
+    .ln_dout     ( ln_dout       ),
     .ln_pxl      ( ln_pxl        ),
     .ln_v        ( ln_v          ),
     .ln_vs       ( ln_vs         ),
@@ -271,9 +298,11 @@ assign gfx4_en   = {{ .Gfx4 }}
 assign gfx8_en   = {{ .Gfx8 }}
 assign gfx16_en  = {{ .Gfx16 }}
 assign gfx16b_en = {{ .Gfx16b }}
+assign gfx16c_en = {{ .Gfx16c }}
 assign ioctl_dwn = ioctl_rom | ioctl_cart;
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 jtframe_dwnld #(
+    .SDRAMW     ( SDRAMW       ),
 `ifdef JTFRAME_HEADER
     .HEADER    ( `JTFRAME_HEADER   ),
 `endif{{ if .Balut }}
@@ -305,6 +334,7 @@ jtframe_dwnld #(
     .gfx8_en      ( gfx8_en        ),
     .gfx16_en     ( gfx16_en       ),
     .gfx16b_en    ( gfx16b_en      ),
+    .gfx16c_en    ( gfx16c_en      ),
     .prog_addr    ( raw_addr       ),
     .prog_data    ( raw_data       ),
     .prog_mask    ( prog_mask      ), // active low
@@ -326,9 +356,47 @@ jtframe_headerbyte #(.AW(6)) u_pcbid(
 );
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 {{ $assign_holdrst := true }}
+{{- if gt (len .SDRAM.Cache_lines) 0 }}
+jtframe_cache_mux #(
+    .SDRAM_AW ( SDRAMW ){{- range $index, $line := .SDRAM.Cache_lines }},
+    .AW{{$index}}      ( {{ cache_line_aw $line }} ),
+    .BLOCKS{{$index}}  ( {{ $line.Cache.Blocks }} ),
+    .BLKSIZE{{$index}} ( {{ $line.Cache.Size_bytes }} ),
+    .DW{{$index}}      ( {{ printf "%2d" $line.Cache.Data_width }} ),
+    .BA{{$index}}      ( {{ $line.At.Bank }} ),
+    .OFFSET{{$index}}  ( {{ if $line.At.Offset }}{{ $line.At.Offset }}{{ else }}0{{ end }} ){{- end }}
+) u_cache(
+    .rst       ( rst      ),
+    .clk       ( clk      ),
+{{- range $index, $line := .SDRAM.Cache_lines}}
+    .addr{{$index}} ( {{ $line.Name }}_addr ),
+    .dout{{$index}} ( {{ $line.Name }}_data ),
+    .rd{{$index}}   ( {{ $line.Name }}_cs   ),
+    .ok{{$index}}   ( {{ $line.Name }}_ok   ),
+{{- end}}
+{{- range $index, $_ := until 8}}
+{{- if ge $index (len $.SDRAM.Cache_lines) }}
+    .addr{{$index}} ( 0    ),
+    .dout{{$index}} (      ),
+    .rd{{$index}}   ( 1'b0 ),
+    .ok{{$index}}   (      ),
+{{- end}}
+{{- end}}
+    .addr      ( burst_addr ),
+    .ba        ( burst_ba   ),
+    .rd        ( burst_rd   ),
+    .din       ( data_read  ),
+    .ack       ( burst_ack   ),
+    .dst       ( burst_dst   ),
+    .rdy       ( burst_rdy   )
+);
+assign burst_wr  = 1'b0;
+assign burst_din = 16'd0;
+{{- else }}
 {{ range $bank, $each:=.SDRAM.Banks }}
 {{- if gt (len .Buses) 0 }}
 jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
+    .SDRAMW(SDRAMW-1),
 {{- $first := true}}
 {{- range $index, $each:=.Buses}}
     {{- if $first}}{{$first = false}}{{else}}, {{end}}
@@ -336,7 +404,7 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     {{- if .Rw }}{{ with .Dont_erase }}
     .SLOT{{$index}}_ERASE(0),{{end}}
     {{- else}}{{- with .Offset }}
-    .SLOT{{$index}}_OFFSET({{.}}[21:0]),{{end}}{{end}}
+    .SLOT{{$index}}_OFFSET({{.}}[SDRAMW-2:0]),{{end}}{{end}}
     {{- with .Cache_size }}
     .CACHE{{$index}}_SIZE({{.}}),{{end}}
     .SLOT{{$index}}_AW({{ slot_addr_width . }}),
@@ -367,7 +435,7 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .slot{{$index2}}_wen   ( {{.Name}}_we    ),
     .slot{{$index2}}_din   ( {{if .Din}}{{.Din}}{{else}}{{.Name}}_din{{end}}   ),
     .slot{{$index2}}_wrmask( {{if .Dsn}}{{.Dsn}}{{else}}{{.Name}}_dsn{{end}}   ),
-    .slot{{$index2}}_offset( {{if .Offset }}{{.Offset}}[21:0]{{else}}22'd0{{end}} ),
+    .slot{{$index2}}_offset( {{if .Offset }}{{.Offset}}[SDRAMW-2:0]{{else}}sdram_offset_zero{{end}} ),
     {{- else }}
     {{- if not $is_rom }}
     .slot{{$index2}}_clr   ( 1'b0       ), // only 1'b0 supported in mem.yaml
@@ -393,6 +461,7 @@ assign ba_wr[{{$bank}}] = 0;
 assign ba{{$bank}}_din  = 0;
 assign ba{{$bank}}_dsn  = 3;
 {{- end}}{{- end }}{{end}}
+{{- end}}
 {{ if $assign_holdrst }}assign hold_rst=0;{{end}}
 {{ range $index, $each:=.Unused }}
 {{- with . -}}
@@ -411,10 +480,10 @@ localparam JTFRAME_PROM_START=`JTFRAME_PROM_START;
 {{- if $bus.Prom }}{{template "prom_dwnld.v" $bus}}
 {{- else if $bus.Dual_port.Name }}
 // Dual port BRAM for {{$bus.Name}} and {{$bus.Dual_port.Name}}
-jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
-    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if $bus.Sim_file }},
-    {{ if eq $bus.Data_width 16 }}.SIMFILE_LO("{{$bus.Name}}_lo.bin"),
-    .SIMFILE_HI("{{$bus.Name}}_hi.bin"){{else}}.SIMFILE("{{$bus.Name}}.bin"){{end}}{{end}}
+jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}}32{{end}} #(
+    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if or (eq $bus.Data_width 16) (eq $bus.Data_width 32) }},
+    .ENDIAN({{if $bus.Sim_big_endian}}1{{else}}0{{end}}){{end}}{{ if $bus.Sim_file }},
+    .SIMFILE("{{$bus.Name}}.bin"){{else}}{{end}}
 ) u_bram_{{$bus.Name}}(
     // Port 0 - {{$bus.Name}}
     .clk0   ( clk ),
@@ -422,7 +491,7 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
     .data0  ( {{$bus.Din}}  ),
     .we0    ( {{ if $bus.We }} {{$bus.We}}{{else}}{{$bus.Name}}_we{{end}} ), {{ else }}
     .data0  ( {{$bus.Data_width}}'h0 ),
-    .we0    ( {{ if eq $bus.Data_width 16 }}2'd0{{else}}1'd0{{end}} ),{{end}}
+    .we0    ( {{ printf "%d'd0" (div $bus.Data_width 8) }} ),{{end}}
     .q0     ( {{$bus.Name}}_dout ),
     // Port 1 - {{$bus.Dual_port.Name}}
     .clk1   ( clk ),
@@ -453,13 +522,13 @@ jtframe_bram_rom #(
 
 {{else}}
 // BRAM for {{$bus.Name}}
-jtframe_ram{{ if eq $bus.Data_width 16 }}16{{end}} #(
-    .AW({{ sub $bus.Addr_width (div $bus.Data_width 16)}}){{ if ne $bus.Data_width 16}},
+jtframe_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}}32{{end}} #(
+    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if or (eq $bus.Data_width 16) (eq $bus.Data_width 32) }},
+    .ENDIAN({{if $bus.Sim_big_endian}}1{{else}}0{{end}}){{end}}{{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }},
     .DW({{$bus.Data_width}}){{end}}{{- if $bus.Sim_file }},
-    {{ if eq $bus.Data_width 16 }}.SIMFILE_LO("{{$bus.Name}}_lo.bin"),
-    .SIMFILE_HI("{{$bus.Name}}_hi.bin"){{else}}.SIMFILE("{{$bus.Name}}.bin"){{end}}{{end}}
+    .SIMFILE("{{$bus.Name}}.bin"){{end}}
 ) u_bram_{{$bus.Name}}(
-    .clk    ( clk  ),{{ if ne $bus.Data_width 16 }}
+    .clk    ( clk  ),{{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }}
     .cen    ( 1'b1 ),{{end}}
     .addr   ( {{$bus.Addr}} ),
     .data   ( {{$bus.Din }} ),

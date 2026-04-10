@@ -107,9 +107,7 @@ jttora_adpcm u_adpcmcpu(
     assign rom_cs     = 0;
     assign rom2_addr  = 0;
     assign rom2_cs    = 0;
-    assign ym_snd     = 0;
-    assign sample     = 0;
+    assign fm0 =0, fm1 = 0, psg0 = 0, psg1 = 0, pcm = 0;
     assign debug_view = 0;
-    initial peak = 0;
 `endif
 endmodule

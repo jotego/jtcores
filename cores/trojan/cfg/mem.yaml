@@ -3,20 +3,18 @@ params:
   - { name: SCR2_OFFSET, value: "(`SCR2_START-`JTFRAME_BA2_START)>>1" }
   - { name: SCR_OFFSET,  value: "(`SCR_START -`JTFRAME_BA3_START)>>1" }
   - { name: OBJ_OFFSET,  value: "(`OBJ_START -`JTFRAME_BA3_START)>>1" }
-download:
-  post_addr: true
 clocks:
   clk48:
-    - freq: 12000000
+    - freq: 12M
       outputs:
         - cen12
         - cen6
         - cen3
         - cen1p5
-    - freq: 8000000
+    - freq: 8M
       outputs:
         - cen8
-    - freq: 384000
+    - freq: 384k
       outputs:
         - cenp384
 audio:
@@ -70,5 +68,6 @@ sdram:
         addr_width: 19
         data_width: 16
         offset: OBJ_OFFSET
+        gfx_sort: hvvvvxx
         cs: 1'b1
 

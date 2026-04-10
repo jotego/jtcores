@@ -326,16 +326,11 @@ jtframe_z80 u_cpu(
         blue_cs     = 0;
         char_cs     = 0;
         flip        = 0;
-        obj_on      = 0;
         OKOUT       = 0;
         redgreen_cs = 0;
         rom_addr    = 0;
         rom_cs      = 0;
-        scr1_on     = 0;
-        scr1_pal    = 0;
         scr2_hpos   = 0;
-        scr2_on     = 0;
-        scr2_pal    = 0;
         scr_cs      = 0;
         scr_hpos    = 0;
         scr_vpos    = 0;
@@ -343,6 +338,9 @@ jtframe_z80 u_cpu(
         snd_int     = 0;
         snd_latch   = 0;
         sres_b      = 0;
+        mcu_latch   = 0;
+        mcu_wr      = 0;
+        mcu_rd      = 0;
     end
 `endif
 endmodule

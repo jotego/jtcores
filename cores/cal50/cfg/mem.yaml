@@ -2,17 +2,22 @@ params:
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
 clocks:
   clk48:
-    - freq: 2000000
+    - freq: 8 MHz
       gate: [ snd ]
       outputs:
-        - cen2
-    - freq: 1600000
+        - cen8
+    - freq: 16 MHz
       outputs:
         - cen_pcm
 audio:
   mute: true
   channels:
-    - { name: pcm, stereo: true, data_width: 16, rsum:  47k, rc: [{ r: 100, c: 100n }] }
+    # The system has two different anti-aliasing filters applied to the
+    # left/right outputs of the PCM chip. Then, the two outputs are mixed
+    # in a single mono sound. The anti-aliasing filters are 4th order, so
+    # the damping is quite aggressive
+    - { name: pcm_4k, data_width: 16, rsum:  47k, fir: fir_192k_4k.csv }
+    - { name: pcm_8k, data_width: 16, rsum:  47k, fir: fir_192k_8k.csv }
 sdram:
   banks:
     - buses:
@@ -28,9 +33,10 @@ sdram:
           data_width: 8
           offset: PCM_OFFSET
     - buses:
-        - name: fix
+        - name: tile
           addr_width: 21
-          data_width:  16
+          data_width: 32
+          gfx_sort: hvvvx
     # Bank 3 for graphics. The multiplexed access
     # would've been inside the SETA chip in the original
     # whereas I'm taking out of the core and into the
@@ -49,15 +55,6 @@ bram:
     din: cpu_dout
     offset: RAM_OFFSET
     rw: true
-  - name: pal
-    addr_width: 10
-    data_width: 16
-    din: cpu_dout
-    addr: main_addr[9:1]
-    rw: true
-    dual_port:
-      name: palrd
-      dout: pal_data
   # X1-012 Video RAM
   - name: tlv
     addr_width: 14
@@ -65,12 +62,61 @@ bram:
     din: cpu_dout
     addr: main_addr[13:1]
     rw: true
-    # dual_port:
-    #   name: tlrd
-    #   dout: tlram_data
+    ioctl:
+      save: true
+      order: 0
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: tlrd
+      dout: tlrd_data
+  # Palette RAM
+  - name: pal
+    addr_width: 10
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[9:1]
+    rw: true
+    ioctl:
+      save: true
+      order: 1
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: palrd
+      dout: pal_data
+  # X1-001 internal RAM
+  - name: yram
+    addr_width: 10
+    data_width: 8
+    din: cpu_dout[7:0]
+    addr: main_addr[10:1]
+    rw: true
+    ioctl:
+      save: true
+      order: 2
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: col
+      dout: col_data
+  # X1-001 external video RAM
+  - name: dma
+    addr_width: 13
+    data_width: 16
+    rw: true
+    ioctl:
+      save: true
+      order: 3
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: code
+      dout: code_dout
   - name: nvram
     addr_width: 12
     data_width: 16
     din: cpu_dout
     addr: main_addr[11:1]
     rw: true
+    ioctl:
+      save: true
+      restore: true
+      order: 0
+      when: [ JTFRAME_RELEASE ]

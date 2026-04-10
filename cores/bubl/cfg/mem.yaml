@@ -2,12 +2,12 @@ params:
   - { name: SUB_OFFSET, value: "22'h2_8000 >> 1" }
 clocks:
   clk48:
-    - freq: 6000000
+    - freq: 6M
       gate: [ "main", "sub", "snd" ]
       outputs:
         - cen6
         - cen3
-    - freq: 4000000
+    - freq: 4M
       gate: [ "main", "sub", "snd" ]
       outputs:
         - cen4

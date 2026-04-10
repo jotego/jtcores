@@ -7,8 +7,6 @@ clocks:
       outputs:
         - cpu_cen
         - fm_cen
-download:
-  post_addr: true
 audio:
   rsum: 47k
   gain: 0.4
@@ -33,6 +31,7 @@ sdram:
       - name: scr1
         addr_width: 18
         data_width: 32
+        gfx_sort: hvvvx
       - name: scr2
         addr_width: 19
         data_width: 32
@@ -41,6 +40,7 @@ sdram:
       - name: obj
         addr_width: 19
         data_width: 32
+        gfx_sort: hhvvvvx
 bram:
   - name: vram
     addr_width: 12

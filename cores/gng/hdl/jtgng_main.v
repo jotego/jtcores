@@ -68,7 +68,7 @@ module jtgng_main(
     input  [7:0]       dipsw_a,
     input  [7:0]       dipsw_b
 );
-
+`ifndef NOMAIN
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 wire        nRESET, bus_busy, cpu_cen;
@@ -224,5 +224,11 @@ jtframe_sys6809_dma #(
     .dma_din    ( 8'd0      ),
     .dma_dout   ( dma_dout  )
 );
-
+`else
+assign rom_addr = 0, char_cs = 0, scr_cs   = 0, blue_cs   = 0, redgreen_cs = 0,
+       bus_ack  = 0, flip    = 0, RnW      = 0, scr_hpos  = 0, scr_vpos    = 0,
+       sres_b   = 0, OKOUT   = 0, dma_dout = 0, snd_latch = 0, cpu_dout    = 0,
+       cpu_AB   = 0;
+initial rom_cs  = 0;
+`endif
 endmodule

@@ -128,11 +128,7 @@ end
 // Address mux
 wire [3:0] pal_red, pal_green, pal_blue, pal_bright;
 
-jtframe_dual_ram16 #(
-    .AW        (10          ),
-    .SIMFILE_LO("pal_lo.bin"), // palrg.hex
-    .SIMFILE_HI("pal_hi.bin")  // palbb.hex
-) u_ram(
+jtframe_dual_ram16 #(.AW(10)) u_ram(
     .clk0   ( clk       ),
     .clk1   ( clk       ),
 

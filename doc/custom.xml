@@ -1,0 +1,154 @@
+<mame>
+	<machine name="aquario" sourcefile="sega/segas18.cpp">
+		<description>Clockwork Aquario (prototype)</description>
+		<year>2021</year>
+		<manufacturer>Sega / Westone</manufacturer>
+		<rom name="a4.bin" size="524288" crc="c58ff95f" sha1="27301df8f72ccc8a27e9520e11035aa63b8e03b6" region="maincpu" offset="0"/>
+		<rom name="a6.bin" size="524288" crc="b4a94cd9" sha1="2059942a26d9e1de63b329d1c8b643535761d2d8" region="maincpu" offset="1"/>
+		<rom name="a5.bin" size="524288" crc="1cef8145" sha1="78a1be8ea0cc0d4e56b2cf9a7c1bd3e08352e175" region="maincpu" offset="100000"/>
+		<rom name="a7.bin" size="524288" crc="504e4665" sha1="9b052b48b7cb2da880d6589fdcd1041eca555f7c" region="maincpu" offset="100001"/>
+		<rom name="c1.bin" size="524288" crc="93ad1357" sha1="09b35481798035b5f7d7d533e27418a298c6e2c7" region="tiles" offset="0"/>
+		<rom name="c2.bin" size="524288" crc="4010d14b" sha1="f9d2e726a032f49fac69a223107966f2884821b5" region="tiles" offset="80000"/>
+		<rom name="c3.bin" size="524288" crc="3a3d0285" sha1="21899b3b2bcb979d53e78b0d48c493a9a15955c7" region="tiles" offset="100000"/>
+		<rom name="c10.bin" size="524288" crc="c9ce76f9" sha1="a096583f5e81f02d6a34802688d201d8d986a84a" region="sprites" offset="1"/>
+		<rom name="a10.bin" size="524288" crc="b863e533" sha1="e80fa6a74c43c040fd4b857247aecf03a3de3d87" region="sprites" offset="0"/>
+		<rom name="c11.bin" size="524288" crc="06edb7bc" sha1="e24ec7b52638edaa8debee0aca40ddf902c63334" region="sprites" offset="100001"/>
+		<rom name="a11.bin" size="524288" crc="8b568940" sha1="19cd028cd43fa07904deb0250564251ba0128c4b" region="sprites" offset="100000"/>
+		<rom name="c12.bin" size="524288" crc="0bb79c56" sha1="fdaa6cc9efb3104b78392530547bd82c21cff825" region="sprites" offset="200001"/>
+		<rom name="a12.bin" size="524288" crc="0219923f" sha1="1e52df5ef155f5a4d74eabea22bb431a569e344f" region="sprites" offset="200000"/>
+		<rom name="c13.bin" size="524288" crc="0beef46e" sha1="eccba6d4e015e93f5ca25ef6df31a491193d08a4" region="sprites" offset="300001"/>
+		<rom name="a13.bin" size="524288" crc="9ea5c73d" sha1="e42002cc13548a8aba6ffb0c60470b345b88eaa8" region="sprites" offset="300000"/>
+		<rom name="c7.bin" size="262144" crc="f1183938" sha1="9409f0dc02773892803bc6d37f1bdbd894cf1805" region="soundcpu" offset="0"/>
+		<rom name="c6.bin" size="524288" crc="39f11291" sha1="3b4680bd2e20bd297644dda0a26f958c74826d47" region="soundcpu" offset="80000"/>
+		<rom name="c5.bin" size="524288" crc="6a380dca" sha1="4589efc9e994ef9d07d4033e20c21afca4875005" region="soundcpu" offset="100000"/>
+		<rom name="c4.bin" size="524288" crc="1bd081f8" sha1="e5b0b5d8334486f813d7c430bb7fce3f69605a21" region="soundcpu" offset="180000"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="nvram"/>
+		<device_ref name="sega_315_5195"/>
+		<device_ref name="315_5296"/>
+		<device_ref name="sega315_5313"/>
+		<device_ref name="palette"/>
+		<device_ref name="segapsg"/>
+		<device_ref name="palette"/>
+		<device_ref name="palette"/>
+		<device_ref name="palette"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="sega_sys16b_sprite"/>
+		<device_ref name="segaic16_video"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym3438"/>
+		<device_ref name="ym3438"/>
+		<device_ref name="rf5c68"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="gen_vdp" name="Sega 315-5313 Megadrive VDP" clock="15000000"/>
+		<chip type="audio" tag="gen_vdp:snsnd" name="Sega VDP PSG" clock="1000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ym1" name="YM3438 OPN2C" clock="8000000"/>
+		<chip type="audio" tag="ym2" name="YM3438 OPN2C" clock="8000000"/>
+		<chip type="audio" tag="rfsnd" name="Ricoh RF5C68" clock="10000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="224" refresh="57.230000" pixclock="5128036" htotal="342" hbend="0" hbstart="320" vtotal="262" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="COINAGE" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="7"/>
+			<dipvalue name="3 Coins/1 Credit" value="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="9"/>
+			<dipvalue name="2 Coins/1 Credit, 5/3, 6/4" value="5"/>
+			<dipvalue name="2 Coins/1 Credit, 4/3" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="1 Coin/1 Credit, 5/6" value="3"/>
+			<dipvalue name="1 Coin/1 Credit, 4/5" value="2"/>
+			<dipvalue name="1 Coin/1 Credit, 2/3" value="1"/>
+			<dipvalue name="2 Coins/3 Credits" value="6"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="Free Play (if Coin B too) or 1/1" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="COINAGE" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="112"/>
+			<dipvalue name="3 Coins/1 Credit" value="128"/>
+			<dipvalue name="2 Coins/1 Credit" value="144"/>
+			<dipvalue name="2 Coins/1 Credit, 5/3, 6/4" value="80"/>
+			<dipvalue name="2 Coins/1 Credit, 4/3" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="1 Coin/1 Credit, 5/6" value="48"/>
+			<dipvalue name="1 Coin/1 Credit, 4/5" value="32"/>
+			<dipvalue name="1 Coin/1 Credit, 2/3" value="16"/>
+			<dipvalue name="2 Coins/3 Credits" value="96"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="Free Play (if Coin A too) or 1/1" value="0"/>
+		</dipswitch>
+		<dipswitch name="Credits needed" tag="DSW" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="1 to start, 1 to continue" value="1" default="yes"/>
+			<dipvalue name="2 to start, 1 to continue" value="0"/>
+		</dipswitch>
+		<dipswitch name="Switch to Start" tag="DSW" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Start" value="2" default="yes"/>
+			<dipvalue name="Attack" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin Chute" tag="DSW" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Common" value="4" default="yes"/>
+			<dipvalue name="Individual" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Player Start/Continue" tag="DSW" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="3/3" value="48" default="yes"/>
+			<dipvalue name="2/3" value="32"/>
+			<dipvalue name="2/2" value="16"/>
+			<dipvalue name="3/4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="192">
+			<diplocation name="SW2" number="7"/>
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Easy" value="128"/>
+			<dipvalue name="Normal" value="192" default="yes"/>
+			<dipvalue name="Hard" value="64"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<port tag=":COINAGE">
+		</port>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":P3">
+		</port>
+		<port tag=":SERVICE">
+		</port>
+		<driver status="good" emulation="good" savestate="unsupported"/>
+	</machine>
+</mame>	

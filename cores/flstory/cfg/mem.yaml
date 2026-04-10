@@ -5,7 +5,7 @@ ports:
   - { name: bus_addr, msb: 15 }
 clocks:
   clk:
-    - freq: 3072000
+    - freq: 3072k
       # gate: [ main ]
       outputs:
         - cen_mcu
@@ -13,15 +13,15 @@ clocks:
       # gate: [ main ]
       outputs:
         - cen_5p3
-    - freq: 8000000
+    - freq: 8M
       outputs:
         - cen8
         - cen4
         - cen2
-    - freq: 400000
+    - freq: 400k
       outputs:
         - cen_pcm
-    - freq: 48000
+    - freq: 48k
       outputs:
         - cen48k
 audio:

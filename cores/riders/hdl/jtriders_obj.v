@@ -204,9 +204,8 @@ jtframe_objdraw #(
 );
 
 jtframe_dual_nvram16 #(
-    .AW        ( RAMW       ),
-    .SIMFILE_LO("obj_lo.bin"),
-    .SIMFILE_HI("obj_hi.bin")
+    .AW     ( RAMW    ),
+    .SIMFILE("obj.bin")
 ) u_ram( // 8 or 16kB? check PCB. Game seems to work on 8kB ok
     // Port 0 - CPU access
     .clk0   ( clk       ),

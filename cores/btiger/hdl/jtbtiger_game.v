@@ -20,8 +20,7 @@ module jtbtiger_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-localparam [25:0]   OBJ_START  = `JTFRAME_BA3_START,
-                    PROM_START = `JTFRAME_PROM_START,
+localparam [25:0]   PROM_START = `JTFRAME_PROM_START,
                     MCUOVER    = PROM_START+26'h1000;
 
 wire [12:0] cpu_AB;
@@ -53,12 +52,6 @@ assign prom[4] = prom_we && !mcuover;
 /* verilator tracing_off */
 always @(posedge clk) pause <= ~dip_pause;
 
-always @* begin
-    post_addr = prog_addr;
-    if( ioctl_addr >= OBJ_START ) begin
-        post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
-    end
-end
 /* verilator lint_off PINMISSING */
 jtframe_cen48 u_cen(
     .clk    ( clk       ),

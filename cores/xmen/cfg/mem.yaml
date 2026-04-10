@@ -3,13 +3,13 @@ params:
   - { name: PCM_OFFSET,   value: "22'h020000>>1" }
 clocks:
   clk48:
-    - freq: 16000000
+    - freq: 16M
       outputs:
         - cen_16
         - cen_8
         - cen_4   # cen_fm
         - cen_2   # cen_fm2
-    - freq: 18432000
+    - freq: 18432k
       gate: [pcm]
       outputs:
         - cen_pcm

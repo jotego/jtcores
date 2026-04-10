@@ -56,6 +56,10 @@ If a init.go file exists, it will run before simulation with the command
 
 go run init.go
 
+If a clean_up.sh file exists, it will run during cleanup with the command
+
+bash ./clean_up.sh
+
 Arguments:
 
 --keep		do not delete test.lxt after a PASS simulation
@@ -127,7 +131,7 @@ lint_uut() {
 	if [[ $macro != *JTFRAME_MCLK* ]]; then
 		macro="$macro -DJTFRAME_MCLK=48000000"
 	fi
-	verilator --lint-only -f $GATHER --top-module $top $macro
+	verilator --lint-only -Wno-TIMESCALEMOD -f $GATHER --top-module $top $macro
 }
 
 get_top_module() {
@@ -174,6 +178,9 @@ eval_result() {
 }
 
 clean_up() {
+	if [ -e clean_up.sh ]; then
+		bash ./clean_up.sh
+	fi
 	rm -f sim $GATHER sim.log
 	if [[ $FAIL = 0 && -z "$KEEP_LXTFILE" ]]; then
 		rm -f test.lxt

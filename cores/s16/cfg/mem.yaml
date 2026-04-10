@@ -9,24 +9,24 @@ params:
   # - { name: SRAM_OFFSET, value: 22'h18_0000 }
 clocks:
   clk48:
-    - freq: 4000000
+    - freq: 4M
       outputs:
         - cen_fm
         - cen_fm2
-    - freq: 5000000
+    - freq: 5M
       outputs:
         - cen_snd
         - cen_nc1
-    - freq: 6000000
+    - freq: 6M
       outputs:
         - cen6
         - cen_nc2
-    - freq: 640000
+    - freq: 640k
       outputs:
         - cen_pcm
         - cen_nc3
   clk24:
-    - freq: 8000000
+    - freq: 8M
       outputs:
         - mcu_cen
         - cen_nc4

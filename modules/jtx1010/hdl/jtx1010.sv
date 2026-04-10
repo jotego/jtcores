@@ -84,7 +84,7 @@ jtframe_dual_ram #(.AW(7)) u_mmr(
     // Port 0: CPU
     .clk0   ( clk       ),
     .data0  ( din       ),
-    .addr0  (addr[6:0]),
+    .addr0  ( addr[6:0] ),
     .we0    ( mmr_we    ),
     .q0     ( cpu_mmr   ),
     // Port 1
@@ -99,7 +99,7 @@ jtframe_dual_ram #(.AW(12)) u_env(
     // Port 0: CPU
     .clk0   ( clk       ),
     .data0  ( din       ),
-    .addr0  (addr[11:0]),
+    .addr0  ( addr[11:0]),
     .we0    ( env_we    ),
     .q0     ( cpu_env   ),
     // Port 1
@@ -114,7 +114,7 @@ jtframe_dual_ram #(.AW(12)) u_waves(
     // Port 0: CPU
     .clk0   ( clk       ),
     .data0  ( din       ),
-    .addr0  (addr[11:0]),
+    .addr0  ( addr[11:0]),
     .we0    ( wav_we    ),
     .q0     ( cpu_wav   ),
     // Port 1

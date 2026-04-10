@@ -31,7 +31,7 @@ module jtframe_dwnld(
     input      [25:0]    ioctl_addr, // max 64 MB
     input      [ 7:0]    ioctl_dout,
     input                ioctl_wr,
-    output reg [22:1]    prog_addr,
+    output reg [SDRAMW-1:1] prog_addr,
     output     [15:0]    prog_data,
     output reg [ 1:0]    prog_mask, // active low
     output reg           prog_we,
@@ -42,12 +42,14 @@ module jtframe_dwnld(
     input                gfx8_en,   // HHVVV  -> VVVHH
     input                gfx16_en,  // HHVVVV -> VVVVHH
     input                gfx16b_en, // VHHVVV -> VVVVHH
+    input                gfx16c_en, //  HVVVV -> VVVVH
 
     output reg           prom_we,
     output reg           header,
     input                sdram_ack
 );
 /* verilator lint_off WIDTH */
+parameter        SDRAMW    = 23; // bank size, default = 8MB for 32MB SDRAM
 parameter        SIMFILE   = "rom.bin";
 parameter [25:0] PROM_START= `ifdef JTFRAME_PROM_START `JTFRAME_PROM_START `else ~26'd0 `endif;
 parameter [25:0] BA1_START = ~26'd0,
@@ -85,10 +87,11 @@ always @(*) begin
     header    = HEADER!=0 && ioctl_addr < HEADER && ioctl_rom;
     nohdr_addr = ioctl_addr-HEADER;
     part_addr  = nohdr_addr;
-    if( gfx4_en  ) part_addr[GFX8B0 +:4] = { nohdr_addr[GFX8B0 +:3], nohdr_addr[GFX8B0+3 +:1] }; // HVVV   -> VVVH
-    if( gfx8_en  ) part_addr[GFX8B0 +:5] = { nohdr_addr[GFX8B0 +:3], nohdr_addr[GFX8B0+3 +:2] }; // HHVVV  -> VVVHH
-    if( gfx16_en ) part_addr[GFX16B0+:6] = { nohdr_addr[GFX16B0+:4], nohdr_addr[GFX16B0+4+:2] }; // HHVVVV -> VVVVHH
+    if( gfx4_en   ) part_addr[GFX8B0 +:4] = { nohdr_addr[GFX8B0 +:3], nohdr_addr[GFX8B0+3 +:1] }; // HVVV   -> VVVH
+    if( gfx8_en   ) part_addr[GFX8B0 +:5] = { nohdr_addr[GFX8B0 +:3], nohdr_addr[GFX8B0+3 +:2] }; // HHVVV  -> VVVHH
+    if( gfx16_en  ) part_addr[GFX16B0+:6] = { nohdr_addr[GFX16B0+:4], nohdr_addr[GFX16B0+4+:2] }; // HHVVVV -> VVVVHH
     if( gfx16b_en ) part_addr[GFX16B0+:6] = { nohdr_addr[GFX16B0+5], nohdr_addr[GFX16B0+:3],nohdr_addr[GFX16B0+3+:2] }; // VHHVVV -> VVVVHH
+    if( gfx16c_en ) part_addr[GFX16B0+:5] = { nohdr_addr[GFX16B0+:4], nohdr_addr[GFX16B0+4+:1] }; //  HVVVV -> VVVVH
 end
 
 `ifdef SIMULATION `ifdef JTFRAME_PROM_START `ifndef LOADROM
@@ -103,6 +106,8 @@ reg  [25:0] offset;
 reg  [25:0] eff_addr;
 reg [2*5*8-1:0] ba_start=0; // 16 bits per offset
 
+initial prog_ba = 0;
+
 always @(*) begin
     case( bank )
         2'd0: offset = 0;
@@ -116,7 +121,7 @@ end
 
 generate
     if( BALUT==0 || !BA_EN ) begin
-        always @(*) begin
+        always @(part_addr) begin
             bank = !BA_EN ? 2'd0 : ( /* verilator lint_off UNSIGNED */
                     part_addr >= BA3_START ? 2'd3 : (
                     part_addr >= BA2_START ? 2'd2 : (
@@ -145,11 +150,11 @@ endgenerate
 always @(posedge clk) begin
     if ( ioctl_wr && ioctl_rom && !header ) begin
         if( is_prom ) begin
-            prog_addr <= part_addr[21:0];
+            prog_addr <= part_addr[SDRAMW-2:0];
             prom_we   <= 1;
             prog_we   <= 0;
         end else begin
-            prog_addr <= eff_addr[22:1];
+            prog_addr <= eff_addr[SDRAMW-1:1];
             prom_we   <= 0;
             prog_we   <= 1;
             prog_ba   <= bank;
@@ -213,7 +218,7 @@ always @(posedge clk) begin
         prog_we   <= 0;
         prog_mask <= 2'b11;
         data_out  <= mem[dumpcnt];
-        prog_addr <= dumpcnt[21:0]-HEADER;
+        prog_addr <= dumpcnt[SDRAMW-2:0]-HEADER;
         dumpcnt   <= dumpcnt+1;
     end else begin
         prom_we <= 0;

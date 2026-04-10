@@ -1,6 +1,6 @@
 # jtframe Command Line Tool
 
-JTFRAME cores have code generated from several configuration files in the core's cfg folder.
+JTFRAME cores have code generated from configuration files in `cores/<core>/cfg`.
 
 File          | Purpose
 --------------|----------------------------------
@@ -10,8 +10,26 @@ mame2mra.toml | Defines the conversion from MAME's database to MRA and Pocket fi
 mem.yaml      | RTL generator for the SDRAM interface
 msg           | Message displayed by _jtframe_credits_
 
-The *jtcore* and *jtsim* utilities are designed around these files and will produce the right output without any direct intervention. They parsed the files using the required calls to the _jtframe_ CLI or other required programs.
+The `jtcore` and `jtsim` scripts call `jtframe` commands as part of normal build and simulation flows.
 
-For the MAME-to-MRA conversion, you need to invoke directly `jtframe mra <corename>` from the $ROM folder. The tool expects a dump from the MAME database in $ROM/mame.xml.
+`jtframe mra <corename>` uses `$JTROOT/doc/mame.xml` by default.  
+Use `jtframe mra --reduce <path-to-mame.xml>` to regenerate a reduced XML file for JT cores.
 
-`jtframe` generates files needed for compilation and simulation. `jtutil` is a collection of tools that help during development, but are not needed for compilation.
+`jtframe` requires these environment variables to be set: `JTROOT`, `JTFRAME`, `CORES`, `JTBIN`.
+
+Main subcommands currently provided by the Go CLI are:
+
+- `cab`
+- `cfgstr`
+- `files`
+- `mem`
+- `mmr`
+- `mra`
+- `mra2rom`
+- `msg`
+- `parse`
+- `sch`
+- `ucode`
+- `update`
+
+`jtutil` is a separate utility collection for development workflows.

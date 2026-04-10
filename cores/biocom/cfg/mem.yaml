@@ -3,7 +3,7 @@ params:
   - { name: OBJ_OFFSET, value: "(`OBJ_START-`JTFRAME_BA3_START)>>1" }
 clocks:
   clk48:
-    - freq: 8000000
+    - freq: 8M
       outputs:
         - video_cen8
         - nc_cen4
@@ -12,7 +12,7 @@ clocks:
         - cen_fm
         - cen_fm2
   clk24:
-    - freq: 3000000
+    - freq: 3M
       outputs:
         - cen3
         - mcu_cen
@@ -20,8 +20,6 @@ audio:
   rsum: 27k
   channels:
     - { name: fm, module: jt51, rsum: 27k, rc: [{r: 1rout, c: 3.3n }]}
-download:
-  post_addr: true
 sdram:
   banks:
     - buses:
@@ -43,6 +41,7 @@ sdram:
         addr_width: 18
         data_width: 16
         cs: LVBL
+        gfx_sort: hvvvvxx
     - buses:
       - name: snd
         addr_width: 15

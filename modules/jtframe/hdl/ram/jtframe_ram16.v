@@ -21,10 +21,13 @@
 //      AW      => Address bit width, 10 for 1kB
 //      SIMFILE => binary file to load during simulation
 //      SIMHEXFILE => hexadecimal file to load during simulation
+//      ENDIAN  => 0 (default) for little-endian hosts (x86). Use ENDIAN=0
+//                 when loading binary files written by C fwrite on x86.
 
 module jtframe_ram16 #(parameter AW=10,
-    SIMFILE_LO="", SIMHEXFILE_LO="",
-    SIMFILE_HI="", SIMHEXFILE_HI="",
+    SIMFILE="",
+    SIMHEXFILE_LO="", SIMHEXFILE_HI="",
+    ENDIAN=0,
     VERBOSE=0,          // set to 1 to display memory writes
     VERBOSE_OFFSET=0    // value added to the address when displaying
 )(
@@ -34,6 +37,9 @@ module jtframe_ram16 #(parameter AW=10,
     input   [ 1:0] we,
     output  [15:0] q
 );
+
+localparam LO_BYTE = ENDIAN ? 1 : 0;
+localparam HI_BYTE = ENDIAN ? 0 : 1;
 
 `ifdef SIMULATION
 generate
@@ -64,8 +70,10 @@ endgenerate
 jtframe_ram #(
     .DW        ( 8             ),
     .AW        ( AW            ),
-    .SIMFILE   ( SIMFILE_LO    ),
-    .SIMHEXFILE( SIMHEXFILE_LO )  )
+    .SIMFILE   ( SIMFILE       ),
+    .SIMHEXFILE( SIMHEXFILE_LO ),
+    .SIMFILE_BYTE( LO_BYTE     ),
+    .FULL_DW   ( 16            )  )
 u_lo(
     .clk        ( clk               ),
     .cen        ( 1'b1              ),
@@ -79,8 +87,10 @@ u_lo(
 jtframe_ram #(
     .DW        ( 8             ),
     .AW        ( AW            ),
-    .SIMFILE   ( SIMFILE_HI    ),
-    .SIMHEXFILE( SIMHEXFILE_HI )  )
+    .SIMFILE   ( SIMFILE       ),
+    .SIMHEXFILE( SIMHEXFILE_HI ),
+    .SIMFILE_BYTE( HI_BYTE     ),
+    .FULL_DW   ( 16            )  )
 u_hi(
     .clk        ( clk               ),
     .cen        ( 1'b1              ),

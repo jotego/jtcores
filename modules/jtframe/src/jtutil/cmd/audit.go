@@ -52,7 +52,7 @@ func audit_audio() error {
 	defer output.Close()
 	for _, core := range get_valid_cores() {
 		var cfg mem.MemConfig
-		mem.Parse_file(core,"mem.yaml",&cfg)
+		mem.ParseFile(core,"mem.yaml",&cfg)
 		e = mem.Make_audio(&cfg,core,tmp_dir); if e!=nil { return fmt.Errorf("%w\nwhile parsing %s",e,core) }
 		fmt.Fprintf(output,"%s",core)
 		report(cfg.Audio.Channels,output)

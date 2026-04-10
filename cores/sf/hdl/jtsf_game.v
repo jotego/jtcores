@@ -78,15 +78,6 @@ wire [12:0] obj_AB;
 wire [15:0] oram_dout;
 reg         prog_obj;
 
-// Optimize cache use for object ROMs
-localparam [25:0] OBJ_START  = `OBJ_START,
-                  PROM_START = `JTFRAME_PROM_START;
-always @* begin
-    prog_obj  = ioctl_addr>=OBJ_START && ioctl_addr<PROM_START;
-    post_addr = prog_addr;
-    if( prog_obj ) post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
-end
-
 // This distinguishes the games using SFJ-style input from the rest
 localparam [2:0] CABCFG=1;
 
@@ -177,7 +168,7 @@ jtsf_main u_main (
     `ifndef SIM_SND_LATCH
     `define SIM_SND_LATCH 8'd0
     `endif
-    assign main_addr = {MAINW{1'b0}};
+    assign main_addr = 0;
     assign cpu_AB    = 13'd0;
     assign char_cs   = 0;
     assign main_cs   = 0;

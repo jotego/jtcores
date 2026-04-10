@@ -107,6 +107,9 @@ jttora_adpcm u_adpcmcpu(
     assign  fm1        = 0;
     assign  psg0       = 0;
     assign  psg1       = 0;
+    assign  mcu_sdout  = 0;
+    assign  mcu_srd    = 0;
+    assign  mcu_swr    = 0;
     assign  debug_view = 0;
 `endif
 endmodule

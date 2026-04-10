@@ -11,18 +11,18 @@ audio:
     - { name: pcm, rsum: 22k, module: jtpcm568, fir: fir_192k_13k.csv }
 clocks:
   clk48:
-    - freq: 8000000
+    - freq: 8M
       outputs:
         - cen_fm
-    - freq: 10000000
+    - freq: 10M
       outputs:
         - cen_pcm
-    - freq: 12000000
+    - freq: 12M
       outputs:
         - pxl2_48cen
         - pxl_48cen
   clk24:
-    - freq: 8000000
+    - freq: 8M
       outputs: [ mcu_cen ]
 # using s16's for now
 sdram:

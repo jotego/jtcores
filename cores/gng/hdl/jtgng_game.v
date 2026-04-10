@@ -46,15 +46,6 @@ assign dip_flip    = flip;
 assign debug_view  = debug_bus[7] ? st_snd :
             { 3'd0, ~sres_b, 2'd0, blcnten, OKOUT };
 
-localparam [25:0]   OBJ_START  = `JTFRAME_BA3_START;
-
-always @* begin
-    post_addr = prog_addr;
-    if( ioctl_addr >= OBJ_START ) begin
-        post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
-    end
-end
-
 jtframe_cen48 u_cen(
     .clk    ( clk       ),
     .cen12  (           ),
@@ -90,7 +81,6 @@ jtgng_timer u_timer(
     .Vinit     (          )
 );
 
-`ifndef NOMAIN
 jtgng_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -146,18 +136,6 @@ jtgng_main u_main(
     .dipsw_a    ( dipsw[ 7:0]   ),
     .dipsw_b    ( dipsw[15:8]   )
 );
-`else
-assign main_addr   = 17'd0;
-assign char_cs     = 1'b0;
-assign scr_cs      = 1'b0;
-assign blue_cs     = 1'b0;
-assign redgreen_cs = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign RnW         = 1'b1;
-assign scr_hpos    = 9'd0;
-assign scr_vpos    = 9'd0;
-`endif
 
 `ifndef NOSOUND
 jtgng_sound u_sound (

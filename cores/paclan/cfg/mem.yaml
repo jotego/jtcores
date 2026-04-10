@@ -2,10 +2,10 @@ params:
   - { name: SCR1_OFFSET, value: "(`BG_START-`JTFRAME_BA2_START)>>1" }
 clocks:
   clk48:
-    - freq: 6000
+    - freq: 6k
       outputs:
         - cen_pcm
-    - freq: 3072000
+    - freq: 3072k
       outputs:
         - cen_c30
 audio:

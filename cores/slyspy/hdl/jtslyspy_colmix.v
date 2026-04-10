@@ -119,9 +119,8 @@ jtframe_blank #(.DLY(2),.DW(12)) u_blank(
 // grounded for the colour mixer. The CPU can still
 // use them too.
 jtframe_dual_nvram16 #(
-    .AW        (  10        ),
-    .SIMFILE_LO("pal_lo.bin"),
-    .SIMFILE_HI("pal_hi.bin")
+    .AW     (  10     ),
+    .SIMFILE("pal.bin")
 ) u_ram_gr(
     // CPU writes
     .clk0   ( clk_cpu   ),

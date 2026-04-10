@@ -36,11 +36,13 @@ type Args struct {
         // the md5 will be set to None, unless Md5 is true
     Show_platform                bool
     MainOnly,PrintNames          bool
+    Alt                          bool
     JTbin                        bool // copy to JTbin & disable debug features
     Nodbg                        bool // do not parse games in the debug section
     URL, Rom_path        string
     // private
     firmware_dir string
+    cur_alt_version string
     mra_cfg Mame2MRA
     main_copied bool
 }
@@ -313,6 +315,7 @@ type Mame2MRA struct {
         }
         Patches []struct {
             Selectable
+            Altversion       string
             Offset           int
             Data             string
         }

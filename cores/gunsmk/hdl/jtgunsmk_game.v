@@ -46,28 +46,11 @@ wire prom_prior_we = prom_we && ioctl_addr[11:8]==9;
 wire [7:0] scrposv;
 wire [15:0] scrposh;
 
-localparam [25:0]   MAP1_START = `JTFRAME_BA2_START,
-                    SCR1_START = `JTFRAME_BA3_START,
-                    OBJ_START  = `OBJ_START,
-                    PROM_START = `JTFRAME_PROM_START;
-
-
 assign pxl2_cen = cen12;
 assign pxl_cen  = cen6;
 assign obj_addr[14:1]  = pre_obj_addr[13:0];
 assign obj_addr[17:15] = pre_obj_addr[15:14] == 2'b11 ? obj_bank + 3'b011 : {1'b0, pre_obj_addr[15:14]};
 assign debug_view = {6'd0, dip_flip, flip};
-
-always @* begin
-    post_addr = prog_addr;
-    if(ioctl_addr>=MAP1_START ) begin
-        if( ioctl_addr < SCR1_START) begin // MAP1+MAP2
-            post_addr[3:0] = {prog_addr[2:0],prog_addr[3]};
-        end else if( ioctl_addr >= OBJ_START && ioctl_addr < PROM_START ) begin
-            post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
-        end
-    end
-end
 
 /* verilator lint_off PINMISSING */
 jtframe_cen48 u_cen(

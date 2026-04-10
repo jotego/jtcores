@@ -112,7 +112,9 @@ clean_up() {
     rm -f frame.raw \
        game.f  jtsim.f  jtsim_vhdl.f simfile.f *bak *.def \
        make.log defmacros.h filtered.f microrom.mem nanorom.mem
-    if [ -z "$TESTCPP" ]; then rm -f test.cpp; fi
+    if [ -z "$TESTCPP" ]; then
+        rm -f test.cpp sdram.cpp sdram.h wavewritter.cpp wavewritter.h
+    fi
     rm -f video.raw video.pipe
     echo -e "\e[0m"
     echo
@@ -299,7 +301,7 @@ make_verilator_command() {
 "       -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal "\
 "       -o sim --quiet-stats"\
 "       $EXTRA $TRACE --prefix UUT --assert "\
-"       --cc test.cpp --exe $SIMULATOR_EXTRA $COV "\
+"       --cc --exe test.cpp sdram.cpp wavewritter.cpp $COV "\
 "       -Wwarn-UNDRIVEN --waiver-output waiver $GAME_VLT $VERILATOR_SAFE "
 }
 

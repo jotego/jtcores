@@ -66,13 +66,6 @@ assign prom_prio_we = prom_we &&  ioctl_addr[12];
 assign debug_view   = 0;
 assign dip_flip     = ~flip;
 
-always @* begin
-    post_addr = prog_addr;
-    if( ioctl_addr>=`JTFRAME_BA2_START && ioctl_addr<`JTFRAME_BA3_START ) begin
-        post_addr[5:1] = { prog_addr[4:1], prog_addr[5] };
-    end
-end
-
 jtgng_timer u_timer(
     .clk       ( clk      ),
     .cen6      ( pxl_cen  ),

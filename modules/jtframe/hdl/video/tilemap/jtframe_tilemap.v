@@ -66,8 +66,9 @@ module jtframe_tilemap #( parameter
     input              hflip,
     input              vflip,
 
-    output reg [VR-1:0]rom_addr,
-    input      [DW-1:0]rom_data,    // expects data packed as plane3,plane2,plane1,plane0, each of 8 bits
+    output reg [VR-1:0]rom_addr, // {code, H parts, V part}
+    input      [DW-1:0]rom_data, // expects data packed as plane3,plane2,plane1,plane0, each of 8 bits
+                                 // the MSB contains the leftmost pixel
     output reg         rom_cs,
     input              rom_ok, // zeros used if rom_ok is not high in time
 

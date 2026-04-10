@@ -33,7 +33,7 @@ for macro in $all_macros; do
 			break
 		fi
 	done
-	if grep --quiet $macro $JTFRAME/hdl/ver/test.cpp; then
+	if grep --quiet --max-count=1 $macro $JTFRAME/verilator/*.cpp $JTFRAME/verilator/*.h; then
 		found=1
 	fi
 	if [ $found = 0 ]; then

@@ -122,6 +122,7 @@ module game_test(
     // output   [15:0] ln_data,
     // output          ln_done,
     // input           ln_hs,
+    // input    [15:0] ln_dout,
     // input    [15:0] ln_pxl,
     // input    [ 7:0] ln_v,
     // output          ln_we,
@@ -140,72 +141,24 @@ module game_test(
     localparam SDRAMW=22; // 32 MB
 `endif
 
-`ifdef JTFRAME_BA0_AUTOPRECH
-    localparam BA0_AUTOPRECH = `JTFRAME_BA0_AUTOPRECH;
-`else
-    // if only one bank is used, it makes to precharge as default option
-    localparam BA0_AUTOPRECH = 1;
-`endif
-
-`ifdef JTFRAME_BA1_AUTOPRECH
-    localparam BA1_AUTOPRECH = `JTFRAME_BA1_AUTOPRECH;
-`else
-    localparam BA1_AUTOPRECH = 0;
-`endif
-
-`ifdef JTFRAME_BA2_AUTOPRECH
-    localparam BA2_AUTOPRECH = `JTFRAME_BA2_AUTOPRECH;
-`else
-    localparam BA2_AUTOPRECH = 0;
-`endif
-
-`ifdef JTFRAME_BA3_AUTOPRECH
-    localparam BA3_AUTOPRECH = `JTFRAME_BA3_AUTOPRECH;
-`else
-    localparam BA3_AUTOPRECH = 0;
-`endif
-
 `ifdef JTFRAME_COLORW
     localparam COLORW=`JTFRAME_COLORW;
 `else
     localparam COLORW=4;
 `endif
 
-// sdram bank lengths
-localparam
-`ifdef JTFRAME_BA0_LEN
-    BA0_LEN                 = `JTFRAME_BA0_LEN,
-`else
-    BA0_LEN                 = 32,
-`endif
-
-`ifdef JTFRAME_BA1_LEN
-    BA1_LEN                 = `JTFRAME_BA1_LEN,
-`else
-    BA1_LEN                 = 32,
-`endif
-
-`ifdef JTFRAME_BA2_LEN
-    BA2_LEN                 = `JTFRAME_BA2_LEN,
-`else
-    BA2_LEN                 = 32,
-`endif
-
-`ifdef JTFRAME_BA3_LEN
-    BA3_LEN                 = `JTFRAME_BA3_LEN,
-`else
-    BA3_LEN                 = 32,
-`endif
-    PROG_LEN = 32;
-
 wire [SDRAMW-1:0] ba0_addr;
 wire [SDRAMW-1:0] ba1_addr;
 wire [SDRAMW-1:0] ba2_addr;
 wire [SDRAMW-1:0] ba3_addr;
+wire [SDRAMW-1:0] burst_addr;
 wire [SDRAMW-1:0] prog_addr;
 wire [15:0] ba0_din, ba1_din, ba2_din, ba3_din;
+wire [15:0] burst_din;
 wire [ 1:0] ba0_dsn, ba1_dsn, ba2_dsn, ba3_dsn;
+wire [ 1:0] burst_ba;
 wire [ 3:0] ba_rd, ba_wr, ba_ack, ba_dst, ba_dok, ba_rdy;
+wire        burst_rd, burst_wr, burst_ack, burst_rdy, burst_dst, burst_dok;
 
 wire [15:0] prog_data;
 wire [ 1:0] prog_mask;
@@ -286,57 +239,30 @@ wire prog_en = ioctl_rom | dwnld_busy;
     );
 `endif
 
-wire [1:0] rfsh;
-
-// Automatic JTFRAME macros set a 64us refresh period
-jtframe_frac_cen #(.WC(`JTFRAME_RFSH_WC)) u_rfsh(
-    .clk    ( clk_rom           ),
-    .n      ( `JTFRAME_RFSH_N   ),
-    .m      ( `JTFRAME_RFSH_M   ),
-    .cen    ( rfsh              ),
-    .cenb   (                   )
-);
-
-jtframe_sdram64 #(
-    .AW           ( SDRAMW        ),
-    .BA0_LEN      ( BA0_LEN       ),
-    .BA1_LEN      ( BA1_LEN       ),
-    .BA2_LEN      ( BA2_LEN       ),
-    .BA3_LEN      ( BA3_LEN       ),
-    .BA0_AUTOPRECH( BA0_AUTOPRECH ),
-    .BA1_AUTOPRECH( BA1_AUTOPRECH ),
-    .BA2_AUTOPRECH( BA2_AUTOPRECH ),
-    .BA3_AUTOPRECH( BA3_AUTOPRECH ),
-    .PROG_LEN     ( PROG_LEN      ),
-    .MISTER       ( 0             ),
-`ifdef JTFRAME_BA1_WEN
-    .BA1_WEN      ( 1             ), `endif
-`ifdef JTFRAME_BA2_WEN
-    .BA2_WEN      ( 1             ), `endif
-`ifdef JTFRAME_BA3_WEN
-    .BA3_WEN      ( 1             ), `endif
-`ifdef JTFRAME_SDRAM96
-    .HF(1)
-`else
-    .HF(0),
-    `ifdef JTFRAME_180SHIFT
-        .SHIFTED(0)
-    `else
-        .SHIFTED(1)
-    `endif
-`endif
+jtframe_board_sdram #(
+    .SDRAMW     ( SDRAMW        ),
+    .MISTER     ( 0             )
 ) u_sdram(
     .rst        ( sdram_rst     ),
-    .clk        ( clk_rom       ), // 96MHz = 32 * 6 MHz -> CL=2
+    .clk        ( clk_rom       ),
     .init       ( sdram_init    ),
+    .prog_en    ( prog_en       ),
 
     .ba0_addr   ( ba0_addr      ),
     .ba1_addr   ( ba1_addr      ),
     .ba2_addr   ( ba2_addr      ),
     .ba3_addr   ( ba3_addr      ),
+    .burst_addr ( burst_addr    ),
+    .burst_ba   ( burst_ba      ),
+    .burst_rd   ( burst_rd      ),
+    .burst_wr   ( burst_wr      ),
+    .burst_ack  ( burst_ack     ),
+    .burst_rdy  ( burst_rdy     ),
+    .burst_dst  ( burst_dst     ),
+    .burst_dok  ( burst_dok     ),
 
-    .rd         ( ba_rd         ),
-    .wr         ( ba_wr         ),
+    .ba_rd      ( ba_rd         ),
+    .ba_wr      ( ba_wr         ),
     .ba0_din    ( ba0_din       ),
     .ba0_dsn    ( ba0_dsn       ),
     .ba1_din    ( ba1_din       ),
@@ -345,27 +271,26 @@ jtframe_sdram64 #(
     .ba2_dsn    ( ba2_dsn       ),
     .ba3_din    ( ba3_din       ),
     .ba3_dsn    ( ba3_dsn       ),
+    .burst_din  ( ba0_din       ),
 
-    .rdy        ( ba_rdy        ),
-    .ack        ( ba_ack        ),
-    .dok        ( ba_dok        ),
-    .dst        ( ba_dst        ),
+    .ba_rdy     ( ba_rdy        ),
+    .ba_ack     ( ba_ack        ),
+    .ba_dok     ( ba_dok        ),
+    .ba_dst     ( ba_dst        ),
 
     // ROM-load interface
-    .prog_en    ( prog_en       ),
     .prog_addr  ( prog_addr     ),
     .prog_ba    ( prog_ba       ),
     .prog_rd    ( prog_rd       ),
-    .prog_wr    ( prog_we       ),
-    .prog_din   ( prog_data     ),
+    .prog_we    ( prog_we       ),
+    .prog_data  ( prog_data     ),
     .prog_dsn   ( prog_mask     ),
     .prog_rdy   ( prog_rdy      ),
     .prog_dst   ( prog_dst      ),
     .prog_dok   ( prog_dok      ),
     .prog_ack   ( prog_ack      ),
-    // SDRAM interface
     .sdram_dq   ( SDRAM_DQ      ),
-    .sdram_din  ( SDRAM_DIN     ),
+    .din        ( SDRAM_DIN     ),
     .sdram_a    ( SDRAM_A       ),
     .sdram_dqml ( SDRAM_DQML    ),
     .sdram_dqmh ( SDRAM_DQMH    ),
@@ -375,11 +300,7 @@ jtframe_sdram64 #(
     .sdram_ncs  ( SDRAM_nCS     ),
     .sdram_ba   ( SDRAM_BA      ),
     .sdram_cke  ( SDRAM_CKE     ),
-
-    // Common signals
-    .dout       ( data_read     ),
-    .rfsh       ( !prog_en & rfsh[0] ) // Do not refresh during programming
-                                     // the verilator code sends the data too fast
+    .dout       ( data_read     )
 );
 /* verilator tracing_off */
 
@@ -397,7 +318,11 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
 );
 `endif
 
-/* verilator tracing_off */
+`ifdef VERILATOR_KEEP_LFBUF
+    /* verilator tracing_on */
+`else
+    /* verilator tracing_off */
+`endif
 `ifdef JTFRAME_LF_BUFFER
         wire  [ 7:0] game_vrender;
         wire  [ 8:0] game_hdump;
@@ -405,6 +330,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
         wire  [15:0] ln_data;
         wire         ln_done;
         wire         ln_hs, ln_vs, ln_lvbl;
+        wire  [15:0] ln_dout;
         wire  [15:0] ln_pxl;
         wire  [ 7:0] ln_v;
         wire         ln_we;
@@ -439,6 +365,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .ln_data    ( ln_data       ),
             .ln_done    ( ln_done       ),
             .ln_hs      ( ln_hs         ),
+            .ln_dout    ( ln_dout       ),
             .ln_pxl     ( ln_pxl        ),
             .ln_v       ( ln_v          ),
             .ln_vs      ( ln_vs         ),
@@ -507,6 +434,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .ln_data    ( ln_data       ),
             .ln_done    ( ln_done       ),
             .ln_hs      ( ln_hs         ),
+            .ln_dout    ( ln_dout       ),
             .ln_pxl     ( ln_pxl        ),
             .ln_v       ( ln_v          ),
             .ln_vs      ( ln_vs         ),
@@ -527,6 +455,10 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .st_dout    (      )
         );
     `endif
+`endif
+`ifndef JTFRAME_SDRAM_CACHE
+assign burst_addr=0, burst_ba=0, burst_rd=0, burst_wr=0,
+       burst_ack=0, burst_rdy=0, burst_dst=0, burst_dok=0;
 `endif
 /* verilator tracing_on */
 //////// GAME MODULE
@@ -596,6 +528,16 @@ u_game(
     .ba1_addr   ( ba1_addr      ),
     .ba2_addr   ( ba2_addr      ),
     .ba3_addr   ( ba3_addr      ),
+`ifdef JTFRAME_SDRAM_CACHE
+    .burst_addr ( burst_addr    ),
+    .burst_ba   ( burst_ba      ),
+    .burst_rd   ( burst_rd      ),
+    .burst_wr   ( burst_wr      ),
+    .burst_ack  ( burst_ack     ),
+    .burst_rdy  ( burst_rdy     ),
+    .burst_dst  ( burst_dst     ),
+    .burst_dok  ( burst_dok     ),
+`endif
     .ba_rd      ( ba_rd         ),
     .ba_wr      ( ba_wr         ),
     .ba_dst     ( ba_dst        ),
@@ -610,6 +552,9 @@ u_game(
     .ba2_dsn    ( ba2_dsn       ),
     .ba3_din    ( ba3_din       ),
     .ba3_dsn    ( ba3_dsn       ),
+`ifdef JTFRAME_SDRAM_CACHE
+    .burst_din  ( burst_din     ),
+`endif
 
     .prog_ba    ( prog_ba       ),
     .prog_rdy   ( prog_rdy      ),
@@ -665,6 +610,7 @@ u_game(
     .ln_data     ( ln_data        ),
     .ln_done     ( ln_done        ),
     .ln_hs       ( ln_hs          ),
+    .ln_dout     ( ln_dout        ),
     .ln_pxl      ( ln_pxl         ),
     .ln_v        ( ln_v           ),
     .ln_vs       ( ln_vs          ),
@@ -705,74 +651,3 @@ u_game(
 
 endmodule
 /* verilator tracing_on */
-module jtframe_ddr_model(
-    input         clk,
-    output reg    busy,
-    input   [7:0] burstcnt,
-    input  [28:0] addr,
-    output [63:0] dout,
-    output reg    dout_ready,
-    input         rd,
-    input  [63:0] din,
-    input   [7:0] be,
-    input         we
-);
-
-    localparam SW=20, SIZE=2**SW;
-
-    reg [63:0] mem[0:SIZE-1]; // only the first 8MB are modelled
-    reg [ 4:0] busy_cnt;
-    reg [ 7:0] cnt;
-    reg [ 3:0] dout_cnt;
-    reg [SW-1:0] areg;
-    reg        rding, wring;
-
-    assign dout = mem[areg];
-
-    integer aux;
-    initial begin
-        busy       = 1;
-        busy_cnt   = 0;
-        dout_cnt   = 0;
-        cnt        = 0;
-        dout_ready = 0;
-        rding      = 0;
-        wring      = 0;
-        for( aux=0; aux<SIZE; aux=aux+1 ) begin
-            mem[aux] = 0;
-        end
-    end
-
-    assign busy = 0; //busy_cnt==7 && !(rding || wring);
-
-    always @(posedge clk) begin
-        busy_cnt <= busy_cnt+1'd1;
-        if(dout_cnt != 0) begin
-            dout_cnt <= dout_cnt-1'd1;
-        end else begin
-            dout_ready <= rding;
-        end
-        if( cnt==0 ) begin
-            rding <= 0;
-            wring <= 0;
-            dout_ready <= 0;
-        end
-        if( (wring || dout_ready) && cnt != 0 && !busy ) begin
-            cnt  <= cnt-8'd1;
-            areg <= areg + 1'd1;
-        end
-        if( (rd || (we&&!wring)) && !busy ) begin
-            cnt        <= burstcnt;
-            areg       <= addr[SW-1:0];
-            rding      <= rd;
-            wring      <= we;
-            dout_ready <= 0;
-            dout_cnt   <= 7;
-        end
-        if( wring ) begin
-            for( aux=0;aux<8;aux=aux+1)
-                if( be[aux] ) mem[areg][8*aux+:8] <= din[8*aux+:8];
-        end
-    end
-
-endmodule

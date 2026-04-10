@@ -205,6 +205,12 @@ wire [SDRAMW-1:0] ba0_addr, ba1_addr, ba2_addr, ba3_addr;
 wire [ 3:0] ba_rd, ba_rdy, ba_ack, ba_dst, ba_dok, ba_wr;
 wire [15:0] ba0_din, ba1_din, ba2_din, ba3_din;
 wire [ 1:0] ba0_dsn, ba1_dsn, ba2_dsn, ba3_dsn;
+`ifdef JTFRAME_SDRAM_CACHE
+wire [SDRAMW-1:0] burst_addr;
+wire [ 1:0] burst_ba;
+wire        burst_rd, burst_wr, burst_ack, burst_dst, burst_dok, burst_rdy;
+wire [15:0] burst_din;
+`endif
 wire [15:0] sdram_dout;
 
 `ifndef JTFRAME_COLORW
@@ -379,6 +385,16 @@ u_frame(
     .ba1_addr   ( ba1_addr      ),
     .ba2_addr   ( ba2_addr      ),
     .ba3_addr   ( ba3_addr      ),
+`ifdef JTFRAME_SDRAM_CACHE
+    .burst_addr ( burst_addr    ),
+    .burst_ba   ( burst_ba      ),
+    .burst_rd   ( burst_rd      ),
+    .burst_wr   ( burst_wr      ),
+    .burst_ack  ( burst_ack     ),
+    .burst_dst  ( burst_dst     ),
+    .burst_dok  ( burst_dok     ),
+    .burst_rdy  ( burst_rdy     ),
+`endif
     .ba_rd      ( ba_rd         ),
     .ba_wr      ( ba_wr         ),
     .ba_dst     ( ba_dst        ),
@@ -393,6 +409,9 @@ u_frame(
     .ba2_dsn    ( ba2_dsn       ),
     .ba3_din    ( ba3_din       ),
     .ba3_dsn    ( ba3_dsn       ),
+`ifdef JTFRAME_SDRAM_CACHE
+    .burst_din  ( burst_din     ),
+`endif
 
     // ROM-load interface
     .prog_addr  ( prog_addr     ),
@@ -487,6 +506,7 @@ wire        game_tx, game_rx;
     wire               ln_done;
     wire               ln_we;
     wire               ln_hs, ln_vs, ln_vbl;
+    wire        [15:0] ln_dout;
     wire        [15:0] ln_pxl;
     wire        [ 7:0] ln_v;
 
@@ -513,6 +533,7 @@ wire        game_tx, game_rx;
         .ln_data    ( ln_data       ),
         .ln_done    ( ln_done       ),
         .ln_hs      ( ln_hs         ),
+        .ln_dout    ( ln_dout       ),
         .ln_pxl     ( ln_pxl        ),
         .ln_v       ( ln_v          ),
         .ln_we      ( ln_we         ),

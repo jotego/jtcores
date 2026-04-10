@@ -50,11 +50,6 @@ assign obj_sort   = obj_prea[0] ? { obj_data[24+:4], obj_data[16+:4], obj_data[8
 assign obj_addr   = obj_prea[16:1];
 assign prom_prio  = prom_we && prog_addr[9:8]==2'b10;
 
-always @* begin
-    post_addr = prog_addr;
-    if(prog_ba==3 && !prom_we) post_addr[5:1] = { prog_addr[4:1], prog_addr[5] };
-end
-
 always @(posedge clk) begin
     if( header && prog_addr[3:0]==0 && prog_we ) loud <= prog_data[0];
 end

@@ -816,30 +816,30 @@ void downtown_state::downtown_map(address_map &map)
 
 void downtown_state::calibr50_map(address_map &map)
 {
-	map(0x000000, 0x09'ffff).rom();                             // ROM
-	map(0x100000, 0x10'0001).r(FUNC(downtown_state::ipl2_ack_r));
-	map(0x200000, 0x20'0fff).ram().share("nvram");              // NVRAM (battery backed)
-	map(0x300000, 0x30'0001).rw(FUNC(downtown_state::ipl1_ack_r), FUNC(downtown_state::ipl1_ack_w));
-	map(0x400000, 0x40'0001).r("watchdog", FUNC(watchdog_timer_device::reset16_r));
-	map(0x500000, 0x50'0001).nopw();                        // ?
-	map(0x600001, 0x60'0001).r(FUNC(downtown_state::dsw1_r));
-	map(0x600003, 0x60'0003).r(FUNC(downtown_state::dsw2_r));
-	map(0x700000, 0x70'03ff).ram().w(m_palette, FUNC(palette_device::write16)).share("palette");  // Palette
-	map(0x800000, 0x80'0005).w(FUNC(downtown_state::vram_layer0_vctrl_raster_trampoline_w));// VRAM Ctrl
-	map(0x900000, 0x90'3fff).ram().w(m_tiles, FUNC(x1_012_device::vram_w)).share("tiles"); // VRAM
-	map(0x904000, 0x90'4fff).ram();                             //
-	map(0xa00000, 0xa0'0001).portr("P1");                 // X1-004
-	map(0xa00002, 0xa0'0003).portr("P2");                 // X1-004
-	map(0xa00008, 0xa0'0009).portr("COINS");              // X1-004
-	map(0xa00010, 0xa0'0017).r("upd4701", FUNC(upd4701_device::read_xy)).umask16(0x00ff);
-	map(0xa00019, 0xa0'0019).r("upd4701", FUNC(upd4701_device::reset_xy_r));
-	map(0xb00001, 0xb0'0001).r(m_soundlatch[1], FUNC(generic_latch_8_device::read)); // From Sub CPU
-	map(0xb00001, 0xb0'0001).w(m_soundlatch[0], FUNC(generic_latch_8_device::write)); // To Sub CPU
-	map(0xc00000, 0xc0'0000).w(m_spritegen, FUNC(x1_001_device::spritebgflag_w8));
-	map(0xd00000, 0xd0'05ff).ram().rw(m_spritegen, FUNC(x1_001_device::spriteylow_r16), FUNC(x1_001_device::spriteylow_w16));     // Sprites Y
-	map(0xd00600, 0xd0'0607).ram().rw(m_spritegen, FUNC(x1_001_device::spritectrl_r16), FUNC(x1_001_device::spritectrl_w16));
-	map(0xe00000, 0xe0'3fff).ram().rw(m_spritegen, FUNC(x1_001_device::spritecode_r16), FUNC(x1_001_device::spritecode_w16));     // Sprites Code + X + Attr
-	map(0xff0000, 0xff'ffff).ram();                             // RAM
+	map(0x0'00000, 0x0'9ffff).rom();                             // ROM
+	map(0x1'00000, 0x1'00001).r(FUNC(downtown_state::ipl2_ack_r));
+	map(0x2'00000, 0x2'00fff).ram().share("nvram");              // NVRAM (battery backed)
+	map(0x3'00000, 0x3'00001).rw(FUNC(downtown_state::ipl1_ack_r), FUNC(downtown_state::ipl1_ack_w));
+	map(0x4'00000, 0x4'00001).r("watchdog", FUNC(watchdog_timer_device::reset16_r));
+	map(0x5'00000, 0x5'00001).nopw();                        // ?
+	map(0x6'00001, 0x6'00001).r(FUNC(downtown_state::dsw1_r));
+	map(0x6'00003, 0x6'00003).r(FUNC(downtown_state::dsw2_r));
+	map(0x7'00000, 0x7'003ff).ram().w(m_palette, FUNC(palette_device::write16)).share("palette");  // Palette
+	map(0x8'00000, 0x8'00005).w(FUNC(downtown_state::vram_layer0_vctrl_raster_trampoline_w));// VRAM Ctrl
+	map(0x9'00000, 0x9'03fff).ram().w(m_tiles, FUNC(x1_012_device::vram_w)).share("tiles"); // VRAM
+	map(0x9'04000, 0x9'04fff).ram();                             //
+	map(0xa'00000, 0xa'00001).portr("P1");                 // X1-004
+	map(0xa'00002, 0xa'00003).portr("P2");                 // X1-004
+	map(0xa'00008, 0xa'00009).portr("COINS");              // X1-004
+	map(0xa'00010, 0xa'00017).r("upd4701", FUNC(upd4701_device::read_xy)).umask16(0x00ff);
+	map(0xa'00019, 0xa'00019).r("upd4701", FUNC(upd4701_device::reset_xy_r));
+	map(0xb'00001, 0xb'00001).r(m_soundlatch[1], FUNC(generic_latch_8_device::read)); // From Sub CPU
+	map(0xb'00001, 0xb'00001).w(m_soundlatch[0], FUNC(generic_latch_8_device::write)); // To Sub CPU
+	map(0xc'00000, 0xc'00000).w(m_spritegen, FUNC(x1_001_device::spritebgflag_w8));
+	map(0xd'00000, 0xd'005ff).ram().rw(m_spritegen, FUNC(x1_001_device::spriteylow_r16), FUNC(x1_001_device::spriteylow_w16));     // Sprites Y
+	map(0xd'00600, 0xd'00607).ram().rw(m_spritegen, FUNC(x1_001_device::spritectrl_r16), FUNC(x1_001_device::spritectrl_w16));
+	map(0xe'00000, 0xe'03fff).ram().rw(m_spritegen, FUNC(x1_001_device::spritecode_r16), FUNC(x1_001_device::spritecode_w16));     // Sprites Code + X + Attr
+	map(0xf'f0000, 0xf'fffff).ram();                             // RAM
 }
 
 
@@ -1698,6 +1698,8 @@ static const gfx_layout layout_tilemap =
 	{ STEP4(0,4) },
 	{ STEP4(4*4*8*3,1), STEP4(4*4*8*2,1), STEP4(4*4*8,1), STEP4(0,1) },
 	{ STEP8(0,4*4), STEP8(4*4*8*4,4*4) },
+ // { STEP4(48 bytes,1), STEP4(32 bytes,1), STEP4(16 bytes,1), STEP4(0,1) },
+ // { STEP8(0,2 bytes), STEP8(64 bytes,2 bytes) },
 	16*16*4
 };
 

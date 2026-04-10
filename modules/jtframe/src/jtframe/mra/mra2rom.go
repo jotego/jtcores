@@ -44,6 +44,10 @@ func Mra2rom(root *XMLNode, save2disk bool, zippath string) (e error) {
 	return e
 }
 
+func RomBytes(root *XMLNode, zippath string, apply_patches bool) ([]byte,error) {
+	return build_rom(root, zippath, apply_patches)
+}
+
 func save_coremod(root *XMLNode) {
 	setname := root.GetNode("setname")
 	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.GetName() == "rom" && n.GetAttr("index") == "1" })
@@ -68,11 +72,19 @@ func save_nvram(root *XMLNode) {
 }
 
 func save_rom(root *XMLNode, save2disk bool, zippath string) error {
+	rombytes, e := build_rom(root, zippath, save2disk)
+	if e != nil { return e }
+	if !save2disk { return nil }
+	setname := root.GetNode("setname")
+	return rom_file(setname.GetText(), ".rom", rombytes)
+}
+
+func build_rom(root *XMLNode, zippath string, apply_patches bool) ([]byte,error) {
 	setname := root.GetNode("setname")
 	xml_rom := root.FindMatch(func(n *XMLNode) bool { return n.GetName() == "rom" && n.GetAttr("index") == "0" })
 	if xml_rom == nil || setname == nil {
 		log.Println("Warning: no ROM files associated with machine")
-		return nil
+		return nil,nil
 	}
 	rombytes := make([]byte, 0)
 	var zf []*zip.ReadCloser
@@ -88,27 +100,23 @@ func save_rom(root *XMLNode, save2disk bool, zippath string) error {
 			}
 		}
 	}
-	if len(zf)==0 { return fmt.Errorf("%-10s cannot find %s in path %s",setname.GetText(), zipe.Error(),zippath) }
+	if len(zf)==0 { return nil,fmt.Errorf("%-10s cannot find %s in path %s",setname.GetText(), zipe.Error(),zippath) }
 	if Verbose {
 		fmt.Println("**** Creating .rom file for", setname.GetText())
 	}
 	e := parts2rom(zf, xml_rom, &rombytes)
 	if e != nil { fmt.Println(setname.GetText(),"\n",e)}
-	if rombytes == nil {
-		return fmt.Errorf("No .rom created for %s\n\n", setname.GetText())
-	}
+	if rombytes == nil { return nil,fmt.Errorf("No .rom created for %s\n\n", setname.GetText()) }
 	update_md5(xml_rom, rombytes)
 	if len(rombytes)%4 != 0 {
 		log.Printf("Warning (%-12s): ROM length is not multiple of four. Analogue Pocket will not load it well\n", setname.GetText())
 	}
-	if save2disk {
-		var e error
+	if apply_patches {
 		if e = patchrom(xml_rom, &rombytes); e!=nil {
-			e = fmt.Errorf("%s: %w\n", setname.GetText(), e)
+			return nil, fmt.Errorf("%s: %w\n", setname.GetText(), e)
 		}
-		return comb_errors( e, rom_file(setname.GetText(), ".rom", rombytes))
 	}
-	return nil
+	return rombytes,nil
 }
 
 func rom_file(setname string, ext string, rombytes []byte) error {

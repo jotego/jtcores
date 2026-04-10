@@ -53,7 +53,7 @@ list of XML elements like this one:
 This means that once per frame, the CPU RAM mapped at FF02E8 must be set to 9.
 
 The PicoBlaze has the vertical blanking mapped to bit 5 of port $80. In order to
-check when blanking has occur there is a small piece of code that you can just
+check when blanking has occurred, there is a small piece of code that you can just
 reuse:
 
 ```
@@ -155,8 +155,8 @@ core decoder logic and is different for each system. But for all CPS cores, the
 same logic applies. Another caveat is that for 16-bit CPUs, the address must be
 divided by 2. So finally the address **FF02E8** becomes **30'0174**.
 
-The code loads that address and the 9 value. Note that in 16-bit systems, the
-byte location may be confusing to because of endianness. For M68000 games, just
+The code loads that address and the value 9. Note that in 16-bit systems, the
+byte location may be confusing because of endianness. For M68000 games, just
 follow this example.
 
 Once this code is executed, the next flag will be checked, and eventually the
@@ -179,7 +179,7 @@ full code of this example [here](cheat/ecofghtr.s).
 
 Now you need to assemble the new file and add it to MiSTer's cheat.zip. The
 file [cheatzip](cheat/cheatzip) shows how to do it. Here are the steps as
-individual linux commands:
+individual Linux commands:
 
 ```
 > opbasm -6 -x -m 1024 ecofghtr.s
@@ -227,7 +227,7 @@ Finally, sometimes you need to read data from the SDRAM, you can find sample
 code for reading in [sf2hf.s](cheat/sf2hf.s).
 
 ```
-    ; Read FF8AC2 => 304561 and check that its zero
+    ; Read FF8AC2 => 304561 and check that it's zero
     load  s0,0x61
     load  s1,0x45
     load  s2,0x30

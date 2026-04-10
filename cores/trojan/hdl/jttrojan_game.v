@@ -42,16 +42,6 @@ assign scr_part = scr0 ? { scr_data[27:24], scr_data[19:16], scr_data[11: 8], sc
 assign base_cen  = trojan ? cen3 : cen6;
 assign debug_view = debug_bus[0] ? scr2_hpos[15:8] : scr2_hpos[7:0];
 
-localparam [25:0]   OBJ_START  = `OBJ_START,
-                    PROM_START = `JTFRAME_PROM_START;
-
-always @* begin
-    post_addr = prog_addr;
-    if( ioctl_addr >= OBJ_START && ioctl_addr < PROM_START ) begin
-        post_addr[5:1] = {prog_addr[4:1],prog_addr[5]};
-    end
-end
-
 always @(posedge clk) begin
     if( header && ioctl_addr[3:0]==8 ) {mcu_en,avengers,trojan} <= prog_data[2:0];
     dipsw_a <= avengers ? dipsw[15:8] : dipsw[ 7:0];

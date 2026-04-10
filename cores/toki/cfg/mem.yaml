@@ -9,7 +9,7 @@ params:
   - { name: OKI_OFFSET,       value: "22'h9000" } # start at 8.m3 + 7.m7 / 2 
 clocks:
   clk48:
-    - freq:  1000000
+    - freq:  1M
       outputs:
         - oki
 sdram:

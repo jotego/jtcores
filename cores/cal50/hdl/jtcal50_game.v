@@ -22,36 +22,25 @@ module jtcal50_game(
 
 wire [13:1] cpu_addr;
 wire [ 1:0] cpu_dsn;
+wire [ 8:0] hdump;
 wire [ 7:0] snd_cmd, snd_rply, st_main, st_snd, st_video;
 wire [15:0] vram_dout;
-wire        cpu_ldwn, set_cmd, flip, cpu_rnw,
-            vram_cs, vctrl_cs, vflag_cs, pal_cs;
+wire        set_cmd, flip, cpu_rnw, cen244, snd_rst,
+            vram_cs, vctrl_cs, vflag_cs, pal_cs, tctrl_cs;
 
-assign debug_view = debug_bus[7] ? st_video : st_snd;
+assign debug_view = debug_bus[7] ? st_snd : st_video;
 assign dip_flip   = ~flip;
-assign fix_addr   = 0;
-assign fix_cs     = 0;
-assign cpu_ldwn   = cpu_rnw | cpu_dsn[0];
 
-reg        LHBL_l;
-reg  [5:0] cnt244;
-wire [6:0] nx_244 = {1'b0,cnt244} + 6'd1;
-reg        cen244;
-
-always @(posedge clk) begin
-    LHBL_l <= LHBL;
-    cen244 <= 0;
-    if( LHBL & ~LHBL_l ) {cen244,cnt244} <= nx_244;
-end
-
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtcal50_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .pxl_cen        ( pxl_cen       ),
     .cen244         ( cen244        ),
     .lvbl           ( LVBL          ),
+    .hdump          ( hdump[1:0]    ),
 
+    .tctrl_cs       ( tctrl_cs      ),
     .vctrl_cs       ( vctrl_cs      ),
     .vflag_cs       ( vflag_cs      ),
     .vram_cs        ( vram_cs       ),
@@ -76,8 +65,10 @@ jtcal50_main u_main(
     // cabinet I/O
     .cab_1p         ( cab_1p[1:0]   ),
     .coin           ( coin[1:0]     ),
-    .joystick1      ( joystick1     ),
-    .joystick2      ( joystick2     ),
+    .joystick1      ( joystick1[5:0]),
+    .joystick2      ( joystick2[5:0]),
+    .dial_x         ( dial_x        ),
+    .dial_y         ( dial_y        ),
     .service        ( service       ),
     .tilt           ( tilt          ),
     // video
@@ -87,6 +78,7 @@ jtcal50_main u_main(
     .tlv_dout       ( tlv_dout      ),
 
     // Sound
+    .snd_rst        ( snd_rst       ),
     .snd_cmd        ( snd_cmd       ),
     .snd_rply       ( snd_rply      ),
     .set_cmd        ( set_cmd       ),
@@ -100,9 +92,9 @@ jtcal50_main u_main(
 );
 /* verilator tracing_on */
 jtcal50_sound u_sound(
-    .rst            ( rst           ),
+    .rst            ( snd_rst       ),
     .clk            ( clk           ),
-    .cen2           ( cen2          ),
+    .cen8           ( cen8          ),
     .cen244         ( cen244        ),
     .cen_pcm        ( cen_pcm       ),
 
@@ -120,18 +112,19 @@ jtcal50_sound u_sound(
     .pcm_data       ( pcm_data      ),
     .pcm_cs         ( pcm_cs        ),
     // Sound
-    .snd_left       ( pcm_l         ),
-    .snd_right      ( pcm_r         ),
+    .snd_left       ( pcm_8k        ),
+    .snd_right      ( pcm_4k        ),
     .mute           ( mute          ),
     // Debug
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )
 );
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtcal50_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),
     .clk_cpu        ( clk           ),
+    .cen244         ( cen244        ),
 
     .pxl2_cen       ( pxl2_cen      ),
     .pxl_cen        ( pxl_cen       ),
@@ -139,9 +132,10 @@ jtcal50_video u_video(
     .LVBL           ( LVBL          ),
     .HS             ( HS            ),
     .VS             ( VS            ),
+    .hdump          ( hdump         ),
     .flip           ( flip          ),
     // GFX - CPU interface
-    .cpu_rnw        ( cpu_ldwn      ),
+    .cpu_rnw        ( cpu_rnw       ),
     .cpu_dsn        ( cpu_dsn       ),
     .cpu_addr       ( cpu_addr      ),
     .cpu_dout       ( cpu_dout      ),
@@ -150,6 +144,29 @@ jtcal50_video u_video(
     .vctrl_cs       ( vctrl_cs      ),
     .vflag_cs       ( vflag_cs      ),
     .vram_dout      ( vram_dout     ),
+
+    // X1-001 Internal RAM
+    .col_addr       ( col_addr      ),
+    .col_data       ( col_data      ),
+    .yram_dout      ( yram_dout     ),
+    .yram_we        ( yram_we       ),
+
+    // X1-001 External VRAM
+    .dma_addr       ( dma_addr      ),
+    .dma_din        ( dma_din       ),
+    .dma_we         ( dma_we        ),
+    .dma_dout       ( dma_dout      ),
+    .code_dout      ( code_dout     ),
+    .code_addr      ( code_addr     ),
+
+    // Tilemap X1-012
+    .tctrl_cs       ( tctrl_cs      ),
+    .tvram_addr     ( tlrd_addr     ),
+    .tvram_dout     ( tlrd_data     ),
+    .tile_addr      ( tile_addr     ),
+    .tile_data      ( tile_data     ),
+    .tile_cs        ( tile_cs       ),
+    .tile_ok        ( tile_ok       ),
 
     .pal_addr       ( palrd_addr    ),
     .pal_data       ( pal_data      ),
@@ -168,6 +185,9 @@ jtcal50_video u_video(
     .red            ( red           ),
     .green          ( green         ),
     .blue           ( blue          ),
+    // IOCTL dump
+    .ioctl_addr     (ioctl_addr[2:0]),
+    .ioctl_din      ( ioctl_din     ),
     // Test
     .gfx_en         ( gfx_en        ),
     .debug_bus      ( debug_bus     ),

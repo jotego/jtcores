@@ -1,6 +1,6 @@
 # Parses the core's YAML file to generate RTL files.
 
-The YAML file name must be mem.yaml and be stored in cores/corename/cfg
+The YAML file name must be `mem.yaml` and be stored in `cores/corename/cfg`.
 The output files are stored in cores/corename/target where target is
 one of the names in the $JTFRAME/target folder (mist, mister, etc.).
 
@@ -12,7 +12,7 @@ Example with YM3012 having both channels connected to the summing net via:
 
 - 1kOhm, 33pF parallel, 1kOhm, 4.7uF series, 1.2kOhm
 
-The RC resistors is the parallel of 1k and 1+1.2
+The RC resistance is the parallel equivalent of 1k and 1+1.2.
 
 ``` YAML
 - {name: fm,  module: jt51, rsum:  3.2k,  rc: [{ r:  687, c: 33n  }, {r: 1rout, c: 2.2n }] }
@@ -42,11 +42,11 @@ download:
     post_addr: false  # modify the address value going into the SDRAM
     post_data: false  # modify the data byte going into the SDRAM
     noswab: false     # Reverse all bytes, avoid using it and modify the MRA instead
-# Connect addtional output ports from the game module
+# Connect additional output ports from the game module
 ports:
     - { name: foo_data, msb: 15, lsb: 0, input:true }
     - { name: foo_cs }
-# Instantiates a differente game module
+# Instantiates a different game module
 game: othergame
 
 # Generate clock-enable signals
@@ -93,11 +93,15 @@ audio:
 
 # Details about the SDRAM usage
 sdram:
+  # Use either banks or cache-lines, but not both at the same time
   banks:
     - buses: # connections to bank 0
         - name:
           addr_width:
           data_width: # 8, 16 or 32. It will affect the LSB start of addr_width
+          offset: GFXBASE # optional bank-relative SDRAM offset
+                          # offset uses 16-bit SDRAM word units, not bytes
+                          # this matches the generated RTL SLOT*_OFFSET semantics
           cache_size: 4 # default 0, will use the regular jtframe_romrq_bcache
                         # change it to !=0 to use jtframe_romrq_dcache, that will cache
                         # the served data to the game, rather than all the data coming
@@ -107,9 +111,12 @@ sdram:
           cs: myown_cs # use a cs signal not based on the bus name
           addr: myown_addr # use a cs signal not based on the bus name
           gfx_sort:hhvvv/hhvvvv/hhvvvvx(x/xx) # moves h bits after v bits
-          gfx_sort: hvvv # makes it vvvh useful for 4-bit encodings
+                               # the x means bits used for something else
+          gfx_sort: hvvv(x) # makes it vvvh useful for 4-bit encodings
           gfx_sort_en: signal to and with gfx_sort to isolate sort convention for only a game
           do_not_erase: true # for rw slots, do not clear upon reset
+          simfile: tiles.bin # optional, used only by jtutil sdram --sim
+          sim_big_endian: true # optional for 16/32-bit simfile loads; invalid for 8-bit buses
         - name: another bus...
           when: [ POCKET ]        # use when/unless to set conditions that enabled or disabled the buses
     - buses: # same for bank 1
@@ -119,6 +126,23 @@ sdram:
         - name: another bus...
     - buses: # same for bank 3
         - name: another bus...
+  cache-lines:
+    - name: tiles
+      cache:
+        blocks: 32
+        size: 1kB
+        data_width: 32
+      at:
+        bank: 3
+        offset: TILES
+        length: 8MB
+      simfile: tilechar.bin
+      sim_big_endian: true
+      # Cache lines are bank-relative and use 16-bit SDRAM word units for offset
+      # offset must be either a parameter name or an explicit hexadecimal value
+      # length is the address space exposed to the cache client
+      # cache-lines generate jtframe_cache/jtframe_cache_mux based SDRAM access
+      # simfile and sim_big_endian are only consumed by jtutil sdram --sim
 # BRAM connections
 bram:
     - name: vram
@@ -129,6 +153,7 @@ bram:
       [addr:]
       [din:]
       [sim_file: true]
+      [sim_big_endian: true] # optional for 16/32-bit SIMFILE loads; default is little-endian
       ioctl:  # optionally dump to RAM file (mainly MiST/SiDi)
         save: true # a dump2bin.sh file will be generated in the sim folder
         restore: true # whether to load it upon core boot
@@ -147,6 +172,9 @@ bram:
       addr_width: 12
       data_width: 8
       sim_file: required if load is skipped
+      # sim_file defaults to little-endian lane mapping
+      # sim_big_endian: true swaps the byte lanes for 16/32-bit BRAMs
+      # sim_big_endian is invalid for 8-bit BRAMs
       rom:
         offset: position in prog_addr*2, with the bank number taking bits 24:23
     # BRAM used as PROM. Data width must be 8 or less

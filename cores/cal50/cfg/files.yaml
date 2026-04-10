@@ -20,6 +20,7 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
+      - jtframe_scroll.yaml
   - from: cpu
     get:
       - jtframe_m68k.yaml

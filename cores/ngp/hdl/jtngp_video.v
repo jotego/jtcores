@@ -218,10 +218,7 @@ jtngp_chram u_chram(
     .scr2_data  ( scr2_data )
 );
 /* verilator tracing_on */
-jtngp_scr #(
-    .SIMFILE_LO("scr1_lo.bin"),
-    .SIMFILE_HI("scr1_hi.bin")
-) u_scr1 (
+jtngp_scr #(.SIMFILE("scr1.bin")) u_scr1 (
     .rst        ( rstv      ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -244,10 +241,7 @@ jtngp_scr #(
     .pxl        ( scr1_pxl  )
 );
 
-jtngp_scr #(
-    .SIMFILE_LO("scr2_lo.bin"),
-    .SIMFILE_HI("scr2_hi.bin")
-) u_scr2 (
+jtngp_scr #(.SIMFILE("scr2.bin")) u_scr2 (
     .rst        ( rstv      ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

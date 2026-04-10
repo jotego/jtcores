@@ -45,6 +45,14 @@ func (item *SDRAMBus) Enabled() bool {
     return aux.Enabled()
 }
 
+func (item *SDRAMCacheLine) Enabled() bool {
+    aux := macros.MacroEnabled{
+        When: item.When,
+        Unless: item.Unless,
+    }
+    return aux.Enabled()
+}
+
 func (cfg *MemConfig)calc_prom_we() {
     offset := 0
     for k,_ := range cfg.BRAM {

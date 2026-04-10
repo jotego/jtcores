@@ -9,7 +9,7 @@ params:
   - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
 clocks:
   clk:
-    - freq: 6000000
+    - freq: 6M
       gate: [ snd ]
       outputs:
         - cen6

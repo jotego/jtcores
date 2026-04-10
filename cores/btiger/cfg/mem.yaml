@@ -7,8 +7,6 @@ audio:
     - { name: psg1, module: jt03_psg, rsum: 68k }
     - { name: fm0,  module: jt03_fm,  rsum: 47k, rc: [{ r: 1rout,  c: 1n }]}
     - { name: fm1,  module: jt03_fm,  rsum: 47k, rc: [{ r: 1rout,  c: 1n }]}
-download:
-  post_addr: true
 sdram:
   banks:
     - buses:
@@ -33,4 +31,5 @@ sdram:
       - name: obj
         addr_width: 18
         data_width: 16
+        gfx_sort: hvvvvxx
         cs: 1'b1
