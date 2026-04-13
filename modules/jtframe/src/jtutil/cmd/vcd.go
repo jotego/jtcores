@@ -35,6 +35,7 @@ func init() {
 	csvCmd.Flags().StringSliceVarP(&csv_converter.MustBeSet, "must-be-set", "1", nil, "comma separated list of signals that must be high in order to dump the line")
 	frameDiffCmd.Flags().Uint64("ref", 2, "reference frame")
 	frameDiffCmd.Flags().String("frames", "", "comparison frame or range, such as 5, 8- or 10-12")
+	frameDiffCmd.Flags().String("when", "", "only compare rows when the given condition is true, for example wr_en==1")
 	frameDiffCmd.Flags().Bool("keep", false, "keep the generated comparison files")
 
 }
@@ -78,7 +79,8 @@ Scope syntax:
 Examples:
   jtutil vcd frame-diff u_obj
   jtutil vcd frame-diff u_obj/wr_*
-  jtutil vcd frame-diff u_video.u_obj/wr_{a,b} test.fst`,
+  jtutil vcd frame-diff u_video.u_obj/wr_{a,b} test.fst
+  jtutil vcd frame-diff --when wr_en==1 u_obj/wr_*`,
 	Run: func(cmd *cobra.Command, args []string) {
 		input := "test.fst"
 		scope := ""
@@ -94,11 +96,13 @@ Examples:
 		}
 		ref, _ := cmd.Flags().GetUint64("ref")
 		frames, _ := cmd.Flags().GetString("frames")
+		when, _ := cmd.Flags().GetString("when")
 		keep, _ := cmd.Flags().GetBool("keep")
 		verbose, _ := cmd.Flags().GetBool("verbose")
 		if e := vcd.RunFrameDiff(vcd.FrameDiffOptions{
 			InputFile: input,
 			Scope:     scope,
+			When:      when,
 			Ref:       ref,
 			Frames:    frames,
 			Keep:      keep,

@@ -30,6 +30,7 @@ import (
 type FrameDiffOptions struct {
 	InputFile string
 	Scope     string
+	When      string
 	Ref       uint64
 	Frames    string
 	Keep      bool
@@ -80,7 +81,12 @@ func RunFrameDiff(opt FrameDiffOptions) error {
 		return fmt.Errorf("no signals match %q", opt.Scope)
 	}
 
-	frames, err := collectFrameDiffData(ln, signals, frameSignal, selected)
+	when, err := parseFrameDiffWhen(signals, scopeRoot, opt.When)
+	if err != nil {
+		return err
+	}
+
+	frames, err := collectFrameDiffData(ln, signals, frameSignal, selected, when)
 	if err != nil {
 		return err
 	}
@@ -151,6 +157,48 @@ func RunFrameDiff(opt FrameDiffOptions) error {
 	}
 
 	return nil
+}
+
+type frameDiffWhen struct {
+	signal   *VCDSignal
+	expected uint64
+}
+
+func parseFrameDiffWhen(ss VCDData, scopeRoot string, expr string) (*frameDiffWhen, error) {
+	expr = strings.TrimSpace(expr)
+	if expr == "" {
+		return nil, nil
+	}
+	tokens := strings.Split(expr, "==")
+	if len(tokens) != 2 {
+		return nil, fmt.Errorf("invalid --when %q: only name==0 or name==1 is supported", expr)
+	}
+	name := strings.TrimSpace(tokens[0])
+	value := strings.TrimSpace(tokens[1])
+	if name == "" || value == "" {
+		return nil, fmt.Errorf("invalid --when %q: only name==0 or name==1 is supported", expr)
+	}
+	if value != "0" && value != "1" {
+		return nil, fmt.Errorf("invalid --when %q: only name==0 or name==1 is supported", expr)
+	}
+	sig := resolveFrameDiffWhenSignal(ss, scopeRoot, name)
+	if sig == nil {
+		return nil, fmt.Errorf("signal %q in --when not found in VCD", name)
+	}
+	return &frameDiffWhen{
+		signal:   sig,
+		expected: uint64(value[0] - '0'),
+	}, nil
+}
+
+func resolveFrameDiffWhenSignal(ss VCDData, scopeRoot string, name string) *VCDSignal {
+	if strings.Contains(name, ".") {
+		return ss.Get(name)
+	}
+	if scopeRoot != "" {
+		return ss.Get(scopeRoot + "." + name)
+	}
+	return ss.Get(name)
 }
 
 func resolveFrameDiffInput(opt FrameDiffOptions) (string, func(), error) {
@@ -379,43 +427,57 @@ func splitFrameDiffBraceItems(body string) []string {
 	return items
 }
 
-func collectFrameDiffData(file *LnFile, ss VCDData, frameSig *VCDSignal, selected []*VCDSignal) (map[uint64]*frameData, error) {
+func collectFrameDiffData(file *LnFile, ss VCDData, frameSig *VCDSignal, selected []*VCDSignal, when *frameDiffWhen) (map[uint64]*frameData, error) {
 	frameRows := make(map[uint64]*frameData)
 	currentFrame := frameSig.Value
-	current := newFrameDiffFrameData(currentFrame, selected)
+	current := &frameData{frame: currentFrame}
 	lastValues := frameDiffSnapshot(selected)
+	if frameDiffWhenMatches(when) {
+		current.rows = append(current.rows, frameRow{
+			idx:    0,
+			values: lastValues,
+		})
+	}
 
 	for file.NextVCD(ss) {
 		values := frameDiffSnapshot(selected)
 		nextFrame := frameSig.Value
 		if nextFrame != currentFrame {
-			frameRows[currentFrame] = current
+			if len(current.rows) > 0 {
+				frameRows[currentFrame] = current
+			}
 			currentFrame = nextFrame
-			current = newFrameDiffFrameData(currentFrame, selected)
+			current = &frameData{frame: currentFrame}
 			lastValues = values
+			if frameDiffWhenMatches(when) {
+				current.rows = append(current.rows, frameRow{
+					idx:    0,
+					values: values,
+				})
+			}
 			continue
 		}
 		if !frameDiffValuesEqual(lastValues, values) {
-			current.rows = append(current.rows, frameRow{
-				idx:    len(current.rows),
-				values: values,
-			})
+			if frameDiffWhenMatches(when) {
+				current.rows = append(current.rows, frameRow{
+					idx:    len(current.rows),
+					values: values,
+				})
+			}
 			lastValues = values
 		}
+	}
+	if len(current.rows) > 0 {
+		frameRows[currentFrame] = current
 	}
 	return frameRows, nil
 }
 
-func newFrameDiffFrameData(frame uint64, selected []*VCDSignal) *frameData {
-	return &frameData{
-		frame: frame,
-		rows: []frameRow{
-			{
-				idx:    0,
-				values: frameDiffSnapshot(selected),
-			},
-		},
+func frameDiffWhenMatches(when *frameDiffWhen) bool {
+	if when == nil {
+		return true
 	}
+	return when.signal.Value == when.expected
 }
 
 func frameDiffSnapshot(selected []*VCDSignal) []uint64 {

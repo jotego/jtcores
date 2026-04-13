@@ -107,7 +107,7 @@ b11 #
 		t.Fatalf("unexpected selected signals: %d", len(selected))
 	}
 
-	frames, err := collectFrameDiffData(ln, ss, frameSig, selected)
+	frames, err := collectFrameDiffData(ln, ss, frameSig, selected, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -133,6 +133,174 @@ b11 #
 	}
 	if frame2.rows[1].values[0] != 0x13 || frame2.rows[1].values[1] != 0 {
 		t.Fatalf("bad frame 2 row 1: %#v", frame2.rows[1].values)
+	}
+}
+
+func Test_parseFrameDiffWhen(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "when.vcd")
+	content := `$date
+  today
+$end
+$version
+  test
+$end
+$timescale
+ 1ns
+$end
+$scope module TOP $end
+$scope module game_test $end
+$scope module u_obj $end
+$var wire 1 ! wr_en $end
+$var wire 8 " data [7:0] $end
+$var wire 2 # frame_cnt [1:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$dumpvars
+0!
+b00000000 "
+b00 #
+$end
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	ln, ss := LoadVCD(path)
+	defer ln.Close()
+
+	scopeRoot, err := resolveFrameDiffScope(ss, "u_obj/data")
+	if err != nil {
+		t.Fatal(err)
+	}
+	when, err := parseFrameDiffWhen(ss, scopeRoot, "wr_en==1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if when.signal.FullName() != "TOP.game_test.u_obj.wr_en" {
+		t.Fatalf("unexpected when signal: %s", when.signal.FullName())
+	}
+	if when.expected != 1 {
+		t.Fatalf("unexpected when value: %d", when.expected)
+	}
+	when, err = parseFrameDiffWhen(ss, scopeRoot, "TOP.game_test.u_obj.wr_en==0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if when.signal.FullName() != "TOP.game_test.u_obj.wr_en" {
+		t.Fatalf("unexpected explicit when signal: %s", when.signal.FullName())
+	}
+	if when.expected != 0 {
+		t.Fatalf("unexpected explicit when value: %d", when.expected)
+	}
+	for _, expr := range []string{"wr_en", "wr_en==2", "wr_en!=1", "missing==1"} {
+		if _, err := parseFrameDiffWhen(ss, scopeRoot, expr); err == nil {
+			t.Fatalf("expected %q to fail", expr)
+		}
+	}
+}
+
+func Test_collectFrameDiffDataWhen(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "when_collect.vcd")
+	content := `$date
+  today
+$end
+$version
+  test
+$end
+$timescale
+ 1ns
+$end
+$scope module TOP $end
+$scope module game_test $end
+$scope module u_obj $end
+$var wire 1 ! wr_en $end
+$var wire 8 " data [7:0] $end
+$var wire 2 # frame_cnt [1:0] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$dumpvars
+0!
+b00000000 "
+b00 #
+$end
+#5
+b01 #
+b00000001 "
+#10
+1!
+b00000010 "
+#15
+b00000011 "
+#20
+b10 #
+0!
+b00000100 "
+#25
+1!
+b00000101 "
+#30
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	ln, ss := LoadVCD(path)
+	defer ln.Close()
+
+	frameSig := findFrameCountSignal(ss)
+	if frameSig == nil {
+		t.Fatal("frame_cnt not found")
+	}
+	scopeRoot, err := resolveFrameDiffScope(ss, "u_obj/data")
+	if err != nil {
+		t.Fatal(err)
+	}
+	selected, err := selectFrameDiffSignals(ss, scopeRoot, "u_obj/data")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(selected) != 1 {
+		t.Fatalf("unexpected selected signals: %d", len(selected))
+	}
+	when, err := parseFrameDiffWhen(ss, scopeRoot, "wr_en==1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	frames, err := collectFrameDiffData(ln, ss, frameSig, selected, when)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := frames[0]; ok {
+		t.Fatal("frame 0 should be filtered out")
+	}
+	frame1, ok := frames[1]
+	if !ok {
+		t.Fatal("frame 1 should be present")
+	}
+	if len(frame1.rows) != 2 {
+		t.Fatalf("expected 2 filtered rows in frame 1, got %d", len(frame1.rows))
+	}
+	if frame1.rows[0].values[0] != 0x02 {
+		t.Fatalf("unexpected frame 1 row 0: %#v", frame1.rows[0].values)
+	}
+	if frame1.rows[1].values[0] != 0x03 {
+		t.Fatalf("unexpected frame 1 row 1: %#v", frame1.rows[1].values)
+	}
+	frame2, ok := frames[2]
+	if !ok {
+		t.Fatal("frame 2 should be present")
+	}
+	if len(frame2.rows) != 1 {
+		t.Fatalf("expected 1 filtered row in frame 2, got %d", len(frame2.rows))
+	}
+	if frame2.rows[0].values[0] != 0x05 {
+		t.Fatalf("unexpected frame 2 row 0: %#v", frame2.rows[0].values)
 	}
 }
 
