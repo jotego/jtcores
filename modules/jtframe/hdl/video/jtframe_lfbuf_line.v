@@ -67,7 +67,7 @@ module jtframe_lfbuf_line #(parameter
     input               scr_we
 );
 
-reg           vsl, lvbl_l, hs_l;
+reg           vsl, lvbl_l, hs_l, vend_good;
 reg  [   5:0] porch;
 reg  [VW-1:0] vstart=0, vend=0;
 wire [  15:0] linein_pxl, scr_pxl;
@@ -95,6 +95,7 @@ always @(posedge clk) begin
     end else begin
         lvbl_l <= lvbl;
         vsl    <= vs;
+        vend_good <= |vend;
         if( !lvbl &&  lvbl_l ) begin
             vend    <= vrender;
         end
@@ -191,17 +192,15 @@ always @(posedge clk) begin
                 end
             end else if(active) begin
                 ln_v <= ln_v + 1'd1;
-                if( ln_v == vend )
+                if( ln_v == vend && vend_good )
                     done <= 1;
                 else
                     ln_hs <= 1;
             end
     `else begin
             ln_v <= ln_v + 1'd1;
-            if( ln_v == vend )
-                done <= 1;
-            else
-                ln_hs <= 1;
+            ln_hs <= 1;
+            if( ln_v == vend && vend_good ) done <= 1;
         end
     `endif
     end
