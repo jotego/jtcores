@@ -237,7 +237,7 @@ jtframe_dual_ram #(.DW(16),.AW(HW)) u_lineout(
     .clk1   ( clk           ),
     .data1  ( 16'b0         ),
     .addr1  ( hdump         ),
-    .we1    ( 1'b0          ), // the core should not send transparent pixels
+    .we1    ( 1'b0          ),
     .q1     ( scr_pxl       )
 );
 

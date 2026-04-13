@@ -76,7 +76,7 @@ wire [TAGW-1:0] req_tag  = req_addr[UW-1:OFFW];
 wire [OFFW-1:0] req_off  = req_addr[OFFW-1:0];
 wire [UW-1:0] base_addr  = { pend_uaddr[UW-1:OFFW], {OFFW{1'b0}} };
 wire [AW-1:0] base_byte  = { base_addr, {AW0{1'b0}} };
-wire [BW-1:0] victim     = victim_pick({16'd0, lfsr});
+wire [BW-1:0] victim     = lfsr[BW-1:0];
 wire          wr_en      = wait_data && (fill_active || ext_dst);
 
 wire [DW-1:0] hit_data;
@@ -89,16 +89,6 @@ assign fill_last = fill_word == LAST_WORD;
 integer i;
 
 assign ext_addr = { {(EW-AW){1'b0}}, base_byte[AW-1:1] };
-
-function [BW-1:0] victim_pick;
-    input [31:0] rnd;
-    reg [BW:0] tmp;
-    begin
-        tmp = { 1'b0, rnd[BW-1:0] };
-        if( tmp >= BLOCKS ) tmp = tmp - BLOCKS;
-        victim_pick = tmp[BW-1:0];
-    end
-endfunction
 
 always @* begin
     hit_now = 0;
