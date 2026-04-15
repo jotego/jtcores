@@ -346,7 +346,8 @@ jtframe_headerbyte #(.AW(6)) u_pcbid(
 {{ $assign_holdrst := true }}
 {{- if gt (len .SDRAM.Cache_lines) 0 }}
 jtframe_cache_mux #(
-    .SDRAM_AW ( SDRAMW ){{- range $index, $line := .SDRAM.Cache_lines }},
+    .SDRAM_AW ( SDRAMW ),
+    .ENDIAN   ( {{if .SDRAM.Big_endian}}1{{else}}0{{end}} ){{- range $index, $line := .SDRAM.Cache_lines }},
     .AW{{$index}}      ( {{ cache_line_aw $line }} ),
     .BLOCKS{{$index}}  ( {{ $line.Cache.Blocks }} ),
     .BLKSIZE{{$index}} ( {{ $line.Cache.Size_bytes }} ),
@@ -376,6 +377,7 @@ jtframe_cache_mux #(
     .din       ( data_read  ),
     .ack       ( burst_ack   ),
     .dst       ( burst_dst   ),
+    .dok       ( burst_dok   ),
     .rdy       ( burst_rdy   )
 );
 assign burst_wr  = 1'b0;

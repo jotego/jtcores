@@ -528,6 +528,9 @@ func (cfg *MemConfig) check_sdram() error {
 		return fmt.Errorf("jtframe mem: sdram.banks and sdram.cache-lines cannot be defined at the same time")
 	}
 	if len(cfg.SDRAM.Banks) > 0 {
+		if cfg.SDRAM.Big_endian {
+			return fmt.Errorf("jtframe mem: sdram.big_endian is only valid with sdram.cache-lines")
+		}
 		return cfg.check_banks()
 	}
 	if err := cfg.check_cache_lines(); err != nil {

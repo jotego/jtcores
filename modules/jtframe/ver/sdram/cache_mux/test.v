@@ -38,6 +38,7 @@ wire                ctl_rd;
 wire [15:0]         ctl_dout;
 wire                ctl_ack;
 wire                ctl_dst;
+wire                ctl_dok;
 wire                ctl_rdy;
 wire                init;
 
@@ -95,16 +96,17 @@ function [31:0] expected32;
     begin
         base_word  = { dword_addr, 1'b0 };
         expected32 = {
-            byte_pattern(bank, { base_word + 22'd1, 1'b1 }),
-            byte_pattern(bank, { base_word + 22'd1, 1'b0 }),
             byte_pattern(bank, { base_word,          1'b1 }),
-            byte_pattern(bank, { base_word,          1'b0 })
+            byte_pattern(bank, { base_word,          1'b0 }),
+            byte_pattern(bank, { base_word + 22'd1, 1'b1 }),
+            byte_pattern(bank, { base_word + 22'd1, 1'b0 })
         };
     end
 endfunction
 
 jtframe_cache_mux #(
     .SDRAM_AW   ( SDRAM_AW       ),
+    .ENDIAN     ( 1              ),
     .AW0        ( 23             ),
     .BLOCKS0    ( 1              ),
     .BLKSIZE0   ( 16             ),
@@ -194,6 +196,7 @@ jtframe_cache_mux #(
     .din        ( ctl_dout  ),
     .ack        ( ctl_ack   ),
     .dst        ( ctl_dst   ),
+    .dok        ( ctl_dok   ),
     .rdy        ( ctl_rdy   )
 );
 
@@ -214,7 +217,7 @@ jtframe_burst_sdram #(
     .dout       ( ctl_dout     ),
     .ack        ( ctl_ack      ),
     .dst        ( ctl_dst      ),
-    .dok        (              ),
+    .dok        ( ctl_dok      ),
     .rdy        ( ctl_rdy      ),
     .prog_en    ( ioctl_rom    ),
     .prog_addr  ( prog_addr    ),

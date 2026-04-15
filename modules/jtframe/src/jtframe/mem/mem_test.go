@@ -356,6 +356,7 @@ func Test_make_ioctl_restore_uses_32bit_write_enable_width(t *testing.T) {
 
 func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
 	sample := `sdram:
+  big_endian: true
   cache-lines:
     - name: tiles
       cache: { blocks: 32, size: 1kB, data_width: 32 }
@@ -369,6 +370,9 @@ func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
 	}
 	if len(cfg.SDRAM.Cache_lines) != 1 {
 		t.Fatalf("Wrong cache-line count. Got %d, wanted 1", len(cfg.SDRAM.Cache_lines))
+	}
+	if !cfg.SDRAM.Big_endian {
+		t.Fatal("Expected sdram.big_endian to unmarshal as true")
 	}
 	line := cfg.SDRAM.Cache_lines[0]
 	if line.Name != "tiles" {
@@ -631,6 +635,24 @@ func Test_check_sdram_rejects_8bit_big_endian_bank_simfile(t *testing.T) {
 	}
 	if e := cfg.check_sdram(); e == nil {
 		t.Fatal("Expected 8-bit bank sim_big_endian to fail")
+	}
+}
+
+func Test_check_sdram_rejects_bank_big_endian(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Big_endian: true,
+			Banks: []SDRAMBank{{
+				Buses: []SDRAMBus{{
+					Name:       "tiles",
+					Data_width: 16,
+					Addr_width: 12,
+				}},
+			}},
+		},
+	}
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected sdram.big_endian with bank SDRAM to fail")
 	}
 }
 
@@ -1037,6 +1059,44 @@ func Test_game_sdram_template_uses_32bit_bram_wrappers(t *testing.T) {
 	}
 	if strings.Contains(out, ".SIMFILE_0(") || strings.Contains(out, ".SIMFILE_3(") {
 		t.Fatalf("generated template should not emit per-lane binary SIMFILE parameters\n%s", out)
+	}
+}
+
+func Test_game_sdram_template_passes_cache_endian_to_mux(t *testing.T) {
+	sample := `sdram:
+  big_endian: true
+  cache-lines:
+    - name: tiles
+      cache: { blocks: 4, size: 512B, data_width: 32 }
+      at:    { bank: 3, offset: TILES, length: 4MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.Params = []Param{{Name: "TILES", Value: "22'h100"}}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"jtframe_cache_mux #(",
+		".ENDIAN   ( 1 )",
+		".DW0      ( 32 )",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
 	}
 }
 

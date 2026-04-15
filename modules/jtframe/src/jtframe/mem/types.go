@@ -263,6 +263,7 @@ type MemConfig struct {
 type SDRAMCfg struct {
 	Banks       []SDRAMBank      `yaml:"banks"`
 	Burst       string           `yaml:"burst"`
+	Big_endian  bool             `yaml:"big_endian"`
 	Cache_lines []SDRAMCacheLine `yaml:"cache-lines"`
 	Burst_len   int
 }

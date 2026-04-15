@@ -24,6 +24,7 @@ wire [15:0] ext_din;
 wire        ext_rd;
 wire        ext_ack;
 wire        ext_dst;
+wire        ext_dok;
 wire        ext_rdy;
 
 reg         ioctl_rom;
@@ -76,6 +77,7 @@ jtframe_cache #(
     .ext_rd     ( ext_rd     ),
     .ext_ack    ( ext_ack    ),
     .ext_dst    ( ext_dst    ),
+    .ext_dok    ( ext_dok    ),
     .ext_rdy    ( ext_rdy    )
 );
 
@@ -96,7 +98,7 @@ jtframe_burst_sdram #(
     .dout       ( ext_din      ),
     .ack        ( ext_ack      ),
     .dst        ( ext_dst      ),
-    .dok        (              ),
+    .dok        ( ext_dok      ),
     .rdy        ( ext_rdy      ),
     .prog_en    ( ioctl_rom    ),
     .prog_addr  ( prog_addr    ),
@@ -163,10 +165,11 @@ mt48lc16m16a2 u_sdram (
 );
 
 `ifdef DEBUG
-always @(posedge clk) begin
-    if( ext_rd || ext_ack || ext_dst || ext_rdy || cache_ok ) begin
-        $display("%t req=%b ack=%b dst=%b rdy=%b ok=%b caddr=%0d eaddr=%0d din=%04x dout=%04x fill=%0d",
-            $time, ext_rd, ext_ack, ext_dst, ext_rdy, cache_ok, cache_addr, ext_addr, ext_din, cache_dout, u_cache.fill_word);
+always @(negedge clk) begin
+    if( cache_rd || cache_ok || ext_rd || ext_ack || ext_dok || ext_rdy ) begin
+        $display("%t rd=%b ok=%b addr=%0d dout=%04x miss=%b fill_done=%b fill_word=%0d ext_rd=%b ack=%b dst=%b dok=%b rdy=%b din=%04x",
+            $time, cache_rd, cache_ok, cache_addr, cache_dout, u_cache.miss_busy, u_cache.fill_done, u_cache.fill_word,
+            ext_rd, ext_ack, ext_dst, ext_dok, ext_rdy, ext_din);
     end
 end
 `endif
@@ -239,23 +242,28 @@ task cache_request(
 );
     integer cycles;
     integer ack_before;
-    string msg;
     begin
-        if( cache_ok ) @(posedge clk);
+        while( cache_ok || u_cache.miss_busy ) @(negedge clk);
         ack_before = ack_count;
         @(negedge clk);
         cache_addr <= req_addr;
         cache_rd   <= 1'b1;
-        cycles     = 0;
+        cycles     = 1;
+        @(negedge clk);
         begin : wait_loop
-            while( !cache_ok ) begin
-                @(posedge clk);
+            while( cache_ok !== 1'b1 ) begin
+                @(negedge clk);
                 cycles = cycles + 1;
                 assert_msg(cycles < 256, "Cache request timed out");
             end
         end
-        msg = $sformatf("Cache returned %04X instead of %04X at word %0d", cache_dout, exp_word, req_addr);
-        assert_msg(cache_dout == exp_word, msg);
+        cache_rd <= 1'b0;
+        if( cache_dout !== exp_word ) begin
+            $display("Cache returned %04X instead of %04X at word %0d", cache_dout, exp_word, req_addr);
+            $display("  ack=%b dst=%b dok=%b rdy=%b ext_din=%04x fill_word=%0d miss=%b ok=%b",
+                ext_ack, ext_dst, ext_dok, ext_rdy, ext_din, u_cache.fill_word, u_cache.miss_busy, cache_ok);
+            fail();
+        end
         if( expect_miss ) begin
             assert_msg(ack_count == ack_before + 1, "Cache miss must trigger one SDRAM burst request");
             assert_msg(cycles > 4, "Cache miss completed too quickly");
@@ -263,9 +271,8 @@ task cache_request(
             assert_msg(ack_count == ack_before, "Cache hit must not trigger a new SDRAM burst request");
             assert_msg(cycles <= 3, "Cache hit should complete within three cycles");
         end
-        @(negedge clk);
-        cache_rd <= 1'b0;
-        @(posedge clk);
+        while( cache_ok || u_cache.miss_busy ) @(negedge clk);
+        repeat (2) @(negedge clk);
     end
 endtask
 
