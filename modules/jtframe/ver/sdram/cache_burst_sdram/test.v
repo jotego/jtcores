@@ -24,6 +24,7 @@ wire [15:0] ext_din;
 wire        ext_rd;
 wire        ext_ack;
 wire        ext_dst;
+wire        ext_dok;
 wire        ext_rdy;
 
 reg         ioctl_rom;
@@ -76,6 +77,7 @@ jtframe_cache #(
     .ext_rd     ( ext_rd     ),
     .ext_ack    ( ext_ack    ),
     .ext_dst    ( ext_dst    ),
+    .ext_dok    ( ext_dok    ),
     .ext_rdy    ( ext_rdy    )
 );
 
@@ -96,7 +98,7 @@ jtframe_burst_sdram #(
     .dout       ( ext_din      ),
     .ack        ( ext_ack      ),
     .dst        ( ext_dst      ),
-    .dok        (              ),
+    .dok        ( ext_dok      ),
     .rdy        ( ext_rdy      ),
     .prog_en    ( ioctl_rom    ),
     .prog_addr  ( prog_addr    ),

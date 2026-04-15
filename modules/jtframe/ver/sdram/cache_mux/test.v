@@ -95,16 +95,17 @@ function [31:0] expected32;
     begin
         base_word  = { dword_addr, 1'b0 };
         expected32 = {
-            byte_pattern(bank, { base_word + 22'd1, 1'b1 }),
-            byte_pattern(bank, { base_word + 22'd1, 1'b0 }),
             byte_pattern(bank, { base_word,          1'b1 }),
-            byte_pattern(bank, { base_word,          1'b0 })
+            byte_pattern(bank, { base_word,          1'b0 }),
+            byte_pattern(bank, { base_word + 22'd1, 1'b1 }),
+            byte_pattern(bank, { base_word + 22'd1, 1'b0 })
         };
     end
 endfunction
 
 jtframe_cache_mux #(
     .SDRAM_AW   ( SDRAM_AW       ),
+    .ENDIAN     ( 1              ),
     .AW0        ( 23             ),
     .BLOCKS0    ( 1              ),
     .BLKSIZE0   ( 16             ),

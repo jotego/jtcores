@@ -21,6 +21,7 @@ module jtframe_cache #(parameter
     BLKSIZE = 1024,
     AW      =   24,
     DW      =    8,
+    ENDIAN  =    0,
     EW      =   24,
     AW0     = DW==32 ? 2 : DW==16 ? 1 : 0
 )(
@@ -37,6 +38,7 @@ module jtframe_cache #(parameter
     output reg              ext_rd,
     input                   ext_ack,
     input                   ext_dst,
+    input                   ext_dok,
     input                   ext_rdy
 );
 
@@ -77,7 +79,7 @@ wire [OFFW-1:0] req_off  = req_addr[OFFW-1:0];
 wire [UW-1:0] base_addr  = { pend_uaddr[UW-1:OFFW], {OFFW{1'b0}} };
 wire [AW-1:0] base_byte  = { base_addr, {AW0{1'b0}} };
 wire [BW-1:0] victim     = lfsr[BW-1:0];
-wire          wr_en      = wait_data && (fill_active || ext_dst);
+wire          wr_en      = wait_data && ext_dok;
 
 wire [DW-1:0] hit_data;
 wire          fill_capture;
@@ -174,10 +176,13 @@ generate
         wire [RW-1:0] rd_word = hit_sel ? pend_off : req_off;
         wire [15:0] q_lo[0:BLOCKS-1];
         wire [15:0] q_hi[0:BLOCKS-1];
+        wire        lo_wr_sel = ENDIAN ? fill_word[0]  : !fill_word[0];
+        wire        hi_wr_sel = ENDIAN ? !fill_word[0] : fill_word[0];
+        wire [31:0] fill_pair = ENDIAN ? { fill_lo, ext_din } : { ext_din, fill_lo };
 
         assign hit_data = { q_hi[hit_blk], q_lo[hit_blk] };
         assign fill_capture = fill_word[0] && (pend_off == fill_word[WW-1:1]);
-        assign fill_capture_data = { ext_din, fill_lo };
+        assign fill_capture_data = fill_pair;
 
         always @(posedge clk) begin
             if( rst ) begin
@@ -189,30 +194,33 @@ generate
 
         genvar gi32;
         for(gi32=0; gi32<BLOCKS; gi32=gi32+1) begin : blk32
+            wire lo_wr = wr_en && lo_wr_sel && fill_blk==gi32;
+            wire hi_wr = wr_en && hi_wr_sel && fill_blk==gi32;
+
             jtframe_dual_ram #(.DW(16), .AW(RW)) u_lo(
-                .clk0  ( clk                                     ),
-                .data0 ( ext_din                                 ),
-                .addr0 ( fill_word[WW-1:1]                       ),
-                .we0   ( wr_en && !fill_word[0] && fill_blk==gi32 ),
-                .q0    (                                         ),
-                .clk1  ( clk                                     ),
-                .data1 ( 16'd0                                   ),
-                .addr1 ( rd_word                                 ),
-                .we1   ( 1'b0                                    ),
-                .q1    ( q_lo[gi32]                              )
+                .clk0  ( clk                 ),
+                .data0 ( ext_din             ),
+                .addr0 ( fill_word[WW-1:1]   ),
+                .we0   ( lo_wr               ),
+                .q0    (                     ),
+                .clk1  ( clk                 ),
+                .data1 ( 16'd0               ),
+                .addr1 ( rd_word             ),
+                .we1   ( 1'b0                ),
+                .q1    ( q_lo[gi32]          )
             );
 
             jtframe_dual_ram #(.DW(16), .AW(RW)) u_hi(
-                .clk0  ( clk                                    ),
-                .data0 ( ext_din                                ),
-                .addr0 ( fill_word[WW-1:1]                      ),
-                .we0   ( wr_en && fill_word[0] && fill_blk==gi32 ),
-                .q0    (                                        ),
-                .clk1  ( clk                                    ),
-                .data1 ( 16'd0                                  ),
-                .addr1 ( rd_word                                ),
-                .we1   ( 1'b0                                   ),
-                .q1    ( q_hi[gi32]                             )
+                .clk0  ( clk                 ),
+                .data0 ( ext_din             ),
+                .addr0 ( fill_word[WW-1:1]   ),
+                .we0   ( hi_wr               ),
+                .q0    (                     ),
+                .clk1  ( clk                 ),
+                .data1 ( 16'd0               ),
+                .addr1 ( rd_word             ),
+                .we1   ( 1'b0                ),
+                .q1    ( q_hi[gi32]          )
             );
         end
     end
