@@ -326,20 +326,19 @@ func TestCollectSimFiles(t *testing.T) {
 		SDRAM: mem.SDRAMCfg{
 			Banks: []mem.SDRAMBank{{
 				Buses: []mem.SDRAMBus{{
-					Name:           "tiles",
-					Offset:         "TILES",
-					Addr_width:     4,
-					Data_width:     16,
-					Simfile:        "tiles.bin",
-					Sim_big_endian: true,
+					Name:       "tiles",
+					Offset:     "TILES",
+					Addr_width: 4,
+					Data_width: 16,
+					Simfile:    mem.SDRAMBusSimfile{Name: "tiles.bin", Big_endian: true},
 				}},
 			}},
-			Cache_lines: []mem.SDRAMCacheLine{{
-				Name:           "line",
-				Cache:          mem.SDRAMCacheCfg{Data_width: 32},
-				At:             mem.SDRAMCacheAddr{Bank: 3, Offset: "0x20", Length: "64B"},
-				Simfile:        "line.bin",
-				Sim_big_endian: true,
+			Cache_lanes: []mem.SDRAMCacheLine{{
+				Name:       "line",
+				Data_width: 32,
+				Blocks:     mem.SDRAMCacheCfg{Count: 1, Size: "64B"},
+				At:         mem.SDRAMCacheAddr{Bank: 3, Offset: "0x20", Length: "64B"},
+				Simfile:    mem.SDRAMCacheSimfile{Name: "line.bin", Big_endian: true},
 			}},
 		},
 	}
@@ -354,7 +353,7 @@ func TestCollectSimFiles(t *testing.T) {
 		t.Fatalf("unexpected bus sim entry: %+v", all[0])
 	}
 	if all[1].bank != 3 || all[1].offset != 0x40 || all[1].length != 64 || !all[1].big_endian {
-		t.Fatalf("unexpected cache-line sim entry: %+v", all[1])
+		t.Fatalf("unexpected cache-lane sim entry: %+v", all[1])
 	}
 }
 
@@ -363,11 +362,10 @@ func TestCollectSimFilesRejects8BitBigEndian(t *testing.T) {
 		SDRAM: mem.SDRAMCfg{
 			Banks: []mem.SDRAMBank{{
 				Buses: []mem.SDRAMBus{{
-					Name:           "tiles",
-					Addr_width:     4,
-					Data_width:     8,
-					Simfile:        "tiles.bin",
-					Sim_big_endian: true,
+					Name:       "tiles",
+					Addr_width: 4,
+					Data_width: 8,
+					Simfile:    mem.SDRAMBusSimfile{Name: "tiles.bin", Big_endian: true},
 				}},
 			}},
 		},
@@ -375,6 +373,51 @@ func TestCollectSimFilesRejects8BitBigEndian(t *testing.T) {
 	_, err := collectSimFiles(cfg)
 	if err == nil {
 		t.Fatalf("collectSimFiles should reject 8-bit big-endian simfiles")
+	}
+}
+
+func TestCollectSimFilesUsesExplicitWideCacheLaneSimDataType(t *testing.T) {
+	cfg := &mem.MemConfig{
+		SDRAM: mem.SDRAMCfg{
+			Cache_lanes: []mem.SDRAMCacheLine{{
+				Name:       "tiles",
+				Data_width: 128,
+				Blocks:     mem.SDRAMCacheCfg{Count: 1, Size: "64B"},
+				At:         mem.SDRAMCacheAddr{Bank: 3, Offset: "0x20", Length: "64B"},
+				Simfile:    mem.SDRAMCacheSimfile{Name: "tiles.bin", Big_endian: true, Data_type: "u32"},
+			}},
+		},
+	}
+	all, err := collectSimFiles(cfg)
+	if err != nil {
+		t.Fatalf("collectSimFiles returned error: %v", err)
+	}
+	if len(all) != 1 {
+		t.Fatalf("collectSimFiles length mismatch: got=%d want=1", len(all))
+	}
+	if all[0].data_width != 32 {
+		t.Fatalf("wrong resolved simfile data width: got=%d want=32", all[0].data_width)
+	}
+}
+
+func TestCollectSimFilesRejectsWideBigEndianWithoutDataType(t *testing.T) {
+	cfg := &mem.MemConfig{
+		SDRAM: mem.SDRAMCfg{
+			Cache_lanes: []mem.SDRAMCacheLine{{
+				Name:       "tiles",
+				Data_width: 128,
+				Blocks:     mem.SDRAMCacheCfg{Count: 1, Size: "64B"},
+				At:         mem.SDRAMCacheAddr{Bank: 3, Offset: "0x20", Length: "64B"},
+				Simfile:    mem.SDRAMCacheSimfile{Name: "tiles.bin", Big_endian: true},
+			}},
+		},
+	}
+	_, err := collectSimFiles(cfg)
+	if err == nil {
+		t.Fatalf("collectSimFiles should reject wide big-endian simfiles without data_type")
+	}
+	if !strings.Contains(err.Error(), "simfile.data_type") {
+		t.Fatalf("wrong error for missing data_type: %v", err)
 	}
 }
 

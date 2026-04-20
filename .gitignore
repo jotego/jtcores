@@ -123,4 +123,5 @@ unzip
 framerate
 /.codex
 /tasks
-lintAGENTS.md
+lint
+AGENTS.md

@@ -62,6 +62,7 @@ bram:
   - name: mcu
     addr_width: 11
     data_width: 8
-    sim_file: true
+    simfile: {}
+
     rom:
       offset: "(`MCU_START)>>1"

@@ -23,7 +23,7 @@ jtframe_ioctl_range #(
 
 jtframe_prom #(
     .DW({{.Data_width}}),
-    .AW({{.Addr_width}}){{ if .Sim_file }},
+    .AW({{.Addr_width}}){{ if .Simfile.Enabled }},
     .SIMFILE("{{.Name}}.bin"){{end}}
 ) u_prom_{{.Name}}(
     .clk        ( clk                ),

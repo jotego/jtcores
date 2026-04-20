@@ -116,11 +116,15 @@ always @(posedge clk) begin
                 burst_st <= (page_last || !wr) ? B_STOP : B_WRITE;
             end
             B_READ_CMD:  burst_st <= B_CL1;
-            B_CL1: begin
-                if( post_write_read_wait ) post_write_read_wait <= 1'b0;
-                burst_st <= post_write_read_wait ? B_CL2 : B_RDATA;
+            B_CL1:       burst_st <= B_CL2;
+            B_CL2: begin
+                if( post_write_read_wait ) begin
+                    post_write_read_wait <= 1'b0;
+                    burst_st <= B_CL2;
+                end else begin
+                    burst_st <= B_RDATA;
+                end
             end
-            B_CL2:       burst_st <= B_RDATA;
             B_RDATA: begin
                 burst_first <= 1'b0;
                 if( !page_last ) burst_addr <= burst_addr + 1'd1;
@@ -164,6 +168,7 @@ always @(*) begin
             burst_rdy   = page_last || !wr;
         end
         B_WRITE: begin
+            if( !wr ) burst_cmd = CMD_STOP;
             burst_dq_oe = wr;
             burst_rdy   = page_last || !wr;
         end

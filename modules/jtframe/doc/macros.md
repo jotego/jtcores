@@ -135,7 +135,7 @@ JTFRAME_SDRAM_ADQM       | MiSTer  | A12 and A11 are equal to DQMH/L
 JTFRAME_SDRAM_BWAIT      |         | Adds a wait cycle in the SDRAM
 JTFRAME_SDRAM_CHECK      |         | Double check SDRAM data through modules (slow)
 JTFRAME_SDRAM_DEBUG      |         | Outputs debug messages for SDRAM during simulation
-JTFRAME_SDRAM_CACHE      |         | Automatically defined when `sdram.cache-lines` is used in `mem.yaml`; selects the cache-line SDRAM controller path
+JTFRAME_SDRAM_CACHE      |         | Automatically defined when `sdram.cache-lanes` is used in `mem.yaml`; selects the cache-lane SDRAM controller path
 JTFRAME_SDRAM_LARGE      | MiSTer  | Enables 64MB access to SDRAM modules
 JTFRAME_SDRAM_MUXLATCH   |         | Extra latch for SDRAM mux for <64MHz operation
 JTFRAME_SDRAM_NO_DWNRFSH |         | No refresh during download (non-interleaved SDRAM controller)

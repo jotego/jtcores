@@ -3,6 +3,9 @@ jtframe:
     get:
       - jtframe_cache_mux.v
       - jtframe_cache.sv
+      - jtframe_cache_ctrl.sv
+      - jtframe_cache_data.sv
+      - jtframe_cache_tags.sv
       - jtframe_burst_sdram.v
       - jtframe_burst_mode.v
       - jtframe_burst_ctrl.v

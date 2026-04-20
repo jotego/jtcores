@@ -1,0 +1,108 @@
+.TH JTFRAME-MMR 1 "April 2026" "JTFRAME" "User Commands"
+.SH NAME
+jtframe-mmr \- generate memory-mapped register RTL
+.SH SYNOPSIS
+.B jtframe mmr
+.RI "[core-name] [flags]"
+.SH DESCRIPTION
+\fBjtframe mmr\fR
+reads
+\fB$CORES/<core>/cfg/mmr.yaml\fR
+and renders the template
+\fB$JTFRAME/hdl/inc/mmr.v\fR
+into generated Verilog modules under
+\fB$CORES/<core>/hdl/\fR.
+.PP
+Each
+\fBmmr.yaml\fR
+entry defines one MMR block.
+.SS Block Keys
+.TP
+.B name
+Required.
+Block name.
+The generated module is normally
+\fBjt<core>_<name>_mmr.v\fR.
+If
+\fBno_core_name: true\fR
+is set, the module becomes
+\fBjt<name>_mmr.v\fR.
+.TP
+.B size
+Required.
+Number of bytes in the internal
+\fBmmr[]\fR
+array.
+It must be at least 4.
+.TP
+.B dw
+Optional.
+Host bus width, either 8 or 16.
+When
+\fBdw: 16\fR
+is used, the generated interface includes 16-bit
+\fBdin\fR
+and
+\fBdout\fR
+signals plus
+\fBdsn\fR
+byte strobes.
+.TP
+.B read_only
+Optional.
+When true, write handling and
+\fBdout\fR
+generation are omitted.
+.TP
+.B regs
+Required.
+List of exported register signals.
+.SS Register Keys
+.TP
+.B name
+Required.
+Output signal name.
+.TP
+.B dw
+Required unless
+\fBwr_event\fR
+is true.
+Output signal width.
+.TP
+.B at
+Required.
+Byte or bit mapping into
+\fBmmr[]\fR.
+Accepted forms are
+\fBN\fR,
+\fBN[B]\fR,
+\fBN[MSB:LSB]\fR,
+or a comma-separated list of those forms.
+Example:
+\fB0x10[7:0], 0x11[3:0]\fR.
+.TP
+.B wr_event
+Optional.
+Generate a one-clock pulse when the first
+\fBat\fR
+address is written.
+If
+\fBwr_event\fR
+is true and
+\fBdw\fR
+is omitted or zero, the item is treated as event-only.
+.TP
+.B desc
+Optional metadata only.
+It does not affect code generation.
+.SH FLAGS
+.TP
+.B \-h, \-\-help
+Show the short command help.
+.TP
+.B \-v, \-\-verbose
+Enable verbose output.
+.SH SEE ALSO
+.BR jtframe (1),
+.BR jtframe-parse (1),
+.BR jtframe-mem (1)

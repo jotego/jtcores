@@ -115,7 +115,8 @@ bram:
   - name: fram
     addr_width: 14
     data_width: 16
-    sim_file: true
+    simfile: {}
+
     ioctl: { save: true, order: 0, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: main, we: fx_we, rw: true, din: mram_din, dout: mf_dout }
   # 256kB for Scroll Tile Bitmaps as BRAM
@@ -129,25 +130,29 @@ bram:
   - name: scra
     addr_width: 13
     data_width: 16
-    sim_file: true
+    simfile: {}
+
     ioctl: { save: true, order: 2, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: vram, we: va_we, rw: true, din: v_din, dout: ma_dout }
   - name: scrb
     addr_width: 13
     data_width: 16
-    sim_file: true
+    simfile: {}
+
     ioctl: { save: true, order: 3, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: vram, we: vb_we, rw: true, din: v_din, dout: mb_dout }
   - name: oram
     addr_width: 14
     data_width: 16
     rw: true
-    sim_file: true
+    simfile: {}
+
     ioctl: { save: true, order: 4, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: osha, we: osha_we, rw: true, din: v_din, dout: mo_dout }
   - name: pal
     addr_width: 12
     data_width: 8
-    sim_file: true
+    simfile: {}
+
     ioctl: { save: true, order: 5, unless: [ JTFRAME_RELEASE ] }
     dual_port: { name: main, we: pal_we, rw: true, addr: "main_addr[12:1]", din: "mram_din[7:0]", dout: mp_dout }

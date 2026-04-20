@@ -24,57 +24,82 @@ import (
 	"testing"
 )
 
-
-func TestCab2Hex_empty( t *testing.T ) {
+func TestCab2Hex_empty(t *testing.T) {
 	empty := strings.NewReader("")
 
 	var uut cab_converter
-	converted, e := uut.make_hexfile(empty); if e!=nil { t.Error(e) }
-	if len(converted)!=0 { t.Errorf("Expected an empty value")}
+	converted, e := uut.make_hexfile(empty)
+	if e != nil {
+		t.Error(e)
+	}
+	if len(converted) != 0 {
+		t.Errorf("Expected an empty value")
+	}
 }
 
-func TestCab2Hex_lines( t *testing.T ) {
+func TestCab2Hex_lines(t *testing.T) {
 	cab := strings.NewReader("200")
 	var uut cab_converter
-	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e) }
+	converted, e := uut.make_hexfile(cab)
+	if e != nil {
+		t.Error(e)
+	}
 	reader := bytes.NewReader(converted)
 	linecnt := 0
-	for scanner := bufio.NewScanner(reader);scanner.Scan(); {
+	for scanner := bufio.NewScanner(reader); scanner.Scan(); {
 		linecnt++
-		if scanner.Text()!="0" { t.Errorf("Expecting line to be 0")}
+		if scanner.Text() != "0" {
+			t.Errorf("Expecting line to be 0")
+		}
 	}
-	if linecnt!=200 { t.Errorf("Expecting 200 lines, got %d",linecnt)}
+	if linecnt != 200 {
+		t.Errorf("Expecting 200 lines, got %d", linecnt)
+	}
 }
 
-func TestCab2Hex_comment( t *testing.T ) {
+func TestCab2Hex_comment(t *testing.T) {
 	cab := strings.NewReader("#\n#\n5\n#\n#\n2\n")
 
 	var uut cab_converter
-	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e) }
+	converted, e := uut.make_hexfile(cab)
+	if e != nil {
+		t.Error(e)
+	}
 	reader := bytes.NewReader(converted)
 	linecnt := 0
 	for scanner := bufio.NewScanner(reader); scanner.Scan(); {
 		linecnt++
-		if scanner.Text()!="0" { t.Errorf("Expecting line to be 0")}
+		if scanner.Text() != "0" {
+			t.Errorf("Expecting line to be 0")
+		}
 	}
-	if linecnt!=7 { t.Errorf("Expecting 7 lines, got %d",linecnt)}
+	if linecnt != 7 {
+		t.Errorf("Expecting 7 lines, got %d", linecnt)
+	}
 }
 
-func TestCab2Hex_comment2( t *testing.T ) {
+func TestCab2Hex_comment2(t *testing.T) {
 	cab := strings.NewReader("# prologue\n")
 	var uut cab_converter
-	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e) }
+	converted, e := uut.make_hexfile(cab)
+	if e != nil {
+		t.Error(e)
+	}
 	reader := bytes.NewReader(converted)
 	linecnt := 0
 	for scanner := bufio.NewScanner(reader); scanner.Scan(); {
 		linecnt++
-		if scanner.Text()!="0" { t.Errorf("Expecting line to be 0")}
+		if scanner.Text() != "0" {
+			t.Errorf("Expecting line to be 0")
+		}
 	}
-	const expected=0
-	if linecnt!=expected { t.Errorf("Expecting %d lines, got %d",expected,linecnt)}
+	const expected = 0
+	if linecnt != expected {
+		t.Errorf("Expecting %d lines, got %d", expected, linecnt)
+	}
 }
 
-func TestCab2Hex_single( t *testing.T ) {
+func TestCab2Hex_single(t *testing.T) {
 	cab := strings.NewReader(`coin
 service
 1p
@@ -89,23 +114,28 @@ b3
 test
 `)
 	var uut cab_converter
-	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e) }
+	converted, e := uut.make_hexfile(cab)
+	if e != nil {
+		t.Error(e)
+	}
 	reader := bytes.NewReader(converted)
 	scanner := bufio.NewScanner(reader)
 	linecnt := 0
-	expected := []string{ "1","2","4","8","10","20","40",
-		"80","100","200","400","800" }
+	expected := []string{"1", "2", "4", "8", "10", "20", "40",
+		"80", "100", "200", "400", "800"}
 	for scanner.Scan() {
 		linecnt++
 		line := scanner.Text()
-		if line!=expected[linecnt-1] {
-			t.Errorf("Expecting line %2d to be %3s but got %3s",linecnt, expected[linecnt-1], line)
+		if line != expected[linecnt-1] {
+			t.Errorf("Expecting line %2d to be %3s but got %3s", linecnt, expected[linecnt-1], line)
 		}
 	}
-	if linecnt!=12 { t.Errorf("Expecting 12 lines, got %d",linecnt)}
+	if linecnt != 12 {
+		t.Errorf("Expecting 12 lines, got %d", linecnt)
+	}
 }
 
-func TestCab2Hex_1p( t *testing.T ) {
+func TestCab2Hex_1p(t *testing.T) {
 	cab := strings.NewReader(`
 5
 2 coin
@@ -130,11 +160,15 @@ func TestCab2Hex_1p( t *testing.T ) {
 0
 `
 	var uut cab_converter
-	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e); return }
-	test_cab2hex_compare(converted,expected,t)
+	converted, e := uut.make_hexfile(cab)
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	test_cab2hex_compare(converted, expected, t)
 }
 
-func TestCab2Hex_multiple( t *testing.T ) {
+func TestCab2Hex_multiple(t *testing.T) {
 	cab := strings.NewReader(`1
 left b1
 2
@@ -149,11 +183,15 @@ right b2
 0
 `
 	var uut cab_converter
-	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e); return }
-	test_cab2hex_compare(converted,expected,t)
+	converted, e := uut.make_hexfile(cab)
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	test_cab2hex_compare(converted, expected, t)
 }
 
-func TestCab2Hex_loop( t *testing.T ) {
+func TestCab2Hex_loop(t *testing.T) {
 	cab := strings.NewReader(`1
 loop
 2 coin
@@ -181,13 +219,17 @@ reset
 1000
 `
 	var uut cab_converter
-	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e); return }
-	test_cab2hex_compare(converted,expected,t)
+	converted, e := uut.make_hexfile(cab)
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	test_cab2hex_compare(converted, expected, t)
 }
 
-func test_cab2hex_compare( converted []byte, expected string, t *testing.T) {
+func test_cab2hex_compare(converted []byte, expected string, t *testing.T) {
 	text := string(converted)
-	if text!=expected {
+	if text != expected {
 		t.Log("Got:")
 		t.Log(text)
 		t.Log("Expected:")
@@ -218,8 +260,12 @@ func TestCab_upto_frame(t *testing.T) {
 4
 `
 	var uut cab_converter
-	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e); return }
-	test_cab2hex_compare(converted,expected,t)
+	converted, e := uut.make_hexfile(cab)
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	test_cab2hex_compare(converted, expected, t)
 }
 
 func TestCab_loop_count(t *testing.T) {
@@ -262,7 +308,11 @@ repeat 3
 4
 `
 	var uut cab_converter
-	converted, e := uut.make_hexfile(cab); if e!=nil { t.Error(e); return }
-	test_cab2hex_compare(converted,expected,t)
+	converted, e := uut.make_hexfile(cab)
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	test_cab2hex_compare(converted, expected, t)
 
 }

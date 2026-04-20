@@ -8,7 +8,7 @@ import (
 )
 
 func Test_build_patches(t *testing.T) {
-	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER":"0"})
+	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER": "0"})
 	base := []byte{0, 1, 2, 3, 4, 5, 6}
 	hacked := []byte{0, 9, 8, 3, 4, 7, 6}
 	patches, e := build_patches(base, hacked)
@@ -27,7 +27,7 @@ func Test_build_patches(t *testing.T) {
 }
 
 func Test_build_patches_rejects_size_mismatch(t *testing.T) {
-	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER":"0"})
+	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER": "0"})
 	_, e := build_patches([]byte{0}, []byte{0, 1})
 	if e == nil {
 		t.Fatalf("expected a size mismatch error")
@@ -35,7 +35,7 @@ func Test_build_patches_rejects_size_mismatch(t *testing.T) {
 }
 
 func Test_build_patches_subtracts_header_length(t *testing.T) {
-	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER":"0x20"})
+	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER": "0x20"})
 	base := make([]byte, 0x50)
 	hacked := make([]byte, 0x50)
 	copy(hacked, base)
@@ -50,7 +50,7 @@ func Test_build_patches_subtracts_header_length(t *testing.T) {
 }
 
 func Test_build_patches_rejects_header_changes(t *testing.T) {
-	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER":"0x20"})
+	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER": "0x20"})
 	base := make([]byte, 0x40)
 	hacked := make([]byte, 0x40)
 	copy(hacked, base)

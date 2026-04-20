@@ -18,8 +18,8 @@
 package cmd
 
 import (
-	"jotego/jtframe/msg"
 	"jotego/jtframe/common"
+	"jotego/jtframe/msg"
 
 	"github.com/spf13/cobra"
 )
@@ -27,25 +27,14 @@ import (
 var msgCmd = &cobra.Command{
 	Use:   "msg <core-name>",
 	Short: "Parses the core's msg file to generate a pause screen message",
-	Long: `Parses the core's msg file in the config folder to generate a message.
-The message will be shown during the pause screen when macro JTFRAME_CREDITS is set.
-Two output files are generated: msg.hex and msg.bin
-
-Message text:
-- lines cannot be longer than 32 characters.
-- Four colours available: red, green, blue and white. Each line starts as white.
-  The colour is changed by using \R (red) \G (green) \B (blue) or \W (white)
-- \D is replaced by the current date in year-month-day format
-- \C is replaced by the string in the --commit argument
-`,
-	Run: msgRun,
-	Args: cobra.ExactArgs(1),
+	Long:  man_blurb("jtframe-msg", "Generate pause-screen message assets from cfg/msg."),
+	Run:   msgRun,
+	Args:  cobra.ExactArgs(1),
 }
 
 func init() {
 	rootCmd.AddCommand(msgCmd)
 }
-
 
 func msgRun(cmd *cobra.Command, args []string) {
 	corename := args[0]

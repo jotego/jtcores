@@ -159,8 +159,8 @@ initial begin
     clk = 0;
     clk_sdram = 0;
     forever begin
-        #(PERIOD/2) clk = ~clk;
-        #1 clk_sdram = clk;
+        #(PERIOD/2) clk_sdram = ~clk_sdram;
+        #5 clk = clk_sdram;
     end
 end
 

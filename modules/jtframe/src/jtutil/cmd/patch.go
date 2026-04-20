@@ -44,6 +44,7 @@ var patchArgs patch_args
 var patchCmd = &cobra.Command{
 	Use:   "patch <core-name>",
 	Short: "Generate TOML patches from a hacked .rom file",
+	Long:  man_blurb("jtutil-patch", "Generate TOML patches from a hacked .rom file."),
 	Args:  cobra.ExactArgs(1),
 	Run:   run_patch,
 }
@@ -81,7 +82,7 @@ func make_patch_data(core string) ([]rom_patch, error) {
 }
 
 func create_base_rom(core string) ([]byte, error) {
-	cmd := exec.Command("jtframe", "mra", core,"--path", patchArgs.rom_path)
+	cmd := exec.Command("jtframe", "mra", core, "--path", patchArgs.rom_path)
 	output, e := cmd.CombinedOutput()
 	if e != nil {
 		return nil, fmt.Errorf("jtframe mra failed: %w\n%s", e, string(output))
@@ -126,7 +127,7 @@ func build_patches(base_rom, hacked_rom []byte) ([]rom_patch, error) {
 		for ; k < len(base_rom) && base_rom[k] != hacked_rom[k]; k++ {
 			data = append(data, hacked_rom[k])
 		}
-		patches = append(patches, rom_patch{offset: start-header_len, data: data})
+		patches = append(patches, rom_patch{offset: start - header_len, data: data})
 	}
 	return patches, nil
 }

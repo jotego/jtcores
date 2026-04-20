@@ -68,7 +68,8 @@ bram:
   - name: nvram
     addr_width: 7
     data_width: 8
-    sim_file: true
+    simfile: {}
+
     rw: true
     ioctl: { save: true, restore: true, order: 0 }
   - name: vram

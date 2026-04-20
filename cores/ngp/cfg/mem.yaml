@@ -38,7 +38,8 @@ bram: # 64+8+4+16=92kB
   - name: rom # 64 kB
     addr_width: 16
     data_width: 16
-    sim_file: true
+    simfile: {}
+
     rom:
       offset: 0
   - name: nvram
@@ -46,7 +47,7 @@ bram: # 64+8+4+16=92kB
     data_width: 16
     addr: "cpu_addr[12:1]"
     din: cpu_dout
-    # sim_file: true
+    # simfile: {}
     rw: true
     ioctl:
       save: true

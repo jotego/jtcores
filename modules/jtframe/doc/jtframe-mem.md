@@ -27,163 +27,189 @@ The RC resistance is the parallel equivalent of 1k and 1+1.2.
 
 - For K007232, the output of jt007232 can be taken as two separate channels or a mixed one. The mixed one does not attenuate each channel, so it can clip. On the board, each channel will have its own DAC
 
-## mem.yaml Syntax
-```
-# Include other .yaml files
-include:
-    - game: cop
-    - file: ../../cop/cfg/mem.yaml
-# Parameters to be used in the sdram section
-params: [ {name:vSCR_OFFSET, value: "32'h10000"}, ... ]
-# Map SDRAM addresses during download by
-# passing additional ports to the game module
-download:
-    pre_addr: false   # modify the address value going into the downloader
-    post_addr: false  # modify the address value going into the SDRAM
-    post_data: false  # modify the data byte going into the SDRAM
-    noswab: false     # Reverse all bytes, avoid using it and modify the MRA instead
-# Connect additional output ports from the game module
-ports:
-    - { name: foo_data, msb: 15, lsb: 0, input:true }
-    - { name: foo_cs }
-# Instantiates a different game module
-game: othergame
+## mem.yaml Schema
 
-# Generate clock-enable signals
+### Top-level keys
+
+- `include`: list of YAML fragments to merge before the current file.
+  - `game`: include another core’s `cfg/mem.yaml`.
+  - `file`: include any other file path (resolved with the same search base as `mem.yaml`).
+- `params`: macro `name/value` pairs available in `sdram.cache-lanes.at.offset`/`sdram.cache-lanes.at.length` and other expressions.
+- `download`: controls optional download path transforms.
+  - `pre_addr`, `post_addr`, `post_data`: booleans.
+  - `noswab`: disable byte swapping in the download path.
+- `ports`: additional explicit ports for the game module.
+- `game`: override the default game module name.
+- `clocks`: map of source clocks (`clk24`, `clk48`, `clk`, etc.) to lists of generated CEN definitions.
+- `audio`: audio mixing/filter setup (`channels`, optional `pcb`, global `rc`, etc.).
+- `sdram`: bank-based SDRAM map or cache-lane map, but never both.
+- `bram`: list of BRAM/ROM/PROM blocks.
+
+### Full example
+
+```YAML
+# Optional: include support files
+include:
+  - { game: cop }
+  - { file: ../../cop/cfg/mem.yaml }
+
+params:
+  - { name: V_OFFS, value: "(`VTABLE_START-`JTFRAME_BA2_START) >> 1" }
+  - { name: SPR_OFFS, value: "(`SPRITE_START-`JTFRAME_BA3_START) >> 1" }
+
+download:
+  pre_addr: false   # pass transformed pre-address into jtframe_dwnld
+  post_addr: false  # pass transformed address into SDRAM slot arbiter
+  post_data: false  # pass transformed data into SDRAM slot arbiter
+  noswab: false
+
+ports:
+  - { name: foo_data, msb: 15, lsb: 0 }
+  - { name: foo_cs }
+  - { name: foo_ready, input: true }
+
+game: mygame
+
 clocks:
   clk48:
     - freq: 24000000
-      gate: [main,snd] # stop the cen if main_cs&~main_ok or snd_cs&~snd_ok
-      outputs:
-        - cen24
-        - cen12
+      gate: [ main, snd ]
+      outputs: [ cen24, cen12 ]
     - freq: 3579545
-      outputs:
-        - cen_fm
-        - cen_fm2
+      mul: 1
+      div: 16
+      outputs: [ cen_fm, cen_fm2 ]
 
-# Audio filters and accumulator
 audio:
   rsum: 1k
-  gain: 2.0   # global gain, applied to all channels before summing them
-  rsum_feedback_res: false # if false, rsum attenuates, if true, rsum gives gain
-  mute: true  # add mute signal
-  RC: { r: 1k, c: 1n } # global RC filter
+  gain: 1.2
+  rsum_feedback_res: false
+  mute: true
+  rc: { r: 1k, c: 1n }
   pcb:
-    # must match PCB order in TOML file - not automated check yet
-    - { rfb: 10k, rsums: [  7.1k, 12.25k ], pres: [ 1.0, 0.19 ] }
-    - { rfb: 10k, rsums: [  3.2k, 13.25k ], pres: [ 1.0, 0.19 ] }
-    - { rfb: 27k, rsums: [ 12.0k, 12.25k ], pres: [ 1.0, 0.16 ] }
-    - { rfb: 27k, rsums: [  4.7k, 12.25k ], pres: [ 1.0, 0.16 ] }
-  Channels:
-    - Name: psg
-      Rsum: 1k
-      Rout: 100k
-      Pre: 0.5    # pre-amplifier gain
-      Vpp: 5      # peak-to-peak amplitude in Volts
-      RC:
-        - { r: 1k, c: 1n }  # up to two filters
-        - ...
-      # Fir: myfilter.csv   # use RC or FIR filter
-      DCrm: true  # DC offset removal
+    - { machine: pacland, rfb: 10k, rsums: [ 7.1k, 12.25k ], pres: [ 1.0, 0.19 ] }
+  channels:
+    - name: fm
+      module: jt51
+      rsum: 3.2k
+      rout: 100k
+      pre: 0.5
+      vpp: 5
+      data_width: 16
       stereo: true
       unsigned: false
-      data_width: 12
-      rc_en: true # add a signal to control the RC filters
+      rc_en: true
+      rc:
+        - { r: 1k, c: 33n }
+        - { r: 1rout, c: 2.2n }
+      dcrm: true
+      fir: myfilter.csv
 
-# Details about the SDRAM usage
 sdram:
-  # Use either banks or cache-lines, but not both at the same time
-  # big_endian only applies to cache-lines and is invalid with banks
+  big_endian: true              # cache-lane mode only
+  burst: 128k                   # optional burst size in bytes (must be power of two)
   banks:
-    - buses: # connections to bank 0
-        - name:
-          addr_width:
-          data_width: # 8, 16 or 32. It will affect the LSB start of addr_width
-          offset: GFXBASE # optional bank-relative SDRAM offset
-                          # offset uses 16-bit SDRAM word units, not bytes
-                          # this matches the generated RTL SLOT*_OFFSET semantics
-          cache_size: 4 # default 0, will use the regular jtframe_romrq_bcache
-                        # change it to !=0 to use jtframe_romrq_dcache, that will cache
-                        # the served data to the game, rather than all the data coming
-                        # from SDRAM. This is good when data access is not sequential
-          # Optional switches:
-          rw: true # normally false
-          cs: myown_cs # use a cs signal not based on the bus name
-          addr: myown_addr # use a cs signal not based on the bus name
-          gfx_sort:hhvvv/hhvvvv/hhvvvvx(x/xx) # moves h bits after v bits
-                               # the x means bits used for something else
-          gfx_sort: hvvv(x) # makes it vvvh useful for 4-bit encodings
-          gfx_sort_en: signal to and with gfx_sort to isolate sort convention for only a game
-          do_not_erase: true # for rw slots, do not clear upon reset
-          simfile: tiles.bin # optional, used only by jtutil sdram --sim
-          sim_big_endian: true # optional for 16/32-bit simfile loads; invalid for 8-bit buses
-        - name: another bus...
-          when: [ POCKET ]        # use when/unless to set conditions that enabled or disabled the buses
-    - buses: # same for bank 1
-        - name: another bus...
-          unless: [ MISTER ]
-    - buses: # same for bank 2
-        - name: another bus...
-    - buses: # same for bank 3
-        - name: another bus...
-  [big_endian: true] # optional for cache-lines; for 32-bit cache lines low SDRAM word goes to dout[31:16]
-  cache-lines:
-    - name: tiles
-      cache:
-        blocks: 32
+    - buses:
+      - name: tiles
+        addr_width: 18
+        data_width: 16
+        offset: V_OFFS
+        cache_size: 4
+        rw: false
+        do_not_erase: true
+        gfx_sort: hvvvh
+        gfx_sort_en: video_en
+        simfile:
+          name: tiles.bin
+          big_endian: false
+      - name: obj
+        addr_width: 20
+        data_width: 8
+        when: [MISTER]
+        cs: obj_cs
+        addr: obj_addr
+  cache-lanes:
+    - name: pcm
+      data_width: 32
+      blocks:
+        count: 8
         size: 1kB
-        data_width: 32
-      at:
-        bank: 3
-        offset: TILES
-        length: 8MB
-      simfile: tilechar.bin
-      sim_big_endian: true
-      # Cache lines are bank-relative and use 16-bit SDRAM word units for offset
-      # offset must be either a parameter name or an explicit hexadecimal value
-      # length is the address space exposed to the cache client
-      # cache-lines generate jtframe_cache/jtframe_cache_mux based SDRAM access
-      # sdram.big_endian changes 32-bit cache lane ordering in generated RTL
-      # simfile and sim_big_endian are only consumed by jtutil sdram --sim
-# BRAM connections
-bram:
-    - name: vram
-      addr_width: 12
-      data_width: 8
       rw: true
-      [cs:]
-      [addr:]
-      [din:]
-      [sim_file: true]
-      [sim_big_endian: true] # optional for 16/32-bit SIMFILE loads; default is little-endian
-      ioctl:  # optionally dump to RAM file (mainly MiST/SiDi)
-        save: true # a dump2bin.sh file will be generated in the sim folder
-        restore: true # whether to load it upon core boot
-        order: 0   # order in the file
-        unless: [ JTFRAME_RELEASE ] # include only for debug builds
-        when: [ SIDI ] # include only for sidi builds
-      dual_port:
-        name: main
-        [din:]
-        [dout:]
-        rw: true
-        [cs:]
-    # BRAM used as ROM. Note that data gets downloaded
-    # to both BRAM and SRAM, but only the BRAM will be read
-    - name: mcu_rom
-      addr_width: 12
-      data_width: 8
-      sim_file: required if load is skipped
-      # sim_file defaults to little-endian lane mapping
-      # sim_big_endian: true swaps the byte lanes for 16/32-bit BRAMs
-      # sim_big_endian is invalid for 8-bit BRAMs
-      rom:
-        offset: position in prog_addr*2, with the bank number taking bits 24:23
-    # BRAM used as PROM. Data width must be 8 or less
-    # PROMs must be listed in the same order as in the MRA file
-    - name: mcu
-      addr_width: 11
-      data_width: 8
-      prom: true
+    - name: sprites
+      data_width: 128
+      blocks: { count: 16, size: 2kB }
+      at:
+        bank: 2
+        offset: SPR_OFFS
+        length: 8MB
+      simfile:
+        name: sprite_cache.bin
+        big_endian: true
+        data_type: u32
+
+bram:
+  - name: workram
+    size: 32kB               # either size *or* addr_width
+    data_width: 8
+    rw: true
+    we: ram_we
+    addr: ram_addr
+    din: ram_din
+    dout: ram_q
+    simfile: { big_endian: true }
+    ioctl:
+      save: true
+      restore: true
+      order: 0
+      unless: [ JTFRAME_RELEASE ]
+      when: [ SIDI ]
+    dual_port:
+      name: video
+      addr: video_ram_addr
+      din: video_ram_din
+      dout: video_ram_dout
+      rw: true
+      we: video_ram_we
+  - name: mcu_rom
+    addr_width: 12
+    data_width: 8
+    simfile: {}
+    rom:
+      offset: 0
+  - name: prom_data
+    addr_width: 11
+    data_width: 8
+    prom: true
 ```
+
+### Validation and defaults
+
+- Unknown keys are rejected with an error. `mem.yaml` keys are strict.
+- `sdram.banks` and `sdram.cache-lanes` are mutually exclusive.
+- `sdram.banks` must contain **1–4** banks.
+- `sdram.cache-lanes` must contain **1–8** entries.
+- `include` entries are loaded then the active `mem.yaml` is reapplied to allow overrides.
+- `params` values are evaluated as macro expressions when `cache-lanes` use `at.offset`/`at.length`.
+- `clock` source keys are arbitrary names (commonly `clk24`, `clk48`, `clk`), each requiring:
+  - either `freq` alone, or `div`/`mul` to derive a frequency from `JTFRAME_MCLK` and `JTFRAME_SDRAM96`.
+  - at least one `outputs` entry.
+- SDRAM bus settings:
+  - `banks[].buses[].data_width` supports **8**, **16**, **32**.
+  - bus `addr_width` is counted in 16-bit words (LSB is bank address bit 0 for 8-bit, bit 1 for 16/32-bit).
+  - `cache_size` selects the request cache mix (`0` for regular ROM request path).
+  - `do_not_erase` is only meaningful for writable SDRAM banks.
+  - `gfx_sort` is limited to supported patterns (`hvvv`, `hvvvv`, `hhvvv`, `hhvvvv`, `vhhvvv` and `x` variants).
+- Cache-lane settings:
+  - supported lane widths are **8/16/32/64/128**.
+  - `blocks.size` must be power-of-two, >=16, and parseable with exact suffixes `B`, `k`, `kB`, `M`, `MB`.
+  - with `at` omitted, the lane spans full SDRAM space and the generator creates a full-address map.
+  - only lanes `0..3` may set `rw: true`.
+  - `sdram.burst` sets burst length and must be power of two (default derives from largest lane).
+- BRAM settings:
+  - `size` and `addr_width` are mutually exclusive; if `size` is used it must be power-of-two, greater than zero, and <=512kB.
+  - `simfile.big_endian` is supported only for 16/32-bit BRAM and is rejected for 8-bit.
+  - `prom: true` requires `data_width <= 8`.
+  - `ioctl.order` defines file ordering for `dump2bin.sh`.
+  - `rom.offset` is in `prog_addr<<1` space, with bank bits in `[24:23]` for MiST-family ROM layouts.
+- BRAM `ioctl` and `dual_port` entries support `when`/`unless` as conditionals.
+- `sdram.big_endian` affects cache-lane data ordering; for 32-bit cache lanes, it controls which SDRAM word becomes `dout[31:16]`.

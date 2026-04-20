@@ -71,7 +71,7 @@ bram:
   - name: vram0     # foreground
     addr_width: 12
     data_width: 16
-    sim_file: true
+    simfile: {}
     dual_port:
       name: bg
       addr: main_addr[11:1]
@@ -82,7 +82,7 @@ bram:
   - name: vram1     # background
     addr_width: 12
     data_width: 16
-    sim_file: true
+    simfile: {}
     dual_port:
       name: fg
       addr: main_addr[11:1]

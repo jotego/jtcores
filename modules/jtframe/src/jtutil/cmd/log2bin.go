@@ -20,31 +20,26 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"strconv"
 	"strings"
-	"github.com/spf13/cobra"
 )
 
-var flags struct{
+var flags struct {
 	a0, size int
-	verbose bool
-	fout string
+	verbose  bool
+	fout     string
 }
 
 // log2binCmd represents the log2bin command
 var log2binCmd = &cobra.Command{
 	Use:   "log2bin",
 	Short: "Converts debug.log, made of address=data line to a binary file",
-	Long: `Generate the input file with the wpset command of the MAME debugger.
-Use -a0 and -s to specify the beginning of the region and its size.
-The binary file produced can the be loaded into jtframe_ram modules.
-
-Run this command several times to parse different regions.
-`,
-	Run: log2bin,
-	Args: cobra.MaximumNArgs(1),
+	Long:  man_blurb("jtutil-log2bin", "Convert MAME debug.log output into a binary file."),
+	Run:   log2bin,
+	Args:  cobra.MaximumNArgs(1),
 }
 
 func init() {
@@ -59,11 +54,11 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// log2binCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	flg  := log2binCmd.Flags()
-	flg.IntVarP(&flags.a0,"start","a", 0, "address start of region")
-	flg.IntVarP(&flags.size,"size","s", 0x400, "region length")
-	flg.BoolVarP(&flags.verbose,"verbose","v", false, "verbose")
-	flg.StringVarP(&flags.fout,"output","o", "debug.bin", "name of output file")
+	flg := log2binCmd.Flags()
+	flg.IntVarP(&flags.a0, "start", "a", 0, "address start of region")
+	flg.IntVarP(&flags.size, "size", "s", 0x400, "region length")
+	flg.BoolVarP(&flags.verbose, "verbose", "v", false, "verbose")
+	flg.StringVarP(&flags.fout, "output", "o", "debug.bin", "name of output file")
 
 }
 
@@ -79,7 +74,7 @@ func log2bin(cmd *cobra.Command, args []string) {
 	defer f.Close()
 	if flags.verbose {
 		fmt.Printf("Parsing %s for writes to %X (%X long)\n",
-			fname, flags.a0, flags.size )
+			fname, flags.a0, flags.size)
 	}
 	// Prepare the buffer
 	mem := make([]byte, flags.size)

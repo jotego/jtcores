@@ -61,8 +61,6 @@ module jtframe_burst_io #(
 
 reg [3:0] cmd;
 reg [1:0] dqm;
-reg       dst_p, dok_p, rdy_p;
-
 assign {sdram_ncs, sdram_nras, sdram_ncas, sdram_nwe } = cmd;
 assign {sdram_dqmh, sdram_dqml} = MISTER ? sdram_a[12:11] : dqm;
 assign sdram_cke = 1'b1;
@@ -86,9 +84,6 @@ always @(posedge clk) begin
         prog_dst <= 1'b0;
         prog_dok <= 1'b0;
         prog_rdy <= 1'b0;
-        dst_p    <= 1'b0;
-        dok_p    <= 1'b0;
-        rdy_p    <= 1'b0;
         dout     <= 16'd0;
 `ifndef VERILATOR
         dq_pad   <= 16'hzzzz;
@@ -101,16 +96,13 @@ always @(posedge clk) begin
         sdram_ba <= sel_ba;
         dqm      <= sel_dqm;
         ack      <= sel_ack;
-        dst      <= dst_p;
-        dok      <= dok_p;
-        rdy      <= rdy_p;
+        dst      <= sel_dst;
+        dok      <= sel_dok;
+        rdy      <= sel_rdy;
         prog_ack <= sel_prog_ack;
         prog_dst <= sel_prog_dst;
         prog_dok <= sel_prog_dok;
         prog_rdy <= sel_prog_rdy;
-        dst_p    <= sel_dst;
-        dok_p    <= sel_dok;
-        rdy_p    <= sel_rdy;
 
         if( MISTER ) begin
             sdram_a[10: 0] <= sel_a[10:0];
