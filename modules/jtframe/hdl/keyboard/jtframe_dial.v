@@ -40,7 +40,7 @@ localparam B0 = `JTFRAME_DIALEMU_LEFT,
            B1 = B0+1;
 
 localparam EMUSEN0 = `ifdef JTFRAME_DIAL_EMUSENS `JTFRAME_DIAL_EMUSENS
-                     `else  15 `endif,
+                     `else  8 `endif,
            EMUSEN1 = EMUSEN0 - (EMUSEN0>>2),
            EMUSEN2 = EMUSEN1 - (EMUSEN0>>2),
            EMUSEN3 = EMUSEN2 - (EMUSEN0>>2),
@@ -71,9 +71,9 @@ always @* begin
         1: { mouse_sens, act_line } = { 2'd3, EMUSEN0[SENSZ:0] }; // max pulses per frame
         0: { mouse_sens, act_line } = { 2'd2, EMUSEN1[SENSZ:0] };
         3: { mouse_sens, act_line } = { 2'd1, EMUSEN2[SENSZ:0] };
-        2: { mouse_sens, act_line } = { 2'd0, EMUSEN3[SENSZ:0] }; // once every frame
+        2: { mouse_sens, act_line } = { 2'd0, EMUSEN3[SENSZ:0] }; // min pulses per frame
     endcase
-    up_joy = line_cnt[3] & line;
+    up_joy = |line_cnt & line;
     i_1p = sel ? !joystick1[B0] : mouse_sel_x ? mouse_inc_x :  cnt1[7];
     d_1p = sel ? !joystick1[B1] : mouse_sel_x ? mouse_dec_x : !cnt1[7];
     i_2p = sel ? !joystick2[B0] : mouse_sel_y ? mouse_inc_y :  cnt2[7];
