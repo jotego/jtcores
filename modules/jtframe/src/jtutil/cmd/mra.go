@@ -28,7 +28,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var mra_args struct{
+var mra_args struct {
 	zip, core, main_only *bool
 }
 
@@ -36,22 +36,31 @@ var mra_args struct{
 var mraCmd = &cobra.Command{
 	Use:   "mra",
 	Short: "MRA inspection utilities",
-	Long: `List zip files used in JTBIN's .mra files`,
-	Run: runMRA,
+	Long:  man_blurb("jtutil-mra", "Inspect MRA data and related ZIP usage."),
+	Run:   runMRA,
 }
 
 func init() {
 	rootCmd.AddCommand(mraCmd)
 
-	mra_args.zip       = mraCmd.Flags().BoolP("zip",       "z", false, "Shows all zip files used in MRA files")
-	mra_args.core      = mraCmd.Flags().BoolP("core",      "c", false, "Shows games supported by each core")
+	mra_args.zip = mraCmd.Flags().BoolP("zip", "z", false, "Shows all zip files used in MRA files")
+	mra_args.core = mraCmd.Flags().BoolP("core", "c", false, "Shows games supported by each core")
 	mra_args.main_only = mraCmd.Flags().BoolP("main-only", "m", false, "Parse only the main games")
 }
 
 func runMRA(cmd *cobra.Command, args []string) {
-	if( *mra_args.core && *mra_args.zip) { list_cores(true); return}
-	if( *mra_args.zip ) { list_zip();   return }
-	if( *mra_args.core ) { list_cores(false); return }
+	if *mra_args.core && *mra_args.zip {
+		list_cores(true)
+		return
+	}
+	if *mra_args.zip {
+		list_zip()
+		return
+	}
+	if *mra_args.core {
+		list_cores(false)
+		return
+	}
 	cmd.Help()
 }
 
@@ -60,18 +69,20 @@ func list_zip() {
 
 	get_mradata := func(fname string, fi os.DirEntry, err error) error {
 		var game MRA
-		readin_mra( fname, fi, &game, err )
-		if len(game.Rom)==0 { return nil }
+		readin_mra(fname, fi, &game, err)
+		if len(game.Rom) == 0 {
+			return nil
+		}
 		names := strings.Split(game.Rom[0].Zip, "|")
 		if len(names) == 0 {
 			return nil
 		}
-		if len(names)>1 && verbose {
+		if len(names) > 1 && verbose {
 			fmt.Println(names)
 		}
-		last := len(names)-1
+		last := len(names) - 1
 		merged := names[last]
-		if merged=="qsound.zip" && len(names)==2 {
+		if merged == "qsound.zip" && len(names) == 2 {
 			setname := names[last-1]
 			zipuse[setname] = true
 		}
@@ -93,8 +104,10 @@ func list_zip() {
 	}
 }
 
-func readin_mra(fname string, fi os.DirEntry, game *MRA, err error) (error) {
-	if !strings.HasSuffix(fname,".mra") { return nil }
+func readin_mra(fname string, fi os.DirEntry, game *MRA, err error) error {
+	if !strings.HasSuffix(fname, ".mra") {
+		return nil
+	}
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -108,8 +121,8 @@ func readin_mra(fname string, fi os.DirEntry, game *MRA, err error) (error) {
 		return e
 	}
 	xml.Unmarshal(buf, game)
-	if game.Name=="" {
-		fmt.Printf("Warning: no game Name for file %s\n",fname)
+	if game.Name == "" {
+		fmt.Printf("Warning: no game Name for file %s\n", fname)
 		return nil
 	}
 	return err
@@ -121,8 +134,8 @@ type game_info struct {
 
 type jtcores map[string][]game_info
 
-func cmp_games( a, b game_info) int {
-	return strings.Compare(a.name,b.name)
+func cmp_games(a, b game_info) int {
+	return strings.Compare(a.name, b.name)
 }
 
 func list_cores(include_zip bool) {
@@ -137,40 +150,46 @@ func list_cores(include_zip bool) {
 	report_games(sorted_cores, games, include_zip)
 }
 
-func get_coregames(delim string) (jtcores,error) {
+func get_coregames(delim string) (jtcores, error) {
 	games := make(jtcores)
 	get_mradata := func(fname string, fi os.DirEntry, err error) error {
 		var game MRA
-		if is_alternative(fname) && *mra_args.main_only { return nil }
-		readin_mra( fname, fi, &game, err )
-		if game.Setname=="" { return nil }
+		if is_alternative(fname) && *mra_args.main_only {
+			return nil
+		}
+		readin_mra(fname, fi, &game, err)
+		if game.Setname == "" {
+			return nil
+		}
 		list, found := games[game.Rbf]
-		if !found || list==nil {
-			list = make([]game_info,0,16)
+		if !found || list == nil {
+			list = make([]game_info, 0, 16)
 		}
-		info := game_info {
-			name: game.Name,
+		info := game_info{
+			name:     game.Name,
 			mame_set: game.Setname,
-			zip: strings.ReplaceAll(game.Rom[0].Zip, "|", " "),
+			zip:      strings.ReplaceAll(game.Rom[0].Zip, "|", " "),
 		}
-		games[game.Rbf]=append(list,info)
+		games[game.Rbf] = append(list, info)
 		return nil
 	}
 	e := filepath.WalkDir(filepath.Join(os.Getenv("JTBIN"), "mra"), get_mradata)
-	if e!=nil { return nil, e }
+	if e != nil {
+		return nil, e
+	}
 	return games, nil
 }
 
 func is_alternative(fname string) bool {
 	up2levels := filepath.Dir(filepath.Dir(fname))
 	dirname := filepath.Base(up2levels)
-	return dirname=="_alternatives"
+	return dirname == "_alternatives"
 }
 
 func sort_cores(all_cores jtcores) []string {
-	sorted_names := make([]string,0,len(all_cores))
-	for name,_ := range all_cores {
-		sorted_names = append(sorted_names,name)
+	sorted_names := make([]string, 0, len(all_cores))
+	for name, _ := range all_cores {
+		sorted_names = append(sorted_names, name)
 	}
 	slices.Sort(sorted_names)
 	return sorted_names
@@ -178,7 +197,7 @@ func sort_cores(all_cores jtcores) []string {
 
 func sort_games(all_games jtcores) {
 	for _, core_games := range all_games {
-		slices.SortFunc(core_games,cmp_games)
+		slices.SortFunc(core_games, cmp_games)
 	}
 }
 
@@ -189,16 +208,16 @@ func report_games(cores []string, games jtcores, include_zip bool) {
 	print_header(format, include_zip)
 	for _, corename := range cores {
 		core_games := games[corename]
-		for _,info := range core_games {
+		for _, info := range core_games {
 			if include_zip {
-				fmt.Printf(format,corename[2:],info.name,info.mame_set, info.zip)
+				fmt.Printf(format, corename[2:], info.name, info.mame_set, info.zip)
 			} else {
-				fmt.Printf(format,corename[2:],info.name,info.mame_set)
+				fmt.Printf(format, corename[2:], info.name, info.mame_set)
 			}
 			game_count++
 		}
 	}
-	fmt.Printf("\n%d cores, supporting %d games\n",len(cores),game_count)
+	fmt.Printf("\n%d cores, supporting %d games\n", len(cores), game_count)
 }
 
 func find_longest_names(all_games jtcores) (core_len, game_len, set_len, zip_len int) {
@@ -206,7 +225,7 @@ func find_longest_names(all_games jtcores) (core_len, game_len, set_len, zip_len
 		core_len = max_length(corename, core_len)
 		for _, info := range coregames {
 			game_len = max_length(info.name, game_len)
-			set_len  = max_length(info.mame_set, set_len)
+			set_len = max_length(info.mame_set, set_len)
 			zip_len = max_length(info.zip, zip_len)
 		}
 	}
@@ -217,7 +236,7 @@ func find_longest_names(all_games jtcores) (core_len, game_len, set_len, zip_len
 
 func max_length(name string, previous_max int) int {
 	name_length := len(name)
-	if name_length>previous_max {
+	if name_length > previous_max {
 		return name_length
 	} else {
 		return previous_max
@@ -235,16 +254,16 @@ func make_format_string(core_len, game_len, set_len, zip_len int, include_zip bo
 func print_header(format string, include_zip bool) {
 	var header string
 	if include_zip {
-		header = fmt.Sprintf(format,"Core","Game", "MAME set", "ZIP files")
+		header = fmt.Sprintf(format, "Core", "Game", "MAME set", "ZIP files")
 	} else {
-		header = fmt.Sprintf(format,"Core","Game","MAME set")
+		header = fmt.Sprintf(format, "Core", "Game", "MAME set")
 	}
-	dashline := make([]rune,len(header))
-	for k,_ := range dashline {
-		if header[k]=='|' || header[k]=='\n'{
-			dashline[k]=rune(header[k])
+	dashline := make([]rune, len(header))
+	for k, _ := range dashline {
+		if header[k] == '|' || header[k] == '\n' {
+			dashline[k] = rune(header[k])
 		} else {
-			dashline[k]='-'
+			dashline[k] = '-'
 		}
 	}
 	fmt.Printf(header)

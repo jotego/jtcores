@@ -1,3 +1,6 @@
+`ifndef VERILATOR_KEEP_CPU
+/* verilator tracing_off */
+`endif
 module SH7604 
 #(parameter bit UBC_DISABLE=0, bit SCI_DISABLE=0, bit WDT_DISABLE=0, bit [3:0] BUS_AREA_TIMIMG=0, bit BUS_SIZE_BYTE_DISABLE=0, bit BUS_SIZE_WORD_DISABLE=0)
 (
@@ -66,7 +69,11 @@ module SH7604
 	
 	input       [5:0] MD,
 	
-	input             FAST
+	input             FAST,
+
+	input             CPS3_DECRYPT,
+	input      [31:0] CPS3_KEY1,
+	input      [31:0] CPS3_KEY2
 	
 `ifdef DEBUG
 	                  ,
@@ -321,7 +328,10 @@ module SH7604
 		.IBUS_PREREQ(IBUS_PREREQ),
 		.IBUS_BURST(IBUS_BURST),
 		.IBUS_LOCK(IBUS_LOCK),
-		.IBUS_WAIT(IBUS_WAIT)
+		.IBUS_WAIT(IBUS_WAIT),
+		.CPS3_DECRYPT(CPS3_DECRYPT),
+		.CPS3_KEY1(CPS3_KEY1),
+		.CPS3_KEY2(CPS3_KEY2)
 	);
 	
 	assign IBUS_DI = INTC_ACT ? INTC_DO : 

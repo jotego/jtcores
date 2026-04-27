@@ -53,20 +53,19 @@ type BRAMBus struct {
 	When   []string `yaml:"when"`
 	Unless []string `yaml:"unless"`
 
-	Name           string        `yaml:"name"`
-	Size           interface{}   `yaml:"size"`
-	Addr_width     int           `yaml:"addr_width"` // Width for counting all *bytes*
-	Data_width     int           `yaml:"data_width"`
-	Rw             bool          `yaml:"rw"`
-	We             string        `yaml:"we"`
-	Addr           string        `yaml:"addr"`
-	Din            string        `yaml:"din"`  // optional name for din signal
-	Dout           string        `yaml:"dout"` // optional name for dout signal
-	Sim_file       bool          `yaml:"sim_file"`
-	Sim_big_endian bool          `yaml:"sim_big_endian"`
-	Prom           bool          `yaml:"prom"` // program contents after JTFRAME_PROM_START
-	Ioctl          BRAMBus_Ioctl `yaml:"ioctl"`
-	Dual_port      struct {
+	Name       string        `yaml:"name"`
+	Size       interface{}   `yaml:"size"`
+	Addr_width int           `yaml:"addr_width"` // Width for counting all *bytes*
+	Data_width int           `yaml:"data_width"`
+	Rw         bool          `yaml:"rw"`
+	We         string        `yaml:"we"`
+	Addr       string        `yaml:"addr"`
+	Din        string        `yaml:"din"`  // optional name for din signal
+	Dout       string        `yaml:"dout"` // optional name for dout signal
+	Simfile    BRAMSimfile   `yaml:"simfile"`
+	Prom       bool          `yaml:"prom"` // program contents after JTFRAME_PROM_START
+	Ioctl      BRAMBus_Ioctl `yaml:"ioctl"`
+	Dual_port  struct {
 		Name string `yaml:"name"`
 		Addr string `yaml:"addr"` // may be needed if the RAM is 8 bits, but the dual port comes from a 16-bit address bus, so [...:1] should be added
 		Din  string `yaml:"din"`  // optional name for din signal
@@ -263,7 +262,8 @@ type MemConfig struct {
 type SDRAMCfg struct {
 	Banks       []SDRAMBank      `yaml:"banks"`
 	Burst       string           `yaml:"burst"`
-	Cache_lines []SDRAMCacheLine `yaml:"cache-lines"`
+	Big_endian  bool             `yaml:"big_endian"`
+	Cache_lanes []SDRAMCacheLine `yaml:"cache-lanes"`
 	Burst_len   int
 }
 
@@ -278,40 +278,58 @@ type SDRAMBus struct {
 	When   []string `yaml:"when"`
 	Unless []string `yaml:"unless"`
 
-	Name           string `yaml:"name"`
-	Offset         string `yaml:"offset"`
-	Addr           string `yaml:"addr"`
-	Addr_width     int    `yaml:"addr_width"` // Width for counting all *bytes*
-	Data_width     int    `yaml:"data_width"`
-	Cache_size     int    `yaml:"cache_size"`
-	Rw             bool   `yaml:"rw"`
-	Dont_erase     bool   `yaml:"do_not_erase"`
-	Dsn            string `yaml:"dsn"` // optional name for dsn signal
-	Din            string `yaml:"din"` // optional name for din signal
-	Cs             string `yaml:"cs"`
-	Gfx            string `yaml:"gfx_sort"`
-	Gfx_en         string `yaml:"gfx_sort_en"`
-	Simfile        string `yaml:"simfile"`
-	Sim_big_endian bool   `yaml:"sim_big_endian"`
+	Name       string          `yaml:"name"`
+	Offset     string          `yaml:"offset"`
+	Latch      string          `yaml:"latch"`
+	Addr       string          `yaml:"addr"`
+	Addr_width int             `yaml:"addr_width"` // Width for counting all *bytes*
+	Data_width int             `yaml:"data_width"`
+	Cache_size int             `yaml:"cache_size"`
+	Rw         bool            `yaml:"rw"`
+	Dont_erase bool            `yaml:"do_not_erase"`
+	Dsn        string          `yaml:"dsn"` // optional name for dsn signal
+	Din        string          `yaml:"din"` // optional name for din signal
+	Cs         string          `yaml:"cs"`
+	Gfx        string          `yaml:"gfx_sort"`
+	Gfx_en     string          `yaml:"gfx_sort_en"`
+	Simfile    SDRAMBusSimfile `yaml:"simfile"`
 }
 
 type SDRAMCacheLine struct {
-	When           []string       `yaml:"when"`
-	Unless         []string       `yaml:"unless"`
-	Name           string         `yaml:"name"`
-	Cache          SDRAMCacheCfg  `yaml:"cache"`
-	At             SDRAMCacheAddr `yaml:"at"`
-	Rw             bool           `yaml:"rw"`
-	Simfile        string         `yaml:"simfile"`
-	Sim_big_endian bool           `yaml:"sim_big_endian"`
-	Total          int
+	When       []string          `yaml:"when"`
+	Unless     []string          `yaml:"unless"`
+	Name       string            `yaml:"name"`
+	Data_width int               `yaml:"data_width"`
+	Blocks     SDRAMCacheCfg     `yaml:"blocks"`
+	At         SDRAMCacheAddr    `yaml:"at"`
+	Rw         bool              `yaml:"rw"`
+	Simfile    SDRAMCacheSimfile `yaml:"simfile"`
+	Total      int
+	Span_bytes int
+	Full_range bool
 }
 
 type SDRAMCacheCfg struct {
-	Blocks     int    `yaml:"blocks"`
+	Count      int    `yaml:"count"`
 	Size       string `yaml:"size"`
-	Data_width int    `yaml:"data_width"`
 	Size_bytes int
+}
+
+type BRAMSimfile struct {
+	Enabled    bool
+	Big_endian bool `yaml:"big_endian"`
+}
+
+type SDRAMBusSimfile struct {
+	Name       string `yaml:"name"`
+	Big_endian bool   `yaml:"big_endian"`
+	Data_type  string `yaml:"data_type"`
+}
+
+type SDRAMCacheSimfile struct {
+	Name       string `yaml:"name"`
+	Big_endian bool   `yaml:"big_endian"`
+	Data_type  string `yaml:"data_type"`
 }
 
 type SDRAMCacheAddr struct {
@@ -319,20 +337,21 @@ type SDRAMCacheAddr struct {
 	Offset       string `yaml:"offset"`
 	Length       string `yaml:"length"`
 	Length_bytes int
+	Defined      bool
 }
 
 // This function checks the syntax in the mem.yaml file and it applies the
 // read values to *line
 func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type raw_line struct {
-		When           []string       `yaml:"when"`
-		Unless         []string       `yaml:"unless"`
-		Cache          SDRAMCacheCfg  `yaml:"cache"`
-		At             SDRAMCacheAddr `yaml:"at"`
-		Name           string         `yaml:"name"`
-		Rw             bool           `yaml:"rw"`
-		Simfile        string         `yaml:"simfile"`
-		Sim_big_endian bool           `yaml:"sim_big_endian"`
+		When       []string          `yaml:"when"`
+		Unless     []string          `yaml:"unless"`
+		Name       string            `yaml:"name"`
+		Data_width int               `yaml:"data_width"`
+		Blocks     SDRAMCacheCfg     `yaml:"blocks"`
+		At         SDRAMCacheAddr    `yaml:"at"`
+		Rw         bool              `yaml:"rw"`
+		Simfile    SDRAMCacheSimfile `yaml:"simfile"`
 	}
 	var raw_map map[string]interface{}
 	if err := unmarshal(&raw_map); err != nil {
@@ -344,21 +363,245 @@ func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) err
 	}
 	line.When = aux.When
 	line.Unless = aux.Unless
-	line.Cache = aux.Cache
-	line.At = aux.At
 	line.Name = aux.Name
+	line.Data_width = aux.Data_width
+	line.Blocks = aux.Blocks
+	line.At = aux.At
 	line.Rw = aux.Rw
 	line.Simfile = aux.Simfile
-	line.Sim_big_endian = aux.Sim_big_endian
 	for key := range raw_map {
 		switch key {
-		case "name", "when", "unless", "cache", "at", "rw", "simfile", "sim_big_endian":
+		case "name", "when", "unless", "data_width", "blocks", "at", "rw", "simfile":
 		default:
 			return fmt.Errorf("Unexpected field %s in cache line", key)
 		}
 	}
 	if line.Name == "" {
 		return fmt.Errorf("cache line entries must a name")
+	}
+	return nil
+}
+
+func (bus *BRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type raw_bram struct {
+		When       []string      `yaml:"when"`
+		Unless     []string      `yaml:"unless"`
+		Name       string        `yaml:"name"`
+		Size       interface{}   `yaml:"size"`
+		Addr_width int           `yaml:"addr_width"`
+		Data_width int           `yaml:"data_width"`
+		Rw         bool          `yaml:"rw"`
+		We         string        `yaml:"we"`
+		Addr       string        `yaml:"addr"`
+		Din        string        `yaml:"din"`
+		Dout       string        `yaml:"dout"`
+		Simfile    BRAMSimfile   `yaml:"simfile"`
+		Prom       bool          `yaml:"prom"`
+		Ioctl      BRAMBus_Ioctl `yaml:"ioctl"`
+		Dual_port  struct {
+			Name     string `yaml:"name"`
+			Addr     string `yaml:"addr"`
+			Din      string `yaml:"din"`
+			Dout     string `yaml:"dout"`
+			Rw       bool   `yaml:"rw"`
+			We       string `yaml:"we"`
+			AddrFull string
+		} `yaml:"dual_port"`
+		ROM struct {
+			Offset string `yaml:"offset"`
+		} `yaml:"rom"`
+	}
+	var raw_map map[string]interface{}
+	if err := unmarshal(&raw_map); err != nil {
+		return err
+	}
+	var aux raw_bram
+	if err := unmarshal(&aux); err != nil {
+		return err
+	}
+	bus.When = aux.When
+	bus.Unless = aux.Unless
+	bus.Name = aux.Name
+	bus.Size = aux.Size
+	bus.Addr_width = aux.Addr_width
+	bus.Data_width = aux.Data_width
+	bus.Rw = aux.Rw
+	bus.We = aux.We
+	bus.Addr = aux.Addr
+	bus.Din = aux.Din
+	bus.Dout = aux.Dout
+	bus.Simfile = aux.Simfile
+	bus.Prom = aux.Prom
+	bus.Ioctl = aux.Ioctl
+	bus.Dual_port = aux.Dual_port
+	bus.ROM = aux.ROM
+	for key := range raw_map {
+		switch key {
+		case "when", "unless", "name", "size", "addr_width", "data_width", "rw", "we",
+			"addr", "din", "dout", "simfile", "prom", "ioctl", "dual_port", "rom":
+		default:
+			return fmt.Errorf("Unexpected field %s in BRAM bus", key)
+		}
+	}
+	return nil
+}
+
+func (bus *SDRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type raw_bus struct {
+		When       []string        `yaml:"when"`
+		Unless     []string        `yaml:"unless"`
+		Name       string          `yaml:"name"`
+		Offset     string          `yaml:"offset"`
+		Latch      string          `yaml:"latch"`
+		Addr       string          `yaml:"addr"`
+		Addr_width int             `yaml:"addr_width"`
+		Data_width int             `yaml:"data_width"`
+		Cache_size int             `yaml:"cache_size"`
+		Rw         bool            `yaml:"rw"`
+		Dont_erase bool            `yaml:"do_not_erase"`
+		Dsn        string          `yaml:"dsn"`
+		Din        string          `yaml:"din"`
+		Cs         string          `yaml:"cs"`
+		Gfx        string          `yaml:"gfx_sort"`
+		Gfx_en     string          `yaml:"gfx_sort_en"`
+		Simfile    SDRAMBusSimfile `yaml:"simfile"`
+	}
+	var raw_map map[string]interface{}
+	if err := unmarshal(&raw_map); err != nil {
+		return err
+	}
+	var aux raw_bus
+	if err := unmarshal(&aux); err != nil {
+		return err
+	}
+	bus.When = aux.When
+	bus.Unless = aux.Unless
+	bus.Name = aux.Name
+	bus.Offset = aux.Offset
+	bus.Latch = aux.Latch
+	bus.Addr = aux.Addr
+	bus.Addr_width = aux.Addr_width
+	bus.Data_width = aux.Data_width
+	bus.Cache_size = aux.Cache_size
+	bus.Rw = aux.Rw
+	bus.Dont_erase = aux.Dont_erase
+	bus.Dsn = aux.Dsn
+	bus.Din = aux.Din
+	bus.Cs = aux.Cs
+	bus.Gfx = aux.Gfx
+	bus.Gfx_en = aux.Gfx_en
+	bus.Simfile = aux.Simfile
+	for key := range raw_map {
+		switch key {
+		case "when", "unless", "name", "offset", "latch", "addr", "addr_width", "data_width",
+			"cache_size", "rw", "do_not_erase", "dsn", "din", "cs", "gfx_sort",
+			"gfx_sort_en", "simfile":
+		default:
+			return fmt.Errorf("Unexpected field %s in SDRAM bus", key)
+		}
+	}
+	return nil
+}
+
+func (sim *BRAMSimfile) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type raw_sim struct {
+		Big_endian bool `yaml:"big_endian"`
+	}
+	var raw_map map[string]interface{}
+	if err := unmarshal(&raw_map); err != nil {
+		return err
+	}
+	var aux raw_sim
+	if err := unmarshal(&aux); err != nil {
+		return err
+	}
+	sim.Enabled = true
+	sim.Big_endian = aux.Big_endian
+	for key := range raw_map {
+		switch key {
+		case "big_endian":
+		default:
+			return fmt.Errorf("Unexpected field %s in BRAM simfile", key)
+		}
+	}
+	return nil
+}
+
+func (sim *SDRAMBusSimfile) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type raw_sim struct {
+		Name       string `yaml:"name"`
+		Big_endian bool   `yaml:"big_endian"`
+		Data_type  string `yaml:"data_type"`
+	}
+	var raw_map map[string]interface{}
+	if err := unmarshal(&raw_map); err != nil {
+		return err
+	}
+	var aux raw_sim
+	if err := unmarshal(&aux); err != nil {
+		return err
+	}
+	sim.Name = aux.Name
+	sim.Big_endian = aux.Big_endian
+	sim.Data_type = aux.Data_type
+	for key := range raw_map {
+		switch key {
+		case "name", "big_endian", "data_type":
+		default:
+			return fmt.Errorf("Unexpected field %s in SDRAM bus simfile", key)
+		}
+	}
+	return nil
+}
+
+func (cfg *SDRAMCacheCfg) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type raw_cfg struct {
+		Count int    `yaml:"count"`
+		Size  string `yaml:"size"`
+	}
+	var raw_map map[string]interface{}
+	if err := unmarshal(&raw_map); err != nil {
+		return err
+	}
+	var aux raw_cfg
+	if err := unmarshal(&aux); err != nil {
+		return err
+	}
+	cfg.Count = aux.Count
+	cfg.Size = aux.Size
+	for key := range raw_map {
+		switch key {
+		case "count", "size":
+		default:
+			return fmt.Errorf("Unexpected field %s in cache blocks", key)
+		}
+	}
+	return nil
+}
+
+func (sim *SDRAMCacheSimfile) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type raw_sim struct {
+		Name       string `yaml:"name"`
+		Big_endian bool   `yaml:"big_endian"`
+		Data_type  string `yaml:"data_type"`
+	}
+	var raw_map map[string]interface{}
+	if err := unmarshal(&raw_map); err != nil {
+		return err
+	}
+	var aux raw_sim
+	if err := unmarshal(&aux); err != nil {
+		return err
+	}
+	sim.Name = aux.Name
+	sim.Big_endian = aux.Big_endian
+	sim.Data_type = aux.Data_type
+	for key := range raw_map {
+		switch key {
+		case "name", "big_endian", "data_type":
+		default:
+			return fmt.Errorf("Unexpected field %s in cache simfile", key)
+		}
 	}
 	return nil
 }
@@ -377,6 +620,7 @@ func (addr *SDRAMCacheAddr) UnmarshalYAML(unmarshal func(interface{}) error) err
 	if err := unmarshal(&aux); err != nil {
 		return err
 	}
+	addr.Defined = true
 	addr.Bank = aux.Bank
 	addr.Offset = aux.Offset
 	addr.Length = aux.Length

@@ -2,9 +2,11 @@ jtframe:
   - from: cpu/sh7604
     get:
       - SH_pkg.sv
+      - SH_mem.sv
       - SH_regfile.sv
       - SH_core.sv
       - SH7604_pkg.sv
+      - SH7604_mem.sv
       - CACHE.sv
       - BSC.sv
       - DMAC.sv

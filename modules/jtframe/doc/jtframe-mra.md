@@ -128,10 +128,13 @@ dial = [
 [ROM]
 # these MAME ROM regions make up the .rom file (index 1 in MiSTer)
 # only specify regions that need parameters
+# name accepts glob patterns with * and ? to merge multiple MAME regions.
+# This only applies to ROM.regions, and the pattern must match at least one region.
 regions = [
 	{ name=maincpu, machine=optional, start="MACRONAME_START", width=16, len=0x10000,
 		reverse=true, no_offset=true, overrules=[ { names="...", reverse=false }, ... ] },
 	{ name==soundcpu, sequence=[2,1,0,0], no_offset=true } # inverts the order and repeats the first ROM
+	{ name="simm3.?", width=16, sequence=[0,1,2,3,4,5,6,7], no_offset=true } # merge matching MAME regions
 	{ name=plds, skip=true },
 	# Set mirror=true to duplicate the parts until the region is filled, instead of filling with FF
 	{ name=gfx3, rename="obj", mirror=true },

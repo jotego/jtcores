@@ -10,6 +10,8 @@ localparam WORDS      = 2048;
 localparam CACHE_AW   = 23;
 localparam CACHE_BLKS = 1;
 localparam BLKSIZE    = 16;
+localparam SIM_TIMEOUT_NS        = 2_000_000;
+localparam ZERO_TIME_EVT_LIMIT   = 100_000;
 
 reg         rst;
 reg         clk;
@@ -24,6 +26,7 @@ wire [15:0] ext_din;
 wire        ext_rd;
 wire        ext_ack;
 wire        ext_dst;
+wire        ext_dok;
 wire        ext_rdy;
 
 reg         ioctl_rom;
@@ -50,12 +53,16 @@ wire        sdram_ncas;
 wire        sdram_nras;
 wire        sdram_ncs;
 wire        sdram_cke;
+wire        cache_busy = u_cache.miss_busy;
 
 reg [15:0] exp_mem [0:WORDS-1];
 reg [15:0] expected;
 
 integer hcnt;
 integer ack_count;
+integer req_count;
+integer same_time_events;
+time    last_watchdog_time;
 wire rfsh = hcnt == 0;
 
 jtframe_cache #(
@@ -76,6 +83,7 @@ jtframe_cache #(
     .ext_rd     ( ext_rd     ),
     .ext_ack    ( ext_ack    ),
     .ext_dst    ( ext_dst    ),
+    .ext_dok    ( ext_dok    ),
     .ext_rdy    ( ext_rdy    )
 );
 
@@ -96,7 +104,7 @@ jtframe_burst_sdram #(
     .dout       ( ext_din      ),
     .ack        ( ext_ack      ),
     .dst        ( ext_dst      ),
-    .dok        (              ),
+    .dok        ( ext_dok      ),
     .rdy        ( ext_rdy      ),
     .prog_en    ( ioctl_rom    ),
     .prog_addr  ( prog_addr    ),
@@ -163,10 +171,11 @@ mt48lc16m16a2 u_sdram (
 );
 
 `ifdef DEBUG
-always @(posedge clk) begin
-    if( ext_rd || ext_ack || ext_dst || ext_rdy || cache_ok ) begin
-        $display("%t req=%b ack=%b dst=%b rdy=%b ok=%b caddr=%0d eaddr=%0d din=%04x dout=%04x fill=%0d",
-            $time, ext_rd, ext_ack, ext_dst, ext_rdy, cache_ok, cache_addr, ext_addr, ext_din, cache_dout, u_cache.fill_word);
+always @(negedge clk) begin
+    if( cache_rd || cache_ok || ext_rd || ext_ack || ext_dok || ext_rdy ) begin
+        $display("%t rd=%b ok=%b addr=%0d dout=%04x busy=%b st=%0d tail=%b stream=%0d ext_rd=%b ack=%b dst=%b dok=%b rdy=%b din=%04x",
+            $time, cache_rd, cache_ok, cache_addr, cache_dout, cache_busy, u_cache.st, u_cache.fill_tail_seen, u_cache.stream_word,
+            ext_rd, ext_ack, ext_dst, ext_dok, ext_rdy, ext_din);
     end
 end
 `endif
@@ -191,8 +200,8 @@ initial begin
     clk = 0;
     clk_sdram = 0;
     forever begin
-        #(PERIOD/2) clk = ~clk;
-        #1 clk_sdram = clk;
+        #(PERIOD/2) clk_sdram = ~clk_sdram;
+        #5 clk = clk_sdram;
     end
 end
 
@@ -202,14 +211,48 @@ initial begin
     $dumpon;
 end
 
+initial begin
+    #(SIM_TIMEOUT_NS);
+    $display("%t cache_burst_sdram: simulation timeout st=%0d busy=%0b req_count=%0d ack=%0d ext_rd=%0b ext_ack=%0b ext_dst=%0b ext_dok=%0b ext_rdy=%0b stream=%0d",
+        $time, u_cache.st, cache_busy, req_count, ack_count, ext_rd, ext_ack, ext_dst, ext_dok, ext_rdy, u_cache.stream_word);
+    $fflush();
+    $display("FAIL");
+    $fflush();
+    $finish;
+end
+
+always @(cache_addr or cache_rd or cache_ok or cache_busy or
+         ext_addr or ext_din or ext_rd or ext_ack or ext_dst or ext_dok or ext_rdy or
+         u_cache.st or u_cache.stream_word) begin
+    if( $time != last_watchdog_time ) begin
+        last_watchdog_time = $time;
+        same_time_events   = 0;
+    end else begin
+        same_time_events = same_time_events + 1;
+        if( same_time_events > ZERO_TIME_EVT_LIMIT ) begin
+            $display("%t cache_burst_sdram: zero-time activity watchdog fired st=%0d busy=%0b req_count=%0d ack=%0d ext_rd=%0b ext_ack=%0b ext_dst=%0b ext_dok=%0b ext_rdy=%0b stream=%0d",
+                $time, u_cache.st, cache_busy, req_count, ack_count, ext_rd, ext_ack, ext_dst, ext_dok, ext_rdy, u_cache.stream_word);
+            $fflush();
+            $display("FAIL");
+            $fflush();
+            $finish;
+        end
+    end
+end
+
 task wait_prog_ready;
     integer timeout;
     begin : wait_loop
         for( timeout=0; timeout<500; timeout=timeout+1 ) begin
             @(posedge clk);
             if( prog_ack ) disable wait_loop;
+            if( timeout != 0 && timeout % 100 == 0 ) begin
+                $display("%t cache_burst_sdram: still waiting for downloader ack (timeout=%0d)", $time, timeout);
+                $fflush();
+            end
         end
         $display("Timed out waiting for programming ready");
+        $fflush();
         fail();
     end
 endtask
@@ -239,23 +282,41 @@ task cache_request(
 );
     integer cycles;
     integer ack_before;
-    string msg;
     begin
-        if( cache_ok ) @(posedge clk);
+        req_count = req_count + 1;
+        $display("%t cache_burst_sdram: request %0d addr=%0d expect=%04x miss=%0b",
+            $time, req_count, req_addr, exp_word, expect_miss);
+        $fflush();
+        while( cache_ok || cache_busy ) @(negedge clk);
         ack_before = ack_count;
         @(negedge clk);
         cache_addr <= req_addr;
         cache_rd   <= 1'b1;
-        cycles     = 0;
+        cycles     = 1;
+        @(negedge clk);
         begin : wait_loop
-            while( !cache_ok ) begin
-                @(posedge clk);
+            while( cache_ok !== 1'b1 ) begin
+                @(negedge clk);
                 cycles = cycles + 1;
+                if( cycles != 0 && cycles % 32 == 0 ) begin
+                    $display("%t cache_burst_sdram: request %0d waiting cycle=%0d st=%0d busy=%0b ack=%0b dst=%0b dok=%0b rdy=%0b stream=%0d",
+                        $time, req_count, cycles, u_cache.st, cache_busy, ext_ack, ext_dst, ext_dok, ext_rdy, u_cache.stream_word);
+                    $fflush();
+                end
                 assert_msg(cycles < 256, "Cache request timed out");
             end
         end
-        msg = $sformatf("Cache returned %04X instead of %04X at word %0d", cache_dout, exp_word, req_addr);
-        assert_msg(cache_dout == exp_word, msg);
+        cache_rd <= 1'b0;
+        $display("%t cache_burst_sdram: request %0d done cycles=%0d dout=%04x ack_count=%0d",
+            $time, req_count, cycles, cache_dout, ack_count);
+        $fflush();
+        if( cache_dout !== exp_word ) begin
+            $display("Cache returned %04X instead of %04X at word %0d", cache_dout, exp_word, req_addr);
+            $display("  ack=%b dst=%b dok=%b rdy=%b ext_din=%04x stream=%0d busy=%b st=%0d ok=%b",
+                ext_ack, ext_dst, ext_dok, ext_rdy, ext_din, u_cache.stream_word, cache_busy, u_cache.st, cache_ok);
+            $fflush();
+            fail();
+        end
         if( expect_miss ) begin
             assert_msg(ack_count == ack_before + 1, "Cache miss must trigger one SDRAM burst request");
             assert_msg(cycles > 4, "Cache miss completed too quickly");
@@ -263,9 +324,8 @@ task cache_request(
             assert_msg(ack_count == ack_before, "Cache hit must not trigger a new SDRAM burst request");
             assert_msg(cycles <= 3, "Cache hit should complete within three cycles");
         end
-        @(negedge clk);
-        cache_rd <= 1'b0;
-        @(posedge clk);
+        while( cache_ok || cache_busy ) @(negedge clk);
+        repeat (2) @(negedge clk);
     end
 endtask
 
@@ -273,6 +333,9 @@ integer i;
 
 initial begin
     for( i=0; i<WORDS; i=i+1 ) exp_mem[i] = 16'h0000;
+    req_count = 0;
+    same_time_events = 0;
+    last_watchdog_time = 0;
 
     rst = 1'b1;
     cache_addr = 22'd0;
@@ -282,23 +345,46 @@ initial begin
     ioctl_dout = 8'd0;
     ioctl_wr = 1'b0;
 
+    $display("%t cache_burst_sdram: reset asserted", $time);
+    $fflush();
     repeat (20) @(posedge clk);
     rst = 1'b0;
+    $display("%t cache_burst_sdram: waiting for SDRAM init", $time);
+    $fflush();
 
     begin : wait_init_done
         for( i=0; i<20_000; i=i+1 ) begin
             @(posedge clk);
             if( !init ) disable wait_init_done;
+            if( i != 0 && i % 2000 == 0 ) begin
+                $display("%t cache_burst_sdram: still waiting for init (cycles=%0d)", $time, i);
+                $fflush();
+            end
         end
         $display("Timed out waiting for SDRAM init");
+        $fflush();
         fail();
     end
+    $display("%t cache_burst_sdram: SDRAM init complete", $time);
+    $fflush();
 
-    for( i=0; i<128; i=i+1 ) download_byte(i[25:0], i[7:0] ^ 8'h5a);
+    $display("%t cache_burst_sdram: downloading preload bytes", $time);
+    $fflush();
+    for( i=0; i<128; i=i+1 ) begin
+        if( i != 0 && i % 32 == 0 ) begin
+            $display("%t cache_burst_sdram: downloaded %0d/128 bytes", $time, i);
+            $fflush();
+        end
+        download_byte(i[25:0], i[7:0] ^ 8'h5a);
+    end
     @(negedge clk);
     ioctl_rom = 1'b0;
+    $display("%t cache_burst_sdram: preload complete", $time);
+    $fflush();
 
     repeat (20) @(posedge clk);
+    $display("%t cache_burst_sdram: starting cache request sequence", $time);
+    $fflush();
 
     cache_request(22'd2,  exp_mem[2],  1'b1);
     cache_request(22'd6,  exp_mem[6],  1'b0);
@@ -308,6 +394,8 @@ initial begin
     cache_request(22'd3,  exp_mem[3],  1'b1);
     cache_request(22'd4,  exp_mem[4],  1'b0);
 
+    $display("%t cache_burst_sdram: test completed", $time);
+    $fflush();
     pass();
 end
 

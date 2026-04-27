@@ -1,0 +1,4 @@
+{
+  "image": "jotego/simulator:latest",
+  "runArgs": ["--privileged"]
+}

@@ -83,7 +83,7 @@ bram:
   - name: vram
     addr_width: 11
     data_width: 16
-    sim_file: true
+    simfile: {}
     dual_port:
       name: vramrw
       din:  vramrw_din

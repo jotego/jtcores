@@ -115,6 +115,9 @@ always @(posedge clk)
 always @(*)     encoded  = tmap_dout[12:0];
 `endif
 
+localparam signed [31:0] GLFGREAT_XOFFSET = -32'sd11;
+localparam signed [31:0] GLFGREAT_YOFFSET =  32'sd0;
+
 always @(*) begin
     case(tile)
         0: {pal, code} = tblock[ 0+:18];
@@ -124,7 +127,10 @@ always @(*) begin
     endcase
 end
 /* verilator tracing_on */
-jt053936 u_xy(
+jt053936 #(
+    .XOFFSET    ( GLFGREAT_XOFFSET ),
+    .YOFFSET    ( GLFGREAT_YOFFSET )
+) u_xy(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),

@@ -42,12 +42,12 @@ module jtrastan_pc060(
     wire [3:0] snd_ptr, main_ptr, status;
     wire [3:0] main_ram, snd_ram;
     wire       main_ramwr, snd_ramwr,
-               nmi_enb, subrst;
+               nmi_en, subrst;
     wire [1:0] set_sndst,  snd_full,
                set_mainst, main_full;
 
     assign status     = { main_full, snd_full };
-    assign snd_nmin   = nmi_enb || snd_full[1:0]==0;
+    assign snd_nmin   = ~nmi_en || snd_full[1:0]==0;
     assign main_din   = main_ptr[2] ? status : main_ram;
     assign snd_din    =  snd_ptr[2] ? status : snd_ram;
 
@@ -94,7 +94,7 @@ module jtrastan_pc060(
         .is_full    ( snd_full  ),
 
         .ptr        ( snd_ptr   ),
-        .flag       ( nmi_enb   )
+        .flag       ( nmi_en    )
     );
 
     jtframe_sync #(.W(1),.LATCHIN(1)) u_sync1(
@@ -190,8 +190,8 @@ module jtrastan_pc060_unit(
                             else
                                 is_full[1] <= 0;
                         4: flag <= din[0];
-                        5: flag <= 1;
-                        6: flag <= 0;
+                        5: flag <= 0;
+                        6: flag <= 1;
                         default:;
                     endcase
                 end

@@ -1,0 +1,60 @@
+.TH JTFRAME-PARSE 1 "April 2026" "JTFRAME" "User Commands"
+.SH NAME
+jtframe-parse \- parse a template with JTFRAME macros
+.SH SYNOPSIS
+.B jtframe parse
+.RI "<core-name> <template-path> [flags]"
+.SH DESCRIPTION
+\fBjtframe parse\fR
+evaluates a Go template after loading the JTFRAME macro set for the selected
+core and target.
+The input must follow regular Go template syntax.
+Output is written to standard output unless
+\fB--output\fR
+is used.
+.PP
+Templates can access the macro map through
+\fB.Macros\fR.
+Examples:
+.RS
+.nf
+{{ .Macros.TARGET }}
+{{ .Macros.JTFRAME_BA1_START }}
+.fi
+.RE
+.PP
+Function references:
+.TP
+.B Sprig Functions
+\fBhttps://masterminds.github.io/sprig/\fR
+.TP
+.B Standard Go Template Functions
+\fBhttps://pkg.go.dev/text/template\fR
+.SH FLAGS
+.TP
+.BI "\-d, \-\-def " list
+Define extra macros, separated by commas.
+.TP
+.B \-h, \-\-help
+Show the short command help.
+.TP
+.BI "\-o, \-\-output " path
+Write output to the given file instead of standard output.
+The default is
+\fB/dev/stdout\fR.
+.TP
+.BI "\-t, \-\-target " name
+Select the target platform, such as
+\fBmist\fR,
+\fBmister\fR,
+or
+\fBpocket\fR.
+The default is
+\fBmist\fR.
+.TP
+.B \-v, \-\-verbose
+Enable verbose output.
+.SH SEE ALSO
+.BR jtframe (1),
+.BR jtframe-cfgstr (1),
+.BR jtframe-files (1)

@@ -61,7 +61,6 @@ module jtframe_burst_io #(
 
 reg [3:0] cmd;
 reg [1:0] dqm;
-
 assign {sdram_ncs, sdram_nras, sdram_ncas, sdram_nwe } = cmd;
 assign {sdram_dqmh, sdram_dqml} = MISTER ? sdram_a[12:11] : dqm;
 assign sdram_cke = 1'b1;

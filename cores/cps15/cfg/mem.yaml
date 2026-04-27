@@ -1,0 +1,26 @@
+download:
+  post_addr: true
+
+params:
+  - { name: OBJ_LATCH, value: "`CPS_OBJ_LATCH" }
+  - { name: SND_OFFSET, value: "23'h38_0000" }
+  - { name: VRAM_OFFSET, value: "23'h20_0000" }
+  - { name: WRAM_OFFSET, value: "23'h30_0000" }
+
+ports:
+  - { name: main_addr_x, msb: 20, lsb: 1 }
+  - { name: main_offset, msb: 22, lsb: 0 }
+
+sdram:
+  banks:
+    - buses:
+      - { name: main_ram, addr: main_addr_x, addr_width: 21, data_width: 16, cs: ram_vram_cs, din: main_dout, dsn: dsn, offset: main_offset, rw: true }
+      - { name: vram_dma, addr_width: 18, data_width: 16, offset: VRAM_OFFSET, latch: OBJ_LATCH }
+      - { name: main_rom, addr_width: 22, data_width: 16, latch: 1 }
+      - { name: snd, addr_width: 19, data_width: 8, offset: SND_OFFSET }
+    - buses:
+      - { name: qsnd, addr_width: 22, data_width: 8 }
+    -
+    - buses:
+      - { name: gfx0, addr_width: 23, data_width: 32, latch: OBJ_LATCH }
+      - { name: gfx1, addr_width: 23, data_width: 32 }

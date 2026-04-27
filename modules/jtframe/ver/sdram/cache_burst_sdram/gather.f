@@ -1,4 +1,9 @@
 $JTFRAME/hdl/sdram/jtframe_cache.sv
+$JTFRAME/hdl/sdram/jtframe_cache_ctrl.sv
+$JTFRAME/hdl/sdram/jtframe_cache_data.sv
+$JTFRAME/hdl/sdram/jtframe_cache_tags.sv
+$JTFRAME/hdl/ram/jtframe_dual_ram32.v
+$JTFRAME/hdl/ram/jtframe_dual_ram16.v
 $JTFRAME/hdl/ram/jtframe_dual_ram.v
 $JTFRAME/ver/sdram/burst_sdram_inc/jtframe_burst_sdram.v
 $JTFRAME/hdl/sdram/jtframe_burst_sdram.v

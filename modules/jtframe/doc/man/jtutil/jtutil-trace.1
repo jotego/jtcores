@@ -1,0 +1,71 @@
+.TH JTUTIL-TRACE 1 "April 2026" "JTFRAME" "User Commands"
+.SH NAME
+jtutil-trace \- compare VCD output against a MAME trace
+.SH SYNOPSIS
+.B jtutil trace
+.RI [ flags ]
+.SH DESCRIPTION
+\fBjtutil trace\fR
+helps debug a simulation against MAME by comparing a register trace with a VCD
+capture.
+.PP
+The default input files are:
+.TP
+.B debug.trace
+Text trace generated from MAME.
+.TP
+.B debug.vcd
+VCD file used for comparison.
+.PP
+Use
+\fB--base-name\fR
+to override those file names.
+.PP
+JTFRAME attempts to match MAME variables and VCD signals automatically.
+If a signal is not matched, add it manually with the interactive
+\fBalias\fR
+command.
+.PP
+The comparison session is interactive, although a script can also be used.
+Type
+\fBhelp\fR
+to list the commands.
+Session commands are stored in
+\fBtrace.ses\fR
+and overwritten each time.
+.PP
+Comparison is paused while these signals are high:
+.IP \[bu] 2
+\fBalu_busy\fR:
+the ALU is solving a long operation
+.IP \[bu] 2
+\fBstr_busy\fR:
+a long string operation is in progress
+.IP \[bu] 2
+\fBstack_busy\fR:
+stack-related long operations are in progress
+.SH FLAGS
+.TP
+.BI "\-b, \-\-base-name " name
+Use
+\fB<name>.trace\fR
+and
+\fB<name>.vcd\fR
+instead of
+\fBdebug.trace\fR
+and
+\fBdebug.vcd\fR.
+The default base name is
+\fBdebug\fR.
+.TP
+.B \-h, \-\-help
+Show the short command help.
+.TP
+.BI "\-m, \-\-make " cpu
+Create a MAME trace file for the given CPU.
+.TP
+.B \-v, \-\-verbose
+Enable verbose output.
+.SH SEE ALSO
+.BR jtutil (1),
+.BR jtutil-vcd (1)

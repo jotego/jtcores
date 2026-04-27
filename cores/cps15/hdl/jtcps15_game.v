@@ -21,30 +21,21 @@ module jtcps15_game(
 );
 
 wire        clk_gfx, rst_gfx, hold_rst;
-wire        snd_cs, qsnd_cs, main_ram_cs, main_vram_cs, main_rom_cs,
-            rom0_cs, rom1_cs,
-            vram_dma_cs;
+wire        main_ram_cs, main_vram_cs;
 wire        HB, VB;
-wire [18:0] snd_addr;
-wire [22:0] qsnd_addr;
 wire        prog_qsnd;
-wire [ 7:0] snd_data, qsnd_data;
 wire [17:1] ram_addr;
-wire [21:1] main_rom_addr;
-wire [15:0] main_ram_data, main_rom_data, main_dout, mmr_dout;
-wire        main_rom_ok, main_ram_ok;
+wire [15:0] mmr_dout;
 wire        ppu1_cs, ppu2_cs, ppu_rstn;
 wire [19:0] rom1_addr, rom0_addr;
 wire [31:0] rom0_data, rom1_data;
-// Video RAM interface
-wire [17:1] vram_dma_addr;
-wire [15:0] vram_dma_data;
-wire        vram_dma_ok, rom0_ok, rom1_ok, snd_ok, qsnd_ok;
+wire        rom0_cs, rom1_cs, rom0_ok, rom1_ok;
 wire [15:0] cpu_dout;
 wire        cpu_speed;
 
 wire        main_rnw, busreq, busack;
 wire [ 7:0] dipsw_a, dipsw_b, dipsw_c;
+wire [22:0] qsnd_rom_addr;
 
 wire        vram_clr, vram_rfsh_en;
 wire [ 8:0] hdump;
@@ -52,7 +43,7 @@ wire [ 8:0] vdump, vrender;
 
 wire        rom0_half, rom1_half;
 wire        cfg_we;
-wire        charger, video_flip;
+wire        charger, video_flip, dump_flag;
 
 // QSound - Decode keys
 wire        kabuki_we, kabuki_en;
@@ -66,20 +57,40 @@ wire        main2qs_cs, main_busakn, main_waitn;
 wire        sclk, sdi, sdo, scs;
 
 assign { dipsw_c, dipsw_b, dipsw_a } = ~24'd0;
+`ifndef JTFRAME_MEMGEN
 assign snd_peak = 0;
+`endif
 
-wire [ 1:0] dsn;
 wire        cen16, cen12, cen8, cen10b;
 wire        cpu_cen, cpu_cenb;
 wire        turbo;
 reg         rst_game;
 
+`ifndef JTFRAME_MEMGEN
+wire [15:0] main_dout;
+wire [ 1:0] dsn;
+wire        snd_cs, qsnd_cs, main_ram_cs, main_vram_cs, main_rom_cs,
+            rom0_cs, rom1_cs,
+            vram_dma_cs;
+wire [18:0] snd_addr;
+wire [ 7:0] snd_data, qsnd_data;
+wire [21:1] main_rom_addr;
+wire [15:0] main_ram_data, main_rom_data;
+wire        main_rom_ok, main_ram_ok;
+wire [17:1] vram_dma_addr;
+wire [15:0] vram_dma_data;
+wire        vram_dma_ok, snd_ok, qsnd_ok;
+`endif
+
 `include "turbo.vh"
 
-assign snd_vu     = 0;
 assign debug_view = 0;
+
+`ifndef JTFRAME_MEMGEN
+assign snd_vu     = 0;
 assign ba1_din=0, ba2_din=0, ba3_din=0,
        ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
+`endif
 
 // CPU clock enable signals come from 48MHz domain
 /* verilator lint_off PINMISSING */
@@ -107,7 +118,81 @@ assign rst_gfx = rst;
 
 always @(posedge clk) rst_game <= hold_rst | rst48;
 
-localparam REGSIZE=24;
+localparam REGSIZE=24,
+           START_HEADER=16,
+           KABUKI_HEADER=26'd48,
+           KABUKI_END=KABUKI_HEADER+26'd11;
+
+`ifdef JTFRAME_MEMGEN
+localparam [22:0] SND_OFFSET =23'h38_0000,
+                  VRAM_OFFSET=23'h20_0000,
+                  WRAM_OFFSET=23'h30_0000;
+localparam EEPROM_AW=7, EEPROM_DW=8;
+wire dump_we = ioctl_wr & ioctl_ram;
+reg  [1:0]  kabuki_sr;
+reg  [15:0] snd_start_cfg;
+wire [21:0] snd_start_addr = { snd_start_cfg[12:0], 9'd0 };
+
+assign hold_rst   = 1'b0;
+assign kabuki_we  = kabuki_sr[0];
+assign prog_qsnd  = prom_we;
+assign ram_vram_cs = main_ram_cs | main_vram_cs;
+assign main_ram_we = !main_rnw;
+assign main_offset = main_ram_cs ? WRAM_OFFSET : VRAM_OFFSET;
+assign main_addr_x = { 3'd0, ram_addr };
+assign qsnd_addr   = qsnd_rom_addr[21:0];
+assign gfx0_addr   = { rom0_addr, rom0_half };
+assign gfx1_addr   = { rom1_addr, rom1_half };
+assign gfx0_cs     = rom0_cs;
+assign gfx1_cs     = rom1_cs;
+assign rom0_data   = gfx0_data;
+assign rom1_data   = gfx1_data;
+assign rom0_ok     = gfx0_ok;
+assign rom1_ok     = gfx1_ok;
+assign cfg_we      = header && ioctl_wr &&
+                     ioctl_addr > 7 &&
+                     ioctl_addr < (REGSIZE+START_HEADER);
+
+always @(*) begin
+    post_addr = prog_addr;
+    if( !header && prog_ba==2'd0 && ioctl_addr[25:10] >= snd_start_cfg ) begin
+        post_addr = prog_addr - snd_start_addr + SND_OFFSET[21:0];
+    end
+end
+
+always @(posedge clk) begin
+    kabuki_sr <= kabuki_sr >> 1;
+    if( header && ioctl_wr ) begin
+        if( ioctl_addr == 26'd0 ) begin
+            snd_start_cfg[ 7:0] <= prog_data;
+            kabuki_sr           <= 2'b0;
+        end
+        if( ioctl_addr == 26'd1 ) begin
+            snd_start_cfg[15:8] <= prog_data;
+        end
+        if( ioctl_addr >= KABUKI_HEADER &&
+            ioctl_addr <  KABUKI_END ) begin
+            kabuki_sr <= 2'b11;
+        end
+    end
+end
+
+jt9346_16b8b #(.DW(EEPROM_DW),.AW(EEPROM_AW)) u_eeprom(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .sclk       ( sclk      ),
+    .sdi        ( sdi       ),
+    .sdo        ( sdo       ),
+    .scs        ( scs       ),
+    .dump_clk   ( clk       ),
+    .dump_addr  ( ioctl_addr[7:0] ),
+    .dump_we    ( dump_we   ),
+    .dump_din   ( ioctl_dout),
+    .dump_dout  ( ioctl_din ),
+    .dump_flag  ( dump_flag ),
+    .dump_clr   ( ioctl_ram )
+);
+`endif
 
 // Turbo speed disables DMA
 wire busreq_cpu = busreq & ~turbo;
@@ -197,15 +282,20 @@ assign scs        = 0;
 assign busack_cpu = 1;
 `endif
 
-reg rst_video, rst_sdram;
+reg rst_video;
+`ifndef JTFRAME_MEMGEN
+reg rst_sdram;
+`endif
 
 always @(negedge clk_gfx) begin
     rst_video <= rst_gfx;
 end
 
+`ifndef JTFRAME_MEMGEN
 always @(negedge clk) begin
     rst_sdram <= rst;
 end
+`endif
 
 assign dip_flip = ~video_flip;
 
@@ -325,7 +415,7 @@ jtcps15_sound u_sound(
     .rom_ok     ( snd_ok            ),
 
     // QSound sample ROM
-    .qsnd_addr  ( qsnd_addr         ), // max 8 MB.
+    .qsnd_addr  ( qsnd_rom_addr     ), // max 8 MB.
     .qsnd_cs    ( qsnd_cs           ),
     .qsnd_data  ( qsnd_data         ),
     .qsnd_ok    ( qsnd_ok           ),
@@ -345,11 +435,15 @@ jtcps15_sound u_sound(
 assign snd_cs = 0;
 assign snd_addr = 0;
 assign qsnd_cs = 0;
-assign qsnd_addr = 0;
+assign qsnd_rom_addr = 0;
+`ifndef JTFRAME_MEMGEN
+assign prog_qsnd = 0;
+`endif
 `endif
 
 wire nc0, nc1, nc2, nc3, nc4;
 
+`ifndef JTFRAME_MEMGEN
 jtcps1_sdram #(.CPS(15), .REGSIZE(REGSIZE)) u_sdram (
     .rst         ( rst_sdram     ),
     .clk         ( clk           ),
@@ -422,7 +516,7 @@ jtcps1_sdram #(.CPS(15), .REGSIZE(REGSIZE)) u_sdram (
     .pcm_ok      ( qsnd_ok       ),
 
     .snd_addr    ( snd_addr      ),
-    .pcm_addr    ( qsnd_addr     ),
+    .pcm_addr    ( qsnd_rom_addr ),
 
     .snd_data    ( snd_data      ),
     .pcm_data    ( qsnd_data     ),
@@ -475,5 +569,6 @@ jtcps1_sdram #(.CPS(15), .REGSIZE(REGSIZE)) u_sdram (
     .cps2_joymode (              ),
     .dump_flag    (              )
 );
+`endif
 
 endmodule

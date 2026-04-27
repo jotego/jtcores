@@ -21,6 +21,8 @@
 //      AW      => Address bit width, 10 for 1kB
 //      SIMFILE => binary file to load during simulation
 //      SIMHEXFILE => hexadecimal file to load during simulation
+//      ENDIAN  => 0 (default) for little-endian hosts (x86). Use ENDIAN=0
+//                 when loading binary files written by C fwrite on x86.
 
 module jtframe_ram16 #(parameter AW=10,
     SIMFILE="",

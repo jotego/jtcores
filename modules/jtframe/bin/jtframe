@@ -9,18 +9,14 @@ fi
 RECOMPILE=FALSE
 BIN=$JTFRAME/src/jtframe/jtframe
 
-if [[ ! -e $BIN || $# = 0 ]]; then # recompile if file missing or no arguments
+if [ ! -e $BIN ]; then
     RECOMPILE=TRUE
 else
-    # Find out whether the jtframe file is older
-    # than the JTFRAME's commit
-    cd $JTFRAME > /dev/null
-    COMMIT_DATE=$(git show -s --format=%ct)
-    COMPILED_DATE=$(stat -c %Y $BIN)
-    if (( $COMPILED_DATE < $COMMIT_DATE )) ; then
+    # Recompile if any source file is newer than the binary
+    NEWER=$(find $JTFRAME/src/jtframe -name '*.go' -newer $BIN 2>/dev/null)
+    if [ -n "$NEWER" ]; then
         RECOMPILE=TRUE
     fi
-    cd - > /dev/null
 fi
 
 function run_tests {

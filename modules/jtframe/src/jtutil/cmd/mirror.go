@@ -28,12 +28,9 @@ import (
 var mirrorCmd = &cobra.Command{
 	Use:   "mirror",
 	Short: "Find mirrored data in a ROM file",
-	Long: `If a ROM file contains the same data in more than one address
-position, the size of the ROM can be reduced.
-jtutil mirror tries to find address bits which are not needed to address
-the whole content of the ROM.`,
+	Long:  man_blurb("jtutil-mirror", "Find mirrored data in a ROM file."),
 	Run: func(cmd *cobra.Command, args []string) {
-		mirror( args[0] )
+		mirror(args[0])
 	},
 	Args: cobra.ExactArgs(1),
 }
@@ -43,30 +40,32 @@ func init() {
 	// mirrorCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func mirror( fname string ) {
+func mirror(fname string) {
 	buf, e := os.ReadFile(fname)
-	if e!=nil {
+	if e != nil {
 		fmt.Println(e)
 		os.Exit(1)
 	}
 	maxbit := 1
 	abits := 0
-	last := len(buf)-1
-	for maxbit=1; maxbit<0x80000 && (last&maxbit)!=0; maxbit<<=1 { abits++ }
+	last := len(buf) - 1
+	for maxbit = 1; maxbit < 0x80000 && (last&maxbit) != 0; maxbit <<= 1 {
+		abits++
+	}
 	// Read the file muting different address bits and find if all are needed
-	bits := make([]int,abits)
+	bits := make([]int, abits)
 	somegood := false
-	for k:=0;k<abits;k++ {
+	for k := 0; k < abits; k++ {
 		bad := false
-		for j,_ := range buf {
-			if buf[j]!=buf[ j&^(1<<k) ] {
-				bad=true
+		for j, _ := range buf {
+			if buf[j] != buf[j&^(1<<k)] {
+				bad = true
 				// fmt.Printf("Failed (%d) at %X <-> %X\n", k, j, j&^(1<<k) )
 				break
 			}
 		}
 		if !bad {
-			bits[k]=1
+			bits[k] = 1
 			somegood = true
 		}
 	}

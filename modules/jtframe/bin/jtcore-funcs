@@ -95,60 +95,22 @@ parse_args() {
 
 show_usage() {
     cat << EOF
-JTCORE compilation tool. (c) Jose Tejada 2019-2023, @topapate
+JTCORE compilation tool
 usage: jtcore <corename> [options]
 
-    jtcore compiles only one core at a time. To compile many cores at once
-    use jtupdate.
+Compile one core at a time. Use jtframe update for multi-core update flows.
 
-    Macro definition
-    --def | -d   Defines a verilog macro. Macros are removed from qsf file after
-                 compilation.
-                 Useful macros:
-                   NOSOUND             the core is compiled without sound (faster)
-                   MISTER_VIDEO_MIXER  uses the Mr video modules
-                   JTFRAME_SCAN2X      uses simple scan doubler from JTFRAME
-                   MISTER_DEBUG_NOHDMI skips MiSTer HDMI related logic. Speeds up compilation.
-    --undef | -u Undefines a macro
+Common options:
+    --target | -t <target>   Select target platform
+    --def | -d <macro>       Define a Verilog macro
+    --undef | -u <macro>     Undefine a Verilog macro
+    --quick | -q             Faster build with reduced features
+    --quicker | -qq          Faster MiSTer-oriented build
+    --program | -p           Program the FPGA after the build
+    --skip | -s              Skip compilation and run the remaining steps
+    --help | -h              Show this summary
 
-    Target selection
-    -mist       compiles the MiST version. This is the default
-    -mister     compiles the MiSTer version
-    -sidi       compiles the SIDI version. This uses MiST's folders and settings but different pinout
-    -neptuno    compiles the NeptUNO version
-    -mc2        compiles the MultiCore2  version
-    -mcp        compiles the MultiCore2+ version
-    -pocket     compiles the PocketFPGA version
-    -sockit     compiles the Arrow SoCKit version
-    -de1soc     compiles the Terasic DE1-SoC version
-    -de10std    compiles the Terasic DE10-Standard version
-    -folder     any folder present in $JTFRAME/target/folder can be used as the target
-
-    General options
-
-    --corestamp     Sets the date string attached to the RBF file name. Defaults to today
-    --credits       Defines NOSOUND, MISTER_DEBUG_NOHDMI and NOMAIN. Sets MiSTer as target.
-    -mrq            Compiles MiSTer with no HDMI nor logo but with sound
-    --mrpasswd      Sets the SSH pasword to use on MiSTer
-    --nodbg         Defines JTFRAME_RELEASE
-    --nosta         skips the STA check and marks as PASS compilations with timing problems
-    --nolinter      Do not run the verilator linter
-    --program | -p  Programs the FPGA via JTAG
-    --quick |-q     Quick compilation. Defines NOSOUND and JTFRAME_OSD_NOLOGO
-                    Disables JTFRAME_CREDITS and HQ2X.
-    -qs             Same as -q but with sound.
-    --quicker | -qq Same as -q but it also disabled HDMI output and sets MiSTer as target
-    --sd [setname]  Copy to sd card, optional setname (uses jtbin2sd)
-    --seed          Sets random seed for compilation
-    --sim           Prepares Quartus simulation
-    --skip | -s     skips the compilation but executes the rest of the commands
-    --showmacros    Shows the macros used for compilation and exits
-    --target | -t <target>
-                    Specifies the target platform
-    --verbose | -v  verbose
-    --version       Shows the core version. Use "jtmerge -v" to see the JTFRAME version
-
-    --help          Displays this message
+Use "man jtcore" for the full option reference.
 EOF
    exit 0
 }

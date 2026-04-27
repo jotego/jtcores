@@ -136,7 +136,7 @@ JTFRAME_SDRAM_ADQM       | MiSTer  | A12 and A11 are equal to DQMH/L
 JTFRAME_SDRAM_BWAIT      |         | Adds a wait cycle in the SDRAM
 JTFRAME_SDRAM_CHECK      |         | Double check SDRAM data through modules (slow)
 JTFRAME_SDRAM_DEBUG      |         | Outputs debug messages for SDRAM during simulation
-JTFRAME_SDRAM_CACHE      |         | Automatically defined when `sdram.cache-lines` is used in `mem.yaml`; selects the cache-line SDRAM controller path
+JTFRAME_SDRAM_CACHE      |         | Automatically defined when `sdram.cache-lanes` is used in `mem.yaml`; selects the cache-lane SDRAM controller path
 JTFRAME_SDRAM_LARGE      | MiSTer  | Enables 64MB access to SDRAM modules
 JTFRAME_SDRAM_MUXLATCH   |         | Extra latch for SDRAM mux for <64MHz operation
 JTFRAME_SDRAM_NO_DWNRFSH |         | No refresh during download (non-interleaved SDRAM controller)
@@ -195,6 +195,8 @@ JTFRAME_SIM_LOAD_EXTRA   |         | Extra wait time when transferring ROM in si
 JTFRAME_SIM_ROMRQ_NOCHECK|         | Disable protocol checking of romrq
 JTFRAME_SIM_RTC          |         | RTC value at reset, three-byte value: hours-minutes-seconds
 JTFRAME_SIM_SDRAM_NONSTOP|modelsim | SDRAM model will not stop the simulation for timing violations
+JTFRAME_SIM_SKIP_FRAME_DUMP|verilator| Skip the generic Verilator harness frame image dump/conversion path
+JTFRAME_SIM_SKIP_VSIZE   |verilator| Skip the frame-size assertion in the generic Verilator harness
 JTFRAME_SIM_SLOWLOAD     |verilator| slows down the ROM load in case the core needs extra time
 JTFRAME_SIM_SNDEN        |verilator| Enable sound channels (bits active high) following the order in mem.yaml
 JTFRAME_SIM_VIDEO        |verilator| Create PNG files for all frames. Good for creation of video files.

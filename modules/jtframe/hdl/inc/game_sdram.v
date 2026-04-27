@@ -66,15 +66,19 @@ wire {{ data_range . }} {{.Name}}_din;
 wire [ 1:0] {{.Name}}_dsn;
 {{end}}{{end}}
 {{- end}}
-{{- range .SDRAM.Cache_lines}}
+{{- range .SDRAM.Cache_lanes}}
 wire {{ cache_line_addr_range . }} {{.Name}}_addr;
-wire [{{ sub .Cache.Data_width 1 }}:0] {{.Name}}_data;
+wire [{{ sub .Data_width 1 }}:0] {{.Name}}_data;
 wire        {{.Name}}_cs, {{.Name}}_ok;
+{{- if .Rw }}
+wire        {{.Name}}_we;
+wire [{{ sub .Data_width 1 }}:0] {{.Name}}_din;
+wire [{{ sub (byte_en_width .Data_width) 1 }}:0] {{.Name}}_dsn;
+{{- end}}
 {{- end}}
 wire        prom_we, header;
 wire [SDRAMW-2:0] raw_addr, post_addr;
 wire [SDRAMW-2:0] ioctl_prog_addr   = ioctl_addr[SDRAMW-2:0];
-wire [SDRAMW-2:0] sdram_offset_zero = {(SDRAMW-1){1'b0}};
 wire [25:0] pre_addr, dwnld_addr, ioctl_addr_noheader;
 wire [ 7:0] post_data;
 wire [15:0] raw_data;
@@ -90,7 +94,7 @@ wire gfx4_en, gfx8_en, gfx16_en, gfx16b_en, gfx16c_en, ioctl_dwn;
 assign pass_io = header | ioctl_ram;
 assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? ioctl_addr : ioctl_addr - HEADER_LEN `else ioctl_addr `endif ;
 `ifdef JTFRAME_SDRAM_CACHE
-{{- if eq (len .SDRAM.Cache_lines) 0 }}
+{{- if eq (len .SDRAM.Cache_lanes) 0 }}
 assign burst_addr = { (SDRAMW-1){1'b0} };
 assign burst_ba   = 2'd0;
 assign burst_rd   = 1'b0;
@@ -188,12 +192,17 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .{{.Name}}   ( {{.Name}} ),
     {{- end}}
     // Memory interface - SDRAM
-    {{- if gt (len .SDRAM.Cache_lines) 0 }}
-    {{- range .SDRAM.Cache_lines}}
+    {{- if gt (len .SDRAM.Cache_lanes) 0 }}
+    {{- range .SDRAM.Cache_lanes}}
     .{{.Name}}_addr ( {{.Name}}_addr ),
     .{{.Name}}_cs   ( {{.Name}}_cs   ),
     .{{.Name}}_ok   ( {{.Name}}_ok   ),
     .{{.Name}}_data ( {{.Name}}_data ),
+    {{- if .Rw }}
+    .{{.Name}}_we   ( {{.Name}}_we   ),
+    .{{.Name}}_din  ( {{.Name}}_din  ),
+    .{{.Name}}_dsn  ( {{.Name}}_dsn  ),
+    {{- end}}
     {{- end}}
     {{- else }}
     {{- range .SDRAM.Banks}}
@@ -233,7 +242,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .prog_data    ( pass_io ? ioctl_dout       : raw_data[7:0] ),
     .prog_we      ( pass_io ? ioctl_wr         : prog_we       ),
     .prog_ba      ( prog_ba        ), // prog_ba supplied in case it helps re-mapping addresses
-    .prom_we      ( prom_we        ),
+    .prom_we      ( pass_io ? 1'b0 : prom_we ),
     {{- with .Download.Pre_addr }}
     // SDRAM address mapper during downloading
     .pre_addr     ( pre_addr       ),
@@ -344,42 +353,56 @@ jtframe_headerbyte #(.AW(6)) u_pcbid(
 );
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 {{ $assign_holdrst := true }}
-{{- if gt (len .SDRAM.Cache_lines) 0 }}
+{{- if gt (len .SDRAM.Cache_lanes) 0 }}
 jtframe_cache_mux #(
-    .SDRAM_AW ( SDRAMW ){{- range $index, $line := .SDRAM.Cache_lines }},
+    .SDRAM_AW ( SDRAMW ),
+    .ENDIAN   ( 0 ){{- range $index, $line := .SDRAM.Cache_lanes }},
+    .ENDIAN{{$index}} ( {{if and $.SDRAM.Big_endian (eq $line.Data_width 32)}}1{{else}}0{{end}} ),
+    .FULL{{$index}}    ( {{if $line.Full_range}}1{{else}}0{{end}} ),
     .AW{{$index}}      ( {{ cache_line_aw $line }} ),
-    .BLOCKS{{$index}}  ( {{ $line.Cache.Blocks }} ),
-    .BLKSIZE{{$index}} ( {{ $line.Cache.Size_bytes }} ),
-    .DW{{$index}}      ( {{ printf "%2d" $line.Cache.Data_width }} ),
-    .BA{{$index}}      ( {{ $line.At.Bank }} ),
-    .OFFSET{{$index}}  ( {{ if $line.At.Offset }}{{ $line.At.Offset }}{{ else }}0{{ end }} ){{- end }}
+    .BLOCKS{{$index}}  ( {{ $line.Blocks.Count }} ),
+    .BLKSIZE{{$index}} ( {{ $line.Blocks.Size_bytes }} ),
+    .DW{{$index}}      ( {{ printf "%2d" $line.Data_width }} ),
+    .BA{{$index}}      ( {{ if $line.Full_range }}0{{ else }}{{ $line.At.Bank }}{{ end }} ),
+    .OFFSET{{$index}}  ( {{ if and (not $line.Full_range) $line.At.Offset }}{{ $line.At.Offset }}{{ else }}0{{ end }} ){{- end }}
 ) u_cache(
     .rst       ( rst      ),
     .clk       ( clk      ),
-{{- range $index, $line := .SDRAM.Cache_lines}}
+{{- range $index, $line := .SDRAM.Cache_lanes}}
     .addr{{$index}} ( {{ $line.Name }}_addr ),
     .dout{{$index}} ( {{ $line.Name }}_data ),
-    .rd{{$index}}   ( {{ $line.Name }}_cs   ),
+    .rd{{$index}}   ( {{ if $line.Rw }}{{ $line.Name }}_cs & ~{{ $line.Name }}_we{{ else }}{{ $line.Name }}_cs{{ end }} ),
+    {{- if lt $index 4 }}
+    .wr{{$index}}   ( {{ if $line.Rw }}{{ $line.Name }}_we{{ else }}1'b0{{ end }} ),
+    .din{{$index}}  ( {{ if $line.Rw }}{{ $line.Name }}_din{{ else }}{{ printf "%d'd0" $line.Data_width }}{{ end }} ),
+    .wdsn{{$index}} ( {{ if $line.Rw }}{{ $line.Name }}_dsn{{ else }}{{ printf "%d'd0" (byte_en_width $line.Data_width) }}{{ end }} ),
+    {{- end}}
     .ok{{$index}}   ( {{ $line.Name }}_ok   ),
 {{- end}}
 {{- range $index, $_ := until 8}}
-{{- if ge $index (len $.SDRAM.Cache_lines) }}
+{{- if ge $index (len $.SDRAM.Cache_lanes) }}
     .addr{{$index}} ( 0    ),
     .dout{{$index}} (      ),
     .rd{{$index}}   ( 1'b0 ),
+    {{- if lt $index 4 }}
+    .wr{{$index}}   ( 1'b0 ),
+    .din{{$index}}  ( 0    ),
+    .wdsn{{$index}} ( 0    ),
+    {{- end}}
     .ok{{$index}}   (      ),
 {{- end}}
 {{- end}}
     .addr      ( burst_addr ),
     .ba        ( burst_ba   ),
     .rd        ( burst_rd   ),
+    .wr        ( burst_wr   ),
     .din       ( data_read  ),
+    .dout      ( burst_din  ),
     .ack       ( burst_ack   ),
     .dst       ( burst_dst   ),
+    .dok       ( burst_dok   ),
     .rdy       ( burst_rdy   )
 );
-assign burst_wr  = 1'b0;
-assign burst_din = 16'd0;
 {{- else }}
 {{ range $bank, $each:=.SDRAM.Banks }}
 {{- if gt (len .Buses) 0 }}
@@ -393,6 +416,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .SLOT{{$index}}_ERASE(0),{{end}}
     {{- else}}{{- with .Offset }}
     .SLOT{{$index}}_OFFSET({{.}}[SDRAMW-2:0]),{{end}}{{end}}
+    {{- if not .Rw }}{{- with .Latch }}
+    .SLOT{{$index}}_LATCH({{.}}),{{end}}{{end}}
     {{- with .Cache_size }}
     .CACHE{{$index}}_SIZE({{.}}),{{end}}
     .SLOT{{$index}}_AW({{ slot_addr_width . }}),
@@ -423,7 +448,7 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .slot{{$index2}}_wen   ( {{.Name}}_we    ),
     .slot{{$index2}}_din   ( {{if .Din}}{{.Din}}{{else}}{{.Name}}_din{{end}}   ),
     .slot{{$index2}}_wrmask( {{if .Dsn}}{{.Dsn}}{{else}}{{.Name}}_dsn{{end}}   ),
-    .slot{{$index2}}_offset( {{if .Offset }}{{.Offset}}[SDRAMW-2:0]{{else}}sdram_offset_zero{{end}} ),
+    .slot{{$index2}}_offset( {{if .Offset }}{{.Offset}}[SDRAMW-2:0]{{else}}{(SDRAMW-1){1'b0}}{{end}} ),
     {{- else }}
     {{- if not $is_rom }}
     .slot{{$index2}}_clr   ( 1'b0       ), // only 1'b0 supported in mem.yaml
@@ -470,7 +495,7 @@ localparam JTFRAME_PROM_START=`JTFRAME_PROM_START;
 // Dual port BRAM for {{$bus.Name}} and {{$bus.Dual_port.Name}}
 jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}}32{{end}} #(
     .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if or (eq $bus.Data_width 16) (eq $bus.Data_width 32) }},
-    .ENDIAN({{if $bus.Sim_big_endian}}1{{else}}0{{end}}){{end}}{{ if $bus.Sim_file }},
+    .ENDIAN({{if $bus.Simfile.Big_endian}}1{{else}}0{{end}}){{end}}{{ if $bus.Simfile.Enabled }},
     .SIMFILE("{{$bus.Name}}.bin"){{else}}{{end}}
 ) u_bram_{{$bus.Name}}(
     // Port 0 - {{$bus.Name}}
@@ -512,8 +537,8 @@ jtframe_bram_rom #(
 // BRAM for {{$bus.Name}}
 jtframe_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}}32{{end}} #(
     .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if or (eq $bus.Data_width 16) (eq $bus.Data_width 32) }},
-    .ENDIAN({{if $bus.Sim_big_endian}}1{{else}}0{{end}}){{end}}{{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }},
-    .DW({{$bus.Data_width}}){{end}}{{- if $bus.Sim_file }},
+    .ENDIAN({{if $bus.Simfile.Big_endian}}1{{else}}0{{end}}){{end}}{{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }},
+    .DW({{$bus.Data_width}}){{end}}{{- if $bus.Simfile.Enabled }},
     .SIMFILE("{{$bus.Name}}.bin"){{end}}
 ) u_bram_{{$bus.Name}}(
     .clk    ( clk  ),{{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }}

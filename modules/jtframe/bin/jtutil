@@ -7,18 +7,14 @@ fi
 RECOMPILE=FALSE
 BIN=$JTFRAME/src/jtutil/jtutil
 
-if [[ ! -e $BIN || $# = 0 ]]; then
+if [ ! -e $BIN ]; then
     RECOMPILE=TRUE
 else
-    # Find out whether the jtutil file is older
-    # than the JTFRAME's commit
-    cd $JTFRAME > /dev/null
-    COMMIT_DATE=$(git show -s --format=%ct)
-    COMPILED_DATE=$(stat -c %Y $BIN)
-    if (( $COMPILED_DATE < $COMMIT_DATE )) ; then
+    # Recompile if any source file is newer than the binary
+    NEWER=$(find $JTFRAME/src -name '*.go' -newer $BIN 2>/dev/null)
+    if [ -n "$NEWER" ]; then
         RECOMPILE=TRUE
     fi
-    cd - > /dev/null
 fi
 
 if [ $RECOMPILE = TRUE ]; then

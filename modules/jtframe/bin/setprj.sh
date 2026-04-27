@@ -13,6 +13,10 @@ export JTFRAME=$JTROOT/modules/jtframe
 # . path comes before JTFRAME/bin as setprj.sh
 # can be in the working directory and in JTFRAME/bin
 PATH=$PATH:.:$JTFRAME/bin
+MANPATH=$(printf ':%s:' "${MANPATH:-}" | sed "s#:$JTFRAME/doc/man:#:#g")
+MANPATH=${MANPATH#:}
+MANPATH=${MANPATH%:}
+export MANPATH=$JTFRAME/doc/man:${MANPATH:-}
 
 if [ ! -d "$JTBIN" ]; then
     export JTBIN=$JTROOT/release

@@ -1,19 +1,19 @@
 /*  This file is part of JTFRAME.
-	JTFRAME program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+JTFRAME program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-	JTFRAME program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+JTFRAME program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
 
-	Author: Jose Tejada Gomez. Twitter: @topapate
-	Date: 4-1-2025 */
+Author: Jose Tejada Gomez. Twitter: @topapate
+Date: 4-1-2025 */
 
 package macros
 
@@ -40,44 +40,52 @@ import (
 // each section is marked with [target-name]
 // multiple valid targets can be listed separated with | as in [sidi|mister]
 // Glob (use of * and ?) matching will select the current target
-func extract_section( line string, target string, section *string ) (bool,error) {
-	if line[0] != '[' { return false, nil }
+func extract_section(line string, target string, section *string) (bool, error) {
+	if line[0] != '[' {
+		return false, nil
+	}
 	idx := strings.Index(line, "]")
-	if idx == -1 { return false, errors.New("Unclosed bracket. Expecting ]") }
+	if idx == -1 {
+		return false, errors.New("Unclosed bracket. Expecting ]")
+	}
 	sections := strings.Split(strings.TrimSpace(line[1:idx]), "|")
 	for _, name := range sections {
 		*section = strings.TrimSpace(name)
-		found, e := filepath.Match(*section,target)
+		found, e := filepath.Match(*section, target)
 		if found {
 			*section = target
 			return true, nil
 		}
-		if e!=nil { return false, e }
+		if e != nil {
+			return false, e
+		}
 	}
 	return true, nil
 }
 
-func target_uses_dipbase( target string ) bool {
-	switch( target ) {
-	case "mist","sidi","neptuno","mc2","mcp": return true
-	default: return false
+func target_uses_dipbase(target string) bool {
+	switch target {
+	case "mist", "sidi", "neptuno", "mc2", "mcp":
+		return true
+	default:
+		return false
 	}
 }
 
-func check_integer(all_names... string) error{
-	for _,name := range all_names {
-		if !IsInt(name)  {
+func check_integer(all_names ...string) error {
+	for _, name := range all_names {
+		if !IsInt(name) {
 			value := "Empty string found."
-			if v:=Get(name);v!="" {
-				value = "Found "+v
+			if v := Get(name); v != "" {
+				value = "Found " + v
 			}
-			return fmt.Errorf("%s must be an integer. %s",name, value )
+			return fmt.Errorf("%s must be an integer. %s", name, value)
 		}
 	}
 	return nil
 }
 
-func str2macro( a string ) string {
+func str2macro(a string) string {
 	re := regexp.MustCompile("^[0-9]")
 	if re.MatchString(a) {
 		a = "_" + a
@@ -85,26 +93,26 @@ func str2macro( a string ) string {
 	return strings.ToUpper(a)
 }
 
-func MakeMacros(core, target string, extra... string) {
+func MakeMacros(core, target string, extra ...string) {
 	macros = make(map[string]string)
-	if len(extra)>0 {
+	if len(extra) > 0 {
 		AddKeyValPairs(extra...)
 	}
 	read_target_macros(target)
 	add_credits_for_releases(core) // credits must come before parse_def
-	core_def := ConfigFilePath(core,"macros.def")
+	core_def := ConfigFilePath(core, "macros.def")
 	parse_def(core_def, target)
 	mem_managed := is_mem_managed(core)
 	set_separator(target)
 	// Adds a macro with the target name
-	Set(target,"1")
+	Set(target, "1")
 	// Adds the CORENAME if missing. This macro is expected to exist in macros.def
 	if !IsSet("CORENAME") {
 		fmt.Fprintf(os.Stderr, "CORENAME not specified in cfg/macros.def. Defaults to %s\n", core)
 	}
 	// Memory templates require JTFRAME_MEMGEN
 	if mem_managed {
-		Set("JTFRAME_MEMGEN","")
+		Set("JTFRAME_MEMGEN", "")
 	}
 	if uses_sdram_cache(core) {
 		Set("JTFRAME_SDRAM_CACHE", "")
@@ -113,18 +121,18 @@ func MakeMacros(core, target string, extra... string) {
 	fill_defaults(core, target)
 	make_gametop_macro()
 	if IsSet("JTFRAME_VERTICAL") {
-		Set("MISTER_FB","")
+		Set("MISTER_FB", "")
 	}
 	prepare_input_record()
 	clean_osd_macro()
 	check_colorw()
 	mclk := make_clocks(target)
-	set_sdram_refresh_rate( int64(mclk) )
-	add_subcarrier_clk( int64(mclk) )
+	set_sdram_refresh_rate(int64(mclk))
+	add_subcarrier_clk(int64(mclk))
 	make_beta_macros(core, target)
 }
 
-func read_target_macros( target string ) {
+func read_target_macros(target string) {
 	fname := filepath.Join(os.Getenv("JTFRAME"), "target", target, "target.def")
 	if FileExists(fname) {
 		parse_def(fname, target)
@@ -148,17 +156,23 @@ func parse_def(path string, target string) {
 	for scanner.Scan() {
 		linecnt++
 		line := strings.TrimSpace(scanner.Text())
-		if len(line) == 0 || line[0] == '#' { continue }
+		if len(line) == 0 || line[0] == '#' {
+			continue
+		}
 
 		// parse new sections
 		change, e := extract_section(line, target, &section)
-		if change { continue }
-		if e!=nil {
+		if change {
+			continue
+		}
+		if e != nil {
 			fmt.Println("Malformed expression at line ", linecnt, " of file ", path)
 			fmt.Println(e)
 			os.Exit(1)
 		}
-		if section != target { continue }
+		if section != target {
+			continue
+		}
 
 		// Look for keywords
 		words := strings.SplitN(line, " ", 2)
@@ -176,13 +190,17 @@ func parse_def(path string, target string) {
 		}
 		// lines starting with debug are not parsed for release builds
 		if words[0] == "debug" {
-			if release { continue }
-			line=line[5:] // remove the debug word from the line
+			if release {
+				continue
+			}
+			line = line[5:] // remove the debug word from the line
 		}
 		// lines starting with release are only parsed for release builds
 		if words[0] == "release" {
-			if !release { continue }
-			line=line[7:] // remove the release word from the line
+			if !release {
+				continue
+			}
+			line = line[7:] // remove the release word from the line
 		}
 		words = strings.SplitN(line, "=", 2)
 		key := strings.ToUpper(strings.TrimSpace(words[0]))
@@ -193,8 +211,8 @@ func parse_def(path string, target string) {
 			continue
 		}
 		// macro set without content
-		if len(words) ==1 {
-			Set(key,"1")
+		if len(words) == 1 {
+			Set(key, "1")
 			continue
 		}
 		val := strings.TrimSpace(words[1])
@@ -203,26 +221,26 @@ func parse_def(path string, target string) {
 			key = key[0 : len(key)-1]
 			if IsSet(key) {
 				old := Get(key)
-				oldint, err1 := strconv.ParseInt(old,0,64)
-				newint, err2 := strconv.ParseInt(val,0,64)
-				if err1==nil && err2==nil {
+				oldint, err1 := strconv.ParseInt(old, 0, 64)
+				newint, err2 := strconv.ParseInt(val, 0, 64)
+				if err1 == nil && err2 == nil {
 					// integer addition
-					val=fmt.Sprintf("%d",oldint+newint)
+					val = fmt.Sprintf("%d", oldint+newint)
 				} else {
 					// string concatenation
 					val = old + val
 				}
 			}
 		}
-		Set(key,val)
+		Set(key, val)
 	}
 	return
 }
 
 func is_mem_managed(corename string) bool {
-	f, e := os.Open( filepath.Join(os.Getenv("CORES"), corename,"cfg","mem.yaml"))
+	f, e := os.Open(filepath.Join(os.Getenv("CORES"), corename, "cfg", "mem.yaml"))
 	f.Close()
-	return e==nil
+	return e == nil
 }
 
 func uses_sdram_cache(corename string) bool {
@@ -237,8 +255,8 @@ func uses_sdram_cache_file(corename, filename string, visited map[string]bool) b
 	}
 	type mem_probe struct {
 		Include []include_entry `yaml:"include"`
-		SDRAM struct {
-			Cache_lines []interface{} `yaml:"cache-lines"`
+		SDRAM   struct {
+			Cache_lanes []interface{} `yaml:"cache-lanes"`
 		} `yaml:"sdram"`
 	}
 	fullname := ConfigFilePath(corename, filename)
@@ -254,7 +272,7 @@ func uses_sdram_cache_file(corename, filename string, visited map[string]bool) b
 	if err := yaml.Unmarshal(buf, &probe); err != nil {
 		return false
 	}
-	if len(probe.SDRAM.Cache_lines) > 0 {
+	if len(probe.SDRAM.Cache_lanes) > 0 {
 		return true
 	}
 	for _, each := range probe.Include {
@@ -277,29 +295,30 @@ func uses_sdram_cache_file(corename, filename string, visited map[string]bool) b
 func set_separator(target string) {
 	var separator string
 	switch target {
-	case "mist", "sidi", "neptuno": separator=""
-	case "mister", "sockit","de1soc","de10std","sidi128":
+	case "mist", "sidi", "neptuno":
+		separator = ""
+	case "mister", "sockit", "de1soc", "de10std", "sidi128":
 		separator = "-;"
 	}
-	Set("SEPARATOR",separator)
+	Set("SEPARATOR", separator)
 }
 
 func make_commit_macro() {
 	commit, e := GetCommit()
-	if e!=nil {
-		panic(fmt.Errorf("Cannot retrieve git commit. Using 'unknown' instead.\n%s\n",e.Error()))
+	if e != nil {
+		panic(fmt.Errorf("Cannot retrieve git commit. Using 'unknown' instead.\n%s\n", e.Error()))
 	}
-	Set("JTFRAME_COMMIT",commit)
-	as_int, _ := strconv.ParseInt(commit,16,64)
-	as_dec := fmt.Sprintf("%d",as_int)
-	Set("JTFRAME_COMMIT_DEC",as_dec)
+	Set("JTFRAME_COMMIT", commit)
+	as_int, _ := strconv.ParseInt(commit, 16, 64)
+	as_dec := fmt.Sprintf("%d", as_int)
+	Set("JTFRAME_COMMIT_DEC", as_dec)
 }
 
 func fill_defaults(core, target string) {
 	year, month, day := time.Now().Date()
 	default_values := map[string]string{
-		str2macro(core): "",				// the core is always set
-		"JTFRAME_180SHIFT":	     "0",
+		str2macro(core):         "", // the core is always set
+		"JTFRAME_180SHIFT":      "0",
 		"JTFRAME_ARX":           "4",
 		"JTFRAME_ARY":           "3",
 		"JTFRAME_BUTTONS":       "2",
@@ -307,22 +326,22 @@ func fill_defaults(core, target string) {
 		"JTFRAME_CREDITS_PAGES": "3",
 		"JTFRAME_DEBUG_VPOS":    "4",
 		"JTFRAME_DIALEMU_LEFT":  "5",
-		"JTFRAME_DIPBASE":      "16",
+		"JTFRAME_DIPBASE":       "16",
 		"JTFRAME_SHIFT":         "0",
 		"JTFRAME_MR_FASTIO":     "0",
 		"JTFRAME_SIGNED_SND":    "1",
-		"JTFRAME_TIMESTAMP":fmt.Sprintf("%d", time.Now().Unix()),
-		"CORENAME": core,
-		"DATE": fmt.Sprintf("%d%02d%02d", year%100, month, day),
-		"TARGET": target,
+		"JTFRAME_TIMESTAMP":     fmt.Sprintf("%d", time.Now().Unix()),
+		"CORENAME":              core,
+		"DATE":                  fmt.Sprintf("%d%02d%02d", year%100, month, day),
+		"TARGET":                target,
 	}
 	if IsSet("JTFRAME_JOY1_POS") {
-		default_values["JTFRAME_DIPBASE"]="20"
+		default_values["JTFRAME_DIPBASE"] = "20"
 	}
 	if !IsSet(JTFRAME_RELEASE) {
-		default_values["JTFRAME_NO_ANALOGIZER"]=""
+		default_values["JTFRAME_NO_ANALOGIZER"] = ""
 	}
-	for key,val := range default_values {
+	for key, val := range default_values {
 		if !IsSet(key) {
 			Set(key, val)
 		}
@@ -333,30 +352,30 @@ func add_credits_for_releases(core string) {
 	if !IsSet(JTFRAME_RELEASE) {
 		return
 	}
-	msgpath := ConfigFilePath(core,"msg")
+	msgpath := ConfigFilePath(core, "msg")
 	if FileExists(msgpath) {
-		Set(JTFRAME_CREDITS,"1")
+		Set(JTFRAME_CREDITS, "1")
 	}
 }
 
 // Derives the GAMETOP module from the CORENAME if unspecified
 func make_gametop_macro() {
 	if !IsSet("GAMETOP") {
-		gametop := Get("CORENAME")+"_game"
+		gametop := Get("CORENAME") + "_game"
 		if IsSet("JTFRAME_MEMGEN") {
-			gametop = gametop+"_sdram"
+			gametop = gametop + "_sdram"
 		}
 		gametop_lwr := strings.ToLower(gametop)
-		Set("GAMETOP", gametop_lwr )
+		Set("GAMETOP", gametop_lwr)
 	}
 }
 
 // If JTFRAME_INPUT_RECORD exists, set the right NVRAM length
 func prepare_input_record() {
 	if IsSet("JTFRAME_INPUT_RECORD") {
-		const JTFRAME_INPUT_RECORD_AW=12 // 4kB of recording, up to 2048 key strokes
-		Set("JTFRAME_IOCTL_RD", fmt.Sprintf("%d",1<<JTFRAME_INPUT_RECORD_AW))
-		Set("JTFRAME_INPUT_RECORD_AW", fmt.Sprintf("%d",JTFRAME_INPUT_RECORD_AW))
+		const JTFRAME_INPUT_RECORD_AW = 12 // 4kB of recording, up to 2048 key strokes
+		Set("JTFRAME_IOCTL_RD", fmt.Sprintf("%d", 1<<JTFRAME_INPUT_RECORD_AW))
+		Set("JTFRAME_INPUT_RECORD_AW", fmt.Sprintf("%d", JTFRAME_INPUT_RECORD_AW))
 		if IsSet("JTFRAME_SHADOW") {
 			fmt.Println("Macro JTFRAME_SHADOW deleted as JTFRAME_INPUT_RECORD is defined")
 			Remove("JTFRAME_SHADOW")
@@ -371,21 +390,31 @@ func make_clocks(target string) (mclk int) {
 	mclk = 48000000
 	if pll, f := macros["JTFRAME_PLL"]; f {
 		var freq int
-		pll=strings.ToUpper(pll)
-		switch(pll) {
-		case "JTFRAME_PLL6144": switch(target) {
-			case "MISTER": freq=6143465 // ideally 6.144000
-			default:       freq=6144230
-		}
-		case "JTFRAME_PLL6293": switch(target) {
-			case "MISTER": freq=6293402 // ideally 6.293700
-			default:       freq=6289772
-		}
-		case "JTFRAME_PLL6671": switch(target) {
-			case "MISTER": freq=6670673 // ideally 6.671000
-			default:       freq=6673954
-		}
-		default: {
+		pll = strings.ToUpper(pll)
+		switch pll {
+		case "JTFRAME_PLL6144":
+			switch target {
+			case "MISTER":
+				freq = 6143465 // ideally 6.144000
+			default:
+				freq = 6144230
+			}
+		case "JTFRAME_PLL6293":
+			switch target {
+			case "MISTER":
+				freq = 6293402 // ideally 6.293700
+			default:
+				freq = 6289772
+			}
+		case "JTFRAME_PLL6671":
+			switch target {
+			case "MISTER":
+				freq = 6670673 // ideally 6.671000
+			default:
+				freq = 6673954
+			}
+		default:
+			{
 				Set(pll, "")
 				freq_str := regexp.MustCompile("[0-9]+$").FindString(pll)
 				if freq_str == "" {
@@ -394,15 +423,15 @@ func make_clocks(target string) (mclk int) {
 				freq, _ = strconv.Atoi(freq_str)
 			}
 		}
-		mclk = freq*8
-		Set(pll,"")	// define a macro with the PLL name
+		mclk = freq * 8
+		Set(pll, "") // define a macro with the PLL name
 	} else {
-		Set("JTFRAME_PLL6000","")
+		Set("JTFRAME_PLL6000", "")
 	}
 	if IsSet("JTFRAME_SDRAM96") {
 		mclk *= 2
 	}
-	Set("JTFRAME_MCLK", fmt.Sprintf("%d",mclk))
+	Set("JTFRAME_MCLK", fmt.Sprintf("%d", mclk))
 	return mclk
 }
 
@@ -425,52 +454,52 @@ func clean_osd_macro() {
 
 func check_colorw() {
 	// Do not accept less than 4bpp
-	colorw,_ := strconv.Atoi(Get("JTFRAME_COLORW"))
-	if colorw<4 || colorw>8 {
+	colorw, _ := strconv.Atoi(Get("JTFRAME_COLORW"))
+	if colorw < 4 || colorw > 8 {
 		log.Fatal("JTFRAME: macro JTFRAME_COLORW must be between 4 and 8")
 	}
 }
 
-func set_sdram_refresh_rate( mclk int64 ) {
-	const sdram_refresh_spec     = float64(128000)
-	const field_tested_for_years = float64( 15625) // used until commit 91841df549070
-	const compromise             = field_tested_for_years*2
+func set_sdram_refresh_rate(mclk int64) {
+	const sdram_refresh_spec = float64(128000)
+	const field_tested_for_years = float64(15625) // used until commit 91841df549070
+	const compromise = field_tested_for_years * 2
 	refresh_freq := compromise
-	is_sdram_hot := mclk>90000000
+	is_sdram_hot := mclk > 90000000
 	if is_sdram_hot {
 		refresh_freq = refresh_more_often(refresh_freq)
 	}
 	divider := float64(mclk) / refresh_freq
 	bitwidth := int(math.Ceil(math.Log2(divider)))
-	Set("JTFRAME_RFSH_WC",fmt.Sprintf("%d",bitwidth))
-	Set("JTFRAME_RFSH_N", fmt.Sprintf("%d'd1",bitwidth))
-	Set("JTFRAME_RFSH_M", fmt.Sprintf("%d'd%.0f",bitwidth,divider))
+	Set("JTFRAME_RFSH_WC", fmt.Sprintf("%d", bitwidth))
+	Set("JTFRAME_RFSH_N", fmt.Sprintf("%d'd1", bitwidth))
+	Set("JTFRAME_RFSH_M", fmt.Sprintf("%d'd%.0f", bitwidth, divider))
 }
 
-func refresh_more_often( freq float64 ) float64 {
-	return freq*2
+func refresh_more_often(freq float64) float64 {
+	return freq * 2
 }
 
-func add_subcarrier_clk( mclk int64 ) {
+func add_subcarrier_clk(mclk int64) {
 	var pal, ntsc int64
-	ntsc=((315<<32)/88)*1000000/mclk
-	pal=(443361875<<32)/100/mclk
-	Set("JTFRAME_PAL",  fmt.Sprintf("%d",pal))
-	Set("JTFRAME_NTSC", fmt.Sprintf("%d",ntsc))
+	ntsc = ((315 << 32) / 88) * 1000000 / mclk
+	pal = (443361875 << 32) / 100 / mclk
+	Set("JTFRAME_PAL", fmt.Sprintf("%d", pal))
+	Set("JTFRAME_NTSC", fmt.Sprintf("%d", ntsc))
 	// burst length -- ntsc
-	calc_len := func( subcarrier float64 ) int64 {
-		ratio := float64(mclk)/subcarrier
+	calc_len := func(subcarrier float64) int64 {
+		ratio := float64(mclk) / subcarrier
 		start := int64(3.7 * ratio)
-		end   := int64((9.0+3.7) * ratio)
+		end := int64((9.0 + 3.7) * ratio)
 		return (start << 10) | end
 	}
-	Set("JTFRAME_NTSC_LEN", fmt.Sprintf("%d",calc_len(315000000/88.0)))
-	Set("JTFRAME_PAL_LEN",  fmt.Sprintf("%d",calc_len(4433618.75)))
+	Set("JTFRAME_NTSC_LEN", fmt.Sprintf("%d", calc_len(315000000/88.0)))
+	Set("JTFRAME_PAL_LEN", fmt.Sprintf("%d", calc_len(4433618.75)))
 }
 
-func make_beta_macros( core, target string ) {
-	if betas.IsBetaFor( core, target) {
-		Set("JTFRAME_UNLOCKKEY", fmt.Sprintf("%d",betas.Betakey))
+func make_beta_macros(core, target string) {
+	if betas.IsBetaFor(core, target) {
+		Set("JTFRAME_UNLOCKKEY", fmt.Sprintf("%d", betas.Betakey))
 		Set("BETA", "")
 	}
 }

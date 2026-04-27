@@ -31,48 +31,9 @@ var sdram_sim bool
 var sdramCmd = &cobra.Command{
 	Use:   "sdram [game-name]",
 	Short: "Convert .rom files to sdram files for quick simulation",
-	Long: `Convert .rom files to sdram files for quick simulation
-
-After you create the .rom files using jtframe mra, you can generate
-the sdram*.bin simulation files without having to run a download simulation by
-calling jtframe sdram.
-
-jtframe sdram must be called from within a simulation folder, such as ver/game.
-If the simulation folder is the ROM set name, that will be used. If the folder
-is just "game", then the set name must be provided in the command line.
-
-jtframe sdram will split the .rom file in the right number of sdram*bin files by
-inspecting the definitions of JTFRAME_BA?_START, JTFRAME_PROM_START and
-JTFRAME_HEADER.
-
-jtframe sdram will also link a rom.bin file to the .rom file used. If rom.bin
-already existed, it will be deleted and re-created as a link.
-
-If the core uses the header for SDRAM bank assignment, special care
-must be taken for the PROM data as JTFRAME_PROM_START will not be defined. This
-utility will create a file for each ROM region after bank 3, so the core can
-directly load these files in simulation. You can also force the PROM load in
-simulation for these cores by setting the SIM_LOAD_PROM macro.
-
-The result will only be correct for cores that do not transform download data on
-the fly.
-
-When a core defines ` + "`" + `sdram.banks[].buses[].gfx_sort` + "`" + ` in mem.yaml, jtutil sdram
-applies the same byte-address reordering used by the JTFRAME download path.
-Per-bus ` + "`" + `offset` + "`" + ` and ` + "`" + `addr_width` + "`" + ` are honored, including offsets that
-come from ` + "`" + `params` + "`" + ` expressions with macro references.
-If a bus defines ` + "`" + `gfx_sort_en` + "`" + `, jtutil sdram applies it automatically when the
-enable signal name matches the game name. The game name is derived from the
-current folder (or from the explicit command argument).
-
-If ` + "`" + `--sim` + "`" + ` is used, jtutil sdram also patches the generated SDRAM bank files with
-the ` + "`" + `simfile` + "`" + ` entries defined in ` + "`" + `sdram.banks[].buses[]` + "`" + ` and
-` + "`" + `sdram.cache-lines[]` + "`" + `. Files are copied in place at the bank-relative
-offset defined in mem.yaml, with optional 16/32-bit byte swapping when
-` + "`" + `sim_big_endian` + "`" + ` is true.
-`,
-	Run:  run_sdram,
-	Args: cobra.MaximumNArgs(1),
+	Long:  man_blurb("jtutil-sdram", "Convert .rom files into SDRAM bank files for simulation."),
+	Run:   run_sdram,
+	Args:  cobra.MaximumNArgs(1),
 }
 
 func init() {
