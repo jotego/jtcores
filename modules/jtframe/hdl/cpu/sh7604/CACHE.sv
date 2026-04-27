@@ -511,11 +511,13 @@ module SH7604_CACHE (
 				if (IBUS_WRITE) begin
 					IBREQ <= 0;
 					IBUS_WRITE <= 0;
+					IBUS_WRITE_PEND <= 0;
 				end
 				else if (IBUS_READ) begin
 					IBREQ <= 0;
 					IBDATA_RDY <= 1;
 					IBUS_READ <= 0;
+					IBUS_READ_PEND <= 0;
 				end
 				else if (IBUS_READARRAY) begin
 					IBADDR <= {IBADDR[31:4],IBADDR[3:2] + 2'd1,2'b00};
@@ -523,6 +525,7 @@ module SH7604_CACHE (
 						IBREQ <= 0;
 						IBDATA_RDY <= 1;
 						IBUS_READARRAY <= 0;
+						IBUS_READ_PEND <= 0;
 					end
 					if (IBADDR[3:2] == ARRAY_POS - 2'd1) begin
 						IBLOCK <= 0;
@@ -552,7 +555,9 @@ module SH7604_CACHE (
 						end
 					end
 					
-					if (CACHE_AREA && HIT && CCR.CE && (!IBREQ || IBUS_END)) begin
+					// Write-through stores must still update a resident cache line
+					// even if the external bus leg is currently busy.
+					if (CACHE_AREA && HIT && CCR.CE) begin
 						CACHE_WR_ADDR <= CBUS_A[28:2];
 						CACHE_WR_BA <= CBUS_BA;
 						CACHE_WR_WAY <= WAY_HIT;

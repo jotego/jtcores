@@ -371,7 +371,7 @@ jtframe_cache_mux #(
 {{- range $index, $line := .SDRAM.Cache_lanes}}
     .addr{{$index}} ( {{ $line.Name }}_addr ),
     .dout{{$index}} ( {{ $line.Name }}_data ),
-    .rd{{$index}}   ( {{ $line.Name }}_cs   ),
+    .rd{{$index}}   ( {{ if $line.Rw }}{{ $line.Name }}_cs & ~{{ $line.Name }}_we{{ else }}{{ $line.Name }}_cs{{ end }} ),
     {{- if lt $index 4 }}
     .wr{{$index}}   ( {{ if $line.Rw }}{{ $line.Name }}_we{{ else }}1'b0{{ end }} ),
     .din{{$index}}  ( {{ if $line.Rw }}{{ $line.Name }}_din{{ else }}{{ printf "%d'd0" $line.Data_width }}{{ end }} ),

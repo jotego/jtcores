@@ -1404,6 +1404,7 @@ func Test_game_sdram_template_emits_cache_write_ports(t *testing.T) {
 		".tiles_we   ( tiles_we   )",
 		".tiles_din  ( tiles_din  )",
 		".tiles_dsn  ( tiles_dsn  )",
+		".rd0   ( tiles_cs & ~tiles_we )",
 		".wr0   ( tiles_we )",
 		".din0  ( tiles_din )",
 		".wdsn0 ( tiles_dsn )",

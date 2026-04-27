@@ -1,4 +1,6 @@
+`ifndef VERILATOR_KEEP_CPU
 /* verilator tracing_off */
+`endif
 module SH2_regfile (
 	input             CLK,
 	input             RST_N,
