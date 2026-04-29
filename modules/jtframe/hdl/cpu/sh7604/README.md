@@ -121,7 +121,11 @@ The byte-lane mapping used by the async-memory test is big-endian:
 
 ## `jtsh7604` Request/Acknowledge Wrapper
 
-`jtsh7604.sv` watches the native bus and creates a latched request:
+`jtsh7604.sv` watches the native bus and creates a latched request. A native
+cycle is treated as valid only while `BS_N` is low and either `RD_N` or
+`RD_WR_N` indicates an active transfer. `RD_WR_N` can remain low as the BSC is
+turning the bus around after a write, so using it without `BS_N` can create
+duplicate stale writes.
 
 - `cache_cs` stays high while a request is outstanding.
 - `cache_rd` is high for reads, `cache_wr` is high for writes.
@@ -138,19 +142,25 @@ changes address, direction, write data or byte strobes, the wrapper treats that
 as a new request. This is important for long cache-line transactions because the
 BSC can keep the bus active while stepping through multiple beats.
 
+The wrapper also includes a one-master-clock pending stage before asserting
+`cache_cs`. During this pending stage `WAIT_N` is held low so the BSC does not
+advance, and the request is launched after the BSC/cache path has placed stable
+write data and byte strobes on the native bus.
+
 ```wavedrom
 {
   signal: [
     { name: "clk",       wave: "p..........." },
     { name: "native req",wave: "0.1.......0." },
-    { name: "cache_cs",  wave: "0..1.0......" },
-    { name: "cache_rd",  wave: "0..1.0......" },
-    { name: "cache_addr",wave: "x..=.......x", data: ["A[26:1]"] },
-    { name: "cache_ok",  wave: "0...1.0....." },
-    { name: "WAIT_N",    wave: "1..0.1......" }
+    { name: "pending",   wave: "0..10......" },
+    { name: "cache_cs",  wave: "0...1.0....." },
+    { name: "cache_rd",  wave: "0...1.0....." },
+    { name: "cache_addr",wave: "x...=......x", data: ["A[26:1]"] },
+    { name: "cache_ok",  wave: "0....1.0...." },
+    { name: "WAIT_N",    wave: "1..0..1....." }
   ],
   head: { text: "Wrapper handshake for a one-clock external response" },
-  foot: { text: "The BSC only observes WAIT_N on ce_r, so cache_ok timing must be held until that sample point." }
+  foot: { text: "The pending stage holds WAIT_N low before cache_cs so BSC write data is stable when latched." }
 }
 ```
 
