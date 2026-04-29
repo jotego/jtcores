@@ -7,9 +7,10 @@ describe the external bus timing observed while building the
 The implementation has two useful interfaces:
 
 - `SH7604`, the native CPU with address, data, chip-select, read/write and wait
-  pins.
-- `jtsh7604`, a JTFRAME wrapper that converts the native bus into a latched
-  request plus `cache_ok` acknowledge interface.
+  pins. It also exposes `BUS_STB`, which rises from the internal BSC request
+  marker when a new external bus beat is presented.
+- `jtsh7604`, a JTFRAME wrapper that converts `BUS_STB` into a held request
+  plus `cache_ok` acknowledge interface.
 
 ## Clock Enables
 
@@ -121,38 +122,33 @@ The byte-lane mapping used by the async-memory test is big-endian:
 
 ## `jtsh7604` Request/Acknowledge Wrapper
 
-`jtsh7604.sv` watches the native bus and creates a latched request. A native
-cycle is treated as valid only while `BS_N` is low and either `RD_N` or
-`RD_WR_N` indicates an active transfer. `RD_WR_N` can remain low as the BSC is
-turning the bus around after a write, so using it without `BS_N` can create
-duplicate stale writes.
+`jtsh7604.sv` watches `BUS_STB` and creates a held request. `BUS_STB` is
+derived inside `SH7604` from the BSC's external-cycle acknowledge, with the
+interrupt-vector fetch case folded in because it does not use the same core
+acknowledge path. This gives the wrapper a clean "new bus beat" marker without
+re-comparing the full address, data and byte-strobe buses.
 
 - `cache_cs` stays high while a request is outstanding.
 - `cache_rd` is high for reads, `cache_wr` is high for writes.
-- `cache_addr` is `A[26:1]`, so append one low address bit to reconstruct the
-  byte address.
-- `cache_din` is the latched native `DO`.
-- `cache_dsn` is the latched native `WE_N`.
+- `cache_addr` is driven directly from `A[26:1]`, so append one low address bit
+  to reconstruct the byte address.
+- `cache_din` is driven directly from native `DO`.
+- `cache_dsn` is driven directly from native `WE_N`.
 - `WAIT_N` is driven high only when no request is active or when `cache_ok` is
   high.
 
-The wrapper latches a request once, then suppresses duplicate launches while the
-CPU is still holding the same native bus signals after `cache_ok`. If the CPU
-changes address, direction, write data or byte strobes, the wrapper treats that
-as a new request. This is important for long cache-line transactions because the
-BSC can keep the bus active while stepping through multiple beats.
-
-The wrapper also includes a one-master-clock pending stage before asserting
-`cache_cs`. During this pending stage `WAIT_N` is held low so the BSC does not
-advance, and the request is launched after the BSC/cache path has placed stable
-write data and byte strobes on the native bus.
+The wrapper starts `cache_cs` one master clock after the `BUS_STB` edge. During
+that first clock and while the request is active, `WAIT_N` is low until
+`cache_ok`. That freezes the BSC registers, so the direct `A`, `DO` and `WE_N`
+connections remain stable for `jtframe_cache_mux`. After `cache_ok`, `WAIT_N`
+stays high until the current `BUS_STB` level drops, preventing duplicate
+launches from one bus beat.
 
 ```wavedrom
 {
   signal: [
     { name: "clk",       wave: "p..........." },
-    { name: "native req",wave: "0.1.......0." },
-    { name: "pending",   wave: "0..10......" },
+    { name: "BUS_STB",   wave: "0.1.......0." },
     { name: "cache_cs",  wave: "0...1.0....." },
     { name: "cache_rd",  wave: "0...1.0....." },
     { name: "cache_addr",wave: "x...=......x", data: ["A[26:1]"] },
@@ -160,7 +156,7 @@ write data and byte strobes on the native bus.
     { name: "WAIT_N",    wave: "1..0..1....." }
   ],
   head: { text: "Wrapper handshake for a one-clock external response" },
-  foot: { text: "The pending stage holds WAIT_N low before cache_cs so BSC write data is stable when latched." }
+  foot: { text: "WAIT_N holds the BSC bus registers stable before and during cache_cs." }
 }
 ```
 

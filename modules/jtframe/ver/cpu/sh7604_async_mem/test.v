@@ -113,6 +113,43 @@ sh7604_async_sram u_mem(
     .status_code  ( status_code  )
 );
 
+`ifdef SIMULATION
+reg        cache_cs_l;
+reg [26:1] cache_addr_l;
+reg [31:0] cache_din_l;
+reg [ 3:0] cache_dsn_l;
+reg        cache_wr_l;
+
+always @(posedge clk or posedge rst) begin
+    if (rst) begin
+        cache_cs_l   <= 1'b0;
+        cache_addr_l <= '0;
+        cache_din_l  <= '0;
+        cache_dsn_l  <= 4'hf;
+        cache_wr_l   <= 1'b0;
+    end else begin
+        cache_cs_l <= cache_cs;
+        if (cache_cs && !cache_cs_l) begin
+            if (cache_addr != A[26:1] || cache_din != cpu_dout ||
+                cache_dsn != WE_N || cache_wr != !RD_WR_N) begin
+                $display("ERROR: cache bus does not match native SH7604 bus");
+                $finish;
+            end
+            cache_addr_l <= cache_addr;
+            cache_din_l  <= cache_din;
+            cache_dsn_l  <= cache_dsn;
+            cache_wr_l   <= cache_wr;
+        end else if (cache_cs && !cache_ok) begin
+            if (cache_addr != cache_addr_l || cache_din != cache_din_l ||
+                cache_dsn != cache_dsn_l || cache_wr != cache_wr_l) begin
+                $display("ERROR: cache request changed before acknowledge");
+                $finish;
+            end
+        end
+    end
+end
+`endif
+
 endmodule
 
 module sh7604_async_sram(
