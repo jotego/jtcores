@@ -117,12 +117,6 @@ reg         dsn_dly, one_wait;
 wire [11:0] spin1p, spin2p;
 wire        dir1p,  dir2p;
 
-`ifdef POCKET
-// Pressing Start 1 + Start 2 is needed to save settings in some games
-// Bypass this in Pocket handheld mode with L + R + Start 1
-wire pocket_2p = cab_1p[1] & (|joystick1[9:8] | cab_1p[0]);
-`endif
-
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
 `endif
@@ -264,7 +258,9 @@ always @(posedge clk) begin
     in1 <= { joystick4[7:0], joystick3[7:0] };
     in2 <= { coin, cab_1p, ~5'b0, service, dip_test, eeprom_sdo };
     `ifdef POCKET
-    in2[9] <= pocket_2p;
+    // Pressing Start 1 + Start 2 is needed to save settings in some games
+    // Bypass this in Pocket handheld mode with L + R + Start 1
+    in2[9] <= cab_1p[1] & (|joystick1[9:8] | cab_1p[0]);
     `endif
     case( joymode )
         default:;
