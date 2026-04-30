@@ -20,7 +20,7 @@ names=[
 
 [header]
 fill=0xff
-offset={ bits=10, regions=["audiocpu","qsound","gfx","firmware"], reverse=true }
+offset={ bits=10, regions=["audiocpu","qsound","gfx","gfx","firmware"], reverse=true }
 data=[
     {machine="dino", offset=16, data="""
         ff ff ff ff ff ff 0a 0c

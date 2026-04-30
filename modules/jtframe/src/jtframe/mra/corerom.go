@@ -41,7 +41,9 @@ type StartNode struct {
 }
 
 func (this *StartNode) add_length(pos int) {
-	if this.node == nil { return }
+	if this.node == nil {
+		return
+	}
 	lenreg := pos - this.pos
 	if lenreg > 0 {
 		bits_needed := int(math.Ceil(math.Log2(float64(lenreg))))
@@ -59,12 +61,12 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 		fmt.Println("Parsing ", machine.Name)
 	}
 	// Create nodes
-	p := make_rom_parent_node(root,machine,cfg.Global.Zip.Alt)
+	p := make_rom_parent_node(root, machine, cfg.Global.Zip.Alt)
 	sorted_regs := make(map[string]bool)
 	for _, r := range cfg.ROM.Order {
 		sorted_regs[r] = true
 	}
-	regions := add_unlisted_regions(machine.Rom,cfg.ROM.Order)
+	regions := collect_rom_regions(machine.Rom, cfg, machine)
 	cfg.Header.MakeNode(p)
 	pos := 0
 	reg_offsets := make(map[string]int)
@@ -72,7 +74,7 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 	var previous StartNode
 	for reg_k, reg := range regions {
 		reg_cfg := find_region_cfg(machine, reg, cfg)
-		if reg_cfg.Skip || reg_cfg.Name=="nvram" {
+		if reg_cfg.Skip || reg_cfg.Name == "nvram" {
 			continue
 		}
 		// Warn about unsorted regions
@@ -80,15 +82,18 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 		if !sorted {
 			fmt.Printf("\tunlisted region for sorting %s in %s\n", reg, machine.Name)
 		}
-		reg_roms := reg_cfg.extract_region( machine.Rom, cfg.ROM.Remove)
+		reg_roms, e := reg_cfg.extract_region(machine.Rom, cfg.ROM.Remove)
+		if e != nil {
+			return e
+		}
 		// Do not skip empty regions, in case they have a minimum length to fill
 		// Proceed with the ROM listing
 		if delta := fill_upto(&pos, reg_cfg.start, p); delta < 0 {
-			if len(reg_roms)!=0 {
-				fixed_start := reg_cfg.start-delta
+			if len(reg_roms) != 0 {
+				fixed_start := reg_cfg.start - delta
 				fmt.Printf(
-				"%-10s (%s) start offset overcome by 0x%X. Try using 0x%X\n",
-				machine.Name, reg, -delta,fixed_start)
+					"%-10s (%s) start offset overcome by 0x%X. Try using 0x%X\n",
+					machine.Name, reg, -delta, fixed_start)
 			}
 		}
 		sdram_bank_comment(p, pos, macros.CopyToMap())
@@ -118,7 +123,9 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 			fmt.Println("\tafter sorting:\n\t", reg_roms)
 		}
 		parts, e := make_region_parts(reg, reg_cfg, reg_roms, machine, cfg)
-		if e!=nil { return e }
+		if e != nil {
+			return e
+		}
 		if reg_cfg.Mirror {
 			reg_len := derive_region_length(reg_cfg, start_pos, reg_k, regions, machine, cfg)
 			pos += parts.mirror_into(p, reg_len)
@@ -130,19 +137,21 @@ func make_ROM(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) error
 	previous.add_length(pos)
 	make_devROM(p, machine, cfg, &pos)
 	p.AddComment(fmt.Sprintf("Total 0x%X bytes - %d kBytes", pos, pos>>10))
-	make_patches(p, machine, cfg, args )
-	if e:=cfg.Header.FillData(reg_offsets, pos, machine); e!= nil { return e }
+	make_patches(p, machine, cfg, args)
+	if e := cfg.Header.FillData(reg_offsets, pos, machine); e != nil {
+		return e
+	}
 	return nil
 }
 
-type region_parts struct{
-	node XMLNode
-	length int				// length of the parts, without filling or repetition
+type region_parts struct {
+	node   XMLNode
+	length int // length of the parts, without filling or repetition
 }
 
 func make_region_parts(reg string, reg_cfg *RegCfg, reg_roms []MameROM, machine *MachineXML, cfg Mame2MRA) (parts region_parts, e error) {
 	parts.node = MakeNode("parts")
-	if len(reg_cfg.Parts)!=0 {
+	if len(reg_cfg.Parts) != 0 {
 		parts.length += reg_cfg.parse_parts(&parts.node, reg_roms)
 	} else if reg_cfg.Singleton {
 		// Singleton interleave case
@@ -158,43 +167,45 @@ func make_region_parts(reg string, reg_cfg *RegCfg, reg_roms []MameROM, machine 
 			parse_straight_dump(split_offset, split_minlen, reg, reg_roms, reg_cfg, &parts.node, machine, cfg, &parts.length)
 		} else {
 			return parts, fmt.Errorf("Error: don't know how to parse region %s (%d roms) in %s\n",
-				reg_cfg.Name, len(reg_roms), machine.Name )
+				reg_cfg.Name, len(reg_roms), machine.Name)
 		}
 	}
 	return parts, nil
 }
 
 func derive_region_length(reg_cfg *RegCfg, start_pos, reg_k int, regions []string, machine *MachineXML, cfg Mame2MRA) int {
-	if has_explicit_length := reg_cfg.Len!=0; has_explicit_length { return reg_cfg.Len }
+	if has_explicit_length := reg_cfg.Len != 0; has_explicit_length {
+		return reg_cfg.Len
+	}
 	// derive from the start of the next region
-	if is_not_last:=reg_k < len(regions)-1; is_not_last {
+	if is_not_last := reg_k < len(regions)-1; is_not_last {
 		next_reg := find_region_cfg(machine, regions[reg_k+1], cfg)
-		if this_len := next_reg.start-start_pos; this_len>0 {
+		if this_len := next_reg.start - start_pos; this_len > 0 {
 			return this_len
 		}
 	}
-	const unknown_length=0
+	const unknown_length = 0
 	return unknown_length
 }
 
-func (parts *region_parts)mirror_into(p *XMLNode, reg_len int) (pos int) {
-	if reg_len <=0 {
+func (parts *region_parts) mirror_into(p *XMLNode, reg_len int) (pos int) {
+	if reg_len <= 0 {
 		reg_len = parts.length
 	}
-	for copied:=0;(reg_len-copied)>=parts.length && parts.length>0; copied+=parts.length {
+	for copied := 0; (reg_len-copied) >= parts.length && parts.length > 0; copied += parts.length {
 		pos += parts.copy_into(p)
 	}
 	return pos
 }
 
-func (parts *region_parts)copy_into(p *XMLNode) int {
+func (parts *region_parts) copy_into(p *XMLNode) int {
 	p.CopyChildren(&parts.node)
 	return parts.length
 }
 
 func make_rom_parent_node(root *XMLNode, machine *MachineXML, altzip string) (p *XMLNode) {
 	p = root.AddNode("rom").AddAttr("index", "0")
-	zip_name := make_zip_name(machine,altzip)
+	zip_name := make_zip_name(machine, altzip)
 	p.AddAttr("zip", zip_name)
 	p.AddAttr("md5", "None") // We do not know the value yet
 	if macros.IsSet("JTFRAME_MR_DDRLOAD") {
@@ -220,7 +231,7 @@ func add_unlisted_regions(machine_roms []MameROM, initial_regions []string) (reg
 	for _, rom := range machine_roms {
 		if cur_region != rom.Region {
 			cur_region = rom.Region
-			if !slices.Contains(initial_regions,cur_region) {
+			if !slices.Contains(initial_regions, cur_region) {
 				regions = append(regions, cur_region)
 			}
 		}
@@ -228,7 +239,27 @@ func add_unlisted_regions(machine_roms []MameROM, initial_regions []string) (reg
 	return regions
 }
 
-func is_rom_dump_missing( reg_roms []MameROM) bool {
+func collect_rom_regions(machine_roms []MameROM, cfg Mame2MRA, machine *MachineXML) []string {
+	all_regions := add_unlisted_regions(machine_roms, cfg.ROM.Order)
+	merged := make([]string, 0, len(all_regions))
+	seen_patterns := make(map[string]bool)
+	for _, reg := range all_regions {
+		reg_cfg := find_region_cfg(machine, reg, cfg)
+		if !reg_cfg.HasRegionPattern() {
+			merged = append(merged, reg)
+			continue
+		}
+		eff_name := reg_cfg.EffName()
+		if seen_patterns[eff_name] {
+			continue
+		}
+		seen_patterns[eff_name] = true
+		merged = append(merged, reg)
+	}
+	return merged
+}
+
+func is_rom_dump_missing(reg_roms []MameROM) bool {
 	for _, each := range reg_roms {
 		if each.Status == "nodump" {
 			return true
@@ -244,7 +275,7 @@ func sdram_bank_comment(root *XMLNode, pos int, macros map[string]string) {
 			continue
 		}
 		// add the comment only once
-		if int(start) == pos && root.FindMatch(func( n*XMLNode) bool { return k == n.GetName() })==nil {
+		if int(start) == pos && root.FindMatch(func(n *XMLNode) bool { return k == n.GetName() }) == nil {
 			root.AddComment(k)
 		}
 	}
@@ -254,7 +285,9 @@ func make_patches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	header := macros.GetInt("JTFRAME_HEADER")
 	warned := false
 	for _, each := range cfg.ROM.Patches {
-		if each.Match(machine) == 0 || patch_is_skipped(each.Altversion, args.cur_alt_version) { continue }
+		if each.Match(machine) == 0 || patch_is_skipped(each.Altversion, args.cur_alt_version) {
+			continue
+		}
 		if header != 0 && !warned {
 			warned = true
 			root.AddComment(fmt.Sprintf("Adding %d bytes to the patch offset to make up for the MRA header",
@@ -265,9 +298,9 @@ func make_patches(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 	}
 }
 
-func patch_is_skipped( patch_altversion, selected_altversion string ) bool {
-	if selected_altversion=="" {
-		return patch_altversion!=""
+func patch_is_skipped(patch_altversion, selected_altversion string) bool {
+	if selected_altversion == "" {
+		return patch_altversion != ""
 	}
 	return patch_altversion != selected_altversion
 }
@@ -355,22 +388,21 @@ func make_frac_map(reverse bool, bytes, total, step int) string {
 	return builder.String()
 }
 
-func (reg_cfg *RegCfg) extract_region(roms []MameROM, remove []string) (ext []MameROM) {
-	eff_name := reg_cfg.EffName()
+func (reg_cfg *RegCfg) extract_region(roms []MameROM, remove []string) (ext []MameROM, e error) {
 	// Custom list
 	if len(reg_cfg.Files) > 0 {
 		// fmt.Println("Using custom files for ", reg_cfg.Name)
 		ext = make([]MameROM, len(reg_cfg.Files))
 		copy(ext, reg_cfg.Files)
 		for k, _ := range ext {
-			ext[k].Region = eff_name
+			ext[k].Region = reg_cfg.EffName()
 		}
-		return
+		return ext, nil
 	}
 	// MAME list
 roms_loop:
 	for _, r := range roms {
-		if r.Region == eff_name {
+		if reg_cfg.MatchRegion(r.Region) {
 			for _, rm := range remove {
 				if rm == r.Name {
 					continue roms_loop
@@ -379,7 +411,10 @@ roms_loop:
 			ext = append(ext, r)
 		}
 	}
-	return
+	if reg_cfg.HasRegionPattern() && len(ext) == 0 {
+		return nil, fmt.Errorf("ROM region glob %s did not match any MAME region", reg_cfg.Name)
+	}
+	return ext, nil
 }
 
 func add_rom(parent *XMLNode, rom MameROM) *XMLNode {
@@ -406,23 +441,42 @@ func fill_upto(pos *int, fillto int, parent *XMLNode) int {
 
 func find_region_cfg(machine *MachineXML, regname string, cfg Mame2MRA) *RegCfg {
 	var best *RegCfg
+	var pattern *RegCfg
 	for k, each := range cfg.ROM.Regions {
+		m := each.Match(machine)
+		if m == 0 {
+			continue
+		}
 		if each.EffName() == regname {
-			m := each.Match(machine)
 			if m == 3 {
 				best = &cfg.ROM.Regions[k]
 				break
 			} else if m == 2 || (m == 1 && best == nil) {
 				best = &cfg.ROM.Regions[k]
 			}
+			continue
+		}
+		if each.HasRegionPattern() && each.MatchRegion(regname) {
+			if m == 3 {
+				pattern = &cfg.ROM.Regions[k]
+				break
+			} else if m == 2 || (m == 1 && pattern == nil) {
+				pattern = &cfg.ROM.Regions[k]
+			}
 		}
 	}
+	if best != nil {
+		return best
+	}
+	if pattern != nil {
+		return pattern
+	}
 	// the region does not have a configuration in the TOML file, set a default one:
-	if best == nil {
-		if Verbose { fmt.Printf("%s: using blank configuration for ROM regions %s\n",machine.Name, regname)}
-		best = &RegCfg{
-			Name: regname,
-		}
+	if Verbose {
+		fmt.Printf("%s: using blank configuration for ROM regions %s\n", machine.Name, regname)
+	}
+	best = &RegCfg{
+		Name: regname,
 	}
 	return best
 }
@@ -475,38 +529,43 @@ func is_blank(curpos int, reg string, machine *MachineXML, cfg Mame2MRA) (blank_
 	}
 }
 
-func (reg_cfg *RegCfg)parse_parts(p *XMLNode, roms []MameROM) int {
+func (reg_cfg *RegCfg) parse_parts(p *XMLNode, roms []MameROM) int {
 	dumped := 0
 	n := p
 	reg_cfg.check_width_vs_parts()
 	mask := 0
-	if reg_cfg.Width>8 {
-		switch(reg_cfg.Width) {
-		case 16:  mask=0x3
-		case 32:  mask=0xf
-		case 64:  mask=0xff
-		default: {
-			msg := fmt.Sprintf("Unexpected value of width %d",reg_cfg.Width)
-			panic(msg)
-		}}
-		if mask!=0 {
+	if reg_cfg.Width > 8 {
+		switch reg_cfg.Width {
+		case 16:
+			mask = 0x3
+		case 32:
+			mask = 0xf
+		case 64:
+			mask = 0xff
+		default:
+			{
+				msg := fmt.Sprintf("Unexpected value of width %d", reg_cfg.Width)
+				panic(msg)
+			}
+		}
+		if mask != 0 {
 			n = reg_cfg.add_interleave(p)
 		}
 	}
 	mapped := 0
-	for k,_ := range reg_cfg.Parts {
-		if (mapped&mask)==mask && mask!=0 {
+	for k, _ := range reg_cfg.Parts {
+		if (mapped&mask) == mask && mask != 0 {
 			n = reg_cfg.add_interleave(p)
-			mapped=0
+			mapped = 0
 		}
 		each := &reg_cfg.Parts[k]
-		m := n.AddNode("part").AddAttr("name",each.Name)
-		m.AddAttr("crc",each.Crc)
-		if each.Map!=""{
-			m.AddAttr("map",each.Map)
+		m := n.AddNode("part").AddAttr("name", each.Name)
+		m.AddAttr("crc", each.Crc)
+		if each.Map != "" {
+			m.AddAttr("map", each.Map)
 			for k, char := range each.Map {
-				if char!='0' {
-					mapped |= 1<<k
+				if char != '0' {
+					mapped |= 1 << k
 				}
 			}
 		}
@@ -514,14 +573,14 @@ func (reg_cfg *RegCfg)parse_parts(p *XMLNode, roms []MameROM) int {
 			each.get_size_from_mame(roms)
 		} else {
 			e := each.verify_size(roms)
-			if e!=nil {
+			if e != nil {
 				fmt.Println(roms)
-				panic(fmt.Errorf("While parsing region %s:\n\t%s",reg_cfg.Name,e))
+				panic(fmt.Errorf("While parsing region %s:\n\t%s", reg_cfg.Name, e))
 			}
 		}
-		m.AddAttr("length", fmt.Sprintf("0x%X",each.Length))
-		if( each.Offset != 0 ) {
-			m.AddAttr("offset",fmt.Sprintf("0x%X",each.Offset))
+		m.AddAttr("length", fmt.Sprintf("0x%X", each.Length))
+		if each.Offset != 0 {
+			m.AddAttr("offset", fmt.Sprintf("0x%X", each.Offset))
 		}
 		dumped += each.Length
 	}
@@ -529,82 +588,86 @@ func (reg_cfg *RegCfg)parse_parts(p *XMLNode, roms []MameROM) int {
 	return dumped
 }
 
-func (reg_cfg *RegCfg)add_interleave(p *XMLNode) *XMLNode {
+func (reg_cfg *RegCfg) add_interleave(p *XMLNode) *XMLNode {
 	return p.AddNode("interleave").AddAttr("output", fmt.Sprintf("%d", reg_cfg.Width))
 }
 
-func (part *RegParts)get_size_from_mame(roms []MameROM) {
+func (part *RegParts) get_size_from_mame(roms []MameROM) {
 	idx := part.find_rom(roms)
-	if idx==-1 { panic(part.error_unknown_rom()) }
+	if idx == -1 {
+		panic(part.error_unknown_rom())
+	}
 	part.Length = roms[idx].Size
 }
 
-func (reg_cfg *RegCfg)check_parts_consistency() {
-	for k:=1; k<len(reg_cfg.Parts); k++ {
-		if reg_cfg.Parts[k].equivalent_size()!=reg_cfg.Parts[k-1].equivalent_size() {
+func (reg_cfg *RegCfg) check_parts_consistency() {
+	for k := 1; k < len(reg_cfg.Parts); k++ {
+		if reg_cfg.Parts[k].equivalent_size() != reg_cfg.Parts[k-1].equivalent_size() {
 			msg := fmt.Sprintf("Different length for parts %s (%X) and %s (%X) in region %s",
 				reg_cfg.Parts[k-1].Name, reg_cfg.Parts[k-1].Length,
-				reg_cfg.Parts[k].Name,   reg_cfg.Parts[k].Length, reg_cfg.Name )
+				reg_cfg.Parts[k].Name, reg_cfg.Parts[k].Length, reg_cfg.Name)
 			panic(msg)
 		}
 	}
 }
 
-func (part *RegParts)equivalent_size() int {
-	if part.Map=="" {
+func (part *RegParts) equivalent_size() int {
+	if part.Map == "" {
 		return part.Length
 	}
-	times:=0;
+	times := 0
 	for _, char := range part.Map {
-		if char!='0' {
+		if char != '0' {
 			times++
 		}
 	}
-	if times==0 {
+	if times == 0 {
 		return 0
 	}
-	return part.Length/times
+	return part.Length / times
 }
 
-func (part *RegParts)find_rom(all_roms []MameROM) (k int) {
+func (part *RegParts) find_rom(all_roms []MameROM) (k int) {
 	for k, rom := range all_roms {
-		if part.Name==rom.Name || part.Crc==rom.Crc {
+		if part.Name == rom.Name || part.Crc == rom.Crc {
 			return k
 		}
 	}
 	return -1
 }
 
-func (part *RegParts)verify_size(roms []MameROM) error {
+func (part *RegParts) verify_size(roms []MameROM) error {
 	idx := part.find_rom(roms)
-	if idx==-1 { return part.error_unknown_rom() }
+	if idx == -1 {
+		return part.error_unknown_rom()
+	}
 	if part.Length+part.Offset > roms[idx].Size {
 		part.panic_rom_too_small(roms[idx].Size)
 	}
 	return nil
 }
 
-func (part *RegParts)error_unknown_rom() error{
-	return fmt.Errorf("Unknown ROM length for ROM %s (CRC %s)",part.Name,part.Crc)
+func (part *RegParts) error_unknown_rom() error {
+	return fmt.Errorf("Unknown ROM length for ROM %s (CRC %s)", part.Name, part.Crc)
 }
 
-func (part *RegParts)panic_rom_too_small(ref int) {
-	msg := fmt.Sprintf("ROM length+offset set in TOML for ROM %s as 0x%X, but the file is only 0x%X in MAME",part.Name,part.Length,ref)
+func (part *RegParts) panic_rom_too_small(ref int) {
+	msg := fmt.Sprintf("ROM length+offset set in TOML for ROM %s as 0x%X, but the file is only 0x%X in MAME", part.Name, part.Length, ref)
 	panic(msg)
 }
 
-func (cfg *RegCfg)check_width_vs_parts() {
+func (cfg *RegCfg) check_width_vs_parts() {
 	bytemap_len := 0
-	for _,part := range cfg.Parts {
-		if this_len := len(part.Map); this_len>bytemap_len {
+	for _, part := range cfg.Parts {
+		if this_len := len(part.Map); this_len > bytemap_len {
 			bytemap_len = this_len
 		}
 	}
-	derived_width := bytemap_len*8
+	derived_width := bytemap_len * 8
 	if cfg.Width == 0 {
 		cfg.Width = derived_width
-	} else if cfg.Width!=derived_width {
-		msg := fmt.Sprintf("Expected interleave of width %d for region %s",derived_width,cfg.Name)
+	} else if cfg.Width != derived_width {
+		msg := fmt.Sprintf("Expected interleave of width %d for region %s", derived_width, cfg.Name)
 		panic(msg)
 	}
 }
@@ -647,7 +710,7 @@ func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []
 	start_pos := *pos
 	for _, r := range reg_roms {
 		offset := r.Offset
-		if reg_cfg.No_offset || ((offset&^0xf)==0) {
+		if reg_cfg.No_offset || ((offset &^ 0xf) == 0) {
 			offset = 0
 		} else {
 			if delta := fill_upto(pos, ((offset&-2)-reg_pos)+*pos, p); delta < 0 {
@@ -691,14 +754,14 @@ func parse_straight_dump(split_offset, split_minlen int, reg string, reg_roms []
 			*pos += rom_len
 		} else {
 			filled := false
-			if reg_cfg.Rom_len!=0 && r.Size!=0 {
+			if reg_cfg.Rom_len != 0 && r.Size != 0 {
 				mirror_cnt := reg_cfg.Rom_len / r.Size
 				// fill with mirror images of the current file when it makes sense
 				// some games expect to have these mirrors either during game play or ROM checks
 				// examples in jtshouse core: quester, wldcourt, ws89. See issue #656
-				if (mirror_cnt==2 || mirror_cnt==4 || mirror_cnt==8) && reg_cfg.Rom_len%mirror_cnt==0 {
+				if (mirror_cnt == 2 || mirror_cnt == 4 || mirror_cnt == 8) && reg_cfg.Rom_len%mirror_cnt == 0 {
 					filled = true
-					for k:=1;k<mirror_cnt;k=k+1 {
+					for k := 1; k < mirror_cnt; k = k + 1 {
 						if pp != nil {
 							p.InsertNode(*pp)
 						} else {
@@ -771,7 +834,7 @@ func parse_asl(reg_cfg *RegCfg, p *XMLNode, machine *MachineXML, pos *int, args 
 		}
 	}
 	f.Close()
-	binname := strings.TrimSuffix(path,".s")+".bin"
+	binname := strings.TrimSuffix(path, ".s") + ".bin"
 	// Assemble
 	cmd := exec.Command("asl", "-cpu", reg_cfg.Custom.Dev, path)
 	//cmd.Stdout = os.Stdout
@@ -781,7 +844,7 @@ func parse_asl(reg_cfg *RegCfg, p *XMLNode, machine *MachineXML, pos *int, args 
 		return false
 	}
 	// Convert to binary
-	cmd = exec.Command("p2bin", strings.TrimSuffix(path,".s")+".p")
+	cmd = exec.Command("p2bin", strings.TrimSuffix(path, ".s")+".p")
 	//cmd.Stdout = os.Stdout
 	e = cmd.Run()
 	if e != nil {
@@ -807,8 +870,10 @@ func parse_custom(reg_cfg *RegCfg, p *XMLNode, machine *MachineXML, pos *int, ar
 		return false
 	}
 	switch reg_cfg.Custom.Dev {
-	case "i8751": return parse_i8751(reg_cfg, p, machine, pos, args)
-	default: return parse_asl( reg_cfg, p, machine, pos, args)
+	case "i8751":
+		return parse_i8751(reg_cfg, p, machine, pos, args)
+	default:
+		return parse_asl(reg_cfg, p, machine, pos, args)
 	}
 	// default:
 	// 	log.Fatal("jtframe mra: unsupported custom.dev=", reg_cfg.Custom.Dev)
@@ -816,7 +881,7 @@ func parse_custom(reg_cfg *RegCfg, p *XMLNode, machine *MachineXML, pos *int, ar
 	return false
 }
 
-func reg_used( reg_roms []MameROM ) bool {
+func reg_used(reg_roms []MameROM) bool {
 	for _, each := range reg_roms {
 		if each.used < each.Size {
 			return false
@@ -826,18 +891,18 @@ func reg_used( reg_roms []MameROM ) bool {
 }
 
 func parse_regular_interleave(split_offset int, reg string,
-		reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode,
-		machine *MachineXML, cfg Mame2MRA, pos *int) {
+	reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode,
+	machine *MachineXML, cfg Mame2MRA, pos *int) {
 	if Verbose {
 		fmt.Printf("Regular interleave for %s (%s)\n", reg_cfg.Name, machine.Name)
 	}
-	if split_offset!=0 {
+	if split_offset != 0 {
 		if Verbose {
 			fmt.Printf("\tsplit at %X\n", split_offset)
 		}
 		// Split the ROMs in two
 		base := reg_roms
-		reg_roms = make([]MameROM,0,len(base)*2)
+		reg_roms = make([]MameROM, 0, len(base)*2)
 		for _, each := range base {
 			each.Size /= 2
 			each.show_len = true
@@ -853,16 +918,18 @@ func parse_regular_interleave(split_offset int, reg string,
 			reg_roms = append(reg_roms, each)
 		}
 	}
-	make_interleave_groups( reg, reg_roms, reg_cfg, p, machine, cfg, pos )
+	make_interleave_groups(reg, reg_roms, reg_cfg, p, machine, cfg, pos)
 }
 
-func make_interleave_groups( reg string,
-		reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode,
-		machine *MachineXML, cfg Mame2MRA, pos *int) {
+func make_interleave_groups(reg string,
+	reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode,
+	machine *MachineXML, cfg Mame2MRA, pos *int) {
 	if Verbose {
 		fmt.Printf("\tRegular interleave for %s (%s)\n", reg_cfg.Name, machine.Name)
 	}
-	if len(reg_roms)==0 { return }
+	if len(reg_roms) == 0 {
+		return
+	}
 	start_pos := *pos
 	if !reg_cfg.No_offset {
 		// Try to determine from the offset the word-length of each ROM
@@ -870,30 +937,38 @@ func make_interleave_groups( reg string,
 		// fmt.Println("Parsing ", reg_cfg.Name)
 		rom_offset := reg_roms[0].Offset &^ 0xf
 		old_pos := *pos
-		main_loop:
+	main_loop:
 		for {
-			sel := make([]int,0,16)
+			sel := make([]int, 0, 16)
 			for k := 0; k < len(reg_roms); k++ {
 				if Verbose {
-					fmt.Printf("%12s (%s) - %05X <? %X - %X/%X",reg_roms[k].Name,
-					reg_roms[k].Region,
-					reg_roms[k].Offset, rom_offset,
-					reg_roms[k].used, reg_roms[k].Size )
+					fmt.Printf("%12s (%s) - %05X <? %X - %X/%X", reg_roms[k].Name,
+						reg_roms[k].Region,
+						reg_roms[k].Offset, rom_offset,
+						reg_roms[k].used, reg_roms[k].Size)
 				}
-				if (reg_roms[k].Offset &^ 0xf) <= rom_offset &&
-				    reg_roms[k].used < reg_roms[k].Size {
-					sel = append( sel, k )
-					if Verbose { fmt.Printf("   * ") }
+				if (reg_roms[k].Offset&^0xf) <= rom_offset &&
+					reg_roms[k].used < reg_roms[k].Size {
+					sel = append(sel, k)
+					if Verbose {
+						fmt.Printf("   * ")
+					}
 				}
-				if Verbose { fmt.Println("") }
+				if Verbose {
+					fmt.Println("")
+				}
 			}
-			if len(sel)==0 {
-				if reg_used(reg_roms) { break }
+			if len(sel) == 0 {
+				if reg_used(reg_roms) {
+					break
+				}
 				// move the offset to the first unused ROM
-				for _,each := range reg_roms {
-					if each.used==0 {
+				for _, each := range reg_roms {
+					if each.used == 0 {
 						rom_offset = each.Offset
-						if Verbose { fmt.Printf("Moved offset to %X\n", rom_offset)}
+						if Verbose {
+							fmt.Printf("Moved offset to %X\n", rom_offset)
+						}
 						continue main_loop
 					}
 				}
@@ -902,9 +977,9 @@ func make_interleave_groups( reg string,
 			}
 			// Sort by offset LSB, because if a ROM comes from a previous
 			// group, it will appear as the first one unless we sort it
-			for i:=0; i<len(sel); i++ {
-				for j:=i+1; j<len(sel);j++ {
-					if (reg_roms[sel[j]].Offset&0xf) < (reg_roms[sel[i]].Offset&0xf) {
+			for i := 0; i < len(sel); i++ {
+				for j := i + 1; j < len(sel); j++ {
+					if (reg_roms[sel[j]].Offset & 0xf) < (reg_roms[sel[i]].Offset & 0xf) {
 						aux := sel[j]
 						sel[j] = sel[i]
 						sel[i] = aux
@@ -913,20 +988,20 @@ func make_interleave_groups( reg string,
 			}
 			group_size := reg_roms[sel[0]].Size
 			//wlen_min := 1
-			reg_roms[sel[0]].wlen=1  // for len(sel)==1
-			if( len(sel) > 1 ) {
+			reg_roms[sel[0]].wlen = 1 // for len(sel)==1
+			if len(sel) > 1 {
 				// Mark the width in bytes of each ROM
 				last := sel[len(sel)-1]
-				reg_roms[last].wlen = (reg_cfg.Width/8)-(reg_roms[last].Offset&0xf)
-				for j:=len(sel)-2; j>=0; j-- {
-					reg_roms[sel[j]].wlen = (reg_roms[sel[j+1]].Offset-reg_roms[sel[j]].Offset) & 0xf
+				reg_roms[last].wlen = (reg_cfg.Width / 8) - (reg_roms[last].Offset & 0xf)
+				for j := len(sel) - 2; j >= 0; j-- {
+					reg_roms[sel[j]].wlen = (reg_roms[sel[j+1]].Offset - reg_roms[sel[j]].Offset) & 0xf
 				}
 				// Check that widths make sense
-				for j:=0; j<len(sel); j++ {
-					if reg_roms[sel[j]].wlen==0 || (reg_roms[sel[j]].wlen != 1 && (reg_roms[sel[j]].wlen % 2) != 0) {
+				for j := 0; j < len(sel); j++ {
+					if reg_roms[sel[j]].wlen == 0 || (reg_roms[sel[j]].wlen != 1 && (reg_roms[sel[j]].wlen%2) != 0) {
 						fmt.Printf("Bad number of ROMs for interleave in %s, region %s (%s)\n",
-							machine.Name, reg_cfg.Name, machine.Description )
-						for k:=0; k<len(sel); k++ {
+							machine.Name, reg_cfg.Name, machine.Description)
+						for k := 0; k < len(sel); k++ {
 							fmt.Printf("%12s (%s) - %d\n", reg_roms[sel[k]].Name,
 								reg_roms[sel[k]].Region,
 								reg_roms[sel[k]].wlen)
@@ -936,14 +1011,14 @@ func make_interleave_groups( reg string,
 				}
 				// Create the mapstr
 				aux := 0
-				for k:=0; k<len(sel); k++ {
+				for k := 0; k < len(sel); k++ {
 					r := &reg_roms[sel[k]]
-					r.mapstr=""
+					r.mapstr = ""
 					for j := r.wlen; j > 0; j-- {
 						r.mapstr = r.mapstr + strconv.Itoa(j)
 					}
-					for j:=0; j<aux; j++ {
-						r.mapstr+="0"
+					for j := 0; j < aux; j++ {
+						r.mapstr += "0"
 					}
 					for j := len(r.mapstr); j < (reg_cfg.Width >> 3); j++ {
 						r.mapstr = "0" + r.mapstr
@@ -953,10 +1028,10 @@ func make_interleave_groups( reg string,
 				// Find the size of the smallest ROM
 				group_size = 0
 				//wlen_min   = reg_roms[sel[0]].wlen
-				reg_roms[sel[0]].group=1
-				for j:=0; j<len(sel); j++ {
-					jsize := (reg_roms[sel[j]].Size-reg_roms[sel[j]].used) /reg_roms[sel[j]].wlen
-					if j==0 || group_size >  jsize {
+				reg_roms[sel[0]].group = 1
+				for j := 0; j < len(sel); j++ {
+					jsize := (reg_roms[sel[j]].Size - reg_roms[sel[j]].used) / reg_roms[sel[j]].wlen
+					if j == 0 || group_size > jsize {
 						group_size = jsize
 						// fmt.Printf("group_size=%X (%s)\n",jsize,reg_roms[sel[j]].Name)
 						//wlen_min   = reg_roms[sel[j]].wlen
@@ -967,43 +1042,43 @@ func make_interleave_groups( reg string,
 			// Create new array for this group
 			new_group := make([]MameROM, 0, len(sel))
 			if Verbose {
-				fmt.Printf("New group. group_size=%X at pos=%X\n",group_size,*pos)
+				fmt.Printf("New group. group_size=%X at pos=%X\n", group_size, *pos)
 			}
-			for j:=0;j<len(sel);j++ {
+			for j := 0; j < len(sel); j++ {
 				if Verbose {
 					fmt.Printf("\t%12s (%s) - %d - %s\n", reg_roms[sel[j]].Name,
 						reg_roms[sel[j]].Region,
 						reg_roms[sel[j]].wlen, reg_roms[sel[j]].mapstr)
 				}
-				reg_roms[sel[j]].clen=group_size*reg_roms[sel[j]].wlen
-				new_group = append(new_group,reg_roms[sel[j]])
+				reg_roms[sel[j]].clen = group_size * reg_roms[sel[j]].wlen
+				new_group = append(new_group, reg_roms[sel[j]])
 			}
-			if( reg_cfg.Reverse ) {
-				rev_str := func (s string) string {
-				    runes := []rune(s)
-				    for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
-				        runes[i], runes[j] = runes[j], runes[i]
-				    }
-				    return string(runes)
+			if reg_cfg.Reverse {
+				rev_str := func(s string) string {
+					runes := []rune(s)
+					for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+						runes[i], runes[j] = runes[j], runes[i]
+					}
+					return string(runes)
 				}
-				rev := make([]MameROM,0,len(new_group))
+				rev := make([]MameROM, 0, len(new_group))
 				//for j:=len(new_group)-1; j>=0; j-- {
-				for j:=0; j<len(new_group); j++ {
+				for j := 0; j < len(new_group); j++ {
 					new_group[j].mapstr = rev_str(new_group[j].mapstr)
-					rev = append(rev, new_group[j] )
+					rev = append(rev, new_group[j])
 				}
 				new_group = rev
 			}
-			interleave_group( reg,
-				new_group, reg_cfg, p ,
- 				machine, cfg, pos, start_pos )
+			interleave_group(reg,
+				new_group, reg_cfg, p,
+				machine, cfg, pos, start_pos)
 			// Update used bytes
-			for j:=0;j<len(sel);j++ {
-				reg_roms[sel[j]].used += group_size*reg_roms[sel[j]].wlen
+			for j := 0; j < len(sel); j++ {
+				reg_roms[sel[j]].used += group_size * reg_roms[sel[j]].wlen
 			}
-			rom_offset = *pos-old_pos
+			rom_offset = *pos - old_pos
 			if Verbose {
-				fmt.Printf("-------------------> %X (pos=%0X)\n",rom_offset,*pos)
+				fmt.Printf("-------------------> %X (pos=%0X)\n", rom_offset, *pos)
 			}
 		}
 	} else {
@@ -1013,23 +1088,25 @@ func make_interleave_groups( reg string,
 				reg_cfg.Width, reg_cfg.Name, machine.Name))
 		}
 		assign_1byte_length_as_single_group(reg_roms)
-		interleave_group( reg,
-					reg_roms, reg_cfg, p,
-					machine, cfg, pos, start_pos )
+		interleave_group(reg,
+			reg_roms, reg_cfg, p,
+			machine, cfg, pos, start_pos)
 	}
-	if Verbose { fmt.Println("*******************") }
+	if Verbose {
+		fmt.Println("*******************")
+	}
 }
 
 func assign_1byte_length_as_single_group(reg_roms []MameROM) {
 	for j, _ := range reg_roms {
 		reg_roms[j].group = 1
-		reg_roms[j].wlen  = 1
+		reg_roms[j].wlen = 1
 	}
 }
 
-func interleave_group( reg string,
-		reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode,
-		machine *MachineXML, cfg Mame2MRA, pos *int, start_pos int) {
+func interleave_group(reg string,
+	reg_roms []MameROM, reg_cfg *RegCfg, p *XMLNode,
+	machine *MachineXML, cfg Mame2MRA, pos *int, start_pos int) {
 	reg_pos := 0
 	n := p
 	deficit := 0
@@ -1072,21 +1149,21 @@ func interleave_group( reg string,
 				fmt.Printf("\tparsing %s (%d-byte words - mapstr=%s)\n", r.Name, r.wlen, mapstr)
 			}
 			m := add_rom(n, r)
-			if r.mapstr=="" && mapstr != "" {
+			if r.mapstr == "" && mapstr != "" {
 				m.AddAttr("map", mapstr)
 				mapstr = mapstr[r.wlen:] + mapstr[0:r.wlen] // rotate the active byte
-			} else if r.mapstr!="" {
+			} else if r.mapstr != "" {
 				m.AddAttr("map", r.mapstr)
 			}
 			chunk_size := r.Size
-			if r.clen>0 {
-				chunk_size=r.clen
+			if r.clen > 0 {
+				chunk_size = r.clen
 			}
 			*pos += chunk_size
-			if chunk_size<r.Size || r.show_len {
+			if chunk_size < r.Size || r.show_len {
 				m.AddAttr("length", fmt.Sprintf("0x%X", chunk_size))
-				if offset := r.used+r.add_offset; offset>0 {
-					m.AddAttr("offset", fmt.Sprintf("0x%X", offset ))
+				if offset := r.used + r.add_offset; offset > 0 {
+					m.AddAttr("offset", fmt.Sprintf("0x%X", offset))
 				}
 			}
 			if reg_cfg.Rom_len > chunk_size {
@@ -1100,7 +1177,7 @@ func interleave_group( reg string,
 		}
 		if reg_cfg.Reverse {
 			if Verbose {
-				fmt.Printf("Got %d ROMs, with rom_cnt=%d, k=%d\n",len(reg_roms), rom_cnt, k)
+				fmt.Printf("Got %d ROMs, with rom_cnt=%d, k=%d\n", len(reg_roms), rom_cnt, k)
 			}
 			for j := k + rom_cnt - 1; j >= k; j-- {
 				if reg_roms[j].group == 0 && get_reverse_width(reg_cfg, reg_roms[j].Name, 16) {

@@ -81,7 +81,8 @@ func FileExists(fname string) bool {
 
 // returns the first 7 hex digits of the commit
 func GetCommit() (string,error) {
-	cmd := exec.Command("git","rev-parse","HEAD")
+	jtroot := os.Getenv("JTROOT")
+	cmd := exec.Command("git","-C",jtroot,"rev-parse","HEAD")
 	output, e := cmd.Output()
 	if e!=nil {
 		return "0000000",fmt.Errorf("%s\n%s\n",string(output),e.Error())

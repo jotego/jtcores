@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"os"
 
-	"jtutil/cmd/wav"
 	"github.com/spf13/cobra"
+	"jtutil/cmd/wav"
 )
 
 var verbose bool
@@ -30,6 +30,13 @@ var verbose bool
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "jtutil",
+	Short: "JTFRAME utility collection",
+	Long: `JTFRAME utility collection.
+
+Use "man jtutil" for the overview. Use "man jtutil-<command>" for
+top-level commands and "man jtutil-<command>-<subcommand>" for nested
+commands, for example "man jtutil-sdram", "man jtutil-vcd", or
+"man jtutil-vcd-frame-diff".`,
 }
 
 func Execute() {
@@ -48,16 +55,19 @@ func add_wav_cmd() {
 	var wavCmd = &cobra.Command{
 		Use:   "wav [test.vcd]",
 		Short: "Creates a WAV file from the given VCD dump",
-		Run: wav.RunWavCmd,
-		Args: cobra.MaximumNArgs(1),
+		Long:  man_blurb("jtutil-wav", "Create a WAV file from the given VCD dump."),
+		Run:   wav.RunWavCmd,
+		Args:  cobra.MaximumNArgs(1),
 	}
-	wavCmd.Flags().StringP("signal","s","","All signals with partial matches to this name will be dumped")
-	wavCmd.Flags().BoolP  ("skip","k",false,"skip initial silence in input file")
+	wavCmd.Flags().StringP("signal", "s", "", "All signals with partial matches to this name will be dumped")
+	wavCmd.Flags().BoolP("skip", "k", false, "skip initial silence in input file")
 	rootCmd.AddCommand(wavCmd)
 }
 
-func must(e... error) {
-	if e==nil || len(e)==0 || e[0]==nil { return }
+func must(e ...error) {
+	if e == nil || len(e) == 0 || e[0] == nil {
+		return
+	}
 	for _, each_error := range e {
 		fmt.Println(each_error)
 	}

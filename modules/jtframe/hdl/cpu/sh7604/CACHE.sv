@@ -26,7 +26,11 @@ module SH7604_CACHE (
 	output            IBUS_PREREQ,
 	output            IBUS_BURST,
 	output            IBUS_LOCK,
-	input             IBUS_WAIT
+	input             IBUS_WAIT,
+
+	input             CPS3_DECRYPT,
+	input      [31:0] CPS3_KEY1,
+	input      [31:0] CPS3_KEY2
 );
 
 	import SH7604_PKG::*;
@@ -70,6 +74,35 @@ module SH7604_CACHE (
 	bit         CACHE_ADDR_WRITE;
 	bit         CACHE_PURGE;
 	bit   [5:0] LRU_DATA;
+
+	function automatic [15:0] cps3_rotate_left16(input [15:0] val, input integer n);
+		cps3_rotate_left16 = (val << n) | (val >> (16 - n));
+	endfunction
+
+	function automatic [15:0] cps3_rotxor(input [15:0] val, input [15:0] xorval);
+		reg [15:0] res;
+		begin
+			res = val + cps3_rotate_left16(val, 2);
+			res = cps3_rotate_left16(res, 4) ^ (res & (val ^ xorval));
+			cps3_rotxor = res;
+		end
+	endfunction
+
+	function automatic [31:0] cps3_mask(input [31:0] address, input [31:0] key1, input [31:0] key2);
+		reg [31:0] addr_x;
+		reg [15:0] val;
+		begin
+			addr_x = address ^ key1;
+			val = addr_x[15:0] ^ 16'hffff;
+			val = cps3_rotxor(val, key2[15:0]);
+			val = val ^ addr_x[31:16] ^ 16'hffff;
+			val = cps3_rotxor(val, key2[31:16]);
+			val = val ^ addr_x[15:0] ^ key2[15:0];
+			cps3_mask = {val, val};
+		end
+	endfunction
+
+	wire [31:0] cps3_cache_data_dec = CACHE_DATA ^ cps3_mask({CBUS_A[31:2], 2'b00}, CPS3_KEY1, CPS3_KEY2);
 	
 	function bit [3:0] WayFromLRU(input bit [5:0] lru, input bit two_way);
 		bit [3:0] res;
@@ -478,11 +511,13 @@ module SH7604_CACHE (
 				if (IBUS_WRITE) begin
 					IBREQ <= 0;
 					IBUS_WRITE <= 0;
+					IBUS_WRITE_PEND <= 0;
 				end
 				else if (IBUS_READ) begin
 					IBREQ <= 0;
 					IBDATA_RDY <= 1;
 					IBUS_READ <= 0;
+					IBUS_READ_PEND <= 0;
 				end
 				else if (IBUS_READARRAY) begin
 					IBADDR <= {IBADDR[31:4],IBADDR[3:2] + 2'd1,2'b00};
@@ -490,6 +525,7 @@ module SH7604_CACHE (
 						IBREQ <= 0;
 						IBDATA_RDY <= 1;
 						IBUS_READARRAY <= 0;
+						IBUS_READ_PEND <= 0;
 					end
 					if (IBADDR[3:2] == ARRAY_POS - 2'd1) begin
 						IBLOCK <= 0;
@@ -519,7 +555,9 @@ module SH7604_CACHE (
 						end
 					end
 					
-					if (CACHE_AREA && HIT && CCR.CE && (!IBREQ || IBUS_END)) begin
+					// Write-through stores must still update a resident cache line
+					// even if the external bus leg is currently busy.
+					if (CACHE_AREA && HIT && CCR.CE) begin
 						CACHE_WR_ADDR <= CBUS_A[28:2];
 						CACHE_WR_BA <= CBUS_BA;
 						CACHE_WR_WAY <= WAY_HIT;
@@ -605,10 +643,12 @@ module SH7604_CACHE (
 		end
 	end
 	
-	assign CBUS_DO = CCR_SEL ? {4{CCR & CCR_RMASK}} : 
-	                 IBDATA_RDY ? IBUS_DI : 
-						  CACHE_DATA;
-	assign CBUS_BUSY = CBUS_REQ && (IBUS_READ || IBUS_READARRAY || IBUS_READ_PEND || IBUS_WRITE_PEND);
+assign CBUS_DO = CCR_SEL ? {4{CCR & CCR_RMASK}} :
+					 IBDATA_RDY ? IBUS_DI :
+					 (CPS3_DECRYPT && CBUS_ID && CACHE_DATA_AREA) ? cps3_cache_data_dec :
+					 CACHE_DATA;
+assign CBUS_BUSY = CBUS_REQ && (IBUS_READ || IBUS_READARRAY || IBUS_READ_PEND || IBUS_WRITE_PEND ||
+					(IBUS_WRITE && !IO_AREA));
 						  
 	assign IBUS_A = IBADDR;
 	assign IBUS_DO = IBDATA;

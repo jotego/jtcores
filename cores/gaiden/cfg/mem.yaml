@@ -68,30 +68,35 @@ bram:
   - name: tram
     addr_width: 12
     data_width: 16
-    sim_file: true
+    simfile: {}
+
     ioctl: { save: true, order: 0 }
     dual_port: { name: main, we: txt_we, rw: true, din: ram_din, dout: mt_dout }
   - name: scra
     addr_width: 13
     data_width: 16
-    sim_file: true
+    simfile: {}
+
     ioctl: { save: true, order: 1 }
     dual_port: { name: main, we: scra_we, rw: true, din: ram_din, dout: ma_dout }
   - name: scrb
     addr_width: 13
     data_width: 16
-    sim_file: true
+    simfile: {}
+
     ioctl: { save: true, order: 2 }
     dual_port: { name: main, we: scrb_we, rw: true, din: ram_din, dout: mb_dout }
   - name: oram
     addr_width: 13
     data_width: 16
-    sim_file: true
+    simfile: {}
+
     ioctl: { save: true, order: 3 }
     dual_port: { name: main, we: obj_we, rw: true, din: ram_din, dout: mo_dout }
   - name: pal
     addr_width: 13
     data_width: 16
-    sim_file: true
+    simfile: {}
+
     ioctl: { save: true, order: 4 }
     dual_port: { name: main, we: pal_we, rw: true, din: ram_din, dout: mp_dout }

@@ -1,3 +1,6 @@
+`ifndef VERILATOR_KEEP_CPU
+/* verilator tracing_off */
+`endif
 module SH2_regfile (
 	input             CLK,
 	input             RST_N,
@@ -16,6 +19,27 @@ module SH2_regfile (
 	input       [4:0] RB_ADDR,
 	output     [31:0] RB_Q,
 	output     [31:0] R0_Q
+
+`ifdef VERILATOR_KEEP_CPU
+	                  ,
+	output     [31:0] TRACE_R0,
+	output     [31:0] TRACE_R1,
+	output     [31:0] TRACE_R2,
+	output     [31:0] TRACE_R3,
+	output     [31:0] TRACE_R4,
+	output     [31:0] TRACE_R5,
+	output     [31:0] TRACE_R6,
+	output     [31:0] TRACE_R7,
+	output     [31:0] TRACE_R8,
+	output     [31:0] TRACE_R9,
+	output     [31:0] TRACE_R10,
+	output     [31:0] TRACE_R11,
+	output     [31:0] TRACE_R12,
+	output     [31:0] TRACE_R13,
+	output     [31:0] TRACE_R14,
+	output     [31:0] TRACE_R15,
+	output     [31:0] TRACE_PR
+`endif
 
 `ifdef DEBUG
 	                  ,
@@ -195,6 +219,43 @@ module SH2_regfile (
 	assign R14 = DBG_GR[14];
 	assign R15 = DBG_GR[15];
 	assign PR_ = DBG_GR[16];
+`endif
+
+`ifdef VERILATOR_KEEP_CPU
+	reg [31:0] TRACE_GR[17];
+	always @(posedge CLK or negedge RST_N) begin
+		if (!RST_N) begin
+			TRACE_GR <= '{17{'0}};
+		end
+		else if (EN) begin
+			if (WAE && CE) begin
+				TRACE_GR[WA_ADDR] <= WA_D;
+			end
+			if (WBE_LATCH) begin
+				TRACE_GR[WB_ADDR_LATCH] <= WB_D_LATCH;
+			end
+		end
+	end
+
+/* verilator tracing_on */
+	assign TRACE_R0  = TRACE_GR[0];
+	assign TRACE_R1  = TRACE_GR[1];
+	assign TRACE_R2  = TRACE_GR[2];
+	assign TRACE_R3  = TRACE_GR[3];
+	assign TRACE_R4  = TRACE_GR[4];
+	assign TRACE_R5  = TRACE_GR[5];
+	assign TRACE_R6  = TRACE_GR[6];
+	assign TRACE_R7  = TRACE_GR[7];
+	assign TRACE_R8  = TRACE_GR[8];
+	assign TRACE_R9  = TRACE_GR[9];
+	assign TRACE_R10 = TRACE_GR[10];
+	assign TRACE_R11 = TRACE_GR[11];
+	assign TRACE_R12 = TRACE_GR[12];
+	assign TRACE_R13 = TRACE_GR[13];
+	assign TRACE_R14 = TRACE_GR[14];
+	assign TRACE_R15 = TRACE_GR[15];
+	assign TRACE_PR  = TRACE_GR[16];
+/* verilator tracing_off */
 `endif
 	
 endmodule

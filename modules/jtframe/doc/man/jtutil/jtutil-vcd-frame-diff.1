@@ -1,0 +1,77 @@
+.TH JTUTIL-VCD-FRAME-DIFF 1 "April 2026" "JTFRAME" "User Commands"
+.SH NAME
+jtutil-vcd-frame-diff \- compare later frames against a reference frame
+.SH SYNOPSIS
+.B jtutil vcd frame-diff
+.RI "scope [file] [flags]"
+.SH DESCRIPTION
+\fBjtutil vcd frame-diff\fR
+compares one reference frame against one or more later frames for the selected
+signal scope in a VCD or FST file.
+.SS Scope Syntax
+.IP \[bu] 2
+Use
+\fB.\fR
+to describe the hierarchy path inside the VCD, for example
+\fBu_obj\fR
+or
+\fBu_video.u_obj\fR.
+.IP \[bu] 2
+Use
+\fB/\fR
+only once, at the end, to separate the scope from the signal glob.
+.IP \[bu] 2
+The part before
+\fB/\fR
+matches an instance path inside the VCD hierarchy.
+.IP \[bu] 2
+The part after
+\fB/\fR
+is a glob applied to signal names inside that scope.
+.IP \[bu] 2
+Brace expansion is supported in the signal glob, for example
+\fBwr_{a,b}\fR.
+.IP \[bu] 2
+Wildcards follow shell-style globbing, so
+\fBwr_*\fR
+matches
+\fBwr_en\fR,
+\fBwr_data\fR,
+and similar names.
+.SH EXAMPLES
+.RS
+.nf
+jtutil vcd frame-diff u_obj
+jtutil vcd frame-diff u_obj/wr_*
+jtutil vcd frame-diff u_video.u_obj/wr_{a,b} test.fst
+jtutil vcd frame-diff --when wr_en==1 u_obj/wr_*
+.fi
+.RE
+.SH FLAGS
+.TP
+.BI "\-\-frames " range
+Comparison frame or range, such as
+\fB5\fR,
+\fB8-\fR,
+or
+\fB10-12\fR.
+.TP
+.B \-h, \-\-help
+Show the short command help.
+.TP
+.B \-\-keep
+Keep the generated comparison files.
+.TP
+.BI "\-\-ref " frame
+Reference frame.
+The default is 2.
+.TP
+.BI "\-\-when " expr
+Compare rows only when the given condition is true, for example
+\fBwr_en==1\fR.
+.TP
+.B \-v, \-\-verbose
+Enable verbose output.
+.SH SEE ALSO
+.BR jtutil (1),
+.BR jtutil-vcd (1)

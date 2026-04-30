@@ -115,7 +115,7 @@ bram:
   - name: vram0 # CUS42 tilemap RAM -> gfx1
     addr_width: 13
     data_width: 16
-    sim_file: true
+    simfile: {}
     dual_port:
       name: sh0
       addr: baddr[12:1]
@@ -125,7 +125,7 @@ bram:
   - name: vram1 # CUS42 tilemap RAM -> gfx2
     addr_width: 13
     data_width: 16
-    sim_file: true
+    simfile: {}
     dual_port:
       name: sh1
       addr: vtxta

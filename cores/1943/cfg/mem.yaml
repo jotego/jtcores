@@ -65,6 +65,7 @@ bram:
   - name: snd
     addr_width: 15
     data_width: 8
-    sim_file: true
+    simfile: {}
+
     rom:
       offset: "`SND_START>>1"

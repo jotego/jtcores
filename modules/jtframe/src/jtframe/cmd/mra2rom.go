@@ -1,17 +1,16 @@
 /*
 Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
 	"fmt"
-	"path/filepath"
 	"os"
+	"path/filepath"
 
+	"github.com/spf13/cobra"
 	"jotego/jtframe/mra"
 	"jotego/jtframe/xmlnode"
-	"github.com/spf13/cobra"
 )
 
 var rom_path string
@@ -20,8 +19,9 @@ var rom_path string
 var mra2romCmd = &cobra.Command{
 	Use:   "mra2rom <mra file>",
 	Short: "Generate the .rom file for a given .mra file",
-	Run: runMRA2ROM,
-	Args: cobra.ExactArgs(1),
+	Long:  man_blurb("jtframe-mra2rom", "Generate a .rom file for a given .mra file."),
+	Run:   runMRA2ROM,
+	Args:  cobra.ExactArgs(1),
 }
 
 func init() {
@@ -34,13 +34,13 @@ func init() {
 func runMRA2ROM(cmd *cobra.Command, args []string) {
 	mra_filename := args[0]
 	mraxml, e := xmlnode.ReadFile(mra_filename)
-	if e!=nil {
+	if e != nil {
 		fmt.Println(e)
 		os.Exit(1)
 	}
-	save2disk:=true
-	e = mra.Mra2rom(mraxml,save2disk,rom_path)
-	if e!=nil {
+	save2disk := true
+	e = mra.Mra2rom(mraxml, save2disk, rom_path)
+	if e != nil {
 		fmt.Println(e)
 		os.Exit(1)
 	}

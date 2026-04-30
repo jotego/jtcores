@@ -211,6 +211,7 @@ jtframe_dial u_dial(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .lhbl       ( lhbl          ),
+    .lvbl       ( lvbl          ),
 
     // with spinner
     .spinner_1  ( spinner_1     ),

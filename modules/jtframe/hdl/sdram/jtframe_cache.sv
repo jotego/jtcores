@@ -13,301 +13,200 @@
     along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 2.1
-    Date: 19-3-2026 */
+    Version: 2.2
+    Date: 16-4-2026 */
 
 module jtframe_cache #(parameter
     BLOCKS  =    8,
     BLKSIZE = 1024,
     AW      =   24,
     DW      =    8,
+    ENDIAN  =    0,
     EW      =   24,
-    AW0     = DW==32 ? 2 : DW==16 ? 1 : 0
+    AW0     = DW==128 ? 4 : DW==64 ? 3 : DW==32 ? 2 : DW==16 ? 1 : 0,
+    MW      = DW >> 3
 )(
     input                   rst,
     input                   clk,
 
     input      [AW-1:AW0]   addr,
-    output reg [DW-1:0]     dout,
+    output     [DW-1:0]     dout,
+    input      [DW-1:0]     din,
     input                   rd,
-    output reg              ok,
+    input                   wr,
+    input      [MW-1:0]     wdsn,
+    output                  ok,
 
     output     [EW-1:1]     ext_addr,
     input      [15:0]       ext_din,
-    output reg              ext_rd,
+    output     [15:0]       ext_dout,
+    output                  ext_rd,
+    output                  ext_wr,
     input                   ext_ack,
     input                   ext_dst,
+    input                   ext_dok,
     input                   ext_rdy
 );
 
-localparam integer BW     = BLOCKS < 2 ? 1 : $clog2(BLOCKS);
-localparam integer UW     = AW-AW0;
-localparam integer UBYTES = DW >> 3;
-localparam integer DEPTH  = BLKSIZE / UBYTES;
-localparam integer OFFW   = DEPTH < 2 ? 1 : $clog2(DEPTH);
-localparam integer TAGW   = UW - OFFW;
-localparam integer WORDS  = BLKSIZE >> 1;
-localparam integer WW     = WORDS < 2 ? 1 : $clog2(WORDS);
-localparam [WW-1:0] LAST_WORD = WW'(WORDS-1);
+localparam integer BW        = BLOCKS < 2 ? 1 : $clog2(BLOCKS);
+localparam integer WAYS      = BLOCKS < 4 ? BLOCKS : 4;
+localparam integer SETS      = BLOCKS / WAYS;
+localparam integer WAY_BITS  = WAYS < 2 ? 0 : $clog2(WAYS);
+localparam integer WAYW      = WAY_BITS < 1 ? 1 : WAY_BITS;
+localparam integer SET_BITS  = SETS < 2 ? 0 : $clog2(SETS);
+localparam integer SETW      = SET_BITS < 1 ? 1 : SET_BITS;
+localparam integer UBYTES    = DW >> 3;
+localparam integer DEPTH     = BLKSIZE / UBYTES;
+localparam integer OFFW      = DEPTH < 2 ? 1 : $clog2(DEPTH);
+localparam integer UW        = AW - AW0;
+localparam integer TAG_BITS  = UW - OFFW - SET_BITS;
+localparam integer TAGW      = TAG_BITS < 1 ? 1 : TAG_BITS;
+localparam integer WORDS     = BLKSIZE >> 1;
+localparam integer WW        = WORDS < 2 ? 1 : $clog2(WORDS);
+localparam integer BLKBYTEW  = BLKSIZE < 2 ? 1 : $clog2(BLKSIZE);
+localparam integer RAM_BYTEW = BW + BLKBYTEW;
 
-reg [TAGW-1:0] tag_mem[0:BLOCKS-1];
-reg [BLOCKS-1:0] valid;
-reg [15:0] lfsr;
+wire [4:0]               st;
+wire                     fill_tail_seen;
+wire [BW-1:0]            blk_l;
+wire [OFFW-1:0]          req_off_l;
+wire [WW-1:0]            stream_word, fill_word;
+wire [127:0]             req_q, stream_q, wb_q;
+wire [RAM_BYTEW-1:0]     req_ram_addr_l, stream_ram_addr_l;
+wire                     miss_busy, fill_done;
+wire [RAM_BYTEW-1:0]     req_addr_mux, stream_addr_mux;
+wire [15:0]              req_we, stream_we;
+wire [127:0]             req_wdata, stream_wdata;
+wire [SETW-1:0]          tag_rd_set, lookup_set, clr_set;
+wire [SETW-1:0]          tag_write_set_n, tag_advance_set_n;
+wire [WAYW-1:0]          hit_way_now, victim_way_now;
+wire [WAYW-1:0]          tag_update_way_n, tag_advance_way_n;
+wire [TAGW-1:0]          lookup_tag, victim_tag_now, tag_update_tag_n;
+wire [BW-1:0]            hit_blk_now, victim_blk_now;
+wire                     hit_now, victim_invalid_now, victim_dirty_now;
+wire                     tag_clear_en, tag_update_en, tag_update_valid_n;
+wire                     tag_update_dirty_n, tag_advance_en;
 
-reg [AW-1:AW0] pend_addr;
-reg [TAGW-1:0] pend_tag;
-reg [OFFW-1:0] pend_off;
-reg [BW-1:0]   fill_blk;
-reg [BW-1:0]   hit_blk;
-reg [WW-1:0]   fill_word;
-reg [DW-1:0]   fill_resp;
-reg            miss_busy;
-reg            wait_data;
-reg            fill_active;
-reg            hit_sel;
-reg            fill_done;
+jtframe_cache_data #(
+    .DW     ( DW         ),
+    .ENDIAN ( ENDIAN     ),
+    .AW0    ( AW0        ),
+    .ADDRW  ( RAM_BYTEW  )
+) u_data_ram (
+    .clk         ( clk             ),
+    .req_addr    ( req_addr_mux    ),
+    .req_we      ( req_we          ),
+    .req_wdata   ( req_wdata       ),
+    .req_q       ( req_q           ),
+    .stream_addr ( stream_addr_mux ),
+    .stream_we   ( stream_we       ),
+    .stream_wdata( stream_wdata    ),
+    .stream_q    ( stream_q        )
+);
 
-reg            hit_now;
-reg [BW-1:0]   hit_blk_now;
+jtframe_cache_tags #(
+    .BLOCKS ( BLOCKS ),
+    .WAYS   ( WAYS   ),
+    .SETS   ( SETS   ),
+    .BW     ( BW     ),
+    .WAYW   ( WAYW   ),
+    .SETW   ( SETW   ),
+    .TAGW   ( TAGW   )
+) u_tags (
+    .rst           ( rst               ),
+    .clk           ( clk               ),
+    .rd_set        ( tag_rd_set        ),
+    .lookup_set    ( lookup_set        ),
+    .lookup_tag    ( lookup_tag        ),
+    .clear_en      ( tag_clear_en      ),
+    .clear_set     ( clr_set           ),
+    .update_en     ( tag_update_en     ),
+    .update_set    ( tag_write_set_n   ),
+    .update_way    ( tag_update_way_n  ),
+    .update_valid  ( tag_update_valid_n),
+    .update_dirty  ( tag_update_dirty_n),
+    .update_tag    ( tag_update_tag_n  ),
+    .advance_en    ( tag_advance_en    ),
+    .advance_set   ( tag_advance_set_n ),
+    .advance_way   ( tag_advance_way_n ),
+    .hit           ( hit_now           ),
+    .hit_way       ( hit_way_now       ),
+    .hit_blk       ( hit_blk_now       ),
+    .victim_way    ( victim_way_now    ),
+    .victim_blk    ( victim_blk_now    ),
+    .victim_invalid( victim_invalid_now),
+    .victim_dirty  ( victim_dirty_now  ),
+    .victim_tag    ( victim_tag_now    )
+);
 
-wire [UW-1:0] req_addr   = addr;
-wire [UW-1:0] pend_uaddr = pend_addr;
-wire [TAGW-1:0] req_tag  = req_addr[UW-1:OFFW];
-wire [OFFW-1:0] req_off  = req_addr[OFFW-1:0];
-wire [UW-1:0] base_addr  = { pend_uaddr[UW-1:OFFW], {OFFW{1'b0}} };
-wire [AW-1:0] base_byte  = { base_addr, {AW0{1'b0}} };
-wire [BW-1:0] victim     = victim_pick({16'd0, lfsr});
-wire          wr_en      = wait_data && (fill_active || ext_dst);
-
-wire [DW-1:0] hit_data;
-wire          fill_capture;
-wire          fill_last;
-wire [DW-1:0] fill_capture_data;
-
-assign fill_last = fill_word == LAST_WORD;
-
-integer i;
-
-assign ext_addr = { {(EW-AW){1'b0}}, base_byte[AW-1:1] };
-
-function [BW-1:0] victim_pick;
-    input [31:0] rnd;
-    reg [BW:0] tmp;
-    begin
-        tmp = { 1'b0, rnd[BW-1:0] };
-        if( tmp >= BLOCKS ) tmp = tmp - BLOCKS;
-        victim_pick = tmp[BW-1:0];
-    end
-endfunction
-
-always @* begin
-    hit_now = 0;
-    hit_blk_now = {BW{1'b0}};
-    for(i=0; i<BLOCKS; i=i+1) begin
-        if( valid[i] && req_tag == tag_mem[i] ) begin
-            hit_now = 1;
-            hit_blk_now = i[BW-1:0];
-        end
-    end
-end
-
-generate
-    if( DW==8 ) begin : gen_dw8
-        localparam integer RW = WORDS < 2 ? 1 : $clog2(WORDS);
-
-        wire [RW-1:0] rd_word = hit_sel ? pend_off[OFFW-1:1] : req_off[OFFW-1:1];
-        wire [7:0] q_lo[0:BLOCKS-1];
-        wire [7:0] q_hi[0:BLOCKS-1];
-
-        assign hit_data = pend_off[0] ? q_hi[hit_blk] : q_lo[hit_blk];
-        assign fill_capture = pend_off[OFFW-1:1] == fill_word[RW-1:0];
-        assign fill_capture_data = pend_off[0] ? ext_din[15:8] : ext_din[7:0];
-
-        genvar gi8;
-        for(gi8=0; gi8<BLOCKS; gi8=gi8+1) begin : blk8
-            jtframe_dual_ram #(.DW(8), .AW(RW)) u_lo(
-                .clk0  ( clk                     ),
-                .data0 ( ext_din[7:0]           ),
-                .addr0 ( fill_word[RW-1:0]      ),
-                .we0   ( wr_en && fill_blk==gi8 ),
-                .q0    (                         ),
-                .clk1  ( clk                     ),
-                .data1 ( 8'd0                    ),
-                .addr1 ( rd_word                 ),
-                .we1   ( 1'b0                    ),
-                .q1    ( q_lo[gi8]               )
-            );
-
-            jtframe_dual_ram #(.DW(8), .AW(RW)) u_hi(
-                .clk0  ( clk                     ),
-                .data0 ( ext_din[15:8]          ),
-                .addr0 ( fill_word[RW-1:0]      ),
-                .we0   ( wr_en && fill_blk==gi8 ),
-                .q0    (                         ),
-                .clk1  ( clk                     ),
-                .data1 ( 8'd0                    ),
-                .addr1 ( rd_word                 ),
-                .we1   ( 1'b0                    ),
-                .q1    ( q_hi[gi8]               )
-            );
-        end
-    end else if( DW==16 ) begin : gen_dw16
-        localparam integer RW = DEPTH < 2 ? 1 : $clog2(DEPTH);
-
-        wire [RW-1:0] rd_word = hit_sel ? pend_off : req_off;
-        wire [15:0] q_mem[0:BLOCKS-1];
-
-        assign hit_data = q_mem[hit_blk];
-        assign fill_capture = pend_off == fill_word[RW-1:0];
-        assign fill_capture_data = ext_din;
-
-        genvar gi16;
-        for(gi16=0; gi16<BLOCKS; gi16=gi16+1) begin : blk16
-            jtframe_dual_ram #(.DW(16), .AW(RW)) u_mem(
-                .clk0  ( clk                      ),
-                .data0 ( ext_din                  ),
-                .addr0 ( fill_word[RW-1:0]       ),
-                .we0   ( wr_en && fill_blk==gi16 ),
-                .q0    (                          ),
-                .clk1  ( clk                      ),
-                .data1 ( 16'd0                    ),
-                .addr1 ( rd_word                  ),
-                .we1   ( 1'b0                     ),
-                .q1    ( q_mem[gi16]              )
-            );
-        end
-    end else begin : gen_dw32
-        localparam integer D32 = BLKSIZE >> 2;
-        localparam integer RW  = D32 < 2 ? 1 : $clog2(D32);
-
-        reg [15:0] fill_lo;
-        wire [RW-1:0] rd_word = hit_sel ? pend_off : req_off;
-        wire [15:0] q_lo[0:BLOCKS-1];
-        wire [15:0] q_hi[0:BLOCKS-1];
-
-        assign hit_data = { q_hi[hit_blk], q_lo[hit_blk] };
-        assign fill_capture = fill_word[0] && (pend_off == fill_word[WW-1:1]);
-        assign fill_capture_data = { ext_din, fill_lo };
-
-        always @(posedge clk) begin
-            if( rst ) begin
-                fill_lo <= 0;
-            end else if( wr_en && !fill_word[0] ) begin
-                fill_lo <= ext_din;
-            end
-        end
-
-        genvar gi32;
-        for(gi32=0; gi32<BLOCKS; gi32=gi32+1) begin : blk32
-            jtframe_dual_ram #(.DW(16), .AW(RW)) u_lo(
-                .clk0  ( clk                                     ),
-                .data0 ( ext_din                                 ),
-                .addr0 ( fill_word[WW-1:1]                       ),
-                .we0   ( wr_en && !fill_word[0] && fill_blk==gi32 ),
-                .q0    (                                         ),
-                .clk1  ( clk                                     ),
-                .data1 ( 16'd0                                   ),
-                .addr1 ( rd_word                                 ),
-                .we1   ( 1'b0                                    ),
-                .q1    ( q_lo[gi32]                              )
-            );
-
-            jtframe_dual_ram #(.DW(16), .AW(RW)) u_hi(
-                .clk0  ( clk                                    ),
-                .data0 ( ext_din                                ),
-                .addr0 ( fill_word[WW-1:1]                      ),
-                .we0   ( wr_en && fill_word[0] && fill_blk==gi32 ),
-                .q0    (                                        ),
-                .clk1  ( clk                                    ),
-                .data1 ( 16'd0                                  ),
-                .addr1 ( rd_word                                ),
-                .we1   ( 1'b0                                   ),
-                .q1    ( q_hi[gi32]                             )
-            );
-        end
-    end
-endgenerate
-
-always @(posedge clk) begin
-    if( rst ) begin
-        valid       <= 0;
-        dout        <= 0;
-        ok          <= 0;
-        ext_rd      <= 0;
-        pend_addr   <= 0;
-        pend_tag    <= 0;
-        pend_off    <= 0;
-        fill_blk    <= 0;
-        hit_blk     <= 0;
-        fill_word   <= 0;
-        fill_resp   <= 0;
-        miss_busy   <= 0;
-        wait_data   <= 0;
-        fill_active <= 0;
-        hit_sel     <= 0;
-        fill_done   <= 0;
-        lfsr        <= 16'h1;
-    end else begin
-        lfsr <= {lfsr[14:0], lfsr[15]^lfsr[13]^lfsr[12]^lfsr[10]};
-
-        if( fill_done ) begin
-            dout <= fill_resp;
-            ok   <= 1;
-            fill_done <= 0;
-        end else if( hit_sel ) begin
-            dout <= hit_data;
-            ok   <= 1;
-            hit_sel <= 0;
-        end else begin
-            ok <= 0;
-        end
-
-        if( rd && hit_now && !miss_busy ) begin
-            hit_blk  <= hit_blk_now;
-            pend_off <= req_off;
-            hit_sel  <= 1;
-        end else if( rd && !hit_now && !miss_busy ) begin
-            pend_addr   <= addr;
-            pend_tag    <= req_tag;
-            pend_off    <= req_off;
-            fill_blk    <= victim;
-            fill_word   <= 0;
-            ext_rd      <= 1;
-            miss_busy   <= 1;
-            wait_data   <= 0;
-            fill_active <= 0;
-            fill_done   <= 0;
-            hit_sel     <= 0;
-        end
-
-        if( ext_rd && ext_ack ) begin
-            wait_data <= 1;
-        end
-
-        if( wr_en ) begin
-            fill_active <= !(ext_rdy || fill_last);
-            if( fill_capture ) fill_resp <= fill_capture_data;
-            if( fill_last ) ext_rd <= 0;
-            fill_word <= fill_last ? 0 : fill_word + 1'd1;
-            if( ext_rdy ) begin
-                valid[fill_blk] <= 1;
-                tag_mem[fill_blk] <= pend_tag;
-                miss_busy <= 0;
-                wait_data <= 0;
-                fill_done <= 1;
-                fill_word <= 0;
-            end
-        end
-
-        if( wait_data && ext_rdy && !wr_en ) begin
-            valid[fill_blk] <= 1;
-            tag_mem[fill_blk] <= pend_tag;
-            miss_busy <= 0;
-            wait_data <= 0;
-            fill_done <= 1;
-            fill_word <= 0;
-        end
-    end
-end
+jtframe_cache_ctrl #(
+    .BLOCKS ( BLOCKS  ),
+    .BLKSIZE( BLKSIZE ),
+    .AW     ( AW      ),
+    .DW     ( DW      ),
+    .ENDIAN ( ENDIAN  ),
+    .EW     ( EW      ),
+    .AW0    ( AW0     ),
+    .MW     ( MW      )
+) u_ctrl (
+    .rst             ( rst               ),
+    .clk             ( clk               ),
+    .addr            ( addr              ),
+    .dout            ( dout              ),
+    .din             ( din               ),
+    .rd              ( rd                ),
+    .wr              ( wr                ),
+    .wdsn            ( wdsn              ),
+    .ok              ( ok                ),
+    .ext_addr        ( ext_addr          ),
+    .ext_din         ( ext_din           ),
+    .ext_dout        ( ext_dout          ),
+    .ext_rd          ( ext_rd            ),
+    .ext_wr          ( ext_wr            ),
+    .ext_ack         ( ext_ack           ),
+    .ext_dst         ( ext_dst           ),
+    .ext_dok         ( ext_dok           ),
+    .ext_rdy         ( ext_rdy           ),
+    .req_q           ( req_q             ),
+    .stream_q        ( stream_q          ),
+    .req_addr        ( req_addr_mux      ),
+    .req_we          ( req_we            ),
+    .req_wdata       ( req_wdata         ),
+    .stream_addr     ( stream_addr_mux   ),
+    .stream_we       ( stream_we         ),
+    .stream_wdata    ( stream_wdata      ),
+    .tag_rd_set      ( tag_rd_set        ),
+    .lookup_set      ( lookup_set        ),
+    .lookup_tag      ( lookup_tag        ),
+    .tag_clear_en    ( tag_clear_en      ),
+    .clr_set         ( clr_set           ),
+    .tag_update_en   ( tag_update_en     ),
+    .tag_write_set_n ( tag_write_set_n   ),
+    .tag_update_way_n( tag_update_way_n  ),
+    .tag_update_valid_n( tag_update_valid_n ),
+    .tag_update_dirty_n( tag_update_dirty_n ),
+    .tag_update_tag_n( tag_update_tag_n  ),
+    .tag_advance_en  ( tag_advance_en    ),
+    .tag_advance_set_n( tag_advance_set_n ),
+    .tag_advance_way_n( tag_advance_way_n ),
+    .hit_now         ( hit_now           ),
+    .hit_way_now     ( hit_way_now       ),
+    .hit_blk_now     ( hit_blk_now       ),
+    .victim_way_now  ( victim_way_now    ),
+    .victim_blk_now  ( victim_blk_now    ),
+    .victim_dirty_now( victim_dirty_now  ),
+    .victim_tag_now  ( victim_tag_now    ),
+    .st              ( st                ),
+    .fill_tail_seen  ( fill_tail_seen    ),
+    .blk_l           ( blk_l             ),
+    .req_off_l       ( req_off_l         ),
+    .stream_word     ( stream_word       ),
+    .wb_q            ( wb_q              ),
+    .req_ram_addr_l  ( req_ram_addr_l    ),
+    .stream_ram_addr_l( stream_ram_addr_l ),
+    .miss_busy       ( miss_busy         ),
+    .fill_done       ( fill_done         ),
+    .fill_word       ( fill_word         )
+);
 
 endmodule

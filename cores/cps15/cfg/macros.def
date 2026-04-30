@@ -2,7 +2,6 @@ include ../../cps1/cfg/common.def
 
 CPS15
 CORENAME=JTCPS15
-GAMETOP=jtcps15_game
 
 JTFRAME_HEADER=64
 # CPS1.5 games don't have DIP switches

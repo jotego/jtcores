@@ -70,6 +70,14 @@ echo -n > jtsim.f
 trap "clean_up; exit 1" INT KILL
 
 preparse_args $*
+for arg in "$@"; do
+    case "$arg" in
+        -help|-h|--help)
+            show_help
+            exit 0
+            ;;
+    esac
+done
 require "$JTFRAME" "You need to source the project setprj.sh"
 require "$MODULES" "Missing the modules path. You need to source the project setprj.sh"
 

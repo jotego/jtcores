@@ -186,17 +186,18 @@ regions=[
         { name="qkn.34", crc="d03b553f", length=0x40000, offset=0x0     },
         { name="qkn.33", crc="43aa343d", length=0x40000, offset=0x40000 },
     ] },
-    { name="gfx", width=64 },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="gfx", width=64, start="JTFRAME_BA3_START" },
     # So far, Pang!3 is too specific. It needs to break each file in two and
     # merge them back in different locations. Instead of parsing MAME's XML
     # the desired parts are done manually:
-    { name="gfx", width=64, machine="pang3", parts=[
+    { name="gfx", width=64, start="JTFRAME_BA3_START", machine="pang3", parts=[
         { name="pa3-01m.2c", crc="068a152c", map="00000021", length=0x100000, offset=0 },
         { name="pa3-07m.2f", crc="3a4a619d", map="00002100", length=0x100000, offset=0 },
         { name="pa3-01m.2c", crc="068a152c", map="00210000", length=0x100000, offset=0x100000 },
         { name="pa3-07m.2f", crc="3a4a619d", map="21000000", length=0x100000, offset=0x100000 },
     ] },
-    { name="oki", len=0x40000 },
+    { name="oki", len=0x40000, start="JTFRAME_BA2_START" },
     { name="aboardplds", skip=true },
     { name="bboardplds", skip=true },
     { name="cboardplds", skip=true },
@@ -209,7 +210,7 @@ nvram = { machines=["pang3"] }
 
 [header]
 fill=0xff
-offset={ bits=10, regions=["audiocpu","oki", "gfx"], reverse=true }
+offset={ bits=10, regions=["maincpu","audiocpu","oki","gfx"], reverse=true }
 
 data=[
     { data="20 05 FF FF FF FF 28 2A 2C 2E 30 00 00 32 02 08 20 14 2A 40 44 F3 FF 00", offset=16, setnames=[ "1941", "1941j", "1941r1", "1941u" ] },

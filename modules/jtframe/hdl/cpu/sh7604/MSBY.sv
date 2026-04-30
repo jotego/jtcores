@@ -25,7 +25,9 @@ module SH7604_MSBY (
 	
 	SBYCR_t     SBYCR;
 	
-	wire REG_SEL = (IBUS_A == 32'hFFFFFE91);
+	// SBYCR lives at FFFFFE91 but the SH-2 BIOS reaches it with a word write
+	// to FFFFFE90, carrying the byte in DI[23:16].
+	wire REG_SEL = (IBUS_A == 32'hFFFFFE90) || (IBUS_A == 32'hFFFFFE91);
 	always @(posedge CLK or negedge RST_N) begin
 		if (!RST_N) begin
 			SBYCR <= SBYCR_INIT;

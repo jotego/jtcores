@@ -31,9 +31,10 @@ import (
 var auditCmd = &cobra.Command{
 	Use:   "audit",
 	Short: "Creates a CSV file with the audio channel gains used on each core",
+	Long:  man_blurb("jtutil-audit", "Create a CSV file with the audio channel gains used on each core."),
 	Run: func(cmd *cobra.Command, args []string) {
 		e := audit_audio()
-		if e!=nil {
+		if e != nil {
 			fmt.Println(e)
 			os.Exit(1)
 		}
@@ -45,17 +46,24 @@ func init() {
 }
 
 func audit_audio() error {
-	tmp_dir, e := os.MkdirTemp("/tmp","")
-	if e!=nil { return e }
+	tmp_dir, e := os.MkdirTemp("/tmp", "")
+	if e != nil {
+		return e
+	}
 	output, e := os.Create("audit.csv")
-	if e!=nil { return e }
+	if e != nil {
+		return e
+	}
 	defer output.Close()
 	for _, core := range get_valid_cores() {
 		var cfg mem.MemConfig
-		mem.ParseFile(core,"mem.yaml",&cfg)
-		e = mem.Make_audio(&cfg,core,tmp_dir); if e!=nil { return fmt.Errorf("%w\nwhile parsing %s",e,core) }
-		fmt.Fprintf(output,"%s",core)
-		report(cfg.Audio.Channels,output)
+		mem.ParseFile(core, "mem.yaml", &cfg)
+		e = mem.Make_audio(&cfg, core, tmp_dir)
+		if e != nil {
+			return fmt.Errorf("%w\nwhile parsing %s", e, core)
+		}
+		fmt.Fprintf(output, "%s", core)
+		report(cfg.Audio.Channels, output)
 	}
 	os.RemoveAll(tmp_dir)
 	return nil
@@ -63,16 +71,20 @@ func audit_audio() error {
 
 func get_valid_cores() (valid []string) {
 	corepath := os.Getenv("CORES")
-	if corepath=="" { return nil }
-	valid = make([]string,0,128)
-	filepath.Walk(corepath,func( folderpath string, info os.FileInfo, e error ) error {
-		if e!=nil { return e }
+	if corepath == "" {
+		return nil
+	}
+	valid = make([]string, 0, 128)
+	filepath.Walk(corepath, func(folderpath string, info os.FileInfo, e error) error {
+		if e != nil {
+			return e
+		}
 		if info.IsDir() {
-			f, e := os.Open(filepath.Join(folderpath,"cfg","mem.yaml"))
+			f, e := os.Open(filepath.Join(folderpath, "cfg", "mem.yaml"))
 			defer f.Close()
-			if e==nil {
+			if e == nil {
 				corename := filepath.Base(folderpath)
-				valid=append(valid,corename)
+				valid = append(valid, corename)
 			}
 		}
 		return nil
@@ -80,10 +92,14 @@ func get_valid_cores() (valid []string) {
 	return valid
 }
 
-func report(channels []mem.AudioCh, output io.Writer ) {
+func report(channels []mem.AudioCh, output io.Writer) {
 	for _, ch := range channels {
-		if ch.Name=="" { break }
-		fmt.Fprintf(output,",%s,%s",ch.Name,mem.Gain2dec(ch.Gain))
+		if ch.Name == "" {
+			break
+		}
+		fmt.Fprintf(output, ",%s,%s", ch.Name, mem.Gain2dec(ch.Gain))
 	}
-	if len(channels)!=0 { fmt.Fprintln(output) }
+	if len(channels) != 0 {
+		fmt.Fprintln(output)
+	}
 }

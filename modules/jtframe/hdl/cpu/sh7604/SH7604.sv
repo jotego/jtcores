@@ -1,3 +1,6 @@
+`ifndef VERILATOR_KEEP_CPU
+/* verilator tracing_off */
+`endif
 module SH7604 
 #(parameter bit UBC_DISABLE=0, bit SCI_DISABLE=0, bit WDT_DISABLE=0, bit [3:0] BUS_AREA_TIMIMG=0, bit BUS_SIZE_BYTE_DISABLE=0, bit BUS_SIZE_WORD_DISABLE=0)
 (
@@ -27,6 +30,7 @@ module SH7604
 	output            RD_N,
 	output            IVECF_N,
 	output            RFS,
+	output            BUS_STB,
 	
 	input      [26:0] EA,
 	output     [31:0] EDI,
@@ -66,7 +70,11 @@ module SH7604
 	
 	input       [5:0] MD,
 	
-	input             FAST
+	input             FAST,
+
+	input             CPS3_DECRYPT,
+	input      [31:0] CPS3_KEY1,
+	input      [31:0] CPS3_KEY2
 	
 `ifdef DEBUG
 	                  ,
@@ -321,7 +329,10 @@ module SH7604
 		.IBUS_PREREQ(IBUS_PREREQ),
 		.IBUS_BURST(IBUS_BURST),
 		.IBUS_LOCK(IBUS_LOCK),
-		.IBUS_WAIT(IBUS_WAIT)
+		.IBUS_WAIT(IBUS_WAIT),
+		.CPS3_DECRYPT(CPS3_DECRYPT),
+		.CPS3_KEY1(CPS3_KEY1),
+		.CPS3_KEY2(CPS3_KEY2)
 	);
 	
 	assign IBUS_DI = INTC_ACT ? INTC_DO : 
@@ -564,6 +575,7 @@ module SH7604
 	assign IDI                                    = !BUS_RLS ? DI                                           : EDO;
 	assign {BS_N,CS0_N,CS1_N,CS2_N,CS3_N}         = !BUS_RLS ? {IBS_N,ICS0_N,ICS1_N,ICS2_N,ICS3_N}          : {EBS_N,ECS0_N,ECS1_N,ECS2_N,ECS3_N};
 	assign {RD_WR_N,CE_N,OE_N,WE_N,RD_N,IVECF_N}  = !BUS_RLS ? {IRD_WR_N,ICE_N,IOE_N,IWE_N,IRD_N,IIVECF_N}  : {ERD_WR_N,ECE_N,EOE_N,EWE_N,ERD_N,EIVECF_N};
+	assign BUS_STB = !BUS_RLS && (BSC_ACK || (!IBS_N && !IRD_N && !IIVECF_N));
 	assign EDI = DI;
 	
 	

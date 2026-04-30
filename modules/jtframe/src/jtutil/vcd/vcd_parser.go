@@ -17,161 +17,258 @@
 
 package vcd
 
-import(
+import (
 	"fmt"
+	"math/big"
 	"os"
 	"regexp"
 	"slices"
-	"strings"
-	"strconv"
 	"sort"
+	"strconv"
+	"strings"
 )
 
-type VCDSignal struct{
-	Scope, Name string
-	alias string
-	MSB,LSB int // MSB-LSB<=64, so it can fit in Value
-	Value, copy uint64
-	Concat struct{
-		p *VCDSignal	// signal to concatenate
-		at int			// bit position at which concatenation starts
+type VCDSignal struct {
+	Scope, Name    string
+	alias          string
+	MSB, LSB       int // Signals are stored up to 128 bits split across ValueHi:Value.
+	Value, ValueHi uint64
+	copy, copyHi   uint64
+	Concat         struct {
+		p  *VCDSignal // signal to concatenate
+		at int        // bit position at which concatenation starts
 	}
+}
+
+type parsedVCDValue struct {
+	alias  string
+	lo, hi uint64
+	ok     bool
 }
 
 type VCDData map[string]*VCDSignal
 type boolSet struct {
-	v validator
+	v   validator
 	set map[string]bool
 }
 
-type Hierarchy struct{
-	Nested map[string]*Hierarchy
+type Hierarchy struct {
+	Nested  map[string]*Hierarchy
 	Signals map[string]*VCDSignal
 }
 
 func (bset boolSet) Dump() {
-    for k, each := range bset.set {
-        if each { fmt.Printf("%s\n",k) }
-    }
+	for k, each := range bset.set {
+		if each {
+			fmt.Printf("%s\n", k)
+		}
+	}
 }
 
 type validator interface {
-	validate (name string) bool
+	validate(name string) bool
 }
 
-func newBoolSet(v validator) (*boolSet) {
+func newBoolSet(v validator) *boolSet {
 	return &boolSet{
-		v: v,
+		v:   v,
 		set: make(map[string]bool),
 	}
 }
 
-func (b *boolSet) Update(all_names...string) {
-    for _, name := range all_names {
-        turnon:= true
-        if name[0]=='-' {
-            turnon = false
-            name=name[1:]
-        }
-        if !b.v.validate(name) {
-            fmt.Printf("Couldn't find %s\n", name)
-            continue
-        }
-        b.set[name]=turnon
-    }
+func (b *boolSet) Update(all_names ...string) {
+	for _, name := range all_names {
+		turnon := true
+		if name[0] == '-' {
+			turnon = false
+			name = name[1:]
+		}
+		if !b.v.validate(name) {
+			fmt.Printf("Couldn't find %s\n", name)
+			continue
+		}
+		b.set[name] = turnon
+	}
 }
 
-func (b *boolSet)Remove(all_names... string) {
-    for _, name := range all_names {
-        b.set[name]=false
-    }
+func (b *boolSet) Remove(all_names ...string) {
+	for _, name := range all_names {
+		b.set[name] = false
+	}
 }
 
-func (b boolSet)IsSet(name string) bool {
+func (b boolSet) IsSet(name string) bool {
 	valid, _ := b.set[name]
 	return valid
 }
 
 func (this *VCDSignal) Dump() {
-	if this.Scope != "" { fmt.Printf("%s.", this.Scope ) }
-	fmt.Printf( "%s",this.Name)
-	if this.MSB!=0 {
-		fmt.Printf("[%d:%d]",this.MSB, this.LSB)
+	if this.Scope != "" {
+		fmt.Printf("%s.", this.Scope)
 	}
-	fmt.Printf("\t = %X", this.Value )
+	fmt.Printf("%s", this.Name)
+	if this.MSB != 0 {
+		fmt.Printf("[%d:%d]", this.MSB, this.LSB)
+	}
+	fmt.Printf("\t = %s", this.RawHexValue())
 	if this.Concat.p != nil {
-		fmt.Printf(" -> %X", this.FullValue())
+		fmt.Printf(" -> %s", this.HexValue())
 	}
 	// the frame count is shown in decimal too
-	if( this.Name == "frame_cnt") {
-		fmt.Printf(" ('d%d)",this.Value)
+	if this.Name == "frame_cnt" {
+		fmt.Printf(" ('d%d)", this.Value)
 	}
 	fmt.Println()
 }
 
-func (this *VCDSignal)FullValue() uint64 {
-	v := this.Value
+func signalWidth(msb, lsb int) int {
+	width := msb - lsb
+	if width < 0 {
+		width = -width
+	}
+	return width + 1
+}
+
+func shift128(hi, lo uint64, shift int) (uint64, uint64) {
+	switch {
+	case shift <= 0:
+		return hi, lo
+	case shift >= 128:
+		return 0, 0
+	case shift >= 64:
+		return lo << (shift - 64), 0
+	default:
+		return (hi << shift) | (lo >> (64 - shift)), lo << shift
+	}
+}
+
+func formatHex128(hi, lo uint64, width int) string {
+	if width < 1 {
+		width = 1
+	}
+	var v big.Int
+	v.SetUint64(hi)
+	v.Lsh(&v, 64)
+	v.Or(&v, new(big.Int).SetUint64(lo))
+	txt := strings.ToUpper(v.Text(16))
+	digits := (width + 3) >> 2
+	if len(txt) < digits {
+		txt = strings.Repeat("0", digits-len(txt)) + txt
+	}
+	return txt
+}
+
+func (this *VCDSignal) RawValue128() (uint64, uint64) {
+	return this.ValueHi, this.Value
+}
+
+func (this *VCDSignal) RawWidth() int {
+	return signalWidth(this.MSB, this.LSB)
+}
+
+func (this *VCDSignal) FullValue128() (uint64, uint64) {
+	hi, lo := this.RawValue128()
 	cat := this.Concat
-	for cat.p!=nil {
-		v = v | (cat.p.Value<<cat.at) // no masking for now
+	for cat.p != nil {
+		chi, clo := cat.p.FullValue128()
+		shi, slo := shift128(chi, clo, cat.at)
+		hi |= shi
+		lo |= slo
 		cat = cat.p.Concat
 	}
+	return hi, lo
+}
+
+func (this *VCDSignal) FullWidth() int {
+	width := this.RawWidth()
+	cat := this.Concat
+	for cat.p != nil {
+		if w := cat.at + cat.p.FullWidth(); w > width {
+			width = w
+		}
+		cat = cat.p.Concat
+	}
+	return width
+}
+
+func (this *VCDSignal) RawHexValue() string {
+	hi, lo := this.RawValue128()
+	return formatHex128(hi, lo, this.RawWidth())
+}
+
+func (this *VCDSignal) HexValue() string {
+	hi, lo := this.FullValue128()
+	return formatHex128(hi, lo, this.FullWidth())
+}
+
+func (this *VCDSignal) FullValue() uint64 {
+	_, v := this.FullValue128()
 	return v
 }
 
-func (this *VCDSignal)Save() {
+func (this *VCDSignal) Save() {
 	this.copy = this.Value
+	this.copyHi = this.ValueHi
 }
 
-func (this *VCDSignal)Restore() {
+func (this *VCDSignal) Restore() {
 	this.Value = this.copy
+	this.ValueHi = this.copyHi
 }
 
-func (this *VCDSignal)FullName() string {
-	if this.Scope=="" {
+func (this *VCDSignal) FullName() string {
+	if this.Scope == "" {
 		return this.Name
 	} else {
-		return this.Scope+"."+this.Name
+		return this.Scope + "." + this.Name
 	}
 }
 
-func (this VCDData)Get(name string) *VCDSignal {
-	if name=="" { return nil }
-	for _,each := range this {
-		if each.FullName()==name { return each }
+func (this VCDData) Get(name string) *VCDSignal {
+	if name == "" {
+		return nil
+	}
+	for _, each := range this {
+		if each.FullName() == name {
+			return each
+		}
 	}
 	return nil
 }
 
-func (this VCDData)GetAllNameMatches(name string) (matched []*VCDSignal) {
-	if name=="" { return nil }
-	matched=make([]*VCDSignal,0,8)
-	for _,each := range this {
-		if each.Name==name {
-			matched=append(matched,each)
+func (this VCDData) GetAllNameMatches(name string) (matched []*VCDSignal) {
+	if name == "" {
+		return nil
+	}
+	matched = make([]*VCDSignal, 0, 8)
+	for _, each := range this {
+		if each.Name == name {
+			matched = append(matched, each)
 		}
 	}
 	return matched
 }
 
 // gets the scope part of a hierarchinal signal name
-func GetScope( name string ) (string, string) {
-	tokens := strings.Split(name,".")
-	if len(tokens)==1 {
-		return "",name
+func GetScope(name string) (string, string) {
+	tokens := strings.Split(name, ".")
+	if len(tokens) == 1 {
+		return "", name
 	}
-	return strings.Join(tokens[0:len(tokens)-1],"."), tokens[len(tokens)-1]
+	return strings.Join(tokens[0:len(tokens)-1], "."), tokens[len(tokens)-1]
 }
 
 // GetAll returns all signals with the same name. The scope is ignored if
 // matchScope is set to false
-func (this VCDData)GetAll(name string, matchScope bool) []*VCDSignal {
-	if name=="" { return nil }
-	r := make([]*VCDSignal,0,1)
-	scope,name := GetScope(name)
-	for _,each := range this {
-		if each.Name==name && (!matchScope || scope==each.Scope) {
-			r=append(r,each)
+func (this VCDData) GetAll(name string, matchScope bool) []*VCDSignal {
+	if name == "" {
+		return nil
+	}
+	r := make([]*VCDSignal, 0, 1)
+	scope, name := GetScope(name)
+	for _, each := range this {
+		if each.Name == name && (!matchScope || scope == each.Scope) {
+			r = append(r, each)
 		}
 	}
 	if len(r) == 0 {
@@ -181,53 +278,85 @@ func (this VCDData)GetAll(name string, matchScope bool) []*VCDSignal {
 	}
 }
 
-func RenameRegs( ss VCDData ) {
+func RenameRegs(ss VCDData) {
 	// Rename signals for some CPUs
 	// fx68k
-	for _,each := range ss {
+	for _, each := range ss {
 		switch each.Name {
-		case "regs68L[0]": each.Name="D0"
-		case "regs68L[1]": each.Name="D1"
-		case "regs68L[2]": each.Name="D2"
-		case "regs68L[3]": each.Name="D3"
-		case "regs68L[4]": each.Name="D4"
-		case "regs68L[5]": each.Name="D5"
-		case "regs68L[6]": each.Name="D6"
-		case "regs68L[7]": each.Name="D7"
+		case "regs68L[0]":
+			each.Name = "D0"
+		case "regs68L[1]":
+			each.Name = "D1"
+		case "regs68L[2]":
+			each.Name = "D2"
+		case "regs68L[3]":
+			each.Name = "D3"
+		case "regs68L[4]":
+			each.Name = "D4"
+		case "regs68L[5]":
+			each.Name = "D5"
+		case "regs68L[6]":
+			each.Name = "D6"
+		case "regs68L[7]":
+			each.Name = "D7"
 
-		case "regs68H[0]": each.Name="D0H"
-		case "regs68H[1]": each.Name="D1H"
-		case "regs68H[2]": each.Name="D2H"
-		case "regs68H[3]": each.Name="D3H"
-		case "regs68H[4]": each.Name="D4H"
-		case "regs68H[5]": each.Name="D5H"
-		case "regs68H[6]": each.Name="D6H"
-		case "regs68H[7]": each.Name="D7H"
+		case "regs68H[0]":
+			each.Name = "D0H"
+		case "regs68H[1]":
+			each.Name = "D1H"
+		case "regs68H[2]":
+			each.Name = "D2H"
+		case "regs68H[3]":
+			each.Name = "D3H"
+		case "regs68H[4]":
+			each.Name = "D4H"
+		case "regs68H[5]":
+			each.Name = "D5H"
+		case "regs68H[6]":
+			each.Name = "D6H"
+		case "regs68H[7]":
+			each.Name = "D7H"
 
-		case "regs68L[8]": each.Name="A0"
-		case "regs68L[9]": each.Name="A1"
-		case "regs68L[10]": each.Name="A2"
-		case "regs68L[11]": each.Name="A3"
-		case "regs68L[12]": each.Name="A4"
-		case "regs68L[13]": each.Name="A5"
-		case "regs68L[14]": each.Name="A6"
-		case "regs68L[16]": each.Name="A7"
+		case "regs68L[8]":
+			each.Name = "A0"
+		case "regs68L[9]":
+			each.Name = "A1"
+		case "regs68L[10]":
+			each.Name = "A2"
+		case "regs68L[11]":
+			each.Name = "A3"
+		case "regs68L[12]":
+			each.Name = "A4"
+		case "regs68L[13]":
+			each.Name = "A5"
+		case "regs68L[14]":
+			each.Name = "A6"
+		case "regs68L[16]":
+			each.Name = "A7"
 
-		case "regs68H[8]": each.Name="A0H"
-		case "regs68H[9]": each.Name="A1H"
-		case "regs68H[10]": each.Name="A2H"
-		case "regs68H[11]": each.Name="A3H"
-		case "regs68H[12]": each.Name="A4H"
-		case "regs68H[13]": each.Name="A5H"
-		case "regs68H[14]": each.Name="A6H"
-		case "regs68H[16]": each.Name="A7H"
+		case "regs68H[8]":
+			each.Name = "A0H"
+		case "regs68H[9]":
+			each.Name = "A1H"
+		case "regs68H[10]":
+			each.Name = "A2H"
+		case "regs68H[11]":
+			each.Name = "A3H"
+		case "regs68H[12]":
+			each.Name = "A4H"
+		case "regs68H[13]":
+			each.Name = "A5H"
+		case "regs68H[14]":
+			each.Name = "A6H"
+		case "regs68H[16]":
+			each.Name = "A7H"
 		}
 	}
-	concatHL := func( H,L string ) {
+	concatHL := func(H, L string) {
 		for _, each := range ss {
-			if each.Name==L {
+			if each.Name == L {
 				for _, eachH := range ss {
-					if eachH.Name==H && eachH.Scope == each.Scope {
+					if eachH.Name == H && eachH.Scope == each.Scope {
 						each.Concat.p = eachH
 						each.Concat.at = 16
 					}
@@ -235,84 +364,92 @@ func RenameRegs( ss VCDData ) {
 			}
 		}
 	}
-	concatSeries := func( prefix string ) {
-		for k:=0;k<8;k++ {
-			L := fmt.Sprintf("%s%d",prefix,k)
-			H := fmt.Sprintf("%s%dH",prefix,k)
-			concatHL( H, L )
+	concatSeries := func(prefix string) {
+		for k := 0; k < 8; k++ {
+			L := fmt.Sprintf("%s%d", prefix, k)
+			H := fmt.Sprintf("%s%dH", prefix, k)
+			concatHL(H, L)
 		}
 	}
 
 	concatSeries("D")
 	concatSeries("A")
-	concatHL("PcH","PcL")
+	concatHL("PcH", "PcL")
 }
 
-func formatTime( t uint64 ) string {
+func formatTime(t uint64) string {
 	tpico := t
 	t /= 1000 // ignore ps
-	if t==0 { return "0 s" }
+	if t == 0 {
+		return "0 s"
+	}
 	o := 0
-	units := []string{"ns","us","ms","s"}
-	parts := []uint64{0,0,0,0}
-	for t>0 && o<4 {
-		parts[o] = t%1000
-		t/= 1000
+	units := []string{"ns", "us", "ms", "s"}
+	parts := []uint64{0, 0, 0, 0}
+	for t > 0 && o < 4 {
+		parts[o] = t % 1000
+		t /= 1000
 		o++
 	}
 	var s string
-	for k:=0;k<o; k++ {
-		if s!="" { s=","+s}
-		s = fmt.Sprintf("%d%s%s",parts[k],units[k],s)
+	for k := 0; k < o; k++ {
+		if s != "" {
+			s = "," + s
+		}
+		s = fmt.Sprintf("%d%s%s", parts[k], units[k], s)
 	}
-	s = fmt.Sprintf("%s= %d",s,tpico)
+	s = fmt.Sprintf("%s= %d", s, tpico)
 	return s
 }
 
-func GenerateHierarchy( ss VCDData ) *Hierarchy {
+func GenerateHierarchy(ss VCDData) *Hierarchy {
 	// Convert ss to a slice
-	signals := make([]*VCDSignal,len(ss))
+	signals := make([]*VCDSignal, len(ss))
 	k := 0
-	for _,each := range ss {
+	for _, each := range ss {
 		signals[k] = each
 		k++
 	}
 	// Sort by scope length, then signal name
-	sort.Slice(signals,func( i, j int ) bool {
-		s := strings.Compare(signals[i].Scope,signals[j].Scope)
-		if s==0 {
-			return strings.Compare(signals[i].Name,signals[j].Name)<0
+	sort.Slice(signals, func(i, j int) bool {
+		s := strings.Compare(signals[i].Scope, signals[j].Scope)
+		if s == 0 {
+			return strings.Compare(signals[i].Name, signals[j].Name) < 0
 		}
-		return s<0
+		return s < 0
 	})
 	// Create the hierarchy following the sorted list
-	return fillHierarchy( signals, "")
+	return fillHierarchy(signals, "")
 }
 
-func fillHierarchy( signals []*VCDSignal, scope string ) *Hierarchy {
+func fillHierarchy(signals []*VCDSignal, scope string) *Hierarchy {
 	h := &Hierarchy{}
 	last := ""
 	for k, _ := range signals {
-		if signals[k].Scope==scope {
-			if h.Signals==nil { h.Signals = make(map[string]*VCDSignal) }
-			h.Signals[signals[k].Name]=signals[k]
+		if signals[k].Scope == scope {
+			if h.Signals == nil {
+				h.Signals = make(map[string]*VCDSignal)
+			}
+			h.Signals[signals[k].Name] = signals[k]
 			continue
 		}
-		if strings.HasPrefix(signals[k].Scope,scope+".") || scope=="" {
+		if strings.HasPrefix(signals[k].Scope, scope+".") || scope == "" {
 			var nx_scope, nx_full string
 			var rest []string
 			if scope == "" {
-				rest = strings.Split( signals[k].Scope, "." )
+				rest = strings.Split(signals[k].Scope, ".")
 				nx_scope = rest[0]
 				nx_full = nx_scope
 			} else {
-				rest = strings.Split( signals[k].Scope[len(scope)+1:], "." )
+				rest = strings.Split(signals[k].Scope[len(scope)+1:], ".")
 				nx_scope = rest[0]
-				nx_full = scope+"."+nx_scope
+				nx_full = scope + "." + nx_scope
 			}
 			if last != nx_scope {
-				nested := fillHierarchy( signals[k:], nx_full )
-				if h.Nested == nil { h.Nested = make(map[string]*Hierarchy) }
+				nested := fillHierarchy(signals[k:], nx_full)
+				if h.Nested == nil {
+					h.Nested = make(map[string]*Hierarchy)
+				}
 				h.Nested[nx_scope] = nested
 				last = nx_scope
 			}
@@ -324,69 +461,71 @@ func fillHierarchy( signals []*VCDSignal, scope string ) *Hierarchy {
 }
 
 func (this *Hierarchy) Dump(indent string) {
-	i2 := indent+"  "
-	if len(this.Signals)>0 {
-		signals := make([]*VCDSignal,len(this.Signals))
-		cnt:=0
-		for _,s := range this.Signals {
+	i2 := indent + "  "
+	if len(this.Signals) > 0 {
+		signals := make([]*VCDSignal, len(this.Signals))
+		cnt := 0
+		for _, s := range this.Signals {
 			signals[cnt] = s
 			cnt++
 		}
-		sort.Slice(signals,func(i,j int) bool {
-				return strings.Compare( signals[i].Name, signals[j].Name )<0
-			})
-		for _, each := range signals{
-			fmt.Printf("%s%s (%X)\n",indent,each.Name, each.Value)
+		sort.Slice(signals, func(i, j int) bool {
+			return strings.Compare(signals[i].Name, signals[j].Name) < 0
+		})
+		for _, each := range signals {
+			fmt.Printf("%s%s (%s)\n", indent, each.Name, each.RawHexValue())
 		}
 	}
-	for name,each := range this.Nested {
-		fmt.Println(indent+">"+name)
+	for name, each := range this.Nested {
+		fmt.Println(indent + ">" + name)
 		each.Dump(i2)
 	}
 }
 
-func HierValues( h *Hierarchy ) map[string]interface{} {
+func HierValues(h *Hierarchy) map[string]interface{} {
 	r := make(map[string]interface{})
-	for name,each := range h.Signals {
+	for name, each := range h.Signals {
 		r[name] = each.Value
 	}
-	for name,each := range h.Nested {
+	for name, each := range h.Nested {
 		r[name] = HierValues(each)
 	}
 	return r
 }
 
-func replaceHex( s string ) string {
+func replaceHex(s string) string {
 	re := regexp.MustCompile("\\$[a-fA-F0-9]+")
-	matches := re.FindAllString( s, -1 )
+	matches := re.FindAllString(s, -1)
 	for _, each := range matches {
-		v, _ := strconv.ParseUint( each[1:], 16, 64 )
-		s = strings.ReplaceAll( s, each, fmt.Sprintf("%d",v) )
+		v, _ := strconv.ParseUint(each[1:], 16, 64)
+		s = strings.ReplaceAll(s, each, fmt.Sprintf("%d", v))
 	}
 	return s
 }
 
-func setSignal( s string, hier *Hierarchy ) {
-	tokens := strings.Split(s,"=")
-	if len(tokens)!=2 {
+func setSignal(s string, hier *Hierarchy) {
+	tokens := strings.Split(s, "=")
+	if len(tokens) != 2 {
 		fmt.Println("Wrong expression ", s)
 		return
 	}
-	p := findSignal(tokens[0], hier )
-	if p==nil {
+	p := findSignal(tokens[0], hier)
+	if p == nil {
 		fmt.Println(s, " not found")
 		return
 	}
-	if tokens[1]!="" && tokens[1][0]=='$' { // ignore a $ before the number
-		tokens[1]=tokens[1][1:]
+	if tokens[1] != "" && tokens[1][0] == '$' { // ignore a $ before the number
+		tokens[1] = tokens[1][1:]
 	}
-	p.Value, _ = strconv.ParseUint( tokens[1],16, 64)
+	hi, lo := parseHex128(tokens[1])
+	p.ValueHi = hi
+	p.Value = lo
 }
 
-func findSignal( s string, h *Hierarchy ) *VCDSignal {
-	t := strings.Split(s,".")
-	k:=0
-	for ; k<len(t)-1;k++ {
+func findSignal(s string, h *Hierarchy) *VCDSignal {
+	t := strings.Split(s, ".")
+	k := 0
+	for ; k < len(t)-1; k++ {
 		nx, f := h.Nested[t[k]]
 		if !f {
 			return nil
@@ -400,199 +539,262 @@ func findSignal( s string, h *Hierarchy ) *VCDSignal {
 	return signal
 }
 
-func ( this *NameValue ) showDiff( o NameValue ) bool {
-	if o==nil || len(o)==0 || len(*this)==0 { return true }
-	cnt:=0
+func (this *NameValue) showDiff(o NameValue) bool {
+	if o == nil || len(o) == 0 || len(*this) == 0 {
+		return true
+	}
+	cnt := 0
 	diff := false
-	for k,v := range *this {
+	for k, v := range *this {
 		v2, f := o[k]
-		if f && v!=v2 {
-			if k=="frame_cnt" {
-				fmt.Printf("%s='d%d\t",k,v)
+		if f && v != v2 {
+			if k == "frame_cnt" {
+				fmt.Printf("%s='d%d\t", k, v)
 			} else {
-				fmt.Printf("%s=%x\t",k,v)
+				fmt.Printf("%s=%x\t", k, v)
 			}
 			cnt++
-			if cnt==8 {
-				cnt=0
+			if cnt == 8 {
+				cnt = 0
 				fmt.Print("\n")
 			}
 			diff = true
 		}
 	}
-	if cnt!=0 { fmt.Printf("\n") }
+	if cnt != 0 {
+		fmt.Printf("\n")
+	}
 	return diff
 }
 
-func (file *LnFile) NextVCD( ss VCDData ) bool {
+func (file *LnFile) NextVCD(ss VCDData) bool {
 	// fmt.Printf("%s (#%d @%d):\n",file.fname,file.time, file.line)
-    for file.Scan() {
-        txt := file.Text()
-        if txt[0]=='#' {
-            file.time, _ = strconv.ParseUint( txt[1:],10,64 )
-            return true
-        }
-        a, v := parseValue(txt)
-        assign( a, v, ss )
-    }
-    return false // EOF
+	for file.Scan() {
+		txt := file.Text()
+		if txt[0] == '#' {
+			file.time, _ = strconv.ParseUint(txt[1:], 10, 64)
+			return true
+		}
+		parsed := parseValue(txt)
+		if parsed.ok {
+			assign(parsed, ss)
+		}
+	}
+	return false // EOF
 }
 
 // advance the VCD scan upto the next change in any of the provided signals
-func (file *LnFile) NextChangeIn( ss VCDData, names []string ) bool {
+func (file *LnFile) NextChangeIn(ss VCDData, names []string) bool {
 	// fmt.Printf("%s (#%d @%d):\n",file.fname,file.time, file.line)
 	found := false
-    for file.Scan() {
-        txt := file.Text()
-        if txt[0]=='#' {
-            file.time, _ = strconv.ParseUint( txt[1:],10,64 )
-            if found {
-            	return true
-            } else {
-            	continue
-            }
-        }
-        // fmt.Printf("\t%s\n",txt)
-        a, v := parseValue(txt)
-        if slices.Contains( names, a ) { found = true }
-        assign( a, v, ss )
-    }
-    return false // EOF
+	for file.Scan() {
+		txt := file.Text()
+		if txt[0] == '#' {
+			file.time, _ = strconv.ParseUint(txt[1:], 10, 64)
+			if found {
+				return true
+			} else {
+				continue
+			}
+		}
+		// fmt.Printf("\t%s\n",txt)
+		parsed := parseValue(txt)
+		if !parsed.ok {
+			continue
+		}
+		if slices.Contains(names, parsed.alias) {
+			found = true
+		}
+		assign(parsed, ss)
+	}
+	return false // EOF
 }
 
 // advance until given time
-func (file *LnFile) MoveTo( ss VCDData, t0 uint64 ) bool {
+func (file *LnFile) MoveTo(ss VCDData, t0 uint64) bool {
 	good := true
-	for file.time<t0 && good { good = file.NextVCD(ss) }
+	for file.time < t0 && good {
+		good = file.NextVCD(ss)
+	}
 	return good
 }
 
-func LoadVCD( filename string ) (*LnFile,VCDData) {
-	ln_file := & LnFile{}
+func LoadVCD(filename string) (*LnFile, VCDData) {
+	ln_file := &LnFile{}
 	ln_file.Open(filename)
 	vcd_data := GetSignals(ln_file)
-	return ln_file,vcd_data
+	return ln_file, vcd_data
 }
 
-func GetSignals( file *LnFile ) VCDData {
-    ss := make(VCDData)
-    scope := ""
-    type Mode int
-    const(
-        SCAN Mode = iota
-        PASS
-        INIT
-    )
-    mode := SCAN
-    scan_through:
-    for ; file.scn.Scan(); file.line++ {
-        txt := file.scn.Text()
-        switch(mode) {
-            case SCAN: {
-                tokens := strings.Fields(txt)
-                switch(tokens[0]) {
-                    case "$date","$version","$timescale": mode=PASS
-                    case "$scope": {
-                        if tokens[1]!="module" {
-                            fmt.Printf("Unknown syntax at line %d: %s\n",file.line, txt)
-                        }
-                        if scope!="" { scope += "." }
-                        scope += tokens[2]
-                    }
-                    case "$upscope": {
-                        if i := strings.LastIndex(scope,"."); i!=-1 {
-                            scope = scope[0:i]
-                        }
-                    }
-                    case "$var": {
-                        if tokens[1]!="wire" {
-                            fmt.Printf("Unknown syntax at line %d: %s\n",file.line, txt)
-                            break
-                        }
-                        s := &VCDSignal{
-                            Scope: scope,
-                            alias: tokens[3],
-                        }
-                        bracket_str := tokens[4]
-                        bracket := 0
-                        if tokens[5][0]=='[' { // bus expression is separated
-                            bracket_str = tokens[5]
-                            s.Name = tokens[4]
-                        } else {
-                            bracket = strings.Index(tokens[4],"[")
-                            if bracket == -1 {
-                                s.Name = tokens[4]
-                                bracket_str = ""
-                            } else {
-                                s.Name = tokens[4][0:bracket]
-                                bracket_str = tokens[4]
-                                bracket++
-                            }
-                        }
-                        if bracket_str!="" {
-                            bend := strings.Index(bracket_str,"]")
-                            parts := strings.Split(bracket_str[bracket:bend-1],":")
-                            s.MSB,_ = strconv.Atoi(parts[0])
-                            if len(parts)==2 {
-                                s.LSB,_ = strconv.Atoi(parts[1])
-                            }
-                        }
-                        ss[s.alias] = s
-                    }
-                    case "$dumpvars": mode = INIT
-                }
-            }
-            case INIT: {
-                if txt=="$end" {
-                    file.line++
-                    break scan_through
-                }
-                a, v := parseValue( txt )
-                assign( a, v, ss )
-            }
-            case PASS : {
-                if txt=="$end" {
-                    mode = SCAN
-                }
-            }
-        }
-    }
-    file.SetResetLine()
-    return ss
+func GetSignals(file *LnFile) VCDData {
+	ss := make(VCDData)
+	scope := ""
+	type Mode int
+	const (
+		SCAN Mode = iota
+		PASS
+		INIT
+	)
+	mode := SCAN
+scan_through:
+	for ; file.scn.Scan(); file.line++ {
+		txt := file.scn.Text()
+		switch mode {
+		case SCAN:
+			{
+				tokens := strings.Fields(txt)
+				switch tokens[0] {
+				case "$date", "$version", "$timescale":
+					mode = PASS
+				case "$scope":
+					{
+						if tokens[1] != "module" {
+							fmt.Printf("Unknown syntax at line %d: %s\n", file.line, txt)
+						}
+						if scope != "" {
+							scope += "."
+						}
+						scope += tokens[2]
+					}
+				case "$upscope":
+					{
+						if i := strings.LastIndex(scope, "."); i != -1 {
+							scope = scope[0:i]
+						}
+					}
+				case "$var":
+					{
+						if tokens[1] == "real" {
+							break
+						}
+						if tokens[1] != "wire" && tokens[1] != "reg" {
+							fmt.Printf("Unknown syntax at line %d: %s\n", file.line, txt)
+							break
+						}
+						s := &VCDSignal{
+							Scope: scope,
+							alias: tokens[3],
+						}
+						bracket_str := tokens[4]
+						bracket := 0
+						if tokens[5][0] == '[' { // bus expression is separated
+							bracket_str = tokens[5]
+							s.Name = tokens[4]
+						} else {
+							bracket = strings.Index(tokens[4], "[")
+							if bracket == -1 {
+								s.Name = tokens[4]
+								bracket_str = ""
+							} else {
+								s.Name = tokens[4][0:bracket]
+								bracket_str = tokens[4]
+								bracket++
+							}
+						}
+						if bracket_str != "" {
+							bend := strings.Index(bracket_str, "]")
+							start := bracket
+							if bracket_str[start] == '[' {
+								start++
+							}
+							parts := strings.Split(bracket_str[start:bend], ":")
+							s.MSB, _ = strconv.Atoi(parts[0])
+							if len(parts) == 2 {
+								s.LSB, _ = strconv.Atoi(parts[1])
+							}
+						}
+						ss[s.alias] = s
+					}
+				case "$dumpvars":
+					mode = INIT
+				}
+			}
+		case INIT:
+			{
+				if txt == "$end" {
+					file.line++
+					break scan_through
+				}
+				parsed := parseValue(txt)
+				if parsed.ok {
+					assign(parsed, ss)
+				}
+			}
+		case PASS:
+			{
+				if txt == "$end" {
+					mode = SCAN
+				}
+			}
+		}
+	}
+	file.SetResetLine()
+	return ss
 }
 
-
-func assign( alias string, v uint64, ss VCDData) {
-    p, _ := ss[alias]
-    if p==nil {
-    	if alias=="" || alias==" " {
-    		fmt.Println("vcd_parser: called assign with no signal alias")
-        	os.Exit(1)
-    	}
-        fmt.Printf("Warning: signal VCDData aliased as -> %s <- not found\n",alias)
-        return
-    }
-    p.Value = v
+func assign(v parsedVCDValue, ss VCDData) {
+	p, _ := ss[v.alias]
+	if p == nil {
+		if v.alias == "" || v.alias == " " {
+			fmt.Println("vcd_parser: called assign with no signal alias")
+			os.Exit(1)
+		}
+		fmt.Printf("Warning: signal VCDData aliased as -> %s <- not found\n", v.alias)
+		return
+	}
+	p.Value = v.lo
+	p.ValueHi = v.hi
 }
 
-func parseValue( txt string ) ( string, uint64 ) {
-    if txt[0]!='0' && txt[0]!='1' && txt[0]!='b' {
-        fmt.Printf("Warning: unexpected value definition %s\n",txt)
-        return "",0
-    }
-    var v uint64
-    if txt[0] == 'b' {
-        var s int
-        for s=1; s<len(txt) && txt[s]!=' '; s++ {
-            v <<= 1
-            if txt[s]=='1' {
-                v |= 1
-            }
-        }
-        s++
-        return txt[s:], v
-    } else {
-        if txt[0]=='1' { v=1 }
-        return txt[1:], v
-    }
+func parseHex128(txt string) (uint64, uint64) {
+	if txt == "" {
+		return 0, 0
+	}
+	if len(txt) > 16 {
+		hiTxt := txt[:len(txt)-16]
+		loTxt := txt[len(txt)-16:]
+		hi, _ := strconv.ParseUint(hiTxt, 16, 64)
+		lo, _ := strconv.ParseUint(loTxt, 16, 64)
+		return hi, lo
+	}
+	lo, _ := strconv.ParseUint(txt, 16, 64)
+	return 0, lo
+}
+
+func parseBits128(bits string) (uint64, uint64) {
+	var hi, lo uint64
+	for _, bit := range bits {
+		hi = (hi << 1) | (lo >> 63)
+		lo <<= 1
+		if bit == '1' {
+			lo |= 1
+		}
+	}
+	return hi, lo
+}
+
+func parseValue(txt string) parsedVCDValue {
+	if txt == "" {
+		return parsedVCDValue{}
+	}
+	switch txt[0] {
+	case '0', '1', 'x', 'X', 'z', 'Z':
+		v := uint64(0)
+		if txt[0] == '1' {
+			v = 1
+		}
+		return parsedVCDValue{alias: txt[1:], lo: v, ok: true}
+	case 'b':
+		var s int
+		for s = 1; s < len(txt) && txt[s] != ' '; s++ {
+		}
+		hi, lo := parseBits128(txt[1:s])
+		s++
+		return parsedVCDValue{alias: txt[s:], lo: lo, hi: hi, ok: true}
+	case 'r':
+		return parsedVCDValue{}
+	default:
+		fmt.Printf("Warning: unexpected value definition %s\n", txt)
+		return parsedVCDValue{}
+	}
 }

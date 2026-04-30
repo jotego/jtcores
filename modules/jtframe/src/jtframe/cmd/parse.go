@@ -21,17 +21,18 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"text/template"
 	"path/filepath"
+	"text/template"
 
 	"jotego/jtframe/common"
 	"jotego/jtframe/macros"
 
+	"github.com/Masterminds/sprig/v3" // more template functions
 	"github.com/spf13/cobra"
-	"github.com/Masterminds/sprig/v3"	// more template functions
 )
 
 var target, output_filename string
+
 // declared in cfgstr.go:
 // var extra_def, extra_undef string
 
@@ -39,21 +40,12 @@ var target, output_filename string
 var parseCmd = &cobra.Command{
 	Use:   "parse <core-name> <template path>",
 	Short: "Parses a text template and replaces core macro definitions in it",
-	Long: `The input file must follow reglar Go template syntax. It can also
-use sprig functions. The output is produced to stdout
-
-Macros are accesible like:
-	{{ .Macros.TARGET }} => will produce "mist" for the MiST target
-	{{ .Macros.JTFRAME_BA1_START }} => will show the value of JTFRAME_BA1_START
-
-Sprig functions: https://masterminds.github.io/sprig/
-Standard Go template functions: https://pkg.go.dev/text/template
-`,
-	Args: cobra.ExactArgs(2),
+	Long:  man_blurb("jtframe-parse", "Parse a text template and replace JTFRAME macro definitions."),
+	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		parsed, e := parse_txt(args[0], args[1], extra_def )
+		parsed, e := parse_txt(args[0], args[1], extra_def)
 		common.Must(e)
-		e = os.WriteFile(output_filename,parsed,0664)
+		e = os.WriteFile(output_filename, parsed, 0664)
 		common.Must(e)
 	},
 }
@@ -71,25 +63,25 @@ var funcMap = template.FuncMap{
 	"env": os.Getenv,
 }
 
-func parse_txt( corename, tpath, newdef string ) ([]byte,error) {
-	macros.MakeMacros( corename, target )
+func parse_txt(corename, tpath, newdef string) ([]byte, error) {
+	macros.MakeMacros(corename, target)
 	macros.AddKeyValPairs(newdef)
 
 	basename := filepath.Base(tpath)
 	t, e := template.New(basename).Funcs(sprig.FuncMap()).Funcs(funcMap).ParseFiles(tpath)
-	if e!= nil {
+	if e != nil {
 		fmt.Println(e)
 		os.Exit(1)
 	}
 	var buffer bytes.Buffer
-	template_info := struct{
+	template_info := struct {
 		Macros map[string]string
 	}{
 		Macros: macros.CopyToMap(),
 	}
-	e = t.Execute(&buffer, template_info )
-	if e!=nil {
-		return nil,e
+	e = t.Execute(&buffer, template_info)
+	if e != nil {
+		return nil, e
 	}
-	return buffer.Bytes(),nil
+	return buffer.Bytes(), nil
 }
