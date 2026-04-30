@@ -651,13 +651,13 @@ module SH7604_CACHE (
 	assign CBUS_BUSY = CBUS_REQ && (IBUS_READ || IBUS_READARRAY || IBUS_READ_PEND || IBUS_WRITE_PEND ||
 						(IBUS_WRITE && !IO_AREA));
 
-		assign IBUS_A = IBADDR;
-		assign IBUS_DO = IBDATA;
-		assign IBUS_BA = IBBA;
-		assign IBUS_WE = IBWE;
-		assign IBUS_REQ = IBREQ;
-		assign IBUS_PREREQ = CBUS_REQ && ((!CBUS_WR && ((CACHE_AREA && (!CCR.CE)) || (NOCACHE_AREA && !CBUS_TAS))) || (!CBUS_WR && CACHE_AREA && CCR.CE && !HIT)) && !IBREQ;
-		assign IBUS_BURST = IBBURST;
-		assign IBUS_LOCK = IBLOCK;
+	assign IBUS_A = IBADDR;
+	assign IBUS_DO = IBDATA;
+	assign IBUS_BA = IBBA;
+	assign IBUS_WE = IBWE;
+	assign IBUS_REQ = IBREQ;
+	assign IBUS_PREREQ = CBUS_REQ && ((!CBUS_WR && ((CACHE_AREA && (!CCR.CE)) || (NOCACHE_AREA && !CBUS_TAS))) || (!CBUS_WR && CACHE_AREA && CCR.CE && !HIT)) && !IBREQ;
+	assign IBUS_BURST = IBBURST;
+	assign IBUS_LOCK = IBLOCK;
 
 endmodule
