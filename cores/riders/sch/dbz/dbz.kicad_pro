@@ -335,13 +335,25 @@
           "label": "DNP",
           "name": "${DNP}",
           "show": true
+        },
+        {
+          "group_by": false,
+          "label": "#",
+          "name": "${ITEM_NUMBER}",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Descripción",
+          "name": "Description",
+          "show": false
         }
       ],
       "filter_string": "",
       "group_symbols": true,
-      "name": "Grouped By Value",
+      "name": "",
       "sort_asc": true,
-      "sort_field": "Referencia"
+      "sort_field": "Reference"
     },
     "connection_grid_size": 50.0,
     "drawing": {
@@ -406,6 +418,14 @@
     [
       "ad57b72a-47e2-4538-b955-a3c55976dec1",
       "PSAC"
+    ],
+    [
+      "77ca1e18-ba5d-4a63-8608-41ffc74ae450",
+      "main"
+    ],
+    [
+      "a0054d11-bccf-4bee-accd-3177cb00e5ee",
+      "sound"
     ]
   ],
   "text_variables": {}
