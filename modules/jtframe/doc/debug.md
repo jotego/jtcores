@@ -33,7 +33,8 @@ By pressing SHIFT+CTRL, the core will switch from displaying the regular *debug_
   0111_0101  |  dipsw[15: 8]
   0111_0110  |  dipsw[23:16]
   10??_????  |  SDRAM stats
-  1100_????  | { core_mod[3:0], dial_x, game_led, dip_flip }
+  1100_???0  | { core_mod[3:0], dial_x, game_led, dip_flip }
+  1100_???1  | { core_mod[6:4], dial_x, game_led, dip_flip }
   1101_????  |  Joysticks and inputs
   1110_????  |  Crosshair coordinates
   1111_????  |
@@ -68,7 +69,7 @@ See [jtframe_sys_info.v](../hdl/debug/jtframe_sys_info.v)
 
 st_addr[5:0] | Read
 -------------|---------
- 00-????     | { core_mod[3:0], dial_x, game_led, dip_flip };
+ 00-????     | { core_mod, dial_x, game_led, dip_flip };
  01-0        | game_joy1[7:0]
  01-1        | {game_coin[0],game_start[0],game_joy1[9:4]}
  01-2        | {rot,game_tilt,game_test,game_service,game_coin[1:0],game_start[1:0]}
