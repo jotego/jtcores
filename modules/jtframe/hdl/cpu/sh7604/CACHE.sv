@@ -643,20 +643,21 @@ module SH7604_CACHE (
 		end
 	end
 	
-assign CBUS_DO = CCR_SEL ? {4{CCR & CCR_RMASK}} :
-					 IBDATA_RDY ? IBUS_DI :
-					 (CPS3_DECRYPT && CBUS_ID && CACHE_DATA_AREA) ? cps3_cache_data_dec :
-					 CACHE_DATA;
-assign CBUS_BUSY = CBUS_REQ && (IBUS_READ || IBUS_READARRAY || IBUS_READ_PEND || IBUS_WRITE_PEND ||
-					(IBUS_WRITE && !IO_AREA));
-						  
-	assign IBUS_A = IBADDR;
-	assign IBUS_DO = IBDATA;
-	assign IBUS_BA = IBBA;
-	assign IBUS_WE = IBWE;
-	assign IBUS_REQ = IBREQ;
-	assign IBUS_PREREQ = CBUS_REQ && ((!CBUS_WR && ((CACHE_AREA && (!CCR.CE)) || (NOCACHE_AREA && !CBUS_TAS))) || (!CBUS_WR && CACHE_AREA && CCR.CE && !HIT)) && !IBREQ;
-	assign IBUS_BURST = IBBURST; 
-	assign IBUS_LOCK = IBLOCK;
+	wire cps3_dec_en = CPS3_DECRYPT && CBUS_ID && CACHE_DATA_AREA;
+
+	assign CBUS_DO = CCR_SEL ? {4{CCR & CCR_RMASK}}    :
+					 IBDATA_RDY  ? IBUS_DI             :
+					 cps3_dec_en ? cps3_cache_data_dec : CACHE_DATA;
+	assign CBUS_BUSY = CBUS_REQ && (IBUS_READ || IBUS_READARRAY || IBUS_READ_PEND || IBUS_WRITE_PEND ||
+						(IBUS_WRITE && !IO_AREA));
+
+		assign IBUS_A = IBADDR;
+		assign IBUS_DO = IBDATA;
+		assign IBUS_BA = IBBA;
+		assign IBUS_WE = IBWE;
+		assign IBUS_REQ = IBREQ;
+		assign IBUS_PREREQ = CBUS_REQ && ((!CBUS_WR && ((CACHE_AREA && (!CCR.CE)) || (NOCACHE_AREA && !CBUS_TAS))) || (!CBUS_WR && CACHE_AREA && CCR.CE && !HIT)) && !IBREQ;
+		assign IBUS_BURST = IBBURST;
+		assign IBUS_LOCK = IBLOCK;
 
 endmodule
