@@ -1,0 +1,55 @@
+params:
+  - { name: BG0_OFFSET,   value: "(`BG0_START-`JTFRAME_BA2_START)>>1" }
+  - { name: TXT_OFFSET,   value: "(`TXT_START-`JTFRAME_BA3_START)>>1" }
+  - { name: VROM1_OFFSET, value: "(`VROM1_START-`JTFRAME_BA3_START)>>1" }
+  - { name: VROM2_OFFSET, value: "`VROM2_START-`VROM1_START" }
+
+clocks:
+  clk48:
+    - freq: 5M
+      gate: [ "main", "snd" ]
+      outputs:
+        - cen5
+        - cen5b
+    - freq: 1500000
+      outputs:
+        - cen1p5
+        - cen1p5b
+
+audio:
+  rsum: 10k
+  gain: 0.7
+  channels:
+    - { name: fm,  module: jt03_fm,  rsum: 20k, rc: [{ r: 1rout, c: 1.2n }] }
+    - { name: psg, module: jt03_psg, rsum: 60k }
+
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 18
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 16
+        data_width: 8
+    - buses:
+      - name: obj
+        addr_width: 17
+        data_width: 32
+      - name: bg0
+        addr_width: 17
+        data_width: 32
+        offset: BG0_OFFSET
+    - buses:
+      - name: bg1
+        addr_width: 15
+        data_width: 32
+      - name: txt
+        addr_width: 15
+        data_width: 32
+        offset: TXT_OFFSET
+      - name: vrom
+        addr_width: 16
+        data_width: 8
+        offset: VROM1_OFFSET

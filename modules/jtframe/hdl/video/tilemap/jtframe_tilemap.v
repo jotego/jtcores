@@ -35,6 +35,7 @@ module jtframe_tilemap #( parameter
     FLIP_HDUMP   = 1,
     FLIP_VDUMP   = 1,
     ROM_HFLIP    = 1,
+    SCAN_COLS    = 0,
     XOR_HFLIP    = 0,  // set to 1 so hflip gets ^ with flip
     XOR_VFLIP    = 0,  // set to 1 so vflip gets ^ with flip
     HDUMP_OFFSET = 0,  // adds an offset to hdump
@@ -116,7 +117,8 @@ assign vflip_g = (flip & XOR_VFLIP[0])^vflip;
 localparam AHW=MAP_HW-HW,
            AVW=MAP_VW-VW;
 
-assign vram_addr={ veff[MAP_VW-1:VW], heff[MAP_HW-1:HW] };
+assign vram_addr = SCAN_COLS ? { heff[MAP_HW-1:HW], veff[MAP_VW-1:VW] } :
+                                { veff[MAP_VW-1:VW], heff[MAP_HW-1:HW] };
 
 initial begin
     if( AHW+AVW > VA ) begin

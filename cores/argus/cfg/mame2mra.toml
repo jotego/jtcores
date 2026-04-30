@@ -1,0 +1,32 @@
+[global]
+overrule=[ {rotate=270} ]
+
+[parse]
+sourcefile=[ "argus.cpp" ]
+main_setnames=[ "argus" ]
+
+[dipsw]
+delete=[
+    { names=["Unused"] },
+]
+
+[buttons]
+names=[
+    { names="Shot 1,Shot 2" }
+]
+
+[ROM]
+regions = [
+    { name="maincpu" },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="gfx1",     start="JTFRAME_BA2_START" },
+    { name="gfx2",     start="BG0_START" },
+    { name="gfx3",     start="JTFRAME_BA3_START" },
+    { name="gfx4",     start="TXT_START" },
+    { name="vrom1",    start="VROM1_START" },
+    { name="vrom2",    start="VROM2_START" },
+]
+
+order = [
+    "maincpu", "audiocpu", "gfx1", "gfx2", "gfx3", "gfx4", "vrom1", "vrom2"
+]

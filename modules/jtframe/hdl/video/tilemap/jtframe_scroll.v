@@ -34,6 +34,7 @@ module jtframe_scroll #( parameter
     VW   = SIZE==8 ? 3 : SIZE==16 ? 4:5,
     HW   = VW,
     ROM_HFLIP = 1,
+    SCAN_COLS = 0,
     XOR_HFLIP = 0, // set to 1 so hflip gets ^ with flip
     XOR_VFLIP = 0, // set to 1 so vflip gets ^ with flip
     HJUMP     = 1, // set to 0 for linear hdump starting at zero after HB
@@ -107,6 +108,7 @@ jtframe_tilemap #(
     .FLIP_VDUMP ( 0         ), // same for vdump
     .FLIP_MSB   ( 0         ),
     .ROM_HFLIP  ( ROM_HFLIP ),
+    .SCAN_COLS  ( SCAN_COLS ),
     .XOR_HFLIP  ( XOR_HFLIP ),
     .XOR_VFLIP  ( XOR_VFLIP ),
     .VW         ( VW        ),
