@@ -12,6 +12,10 @@
  * WAIT_N stays low until cache_ok acknowledges the request, so the native A,
  * DO and WE_N registers remain stable and can be forwarded directly to the
  * cache interface without re-latching and comparing the full bus.
+ *
+ * For CPS3, the wrapper can also pass the decryption keys into the SH7604
+ * cache path so opcode fetches from SIMM flash are decrypted there while BIOS
+ * reads can still be handled externally.
  */
 module jtsh7604 #(
     parameter bit UBC_DISABLE = 1'b0,
@@ -29,6 +33,8 @@ module jtsh7604 #(
     input              nmi_n,
     input      [3:0]   irl_n,
     input      [31:0]  cpu_din,
+    input      [31:0]  cps3_key1,
+    input      [31:0]  cps3_key2,
 
     input              cache_ok,
 
@@ -180,9 +186,9 @@ module jtsh7604 #(
         .MD        ( MD_CFG    ),
         .FAST      ( 1'b0      ),
 
-        .CPS3_DECRYPT ( 1'b0   ),
-        .CPS3_KEY1    ( 32'd0  ),
-        .CPS3_KEY2    ( 32'd0  )
+        .CPS3_DECRYPT ( |{cps3_key1, cps3_key2} ),
+        .CPS3_KEY1    ( cps3_key1 ),
+        .CPS3_KEY2    ( cps3_key2 )
     );
 
     assign A        = cpu_a;

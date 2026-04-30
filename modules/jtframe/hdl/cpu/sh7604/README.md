@@ -128,6 +128,10 @@ interrupt-vector fetch case folded in because it does not use the same core
 acknowledge path. This gives the wrapper a clean "new bus beat" marker without
 re-comparing the full address, data and byte-strobe buses.
 
+For CPS3, the wrapper also forwards the decryption keys into the SH7604 cache
+so opcode fetches from SIMM program flash can be decrypted in the cache path
+while BIOS reads remain handled by the top-level memory path.
+
 - `cache_cs` stays high while a request is outstanding.
 - `cache_rd` is high for reads, `cache_wr` is high for writes.
 - `cache_addr` is driven directly from `A[26:1]`, so append one low address bit

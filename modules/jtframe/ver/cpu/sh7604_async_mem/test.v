@@ -68,6 +68,8 @@ jtsh7604 #(
     .nmi_n      ( 1'b1       ),
     .irl_n      ( 4'hf       ),
     .cpu_din    ( mem_dout   ),
+    .cps3_key1  ( 32'd0      ),
+    .cps3_key2  ( 32'd0      ),
     .cache_ok   ( cache_ok   ),
 
     .A          ( A          ),
