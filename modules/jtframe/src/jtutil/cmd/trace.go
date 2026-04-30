@@ -101,6 +101,10 @@ trace debug.trace,maincpu,noloop,{tracelog "PC=%X,SSP=%X,D0=%X,D1=%X,D2=%X,D3=%X
 trace off
 trace debug.trace,maincpu,noloop,{tracelog "PC=%X,cc=%X,dp=%x,a=%x,b=%x,x=%x,y=%x,u=%x,s=%x,ticks=%x,frame_cnt=%x* ",pc,cc,dp,a,b,x,y,u,s,totalcycles,frame}
 `
+	case "sh7604","sh-2":
+		s = `trace off
+trace debug.trace,maincpu,noloop,{tracelog "PC=%08X,SR=%08X,PR=%08X,GBR=%08X,VBR=%08X,R0=%08X,R1=%08X,R2=%08X,R3=%08X,R4=%08X,R5=%08X,R6=%08X,R7=%08X,R8=%08X,R9=%08X,R10=%08X,R11=%08X,R12=%08X,R13=%08X,R14=%08X,R15=%08X,frame_cnt=%x* ",pc,sr,pr,gbr,vbr,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,frame}
+`
 	case "qsnd", "qsound":
 		s = `trace debug.trace,2,,{tracelog "! pc=%X pt=%X pr=%X pi=%X i=%X r0=%X r1=%X r2=%X r3=%X rb=%X re=%X j=%X k=%X x=%X y=%X p=%X a0=%X a1=%X c0=%X c1=%X c2=%X auc=%X psw=%X\n",pc,pt,pr,pi,i,r0,r1,r2,r3,rb,re,j,k,x,y,p,a0,a1,c0,c1,c2,auc,psw}
 `
@@ -113,6 +117,7 @@ t900h
 6800, 6301, 6801,
 m68000, m68k, 68k, 68000
 konami, kcpu, 6809
+sh7604
 qsnd, qsound
 `)
 		return

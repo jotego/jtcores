@@ -1,6 +1,22 @@
 `ifndef VERILATOR_KEEP_CPU
 /* verilator tracing_off */
 `endif
+/*
+ * SH7604 to JTFRAME cache wrapper.
+ *
+ * SH7604 exposes a native asynchronous bus and BUS_STB, a BSC request marker
+ * that rises when a new external bus beat is presented.
+ *
+ * jtframe_cache_mux expects a latched request/acknowledge interface instead.
+ * This wrapper turns each BUS_STB edge into cache_cs plus cache_rd/cache_wr.
+ * WAIT_N stays low until cache_ok acknowledges the request, so the native A,
+ * DO and WE_N registers remain stable and can be forwarded directly to the
+ * cache interface without re-latching and comparing the full bus.
+ *
+ * For CPS3, the wrapper can also pass the decryption keys into the SH7604
+ * cache path so opcode fetches from SIMM flash are decrypted there while BIOS
+ * reads can still be handled externally.
+ */
 module jtsh7604 #(
     parameter bit UBC_DISABLE = 1'b0,
     parameter bit SCI_DISABLE = 1'b0,
@@ -17,6 +33,8 @@ module jtsh7604 #(
     input              nmi_n,
     input      [3:0]   irl_n,
     input      [31:0]  cpu_din,
+    input      [31:0]  cps3_key1,
+    input      [31:0]  cps3_key2,
 
     input              cache_ok,
 
@@ -41,7 +59,7 @@ module jtsh7604 #(
     output             cache_we,
     output             cache_rd,
     output             cache_wr,
-    output     [26:2]  cache_addr,
+    output     [26:1]  cache_addr,
     output     [31:0]  cache_din,
     output     [3:0]   cache_dsn
 );
@@ -50,69 +68,49 @@ module jtsh7604 #(
     wire [31:0] cpu_do;
     wire [3:0]  cpu_we;
     wire        cpu_rd_n;
-    wire        cpu_wr_n = RD_WR_N;
-    wire        cpu_req;
-    wire        cpu_wr_req;
+    wire        cpu_bus_stb;
+    wire        cpu_wr_req = ~RD_WR_N;
+    wire        bus_stb_rise;
 
-    reg         req_busy;
-    reg         req_seen;
-    reg         cache_wr_r;
-    reg [26:2]  cache_addr_r;
-    reg [31:0]  cache_din_r;
-    reg [3:0]   cache_dsn_r;
+    reg         req_active;
+    reg         req_done;
+    reg         bus_stb_l;
 
-    assign cpu_req    = ~cpu_rd_n | ~cpu_wr_n;
-    assign cpu_wr_req = ~cpu_wr_n;
-
-    wire sig_changed = (cache_addr_r != cpu_a[26:2]) ||
-                       (cache_wr_r   != cpu_wr_req)   ||
-                       (cache_dsn_r  != cpu_we)       ||
-                       (cpu_wr_req   && (cache_din_r != cpu_do));
-
-    wire req_ready   = ~req_busy || cache_ok;
-    wire req_launch  = cpu_req && req_ready && (~req_seen || sig_changed);
-    wire req_active  = req_busy;
+    assign bus_stb_rise = cpu_bus_stb & ~bus_stb_l;
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            req_busy     <= 1'b0;
-            req_seen     <= 1'b0;
-            cache_wr_r   <= 1'b0;
-            cache_addr_r <= '0;
-            cache_din_r  <= '0;
-            cache_dsn_r  <= 4'hf;
+            req_active <= 1'b0;
+            req_done   <= 1'b0;
+            bus_stb_l  <= 1'b0;
         end
         else begin
-            if (cache_ok && req_busy) begin
-                req_busy <= 1'b0;
-                if (!cpu_req) begin
-                    req_seen <= 1'b0;
-                end
+            bus_stb_l <= cpu_bus_stb;
+
+            if (bus_stb_rise) begin
+                req_active <= 1'b1;
+                req_done   <= 1'b0;
             end
-            else if (!cpu_req && !req_busy) begin
-                req_seen <= 1'b0;
+            else if (cache_ok && req_active) begin
+                req_active <= 1'b0;
+                req_done   <= 1'b1;
             end
 
-            if (req_launch) begin
-                req_seen     <= 1'b1;
-                req_busy     <= 1'b1;
-                cache_wr_r   <= cpu_wr_req;
-                cache_addr_r <= cpu_a[26:2];
-                cache_din_r  <= cpu_do;
-                cache_dsn_r  <= cpu_we;
+            if (!cpu_bus_stb) begin
+                req_done <= 1'b0;
             end
         end
     end
 
     assign cache_cs   = req_active;
-    assign cache_we   = req_active & cache_wr_r;
-    assign cache_rd   = req_active & ~cache_wr_r;
-    assign cache_wr   = req_active & cache_wr_r;
-    assign cache_addr = cache_addr_r;
-    assign cache_din  = cache_din_r;
-    assign cache_dsn  = cache_dsn_r;
+    assign cache_we   = req_active & cpu_wr_req;
+    assign cache_rd   = req_active & ~cpu_wr_req;
+    assign cache_wr   = req_active & cpu_wr_req;
+    assign cache_addr = cpu_a[26:1];
+    assign cache_din  = cpu_do;
+    assign cache_dsn  = cpu_we;
 
-    assign WAIT_N = req_active ? cache_ok : 1'b1;
+    assign WAIT_N = req_active ? cache_ok : (req_done || !cpu_bus_stb);
 
     SH7604 #(
         .UBC_DISABLE      ( UBC_DISABLE      ),
@@ -147,6 +145,7 @@ module jtsh7604 #(
         .RD_N      ( cpu_rd_n  ),
         .IVECF_N   ( IVECF_N   ),
         .RFS       ( RFS       ),
+        .BUS_STB   ( cpu_bus_stb ),
 
         .EA        ( 27'd0     ),
         .EDI       (           ),
@@ -187,12 +186,14 @@ module jtsh7604 #(
         .MD        ( MD_CFG    ),
         .FAST      ( 1'b0      ),
 
-        .CPS3_DECRYPT ( 1'b0   ),
-        .CPS3_KEY1    ( 32'd0  ),
-        .CPS3_KEY2    ( 32'd0  )
+        .CPS3_DECRYPT ( |{cps3_key1, cps3_key2} ),
+        .CPS3_KEY1    ( cps3_key1 ),
+        .CPS3_KEY2    ( cps3_key2 )
     );
 
     assign A        = cpu_a;
     assign cpu_dout = cpu_do;
+    assign WE_N     = cpu_we;
+    assign RD_N     = cpu_rd_n;
 
 endmodule
