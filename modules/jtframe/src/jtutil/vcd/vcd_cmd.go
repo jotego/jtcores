@@ -23,8 +23,10 @@ import(
     "os"
     "sort"
     "slices"
-    "strings"
     "strconv"
+    "strings"
+    "jtutil/prompt"
+    "golang.org/x/term"
     "github.com/PaesslerAG/gval"
 )
 
@@ -66,9 +68,13 @@ func Prompt( vcd, trace *LnFile, ss VCDData, mame_alias mameAlias ) {
     defer fses.Close()
     must(e)
     // Read from stdin initially
-    nested := make([]*bufio.Scanner,1)
-    nested[0] = bufio.NewScanner(os.Stdin)
-    scn := nested[0]
+    sources := make([]prompt.Source,1)
+    if term.IsTerminal(int(os.Stdin.Fd())) {
+        sources[0] = prompt.NewPromptSource(prompt.NewTerminal(os.Stdin, os.Stdout, "> "))
+    } else {
+        sources[0] = prompt.NewScannerSource(bufio.NewScanner(os.Stdin), nil)
+    }
+    scn := sources[len(sources)-1]
     pc_name := find_similar( "pc", ss)
     cmp := NewComparator(ss,vcd,trace)
 
@@ -99,21 +105,25 @@ func Prompt( vcd, trace *LnFile, ss VCDData, mame_alias mameAlias ) {
 
     prompt_loop:
     for {
-        if( nested[0]==scn ) { fmt.Printf("> ") }
-        if !scn.Scan() || scn.Err()!=nil {
-            if len(nested)>1 {
-                scn = nested[ len(nested)-2 ]
-                nested = nested[0:len(nested)-1]
+        lt, ok, err := scn.ReadLine()
+        if err != nil {
+            fmt.Println(err)
+            break
+        }
+        if !ok {
+            if len(sources)>1 {
+                if e := scn.Close(); e!=nil { fmt.Println(e) }
+                sources = sources[0:len(sources)-1]
+                scn = sources[len(sources)-1]
                 continue
             }
             break
         }
-        lt := scn.Text()
         fmt.Fprintln(fses,lt)
         if k:=strings.Index(lt,"#"); k!=-1 { lt=lt[0:k] }
         tokens := strings.Fields(lt)
         if len(tokens)==0 { continue }
-        if( nested[0]!=scn ) { fmt.Println(">",lt) } // echo if we are parsing a file
+        if scn!=sources[0] { fmt.Println(">",lt) } // echo if we are parsing a file
         switch tokens[0] {
         case "g","go": cmp.searchDiff(sim_st, mame_st, ignore )
         case "ds","display": {
@@ -271,13 +281,12 @@ func Prompt( vcd, trace *LnFile, ss VCDData, mame_alias mameAlias ) {
                 break
             }
             f,e := os.Open(tokens[1])
-            defer f.Close()
             if e!=nil {
                 fmt.Println(e)
                 break
             }
-            scn = bufio.NewScanner(f)
-            nested = append( nested, scn )
+            scn = prompt.NewScannerSource(bufio.NewScanner(f), f)
+            sources = append(sources, scn)
             break
         }
         case "s","step": {
