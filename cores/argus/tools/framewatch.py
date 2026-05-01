@@ -352,7 +352,7 @@ def make_handler(frames_dir: pathlib.Path, html: bytes):
                             data = fpath.read_bytes()
                         except OSError:
                             return self._send(500, "text/plain", b"read error")
-                        return self._send(200, CONTENT_TYPES[ext], data, cache=True)
+                        return self._send(200, CONTENT_TYPES[ext], data)
                 return self._send(404, "text/plain", b"no such frame")
             return self._send(404, "text/plain", b"not found")
 

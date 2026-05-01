@@ -30,8 +30,7 @@ localparam MAP_VW = TEXT ? 8 : 9;
 localparam VA     = 10;
 localparam PW     = 8;
 
-wire [31:0] sorted_argus, sorted_jtframe;
-wire [31:0] sorted = TEXT ? sorted_jtframe : sorted_argus;
+wire [31:0] sorted;
 wire [CW-1:0] code;
 wire [ 9:0] ram_code = {ram_data[15:14],ram_data[7:0]};
 wire [MAP_HW-1:0] scrx_eff = scrx[MAP_HW-1:0];
@@ -46,12 +45,7 @@ assign vflip = ram_data[13];
 
 jtargus_8x8x4_packed_msb u_conv_argus(
     .raw    ( rom_data     ),
-    .sorted ( sorted_argus )
-);
-
-jtframe_8x8x4_packed_msb u_conv_jtframe(
-    .raw    ( rom_data       ),
-    .sorted ( sorted_jtframe )
+    .sorted ( sorted       )
 );
 
 jtframe_scroll #(

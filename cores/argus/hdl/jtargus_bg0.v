@@ -180,7 +180,7 @@ jtframe_scroll #(
     .pxl_cen    ( pxl_cen    ),
     .hs         ( hs         ),
     .vdump      ( vdump      ),
-    .hdump      ( {1'b0,hdump[7:0]} ),
+    .hdump      ( hdump      ),
     .blankn     ( blankn     ),
     .flip       ( flip       ),
     .scrx       ( scrx       ),

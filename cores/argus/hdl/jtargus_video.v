@@ -70,21 +70,22 @@ wire [8:0] hdump, vdump, vrender;
 wire [8:0] vdump_src   = vdump;
 wire [8:0] vrender_src = vrender;
 wire       view_flip = flip;
-wire [9:0] bg0_scrx_view = bg0_scrx - 10'd5;
-wire [8:0] bg0_scry_view = bg0_scry - 9'd3;
+wire [9:0] bg0_scrx_view = bg0_scrx;
+wire [8:0] bg0_scry_view = bg0_scry;
 wire       blankn = LHBL & LVBL;
 wire       tile_fetch = 1'b1;
+wire       bg1_fetch = tile_fetch & bg1_en;
 wire [7:0] bg0_pxl, bg1_pxl, tx_pxl;
 wire [8:0] obj_pxl;
 
 jtframe_vtimer #(
-    .VB_START   ( 9'd240 ),
-    .VB_END     ( 9'd16  ),
+    .VB_START   ( 9'd239 ),
+    .VB_END     ( 9'd15  ),
     .VS_START   ( 9'd240 ),
     .VS_END     ( 9'd244 ),
     .VCNT_END   ( 9'd287 ),
-    .HB_START   ( 9'd255 ),
-    .HB_END     ( 9'd383 ),
+    .HB_START   ( 9'd255+9'd10 ),
+    .HB_END     ( 9'd9   ),
     .HS_START   ( 9'd300 ),
     .HS_END     ( 9'd327 ),
     .HCNT_END   ( 9'd383 )
@@ -136,7 +137,7 @@ jtargus_scroll #(.CW(8),.TEXT(0)) u_bg1(
     .clk        ( clk          ),
     .pxl_cen    ( pxl_cen      ),
     .hs         ( HS           ),
-    .blankn     ( tile_fetch   ),
+    .blankn     ( bg1_fetch    ),
     .flip       ( view_flip    ),
     .vdump      ( vdump_src    ),
     .hdump      ( hdump        ),
