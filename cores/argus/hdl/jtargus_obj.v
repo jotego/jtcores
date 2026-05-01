@@ -39,6 +39,7 @@ wire        title_mask_next = (code_next>=10'h3f0 && code_next<=10'h3f8) ||
                               (code_next>=10'h3b6 && code_next<=10'h3bf) ||
                               (code_next>=10'h3ac && code_next<=10'h3af);
 wire [ 9:0] spr_line = flip ? {1'b0,vrender} + sy_eff - 10'd240 : {1'b0,vrender} - sy_eff;
+wire        vis_next = !(color_b==8'd0 && sy_b==8'hf0) && spr_line[9:4]==6'd0;
 wire [ 3:0] ysub = line[3:0] ^ {4{vflip}};
 
 jtargus_obj_8x8x4_packed_msb u_conv(
@@ -65,19 +66,20 @@ always @(posedge clk) begin
         end else if( blankn ) begin
             case( state )
                 4'd0: begin ram_addr <= SPR_BASE + scan_ext + 13'd11; state <= 4'd1; end
-                4'd1: begin sy_b <= ram_data; ram_addr <= SPR_BASE + scan_ext + 13'd12; state <= 4'd2; end
-                4'd2: begin sx_b <= ram_data; ram_addr <= SPR_BASE + scan_ext + 13'd13; state <= 4'd3; end
-                4'd3: begin attr_b <= ram_data; ram_addr <= SPR_BASE + scan_ext + 13'd14; state <= 4'd4; end
-                4'd4: begin code_b <= ram_data; ram_addr <= SPR_BASE + scan_ext + 13'd15; state <= 4'd5; end
-                4'd5: begin
+                4'd1: begin ram_addr <= SPR_BASE + scan_ext + 13'd12; state <= 4'd2; end
+                4'd2: begin sy_b <= ram_data; ram_addr <= SPR_BASE + scan_ext + 13'd13; state <= 4'd3; end
+                4'd3: begin sx_b <= ram_data; ram_addr <= SPR_BASE + scan_ext + 13'd14; state <= 4'd4; end
+                4'd4: begin attr_b <= ram_data; ram_addr <= SPR_BASE + scan_ext + 13'd15; state <= 4'd5; end
+                4'd5: begin code_b <= ram_data; state <= 4'd6; end
+                4'd6: begin
                     color_b <= ram_data;
                     sx_eff  <= attr_b[0] ? {2'b11,sx_b} : {2'b00,sx_b};
                     sy_eff  <= attr_b[1] ? {2'b00,sy_b} : {2'b11,sy_b};
-                    state   <= 4'd6;
+                    state   <= 4'd7;
                 end
-                4'd6: begin
+                4'd7: begin
                     line    <= spr_line;
-                    visible <= !(color_b==8'd0 && sy_b==8'hf0) && spr_line[9:4]==6'd0;
+                    visible <= vis_next;
                     code    <= code_next;
                     title_mask <= title_mask_next;
                     pal     <= {color_b[3],color_b[2:0]};
@@ -85,23 +87,23 @@ always @(posedge clk) begin
                     vflip   <= flip ? ~attr_b[5] : attr_b[5];
                     if( flip )
                         sx_eff <= 10'd240 - sx_eff;
-                    state <= 4'd7;
-                end
-                4'd7: begin
-                    if( visible && !busy ) begin
-                        draw  <= 1'b1;
-                        state <= 4'd8;
-                    end else if( !visible || !busy ) begin
-                        state <= 4'd8;
-                    end
+                    state <= 4'd8;
                 end
                 4'd8: begin
+                    if( visible && !busy ) begin
+                        draw  <= 1'b1;
+                        state <= 4'd9;
+                    end else if( !visible || !busy ) begin
+                        state <= 4'd9;
+                    end
+                end
+                4'd9: begin
                     if( scan>=11'h5f0 ) begin
-                        state <= 4'd8;
+                        state <= 4'd9;
                     end else begin
                         scan     <= scan + 11'd16;
                         ram_addr <= SPR_BASE + scan_ext + 13'd16 + 13'd11;
-                        state    <= 4'd1;
+                        state    <= 4'd0;
                     end
                 end
                 default: state <= 4'd0;
