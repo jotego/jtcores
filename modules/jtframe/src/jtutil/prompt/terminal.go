@@ -95,6 +95,8 @@ func (t *Terminal) processKey(reader *bufio.Reader, ch rune, buffer *[]rune, cur
 		return t.handleCtrlU(buffer, cursor)
 	case '\x17': // Ctrl+W
 		return t.handleCtrlW(buffer, cursor)
+	case '\x0c': // Ctrl+L
+		return t.handleCtrlL(buffer, cursor)
 	case '\x01': // Ctrl+A
 		return t.handleCtrlA(buffer, cursor)
 	case '\x05': // Ctrl+E
@@ -187,6 +189,12 @@ func (t *Terminal) handleCtrlY(buffer *[]rune, cursor *int) readState {
 	kill := []rune(t.killBuffer)
 	*buffer = append((*buffer)[:*cursor], append(kill, (*buffer)[*cursor:]...)...)
 	*cursor += len(kill)
+	t.redraw(*buffer, *cursor)
+	return readContinue
+}
+
+func (t *Terminal) handleCtrlL(buffer *[]rune, cursor *int) readState {
+	t.clearScreen()
 	t.redraw(*buffer, *cursor)
 	return readContinue
 }
@@ -328,6 +336,10 @@ func (t *Terminal) redraw(buffer []rune, cursor int) {
 		return
 	}
 	fmt.Fprint(t.out, "\r\033[", len(t.prompt)+cursor, "C")
+}
+
+func (t *Terminal) clearScreen() {
+	fmt.Fprint(t.out, "\033[2J\033[H")
 }
 
 func (t *Terminal) isWordBoundary(p []rune, pos int) bool {
