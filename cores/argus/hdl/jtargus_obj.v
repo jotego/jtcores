@@ -22,7 +22,7 @@ module jtargus_obj(
 localparam SPR_BASE = 13'h1200;
 
 reg        hs_l, draw, visible;
-reg [ 9:0] scan;
+reg [10:0] scan;
 reg [ 3:0] state;
 reg [ 7:0] sy_b, sx_b, attr_b, code_b, color_b;
 reg [ 9:0] sx_eff, sy_eff;
@@ -32,7 +32,7 @@ reg [ 3:0] pal;
 reg        hflip, vflip, title_mask;
 wire       busy;
 wire [31:0] sorted;
-wire [12:0] scan_ext = {3'd0,scan};
+wire [12:0] scan_ext = {2'd0,scan};
 wire [ 9:0] code_next = {attr_b[7:6],code_b};
 // FBNeo skips these Argus title mask sprites over plain BG0.
 wire        title_mask_next = (code_next>=10'h3f0 && code_next<=10'h3f8) ||
@@ -49,7 +49,7 @@ jtargus_obj_8x8x4_packed_msb u_conv(
 always @(posedge clk) begin
     if( rst ) begin
         hs_l     <= 1'b0;
-        scan     <= 10'd0;
+        scan     <= 11'd0;
         state      <= 4'd0;
         draw       <= 1'b0;
         ram_addr   <= SPR_BASE;
@@ -59,7 +59,7 @@ always @(posedge clk) begin
         draw <= 1'b0;
 
         if( hs && !hs_l ) begin
-            scan     <= 10'd0;
+            scan     <= 11'd0;
             state    <= 4'd0;
             ram_addr <= SPR_BASE + 13'd11;
         end else if( blankn ) begin
@@ -96,10 +96,10 @@ always @(posedge clk) begin
                     end
                 end
                 4'd8: begin
-                    if( scan>=10'h5f0 ) begin
+                    if( scan>=11'h5f0 ) begin
                         state <= 4'd8;
                     end else begin
-                        scan     <= scan + 10'd16;
+                        scan     <= scan + 11'd16;
                         ram_addr <= SPR_BASE + scan_ext + 13'd16 + 13'd11;
                         state    <= 4'd1;
                     end
