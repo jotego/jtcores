@@ -2,7 +2,9 @@ package prompt
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"unicode"
@@ -49,7 +51,10 @@ func (t *Terminal) ReadLine() (string, bool, error) {
 		ch, _, err := reader.ReadRune()
 		if err != nil {
 			fmt.Fprintln(t.out)
-			return "", false, nil
+			if errors.Is(err, io.EOF) {
+				return "", false, nil
+			}
+			return "", false, err
 		}
 		done := t.processKey(reader, ch, &buffer, &cursor)
 		if done == readContinue {
