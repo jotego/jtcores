@@ -429,7 +429,9 @@ func mvVCD( vcd *LnFile, sim_st *SimState, hier *Hierarchy, expr string, scope s
 func find_similar( name string, ss VCDData ) string {
     pc := ""
     for _, each := range ss {
-        if strings.ToLower(each.Name)==name {
+        vcd_name := strings.ToLower(each.Name)
+        vcd_name  = strings.TrimPrefix(vcd_name,"trace_")
+        if vcd_name==name {
             pc = each.FullName()
             break
         }
@@ -584,17 +586,18 @@ func MakeAlias( trace string, ss VCDData ) mameAlias {
         if len(each)==0 || each[0]=='*' { break }
         k := strings.Index(each,"=")
         if k==-1 { continue }
-        name := strings.ToLower(each[0:k])
-        if name=="pc" || name=="frame_cnt" { continue } // these are normally hard to match
+        mame_name := strings.ToLower(each[0:k])
         var p *VCDSignal
         for _, v := range ss {
-            if strings.ToLower(v.Name)==name {
+            vcd_name := strings.TrimPrefix(v.Name,"TRACE_")
+            vcd_name  = strings.ToLower(vcd_name)
+            if vcd_name==mame_name {
                 p = v
                 break
             }
         }
         if p==nil {
-            fmt.Printf("Cannot alias signal %s\n",name)
+            fmt.Printf("Cannot alias signal %s\n",mame_name)
             continue
         }
         mame_alias[each[0:k]]=p
