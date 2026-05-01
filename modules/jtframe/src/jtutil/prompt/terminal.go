@@ -50,7 +50,7 @@ func (t *Terminal) ReadLine() (string, bool, error) {
 	for {
 		ch, _, err := reader.ReadRune()
 		if err != nil {
-			fmt.Fprintln(t.out)
+			fmt.Fprint(t.out, "\r\n")
 			if errors.Is(err, io.EOF) {
 				return "", false, nil
 			}
@@ -113,19 +113,19 @@ func (t *Terminal) processKey(reader *bufio.Reader, ch rune, buffer *[]rune, cur
 }
 
 func (t *Terminal) handleLineBreak(buffer []rune) readState {
-	fmt.Fprintln(t.out)
+	fmt.Fprint(t.out, "\r\n")
 	t.historyPush(string(buffer))
 	return readLineOk
 }
 
 func (t *Terminal) handleCtrlC() readState {
-	fmt.Fprintln(t.out)
+	fmt.Fprint(t.out, "\r\n")
 	return readLineEOFOrCancel
 }
 
 func (t *Terminal) handleCtrlD(buffer []rune) readState {
 	if len(buffer) == 0 {
-		fmt.Fprintln(t.out)
+		fmt.Fprint(t.out, "\r\n")
 		return readLineEOFOrCancel
 	}
 	return readContinue
