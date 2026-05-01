@@ -36,11 +36,15 @@ Current implemented video work includes:
   JTFRAME core-mod for the vertical cabinet view
 - live frame viewer inherited from the Operation Wolf/Rainbow Islands workflow
 
-Known issues: real MiSTer hardware validation is still pending. Gameplay, sound,
-inputs, sprite priority edge cases, and remaining MAME-vs-HDL pixel differences
-need more reference passes. MAME itself marks the Argus driver as imperfect
-graphics, so each visual fix should be checked against a saved MAME frame rather
-than assumed correct.
+Known issues:
+
+- Ship departing smoke animation is corrupted.
+- Background becomes black after the supernova.
+- Scroll stuttering remains; movement is not yet as smooth as MAME/arcade.
+- Cursor is offset upward on the score name entry screen.
+
+MAME itself marks the Argus driver as imperfect graphics, so each visual fix
+should be checked against a saved MAME frame rather than assumed correct.
 
 ## Repo Layout
 
