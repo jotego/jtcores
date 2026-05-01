@@ -1,60 +1,142 @@
-# JTARGUS
+# Argus Core
 
-FPGA implementation work-in-progress for **Argus** (NMK/Jaleco, 1986).
+FPGA implementation of **Argus** (NMK/Jaleco, 1986), targeting the MiSTer
+platform through JTFRAME. Copyright (C) 2026 Fulvio Venturelli, distributed
+under the GNU General Public License version 3 or later (see
+[LICENSE](../../LICENSE)).
 
-This core is being brought up from MAME and FBNeo source references because no
-schematics have been found. Reusable blocks are taken from JTFRAME/JTCORES:
+Built on top of Jose Tejada's `jtframe` framework (also GPL-3). This core is
+being brought up from emulator references because no original schematics have
+been found. The implementation is guided by MAME's Jaleco `argus.cpp` /
+`argus_v.cpp` driver, the local MAME-compatible `argus.zip` ROM set, and live
+Verilator comparison against MAME reference frames. See
+[AUTHORS.md](AUTHORS.md) for attribution.
+
+## Status
+
+Supported MAME set for the jtframe config:
+
+- `argus`: **Argus**.
+
+Related MAME sets `valtric`, `butasan`, and `butasanj` share parts of the same
+driver, but they are out of scope for this first hardware pass.
+
+Verilator board simulation currently boots the real `argus` ROM image, transfers
+ROM by frame 12, accepts the repeatable coin/start input script, and reaches the
+title/credit path with recognizable background, logo, text, palette, and sprite
+output.
+
+Current implemented video work includes:
+
+- MAME-described BG0 VROM metadata lookup cached with `jtframe_dual_ram`
+- BG0 palette intensity add/subtract path
+- Jaleco blend-device sprite alpha nibble handling
+- Argus packed-MSB 4bpp tile conversion for BG, text, and sprites
+- 256x224 active timing aligned to the MAME visible area, then rotated by
+  JTFRAME core-mod for the vertical cabinet view
+- live frame viewer inherited from the Operation Wolf/Rainbow Islands workflow
+
+Known issues: real MiSTer hardware validation is still pending. Gameplay, sound,
+inputs, sprite priority edge cases, and remaining MAME-vs-HDL pixel differences
+need more reference passes. MAME itself marks the Argus driver as imperfect
+graphics, so each visual fix should be checked against a saved MAME frame rather
+than assumed correct.
+
+## Repo Layout
+
+| Path | What it is |
+|---|---|
+| `hdl/` | Verilog - Argus-specific CPU, video, palette, sprite, and sound glue |
+| `mist/` | Generated MiSTer SDRAM wrapper and memory port includes |
+| `cfg/` | `files.yaml`, `mem.yaml`, `macros.def`, MRA, DIP, and pause text inputs |
+| `doc/` | Local MAME/FBNeo reference snapshots |
+| `ver/argus/` | Verilator sim wrapper and repeatable input script |
+| `tools/` | `framewatch.py`, the live browser frame viewer |
+
+## Reused Blocks
+
+The Argus-specific RTL is intentionally limited to address decoding, BG0 VROM
+lookup, palette/intensity rules, sprite table scanning, and board glue. Reused
+JTFRAME/JTCORES blocks include:
 
 - Z80 CPUs: `jtframe_z80_romwait`
 - YM2203: `jt03`
 - video timing: `jtframe_vtimer`
-- tile layers: `jtframe_scroll` and `jtframe_8x8x4_packed_msb`
+- tile layers: `jtframe_scroll`
 - sprite drawing: `jtframe_objdraw`
 - local RAMs: `jtframe_dual_ram` and `jtframe_dual_ram16`
 
-The Argus-specific RTL is limited to address decoding, the MAME-described VROM
-BG0 lookup, palette/intensity rules, and sprite table scanning.
+## Building & Simulating
 
-## References
+Generate the MRA and ROM payloads from a MAME-compatible `argus.zip`:
 
-Source:
-https://github.com/mamedev/mame/blob/master/src/mame/jaleco/argus.cpp
+```bash
+cd /path/to/jtcores
+JTROOT=$PWD \
+JTFRAME=$PWD/modules/jtframe \
+CORES=$PWD/cores \
+MODULES=$PWD/modules \
+JTBIN=$PWD/release \
+PATH=$PWD/modules/jtframe/bin:$PATH \
+modules/jtframe/bin/jtframe mra argus --setname argus --path /path/to/roms
+```
 
-Source:
-https://github.com/mamedev/mame/blob/master/src/mame/jaleco/argus_v.cpp
+Expected local outputs:
 
-Source:
-https://github.com/finalburnneo/FBNeo/blob/master/src/burn/drv/pre90s/d_argus.cpp
+```text
+release/mra/Argus.mra
+rom/argus.rom
+rom/argus.dip
+rom/argus.mod
+```
 
-Local copies:
+The local sim wrapper sets up the JTFRAME environment, refreshes
+`rom/argus.rom`/`rom/argus.mod` when needed, and invokes `jtsim`:
 
-- `doc/argus.cpp`
-- `doc/argus_v.cpp`
-- `doc/argus.h`
-- `doc/fbneo_d_argus.cpp`
+```bash
+cd cores/argus/ver/argus
+ARGUS_ROM=/path/to/roms ./sim.sh -frame 300 -fast
+```
 
-## Bring-Up Notes
+For a repeatable credit/start run:
 
-- Current target set: `argus`.
-- MRA generation overrides Argus to vertical clockwise orientation so JTFRAME's
-  core-mod rotation presents the vertical cabinet image upright.
-- `jtframe mem argus`, `jtframe files plain argus --local --rel`, and MRA/ROM
-  generation for `argus` have been smoke-tested using
-  `/Users/fulvio/Downloads/argus.zip`.
-- `cores/argus/ver/argus/sim.sh -lint` completes cleanly through `jtsim`.
-- `cores/argus/ver/argus/sim.sh -frame 80 -fast` transfers the 640 KiB ROM
-  image by frame 12 and reports 54.26 Hz. The CPU now fetches from ROM and
-  writes text RAM; the frame capture shows early blue boot/title text.
-- `cores/argus/ver/argus/sim.sh -frame 260 -fast -inputs start_game.cab`
-  drives the repeatable coin/start input file and produces fresh viewer frames
-  through the title/credit path.
-- `cores/argus/tools/framewatch.py` serves sim frames, defaulting to port 8766.
-- Related games `valtric`, `butasan`, and `butasanj` share parts of the MAME
-  driver but are out of scope for the first hardware pass.
-- MAME marks graphics as imperfect and documents half-transparent colors; this
-  core implements the BG0 palette intensity add/subtract path and the sprite
-  blend nibble used by MAME's Jaleco blend device. BG0 now decodes the
-  MAME-described VROM map through a small `jtframe_dual_ram` metadata cache
-  instead of racing four SDRAM reads at each tile edge.
-- MAME uses a 5 MHz Z80 clock for Argus even though the driver comment says the
-  original was 4 MHz; this core follows MAME for now.
+```bash
+cd cores/argus/ver/argus
+ARGUS_ROM=/path/to/roms ./sim.sh -frame 300 -fast -inputs start_game.cab
+```
+
+For a visual frame capture run:
+
+```bash
+cd cores/argus/ver/argus
+JTFRAME_SIM_VIDEO_EVERY=90 ARGUS_ROM=/path/to/roms ./sim.sh -frame 91 -fast
+```
+
+The live frame viewer can stay open across sim runs:
+
+```bash
+python3 cores/argus/tools/framewatch.py --port 8766
+```
+
+Open `http://127.0.0.1:8766/` and leave it running while the sim writes frames
+under `ver/argus/frames/`.
+
+## Reference Sources
+
+- MAME Jaleco driver: `doc/argus.cpp`
+- MAME Jaleco video driver: `doc/argus_v.cpp`
+- MAME state header: `doc/argus.h`
+- FBNeo reference driver: `doc/fbneo_d_argus.cpp`
+
+Upstream references:
+
+- <https://github.com/mamedev/mame/blob/master/src/mame/jaleco/argus.cpp>
+- <https://github.com/mamedev/mame/blob/master/src/mame/jaleco/argus_v.cpp>
+- <https://github.com/finalburnneo/FBNeo/blob/master/src/burn/drv/pre90s/d_argus.cpp>
+
+## License
+
+GPL-3-or-later. Every HDL file carries its own attribution header where
+applicable. The implementation uses JTFRAME/JTCORES reusable modules by Jose
+Tejada and contributors, plus behavioural details derived from MAME and FBNeo
+reference drivers. See [LICENSE](../../LICENSE) and [AUTHORS.md](AUTHORS.md).
