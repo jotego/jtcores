@@ -69,12 +69,14 @@ module jtargus_video(
 wire [8:0] hdump, vdump, vrender;
 wire [8:0] vdump_src   = vdump;
 wire [8:0] vrender_src = vrender;
-wire       view_flip = flip;
-wire [9:0] bg0_scrx_view = bg0_scrx;
-wire [8:0] bg0_scry_view = bg0_scry;
+wire       latch_view  = hdump==9'd0 && vdump==9'd15;
+reg        flip_view, bg1_en_view;
+reg  [9:0] bg0_scrx_view;
+reg  [8:0] bg0_scry_view, bg1_scrx_view, bg1_scry_view;
+reg  [7:0] bg0_vrom_view;
 wire       blankn = LHBL & LVBL;
 wire       tile_fetch = 1'b1;
-wire       bg1_fetch = tile_fetch & bg1_en;
+wire       bg1_fetch = tile_fetch & bg1_en_view;
 wire [7:0] bg0_pxl, bg1_pxl, tx_pxl;
 wire [8:0] obj_pxl;
 
@@ -104,9 +106,30 @@ jtframe_vtimer #(
     .VS         ( VS       )
 );
 
-always @(posedge clk) if( pxl_cen ) begin
-    irq8  <= hdump==9'd0 && vdump==9'd16;
-    irq10 <= hdump==9'd0 && vdump==9'd240;
+always @(posedge clk) begin
+    if( rst ) begin
+        irq8           <= 1'b0;
+        irq10          <= 1'b0;
+        flip_view      <= 1'b0;
+        bg1_en_view    <= 1'b0;
+        bg0_scrx_view  <= 10'd0;
+        bg0_scry_view  <= 9'd0;
+        bg0_vrom_view  <= 8'd0;
+        bg1_scrx_view  <= 9'd0;
+        bg1_scry_view  <= 9'd0;
+    end else if( pxl_cen ) begin
+        irq8  <= hdump==9'd0 && vdump==9'd16;
+        irq10 <= hdump==9'd0 && vdump==9'd240;
+        if( latch_view ) begin
+            flip_view     <= flip;
+            bg1_en_view   <= bg1_en;
+            bg0_scrx_view <= bg0_scrx;
+            bg0_scry_view <= bg0_scry;
+            bg0_vrom_view <= bg0_vrom;
+            bg1_scrx_view <= bg1_scrx;
+            bg1_scry_view <= bg1_scry;
+        end
+    end
 end
 
 jtargus_bg0 u_bg0(
@@ -115,12 +138,12 @@ jtargus_bg0 u_bg0(
     .pxl_cen    ( pxl_cen   ),
     .hs         ( HS        ),
     .blankn     ( tile_fetch ),
-    .flip       ( view_flip ),
+    .flip       ( flip_view ),
     .vdump      ( vdump_src ),
     .hdump      ( hdump     ),
     .scrx       ( bg0_scrx_view ),
     .scry       ( bg0_scry_view ),
-    .vrom_offset( bg0_vrom  ),
+    .vrom_offset( bg0_vrom_view ),
     .rom_cs     ( bg0_cs    ),
     .rom_addr   ( bg0_addr  ),
     .rom_data   ( bg0_data  ),
@@ -138,11 +161,11 @@ jtargus_scroll #(.CW(8),.TEXT(0)) u_bg1(
     .pxl_cen    ( pxl_cen      ),
     .hs         ( HS           ),
     .blankn     ( bg1_fetch    ),
-    .flip       ( view_flip    ),
+    .flip       ( flip_view     ),
     .vdump      ( vdump_src    ),
     .hdump      ( hdump        ),
-    .scrx       ( bg1_scrx     ),
-    .scry       ( bg1_scry     ),
+    .scrx       ( bg1_scrx_view ),
+    .scry       ( bg1_scry_view ),
     .ram_addr   ( bg1_addr     ),
     .ram_data   ( bg1_data     ),
     .rom_cs     ( bg1rom_cs    ),
@@ -158,7 +181,7 @@ jtargus_scroll #(.CW(10),.TEXT(1)) u_text(
     .pxl_cen    ( pxl_cen      ),
     .hs         ( HS           ),
     .blankn     ( tile_fetch   ),
-    .flip       ( view_flip    ),
+    .flip       ( flip_view     ),
     .vdump      ( vdump_src    ),
     .hdump      ( hdump        ),
     .scrx       ( 9'd0         ),
@@ -178,7 +201,7 @@ jtargus_obj u_obj(
     .pxl_cen    ( pxl_cen      ),
     .hs         ( HS           ),
     .blankn     ( blankn       ),
-    .flip       ( view_flip    ),
+    .flip       ( flip_view     ),
     .hdump      ( hdump        ),
     .vrender    ( vrender_src  ),
     .ram_addr   ( objram_addr  ),
@@ -194,7 +217,7 @@ jtargus_colmix u_colmix(
     .clk        ( clk      ),
     .pxl_cen    ( pxl_cen  ),
     .blankn     ( blankn   ),
-    .bg1_en     ( bg1_en   ),
+    .bg1_en     ( bg1_en_view ),
     .bg0_pxl    ( bg0_pxl  ),
     .bg1_pxl    ( bg1_pxl  ),
     .tx_pxl     ( tx_pxl   ),
