@@ -69,6 +69,8 @@ module jtaliens_obj(
     output     [ 7:0] st_dout
 );
 
+parameter GRADIUS3_LAYOUT = 0;
+
 wire [ 8:0] xpos;
 wire [ 3:0] ysub;
 wire [ 7:0] ram_dout;
@@ -79,11 +81,26 @@ wire [18:0] pre_addr;
 wire [17:0] romrd_addr;
 wire [11:0] buf_pred, buf_din;
 wire        rom_cs_draw;
+wire [31:0] draw_data;
 
 assign rom_cs = rom_cs_draw | romrd;
 assign blank_n = pxl[3:0]!=0 && gfx_en[3];
 assign buf_din = { buf_sha, buf_pred[10:4], buf_sha ? 4'h0 : buf_pred[3:0] };
 assign shadow  = pxl[11];
+assign draw_data = GRADIUS3_LAYOUT ? grad3_obj_order( rom_data ) : rom_data;
+
+function [31:0] grad3_obj_order( input [31:0] raw );
+    // Gradius III connects the object ROM data differently to the CPU and
+    // to the K051937/K051960 pixel path. Convert MAME's Gradius III packed
+    // nibble layout into the plane-per-byte order expected by jtframe_draw.
+    // SDRAM presents the first byte in raw[31:24], matching the ROM-read path.
+    grad3_obj_order = {
+        raw[15], raw[11], raw[ 7], raw[ 3], raw[31], raw[27], raw[23], raw[19],
+        raw[14], raw[10], raw[ 6], raw[ 2], raw[30], raw[26], raw[22], raw[18],
+        raw[13], raw[ 9], raw[ 5], raw[ 1], raw[29], raw[25], raw[21], raw[17],
+        raw[12], raw[ 8], raw[ 4], raw[ 0], raw[28], raw[24], raw[20], raw[16]
+    };
+endfunction
 
 // jtframe_draw outputs H[3],V[3:0]
 // swap bits 3 and 4 to comply with Konami ROM order
@@ -93,12 +110,21 @@ always @* begin
     cpu_din       = ram_dout;
     if( romrd ) begin
         rom_addr = { code_eff[13], romrd_addr };
-        case(cpu_addr[1:0])
-            3: cpu_din = rom_data[  0 +: 8];
-            2: cpu_din = rom_data[  8 +: 8];
-            1: cpu_din = rom_data[ 16 +: 8];
-            0: cpu_din = rom_data[ 24 +: 8];
-        endcase
+        if( GRADIUS3_LAYOUT ) begin
+            case(cpu_addr[1:0])
+                0: cpu_din = rom_data[  0 +: 8];
+                1: cpu_din = rom_data[  8 +: 8];
+                2: cpu_din = rom_data[ 16 +: 8];
+                3: cpu_din = rom_data[ 24 +: 8];
+            endcase
+        end else begin
+            case(cpu_addr[1:0])
+                3: cpu_din = rom_data[  0 +: 8];
+                2: cpu_din = rom_data[  8 +: 8];
+                1: cpu_din = rom_data[ 16 +: 8];
+                0: cpu_din = rom_data[ 24 +: 8];
+            endcase
+        end
     end
 end
 
@@ -182,7 +208,7 @@ jtframe_objdraw_gate #(
     .rom_addr   ( pre_addr  ),
     .rom_cs     ( rom_cs_draw ),
     .rom_ok     ( rom_ok    ),
-    .rom_data   ( rom_data  ),
+    .rom_data   ( draw_data ),
 
     .buf_pred   ( buf_pred  ),
     .buf_din    ( buf_din   ),

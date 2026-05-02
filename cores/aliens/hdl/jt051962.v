@@ -98,6 +98,7 @@ module jt051962(
 parameter [8:0] HB_OFFSET=0,
                 HB_EXTRAL=0,
                 HB_EXTRAR=0;
+parameter       CHAR_RAM_LAYOUT=0;
 
 reg  [7:0] cola, colb, colf;
 reg [31:0] pxlf_data, pxla_data, pxlb_data;
@@ -132,12 +133,29 @@ jtframe_vtimer #(
 );
 
 function [3:0] flip4( input hf, input [31:0] data );
-    flip4 = hf ? {data[24],data[16],data[ 8],data[0]} :
-                  {data[31],data[23],data[15],data[7]};
+    if( CHAR_RAM_LAYOUT )
+        flip4 = hf ? data[31:28] : data[3:0];
+    else
+        flip4 = hf ? {data[24],data[16],data[ 8],data[0]} :
+                      {data[31],data[23],data[15],data[7]};
 endfunction
 
 function [31:0] shift( input hf, input [31:0] data);
-    shift = hf ? data >> 1 : data << 1;
+    if( CHAR_RAM_LAYOUT )
+        shift = hf ? data << 4 : data >> 4;
+    else
+        shift = hf ? data >> 1 : data << 1;
+endfunction
+
+function [31:0] char_order( input [31:0] data );
+    if( CHAR_RAM_LAYOUT )
+        // SDRAM returns word-swapped byte pairs; char RAM pixels are high nibble first.
+        char_order = {
+            data[19:16], data[23:20], data[27:24], data[31:28],
+            data[ 3: 0], data[ 7: 4], data[11: 8], data[15:12]
+        };
+    else
+        char_order = data;
 endfunction
 
 // Tile ROM reads by the CPU
@@ -172,7 +190,7 @@ always @(posedge clk, posedge rst) begin
         hflipb    <= 0;
     end else if( pxl_cen ) begin
         if( hsub_a[2:0]==0 ) begin
-            pxla_data <= lyra_data;
+            pxla_data <= char_order( lyra_data );
             cola      <= lyra_col;
             hflipa    <= (hflip_en & lyra_col[0]) ^ flip;
         end else begin
@@ -180,7 +198,7 @@ always @(posedge clk, posedge rst) begin
         end
 
         if( hsub_b[2:0]==0 ) begin
-            pxlb_data <= lyrb_data;
+            pxlb_data <= char_order( lyrb_data );
             colb      <= lyrb_col;
             hflipb    <= (hflip_en & lyrb_col[0]) ^ flip;
         end else begin
@@ -188,8 +206,13 @@ always @(posedge clk, posedge rst) begin
         end
 
         if( hdump[2:0]==0 ) begin
-            pxlf_data <= lyrf_data;
+            pxlf_data <= char_order( lyrf_data );
             colf      <= lyrf_col;
+`ifdef JTGRAD3_TRACE_DRAW_SAMPLE
+            if( CHAR_RAM_LAYOUT && vdump[7:3] == 5'h10 && hdump[8:3] >= 6'h18 && hdump[8:3] <= 6'h30 )
+                $display("G3DRAW hd=%03x vd=%03x col=%02x data=%08x order=%08x pxl=%x",
+                    hdump, vdump, lyrf_col, lyrf_data, char_order(lyrf_data), flip4(flip, char_order(lyrf_data)));
+`endif
         end else begin
             pxlf_data <= shift(  flip , pxlf_data );
         end

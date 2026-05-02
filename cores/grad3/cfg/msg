@@ -1,0 +1,32 @@
+       \BJTGRAD3\W
+   \RGradius III\W compatible
+       FPGA core
+
+      Konami GX945
+          1989
+
+  Supports MAME set:
+       \Rgradius3\W
+ World version R parent
+
+  Real MiSTer hardware:
+  ready for first run
+
+    Dual 68000 design
+  reused from Twin16
+
+  K052109/K051962 and
+  K051960 video reused
+ from TMNT and ALIENS
+
+  Schematics redrawn
+  in KiCad by
+   \RUlf Skutnabba\W
+      @skutis77
+
+  HDL by \RFulvio Venturelli\W
+
+  Built on top of
+   \RJTFRAME\W by
+    \RJose Tejada\W
+  \Bpatreon.com/jotego\W

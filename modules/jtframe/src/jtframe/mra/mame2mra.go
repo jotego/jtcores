@@ -259,6 +259,7 @@ func (args *Args) make_from_name(machine *MachineXML, mra_cfg Mame2MRA) ParsedMa
 		fmt.Println("Neither sourcefile nor explicit machine definitions in the [parse] section. Aborting.")
 		os.Exit(1)
 	}
+	calc_DIP_bits(machine, mra_cfg.Dipsw)
 	mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, *args)
 	return ParsedMachine{
 		machine:   machine,

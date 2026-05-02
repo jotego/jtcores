@@ -83,7 +83,12 @@ module jt052109(
     output reg [ 7:0] st_dout
 );
 
-parameter FULLRAM=0;
+parameter FULLRAM=0,
+          COL_PASSTHRU=0,
+          LOGICAL_MAP=0,
+          FORCE_BANKS=0,
+          BANK0_INIT=8'h00,
+          BANK1_INIT=8'h00;
 
 // MMR go from 1C00 to 1F00
 localparam [15:0] REGBASE = 16'h1C00;
@@ -135,8 +140,8 @@ wire        cscra_en, cscrb_en, reg_we,
 wire [ 2:0] reg_addr;
 
 assign reg_addr    = cpu_addr[9:7];
-assign bank0       = mmr[REG_BANK0];
-assign bank1       = mmr[REG_BANK1];
+assign bank0       = FORCE_BANKS ? BANK0_INIT : mmr[REG_BANK0];
+assign bank1       = FORCE_BANKS ? BANK1_INIT : mmr[REG_BANK1];
 assign cfg         = mmr[REG_CFG];
 assign int_en      = mmr[REG_INT];
 assign flip        = mmr[REG_FLIP][0];
@@ -149,7 +154,8 @@ assign rd_vpos     = hdump[8:3]==6'hC; // 9'h60 >> 3, should this be:
     // |{hdumpf[8:7], ~hdumpf[6:5], hdumpf[4], hdump[3]}; //instead?
 assign rd_hpos     = vdump[7:0]==0;
 assign scrlyr_sel  = hdump[1];
-assign reg_we      = &{we[1],cpu_addr[12:10]};
+assign reg_we      = LOGICAL_MAP ? gfx_cs & cpu_we & ~cpu_addr[13] & (&cpu_addr[12:10]) :
+                                   &{we[1],cpu_addr[12:10]};
 assign mmr_dump    = mmr[ioctl_addr[2:0]];
 assign ioctl_din   = FULLRAM==1 && ioctl_addr[14]? ram0_dout : ( ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0] );
 
@@ -171,18 +177,31 @@ end
 
 // CPU Memory Mapper
 always @* begin
-    casez( cpu_addr[15:13] )
-          0: range = 6'b111110;    // 0000~1FFF
-          1: range = 6'b111101;    // 2000~3FFF
-          2: range = 6'b111011;    // 4000~5FFF
-          3: range = 6'b110111;    // 6000~7FFF
-          4: range = 6'b101111;    // 8000~9FFF
-          5: range = 6'b011111;    // A000~BFFF
-    default: range = 6'b111111;
-    endcase
-    cs[0] = ~range0[~cfg[1:0]];
-    cs[1] = ~range1[~cfg[1:0]];
-    cs[2] = ~range2[~cfg[1:0]];
+    cs       = 0;
+    we       = 0;
+    cpu_din  = 0;
+    range    = 6'b111111;
+    if( LOGICAL_MAP ) begin
+        case( cpu_addr[14:13] )
+            2'b00: cs[1] = 1;  // 0000~1FFF: attributes, scroll A, registers
+            2'b01: cs[2] = 1;  // 2000~3FFF: tile codes, scroll B
+            2'b10: cs[0] = FULLRAM; // 4000~5FFF: optional extra tile RAM
+            default:;
+        endcase
+    end else begin
+        casez( cpu_addr[15:13] )
+              0: range = 6'b111110;    // 0000~1FFF
+              1: range = 6'b111101;    // 2000~3FFF
+              2: range = 6'b111011;    // 4000~5FFF
+              3: range = 6'b110111;    // 6000~7FFF
+              4: range = 6'b101111;    // 8000~9FFF
+              5: range = 6'b011111;    // A000~BFFF
+        default: range = 6'b111111;
+        endcase
+        cs[0] = ~range0[~cfg[1:0]];
+        cs[1] = ~range1[~cfg[1:0]];
+        cs[2] = ~range2[~cfg[1:0]];
+    end
     // in all systems so far, this is the connection (external to 052109)
     // RAM0/1 -> upper VD
     // RAM2   -> lower VD
@@ -237,7 +256,7 @@ always @* begin
         default:  vmux = vdump[2:0]; // this is latched in the original
     endcase
     col_cfg = rmrd ? mmr[REG_RMRD] :
-        { scan_dout[15:12], cfg[6]?scan_dout[11:10]:col_aux, scan_dout[9:8] };
+        { scan_dout[15:12], (COL_PASSTHRU || cfg[6]) ? scan_dout[11:10] : col_aux, scan_dout[9:8] };
     vflip = col_cfg[1] & vflip_en;
     vc = rmrd ? cpu_addr[12:2] : { scan_dout[7:0], vmux^{3{vflip}} };
 end
@@ -383,6 +402,72 @@ always @(posedge clk) begin
         end
     end
 end
+
+`ifdef JTGRAD3_TRACE_TILE_SAMPLE
+reg [15:0] trace_sample_cnt;
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        trace_sample_cnt <= 0;
+    end else if( pxl_cen && !rd_rowscr && hdump[1:0]==2'd3 && vaddr==13'h041a &&
+                 trace_sample_cnt != 16'hffff ) begin
+        trace_sample_cnt <= trace_sample_cnt + 1'd1;
+        if( trace_sample_cnt[5:0] == 0 )
+            $display("G3TILE sample=%0d vaddr=%04x scan=%04x col=%02x cab=%x vc=%03x faddr=%04x cfg=%02x b0=%02x b1=%02x",
+                trace_sample_cnt, vaddr, scan_dout, col_cfg, cab, vc, lyrf_addr, cfg, bank0, bank1);
+    end
+end
+`endif
+
+`ifdef JTGRAD3_DUMP_K052109
+`ifndef JTGRAD3_DUMP_K052109_FRAME
+`define JTGRAD3_DUMP_K052109_FRAME 1779
+`endif
+reg        dump_lvbl_l, dump_done;
+reg [15:0] dump_frame;
+reg [ 7:0] dump_attr [0:8191];
+reg [ 7:0] dump_code [0:8191];
+reg [ 7:0] dump_extra[0:8191];
+integer    dump_i, dump_fd;
+
+initial begin
+    for( dump_i=0; dump_i<8192; dump_i=dump_i+1 ) begin
+        dump_attr [dump_i] = 0;
+        dump_code [dump_i] = 0;
+        dump_extra[dump_i] = 0;
+    end
+end
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        dump_lvbl_l <= 0;
+        dump_frame  <= 0;
+        dump_done   <= 0;
+    end else begin
+        dump_lvbl_l <= lvbl;
+        if( we[0] ) dump_extra[cpu_addr[12:0]] <= cpu_dout;
+        if( we[1] ) dump_attr [cpu_addr[12:0]] <= cpu_dout;
+        if( we[2] ) dump_code [cpu_addr[12:0]] <= cpu_dout;
+        if( dump_lvbl_l & ~lvbl ) begin
+            dump_frame <= dump_frame + 1'd1;
+            if( dump_frame == `JTGRAD3_DUMP_K052109_FRAME && !dump_done ) begin
+                dump_done = 1;
+                dump_fd = $fopen("hdl_k052109_attr.bin", "wb");
+                for( dump_i=0; dump_i<8192; dump_i=dump_i+1 ) $fwrite(dump_fd, "%c", dump_attr[dump_i]);
+                $fclose(dump_fd);
+                dump_fd = $fopen("hdl_k052109_code.bin", "wb");
+                for( dump_i=0; dump_i<8192; dump_i=dump_i+1 ) $fwrite(dump_fd, "%c", dump_code[dump_i]);
+                $fclose(dump_fd);
+                dump_fd = $fopen("hdl_k052109_extra.bin", "wb");
+                for( dump_i=0; dump_i<8192; dump_i=dump_i+1 ) $fwrite(dump_fd, "%c", dump_extra[dump_i]);
+                $fclose(dump_fd);
+                $display("G3DUMP K052109 frame=%0d cfg=%02x scr=%02x int=%02x bank0=%02x bank1=%02x flip=%02x",
+                    dump_frame, cfg, mmr[REG_SCR], int_en, bank0, bank1, mmr[REG_FLIP]);
+            end
+        end
+    end
+end
+`endif
 
 generate if(FULLRAM==1) begin
     jtframe_dual_nvram #(.AW(13),.SIMFILE("scrx.bin")) u_attr(

@@ -1,0 +1,78 @@
+params:
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA2_START)" }
+  - { name: GFX_OFFSET, value: "(`GFX_START-`JTFRAME_BA1_START) >> 1" }
+  - { name: MRAM_OFFSET, value: "22'h100000" }
+  - { name: SRAM_OFFSET, value: "22'h100000" }
+clocks:
+  clk48:
+    - freq: 24M
+      outputs:
+        - cen24
+        - cen12
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+audio:
+  rsum: 10k
+  rsum_feedback_res: true
+  channels:
+    - { name: fm,  module: jt51,     rsum: 3.3k,  rc: [ { r: rout, c: 2.2n }, { r: 680, c: 33n } ] }
+    - { name: pcm, module: jt007232, rsum: 12.0k, rc: [ { r: 33k,  c: 470p } ], pre: 0.20 }
+sdram:
+  banks:
+    - buses:
+        - name: mram
+          addr_width: 14
+          data_width: 16
+          offset: MRAM_OFFSET
+          rw: true
+          do_not_erase: true
+        - name: main
+          addr_width: 18
+          data_width: 16
+    - buses:
+        - name: sram
+          addr_width: 14
+          data_width: 16
+          offset: SRAM_OFFSET
+          rw: true
+          do_not_erase: true
+        - name: sub
+          addr_width: 20
+          data_width: 16
+        - name: gfx
+          addr_width: 21
+          data_width: 16
+          offset: GFX_OFFSET
+        - name: lyro
+          addr_width: 21
+          data_width: 32
+          offset: GFX_OFFSET
+    - buses:
+        - name: snd
+          addr_width: 16
+          data_width: 8
+        - name: pcma
+          addr_width: 19
+          data_width: 8
+          offset: PCM_OFFSET
+        - name: pcmb
+          addr_width: 19
+          data_width: 8
+          offset: PCM_OFFSET
+    - buses:
+        - name: gchar
+          addr_width: 17
+          data_width: 16
+          rw: true
+          do_not_erase: true
+        - name: lyrf
+          addr_width: 17
+          data_width: 32
+        - name: lyra
+          addr_width: 17
+          data_width: 32
+        - name: lyrb
+          addr_width: 17
+          data_width: 32
