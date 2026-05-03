@@ -438,7 +438,7 @@ func (p *VCDPrompt) saveSession() bool {
 		fmt.Println(e)
 		return true
 	}
-	fmt.Printf("Session saved to %s (%s)\n", jtutil_config_name, formatSessionSavedAt(state.SavedAt))
+	fmt.Printf("Session saved to %s\n", jtutil_config_name)
 	return true
 }
 
