@@ -137,6 +137,53 @@ func Test_trace_display_colors_changed_values(t *testing.T) {
 	}
 }
 
+func Test_trace_display_selected_row_underline(t *testing.T) {
+	trace := open_test_trace(t, []string{
+		"PC,R0",
+		"1,0",
+		"2,1",
+		"3,2",
+	})
+	defer trace.Close()
+	got := new_trace_display(trace, true, trace_table_width_default).render_at_selected(0, 1)
+	if !strings.Contains(got, trace_display_underline+"ASM COD") {
+		t.Fatalf("selected row was not underlined:\n%s", got)
+	}
+	got = new_trace_display(trace, false, trace_table_width_default).render_at_selected(0, 1)
+	if strings.Contains(got, trace_display_underline) {
+		t.Fatalf("selected row got underline with color disabled:\n%s", got)
+	}
+}
+
+func Test_trace_display_selected_row_respects_change_highlight_colors(t *testing.T) {
+	trace := open_test_trace(t, []string{
+		"PC,R4",
+		"1,0",
+		"2,0",
+		"2,1",
+	})
+	defer trace.Close()
+	for trace.line < 2 {
+		if _, ok := trace.Next(); !ok {
+			break
+		}
+	}
+	got := new_trace_display(trace, true, trace_table_width_default).render_at_selected(0, 2)
+	selected_line := ""
+	for _, line := range strings.Split(got, "\n") {
+		if strings.Contains(line, trace_display_underline) {
+			selected_line = line
+			break
+		}
+	}
+	if selected_line == "" {
+		t.Fatalf("no selected line found:\n%s", got)
+	}
+	if !strings.Contains(selected_line, trace_display_red) || !strings.Contains(selected_line, "0x2") {
+		t.Fatalf("selected row should keep change highlighting:\n%s", got)
+	}
+}
+
 func Test_trace_display_does_not_color_assembler_row(t *testing.T) {
 	trace := open_test_trace(t, []string{
 		"PC,R4",
@@ -257,6 +304,7 @@ func assert_table_rows_same_width(t *testing.T, text string) {
 }
 
 func strip_trace_display_ansi(text string) string {
+	text = strings.ReplaceAll(text, trace_display_underline, "")
 	text = strings.ReplaceAll(text, trace_display_red, "")
 	return strings.ReplaceAll(text, trace_display_reset, "")
 }

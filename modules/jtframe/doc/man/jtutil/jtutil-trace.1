@@ -166,9 +166,12 @@ command enters an interactive trace-table browser. It starts with the current
 trace line centered like
 .B dt .
 Left and right move the displayed window by one trace line, Page Up and Page
-Down move by five lines, Home returns to the initial centered window, and
+Down move by five lines, Up and Down move the focused row one visible row,
+while Home returns to the initial centered window, and
 Escape or Enter exits browse mode. Browsing does not change the active trace
 comparison position.
+The focused row is underlined only when color is enabled.
+No wraparound is used: up/down stay at top/bottom.
 Browse tables use the same
 .B table-width
 limit as

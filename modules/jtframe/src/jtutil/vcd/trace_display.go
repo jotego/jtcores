@@ -7,6 +7,7 @@ import (
 )
 
 const trace_display_red = "\033[31m"
+const trace_display_underline = "\033[4m"
 const trace_display_reset = "\033[0m"
 const trace_table_width_default = 120
 const trace_table_width_min = 40
@@ -31,6 +32,7 @@ type trace_display_row struct {
 	label     string
 	cells     []trace_display_cell
 	highlight bool
+	selected  bool
 }
 
 func new_trace_display(trace *TraceReader, color bool, table_width int) *trace_display {
@@ -49,6 +51,10 @@ func (td *trace_display) render() string {
 }
 
 func (td *trace_display) render_at(center_offset int) string {
+	return td.render_at_selected(center_offset, -1)
+}
+
+func (td *trace_display) render_at_selected(center_offset int, selected_row int) string {
 	if td.trace == nil {
 		return "No trace file\n"
 	}
@@ -71,12 +77,30 @@ func (td *trace_display) render_at(center_offset int) string {
 	for _, name := range names {
 		rows = append(rows, trace_display_row{label: name, cells: td.value_cells(name, entries), highlight: true})
 	}
+	if selected_row >= 0 && selected_row < len(rows) {
+		rows[selected_row].selected = true
+	}
 	label_width := td.label_width(rows)
 	column_width := td.column_width(rows, label_width, len(entries))
 	for _, row := range rows {
 		td.write_row(&b, row, label_width, column_width)
 	}
 	return b.String()
+}
+
+func (td *trace_display) visible_row_count(center_offset int) int {
+	if td.trace == nil {
+		return 0
+	}
+	entries := td.collect_entries(center_offset)
+	if len(entries) == 0 {
+		return 0
+	}
+	names := td.sorted_names(entries)
+	if len(names) == 0 {
+		return 0
+	}
+	return 2 + len(names)
 }
 
 func (td *trace_display) collect_entries(center_offset int) []trace_display_entry {
@@ -221,15 +245,26 @@ func (td *trace_display) value_cells(name string, entries []trace_display_entry)
 }
 
 func (td *trace_display) write_row(b *strings.Builder, row trace_display_row, label_width, column_width int) {
+	if row.selected && td.color {
+		b.WriteString(trace_display_underline)
+	}
 	fmt.Fprintf(b, "%-*s |", label_width, row.label)
 	for k, cell := range row.cells {
 		cell_text := truncate_cell(cell.raw, column_width)
 		text := fmt.Sprintf(" %-*s |", column_width, cell_text)
 		if row.highlight && td.color && k > 0 && cell.raw != "" && cell.raw != row.cells[k-1].raw {
-			text = " " + trace_display_red + fmt.Sprintf("%-*s", column_width, cell_text) +
-				trace_display_reset + " |"
+			if row.selected {
+				text = " " + trace_display_red + fmt.Sprintf("%-*s", column_width, cell_text) +
+					trace_display_underline + " |"
+			} else {
+				text = " " + trace_display_red + fmt.Sprintf("%-*s", column_width, cell_text) +
+					trace_display_reset + " |"
+			}
 		}
 		b.WriteString(text)
+	}
+	if row.selected && td.color {
+		b.WriteString(trace_display_reset)
 	}
 	b.WriteString("\n")
 }
