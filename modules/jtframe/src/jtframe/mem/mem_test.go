@@ -1401,10 +1401,12 @@ func Test_game_sdram_template_emits_cache_write_ports(t *testing.T) {
 		"wire        tiles_we;",
 		"wire [31:0] tiles_din;",
 		"wire [3:0] tiles_dsn;",
+		"wire        tiles_rd, tiles_ok;",
+		".tiles_rd   ( tiles_rd   )",
 		".tiles_we   ( tiles_we   )",
 		".tiles_din  ( tiles_din  )",
 		".tiles_dsn  ( tiles_dsn  )",
-		".rd0   ( tiles_cs & ~tiles_we )",
+		".rd0   ( tiles_rd )",
 		".wr0   ( tiles_we )",
 		".din0  ( tiles_din )",
 		".wdsn0 ( tiles_dsn )",
@@ -1491,7 +1493,7 @@ func Test_mem_ports_template_emits_cache_write_ports(t *testing.T) {
 
 	checks := []string{
 		"input    [31:0] tiles_wr_data,",
-		"output          tiles_wr_cs,",
+		"output          tiles_wr_rd,",
 		"output   [21:2] tiles_wr_addr,",
 		"input           tiles_wr_ok,",
 		"output          tiles_wr_we,",

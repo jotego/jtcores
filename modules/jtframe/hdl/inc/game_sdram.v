@@ -69,7 +69,7 @@ wire [ 1:0] {{.Name}}_dsn;
 {{- range .SDRAM.Cache_lanes}}
 wire {{ cache_line_addr_range . }} {{.Name}}_addr;
 wire [{{ sub .Data_width 1 }}:0] {{.Name}}_data;
-wire        {{.Name}}_cs, {{.Name}}_ok;
+wire        {{.Name}}_rd, {{.Name}}_ok;
 {{- if .Rw }}
 wire        {{.Name}}_we;
 wire [{{ sub .Data_width 1 }}:0] {{.Name}}_din;
@@ -195,7 +195,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     {{- if gt (len .SDRAM.Cache_lanes) 0 }}
     {{- range .SDRAM.Cache_lanes}}
     .{{.Name}}_addr ( {{.Name}}_addr ),
-    .{{.Name}}_cs   ( {{.Name}}_cs   ),
+    .{{.Name}}_rd   ( {{.Name}}_rd   ),
     .{{.Name}}_ok   ( {{.Name}}_ok   ),
     .{{.Name}}_data ( {{.Name}}_data ),
     {{- if .Rw }}
@@ -383,7 +383,7 @@ jtframe_cache_mux #(
 {{- range $index, $line := .SDRAM.Cache_lanes}}
     .addr{{$index}} ( {{ $line.Name }}_addr ),
     .dout{{$index}} ( {{ $line.Name }}_data ),
-    .rd{{$index}}   ( {{ if $line.Rw }}{{ $line.Name }}_cs & ~{{ $line.Name }}_we{{ else }}{{ $line.Name }}_cs{{ end }} ),
+    .rd{{$index}}   ( {{ $line.Name }}_rd ),
     {{- if lt $index 4 }}
     .wr{{$index}}   ( {{ if $line.Rw }}{{ $line.Name }}_we{{ else }}1'b0{{ end }} ),
     .din{{$index}}  ( {{ if $line.Rw }}{{ $line.Name }}_din{{ else }}{{ printf "%d'd0" $line.Data_width }}{{ end }} ),
