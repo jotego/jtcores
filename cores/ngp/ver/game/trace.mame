@@ -5,6 +5,8 @@ trace off
 //save ram1.bin,6000,1000
 //wp 6c18,8,rw,1
 //bpclear
-trace debug.trace,maincpu,noloop,{tracelog "PC=%X,XWA0=%X,XBC0=%X,XDE0=%X,XHL0=%X,XWA1=%X,XBC1=%X,XDE1=%X,XHL1=%X,XWA2=%X,XBC2=%X,XDE2=%X,XHL2=%X,XWA3=%X,XBC3=%X,XDE3=%X,XHL3=%X,XIX=%X,XIY=%X,XIZ=%X,XSP=%X,* ",pc,xwa0,xbc0,xde0,xhl0,xwa1,xbc1,xde1,xhl1,xwa2,xbc2,xde2,xhl2,xwa3,xbc3,xde3,xhl3,xix,xiy,xiz,xssp}
+trace debug.csv,maincpu,noloop,{tracelog "%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,",pc,xwa0,xbc0,xde0,xhl0,xwa1,xbc1,xde1,xhl1,xwa2,xbc2,xde2,xhl2,xwa3,xbc3,xde3,xhl3,xix,xiy,xiz,xssp}
+tracelog "PC,XWA0,XBC0,XDE0,XHL0,XWA1,XBC1,XDE1,XHL1,XWA2,XBC2,XDE2,XHL2,XWA3,XBC3,XDE3,XHL3,XIX,XIY,XIZ,XSP\n"
+softreset
 go
 traceflush

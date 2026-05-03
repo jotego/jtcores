@@ -1,6 +1,8 @@
 focus 0
 trace off
-trace debug.trace,maincpu,noloop,{tracelog "PC=%04X,S=%02X,X=%02X,Y=%02X,A=%02X,P=%02X,IR=%02X,frame_cnt=%03x* ",pc,sp&0xff,x,y,a,p&0xef,ir,frame}
+trace debug.csv,maincpu,noloop,{tracelog "%04X,%02X,%02X,%02X,%02X,%02X,%02X,%03x,",pc,sp&0xff,x,y,a,p&0xef,ir,frame}
+tracelog "PC,S,X,Y,A,P,IR,frame_cnt\n"
+softreset
 x=0
 p=30
 

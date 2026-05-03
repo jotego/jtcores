@@ -59,59 +59,23 @@ module SH_core
 	SR_t        SR;
 
 `ifdef VERILATOR_KEEP_CPU
-/* verilator tracing_on */
-	bit [31:0] TRACE_PC;
-	bit [31:0] TRACE_GBR;
-	bit [31:0] TRACE_VBR;
-	bit [31:0] TRACE_SR;
-	bit [31:0] TRACE_EX_PC;
-	bit [31:0] TRACE_MA_PC;
-	bit [31:0] TRACE_WB_PC;
-	bit [31:0] TRACE_R0;
-	bit [31:0] TRACE_R1;
-	bit [31:0] TRACE_R2;
-	bit [31:0] TRACE_R3;
-	bit [31:0] TRACE_R4;
-	bit [31:0] TRACE_R5;
-	bit [31:0] TRACE_R6;
-	bit [31:0] TRACE_R7;
-	bit [31:0] TRACE_R8;
-	bit [31:0] TRACE_R9;
-	bit [31:0] TRACE_R10;
-	bit [31:0] TRACE_R11;
-	bit [31:0] TRACE_R12;
-	bit [31:0] TRACE_R13;
-	bit [31:0] TRACE_R14;
-	bit [31:0] TRACE_R15;
-	bit [31:0] TRACE_PR;
-	bit  [1:0] TRACE_EX_MEM_SZ;
-	bit  [1:0] TRACE_MA_MEM_SZ;
-	bit [31:0] TRACE_MA_ADDR;
-	bit [31:0] TRACE_MA_RDATA;
-	bit [31:0] TRACE_RD_SAVE;
-	bit [31:0] TRACE_BUS_DI;
-	bit [31:0] TRACE_MA_WD;
-	bit  [3:0] TRACE_MA_BA;
-	bit  [2:0] TRACE_STATE;
-	bit        TRACE_SLEEP;
-	bit        TRACE_IF_STALL;
-	bit        TRACE_ID_STALL;
-	bit        TRACE_EX_STALL;
-	bit        TRACE_MA_STALL;
-	bit        TRACE_WB_STALL;
-	bit        TRACE_BUS_WAIT;
-	bit        TRACE_IF_ACTIVE;
-	bit        TRACE_MA_ACTIVE;
-	bit        TRACE_VECT_ACTIVE;
-	bit        TRACE_INST_SPLIT;
-	bit        TRACE_IFID_STALL;
-	bit        TRACE_MAWB_STALL;
-	bit        TRACE_INT_REQ;
-	bit        TRACE_INT_REQ_LATCH;
-	bit        TRACE_INT_ACCEPT;
-	bit        TRACE_INT_ENTRY;
-	bit        TRACE_STACK_BUSY;
-/* verilator tracing_off */
+	bit [31:0] R0_RAW;
+	bit [31:0] R1_RAW;
+	bit [31:0] R2_RAW;
+	bit [31:0] R3_RAW;
+	bit [31:0] R4_RAW;
+	bit [31:0] R5_RAW;
+	bit [31:0] R6_RAW;
+	bit [31:0] R7_RAW;
+	bit [31:0] R8_RAW;
+	bit [31:0] R9_RAW;
+	bit [31:0] R10_RAW;
+	bit [31:0] R11_RAW;
+	bit [31:0] R12_RAW;
+	bit [31:0] R13_RAW;
+	bit [31:0] R14_RAW;
+	bit [31:0] R15_RAW;
+	bit [31:0] PR_RAW;
 `endif
 	
 	PipelineState_t PIPE;
@@ -179,24 +143,24 @@ module SH_core
 		.RB_Q    ( REGS_RBQ ),
 		.R0_Q    ( REGS_R0Q )
 `ifdef VERILATOR_KEEP_CPU
-		,
-		.TRACE_R0 ( TRACE_R0  ),
-		.TRACE_R1 ( TRACE_R1  ),
-		.TRACE_R2 ( TRACE_R2  ),
-		.TRACE_R3 ( TRACE_R3  ),
-		.TRACE_R4 ( TRACE_R4  ),
-		.TRACE_R5 ( TRACE_R5  ),
-		.TRACE_R6 ( TRACE_R6  ),
-		.TRACE_R7 ( TRACE_R7  ),
-		.TRACE_R8 ( TRACE_R8  ),
-		.TRACE_R9 ( TRACE_R9  ),
-		.TRACE_R10( TRACE_R10 ),
-		.TRACE_R11( TRACE_R11 ),
-		.TRACE_R12( TRACE_R12 ),
-		.TRACE_R13( TRACE_R13 ),
-		.TRACE_R14( TRACE_R14 ),
-		.TRACE_R15( TRACE_R15 ),
-		.TRACE_PR ( TRACE_PR  )
+	                  ,
+		.TRACE_R0 ( R0_RAW  ),
+		.TRACE_R1 ( R1_RAW  ),
+		.TRACE_R2 ( R2_RAW  ),
+		.TRACE_R3 ( R3_RAW  ),
+		.TRACE_R4 ( R4_RAW  ),
+		.TRACE_R5 ( R5_RAW  ),
+		.TRACE_R6 ( R6_RAW  ),
+		.TRACE_R7 ( R7_RAW  ),
+		.TRACE_R8 ( R8_RAW  ),
+		.TRACE_R9 ( R9_RAW  ),
+		.TRACE_R10( R10_RAW ),
+		.TRACE_R11( R11_RAW ),
+		.TRACE_R12( R12_RAW ),
+		.TRACE_R13( R13_RAW ),
+		.TRACE_R14( R14_RAW ),
+		.TRACE_R15( R15_RAW ),
+		.TRACE_PR ( PR_RAW  )
 `endif
 	);
 
@@ -859,49 +823,68 @@ module SH_core
 	//WB stage
 	//**********************************************************
 	wire WB_STALL = BUS_STALL | MAWB_STALL;
+	wire [31:0] TRACE_CTRL_WD = PIPE.EX.DI.CTRL.S == SR_ ? (SR_NEW & 32'h0000_03F3) : ALU_RES;
 
+	SH_core_trace u_trace (
+		.CLK                 ( CLK                 ),
+		.RST_N               ( RST_N               ),
+		.RES_N               ( RES_N               ),
+		.EN                  ( EN                  ),
+		.CE                  ( CE                  ),
+		.PC                  ( PC                  ),
+		.GBR                 ( GBR                 ),
+		.VBR                 ( VBR                 ),
+		.SR                  ( SR                  ),
+		.PIPE                ( PIPE                ),
+		.ID_DECI             ( ID_DECI             ),
+		.MA_RDATA            ( MA_RDATA            ),
+		.RD_SAVE             ( RD_SAVE             ),
+		.BUS_DI              ( BUS_DI              ),
+		.MA_BA               ( MA_BA               ),
+		.STATE               ( STATE               ),
+		.SLP                 ( SLP                 ),
+		.IF_STALL            ( IF_STALL            ),
+		.ID_STALL            ( ID_STALL            ),
+		.EX_STALL            ( EX_STALL            ),
+		.MA_STALL            ( MA_STALL            ),
+		.WB_STALL            ( WB_STALL            ),
+		.BUS_WAIT            ( BUS_WAIT            ),
+		.IF_ACTIVE           ( IF_ACTIVE           ),
+		.MA_ACTIVE           ( MA_ACTIVE           ),
+		.VECT_ACTIVE         ( VECT_ACTIVE         ),
+		.INST_SPLIT          ( INST_SPLIT          ),
+		.IFID_STALL          ( IFID_STALL          ),
+		.MAWB_STALL          ( MAWB_STALL          ),
+		.INT_REQ             ( INT_REQ             ),
+		.INT_REQ_LATCH       ( INT_REQ_LATCH       ),
+		.INT_ACP             ( INT_ACP             ),
+		.CTRL_WD             ( TRACE_CTRL_WD       ),
+		.REGS_WAN            ( REGS_WAN            ),
+		.REGS_WAD            ( REGS_WAD            ),
+		.REGS_WAE            ( REGS_WAE            ),
+		.REGS_WBN            ( REGS_WBN            ),
+		.REGS_WBD            ( REGS_WBD            ),
+		.REGS_WBE            ( REGS_WBE            )
 `ifdef VERILATOR_KEEP_CPU
-	assign TRACE_PC            = PC;
-	assign TRACE_GBR           = GBR;
-	assign TRACE_VBR           = VBR;
-	assign TRACE_SR            = SR & 32'h0000_03f3;
-	assign TRACE_EX_PC         = PIPE.EX.PC;
-	assign TRACE_MA_PC         = PIPE.MA.PC;
-	assign TRACE_WB_PC         = PIPE.WB.PC;
-	assign TRACE_EX_MEM_SZ     = PIPE.EX.DI.MEM.SZ;
-	assign TRACE_MA_MEM_SZ     = PIPE.MA.DI.MEM.SZ;
-	assign TRACE_MA_ADDR       = PIPE.MA.ADDR;
-	assign TRACE_MA_RDATA      = MA_RDATA;
-	assign TRACE_RD_SAVE       = RD_SAVE;
-	assign TRACE_BUS_DI        = BUS_DI;
-	assign TRACE_MA_WD         = PIPE.MA.WD;
-	assign TRACE_MA_BA         = MA_BA;
-	assign TRACE_STATE         = STATE;
-	assign TRACE_SLEEP         = SLP;
-	assign TRACE_IF_STALL      = IF_STALL;
-	assign TRACE_ID_STALL      = ID_STALL;
-	assign TRACE_EX_STALL      = EX_STALL;
-	assign TRACE_MA_STALL      = MA_STALL;
-	assign TRACE_WB_STALL      = WB_STALL;
-	assign TRACE_BUS_WAIT      = BUS_WAIT;
-	assign TRACE_IF_ACTIVE     = IF_ACTIVE;
-	assign TRACE_MA_ACTIVE     = MA_ACTIVE;
-	assign TRACE_VECT_ACTIVE   = VECT_ACTIVE;
-	assign TRACE_INST_SPLIT    = INST_SPLIT;
-	assign TRACE_IFID_STALL    = IFID_STALL;
-	assign TRACE_MAWB_STALL    = MAWB_STALL;
-	assign TRACE_INT_REQ       = INT_REQ;
-	assign TRACE_INT_REQ_LATCH = INT_REQ_LATCH;
-	assign TRACE_INT_ACCEPT    = INT_ACP;
-	assign TRACE_INT_ENTRY     = VECT_ACTIVE | PIPE.EX.DI.VECR | PIPE.MA.DI.VECR | PIPE.WB.DI.VECR;
-	assign TRACE_STACK_BUSY    =
-		((PIPE.EX.DI.RA.N == SP) & (PIPE.EX.DI.RA.R | PIPE.EX.DI.RA.W)) |
-		((PIPE.EX.DI.RB.N == SP) & (PIPE.EX.DI.RB.R | PIPE.EX.DI.RB.W)) |
-		((PIPE.MA.DI.RA.N == SP) & (PIPE.MA.DI.RA.R | PIPE.MA.DI.RA.W)) |
-		((PIPE.MA.DI.RB.N == SP) & (PIPE.MA.DI.RB.R | PIPE.MA.DI.RB.W)) |
-		((PIPE.WB.DI.RA.N == SP) & (PIPE.WB.DI.RA.R | PIPE.WB.DI.RA.W)) |
-		((PIPE.WB.DI.RB.N == SP) & (PIPE.WB.DI.RB.R | PIPE.WB.DI.RB.W));
+		,.R0_RAW              ( R0_RAW              ),
+		.R1_RAW              ( R1_RAW              ),
+		.R2_RAW              ( R2_RAW              ),
+		.R3_RAW              ( R3_RAW              ),
+		.R4_RAW              ( R4_RAW              ),
+		.R5_RAW              ( R5_RAW              ),
+		.R6_RAW              ( R6_RAW              ),
+		.R7_RAW              ( R7_RAW              ),
+		.R8_RAW              ( R8_RAW              ),
+		.R9_RAW              ( R9_RAW              ),
+		.R10_RAW             ( R10_RAW             ),
+		.R11_RAW             ( R11_RAW             ),
+		.R12_RAW             ( R12_RAW             ),
+		.R13_RAW             ( R13_RAW             ),
+		.R14_RAW             ( R14_RAW             ),
+		.R15_RAW             ( R15_RAW             ),
+		.PR_RAW              ( PR_RAW              )
 `endif
+	);
 	always @(posedge CLK or negedge RST_N) begin
 		if (!RST_N) begin
 			PIPE.WB2.IR <= '0;

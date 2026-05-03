@@ -1,5 +1,7 @@
 trace off
-trace debug.trace,maincpu,noloop,{tracelog "PC=%X,cc=%X,dp=%x,a=%x,b=%x,x=%x,y=%x,u=%x,s=%x,frame_cnt=%x* ",pc,cc,dp,a,b,x,y,u,s,frame}
+trace debug.csv,maincpu,noloop,{tracelog "%X,%X,%x,%x,%x,%x,%x,%x,%x,%x,",pc,cc,dp,a,b,x,y,u,s,frame}
+tracelog "PC,cc,dp,a,b,x,y,u,s,frame_cnt\n"
+softreset
 // simulate 5 seconds
 gv
 gv

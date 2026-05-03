@@ -18,223 +18,238 @@
 package vcd
 
 import (
-    "errors"
-    "fmt"
-    "strings"
-    "os"
+	"errors"
+	"fmt"
+	"os"
+	"strings"
 )
 
 var Verbose bool
 
 type CmpArgs struct {
-    Ignore_rst bool
-    Mismatch_n int
-    Time0a, Time0b uint64
+	Ignore_rst     bool
+	Mismatch_n     int
+	Time0a, Time0b uint64
 }
 
 type cmpData struct {
-    file   *LnFile
-    data    VCDData
-    signal *VCDSignal
-    resets []*VCDSignal
+	file   *LnFile
+	data   VCDData
+	signal *VCDSignal
+	resets []*VCDSignal
 }
 
 func (this cmpData) next() bool {
-    return this.file.NextVCD(this.data)
+	return this.file.NextVCD(this.data)
 }
 
 func in_reset(cmpd *cmpData) bool {
-    for _, rst := range cmpd.resets {
-        if rst.Value==1 { return true }
-    }
-    return false
+	for _, rst := range cmpd.resets {
+		if rst.Value == 1 {
+			return true
+		}
+	}
+	return false
 }
 
-func mv_reset( cmpd *cmpData ) {
-    // ensure that we are in reset state
-    for _, rst := range cmpd.resets {
-        for rst.Value!=1 && cmpd.file.NextVCD(cmpd.data) { }
-    }
-    // next, come out of it
-    for _, rst := range cmpd.resets {
-        for rst.Value!=0 && cmpd.file.NextVCD(cmpd.data) { }
-    }
+func mv_reset(cmpd *cmpData) {
+	// ensure that we are in reset state
+	for _, rst := range cmpd.resets {
+		for rst.Value != 1 && cmpd.file.NextVCD(cmpd.data) {
+		}
+	}
+	// next, come out of it
+	for _, rst := range cmpd.resets {
+		for rst.Value != 0 && cmpd.file.NextVCD(cmpd.data) {
+		}
+	}
 }
 
-func CompareAll( fnames []string, args CmpArgs ) error {
-    var c [2]cmpData
-    for k,_ := range c{
-        c[k].file = &LnFile{}
-        if !strings.HasSuffix(fnames[k],".vcd") {
-            fnames[k] += ".vcd"
-        }
-        c[k].file.Open(fnames[k])
-        c[k].data = GetSignals(c[k].file)
-        c[k].resets=c[k].data.GetAll("rst",false)
-    }
-    if c[0].resets!=nil {
-        fmt.Println("rst signals found")
-    }
-    pairs, e := match_signals(c); if e!=nil { return e }
-    // function to compare the two sets
-    equal := func() (bool, string, uint64, uint64) {
-        for ref, cmp := range pairs {
-            if c[0].data[ref].Value != cmp.Value {
-                // fmt.Printf("%s <--> %s\n", c[0].data[ref].FullName(), cmp.FullName())
-                return false, cmp.FullName(), c[0].data[ref].Value, cmp.Value
-            }
-        }
-        return true,"",0,0
-    }
-    c[0].file.MoveTo(c[0].data,args.Time0a)
-    c[1].file.MoveTo(c[1].data,args.Time0b)
-    // run through the VCD
-    for c[0].file.NextVCD(c[0].data) {
-        matched := false
-        var offender string
-        var v0,v1 uint64
-        more := true
-        t1 := c[1].file.time
-        more = c[1].file.NextVCD(c[1].data)
-        if args.Ignore_rst {
-            if in_reset(&c[0]) || in_reset(&c[1]) {
-                mv_reset(&c[0])
-                mv_reset(&c[1])
-            }
-        }
-        matched, offender, v0, v1 = equal()
-        if !matched {
-            fmt.Printf("Time %d (%s) and %d (%s): %s\t %X != %X\n",
-                c[0].file.time, c[0].file.fname,
-                t1, c[1].file.fname, offender,
-                v0, v1)
-            args.Mismatch_n--
-            if( args.Mismatch_n<=0 ) { break }
-        }
-        if !more {
-            fmt.Println("EOF")
-            break
-        }
-    }
-    return nil
+func CompareAll(fnames []string, args CmpArgs) error {
+	var c [2]cmpData
+	for k, _ := range c {
+		c[k].file = &LnFile{}
+		if !strings.HasSuffix(fnames[k], ".vcd") {
+			fnames[k] += ".vcd"
+		}
+		c[k].file.Open(fnames[k])
+		c[k].data = GetSignals(c[k].file)
+		c[k].resets = c[k].data.GetAll("rst", false)
+	}
+	if c[0].resets != nil {
+		fmt.Println("rst signals found")
+	}
+	pairs, e := match_signals(c)
+	if e != nil {
+		return e
+	}
+	// function to compare the two sets
+	equal := func() (bool, string, uint64, uint64) {
+		for ref, cmp := range pairs {
+			if c[0].data[ref].Value != cmp.Value {
+				// fmt.Printf("%s <--> %s\n", c[0].data[ref].FullName(), cmp.FullName())
+				return false, cmp.FullName(), c[0].data[ref].Value, cmp.Value
+			}
+		}
+		return true, "", 0, 0
+	}
+	c[0].file.MoveTo(c[0].data, args.Time0a)
+	c[1].file.MoveTo(c[1].data, args.Time0b)
+	// run through the VCD
+	for c[0].file.NextVCD(c[0].data) {
+		matched := false
+		var offender string
+		var v0, v1 uint64
+		more := true
+		t1 := c[1].file.time
+		more = c[1].file.NextVCD(c[1].data)
+		if args.Ignore_rst {
+			if in_reset(&c[0]) || in_reset(&c[1]) {
+				mv_reset(&c[0])
+				mv_reset(&c[1])
+			}
+		}
+		matched, offender, v0, v1 = equal()
+		if !matched {
+			fmt.Printf("Time %d (%s) and %d (%s): %s\t %X != %X\n",
+				c[0].file.time, c[0].file.fname,
+				t1, c[1].file.fname, offender,
+				v0, v1)
+			args.Mismatch_n--
+			if args.Mismatch_n <= 0 {
+				break
+			}
+		}
+		if !more {
+			fmt.Println("EOF")
+			break
+		}
+	}
+	return nil
 }
 
 func match_signals(c [2]cmpData) (pairs map[string]*VCDSignal, e error) {
-    pairs = make(map[string]*VCDSignal)
-    unmatched := make([]*VCDSignal,0,len(c[0].data))
-    // find each signal pair in the other set
-    for _, signal := range c[0].data {
-        matched := c[1].data.Get( signal.FullName() )
-        if matched != nil {
-            pairs[signal.alias] = matched
-        } else {
-            all_with_same_name := c[1].data.GetAll(signal.Name,false)
-            switch len(all_with_same_name) {
-                case 1: {
-                    pairs[signal.alias]=all_with_same_name[0]
-                    if Verbose {
-                        fmt.Println("Partial match:",signal.FullName(),all_with_same_name[0].FullName())
-                    }
-                }
-            default: unmatched = append(unmatched,signal)
-            }
-        }
-    }
-    return pairs, format_unmatched_error(unmatched)
+	pairs = make(map[string]*VCDSignal)
+	unmatched := make([]*VCDSignal, 0, len(c[0].data))
+	// find each signal pair in the other set
+	for _, signal := range c[0].data {
+		matched := c[1].data.Get(signal.FullName())
+		if matched != nil {
+			pairs[signal.alias] = matched
+		} else {
+			all_with_same_name := c[1].data.GetAll(signal.Name, false)
+			switch len(all_with_same_name) {
+			case 1:
+				{
+					pairs[signal.alias] = all_with_same_name[0]
+					if Verbose {
+						fmt.Println("Partial match:", signal.FullName(), all_with_same_name[0].FullName())
+					}
+				}
+			default:
+				unmatched = append(unmatched, signal)
+			}
+		}
+	}
+	return pairs, format_unmatched_error(unmatched)
 }
 
 func format_unmatched_error(unmatched []*VCDSignal) error {
-    if len(unmatched)==0 { return nil }
-    var sb strings.Builder
-    first := true
-    for _,signal := range unmatched {
-        if !first {
-            sb.WriteString(", ")
-        }
-        sb.WriteString(signal.FullName())
-        first = false
-    }
-    return errors.New(sb.String())
+	if len(unmatched) == 0 {
+		return nil
+	}
+	var sb strings.Builder
+	first := true
+	for _, signal := range unmatched {
+		if !first {
+			sb.WriteString(", ")
+		}
+		sb.WriteString(signal.FullName())
+		first = false
+	}
+	return errors.New(sb.String())
 }
 
-func Compare( fnames []string, sname string, args CmpArgs ) {
-    d,_ := cmpReadin( fnames, sname )
-    defer d[0].file.Close()
-    defer d[1].file.Close()
-    mismatch := false
-    d0Names := []string{ d[0].signal.alias }
-    d1Names := []string{ d[1].signal.alias }
-    d[0].file.MoveTo(d[0].data,args.Time0a)
-    d[1].file.MoveTo(d[1].data,args.Time0b)
-    if args.Ignore_rst {
-        for k:=0; k<len(d); k++ {
-            d[k].resets=d[k].data.GetAll("rst",false)
-        }
-        if d[0].resets!=nil {
-            fmt.Println("rst signals found")
-        }
-    }
-    more := true
-    for more {
-        more = more && d[0].file.NextChangeIn( d[0].data, d0Names )
-        more = more && d[1].file.NextChangeIn( d[1].data, d1Names )
-        if args.Ignore_rst {
-            if in_reset(&d[0]) || in_reset(&d[1]) {
-                mv_reset(&d[0])
-                mv_reset(&d[1])
-            }
-        }
-        mismatch = d[0].signal.Value != d[1].signal.Value
-        if mismatch {
-            fmt.Printf("Mismatch at times %d (%s) and %d (%s)\n\t%X != %X\n",
-                d[0].file.time, d[0].file.fname,
-                d[1].file.time, d[1].file.fname,
-                d[0].signal.Value, d[1].signal.Value )
-            args.Mismatch_n--
-            if( args.Mismatch_n<=0 ) { break }
-        }
-    }
-    if !mismatch {
-        fmt.Println("No differences found")
-    }
+func Compare(fnames []string, sname string, args CmpArgs) {
+	d, _ := cmpReadin(fnames, sname)
+	defer d[0].file.Close()
+	defer d[1].file.Close()
+	mismatch := false
+	d0Names := []string{d[0].signal.alias}
+	d1Names := []string{d[1].signal.alias}
+	d[0].file.MoveTo(d[0].data, args.Time0a)
+	d[1].file.MoveTo(d[1].data, args.Time0b)
+	if args.Ignore_rst {
+		for k := 0; k < len(d); k++ {
+			d[k].resets = d[k].data.GetAll("rst", false)
+		}
+		if d[0].resets != nil {
+			fmt.Println("rst signals found")
+		}
+	}
+	more := true
+	for more {
+		more = more && d[0].file.NextChangeIn(d[0].data, d0Names)
+		more = more && d[1].file.NextChangeIn(d[1].data, d1Names)
+		if args.Ignore_rst {
+			if in_reset(&d[0]) || in_reset(&d[1]) {
+				mv_reset(&d[0])
+				mv_reset(&d[1])
+			}
+		}
+		mismatch = d[0].signal.Value != d[1].signal.Value
+		if mismatch {
+			fmt.Printf("Mismatch at times %d (%s) and %d (%s)\n\t%X != %X\n",
+				d[0].file.time, d[0].file.fname,
+				d[1].file.time, d[1].file.fname,
+				d[0].signal.Value, d[1].signal.Value)
+			args.Mismatch_n--
+			if args.Mismatch_n <= 0 {
+				break
+			}
+		}
+	}
+	if !mismatch {
+		fmt.Println("No differences found")
+	}
 }
 
 // Open the VCD files, get the VCD signal information and
 // find the required signal to compare. Caller must close the files
-func cmpReadin( fnames []string, sname string ) ([2]cmpData,[2]cmpData) {
-    var c,r [2]cmpData // compare and reset signals
+func cmpReadin(fnames []string, sname string) ([2]cmpData, [2]cmpData) {
+	var c, r [2]cmpData // compare and reset signals
 
-    for k:=0; k<2; k++ {
-        c[k].file = &LnFile{}
-        if !strings.HasSuffix(fnames[k],".vcd") {
-            fnames[k] += ".vcd"
-        }
-        c[k].file.Open(fnames[k])
-        c[k].data = GetSignals(c[k].file)
-        c[k].signal=getOne(c[k],sname, true)
-        r[k].signal=getOne(c[k],"rst", false)
-    }
-    return c,r
+	for k := 0; k < 2; k++ {
+		c[k].file = &LnFile{}
+		if !strings.HasSuffix(fnames[k], ".vcd") {
+			fnames[k] += ".vcd"
+		}
+		c[k].file.Open(fnames[k])
+		c[k].data = GetSignals(c[k].file)
+		c[k].signal = getOne(c[k], sname, true)
+		r[k].signal = getOne(c[k], "rst", false)
+	}
+	return c, r
 }
 
-func getOne( cd cmpData, sname string, must bool ) *VCDSignal {
-    matchScope := strings.Index(sname,".")>-1
-    all := cd.data.GetAll(sname, matchScope)
-    if all == nil {
-        if must {
-            fmt.Println("Cannot find any signal named",sname,"in",cd.file.fname)
-            os.Exit(1)
-        }
-        return nil
-    }
-    if len(all)>1 {
-        fmt.Println("Found multiple signals named similarly to",sname)
-        for _,k := range all {
-            fmt.Println("\t",k.Name)
-        }
-        fmt.Println("Please specify the name better")
-        os.Exit(1)
-    }
-    fmt.Println("Found",all[0].FullName(), "in", cd.file.fname)
-    return all[0]
+func getOne(cd cmpData, sname string, must bool) *VCDSignal {
+	matchScope := strings.Index(sname, ".") > -1
+	all := cd.data.GetAll(sname, matchScope)
+	if all == nil {
+		if must {
+			fmt.Println("Cannot find any signal named", sname, "in", cd.file.fname)
+			os.Exit(1)
+		}
+		return nil
+	}
+	if len(all) > 1 {
+		fmt.Println("Found multiple signals named similarly to", sname)
+		for _, k := range all {
+			fmt.Println("\t", k.Name)
+		}
+		fmt.Println("Please specify the name better")
+		os.Exit(1)
+	}
+	fmt.Println("Found", all[0].FullName(), "in", cd.file.fname)
+	return all[0]
 }

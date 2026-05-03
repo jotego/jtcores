@@ -95,6 +95,7 @@ module SH7604
 	bit        CBUS_REQ;
 	bit        CBUS_ID;
 	bit        CBUS_TAS;
+	wire       CBUS_CACHE_DATA_REQ = CBUS_REQ && (CBUS_A[31:29] == 3'b110);
 	
 	bit [31:0] IBUS_A;
 	bit [31:0] IBUS_DO;
@@ -498,6 +499,7 @@ module SH7604
 	bit         IRD_N;
 	bit         IIVECF_N;
 	bit         BUS_RLS;
+	wire        CBUS_CACHE_DATA_AREA = !BUS_RLS && CBUS_CACHE_DATA_REQ;
 	SH7604_BSC #(.AREA_TIMIMG(BUS_AREA_TIMIMG), .SIZE_BYTE_DISABLE(BUS_SIZE_BYTE_DISABLE), .SIZE_WORD_DISABLE(BUS_SIZE_WORD_DISABLE)) bsc
 	(
 		.CLK(CLK),
@@ -573,9 +575,11 @@ module SH7604
 	
 	assign {A,DO}                                 = !BUS_RLS ? {IA,IDO}                                     : {EA,EDO};
 	assign IDI                                    = !BUS_RLS ? DI                                           : EDO;
-	assign {BS_N,CS0_N,CS1_N,CS2_N,CS3_N}         = !BUS_RLS ? {IBS_N,ICS0_N,ICS1_N,ICS2_N,ICS3_N}          : {EBS_N,ECS0_N,ECS1_N,ECS2_N,ECS3_N};
-	assign {RD_WR_N,CE_N,OE_N,WE_N,RD_N,IVECF_N}  = !BUS_RLS ? {IRD_WR_N,ICE_N,IOE_N,IWE_N,IRD_N,IIVECF_N}  : {ERD_WR_N,ECE_N,EOE_N,EWE_N,ERD_N,EIVECF_N};
-	assign BUS_STB = !BUS_RLS && (BSC_ACK || (!IBS_N && !IRD_N && !IIVECF_N));
+	assign {BS_N,CS0_N,CS1_N,CS2_N,CS3_N}         = CBUS_CACHE_DATA_AREA ? 5'h1f :
+	                                                !BUS_RLS ? {IBS_N,ICS0_N,ICS1_N,ICS2_N,ICS3_N}          : {EBS_N,ECS0_N,ECS1_N,ECS2_N,ECS3_N};
+	assign {RD_WR_N,CE_N,OE_N,WE_N,RD_N,IVECF_N}  = CBUS_CACHE_DATA_AREA ? {1'b1,1'b1,1'b1,4'hf,1'b1,1'b1} :
+	                                                !BUS_RLS ? {IRD_WR_N,ICE_N,IOE_N,IWE_N,IRD_N,IIVECF_N}  : {ERD_WR_N,ECE_N,EOE_N,EWE_N,ERD_N,EIVECF_N};
+	assign BUS_STB = !BUS_RLS && !CBUS_CACHE_DATA_AREA && (BSC_ACK || (!IBS_N && !IRD_N && !IIVECF_N));
 	assign EDI = DI;
 	
 	

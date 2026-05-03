@@ -637,12 +637,15 @@ func GetSignals(file *LnFile) VCDData {
 	)
 	mode := SCAN
 scan_through:
-	for ; file.scn.Scan(); file.line++ {
-		txt := file.scn.Text()
+	for file.Scan() {
+		txt := file.Text()
 		switch mode {
 		case SCAN:
 			{
 				tokens := strings.Fields(txt)
+				if len(tokens) == 0 {
+					continue
+				}
 				switch tokens[0] {
 				case "$date", "$version", "$timescale":
 					mode = PASS
@@ -712,7 +715,6 @@ scan_through:
 		case INIT:
 			{
 				if txt == "$end" {
-					file.line++
 					break scan_through
 				}
 				parsed := parseValue(txt)

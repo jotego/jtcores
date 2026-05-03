@@ -34,7 +34,8 @@ func TestLoadVCD128AndIgnoreReal(t *testing.T) {
 	const hex0 = "0123456789ABCDEFFEDCBA9876543210"
 	const hex1 = "89ABCDEF012345670123456789ABCDEF"
 
-	content := `$date
+	content := `
+$date
   today
 $end
 $version
@@ -91,6 +92,60 @@ r0.25 "
 	}
 	if got := sig.RawHexValue(); got != hex1 {
 		t.Fatalf("unexpected updated value: got %s want %s", got, hex1)
+	}
+}
+
+func TestLoadVCDRecordsOffsetsForFastRewind(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "rewind.vcd")
+	content := `$date
+  today
+$end
+$version
+  test
+$end
+$timescale
+ 1ns
+$end
+$scope module TOP $end
+$var wire 1 ! flag $end
+$upscope $end
+$enddefinitions $end
+$dumpvars
+0!
+$end
+#10
+1!
+#20
+0!
+`
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	ln, ss := LoadVCD(path)
+	defer ln.Close()
+	if !ln.NextVCD(ss) {
+		t.Fatal("expected first timestamp")
+	}
+	line10 := ln.line
+	offset10, ok := ln.line_offset[line10]
+	if !ok || offset10 == 0 {
+		t.Fatalf("missing recorded offset for line %d", line10)
+	}
+	if !ln.NextVCD(ss) {
+		t.Fatal("expected second timestamp")
+	}
+	if ln.time != 20 {
+		t.Fatalf("expected time 20, got %d", ln.time)
+	}
+	if !ln.RewindTo(line10, 10) {
+		t.Fatalf("could not rewind to line %d", line10)
+	}
+	if ln.line != line10 || ln.time != 10 {
+		t.Fatalf("wrong rewind state: line=%d time=%d", ln.line, ln.time)
+	}
+	if !ln.NextVCD(ss) || ln.time != 20 {
+		t.Fatalf("scan did not resume after rewind: line=%d time=%d", ln.line, ln.time)
 	}
 }
 

@@ -132,6 +132,25 @@ For CPS3, the wrapper also forwards the decryption keys into the SH7604 cache
 so opcode fetches from SIMM program flash can be decrypted in the cache path
 while BIOS reads remain handled by the top-level memory path.
 
+### Cache Data Area Bus Suppression
+
+This implementation intentionally differs from the original SH7604 source for
+accesses to the internal cache data address space, selected by
+`CBUS_A[31:29] == 3'b110`. Those accesses are handled by `CACHE.sv` and do not
+represent external memory cycles.
+
+While the SH7604 owns the bus and a cache-data request is active, `SH7604.sv`
+forces the exported native bus strobes inactive: `BS_N`, `CS0_N` through
+`CS3_N`, `RD_WR_N`, `CE_N`, `OE_N`, `WE_N`, `RD_N` and `IVECF_N` all present
+the idle state. It also suppresses `BUS_STB` for the same condition, so
+`jtsh7604` does not convert stale or aliased BSC pins into a JTFRAME memory
+request.
+
+The reason is that the native external address bus exposes only `A[26:0]`.
+Without this guard, an internal cache-data access in the `0xC...` range can
+look like a normal low external address after truncation and briefly select an
+external area.
+
 - `cache_cs` stays high while a request is outstanding.
 - `cache_rd` is high for reads, `cache_wr` is high for writes.
 - `cache_addr` is driven directly from `A[26:1]`, so append one low address bit
