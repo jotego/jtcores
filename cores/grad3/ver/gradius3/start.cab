@@ -1,7 +1,6 @@
 # Insert a credit once the first attract/title graphics are visible, then start
 # 1P. On the weapon-select screen, B1 enters edit mode, so use B2 to confirm
-# the default weapon type. Gameplay uses B1+B2 for a robust shot mapping. The
-# later movement path is tuned in MAME first, then mirrored here for HDL runs.
+# the default weapon type. Gameplay uses B1+B2 for a robust shot mapping.
 =1120
 4 coin
 24

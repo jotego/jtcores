@@ -99,11 +99,7 @@ module game_test(
 
     // SDRAM interface
     output          sdram_init,
-`ifdef VERILATOR
-    input  [15:0]   SDRAM_DQ,       // SDRAM data from the C++ model
-`else
     inout  [15:0]   SDRAM_DQ,       // SDRAM Data bus 16 Bits
-`endif
     output [15:0]   SDRAM_DIN,      // SDRAM Data bus 16 Bits
     output [12:0]   SDRAM_A,        // SDRAM Address bus 13 Bits
     output [ 1:0]   SDRAM_DQM,      // SDRAM Data Mask

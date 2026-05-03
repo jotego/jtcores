@@ -99,7 +99,6 @@ localparam SW=4;
 wire [SW-1:0] req, slot_ok;
 wire [SW-1:0] slot_sel;
 wire          req_rnw; // slot 0
-wire          rd_cache_clr;
 
 wire [SDRAMW-1:0] slot0_addr_req,
                   slot1_addr_req,
@@ -110,7 +109,6 @@ assign slot0_ok = slot_ok[0];
 assign slot1_ok = slot_ok[1];
 assign slot2_ok = slot_ok[2];
 assign slot3_ok = slot_ok[3];
-assign rd_cache_clr = slot0_cs & slot0_wen;
 
 jtframe_ram_rq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),.ERASE(SLOT0_ERASE)) u_slot0(
     .rst       ( rst                    ),
@@ -138,7 +136,7 @@ jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),
 u_slot1(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
-    .clr       ( slot1_clr | rd_cache_clr ),
+    .clr       ( slot1_clr              ),
     .offset    ( SLOT1_OFFSET           ),
     .addr      ( slot1_addr             ),
     .addr_ok   ( slot1_cs               ),
@@ -158,7 +156,7 @@ jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT2_AW),.DW(SLOT2_DW),
 u_slot2(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
-    .clr       ( slot2_clr | rd_cache_clr ),
+    .clr       ( slot2_clr              ),
     .offset    ( SLOT2_OFFSET           ),
     .addr      ( slot2_addr             ),
     .addr_ok   ( slot2_cs               ),
@@ -178,7 +176,7 @@ jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT3_AW),.DW(SLOT3_DW),
 u_slot3(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
-    .clr       ( slot3_clr | rd_cache_clr ),
+    .clr       ( slot3_clr              ),
     .offset    ( SLOT3_OFFSET           ),
     .addr      ( slot3_addr             ),
     .addr_ok   ( slot3_cs               ),

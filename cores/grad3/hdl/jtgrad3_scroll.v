@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 15-4-2023 */
 
-module jtaliens_scroll(
+module jtgrad3_scroll(
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -93,6 +93,11 @@ parameter [8:0] HB_OFFSET=0,
                 HB_EXTRAL=0,
                 HB_EXTRAR=0;
 parameter       FULLRAM  =0; // Enables the three possible memory chips
+parameter       COL_PASSTHRU=0,
+                LOGICAL_MAP=0,
+                FORCE_BANKS=0,
+                BANK0_INIT=8'h00,
+                BANK1_INIT=8'h00;
 
 wire [ 7:0] tilemap_dout, tilerom_dout;
 wire [ 2:0] hsub_a, hsub_b;
@@ -106,7 +111,14 @@ assign tile_dout = rmrd ? tilerom_dout : tilemap_dout;
 
 always @(posedge clk) cpu_rom_dtack <= ~(rmrd & gfx_cs) | lyra_ok;
 
-jt052109 #(.FULLRAM(FULLRAM)) u_tilemap(
+jtgrad3_052109 #(
+    .FULLRAM     ( FULLRAM      ),
+    .COL_PASSTHRU( COL_PASSTHRU ),
+    .LOGICAL_MAP ( LOGICAL_MAP  ),
+    .FORCE_BANKS ( FORCE_BANKS  ),
+    .BANK0_INIT  ( BANK0_INIT   ),
+    .BANK1_INIT  ( BANK1_INIT   )
+) u_tilemap(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

@@ -16,20 +16,13 @@
     Version: 1.0
     Date: 15-4-2023 */
 
-// Based on Furrtek's RE work on die shots
-// and MAME documentation
-// 8x8 tiles
-// Games that may be using this chip
-// _88games, ajax, aliens, blockhl, blswhstl, bottom9, crimfght, cuebrick,
-// ddboy, devstors, esckids, fuusenpn, gbusters, glfgreat, gradius3, lgtnfght,
-// mainevt, mariorou, mia, parodius, prmrsocr, punkshot, scontra, shuriboy,
-// simpsons, spy, ssriders, sunsetbl, surpratk, thndrx2, thunderx, tmnt, tmnt2,
-// tsukande, tsupenta, tsururin, vendetta, xmen, xmen6p, xmenabl
+// Gradius 3 K052109-compatible scroll/tilemap block, kept local because the
+// board wiring differs from the Alien shared module this was derived from.
 
 // The scroll data can be read only at the beginning of a frame, 8-pxl row,
 // row or 8-pixel column.
 
-module jt052109(
+module jtgrad3_052109(
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -83,7 +76,12 @@ module jt052109(
     output reg [ 7:0] st_dout
 );
 
-parameter FULLRAM=0;
+parameter FULLRAM=0,
+          COL_PASSTHRU=0,
+          LOGICAL_MAP=0,
+          FORCE_BANKS=0,
+          BANK0_INIT=8'h00,
+          BANK1_INIT=8'h00;
 
 // MMR go from 1C00 to 1F00
 localparam [15:0] REGBASE = 16'h1C00;
@@ -135,8 +133,8 @@ wire        cscra_en, cscrb_en, reg_we,
 wire [ 2:0] reg_addr;
 
 assign reg_addr    = cpu_addr[9:7];
-assign bank0       = mmr[REG_BANK0];
-assign bank1       = mmr[REG_BANK1];
+assign bank0       = FORCE_BANKS ? BANK0_INIT : mmr[REG_BANK0];
+assign bank1       = FORCE_BANKS ? BANK1_INIT : mmr[REG_BANK1];
 assign cfg         = mmr[REG_CFG];
 assign int_en      = mmr[REG_INT];
 assign flip        = mmr[REG_FLIP][0];
@@ -149,7 +147,8 @@ assign rd_vpos     = hdump[8:3]==6'hC; // 9'h60 >> 3, should this be:
     // |{hdumpf[8:7], ~hdumpf[6:5], hdumpf[4], hdump[3]}; //instead?
 assign rd_hpos     = vdump[7:0]==0;
 assign scrlyr_sel  = hdump[1];
-assign reg_we      = &{we[1],cpu_addr[12:10]};
+assign reg_we      = LOGICAL_MAP ? gfx_cs & cpu_we & ~cpu_addr[13] & (&cpu_addr[12:10]) :
+                                   &{we[1],cpu_addr[12:10]};
 assign mmr_dump    = mmr[ioctl_addr[2:0]];
 assign ioctl_din   = FULLRAM==1 && ioctl_addr[14]? ram0_dout : ( ioctl_addr[13] ? scan_dout[15:8] : scan_dout[7:0] );
 
@@ -171,18 +170,31 @@ end
 
 // CPU Memory Mapper
 always @* begin
-    casez( cpu_addr[15:13] )
-          0: range = 6'b111110;    // 0000~1FFF
-          1: range = 6'b111101;    // 2000~3FFF
-          2: range = 6'b111011;    // 4000~5FFF
-          3: range = 6'b110111;    // 6000~7FFF
-          4: range = 6'b101111;    // 8000~9FFF
-          5: range = 6'b011111;    // A000~BFFF
-    default: range = 6'b111111;
-    endcase
-    cs[0] = ~range0[~cfg[1:0]];
-    cs[1] = ~range1[~cfg[1:0]];
-    cs[2] = ~range2[~cfg[1:0]];
+    cs       = 0;
+    we       = 0;
+    cpu_din  = 0;
+    range    = 6'b111111;
+    if( LOGICAL_MAP ) begin
+        case( cpu_addr[14:13] )
+            2'b00: cs[1] = 1;  // 0000~1FFF: attributes, scroll A, registers
+            2'b01: cs[2] = 1;  // 2000~3FFF: tile codes, scroll B
+            2'b10: cs[0] = FULLRAM; // 4000~5FFF: optional extra tile RAM
+            default:;
+        endcase
+    end else begin
+        casez( cpu_addr[15:13] )
+              0: range = 6'b111110;    // 0000~1FFF
+              1: range = 6'b111101;    // 2000~3FFF
+              2: range = 6'b111011;    // 4000~5FFF
+              3: range = 6'b110111;    // 6000~7FFF
+              4: range = 6'b101111;    // 8000~9FFF
+              5: range = 6'b011111;    // A000~BFFF
+        default: range = 6'b111111;
+        endcase
+        cs[0] = ~range0[~cfg[1:0]];
+        cs[1] = ~range1[~cfg[1:0]];
+        cs[2] = ~range2[~cfg[1:0]];
+    end
     // in all systems so far, this is the connection (external to 052109)
     // RAM0/1 -> upper VD
     // RAM2   -> lower VD
@@ -237,7 +249,7 @@ always @* begin
         default:  vmux = vdump[2:0]; // this is latched in the original
     endcase
     col_cfg = rmrd ? mmr[REG_RMRD] :
-        { scan_dout[15:12], cfg[6]?scan_dout[11:10]:col_aux, scan_dout[9:8] };
+        { scan_dout[15:12], (COL_PASSTHRU || cfg[6]) ? scan_dout[11:10] : col_aux, scan_dout[9:8] };
     vflip = col_cfg[1] & vflip_en;
     vc = rmrd ? cpu_addr[12:2] : { scan_dout[7:0], vmux^{3{vflip}} };
 end

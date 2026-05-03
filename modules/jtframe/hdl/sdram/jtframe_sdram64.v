@@ -95,11 +95,9 @@ module jtframe_sdram64 #(
     // that can be joined together thru an OR operation at a
     // higher level. This makes it possible to short the pins
     // of the SDRAM, as done in the MiSTer 128MB module
-    `ifdef VERILATOR // sdram_dq is used as input-only in Verilator sims
-    input       [15:0]  sdram_dq,       // SDRAM data from the simulation model
-    output reg  [15:0]  sdram_din,      // Data to be stored in SDRAM
-    `else
     inout       [15:0]  sdram_dq,       // SDRAM Data bus 16 Bits
+    `ifdef VERILATOR // sdram_dq is used as input-only in Verilator sims
+    output reg  [15:0]  sdram_din,      // Data to be stored in SDRAM
     `endif
     output reg  [12:0]  sdram_a,        // SDRAM Address bus 13 Bits
     output              sdram_dqml,     // SDRAM Low-byte Data Mask

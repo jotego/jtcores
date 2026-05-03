@@ -1,8 +1,6 @@
 params:
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA2_START)" }
   - { name: GFX_OFFSET, value: "(`GFX_START-`JTFRAME_BA1_START) >> 1" }
-  - { name: MRAM_OFFSET, value: "22'h100000" }
-  - { name: SRAM_OFFSET, value: "22'h100000" }
 clocks:
   clk48:
     - freq: 24M
@@ -22,22 +20,10 @@ audio:
 sdram:
   banks:
     - buses:
-        - name: mram
-          addr_width: 14
-          data_width: 16
-          offset: MRAM_OFFSET
-          rw: true
-          do_not_erase: true
         - name: main
           addr_width: 18
           data_width: 16
     - buses:
-        - name: sram
-          addr_width: 14
-          data_width: 16
-          offset: SRAM_OFFSET
-          rw: true
-          do_not_erase: true
         - name: sub
           addr_width: 20
           data_width: 16
@@ -75,3 +61,18 @@ sdram:
         - name: lyrb
           addr_width: 17
           data_width: 32
+bram:
+  - name: m_shram
+    addr_width: 14
+    data_width: 16
+    addr: m_shram_addr
+    din: m_shram_din
+    rw: true
+    we: m_shram_we
+    dual_port: { name: s_shram, rw: true, addr: s_shram_addr, we: s_shram_we, din: s_shram_din, dout: s_shram_dout }
+  - name: palrd
+    addr_width: 12
+    data_width: 16
+    addr: pal_rd_addr
+    simfile: {}
+    dual_port: { name: pal_cpu, rw: true, addr: pal_cpu_addr, we: pal_cpu_we, din: pal_cpu_din, dout: pal_cpu_dout }

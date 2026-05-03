@@ -20,6 +20,12 @@ module jtgrad3_colmix(
     input             cpu_we,
     input             pal_cs,
     output     [15:0] cpu_din,
+    output     [11:1] pal_rd_addr,
+    input      [15:0] palrd_dout,
+    output     [11:1] pal_cpu_addr,
+    output     [15:0] pal_cpu_din,
+    output     [ 1:0] pal_cpu_we,
+    input      [15:0] pal_cpu_dout,
 
     input             lyrf_blnk_n,
     input             lyra_blnk_n,
@@ -35,13 +41,9 @@ module jtgrad3_colmix(
     output     [ 7:0] green,
     output     [ 7:0] blue,
 
-    input      [11:0] ioctl_addr,
-    input             ioctl_ram,
-    output     [ 7:0] ioctl_din,
     input      [ 7:0] debug_bus
 );
 
-wire [15:0] pal_dout;
 wire [10:0] pal_addr;
 wire [ 1:0] pal_we;
 reg  [10:0] pxl;
@@ -52,7 +54,11 @@ reg         shl;
 
 assign pal_we    = {2{cpu_we & pal_cs}} & ~cpu_dsn;
 assign pal_addr  = pxl;
-assign ioctl_din = ioctl_addr[0] ? pal_dout[15:8] : pal_dout[7:0];
+assign pal_rd_addr  = pal_addr;
+assign pal_cpu_addr = cpu_addr[11:1];
+assign pal_cpu_din  = cpu_dout;
+assign pal_cpu_we   = pal_we;
+assign cpu_din      = pal_cpu_dout;
 assign { blue, green, red } = (lvbl & lhbl) ? bgr : 24'd0;
 
 function [10:0] fix_addr( input [7:0] p );
@@ -71,6 +77,8 @@ function [10:0] obj_addr( input [11:0] p );
     obj_addr = { 2'b00, p[8:4], p[3:0] };
 endfunction
 
+// The 052535 devices are DACs; layer priority is the discrete CD8/CD9 logic
+// on the color mixer sheet.
 function [2:0] obj_prio_mask( input prio_mode, input [1:0] pri );
     if( prio_mode ) begin
         case( pri )
@@ -139,73 +147,8 @@ always @(posedge clk, posedge rst) begin
         shl <= 0;
     end else if( pxl_cen ) begin
         shl <= shadow;
-        bgr <= rgb555( pal_dout[14:0], shl );
+        bgr <= rgb555( palrd_dout[14:0], shl );
     end
 end
-
-`ifdef JTGRAD3_TRACE_VIDEO
-reg        trace_lvbl_l;
-reg [15:0] trace_frame;
-reg [31:0] trace_active, trace_pxl, trace_pal, trace_rgb;
-reg [31:0] trace_f, trace_a, trace_b, trace_o;
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        trace_lvbl_l <= 0;
-        trace_frame  <= 0;
-        trace_active <= 0;
-        trace_pxl    <= 0;
-        trace_pal    <= 0;
-        trace_rgb    <= 0;
-        trace_f      <= 0;
-        trace_a      <= 0;
-        trace_b      <= 0;
-        trace_o      <= 0;
-    end else if( pxl_cen ) begin
-        trace_lvbl_l <= lvbl;
-        if( trace_lvbl_l & ~lvbl ) begin
-            if( trace_frame[3:0] == 4'd0 || trace_pxl != 0 || trace_pal != 0 || trace_rgb != 0 )
-                $display("G3MIX frame=%0d active=%0d pxl=%0d pal=%0d rgb=%0d f=%0d a=%0d b=%0d o=%0d",
-                    trace_frame, trace_active, trace_pxl, trace_pal, trace_rgb,
-                    trace_f, trace_a, trace_b, trace_o);
-            trace_frame  <= trace_frame + 1'd1;
-            trace_active <= 0;
-            trace_pxl    <= 0;
-            trace_pal    <= 0;
-            trace_rgb    <= 0;
-            trace_f      <= 0;
-            trace_a      <= 0;
-            trace_b      <= 0;
-            trace_o      <= 0;
-        end else if( lvbl & lhbl ) begin
-            trace_active <= trace_active + 1'd1;
-            if( pxl != 0 ) trace_pxl <= trace_pxl + 1'd1;
-            if( pal_dout != 0 ) trace_pal <= trace_pal + 1'd1;
-            if( bgr != 0 ) trace_rgb <= trace_rgb + 1'd1;
-            if( lyrf_blnk_n ) trace_f <= trace_f + 1'd1;
-            if( lyra_blnk_n ) trace_a <= trace_a + 1'd1;
-            if( lyrb_blnk_n ) trace_b <= trace_b + 1'd1;
-            if( lyro_blnk_n ) trace_o <= trace_o + 1'd1;
-        end
-    end
-end
-`endif
-
-jtframe_dual_nvram16 #(.AW(11), .SIMFILE("pal.bin")) u_pal(
-    .clk0   ( clk             ),
-    .data0  ( cpu_dout        ),
-    .addr0  ( cpu_addr[11:1]  ),
-    .we0    ( pal_we          ),
-    .q0     ( cpu_din         ),
-
-    .clk1   ( clk             ),
-    .addr1a ( pal_addr        ),
-    .q1a    ( pal_dout        ),
-    .data1  ( 8'd0            ),
-    .addr1b ( ioctl_addr[11:0]),
-    .we1b   ( 1'b0            ),
-    .sel_b  ( ioctl_ram       ),
-    .q1b    (                 )
-);
 
 endmodule

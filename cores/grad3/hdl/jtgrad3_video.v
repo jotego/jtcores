@@ -35,6 +35,12 @@ module jtgrad3_video(
     output     [ 7:0] tilesys_dout,
     output     [ 7:0] objsys_dout,
     output     [15:0] pal_dout,
+    output     [11:1] pal_rd_addr,
+    input      [15:0] palrd_dout,
+    output     [11:1] pal_cpu_addr,
+    output     [15:0] pal_cpu_din,
+    output     [ 1:0] pal_cpu_we,
+    input      [15:0] pal_cpu_dout,
     input             rmrd,
 
     output reg [16:2] lyrf_addr,
@@ -56,9 +62,6 @@ module jtgrad3_video(
     output     [ 7:0] green,
     output     [ 7:0] blue,
 
-    input      [15:0] ioctl_addr,
-    input             ioctl_ram,
-    output     [ 7:0] ioctl_din,
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
     output     [ 7:0] st_dout
@@ -69,23 +72,22 @@ wire [15:0] tile_cpu_addr, cpu_saddr;
 wire [10:0] cpu_oaddr;
 wire [ 7:0] cpu_d8, obj_cpu_d8;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
+wire [31:0] lyrf_draw_data, lyra_draw_data, lyrb_draw_data;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [ 7:0] lyrf_pxl, lyrf_col, lyra_col, lyrb_col, opal;
-wire [ 7:0] dump_scr, dump_obj, dump_pal, st_scr, st_obj;
+wire [ 7:0] st_scr, st_obj;
 wire        rst8, e, q, ormrd, obj_irqn, obj_nmin, shadow, pre_vdtack;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
-wire        cpu_weg, obj_cpu_weg, line16, tile_cpu_sel, tilesys_cs;
+wire        cpu_weg, obj_cpu_weg, tile_cpu_sel, tilesys_cs;
 wire [ 1:0] tile_cpu_dsn;
 wire [15:0] tile_cpu_dout;
 wire        tile_cpu_we;
-reg         line16_l;
 reg  [13:0] ocode_eff;
 reg  [ 7:0] opal_eff;
 
-// Gradius 3 uses 16-bit CPU bus wrappers around byte-wide Konami video chips.
-// MAME's halfword handlers pass the word offset to K052109/K051960 and select
-// one byte from the 68000 data bus, rather than folding the byte lane into A0
-// as TMNT does.
+// Gradius 3 wires the 16-bit CPU buses to byte-wide Konami video chips through
+// the board glue logic. The word address selects the chip offset and the active
+// byte lane selects the data byte driven onto the 8-bit device bus.
 assign tile_cpu_sel  = s_tilesys_cs;
 assign tile_cpu_addr = tile_cpu_sel ? s_cpu_addr : m_cpu_addr;
 assign tile_cpu_dsn  = tile_cpu_sel ? s_cpu_dsn  : m_cpu_dsn;
@@ -100,7 +102,6 @@ assign cpu_weg       = tile_cpu_we && tile_cpu_dsn != 2'b11;
 assign obj_cpu_weg   = s_cpu_we && s_cpu_dsn != 2'b11;
 assign vdtack    = pre_vdtack;
 assign lyro_addr = ca;
-assign line16    = hdump == 9'h020 && vdump == 9'h120;
 assign st_dout   = (s_tilesys_cs | objsys_cs) ? st_obj : st_scr;
 
 wire [18:0] ca;
@@ -109,6 +110,34 @@ wire [1:0] obj_pri = lyro_pxl[10:9];
 function [7:0] cgate( input [7:0] c );
     cgate = { c[7:5], 5'd0 };
 endfunction
+
+function [31:0] grad3_char_order( input [31:0] data );
+    grad3_char_order = {
+        data[19:16], data[23:20], data[27:24], data[31:28],
+        data[ 3: 0], data[ 7: 4], data[11: 8], data[15:12]
+    };
+endfunction
+
+function [31:0] grad3_051962_data( input [31:0] data );
+    reg [31:0] ordered;
+    begin
+        ordered = grad3_char_order( data );
+        grad3_051962_data = {
+            ordered[ 3], ordered[ 7], ordered[11], ordered[15],
+            ordered[19], ordered[23], ordered[27], ordered[31],
+            ordered[ 2], ordered[ 6], ordered[10], ordered[14],
+            ordered[18], ordered[22], ordered[26], ordered[30],
+            ordered[ 1], ordered[ 5], ordered[ 9], ordered[13],
+            ordered[17], ordered[21], ordered[25], ordered[29],
+            ordered[ 0], ordered[ 4], ordered[ 8], ordered[12],
+            ordered[16], ordered[20], ordered[24], ordered[28]
+        };
+    end
+endfunction
+
+assign lyrf_draw_data = grad3_051962_data( lyrf_data );
+assign lyra_draw_data = grad3_051962_data( lyra_data );
+assign lyrb_draw_data = grad3_051962_data( lyrb_data );
 
 always @* begin
     lyrf_addr = { lyrf_col[4:2], lyrf_col[0], pre_f[10:0] };
@@ -121,80 +150,14 @@ end
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         sub_irq2 <= 0;
-        line16_l <= 0;
-    end else if( pxl_cen ) begin
-        line16_l <= line16;
-        sub_irq2 <= line16 & ~line16_l;
     end else begin
-        sub_irq2 <= 0;
+        sub_irq2 <= pxl_cen && hdump == 9'h020 && vdump == 9'h120;
     end
 end
 
-`ifdef JTGRAD3_TRACE_VIDEO
-reg        trace_lvbl_l;
-reg [15:0] trace_frame;
-reg [31:0] trace_tile_writes, trace_tile_nonzero, trace_tile_reg;
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        trace_lvbl_l      <= 0;
-        trace_frame       <= 0;
-        trace_tile_writes <= 0;
-        trace_tile_nonzero<= 0;
-        trace_tile_reg    <= 0;
-    end else begin
-        trace_lvbl_l <= lvbl;
-        if( trace_lvbl_l & ~lvbl ) begin
-            if( trace_frame[3:0] == 4'd0 || trace_tile_writes != 0 )
-                $display("G3VID frame=%0d tile_wr=%0d tile_nz=%0d tile_reg=%0d",
-                    trace_frame, trace_tile_writes, trace_tile_nonzero, trace_tile_reg);
-            trace_frame        <= trace_frame + 1'd1;
-            trace_tile_writes  <= 0;
-            trace_tile_nonzero <= 0;
-            trace_tile_reg     <= 0;
-        end
-        if( tilesys_cs && cpu_weg ) begin
-            trace_tile_writes <= trace_tile_writes + 1'd1;
-            if( cpu_d8 != 8'd0 ) trace_tile_nonzero <= trace_tile_nonzero + 1'd1;
-            if( cpu_saddr[12:10] == 3'b111 ) trace_tile_reg <= trace_tile_reg + 1'd1;
-        end
-    end
-end
-`endif
-
-`ifdef JTGRAD3_TRACE_FIX_FETCH
-always @(posedge clk) begin
-    if( pxl_cen && hdump[2:0] == 3'd0 &&
-        ((vdump >= 9'h180 && vdump <= 9'h187 && hdump >= 9'h0d0 && hdump <= 9'h138) ||
-         pre_f[10:3] == 8'h22) )
-        $display("G3FETCH hd=%03x vd=%03x pre=%04x col=%02x addr=%05x data=%08x",
-            hdump, vdump, pre_f, lyrf_col, {lyrf_addr,1'b0}, lyrf_data);
-end
-`endif
-
-`ifdef JTGRAD3_TRACE_CODEF_WRITE
-reg        trace_codef_lvbl_l;
-reg [15:0] trace_codef_frame;
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        trace_codef_lvbl_l <= 0;
-        trace_codef_frame  <= 0;
-    end else begin
-        trace_codef_lvbl_l <= lvbl;
-        if( trace_codef_lvbl_l & ~lvbl )
-            trace_codef_frame <= trace_codef_frame + 1'd1;
-        if( tilesys_cs && cpu_weg && cpu_saddr >= 16'h2400 && cpu_saddr < 16'h2500 )
-            $display("G3CODEF frame=%0d sel=%b saddr=%04x dsn=%b d16=%04x d8=%02x",
-                trace_codef_frame, tile_cpu_sel, cpu_saddr, tile_cpu_dsn, tile_cpu_dout, cpu_d8);
-    end
-end
-`endif
-
-jtaliens_scroll #(
+jtgrad3_scroll #(
     .FULLRAM     ( 1 ),
     .COL_PASSTHRU( 1 ),
-    .CHAR_RAM_LAYOUT( 1 ),
     .LOGICAL_MAP ( 1 ),
     .FORCE_BANKS( 1 ),
     .BANK0_INIT ( 8'h10 ),
@@ -236,9 +199,9 @@ jtaliens_scroll #(
     .lyrf_cs    ( lyrf_cs   ),
     .lyra_cs    ( lyra_cs   ),
     .lyrb_cs    ( lyrb_cs   ),
-    .lyrf_data  ( lyrf_data ),
-    .lyra_data  ( lyra_data ),
-    .lyrb_data  ( lyrb_data ),
+    .lyrf_data  ( lyrf_draw_data ),
+    .lyra_data  ( lyra_draw_data ),
+    .lyrb_data  ( lyrb_draw_data ),
     .lyra_ok    ( lyra_ok   ),
 
     .lyrf_col   ( lyrf_col  ),
@@ -258,18 +221,16 @@ jtaliens_scroll #(
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
 
-    .ioctl_addr ( ioctl_addr[14:0] ),
-    .ioctl_ram  ( ioctl_ram ),
-    .ioctl_din  ( dump_scr  ),
+    .ioctl_addr ( 15'd0     ),
+    .ioctl_ram  ( 1'b0      ),
+    .ioctl_din  (           ),
     .mmr_dump   (           ),
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_scr    )
 );
 
-jtaliens_obj #(
-    .GRADIUS3_LAYOUT( 1 )
-) u_obj(
+jtgrad3_obj u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -304,9 +265,9 @@ jtaliens_obj #(
     .blank_n    ( lyro_blnk_n ),
     .shadow     ( shadow    ),
 
-    .ioctl_addr ( ioctl_addr[10:0] ),
-    .ioctl_ram  ( ioctl_ram ),
-    .ioctl_din  ( dump_obj  ),
+    .ioctl_addr ( 11'd0     ),
+    .ioctl_ram  ( 1'b0      ),
+    .ioctl_din  (           ),
     .dump_reg   (           ),
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
@@ -329,6 +290,12 @@ jtgrad3_colmix u_colmix(
     .cpu_we     ( m_cpu_we   ),
     .pal_cs     ( pal_cs   ),
     .cpu_din    ( pal_dout ),
+    .pal_rd_addr( pal_rd_addr ),
+    .palrd_dout ( palrd_dout ),
+    .pal_cpu_addr( pal_cpu_addr ),
+    .pal_cpu_din( pal_cpu_din ),
+    .pal_cpu_we ( pal_cpu_we ),
+    .pal_cpu_dout( pal_cpu_dout ),
 
     .lyrf_blnk_n( lyrf_blnk_n ),
     .lyra_blnk_n( lyra_blnk_n ),
@@ -344,12 +311,7 @@ jtgrad3_colmix u_colmix(
     .green      ( green     ),
     .blue       ( blue      ),
 
-    .ioctl_addr ( ioctl_addr[11:0] ),
-    .ioctl_ram  ( ioctl_ram ),
-    .ioctl_din  ( dump_pal  ),
     .debug_bus  ( debug_bus )
 );
-
-assign ioctl_din = debug_bus[5] ? dump_obj : debug_bus[4] ? dump_pal : dump_scr;
 
 endmodule

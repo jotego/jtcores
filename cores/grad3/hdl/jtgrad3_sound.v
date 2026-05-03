@@ -40,12 +40,18 @@ wire [15:0] A;
 wire [ 7:0] cpu_dout, ram_dout, fm_dout, st_pcm;
 wire [16:0] k32a_addr, k32b_addr;
 wire        m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, cpu_cen;
-wire        mem_acc, fm_sample;
+wire        mem_acc, fm_sample, rst_n, int_n, fm_csn;
 wire signed [15:0] fm_r_raw;
+wire [ 7:0] bank;
 reg  [ 7:0] cpu_din;
 reg         ram_cs, bank_cs, latch_cs, pcm_cs, fm_cs;
-reg  [ 1:0] bank_a, bank_b;
+wire [ 1:0] bank_a, bank_b;
 
+assign bank_a    = bank[1:0];
+assign bank_b    = bank[3:2];
+assign rst_n     = ~rst;
+assign int_n     = ~snd_irq;
+assign fm_csn    = ~fm_cs;
 assign rom_addr  = A;
 assign mem_acc   = !mreq_n && rfsh_n;
 assign pcma_addr = { bank_a, k32a_addr };
@@ -55,39 +61,29 @@ assign st_dout   = debug_bus[5] ? st_pcm : { bank_b, bank_a, snd_latch[3:0] };
 
 always @* begin
     rom_cs   = mem_acc && A < 16'hf000 && !rd_n;
-    bank_cs  = mem_acc && A == 16'hf000;
-    latch_cs = mem_acc && A == 16'hf010;
-    pcm_cs   = mem_acc && A >= 16'hf020 && A <= 16'hf02d;
-    fm_cs    = mem_acc && A >= 16'hf030 && A <= 16'hf031;
-    ram_cs   = mem_acc && A >= 16'hf800;
+    bank_cs  = mem_acc && A[15:4] == 12'hf00;
+    latch_cs = mem_acc && A[15:4] == 12'hf01;
+    pcm_cs   = mem_acc && A[15:4] == 12'hf02;
+    fm_cs    = mem_acc && A[15:1] == 15'h7818;
+    ram_cs   = mem_acc && A[15:11] == 5'b11111;
 end
 
-always @* begin
-    case(1'b1)
-        rom_cs:   cpu_din = rom_data;
-        ram_cs:   cpu_din = ram_dout;
-        latch_cs: cpu_din = snd_latch;
-        fm_cs:    cpu_din = fm_dout;
-        default:  cpu_din = 8'hff;
-    endcase
+always @(posedge clk) begin
+    cpu_din <= rom_cs   ? rom_data  :
+               ram_cs   ? ram_dout  :
+               latch_cs ? snd_latch :
+               fm_cs    ? fm_dout   :
+               8'hff;
 end
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        bank_a <= 0;
-        bank_b <= 0;
-    end else if( bank_cs && !wr_n ) begin
-        bank_a <= cpu_dout[1:0];
-        bank_b <= cpu_dout[3:2];
-    end
-end
+jtframe_8bit_reg u_bank(rst,clk,wr_n,cpu_dout,bank_cs,bank);
 
 jtframe_sysz80 #(.RAM_AW(11), .CLR_INT(1)) u_cpu(
-    .rst_n      ( ~rst      ),
+    .rst_n      ( rst_n     ),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
     .cpu_cen    ( cpu_cen   ),
-    .int_n      ( ~snd_irq  ),
+    .int_n      ( int_n     ),
     .nmi_n      ( 1'b1      ),
     .busrq_n    ( 1'b1      ),
     .m1_n       ( m1_n      ),
@@ -112,7 +108,7 @@ jt51 u_jt51(
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
     .cen_p1     ( cen_fm2   ),
-    .cs_n       ( !fm_cs    ),
+    .cs_n       ( fm_csn    ),
     .wr_n       ( wr_n      ),
     .a0         ( A[0]      ),
     .din        ( cpu_dout  ),

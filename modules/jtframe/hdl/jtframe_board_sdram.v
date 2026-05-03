@@ -84,11 +84,9 @@ module jtframe_board_sdram #(
     output                  prog_dst,
     output                  prog_ack,
 
-`ifdef VERILATOR
-    input           [15:0]  sdram_dq,
-    output          [15:0]  din,
-`else
     inout           [15:0]  sdram_dq,
+`ifdef VERILATOR
+    output          [15:0]  din,
 `endif
     output          [12:0]  sdram_a,
     output                  sdram_dqml,
