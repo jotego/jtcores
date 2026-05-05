@@ -64,6 +64,12 @@ module jtgrad3_video(
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
+
+    // Debug
+    input      [25:0] ioctl_addr,
+    input             ioctl_ram,
+    output reg [ 7:0] ioctl_din,
+
     output     [ 7:0] st_dout
 );
 
@@ -76,6 +82,7 @@ wire [31:0] lyrf_draw_data, lyra_draw_data, lyrb_draw_data;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [ 7:0] lyrf_pxl, lyrf_col, lyra_col, lyrb_col, opal;
 wire [ 7:0] st_scr, st_obj;
+wire [ 7:0] scroll_din, obj_din, scroll_mmr, obj_reg;
 wire        rst8, e, q, ormrd, obj_irqn, obj_nmin, shadow, pre_vdtack;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
 wire        cpu_weg, obj_cpu_weg, tile_cpu_sel, tilesys_cs;
@@ -94,9 +101,9 @@ assign tile_cpu_dsn  = tile_cpu_sel ? s_cpu_dsn  : m_cpu_dsn;
 assign tile_cpu_dout = tile_cpu_sel ? s_cpu_dout : m_cpu_dout;
 assign tile_cpu_we   = tile_cpu_sel ? s_cpu_we   : m_cpu_we;
 assign tilesys_cs    = m_tilesys_cs | s_tilesys_cs;
-assign cpu_saddr     = tile_cpu_addr - 16'h6000;
+assign cpu_saddr     = tile_cpu_addr - 16'h6000;  // ??????
 assign cpu_oaddr     = s_cpu_addr[11:1];
-assign cpu_d8        = !tile_cpu_dsn[0] ? tile_cpu_dout[7:0] : tile_cpu_dout[15:8];
+assign cpu_d8        = tile_cpu_dout[7:0];
 assign obj_cpu_d8    = !s_cpu_dsn[0] ? s_cpu_dout[7:0] : s_cpu_dout[15:8];
 assign cpu_weg       = tile_cpu_we && tile_cpu_dsn != 2'b11;
 assign obj_cpu_weg   = s_cpu_we && s_cpu_dsn != 2'b11;
@@ -155,6 +162,19 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+always @(*) begin
+    if( !ioctl_addr[14] )
+        ioctl_din = scroll_din;
+    else if( !ioctl_addr[10] )
+        ioctl_din = obj_din;
+    else if( !ioctl_addr[3] )
+        ioctl_din = scroll_mmr;
+    else if( ioctl_addr[2:0] != 3'h7 )
+        ioctl_din = obj_reg;
+    else
+        ioctl_din = 8'hff;
+end
+
 jtgrad3_scroll #(
     .FULLRAM     ( 1 ),
     .COL_PASSTHRU( 1 ),
@@ -185,7 +205,7 @@ jtgrad3_scroll #(
     .tile_dout  ( tilesys_dout ),
     .cpu_rom_dtack( pre_vdtack ),
 
-    .rmrd       ( rmrd      ),
+    .rmrd       ( 1'b0      ),
     .irq_n      ( tile_irqn ),
     .firq_n     (           ),
     .nmi_n      ( tile_nmin ),
@@ -221,10 +241,10 @@ jtgrad3_scroll #(
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
 
-    .ioctl_addr ( 15'd0     ),
-    .ioctl_ram  ( 1'b0      ),
-    .ioctl_din  (           ),
-    .mmr_dump   (           ),
+    .ioctl_addr ( ioctl_addr[14:0]     ),
+    .ioctl_ram  ( ioctl_ram            ),
+    .ioctl_din  ( scroll_din           ),
+    .mmr_dump   ( scroll_mmr           ),
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_scr    )
@@ -265,10 +285,10 @@ jtgrad3_obj u_obj(
     .blank_n    ( lyro_blnk_n ),
     .shadow     ( shadow    ),
 
-    .ioctl_addr ( 11'd0     ),
-    .ioctl_ram  ( 1'b0      ),
-    .ioctl_din  (           ),
-    .dump_reg   (           ),
+    .ioctl_addr ( ioctl_addr[10:0]     ),
+    .ioctl_ram  ( ioctl_ram            ),
+    .ioctl_din  ( obj_din              ),
+    .dump_reg   ( obj_reg              ),
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_obj    )

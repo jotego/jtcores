@@ -24,8 +24,6 @@ module jtgrad3_main(
     output reg           tile_cs,
     input         [ 7:0] tile_dout,
     input                tile_dtack,
-    input                tile_irqn,
-    input                tile_nmin,
 
     output        [16:1] gchar_addr,
     output        [ 1:0] gchar_dsn,
@@ -112,7 +110,7 @@ assign bus_busy = (rom_cs   & ~rom_ok)   |
 assign vdtackn = DTACKn | (tile_cs & ~tile_dtack);
 assign VPAn    = ~( A[23] & ~ASn );
 assign IPLn    = !vbl_irqn ? ~3'd2 : 3'b111;
-assign st_dout = { sub_rst, irq_en, rmrd, prio, tile_irqn, tile_nmin, snd_irq, sub_irq };
+assign st_dout = { sub_rst, irq_en, rmrd, prio, 2'b0, snd_irq, sub_irq };
 
 always @* begin
     rom_cs   = 0;

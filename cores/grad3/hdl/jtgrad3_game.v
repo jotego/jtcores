@@ -13,6 +13,7 @@ wire [16:1] m_gchar_addr, s_gchar_addr;
 wire [15:0] m_dout, s_dout;
 wire [15:0] pal_dout;
 wire [ 7:0] tile_dout, obj_dout, snd_latch;
+wire [ 7:0] video_din;
 wire [ 1:0] m_dsn, s_dsn, m_gchar_dsn, s_gchar_dsn;
 wire [ 1:0] m_sh_we, s_sh_we;
 wire        m_cpu_we, s_cpu_we, snd_irq, sub_rst, sub_irq;
@@ -31,7 +32,7 @@ reg         m_gchar_done, s_gchar_done;
 assign debug_view = 8'd0;
 assign dip_flip   = 1'b0;
 `ifdef JTFRAME_IOCTL_RD
-assign ioctl_din  = 8'hff;
+assign ioctl_din  = video_din;
 `endif
 assign game_rst = rst;
 assign m_shram_addr = main_addr[13:1];
@@ -121,8 +122,6 @@ jtgrad3_main u_main(
     .tile_cs    ( m_tile_cs ),
     .tile_dout  ( tile_dout ),
     .tile_dtack ( tile_dtack),
-    .tile_irqn  ( tile_irqn ),
-    .tile_nmin  ( tile_nmin ),
 
     .gchar_addr ( m_gchar_addr ),
     .gchar_dsn  ( m_gchar_dsn  ),
@@ -207,8 +206,8 @@ jtgrad3_video u_video(
     .lvbl       ( LVBL      ),
     .hs         ( HS        ),
     .vs         ( VS        ),
-    .tile_irqn  ( tile_irqn ),
-    .tile_nmin  ( tile_nmin ),
+    .tile_irqn  (           ),
+    .tile_nmin  (           ),
     .sub_irq2   ( sub_irq2  ),
 
     .m_cpu_addr ( main_addr[16:1] ),
@@ -233,6 +232,9 @@ jtgrad3_video u_video(
     .pal_cpu_din( pal_cpu_din ),
     .pal_cpu_we ( pal_cpu_we ),
     .pal_cpu_dout( pal_cpu_dout ),
+    .ioctl_addr ( ioctl_addr ),
+    .ioctl_ram  ( ioctl_ram  ),
+    .ioctl_din  ( video_din  ),
     .rmrd       ( rmrd      ),
 
     .lyrf_addr  ( lyrf_addr ),
