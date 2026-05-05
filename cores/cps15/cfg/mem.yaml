@@ -11,6 +11,12 @@ ports:
   - { name: main_addr_x, msb: 20, lsb: 1 }
   - { name: main_offset, msb: 22, lsb: 0 }
 
+clocks:
+  clk48:
+    - freq: 8M
+      outputs:
+      - cen8
+
 sdram:
   banks:
     - buses:

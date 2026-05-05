@@ -159,7 +159,7 @@ always @(posedge clk48) begin
     last_romcs <= rom_cs;
 end
 
-always @(negedge clk48) begin
+always @(posedge clk48) begin
     rstn <= ~rst;
 end
 
