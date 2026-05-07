@@ -426,6 +426,26 @@
     [
       "a0054d11-bccf-4bee-accd-3177cb00e5ee",
       "sound"
+    ],
+    [
+      "b578bb26-ad12-4438-8d2b-230c5ae88784",
+      "IO"
+    ],
+    [
+      "c75b56d2-eb49-463d-97f1-0a69dfc96be9",
+      "unpopulated"
+    ],
+    [
+      "019391d4-7fbd-40ac-b724-5e74e3f64956",
+      "PSAC_DGTR1"
+    ],
+    [
+      "54440d52-67fd-4ea3-879e-341e73eed3bf",
+      "PSAC_DGTR2"
+    ],
+    [
+      "d0841b86-69f4-4e0a-9455-59ad9e89b57a",
+      "PSAC_Bridge"
     ]
   ],
   "text_variables": {}
