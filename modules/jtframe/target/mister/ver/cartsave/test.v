@@ -20,10 +20,10 @@ reg         downloading;
 reg  [ 1:0] ram_save;
 reg         ram_load;
 
-wire [31:0] sd_lba [1];
-wire [ 7:0] sd_buff_din[1];
+wire [31:0] sd_lba [0:0];
+wire [ 7:0] sd_buff_din[0:0];
 wire [ 7:0] sd_buff_addr, sd_buff_dout;
-wire [ 5:0] sd_blk_cnt[1];
+wire [ 5:0] sd_blk_cnt[0:0];
 wire        sd_buff_wr, sd_ack, sd_wait,
             sd_rd, sd_wr, bk_ena;
 
@@ -111,15 +111,15 @@ hps_io #(
     .img_readonly    ( img_readonly  ),
     .img_size        ( img_size      ),
 
-    .sd_lba          ('{sd_lba}      ),
-    .sd_blk_cnt      ('{sd_blk_cnt}  ),
+    .sd_lba          ( '{sd_lba[0]}    ),
+    .sd_blk_cnt      ( '{sd_blk_cnt[0]}),
     .sd_rd           ( sd_rd         ),
     .sd_wr           ( sd_wr         ),
     .sd_ack          ( sd_ack        ),
 
     .sd_buff_addr    ( sd_buff_addr_wide ),
     .sd_buff_dout    ( sd_buff_dout  ),
-    .sd_buff_din     ('{sd_buff_din} ),
+    .sd_buff_din     ( '{sd_buff_din[0]} ),
     .sd_buff_wr      ( sd_buff_wr    ),
 
     .ioctl_download  (               ),
