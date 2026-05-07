@@ -90,7 +90,7 @@ hps_io #(
     .STRLEN(STRLEN), .PS2DIV(32), .WIDE(0), .BLKSZ(1), .VDNUM(1), .CONF_STR_BRAM(0)
 ) u_hps_io (
     .clk_sys         ( clk           ),
-    .HPS_BUS         ( HPS_BUS        ),
+    .HPS_BUS         ( HPS_BUS       ),
 
     .joy_raw         ( 16'd0         ),
     .buttons         (               ),
@@ -111,15 +111,15 @@ hps_io #(
     .img_readonly    ( img_readonly  ),
     .img_size        ( img_size      ),
 
-    .sd_lba          ( '{sd_lba[0]}    ),
-    .sd_blk_cnt      ( '{sd_blk_cnt[0]}),
+    .sd_lba          ( sd_lba        ),
+    .sd_blk_cnt      ( sd_blk_cnt    ),
     .sd_rd           ( sd_rd         ),
     .sd_wr           ( sd_wr         ),
     .sd_ack          ( sd_ack        ),
 
     .sd_buff_addr    ( sd_buff_addr_wide ),
     .sd_buff_dout    ( sd_buff_dout  ),
-    .sd_buff_din     ( '{sd_buff_din[0]} ),
+    .sd_buff_din     ( sd_buff_din   ),
     .sd_buff_wr      ( sd_buff_wr    ),
 
     .ioctl_download  (               ),
