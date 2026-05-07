@@ -30,18 +30,16 @@ module jtgrad3_video(
     input             m_tilesys_cs,
     input             s_tilesys_cs,
     input             objsys_cs,
-    input             pal_cs,
     output            vdtack,
     output     [ 7:0] tilesys_dout,
     output     [ 7:0] objsys_dout,
-    output     [15:0] pal_dout,
     output     [11:1] pal_rd_addr,
     input      [15:0] palrd_dout,
-    output     [11:1] pal_cpu_addr,
-    output     [15:0] pal_cpu_din,
-    output     [ 1:0] pal_cpu_we,
-    input      [15:0] pal_cpu_dout,
     input             rmrd,
+
+    input      [10:0] prog_addr,
+    input      [ 7:0] prog_data,
+    input             prom_pal_we,
 
     output reg [16:2] lyrf_addr,
     output reg [16:2] lyra_addr,
@@ -58,9 +56,9 @@ module jtgrad3_video(
     input             lyra_ok,
     input             lyro_ok,
 
-    output     [ 7:0] red,
-    output     [ 7:0] green,
-    output     [ 7:0] blue,
+    output     [ 4:0] red,
+    output     [ 4:0] green,
+    output     [ 4:0] blue,
 
     input      [ 3:0] gfx_en,
     input      [ 7:0] debug_bus,
@@ -112,12 +110,14 @@ assign lyro_addr = ca;
 assign st_dout   = (s_tilesys_cs | objsys_cs) ? st_obj : st_scr;
 
 wire [18:0] ca;
-wire [1:0] obj_pri = lyro_pxl[10:9];
+wire [ 1:0] obj_pri;
+
+assign obj_pri = lyro_pxl[10:9];
 
 function [7:0] cgate( input [7:0] c );
-    cgate = { c[7:5], 5'd0 };
+    cgate = { 1'b0, c[7:5], 4'd0 };
 endfunction
-
+/*
 function [31:0] grad3_char_order( input [31:0] data );
     grad3_char_order = {
         data[19:16], data[23:20], data[27:24], data[31:28],
@@ -140,7 +140,26 @@ function [31:0] grad3_051962_data( input [31:0] data );
             ordered[16], ordered[20], ordered[24], ordered[28]
         };
     end
+endfunction*/
+
+
+function [31:0] grad3_051962_data( input [31:0] data );
+    reg [31:0] ordered;
+    begin
+        ordered = data; //grad3_char_order( data );
+        grad3_051962_data = {
+            ordered[16], ordered[20], ordered[24], ordered[28],
+            ordered[ 8], ordered[12], ordered[ 0], ordered[ 4],
+            ordered[17], ordered[21], ordered[25], ordered[29],
+            ordered[ 9], ordered[13], ordered[ 2], ordered[ 5],
+            ordered[18], ordered[22], ordered[26], ordered[30],
+            ordered[10], ordered[14], ordered[ 3], ordered[ 6],
+            ordered[19], ordered[22], ordered[27], ordered[31],
+            ordered[11], ordered[15], ordered[ 3], ordered[ 7]
+        };
+    end
 endfunction
+
 
 assign lyrf_draw_data = grad3_051962_data( lyrf_data );
 assign lyra_draw_data = grad3_051962_data( lyra_data );
@@ -295,43 +314,37 @@ jtgrad3_obj u_obj(
 );
 
 jtgrad3_colmix u_colmix(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .prio       ( prio      ),
-    .obj_pri    ( obj_pri   ),
+    .rst         ( rst         ),
+    .clk         ( clk         ),
+    .pxl_cen     ( pxl_cen     ),
+    .prio        ( prio        ),
+    .obj_pri     ( obj_pri     ),
 
-    .lhbl       ( lhbl      ),
-    .lvbl       ( lvbl      ),
+    .lhbl        ( lhbl        ),
+    .lvbl        ( lvbl        ),
 
-    .cpu_addr   ( m_cpu_addr[12:1] ),
-    .cpu_dout   ( m_cpu_dout ),
-    .cpu_dsn    ( m_cpu_dsn  ),
-    .cpu_we     ( m_cpu_we   ),
-    .pal_cs     ( pal_cs   ),
-    .cpu_din    ( pal_dout ),
-    .pal_rd_addr( pal_rd_addr ),
-    .palrd_dout ( palrd_dout ),
-    .pal_cpu_addr( pal_cpu_addr ),
-    .pal_cpu_din( pal_cpu_din ),
-    .pal_cpu_we ( pal_cpu_we ),
-    .pal_cpu_dout( pal_cpu_dout ),
+    .pal_rd_addr ( pal_rd_addr ),
+    .palrd_dout  ( palrd_dout  ),
 
-    .lyrf_blnk_n( lyrf_blnk_n ),
-    .lyra_blnk_n( lyra_blnk_n ),
-    .lyrb_blnk_n( lyrb_blnk_n ),
-    .lyro_blnk_n( lyro_blnk_n ),
-    .lyrf_pxl   ( lyrf_pxl  ),
-    .lyra_pxl   ( lyra_pxl  ),
-    .lyrb_pxl   ( lyrb_pxl  ),
-    .lyro_pxl   ( lyro_pxl  ),
-    .shadow     ( shadow    ),
+    .prog_data   ( prog_data[3:0]),
+    .prog_addr   ( prog_addr[7:0]),
+    .prom_pal_we ( prom_pal_we ),
 
-    .red        ( red       ),
-    .green      ( green     ),
-    .blue       ( blue      ),
+    .lyrf_blnk_n ( lyrf_blnk_n ),
+    .lyra_blnk_n ( lyra_blnk_n ),
+    .lyrb_blnk_n ( lyrb_blnk_n ),
+    .lyro_blnk_n ( lyro_blnk_n ),
+    .lyrf_pxl    ( lyrf_pxl    ),
+    .lyra_pxl    ( lyra_pxl    ),
+    .lyrb_pxl    ( lyrb_pxl    ),
+    .lyro_pxl    ( lyro_pxl    ),
+    .shadow      ( shadow      ),
 
-    .debug_bus  ( debug_bus )
+    .red         ( red         ),
+    .green       ( green       ),
+    .blue        ( blue        ),
+
+    .debug_bus   ( debug_bus   )
 );
 
 endmodule

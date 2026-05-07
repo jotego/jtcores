@@ -73,7 +73,6 @@ bram:
   - name: palrd
     addr_width: 12
     data_width: 16
-    addr: pal_rd_addr
     simfile: {}
     ioctl: {save: true}
-    dual_port: { name: pal_cpu, rw: true, addr: pal_cpu_addr, we: pal_cpu_we, din: pal_cpu_din, dout: pal_cpu_dout }
+    dual_port: { name: pal, rw: true, addr: pal_addr, din: pal_din, dout: pal_dout }

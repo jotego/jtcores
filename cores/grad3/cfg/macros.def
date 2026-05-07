@@ -7,7 +7,7 @@ JTFRAME_JOY1_POS
 
 # Video configuration. GX945 uses a 24 MHz graphics clock and a 6 MHz
 # pixel clock, with a 320x224 visible raster.
-JTFRAME_COLORW=8
+JTFRAME_COLORW=5
 JTFRAME_PXLCLK=6
 JTFRAME_WIDTH=320
 JTFRAME_HEIGHT=224

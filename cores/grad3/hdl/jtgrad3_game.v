@@ -11,7 +11,6 @@ module jtgrad3_game(
 wire [19:1] s_addr;
 wire [16:1] m_gchar_addr, s_gchar_addr;
 wire [15:0] m_dout, s_dout;
-wire [15:0] pal_dout;
 wire [ 7:0] tile_dout, obj_dout, snd_latch;
 wire [ 7:0] video_din;
 wire [ 1:0] m_dsn, s_dsn, m_gchar_dsn, s_gchar_dsn;
@@ -51,6 +50,9 @@ assign gchar_addr = gchar_addr_r;
 assign gchar_din  = gchar_din_r;
 assign gchar_dsn  = gchar_dsn_r;
 assign gchar_we   = gchar_we_r;
+assign pal_we  = {2{m_cpu_we & pal_cs}} & ~m_dsn;
+assign pal_din = m_dout;
+assign pal_addr = main_addr[11:1];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -221,21 +223,20 @@ jtgrad3_video u_video(
     .m_tilesys_cs( m_tile_cs   ),
     .s_tilesys_cs( s_tile_cs   ),
     .objsys_cs  ( s_obj_cs  ),
-    .pal_cs     ( pal_cs    ),
     .vdtack     ( tile_dtack),
     .tilesys_dout( tile_dout),
     .objsys_dout( obj_dout  ),
-    .pal_dout   ( pal_dout  ),
-    .pal_rd_addr( pal_rd_addr ),
+    .pal_rd_addr( palrd_addr ),
     .palrd_dout ( palrd_dout ),
-    .pal_cpu_addr( pal_cpu_addr ),
-    .pal_cpu_din( pal_cpu_din ),
-    .pal_cpu_we ( pal_cpu_we ),
-    .pal_cpu_dout( pal_cpu_dout ),
+
     .ioctl_addr ( ioctl_addr ),
     .ioctl_ram  ( ioctl_ram  ),
     .ioctl_din  ( video_din  ),
     .rmrd       ( rmrd      ),
+
+    .prog_addr  ( prog_addr[10:0]),
+    .prog_data  ( prog_data   ),
+    .prom_pal_we( prom_we     ),
 
     .lyrf_addr  ( lyrf_addr ),
     .lyra_addr  ( lyra_addr ),
