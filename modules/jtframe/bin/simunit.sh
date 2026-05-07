@@ -38,8 +38,8 @@ parse_args() {
 }
 
 exit_if_running_on_github() {
-	if [ "$GITHUB_ACTIONS" = "true" ]; then
 		echo "This simulation is skipped when run on GitHub"
+	if [ "$GITHUB_ACTIONS" = "true" ]; then
 		echo "PASS"
 		exit 0
 	fi
