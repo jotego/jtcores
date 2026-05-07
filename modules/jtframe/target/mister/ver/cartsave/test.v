@@ -111,15 +111,15 @@ hps_io #(
     .img_readonly    ( img_readonly  ),
     .img_size        ( img_size      ),
 
-    .sd_lba          ( sd_lba        ),
-    .sd_blk_cnt      ( sd_blk_cnt    ),
+    .sd_lba          ('{sd_lba}      ),
+    .sd_blk_cnt      ('{sd_blk_cnt}  ),
     .sd_rd           ( sd_rd         ),
     .sd_wr           ( sd_wr         ),
     .sd_ack          ( sd_ack        ),
 
     .sd_buff_addr    ( sd_buff_addr_wide ),
     .sd_buff_dout    ( sd_buff_dout  ),
-    .sd_buff_din     ( sd_buff_din   ),
+    .sd_buff_din     ('{sd_buff_din} ),
     .sd_buff_wr      ( sd_buff_wr    ),
 
     .ioctl_download  (               ),
