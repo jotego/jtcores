@@ -62,7 +62,7 @@ reg         shl;
 wire        en_b, shd;
 
 assign pal_rd_addr  = pal_addr;
-assign pixel_mux    = ~{prio, shadow, obj_pri,    lyrb_blnk_n,
+assign pixel_mux    = {prio, shadow, obj_pri,    lyrb_blnk_n,
                        lyra_blnk_n,  lyro_blnk_n, lyrf_blnk_n};
 assign { red, green, blue } = (lvbl & lhbl) ? rgb : 15'd0;
 
@@ -80,7 +80,6 @@ always @(*) begin
         3: pal_addr[7:0] = {         1'b0, lyrb_pxl[6:0]} ;
         default:;
     endcase
-    // pal_addr[7:0] = {         1'b0, lyrf_pxl[7:5], lyrf_pxl[3:0]} ;
     pal_addr[10:8] = {en_b,sel};
 end
 
