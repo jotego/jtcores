@@ -63,14 +63,15 @@ wire [13:1] ram_addr;
 wire [ 1:0] ram_dsn;
 wire [15:0] local_ram_dout;
 wire [ 1:0] local_ram_we;
-wire        dec_cs, io_dec_cs, sh_cs, ctrl_cs, io_cs, dsw_cs;
-wire        snd_latch_cs, snd_irq_cs, wdog_cs, sub_irq_cs;
+wire        dec_cs;
+reg         snd_latch_cs, snd_irq_cs, wdog_cs, sub_irq_cs,
+            ctrl_cs, io_cs, dsw_cs;
 wire        bus_cs, bus_busy, vdtackn, vbl_irqn, lvbln, vbl_clr, irq_en;
 wire [ 7:0] ctrl;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
-reg         ram_cs;
 reg  [ 4:0] snd_cnt;
+reg         sh_cs, ram_cs, io_dec_cs;
 
 assign rmrd       = 1'b0;
 assign prio       = ctrl[2];
@@ -91,17 +92,7 @@ assign gchar_we   = ~RnW;
 assign cpu_we     = ~RnW;
 assign snd_irq    = |snd_cnt;
 
-assign dec_cs       = !ASn && !A[23];
-assign io_dec_cs    = dec_cs && A[20:18] == 3'd3;
-assign ctrl_cs      = io_dec_cs && A[17:15] == 3'd0;
-assign io_cs        = io_dec_cs && A[17:15] == 3'd1;
-assign dsw_cs       = io_dec_cs && A[17:15] == 3'd2;
-assign sub_irq_cs   = io_dec_cs && A[17:15] == 3'd3;
-assign wdog_cs      = io_dec_cs && A[17:15] == 3'd4;
-assign snd_latch_cs = io_dec_cs && A[17:15] == 3'd5;
-assign snd_irq_cs   = io_dec_cs && A[17:15] == 3'd6;
-assign sh_cs        = dec_cs && A[20:18] == 3'd4;
-
+assign dec_cs = !ASn && !A[23];
 assign bus_cs = rom_cs | ram_cs | pal_cs | tile_cs | gchar_cs | sh_cs |
                 ctrl_cs | io_cs | dsw_cs | snd_latch_cs | snd_irq_cs | wdog_cs;
 assign bus_busy = (rom_cs   & ~rom_ok)   |
@@ -113,19 +104,43 @@ assign IPLn    = !vbl_irqn ? ~3'd2 : 3'b111;
 assign st_dout = { sub_rst, irq_en, rmrd, prio, 2'b0, snd_irq, sub_irq };
 
 always @* begin
-    rom_cs   = 0;
-    ram_cs   = 0;
-    pal_cs   = 0;
-    tile_cs  = 0;
-    gchar_cs = 0;
+    rom_cs       = 0;
+    ram_cs       = 0;
+    pal_cs       = 0;
+    io_dec_cs    = 0;
+    sh_cs        = 0;
+    tile_cs      = 0;
+    gchar_cs     = 0;
+    ctrl_cs      = 0;
+    io_cs        = 0;
+    dsw_cs       = 0;
+    sub_irq_cs   = 0;
+    wdog_cs      = 0;
+    snd_latch_cs = 0;
+    snd_irq_cs   = 0;
 
     if( dec_cs ) begin
         case( A[20:18] )
-            3'd0: rom_cs   = 1;
-            3'd1: ram_cs   = 1;
-            3'd2: pal_cs   = 1;
-            3'd5: tile_cs  = 1;
-            3'd6: gchar_cs = 1;
+            3'd0: rom_cs    = 1;
+            3'd1: ram_cs    = 1;
+            3'd2: pal_cs    = 1;
+            3'd3: io_dec_cs = 1;
+            3'd4: sh_cs     = 1;
+            3'd5: tile_cs   = 1;
+            3'd6: gchar_cs  = 1;
+            default:;
+        endcase
+    end
+
+    if( io_dec_cs ) begin
+        case( A[17:15] )
+            3'd0: ctrl_cs      = 1;
+            3'd1: io_cs        = 1;
+            3'd2: dsw_cs       = 1;
+            3'd3: sub_irq_cs   = 1;
+            3'd4: wdog_cs      = 1;
+            3'd5: snd_latch_cs = 1;
+            3'd6: snd_irq_cs   = 1;
             default:;
         endcase
     end
