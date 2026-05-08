@@ -1,15 +1,14 @@
 module test;
 
-`include "test_tasks.vh"
-
 wire clk;
 reg  [21:0] addr;
 reg  en;
 reg  [7:0] din;
-
 wire [ 8:0] addr_rel;
 wire inrange;
 wire [7:0] dout;
+
+`include "test_tasks.vh"
 
 localparam [21:0] START=22'h1220,END=22'h1420;
 

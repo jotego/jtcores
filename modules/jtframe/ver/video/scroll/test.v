@@ -1,7 +1,5 @@
 module test;
 
-`include "test_tasks.vh"
-`include "video_tasks.vh"
 
 wire          rst, clk, pxl_cen, vs, hs;
 wire    [8:0] hdump, vdump;
@@ -14,6 +12,8 @@ reg     [9:5] vref;
 
 integer test=0;
 
+`include "test_tasks.vh"
+`include "video_tasks.vh"
 assign {vpart,hpart}=vram_addr;
 
 initial begin

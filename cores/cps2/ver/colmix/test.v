@@ -1,7 +1,5 @@
 module test;
 
-`include "test_tasks.vh"
-
 localparam [3:1] OBJ_PRIO = 3'b010;
 
 reg         rst;
@@ -18,6 +16,7 @@ reg  [11:0] obj_pxl;
 reg         obj_en;
 wire [11:0] pxl;
 
+`include "test_tasks.vh"
 initial begin
     clk = 0;
     forever #5 clk = ~clk;
