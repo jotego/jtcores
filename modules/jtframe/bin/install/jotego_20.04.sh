@@ -152,7 +152,7 @@ if [ ! -d "$VERILATOR_ROOT/iverilog/.git" ]; then
     cd $VERILATOR_ROOT
     git clone https://github.com/steveicarus/iverilog.git
     cd iverilog
-    git checkout v12_0
+    git checkout v13_0
     sh autoconf.sh
     ./configure
     make -j $((`nproc`*4/5))
