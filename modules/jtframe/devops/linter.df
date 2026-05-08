@@ -15,7 +15,7 @@ ENV VERILATOR_ROOT=/opt/verilator
 
 # Icarus Verilog
 RUN apt install --yes libbz2-dev
-RUN git clone --branch v12_0 --depth 1 https://github.com/steveicarus/iverilog.git
+RUN git clone --branch v13_0 --depth 1 https://github.com/steveicarus/iverilog.git
 RUN cd iverilog && bash autoconf.sh && ./configure && make -j $((`nproc`*4/5)) && make install
 RUN cd ..; rm -rf iverilog
 
