@@ -117,7 +117,7 @@ assign obj_pri = lyro_pxl[10:9];
 function [7:0] cgate( input [7:0] c );
     cgate = { 1'b0, c[7:5], 4'd0 };
 endfunction
-/*
+
 function [31:0] grad3_char_order( input [31:0] data );
     grad3_char_order = {
         data[19:16], data[23:20], data[27:24], data[31:28],
@@ -140,10 +140,10 @@ function [31:0] grad3_051962_data( input [31:0] data );
             ordered[16], ordered[20], ordered[24], ordered[28]
         };
     end
-endfunction*/
+endfunction
 
 
-function [31:0] grad3_051962_data( input [31:0] data );
+/*function [31:0] grad3_051962_data( input [31:0] data );
     reg [31:0] ordered;
     begin
         ordered = data; //grad3_char_order( data );
@@ -159,7 +159,16 @@ function [31:0] grad3_051962_data( input [31:0] data );
         };
     end
 endfunction
+*/
 
+function [31:0] obj_order( input [31:0] raw );
+    obj_order = {
+        raw[15], raw[11], raw[ 7], raw[ 3], raw[31], raw[27], raw[23], raw[19],
+        raw[14], raw[10], raw[ 6], raw[ 2], raw[30], raw[26], raw[22], raw[18],
+        raw[13], raw[ 9], raw[ 5], raw[ 1], raw[29], raw[25], raw[21], raw[17],
+        raw[12], raw[ 8], raw[ 4], raw[ 0], raw[28], raw[24], raw[20], raw[16]
+    };
+endfunction
 
 assign lyrf_draw_data = grad3_051962_data( lyrf_data );
 assign lyra_draw_data = grad3_051962_data( lyra_data );
@@ -269,7 +278,7 @@ jtgrad3_scroll #(
     .st_dout    ( st_scr    )
 );
 
-jtgrad3_obj u_obj(
+jtaliens_obj u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -295,7 +304,7 @@ jtgrad3_obj u_obj(
     .pal_eff    ( opal_eff  ),
 
     .rom_addr   ( ca        ),
-    .rom_data   ( lyro_data ),
+    .rom_data   ( obj_order(lyro_data) ),
     .rom_ok     ( lyro_ok   ),
     .rom_cs     ( lyro_cs   ),
     .romrd      ( ormrd     ),
