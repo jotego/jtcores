@@ -32,9 +32,14 @@ func init() {
 	var cabCmd = &cobra.Command{
 		Use:   "cab <filename>",
 		Short: "Convert cabinet input files (.cab) to sim_inputs.hex",
-		Long:  man_blurb("jtframe-cab", "Convert cabinet input files (.cab) to sim_inputs.hex."),
-		Run:   run_cab,
-		Args:  cobra.ExactArgs(1),
+		Long: man_blurb("jtframe-cab", `Convert cabinet input files (.cab) to sim_inputs.hex.
+
+Use "man jtframe-cab" for the full syntax, timing semantics, loop behavior, and
+jtsim integration details.`),
+		Example: `  jtframe cab reg.cab
+  jtsim -inputs reg.cab -video 600 -w 500`,
+		Run:  run_cab,
+		Args: cobra.ExactArgs(1),
 	}
 	rootCmd.AddCommand(cabCmd)
 }

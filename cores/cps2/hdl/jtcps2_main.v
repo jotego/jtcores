@@ -257,6 +257,11 @@ always @(posedge clk) begin
     in0 <= { joystick2[7:0], joystick1[7:0] };
     in1 <= { joystick4[7:0], joystick3[7:0] };
     in2 <= { coin, cab_1p, ~5'b0, service, dip_test, eeprom_sdo };
+    `ifdef POCKET
+    // Pressing Start 1 + Start 2 is needed to save settings in some games
+    // Bypass this in Pocket handheld mode with L + R + Start 1
+    in2[9] <= cab_1p[1] & (|joystick1[9:8] | cab_1p[0]);
+    `endif
     case( joymode )
         default:;
         BUT6: begin

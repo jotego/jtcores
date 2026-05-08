@@ -53,14 +53,13 @@ wire        [ 7:0] dout, opm_dout, ram_dout;
 wire        [ 3:0] pc6_dout;
 reg                opm_cs, opl_cs, ram_cs, pc6_cs;
 reg                pcm_rst, pcm_stop, pcm_start, pcm_addr_cs;
-wire               rd_n, wr_n, mreq_n, rfsh_n, nmi_n;
+wire               m1_n, iorq_n, rd_n, wr_n, mreq_n, rfsh_n, nmi_n;
 wire               ct1, ct2, vclk, pc6_rst;
 reg                nibble_sel, vclk_l, snd_rstn;
 reg         [15:0] pcm_cnt;
 wire        [ 3:0] pcm_nibble;
 reg         [ 7:0] din;
 wire               main_cs;
-
 assign main_cs    = sn_rd | sn_we;
 assign rom_addr   = A[14] ? { ct2, ct1, A[13:0]  } : A;
 assign pcm_nibble = !nibble_sel ? pcm_data[7:4] : pcm_data[3:0];
@@ -167,9 +166,9 @@ jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
     .int_n      ( int_n     ),
     .nmi_n      ( nmi_n     ),
     .busrq_n    ( 1'b1      ),
-    .m1_n       (           ),
+    .m1_n       ( m1_n      ),
     .mreq_n     ( mreq_n    ),
-    .iorq_n     (           ),
+    .iorq_n     ( iorq_n    ),
     .rd_n       ( rd_n      ),
     .wr_n       ( wr_n      ),
     .rfsh_n     ( rfsh_n    ),

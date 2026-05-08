@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"math"
 	"math/bits"
 	"os"
 	"path/filepath"
@@ -116,7 +115,7 @@ func (bus SDRAMBus) Get_dw() int       { return bus.Data_width }
 func (bus BRAMBus) Get_dw() int        { return bus.Data_width }
 func (bus AudioCh) Get_dw() int        { return bus.Data_width }
 func (bus SDRAMCacheLine) Get_dw() int { return bus.Data_width }
-func (bus SDRAMCacheLine) Get_aw() int { return int(math.Log2(float64(bus.At.Length_bytes))) }
+func (bus SDRAMCacheLine) Get_aw() int { return cache_line_aw(bus) }
 func (bus SDRAMBus) Get_dname() string { return bus.Name + "_data" }
 func (bus BRAMBus) Get_dname() string {
 	if bus.ROM.Offset != "" {
@@ -152,8 +151,19 @@ func slot_addr_width(bus SDRAMBus) string {
 	}
 }
 
+func cache_line_span_bytes(line SDRAMCacheLine) int {
+	if line.Span_bytes != 0 {
+		return line.Span_bytes
+	}
+	return line.At.Length_bytes
+}
+
 func cache_line_aw(line SDRAMCacheLine) int {
-	return bits.Len(uint(line.At.Length_bytes)) - 1
+	span_bytes := cache_line_span_bytes(line)
+	if span_bytes == 0 {
+		return 0
+	}
+	return bits.Len(uint(span_bytes)) - 1
 }
 
 func cache_data_aw0(dw int) int {
@@ -176,6 +186,21 @@ func cache_data_aw0(dw int) int {
 func cache_line_addr_range(line SDRAMCacheLine) string {
 	aw0 := cache_data_aw0(line.Data_width)
 	return fmt.Sprintf("[%2d:%d]", cache_line_aw(line)-1, aw0)
+}
+
+func cache_line_uses_banked_at(line SDRAMCacheLine) bool {
+	return line.At.Defined || line.At.Length != "" || line.At.Offset != "" || line.At.Bank != 0
+}
+
+func cache_bank_size_bytes() int64 {
+	if macros.IsSet("JTFRAME_SDRAM_LARGE") {
+		return 16 * 1024 * 1024
+	}
+	return 8 * 1024 * 1024
+}
+
+func cache_total_sdram_bytes() int {
+	return int(cache_bank_size_bytes() << 2)
 }
 
 func data_name(bus Bus) string     { return bus.Get_dname() }
@@ -729,12 +754,12 @@ func ResolveSimfileDataWidth(kind, name string, data_width int, data_type string
 }
 
 func (cfg *MemConfig) parse_cache_lanes(param_values map[string]string) (total_cache, max_cache_size int, err error) {
-	bank_size_bytes := int64(8 * 1024 * 1024)
-	if macros.IsSet("JTFRAME_SDRAM_LARGE") {
-		bank_size_bytes = 16 * 1024 * 1024
-	}
+	bank_size_bytes := cache_bank_size_bytes()
+	total_sdram_bytes := cache_total_sdram_bytes()
 	for k := range cfg.SDRAM.Cache_lanes {
 		line := &cfg.SDRAM.Cache_lanes[k]
+		line.Full_range = false
+		line.Span_bytes = 0
 		if line.Rw && k >= 4 {
 			return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s enables rw, but only the first four cache-lanes may use rw", line.Name)
 		}
@@ -767,26 +792,33 @@ func (cfg *MemConfig) parse_cache_lanes(param_values map[string]string) (total_c
 		if size_bytes > max_cache_size {
 			max_cache_size = size_bytes
 		}
-		length_bytes, e := parse_memory_size(line.At.Length)
-		if e != nil {
-			return 0, 0, fmt.Errorf("jtframe mem: invalid length for %s: %w", line.Name, e)
-		}
-		line.At.Length_bytes = length_bytes
-		if line.At.Offset != "" && param_values[line.At.Offset] == "" {
-			if !strings.HasPrefix(line.At.Offset, "0x") && !strings.HasPrefix(line.At.Offset, "0X") {
-				return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s offset must match a parameter name or an explicit hexadecimal value", line.Name)
+		if cache_line_uses_banked_at(*line) {
+			length_bytes, e := parse_memory_size(line.At.Length)
+			if e != nil {
+				return 0, 0, fmt.Errorf("jtframe mem: invalid length for %s: %w", line.Name, e)
 			}
-			if _, e := strconv.ParseUint(line.At.Offset[2:], 16, 64); e != nil {
-				return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s offset must match a parameter name or an explicit hexadecimal value", line.Name)
+			line.At.Length_bytes = length_bytes
+			line.Span_bytes = length_bytes
+			if line.At.Offset != "" && param_values[line.At.Offset] == "" {
+				if !strings.HasPrefix(line.At.Offset, "0x") && !strings.HasPrefix(line.At.Offset, "0X") {
+					return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s offset must match a parameter name or an explicit hexadecimal value", line.Name)
+				}
+				if _, e := strconv.ParseUint(line.At.Offset[2:], 16, 64); e != nil {
+					return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s offset must match a parameter name or an explicit hexadecimal value", line.Name)
+				}
 			}
-		}
-		offset_words, e := resolve_cache_lane_offset_words(line.At.Offset, param_values)
-		if e != nil {
-			return 0, 0, fmt.Errorf("jtframe mem: invalid offset for cache-lane %s: %w", line.Name, e)
-		}
-		offset_bytes := offset_words << 1
-		if offset_bytes+int64(length_bytes) > bank_size_bytes {
-			return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s exceeds bank %d size (%d bytes offset + %d bytes length > %d bytes)", line.Name, line.At.Bank, offset_bytes, length_bytes, bank_size_bytes)
+			offset_words, e := resolve_cache_lane_offset_words(line.At.Offset, param_values)
+			if e != nil {
+				return 0, 0, fmt.Errorf("jtframe mem: invalid offset for cache-lane %s: %w", line.Name, e)
+			}
+			offset_bytes := offset_words << 1
+			if offset_bytes+int64(length_bytes) > bank_size_bytes {
+				return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s exceeds bank %d size (%d bytes offset + %d bytes length > %d bytes)", line.Name, line.At.Bank, offset_bytes, length_bytes, bank_size_bytes)
+			}
+		} else {
+			line.At.Length_bytes = 0
+			line.Full_range = true
+			line.Span_bytes = total_sdram_bytes
 		}
 		line.Total = line.Blocks.Count * size_bytes
 		total_cache += line.Total

@@ -58,10 +58,11 @@ always @(*) begin
         1: scr_prio = cur_prio[ 7: 4];
         2: scr_prio = cur_prio[11: 8];
         3: scr_prio = cur_prio[15:12];
-        default: scr_prio = 4'd7;
+        // A transparent scroll pixel still blocks priority-0 sprites.
+        default: scr_prio = 4'd0;
     endcase
     obj1st = obj_prio > scr_prio[2:0];
-    obj_sel = ~blank(obj_pxl) & (obj1st | blank(scr_pxl));
+    obj_sel = ~blank(obj_pxl) & obj1st;
 end
 
 reg LVBL_l;

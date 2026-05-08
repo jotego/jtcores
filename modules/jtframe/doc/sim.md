@@ -15,8 +15,12 @@ All macros defined in the core's *cfg/macros.def* file are parsed by *jtsim* and
 # Cabinet Inputs During Simulation
 
 You can use a hex file with inputs for simulation. Enable this with the macro
-SIM_INPUTS. The file must be called sim_inputs.hex. Each line has a hexadecimal
-number with inputs coded. Active high only:
+SIM_INPUTS. The file must be called sim_inputs.hex. When using `jtsim`, the
+usual frontend is `-inputs file.cab`: if the file ends in `.cab`, `jtsim`
+automatically runs `jtframe cab file.cab` to generate `sim_inputs.hex`.
+
+Each line of `sim_inputs.hex` has a hexadecimal number with inputs coded.
+Active high only:
 
 bit  | meaning
 -----|------------
@@ -24,6 +28,7 @@ bit  | meaning
 7:4  | 1P joystick {up, down, left, right}
 10:8 | buttons {B3, B2, B1}
 11   | test button
+12   | reset
 
 Each line will be applied on a new frame.
 

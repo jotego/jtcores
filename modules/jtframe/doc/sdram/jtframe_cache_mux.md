@@ -50,13 +50,20 @@ At the same time, a lane that already has `okN=1` does not block later bursts by
 Each lane has:
 
 - its own cache geometry: `BLOCKSN`, `BLKSIZEN`, `DWN`
-- its own SDRAM bank: `BAN`
-- its own offset: `OFFSETN`
+- its own mode flag: `FULLN`
+- for bank-relative lanes, its own SDRAM bank: `BAN`
+- for bank-relative lanes, its own offset: `OFFSETN`
 - its own endianness flag: `ENDIANn`
 
-The mux adds `OFFSETN` to the cache-generated external address and forwards `BAN` to the burst controller.
+For bank-relative lanes, the mux adds `OFFSETN` to the cache-generated external
+address and forwards `BAN` to the burst controller.
 
-Offsets are applied in the same half-word address space used by the cache external interface.
+For full-space lanes, the cache emits a wider external address. The mux uses the
+top two half-word address bits as the SDRAM bank and forwards the remaining
+lower bits as the bank-local burst address.
+
+Offsets are applied in the same half-word address space used by the cache
+external interface.
 
 The generator only enables `ENDIANn=1` for lanes with `DWN=32`. Wider lanes
 use little-endian packing only.
@@ -78,5 +85,6 @@ Required mux regressions are:
 
 - `modules/jtframe/ver/sdram/cache_mux/simple`
 - `modules/jtframe/ver/sdram/cache_mux/big_endian`
+- `modules/jtframe/ver/sdram/cache_mux/multibank`
 - `modules/jtframe/ver/sdram/cache_mux/stress`
 - `modules/jtframe/ver/sdram/cache_mux/rw`

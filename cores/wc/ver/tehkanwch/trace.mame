@@ -1,4 +1,6 @@
 trace off
-trace debug.trace,maincpu,noloop,{tracelog "PC=%X,AF=%X,BC=%X,DE=%X,HL=%X,AF2=%X,BC2=%X,DE2=%X,HL2=%X,IX=%X,IY=%X,SP=%X,* ",pc,af,bc,de,hl,af2,bc2,de2,hl2,ix,iy,sp}
+trace debug.csv,maincpu,noloop,{tracelog "%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,%X,",pc,af,bc,de,hl,af2,bc2,de2,hl2,ix,iy,sp}
+tracelog "PC,AF,BC,DE,HL,AF2,BC2,DE2,HL2,IX,IY,SP\n"
+softreset
 gtime 200
 traceflush

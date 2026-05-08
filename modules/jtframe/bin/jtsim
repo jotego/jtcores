@@ -487,14 +487,8 @@ ncverilog)
         $EXTRA -l /dev/null || exit $?;;
 verilator)
     TRACE=$(if [ ! -z "$DUMP" ]; then echo --trace; fi)
-    if [ -z "$CPPFLAGS" ]; then
-        if [[ ! -z "$MAXFRAME" && "$MAXFRAME" -gt 600 ]]; then
-            export CPPFLAGS="-O2 -march=native"
-            echo "Using CPPFLAGS=$CPPFLAGS for faster simulation"
-        else
-            export CPPFLAGS=-O1
-        fi
-    fi
+    set_verilator_optimization
+    echo "Using OPT_FAST=$OPT_FAST OPT_SLOW=$OPT_SLOW OPT_GLOBAL=$OPT_GLOBAL"
     if [ ! -z "$TRACE" ]; then
         export CPPFLAGS="$CPPFLAGS -DVERILATOR_TRACE"
     fi

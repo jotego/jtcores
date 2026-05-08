@@ -99,6 +99,6 @@ if [ -n "$SCENE" ]; then
     for i in obj ch scr1 scr2 regs; do split $i; done
     # rm -f objram.bin charam.bin
 fi
-
+OTHER="$OTHER -dipsw 0"
 echo jtsim $OTHER
-jtsim -d JTFRAME_SIM_DIPS=0 $OTHER
+jtsim $OTHER

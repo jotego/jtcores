@@ -1,0 +1,31 @@
+download:
+  post_data: true
+
+params:
+  - { name: OBJ_LATCH, value: "`CPS_OBJ_LATCH" }
+  - { name: VRAM_OFFSET, value: "23'h20_0000" }
+  - { name: WRAM_OFFSET, value: "23'h30_0000" }
+
+ports:
+  - { name: main_addr_x, msb: 20, lsb: 1 }
+  - { name: main_offset, msb: 22, lsb: 0 }
+  - { name: gfx0_addr, msb: 21, lsb: 0 }
+  - { name: gfx1_addr, msb: 21, lsb: 0 }
+  - { name: gfx_star0, msb: 21, lsb: 0 }
+  - { name: gfx_star1, msb: 21, lsb: 0 }
+
+sdram:
+  banks:
+    - buses:
+      - { name: main_ram, addr: main_addr_x, addr_width: 21, data_width: 16, cs: ram_vram_cs, din: main_dout, dsn: dsn, offset: main_offset, rw: true }
+      - { name: vram_dma, addr_width: 18, data_width: 16, offset: VRAM_OFFSET, latch: OBJ_LATCH }
+      - { name: main_rom, addr_width: 22, data_width: 16, latch: 1 }
+    - buses:
+      - { name: snd, addr_width: 16, data_width: 8 }
+    - buses:
+      - { name: adpcm, addr_width: 18, data_width: 8 }
+    - buses:
+      - { name: rom0, addr: gfx0_addr, addr_width: 23, data_width: 32, latch: OBJ_LATCH }
+      - { name: rom1, addr: gfx1_addr, addr_width: 23, data_width: 32 }
+      - { name: star0, addr: gfx_star0, addr_width: 23, data_width: 32 }
+      - { name: star1, addr: gfx_star1, addr_width: 23, data_width: 32 }

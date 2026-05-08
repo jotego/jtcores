@@ -20,6 +20,7 @@ module jtframe_cache_mux #(
     parameter SDRAM_AW  = 23,
               ENDIAN    = 0,
               ENDIAN0   = ENDIAN,
+              FULL0     = 0,
               AW0       = 23,
               BLOCKS0   = 8,
               BLKSIZE0  = 1024,
@@ -28,6 +29,7 @@ module jtframe_cache_mux #(
               BA0       = 0,
               OFFSET0   = 0,
               ENDIAN1   = ENDIAN,
+              FULL1     = 0,
               AW1       = 23,
               BLOCKS1   = 8,
               BLKSIZE1  = 1024,
@@ -36,6 +38,7 @@ module jtframe_cache_mux #(
               BA1       = 0,
               OFFSET1   = 0,
               ENDIAN2   = ENDIAN,
+              FULL2     = 0,
               AW2       = 23,
               BLOCKS2   = 8,
               BLKSIZE2  = 1024,
@@ -44,6 +47,7 @@ module jtframe_cache_mux #(
               BA2       = 0,
               OFFSET2   = 0,
               ENDIAN3   = ENDIAN,
+              FULL3     = 0,
               AW3       = 23,
               BLOCKS3   = 8,
               BLKSIZE3  = 1024,
@@ -52,6 +56,7 @@ module jtframe_cache_mux #(
               BA3       = 0,
               OFFSET3   = 0,
               ENDIAN4   = ENDIAN,
+              FULL4     = 0,
               AW4       = 23,
               BLOCKS4   = 8,
               BLKSIZE4  = 1024,
@@ -60,6 +65,7 @@ module jtframe_cache_mux #(
               BA4       = 0,
               OFFSET4   = 0,
               ENDIAN5   = ENDIAN,
+              FULL5     = 0,
               AW5       = 23,
               BLOCKS5   = 8,
               BLKSIZE5  = 1024,
@@ -68,6 +74,7 @@ module jtframe_cache_mux #(
               BA5       = 0,
               OFFSET5   = 0,
               ENDIAN6   = ENDIAN,
+              FULL6     = 0,
               AW6       = 23,
               BLOCKS6   = 8,
               BLKSIZE6  = 1024,
@@ -76,6 +83,7 @@ module jtframe_cache_mux #(
               BA6       = 0,
               OFFSET6   = 0,
               ENDIAN7   = ENDIAN,
+              FULL7     = 0,
               AW7       = 23,
               BLOCKS7   = 8,
               BLKSIZE7  = 1024,
@@ -151,12 +159,29 @@ module jtframe_cache_mux #(
     input                       rdy
 );
 
-wire [SDRAM_AW-1:1] ext_addr0, ext_addr1, ext_addr2, ext_addr3;
-wire [SDRAM_AW-1:1] ext_addr4, ext_addr5, ext_addr6, ext_addr7;
+localparam EW0 = FULL0 ? SDRAM_AW+2 : SDRAM_AW;
+localparam EW1 = FULL1 ? SDRAM_AW+2 : SDRAM_AW;
+localparam EW2 = FULL2 ? SDRAM_AW+2 : SDRAM_AW;
+localparam EW3 = FULL3 ? SDRAM_AW+2 : SDRAM_AW;
+localparam EW4 = FULL4 ? SDRAM_AW+2 : SDRAM_AW;
+localparam EW5 = FULL5 ? SDRAM_AW+2 : SDRAM_AW;
+localparam EW6 = FULL6 ? SDRAM_AW+2 : SDRAM_AW;
+localparam EW7 = FULL7 ? SDRAM_AW+2 : SDRAM_AW;
+
+wire [EW0-1:1] ext_addr0;
+wire [EW1-1:1] ext_addr1;
+wire [EW2-1:1] ext_addr2;
+wire [EW3-1:1] ext_addr3;
+wire [EW4-1:1] ext_addr4;
+wire [EW5-1:1] ext_addr5;
+wire [EW6-1:1] ext_addr6;
+wire [EW7-1:1] ext_addr7;
 wire [15:0] ext_dout0, ext_dout1, ext_dout2, ext_dout3;
 wire [15:0] ext_dout4, ext_dout5, ext_dout6, ext_dout7;
 wire ext_rd0, ext_rd1, ext_rd2, ext_rd3, ext_rd4, ext_rd5, ext_rd6, ext_rd7;
 wire ext_wr0, ext_wr1, ext_wr2, ext_wr3, ext_wr4, ext_wr5, ext_wr6, ext_wr7;
+wire [SDRAM_AW-1:0] bank_addr0, bank_addr1, bank_addr2, bank_addr3;
+wire [SDRAM_AW-1:0] bank_addr4, bank_addr5, bank_addr6, bank_addr7;
 wire cache_ok0, cache_ok1, cache_ok2, cache_ok3;
 wire cache_ok4, cache_ok5, cache_ok6, cache_ok7;
 wire [DW0-1:0] cache_dout0;
@@ -231,6 +256,15 @@ wire [7:0] ext_rdy = {
     active && active_sel==3'd1 && rdy,
     active && active_sel==3'd0 && rdy
 };
+
+assign bank_addr0 = {1'b0, ext_addr0[SDRAM_AW-1:1]} + {1'b0, OFFSET0[0+:SDRAM_AW-1]};
+assign bank_addr1 = {1'b0, ext_addr1[SDRAM_AW-1:1]} + {1'b0, OFFSET1[0+:SDRAM_AW-1]};
+assign bank_addr2 = {1'b0, ext_addr2[SDRAM_AW-1:1]} + {1'b0, OFFSET2[0+:SDRAM_AW-1]};
+assign bank_addr3 = {1'b0, ext_addr3[SDRAM_AW-1:1]} + {1'b0, OFFSET3[0+:SDRAM_AW-1]};
+assign bank_addr4 = {1'b0, ext_addr4[SDRAM_AW-1:1]} + {1'b0, OFFSET4[0+:SDRAM_AW-1]};
+assign bank_addr5 = {1'b0, ext_addr5[SDRAM_AW-1:1]} + {1'b0, OFFSET5[0+:SDRAM_AW-1]};
+assign bank_addr6 = {1'b0, ext_addr6[SDRAM_AW-1:1]} + {1'b0, OFFSET6[0+:SDRAM_AW-1]};
+assign bank_addr7 = {1'b0, ext_addr7[SDRAM_AW-1:1]} + {1'b0, OFFSET7[0+:SDRAM_AW-1]};
 
 reg        active;
 reg [2:0]  active_sel;
@@ -321,43 +355,83 @@ always @(*) begin
     dout = 16'd0;
     case( active_sel )
         3'd0: begin
-            addr = ext_addr0 + OFFSET0[0+:SDRAM_AW-1];
-            ba   = BA0[1:0];
+            if( FULL0 ) begin
+                addr = ext_addr0[SDRAM_AW-1:1];
+                ba   = ext_addr0[EW0-1 -: 2];
+            end else begin
+                addr = bank_addr0[SDRAM_AW-2:0];
+                ba   = BA0[1:0];
+            end
             dout = ext_dout0;
         end
         3'd1: begin
-            addr = ext_addr1 + OFFSET1[0+:SDRAM_AW-1];
-            ba   = BA1[1:0];
+            if( FULL1 ) begin
+                addr = ext_addr1[SDRAM_AW-1:1];
+                ba   = ext_addr1[EW1-1 -: 2];
+            end else begin
+                addr = bank_addr1[SDRAM_AW-2:0];
+                ba   = BA1[1:0];
+            end
             dout = ext_dout1;
         end
         3'd2: begin
-            addr = ext_addr2 + OFFSET2[0+:SDRAM_AW-1];
-            ba   = BA2[1:0];
+            if( FULL2 ) begin
+                addr = ext_addr2[SDRAM_AW-1:1];
+                ba   = ext_addr2[EW2-1 -: 2];
+            end else begin
+                addr = bank_addr2[SDRAM_AW-2:0];
+                ba   = BA2[1:0];
+            end
             dout = ext_dout2;
         end
         3'd3: begin
-            addr = ext_addr3 + OFFSET3[0+:SDRAM_AW-1];
-            ba   = BA3[1:0];
+            if( FULL3 ) begin
+                addr = ext_addr3[SDRAM_AW-1:1];
+                ba   = ext_addr3[EW3-1 -: 2];
+            end else begin
+                addr = bank_addr3[SDRAM_AW-2:0];
+                ba   = BA3[1:0];
+            end
             dout = ext_dout3;
         end
         3'd4: begin
-            addr = ext_addr4 + OFFSET4[0+:SDRAM_AW-1];
-            ba   = BA4[1:0];
+            if( FULL4 ) begin
+                addr = ext_addr4[SDRAM_AW-1:1];
+                ba   = ext_addr4[EW4-1 -: 2];
+            end else begin
+                addr = bank_addr4[SDRAM_AW-2:0];
+                ba   = BA4[1:0];
+            end
             dout = ext_dout4;
         end
         3'd5: begin
-            addr = ext_addr5 + OFFSET5[0+:SDRAM_AW-1];
-            ba   = BA5[1:0];
+            if( FULL5 ) begin
+                addr = ext_addr5[SDRAM_AW-1:1];
+                ba   = ext_addr5[EW5-1 -: 2];
+            end else begin
+                addr = bank_addr5[SDRAM_AW-2:0];
+                ba   = BA5[1:0];
+            end
             dout = ext_dout5;
         end
         3'd6: begin
-            addr = ext_addr6 + OFFSET6[0+:SDRAM_AW-1];
-            ba   = BA6[1:0];
+            if( FULL6 ) begin
+                addr = ext_addr6[SDRAM_AW-1:1];
+                ba   = ext_addr6[EW6-1 -: 2];
+            end else begin
+                addr = bank_addr6[SDRAM_AW-2:0];
+                ba   = BA6[1:0];
+            end
             dout = ext_dout6;
         end
         default: begin
-            addr = ext_addr7 + OFFSET7[0+:SDRAM_AW-1];
-            ba   = BA7[1:0];
+            if( FULL7 ) begin
+                addr = ext_addr7[SDRAM_AW-1:1];
+                ba   = ext_addr7[EW7-1 -: 2];
+            end else begin
+                addr = bank_addr7[SDRAM_AW-2:0];
+                ba   = BA7[1:0];
+            end
             dout = ext_dout7;
         end
     endcase
@@ -436,7 +510,7 @@ jtframe_cache #(
     .BLKSIZE( BLKSIZE0 ),
     .DW     ( DW0      ),
     .ENDIAN ( ENDIAN0  ),
-    .EW     ( SDRAM_AW )
+    .EW     ( EW0      )
 ) u_cache0 (
     .rst        ( rst                           ),
     .clk        ( clk                           ),
@@ -464,7 +538,7 @@ jtframe_cache #(
     .BLKSIZE( BLKSIZE1 ),
     .DW     ( DW1      ),
     .ENDIAN ( ENDIAN1  ),
-    .EW     ( SDRAM_AW )
+    .EW     ( EW1      )
 ) u_cache1 (
     .rst        ( rst                           ),
     .clk        ( clk                           ),
@@ -492,7 +566,7 @@ jtframe_cache #(
     .BLKSIZE( BLKSIZE2 ),
     .DW     ( DW2      ),
     .ENDIAN ( ENDIAN2  ),
-    .EW     ( SDRAM_AW )
+    .EW     ( EW2      )
 ) u_cache2 (
     .rst        ( rst                           ),
     .clk        ( clk                           ),
@@ -520,7 +594,7 @@ jtframe_cache #(
     .BLKSIZE( BLKSIZE3 ),
     .DW     ( DW3      ),
     .ENDIAN ( ENDIAN3  ),
-    .EW     ( SDRAM_AW )
+    .EW     ( EW3      )
 ) u_cache3 (
     .rst        ( rst                           ),
     .clk        ( clk                           ),
@@ -548,7 +622,7 @@ jtframe_cache #(
     .BLKSIZE( BLKSIZE4 ),
     .DW     ( DW4      ),
     .ENDIAN ( ENDIAN4  ),
-    .EW     ( SDRAM_AW )
+    .EW     ( EW4      )
 ) u_cache4 (
     .rst        ( rst                           ),
     .clk        ( clk                           ),
@@ -576,7 +650,7 @@ jtframe_cache #(
     .BLKSIZE( BLKSIZE5 ),
     .DW     ( DW5      ),
     .ENDIAN ( ENDIAN5  ),
-    .EW     ( SDRAM_AW )
+    .EW     ( EW5      )
 ) u_cache5 (
     .rst        ( rst                           ),
     .clk        ( clk                           ),
@@ -604,7 +678,7 @@ jtframe_cache #(
     .BLKSIZE( BLKSIZE6 ),
     .DW     ( DW6      ),
     .ENDIAN ( ENDIAN6  ),
-    .EW     ( SDRAM_AW )
+    .EW     ( EW6      )
 ) u_cache6 (
     .rst        ( rst                           ),
     .clk        ( clk                           ),
@@ -632,7 +706,7 @@ jtframe_cache #(
     .BLKSIZE( BLKSIZE7 ),
     .DW     ( DW7      ),
     .ENDIAN ( ENDIAN7  ),
-    .EW     ( SDRAM_AW )
+    .EW     ( EW7      )
 ) u_cache7 (
     .rst        ( rst                           ),
     .clk        ( clk                           ),

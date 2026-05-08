@@ -23,6 +23,7 @@ JTFRAME_COLORW           |         | Sets the number of bits per color component
 JTFRAME_DEBUG_VPOS       |         | Row (from the bottom) at which debug information is shown (default=4)
 JTFRAME_DIAL             |         | Adds dial_x and dial_y inputs to game module
 JTFRAME_DIALEMU_LEFT     |         | Defaults to 5. Button to use to rotate left. That button+1  for right
+JTFRAME_DIAL_EMUSENS     |         | Defaults to 15. Number of pulses per frame using max sensitivity for button emulation
 JTFRAME_FLIP_RESET       |         | Varying the flip DIP setting causes a reset
 JTFRAME_FORCED_DIPSW     | Pocket  | Forces a fixed value for the DIP switches
 JTFRAME_FEEDTHRU         | MiST    | Bypasses video blending hardware. Saves some logic elements
@@ -82,6 +83,7 @@ JTFRAME_RFSH_WC          |         | Automatic. Used by SDRAM refresh in jtframe
 JTFRAME_RFSH_N           |         | Automatic. Used by SDRAM refresh in jtframe_board
 JTFRAME_RFSH_M           |         | Automatic. Used by SDRAM refresh in jtframe_board
 JTFRAME_ROTATE           |         | Enables more rotate options in the OSD
+JTFRAME_SAVEGAME         |         | Enables game saving options in the OSD
 JTFRAME_SCAN2X_NOBLEND   | MiST    | Disables pixel blending
 JTFRAME_SRAM             | Pocket  | Enables SRAM ports at the game module
 JTFRAME_SDRAM96          |         | SDRAM is clocked at 96MHz and the clk input of game is 96MHz
@@ -194,6 +196,8 @@ JTFRAME_SIM_LOAD_EXTRA   |         | Extra wait time when transferring ROM in si
 JTFRAME_SIM_ROMRQ_NOCHECK|         | Disable protocol checking of romrq
 JTFRAME_SIM_RTC          |         | RTC value at reset, three-byte value: hours-minutes-seconds
 JTFRAME_SIM_SDRAM_NONSTOP|modelsim | SDRAM model will not stop the simulation for timing violations
+JTFRAME_SIM_SKIP_FRAME_DUMP|verilator| Skip the generic Verilator harness frame image dump/conversion path
+JTFRAME_SIM_SKIP_VSIZE   |verilator| Skip the frame-size assertion in the generic Verilator harness
 JTFRAME_SIM_SLOWLOAD     |verilator| slows down the ROM load in case the core needs extra time
 JTFRAME_SIM_SNDEN        |verilator| Enable sound channels (bits active high) following the order in mem.yaml
 JTFRAME_SIM_VIDEO        |verilator| Create PNG files for all frames. Good for creation of video files.

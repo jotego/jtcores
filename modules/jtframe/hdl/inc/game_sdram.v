@@ -69,7 +69,7 @@ wire [ 1:0] {{.Name}}_dsn;
 {{- range .SDRAM.Cache_lanes}}
 wire {{ cache_line_addr_range . }} {{.Name}}_addr;
 wire [{{ sub .Data_width 1 }}:0] {{.Name}}_data;
-wire        {{.Name}}_cs, {{.Name}}_ok;
+wire        {{.Name}}_rd, {{.Name}}_ok;
 {{- if .Rw }}
 wire        {{.Name}}_we;
 wire [{{ sub .Data_width 1 }}:0] {{.Name}}_din;
@@ -79,7 +79,6 @@ wire [{{ sub (byte_en_width .Data_width) 1 }}:0] {{.Name}}_dsn;
 wire        prom_we, header;
 wire [SDRAMW-2:0] raw_addr, post_addr;
 wire [SDRAMW-2:0] ioctl_prog_addr   = ioctl_addr[SDRAMW-2:0];
-wire [SDRAMW-2:0] sdram_offset_zero = {(SDRAMW-1){1'b0}};
 wire [25:0] pre_addr, dwnld_addr, ioctl_addr_noheader;
 wire [ 7:0] post_data;
 wire [15:0] raw_data;
@@ -196,7 +195,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     {{- if gt (len .SDRAM.Cache_lanes) 0 }}
     {{- range .SDRAM.Cache_lanes}}
     .{{.Name}}_addr ( {{.Name}}_addr ),
-    .{{.Name}}_cs   ( {{.Name}}_cs   ),
+    .{{.Name}}_rd   ( {{.Name}}_rd   ),
     .{{.Name}}_ok   ( {{.Name}}_ok   ),
     .{{.Name}}_data ( {{.Name}}_data ),
     {{- if .Rw }}
@@ -237,13 +236,25 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .sram_dsn   ( sram_dsn      ),
     .sram_ok    ( sram_ok       ),
 `endif
+
+`ifdef JTFRAME_SAVEGAME
+    // Save/Load
+    .sav_change ( sav_change    ),
+    .sav_wait   ( sav_wait      ),
+    .sav_done   ( sav_done      ),
+    .sav_wr     ( sav_wr        ),
+    .sav_ack    ( sav_ack       ),
+    .sav_din    ( sav_din       ),
+    .sav_dout   ( sav_dout      ),
+    .sav_addr   ( sav_addr      ),
+`endif
     // PROM writting
     .ioctl_addr   ( pass_io ? ioctl_addr       : ioctl_addr_noheader  ),
     .prog_addr    ( pass_io ? ioctl_prog_addr : raw_addr      ),
     .prog_data    ( pass_io ? ioctl_dout       : raw_data[7:0] ),
     .prog_we      ( pass_io ? ioctl_wr         : prog_we       ),
     .prog_ba      ( prog_ba        ), // prog_ba supplied in case it helps re-mapping addresses
-    .prom_we      ( prom_we        ),
+    .prom_we      ( pass_io ? 1'b0 : prom_we ),
     {{- with .Download.Pre_addr }}
     // SDRAM address mapper during downloading
     .pre_addr     ( pre_addr       ),
@@ -359,19 +370,20 @@ jtframe_cache_mux #(
     .SDRAM_AW ( SDRAMW ),
     .ENDIAN   ( 0 ){{- range $index, $line := .SDRAM.Cache_lanes }},
     .ENDIAN{{$index}} ( {{if and $.SDRAM.Big_endian (eq $line.Data_width 32)}}1{{else}}0{{end}} ),
+    .FULL{{$index}}    ( {{if $line.Full_range}}1{{else}}0{{end}} ),
     .AW{{$index}}      ( {{ cache_line_aw $line }} ),
     .BLOCKS{{$index}}  ( {{ $line.Blocks.Count }} ),
     .BLKSIZE{{$index}} ( {{ $line.Blocks.Size_bytes }} ),
     .DW{{$index}}      ( {{ printf "%2d" $line.Data_width }} ),
-    .BA{{$index}}      ( {{ $line.At.Bank }} ),
-    .OFFSET{{$index}}  ( {{ if $line.At.Offset }}{{ $line.At.Offset }}{{ else }}0{{ end }} ){{- end }}
+    .BA{{$index}}      ( {{ if $line.Full_range }}0{{ else }}{{ $line.At.Bank }}{{ end }} ),
+    .OFFSET{{$index}}  ( {{ if and (not $line.Full_range) $line.At.Offset }}{{ $line.At.Offset }}{{ else }}0{{ end }} ){{- end }}
 ) u_cache(
     .rst       ( rst      ),
     .clk       ( clk      ),
 {{- range $index, $line := .SDRAM.Cache_lanes}}
     .addr{{$index}} ( {{ $line.Name }}_addr ),
     .dout{{$index}} ( {{ $line.Name }}_data ),
-    .rd{{$index}}   ( {{ $line.Name }}_cs   ),
+    .rd{{$index}}   ( {{ $line.Name }}_rd ),
     {{- if lt $index 4 }}
     .wr{{$index}}   ( {{ if $line.Rw }}{{ $line.Name }}_we{{ else }}1'b0{{ end }} ),
     .din{{$index}}  ( {{ if $line.Rw }}{{ $line.Name }}_din{{ else }}{{ printf "%d'd0" $line.Data_width }}{{ end }} ),
@@ -416,6 +428,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .SLOT{{$index}}_ERASE(0),{{end}}
     {{- else}}{{- with .Offset }}
     .SLOT{{$index}}_OFFSET({{.}}[SDRAMW-2:0]),{{end}}{{end}}
+    {{- if not .Rw }}{{- with .Latch }}
+    .SLOT{{$index}}_LATCH({{.}}),{{end}}{{end}}
     {{- with .Cache_size }}
     .CACHE{{$index}}_SIZE({{.}}),{{end}}
     .SLOT{{$index}}_AW({{ slot_addr_width . }}),
@@ -446,7 +460,7 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .slot{{$index2}}_wen   ( {{.Name}}_we    ),
     .slot{{$index2}}_din   ( {{if .Din}}{{.Din}}{{else}}{{.Name}}_din{{end}}   ),
     .slot{{$index2}}_wrmask( {{if .Dsn}}{{.Dsn}}{{else}}{{.Name}}_dsn{{end}}   ),
-    .slot{{$index2}}_offset( {{if .Offset }}{{.Offset}}[SDRAMW-2:0]{{else}}sdram_offset_zero{{end}} ),
+    .slot{{$index2}}_offset( {{if .Offset }}{{.Offset}}[SDRAMW-2:0]{{else}}{(SDRAMW-1){1'b0}}{{end}} ),
     {{- else }}
     {{- if not $is_rom }}
     .slot{{$index2}}_clr   ( 1'b0       ), // only 1'b0 supported in mem.yaml

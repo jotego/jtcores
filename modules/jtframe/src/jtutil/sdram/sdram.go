@@ -425,23 +425,23 @@ func applySimFile(each sim_file_entry) (err error) {
 	return nil
 }
 
-func swapSimFileData(data []byte, data_width int, big_endian bool) (bool,error) {
+func swapSimFileData(data []byte, data_width int, big_endian bool) (bool, error) {
 	if !big_endian {
-		return false,nil
+		return false, nil
 	}
 	word_bytes := data_width >> 3
 	if word_bytes <= 1 {
-		return false,fmt.Errorf("simfile.big_endian requires 16-bit or 32-bit data width")
+		return false, fmt.Errorf("simfile.big_endian requires 16-bit or 32-bit data width")
 	}
 	if (len(data) % word_bytes) != 0 {
-		return false,fmt.Errorf("file length %d is not divisible by %d-byte words", len(data), word_bytes)
+		return false, fmt.Errorf("file length %d is not divisible by %d-byte words", len(data), word_bytes)
 	}
 	for k := 0; k < len(data); k += word_bytes {
 		for a, b := k, k+word_bytes-1; a < b; a, b = a+1, b-1 {
 			data[a], data[b] = data[b], data[a]
 		}
 	}
-	return true,nil
+	return true, nil
 }
 
 func readBankFile(name string) ([]byte, error) {
@@ -493,6 +493,9 @@ func bankOffset(regCnt int, hinfo mra.HeaderOffset, rom []byte) ([]int, []string
 			return nil, nil, fmt.Errorf("wrong header: offset index %d for %s is outside ROM length %X", idx, hinfo.Regions[k], len(rom))
 		}
 		pos := (int(rom[idx]) << 8) | int(rom[idx+1])
+		if hinfo.Reverse {
+			pos = (int(rom[idx+1]) << 8) | int(rom[idx])
+		}
 		pos <<= hinfo.Bits
 		if pos+header > len(rom) {
 			return nil, nil, fmt.Errorf("wrong header: computed offset %X for %s exceeds ROM length %X", pos+header, hinfo.Regions[k], len(rom))

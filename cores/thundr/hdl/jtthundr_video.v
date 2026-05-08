@@ -77,6 +77,10 @@ module jtthundr_video(
     output reg [ 7:0] st_dout
 );
 
+// Sky Kid Deluxe uses the scr0 path for the title HUD row, which sits 16 pixels
+// above the common System 86 viewport with the current timing model.
+localparam signed [7:0] SKYKIDDX_SCR0_VOS = -8'sd16;
+
 wire [12:1] cus42_1_addr;
 wire [10:0] scr0_pxl, scr1_pxl, pre1_pxl, obj_pxl,
             mxrgb_addr, objpala, scrpala;
@@ -88,6 +92,7 @@ wire [ 3:0] th_red, th_green, th_blue,
 wire [ 2:0] obj_prio, scr0_prio, scr1_prio, pre1_prio;
 
 reg         rst_scr1, rst_mx, dec_en;
+reg signed [7:0] scr0_vos;
 
 assign scr0a_addr[16]= bank, scr0b_addr[16]=bank;
 assign vram1_addr  = metrocrs ? {2'd0,mxtxt_addr} : cus42_1_addr;
@@ -98,6 +103,7 @@ always @(posedge clk) begin
     rst_scr1 <=  metrocrs | rst;
     rst_mx   <= ~metrocrs | rst;
     dec_en   <= ~metrocrs;
+    scr0_vos <= scrhflip ? SKYKIDDX_SCR0_VOS : 8'sd0;
     {red,green,blue} <= metrocrs ? {mx_red,mx_green,mx_blue}:
                                    {th_red,th_green,th_blue};
 end
@@ -150,6 +156,7 @@ jtcus42 #(.ID(0)) u_scroll0(
     .flip       ( flip          ),
     .scrhflip   ( scrhflip      ),
     .scrhos     ( scrhos        ),
+    .scrvos     ( scr0_vos      ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
     .dec_en     ( dec_en        ),
@@ -193,6 +200,7 @@ jtcus42 #(.ID(1),.HBASE(9'd4)) u_scroll1(
     .flip       ( flip          ),
     .scrhflip   ( scrhflip      ),
     .scrhos     ( scrhos        ),
+    .scrvos     ( 8'sd0         ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
     .dec_en     ( 1'b1          ),

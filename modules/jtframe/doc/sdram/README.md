@@ -35,8 +35,11 @@ Relevant rules:
 - `blocks.size` is the cache block size in bytes
 - `data_width` is the consumer-side width: `8`, `16`, `32`, `64`, or `128`
 - cache lanes must use `blocks.size: 16B` or larger
-- `at.bank` maps the lane to SDRAM bank `0..3`
+- `at:` is optional
+- with `at:`, the lane stays inside one SDRAM bank
+- `at.bank` maps a bank-relative lane to SDRAM bank `0..3`
 - `at.offset` is added by the mux before the request reaches the burst controller
+- without `at:`, the lane spans the full SDRAM space and the mux derives the bank from the top two half-word address bits
 - `rw: true` is allowed only on cache lanes `0..3`; lanes `4..7` are read-only
 - `simfile.name` is the optional preload file for simulation
 - `simfile.big_endian` only applies to simulation file parsing
@@ -44,6 +47,16 @@ Relevant rules:
 - `sdram.big_endian: true` only applies to cache lanes with `data_width: 32`
 
 Generated game-module ports follow the usual `name_addr`, `name_data`, `name_cs`, `name_ok` pattern, with `name_we`, `name_din`, and `name_dsn` added for writable cache lanes.
+
+Full-space example:
+
+```yaml
+sdram:
+  cache-lanes:
+    - name: pcm
+      data_width: 8
+      blocks: { count: 8, size: 1kB }
+```
 
 ## Consumer Contract
 

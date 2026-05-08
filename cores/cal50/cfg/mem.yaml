@@ -53,7 +53,6 @@ bram:
     addr_width: 17   # extra bit for buf_cs
     data_width: 16
     din: cpu_dout
-    offset: RAM_OFFSET
     rw: true
   # X1-012 Video RAM
   - name: tlv

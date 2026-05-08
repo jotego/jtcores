@@ -1,6 +1,8 @@
 focus 2
 trace off
-trace sndcpu.trace,audiocpu,noloop,{tracelog "PC=%4X,AF=%4X,BC=%4X,DE=%4X,HL=%4X,AF2=%4X,BC2=%4X,DE2=%4X,HL2=%4X,IX=%4X,IY=%4X,SP=%4X,* ",pc,af,bc,de,hl,af2,bc2,de2,hl2,ix,iy,sp}
+trace debug.csv,audiocpu,noloop,{tracelog "%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,",pc,af,bc,de,hl,af2,bc2,de2,hl2,ix,iy,sp}
+tracelog "PC,AF,BC,DE,HL,AF2,BC2,DE2,HL2,IX,IY,SP\n"
+softreset
 gtime #1200
 traceflush
 quit

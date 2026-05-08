@@ -21,24 +21,12 @@ module jtcps1_game(
 );
 
 wire        clk_gfx, rst_gfx, hold_rst;
-wire        snd_cs, adpcm_cs, main_ram_cs, main_vram_cs, main_rom_cs,
-            rom0_cs, rom1_cs,
-            vram_dma_cs;
+wire        main_ram_cs, main_vram_cs;
 wire [ 1:0] joymode;
-wire [15:0] snd_addr;
-wire [17:0] adpcm_addr;
-wire [ 7:0] snd_data, adpcm_data;
 wire [17:1] ram_addr;
-wire [21:1] main_rom_addr;
-wire [15:0] main_ram_data, main_rom_data, main_dout, mmr_dout;
-wire        main_rom_ok, main_ram_ok;
+wire [15:0] mmr_dout;
 wire        ppu1_cs, ppu2_cs, ppu_rstn;
 wire [19:0] rom1_addr, rom0_addr;
-wire [31:0] rom0_data, rom1_data;
-// Video RAM interface
-wire [17:1] vram_dma_addr;
-wire [15:0] vram_dma_data;
-wire        vram_dma_ok, rom0_ok, rom1_ok, snd_ok, adpcm_ok;
 wire [15:0] cpu_dout;
 wire        cpu_speed;
 wire        star_bank, dump_flag;
@@ -48,13 +36,10 @@ wire [ 7:0] snd_latch0, snd_latch1;
 wire [ 7:0] dipsw_a, dipsw_b, dipsw_c;
 
 wire [12:0] star0_addr, star1_addr;
-wire [31:0] star0_data, star1_data;
-wire        star0_ok,   star1_ok,
-            star0_cs,   star1_cs;
-
 wire        vram_clr, vram_rfsh_en;
 wire [ 8:0] hdump;
 wire [ 8:0] vdump, vrender;
+wire        snd_peak_int;
 
 wire        rom0_half, rom1_half;
 wire        cfg_we;
@@ -65,27 +50,124 @@ wire        sclk, sdi, sdo, scs;
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[23:0];
 
 wire [15:0] fave;
-wire [ 1:0] dsn;
 wire        cen10b;
 wire        cpu_cen, cpu_cenb;
 wire        charger;
 wire        turbo, video_flip, filter_old;
 reg         rst_game;
 
+`ifndef JTFRAME_MEMGEN
+wire        snd_cs, adpcm_cs, main_rom_cs,
+            rom0_cs, rom1_cs,
+            vram_dma_cs;
+wire [15:0] snd_addr;
+wire [17:0] adpcm_addr;
+wire [ 7:0] snd_data, adpcm_data;
+wire [21:1] main_rom_addr;
+wire [15:0] main_ram_data, main_rom_data, main_dout;
+wire        main_rom_ok, main_ram_ok;
+wire [31:0] rom0_data, rom1_data;
+wire [17:1] vram_dma_addr;
+wire [15:0] vram_dma_data;
+wire        vram_dma_ok, rom0_ok, rom1_ok, snd_ok, adpcm_ok;
+wire [31:0] star0_data, star1_data;
+wire        star0_ok,   star1_ok,
+            star0_cs,   star1_cs;
+wire [ 1:0] dsn;
+`endif
+
 `include "turbo.vh"
-assign snd_vu       = 0;
 assign filter_old   = dipsw[24];
 assign debug_view   = debug_bus[0] ? fave[7:0] : fave[15:8];
     //{ 6'd0, dump_flag, filter_old };
+`ifndef JTFRAME_MEMGEN
+assign snd_vu       = 0;
+assign snd_peak     = snd_peak_int;
+`endif
+`ifndef JTFRAME_MEMGEN
 assign ba1_din=0, ba2_din=0, ba3_din=0,
        ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
+`endif
 
 assign clk_gfx  = clk;
 assign rst_gfx  = rst;
 
 always @(posedge clk) rst_game <= hold_rst | rst48;
 
-localparam REGSIZE=24;
+localparam REGSIZE=24,
+           START_HEADER=16;
+
+`ifdef JTFRAME_MEMGEN
+localparam [ 5:0] CFG_BYTE=6'd39;
+localparam [22:0] VRAM_OFFSET=23'h20_0000,
+                  WRAM_OFFSET=23'h30_0000;
+
+reg decrypt, pang3_bit;
+wire dump_we = ioctl_wr & ioctl_ram;
+
+function [7:0] pang3_decrypt;
+    input [7:0] din;
+    begin
+        pang3_decrypt =
+            (((((((din[0] ? 8'h04 : 8'h00) ^
+                  (din[1] ? 8'h21 : 8'h00)) ^
+                  (din[2] ? 8'h01 : 8'h00)) ^
+                  (din[3] ? 8'h00 : 8'h50)) ^
+                  (din[4] ? 8'h40 : 8'h00)) ^
+                  (din[5] ? 8'h06 : 8'h00)) ^
+                  (din[6] ? 8'h08 : 8'h00)) ^
+                  (din[7] ? 8'h00 : 8'h88);
+    end
+endfunction
+
+assign hold_rst   = 1'b0;
+assign joymode    = 2'd0;
+assign ram_vram_cs = main_ram_cs | main_vram_cs;
+assign main_ram_we = !main_rnw;
+assign main_offset = main_ram_cs ? WRAM_OFFSET : VRAM_OFFSET;
+assign main_addr_x = { 3'd0, ram_addr };
+assign gfx0_addr   = { rom0_addr, rom0_half, 1'b0 };
+assign gfx1_addr   = { rom1_addr, rom1_half, 1'b0 };
+assign gfx_star0   = { 1'b0, star_bank, 5'd0, star0_addr, 2'b00 };
+assign gfx_star1   = { 1'b0, star_bank, 5'd0, star1_addr, 2'b10 };
+assign cfg_we      = header && prog_we &&
+                     ioctl_addr > 7 &&
+                     ioctl_addr < (REGSIZE+START_HEADER);
+
+always @(*) begin
+    post_data = prog_data;
+    if( prog_we && !header && !ioctl_ram && prog_ba==2'd0 &&
+        ioctl_addr[19] && decrypt && (ioctl_addr[0]^pang3_bit) ) begin
+        post_data = pang3_decrypt(prog_data);
+    end
+end
+
+always @(posedge clk) begin
+    if( rst || (header && prog_we && ioctl_addr==0) ) begin
+        decrypt   <= 0;
+        pang3_bit <= 0;
+    end else if( header && prog_we && ioctl_addr[5:0]==CFG_BYTE ) begin
+        { decrypt, pang3_bit } <= prog_data[7:6];
+    end
+end
+
+// EEPROM used by Pang 3.
+jt9346_16b8b #(.DW(16),.AW(6)) u_eeprom(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .sclk       ( sclk      ),
+    .sdi        ( sdi       ),
+    .sdo        ( sdo       ),
+    .scs        ( scs       ),
+    .dump_clk   ( clk       ),
+    .dump_addr  ( ioctl_addr[7:0] ),
+    .dump_we    ( dump_we   ),
+    .dump_din   ( ioctl_dout),
+    .dump_dout  ( ioctl_din ),
+    .dump_flag  ( dump_flag ),
+    .dump_clr   ( ioctl_ram )
+);
+`endif
 
 // Turbo speed disables DMA
 wire busreq_cpu = busreq & ~turbo;
@@ -357,7 +439,7 @@ jtcps1_sound u_sound(
     .left           ( snd_left      ),
     .right          ( snd_right     ),
     .sample         ( sample        ),
-    .peak           ( snd_peak      ),
+    .peak           ( snd_peak_int  ),
     .debug_bus      ( debug_bus     )
 );
 `else
@@ -365,7 +447,7 @@ assign snd_addr   = 0;
 assign snd_cs     = 0;
 assign snd_left   = 0;
 assign snd_right  = 0;
-assign snd_peak   = 0;
+assign snd_peak_int = 0;
 assign adpcm_addr = 0;
 assign adpcm_cs   = 0;
 assign sample     = 0;
@@ -376,6 +458,7 @@ always @(posedge clk) rst_sdram <= rst;
 
 wire nc0, nc1, nc2, nc3;
 /* verilator tracing_on */
+`ifndef JTFRAME_MEMGEN
 jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
     .rst         ( rst_sdram     ),
     .clk         ( clk           ),
@@ -505,5 +588,6 @@ jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
     .data_read   ( data_read     ),
     .dump_flag   ( dump_flag     )
 );
+`endif
 
 endmodule
