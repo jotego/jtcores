@@ -7,7 +7,7 @@ grad3:
     - jtgrad3_scroll.v
     - jtgrad3_052109.v
     - jtgrad3_obj.v
-    - jtgrad3_colmix2.v
+    - jtgrad3_colmix.v
     - jtgrad3_sound.v
 aliens:
   - get:
