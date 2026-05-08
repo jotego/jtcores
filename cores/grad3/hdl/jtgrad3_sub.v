@@ -57,11 +57,11 @@ wire [13:1] ram_addr;
 wire [ 1:0] ram_dsn;
 wire [15:0] local_ram_dout;
 wire [ 1:0] local_ram_we;
-wire        prog_dec_cs, vid_dec_cs, sh_cs, irqmask_cs, bus_cs, bus_busy, vdtackn;
+wire        prog_dec_cs, vid_dec_cs, sh_cs, bus_cs, bus_busy, vdtackn;
 wire        irq1n, irq2n, irq4n, rst_cpu, lvbln;
 wire        irq1_clr, irq2_clr, irq4_clr;
 reg  [15:0] cpu_din;
-reg         ram_cs;
+reg         irqmask_cs, ram_cs;
 reg  [ 2:0] irq_mask;
 
 assign rst_cpu   = rst | sub_rst;
@@ -85,13 +85,12 @@ assign cpu_we    = ~RnW;
 
 assign prog_dec_cs = !ASn && !A[22] && !A[21];
 assign vid_dec_cs  = !ASn && !A[22] &&  A[21];
-assign irqmask_cs  = prog_dec_cs && A[20:18] == 3'd5;
 assign sh_cs       = vid_dec_cs && A[19:18] == 2'd0;
-assign bus_cs     = rom_cs | ram_cs | tile_cs | obj_cs | gchar_cs | gfx_cs | sh_cs | irqmask_cs;
-assign bus_busy   = (rom_cs   & ~rom_ok)   |
-                    (gchar_cs & ~gchar_ok) |
-                    (gfx_cs   & ~gfx_ok)   |
-                    (tile_cs  & ~tile_dtack);
+assign bus_cs      = rom_cs | ram_cs | tile_cs | obj_cs | gchar_cs | gfx_cs | sh_cs | irqmask_cs;
+assign bus_busy    = (rom_cs   & ~rom_ok)   |
+                     (gchar_cs & ~gchar_ok) |
+                     (gfx_cs   & ~gfx_ok)   |
+                     (tile_cs  & ~tile_dtack);
 assign vdtackn = DTACKn | (tile_cs & ~tile_dtack);
 assign VPAn    = ~( A[23] & ~ASn );
 assign IPLn    = !irq4n ? ~3'd4 : !irq2n ? ~3'd2 : !irq1n ? ~3'd1 : 3'b111;
@@ -104,11 +103,13 @@ always @* begin
     obj_cs   = 0;
     gchar_cs = 0;
     gfx_cs   = 0;
+    irqmask_cs = 0;
 
     if( prog_dec_cs ) begin
         case( A[20:18] )
             3'd0, 3'd1, 3'd2, 3'd3: rom_cs = 1;
-            3'd4: ram_cs = 1;
+            3'd4: ram_cs     = 1;
+            3'd5: irqmask_cs = 1;
             default:;
         endcase
     end
@@ -126,13 +127,13 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    cpu_din <= rom_cs   ? rom_dout       :
-               ram_cs   ? local_ram_dout :
-               sh_cs    ? sh_dout        :
+    cpu_din <= rom_cs   ? rom_dout            :
+               ram_cs   ? local_ram_dout      :
+               sh_cs    ? sh_dout             :
                tile_cs  ? { 8'd0, tile_dout } :
-               obj_cs   ? { 8'd0, obj_dout } :
-               gchar_cs ? gchar_dout     :
-               gfx_cs   ? gfx_data       :
+               obj_cs   ? { 8'd0, obj_dout  } :
+               gchar_cs ? gchar_dout          :
+               gfx_cs   ? gfx_data            :
                16'hffff;
 end
 
