@@ -1,12 +1,13 @@
 module test;
 
-`include "test_tasks.vh"
-
 wire       rst, clk;
 reg        shift, ctrl, inc, dec;
 reg  [7:0] key_digit, key_shadow;
 wire [7:0] debug_bus;
 integer    shadow=0;
+
+`include "test_tasks.vh"
+
 
 initial begin
     shift     = 0;

@@ -1,14 +1,13 @@
 module test;
 
-`include "test_tasks.vh"
-
 wire              rst, clk, vs;
 reg               locked=0, rot=0, rot_ccw=0;
-
 reg         [3:0] board_coin=0, board_start=0,
+
                   key_coin=0,   key_start=0,
                   joy_coin=0,   joy_start=0;
 reg               key_service=0,key_tilt=0,  key_reset=0;
+
 
 reg        [15:0] ana1=0, ana2=0,
                   board_joy1=0, board_joy2=0, board_joy3=0, board_joy4=0;
@@ -25,6 +24,7 @@ wire              game_test, game_service, game_tilt, soft_rst;
 
 integer dir;
 
+`include "test_tasks.vh"
 function [3:0] tr(input [9:0]x); begin
     tr = x[3:0]; // UDLR
 `ifdef JTFRAME_JOY_DURL

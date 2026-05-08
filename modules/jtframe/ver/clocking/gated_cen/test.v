@@ -2,13 +2,14 @@
 
 module test;
 
-`include "test_tasks.vh"
-
 reg pre=0, busy_en;
 wire rst, clk, cen, busy, lvbl;
 wire [8:0] v;
 wire four_ms = v[5];
 wire bad;
+
+`include "test_tasks.vh"
+
 
 assign busy=busy_en & pre;
 assign bad = cen & busy;

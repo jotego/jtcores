@@ -1,9 +1,6 @@
 module test;
 
-`include "test_tasks.vh"
-
 wire xylock=1'b0;
-
 wire [14:0] xlin;
 wire signed [15:0] xadj;
 reg  [15:0] xzoom;
@@ -13,11 +10,12 @@ wire [ 9:0] xmant, xlog;
 wire [ 8:0] xfrac;
 wire [ 1:0] ztype;
 wire        cen;
-
 wire signed [15:0] diff = xadj-expected;
 wire        [15:0] err  = diff<0 ? -diff : diff;
 integer cnt=0;
 
+
+`include "test_tasks.vh"
 always @(posedge clk) if(cen) begin
     cnt <= cnt+1;
     if(cnt==550) pass;

@@ -1,11 +1,12 @@
 module test;
 
-`include "test_tasks.vh"
-
 reg  busy=0;
 wire rst, clk, cen_main, cen_sub, cen_mcu, mcu_seln, lhbl, lvbl;
 wire [15:0] fave, fworst;
 reg [1:0] sel_sh;
+
+`include "test_tasks.vh"
+
 
 always @(posedge clk) begin
     sel_sh <= {sel_sh[0],mcu_seln};

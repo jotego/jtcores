@@ -1,7 +1,5 @@
 module test;
 
-`include "test_tasks.vh"
-
 wire       rst, clk, lhbl, lvbl, pxl_cen;
 wire [8:0] h,v;
 reg  [2:0] color;
@@ -9,6 +7,9 @@ wire [3:0] r, g, b;
 wire [7:0] din;
 reg        hex_en, bin_en;
 reg  [3:0] videoin;
+
+`include "test_tasks.vh"
+
 
 assign din={4'd0,v[7:4]};
 
