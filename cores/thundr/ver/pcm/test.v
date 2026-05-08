@@ -1,13 +1,14 @@
 module test;
 
-`include "test_tasks.vh"
-
 wire        rst, clk, lvbl, lhbl, rom_cs;
 wire [11:0] pcm;
 wire        cen;
 reg         addr=0, wr=0, rom_ok=0;
 reg  [ 7:0] din=0, rom_data=0;
 wire [18:0] rom_addr;
+
+`include "test_tasks.vh"
+
 
 localparam [0:0] SELECT=1'b1, KON=1'b0;
 

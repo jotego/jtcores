@@ -2,8 +2,6 @@
 
 module test;
 
-`include "test_tasks.vh"
-
 localparam integer PERIOD          = 10;
 localparam integer HF              = 1;
 localparam integer AW              = 23;
@@ -44,6 +42,7 @@ integer           load_file;
 integer           load_count;
 wire              rfsh = hcnt == 0;
 
+`include "test_tasks.vh"
 jtframe_burst_sdram #(
     .AW      ( AW ),
     .HF      ( HF ),

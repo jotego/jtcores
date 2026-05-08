@@ -1,13 +1,14 @@
 module test;
 
-`include "test_tasks.vh"
-
 wire rst, clk, hs, DTACKn, pxl_cen;
 reg  [ 3:0] num;
 reg  [ 4:0] den;
 wire [15:0] fave, fworst;
 wire [31:0] framecnt;
 reg         asn, bus_busy;
+
+`include "test_tasks.vh"
+
 
 task random_asn_pulses(); begin
     repeat (800) begin

@@ -2,14 +2,15 @@
 
 module test;
 
-`include "test_tasks.vh"
-
 wire       rst, clk;
 wire [7:0] a_data, b_data, rd_data;
 reg  [7:0] wr_data;
 reg  [9:0] wr_addr, a_addr, b_addr;
 wire [9:0] rd_addr;
 reg        wr;
+
+`include "test_tasks.vh"
+
 
 initial begin
     @(negedge rst);

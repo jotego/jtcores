@@ -1,10 +1,10 @@
 module test;
 
-`include "test_tasks.vh"
-
 wire       rst, clk, pxl_cen, lhbl, lvbl;
 wire [8:0] v,h;
 reg        flip;
+
+`include "test_tasks.vh"
 
 initial begin
     flip=0;
