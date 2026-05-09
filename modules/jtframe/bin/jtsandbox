@@ -24,6 +24,8 @@ initialize_state() {
   STATE_FILE="$HOST_DIR/.jtsandbox"
   SKILLS_DIR="${HOME}/jtcores-skills"
   OPT_DIR="/opt"
+  MAME_ROMS_HOST="/nobackup/mame/current"
+  MAME_ROMS_CONTAINER="/root/.mame/roms"
   CONTAINER_USER="${JTSANDBOX_CONTAINER_USER:-0:0}"
   NAME_PREFIX="jtsandbox-$(basename "$HOST_DIR")"
   CONTAINER_NAME=""
@@ -43,6 +45,12 @@ validate_requirements() {
 
   if [[ ! -d "$OPT_DIR" ]]; then
     echo "[jtsandbox] Missing required directory: $OPT_DIR" >&2
+    exit 1
+  fi
+
+  if [[ ! -d "$MAME_ROMS_HOST" ]]; then
+    echo "[jtsandbox] Missing required directory: $MAME_ROMS_HOST" >&2
+    echo "Create it before running jtsandbox." >&2
     exit 1
   fi
 
@@ -127,6 +135,7 @@ create_container_if_needed() {
     -v "$HOST_DIR:/jtcores" \
     -v "$SKILLS_DIR:/jtcores-skills" \
     -v /opt:/opt:ro \
+    -v "$MAME_ROMS_HOST:$MAME_ROMS_CONTAINER:ro" \
     "$IMAGE" \
     -lc 'while :; do sleep 3600; done'
   printf '%s\n' "$CONTAINER_NAME" > "$STATE_FILE"
