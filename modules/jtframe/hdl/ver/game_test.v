@@ -271,7 +271,7 @@ jtframe_board_sdram #(
     .ba2_dsn    ( ba2_dsn       ),
     .ba3_din    ( ba3_din       ),
     .ba3_dsn    ( ba3_dsn       ),
-    .burst_din  ( ba0_din       ),
+    .burst_din  ( burst_din     ),
 
     .ba_rdy     ( ba_rdy        ),
     .ba_ack     ( ba_ack        ),
