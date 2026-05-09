@@ -16,6 +16,9 @@ RUN apt-get update \
         ripgrep \
     && rm --recursive --force /var/lib/apt/lists/*
 
+# Keep the expected mame path available in the container user home
+RUN ln -sfn /mame /root/mame
+
 # Install codex in a dedicated virtual environment to avoid system python/package conflicts
 RUN python3 -m venv /opt/codex \
     && /opt/codex/bin/pip install --upgrade --no-cache-dir pip \
