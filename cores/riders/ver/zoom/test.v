@@ -1,5 +1,6 @@
 module test;
 
+wire clk;
 wire xylock=1'b0;
 wire [14:0] xlin;
 wire signed [15:0] xadj;
