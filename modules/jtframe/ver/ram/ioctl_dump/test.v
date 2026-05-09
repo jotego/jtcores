@@ -2,7 +2,7 @@
 
 module test;
 
-wire clk;
+wire clk, rst;
 wire [7:0] din0_mx, din1_mx, din2_mx, din3_mx, din4_mx, din5_mx;
 wire [1:0] we0, we1, we2, we3, we4, we5;
 wire [1:0] we0_mx, we1_mx, we2_mx, we3_mx, we4_mx, we5_mx;
