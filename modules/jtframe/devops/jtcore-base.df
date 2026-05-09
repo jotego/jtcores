@@ -9,7 +9,8 @@ RUN apt-get install --yes --quiet ftp figlet xmlstarlet flex
 RUN apt-get install --yes --quiet rsync
 
 # Python
-RUN apt-get install --yes --quiet python3 python-is-python3 pipx python3-png
+RUN apt-get install --yes --quiet python3 python-is-python3 pipx python3-png && \
+    ln -sfn /usr/bin/python3 /usr/bin/python
 
 # Go
 RUN ARCH=$(uname -m) && \
