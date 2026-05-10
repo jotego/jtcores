@@ -10,6 +10,8 @@ RUN cd /tmp/verilator; make -j $((`nproc`*4/5)) && make install; echo Done
 RUN rm -rf /tmp/verilator
 RUN apt install --yes gettext
 
+# Do not set VERILATOR_ROOT with binary package installs of Verilator.
+# Verilator 5.044 expects this variable unset for installed trees.
 ENV PATH=$PATH:/usr/local/verilator/bin:/usr/local/go/bin
 
 # Icarus Verilog
