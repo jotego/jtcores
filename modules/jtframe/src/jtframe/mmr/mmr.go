@@ -56,15 +56,23 @@ type Register struct {
 	Name, Desc string
 	Dw int
 	At string
-	Wr_event bool
+	Event string
 	// Added by jtframe
 	Chunks []Chunk
-	Wr_addr string
+	EventCond string
 }
 
 type Chunk struct {
 	Byte, Msb, Lsb int
 }
+
+const (
+	event_none = "none"
+	event_write = "write"
+	event_any = "any"
+	event_one = "one"
+	event_zero = "zero"
+)
 
 type checker interface {
 	check(bytenum,lsb,msb int)
@@ -102,7 +110,7 @@ func (mmr *mmr_gen) generate() (e error) {
 		mmr.cfg[k].Seq=make([]int,mmr.cfg[k].Size)
 		for i:=0;i<mmr.cfg[k].Size;i++ { mmr.cfg[k].Seq[i]=i }
 		for j, _ := range mmr.cfg[k].Regs {
-			e = mmr.cfg[k].Regs[j].parse(mmr)
+			e = mmr.cfg[k].Regs[j].parse(mmr, mmr.cfg[k].Dw)
 			if e!=nil { return e }
 		}
 		mmr.converted[k], e = mmr.cfg[k].convert()
@@ -119,16 +127,84 @@ func (mmr *mmr_gen) dump_all() (e error) {
 	return nil
 }
 
-func (reg *Register)parse(ck checker) error {
-	reg.parse_wr_event()
+func (reg *Register)parse(ck checker, bus_dw int) error {
+	e := reg.parse_event(bus_dw); if e!=nil { return e }
+	if reg.IsEvent() { return nil }
 	return reg.parse_chunks(ck)
 }
 
-func (reg *Register)parse_wr_event() error {
-	as_int, e := strconv.ParseInt(reg.first_address(),0,16)
-	if e!=nil { return fmt.Errorf("While parsing address for register %s, found %w",reg.Name,e) }
-	reg.Wr_addr = fmt.Sprintf("'d%d", as_int )
+func (reg *Register)parse_event(bus_dw int) error {
+	reg.Event = strings.TrimSpace(reg.Event)
+	if reg.Event=="" { reg.Event=event_none }
+	switch reg.Event {
+	case event_none:
+		return nil
+	case event_write, event_any, event_one, event_zero:
+	default:
+		return fmt.Errorf("MMR register %s has invalid event %q",reg.Name,reg.Event)
+	}
+	byte_addr, bit, has_bit, e := reg.parse_event_location()
+	if e!=nil { return e }
+	if (reg.Event==event_one || reg.Event==event_zero) && !has_bit {
+		return fmt.Errorf("MMR register %s event %s requires a bit-qualified location",reg.Name,reg.Event)
+	}
+	reg.EventCond = make_event_condition(reg.Event,bus_dw,byte_addr,bit)
 	return nil
+}
+
+func (reg Register)IsEvent() bool {
+	return reg.Event!="" && reg.Event!=event_none
+}
+
+func (reg *Register)parse_event_location() (byte_addr, bit int, has_bit bool, e error) {
+	ss := strings.Split(reg.At,",")
+	addr := strings.TrimSpace(ss[0])
+	re := regexp.MustCompile(`^(0[xX][0-9A-Fa-f]+|0[0-7]+|\d+)(?:\[(0[xX][0-9A-Fa-f]+|0[0-7]+|\d+)(?::(0[xX][0-9A-Fa-f]+|0[0-7]+|\d+))?\])?$`)
+	matches := re.FindStringSubmatch(addr)
+	if len(matches)==0 {
+		return 0,0,false,fmt.Errorf("Error: jtframe mmr cannot parse event location %s",addr)
+	}
+	a, e := strconv.ParseInt(matches[1],0,16)
+	if e!=nil { return 0,0,false,fmt.Errorf("While parsing address for register %s, found %w",reg.Name,e) }
+	byte_addr = int(a)
+	if matches[2]=="" { return byte_addr,0,false,nil }
+	if matches[3]!="" {
+		return 0,0,false,fmt.Errorf("MMR register %s event location must select one bit",reg.Name)
+	}
+	a, e = strconv.ParseInt(matches[2],0,16)
+	if e!=nil { return 0,0,false,fmt.Errorf("While parsing bit for register %s, found %w",reg.Name,e) }
+	bit = int(a)
+	if bit<0 || bit>7 {
+		return 0,0,false,fmt.Errorf("MMR register %s event bit must be between 0 and 7",reg.Name)
+	}
+	return byte_addr,bit,true,nil
+}
+
+func make_event_condition(event string, bus_dw, byte_addr, bit int) string {
+	var write_cond, access_cond string
+	din_bit := bit
+	if bus_dw==16 {
+		lane := byte_addr & 1
+		word_addr := byte_addr >> 1
+		write_cond = fmt.Sprintf("cs && !rnw && addr=='d%d && !dsn[%d]",word_addr,lane)
+		access_cond = fmt.Sprintf("cs && addr=='d%d && (rnw || !dsn[%d])",word_addr,lane)
+		din_bit = bit+lane*8
+	} else {
+		write_cond = fmt.Sprintf("cs && !rnw && addr=='d%d",byte_addr)
+		access_cond = fmt.Sprintf("cs && addr=='d%d",byte_addr)
+	}
+	switch event {
+	case event_write:
+		return write_cond
+	case event_any:
+		return access_cond
+	case event_one:
+		return fmt.Sprintf("%s && din[%d]==1'b1",write_cond,din_bit)
+	case event_zero:
+		return fmt.Sprintf("%s && din[%d]==1'b0",write_cond,din_bit)
+	default:
+		return ""
+	}
 }
 
 func (reg *Register)first_address() string {
@@ -142,9 +218,6 @@ func (reg *Register)first_address() string {
 }
 
 func (reg *Register)parse_chunks(ck checker) error {
-	is_write_event_only := reg.Wr_event && reg.Dw==0
-	if is_write_event_only { return nil }
-
 	ss := strings.Split(reg.At,",")
 	for j, _ := range ss {
 		ss[j] = strings.TrimSpace(ss[j])
@@ -254,7 +327,7 @@ func sanity_check( cfg []MMRdef ) {
 				fmt.Printf("Error: %s's MMR has unnamed registers\n", each.Name)
 				os.Exit(1)
 			}
-			if reg.Dw == 0 && !reg.Wr_event {
+			if reg.Dw == 0 && (reg.Event=="" || reg.Event==event_none) {
 				fmt.Printf("Error: %s's MMR has register %s with no size\n", each.Name, reg.Name)
 				os.Exit(1)
 			}

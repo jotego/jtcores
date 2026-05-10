@@ -14,6 +14,6 @@
     - { name: vswidth,    dw: 4,  at: "12[7:4]"  }
     - { name: hswidth,    dw: 4,  at: "12[3:0]"  }
     - { name: int2cnt0,   dw: 8,  at: 13         }
-    - { name: set_int2en, wr_event: true, at: 13 }
-    - { name: int1ack,    wr_event: true, at: 14 }
-    - { name: int2ack,    wr_event: true, at: 15 }
+    - { name: set_int2en, event: write, at: 13 }
+    - { name: int1ack,    event: write, at: 14 }
+    - { name: int2ack,    event: write, at: 15 }

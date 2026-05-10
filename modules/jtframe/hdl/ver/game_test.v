@@ -457,7 +457,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
     `endif
 `endif
 `ifndef JTFRAME_SDRAM_CACHE
-assign burst_addr=0, burst_ba=0, burst_rd=0, burst_wr=0,
+assign burst_addr=0, burst_ba=0, burst_rd=0, burst_wr=0, burst_din=0,
        burst_ack=0, burst_rdy=0, burst_dst=0, burst_dok=0;
 `endif
 /* verilator tracing_on */
