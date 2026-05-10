@@ -11,7 +11,6 @@ RUN rm -rf /tmp/verilator
 RUN apt install --yes gettext
 
 ENV PATH=$PATH:/usr/local/verilator/bin:/usr/local/go/bin
-ENV VERILATOR_ROOT=/usr/local/verilator
 
 # Icarus Verilog
 RUN apt install --yes libbz2-dev
