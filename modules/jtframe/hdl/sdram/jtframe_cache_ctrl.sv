@@ -24,24 +24,7 @@ module jtframe_cache_ctrl #(parameter
     ENDIAN  =    0,
     EW      =   24,
     AW0     = DW==128 ? 4 : DW==64 ? 3 : DW==32 ? 2 : DW==16 ? 1 : 0,
-    MW      = DW >> 3,
-    localparam integer WAYS      = BLOCKS < 4 ? BLOCKS : 4,
-    localparam integer SETS      = BLOCKS / WAYS,
-    localparam integer BW        = BLOCKS < 2 ? 1 : $clog2(BLOCKS),
-    localparam integer UBYTES    = DW >> 3,
-    localparam integer DEPTH     = BLKSIZE / UBYTES,
-    localparam integer OFFW      = DEPTH < 2 ? 1 : $clog2(DEPTH),
-    localparam integer UW        = AW - AW0,
-    localparam integer WAY_BITS  = WAYS < 2 ? 0 : $clog2(WAYS),
-    localparam integer WAYW      = WAY_BITS < 1 ? 1 : WAY_BITS,
-    localparam integer SET_BITS  = SETS < 2 ? 0 : $clog2(SETS),
-    localparam integer SETW      = SET_BITS < 1 ? 1 : SET_BITS,
-    localparam integer TAG_BITS  = UW - OFFW - SET_BITS,
-    localparam integer TAGW      = TAG_BITS < 1 ? 1 : TAG_BITS,
-    localparam integer WORDS     = BLKSIZE >> 1,
-    localparam integer WW        = WORDS < 2 ? 1 : $clog2(WORDS),
-    localparam integer BLKBYTEW  = BLKSIZE < 2 ? 1 : $clog2(BLKSIZE),
-    localparam integer RAM_BYTEW = BW + BLKBYTEW
+    MW      = DW >> 3
 )(
     input                   rst,
     input                   clk,
@@ -128,6 +111,24 @@ localparam [4:0] S_INIT_CLEAR    = 5'd0,
                  S_POSTFILL_WAIT = 5'd11,
                  S_FILL_WB_WAIT  = 5'd12,
                  S_FILL_WB_PRIME = 5'd13;
+
+localparam integer WAYS      = BLOCKS < 4 ? BLOCKS : 4,
+                   SETS      = BLOCKS / WAYS,
+                   BW        = BLOCKS < 2 ? 1 : $clog2(BLOCKS),
+                   UBYTES    = DW >> 3,
+                   DEPTH     = BLKSIZE / UBYTES,
+                   OFFW      = DEPTH < 2 ? 1 : $clog2(DEPTH),
+                   UW        = AW - AW0,
+                   WAY_BITS  = WAYS < 2 ? 0 : $clog2(WAYS),
+                   WAYW      = WAY_BITS < 1 ? 1 : WAY_BITS,
+                   SET_BITS  = SETS < 2 ? 0 : $clog2(SETS),
+                   SETW      = SET_BITS < 1 ? 1 : SET_BITS,
+                   TAG_BITS  = UW - OFFW - SET_BITS,
+                   TAGW      = TAG_BITS < 1 ? 1 : TAG_BITS,
+                   WORDS     = BLKSIZE >> 1,
+                   WW        = WORDS < 2 ? 1 : $clog2(WORDS),
+                   BLKBYTEW  = BLKSIZE < 2 ? 1 : $clog2(BLKSIZE),
+                   RAM_BYTEW = BW + BLKBYTEW;
 
 reg              fill_after_wb, fill_wb_prime_wait;
 reg              init_req_pending;
