@@ -384,7 +384,7 @@
     },
     "net_format_name": "",
     "page_layout_descr_file": "",
-    "plot_directory": "",
+    "plot_directory": "/home/frodriguez/Descargas/",
     "spice_current_sheet_as_root": false,
     "spice_external_command": "spice \"%I\"",
     "spice_model_current_sheet_as_root": true,
@@ -400,6 +400,10 @@
       "Root"
     ],
     [
+      "77ca1e18-ba5d-4a63-8608-41ffc74ae450",
+      "main"
+    ],
+    [
       "d9da01ab-fd72-4017-9bcd-82de2131b5eb",
       "objects"
     ],
@@ -412,16 +416,8 @@
       "colmix"
     ],
     [
-      "65ed9bfa-3127-480a-a397-06c866111029",
-      "rgb"
-    ],
-    [
       "ad57b72a-47e2-4538-b955-a3c55976dec1",
       "PSAC"
-    ],
-    [
-      "77ca1e18-ba5d-4a63-8608-41ffc74ae450",
-      "main"
     ],
     [
       "a0054d11-bccf-4bee-accd-3177cb00e5ee",
@@ -434,6 +430,10 @@
     [
       "c75b56d2-eb49-463d-97f1-0a69dfc96be9",
       "unpopulated"
+    ],
+    [
+      "65ed9bfa-3127-480a-a397-06c866111029",
+      "rgb"
     ],
     [
       "019391d4-7fbd-40ac-b724-5e74e3f64956",
