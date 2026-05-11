@@ -6,7 +6,7 @@
 	(paper "A3")
 	(title_block
 		(title "Gradius 3")
-		(date "2024-04-11")
+		(date "2026-05-10")
 		(company "Konami GX945")
 		(comment 1 "Ulf Skutnabba, twitter: @skutis77")
 	)
@@ -8964,7 +8964,7 @@
 			)
 			(uuid "dc06ca16-39e2-4ae2-9f17-1650615dee9c")
 		)
-		(pin "OB[9..0]" input
+		(pin "OB[10..0]" input
 			(at 335.28 134.62 180)
 			(effects
 				(font
@@ -10242,7 +10242,7 @@
 			)
 			(uuid "8c7ecad7-9a68-4676-bf18-f6ade53b58c1")
 		)
-		(pin "OB[9..0]" output
+		(pin "OB[10..0]" output
 			(at 262.89 134.62 0)
 			(effects
 				(font
