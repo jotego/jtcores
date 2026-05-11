@@ -69,6 +69,8 @@ always @(posedge PIN_CLK or negedge RESP) begin
 	end
 end
 
+reg [7:0] RES_DELAY;
+
 always @(*) begin
     case(PIN_SEL[1:0])
         2'd0: PIN_CRES <= RES_DELAY[1];
@@ -169,6 +171,9 @@ always @(*) begin
         end
     end
 end
+
+reg nPIN_NVBK;
+wire CNTD_TC;
 
 assign R29B = WR[14] & RESP;
 always @(posedge nPIN_NVBK or negedge R29B) begin
@@ -371,7 +376,6 @@ assign PIN_NHBK = ~K29;
 
 assign R29A = (VCNT[7:0] == ~REG10) & VCNT[8] & J31;
 
-reg nPIN_NVBK;
 always @(posedge CLKSEL or negedge RESP) begin
     if (!RESP) begin
         nPIN_NVBK <= 1'b1;
@@ -390,7 +394,6 @@ assign PIN_NVBK = ~nPIN_NVBK;
 // Delays
 
 // {A61, A38}
-reg [7:0] RES_DELAY;
 always @(posedge nPIN_NVBK or negedge RESP) begin
     if (!RESP) begin
         RES_DELAY <= 8'd0;

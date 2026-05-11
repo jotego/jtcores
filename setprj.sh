@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Abort early if python is not available: this script depends on it
+if ! command -v python >/dev/null 2>&1; then
+    echo "setprj.sh: python is required. Please install python (or provide python as 'python' on PATH) before running." >&2
+    exit 1
+fi
+
 # Remove jtframe from the PATH first
 TMP=`mktemp`
 cat > $TMP <<EOF

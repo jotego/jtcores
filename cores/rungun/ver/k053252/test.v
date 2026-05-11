@@ -2,14 +2,15 @@
 
 module test;
 
-`include "test_tasks.vh"
-
 reg rst, clk; // 32 MHz
-
 wire      nc, pxl_cen, hs, vs, lvbl, lhbl, rdy;
 reg       cs, rnw, prog_done, first=0;
 reg [3:0] addr;
 reg [7:0] din;
+
+`include "test_tasks.vh"
+
+
 
 initial begin
     clk=0;

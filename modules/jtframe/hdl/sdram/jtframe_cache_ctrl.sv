@@ -24,7 +24,24 @@ module jtframe_cache_ctrl #(parameter
     ENDIAN  =    0,
     EW      =   24,
     AW0     = DW==128 ? 4 : DW==64 ? 3 : DW==32 ? 2 : DW==16 ? 1 : 0,
-    MW      = DW >> 3
+    MW      = DW >> 3,
+    localparam integer WAYS      = BLOCKS < 4 ? BLOCKS : 4,
+    localparam integer SETS      = BLOCKS / WAYS,
+    localparam integer BW        = BLOCKS < 2 ? 1 : $clog2(BLOCKS),
+    localparam integer UBYTES    = DW >> 3,
+    localparam integer DEPTH     = BLKSIZE / UBYTES,
+    localparam integer OFFW      = DEPTH < 2 ? 1 : $clog2(DEPTH),
+    localparam integer UW        = AW - AW0,
+    localparam integer WAY_BITS  = WAYS < 2 ? 0 : $clog2(WAYS),
+    localparam integer WAYW      = WAY_BITS < 1 ? 1 : WAY_BITS,
+    localparam integer SET_BITS  = SETS < 2 ? 0 : $clog2(SETS),
+    localparam integer SETW      = SET_BITS < 1 ? 1 : SET_BITS,
+    localparam integer TAG_BITS  = UW - OFFW - SET_BITS,
+    localparam integer TAGW      = TAG_BITS < 1 ? 1 : TAG_BITS,
+    localparam integer WORDS     = BLKSIZE >> 1,
+    localparam integer WW        = WORDS < 2 ? 1 : $clog2(WORDS),
+    localparam integer BLKBYTEW  = BLKSIZE < 2 ? 1 : $clog2(BLKSIZE),
+    localparam integer RAM_BYTEW = BW + BLKBYTEW
 )(
     input                   rst,
     input                   clk,
@@ -90,23 +107,6 @@ module jtframe_cache_ctrl #(parameter
     output     [WW-1:0]     fill_word
 );
 
-localparam integer WAYS      = BLOCKS < 4 ? BLOCKS : 4;
-localparam integer SETS      = BLOCKS / WAYS;
-localparam integer BW        = BLOCKS < 2 ? 1 : $clog2(BLOCKS);
-localparam integer UBYTES    = DW >> 3;
-localparam integer DEPTH     = BLKSIZE / UBYTES;
-localparam integer OFFW      = DEPTH < 2 ? 1 : $clog2(DEPTH);
-localparam integer UW        = AW - AW0;
-localparam integer WAY_BITS  = WAYS < 2 ? 0 : $clog2(WAYS);
-localparam integer WAYW      = WAY_BITS < 1 ? 1 : WAY_BITS;
-localparam integer SET_BITS  = SETS < 2 ? 0 : $clog2(SETS);
-localparam integer SETW      = SET_BITS < 1 ? 1 : SET_BITS;
-localparam integer TAG_BITS  = UW - OFFW - SET_BITS;
-localparam integer TAGW      = TAG_BITS < 1 ? 1 : TAG_BITS;
-localparam integer WORDS     = BLKSIZE >> 1;
-localparam integer WW        = WORDS < 2 ? 1 : $clog2(WORDS);
-localparam integer BLKBYTEW  = BLKSIZE < 2 ? 1 : $clog2(BLKSIZE);
-localparam integer RAM_BYTEW = BW + BLKBYTEW;
 localparam integer HALF_PER_WORD = DW < 16 ? 1 : DW >> 4;
 localparam integer HALF_SHIFT    = HALF_PER_WORD < 2 ? 0 : $clog2(HALF_PER_WORD);
 localparam integer STREAM_AW0    = DW == 8 ? 1 : AW0;

@@ -2,8 +2,6 @@
 
 module test;
 
-`include "test_tasks.vh"
-
 localparam AW16 = 3;
 localparam AW32 = 4;
 
@@ -18,6 +16,7 @@ wire [31:0] s32_q_le, s32_q_be;
 wire [15:0] d16_q0, d16_q1;
 wire [31:0] d32_q0, d32_q1;
 
+`include "test_tasks.vh"
 initial begin
     s16_addr_le = 0;
     s16_addr_be = 0;

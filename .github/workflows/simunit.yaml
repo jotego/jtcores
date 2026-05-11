@@ -47,4 +47,4 @@ jobs:
           token: ${{ secrets.PAT }}
       - id: simulation
         run: |
-          docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/devops/xsimunit.sh /jtcores/${{matrix.unitsim}}
+          docker run --network host -e GITHUB_ACTIONS="${GITHUB_ACTIONS}" -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/devops/xsimunit.sh /jtcores/${{matrix.unitsim}}

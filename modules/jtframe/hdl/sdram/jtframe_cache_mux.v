@@ -213,6 +213,9 @@ wire [7:0] ext_req = {
     ext_rd0 | ext_wr0
 };
 
+reg        active;
+reg [2:0]  active_sel;
+
 wire [7:0] ext_ack = {
     active && active_sel==3'd7 && ack,
     active && active_sel==3'd6 && ack,
@@ -266,8 +269,6 @@ assign bank_addr5 = {1'b0, ext_addr5[SDRAM_AW-1:1]} + {1'b0, OFFSET5[0+:SDRAM_AW
 assign bank_addr6 = {1'b0, ext_addr6[SDRAM_AW-1:1]} + {1'b0, OFFSET6[0+:SDRAM_AW-1]};
 assign bank_addr7 = {1'b0, ext_addr7[SDRAM_AW-1:1]} + {1'b0, OFFSET7[0+:SDRAM_AW-1]};
 
-reg        active;
-reg [2:0]  active_sel;
 reg [2:0]  next_sel;
 reg        next_valid;
 reg [7:0]  ok_hold;

@@ -1,9 +1,10 @@
 module test;
 
-`include "test_tasks.vh"
-
 wire rst, clk, mwait, swait;
 reg  mreq=0, sreq=0;
+
+`include "test_tasks.vh"
+
 
 initial begin
     @(negedge rst);
