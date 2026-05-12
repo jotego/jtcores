@@ -63,7 +63,7 @@ wire [13:1] ram_addr;
 wire [ 1:0] ram_dsn;
 wire [15:0] local_ram_dout;
 wire [ 1:0] local_ram_we;
-wire        dec_cs;
+wire        dec_cs, cab_cs;
 reg         snd_latch_cs, snd_irq_cs, wdog_cs, sub_irq_cs,
             ctrl_cs, io_cs, dsw_cs;
 wire        bus_cs, bus_busy, vdtackn, vbl_irqn, lvbln, vbl_clr, irq_en;
@@ -72,6 +72,9 @@ reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 reg  [ 4:0] snd_cnt;
 reg         sh_cs, ram_cs, io_dec_cs;
+`ifdef SIMULATION
+wire [23:0] A_full = {A,1'b0};
+`endif
 
 assign rmrd       = 1'b0;
 assign prio       = ctrl[2];
@@ -93,6 +96,7 @@ assign cpu_we     = ~RnW;
 assign snd_irq    = |snd_cnt;
 
 assign dec_cs = !ASn && !A[23];
+assign cab_cs = io_cs  | dsw_cs;
 assign bus_cs = rom_cs | ram_cs | pal_cs | tile_cs | gchar_cs | sh_cs |
                 ctrl_cs | io_cs | dsw_cs | snd_latch_cs | snd_irq_cs | wdog_cs;
 assign bus_busy = (rom_cs   & ~rom_ok)   |
@@ -147,13 +151,13 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    cpu_din <= rom_cs   ? rom_dout       :
-               ram_cs   ? local_ram_dout :
-               pal_cs   ? pal_dout       :
+    cpu_din <= rom_cs   ? rom_dout            :
+               ram_cs   ? local_ram_dout      :
+               pal_cs   ? pal_dout            :
                tile_cs  ? { 8'd0, tile_dout } :
-               gchar_cs ? gchar_dout     :
-               sh_cs    ? sh_dout        :
-               (io_cs | dsw_cs) ? { 8'd0, cab_dout } :
+               gchar_cs ? gchar_dout          :
+               sh_cs    ? sh_dout             :
+               cab_cs   ? { 8'd0, cab_dout }  :
                16'hffff;
 end
 
@@ -161,7 +165,7 @@ always @* begin
     cab_dout = 8'hff;
     if( io_cs ) begin
         case( A[2:1] )
-            2'd0: cab_dout = { 1'b1, coin[2], 1'b1, cab_1p[1], cab_1p[0], 1'b1, coin[1], coin[0] };
+            2'd0: cab_dout = { 1'b1, coin[2], 1'b1, cab_1p[1:0], 1'b1, coin[1:0] };
             2'd1: cab_dout = { 1'b1, joystick1 };
             2'd2: cab_dout = { 1'b1, joystick2 };
             2'd3: cab_dout = { 4'hf, dipsw[19:16] };
