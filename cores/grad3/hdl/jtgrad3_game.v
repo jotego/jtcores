@@ -20,12 +20,8 @@ wire        m_tile_cs, s_tile_cs, s_obj_cs, pal_cs;
 wire        m_gchar_cs, s_gchar_cs, m_gchar_we, s_gchar_we;
 wire        m_gchar_ok, s_gchar_ok;
 wire        tile_dtack, tile_irqn, tile_nmin, sub_irq2;
-    wire        rmrd, prio;
-wire        game_rst;
-reg  [16:1] gchar_addr_r;
-reg  [15:0] gchar_din_r;
-reg  [ 1:0] gchar_dsn_r;
-reg         gchar_we_r, gchar_cs_r, gchar_sel;
+wire        rmrd, prio;
+reg         gchar_cs_r, gchar_sel;
 reg         m_gchar_done, s_gchar_done;
 
 assign debug_view = 8'd0;
@@ -33,7 +29,6 @@ assign dip_flip   = 1'b0;
 `ifdef JTFRAME_IOCTL_RD
 assign ioctl_din  = video_din;
 `endif
-assign game_rst = rst;
 assign m_shram_addr = main_addr[13:1];
 assign s_shram_addr = s_addr[13:1];
 assign m_shram_din  = m_dout;
@@ -45,68 +40,43 @@ assign m_gchar_ok = (!gchar_sel && gchar_cs_r && gchar_ok) ||
                     (m_gchar_done && m_gchar_cs);
 assign s_gchar_ok = ( gchar_sel && gchar_cs_r && gchar_ok) ||
                     (s_gchar_done && s_gchar_cs);
-assign gchar_cs   = gchar_cs_r;
-assign gchar_addr = gchar_addr_r;
-assign gchar_din  = gchar_din_r;
-assign gchar_dsn  = gchar_dsn_r;
-assign gchar_we   = gchar_we_r;
-assign pal_we  = {2{m_cpu_we & pal_cs}} & ~m_dsn;
-assign pal_din = m_dout;
+assign gchar_cs   = gchar_cs_r; /*gchar_sel ? s_gchar_cs   : m_gchar_cs;*/
+assign gchar_addr = gchar_sel ? s_gchar_addr : m_gchar_addr;
+assign gchar_din  = gchar_sel ? s_dout       : m_dout;
+assign gchar_dsn  = gchar_sel ? s_gchar_dsn  : m_gchar_dsn;
+assign gchar_we   = gchar_sel ? s_gchar_we   : m_gchar_we;
+assign pal_we   = {2{m_cpu_we & pal_cs}} & ~m_dsn;
+assign pal_din  = m_dout;
 assign pal_addr = main_addr[11:1];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         gchar_cs_r    <= 0;
         gchar_sel     <= 0;
-        gchar_we_r    <= 0;
-        gchar_addr_r  <= 0;
-        gchar_din_r   <= 0;
-        gchar_dsn_r   <= 2'b11;
         m_gchar_done  <= 0;
         s_gchar_done  <= 0;
     end else begin
-        if( game_rst ) begin
-            gchar_cs_r    <= 0;
-            gchar_sel     <= 0;
-            gchar_we_r    <= 0;
-            gchar_addr_r  <= 0;
-            gchar_din_r   <= 0;
-            gchar_dsn_r   <= 2'b11;
-            m_gchar_done  <= 0;
-            s_gchar_done  <= 0;
-        end else begin
-            if( !m_gchar_cs ) m_gchar_done <= 0;
-            if( !s_gchar_cs ) s_gchar_done <= 0;
+        if( !m_gchar_cs ) m_gchar_done <= 0;
+        if( !s_gchar_cs ) s_gchar_done <= 0;
 
-            if( gchar_cs_r ) begin
-                if( gchar_ok ) begin
-                    gchar_cs_r <= 0;
-                    if( gchar_sel )
-                        s_gchar_done <= 1;
-                    else
-                        m_gchar_done <= 1;
-                end
-            end else if( s_gchar_cs && s_gchar_dsn != 2'b11 && !s_gchar_done ) begin
-                gchar_cs_r   <= 1;
-                gchar_sel    <= 1;
-                gchar_we_r   <= s_gchar_we;
-                gchar_addr_r <= s_gchar_addr;
-                gchar_din_r  <= s_dout;
-                gchar_dsn_r  <= s_gchar_dsn;
-            end else if( m_gchar_cs && m_gchar_dsn != 2'b11 && !m_gchar_done ) begin
-                gchar_cs_r   <= 1;
-                gchar_sel    <= 0;
-                gchar_we_r   <= m_gchar_we;
-                gchar_addr_r <= m_gchar_addr;
-                gchar_din_r  <= m_dout;
-                gchar_dsn_r  <= m_gchar_dsn;
+        if( gchar_cs_r ) begin
+            if(gchar_ok) begin
+                gchar_cs_r   <= 0;
+                s_gchar_done <=  gchar_sel;
+                m_gchar_done <= ~gchar_sel;
             end
+        end else if( s_gchar_cs && s_gchar_dsn != 2'b11 && !s_gchar_done ) begin
+            gchar_cs_r   <= 1;
+            gchar_sel    <= 1;
+        end else if( m_gchar_cs && m_gchar_dsn != 2'b11 && !m_gchar_done ) begin
+            gchar_cs_r   <= 1;
+            gchar_sel    <= 0;
         end
     end
 end
 
 jtgrad3_main u_main(
-    .rst        ( game_rst  ),
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .LVBL       ( LVBL      ),
 
@@ -155,7 +125,7 @@ jtgrad3_main u_main(
 );
 
 jtgrad3_sub u_sub(
-    .rst        ( game_rst  ),
+    .rst        ( rst       ),
     .sub_rst    ( sub_rst   ),
     .clk        ( clk       ),
     .LVBL       ( LVBL      ),
@@ -198,7 +168,7 @@ jtgrad3_sub u_sub(
 );
 
 jtgrad3_video u_video(
-    .rst        ( game_rst  ),
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
@@ -263,7 +233,7 @@ jtgrad3_video u_video(
 );
 
 jtgrad3_sound u_sound(
-    .rst        ( game_rst  ),
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
