@@ -2,19 +2,85 @@ name: Compile all
 
 on:
   workflow_dispatch:
-  pull_request:
   repository_dispatch:
     types: rebuild
+  workflow_run:
+    workflows:
+      - Framework Unit Tests
+      - Verilator/MRA linter
+      - Unit Simulations
+    types:
+      - completed
   schedule:
     - cron: '0 3 * * *' # runs every night at 3am
+
+permissions:
+  contents: read
+  actions: read
+
 jobs:
+  check_pr_checks:
+    runs-on: ubuntu-latest
+    outputs:
+      can_run: ${{ steps.pr_checks.outputs.can_run }}
+    steps:
+      - id: pr_checks
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          API_URL: ${{ github.api_url }}
+          REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          WF_EVENT: ${{ github.event.workflow_run.event }}
+        run: |
+          set -euo pipefail
+
+          if [[ "${EVENT_NAME}" != "workflow_run" ]]; then
+            echo "can_run=true" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          if [[ "${WF_EVENT}" != "pull_request" ]]; then
+            echo "can_run=false" >> "${GITHUB_OUTPUT}"
+            echo "Compile-all only runs for pull_request workflow_run events."
+            exit 0
+          fi
+
+          can_run=true
+          required_workflows=$(
+            cat <<'EOF'
+            framework.yaml:Framework Unit Tests
+            linter.yaml:Verilator/MRA linter
+            simunit.yaml:Unit Simulations
+            EOF
+          )
+
+          while IFS=':' read -r workflow_file workflow_name; do
+            if ! response=$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "${API_URL}/repos/${REPO}/actions/workflows/${workflow_file}/runs?head_sha=${HEAD_SHA}&status=completed&per_page=5"); then
+              can_run=false
+              echo "Unable to query prerequisite workflow '${workflow_name}' for ${HEAD_SHA}."
+              break
+            fi
+            conclusion=$(echo "${response}" | jq -r '.workflow_runs[0].conclusion // empty')
+            if [[ -z "${conclusion}" || "${conclusion}" != "success" ]]; then
+              can_run=false
+              echo "Missing/failed prerequisite workflow '${workflow_name}' for ${HEAD_SHA} (conclusion: ${conclusion:-<not found>})."
+              break
+            fi
+          done <<< "${required_workflows}"
+
+          echo "can_run=${can_run}" >> "${GITHUB_OUTPUT}"
   list_cores:
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
+    needs: [check_pr_checks]
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
+    if: ${{ github.event_name != 'workflow_run' || needs.check_pr_checks.outputs.can_run == 'true' }}
     steps:
     - uses: actions/checkout@v4
       with:
@@ -42,10 +108,12 @@ jobs:
         shell: bash
     needs:
       - list_cores
+      - check_pr_checks
     strategy:
       fail-fast: false
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
+    if: ${{ github.event_name != 'workflow_run' || needs.check_pr_checks.outputs.can_run == 'true' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -69,10 +137,12 @@ jobs:
         shell: bash
     needs:
       - list_cores
+      - check_pr_checks
     strategy:
       fail-fast: false
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
+    if: ${{ github.event_name != 'workflow_run' || needs.check_pr_checks.outputs.can_run == 'true' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -96,10 +166,12 @@ jobs:
         shell: bash
     needs:
       - list_cores
+      - check_pr_checks
     strategy:
       fail-fast: false
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
+    if: ${{ github.event_name != 'workflow_run' || needs.check_pr_checks.outputs.can_run == 'true' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -118,8 +190,8 @@ jobs:
 
   upload:
     runs-on: ubuntu-latest
-    needs: [ compile_cores13, mister-pocket, sidis ]
-    if: ${{ always() }} # upload the results even if some core did not compile correctly
+    needs: [check_pr_checks, compile_cores13, mister-pocket, sidis]
+    if: ${{ always() && (github.event_name != 'workflow_run' || needs.check_pr_checks.outputs.can_run == 'true') }} # upload the results even if some core did not compile correctly
     steps:
       - uses: actions/checkout@v4
       - name: Download all artifacts
