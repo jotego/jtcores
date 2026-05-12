@@ -14,7 +14,6 @@ wire [15:0] m_dout, s_dout;
 wire [ 7:0] tile_dout, obj_dout, snd_latch;
 wire [ 7:0] video_din;
 wire [ 1:0] m_dsn, s_dsn, m_gchar_dsn, s_gchar_dsn;
-wire [ 1:0] m_sh_we, s_sh_we;
 wire        m_cpu_we, s_cpu_we, snd_irq, sub_rst, sub_irq;
 wire        m_tile_cs, s_tile_cs, s_obj_cs, pal_cs;
 wire        m_gchar_cs, s_gchar_cs, m_gchar_we, s_gchar_we;
@@ -33,8 +32,6 @@ assign m_shram_addr = main_addr[13:1];
 assign s_shram_addr = s_addr[13:1];
 assign m_shram_din  = m_dout;
 assign s_shram_din  = s_dout;
-assign m_shram_we   = m_sh_we;
-assign s_shram_we   = s_sh_we;
 
 assign m_gchar_ok = (!gchar_sel && gchar_cs_r && gchar_ok) ||
                     (m_gchar_done && m_gchar_cs);
@@ -88,7 +85,7 @@ jtgrad3_main u_main(
     .rom_dout   ( main_data ),
     .rom_ok     ( main_ok   ),
 
-    .sh_we      ( m_sh_we   ),
+    .sh_we      ( m_shram_we),
     .sh_dout    ( m_shram_dout ),
 
     .tile_cs    ( m_tile_cs ),
@@ -140,7 +137,7 @@ jtgrad3_sub u_sub(
     .rom_dout   ( sub_data  ),
     .rom_ok     ( sub_ok    ),
 
-    .sh_we      ( s_sh_we   ),
+    .sh_we      ( s_shram_we),
     .sh_dout    ( s_shram_dout ),
 
     .tile_cs    ( s_tile_cs ),
