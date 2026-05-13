@@ -28,6 +28,7 @@ assign dip_flip   = 1'b0;
 assign ioctl_din  = video_din;
 `endif
 assign s_shram_addr = s_addr[13:1];
+assign sram_addr    = s_addr[13:1];
 
 assign m_gchar_ok = (!gchar_sel && gchar_cs_r && gchar_ok) ||
                     (m_gchar_done && m_gchar_cs);

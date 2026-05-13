@@ -161,7 +161,7 @@ endfunction
 endfunction
 */
 
-assign obj_data = '{
+assign obj_data = {
         lyro_data[15], lyro_data[11], lyro_data[ 7], lyro_data[ 3], lyro_data[31], lyro_data[27], lyro_data[23], lyro_data[19],
         lyro_data[14], lyro_data[10], lyro_data[ 6], lyro_data[ 2], lyro_data[30], lyro_data[26], lyro_data[22], lyro_data[18],
         lyro_data[13], lyro_data[ 9], lyro_data[ 5], lyro_data[ 1], lyro_data[29], lyro_data[25], lyro_data[21], lyro_data[17],

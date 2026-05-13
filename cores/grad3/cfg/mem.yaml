@@ -84,6 +84,5 @@ bram:
   - name: sram
     addr_width: 14
     data_width: 16
-    addr: "main_addr[13:1]"
     din: s_dout
     rw: true
