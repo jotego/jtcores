@@ -76,3 +76,15 @@ bram:
     simfile: {}
     ioctl: {save: true}
     dual_port: { name: pal, rw: true, addr: pal_addr, din: pal_din, dout: pal_dout }
+  - name: mram
+    addr_width: 14
+    data_width: 16
+    addr: "main_addr[13:1]"
+    din: m_dout
+    rw: true
+  - name: sram
+    addr_width: 14
+    data_width: 16
+    addr: "main_addr[13:1]"
+    din: s_dout
+    rw: true

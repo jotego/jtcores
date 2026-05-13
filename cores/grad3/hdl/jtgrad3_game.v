@@ -10,7 +10,6 @@ module jtgrad3_game(
 
 wire [19:1] s_addr;
 wire [16:1] m_gchar_addr, s_gchar_addr;
-wire [15:0] m_dout, s_dout;
 wire [ 7:0] tile_dout, obj_dout, snd_latch;
 wire [ 7:0] video_din;
 wire [ 1:0] m_dsn, s_dsn, m_gchar_dsn, s_gchar_dsn;
@@ -84,6 +83,8 @@ jtgrad3_main u_main(
     .rom_cs     ( main_cs   ),
     .rom_dout   ( main_data ),
     .rom_ok     ( main_ok   ),
+    .ram_dout   ( mram_dout ),
+    .ram_we     ( mram_we   ),
 
     .sh_we      ( m_shram_we),
     .sh_dout    ( m_shram_dout ),
@@ -136,6 +137,8 @@ jtgrad3_sub u_sub(
     .rom_addr   ( sub_addr  ),
     .rom_dout   ( sub_data  ),
     .rom_ok     ( sub_ok    ),
+    .ram_dout   ( sram_dout ),
+    .ram_we     ( sram_we   ),
 
     .sh_we      ( s_shram_we),
     .sh_dout    ( s_shram_dout ),

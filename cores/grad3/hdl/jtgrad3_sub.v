@@ -21,6 +21,9 @@ module jtgrad3_sub(
     input         [15:0] rom_dout,
     input                rom_ok,
 
+    input         [15:0] ram_dout,
+    output        [ 1:0] ram_we,
+
     output        [ 1:0] sh_we,
     input         [15:0] sh_dout,
 
@@ -53,9 +56,6 @@ wire [23:1] A;
 wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn, cpu_cen, cpu_cenb;
 wire [ 2:0] FC, IPLn;
 wire [ 1:0] dws;
-wire [13:1] ram_addr;
-wire [15:0] local_ram_dout;
-wire [ 1:0] local_ram_we;
 wire        bus_cs, bus_busy, vdtackn;
 wire        irq1n, irq2n, irq4n, rst_cpu, lvbln;
 wire        irq1_clr, irq2_clr, irq4_clr;
@@ -70,13 +70,12 @@ assign irq2_clr  = ~irq_mask[1] | ~VPAn;
 assign irq4_clr  = ~irq_mask[2] | ~VPAn;
 assign cpu_addr  = A[19:1];
 assign rom_addr  = A[19:1];
-assign ram_addr  = A[13:1];
 assign bus_dsn   = { UDSn, LDSn };
 assign gchar_addr= A[16:1];
 assign gchar_dsn = { UDSn, LDSn };
 assign gfx_addr  = A[20:1];
 assign dws       = ~({2{RnW}} | { UDSn, LDSn });
-assign local_ram_we = dws & {2{ram_cs}};
+assign ram_we    = dws & {2{ram_cs}};
 assign sh_we     = dws & {2{sh_cs}};
 assign gchar_we  = ~RnW;
 assign cpu_we    = ~RnW;
@@ -132,7 +131,7 @@ end
 
 always @(posedge clk) begin
     cpu_din <= rom_cs   ? rom_dout            :
-               ram_cs   ? local_ram_dout      :
+               ram_cs   ? ram_dout            :
                sh_cs    ? sh_dout             :
                tile_cs  ? { 8'd0, tile_dout } :
                obj_cs   ? { 8'd0, obj_dout  } :
@@ -194,14 +193,6 @@ jtframe_68kdtack_cen #(.W(6), .RECOVERY(1)) u_dtack(
     .fworst     (           )
 );
 
-jtframe_ram16 #(.AW(13)) u_ram(
-    .clk    ( clk            ),
-    .data   ( cpu_dout       ),
-    .addr   ( ram_addr       ),
-    .we     ( local_ram_we   ),
-    .q      ( local_ram_dout )
-);
-
 jtframe_m68k u_cpu(
     .clk        ( clk       ),
     .rst        ( rst_cpu   ),
@@ -229,9 +220,9 @@ jtframe_m68k u_cpu(
 `else
 assign cpu_addr=0, cpu_dout=0, cpu_we=0, bus_dsn=3,
        rom_addr=0, sh_we=0, gchar_addr=0, gchar_dsn=3,
-       gchar_we=0, gfx_addr=0, st_dout=0;
+       gchar_we=0, gfx_addr=0, st_dout=0, ram_we=0;
 initial begin
-    ram_cs=0; rom_cs=0; tile_cs=0; obj_cs=0; gchar_cs=0; gfx_cs=0;
+    rom_cs=0; tile_cs=0; obj_cs=0; gchar_cs=0; gfx_cs=0;
 end
 `endif
 
