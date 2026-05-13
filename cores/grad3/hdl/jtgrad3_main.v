@@ -62,9 +62,9 @@ wire [ 1:0] dws;
 wire [13:1] ram_addr;
 wire [15:0] local_ram_dout;
 wire [ 1:0] local_ram_we;
-wire        dec_cs, cab_cs;
+wire        cab_cs;
 reg         snd_latch_cs, snd_irq_cs, wdog_cs, sub_irq_cs,
-            ctrl_cs, io_cs, dsw_cs;
+            ctrl_cs, io_cs, dsw_cs, dec_cs;
 wire        bus_cs, bus_busy, vdtackn, vbl_irqn, lvbln, vbl_clr, irq_en;
 wire [ 7:0] ctrl;
 reg  [15:0] cpu_din;
@@ -93,17 +93,16 @@ assign gchar_we   = ~RnW;
 assign cpu_we     = ~RnW;
 assign snd_irq    = |snd_cnt;
 
-assign dec_cs = !ASn && !A[23];
-assign cab_cs = io_cs  | dsw_cs;
-assign bus_cs = rom_cs | ram_cs | pal_cs | tile_cs | gchar_cs | sh_cs |
-                ctrl_cs | io_cs | dsw_cs | snd_latch_cs | snd_irq_cs | wdog_cs;
+assign cab_cs   = io_cs  | dsw_cs;
+assign bus_cs   = rom_cs | ram_cs | pal_cs | tile_cs | gchar_cs | sh_cs |
+                  ctrl_cs | io_cs | dsw_cs | snd_latch_cs | snd_irq_cs | wdog_cs;
 assign bus_busy = (rom_cs   & ~rom_ok)   |
                   (gchar_cs & ~gchar_ok) |
                   (tile_cs  & ~tile_dtack);
-assign vdtackn = DTACKn | (tile_cs & ~tile_dtack);
-assign VPAn    = ~( A[23] & ~ASn );
-assign IPLn    = !vbl_irqn ? ~3'd2 : 3'b111;
-assign st_dout = { sub_rst, irq_en, rmrd, prio, 2'b0, snd_irq, sub_irq };
+assign vdtackn  = DTACKn | (tile_cs & ~tile_dtack);
+assign VPAn     = ~( A[23] & ~ASn );
+assign IPLn     = !vbl_irqn ? ~3'd2 : 3'b111;
+assign st_dout  = { sub_rst, irq_en, rmrd, prio, 2'b0, snd_irq, sub_irq };
 
 always @* begin
     rom_cs       = 0;
@@ -120,6 +119,10 @@ always @* begin
     wdog_cs      = 0;
     snd_latch_cs = 0;
     snd_irq_cs   = 0;
+    dec_cs       = 0;
+
+    if( !ASn && !A[23] )
+        dec_cs = 1;
 
     if( dec_cs ) begin
         case( A[20:18] )
