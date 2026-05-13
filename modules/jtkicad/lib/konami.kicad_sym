@@ -60655,7 +60655,7 @@
 					)
 				)
 			)
-			(pin power_in line
+			(pin input line
 				(at -39.37 59.69 270)
 				(length 5.08)
 				(name "LDS"

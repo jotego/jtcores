@@ -7822,16 +7822,6 @@
 		)
 		(uuid "3d0dd737-2984-49da-86a0-520f7cd543e2")
 	)
-	(bus
-		(pts
-			(xy 132.08 208.28) (xy 132.08 210.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3d52491c-8f9b-4abe-96b8-506786277547")
-	)
 	(wire
 		(pts
 			(xy 128.27 120.65) (xy 128.27 111.76)
@@ -7981,6 +7971,16 @@
 			(type default)
 		)
 		(uuid "4b8ba41a-0d80-46e4-89fb-6df44aa485cb")
+	)
+	(bus
+		(pts
+			(xy 132.08 208.28) (xy 132.08 210.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4b94ca61-d00b-48a4-b10f-55531a8520df")
 	)
 	(wire
 		(pts
@@ -8911,6 +8911,16 @@
 			(type default)
 		)
 		(uuid "a052ef06-bee6-47cd-985b-8c815f6ce611")
+	)
+	(bus
+		(pts
+			(xy 132.08 234.95) (xy 132.08 215.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0b033f7-be8b-4700-96b4-04b4fe4b86e7")
 	)
 	(wire
 		(pts
@@ -10002,6 +10012,16 @@
 		)
 		(uuid "fa4f10d9-2de3-4c8a-9eb3-6ad5b0e1a3f7")
 	)
+	(bus
+		(pts
+			(xy 128.27 234.95) (xy 132.08 234.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fab5c36d-38a2-4b20-946c-b463d8d8e8d0")
+	)
 	(wire
 		(pts
 			(xy 86.36 205.74) (xy 95.25 205.74)
@@ -10282,16 +10302,6 @@
 		)
 		(uuid "14f284ea-c619-480b-98f2-64e995ce3ec7")
 	)
-	(label "12C5"
-		(at 27.94 187.96 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "1738f17f-0ab7-443a-a5ed-5d7937452080")
-	)
 	(label "RGB9"
 		(at 73.66 203.2 0)
 		(effects
@@ -10461,16 +10471,6 @@
 			(justify right bottom)
 		)
 		(uuid "3d45d9af-c6d4-41e5-a8d7-0f8ffa0d7c09")
-	)
-	(label "M~{RD}"
-		(at 124.46 153.67 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "3e6f2dc1-4144-45b0-92ef-befa4effe549")
 	)
 	(label "CLKMIX"
 		(at 176.53 134.62 0)
@@ -10791,16 +10791,6 @@
 			(justify right bottom)
 		)
 		(uuid "79a8b446-2adb-461e-be6b-ed07451cdbdc")
-	)
-	(label "12C2"
-		(at 33.02 264.16 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7a5a6558-e485-4857-ac2e-13862f36dac6")
 	)
 	(label "R3"
 		(at 255.27 193.04 0)
@@ -11566,12 +11556,12 @@
 	)
 	(hierarchical_label "~{UDS}"
 		(shape input)
-		(at 31.75 259.08 0)
+		(at 31.75 259.08 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify left)
+			(justify right)
 		)
 		(uuid "589fb3aa-d5f8-4753-9d49-4f46c3581c28")
 	)
@@ -11585,6 +11575,39 @@
 			(justify right)
 		)
 		(uuid "64a1b3d3-3cdb-4715-b2b5-85d07091934d")
+	)
+	(hierarchical_label "12C5"
+		(shape input)
+		(at 27.94 187.96 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "6d252982-1b5f-4ed3-8c56-30d94225191b")
+	)
+	(hierarchical_label "12C2"
+		(shape input)
+		(at 33.02 264.16 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8efb6ce1-176a-41c5-a858-b059282da7bf")
+	)
+	(hierarchical_label "MAIN_D[15..0]"
+		(shape input)
+		(at 128.27 234.95 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "acc999ee-6317-40a9-8f36-0a5485aa160a")
 	)
 	(hierarchical_label "BLUE"
 		(shape output)
@@ -11618,6 +11641,17 @@
 			(justify right)
 		)
 		(uuid "f5d97d3e-c1db-4ad8-bf78-bad362e748c0")
+	)
+	(hierarchical_label "M~{RD}"
+		(shape input)
+		(at 124.46 153.67 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "feaff841-253d-4308-a543-31a8e5ed9ec2")
 	)
 	(symbol
 		(lib_id "74xx:74LS07")
