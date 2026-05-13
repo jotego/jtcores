@@ -27,10 +27,7 @@ assign dip_flip   = 1'b0;
 `ifdef JTFRAME_IOCTL_RD
 assign ioctl_din  = video_din;
 `endif
-assign m_shram_addr = main_addr[13:1];
 assign s_shram_addr = s_addr[13:1];
-assign m_shram_din  = m_dout;
-assign s_shram_din  = s_dout;
 
 assign m_gchar_ok = (!gchar_sel && gchar_cs_r && gchar_ok) ||
                     (m_gchar_done && m_gchar_cs);
@@ -42,8 +39,6 @@ assign gchar_din  = gchar_sel ? s_dout       : m_dout;
 assign gchar_dsn  = gchar_sel ? s_gchar_dsn  : m_gchar_dsn;
 assign gchar_we   = gchar_sel ? s_gchar_we   : m_gchar_we;
 assign pal_we   = {2{m_cpu_we & pal_cs}} & ~m_dsn;
-assign pal_din  = m_dout;
-assign pal_addr = main_addr[11:1];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin

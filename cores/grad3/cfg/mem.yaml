@@ -65,17 +65,16 @@ bram:
   - name: m_shram
     addr_width: 14
     data_width: 16
-    addr: m_shram_addr
-    din: m_shram_din
+    addr: "main_addr[13:1]"
+    din: m_dout
     rw: true
-    we: m_shram_we
-    dual_port: { name: s_shram, rw: true, addr: s_shram_addr, we: s_shram_we, din: s_shram_din, dout: s_shram_dout }
+    dual_port: { name: s_shram, rw: true, din: s_dout, dout: s_shram_dout }
   - name: palrd
     addr_width: 12
     data_width: 16
     simfile: {}
     ioctl: {save: true}
-    dual_port: { name: pal, rw: true, addr: pal_addr, din: pal_din, dout: pal_dout }
+    dual_port: { name: pal, rw: true, addr: "main_addr[11:1]", din: m_dout, dout: pal_dout }
   - name: mram
     addr_width: 14
     data_width: 16
