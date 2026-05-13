@@ -12,11 +12,11 @@ clocks:
         - cen_fm
         - cen_fm2
 audio:
-  rsum: 10k
+  rsum: 12k
   rsum_feedback_res: true
   channels:
-    - { name: fm,  module: jt51,     rsum: 3.3k,  rc: [ { r: rout, c: 2.2n }, { r: 680, c: 33n } ] }
-    - { name: pcm, module: jt007232, rsum: 12.0k, rc: [ { r: 33k,  c: 470p } ], pre: 0.20 }
+    - { name: fm,  module: jt51,     rsum: 3.3k, rc: [ { r: 680,  c: 33n  } ] }
+    - { name: pcm, module: jt007232, rsum: 4.7k, rc: [ { r: 220k, c: 470p } ], pre: 0.45 }
 sdram:
   banks:
     - buses:
