@@ -76,7 +76,7 @@ wire [15:0] tile_cpu_addr, cpu_saddr;
 wire [10:0] cpu_oaddr;
 wire [ 7:0] cpu_d8, obj_cpu_d8;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
-wire [31:0] lyrf_draw_data, lyra_draw_data, lyrb_draw_data;
+wire [31:0] lyrf_draw_data, lyra_draw_data, lyrb_draw_data, obj_data;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [ 7:0] lyrf_pxl, lyrf_col, lyra_col, lyrb_col, opal;
 wire [ 7:0] st_scr, st_obj;
@@ -105,9 +105,9 @@ assign cpu_d8        = tile_cpu_dout[7:0];
 assign obj_cpu_d8    = !s_cpu_dsn[0] ? s_cpu_dout[7:0] : s_cpu_dout[15:8];
 assign cpu_weg       = tile_cpu_we && tile_cpu_dsn != 2'b11;
 assign obj_cpu_weg   = s_cpu_we && s_cpu_dsn != 2'b11;
-assign vdtack    = pre_vdtack;
-assign lyro_addr = ca;
-assign st_dout   = (s_tilesys_cs | objsys_cs) ? st_obj : st_scr;
+assign vdtack        = pre_vdtack;
+assign lyro_addr     = ca;
+assign st_dout       = (s_tilesys_cs | objsys_cs) ? st_obj : st_scr;
 
 wire [18:0] ca;
 wire [ 1:0] obj_pri;
@@ -161,14 +161,12 @@ endfunction
 endfunction
 */
 
-function [31:0] obj_order( input [31:0] raw );
-    obj_order = {
-        raw[15], raw[11], raw[ 7], raw[ 3], raw[31], raw[27], raw[23], raw[19],
-        raw[14], raw[10], raw[ 6], raw[ 2], raw[30], raw[26], raw[22], raw[18],
-        raw[13], raw[ 9], raw[ 5], raw[ 1], raw[29], raw[25], raw[21], raw[17],
-        raw[12], raw[ 8], raw[ 4], raw[ 0], raw[28], raw[24], raw[20], raw[16]
+assign obj_data = '{
+        lyro_data[15], lyro_data[11], lyro_data[ 7], lyro_data[ 3], lyro_data[31], lyro_data[27], lyro_data[23], lyro_data[19],
+        lyro_data[14], lyro_data[10], lyro_data[ 6], lyro_data[ 2], lyro_data[30], lyro_data[26], lyro_data[22], lyro_data[18],
+        lyro_data[13], lyro_data[ 9], lyro_data[ 5], lyro_data[ 1], lyro_data[29], lyro_data[25], lyro_data[21], lyro_data[17],
+        lyro_data[12], lyro_data[ 8], lyro_data[ 4], lyro_data[ 0], lyro_data[28], lyro_data[24], lyro_data[20], lyro_data[16]
     };
-endfunction
 
 assign lyrf_draw_data = grad3_051962_data( lyrf_data );
 assign lyra_draw_data = grad3_051962_data( lyra_data );
@@ -211,149 +209,149 @@ jtgrad3_scroll #(
     .BANK0_INIT ( 8'h10 ),
     .BANK1_INIT ( 8'h32 )
 ) u_scroll(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .pxl2_cen   ( pxl2_cen  ),
+    .rst        ( rst              ),
+    .clk        ( clk              ),
+    .pxl_cen    ( pxl_cen          ),
+    .pxl2_cen   ( pxl2_cen         ),
 
-    .lhbl       ( lhbl      ),
-    .lvbl       ( lvbl      ),
-    .hs         ( hs        ),
-    .vs         ( vs        ),
-    .hdump      ( hdump     ),
-    .vdump      ( vdump     ),
-    .vrender    ( vrender   ),
-    .vrender1   ( vrender1  ),
+    .lhbl       ( lhbl             ),
+    .lvbl       ( lvbl             ),
+    .hs         ( hs               ),
+    .vs         ( vs               ),
+    .hdump      ( hdump            ),
+    .vdump      ( vdump            ),
+    .vrender    ( vrender          ),
+    .vrender1   ( vrender1         ),
 
-    .cpu_addr   ( cpu_saddr ),
-    .cpu_dout   ( cpu_d8    ),
-    .cpu_we     ( cpu_weg   ),
-    .gfx_cs     ( tilesys_cs),
-    .rst8       ( rst8      ),
-    .tile_dout  ( tilesys_dout ),
-    .cpu_rom_dtack( pre_vdtack ),
+    .cpu_addr   ( cpu_saddr        ),
+    .cpu_dout   ( cpu_d8           ),
+    .cpu_we     ( cpu_weg          ),
+    .gfx_cs     ( tilesys_cs       ),
+    .rst8       ( rst8             ),
+    .tile_dout  ( tilesys_dout     ),
+    .cpu_rom_dtack( pre_vdtack     ),
 
-    .rmrd       ( 1'b0      ),
-    .irq_n      ( tile_irqn ),
-    .firq_n     (           ),
-    .nmi_n      ( tile_nmin ),
-    .flip       (           ),
-    .q          ( q         ),
-    .e          ( e         ),
+    .rmrd       ( 1'b0             ),
+    .irq_n      ( tile_irqn        ),
+    .firq_n     (                  ),
+    .nmi_n      ( tile_nmin        ),
+    .flip       (                  ),
+    .q          ( q                ),
+    .e          ( e                ),
 
-    .lyrf_addr  ( pre_f     ),
-    .lyra_addr  ( pre_a     ),
-    .lyrb_addr  ( pre_b     ),
-    .lyrf_cs    ( lyrf_cs   ),
-    .lyra_cs    ( lyra_cs   ),
-    .lyrb_cs    ( lyrb_cs   ),
-    .lyrf_data  ( lyrf_draw_data ),
-    .lyra_data  ( lyra_draw_data ),
-    .lyrb_data  ( lyrb_draw_data ),
-    .lyra_ok    ( lyra_ok   ),
+    .lyrf_addr  ( pre_f            ),
+    .lyra_addr  ( pre_a            ),
+    .lyrb_addr  ( pre_b            ),
+    .lyrf_cs    ( lyrf_cs          ),
+    .lyra_cs    ( lyra_cs          ),
+    .lyrb_cs    ( lyrb_cs          ),
+    .lyrf_data  ( lyrf_draw_data   ),
+    .lyra_data  ( lyra_draw_data   ),
+    .lyrb_data  ( lyrb_draw_data   ),
+    .lyra_ok    ( lyra_ok          ),
 
-    .lyrf_col   ( lyrf_col  ),
-    .lyra_col   ( lyra_col  ),
-    .lyrb_col   ( lyrb_col  ),
-    .lyrf_extra (           ),
-    .lyra_extra (           ),
-    .lyrb_extra (           ),
-    .lyrf_cg    ( cgate(lyrf_col) ),
-    .lyra_cg    ( cgate(lyra_col) ),
-    .lyrb_cg    ( cgate(lyrb_col) ),
+    .lyrf_col   ( lyrf_col         ),
+    .lyra_col   ( lyra_col         ),
+    .lyrb_col   ( lyrb_col         ),
+    .lyrf_extra (                  ),
+    .lyra_extra (                  ),
+    .lyrb_extra (                  ),
+    .lyrf_cg    ( cgate(lyrf_col)  ),
+    .lyra_cg    ( cgate(lyra_col)  ),
+    .lyrb_cg    ( cgate(lyrb_col)  ),
 
-    .lyrf_blnk_n( lyrf_blnk_n ),
-    .lyra_blnk_n( lyra_blnk_n ),
-    .lyrb_blnk_n( lyrb_blnk_n ),
-    .lyrf_pxl   ( lyrf_pxl  ),
-    .lyra_pxl   ( lyra_pxl  ),
-    .lyrb_pxl   ( lyrb_pxl  ),
+    .lyrf_blnk_n( lyrf_blnk_n      ),
+    .lyra_blnk_n( lyra_blnk_n      ),
+    .lyrb_blnk_n( lyrb_blnk_n      ),
+    .lyrf_pxl   ( lyrf_pxl         ),
+    .lyra_pxl   ( lyra_pxl         ),
+    .lyrb_pxl   ( lyrb_pxl         ),
 
-    .ioctl_addr ( ioctl_addr[14:0]     ),
-    .ioctl_ram  ( ioctl_ram            ),
-    .ioctl_din  ( scroll_din           ),
-    .mmr_dump   ( scroll_mmr           ),
-    .gfx_en     ( gfx_en    ),
-    .debug_bus  ( debug_bus ),
-    .st_dout    ( st_scr    )
+    .ioctl_addr ( ioctl_addr[14:0] ),
+    .ioctl_ram  ( ioctl_ram        ),
+    .ioctl_din  ( scroll_din       ),
+    .mmr_dump   ( scroll_mmr       ),
+    .gfx_en     ( gfx_en           ),
+    .debug_bus  ( debug_bus        ),
+    .st_dout    ( st_scr           )
 );
 
 jtaliens_obj u_obj(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
+    .rst        ( rst              ),
+    .clk        ( clk              ),
+    .pxl_cen    ( pxl_cen          ),
 
-    .hs         ( hs        ),
-    .vs         ( vs        ),
-    .lvbl       ( lvbl      ),
-    .lhbl       ( lhbl      ),
-    .hdump      ( hdump     ),
-    .vdump      ( vrender   ),
+    .hs         ( hs               ),
+    .vs         ( vs               ),
+    .lvbl       ( lvbl             ),
+    .lhbl       ( lhbl             ),
+    .hdump      ( hdump            ),
+    .vdump      ( vrender          ),
 
-    .cs         ( objsys_cs ),
-    .cpu_addr   ( cpu_oaddr ),
-    .cpu_dout   ( obj_cpu_d8 ),
-    .cpu_we     ( obj_cpu_weg),
-    .cpu_din    ( objsys_dout ),
+    .cs         ( objsys_cs        ),
+    .cpu_addr   ( cpu_oaddr        ),
+    .cpu_dout   ( obj_cpu_d8       ),
+    .cpu_we     ( obj_cpu_weg      ),
+    .cpu_din    ( objsys_dout      ),
 
-    .irq_n      ( obj_irqn  ),
-    .nmi_n      ( obj_nmin  ),
-    .code       ( ocode     ),
-    .code_eff   ( ocode_eff ),
-    .pal        ( opal      ),
-    .pal_eff    ( opal_eff  ),
+    .irq_n      ( obj_irqn         ),
+    .nmi_n      ( obj_nmin         ),
+    .code       ( ocode            ),
+    .code_eff   ( ocode_eff        ),
+    .pal        ( opal             ),
+    .pal_eff    ( opal_eff         ),
 
-    .rom_addr   ( ca        ),
-    .rom_data   ( obj_order(lyro_data) ),
-    .rom_ok     ( lyro_ok   ),
-    .rom_cs     ( lyro_cs   ),
-    .romrd      ( ormrd     ),
+    .rom_addr   ( ca               ),
+    .rom_data   ( obj_data         ),
+    .rom_ok     ( lyro_ok          ),
+    .rom_cs     ( lyro_cs          ),
+    .romrd      ( ormrd            ),
 
-    .pxl        ( lyro_pxl  ),
-    .blank_n    ( lyro_blnk_n ),
-    .shadow     ( shadow    ),
+    .pxl        ( lyro_pxl         ),
+    .blank_n    ( lyro_blnk_n      ),
+    .shadow     ( shadow           ),
 
-    .ioctl_addr ( ioctl_addr[10:0]     ),
-    .ioctl_ram  ( ioctl_ram            ),
-    .ioctl_din  ( obj_din              ),
-    .dump_reg   ( obj_reg              ),
-    .gfx_en     ( gfx_en    ),
-    .debug_bus  ( debug_bus ),
-    .st_dout    ( st_obj    )
+    .ioctl_addr ( ioctl_addr[10:0] ),
+    .ioctl_ram  ( ioctl_ram        ),
+    .ioctl_din  ( obj_din          ),
+    .dump_reg   ( obj_reg          ),
+    .gfx_en     ( gfx_en           ),
+    .debug_bus  ( debug_bus        ),
+    .st_dout    ( st_obj           )
 );
 
 jtgrad3_colmix u_colmix(
-    .rst         ( rst         ),
-    .clk         ( clk         ),
-    .pxl_cen     ( pxl_cen     ),
-    .prio        ( prio        ),
-    .obj_pri     ( obj_pri     ),
+    .rst         ( rst            ),
+    .clk         ( clk            ),
+    .pxl_cen     ( pxl_cen        ),
+    .prio        ( prio           ),
+    .obj_pri     ( obj_pri        ),
 
-    .lhbl        ( lhbl        ),
-    .lvbl        ( lvbl        ),
+    .lhbl        ( lhbl           ),
+    .lvbl        ( lvbl           ),
 
-    .pal_rd_addr ( pal_rd_addr ),
-    .palrd_dout  ( palrd_dout  ),
+    .pal_rd_addr ( pal_rd_addr    ),
+    .palrd_dout  ( palrd_dout     ),
 
-    .prog_data   ( prog_data[3:0]),
-    .prog_addr   ( prog_addr[7:0]),
-    .prom_pal_we ( prom_pal_we ),
+    .prog_data   ( prog_data[3:0] ),
+    .prog_addr   ( prog_addr[7:0] ),
+    .prom_pal_we ( prom_pal_we    ),
 
-    .lyrf_blnk_n ( lyrf_blnk_n ),
-    .lyra_blnk_n ( lyra_blnk_n ),
-    .lyrb_blnk_n ( lyrb_blnk_n ),
-    .lyro_blnk_n ( lyro_blnk_n ),
-    .lyrf_pxl    ( lyrf_pxl    ),
-    .lyra_pxl    ( lyra_pxl    ),
-    .lyrb_pxl    ( lyrb_pxl    ),
-    .lyro_pxl    ( lyro_pxl    ),
-    .shadow      ( shadow      ),
+    .lyrf_blnk_n ( lyrf_blnk_n    ),
+    .lyra_blnk_n ( lyra_blnk_n    ),
+    .lyrb_blnk_n ( lyrb_blnk_n    ),
+    .lyro_blnk_n ( lyro_blnk_n    ),
+    .lyrf_pxl    ( lyrf_pxl       ),
+    .lyra_pxl    ( lyra_pxl       ),
+    .lyrb_pxl    ( lyrb_pxl       ),
+    .lyro_pxl    ( lyro_pxl       ),
+    .shadow      ( shadow         ),
 
-    .red         ( red         ),
-    .green       ( green       ),
-    .blue        ( blue        ),
+    .red         ( red            ),
+    .green       ( green          ),
+    .blue        ( blue           ),
 
-    .debug_bus   ( debug_bus   )
+    .debug_bus   ( debug_bus      )
 );
 
 endmodule
