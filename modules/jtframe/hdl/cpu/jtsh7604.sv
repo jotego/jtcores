@@ -69,12 +69,49 @@ module jtsh7604 #(
     wire [3:0]  cpu_we;
     wire        cpu_rd_n;
     wire        cpu_bus_stb;
+    wire        cpu_bus_dbus_rd;
     wire        cpu_wr_req = ~RD_WR_N;
     wire        bus_stb_rise;
+    wire        cps3_valid_key = |{cps3_key1, cps3_key2};
+    wire        cps3_bios_rd = cps3_valid_key && cpu_a[26:19] == 8'h00 && !cpu_rd_n && !cpu_bus_dbus_rd;
+    wire [31:0] cpu_din_sh = cps3_bios_rd ?
+        (cps3_swap16_dword(cpu_din) ^ cps3_mask({5'd0, cpu_a[26:2], 2'b00}, cps3_key1, cps3_key2)) :
+        cpu_din;
 
     reg         req_active;
     reg         req_done;
     reg         bus_stb_l;
+
+    function automatic [15:0] cps3_rotate_left16(input [15:0] val, input integer n);
+        cps3_rotate_left16 = (val << n) | (val >> (16 - n));
+    endfunction
+
+    function automatic [31:0] cps3_swap16_dword(input [31:0] val);
+        cps3_swap16_dword = {val[23:16], val[31:24], val[7:0], val[15:8]};
+    endfunction
+
+    function automatic [15:0] cps3_rotxor(input [15:0] val, input [15:0] xorval);
+        reg [15:0] res;
+        begin
+            res = val + cps3_rotate_left16(val, 2);
+            res = cps3_rotate_left16(res, 4) ^ (res & (val ^ xorval));
+            cps3_rotxor = res;
+        end
+    endfunction
+
+    function automatic [31:0] cps3_mask(input [31:0] address, input [31:0] key1, input [31:0] key2);
+        reg [31:0] addr_x;
+        reg [15:0] val;
+        begin
+            addr_x = address ^ key1;
+            val = addr_x[15:0] ^ 16'hffff;
+            val = cps3_rotxor(val, key2[15:0]);
+            val = val ^ addr_x[31:16] ^ 16'hffff;
+            val = cps3_rotxor(val, key2[31:16]);
+            val = val ^ addr_x[15:0] ^ key2[15:0];
+            cps3_mask = {val, val};
+        end
+    endfunction
 
     assign bus_stb_rise = cpu_bus_stb & ~bus_stb_l;
 
@@ -131,7 +168,7 @@ module jtsh7604 #(
         .IRL_N     ( irl_n     ),
 
         .A         ( cpu_a     ),
-        .DI        ( cpu_din   ),
+        .DI        ( cpu_din_sh ),
         .DO        ( cpu_do    ),
         .BS_N      ( BS_N      ),
         .CS0_N     ( CS0_N     ),
@@ -146,6 +183,7 @@ module jtsh7604 #(
         .IVECF_N   ( IVECF_N   ),
         .RFS       ( RFS       ),
         .BUS_STB   ( cpu_bus_stb ),
+        .BUS_DBUS_RD ( cpu_bus_dbus_rd ),
 
         .EA        ( 27'd0     ),
         .EDI       (           ),
@@ -186,7 +224,7 @@ module jtsh7604 #(
         .MD        ( MD_CFG    ),
         .FAST      ( 1'b0      ),
 
-        .CPS3_DECRYPT ( |{cps3_key1, cps3_key2} ),
+        .CPS3_DECRYPT ( cps3_valid_key ),
         .CPS3_KEY1    ( cps3_key1 ),
         .CPS3_KEY2    ( cps3_key2 )
     );

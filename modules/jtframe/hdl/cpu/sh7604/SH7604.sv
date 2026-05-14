@@ -31,6 +31,7 @@ module SH7604
 	output            IVECF_N,
 	output            RFS,
 	output            BUS_STB,
+	output            BUS_DBUS_RD,
 	
 	input      [26:0] EA,
 	output     [31:0] EDI,
@@ -569,6 +570,7 @@ module SH7604
 		
 		.CACK(BSC_ACK),
 		.BUS_RLS(BUS_RLS),
+		.BUS_DBUS_RD(BUS_DBUS_RD),
 		
 		.FAST(FAST)
 	);
