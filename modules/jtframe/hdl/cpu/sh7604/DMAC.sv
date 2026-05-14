@@ -167,17 +167,20 @@ module SH7604_DMAC (
 					DMA_CH <= 1;
 				end
 			end
-			else if (DMA_REQ_CLR) begin
+			else if (DMA_REQ_CLR || !CH_EN[DMA_CH] || !CH_AVAIL[DMA_CH]) begin
 				DMA_REQ <= 0;
-				RB_PRIO <= ~RB_PRIO;
+				if (DMA_REQ_CLR) RB_PRIO <= ~RB_PRIO;
 			end
 		end
 	end
 	
 	bit         DMA_WR;
 	bit         DMA_RD;
+	bit         DMA_ABORT;
 	bit         DMA_BURST;
 	bit         DMA_LOCK;
+	bit  [31:0] DMA_ABORT_A;
+	bit   [3:0] DMA_ABORT_BA;
 	bit  [31:0] RD_BUF[4];
 	bit   [1:0] LW_CNT;
 	bit   [1:0] SA_BA;
@@ -200,8 +203,11 @@ module SH7604_DMAC (
 			
 			DMA_WR <= 0;
 			DMA_RD <= 0;
+			DMA_ABORT <= 0;
 			DMA_BURST <= 0;
 			DMA_LOCK <= 0;
+			DMA_ABORT_A <= '0;
+			DMA_ABORT_BA <= '0;
 			CH_REQ_CLR <= '0;
 			DMA_REQ_CLR <= 0;
 			LW_CNT <= '0;
@@ -214,7 +220,18 @@ module SH7604_DMAC (
 			CH_REQ_CLR[0] <= 0;
 			CH_REQ_CLR[1] <= 0;
 			DMA_REQ_CLR <= 0;
-			if (DMA_REQ && !DMA_RD && !DMA_WR && CE_F) begin
+			if ((DMA_RD || DMA_WR) && !DMA_ABORT && (!CH_EN[DMA_CH] || !CH_AVAIL[DMA_CH])) begin
+				DMA_ABORT <= 1;
+				DMA_LOCK <= 0;
+				CH_REQ_CLR[DMA_CH] <= 1;
+				DMA_ABORT_A <= DMA_RD ? SAR[DMA_CH] & 32'h07FFFFFF :
+				                DMA_WR ? DAR[DMA_CH] & 32'h07FFFFFF :
+				                32'd0;
+				DMA_ABORT_BA <= DMA_RD ? BAFromAddr(SAR[DMA_CH][1:0], CHCR[DMA_CH][11:10]) :
+				                 DMA_WR ? BAFromAddr(DAR[DMA_CH][1:0], CHCR[DMA_CH][11:10]) :
+				                 4'd0;
+			end
+			else if (DMA_REQ && CH_EN[DMA_CH] && CH_AVAIL[DMA_CH] && !DMA_RD && !DMA_WR && CE_F) begin
 				if (!CHCR[DMA_CH][3] || (CHCR[DMA_CH][3] && !CHCR[DMA_CH][8])) begin
 					DMA_RD <= 1;
 					LW_CNT <= &CHCR[DMA_CH][11:10] ? 2'd3 : 2'd0;
@@ -231,7 +248,18 @@ module SH7604_DMAC (
 				end
 			end
 			else if ((DMA_RD || DMA_WR) && !DBUS_WAIT && CE_F) begin
-				if (DMA_RD) begin
+				if (DMA_ABORT) begin
+					DMA_RD <= 0;
+					DMA_WR <= 0;
+					DMA_ABORT <= 0;
+					DMA_BURST <= 0;
+					DMA_LOCK <= 0;
+					DMA_REQ_CLR <= 1;
+					CH_REQ_CLR[DMA_CH] <= 1;
+					LW_CNT <= '0;
+					RD_BUF_LATCH <= 0;
+				end
+				else if (DMA_RD) begin
 					if (&CHCR[DMA_CH][11:10] || CHCR[DMA_CH][13:12] == 2'b01) SAR[DMA_CH] <= SAR[DMA_CH] + AR_INC;
 					else if                (CHCR[DMA_CH][13:12] == 2'b10) SAR[DMA_CH] <= SAR[DMA_CH] - AR_INC;
 					
@@ -372,11 +400,13 @@ module SH7604_DMAC (
 		endcase
 	end
 	
-	assign DBUS_A = DMA_RD ? SAR[DMA_CH] & 32'h07FFFFFF : 
+	assign DBUS_A = DMA_ABORT ? DMA_ABORT_A :
+	                DMA_RD ? SAR[DMA_CH] & 32'h07FFFFFF :
 	                DMA_WR ? DAR[DMA_CH] & 32'h07FFFFFF : 
 	                '0;
 	assign DBUS_DO = DBUS_DO_TEMP;
-	assign DBUS_BA = DMA_RD ? BAFromAddr(SAR[DMA_CH][1:0],CHCR[DMA_CH][11:10]) :
+	assign DBUS_BA = DMA_ABORT ? DMA_ABORT_BA :
+	                 DMA_RD ? BAFromAddr(SAR[DMA_CH][1:0],CHCR[DMA_CH][11:10]) :
 	                 DMA_WR ? BAFromAddr(DAR[DMA_CH][1:0],CHCR[DMA_CH][11:10]) :
 	                 '0;
 	assign DBUS_WE = DMA_RD ? 1'b0 : 

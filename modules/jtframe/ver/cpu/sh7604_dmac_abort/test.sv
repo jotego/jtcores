@@ -98,8 +98,12 @@ initial begin
     tick_f();
     tick_pair();
 
-    assert_or_fail(write_count == 0,
-        "cleared DMAOR.DME should abort the stalled active write");
+    assert_or_fail(write_count == 1,
+        "cleared DMAOR.DME should only drain the already-issued write");
+    assert_or_fail(last_write_addr == OLD_DST,
+        "aborted write must keep the old destination address");
+    assert_or_fail(last_write_addr != NEW_DST,
+        "aborted write must not retarget to newly programmed DAR0");
     ibus_read32(TCR0, read_data);
     assert_or_fail(read_data == 32'h00000001,
         "aborted active write must not consume newly programmed TCR0");

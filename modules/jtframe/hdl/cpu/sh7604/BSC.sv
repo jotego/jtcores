@@ -229,6 +229,8 @@ module SH7604_BSC
 			IVECF_N <= 1;
 			CACK <= 0;
 			BUSY <= 0;
+			CBUS_LOCK_INT <= 0;
+			DBUS_LOCK_INT <= 0;
 			{CBUSY,CBUSY2,DBUSY,VBUSY} <= '0;
 			{CBUS_ACTIVE,DBUS_ACTIVE,VBUS_ACTIVE,REFRESH_ACTIVE} <= '0;
 			CBUS_REQ_CNT <= '0;
@@ -244,6 +246,10 @@ module SH7604_BSC
 						
 			DATA_LATCH = 0;
 			STATE_NEXT = BUS_STATE;
+			if (!DBUS_REQ && !DBUSY) begin
+				DBUS_LOCK_INT <= 0;
+				DBUS_ACTIVE <= 0;
+			end
 			case (BUS_STATE)
 				T0: begin
 				end
