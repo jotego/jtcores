@@ -9,18 +9,12 @@ module jtgrad3_game(
 );
 
 wire [19:1] s_addr;
-wire [16:1] m_gchar_addr, s_gchar_addr;
 wire [ 7:0] tile_dout, obj_dout, snd_latch;
 wire [ 7:0] video_din;
-wire [ 1:0] m_dsn, s_dsn, m_gchar_dsn, s_gchar_dsn;
-wire        m_cpu_we, s_cpu_we, snd_irq, sub_rst, sub_irq;
-wire        m_tile_cs, s_tile_cs, s_obj_cs, pal_cs;
-wire        m_gchar_cs, s_gchar_cs, m_gchar_we, s_gchar_we;
-wire        m_gchar_ok, s_gchar_ok;
+wire        m_cpu_we,   s_cpu_we,  snd_irq,   sub_rst, sub_irq;
+wire        m_tile_cs,  s_tile_cs, s_obj_cs,  pal_cs;
 wire        tile_dtack, tile_irqn, tile_nmin, sub_irq2;
 wire        rmrd, prio;
-reg         gchar_cs_r, gchar_sel;
-reg         m_gchar_done, s_gchar_done;
 
 assign debug_view = 8'd0;
 assign dip_flip   = 1'b0;
@@ -29,43 +23,8 @@ assign ioctl_din  = video_din;
 `endif
 assign s_shram_addr = s_addr[13:1];
 assign sram_addr    = s_addr[13:1];
-
-assign m_gchar_ok = (!gchar_sel && gchar_cs_r && gchar_ok) ||
-                    (m_gchar_done && m_gchar_cs);
-assign s_gchar_ok = ( gchar_sel && gchar_cs_r && gchar_ok) ||
-                    (s_gchar_done && s_gchar_cs);
-assign gchar_cs   = gchar_cs_r; /*gchar_sel ? s_gchar_cs   : m_gchar_cs;*/
-assign gchar_addr = gchar_sel ? s_gchar_addr : m_gchar_addr;
-assign gchar_din  = gchar_sel ? s_dout       : m_dout;
-assign gchar_dsn  = gchar_sel ? s_gchar_dsn  : m_gchar_dsn;
-assign gchar_we   = gchar_sel ? s_gchar_we   : m_gchar_we;
-assign pal_we   = {2{m_cpu_we & pal_cs}} & ~m_dsn;
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        gchar_cs_r    <= 0;
-        gchar_sel     <= 0;
-        m_gchar_done  <= 0;
-        s_gchar_done  <= 0;
-    end else begin
-        if( !m_gchar_cs ) m_gchar_done <= 0;
-        if( !s_gchar_cs ) s_gchar_done <= 0;
-
-        if( gchar_cs_r ) begin
-            if(gchar_ok) begin
-                gchar_cs_r   <= 0;
-                s_gchar_done <=  gchar_sel;
-                m_gchar_done <= ~gchar_sel;
-            end
-        end else if( s_gchar_cs && s_gchar_dsn != 2'b11 && !s_gchar_done ) begin
-            gchar_cs_r   <= 1;
-            gchar_sel    <= 1;
-        end else if( m_gchar_cs && m_gchar_dsn != 2'b11 && !m_gchar_done ) begin
-            gchar_cs_r   <= 1;
-            gchar_sel    <= 0;
-        end
-    end
-end
+assign s_gchar_addr = s_addr[16:1];
+assign pal_we       = {2{m_cpu_we & pal_cs}} & ~m_dsn;
 
 jtgrad3_main u_main(
     .rst        ( rst          ),
@@ -89,11 +48,9 @@ jtgrad3_main u_main(
     .tile_dout  ( tile_dout    ),
     .tile_dtack ( tile_dtack   ),
 
-    .gchar_addr ( m_gchar_addr ),
-    .gchar_dsn  ( m_gchar_dsn  ),
     .gchar_cs   ( m_gchar_cs   ),
     .gchar_we   ( m_gchar_we   ),
-    .gchar_dout ( gchar_data   ),
+    .gchar_dout ( m_gchar_data ),
     .gchar_ok   ( m_gchar_ok   ),
 
     .pal_cs     ( pal_cs       ),
@@ -146,11 +103,9 @@ jtgrad3_sub u_sub(
     .obj_cs     ( s_obj_cs     ),
     .obj_dout   ( obj_dout     ),
 
-    .gchar_addr ( s_gchar_addr ),
-    .gchar_dsn  ( s_gchar_dsn  ),
     .gchar_cs   ( s_gchar_cs   ),
     .gchar_we   ( s_gchar_we   ),
-    .gchar_dout ( gchar_data   ),
+    .gchar_dout ( s_gchar_data ),
     .gchar_ok   ( s_gchar_ok   ),
 
     .gfx_addr   ( gfx_addr     ),

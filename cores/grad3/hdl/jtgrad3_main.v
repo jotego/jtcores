@@ -28,8 +28,6 @@ module jtgrad3_main(
     input         [ 7:0] tile_dout,
     input                tile_dtack,
 
-    output        [16:1] gchar_addr,
-    output        [ 1:0] gchar_dsn,
     output reg           gchar_cs,
     output               gchar_we,
     input         [15:0] gchar_dout,
@@ -62,7 +60,7 @@ wire [23:1] A;
 wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn, cpu_cen, cpu_cenb;
 wire [ 2:0] FC, IPLn;
 wire [ 1:0] dws;
-wire        cab_cs;
+wire        cab_cs, BUSn;
 reg         snd_latch_cs, snd_irq_cs, wdog_cs, sub_irq_cs,
             ctrl_cs, io_cs, dsw_cs, dec_cs;
 wire        bus_cs, bus_busy, vdtackn, vbl_irqn, lvbln, vbl_clr, irq_en;
@@ -83,8 +81,6 @@ assign lvbln      = ~LVBL;
 assign vbl_clr    = ~irq_en | ~VPAn;
 assign main_addr  = A[17:1];
 assign bus_dsn    = { UDSn, LDSn };
-assign gchar_addr = A[16:1];
-assign gchar_dsn  = { UDSn, LDSn };
 assign dws        = ~({2{RnW}} | { UDSn, LDSn });
 assign ram_we     = dws & {2{ram_cs}};
 assign sh_we      = dws & {2{sh_cs}};
@@ -101,6 +97,7 @@ assign bus_busy = (rom_cs   & ~rom_ok)   |
 assign vdtackn  = DTACKn | (tile_cs & ~tile_dtack);
 assign VPAn     = ~( A[23] & ~ASn );
 assign IPLn     = !vbl_irqn ? ~3'd2 : 3'b111;
+assign BUSn      = &bus_dsn;
 assign st_dout  = { sub_rst, irq_en, rmrd, prio, 2'b0, snd_irq, sub_irq };
 
 always @* begin
@@ -131,7 +128,7 @@ always @* begin
             3'd3: io_dec_cs = 1;
             3'd4: sh_cs     = 1;
             3'd5: tile_cs   = 1;
-            3'd6: gchar_cs  = 1;
+            3'd6: gchar_cs  = !BUSn;
             default:;
         endcase
     end
@@ -260,7 +257,7 @@ jtframe_m68k u_cpu(
 
 `else
 assign main_addr=0, cpu_dout=0, cpu_we=0, bus_dsn=3,
-       sh_we=0, gchar_addr=0, gchar_dsn=3, gchar_we=0, ram_we=0,
+       sh_we=0, gchar_we=0, ram_we=0,
        rmrd=0, prio=0, sub_rst=1, snd_latch=0, snd_irq=0, st_dout=0;
 initial begin
     rom_cs=0; tile_cs=0; gchar_cs=0; pal_cs=0;

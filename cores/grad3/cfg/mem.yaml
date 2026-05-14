@@ -48,9 +48,18 @@ sdram:
           data_width: 8
           offset: PCM_OFFSET
     - buses:
-        - name: gchar
+        - name: m_gchar
           addr_width: 17
           data_width: 16
+          addr: "main_addr[16:1]"
+          din: m_dout
+          dsn: m_dsn
+          rw: true
+        - name: s_gchar
+          addr_width: 17
+          data_width: 16
+          din: s_dout
+          dsn: s_dsn
           rw: true
         - name: lyrf
           addr_width: 17

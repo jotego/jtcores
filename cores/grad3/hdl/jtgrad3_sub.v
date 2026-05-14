@@ -34,8 +34,6 @@ module jtgrad3_sub(
     output reg           obj_cs,
     input         [ 7:0] obj_dout,
 
-    output        [16:1] gchar_addr,
-    output        [ 1:0] gchar_dsn,
     output reg           gchar_cs,
     output               gchar_we,
     input         [15:0] gchar_dout,
@@ -58,7 +56,7 @@ wire [ 2:0] FC, IPLn;
 wire [ 1:0] dws;
 wire        bus_cs, bus_busy, vdtackn;
 wire        irq1n, irq2n, irq4n, rst_cpu, lvbln;
-wire        irq1_clr, irq2_clr, irq4_clr;
+wire        irq1_clr, irq2_clr, irq4_clr, BUSn;
 reg  [15:0] cpu_din;
 reg         irqmask_cs, ram_cs, prog_dec_cs, vid_dec_cs, sh_cs;
 reg  [ 2:0] irq_mask;
@@ -71,8 +69,6 @@ assign irq4_clr  = ~irq_mask[2] | ~VPAn;
 assign cpu_addr  = A[19:1];
 assign rom_addr  = A[19:1];
 assign bus_dsn   = { UDSn, LDSn };
-assign gchar_addr= A[16:1];
-assign gchar_dsn = { UDSn, LDSn };
 assign gfx_addr  = A[20:1];
 assign dws       = ~({2{RnW}} | { UDSn, LDSn });
 assign ram_we    = dws & {2{ram_cs}};
@@ -88,6 +84,7 @@ assign bus_busy  = (rom_cs   & ~rom_ok)   |
 assign vdtackn   = DTACKn | (tile_cs & ~tile_dtack);
 assign VPAn      = ~( A[23] & ~ASn );
 assign IPLn      = !irq4n ? ~3'd4 : !irq2n ? ~3'd2 : !irq1n ? ~3'd1 : 3'b111;
+assign BUSn      = &bus_dsn;
 assign st_dout   = { irq_mask, irq1n, irq2n, irq4n, tile_cs, obj_cs };
 
 always @* begin
@@ -122,7 +119,7 @@ always @* begin
         case( A[19:18] )
             2'd0: sh_cs    = 1;
             2'd1: tile_cs  = 1;
-            2'd2: gchar_cs = 1;
+            2'd2: gchar_cs = !BUSn;
             2'd3: obj_cs   = 1;
             default:;
         endcase
@@ -219,7 +216,7 @@ jtframe_m68k u_cpu(
 
 `else
 assign cpu_addr=0, cpu_dout=0, cpu_we=0, bus_dsn=3,
-       rom_addr=0, sh_we=0, gchar_addr=0, gchar_dsn=3,
+       rom_addr=0, sh_we=0,
        gchar_we=0, gfx_addr=0, st_dout=0, ram_we=0;
 initial begin
     rom_cs=0; tile_cs=0; obj_cs=0; gchar_cs=0; gfx_cs=0;
