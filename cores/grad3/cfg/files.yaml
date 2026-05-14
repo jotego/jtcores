@@ -4,14 +4,14 @@ grad3:
     - jtgrad3_main.v
     - jtgrad3_sub.v
     - jtgrad3_video.v
-    - jtgrad3_scroll.v
-    - jtgrad3_052109.v
     - jtgrad3_colmix.v
     - jtgrad3_sound.v
 aliens:
   - get:
     - jt051962.v
     - jt051960.v
+    - jt052109.v
+    - jtaliens_scroll.v
     - jtaliens_obj.v
 riders:
   - get:

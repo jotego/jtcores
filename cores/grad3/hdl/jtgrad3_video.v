@@ -98,7 +98,7 @@ assign tile_cpu_dsn  = s_tilesys_cs ? s_cpu_dsn  : m_cpu_dsn;
 assign tile_cpu_dout = s_tilesys_cs ? s_cpu_dout : m_cpu_dout;
 assign tile_cpu_we   = s_tilesys_cs ? s_cpu_we   : m_cpu_we;
 assign tilesys_cs    = m_tilesys_cs | s_tilesys_cs;
-assign cpu_saddr     = tile_cpu_addr - 16'h6000;  // ??????
+assign cpu_saddr     = tile_cpu_addr;
 assign cpu_oaddr     = s_cpu_addr[11:1];
 assign cpu_d8        = tile_cpu_dout[7:0];
 assign obj_cpu_d8    = !s_cpu_dsn[0] ? s_cpu_dout[7:0] : s_cpu_dout[15:8];
@@ -165,14 +165,7 @@ always @(*) begin
         ioctl_din = 8'hff;
 end
 
-jtgrad3_scroll #(
-    .FULLRAM     ( 1 ),
-    .COL_PASSTHRU( 1 ),
-    .LOGICAL_MAP ( 1 ),
-    .FORCE_BANKS( 1 ),
-    .BANK0_INIT ( 8'h10 ),
-    .BANK1_INIT ( 8'h32 )
-) u_scroll(
+jtaliens_scroll u_scroll(
     .rst        ( rst              ),
     .clk        ( clk              ),
     .pxl_cen    ( pxl_cen          ),
