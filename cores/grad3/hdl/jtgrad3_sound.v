@@ -60,12 +60,27 @@ assign fm_r      = fm_r_raw;
 assign st_dout   = debug_bus[5] ? st_pcm : { bank_b, bank_a, snd_latch[3:0] };
 
 always @* begin
-    rom_cs   = mem_acc && A < 16'hf000 && !rd_n;
-    bank_cs  = mem_acc && A[15:4] == 12'hf00;
-    latch_cs = mem_acc && A[15:4] == 12'hf01;
-    pcm_cs   = mem_acc && A[15:4] == 12'hf02;
-    fm_cs    = mem_acc && A[15:1] == 15'h7818;
-    ram_cs   = mem_acc && A[15:11] == 5'b11111;
+    rom_cs   = 0;
+    bank_cs  = 0;
+    latch_cs = 0;
+    pcm_cs   = 0;
+    fm_cs    = 0;
+    ram_cs   = 0;
+
+    if( mem_acc) begin
+        case (A[15:11])
+            5'h1f: ram_cs = 1;
+            5'h1e: begin
+                case (A[5:4])
+                    0: bank_cs  = 1;
+                    1: latch_cs = 1;
+                    2: pcm_cs   = 1;
+                    3: fm_cs    = 1;
+                endcase
+            end
+            default : rom_cs = !rd_n;
+        endcase
+    end
 end
 
 always @(posedge clk) begin
