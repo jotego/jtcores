@@ -71,19 +71,19 @@ module jtgrad3_video(
     output     [ 7:0] st_dout
 );
 
-wire [ 8:0] hdump, vdump, vrender, vrender1;
+wire [ 8:0] hdump, vdump, vrender;
 wire [15:0] tile_cpu_addr, cpu_saddr;
 wire [10:0] cpu_oaddr;
 wire [ 7:0] cpu_d8, obj_cpu_d8;
 wire [12:0] pre_f, pre_a, pre_b, ocode;
-wire [31:0] lyrf_draw_data, lyra_draw_data, lyrb_draw_data, obj_data;
+wire [31:0] lyrf_draw, lyra_draw, lyrb_draw, lyro_draw;
 wire [11:0] lyra_pxl, lyrb_pxl, lyro_pxl;
 wire [ 7:0] lyrf_pxl, lyrf_col, lyra_col, lyrb_col, opal;
 wire [ 7:0] st_scr, st_obj;
 wire [ 7:0] scroll_din, obj_din, scroll_mmr, obj_reg;
-wire        rst8, e, q, ormrd, obj_irqn, obj_nmin, shadow, pre_vdtack;
+wire        rst8, e, q, ormrd, obj_irqn, obj_nmin, shadow;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
-wire        cpu_weg, obj_cpu_weg, tile_cpu_sel, tilesys_cs;
+wire        cpu_weg, obj_cpu_weg, tilesys_cs;
 wire [ 1:0] tile_cpu_dsn;
 wire [15:0] tile_cpu_dout;
 wire        tile_cpu_we;
@@ -93,11 +93,10 @@ reg  [ 7:0] opal_eff;
 // Gradius 3 wires the 16-bit CPU buses to byte-wide Konami video chips through
 // the board glue logic. The word address selects the chip offset and the active
 // byte lane selects the data byte driven onto the 8-bit device bus.
-assign tile_cpu_sel  = s_tilesys_cs;
-assign tile_cpu_addr = tile_cpu_sel ? s_cpu_addr : m_cpu_addr;
-assign tile_cpu_dsn  = tile_cpu_sel ? s_cpu_dsn  : m_cpu_dsn;
-assign tile_cpu_dout = tile_cpu_sel ? s_cpu_dout : m_cpu_dout;
-assign tile_cpu_we   = tile_cpu_sel ? s_cpu_we   : m_cpu_we;
+assign tile_cpu_addr = s_tilesys_cs ? s_cpu_addr : m_cpu_addr;
+assign tile_cpu_dsn  = s_tilesys_cs ? s_cpu_dsn  : m_cpu_dsn;
+assign tile_cpu_dout = s_tilesys_cs ? s_cpu_dout : m_cpu_dout;
+assign tile_cpu_we   = s_tilesys_cs ? s_cpu_we   : m_cpu_we;
 assign tilesys_cs    = m_tilesys_cs | s_tilesys_cs;
 assign cpu_saddr     = tile_cpu_addr - 16'h6000;  // ??????
 assign cpu_oaddr     = s_cpu_addr[11:1];
@@ -105,7 +104,6 @@ assign cpu_d8        = tile_cpu_dout[7:0];
 assign obj_cpu_d8    = !s_cpu_dsn[0] ? s_cpu_dout[7:0] : s_cpu_dout[15:8];
 assign cpu_weg       = tile_cpu_we && tile_cpu_dsn != 2'b11;
 assign obj_cpu_weg   = s_cpu_we && s_cpu_dsn != 2'b11;
-assign vdtack        = pre_vdtack;
 assign lyro_addr     = ca;
 assign st_dout       = (s_tilesys_cs | objsys_cs) ? st_obj : st_scr;
 
@@ -118,59 +116,25 @@ function [7:0] cgate( input [7:0] c );
     cgate = { 1'b0, c[7:5], 4'd0 };
 endfunction
 
-function [31:0] grad3_char_order( input [31:0] data );
-    grad3_char_order = {
-        data[19:16], data[23:20], data[27:24], data[31:28],
-        data[ 3: 0], data[ 7: 4], data[11: 8], data[15:12]
-    };
-endfunction
-
-function [31:0] grad3_051962_data( input [31:0] data );
-    reg [31:0] ordered;
+function [31:0] grad3_lyr( input [31:0] data );
     begin
-        ordered = grad3_char_order( data );
-        grad3_051962_data = {
-            ordered[ 3], ordered[ 7], ordered[11], ordered[15],
-            ordered[19], ordered[23], ordered[27], ordered[31],
-            ordered[ 2], ordered[ 6], ordered[10], ordered[14],
-            ordered[18], ordered[22], ordered[26], ordered[30],
-            ordered[ 1], ordered[ 5], ordered[ 9], ordered[13],
-            ordered[17], ordered[21], ordered[25], ordered[29],
-            ordered[ 0], ordered[ 4], ordered[ 8], ordered[12],
-            ordered[16], ordered[20], ordered[24], ordered[28]
+        grad3_lyr = {
+            data[15], data[11], data[ 7], data[ 3],
+            data[31], data[27], data[23], data[19],
+            data[14], data[10], data[ 6], data[ 2],
+            data[30], data[26], data[22], data[18],
+            data[13], data[ 9], data[ 5], data[ 1],
+            data[29], data[25], data[21], data[17],
+            data[12], data[ 8], data[ 4], data[ 0],
+            data[28], data[24], data[20], data[16]
         };
     end
 endfunction
 
-
-/*function [31:0] grad3_051962_data( input [31:0] data );
-    reg [31:0] ordered;
-    begin
-        ordered = data; //grad3_char_order( data );
-        grad3_051962_data = {
-            ordered[16], ordered[20], ordered[24], ordered[28],
-            ordered[ 8], ordered[12], ordered[ 0], ordered[ 4],
-            ordered[17], ordered[21], ordered[25], ordered[29],
-            ordered[ 9], ordered[13], ordered[ 2], ordered[ 5],
-            ordered[18], ordered[22], ordered[26], ordered[30],
-            ordered[10], ordered[14], ordered[ 3], ordered[ 6],
-            ordered[19], ordered[22], ordered[27], ordered[31],
-            ordered[11], ordered[15], ordered[ 3], ordered[ 7]
-        };
-    end
-endfunction
-*/
-
-assign obj_data = {
-        lyro_data[15], lyro_data[11], lyro_data[ 7], lyro_data[ 3], lyro_data[31], lyro_data[27], lyro_data[23], lyro_data[19],
-        lyro_data[14], lyro_data[10], lyro_data[ 6], lyro_data[ 2], lyro_data[30], lyro_data[26], lyro_data[22], lyro_data[18],
-        lyro_data[13], lyro_data[ 9], lyro_data[ 5], lyro_data[ 1], lyro_data[29], lyro_data[25], lyro_data[21], lyro_data[17],
-        lyro_data[12], lyro_data[ 8], lyro_data[ 4], lyro_data[ 0], lyro_data[28], lyro_data[24], lyro_data[20], lyro_data[16]
-    };
-
-assign lyrf_draw_data = grad3_051962_data( lyrf_data );
-assign lyra_draw_data = grad3_051962_data( lyra_data );
-assign lyrb_draw_data = grad3_051962_data( lyrb_data );
+assign lyro_draw = grad3_lyr( lyro_data );
+assign lyrf_draw = grad3_lyr( lyrf_data );
+assign lyra_draw = grad3_lyr( lyra_data );
+assign lyrb_draw = grad3_lyr( lyrb_data );
 
 always @* begin
     lyrf_addr = { lyrf_col[4:2], lyrf_col[0], pre_f[10:0] };
@@ -221,7 +185,7 @@ jtgrad3_scroll #(
     .hdump      ( hdump            ),
     .vdump      ( vdump            ),
     .vrender    ( vrender          ),
-    .vrender1   ( vrender1         ),
+    .vrender1   (                  ),
 
     .cpu_addr   ( cpu_saddr        ),
     .cpu_dout   ( cpu_d8           ),
@@ -229,7 +193,7 @@ jtgrad3_scroll #(
     .gfx_cs     ( tilesys_cs       ),
     .rst8       ( rst8             ),
     .tile_dout  ( tilesys_dout     ),
-    .cpu_rom_dtack( pre_vdtack     ),
+    .cpu_rom_dtack( vdtack         ),
 
     .rmrd       ( 1'b0             ),
     .irq_n      ( tile_irqn        ),
@@ -245,9 +209,9 @@ jtgrad3_scroll #(
     .lyrf_cs    ( lyrf_cs          ),
     .lyra_cs    ( lyra_cs          ),
     .lyrb_cs    ( lyrb_cs          ),
-    .lyrf_data  ( lyrf_draw_data   ),
-    .lyra_data  ( lyra_draw_data   ),
-    .lyrb_data  ( lyrb_draw_data   ),
+    .lyrf_data  ( lyrf_draw        ),
+    .lyra_data  ( lyra_draw        ),
+    .lyrb_data  ( lyrb_draw        ),
     .lyra_ok    ( lyra_ok          ),
 
     .lyrf_col   ( lyrf_col         ),
@@ -302,7 +266,7 @@ jtaliens_obj u_obj(
     .pal_eff    ( opal_eff         ),
 
     .rom_addr   ( ca               ),
-    .rom_data   ( obj_data         ),
+    .rom_data   ( lyro_draw        ),
     .rom_ok     ( lyro_ok          ),
     .rom_cs     ( lyro_cs          ),
     .romrd      ( ormrd            ),
