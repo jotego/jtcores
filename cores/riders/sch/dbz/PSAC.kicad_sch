@@ -6803,7 +6803,7 @@
 		(uuid "a83aa4fd-adf1-4427-ab17-d17cd6f1cde3")
 	)
 	(no_connect
-		(at 260.35 254)
+		(at 251.46 260.35)
 		(uuid "ae9f3921-4e96-4f3f-a033-734940ce0aaa")
 	)
 	(no_connect
@@ -8544,7 +8544,7 @@
 	)
 	(wire
 		(pts
-			(xy 260.35 259.08) (xy 267.97 259.08)
+			(xy 251.46 265.43) (xy 259.08 265.43)
 		)
 		(stroke
 			(width 0)
@@ -8754,6 +8754,16 @@
 	)
 	(wire
 		(pts
+			(xy 298.45 220.98) (xy 295.91 220.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0eb9dc1b-86d1-4d84-b065-b52ad8d5ba53")
+	)
+	(wire
+		(pts
 			(xy 107.95 259.08) (xy 114.3 259.08)
 		)
 		(stroke
@@ -8764,7 +8774,7 @@
 	)
 	(wire
 		(pts
-			(xy 269.24 267.97) (xy 275.59 267.97)
+			(xy 260.35 274.32) (xy 266.7 274.32)
 		)
 		(stroke
 			(width 0)
@@ -8904,7 +8914,7 @@
 	)
 	(wire
 		(pts
-			(xy 237.49 256.54) (xy 245.11 256.54)
+			(xy 228.6 262.89) (xy 236.22 262.89)
 		)
 		(stroke
 			(width 0)
@@ -9414,7 +9424,7 @@
 	)
 	(wire
 		(pts
-			(xy 246.38 248.92) (xy 252.73 248.92)
+			(xy 237.49 255.27) (xy 243.84 255.27)
 		)
 		(stroke
 			(width 0)
@@ -9594,7 +9604,7 @@
 	)
 	(wire
 		(pts
-			(xy 278.13 251.46) (xy 275.59 251.46)
+			(xy 269.24 257.81) (xy 266.7 257.81)
 		)
 		(stroke
 			(width 0)
@@ -10194,7 +10204,7 @@
 	)
 	(wire
 		(pts
-			(xy 262.89 256.54) (xy 267.97 256.54)
+			(xy 254 262.89) (xy 259.08 262.89)
 		)
 		(stroke
 			(width 0)
@@ -10341,6 +10351,16 @@
 			(type default)
 		)
 		(uuid "5349a147-7954-4d1e-b18d-d7eda5f03af0")
+	)
+	(wire
+		(pts
+			(xy 274.32 262.89) (xy 275.59 262.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "539d2aad-7789-461c-86c3-9b702067e074")
 	)
 	(wire
 		(pts
@@ -11034,7 +11054,7 @@
 	)
 	(wire
 		(pts
-			(xy 246.38 265.43) (xy 252.73 265.43)
+			(xy 237.49 271.78) (xy 243.84 271.78)
 		)
 		(stroke
 			(width 0)
@@ -12184,7 +12204,7 @@
 	)
 	(wire
 		(pts
-			(xy 237.49 254) (xy 245.11 254)
+			(xy 228.6 260.35) (xy 236.22 260.35)
 		)
 		(stroke
 			(width 0)
@@ -12224,7 +12244,7 @@
 	)
 	(wire
 		(pts
-			(xy 275.59 267.97) (xy 275.59 266.7)
+			(xy 266.7 274.32) (xy 266.7 273.05)
 		)
 		(stroke
 			(width 0)
@@ -14614,7 +14634,7 @@
 	)
 	(wire
 		(pts
-			(xy 252.73 265.43) (xy 252.73 264.16)
+			(xy 243.84 271.78) (xy 243.84 270.51)
 		)
 		(stroke
 			(width 0)
@@ -15106,7 +15126,7 @@
 		(uuid "10061117-23ef-40cc-b79f-45aa6da51f38")
 	)
 	(label "VCC"
-		(at 246.38 248.92 0)
+		(at 237.49 255.27 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15516,7 +15536,7 @@
 		(uuid "2ed66e46-37af-48d8-acfa-179f6d3c9ccf")
 	)
 	(label "~{MOROE}"
-		(at 237.49 256.54 0)
+		(at 228.6 262.89 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -15856,7 +15876,7 @@
 		(uuid "4c8d389a-8078-4b73-989c-3ca23efb8b79")
 	)
 	(label "VCC"
-		(at 246.38 265.43 0)
+		(at 237.49 271.78 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -16386,7 +16406,7 @@
 		(uuid "81e6d963-b67e-4f82-b690-4bfeaa082c77")
 	)
 	(label "VCC"
-		(at 269.24 267.97 0)
+		(at 260.35 274.32 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -16556,7 +16576,7 @@
 		(uuid "8ca5ea9e-1637-4596-85c5-237cb703a890")
 	)
 	(label "CLKMIX"
-		(at 237.49 254 0)
+		(at 228.6 260.35 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -17186,7 +17206,7 @@
 		(uuid "c02cab42-5526-4280-b764-70cbab228762")
 	)
 	(label "OROE"
-		(at 262.89 256.54 0)
+		(at 254 262.89 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -17956,7 +17976,7 @@
 		(uuid "fefb1762-6960-4327-9b12-c2b18f25bcca")
 	)
 	(label "AS"
-		(at 278.13 251.46 180)
+		(at 269.24 257.81 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -18229,6 +18249,17 @@
 		)
 		(uuid "65019245-84e0-4398-bd1f-8fb6e1113ac3")
 	)
+	(hierarchical_label "M16B"
+		(shape output)
+		(at 298.45 220.98 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "6a21b811-cf81-46b4-a410-c2335c708bfe")
+	)
 	(hierarchical_label "CLKMIX"
 		(shape input)
 		(at 260.35 127 180)
@@ -18371,6 +18402,17 @@
 			(justify left)
 		)
 		(uuid "bc1b925e-4e6a-4207-bb52-c53b38b2a514")
+	)
+	(hierarchical_label "4HP5"
+		(shape output)
+		(at 275.59 262.89 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "c0207fbd-4459-41aa-8bb5-6ab82fd988db")
 	)
 	(hierarchical_label "SVA[12..0]"
 		(shape output)
@@ -22088,7 +22130,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS74")
-		(at 275.59 259.08 0)
+		(at 266.7 265.43 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -22096,7 +22138,7 @@
 		(dnp no)
 		(uuid "b830df7f-c31e-4b47-aed5-cb07b93f17b2")
 		(property "Reference" "4H"
-			(at 272.796 258.064 0)
+			(at 263.906 264.414 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22105,7 +22147,7 @@
 			)
 		)
 		(property "Value" "74LS74"
-			(at 272.796 260.604 0)
+			(at 263.906 266.954 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22114,7 +22156,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 275.59 259.08 0)
+			(at 266.7 265.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22123,7 +22165,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74hc_hct74.pdf"
-			(at 294.005 267.335 0)
+			(at 285.115 273.685 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22132,7 +22174,7 @@
 			)
 		)
 		(property "Description" "Dual D Flip-flop, Set & Reset"
-			(at 298.45 269.24 0)
+			(at 289.56 275.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23641,7 +23683,7 @@
 	)
 	(symbol
 		(lib_id "jt74:74LS74")
-		(at 252.73 256.54 0)
+		(at 243.84 262.89 0)
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -23649,7 +23691,7 @@
 		(dnp no)
 		(uuid "f56846ed-cd6c-4955-ac21-3469ab4bed6e")
 		(property "Reference" "7H"
-			(at 249.682 255.016 0)
+			(at 240.792 261.366 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23658,7 +23700,7 @@
 			)
 		)
 		(property "Value" "74LS74"
-			(at 249.682 257.556 0)
+			(at 240.792 263.906 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23667,7 +23709,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 252.73 256.54 0)
+			(at 243.84 262.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23676,7 +23718,7 @@
 			)
 		)
 		(property "Datasheet" "74xx/74hc_hct74.pdf"
-			(at 271.145 264.795 0)
+			(at 262.255 271.145 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23685,7 +23727,7 @@
 			)
 		)
 		(property "Description" "Dual D Flip-flop, Set & Reset"
-			(at 275.59 266.7 0)
+			(at 266.7 273.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)

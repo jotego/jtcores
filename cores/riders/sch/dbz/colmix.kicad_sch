@@ -5749,15 +5749,6 @@
 		(uuid "f9d4d369-a195-4f61-92ca-a71644d50005")
 	)
 	(bus_entry
-		(at 226.06 80.01)
-		(size 2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fa3dd6e1-9ede-4aa2-baba-0013791013b6")
-	)
-	(bus_entry
 		(at 157.48 250.19)
 		(size 2.54 2.54)
 		(stroke
@@ -6775,7 +6766,7 @@
 	)
 	(wire
 		(pts
-			(xy 228.6 82.55) (xy 233.68 82.55)
+			(xy 232.41 82.55) (xy 233.68 82.55)
 		)
 		(stroke
 			(width 0)
@@ -8162,16 +8153,6 @@
 			(type default)
 		)
 		(uuid "71f8b93d-4d59-47b9-83a0-7f1650f5e167")
-	)
-	(bus
-		(pts
-			(xy 223.52 80.01) (xy 226.06 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "728a473a-a7bf-4931-a609-0aa82076583a")
 	)
 	(wire
 		(pts
@@ -12873,16 +12854,6 @@
 		)
 		(uuid "c3ac8e1b-9005-4159-adba-8688c896f78d")
 	)
-	(label "OPAL8"
-		(at 228.6 82.55 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "c4c6bb67-233a-4250-825a-801a597f914e")
-	)
 	(label "PSDB5"
 		(at 195.58 219.71 0)
 		(effects
@@ -13613,6 +13584,17 @@
 		)
 		(uuid "840a4d21-307d-4fe8-a0e8-54c1aeb2e1ac")
 	)
+	(hierarchical_label "OPAL8"
+		(shape input)
+		(at 232.41 82.55 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "88eb003e-37a8-4f18-8f97-e379574a06fa")
+	)
 	(hierarchical_label "~{MOROE}"
 		(shape input)
 		(at 191.77 43.18 180)
@@ -13634,17 +13616,6 @@
 			(justify left)
 		)
 		(uuid "9061a6a4-1c8e-48e8-b03f-1481df5bb630")
-	)
-	(hierarchical_label "OPAL[3..0]"
-		(shape input)
-		(at 223.52 80.01 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "9318a0e7-af1b-49d2-bff9-f666e51d78b4")
 	)
 	(hierarchical_label "CI[7..0]"
 		(shape input)

@@ -3827,7 +3827,7 @@
 	)
 	(wire
 		(pts
-			(xy 74.93 149.86) (xy 81.28 149.86)
+			(xy 80.01 149.86) (xy 81.28 149.86)
 		)
 		(stroke
 			(width 0)
@@ -5207,7 +5207,7 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 72.39) (xy 110.49 72.39)
+			(xy 118.11 72.39) (xy 116.84 72.39)
 		)
 		(stroke
 			(width 0)
@@ -6275,16 +6275,6 @@
 		)
 		(uuid "6d1d3eab-5a8a-4562-8bfc-e2e34335e68b")
 	)
-	(label "16B14"
-		(at 74.93 149.86 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7122c229-9ca8-44d8-87ed-b9dc88948a89")
-	)
 	(label "MAIN_D0"
 		(at 355.6 83.82 180)
 		(effects
@@ -6444,16 +6434,6 @@
 			(justify left bottom)
 		)
 		(uuid "afd2dfd4-5b23-4c8e-9b91-c55cfcb764aa")
-	)
-	(label "18G15"
-		(at 110.49 72.39 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "b27b6166-adb1-4a12-be75-5b1af018e073")
 	)
 	(label "VCC"
 		(at 146.05 96.52 0)
@@ -6627,6 +6607,17 @@
 		)
 		(uuid "1cb4bf90-8cb0-40a6-b7d1-ac4d01cdcc36")
 	)
+	(hierarchical_label "18G15"
+		(shape input)
+		(at 116.84 72.39 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1d417c35-bf5f-48b3-8762-ea5d9fe88801")
+	)
 	(hierarchical_label "2P_UP"
 		(shape output)
 		(at 243.84 91.44 180)
@@ -6758,6 +6749,17 @@
 			(justify right)
 		)
 		(uuid "af03188b-f250-42c9-aa70-3e14c7115f75")
+	)
+	(hierarchical_label "16B14"
+		(shape input)
+		(at 80.01 149.86 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b53e5d43-20a7-43db-b25c-4d4dccb4e1ee")
 	)
 	(hierarchical_label "2P_START"
 		(shape output)
