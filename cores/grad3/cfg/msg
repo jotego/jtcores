@@ -1,45 +1,89 @@
        \BJTGRAD3\W
    \RGradius III\W compatible
-       FPGA core
+    FPGA core by \RJOTEGO\W
+     patreon.com/jotego
 
-      Konami GX945
-          1989
-
-  Supports MAME set:
-       \Rgradius3\W
- World version R parent
-
-  Real MiSTer hardware:
-   gameplay verified
-
-    Dual 68000 design
-  reused from Twin16
-
-  K052109/K051962 and
-  K051960 video reused
- from TMNT and ALIENS
+  Version \C - \D
 
   Schematics redrawn
   in KiCad by
    \RUlf Skutnabba\W
       @skutis77
 
-  HDL by \RFulvio Venturelli\W
+  Special Thanks to
+  \RFulvio Venturelli\W
+  for submitting the first
+  version of the core
 
-  Review and
-  contributions by
-  \RRafael Paiva\W
-  from JT Team
+ \B______ \RDIRECTORS\B _______\W
+Andrea Bogazzi  Bender
+Fabio Michelin  Frederic Mahe
+    Fulvio Venturelli
+M. Fornasini    Martin Birkeldh
+Martin Donlon   Tulio Adriano
+Ulf Skutnabba   f3bandit
+kccheng         Youqiang Gu
 
-  Built on top of
-   \RJTFRAME\W by
-    \RJose Tejada\W
-  \Bpatreon.com/jotego\W
+       \BThanks to\W
+\R    Alexander Facchini
+\RBlue Abs        Bob Gallardo
+\RBrian Sallee    Daithi
+\RDan Avedikian   Daniel Bauza
+\RDanny Garfield  DrewtoriousFGC
+\RER              Halla
+\RHarper Reed     Jacob Jewell
+\RJim Sprigler    Joe Castle
+\RKyle Mickley    Nick Chapman
+\RPD Lee          Pelayo Marinas
+\RPeter Vessenes  R. Martinazzo
+\RRenaissance 2K  RetroWilly
+\RRobert Moran    Sayit BELET
+\RTej Bilkhu      brad
+\Rcoolgamerman    dannahan
+\RoldmanoftheSEA
 
+ \B_________ AND __________\W
+ARCADEAGES      Adam Davis
+Adrian Nabarro  Anders Rensberg
+Andy Palmer     Andyways
+Blackstar       Bryan Adams
+Carrboroman     Chris Doyle
+Chris Harvey    Christian
+DMG             Dan Bayley
+Daniel Cortes   Darren Chell
+Dave Sasser     David Moylan
+Dean Winger     Don Gafford
+Ed Balan        Eduardo Javier
+Fred Jorge      Gus Douboulidis
+    Hendrik Osterholz
+    INAKI ECHEVARRIA
+Ian Court       JPS (RetroFPGA)
+James Stroup    Jo le Zef
+Joe Tassone     Joeri van
+John Casey      John Silva
+Juan Sandoval   JuanRa
+Keith F. Kelly  Leslie Law
+    Lukas Hinterleitner
+M. Ferguson     Matt Hargett
+    Matthew Young
+    Michael Ferguson
+    Michael Fleisher
+Michael Johnson Mike Phan
+Nima            Nunzio Mannino
+Oliver Jaksch   Oscar Laguna
+Retro_Brewz     Richard MS
+Rob Jenkins     Robert MacLean
+Shane Lynch     Steven Wilson
+The Collector   Theodore Huber
+Thompson Orcino Torren Beitler
+Vitor Duarte    albertprime
+amoore2600      hyp36rmax
+ultimatekd
   ________________________
 
       - Beta version -
       Do not distribute
+
 
       -     MiSTer   -
       Place jtbeta.zip
@@ -49,4 +93,3 @@
       -   A. Pocket  -
     Unzip jtbeta.zip into
     Assets/jtpatreon/common
-
