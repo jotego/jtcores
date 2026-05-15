@@ -18,6 +18,26 @@ Each
 entry defines one MMR block.
 .SS Block Keys
 .TP
+.B include
+Optional.
+Imports definitions from another core.
+It accepts:
+\fBcore\fR
+and optional
+\fBname\fR.
+\fBcore\fR
+is mandatory and points to
+\fB$CORES/<core>/cfg/mmr.yaml\fR.
+\fBname\fR
+can be omitted (imports all blocks),
+one string (import one block), or a list of strings (import several blocks).
+Examples:
+\fB- include:\fR
+\fB    core: shouse\fR
+\fB    name: [cus30,cus116]\fR
+\fB- include:\fR
+\fB    core: shouse\fR
+.TP
 .B name
 Required.
 Block name.

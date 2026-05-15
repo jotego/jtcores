@@ -39,6 +39,16 @@ type mmr_gen struct {
 	bits []int // location of bits used
 }
 
+type mmr_entry struct {
+	Include MMRInclude `yaml:"include"`
+	MMRdef `yaml:",inline"`
+}
+
+type MMRInclude struct {
+	Core string
+	Name interface{} `yaml:"name"`
+}
+
 type MMRdef struct {
 	Name string
 	Size int
@@ -89,11 +99,121 @@ func Generate( corename string, verbose bool ) (e error) {
 		corename: corename,
 		hdl_path: filepath.Join(os.Getenv("CORES"), corename, "hdl"),
 	}
-	e = yaml.Unmarshal( buf, &mmr.cfg ); if e != nil { return e }
+	var entries []mmr_entry
+	e = yaml.Unmarshal( buf, &entries ); if e != nil { return e }
+	mmr.cfg, e = mmr.expand(entries, map[string]bool{})
+	if e != nil { return e }
 	sanity_check(mmr.cfg)
 	e = mmr.generate(); if e != nil { return e }
 	e = mmr.dump_all()
 	return e
+}
+
+func (mmr *mmr_gen) expand(entries []mmr_entry, includes map[string]bool) (cfg []MMRdef, e error) {
+	if includes[mmr.corename] {
+		return nil, fmt.Errorf("Error: mmr include recursion detected for core %s", mmr.corename)
+	}
+	includes[mmr.corename] = true
+	defer delete(includes, mmr.corename)
+
+	for _, entry := range entries {
+		if entry.Include.Core != "" {
+			imported, e := mmr.loadImported(entry.Include, includes)
+			if e != nil { return nil, e }
+			cfg = append(cfg, imported...)
+			continue
+		}
+		if entry.MMRdef.Name != "" {
+			cfg = append(cfg, entry.MMRdef)
+			continue
+		}
+	}
+	return cfg,nil
+}
+
+func (mmr *mmr_gen) loadImported(include MMRInclude, includes map[string]bool) (cfg []MMRdef, e error) {
+	core := strings.TrimSpace(include.Core)
+	if core == "" {
+		return nil, fmt.Errorf("Error: mmr include without core")
+	}
+	all, e := mmr.loadImportedFromCore(core, includes)
+	if e != nil { return nil, e }
+	names, e := importNames(include.Name)
+	if e != nil {
+		return nil, fmt.Errorf("Error: invalid mmr import name from %q: %w", core, e)
+	}
+	if len(names) == 0 {
+		return all, nil
+	}
+	return mmr.selectImportedFrom(core, all, names)
+}
+
+func (mmr *mmr_gen) loadImportedFromCore(core string, includes map[string]bool) (cfg []MMRdef, e error) {
+	mmr_path := GetMMRPath(core)
+	buf, e := os.ReadFile(mmr_path)
+	if e != nil {
+		return nil, fmt.Errorf("Error: cannot read mmr from %q: %w", core, e)
+	}
+
+	var entries []mmr_entry
+	if e = yaml.Unmarshal(buf, &entries); e != nil {
+		return nil, fmt.Errorf("Error: cannot parse mmr from %q: %w", core, e)
+	}
+	imported := mmr_gen{
+		corename: core,
+	}
+	return imported.expand(entries, includes)
+}
+
+func (mmr *mmr_gen) selectImportedFrom(core string, all []MMRdef, names []string) (cfg []MMRdef, e error) {
+	pick := make(map[string]struct{}, len(names))
+	for _, name := range names {
+		pick[strings.TrimSpace(name)] = struct{}{}
+	}
+	cfg = make([]MMRdef,0,len(all))
+	for _, each := range all {
+		if _, ok := pick[each.Name]; ok {
+			cfg = append(cfg, each)
+			delete(pick, each.Name)
+		}
+	}
+	if len(pick) != 0 {
+		missing := make([]string,0,len(pick))
+		for each := range pick {
+			if each != "" {
+				missing = append(missing, each)
+			}
+		}
+		return nil, fmt.Errorf("Error: imported mmr from %q missing name(s): %s", core, strings.Join(missing, ", "))
+	}
+	return cfg, nil
+}
+
+func importNames(nameField interface{}) (names []string, e error) {
+	switch t := nameField.(type) {
+	case nil:
+		return nil, nil
+	case string:
+		s := strings.TrimSpace(t)
+		if s == "" { return nil, nil }
+		return []string{s}, nil
+	case []interface{}:
+		names = make([]string,0,len(t))
+		for _, each := range t {
+			s, ok := each.(string)
+			if !ok {
+				return nil, fmt.Errorf("unsupported mmr import name list item %T", each)
+			}
+			s = strings.TrimSpace(s)
+			if s == "" {
+				continue
+			}
+			names = append(names, s)
+		}
+		return names,nil
+	default:
+		return nil, fmt.Errorf("unsupported mmr import name format %T", nameField)
+	}
 }
 
 func (mmr *mmr_gen) generate() (e error) {

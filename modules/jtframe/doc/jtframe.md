@@ -40,6 +40,10 @@ File          | Purpose
 Not every core uses every file. `jtframe` only runs the relevant generators for
 the files that exist.
 
+`mmr.yaml` also supports an `include` block to reuse definitions from another
+core (for example, importing all or selected `name`s from other `core`).
+
+
 ## Inputs from `$JTFRAME/target`
 
 `jtframe` also consumes target-specific data from `$JTFRAME/target/<target>`.

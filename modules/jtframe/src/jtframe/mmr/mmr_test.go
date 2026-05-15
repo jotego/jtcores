@@ -139,6 +139,68 @@ func Test_event_conditions(t *testing.T) {
 	must_contain(t, got, "if(cs && !rnw && addr=='d3 && !dsn[0] && din[0]==1'b0) evzero <= 1;")
 }
 
+func Test_import_all_and_multiple_names(t *testing.T) {
+	tmp := t.TempDir()
+	oldCoreEnv := os.Getenv("CORES")
+	os.Setenv("CORES", tmp)
+	defer os.Setenv("CORES", oldCoreEnv)
+
+	importCore := filepath.Join(tmp, "CoreA", "cfg")
+	if e := os.MkdirAll(importCore, 0o755); e != nil {
+		t.Fatal(e)
+	}
+	importFile := filepath.Join(importCore, "mmr.yaml")
+	importText := `
+- name: alpha
+  size: 4
+  regs:
+    - name: one
+      dw: 8
+      at: "0"
+- name: beta
+  size: 4
+  regs:
+    - name: two
+      dw: 8
+      at: "0"
+`
+	if e := os.WriteFile(importFile, []byte(importText), 0o644); e != nil {
+		t.Fatal(e)
+	}
+	rootText := `
+- include:
+    core: CoreA
+- include:
+    core: CoreA
+    name:
+      - beta
+      - alpha
+- name: local
+  size: 4
+  regs:
+    - name: own
+      dw: 8
+      at: "0"
+`
+	var entries []mmr_entry
+	if e := yaml.Unmarshal([]byte(rootText), &entries); e != nil {
+		t.Fatal(e)
+	}
+	var mmr = mmr_gen{
+		corename: "CoreB",
+	}
+	cfg, e := mmr.expand(entries, map[string]bool{})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if len(cfg) != 5 {
+		t.Fatalf("Expected 5 imported+local entries, got %d", len(cfg))
+	}
+	if cfg[0].Name != "alpha" || cfg[1].Name != "beta" || cfg[2].Name != "alpha" || cfg[3].Name != "beta" || cfg[4].Name != "local" {
+		t.Fatalf("Unexpected import order/names: %+v", []string{cfg[0].Name, cfg[1].Name, cfg[2].Name, cfg[3].Name, cfg[4].Name})
+	}
+}
+
 func must_contain(t *testing.T, got, want string) {
 	t.Helper()
 	if !strings.Contains(got,want) {
