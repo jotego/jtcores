@@ -18,6 +18,10 @@ permissions:
   contents: read
   actions: read
 
+concurrency:
+  group: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}-compile-all
+  cancel-in-progress: true
+
 jobs:
   check_pr_checks:
     runs-on: ubuntu-latest
