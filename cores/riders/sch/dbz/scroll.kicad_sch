@@ -14724,6 +14724,16 @@
 	)
 	(wire
 		(pts
+			(xy 116.84 149.86) (xy 118.11 149.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "72e6d2b1-67ba-4e16-88c2-650b9761da9c")
+	)
+	(wire
+		(pts
 			(xy 148.59 234.95) (xy 173.99 234.95)
 		)
 		(stroke
@@ -15814,6 +15824,16 @@
 	)
 	(wire
 		(pts
+			(xy 116.84 151.13) (xy 118.11 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9c7c7b15-9e2e-482c-a044-190960f2b2ff")
+	)
+	(wire
+		(pts
 			(xy 251.46 128.27) (xy 238.76 128.27)
 		)
 		(stroke
@@ -15831,6 +15851,16 @@
 			(type default)
 		)
 		(uuid "9d1e6859-27de-4ca1-a822-72497c216ffa")
+	)
+	(wire
+		(pts
+			(xy 118.11 149.86) (xy 118.11 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9da253b9-4888-4051-809a-f28574322b7f")
 	)
 	(bus
 		(pts
@@ -18054,7 +18084,7 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 142.24) (xy 118.11 151.13)
+			(xy 116.84 149.86) (xy 116.84 151.13)
 		)
 		(stroke
 			(width 0)
@@ -18596,8 +18626,9 @@
 		(start 153.67 22.86)
 		(end 248.92 276.86)
 		(stroke
-			(width 0)
-			(type default)
+			(width 0.4572)
+			(type dash)
+			(color 194 0 194 1)
 		)
 		(fill
 			(type none)
@@ -18818,6 +18849,16 @@
 			)
 		)
 		(uuid "4362ec58-aa0e-4a93-b49c-75e196761927")
+	)
+	(text "CHIP ERROR\n"
+		(exclude_from_sim no)
+		(at 320.548 165.608 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "c644e51c-9079-427f-8c78-12b4b88d5642")
 	)
 	(label "MAIN_AB8"
 		(at 16.51 181.61 0)
@@ -22259,16 +22300,6 @@
 		)
 		(uuid "f35c8ef0-3e28-4e6c-b182-83c1117c8bab")
 	)
-	(label "TMG2TD2"
-		(at 118.11 151.13 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f3f2a8b3-5765-4159-94e4-37281f8892ec")
-	)
 	(label "GFXROMD22"
 		(at 222.25 116.84 0)
 		(effects
@@ -22486,6 +22517,17 @@
 			(justify left)
 		)
 		(uuid "597d4b8a-527b-42c1-a489-00ff8cefcd7a")
+	)
+	(hierarchical_label "TMG2TD2"
+		(shape output)
+		(at 116.84 151.13 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "80edcdc5-64c1-4503-9cce-b56edc989213")
 	)
 	(hierarchical_label "~{UDS}"
 		(shape input)

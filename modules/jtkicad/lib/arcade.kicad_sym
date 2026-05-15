@@ -39658,98 +39658,6 @@
 				(hide yes)
 			)
 		)
-		(symbol "LA4705_0_0"
-			(pin power_in line
-				(at -8.89 11.43 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "11"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin power_in line
-				(at -8.89 -15.24 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "13"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin no_connect line
-				(at 8.89 -12.7 180)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "18"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin input line
-				(at -8.89 -12.7 0)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "5"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin output line
-				(at 8.89 0 180)
-				(length 2.54)
-				(name ""
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "8"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-		)
 		(symbol "LA4705_0_1"
 			(rectangle
 				(start -6.35 20.32)
@@ -39764,10 +39672,10 @@
 			)
 		)
 		(symbol "LA4705_1_0"
-			(pin power_in line
-				(at 8.89 -15.24 180)
+			(pin no_connect line
+				(at 8.89 -13.97 180)
 				(length 2.54)
-				(name ""
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39782,10 +39690,10 @@
 					)
 				)
 			)
-			(pin input line
-				(at -8.89 -5.08 0)
+			(pin no_connect line
+				(at 8.89 -11.43 180)
 				(length 2.54)
-				(name ""
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39800,10 +39708,28 @@
 					)
 				)
 			)
-			(pin input line
-				(at -8.89 16.51 0)
+			(pin power_in line
+				(at -8.89 -6.35 0)
 				(length 2.54)
-				(name ""
+				(name "VCC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin output inverted
+				(at 8.89 6.35 180)
+				(length 2.54)
+				(name "~{OUT2}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39818,10 +39744,28 @@
 					)
 				)
 			)
-			(pin input line
-				(at -8.89 13.97 0)
+			(pin power_in line
+				(at -8.89 -13.97 0)
 				(length 2.54)
-				(name ""
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "13"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at 8.89 11.43 180)
+				(length 2.54)
+				(name "OUT2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39836,10 +39780,10 @@
 					)
 				)
 			)
-			(pin power_in line
-				(at -8.89 -17.78 0)
+			(pin output line
+				(at 8.89 13.97 180)
 				(length 2.54)
-				(name ""
+				(name "OUT1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39855,9 +39799,9 @@
 				)
 			)
 			(pin power_in line
-				(at -8.89 -10.16 0)
+				(at -8.89 -11.43 0)
 				(length 2.54)
-				(name ""
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39872,10 +39816,10 @@
 					)
 				)
 			)
-			(pin no_connect line
-				(at 8.89 -10.16 180)
+			(pin output inverted
+				(at 8.89 8.89 180)
 				(length 2.54)
-				(name ""
+				(name "~{OUT1}"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39890,10 +39834,28 @@
 					)
 				)
 			)
-			(pin output line
-				(at 8.89 6.35 180)
+			(pin power_in line
+				(at -8.89 -8.89 0)
 				(length 2.54)
-				(name ""
+				(name "VCC"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "18"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 16.51 0)
+				(length 2.54)
+				(name "IN1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39908,10 +39870,10 @@
 					)
 				)
 			)
-			(pin power_in line
-				(at 8.89 15.24 180)
+			(pin bidirectional line
+				(at 8.89 2.54 180)
 				(length 2.54)
-				(name ""
+				(name "UK"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39926,10 +39888,10 @@
 					)
 				)
 			)
-			(pin input inverted
-				(at 8.89 3.81 180)
+			(pin power_in line
+				(at -8.89 -16.51 0)
 				(length 2.54)
-				(name ""
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39944,10 +39906,28 @@
 					)
 				)
 			)
-			(pin input inverted
+			(pin power_in line
+				(at -8.89 -3.81 0)
+				(length 2.54)
+				(name "+5V"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin bidirectional line
 				(at 8.89 -2.54 180)
 				(length 2.54)
-				(name ""
+				(name "UK"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39962,10 +39942,10 @@
 					)
 				)
 			)
-			(pin power_in line
-				(at 8.89 11.43 180)
+			(pin input line
+				(at -8.89 13.97 0)
 				(length 2.54)
-				(name ""
+				(name "IN2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39980,10 +39960,28 @@
 					)
 				)
 			)
-			(pin power_in line
-				(at 8.89 -17.78 180)
+			(pin bidirectional line
+				(at 8.89 0 180)
 				(length 2.54)
-				(name ""
+				(name "UK"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin no_connect line
+				(at 8.89 -16.51 180)
+				(length 2.54)
+				(name "NC"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -39995,144 +39993,6 @@
 						(font
 							(size 1.27 1.27)
 						)
-					)
-				)
-			)
-		)
-		(symbol "LA4705_1_1"
-			(text "BOOT1\n"
-				(at 3.048 16.002 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "BOOT2"
-				(at 3.048 12.192 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "GND"
-				(at -4.064 -12.192 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "IN1\n"
-				(at -4.064 17.018 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "IN2\n"
-				(at -4.064 14.732 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "LA4705"
-				(at 1.27 -6.858 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "MUTE"
-				(at -4.064 11.684 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "OUT(+)"
-				(at 2.032 6.858 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "OUT(-)"
-				(at 2.032 4.318 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "OUT2(+)"
-				(at 1.524 0.762 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "OUT2(-)"
-				(at 1.524 -2.286 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "SGND"
-				(at -4.064 -14.732 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "STBY"
-				(at -3.81 -4.572 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "SVR\n"
-				(at -4.318 -17.018 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "TAB\n"
-				(at -4.318 -9.652 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "VCC"
-				(at 3.81 -17.272 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(text "VCC"
-				(at 3.81 -14.732 0)
-				(effects
-					(font
-						(size 1.27 1.27)
 					)
 				)
 			)
