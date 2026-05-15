@@ -1,18 +1,16 @@
-# JTGRAD3
+# Gradius 3
 
-FPGA implementation of Gradius III (Konami GX945, 1989) for MiSTer, built on
-jtframe.
+You have just got an expensive $1,700 PCB according to eBay. You have in your hands a faithful conversion of the circuits on the GunSmoke PCB to FPGA. If you come from the emulation world here are some of the things different from emulators:
 
-## Status
+- Real CPU/GPU bus sharing with delays
+- Sprites handled with DMA exactly as in the original hardware
+- Graphics priority handled by the original PROM
+- No lag between image and input. Data is being sent to the screen in real time.
+- Precise sound sampling rate
+- Accurate FPS 100% same as real hardware
 
-- Supported set: `gradius3` (Gradius III, World, version R).
-- Boots through RAM/ROM check, reaches attract/title, and runs in-game.
-- Original DSW1/DSW2/DSW3 DIP banks are exposed in the OSD.
-- Schematics are included under `sch/`.
+These technical aspects mean that the game play will be different from an emulator in a number of ways and that some hardware tricks that were not emulated will work here as in the original hardware.
 
-## Credits
+# Acknowledgments
 
-- HDL framework and shared core modules: Jose Tejada Gomez and jtcores
-  contributors.
-- Gradius III and 052535 KiCad schematics: Ulf Skutnabba.
-- 052535 source imagery credit is preserved in the schematic sheets.
+This core owns much to the PCB schematics work from Skutis and the initial draft submitted by Fulvio.
