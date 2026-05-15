@@ -288,7 +288,11 @@ module SH7604_DMAC (
 							DMA_BURST <= 0;
 						end
 					end
-					RD_BUF_LATCH <= 1;
+					if (&CHCR[DMA_CH][11:10]) RD_BUF_LATCH <= 1;
+					else begin
+						RD_BUF[0] <= DBUS_DI;
+						RD_BUF_LATCH <= 0;
+					end
 					SA_BA <= SAR[DMA_CH][1:0];
 				end
 				else if (DMA_WR) begin
@@ -385,17 +389,17 @@ module SH7604_DMAC (
 		case (CHCR[DMA_CH][11:10])
 			2'b00: 
 				case (SA_BA)
-					2'b00: DBUS_DO_TEMP = {4{DBUS_DI[31:24]}};
-					2'b01: DBUS_DO_TEMP = {4{DBUS_DI[23:16]}};
-					2'b10: DBUS_DO_TEMP = {4{DBUS_DI[15: 8]}};
-					2'b11: DBUS_DO_TEMP = {4{DBUS_DI[ 7: 0]}};
+					2'b00: DBUS_DO_TEMP = {4{RD_BUF[0][31:24]}};
+					2'b01: DBUS_DO_TEMP = {4{RD_BUF[0][23:16]}};
+					2'b10: DBUS_DO_TEMP = {4{RD_BUF[0][15: 8]}};
+					2'b11: DBUS_DO_TEMP = {4{RD_BUF[0][ 7: 0]}};
 				endcase
 			2'b01: 
 				case (SA_BA[1])
-					1'b0: DBUS_DO_TEMP = {2{DBUS_DI[31:16]}};
-					1'b1: DBUS_DO_TEMP = {2{DBUS_DI[15: 0]}};
+					1'b0: DBUS_DO_TEMP = {2{RD_BUF[0][31:16]}};
+					1'b1: DBUS_DO_TEMP = {2{RD_BUF[0][15: 0]}};
 				endcase
-			2'b10: DBUS_DO_TEMP = DBUS_DI;
+			2'b10: DBUS_DO_TEMP = RD_BUF[0];
 			2'b11: DBUS_DO_TEMP = RD_BUF[3];
 		endcase
 	end
