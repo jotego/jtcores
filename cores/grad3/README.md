@@ -1,6 +1,6 @@
 # Gradius 3
 
-You have just got an expensive $1,700 PCB according to eBay. You have in your hands a faithful conversion of the circuits on the GunSmoke PCB to FPGA. If you come from the emulation world here are some of the things different from emulators:
+You have just got an expensive $1,700 PCB according to eBay. You have in your hands a faithful conversion of the circuits on the Gradius III PCB to FPGA. If you come from the emulation world here are some of the things different from emulators:
 
 - Real CPU/GPU bus sharing with delays
 - Sprites handled with DMA exactly as in the original hardware
