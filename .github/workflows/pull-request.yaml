@@ -12,10 +12,6 @@ jobs:
     uses: ./.github/workflows/beta-checks.yml
     secrets: inherit
 
-  file_change:
-    uses: ./.github/workflows/filechange.yaml
-    secrets: inherit
-
   framework_tests:
     uses: ./.github/workflows/framework.yaml
     secrets: inherit
