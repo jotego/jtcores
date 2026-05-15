@@ -1,0 +1,39 @@
+name: Pull Request checks
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.head_ref || github.ref }}-pr-checks
+  cancel-in-progress: true
+
+jobs:
+  beta_checks:
+    uses: ./.github/workflows/beta-checks.yml
+    secrets: inherit
+
+  file_change:
+    uses: ./.github/workflows/filechange.yaml
+    secrets: inherit
+
+  framework_tests:
+    uses: ./.github/workflows/framework.yaml
+    secrets: inherit
+
+  linter:
+    uses: ./.github/workflows/linter.yaml
+    secrets: inherit
+
+  unit_simulations:
+    uses: ./.github/workflows/simunit.yaml
+    secrets: inherit
+
+  compile_all:
+    needs:
+      - beta_checks
+      - file_change
+      - framework_tests
+      - linter
+      - unit_simulations
+    uses: ./.github/workflows/compile-all.yaml
+    secrets: inherit

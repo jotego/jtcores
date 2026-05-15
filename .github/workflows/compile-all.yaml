@@ -2,25 +2,15 @@ name: Compile all
 
 on:
   workflow_dispatch:
+  workflow_call:
   repository_dispatch:
     types: rebuild
-  workflow_run:
-    workflows:
-      - Framework Unit Tests
-      - Verilator/MRA linter
-      - Unit Simulations
-    types:
-      - completed
   schedule:
     - cron: '0 3 * * *' # runs every night at 3am
 
 permissions:
   contents: read
   actions: read
-
-concurrency:
-  group: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}-compile-all
-  cancel-in-progress: true
 
 jobs:
   check_pr_checks:
