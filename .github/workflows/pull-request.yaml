@@ -27,7 +27,6 @@ jobs:
   compile_all:
     needs:
       - beta_checks
-      - file_change
       - framework_tests
       - linter
       - unit_simulations
