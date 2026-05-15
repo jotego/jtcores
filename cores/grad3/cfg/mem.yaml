@@ -1,0 +1,98 @@
+params:
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA2_START)" }
+  - { name: GFX_OFFSET, value: "(`GFX_START-`JTFRAME_BA1_START) >> 1" }
+clocks:
+  clk48:
+    - freq: 24M
+      outputs:
+        - cen24
+        - cen12
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+audio:
+  gain: 1.99
+  rsum: 12k
+  rsum_feedback_res: true
+  channels:
+    - { name: fm,  module: jt51,     rsum: 3.3k, rc: [ { r: 470,  c: 22n  } ] }
+    - { name: pcm, module: jt007232, rsum: 4.7k, rc: [ { r: 4.7k, c: 4.7n } ], pre: 0.45 }
+sdram:
+  banks:
+    - buses:
+        - name: main
+          addr_width: 18
+          data_width: 16
+    - buses:
+        - name: sub
+          addr_width: 20
+          data_width: 16
+        - name: gfx
+          addr_width: 21
+          data_width: 16
+          offset: GFX_OFFSET
+        - name: lyro
+          addr_width: 21
+          data_width: 32
+          offset: GFX_OFFSET
+    - buses:
+        - name: snd
+          addr_width: 16
+          data_width: 8
+        - name: pcma
+          addr_width: 19
+          data_width: 8
+          offset: PCM_OFFSET
+        - name: pcmb
+          addr_width: 19
+          data_width: 8
+          offset: PCM_OFFSET
+    - buses:
+        - name: m_gchar
+          addr_width: 17
+          data_width: 16
+          addr: "main_addr[16:1]"
+          din: m_dout
+          dsn: m_dsn
+          rw: true
+        - name: s_gchar
+          addr_width: 17
+          data_width: 16
+          din: s_dout
+          dsn: s_dsn
+          rw: true
+        - name: lyrf
+          addr_width: 17
+          data_width: 32
+        - name: lyra
+          addr_width: 17
+          data_width: 32
+        - name: lyrb
+          addr_width: 17
+          data_width: 32
+bram:
+  - name: m_shram
+    addr_width: 14
+    data_width: 16
+    addr: "main_addr[13:1]"
+    din: m_dout
+    rw: true
+    dual_port: { name: s_shram, rw: true, din: s_dout, dout: s_shram_dout }
+  - name: palrd
+    addr_width: 12
+    data_width: 16
+    simfile: {}
+    ioctl: {save: true}
+    dual_port: { name: pal, rw: true, addr: "main_addr[11:1]", din: m_dout, dout: pal_dout }
+  - name: mram
+    addr_width: 14
+    data_width: 16
+    addr: "main_addr[13:1]"
+    din: m_dout
+    rw: true
+  - name: sram
+    addr_width: 14
+    data_width: 16
+    din: s_dout
+    rw: true
