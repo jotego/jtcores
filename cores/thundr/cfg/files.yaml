@@ -4,7 +4,6 @@ thundr:
 shouse:
   - get:
     - jtcus30.sv
-    - jtcus30_mmr.v
     - jtshouse_vtimer.v
 jtframe:
   - get:
