@@ -77,10 +77,13 @@ module jtsh7604 #(
     wire [31:0] cpu_din_sh = cps3_bios_rd ?
         (cps3_swap16_dword(cpu_din) ^ cps3_mask({5'd0, cpu_a[26:2], 2'b00}, cps3_key1, cps3_key2)) :
         cpu_din;
+    wire [31:0] cpu_din_hold = req_rd_l ? cpu_din_l : cpu_din_sh;
 
     reg         req_active;
     reg         req_done;
+    reg         req_rd_l;
     reg         bus_stb_l;
+    reg [31:0]  cpu_din_l;
 
     function automatic [15:0] cps3_rotate_left16(input [15:0] val, input integer n);
         cps3_rotate_left16 = (val << n) | (val >> (16 - n));
@@ -119,7 +122,9 @@ module jtsh7604 #(
         if (rst) begin
             req_active <= 1'b0;
             req_done   <= 1'b0;
+            req_rd_l   <= 1'b0;
             bus_stb_l  <= 1'b0;
+            cpu_din_l  <= 32'd0;
         end
         else begin
             bus_stb_l <= cpu_bus_stb;
@@ -127,10 +132,15 @@ module jtsh7604 #(
             if (bus_stb_rise) begin
                 req_active <= 1'b1;
                 req_done   <= 1'b0;
+                req_rd_l   <= ~cpu_wr_req;
             end
             else if (cache_ok && req_active) begin
                 req_active <= 1'b0;
                 req_done   <= 1'b1;
+            end
+
+            if (cache_ok && req_active && req_rd_l) begin
+                cpu_din_l <= cpu_din_sh;
             end
 
             if (!cpu_bus_stb) begin
@@ -168,7 +178,7 @@ module jtsh7604 #(
         .IRL_N     ( irl_n     ),
 
         .A         ( cpu_a     ),
-        .DI        ( cpu_din_sh ),
+        .DI        ( cpu_din_hold ),
         .DO        ( cpu_do    ),
         .BS_N      ( BS_N      ),
         .CS0_N     ( CS0_N     ),
