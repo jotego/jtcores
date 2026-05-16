@@ -61,7 +61,8 @@ module jtsh7604 #(
     output             cache_wr,
     output     [26:1]  cache_addr,
     output     [31:0]  cache_din,
-    output     [3:0]   cache_dsn
+    output     [3:0]   cache_dsn,
+    output             cpu_bus_dbus_rd
 );
 
     wire [26:0] cpu_a;
@@ -69,13 +70,22 @@ module jtsh7604 #(
     wire [3:0]  cpu_we;
     wire        cpu_rd_n;
     wire        cpu_bus_stb;
-    wire        cpu_bus_dbus_rd;
+    wire        cpu_bus_dbus_rd_i;
     wire        cpu_wr_req = ~RD_WR_N;
     wire        bus_stb_rise;
     wire        cps3_valid_key = |{cps3_key1, cps3_key2};
-    wire        cps3_bios_rd = cps3_valid_key && cpu_a[26:19] == 8'h00 && !cpu_rd_n && !cpu_bus_dbus_rd;
+    wire        cps3_bios_rd = cps3_valid_key && cpu_a[26:19] == 8'h00 && !cpu_rd_n && !cpu_bus_dbus_rd_i;
+    wire        cps3_simm1_rd = cps3_valid_key &&
+                                  cpu_a[26:25] == 2'b11 && !cpu_a[24] && !cpu_a[23] &&
+                                  !cpu_rd_n && !cpu_bus_dbus_rd_i;
+    wire        cps3_simm2_rd = cps3_valid_key &&
+                                  cpu_a[26:25] == 2'b11 && !cpu_a[24] && cpu_a[23] &&
+                                  !cpu_rd_n && !cpu_bus_dbus_rd_i;
+    wire        cps3_simm_rd  = cps3_simm1_rd | cps3_simm2_rd;
     wire [31:0] cpu_din_sh = cps3_bios_rd ?
         (cps3_swap16_dword(cpu_din) ^ cps3_mask({5'd0, cpu_a[26:2], 2'b00}, cps3_key1, cps3_key2)) :
+        cps3_simm_rd ?
+        (cpu_din ^ cps3_mask({5'd0, cpu_a[26:2], 2'b00}, cps3_key1, cps3_key2)) :
         cpu_din;
     wire [31:0] cpu_din_hold = req_rd_l ? cpu_din_l : cpu_din_sh;
 
@@ -158,6 +168,7 @@ module jtsh7604 #(
     assign cache_dsn  = cpu_we;
 
     assign WAIT_N = req_active ? cache_ok : (req_done || !cpu_bus_stb);
+    assign cpu_bus_dbus_rd = cpu_bus_dbus_rd_i;
 
     SH7604 #(
         .UBC_DISABLE      ( UBC_DISABLE      ),
@@ -193,7 +204,7 @@ module jtsh7604 #(
         .IVECF_N   ( IVECF_N   ),
         .RFS       ( RFS       ),
         .BUS_STB   ( cpu_bus_stb ),
-        .BUS_DBUS_RD ( cpu_bus_dbus_rd ),
+        .BUS_DBUS_RD ( cpu_bus_dbus_rd_i ),
 
         .EA        ( 27'd0     ),
         .EDI       (           ),
