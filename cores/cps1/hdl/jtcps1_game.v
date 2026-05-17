@@ -39,7 +39,6 @@ wire [12:0] star0_addr, star1_addr;
 wire        vram_clr, vram_rfsh_en;
 wire [ 8:0] hdump;
 wire [ 8:0] vdump, vrender;
-wire        snd_peak_int;
 
 wire        rom0_half, rom1_half;
 wire        cfg_we;
@@ -56,39 +55,9 @@ wire        charger;
 wire        turbo, video_flip, filter_old;
 reg         rst_game;
 
-`ifndef JTFRAME_MEMGEN
-wire        snd_cs, adpcm_cs, main_rom_cs,
-            rom0_cs, rom1_cs,
-            vram_dma_cs;
-wire [15:0] snd_addr;
-wire [17:0] adpcm_addr;
-wire [ 7:0] snd_data, adpcm_data;
-wire [21:1] main_rom_addr;
-wire [15:0] main_ram_data, main_rom_data, main_dout;
-wire        main_rom_ok, main_ram_ok;
-wire [31:0] rom0_data, rom1_data;
-wire [17:1] vram_dma_addr;
-wire [15:0] vram_dma_data;
-wire        vram_dma_ok, rom0_ok, rom1_ok, snd_ok, adpcm_ok;
-wire [31:0] star0_data, star1_data;
-wire        star0_ok,   star1_ok,
-            star0_cs,   star1_cs;
-wire [ 1:0] dsn;
-`endif
-
 `include "turbo.vh"
 assign filter_old   = dipsw[24];
 assign debug_view   = debug_bus[0] ? fave[7:0] : fave[15:8];
-    //{ 6'd0, dump_flag, filter_old };
-`ifndef JTFRAME_MEMGEN
-assign snd_vu       = 0;
-assign snd_peak     = snd_peak_int;
-`endif
-`ifndef JTFRAME_MEMGEN
-assign ba1_din=0, ba2_din=0, ba3_din=0,
-       ba1_dsn=3, ba2_dsn=3, ba3_dsn=3;
-`endif
-
 assign clk_gfx  = clk;
 assign rst_gfx  = rst;
 
@@ -97,7 +66,6 @@ always @(posedge clk) rst_game <= hold_rst | rst48;
 localparam REGSIZE=24,
            START_HEADER=16;
 
-`ifdef JTFRAME_MEMGEN
 localparam [ 5:0] CFG_BYTE=6'd39;
 localparam [22:0] VRAM_OFFSET=23'h20_0000,
                   WRAM_OFFSET=23'h30_0000;
@@ -167,7 +135,6 @@ jt9346_16b8b #(.DW(16),.AW(6)) u_eeprom(
     .dump_flag  ( dump_flag ),
     .dump_clr   ( ioctl_ram )
 );
-`endif
 
 // Turbo speed disables DMA
 wire busreq_cpu = busreq & ~turbo;
@@ -439,7 +406,7 @@ jtcps1_sound u_sound(
     .left           ( snd_left      ),
     .right          ( snd_right     ),
     .sample         ( sample        ),
-    .peak           ( snd_peak_int  ),
+    .peak           (               ),
     .debug_bus      ( debug_bus     )
 );
 `else
@@ -447,7 +414,6 @@ assign snd_addr   = 0;
 assign snd_cs     = 0;
 assign snd_left   = 0;
 assign snd_right  = 0;
-assign snd_peak_int = 0;
 assign adpcm_addr = 0;
 assign adpcm_cs   = 0;
 assign sample     = 0;
@@ -457,137 +423,5 @@ reg rst_sdram;
 always @(posedge clk) rst_sdram <= rst;
 
 wire nc0, nc1, nc2, nc3;
-/* verilator tracing_on */
-`ifndef JTFRAME_MEMGEN
-jtcps1_sdram #(.REGSIZE(REGSIZE)) u_sdram (
-    .rst         ( rst_sdram     ),
-    .clk         ( clk           ),
-    .clk_gfx     ( clk_gfx       ),
-    .clk_cpu     ( clk48         ),
-    .LVBL        ( LVBL          ),
-    .star_bank   ( star_bank     ),
-    .hold_rst    ( hold_rst      ),
-
-    .ioctl_rom   ( ioctl_rom     ),
-    .dwnld_busy  ( dwnld_busy    ),
-    .cfg_we      ( cfg_we        ),
-
-    // ROM LOAD
-    .ioctl_addr  ( ioctl_addr    ),
-    .ioctl_dout  ( ioctl_dout    ),
-    .ioctl_din   ( ioctl_din     ),
-    .ioctl_wr    ( ioctl_wr      ),
-    .ioctl_ram   ( ioctl_ram     ),
-    /*verilator lint_off width*/
-    .prog_addr   ( prog_addr     ),
-    /*verilator lint_on width*/
-    .prog_data   ( prog_data     ),
-    .prog_mask   ( prog_mask     ),
-    .prog_ba     ( prog_ba       ),
-    .prog_we     ( prog_we       ),
-    .prog_rd     ( prog_rd       ),
-    .prog_rdy    ( prog_rdy      ),
-    // Unused QSound ports
-    .prog_qsnd   (               ),
-    .kabuki_we   (               ),
-    // Unused CPS2 ports
-    .cps2_key_we (               ),
-    .cps2_joymode( joymode       ),
-    .rom0_bank   (               ),
-
-    // EEPROM
-    .sclk           ( sclk          ),
-    .sdi            ( sdi           ),
-    .sdo            ( sdo           ),
-    .scs            ( scs           ),
-
-    // Main CPU
-    .main_rom_cs    ( main_rom_cs   ),
-    .main_rom_ok    ( main_rom_ok   ),
-    .main_rom_addr  ( main_rom_addr ),
-    .main_rom_data  ( main_rom_data ),
-
-    // VRAM
-    .vram_clr       ( vram_clr      ),
-    .vram_dma_cs    ( vram_dma_cs   ),
-    .main_ram_cs    ( main_ram_cs   ),
-    .main_vram_cs   ( main_vram_cs  ),
-    .vram_rfsh_en   ( vram_rfsh_en  ),
-
-    // Object RAM (CPS2)
-    .main_oram_cs   ( 1'b0          ),
-
-    .dsn            ( dsn           ),
-    .main_dout      ( main_dout     ),
-    .main_rnw       ( main_rnw      ),
-
-    .main_ram_ok    ( main_ram_ok   ),
-    .vram_dma_ok    ( vram_dma_ok   ),
-
-    .main_ram_addr  ( ram_addr      ),
-    .vram_dma_addr  ( vram_dma_addr ),
-
-    .main_ram_data  ( main_ram_data ),
-    .vram_dma_data  ( vram_dma_data ),
-
-    // Sound CPU and PCM
-    .snd_cs      ( snd_cs        ),
-    .pcm_cs      ( adpcm_cs      ),
-
-    .snd_ok      ( snd_ok        ),
-    .pcm_ok      ( adpcm_ok      ),
-
-    .snd_addr    ( snd_addr      ),
-    .pcm_addr    ( adpcm_addr    ),
-
-    .snd_data    ( snd_data      ),
-    .pcm_data    ( adpcm_data    ),
-
-    // Graphics
-    .rom0_cs     ( rom0_cs       ),
-    .rom1_cs     ( rom1_cs       ),
-
-    .rom0_ok     ( rom0_ok       ),
-    .rom1_ok     ( rom1_ok       ),
-
-    .rom0_addr   ( rom0_addr     ),
-    .rom1_addr   ( rom1_addr     ),
-
-    .rom0_half   ( rom0_half     ),
-    .rom1_half   ( rom1_half     ),
-
-    .rom0_data   ( rom0_data     ),
-    .rom1_data   ( rom1_data     ),
-
-    .star0_addr  ( star0_addr    ),
-    .star0_data  ( star0_data    ),
-    .star0_ok    ( star0_ok      ),
-    .star0_cs    ( star0_cs      ),
-
-    .star1_addr  ( star1_addr    ),
-    .star1_data  ( star1_data    ),
-    .star1_ok    ( star1_ok      ),
-    .star1_cs    ( star1_cs      ),
-
-    // Bank 0: allows R/W
-    /*verilator lint_off width*/
-    .ba0_addr    ({nc0,ba0_addr} ),
-    .ba1_addr    ({nc1,ba1_addr} ),
-    .ba2_addr    ({nc2,ba2_addr} ),
-    .ba3_addr    ({nc3,ba3_addr} ),
-    /*verilator lint_on width*/
-    .ba_rd       ( ba_rd         ),
-    .ba_wr       ( ba_wr         ),
-    .ba_ack      ( ba_ack        ),
-    .ba_dst      ( ba_dst        ),
-    .ba_dok      ( ba_dok        ),
-    .ba_rdy      ( ba_rdy        ),
-    .ba0_din     ( ba0_din       ),
-    .ba0_dsn     ( ba0_dsn       ),
-
-    .data_read   ( data_read     ),
-    .dump_flag   ( dump_flag     )
-);
-`endif
 
 endmodule
