@@ -1,6 +1,4 @@
-module SH_core_trace
-	import SH2_PKG::*;
-(
+module SH_core_trace(
 	input             CLK,
 	input             RST_N,
 	input             RES_N,
@@ -9,9 +7,9 @@ module SH_core_trace
 	input      [31:0] PC,
 	input      [31:0] GBR,
 	input      [31:0] VBR,
-	input        SR_t SR,
-	input PipelineState_t PIPE,
-	input  DecInstr_t ID_DECI,
+	input SH2_PKG::SR_t SR,
+	input SH2_PKG::PipelineState_t PIPE,
+	input SH2_PKG::DecInstr_t ID_DECI,
 	input      [31:0] MA_RDATA,
 	input      [31:0] RD_SAVE,
 	input      [31:0] BUS_DI,
@@ -60,6 +58,8 @@ module SH_core_trace
 	input      [31:0] PR_RAW
 `endif
 );
+
+import SH2_PKG::*;
 
 `ifdef VERILATOR_KEEP_CPU
 
