@@ -188,6 +188,7 @@ jtgrad3_sound u_sound(
     .clk        ( clk       ),
     .cen_fm     ( cen_fm    ),
     .cen_fm2    ( cen_fm2   ),
+    .cen_pcm    ( cen_pcm   ),
 
     .snd_irq    ( snd_irq   ),
     .snd_latch  ( snd_latch ),
@@ -198,11 +199,11 @@ jtgrad3_sound u_sound(
     .rom_ok     ( snd_ok    ),
 
     .pcma_addr  ( pcma_addr ),
-    .pcma_dout  ( pcma_data ),
+    .pcma_data  ( pcma_data ),
     .pcma_cs    ( pcma_cs   ),
     .pcma_ok    ( pcma_ok   ),
     .pcmb_addr  ( pcmb_addr ),
-    .pcmb_dout  ( pcmb_data ),
+    .pcmb_data  ( pcmb_data ),
     .pcmb_cs    ( pcmb_cs   ),
     .pcmb_ok    ( pcmb_ok   ),
 

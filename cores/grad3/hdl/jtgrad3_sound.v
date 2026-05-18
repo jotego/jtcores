@@ -9,6 +9,7 @@ module jtgrad3_sound(
     input           clk,
     input           cen_fm,
     input           cen_fm2,
+    input           cen_pcm,
 
     input           snd_irq,
     input    [ 7:0] snd_latch,
@@ -19,11 +20,11 @@ module jtgrad3_sound(
     input           rom_ok,
 
     output   [18:0] pcma_addr,
-    input    [ 7:0] pcma_dout,
+    input    [ 7:0] pcma_data,
     output          pcma_cs,
     input           pcma_ok,
     output   [18:0] pcmb_addr,
-    input    [ 7:0] pcmb_dout,
+    input    [ 7:0] pcmb_data,
     output          pcmb_cs,
     input           pcmb_ok,
 
@@ -44,6 +45,7 @@ wire        mem_acc, fm_sample, rst_n, int_n, fm_csn;
 wire signed [15:0] fm_r_raw;
 wire [ 7:0] bank;
 reg  [ 7:0] cpu_din;
+wire [ 3:0] pcm_addr;
 reg         ram_cs, bank_cs, latch_cs, pcm_cs, fm_cs;
 wire [ 1:0] bank_a, bank_b;
 
@@ -56,6 +58,7 @@ assign rom_addr  = A;
 assign mem_acc   = !mreq_n && rfsh_n;
 assign pcma_addr = { bank_a, k32a_addr };
 assign pcmb_addr = { bank_b, k32b_addr };
+assign pcm_addr  = { A[3:1],~A[0]      };
 assign fm_r      = fm_r_raw;
 assign st_dout   = debug_bus[5] ? st_pcm : { bank_b, bank_a, snd_latch[3:0] };
 
@@ -141,8 +144,8 @@ jt51 u_jt51(
 jt007232 u_k7232(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen        ( cen_fm    ),
-    .addr       ( A[3:0]    ),
+    .cen        ( cen_pcm   ),
+    .addr       ( pcm_addr  ),
     .dacs       ( pcm_cs    ),
     .cen_q      (           ),
     .cen_e      (           ),
@@ -151,11 +154,11 @@ jt007232 u_k7232(
     .swap_gains ( 1'b0      ),
 
     .roma_addr  ( k32a_addr ),
-    .roma_dout  ( pcma_dout ),
+    .roma_dout  ( pcma_data ),
     .roma_cs    ( pcma_cs   ),
     .roma_ok    ( pcma_ok   ),
     .romb_addr  ( k32b_addr ),
-    .romb_dout  ( pcmb_dout ),
+    .romb_dout  ( pcmb_data ),
     .romb_cs    ( pcmb_cs   ),
     .romb_ok    ( pcmb_ok   ),
 
