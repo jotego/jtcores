@@ -61689,7 +61689,7 @@
 				)
 			)
 			(text "FIX LAYER COLOR INDEX"
-				(at -11.43 46.99 0)
+				(at -11.43 45.974 0)
 				(effects
 					(font
 						(size 0.762 0.762)
@@ -61705,7 +61705,7 @@
 				)
 			)
 			(text "LAYER A COLOR INDEX"
-				(at -30.48 46.99 0)
+				(at -30.48 45.974 0)
 				(effects
 					(font
 						(size 0.762 0.762)
@@ -61744,7 +61744,7 @@
 		)
 		(symbol "054157_1_0"
 			(text "12MHz"
-				(at -25.8826 -49.4792 900)
+				(at -28.4226 -49.4792 900)
 				(effects
 					(font
 						(size 0.762 0.762)
@@ -61794,7 +61794,7 @@
 				)
 			)
 			(pin power_in line
-				(at 16.51 -60.96 90)
+				(at 11.43 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -61812,7 +61812,7 @@
 				)
 			)
 			(pin power_in line
-				(at 19.05 -60.96 90)
+				(at 13.97 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -61830,7 +61830,7 @@
 				)
 			)
 			(pin power_in line
-				(at 6.35 58.42 270)
+				(at 11.43 58.42 270)
 				(length 5.08)
 				(name "VCC"
 					(effects
@@ -61848,7 +61848,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 59.69 -35.56 180)
+				(at 59.69 -38.1 180)
 				(length 5.08)
 				(name "UK_N.C?"
 					(effects
@@ -61866,7 +61866,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 59.69 -38.1 180)
+				(at 59.69 -40.64 180)
 				(length 5.08)
 				(name "UK_N.C?"
 					(effects
@@ -61884,7 +61884,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 59.69 -40.64 180)
+				(at 59.69 -43.18 180)
 				(length 5.08)
 				(name "UK_N.C?"
 					(effects
@@ -61902,7 +61902,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 59.69 -43.18 180)
+				(at 59.69 -45.72 180)
 				(length 5.08)
 				(name "UK_N.C?"
 					(effects
@@ -61920,7 +61920,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 59.69 -45.72 180)
+				(at 59.69 -48.26 180)
 				(length 5.08)
 				(name "UK_N.C?"
 					(effects
@@ -62028,7 +62028,7 @@
 				)
 			)
 			(pin power_in line
-				(at 39.37 -60.96 90)
+				(at 34.29 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -62046,7 +62046,7 @@
 				)
 			)
 			(pin input clock
-				(at -26.67 -60.96 90)
+				(at -29.21 -60.96 90)
 				(length 5.08)
 				(name "CLK"
 					(effects
@@ -62064,7 +62064,7 @@
 				)
 			)
 			(pin input line
-				(at -1.27 -60.96 90)
+				(at -3.81 -60.96 90)
 				(length 5.08)
 				(name "TMG2TD7"
 					(effects
@@ -62081,8 +62081,8 @@
 					)
 				)
 			)
-			(pin power_in line
-				(at 19.05 58.42 270)
+			(pin input line
+				(at 1.27 58.42 270)
 				(length 5.08)
 				(name "UK"
 					(effects
@@ -62100,7 +62100,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 59.69 -48.26 180)
+				(at 59.69 -50.8 180)
 				(length 5.08)
 				(name "UK_N.C?"
 					(effects
@@ -62118,7 +62118,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 59.69 -50.8 180)
+				(at 59.69 -53.34 180)
 				(length 5.08)
 				(name "UK_N.C?"
 					(effects
@@ -62156,7 +62156,7 @@
 			(pin output line
 				(at -21.59 58.42 270)
 				(length 5.08)
-				(name "DSA7"
+				(name "DCOL7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62174,7 +62174,7 @@
 			(pin output line
 				(at -24.13 58.42 270)
 				(length 5.08)
-				(name "DSA6"
+				(name "DCOL8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62192,7 +62192,7 @@
 			(pin output line
 				(at -26.67 58.42 270)
 				(length 5.08)
-				(name "DSA5"
+				(name "DCOL9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62226,7 +62226,7 @@
 				)
 			)
 			(pin power_in line
-				(at 3.81 58.42 270)
+				(at 8.89 58.42 270)
 				(length 5.08)
 				(name "VCC"
 					(effects
@@ -62244,7 +62244,7 @@
 				)
 			)
 			(pin power_in line
-				(at 41.91 -60.96 90)
+				(at 36.83 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -62264,7 +62264,7 @@
 			(pin bidirectional line
 				(at 39.37 58.42 270)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "DCOL4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62282,7 +62282,7 @@
 			(pin bidirectional line
 				(at 36.83 58.42 270)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "DCOL9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62300,7 +62300,7 @@
 			(pin bidirectional line
 				(at 34.29 58.42 270)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "DCOL8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62318,7 +62318,7 @@
 			(pin output line
 				(at 59.69 -7.62 180)
 				(length 5.08)
-				(name "DSB7"
+				(name "CCOL7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62336,7 +62336,7 @@
 			(pin output line
 				(at 59.69 -5.08 180)
 				(length 5.08)
-				(name "DSB6"
+				(name "CCOL6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62354,7 +62354,7 @@
 			(pin output line
 				(at 59.69 -2.54 180)
 				(length 5.08)
-				(name "DSB5"
+				(name "CCOL5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62372,7 +62372,7 @@
 			(pin bidirectional line
 				(at 31.75 58.42 270)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "CCOL4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62390,7 +62390,7 @@
 			(pin bidirectional line
 				(at 29.21 58.42 270)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "CCOL9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62424,7 +62424,7 @@
 				)
 			)
 			(pin power_in line
-				(at 44.45 -60.96 90)
+				(at 39.37 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -62444,7 +62444,7 @@
 			(pin bidirectional line
 				(at 26.67 58.42 270)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "CCOL8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62460,9 +62460,9 @@
 				)
 			)
 			(pin output line
-				(at -3.81 58.42 270)
+				(at -1.27 58.42 270)
 				(length 5.08)
-				(name "DFI7"
+				(name "BCOL7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62478,9 +62478,9 @@
 				)
 			)
 			(pin output line
-				(at -6.35 58.42 270)
+				(at -3.81 58.42 270)
 				(length 5.08)
-				(name "DFI6"
+				(name "BCOL6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62496,9 +62496,9 @@
 				)
 			)
 			(pin output line
-				(at -8.89 58.42 270)
+				(at -6.35 58.42 270)
 				(length 5.08)
-				(name "DFI5"
+				(name "BCOL7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62513,10 +62513,10 @@
 					)
 				)
 			)
-			(pin bidirectional line
-				(at 24.13 58.42 270)
+			(pin output line
+				(at -8.89 58.42 270)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "BCOL6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62532,9 +62532,9 @@
 				)
 			)
 			(pin bidirectional line
-				(at 3.81 -60.96 90)
+				(at 1.27 -60.96 90)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "BCOL5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62550,9 +62550,9 @@
 				)
 			)
 			(pin bidirectional line
-				(at 6.35 -60.96 90)
+				(at 3.81 -60.96 90)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "BCOL4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62568,9 +62568,9 @@
 				)
 			)
 			(pin bidirectional line
-				(at 59.69 -25.4 180)
+				(at 59.69 -27.94 180)
 				(length 5.08)
-				(name "CO06"
+				(name "ACOL7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62586,7 +62586,7 @@
 				)
 			)
 			(pin power_in line
-				(at 46.99 -60.96 90)
+				(at 41.91 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -62622,7 +62622,7 @@
 				)
 			)
 			(pin power_in line
-				(at 1.27 58.42 270)
+				(at 6.35 58.42 270)
 				(length 5.08)
 				(name "VCC"
 					(effects
@@ -62640,9 +62640,9 @@
 				)
 			)
 			(pin bidirectional line
-				(at 59.69 -22.86 180)
+				(at 59.69 -25.4 180)
 				(length 5.08)
-				(name "CO05"
+				(name "ACOL6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62658,9 +62658,9 @@
 				)
 			)
 			(pin output line
-				(at 59.69 -20.32 180)
+				(at 59.69 -22.86 180)
 				(length 5.08)
-				(name "CO04"
+				(name "ACOL5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62676,9 +62676,9 @@
 				)
 			)
 			(pin bidirectional line
-				(at 8.89 -60.96 90)
+				(at 59.69 -20.32 180)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "ACOL4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62694,9 +62694,9 @@
 				)
 			)
 			(pin bidirectional line
-				(at 11.43 -60.96 90)
+				(at 6.35 -60.96 90)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "ACOL9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62712,9 +62712,9 @@
 				)
 			)
 			(pin bidirectional line
-				(at 13.97 -60.96 90)
+				(at 8.89 -60.96 90)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "ACOL8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62732,7 +62732,7 @@
 			(pin output line
 				(at -34.29 58.42 270)
 				(length 5.08)
-				(name "DSA1"
+				(name "DCOL1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62750,7 +62750,7 @@
 			(pin output line
 				(at -36.83 58.42 270)
 				(length 5.08)
-				(name "DSA0"
+				(name "DCOL0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62768,7 +62768,7 @@
 			(pin output line
 				(at 59.69 5.08 180)
 				(length 5.08)
-				(name "DSB1"
+				(name "CCOL1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62786,7 +62786,7 @@
 			(pin output line
 				(at 59.69 7.62 180)
 				(length 5.08)
-				(name "DSB0"
+				(name "CCOL0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62820,7 +62820,7 @@
 				)
 			)
 			(pin power_in line
-				(at 49.53 -60.96 90)
+				(at 44.45 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -62840,7 +62840,7 @@
 			(pin output line
 				(at -16.51 58.42 270)
 				(length 5.08)
-				(name "DFI1"
+				(name "BCOL1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62858,7 +62858,7 @@
 			(pin output line
 				(at -19.05 58.42 270)
 				(length 5.08)
-				(name "DFI0"
+				(name "BCOL0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62876,7 +62876,7 @@
 			(pin output line
 				(at 59.69 -12.7 180)
 				(length 5.08)
-				(name "CO01"
+				(name "ACOL1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62894,7 +62894,7 @@
 			(pin output line
 				(at 59.69 -10.16 180)
 				(length 5.08)
-				(name "CO00"
+				(name "ACOL0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -62910,7 +62910,7 @@
 				)
 			)
 			(pin input line
-				(at -44.45 -60.96 90)
+				(at -46.99 -60.96 90)
 				(length 5.08)
 				(name "VC28"
 					(effects
@@ -62928,7 +62928,7 @@
 				)
 			)
 			(pin input line
-				(at -41.91 -60.96 90)
+				(at -44.45 -60.96 90)
 				(length 5.08)
 				(name "VC29"
 					(effects
@@ -62946,7 +62946,7 @@
 				)
 			)
 			(pin input line
-				(at -39.37 -60.96 90)
+				(at -41.91 -60.96 90)
 				(length 5.08)
 				(name "VC30"
 					(effects
@@ -62964,7 +62964,7 @@
 				)
 			)
 			(pin input line
-				(at -36.83 -60.96 90)
+				(at -39.37 -60.96 90)
 				(length 5.08)
 				(name "VC31"
 					(effects
@@ -62982,7 +62982,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 21.59 58.42 270)
+				(at 24.13 58.42 270)
 				(length 5.08)
 				(name "UK_N.C?"
 					(effects
@@ -63018,7 +63018,7 @@
 				)
 			)
 			(pin power_in line
-				(at -1.27 58.42 270)
+				(at 3.81 58.42 270)
 				(length 5.08)
 				(name "VCC"
 					(effects
@@ -63090,7 +63090,7 @@
 				)
 			)
 			(pin input line
-				(at -34.29 -60.96 90)
+				(at -36.83 -60.96 90)
 				(length 5.08)
 				(name "UK"
 					(effects
@@ -63108,7 +63108,7 @@
 				)
 			)
 			(pin power_in line
-				(at 16.51 58.42 270)
+				(at 21.59 58.42 270)
 				(length 5.08)
 				(name "VCC"
 					(effects
@@ -63306,7 +63306,7 @@
 				)
 			)
 			(pin power_in line
-				(at 21.59 -60.96 90)
+				(at 16.51 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -63504,7 +63504,7 @@
 				)
 			)
 			(pin power_in line
-				(at 13.97 58.42 270)
+				(at 19.05 58.42 270)
 				(length 5.08)
 				(name "VCC"
 					(effects
@@ -63522,7 +63522,7 @@
 				)
 			)
 			(pin power_in line
-				(at 24.13 -60.96 90)
+				(at 19.05 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -63702,7 +63702,7 @@
 				)
 			)
 			(pin power_in line
-				(at 26.67 -60.96 90)
+				(at 21.59 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -63864,7 +63864,7 @@
 				)
 			)
 			(pin power_in line
-				(at 29.21 -60.96 90)
+				(at 24.13 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -63882,7 +63882,7 @@
 				)
 			)
 			(pin input line
-				(at -49.53 -60.96 90)
+				(at -52.07 -60.96 90)
 				(length 5.08)
 				(name "VC27"
 					(effects
@@ -63900,7 +63900,7 @@
 				)
 			)
 			(pin power_in line
-				(at 11.43 58.42 270)
+				(at 16.51 58.42 270)
 				(length 5.08)
 				(name "VCC"
 					(effects
@@ -63917,10 +63917,10 @@
 					)
 				)
 			)
-			(pin bidirectional line
-				(at 59.69 -27.94 180)
+			(pin input line
+				(at 59.69 -30.48 180)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "Z4H"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -63936,9 +63936,9 @@
 				)
 			)
 			(pin input line
-				(at -19.05 -60.96 90)
+				(at -21.59 -60.96 90)
 				(length 5.08)
-				(name "TMG2TD"
+				(name "Z2H"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -63953,10 +63953,10 @@
 					)
 				)
 			)
-			(pin bidirectional line
-				(at 59.69 -30.48 180)
+			(pin input line
+				(at 59.69 -33.02 180)
 				(length 5.08)
-				(name "UK_N.C?"
+				(name "Z1H"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -63972,7 +63972,7 @@
 				)
 			)
 			(pin input inverted
-				(at 1.27 -60.96 90)
+				(at -1.27 -60.96 90)
 				(length 5.08)
 				(name "UKSCCR~{DRI}"
 					(effects
@@ -63992,7 +63992,7 @@
 			(pin power_in line
 				(at -41.91 58.42 270)
 				(length 5.08)
-				(name "UK"
+				(name "COL0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64010,7 +64010,7 @@
 			(pin power_in line
 				(at -44.45 58.42 270)
 				(length 5.08)
-				(name "UK"
+				(name "COL1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64028,7 +64028,7 @@
 			(pin power_in line
 				(at -46.99 58.42 270)
 				(length 5.08)
-				(name "UK"
+				(name "COL2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64044,9 +64044,9 @@
 				)
 			)
 			(pin input line
-				(at -16.51 -60.96 90)
+				(at -19.05 -60.96 90)
 				(length 5.08)
-				(name "TMG2TD"
+				(name "COL3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64062,9 +64062,9 @@
 				)
 			)
 			(pin input line
-				(at -13.97 -60.96 90)
+				(at -16.51 -60.96 90)
 				(length 5.08)
-				(name "TMG2TD"
+				(name "COL4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64098,7 +64098,7 @@
 				)
 			)
 			(pin power_in line
-				(at 31.75 -60.96 90)
+				(at 26.67 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -64118,7 +64118,7 @@
 			(pin power_in line
 				(at -49.53 58.42 270)
 				(length 5.08)
-				(name "UK"
+				(name "COL5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64134,9 +64134,9 @@
 				)
 			)
 			(pin input line
-				(at -11.43 -60.96 90)
+				(at -13.97 -60.96 90)
 				(length 5.08)
-				(name "TMG2TD"
+				(name "COL6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64152,9 +64152,9 @@
 				)
 			)
 			(pin input line
-				(at -8.89 -60.96 90)
+				(at -11.43 -60.96 90)
 				(length 5.08)
-				(name "TMG2TD"
+				(name "COL7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64170,9 +64170,9 @@
 				)
 			)
 			(pin input line
-				(at -31.75 -60.96 90)
+				(at -34.29 -60.96 90)
 				(length 5.08)
-				(name "A1"
+				(name "AB1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64188,9 +64188,9 @@
 				)
 			)
 			(pin input line
-				(at -29.21 -60.96 90)
+				(at -31.75 -60.96 90)
 				(length 5.08)
-				(name "A2"
+				(name "AB2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64208,7 +64208,7 @@
 			(pin bidirectional line
 				(at 59.69 48.26 180)
 				(length 5.08)
-				(name "D0"
+				(name "DB0"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64226,7 +64226,7 @@
 			(pin bidirectional line
 				(at 59.69 45.72 180)
 				(length 5.08)
-				(name "D1"
+				(name "DB1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64244,7 +64244,7 @@
 			(pin bidirectional line
 				(at 59.69 43.18 180)
 				(length 5.08)
-				(name "D2"
+				(name "DB2"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64262,7 +64262,7 @@
 			(pin bidirectional line
 				(at 59.69 40.64 180)
 				(length 5.08)
-				(name "D3"
+				(name "DB3"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64278,7 +64278,7 @@
 				)
 			)
 			(pin input line
-				(at -46.99 -60.96 90)
+				(at -49.53 -60.96 90)
 				(length 5.08)
 				(name "UK"
 					(effects
@@ -64296,7 +64296,7 @@
 				)
 			)
 			(pin power_in line
-				(at 8.89 58.42 270)
+				(at 13.97 58.42 270)
 				(length 5.08)
 				(name "VCC"
 					(effects
@@ -64314,7 +64314,7 @@
 				)
 			)
 			(pin power_in line
-				(at 34.29 -60.96 90)
+				(at 29.21 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -64334,7 +64334,7 @@
 			(pin bidirectional line
 				(at 59.69 38.1 180)
 				(length 5.08)
-				(name "D4"
+				(name "DB4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64352,7 +64352,7 @@
 			(pin bidirectional line
 				(at 59.69 35.56 180)
 				(length 5.08)
-				(name "D5"
+				(name "DB5"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64370,7 +64370,7 @@
 			(pin bidirectional line
 				(at 59.69 33.02 180)
 				(length 5.08)
-				(name "D6"
+				(name "DB6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64388,7 +64388,7 @@
 			(pin bidirectional line
 				(at 59.69 30.48 180)
 				(length 5.08)
-				(name "D7"
+				(name "DB7"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64406,7 +64406,7 @@
 			(pin bidirectional line
 				(at 59.69 27.94 180)
 				(length 5.08)
-				(name "D8"
+				(name "DB8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64424,7 +64424,7 @@
 			(pin bidirectional line
 				(at 59.69 25.4 180)
 				(length 5.08)
-				(name "D9"
+				(name "DB9"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64442,7 +64442,7 @@
 			(pin bidirectional line
 				(at 59.69 22.86 180)
 				(length 5.08)
-				(name "D10"
+				(name "DB10"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64460,7 +64460,7 @@
 			(pin bidirectional line
 				(at 59.69 20.32 180)
 				(length 5.08)
-				(name "D11"
+				(name "DB11"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64494,7 +64494,7 @@
 				)
 			)
 			(pin power_in line
-				(at 36.83 -60.96 90)
+				(at 31.75 -60.96 90)
 				(length 5.08)
 				(name "VSS"
 					(effects
@@ -64514,7 +64514,7 @@
 			(pin bidirectional line
 				(at 59.69 17.78 180)
 				(length 5.08)
-				(name "D12"
+				(name "DB12"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64532,7 +64532,7 @@
 			(pin bidirectional line
 				(at 59.69 15.24 180)
 				(length 5.08)
-				(name "D13"
+				(name "DB13"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64550,7 +64550,7 @@
 			(pin bidirectional line
 				(at 59.69 12.7 180)
 				(length 5.08)
-				(name "D14"
+				(name "DB14"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64568,7 +64568,7 @@
 			(pin bidirectional line
 				(at 59.69 10.16 180)
 				(length 5.08)
-				(name "D15"
+				(name "DB15"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64584,7 +64584,7 @@
 				)
 			)
 			(pin input line
-				(at -6.35 -60.96 90)
+				(at -8.89 -60.96 90)
 				(length 5.08)
 				(name "TMG2TD"
 					(effects
@@ -64602,7 +64602,7 @@
 				)
 			)
 			(pin input inverted
-				(at -24.13 -60.96 90)
+				(at -26.67 -60.96 90)
 				(length 5.08)
 				(name "~{LDS}"
 					(effects
@@ -64620,7 +64620,7 @@
 				)
 			)
 			(pin input inverted
-				(at -21.59 -60.96 90)
+				(at -24.13 -60.96 90)
 				(length 5.08)
 				(name "~{UDS}"
 					(effects
@@ -64638,9 +64638,9 @@
 				)
 			)
 			(pin input line
-				(at -3.81 -60.96 90)
+				(at -6.35 -60.96 90)
 				(length 5.08)
-				(name "TMG2TD"
+				(name "CROM"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -64656,7 +64656,7 @@
 				)
 			)
 			(pin bidirectional line
-				(at 59.69 -33.02 180)
+				(at 59.69 -35.56 180)
 				(length 5.08)
 				(name "UK_N.C?"
 					(effects
