@@ -45,7 +45,6 @@ wire        mem_acc, fm_sample, rst_n, int_n, fm_csn;
 wire signed [15:0] fm_r_raw;
 wire [ 7:0] bank;
 reg  [ 7:0] cpu_din;
-wire [ 3:0] pcm_addr;
 reg         ram_cs, bank_cs, latch_cs, pcm_cs, fm_cs;
 wire [ 1:0] bank_a, bank_b;
 
@@ -58,7 +57,6 @@ assign rom_addr  = A;
 assign mem_acc   = !mreq_n && rfsh_n;
 assign pcma_addr = { bank_a, k32a_addr };
 assign pcmb_addr = { bank_b, k32b_addr };
-assign pcm_addr  = { A[3:1],~A[0]      };
 assign fm_r      = fm_r_raw;
 assign st_dout   = debug_bus[5] ? st_pcm : { bank_b, bank_a, snd_latch[3:0] };
 
@@ -141,11 +139,11 @@ jt51 u_jt51(
     .xright     ( fm_r_raw  )
 );
 
-jt007232 u_k7232(
+jt007232 #(.INVA0(1)) u_k7232(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_pcm   ),
-    .addr       ( pcm_addr  ),
+    .addr       ( A[3:0]    ),
     .dacs       ( pcm_cs    ),
     .cen_q      (           ),
     .cen_e      (           ),
