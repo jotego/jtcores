@@ -100,6 +100,13 @@ assign IPLn     = !vbl_irqn ? ~3'd2 : 3'b111;
 assign BUSn      = &bus_dsn;
 assign st_dout  = { sub_rst, irq_en, rmrd, prio, 2'b0, snd_irq, sub_irq };
 
+function [6:0] joy_order( input [6:0] joystick );
+    begin
+        joy_order = joystick;
+        joy_order[5:4] = {joystick[4], joystick[5]};
+    end
+endfunction
+
 always @* begin
     rom_cs       = 0;
     ram_cs       = 0;
@@ -163,8 +170,8 @@ always @* begin
     if( io_cs ) begin
         case( A[2:1] )
             2'd0: cab_dout = { 1'b1, coin[2], 1'b1, cab_1p[1:0], 1'b1, coin[1:0] };
-            2'd1: cab_dout = { 1'b1, joystick1 };
-            2'd2: cab_dout = { 1'b1, joystick2 };
+            2'd1: cab_dout = { 1'b1, joy_order(joystick1) };
+            2'd2: cab_dout = { 1'b1, joy_order(joystick2) };
             2'd3: cab_dout = { 4'hf, dipsw[19:16] };
         endcase
     end else if( dsw_cs ) begin

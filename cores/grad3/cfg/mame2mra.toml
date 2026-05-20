@@ -6,7 +6,7 @@ sourcefile=["gradius3.cpp"]
 
 [buttons]
 names = [
-    { machine="gradius3", names="Power-Up,Shoot,Missile" },
+    { machine="gradius3", names="Shoot,Power-Up,Missile" },
 ]
 
 [dipsw]
