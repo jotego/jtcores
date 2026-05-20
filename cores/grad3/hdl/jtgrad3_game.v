@@ -10,13 +10,13 @@ module jtgrad3_game(
 
 wire [19:1] s_addr;
 wire [ 7:0] tile_dout, obj_dout, snd_latch;
-wire [ 7:0] video_din;
+wire [ 7:0] video_din, st_snd;
 wire        m_cpu_we,   s_cpu_we,  snd_irq,   sub_rst, sub_irq;
 wire        m_tile_cs,  s_tile_cs, s_obj_cs,  pal_cs;
 wire        tile_dtack, tile_irqn, tile_nmin, sub_irq2;
 wire        rmrd, prio;
 
-assign debug_view = 8'd0;
+assign debug_view = st_snd;
 assign dip_flip   = 1'b0;
 `ifdef JTFRAME_IOCTL_RD
 assign ioctl_din  = video_din;
@@ -212,7 +212,7 @@ jtgrad3_sound u_sound(
     .pcm        ( pcm       ),
 
     .debug_bus  ( debug_bus ),
-    .st_dout    (           )
+    .st_dout    ( st_snd    )
 );
 
 endmodule
