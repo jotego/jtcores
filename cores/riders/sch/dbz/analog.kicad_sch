@@ -4562,6 +4562,10 @@
 		(uuid "0c2738df-1355-4cd9-b3d1-4ae7d7b789af")
 	)
 	(no_connect
+		(at 378.46 160.02)
+		(uuid "40ec2625-43ed-4a51-95e1-fbdc7de19016")
+	)
+	(no_connect
 		(at 391.16 157.48)
 		(uuid "94f424a5-cde3-4e3a-b0e9-c38dd7ae3acf")
 	)
@@ -4948,16 +4952,6 @@
 			(type default)
 		)
 		(uuid "1d9bdaac-5860-4040-b3b7-80f08108fbd7")
-	)
-	(wire
-		(pts
-			(xy 378.46 160.02) (xy 382.27 160.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1dd1102b-564e-438f-a028-e20961380283")
 	)
 	(wire
 		(pts
@@ -7593,16 +7587,6 @@
 			(justify left bottom)
 		)
 		(uuid "b24d3137-0094-463f-ba83-8a1d5c4fe105")
-	)
-	(label "VSS"
-		(at 382.27 160.02 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "b8d13e67-e1bf-436e-8e0f-d87073a871e3")
 	)
 	(label "VCC"
 		(at 53.34 176.53 0)

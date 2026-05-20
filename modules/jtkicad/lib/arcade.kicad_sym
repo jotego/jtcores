@@ -24262,7 +24262,7 @@
 					)
 				)
 			)
-			(pin output line
+			(pin tri_state line
 				(at 8.89 8.89 180)
 				(length 2.54)
 				(name "D0"
@@ -24280,7 +24280,7 @@
 					)
 				)
 			)
-			(pin output line
+			(pin tri_state line
 				(at 8.89 6.35 180)
 				(length 2.54)
 				(name "D1"
@@ -24298,7 +24298,7 @@
 					)
 				)
 			)
-			(pin output line
+			(pin tri_state line
 				(at 8.89 3.81 180)
 				(length 2.54)
 				(name "D2"
@@ -24334,7 +24334,7 @@
 					)
 				)
 			)
-			(pin output line
+			(pin tri_state line
 				(at 8.89 1.27 180)
 				(length 2.54)
 				(name "D3"
@@ -24352,7 +24352,7 @@
 					)
 				)
 			)
-			(pin output line
+			(pin tri_state line
 				(at 8.89 -1.27 180)
 				(length 2.54)
 				(name "D4"
@@ -24370,7 +24370,7 @@
 					)
 				)
 			)
-			(pin output line
+			(pin tri_state line
 				(at 8.89 -3.81 180)
 				(length 2.54)
 				(name "D5"
@@ -24406,7 +24406,7 @@
 					)
 				)
 			)
-			(pin output line
+			(pin tri_state line
 				(at 8.89 -6.35 180)
 				(length 2.54)
 				(name "D6"
@@ -24424,7 +24424,7 @@
 					)
 				)
 			)
-			(pin output line
+			(pin tri_state line
 				(at 8.89 -8.89 180)
 				(length 2.54)
 				(name "D7"

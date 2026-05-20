@@ -60727,7 +60727,7 @@
 					)
 				)
 			)
-			(pin output inverted
+			(pin input inverted
 				(at 13.97 59.69 270)
 				(length 5.08)
 				(name "~{SYSRES}"

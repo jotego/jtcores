@@ -12,23 +12,24 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at 10.16 -8.89 90)
+			(property "Reference" "JAMMA1"
+				(at 13.97 6.35 0)
 				(effects
 					(font
 						(size 3.5052 3.5052)
 					)
+					(hide yes)
 				)
 			)
 			(property "Value" "JAMMA_CONN"
-				(at 13.97 -10.16 90)
+				(at 13.97 1.27 0)
 				(effects
 					(font
 						(size 2.0066 2.0066)
 					)
 				)
 			)
-			(property "Footprint" ""
+			(property "Footprint" "skutis:JAMMA-56"
 				(at 41.91 -284.48 0)
 				(effects
 					(font
@@ -46,7 +47,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" ""
+			(property "Description" "JAMMA Edge Connector"
 				(at 0 0 0)
 				(effects
 					(font
@@ -107,10 +108,10 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin passive line
 					(at -3.81 -26.67 0)
 					(length 3.81)
-					(name "NC"
+					(name "NOT_USED"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -179,10 +180,10 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin input line
 					(at -3.81 -36.83 0)
 					(length 3.81)
-					(name "NC"
+					(name "TEST"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -197,7 +198,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at -3.81 -39.37 0)
 					(length 3.81)
 					(name "COIN_1"
@@ -215,7 +216,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at -3.81 -41.91 0)
 					(length 3.81)
 					(name "1P_START"
@@ -233,7 +234,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at -3.81 -44.45 0)
 					(length 3.81)
 					(name "1P_UP"
@@ -251,7 +252,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at -3.81 -46.99 0)
 					(length 3.81)
 					(name "1P_DOWN"
@@ -272,7 +273,7 @@
 				(pin passive line
 					(at -3.81 -5.08 0)
 					(length 3.81)
-					(name "VSSA"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -287,7 +288,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at -3.81 -49.53 0)
 					(length 3.81)
 					(name "1P_LEFT"
@@ -305,7 +306,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at -3.81 -52.07 0)
 					(length 3.81)
 					(name "1P_RIGHT"
@@ -323,7 +324,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at -3.81 -54.61 0)
 					(length 3.81)
 					(name "1P_BTN_1"
@@ -341,7 +342,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at -3.81 -57.15 0)
 					(length 3.81)
 					(name "1P_BTN_2"
@@ -359,7 +360,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at -3.81 -59.69 0)
 					(length 3.81)
 					(name "1P_BTN_3"
@@ -377,7 +378,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at -3.81 -62.23 0)
 					(length 3.81)
 					(name "1P_BTN_4"
@@ -395,7 +396,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at -3.81 -64.77 0)
 					(length 3.81)
 					(name "1P_SELECT"
@@ -452,7 +453,7 @@
 				(pin passive line
 					(at -3.81 -7.62 0)
 					(length 3.81)
-					(name "VDDA"
+					(name "+5V"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -539,10 +540,10 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin input line
 					(at -3.81 -21.59 0)
 					(length 3.81)
-					(name "NC"
+					(name "LOCK_COIL_1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -683,10 +684,10 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin input line
 					(at 31.75 -21.59 180)
 					(length 3.81)
-					(name "NC"
+					(name "LOCK_COIL_2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -719,10 +720,10 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin passive line
 					(at 31.75 -26.67 180)
 					(length 3.81)
-					(name "NC"
+					(name "NOT_USED"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -773,7 +774,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at 31.75 -34.29 180)
 					(length 3.81)
 					(name "SERVICE"
@@ -791,10 +792,10 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin input line
 					(at 31.75 -36.83 180)
 					(length 3.81)
-					(name "NC"
+					(name "TILT"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -809,7 +810,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at 31.75 -39.37 180)
 					(length 3.81)
 					(name "COIN_2"
@@ -827,7 +828,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at 31.75 -41.91 180)
 					(length 3.81)
 					(name "2P_START"
@@ -845,7 +846,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at 31.75 -44.45 180)
 					(length 3.81)
 					(name "2P_UP"
@@ -863,7 +864,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at 31.75 -46.99 180)
 					(length 3.81)
 					(name "2P_DOWN"
@@ -881,7 +882,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at 31.75 -49.53 180)
 					(length 3.81)
 					(name "2P_LEFT"
@@ -899,7 +900,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at 31.75 -52.07 180)
 					(length 3.81)
 					(name "2P_RIGHT"
@@ -917,7 +918,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at 31.75 -54.61 180)
 					(length 3.81)
 					(name "2P_BTN_1"
@@ -935,7 +936,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at 31.75 -57.15 180)
 					(length 3.81)
 					(name "2P_BTN_2"
@@ -953,7 +954,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at 31.75 -59.69 180)
 					(length 3.81)
 					(name "2P_BTN_3"
@@ -971,7 +972,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at 31.75 -62.23 180)
 					(length 3.81)
 					(name "2P_BTN_4"
@@ -989,7 +990,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin input line
 					(at 31.75 -64.77 180)
 					(length 3.81)
 					(name "2P_SELECT"
@@ -1110,7 +1111,7 @@
 				(pin power_out line
 					(at 0 0 90)
 					(length 0)
-					(name "pwr"
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1143,9 +1144,9 @@
 		)
 		(symbol "power:VCC"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -1159,7 +1160,7 @@
 				)
 			)
 			(property "Value" "VCC"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1243,8 +1244,8 @@
 			(symbol "VCC_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VCC"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1263,9 +1264,9 @@
 		)
 		(symbol "power:VSS"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -1279,7 +1280,7 @@
 				)
 			)
 			(property "Value" "VSS"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1351,8 +1352,8 @@
 			(symbol "VSS_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VSS"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1383,16 +1384,36 @@
 		(uuid "bde07499-2bb5-46cc-a844-9804c16dccfb")
 	)
 	(no_connect
+		(at 50.8 54.61)
+		(uuid "0af7b08c-55ce-4e0c-8e42-e960d0991494")
+	)
+	(no_connect
+		(at 86.36 54.61)
+		(uuid "0f0f7269-2b69-4852-be2d-409aeb2e76df")
+	)
+	(no_connect
 		(at 97.79 95.25)
 		(uuid "162ade41-8cfa-4530-b598-845e8106ee93")
+	)
+	(no_connect
+		(at 86.36 69.85)
+		(uuid "1687af32-b270-4cde-87f9-3d2a0af610b5")
 	)
 	(no_connect
 		(at 39.37 97.79)
 		(uuid "35c6733d-43b4-4e17-88eb-c26c96ea05eb")
 	)
 	(no_connect
+		(at 86.36 59.69)
+		(uuid "b85b096d-657f-4948-828a-da9c89baa5d9")
+	)
+	(no_connect
 		(at 39.37 95.25)
 		(uuid "bb91bc13-0e81-4d8d-9f30-607b29fab706")
+	)
+	(no_connect
+		(at 50.8 59.69)
+		(uuid "c90aafe7-d3d5-4a15-827f-a6c36878a6e6")
 	)
 	(no_connect
 		(at 97.79 97.79)
@@ -7887,7 +7908,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Special symbol for telling ERC where power comes from"
 			(at 29.21 36.83 0)
 			(effects
 				(font
@@ -7952,7 +7973,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Special symbol for telling ERC where power comes from"
 			(at 40.64 35.56 0)
 			(effects
 				(font
@@ -8017,7 +8038,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VCC\""
 			(at 33.02 39.37 0)
 			(effects
 				(font
@@ -8082,7 +8103,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Special symbol for telling ERC where power comes from"
 			(at 95.25 36.83 0)
 			(effects
 				(font
@@ -8147,7 +8168,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Special symbol for telling ERC where power comes from"
 			(at 100.33 45.72 0)
 			(effects
 				(font
@@ -8212,7 +8233,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 97.79 105.41 0)
 			(effects
 				(font
@@ -8258,7 +8279,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "skutis:JAMMA-56"
 			(at 96.52 317.5 0)
 			(effects
 				(font
@@ -8276,7 +8297,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "JAMMA Edge Connector"
 			(at 54.61 33.02 0)
 			(effects
 				(font
@@ -8486,7 +8507,7 @@
 				(justify left top)
 			)
 		)
-		(pin "MAIN_A[11..1]" input
+		(pin "MAIN_A[11..1]" tri_state
 			(at 327.66 29.21 180)
 			(effects
 				(font
@@ -8924,7 +8945,7 @@
 			)
 			(uuid "2ecf96a6-1f51-48b6-a1d3-f57b657ac914")
 		)
-		(pin "MAIN_A[23..1]" output
+		(pin "MAIN_A[23..1]" tri_state
 			(at 175.26 58.42 0)
 			(effects
 				(font
@@ -9424,7 +9445,7 @@
 			)
 			(uuid "9ba3e31b-0f0c-4c35-b9bd-b14464a2f0b0")
 		)
-		(pin "MAIN_D[15..0]" bidirectional
+		(pin "MAIN_D[15..0]" tri_state
 			(at 175.26 55.88 0)
 			(effects
 				(font
@@ -9987,7 +10008,7 @@
 			)
 			(uuid "23574644-ee20-4d9c-b695-6df3b457cce2")
 		)
-		(pin "MAIN_A[23..1]" input
+		(pin "MAIN_A[23..1]" tri_state
 			(at 43.18 182.88 180)
 			(effects
 				(font
@@ -11299,7 +11320,7 @@
 			)
 			(uuid "02a59630-b5f2-4a9d-825f-b642df3816b1")
 		)
-		(pin "MAIN_D[15..0]" bidirectional
+		(pin "MAIN_D[15..0]" tri_state
 			(at 228.6 69.85 180)
 			(effects
 				(font

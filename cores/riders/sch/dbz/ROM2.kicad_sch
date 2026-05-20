@@ -6437,15 +6437,6 @@
 		(uuid "a58a562e-e416-40f3-bf29-97a1e4619f1b")
 	)
 	(bus_entry
-		(at 260.35 24.13)
-		(size 2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a642f609-a9a6-4c50-af28-b8198ac476ec")
-	)
-	(bus_entry
 		(at 83.82 109.22)
 		(size 2.54 2.54)
 		(stroke
@@ -6561,15 +6552,6 @@
 			(type default)
 		)
 		(uuid "b3b254ce-cba0-4e17-8a89-d3728f768075")
-	)
-	(bus_entry
-		(at 260.35 81.28)
-		(size 2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b581b4c7-e7f2-4d88-8210-4867ee6b582e")
 	)
 	(bus_entry
 		(at 260.35 124.46)
@@ -8515,7 +8497,7 @@
 	)
 	(bus
 		(pts
-			(xy 262.89 83.82) (xy 262.89 86.36)
+			(xy 262.89 41.91) (xy 262.89 86.36)
 		)
 		(stroke
 			(width 0)
@@ -9035,7 +9017,7 @@
 	)
 	(wire
 		(pts
-			(xy 250.19 81.28) (xy 260.35 81.28)
+			(xy 250.19 81.28) (xy 259.08 81.28)
 		)
 		(stroke
 			(width 0)
@@ -12653,16 +12635,6 @@
 		)
 		(uuid "fa6ed9a4-6a5b-4652-b80a-e97683be5ca7")
 	)
-	(bus
-		(pts
-			(xy 262.89 41.91) (xy 262.89 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fa972f24-0226-4d21-9137-97895557a592")
-	)
 	(wire
 		(pts
 			(xy 125.73 111.76) (xy 133.35 111.76)
@@ -13791,7 +13763,7 @@
 		(uuid "4366c871-24af-458c-b6df-f5b9d5abd224")
 	)
 	(label "RB_LOW"
-		(at 257.81 81.28 180)
+		(at 259.08 81.28 180)
 		(effects
 			(font
 				(size 1.27 1.27)

@@ -15895,7 +15895,7 @@
 		(uuid "6f1ce47f-5354-4c32-9a1a-2df72493668b")
 	)
 	(hierarchical_label "MAIN_A[23..1]"
-		(shape input)
+		(shape tri_state)
 		(at 180.34 67.31 180)
 		(effects
 			(font
@@ -15950,7 +15950,7 @@
 		(uuid "8b68a9dc-e328-4ee0-8a09-e4b801621748")
 	)
 	(hierarchical_label "MAIN_A[23..1]"
-		(shape input)
+		(shape tri_state)
 		(at 278.13 52.07 180)
 		(effects
 			(font

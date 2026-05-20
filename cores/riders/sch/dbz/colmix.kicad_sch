@@ -3163,9 +3163,9 @@
 		)
 		(symbol "power:VCC"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -3179,7 +3179,7 @@
 				)
 			)
 			(property "Value" "VCC"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -3263,8 +3263,8 @@
 			(symbol "VCC_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VCC"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3283,9 +3283,9 @@
 		)
 		(symbol "power:VSS"
 			(power)
+			(pin_numbers hide)
 			(pin_names
-				(offset 0)
-			)
+				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -3299,7 +3299,7 @@
 				)
 			)
 			(property "Value" "VSS"
-				(at 0 3.81 0)
+				(at 0 3.556 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -3371,8 +3371,8 @@
 			(symbol "VSS_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
-					(name "VSS"
+					(length 0)
+					(name "~"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -6415,6 +6415,16 @@
 		)
 		(uuid "5ae71877-c4f5-42cf-be67-503e5c5820e2")
 	)
+	(bus
+		(pts
+			(xy 107.95 139.7) (xy 109.22 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5c0a2e47-9bf8-4a5b-97ba-f6599b47600a")
+	)
 	(wire
 		(pts
 			(xy 377.19 26.67) (xy 377.19 38.1)
@@ -7944,6 +7954,16 @@
 			(type default)
 		)
 		(uuid "bb792b93-f2a1-4466-8b7e-14f0d7cc3214")
+	)
+	(bus
+		(pts
+			(xy 109.22 139.7) (xy 109.22 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bb96c101-8649-4b41-a20e-a7caba4885ee")
 	)
 	(wire
 		(pts
@@ -10135,7 +10155,7 @@
 		)
 		(uuid "80787a21-5b50-4476-b9bc-2a61f36ba69f")
 	)
-	(label "OCOL[3..0]"
+	(label "OCOL[5..0]"
 		(at 228.6 195.58 0)
 		(effects
 			(font
@@ -10234,6 +10254,16 @@
 			(justify left bottom)
 		)
 		(uuid "95e47bda-7c1c-46f7-b9e2-2718002fb7bb")
+	)
+	(label "FCOL[3..0]"
+		(at 107.95 139.7 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "9821b50b-cf01-49e3-b7e5-8c5a721eb3c8")
 	)
 	(label "FCOL3"
 		(at 119.38 132.08 90)
@@ -10725,7 +10755,7 @@
 		)
 		(uuid "eab9895c-fe07-46da-9a6e-c590e86eb7a0")
 	)
-	(label "C[13..10]"
+	(label "CI[3..0]"
 		(at 336.55 137.16 180)
 		(effects
 			(font
@@ -10951,7 +10981,7 @@
 		(uuid "1c8a24ec-d595-4bb9-bc05-c8e2d2d303b8")
 	)
 	(hierarchical_label "MAIN_A[11..1]"
-		(shape input)
+		(shape tri_state)
 		(at 101.6 16.51 180)
 		(effects
 			(font
@@ -11105,7 +11135,7 @@
 		(uuid "71166fd8-abe5-42b3-bc82-3dfd9e098102")
 	)
 	(hierarchical_label "MAIN_A[11..1]"
-		(shape input)
+		(shape tri_state)
 		(at 294.64 16.51 180)
 		(effects
 			(font
@@ -11571,7 +11601,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VCC\""
 			(at 53.34 31.75 0)
 			(effects
 				(font
@@ -12222,7 +12252,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 140.97 128.27 0)
 			(effects
 				(font
@@ -12287,7 +12317,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VCC\""
 			(at 300.99 31.75 0)
 			(effects
 				(font
@@ -12352,7 +12382,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Power symbol creates a global label with name \"VSS\""
 			(at 388.62 128.27 0)
 			(effects
 				(font

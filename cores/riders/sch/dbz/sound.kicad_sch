@@ -2554,7 +2554,7 @@
 						)
 					)
 				)
-				(pin input inverted
+				(pin input line
 					(at -10.16 -16.51 0)
 					(length 2.54)
 					(name "CS2"
