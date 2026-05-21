@@ -36,6 +36,9 @@ module jtframe_cache #(parameter
     input                   wr,
     input      [MW-1:0]     wdsn,
     output                  ok,
+    input                   flush,
+    output                  flushing,
+    output                  flush_done,
 
     output     [EW-1:1]     ext_addr,
     input      [15:0]       ext_din,
@@ -80,10 +83,13 @@ wire [127:0]             req_wdata, stream_wdata;
 wire [SETW-1:0]          tag_rd_set, lookup_set, clr_set;
 wire [SETW-1:0]          tag_write_set_n, tag_advance_set_n;
 wire [WAYW-1:0]          hit_way_now, victim_way_now;
-wire [WAYW-1:0]          tag_update_way_n, tag_advance_way_n;
+wire [WAYW-1:0]          tag_update_way_n, tag_advance_way_n, tag_scan_way;
 wire [TAGW-1:0]          lookup_tag, victim_tag_now, tag_update_tag_n;
+wire [TAGW-1:0]          scan_tag_now;
 wire [BW-1:0]            hit_blk_now, victim_blk_now;
+wire [BW-1:0]            scan_blk_now;
 wire                     hit_now, victim_invalid_now, victim_dirty_now;
+wire                     scan_valid_now, scan_dirty_now;
 wire                     tag_clear_en, tag_update_en, tag_update_valid_n;
 wire                     tag_update_dirty_n, tag_advance_en;
 
@@ -129,6 +135,7 @@ jtframe_cache_tags #(
     .advance_en    ( tag_advance_en    ),
     .advance_set   ( tag_advance_set_n ),
     .advance_way   ( tag_advance_way_n ),
+    .scan_way      ( tag_scan_way      ),
     .hit           ( hit_now           ),
     .hit_way       ( hit_way_now       ),
     .hit_blk       ( hit_blk_now       ),
@@ -136,7 +143,11 @@ jtframe_cache_tags #(
     .victim_blk    ( victim_blk_now    ),
     .victim_invalid( victim_invalid_now),
     .victim_dirty  ( victim_dirty_now  ),
-    .victim_tag    ( victim_tag_now    )
+    .victim_tag    ( victim_tag_now    ),
+    .scan_valid    ( scan_valid_now    ),
+    .scan_dirty    ( scan_dirty_now    ),
+    .scan_tag      ( scan_tag_now      ),
+    .scan_blk      ( scan_blk_now      )
 );
 
 jtframe_cache_ctrl #(
@@ -158,6 +169,9 @@ jtframe_cache_ctrl #(
     .wr              ( wr                ),
     .wdsn            ( wdsn              ),
     .ok              ( ok                ),
+    .flush           ( flush             ),
+    .flushing        ( flushing          ),
+    .flush_done      ( flush_done        ),
     .ext_addr        ( ext_addr          ),
     .ext_din         ( ext_din           ),
     .ext_dout        ( ext_dout          ),
@@ -189,6 +203,11 @@ jtframe_cache_ctrl #(
     .tag_advance_en  ( tag_advance_en    ),
     .tag_advance_set_n( tag_advance_set_n ),
     .tag_advance_way_n( tag_advance_way_n ),
+    .tag_scan_way    ( tag_scan_way      ),
+    .scan_valid_now  ( scan_valid_now    ),
+    .scan_dirty_now  ( scan_dirty_now    ),
+    .scan_tag_now    ( scan_tag_now      ),
+    .scan_blk_now    ( scan_blk_now      ),
     .hit_now         ( hit_now           ),
     .hit_way_now     ( hit_way_now       ),
     .hit_blk_now     ( hit_blk_now       ),

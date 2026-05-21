@@ -380,6 +380,8 @@ func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
       data_width: 32
       blocks: { count: 32, size: 1kB }
       at:    { bank: 3, offset: CHAR, length: 8MB }
+      rw: true
+      flush: true
       simfile: { name: tilechar.bin, big_endian: true, data_type: u32 }
 `
 	var cfg MemConfig
@@ -407,6 +409,12 @@ func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
 	}
 	if line.Blocks.Count != 32 || line.Blocks.Size != "1kB" {
 		t.Fatalf("Wrong cache-lane blocks. Got %+v", line.Blocks)
+	}
+	if !line.Rw {
+		t.Fatal("Expected cache-lane rw to unmarshal as true")
+	}
+	if !line.Flush {
+		t.Fatal("Expected cache-lane flush to unmarshal as true")
 	}
 	if line.Simfile.Name != "tilechar.bin" {
 		t.Fatalf("Wrong cache-lane simfile. Got %s", line.Simfile.Name)
@@ -877,6 +885,24 @@ func Test_check_sdram_cache_lanes_rejects_decimal_offset(t *testing.T) {
 	macros.MakeFromMap(nil)
 	if e := cfg.check_sdram(); e == nil {
 		t.Fatal("Expected decimal cache-lane offset to fail")
+	}
+}
+
+func Test_check_sdram_cache_lanes_rejects_flush_without_rw(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{{
+				Name:       "tiles",
+				Data_width: 16,
+				Flush:      true,
+				Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+				At:         SDRAMCacheAddr{Length: "256kB"},
+			}},
+		},
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("Expected flush without rw to fail")
 	}
 }
 
@@ -1422,6 +1448,60 @@ func Test_game_sdram_template_emits_cache_write_ports(t *testing.T) {
 	}
 }
 
+func Test_game_sdram_template_emits_cache_flush_ports(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles
+      data_width: 32
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 3, offset: TILES, length: 4MB }
+      rw: true
+      flush: true
+    - name: palette
+      data_width: 16
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 1, offset: 0x100, length: 256kB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.Params = []Param{{Name: "TILES", Value: "22'h100"}}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"wire        tiles_flush, tiles_flushing, tiles_flush_done;",
+		".tiles_flush      ( tiles_flush      )",
+		".tiles_flushing   ( tiles_flushing   )",
+		".tiles_flush_done ( tiles_flush_done )",
+		".flush0      ( tiles_flush )",
+		".flushing0   ( tiles_flushing )",
+		".flush_done0 ( tiles_flush_done )",
+		".flush1      ( 1'b0 )",
+		".flushing1   (  )",
+		".flush_done1 (  )",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
+	}
+	if strings.Contains(out, "palette_flush") {
+		t.Fatalf("generated template should not expose flush ports for non-flush cache lanes\n%s", out)
+	}
+}
+
 func Test_game_sdram_template_emits_sdram_bus_latch_parameters(t *testing.T) {
 	sample := `sdram:
   banks:
@@ -1507,6 +1587,53 @@ func Test_mem_ports_template_emits_cache_write_ports(t *testing.T) {
 	}
 	if strings.Contains(out, "tiles_we") {
 		t.Fatalf("generated mem ports should not emit write ports for read-only cache lanes\n%s", out)
+	}
+}
+
+func Test_mem_ports_template_emits_cache_flush_ports(t *testing.T) {
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles_wr
+      data_width: 32
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 3, offset: TILES, length: 4MB }
+      rw: true
+      flush: true
+    - name: tiles
+      data_width: 16
+      blocks: { count: 1, size: 1kB }
+      at:    { bank: 1, offset: 0x100, length: 256kB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.Params = []Param{{Name: "TILES", Value: "22'h100"}}
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_LARGE": ""})
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+
+	tpl := get_mem_ports_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"output          tiles_wr_flushing,",
+		"output          tiles_wr_flush_done,",
+		"input           tiles_wr_flush,",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated mem ports are missing %q\n%s", each, out)
+		}
+	}
+	if strings.Contains(out, "tiles_flush") {
+		t.Fatalf("generated mem ports should not emit flush ports for non-flush cache lanes\n%s", out)
 	}
 }
 

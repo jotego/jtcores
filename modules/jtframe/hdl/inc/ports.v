@@ -92,5 +92,8 @@
     input           {{$v.Name}}_ok{{ if $v.Rw }},
     output          {{$v.Name}}_we,
     output   {{ data_range $v }} {{$v.Name}}_din,
-    output   [{{ sub (byte_en_width $v.Data_width) 1 }}:0] {{$v.Name}}_dsn{{end}}{{ if ne $k $last }},{{end}}
+    output   [{{ sub (byte_en_width $v.Data_width) 1 }}:0] {{$v.Name}}_dsn{{end}}{{ if $v.Flush }},
+    output          {{$v.Name}}_flushing,
+    output          {{$v.Name}}_flush_done,
+    input           {{$v.Name}}_flush{{end}}{{ if ne $k $last }},{{end}}
 {{- end}}

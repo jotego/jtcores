@@ -303,6 +303,7 @@ type SDRAMCacheLine struct {
 	Blocks     SDRAMCacheCfg     `yaml:"blocks"`
 	At         SDRAMCacheAddr    `yaml:"at"`
 	Rw         bool              `yaml:"rw"`
+	Flush      bool              `yaml:"flush"`
 	Simfile    SDRAMCacheSimfile `yaml:"simfile"`
 	Total      int
 	Span_bytes int
@@ -351,6 +352,7 @@ func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) err
 		Blocks     SDRAMCacheCfg     `yaml:"blocks"`
 		At         SDRAMCacheAddr    `yaml:"at"`
 		Rw         bool              `yaml:"rw"`
+		Flush      bool              `yaml:"flush"`
 		Simfile    SDRAMCacheSimfile `yaml:"simfile"`
 	}
 	var raw_map map[string]interface{}
@@ -368,10 +370,11 @@ func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) err
 	line.Blocks = aux.Blocks
 	line.At = aux.At
 	line.Rw = aux.Rw
+	line.Flush = aux.Flush
 	line.Simfile = aux.Simfile
 	for key := range raw_map {
 		switch key {
-		case "name", "when", "unless", "data_width", "blocks", "at", "rw", "simfile":
+		case "name", "when", "unless", "data_width", "blocks", "at", "rw", "flush", "simfile":
 		default:
 			return fmt.Errorf("Unexpected field %s in cache line", key)
 		}
