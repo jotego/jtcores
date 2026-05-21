@@ -75,6 +75,9 @@ wire        {{.Name}}_we;
 wire [{{ sub .Data_width 1 }}:0] {{.Name}}_din;
 wire [{{ sub (byte_en_width .Data_width) 1 }}:0] {{.Name}}_dsn;
 {{- end}}
+{{- if .Flush }}
+wire        {{.Name}}_flush, {{.Name}}_flushing, {{.Name}}_flush_done;
+{{- end}}
 {{- end}}
 wire        prom_we, header;
 wire [SDRAMW-2:0] raw_addr, post_addr;
@@ -202,6 +205,11 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .{{.Name}}_we   ( {{.Name}}_we   ),
     .{{.Name}}_din  ( {{.Name}}_din  ),
     .{{.Name}}_dsn  ( {{.Name}}_dsn  ),
+    {{- end}}
+    {{- if .Flush }}
+    .{{.Name}}_flush      ( {{.Name}}_flush      ),
+    .{{.Name}}_flushing   ( {{.Name}}_flushing   ),
+    .{{.Name}}_flush_done ( {{.Name}}_flush_done ),
     {{- end}}
     {{- end}}
     {{- else }}
@@ -390,6 +398,9 @@ jtframe_cache_mux #(
     .wdsn{{$index}} ( {{ if $line.Rw }}{{ $line.Name }}_dsn{{ else }}{{ printf "%d'd0" (byte_en_width $line.Data_width) }}{{ end }} ),
     {{- end}}
     .ok{{$index}}   ( {{ $line.Name }}_ok   ),
+    .flush{{$index}}      ( {{ if $line.Flush }}{{ $line.Name }}_flush{{ else }}1'b0{{ end }} ),
+    .flushing{{$index}}   ( {{ if $line.Flush }}{{ $line.Name }}_flushing{{ end }} ),
+    .flush_done{{$index}} ( {{ if $line.Flush }}{{ $line.Name }}_flush_done{{ end }} ),
 {{- end}}
 {{- range $index, $_ := until 8}}
 {{- if ge $index (len $.SDRAM.Cache_lanes) }}
@@ -402,6 +413,9 @@ jtframe_cache_mux #(
     .wdsn{{$index}} ( 0    ),
     {{- end}}
     .ok{{$index}}   (      ),
+    .flush{{$index}}      ( 1'b0 ),
+    .flushing{{$index}}   (      ),
+    .flush_done{{$index}} (      ),
 {{- end}}
 {{- end}}
     .addr      ( burst_addr ),

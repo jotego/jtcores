@@ -763,6 +763,9 @@ func (cfg *MemConfig) parse_cache_lanes(param_values map[string]string) (total_c
 		if line.Rw && k >= 4 {
 			return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s enables rw, but only the first four cache-lanes may use rw", line.Name)
 		}
+		if line.Flush && !line.Rw {
+			return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s enables flush, but flush requires rw", line.Name)
+		}
 		if line.Blocks.Count == 0 {
 			return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s must define blocks.count and it cannot be zero", line.Name)
 		}

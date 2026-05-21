@@ -41,6 +41,7 @@ module jtframe_cache_tags #(parameter
     input                   advance_en,
     input      [SETW-1:0]   advance_set,
     input      [WAYW-1:0]   advance_way,
+    input      [WAYW-1:0]   scan_way,
     output reg              hit,
     output reg [WAYW-1:0]   hit_way,
     output     [BW-1:0]     hit_blk,
@@ -48,7 +49,11 @@ module jtframe_cache_tags #(parameter
     output     [BW-1:0]     victim_blk,
     output reg              victim_invalid,
     output reg              victim_dirty,
-    output reg [TAGW-1:0]   victim_tag
+    output reg [TAGW-1:0]   victim_tag,
+    output                  scan_valid,
+    output                  scan_dirty,
+    output     [TAGW-1:0]   scan_tag,
+    output     [BW-1:0]     scan_blk
 );
 
 localparam integer TAGMETAW = TAGW + 2;
@@ -112,6 +117,10 @@ endfunction
 
 assign hit_blk    = blk_index(lookup_set, hit_way);
 assign victim_blk = blk_index(lookup_set, victim_way);
+assign scan_valid = tag_valid_q[scan_way];
+assign scan_dirty = tag_dirty_q[scan_way];
+assign scan_tag   = tag_tag_q[scan_way];
+assign scan_blk   = blk_index(lookup_set, scan_way);
 
 always @* begin
     hit = 1'b0;
