@@ -132,7 +132,7 @@ jt51 u_jt51(
     .xright     ( fm_r      )
 );
 
-jt007232 #(.INVA0(1)) u_k7232(
+jt007232 u_k7232(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_pcm   ),
