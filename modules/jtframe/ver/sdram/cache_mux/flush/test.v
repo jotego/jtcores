@@ -10,6 +10,7 @@ localparam integer SDRAM_AW = 23;
 localparam integer WORDS    = 2048;
 localparam [15:0] ORIGINAL  = 16'h35a7;
 localparam [15:0] UPDATED   = 16'hcafe;
+localparam [15:0] CONTENDED = 16'h5eed;
 
 reg                 rst, clk, clk_sdram;
 reg  [22:1]         addr0;
@@ -324,6 +325,101 @@ task wait_flush_done;
     end
 endtask
 
+task lane0_read_held_during_flush;
+    input [22:1] local_addr;
+    input [15:0] expected;
+    integer timeout;
+    reg saw_done;
+    begin
+        saw_done = 1'b0;
+        while( ok0 ) @(posedge clk);
+        @(negedge clk);
+        flush0 = 1'b1;
+        @(negedge clk);
+        flush0 = 1'b0;
+
+        begin : wait_flushing
+            for( timeout=0; timeout<20_000; timeout=timeout+1 ) begin
+                @(posedge clk);
+                if( flushing0 ) disable wait_flushing;
+            end
+            $display("Timed out waiting for held-read flush to start");
+            fail();
+        end
+
+        @(negedge clk);
+        addr0 = local_addr;
+        rd0   = 1'b1;
+
+        begin : wait_read_ok
+            for( timeout=0; timeout<60_000; timeout=timeout+1 ) begin
+                @(posedge clk);
+                if( flush_done0 ) saw_done = 1'b1;
+                if( ok0 ) begin
+                    if( !saw_done ) begin
+                        $display("held read completed before flush_done0");
+                        fail();
+                    end
+                    disable wait_read_ok;
+                end
+            end
+            $display("Timed out waiting for held read after flush");
+            fail();
+        end
+
+        if( dout0 !== expected ) begin
+            $display("Held read mismatch after flush: got %04x expected %04x",
+                dout0, expected);
+            fail();
+        end
+        @(negedge clk);
+        rd0 = 1'b0;
+        repeat (4) @(posedge clk);
+    end
+endtask
+
+task lane0_read_contending_with_flush_start;
+    input [22:1] local_addr;
+    input [15:0] expected;
+    integer timeout;
+    reg saw_done;
+    begin
+        saw_done = 1'b0;
+        while( ok0 ) @(posedge clk);
+        @(negedge clk);
+        addr0  = local_addr;
+        rd0    = 1'b1;
+        flush0 = 1'b1;
+        @(negedge clk);
+        flush0 = 1'b0;
+
+        begin : wait_read_ok
+            for( timeout=0; timeout<80_000; timeout=timeout+1 ) begin
+                @(posedge clk);
+                if( flush_done0 ) saw_done = 1'b1;
+                if( ok0 ) begin
+                    if( !saw_done ) begin
+                        $display("contended read completed before flush_done0");
+                        fail();
+                    end
+                    disable wait_read_ok;
+                end
+            end
+            $display("Timed out waiting for contended read after flush");
+            fail();
+        end
+
+        if( dout0 !== expected ) begin
+            $display("Contended read mismatch after flush: got %04x expected %04x",
+                dout0, expected);
+            fail();
+        end
+        @(negedge clk);
+        rd0 = 1'b0;
+        repeat (4) @(posedge clk);
+    end
+endtask
+
 initial begin
     clk = 0;
     clk_sdram = 0;
@@ -408,7 +504,10 @@ initial begin
         fail();
     end
 
-    lane0_read(22'd0, UPDATED);
+    lane0_read_held_during_flush(22'd0, UPDATED);
+    lane0_write(22'd0, CONTENDED);
+    lane0_read_contending_with_flush_start(22'd0, CONTENDED);
+    lane0_read(22'd0, CONTENDED);
     pass();
 end
 
