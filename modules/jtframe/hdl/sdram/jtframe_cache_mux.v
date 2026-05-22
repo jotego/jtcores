@@ -28,6 +28,7 @@ module jtframe_cache_mux #(
               AW0_0     = DW0==128 ? 4 : DW0==64 ? 3 : DW0==32 ? 2 : DW0==16 ? 1 : 0,
               BA0       = 0,
               OFFSET0   = 0,
+              INVAL_MASK0 = 8'd0,
               ENDIAN1   = ENDIAN,
               FULL1     = 0,
               AW1       = 23,
@@ -37,6 +38,7 @@ module jtframe_cache_mux #(
               AW0_1     = DW1==128 ? 4 : DW1==64 ? 3 : DW1==32 ? 2 : DW1==16 ? 1 : 0,
               BA1       = 0,
               OFFSET1   = 0,
+              INVAL_MASK1 = 8'd0,
               ENDIAN2   = ENDIAN,
               FULL2     = 0,
               AW2       = 23,
@@ -46,6 +48,7 @@ module jtframe_cache_mux #(
               AW0_2     = DW2==128 ? 4 : DW2==64 ? 3 : DW2==32 ? 2 : DW2==16 ? 1 : 0,
               BA2       = 0,
               OFFSET2   = 0,
+              INVAL_MASK2 = 8'd0,
               ENDIAN3   = ENDIAN,
               FULL3     = 0,
               AW3       = 23,
@@ -55,6 +58,7 @@ module jtframe_cache_mux #(
               AW0_3     = DW3==128 ? 4 : DW3==64 ? 3 : DW3==32 ? 2 : DW3==16 ? 1 : 0,
               BA3       = 0,
               OFFSET3   = 0,
+              INVAL_MASK3 = 8'd0,
               ENDIAN4   = ENDIAN,
               FULL4     = 0,
               AW4       = 23,
@@ -64,6 +68,7 @@ module jtframe_cache_mux #(
               AW0_4     = DW4==128 ? 4 : DW4==64 ? 3 : DW4==32 ? 2 : DW4==16 ? 1 : 0,
               BA4       = 0,
               OFFSET4   = 0,
+              INVAL_MASK4 = 8'd0,
               ENDIAN5   = ENDIAN,
               FULL5     = 0,
               AW5       = 23,
@@ -73,6 +78,7 @@ module jtframe_cache_mux #(
               AW0_5     = DW5==128 ? 4 : DW5==64 ? 3 : DW5==32 ? 2 : DW5==16 ? 1 : 0,
               BA5       = 0,
               OFFSET5   = 0,
+              INVAL_MASK5 = 8'd0,
               ENDIAN6   = ENDIAN,
               FULL6     = 0,
               AW6       = 23,
@@ -82,6 +88,7 @@ module jtframe_cache_mux #(
               AW0_6     = DW6==128 ? 4 : DW6==64 ? 3 : DW6==32 ? 2 : DW6==16 ? 1 : 0,
               BA6       = 0,
               OFFSET6   = 0,
+              INVAL_MASK6 = 8'd0,
               ENDIAN7   = ENDIAN,
               FULL7     = 0,
               AW7       = 23,
@@ -90,7 +97,8 @@ module jtframe_cache_mux #(
               DW7       = 8,
               AW0_7     = DW7==128 ? 4 : DW7==64 ? 3 : DW7==32 ? 2 : DW7==16 ? 1 : 0,
               BA7       = 0,
-              OFFSET7   = 0
+              OFFSET7   = 0,
+              INVAL_MASK7 = 8'd0
 )(
     input                       rst,
     input                       clk,
@@ -217,6 +225,8 @@ wire [DW5-1:0] cache_dout5;
 wire [DW6-1:0] cache_dout6;
 wire [DW7-1:0] cache_dout7;
 wire [3:0] cache_flushing, cache_flush_done;
+wire [7:0] cache_invalidate_done;
+reg  [7:0] cache_invalidate;
 wire cache_flush_ro  = 1'b0;
 wire unused_flush    = flush4 | flush5 | flush6 | flush7;
 wire inactive_status = unused_flush & 1'b0;
@@ -308,6 +318,25 @@ reg [DW4-1:0] dout_hold4;
 reg [DW5-1:0] dout_hold5;
 reg [DW6-1:0] dout_hold6;
 reg [DW7-1:0] dout_hold7;
+reg [3:0]  flush_inval_pending, delayed_flush_done;
+reg [7:0]  inval_mask_l, inval_done_seen;
+reg [1:0]  inval_sel, inval_next_sel;
+reg        inval_active, inval_next_valid;
+reg [7:0]  inval_next_mask;
+reg [3:0]  nx_flush_inval_pending;
+
+wire [3:0] flush_masked = {
+    cache_flush_done[3] & |INVAL_MASK3,
+    cache_flush_done[2] & |INVAL_MASK2,
+    cache_flush_done[1] & |INVAL_MASK1,
+    cache_flush_done[0] & |INVAL_MASK0
+};
+wire [3:0] flush_direct = cache_flush_done & ~{
+    |INVAL_MASK3, |INVAL_MASK2, |INVAL_MASK1, |INVAL_MASK0
+};
+wire [7:0] inval_done_acc = inval_done_seen | cache_invalidate_done | ~inval_mask_l;
+wire       inval_complete = inval_active && &inval_done_acc;
+wire [3:0] flush_done_out = flush_direct | delayed_flush_done;
 
 assign dout0 = dout_hold0;
 assign dout1 = dout_hold1;
@@ -325,18 +354,18 @@ assign ok4   = ok_hold[4];
 assign ok5   = ok_hold[5];
 assign ok6   = ok_hold[6];
 assign ok7   = ok_hold[7];
-assign flushing0   = cache_flushing[0];
-assign flushing1   = cache_flushing[1];
-assign flushing2   = cache_flushing[2];
-assign flushing3   = cache_flushing[3];
+assign flushing0   = cache_flushing[0] | (inval_active && inval_sel==2'd0);
+assign flushing1   = cache_flushing[1] | (inval_active && inval_sel==2'd1);
+assign flushing2   = cache_flushing[2] | (inval_active && inval_sel==2'd2);
+assign flushing3   = cache_flushing[3] | (inval_active && inval_sel==2'd3);
 assign flushing4   = inactive_status;
 assign flushing5   = inactive_status;
 assign flushing6   = inactive_status;
 assign flushing7   = inactive_status;
-assign flush_done0 = cache_flush_done[0];
-assign flush_done1 = cache_flush_done[1];
-assign flush_done2 = cache_flush_done[2];
-assign flush_done3 = cache_flush_done[3];
+assign flush_done0 = flush_done_out[0];
+assign flush_done1 = flush_done_out[1];
+assign flush_done2 = flush_done_out[2];
+assign flush_done3 = flush_done_out[3];
 assign flush_done4 = inactive_status;
 assign flush_done5 = inactive_status;
 assign flush_done6 = inactive_status;
@@ -392,6 +421,34 @@ always @(*) begin
         next_valid = 1'b1;
         next_sel   = 3'd7;
     end
+end
+
+always @(*) begin
+    nx_flush_inval_pending = flush_inval_pending | flush_masked;
+    inval_next_valid = 1'b0;
+    inval_next_sel   = 2'd0;
+    inval_next_mask  = 8'd0;
+    if( !inval_active ) begin
+        if( nx_flush_inval_pending[0] ) begin
+            inval_next_valid = 1'b1;
+            inval_next_sel   = 2'd0;
+            inval_next_mask  = INVAL_MASK0;
+        end else if( nx_flush_inval_pending[1] ) begin
+            inval_next_valid = 1'b1;
+            inval_next_sel   = 2'd1;
+            inval_next_mask  = INVAL_MASK1;
+        end else if( nx_flush_inval_pending[2] ) begin
+            inval_next_valid = 1'b1;
+            inval_next_sel   = 2'd2;
+            inval_next_mask  = INVAL_MASK2;
+        end else if( nx_flush_inval_pending[3] ) begin
+            inval_next_valid = 1'b1;
+            inval_next_sel   = 2'd3;
+            inval_next_mask  = INVAL_MASK3;
+        end
+    end
+    if( inval_next_valid )
+        nx_flush_inval_pending[inval_next_sel] = 1'b0;
 end
 
 always @(*) begin
@@ -487,6 +544,13 @@ always @(posedge clk) begin
         active     <= 1'b0;
         active_sel <= 3'd0;
         ok_hold    <= 8'd0;
+        cache_invalidate <= 8'd0;
+        flush_inval_pending <= 4'd0;
+        delayed_flush_done  <= 4'd0;
+        inval_mask_l        <= 8'd0;
+        inval_done_seen     <= 8'hff;
+        inval_sel           <= 2'd0;
+        inval_active        <= 1'b0;
         dout_hold0 <= {DW0{1'b0}};
         dout_hold1 <= {DW1{1'b0}};
         dout_hold2 <= {DW2{1'b0}};
@@ -496,6 +560,24 @@ always @(posedge clk) begin
         dout_hold6 <= {DW6{1'b0}};
         dout_hold7 <= {DW7{1'b0}};
     end else begin
+        cache_invalidate <= 8'd0;
+        delayed_flush_done <= 4'd0;
+        flush_inval_pending <= nx_flush_inval_pending;
+        if( inval_active ) begin
+            if( inval_complete ) begin
+                delayed_flush_done[inval_sel] <= 1'b1;
+                inval_active                  <= 1'b0;
+                inval_done_seen               <= 8'hff;
+            end else begin
+                inval_done_seen <= inval_done_acc;
+            end
+        end else if( inval_next_valid ) begin
+            inval_active      <= 1'b1;
+            inval_sel         <= inval_next_sel;
+            inval_mask_l      <= inval_next_mask;
+            inval_done_seen   <= ~inval_next_mask;
+            cache_invalidate  <= inval_next_mask;
+        end
         if( !req0 ) ok_hold[0] <= 1'b0;
         if( !req1 ) ok_hold[1] <= 1'b0;
         if( !req2 ) ok_hold[2] <= 1'b0;
@@ -569,6 +651,9 @@ jtframe_cache #(
     .flush      ( flush0                        ),
     .flushing   ( cache_flushing[0]             ),
     .flush_done ( cache_flush_done[0]           ),
+    .invalidate ( cache_invalidate[0]           ),
+    .invalidating(                               ),
+    .invalidate_done( cache_invalidate_done[0]   ),
     .ext_addr   ( ext_addr0                     ),
     .ext_din    ( din                           ),
     .ext_dout   ( ext_dout0                     ),
@@ -600,6 +685,9 @@ jtframe_cache #(
     .flush      ( flush1                        ),
     .flushing   ( cache_flushing[1]             ),
     .flush_done ( cache_flush_done[1]           ),
+    .invalidate ( cache_invalidate[1]           ),
+    .invalidating(                               ),
+    .invalidate_done( cache_invalidate_done[1]   ),
     .ext_addr   ( ext_addr1                     ),
     .ext_din    ( din                           ),
     .ext_dout   ( ext_dout1                     ),
@@ -631,6 +719,9 @@ jtframe_cache #(
     .flush      ( flush2                        ),
     .flushing   ( cache_flushing[2]             ),
     .flush_done ( cache_flush_done[2]           ),
+    .invalidate ( cache_invalidate[2]           ),
+    .invalidating(                               ),
+    .invalidate_done( cache_invalidate_done[2]   ),
     .ext_addr   ( ext_addr2                     ),
     .ext_din    ( din                           ),
     .ext_dout   ( ext_dout2                     ),
@@ -662,6 +753,9 @@ jtframe_cache #(
     .flush      ( flush3                        ),
     .flushing   ( cache_flushing[3]             ),
     .flush_done ( cache_flush_done[3]           ),
+    .invalidate ( cache_invalidate[3]           ),
+    .invalidating(                               ),
+    .invalidate_done( cache_invalidate_done[3]   ),
     .ext_addr   ( ext_addr3                     ),
     .ext_din    ( din                           ),
     .ext_dout   ( ext_dout3                     ),
@@ -693,6 +787,9 @@ jtframe_cache #(
     .flush      ( cache_flush_ro                ),
     .flushing   (                               ),
     .flush_done (                               ),
+    .invalidate ( cache_invalidate[4]           ),
+    .invalidating(                               ),
+    .invalidate_done( cache_invalidate_done[4]   ),
     .ext_addr   ( ext_addr4                     ),
     .ext_din    ( din                           ),
     .ext_dout   ( ext_dout4                     ),
@@ -724,6 +821,9 @@ jtframe_cache #(
     .flush      ( cache_flush_ro                ),
     .flushing   (                               ),
     .flush_done (                               ),
+    .invalidate ( cache_invalidate[5]           ),
+    .invalidating(                               ),
+    .invalidate_done( cache_invalidate_done[5]   ),
     .ext_addr   ( ext_addr5                     ),
     .ext_din    ( din                           ),
     .ext_dout   ( ext_dout5                     ),
@@ -755,6 +855,9 @@ jtframe_cache #(
     .flush      ( cache_flush_ro                ),
     .flushing   (                               ),
     .flush_done (                               ),
+    .invalidate ( cache_invalidate[6]           ),
+    .invalidating(                               ),
+    .invalidate_done( cache_invalidate_done[6]   ),
     .ext_addr   ( ext_addr6                     ),
     .ext_din    ( din                           ),
     .ext_dout   ( ext_dout6                     ),
@@ -786,6 +889,9 @@ jtframe_cache #(
     .flush      ( cache_flush_ro                ),
     .flushing   (                               ),
     .flush_done (                               ),
+    .invalidate ( cache_invalidate[7]           ),
+    .invalidating(                               ),
+    .invalidate_done( cache_invalidate_done[7]   ),
     .ext_addr   ( ext_addr7                     ),
     .ext_din    ( din                           ),
     .ext_dout   ( ext_dout7                     ),

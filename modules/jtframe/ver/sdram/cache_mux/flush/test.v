@@ -25,6 +25,8 @@ reg  [15:0]         din0;
 reg  [ 1:0]         wdsn0;
 wire [15:0]         dout0;
 wire                ok0, flushing0, flush_done0;
+reg  [22:1]         addr4;
+reg                 rd4;
 
 wire [22:1]         addr_zero = 22'd0;
 wire                sig_zero  = 1'b0;
@@ -77,6 +79,7 @@ jtframe_cache_mux #(
     .BLOCKS3  ( 1        ),
     .BLKSIZE3 ( 1024     ),
     .DW3      ( 16       ),
+    .INVAL_MASK0 ( 8'b00010000 ),
     .AW4      ( 23       ),
     .BLOCKS4  ( 1        ),
     .BLKSIZE4 ( 1024     ),
@@ -136,9 +139,9 @@ jtframe_cache_mux #(
     .flush3      ( sig_zero        ),
     .flushing3   ( flushing3       ),
     .flush_done3 ( flush_done3     ),
-    .addr4       ( addr_zero       ),
+    .addr4       ( addr4           ),
     .dout4       ( dout4           ),
-    .rd4         ( sig_zero        ),
+    .rd4         ( rd4             ),
     .ok4         ( ok4             ),
     .flush4      ( sig_zero        ),
     .flushing4   ( flushing4       ),
@@ -250,6 +253,19 @@ task wait_init_done;
     end
 endtask
 
+task wait_lane4_ok;
+    input [80*8-1:0] opname;
+    integer timeout;
+    begin : wait_loop
+        for( timeout=0; timeout<20_000; timeout=timeout+1 ) begin
+            @(posedge clk);
+            if( ok4 ) disable wait_loop;
+        end
+        $display("Timed out waiting for lane 4 %0s", opname);
+        fail();
+    end
+endtask
+
 task wait_lane_ok;
     input [80*8-1:0] opname;
     integer timeout;
@@ -260,6 +276,26 @@ task wait_lane_ok;
         end
         $display("Timed out waiting for lane 0 %0s", opname);
         fail();
+    end
+endtask
+
+task lane4_read;
+    input [22:1] local_addr;
+    input [15:0] expected;
+    begin
+        while( ok4 ) @(posedge clk);
+        @(negedge clk);
+        addr4 = local_addr;
+        rd4   = 1'b1;
+        wait_lane4_ok("read");
+        if( dout4 !== expected ) begin
+            $display("Lane 4 read mismatch at %0d: got %04x expected %04x",
+                local_addr, dout4, expected);
+            fail();
+        end
+        @(negedge clk);
+        rd4 = 1'b0;
+        repeat (4) @(posedge clk);
     end
 endtask
 
@@ -469,7 +505,9 @@ initial begin
 
     rst    = 1'b1;
     addr0  = 22'd0;
+    addr4  = 22'd0;
     rd0    = 1'b0;
+    rd4    = 1'b0;
     wr0    = 1'b0;
     flush0 = 1'b0;
     din0   = 16'd0;
@@ -482,6 +520,7 @@ initial begin
     repeat (16) @(posedge clk);
 
     lane0_read(22'd0, ORIGINAL);
+    lane4_read(22'd0, ORIGINAL);
     lane0_write(22'd0, UPDATED);
     lane0_read(22'd0, UPDATED);
 
@@ -502,6 +541,7 @@ initial begin
             u_sdram.Bank0[0], UPDATED);
         fail();
     end
+    lane4_read(22'd0, UPDATED);
 
     flush_write_count = 0;
     wait_flush_done();

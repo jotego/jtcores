@@ -381,7 +381,7 @@ func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
       blocks: { count: 32, size: 1kB }
       at:    { bank: 3, offset: CHAR, length: 8MB }
       rw: true
-      flush: true
+      flush: { enable: true, invalidates: [ scene ] }
       simfile: { name: tilechar.bin, big_endian: true, data_type: u32 }
 `
 	var cfg MemConfig
@@ -413,8 +413,11 @@ func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
 	if !line.Rw {
 		t.Fatal("Expected cache-lane rw to unmarshal as true")
 	}
-	if !line.Flush {
+	if !line.Flush.Enable {
 		t.Fatal("Expected cache-lane flush to unmarshal as true")
+	}
+	if slices.Compare(line.Flush.Invalidates, []string{"scene"}) != 0 {
+		t.Fatalf("Wrong flush.invalidates list. Got %v", line.Flush.Invalidates)
 	}
 	if line.Simfile.Name != "tilechar.bin" {
 		t.Fatalf("Wrong cache-lane simfile. Got %s", line.Simfile.Name)
@@ -731,7 +734,7 @@ func Test_check_sdram_cache_lanes_rejects(t *testing.T) {
 				Cache_lanes: []SDRAMCacheLine{{
 					Name:       "tiles",
 					Data_width: 24,
-					Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
 					At:         SDRAMCacheAddr{Length: "8MB"},
 				}},
 			},
@@ -741,7 +744,7 @@ func Test_check_sdram_cache_lanes_rejects(t *testing.T) {
 				Cache_lanes: []SDRAMCacheLine{{
 					Name:       "tiles",
 					Data_width: 16,
-					Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
 					At: SDRAMCacheAddr{
 						Offset: "UNKNOWN",
 						Length: "8MB",
@@ -754,7 +757,7 @@ func Test_check_sdram_cache_lanes_rejects(t *testing.T) {
 				Cache_lanes: []SDRAMCacheLine{{
 					Name:       "tiles",
 					Data_width: 8,
-					Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
 					At:         SDRAMCacheAddr{Length: "8MB"},
 					Simfile:    SDRAMCacheSimfile{Name: "tiles.bin", Big_endian: true},
 				}},
@@ -765,7 +768,7 @@ func Test_check_sdram_cache_lanes_rejects(t *testing.T) {
 				Cache_lanes: []SDRAMCacheLine{{
 					Name:       "tiles",
 					Data_width: 128,
-					Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
 					At:         SDRAMCacheAddr{Length: "8MB"},
 					Simfile:    SDRAMCacheSimfile{Name: "tiles.bin", Big_endian: true},
 				}},
@@ -851,7 +854,7 @@ func Test_check_sdram_cache_lanes_accepts_hex_offset(t *testing.T) {
 				{
 					Name:       "tiles",
 					Data_width: 16,
-					Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
 					At: SDRAMCacheAddr{
 						Offset: "0x100",
 						Length: "256kB",
@@ -873,7 +876,7 @@ func Test_check_sdram_cache_lanes_rejects_decimal_offset(t *testing.T) {
 				{
 					Name:       "tiles",
 					Data_width: 16,
-					Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
 					At: SDRAMCacheAddr{
 						Offset: "256",
 						Length: "256kB",
@@ -894,7 +897,7 @@ func Test_check_sdram_cache_lanes_rejects_flush_without_rw(t *testing.T) {
 			Cache_lanes: []SDRAMCacheLine{{
 				Name:       "tiles",
 				Data_width: 16,
-				Flush:      true,
+				Flush:      SDRAMCacheFlush{Enable: true},
 				Blocks:     SDRAMCacheCfg{Count: 1, Size: "1kB"},
 				At:         SDRAMCacheAddr{Length: "256kB"},
 			}},
@@ -903,6 +906,70 @@ func Test_check_sdram_cache_lanes_rejects_flush_without_rw(t *testing.T) {
 	macros.MakeFromMap(nil)
 	if e := cfg.check_sdram(); e == nil {
 		t.Fatal("Expected flush without rw to fail")
+	}
+}
+
+func Test_check_sdram_cache_lanes_accepts_flush_invalidates(t *testing.T) {
+	cfg := MemConfig{
+		SDRAM: SDRAMCfg{
+			Cache_lanes: []SDRAMCacheLine{
+				{
+					Name:       "cpu",
+					Data_width: 32,
+					Rw:         true,
+					Flush:      SDRAMCacheFlush{Enable: true, Invalidates: []string{"scene"}},
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
+					At:         SDRAMCacheAddr{Length: "256kB"},
+				},
+				{
+					Name:       "scene",
+					Data_width: 32,
+					Blocks:     SDRAMCacheCfg{Count: 1, Size: "512B"},
+					At:         SDRAMCacheAddr{Length: "256kB"},
+				},
+			},
+		},
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+	if got := cache_inval_mask(cfg.SDRAM.Cache_lanes, 0); got != "8'b00000010" {
+		t.Fatalf("Wrong invalidation mask. Got %s", got)
+	}
+}
+
+func Test_check_sdram_cache_lanes_rejects_bad_flush_invalidates(t *testing.T) {
+	cases := []MemConfig{
+		{
+			SDRAM: SDRAMCfg{Cache_lanes: []SDRAMCacheLine{
+				{Name: "cpu", Data_width: 32, Rw: true, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Length: "256kB"}, Flush: SDRAMCacheFlush{Invalidates: []string{"scene"}}},
+				{Name: "scene", Data_width: 32, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Length: "256kB"}},
+			}},
+		},
+		{
+			SDRAM: SDRAMCfg{Cache_lanes: []SDRAMCacheLine{
+				{Name: "cpu", Data_width: 32, Rw: true, Flush: SDRAMCacheFlush{Enable: true, Invalidates: []string{"missing"}}, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Length: "256kB"}},
+			}},
+		},
+		{
+			SDRAM: SDRAMCfg{Cache_lanes: []SDRAMCacheLine{
+				{Name: "cpu", Data_width: 32, Rw: true, Flush: SDRAMCacheFlush{Enable: true, Invalidates: []string{"other"}}, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Length: "256kB"}},
+				{Name: "other", Data_width: 32, Rw: true, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Length: "256kB"}},
+			}},
+		},
+		{
+			SDRAM: SDRAMCfg{Cache_lanes: []SDRAMCacheLine{
+				{Name: "cpu", Data_width: 32, Rw: true, Flush: SDRAMCacheFlush{Enable: true, Invalidates: []string{"scene"}}, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Length: "256kB"}},
+				{Name: "scene", Data_width: 32, Blocks: SDRAMCacheCfg{Count: 1, Size: "512B"}, At: SDRAMCacheAddr{Bank: 1, Length: "256kB"}},
+			}},
+		},
+	}
+	for _, cfg := range cases {
+		macros.MakeFromMap(nil)
+		if e := cfg.check_sdram(); e == nil {
+			t.Fatal("Expected invalid flush.invalidates setup to fail")
+		}
 	}
 }
 
@@ -1456,7 +1523,7 @@ func Test_game_sdram_template_emits_cache_flush_ports(t *testing.T) {
       blocks: { count: 1, size: 1kB }
       at:    { bank: 3, offset: TILES, length: 4MB }
       rw: true
-      flush: true
+      flush: { enable: true }
     - name: palette
       data_width: 16
       blocks: { count: 1, size: 1kB }
@@ -1600,7 +1667,7 @@ func Test_mem_ports_template_emits_cache_flush_ports(t *testing.T) {
       blocks: { count: 1, size: 1kB }
       at:    { bank: 3, offset: TILES, length: 4MB }
       rw: true
-      flush: true
+      flush: { enable: true }
     - name: tiles
       data_width: 16
       blocks: { count: 1, size: 1kB }

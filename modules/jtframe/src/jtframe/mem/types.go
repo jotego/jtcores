@@ -303,11 +303,16 @@ type SDRAMCacheLine struct {
 	Blocks     SDRAMCacheCfg     `yaml:"blocks"`
 	At         SDRAMCacheAddr    `yaml:"at"`
 	Rw         bool              `yaml:"rw"`
-	Flush      bool              `yaml:"flush"`
+	Flush      SDRAMCacheFlush   `yaml:"flush"`
 	Simfile    SDRAMCacheSimfile `yaml:"simfile"`
 	Total      int
 	Span_bytes int
 	Full_range bool
+}
+
+type SDRAMCacheFlush struct {
+	Enable      bool     `yaml:"enable"`
+	Invalidates []string `yaml:"invalidates"`
 }
 
 type SDRAMCacheCfg struct {
@@ -352,7 +357,7 @@ func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) err
 		Blocks     SDRAMCacheCfg     `yaml:"blocks"`
 		At         SDRAMCacheAddr    `yaml:"at"`
 		Rw         bool              `yaml:"rw"`
-		Flush      bool              `yaml:"flush"`
+		Flush      SDRAMCacheFlush   `yaml:"flush"`
 		Simfile    SDRAMCacheSimfile `yaml:"simfile"`
 	}
 	var raw_map map[string]interface{}
@@ -381,6 +386,31 @@ func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) err
 	}
 	if line.Name == "" {
 		return fmt.Errorf("cache line entries must a name")
+	}
+	return nil
+}
+
+func (flush *SDRAMCacheFlush) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type raw_flush struct {
+		Enable      bool     `yaml:"enable"`
+		Invalidates []string `yaml:"invalidates"`
+	}
+	var raw_map map[string]interface{}
+	if err := unmarshal(&raw_map); err != nil {
+		return err
+	}
+	var aux raw_flush
+	if err := unmarshal(&aux); err != nil {
+		return err
+	}
+	flush.Enable = aux.Enable
+	flush.Invalidates = aux.Invalidates
+	for key := range raw_map {
+		switch key {
+		case "enable", "invalidates":
+		default:
+			return fmt.Errorf("Unexpected field %s in cache flush", key)
+		}
 	}
 	return nil
 }
