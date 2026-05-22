@@ -57,6 +57,9 @@ module jtframe_cache_ctrl #(parameter
     input                   flush,
     output reg              flushing,
     output reg              flush_done,
+    input                   invalidate,
+    output reg              invalidating,
+    output reg              invalidate_done,
 
     output     [EW-1:1]     ext_addr,
     input      [15:0]       ext_din,
@@ -140,10 +143,12 @@ localparam [4:0] S_INIT_CLEAR    = 5'd0,
                  S_FILL_WB_PRIME = 5'd13,
                  S_FLUSH_WAIT    = 5'd14,
                  S_FLUSH_CHECK   = 5'd15,
-                 S_FLUSH_ADVANCE = 5'd16;
+                 S_FLUSH_ADVANCE = 5'd16,
+                 S_INVAL_CLEAR   = 5'd17;
 
 reg              fill_after_wb, fill_wb_prime_wait;
 reg              init_req_pending, flush_l, flush_pending;
+reg              invalidate_l, invalidate_pending;
 reg              rd_l, wr_l;
 reg              req_wr_l;
 reg [AW-1:AW0]   req_addr_l;
@@ -165,8 +170,10 @@ real             ext_total_read_kb;
 wire            rd_rise = rd & ~rd_l;
 wire            wr_rise = wr & ~wr_l;
 wire            flush_rise = flush & ~flush_l;
+wire            invalidate_rise = invalidate & ~invalidate_l;
 wire            flush_start = flush_rise | flush_pending;
-wire            block_normal_req = flushing | flush_start;
+wire            invalidate_start = invalidate_rise | invalidate_pending;
+wire            block_normal_req = flushing | flush_start | invalidating | invalidate_start;
 wire            new_rd  = rd_rise & ~block_normal_req;
 wire            new_wr  = wr_rise & ~rd_rise & ~block_normal_req;
 wire            new_req = new_rd | new_wr;
@@ -411,6 +418,9 @@ always @* begin
         S_INIT_CLEAR: begin
             tag_clear_en = 1'b1;
         end
+        S_INVAL_CLEAR: begin
+            tag_clear_en = 1'b1;
+        end
         S_LOOKUP: begin
             if( !hit_now ) begin
                 tag_advance_en = 1'b1;
@@ -526,6 +536,8 @@ always @(posedge clk) begin
         init_req_pending  <= 1'b0;
         flush_l           <= 1'b0;
         flush_pending     <= 1'b0;
+        invalidate_l      <= 1'b0;
+        invalidate_pending<= 1'b0;
         rd_l              <= 1'b0;
         wr_l              <= 1'b0;
         req_wr_l          <= 1'b0;
@@ -549,6 +561,8 @@ always @(posedge clk) begin
         ok                <= 1'b0;
         flushing          <= 1'b0;
         flush_done        <= 1'b0;
+        invalidating      <= 1'b0;
+        invalidate_done   <= 1'b0;
 `ifdef SIMULATION
         ext_total_read_kb = 0.0;
 `endif
@@ -556,7 +570,9 @@ always @(posedge clk) begin
         if( req_load_addr )    req_ram_addr_l    <= req_addr_n;
         if( stream_load_addr ) stream_ram_addr_l <= stream_addr_n;
         flush_l <= flush;
+        invalidate_l <= invalidate;
         if( flush_rise && !flushing ) flush_pending <= 1'b1;
+        if( invalidate_rise && !invalidating ) invalidate_pending <= 1'b1;
         if( block_normal_req && !init_req_pending && (rd | wr) ) begin
             init_req_pending <= 1'b1;
             req_wr_l         <= wr & ~rd;
@@ -580,6 +596,7 @@ always @(posedge clk) begin
         end
         ok <= 1'b0;
         flush_done <= 1'b0;
+        invalidate_done <= 1'b0;
 `ifdef SIMULATION
         if( st == S_FILL_REQ && ext_ack )
             ext_total_read_kb = ext_total_read_kb + (BLKSIZE / 1024.0);
@@ -615,6 +632,11 @@ always @(posedge clk) begin
                     flush_set_l    <= {SETW{1'b0}};
                     flush_way_l    <= {WAYW{1'b0}};
                     st             <= S_FLUSH_CHECK;
+                end else if( invalidate_start ) begin
+                    invalidate_pending <= 1'b0;
+                    invalidating       <= 1'b1;
+                    clr_set            <= {SETW{1'b0}};
+                    st                 <= S_INVAL_CLEAR;
                 end else if( new_req ) begin
                     fill_after_wb <= 1'b0;
                     req_wr_l      <= new_wr;
@@ -719,6 +741,15 @@ always @(posedge clk) begin
                         flush_way_l <= flush_way_l + 1'd1;
                     end
                     st <= S_FLUSH_WAIT;
+                end
+            end
+            S_INVAL_CLEAR: begin
+                if( clr_set == LAST_SET ) begin
+                    invalidating    <= 1'b0;
+                    invalidate_done <= 1'b1;
+                    st              <= S_IDLE;
+                end else begin
+                    clr_set <= clr_set + 1'd1;
                 end
             end
             S_FILL_REQ: begin

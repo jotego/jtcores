@@ -182,6 +182,13 @@ sdram:
         offset: OBJ_OFFS
         data_width: 8
   # Use cache-lanes instead of banks for direct cache-backed SDRAM mappings.
+  cache-lanes:
+    - name: cpuba0
+      data_width: 32
+      rw: true
+      flush: { enable: true, invalidates: [scndma, scrmap] }
+      blocks: { count: 64, size: 256 }
+      at: { bank: 0, length: 16MB }
 .fi
 .RE
 .TP
@@ -352,7 +359,15 @@ Supported: \fBname\fR, \fBbig_endian\fR, \fBdata_type\fR (u16/u32).
 .TP
 .B sdram.cache-lanes[]
 Supported: \fBname\fR, \fBdata_width\fR, \fBblocks\fR, \fBat\fR, \fBrw\fR,
-\fBsimfile\fR, \fBwhen\fR, \fBunless\fR.
+\fBflush\fR, \fBsimfile\fR, \fBwhen\fR, \fBunless\fR.
+.TP
+.B sdram.cache-lanes.flush
+Supported: \fBenable\fR and \fBinvalidates\fR.
+\fBenable: true\fR exposes the lane flush interface and requires
+\fBrw: true\fR.
+\fBinvalidates\fR is an optional list of read-only cache-lane names to invalidate
+after this lane's dirty writeback completes. If \fBenable\fR is false or omitted,
+\fBinvalidates\fR must be empty or omitted.
 .TP
 .B sdram.cache-lanes.blocks
 Supported: \fBcount\fR, \fBsize\fR.
@@ -437,6 +452,9 @@ Cache-lane \fBdata_width\fR supports \fB8/16/32/64/128\fR.
 \fBcache-lanes[].blocks.size\fR must be a power-of-two with suffix \fBB\fR,
 \fBk\fR, \fBkB\fR, \fBM\fR, or \fBMB\fR and at least 16.
 Only lanes 0..3 may set \fBrw: true\fR.
+\fBflush.enable\fR requires \fBrw: true\fR.
+\fBflush.invalidates\fR may only name read-only lanes with overlapping SDRAM
+ranges; whole target caches are invalidated.
 \fBcache-lanes[].at\fR is optional; when omitted the lane uses full SDRAM space.
 .IP \[bu] 2
 Cache-lane offsets and lengths are evaluated through params/macro expressions.

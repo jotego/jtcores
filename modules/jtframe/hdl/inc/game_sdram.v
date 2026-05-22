@@ -75,7 +75,7 @@ wire        {{.Name}}_we;
 wire [{{ sub .Data_width 1 }}:0] {{.Name}}_din;
 wire [{{ sub (byte_en_width .Data_width) 1 }}:0] {{.Name}}_dsn;
 {{- end}}
-{{- if .Flush }}
+{{- if .Flush.Enable }}
 wire        {{.Name}}_flush, {{.Name}}_flushing, {{.Name}}_flush_done;
 `ifdef SCENE
 assign {{.Name}}_flushing   = 1'b0;
@@ -210,7 +210,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .{{.Name}}_din  ( {{.Name}}_din  ),
     .{{.Name}}_dsn  ( {{.Name}}_dsn  ),
     {{- end}}
-    {{- if .Flush }}
+    {{- if .Flush.Enable }}
     .{{.Name}}_flush      ( {{.Name}}_flush      ),
     .{{.Name}}_flushing   ( {{.Name}}_flushing   ),
     .{{.Name}}_flush_done ( {{.Name}}_flush_done ),
@@ -388,7 +388,8 @@ jtframe_cache_mux #(
     .BLKSIZE{{$index}} ( {{ $line.Blocks.Size_bytes }} ),
     .DW{{$index}}      ( {{ printf "%2d" $line.Data_width }} ),
     .BA{{$index}}      ( {{ if $line.Full_range }}0{{ else }}{{ $line.At.Bank }}{{ end }} ),
-    .OFFSET{{$index}}  ( {{ if and (not $line.Full_range) $line.At.Offset }}{{ $line.At.Offset }}{{ else }}0{{ end }} ){{- end }}
+    .OFFSET{{$index}}  ( {{ if and (not $line.Full_range) $line.At.Offset }}{{ $line.At.Offset }}{{ else }}0{{ end }} ),
+    .INVAL_MASK{{$index}} ( {{ cache_inval_mask $.SDRAM.Cache_lanes $index }} ){{- end }}
 ) u_cache(
     .rst       ( rst      ),
     .clk       ( clk      ),
@@ -402,7 +403,7 @@ jtframe_cache_mux #(
     .wdsn{{$index}} ( {{ if $line.Rw }}{{ $line.Name }}_dsn{{ else }}{{ printf "%d'd0" (byte_en_width $line.Data_width) }}{{ end }} ),
     {{- end}}
     .ok{{$index}}   ( {{ $line.Name }}_ok   ),
-    {{- if $line.Flush }}
+    {{- if $line.Flush.Enable }}
 `ifdef SCENE
     .flush{{$index}}      ( 1'b0 ),
     .flushing{{$index}}   (  ),
