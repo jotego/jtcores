@@ -6,20 +6,25 @@ module cache_wide_stress_env #(parameter
 
 `include "test_tasks.vh"
 
+`ifndef STRESS_FILE_BYTES
+`define STRESS_FILE_BYTES 128*1024
+`endif
+
 localparam integer CACHE_AW            = 23;
 localparam integer BLKSIZE             = 1024;
 localparam integer BLOCKS              = 32;
 localparam integer AW0                 = DW==128 ? 4 : DW==64 ? 3 : 2;
 localparam integer MW                  = DW >> 3;
-localparam integer FILE_BYTES          = 512*1024;
+localparam integer PAYLOAD_BYTES       = 512*1024;
+localparam integer FILE_BYTES          = ( `STRESS_FILE_BYTES > PAYLOAD_BYTES ) ? PAYLOAD_BYTES : `STRESS_FILE_BYTES;
 localparam integer FILE_WORDS          = FILE_BYTES/(DW/8);
 localparam integer SDRAM_HALFWORDS     = FILE_BYTES/2;
 localparam integer LINE_UNITS          = BLKSIZE/(DW/8);
 localparam integer LINES               = FILE_BYTES/BLKSIZE;
 localparam integer EXPECTED_WRITE_ACKS = LINES <= BLOCKS ? LINES :
                                          BLOCKS + 2*(LINES-BLOCKS);
-localparam integer WORD_PROGRESS       = FILE_WORDS/8;
-localparam integer HALF_PROGRESS       = SDRAM_HALFWORDS/4;
+localparam integer WORD_PROGRESS       = (FILE_WORDS < 8) ? 1 : FILE_WORDS/8;
+localparam integer HALF_PROGRESS       = (SDRAM_HALFWORDS < 4) ? 1 : SDRAM_HALFWORDS/4;
 localparam real    CLK_PERIOD_NS       = 1000.0 / 85.909;
 localparam real    RFSH_PERIOD_NS      = 64_000.0;
 localparam [3:0]   CMD_REFRESH         = 4'b0001;
@@ -58,7 +63,7 @@ wire                 sdram_nras;
 wire                 sdram_ncs;
 wire                 sdram_cke;
 
-reg  [7:0]           payload [0:FILE_BYTES-1];
+reg  [7:0]           payload [0:PAYLOAD_BYTES-1];
 
 integer              ack_count;
 integer              rfsh_count;
@@ -257,11 +262,15 @@ task load_payload_and_clear_sdram;
         end
         load_count = $fread(payload, load_file);
         $fclose(load_file);
-        if( load_count != FILE_BYTES ) begin
-            $display("Expected %0d bytes in payload.bin for DW=%0d, got %0d", FILE_BYTES, DW, load_count);
+        if( load_count != PAYLOAD_BYTES ) begin
+            $display("Expected %0d bytes in payload.bin for DW=%0d, got %0d", PAYLOAD_BYTES, DW, load_count);
             fail();
         end
-        $display("DW=%0d loaded payload.bin: %0d bytes (%0d words)", DW, FILE_BYTES, FILE_WORDS);
+        if( `STRESS_FILE_BYTES != FILE_BYTES ) begin
+            $display("DW=%0d using STRESS_FILE_BYTES=%0d, capped to %0d bytes", DW, `STRESS_FILE_BYTES, FILE_BYTES);
+        end
+        $display("DW=%0d loaded payload.bin: %0d bytes (%0d words, stress scope=%0d bytes)",
+            DW, PAYLOAD_BYTES, FILE_WORDS, FILE_BYTES);
         for( idx=0; idx<SDRAM_HALFWORDS; idx=idx+1 ) begin
             u_sdram.Bank0[idx] = 16'd0;
         end
