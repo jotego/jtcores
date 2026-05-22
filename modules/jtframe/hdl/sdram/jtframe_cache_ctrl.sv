@@ -166,8 +166,9 @@ wire            rd_rise = rd & ~rd_l;
 wire            wr_rise = wr & ~wr_l;
 wire            flush_rise = flush & ~flush_l;
 wire            flush_start = flush_rise | flush_pending;
-wire            new_rd  = rd_rise;
-wire            new_wr  = wr_rise & ~rd_rise;
+wire            block_normal_req = flushing | flush_start;
+wire            new_rd  = rd_rise & ~block_normal_req;
+wire            new_wr  = wr_rise & ~rd_rise & ~block_normal_req;
 wire            new_req = new_rd | new_wr;
 wire            fill_stream_dok = ext_dok;
 
@@ -557,11 +558,15 @@ always @(posedge clk) begin
         flush_l <= flush;
         if( flush_rise && !flushing ) flush_pending <= 1'b1;
 
-        // Keep edge tracking low while tag RAMs are being cleared so a
-        // requester that raises rd/wr during init still triggers once ready.
-        if( st != S_INIT_CLEAR ) begin
+        // Keep edge tracking low while tag RAMs are being cleared or a flush
+        // is pending/active so a requester that holds rd/wr still triggers
+        // once the cache can accept normal requests again.
+        if( st != S_INIT_CLEAR && !block_normal_req ) begin
             rd_l <= rd;
             wr_l <= wr;
+        end else begin
+            rd_l <= 1'b0;
+            wr_l <= 1'b0;
         end
         ok <= 1'b0;
         flush_done <= 1'b0;
@@ -593,6 +598,13 @@ always @(posedge clk) begin
                     init_req_pending <= 1'b0;
                     fill_after_wb    <= 1'b0;
                     st               <= S_LOOKUP;
+                end else if( flush_start ) begin
+                    flush_pending  <= 1'b0;
+                    flushing       <= 1'b1;
+                    fill_after_wb  <= 1'b0;
+                    flush_set_l    <= {SETW{1'b0}};
+                    flush_way_l    <= {WAYW{1'b0}};
+                    st             <= S_FLUSH_CHECK;
                 end else if( new_req ) begin
                     fill_after_wb <= 1'b0;
                     req_wr_l      <= new_wr;
@@ -603,13 +615,6 @@ always @(posedge clk) begin
                     req_din_l     <= din;
                     req_wdsn_l    <= wdsn;
                     st            <= S_LOOKUP;
-                end else if( flush_start ) begin
-                    flush_pending  <= 1'b0;
-                    flushing       <= 1'b1;
-                    fill_after_wb  <= 1'b0;
-                    flush_set_l    <= {SETW{1'b0}};
-                    flush_way_l    <= {WAYW{1'b0}};
-                    st             <= S_FLUSH_CHECK;
                 end
             end
             S_LOOKUP: begin

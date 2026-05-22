@@ -1623,9 +1623,9 @@ func Test_mem_ports_template_emits_cache_flush_ports(t *testing.T) {
 	out := verilog.String()
 
 	checks := []string{
-		"output          tiles_wr_flushing,",
-		"output          tiles_wr_flush_done,",
-		"input           tiles_wr_flush,",
+		"input           tiles_wr_flushing,",
+		"input           tiles_wr_flush_done,",
+		"output          tiles_wr_flush,",
 	}
 	for _, each := range checks {
 		if !strings.Contains(out, each) {
