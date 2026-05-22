@@ -77,6 +77,10 @@ wire [{{ sub (byte_en_width .Data_width) 1 }}:0] {{.Name}}_dsn;
 {{- end}}
 {{- if .Flush }}
 wire        {{.Name}}_flush, {{.Name}}_flushing, {{.Name}}_flush_done;
+`ifdef SCENE
+assign {{.Name}}_flushing   = 1'b0;
+assign {{.Name}}_flush_done = {{.Name}}_flush;
+`endif
 {{- end}}
 {{- end}}
 wire        prom_we, header;
@@ -398,9 +402,21 @@ jtframe_cache_mux #(
     .wdsn{{$index}} ( {{ if $line.Rw }}{{ $line.Name }}_dsn{{ else }}{{ printf "%d'd0" (byte_en_width $line.Data_width) }}{{ end }} ),
     {{- end}}
     .ok{{$index}}   ( {{ $line.Name }}_ok   ),
-    .flush{{$index}}      ( {{ if $line.Flush }}{{ $line.Name }}_flush{{ else }}1'b0{{ end }} ),
-    .flushing{{$index}}   ( {{ if $line.Flush }}{{ $line.Name }}_flushing{{ end }} ),
-    .flush_done{{$index}} ( {{ if $line.Flush }}{{ $line.Name }}_flush_done{{ end }} ),
+    {{- if $line.Flush }}
+`ifdef SCENE
+    .flush{{$index}}      ( 1'b0 ),
+    .flushing{{$index}}   (  ),
+    .flush_done{{$index}} (  ),
+`else
+    .flush{{$index}}      ( {{ $line.Name }}_flush ),
+    .flushing{{$index}}   ( {{ $line.Name }}_flushing ),
+    .flush_done{{$index}} ( {{ $line.Name }}_flush_done ),
+`endif
+    {{- else }}
+    .flush{{$index}}      ( 1'b0 ),
+    .flushing{{$index}}   (  ),
+    .flush_done{{$index}} (  ),
+    {{- end }}
 {{- end}}
 {{- range $index, $_ := until 8}}
 {{- if ge $index (len $.SDRAM.Cache_lanes) }}

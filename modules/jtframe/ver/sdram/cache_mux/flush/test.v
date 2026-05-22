@@ -11,6 +11,12 @@ localparam integer WORDS    = 2048;
 localparam [15:0] ORIGINAL  = 16'h35a7;
 localparam [15:0] UPDATED   = 16'hcafe;
 localparam [15:0] CONTENDED = 16'h5eed;
+localparam integer REPEAT_A_WORD  = 512;
+localparam integer REPEAT_B_WORD  = 1024;
+localparam integer REPEAT_B1_WORD = 1025;
+localparam [22:1] REPEAT_A_ADDR   = 22'd512;
+localparam [22:1] REPEAT_B_ADDR   = 22'd1024;
+localparam [22:1] REPEAT_B1_ADDR  = 22'd1025;
 
 reg                 rst, clk, clk_sdram;
 reg  [22:1]         addr0;
@@ -503,6 +509,10 @@ initial begin
         $display("Clean flush issued %0d SDRAM write requests", flush_write_count);
         fail();
     end
+
+    lane0_read(REPEAT_A_ADDR,  exp_mem[REPEAT_A_WORD]);
+    lane0_read(REPEAT_B_ADDR,  exp_mem[REPEAT_B_WORD]);
+    lane0_read(REPEAT_B1_ADDR, exp_mem[REPEAT_B1_WORD]);
 
     lane0_read_held_during_flush(22'd0, UPDATED);
     lane0_write(22'd0, CONTENDED);

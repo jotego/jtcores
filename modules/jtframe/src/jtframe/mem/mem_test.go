@@ -1482,9 +1482,11 @@ func Test_game_sdram_template_emits_cache_flush_ports(t *testing.T) {
 
 	checks := []string{
 		"wire        tiles_flush, tiles_flushing, tiles_flush_done;",
+		"`ifdef SCENE\nassign tiles_flushing   = 1'b0;\nassign tiles_flush_done = tiles_flush;\n`endif",
 		".tiles_flush      ( tiles_flush      )",
 		".tiles_flushing   ( tiles_flushing   )",
 		".tiles_flush_done ( tiles_flush_done )",
+		"`ifdef SCENE\n    .flush0      ( 1'b0 ),\n    .flushing0   (  ),\n    .flush_done0 (  ),\n`else\n    .flush0      ( tiles_flush ),",
 		".flush0      ( tiles_flush )",
 		".flushing0   ( tiles_flushing )",
 		".flush_done0 ( tiles_flush_done )",

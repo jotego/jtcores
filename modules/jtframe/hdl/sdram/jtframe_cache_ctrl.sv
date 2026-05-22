@@ -557,6 +557,16 @@ always @(posedge clk) begin
         if( stream_load_addr ) stream_ram_addr_l <= stream_addr_n;
         flush_l <= flush;
         if( flush_rise && !flushing ) flush_pending <= 1'b1;
+        if( block_normal_req && !init_req_pending && (rd | wr) ) begin
+            init_req_pending <= 1'b1;
+            req_wr_l         <= wr & ~rd;
+            req_addr_l       <= addr;
+            req_tag_l        <= req_tag_now;
+            req_set_l        <= req_set_now;
+            req_off_l        <= req_off_now;
+            req_din_l        <= din;
+            req_wdsn_l       <= wdsn;
+        end
 
         // Keep edge tracking low while tag RAMs are being cleared or a flush
         // is pending/active so a requester that holds rd/wr still triggers
@@ -715,7 +725,7 @@ always @(posedge clk) begin
                 if( ext_ack ) begin
                     stream_word    <= {WW{1'b0}};
                     fill_tail_seen <= 1'b0;
-                    st             <= fill_after_wb ? S_FILL_WB_WAIT : S_FILL_STREAM;
+                    st             <= S_FILL_WB_WAIT;
                 end
             end
             S_FILL_WB_WAIT: begin
