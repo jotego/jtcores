@@ -68,30 +68,47 @@ module jtsh7604 #(
     wire [31:0] cpu_do;
     wire [3:0]  cpu_we;
     wire        cpu_rd_n;
+    wire        cpu_bs_n;
+    wire        cpu_cs0_n;
+    wire        cpu_cs1_n;
+    wire        cpu_cs2_n;
+    wire        cpu_cs3_n;
+    wire        cpu_rd_wr_n;
+    wire        cpu_ce_n;
+    wire        cpu_oe_n;
     wire        cpu_bus_stb;
     wire        cpu_bus_dbus_rd;
-    wire        cpu_wr_req = ~RD_WR_N;
+    wire        cpu_wr_req = ~cpu_rd_wr_n;
     wire        bus_stb_rise;
     wire        cps3_valid_key = |{cps3_key1, cps3_key2};
-    wire        cps3_bios_rd = cps3_valid_key && cpu_a[26:19] == 8'h00 && !cpu_rd_n && !cpu_bus_dbus_rd;
+    wire [26:0] bus_a = req_active ? cpu_a_l : cpu_a;
+    wire        bus_rd_n = req_active ? cpu_rd_n_l : cpu_rd_n;
+    wire        bus_dbus_rd = req_active ? cpu_bus_dbus_rd_l : cpu_bus_dbus_rd;
+    wire        cps3_bios_rd = cps3_valid_key && bus_a[26:19] == 8'h00 && !bus_rd_n && !bus_dbus_rd;
     wire        cps3_simm1_rd = cps3_valid_key &&
-                                  cpu_a[26:25] == 2'b11 && !cpu_a[24] && !cpu_a[23] &&
-                                  !cpu_rd_n && !cpu_bus_dbus_rd;
+                                  bus_a[26:25] == 2'b11 && !bus_a[24] && !bus_a[23] &&
+                                  !bus_rd_n && !bus_dbus_rd;
     wire        cps3_simm2_rd = cps3_valid_key &&
-                                  cpu_a[26:25] == 2'b11 && !cpu_a[24] && cpu_a[23] &&
-                                  !cpu_rd_n && !cpu_bus_dbus_rd;
+                                  bus_a[26:25] == 2'b11 && !bus_a[24] && bus_a[23] &&
+                                  !bus_rd_n && !bus_dbus_rd;
     wire        cps3_simm_rd  = cps3_simm1_rd | cps3_simm2_rd;
     wire [31:0] cpu_din_sh = cps3_bios_rd ?
-        (cps3_swap16_dword(cpu_din) ^ cps3_mask({5'd0, cpu_a[26:2], 2'b00}, cps3_key1, cps3_key2)) :
+        (cps3_swap16_dword(cpu_din) ^ cps3_mask({5'd0, bus_a[26:2], 2'b00}, cps3_key1, cps3_key2)) :
         cps3_simm_rd ?
-        (cpu_din ^ cps3_mask({5'd0, cpu_a[26:2], 2'b00}, cps3_key1, cps3_key2)) :
+        (cpu_din ^ cps3_mask({5'd0, bus_a[26:2], 2'b00}, cps3_key1, cps3_key2)) :
         cpu_din;
     wire [31:0] cpu_din_hold = req_rd_l ? cpu_din_l : cpu_din_sh;
 
     reg         req_active;
     reg         req_done;
-    reg         req_rd_l;
+    reg         req_rd_l, req_wr_l;
     reg         bus_stb_l;
+    reg [26:0]  cpu_a_l;
+    reg [31:0]  cpu_do_l;
+    reg [ 3:0]  cpu_we_l;
+    reg         cpu_bs_n_l, cpu_cs0_n_l, cpu_cs1_n_l, cpu_cs2_n_l;
+    reg         cpu_cs3_n_l, cpu_rd_wr_n_l, cpu_ce_n_l, cpu_oe_n_l;
+    reg         cpu_rd_n_l, cpu_bus_dbus_rd_l;
     reg [31:0]  cpu_din_l;
 
     function automatic [15:0] cps3_rotate_left16(input [15:0] val, input integer n);
@@ -132,7 +149,21 @@ module jtsh7604 #(
             req_active <= 1'b0;
             req_done   <= 1'b0;
             req_rd_l   <= 1'b0;
+            req_wr_l   <= 1'b0;
             bus_stb_l  <= 1'b0;
+            cpu_a_l    <= 27'd0;
+            cpu_do_l   <= 32'd0;
+            cpu_we_l   <= 4'hf;
+            cpu_bs_n_l <= 1'b1;
+            cpu_cs0_n_l <= 1'b1;
+            cpu_cs1_n_l <= 1'b1;
+            cpu_cs2_n_l <= 1'b1;
+            cpu_cs3_n_l <= 1'b1;
+            cpu_rd_wr_n_l <= 1'b1;
+            cpu_ce_n_l <= 1'b1;
+            cpu_oe_n_l <= 1'b1;
+            cpu_rd_n_l <= 1'b1;
+            cpu_bus_dbus_rd_l <= 1'b0;
             cpu_din_l  <= 32'd0;
         end
         else begin
@@ -142,6 +173,20 @@ module jtsh7604 #(
                 req_active <= 1'b1;
                 req_done   <= 1'b0;
                 req_rd_l   <= ~cpu_wr_req;
+                req_wr_l   <= cpu_wr_req;
+                cpu_a_l    <= cpu_a;
+                cpu_do_l   <= cpu_do;
+                cpu_we_l   <= cpu_we;
+                cpu_bs_n_l <= cpu_bs_n;
+                cpu_cs0_n_l <= cpu_cs0_n;
+                cpu_cs1_n_l <= cpu_cs1_n;
+                cpu_cs2_n_l <= cpu_cs2_n;
+                cpu_cs3_n_l <= cpu_cs3_n;
+                cpu_rd_wr_n_l <= cpu_rd_wr_n;
+                cpu_ce_n_l <= cpu_ce_n;
+                cpu_oe_n_l <= cpu_oe_n;
+                cpu_rd_n_l <= cpu_rd_n;
+                cpu_bus_dbus_rd_l <= cpu_bus_dbus_rd;
             end
             else if (cache_ok && req_active) begin
                 req_active <= 1'b0;
@@ -159,12 +204,12 @@ module jtsh7604 #(
     end
 
     assign cache_cs   = req_active;
-    assign cache_we   = req_active & cpu_wr_req;
-    assign cache_rd   = req_active & ~cpu_wr_req;
-    assign cache_wr   = req_active & cpu_wr_req;
-    assign cache_addr = cpu_a[26:1];
-    assign cache_din  = cpu_do;
-    assign cache_dsn  = cpu_we;
+    assign cache_we   = req_active & req_wr_l;
+    assign cache_rd   = req_active & ~req_wr_l;
+    assign cache_wr   = req_active & req_wr_l;
+    assign cache_addr = cpu_a_l[26:1];
+    assign cache_din  = cpu_do_l;
+    assign cache_dsn  = cpu_we_l;
 
     assign WAIT_N = req_active ? cache_ok : (req_done || !cpu_bus_stb);
 
@@ -189,14 +234,14 @@ module jtsh7604 #(
         .A         ( cpu_a     ),
         .DI        ( cpu_din_hold ),
         .DO        ( cpu_do    ),
-        .BS_N      ( BS_N      ),
-        .CS0_N     ( CS0_N     ),
-        .CS1_N     ( CS1_N     ),
-        .CS2_N     ( CS2_N     ),
-        .CS3_N     ( CS3_N     ),
-        .RD_WR_N   ( RD_WR_N   ),
-        .CE_N      ( CE_N      ),
-        .OE_N      ( OE_N      ),
+        .BS_N      ( cpu_bs_n   ),
+        .CS0_N     ( cpu_cs0_n  ),
+        .CS1_N     ( cpu_cs1_n  ),
+        .CS2_N     ( cpu_cs2_n  ),
+        .CS3_N     ( cpu_cs3_n  ),
+        .RD_WR_N   ( cpu_rd_wr_n ),
+        .CE_N      ( cpu_ce_n   ),
+        .OE_N      ( cpu_oe_n   ),
         .WE_N      ( cpu_we    ),
         .RD_N      ( cpu_rd_n  ),
         .IVECF_N   ( IVECF_N   ),
@@ -248,9 +293,17 @@ module jtsh7604 #(
         .CPS3_KEY2    ( cps3_key2 )
     );
 
-    assign A        = cpu_a;
-    assign cpu_dout = cpu_do;
-    assign WE_N     = cpu_we;
-    assign RD_N     = cpu_rd_n;
+    assign A        = req_active ? cpu_a_l       : cpu_a;
+    assign cpu_dout = req_active ? cpu_do_l      : cpu_do;
+    assign BS_N     = req_active ? cpu_bs_n_l    : cpu_bs_n;
+    assign CS0_N    = req_active ? cpu_cs0_n_l   : cpu_cs0_n;
+    assign CS1_N    = req_active ? cpu_cs1_n_l   : cpu_cs1_n;
+    assign CS2_N    = req_active ? cpu_cs2_n_l   : cpu_cs2_n;
+    assign CS3_N    = req_active ? cpu_cs3_n_l   : cpu_cs3_n;
+    assign RD_WR_N  = req_active ? cpu_rd_wr_n_l : cpu_rd_wr_n;
+    assign CE_N     = req_active ? cpu_ce_n_l    : cpu_ce_n;
+    assign OE_N     = req_active ? cpu_oe_n_l    : cpu_oe_n;
+    assign WE_N     = req_active ? cpu_we_l      : cpu_we;
+    assign RD_N     = req_active ? cpu_rd_n_l    : cpu_rd_n;
 
 endmodule
