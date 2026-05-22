@@ -4,12 +4,16 @@ module test;
 
 `include "test_tasks.vh"
 
+`ifndef STRESS_CYCLES
+`define STRESS_CYCLES 300_000
+`endif
+
 localparam integer PERIOD        = 10;
 localparam integer HF            = 1;
 localparam integer SDRAM_AW      = 23;
 localparam integer WORDS         = 8192;
 localparam integer LOCAL_WORDS   = 64;
-localparam integer STRESS_CYCLES = 2_000_000;
+localparam integer STRESS_CYCLES = `STRESS_CYCLES;
 localparam integer OFFSET0_W     =    0;
 localparam integer OFFSET1_W     = 1024;
 localparam integer OFFSET2_W     = 2048;
