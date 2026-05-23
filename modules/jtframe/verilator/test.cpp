@@ -638,7 +638,7 @@ void JTSim::clock(int n) {
         multi_clock->advance_half_period();
         game.eval();
         if( game.contextp()->gotFinish() ) return;
-        sdram.update();
+        sdram.update(simtime + multi_clock->get_semi_period());
         dwn.update();
         if( !cur_dwn && last_dwnd ) {
             fprintf(stderr,"\nROM file transfered (frame %d)\n",frame_cnt);
@@ -660,7 +660,7 @@ void JTSim::clock(int n) {
         multi_clock->advance_half_period();
         game.eval();
         if( game.contextp()->gotFinish() ) return;
-        sdram.update();
+        sdram.update(simtime + multi_clock->get_semi_period());
         simtime += multi_clock->get_semi_period();
         ticks++;
 

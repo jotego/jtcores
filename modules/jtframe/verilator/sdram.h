@@ -47,7 +47,7 @@ public:
     void load_bank_bytes(int bank, const uint8_t* data, std::size_t len, bool swap_bytes = true);
     void dump_bank_bytes(int bank, uint8_t* data, std::size_t len, bool swap_bytes = true) const;
 
-    SDRAMOutputs tick(const SDRAMPins& pins);
+    SDRAMOutputs tick(const SDRAMPins& pins, std::uint64_t simtime_ps = 0);
 
 private:
     enum BurstKind {
@@ -88,6 +88,9 @@ private:
     bool burst_full_page_;
     bool burst_interleaved_;
     bool write_burst_single_;
+    bool refresh_window_active_;
+    int refresh_count_;
+    std::uint64_t refresh_window_start_ps_;
 
     std::array<uint8_t, 2> read_dqm_;
     std::array<BankState, 4> banks_state_;
@@ -103,6 +106,7 @@ private:
     void terminate_burst(bool close_bank);
     void precharge_bank(int bank);
     void precharge_all();
+    void refresh(std::uint64_t simtime_ps);
     void start_read(int bank, int column, bool auto_precharge);
     void start_write(int bank, int column, bool auto_precharge);
     void accept_write_beat(uint16_t value, uint8_t dqm);
@@ -117,7 +121,7 @@ class SDRAM {
 public:
     explicit SDRAM(UUT& _dut);
     ~SDRAM();
-    void update();
+    void update(std::uint64_t simtime_ps = 0);
     void dump();
 };
 
