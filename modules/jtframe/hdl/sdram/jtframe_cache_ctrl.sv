@@ -149,16 +149,21 @@ localparam [4:0] S_INIT_CLEAR    = 5'd0,
 reg              fill_after_wb, fill_wb_prime_wait;
 reg              init_req_pending, flush_l, flush_pending;
 reg              invalidate_l, invalidate_pending;
+reg              flush_rd_pending, flush_rd_lookup, flush_rd_resp, flush_rd_wait_drop;
 reg              rd_l, wr_l;
 reg              req_wr_l;
 reg [AW-1:AW0]   req_addr_l;
+reg [AW-1:AW0]   flush_rd_addr_l;
 reg [TAGW-1:0]   req_tag_l;
+reg [TAGW-1:0]   flush_rd_tag_l;
 reg [SETW-1:0]   req_set_l;
+reg [SETW-1:0]   flush_rd_set_l;
 reg [SETW-1:0]   flush_set_l;
 reg [DW-1:0]     req_din_l;
 reg [MW-1:0]     req_wdsn_l;
 reg [WAYW-1:0]   way_l;
 reg [WAYW-1:0]   flush_way_l;
+reg [OFFW-1:0]   flush_rd_off_l;
 reg [TAGW-1:0]   victim_tag_l;
 
 reg              req_load_addr, stream_load_addr;
@@ -178,6 +183,16 @@ wire            new_rd  = rd_rise & ~block_normal_req;
 wire            new_wr  = wr_rise & ~rd_rise & ~block_normal_req;
 wire            new_req = new_rd | new_wr;
 wire            fill_stream_dok = ext_dok;
+// During flush writeback, the stream port is busy but the request port can
+// still return read hits from valid cached lines.
+wire            flush_rd_busy = flush_rd_pending | flush_rd_lookup | flush_rd_resp;
+wire            flush_rd_accept = flushing & rd & ~flush_rd_busy &
+                                  ~flush_rd_wait_drop & ~init_req_pending;
+wire            flush_rd_can_lookup = flushing & flush_rd_pending &
+                                      (st == S_WB_PRIME ||
+                                       st == S_WB_REQ ||
+                                       st == S_WB_STREAM ||
+                                       st == S_WB_GAP);
 
 wire [UW-1:0]   req_uaddr_now = addr;
 wire [TAGW-1:0] req_tag_now   = addr_tag(req_uaddr_now);
@@ -194,6 +209,7 @@ wire [AW-1:0]   ext_base_byte    = st==S_WB_REQ || st==S_WB_STREAM ?
 wire [WW-1:0]   wb_half_idx      = DW >= 32 && st == S_WB_STREAM && stream_word != LAST_WORD ?
                                    stream_word + WW'(1) : stream_word;
 wire [127:0]    rd_resp_word     = pack_data(req_q, req_off_l);
+wire [127:0]    flush_rd_resp_word = pack_data(req_q, flush_rd_off_l);
 
 assign miss_busy = st != S_IDLE;
 assign fill_done = fill_tail_seen;
@@ -203,10 +219,12 @@ assign req_addr  = |req_we ? req_wr_addr :
 assign stream_addr = |stream_we ? stream_wr_addr :
                      stream_load_addr ? stream_addr_n : stream_ram_addr_l;
 assign tag_rd_set = st == S_IDLE && new_req ? req_set_now :
+                    flush_rd_can_lookup ? flush_rd_set_l :
                     st == S_IDLE && flush_start ? {SETW{1'b0}} :
                     flushing ? flush_set_l : req_set_l;
-assign lookup_set = flushing ? flush_set_l : req_set_l;
-assign lookup_tag = req_tag_l;
+assign lookup_set = flush_rd_lookup ? flush_rd_set_l :
+                    flushing ? flush_set_l : req_set_l;
+assign lookup_tag = flush_rd_lookup ? flush_rd_tag_l : req_tag_l;
 assign tag_scan_way = flush_way_l;
 
 assign ext_addr = { {(EW-AW){1'b0}}, ext_base_byte[AW-1:1] };
@@ -525,6 +543,10 @@ always @* begin
         default: begin
         end
     endcase
+    if( flush_rd_lookup && hit_now ) begin
+        req_load_addr = 1'b1;
+        req_addr_n    = req_baddr(hit_blk_now, flush_rd_off_l);
+    end
 end
 
 always @(posedge clk) begin
@@ -538,14 +560,22 @@ always @(posedge clk) begin
         flush_pending     <= 1'b0;
         invalidate_l      <= 1'b0;
         invalidate_pending<= 1'b0;
+        flush_rd_pending  <= 1'b0;
+        flush_rd_lookup   <= 1'b0;
+        flush_rd_resp     <= 1'b0;
+        flush_rd_wait_drop<= 1'b0;
         rd_l              <= 1'b0;
         wr_l              <= 1'b0;
         req_wr_l          <= 1'b0;
         req_addr_l        <= {AW-AW0{1'b0}};
+        flush_rd_addr_l   <= {AW-AW0{1'b0}};
         req_tag_l         <= {TAGW{1'b0}};
+        flush_rd_tag_l    <= {TAGW{1'b0}};
         req_set_l         <= {SETW{1'b0}};
+        flush_rd_set_l    <= {SETW{1'b0}};
         flush_set_l       <= {SETW{1'b0}};
         req_off_l         <= {OFFW{1'b0}};
+        flush_rd_off_l    <= {OFFW{1'b0}};
         req_din_l         <= {DW{1'b0}};
         req_wdsn_l        <= {MW{1'b1}};
         blk_l             <= {BW{1'b0}};
@@ -573,7 +603,34 @@ always @(posedge clk) begin
         invalidate_l <= invalidate;
         if( flush_rise && !flushing ) flush_pending <= 1'b1;
         if( invalidate_rise && !invalidating ) invalidate_pending <= 1'b1;
-        if( block_normal_req && !init_req_pending && (rd | wr) ) begin
+        if( !rd ) flush_rd_wait_drop <= 1'b0;
+        if( flush_rd_accept ) begin
+            flush_rd_pending <= 1'b1;
+            flush_rd_addr_l  <= addr;
+            flush_rd_tag_l   <= req_tag_now;
+            flush_rd_set_l   <= req_set_now;
+            flush_rd_off_l   <= req_off_now;
+        end
+        if( flush_rd_can_lookup ) begin
+            flush_rd_pending <= 1'b0;
+            flush_rd_lookup  <= 1'b1;
+        end else if( flush_rd_lookup ) begin
+            flush_rd_lookup <= 1'b0;
+            if( hit_now ) begin
+                flush_rd_resp <= 1'b1;
+            end else begin
+                init_req_pending   <= 1'b1;
+                req_wr_l           <= 1'b0;
+                req_addr_l         <= flush_rd_addr_l;
+                req_tag_l          <= flush_rd_tag_l;
+                req_set_l          <= flush_rd_set_l;
+                req_off_l          <= flush_rd_off_l;
+                req_din_l          <= {DW{1'b0}};
+                req_wdsn_l         <= {MW{1'b1}};
+                flush_rd_wait_drop <= 1'b1;
+            end
+        end
+        if( block_normal_req && !init_req_pending && (rd | wr) && !(flushing && rd) ) begin
             init_req_pending <= 1'b1;
             req_wr_l         <= wr & ~rd;
             req_addr_l       <= addr;
@@ -732,6 +789,18 @@ always @(posedge clk) begin
                 if( flush_set_l == LAST_SET && flush_way_l == LAST_WAY ) begin
                     flushing   <= 1'b0;
                     flush_done <= 1'b1;
+                    if( flush_rd_pending && !init_req_pending ) begin
+                        init_req_pending   <= 1'b1;
+                        req_wr_l           <= 1'b0;
+                        req_addr_l         <= flush_rd_addr_l;
+                        req_tag_l          <= flush_rd_tag_l;
+                        req_set_l          <= flush_rd_set_l;
+                        req_off_l          <= flush_rd_off_l;
+                        req_din_l          <= {DW{1'b0}};
+                        req_wdsn_l         <= {MW{1'b1}};
+                        flush_rd_pending   <= 1'b0;
+                        flush_rd_wait_drop <= 1'b1;
+                    end
                     st         <= S_IDLE;
                 end else begin
                     if( flush_way_l == LAST_WAY ) begin
@@ -800,6 +869,14 @@ always @(posedge clk) begin
                 st <= S_IDLE;
             end
         endcase
+        if( flush_rd_resp ) begin
+            /* verilator lint_off WIDTHTRUNC */
+            dout               <= flush_rd_resp_word[DW-1:0];
+            /* verilator lint_on WIDTHTRUNC */
+            ok                 <= 1'b1;
+            flush_rd_resp      <= 1'b0;
+            flush_rd_wait_drop <= 1'b1;
+        end
     end
 end
 

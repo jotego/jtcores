@@ -48,7 +48,9 @@ output flush_done
 ```
 
 `flush` asks the cache to scan all tags and write back every valid dirty line.
-Normal read/write requests are blocked while a flush is pending or active.
+Normal write requests and read misses are blocked while a flush is pending or
+active. Read hits to valid cached lines may complete while dirty lines are being
+written back.
 
 Handshake rules:
 
