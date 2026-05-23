@@ -91,6 +91,7 @@ private:
     bool refresh_window_active_;
     int refresh_count_;
     std::uint64_t refresh_window_start_ps_;
+    std::uint64_t last_refresh_ps_;
 
     std::array<uint8_t, 2> read_dqm_;
     std::array<BankState, 4> banks_state_;
@@ -106,6 +107,7 @@ private:
     void terminate_burst(bool close_bank);
     void precharge_bank(int bank);
     void precharge_all();
+    void check_refresh_timeout(std::uint64_t simtime_ps) const;
     void refresh(std::uint64_t simtime_ps);
     void start_read(int bank, int column, bool auto_precharge);
     void start_write(int bank, int column, bool auto_precharge);
