@@ -37,6 +37,8 @@ This makes the lane side level-sensitive for completion while the inner cache re
 - lane `7` is lowest priority
 - only one SDRAM burst owner is active at a time
 - once a lane owns the shared burst port, it keeps it until that burst reaches `rdy`
+- `jtframe_cache_mux_arb` contains this burst ownership logic; the top mux keeps
+  lane instantiation and address mapping
 
 Important consequence:
 
@@ -155,6 +157,7 @@ Generator validation enforces:
 The mux serializes delayed flush completion for sources `0..3`. If multiple
 flushes finish close together, pending source completions are queued and each
 source `flush_doneN` is released after its selected target invalidations finish.
+`jtframe_cache_mux_flush` contains this delayed invalidation queue.
 
 ## Regression Coverage
 

@@ -2,8 +2,11 @@ jtframe:
   - from: sdram
     get:
       - jtframe_cache_mux.v
+      - jtframe_cache_mux_arb.v
+      - jtframe_cache_mux_flush.v
       - jtframe_cache.sv
       - jtframe_cache_ctrl.sv
+      - jtframe_cache_req.sv
       - jtframe_cache_data.sv
       - jtframe_cache_tags.sv
       - jtframe_burst_sdram.v

@@ -226,7 +226,8 @@ wire [DW6-1:0] cache_dout6;
 wire [DW7-1:0] cache_dout7;
 wire [3:0] cache_flushing, cache_flush_done;
 wire [7:0] cache_invalidate_done;
-reg  [7:0] cache_invalidate;
+wire [7:0] cache_invalidate;
+wire [3:0] flush_done_out, flush_inval_active;
 wire cache_flush_ro  = 1'b0;
 wire unused_flush    = flush4 | flush5 | flush6 | flush7;
 wire inactive_status = unused_flush & 1'b0;
@@ -240,63 +241,14 @@ wire req5 = rd5;
 wire req6 = rd6;
 wire req7 = rd7;
 
-wire [7:0] ext_req = {
-    ext_rd7 | ext_wr7,
-    ext_rd6 | ext_wr6,
-    ext_rd5 | ext_wr5,
-    ext_rd4 | ext_wr4,
-    ext_rd3 | ext_wr3,
-    ext_rd2 | ext_wr2,
-    ext_rd1 | ext_wr1,
-    ext_rd0 | ext_wr0
-};
-
-reg        active;
-reg [2:0]  active_sel;
-
-wire [7:0] ext_ack = {
-    active && active_sel==3'd7 && ack,
-    active && active_sel==3'd6 && ack,
-    active && active_sel==3'd5 && ack,
-    active && active_sel==3'd4 && ack,
-    active && active_sel==3'd3 && ack,
-    active && active_sel==3'd2 && ack,
-    active && active_sel==3'd1 && ack,
-    active && active_sel==3'd0 && ack
-};
-
-wire [7:0] ext_dst = {
-    active && active_sel==3'd7 && dst,
-    active && active_sel==3'd6 && dst,
-    active && active_sel==3'd5 && dst,
-    active && active_sel==3'd4 && dst,
-    active && active_sel==3'd3 && dst,
-    active && active_sel==3'd2 && dst,
-    active && active_sel==3'd1 && dst,
-    active && active_sel==3'd0 && dst
-};
-
-wire [7:0] ext_dok = {
-    active && active_sel==3'd7 && dok,
-    active && active_sel==3'd6 && dok,
-    active && active_sel==3'd5 && dok,
-    active && active_sel==3'd4 && dok,
-    active && active_sel==3'd3 && dok,
-    active && active_sel==3'd2 && dok,
-    active && active_sel==3'd1 && dok,
-    active && active_sel==3'd0 && dok
-};
-
-wire [7:0] ext_rdy = {
-    active && active_sel==3'd7 && rdy,
-    active && active_sel==3'd6 && rdy,
-    active && active_sel==3'd5 && rdy,
-    active && active_sel==3'd4 && rdy,
-    active && active_sel==3'd3 && rdy,
-    active && active_sel==3'd2 && rdy,
-    active && active_sel==3'd1 && rdy,
-    active && active_sel==3'd0 && rdy
-};
+wire [7:0] ext_rd_bus = { ext_rd7, ext_rd6, ext_rd5, ext_rd4,
+                          ext_rd3, ext_rd2, ext_rd1, ext_rd0 };
+wire [7:0] ext_wr_bus = { ext_wr7, ext_wr6, ext_wr5, ext_wr4,
+                          ext_wr3, ext_wr2, ext_wr1, ext_wr0 };
+wire [7:0] ext_req = ext_rd_bus | ext_wr_bus;
+wire [7:0] ext_ack, ext_dst, ext_dok, ext_rdy;
+wire       active;
+wire [2:0] active_sel;
 
 assign bank_addr0 = {1'b0, ext_addr0[SDRAM_AW-1:1]} + {1'b0, OFFSET0[0+:SDRAM_AW-1]};
 assign bank_addr1 = {1'b0, ext_addr1[SDRAM_AW-1:1]} + {1'b0, OFFSET1[0+:SDRAM_AW-1]};
@@ -307,8 +259,6 @@ assign bank_addr5 = {1'b0, ext_addr5[SDRAM_AW-1:1]} + {1'b0, OFFSET5[0+:SDRAM_AW
 assign bank_addr6 = {1'b0, ext_addr6[SDRAM_AW-1:1]} + {1'b0, OFFSET6[0+:SDRAM_AW-1]};
 assign bank_addr7 = {1'b0, ext_addr7[SDRAM_AW-1:1]} + {1'b0, OFFSET7[0+:SDRAM_AW-1]};
 
-reg [2:0]  next_sel;
-reg        next_valid;
 reg [7:0]  ok_hold;
 reg [DW0-1:0] dout_hold0;
 reg [DW1-1:0] dout_hold1;
@@ -318,26 +268,6 @@ reg [DW4-1:0] dout_hold4;
 reg [DW5-1:0] dout_hold5;
 reg [DW6-1:0] dout_hold6;
 reg [DW7-1:0] dout_hold7;
-reg [3:0]  flush_inval_pending, delayed_flush_done;
-reg [7:0]  inval_mask_l, inval_done_seen;
-reg [1:0]  inval_sel, inval_next_sel;
-reg        inval_active, inval_next_valid;
-reg [7:0]  inval_next_mask;
-reg [3:0]  nx_flush_inval_pending;
-
-wire [3:0] flush_masked = {
-    cache_flush_done[3] & |INVAL_MASK3,
-    cache_flush_done[2] & |INVAL_MASK2,
-    cache_flush_done[1] & |INVAL_MASK1,
-    cache_flush_done[0] & |INVAL_MASK0
-};
-wire [3:0] flush_direct = cache_flush_done & ~{
-    |INVAL_MASK3, |INVAL_MASK2, |INVAL_MASK1, |INVAL_MASK0
-};
-wire [7:0] inval_done_acc = inval_done_seen | cache_invalidate_done | ~inval_mask_l;
-wire       inval_complete = inval_active && &inval_done_acc;
-wire [3:0] flush_done_out = flush_direct | delayed_flush_done;
-
 assign dout0 = dout_hold0;
 assign dout1 = dout_hold1;
 assign dout2 = dout_hold2;
@@ -354,10 +284,10 @@ assign ok4   = ok_hold[4];
 assign ok5   = ok_hold[5];
 assign ok6   = ok_hold[6];
 assign ok7   = ok_hold[7];
-assign flushing0   = cache_flushing[0] | (inval_active && inval_sel==2'd0);
-assign flushing1   = cache_flushing[1] | (inval_active && inval_sel==2'd1);
-assign flushing2   = cache_flushing[2] | (inval_active && inval_sel==2'd2);
-assign flushing3   = cache_flushing[3] | (inval_active && inval_sel==2'd3);
+assign flushing0   = cache_flushing[0] | flush_inval_active[0];
+assign flushing1   = cache_flushing[1] | flush_inval_active[1];
+assign flushing2   = cache_flushing[2] | flush_inval_active[2];
+assign flushing3   = cache_flushing[3] | flush_inval_active[3];
 assign flushing4   = inactive_status;
 assign flushing5   = inactive_status;
 assign flushing6   = inactive_status;
@@ -371,85 +301,40 @@ assign flush_done5 = inactive_status;
 assign flush_done6 = inactive_status;
 assign flush_done7 = inactive_status;
 
-assign rd = active && (
-    (active_sel == 3'd0 && ext_rd0) ||
-    (active_sel == 3'd1 && ext_rd1) ||
-    (active_sel == 3'd2 && ext_rd2) ||
-    (active_sel == 3'd3 && ext_rd3) ||
-    (active_sel == 3'd4 && ext_rd4) ||
-    (active_sel == 3'd5 && ext_rd5) ||
-    (active_sel == 3'd6 && ext_rd6) ||
-    (active_sel == 3'd7 && ext_rd7)
+jtframe_cache_mux_arb u_arb(
+    .rst        ( rst        ),
+    .clk        ( clk        ),
+    .ext_req    ( ext_req    ),
+    .ext_rd     ( ext_rd_bus ),
+    .ext_wr     ( ext_wr_bus ),
+    .ack        ( ack        ),
+    .dst        ( dst        ),
+    .dok        ( dok        ),
+    .rdy        ( rdy        ),
+    .active     ( active     ),
+    .active_sel ( active_sel ),
+    .ext_ack    ( ext_ack    ),
+    .ext_dst    ( ext_dst    ),
+    .ext_dok    ( ext_dok    ),
+    .ext_rdy    ( ext_rdy    ),
+    .rd         ( rd         ),
+    .wr         ( wr         )
 );
 
-assign wr = active && (
-    (active_sel == 3'd0 && ext_wr0) ||
-    (active_sel == 3'd1 && ext_wr1) ||
-    (active_sel == 3'd2 && ext_wr2) ||
-    (active_sel == 3'd3 && ext_wr3) ||
-    (active_sel == 3'd4 && ext_wr4) ||
-    (active_sel == 3'd5 && ext_wr5) ||
-    (active_sel == 3'd6 && ext_wr6) ||
-    (active_sel == 3'd7 && ext_wr7)
+jtframe_cache_mux_flush #(
+    .INVAL_MASK0 ( INVAL_MASK0 ),
+    .INVAL_MASK1 ( INVAL_MASK1 ),
+    .INVAL_MASK2 ( INVAL_MASK2 ),
+    .INVAL_MASK3 ( INVAL_MASK3 )
+) u_flush (
+    .rst                   ( rst                   ),
+    .clk                   ( clk                   ),
+    .cache_flush_done      ( cache_flush_done      ),
+    .cache_invalidate_done ( cache_invalidate_done ),
+    .cache_invalidate      ( cache_invalidate      ),
+    .flush_done_out        ( flush_done_out        ),
+    .flush_inval_active    ( flush_inval_active    )
 );
-
-always @(*) begin
-    next_valid = 1'b0;
-    next_sel   = 3'd0;
-    if( ext_req[0] ) begin
-        next_valid = 1'b1;
-        next_sel   = 3'd0;
-    end else if( ext_req[1] ) begin
-        next_valid = 1'b1;
-        next_sel   = 3'd1;
-    end else if( ext_req[2] ) begin
-        next_valid = 1'b1;
-        next_sel   = 3'd2;
-    end else if( ext_req[3] ) begin
-        next_valid = 1'b1;
-        next_sel   = 3'd3;
-    end else if( ext_req[4] ) begin
-        next_valid = 1'b1;
-        next_sel   = 3'd4;
-    end else if( ext_req[5] ) begin
-        next_valid = 1'b1;
-        next_sel   = 3'd5;
-    end else if( ext_req[6] ) begin
-        next_valid = 1'b1;
-        next_sel   = 3'd6;
-    end else if( ext_req[7] ) begin
-        next_valid = 1'b1;
-        next_sel   = 3'd7;
-    end
-end
-
-always @(*) begin
-    nx_flush_inval_pending = flush_inval_pending | flush_masked;
-    inval_next_valid = 1'b0;
-    inval_next_sel   = 2'd0;
-    inval_next_mask  = 8'd0;
-    if( !inval_active ) begin
-        if( nx_flush_inval_pending[0] ) begin
-            inval_next_valid = 1'b1;
-            inval_next_sel   = 2'd0;
-            inval_next_mask  = INVAL_MASK0;
-        end else if( nx_flush_inval_pending[1] ) begin
-            inval_next_valid = 1'b1;
-            inval_next_sel   = 2'd1;
-            inval_next_mask  = INVAL_MASK1;
-        end else if( nx_flush_inval_pending[2] ) begin
-            inval_next_valid = 1'b1;
-            inval_next_sel   = 2'd2;
-            inval_next_mask  = INVAL_MASK2;
-        end else if( nx_flush_inval_pending[3] ) begin
-            inval_next_valid = 1'b1;
-            inval_next_sel   = 2'd3;
-            inval_next_mask  = INVAL_MASK3;
-        end
-    end
-    if( inval_next_valid )
-        nx_flush_inval_pending[inval_next_sel] = 1'b0;
-end
 
 always @(*) begin
     addr = {SDRAM_AW-1{1'b0}};
@@ -541,16 +426,7 @@ end
 
 always @(posedge clk) begin
     if( rst ) begin
-        active     <= 1'b0;
-        active_sel <= 3'd0;
         ok_hold    <= 8'd0;
-        cache_invalidate <= 8'd0;
-        flush_inval_pending <= 4'd0;
-        delayed_flush_done  <= 4'd0;
-        inval_mask_l        <= 8'd0;
-        inval_done_seen     <= 8'hff;
-        inval_sel           <= 2'd0;
-        inval_active        <= 1'b0;
         dout_hold0 <= {DW0{1'b0}};
         dout_hold1 <= {DW1{1'b0}};
         dout_hold2 <= {DW2{1'b0}};
@@ -560,24 +436,6 @@ always @(posedge clk) begin
         dout_hold6 <= {DW6{1'b0}};
         dout_hold7 <= {DW7{1'b0}};
     end else begin
-        cache_invalidate <= 8'd0;
-        delayed_flush_done <= 4'd0;
-        flush_inval_pending <= nx_flush_inval_pending;
-        if( inval_active ) begin
-            if( inval_complete ) begin
-                delayed_flush_done[inval_sel] <= 1'b1;
-                inval_active                  <= 1'b0;
-                inval_done_seen               <= 8'hff;
-            end else begin
-                inval_done_seen <= inval_done_acc;
-            end
-        end else if( inval_next_valid ) begin
-            inval_active      <= 1'b1;
-            inval_sel         <= inval_next_sel;
-            inval_mask_l      <= inval_next_mask;
-            inval_done_seen   <= ~inval_next_mask;
-            cache_invalidate  <= inval_next_mask;
-        end
         if( !req0 ) ok_hold[0] <= 1'b0;
         if( !req1 ) ok_hold[1] <= 1'b0;
         if( !req2 ) ok_hold[2] <= 1'b0;
@@ -620,14 +478,6 @@ always @(posedge clk) begin
             ok_hold[7] <= 1'b1;
         end
 
-        if( active ) begin
-            if( rdy ) begin
-                active <= 1'b0;
-            end
-        end else if( next_valid ) begin
-            active     <= 1'b1;
-            active_sel <= next_sel;
-        end
     end
 end
 

@@ -146,6 +146,8 @@ Handshake meaning:
 
 Implementation note:
 
+- `jtframe_cache_req` owns the edge-triggered consumer request front end, pending
+  request latch, flush/invalidate edge tracking, and flush-time read-hit probe
 - after a dirty write-back, the following refill has one extra pre-data cycle on the burst path
 - the cache handles that by priming the first refill word before normal `ext_dok` streaming resumes
 

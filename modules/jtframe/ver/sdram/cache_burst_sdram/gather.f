@@ -1,5 +1,6 @@
 $JTFRAME/hdl/sdram/jtframe_cache.sv
 $JTFRAME/hdl/sdram/jtframe_cache_ctrl.sv
+$JTFRAME/hdl/sdram/jtframe_cache_req.sv
 $JTFRAME/hdl/sdram/jtframe_cache_data.sv
 $JTFRAME/hdl/sdram/jtframe_cache_tags.sv
 $JTFRAME/hdl/ram/jtframe_dual_ram32.v
