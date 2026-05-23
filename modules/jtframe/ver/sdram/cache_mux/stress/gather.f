@@ -1,6 +1,9 @@
 $JTFRAME/hdl/sdram/jtframe_cache_mux.v
+$JTFRAME/hdl/sdram/jtframe_cache_mux_arb.v
+$JTFRAME/hdl/sdram/jtframe_cache_mux_flush.v
 $JTFRAME/hdl/sdram/jtframe_cache.sv
 $JTFRAME/hdl/sdram/jtframe_cache_ctrl.sv
+$JTFRAME/hdl/sdram/jtframe_cache_req.sv
 $JTFRAME/hdl/sdram/jtframe_cache_data.sv
 $JTFRAME/hdl/sdram/jtframe_cache_tags.sv
 $JTFRAME/hdl/ram/jtframe_dual_ram.v
