@@ -88,6 +88,7 @@ SDRAMModel::SDRAMModel(int colw, bool verbose)
       refresh_window_active_(false),
       refresh_count_(0),
       refresh_window_start_ps_(0),
+      last_refresh_ps_(0),
       read_dqm_({0, 0}) {
     for( auto& bank : banks_ ) bank.assign(bank_word_len_, 0);
     reset();
@@ -99,6 +100,7 @@ void SDRAMModel::reset() {
     refresh_window_active_ = false;
     refresh_count_ = 0;
     refresh_window_start_ps_ = 0;
+    last_refresh_ps_ = 0;
     burst_ = BurstState();
     for( auto& bank : banks_state_ ) {
         bank.active = false;
@@ -283,7 +285,16 @@ void SDRAMModel::precharge_all() {
     for( auto& bank : banks_state_ ) bank.active = false;
 }
 
+void SDRAMModel::check_refresh_timeout(uint64_t simtime_ps) const {
+    if( simtime_ps - last_refresh_ps_ > SDRAM_REFRESH_WINDOW_PS ) {
+        throw "\nERROR: (sdram.cpp) more than 64 ms without an SDRAM auto-refresh command\n";
+    }
+}
+
 void SDRAMModel::refresh(uint64_t simtime_ps) {
+    check_refresh_timeout(simtime_ps);
+    last_refresh_ps_ = simtime_ps;
+
     if( !refresh_window_active_ ) {
         refresh_window_active_ = true;
         refresh_window_start_ps_ = simtime_ps;
@@ -377,6 +388,15 @@ SDRAMOutputs SDRAMModel::tick(const SDRAMPins& pins, uint64_t simtime_ps) {
     SDRAMOutputs out;
     uint8_t read_dqm = read_dqm_[0];
     bool command_consumed_write = false;
+    bool auto_refresh = pins.cke && !pins.ncs && !pins.nras && !pins.ncas && pins.nwe;
+
+    if( pins.cke ) {
+        if( auto_refresh ) {
+            refresh(simtime_ps);
+        } else {
+            check_refresh_timeout(simtime_ps);
+        }
+    }
 
     if( pins.cke && !pins.ncs ) {
         int bank = pins.ba & 3;
@@ -392,8 +412,6 @@ SDRAMOutputs SDRAMModel::tick(const SDRAMPins& pins, uint64_t simtime_ps) {
             } else {
                 precharge_bank(bank);
             }
-        } else if( !pins.nras && !pins.ncas && pins.nwe ) {
-            refresh(simtime_ps);
         } else if( pins.nras && !pins.ncas && pins.nwe ) {
             if( burst_.kind != BURST_NONE ) terminate_burst(false);
             start_read(bank, pins.a & colmask_, (pins.a & 0x400) != 0);

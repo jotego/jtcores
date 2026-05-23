@@ -358,6 +358,35 @@ static void test_refresh_window_rejects_slow_refresh(int colw) {
     check(got_error, "slow refresh window should raise an error");
 }
 
+static void test_refresh_timeout_without_auto_refresh(int colw) {
+    SDRAMModel model(colw);
+    bool got_error = false;
+
+    expect_no_output(model.tick(nop(), REFRESH_WINDOW_PS), "refresh timeout boundary");
+    try {
+        model.tick(nop(), REFRESH_WINDOW_PS + 1);
+    } catch( const char* error ) {
+        got_error = string(error).find("64 ms") != string::npos;
+    }
+
+    check(got_error, "missing refresh should raise after 64ms");
+}
+
+static void test_refresh_timeout_rejects_late_refresh(int colw) {
+    SDRAMModel model(colw);
+    bool got_error = false;
+
+    expect_no_output(model.tick(refresh_cmd(), 1), "first refresh");
+    expect_no_output(model.tick(nop(), REFRESH_WINDOW_PS + 1), "post-refresh timeout boundary");
+    try {
+        model.tick(refresh_cmd(), REFRESH_WINDOW_PS + 2);
+    } catch( const char* error ) {
+        got_error = string(error).find("64 ms") != string::npos;
+    }
+
+    check(got_error, "late refresh command should not hide timeout");
+}
+
 static void run_geometry_suite(int colw) {
     test_sequential_read(colw);
     test_interleaved_read(colw);
@@ -374,6 +403,8 @@ static void run_geometry_suite(int colw) {
     test_full_page_auto_precharge_ignored(colw);
     test_refresh_window_accepts_64ms(colw);
     test_refresh_window_rejects_slow_refresh(colw);
+    test_refresh_timeout_without_auto_refresh(colw);
+    test_refresh_timeout_rejects_late_refresh(colw);
 }
 
 int main() {
