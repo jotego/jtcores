@@ -98,7 +98,7 @@ try to invalidate writable target lanes.
 
 For `DW=32`, the cache assembles two SDRAM words:
 
-- `ENDIAN=1`: `{word0, word1}`
+- `ENDIAN=1`: `{word0, word1}
 - `ENDIAN=0`: `{word1, word0}`
 
 The same ordering is used when splitting 32-bit writes into SDRAM words.
