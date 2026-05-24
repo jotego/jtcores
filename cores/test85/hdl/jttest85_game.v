@@ -11,19 +11,26 @@ module jttest85_game(
 assign snd         = 16'd0;
 assign sample      = 1'b0;
 assign dip_flip    = 1'b0;
-assign debug_view  = { cpu_flushing, cpu_flush_done, cpu_ok, text_we, 4'd0 };
+assign debug_view  = cache_status;
 
-assign cpu_addr    = 24'd0;
-assign cpu_rd      = 1'b0;
-assign cpu_we      = 1'b0;
-assign cpu_din     = 8'd0;
-assign cpu_dsn     = 1'b0;
-assign cpu_flush   = 1'b0;
+wire [7:0] cache_status;
 
 jttest85_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen        ( cen6          ),
+
+    .cache_data ( cpu_data      ),
+    .cache_ok   ( cpu_ok        ),
+    .cache_flushing   ( cpu_flushing   ),
+    .cache_flush_done ( cpu_flush_done ),
+    .cache_addr ( cpu_addr      ),
+    .cache_din  ( cpu_din       ),
+    .cache_rd   ( cpu_rd        ),
+    .cache_we   ( cpu_we        ),
+    .cache_flush( cpu_flush     ),
+    .cache_dsn  ( cpu_dsn       ),
+    .cache_status( cache_status ),
 
     .text_addr  ( text_addr     ),
     .text_din   ( text_din      ),
