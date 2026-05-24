@@ -12,7 +12,8 @@ Current stage:
 - Displays a 256x224 text screen through `jtframe_vtimer` and `jtframe_tilemap`.
 - Uses a CPU-writable 32x32 text RAM and a fixed `font0.hex` BRAM adapter for the character layer.
 - Drives the SDRAM cache lane from CPU-visible registers and shows the loop status on screen.
-- Adds a `SIMULATION`-only monitor that fails `jtsim` if `TEST85`/`PASS` are not written or if cache write/read/flush activity is missing by the end of the first active frame.
+- Latches the `LVBL` falling edge in `jttest85_main` with `jtframe_edge` to generate one maskable CPU interrupt per frame.
+- Adds a `SIMULATION`-only monitor that fails `jtsim` if `TEST85`/`PASS` are not written or if cache write/read/flush activity is missing after the first IRQ-driven frame.
 
 ## CPU memory map
 
@@ -23,6 +24,7 @@ Current stage:
 - `$3002`: cache address bits `[23:16]`.
 - `$3003`: cache write data on writes, latched cache read data on reads.
 - `$3004`: cache command on writes and status on reads.
+- `$3005`: frame IRQ/blanking register. Any access clears the latched frame IRQ. Reads return bit 0 as the IRQ latch and bit 1 as live vertical blank.
 - `$c000-$ffff`: 16 KiB boot ROM.
 
 `$3004` write commands are bit-coded: bit 0 starts a cache write, bit 1 starts a cache read, and bit 2 starts a cache flush. `$3004` read status uses bit 0 as the latched operation-done flag, bit 1 as busy, bit 2 as live flushing, and bit 3 as latched flush-done.
@@ -37,13 +39,17 @@ The tilemap pixel output is driven straight to RGB without a colmix module: back
 
 ## Firmware
 
-`firmware/boot.s` clears the text RAM, prints `TEST85`, then repeatedly:
+`firmware/boot.s` enables maskable interrupts after reset. Each frame IRQ clears the `$3005` latch, waits for vertical blank, and runs at most one cache test:
 
-1. Writes a deterministic byte pattern to the cache lane.
-2. Flushes the dirty cache line to SDRAM.
-3. Reads `$000400` to evict the single 1 KiB cache block.
-4. Reads the original address back through the cache and compares it.
-5. Prints `PASS ITER xx` or `FAIL ITER xx` on the text screen.
+1. On the first IRQ, clears text RAM and prints `TEST85` plus the loop label.
+2. Writes a deterministic byte pattern to the cache lane.
+3. Flushes the dirty cache line to SDRAM.
+4. Reads `$000400` to evict the single 1 KiB cache block.
+5. Reads the original address back through the cache and compares it.
+6. Waits for vertical blank before writing the screen result.
+7. Prints `PASS ITER xx` in white and advances to the next frame, or prints `FAIL ITER xx` in red and stops testing until reset.
+
+Each cache handshake wait has a finite timeout, so a missing `cpu_ok` or `cpu_flush_done` reaches the firmware FAIL path instead of spinning forever.
 
 Rebuild the boot ROM manually with:
 

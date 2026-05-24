@@ -8,6 +8,7 @@ module jttest85_main(
     input             rst,
     input             clk,
     input             cen,
+    input             lvbl,
 
     input      [ 7:0] cache_data,
     input             cache_ok,
@@ -40,7 +41,7 @@ reg         cache_rd_l, cache_we_l, cache_flush_l;
 reg         cache_busy, cache_done_l, cache_flush_done_l;
 
 wire        mpu_wr, mpu_rd, ram_cs, text_cs, reg_cs, rom_cs;
-wire        reg_wr, cmd_wr;
+wire        reg_wr, cmd_wr, frame_irq, frame_irq_edge, frame_irq_clr;
 wire [15:0] mpu_addr;
 wire [ 7:0] mpu_din, mpu_dout, ram_dout, reg_dout, rom_dout;
 
@@ -49,13 +50,16 @@ assign text_cs      = mpu_addr[15:10]==6'b001000;
 assign reg_cs       = mpu_addr[15:4]==12'h300;
 assign rom_cs       = mpu_addr[15:14]==2'b11;
 assign reg_wr       = mpu_wr & reg_cs & ~mpu_wr_l;
-assign cmd_wr       = reg_wr & mpu_addr[3:0]==4'h4;
+assign cmd_wr        = reg_wr & mpu_addr[3:0]==4'h4;
+assign frame_irq_edge= ~lvbl;
+assign frame_irq_clr = reg_cs & mpu_addr[3:0]==4'h5 & (mpu_rd | mpu_wr);
 
 assign text_addr    = mpu_addr[9:0];
 assign text_din     = mpu_dout;
 assign text_we      = mpu_wr & text_cs;
 assign reg_dout     = mpu_addr[3:0]==4'h3 ? cache_data_l :
-                      mpu_addr[3:0]==4'h4 ? cache_status : 8'd0;
+                      mpu_addr[3:0]==4'h4 ? cache_status :
+                      mpu_addr[3:0]==4'h5 ? { 6'd0, ~lvbl, frame_irq } : 8'd0;
 assign mpu_din      = ram_cs  ? ram_dout  :
                       text_cs ? text_dout :
                       reg_cs  ? reg_dout  :
@@ -153,13 +157,21 @@ jt65c02 u_cpu(
     .rst        ( rst      ),
     .clk        ( clk      ),
     .cen        ( cen      ),
-    .irq        ( 1'b0     ),
+    .irq        ( frame_irq ),
     .nmi        ( 1'b0     ),
     .wr         ( mpu_wr   ),
     .rd         ( mpu_rd   ),
     .addr       ( mpu_addr ),
     .din        ( mpu_din  ),
     .dout       ( mpu_dout )
+);
+
+jtframe_edge u_frame_irq(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .edgeof     ( frame_irq_edge ),
+    .clr        ( frame_irq_clr ),
+    .q          ( frame_irq     )
 );
 
 jtframe_ram #(

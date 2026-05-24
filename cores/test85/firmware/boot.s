@@ -1,6 +1,6 @@
 ; Minimal 65C02 boot program for TEST85.
-; It clears the 32x32 text RAM, prints TEST85, then loops over the
-; CPU-facing SDRAM cache registers.
+; It updates the screen and runs one CPU-facing SDRAM cache test per
+; frame interrupt.
 
         cpu     65c02
 
@@ -14,9 +14,12 @@ REGAH   =       $3001
 REGAB   =       $3002
 REGDATA =       $3003
 REGCMD  =       $3004
+REGVBL  =       $3005
 
 ITER    =       $00
 EXPECT  =       $01
+INIT    =       $02
+FAILED  =       $03
 
         org     $c000
 
@@ -27,7 +30,47 @@ reset:
         txs
         ldx     #$00
         stx     ITER
+        stx     INIT
+        stx     FAILED
+        lda     REGVBL
+        cli
 
+idle:
+        jmp     idle
+
+irq:
+        pha
+        phx
+        phy
+        lda     REGVBL
+        lda     FAILED
+        bne     irq_done
+        jsr     wait_blank
+        lda     INIT
+        bne     irq_test
+        jsr     init_screen
+        inc     INIT
+
+irq_test:
+        jsr     test_cache
+        jsr     wait_blank
+        bcs     irq_fail
+        jsr     print_pass
+        inc     ITER
+        bra     irq_done
+
+irq_fail:
+        jsr     print_fail
+        inc     FAILED
+
+irq_done:
+        ply
+        plx
+        pla
+        rti
+
+init_screen:
+        ldx     #$00
 clear:
         lda     #$20
         sta     CL0,x
@@ -36,7 +79,6 @@ clear:
         sta     CL3,x
         inx
         bne     clear
-
         ldx     #$00
 print_title:
         lda     title,x
@@ -44,17 +86,18 @@ print_title:
         sta     TEXT,x
         inx
         bne     print_title
-
 init_lines:
         ldx     #$00
 print_loop_label:
         lda     loop_label,x
-        beq     test_loop
+        beq     init_done
         sta     TEXT+$40,x
         inx
         bne     print_loop_label
+init_done:
+        rts
 
-test_loop:
+test_cache:
         lda     ITER
         eor     #$5a
         sta     EXPECT
@@ -68,17 +111,13 @@ test_loop:
         sta     REGDATA
         lda     #$01
         sta     REGCMD
-wait_write:
-        lda     REGCMD
-        and     #$01
-        beq     wait_write
+        jsr     wait_done
+        bcs     test_done
 
         lda     #$04
         sta     REGCMD
-wait_flush:
-        lda     REGCMD
-        and     #$01
-        beq     wait_flush
+        jsr     wait_done
+        bcs     test_done
 
         lda     #$00
         sta     REGAL
@@ -88,10 +127,8 @@ wait_flush:
         sta     REGAB
         lda     #$02
         sta     REGCMD
-wait_evict:
-        lda     REGCMD
-        and     #$01
-        beq     wait_evict
+        jsr     wait_done
+        bcs     test_done
 
         lda     ITER
         sta     REGAL
@@ -100,33 +137,73 @@ wait_evict:
         sta     REGAB
         lda     #$02
         sta     REGCMD
-wait_read:
-        lda     REGCMD
-        and     #$01
-        beq     wait_read
+        jsr     wait_done
+        bcs     test_done
 
         lda     REGDATA
         cmp     EXPECT
         beq     test_pass
-        ldx     #$00
-print_fail:
-        lda     fail_msg,x
-        beq     update_count
-        sta     TEXT+$80,x
-        inx
-        bne     print_fail
+        sec
+        rts
 
 test_pass:
+        clc
+test_done:
+        rts
+
+wait_done:
+        ldy     #$20
+wait_done_y:
+        ldx     #$ff
+wait_done_x:
+        lda     REGCMD
+        and     #$01
+        bne     wait_done_ok
+        dex
+        bne     wait_done_x
+        dey
+        bne     wait_done_y
+        sec
+        rts
+wait_done_ok:
+        clc
+        rts
+
+wait_blank:
+        lda     REGVBL
+        and     #$02
+        beq     wait_blank
+        rts
+
+print_fail:
         ldx     #$00
-print_pass:
-        lda     pass_msg,x
-        beq     update_count
+print_fail_loop:
+        lda     fail_msg,x
+        beq     update_fail_count
+        ora     #$80
         sta     TEXT+$80,x
         inx
-        bne     print_pass
-
-update_count:
+        bne     print_fail_loop
+update_fail_count:
         lda     ITER
+        jsr     print_count_red
+        rts
+
+print_pass:
+        ldx     #$00
+print_pass_loop:
+        lda     pass_msg,x
+        beq     update_pass_count
+        sta     TEXT+$80,x
+        inx
+        bne     print_pass_loop
+update_pass_count:
+        lda     ITER
+        jsr     print_count_white
+        rts
+
+print_count_white:
+        pha
         lsr
         lsr
         lsr
@@ -134,13 +211,30 @@ update_count:
         tax
         lda     hex_digits,x
         sta     TEXT+$8a
-        lda     ITER
+        pla
         and     #$0f
         tax
         lda     hex_digits,x
         sta     TEXT+$8b
-        inc     ITER
-        jmp     test_loop
+        rts
+
+print_count_red:
+        pha
+        lsr
+        lsr
+        lsr
+        lsr
+        tax
+        lda     hex_digits,x
+        ora     #$80
+        sta     TEXT+$8a
+        pla
+        and     #$0f
+        tax
+        lda     hex_digits,x
+        ora     #$80
+        sta     TEXT+$8b
+        rts
 
 
 title:
@@ -157,4 +251,4 @@ hex_digits:
         org     $fffa
         dw      reset
         dw      reset
-        dw      reset
+        dw      irq

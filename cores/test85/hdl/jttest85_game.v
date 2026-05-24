@@ -19,6 +19,7 @@ jttest85_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen        ( cen6          ),
+    .lvbl       ( LVBL          ),
 
     .cache_data ( cpu_data      ),
     .cache_ok   ( cpu_ok        ),
@@ -131,14 +132,14 @@ always @(posedge clk) begin
 
         if( sim_lvbl_l && !LVBL ) begin
             sim_frame <= sim_frame + 1;
-            if( sim_frame == 0 ) begin
-                if( !sim_title_seen           ) sim_fail( "TEST85 title was not written in the first frame" );
-                if( !sim_pass_seen            ) sim_fail( "PASS status was not written in the first frame" );
-                if( sim_cache_wr < 1          ) sim_fail( "no cache write command seen in the first frame" );
-                if( sim_cache_rd < 2          ) sim_fail( "not enough cache read commands seen in the first frame" );
-                if( sim_cache_flush < 1       ) sim_fail( "no cache flush command seen in the first frame" );
-                if( sim_cache_flush_done < 1  ) sim_fail( "no cache flush completion seen in the first frame" );
-                $display("PASS: TEST85 simulation monitor: frame 1 activity wr=%0d rd=%0d flush=%0d flush_done=%0d",
+            if( sim_frame == 1 ) begin
+                if( !sim_title_seen           ) sim_fail( "TEST85 title was not written after the first IRQ frame" );
+                if( !sim_pass_seen            ) sim_fail( "PASS status was not written after the first IRQ frame" );
+                if( sim_cache_wr < 1          ) sim_fail( "no cache write command seen after the first IRQ frame" );
+                if( sim_cache_rd < 2          ) sim_fail( "not enough cache read commands seen after the first IRQ frame" );
+                if( sim_cache_flush < 1       ) sim_fail( "no cache flush command seen after the first IRQ frame" );
+                if( sim_cache_flush_done < 1  ) sim_fail( "no cache flush completion seen after the first IRQ frame" );
+                $display("PASS: TEST85 simulation monitor: IRQ frame activity wr=%0d rd=%0d flush=%0d flush_done=%0d",
                     sim_cache_wr, sim_cache_rd, sim_cache_flush, sim_cache_flush_done);
             end
         end
