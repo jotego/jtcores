@@ -18,6 +18,12 @@ depending on the --git argument.
 
 Macros in macros.def are parsed by the MRA flow before conversion.
 
+ROM-less cores may provide a `cfg/mame2mra.toml` with no `[parse].sourcefile`,
+no explicit `[parse].machine`, and no `[ROM].regions`. In that case `jtframe
+mra` emits a dull MRA containing only the core metadata and RBF link, without a
+ROM download node. This is intended for test cores whose required contents are
+synthesized into FPGA BRAM.
+
 TOML elements (see full reference in mame2mra.go)
 
 ```
