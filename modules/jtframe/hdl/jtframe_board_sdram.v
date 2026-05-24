@@ -157,24 +157,16 @@ localparam
     HF = 0;
 `endif
 
-wire [1:0] rfsh;
-wire       rfsh_g;
+wire rfsh, nc_rfsh;
 
 // Automatic JTFRAME macros set a 64us refresh period
 jtframe_frac_cen #(.WC(`JTFRAME_RFSH_WC)) u_rfsh(
     .clk    ( clk               ),
     .n      ( `JTFRAME_RFSH_N   ),
     .m      ( `JTFRAME_RFSH_M   ),
-    .cen    ( rfsh              ),
+    .cen    ( {nc_rfsh, rfsh }  ),
     .cenb   (                   )
 );
-
-`ifdef SIMULATION
-// ROM loading can drive the programmer path too quickly for refreshes.
-assign rfsh_g = !prog_en & rfsh[0];
-`else
-assign rfsh_g = rfsh[0];
-`endif
 
 `ifdef JTFRAME_SDRAM_CACHE
     assign ba_ack    = 4'd0;
@@ -215,7 +207,7 @@ assign rfsh_g = rfsh[0];
         .prog_rdy   ( prog_rdy      ),
         .prog_ack   ( prog_ack      ),
 
-        .rfsh       ( rfsh_g        ),
+        .rfsh       ( rfsh          ),
 
         .sdram_dq   ( sdram_dq      ),
 `ifdef VERILATOR
@@ -320,7 +312,7 @@ assign rfsh_g = rfsh[0];
         .sdram_cke  ( sdram_cke     ),
 
         .dout       ( dout          ),
-        .rfsh       ( rfsh_g        )
+        .rfsh       ( rfsh          )
     );
 `ifdef SIMULATION
     jtframe_romrq_rdy_check u_rdy_check(
