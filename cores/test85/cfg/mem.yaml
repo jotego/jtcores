@@ -4,14 +4,10 @@ clocks:
       outputs:
         - cen6
 sdram:
-  burst: 1kB
-  cache-lanes:
-    - name: cpu
-      data_width: 8
-      rw: true
-      flush: { enable: true }
-      blocks: { count: 1, size: 1kB }
-      at: { bank: 0, length: 16MB }
+  banks:
+    - buses:
+      - { name: cpu, addr_width: 23, data_width: 8, rw: true, do_not_erase: true }
+      - { name: dummy, addr_width: 3, data_width: 8, addr: 3'd0, cs: 1'b0 }
 bram:
   - name: text
     addr_width: 10

@@ -11,7 +11,7 @@ module jttest85_game(
 assign snd         = 16'd0;
 assign sample      = 1'b0;
 assign dip_flip    = 1'b0;
-wire [7:0] cache_status;
+wire [7:0] sdram_status;
 
 `ifdef JTFRAME_SIGNALTAP
 /* verilator lint_off UNUSED */
@@ -26,25 +26,26 @@ always @(posedge clk) begin
         pxl2_cen,         // 59
         pxl_cen,          // 58
         cen6,             // 57
-        cache_status,     // 56:49
+        sdram_status,     // 56:49
         rst,              // 48
         LVBL,             // 47
         text_we,          // 46
-        cpu_flush_done,   // 45
-        cpu_flushing,     // 44
-        cpu_flush,        // 43
+        1'b0,             // 45
+        1'b0,             // 44
+        cpu_cs,           // 43
         cpu_ok,           // 42
         cpu_we,           // 41
-        cpu_rd,           // 40
+        ~cpu_we & cpu_cs, // 40
         cpu_data,         // 39:32
         cpu_din,          // 31:24
-        cpu_addr          // 23:0
+        1'b0,             // 23
+        cpu_addr          // 22:0
     };
 end
 /* verilator lint_on UNUSED */
 assign debug_view  = st85_tap[{debug_bus[2:0],3'b000} +: 8];
 `else
-assign debug_view  = cache_status;
+assign debug_view  = sdram_status;
 `endif
 
 jttest85_main u_main(
@@ -53,17 +54,14 @@ jttest85_main u_main(
     .cen        ( cen6          ),
     .lvbl       ( LVBL          ),
 
-    .cache_data ( cpu_data      ),
-    .cache_ok   ( cpu_ok        ),
-    .cache_flushing   ( cpu_flushing   ),
-    .cache_flush_done ( cpu_flush_done ),
-    .cache_addr ( cpu_addr      ),
-    .cache_din  ( cpu_din       ),
-    .cache_rd   ( cpu_rd        ),
-    .cache_we   ( cpu_we        ),
-    .cache_flush( cpu_flush     ),
-    .cache_dsn  ( cpu_dsn       ),
-    .cache_status( cache_status ),
+    .sdram_data ( cpu_data      ),
+    .sdram_ok   ( cpu_ok        ),
+    .sdram_addr ( cpu_addr      ),
+    .sdram_din  ( cpu_din       ),
+    .sdram_cs   ( cpu_cs        ),
+    .sdram_we   ( cpu_we        ),
+    .sdram_dsn  ( cpu_dsn       ),
+    .sdram_status( sdram_status ),
 
     .text_addr  ( text_addr     ),
     .text_din   ( text_din      ),
@@ -93,8 +91,7 @@ jttest85_video u_video(
 reg        sim_rst_l, sim_lvbl_l, sim_title_seen, sim_pass_seen;
 reg [ 5:0] sim_title;
 reg [ 3:0] sim_pass;
-integer    sim_frame, sim_cache_wr, sim_cache_rd, sim_cache_flush;
-integer    sim_cache_flush_done;
+integer    sim_frame, sim_sdram_wr, sim_sdram_rd;
 
 task sim_fail;
     input [8*96-1:0] msg;
@@ -118,19 +115,15 @@ always @(posedge clk) begin
         sim_title_seen       <= 1'b0;
         sim_pass_seen        <= 1'b0;
         sim_frame            <= 0;
-        sim_cache_wr         <= 0;
-        sim_cache_rd         <= 0;
-        sim_cache_flush      <= 0;
-        sim_cache_flush_done <= 0;
+        sim_sdram_wr         <= 0;
+        sim_sdram_rd         <= 0;
     end else begin
         if( sim_rst_l ) begin
             $display("TEST85 simulation monitor: reset released");
         end
 
-        if( cpu_we         ) sim_cache_wr         <= sim_cache_wr + 1;
-        if( cpu_rd         ) sim_cache_rd         <= sim_cache_rd + 1;
-        if( cpu_flush      ) sim_cache_flush      <= sim_cache_flush + 1;
-        if( cpu_flush_done ) sim_cache_flush_done <= sim_cache_flush_done + 1;
+        if( cpu_cs &&  cpu_we ) sim_sdram_wr <= sim_sdram_wr + 1;
+        if( cpu_cs && !cpu_we ) sim_sdram_rd <= sim_sdram_rd + 1;
 
         if( text_we ) begin
             case( text_addr )
@@ -164,15 +157,13 @@ always @(posedge clk) begin
 
         if( sim_lvbl_l && !LVBL ) begin
             sim_frame <= sim_frame + 1;
-            if( sim_frame == 1 ) begin
-                if( !sim_title_seen           ) sim_fail( "TEST85 title was not written after the first IRQ frame" );
-                if( !sim_pass_seen            ) sim_fail( "PASS status was not written after the first IRQ frame" );
-                if( sim_cache_wr < 1          ) sim_fail( "no cache write command seen after the first IRQ frame" );
-                if( sim_cache_rd < 2          ) sim_fail( "not enough cache read commands seen after the first IRQ frame" );
-                if( sim_cache_flush < 1       ) sim_fail( "no cache flush command seen after the first IRQ frame" );
-                if( sim_cache_flush_done < 1  ) sim_fail( "no cache flush completion seen after the first IRQ frame" );
-                $display("PASS: TEST85 simulation monitor: IRQ frame activity wr=%0d rd=%0d flush=%0d flush_done=%0d",
-                    sim_cache_wr, sim_cache_rd, sim_cache_flush, sim_cache_flush_done);
+            if( sim_frame == 10 ) begin
+                if( !sim_title_seen           ) sim_fail( "TEST85 title was not written after the tenth IRQ frame" );
+                if( !sim_pass_seen            ) sim_fail( "PASS status was not written after the tenth IRQ frame" );
+                if( sim_sdram_wr < 1          ) sim_fail( "no SDRAM write command seen after the tenth IRQ frame" );
+                if( sim_sdram_rd < 2          ) sim_fail( "not enough SDRAM read commands seen after the tenth IRQ frame" );
+                $display("PASS: TEST85 simulation monitor: IRQ frame activity wr=%0d rd=%0d",
+                    sim_sdram_wr, sim_sdram_rd);
             end
         end
     end

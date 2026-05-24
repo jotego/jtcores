@@ -20,8 +20,3 @@ jtframe:
     get:
       - jtframe_ram.v
       - jtframe_dual_ram.v
-  - from: sdram
-    get:
-      - jtframe_cache_mux.v
-      - jtframe_cache_mux_arb.v
-      - jtframe_cache_mux_flush.v

@@ -1,5 +1,5 @@
 ; Minimal 65C02 boot program for TEST85.
-; It updates the screen and runs one CPU-facing SDRAM cache test per
+; It updates the screen and runs one CPU-facing banked SDRAM test per
 ; frame interrupt.
 
         cpu     65c02
@@ -19,7 +19,8 @@ REGVBL  =       $3005
 ITER    =       $00
 EXPECT  =       $01
 INIT    =       $02
-FAILED  =       $03
+FAILCNT =       $03
+FAILWAIT =      $04
 
         org     $c000
 
@@ -31,7 +32,8 @@ reset:
         ldx     #$00
         stx     ITER
         stx     INIT
-        stx     FAILED
+        stx     FAILCNT
+        stx     FAILWAIT
         lda     REGVBL
         cli
 
@@ -43,8 +45,14 @@ irq:
         phx
         phy
         lda     REGVBL
-        lda     FAILED
+        lda     FAILWAIT
+        beq     irq_active
+        dec     FAILWAIT
         bne     irq_done
+        inc     ITER
+        bra     irq_done
+
+irq_active:
         jsr     wait_blank
         lda     INIT
         bne     irq_test
@@ -52,7 +60,7 @@ irq:
         inc     INIT
 
 irq_test:
-        jsr     test_cache
+        jsr     test_sdram
         jsr     wait_blank
         bcs     irq_fail
         jsr     print_pass
@@ -60,8 +68,10 @@ irq_test:
         bra     irq_done
 
 irq_fail:
+        inc     FAILCNT
         jsr     print_fail
-        inc     FAILED
+        lda     #120
+        sta     FAILWAIT
 
 irq_done:
         ply
@@ -97,7 +107,7 @@ print_loop_label:
 init_done:
         rts
 
-test_cache:
+test_sdram:
         lda     ITER
         eor     #$5a
         sta     EXPECT
@@ -187,6 +197,7 @@ print_fail_loop:
 update_fail_count:
         lda     ITER
         jsr     print_count_red
+        jsr     print_fail_counter
         rts
 
 print_pass:
@@ -200,6 +211,20 @@ print_pass_loop:
 update_pass_count:
         lda     ITER
         jsr     print_count_white
+        jsr     print_fail_counter
+        rts
+
+print_fail_counter:
+        ldx     #$00
+print_fail_counter_loop:
+        lda     fail_count_msg,x
+        beq     update_fail_counter
+        sta     TEXT+$c0,x
+        inx
+        bne     print_fail_counter_loop
+update_fail_counter:
+        lda     FAILCNT
+        jsr     print_fail_count_white
         rts
 
 print_count_white:
@@ -216,6 +241,22 @@ print_count_white:
         tax
         lda     hex_digits,x
         sta     TEXT+$8b
+        rts
+
+print_fail_count_white:
+        pha
+        lsr
+        lsr
+        lsr
+        lsr
+        tax
+        lda     hex_digits,x
+        sta     TEXT+$cb
+        pla
+        and     #$0f
+        tax
+        lda     hex_digits,x
+        sta     TEXT+$cc
         rts
 
 print_count_red:
@@ -240,11 +281,13 @@ print_count_red:
 title:
         db      "TEST85",0
 loop_label:
-        db      "SDRAM CACHE LOOP",0
+        db      "SDRAM BANK LOOP",0
 pass_msg:
         db      "PASS ITER ",0
 fail_msg:
         db      "FAIL ITER ",0
+fail_count_msg:
+        db      "FAIL COUNT ",0
 hex_digits:
         db      "0123456789ABCDEF"
 

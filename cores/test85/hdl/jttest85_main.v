@@ -10,17 +10,14 @@ module jttest85_main(
     input             cen,
     input             lvbl,
 
-    input      [ 7:0] cache_data,
-    input             cache_ok,
-    input             cache_flushing,
-    input             cache_flush_done,
-    output     [23:0] cache_addr,
-    output     [ 7:0] cache_din,
-    output            cache_rd,
-    output            cache_we,
-    output            cache_flush,
-    output     [ 0:0] cache_dsn,
-    output     [ 7:0] cache_status,
+    input      [ 7:0] sdram_data,
+    input             sdram_ok,
+    output     [22:0] sdram_addr,
+    output     [ 7:0] sdram_din,
+    output            sdram_cs,
+    output            sdram_we,
+    output     [ 1:0] sdram_dsn,
+    output     [ 7:0] sdram_status,
 
     output     [ 9:0] text_addr,
     output     [ 7:0] text_din,
@@ -34,11 +31,11 @@ localparam [1:0] OP_IDLE  = 2'd0,
                  OP_FLUSH = 2'd3;
 
 reg         mpu_wr_l;
-reg  [ 1:0] cache_op;
-reg  [ 7:0] cache_din_l, cache_data_l;
-reg  [23:0] cache_addr_l;
-reg         cache_rd_l, cache_we_l, cache_flush_l;
-reg         cache_busy, cache_done_l, cache_flush_done_l;
+reg  [ 1:0] sdram_op;
+reg  [ 7:0] sdram_din_l, sdram_data_l;
+reg  [22:0] sdram_addr_l;
+reg         sdram_cs_l, sdram_we_l;
+reg         sdram_busy, sdram_done_l, sdram_flush_done_l;
 
 wire        mpu_wr, mpu_rd, ram_cs, text_cs, reg_cs, rom_cs;
 wire        reg_wr, cmd_wr, frame_irq, frame_irq_edge, frame_irq_clr;
@@ -57,95 +54,90 @@ assign frame_irq_clr = reg_cs & mpu_addr[3:0]==4'h5 & (mpu_rd | mpu_wr);
 assign text_addr    = mpu_addr[9:0];
 assign text_din     = mpu_dout;
 assign text_we      = mpu_wr & text_cs;
-assign reg_dout     = mpu_addr[3:0]==4'h3 ? cache_data_l :
-                      mpu_addr[3:0]==4'h4 ? cache_status :
+assign reg_dout     = mpu_addr[3:0]==4'h3 ? sdram_data_l :
+                      mpu_addr[3:0]==4'h4 ? sdram_status :
                       mpu_addr[3:0]==4'h5 ? { 6'd0, ~lvbl, frame_irq } : 8'd0;
 assign mpu_din      = ram_cs  ? ram_dout  :
                       text_cs ? text_dout :
                       reg_cs  ? reg_dout  :
                       rom_cs  ? rom_dout  : 8'h0;
 
-assign cache_addr   = cache_addr_l;
-assign cache_din    = cache_din_l;
-assign cache_rd     = cache_rd_l;
-assign cache_we     = cache_we_l;
-assign cache_flush  = cache_flush_l;
-assign cache_dsn    = 1'b0;
-assign cache_status = { 4'd0, cache_flush_done_l, cache_flushing, cache_busy, cache_done_l };
+assign sdram_addr   = sdram_addr_l;
+assign sdram_din    = sdram_din_l;
+assign sdram_cs     = sdram_cs_l;
+assign sdram_we     = sdram_we_l;
+assign sdram_dsn    = { ~sdram_addr_l[0], sdram_addr_l[0] };
+assign sdram_status = { 4'd0, sdram_flush_done_l, 1'b0, sdram_busy, sdram_done_l };
 
 always @(posedge clk) begin
     if( rst ) begin
         mpu_wr_l           <= 1'b0;
-        cache_op           <= OP_IDLE;
-        cache_addr_l       <= 24'd0;
-        cache_din_l        <= 8'd0;
-        cache_data_l       <= 8'd0;
-        cache_rd_l         <= 1'b0;
-        cache_we_l         <= 1'b0;
-        cache_flush_l      <= 1'b0;
-        cache_busy         <= 1'b0;
-        cache_done_l       <= 1'b0;
-        cache_flush_done_l <= 1'b0;
+        sdram_op           <= OP_IDLE;
+        sdram_addr_l       <= 23'd0;
+        sdram_din_l        <= 8'd0;
+        sdram_data_l       <= 8'd0;
+        sdram_cs_l         <= 1'b0;
+        sdram_we_l         <= 1'b0;
+        sdram_busy         <= 1'b0;
+        sdram_done_l       <= 1'b0;
+        sdram_flush_done_l <= 1'b0;
     end else begin
         mpu_wr_l      <= mpu_wr;
-        cache_rd_l    <= 1'b0;
-        cache_we_l    <= 1'b0;
-        cache_flush_l <= 1'b0;
 
         if( reg_wr ) begin
             case( mpu_addr[3:0] )
-                4'h0: cache_addr_l[ 7: 0] <= mpu_dout;
-                4'h1: cache_addr_l[15: 8] <= mpu_dout;
-                4'h2: cache_addr_l[23:16] <= mpu_dout;
-                4'h3: cache_din_l         <= mpu_dout;
+                4'h0: sdram_addr_l[ 7: 0] <= mpu_dout;
+                4'h1: sdram_addr_l[15: 8] <= mpu_dout;
+                4'h2: sdram_addr_l[22:16] <= mpu_dout[6:0];
+                4'h3: sdram_din_l         <= mpu_dout;
                 default: begin
                 end
             endcase
         end
 
-        if( cmd_wr && !cache_busy ) begin
-            cache_done_l       <= 1'b0;
-            cache_flush_done_l <= 1'b0;
+        if( cmd_wr && !sdram_busy ) begin
+            sdram_done_l       <= 1'b0;
+            sdram_flush_done_l <= 1'b0;
             if( mpu_dout[0] ) begin
-                cache_we_l <= 1'b1;
-                cache_busy <= 1'b1;
-                cache_op   <= OP_WRITE;
+                sdram_cs_l   <= 1'b1;
+                sdram_we_l   <= 1'b1;
+                sdram_busy   <= 1'b1;
+                sdram_op     <= OP_WRITE;
             end else if( mpu_dout[1] ) begin
-                cache_rd_l <= 1'b1;
-                cache_busy <= 1'b1;
-                cache_op   <= OP_READ;
+                sdram_cs_l   <= 1'b1;
+                sdram_we_l   <= 1'b0;
+                sdram_busy   <= 1'b1;
+                sdram_op     <= OP_READ;
             end else if( mpu_dout[2] ) begin
-                cache_flush_l <= 1'b1;
-                cache_busy    <= 1'b1;
-                cache_op      <= OP_FLUSH;
+                sdram_done_l       <= 1'b1;
+                sdram_flush_done_l <= 1'b1;
+                sdram_op           <= OP_FLUSH;
             end else begin
-                cache_op <= OP_IDLE;
+                sdram_op <= OP_IDLE;
             end
         end
 
-        case( cache_op )
+        case( sdram_op )
             OP_READ: begin
-                if( cache_ok ) begin
-                    cache_data_l <= cache_data;
-                    cache_done_l <= 1'b1;
-                    cache_busy   <= 1'b0;
-                    cache_op     <= OP_IDLE;
+                if( sdram_ok ) begin
+                    sdram_data_l <= sdram_data;
+                    sdram_done_l <= 1'b1;
+                    sdram_busy   <= 1'b0;
+                    sdram_cs_l   <= 1'b0;
+                    sdram_op     <= OP_IDLE;
                 end
             end
             OP_WRITE: begin
-                if( cache_ok ) begin
-                    cache_done_l <= 1'b1;
-                    cache_busy   <= 1'b0;
-                    cache_op     <= OP_IDLE;
+                if( sdram_ok ) begin
+                    sdram_done_l <= 1'b1;
+                    sdram_busy   <= 1'b0;
+                    sdram_cs_l   <= 1'b0;
+                    sdram_we_l   <= 1'b0;
+                    sdram_op     <= OP_IDLE;
                 end
             end
             OP_FLUSH: begin
-                if( cache_flush_done ) begin
-                    cache_done_l       <= 1'b1;
-                    cache_flush_done_l <= 1'b1;
-                    cache_busy         <= 1'b0;
-                    cache_op           <= OP_IDLE;
-                end
+                sdram_op <= OP_IDLE;
             end
             default: begin
             end

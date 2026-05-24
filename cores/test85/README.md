@@ -1,33 +1,33 @@
 # TEST85
 
-`test85` is a small bring-up core for checking the CPS3-style 85.909 MHz clocking and SDRAM cache path on MiSTer without the full CPS3 core.
+`test85` is a small bring-up core for checking the CPS3-style 85.909 MHz clocking and a CPS1-style banked SDRAM path on MiSTer without the full CPS3 core.
 
-The core is intentionally ROM-less. Firmware, work RAM, screen text storage, and font data are FPGA BRAM contents. `cfg/mem.yaml` defines one writable SDRAM cache lane with flush support.
+The core is intentionally ROM-less. Firmware, work RAM, screen text storage, and font data are FPGA BRAM contents. `cfg/mem.yaml` defines one writable 8-bit SDRAM bank slot plus an inert dummy slot so the generated wrapper uses the CPS1-style banked SDRAM mux path.
 
 Current stage:
 
-- Uses `jtframe_pll5369`, `JTFRAME_SDRAM96`, and a 1 kB burst cache lane.
+- Uses `jtframe_pll5369`, `JTFRAME_SDRAM96`, and the regular banked `jtframe_sdram64` path instead of cache lanes.
 - Instantiates `jt65c02` with a generated 16 KiB boot ROM image from `firmware/boot.s`.
 - Provides 512 bytes of local CPU work RAM at `$0000-$01ff` for zero page and stack use.
 - Displays a 256x224 text screen through `jtframe_vtimer` and `jtframe_tilemap`.
 - Uses a CPU-writable 32x32 text RAM and a fixed `font0.hex` BRAM adapter for the character layer.
-- Drives the SDRAM cache lane from CPU-visible registers and shows the loop status on screen.
+- Drives the SDRAM bank slot from CPU-visible registers and shows the loop status on screen.
 - Latches the `LVBL` falling edge in `jttest85_main` with `jtframe_edge` to generate one maskable CPU interrupt per frame.
-- Adds a `SIMULATION`-only monitor that fails `jtsim` if `TEST85`/`PASS` are not written or if cache write/read/flush activity is missing after the first IRQ-driven frame.
+- Adds a `SIMULATION`-only monitor that fails `jtsim` if `TEST85`/`PASS` are not written or if banked SDRAM write/read activity is missing after the tenth IRQ-driven frame.
 
 ## CPU memory map
 
 - `$0000-$01ff`: local work RAM.
 - `$2000-$23ff`: 32x32 text RAM, CPU writable and video readable.
-- `$3000`: cache address bits `[7:0]`.
-- `$3001`: cache address bits `[15:8]`.
-- `$3002`: cache address bits `[23:16]`.
-- `$3003`: cache write data on writes, latched cache read data on reads.
-- `$3004`: cache command on writes and status on reads.
+- `$3000`: SDRAM address bits `[7:0]`.
+- `$3001`: SDRAM address bits `[15:8]`.
+- `$3002`: SDRAM address bits `[22:16]`.
+- `$3003`: SDRAM write data on writes, latched SDRAM read data on reads.
+- `$3004`: SDRAM command on writes and status on reads.
 - `$3005`: frame IRQ/blanking register. Any access clears the latched frame IRQ. Reads return bit 0 as the IRQ latch and bit 1 as live vertical blank.
 - `$c000-$ffff`: 16 KiB boot ROM.
 
-`$3004` write commands are bit-coded: bit 0 starts a cache write, bit 1 starts a cache read, and bit 2 starts a cache flush. `$3004` read status uses bit 0 as the latched operation-done flag, bit 1 as busy, bit 2 as live flushing, and bit 3 as latched flush-done.
+`$3004` write commands are bit-coded: bit 0 starts a banked SDRAM write, bit 1 starts a banked SDRAM read, and bit 2 is accepted as a compatibility no-op for the former cache flush command. `$3004` read status uses bit 0 as the latched operation-done flag and bit 1 as busy; bit 3 is set when the compatibility flush no-op completes.
 
 ## Video
 
@@ -39,17 +39,17 @@ The tilemap pixel output is driven straight to RGB without a colmix module: back
 
 ## Firmware
 
-`firmware/boot.s` enables maskable interrupts after reset. Each frame IRQ clears the `$3005` latch, waits for vertical blank, and runs at most one cache test:
+`firmware/boot.s` enables maskable interrupts after reset. Each frame IRQ clears the `$3005` latch, waits for vertical blank, and runs at most one SDRAM test:
 
 1. On the first IRQ, clears text RAM and prints `TEST85` plus the loop label.
-2. Writes a deterministic byte pattern to the cache lane.
-3. Flushes the dirty cache line to SDRAM.
-4. Reads `$000400` to evict the single 1 KiB cache block.
-5. Reads the original address back through the cache and compares it.
+2. Writes a deterministic byte pattern to the banked SDRAM slot.
+3. Issues the compatibility flush no-op so the old firmware flow still separates write/read phases.
+4. Reads `$000400` as an independent banked SDRAM access.
+5. Reads the original address back through the banked SDRAM path and compares it.
 6. Waits for vertical blank before writing the screen result.
-7. Prints `PASS ITER xx` in white and advances to the next frame, or prints `FAIL ITER xx` in red and stops testing until reset.
+7. Prints `PASS ITER xx` in white and advances to the next frame, or prints `FAIL ITER xx` in red, increments `FAIL COUNT xx` on the next line, waits 120 frame IRQs, then advances to the next iteration.
 
-Each cache handshake wait has a finite timeout, so a missing `cpu_ok` or `cpu_flush_done` reaches the firmware FAIL path instead of spinning forever.
+Each SDRAM handshake wait has a finite timeout, so a missing `cpu_ok` reaches the firmware FAIL path instead of spinning forever, while still letting the loop continue after the visible failure holdoff. The banked request keeps `cpu_cs` high until `cpu_ok` is returned, matching the old controller contract.
 
 Rebuild the boot ROM manually with:
 
@@ -63,21 +63,21 @@ make -C cores/test85/firmware
 
 `cfg/macros.def` enables `JTFRAME_SIGNALTAP` and `MISTER_DEBUG_NOHDMI` for the MiSTer build. `jtcore` appends `syn/signaltap.qsf`, which loads `syn/stp1.stp` from the generated `cores/test85/mister` Quartus project.
 
-The SignalTap file samples a kept 64-bit `st85_tap` register in `jttest85_game` plus the cache controller `flushing` signal. The tap register is clocked by the main game clock and packs the CPU-facing cache lane as follows:
+The SignalTap file samples a kept 64-bit `st85_tap` register in `jttest85_game` for the CPU-facing banked SDRAM request. The tap register is clocked by the main game clock and packs the bus as follows:
 
-- `[23:0]`: `cpu_addr`.
+- `[22:0]`: `cpu_addr`; `[23]` is zero padding.
 - `[31:24]`: `cpu_din`.
 - `[39:32]`: `cpu_data`.
-- `[40]`: `cpu_rd`.
+- `[40]`: derived read request, `cpu_cs & ~cpu_we`.
 - `[41]`: `cpu_we`.
 - `[42]`: `cpu_ok`.
-- `[43]`: `cpu_flush`.
-- `[44]`: `cpu_flushing`.
-- `[45]`: `cpu_flush_done`.
+- `[43]`: `cpu_cs`.
+- `[44]`: zero.
+- `[45]`: zero.
 - `[46]`: `text_we`.
 - `[47]`: `LVBL`.
 - `[48]`: `rst`.
-- `[56:49]`: `cache_status`.
+- `[56:49]`: `sdram_status`.
 - `[57]`: `cen6`.
 - `[58]`: `pxl_cen`.
 - `[59]`: `pxl2_cen`.
@@ -98,4 +98,4 @@ source setprj.sh >/dev/null && modules/jtframe/bin/lint-one.sh test85 -mister
 source setprj.sh >/dev/null && cd cores/test85/ver/game && jtsim -mister -video 3 -q
 ```
 
-For the simulation frame check, inspect `cores/test85/ver/game/frames/frame_00001.jpg`; it should show the `TEST85`, `SDRAM CACHE LOOP`, and `PASS ITER xx` text.
+For the simulation frame check, inspect `cores/test85/ver/game/frames/frame_00001.jpg`; it should show the `TEST85`, `SDRAM BANK LOOP`, and `PASS ITER xx` text.
