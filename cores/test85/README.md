@@ -10,6 +10,7 @@ Current stage:
 - Instantiates `jt65c02` with a generated 16 KiB boot ROM image from `firmware/boot.s`.
 - Provides 512 bytes of local CPU work RAM at `$0000-$01ff` for zero page and stack use.
 - Displays a 256x224 text screen through `jtframe_vtimer` and `jtframe_tilemap`.
+- Uses a CPU-writable 32x32 text RAM and a fixed `font0.hex` BRAM adapter for the character layer.
 - Drives the SDRAM cache lane from CPU-visible registers and shows the loop status on screen.
 
 ## CPU memory map
@@ -24,6 +25,12 @@ Current stage:
 - `$c000-$ffff`: 16 KiB boot ROM.
 
 `$3004` write commands are bit-coded: bit 0 starts a cache write, bit 1 starts a cache read, and bit 2 starts a cache flush. `$3004` read status uses bit 0 as the latched operation-done flag, bit 1 as busy, bit 2 as live flushing, and bit 3 as latched flush-done.
+
+## Video
+
+`jttest85_video` uses the same 256x224 `jtframe_vtimer` constants as `jtbubl_video`. The text layer is a no-scroll `jtframe_tilemap` with `PALW=1` and `BPP=1`; bit 7 of each text RAM byte selects the foreground color, while bits `[6:0]` hold the ASCII character code. `jttest85_font` adapts the tilemap ROM address to `font0.hex`, where ASCII `$20` is stored at font index zero. Non-printable codes map to the blank space glyph.
+
+The tilemap pixel output is driven straight to RGB without a colmix module: background is black, palette 0 foreground is white, and palette 1 foreground is red.
 
 ## Firmware
 
@@ -45,7 +52,7 @@ make -C cores/test85/firmware
 
 ## Validation
 
-The Stage 3 RTL and firmware were checked with:
+The Stage 4 RTL and firmware were checked with:
 
 ```bash
 source setprj.sh >/dev/null && jtframe cfgstr test85 --target=mister
