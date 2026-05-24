@@ -205,6 +205,19 @@ copy_templates() {
     fi
 }
 
+build_core_firmware() {
+    local core_path="$1"
+    local fw_dir="$core_path/firmware"
+    if [ -z "${JTFRAME_BUILD_FIRMWARE+x}" ]; then
+        return
+    fi
+    if [ ! -e "$fw_dir/Makefile" ]; then
+        echo -e "${rBG}ERROR:${NC}${wBG} JTFRAME_BUILD_FIRMWARE set but ${red}$fw_dir/Makefile${NC}${wBG} does not exist.${NC}"
+        exit 1
+    fi
+    make -C "$fw_dir" || exit $?
+}
+
 append_signaltap_qsf() {
     local tap_qsf=$PRJPATH/syn/signaltap.qsf
     if [[ "$SIGNALTAP" != TRUE && ! -v JTFRAME_SIGNALTAP ]]; then

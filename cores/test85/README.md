@@ -7,7 +7,7 @@ The core is intentionally ROM-less. Firmware, work RAM, screen text storage, and
 Current stage:
 
 - Uses `jtframe_pll5369`, `JTFRAME_SDRAM96`, and a 1 kB burst cache lane.
-- Instantiates `jt65c02` with a fixed 16 KiB boot ROM image generated from `firmware/boot.s`.
+- Instantiates `jt65c02` with a generated 16 KiB boot ROM image from `firmware/boot.s`.
 - Provides 512 bytes of local CPU work RAM at `$0000-$01ff` for zero page and stack use.
 - Displays a 256x224 text screen through `jtframe_vtimer` and `jtframe_tilemap`.
 - Drives the SDRAM cache lane from CPU-visible registers and shows the loop status on screen.
@@ -35,13 +35,13 @@ Current stage:
 4. Reads the original address back through the cache and compares it.
 5. Prints `PASS ITER xx` or `FAIL ITER xx` on the text screen.
 
-Rebuild the boot ROM with:
+Rebuild the boot ROM manually with:
 
 ```bash
 make -C cores/test85/firmware
 ```
 
-The Makefile assembles with `asl`, emits Intel HEX with `p2hex`, pads the `$c000-$ffff` image with `objcopy`, and writes `hdl/boot.hex` as one byte per line for `jtframe_ram`.
+`hdl/boot.hex` is generated and ignored by git. The Makefile assembles with `asl`, emits Intel HEX with `p2hex`, pads the `$c000-$ffff` image with `objcopy`, and writes one byte per line for `jtframe_ram`. `JTFRAME_BUILD_FIRMWARE` in `cfg/macros.def` makes `jtsim` and `jtcore` run this Makefile before they link HDL hex files.
 
 ## Validation
 
