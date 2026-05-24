@@ -83,12 +83,44 @@ func FileExists(fname string) bool {
 func GetCommit() (string,error) {
 	jtroot := os.Getenv("JTROOT")
 	cmd := exec.Command("git","-C",jtroot,"rev-parse","HEAD")
+	cmd.Env = clean_git_env(os.Environ())
 	output, e := cmd.Output()
 	if e!=nil {
 		return "0000000",fmt.Errorf("%s\n%s\n",string(output),e.Error())
 	}
 	commit:=string(output)
 	return commit[0:7],nil
+}
+
+func clean_git_env(env []string) []string {
+	local := map[string]bool{
+		"GIT_ALTERNATE_OBJECT_DIRECTORIES": true,
+		"GIT_CONFIG": true,
+		"GIT_CONFIG_PARAMETERS": true,
+		"GIT_CONFIG_COUNT": true,
+		"GIT_OBJECT_DIRECTORY": true,
+		"GIT_DIR": true,
+		"GIT_WORK_TREE": true,
+		"GIT_IMPLICIT_WORK_TREE": true,
+		"GIT_GRAFT_FILE": true,
+		"GIT_INDEX_FILE": true,
+		"GIT_NO_REPLACE_OBJECTS": true,
+		"GIT_REPLACE_REF_BASE": true,
+		"GIT_PREFIX": true,
+		"GIT_SHALLOW_FILE": true,
+		"GIT_COMMON_DIR": true,
+	}
+	clean := make([]string, 0, len(env))
+	for _, each := range env {
+		name := each
+		if eq := strings.IndexByte(each, '='); eq >= 0 {
+			name = each[:eq]
+		}
+		if !local[name] {
+			clean = append(clean, each)
+		}
+	}
+	return clean
 }
 
 func ShowErrors( all_errors... error ) {
