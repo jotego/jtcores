@@ -31,7 +31,7 @@ wire        visible, text_on, red_on, white_on, char_pal;
 localparam [1:0] WHITE=2'b11,RED=2'b01;
 
 assign char_code = text_vdata[6:0];
-assign char-pal  = text_vdata[7];
+assign char_pal  = text_vdata[7];
 assign visible   = LHBL & LVBL;
 assign red_on    = visible & text_pxl==RED;
 assign white_on  = visible & text_pxl==WHITE;
