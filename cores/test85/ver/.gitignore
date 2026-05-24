@@ -1,0 +1,4 @@
+/lint/
+/game/*
+!/game/
+!/game/README.md

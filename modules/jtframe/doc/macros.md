@@ -54,6 +54,7 @@ JTFRAME_LITE_KEYBOARD    |         | Disables automatic MAME keys mapping
 JTFRAME_LOGO_NOHEX       | Pocket  | Do not display the chip ID on the logo screen
 JTFRAME_DIPBASE          | MiST    | Starting base in status word for MiST dip switches. Do not set in [mist] section of macros.def or the MRA will not be correct
 JTFRAME_MIST_DIRECT      | MiST    | On by default. Define as 0 to disable. Fast ROM load
+JTFRAME_ROMLESS         |         | Core has no ROM set; lets `jtsim` run from `ver/game` with a generated empty `rom.bin`
 JTFRAME_MIST_DSP_BLOCKS  | MiST    | Use regular logic to implement DSP blocks if needed
 JTFRAME_NOMULTIWAY       |         | Disables 24-way joystick emulation via analog stick
 JTFRAME_MOUSE            |         | Enables mouse input. See [inputs.md](inputs.md)

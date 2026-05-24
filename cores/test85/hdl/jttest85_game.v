@@ -55,6 +55,96 @@ jttest85_video u_video(
     .blue       ( blue            )
 );
 
+`ifdef SIMULATION
+reg        sim_rst_l, sim_lvbl_l, sim_title_seen, sim_pass_seen;
+reg [ 5:0] sim_title;
+reg [ 3:0] sim_pass;
+integer    sim_frame, sim_cache_wr, sim_cache_rd, sim_cache_flush;
+integer    sim_cache_flush_done;
+
+task sim_fail;
+    input [8*96-1:0] msg;
+begin
+    $display("FAIL: TEST85 simulation monitor: %0s", msg);
+    `ifdef VERILATOR
+    $fatal(1, "%0s", msg);
+    `else
+    $finish;
+    `endif
+end
+endtask
+
+always @(posedge clk) begin
+    sim_rst_l  <= rst;
+    sim_lvbl_l <= LVBL;
+
+    if( rst ) begin
+        sim_title            <= 6'd0;
+        sim_pass             <= 4'd0;
+        sim_title_seen       <= 1'b0;
+        sim_pass_seen        <= 1'b0;
+        sim_frame            <= 0;
+        sim_cache_wr         <= 0;
+        sim_cache_rd         <= 0;
+        sim_cache_flush      <= 0;
+        sim_cache_flush_done <= 0;
+    end else begin
+        if( sim_rst_l ) begin
+            $display("TEST85 simulation monitor: reset released");
+        end
+
+        if( cpu_we         ) sim_cache_wr         <= sim_cache_wr + 1;
+        if( cpu_rd         ) sim_cache_rd         <= sim_cache_rd + 1;
+        if( cpu_flush      ) sim_cache_flush      <= sim_cache_flush + 1;
+        if( cpu_flush_done ) sim_cache_flush_done <= sim_cache_flush_done + 1;
+
+        if( text_we ) begin
+            case( text_addr )
+                10'h000: if( text_din == 8'h54 ) sim_title[0] <= 1'b1; // T
+                10'h001: if( text_din == 8'h45 ) sim_title[1] <= 1'b1; // E
+                10'h002: if( text_din == 8'h53 ) sim_title[2] <= 1'b1; // S
+                10'h003: if( text_din == 8'h54 ) sim_title[3] <= 1'b1; // T
+                10'h004: if( text_din == 8'h38 ) sim_title[4] <= 1'b1; // 8
+                10'h005: if( text_din == 8'h35 ) sim_title[5] <= 1'b1; // 5
+                10'h080: begin
+                    if( text_din == 8'h50 ) sim_pass[0] <= 1'b1; // P
+                    if( text_din == 8'h46 ) sim_fail( "CPU wrote FAIL status to text RAM" );
+                end
+                10'h081: if( text_din == 8'h41 ) sim_pass[1] <= 1'b1; // A
+                10'h082: if( text_din == 8'h53 ) sim_pass[2] <= 1'b1; // S
+                10'h083: if( text_din == 8'h53 ) sim_pass[3] <= 1'b1; // S
+                default: begin
+                end
+            endcase
+        end
+
+        if( sim_title == 6'h3f && !sim_title_seen ) begin
+            sim_title_seen <= 1'b1;
+            $display("TEST85 simulation monitor: title text written");
+        end
+
+        if( sim_pass == 4'hf && !sim_pass_seen ) begin
+            sim_pass_seen <= 1'b1;
+            $display("TEST85 simulation monitor: PASS text written");
+        end
+
+        if( sim_lvbl_l && !LVBL ) begin
+            sim_frame <= sim_frame + 1;
+            if( sim_frame == 0 ) begin
+                if( !sim_title_seen           ) sim_fail( "TEST85 title was not written in the first frame" );
+                if( !sim_pass_seen            ) sim_fail( "PASS status was not written in the first frame" );
+                if( sim_cache_wr < 1          ) sim_fail( "no cache write command seen in the first frame" );
+                if( sim_cache_rd < 2          ) sim_fail( "not enough cache read commands seen in the first frame" );
+                if( sim_cache_flush < 1       ) sim_fail( "no cache flush command seen in the first frame" );
+                if( sim_cache_flush_done < 1  ) sim_fail( "no cache flush completion seen in the first frame" );
+                $display("PASS: TEST85 simulation monitor: frame 1 activity wr=%0d rd=%0d flush=%0d flush_done=%0d",
+                    sim_cache_wr, sim_cache_rd, sim_cache_flush, sim_cache_flush_done);
+            end
+        end
+    end
+end
+`endif
+
 /* verilator lint_on UNUSED */
 
 endmodule
