@@ -3,6 +3,7 @@ test85:
       - jttest85_game.v
       - jttest85_main.v
       - jttest85_video.v
+      - jttest85_font.v
 jt680x:
   - get:
       - jt65c02.yaml
