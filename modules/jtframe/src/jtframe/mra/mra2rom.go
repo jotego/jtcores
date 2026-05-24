@@ -88,19 +88,21 @@ func build_rom(root *XMLNode, zippath string, apply_patches bool) ([]byte,error)
 	}
 	rombytes := make([]byte, 0)
 	var zf []*zip.ReadCloser
-	var zipe error
-	for _, each := range strings.Split(xml_rom.GetAttr("zip"), "|") {
-		aux, e := get_zipfile(each, zippath )
-		if aux != nil { zf = append(zf, aux) }
-		if e   != nil {
-			if zipe != nil {
-				zipe = fmt.Errorf("%s, %s", each, zipe.Error())
-			} else {
-				zipe = fmt.Errorf("%s", each)
+	if rom_needs_zip(xml_rom) {
+		var zipe error
+		for _, each := range strings.Split(xml_rom.GetAttr("zip"), "|") {
+			aux, e := get_zipfile(each, zippath )
+			if aux != nil { zf = append(zf, aux) }
+			if e   != nil {
+				if zipe != nil {
+					zipe = fmt.Errorf("%s, %s", each, zipe.Error())
+				} else {
+					zipe = fmt.Errorf("%s", each)
+				}
 			}
 		}
+		if len(zf)==0 { return nil,fmt.Errorf("%-10s cannot find %s in path %s",setname.GetText(), zipe.Error(),zippath) }
 	}
-	if len(zf)==0 { return nil,fmt.Errorf("%-10s cannot find %s in path %s",setname.GetText(), zipe.Error(),zippath) }
 	if Verbose {
 		fmt.Println("**** Creating .rom file for", setname.GetText())
 	}
@@ -117,6 +119,19 @@ func build_rom(root *XMLNode, zippath string, apply_patches bool) ([]byte,error)
 		}
 	}
 	return rombytes,nil
+}
+
+
+func rom_needs_zip(n *XMLNode) bool {
+	for _, each := range n.GetChildren() {
+		switch each.GetName() {
+		case "part":
+			if each.GetAttr("name") != "" { return true }
+		case "interleave":
+			if rom_needs_zip(each) { return true }
+		}
+	}
+	return false
 }
 
 func rom_file(setname string, ext string, rombytes []byte) error {

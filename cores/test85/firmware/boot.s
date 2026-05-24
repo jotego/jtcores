@@ -1,6 +1,6 @@
 ; Minimal 65C02 boot program for TEST85.
-; It updates the screen and runs one CPU-facing SDRAM cache test per
-; frame interrupt.
+; It updates the screen and runs CPU-facing SDRAM cache and ROM
+; download tests from frame interrupts.
 
         cpu     65c02
 
@@ -20,6 +20,8 @@ ITER    =       $00
 EXPECT  =       $01
 INIT    =       $02
 FAILED  =       $03
+DONE    =       $04
+ROMIDX  =       $05
 
         org     $c000
 
@@ -32,6 +34,8 @@ reset:
         stx     ITER
         stx     INIT
         stx     FAILED
+        stx     DONE
+        stx     ROMIDX
         lda     REGVBL
         cli
 
@@ -45,6 +49,8 @@ irq:
         lda     REGVBL
         lda     FAILED
         bne     irq_done
+        lda     DONE
+        bne     irq_done
         jsr     wait_blank
         lda     INIT
         bne     irq_test
@@ -52,15 +58,31 @@ irq:
         inc     INIT
 
 irq_test:
+        lda     ITER
+        cmp     #30
+        bcs     irq_rom
         jsr     test_cache
         jsr     wait_blank
-        bcs     irq_fail
-        jsr     print_pass
+        bcs     irq_cache_fail
+        jsr     print_cache_pass
         inc     ITER
         bra     irq_done
 
-irq_fail:
-        jsr     print_fail
+irq_rom:
+        jsr     test_rom
+        jsr     wait_blank
+        bcs     irq_rom_fail
+        jsr     print_rom_pass
+        inc     DONE
+        bra     irq_done
+
+irq_cache_fail:
+        jsr     print_cache_fail
+        inc     FAILED
+        bra     irq_done
+
+irq_rom_fail:
+        jsr     print_rom_fail
         inc     FAILED
 
 irq_done:
@@ -104,8 +126,9 @@ test_cache:
 
         lda     ITER
         sta     REGAL
-        lda     #$00
+        lda     #$10
         sta     REGAH
+        lda     #$00
         sta     REGAB
         lda     EXPECT
         sta     REGDATA
@@ -121,7 +144,7 @@ test_cache:
 
         lda     #$00
         sta     REGAL
-        lda     #$04
+        lda     #$14
         sta     REGAH
         lda     #$00
         sta     REGAB
@@ -132,8 +155,9 @@ test_cache:
 
         lda     ITER
         sta     REGAL
-        lda     #$00
+        lda     #$10
         sta     REGAH
+        lda     #$00
         sta     REGAB
         lda     #$02
         sta     REGCMD
@@ -149,6 +173,36 @@ test_cache:
 test_pass:
         clc
 test_done:
+        rts
+
+test_rom:
+        lda     #$00
+        sta     ROMIDX
+test_rom_loop:
+        ldx     ROMIDX
+        stx     REGAL
+        lda     #$00
+        sta     REGAH
+        sta     REGAB
+        lda     #$02
+        sta     REGCMD
+        jsr     wait_done
+        bcs     test_rom_done
+
+        ldx     ROMIDX
+        lda     REGDATA
+        cmp     rom_payload,x
+        bne     test_rom_fail
+        inc     ROMIDX
+        lda     ROMIDX
+        cmp     #ROM_LEN
+        bne     test_rom_loop
+        clc
+        rts
+
+test_rom_fail:
+        sec
+test_rom_done:
         rts
 
 wait_done:
@@ -175,34 +229,61 @@ wait_blank:
         beq     wait_blank
         rts
 
-print_fail:
+print_cache_fail:
         ldx     #$00
-print_fail_loop:
-        lda     fail_msg,x
-        beq     update_fail_count
+print_cache_fail_loop:
+        lda     fail_cache_msg,x
+        beq     update_cache_fail_count
         ora     #$80
         sta     TEXT+$80,x
         inx
-        bne     print_fail_loop
-update_fail_count:
+        bne     print_cache_fail_loop
+update_cache_fail_count:
         lda     ITER
-        jsr     print_count_red
+        jsr     print_cache_count_red
         rts
 
-print_pass:
+print_cache_pass:
         ldx     #$00
-print_pass_loop:
-        lda     pass_msg,x
-        beq     update_pass_count
+print_cache_pass_loop:
+        lda     pass_cache_msg,x
+        beq     update_cache_pass_count
         sta     TEXT+$80,x
         inx
-        bne     print_pass_loop
-update_pass_count:
+        bne     print_cache_pass_loop
+update_cache_pass_count:
         lda     ITER
-        jsr     print_count_white
+        jsr     print_cache_count_white
         rts
 
-print_count_white:
+print_rom_fail:
+        ldx     #$00
+print_rom_fail_loop:
+        lda     fail_rom_msg,x
+        beq     update_rom_fail_count
+        ora     #$80
+        sta     TEXT+$c0,x
+        inx
+        bne     print_rom_fail_loop
+update_rom_fail_count:
+        lda     ROMIDX
+        jsr     print_rom_count_red
+        rts
+
+print_rom_pass:
+        ldx     #$00
+print_rom_pass_loop:
+        lda     pass_rom_msg,x
+        beq     update_rom_pass_count
+        sta     TEXT+$c0,x
+        inx
+        bne     print_rom_pass_loop
+update_rom_pass_count:
+        lda     #ROM_LEN-1
+        jsr     print_rom_count_white
+        rts
+
+print_cache_count_white:
         pha
         lsr
         lsr
@@ -210,15 +291,15 @@ print_count_white:
         lsr
         tax
         lda     hex_digits,x
-        sta     TEXT+$8a
+        sta     TEXT+$8b
         pla
         and     #$0f
         tax
         lda     hex_digits,x
-        sta     TEXT+$8b
+        sta     TEXT+$8c
         rts
 
-print_count_red:
+print_cache_count_red:
         pha
         lsr
         lsr
@@ -227,26 +308,66 @@ print_count_red:
         tax
         lda     hex_digits,x
         ora     #$80
-        sta     TEXT+$8a
+        sta     TEXT+$8b
         pla
         and     #$0f
         tax
         lda     hex_digits,x
         ora     #$80
-        sta     TEXT+$8b
+        sta     TEXT+$8c
+        rts
+
+print_rom_count_white:
+        pha
+        lsr
+        lsr
+        lsr
+        lsr
+        tax
+        lda     hex_digits,x
+        sta     TEXT+$c9
+        pla
+        and     #$0f
+        tax
+        lda     hex_digits,x
+        sta     TEXT+$ca
+        rts
+
+print_rom_count_red:
+        pha
+        lsr
+        lsr
+        lsr
+        lsr
+        tax
+        lda     hex_digits,x
+        ora     #$80
+        sta     TEXT+$c9
+        pla
+        and     #$0f
+        tax
+        lda     hex_digits,x
+        ora     #$80
+        sta     TEXT+$ca
         rts
 
 
 title:
         db      "TEST85",0
 loop_label:
-        db      "SDRAM CACHE LOOP",0
-pass_msg:
-        db      "PASS ITER ",0
-fail_msg:
-        db      "FAIL ITER ",0
+        db      "30X CACHE, THEN ROM DATA",0
+pass_cache_msg:
+        db      "PASS CACHE ",0
+fail_cache_msg:
+        db      "FAIL CACHE ",0
+pass_rom_msg:
+        db      "PASS ROM ",0
+fail_rom_msg:
+        db      "FAIL ROM ",0
 hex_digits:
         db      "0123456789ABCDEF"
+
+        include "payload.inc"
 
         org     $fffa
         dw      reset
