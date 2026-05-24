@@ -59,6 +59,33 @@ make -C cores/test85/firmware
 
 `hdl/boot.hex` is generated and ignored by git. The Makefile assembles with `asl`, emits Intel HEX with `p2hex`, pads the `$c000-$ffff` image with `objcopy`, and writes one byte per line for `jtframe_ram`. `JTFRAME_BUILD_FIRMWARE` in `cfg/macros.def` makes `jtsim` and `jtcore` run this Makefile before they link HDL hex files.
 
+## SignalTap
+
+`cfg/macros.def` enables `JTFRAME_SIGNALTAP` and `MISTER_DEBUG_NOHDMI` for the MiSTer build. `jtcore` appends `syn/signaltap.qsf`, which loads `syn/stp1.stp` from the generated `cores/test85/mister` Quartus project.
+
+The SignalTap file samples a kept 64-bit `st85_tap` register in `jttest85_game` plus the cache controller `flushing` signal. The tap register is clocked by the main game clock and packs the CPU-facing cache lane as follows:
+
+- `[23:0]`: `cpu_addr`.
+- `[31:24]`: `cpu_din`.
+- `[39:32]`: `cpu_data`.
+- `[40]`: `cpu_rd`.
+- `[41]`: `cpu_we`.
+- `[42]`: `cpu_ok`.
+- `[43]`: `cpu_flush`.
+- `[44]`: `cpu_flushing`.
+- `[45]`: `cpu_flush_done`.
+- `[46]`: `text_we`.
+- `[47]`: `LVBL`.
+- `[48]`: `rst`.
+- `[56:49]`: `cache_status`.
+- `[57]`: `cen6`.
+- `[58]`: `pxl_cen`.
+- `[59]`: `pxl2_cen`.
+- `[60]`: `LHBL`.
+- `[61]`: `HS`.
+- `[62]`: `VS`.
+- `[63]`: `text_din[7]`, set when firmware writes red FAIL text.
+
 ## Validation
 
 The Stage 4 RTL and firmware were checked with:

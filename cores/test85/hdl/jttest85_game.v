@@ -11,9 +11,41 @@ module jttest85_game(
 assign snd         = 16'd0;
 assign sample      = 1'b0;
 assign dip_flip    = 1'b0;
-assign debug_view  = cache_status;
-
 wire [7:0] cache_status;
+
+`ifdef JTFRAME_SIGNALTAP
+/* verilator lint_off UNUSED */
+(* keep = 1, preserve = 1 *) reg [63:0] st85_tap;
+
+always @(posedge clk) begin
+    st85_tap <= {
+        text_din[7],      // 63: FAIL/red text write marker
+        VS,               // 62
+        HS,               // 61
+        LHBL,             // 60
+        pxl2_cen,         // 59
+        pxl_cen,          // 58
+        cen6,             // 57
+        cache_status,     // 56:49
+        rst,              // 48
+        LVBL,             // 47
+        text_we,          // 46
+        cpu_flush_done,   // 45
+        cpu_flushing,     // 44
+        cpu_flush,        // 43
+        cpu_ok,           // 42
+        cpu_we,           // 41
+        cpu_rd,           // 40
+        cpu_data,         // 39:32
+        cpu_din,          // 31:24
+        cpu_addr          // 23:0
+    };
+end
+/* verilator lint_on UNUSED */
+assign debug_view  = st85_tap[56:49];
+`else
+assign debug_view  = cache_status;
+`endif
 
 jttest85_main u_main(
     .rst        ( rst           ),

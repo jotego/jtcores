@@ -1,0 +1,69 @@
+<session jtag_chain="DE-SoC [3-3.4]" jtag_device="@2: 5CSEBA6(.|ES)/5CSEMA6/.. (0x02D020DD)" sof_file="">
+  <display_tree gui_logging_enabled="0">
+    <display_branch instance="auto_signaltap_0" signal_set="TEST85 cache lane" trigger="Cache command"/>
+  </display_tree>
+  <global_info>
+    <single attribute="active instance" value="0"/>
+    <single attribute="lock mode" value="0"/>
+    <single attribute="jtag widget visible" value="1"/>
+    <single attribute="instance widget visible" value="1"/>
+    <single attribute="config widget visible" value="1"/>
+    <single attribute="hierarchy widget visible" value="1"/>
+    <single attribute="data log widget visible" value="1"/>
+  </global_info>
+  <instance enabled="true" entity_name="sld_signaltap" is_auto_node="yes" name="auto_signaltap_0" source_file="sld_signaltap.vhd">
+    <node_ip_info instance_id="0" mfg_id="110" node_id="0" version="6"/>
+    <position_info>
+      <single attribute="setup vertical scroll position" value="0"/>
+      <single attribute="setup horizontal scroll position" value="0"/>
+      <single attribute="active tab" value="1"/>
+    </position_info>
+    <signal_set global_temp="0" name="TEST85 cache lane">
+      <clock name="emu:emu|pll:pll|pll_0002:pll_inst|altera_pll:altera_pll_i|outclk_wire[4]~CLKENA0" polarity="posedge" tap_mode="probeonly"/>
+      <config pipeline_level="0" ram_type="AUTO" reserved_data_nodes="0" reserved_storage_qualifier_nodes="0" reserved_trigger_nodes="0" sample_depth="1024" trigger_in_enable="no" trigger_out_enable="no"/>
+      <top_entity/>
+      <signal_vec>
+        <trigger_input_vec>
+          <wire name="emu:emu|jttest85_game_sdram:u_game|jttest85_game:u_game|st85_tap[41]" tap_mode="probeonly"/>
+          <wire name="emu:emu|jttest85_game_sdram:u_game|jttest85_game:u_game|st85_tap[40]" tap_mode="probeonly"/>
+          <wire name="emu:emu|jttest85_game_sdram:u_game|jttest85_game:u_game|st85_tap[43]" tap_mode="probeonly"/>
+          <wire name="emu:emu|jttest85_game_sdram:u_game|jttest85_game:u_game|st85_tap[45]" tap_mode="probeonly"/>
+        </trigger_input_vec>
+        <data_input_vec>
+          <wire name="emu:emu|jttest85_game_sdram:u_game|jttest85_game:u_game|st85_tap[63..0]" tap_mode="probeonly"/>
+          <wire name="emu:emu|jttest85_game_sdram:u_game|jtframe_cache_mux:u_cache|jtframe_cache:u_cache0|jtframe_cache_ctrl:u_ctrl|flushing" tap_mode="probeonly"/>
+        </data_input_vec>
+        <storage_qualifier_input_vec/>
+      </signal_vec>
+      <presentation>
+        <unified_setup_data_view>
+          <node duplicate_name_allowed="false" is_data_input="true" is_node_valid="true" is_trigger_input="false" name="emu:emu|jttest85_game_sdram:u_game|jttest85_game:u_game|st85_tap[63..0]" tap_mode="probeonly" type="register"/>
+          <node duplicate_name_allowed="false" is_data_input="true" is_node_valid="true" is_trigger_input="false" name="emu:emu|jttest85_game_sdram:u_game|jtframe_cache_mux:u_cache|jtframe_cache:u_cache0|jtframe_cache_ctrl:u_ctrl|flushing" tap_mode="probeonly" type="register"/>
+          <node duplicate_name_allowed="false" is_data_input="false" is_node_valid="true" is_trigger_input="true" name="emu:emu|jttest85_game_sdram:u_game|jttest85_game:u_game|st85_tap[41]" tap_mode="probeonly" type="register"/>
+          <node duplicate_name_allowed="false" is_data_input="false" is_node_valid="true" is_trigger_input="true" name="emu:emu|jttest85_game_sdram:u_game|jttest85_game:u_game|st85_tap[40]" tap_mode="probeonly" type="register"/>
+          <node duplicate_name_allowed="false" is_data_input="false" is_node_valid="true" is_trigger_input="true" name="emu:emu|jttest85_game_sdram:u_game|jttest85_game:u_game|st85_tap[43]" tap_mode="probeonly" type="register"/>
+          <node duplicate_name_allowed="false" is_data_input="false" is_node_valid="true" is_trigger_input="true" name="emu:emu|jttest85_game_sdram:u_game|jttest85_game:u_game|st85_tap[45]" tap_mode="probeonly" type="register"/>
+        </unified_setup_data_view>
+        <data_view>
+          <net data_index="0" duplicate_name_allowed="false" is_data_input="true" is_node_valid="true" name="emu:emu|jttest85_game_sdram:u_game|jttest85_game:u_game|st85_tap[63..0]" tap_mode="probeonly" type="unknown"/>
+          <net data_index="1" duplicate_name_allowed="false" is_data_input="true" is_node_valid="true" name="emu:emu|jttest85_game_sdram:u_game|jtframe_cache_mux:u_cache|jtframe_cache:u_cache0|jtframe_cache_ctrl:u_ctrl|flushing" tap_mode="probeonly" type="unknown"/>
+        </data_view>
+        <setup_view>
+          <net data_index="0" duplicate_name_allowed="false" is_data_input="true" is_node_valid="true" name="emu:emu|jttest85_game_sdram:u_game|jttest85_game:u_game|st85_tap[63..0]" tap_mode="probeonly" type="unknown"/>
+          <net data_index="1" duplicate_name_allowed="false" is_data_input="true" is_node_valid="true" name="emu:emu|jttest85_game_sdram:u_game|jtframe_cache_mux:u_cache|jtframe_cache:u_cache0|jtframe_cache_ctrl:u_ctrl|flushing" tap_mode="probeonly" type="unknown"/>
+        </setup_view>
+        <trigger_in_editor/>
+        <trigger_out_editor/>
+      </presentation>
+      <trigger attribute_mem_mode="false" gap_record="false" global_temp="0" name="Cache command" position="pre" power_up_trigger_mode="false" record_data_gap="false" segment_size="256" storage_mode="off" storage_qualifier_disabled="yes" trigger_type="circular">
+        <power_up_trigger position="pre" storage_qualifier_disabled="yes"/>
+        <events use_custom_flow_control="no">
+          <level enabled="yes" name="cache access" type="basic">
+            <op_node/>
+          </level>
+        </events>
+      </trigger>
+    </signal_set>
+  </instance>
+  <mnemonics/>
+</session>
