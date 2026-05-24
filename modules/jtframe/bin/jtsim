@@ -338,6 +338,8 @@ fi
 # Get the macros in cfg/macros.def into bash
 eval `jtcfgstr bash`
 
+build_core_firmware "$CORES/$SYSNAME"
+
 if [ -z "$GAMETOP" ]; then
     GAMETOP=${CORENAME,,}_game
     echo Using $GAMETOP as top module

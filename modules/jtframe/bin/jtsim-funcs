@@ -231,6 +231,19 @@ jtcfgstr() {
     jtframe cfgstr $SYSNAME --target=$TARGET --output=$1 --def=$ALLMACROS --undef=$UNDEF
 }
 
+build_core_firmware() {
+    local core_path="$1"
+    local fw_dir="$core_path/firmware"
+    if [ -z "${JTFRAME_BUILD_FIRMWARE+x}" ]; then
+        return
+    fi
+    if [ ! -e "$fw_dir/Makefile" ]; then
+        echo "${rBG}Error:${NC} JTFRAME_BUILD_FIRMWARE set but $fw_dir/Makefile does not exist"
+        exit 1
+    fi
+    make -C "$fw_dir" || exit $?
+}
+
 make_verilator_command() {
 	echo "${VERILATOR_PATH}verilator -I$CORES/$SYSNAME/hdl"\
 "       -I$JTFRAME/hdl/inc "\
