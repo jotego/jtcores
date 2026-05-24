@@ -406,6 +406,8 @@ func make_clocks(target string) (mclk int) {
 			default:
 				freq = 6289772
 			}
+		case "JTFRAME_PLL5369":
+			freq = 5369318 // drives 42.954544 MHz, doubled to 85.909088 with SDRAM96
 		case "JTFRAME_PLL6671":
 			switch target {
 			case "MISTER":
