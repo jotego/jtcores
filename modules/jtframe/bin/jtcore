@@ -225,6 +225,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     echo Log file: $LOG
     copy_templates
     echo -e "\nset_global_assignment -name seed $SEED" >> $corename.qsf
+    append_signaltap_qsf
     if [ $SIM = FALSE ]; then
         # Create the QIP file
         if [ -e $CORES/$PRJ/cfg/mem.yaml ]; then jtframe mem $PRJ --target=$TARGET $NODBG || exit $?; fi

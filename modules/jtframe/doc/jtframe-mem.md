@@ -191,6 +191,8 @@ bram:
 - `sdram.cache-lanes` must contain **1–8** entries.
 - `include` entries are loaded then the active `mem.yaml` is reapplied to allow overrides.
 - `params` values are evaluated as macro expressions when `cache-lanes` use `at.offset`/`at.length`.
+- ROM-less cores may omit `download`; a single RW cache lane with `flush.enable`
+  is valid when the core only needs SDRAM communication at runtime.
 - `clocks` is a map from base-clock names to lists of entries. The documented base clocks are `clk24`, `clk48`, `clk96`, and `clk`.
 - For `clocks`, each entry supports:
   - `outputs`: required list of one or more names. The first output runs at the requested rate; each later output is divided by two from the previous one.
