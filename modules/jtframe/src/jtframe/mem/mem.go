@@ -571,6 +571,9 @@ func make_dump2bin(corename string, cfg *MemConfig) (e error) {
 func bankOffset(cfg *MemConfig, corename string) (e error) {
 	mra_cfg, e := mra.ParseTomlFile(corename)
 	if e != nil {
+		if os.IsNotExist(e) {
+			return nil
+		}
 		return e
 	}
 	if len(mra_cfg.Header.Offset.Regions) == 0 {
