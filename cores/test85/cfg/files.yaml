@@ -8,6 +8,8 @@ jt680x:
   - get:
       - jt65c02.yaml
 jtframe:
+  - get:
+      - jtframe_edge.v
   - from: video
     get:
       - jtframe_vtimer.v
