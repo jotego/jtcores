@@ -26,11 +26,12 @@ wire [ 9:0] font_addr;
 wire [ 7:0] font_data;
 wire [ 6:0] char_code;
 wire [ 1:0] text_pxl;
-wire        visible, text_on, red_on, white_on;
+wire        visible, text_on, red_on, white_on, char_pal;
 
 localparam [1:0] WHITE=2'b11,RED=2'b01;
 
 assign char_code = text_vdata[6:0];
+assign char-pal  = text_vdata[7];
 assign visible   = LHBL & LVBL;
 assign red_on    = visible & text_pxl==RED;
 assign white_on  = visible & text_pxl==WHITE;
@@ -94,7 +95,7 @@ jtframe_tilemap #(
     .vram_addr ( text_vaddr       ),
 
     .code      ( char_code        ),
-    .pal       ( text_vdata[7]    ),
+    .pal       ( char_pal         ),
     .hflip     ( 1'b0             ),
     .vflip     ( 1'b0             ),
 
