@@ -26,18 +26,18 @@ wire [ 9:0] font_addr;
 wire [ 7:0] font_data;
 wire [ 6:0] char_code;
 wire [ 1:0] text_pxl;
-wire        visible;
+wire        visible, text_on, white_on;
 
-assign char_code = text_vdata[6:0] < 7'h20 ? 7'd0 : text_vdata[6:0] - 7'h20;
+assign char_code = text_vdata[6:0];
 assign visible   = LHBL & LVBL;
-
-localparam [1:0] WHITE=2'b01, RED=2'b11;
+assign text_on   = visible & text_pxl[0];
+assign white_on  = text_on & ~text_pxl[1];
 
 always @(posedge clk) begin
     if(pxl_cen) begin
-        red   <= visible & text_pxl[0]     ? 4'hf : 4'h0; // RED or WHITE
-        green <= visible & text_pxl==WHITE ? 4'hf : 4'h0;
-        blue  <= visible & text_pxl==WHITE ? 4'hf : 4'h0;
+        red   <= text_on  ? 4'hf : 4'h0;
+        green <= white_on ? 4'hf : 4'h0;
+        blue  <= white_on ? 4'hf : 4'h0;
     end
 end
 
@@ -96,6 +96,24 @@ jtframe_tilemap #(
     .pxl       ( text_pxl         )
 );
 
+jttest85_font u_font(
+    .clk      ( clk       ),
+    .rom_addr ( font_addr ),
+    .rom_data ( font_data )
+);
+
+endmodule
+
+module jttest85_font(
+    input             clk,
+    input      [ 9:0] rom_addr,
+    output     [ 7:0] rom_data
+);
+
+wire [ 6:0] ascii     = rom_addr[9:3];
+wire [ 6:0] font_code = ascii < 7'h20 ? 7'd0 : ascii - 7'h20;
+wire [ 9:0] font_addr = { font_code, rom_addr[2:0] };
+
 jtframe_ram #(
     .AW      ( 10          ),
     .DW      (  8          ),
@@ -106,7 +124,7 @@ jtframe_ram #(
     .data    ( 8'd0      ),
     .addr    ( font_addr ),
     .we      ( 1'b0      ),
-    .q       ( font_data )
+    .q       ( rom_data  )
 );
 
 endmodule
