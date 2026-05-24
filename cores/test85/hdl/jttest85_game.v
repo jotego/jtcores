@@ -15,7 +15,7 @@ wire [7:0] cache_status;
 
 `ifdef JTFRAME_SIGNALTAP
 /* verilator lint_off UNUSED */
-(* keep = 1, preserve = 1 *) reg [63:0] st85_tap;
+reg [63:0] st85_tap;
 
 always @(posedge clk) begin
     st85_tap <= {
@@ -42,7 +42,7 @@ always @(posedge clk) begin
     };
 end
 /* verilator lint_on UNUSED */
-assign debug_view  = st85_tap[56:49];
+assign debug_view  = st85_tap[{debug_bus[2:0],3'b000} +: 8];
 `else
 assign debug_view  = cache_status;
 `endif
