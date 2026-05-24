@@ -7,7 +7,7 @@
 module jttest85_video(
     input             rst,
     input             clk,
-    input             pxl_cen,
+    output            pxl_cen, pxl2_cen,
 
     output     [ 9:0] text_vaddr,
     input      [ 7:0] text_vdata,
@@ -18,7 +18,7 @@ module jttest85_video(
     output            VS,
     output reg [ 3:0] red,
     output reg [ 3:0] green,
-    output reg [ 3:0] blue
+    output     [ 3:0] blue
 );
 
 wire [ 8:0] vdump, hdump;
@@ -26,29 +26,39 @@ wire [ 9:0] font_addr;
 wire [ 7:0] font_data;
 wire [ 6:0] char_code;
 wire [ 1:0] text_pxl;
-wire        visible, text_on, white_on;
+wire        visible, text_on, red_on, white_on;
+
+localparam [1:0] WHITE=2'b11,RED=2'b01;
 
 assign char_code = text_vdata[6:0];
 assign visible   = LHBL & LVBL;
-assign text_on   = visible & text_pxl[0];
-assign white_on  = text_on & ~text_pxl[1];
+assign red_on    = visible & text_pxl==RED;
+assign white_on  = visible & text_pxl==WHITE;
+assign blue      = green;
 
 always @(posedge clk) begin
     if(pxl_cen) begin
-        red   <= text_on  ? 4'hf : 4'h0;
-        green <= white_on ? 4'hf : 4'h0;
-        blue  <= white_on ? 4'hf : 4'h0;
+        red   <= (red_on || white_on) ? 4'hf : 4'h0;
+        green <=            white_on  ? 4'hf : 4'h0;
     end
 end
+
+jtframe_frac_cen #(.WC(4),.W(2)) u_cen(
+    .clk    ( clk       ),    // 48 or 96 MHz
+    .n      ( 4'd1      ),
+    .m      ( 4'd7      ),
+    .cen    ( { pxl_cen, pxl2_cen } ),
+    .cenb   (           )
+);
 
 jtframe_vtimer #(
     .HB_START ( 9'd255 ),
     .HS_START ( 9'd297 ),
-    .HB_END   ( 9'd383 ),
+    .HB_END   ( 9'd392 ),
     .V_START  ( 9'd016 ),
     .VS_START ( 9'd254 ),
     .VB_START ( 9'd239 ),
-    .VB_END   ( 9'd279 )
+    .VB_END   ( 9'd275 )
 ) u_timer(
     .clk      ( clk      ),
     .pxl_cen  ( pxl_cen  ),
