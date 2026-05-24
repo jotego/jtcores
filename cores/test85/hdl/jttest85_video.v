@@ -16,9 +16,9 @@ module jttest85_video(
     output            LVBL,
     output            HS,
     output            VS,
-    output     [ 3:0] red,
-    output     [ 3:0] green,
-    output     [ 3:0] blue
+    output reg [ 3:0] red,
+    output reg [ 3:0] green,
+    output reg [ 3:0] blue
 );
 
 wire [ 8:0] vdump, hdump;
@@ -30,9 +30,16 @@ wire        visible;
 
 assign char_code = text_vdata[6:0] < 7'h20 ? 7'd0 : text_vdata[6:0] - 7'h20;
 assign visible   = LHBL & LVBL;
-assign red     = visible & text_pxl[0] ? 4'hf : 4'h0;
-assign green   = visible & text_pxl[0] ? 4'hf : 4'h0;
-assign blue    = visible & text_pxl[0] ? 4'hf : 4'h0;
+
+localparam [1:0] WHITE=2'b01, RED=2'b11;
+
+always @(posedge clk) begin
+    if(pxl_cen) begin
+        red   <= visible & text_pxl[0]     ? 4'hf : 4'h0; // RED or WHITE
+        green <= visible & text_pxl==WHITE ? 4'hf : 4'h0;
+        blue  <= visible & text_pxl==WHITE ? 4'hf : 4'h0;
+    end
+end
 
 jtframe_vtimer #(
     .HB_START ( 9'd255 ),
