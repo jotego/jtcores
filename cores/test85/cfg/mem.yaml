@@ -1,0 +1,9 @@
+sdram:
+  burst: 1kB
+  cache-lanes:
+    - name: cpu
+      data_width: 8
+      rw: true
+      flush: { enable: true }
+      blocks: { count: 1, size: 1kB }
+      at: { bank: 0, length: 16MB }

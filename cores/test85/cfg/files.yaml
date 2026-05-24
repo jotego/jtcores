@@ -1,0 +1,24 @@
+test85:
+  - get:
+      - jttest85_game.v
+      - jttest85_main.v
+      - jttest85_video.v
+jt680x:
+  - get:
+      - jt65c02.yaml
+jtframe:
+  - from: video
+    get:
+      - jtframe_vtimer.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+  - from: sdram
+    get:
+      - jtframe_cache_mux.v
+      - jtframe_cache_mux_arb.v
+      - jtframe_cache_mux_flush.v
