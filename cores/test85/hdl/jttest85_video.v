@@ -109,5 +109,4 @@ jtframe_ram #(
     .q       ( font_data )
 );
 
-
 endmodule

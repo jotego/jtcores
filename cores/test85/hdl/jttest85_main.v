@@ -25,7 +25,7 @@ assign text_addr = cpu_addr[9:0];
 assign text_din  = cpu_dout;
 assign text_we   = cpu_wr & text_cs;
 assign cpu_din   = text_cs ? text_dout :
-                   rom_cs  ? rom_dout  : 8'hff;
+                   rom_cs  ? rom_dout  : 8'h0;
 
 jt65c02 u_cpu(
     .rst        ( rst      ),
@@ -52,7 +52,5 @@ jtframe_ram #(
     .we      ( 1'b0            ),
     .q       ( rom_dout        )
 );
-
-wire unused = cpu_rd;
 
 endmodule

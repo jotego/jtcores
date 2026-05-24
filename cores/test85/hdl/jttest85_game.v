@@ -8,8 +8,6 @@ module jttest85_game(
     `include "jtframe_game_ports.inc"
 );
 
-/* verilator lint_off UNUSED */
-
 assign snd         = 16'd0;
 assign sample      = 1'b0;
 assign dip_flip    = 1'b0;
