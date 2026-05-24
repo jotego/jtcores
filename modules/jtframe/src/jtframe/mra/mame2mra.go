@@ -41,7 +41,7 @@ func (args *Args) Convert() error {
 	defer close_allzip()
 	parse_args(args)
 	macros.MakeMacros(args.Core, args.Target)
-	if args.Target == "pocket" && macros.IsSet("JTFRAME_SKIP") && args.Nodbg {
+	if args.Target == "pocket" && macros.IsSet("JTFRAME_SKIP") {
 		args.SkipPocket = true
 	}
 	var e error
