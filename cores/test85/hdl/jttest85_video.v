@@ -28,7 +28,7 @@ wire [ 6:0] char_code;
 wire [ 1:0] text_pxl;
 wire        visible, text_on, red_on, white_on, char_pal;
 
-localparam [1:0] WHITE=2'b11,RED=2'b01;
+localparam [1:0] WHITE=2'b01,RED=2'b11;
 
 assign char_code = text_vdata[6:0];
 assign char_pal  = text_vdata[7];
