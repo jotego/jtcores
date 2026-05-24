@@ -1,0 +1,8 @@
+# TEST85 MiSTer SignalTap setup.
+#
+# jtcore appends this file to the generated MiSTer QSF when
+# JTFRAME_SIGNALTAP is defined or --signaltap is passed. Keep paths relative to
+# cores/test85/mister, the Quartus project directory created by jtcore.
+
+set_global_assignment -name USE_SIGNALTAP_FILE ../syn/stp1.stp
+set_global_assignment -name SIGNALTAP_FILE ../syn/stp1.stp
