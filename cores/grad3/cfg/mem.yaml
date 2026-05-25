@@ -1,5 +1,5 @@
 params:
-  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA2_START)" }
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA2_START) >> 1" }
   - { name: GFX_OFFSET, value: "(`GFX_START-`JTFRAME_BA1_START) >> 1" }
 clocks:
   clk48:
