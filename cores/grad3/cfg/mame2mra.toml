@@ -19,6 +19,7 @@ regions = [
     { name="sub",     start="JTFRAME_BA1_START", width=16, reverse=true },
     { name="k051960", start="GFX_START", width=32 },
     { name="audiocpu", start="JTFRAME_BA2_START" },
+    { name="k007232",  start="PCM_START", width=16, setname="gradius3jas" },
     { name="k007232",  start="PCM_START" },
     { name="proms",    start="JTFRAME_PROM_START" },
 ]
