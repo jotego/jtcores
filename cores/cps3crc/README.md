@@ -26,7 +26,7 @@ A set is detected only when all four bank CRCs match the same set. Mixed matches
 - `$3001`: SDRAM cache address bits `[15:8]`.
 - `$3002`: SDRAM cache address bits `[23:16]`.
 - `$3003`: latched cache read data.
-- `$3004`: cache command/status. Only read command bit 1 is honored by RTL.
+- `$3004`: cache command/status. Read command bit 1 starts a read; command bit 7 aborts/clears a stuck local cache request for retry.
 - `$3005`: frame IRQ/blanking register. Any access clears the latched frame IRQ.
 - `$3006`: SDRAM bank/address bits `[25:24]`.
 - `$c000-$ffff`: 16 KiB boot ROM.

@@ -109,6 +109,7 @@ irq:
         pha
         lda     BANKOFF
         pha
+        jsr     save_live_crc
         lda     REGVBL
         jsr     wait_blank
         jsr     tick_clock
@@ -130,6 +131,7 @@ irq_update:
 
 check_bank:
         sta     CURBANK
+        jsr     clear_bank_state
         jsr     load_bank_end
         lda     #$00
         sta     ADDR0
@@ -161,7 +163,20 @@ read_error:
         jsr     set_done_bit
         lda     #DET_FAIL
         sta     DETECT
-        rts
+        jsr     cache_abort
+        jsr     delay_retry
+        lda     CURBANK
+        jmp     check_bank
+
+clear_bank_state:
+        ldx     CURBANK
+        lda     bank_bit,x
+        eor     #$ff
+        and     DONE
+        sta     DONE
+        lda     #$00
+        sta     MATCH,x
+        jmp     zero_found
 
 load_bank_end:
         ldx     CURBANK
@@ -193,6 +208,11 @@ cache_read:
         bcs     cache_read_done
         lda     REGDATA
 cache_read_done:
+        rts
+
+cache_abort:
+        lda     #$80
+        sta     REGCMD
         rts
 
 wait_done:
@@ -315,6 +335,31 @@ save_crc:
         inx
         lda     CRC3
         sta     FOUND,x
+        rts
+
+save_live_crc:
+        ldx     CURBANK
+        lda     bank_bit,x
+        and     DONE
+        bne     save_live_done
+        jsr     bank_offset
+        ldx     BANKOFF
+        lda     CRC0
+        eor     #$ff
+        sta     FOUND,x
+        inx
+        lda     CRC1
+        eor     #$ff
+        sta     FOUND,x
+        inx
+        lda     CRC2
+        eor     #$ff
+        sta     FOUND,x
+        inx
+        lda     CRC3
+        eor     #$ff
+        sta     FOUND,x
+save_live_done:
         rts
 
 zero_found:
@@ -457,6 +502,18 @@ tick_clock:
         sta     MIN
         inc     HOUR
 tick_done:
+        rts
+
+delay_retry:
+        lda     #$04
+        sta     TMP3
+delay_retry_sec:
+        lda     SEC
+delay_retry_wait:
+        cmp     SEC
+        beq     delay_retry_wait
+        dec     TMP3
+        bne     delay_retry_sec
         rts
 
 init_screen:
