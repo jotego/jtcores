@@ -14,7 +14,7 @@ module jttest85_main(
     input             cache_ok,
     input             cache_flushing,
     input             cache_flush_done,
-    output     [23:0] cache_addr,
+    output     [25:0] cache_addr,
     output     [ 7:0] cache_din,
     output            cache_rd,
     output            cache_we,
@@ -36,7 +36,7 @@ localparam [1:0] OP_IDLE  = 2'd0,
 reg         mpu_wr_l;
 reg  [ 1:0] cache_op;
 reg  [ 7:0] cache_din_l, cache_data_l;
-reg  [23:0] cache_addr_l;
+reg  [25:0] cache_addr_l;
 reg         cache_rd_l, cache_we_l, cache_flush_l;
 reg         cache_busy, cache_done_l, cache_flush_done_l;
 
@@ -77,7 +77,7 @@ always @(posedge clk) begin
     if( rst ) begin
         mpu_wr_l           <= 1'b0;
         cache_op           <= OP_IDLE;
-        cache_addr_l       <= 24'd0;
+        cache_addr_l       <= 26'd0;
         cache_din_l        <= 8'd0;
         cache_data_l       <= 8'd0;
         cache_rd_l         <= 1'b0;
@@ -98,6 +98,7 @@ always @(posedge clk) begin
                 4'h1: cache_addr_l[15: 8] <= mpu_dout;
                 4'h2: cache_addr_l[23:16] <= mpu_dout;
                 4'h3: cache_din_l         <= mpu_dout;
+                4'h6: cache_addr_l[25:24] <= mpu_dout[1:0];
                 default: begin
                 end
             endcase

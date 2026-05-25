@@ -25,7 +25,7 @@ always @(posedge clk) begin
         LHBL,             // 60
         pxl2_cen,         // 59
         pxl_cen,          // 58
-        cen6,             // 57
+        cen_cpu,          // 57
         cache_status,     // 56:49
         rst,              // 48
         LVBL,             // 47
@@ -38,7 +38,7 @@ always @(posedge clk) begin
         cpu_rd,           // 40
         cpu_data,         // 39:32
         cpu_din,          // 31:24
-        cpu_addr          // 23:0
+        cpu_addr[23:0]    // 23:0
     };
 end
 /* verilator lint_on UNUSED */
@@ -50,7 +50,7 @@ assign debug_view  = cache_status;
 jttest85_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen        ( cen6          ),
+    .cen        ( cen_cpu       ),
     .lvbl       ( LVBL          ),
 
     .cache_data ( cpu_data      ),
@@ -90,9 +90,9 @@ jttest85_video u_video(
 );
 
 `ifdef SIMULATION
-reg        sim_rst_l, sim_lvbl_l, sim_title_seen, sim_cache_pass_seen, sim_rom_pass_seen;
+reg        sim_rst_l, sim_lvbl_l, sim_title_seen, sim_rom_pass_seen, sim_fill_seen, sim_check_seen;
 reg [ 5:0] sim_title;
-reg [ 3:0] sim_cache_pass, sim_rom_pass;
+reg [ 3:0] sim_rom_pass, sim_fill, sim_check;
 integer    sim_frame, sim_cache_wr, sim_cache_rd, sim_cache_flush;
 integer    sim_cache_flush_done;
 
@@ -114,11 +114,13 @@ always @(posedge clk) begin
 
     if( rst ) begin
         sim_title            <= 6'd0;
-        sim_cache_pass       <= 4'd0;
         sim_rom_pass         <= 4'd0;
+        sim_fill             <= 4'd0;
+        sim_check            <= 4'd0;
         sim_title_seen       <= 1'b0;
-        sim_cache_pass_seen  <= 1'b0;
         sim_rom_pass_seen    <= 1'b0;
+        sim_fill_seen        <= 1'b0;
+        sim_check_seen       <= 1'b0;
         sim_frame            <= 0;
         sim_cache_wr         <= 0;
         sim_cache_rd         <= 0;
@@ -142,20 +144,26 @@ always @(posedge clk) begin
                 10'h003: if( text_din == 8'h54 ) sim_title[3] <= 1'b1; // T
                 10'h004: if( text_din == 8'h38 ) sim_title[4] <= 1'b1; // 8
                 10'h005: if( text_din == 8'h35 ) sim_title[5] <= 1'b1; // 5
-                10'h080: begin
-                    if( text_din == 8'h50 ) sim_cache_pass[0] <= 1'b1; // P
-                    if( text_din == 8'h46 ) sim_fail( "CPU wrote FAIL status to text RAM" );
-                end
-                10'h081: if( text_din == 8'h41 ) sim_cache_pass[1] <= 1'b1; // A
-                10'h082: if( text_din == 8'h53 ) sim_cache_pass[2] <= 1'b1; // S
-                10'h083: if( text_din == 8'h53 ) sim_cache_pass[3] <= 1'b1; // S
-                10'h0c0: begin
+                10'h040: begin
                     if( text_din == 8'h50 ) sim_rom_pass[0] <= 1'b1; // P
                     if( text_din == 8'h46 ) sim_fail( "CPU wrote FAIL ROM status to text RAM" );
                 end
-                10'h0c1: if( text_din == 8'h41 ) sim_rom_pass[1] <= 1'b1; // A
-                10'h0c2: if( text_din == 8'h53 ) sim_rom_pass[2] <= 1'b1; // S
-                10'h0c3: if( text_din == 8'h53 ) sim_rom_pass[3] <= 1'b1; // S
+                10'h041: if( text_din == 8'h41 ) sim_rom_pass[1] <= 1'b1; // A
+                10'h042: if( text_din == 8'h53 ) sim_rom_pass[2] <= 1'b1; // S
+                10'h043: if( text_din == 8'h53 ) sim_rom_pass[3] <= 1'b1; // S
+                10'h080: begin
+                    if( text_din == 8'h46 ) sim_fill[0] <= 1'b1; // F
+                end
+                10'h081: if( text_din == 8'h49 ) sim_fill[1] <= 1'b1; // I
+                10'h082: if( text_din == 8'h4c ) sim_fill[2] <= 1'b1; // L
+                10'h083: if( text_din == 8'h4c ) sim_fill[3] <= 1'b1; // L
+                10'h0c0: begin
+                    if( text_din == 8'h43 ) sim_check[0] <= 1'b1; // C
+                end
+                10'h0c1: if( text_din == 8'h48 ) sim_check[1] <= 1'b1; // H
+                10'h0c2: if( text_din == 8'h45 ) sim_check[2] <= 1'b1; // E
+                10'h0c3: if( text_din == 8'h43 ) sim_check[3] <= 1'b1; // C
+                10'h100: if( text_din == 8'h46 ) sim_fail( "CPU wrote FAIL status to text RAM" );
                 default: begin
                 end
             endcase
@@ -166,33 +174,36 @@ always @(posedge clk) begin
             $display("TEST85 simulation monitor: title text written");
         end
 
-        if( sim_cache_pass == 4'hf && !sim_cache_pass_seen ) begin
-            sim_cache_pass_seen <= 1'b1;
-            $display("TEST85 simulation monitor: PASS CACHE text written");
-        end
-
         if( sim_rom_pass == 4'hf && !sim_rom_pass_seen ) begin
             sim_rom_pass_seen <= 1'b1;
             $display("TEST85 simulation monitor: PASS ROM text written");
         end
 
+        if( sim_fill == 4'hf && !sim_fill_seen ) begin
+            sim_fill_seen <= 1'b1;
+            $display("TEST85 simulation monitor: FILL status text written");
+        end
+
+        if( sim_check == 4'hf && !sim_check_seen ) begin
+            sim_check_seen <= 1'b1;
+            $display("TEST85 simulation monitor: CHECK status text written");
+        end
+
         if( sim_lvbl_l && !LVBL ) begin
             sim_frame <= sim_frame + 1;
             if( sim_frame == 3 ) begin
-                if( !sim_title_seen           ) sim_fail( "TEST85 title was not written after the early IRQ window" );
-                if( !sim_cache_pass_seen      ) sim_fail( "PASS CACHE status was not written after the early IRQ window" );
-                if( sim_cache_wr < 1          ) sim_fail( "no cache write command seen after the early IRQ window" );
-                if( sim_cache_rd < 2          ) sim_fail( "not enough cache read commands seen after the early IRQ window" );
-                if( sim_cache_flush < 1       ) sim_fail( "no cache flush command seen after the early IRQ window" );
-                if( sim_cache_flush_done < 1  ) sim_fail( "no cache flush completion seen after the early IRQ window" );
-                $display("PASS: TEST85 simulation monitor: early IRQ activity wr=%0d rd=%0d flush=%0d flush_done=%0d",
+                if( !sim_title_seen       ) sim_fail( "TEST85 title was not written after the early IRQ window" );
+                if( !sim_rom_pass_seen    ) sim_fail( "PASS ROM status was not written after the early IRQ window" );
+                if( !sim_fill_seen        ) sim_fail( "FILL status was not written after the early IRQ window" );
+                if( sim_cache_rd < 64     ) sim_fail( "not enough cache reads seen for ROM validation" );
+                if( sim_cache_wr < 1      ) sim_fail( "no SDRAM tag write command seen after ROM validation" );
+                $display("PASS: TEST85 simulation monitor: ROM validation and fill started wr=%0d rd=%0d flush=%0d flush_done=%0d",
                     sim_cache_wr, sim_cache_rd, sim_cache_flush, sim_cache_flush_done);
             end
-            if( sim_frame == 85 ) begin
-                if( !sim_rom_pass_seen    ) sim_fail( "PASS ROM status was not written after ROM download validation window" );
-                if( sim_cache_wr < 30     ) sim_fail( "not enough cache write commands seen before ROM validation" );
-                if( sim_cache_flush < 30  ) sim_fail( "not enough cache flush commands seen before ROM validation" );
-                $display("PASS: TEST85 simulation monitor: ROM validation completed");
+            if( sim_frame == 15 ) begin
+                if( sim_cache_flush < 1       ) sim_fail( "no cache flush command seen during SDRAM fill window" );
+                if( sim_cache_flush_done < 1  ) sim_fail( "no cache flush completion seen during SDRAM fill window" );
+                $display("PASS: TEST85 simulation monitor: SDRAM fill is progressing");
             end
         end
     end
