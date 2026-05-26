@@ -1294,6 +1294,40 @@ func capture_stdout(t *testing.T, f func()) string {
 	return string(out)
 }
 
+func Test_game_sdram_template_passes_balut_reverse(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		reverse bool
+		want    string
+	}{
+		{name: "forward", reverse: false, want: ".BALUT_REVERSE( 0 ),"},
+		{name: "reverse", reverse: true, want: ".BALUT_REVERSE( 1 ),"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := MemConfig{
+				Core:         "test",
+				Gfx4:         "1'b0;",
+				Gfx8:         "1'b0;",
+				Gfx16:        "1'b0;",
+				Gfx16b:       "1'b0;",
+				Gfx16c:       "1'b0;",
+				Balut:        1,
+				Lutsh:        16,
+				BalutReverse: tc.reverse,
+			}
+			tpl := get_game_sdram_template(t)
+			var verilog strings.Builder
+			if e := tpl.Execute(&verilog, cfg); e != nil {
+				t.Fatal(e)
+			}
+			out := verilog.String()
+			if !strings.Contains(out, tc.want) {
+				t.Fatalf("generated template is missing %q\n%s", tc.want, out)
+			}
+		})
+	}
+}
+
 func Test_game_sdram_template_uses_32bit_bram_wrappers(t *testing.T) {
 	sample := `bram:
   - name: fb

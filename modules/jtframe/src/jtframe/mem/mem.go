@@ -581,6 +581,7 @@ func bankOffset(cfg *MemConfig, corename string) (e error) {
 	}
 	cfg.Balut = 1
 	cfg.Lutsh = mra_cfg.Header.Offset.Bits
+	cfg.BalutReverse = mra_cfg.Header.Offset.Reverse
 	return nil
 }
 

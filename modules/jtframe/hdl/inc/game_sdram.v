@@ -329,6 +329,7 @@ jtframe_dwnld #(
 `endif{{ if .Balut }}
     .BALUT      ( {{.Balut}}    ),  // Using offsets in header for
     .LUTSH      ( {{.Lutsh}}    ),  // bank assignment
+    .BALUT_REVERSE( {{if .BalutReverse}}1{{else}}0{{end}} ),
 {{else}}
 `ifdef JTFRAME_BA1_START
     .BA1_START ( BA1_START ),
