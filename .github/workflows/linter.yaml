@@ -2,7 +2,7 @@ name: Verilator/MRA linter
 
 on:
   workflow_dispatch:
-  pull_request:
+  workflow_call:
   repository_dispatch:
     types: rebuild
   push:

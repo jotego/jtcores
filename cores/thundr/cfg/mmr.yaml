@@ -1,3 +1,6 @@
+- include:
+    core: shouse
+    name: cus30
 - name: cus42
   size: 8
   no_core_name: true

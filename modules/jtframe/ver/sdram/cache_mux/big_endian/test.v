@@ -9,6 +9,7 @@ localparam integer HF         = 1;
 localparam integer SDRAM_AW   = 23;
 localparam integer BLKSIZE    = 1024;
 localparam integer LINE_UNITS = BLKSIZE / 4;
+localparam integer SPLIT_UNIT = LINE_UNITS;
 localparam integer WORDS      = 4096;
 localparam integer OFFSET0_W  =    0;
 localparam integer OFFSET4_W  = 1024;
@@ -141,6 +142,30 @@ jtframe_cache_mux #(
     .dout7  ( dout7          ),
     .rd7    ( rd7            ),
     .ok7    ( ok7            ),
+    .flush0 ( 1'b0           ),
+    .flush1 ( 1'b0           ),
+    .flush2 ( 1'b0           ),
+    .flush3 ( 1'b0           ),
+    .flush4 ( 1'b0           ),
+    .flush5 ( 1'b0           ),
+    .flush6 ( 1'b0           ),
+    .flush7 ( 1'b0           ),
+    .flushing0   (            ),
+    .flush_done0 (            ),
+    .flushing1   (            ),
+    .flush_done1 (            ),
+    .flushing2   (            ),
+    .flush_done2 (            ),
+    .flushing3   (            ),
+    .flush_done3 (            ),
+    .flushing4   (            ),
+    .flush_done4 (            ),
+    .flushing5   (            ),
+    .flush_done5 (            ),
+    .flushing6   (            ),
+    .flush_done6 (            ),
+    .flushing7   (            ),
+    .flush_done7 (            ),
     .addr   ( sdram_addr     ),
     .ba     ( sdram_ba_mux   ),
     .rd     ( sdram_rd       ),
@@ -353,7 +378,11 @@ task lane0_read_req(input integer unit_addr, input integer expect_bursts);
             $display("Lane0 read mismatch addr=%0d got=%08x expected=%08x", unit_addr, dout0, expected);
             fail();
         end
-        assert_msg(ack_count == ack_before + expect_bursts, "Unexpected burst count for lane0 read");
+        if( ack_count != ack_before + expect_bursts ) begin
+            $display("Lane0 read burst mismatch addr=%0d got=%0d expected=%0d",
+                unit_addr, ack_count - ack_before, expect_bursts);
+            fail();
+        end
 
         @(negedge clk);
         rd0 = 1'b0;
@@ -422,7 +451,11 @@ task lane0_write_req(
             end
         end
 
-        assert_msg(ack_count == ack_before + expect_bursts, "Unexpected burst count for lane0 write");
+        if( ack_count != ack_before + expect_bursts ) begin
+            $display("Lane0 write burst mismatch addr=%0d got=%0d expected=%0d",
+                unit_addr, ack_count - ack_before, expect_bursts);
+            fail();
+        end
 
         @(negedge clk);
         wr0   = 1'b0;
@@ -482,13 +515,55 @@ initial begin
     model_write(0, 0, 32'h55667788, 4'b0011);
     lane0_read_req(0, 0);
 
+    // Match the CPS3 work-RAM path: a 16-bit upper-half write miss followed by
+    // a 16-bit lower-half write hit on the same 32-bit unit, then an immediate
+    // readback before eviction.
+    lane0_write_req(SPLIT_UNIT, 32'hffff0000, 4'b0011, 2);
+    model_write(0, SPLIT_UNIT, 32'hffff0000, 4'b0011);
+    lane0_write_req(SPLIT_UNIT, 32'h0000ffff, 4'b1100, 0);
+    model_write(0, SPLIT_UNIT, 32'h0000ffff, 4'b1100);
+    lane0_read_req(SPLIT_UNIT, 0);
+    assert_msg(dout0 === 32'hffffffff, "Split writes must merge before eviction");
+
+    lane0_write_req(SPLIT_UNIT + 1, 32'h02000000, 4'b0011, 0);
+    model_write(0, SPLIT_UNIT + 1, 32'h02000000, 4'b0011);
+    lane0_write_req(SPLIT_UNIT + 1, 32'h00000018, 4'b1100, 0);
+    model_write(0, SPLIT_UNIT + 1, 32'h00000018, 4'b1100);
+    lane0_read_req(SPLIT_UNIT + 1, 0);
+    assert_msg(dout0 === 32'h02000018, "Mixed split writes must preserve upper and lower halves");
+
+    lane0_write_req(SPLIT_UNIT + 2, 32'h00000000, 4'b0011, 0);
+    model_write(0, SPLIT_UNIT + 2, 32'h00000000, 4'b0011);
+    lane0_write_req(SPLIT_UNIT + 2, 32'h00001a26, 4'b1100, 0);
+    model_write(0, SPLIT_UNIT + 2, 32'h00001a26, 4'b1100);
+    lane0_read_req(SPLIT_UNIT + 2, 0);
+    assert_msg(dout0 === 32'h00001a26, "Return-address style split writes must preserve lower half");
+
+    // Match the CPS3 IRQ-frame pointer write: a cached line with arbitrary
+    // contents receives split 16-bit writes that should merge into 0x02002398.
+    lane0_write_req(SPLIT_UNIT + 13, 32'h02000000, 4'b0011, 0);
+    model_write(0, SPLIT_UNIT + 13, 32'h02000000, 4'b0011);
+    lane0_write_req(SPLIT_UNIT + 13, 32'h00002398, 4'b1100, 0);
+    model_write(0, SPLIT_UNIT + 13, 32'h00002398, 4'b1100);
+    lane0_read_req(SPLIT_UNIT + 13, 0);
+    assert_msg(dout0 === 32'h02002398, "CPS3 split writes must merge into the expected 32-bit pointer");
+
     lane4_read_req(0, 1);
 
-    lane0_read_req(LINE_UNITS, 2);
+    lane0_read_req(0, 2);
     assert_sdram_unit_equals(0, 0);
+    assert_sdram_unit_equals(0, SPLIT_UNIT);
 
-    lane0_read_req(0, 1);
+    lane0_read_req(0, 0);
     assert_msg(dout0 === 32'h55663344, "Big-endian data must survive write-back and refill through the mux");
+    lane0_read_req(SPLIT_UNIT, 1);
+    assert_msg(dout0 === 32'hffffffff, "Split writes must survive write-back and refill through the mux");
+    lane0_read_req(SPLIT_UNIT + 1, 0);
+    assert_msg(dout0 === 32'h02000018, "Mixed split writes must survive write-back and refill through the mux");
+    lane0_read_req(SPLIT_UNIT + 2, 0);
+    assert_msg(dout0 === 32'h00001a26, "Return-address style split writes must survive write-back and refill through the mux");
+    lane0_read_req(SPLIT_UNIT + 13, 0);
+    assert_msg(dout0 === 32'h02002398, "CPS3 split writes must survive write-back and refill through the mux");
 
     pass();
 end

@@ -1,3 +1,6 @@
+`ifndef VERILATOR_KEEP_CPU
+/* verilator tracing_off */
+`endif
 module SH_core
 #(parameter bit VER=1)//0-SH1,1-SH2
  (
@@ -54,6 +57,26 @@ module SH_core
 	bit [31: 0] GBR;
 	bit [31: 0] VBR;
 	SR_t        SR;
+
+`ifdef VERILATOR_KEEP_CPU
+	bit [31:0] R0_RAW;
+	bit [31:0] R1_RAW;
+	bit [31:0] R2_RAW;
+	bit [31:0] R3_RAW;
+	bit [31:0] R4_RAW;
+	bit [31:0] R5_RAW;
+	bit [31:0] R6_RAW;
+	bit [31:0] R7_RAW;
+	bit [31:0] R8_RAW;
+	bit [31:0] R9_RAW;
+	bit [31:0] R10_RAW;
+	bit [31:0] R11_RAW;
+	bit [31:0] R12_RAW;
+	bit [31:0] R13_RAW;
+	bit [31:0] R14_RAW;
+	bit [31:0] R15_RAW;
+	bit [31:0] PR_RAW;
+`endif
 	
 	PipelineState_t PIPE;
 	bit         IF_STALL;
@@ -103,8 +126,43 @@ module SH_core
 `endif
 	assign REGS_RBN = ID_DECI.RB.N;
 	
-	SH2_regfile regfile (CLK, RST_N, CE, EN, REGS_WAN, REGS_WAD, REGS_WAE, REGS_WBN, REGS_WBD, REGS_WBE, 
-								REGS_RAN, REGS_RAQ, REGS_RBN, REGS_RBQ, REGS_R0Q);
+	SH2_regfile regfile (
+		.CLK     ( CLK      ),
+		.RST_N   ( RST_N    ),
+		.CE      ( CE       ),
+		.EN      ( EN       ),
+		.WA_ADDR ( REGS_WAN ),
+		.WA_D    ( REGS_WAD ),
+		.WAE     ( REGS_WAE ),
+		.WB_ADDR ( REGS_WBN ),
+		.WB_D    ( REGS_WBD ),
+		.WBE     ( REGS_WBE ),
+		.RA_ADDR ( REGS_RAN ),
+		.RA_Q    ( REGS_RAQ ),
+		.RB_ADDR ( REGS_RBN ),
+		.RB_Q    ( REGS_RBQ ),
+		.R0_Q    ( REGS_R0Q )
+`ifdef VERILATOR_KEEP_CPU
+	                  ,
+		.TRACE_R0 ( R0_RAW  ),
+		.TRACE_R1 ( R1_RAW  ),
+		.TRACE_R2 ( R2_RAW  ),
+		.TRACE_R3 ( R3_RAW  ),
+		.TRACE_R4 ( R4_RAW  ),
+		.TRACE_R5 ( R5_RAW  ),
+		.TRACE_R6 ( R6_RAW  ),
+		.TRACE_R7 ( R7_RAW  ),
+		.TRACE_R8 ( R8_RAW  ),
+		.TRACE_R9 ( R9_RAW  ),
+		.TRACE_R10( R10_RAW ),
+		.TRACE_R11( R11_RAW ),
+		.TRACE_R12( R12_RAW ),
+		.TRACE_R13( R13_RAW ),
+		.TRACE_R14( R14_RAW ),
+		.TRACE_R15( R15_RAW ),
+		.TRACE_PR ( PR_RAW  )
+`endif
+	);
 
 	
 	//**********************************************************
@@ -202,6 +260,7 @@ module SH_core
 	//**********************************************************
 	assign IF_STALL = BUS_STALL | INST_SPLIT | IFID_STALL;
 	
+	wire       INT_BLOCKED = PIPE.EX.DI.IBI;
 	IFtoID_t   SAVE_ID;
 	always @(posedge CLK or negedge RST_N) begin
 		bit [15: 0] SAVE_IR;
@@ -250,7 +309,7 @@ module SH_core
 			end
 			
 			if (!ID_STALL) begin
-				if (INT_REQ && !INT_REQ_LATCH) begin
+				if (INT_REQ && !INT_BLOCKED && !ID_DELAY_SLOT && !IFID_STALL && !INT_REQ_LATCH) begin
 					INT_REQ_LATCH <= 1;
 					INT_LVL_LATCH <= INT_LVL;
 				end else if (STATE == 3'd5 && INT_REQ_LATCH) begin
@@ -271,7 +330,7 @@ module SH_core
 	
 	wire ID_DELAY_SLOT = ~PIPE.EX.DI.BR.BI & (PIPE.EX.DI.BR.BT == CB | PIPE.EX.DI.BR.BT == UCB);
 	
-	wire [15:0] DEC_IR = (INT_REQ | INT_REQ_LATCH) && !ID_DELAY_SLOT && !IFID_STALL ? 16'hF100 : 
+	wire [15:0] DEC_IR = ((INT_REQ && !INT_BLOCKED) || INT_REQ_LATCH) && !ID_DELAY_SLOT && !IFID_STALL ? 16'hF100 : 
 							   PIPE.EX.DI.ILI ? 16'hF204 :
 								ID_DELAY_SLOT && !PIPE.EX.DI.BR.BD ? 16'h0009 :
 								IFID_STALL ? PIPE.EX.IR : PIPE.ID.IR;
@@ -764,6 +823,68 @@ module SH_core
 	//WB stage
 	//**********************************************************
 	wire WB_STALL = BUS_STALL | MAWB_STALL;
+	wire [31:0] TRACE_CTRL_WD = PIPE.EX.DI.CTRL.S == SR_ ? (SR_NEW & 32'h0000_03F3) : ALU_RES;
+
+	SH_core_trace u_trace (
+		.CLK                 ( CLK                 ),
+		.RST_N               ( RST_N               ),
+		.RES_N               ( RES_N               ),
+		.EN                  ( EN                  ),
+		.CE                  ( CE                  ),
+		.PC                  ( PC                  ),
+		.GBR                 ( GBR                 ),
+		.VBR                 ( VBR                 ),
+		.SR                  ( SR                  ),
+		.PIPE                ( PIPE                ),
+		.ID_DECI             ( ID_DECI             ),
+		.MA_RDATA            ( MA_RDATA            ),
+		.RD_SAVE             ( RD_SAVE             ),
+		.BUS_DI              ( BUS_DI              ),
+		.MA_BA               ( MA_BA               ),
+		.STATE               ( STATE               ),
+		.SLP                 ( SLP                 ),
+		.IF_STALL            ( IF_STALL            ),
+		.ID_STALL            ( ID_STALL            ),
+		.EX_STALL            ( EX_STALL            ),
+		.MA_STALL            ( MA_STALL            ),
+		.WB_STALL            ( WB_STALL            ),
+		.BUS_WAIT            ( BUS_WAIT            ),
+		.IF_ACTIVE           ( IF_ACTIVE           ),
+		.MA_ACTIVE           ( MA_ACTIVE           ),
+		.VECT_ACTIVE         ( VECT_ACTIVE         ),
+		.INST_SPLIT          ( INST_SPLIT          ),
+		.IFID_STALL          ( IFID_STALL          ),
+		.MAWB_STALL          ( MAWB_STALL          ),
+		.INT_REQ             ( INT_REQ             ),
+		.INT_REQ_LATCH       ( INT_REQ_LATCH       ),
+		.INT_ACP             ( INT_ACP             ),
+		.CTRL_WD             ( TRACE_CTRL_WD       ),
+		.REGS_WAN            ( REGS_WAN            ),
+		.REGS_WAD            ( REGS_WAD            ),
+		.REGS_WAE            ( REGS_WAE            ),
+		.REGS_WBN            ( REGS_WBN            ),
+		.REGS_WBD            ( REGS_WBD            ),
+		.REGS_WBE            ( REGS_WBE            )
+`ifdef VERILATOR_KEEP_CPU
+		,.R0_RAW              ( R0_RAW              ),
+		.R1_RAW              ( R1_RAW              ),
+		.R2_RAW              ( R2_RAW              ),
+		.R3_RAW              ( R3_RAW              ),
+		.R4_RAW              ( R4_RAW              ),
+		.R5_RAW              ( R5_RAW              ),
+		.R6_RAW              ( R6_RAW              ),
+		.R7_RAW              ( R7_RAW              ),
+		.R8_RAW              ( R8_RAW              ),
+		.R9_RAW              ( R9_RAW              ),
+		.R10_RAW             ( R10_RAW             ),
+		.R11_RAW             ( R11_RAW             ),
+		.R12_RAW             ( R12_RAW             ),
+		.R13_RAW             ( R13_RAW             ),
+		.R14_RAW             ( R14_RAW             ),
+		.R15_RAW             ( R15_RAW             ),
+		.PR_RAW              ( PR_RAW              )
+`endif
+	);
 	always @(posedge CLK or negedge RST_N) begin
 		if (!RST_N) begin
 			PIPE.WB2.IR <= '0;
@@ -816,7 +937,7 @@ module SH_core
 	assign MAC_WE = |PIPE.MA.DI.MAC.S & PIPE.MA.DI.MAC.W & MA_ACTIVE & ~MA_STALL;
 	
 	assign INT_MASK = SR.I;
-	assign INT_ACP = INT_REQ & ~INT_REQ_LATCH & ~ID_STALL;
+	assign INT_ACP = INT_REQ & ~INT_REQ_LATCH & ~INT_BLOCKED & ~ID_DELAY_SLOT & ~IFID_STALL & ~ID_STALL;
 	assign INT_ACK = PIPE.MA.DI.VECR & ~MA_STALL;
 	assign VECT_REQ = VECT_ACTIVE;
 	

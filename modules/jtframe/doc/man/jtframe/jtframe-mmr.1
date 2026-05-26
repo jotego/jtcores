@@ -18,6 +18,26 @@ Each
 entry defines one MMR block.
 .SS Block Keys
 .TP
+.B include
+Optional.
+Imports definitions from another core.
+It accepts:
+\fBcore\fR
+and
+\fBname\fR.
+\fBcore\fR
+is mandatory and points to
+\fB$CORES/<core>/cfg/mmr.yaml\fR.
+\fBname\fR
+can be omitted (imports all blocks),
+one string (import one block), or a list of strings (import several blocks).
+Examples:
+\fB - include:\fR
+\fB       core: shouse\fR
+\fB       name: [cus30,cus116]\fR
+\fB - include:\fR
+\fB       core: shouse\fR
+.TP
 .B name
 Required.
 Block name.
@@ -65,8 +85,9 @@ Output signal name.
 .TP
 .B dw
 Required unless
-\fBwr_event\fR
-is true.
+\fBevent\fR
+is not
+\fBnone\fR.
 Output signal width.
 .TP
 .B at
@@ -81,14 +102,36 @@ or a comma-separated list of those forms.
 Example:
 \fB0x10[7:0], 0x11[3:0]\fR.
 .TP
-.B wr_event
+.B event
 Optional.
-Generate a one-clock pulse when the first
+Select one-clock pulse generation for the first
 \fBat\fR
-address is written.
+address.
+The default is
+\fBnone\fR.
+Accepted values are
+\fBnone\fR,
+\fBwrite\fR,
+\fBany\fR,
+\fBone\fR,
+and
+\fBzero\fR.
+\fBwrite\fR
+pulses on write access,
+\fBany\fR
+pulses on read or write access,
+and
+\fBone\fR
+or
+\fBzero\fR
+pulse when writing that value to a bit-qualified
+\fBat\fR
+location.
 If
-\fBwr_event\fR
-is true and
+\fBevent\fR
+is not
+\fBnone\fR
+and
 \fBdw\fR
 is omitted or zero, the item is treated as event-only.
 .TP

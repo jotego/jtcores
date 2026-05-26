@@ -1,0 +1,6 @@
+__pycache__/
+a.out
+*.o
+*.fst
+obj_dir/
+sdram_bank0.bin

@@ -25,7 +25,22 @@
 // each rom file in the jtframe_prom instantiation. However, sometimes
 // the hierarchy will not allow it or the code may get messy.
 
-module jtframe_dwnld(
+/* verilator lint_off WIDTH */
+module jtframe_dwnld #(
+    parameter        SDRAMW    = 23, // bank size, default = 8MB for 32MB SDRAM
+    parameter        SIMFILE   = "rom.bin",
+    parameter [25:0] PROM_START= `ifdef JTFRAME_PROM_START `JTFRAME_PROM_START `else ~26'd0 `endif,
+    parameter [25:0] BA1_START = ~26'd0,
+    parameter [25:0] BA2_START = ~26'd0,
+    parameter [25:0] BA3_START = ~26'd0,
+    parameter [25:0] HEADER    = `ifdef JTFRAME_HEADER `JTFRAME_HEADER `else 0 `endif,
+    parameter [25:0] SWAB      = 0, // swap every pair of input bytes (SDRAM only)
+    parameter        GFX8B0    = 0, // bit 0 for HHVVV  sequence
+    parameter        GFX16B0   = 0, // bit 0 for HHVVVV sequence
+    parameter        BALUT     = 0, // 1 to use the header as the start for banks and PROM sections
+                                    // header format: two bytes for the offset of each bank and PROM
+    parameter        LUTSH     = 0  // bit shift to apply to ioctl_addr for BALUT comparisons
+)(
     input                clk,
     input                ioctl_rom,
     input      [25:0]    ioctl_addr, // max 64 MB
@@ -48,21 +63,6 @@ module jtframe_dwnld(
     output reg           header,
     input                sdram_ack
 );
-/* verilator lint_off WIDTH */
-parameter        SDRAMW    = 23; // bank size, default = 8MB for 32MB SDRAM
-parameter        SIMFILE   = "rom.bin";
-parameter [25:0] PROM_START= `ifdef JTFRAME_PROM_START `JTFRAME_PROM_START `else ~26'd0 `endif;
-parameter [25:0] BA1_START = ~26'd0,
-                 BA2_START = ~26'd0,
-                 BA3_START = ~26'd0,
-                 HEADER    = `ifdef JTFRAME_HEADER `JTFRAME_HEADER `else 0 `endif,
-                 SWAB      = 0; // swap every pair of input bytes (SDRAM only)
-parameter        GFX8B0    = 0, // bit 0 for HHVVV  sequence
-                 GFX16B0   = 0; // bit 0 for HHVVVV sequence
-// automatic bank assignment based on a LUT sitting at the header start
-parameter        BALUT     = 0, // 1 to use the header as the start for banks and PROM sections
-                                // header format: two bytes for the offset of each bank and PROM
-                 LUTSH     = 0; // bit shift to apply to ioctl_addr for BALUT comparisons
 
 `ifdef SIMULATION
 initial begin

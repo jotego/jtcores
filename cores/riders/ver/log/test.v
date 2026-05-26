@@ -1,7 +1,5 @@
 module test;
 
-`include "test_tasks.vh"
-
 reg signed [15:0] xoff=0;
 reg  [15:0] ax=0;
 reg  [ 9:0] mant=0, xlog, exp;
@@ -10,6 +8,9 @@ wire [14:0] lin;
 wire [ 4:0] k;
 wire        cen, clk;
 wire signed [15:0] err, lins;
+
+`include "test_tasks.vh"
+
 
 function [15:0] abs(input [15:0] x); begin
     abs = x[15] ? -x : x;

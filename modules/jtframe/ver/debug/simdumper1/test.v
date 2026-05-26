@@ -1,11 +1,12 @@
 module test;
 
-`include "test_tasks.vh"
-
 wire       clk;
 reg        ioctl_addr;
 reg  [9:0] din;
 wire [7:0] ioctl_din;
+
+`include "test_tasks.vh"
+
 
 jtframe_simdumper #(.DW(10)) uut(
     .clk        ( clk       ),

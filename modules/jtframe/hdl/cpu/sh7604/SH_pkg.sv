@@ -147,6 +147,7 @@ package SH2_PKG;
 		Branch_t     BR;
 		bit          TAS;		//TAS instruction
 		bit          SLP;		//SLEEP instruction
+		bit          IBI;		//Interrupt blocked instruction
 		bit [2:0]    LST;		//Last state
 		bit          IACP;	//Interrupt accepted
 		bit          VECR;
@@ -164,6 +165,7 @@ package SH2_PKG;
 												 '{0, SR_, LOAD},
 												 '{2'b00, 0, 0, 4'b0000},
 												 '{0, NOB, 0, 0, 0},
+												 1'b0,
 												 1'b0,
 												 1'b0,
 												 3'b000,
@@ -200,6 +202,7 @@ package SH2_PKG;
 									2'b01:  DECI.CTRL = '{0, GBR_, LOAD};
 									default:DECI.CTRL = '{0, VBR_, LOAD};
 								endcase
+								DECI.IBI = 1;
 							end
 							default: DECI.ILI = 1;
 						endcase
@@ -306,10 +309,12 @@ package SH2_PKG;
 								DECI.RA = '{RAN, 0, 1};
 								DECI.MEM.SZ = 2'b10;
 								DECI.MAC = '{{~IR[4],IR[4]}, 1, 0, 4'b1100};
+								DECI.IBI = 1;
 							end
 							4'b0010: begin	//STS PR,Rn
 								DECI.RA = '{RAN, 0, 1};
 								DECI.RB = '{PR, 1, 0};
+								DECI.IBI = 1;
 							end
 							default: DECI.ILI = 1;
 						endcase
@@ -573,6 +578,7 @@ package SH2_PKG;
 						DECI.ALU = '{0, 1, ADD, 4'b0001, 3'b000};
 						DECI.MEM = '{ALURES, ALUB, 2'b10, 0, 1};
 						DECI.MAC = '{{~IR[4],IR[4]}, 1, 0, 4'b1110};
+						DECI.IBI = 1;
 					end
 					8'b00100010: begin	//STS.L PR,@-Rn
 						DECI.RA = '{RAN, 1, 1};
@@ -581,6 +587,7 @@ package SH2_PKG;
 						DECI.IMMT = ONE;
 						DECI.ALU = '{0, 1, ADD, 4'b0001, 3'b000};
 						DECI.MEM = '{ALURES, ALUB, 2'b10, 0, 1};
+						DECI.IBI = 1;
 					end
 					8'b00000011,			//STC.L SR,@-Rn
 					8'b00010011,			//STC.L GBR,@-Rn
@@ -603,6 +610,7 @@ package SH2_PKG;
 								end
 							default:;
 						endcase
+						DECI.IBI = 1;
 						DECI.LST = 3'd1;
 					end
 					8'b00000110,			//LDS.L @Rm+,MACH
@@ -613,6 +621,7 @@ package SH2_PKG;
 						DECI.ALU = '{1, 0, ADD, 4'b0000, 3'b000};
 						DECI.MEM = '{ALUB, ALUB, 2'b10, 1, 0};
 						DECI.MAC = '{{~IR[4],IR[4]}, 0, 1, 4'b1000};
+						DECI.IBI = 1;
 					end
 					8'b00100110: begin	//LDS.L @Rm+,PR
 						DECI.RA = '{PR, 0, 1};
@@ -621,6 +630,7 @@ package SH2_PKG;
 						DECI.IMMT = ONE;
 						DECI.ALU = '{1, 0, ADD, 4'b0000, 3'b000};
 						DECI.MEM = '{ALUB, ALUB, 2'b10, 1, 0};
+						DECI.IBI = 1;
 					end
 					8'b00000111,			//LDC.L @Rm+,SR
 					8'b00010111,			//LDC.L @Rm+,GBR
@@ -648,6 +658,7 @@ package SH2_PKG;
 							end
 							default:;
 						endcase
+						DECI.IBI = 1;
 						DECI.LST = 3'd2;
 					end
 					8'b00001000,			//SHLL2 Rn
@@ -664,6 +675,7 @@ package SH2_PKG;
 						DECI.RA = '{RAN, 1, 0};
 						DECI.MEM = '{ALURES, ALUA, 2'b10, 0, 0};
 						DECI.MAC = '{{~IR[4],IR[4]}, 0, 1, 4'b0100};
+						DECI.IBI = 1;
 					end
 					8'b00101010: begin	//LDS Rm,PR
 						DECI.RA = '{RAN, 1, 0};
@@ -671,6 +683,7 @@ package SH2_PKG;
 						DECI.DP.RSC = RSC_IMM;
 						DECI.IMMT = ZERO;
 						DECI.ALU = '{0, 1, ADD, 4'b0000, 3'b000};
+						DECI.IBI = 1;
 					end
 					8'b00001011,			//JSR @Rm
 					8'b00101011: begin	//JMP @Rm
@@ -702,6 +715,7 @@ package SH2_PKG;
 							2'b01:  DECI.CTRL = '{1, GBR_, LOAD};
 							default:DECI.CTRL = '{1, VBR_, LOAD};
 						endcase
+						DECI.IBI = 1;
 					end
 					8'b00010000: begin	//DT Rn (Rn-1->Rn)
 						if (VER == 1) begin

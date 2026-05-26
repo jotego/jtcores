@@ -29,6 +29,7 @@ SIMARGS="-f core.def -f filtered.f"
 SIMULATOR=verilator
 SETNAME=
 SKIPROM=
+ROMLESS=
 TOP=game_test
 TARGET=
 FILES=
@@ -275,6 +276,10 @@ SYSNAME=`derive_corename_from_folder`
 mkdir -p frames
 require "$SYSNAME" "Missing core name. Run jtsim for a cores/corename/ver/setname folder"
 
+if jtcfgstr bash | grep -q 'JTFRAME_ROMLESS='; then
+    ROMLESS=1
+fi
+
 # Load a specific rom set
 if [ ! -z "$SETNAME" ]; then
     use_setname
@@ -283,21 +288,32 @@ else
 fi
 
 if [ $SETNAME = game ]; then
-    unset SETNAME
-    echo "Specify a valid ROM set name or run jtsim from a folder in ver/setname"
-    exit 1
+    if [ -n "$ROMLESS" ]; then
+        unset SETNAME
+    else
+        unset SETNAME
+        echo "Specify a valid ROM set name or run jtsim from a folder in ver/setname"
+        exit 1
+    fi
 fi
 
 
 echo "${wBG}=========== JTSIM $SYSNAME $SETNAME ($TARGET) ===========${NC}" > /dev/stderr
 warn_if_longsim_noinputs
 
-if ! has_macro JTFRAME_SIM_DIPS; then
+if [ -n "$SETNAME" ] && ! has_macro JTFRAME_SIM_DIPS; then
     get_default_dipsw $SETNAME
 fi
 
-copy_mod_file $SETNAME
-if [[ ! -s rom.bin && -z "$LINT" ]]; then
+if [ -n "$SETNAME" ]; then
+    copy_mod_file $SETNAME
+fi
+if [ -n "$ROMLESS" ]; then
+    if [ -L rom.bin ]; then
+        unlink rom.bin
+    fi
+    : > rom.bin
+elif [[ ! -s rom.bin && -z "$LINT" ]]; then
     make_rombin_link $SETNAME
 fi
 add_macro GAME_ROM_LEN=`get_file_length rom.bin`
@@ -337,6 +353,8 @@ fi
 
 # Get the macros in cfg/macros.def into bash
 eval `jtcfgstr bash`
+
+build_core_firmware "$CORES/$SYSNAME"
 
 if [ -z "$GAMETOP" ]; then
     GAMETOP=${CORENAME,,}_game
@@ -487,14 +505,8 @@ ncverilog)
         $EXTRA -l /dev/null || exit $?;;
 verilator)
     TRACE=$(if [ ! -z "$DUMP" ]; then echo --trace; fi)
-    if [ -z "$CPPFLAGS" ]; then
-        if [[ ! -z "$MAXFRAME" && "$MAXFRAME" -gt 600 ]]; then
-            export CPPFLAGS="-O2 -march=native"
-            echo "Using CPPFLAGS=$CPPFLAGS for faster simulation"
-        else
-            export CPPFLAGS=-O1
-        fi
-    fi
+    set_verilator_optimization
+    echo "Using OPT_FAST=$OPT_FAST OPT_SLOW=$OPT_SLOW OPT_GLOBAL=$OPT_GLOBAL"
     if [ ! -z "$TRACE" ]; then
         export CPPFLAGS="$CPPFLAGS -DVERILATOR_TRACE"
     fi

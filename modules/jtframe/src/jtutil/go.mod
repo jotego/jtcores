@@ -6,8 +6,10 @@ toolchain go1.23.4
 
 require (
 	github.com/PaesslerAG/gval v1.2.2
-	jotego/jtframe v0.0.0-00010101000000-000000000000
 	github.com/spf13/cobra v1.7.0
+	jotego/jtframe v0.0.0-00010101000000-000000000000
+	golang.org/x/sys v0.2.0
+	golang.org/x/term v0.2.0
 )
 
 require (

@@ -1049,7 +1049,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 33.02 0)
 				(length 5.08)
 				(name "A0"
@@ -1067,7 +1067,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 30.48 0)
 				(length 5.08)
 				(name "A1"
@@ -1103,7 +1103,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 27.94 0)
 				(length 5.08)
 				(name "A2"
@@ -1121,7 +1121,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 25.4 0)
 				(length 5.08)
 				(name "A3"
@@ -1139,7 +1139,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 22.86 0)
 				(length 5.08)
 				(name "A4"
@@ -1157,7 +1157,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 20.32 0)
 				(length 5.08)
 				(name "A5"
@@ -1175,7 +1175,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 17.78 0)
 				(length 5.08)
 				(name "A6"
@@ -1193,7 +1193,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 15.24 0)
 				(length 5.08)
 				(name "A7"
@@ -1211,7 +1211,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 12.7 0)
 				(length 5.08)
 				(name "A8"
@@ -1229,7 +1229,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 10.16 0)
 				(length 5.08)
 				(name "A9"
@@ -1247,7 +1247,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 7.62 0)
 				(length 5.08)
 				(name "A10"
@@ -1265,7 +1265,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 5.08 0)
 				(length 5.08)
 				(name "A11"
@@ -1301,7 +1301,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 2.54 0)
 				(length 5.08)
 				(name "A12"
@@ -1319,7 +1319,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 0 0)
 				(length 5.08)
 				(name "A13"
@@ -1337,7 +1337,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 -2.54 0)
 				(length 5.08)
 				(name "A14"
@@ -1355,7 +1355,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 -5.08 0)
 				(length 5.08)
 				(name "A15"
@@ -1373,7 +1373,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 -7.62 0)
 				(length 5.08)
 				(name "A16"
@@ -1391,7 +1391,7 @@
 					)
 				)
 			)
-			(pin input line
+			(pin output line
 				(at -20.32 -10.16 0)
 				(length 5.08)
 				(name "A17"

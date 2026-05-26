@@ -1,0 +1,23 @@
+clocks:
+  clk96:
+    - freq: 6M
+      outputs:
+        - cen6
+sdram:
+  burst: 1kB
+  cache-lanes:
+    - name: cpu
+      data_width: 8
+      rw: true
+      flush: { enable: true }
+      blocks: { count: 1, size: 1kB }
+      at: { bank: 0, length: 16MB }
+bram:
+  - name: text
+    addr_width: 10
+    data_width: 8
+    rw: true
+    dual_port:
+      name: video
+      addr: text_vaddr
+      dout: text_vdata

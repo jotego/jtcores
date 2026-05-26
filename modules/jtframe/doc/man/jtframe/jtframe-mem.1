@@ -27,144 +27,453 @@ The selected target matters because
 \fBjtframe mem\fR
 also consumes the target-side framework files already present under
 \fB$JTFRAME/target/<target>/\fR.
-.SS Top-Level Keys
+.SS mem.yaml Syntax
+All keys are strict: unknown keys cause parse errors.
+
+The top-level file supports:
 .TP
 .B include
-Import additional YAML fragments, either by naming another core or by pointing
-at a specific file.
+Import additional YAML fragments before applying the local file.
+Entries are merged in order and the active file is reapplied after each include.
 .RS
 .nf
 include:
-  \- game: cop
-  \- file: ../../cop/cfg/mem.yaml
+  - { core: cop }
+  - { file: ../../cop/cfg/mem.yaml }
 .fi
 .RE
 .TP
 .B params
-Define named values referenced later from SDRAM offsets or other generated
-logic.
+Macro-like name/value pairs that can be reused in expressions.
+.RS
+.nf
+params:
+  - { name: V_OFFS, value: "(`VTABLE_START-`JTFRAME_BA2_START) >> 1" }
+  - { name: SPR_OFFS, value: "(`SPRITE_START-`JTFRAME_BA3_START) >> 1" }
+.fi
+.RE
 .TP
 .B download
-Describe address or data transforms applied while ROM data is downloaded.
-The
+Add optional downloader and SDRAM remap hooks.
+The booleans are
 \fBpre_addr\fR,
 \fBpost_addr\fR,
-and
-\fBpost_data\fR
-switches route generated signals through extra game-module ports.
-\fBnoswab\fR
-disables the default byte swapping and is usually better handled in the MRA
-flow instead.
+\fBpost_data\fR.
+Set \fBnoswab\fR to skip byte swapping (prefer MRA-side handling).
 .TP
 .B ports
-Add generated ports to the game module.
-These are typically used together with custom download transforms or external
-memory interfaces.
+Extra game ports to generate in
+\fBjt<core>_game.v\fR.
+Fields are \fBname\fR, \fBmsb\fR, \fBlsb\fR, and \fBinput\fR.
 .TP
 .B game
-Instantiate a game module name other than the default
+Override the default game module name. Default is
 \fB<core>_game\fR
 or
 \fB<core>_game_sdram\fR.
 .TP
 .B clocks
-Generate clock-enable signals from a base clock.
-Each entry can emit one or more
+Clock-enable families keyed by source clock name (for example,
+\fBclk24\fR,
+\fBclk48\fR,
+\fBclk96\fR,
+or
+\fBclk\fR).
+Each key maps to a YAML list of clock-enable entries.
+Every entry must provide
+\fBoutputs\fR
+and may also set
+\fBfreq\fR,
+\fBdiv\fR,
+\fBmul\fR,
+and
+\fBgate\fR.
+The
+\fBoutputs\fR
+list is ordered: the first output gets the requested rate, and each later
+output is divided by two from the previous one.
+Names that do not already contain
 \fBcen\fR
-signals and may gate them with core readiness signals.
+get
+\fB_cen\fR
+appended automatically.
+The
+\fBgate\fR
+list names SDRAM buses whose
+\fB<bus>_cs\fR/\fB<bus>_ok\fR
+handshake can pause the enable generator.
+.RS
+.nf
+clocks:
+  clk24:
+    - mul: 1
+      div: 4
+      outputs: [ cpu4, ti1, ti2 ]
+    - freq: 3579545
+      gate: [ pcm ]
+      outputs: [ snd, psg ]
+.fi
+.RE
 .TP
 .B audio
-Describe the analog summing and filtering model used to generate JTFRAME audio
-support files.
-This section supports a global RC stage, per-channel RC or FIR filters, board
-variants under
-\fBpcb\fR,
-and channel metadata such as
-\fBstereo\fR,
-\fBunsigned\fR,
-and
-\fBdata_width\fR.
+Global audio mix/filter parameters and per-channel entries.
+.RS
+.nf
+audio:
+  gain: 1.2
+  rsum: 1k
+  mute: true
+  rsum_feedback_res: false
+  rc: { r: 1k, c: 1n }
+  pcb:
+    - { machine: pacland, rfb: 10k, rsums: [7.1k, 12.25k], pres: [1.0, 0.19] }
+  channels:
+    - { name: fm, module: jt51, rsum: 3.2k, rout: 100k, pre: 0.5,
+        rc_en: true, vpp: 5, data_width: 12, stereo: true, unsigned: false,
+        rc: [ { r: 1k, c: 33n }, { r: 1rout, c: 2.2n } ],
+        fir: myfilter.csv }
+.fi
+.RE
 .TP
 .B sdram
-Describe external SDRAM layout.
-Use either
+Define SDRAM layout with either
 \fBbanks\fR
 or
-\fBcache-lanes\fR,
-but not both at the same time.
-Bank offsets are expressed in 16-bit SDRAM words, not bytes, and match the
-generated
-\fBSLOT*_OFFSET\fR
-semantics.
-.TP
-.B bram
-Describe on-chip RAM, ROM, or PROM blocks.
-Entries may include IOCTL save or restore metadata, simulation file overlays,
-and optional second ports.
-.SS Audio Notes
-When both YM3012 outputs are tied into the same summing node, use the
-resistance of one output as
-\fBrsum\fR.
-If only one YM3012 output is connected, set the channel
-\fBpre\fR
-gain to
-\fB0.5\fR.
-For K007232, JTFRAME can model two separate channels or the mixed output; the
-mixed path can clip because the original board uses separate DAC paths.
-.SS SDRAM Notes
-.IP \[bu] 2
-\fBdata_width\fR
-in bank buses may be 8, 16, or 32 bits.
-.IP \[bu] 2
-\fBcache_size\fR
-selects between the standard ROM request cache and the data-serving cache.
-.IP \[bu] 2
-\fBgfx_sort\fR
-and
-\fBgfx_sort_en\fR
-describe the address bit reordering used for graphics-oriented downloads.
-.IP \[bu] 2
-\fBsimfile\fR
-metadata is consumed only by
-\fBjtutil sdram --sim\fR
-to patch generated SDRAM bank files for simulation.
-.IP \[bu] 2
-Top-level
-\fBsdram.big_endian\fR
-applies only to
-\fBcache-lanes\fR.
-Per-\fBsimfile\fR
+\fBcache-lanes\fR
+but not both.
+If using
+\fBbanks\fR,
+the top-level
 \fBbig_endian\fR
-applies only to 16-bit and 32-bit simulation loads.
-.PP
-A short SDRAM example:
+is invalid.
+If using
+\fBcache-lanes\fR,
+\fBbig_endian\fR
+is valid.
 .RS
 .nf
 sdram:
+  # optional for cache-lanes; ignored elsewhere
+  big_endian: true
+  burst: 128k
   banks:
-    \- buses:
-        \- name: tiles
-          addr_width: 18
-          data_width: 16
-          offset: GFXBASE
-          cache_size: 4
-          simfile: { name: tiles.bin }
+    - buses:
+      - name: tiles
+        offset: GFXBASE
+        addr_width: 18
+        data_width: 16
+        cache_size: 4
+        rw: false
+        gfx_sort: hvvv
+        do_not_erase: true
+        gfx_sort_en: gfx_sort_en
+        simfile:
+          name: tiles.bin
+          big_endian: false
+          data_type: u16
+      - name: obj
+        when: [ MISTER ]
+        unless: [ TEST ]
+        addr: obj_addr
+        cs: obj_cs
+        din: obj_din
+        dsn: obj_dsn
+        cache_size: 0
+        offset: OBJ_OFFS
+        data_width: 8
+  # Use cache-lanes instead of banks for direct cache-backed SDRAM mappings.
+  cache-lanes:
+    - name: cpuba0
+      data_width: 32
+      rw: true
+      flush: { enable: true, invalidates: [scndma, scrmap] }
+      blocks: { count: 64, size: 256 }
+      at: { bank: 0, length: 16MB }
 .fi
 .RE
-.SS BRAM Notes
-BRAM entries can describe regular RAM, ROM downloaded into BRAM, or PROM data
-mirroring the order expected by the MRA.
-Optional
-\fBioctl\fR
-metadata can generate save or restore helpers, and
-\fBdual_port\fR
-adds a second interface when the block must be shared.
-.PP
-Use
-\fB--inc\fR
-to force generation of
-\fBmem_ports.inc\fR
-even when the current target flow would not otherwise need it.
+.TP
+.B bram
+Define BRAM/ROM/PROM blocks, optional ioctl dump metadata, dual ports, ROM offsets.
+.RS
+.nf
+bram:
+  - name: workram
+    size: 32kB
+    data_width: 8
+    rw: true
+    we: ram_we
+    addr: ram_addr
+    din: ram_din
+    dout: ram_q
+    simfile: { big_endian: true }
+    ioctl:
+      save: true
+      restore: true
+      order: 0
+      when: [ SIDI ]
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: video
+      addr: video_ram_addr
+      din: video_ram_din
+      dout: video_ram_dout
+      rw: false
+      we: video_ram_we
+  - name: mcu_rom
+    addr_width: 12
+    data_width: 8
+    simfile: {}
+    rom:
+      offset: 0x20000
+  - name: prom_data
+    addr_width: 11
+    data_width: 8
+    prom: true
+.fi
+.RE
+
+.SS Supported Fields
+For full precision, the parser supports these per-entry keys:
+.TP
+.B include[]
+Required: none.
+Supported: \fBcore\fR, \fBfile\fR.
+.TP
+.B params[]
+Supported: \fBname\fR, \fBvalue\fR.
+If \fBvalue\fR is omitted, the parser uses the macro \fB<name>\fR.
+.TP
+.B download
+Supported: \fBpre_addr\fR, \fBpost_addr\fR, \fBpost_data\fR, \fBnoswab\fR.
+.TP
+.B clocks
+Supported shape: map of
+\fB<base-clock-name> -> [ clock-enable-entry, ... ]\fR.
+The documented JTFRAME base clocks are
+\fBclk24\fR,
+\fBclk48\fR,
+\fBclk96\fR,
+and
+\fBclk\fR.
+At generation time,
+\fBclk48\fR
+maps to
+\fBclk\fR
+when
+\fBJTFRAME_SDRAM96\fR
+is not defined, and
+\fBclk96\fR
+maps to
+\fBclk\fR
+when it is defined.
+Other keys are passed through unchanged.
+.TP
+.B clocks.<base>[]
+Supported: \fBoutputs\fR, \fBgate\fR, \fBfreq\fR, \fBdiv\fR, \fBmul\fR.
+\fBoutputs\fR is required.
+\fBgate\fR is a list of SDRAM bus names.
+\fBmul\fR and \fBdiv\fR are integers.
+\fBfreq\fR is a string parsed as an absolute frequency.
+.TP
+.B clocks.<base>[].outputs[]
+Required: one or more strings.
+The first output runs at the requested rate; each later output is divided by
+two from the previous one.
+If an output name does not contain
+\fBcen\fR,
+the generator appends
+\fB_cen\fR.
+.TP
+.B clocks.<base>[].gate[]
+Optional list of SDRAM bus names.
+Each entry expands to the gating expression
+\fB(<name>_cs & ~<name>_ok)\fR.
+If omitted, the clock-enable generator is never paused.
+.TP
+.B clocks.<base>[].freq
+Optional absolute frequency string.
+Accepted forms include plain decimal or scientific notation
+(\fB3579545\fR, \fB8e6\fR)
+plus engineering suffixes
+\fBp\fR,
+\fBn\fR,
+\fBu\fR,
+\fBm\fR,
+\fBk\fR,
+\fBM\fR,
+\fBG\fR,
+\fBT\fR,
+with optional
+\fBHz\fR
+(\fB12.5kHz\fR, \fB8 MHz\fR, \fB12M\fR).
+Values below
+\fB1 Hz\fR
+are rejected.
+.TP
+.B clocks.<base>[].mul
+Optional integer numerator for the fractional enable generator.
+If
+\fBmul\fR
+and
+\fBdiv\fR
+are both non-zero, they take precedence over
+\fBfreq\fR.
+.TP
+.B clocks.<base>[].div
+Optional integer denominator for the fractional enable generator.
+If either
+\fBmul\fR
+or
+\fBdiv\fR
+is zero or omitted, the generator derives both factors from
+\fBfreq\fR.
+.TP
+.B ports[]
+Supported: \fBname\fR, \fBmsb\fR, \fBlsb\fR, \fBinput\fR.
+.TP
+.B audio
+Supported: \fBmute\fR, \fBrc\fR, \fBrsum\fR, \fBrsum_feedback_res\fR, \fBgain\fR,
+\fBpcb[]\fR, \fBchannels[]\fR.
+.TP
+.B audio.rc
+Supported: \fBr\fR, \fBc\fR.
+.TP
+.B audio.pcb[]
+Supported: \fBmachine\fR, \fBrfb\fR, \fBrsums\fR, \fBpres\fR.
+.TP
+.B audio.channels[]
+Supported: \fBname\fR, \fBmodule\fR, \fBrsum\fR, \fBrout\fR, \fBpre\fR, \fBvpp\fR,
+\fBdcrm\fR, \fBstereo\fR, \fBunsigned\fR, \fBdata_width\fR, \fBrc_en\fR,
+\fBfir\fR, \fBrc[]\fR.
+.TP
+.B sdram
+Supported: \fBbanks\fR, \fBcache-lanes\fR, \fBburst\fR, \fBbig_endian\fR.
+.TP
+.B sdram.banks[]
+Supported: \fBname\fR, \fBoffset\fR, \fBaddr\fR, \fBaddr_width\fR, \fBdata_width\fR,
+\fBcache_size\fR, \fBrw\fR, \fBdo_not_erase\fR, \fBdsn\fR, \fBdin\fR, \fBcs\fR,
+\fBgfx_sort\fR, \fBgfx_sort_en\fR, \fBsimfile\fR, \fBwhen\fR, \fBunless\fR.
+.TP
+.B sdram.banks[].simfile
+Supported: \fBname\fR, \fBbig_endian\fR, \fBdata_type\fR (u16/u32).
+.TP
+.B sdram.cache-lanes[]
+Supported: \fBname\fR, \fBdata_width\fR, \fBblocks\fR, \fBat\fR, \fBrw\fR,
+\fBflush\fR, \fBsimfile\fR, \fBwhen\fR, \fBunless\fR.
+.TP
+.B sdram.cache-lanes.flush
+Supported: \fBenable\fR and \fBinvalidates\fR.
+\fBenable: true\fR exposes the lane flush interface and requires
+\fBrw: true\fR.
+\fBinvalidates\fR is an optional list of read-only cache-lane names to invalidate
+after this lane's dirty writeback completes. If \fBenable\fR is false or omitted,
+\fBinvalidates\fR must be empty or omitted.
+.TP
+.B sdram.cache-lanes.blocks
+Supported: \fBcount\fR, \fBsize\fR.
+.TP
+.B sdram.cache-lanes.at
+Supported: \fBbank\fR, \fBoffset\fR, \fBlength\fR.
+.TP
+.B sdram.cache-lanes.simfile
+Supported: \fBname\fR, \fBbig_endian\fR, \fBdata_type\fR (u16/u32).
+.TP
+.B bram[]
+Supported: \fBname\fR, \fBsize\fR, \fBaddr_width\fR, \fBdata_width\fR, \fBrw\fR, \fBwe\fR,
+\fBaddr\fR, \fBdin\fR, \fBdout\fR, \fBsimfile\fR, \fBprom\fR, \fBioctl\fR,
+\fBdual_port\fR, \fBrom\fR, \fBwhen\fR, \fBunless\fR.
+.TP
+.B bram.simfile
+Supported: \fBbig_endian\fR.
+.TP
+.B bram.ioctl
+Supported: \fBsave\fR, \fBrestore\fR, \fBorder\fR, \fBwhen\fR, \fBunless\fR.
+.TP
+.B bram.dual_port
+Supported: \fBname\fR, \fBaddr\fR, \fBdin\fR, \fBdout\fR, \fBrw\fR, \fBwe\fR.
+.TP
+.B bram.rom
+Supported: \fBoffset\fR.
+
+.SS Validation and defaults
+.IP \[bu] 2
+Unknown keys are rejected with parse errors.
+.IP \[bu] 2
+\fBsdram.banks\fR and \fBsdram.cache-lanes\fR are mutually exclusive.
+Use exactly one when defining SDRAM.
+.IP \[bu] 2
+\fBsdram.banks\fR requires 1 to 4 banks.
+\fBsdram.cache-lanes\fR requires 1 to 8 lanes.
+.IP \[bu] 2
+\fBaudio.channels[]\fR requires a non-empty \fBname\fR and \fBrsum\fR for every channel.
+Unknown audio \fBmodule\fR values are rejected unless empty.
+.IP \[bu] 2
+\fBclocks\fR is a map from base clock names to lists of clock-enable entries.
+Each entry requires at least one
+\fBoutputs\fR
+name.
+The first output is the requested rate; later outputs are cascaded divide-by-2
+enables.
+.IP \[bu] 2
+Clock entries may use either explicit non-zero
+\fBmul\fR/\fBdiv\fR
+or an absolute
+\fBfreq\fR.
+If one factor is missing or zero, both factors are derived from
+\fBfreq\fR.
+.IP \[bu] 2
+\fBfreq\fR accepts decimal/scientific notation with optional engineering
+suffixes
+\fBp\fR,
+\fBn\fR,
+\fBu\fR,
+\fBm\fR,
+\fBk\fR,
+\fBM\fR,
+\fBG\fR,
+\fBT\fR
+and optional
+\fBHz\fR.
+Suffixes are case-sensitive:
+\fB8M\fR
+means 8 MHz while
+\fB8m\fR
+means 8 mHz and is rejected for being below 1 Hz.
+.IP \[bu] 2
+\fBgate\fR
+only accepts SDRAM bus names; the generated enable pauses while any listed bus
+is selected but not ready, and recovers missed pulses when the bus resumes.
+.IP \[bu] 2
+SDRAM bank \fBdata_width\fR supports \fB8\fR, \fB16\fR, or \fB32\fR.
+\fBgfx_sort\fR is limited to the supported permutations in parser source.
+\fBcache_size\fR sets cache behavior per slot.
+.IP \[bu] 2
+Cache-lane \fBdata_width\fR supports \fB8/16/32/64/128\fR.
+\fBcache-lanes[].blocks.size\fR must be a power-of-two with suffix \fBB\fR,
+\fBk\fR, \fBkB\fR, \fBM\fR, or \fBMB\fR and at least 16.
+Only lanes 0..3 may set \fBrw: true\fR.
+\fBflush.enable\fR requires \fBrw: true\fR.
+\fBflush.invalidates\fR may only name read-only lanes with overlapping SDRAM
+ranges; whole target caches are invalidated.
+\fBcache-lanes[].at\fR is optional; when omitted the lane uses full SDRAM space.
+.IP \[bu] 2
+Cache-lane offsets and lengths are evaluated through params/macro expressions.
+\fBoffset\fR may be a parameter name or hexadecimal literal.
+.IP \[bu] 2
+\fBsdram.burst\fR must be a power of two and not exceed 512 bytes
+(1024 when \fBJTFRAME_SDRAM_LARGE\fR is defined).
+.IP \[bu] 2
+BRAM uses either \fBsize\fR or \fBaddr_width\fR, not both.
+If set, \fBsize\fR must be power-of-two, > 0, and no more than 512kB.
+.IP \[bu] 2
+\fBsimfile.big_endian\fR is valid only for 16/32-bit BRAM, caches and SDRAM buses.
+For cache lanes wider than 32 bits with big-endian simulation, \fBdata_type\fR is required.
+.IP \[bu] 2
+A BRAM entry with \fBprom: true\fR requires \fBdata_width <= 8\fR.
+.IP \[bu] 2
+\fBbram.rom.offset\fR is interpreted in \fBprog_addr<<1\fR space; bank bits are
+expected in bits [24:23] for MiST-family ROM layouts.
+
 .SH FLAGS
 .TP
 .B \-h, \-\-help

@@ -1,7 +1,5 @@
 module test;
 
-`include "test_tasks.vh"
-
 localparam TIMEOUT=400_000_000, MAXFRAMES=3, PXLEND=7;
 
 reg         clk, rst, pxl_cen, wrn;
@@ -11,6 +9,7 @@ reg  [15:0] cpu_dout;
 wire [ 8:0] vdump;
 integer     framecnt=0;
 
+`include "test_tasks.vh"
 initial begin
     clk=0;
     forever #(10.416/2) clk=~clk;   // 96 MHz

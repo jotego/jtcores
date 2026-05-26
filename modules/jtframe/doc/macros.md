@@ -14,6 +14,7 @@ JTFRAME_ARX              | MiSTer  | Defines aspect ratio (default is 4)
 JTFRAME_ARY              | MiSTer  | Defines aspect ratio (default is 3)
 JTFRAME_AVATARS          |         | Enables avatars on credits screen
 JTFRAME_BUTTONS          |         | Sets the number of action buttons used (2 by default)
+JTFRAME_BUILD_FIRMWARE  |         | Run `make` in the core firmware folder before jtsim and jtcore consume HDL hex files
 JTFRAME_CART_OFFSET      |         | Value added to IOCTL address for the cartridge ROM (consoles)
 JTFRAME_CHEAT            |         | Enables the [cheat engine](cheat.md)
 JTFRAME_CHEAT_SCRAMBLE   |         | Enables cheat firmware encryption
@@ -23,6 +24,7 @@ JTFRAME_COLORW           |         | Sets the number of bits per color component
 JTFRAME_DEBUG_VPOS       |         | Row (from the bottom) at which debug information is shown (default=4)
 JTFRAME_DIAL             |         | Adds dial_x and dial_y inputs to game module
 JTFRAME_DIALEMU_LEFT     |         | Defaults to 5. Button to use to rotate left. That button+1  for right
+JTFRAME_DIAL_EMUSENS     |         | Defaults to 15. Number of pulses per frame using max sensitivity for button emulation
 JTFRAME_FLIP_RESET       |         | Varying the flip DIP setting causes a reset
 JTFRAME_FORCED_DIPSW     | Pocket  | Forces a fixed value for the DIP switches
 JTFRAME_FEEDTHRU         | MiST    | Bypasses video blending hardware. Saves some logic elements
@@ -52,6 +54,7 @@ JTFRAME_LITE_KEYBOARD    |         | Disables automatic MAME keys mapping
 JTFRAME_LOGO_NOHEX       | Pocket  | Do not display the chip ID on the logo screen
 JTFRAME_DIPBASE          | MiST    | Starting base in status word for MiST dip switches. Do not set in [mist] section of macros.def or the MRA will not be correct
 JTFRAME_MIST_DIRECT      | MiST    | On by default. Define as 0 to disable. Fast ROM load
+JTFRAME_ROMLESS         |         | Core has no ROM set; lets `jtsim` run from `ver/game` with a generated empty `rom.bin`
 JTFRAME_MIST_DSP_BLOCKS  | MiST    | Use regular logic to implement DSP blocks if needed
 JTFRAME_NOMULTIWAY       |         | Disables 24-way joystick emulation via analog stick
 JTFRAME_MOUSE            |         | Enables mouse input. See [inputs.md](inputs.md)
@@ -82,12 +85,14 @@ JTFRAME_RFSH_WC          |         | Automatic. Used by SDRAM refresh in jtframe
 JTFRAME_RFSH_N           |         | Automatic. Used by SDRAM refresh in jtframe_board
 JTFRAME_RFSH_M           |         | Automatic. Used by SDRAM refresh in jtframe_board
 JTFRAME_ROTATE           |         | Enables more rotate options in the OSD
+JTFRAME_SAVEGAME         |         | Enables game saving options in the OSD
 JTFRAME_SCAN2X_NOBLEND   | MiST    | Disables pixel blending
 JTFRAME_SRAM             | Pocket  | Enables SRAM ports at the game module
 JTFRAME_SDRAM96          |         | SDRAM is clocked at 96MHz and the clk input of game is 96MHz
 JTFRAME_SHADOW           | MiSTer  | Start address for SDRAM shadowing and dump as NVRAM
 JTFRAME_SHADOW_LEN       | MiSTer  | Length in bits of the shadowing. See [sdram.md](sdram.md)
 JTFRAME_SHIFT            |         | Set to 1 if the SDRAM clock phase has a large positive shift
+JTFRAME_SIGNALTAP        |         | Enables SignalTap QSF merge in `jtcore`; set by `jtcore --signaltap` or define in `macros.def`
 JTFRAME_SIGNED_SND       |         | Set to 0 if the game only uses unsigned sound sources
 JTFRAME_SKIP             |         | If defined, jtcore will not compile the core and just return a PASS
 JTFRAME_SND48K           |         | Enables a stereo 20kHz filter, 2kHz pass-band. Core's sample signal must be 48kHz and clk_sys=48MHz!
@@ -194,6 +199,8 @@ JTFRAME_SIM_LOAD_EXTRA   |         | Extra wait time when transferring ROM in si
 JTFRAME_SIM_ROMRQ_NOCHECK|         | Disable protocol checking of romrq
 JTFRAME_SIM_RTC          |         | RTC value at reset, three-byte value: hours-minutes-seconds
 JTFRAME_SIM_SDRAM_NONSTOP|modelsim | SDRAM model will not stop the simulation for timing violations
+JTFRAME_SIM_SKIP_FRAME_DUMP|verilator| Skip the generic Verilator harness frame image dump/conversion path
+JTFRAME_SIM_SKIP_VSIZE   |verilator| Skip the frame-size assertion in the generic Verilator harness
 JTFRAME_SIM_SLOWLOAD     |verilator| slows down the ROM load in case the core needs extra time
 JTFRAME_SIM_SNDEN        |verilator| Enable sound channels (bits active high) following the order in mem.yaml
 JTFRAME_SIM_VIDEO        |verilator| Create PNG files for all frames. Good for creation of video files.

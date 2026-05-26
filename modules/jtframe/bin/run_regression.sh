@@ -281,21 +281,42 @@ create_nvram_files() {
 }
 
 get_zips() {
-    declare -n roms_dir_ref=$1
+    local target_name="$1"
+    local -n roms_dir_ref="$target_name"
 
     declare -a zip_names
+    declare -a missing_zips
     if ! get_zip_names zip_names; then return 1; fi
     
     roms_dir_ref=$(mktemp -d)
-    TODELETE+=($roms_dir_ref)
+    TODELETE+=("$roms_dir_ref")
 
-    for zip in "${zip_names[@]}"; do
-        get_with_retry $zip $roms_dir_ref
-    done
+    local sftp_log
+    sftp_log=$(mktemp)
+    TODELETE+=("$sftp_log")
+
+    get_many_via_ftp "$roms_dir_ref" "$sftp_log" "${zip_names[@]}" || true
+    collect_missing_zips missing_zips "$roms_dir_ref" "${zip_names[@]}"
+
+    if [[ "${#missing_zips[@]}" -gt 0 ]]; then
+        get_with_retry missing_zips "$roms_dir_ref" "$sftp_log"
+        collect_missing_zips missing_zips "$roms_dir_ref" "${zip_names[@]}"
+    fi
+
+    if [[ "${#missing_zips[@]}" -gt 0 ]]; then
+        echo "[WARNING] Missing zip files after SFTP retries: ${missing_zips[*]}" >&2
+        echo "[WARNING] SFTP log follows:" >&2
+        cat "$sftp_log" >&2
+    fi
+
+    if [[ "${#missing_zips[@]}" == "${#zip_names[@]}" ]]; then
+        return 1
+    fi
 }
 
 get_zip_names() {
-    declare -n zip_names_ref=$1
+    local target_name="$1"
+    local -n zip_names_ref="$target_name"
 
     jtframe mra --skipROM
 
@@ -318,33 +339,81 @@ get_zip_names() {
     if [[ "${#zip_names_ref[@]}" == 0 ]]; then return 1; fi
 }
 
-get_with_retry() {
-    local zip="$1"
+collect_missing_zips() {
+    local target_name="$1"
+    local -n missing_zips_ref="$target_name"
     local roms_dir_ref="$2"
-    local attempts=8
-    while [ $attempts -gt 0 ]; do
-        if get_zip_via_ftp $zip $roms_dir_ref; then break; fi
-        attempts=$((attempts-1))
-        random_wait
+    shift 2
+
+    missing_zips_ref=()
+    local zip
+    for zip in "$@"; do
+        if ! zip_file_ready "$roms_dir_ref/$zip"; then
+            missing_zips_ref+=("$zip")
+        fi
     done
-    if [ $attempts -gt 0 ]; then
-        return 0
-    else
-        return 1
-    fi
 }
 
-get_zip_via_ftp() {
-    local zip="$1"
+zip_file_ready() {
+    local zip_path="$1"
+
+    if [[ ! -s "$zip_path" ]]; then
+        return 1
+    fi
+
+    if unzip -t "$zip_path" >/dev/null 2>&1; then
+        return 0
+    fi
+
+    echo "[WARNING] Invalid zip file detected, removing before retry: $zip_path" >&2
+    rm -f "$zip_path"
+    return 1
+}
+
+get_with_retry() {
+    local target_name="$1"
+    local -n missing_zips_ref="$target_name"
     local roms_dir_ref="$2"
-    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
-get mame/$zip $roms_dir_ref
-bye
-EOF
+    local sftp_log="$3"
+    local attempts=7
+
+    while [[ $attempts -gt 0 && "${#missing_zips_ref[@]}" -gt 0 ]]; do
+        get_many_via_ftp "$roms_dir_ref" "$sftp_log" "${missing_zips_ref[@]}" || true
+        collect_missing_zips missing_zips_ref "$roms_dir_ref" "${missing_zips_ref[@]}"
+        attempts=$((attempts-1))
+        if [[ $attempts -gt 0 && "${#missing_zips_ref[@]}" -gt 0 ]]; then
+            random_wait
+        fi
+    done
+
+    if [[ "${#missing_zips_ref[@]}" -gt 0 ]]; then
+        return 1
+    fi
+
+    return 0
+}
+
+get_many_via_ftp() {
+    local roms_dir_ref="$1"
+    local sftp_log="$2"
+    shift 2
+
+    {
+        printf '[INFO] SFTP get: %s\n' "$*"
+    } >>"$sftp_log"
+
+    {
+        printf 'lcd %s\n' "$roms_dir_ref"
+        local zip
+        for zip in "$@"; do
+            printf -- '-get mame/%s %s\n' "$zip" "$zip"
+        done
+        printf 'bye\n'
+    } | sftp -b - -P "$SSH_PORT" "$SFTP_USER@$SFTP_HOST:$REMOTE_DIR" >>"$sftp_log" 2>&1
 }
 
 random_wait() {
-    sleep $((RANDOM%30))
+    sleep $((RANDOM%30)+10)
 }
 
 get_opts() {

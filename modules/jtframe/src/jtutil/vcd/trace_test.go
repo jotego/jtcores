@@ -1,44 +1,67 @@
 package vcd
 
-import(
+import (
+	"os"
+	"path/filepath"
 	"testing"
 )
 
-func Test_trace_parser_t(t * testing.T) {
-	nv := parseTrace("A=5,B=4* myline")
-	if nv["A"]!=5 { t.Error("Did not read A correctly") }
-	if nv["B"]!=4 { t.Error("Did not read B correctly") }
-	nv = parseTrace("")
-	if len(nv)!=0 { t.Error("Should be zero for empty lines")}
-	nv = parseTrace("A=5,B=40,PC=1234* RTI")
-	if nv["PC"]!=0x1234 { t.Error("Did not read PC correctly") }
-	if nv["RTI"]!=1 { t.Error("Did not detect RTI")}
-	nv = parseTrace("  (interrupted at C189, IRQ 0)")
-	if len(nv)!=0 { t.Error("Did not ignore comment line correctly")}
-}
-
-func Test_trace_parser_longer(t *testing.T) {
-	match_parse_namevalue("AF=1234",NameValue{"AF":0x1234},t)
-	match_parse_namevalue("AF=1234,DE=5678",NameValue{"AF":0x1234,"DE":0x5678},t)
-	match_parse_namevalue("AF=  34",NameValue{"AF":0x0034},t)
-	match_parse_namevalue("AF=  34,DE=  78",NameValue{"AF":0x0034,"DE":0x0078},t)
-}
-
-func match_parse_namevalue(trace string,expected NameValue,t *testing.T) {
-	got := parseTrace(trace)
-	if len(got)!=len(expected) {
-		t.Errorf("Got wrong number of elements: %d vs %d", len(got), len(expected))
-		return
+func Test_trace_reader_with_csv_header(t *testing.T) {
+	dir := t.TempDir()
+	traceName := filepath.Join(dir, "debug.trace")
+	content := "PC,A,B\nC189,1,2,\nC18A,3,4,00000402: MOV.L   @($0008,PC),R14 [0000040C]\n"
+	if err := os.WriteFile(traceName, []byte(content), 0644); err != nil {
+		t.Fatal(err)
 	}
-	for name,val := range got {
-		exp,found := expected[name]
-		if !found {
-			t.Errorf("Missing value for %s",name)
-			return
-		}
-		if exp != val {
-			t.Errorf("Wrong value for %s",name)
-			return
-		}
+	trace := &TraceReader{}
+	trace.Open(traceName)
+	defer trace.Close()
+
+	row, ok := trace.Next()
+	if !ok {
+		t.Fatal("expected first data row")
+	}
+	if row.Data["PC"] != 0xC189 || row.Data["A"] != 0x1 || row.Data["B"] != 0x2 {
+		t.Fatalf("wrong first row parse: %+v", row.Data)
+	}
+	if row.Asm != "" {
+		t.Fatalf("first row should have empty assembler text, got %q", row.Asm)
+	}
+	row, ok = trace.Next()
+	if !ok {
+		t.Fatal("expected second data row")
+	}
+	if row.Data["PC"] != 0xC18A || row.Data["A"] != 0x3 || row.Data["B"] != 0x4 {
+		t.Fatalf("wrong second row parse: %+v", row.Data)
+	}
+	if row.Asm != "MOV.L   @($0008,PC),R14 [0000040C]" {
+		t.Fatalf("wrong assembler text: %q", row.Asm)
+	}
+}
+
+func Test_trace_reader_converts_interrupt_lines_to_rows(t *testing.T) {
+	dir := t.TempDir()
+	traceName := filepath.Join(dir, "debug.trace")
+	content := "PC,A\nC189,1\n(interrupted at 0000C189, IRQ 12)\nC18A,2\n"
+	trace := &TraceReader{}
+	if err := os.WriteFile(traceName, []byte(content), 0644); err != nil {
+		t.Fatal(err)
+	}
+	trace.Open(traceName)
+	defer trace.Close()
+
+	if _, ok := trace.Next(); !ok {
+		t.Fatal("expected data row")
+	}
+	interruptRow, ok := trace.Next()
+	if !ok || interruptRow.Asm == "" || interruptRow.Asm != "IRQ 12" {
+		t.Fatalf("expected interrupt synthetic row, got %v, %q", ok, interruptRow.Asm)
+	}
+	dataRow, ok := trace.Next()
+	if !ok {
+		t.Fatal("expected trailing row")
+	}
+	if dataRow.Data["PC"] != 0xC18A {
+		t.Fatalf("wrong trailing row: %+v", dataRow.Data)
 	}
 }

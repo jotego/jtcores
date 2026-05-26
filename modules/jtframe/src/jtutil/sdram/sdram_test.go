@@ -9,6 +9,7 @@ import (
 
 	"jotego/jtframe/macros"
 	"jotego/jtframe/mem"
+	"jotego/jtframe/mra"
 )
 
 func TestSwapBytes(t *testing.T) {
@@ -242,6 +243,42 @@ func TestSdramBankSizeUsesLargeMacroFallback(t *testing.T) {
 	want := 16 * 1024 * 1024
 	if got != want {
 		t.Fatalf("sdramBankSize large mismatch: got=%d want=%d", got, want)
+	}
+}
+
+func TestBankOffsetReadsReversedHeaderEntries(t *testing.T) {
+	macros.MakeFromMap(map[string]string{
+		"JTFRAME_HEADER": "16",
+	})
+	rom := make([]byte, 0x250010)
+	copy(rom, []byte{
+		0x00, 0x00,
+		0x40, 0x00, // 0x0040 << 12 = 0x40000
+		0x50, 0x01, // 0x0150 << 12 = 0x150000
+		0x50, 0x02, // 0x0250 << 12 = 0x250000
+	})
+	hinfo := mra.HeaderOffset{
+		Bits:    12,
+		Reverse: true,
+		Start:   0,
+		Regions: []string{"maincpu", "audiocpu", "k052109", "obj"},
+	}
+
+	offsets, regions, err := bankOffset(len(hinfo.Regions), hinfo, rom)
+	if err != nil {
+		t.Fatalf("bankOffset returned error: %v", err)
+	}
+	if len(regions) != len(hinfo.Regions) {
+		t.Fatalf("region count mismatch: got=%d want=%d", len(regions), len(hinfo.Regions))
+	}
+	if got, want := offsets[1], 0x40000+16; got != want {
+		t.Fatalf("bank 1 offset mismatch: got=%#x want=%#x", got, want)
+	}
+	if got, want := offsets[2], 0x150000+16; got != want {
+		t.Fatalf("bank 2 offset mismatch: got=%#x want=%#x", got, want)
+	}
+	if got, want := offsets[3], 0x250000+16; got != want {
+		t.Fatalf("bank 3 offset mismatch: got=%#x want=%#x", got, want)
 	}
 }
 

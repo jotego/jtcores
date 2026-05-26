@@ -2,7 +2,7 @@ name: Framework Unit Tests
 
 on:
   workflow_dispatch:
-  pull_request:
+  workflow_call:
   repository_dispatch:
     types: rebuild
   push:
@@ -33,4 +33,3 @@ jobs:
         go test ./...
         cd $JTFRAME/src/jtutil
         go test ./...
-

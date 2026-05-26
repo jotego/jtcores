@@ -69,6 +69,7 @@ module SH7604_BSC
 	
 	output reg        CACK,
 	output            BUS_RLS,
+	output            BUS_DBUS_RD,
 	
 	input             FAST
 	
@@ -192,6 +193,7 @@ module SH7604_BSC
 	bit          BUSY;
 	bit          CBUSY,CBUSY2,DBUSY,VBUSY;
 	bit          CBUS_ACTIVE,DBUS_ACTIVE,VBUS_ACTIVE,REFRESH_ACTIVE;
+	bit          DBUS_RD_ACTIVE;
 	bit  [31: 0] DAT_BUF;
 	bit  [ 7: 0] VEC_BUF;
 	bit  [ 1: 0] RFS_WAIT_CNT;
@@ -229,8 +231,11 @@ module SH7604_BSC
 			IVECF_N <= 1;
 			CACK <= 0;
 			BUSY <= 0;
+			CBUS_LOCK_INT <= 0;
+			DBUS_LOCK_INT <= 0;
 			{CBUSY,CBUSY2,DBUSY,VBUSY} <= '0;
 			{CBUS_ACTIVE,DBUS_ACTIVE,VBUS_ACTIVE,REFRESH_ACTIVE} <= '0;
+			DBUS_RD_ACTIVE <= 0;
 			CBUS_REQ_CNT <= '0;
 			BUS_STATE <= T0;
 			WAIT_CNT <= '0;
@@ -244,6 +249,11 @@ module SH7604_BSC
 						
 			DATA_LATCH = 0;
 			STATE_NEXT = BUS_STATE;
+			if (!DBUS_REQ && !DBUSY) begin
+				DBUS_LOCK_INT <= 0;
+				DBUS_ACTIVE <= 0;
+				DBUS_RD_ACTIVE <= 0;
+			end
 			case (BUS_STATE)
 				T0: begin
 				end
@@ -255,7 +265,27 @@ module SH7604_BSC
 							2'b00: begin
 								if (NEXT_BA == 4'd0) begin
 									if (CBUS_ACTIVE && !BUS_WE_LATCH) CBUSY <= 0;
-									if (DBUS_ACTIVE && !BUS_WE_LATCH) DBUSY <= 0;
+									if (DBUS_ACTIVE && !BUS_WE_LATCH) begin
+										case (AREA_SZ)
+											2'b01: if (!SIZE_BYTE_DISABLE) begin
+												case (A[1:0])
+													2'b00: DAT_BUF[31:24] <= DI[7:0];
+													2'b01: DAT_BUF[23:16] <= DI[7:0];
+													2'b10: DAT_BUF[15: 8] <= DI[7:0];
+													2'b11: DAT_BUF[ 7: 0] <= DI[7:0];
+												endcase
+											end
+											2'b10: if (!SIZE_WORD_DISABLE) begin
+												case (A[1])
+													1'b0: DAT_BUF[31:16] <= DI[15:0];
+													1'b1: DAT_BUF[15: 0] <= DI[15:0];
+												endcase
+											end
+											2'b11: DAT_BUF <= DI;
+											default:;
+										endcase
+										DBUSY <= 0;
+									end
 									BUSY <= 0;
 								end
 								STATE_NEXT = T2;
@@ -289,7 +319,27 @@ module SH7604_BSC
 						else if (WAIT_N) begin
 							if (NEXT_BA == 4'd0) begin
 								if (CBUS_ACTIVE && !BUS_WE_LATCH) CBUSY <= 0;
-								if (DBUS_ACTIVE && !BUS_WE_LATCH) DBUSY <= 0;
+								if (DBUS_ACTIVE && !BUS_WE_LATCH) begin
+									case (AREA_SZ)
+										2'b01: if (!SIZE_BYTE_DISABLE) begin
+											case (A[1:0])
+												2'b00: DAT_BUF[31:24] <= DI[7:0];
+												2'b01: DAT_BUF[23:16] <= DI[7:0];
+												2'b10: DAT_BUF[15: 8] <= DI[7:0];
+												2'b11: DAT_BUF[ 7: 0] <= DI[7:0];
+											endcase
+										end
+										2'b10: if (!SIZE_WORD_DISABLE) begin
+											case (A[1])
+												1'b0: DAT_BUF[31:16] <= DI[15:0];
+												1'b1: DAT_BUF[15: 0] <= DI[15:0];
+											endcase
+										end
+										2'b11: DAT_BUF <= DI;
+										default:;
+									endcase
+									DBUSY <= 0;
+								end
 								BUSY <= 0;
 							end
 							STATE_NEXT = T2;
@@ -588,6 +638,7 @@ module SH7604_BSC
 								INSERT_WAIT <= 0;
 							end else if (BUS_STATE == T0 || BUS_STATE == T2 /*|| BUS_STATE == TWCAS*/ || (BUS_STATE == TWNOP && (NOP_WAIT_CNT == 2'd0)) || BUS_STATE == TRD || BUS_STATE == TRFS2) begin
 								REFRESH_ACTIVE <= 1;
+								DBUS_RD_ACTIVE <= 0;
 								INSERT_WAIT <= ~FAST;
 								A[24:0] <= '0;
 								DO <= '0; 
@@ -613,6 +664,7 @@ module SH7604_BSC
 						else if (VBUS_REQ && !CBUS_LOCK_INT && !DBUS_LOCK_INT) begin
 							if (BUS_STATE == T0 || BUS_STATE == T2 || (BUS_STATE == TWNOP && (NOP_WAIT_CNT == 2'd0)) || BUS_STATE == TRD || BUS_STATE == TRFS2) begin
 								VBUS_ACTIVE <= 1;
+								DBUS_RD_ACTIVE <= 0;
 								A <= {23'h000000,VBUS_A};
 								DO <= '0; 
 								CS0_N <= 1;
@@ -632,14 +684,16 @@ module SH7604_BSC
 								STATE_NEXT = TV1;
 							end
 						end 
-						else if ((DBUS_REQ && !CBUS_LOCK_INT && !(CBUS_EXT_REQ && DBUS_SKIP) && !(SDRAM_PRECHARGE_PEND && BUS_STATE != TRFS2 && BRLS && MASTER)) || (DBUS_REQ && DBUS_LOCK_INT && !CBUS_LOCK_INT)) begin
+						else if ((DBUS_REQ && !CBUS_LOCK_INT && !(CBUS_EXT_REQ && DBUS_SKIP && !DBUS_RD_ACTIVE) && !(SDRAM_PRECHARGE_PEND && BUS_STATE != TRFS2 && BRLS && MASTER)) || (DBUS_REQ && DBUS_LOCK_INT && !CBUS_LOCK_INT)) begin
 							IS_SAME_BANK_SDRAM = (SDRAMBank(A,MCR) == SDRAMBank(DBUS_A[26:0],MCR));
 							SDRAM_INSERT_NOP <= IS_SAME_BANK_SDRAM && BUS_WE_LATCH && DBUS_IS_SDRAM;
 							if (INSERT_WAIT && ((A[26:25] != DBUS_A[26:25] && !DBUS_WE && !BUS_WE_LATCH && !DBUS_IS_SDRAM) || (DBUS_WE && !BUS_WE_LATCH && !DBUS_IS_SDRAM) || (DBUS_WE && BUS_STATE == T0 && !DBUS_IS_SDRAM) || (!DBUS_LOCK_INT && !MASTER))) begin
 								A <= DBUS_A[26:0];
+								DBUS_RD_ACTIVE <= !DBUS_WE;
 								INSERT_WAIT <= 0;
 							end else if (BUS_STATE == T0 || BUS_STATE == T2 || (BUS_STATE == TWCAS && !SDRAM_INSERT_NOP && !DELAYED_RFS_REQ) || (BUS_STATE == TWNOP && (NOP_WAIT_CNT == 2'd0)) || BUS_STATE == TRD || BUS_STATE == TRFS2) begin
 								DBUS_ACTIVE <= 1;
+								DBUS_RD_ACTIVE <= !DBUS_WE;
 								DBUS_SKIP <= 1;
 								DBUS_LOCK_INT <= DBUS_LOCK;
 								case (GetAreaSZ(DBUS_A[26:25],BCR1,BCR2,A0_SZ,DRAM_SZ))
@@ -748,6 +802,7 @@ module SH7604_BSC
 									RD_WR_N <= 1;
 									RD_N <= 1;
 									CACK <= 0;
+									DBUS_RD_ACTIVE <= 0;
 									
 									BUS_WE_LATCH <= 0;
 									BUS_DI_LATCH <= '0;
@@ -761,10 +816,12 @@ module SH7604_BSC
 							if (INSERT_WAIT && ((A[26:25] != CBUS_A[26:25] && !CBUS_WE && !BUS_WE_LATCH && !CBUS_IS_SDRAM) || (CBUS_WE && !BUS_WE_LATCH && !CBUS_IS_SDRAM) || (CBUS_WE && BUS_STATE == T0 && !CBUS_IS_SDRAM) || (CBUS_WE && REFRESH_ACTIVE) || 
 							                    (CBUS_WE && CBUS_REQ_CNT == 2'd3 && (BRLS || !MASTER) && (NOP_WAIT_CNT == 2'd0)))) begin
 								A <= CBUS_A[26:0];
+								if (!DBUS_REQ || DBUS_WE) DBUS_RD_ACTIVE <= 0;
 								INSERT_WAIT <= 0;
 								CBUS_REQ_CNT <= 2'd0;
 							end else if (BUS_STATE == T0 || BUS_STATE == T2 || (BUS_STATE == TWCAS && !SDRAM_INSERT_NOP && !DELAYED_RFS_REQ) || (BUS_STATE == TWNOP && (NOP_WAIT_CNT == 2'd0)) || BUS_STATE == TRD || BUS_STATE == TRFS2) begin
 								CBUS_ACTIVE <= 1;
+								if (!DBUS_REQ || DBUS_WE) DBUS_RD_ACTIVE <= 0;
 								DBUS_SKIP <= 0;
 								if (CBUS_WE && CBUS_REQ_CNT < 2'd3) CBUS_REQ_CNT <= CBUS_REQ_CNT + 2'd1;
 								else CBUS_REQ_CNT <= 2'd0;
@@ -868,6 +925,7 @@ module SH7604_BSC
 					else begin
 						if (!CBUS_LOCK_INT) CBUS_ACTIVE <= 0;
 						if (!DBUS_LOCK_INT) DBUS_ACTIVE <= 0;
+						if (!DBUS_LOCK_INT) DBUS_RD_ACTIVE <= 0;
 						VBUS_ACTIVE <= 0;
 						REFRESH_ACTIVE <= 0;
 					end
@@ -882,7 +940,7 @@ module SH7604_BSC
 						CBUSY2 <= 1;
 					end
 				end
-				if (BUS_RLS) begin INSERT_WAIT <= 0; CBUS_REQ_CNT <= '0; end
+				if (BUS_RLS) begin INSERT_WAIT <= 0; CBUS_REQ_CNT <= '0; DBUS_RD_ACTIVE <= 0; end
 			end
 			if (CE_F) begin
 				if (!CBUS_EXT_REQ && CBUS_PREREQ && BUS_STATE == T0 && !BUS_RLS) DBUS_SKIP <= 1;
@@ -1024,6 +1082,7 @@ module SH7604_BSC
 	
 	assign DBUS_DO = DBUS_ACTIVE ? DAT_BUF : '0;
 	assign DBUS_BUSY = DBUSY | ((BUS_RLS | (BGR & MASTER) | (~BREQ & ~MASTER)) & DBUS_REQ) | CBUS_ACTIVE | VBUS_ACTIVE | REFRESH_ACTIVE;
+	assign BUS_DBUS_RD = DBUS_RD_ACTIVE && !BUS_RLS;
 	
 	assign VBUS_DO = VEC_BUF;
 	assign VBUS_BUSY = VBUSY | ((BUS_RLS | BGR) & VBUS_REQ);

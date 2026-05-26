@@ -231,6 +231,19 @@ jtcfgstr() {
     jtframe cfgstr $SYSNAME --target=$TARGET --output=$1 --def=$ALLMACROS --undef=$UNDEF
 }
 
+build_core_firmware() {
+    local core_path="$1"
+    local fw_dir="$core_path/firmware"
+    if [ -z "${JTFRAME_BUILD_FIRMWARE+x}" ]; then
+        return
+    fi
+    if [ ! -e "$fw_dir/Makefile" ]; then
+        echo "${rBG}Error:${NC} JTFRAME_BUILD_FIRMWARE set but $fw_dir/Makefile does not exist"
+        exit 1
+    fi
+    make -C "$fw_dir" || exit $?
+}
+
 make_verilator_command() {
 	echo "${VERILATOR_PATH}verilator -I$CORES/$SYSNAME/hdl"\
 "       -I$JTFRAME/hdl/inc "\
@@ -248,10 +261,22 @@ is_lint_on() {
 	echo "$EXTRA" | grep lint-only
 }
 
+set_verilator_optimization() {
+    local sim_opt=-O1
+    local maxframe="${MAXFRAME:-}"
+    if [ -z "$maxframe" ]; then maxframe=$(get_macro MAXFRAME); fi
+    if [[ "$maxframe" =~ ^[0-9]+$ && "$maxframe" -gt 600 ]]; then sim_opt=-O2; fi
+    if [ -n "$FAST" ]; then sim_opt=-O3; fi
+    if [ -z "$OPT_FAST" ]; then OPT_FAST="$sim_opt -march=native"; fi
+    if [ -z "$OPT_SLOW" ]; then OPT_SLOW="$sim_opt -march=native"; fi
+    if [ -z "$OPT_GLOBAL" ]; then OPT_GLOBAL="$sim_opt -march=native"; fi
+    export OPT_FAST OPT_SLOW OPT_GLOBAL
+}
+
 compile_verilator_sim() {
-    # boost C++ optimization without affecting other settings
-    if [ ! -z "$FAST" ]; then export CPPFLAGS=`echo "$CPPFLAGS" | sed s/-O1/-O3/`; fi
-    if ! make $MAKEJOBS -C obj_dir -f UUT.mk sim > make.log; then
+    if ! make $MAKEJOBS -C obj_dir -f UUT.mk sim \
+        OPT_FAST="$OPT_FAST" OPT_SLOW="$OPT_SLOW" \
+        OPT_GLOBAL="$OPT_GLOBAL" > make.log; then
         cat make.log
         exit $?
     fi

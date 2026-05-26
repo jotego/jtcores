@@ -21,6 +21,20 @@ func Test_set_sdram_refresh_rate(t *testing.T) {
 	}
 }
 
+func Test_make_clocks_pll5369_sdram96(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"JTFRAME_PLL":     "jtframe_pll5369",
+		"JTFRAME_SDRAM96": "1",
+	})
+	mclk := make_clocks("MISTER")
+	if mclk != 85909088 {
+		t.Fatalf("Bad JTFRAME_MCLK for jtframe_pll5369 with SDRAM96. Got %d", mclk)
+	}
+	if got := Get("JTFRAME_MCLK"); got != "85909088" {
+		t.Fatalf("Bad JTFRAME_MCLK macro. Got %s", got)
+	}
+}
+
 func Test_uses_sdram_cache(t *testing.T) {
 	root := t.TempDir()
 	t.Setenv("JTROOT", root)

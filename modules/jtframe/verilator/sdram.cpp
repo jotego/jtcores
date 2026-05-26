@@ -29,12 +29,13 @@
     - sequential and interleaved column addressing
     - burst interruption through READ/WRITE/BURST STOP/PRECHARGE commands
     - functional auto-precharge handling
+    - auto-refresh window checking
     - DQM byte masking, including the read-side two-cycle masking delay
     - JTFRAME's 32 MB and 64 MB SDRAM geometries
 
     The model is intentionally functional rather than fully timing-accurate.
     It does not try to enforce the complete SDRAM datasheet timing rules such
-    as tRCD, tRP, tWR, refresh windows, or power-down/self-refresh behavior.
+    as tRCD, tRP, tWR, or power-down/self-refresh behavior.
     The goal is to reproduce the memory transactions that JTFRAME issues during
     simulation closely enough for end-to-end video/audio validation.
 */
@@ -69,6 +70,9 @@ static bool masked(uint8_t dqm, int bit) {
     return (dqm & bit) != 0;
 }
 
+static const int SDRAM_REFRESH_REQUIRED = 8192;
+static const uint64_t SDRAM_REFRESH_WINDOW_PS = 64'000'000'000ULL;
+
 SDRAMModel::SDRAMModel(int colw, bool verbose)
     : colw_(colw),
       bank_word_len_(0x2000 << colw),
@@ -81,6 +85,10 @@ SDRAMModel::SDRAMModel(int colw, bool verbose)
       burst_full_page_(false),
       burst_interleaved_(false),
       write_burst_single_(false),
+      refresh_window_active_(false),
+      refresh_count_(0),
+      refresh_window_start_ps_(0),
+      last_refresh_ps_(0),
       read_dqm_({0, 0}) {
     for( auto& bank : banks_ ) bank.assign(bank_word_len_, 0);
     reset();
@@ -89,6 +97,10 @@ SDRAMModel::SDRAMModel(int colw, bool verbose)
 void SDRAMModel::reset() {
     read_dqm_[0] = 0;
     read_dqm_[1] = 0;
+    refresh_window_active_ = false;
+    refresh_count_ = 0;
+    refresh_window_start_ps_ = 0;
+    last_refresh_ps_ = 0;
     burst_ = BurstState();
     for( auto& bank : banks_state_ ) {
         bank.active = false;
@@ -273,6 +285,34 @@ void SDRAMModel::precharge_all() {
     for( auto& bank : banks_state_ ) bank.active = false;
 }
 
+void SDRAMModel::check_refresh_timeout(uint64_t simtime_ps) const {
+    if( simtime_ps - last_refresh_ps_ > SDRAM_REFRESH_WINDOW_PS ) {
+        throw "\nERROR: (sdram.cpp) more than 64 ms without an SDRAM auto-refresh command\n";
+    }
+}
+
+void SDRAMModel::refresh(uint64_t simtime_ps) {
+    check_refresh_timeout(simtime_ps);
+    last_refresh_ps_ = simtime_ps;
+
+    if( !refresh_window_active_ ) {
+        refresh_window_active_ = true;
+        refresh_window_start_ps_ = simtime_ps;
+        refresh_count_ = 1;
+        return;
+    }
+
+    refresh_count_++;
+    if( refresh_count_ < SDRAM_REFRESH_REQUIRED ) return;
+
+    if( simtime_ps - refresh_window_start_ps_ > SDRAM_REFRESH_WINDOW_PS ) {
+        throw "\nERROR: (sdram.cpp) less than 8192 SDRAM refresh cycles in 64 ms\n";
+    }
+
+    refresh_window_start_ps_ = simtime_ps;
+    refresh_count_ = 0;
+}
+
 void SDRAMModel::start_read(int bank, int column, bool auto_precharge) {
     bank &= 3;
     BurstState next;
@@ -344,10 +384,19 @@ SDRAMOutputs SDRAMModel::advance_read(uint8_t read_dqm) {
     return out;
 }
 
-SDRAMOutputs SDRAMModel::tick(const SDRAMPins& pins) {
+SDRAMOutputs SDRAMModel::tick(const SDRAMPins& pins, uint64_t simtime_ps) {
     SDRAMOutputs out;
     uint8_t read_dqm = read_dqm_[0];
     bool command_consumed_write = false;
+    bool auto_refresh = pins.cke && !pins.ncs && !pins.nras && !pins.ncas && pins.nwe;
+
+    if( pins.cke ) {
+        if( auto_refresh ) {
+            refresh(simtime_ps);
+        } else {
+            check_refresh_timeout(simtime_ps);
+        }
+    }
 
     if( pins.cke && !pins.ncs ) {
         int bank = pins.ba & 3;
@@ -418,7 +467,7 @@ SDRAM::SDRAM(UUT& _dut) : dut(_dut), model(DEFAULT_COLW, true), last_clk(dut.SDR
 
 SDRAM::~SDRAM() {}
 
-void SDRAM::update() {
+void SDRAM::update(uint64_t simtime_ps) {
     bool neg_edge = !dut.SDRAM_CLK && last_clk;
     if( neg_edge ) {
         SDRAMPins pins;
@@ -431,7 +480,7 @@ void SDRAM::update() {
         pins.dqm = dut.SDRAM_DQM & 3;
         pins.a = dut.SDRAM_A;
         pins.din = dut.SDRAM_DIN;
-        auto out = model.tick(pins);
+        auto out = model.tick(pins, simtime_ps);
         dut.SDRAM_DQ = out.dq_drive ? out.dq : 0;
     }
     last_clk = dut.SDRAM_CLK;

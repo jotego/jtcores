@@ -1,0 +1,27 @@
+[global]
+author=["Fulvio Venturelli"]
+
+[parse]
+sourcefile=["gradius3.cpp"]
+
+[buttons]
+names = [
+    { machine="gradius3", names="Shoot,Power-Up,Missile" },
+]
+
+[dipsw]
+bitcnt=20
+delete=[{names=["Unused","Unknown"]}]
+
+[ROM]
+regions = [
+    { name="maincpu", width=16, reverse=true },
+    { name="sub",     start="JTFRAME_BA1_START", width=16, reverse=true },
+    { name="k051960", start="GFX_START", width=32 },
+    { name="audiocpu", start="JTFRAME_BA2_START" },
+    { name="k007232",  start="PCM_START", width=16, setname="gradius3jas" },
+    { name="k007232",  start="PCM_START" },
+    { name="proms",    start="JTFRAME_PROM_START" },
+]
+
+order = [ "maincpu", "sub", "k051960", "audiocpu", "k007232", "proms" ]

@@ -43,6 +43,9 @@ parse_args() {
             --nolinter) NOLINTER=1;;
             --nosta) SKIPTIMING=1;;
             --sim)   SIM=TRUE;;
+            --signaltap)
+                MACROS="$MACROS JTFRAME_SIGNALTAP"
+                SIGNALTAP=TRUE;;
             --sd)
                 if [ "${2:0:1}" != - ]; then
                     shift
@@ -108,6 +111,7 @@ Common options:
     --quicker | -qq          Faster MiSTer-oriented build
     --program | -p           Program the FPGA after the build
     --skip | -s              Skip compilation and run the remaining steps
+    --signaltap              Merge syn/signaltap.qsf and enable SignalTap
     --help | -h              Show this summary
 
 Use "man jtcore" for the full option reference.
@@ -199,6 +203,34 @@ copy_templates() {
         # Prepare config string
         parse_macros cfgstr > $JTROOT/log/$TARGET/cfgstr || exit $?
     fi
+}
+
+build_core_firmware() {
+    local core_path="$1"
+    local fw_dir="$core_path/firmware"
+    if [ -z "${JTFRAME_BUILD_FIRMWARE+x}" ]; then
+        return
+    fi
+    if [ ! -e "$fw_dir/Makefile" ]; then
+        echo -e "${rBG}ERROR:${NC}${wBG} JTFRAME_BUILD_FIRMWARE set but ${red}$fw_dir/Makefile${NC}${wBG} does not exist.${NC}"
+        exit 1
+    fi
+    make -C "$fw_dir" || exit $?
+}
+
+append_signaltap_qsf() {
+    local tap_qsf=$PRJPATH/syn/signaltap.qsf
+    if [[ "$SIGNALTAP" != TRUE && ! -v JTFRAME_SIGNALTAP ]]; then
+        return
+    fi
+    if [ ! -e "$tap_qsf" ]; then
+        echo -e "${rBG}ERROR:${NC}${wBG} SignalTap requested but ${red}$tap_qsf${NC}${wBG} does not exist.${NC}"
+        exit 1
+    fi
+    echo >> $QSF
+    echo "# Core SignalTap assignments" >> $QSF
+    echo "set_global_assignment -name ENABLE_SIGNALTAP ON" >> $QSF
+    cat "$tap_qsf" >> $QSF
 }
 
 append_if_exists() {

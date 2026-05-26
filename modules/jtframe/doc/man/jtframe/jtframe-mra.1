@@ -58,50 +58,258 @@ final ROM layout.
 Emit MRA and, unless disabled, Pocket JSON and merged
 \fB.rom\fR
 files.
-.SS Main TOML Sections
+.SS mame2mra.toml Schema
+The configuration file is split into the following sections.
 .TP
 .B [global]
-Global defaults such as fixed orientation when MAME metadata is not reliable.
+Global defaults.
+.RS
+.IP \[bu] 2
+\fBOrientation={ Fixed=true }\fR
+forces a fixed orientation when MAME rotation data is not reliable.
+.RE
 .TP
 .B [parse]
-Select which MAME source files, parents, devices, or machine names are kept.
-This section also handles debug-only machines, bootleg filtering, and promoted
-main set names.
+Machine selection and filtering rules.
+.RS
+.IP \[bu] 2
+\fBsourcefile=[ "mamefile1.cpp", "mamefile2.cpp", ... ]\fR
+selects machines from specific MAME driver files.
+.IP \[bu] 2
+\fBparents=[ { name="parentset", description="Parent Description" } ]\fR
+keeps clone families together even when the parent is not in the selected
+\fBsourcefile\fR list. The description is used to name alternate folders.
+.IP \[bu] 2
+\fBskip.Setnames=[ ... ]\fR
+skips specific set names.
+.IP \[bu] 2
+\fBskip.Bootlegs=true\fR
+skips bootleg sets.
+.IP \[bu] 2
+\fBdebug={ machines=[ ... ], setnames=[ ... ] }\fR
+marks entries that are not parsed when
+\fB--nodbg\fR
+is used.
+.IP \[bu] 2
+\fBmustbe.devices=[ "i8751", ... ]\fR
+requires the listed devices.
+.IP \[bu] 2
+\fBmustbe.machines=[ "machine name", ... ]\fR
+keeps only matching machine names.
+.IP \[bu] 2
+\fBmain_setnames=[ "setname", ... ]\fR
+promotes alternative sets as the main set when the nominal parent is not the
+best default.
+.RE
 .TP
 .B [Pocket]
-Add Pocket-specific metadata such as extra display modes.
+Pocket-specific metadata.
+.RS
+.IP \[bu] 2
+\fBdisplay_modes=[ 0x61, ... ]\fR
+adds extra display modes for Analogue Pocket metadata.
+.RE
 .TP
 .B [cheat]
-Associate per-game or shared cheat files and optionally disable cheat output.
+Cheat-file selection.
+.RS
+.IP \[bu] 2
+\fBdisable=false\fR
+controls whether cheats are emitted at all.
+.IP \[bu] 2
+\fBfiles=[ { filename="sameforall.s" }, { machine="baddudes", setname="", filename="hbarrel.s", skip=false } ]\fR
+maps shared or per-game cheat files. By default the tool also looks under
+\fBcores/<core>/cheat/<machine>.s\fR.
+.RE
 .TP
 .B [dipsw]
-Rename, delete, offset, or extend DIP switch entries and provide explicit
-defaults when multiple settings share the same bits.
+DIP-switch editing rules.
+.RS
+.IP \[bu] 2
+\fBrename=[ { name="Bonus Life", to="Bonus", values=[ ... ] }, ... ]\fR
+renames DIP labels and optionally value strings.
+.IP \[bu] 2
+\fBdelete=[ { machine="...", names=[ "Name*", "match??" ] }, ... ]\fR
+deletes DIP entries using
+\fB*\fR
+and
+\fB?\fR
+matching.
+.IP \[bu] 2
+\fBoffset=[ { machine="", setname="", name="", value=0 }, ... ]\fR
+shifts the bit position used by a given MAME DIP tag.
+.IP \[bu] 2
+\fBextra=[ { machine="", setname="", name="", options="", bits="" }, ... ]\fR
+adds extra DIP options.
+.IP \[bu] 2
+\fBdefaults=[ { machine="", setname="", value="ff,ff" }, ... ]\fR
+sets explicit default values byte by byte from LSB to MSB.
+.RE
 .TP
 .B [header]
-Describe JTFRAME download headers, PCB IDs, generated header registers, region
-offset tables, and frame trimming metadata.
+JTFRAME download-header description.
+.RS
+.IP \[bu] 2
+\fBinfo="Describe the header"\fR
+documents the header contents.
+.IP \[bu] 2
+\fBfill=0xff\fR
+sets the default fill byte.
+.IP \[bu] 2
+\fBPCBs=[ { machine="aliens" }, { machines=[ "crimfght", "gbusters" ] }, ... ]\fR
+declares PCB identifiers that can be consumed from
+\fBmacros.def\fR
+or
+\fBmem.yaml\fR.
+.IP \[bu] 2
+\fBdata=[ { pcb_id=true, offset=0 }, { machine="...", setname="...", dev="...", offset=3, data="12 32 43 ..." }, ... ]\fR
+defines explicit header bytes. The
+\fBpcb_id=true\fR
+entry writes the PCB-array information automatically.
+.IP \[bu] 2
+\fBregisters=[ { name="scr2bpp", pos="1[0]", values=[ { machine="hopmappy", value=1 } ], desc="..." }, ... ]\fR
+requests automatic header-module generation from named bitfields.
+.IP \[bu] 2
+\fBoffset={ start=0, bits=8, reverse=true, regions=[ "maincpu", "gfx1", ... ] }\fR
+creates a region-offset table in the header and also enables LUT parameters in
+\fBjtframe_dwnld\fR.
+.IP \[bu] 2
+\fBframes=[ { width=8 }, ... ]\fR
+overrides automatic frame trimming when black side bars in the original game
+should be removed by the framework.
+.IP \[bu] 2
+The header length itself is set in
+\fBmacros.def\fR
+with
+\fBJTFRAME_HEADER=<length>\fR.
+.RE
 .TP
 .B [buttons]
-Override button labels and dial behavior.
+Input-label overrides.
+.RS
+.IP \[bu] 2
+\fBnames=[ { setname="...", machine="...", names="shot,jump" } ]\fR
+overrides the button names published in the MRA.
+.IP \[bu] 2
+\fBdial=[ { machine="...", raw=true, reverse=true } ]\fR
+controls dial polarity and whether raw, slower dial pulses are sent.
+.RE
 .TP
 .B [ROM]
-Describe which MAME regions become the merged
+Merged-ROM layout rules.
+.RS
+.IP \[bu] 2
+\fBregions=[ ... ]\fR
+lists which MAME ROM regions form the final
 \fB.rom\fR
-image, the order used in the MRA, NVRAM defaults, split rules, patches, and
-allowed cartridge extensions.
+image.
+.IP \[bu] 2
+Each region entry may use fields such as
+\fBname\fR,
+\fBmachine\fR,
+\fBstart\fR,
+\fBwidth\fR,
+\fBlen\fR,
+\fBreverse\fR,
+\fBno_offset\fR,
+\fBoverrules\fR,
+\fBsequence\fR,
+\fBskip\fR,
+\fBrename\fR,
+\fBmirror\fR,
+\fBrom_len\fR,
+\fBremove\fR,
+and
+\fBfiles\fR.
+.IP \[bu] 2
+\fBname\fR
+in
+\fBregions=[ ... ]\fR
+may use glob matching with
+\fB*\fR
+and
+\fB?\fR
+to merge several MAME regions into one ROM collection pass. This applies only
+to
+\fBROM.regions\fR
+entries.
+.IP \[bu] 2
+Globbed region entries must match at least one MAME region or the command
+fails.
+.IP \[bu] 2
+\fBsequence=[2,1,0,0]\fR
+can reorder or repeat ROM files within a region.
+.IP \[bu] 2
+\fBmirror=true\fR
+duplicates content until the region is full instead of padding with
+\fBFF\fR.
+.IP \[bu] 2
+\fBrom_len=0x20000\fR
+duplicates data to match a larger PCB socket size.
+.IP \[bu] 2
+\fBfiles=[ { name="myname", crc="12345678", size=0x200 }, ... ]\fR
+replaces the ROM-file metadata from
+\fBmame.xml\fR
+for that region.
+.IP \[bu] 2
+Regions named
+\fBnvram\fR
+are skipped automatically.
+.IP \[bu] 2
+\fBorder=[ "maincpu", "soundcpu", "gfx1", "gfx2" ]\fR
+sets region order in the generated MRA.
+.IP \[bu] 2
+\fBnvram={ ... }\fR
+configures default NVRAM contents. Supported keys are
+\fBmachines=[ ... ]\fR
+and
+\fBdefaults=[ { machine="...", setname="...", data="00 22 33..." }, ... ]\fR.
+If a matching
+\fB.nvm\fR
+file exists in
+\fBcfg/\fR
+it will be used automatically.
+.IP \[bu] 2
+\fBsplits=[ { machine="...", offset=0x10000 }, { machine="...", offset=0x10000, min_len=0x2000 } ]\fR
+splits each ROM file in halves and merges the halves independently.
+.IP \[bu] 2
+\fBpatches=[ { machine="...", setname="...", offset=0x0000, data="01 02 03..." }, ... ]\fR
+patches the final ROM image after any
+\fBJTFRAME_HEADER\fR
+adjustment.
+.IP \[bu] 2
+\fBcarts=[ "rom", "bin" ]\fR
+defines file extensions used for cartridge loading.
+.RE
 .PP
-A small example:
+Compact example:
 .RS
 .nf
+[global]
+Orientation = { Fixed = true }
+
 [parse]
 sourcefile = [ "mamefile.cpp" ]
 parents = [
   { name = "parentset", description = "Parent Description" }
 ]
 
+[Pocket]
+display_modes = [ 0x61 ]
+
+[header]
+info = "Describe the header"
+fill = 0xff
+offset = { start = 0, bits = 8, reverse = true, regions = [ "maincpu", "gfx1" ] }
+
+[buttons]
+names = [
+  { machine = "game", names = "shot,jump" }
+]
+
 [ROM]
 order = [ "maincpu", "soundcpu", "gfx1" ]
+carts = [ "rom", "bin" ]
 .fi
 .RE
 .SH FLAGS

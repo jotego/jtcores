@@ -41,7 +41,7 @@ func (args *Args) Convert() error {
 	defer close_allzip()
 	parse_args(args)
 	macros.MakeMacros(args.Core, args.Target)
-	if args.Target == "pocket" && macros.IsSet("JTFRAME_SKIP") && args.Nodbg {
+	if args.Target == "pocket" && macros.IsSet("JTFRAME_SKIP") {
 		args.SkipPocket = true
 	}
 	var e error
@@ -55,6 +55,9 @@ func (args *Args) Convert() error {
 	if args.Show_platform {
 		fmt.Printf("%s", args.mra_cfg.Global.Platform)
 		return nil
+	}
+	if args.mra_cfg.is_romless() {
+		return args.convert_romless()
 	}
 	if !args.SkipPocket {
 		pocket_init(args.mra_cfg, *args)
@@ -92,6 +95,49 @@ func (args *Args) Convert() error {
 		pocket_save()
 	}
 	return all_errors
+}
+
+func (args *Args) convert_romless() error {
+	if args.Setname != "" {
+		return fmt.Errorf("ROM-less MRA generation does not support --setname")
+	}
+	if !args.SkipMRA && !args.Alt {
+		delete_core_mrafiles(macros.Get("CORENAME"), args.outdir)
+	}
+	if args.SkipMRA || args.Alt {
+		return nil
+	}
+	machine := &MachineXML{
+		Name:         args.Core,
+		Description:  romless_mra_name(args.mra_cfg, args.Core),
+		Year:         "",
+		Manufacturer: "Jotego",
+	}
+	root := make_romless_mra(machine, args.mra_cfg, *args)
+	dump_mra(*args, machine, args.mra_cfg, root, nil)
+	return dump_verilog_header(args.Core, args.mra_cfg.Header)
+}
+
+func (cfg Mame2MRA) is_romless() bool {
+	return len(cfg.Parse.Sourcefile) == 0 &&
+		cfg.Parse.Machine.Name == "" &&
+		len(cfg.ROM.Regions) == 0
+}
+
+func romless_mra_name(cfg Mame2MRA, corename string) string {
+	if cfg.Global.Platform != "" {
+		return cfg.Global.Platform
+	}
+	return "jt" + corename
+}
+
+func make_romless_mra(machine *MachineXML, cfg Mame2MRA, args Args) *XMLNode {
+	root := MakeNode("misterromdescription")
+	make_about_node(&root, cfg.Global)
+	root.AddNode("name", machine.Description)
+	root.AddNode("setname", machine.Name)
+	set_rbfname(&root, machine, cfg, args)
+	return &root
 }
 
 func (args *Args) dump_setnames(parsed_machines []ParsedMachine, parent_names map[string]string) (all_errors error) {

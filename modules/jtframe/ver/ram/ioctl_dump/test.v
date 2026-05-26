@@ -2,14 +2,14 @@
 
 module test;
 
-`include "test_tasks.vh"
-
-wire clk;
+wire clk, rst;
 wire [7:0] din0_mx, din1_mx, din2_mx, din3_mx, din4_mx, din5_mx;
 wire [1:0] we0, we1, we2, we3, we4, we5;
 wire [1:0] we0_mx, we1_mx, we2_mx, we3_mx, we4_mx, we5_mx;
 reg        ioctl_ram, ioctl_wr;
 reg  [7:0] ioctl_dout,
+
+
            dout0, dout1, dout2, dout3, dout4, dout5,
            din0, din1, din2, din3, din4, din5;
 wire [7:0] ioctl_aux;
@@ -23,6 +23,7 @@ reg  [12:0] addr2;
 wire [12:0] addr2_mx;
 reg  [23:0] ioctl_addr;
 
+`include "test_tasks.vh"
 function check_sel(input [23:0]a0,a1, input sel); begin
     reg inrange;
     inrange = ioctl_addr>=a0 && ioctl_addr<a1;

@@ -1,21 +1,22 @@
 FROM jotego/jtcore-base
 LABEL maintainer=jotego@gmail.com
 
-RUN apt install -y autoconf
+RUN apt install -y autoconf help2man
 
 # Verilator
-RUN cd /opt; git clone --branch v5.038 --depth 1 https://github.com/verilator/verilator.git
-RUN cd /opt/verilator; autoconf; ./configure
-RUN cd /opt/verilator; make -j $((`nproc`*4/5)); echo Done
-RUN find /opt/verilator -name "*.o" -delete
+RUN git clone --branch v5.044 --depth 1 https://github.com/verilator/verilator.git /tmp/verilator
+RUN cd /tmp/verilator; autoconf; ./configure --prefix=/usr/local/verilator
+RUN cd /tmp/verilator; make -j $((`nproc`*4/5)) && make install; echo Done
+RUN rm -rf /tmp/verilator
 RUN apt install --yes gettext
 
-ENV PATH=$PATH:/opt/verilator/bin:/usr/local/go/bin
-ENV VERILATOR_ROOT=/opt/verilator
+# Do not set VERILATOR_ROOT with binary package installs of Verilator.
+# Verilator 5.044 expects this variable unset for installed trees.
+ENV PATH=$PATH:/usr/local/verilator/bin:/usr/local/go/bin
 
 # Icarus Verilog
 RUN apt install --yes libbz2-dev
-RUN git clone --branch v12_0 --depth 1 https://github.com/steveicarus/iverilog.git
+RUN git clone --branch v13_0 --depth 1 https://github.com/steveicarus/iverilog.git
 RUN cd iverilog && bash autoconf.sh && ./configure && make -j $((`nproc`*4/5)) && make install
 RUN cd ..; rm -rf iverilog
 

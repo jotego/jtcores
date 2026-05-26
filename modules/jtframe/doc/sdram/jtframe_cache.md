@@ -39,13 +39,68 @@ Victim selection:
 - otherwise a pseudo-random victim is chosen
 - the last physical block accessed is protected from eviction unless `BLOCKS==1`
 
+## Flush Interface
+
+```verilog
+input  flush,
+output flushing,
+output flush_done
+```
+
+`flush` asks the cache to scan all tags and write back every valid dirty line.
+Normal write requests and read misses are blocked while a flush is pending or
+active. Read hits to valid cached lines may complete while dirty lines are being
+written back.
+
+Handshake rules:
+
+- `flush` is edge-triggered
+- if `flush` rises while the cache is busy, the request is latched as pending
+- `flushing` stays high while the dirty-line scan is active
+- `flush_done` is a one-cycle pulse after the final set/way has been scanned
+- clean valid lines remain valid
+- dirty lines written back by the flush remain valid and become clean
+
+This operation preserves cached contents. It only makes dirty data coherent with
+SDRAM.
+
+## Invalidate Interface
+
+```verilog
+input  invalidate,
+output invalidating,
+output invalidate_done
+```
+
+`invalidate` asks the cache to clear all tag valid bits. It is used by
+`jtframe_cache_mux` after another lane flushes overlapping data to SDRAM.
+
+Handshake rules:
+
+- `invalidate` is edge-triggered
+- if `invalidate` rises while the cache is busy, the request is latched as pending
+- normal read/write requests are blocked while invalidation is pending or active
+- `invalidating` stays high while the tag-clear walk is active
+- `invalidate_done` is a one-cycle pulse after the final tag set has been cleared
+
+Invalidation is a tag operation:
+
+- no dirty write-back is performed
+- cached data RAM contents are not cleared
+- all lines become invalid because their tags are cleared
+- the next read refills from SDRAM
+
+Because invalidation drops dirty state without writing it back, it is only safe
+for read-only lanes. The `jtframe mem` generator rejects configurations that
+try to invalidate writable target lanes.
+
 ## Endianness
 
 `DW=8` and `DW=16` map naturally onto SDRAM half-words.
 
 For `DW=32`, the cache assembles two SDRAM words:
 
-- `ENDIAN=1`: `{word0, word1}`
+- `ENDIAN=1`: `{word0, word1}
 - `ENDIAN=0`: `{word1, word0}`
 
 The same ordering is used when splitting 32-bit writes into SDRAM words.
@@ -91,6 +146,8 @@ Handshake meaning:
 
 Implementation note:
 
+- `jtframe_cache_req` owns the edge-triggered consumer request front end, pending
+  request latch, flush/invalidate edge tracking, and flush-time read-hit probe
 - after a dirty write-back, the following refill has one extra pre-data cycle on the burst path
 - the cache handles that by priming the first refill word before normal `ext_dok` streaming resumes
 

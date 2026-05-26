@@ -24,7 +24,10 @@
 // MAME only seems to implement the 16-bit interface, so it might have
 // been the only one used on commercial games.
 
-module jt053936(
+module jt053936 #(
+    parameter signed [31:0] XOFFSET = 0,
+    parameter signed [31:0] YOFFSET = 0
+)(
     input           rst, clk, cen,
 
     input    [15:0] din,        // from CPU
@@ -53,12 +56,11 @@ module jt053936(
     wire [15:0] io_mux, xhstep, xvstep, yhstep, yvstep, xcnt0, ycnt0;
     wire [ 9:0] xmin,  xmax, hcnt0, h;
     wire [ 8:0] ymin,  ymax, vcnt0, ln0, v;
-    wire [ 1:0] hmul, vmul;
+    wire        x_hmul, x_vmul, y_hmul, y_vmul;
     wire [ 5:0] xclip, yclip;
     wire        ln_en, ln_rd, ln_ok;
     wire [ 5:0] ob_cfg;
     wire        tick_hs, tick_vs, hs_dly;
-    reg  [ 1:0] xmul, ymul;
     integer k;
 
     assign io_mux = mmr[ioctl_addr[4:1]];
@@ -68,8 +70,10 @@ module jt053936(
     assign yvstep = mmr[ 3]; // external RAM when ln_en is set
     assign xhstep = mmr[ 4]; //
     assign yhstep = mmr[ 5]; //
-    assign hmul   = mmr[ 6][ 7: 6];
-    assign vmul   = mmr[ 6][15:14];
+    assign x_hmul = ln_en ? mmr[6][15] : mmr[6][ 6];
+    assign y_hmul = ln_en ? mmr[6][ 7] : mmr[6][ 6];
+    assign x_vmul = ln_en ? 1'b1       : mmr[6][14];
+    assign y_vmul = ln_en ? 1'b1       : mmr[6][14];
     assign xclip  = mmr[ 6][ 5: 0];
     assign yclip  = mmr[ 6][13: 8];
     assign ln_en  = mmr[ 7][6];
@@ -83,14 +87,6 @@ module jt053936(
     assign ln0    = mmr[14][8:0];
 
     assign dma_n  = ln_rd || !ln_en;
-
-    always @(posedge clk) if(rst) begin
-        xmul <= 0;
-        ymul <= 0;
-    end else if(cen) begin
-        xmul <= ln_en ? ~hmul : {2{mmr[6][6]}};
-        ymul <= ln_en ? ~vmul : {2{mmr[6][6]}};
-    end
 
     jt053936_ticks u_ticks(rst,clk,cen,hs,vs,tick_hs,tick_vs);
     jt053936_video_counters u_vid(rst,clk,cen,tick_hs,tick_vs,vcnt0,hcnt0,v,h);
@@ -112,7 +108,10 @@ module jt053936(
         .ok         ( ln_ok     )
     );
 
-    jt053936_counter u_hcnt(
+    jt053936_counter #(
+        .XOFFSET    ( XOFFSET   ),
+        .YOFFSET    ( YOFFSET   )
+    ) u_hcnt(
         .rst        ( rst       ),
         .clk        ( clk       ),
         .cen        ( cen       ),
@@ -122,11 +121,15 @@ module jt053936(
         .hstep      ( xhstep    ),
         .vstep      ( xvstep    ),
         .cnt0       ( xcnt0     ),
-        .mul        ( xmul      ),
+        .hmul       ( x_hmul    ),
+        .vmul       ( x_vmul    ),
         .cnt        ( xsum      )
     );
 
-    jt053936_counter u_vcnt(
+    jt053936_counter #(
+        .XOFFSET    ( XOFFSET   ),
+        .YOFFSET    ( YOFFSET   )
+    ) u_vcnt(
         .rst        ( rst       ),
         .clk        ( clk       ),
         .cen        ( cen       ),
@@ -136,7 +139,8 @@ module jt053936(
         .hstep      ( yhstep    ),
         .vstep      ( yvstep    ),
         .cnt0       ( ycnt0     ),
-        .mul        ( ymul      ),
+        .hmul       ( y_hmul    ),
+        .vmul       ( y_vmul    ),
         .cnt        ( ysum      )
     );
 
@@ -274,10 +278,13 @@ module jt053936_line_ram(
     output           rd, ok
 );
 
-    reg [3:0] cnt;
+    reg [2:0] cnt;
 
-    assign lh     = cnt[2:1];
-    assign rd     =~cnt[3] & en;
+    // In 16-bit mode the hardware fetches four line-RAM words per line:
+    // 2, 3, 4 and 5. The exported LH bus is word-select << 1, so only two
+    // bits are needed here and DMA ends after the fourth acknowledged transfer.
+    assign lh     = cnt[1:0];
+    assign rd     = ~cnt[2] & en;
     assign ok     = rd & ~dtackn;
 
     always @(posedge clk) if(rst) begin
@@ -285,7 +292,7 @@ module jt053936_line_ram(
         cnt <= 0;
     end else if(cen) begin
         la  <= tick_vs ? ln0  : tick_hs ? la +9'd1 : la;
-        cnt <= tick_hs ? 4'd0 : ok      ? cnt+4'd1 : cnt;
+        cnt <= tick_hs ? 3'd0 : ok      ? cnt+3'd1 : cnt;
     end
 endmodule
 
@@ -391,33 +398,38 @@ module jt053936_clip(
 endmodule
 
 /////////////////////////////////////////////////////
-module jt053936_counter(
+module jt053936_counter #(
+    parameter signed [31:0] XOFFSET = 0,
+    parameter signed [31:0] YOFFSET = 0
+)(
     input             rst, clk,cen,hs,vs,ln_en,
-    input      [15:0] hstep, vstep,cnt0,
-    input      [ 1:0] mul,
+    input      [15:0] hstep, vstep, cnt0,
+    input             hmul, vmul,
     output reg [23:0] cnt
 );
-    reg [23:0] eff_hstep, eff_vstep, vcnt;
-    wire up  = ln_en ? hs : vs;
-    reg  hs_l;
+    wire signed [23:0] eff_hstep = hmul ? {hstep,8'd0} : {{8{hstep[15]}},hstep};
+    wire signed [23:0] eff_vstep = vmul ? {vstep,8'd0} : {{8{vstep[15]}},vstep};
+    reg  signed [23:0] vcnt;
+    reg         hs_l;
+    wire signed [31:0] cnt0_ext  = {{8{cnt0[15]}}, cnt0, 8'd0};
+    wire signed [31:0] xbias     = $signed(eff_hstep) * -XOFFSET;
+    wire signed [31:0] ybias     = ln_en ? 32'sd0 : $signed(eff_vstep) * -YOFFSET;
+    wire signed [31:0] base_cnt0 = cnt0_ext + xbias + ybias;
 
     always @(posedge clk) if(rst) begin
         cnt   <= 0;
+        vcnt  <= 0;
         hs_l  <= 0;
     end else if(cen) begin
-        if(up) begin
-            eff_hstep <= mul[0] ? {hstep,8'd0} : {{8{hstep[15]}},hstep};
-            eff_vstep <= mul[1] ? {vstep,8'd0} : {{8{vstep[15]}},vstep};
-        end
         cnt   <= eff_hstep + cnt;
         hs_l  <= hs;
         if(hs_l) begin
             vcnt <= eff_vstep + vcnt;
-            cnt  <= ln_en ? eff_vstep + {cnt0,8'd0} : vcnt;
+            cnt  <= ln_en ? eff_vstep + base_cnt0[23:0] : vcnt;
         end
         if(vs) begin
-             cnt <= {cnt0,8'd0};
-            vcnt <= {cnt0,8'd0};
+             cnt <= base_cnt0[23:0];
+            vcnt <= base_cnt0[23:0];
         end
     end
 endmodule

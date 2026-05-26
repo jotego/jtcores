@@ -1,0 +1,36 @@
+grad3:
+  - get:
+    - jtgrad3_game.v
+    - jtgrad3_main.v
+    - jtgrad3_sub.v
+    - jtgrad3_video.v
+    - jtgrad3_colmix.v
+    - jtgrad3_sound.v
+aliens:
+  - get:
+    - jt051962.v
+    - jt051960.v
+    - jt052109.v
+    - jtaliens_scroll.v
+    - jtaliens_obj.v
+riders:
+  - get:
+    - jtriders_dump.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+    - jtframe_8bit_reg.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+jt51:
+jt007232:

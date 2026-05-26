@@ -1,6 +1,10 @@
 package mra
 
 import(
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -45,4 +49,106 @@ func Test_patch_is_skipped(t *testing.T) {
 	if !patch_is_skipped("other", "hack") {
 		t.Fatalf("different altversion should be skipped")
 	}
+}
+
+func Test_Convert_romless_mra(t *testing.T) {
+	root := t.TempDir()
+	init_test_git(t, root)
+	t.Setenv("JTROOT", root)
+	t.Setenv("CORES", filepath.Join(root, "cores"))
+	t.Setenv("JTFRAME", filepath.Join(root, "modules", "jtframe"))
+	core_cfg := filepath.Join(root, "cores", "test85", "cfg")
+	core_hdl := filepath.Join(root, "cores", "test85", "hdl")
+	if e := os.MkdirAll(core_cfg, 0775); e != nil {
+		t.Fatal(e)
+	}
+	if e := os.MkdirAll(core_hdl, 0775); e != nil {
+		t.Fatal(e)
+	}
+	if e := os.WriteFile(filepath.Join(core_cfg, "macros.def"), []byte("CORENAME=JTTEST85\n"), 0664); e != nil {
+		t.Fatal(e)
+	}
+	toml := []byte("[global]\nplatform=\"test85\"\n")
+	if e := os.WriteFile(filepath.Join(core_cfg, "mame2mra.toml"), toml, 0664); e != nil {
+		t.Fatal(e)
+	}
+
+	args := Args{Core: "test85", Target: "mister", SkipROM: true, SkipPocket: true}
+	if e := args.Convert(); e != nil {
+		t.Fatal(e)
+	}
+	mra_path := filepath.Join(root, "release", "mra", "test85.mra")
+	got, e := os.ReadFile(mra_path)
+	if e != nil {
+		t.Fatal(e)
+	}
+	out := string(got)
+	for _, want := range []string{"<name>test85</name>", "<setname>test85</setname>", "<rbf>jttest85</rbf>"} {
+		if !strings.Contains(out, want) {
+			t.Fatalf("ROM-less MRA is missing %q\n%s", want, out)
+		}
+	}
+	if strings.Contains(out, "<rom") {
+		t.Fatalf("ROM-less MRA should not contain a rom node\n%s", out)
+	}
+}
+
+func init_test_git(t *testing.T, root string) {
+	t.Helper()
+	commands := [][]string{
+		{"git", "init"},
+		{"git", "config", "user.email", "test@example.invalid"},
+		{"git", "config", "user.name", "test"},
+	}
+	for _, args := range commands {
+		run_test_git(t, root, args)
+	}
+	readme := filepath.Join(root, "README")
+	if e := os.WriteFile(readme, []byte("test\n"), 0664); e != nil {
+		t.Fatal(e)
+	}
+	for _, args := range [][]string{{"git", "add", "README"}, {"git", "commit", "-m", "init"}} {
+		run_test_git(t, root, args)
+	}
+}
+
+func run_test_git(t *testing.T, root string, args []string) {
+	t.Helper()
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Dir = root
+	cmd.Env = clean_test_git_env(os.Environ())
+	if out, e := cmd.CombinedOutput(); e != nil {
+		t.Fatalf("%v failed: %v\n%s", args, e, out)
+	}
+}
+
+func clean_test_git_env(env []string) []string {
+	local := map[string]bool{
+		"GIT_ALTERNATE_OBJECT_DIRECTORIES": true,
+		"GIT_CONFIG": true,
+		"GIT_CONFIG_PARAMETERS": true,
+		"GIT_CONFIG_COUNT": true,
+		"GIT_OBJECT_DIRECTORY": true,
+		"GIT_DIR": true,
+		"GIT_WORK_TREE": true,
+		"GIT_IMPLICIT_WORK_TREE": true,
+		"GIT_GRAFT_FILE": true,
+		"GIT_INDEX_FILE": true,
+		"GIT_NO_REPLACE_OBJECTS": true,
+		"GIT_REPLACE_REF_BASE": true,
+		"GIT_PREFIX": true,
+		"GIT_SHALLOW_FILE": true,
+		"GIT_COMMON_DIR": true,
+	}
+	clean := make([]string, 0, len(env))
+	for _, each := range env {
+		name := each
+		if eq := strings.IndexByte(each, '='); eq >= 0 {
+			name = each[:eq]
+		}
+		if !local[name] {
+			clean = append(clean, each)
+		}
+	}
+	return clean
 }

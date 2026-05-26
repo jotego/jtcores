@@ -633,15 +633,12 @@ JTSim::~JTSim() {
 void JTSim::clock(int n) {
     static int ticks=0;
     static int last_dwnd=0;
-#ifdef _JTFRAME_SIM96
-    n <<= 2;
-#endif
     while( n-- > 0 ) {
         int cur_dwn = game.ioctl_rom | game.ioctl_ram | game.dwnld_busy;
         multi_clock->advance_half_period();
         game.eval();
         if( game.contextp()->gotFinish() ) return;
-        sdram.update();
+        sdram.update(simtime + multi_clock->get_semi_period());
         dwn.update();
         if( !cur_dwn && last_dwnd ) {
             fprintf(stderr,"\nROM file transfered (frame %d)\n",frame_cnt);
@@ -663,7 +660,7 @@ void JTSim::clock(int n) {
         multi_clock->advance_half_period();
         game.eval();
         if( game.contextp()->gotFinish() ) return;
-        sdram.update();
+        sdram.update(simtime + multi_clock->get_semi_period());
         simtime += multi_clock->get_semi_period();
         ticks++;
 
@@ -702,6 +699,9 @@ void JTSim::measure_screen_rate() {
 }
 
 void JTSim::video_dump() {
+#ifdef _JTFRAME_SIM_SKIP_FRAME_DUMP
+    return;
+#endif
     static int LHBLl, LVBLl;
     static int cntw[2], cnth[2];
     static int last_pxlcen=0;
@@ -824,11 +824,13 @@ int main(int argc, char *argv[]) {
             sim.clock(ticks_48kHz);
             sim.update_wav();
             if( sim.get_frame()==3 ) {
+#ifndef _JTFRAME_SIM_SKIP_VSIZE
                 if( sim.activeh != _JTFRAME_HEIGHT || sim.activew != _JTFRAME_WIDTH ) {
                     fprintf(stderr, "\nERROR: (test.cpp)  video size mismatch. Macros define it as %dx%d but the core outputs %dx%d\n",
                         _JTFRAME_WIDTH, _JTFRAME_HEIGHT, sim.activew, sim.activeh );
                     break;
                 }
+#endif
             }
         }
         while(wait(NULL) != -1);

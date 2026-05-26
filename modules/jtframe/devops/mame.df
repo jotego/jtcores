@@ -1,0 +1,20 @@
+FROM jotego/simulator
+LABEL maintainer=jotego@gmail.com
+
+# Get MAME source for reference.
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends \
+        git \
+        wget \
+        ca-certificates \
+    && rm --recursive --force /var/lib/apt/lists/*
+
+RUN git clone --depth 1 --branch mame0282 --single-branch https://github.com/mamedev/mame.git /tmp/mame-src
+
+# Download a prebuilt MAME binary from distribution packages (mame 0.282 is available via package sources).
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends mame \
+    && ln -s /usr/games/mame /usr/local/bin/mame \
+    && rm --recursive --force /var/lib/apt/lists/*
+
+ENTRYPOINT ["bash"]

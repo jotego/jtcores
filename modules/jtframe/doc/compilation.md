@@ -51,6 +51,11 @@ Compiles Tiger Road core for MiSTer.
 
 Run `jtcore -h` to get help on the commands.
 
+Use `jtcore <core> --signaltap` to enable SignalTap when the core provides
+`cores/<core>/syn/signaltap.qsf`. A core may also opt in by defining
+`JTFRAME_SIGNALTAP` in `cfg/macros.def`. The generated target QSF keeps
+SignalTap disabled unless one of those two mechanisms is used.
+
 jtcore can also program the FPGA (MiST or MiSTer) with the ```-p``` option. In order to use a USB Blaster cable in Ubuntu you need to set up two udev rules files. The script **jtblaster** does that for you.
 
 ## jtupdate

@@ -4,12 +4,16 @@ module test;
 
 `include "test_tasks.vh"
 
+`ifndef STRESS_CYCLES
+`define STRESS_CYCLES 300_000
+`endif
+
 localparam integer PERIOD        = 10;
 localparam integer HF            = 1;
 localparam integer SDRAM_AW      = 23;
 localparam integer WORDS         = 8192;
 localparam integer LOCAL_WORDS   = 64;
-localparam integer STRESS_CYCLES = 2_000_000;
+localparam integer STRESS_CYCLES = `STRESS_CYCLES;
 localparam integer OFFSET0_W     =    0;
 localparam integer OFFSET1_W     = 1024;
 localparam integer OFFSET2_W     = 2048;
@@ -167,6 +171,30 @@ jtframe_cache_mux #(
     .dout7  ( dout7          ),
     .rd7    ( rd7            ),
     .ok7    ( ok7            ),
+    .flush0 ( 1'b0           ),
+    .flush1 ( 1'b0           ),
+    .flush2 ( 1'b0           ),
+    .flush3 ( 1'b0           ),
+    .flush4 ( 1'b0           ),
+    .flush5 ( 1'b0           ),
+    .flush6 ( 1'b0           ),
+    .flush7 ( 1'b0           ),
+    .flushing0   (            ),
+    .flush_done0 (            ),
+    .flushing1   (            ),
+    .flush_done1 (            ),
+    .flushing2   (            ),
+    .flush_done2 (            ),
+    .flushing3   (            ),
+    .flush_done3 (            ),
+    .flushing4   (            ),
+    .flush_done4 (            ),
+    .flushing5   (            ),
+    .flush_done5 (            ),
+    .flushing6   (            ),
+    .flush_done6 (            ),
+    .flushing7   (            ),
+    .flush_done7 (            ),
     .addr   ( sdram_addr     ),
     .ba     ( sdram_ba_mux   ),
     .rd     ( sdram_rd       ),

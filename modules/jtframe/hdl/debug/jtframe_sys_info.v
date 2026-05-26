@@ -79,10 +79,13 @@ wire        sample_clr, sample_up;
 wire [ 7:0] stats;
 // sound
 wire [ 7:0] vu_dB;
+// coremod
+wire [ 3:0] coremod_h;
 
 assign frame_up   = LVBL & ~LVBLl & dip_pause;
 assign sample_clr = freq_cnt == MFREQ[15:0]-1;
 assign sample_up  = sample & ~sl;
+assign coremod_h  = st_addr[0] ? {1'b0, core_mod[6:4]} : core_mod[3:0];
 
 always @(posedge clk) rst <= rst_sys;
 
@@ -131,7 +134,7 @@ always @(posedge clk) begin
             end
             2: st_dout <= stats; // SDRAM stats
             3: case( st_addr[5:4] )
-                0: st_dout <= { core_mod[3:0], dial_x, game_led, dip_flip };
+                0: st_dout <= { coremod_h, dial_x, game_led, dip_flip };
                 1: case(st_addr[2:0])
                     0: st_dout <= game_joy1[7:0];
                     1: st_dout <= {game_coin[0],game_start[0],game_joy1[9:4]};

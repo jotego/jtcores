@@ -7,9 +7,9 @@ module test;
 localparam integer PERIOD     = 10;
 localparam integer HF         = 1;
 localparam integer CACHE_AW   = 23;
-localparam integer BLKSIZE    = 1024;
+localparam integer BLKSIZE    = 512;
 localparam integer LINE_UNITS = BLKSIZE / 4;
-localparam integer WORDS      = 1024;
+localparam integer WORDS      = 8192;
 
 reg                 rst;
 reg                 clk;
@@ -49,7 +49,7 @@ integer             ack_count;
 wire rfsh = hcnt == 0;
 
 jtframe_cache #(
-    .BLOCKS     ( 1        ),
+    .BLOCKS     ( 16       ),
     .BLKSIZE    ( BLKSIZE  ),
     .AW         ( CACHE_AW ),
     .DW         ( 32       ),
@@ -65,6 +65,12 @@ jtframe_cache #(
     .wr         ( cache_wr   ),
     .wdsn       ( cache_wdsn ),
     .ok         ( cache_ok   ),
+    .flush      ( 1'b0       ),
+    .flushing   (            ),
+    .flush_done (            ),
+    .invalidate ( 1'b0       ),
+    .invalidating(            ),
+    .invalidate_done(         ),
     .ext_addr   ( ext_addr   ),
     .ext_din    ( ext_din    ),
     .ext_dout   ( ext_dout   ),
@@ -272,7 +278,12 @@ task read_req(input integer unit_addr, input integer expect_bursts);
                 ext_addr, ext_ack, ext_dst, ext_dok, ext_rdy, ext_din);
             fail();
         end
-        assert_msg(ack_count == ack_before + expect_bursts, "Unexpected burst count for read");
+        if( expect_bursts >= 0 )
+            if( ack_count != ack_before + expect_bursts ) begin
+                $display("Unexpected burst count for read addr=%0d got=%0d expected=%0d",
+                    unit_addr, ack_count-ack_before, expect_bursts);
+                fail();
+            end
 
         @(negedge clk);
         cache_rd = 1'b0;
@@ -319,7 +330,10 @@ integer idx;
 reg [15:0] before0, before1;
 
 initial begin
-    for( idx=0; idx<WORDS; idx=idx+1 ) exp_mem[idx] = 16'd0;
+    for( idx=0; idx<WORDS; idx=idx+1 ) begin
+        exp_mem[idx] = 16'd0;
+        u_sdram.Bank0[idx] = 16'd0;
+    end
 
     preload_byte(0, 8'h02);
     preload_byte(1, 8'h01);
@@ -361,11 +375,31 @@ initial begin
     model_write(0, 32'h55667788, 4'b0011);
     read_req(0, 0);
 
-    read_req(LINE_UNITS, 2);
+    read_req(LINE_UNITS*4, 1);
+    read_req(LINE_UNITS*8, 1);
+    read_req(LINE_UNITS*12, 1);
+    read_req(LINE_UNITS*16, 2);
     assert_sdram_unit_equals(0);
 
     read_req(0, 1);
     assert_msg(cache_dout === 32'h55663344, "Big-endian data must survive write-back and refill");
+
+    read_req(13, 0);
+    write_req(13, 32'h02000000, 4'b0011, 0);
+    model_write(13, 32'h02000000, 4'b0011);
+    write_req(13, 32'h00002398, 4'b1100, 0);
+    model_write(13, 32'h00002398, 4'b1100);
+    read_req(13, 0);
+
+    read_req(13 + LINE_UNITS*20, -1);
+    read_req(13 + LINE_UNITS*24, -1);
+    read_req(13 + LINE_UNITS*28, -1);
+    read_req(13 + LINE_UNITS*32, -1);
+    read_req(13 + LINE_UNITS*36, -1);
+    assert_sdram_unit_equals(13);
+
+    read_req(13, -1);
+    assert_msg(cache_dout === 32'h02002398, "CPS3 split write must survive dirty eviction and refill");
 
     $display("PASS");
     $finish;

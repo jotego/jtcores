@@ -19,15 +19,18 @@ package vcd
 
 import (
 	"fmt"
-	"text/template"
 	"os"
+	"text/template"
 )
 
 // Creates a hex file to be used in
 // verilog and the accompanying verilog file
 // to read it
 func (this *LnFile) DumpHex(ss VCDData, fname string) (e error) {
-	f, e := os.Create(fname + ".bin"); if e!=nil { return e }
+	f, e := os.Create(fname + ".bin")
+	if e != nil {
+		return e
+	}
 	lines := 0
 	tbw := 64
 	outputs := make([]*VCDSignal, len(ss))
@@ -44,12 +47,12 @@ func (this *LnFile) DumpHex(ss VCDData, fname string) (e error) {
 			t0 = this.time
 			set_t0 = false
 		}
-		fmt.Fprintf(f, "%064b", (this.time-t0)/1000 ) // convert to ns
+		fmt.Fprintf(f, "%064b", (this.time-t0)/1000) // convert to ns
 		for _, each := range outputs {
 			fms := fmt.Sprintf("%%0%db", each.MSB-each.LSB+1)
 			fmt.Fprintf(f, fms, each.Value)
 		}
-		fmt.Fprintf(f,"\n")
+		fmt.Fprintf(f, "\n")
 		lines++
 	}
 	f.Close()
@@ -89,8 +92,13 @@ endmodule
 	}
 	f, e = os.Create(fname + ".v")
 	defer f.Close()
-	if e!=nil { return e }
-	to, e := template.New(fname).Parse(t); if e!=nil { return e }
+	if e != nil {
+		return e
+	}
+	to, e := template.New(fname).Parse(t)
+	if e != nil {
+		return e
+	}
 	return to.Execute(f, info)
 }
 

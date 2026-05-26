@@ -15,8 +15,12 @@ All macros defined in the core's *cfg/macros.def* file are parsed by *jtsim* and
 # Cabinet Inputs During Simulation
 
 You can use a hex file with inputs for simulation. Enable this with the macro
-SIM_INPUTS. The file must be called sim_inputs.hex. Each line has a hexadecimal
-number with inputs coded. Active high only:
+SIM_INPUTS. The file must be called sim_inputs.hex. When using `jtsim`, the
+usual frontend is `-inputs file.cab`: if the file ends in `.cab`, `jtsim`
+automatically runs `jtframe cab file.cab` to generate `sim_inputs.hex`.
+
+Each line of `sim_inputs.hex` has a hexadecimal number with inputs coded.
+Active high only:
 
 bit  | meaning
 -----|------------
@@ -24,6 +28,7 @@ bit  | meaning
 7:4  | 1P joystick {up, down, left, right}
 10:8 | buttons {B3, B2, B1}
 11   | test button
+12   | reset
 
 Each line will be applied on a new frame.
 
@@ -55,6 +60,8 @@ The core needs to have a SDRAM with the game ROM loaded into it. The most basic 
 The ROM download process is slow but normally you only need to run it once to produce the sdram files. After that, calling `jtsim` will load those files directly to the SDRAM simulation model.
 
 `jtsim -setname game` will create the .rom file for the given name in the **$JTROOT/rom** folder and make a symbolic link to it called **rom.bin** in the simulation folder. It will then proceed to load the rom.
+
+ROM-less test cores can define **JTFRAME_ROMLESS** in `cfg/macros.def`. In that case `jtsim` accepts a `ver/game` simulation folder and creates an empty local **rom.bin** instead of requiring a MAME set or `$JTROOT/rom/<setname>.rom`.
 
 As the .rom download can sometimes be very slow and it does not require any core CPU, you can often use `jtsim -load -d NOMAIN -q` in order to simulate without the main and sound CPUs. Somecores will also take `-d NOMCU` to skip the MCU simulation. After creating the sdram files, a regular simulation with CPUs can be executed.
 

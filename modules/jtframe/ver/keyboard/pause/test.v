@@ -1,10 +1,11 @@
 module test;
 
-`include "test_tasks.vh"
-
 wire        rst, clk;
 wire        pause, lvbl;
 reg         key, joy, osd, service;
+
+`include "test_tasks.vh"
+
 
 initial begin
     key     = 0;
