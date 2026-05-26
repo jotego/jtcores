@@ -110,8 +110,6 @@ end
 */
 reg            actd, prechd;
 wire [ROW-1:0] addr_row;
-wire [COW-1:0] addr_col;
-wire [9:0]     sdram_col;
 reg  [STW-1:0] st, next_st, rot_st;
 reg            last_act;
 wire           rd_wr;
@@ -126,12 +124,10 @@ assign ack      = st[READ],
        dst      = st[DST] | (st[READ] & wr),
        dbusy    = |{in_busy, do_read},
        dbusy64  = READONLY ? dbusy : |{in_busy64, do_read},
-       rdy       = (written && !AUTOPRECH) ? st[READ] : st[RDY],
-       addr_row  = addr[AW-1:COW],
-       addr_col  = addr[COW-1:0],
-       sdram_col = { {(10-COW){1'b0}}, addr_col },
-       rd_wr     = rd | wr,
-       idle      = st[0];
+       rdy      = (written && !AUTOPRECH) ? st[READ] : st[RDY],
+       addr_row = AW==22 ? addr[AW-1:AW-ROW] : addr[AW-2:AW-1-ROW],
+       rd_wr    = rd | wr,
+       idle     = st[0];
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -221,7 +217,7 @@ always @(*) begin
           do_read  ? (rd ? CMD_READ : CMD_WRITE ) : CMD_NOP ));
     sdram_a[12:11] =  addr_row[12:11];
     sdram_a[10:0] = do_act ? addr_row[10:0] :
-            { do_read ? AUTOPRECH[0] : PRECHARGE_ALL[0], sdram_col };
+            { do_read ? AUTOPRECH[0] : PRECHARGE_ALL[0], addr[AW-1], addr[8:0]};
 end
 
 always @(posedge clk) begin
