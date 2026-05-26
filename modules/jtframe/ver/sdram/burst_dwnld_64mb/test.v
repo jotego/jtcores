@@ -36,6 +36,28 @@ localparam integer PERIOD = 10;
 localparam integer AW     = 23;
 localparam integer HF     = 1;
 
+`ifdef TEST_BALUT
+localparam [25:0] DNL_HEADER        = 26'd32;
+localparam [25:0] DNL_BA1_START     = ~26'd0;
+localparam [25:0] DNL_BA2_START     = ~26'd0;
+localparam [25:0] DNL_BA3_START     = ~26'd0;
+localparam integer DNL_BALUT        = 1;
+localparam integer DNL_LUTSH        = 16;
+`ifdef TEST_BALUT_REVERSE
+localparam integer DNL_BALUT_REVERSE = 1;
+`else
+localparam integer DNL_BALUT_REVERSE = 0;
+`endif
+`else
+localparam [25:0] DNL_HEADER        = 26'd0;
+localparam [25:0] DNL_BA1_START     = 26'h1000000;
+localparam [25:0] DNL_BA2_START     = 26'h2000000;
+localparam [25:0] DNL_BA3_START     = 26'h3000000;
+localparam integer DNL_BALUT        = 0;
+localparam integer DNL_LUTSH        = 0;
+localparam integer DNL_BALUT_REVERSE = 1;
+`endif
+
 wire [AW-1:0] prog_addr;
 wire [15:0]   prog_data;
 wire [ 1:0]   prog_mask;
@@ -104,9 +126,13 @@ jtframe_burst_sdram #(
 
 jtframe_dwnld #(
     .SDRAMW    ( 24          ),
-    .BA1_START ( 26'h1000000 ),
-    .BA2_START ( 26'h2000000 ),
-    .BA3_START ( 26'h3000000 ),
+    .HEADER    ( DNL_HEADER  ),
+    .BA1_START ( DNL_BA1_START ),
+    .BA2_START ( DNL_BA2_START ),
+    .BA3_START ( DNL_BA3_START ),
+    .BALUT     ( DNL_BALUT   ),
+    .LUTSH     ( DNL_LUTSH   ),
+    .BALUT_REVERSE( DNL_BALUT_REVERSE ),
     .SWAB      ( 1'b1        )
 ) u_dwnld (
     .clk        ( clk         ),

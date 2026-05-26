@@ -14,8 +14,10 @@ usage() {
 Usage: bash ./sim.sh [--keep] [sim arguments]
 
 Options:
-  --keep       Build with FST tracing enabled and keep test.fst
-  -h, --help   Show this help
+  --keep             Build with FST tracing enabled and keep test.fst
+  --balut-forward    Drive a high/low BALUT header with BALUT_REVERSE=0
+  --balut-reverse    Drive a low/high BALUT header with BALUT_REVERSE=1
+  -h, --help         Show this help
 
 All remaining arguments are forwarded to the simulation binary. Useful
 simulation arguments:
@@ -27,12 +29,22 @@ EOF
 }
 
 keep=0
+balut_mode=""
 args=()
+verilator_defs=()
 
 while [ $# -gt 0 ]; do
     case "$1" in
         --keep)
             keep=1
+            shift
+            ;;
+        --balut-forward)
+            balut_mode="forward"
+            shift
+            ;;
+        --balut-reverse)
+            balut_mode="reverse"
             shift
             ;;
         -h|--help)
@@ -45,6 +57,14 @@ while [ $# -gt 0 ]; do
             ;;
     esac
 done
+
+if [ -n "$balut_mode" ]; then
+    verilator_defs+=(-DTEST_BALUT)
+    args+=(--header-mode "$balut_mode")
+    if [ "$balut_mode" = "reverse" ]; then
+        verilator_defs+=(-DTEST_BALUT_REVERSE)
+    fi
+fi
 
 trace_args=()
 if [ "$keep" -eq 1 ]; then
@@ -64,6 +84,7 @@ verilator \
     -CFLAGS "-std=c++17 -I$JTFRAME/verilator -D_JTFRAME_SDRAM_LARGE" \
     -DSIMULATION \
     -DJTFRAME_SDRAM_LARGE \
+    "${verilator_defs[@]}" \
     "${trace_args[@]}" \
     test.v \
     "$JTFRAME/ver/sdram/burst_sdram_inc/jtframe_burst_sdram.v" \
@@ -76,7 +97,7 @@ verilator \
     "$JTFRAME/hdl/sdram/jtframe_sdram64_rfsh.v" \
     "$JTFRAME/hdl/sdram/jtframe_sdram64_bank.v" \
     "$JTFRAME/hdl/sdram/jtframe_dwnld.v" \
-    test.cpp \
+    driver.cpp \
     "$JTFRAME/verilator/sdram.cpp"
 
 ./obj_dir/Vtest "${args[@]}"

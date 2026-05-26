@@ -31,3 +31,7 @@ bash modules/jtframe/ver/sdram/burst_dwnld_64mb/sim.sh --bytes 65536
 
 Use `--keep` to build with FST tracing and keep `test.fst`. Use
 `--keep-data` to keep the generated `download.bin`.
+
+Use `--balut-forward` to prepend a high/low BALUT header and build
+`jtframe_dwnld` with `BALUT_REVERSE=0`. Use `--balut-reverse` to prepend a
+low/high BALUT header and build with `BALUT_REVERSE=1`.
