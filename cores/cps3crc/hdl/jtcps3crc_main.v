@@ -160,6 +160,68 @@ jt65c02 u_cpu(
     .dout       ( mpu_dout )
 );
 
+`ifdef SIMULATION
+reg [31:0] sim_found [0:3];
+reg [3:0]  sim_match, sim_done, sim_pass_seen;
+reg [1:0]  sim_bank;
+
+always @(posedge clk) begin
+    if( rst ) begin
+        sim_done      <= 4'd0;
+        sim_match     <= 4'd0;
+        sim_pass_seen <= 4'd0;
+        sim_found[0]  <= 32'd0;
+        sim_found[1]  <= 32'd0;
+        sim_found[2]  <= 32'd0;
+        sim_found[3]  <= 32'd0;
+    end else if( mpu_wr ) begin
+        if( mpu_addr >= 16'h0030 && mpu_addr < 16'h0040 ) begin
+            case( mpu_addr[3:0] )
+                4'h0: sim_found[0][ 7: 0] <= mpu_dout;
+                4'h1: sim_found[0][15: 8] <= mpu_dout;
+                4'h2: sim_found[0][23:16] <= mpu_dout;
+                4'h3: sim_found[0][31:24] <= mpu_dout;
+                4'h4: sim_found[1][ 7: 0] <= mpu_dout;
+                4'h5: sim_found[1][15: 8] <= mpu_dout;
+                4'h6: sim_found[1][23:16] <= mpu_dout;
+                4'h7: sim_found[1][31:24] <= mpu_dout;
+                4'h8: sim_found[2][ 7: 0] <= mpu_dout;
+                4'h9: sim_found[2][15: 8] <= mpu_dout;
+                4'ha: sim_found[2][23:16] <= mpu_dout;
+                4'hb: sim_found[2][31:24] <= mpu_dout;
+                4'hc: sim_found[3][ 7: 0] <= mpu_dout;
+                4'hd: sim_found[3][15: 8] <= mpu_dout;
+                4'he: sim_found[3][23:16] <= mpu_dout;
+                4'hf: sim_found[3][31:24] <= mpu_dout;
+            endcase
+        end
+        if( mpu_addr >= 16'h0040 && mpu_addr < 16'h0044 ) begin
+            sim_match[mpu_addr[1:0]] <= |mpu_dout;
+        end
+        if( mpu_addr == 16'h0017 ) begin
+            sim_done <= mpu_dout[3:0];
+            if( |(mpu_dout[3:0] & ~sim_done) ) begin
+                casez( mpu_dout[3:0] & ~sim_done )
+                    4'b???1: sim_bank = 2'd0;
+                    4'b??10: sim_bank = 2'd1;
+                    4'b?100: sim_bank = 2'd2;
+                    default: sim_bank = 2'd3;
+                endcase
+                $display("CPS3CRC simulation monitor: bank%0d done crc=%08x match=%0d",
+                         sim_bank, sim_found[sim_bank], sim_match[sim_bank]);
+                if( sim_match[sim_bank] ) begin
+                    sim_pass_seen[sim_bank] <= 1'b1;
+                    if( &(sim_pass_seen | (4'b0001 << sim_bank)) ) begin
+                        $display("PASS: CPS3CRC simulation monitor: all banks matched expected CRCs");
+                        $finish;
+                    end
+                end
+            end
+        end
+    end
+end
+`endif
+
 jtframe_edge u_frame_irq(
     .rst        ( rst           ),
     .clk        ( clk           ),

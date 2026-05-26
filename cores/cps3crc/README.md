@@ -2,19 +2,14 @@
 
 `cps3crc` is a CPS3 SDRAM download-path diagnostic core. It reuses the small `test85` 65C02, text display, PLL, and SDRAM cache vehicle, but uses the CPS3 MRA layout so MiSTer downloads full CPS3 ROM images into SDRAM.
 
-The firmware never writes to SDRAM. It continuously reads only the byte ranges initialized by the CPS3 MRA download stream and computes standard CRC-32 values for each SDRAM bank. The initialized ranges are:
-
-- bank0: `0x000000-0x87ffff`
-- bank1: `0x000000-0xffffff`
-- bank2: `0x000000-0xffffff`
-- bank3: `0x000000-0x3fffff`
+The firmware never writes to SDRAM. It continuously reads the first 8 KiB initialized by the CPS3 MRA download stream in each SDRAM bank and computes standard CRC-32 values. The checked range is `0x000000-0x001fff` for all four banks.
 
 Expected CRC-32 values are embedded for both `sfiiin` and `redearthn`:
 
 | setname | bank0 | bank1 | bank2 | bank3 |
 | --- | --- | --- | --- | --- |
-| `sfiiin` | `AC19E7D7` | `0B1E3015` | `E012FA06` | `58933DC2` |
-| `redearthn` | `3BA33E23` | `C5FFF13E` | `DFB96816` | `2F5B44BD` |
+| `sfiiin` | `3DEEA694` | `C7FFDE8C` | `542050D0` | `FBCCEB98` |
+| `redearthn` | `32616815` | `99B7FBB8` | `836D3B95` | `F34A940E` |
 
 A set is detected only when all four bank CRCs match the same set. Mixed matches or unknown values display `DETECTED FAIL`.
 
@@ -61,4 +56,4 @@ cd ../../../..
 source setprj.sh >/dev/null && cd cores/cps3crc/ver/sfiiin && jtsim -mister -video 20 -q
 ```
 
-Do not pass `-setname` for the short preload smoke test; that enables the full SPI ROM download path and is much slower. A complete pass over all banks is intended for FPGA use and is too slow for a normal short simulation. The simulation monitor only checks that the display starts, SDRAM reads begin, and no SDRAM write command is issued.
+Do not pass `-setname` for the short preload smoke test; that enables the full SPI ROM download path and is much slower. The firmware checks only the first 8 KiB of each bank, but the default monitor still only checks that the display starts, SDRAM reads begin, and no SDRAM write command is issued.

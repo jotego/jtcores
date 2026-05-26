@@ -109,7 +109,6 @@ irq:
         pha
         lda     BANKOFF
         pha
-        jsr     save_live_crc
         lda     REGVBL
         jsr     wait_blank
         jsr     tick_clock
@@ -150,10 +149,12 @@ read_loop:
         jsr     inc_addr
         jsr     bank_done
         bcc     read_loop
+        sei
         jsr     finish_crc
         jsr     save_crc
         jsr     check_crc_match
         jsr     set_done_bit
+        cli
         rts
 read_error:
         jsr     zero_found
@@ -176,7 +177,7 @@ clear_bank_state:
         sta     DONE
         lda     #$00
         sta     MATCH,x
-        jmp     zero_found
+        rts
 
 load_bank_end:
         ldx     CURBANK
@@ -335,31 +336,6 @@ save_crc:
         inx
         lda     CRC3
         sta     FOUND,x
-        rts
-
-save_live_crc:
-        ldx     CURBANK
-        lda     bank_bit,x
-        and     DONE
-        bne     save_live_done
-        jsr     bank_offset
-        ldx     BANKOFF
-        lda     CRC0
-        eor     #$ff
-        sta     FOUND,x
-        inx
-        lda     CRC1
-        eor     #$ff
-        sta     FOUND,x
-        inx
-        lda     CRC2
-        eor     #$ff
-        sta     FOUND,x
-        inx
-        lda     CRC3
-        eor     #$ff
-        sta     FOUND,x
-save_live_done:
         rts
 
 zero_found:
@@ -643,26 +619,8 @@ select_row_color:
         lda     bank_bit,x
         and     DONE
         beq     color_done
-        lda     DETECT
-        cmp     #DET_FAIL
-        beq     color_red
-        cmp     #DET_SFIIIN
-        beq     color_sf
-        cmp     #DET_REDEARTHN
-        beq     color_re
         lda     MATCH,x
         bne     color_done
-        beq     color_red
-color_sf:
-        lda     MATCH,x
-        and     #$01
-        bne     color_done
-        beq     color_red
-color_re:
-        lda     MATCH,x
-        and     #$02
-        bne     color_done
-color_red:
         lda     #$80
         sta     COLOR
 color_done:
@@ -825,11 +783,11 @@ byte_to_hex:
 bank_end0:
         db      $00,$00,$00,$00
 bank_end1:
-        db      $00,$00,$00,$00
+        db      $20,$20,$20,$20
 bank_end2:
-        db      $88,$00,$00,$40
+        db      $00,$00,$00,$00
 bank_full:
-        db      $00,$01,$01,$00
+        db      $00,$00,$00,$00
 bank_bit:
         db      $01,$02,$04,$08
 row_lo:
@@ -839,15 +797,15 @@ row_hi:
 
 ; Stored low byte first for comparisons, displayed high byte first.
 exp_sfiiin:
-        db      $d7,$e7,$19,$ac
-        db      $15,$30,$1e,$0b
-        db      $06,$fa,$12,$e0
-        db      $c2,$3d,$93,$58
+        db      $94,$a6,$ee,$3d
+        db      $8c,$de,$ff,$c7
+        db      $d0,$50,$20,$54
+        db      $98,$eb,$cc,$fb
 exp_redearthn:
-        db      $23,$3e,$a3,$3b
-        db      $3e,$f1,$ff,$c5
-        db      $16,$68,$b9,$df
-        db      $bd,$44,$5b,$2f
+        db      $15,$68,$61,$32
+        db      $b8,$fb,$b7,$99
+        db      $95,$3b,$6d,$83
+        db      $0e,$94,$4a,$f3
 
 title_msg:
         db      "CHECKING BANK 0",0
