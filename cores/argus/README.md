@@ -9,8 +9,22 @@ Built on top of Jose Tejada's `jtframe` framework (also GPL-3). This core is
 being brought up from emulator references because no original schematics have
 been found. The implementation is guided by MAME's Jaleco `argus.cpp` /
 `argus_v.cpp` driver, the local MAME-compatible `argus.zip` ROM set, and live
-Verilator comparison against MAME reference frames. See
-[AUTHORS.md](AUTHORS.md) for attribution.
+Verilator comparison against MAME reference frames.
+
+# Authors
+
+Core implementation:
+
+- Fulvio Venturelli
+
+JTFRAME/JTCORES reusable infrastructure:
+
+- Jose Tejada Gomez and contributors
+
+Reference emulation:
+
+- MAME Argus driver by Yochizo
+- FinalBurn Neo Argus driver contributors
 
 ## Status
 
