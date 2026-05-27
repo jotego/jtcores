@@ -1,9 +1,9 @@
 cps3crc:
   - get:
       - jtcps3crc_game.v
-      - jtcps3crc_main.v
 test85:
   - get:
+      - jttest85_main.v
       - jttest85_video.v
       - jttest85_font.v
 jt680x:

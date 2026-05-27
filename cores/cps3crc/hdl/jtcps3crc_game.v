@@ -12,6 +12,9 @@ assign snd         = 16'd0;
 assign sample      = 1'b0;
 assign dip_flip    = 1'b0;
 wire [7:0] cache_status;
+wire       main_cache_we;
+
+assign cpu_we      = 1'b0;
 
 `ifdef JTFRAME_SIGNALTAP
 /* verilator lint_off UNUSED */
@@ -34,7 +37,7 @@ always @(posedge clk) begin
         cpu_flushing,     // 44
         cpu_flush,        // 43
         cpu_ok,           // 42
-        cpu_we,           // 41
+        main_cache_we,    // 41
         cpu_rd,           // 40
         cpu_data,         // 39:32
         cpu_din,          // 31:24
@@ -47,7 +50,7 @@ assign debug_view  = crc_tap[{debug_bus[2:0],3'b000} +: 8];
 assign debug_view  = cache_status;
 `endif
 
-jtcps3crc_main u_main(
+jttest85_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen        ( cen_cpu       ),
@@ -60,7 +63,7 @@ jtcps3crc_main u_main(
     .cache_addr ( cpu_addr      ),
     .cache_din  ( cpu_din       ),
     .cache_rd   ( cpu_rd        ),
-    .cache_we   ( cpu_we        ),
+    .cache_we   ( main_cache_we  ),
     .cache_flush( cpu_flush     ),
     .cache_dsn  ( cpu_dsn       ),
     .cache_status( cache_status ),
@@ -122,7 +125,7 @@ always @(posedge clk) begin
             $display("CPS3CRC simulation monitor: reset released");
         end
 
-        if( cpu_we ) sim_fail( "CPU attempted an SDRAM write" );
+        if( main_cache_we ) sim_fail( "CPU attempted an SDRAM write" );
         if( cpu_rd ) sim_cache_rd <= sim_cache_rd + 1;
 
         if( text_we ) begin

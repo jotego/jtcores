@@ -104,7 +104,12 @@ always @(posedge clk) begin
             endcase
         end
 
-        if( cmd_wr && !cache_busy ) begin
+        if( cmd_wr && mpu_dout[7] ) begin
+            cache_busy         <= 1'b0;
+            cache_done_l       <= 1'b0;
+            cache_flush_done_l <= 1'b0;
+            cache_op           <= OP_IDLE;
+        end else if( cmd_wr && !cache_busy ) begin
             cache_done_l       <= 1'b0;
             cache_flush_done_l <= 1'b0;
             if( mpu_dout[0] ) begin
