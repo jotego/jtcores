@@ -3,7 +3,7 @@ overrule=[ {rotate=270} ]
 
 [parse]
 sourcefile=[ "argus.cpp" ]
-main_setnames=[ "argus" ]
+skip={machines=["butasan","valtric"]}
 
 [dipsw]
 delete=[
