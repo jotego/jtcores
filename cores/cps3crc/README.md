@@ -2,16 +2,16 @@
 
 `cps3crc` is a CPS3 SDRAM download-path diagnostic core. It reuses the small `test85` 65C02, text display, PLL, and SDRAM cache vehicle, but uses the CPS3 MRA layout so MiSTer downloads full CPS3 ROM images into SDRAM.
 
-The firmware never writes to SDRAM. It continuously reads the first 8 KiB initialized by the CPS3 MRA download stream in each SDRAM bank and computes standard CRC-32 values. The checked range is `0x000000-0x001fff` for all four banks.
+The firmware never writes to SDRAM. It runs four read-only CRC-32 rounds over the CPS3 MRA download stream:
 
-Expected CRC-32 values are embedded for both `sfiiin` and `redearthn`:
+| round | checked content | success line |
+| --- | --- | --- |
+| 1 | first 8 KiB of each bank | `8KB PASS` |
+| 2 | first 64 KiB of each bank | `64KB PASS` |
+| 3 | first 256 KiB of each bank | `256KB PASS` |
+| 4 | full initialized MRA area | `FULL PASS` |
 
-| setname | bank0 | bank1 | bank2 | bank3 |
-| --- | --- | --- | --- | --- |
-| `sfiiin` | `3DEEA694` | `C7FFDE8C` | `542050D0` | `FBCCEB98` |
-| `redearthn` | `32616815` | `99B7FBB8` | `836D3B95` | `F34A940E` |
-
-A set is detected only when all four bank CRCs match the same set. Mixed matches or unknown values display `DETECTED FAIL`.
+The full round checks bank0 `0x880000` bytes, bank1 `0x1000000` bytes, bank2 `0x1000000` bytes, and bank3 `0x400000` bytes. A round passes only when all four bank CRCs match the same set (`sfiiin` or `redearthn`). Mixed matches or unknown values display `DETECTED FAIL`, mark that round as red `FAIL`, and stop the test.
 
 The reference values can be recalculated from the `jtutil sdram` bank files with:
 
@@ -19,7 +19,7 @@ The reference values can be recalculated from the `jtutil sdram` bank files with
 cores/cps3crc/bin/calc_crc.py
 ```
 
-The helper reads `cores/cps3/ver/<setname>/sdram_bank<0-3>.bin`, processes the first 8 KiB of each bank in the 16-bit word-swapped order seen through the SDRAM cache, and prints the CRC-32 values.
+The helper reads `cores/cps3/ver/<setname>/sdram_bank<0-3>.bin`, processes bytes in the 16-bit word-swapped order seen through the SDRAM cache, and prints the CRC-32 values for all firmware rounds. Use `--window` to calculate one custom byte window for all banks.
 
 ## CPU Memory Map
 
@@ -36,7 +36,7 @@ The helper reads `cores/cps3/ver/<setname>/sdram_bank<0-3>.bin`, processes the f
 
 ## Screen
 
-The screen is updated from the frame IRQ during vertical blank. The display shows the current bank being checked, each bank CRC found versus expected, the detected set, and a software clock that advances one second every 60 frame IRQs. Rows are drawn red when the final detected result marks them wrong.
+The screen is updated from the frame IRQ during vertical blank. The display shows the current bank being checked, each bank CRC found versus expected, the detected set, the four round status lines, and a software clock that advances one second every 60 frame IRQs. Bank rows and round rows are drawn red when the final detected result marks them wrong.
 
 ## Firmware
 
@@ -64,4 +64,4 @@ cd ../../../..
 source setprj.sh >/dev/null && cd cores/cps3crc/ver/sfiiin && jtsim -mister -video 20 -q
 ```
 
-Do not pass `-setname` for the short preload smoke test; that enables the full SPI ROM download path and is much slower. The firmware checks only the first 8 KiB of each bank. The simulation monitor checks that the display starts, SDRAM reads begin, and no SDRAM write command is issued; use a longer `jtsim -mister -video 130 -q` run when you need to see all four displayed bank CRCs pass.
+Do not pass `-setname` for the short preload smoke test; that enables the full SPI ROM download path and is much slower. The simulation monitor checks that the display starts, SDRAM reads begin, no SDRAM write command is issued, and the 8 KiB round reaches `PASS`; longer rounds are intended for FPGA runtime because the full active-area pass is slow in simulation.

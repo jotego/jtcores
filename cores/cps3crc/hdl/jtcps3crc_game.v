@@ -93,8 +93,9 @@ jttest85_video u_video(
 );
 
 `ifdef SIMULATION
-reg        sim_rst_l, sim_lvbl_l, sim_title_seen, sim_bank_seen;
+reg        sim_rst_l, sim_lvbl_l, sim_title_seen, sim_bank_seen, sim_round0_seen;
 reg [ 3:0] sim_title, sim_bank;
+reg [ 6:0] sim_round0_pass;
 integer    sim_frame, sim_cache_rd;
 
 task sim_fail;
@@ -118,6 +119,8 @@ always @(posedge clk) begin
         sim_bank       <= 4'd0;
         sim_title_seen <= 1'b0;
         sim_bank_seen  <= 1'b0;
+        sim_round0_seen <= 1'b0;
+        sim_round0_pass <= 7'd0;
         sim_frame      <= 0;
         sim_cache_rd   <= 0;
     end else begin
@@ -138,6 +141,13 @@ always @(posedge clk) begin
                 10'h041: if( text_din == 8'h41 ) sim_bank[1] <= 1'b1; // A
                 10'h042: if( text_din == 8'h4e ) sim_bank[2] <= 1'b1; // N
                 10'h043: if( text_din == 8'h4b ) sim_bank[3] <= 1'b1; // K
+                10'h100: if( text_din == 8'h38 ) sim_round0_pass[0] <= 1'b1; // 8
+                10'h101: if( text_din == 8'h4b ) sim_round0_pass[1] <= 1'b1; // K
+                10'h102: if( text_din == 8'h42 ) sim_round0_pass[2] <= 1'b1; // B
+                10'h104: if( text_din == 8'h50 ) sim_round0_pass[3] <= 1'b1; // P
+                10'h105: if( text_din == 8'h41 ) sim_round0_pass[4] <= 1'b1; // A
+                10'h106: if( text_din == 8'h53 ) sim_round0_pass[5] <= 1'b1; // S
+                10'h107: if( text_din == 8'h53 ) sim_round0_pass[6] <= 1'b1; // S
                 default: begin
                 end
             endcase
@@ -151,6 +161,12 @@ always @(posedge clk) begin
         if( sim_bank == 4'hf && !sim_bank_seen ) begin
             sim_bank_seen <= 1'b1;
             $display("CPS3CRC simulation monitor: bank row text written");
+        end
+
+        if( sim_round0_pass == 7'h7f && !sim_round0_seen ) begin
+            sim_round0_seen <= 1'b1;
+            $display("PASS: CPS3CRC simulation monitor: 8KB round passed");
+            $finish;
         end
 
         if( sim_lvbl_l && !LVBL ) begin

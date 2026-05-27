@@ -7,18 +7,27 @@ from pathlib import Path
 
 
 DEFAULT_ROOT = Path(__file__).resolve().parents[3] / "cores/cps3/ver"
+ROUNDS = [
+    ("8KB", [0x2000] * 4),
+    ("64KB", [0x10000] * 4),
+    ("256KB", [0x40000] * 4),
+    ("FULL", [0x880000, 0x1000000, 0x1000000, 0x400000]),
+]
 
 
 def main() -> None:
     args = parse_args()
     setnames = args.setname or ["sfiiin", "redearthn"]
+    rounds = [(f"{args.window:#x}", [args.window] * 4)] if args.window else ROUNDS
 
-    for setname in setnames:
-        base = args.root / setname
-        print(setname)
-        for bank in range(4):
-            data = read_bank(base, bank, args.window)
-            print(f"bank{bank} {crc32(data):08X}")
+    for round_name, windows in rounds:
+        print(round_name)
+        for setname in setnames:
+            base = args.root / setname
+            print(setname)
+            for bank, window in enumerate(windows):
+                data = read_bank(base, bank, window)
+                print(f"bank{bank} {crc32(data):08X}")
 
 
 def parse_args() -> argparse.Namespace:
@@ -26,7 +35,8 @@ def parse_args() -> argparse.Namespace:
         description=(
             "Calculate the CRC-32 values used by the cps3crc firmware. "
             "Bytes are processed in the 16-bit word-swapped order seen "
-            "through the SDRAM cache."
+            "through the SDRAM cache. Without --window, all firmware rounds "
+            "are printed."
         )
     )
     parser.add_argument(
@@ -44,8 +54,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--window",
         type=lambda value: int(value, 0),
-        default=0x2000,
-        help="Number of bytes to read from the start of each bank.",
+        default=None,
+        help="Override all banks with one byte window instead of printing firmware rounds.",
     )
     return parser.parse_args()
 
