@@ -13,6 +13,14 @@ Expected CRC-32 values are embedded for both `sfiiin` and `redearthn`:
 
 A set is detected only when all four bank CRCs match the same set. Mixed matches or unknown values display `DETECTED FAIL`.
 
+The reference values can be recalculated from the `jtutil sdram` bank files with:
+
+```bash
+cores/cps3crc/bin/calc_crc.py
+```
+
+The helper reads `cores/cps3/ver/<setname>/sdram_bank<0-3>.bin`, processes the first 8 KiB of each bank in the 16-bit word-swapped order seen through the SDRAM cache, and prints the CRC-32 values.
+
 ## CPU Memory Map
 
 - `$0000-$01ff`: local work RAM.
