@@ -3,7 +3,7 @@ include:
     core: outrun
 game: outrun
 audio:
-  gain: 1.5
+  gain: 1.25
 params:
   - { name: ROAD_START }
   - { name: FD_PROM,     value: "`FD1089_START" }
