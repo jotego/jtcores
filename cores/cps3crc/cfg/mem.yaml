@@ -11,7 +11,7 @@ sdram:
       data_width: 8
       rw: true
       flush: { enable: true }
-      blocks: { count: 1, size: 1kB }
+      blocks: { count: 32, size: 1kB }
 bram:
   - name: text
     addr_width: 10
