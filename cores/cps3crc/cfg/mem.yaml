@@ -1,7 +1,7 @@
 clocks:
   clk96:
     - mul: 1
-      div: 4
+      div: 2
       outputs:
         - cen_cpu
 sdram:

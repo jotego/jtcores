@@ -8,4 +8,4 @@ all: ../hdl/boot.hex
 	rm -f boot.bin boot.full.bin boot.ihex boot.lst boot.p
 
 clean:
-	rm -f boot.bin boot.full.bin boot.ihex boot.lst boot.p test85.bin test85.lst test85.p
+	rm -f boot.bin boot.full.bin boot.ihex boot.lst boot.p cps3crc.bin cps3crc.lst cps3crc.p

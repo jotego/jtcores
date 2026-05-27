@@ -39,6 +39,7 @@ module jtframe_dwnld #(
     parameter        GFX16B0   = 0, // bit 0 for HHVVVV sequence
     parameter        BALUT     = 0, // 1 to use the header as the start for banks and PROM sections
                                     // header format: two bytes for the offset of each bank and PROM
+    parameter        BALUT_REVERSE = 1, // header offset bytes are low/high when set
     parameter        LUTSH     = 0  // bit shift to apply to ioctl_addr for BALUT comparisons
 )(
     input                clk,
@@ -83,6 +84,22 @@ reg  [25:0] part_addr, nohdr_addr;
 assign prog_data = {2{data_out}};
 assign prog_rd   = 0;
 
+function [15:0] header_word;
+    input [15:0] raw;
+    begin
+        header_word = BALUT_REVERSE ? raw : { raw[7:0], raw[15:8] };
+    end
+endfunction
+
+function [25:0] header_offset;
+    input [15:0] raw;
+    reg   [15:0] word;
+    begin
+        word = header_word(raw);
+        header_offset = {10'd0, word} << LUTSH;
+    end
+endfunction
+
 always @(*) begin
     header    = HEADER!=0 && ioctl_addr < HEADER && ioctl_rom;
     nohdr_addr = ioctl_addr-HEADER;
@@ -111,9 +128,9 @@ initial prog_ba = 0;
 always @(*) begin
     case( bank )
         2'd0: offset = 0;
-        2'd1: offset = BALUT==0 ? BA1_START : {ba_start[16+:26-LUTSH], {LUTSH{1'b0}}};
-        2'd2: offset = BALUT==0 ? BA2_START : {ba_start[32+:26-LUTSH], {LUTSH{1'b0}}};
-        2'd3: offset = BALUT==0 ? BA3_START : {ba_start[48+:26-LUTSH], {LUTSH{1'b0}}};
+        2'd1: offset = BALUT==0 ? BA1_START : header_offset(ba_start[16+:16]);
+        2'd2: offset = BALUT==0 ? BA2_START : header_offset(ba_start[32+:16]);
+        2'd3: offset = BALUT==0 ? BA3_START : header_offset(ba_start[48+:16]);
         default: offset = 0;
     endcase // bank
     eff_addr = part_addr-offset;
@@ -138,11 +155,11 @@ generate
         /* verilator lint_off WIDTHEXPAND */
         always @* begin
             bank = 0;
-            if( part_addr[25:LUTSH] >= ba_start[16+:16] ) bank = 1;
-            if( part_addr[25:LUTSH] >= ba_start[32+:16] ) bank = 2;
-            if( part_addr[25:LUTSH] >= ba_start[48+:16] ) bank = 3;
+            if( part_addr >= header_offset(ba_start[16+:16]) ) bank = 1;
+            if( part_addr >= header_offset(ba_start[32+:16]) ) bank = 2;
+            if( part_addr >= header_offset(ba_start[48+:16]) ) bank = 3;
         end
-        assign is_prom = part_addr[25:LUTSH] >= ba_start[64+:16];
+        assign is_prom = part_addr >= header_offset(ba_start[64+:16]);
         /* verilator lint_on WIDTHEXPAND */
     end
 endgenerate
@@ -190,7 +207,7 @@ initial begin
             $display("INFO: PROM download: %6X bytes loaded from file (%s)", readcnt, SIMFILE);
             $fclose(f);
             if( BALUT==1 ) begin
-                dumpcnt={mem[9],mem[8],{LUTSH{1'b0}}};
+                dumpcnt=header_offset({mem[9],mem[8]});
             end
             if( dumpcnt >= readcnt ) begin
                 $display("WARNING: PROM_START (%X) is set beyond the end of the file (%X)", PROM_START, dumpcnt);

@@ -257,6 +257,7 @@ type MemConfig struct {
 	Gfx16, Gfx16b, Gfx16c string
 	Gfx8b0, Gfx16b0       int
 	Balut, Lutsh          int
+	BalutReverse          bool
 }
 
 type SDRAMCfg struct {

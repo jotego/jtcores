@@ -120,6 +120,20 @@ static void expect_output(const SDRAMOutputs& out, uint16_t expected, const stri
     check(out.dq == expected, ctx + ": expected " + hex16(expected) + " got " + hex16(out.dq));
 }
 
+static void expect_model_error(const function<void()>& action, const string& ctx) {
+    bool got_error = false;
+
+    try {
+        action();
+    } catch( const char* ) {
+        got_error = true;
+    } catch( const exception& ) {
+        got_error = true;
+    }
+
+    check(got_error, ctx + ": expected model error");
+}
+
 static void set_mode(SDRAMModel& model, int mode) {
     expect_no_output(model.tick(mrs(mode)), "mode set");
 }
@@ -331,6 +345,55 @@ static void test_full_page_auto_precharge_ignored(int colw) {
     check(model.active_burst_kind() == 1, "full-page burst still active");
 }
 
+static void test_reject_read_without_active_bank(int colw) {
+    SDRAMModel model(colw);
+    fill_row(model, colw, 0, 0);
+    set_mode(model, 0x20 | 0x1);
+
+    expect_model_error([&]() {
+        model.tick(read_cmd(0, 0));
+    }, "read without active bank");
+}
+
+static void test_reject_write_without_active_bank(int colw) {
+    SDRAMModel model(colw);
+    set_mode(model, 0x20 | 0x1);
+
+    expect_model_error([&]() {
+        model.tick(write_cmd(0, 0, 0x1234));
+    }, "write without active bank");
+}
+
+static void test_reject_activate_active_bank(int colw) {
+    SDRAMModel model(colw);
+    set_mode(model, 0x20 | 0x1);
+    open_row(model, 0, 1);
+
+    expect_model_error([&]() {
+        model.tick(activate(0, 2));
+    }, "activate already-active bank");
+}
+
+static void test_reject_mode_register_set_with_active_bank(int colw) {
+    SDRAMModel model(colw);
+    set_mode(model, 0x20 | 0x1);
+    open_row(model, 0, 1);
+
+    expect_model_error([&]() {
+        model.tick(mrs(0x20 | 0x2));
+    }, "mode register set with active bank");
+}
+
+static void test_reject_refresh_with_active_bank(int colw) {
+    SDRAMModel model(colw);
+    set_mode(model, 0x20 | 0x1);
+    open_row(model, 0, 1);
+
+    expect_model_error([&]() {
+        model.tick(refresh_cmd());
+    }, "refresh with active bank");
+}
+
 static void drive_refresh_window(SDRAMModel& model, uint64_t final_time_ps) {
     for( int k = 0; k < REFRESH_REQUIRED; k++ ) {
         uint64_t simtime_ps = k == REFRESH_REQUIRED - 1 ?
@@ -401,6 +464,11 @@ static void run_geometry_suite(int colw) {
     test_read_interrupts_write(colw);
     test_precharge_and_auto_precharge(colw);
     test_full_page_auto_precharge_ignored(colw);
+    test_reject_read_without_active_bank(colw);
+    test_reject_write_without_active_bank(colw);
+    test_reject_activate_active_bank(colw);
+    test_reject_mode_register_set_with_active_bank(colw);
+    test_reject_refresh_with_active_bank(colw);
     test_refresh_window_accepts_64ms(colw);
     test_refresh_window_rejects_slow_refresh(colw);
     test_refresh_timeout_without_auto_refresh(colw);

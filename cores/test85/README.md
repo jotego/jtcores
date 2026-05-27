@@ -2,7 +2,7 @@
 
 `test85` is a small bring-up core for checking the CPS3-style 85.909 MHz clocking and SDRAM cache path on MiSTer without the full CPS3 core.
 
-The core is intentionally ROM-less. Firmware, work RAM, screen text storage, and font data are FPGA BRAM contents. `cfg/mem.yaml` defines one writable SDRAM cache lane with flush support.
+The core keeps CPU firmware, work RAM, screen text storage, and font data in FPGA BRAM. The MiSTer MRA downloads a small data-only payload into SDRAM so the built-in firmware can verify the download path through the SDRAM cache lane. Downloaded bytes are never used as CPU executable code.
 
 Current stage:
 
@@ -11,9 +11,9 @@ Current stage:
 - Provides 512 bytes of local CPU work RAM at `$0000-$01ff` for zero page and stack use.
 - Displays a 256x224 text screen through `jtframe_vtimer` and `jtframe_tilemap`.
 - Uses a CPU-writable 32x32 text RAM and a fixed `font0.hex` BRAM adapter for the character layer.
-- Drives the SDRAM cache lane from CPU-visible registers and shows the loop status on screen.
+- Drives the SDRAM cache lane from CPU-visible registers and shows the cache and ROM-download status on screen.
 - Latches the `LVBL` falling edge in `jttest85_main` with `jtframe_edge` to generate one maskable CPU interrupt per frame.
-- Adds a `SIMULATION`-only monitor that fails `jtsim` if `TEST85`/`PASS` are not written or if cache write/read/flush activity is missing after the first IRQ-driven frame.
+- Adds a `SIMULATION`-only monitor that fails `jtsim` if `TEST85`/`PASS ROM`/`FILL` are not written or if cache write/read/flush activity is missing.
 
 ## CPU memory map
 
@@ -25,9 +25,17 @@ Current stage:
 - `$3003`: cache write data on writes, latched cache read data on reads.
 - `$3004`: cache command on writes and status on reads.
 - `$3005`: frame IRQ/blanking register. Any access clears the latched frame IRQ. Reads return bit 0 as the IRQ latch and bit 1 as live vertical blank.
+- `$3006`: cache address bits `[25:24]`; only bits `[1:0]` are used.
 - `$c000-$ffff`: 16 KiB boot ROM.
 
 `$3004` write commands are bit-coded: bit 0 starts a cache write, bit 1 starts a cache read, and bit 2 starts a cache flush. `$3004` read status uses bit 0 as the latched operation-done flag, bit 1 as busy, bit 2 as live flushing, and bit 3 as latched flush-done.
+
+## SDRAM download map
+
+- `$000000-$00003f`: 64-byte MRA payload generated from `firmware/test85.s`.
+- `$000000-$3ffffff`: CPU-visible 64MB SDRAM cache test area. After the download check passes, firmware overwrites this whole range by writing a 3-byte page identifier at the start of each 128-byte page.
+
+The expected byte table is shared through `firmware/payload.inc`; `firmware/test85.s` emits it into the MRA payload, and `firmware/boot.s` includes the same table in the built-in boot ROM for comparison.
 
 ## Video
 
@@ -39,15 +47,17 @@ The tilemap pixel output is driven straight to RGB without a colmix module: back
 
 ## Firmware
 
-`firmware/boot.s` enables maskable interrupts after reset. Each frame IRQ clears the `$3005` latch, waits for vertical blank, and runs at most one cache test:
+`firmware/boot.s` enables maskable interrupts after reset. The foreground CPU loop runs with `cen_cpu` from the `clk96` divider and performs the destructive SDRAM work, while the frame IRQ only clears `$3005`, waits for vertical blank, and updates text RAM.
 
-1. On the first IRQ, clears text RAM and prints `TEST85` plus the loop label.
-2. Writes a deterministic byte pattern to the cache lane.
-3. Flushes the dirty cache line to SDRAM.
-4. Reads `$000400` to evict the single 1 KiB cache block.
-5. Reads the original address back through the cache and compares it.
-6. Waits for vertical blank before writing the screen result.
-7. Prints `PASS ITER xx` in white and advances to the next frame, or prints `FAIL ITER xx` in red and stops testing until reset.
+1. Reads `$000000-$00003f` through the cache lane and compares the downloaded payload against the built-in expected table.
+2. Prints `PASS ROM 3f` in white, or `FAIL ROM xx` in red with the failing byte index.
+3. If the ROM download check passes, writes a 3-byte page ID at the start of every 128-byte page from `$0000000` through `$3ffff80`.
+4. Flushes the dirty 1 KiB cache block after every eight tagged pages and after the final page.
+5. Displays the current fill address once per frame on the `FILL` row. After the sweep completes, the row changes to `FILL DONE 03FFFF80` and is no longer tied to the random-check working address.
+6. Evicts the final cached line before random checking so the next phase tests SDRAM contents.
+7. After the full 64MB sweep, uses a 24-bit deterministic generator masked to 19 page-ID bits to pick random 128-byte pages.
+8. Reads the 3-byte tag back, compares it with the expected page ID, increments and displays a 4-byte check counter plus the current check address, and continues until reset or failure.
+9. On a tag failure, stops and displays the offending address plus the read and expected 3-byte tag values in red, formatted as `READ xxxxxx  EXP yyyyyy`.
 
 Each cache handshake wait has a finite timeout, so a missing `cpu_ok` or `cpu_flush_done` reaches the firmware FAIL path instead of spinning forever.
 
@@ -65,7 +75,7 @@ make -C cores/test85/firmware
 
 The SignalTap file samples a kept 64-bit `st85_tap` register in `jttest85_game` plus the cache controller `flushing` signal. The tap register is clocked by the main game clock and packs the CPU-facing cache lane as follows:
 
-- `[23:0]`: `cpu_addr`.
+- `[23:0]`: `cpu_addr[23:0]` (low 24 bits; the 64MB test also uses address bits `[25:24]` through `$3006`).
 - `[31:24]`: `cpu_din`.
 - `[39:32]`: `cpu_data`.
 - `[40]`: `cpu_rd`.
@@ -78,7 +88,7 @@ The SignalTap file samples a kept 64-bit `st85_tap` register in `jttest85_game` 
 - `[47]`: `LVBL`.
 - `[48]`: `rst`.
 - `[56:49]`: `cache_status`.
-- `[57]`: `cen6`.
+- `[57]`: `cen_cpu`.
 - `[58]`: `pxl_cen`.
 - `[59]`: `pxl2_cen`.
 - `[60]`: `LHBL`.
@@ -88,14 +98,15 @@ The SignalTap file samples a kept 64-bit `st85_tap` register in `jttest85_game` 
 
 ## Validation
 
-The Stage 4 RTL and firmware were checked with:
+The TEST85 RTL and firmware were checked with:
 
 ```bash
 source setprj.sh >/dev/null && jtframe cfgstr test85 --target=mister
 source setprj.sh >/dev/null && jtframe mem test85 --target=mister
 source setprj.sh >/dev/null && jtframe files plain test85 --target=mister
 source setprj.sh >/dev/null && modules/jtframe/bin/lint-one.sh test85 -mister
-source setprj.sh >/dev/null && cd cores/test85/ver/game && jtsim -mister -video 3 -q
+source setprj.sh >/dev/null && jtframe mra test85
+source setprj.sh >/dev/null && cd cores/test85/ver/game && jtsim -mister -setname test85 -video 30 -q
 ```
 
-For the simulation frame check, inspect `cores/test85/ver/game/frames/frame_00001.jpg`; it should show the `TEST85`, `SDRAM CACHE LOOP`, and `PASS ITER xx` text.
+For the simulation frame check, inspect `cores/test85/ver/game/frames/frame_00030.jpg`; it should show the `TEST85`, `PASS ROM 3f`, and advancing `FILL` address rows. The full 64MB fill, `FILL DONE`, and subsequent random checks take longer than the 30-frame smoke run on normal simulation settings.

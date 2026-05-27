@@ -103,6 +103,7 @@ private:
     int burst_limit(const BurstState& burst) const;
     int column_for_beat(const BurstState& burst, int beat) const;
     uint16_t apply_read_dqm(uint16_t value, uint8_t dqm) const;
+    bool any_bank_active() const;
     void change_mode(int mode);
     void terminate_burst(bool close_bank);
     void precharge_bank(int bank);
