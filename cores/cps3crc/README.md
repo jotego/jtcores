@@ -56,4 +56,4 @@ cd ../../../..
 source setprj.sh >/dev/null && cd cores/cps3crc/ver/sfiiin && jtsim -mister -video 20 -q
 ```
 
-Do not pass `-setname` for the short preload smoke test; that enables the full SPI ROM download path and is much slower. The firmware checks only the first 8 KiB of each bank, but the default monitor still only checks that the display starts, SDRAM reads begin, and no SDRAM write command is issued.
+Do not pass `-setname` for the short preload smoke test; that enables the full SPI ROM download path and is much slower. The firmware checks only the first 8 KiB of each bank. The simulation monitor reports each bank completion, independently checks the captured CRC against the `sfiiin` and `redearthn` references, and prints a pass message once all four banks have matched.

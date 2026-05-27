@@ -162,18 +162,65 @@ jt65c02 u_cpu(
 
 `ifdef SIMULATION
 reg [31:0] sim_found [0:3];
-reg [3:0]  sim_match, sim_done, sim_pass_seen;
-reg [1:0]  sim_bank;
+reg [ 1:0] sim_match [0:3];
+reg [ 3:0] sim_done, sim_pass_seen;
+reg        sim_all_pass_msg;
+reg [ 1:0] sim_bank, sim_match_now;
+reg [31:0] sim_crc;
+reg        sim_sf_ok, sim_re_ok;
+
+function [31:0] sim_exp_sfiiin;
+    input [1:0] bank;
+begin
+    case( bank )
+        2'd0: sim_exp_sfiiin = 32'h3deea694;
+        2'd1: sim_exp_sfiiin = 32'hc7ffde8c;
+        2'd2: sim_exp_sfiiin = 32'h542050d0;
+        default: sim_exp_sfiiin = 32'hfbcceb98;
+    endcase
+end
+endfunction
+
+function [31:0] sim_exp_redearthn;
+    input [1:0] bank;
+begin
+    case( bank )
+        2'd0: sim_exp_redearthn = 32'h32616815;
+        2'd1: sim_exp_redearthn = 32'h99b7fbb8;
+        2'd2: sim_exp_redearthn = 32'h836d3b95;
+        default: sim_exp_redearthn = 32'hf34a940e;
+    endcase
+end
+endfunction
+
+task sim_crc_fail;
+    input [1:0]  bank;
+    input [31:0] crc;
+    input [1:0]  match;
+begin
+    $display("FAIL: CPS3CRC simulation monitor: bank%0d crc=%08x match=%02b expected_sfiiin=%08x expected_redearthn=%08x",
+             bank, crc, match, sim_exp_sfiiin(bank), sim_exp_redearthn(bank));
+    `ifdef VERILATOR
+    $fatal(1, "CPS3CRC bank CRC comparison failed");
+    `else
+    $finish;
+    `endif
+end
+endtask
 
 always @(posedge clk) begin
     if( rst ) begin
-        sim_done      <= 4'd0;
-        sim_match     <= 4'd0;
-        sim_pass_seen <= 4'd0;
-        sim_found[0]  <= 32'd0;
-        sim_found[1]  <= 32'd0;
-        sim_found[2]  <= 32'd0;
-        sim_found[3]  <= 32'd0;
+        sim_done         <= 4'd0;
+        sim_pass_seen    <= 4'd0;
+        sim_all_pass_msg <= 1'b0;
+        sim_match[0]     <= 2'd0;
+        sim_match[1]     <= 2'd0;
+        sim_match[2]     <= 2'd0;
+        sim_match[3]     <= 2'd0;
+        sim_found[0]     <= 32'd0;
+        sim_found[1]     <= 32'd0;
+        sim_found[2]     <= 32'd0;
+        sim_found[3]     <= 32'd0;
     end else if( mpu_wr ) begin
         if( mpu_addr >= 16'h0030 && mpu_addr < 16'h0040 ) begin
             case( mpu_addr[3:0] )
@@ -196,7 +243,7 @@ always @(posedge clk) begin
             endcase
         end
         if( mpu_addr >= 16'h0040 && mpu_addr < 16'h0044 ) begin
-            sim_match[mpu_addr[1:0]] <= |mpu_dout;
+            sim_match[mpu_addr[1:0]] <= mpu_dout[1:0];
         end
         if( mpu_addr == 16'h0017 ) begin
             sim_done <= mpu_dout[3:0];
@@ -207,14 +254,20 @@ always @(posedge clk) begin
                     4'b?100: sim_bank = 2'd2;
                     default: sim_bank = 2'd3;
                 endcase
-                $display("CPS3CRC simulation monitor: bank%0d done crc=%08x match=%0d",
-                         sim_bank, sim_found[sim_bank], sim_match[sim_bank]);
-                if( sim_match[sim_bank] ) begin
+                sim_crc       = sim_found[sim_bank];
+                sim_match_now = sim_match[sim_bank];
+                sim_sf_ok     = sim_crc == sim_exp_sfiiin(sim_bank);
+                sim_re_ok     = sim_crc == sim_exp_redearthn(sim_bank);
+                $display("CPS3CRC simulation monitor: bank%0d done crc=%08x match=%02b expected_sfiiin=%08x expected_redearthn=%08x",
+                         sim_bank, sim_crc, sim_match_now, sim_exp_sfiiin(sim_bank), sim_exp_redearthn(sim_bank));
+                if( (sim_sf_ok && sim_match_now[0]) || (sim_re_ok && sim_match_now[1]) ) begin
                     sim_pass_seen[sim_bank] <= 1'b1;
-                    if( &(sim_pass_seen | (4'b0001 << sim_bank)) ) begin
+                    if( &(sim_pass_seen | (4'b0001 << sim_bank)) && !sim_all_pass_msg ) begin
+                        sim_all_pass_msg <= 1'b1;
                         $display("PASS: CPS3CRC simulation monitor: all banks matched expected CRCs");
-                        $finish;
                     end
+                end else begin
+                    sim_crc_fail( sim_bank, sim_crc, sim_match_now );
                 end
             end
         end

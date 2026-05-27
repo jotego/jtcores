@@ -753,6 +753,7 @@ print_dec2_digits:
         rts
 
 print_hex_at_y:
+        phx
         jsr     byte_to_hex
         lda     HEXHI
         ora     COLOR
@@ -762,6 +763,7 @@ print_hex_at_y:
         ora     COLOR
         sta     (PTRLO),y
         iny
+        plx
         rts
 
 byte_to_hex:
