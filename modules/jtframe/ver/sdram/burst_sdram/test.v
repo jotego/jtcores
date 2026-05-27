@@ -58,7 +58,7 @@ wire rfsh = hcnt == 0;
 jtframe_burst_sdram #(
     .AW      ( 22 ),
     .HF      ( HF ),
-    .MISTER  ( 0  ),
+    .MISTER  ( 1  ),
     .PROG_LEN( 64 )
 ) uut (
     .rst        ( rst        ),
