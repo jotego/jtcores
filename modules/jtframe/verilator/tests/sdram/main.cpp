@@ -345,6 +345,33 @@ static void test_full_page_auto_precharge_ignored(int colw) {
     check(model.active_burst_kind() == 1, "full-page burst still active");
 }
 
+static void test_read_auto_precharge_on_interrupt(int colw) {
+    SDRAMModel model(colw);
+    fill_row(model, colw, 0, 1);
+    fill_row(model, colw, 1, 2);
+    set_mode(model, 0x20 | 0x2);
+    open_row(model, 0, 1);
+    open_row(model, 1, 2);
+
+    expect_no_output(model.tick(read_cmd(0, 0, true)), "read auto-precharge command");
+    expect_no_output(model.tick(read_cmd(1, 0)), "read interrupt command");
+    check(!model.bank_active(0), "read auto-precharge interrupt closed original bank");
+    check(model.bank_active(1), "read interrupt bank remains active");
+}
+
+static void test_write_auto_precharge_on_interrupt(int colw) {
+    SDRAMModel model(colw);
+    fill_row(model, colw, 1, 2);
+    set_mode(model, 0x20 | 0x2);
+    open_row(model, 0, 1);
+    open_row(model, 1, 2);
+
+    expect_no_output(model.tick(write_cmd(0, 0, 0x1234, true)), "write auto-precharge command");
+    expect_no_output(model.tick(read_cmd(1, 0)), "write interrupt command");
+    check(!model.bank_active(0), "write auto-precharge interrupt closed original bank");
+    check(model.bank_active(1), "write interrupt bank remains active");
+}
+
 static void test_reject_read_without_active_bank(int colw) {
     SDRAMModel model(colw);
     fill_row(model, colw, 0, 0);
@@ -464,6 +491,8 @@ static void run_geometry_suite(int colw) {
     test_read_interrupts_write(colw);
     test_precharge_and_auto_precharge(colw);
     test_full_page_auto_precharge_ignored(colw);
+    test_read_auto_precharge_on_interrupt(colw);
+    test_write_auto_precharge_on_interrupt(colw);
     test_reject_read_without_active_bank(colw);
     test_reject_write_without_active_bank(colw);
     test_reject_activate_active_bank(colw);

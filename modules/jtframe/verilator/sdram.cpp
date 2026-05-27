@@ -432,13 +432,13 @@ SDRAMOutputs SDRAMModel::tick(const SDRAMPins& pins, uint64_t simtime_ps) {
             if( !banks_state_[bank].active ) {
                 throw "\nERROR: (sdram.cpp) read command issued to inactive bank\n";
             }
-            if( burst_.kind != BURST_NONE ) terminate_burst(false);
+            if( burst_.kind != BURST_NONE ) terminate_burst(burst_.auto_precharge);
             start_read(bank, pins.a & colmask_, (pins.a & 0x400) != 0);
         } else if( pins.nras && !pins.ncas && !pins.nwe ) {
             if( !banks_state_[bank].active ) {
                 throw "\nERROR: (sdram.cpp) write command issued to inactive bank\n";
             }
-            if( burst_.kind != BURST_NONE ) terminate_burst(false);
+            if( burst_.kind != BURST_NONE ) terminate_burst(burst_.auto_precharge);
             start_write(bank, pins.a & colmask_, (pins.a & 0x400) != 0);
             accept_write_beat(pins.din, pins.dqm);
             command_consumed_write = true;
