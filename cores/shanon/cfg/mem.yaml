@@ -2,6 +2,8 @@ include:
   - file: audio.yaml
     core: outrun
 game: outrun
+audio:
+  gain: 1.5
 params:
   - { name: ROAD_START }
   - { name: FD_PROM,     value: "`FD1089_START" }
