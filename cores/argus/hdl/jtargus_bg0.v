@@ -30,12 +30,11 @@ localparam [15:0] VROM2_BASE = VROM2_DIFF[15:0];
 wire [10:0] map_addr;
 wire [31:0] sorted;
 wire [15:0] cache_q;
-wire [16:0] fill_tile = ({fill_vrom,9'd0} + {6'd0,fill_addr}) & 17'h1ffff;
-wire [17:0] fill_tile_byte = {fill_tile,1'b0};
-wire [15:0] fill_vrom1_addr = {1'b0,fill_tile_byte[17:3]} & 16'hfffe;
-wire [14:0] fill_pat_addr = {vrom1_hi[2:0],vrom1_lo,4'd0} | {11'd0,tile_byte_l[3:0]};
-wire [15:0] cache_din = { vrom_data[5], vrom_data[4], vrom_data[3:0],
-                          vrom_data[7:6], vrom2_lo };
+wire [16:0] fill_tile       = {fill_vrom,9'd0} + {6'd0,fill_addr};
+wire [17:0] fill_tile_byte  = {fill_tile,1'b0};
+wire [15:0] fill_vrom1_addr = {1'b0,fill_tile_byte[17:4],1'b0};
+wire [14:0] fill_pat_addr   = {vrom1_hi[2:0],vrom1_lo,tile_byte_l[3:0]};
+wire [15:0] cache_din       = { vrom_data[5:0],vrom_data[7:6],vrom2_lo };
 
 reg  [ 7:0] vrom1_lo, vrom1_hi, vrom2_lo;
 reg  [ 3:0] phase;
@@ -95,7 +94,7 @@ always @(posedge clk) begin
                 end
             end
             4'd3: begin
-                vrom_addr <= ({1'b0,tile_byte_l[17:3]} & 16'hfffe) | 16'd1;
+                vrom_addr <= {1'b0,tile_byte_l[17:4],1'b1};
                 phase     <= 4'd4;
             end
             4'd4: begin
