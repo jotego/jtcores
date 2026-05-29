@@ -34,14 +34,6 @@ sdram:
         addr_width: 16
         data_width: 8
     - buses:
-      - name: obj
-        addr_width: 17
-        data_width: 32
-      - name: bg0
-        addr_width: 17
-        data_width: 32
-        offset: BG0_OFFSET
-    - buses:
       - name: bg1
         addr_width: 15
         data_width: 32
@@ -53,3 +45,11 @@ sdram:
         addr_width: 16
         data_width: 8
         offset: VROM1_OFFSET
+    - buses:
+      - name: obj
+        addr_width: 17
+        data_width: 32
+      - name: bg0
+        addr_width: 17
+        data_width: 32
+        offset: BG0_OFFSET
