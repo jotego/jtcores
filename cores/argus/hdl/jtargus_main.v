@@ -63,9 +63,9 @@ wire [15:0] A;
 wire mreq_n, iorq_n, rd_n, wr_n, rfsh_n, m1_n, int_n;
 wire macc, wr, rd, irq_ack;
 
-assign macc   = !mreq_n && rfsh_n;
-assign wr     = macc && !wr_n;
-assign rd     = macc && !rd_n;
+assign macc = !mreq_n && rfsh_n;
+assign wr   = macc && !wr_n;
+assign rd   = macc && !rd_n;
 assign irq_ack = !m1_n && !iorq_n;
 
 
@@ -124,7 +124,7 @@ always @* begin
                 2: p2_cs  = 1;
                 3: dswa_cs= 1;
                 4: dswb_cs= 1;
-                default:
+                default:;
             endcase
         end
         if(wr && A[9])begin
