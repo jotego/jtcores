@@ -10,21 +10,11 @@ module jtargus_game(
 );
 
 wire        irq8, irq10, flip, bg1_en, grey_en;
-wire [ 7:0] cpu_dout, snd_latch;
+wire [ 7:0] snd_latch;
 wire [ 9:0] bg0_scrx;
 wire [ 8:0] bg0_scry, bg1_scrx, bg1_scry;
 wire [ 7:0] bg0_vrom;
 wire [ 7:0] st_snd;
-
-wire [12:0] ram_cpu_addr, ram_obj_addr;
-wire [ 7:0] ram_cpu_dout, ram_obj_dout;
-wire        ram_cpu_we;
-
-wire [10:1] tx_cpu_addr, bg1_cpu_addr;
-wire [ 9:0] tx_vid_addr, bg1_vid_addr;
-wire [15:0] tx_cpu_dout, bg1_cpu_dout;
-wire [15:0] tx_vid_dout, bg1_vid_dout;
-wire [ 1:0] tx_cpu_we, bg1_cpu_we;
 
 wire [11:0] pal_addr;
 wire [ 7:0] pal_din;
@@ -61,17 +51,12 @@ jtargus_main u_main(
     .bg1_scrx   ( bg1_scrx     ),
     .bg1_scry   ( bg1_scry     ),
 
-    .ram_addr   ( ram_cpu_addr ),
-    .ram_dout   ( ram_cpu_dout ),
-    .ram_we     ( ram_cpu_we   ),
-
-    .tx_addr    ( tx_cpu_addr  ),
-    .tx_dout    ( tx_cpu_dout  ),
-    .tx_we      ( tx_cpu_we    ),
-
-    .bg1_addr   ( bg1_cpu_addr ),
-    .bg1_dout   ( bg1_cpu_dout ),
-    .bg1_we     ( bg1_cpu_we   ),
+    .ram_dout   ( ram_dout     ),
+    .ram_we     ( ram_we       ),
+    .tx_dout    ( tx_dout      ),
+    .tx_we      ( tx_we        ),
+    .bg1_dout   ( bg1_dout     ),
+    .bg1_we     ( bg1_we       ),
 
     .pal_addr   ( pal_addr     ),
     .pal_din    ( pal_din      ),
@@ -107,48 +92,6 @@ jtargus_sound u_sound(
     .fm         ( fm        ),
     .psg        ( psg       ),
     .st_dout    ( st_snd    )
-);
-
-jtframe_dual_ram #(.AW(13),.DUMPFILE("argus_wram.hex")) u_wram(
-    .clk0   ( clk          ),
-    .data0  ( cpu_dout     ),
-    .addr0  ( ram_cpu_addr ),
-    .we0    ( ram_cpu_we   ),
-    .q0     ( ram_cpu_dout ),
-
-    .clk1   ( clk          ),
-    .data1  ( 8'd0         ),
-    .addr1  ( ram_obj_addr ),
-    .we1    ( 1'b0         ),
-    .q1     ( ram_obj_dout )
-);
-
-jtframe_dual_ram16 #(.AW(10)) u_txram(
-    .clk0   ( clk                          ),
-    .data0  ( {2{cpu_dout}}                ),
-    .addr0  ( tx_cpu_addr                  ),
-    .we0    ( tx_cpu_we                    ),
-    .q0     ( tx_cpu_dout                  ),
-
-    .clk1   ( clk                          ),
-    .data1  ( 16'd0                        ),
-    .addr1  ( tx_vid_addr                  ),
-    .we1    ( 2'b0                         ),
-    .q1     ( tx_vid_dout                  )
-);
-
-jtframe_dual_ram16 #(.AW(10)) u_bg1ram(
-    .clk0   ( clk                          ),
-    .data0  ( {2{cpu_dout}}                ),
-    .addr0  ( bg1_cpu_addr                 ),
-    .we0    ( bg1_cpu_we                   ),
-    .q0     ( bg1_cpu_dout                 ),
-
-    .clk1   ( clk                          ),
-    .data1  ( 16'd0                        ),
-    .addr1  ( bg1_vid_addr                 ),
-    .we1    ( 2'b0                         ),
-    .q1     ( bg1_vid_dout                 )
 );
 
 jtargus_palette u_palette(

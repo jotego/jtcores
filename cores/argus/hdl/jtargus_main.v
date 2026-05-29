@@ -17,15 +17,12 @@ module jtargus_main(
     output     [ 8:0] bg1_scrx,
     output     [ 8:0] bg1_scry,
 
-    output     [12:0] ram_addr,
     input      [ 7:0] ram_dout,
     output            ram_we,
 
-    output     [10:1] tx_addr,
     input      [15:0] tx_dout,
     output     [ 1:0] tx_we,
 
-    output     [10:1] bg1_addr,
     input      [15:0] bg1_dout,
     output     [ 1:0] bg1_we,
 
@@ -77,13 +74,8 @@ assign bg0_vrom = bg0_x[1] + {7'd0, flip};
 assign bg1_scrx = {bg1_x[1][0] ^ flip, bg1_x[0]};
 assign bg1_scry = {bg1_y[1][0] ^ flip, bg1_y[0]};
 
-assign ram_addr = A[12:0];
 assign ram_we   = ram_cs && !wr_n;
-
-assign tx_addr  = A[10:1];
-assign tx_we    = {2{tx_cs && !wr_n}} & { A[0], ~A[0] };
-
-assign bg1_addr = A[10:1];
+assign tx_we    = {2{tx_cs  && !wr_n}} & { A[0], ~A[0] };
 assign bg1_we   = {2{bg1_cs && !wr_n}} & { A[0], ~A[0] };
 
 assign pal_addr = A[11:0] - 12'h400;
