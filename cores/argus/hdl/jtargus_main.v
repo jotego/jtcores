@@ -47,39 +47,27 @@ module jtargus_main(
     input             dip_pause
 );
 
-reg  [ 7:0] cpu_din, cpu_mux, int_vector, bg_status;
-reg  [ 7:0] sys_din, p1_din, p2_din;
+reg  [ 7:0] cpu_din, cpu_mux, int_vector, bg_status,
+            sys_din, p1_din, p2_din;
 reg  [ 2:0] bank;
 reg  [ 7:0] bg0_x[0:1];
 reg  [ 7:0] bg0_y[0:1];
 reg  [ 7:0] bg1_x[0:1];
 reg  [ 7:0] bg1_y[0:1];
-reg         rst_n, irq_pending, irq8_l, irq10_l;
+reg rst_n, irq_pending, irq8_l, irq10_l;
+reg sys_cs,  p1_cs,   p2_cs,   dswa_cs, dswb_cs, snd_cs,
+    flip_cs, bank_cs, scx0_cs, scy0_cs, scx1_cs, scy1_cs,
+    bgst_cs, pal_cs,  tx_cs,   bg1_cs,  ram_cs;
 
 wire [15:0] A;
-wire        mreq_n, iorq_n, rd_n, wr_n, rfsh_n, m1_n;
-wire        macc   = !mreq_n && rfsh_n;
-wire        wr     = macc && !wr_n;
-wire        rd     = macc && !rd_n;
-wire        irq_ack = !m1_n && !iorq_n;
+wire mreq_n, iorq_n, rd_n, wr_n, rfsh_n, m1_n, int_n;
+wire macc, wr, rd, irq_ack;
 
-wire        sys_cs = rd && A==16'hc000;
-wire        p1_cs  = rd && A==16'hc001;
-wire        p2_cs  = rd && A==16'hc002;
-wire        dswa_cs= rd && A==16'hc003;
-wire        dswb_cs= rd && A==16'hc004;
-wire        snd_cs = wr && A==16'hc200;
-wire        flip_cs= wr && A==16'hc201;
-wire        bank_cs= wr && A==16'hc202;
-wire        scx0_cs= wr && A[15:1]==15'h6180; // C300-C301
-wire        scy0_cs= wr && A[15:1]==15'h6181; // C302-C303
-wire        scx1_cs= wr && A[15:1]==15'h6184; // C308-C309
-wire        scy1_cs= wr && A[15:1]==15'h6185; // C30A-C30B
-wire        bgst_cs= wr && A==16'hc30c;
-wire        pal_cs = macc && A>=16'hc400 && A<=16'hcfff;
-wire        tx_cs  = macc && A>=16'hd000 && A<=16'hd7ff;
-wire        bg1_cs = macc && A>=16'hd800 && A<=16'hdfff;
-wire        ram_cs = macc && A>=16'he000;
+assign macc   = !mreq_n && rfsh_n;
+assign wr     = macc && !wr_n;
+assign rd     = macc && !rd_n;
+assign irq_ack = !m1_n && !iorq_n;
+
 
 assign bg1_en   = bg_status[0];
 assign grey_en  = bg_status[1];
@@ -101,31 +89,82 @@ assign bg1_we   = {2{bg1_cs && !wr_n}} & { A[0], ~A[0] };
 assign pal_addr = A[11:0] - 12'h400;
 assign pal_din  = cpu_dout;
 assign pal_we   = pal_cs && !wr_n;
+assign int_n    = ~(irq_pending&dip_pause);
 
 always @* begin
+    sys_cs    = 1'b0;
+    p1_cs     = 1'b0;
+    p2_cs     = 1'b0;
+    dswa_cs   = 1'b0;
+    dswb_cs   = 1'b0;
+    snd_cs    = 1'b0;
+    flip_cs   = 1'b0;
+    bank_cs   = 1'b0;
+    scx0_cs   = 1'b0;
+    scy0_cs   = 1'b0;
+    scx1_cs   = 1'b0;
+    scy1_cs   = 1'b0;
+    bgst_cs   = 1'b0;
+    pal_cs    = 1'b0;
+    tx_cs     = 1'b0;
+    bg1_cs    = 1'b0;
+    ram_cs    = 1'b0;
     main_cs   = 1'b0;
     main_addr = {2'b0,A};
     if( !rst && macc && A<16'hc000 ) begin
         main_cs = 1'b1;
         if( A[15] )
-            main_addr = 18'h1_0000 + {bank,14'd0} + {4'd0,A[13:0]};
-        else
-            main_addr = {2'd0,A};
+            main_addr = 18'h1_0000 + {1'b0, bank, A[13:0]};
+    end
+    if (&A[15:14]) begin
+        if(rd) begin
+            case(A[2:0])
+                0: sys_cs = 1;
+                1: p1_cs  = 1;
+                2: p2_cs  = 1;
+                3: dswa_cs= 1;
+                4: dswb_cs= 1;
+                default:
+            endcase
+        end
+        if(wr && A[9])begin
+            case(A[11:8])
+                2:  case(A[7:0])
+                        8'h00: snd_cs  = 1;
+                        8'h01: flip_cs = 1;
+                        8'h02: bank_cs = 1;
+                        default:;
+                    endcase
+                3:  case(A[7:1])
+                        7'h00: scx0_cs = 1;
+                        7'h01: scy0_cs = 1;
+                        7'h04: scx1_cs = 1;
+                        7'h05: scy1_cs = 1;
+                        7'h18: bgst_cs = 1;
+                        default:;
+                    endcase
+                default:;
+            endcase
+        end
+        if(macc) begin
+            pal_cs = A[13:12]==0 && A[11:10]!=0;
+            tx_cs  = A[13:11]==3'b10;
+            bg1_cs = A[13:11]==3'b11;
+            ram_cs = A[13];
+        end
     end
 end
 
 always @* begin
-    sys_din = { coin[0], coin[1], 4'hf, cab_1p[1], cab_1p[0] };
-    p1_din  = { 2'b11, joystick1[5], joystick1[4],
-                joystick1[3], joystick1[2], joystick1[1], joystick1[0] };
-    p2_din  = { 2'b11, joystick2[5], joystick2[4],
-                joystick2[3], joystick2[2], joystick2[1], joystick2[0] };
+    sys_din = { coin[0], coin[1], 4'hf, cab_1p };
+    p1_din  = { 2'b11, joystick1 };
+    p2_din  = { 2'b11, joystick2 };
 
     cpu_mux =
         !iorq_n ? int_vector :
         main_cs ? main_data  :
         ram_cs  ? ram_dout   :
-        tx_cs   ? (A[0] ? tx_dout[15:8]  : tx_dout[7:0]) :
+        tx_cs   ? (A[0] ? tx_dout[ 15:8] : tx_dout[ 7:0]) :
         bg1_cs  ? (A[0] ? bg1_dout[15:8] : bg1_dout[7:0]) :
         sys_cs  ? sys_din    :
         p1_cs   ? p1_din     :
@@ -140,7 +179,9 @@ always @(posedge clk) begin
     rst_n   <= ~rst;
     irq8_l  <= irq8;
     irq10_l <= irq10;
+end
 
+always @(posedge clk) begin
     if( rst ) begin
         bank        <= 3'd0;
         snd_latch   <= 8'd0;
@@ -180,26 +221,26 @@ always @(posedge clk) begin
 end
 
 jtframe_z80_romwait #(.CLR_INT(0),.RECOVERY(1)) u_cpu(
-    .rst_n      ( rst_n                    ),
-    .clk        ( clk                      ),
-    .cen        ( cen5                     ),
-    .cpu_cen    (                          ),
-    .int_n      ( ~(irq_pending&dip_pause) ),
-    .nmi_n      ( 1'b1                     ),
-    .busrq_n    ( 1'b1                     ),
-    .m1_n       ( m1_n                     ),
-    .mreq_n     ( mreq_n                   ),
-    .iorq_n     ( iorq_n                   ),
-    .rd_n       ( rd_n                     ),
-    .wr_n       ( wr_n                     ),
-    .rfsh_n     ( rfsh_n                   ),
-    .halt_n     (                          ),
-    .busak_n    (                          ),
-    .A          ( A                        ),
-    .din        ( cpu_din                  ),
-    .dout       ( cpu_dout                 ),
-    .rom_cs     ( main_cs                  ),
-    .rom_ok     ( main_ok                  )
+    .rst_n   ( rst_n    ),
+    .clk     ( clk      ),
+    .cen     ( cen5     ),
+    .cpu_cen (          ),
+    .int_n   ( int_n    ),
+    .nmi_n   ( 1'b1     ),
+    .busrq_n ( 1'b1     ),
+    .m1_n    ( m1_n     ),
+    .mreq_n  ( mreq_n   ),
+    .iorq_n  ( iorq_n   ),
+    .rd_n    ( rd_n     ),
+    .wr_n    ( wr_n     ),
+    .rfsh_n  ( rfsh_n   ),
+    .halt_n  (          ),
+    .busak_n (          ),
+    .A       ( A        ),
+    .din     ( cpu_din  ),
+    .dout    ( cpu_dout ),
+    .rom_cs  ( main_cs  ),
+    .rom_ok  ( main_ok  )
 );
 
 endmodule
