@@ -1,8 +1,8 @@
 params:
-  - { name: BG0_OFFSET,   value: "(`BG0_START-`JTFRAME_BA2_START)>>1" }
-  - { name: TXT_OFFSET,   value: "(`TXT_START-`JTFRAME_BA3_START)>>1" }
+  - { name: BG1_OFFSET,   value: "(`BG1_START-`JTFRAME_BA2_START)>>1" }
+  - { name: TXT_OFFSET,   value: "(`TXT_START-`JTFRAME_BA2_START)>>1" }
   - { name: VROM1_OFFSET, value: "(`VROM1_START-`JTFRAME_BA3_START)>>1" }
-  - { name: VROM2_OFFSET, value: "`VROM2_START-`VROM1_START" }
+  - { name: VROM2_OFFSET, value: "(`VROM2_START-`VROM1_START)>>1" }
 
 clocks:
   clk48:
@@ -34,22 +34,22 @@ sdram:
         addr_width: 16
         data_width: 8
     - buses:
+      - name: bg0
+        addr_width: 17
+        data_width: 32
       - name: bg1
         addr_width: 15
         data_width: 32
+        offset: BG1_OFFSET
       - name: txt
         addr_width: 15
         data_width: 32
         offset: TXT_OFFSET
-      - name: vrom
-        addr_width: 16
-        data_width: 8
-        offset: VROM1_OFFSET
     - buses:
       - name: obj
         addr_width: 17
         data_width: 32
-      - name: bg0
-        addr_width: 17
-        data_width: 32
-        offset: BG0_OFFSET
+      - name: vrom
+        addr_width: 16
+        data_width: 8
+        offset: VROM1_OFFSET

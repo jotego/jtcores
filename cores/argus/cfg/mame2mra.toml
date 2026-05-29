@@ -19,14 +19,14 @@ names=[
 regions = [
     { name="maincpu" },
     { name="audiocpu", start="JTFRAME_BA1_START" },
-    { name="gfx1",     start="JTFRAME_BA2_START" },
-    { name="gfx2",     start="BG0_START" },
-    { name="gfx3",     start="JTFRAME_BA3_START" },
-    { name="gfx4",     start="TXT_START" },
+    { name="gfx2",     start="JTFRAME_BA2_START", rename="scr0" },
+    { name="gfx3",     start="BG1_START",         rename="scr1" },
+    { name="gfx4",     start="TXT_START",         rename="text" },
+    { name="gfx1",     start="JTFRAME_BA3_START", rename="sprites" },
     { name="vrom1",    start="VROM1_START" },
     { name="vrom2",    start="VROM2_START" },
 ]
 
 order = [
-    "maincpu", "audiocpu", "gfx1", "gfx2", "gfx3", "gfx4", "vrom1", "vrom2"
+    "maincpu", "audiocpu", "scr0", "scr1", "text", "sprites", "vrom1", "vrom2"
 ]
