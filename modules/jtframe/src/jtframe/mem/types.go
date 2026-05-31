@@ -22,6 +22,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"jotego/jtframe/common"
 )
 
 var Verbose bool
@@ -356,7 +358,7 @@ type SDRAMCacheAddr struct {
 
 // This function checks the syntax in the mem.yaml file and it applies the
 // read values to *line
-func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) (err error) {
 	type raw_line struct {
 		When       []string          `yaml:"when"`
 		Unless     []string          `yaml:"unless"`
@@ -368,8 +370,11 @@ func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) err
 		Flush      SDRAMCacheFlush   `yaml:"flush"`
 		Simfile    SDRAMCacheSimfile `yaml:"simfile"`
 	}
-	var raw_map map[string]interface{}
-	if err := unmarshal(&raw_map); err != nil {
+	err = common.Validator{
+		Context: "cache line",
+		Valid:   []string{"name", "when", "unless", "data_width", "blocks", "at", "rw", "flush", "simfile"},
+	}.Validate(unmarshal)
+	if err != nil {
 		return err
 	}
 	var aux raw_line
@@ -385,26 +390,22 @@ func (line *SDRAMCacheLine) UnmarshalYAML(unmarshal func(interface{}) error) err
 	line.Rw = aux.Rw
 	line.Flush = aux.Flush
 	line.Simfile = aux.Simfile
-	for key := range raw_map {
-		switch key {
-		case "name", "when", "unless", "data_width", "blocks", "at", "rw", "flush", "simfile":
-		default:
-			return fmt.Errorf("Unexpected field %s in cache line", key)
-		}
-	}
 	if line.Name == "" {
 		return fmt.Errorf("cache line entries must a name")
 	}
 	return nil
 }
 
-func (flush *SDRAMCacheFlush) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (flush *SDRAMCacheFlush) UnmarshalYAML(unmarshal func(interface{}) error) (err error) {
 	type raw_flush struct {
 		Enable      bool     `yaml:"enable"`
 		Invalidates []string `yaml:"invalidates"`
 	}
-	var raw_map map[string]interface{}
-	if err := unmarshal(&raw_map); err != nil {
+	err = common.Validator{
+		Context: "cache flush",
+		Valid:   []string{"enable", "invalidates"},
+	}.Validate(unmarshal)
+	if err != nil {
 		return err
 	}
 	var aux raw_flush
@@ -413,17 +414,10 @@ func (flush *SDRAMCacheFlush) UnmarshalYAML(unmarshal func(interface{}) error) e
 	}
 	flush.Enable = aux.Enable
 	flush.Invalidates = aux.Invalidates
-	for key := range raw_map {
-		switch key {
-		case "enable", "invalidates":
-		default:
-			return fmt.Errorf("Unexpected field %s in cache flush", key)
-		}
-	}
 	return nil
 }
 
-func (bus *BRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (bus *BRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error) {
 	type raw_bram struct {
 		When       []string      `yaml:"when"`
 		Unless     []string      `yaml:"unless"`
@@ -452,8 +446,12 @@ func (bus *BRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			Offset string `yaml:"offset"`
 		} `yaml:"rom"`
 	}
-	var raw_map map[string]interface{}
-	if err := unmarshal(&raw_map); err != nil {
+	err = common.Validator{
+		Context: "BRAM bus",
+		Valid: []string{"when", "unless", "name", "size", "addr_width", "data_width", "rw", "we",
+			"addr", "din", "dout", "simfile", "prom", "ioctl", "dual_port", "rom"},
+	}.Validate(unmarshal)
+	if err != nil {
 		return err
 	}
 	var aux raw_bram
@@ -476,18 +474,10 @@ func (bus *BRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	bus.Ioctl = aux.Ioctl
 	bus.Dual_port = aux.Dual_port
 	bus.ROM = aux.ROM
-	for key := range raw_map {
-		switch key {
-		case "when", "unless", "name", "size", "addr_width", "data_width", "rw", "we",
-			"addr", "din", "dout", "simfile", "prom", "ioctl", "dual_port", "rom":
-		default:
-			return fmt.Errorf("Unexpected field %s in BRAM bus", key)
-		}
-	}
 	return nil
 }
 
-func (bus *SDRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (bus *SDRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error) {
 	type raw_bus struct {
 		When       []string        `yaml:"when"`
 		Unless     []string        `yaml:"unless"`
@@ -507,8 +497,13 @@ func (bus *SDRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Gfx_en     string          `yaml:"gfx_sort_en"`
 		Simfile    SDRAMBusSimfile `yaml:"simfile"`
 	}
-	var raw_map map[string]interface{}
-	if err := unmarshal(&raw_map); err != nil {
+	err = common.Validator{
+		Context: "SDRAM bus",
+		Valid: []string{"when", "unless", "name", "offset", "latch", "addr", "addr_width", "data_width",
+			"cache_size", "rw", "do_not_erase", "dsn", "din", "cs", "gfx_sort",
+			"gfx_sort_en", "simfile"},
+	}.Validate(unmarshal)
+	if err != nil {
 		return err
 	}
 	var aux raw_bus
@@ -532,24 +527,18 @@ func (bus *SDRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	bus.Gfx = aux.Gfx
 	bus.Gfx_en = aux.Gfx_en
 	bus.Simfile = aux.Simfile
-	for key := range raw_map {
-		switch key {
-		case "when", "unless", "name", "offset", "latch", "addr", "addr_width", "data_width",
-			"cache_size", "rw", "do_not_erase", "dsn", "din", "cs", "gfx_sort",
-			"gfx_sort_en", "simfile":
-		default:
-			return fmt.Errorf("Unexpected field %s in SDRAM bus", key)
-		}
-	}
 	return nil
 }
 
-func (sim *BRAMSimfile) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (sim *BRAMSimfile) UnmarshalYAML(unmarshal func(interface{}) error) (err error) {
 	type raw_sim struct {
 		Big_endian bool `yaml:"big_endian"`
 	}
-	var raw_map map[string]interface{}
-	if err := unmarshal(&raw_map); err != nil {
+	err = common.Validator{
+		Context: "BRAM simfile",
+		Valid:   []string{"big_endian"},
+	}.Validate(unmarshal)
+	if err != nil {
 		return err
 	}
 	var aux raw_sim
@@ -558,24 +547,20 @@ func (sim *BRAMSimfile) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 	sim.Enabled = true
 	sim.Big_endian = aux.Big_endian
-	for key := range raw_map {
-		switch key {
-		case "big_endian":
-		default:
-			return fmt.Errorf("Unexpected field %s in BRAM simfile", key)
-		}
-	}
 	return nil
 }
 
-func (sim *SDRAMBusSimfile) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (sim *SDRAMBusSimfile) UnmarshalYAML(unmarshal func(interface{}) error) (err error) {
 	type raw_sim struct {
 		Name       string `yaml:"name"`
 		Big_endian bool   `yaml:"big_endian"`
 		Data_type  string `yaml:"data_type"`
 	}
-	var raw_map map[string]interface{}
-	if err := unmarshal(&raw_map); err != nil {
+	err = common.Validator{
+		Context: "SDRAM bus simfile",
+		Valid: []string{"name", "big_endian", "data_type"},
+	}.Validate(unmarshal)
+	if err != nil {
 		return err
 	}
 	var aux raw_sim
@@ -585,32 +570,21 @@ func (sim *SDRAMBusSimfile) UnmarshalYAML(unmarshal func(interface{}) error) err
 	sim.Name = aux.Name
 	sim.Big_endian = aux.Big_endian
 	sim.Data_type = aux.Data_type
-	for key := range raw_map {
-		switch key {
-		case "name", "big_endian", "data_type":
-		default:
-			return fmt.Errorf("Unexpected field %s in SDRAM bus simfile", key)
-		}
-	}
 	return nil
 }
 
-func (cfg *SDRAMCacheCfg) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (cfg *SDRAMCacheCfg) UnmarshalYAML(unmarshal func(interface{}) error) (err error) {
 	type raw_cfg struct {
 		Count  int                   `yaml:"count"`
 		Size   interface{}           `yaml:"size"`
 		Select []SDRAMCacheCfgSelect `yaml:"select"`
 	}
-	var raw_map map[string]interface{}
-	if err := unmarshal(&raw_map); err != nil {
+	err = common.Validator{
+		Context: "cache blocks",
+		Valid: []string{"count", "size", "select"},
+	}.Validate(unmarshal)
+	if err != nil {
 		return err
-	}
-	for key := range raw_map {
-		switch key {
-		case "count", "size", "select":
-		default:
-			return fmt.Errorf("Unexpected field %s in cache blocks", key)
-		}
 	}
 	var aux raw_cfg
 	if err := unmarshal(&aux); err != nil {
@@ -634,23 +608,19 @@ func (cfg *SDRAMCacheCfg) UnmarshalYAML(unmarshal func(interface{}) error) error
 	return nil
 }
 
-func (sel *SDRAMCacheCfgSelect) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (sel *SDRAMCacheCfgSelect) UnmarshalYAML(unmarshal func(interface{}) error) (err error) {
 	type raw_select struct {
 		When   []string    `yaml:"when"`
 		Unless []string    `yaml:"unless"`
 		Count  int         `yaml:"count"`
 		Size   interface{} `yaml:"size"`
 	}
-	var raw_map map[string]interface{}
-	if err := unmarshal(&raw_map); err != nil {
+	err = common.Validator{
+		Context: "cache blocks select",
+		Valid: []string{"when", "unless", "count", "size"},
+	}.Validate(unmarshal)
+	if err != nil {
 		return err
-	}
-	for key := range raw_map {
-		switch key {
-		case "when", "unless", "count", "size":
-		default:
-			return fmt.Errorf("Unexpected field %s in cache blocks select", key)
-		}
 	}
 	var aux raw_select
 	if err := unmarshal(&aux); err != nil {
@@ -665,14 +635,17 @@ func (sel *SDRAMCacheCfgSelect) UnmarshalYAML(unmarshal func(interface{}) error)
 	return nil
 }
 
-func (sim *SDRAMCacheSimfile) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (sim *SDRAMCacheSimfile) UnmarshalYAML(unmarshal func(interface{}) error) (err error) {
 	type raw_sim struct {
 		Name       string `yaml:"name"`
 		Big_endian bool   `yaml:"big_endian"`
 		Data_type  string `yaml:"data_type"`
 	}
-	var raw_map map[string]interface{}
-	if err := unmarshal(&raw_map); err != nil {
+	err = common.Validator{
+		Context: "simfile",
+		Valid: []string{"name", "big_endian", "data_type"},
+	}.Validate(unmarshal)
+	if err != nil {
 		return err
 	}
 	var aux raw_sim
@@ -682,24 +655,20 @@ func (sim *SDRAMCacheSimfile) UnmarshalYAML(unmarshal func(interface{}) error) e
 	sim.Name = aux.Name
 	sim.Big_endian = aux.Big_endian
 	sim.Data_type = aux.Data_type
-	for key := range raw_map {
-		switch key {
-		case "name", "big_endian", "data_type":
-		default:
-			return fmt.Errorf("Unexpected field %s in cache simfile", key)
-		}
-	}
 	return nil
 }
 
-func (addr *SDRAMCacheAddr) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (addr *SDRAMCacheAddr) UnmarshalYAML(unmarshal func(interface{}) error) (err error) {
 	type raw_addr struct {
 		Bank   int    `yaml:"bank"`
 		Offset string `yaml:"offset"`
 		Length string `yaml:"length"`
 	}
-	var raw_map map[string]interface{}
-	if err := unmarshal(&raw_map); err != nil {
+	err = common.Validator{
+		Context: "cache line address",
+		Valid: []string{"bank", "offset", "length"},
+	}.Validate(unmarshal)
+	if err != nil {
 		return err
 	}
 	var aux raw_addr
@@ -710,15 +679,6 @@ func (addr *SDRAMCacheAddr) UnmarshalYAML(unmarshal func(interface{}) error) err
 	addr.Bank = aux.Bank
 	addr.Offset = aux.Offset
 	addr.Length = aux.Length
-	for key := range raw_map {
-		switch key {
-		case "bank", "offset", "length":
-		case "start":
-			return fmt.Errorf("Unexpected field %s in cache line address; use offset instead", key)
-		default:
-			return fmt.Errorf("Unexpected field %s in cache line address", key)
-		}
-	}
 	return nil
 }
 
