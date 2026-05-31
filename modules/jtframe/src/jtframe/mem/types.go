@@ -322,6 +322,13 @@ type SDRAMCacheCfg struct {
 	Size_bytes int
 }
 
+type SDRAMCacheCfgSelect struct {
+	When   []string `yaml:"when"`
+	Unless []string `yaml:"unless"`
+	Count  int      `yaml:"count"`
+	Size   string   `yaml:"size"`
+}
+
 type BRAMSimfile struct {
 	Enabled    bool
 	Big_endian bool `yaml:"big_endian"`
@@ -590,25 +597,70 @@ func (sim *SDRAMBusSimfile) UnmarshalYAML(unmarshal func(interface{}) error) err
 
 func (cfg *SDRAMCacheCfg) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type raw_cfg struct {
-		Count int    `yaml:"count"`
-		Size  string `yaml:"size"`
+		Count  int                   `yaml:"count"`
+		Size   interface{}           `yaml:"size"`
+		Select []SDRAMCacheCfgSelect `yaml:"select"`
 	}
 	var raw_map map[string]interface{}
 	if err := unmarshal(&raw_map); err != nil {
 		return err
+	}
+	for key := range raw_map {
+		switch key {
+		case "count", "size", "select":
+		default:
+			return fmt.Errorf("Unexpected field %s in cache blocks", key)
+		}
 	}
 	var aux raw_cfg
 	if err := unmarshal(&aux); err != nil {
 		return err
 	}
 	cfg.Count = aux.Count
-	cfg.Size = aux.Size
+	if aux.Size != nil {
+		cfg.Size = fmt.Sprint(aux.Size)
+	}
+	for _, each := range aux.Select {
+		if !each.Enabled() {
+			continue
+		}
+		if each.Count != 0 {
+			cfg.Count = each.Count
+		}
+		if each.Size != "" {
+			cfg.Size = each.Size
+		}
+	}
+	return nil
+}
+
+func (sel *SDRAMCacheCfgSelect) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type raw_select struct {
+		When   []string    `yaml:"when"`
+		Unless []string    `yaml:"unless"`
+		Count  int         `yaml:"count"`
+		Size   interface{} `yaml:"size"`
+	}
+	var raw_map map[string]interface{}
+	if err := unmarshal(&raw_map); err != nil {
+		return err
+	}
 	for key := range raw_map {
 		switch key {
-		case "count", "size":
+		case "when", "unless", "count", "size":
 		default:
-			return fmt.Errorf("Unexpected field %s in cache blocks", key)
+			return fmt.Errorf("Unexpected field %s in cache blocks select", key)
 		}
+	}
+	var aux raw_select
+	if err := unmarshal(&aux); err != nil {
+		return err
+	}
+	sel.When = aux.When
+	sel.Unless = aux.Unless
+	sel.Count = aux.Count
+	if aux.Size != nil {
+		sel.Size = fmt.Sprint(aux.Size)
 	}
 	return nil
 }

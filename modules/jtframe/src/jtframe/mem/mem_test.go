@@ -430,6 +430,105 @@ func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
 	}
 }
 
+func Test_SDRAMCacheBlocks_Select_OverridesDirectValues(t *testing.T) {
+	defer macros.MakeFromMap(nil)
+	blocks := parse_cache_blocks(t, map[string]string{}, `
+      blocks:
+        count: 512
+        size: 128
+        select:
+          - when: [ SIDI128 ]
+            count: 256
+`)
+	if blocks.Count != 512 || blocks.Size != "128" {
+		t.Fatalf("Wrong default cache blocks. Got %+v", blocks)
+	}
+	blocks = parse_cache_blocks(t, map[string]string{"SIDI128": ""}, `
+      blocks:
+        count: 512
+        size: 128
+        select:
+          - when: [ SIDI128 ]
+            count: 256
+`)
+	if blocks.Count != 256 || blocks.Size != "128" {
+		t.Fatalf("Wrong selected cache blocks. Got %+v", blocks)
+	}
+}
+
+func Test_SDRAMCacheBlocks_Select_DefaultEntry(t *testing.T) {
+	defer macros.MakeFromMap(nil)
+	blocks := parse_cache_blocks(t, map[string]string{}, `
+      blocks:
+        size: 128
+        select:
+          - count: 512
+          - when: [ SIDI128 ]
+            count: 256
+`)
+	if blocks.Count != 512 || blocks.Size != "128" {
+		t.Fatalf("Wrong default cache blocks. Got %+v", blocks)
+	}
+	blocks = parse_cache_blocks(t, map[string]string{"SIDI128": ""}, `
+      blocks:
+        size: 128
+        select:
+          - count: 512
+          - when: [ SIDI128 ]
+            count: 256
+`)
+	if blocks.Count != 256 || blocks.Size != "128" {
+		t.Fatalf("Wrong selected cache blocks. Got %+v", blocks)
+	}
+}
+
+func Test_SDRAMCacheBlocks_Select_UnlessAndSize(t *testing.T) {
+	defer macros.MakeFromMap(nil)
+	blocks := parse_cache_blocks(t, map[string]string{}, `
+      blocks:
+        select:
+          - count: 256
+            size: 64
+          - unless: [ SIDI128 ]
+            count: 512
+            size: 128
+`)
+	if blocks.Count != 512 || blocks.Size != "128" {
+		t.Fatalf("Wrong unless cache blocks. Got %+v", blocks)
+	}
+	blocks = parse_cache_blocks(t, map[string]string{"SIDI128": ""}, `
+      blocks:
+        select:
+          - count: 256
+            size: 64
+          - unless: [ SIDI128 ]
+            count: 512
+            size: 128
+`)
+	if blocks.Count != 256 || blocks.Size != "64" {
+		t.Fatalf("Wrong inverted selected cache blocks. Got %+v", blocks)
+	}
+}
+
+func parse_cache_blocks(t *testing.T, macro_map map[string]string, blocks string) SDRAMCacheCfg {
+	t.Helper()
+	macros.MakeFromMap(macro_map)
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles
+      data_width: 128` + blocks + `
+      at: { bank: 3, offset: TILES, length: 8MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if len(cfg.SDRAM.Cache_lanes) != 1 {
+		t.Fatalf("Wrong cache-lane count. Got %d, wanted 1", len(cfg.SDRAM.Cache_lanes))
+	}
+	return cfg.SDRAM.Cache_lanes[0].Blocks
+}
+
 func Test_SDRAMCacheLine_Unmarshal_AllowsMissingAt(t *testing.T) {
 	sample := `sdram:
   cache-lanes:

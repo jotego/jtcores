@@ -138,7 +138,12 @@ sdram:
       rw: true
     - name: sprites
       data_width: 128
-      blocks: { count: 16, size: 2kB }
+      blocks:
+        size: 2kB
+        select:
+          - count: 16
+          - when: [ SIDI128 ]
+            count: 8
       at:
         bank: 2
         offset: SPR_OFFS
@@ -189,6 +194,7 @@ bram:
 - `sdram.banks` and `sdram.cache-lanes` are mutually exclusive.
 - `sdram.banks` must contain **1–4** banks.
 - `sdram.cache-lanes` must contain **1–8** entries.
+- `cache-lanes[].blocks` normally defines `count` and `size` directly. It may also use `select`, applied in order, where each entry can override `count` and/or `size` when its `when`/`unless` macro conditions match.
 - `include` entries are loaded then the active `mem.yaml` is reapplied to allow overrides.
 - `params` values are evaluated as macro expressions when `cache-lanes` use `at.offset`/`at.length`.
 - ROM-less cores may omit `download`; a single RW cache lane with `flush.enable`
