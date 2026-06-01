@@ -144,10 +144,14 @@ localparam [4:0] S_INIT_CLEAR    = 5'd0,
                  S_FLUSH_WAIT    = 5'd14,
                  S_FLUSH_CHECK   = 5'd15,
                  S_FLUSH_ADVANCE = 5'd16,
-                 S_INVAL_CLEAR   = 5'd17;
+                 S_INVAL_CLEAR   = 5'd17,
+                 S_LOOKUP_DECIDE = 5'd18,
+                 S_WB_LOAD       = 5'd19;
 
 reg              fill_after_wb, fill_wb_prime_wait;
 reg              req_wr_l;
+reg              lookup_hit_l, lookup_victim_dirty_l;
+reg              flush_rd_resp_l;
 reg              req_take, flush_take, invalidate_take;
 reg [AW-1:AW0]   req_addr_l;
 reg [TAGW-1:0]   req_tag_l;
@@ -158,6 +162,8 @@ reg [MW-1:0]     req_wdsn_l;
 reg [WAYW-1:0]   way_l;
 reg [WAYW-1:0]   flush_way_l;
 reg [TAGW-1:0]   victim_tag_l;
+reg [BW-1:0]     flush_rd_blk_l;
+reg [OFFW-1:0]   flush_rd_off_l;
 
 reg              req_load_addr, stream_load_addr;
 reg [RAM_BYTEW-1:0] req_addr_n, stream_addr_n;
@@ -195,7 +201,7 @@ wire [AW-1:0]   ext_base_byte    = st==S_WB_REQ || st==S_WB_STREAM ?
 wire [WW-1:0]   wb_half_idx      = DW >= 32 && st == S_WB_STREAM && stream_word != LAST_WORD ?
                                    stream_word + WW'(1) : stream_word;
 wire [127:0]    rd_resp_word     = pack_data(req_q, req_off_l);
-wire [127:0]    flush_rd_resp_word = pack_data(req_q, flush_rd_off);
+wire [127:0]    flush_rd_resp_word = pack_data(req_q, flush_rd_off_l);
 
 assign miss_busy = st != S_IDLE;
 assign fill_done = fill_tail_seen;
@@ -457,16 +463,23 @@ always @* begin
             tag_clear_en = 1'b1;
         end
         S_LOOKUP: begin
-            if( !hit_now ) begin
-                tag_advance_en = 1'b1;
+        end
+        S_LOOKUP_DECIDE: begin
+            if( !lookup_hit_l ) begin
+                tag_advance_en    = 1'b1;
+                tag_advance_way_n = way_l;
             end
-            if( hit_now && !req_wr_l ) begin
+            if( lookup_hit_l && !req_wr_l ) begin
                 req_load_addr = 1'b1;
-                req_addr_n    = req_baddr(hit_blk_now, req_off_l);
-            end else if( !hit_now && victim_dirty_now ) begin
+                req_addr_n    = req_baddr(blk_l, req_off_l);
+            end else if( !lookup_hit_l && lookup_victim_dirty_l ) begin
                 stream_load_addr = 1'b1;
-                stream_addr_n    = stream_baddr(victim_blk_now, {WW{1'b0}});
+                stream_addr_n    = stream_baddr(blk_l, {WW{1'b0}});
             end
+        end
+        S_WB_LOAD: begin
+            stream_load_addr = 1'b1;
+            stream_addr_n    = stream_baddr(blk_l, {WW{1'b0}});
         end
         S_WB_PRIME: begin
             if( DW >= 32 ) begin
@@ -513,10 +526,6 @@ always @* begin
             end
         end
         S_FLUSH_CHECK: begin
-            if( scan_valid_now && scan_dirty_now ) begin
-                stream_load_addr = 1'b1;
-                stream_addr_n    = stream_baddr(scan_blk_now, {WW{1'b0}});
-            end
         end
         S_FILL_WB_PRIME: begin
             if( !fill_wb_prime_wait ) begin
@@ -560,9 +569,9 @@ always @* begin
         default: begin
         end
     endcase
-    if( flush_rd_lookup && hit_now ) begin
+    if( flush_rd_resp ) begin
         req_load_addr = 1'b1;
-        req_addr_n    = req_baddr(hit_blk_now, flush_rd_off);
+        req_addr_n    = req_baddr(flush_rd_blk_l, flush_rd_off_l);
     end
     if( st == S_IDLE && (req_pending || req_valid) )
         req_take = 1'b1;
@@ -579,6 +588,9 @@ always @(posedge clk) begin
         fill_after_wb     <= 1'b0;
         fill_wb_prime_wait<= 1'b0;
         req_wr_l          <= 1'b0;
+        lookup_hit_l      <= 1'b0;
+        lookup_victim_dirty_l <= 1'b0;
+        flush_rd_resp_l   <= 1'b0;
         req_addr_l        <= {AW-AW0{1'b0}};
         req_tag_l         <= {TAGW{1'b0}};
         req_set_l         <= {SETW{1'b0}};
@@ -591,6 +603,8 @@ always @(posedge clk) begin
         flush_way_l       <= {WAYW{1'b0}};
         clr_set           <= {SETW{1'b0}};
         victim_tag_l      <= {TAGW{1'b0}};
+        flush_rd_blk_l    <= {BW{1'b0}};
+        flush_rd_off_l    <= {OFFW{1'b0}};
         stream_word       <= {WW{1'b0}};
         wb_q              <= 128'd0;
         req_ram_addr_l    <= {RAM_BYTEW{1'b0}};
@@ -607,6 +621,11 @@ always @(posedge clk) begin
     end else begin
         if( req_load_addr )    req_ram_addr_l    <= req_addr_n;
         if( stream_load_addr ) stream_ram_addr_l <= stream_addr_n;
+        flush_rd_resp_l <= flush_rd_resp;
+        if( flush_rd_lookup && hit_now ) begin
+            flush_rd_blk_l <= hit_blk_now;
+            flush_rd_off_l <= flush_rd_off;
+        end
         ok <= 1'b0;
         flush_done <= 1'b0;
         invalidate_done <= 1'b0;
@@ -647,19 +666,27 @@ always @(posedge clk) begin
                 end
             end
             S_LOOKUP: begin
+                lookup_hit_l          <= hit_now;
+                lookup_victim_dirty_l <= victim_dirty_now;
                 if( hit_now ) begin
                     blk_l <= hit_blk_now;
                     way_l <= hit_way_now;
-                    if( req_wr_l ) st <= S_WR_COMMIT;
-                    else           st <= S_RD_RESP;
                 end else begin
                     blk_l          <= victim_blk_now;
                     way_l          <= victim_way_now;
                     victim_tag_l   <= victim_tag_now;
                     stream_word    <= {WW{1'b0}};
                     fill_tail_seen <= 1'b0;
-                    if( victim_dirty_now ) st <= S_WB_PRIME;
-                    else                   st <= S_FILL_REQ;
+                end
+                st <= S_LOOKUP_DECIDE;
+            end
+            S_LOOKUP_DECIDE: begin
+                if( lookup_hit_l ) begin
+                    if( req_wr_l ) st <= S_WR_COMMIT;
+                    else           st <= S_RD_RESP;
+                end else begin
+                    if( lookup_victim_dirty_l ) st <= S_WB_PRIME;
+                    else                        st <= S_FILL_REQ;
                 end
             end
             S_RD_RESP: begin
@@ -672,6 +699,9 @@ always @(posedge clk) begin
             S_WR_COMMIT: begin
                 ok <= 1'b1;
                 st <= S_IDLE;
+            end
+            S_WB_LOAD: begin
+                st <= S_WB_PRIME;
             end
             S_WB_PRIME: begin
                 wb_q <= stream_q;
@@ -720,7 +750,7 @@ always @(posedge clk) begin
                     victim_tag_l   <= scan_tag_now;
                     stream_word    <= {WW{1'b0}};
                     fill_tail_seen <= 1'b0;
-                    st             <= S_WB_PRIME;
+                    st             <= S_WB_LOAD;
                 end else begin
                     st <= S_FLUSH_ADVANCE;
                 end
@@ -797,7 +827,7 @@ always @(posedge clk) begin
                 st <= S_IDLE;
             end
         endcase
-        if( flush_rd_resp ) begin
+        if( flush_rd_resp_l ) begin
             /* verilator lint_off WIDTHTRUNC */
             dout <= flush_rd_resp_word[DW-1:0];
             /* verilator lint_on WIDTHTRUNC */

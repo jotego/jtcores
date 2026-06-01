@@ -295,6 +295,39 @@ func Test_BRAMBus_Simfile_Validation(t *testing.T) {
 	}
 }
 
+func Test_BRAMBus_Latch_Unmarshal_Validation(t *testing.T) {
+	sample := `bram:
+  - name: chars
+    addr_width: 10
+    latch: inputs
+    dual_port:
+      name: video
+      latch: outputs
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if got := cfg.BRAM[0].Latch; got != "inputs" {
+		t.Fatalf("wrong BRAM latch value. Got %s", got)
+	}
+	if got := cfg.BRAM[0].Dual_port.Latch; got != "outputs" {
+		t.Fatalf("wrong dual-port latch value. Got %s", got)
+	}
+	if e := cfg.normalize_bram(); e != nil {
+		t.Fatalf("Expected valid BRAM latch values to be accepted: %v", e)
+	}
+	cfg.BRAM[0].Latch = "bad"
+	if e := cfg.normalize_bram(); e == nil {
+		t.Fatal("Expected invalid BRAM latch value to be rejected")
+	}
+	cfg.BRAM[0].Latch = "none"
+	cfg.BRAM[0].Dual_port.Latch = "bad"
+	if e := cfg.normalize_bram(); e == nil {
+		t.Fatal("Expected invalid BRAM dual-port latch value to be rejected")
+	}
+}
+
 func Test_fill_implicit_ports_expands_32bit_bram_write_enable(t *testing.T) {
 	cfg := MemConfig{
 		BRAM: []BRAMBus{
@@ -310,6 +343,7 @@ func Test_fill_implicit_ports_expands_32bit_bram_write_enable(t *testing.T) {
 					Dout     string `yaml:"dout"`
 					Rw       bool   `yaml:"rw"`
 					We       string `yaml:"we"`
+					Latch    string `yaml:"latch"`
 					AddrFull string
 				}{
 					Name: "video",
@@ -428,6 +462,105 @@ func Test_SDRAMCacheLine_Unmarshal(t *testing.T) {
 	if line.Simfile.Data_type != "u32" {
 		t.Fatalf("Expected cache-lane simfile.data_type to unmarshal as u32, got %q", line.Simfile.Data_type)
 	}
+}
+
+func Test_SDRAMCacheBlocks_Select_OverridesDirectValues(t *testing.T) {
+	defer macros.MakeFromMap(nil)
+	blocks := parse_cache_blocks(t, map[string]string{}, `
+      blocks:
+        count: 512
+        size: 128
+        select:
+          - when: [ SIDI128 ]
+            count: 256
+`)
+	if blocks.Count != 512 || blocks.Size != "128" {
+		t.Fatalf("Wrong default cache blocks. Got %+v", blocks)
+	}
+	blocks = parse_cache_blocks(t, map[string]string{"SIDI128": ""}, `
+      blocks:
+        count: 512
+        size: 128
+        select:
+          - when: [ SIDI128 ]
+            count: 256
+`)
+	if blocks.Count != 256 || blocks.Size != "128" {
+		t.Fatalf("Wrong selected cache blocks. Got %+v", blocks)
+	}
+}
+
+func Test_SDRAMCacheBlocks_Select_DefaultEntry(t *testing.T) {
+	defer macros.MakeFromMap(nil)
+	blocks := parse_cache_blocks(t, map[string]string{}, `
+      blocks:
+        size: 128
+        select:
+          - count: 512
+          - when: [ SIDI128 ]
+            count: 256
+`)
+	if blocks.Count != 512 || blocks.Size != "128" {
+		t.Fatalf("Wrong default cache blocks. Got %+v", blocks)
+	}
+	blocks = parse_cache_blocks(t, map[string]string{"SIDI128": ""}, `
+      blocks:
+        size: 128
+        select:
+          - count: 512
+          - when: [ SIDI128 ]
+            count: 256
+`)
+	if blocks.Count != 256 || blocks.Size != "128" {
+		t.Fatalf("Wrong selected cache blocks. Got %+v", blocks)
+	}
+}
+
+func Test_SDRAMCacheBlocks_Select_UnlessAndSize(t *testing.T) {
+	defer macros.MakeFromMap(nil)
+	blocks := parse_cache_blocks(t, map[string]string{}, `
+      blocks:
+        select:
+          - count: 256
+            size: 64
+          - unless: [ SIDI128 ]
+            count: 512
+            size: 128
+`)
+	if blocks.Count != 512 || blocks.Size != "128" {
+		t.Fatalf("Wrong unless cache blocks. Got %+v", blocks)
+	}
+	blocks = parse_cache_blocks(t, map[string]string{"SIDI128": ""}, `
+      blocks:
+        select:
+          - count: 256
+            size: 64
+          - unless: [ SIDI128 ]
+            count: 512
+            size: 128
+`)
+	if blocks.Count != 256 || blocks.Size != "64" {
+		t.Fatalf("Wrong inverted selected cache blocks. Got %+v", blocks)
+	}
+}
+
+func parse_cache_blocks(t *testing.T, macro_map map[string]string, blocks string) SDRAMCacheCfg {
+	t.Helper()
+	macros.MakeFromMap(macro_map)
+	sample := `sdram:
+  cache-lanes:
+    - name: tiles
+      data_width: 128` + blocks + `
+      at: { bank: 3, offset: TILES, length: 8MB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if len(cfg.SDRAM.Cache_lanes) != 1 {
+		t.Fatalf("Wrong cache-lane count. Got %d, wanted 1", len(cfg.SDRAM.Cache_lanes))
+	}
+	return cfg.SDRAM.Cache_lanes[0].Blocks
 }
 
 func Test_SDRAMCacheLine_Unmarshal_AllowsMissingAt(t *testing.T) {
@@ -1294,6 +1427,40 @@ func capture_stdout(t *testing.T, f func()) string {
 	return string(out)
 }
 
+func Test_game_sdram_template_passes_balut_reverse(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		reverse bool
+		want    string
+	}{
+		{name: "forward", reverse: false, want: ".BALUT_REVERSE( 0 ),"},
+		{name: "reverse", reverse: true, want: ".BALUT_REVERSE( 1 ),"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := MemConfig{
+				Core:         "test",
+				Gfx4:         "1'b0;",
+				Gfx8:         "1'b0;",
+				Gfx16:        "1'b0;",
+				Gfx16b:       "1'b0;",
+				Gfx16c:       "1'b0;",
+				Balut:        1,
+				Lutsh:        16,
+				BalutReverse: tc.reverse,
+			}
+			tpl := get_game_sdram_template(t)
+			var verilog strings.Builder
+			if e := tpl.Execute(&verilog, cfg); e != nil {
+				t.Fatal(e)
+			}
+			out := verilog.String()
+			if !strings.Contains(out, tc.want) {
+				t.Fatalf("generated template is missing %q\n%s", tc.want, out)
+			}
+		})
+	}
+}
+
 func Test_game_sdram_template_uses_32bit_bram_wrappers(t *testing.T) {
 	sample := `bram:
   - name: fb
@@ -1357,6 +1524,63 @@ func Test_game_sdram_template_uses_32bit_bram_wrappers(t *testing.T) {
 	}
 	if strings.Contains(out, ".SIMFILE_0(") || strings.Contains(out, ".SIMFILE_3(") {
 		t.Fatalf("generated template should not emit per-lane binary SIMFILE parameters\n%s", out)
+	}
+}
+
+func Test_game_sdram_template_emits_bram_latch_parameters(t *testing.T) {
+	sample := `bram:
+  - name: chars
+    addr_width: 10
+    data_width: 8
+    rw: true
+    latch: inputs
+  - name: palette
+    addr_width: 11
+    data_width: 16
+    rw: true
+    latch: outputs
+  - name: scene
+    addr_width: 12
+    data_width: 32
+    rw: true
+    latch: all
+    dual_port:
+      name: video
+      rw: true
+      latch: inputs
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.normalize_bram_data_width()
+	if e := cfg.normalize_bram(); e != nil {
+		t.Fatal(e)
+	}
+	if e := cfg.check_bram(); e != nil {
+		t.Fatal(e)
+	}
+	fill_implicit_ports(&cfg)
+	make_ioctl(&cfg)
+	cfg.fill_gfx_sort()
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"jtframe_ram #(\n    .AW(10),\n    .LATCH_IN(1),\n    .LATCH_OUT(0),\n    .DW(8)",
+		"jtframe_ram16 #(\n    .AW(11-1),\n    .LATCH_IN(0),\n    .LATCH_OUT(1),\n    .ENDIAN(0)",
+		"jtframe_dual_ram32 #(\n    .AW(12),\n    .LATCH0_IN(1),\n    .LATCH0_OUT(1),\n    .LATCH1_IN(1),\n    .LATCH1_OUT(0),\n    .ENDIAN(0)",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
 	}
 }
 

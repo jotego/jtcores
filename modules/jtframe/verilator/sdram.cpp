@@ -240,6 +240,13 @@ uint16_t SDRAMModel::apply_read_dqm(uint16_t value, uint8_t dqm) const {
     return value;
 }
 
+bool SDRAMModel::any_bank_active() const {
+    for( const auto& bank : banks_state_ ) {
+        if( bank.active ) return true;
+    }
+    return false;
+}
+
 void SDRAMModel::change_mode(int mode) {
     burst_len_ = decode_burst_length(mode);
     burst_full_page_ = (mode & 7) == 7;
@@ -392,6 +399,9 @@ SDRAMOutputs SDRAMModel::tick(const SDRAMPins& pins, uint64_t simtime_ps) {
 
     if( pins.cke ) {
         if( auto_refresh ) {
+            if( any_bank_active() || burst_.kind != BURST_NONE ) {
+                throw "\nERROR: (sdram.cpp) auto-refresh requires all banks idle\n";
+            }
             refresh(simtime_ps);
         } else {
             check_refresh_timeout(simtime_ps);
@@ -401,8 +411,14 @@ SDRAMOutputs SDRAMModel::tick(const SDRAMPins& pins, uint64_t simtime_ps) {
     if( pins.cke && !pins.ncs ) {
         int bank = pins.ba & 3;
         if( !pins.nras && !pins.ncas && !pins.nwe ) {
+            if( any_bank_active() || burst_.kind != BURST_NONE ) {
+                throw "\nERROR: (sdram.cpp) mode register set requires all banks idle\n";
+            }
             change_mode(pins.a);
         } else if( !pins.nras && pins.ncas && pins.nwe ) {
+            if( banks_state_[bank].active ) {
+                throw "\nERROR: (sdram.cpp) activate command issued to active bank\n";
+            }
             if( burst_.kind != BURST_NONE && burst_.bank == bank ) terminate_burst(false);
             banks_state_[bank].active = true;
             banks_state_[bank].row_base = (pins.a << colw_) & word_mask_;
@@ -413,10 +429,16 @@ SDRAMOutputs SDRAMModel::tick(const SDRAMPins& pins, uint64_t simtime_ps) {
                 precharge_bank(bank);
             }
         } else if( pins.nras && !pins.ncas && pins.nwe ) {
-            if( burst_.kind != BURST_NONE ) terminate_burst(false);
+            if( !banks_state_[bank].active ) {
+                throw "\nERROR: (sdram.cpp) read command issued to inactive bank\n";
+            }
+            if( burst_.kind != BURST_NONE ) terminate_burst(burst_.auto_precharge);
             start_read(bank, pins.a & colmask_, (pins.a & 0x400) != 0);
         } else if( pins.nras && !pins.ncas && !pins.nwe ) {
-            if( burst_.kind != BURST_NONE ) terminate_burst(false);
+            if( !banks_state_[bank].active ) {
+                throw "\nERROR: (sdram.cpp) write command issued to inactive bank\n";
+            }
+            if( burst_.kind != BURST_NONE ) terminate_burst(burst_.auto_precharge);
             start_write(bank, pins.a & colmask_, (pins.a & 0x400) != 0);
             accept_write_beat(pins.din, pins.dqm);
             command_consumed_write = true;

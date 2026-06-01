@@ -210,7 +210,7 @@ jtframe_cache_mux #(
 jtframe_burst_sdram #(
     .AW      ( SDRAM_AW ),
     .HF      ( HF       ),
-    .MISTER  ( 0        ),
+    .MISTER  ( 1        ),
     .PROG_LEN( 64       )
 ) u_sdram_ctrl (
     .rst        ( rst            ),

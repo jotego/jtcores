@@ -23,6 +23,10 @@
 //      SIMHEXFILE_* => hexadecimal files to load during simulation
 //      ENDIAN  => 0 (default) for little-endian hosts (x86). Use ENDIAN=0
 //                 when loading binary files written by C fwrite on x86.
+//      LATCH_IN  => Register address, data and we before the RAM. Adds one
+//                   clock cycle of latency.
+//      LATCH_OUT => Register output data after the RAM. Adds one clock cycle
+//                   of latency.
 
 module jtframe_ram32 #(parameter AW=10,
     SIMFILE="",
@@ -32,7 +36,9 @@ module jtframe_ram32 #(parameter AW=10,
     SIMHEXFILE_3="",
     ENDIAN=0,
     VERBOSE=0,          // set to 1 to display memory writes
-    VERBOSE_OFFSET=0    // value added to the address when displaying
+    VERBOSE_OFFSET=0,   // value added to the address when displaying
+    LATCH_IN=0,         // latch: inputs; adds one clock cycle
+    LATCH_OUT=0         // latch: outputs; adds one clock cycle
 )(
     input          clk,
     input   [31:0] data,
@@ -80,7 +86,9 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_0  ),
     .SIMFILE_BYTE( BYTE0_SEL   ),
-    .FULL_DW   ( 32            )  )
+    .FULL_DW   ( 32            ),
+    .LATCH_IN  ( LATCH_IN      ),
+    .LATCH_OUT ( LATCH_OUT     )  )
 u_byte0(
     .clk        ( clk               ),
     .cen        ( 1'b1              ),
@@ -96,7 +104,9 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_1  ),
     .SIMFILE_BYTE( BYTE1_SEL   ),
-    .FULL_DW   ( 32            )  )
+    .FULL_DW   ( 32            ),
+    .LATCH_IN  ( LATCH_IN      ),
+    .LATCH_OUT ( LATCH_OUT     )  )
 u_byte1(
     .clk        ( clk               ),
     .cen        ( 1'b1              ),
@@ -112,7 +122,9 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_2  ),
     .SIMFILE_BYTE( BYTE2_SEL   ),
-    .FULL_DW   ( 32            )  )
+    .FULL_DW   ( 32            ),
+    .LATCH_IN  ( LATCH_IN      ),
+    .LATCH_OUT ( LATCH_OUT     )  )
 u_byte2(
     .clk        ( clk               ),
     .cen        ( 1'b1              ),
@@ -128,7 +140,9 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_3  ),
     .SIMFILE_BYTE( BYTE3_SEL   ),
-    .FULL_DW   ( 32            )  )
+    .FULL_DW   ( 32            ),
+    .LATCH_IN  ( LATCH_IN      ),
+    .LATCH_OUT ( LATCH_OUT     )  )
 u_byte3(
     .clk        ( clk               ),
     .cen        ( 1'b1              ),

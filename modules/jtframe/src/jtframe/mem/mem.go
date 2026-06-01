@@ -207,6 +207,30 @@ func data_name(bus Bus) string     { return bus.Get_dname() }
 func writeable(bus Bus) bool       { return bus.Is_wr() }
 func is_nbits(bus Bus, n int) bool { return bus.Is_nbits(n) }
 func byte_en_width(dw int) int     { return dw >> 3 }
+func bram_latch_input(latch string) int {
+	switch latch {
+	case "inputs", "all":
+		return 1
+	default:
+		return 0
+	}
+}
+func bram_latch_output(latch string) int {
+	switch latch {
+	case "outputs", "all":
+		return 1
+	default:
+		return 0
+	}
+}
+func valid_bram_latch(latch string) bool {
+	switch latch {
+	case "", "none", "inputs", "outputs", "all":
+		return true
+	default:
+		return false
+	}
+}
 func cache_inval_mask(lines []SDRAMCacheLine, source int) string {
 	mask := 0
 	if source < len(lines) {
@@ -234,6 +258,8 @@ var funcMap = template.FuncMap{
 	"writeable":             writeable,
 	"is_nbits":              is_nbits,
 	"byte_en_width":         byte_en_width,
+	"bram_latch_input":      bram_latch_input,
+	"bram_latch_output":     bram_latch_output,
 }
 
 func ParseFile(core, filename string, cfg *MemConfig) error {
@@ -303,6 +329,12 @@ func (cfg *MemConfig) check_gfx_sort() error {
 func (cfg *MemConfig) normalize_bram() error {
 	for k := range cfg.BRAM {
 		bram := &cfg.BRAM[k]
+		if !valid_bram_latch(bram.Latch) {
+			return fmt.Errorf("BRAM %s has unsupported latch value %q", bram.Name, bram.Latch)
+		}
+		if !valid_bram_latch(bram.Dual_port.Latch) {
+			return fmt.Errorf("BRAM %s dual port %s has unsupported latch value %q", bram.Name, bram.Dual_port.Name, bram.Dual_port.Latch)
+		}
 		if bram.Simfile.Big_endian && bram.Data_width == 8 {
 			return fmt.Errorf("BRAM %s cannot use simfile.big_endian with 8-bit data width", bram.Name)
 		}
@@ -581,6 +613,7 @@ func bankOffset(cfg *MemConfig, corename string) (e error) {
 	}
 	cfg.Balut = 1
 	cfg.Lutsh = mra_cfg.Header.Offset.Bits
+	cfg.BalutReverse = mra_cfg.Header.Offset.Reverse
 	return nil
 }
 

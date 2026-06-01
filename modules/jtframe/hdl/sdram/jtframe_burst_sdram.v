@@ -80,6 +80,8 @@ wire [12:0] rfsh_a, init_a;
 wire [ 3:0] rfsh_cmd, init_cmd;
 
 wire        prog_rst, rfsh_rst;
+wire [AW-1:0] prog_bank_addr = AW==23 ? { prog_addr[9], prog_addr[AW-1:10], prog_addr[8:0] } :
+                                          prog_addr;
 wire [ 3:0] mode_cmd;
 wire [12:0] mode_a;
 wire        mode_busy;
@@ -174,7 +176,7 @@ jtframe_sdram64_bank #(
     .rst        ( prog_rst   ),
     .clk        ( clk        ),
     .help       ( 1'b0       ),
-    .addr       ( prog_addr  ),
+    .addr       ( prog_bank_addr ),
     .rd         ( prog_rd    ),
     .wr         ( prog_wr    ),
     .ack        ( pre_ack    ),

@@ -138,7 +138,12 @@ sdram:
       rw: true
     - name: sprites
       data_width: 128
-      blocks: { count: 16, size: 2kB }
+      blocks:
+        size: 2kB
+        select:
+          - count: 16
+          - when: [ SIDI128 ]
+            count: 8
       at:
         bank: 2
         offset: SPR_OFFS
@@ -189,6 +194,7 @@ bram:
 - `sdram.banks` and `sdram.cache-lanes` are mutually exclusive.
 - `sdram.banks` must contain **1–4** banks.
 - `sdram.cache-lanes` must contain **1–8** entries.
+- `cache-lanes[].blocks` normally defines `count` and `size` directly. It may also use `select`, applied in order, where each entry can override `count` and/or `size` when its `when`/`unless` macro conditions match.
 - `include` entries are loaded then the active `mem.yaml` is reapplied to allow overrides.
 - `params` values are evaluated as macro expressions when `cache-lanes` use `at.offset`/`at.length`.
 - ROM-less cores may omit `download`; a single RW cache lane with `flush.enable`
@@ -220,6 +226,8 @@ bram:
   - `sdram.burst` sets burst length and must be power of two (default derives from largest lane).
 - BRAM settings:
   - `size` and `addr_width` are mutually exclusive; if `size` is used it must be power-of-two, greater than zero, and <=512kB.
+  - `latch` may be absent, `none`, `inputs`, `outputs`, or `all`. `inputs` registers address/data/write controls before the RAM; `outputs` registers output data after the RAM. Each selected latch adds one clock cycle, so `all` adds two.
+  - `dual_port.latch` uses the same values and applies independently to the auxiliary port.
   - `simfile.big_endian` is supported only for 16/32-bit BRAM and is rejected for 8-bit.
   - `prom: true` requires `data_width <= 8`.
   - `ioctl.order` defines file ordering for `dump2bin.sh`.

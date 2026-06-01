@@ -380,7 +380,7 @@ Supported: \fBname\fR, \fBbig_endian\fR, \fBdata_type\fR (u16/u32).
 .TP
 .B bram[]
 Supported: \fBname\fR, \fBsize\fR, \fBaddr_width\fR, \fBdata_width\fR, \fBrw\fR, \fBwe\fR,
-\fBaddr\fR, \fBdin\fR, \fBdout\fR, \fBsimfile\fR, \fBprom\fR, \fBioctl\fR,
+\fBlatch\fR, \fBaddr\fR, \fBdin\fR, \fBdout\fR, \fBsimfile\fR, \fBprom\fR, \fBioctl\fR,
 \fBdual_port\fR, \fBrom\fR, \fBwhen\fR, \fBunless\fR.
 .TP
 .B bram.simfile
@@ -390,7 +390,7 @@ Supported: \fBbig_endian\fR.
 Supported: \fBsave\fR, \fBrestore\fR, \fBorder\fR, \fBwhen\fR, \fBunless\fR.
 .TP
 .B bram.dual_port
-Supported: \fBname\fR, \fBaddr\fR, \fBdin\fR, \fBdout\fR, \fBrw\fR, \fBwe\fR.
+Supported: \fBname\fR, \fBaddr\fR, \fBdin\fR, \fBdout\fR, \fBrw\fR, \fBwe\fR, \fBlatch\fR.
 .TP
 .B bram.rom
 Supported: \fBoffset\fR.
@@ -465,6 +465,10 @@ Cache-lane offsets and lengths are evaluated through params/macro expressions.
 .IP \[bu] 2
 BRAM uses either \fBsize\fR or \fBaddr_width\fR, not both.
 If set, \fBsize\fR must be power-of-two, > 0, and no more than 512kB.
+.IP \[bu] 2
+\fBbram.latch\fR and \fBbram.dual_port.latch\fR accept \fBnone\fR, \fBinputs\fR,
+\fBoutputs\fR, and \fBall\fR. Input and output latches each add one clock
+cycle of latency.
 .IP \[bu] 2
 \fBsimfile.big_endian\fR is valid only for 16/32-bit BRAM, caches and SDRAM buses.
 For cache lanes wider than 32 bits with big-endian simulation, \fBdata_type\fR is required.

@@ -21,13 +21,21 @@
 //      AW      => Address bit width, 10 for 2kB
 //      SIMFILE => binary file to load during simulation
 //      SIMHEXFILE => hexadecimal file to load during simulation
+//      LATCHn_IN  => Register port n address, data and we before the RAM.
+//                    Adds one clock cycle of latency.
+//      LATCHn_OUT => Register port n output data after the RAM. Adds one
+//                    clock cycle of latency.
 
 module jtframe_dual_ram16 #(parameter AW=10,
     SIMFILE="",
     SIMHEXFILE_LO="", SIMHEXFILE_HI="",
     ENDIAN=0,
     VERBOSE=0,          // set to 1 to display memory writes
-    VERBOSE_OFFSET=0    // value added to the address when displaying
+    VERBOSE_OFFSET=0,   // value added to the address when displaying
+    LATCH0_IN=0,        // latch: inputs on port 0; adds one clock cycle
+    LATCH0_OUT=0,       // latch: outputs on port 0; adds one clock cycle
+    LATCH1_IN=0,        // latch: inputs on port 1; adds one clock cycle
+    LATCH1_OUT=0        // latch: outputs on port 1; adds one clock cycle
 )(
     // Port 0
     input          clk0,
@@ -79,7 +87,11 @@ jtframe_dual_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_LO ),
     .SIMFILE_BYTE( LO_BYTE     ),
-    .FULL_DW   ( 16            )  )
+    .FULL_DW   ( 16            ),
+    .LATCH0_IN ( LATCH0_IN     ),
+    .LATCH0_OUT( LATCH0_OUT    ),
+    .LATCH1_IN ( LATCH1_IN     ),
+    .LATCH1_OUT( LATCH1_OUT    )  )
 u_lo(
     .clk0       ( clk0              ),
     .clk1       ( clk1              ),
@@ -101,7 +113,11 @@ jtframe_dual_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_HI ),
     .SIMFILE_BYTE( HI_BYTE     ),
-    .FULL_DW   ( 16            )  )
+    .FULL_DW   ( 16            ),
+    .LATCH0_IN ( LATCH0_IN     ),
+    .LATCH0_OUT( LATCH0_OUT    ),
+    .LATCH1_IN ( LATCH1_IN     ),
+    .LATCH1_OUT( LATCH1_OUT    )  )
 u_hi(
     .clk0       ( clk0              ),
     .clk1       ( clk1              ),

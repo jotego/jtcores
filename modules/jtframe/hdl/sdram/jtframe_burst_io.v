@@ -107,7 +107,7 @@ always @(posedge clk) begin
         if( MISTER ) begin
             sdram_a[10: 0] <= sel_a[10:0];
             sdram_a[12:11] <= sel_cmd == 4'b0011 ? sel_a[12:11] :
-                              (next_dq_oe ? sel_dqm : 2'b00);
+                              sel_dqm;
         end else begin
             sdram_a <= sel_a;
         end

@@ -33,6 +33,7 @@ Relevant rules:
 
 - `blocks.count` sets the number of cache blocks inside `jtframe_cache`
 - `blocks.size` is the cache block size in bytes
+- `blocks.select` can override `count` and/or `size` with ordered `when`/`unless` macro conditions
 - `data_width` is the consumer-side width: `8`, `16`, `32`, `64`, or `128`
 - cache lanes must use `blocks.size: 16B` or larger
 - `at:` is optional
