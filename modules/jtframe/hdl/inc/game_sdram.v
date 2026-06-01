@@ -538,7 +538,11 @@ localparam JTFRAME_PROM_START=`JTFRAME_PROM_START;
 {{- else if $bus.Dual_port.Name }}
 // Dual port BRAM for {{$bus.Name}} and {{$bus.Dual_port.Name}}
 jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}}32{{end}} #(
-    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if or (eq $bus.Data_width 16) (eq $bus.Data_width 32) }},
+    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}),
+    .LATCH0_IN({{bram_latch_input $bus.Latch}}),
+    .LATCH0_OUT({{bram_latch_output $bus.Latch}}),
+    .LATCH1_IN({{bram_latch_input $bus.Dual_port.Latch}}),
+    .LATCH1_OUT({{bram_latch_output $bus.Dual_port.Latch}}){{ if or (eq $bus.Data_width 16) (eq $bus.Data_width 32) }},
     .ENDIAN({{if $bus.Simfile.Big_endian}}1{{else}}0{{end}}){{end}}{{ if $bus.Simfile.Enabled }},
     .SIMFILE("{{$bus.Name}}.bin"){{else}}{{end}}
 ) u_bram_{{$bus.Name}}(
@@ -580,7 +584,9 @@ jtframe_bram_rom #(
 {{else}}
 // BRAM for {{$bus.Name}}
 jtframe_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}}32{{end}} #(
-    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}){{ if or (eq $bus.Data_width 16) (eq $bus.Data_width 32) }},
+    .AW({{$bus.Addr_width}}{{if eq $bus.Data_width 16}}-1{{end}}),
+    .LATCH_IN({{bram_latch_input $bus.Latch}}),
+    .LATCH_OUT({{bram_latch_output $bus.Latch}}){{ if or (eq $bus.Data_width 16) (eq $bus.Data_width 32) }},
     .ENDIAN({{if $bus.Simfile.Big_endian}}1{{else}}0{{end}}){{end}}{{ if and (ne $bus.Data_width 16) (ne $bus.Data_width 32) }},
     .DW({{$bus.Data_width}}){{end}}{{- if $bus.Simfile.Enabled }},
     .SIMFILE("{{$bus.Name}}.bin"){{end}}

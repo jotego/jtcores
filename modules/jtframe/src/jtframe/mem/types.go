@@ -61,6 +61,7 @@ type BRAMBus struct {
 	Data_width int           `yaml:"data_width"`
 	Rw         bool          `yaml:"rw"`
 	We         string        `yaml:"we"`
+	Latch      string        `yaml:"latch"`
 	Addr       string        `yaml:"addr"`
 	Din        string        `yaml:"din"`  // optional name for din signal
 	Dout       string        `yaml:"dout"` // optional name for dout signal
@@ -74,6 +75,7 @@ type BRAMBus struct {
 		Dout string `yaml:"dout"` // optional name for dout signal
 		Rw   bool   `yaml:"rw"`
 		We   string `yaml:"we"`
+		Latch string `yaml:"latch"`
 		// filled later
 		AddrFull string // contains the bus indexes
 	} `yaml:"dual_port"`
@@ -427,6 +429,7 @@ func (bus *BRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error)
 		Data_width int           `yaml:"data_width"`
 		Rw         bool          `yaml:"rw"`
 		We         string        `yaml:"we"`
+		Latch      string        `yaml:"latch"`
 		Addr       string        `yaml:"addr"`
 		Din        string        `yaml:"din"`
 		Dout       string        `yaml:"dout"`
@@ -440,6 +443,7 @@ func (bus *BRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error)
 			Dout     string `yaml:"dout"`
 			Rw       bool   `yaml:"rw"`
 			We       string `yaml:"we"`
+			Latch    string `yaml:"latch"`
 			AddrFull string
 		} `yaml:"dual_port"`
 		ROM struct {
@@ -448,7 +452,7 @@ func (bus *BRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error)
 	}
 	err = common.Validator{
 		Context: "BRAM bus",
-		Valid: []string{"when", "unless", "name", "size", "addr_width", "data_width", "rw", "we",
+		Valid: []string{"when", "unless", "name", "size", "addr_width", "data_width", "rw", "we", "latch",
 			"addr", "din", "dout", "simfile", "prom", "ioctl", "dual_port", "rom"},
 	}.Validate(unmarshal)
 	if err != nil {
@@ -466,6 +470,7 @@ func (bus *BRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error)
 	bus.Data_width = aux.Data_width
 	bus.Rw = aux.Rw
 	bus.We = aux.We
+	bus.Latch = aux.Latch
 	bus.Addr = aux.Addr
 	bus.Din = aux.Din
 	bus.Dout = aux.Dout

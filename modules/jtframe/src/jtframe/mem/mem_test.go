@@ -295,6 +295,39 @@ func Test_BRAMBus_Simfile_Validation(t *testing.T) {
 	}
 }
 
+func Test_BRAMBus_Latch_Unmarshal_Validation(t *testing.T) {
+	sample := `bram:
+  - name: chars
+    addr_width: 10
+    latch: inputs
+    dual_port:
+      name: video
+      latch: outputs
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	if got := cfg.BRAM[0].Latch; got != "inputs" {
+		t.Fatalf("wrong BRAM latch value. Got %s", got)
+	}
+	if got := cfg.BRAM[0].Dual_port.Latch; got != "outputs" {
+		t.Fatalf("wrong dual-port latch value. Got %s", got)
+	}
+	if e := cfg.normalize_bram(); e != nil {
+		t.Fatalf("Expected valid BRAM latch values to be accepted: %v", e)
+	}
+	cfg.BRAM[0].Latch = "bad"
+	if e := cfg.normalize_bram(); e == nil {
+		t.Fatal("Expected invalid BRAM latch value to be rejected")
+	}
+	cfg.BRAM[0].Latch = "none"
+	cfg.BRAM[0].Dual_port.Latch = "bad"
+	if e := cfg.normalize_bram(); e == nil {
+		t.Fatal("Expected invalid BRAM dual-port latch value to be rejected")
+	}
+}
+
 func Test_fill_implicit_ports_expands_32bit_bram_write_enable(t *testing.T) {
 	cfg := MemConfig{
 		BRAM: []BRAMBus{
@@ -310,6 +343,7 @@ func Test_fill_implicit_ports_expands_32bit_bram_write_enable(t *testing.T) {
 					Dout     string `yaml:"dout"`
 					Rw       bool   `yaml:"rw"`
 					We       string `yaml:"we"`
+					Latch    string `yaml:"latch"`
 					AddrFull string
 				}{
 					Name: "video",
@@ -1490,6 +1524,63 @@ func Test_game_sdram_template_uses_32bit_bram_wrappers(t *testing.T) {
 	}
 	if strings.Contains(out, ".SIMFILE_0(") || strings.Contains(out, ".SIMFILE_3(") {
 		t.Fatalf("generated template should not emit per-lane binary SIMFILE parameters\n%s", out)
+	}
+}
+
+func Test_game_sdram_template_emits_bram_latch_parameters(t *testing.T) {
+	sample := `bram:
+  - name: chars
+    addr_width: 10
+    data_width: 8
+    rw: true
+    latch: inputs
+  - name: palette
+    addr_width: 11
+    data_width: 16
+    rw: true
+    latch: outputs
+  - name: scene
+    addr_width: 12
+    data_width: 32
+    rw: true
+    latch: all
+    dual_port:
+      name: video
+      rw: true
+      latch: inputs
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.normalize_bram_data_width()
+	if e := cfg.normalize_bram(); e != nil {
+		t.Fatal(e)
+	}
+	if e := cfg.check_bram(); e != nil {
+		t.Fatal(e)
+	}
+	fill_implicit_ports(&cfg)
+	make_ioctl(&cfg)
+	cfg.fill_gfx_sort()
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"jtframe_ram #(\n    .AW(10),\n    .LATCH_IN(1),\n    .LATCH_OUT(0),\n    .DW(8)",
+		"jtframe_ram16 #(\n    .AW(11-1),\n    .LATCH_IN(0),\n    .LATCH_OUT(1),\n    .ENDIAN(0)",
+		"jtframe_dual_ram32 #(\n    .AW(12),\n    .LATCH0_IN(1),\n    .LATCH0_OUT(1),\n    .LATCH1_IN(1),\n    .LATCH1_OUT(0),\n    .ENDIAN(0)",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
 	}
 }
 

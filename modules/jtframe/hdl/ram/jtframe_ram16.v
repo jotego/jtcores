@@ -23,13 +23,19 @@
 //      SIMHEXFILE => hexadecimal file to load during simulation
 //      ENDIAN  => 0 (default) for little-endian hosts (x86). Use ENDIAN=0
 //                 when loading binary files written by C fwrite on x86.
+//      LATCH_IN  => Register address, data and we before the RAM. Adds one
+//                   clock cycle of latency.
+//      LATCH_OUT => Register output data after the RAM. Adds one clock cycle
+//                   of latency.
 
 module jtframe_ram16 #(parameter AW=10,
     SIMFILE="",
     SIMHEXFILE_LO="", SIMHEXFILE_HI="",
     ENDIAN=0,
     VERBOSE=0,          // set to 1 to display memory writes
-    VERBOSE_OFFSET=0    // value added to the address when displaying
+    VERBOSE_OFFSET=0,   // value added to the address when displaying
+    LATCH_IN=0,         // latch: inputs; adds one clock cycle
+    LATCH_OUT=0         // latch: outputs; adds one clock cycle
 )(
     input          clk,
     input   [15:0] data,
@@ -73,7 +79,9 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_LO ),
     .SIMFILE_BYTE( LO_BYTE     ),
-    .FULL_DW   ( 16            )  )
+    .FULL_DW   ( 16            ),
+    .LATCH_IN  ( LATCH_IN      ),
+    .LATCH_OUT ( LATCH_OUT     )  )
 u_lo(
     .clk        ( clk               ),
     .cen        ( 1'b1              ),
@@ -90,7 +98,9 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_HI ),
     .SIMFILE_BYTE( HI_BYTE     ),
-    .FULL_DW   ( 16            )  )
+    .FULL_DW   ( 16            ),
+    .LATCH_IN  ( LATCH_IN      ),
+    .LATCH_OUT ( LATCH_OUT     )  )
 u_hi(
     .clk        ( clk               ),
     .cen        ( 1'b1              ),

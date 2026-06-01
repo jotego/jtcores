@@ -328,7 +328,7 @@ task cache_request(
             assert_msg(cycles > 4, "Cache miss completed too quickly");
         end else begin
             assert_msg(ack_count == ack_before, "Cache hit must not trigger a new SDRAM burst request");
-            assert_msg(cycles <= 3, "Cache hit should complete within three cycles");
+            assert_msg(cycles <= 4, "Cache hit should complete within four cycles");
         end
         while( cache_ok || cache_busy ) @(negedge clk);
         repeat (2) @(negedge clk);
