@@ -16,28 +16,39 @@ module jtargus_bg0(
     input      [31:0] rom_data,
     input             rom_ok,
 
-    output reg [15:0] vrom_addr,
-    input      [ 7:0] vrom_data,
-    output reg        vrom_cs,
-    input             vrom_ok,
+    output reg [14:1] vrom1_addr,
+    input      [15:0] vrom1_data,
+    output reg        vrom1_cs,
+    input             vrom1_ok,
+
+    output reg [14:1] vrom2_addr,
+    input      [15:0] vrom2_data,
+    output reg        vrom2_cs,
+    input             vrom2_ok,
 
     output     [ 7:0] pxl
 );
 
-localparam [19:0] VROM2_DIFF = `VROM2_START-`VROM1_START;
-localparam [15:0] VROM2_BASE = VROM2_DIFF[15:0];
+localparam [2:0] REQ_VROM1 = 3'd0,
+                 WAIT_VROM1= 3'd1,
+                 LATCH_VROM1=3'd2,
+                 REQ_VROM2 = 3'd3,
+                 WAIT_VROM2= 3'd4,
+                 LATCH_VROM2=3'd5;
 
 wire [10:0] map_addr;
 wire [31:0] sorted;
 wire [15:0] cache_q;
 wire [16:0] fill_tile       = {fill_vrom,9'd0} + {6'd0,fill_addr};
 wire [17:0] fill_tile_byte  = {fill_tile,1'b0};
-wire [15:0] fill_vrom1_addr = {1'b0,fill_tile_byte[17:4],1'b0};
-wire [14:0] fill_pat_addr   = {vrom1_hi[2:0],vrom1_lo,tile_byte_l[3:0]};
-wire [15:0] cache_din       = { vrom_data[5:0],vrom_data[7:6],vrom2_lo };
+wire [14:1] fill_vrom1_addr = fill_tile_byte[17:4];
+wire [14:0] fill_pat_addr   = {vrom1_l[10:8],vrom1_l[7:0],tile_byte_l[3:0]};
+wire [ 7:0] vrom2_lo        = fill_pat_addr[0] ? vrom2_data[15:8] : vrom2_data[7:0];
+wire [ 7:0] vrom2_hi        = vrom2_data[15:8];
+wire [15:0] cache_din       = { vrom2_hi[5:0],vrom2_hi[7:6],vrom2_lo };
 
-reg  [ 7:0] vrom1_lo, vrom1_hi, vrom2_lo;
-reg  [ 3:0] phase;
+reg  [15:0] vrom1_l;
+reg  [ 2:0] phase;
 reg  [10:0] fill_addr;
 reg  [10:0] cache_waddr;
 reg  [ 7:0] fill_vrom;
@@ -56,12 +67,12 @@ jtargus_8x8x4_packed_msb u_conv(
 
 always @(posedge clk) begin
     if( rst ) begin
-        phase     <= 4'd0;
-        vrom_cs   <= 1'b0;
-        vrom_addr <= 16'd0;
-        vrom1_lo  <= 8'd0;
-        vrom1_hi  <= 8'd0;
-        vrom2_lo  <= 8'd0;
+        phase     <= REQ_VROM1;
+        vrom1_cs  <= 1'b0;
+        vrom2_cs  <= 1'b0;
+        vrom1_addr <= 14'd0;
+        vrom2_addr <= 14'd0;
+        vrom1_l   <= 16'd0;
         fill_addr <= 11'd0;
         cache_waddr <= 11'd0;
         fill_vrom <= 8'd0;
@@ -69,79 +80,48 @@ always @(posedge clk) begin
         cache_wdata <= 16'd0;
         cache_we  <= 1'b0;
     end else begin
-        vrom_cs <= 1'b0;
+        vrom1_cs <= 1'b0;
+        vrom2_cs <= 1'b0;
         cache_we <= 1'b0;
         if( fill_vrom != vrom_offset ) begin
             fill_vrom <= vrom_offset;
             fill_addr <= 11'd0;
-            phase     <= 4'd0;
+            phase     <= REQ_VROM1;
         end else case( phase )
-            4'd0: begin
+            REQ_VROM1: begin
                 tile_byte_l <= fill_tile_byte;
-                vrom_addr   <= fill_vrom1_addr;
-                phase       <= 4'd1;
+                vrom1_addr  <= fill_vrom1_addr;
+                phase       <= WAIT_VROM1;
             end
-            4'd1: begin
-                vrom_cs     <= 1'b1;
-                phase       <= 4'd2;
+            WAIT_VROM1: begin
+                vrom1_cs <= 1'b1;
+                phase    <= LATCH_VROM1;
             end
-            4'd2: begin
-                vrom_cs <= 1'b1;
-                if( vrom_ok ) begin
-                    vrom1_lo <= vrom_data;
-                    vrom_cs  <= 1'b0;
-                    phase    <= 4'd3;
+            LATCH_VROM1: begin
+                vrom1_cs <= 1'b1;
+                if( vrom1_ok ) begin
+                    vrom1_l  <= vrom1_data;
+                    vrom1_cs <= 1'b0;
+                    phase    <= REQ_VROM2;
                 end
             end
-            4'd3: begin
-                vrom_addr <= {1'b0,tile_byte_l[17:4],1'b1};
-                phase     <= 4'd4;
+            REQ_VROM2: begin
+                vrom2_addr <= fill_pat_addr[14:1];
+                phase      <= WAIT_VROM2;
             end
-            4'd4: begin
-                vrom_cs <= 1'b1;
-                phase   <= 4'd5;
-            end
-            4'd5: begin
-                vrom_cs <= 1'b1;
-                if( vrom_ok ) begin
-                    vrom1_hi <= vrom_data;
-                    vrom_cs  <= 1'b0;
-                    phase    <= 4'd6;
-                end
-            end
-            4'd6: begin
-                vrom_addr <= VROM2_BASE + fill_pat_addr;
-                phase     <= 4'd7;
-            end
-            4'd7: begin
-                vrom_cs <= 1'b1;
-                phase   <= 4'd8;
-            end
-            4'd8: begin
-                vrom_cs <= 1'b1;
-                if( vrom_ok ) begin
-                    vrom2_lo <= vrom_data;
-                    vrom_cs  <= 1'b0;
-                    phase    <= 4'd9;
-                end
-            end
-            4'd9: begin
-                vrom_addr <= VROM2_BASE + ({1'b0,fill_pat_addr} | 16'd1);
-                phase     <= 4'd10;
-            end
-            4'd10: begin
-                vrom_cs <= 1'b1;
-                phase   <= 4'd11;
+            WAIT_VROM2: begin
+                vrom2_cs <= 1'b1;
+                phase    <= LATCH_VROM2;
             end
             default: begin
-                vrom_cs <= 1'b1;
-                if( vrom_ok ) begin
+                vrom2_cs <= 1'b1;
+                if( vrom2_ok ) begin
                     cache_waddr <= fill_addr;
                     cache_wdata <= cache_din;
-                    cache_we  <= 1'b1;
-                    vrom_cs   <= 1'b0;
-                    fill_addr <= fill_addr + 11'd1;
-                    phase     <= 4'd0;
+                    cache_we    <= 1'b1;
+                    vrom2_cs    <= 1'b0;
+                    fill_addr   <= fill_addr + 11'd1;
+                    phase       <= REQ_VROM1;
                 end
             end
         endcase

@@ -154,10 +154,14 @@ jtargus_video u_video(
     .obj_cs     ( obj_cs       ),
     .obj_ok     ( obj_ok       ),
 
-    .vrom_addr  ( vrom_addr    ),
-    .vrom_data  ( vrom_data    ),
-    .vrom_cs    ( vrom_cs      ),
-    .vrom_ok    ( vrom_ok      ),
+    .vrom1_addr ( vrom1_addr   ),
+    .vrom1_data ( vrom1_data   ),
+    .vrom1_cs   ( vrom1_cs     ),
+    .vrom1_ok   ( vrom1_ok     ),
+    .vrom2_addr ( vrom2_addr   ),
+    .vrom2_data ( vrom2_data   ),
+    .vrom2_cs   ( vrom2_cs     ),
+    .vrom2_ok   ( vrom2_ok     ),
 
     .pal_pxl    ( pal_pxl      ),
     .pal_rgb    ( pal_rgb      ),

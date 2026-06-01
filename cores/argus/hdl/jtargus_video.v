@@ -39,10 +39,15 @@ module jtargus_video(
     input      [31:0] obj_data,
     input             obj_ok,
 
-    output     [15:0] vrom_addr,
-    input      [ 7:0] vrom_data,
-    output            vrom_cs,
-    input             vrom_ok,
+    output     [14:1] vrom1_addr,
+    input      [15:0] vrom1_data,
+    output            vrom1_cs,
+    input             vrom1_ok,
+
+    output     [14:1] vrom2_addr,
+    input      [15:0] vrom2_data,
+    output            vrom2_cs,
+    input             vrom2_ok,
 
     output     [ 9:0] pal_pxl,
     input      [11:0] pal_rgb,
@@ -148,10 +153,14 @@ jtargus_bg0 u_bg0(
     .rom_addr   ( bg0_addr  ),
     .rom_data   ( bg0_data  ),
     .rom_ok     ( bg0_ok    ),
-    .vrom_addr  ( vrom_addr ),
-    .vrom_data  ( vrom_data ),
-    .vrom_cs    ( vrom_cs   ),
-    .vrom_ok    ( vrom_ok   ),
+    .vrom1_addr ( vrom1_addr ),
+    .vrom1_data ( vrom1_data ),
+    .vrom1_cs   ( vrom1_cs   ),
+    .vrom1_ok   ( vrom1_ok   ),
+    .vrom2_addr ( vrom2_addr ),
+    .vrom2_data ( vrom2_data ),
+    .vrom2_cs   ( vrom2_cs   ),
+    .vrom2_ok   ( vrom2_ok   ),
     .pxl        ( bg0_pxl   )
 );
 
