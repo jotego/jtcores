@@ -16,36 +16,30 @@ module jtargus_palette(
     output reg [ 3:0] blend_alpha
 );
 
-reg [ 7:0] palram[0:12'hbff];
+reg  [15:0] raw_pal,  intensity;
+reg  [11:0] pal0_addr, pal1_addr, pre0_addr, pre1_addr;
+reg  [ 9:0] base_addr;
+reg  [ 7:0] din_l;
+reg  [ 3:0] sprb_din;
+wire [ 7:0] pal0_dout, pal1_dout;
+reg         pal0_we,   pal1_we, base_we,
+            sprb_we,   int_we;
+
 reg [11:0] base[0:10'h37f];
 reg [ 3:0] spr_blend[0:7'h7f];
-reg [15:0] intensity;
-
 integer i;
 
-function [7:0] rd;
-    input [11:0] a;
-begin
-    rd = (we && addr==a) ? din : palram[a];
+initial begin
+    int_we    = 0;
+    sprb_we   = 0;
+    base_we   = 0;
+    din_l     = 0;
+    base_addr = 0;
+    pal0_addr = 0;
+    pal1_addr = 0;
+    pal0_we   = 0;
+    pal1_we   = 0;
 end
-endfunction
-
-function [3:0] rd_lo;
-    input [11:0] a;
-    reg   [ 7:0] data;
-begin
-    data  = rd(a);
-    rd_lo = data[3:0];
-end
-endfunction
-
-function [11:0] raw_rgb;
-    input [ 7:0] lo;
-    input [ 7:0] hi;
-begin
-    raw_rgb = { lo[7:4], lo[3:0], hi[7:4] };
-end
-endfunction
 
 function [3:0] sub4;
     input [3:0] a;
@@ -113,31 +107,59 @@ begin
 end
 endfunction
 
+always @* begin
+    pre0_addr = addr;
+    pre1_addr = addr;
+
+    if(addr[11:8]==0) begin
+        pre0_addr[7] = 0;
+        pre1_addr[7] = 1;
+    end
+
+    if(^addr[11:10]) begin
+        pre0_addr[11:10] = 2'b01;
+        pre1_addr[11:10] = 2'b10;
+    end
+    raw_pal = { pal0_dout, pal1_dout };
+    if(pal0_we) raw_pal[15:8] = din_l;
+    if(pal1_we) raw_pal[ 7:0] = din_l;
+end
+
 always @(posedge clk) begin
-    if( rst ) begin
-        intensity <= 16'd0;
-        for(i=0;i<12'hc00;i=i+1) palram[i] <= 8'd0;
-        for(i=0;i<10'h380;i=i+1) base[i] <= 12'd0;
-        for(i=0;i<128;i=i+1) spr_blend[i] <= 4'd0;
-    end else if( we ) begin
-        palram[addr] <= din;
-        if( addr<=12'h0ff ) begin
-            base[{3'd0,addr[6:0]}] <= raw_rgb(rd({5'd0,addr[6:0]}), rd({5'd0,addr[6:0]}+12'h080));
-            spr_blend[addr[6:0]] <= rd_lo({5'd0,addr[6:0]}+12'h080);
-            if( addr==12'h07f || addr==12'h0ff )
-                intensity <= {rd(12'h07f),rd(12'h0ff)};
-        end
+    int_we    <= 0;
+    sprb_we   <= 0;
+    base_we   <= 0;
+    pal0_we   <= 0;
+    pal1_we   <= 0;
+    din_l     <= din;
+    base_addr <= addr[9:0];
 
-        if( (addr>=12'h400 && addr<=12'h4ff) || (addr>=12'h800 && addr<=12'h8ff) ) begin
-            base[10'h080+{2'd0,addr[7:0]}] <= raw_rgb(rd(12'h400+{4'd0,addr[7:0]}), rd(12'h800+{4'd0,addr[7:0]}));
+    if(we) begin
+        pal0_addr <= pre0_addr;
+        pal1_addr <= pre1_addr;
+        pal0_we   <= addr[11:7]==pre0_addr[11:7];
+        pal1_we   <= addr[11:7]==pre1_addr[11:7];
+        // Sprites
+        if( addr[11:8]==0 ) begin
+            base_addr <= {3'd0,addr[6:0]};
+            base_we   <= 1;
+            sprb_we   <= 1;
+            int_we    <= &addr[6:0];
         end
-
-        if( (addr>=12'h500 && addr<=12'h5ff) || (addr>=12'h900 && addr<=12'h9ff) ) begin
-            base[10'h180+{2'd0,addr[7:0]}] <= raw_rgb(rd(12'h500+{4'd0,addr[7:0]}), rd(12'h900+{4'd0,addr[7:0]}));
+        // BG0
+        if(addr[11:8]==4'h4 || addr[11:8]==4'h8) begin
+            base_we <= 1;
+            base_addr <= 10'h080+{2'd0,addr[7:0]};
         end
-
-        if( (addr>=12'h700 && addr<=12'h7ff) || (addr>=12'hb00 && addr<=12'hbff) ) begin
-            base[10'h280+{2'd0,addr[7:0]}] <= raw_rgb(rd(12'h700+{4'd0,addr[7:0]}), rd(12'hb00+{4'd0,addr[7:0]}));
+        // BG1
+        if(addr[11:8]==4'h5 || addr[11:8]==4'h9) begin
+            base_we <= 1;
+            base_addr <= 10'h180+{2'd0,addr[7:0]};
+        end
+        // Txt
+        if(addr[11:8]==4'h7 || addr[11:8]==4'hb) begin
+            base_we <= 1;
+            base_addr <= 10'h280+{2'd0,addr[7:0]};
         end
     end
 end
@@ -148,5 +170,34 @@ always @* begin
     blend_obj_rgb = lookup_rgb(blend_obj_pxl);
     blend_alpha   = blend_obj_pxl<10'h080 ? spr_blend[blend_obj_pxl[6:0]] : 4'd0;
 end
+
+always @( posedge clk) begin
+    if( rst ) begin
+        intensity <= 16'd0;
+        for(i=0;i<10'h380;i=i+1) base[i] <= 12'd0;
+        for(i=0;i<128;    i=i+1) spr_blend[i] <= 4'd0;
+    end else begin
+        if(base_we) base[base_addr] <= raw_pal[15:4];
+        if(int_we ) intensity       <= raw_pal;
+        if(sprb_we) spr_blend[base_addr[6:0]] <= raw_pal[3:0];
+    end
+end
+
+jtframe_dual_ram #(
+    .AW(12)
+) u_palram(
+    // Port 0 - pal lo
+    .clk0   ( clk       ),
+    .addr0  ( pal0_addr ),
+    .data0  ( din_l     ),
+    .we0    ( pal0_we   ),
+    .q0     ( pal0_dout ),
+    // Port 1 - pal hi
+    .clk1   ( clk       ),
+    .data1  ( din_l     ),
+    .addr1  ( pal1_addr ),
+    .we1    ( pal1_we   ),
+    .q1     ( pal1_dout )
+);
 
 endmodule
