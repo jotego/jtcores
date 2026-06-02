@@ -189,7 +189,6 @@ always @(posedge clk) begin
         bg1_y[1]    <= 8'd0;
         irq_pending <= 1'b0;
         int_vector  <= 8'hcf;
-        cpu_din     <= 8'hff;
     end else begin
         if( irq_ack ) begin
             irq_pending <= 1'b0;
