@@ -56,6 +56,7 @@ wire [ 7:0] dmac1_vec;
 integer     write_count = 0;
 reg  [31:0] last_write_addr = 0;
 reg  [31:0] last_write_data = 0;
+reg  [31:0] read_data = 0;
 
 always #5 clk = ~clk;
 
@@ -98,6 +99,11 @@ initial begin
         "accepted write should target DAR0");
     assert_or_fail(last_write_data == FLASH_ID,
         "accepted write should store captured source read data");
+
+    tick_pair();
+    ibus_read32(CHCR0, read_data);
+    assert_or_fail(read_data[1],
+        "CHCR0.TE should be readable after completed DMA");
 
     pass();
 end
@@ -162,6 +168,25 @@ task ibus_write32(input [31:0] addr, input [31:0] data);
         ibus_we = 0;
         ibus_a = 0;
         ibus_di = 0;
+    end
+endtask
+
+task ibus_read32(input [31:0] addr, output [31:0] data);
+    begin
+        @(negedge clk);
+        ibus_a = addr;
+        ibus_ba = 4'hf;
+        ibus_we = 0;
+        ibus_req = 1;
+        ce_r = 0;
+        ce_f = 1;
+        @(posedge clk);
+        #1;
+        data = ibus_do;
+        ce_f = 0;
+        @(negedge clk);
+        ibus_req = 0;
+        ibus_a = 0;
     end
 endtask
 

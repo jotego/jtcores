@@ -47,7 +47,7 @@ module SH7604_DMAC (
 	SARx_t      SAR[2];
 	DARx_t      DAR[2];
 	TCRx_t      TCR[2];
-	CHCRx_t     CHCR[2];
+	bit [31:0]  CHCR[2];
 	DRCRx_t     DRCR[2];
 	VCRDMAx_t   VCRDMA0;
 	VCRDMAx_t   VCRDMA1;
