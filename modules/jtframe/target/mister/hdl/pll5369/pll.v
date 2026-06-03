@@ -125,7 +125,7 @@ endmodule
 // Retrieval info: 	<generic name="gui_divide_factor_c5" value="1" />
 // Retrieval info: 	<generic name="gui_actual_output_clock_frequency5" value="0 MHz" />
 // Retrieval info: 	<generic name="gui_ps_units5" value="ps" />
-// Retrieval info: 	<generic name="gui_phase_shift5" value="3580" />
+// Retrieval info: 	<generic name="gui_phase_shift5" value="5000" />
 // Retrieval info: 	<generic name="gui_phase_shift_deg5" value="0.0" />
 // Retrieval info: 	<generic name="gui_actual_phase_shift5" value="0" />
 // Retrieval info: 	<generic name="gui_duty_cycle5" value="50" />
