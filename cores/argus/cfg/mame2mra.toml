@@ -28,5 +28,5 @@ regions = [
 ]
 
 order = [
-    "maincpu", "audiocpu", "scr0", "scr1", "text", "sprites", "vrom1", "vrom2"
+    "maincpu", "audiocpu", "scr0", "scr1", "text", "vrom1", "vrom2", "sprites"
 ]

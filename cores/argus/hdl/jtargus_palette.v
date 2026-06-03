@@ -7,6 +7,15 @@ module jtargus_palette(
     input             we,
     input             grey_en,
 
+    // SDRAM
+    output     [10:1] pxl_addr,
+    output reg [15:0] pxl_din,
+    output reg [ 1:0] pxl_dsn,
+    output reg        pxl_cs,
+    output reg        pxl_we,
+    input             pxl_ok,
+
+
     input      [ 9:0] pxl,
     input      [ 9:0] blend_bg_pxl,
     input      [ 9:0] blend_obj_pxl,
@@ -28,6 +37,8 @@ reg         pal0_we,   pal1_we, base_we,
 reg [11:0] base[0:10'h37f];
 reg [ 3:0] spr_blend[0:7'h7f];
 integer i;
+
+assign pxl_addr = base_addr;
 
 initial begin
     int_we    = 0;
@@ -103,7 +114,7 @@ function [11:0] lookup_rgb;
     reg [11:0] raw;
 begin
     raw = addr<=10'h37f ? base[addr] : 12'd0;
-    lookup_rgb = (addr>=10'h080 && addr<10'h180) ? bg_effect(raw) : raw;
+    lookup_rgb = (addr>=10'h080 && addr<10'h180) ? bg_effect(raw) : raw; // only applies to bg0
 end
 endfunction
 
@@ -167,7 +178,7 @@ end
 always @* begin
     rgb           = lookup_rgb(pxl);
     blend_bg_rgb  = lookup_rgb(blend_bg_pxl);
-    blend_obj_rgb = lookup_rgb(blend_obj_pxl);
+    blend_obj_rgb = base[blend_obj_pxl]; // lookup_rgb(blend_obj_pxl);
     blend_alpha   = blend_obj_pxl<10'h080 ? spr_blend[blend_obj_pxl[6:0]] : 4'd0;
 end
 
@@ -176,8 +187,24 @@ always @( posedge clk) begin
         intensity <= 16'd0;
         for(i=0;i<10'h380;i=i+1) base[i] <= 12'd0;
         for(i=0;i<128;    i=i+1) spr_blend[i] <= 4'd0;
+        pxl_cs  <= 0;
+        pxl_we  <= 0;
+        pxl_dsn <= 2'b11;
+        pxl_din <= 0;
     end else begin
-        if(base_we) base[base_addr] <= raw_pal[15:4];
+        if(pxl_ok) begin
+            pxl_cs  <= 0;
+            pxl_we  <= 0;
+            pxl_dsn <= 2'b11;
+        end
+        if(base_we) begin
+            base[base_addr] <= raw_pal[15:4];
+            pxl_din[15:4] <= raw_pal[15:4];
+            pxl_din[ 3:0] <= sprb_we ? raw_pal[3:0] : 4'b0;
+            pxl_we  <= 1;
+            pxl_cs  <= 1;
+            pxl_dsn <= 2'b00;
+        end
         if(int_we ) intensity       <= raw_pal;
         if(sprb_we) spr_blend[base_addr[6:0]] <= raw_pal[3:0];
     end

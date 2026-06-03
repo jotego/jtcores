@@ -1,8 +1,10 @@
 params:
   - { name: BG1_OFFSET,   value: "(`BG1_START-`JTFRAME_BA2_START)>>1" }
   - { name: TXT_OFFSET,   value: "(`TXT_START-`JTFRAME_BA2_START)>>1" }
-  - { name: VROM1_OFFSET, value: "(`VROM1_START-`JTFRAME_BA3_START)>>1" }
-  - { name: VROM2_OFFSET, value: "(`VROM2_START-`JTFRAME_BA3_START)>>1" }
+  - { name: VROM1_OFFSET, value: "(`VROM1_START-`JTFRAME_BA2_START)>>1" }
+  - { name: VROM2_OFFSET, value: "(`VROM2_START-`JTFRAME_BA2_START)>>1" }
+  - { name: PXL_OFFSET,   value: "(`PXL_START-`JTFRAME_BA3_START)>>1" }
+  - { name: BGPXL_OFFSET, value: "(`BGPXL_START-`JTFRAME_BA3_START)>>1" }
 
 clocks:
   clk48:
@@ -45,10 +47,6 @@ sdram:
         addr_width: 15
         data_width: 32
         offset: TXT_OFFSET
-    - buses:
-      - name: obj
-        addr_width: 17
-        data_width: 32
       - name: vrom1
         addr_width: 15
         data_width: 16
@@ -57,6 +55,27 @@ sdram:
         addr_width: 15
         data_width: 16
         offset: VROM2_OFFSET
+    - buses:
+      - name: pxl
+        addr_width: 11
+        data_width: 16
+        rw: true
+        offset: PXL_OFFSET
+      - name: obj
+        addr_width: 17
+        data_width: 32
+      - name: pal_pxl
+        addr_width: 11
+        data_width: 16
+        offset: PXL_OFFSET
+      - name: o_blend
+        addr_width: 8
+        data_width: 16
+        offset: PXL_OFFSET
+      - name: bg_blend
+        addr_width: 10
+        data_width: 16
+        offset: BGPXL_OFFSET
 bram:
   - name: ram
     addr_width: 13
