@@ -24,6 +24,10 @@
 `define JTFRAME_MR_DDR
 `endif
 
+`ifdef JTFRAME_LF_BUFFER
+`define JTFRAME_MR_DDR
+`endif
+
 `ifdef JTFRAME_MR_DDRLOAD
 `define JTFRAME_MR_DDR
 `endif

@@ -55,3 +55,42 @@ func Test_uses_sdram_cache(t *testing.T) {
 		t.Fatal("Expected cache-lane usage to be detected")
 	}
 }
+
+func Test_check_macros_lf_buffer_ddrload_mister(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"TARGET":             "mister",
+		"JTFRAME_LF_BUFFER":  "1",
+		"JTFRAME_MR_DDRLOAD": "1",
+		"JTFRAME_WIDTH":      "320",
+		"JTFRAME_HEIGHT":     "224",
+	})
+	if err := CheckMacros(); err != nil {
+		t.Fatalf("Expected MiSTer lf-buffer DDR-load combination to be accepted: %v", err)
+	}
+}
+
+func Test_check_macros_lf_buffer_ddrload_non_mister(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"TARGET":             "sidi128",
+		"JTFRAME_LF_BUFFER":  "1",
+		"JTFRAME_MR_DDRLOAD": "1",
+		"JTFRAME_WIDTH":      "320",
+		"JTFRAME_HEIGHT":     "224",
+	})
+	if err := CheckMacros(); err == nil {
+		t.Fatal("Expected non-MiSTer lf-buffer DDR-load combination to be rejected")
+	}
+}
+
+func Test_check_macros_lf_buffer_vertical(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"TARGET":            "mister",
+		"JTFRAME_LF_BUFFER": "1",
+		"JTFRAME_VERTICAL":  "1",
+		"JTFRAME_WIDTH":     "320",
+		"JTFRAME_HEIGHT":    "224",
+	})
+	if err := CheckMacros(); err == nil {
+		t.Fatal("Expected vertical lf-buffer combination to be rejected")
+	}
+}

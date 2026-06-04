@@ -263,7 +263,7 @@ wire [ 7:0] hps_dout;
 // Screen rotation
 wire [ 7:0] rot_burstcnt;
 wire [28:0] rot_addr;
-wire [63:0] rot_dout;
+wire [63:0] rot_dout, rot_din;
 wire        rot_we, rot_rd, rot_busy;
 wire [ 7:0] rot_be;
 
@@ -970,17 +970,27 @@ wire rot_clk;
         .DDRAM_RD       ( rot_rd         ),
         // umuxed
         .DDRAM_CLK      ( rot_clk        ), // same as clk_rom
-        .DDRAM_DIN      ( DDRAM_DIN      )
+        .DDRAM_DIN      ( rot_din        )
     );
 `else
-    `ifndef JTFRAME_LF_BUFFER assign DDRAM_DIN=64'd0; `endif
-    assign rot_clk = clk_rom;
+    `ifndef JTFRAME_LF_BUFFER
+    assign rot_clk      = clk_rom;
+    assign rot_burstcnt = 8'd0;
+    assign rot_addr     = 29'd0;
+    assign rot_rd       = 1'b0;
+    assign rot_we       = 1'b0;
+    assign rot_be       = 8'd0;
+    assign rot_din      = 64'd0;
+    `endif
 `endif
 
 `ifdef JTFRAME_LF_BUFFER
-    // line-frame buffer. This won't work with fast DDR load or vertical games
+    wire lfbuf_rst = rst | ioctl_rom;
+    wire rot_dout_ready = rot_busy ? 1'b0 : DDRAM_DOUT_READY;
+
+    // line-frame buffer. This won't work with vertical games
     jtframe_lfbuf_ddr u_lf_buf(
-        .rst        ( rst           ),
+        .rst        ( lfbuf_rst     ),
         .clk        ( clk_rom       ),
         .pxl_cen    ( pxl1_cen      ),
 
@@ -1003,21 +1013,22 @@ wire rot_clk;
         .ln_lvbl    ( ln_lvbl       ),
         .ln_we      ( ln_we         ),
 
-        .ddram_clk  ( DDRAM_CLK     ),
-        .ddram_busy ( DDRAM_BUSY    ),
-        .ddram_addr ( DDRAM_ADDR    ),
+        .ddram_clk  ( rot_clk       ),
+        .ddram_busy ( rot_busy      ),
+        .ddram_addr ( rot_addr      ),
         .ddram_dout ( DDRAM_DOUT    ),
-        .ddram_rd   ( DDRAM_RD      ),
-        .ddram_din  ( DDRAM_DIN     ),
-        .ddram_be   ( DDRAM_BE      ),
-        .ddram_we   ( DDRAM_WE      ),
-        .ddram_burstcnt  ( DDRAM_BURSTCNT    ),
-        .ddram_dout_ready( DDRAM_DOUT_READY  ),
+        .ddram_rd   ( rot_rd        ),
+        .ddram_din  ( rot_din       ),
+        .ddram_be   ( rot_be        ),
+        .ddram_we   ( rot_we        ),
+        .ddram_burstcnt  ( rot_burstcnt    ),
+        .ddram_dout_ready( rot_dout_ready ),
         .st_addr    ( st_addr       ),
         .st_dout    ( st_lpbuf      )
     );
-`else
-    jtframe_mr_ddrmux u_ddrmux(
+`endif
+
+jtframe_mr_ddrmux u_ddrmux(
         .rst            ( rst             ),
         .clk            ( clk_rom         ),
         .ioctl_rom      ( ioctl_rom       ),
@@ -1026,13 +1037,14 @@ wire rot_clk;
         .ddrld_addr     ( ddrld_addr      ),
         .ddrld_rd       ( ddrld_rd        ),
         .ddrld_busy     ( ddrld_busy      ),
-        // Rotation signals
+        // Video DDR client
         .rot_clk        ( rot_clk         ),
         .rot_burstcnt   ( rot_burstcnt    ),
         .rot_addr       ( rot_addr        ),
         .rot_rd         ( rot_rd          ),
         .rot_we         ( rot_we          ),
         .rot_be         ( rot_be          ),
+        .rot_din        ( rot_din         ),
         .rot_busy       ( rot_busy        ),
         // DDR Signals
         .ddr_clk        ( DDRAM_CLK       ),
@@ -1041,8 +1053,8 @@ wire rot_clk;
         .ddr_addr       ( DDRAM_ADDR      ),
         .ddr_rd         ( DDRAM_RD        ),
         .ddr_we         ( DDRAM_WE        ),
-        .ddr_be         ( DDRAM_BE        )
+        .ddr_be         ( DDRAM_BE        ),
+        .ddr_din        ( DDRAM_DIN       )
     );
-`endif
 
 endmodule

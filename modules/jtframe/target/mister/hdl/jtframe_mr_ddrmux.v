@@ -25,13 +25,14 @@ module jtframe_mr_ddrmux(
     input   [28:0] ddrld_addr,
     input          ddrld_rd,
     output         ddrld_busy,
-    // Rotation signals
+    // Video DDR client: rotation or line-frame buffer
     input          rot_clk,
     input   [ 7:0] rot_burstcnt,
     input   [28:0] rot_addr,
     input          rot_rd,
     input          rot_we,
     input   [ 7:0] rot_be,
+    input   [63:0] rot_din,
     output         rot_busy,
     // DDR Signals
     output         ddr_clk,
@@ -40,7 +41,8 @@ module jtframe_mr_ddrmux(
     output  [28:0] ddr_addr,
     output         ddr_rd,
     output  [ 7:0] ddr_be,
-    output         ddr_we
+    output         ddr_we,
+    output  [63:0] ddr_din
 );
 
 `ifdef JTFRAME_MR_DDRLOAD
@@ -55,7 +57,11 @@ module jtframe_mr_ddrmux(
     localparam VERTICAL=0;
 `endif
 
-localparam DDREN = DDRLOAD[0] || VERTICAL[0];
+`ifdef JTFRAME_LF_BUFFER
+    localparam LFBUF=1;
+`else
+    localparam LFBUF=0;
+`endif
 
 reg ddrld_en;
 
@@ -63,7 +69,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         ddrld_en <= 0;
     end else if(!ddr_busy) begin
-        case( {DDRLOAD[0], VERTICAL[0]} )
+        case( {DDRLOAD[0], VERTICAL[0] || LFBUF[0]} )
             2'b00: ddrld_en <= 0; // don't care
             2'b10: ddrld_en <= 1;
             2'b01: ddrld_en <= 0;
@@ -82,6 +88,7 @@ assign ddr_addr     = ddrld_en ? ddrld_addr     : rot_addr;
 assign ddr_rd       = ddrld_en ? ddrld_rd       : rot_rd;
 assign ddr_be       = ddrld_en ? 8'hff          : rot_be;
 assign ddr_we       = ddrld_en ? 1'b0           : rot_we;
+assign ddr_din      = ddrld_en ? 64'd0          : rot_din;
 
 assign ddrld_busy   = ~ddrld_en | ddr_busy;
 assign rot_busy     =  ddrld_en | ddr_busy;

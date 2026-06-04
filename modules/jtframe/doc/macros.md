@@ -47,7 +47,7 @@ JTFRAME_LIGHTGUN         |         | Enables the crosshair overlay
 JTFRAME_LIGHTGUN_ON      |         | Used with JTFRAME_LIGHTGUN, forces crosshair overlay onscreen
 JTFRAME_LIGHTGUN_XOFFSET |         | Used with JTFRAME_LIGHTGUN, adds a 9 bit correction value to lightgun X coordinate sent to core
 JTFRAME_LIGHTGUN_YOFFSET |         | Used with JTFRAME_LIGHTGUN, adds a 9 bit correction value to lightgun Y coordinate sent to core
-JTFRAME_LF_BUFFER        |         | Enables the line-based frame buffer
+JTFRAME_LF_BUFFER        |         | Enables the line-based frame buffer. In MiSTer it can share DDR with JTFRAME_MR_DDRLOAD
 JTFRAME_LF_FULLV         |         | Render blanking lines for line-based frame buffer (makes frame longer to process)
 JTFRAME_LF_SDRAM_BUFFER  | sidi128 | The line-based frame buffer (JTFRAME_LF_BUFFER) is implemented in the second SDRAM
 JTFRAME_LITE_KEYBOARD    |         | Disables automatic MAME keys mapping
@@ -61,7 +61,7 @@ JTFRAME_MOUSE            |         | Enables mouse input. See [inputs.md](inputs
 JTFRAME_MOUSE_EMUSENS    |         | Positive 9-bit value for the emulated mouse sensitivity. Default value is 9'h10. MSB should be zero
 JTFRAME_MOUSE_NO2COMPL   |         | Mouse input is provided as sign+magnitude instead of default 2's complement
 JTFRAME_MOUSE_NOEMU      |         | Disables mouse emulation via joystick
-JTFRAME_MR_DDR           | MiSTer  | Defined internally. Do not define manually.
+JTFRAME_MR_DDR           | MiSTer  | Defined internally when MiSTer DDR is used. Do not define manually.
 JTFRAME_MR_DDRLOAD       | MiSTer  | ROM download process uses the DDR as proxy
 JTFRAME_MR_FASTIO        | MiSTer  | 16-bit ROM load in MiSTer. Set by default if CLK96 is set
 JTFRAME_NO_ANALOGIZER    | Pocket  | Disables analog video output and SNAC controllers through cartridge pins. Defined by default if JTFRAME_RELEASE is not defined
