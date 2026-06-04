@@ -165,15 +165,39 @@ create_runner() {
 set -eu
 SIMUNIT_FILE="$1"
 shift
-"$JTFRAME/bin/simunit.sh" --run "$(dirname "$SIMUNIT_FILE")" "$@"
+SIMUNIT_DIR="$(dirname "$SIMUNIT_FILE")"
+if [ "${SIMUNIT_DIR#"$JTROOT/"}" != "$SIMUNIT_DIR" ]; then
+    TEST_NAME="${SIMUNIT_DIR#$JTROOT/}"
+else
+    TEST_NAME="$SIMUNIT_DIR"
+fi
+
+LOG_FILE="$(mktemp)"
+trap 'rm -f "$LOG_FILE"' EXIT
+
+if "$JTFRAME/bin/simunit.sh" --run "$SIMUNIT_DIR" "$@" > "$LOG_FILE" 2>&1; then
+    printf '%s PASS\n' "$TEST_NAME"
+else
+    printf '%s FAIL\n' "$TEST_NAME"
+    exit 1
+fi
 RUNNER_EOF
     chmod +x "$RUNNER_SCRIPT"
 }
 
 run_all() {
-    if ! parallel -0 -j "$JOBS" "$RUNNER_SCRIPT" "{}" "${SIMUNIT_ARGS[@]}" < "$SIMUNIT_FILES"; then
-        return 1
+    local status
+
+    status=0
+    parallel -0 -j "$JOBS" "$RUNNER_SCRIPT" "{}" "${SIMUNIT_ARGS[@]}" < "$SIMUNIT_FILES" || status=$?
+
+    if [ "$status" -eq 0 ]; then
+        echo "PASS"
+    else
+        echo "FAIL"
     fi
+
+    return "$status"
 }
 
 cleanup_tmp() {
