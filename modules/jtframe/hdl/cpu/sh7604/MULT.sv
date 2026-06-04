@@ -4,9 +4,9 @@ module SH7604_MULT (
 	input             CE_R,
 	input             CE_F,
 	input             EN,
-	
+
 	input             RES_N,
-	
+
 	input      [31:0] CBUS_A,
 	input      [31:0] CBUS_DI,
 	output     [31:0] CBUS_DO,
@@ -14,7 +14,7 @@ module SH7604_MULT (
 	input       [3:0] CBUS_BA,
 	input             CBUS_REQ,
 	output            CBUS_BUSY,
-	
+
 	input       [1:0] MAC_SEL,
 	input       [3:0] MAC_OP,
 	input             MAC_S,
@@ -22,39 +22,49 @@ module SH7604_MULT (
 );
 
 	import SH7604_PKG::*;
-	
+
 	bit [31:0] MACL;
 	bit [31:0] MACH;
 	bit [31:0] MA;
 	bit [31:0] MB;
+	bit [63:0] MRES;
 	bit        MM_DONE;
-	
+
 	wire [63:0] SRES =   $signed(MA) *   $signed(MB);
 	wire [63:0] URES = $unsigned(MA) * $unsigned(MB);
-	wire [63:0] ACC64  = $signed({MACH,MACL}) + $signed(SRES);
-	wire [32:0] ACC32  = $signed({MACL[31],MACL}) + $signed(SRES[32:0]);
-	
+	wire [63:0] ACC64  = $signed({MACH,MACL}) + $signed(MRES);
+	wire [32:0] ACC32  = $signed({MACL[31],MACL}) + $signed(MRES[32:0]);
+
 	always @(posedge CLK or negedge RST_N) begin
 		bit [ 1: 0] MM_CYC;
 		bit         MUL_EXEC;
 		bit         DMUL_EXEC;
 		bit         MACW_EXEC;
 		bit         MACL_EXEC;
+		bit         MUL_WB;
+		bit         DMUL_WB;
+		bit         MACW_WB;
+		bit         MACL_WB;
 		bit         SAT;
 		bit         SIGNED;
 		bit [15: 0] DW;
-		
+
 		if (!RST_N) begin
 			MACL <= '0;
 			MACH <= '0;
 			MA <= '0;
 			MB <= '0;
+			MRES <= '0;
 			MM_DONE <= 1;
 			MM_CYC <= '0;
 			MUL_EXEC <= 0;
 			DMUL_EXEC <= 0;
 			MACW_EXEC <= 0;
 			MACL_EXEC <= 0;
+			MUL_WB <= 0;
+			DMUL_WB <= 0;
+			MACW_WB <= 0;
+			MACL_WB <= 0;
 			SIGNED <= 0;
 			// synopsys translate_off
 			MACL <= 32'h01234567;
@@ -64,7 +74,7 @@ module SH7604_MULT (
 		else begin
 			if ((MAC_SEL != 2'b00) && MAC_WE && EN && CE_R) begin
 				MM_DONE <= 1;
-				case (MAC_OP) 
+				case (MAC_OP)
 					4'b0100,			//LDS Rm,MACx
 					4'b1000: begin	//LDS @Rm+,MACx
 						if (MAC_SEL[0]) MACL <= CBUS_DI;
@@ -89,7 +99,7 @@ module SH7604_MULT (
 						MB <= {{16{CBUS_DI[31]&MAC_OP[0]}},CBUS_DI[31:16]};
 						MUL_EXEC <= MAC_SEL[1];
 						SIGNED <= MAC_OP[0];
-						MM_CYC <= 2'd1;
+						MM_CYC <= 2'd2;
 						MM_DONE <= 0;
 					end
 					4'b1001: begin		//MAC.L @Rm+,@Rn+
@@ -111,7 +121,7 @@ module SH7604_MULT (
 							MACW_EXEC <= 1;
 							SIGNED <= MAC_OP[0];
 							SAT <= MAC_S;
-							MM_CYC <= 2'd1;
+							MM_CYC <= 2'd2;
 							MM_DONE <= 0;
 						end
 					end
@@ -119,25 +129,47 @@ module SH7604_MULT (
 					default:;
 				endcase
 			end
-			
+
 			if (!MM_DONE && CE_R) begin
 				if (MM_CYC != 2'd0) MM_CYC <= MM_CYC - 2'd1;
 				if (MM_CYC == 2'd1) MM_DONE <= 1;
 			end
-			
-			if (MUL_EXEC) begin
-				if (SIGNED) MACL <= SRES[31:0];
-				else        MACL <= URES[31:0];
+
+			if (MUL_EXEC && CE_R) begin
+				MRES <= SIGNED ? SRES : URES;
+				MUL_WB <= 1;
 				MUL_EXEC <= 0;
 			end
-			
-			if (DMUL_EXEC) begin
-				if (SIGNED) {MACH,MACL} <= SRES;
-				else        {MACH,MACL} <= URES;
+
+			if (DMUL_EXEC && CE_R) begin
+				MRES <= SIGNED ? SRES : URES;
+				DMUL_WB <= 1;
 				DMUL_EXEC <= 0;
 			end
-			
-			if (MACW_EXEC) begin
+
+			if (MACW_EXEC && CE_R) begin
+				MRES <= SIGNED ? SRES : URES;
+				MACW_WB <= 1;
+				MACW_EXEC <= 0;
+			end
+
+			if (MACL_EXEC && CE_R) begin
+				MRES <= SIGNED ? SRES : URES;
+				MACL_WB <= 1;
+				MACL_EXEC <= 0;
+			end
+
+			if (MUL_WB && CE_R) begin
+				MACL <= MRES[31:0];
+				MUL_WB <= 0;
+			end
+
+			if (DMUL_WB && CE_R) begin
+				{MACH,MACL} <= MRES;
+				DMUL_WB <= 0;
+			end
+
+			if (MACW_WB && CE_R) begin
 				if (!SAT) begin
 					{MACH,MACL} <= ACC64;
 				end else begin
@@ -149,10 +181,10 @@ module SH7604_MULT (
 //						MACH <= 32'h00000000;//??
 					end
 				end
-				MACW_EXEC <= 0;
+				MACW_WB <= 0;
 			end
-			
-			if (MACL_EXEC) begin
+
+			if (MACL_WB && CE_R) begin
 				if (!SAT) begin
 					{MACH,MACL} <= ACC64;
 				end else begin
@@ -162,11 +194,11 @@ module SH7604_MULT (
 						{MACH,MACL} <= ACC64;
 					end
 				end
-				MACL_EXEC <= 0;
+				MACL_WB <= 0;
 			end
 		end
 	end
-	
+
 	assign CBUS_DO = MAC_SEL[1] ? MACH : MACL;
 	assign CBUS_BUSY = ~MM_DONE && |MAC_SEL;
 
