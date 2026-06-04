@@ -26,13 +26,6 @@ wire [ 9:0] blend_bg_pxl, blend_obj_pxl;
 wire [11:0] blend_bg_rgb, blend_obj_rgb;
 wire [ 3:0] blend_alpha;
 
-assign pal_pxl_addr = pal_pxl;
-assign pal_pxl_cs = 0;
-assign o_blend_cs  = 0;
-assign bg_blend_cs = 0;
-assign o_blend_addr = 0;
-assign bg_blend_addr = 0;
-
 assign debug_view = debug_bus[7] ? st_snd : { grey_en, bg1_en, flip, snd_latch[4:0] };
 assign dip_flip   = flip;
 `ifdef JTFRAME_IOCTL_RD
@@ -104,18 +97,12 @@ jtargus_sound u_sound(
 jtargus_palette u_palette(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
 
     .addr       ( pal_addr  ),
     .din        ( pal_din   ),
     .we         ( pal_we    ),
     .grey_en    ( grey_en   ),
-
-    .pxl_addr   ( pxl_addr  ),
-    .pxl_din    ( pxl_din   ),
-    .pxl_dsn    ( pxl_dsn   ),
-    .pxl_cs     ( pxl_cs    ),
-    .pxl_we     ( pxl_we    ),
-    .pxl_ok     ( pxl_ok    ),
 
     .pxl        ( pal_pxl   ),
     .blend_bg_pxl ( blend_bg_pxl ),

@@ -33,7 +33,13 @@ wire [9:0] tx_pal  = 10'h280 + {2'd0,tx_pxl};
 wire [9:0] obj_pal = {3'd0,obj_pxl[6:0]};
 
 reg        blend_sel;
+reg        blend_sel_l, blankn_l;
 reg [11:0] rgb_mux;
+
+initial begin
+    blend_sel_l = 1'b0;
+    blankn_l    = 1'b0;
+end
 
 function [3:0] sub4;
     input [3:0] a;
@@ -102,11 +108,13 @@ always @* begin
         blend_sel = 1'b0;
     end
 
-    rgb_mux = blend_sel ? blend_rgb(blend_bg_rgb, blend_obj_rgb, blend_alpha) : pal_rgb;
+    rgb_mux = blend_sel_l ? blend_rgb(blend_bg_rgb, blend_obj_rgb, blend_alpha) : pal_rgb;
 end
 
 always @(posedge clk) if( pxl_cen ) begin
-    {red,green,blue} <= blankn ? rgb_mux : 12'd0;
+    blend_sel_l      <= blend_sel;
+    blankn_l         <= blankn;
+    {red,green,blue} <= blankn_l ? rgb_mux : 12'd0;
 end
 
 endmodule

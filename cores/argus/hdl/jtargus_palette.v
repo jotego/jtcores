@@ -1,20 +1,30 @@
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
+    Version: 1.0
+    Date: 4-6-2026
+    */
 module jtargus_palette(
     input             rst,
     input             clk,
+    input             pxl_cen,
 
     input      [11:0] addr,
     input      [ 7:0] din,
     input             we,
     input             grey_en,
-
-    // SDRAM
-    output     [10:1] pxl_addr,
-    output reg [15:0] pxl_din,
-    output reg [ 1:0] pxl_dsn,
-    output reg        pxl_cs,
-    output reg        pxl_we,
-    input             pxl_ok,
-
 
     input      [ 9:0] pxl,
     input      [ 9:0] blend_bg_pxl,
@@ -27,29 +37,54 @@ module jtargus_palette(
 
 reg  [15:0] raw_pal,  intensity;
 reg  [11:0] pal0_addr, pal1_addr, pre0_addr, pre1_addr;
-reg  [ 9:0] base_addr;
+reg  [ 9:0] base_addr, pxl_l, blend_bg_pxl_l, blend_obj_pxl_l,
+            pxl_rd_addr;
 reg  [ 7:0] din_l;
-reg  [ 3:0] sprb_din;
 wire [ 7:0] pal0_dout, pal1_dout;
-reg         pal0_we,   pal1_we, base_we,
+reg         pal0_we,   pal1_we, base_we,    pxlram_we,
             sprb_we,   int_we;
+reg  [ 1:0] rd_st;
+reg  [15:0] pxlram_din;
+wire [15:0] pxlram_dout;
+reg         cen;
 
-reg [11:0] base[0:10'h37f];
-reg [ 3:0] spr_blend[0:7'h7f];
-integer i;
+localparam [1:0] ST_IDLE = 2'd0,
+                 ST_PAL  = 2'd1,
+                 ST_BG   = 2'd2,
+                 ST_OBJ  = 2'd3;
 
-assign pxl_addr = base_addr;
+localparam [9:0] BG0_OFF = 10'h080,
+                 BG1_OFF = 10'h180,
+                 TXT_OFF = 10'h280;
+
+always @(posedge clk) begin
+    cen <= ~cen;
+    if(pxl_cen) cen <= 0;
+end
 
 initial begin
-    int_we    = 0;
-    sprb_we   = 0;
-    base_we   = 0;
-    din_l     = 0;
-    base_addr = 0;
-    pal0_addr = 0;
-    pal1_addr = 0;
-    pal0_we   = 0;
-    pal1_we   = 0;
+    cen             = 0;
+    int_we          = 0;
+    sprb_we         = 0;
+    base_we         = 0;
+    din_l           = 0;
+    base_addr       = 0;
+    pxl_l           = 0;
+    blend_bg_pxl_l  = 0;
+    blend_obj_pxl_l = 0;
+    pxl_rd_addr     = 0;
+    pal0_addr       = 0;
+    pal1_addr       = 0;
+    pal0_we         = 0;
+    pal1_we         = 0;
+    pxlram_we       = 0;
+    pxlram_din      = 0;
+    rd_st           = ST_IDLE;
+    rgb             = 0;
+    blend_bg_rgb    = 0;
+    blend_obj_rgb   = 0;
+    blend_alpha     = 0;
+    base_addr       = 0;
 end
 
 function [3:0] sub4;
@@ -111,10 +146,9 @@ endfunction
 
 function [11:0] lookup_rgb;
     input [9:0] addr;
-    reg [11:0] raw;
+    input [11:0] raw;
 begin
-    raw = addr<=10'h37f ? base[addr] : 12'd0;
-    lookup_rgb = (addr>=10'h080 && addr<10'h180) ? bg_effect(raw) : raw; // only applies to bg0
+    lookup_rgb = ~addr[9] & addr[8]^addr[7] ? bg_effect(raw) : raw; // only applies to bg0
 end
 endfunction
 
@@ -142,71 +176,86 @@ always @(posedge clk) begin
     base_we   <= 0;
     pal0_we   <= 0;
     pal1_we   <= 0;
+    pxlram_we <= base_we;
     din_l     <= din;
-    base_addr <= addr[9:0];
 
     if(we) begin
         pal0_addr <= pre0_addr;
         pal1_addr <= pre1_addr;
         pal0_we   <= addr[11:7]==pre0_addr[11:7];
         pal1_we   <= addr[11:7]==pre1_addr[11:7];
-        // Sprites
-        if( addr[11:8]==0 ) begin
-            base_addr <= {3'd0,addr[6:0]};
-            base_we   <= 1;
-            sprb_we   <= 1;
-            int_we    <= &addr[6:0];
-        end
-        // BG0
-        if(addr[11:8]==4'h4 || addr[11:8]==4'h8) begin
-            base_we <= 1;
-            base_addr <= 10'h080+{2'd0,addr[7:0]};
-        end
-        // BG1
-        if(addr[11:8]==4'h5 || addr[11:8]==4'h9) begin
-            base_we <= 1;
-            base_addr <= 10'h180+{2'd0,addr[7:0]};
-        end
-        // Txt
-        if(addr[11:8]==4'h7 || addr[11:8]==4'hb) begin
-            base_we <= 1;
-            base_addr <= 10'h280+{2'd0,addr[7:0]};
-        end
+        case (addr[11:8])
+            0:   begin // Sprites
+                base_addr <= {3'd0,addr[6:0]};
+                base_we   <= 1;
+                sprb_we   <= 1;
+                int_we    <= &addr[6:0];
+            end
+            4,8:  begin // BG0
+                base_we <= 1;
+                base_addr <= {2'd0,addr[7:0]} + BG0_OFF;
+            end
+            5,9:  begin // BG1
+                base_we <= 1;
+                base_addr <= {2'd0,addr[7:0]} + BG1_OFF;
+            end
+            7,11: begin // TXT
+                base_we <= 1;
+                base_addr <= {2'd0,addr[7:0]} + TXT_OFF;
+            end
+            default:;
+        endcase
     end
-end
-
-always @* begin
-    rgb           = lookup_rgb(pxl);
-    blend_bg_rgb  = lookup_rgb(blend_bg_pxl);
-    blend_obj_rgb = base[blend_obj_pxl]; // lookup_rgb(blend_obj_pxl);
-    blend_alpha   = blend_obj_pxl<10'h080 ? spr_blend[blend_obj_pxl[6:0]] : 4'd0;
 end
 
 always @( posedge clk) begin
     if( rst ) begin
-        intensity <= 16'd0;
-        for(i=0;i<10'h380;i=i+1) base[i] <= 12'd0;
-        for(i=0;i<128;    i=i+1) spr_blend[i] <= 4'd0;
-        pxl_cs  <= 0;
-        pxl_we  <= 0;
-        pxl_dsn <= 2'b11;
-        pxl_din <= 0;
+        rd_st           <= ST_IDLE;
+        intensity       <= 16'd0;
+        pxl_l           <= 10'd0;
+        blend_bg_pxl_l  <= 10'd0;
+        blend_obj_pxl_l <= 10'd0;
+        pxl_rd_addr     <= 10'd0;
+        rgb             <= 12'd0;
+        blend_bg_rgb    <= 12'd0;
+        blend_obj_rgb   <= 12'd0;
+        blend_alpha     <=  4'd0;
+        pxlram_din      <= 16'b0;
     end else begin
-        if(pxl_ok) begin
-            pxl_cs  <= 0;
-            pxl_we  <= 0;
-            pxl_dsn <= 2'b11;
-        end
+        if(int_we) intensity <= raw_pal;
         if(base_we) begin
-            base[base_addr] <= raw_pal[15:4];
-            pxl_din[15:4] <= raw_pal[15:4];
-            pxl_din[ 3:0] <= sprb_we ? raw_pal[3:0] : 4'b0;
-            pxl_we  <= 1;
-            pxl_cs  <= 1;
-            pxl_dsn <= 2'b00;
+            pxlram_din <= raw_pal;
+            if(!sprb_we) pxlram_din[3:0] <= 4'd0;
         end
-        if(int_we ) intensity       <= raw_pal;
-        if(sprb_we) spr_blend[base_addr[6:0]] <= raw_pal[3:0];
+
+        if(pxl_cen) begin
+            pxl_l           <= pxl;
+            blend_bg_pxl_l  <= blend_bg_pxl;
+            blend_obj_pxl_l <= blend_obj_pxl;
+            pxl_rd_addr     <= pxl;
+            rd_st           <= ST_PAL;
+        end else if(cen) begin
+            case(rd_st)
+                ST_PAL: begin
+                    rgb         <= lookup_rgb(pxl_l, pxlram_dout[15:4]);
+                    pxl_rd_addr <= blend_bg_pxl_l;
+                    rd_st       <= ST_BG;
+                end
+                ST_BG: begin
+                    blend_bg_rgb <= lookup_rgb(blend_bg_pxl_l, pxlram_dout[15:4]);
+                    pxl_rd_addr  <= blend_obj_pxl_l;
+                    rd_st        <= ST_OBJ;
+                end
+                ST_OBJ: begin
+                    blend_obj_rgb <= pxlram_dout[15:4];
+                    blend_alpha   <= pxlram_dout[ 3:0];
+                    rd_st         <= ST_IDLE;
+                end
+                default: begin
+                    rd_st <= ST_IDLE;
+                end
+            endcase
+        end
     end
 end
 
@@ -225,6 +274,23 @@ jtframe_dual_ram #(
     .addr1  ( pal1_addr ),
     .we1    ( pal1_we   ),
     .q1     ( pal1_dout )
+);
+
+jtframe_dual_ram #(
+    .DW(16), .AW(10)
+) u_pxlram(
+    // Port 0 - CPU palette writes
+    .clk0   ( clk          ),
+    .addr0  ( base_addr    ),
+    .data0  ( pxlram_din   ),
+    .we0    ( pxlram_we    ),
+    .q0     (              ),
+    // Port 1 - sequenced video reads
+    .clk1   ( clk          ),
+    .data1  ( 16'b0        ),
+    .addr1  ( pxl_rd_addr  ),
+    .we1    ( 1'b0         ),
+    .q1     ( pxlram_dout  )
 );
 
 endmodule
