@@ -131,7 +131,7 @@ filter_simunit_files() {
         gather_file="$simunit_dir/gather.f"
         if [ -f "$gather_file" ]; then
             for token in "${ONLY_GATHER_PATTERNS[@]}"; do
-                if grep -qF -- "$token" "$gather_file"; then
+                if grep -qiF -- "$token" "$gather_file"; then
                     printf '%s\0' "$simunit_file" >> "$filtered"
                     break
                 fi
