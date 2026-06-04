@@ -140,32 +140,68 @@ parse_args() {
     parse_setname $1; shift
 
     while [[ $# -gt 0 ]]; do case $1 in
-        --path) shift; REMOTE_DIR="$1" ;;
-        --check) check=true ;;
-        --local-check) shift; local_check=true; LOCAL_DIR="$1" ;;
-        --local-rom) local_rom=true ;;
-        --push) push=true ;;
+        --path)
+            if [[ $# -lt 2 ]]; then
+                echo "[ERROR] --path requires an argument"
+                exit 1
+            fi
+            REMOTE_DIR="$2"
+            shift 2
+            ;;
+        --check)
+            check=true
+            shift
+            ;;
+        --local-check)
+            if [[ $# -lt 2 ]]; then
+                echo "[ERROR] --local-check requires an argument"
+                exit 1
+            fi
+            local_check=true
+            LOCAL_DIR="$2"
+            shift 2
+            ;;
+        --local-rom)
+            local_rom=true
+            shift
+            ;;
+        --push)
+            push=true
+            shift
+            ;;
         -h|--help)
             print_help
             exit 0
             ;;
         --port)
-            shift
-            if [[ "$1" =~ ^[0-9]+$ ]]; then
-                SSH_PORT="$1"
-            else
+            if [[ $# -lt 2 || ! "$2" =~ ^[0-9]+$ ]]; then
                 echo "[ERROR] --port requires a numeric argument"
                 exit 1
             fi
+            SSH_PORT="$2"
+            shift 2
             ;;
-        --host) shift; SFTP_HOST=$1 ;;
-        --user) shift; SFTP_USER=$1 ;;
+        --host)
+            if [[ $# -lt 2 ]]; then
+                echo "[ERROR] --host requires an argument"
+                exit 1
+            fi
+            SFTP_HOST="$2"
+            shift 2
+            ;;
+        --user)
+            if [[ $# -lt 2 ]]; then
+                echo "[ERROR] --user requires an argument"
+                exit 1
+            fi
+            SFTP_USER="$2"
+            shift 2
+            ;;
         *)
             echo "[ERROR] Unknown option: $1"
             exit 1
             ;;
-    esac; shift; done
-    if [[ "$1" == '--' ]]; then shift; fi
+    esac; done
 
     if $check || $push || ! $local_rom; then
         if [[ -z $SFTP_HOST || -z $SFTP_USER || -z $SSH_PORT ]]; then
@@ -317,10 +353,13 @@ get_zips() {
 get_zip_names() {
     local target_name="$1"
     local -n zip_names_ref="$target_name"
+    local zip_names_raw
+    local -a sanitized_zips
+    local zip
 
     jtframe mra --skipROM
 
-    zip_names_ref=$(
+    zip_names_raw=$(
         JTBIN="$JTROOT/release" jtutil mra -c -z |
         awk -F'|' -v setname="$setname" '
             {
@@ -334,7 +373,15 @@ get_zip_names() {
             }
         '
     )
-    readarray -t zip_names_ref <<< "$zip_names_ref"
+    readarray -t zip_names_ref <<< "$zip_names_raw"
+
+    sanitized_zips=()
+    for zip in "${zip_names_ref[@]}"; do
+        zip="${zip#${zip%%[![:space:]]*}}"
+        zip="${zip%${zip##*[![:space:]]}}"
+        [[ -n "$zip" ]] && sanitized_zips+=("$zip")
+    done
+    zip_names_ref=("${sanitized_zips[@]}")
 
     if [[ "${#zip_names_ref[@]}" == 0 ]]; then return 1; fi
 }
@@ -348,6 +395,7 @@ collect_missing_zips() {
     missing_zips_ref=()
     local zip
     for zip in "$@"; do
+        [[ -n "$zip" ]] || continue
         if ! zip_file_ready "$roms_dir_ref/$zip"; then
             missing_zips_ref+=("$zip")
         fi
@@ -413,7 +461,49 @@ get_many_via_ftp() {
 }
 
 random_wait() {
-    sleep $((RANDOM%30)+10)
+    sleep $((RANDOM%30+10))
+}
+
+add_sim_option() {
+    local -n opts_ref=$1
+    local -n opt_pos_ref=$2
+    local key=$3
+    local value=$4
+
+    if [[ -n ${opt_pos_ref[$key]+x} ]]; then
+        opts_ref[${opt_pos_ref[$key]}]=-$key
+        opts_ref[$((opt_pos_ref[$key]+1))]=$value
+    else
+        opt_pos_ref[$key]=${#opts_ref[@]}
+        opts_ref+=( -$key $value )
+    fi
+}
+
+parse_opts() {
+    local selector=$1
+    local cfg_file=$2
+    local -n opts_ref=$3
+    local -n opt_pos_ref=$4
+    local -n frames_found_ref=$5
+
+    local -a raw_opts=()
+    if [[ -z $selector ]]; then
+        readarray raw_opts < <(yq -o=j -I=0 "to_entries[]" "$cfg_file")
+    else
+        readarray raw_opts < <(yq -o=j -I=0 "$selector | to_entries[]" "$cfg_file")
+    fi
+
+    local item
+    local key
+    local value
+    for item in "${raw_opts[@]}"; do
+        key=$(echo "$item" | yq '.key' -)
+        value=$(echo "$item" | yq '.value' -)
+        if [[ $key == "video" ]]; then
+            frames_found_ref=true
+        fi
+        add_sim_option opts_ref opt_pos_ref "$key" "$value"
+    done
 }
 
 get_opts() {
@@ -423,37 +513,20 @@ get_opts() {
     local local_cfg_file="$JTROOT/cores/$core/cfg/reg.yaml"
 
     local frames_found=false
+    local -A opt_pos
 
-    # --- Parse global config ---
     if [[ ! -f $global_cfg_file ]]; then
         echo "[WARNING] Cannot find global configuration file for regressions. Searched in $global_cfg_file"
     else
-        readarray raw_opts < <(yq -o=j -I=0 "to_entries[]" $global_cfg_file)
-        for item in "${raw_opts[@]}"; do
-            key=$(echo $item | yq '.key' -)
-            value=$(echo $item | yq '.value' -)
-            if [[ $key == "video" ]]; then
-                frames_found=true
-            fi
-            opts_ref+=(-$key $value)
-        done
+        parse_opts "" "$global_cfg_file" opts_ref opt_pos frames_found
     fi
 
-    # --- Parse core config ---
     if [[ ! -f $local_cfg_file ]]; then
         echo "[WARNING] Cannot find local configuration file for $core regressions. Searched in $local_cfg_file"
     elif [[ $(yq ".$fullname" $local_cfg_file) == "null" ]]; then
         echo "[WARNING] $fullname is not meant to execute a regression. You shouldn't be requesting it"
     else
-        readarray raw_opts < <(yq -o=j -I=0 ".$fullname | to_entries[]" $local_cfg_file)
-        for item in "${raw_opts[@]}"; do
-            key=$(echo $item | yq '.key' -)
-            value=$(echo $item | yq '.value' -)
-            if [[ $key == "video" ]]; then
-                frames_found=true
-            fi
-            opts_ref+=(-$key $value)
-        done
+        parse_opts ".$fullname" "$local_cfg_file" opts_ref opt_pos frames_found
     fi
 
     if ! $frames_found; then
@@ -495,19 +568,34 @@ EOF
         echo "[WARNING] There are no valid frames yet"
         return 1
     fi
-    unzip -q -d $dir $dir/frames.zip
+    if ! unzip -q -d "$dir" "$dir/frames.zip"; then
+        echo "[WARNING] Cannot unpack frames.zip"
+        rm -f "$dir/frames.zip"
+        return 1
+    fi
 }
 
 check_frames() {
     local ref_dir=$1
+
+    local failed=false
 
     local frames=(frames/*.jpg)
     local n_frames="${#frames[@]}"
     local ref_frames=($ref_dir/*.jpg)
     local n_ref_frames="${#ref_frames[@]}"
 
+    if [[ $n_frames -eq 0 ]]; then
+        echo "[WARNING] No frames were produced by this simulation"
+        return 1
+    fi
+
     if [[ $n_frames -gt $n_ref_frames ]]; then
         echo "[WARNING] The valid folder contains $n_ref_frames frames but the new simulation has $n_frames"
+        return 1
+    fi
+    if [[ $n_frames -lt $n_ref_frames ]]; then
+        echo "[WARNING] The simulation has $n_frames frames but the reference has $n_ref_frames"
         return 1
     fi
 
@@ -515,7 +603,6 @@ check_frames() {
         local frame="${frames[$i]}"
         local ref_frame="${ref_frames[$i]}"
 
-        local failed=false
         if ! perceptualdiff "$ref_frame" "$frame"; then
             echo "[WARNING] $(basename $frame): difference detected"
             local failed=true
@@ -553,7 +640,8 @@ check_audio() {
             echo "[ERROR] Local audio doesn't exist"
             return 2
         fi
-        mv $LOCAL_DIR/$core/$setname/audio.wav .
+        cp "$LOCAL_DIR/$core/$setname/audio.wav" .
+        TODELETE+=("$(realpath audio.wav)")
     fi
 
     len_ref=$(soxi -D $ref_audio)
@@ -561,7 +649,7 @@ check_audio() {
 
     if (( $(echo "$len_ref < $len_test" | bc -l) )); then
         echo "[WARNING] The reference audio is not long enough to validate"
-        exit 1
+        return 1
     fi
 
     sox $ref_audio -n trim 0 $len_test spectrogram -r -o $ref_spectro
@@ -586,7 +674,11 @@ bye
 EOF
     if [[ ! -f "audio.zip" ]]; then return 1; fi
 
-    unzip audio.zip
+    if ! unzip -q -o -d . audio.zip; then
+        echo "[WARNING] Cannot unpack audio.zip"
+        rm -f audio.zip
+        return 1
+    fi
     rm -f audio.zip
     TODELETE+=(`realpath audio.wav`)
 }
@@ -600,6 +692,10 @@ upload_results() {
     case $ec in
         0) files=();;
         1|2)
+            folder="fail"
+            files=("$fullname-sim.log")
+        ;;
+        11)
             folder="fail"
             files=("$fullname-sim.log")
         ;;
