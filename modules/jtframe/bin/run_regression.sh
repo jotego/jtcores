@@ -427,7 +427,7 @@ get_with_retry() {
 
     while [[ $attempts -gt 0 && "${#missing_zips_ref[@]}" -gt 0 ]]; do
         get_many_via_ftp "$roms_dir_ref" "$sftp_log" "${missing_zips_ref[@]}" || true
-        collect_missing_zips missing_zips_ref "$roms_dir_ref" "${missing_zips_ref[@]}"
+        collect_missing_zips "$target_name" "$roms_dir_ref" "${missing_zips_ref[@]}"
         attempts=$((attempts-1))
         if [[ $attempts -gt 0 && "${#missing_zips_ref[@]}" -gt 0 ]]; then
             random_wait
@@ -465,26 +465,31 @@ random_wait() {
 }
 
 add_sim_option() {
-    local -n opts_ref=$1
-    local -n opt_pos_ref=$2
+    local _add_opts_name="$1"
+    local _add_pos_name="$2"
+    local -n _add_opts="$_add_opts_name"
+    local -n _add_pos="$_add_pos_name"
     local key=$3
     local value=$4
 
-    if [[ -n ${opt_pos_ref[$key]+x} ]]; then
-        opts_ref[${opt_pos_ref[$key]}]=-$key
-        opts_ref[$((opt_pos_ref[$key]+1))]=$value
+    if [[ -n ${_add_pos[$key]+x} ]]; then
+        _add_opts[${_add_pos[$key]}]=-$key
+        _add_opts[$((_add_pos[$key]+1))]=$value
     else
-        opt_pos_ref[$key]=${#opts_ref[@]}
-        opts_ref+=( -$key $value )
+        _add_pos[$key]=${#_add_opts[@]}
+        _add_opts+=( -$key $value )
     fi
 }
 
 parse_opts() {
     local selector=$1
     local cfg_file=$2
-    local -n opts_ref=$3
-    local -n opt_pos_ref=$4
-    local -n frames_found_ref=$5
+    local _parse_opts_name="$3"
+    local _parse_pos_name="$4"
+    local _parse_frames_name="$5"
+    local -n _parse_opts="$_parse_opts_name"
+    local -n _parse_pos="$_parse_pos_name"
+    local -n _parse_frames="$_parse_frames_name"
 
     local -a raw_opts=()
     if [[ -z $selector ]]; then
@@ -500,9 +505,9 @@ parse_opts() {
         key=$(echo "$item" | yq '.key' -)
         value=$(echo "$item" | yq '.value' -)
         if [[ $key == "video" ]]; then
-            frames_found_ref=true
+            _parse_frames=true
         fi
-        add_sim_option opts_ref opt_pos_ref "$key" "$value"
+        add_sim_option _parse_opts _parse_pos "$key" "$value"
     done
 }
 
