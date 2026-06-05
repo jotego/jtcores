@@ -127,6 +127,7 @@ parse_args() {
     local_check=false
     local_rom=false
     push=false
+    SFTP_CONNECT_TIMEOUT=${SFTP_CONNECT_TIMEOUT:-120}
 
     if [[ $1 == --help || $1 == -h ]]; then
         print_help
@@ -441,6 +442,11 @@ get_with_retry() {
     return 0
 }
 
+run_sftp() {
+    sftp -o ConnectTimeout="$SFTP_CONNECT_TIMEOUT" -P "$SSH_PORT" "$@" \
+        "$SFTP_USER@$SFTP_HOST:$REMOTE_DIR"
+}
+
 get_many_via_ftp() {
     local roms_dir_ref="$1"
     local sftp_log="$2"
@@ -457,7 +463,7 @@ get_many_via_ftp() {
             printf -- '-get mame/%s %s\n' "$zip" "$zip"
         done
         printf 'bye\n'
-    } | sftp -b - -P "$SSH_PORT" "$SFTP_USER@$SFTP_HOST:$REMOTE_DIR" >>"$sftp_log" 2>&1
+    } | run_sftp -b - >>"$sftp_log" 2>&1
 }
 
 random_wait() {
@@ -565,7 +571,7 @@ get_remote_frames() {
     TODELETE+=("$dir")
 
     echo "[INFO] Downloading remote frames for $setname"
-    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
+    run_sftp >/dev/null 2>&1 <<EOF
 get regression/$core/$setname/valid/frames.zip $dir
 bye
 EOF
@@ -673,7 +679,7 @@ check_audio() {
 
 get_remote_audio() {
     echo "[INFO] Downloading remote audio for $setname"
-    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
+    run_sftp >/dev/null 2>&1 <<EOF
 get regression/$core/$setname/valid/audio.zip
 bye
 EOF
@@ -716,7 +722,7 @@ upload_results() {
     if [ "$ec" != 0 ]; then prepare_zip_files; fi
 
     echo "[INFO] Starting upload"
-    sftp -P $SSH_PORT $SFTP_USER@$SFTP_HOST:$REMOTE_DIR >/dev/null 2>&1 <<EOF
+    run_sftp >/dev/null 2>&1 <<EOF
 mkdir regression
 mkdir regression/$core
 mkdir regression/$core/$fullname
