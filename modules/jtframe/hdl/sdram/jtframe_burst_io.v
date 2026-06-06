@@ -45,6 +45,7 @@ module jtframe_burst_io #(
     output reg          prog_rdy,
     input               next_dq_oe,
     input      [15:0]   next_dq,
+    input               sel_act,
     input       [3:0]   sel_cmd,
     input      [12:0]   sel_a,
     input       [1:0]   sel_ba,
@@ -106,8 +107,7 @@ always @(posedge clk) begin
 
         if( MISTER ) begin
             sdram_a[10: 0] <= sel_a[10:0];
-            sdram_a[12:11] <= sel_cmd == 4'b0011 ? sel_a[12:11] :
-                              sel_dqm;
+            sdram_a[12:11] <= sel_act ? sel_a[12:11] : sel_dqm;
         end else begin
             sdram_a <= sel_a;
         end
