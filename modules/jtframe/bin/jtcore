@@ -25,6 +25,7 @@ FAIL=0
 JTBIN2SD=
 MACROS=
 OUTPUTDIR=output_files
+OUTPUT_FOLDER=
 PRJ=
 NODBG=
 NOLINTER=
@@ -117,11 +118,13 @@ if [ -e $CORES/$PRJ/cfg/skip ]; then
     exit 0
 fi
 
-# Use the local release folder
-export JTBIN=$JTROOT/release
+# Use the local release folder unless the command line overrides it
+if [ -z "$OUTPUT_FOLDER" ]; then
+    export JTBIN=$JTROOT/release
+else
+    export JTBIN=$OUTPUT_FOLDER
+fi
 mkdir -p $JTBIN
-
-OUTPUTDIR=output_files
 
 # Check Quartus path
 case $TARGET in
