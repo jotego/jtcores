@@ -40,72 +40,17 @@ module jtframe_cache_mux_arb(
 
 reg        next_valid;
 reg [2:0]  next_sel;
+reg [7:0]  active_onehot;
 
-assign ext_ack = {
-    active && active_sel==3'd7 && ack,
-    active && active_sel==3'd6 && ack,
-    active && active_sel==3'd5 && ack,
-    active && active_sel==3'd4 && ack,
-    active && active_sel==3'd3 && ack,
-    active && active_sel==3'd2 && ack,
-    active && active_sel==3'd1 && ack,
-    active && active_sel==3'd0 && ack
-};
+// One-hot distribution of ack/dst/dok/rdy to the selected port — 1 LUT level
+assign ext_ack = {8{ack}} & active_onehot;
+assign ext_dst = {8{dst}} & active_onehot;
+assign ext_dok = {8{dok}} & active_onehot;
+assign ext_rdy = {8{rdy}} & active_onehot;
 
-assign ext_dst = {
-    active && active_sel==3'd7 && dst,
-    active && active_sel==3'd6 && dst,
-    active && active_sel==3'd5 && dst,
-    active && active_sel==3'd4 && dst,
-    active && active_sel==3'd3 && dst,
-    active && active_sel==3'd2 && dst,
-    active && active_sel==3'd1 && dst,
-    active && active_sel==3'd0 && dst
-};
-
-assign ext_dok = {
-    active && active_sel==3'd7 && dok,
-    active && active_sel==3'd6 && dok,
-    active && active_sel==3'd5 && dok,
-    active && active_sel==3'd4 && dok,
-    active && active_sel==3'd3 && dok,
-    active && active_sel==3'd2 && dok,
-    active && active_sel==3'd1 && dok,
-    active && active_sel==3'd0 && dok
-};
-
-assign ext_rdy = {
-    active && active_sel==3'd7 && rdy,
-    active && active_sel==3'd6 && rdy,
-    active && active_sel==3'd5 && rdy,
-    active && active_sel==3'd4 && rdy,
-    active && active_sel==3'd3 && rdy,
-    active && active_sel==3'd2 && rdy,
-    active && active_sel==3'd1 && rdy,
-    active && active_sel==3'd0 && rdy
-};
-
-assign rd = active && (
-    (active_sel == 3'd0 && ext_rd[0]) ||
-    (active_sel == 3'd1 && ext_rd[1]) ||
-    (active_sel == 3'd2 && ext_rd[2]) ||
-    (active_sel == 3'd3 && ext_rd[3]) ||
-    (active_sel == 3'd4 && ext_rd[4]) ||
-    (active_sel == 3'd5 && ext_rd[5]) ||
-    (active_sel == 3'd6 && ext_rd[6]) ||
-    (active_sel == 3'd7 && ext_rd[7])
-);
-
-assign wr = active && (
-    (active_sel == 3'd0 && ext_wr[0]) ||
-    (active_sel == 3'd1 && ext_wr[1]) ||
-    (active_sel == 3'd2 && ext_wr[2]) ||
-    (active_sel == 3'd3 && ext_wr[3]) ||
-    (active_sel == 3'd4 && ext_wr[4]) ||
-    (active_sel == 3'd5 && ext_wr[5]) ||
-    (active_sel == 3'd6 && ext_wr[6]) ||
-    (active_sel == 3'd7 && ext_wr[7])
-);
+// One-hot mux for rd/wr from the selected port — 2 LUT levels (AND+reduction)
+assign rd = |(active_onehot & ext_rd);
+assign wr = |(active_onehot & ext_wr);
 
 always @(*) begin
     next_valid = 1'b0;
@@ -139,14 +84,19 @@ end
 
 always @(posedge clk) begin
     if( rst ) begin
-        active     <= 1'b0;
-        active_sel <= 3'd0;
+        active        <= 1'b0;
+        active_sel    <= 3'd0;
+        active_onehot <= 8'd0;
     end else begin
         if( active ) begin
-            if( rdy ) active <= 1'b0;
+            if( rdy ) begin
+                active        <= 1'b0;
+                active_onehot <= 8'd0;
+            end
         end else if( next_valid ) begin
-            active     <= 1'b1;
-            active_sel <= next_sel;
+            active        <= 1'b1;
+            active_sel    <= next_sel;
+            active_onehot <= 8'd1 << next_sel;
         end
     end
 end
