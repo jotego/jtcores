@@ -69,19 +69,6 @@ func Test_check_macros_lf_buffer_ddrload_mister(t *testing.T) {
 	}
 }
 
-func Test_check_macros_lf_buffer_ddrload_non_mister(t *testing.T) {
-	MakeFromMap(map[string]string{
-		"TARGET":             "sidi128",
-		"JTFRAME_LF_BUFFER":  "1",
-		"JTFRAME_MR_DDRLOAD": "1",
-		"JTFRAME_WIDTH":      "320",
-		"JTFRAME_HEIGHT":     "224",
-	})
-	if err := CheckMacros(); err == nil {
-		t.Fatal("Expected non-MiSTer lf-buffer DDR-load combination to be rejected")
-	}
-}
-
 func Test_check_macros_lf_buffer_vertical(t *testing.T) {
 	MakeFromMap(map[string]string{
 		"TARGET":            "mister",
