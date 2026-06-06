@@ -1,6 +1,6 @@
 create_generated_clock -name SDRAM_CLK -source \
-    [get_pins {emu|pll|pll_inst|altera_pll_i|general[5].gpll~PLL_OUTPUT_COUNTER|divclk}] \
-    -divide_by 1 \
+    [get_pins {emu|pll|pll_inst|altera_pll_i|general[4].gpll~PLL_OUTPUT_COUNTER|divclk}] \
+    -divide_by 1 -phase 180 \
     [get_ports SDRAM_CLK]
 
 set_multicycle_path -from [get_clocks {SDRAM_CLK}] -to [get_clocks {emu|pll|pll_inst|altera_pll_i|general[4].gpll~PLL_OUTPUT_COUNTER|divclk}] -setup -end 2
