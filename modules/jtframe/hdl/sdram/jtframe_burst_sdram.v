@@ -89,6 +89,7 @@ wire        mode_busy;
 wire        prog_noreq = !(prog_rd | prog_wr);
 wire        burst_noreq = !(rd | wr);
 wire        burst_idle;
+wire        burst_act;
 wire        noreq = prog_en ? prog_noreq : burst_noreq;
 wire        rfsh_bg = !mode_busy && (prog_en ? (pre_idle && (noreq | help)) :
                                      (burst_idle && (noreq | help))) && rfsh_br;
@@ -107,6 +108,7 @@ wire        burst_rdy;
 
 wire        next_dq_oe;
 wire [15:0] next_dq;
+wire        sel_act;
 wire [ 3:0] sel_cmd;
 wire [12:0] sel_a;
 wire [ 1:0] sel_ba;
@@ -216,6 +218,7 @@ jtframe_burst_ctrl #(
     .wr                 ( wr                   ),
     .din                ( din                  ),
     .burst_idle         ( burst_idle           ),
+    .burst_act          ( burst_act            ),
     .burst_cmd          ( burst_cmd            ),
     .burst_a            ( burst_a              ),
     .burst_ba           ( burst_ba             ),
@@ -249,6 +252,7 @@ jtframe_burst_mux u_mux(
     .rfsh_a         ( rfsh_a         ),
     .mode_cmd       ( mode_cmd       ),
     .mode_a         ( mode_a         ),
+    .burst_act      ( burst_act      ),
     .burst_cmd      ( burst_cmd      ),
     .burst_a        ( burst_a        ),
     .burst_ba       ( burst_ba       ),
@@ -261,6 +265,7 @@ jtframe_burst_mux u_mux(
     .burst_rdy      ( burst_rdy      ),
     .next_dq_oe     ( next_dq_oe     ),
     .next_dq        ( next_dq        ),
+    .sel_act        ( sel_act        ),
     .sel_cmd        ( sel_cmd        ),
     .sel_a          ( sel_a          ),
     .sel_ba         ( sel_ba         ),
@@ -304,6 +309,7 @@ jtframe_burst_io #(
     .prog_rdy       ( prog_rdy       ),
     .next_dq_oe     ( next_dq_oe     ),
     .next_dq        ( next_dq        ),
+    .sel_act        ( sel_act        ),
     .sel_cmd        ( sel_cmd        ),
     .sel_a          ( sel_a          ),
     .sel_ba         ( sel_ba         ),

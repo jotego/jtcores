@@ -30,6 +30,7 @@ module jtframe_burst_ctrl #(
     input               wr,
     input       [15:0]  din,
     output              burst_idle,
+    output              burst_act,
     output reg   [ 3:0] burst_cmd,
     output reg   [12:0] burst_a,
     output      [ 1:0]  burst_ba,
@@ -81,6 +82,7 @@ wire [ 9:0] burst_col_a = { {(10-COLW){1'b0}}, burst_col };
 wire        page_last = &burst_col;
 
 assign burst_idle = burst_st == B_IDLE;
+assign burst_act = burst_st == B_ACT;
 assign burst_ba = burst_bank_r;
 
 always @(posedge clk) begin
