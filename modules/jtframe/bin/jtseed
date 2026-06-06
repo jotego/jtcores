@@ -17,43 +17,171 @@
 # Version: 1.0
 # Date: 5-11-2022
 
-echo "Create a jtseed.last file at this folder to stop at the next compilation"
-
-rm -f jtseed.last
-
 MAXREPS=100
+PARALLEL=1
 SEED=0
-
+SEED_COUNT=0
+NEXT_SEED=
+JTCORE_ARGS=()
+declare -A USED_SEEDS
 re='^[0-9]+$'
-if [[ $1 =~ $re && $1 != 194? ]] ; then
-   MAXREPS=$1
-   shift
-else
-    echo "Call jtseed with a number as the first argument to limit the iterations"
-fi
 
-for i in $*; do
-    if [ $i = -s ]; then
-        echo "Error: cannot invoke jtseed with the -s (skip) option"
+main() {
+    parse_args "$@"
+    check_args
+    echo "Create a jtseed.last file at this folder to stop at the next compilation"
+    rm -f jtseed.last
+    if [ $PARALLEL = 1 ]; then
+        next_seed
+        SEED=$NEXT_SEED
+        run_serial
+    else
+        run_parallel
+    fi
+}
+
+show_usage() {
+    cat << EOF_USAGE
+JTSEED seed retry tool
+usage: jtseed [max-retries] <core> [jtcore options] [--parallel n]
+
+Runs jtcore repeatedly with different --seed values until one build passes or max-retries is reached.
+
+Options consumed by jtseed:
+    --parallel n          Run up to n jtcore seed builds at the same time
+    --parallel=n          Same as --parallel n
+    --help | -h           Show this summary
+
+All other arguments are passed to jtcore. In parallel mode each jtcore run gets
+a distinct --seed and --output folder. The default output base is:
+    $JTROOT/release/jtseed
+Override it with JTSEED_OUTPUT=/path/to/folder.
+
+Create a jtseed.last file in the current folder to stop after the current batch.
+EOF_USAGE
+    exit 0
+}
+
+parse_args() {
+    local i
+    for i in "$@"; do
+        if [[ $i = -h || $i = --help ]]; then
+            show_usage
+        fi
+    done
+    if [[ $1 =~ $re && $1 != 194? ]] ; then
+       MAXREPS=$1
+       shift
+    else
+        echo "Call jtseed with a number as the first argument to limit the iterations"
+    fi
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --help|-h)
+                show_usage;;
+            --parallel)
+                shift
+                if [[ -z "$1" || ! $1 =~ $re || $1 = 0 ]]; then
+                    echo "Error: use a positive integer after --parallel"
+                    exit 1
+                fi
+                PARALLEL=$1;;
+            --parallel=*)
+                PARALLEL=${1#--parallel=}
+                if [[ -z "$PARALLEL" || ! $PARALLEL =~ $re || $PARALLEL = 0 ]]; then
+                    echo "Error: use a positive integer after --parallel"
+                    exit 1
+                fi;;
+            *)  JTCORE_ARGS+=("$1");;
+        esac
+        shift
+    done
+}
+
+check_args() {
+    local i
+    for i in "${JTCORE_ARGS[@]}"; do
+        if [[ $i = -s || $i = --skip ]]; then
+            echo "Error: cannot invoke jtseed with the -s (skip) option"
+            exit 1
+        fi
+    done
+}
+
+next_seed() {
+    local seed
+    if [ $SEED_COUNT = 0 ]; then
+        seed=0
+    else
+        seed=$RANDOM
+        while [[ -n ${USED_SEEDS[$seed]} ]]; do
+            seed=$RANDOM
+        done
+    fi
+    USED_SEEDS[$seed]=1
+    SEED_COUNT=$((SEED_COUNT+1))
+    NEXT_SEED=$seed
+}
+
+run_serial() {
+    while [ $MAXREPS -gt 0 ]; do
+        if jtcore "${JTCORE_ARGS[@]}" --seed $SEED; then
+            break
+        fi
+        if [ -e jtseed.last ]; then
+            rm jtseed.last
+            exit 0
+        fi
+        next_seed
+        SEED=$NEXT_SEED
+        MAXREPS=$((MAXREPS-1))
+    done
+    if [ $MAXREPS = 0 ]; then
+        echo Maximum number of seed trial reached
         exit 1
     fi
-done
+}
 
-while [ $MAXREPS -gt 0 ]; do
-    if jtcore $* --seed $SEED; then
-        break
+run_parallel() {
+    local output_base=${JTSEED_OUTPUT:-${JTROOT:-$PWD}/release/jtseed}
+    local batch pids seeds pid seed pass i
+    pass=0
+    while [ $MAXREPS -gt 0 ]; do
+        batch=$PARALLEL
+        if [ $MAXREPS -lt $batch ]; then batch=$MAXREPS; fi
+        pids=()
+        seeds=()
+        for ((i=0; i<batch; i++)); do
+            next_seed
+            seed=$NEXT_SEED
+            seeds+=("$seed")
+            echo "Starting seed $seed, output $output_base/seed_$seed"
+            jtcore "${JTCORE_ARGS[@]}" --seed $seed --output "$output_base/seed_$seed" &
+            pids+=("$!")
+            MAXREPS=$((MAXREPS-1))
+        done
+        for ((i=0; i<${#pids[@]}; i++)); do
+            pid=${pids[$i]}
+            seed=${seeds[$i]}
+            if wait $pid; then
+                echo "Seed $seed passed"
+                pass=1
+            else
+                echo "Seed $seed failed"
+            fi
+        done
+        if [ $pass = 1 ]; then
+            break
+        fi
+        if [ -e jtseed.last ]; then
+            rm jtseed.last
+            exit 0
+        fi
+    done
+    if [ $pass = 0 ]; then
+        echo Maximum number of seed trial reached
+        exit 1
     fi
-    # parallel jtcore $* -seed {} ::: $RANDOM $RANDOM | tee -a $1_seed.log
-    if [ -e jtseed.last ]; then
-        rm jtseed.last
-        exit 0
-    fi
-    SEED=$RANDOM
-    MAXREPS=$((MAXREPS-1))
-done
+}
 
-if [ $MAXREPS = 0 ]; then
-    # aborted before completing because of reaching the iteration limit
-    echo Maximum number of seed trial reached
-    exit 1
-fi
+main "$@"
