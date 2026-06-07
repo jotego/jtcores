@@ -40,6 +40,7 @@ parse_args() {
                 UNMACROS="$UNMACROS JTFRAME_CREDITS"
                 TARGET=mister;;
             --nodbg) NODBG=--nodbg; MACROS="$MACROS JTFRAME_RELEASE=1";;
+            --nocopy) NOCOPY=1;;
             --nolinter) NOLINTER=1;;
             --nosta) SKIPTIMING=1;;
             --output)
@@ -115,7 +116,8 @@ Common options:
     --quicker | -qq          Faster MiSTer-oriented build
     --program | -p           Program the FPGA after the build
     --skip | -s              Skip compilation and run the remaining steps
-    --output <folder>       Copy the compiled core under this output folder
+    --output <folder>        Copy the compiled core under this output folder
+    --nocopy                 Skip copying the compiled core to the output folder
     --signaltap              Merge syn/signaltap.qsf and enable SignalTap
     --help | -h              Show this summary
 

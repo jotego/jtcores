@@ -29,6 +29,7 @@ OUTPUT_FOLDER=
 PRJ=
 NODBG=
 NOLINTER=
+NOCOPY=0
 PROG=FALSE
 SEED=1
 SKIPTIMING=
@@ -350,7 +351,7 @@ if [ $TARGET = pocket ]; then
 fi
 
 # Copy to JTBIN and SD card
-if [[ "$FAIL" = 0  ]]; then
+if [[ "$FAIL" = 0  && "$NOCOPY" = 0 ]]; then
     announce "Copy to $JTBIN"
     BINFOLDER=$JTBIN/$TARGET
     if [ $TARGET = pocket ]; then
