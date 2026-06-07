@@ -15,6 +15,19 @@
     Author: Jose Tejada Gomez. Twitter: @topapate
     Date: 20-3-2026 */
 
+// FPGA path: two-stage output pipeline.
+// Stage 1 (fabric registers) captures sel_* near the SDRAM controller FFs
+// (X46_Y19). Stage 2 (DDIO registers, via FAST_OUTPUT_REGISTER in sys.tcl)
+// sits at the IO pads (X50_Y0). The long routing hop between them gets a
+// full clock cycle as a clean register-to-register transfer.
+//
+// DONT_RETIME on the Stage-1 fabric registers prevents Quartus register
+// retiming from merging them into the DDIO registers and undoing the
+// pipeline.
+//
+// Under Verilator the original single-stage path is kept for
+// simulation compatibility.
+
 /* verilator coverage_off */
 module jtframe_burst_io #(
     parameter MISTER = 1
@@ -29,10 +42,10 @@ module jtframe_burst_io #(
     output reg [ 1:0]   sdram_ba,
     output              sdram_dqml,
     output              sdram_dqmh,
-    output              sdram_nwe,
-    output              sdram_ncas,
-    output              sdram_nras,
-    output              sdram_ncs,
+    output reg          sdram_nwe,
+    output reg          sdram_ncas,
+    output reg          sdram_nras,
+    output reg          sdram_ncs,
     output              sdram_cke,
     output reg [15:0]   dout,
     output reg          ack,
@@ -60,20 +73,132 @@ module jtframe_burst_io #(
     input               sel_prog_rdy
 );
 
-reg [3:0] cmd;
 reg [1:0] dqm;
-assign {sdram_ncs, sdram_nras, sdram_ncas, sdram_nwe } = cmd;
 assign {sdram_dqmh, sdram_dqml} = MISTER ? sdram_a[12:11] : dqm;
 assign sdram_cke = 1'b1;
 
 `ifndef VERILATOR
+
+// ============================================================
+// FPGA: two-stage pipeline for STA closure
+// ============================================================
+
 reg [15:0] dq_pad;
 assign sdram_dq = dq_pad;
-`endif
+
+// Stage 1: fabric pipeline registers with DONT_RETIME to prevent
+// Quartus from merging them into the DDIO output registers.
+(* preserve *) reg [3:0]  sel_cmd_r;
+(* preserve *) reg [12:0] sel_a_r;
+(* preserve *) reg [ 1:0] sel_ba_r;
+(* preserve *) reg [ 1:0] sel_dqm_r;
+(* preserve *) reg        sel_act_r;
+(* preserve *) reg        sel_ack_r;
+(* preserve *) reg        sel_dst_r;
+(* preserve *) reg        sel_dok_r;
+(* preserve *) reg        sel_rdy_r;
+(* preserve *) reg        sel_prog_ack_r;
+(* preserve *) reg        sel_prog_dst_r;
+(* preserve *) reg        sel_prog_dok_r;
+(* preserve *) reg        sel_prog_rdy_r;
+(* preserve *) reg        next_dq_oe_r;
+(* preserve *) reg [15:0] next_dq_r;
+(* preserve *) reg [15:0] sdram_dq_r;
+
+// Stage 1: capture inputs at the IO module boundary
+always @(posedge clk) begin
+    if( rst ) begin
+        sel_cmd_r      <= 4'b0111;
+        sel_a_r        <= 13'd0;
+        sel_ba_r       <= 2'd0;
+        sel_dqm_r      <= 2'b00;
+        sel_act_r      <= 1'b0;
+        sel_ack_r      <= 1'b0;
+        sel_dst_r      <= 1'b0;
+        sel_dok_r      <= 1'b0;
+        sel_rdy_r      <= 1'b0;
+        sel_prog_ack_r <= 1'b0;
+        sel_prog_dst_r <= 1'b0;
+        sel_prog_dok_r <= 1'b0;
+        sel_prog_rdy_r <= 1'b0;
+        next_dq_oe_r   <= 1'b0;
+        next_dq_r      <= 16'd0;
+        sdram_dq_r     <= 16'd0;
+    end else begin
+        sel_cmd_r      <= sel_cmd;
+        sel_a_r        <= sel_a;
+        sel_ba_r       <= sel_ba;
+        sel_dqm_r      <= sel_dqm;
+        sel_act_r      <= sel_act;
+        sel_ack_r      <= sel_ack;
+        sel_dst_r      <= sel_dst;
+        sel_dok_r      <= sel_dok;
+        sel_rdy_r      <= sel_rdy;
+        sel_prog_ack_r <= sel_prog_ack;
+        sel_prog_dst_r <= sel_prog_dst;
+        sel_prog_dok_r <= sel_prog_dok;
+        sel_prog_rdy_r <= sel_prog_rdy;
+        next_dq_oe_r   <= next_dq_oe;
+        next_dq_r      <= next_dq;
+        sdram_dq_r     <= sdram_dq;
+    end
+end
+
+// Stage 2: DDIO output registers — driven from pipeline copies.
+// These get packed into DDIO cells by FAST_OUTPUT_REGISTER in sys.tcl.
+// Separate always block prevents Quartus from merging Stage 1 into them.
+always @(posedge clk) begin
+    if( rst ) begin
+        sdram_nwe  <= 1'b1;
+        sdram_ncas <= 1'b1;
+        sdram_nras <= 1'b1;
+        sdram_ncs  <= 1'b1;
+        sdram_ba   <= 2'd0;
+        sdram_a    <= 13'd0;
+        dqm        <= 2'b00;
+        ack        <= 1'b0;
+        dst        <= 1'b0;
+        dok        <= 1'b0;
+        rdy        <= 1'b0;
+        prog_ack   <= 1'b0;
+        prog_dst   <= 1'b0;
+        prog_dok   <= 1'b0;
+        prog_rdy   <= 1'b0;
+        dout       <= 16'd0;
+        dq_pad     <= 16'hzzzz;
+    end else begin
+        {sdram_ncs, sdram_nras, sdram_ncas, sdram_nwe} <= sel_cmd_r;
+        sdram_ba <= sel_ba_r;
+        dqm      <= sel_dqm_r;
+        ack      <= sel_ack_r;
+        dst      <= sel_dst_r;
+        dok      <= sel_dok_r;
+        rdy      <= sel_rdy_r;
+        prog_ack <= sel_prog_ack_r;
+        prog_dst <= sel_prog_dst_r;
+        prog_dok <= sel_prog_dok_r;
+        prog_rdy <= sel_prog_rdy_r;
+        dout     <= sdram_dq_r;
+
+        if( MISTER ) begin
+            sdram_a[10: 0] <= sel_a_r[10:0];
+            sdram_a[12:11] <= sel_act_r ? sel_a_r[12:11] : sel_dqm_r;
+        end else begin
+            sdram_a <= sel_a_r;
+        end
+
+        dq_pad <= next_dq_oe_r ? next_dq_r : 16'hzzzz;
+    end
+end
+
+`else  // VERILATOR: single-stage for simulation compatibility
 
 always @(posedge clk) begin
     if( rst ) begin
-        cmd      <= 4'b0111;
+        sdram_nwe  <= 1'b1;
+        sdram_ncas <= 1'b1;
+        sdram_nras <= 1'b1;
+        sdram_ncs  <= 1'b1;
         sdram_ba <= 2'd0;
         sdram_a  <= 13'd0;
         dqm      <= 2'b00;
@@ -86,14 +211,9 @@ always @(posedge clk) begin
         prog_dok <= 1'b0;
         prog_rdy <= 1'b0;
         dout     <= 16'd0;
-`ifndef VERILATOR
-        dq_pad   <= 16'hzzzz;
-`else
         sdram_din <= 16'd0;
-`endif
     end else begin
-        dout     <= sdram_dq;
-        cmd      <= sel_cmd;
+        {sdram_ncs, sdram_nras, sdram_ncas, sdram_nwe} <= sel_cmd;
         sdram_ba <= sel_ba;
         dqm      <= sel_dqm;
         ack      <= sel_ack;
@@ -104,6 +224,7 @@ always @(posedge clk) begin
         prog_dst <= sel_prog_dst;
         prog_dok <= sel_prog_dok;
         prog_rdy <= sel_prog_rdy;
+        dout     <= sdram_dq;
 
         if( MISTER ) begin
             sdram_a[10: 0] <= sel_a[10:0];
@@ -112,12 +233,10 @@ always @(posedge clk) begin
             sdram_a <= sel_a;
         end
 
-`ifndef VERILATOR
-        dq_pad <= next_dq_oe ? next_dq : 16'hzzzz;
-`else
         sdram_din <= next_dq;
-`endif
     end
 end
+
+`endif
 
 endmodule
