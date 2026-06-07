@@ -45,6 +45,16 @@ type seed_config struct {
 	best_valid  bool
 }
 
+type seed_job struct {
+	seed     int
+	cmd      *exec.Cmd
+	logfile  *os.File
+	logname  string
+	output   string
+	builddir string
+	pass     bool
+}
+
 var seed_parallel int
 
 var seedCmd = &cobra.Command{
@@ -175,10 +185,10 @@ func (cfg *seed_config) run_parallel() error {
 			slack := job.worst_slack()
 			copy_msg := cfg.copy_if_best(job, slack)
 			if job.pass {
-				fmt.Printf("Seed %d passed, worst slack %s, log %s%s\n", job.seed, slack, job.logname, copy_msg)
+				fmt.Printf("Seed %d passed, worst slack %s, %s\n", job.seed, slack, copy_msg)
 				pass = true
 			} else {
-				fmt.Printf("Seed %d failed, worst slack %s, log %s%s\n", job.seed, slack, job.logname, copy_msg)
+				fmt.Printf("Seed %d failed, worst slack %s, %s\n", job.seed, slack, copy_msg)
 			}
 		}
 		if pass {
@@ -211,7 +221,7 @@ func (cfg *seed_config) copy_if_best(job seed_job, slack string) string {
 	}
 	cfg.best_slack = value
 	cfg.best_valid = true
-	return fmt.Sprintf(", copied %s", dst)
+	return fmt.Sprintf(", RBF copied to release")
 }
 
 func parse_slack_value(slack string) (float64, bool) {
@@ -531,12 +541,3 @@ func is_194x(s string) bool {
 	return len(s) == 4 && s[0] == '1' && s[1] == '9' && s[2] == '4'
 }
 
-type seed_job struct {
-	seed     int
-	cmd      *exec.Cmd
-	logfile  *os.File
-	logname  string
-	output   string
-	builddir string
-	pass     bool
-}
