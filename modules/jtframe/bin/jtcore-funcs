@@ -195,10 +195,10 @@ parse_macros() {
 # qsf line to disable SOUND synthesis
 # set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
 copy_templates() {
-    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf `macros2def` --output $PRJPATH/$TARGET/$corename.qpf || exit $?
-    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf `macros2def` --output $PRJPATH/$TARGET/$corename.qsf || exit $?
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf `macros2def` --output $BUILDDIR/$corename.qpf || exit $?
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf `macros2def` --output $BUILDDIR/$corename.qsf || exit $?
     MACROS_FILE=$PRJPATH/cfg/macros.def
-    QSF=$PRJPATH/$TARGET/$corename.qsf
+    QSF=$BUILDDIR/$corename.qsf
     # Add definitions in "macros" files
     if [ -e $MACROS_FILE ]; then
         echo >> $QSF # add blank line
