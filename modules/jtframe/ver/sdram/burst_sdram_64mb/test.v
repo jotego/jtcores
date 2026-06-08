@@ -105,6 +105,15 @@ mt48lc16m16a2 #(
     .frame_cnt  ( 0           )
 );
 
+`ifdef DEBUG
+always @(posedge clk) begin
+    if( ack || dok || rdy || {sdram_ncs, sdram_nras, sdram_ncas, sdram_nwe} != 4'b0111 ) begin
+        $display("%t ack=%b dok=%b rdy=%b dst=%b dout=%h dq=%h cmd=%b a=%h ba=%0d rd=%b init=%b",
+            $time, ack, dok, rdy, dst, dout, sdram_dq, {sdram_ncs, sdram_nras, sdram_ncas, sdram_nwe}, sdram_a, sdram_ba, rd, init);
+    end
+end
+`endif
+
 function [31:0] next_rand;
     input [31:0] cur;
     begin

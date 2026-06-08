@@ -140,9 +140,9 @@ mt48lc16m16a2 sdram(
 
 `ifdef DEBUG
 always @(posedge clk) begin
-    if( ack || dok || rdy || prog_ack || uut.u_io.cmd != 4'b0111 ) begin
+    if( ack || dok || rdy || prog_ack || {sdram_ncs, sdram_nras, sdram_ncas, sdram_nwe} != 4'b0111 ) begin
         $display("%t ack=%b dok=%b rdy=%b dst=%b dout=%h dq=%h cmd=%b a=%h ba=%0d prog=%b",
-            $time, ack, dok, rdy, dst, dout, sdram_dq, uut.u_io.cmd, sdram_a, sdram_ba, ioctl_rom);
+            $time, ack, dok, rdy, dst, dout, sdram_dq, {sdram_ncs, sdram_nras, sdram_ncas, sdram_nwe}, sdram_a, sdram_ba, ioctl_rom);
     end
 end
 `endif
