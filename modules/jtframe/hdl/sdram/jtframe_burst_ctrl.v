@@ -50,26 +50,27 @@ localparam CMD_PRECHARGE   = 4'b0___0____1____0,
            CMD_STOP        = 4'b0___1____1____0,
            CMD_NOP         = 4'b0___1____1____1;
 
-localparam B_IDLE      = 4'd0,
-           B_ACT       = 4'd1,
-           B_TRCD1     = 4'd2,
-           B_TRCD2     = 4'd3,
-           B_WACK      = 4'd4,
-           B_WRITE_CMD = 4'd5,
-           B_WRITE     = 4'd6,
-           B_READ_CMD  = 4'd7,
-           B_CL1       = 4'd8,
-           B_CL2       = 4'd9,
-           B_RDATA     = 4'd10,
-           B_STOP      = 4'd11,
-           B_TWR1      = 4'd12,
-           B_TWR2      = 4'd13,
-           B_PRE       = 4'd14,
-           B_TRP1      = 4'd15;
+localparam B_IDLE      = 5'd0,
+           B_ACT       = 5'd1,
+           B_TRCD1     = 5'd2,
+           B_TRCD2     = 5'd3,
+           B_WACK      = 5'd4,
+           B_WDATA     = 5'd5,
+           B_WRITE_CMD = 5'd6,
+           B_WRITE     = 5'd7,
+           B_READ_CMD  = 5'd8,
+           B_CL1       = 5'd9,
+           B_CL2       = 5'd10,
+           B_RDATA     = 5'd11,
+           B_STOP      = 5'd12,
+           B_TWR1      = 5'd13,
+           B_TWR2      = 5'd14,
+           B_PRE       = 5'd15,
+           B_TRP1      = 5'd16;
 
 localparam COLW = AW == 23 ? 10 : 9;
 
-reg  [ 3:0] burst_st;
+reg  [ 4:0] burst_st;
 reg  [AW-1:0] burst_addr;
 reg  [ 1:0] burst_bank_r;
 reg         burst_write;
@@ -107,7 +108,8 @@ always @(posedge clk) begin
             B_ACT:       burst_st <= B_TRCD1;
             B_TRCD1:     burst_st <= B_TRCD2;
             B_TRCD2:     burst_st <= burst_write ? B_WACK : B_READ_CMD;
-            B_WACK:      burst_st <= B_WRITE_CMD;
+            B_WACK:      burst_st <= B_WDATA;
+            B_WDATA:     burst_st <= B_WRITE_CMD;
             B_WRITE_CMD: begin
                 burst_first <= 1'b0;
                 if( !page_last ) burst_addr <= burst_addr + 1'd1;
