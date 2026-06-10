@@ -167,12 +167,13 @@ assign is_rom   = hps_index[5:0]==IDX_ROM;
 assign is_cart  = hps_index[5:0]==IDX_CART;
 assign is_nvram = hps_index[5:0]==IDX_NVRAM;
 
-// download signals mux
-always @(*) begin
-    ioctl_wr = ddr_dwn ? dump_we :
+// download signals mux — registered to break long combinational path
+// from ddr_dwn through jtframe_dwnld (Add0 → LessThan3 → Selector9 → Add1 → prog_addr)
+always @(posedge clk) begin
+    ioctl_wr   <= ddr_dwn ? dump_we :
                              hps_wr && (game_rom || is_nvram);
-    ioctl_dout   = ddr_dwn ? dump_ser[7:0] : hps_dout;
-    ioctl_addr   = ddr_dwn ? dump_cnt :
+    ioctl_dout <= ddr_dwn ? dump_ser[7:0] : hps_dout;
+    ioctl_addr <= ddr_dwn ? dump_cnt :
                  game_cart ? hps_addr + CART_OFFSET : hps_addr;
 end
 
@@ -213,7 +214,7 @@ always @(posedge clk, posedge rst) begin
                 ddr_dwn  <= 1;
             end
         end
-        if( !hps_download && last_dwnbusy && !dwnld_busy || (ddr_dwn && ioctl_addr==ddr_len)) begin
+        if( !hps_download && last_dwnbusy && !dwnld_busy || (ddr_dwn && dump_cnt >= ddr_len)) begin
             ioctl_rom  <= 0;
             ddr_dwn    <= 0;
         end

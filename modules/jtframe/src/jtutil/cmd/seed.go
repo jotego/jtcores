@@ -56,6 +56,7 @@ type seed_job struct {
 }
 
 var seed_parallel int
+var seed_stop, seed_zero bool
 
 var seedCmd = &cobra.Command{
 	Use:   "seed [flags] [max-retries] <core> [jtcore options]",
@@ -82,6 +83,8 @@ Create a jtseed.last file in the current folder to stop after the current batch.
 
 func init() {
 	seedCmd.Flags().IntVar(&seed_parallel, "parallel", 1, "Run up to n jtcore seed builds at the same time")
+	seedCmd.Flags().BoolVar(&seed_stop, "stop", true, "Stop when a build is STA clean")
+	seedCmd.Flags().BoolVar(&seed_zero, "zero", true, "Start with seed zero")
 	seedCmd.Flags().SetInterspersed(false)
 	rootCmd.AddCommand(seedCmd)
 }
@@ -144,7 +147,7 @@ func (cfg *seed_config) run_serial() error {
 		if e != nil {
 			return e
 		}
-		if pass {
+		if pass && seed_stop {
 			return nil
 		}
 		if stop_requested() {
@@ -344,7 +347,7 @@ type seed_release struct {
 
 func (cfg *seed_config) next_seed() int {
 	seed := 0
-	if cfg.seed_count != 0 {
+	if cfg.seed_count != 0 || !seed_zero {
 		seed = cfg.random.Intn(32768)
 		for cfg.used_seeds[seed] {
 			seed = cfg.random.Intn(32768)
