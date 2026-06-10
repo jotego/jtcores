@@ -392,6 +392,7 @@ func make_clocks(target string) (mclk int) {
 		var freq int
 		pll = strings.ToUpper(pll)
 		switch pll {
+		case "JTFRAME_PLL7159": freq = 7159090
 		case "JTFRAME_PLL6144":
 			switch target {
 			case "MISTER":
@@ -423,6 +424,7 @@ func make_clocks(target string) (mclk int) {
 					log.Fatal("JTFRAME: macro JTFRAME_PLL=", pll, " is not well formed. It should contain the pixel clock in kHz")
 				}
 				freq, _ = strconv.Atoi(freq_str)
+				freq*=1000
 			}
 		}
 		mclk = freq * 8

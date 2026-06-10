@@ -60,3 +60,33 @@ func TestParseFreqRejectsBadInput(t *testing.T) {
 		}
 	}
 }
+
+func TestFindFactorsKeepsMulOneWithFreq(t *testing.T) {
+	cfg := ClockCfg{Mul: 1, freq: 10e6}
+	if e := cfg.find_factors(48e6); e != nil {
+		t.Fatalf("find_factors failed: %v", e)
+	}
+	if cfg.Mul != 1 {
+		t.Fatalf("expected mul to remain 1 got %d", cfg.Mul)
+	}
+	if cfg.Div != 5 {
+		t.Fatalf("expected fixed-mul divider 5 got %d", cfg.Div)
+	}
+}
+
+func TestFindFactorsUsesFullSearchWhenMulMissing(t *testing.T) {
+	cfg := ClockCfg{freq: 10e6}
+	if e := cfg.find_factors(48e6); e != nil {
+		t.Fatalf("find_factors failed: %v", e)
+	}
+	if cfg.Mul != 5 || cfg.Div != 24 {
+		t.Fatalf("expected unrestricted factors 5/24 got %d/%d", cfg.Mul, cfg.Div)
+	}
+}
+
+func TestFindFactorsRejectsFreqWithMulAboveOne(t *testing.T) {
+	cfg := ClockCfg{Mul: 2, freq: 10e6}
+	if e := cfg.find_factors(48e6); e == nil {
+		t.Fatalf("expected freq with mul above one to be rejected")
+	}
+}

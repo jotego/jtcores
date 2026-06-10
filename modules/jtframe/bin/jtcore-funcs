@@ -40,8 +40,13 @@ parse_args() {
                 UNMACROS="$UNMACROS JTFRAME_CREDITS"
                 TARGET=mister;;
             --nodbg) NODBG=--nodbg; MACROS="$MACROS JTFRAME_RELEASE=1";;
+            --nocopy) NOCOPY=1;;
             --nolinter) NOLINTER=1;;
             --nosta) SKIPTIMING=1;;
+            --output)
+                shift
+                if [[ -z "$1" || "${1:0:1}" = - ]]; then echo "Error: expecting folder after --output"; exit 1; fi
+                OUTPUT_FOLDER=$1;;
             --sim)   SIM=TRUE;;
             --signaltap)
                 MACROS="$MACROS JTFRAME_SIGNALTAP"
@@ -111,6 +116,8 @@ Common options:
     --quicker | -qq          Faster MiSTer-oriented build
     --program | -p           Program the FPGA after the build
     --skip | -s              Skip compilation and run the remaining steps
+    --output <folder>        Copy the compiled core under this output folder
+    --nocopy                 Skip copying the compiled core to the output folder
     --signaltap              Merge syn/signaltap.qsf and enable SignalTap
     --help | -h              Show this summary
 
@@ -188,10 +195,10 @@ parse_macros() {
 # qsf line to disable SOUND synthesis
 # set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
 copy_templates() {
-    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf `macros2def` --output $PRJPATH/$TARGET/$corename.qpf || exit $?
-    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf `macros2def` --output $PRJPATH/$TARGET/$corename.qsf || exit $?
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf `macros2def` --output $BUILDDIR/$corename.qpf || exit $?
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf `macros2def` --output $BUILDDIR/$corename.qsf || exit $?
     MACROS_FILE=$PRJPATH/cfg/macros.def
-    QSF=$PRJPATH/$TARGET/$corename.qsf
+    QSF=$BUILDDIR/$corename.qsf
     # Add definitions in "macros" files
     if [ -e $MACROS_FILE ]; then
         echo >> $QSF # add blank line

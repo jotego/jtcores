@@ -191,7 +191,7 @@ func dump_output(cfg Config) {
 			key := make_key(target, c)
 			cmd := "jtcore"
 			if cfg.Seed {
-				cmd = "jtseed 6"
+				cmd = "jtutil seed 6"
 			}
 			jtcore := fmt.Sprintf("%s %s -%s %s %s", cmd, c, target, cfg.customs[key], cfg.extra)
 			if cfg.Stamp != "" {
@@ -203,7 +203,7 @@ func dump_output(cfg Config) {
 			if cfg.Nodbg || cfg.Private {
 				jtcore += " --nodbg"
 			}
-			if !cfg.Nodbg && !cfg.Seed && !cfg.Git { // Do not check STA for non-release non-jtseed runs
+			if !cfg.Nodbg && !cfg.Seed && !cfg.Git { // Do not check STA for non-release non-seed runs
 				jtcore += " --nosta"
 			}
 			for _, each := range defs {

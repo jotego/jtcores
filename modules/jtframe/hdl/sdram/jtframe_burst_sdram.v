@@ -89,10 +89,41 @@ wire        mode_busy;
 wire        prog_noreq = !(prog_rd | prog_wr);
 wire        burst_noreq = !(rd | wr);
 wire        burst_idle;
-wire        noreq = prog_en ? prog_noreq : burst_noreq;
-wire        rfsh_bg = !mode_busy && (prog_en ? (pre_idle && (noreq | help)) :
-                                     (burst_idle && (noreq | help))) && rfsh_br;
-wire        prog_bg = pre_br & !rfshing & !mode_busy;
+wire        burst_act;
+reg  [3:0] init_l, pre_idle_l, burst_idle_l;
+reg  [3:0] mode_busy_l, rfshing_l;
+wire       init_busy   = |init_l;
+wire       mode_busy_d = |mode_busy_l;
+wire       rfshing_d   = |rfshing_l;
+wire       pre_idle_d  = &pre_idle_l;
+wire       burst_idle_d = &burst_idle_l;
+wire       pre_idle_ok = pre_idle & pre_idle_d;
+wire       burst_idle_ok = burst_idle & burst_idle_d;
+wire       ctrl_busy = init | init_busy | mode_busy | mode_busy_d | rfshing | rfshing_d;
+wire       init_sel = init | init_busy;
+wire       mode_sel = mode_busy | mode_busy_d;
+wire       rfsh_sel = rfshing | rfshing_d;
+wire       noreq = prog_en ? prog_noreq : burst_noreq;
+wire       prog_clear = pre_idle_ok && !pre_br;
+wire       rfsh_bg = !ctrl_busy && (prog_en ? (prog_clear && (noreq | help)) :
+                                     (burst_idle_ok && (noreq | help))) && rfsh_br;
+wire       prog_bg = pre_br & !ctrl_busy;
+
+always @(posedge clk) begin
+    if( rst ) begin
+        init_l       <= 4'hf;
+        pre_idle_l   <= 4'h0;
+        burst_idle_l <= 4'h0;
+        mode_busy_l  <= 4'h0;
+        rfshing_l    <= 4'h0;
+    end else begin
+        init_l       <= { init_l[2:0], init };
+        pre_idle_l   <= { pre_idle_l[2:0], pre_idle };
+        burst_idle_l <= { burst_idle_l[2:0], burst_idle };
+        mode_busy_l  <= { mode_busy_l[2:0], mode_busy };
+        rfshing_l    <= { rfshing_l[2:0], rfshing };
+    end
+end
 
 wire [ 3:0] burst_cmd;
 wire [12:0] burst_a;
@@ -107,6 +138,7 @@ wire        burst_rdy;
 
 wire        next_dq_oe;
 wire [15:0] next_dq;
+wire        sel_act;
 wire [ 3:0] sel_cmd;
 wire [12:0] sel_a;
 wire [ 1:0] sel_ba;
@@ -136,11 +168,11 @@ jtframe_burst_mode #(
 ) u_mode(
     .rst            ( rst            ),
     .clk            ( clk            ),
-    .init           ( init           ),
+    .init           ( init_busy      ),
     .prog_en        ( prog_en        ),
-    .rfshing        ( rfshing        ),
-    .pre_idle       ( pre_idle       ),
-    .burst_idle     ( burst_idle     ),
+    .rfshing        ( rfshing_d      ),
+    .pre_idle       ( pre_idle_ok   ),
+    .burst_idle     ( burst_idle_ok ),
     .prog_rst       ( prog_rst       ),
     .rfsh_rst       ( rfsh_rst       ),
     .mode_busy      ( mode_busy      ),
@@ -208,14 +240,15 @@ jtframe_burst_ctrl #(
     .rst                ( rst                  ),
     .clk                ( clk                  ),
     .prog_en            ( prog_en              ),
-    .mode_busy          ( mode_busy            ),
-    .rfshing            ( rfshing              ),
+    .mode_busy          ( ctrl_busy            ),
+    .rfshing            ( rfshing_d            ),
     .addr               ( addr                 ),
     .ba                 ( ba                   ),
     .rd                 ( rd                   ),
     .wr                 ( wr                   ),
     .din                ( din                  ),
     .burst_idle         ( burst_idle           ),
+    .burst_act          ( burst_act            ),
     .burst_cmd          ( burst_cmd            ),
     .burst_a            ( burst_a              ),
     .burst_ba           ( burst_ba             ),
@@ -229,9 +262,9 @@ jtframe_burst_ctrl #(
 );
 
 jtframe_burst_mux u_mux(
-    .init           ( init           ),
-    .mode_busy      ( mode_busy      ),
-    .rfshing        ( rfshing        ),
+    .init           ( init_sel       ),
+    .mode_busy      ( mode_sel       ),
+    .rfshing        ( rfsh_sel       ),
     .prog_en        ( prog_en        ),
     .prog_wr        ( prog_wr        ),
     .prog_din       ( prog_din       ),
@@ -249,6 +282,7 @@ jtframe_burst_mux u_mux(
     .rfsh_a         ( rfsh_a         ),
     .mode_cmd       ( mode_cmd       ),
     .mode_a         ( mode_a         ),
+    .burst_act      ( burst_act      ),
     .burst_cmd      ( burst_cmd      ),
     .burst_a        ( burst_a        ),
     .burst_ba       ( burst_ba       ),
@@ -261,6 +295,7 @@ jtframe_burst_mux u_mux(
     .burst_rdy      ( burst_rdy      ),
     .next_dq_oe     ( next_dq_oe     ),
     .next_dq        ( next_dq        ),
+    .sel_act        ( sel_act        ),
     .sel_cmd        ( sel_cmd        ),
     .sel_a          ( sel_a          ),
     .sel_ba         ( sel_ba         ),
@@ -304,6 +339,7 @@ jtframe_burst_io #(
     .prog_rdy       ( prog_rdy       ),
     .next_dq_oe     ( next_dq_oe     ),
     .next_dq        ( next_dq        ),
+    .sel_act        ( sel_act        ),
     .sel_cmd        ( sel_cmd        ),
     .sel_a          ( sel_a          ),
     .sel_ba         ( sel_ba         ),

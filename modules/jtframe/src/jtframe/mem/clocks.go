@@ -125,12 +125,9 @@ func (cen_cfg *ClockCfg) set_factors() {
 		}
 	}
 
-	if cen_cfg.Div == 0 || cen_cfg.Mul == 0 {
-		if cen_cfg.freq == 0 {
-			fmt.Printf("Error: neither the frequency nor the mul/div values were defined for clock %s\n", cen_cfg.ClkName)
-			os.Exit(1)
-		}
-		cen_cfg.Mul, cen_cfg.Div = find_div(float64(fmhz)*cen_cfg.ratio, cen_cfg.freq)
+	if e := cen_cfg.find_factors(float64(fmhz) * cen_cfg.ratio); e != nil {
+		fmt.Printf("Error: %s\n", e.Error())
+		os.Exit(1)
 	}
 	cen_cfg.WC = int(math.Ceil(math.Log2(float64(max(cen_cfg.Div, cen_cfg.Mul))))) + 1
 	cen_cfg.Comment = fmt.Sprintf("%d = %d*%d/%d", int(int(float64(fmhz)*cen_cfg.ratio)*cen_cfg.Mul/cen_cfg.Div), int(float64(fmhz)*cen_cfg.ratio), cen_cfg.Mul, cen_cfg.Div)
@@ -138,6 +135,23 @@ func (cen_cfg *ClockCfg) set_factors() {
 		fmt.Printf("Cannot build clock enable signal %s\n", cen_cfg.OutStr)
 		os.Exit(1)
 	}
+}
+
+func (cen_cfg *ClockCfg) find_factors(fin float64) error {
+	if cen_cfg.freq != 0 && cen_cfg.Mul > 1 {
+		return fmt.Errorf("freq and mul cannot be specified together for clock %s unless mul is 1", cen_cfg.ClkName)
+	}
+	if cen_cfg.Div == 0 || cen_cfg.Mul == 0 {
+		if cen_cfg.freq == 0 {
+			return fmt.Errorf("neither the frequency nor the mul/div values were defined for clock %s", cen_cfg.ClkName)
+		}
+		if cen_cfg.Mul == 1 {
+			cen_cfg.Div = find_div_for_mul(fin, cen_cfg.freq, cen_cfg.Mul)
+		} else {
+			cen_cfg.Mul, cen_cfg.Div = find_div(fin, cen_cfg.freq)
+		}
+	}
+	return nil
 }
 
 func (cen_cfg *ClockCfg) parse_freq() error {
@@ -189,6 +203,21 @@ func (cen_cfg *ClockCfg) parse_freq() error {
 		return fmt.Errorf("frequency %q must be >= 1.0 Hz", cen_cfg.Freq)
 	}
 	return nil
+}
+
+func find_div_for_mul(fin, fout float64, mul int) int {
+	best_d := 0.0
+	best := float64(fin)
+
+	for d := 1.0; d < 1024*64; d++ {
+		f := fin * float64(mul) / d
+		err := math.Abs(fout - f)
+		if err < best {
+			best_d = d
+			best = err
+		}
+	}
+	return int(best_d)
 }
 
 func find_div(fin, fout float64) (int, int) {

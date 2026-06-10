@@ -132,9 +132,6 @@ func CheckMacros() error {
 			return fmt.Errorf("MiST DIP base is smaller than the required value by JTFRAME_OSD_TEST")
 		}
 	}
-	if IsSet("JTFRAME_LF_BUFFER") && IsSet("JTFRAME_MR_DDRLOAD") && strings.ToLower(Get("TARGET")) != "mister" {
-		return fmt.Errorf("jtframe: JTFRAME_LF_BUFFER and JTFRAME_MR_DDRLOAD can only be combined for MiSTer")
-	}
 	if IsSet("JTFRAME_LF_BUFFER") && IsSet("JTFRAME_VERTICAL") {
 		return fmt.Errorf("jtframe: cannot define both JTFRAME_LF_BUFFER and JTFRAME_VERTICAL")
 	}

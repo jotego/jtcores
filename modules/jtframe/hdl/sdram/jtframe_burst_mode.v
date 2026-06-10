@@ -34,19 +34,23 @@ module jtframe_burst_mode #(
 );
 
 localparam CMD_LOAD_MODE = 4'b0___0____0____0,
+           CMD_PRECHARGE = 4'b0___0____1____0,
            CMD_NOP       = 4'b0___1____1____1;
 
-localparam MODE_IDLE  = 2'd0,
-           MODE_CMD   = 2'd1,
-           MODE_WAIT1 = 2'd2,
-           MODE_WAIT2 = 2'd3;
+localparam MODE_IDLE  = 3'd0,
+           MODE_PRE   = 3'd1,
+           MODE_TRP1  = 3'd2,
+           MODE_TRP2  = 3'd3,
+           MODE_CMD   = 3'd4,
+           MODE_WAIT1 = 3'd5,
+           MODE_WAIT2 = 3'd6;
 
 wire [2:0] prog_bl_code = PROG_LEN == 64 ? 3'b010 :
                           (PROG_LEN == 32 ? 3'b001 : 3'b000);
 wire [12:0] mode_prog_a = {10'b00_1_00_010_0, prog_bl_code};
 wire [12:0] mode_fullpage_a = 13'b000_0_00_010_0_111;
 
-reg  [1:0] mode_st;
+reg  [2:0] mode_st;
 reg        current_fullpage;
 wire       want_fullpage = !prog_en;
 
@@ -66,9 +70,12 @@ always @(posedge clk) begin
             MODE_IDLE: begin
                 if( !init && (current_fullpage != want_fullpage) &&
                     !rfshing && (prog_en ? pre_idle : burst_idle) ) begin
-                    mode_st <= MODE_CMD;
+                    mode_st <= MODE_PRE;
                 end
             end
+            MODE_PRE:   mode_st <= MODE_TRP1;
+            MODE_TRP1:  mode_st <= MODE_TRP2;
+            MODE_TRP2:  mode_st <= MODE_CMD;
             MODE_CMD:   mode_st <= MODE_WAIT1;
             MODE_WAIT1: mode_st <= MODE_WAIT2;
             MODE_WAIT2: begin
@@ -84,6 +91,11 @@ always @(*) begin
     mode_cmd = CMD_NOP;
     mode_a   = current_fullpage ? mode_fullpage_a : mode_prog_a;
     case( mode_st )
+        MODE_PRE: begin
+            mode_cmd  = CMD_PRECHARGE;
+            mode_a    = 13'd0;
+            mode_a[10] = 1'b1;
+        end
         MODE_CMD: begin
             mode_cmd = CMD_LOAD_MODE;
             mode_a   = want_fullpage ? mode_fullpage_a : mode_prog_a;

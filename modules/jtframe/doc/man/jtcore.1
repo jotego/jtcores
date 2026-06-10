@@ -64,6 +64,9 @@ skips the STA check and marks as PASS compilations with timing problems
 \fB\-\-nolinter\fR
 Do not run the verilator linter
 .TP
+\fB\-\-output\fR <folder>
+Copy the compiled core under this output folder instead of \fI\,$JTROOT/release\/\fP
+.TP
 \fB\-\-program\fR | \fB\-p\fR
 Programs the FPGA via JTAG
 .TP
@@ -86,7 +89,10 @@ Sets random seed for compilation
 Prepares Quartus simulation
 .TP
 \fB\-\-skip\fR | \fB\-s\fR
-skips the compilation but executes the rest of the commands
+Skips the compilation but executes the rest of the commands
+.TP
+\fB\-\-nocopy\fR
+Skips copying the output RBF file to the release folder
 .TP
 \fB\-\-signaltap\fR
 Merge \fI\,cores/<core>/syn/signaltap.qsf\/\fP and enable SignalTap

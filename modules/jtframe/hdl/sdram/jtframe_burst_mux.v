@@ -37,6 +37,7 @@ module jtframe_burst_mux(
     input      [12:0]   rfsh_a,
     input       [3:0]   mode_cmd,
     input      [12:0]   mode_a,
+    input               burst_act,
     input       [3:0]   burst_cmd,
     input      [12:0]   burst_a,
     input       [1:0]   burst_ba,
@@ -49,6 +50,7 @@ module jtframe_burst_mux(
     input               burst_rdy,
     output reg          next_dq_oe,
     output reg [15:0]   next_dq,
+    output reg          sel_act,
     output reg  [3:0]   sel_cmd,
     output reg [12:0]   sel_a,
     output reg  [1:0]   sel_ba,
@@ -66,6 +68,7 @@ module jtframe_burst_mux(
 always @(*) begin
     next_dq_oe   = 1'b0;
     next_dq      = 16'h0000;
+    sel_act      = 1'b0;
     sel_cmd      = 4'b0111;
     sel_a        = 13'd0;
     sel_ba       = 2'd0;
@@ -80,17 +83,21 @@ always @(*) begin
     sel_prog_rdy = 1'b0;
 
     if( init ) begin
+        sel_act = init_cmd == 4'b0011;
         sel_cmd = init_cmd;
         sel_a   = init_a;
     end else if( mode_busy ) begin
+        sel_act = mode_cmd == 4'b0011;
         sel_cmd = mode_cmd;
         sel_a   = mode_a;
     end else if( rfshing ) begin
+        sel_act = rfsh_cmd == 4'b0011;
         sel_cmd = rfsh_cmd;
         sel_a   = rfsh_a;
     end else if( prog_en ) begin
         next_dq_oe   = prog_wr;
         next_dq      = prog_din;
+        sel_act      = pre_cmd == 4'b0011;
         sel_cmd      = pre_cmd;
         sel_a        = pre_a;
         sel_ba       = prog_ba;
@@ -102,6 +109,7 @@ always @(*) begin
     end else begin
         next_dq_oe = burst_dq_oe;
         next_dq    = burst_dq_out;
+        sel_act    = burst_act;
         sel_cmd    = burst_cmd;
         sel_a      = burst_a;
         sel_ba     = burst_ba;
