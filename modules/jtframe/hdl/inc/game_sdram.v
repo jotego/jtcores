@@ -379,6 +379,9 @@ jtframe_headerbyte #(.AW(6)) u_pcbid(
 `ifdef VERILATOR_KEEP_SDRAM /* verilator tracing_on */ `else /* verilator tracing_off */ `endif
 {{ $assign_holdrst := true }}
 {{- if gt (len .SDRAM.Cache_lanes) 0 }}
+reg rst_cache;
+always @(posedge clk) rst_cache <= rst;
+
 jtframe_cache_mux #(
     .SDRAM_AW ( SDRAMW ),
     .ENDIAN   ( 0 ){{- range $index, $line := .SDRAM.Cache_lanes }},
@@ -392,7 +395,7 @@ jtframe_cache_mux #(
     .OFFSET{{$index}}  ( {{ if and (not $line.Full_range) $line.At.Offset }}{{ $line.At.Offset }}{{ else }}0{{ end }} ),
     .INVAL_MASK{{$index}} ( {{ cache_inval_mask $.SDRAM.Cache_lanes $index }} ){{- end }}
 ) u_cache(
-    .rst       ( rst      ),
+    .rst       ( rst_cache),
     .clk       ( clk      ),
 {{- range $index, $line := .SDRAM.Cache_lanes}}
     .addr{{$index}} ( {{ $line.Name }}_addr ),
