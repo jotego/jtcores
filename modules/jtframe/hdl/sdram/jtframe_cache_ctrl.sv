@@ -150,7 +150,6 @@ localparam [4:0] S_INIT_CLEAR    = 5'd0,
 
 reg              fill_after_wb, fill_wb_prime_wait;
 reg              req_wr_l;
-reg              lookup_hit_l, lookup_victim_dirty_l;
 reg              flush_rd_resp_l;
 reg              req_take, flush_take, invalidate_take;
 reg [AW-1:AW0]   req_addr_l;
@@ -463,18 +462,16 @@ always @* begin
             tag_clear_en = 1'b1;
         end
         S_LOOKUP: begin
-        end
-        S_LOOKUP_DECIDE: begin
-            if( !lookup_hit_l ) begin
+            if( !hit_now ) begin
                 tag_advance_en    = 1'b1;
-                tag_advance_way_n = way_l;
+                tag_advance_way_n = victim_way_now;
             end
-            if( lookup_hit_l && !req_wr_l ) begin
+            if( hit_now && !req_wr_l ) begin
                 req_load_addr = 1'b1;
-                req_addr_n    = req_baddr(blk_l, req_off_l);
-            end else if( !lookup_hit_l && lookup_victim_dirty_l ) begin
+                req_addr_n    = req_baddr(hit_blk_now, req_off_l);
+            end else if( !hit_now && victim_dirty_now ) begin
                 stream_load_addr = 1'b1;
-                stream_addr_n    = stream_baddr(blk_l, {WW{1'b0}});
+                stream_addr_n    = stream_baddr(victim_blk_now, {WW{1'b0}});
             end
         end
         S_WB_LOAD: begin
@@ -588,8 +585,6 @@ always @(posedge clk) begin
         fill_after_wb     <= 1'b0;
         fill_wb_prime_wait<= 1'b0;
         req_wr_l          <= 1'b0;
-        lookup_hit_l      <= 1'b0;
-        lookup_victim_dirty_l <= 1'b0;
         flush_rd_resp_l   <= 1'b0;
         req_addr_l        <= {AW-AW0{1'b0}};
         req_tag_l         <= {TAGW{1'b0}};
@@ -666,27 +661,23 @@ always @(posedge clk) begin
                 end
             end
             S_LOOKUP: begin
-                lookup_hit_l          <= hit_now;
-                lookup_victim_dirty_l <= victim_dirty_now;
                 if( hit_now ) begin
                     blk_l <= hit_blk_now;
                     way_l <= hit_way_now;
+                    if( req_wr_l )
+                        st <= S_WR_COMMIT;
+                    else
+                        st <= S_RD_RESP;
                 end else begin
                     blk_l          <= victim_blk_now;
                     way_l          <= victim_way_now;
                     victim_tag_l   <= victim_tag_now;
                     stream_word    <= {WW{1'b0}};
                     fill_tail_seen <= 1'b0;
-                end
-                st <= S_LOOKUP_DECIDE;
-            end
-            S_LOOKUP_DECIDE: begin
-                if( lookup_hit_l ) begin
-                    if( req_wr_l ) st <= S_WR_COMMIT;
-                    else           st <= S_RD_RESP;
-                end else begin
-                    if( lookup_victim_dirty_l ) st <= S_WB_PRIME;
-                    else                        st <= S_FILL_REQ;
+                    if( victim_dirty_now )
+                        st <= S_WB_PRIME;
+                    else
+                        st <= S_FILL_REQ;
                 end
             end
             S_RD_RESP: begin
