@@ -109,7 +109,10 @@ main() {
             echo "[INFO] Regression succeed! Skiping upload"
         else
             print_step "Uploading simulation results for $setname"
-            upload_results $ec
+            if ! upload_results $ec; then
+                echo "[ERROR] Upload failed"
+                ec=13
+            fi
         fi
     fi
 
@@ -121,13 +124,13 @@ clean_up() {
 }
 
 parse_args() {
-    REMOTE_DIR=domains/jotego.es
     LOCAL_DIR=""
     check=false
     local_check=false
     local_rom=false
     push=false
-    SFTP_CONNECT_TIMEOUT=${SFTP_CONNECT_TIMEOUT:-120}
+    MAME_HTTP_BASE_URL=${MAME_HTTP_BASE_URL:-}
+    MAME_HTTP_SECRET=${MAME_HTTP_SECRET:-}
 
     if [[ $1 == --help || $1 == -h ]]; then
         print_help
@@ -141,14 +144,6 @@ parse_args() {
     parse_setname $1; shift
 
     while [[ $# -gt 0 ]]; do case $1 in
-        --path)
-            if [[ $# -lt 2 ]]; then
-                echo "[ERROR] --path requires an argument"
-                exit 1
-            fi
-            REMOTE_DIR="$2"
-            shift 2
-            ;;
         --check)
             check=true
             shift
@@ -174,39 +169,20 @@ parse_args() {
             print_help
             exit 0
             ;;
-        --port)
-            if [[ $# -lt 2 || ! "$2" =~ ^[0-9]+$ ]]; then
-                echo "[ERROR] --port requires a numeric argument"
-                exit 1
-            fi
-            SSH_PORT="$2"
-            shift 2
-            ;;
-        --host)
-            if [[ $# -lt 2 ]]; then
-                echo "[ERROR] --host requires an argument"
-                exit 1
-            fi
-            SFTP_HOST="$2"
-            shift 2
-            ;;
-        --user)
-            if [[ $# -lt 2 ]]; then
-                echo "[ERROR] --user requires an argument"
-                exit 1
-            fi
-            SFTP_USER="$2"
-            shift 2
-            ;;
         *)
             echo "[ERROR] Unknown option: $1"
             exit 1
             ;;
     esac; done
 
-    if $check || $push || ! $local_rom; then
-        if [[ -z $SFTP_HOST || -z $SFTP_USER || -z $SSH_PORT ]]; then
-            echo "[ERROR] If you are going to use SFTP server, you need to specify --port, --host and --user flags"
+    if ! $local_rom; then
+        if [[ -z $MAME_HTTP_BASE_URL ]]; then
+            echo "[ERROR] MAME_HTTP_BASE_URL is required for HTTP ROM downloads"
+            exit 1
+        fi
+
+        if [[ -z $MAME_HTTP_SECRET ]]; then
+            echo "[ERROR] MAME_HTTP_SECRET is required when using HTTP ROM downloads"
             exit 1
         fi
     fi
@@ -217,29 +193,25 @@ print_help() {
 Run a simulation for the specified setname.
 If the corresponding folder doesn't exist it will be created.
 
-Usage: run_regression.sh <core> <setname> [--port <ssh_port>] [--user <sftp_user>] [--host <server_ip>] [--path REMOTE_DIR] [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]
+Usage: run_regression.sh <core> <setname> [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]
 
 Options:
-  --path REMOTE_DIR         Specify the REMOTE_DIR path (default: domains/jotego.es).
-                            Be sure to have the right permissions on the directory you specify.
   --check                   Validate extracted simulation against reference results stored
-                            in REMOTE_DIR on the remote server. Can be used with --local-check.
+                            remotely. Can be used with --local-check.
   --local-check LOCAL_DIR   Validate extracted simulation against reference results
                             stored in LOCAL_DIR in your machine. Can be used with --check.
   --local-rom               Will use your ROM files stored on ~/.mame/roms, Instead of
-                            downloading them from the remote server.
-  --push                    Upload extracted simulation to the remote server.
+                            downloading them remotely.
+  --push                    Upload extracted simulation to the server.
                             If it is not used with --check or --local-check, only uploads
                             simulations to the folder NOT CHECKED. WARNING. Otherwise, it will
                             upload to the folders VALID (if check was successfull), FAIL (if
                             check was failed) or NOT CHECKED (if there weren't enough references
                             to check)
-  --port                    Specify the SSH port to connect to the SFTP server. Mandatory if you
-                            are going to use the remote server.
-  --host                    Specify the IP/hostname of the SFTP server. Mandatory if you are
-                            going to use the remote server.
-  --user                    Specify the user to connect to the SFTP server. Mandatory if you are
-                            going to use the remote server.
+
+Environment:
+  MAME_HTTP_BASE_URL        If set, use the HTTP endpoints for downloads and uploads.
+  MAME_HTTP_SECRET          Shared secret used to sign HTTP ROM download links.
 
 By default, simulations are extracted without validation or upload.
 EOF
@@ -328,22 +300,22 @@ get_zips() {
     roms_dir_ref=$(mktemp -d)
     TODELETE+=("$roms_dir_ref")
 
-    local sftp_log
-    sftp_log=$(mktemp)
-    TODELETE+=("$sftp_log")
+    local transfer_log
+    transfer_log=$(mktemp)
+    TODELETE+=("$transfer_log")
 
-    get_many_via_ftp "$roms_dir_ref" "$sftp_log" "${zip_names[@]}" || true
+    get_many_via_http "$roms_dir_ref" "$transfer_log" "${zip_names[@]}" || true
     collect_missing_zips missing_zips "$roms_dir_ref" "${zip_names[@]}"
 
     if [[ "${#missing_zips[@]}" -gt 0 ]]; then
-        get_with_retry missing_zips "$roms_dir_ref" "$sftp_log"
+        get_with_retry missing_zips "$roms_dir_ref" "$transfer_log"
         collect_missing_zips missing_zips "$roms_dir_ref" "${zip_names[@]}"
     fi
 
     if [[ "${#missing_zips[@]}" -gt 0 ]]; then
-        echo "[WARNING] Missing zip files after SFTP retries: ${missing_zips[*]}" >&2
-        echo "[WARNING] SFTP log follows:" >&2
-        cat "$sftp_log" >&2
+        echo "[WARNING] Missing zip files after HTTP retries: ${missing_zips[*]}" >&2
+        echo "[WARNING] HTTP log follows:" >&2
+        cat "$transfer_log" >&2
     fi
 
     if [[ "${#missing_zips[@]}" == "${#zip_names[@]}" ]]; then
@@ -423,11 +395,11 @@ get_with_retry() {
     local target_name="$1"
     local -n missing_zips_ref="$target_name"
     local roms_dir_ref="$2"
-    local sftp_log="$3"
+    local transfer_log="$3"
     local attempts=7
 
     while [[ $attempts -gt 0 && "${#missing_zips_ref[@]}" -gt 0 ]]; do
-        get_many_via_ftp "$roms_dir_ref" "$sftp_log" "${missing_zips_ref[@]}" || true
+        get_many_via_http "$roms_dir_ref" "$transfer_log" "${missing_zips_ref[@]}" || true
         collect_missing_zips "$target_name" "$roms_dir_ref" "${missing_zips_ref[@]}"
         attempts=$((attempts-1))
         if [[ $attempts -gt 0 && "${#missing_zips_ref[@]}" -gt 0 ]]; then
@@ -442,28 +414,82 @@ get_with_retry() {
     return 0
 }
 
-run_sftp() {
-    sftp -o ConnectTimeout="$SFTP_CONNECT_TIMEOUT" -P "$SSH_PORT" "$@" \
-        "$SFTP_USER@$SFTP_HOST:$REMOTE_DIR"
+http_base_url() {
+    printf '%s' "${MAME_HTTP_BASE_URL%/}"
 }
 
-get_many_via_ftp() {
+http_signature() {
+    local payload="$1"
+    local expiry="$2"
+    printf '%s' "${payload}|${expiry}" | openssl dgst -sha256 -hmac "$MAME_HTTP_SECRET" -hex | awk '{print $2}'
+}
+
+http_download_url() {
+    printf '%s/download.php' "$(http_base_url)"
+}
+
+http_upload_url() {
+    printf '%s/upload.php' "$(http_base_url)"
+}
+
+http_fetch_signed_file() {
+    local remote_path="$1"
+    local output_path="$2"
+    local label="$3"
+    local expiry
+    expiry=$(( $(date +%s) + 3600 ))
+
+    local sig
+    sig=$(http_signature "$remote_path" "$expiry")
+
+    local tmp_file
+    tmp_file=$(mktemp)
+
+    local http_code
+    http_code=$(curl -sS --retry 3 --retry-delay 2 \
+        --get \
+        --data-urlencode "f=$remote_path" \
+        --data-urlencode "exp=$expiry" \
+        --data-urlencode "sig=$sig" \
+        -o "$tmp_file" \
+        -w '%{http_code}' \
+        "$(http_download_url)")
+    local curl_ec=$?
+
+    if [[ $curl_ec -ne 0 ]]; then
+        rm -f "$tmp_file"
+        echo "[ERROR] HTTP download failed for $label" >&2
+        return 1
+    fi
+
+    if [[ $http_code != 200 ]]; then
+        rm -f "$tmp_file"
+        echo "[ERROR] HTTP download returned $http_code for $label" >&2
+        return 1
+    fi
+
+    mv "$tmp_file" "$output_path"
+}
+
+get_many_via_http() {
     local roms_dir_ref="$1"
-    local sftp_log="$2"
+    local transfer_log="$2"
     shift 2
 
     {
-        printf '[INFO] SFTP get: %s\n' "$*"
-    } >>"$sftp_log"
+        printf '[INFO] HTTP get for ROM zips\n'
+        printf '[INFO] Expiry window: 3600s\n'
+    } >>"$transfer_log"
 
-    {
-        printf 'lcd %s\n' "$roms_dir_ref"
-        local zip
-        for zip in "$@"; do
-            printf -- '-get mame/%s %s\n' "$zip" "$zip"
-        done
-        printf 'bye\n'
-    } | run_sftp -b - >>"$sftp_log" 2>&1
+    local expiry
+    expiry=$(( $(date +%s) + 3600 ))
+
+    local zip
+    for zip in "$@"; do
+        if ! http_fetch_signed_file "$zip" "$roms_dir_ref/$zip" "$zip" >>"$transfer_log" 2>&1; then
+            return 1
+        fi
+    done
 }
 
 random_wait() {
@@ -571,12 +597,13 @@ get_remote_frames() {
     TODELETE+=("$dir")
 
     echo "[INFO] Downloading remote frames for $setname"
-    run_sftp >/dev/null 2>&1 <<EOF
-get regression/$core/$setname/valid/frames.zip $dir
-bye
-EOF
+    local remote_path="regression/$core/$setname/valid/frames.zip"
+    if ! http_fetch_signed_file "$remote_path" "$dir/frames.zip" "remote frames for $setname"; then
+        echo "[WARNING] Cannot download remote frames.zip"
+        return 1
+    fi
     if [[ ! -f "$dir/frames.zip" ]]; then
-        echo "[WARNING] There are no valid frames yet"
+        echo "[WARNING] Remote frames.zip is missing after download"
         return 1
     fi
     if ! unzip -q -d "$dir" "$dir/frames.zip"; then
@@ -679,10 +706,11 @@ check_audio() {
 
 get_remote_audio() {
     echo "[INFO] Downloading remote audio for $setname"
-    run_sftp >/dev/null 2>&1 <<EOF
-get regression/$core/$setname/valid/audio.zip
-bye
-EOF
+    local remote_path="regression/$core/$setname/valid/audio.zip"
+    if ! http_fetch_signed_file "$remote_path" "audio.zip" "remote audio for $setname"; then
+        echo "[WARNING] Cannot download remote audio.zip"
+        return 1
+    fi
     if [[ ! -f "audio.zip" ]]; then return 1; fi
 
     if ! unzip -q -o -d . audio.zip; then
@@ -722,16 +750,28 @@ upload_results() {
     if [ "$ec" != 0 ]; then prepare_zip_files; fi
 
     echo "[INFO] Starting upload"
-    run_sftp >/dev/null 2>&1 <<EOF
-mkdir regression
-mkdir regression/$core
-mkdir regression/$core/$fullname
-mkdir regression/$core/$fullname/$folder
-cd regression/$core/$fullname/$folder
-rm -rf not_checked fail
-$(for f in "${files[@]}"; do echo "put $f"; done)
-bye
-EOF
+    local expiry
+    expiry=$(( $(date +%s) + 3600 ))
+    local target_dir="regression/$core/$fullname/$folder"
+    local upload_url
+    upload_url="$(http_upload_url)"
+    local f
+    for f in "${files[@]}"; do
+        [[ -n "$f" ]] || continue
+        local remote_path="$target_dir/$f"
+        local sig
+        sig=$(http_signature "$remote_path" "$expiry")
+        if ! curl -fsS --retry 3 --retry-delay 2 \
+            -X POST \
+            -F "path=$remote_path" \
+            -F "exp=$expiry" \
+            -F "sig=$sig" \
+            -F "file=@$f" \
+            "$upload_url" >/dev/null; then
+            echo "[ERROR] Failed uploading $f to $remote_path"
+            return 1
+        fi
+    done
     echo "[INFO] Upload finished"
 }
 
