@@ -17,8 +17,8 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at 0 39.37 0)
+			(property "Reference" "U1"
+				(at 0 31.75 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -26,14 +26,14 @@
 				)
 			)
 			(property "Value" "JAMMA_MALE"
-				(at 0 36.83 0)
+				(at 0 34.29 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Footprint" ""
+			(property "Footprint" "Arcade:JAMMA MALE"
 				(at 1.27 2.54 0)
 				(effects
 					(font
@@ -547,7 +547,7 @@
 						)
 					)
 				)
-				(pin power_out line
+				(pin passive line
 					(at -20.32 20.32 0)
 					(length 5.08)
 					(name "+12V"
@@ -781,7 +781,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin passive line
 					(at 20.32 5.08 180)
 					(length 5.08)
 					(name "VGREEN"
@@ -799,7 +799,7 @@
 						)
 					)
 				)
-				(pin input line
+				(pin passive line
 					(at 20.32 2.54 180)
 					(length 5.08)
 					(name "VSYNC"
@@ -1093,8 +1093,8 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at -0.254 18.288 0)
+			(property "Reference" "U2"
+				(at 0 15.494 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1102,15 +1102,15 @@
 				)
 			)
 			(property "Value" "Jaleco_Argus_conn_adapter"
-				(at 0.254 21.59 0)
+				(at 0 22.86 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Footprint" "Arcade:TAITO CONN FOR ADAPTER"
-				(at 0.254 23.368 0)
+			(property "Footprint" "Arcade:Jaleco_Argus_Adapter"
+				(at 16.51 15.24 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1119,7 +1119,7 @@
 				)
 			)
 			(property "Datasheet" ""
-				(at 16.51 16.51 0)
+				(at 16.51 15.24 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1128,7 +1128,7 @@
 				)
 			)
 			(property "Description" ""
-				(at 16.51 16.51 0)
+				(at 16.51 15.24 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1263,7 +1263,7 @@
 						)
 					)
 				)
-				(pin power_in line
+				(pin passive line
 					(at -16.51 -22.86 0)
 					(length 2.54)
 					(name "1P_SHOT1"
@@ -1281,7 +1281,7 @@
 						)
 					)
 				)
-				(pin power_in line
+				(pin passive line
 					(at -16.51 -25.4 0)
 					(length 2.54)
 					(name "1P_SHOT2"
@@ -1353,7 +1353,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin passive line
 					(at -16.51 7.62 0)
 					(length 2.54)
 					(name "5V"
@@ -1371,7 +1371,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin power_out line
 					(at -16.51 5.08 0)
 					(length 2.54)
 					(name "12V"
@@ -1425,7 +1425,7 @@
 						)
 					)
 				)
-				(pin power_in line
+				(pin passive line
 					(at -16.51 -2.54 0)
 					(length 2.54)
 					(name "SPEAKER(+)"
@@ -1497,7 +1497,7 @@
 						)
 					)
 				)
-				(pin power_in line
+				(pin passive line
 					(at 16.51 10.16 180)
 					(length 2.54)
 					(name "5V"
@@ -1515,7 +1515,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin passive line
 					(at 16.51 7.62 180)
 					(length 2.54)
 					(name "5V"
@@ -1533,7 +1533,7 @@
 						)
 					)
 				)
-				(pin output line
+				(pin power_in line
 					(at 16.51 5.08 180)
 					(length 2.54)
 					(name "12V"
@@ -1587,7 +1587,7 @@
 						)
 					)
 				)
-				(pin power_in line
+				(pin passive line
 					(at 16.51 -2.54 180)
 					(length 2.54)
 					(name "SPEAKER(-)"
@@ -1731,7 +1731,7 @@
 						)
 					)
 				)
-				(pin power_in line
+				(pin passive line
 					(at 16.51 -22.86 180)
 					(length 2.54)
 					(name "2P_SHOT1"
@@ -1749,7 +1749,7 @@
 						)
 					)
 				)
-				(pin power_in line
+				(pin passive line
 					(at 16.51 -25.4 180)
 					(length 2.54)
 					(name "2P_SHOT2"
@@ -1919,102 +1919,6 @@
 								(size 1.27 1.27)
 							)
 						)
-					)
-				)
-			)
-		)
-		(symbol "power:PWR_FLAG"
-			(power)
-			(pin_numbers hide)
-			(pin_names
-				(offset 0) hide)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "#FLG"
-				(at 0 1.905 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Value" "PWR_FLAG"
-				(at 0 3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Special symbol for telling ERC where power comes from"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "flag power"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "PWR_FLAG_0_0"
-				(pin power_out line
-					(at 0 0 90)
-					(length 0)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(symbol "PWR_FLAG_0_1"
-				(polyline
-					(pts
-						(xy 0 0) (xy 0 1.27) (xy -1.016 1.905) (xy 0 2.54) (xy 1.016 1.905) (xy 0 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
 					)
 				)
 			)
@@ -2670,16 +2574,6 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 109.22) (xy 100.33 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a0ac8d07-5bd8-48eb-946b-f799556cd016")
-	)
-	(wire
-		(pts
 			(xy 231.14 115.57) (xy 218.44 115.57)
 		)
 		(stroke
@@ -2830,6 +2724,16 @@
 	)
 	(wire
 		(pts
+			(xy 87.63 109.22) (xy 100.33 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c840c0af-ac4b-4915-b004-545b73cf7745")
+	)
+	(wire
+		(pts
 			(xy 87.63 104.14) (xy 100.33 104.14)
 		)
 		(stroke
@@ -2937,16 +2841,6 @@
 			(type default)
 		)
 		(uuid "dad984aa-19a8-43d6-aae4-4f4caa875fdd")
-	)
-	(wire
-		(pts
-			(xy 78.74 109.22) (xy 78.74 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "df9ca846-9189-4a23-94b8-c106cc28a30a")
 	)
 	(wire
 		(pts
@@ -3443,7 +3337,7 @@
 		)
 		(uuid "3ee22581-186a-4791-b444-2219df935e78")
 	)
-	(label "VGND"
+	(label "GND"
 		(at 87.63 109.22 0)
 		(effects
 			(font
@@ -4112,71 +4006,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:PWR_FLAG")
-		(at 78.74 110.49 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "c8d4050d-7172-44ff-9cb6-a8a32b0c644d")
-		(property "Reference" "#FLG01"
-			(at 78.74 112.395 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "PWR_FLAG"
-			(at 78.74 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 78.74 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 78.74 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 78.74 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "9a8e55c8-da67-4c27-bf15-ead6ea2922a5")
-		)
-		(instances
-			(project "adapter"
-				(path "/250af5f4-1fb8-4aaa-bf80-421ccba750d1"
-					(reference "#FLG01")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "arcade:Jaleco_Argus_conn_adapter")
 		(at 201.93 92.71 0)
 		(unit 1)
@@ -4201,7 +4030,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Arcade:TAITO CONN FOR ADAPTER"
+		(property "Footprint" "Arcade:Jaleco_Argus_Adapter"
 			(at 218.44 77.47 0)
 			(effects
 				(font
