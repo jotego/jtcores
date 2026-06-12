@@ -135,10 +135,9 @@ jobs:
           yq -r '.[] | .setname' batch.json > setnames.lst
           job='
             source setprj.sh
-            run_regression.sh {1} {2} --check --push \
-              --port ${{ secrets.SSH_PORT }} \
-              --user ${{ secrets.SSH_USER }} \
-              --host ${{ secrets.SERVER_IP }}
+            export MAME_HTTP_BASE_URL=~{{ secrets.MAME_HTTP_BASE_URL }}
+            export MAME_HTTP_SECRET=~{{ secrets.MAME_HTTP_SECRET }}
+            run_regression.sh {1} {2} --check --push
             ec=$?
             # create_regression_issue.sh "$ec" {1} {2} || true
             exit "$ec"
