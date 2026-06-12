@@ -486,7 +486,7 @@ get_many_via_http() {
 
     local zip
     for zip in "$@"; do
-        if ! http_fetch_signed_file "$zip" "$roms_dir_ref/$zip" "$zip" >>"$transfer_log" 2>&1; then
+        if ! http_fetch_signed_file "mame/$zip" "$roms_dir_ref/$zip" "$zip" >>"$transfer_log" 2>&1; then
             return 1
         fi
     done
