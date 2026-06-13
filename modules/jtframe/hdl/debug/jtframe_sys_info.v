@@ -193,7 +193,6 @@ jtframe_sdram_stats u_stats(
 );
 
 jtframe_vumeter vumeter(
-    .rst        ( rst           ),
     .clk        ( clk           ),
     .cen        ( sample        ),
     // input signals
