@@ -106,6 +106,14 @@ clone_repo() {
 	git submodule update --depth 1 $JTFRAME/target/pocket
 	git submodule init modules/jt51
 	git submodule update --depth 1 modules/jt51
+	git config --file .gitmodules --get-regexp '^submodule\..*\.path$' |
+	while read -r _ submodule_path; do
+		case "$submodule_path" in
+			cores/*)
+				git submodule init "$submodule_path"
+				git submodule update --depth 1 "$submodule_path";;
+		esac
+	done
 }
 
 get_full_hash() {
