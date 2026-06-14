@@ -191,7 +191,7 @@ func dump_output(cfg Config) {
 			key := make_key(target, c)
 			cmd := "jtcore"
 			if cfg.Seed {
-				cmd = "jtutil seed 6"
+				cmd = "jtutil seed --max-trials 6"
 			}
 			jtcore := fmt.Sprintf("%s %s -%s %s %s", cmd, c, target, cfg.customs[key], cfg.extra)
 			if cfg.Stamp != "" {

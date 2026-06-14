@@ -3,8 +3,11 @@
 .SH NAME
 jtutil-seed \- Run jtcore repeatedly with different seeds
 .SH DESCRIPTION
-Runs jtcore repeatedly with different \fB\-\-seed\fR values until one build passes or max\-retries is reached.
-.SS "Options consumed by jtutil seed must appear before max-retries/core:"
+Runs jtcore repeatedly with different \fB\-\-seed\fR values until one build passes or \fB\-\-max\-trials\fR is reached.
+.SS "Options consumed by jtutil seed must appear before core:"
+.TP
+\fB\-\-max\-trials\fR n
+Stop after n seed builds
 .TP
 \fB\-\-parallel\fR n
 Run up to n jtcore seed builds at the same time
@@ -15,28 +18,37 @@ Same as \fB\-\-parallel\fR n
 \fB\-\-help\fR | \fB\-h\fR
 Show this summary
 .PP
-After optional max\-retries is removed, the remaining arguments are passed to
-jtcore. In parallel mode each jtcore run gets a distinct \fB\-\-seed\fR and \fB\-\-output\fR
-folder. The Quartus build runs under <output>/build, and its console output is written to <output>/jtcore.log. Parallel
-runs invoke jtcore with \fB\-\-nocopy\fR; as jobs finish, jtutil seed copies the best
-RBF seen so far into the normal release/<target>/ folder. The default output
-base is:
+The remaining arguments are passed to jtcore. Each jtcore run gets a distinct
+\fB\-\-seed\fR and \fB\-\-output\fR folder. The Quartus build runs under <output>/build,
+and its console output is written to <output>/jtcore.log. Runs invoke jtcore
+with \fB\-\-nocopy\fR and \fB\-u\fR JTFRAME_NOSTA; as jobs finish, jtutil seed copies
+the best RBF seen so far into the normal release/<target>/ folder. The default
+output base is:
 .IP
-$JTROOT/cores/<core\-name>/seed
+$JTROOT/cores/<core\-name>/seed/<target>
 .PP
 Create a jtseed.last file in the current folder to stop after the current batch.
 .PP
 Use "man jtutil\-seed" for full documentation.
 .SS "Usage:"
 .IP
-jtutil seed [flags] [max\-retries] <core> [jtcore options]
+jtutil seed [flags] <core> [jtcore options]
 .SS "Flags:"
 .TP
 \fB\-h\fR, \fB\-\-help\fR
 help for seed
 .TP
+\fB\-\-max\-trials\fR int
+Stop after n seed builds (default 100)
+.TP
 \fB\-\-parallel\fR int
 Run up to n jtcore seed builds at the same time (default 1)
+.TP
+\fB\-\-stop\fR
+Stop when a build is STA clean (default true)
+.TP
+\fB\-\-zero\fR
+Start with seed zero (default true)
 .SS "Global Flags:"
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
