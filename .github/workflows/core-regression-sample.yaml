@@ -172,6 +172,9 @@ jobs:
           printf '%s' '${{ toJSON(matrix.batch.items) }}' > batch.json
           yq -r '.[] | .core' batch.json > cores.lst
           yq -r '.[] | .setname' batch.json > setnames.lst
+          delay=$(( RANDOM % 901 ))
+          echo "Waiting ${delay}s before starting regression downloads"
+          sleep "$delay"
           job='
             source setprj.sh
             export MAME_HTTP_BASE_URL=${{ secrets.MAME_HTTP_BASE_URL }}
