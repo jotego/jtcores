@@ -14,7 +14,7 @@ jtframe_ioctl_dump #(
     // restore
     .din{{$k}}         ( {{$v.Din}} ),
     .din{{$k}}_mx      ( {{with $v.Name}}{{.}}_dimx{{end}} ),
-    .we{{$k}}          ( {{if eq $v.DW 8 }}{ 1'b0,{{ $v.We }} }{{else}}{{$v.We}}{{end}}),
+    .we{{$k}}          ( {{$v.We}}),
     .we{{$k}}_mx       ( {{with $v.Name}}{{.}}_wemx{{end}} ),
     {{end }}
     .ioctl_addr ( ioctl_addr[23:0] ),

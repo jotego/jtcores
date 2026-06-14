@@ -1527,6 +1527,58 @@ func Test_game_sdram_template_uses_32bit_bram_wrappers(t *testing.T) {
 	}
 }
 
+func Test_game_sdram_template_uses_32bit_ioctl_dump_restore(t *testing.T) {
+	sample := `bram:
+  - name: fb
+    addr_width: 11
+    data_width: 32
+    rw: true
+    simfile: {}
+    ioctl: { save: true, restore: true }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	cfg.Core = "test"
+	cfg.normalize_bram_data_width()
+	if e := cfg.normalize_bram(); e != nil {
+		t.Fatal(e)
+	}
+	if e := cfg.check_bram(); e != nil {
+		t.Fatal(e)
+	}
+	fill_implicit_ports(&cfg)
+	make_ioctl(&cfg)
+	cfg.fill_gfx_sort()
+
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+
+	checks := []string{
+		"wire [3:0] fb_wemx;",
+		".DW0( 32 ), .AW0( 11 )",
+		".we0          ( fb_we),",
+		".we0_mx       ( fb_wemx )",
+		".we     ( fb_wemx )",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
+	}
+	if strings.Contains(out, "wire [  1:0] fb_wemx") {
+		t.Fatalf("generated template should use a 4-bit ioctl write-enable mux for 32-bit BRAM\n%s", out)
+	}
+	if strings.Contains(out, "{ 1'b0,fb_we }") {
+		t.Fatalf("generated template should not narrow 32-bit ioctl write-enable input\n%s", out)
+	}
+}
+
 func Test_game_sdram_template_emits_bram_latch_parameters(t *testing.T) {
 	sample := `bram:
   - name: chars

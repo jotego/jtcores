@@ -36,7 +36,7 @@ wire [7:0] ioctl_aux;
 `endif
 {{- range $k, $v := .Ioctl.Buses }}{{ if $v.Name}}
 wire [{{$v.DW}}-1:0] {{$v.Name}}_dimx;
-wire [  1:0] {{$v.Name}}_wemx;{{if $v.Amx}}
+wire [{{sub (byte_en_width $v.DW) 1}}:0] {{$v.Name}}_wemx;{{if $v.Amx}}
 wire [{{$v.AW}}-1:{{$v.AWl}}] {{$v.Amx}};{{ end }}{{end -}}
 {{end}}{{end}}
 
