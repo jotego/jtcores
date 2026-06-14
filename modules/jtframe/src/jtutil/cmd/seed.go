@@ -32,10 +32,11 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"jotego/jtframe/macros"
 )
 
 type seed_config struct {
-	max_reps    int
+	max_trials  int
 	parallel    int
 	jtcore_args []string
 	used_seeds  map[int]bool
@@ -43,6 +44,13 @@ type seed_config struct {
 	random      *rand.Rand
 	best_slack  float64
 	best_valid  bool
+	release     seed_release
+	nosta      bool
+}
+
+type seed_release struct {
+	core   string
+	target string
 }
 
 type seed_job struct {
@@ -55,26 +63,26 @@ type seed_job struct {
 	pass     bool
 }
 
-var seed_parallel int
+var seed_parallel, seed_max_trials int
 var seed_stop, seed_zero bool
 
 var seedCmd = &cobra.Command{
-	Use:   "seed [flags] [max-retries] <core> [jtcore options]",
+	Use:   "seed [flags] <core> [jtcore options]",
 	Short: "Run jtcore repeatedly with different seeds",
-	Long: man_blurb("jtutil-seed", `Runs jtcore repeatedly with different --seed values until one build passes or max-retries is reached.
+	Long: man_blurb("jtutil-seed", `Runs jtcore repeatedly with different --seed values until one build passes or --max-trials is reached.
 
-Options consumed by jtutil seed must appear before max-retries/core:
+Options consumed by jtutil seed must appear before core:
+    --max-trials n        Stop after n seed builds
     --parallel n          Run up to n jtcore seed builds at the same time
     --parallel=n          Same as --parallel n
     --help | -h           Show this summary
 
-After optional max-retries is removed, the remaining arguments are passed to
-jtcore. In parallel mode each jtcore run gets a distinct --seed and --output
-folder. The Quartus build runs under <output>/build, and its console output is written to <output>/jtcore.log. Parallel
-runs invoke jtcore with --nocopy; as jobs finish, jtutil seed copies the best
-RBF seen so far into the normal release/<target>/ folder. The default output
-base is:
-    $JTROOT/cores/<core-name>/seed
+The remaining arguments are passed to jtcore. Each jtcore run gets a distinct
+--seed and --output folder. The Quartus build runs under <output>/build, and
+its console output is written to <output>/jtcore.log. Runs invoke jtcore with
+--nocopy and -u JTFRAME_NOSTA; as jobs finish, jtutil seed copies the best RBF
+seen so far into the normal release/<target>/ folder. The default output base is:
+	    $JTROOT/cores/<core-name>/seed/<target>
 
 Create a jtseed.last file in the current folder to stop after the current batch.`),
 	Run:  run_seed,
@@ -82,6 +90,7 @@ Create a jtseed.last file in the current folder to stop after the current batch.
 }
 
 func init() {
+	seedCmd.Flags().IntVar(&seed_max_trials, "max-trials", 4, "Stop after n seed builds")
 	seedCmd.Flags().IntVar(&seed_parallel, "parallel", 1, "Run up to n jtcore seed builds at the same time")
 	seedCmd.Flags().BoolVar(&seed_stop, "stop", true, "Stop when a build is STA clean")
 	seedCmd.Flags().BoolVar(&seed_zero, "zero", true, "Start with seed zero")
@@ -90,13 +99,13 @@ func init() {
 }
 
 func run_seed(cmd *cobra.Command, args []string) {
-	cfg, e := seed_config_from_flags(cmd.Flags(), args)
+	cfg, e := new_config(cmd.Flags(), args)
 	must(e)
 	e = cfg.run()
 	must(e)
 }
 
-func seed_config_from_flags(flags *pflag.FlagSet, args []string) (*seed_config, error) {
+func new_config(flags *pflag.FlagSet, args []string) (*seed_config, error) {
 	parallel, e := flags.GetInt("parallel")
 	if e != nil {
 		return nil, e
@@ -104,104 +113,145 @@ func seed_config_from_flags(flags *pflag.FlagSet, args []string) (*seed_config, 
 	if parallel <= 0 {
 		return nil, fmt.Errorf("Error: use a positive integer after --parallel")
 	}
+	max_trials, e := flags.GetInt("max-trials")
+	if e != nil {
+		return nil, e
+	}
+	if max_trials <= 0 {
+		return nil, fmt.Errorf("Error: use a positive integer after --max-trials")
+	}
 	cfg := &seed_config{
-		max_reps:   100,
+		max_trials: max_trials,
 		parallel:   parallel,
 		used_seeds: make(map[int]bool),
 		random:     rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
-	if len(args) > 0 && is_seed_number(args[0]) && !is_194x(args[0]) {
-		var e error
-		cfg.max_reps, e = strconv.Atoi(args[0])
-		if e != nil {
-			return nil, e
-		}
-		args = args[1:]
-	} else {
-		fmt.Println("Call jtutil seed with a number as the first argument to limit the iterations")
+	e = validate_core_name(args)
+	if e != nil {
+		return nil, e
 	}
-	for _, each := range args {
-		switch each {
-		case "-s", "--skip":
-			return nil, fmt.Errorf("Error: cannot invoke jtutil seed with the -s (skip) option")
-		default:
-			cfg.jtcore_args = append(cfg.jtcore_args, each)
-		}
-	}
+	cfg.jtcore_args = append(cfg.jtcore_args, args...)
 	return cfg, nil
+}
+
+func validate_core_name(args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("Error: specify a core name")
+	}
+	root, e := get_jtroot()
+	if e != nil {
+		return e
+	}
+	info, e := os.Stat(filepath.Join(root, "cores", args[0]))
+	if e != nil || !info.IsDir() {
+		return fmt.Errorf("Error: %s is not a valid core folder under cores/", args[0])
+	}
+	return nil
 }
 
 func (cfg *seed_config) run() error {
 	fmt.Println("Create a jtseed.last file at this folder to stop at the next compilation")
 	os.Remove("jtseed.last")
-	if cfg.parallel == 1 {
-		return cfg.run_serial()
+	e := cfg.prepare()
+	if e != nil {
+		return e
 	}
-	return cfg.run_parallel()
+	return cfg.run_trials()
 }
 
-func (cfg *seed_config) run_serial() error {
-	seed := cfg.next_seed()
-	for cfg.max_reps > 0 {
-		pass, e := run_jtcore(cfg.jtcore_args, seed, "")
-		if e != nil {
-			return e
-		}
-		if pass && seed_stop {
-			return nil
-		}
-		if stop_requested() {
-			return nil
-		}
-		seed = cfg.next_seed()
-		cfg.max_reps--
+func (cfg *seed_config) prepare() error {
+	info, e := cfg.release_info()
+	if e != nil {
+		return e
 	}
-	return fmt.Errorf("Maximum number of seed trial reached")
+	cfg.release = info
+	cfg.nosta = cfg.core_has_nosta()
+	cfg.append_nosta_undef()
+	return nil
 }
 
-func (cfg *seed_config) run_parallel() error {
-	output_base, e := cfg.seed_output_base()
+func (cfg *seed_config) core() string {
+	if len(cfg.jtcore_args) == 0 {
+		return ""
+	}
+	return cfg.jtcore_args[0]
+}
+
+func (cfg *seed_config) run_trials() error {
+	output_base, e := cfg.output_base()
 	if e != nil {
 		return e
 	}
 	pass := false
-	for cfg.max_reps > 0 {
+	for cfg.max_trials > 0 {
 		batch := cfg.parallel
-		if cfg.max_reps < batch {
-			batch = cfg.max_reps
+		if cfg.max_trials < batch {
+			batch = cfg.max_trials
 		}
-		jobs := make([]seed_job, 0, batch)
-		for k := 0; k < batch; k++ {
-			seed := cfg.next_seed()
-			output := filepath.Join(output_base, strconv.Itoa(seed))
-			job, e := start_jtcore_logged(cfg.jtcore_args, seed, output)
-			if e != nil {
-				fmt.Printf("Seed %d failed\n", seed)
-				fmt.Println(e)
-			} else {
-				jobs = append(jobs, job)
-			}
-			cfg.max_reps--
+		jobs := cfg.start_batch(output_base, batch)
+		batch_pass, e := cfg.wait_batch(jobs, &pass)
+		if e != nil {
+			return e
 		}
-		for _, job := range jobs {
-			job.pass = job.wait()
-			slack := job.worst_slack()
-			copy_msg := cfg.copy_if_best(job, slack)
-			if job.pass {
-				fmt.Printf("Seed %d passed, worst slack %s, %s\n", job.seed, slack, copy_msg)
-				pass = true
-			} else {
-				fmt.Printf("Seed %d failed, worst slack %s, %s\n", job.seed, slack, copy_msg)
-			}
-		}
-		if pass {
+		if batch_pass && seed_stop {
 			return nil
 		}
 		if stop_requested() {
 			return nil
 		}
 	}
+	if cfg.nosta {
+		fmt.Println("PASS")
+		return nil
+	}
 	return fmt.Errorf("Maximum number of seed trial reached")
+}
+
+func (cfg *seed_config) start_batch(output_base string, batch int) []seed_job {
+	jobs := make([]seed_job, 0, batch)
+	for k := 0; k < batch; k++ {
+		seed := cfg.next_seed()
+		output := filepath.Join(output_base, strconv.Itoa(seed))
+		job, e := start_jtcore_logged(cfg.jtcore_args, seed, output)
+		if e != nil {
+			fmt.Printf("Seed %d failed\n", seed)
+			fmt.Println(e)
+		} else {
+			jobs = append(jobs, job)
+		}
+		cfg.max_trials--
+	}
+	return jobs
+}
+
+func (cfg *seed_config) wait_batch(jobs []seed_job, pass *bool) (bool, error) {
+	batch_pass := false
+	for _, job := range jobs {
+		job.pass = job.wait()
+		report := job.log_report()
+		if report.error_msg != "" {
+			fmt.Printf("Seed %d error: %s\n", job.seed, report.error_msg)
+			return false, fmt.Errorf("jtcore error in %s: %s", job.logname, report.error_msg)
+		}
+		if !job.pass && !report.done {
+			msg := report.last_line
+			if msg == "" {
+				msg = "jtcore exited without PASS/FAIL"
+			}
+			fmt.Printf("Seed %d error: %s\n", job.seed, msg)
+			return false, fmt.Errorf("jtcore stopped before PASS/FAIL in %s: %s", job.logname, msg)
+		}
+		slack := job.worst_slack()
+		copy_msg := cfg.copy_if_best(job, slack)
+		if job.pass {
+			fmt.Printf("Seed %d passed, worst slack %s%s\n", job.seed, slack, copy_msg)
+			*pass = true
+			batch_pass = true
+		} else {
+			fmt.Printf("Seed %d failed, worst slack %s%s\n", job.seed, slack, copy_msg)
+		}
+	}
+	return batch_pass || *pass, nil
 }
 
 func (cfg *seed_config) copy_if_best(job seed_job, slack string) string {
@@ -209,16 +259,12 @@ func (cfg *seed_config) copy_if_best(job seed_job, slack string) string {
 	if !ok || (cfg.best_valid && value <= cfg.best_slack) {
 		return ""
 	}
-	info, e := seed_release_info(cfg.jtcore_args)
-	if e != nil {
-		return fmt.Sprintf(", release copy skipped: %v", e)
-	}
-	src := info.source_rbf(job.builddir)
+	src := cfg.release.source_rbf(job.builddir)
 	if _, e := os.Stat(src); e != nil {
 		return fmt.Sprintf(", release copy skipped: %v", e)
 	}
-	dst := info.release_rbf()
-	e = copy_file(src, dst)
+	dst := cfg.release.release_rbf()
+	e := copy_file(src, dst)
 	if e != nil {
 		return fmt.Sprintf(", release copy failed: %v", e)
 	}
@@ -227,55 +273,78 @@ func (cfg *seed_config) copy_if_best(job seed_job, slack string) string {
 	return fmt.Sprintf(", RBF copied to release")
 }
 
+func (cfg *seed_config) core_has_nosta() bool {
+	macros.MakeMacros(cfg.release.core, cfg.release.target, cfg.convert_args_to_macros()...)
+	return macros.IsSet("JTFRAME_NOSTA")
+}
+
+func (cfg *seed_config) convert_args_to_macros() []string {
+	defs := make([]string, 0, 4)
+	for k := 0; k < len(cfg.jtcore_args); k++ {
+		each := cfg.jtcore_args[k]
+		switch each {
+		case "--nodbg":
+			defs = append(defs, "JTFRAME_RELEASE=1")
+		case "--def", "-d":
+			k++
+			if k < len(cfg.jtcore_args) {
+				defs = append(defs, strings.Split(cfg.jtcore_args[k], ",")...)
+			}
+		default:
+			if strings.HasPrefix(each, "--def=") {
+				defs = append(defs, strings.Split(strings.TrimPrefix(each, "--def="), ",")...)
+			}
+		}
+	}
+	return defs
+}
+
+func (cfg *seed_config) append_nosta_undef() {
+	cfg.jtcore_args = append(cfg.jtcore_args, "-u", "JTFRAME_NOSTA")
+}
+
 func parse_slack_value(slack string) (float64, bool) {
 	value, e := strconv.ParseFloat(slack, 64)
 	return value, e == nil
 }
 
-func seed_release_info(jtcore_args []string) (seed_release, error) {
-	info := seed_release{target: default_seed_target()}
-	for k := 0; k < len(jtcore_args); k++ {
-		each := jtcore_args[k]
+func (cfg *seed_config) release_info() (seed_release, error) {
+	info := seed_release{core: cfg.core(), target: default_target()}
+	for k := 0; k < len(cfg.jtcore_args); k++ {
+		each := cfg.jtcore_args[k]
 		switch each {
 		case "--target", "-t":
 			k++
-			if k >= len(jtcore_args) {
+			if k >= len(cfg.jtcore_args) {
 				return info, fmt.Errorf("missing target after %s", each)
 			}
-			info.target = jtcore_args[k]
+			info.target = cfg.jtcore_args[k]
 		case "--credits", "--quicker", "-qq", "-mr", "-mrq":
 			info.target = "mister"
 		default:
 			if strings.HasPrefix(each, "--target=") {
 				info.target = strings.TrimPrefix(each, "--target=")
-			} else if strings.HasPrefix(each, "-") && seed_target_exists(each[1:]) {
-				info.target = each[1:]
-			} else if info.core == "" && !strings.HasPrefix(each, "-") {
-				info.core = each
+			} else if target, ok := info.target_from_arg(each); ok {
+				info.target = target
 			}
 		}
 	}
 	if info.core == "" {
 		return info, fmt.Errorf("cannot determine core name")
 	}
-	root, e := seed_root()
-	if e != nil {
-		return info, e
-	}
-	info.root = root
 	info.core = strings.ToLower(info.core)
 	return info, nil
 }
 
-func default_seed_target() string {
+func default_target() string {
 	if target := os.Getenv("TARGET"); target != "" {
 		return target
 	}
 	return "mist"
 }
 
-func seed_target_exists(target string) bool {
-	root, e := seed_root()
+func (info seed_release) target_exists(target string) bool {
+	root, e := get_jtroot()
 	if e != nil {
 		return false
 	}
@@ -283,17 +352,28 @@ func seed_target_exists(target string) bool {
 	return e == nil
 }
 
-func seed_root() (string, error) {
+func (info seed_release) target_from_arg(arg string) (string, bool) {
+	if !strings.HasPrefix(arg, "-") || strings.HasPrefix(arg, "--") {
+		return "", false
+	}
+	target := strings.TrimPrefix(arg, "-")
+	if !info.target_exists(target) {
+		return "", false
+	}
+	return target, true
+}
+
+func get_jtroot() (string, error) {
 	if root := os.Getenv("JTROOT"); root != "" {
 		return root, nil
 	}
-	return os.Getwd()
+	return "", fmt.Errorf("JTROOT must be defined")
 }
 
 func (info seed_release) source_rbf(output string) string {
 	base := output
 	name := "jt" + info.core + ".rbf"
-	if is_mister_seed_target(info.target) || info.target == "neptuno" {
+	if info.is_mister_target() || info.target == "neptuno" {
 		base = filepath.Join(base, "output_files")
 	}
 	if info.target == "pocket" {
@@ -303,14 +383,18 @@ func (info seed_release) source_rbf(output string) string {
 }
 
 func (info seed_release) release_rbf() string {
-	if info.target == "pocket" {
-		return filepath.Join(info.root, "release", "pocket", "raw", "Cores", "jotego."+info.core, "jt"+info.core+".rbf_r")
+	root, e := get_jtroot()
+	if e != nil {
+		return ""
 	}
-	return filepath.Join(info.root, "release", info.target, "jt"+info.core+".rbf")
+	if info.target == "pocket" {
+		return filepath.Join(root, "release", "pocket", "raw", "Cores", "jotego."+info.core, "jt"+info.core+".rbf_r")
+	}
+	return filepath.Join(root, "release", info.target, "jt"+info.core+".rbf")
 }
 
-func is_mister_seed_target(target string) bool {
-	switch target {
+func (info seed_release) is_mister_target() bool {
+	switch info.target {
 	case "mister", "sockit", "de1soc", "de10std":
 		return true
 	}
@@ -339,12 +423,6 @@ func copy_file(src, dst string) error {
 	return close_e
 }
 
-type seed_release struct {
-	root   string
-	core   string
-	target string
-}
-
 func (cfg *seed_config) next_seed() int {
 	seed := 0
 	if cfg.seed_count != 0 || !seed_zero {
@@ -356,31 +434,6 @@ func (cfg *seed_config) next_seed() int {
 	cfg.used_seeds[seed] = true
 	cfg.seed_count++
 	return seed
-}
-
-func run_jtcore(jtcore_args []string, seed int, output string) (bool, error) {
-	job, e := start_jtcore(jtcore_args, seed, output)
-	if e != nil {
-		return false, e
-	}
-	return job.wait(), nil
-}
-
-func start_jtcore(jtcore_args []string, seed int, output string) (seed_job, error) {
-	args := append([]string{}, jtcore_args...)
-	args = append(args, "--seed", strconv.Itoa(seed))
-	if output != "" {
-		args = append(args, "--output", output)
-	}
-	cmd := exec.Command("jtcore", args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	e := cmd.Start()
-	if e != nil {
-		return seed_job{}, e
-	}
-	return seed_job{seed: seed, cmd: cmd}, nil
 }
 
 func start_jtcore_logged(jtcore_args []string, seed int, output string) (seed_job, error) {
@@ -439,6 +492,35 @@ func (job seed_job) worst_slack() string {
 		return slack
 	}
 	return "n/a"
+}
+
+type jtcore_log_report struct {
+	error_msg string
+	done      bool
+	last_line string
+}
+
+func (job seed_job) log_report() jtcore_log_report {
+	report := jtcore_log_report{}
+	f, e := os.Open(job.logname)
+	if e != nil {
+		return report
+	}
+	defer f.Close()
+	scan := bufio.NewScanner(f)
+	for scan.Scan() {
+		line := scan.Text()
+		if strings.TrimSpace(line) != "" {
+			report.last_line = strings.TrimSpace(line)
+		}
+		if msg, found := parse_jtcore_error(line); found && report.error_msg == "" {
+			report.error_msg = msg
+		}
+		if parse_jtcore_done(line) {
+			report.done = true
+		}
+	}
+	return report
 }
 
 func worst_sta_slack(output string) string {
@@ -508,6 +590,21 @@ func parse_worst_slack(line string) (string, bool) {
 	return match[1], true
 }
 
+func parse_jtcore_error(line string) (string, bool) {
+	if !strings.Contains(line, "ERROR") {
+		return "", false
+	}
+	return strings.TrimSpace(line), true
+}
+
+func parse_jtcore_done(line string) bool {
+	switch strings.TrimSpace(line) {
+	case "PASS", "FAIL":
+		return true
+	}
+	return false
+}
+
 var sta_slack_re = regexp.MustCompile(`(?i)^\s*Slack\s*:\s*([-+]?[0-9]+(?:\.[0-9]+)?)`)
 var worst_slack_re = regexp.MustCompile(`(?i)worst-case.*slack[^-+0-9]*([-+]?[0-9]+(?:\.[0-9]+)?)`)
 
@@ -520,27 +617,18 @@ func stop_requested() bool {
 	return true
 }
 
-func (cfg *seed_config) seed_output_base() (string, error) {
-	info, e := seed_release_info(cfg.jtcore_args)
+func (cfg *seed_config) output_base() (string, error) {
+	info := cfg.release
+	if info.core == "" {
+		var e error
+		info, e = cfg.release_info()
+		if e != nil {
+			return "", e
+		}
+	}
+	root, e := get_jtroot()
 	if e != nil {
 		return "", e
 	}
-	return filepath.Join(info.root, "cores", info.core, "seed"), nil
+	return filepath.Join(root, "cores", info.core, "seed", info.target), nil
 }
-
-func is_seed_number(s string) bool {
-	if s == "" {
-		return false
-	}
-	for _, r := range s {
-		if r < '0' || r > '9' {
-			return false
-		}
-	}
-	return true
-}
-
-func is_194x(s string) bool {
-	return len(s) == 4 && s[0] == '1' && s[1] == '9' && s[2] == '4'
-}
-

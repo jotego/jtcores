@@ -3,21 +3,24 @@ package cmd
 import (
 	"math/rand"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/spf13/pflag"
 )
 
-func Test_seed_config_from_flags(t *testing.T) {
-	flags := new_seed_test_flags(t, "--parallel", "2")
-	cfg, e := seed_config_from_flags(flags, []string{"7", "gng", "--target", "mist"})
+func Test_new_config(t *testing.T) {
+	setup_seed_core_folder(t, "gng")
+	flags := new_seed_test_flags(t, "--parallel", "2", "--max-trials", "7")
+	cfg, e := new_config(flags, []string{"gng", "--target", "mist"})
 	if e != nil {
 		t.Fatal(e)
 	}
-	if cfg.max_reps != 7 || cfg.parallel != 2 {
+	if cfg.max_trials != 7 || cfg.parallel != 2 {
 		t.Fatalf("unexpected seed config: %#v", cfg)
 	}
 	expected := []string{"gng", "--target", "mist"}
@@ -26,13 +29,14 @@ func Test_seed_config_from_flags(t *testing.T) {
 	}
 }
 
-func Test_seed_config_from_flags_keeps_194x_as_core(t *testing.T) {
+func Test_new_config_keeps_194x_as_core(t *testing.T) {
+	setup_seed_core_folder(t, "1942")
 	flags := new_seed_test_flags(t)
-	cfg, e := seed_config_from_flags(flags, []string{"1942", "--target", "mist"})
+	cfg, e := new_config(flags, []string{"1942", "--target", "mist"})
 	if e != nil {
 		t.Fatal(e)
 	}
-	if cfg.max_reps != 100 {
+	if cfg.max_trials != 100 {
 		t.Fatalf("194x core name should not be parsed as max reps")
 	}
 	expected := []string{"1942", "--target", "mist"}
@@ -41,19 +45,41 @@ func Test_seed_config_from_flags_keeps_194x_as_core(t *testing.T) {
 	}
 }
 
-func Test_seed_config_from_flags_rejects_skip(t *testing.T) {
+func Test_new_config_rejects_positional_trials(t *testing.T) {
+	setup_seed_core_folder(t, "gng")
 	flags := new_seed_test_flags(t)
-	_, e := seed_config_from_flags(flags, []string{"gng", "-s"})
+	_, e := new_config(flags, []string{"7", "gng"})
 	if e == nil {
-		t.Fatalf("expected skip option rejection")
+		t.Fatalf("expected positional trial count rejection")
 	}
 }
 
-func Test_seed_config_from_flags_rejects_bad_parallel(t *testing.T) {
+func Test_new_config_passes_skip_to_jtcore(t *testing.T) {
+	setup_seed_core_folder(t, "gng")
+	flags := new_seed_test_flags(t)
+	cfg, e := new_config(flags, []string{"gng", "-s"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	expected := []string{"gng", "-s"}
+	if !reflect.DeepEqual(cfg.jtcore_args, expected) {
+		t.Fatalf("unexpected jtcore args: %#v", cfg.jtcore_args)
+	}
+}
+
+func Test_new_config_rejects_bad_parallel(t *testing.T) {
 	flags := new_seed_test_flags(t, "--parallel", "0")
-	_, e := seed_config_from_flags(flags, []string{"gng"})
+	_, e := new_config(flags, []string{"gng"})
 	if e == nil {
 		t.Fatalf("expected parallel option rejection")
+	}
+}
+
+func Test_new_config_rejects_bad_max_trials(t *testing.T) {
+	flags := new_seed_test_flags(t, "--max-trials", "0")
+	_, e := new_config(flags, []string{"gng"})
+	if e == nil {
+		t.Fatalf("expected max-trials option rejection")
 	}
 }
 
@@ -61,6 +87,7 @@ func new_seed_test_flags(t *testing.T, args ...string) *pflag.FlagSet {
 	t.Helper()
 	flags := pflag.NewFlagSet("seed", pflag.ContinueOnError)
 	flags.Int("parallel", 1, "")
+	flags.Int("max-trials", 100, "")
 	e := flags.Parse(args)
 	if e != nil {
 		t.Fatal(e)
@@ -68,19 +95,23 @@ func new_seed_test_flags(t *testing.T, args ...string) *pflag.FlagSet {
 	return flags
 }
 
-func Test_seed_output_base_uses_core_seed_folder(t *testing.T) {
+func Test_seed_output_base_uses_target_seed_folder(t *testing.T) {
 	root := t.TempDir()
 	t.Setenv("JTROOT", root)
+	e := os.MkdirAll(filepath.Join(root, "cores", "cps3"), 0775)
+	if e != nil {
+		t.Fatal(e)
+	}
 	flags := new_seed_test_flags(t, "--parallel", "2")
-	cfg, e := seed_config_from_flags(flags, []string{"cps3", "-mr", "--nodbg"})
+	cfg, e := new_config(flags, []string{"cps3", "-mr", "--nodbg"})
 	if e != nil {
 		t.Fatal(e)
 	}
-	base, e := cfg.seed_output_base()
+	base, e := cfg.output_base()
 	if e != nil {
 		t.Fatal(e)
 	}
-	if base != filepath.Join(root, "cores", "cps3", "seed") {
+	if base != filepath.Join(root, "cores", "cps3", "seed", "mister") {
 		t.Fatalf("unexpected seed output base: %s", base)
 	}
 }
@@ -115,6 +146,23 @@ func Test_parse_worst_slack(t *testing.T) {
 	}
 }
 
+func Test_parse_jtcore_error(t *testing.T) {
+	msg, found := parse_jtcore_error("ERROR: Unknown option --sidi128")
+	if !found || msg != "ERROR: Unknown option --sidi128" {
+		t.Fatalf("unexpected error parse: %q %v", msg, found)
+	}
+	_, found = parse_jtcore_error("Warning: no errors found")
+	if found {
+		t.Fatalf("lowercase error text should not match jtcore ERROR")
+	}
+	if !parse_jtcore_done("PASS") || !parse_jtcore_done(" FAIL ") {
+		t.Fatalf("expected PASS/FAIL completion parsing")
+	}
+	if parse_jtcore_done("ERROR: no PASS") {
+		t.Fatalf("only standalone PASS/FAIL should complete a jtcore log")
+	}
+}
+
 func Test_start_jtcore_logged_writes_log(t *testing.T) {
 	tmp := t.TempDir()
 	fake_jtcore := filepath.Join(tmp, "jtcore")
@@ -125,7 +173,9 @@ func Test_start_jtcore_logged_writes_log(t *testing.T) {
 	}
 	t.Setenv("PATH", tmp+":"+os.Getenv("PATH"))
 	output := filepath.Join(tmp, "seed", "9")
-	job, e := start_jtcore_logged([]string{"gng", "--target", "mist"}, 9, output)
+	cfg := &seed_config{jtcore_args: []string{"gng", "--target", "mist"}}
+	cfg.append_nosta_undef()
+	job, e := start_jtcore_logged(cfg.jtcore_args, 9, output)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -139,7 +189,7 @@ func Test_start_jtcore_logged_writes_log(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	expected := "jtcore args: gng --target mist --nocopy --seed 9 --output " + filepath.Join(output, "build")
+	expected := "jtcore args: gng --target mist -u JTFRAME_NOSTA --nocopy --seed 9 --output " + filepath.Join(output, "build")
 	if !strings.Contains(string(log), expected) {
 		t.Fatalf("log does not contain expected args %q:\n%s", expected, log)
 	}
@@ -175,7 +225,8 @@ func Test_seed_release_info_paths(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	info, e := seed_release_info([]string{"gng", "-sidi128"})
+	cfg := &seed_config{jtcore_args: []string{"gng", "-sidi128"}}
+	info, e := cfg.release_info()
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -188,7 +239,17 @@ func Test_seed_release_info_paths(t *testing.T) {
 	if got := info.release_rbf(); got != filepath.Join(root, "release", "sidi128", "jtgng.rbf") {
 		t.Fatalf("unexpected release path: %s", got)
 	}
-	info, e = seed_release_info([]string{"gng", "--target", "pocket"})
+	t.Setenv("TARGET", "mist")
+	cfg = &seed_config{jtcore_args: []string{"gng", "--sidi128"}}
+	info, e = cfg.release_info()
+	if e != nil {
+		t.Fatal(e)
+	}
+	if info.target != "mist" || info.core != "gng" {
+		t.Fatalf("double-dash target shortcut should pass through, got: %#v", info)
+	}
+	cfg = &seed_config{jtcore_args: []string{"gng", "--target", "pocket"}}
+	info, e = cfg.release_info()
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -197,6 +258,173 @@ func Test_seed_release_info_paths(t *testing.T) {
 	}
 	if got := info.release_rbf(); got != filepath.Join(root, "release", "pocket", "raw", "Cores", "jotego.gng", "jtgng.rbf_r") {
 		t.Fatalf("unexpected pocket release path: %s", got)
+	}
+}
+
+func Test_seed_core_has_nosta_uses_macro_loader(t *testing.T) {
+	setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\nJTFRAME_NOSTA\n")
+	cfg := &seed_config{
+		release:     seed_release{core: "gng", target: "mist"},
+		jtcore_args: []string{"gng", "--target", "mist"},
+	}
+	if !cfg.core_has_nosta() {
+		t.Fatalf("expected JTFRAME_NOSTA to be detected")
+	}
+	setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\n")
+	cfg = &seed_config{
+		release:     seed_release{core: "gng", target: "mist"},
+		jtcore_args: []string{"gng", "--target", "mist"},
+	}
+	if cfg.core_has_nosta() {
+		t.Fatalf("unexpected JTFRAME_NOSTA detection")
+	}
+}
+
+func Test_prepare_appends_nosta_undef(t *testing.T) {
+	setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\nJTFRAME_NOSTA\n")
+	cfg := &seed_config{jtcore_args: []string{"gng", "--target", "mist"}}
+	e := cfg.prepare()
+	if e != nil {
+		t.Fatal(e)
+	}
+	if !cfg.nosta {
+		t.Fatalf("expected NOSTA mode")
+	}
+	if cfg.release.target != "mist" {
+		t.Fatalf("unexpected release info: %#v", cfg.release)
+	}
+	expected := []string{"gng", "--target", "mist", "-u", "JTFRAME_NOSTA"}
+	if !reflect.DeepEqual(cfg.jtcore_args, expected) {
+		t.Fatalf("unexpected jtcore args: %#v", cfg.jtcore_args)
+	}
+}
+
+func Test_prepare_keeps_long_target_shortcut(t *testing.T) {
+	root := setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\n")
+	e := os.MkdirAll(filepath.Join(root, "modules", "jtframe", "target", "sidi128"), 0775)
+	if e != nil {
+		t.Fatal(e)
+	}
+	cfg := &seed_config{jtcore_args: []string{"gng", "--sidi128", "--nodbg"}}
+	e = cfg.prepare()
+	if e != nil {
+		t.Fatal(e)
+	}
+	expected := []string{"gng", "--sidi128", "--nodbg", "-u", "JTFRAME_NOSTA"}
+	if !reflect.DeepEqual(cfg.jtcore_args, expected) {
+		t.Fatalf("unexpected jtcore args: %#v", cfg.jtcore_args)
+	}
+}
+
+func Test_run_parallel_one_uses_seed_output(t *testing.T) {
+	root := setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\n")
+	install_fake_jtcore(t, 0)
+	flags := new_seed_test_flags(t, "--max-trials", "1")
+	cfg, e := new_config(flags, []string{"gng", "--target", "mist"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	e = cfg.run()
+	if e != nil {
+		t.Fatal(e)
+	}
+	output := filepath.Join(root, "cores", "gng", "seed", "mist", "0")
+	if _, e := os.Stat(filepath.Join(output, "jtcore.log")); e != nil {
+		t.Fatalf("missing jtcore log: %v", e)
+	}
+	dst := filepath.Join(root, "release", "mist", "jtgng.rbf")
+	data, e := os.ReadFile(dst)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if string(data) != "fake-rbf\n" {
+		t.Fatalf("unexpected release data: %q", data)
+	}
+}
+
+func Test_run_nosta_core_uses_all_trials_and_passes(t *testing.T) {
+	root := setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\nJTFRAME_NOSTA\n")
+	install_fake_jtcore(t, 1)
+	flags := new_seed_test_flags(t, "--max-trials", "2")
+	cfg, e := new_config(flags, []string{"gng", "--target", "mist"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	cfg.random = rand.New(rand.NewSource(1))
+	e = cfg.run()
+	if e != nil {
+		t.Fatal(e)
+	}
+	logs, e := filepath.Glob(filepath.Join(root, "cores", "gng", "seed", "mist", "*", "jtcore.log"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	if len(logs) != 2 {
+		t.Fatalf("expected two seed attempts, got %d: %#v", len(logs), logs)
+	}
+}
+
+func Test_run_nosta_core_stops_on_clean_sta(t *testing.T) {
+	root := setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\nJTFRAME_NOSTA\n")
+	install_fake_jtcore_sequence(t, 1, 0, 1)
+	flags := new_seed_test_flags(t, "--max-trials", "3")
+	cfg, e := new_config(flags, []string{"gng", "--target", "mist"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	cfg.random = rand.New(rand.NewSource(1))
+	e = cfg.run()
+	if e != nil {
+		t.Fatal(e)
+	}
+	logs, e := filepath.Glob(filepath.Join(root, "cores", "gng", "seed", "mist", "*", "jtcore.log"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	if len(logs) != 2 {
+		t.Fatalf("expected stop after clean STA, got %d attempts: %#v", len(logs), logs)
+	}
+}
+
+func Test_run_reports_jtcore_error(t *testing.T) {
+	root := setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\n")
+	install_fake_jtcore_error(t, "ERROR: Unknown option --bad")
+	flags := new_seed_test_flags(t, "--max-trials", "2")
+	cfg, e := new_config(flags, []string{"gng", "--target", "mist"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	e = cfg.run()
+	if e == nil || !strings.Contains(e.Error(), "ERROR: Unknown option --bad") {
+		t.Fatalf("expected logged jtcore error, got %v", e)
+	}
+	logs, e := filepath.Glob(filepath.Join(root, "cores", "gng", "seed", "mist", "*", "jtcore.log"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	if len(logs) != 1 {
+		t.Fatalf("expected abort after first jtcore error, got %d attempts: %#v", len(logs), logs)
+	}
+}
+
+func Test_run_reports_jtcore_exit_without_pass_fail(t *testing.T) {
+	root := setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\n")
+	install_fake_jtcore_exit_without_status(t, "missing.v did not match any file")
+	flags := new_seed_test_flags(t, "--max-trials", "2")
+	cfg, e := new_config(flags, []string{"gng", "--target", "mist"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	e = cfg.run()
+	if e == nil || !strings.Contains(e.Error(), "missing.v did not match any file") {
+		t.Fatalf("expected early jtcore exit error, got %v", e)
+	}
+	logs, e := filepath.Glob(filepath.Join(root, "cores", "gng", "seed", "mist", "*", "jtcore.log"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	if len(logs) != 1 {
+		t.Fatalf("expected abort after first early exit, got %d attempts: %#v", len(logs), logs)
 	}
 }
 
@@ -214,7 +442,12 @@ func Test_copy_if_best_updates_release(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	cfg := &seed_config{jtcore_args: []string{"gng", "--target", "mister"}}
+	release_cfg := &seed_config{jtcore_args: []string{"gng", "--target", "mister"}}
+	info, e := release_cfg.release_info()
+	if e != nil {
+		t.Fatal(e)
+	}
+	cfg := &seed_config{jtcore_args: []string{"gng", "--target", "mister"}, release: info}
 	msg := cfg.copy_if_best(seed_job{output: output, builddir: builddir}, "-0.5")
 	if !strings.Contains(msg, "copied") {
 		t.Fatalf("expected copy message, got %q", msg)
@@ -257,4 +490,133 @@ func Test_copy_if_best_updates_release(t *testing.T) {
 	if string(data) != "better" {
 		t.Fatalf("better result was not copied: %q", data)
 	}
+}
+
+func setup_seed_macro_tree(t *testing.T, core, macro_text string) string {
+	t.Helper()
+	root := t.TempDir()
+	core_cfg := filepath.Join(root, "cores", core, "cfg")
+	target_cfg := filepath.Join(root, "modules", "jtframe", "target", "mist")
+	e := os.MkdirAll(core_cfg, 0775)
+	if e != nil {
+		t.Fatal(e)
+	}
+	e = os.MkdirAll(target_cfg, 0775)
+	if e != nil {
+		t.Fatal(e)
+	}
+	e = os.WriteFile(filepath.Join(core_cfg, "macros.def"), []byte(macro_text), 0644)
+	if e != nil {
+		t.Fatal(e)
+	}
+	init_test_git(t, root)
+	t.Setenv("JTROOT", root)
+	t.Setenv("CORES", filepath.Join(root, "cores"))
+	t.Setenv("JTFRAME", filepath.Join(root, "modules", "jtframe"))
+	return root
+}
+
+func setup_seed_core_folder(t *testing.T, core string) string {
+	t.Helper()
+	root := t.TempDir()
+	e := os.MkdirAll(filepath.Join(root, "cores", core), 0775)
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Setenv("JTROOT", root)
+	return root
+}
+
+func init_test_git(t *testing.T, root string) {
+	t.Helper()
+	run_test_git(t, root, "init")
+	run_test_git(t, root, "-c", "user.email=test@example.com", "-c", "user.name=Test", "commit", "--allow-empty", "-m", "init")
+}
+
+func run_test_git(t *testing.T, root string, args ...string) {
+	t.Helper()
+	cmd := exec.Command("git", append([]string{"-C", root}, args...)...)
+	out, e := cmd.CombinedOutput()
+	if e != nil {
+		t.Fatalf("git %s failed: %v\n%s", strings.Join(args, " "), e, out)
+	}
+}
+
+func install_fake_jtcore(t *testing.T, code int) {
+	t.Helper()
+	install_fake_jtcore_sequence(t, code)
+}
+
+func install_fake_jtcore_sequence(t *testing.T, codes ...int) {
+	t.Helper()
+	tmp := t.TempDir()
+	fake_jtcore := filepath.Join(tmp, "jtcore")
+	code_text := make([]string, len(codes))
+	for k, code := range codes {
+		code_text[k] = strconv.Itoa(code)
+	}
+	script := `#!/bin/sh
+out=
+while [ $# -gt 0 ]; do
+    if [ "$1" = "--output" ]; then
+        shift
+        out="$1"
+    fi
+    shift
+done
+count_file="` + filepath.Join(tmp, "count") + `"
+count=0
+if [ -e "$count_file" ]; then
+    count=$(cat "$count_file")
+fi
+set -- ` + strings.Join(code_text, " ") + `
+code=${1:-1}
+idx=0
+for each in "$@"; do
+    if [ "$idx" = "$count" ]; then
+        code=$each
+        break
+    fi
+    idx=$((idx+1))
+done
+echo $((count+1)) > "$count_file"
+mkdir -p "$out"
+echo fake-rbf > "$out/jtgng.rbf"
+echo "Worst-case setup slack is -1.250"
+if [ "$code" = 0 ]; then
+    echo PASS
+else
+    echo FAIL
+fi
+exit $code
+`
+	e := os.WriteFile(fake_jtcore, []byte(script), 0755)
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Setenv("PATH", tmp+":"+os.Getenv("PATH"))
+}
+
+func install_fake_jtcore_error(t *testing.T, line string) {
+	t.Helper()
+	tmp := t.TempDir()
+	fake_jtcore := filepath.Join(tmp, "jtcore")
+	script := "#!/bin/sh\necho " + strconv.Quote(line) + "\nexit 0\n"
+	e := os.WriteFile(fake_jtcore, []byte(script), 0755)
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Setenv("PATH", tmp+":"+os.Getenv("PATH"))
+}
+
+func install_fake_jtcore_exit_without_status(t *testing.T, line string) {
+	t.Helper()
+	tmp := t.TempDir()
+	fake_jtcore := filepath.Join(tmp, "jtcore")
+	script := "#!/bin/sh\necho " + strconv.Quote(line) + "\nexit 1\n"
+	e := os.WriteFile(fake_jtcore, []byte(script), 0755)
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Setenv("PATH", tmp+":"+os.Getenv("PATH"))
 }
