@@ -60,6 +60,8 @@ func Test_check_macros_lf_buffer_ddrload_mister(t *testing.T) {
 	MakeFromMap(map[string]string{
 		"TARGET":             "mister",
 		"JTFRAME_LF_BUFFER":  "1",
+		"JTFRAME_LF_HW":      "9",
+		"JTFRAME_LF_VW":      "8",
 		"JTFRAME_MR_DDRLOAD": "1",
 		"JTFRAME_WIDTH":      "320",
 		"JTFRAME_HEIGHT":     "224",
@@ -73,6 +75,8 @@ func Test_check_macros_lf_buffer_vertical(t *testing.T) {
 	MakeFromMap(map[string]string{
 		"TARGET":            "mister",
 		"JTFRAME_LF_BUFFER": "1",
+		"JTFRAME_LF_HW":     "9",
+		"JTFRAME_LF_VW":     "8",
 		"JTFRAME_VERTICAL":  "1",
 		"JTFRAME_WIDTH":     "320",
 		"JTFRAME_HEIGHT":    "224",

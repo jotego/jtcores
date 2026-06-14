@@ -25,7 +25,8 @@
 module jtframe_lfbuf_bram #(parameter
     DW      =  16,
     VW      =   8,
-    HW      =   9
+    HW      =   9,
+    FW      =   8
 )(
     input               rst,     // hold in reset for >150 us
     input               clk,
@@ -38,6 +39,10 @@ module jtframe_lfbuf_bram #(parameter
     input               vs,
     input               lhbl,
     input               lvbl,
+
+    // zoom step in 1.FW fixed-point
+    input      [FW:0]   h_step,
+    input      [FW:0]   v_step,
 
     // core interface
     input      [HW-1:0] ln_addr,
@@ -57,6 +62,7 @@ module jtframe_lfbuf_bram #(parameter
 wire          frame, fb_clr, fb_done, line, scr_we;
 wire [HW-1:0] fb_addr, rd_addr;
 wire [  15:0] fb_din, fb_dout;
+wire [VW-1:0] vread;
 
 jtframe_lfbuf_bram_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .rst        ( rst       ),
@@ -66,7 +72,7 @@ jtframe_lfbuf_bram_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .lhbl       ( lhbl      ),
     .vs         ( vs        ),
     .ln_done    ( ln_done   ),
-    .vrender    ( vrender   ),
+    .vrender    ( vread     ),
     .ln_v       ( ln_v      ),
     // data written to external memory
     .frame      ( frame     ),
@@ -95,10 +101,16 @@ jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
 
     // video status
     .vrender    ( vrender   ),
+    .vread      ( vread     ),
     .hdump      ( hdump     ),
     .hs         ( hs        ),
+    .lhbl       ( lhbl      ),
     .vs         ( vs        ),   // vertical sync, the buffer is swapped here
     .lvbl       ( lvbl      ),   // vertical blank, active low
+
+    // zoom step
+    .h_step     ( h_step    ),
+    .v_step     ( v_step    ),
 
     // core interface
     .ln_hs      ( ln_hs     ),

@@ -30,6 +30,10 @@ wire [15:0]  sav_din, sav_dout, sav_addr;
 wire         sav_change, sav_wait, sav_done, sav_ack;
 wire [ 1:0]  sav_wr;
 
+`ifdef JTFRAME_LF_ZOOM
+wire [ 8:0]  game_h_step, game_v_step;
+`endif
+
 `ifdef SIMULATION
 assign sim_hb         = ~LHBL;
 assign sim_vb         = ~LVBL;
@@ -124,6 +128,10 @@ u_game(
     .ln_vs        ( ln_vs            ),
     .ln_lvbl      ( ln_lvbl          ),
     .ln_we        ( ln_we            ), `endif
+
+`ifdef JTFRAME_LF_ZOOM
+    .h_step       ( game_h_step      ),
+    .v_step       ( game_v_step      ), `endif
 
     // Bank 0: allows R/W
     .ba0_addr   ( ba0_addr      ),

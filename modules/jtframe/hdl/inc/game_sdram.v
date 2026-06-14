@@ -307,6 +307,10 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .ln_vs       ( ln_vs         ),
     .ln_lvbl     ( ln_lvbl       ),
     .ln_we       ( ln_we         ),
+`ifdef JTFRAME_LF_ZOOM
+    .h_step      ( h_step        ),
+    .v_step      ( v_step        ),
+`endif
 `endif
     .gfx_en      ( gfx_en        )
 );

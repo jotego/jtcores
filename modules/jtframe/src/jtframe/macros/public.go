@@ -150,7 +150,7 @@ func CheckMacros() error {
 		header := Get("JTFRAME_HEADER")
 		return fmt.Errorf("Cannot parse JTFRAME_HEADER=%s\n", header )
 	}
-	if e:=check_integer("JTFRAME_WIDTH","JTFRAME_HEIGHT"); e!=nil {
+	if e:=check_integer("JTFRAME_WIDTH","JTFRAME_HEIGHT","JTFRAME_LF_HW","JTFRAME_LF_VW"); e!=nil {
 		return e
 	}
 	return nil

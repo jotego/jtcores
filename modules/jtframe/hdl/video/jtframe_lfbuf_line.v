@@ -29,7 +29,8 @@
 module jtframe_lfbuf_line #(parameter
     DW      =  16,
     VW      =   8,
-    HW      =   9
+    HW      =   9,
+    FW      =   8
 )(
     input               rst,
     input               clk,
@@ -37,10 +38,16 @@ module jtframe_lfbuf_line #(parameter
     input               pxl_cen,
     // video status
     input      [VW-1:0] vrender,
+    output     [VW-1:0] vread,
     input      [HW-1:0] hdump,
     input               hs,
+    input               lhbl,
     input               vs,     // vertical sync, the buffer is swapped here
     input               lvbl,   // vertical blank, active low
+
+    // zoom step in 1.FW fixed-point
+    input      [FW:0]   h_step,
+    input      [FW:0]   v_step,
 
     // core interface
     output reg          ln_hs, ln_vs, ln_lvbl,
@@ -67,11 +74,14 @@ module jtframe_lfbuf_line #(parameter
     input               scr_we
 );
 
-reg           vsl, lvbl_l, hs_l, vend_good;
+reg           vsl, lvbl_l, hs_l, lhbl_l, vend_good;
 reg  [   5:0] porch;
 reg  [VW-1:0] vstart=0, vend=0;
 wire [  15:0] linein_pxl, scr_pxl;
 wire          info_rdy;
+reg  [FW:0]   dh, dv; // keeps zoom factor constant during rendering
+
+localparam [FW:0] STEP_ONE = { 1'b1, {FW{1'b0}} };
 
 always @(posedge clk) if(pxl_cen) ln_pxl <= scr_pxl[DW-1:0];
 
@@ -87,6 +97,7 @@ end
 // Capture the vstart/vend values
 always @(posedge clk) begin
     hs_l <= hs;
+    lhbl_l <= lhbl;
 end
 
 always @(posedge clk) begin
@@ -157,6 +168,8 @@ always @(posedge clk) begin
         frame    <= 0;
         ln_hs    <= 0;
         ln_v     <= 0;
+        dh       <= STEP_ONE;
+        dv       <= STEP_ONE;
         done     <= 0;
         fbd_l    <= 0;
     `ifdef JTFRAME_LF_FULLV
@@ -172,6 +185,8 @@ always @(posedge clk) begin
             frame <= ~frame;
             ln_v  <= vstart;
             ln_hs <= 1;
+            dh    <= h_step;
+            dv    <= v_step;
             done  <= 0;
             `ifdef JTFRAME_LF_FULLV
                 ln_lvbl <= 0;
@@ -192,7 +207,7 @@ always @(posedge clk) begin
                 end
             end else if(active) begin
                 ln_v <= ln_v + 1'd1;
-                if( ln_v == vend && vend_good )
+                if( ln_v == vend_eff && vend_good )
                     done <= 1;
                 else
                     ln_hs <= 1;
@@ -200,7 +215,7 @@ always @(posedge clk) begin
     `else begin
             ln_v <= ln_v + 1'd1;
             ln_hs <= 1;
-            if( ln_v == vend && vend_good ) done <= 1;
+            if( ln_v == vend_eff && vend_good ) done <= 1;
         end
     `endif
     end
@@ -226,6 +241,63 @@ jtframe_dual_ram #(.DW(16),.AW(HW+1)) u_linein(
 
 assign ln_dout = linein_pxl[DW-1:0];
 
+// Horizontal step accumulator for zoom
+// h_acc accumulates dh per pxl_cen; integer part is the read address
+reg  [HW+FW-1:0] h_acc;
+wire [HW-1:0]    h_acc_rd = h_acc[HW+FW-1:FW];
+wire             hs_rise  = hs && !hs_l;
+wire             hstart   = lhbl && !lhbl_l;
+wire             h_id     = dh == STEP_ONE;
+wire             v_id     = dv == STEP_ONE;
+wire [HW-1:0]    h_rd     = h_id ? hdump : h_acc_rd;
+
+// Vertical step accumulator for zoom
+localparam VWIDTH = VW + 1,
+           VPRODW = VW + FW + 2;
+
+reg  [VW+FW-1:0] v_acc;
+reg  [VW-1:0]    vread_acc;
+wire [VWIDTH-1:0] vlen       = { 1'b0, vend } - { 1'b0, vstart } + 1'd1;
+wire [VPRODW-1:0] vlen_scale = vlen * dv;
+wire [  VW+1:0]   vlen_zoom  = vlen_scale[VPRODW-1:FW];
+wire [VWIDTH-1:0] vmax_len   = { 1'b1, {VW{1'b0}} } - { 1'b0, vstart };
+wire              vlen_over  = vlen_zoom[VW+1] || vlen_zoom[VW:0] > vmax_len;
+wire [VWIDTH-1:0] vlen_eff   = dv > STEP_ONE ? ( vlen_over ? vmax_len : vlen_zoom[VW:0] ) : vlen;
+wire [VWIDTH-1:0] vend_scaled= { 1'b0, vstart } + vlen_eff - 1'd1;
+wire [VW-1:0]     vend_eff   = dv > STEP_ONE ? vend_scaled[VW-1:0] : vend;
+wire [VW+FW-1:0] v_next     = v_acc + { {(VW-1){1'b0}}, dv };
+wire [VW-1:0]    v_acc_int  = v_acc[VW+FW-1:FW];
+
+assign vread = v_id ? vrender : vread_acc;
+
+always @(posedge clk) begin
+    if( rst ) begin
+        h_acc <= 0;
+        v_acc <= 0;
+        vread_acc <= 0;
+    end else begin
+        if( hstart ) begin
+            h_acc <= { hdump, {FW{1'b0}}};
+        end else if( pxl_cen && lhbl ) begin
+            h_acc <= h_acc + { {(HW-1){1'b0}}, dh };
+        end
+
+        if( v_id ) begin
+            v_acc <= {vrender, {FW{1'b0}}};
+            vread_acc <= vrender;
+        end else if( vs && !vsl ) begin
+            v_acc <= { vstart, {FW{1'b0}} } + { {(VW-1){1'b0}}, v_step };
+            vread_acc <= vstart;
+        end else if( lvbl && !lvbl_l ) begin
+            v_acc <= { vrender, {FW{1'b0}} } + { {(VW-1){1'b0}}, dv };
+            vread_acc <= vrender;
+        end else if( hs_rise && lvbl ) begin
+            vread_acc <= v_acc_int;
+            v_acc <= v_next;
+        end
+    end
+end
+
 jtframe_dual_ram #(.DW(16),.AW(HW)) u_lineout(
     // Read from big RAM, write to line buffer
     .clk0   ( clk_ctrl      ),
@@ -236,7 +308,7 @@ jtframe_dual_ram #(.DW(16),.AW(HW)) u_lineout(
     // Read from line buffer to screen
     .clk1   ( clk           ),
     .data1  ( 16'b0         ),
-    .addr1  ( hdump         ),
+    .addr1  ( h_rd          ),
     .we1    ( 1'b0          ),
     .q1     ( scr_pxl       )
 );
