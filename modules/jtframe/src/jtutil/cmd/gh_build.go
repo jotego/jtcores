@@ -23,6 +23,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -38,7 +39,7 @@ var ghBuildCmd = &cobra.Command{
 	Short: "Run a remote GitHub FPGA build and download the artifact",
 	Long: man_blurb("jtutil-gh-build", `Triggers the compile-one GitHub Actions workflow for a core and
 comma-separated target list, waits for the run to finish, and downloads the
-matching release artifact into $JTROOT.`),
+matching release artifact into $JTROOT/release.`),
 	Run:  run_gh_build,
 	Args: cobra.ExactArgs(1),
 }
@@ -61,7 +62,7 @@ type gh_build_config struct {
 	core     string
 	targets  []string
 	artifact string
-	jtroot   string
+	release  string
 	run_id   string
 }
 
@@ -79,7 +80,7 @@ func new_gh_build_config(core string, targets []string) (*gh_build_config, error
 		core:     core,
 		targets:  clean_targets,
 		artifact: "release-" + target_slug + "-" + core,
-		jtroot:   jtroot,
+		release:  filepath.Join(jtroot, "release"),
 	}, nil
 }
 
@@ -99,8 +100,12 @@ func (cfg *gh_build_config) run() error {
 	if e != nil {
 		return e
 	}
-	fmt.Printf("Downloading %s into %s\n", cfg.artifact, cfg.jtroot)
-	e = cfg.gh_run("run", "download", cfg.run_id, "-n", cfg.artifact, "-D", cfg.jtroot)
+	e = os.MkdirAll(cfg.release, 0775)
+	if e != nil {
+		return e
+	}
+	fmt.Printf("Downloading %s into %s\n", cfg.artifact, cfg.release)
+	e = cfg.gh_run("run", "download", cfg.run_id, "-n", cfg.artifact, "-D", cfg.release)
 	if e != nil {
 		return e
 	}

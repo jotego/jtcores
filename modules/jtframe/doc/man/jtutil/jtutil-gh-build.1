@@ -5,7 +5,7 @@ jtutil-gh-build \- Run a remote GitHub FPGA build and download the artifact
 .SH DESCRIPTION
 Triggers the compile-one GitHub Actions workflow for a core and
 comma-separated target list, waits for the run to finish, and downloads the
-matching release artifact into $JTROOT.
+matching release artifact into $JTROOT/release.
 .PP
 The GitHub CLI
 .BR gh (1)
@@ -36,8 +36,9 @@ After the remote run finishes successfully,
 .B jtutil gh-build
 downloads the matching release artifact, such as
 .BR release-mister-pocket-cps3 ,
-and extracts it into
-.BR $JTROOT .
+creates
+.B $JTROOT/release
+if needed, and extracts it there.
 .SS "Usage:"
 .IP
 jtutil gh-build <core> [flags]

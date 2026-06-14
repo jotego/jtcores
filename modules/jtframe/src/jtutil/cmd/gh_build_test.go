@@ -42,8 +42,8 @@ func Test_new_gh_build_config(t *testing.T) {
 	if cfg.artifact != "release-mister-pocket-cps3" {
 		t.Fatalf("unexpected artifact name: %s", cfg.artifact)
 	}
-	if cfg.jtroot != root {
-		t.Fatalf("unexpected JTROOT: %s", cfg.jtroot)
+	if cfg.release != filepath.Join(root, "release") {
+		t.Fatalf("unexpected release folder: %s", cfg.release)
 	}
 }
 
@@ -102,11 +102,14 @@ func Test_gh_build_run_invokes_gh_sequence(t *testing.T) {
 	for _, expected := range []string{
 		"workflow run compile-one.yaml -f core=cps3 -f target=mister,pocket",
 		"run watch 42 --compact --exit-status",
-		"run download 42 -n release-mister-pocket-cps3 -D " + root,
+		"run download 42 -n release-mister-pocket-cps3 -D " + filepath.Join(root, "release"),
 	} {
 		if !strings.Contains(got, expected) {
 			t.Fatalf("missing gh call %q in:\n%s", expected, got)
 		}
+	}
+	if _, e := os.Stat(filepath.Join(root, "release")); e != nil {
+		t.Fatalf("release folder was not created: %v", e)
 	}
 }
 
