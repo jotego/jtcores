@@ -131,6 +131,7 @@ parse_args() {
     push=false
     MAME_HTTP_BASE_URL=${MAME_HTTP_BASE_URL:-}
     MAME_HTTP_SECRET=${MAME_HTTP_SECRET:-}
+    MAME_HTTP_USER=${MAME_HTTP_USER:-regression}
 
     if [[ $1 == --help || $1 == -h ]]; then
         print_help
@@ -211,7 +212,9 @@ Options:
 
 Environment:
   MAME_HTTP_BASE_URL        If set, use the HTTP endpoints for downloads and uploads.
-  MAME_HTTP_SECRET          Shared secret used to sign HTTP ROM download links.
+  MAME_HTTP_SECRET          Shared secret used to sign HTTP download links
+                            and as the password for HTTP Basic Auth.
+  MAME_HTTP_USER            Username for HTTP Basic Auth (default: regression).
 
 By default, simulations are extracted without validation or upload.
 EOF
@@ -447,6 +450,7 @@ http_fetch_signed_file() {
 
     local http_code
     http_code=$(curl -sS --retry 3 --retry-delay 2 \
+        -u "${MAME_HTTP_USER}:${MAME_HTTP_SECRET}" \
         --get \
         --data-urlencode "f=$remote_path" \
         --data-urlencode "exp=$expiry" \
@@ -762,6 +766,7 @@ upload_results() {
         local sig
         sig=$(http_signature "$remote_path" "$expiry")
         if ! curl -fsS --retry 3 --retry-delay 2 \
+            -u "${MAME_HTTP_USER}:${MAME_HTTP_SECRET}" \
             -X POST \
             -F "path=$remote_path" \
             -F "exp=$expiry" \
