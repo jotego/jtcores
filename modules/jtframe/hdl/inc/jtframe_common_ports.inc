@@ -62,16 +62,20 @@
     // or for full line dump.
     // The memory holding the frame buffer depends on the target FPGA platform
 `ifdef JTFRAME_LF_BUFFER
-    output   [ 7:0] game_vrender,
-    output   [ 8:0] game_hdump,
-    output   [ 8:0] ln_addr,
+    output   [`JTFRAME_LF_VW-1:0] game_vrender,
+    output   [`JTFRAME_LF_HW-1:0] game_hdump,
+    output   [`JTFRAME_LF_HW-1:0] ln_addr,
     output   [15:0] ln_data,
     output          ln_done,
     output          ln_we,
     input           ln_hs, ln_vs, ln_lvbl,
     input    [15:0] ln_dout,
     input    [15:0] ln_pxl,
-    input    [ 7:0] ln_v,
+    input    [`JTFRAME_LF_VW-1:0] ln_v,
+`endif
+`ifdef JTFRAME_LF_ZOOM
+    output   [ 8:0] h_step,
+    output   [ 8:0] v_step,
 `endif
 `ifdef JTFRAME_SAVEGAME
     output            sav_change,

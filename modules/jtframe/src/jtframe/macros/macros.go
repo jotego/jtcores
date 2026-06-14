@@ -327,6 +327,8 @@ func fill_defaults(core, target string) {
 		"JTFRAME_DEBUG_VPOS":    "4",
 		"JTFRAME_DIALEMU_LEFT":  "5",
 		"JTFRAME_DIPBASE":       "16",
+		"JTFRAME_LF_HW":         "9",
+		"JTFRAME_LF_VW":         "8",
 		"JTFRAME_SHIFT":         "0",
 		"JTFRAME_MR_FASTIO":     "0",
 		"JTFRAME_SIGNED_SND":    "1",

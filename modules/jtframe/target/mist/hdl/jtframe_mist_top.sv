@@ -570,16 +570,16 @@ assign UART_TX = game_tx,
 
 `ifdef JTFRAME_LF_BUFFER
     // line-frame buffer
-    wire        [ 7:0] game_vrender;
-    wire        [ 8:0] game_hdump;
-    wire        [ 8:0] ln_addr;
+    wire        [`JTFRAME_LF_VW-1:0] game_vrender;
+    wire        [`JTFRAME_LF_HW-1:0] game_hdump;
+    wire        [`JTFRAME_LF_HW-1:0] ln_addr;
     wire        [15:0] ln_data;
     wire               ln_done;
     wire               ln_we;
     wire               ln_hs, ln_vs, ln_lvbl;
     wire        [15:0] ln_dout;
     wire        [15:0] ln_pxl;
-    wire        [ 7:0] ln_v;
+    wire        [`JTFRAME_LF_VW-1:0] ln_v;
 
     wire [ 7:0] st_lpbuf;
 
@@ -588,7 +588,7 @@ assign UART_TX = game_tx,
     always @(posedge clk_sys) pxl1_cen <= pxl2_cen & ~pxl_cen;
 
 `ifdef JTFRAME_LF_SDRAM_BUFFER
-    jtframe_lfbuf_sdr u_lf_buf(
+    jtframe_lfbuf_sdr #(.HW(`JTFRAME_LF_HW),.VW(`JTFRAME_LF_VW)) u_lf_buf(
         .rst        ( rst           ),
         .clk        ( clk_rom2      ),
         .pxl_cen    ( pxl1_cen      ),
@@ -611,6 +611,13 @@ assign UART_TX = game_tx,
         .ln_vs      ( ln_vs         ),
         .ln_lvbl    ( ln_lvbl       ),
         .ln_we      ( ln_we         ),
+`ifdef JTFRAME_LF_ZOOM
+        .h_step     ( game_h_step   ),
+        .v_step     ( game_v_step   ),
+`else
+        .h_step     ( 9'h100        ),
+        .v_step     ( 9'h100        ),
+`endif
 
         .init_n     ( pll_locked2   ),
         .SDRAM_A    ( SDRAM2_A      ),
@@ -629,7 +636,7 @@ assign UART_TX = game_tx,
     );
 `else
     // line-frame buffer
-    jtframe_lfbuf_bram u_lf_buf(
+    jtframe_lfbuf_bram #(.HW(`JTFRAME_LF_HW),.VW(`JTFRAME_LF_VW)) u_lf_buf(
         .rst        ( rst           ),
         .clk        ( clk_rom       ),
         .pxl_cen    ( pxl1_cen      ),
@@ -652,6 +659,13 @@ assign UART_TX = game_tx,
         .ln_vs      ( ln_vs         ),
         .ln_lvbl    ( ln_lvbl       ),
         .ln_we      ( ln_we         ),
+`ifdef JTFRAME_LF_ZOOM
+        .h_step     ( game_h_step   ),
+        .v_step     ( game_v_step   ),
+`else
+        .h_step     ( 9'h100        ),
+        .v_step     ( 9'h100        ),
+`endif
 
         .st_addr    ( st_addr       ),
         .st_dout    ( st_lpbuf      )

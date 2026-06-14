@@ -499,16 +499,16 @@ wire        game_tx, game_rx;
 `ifdef JTFRAME_LF_BUFFER
 
     // line-frame buffer
-    wire        [ 7:0] game_vrender;
-    wire        [ 8:0] game_hdump;
-    wire        [ 8:0] ln_addr;
+    wire        [`JTFRAME_LF_VW-1:0] game_vrender;
+    wire        [`JTFRAME_LF_HW-1:0] game_hdump;
+    wire        [`JTFRAME_LF_HW-1:0] ln_addr;
     wire        [15:0] ln_data;
     wire               ln_done;
     wire               ln_we;
     wire               ln_hs, ln_vs, ln_vbl;
     wire        [15:0] ln_dout;
     wire        [15:0] ln_pxl;
-    wire        [ 7:0] ln_v;
+    wire        [`JTFRAME_LF_VW-1:0] ln_v;
 
     wire [ 7:0] st_lpbuf;
 
@@ -517,7 +517,7 @@ wire        game_tx, game_rx;
     always @(posedge clk_sys) pxl1_cen <= pxl2_cen & ~pxl_cen;
 
     // line-frame buffer.
-    jtframe_lfbuf_sram u_lf_buf(
+    jtframe_lfbuf_sram #(.HW(`JTFRAME_LF_HW),.VW(`JTFRAME_LF_VW)) u_lf_buf(
         .rst        ( rst           ),
         .clk        ( clk_rom       ),
         .pxl_cen    ( pxl1_cen      ),
@@ -537,6 +537,13 @@ wire        game_tx, game_rx;
         .ln_pxl     ( ln_pxl        ),
         .ln_v       ( ln_v          ),
         .ln_we      ( ln_we         ),
+`ifdef JTFRAME_LF_ZOOM
+        .h_step     ( game_h_step   ),
+        .v_step     ( game_v_step   ),
+`else
+        .h_step     ( 9'h100        ),
+        .v_step     ( 9'h100        ),
+`endif
 
         .sram_addr ( SRAM_A         ),
         .sram_data ( SRAM_Q         ),
