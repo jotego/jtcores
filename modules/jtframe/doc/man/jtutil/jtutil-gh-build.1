@@ -3,9 +3,9 @@
 .SH NAME
 jtutil-gh-build \- Run a remote GitHub FPGA build and download the artifact
 .SH DESCRIPTION
-Triggers the compile-one GitHub Actions workflow for a core and
+Triggers the compile-custom GitHub Actions workflow for one or more cores and a
 comma-separated target list, waits for the run to finish, and downloads the
-matching release artifact into $JTROOT/release.
+matching release artifacts into $JTROOT/release.
 .PP
 The GitHub CLI
 .BR gh (1)
@@ -25,24 +25,45 @@ jtutil gh-build cps3 -t mister,pocket
 .IP
 jtutil gh-build cps3 --target sidi,sidi128
 .IP
+jtutil gh-build 1942 gng kicker --target sidi,mist
+.IP
 jtutil gh-build cps3 -t mist
 .PP
 The
 .B mist
-target uses the Quartus 13 Docker image in the remote workflow and cannot be
-combined with other targets.
+target uses the Quartus 13 Docker image in its own matrix job. Other targets
+use the Quartus 20 Docker image.
+.PP
+The GitHub workflow compiles each core and target combination in a separate
+matrix job so GitHub can run them in parallel on different runners. For
+example, three cores with two targets request six compile jobs.
+.PP
+By default,
+.B jtutil gh-build
+uses
+.B gh run watch
+for interactive progress. Use
+.B --batch
+from scripts and tools that should avoid the full-screen terminal progress
+display. Batch mode still polls the workflow and prints an update when each
+GitHub job finishes.
 .PP
 After the remote run finishes successfully,
 .B jtutil gh-build
-downloads the matching release artifact, such as
-.BR release-mister-pocket-cps3 ,
+downloads each matching release artifact, such as
+.B release-mister-cps3
+and
+.BR release-sidi-gng ,
 creates
 .B $JTROOT/release
 if needed, and extracts it there.
 .SS "Usage:"
 .IP
-jtutil gh-build <core> [flags]
+jtutil gh-build <core> [core...] [flags]
 .SS "Flags:"
+.TP
+.BR \-\-batch
+Poll without full-screen terminal updates
 .TP
 .BR \-h ", " \-\-help
 help for gh-build

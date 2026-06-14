@@ -1,0 +1,104 @@
+name: Compile selected cores
+
+on:
+  workflow_dispatch:
+    inputs:
+      core:
+        description: Comma-separated core folder names under cores/
+        required: true
+        type: string
+      target:
+        description: Comma-separated FPGA targets
+        required: true
+        type: string
+
+jobs:
+  list_targets:
+    runs-on: ubuntu-slim
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      cores: ${{ steps.generate-matrix.outputs.cores }}
+      targets: ${{ steps.generate-matrix.outputs.targets }}
+    steps:
+      - id: generate-matrix
+        env:
+          CORES: ${{ inputs.core }}
+          TARGETS: ${{ inputs.target }}
+        run: |
+          make_json_list() {
+            local input="$1"
+            local label="$2"
+            local output_name="$3"
+            local -n items_ref=$4
+            local -a raw_items
+
+            IFS=',' read -r -a raw_items <<< "$input"
+            items_ref=()
+            for item in "${raw_items[@]}"; do
+              item="${item//[[:space:]]/}"
+              if [[ -z "$item" ]]; then
+                continue
+              fi
+              if [[ ! "$item" =~ ^[A-Za-z0-9_-]+$ ]]; then
+                echo "Invalid $label name: $item" >&2
+                exit 1
+              fi
+              items_ref+=("$item")
+            done
+
+            if [[ ${#items_ref[@]} -eq 0 ]]; then
+              echo "$label must contain at least one value" >&2
+              exit 1
+            fi
+
+            local json="["
+            for item in "${items_ref[@]}"; do
+              if [[ "$json" != "[" ]]; then
+                json="$json,"
+              fi
+              json="$json\"$item\""
+            done
+            json="$json]"
+            echo "$output_name=$json" >> "$GITHUB_OUTPUT"
+          }
+
+          make_json_list "$CORES" core cores cores
+          make_json_list "$TARGETS" target targets targets
+
+  compile:
+    runs-on: ubuntu-latest
+    needs:
+      - list_targets
+    strategy:
+      fail-fast: false
+      matrix:
+        core: ${{ fromJSON(needs.list_targets.outputs.cores) }}
+        target: ${{ fromJSON(needs.list_targets.outputs.targets) }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.PAT }}
+
+      - id: compile
+        run: |
+          docker_image=jotego/jtcore20
+          if [[ "${{ matrix.target }}" == "mist" ]]; then
+            docker_image=jotego/jtcore13
+          fi
+
+          test -e "cores/${{ matrix.core }}/cfg/macros.def"
+
+          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v "$(pwd)":/jtcores "$docker_image" /jtcores/modules/jtframe/devops/xjtcore.sh "${{ matrix.core }}" "${{ matrix.target }}"
+
+      - id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.target }}-${{ matrix.core }}
+          path: release
+          retention-days: 7
