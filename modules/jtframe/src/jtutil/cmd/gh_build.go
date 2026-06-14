@@ -31,24 +31,27 @@ import (
 const gh_build_workflow = "compile-one.yaml"
 
 var gh_build_ref string
+var gh_build_targets []string
 
 var ghBuildCmd = &cobra.Command{
-	Use:   "gh-build <core> <target-list>",
+	Use:   "gh-build <core>",
 	Short: "Run a remote GitHub FPGA build and download the artifact",
 	Long: man_blurb("jtutil-gh-build", `Triggers the compile-one GitHub Actions workflow for a core and
 comma-separated target list, waits for the run to finish, and downloads the
 matching release artifact into $JTROOT.`),
 	Run:  run_gh_build,
-	Args: cobra.ExactArgs(2),
+	Args: cobra.ExactArgs(1),
 }
 
 func init() {
 	ghBuildCmd.Flags().StringVar(&gh_build_ref, "ref", "", "Git ref that contains the workflow file")
+	ghBuildCmd.Flags().StringSliceVarP(&gh_build_targets, "target", "t", nil, "Comma-separated list of FPGA targets")
+	_ = ghBuildCmd.MarkFlagRequired("target")
 	rootCmd.AddCommand(ghBuildCmd)
 }
 
 func run_gh_build(cmd *cobra.Command, args []string) {
-	cfg, e := new_gh_build_config(args[0], args[1])
+	cfg, e := new_gh_build_config(args[0], gh_build_targets)
 	must(e)
 	e = cfg.run()
 	must(e)
@@ -56,14 +59,15 @@ func run_gh_build(cmd *cobra.Command, args []string) {
 
 type gh_build_config struct {
 	core     string
-	targets  string
+	targets  []string
 	artifact string
 	jtroot   string
 	run_id   string
 }
 
-func new_gh_build_config(core, targets string) (*gh_build_config, error) {
-	target_slug, e := gh_build_target_slug(targets)
+func new_gh_build_config(core string, targets []string) (*gh_build_config, error) {
+	clean_targets := gh_build_clean_targets(targets)
+	target_slug, e := gh_build_target_slug(clean_targets)
 	if e != nil {
 		return nil, e
 	}
@@ -73,15 +77,16 @@ func new_gh_build_config(core, targets string) (*gh_build_config, error) {
 	}
 	return &gh_build_config{
 		core:     core,
-		targets:  targets,
+		targets:  clean_targets,
 		artifact: "release-" + target_slug + "-" + core,
 		jtroot:   jtroot,
 	}, nil
 }
 
 func (cfg *gh_build_config) run() error {
-	fmt.Printf("Triggering %s for %s on %s\n", gh_build_workflow, cfg.core, cfg.targets)
-	output, e := cfg.gh_output("workflow", "run", gh_build_workflow, "-f", "core="+cfg.core, "-f", "target="+cfg.targets)
+	target_list := strings.Join(cfg.targets, ",")
+	fmt.Printf("Triggering %s for %s on %s\n", gh_build_workflow, cfg.core, target_list)
+	output, e := cfg.gh_output("workflow", "run", gh_build_workflow, "-f", "core="+cfg.core, "-f", "target="+target_list)
 	if e != nil {
 		return e
 	}
@@ -122,10 +127,10 @@ func (cfg *gh_build_config) gh_run(args ...string) error {
 	return cmd.Run()
 }
 
-func gh_build_target_slug(targets string) (string, error) {
-	fields := strings.Fields(strings.ReplaceAll(targets, ",", " "))
+func gh_build_target_slug(targets []string) (string, error) {
+	fields := gh_build_clean_targets(targets)
 	if len(fields) == 0 {
-		return "", fmt.Errorf("target-list must contain at least one target")
+		return "", fmt.Errorf("target flag must contain at least one target")
 	}
 	has_mist := false
 	for _, each := range fields {
@@ -137,6 +142,17 @@ func gh_build_target_slug(targets string) (string, error) {
 		return "", fmt.Errorf("mist uses jotego/jtcore13 and cannot be combined with other targets")
 	}
 	return strings.Join(fields, "-"), nil
+}
+
+func gh_build_clean_targets(targets []string) []string {
+	clean := make([]string, 0, len(targets))
+	for _, each := range targets {
+		each = strings.TrimSpace(each)
+		if each != "" {
+			clean = append(clean, each)
+		}
+	}
+	return clean
 }
 
 func gh_build_run_id(output string) (string, error) {
