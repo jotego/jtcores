@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"strings"
@@ -8,14 +9,14 @@ import (
 )
 
 func Test_gh_build_target_slug(t *testing.T) {
-	slug, e := gh_build_target_slug("mister,pocket")
+	slug, e := gh_build_target_slug([]string{"mister", "pocket"})
 	if e != nil {
 		t.Fatal(e)
 	}
 	if slug != "mister-pocket" {
 		t.Fatalf("unexpected slug: %s", slug)
 	}
-	slug, e = gh_build_target_slug("sidi, sidi128")
+	slug, e = gh_build_target_slug([]string{"sidi", "sidi128"})
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -25,7 +26,7 @@ func Test_gh_build_target_slug(t *testing.T) {
 }
 
 func Test_gh_build_target_slug_rejects_mist_combo(t *testing.T) {
-	_, e := gh_build_target_slug("mist,mister")
+	_, e := gh_build_target_slug([]string{"mist", "mister"})
 	if e == nil {
 		t.Fatalf("expected mist combo rejection")
 	}
@@ -34,7 +35,7 @@ func Test_gh_build_target_slug_rejects_mist_combo(t *testing.T) {
 func Test_new_gh_build_config(t *testing.T) {
 	root := t.TempDir()
 	t.Setenv("JTROOT", root)
-	cfg, e := new_gh_build_config("cps3", "mister,pocket")
+	cfg, e := new_gh_build_config("cps3", []string{"mister", "pocket"})
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -48,7 +49,7 @@ func Test_new_gh_build_config(t *testing.T) {
 
 func Test_new_gh_build_config_requires_jtroot(t *testing.T) {
 	t.Setenv("JTROOT", "")
-	_, e := new_gh_build_config("cps3", "mister")
+	_, e := new_gh_build_config("cps3", []string{"mister"})
 	if e == nil {
 		t.Fatalf("expected missing JTROOT error")
 	}
@@ -85,7 +86,7 @@ func Test_gh_build_run_invokes_gh_sequence(t *testing.T) {
 	t.Setenv("GH_LOG", log)
 	t.Setenv("JTROOT", root)
 	gh_build_ref = ""
-	cfg, e := new_gh_build_config("cps3", "mister,pocket")
+	cfg, e := new_gh_build_config("cps3", []string{"mister", "pocket"})
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -106,5 +107,19 @@ func Test_gh_build_run_invokes_gh_sequence(t *testing.T) {
 		if !strings.Contains(got, expected) {
 			t.Fatalf("missing gh call %q in:\n%s", expected, got)
 		}
+	}
+}
+
+func Test_gh_build_target_flag_parses_comma_list(t *testing.T) {
+	gh_build_targets = nil
+	ghBuildCmd.SetOut(&bytes.Buffer{})
+	ghBuildCmd.SetErr(&bytes.Buffer{})
+	ghBuildCmd.SetArgs([]string{"-t", "mister,pocket", "cps3"})
+	e := ghBuildCmd.ParseFlags([]string{"-t", "mister,pocket"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if strings.Join(gh_build_targets, ",") != "mister,pocket" {
+		t.Fatalf("unexpected target flag parse: %#v", gh_build_targets)
 	}
 }
