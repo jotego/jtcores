@@ -74,7 +74,7 @@ endfunction
 always @(*) begin
     case({sel})
         0: pal_addr[7:0] = {1'b0,lyrf_pxl[6:0]};
-        1: pal_addr[7:0] = {     lyro_pxl[7:0]};
+        1: pal_addr[7:0] = {lyro_pxl[8:5],lyro_pxl[3:0]};
         2: pal_addr[7:0] = {1'b0,lyra_pxl[6:0]};
         3: pal_addr[7:0] = {1'b0,lyrb_pxl[6:0]};
         default:;
