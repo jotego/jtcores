@@ -13,18 +13,49 @@ jobs:
     outputs:
       pairs: ${{ steps.get.outputs.pairs }}
     steps:
-      - name: Clone repo
+      - &clone_repo
+        name: Clone repo
         env:
           PAT: ${{ secrets.PAT }}
+          SERVER_URL: ${{ github.server_url }}
         shell: bash
         run: |
           set -Eeuo pipefail
-          git -c http.extraHeader="Authorization: token ${PAT}" clone \
+          git -c "http.${SERVER_URL}/.extraHeader=Authorization: token ${PAT}" clone \
             --depth 1 \
-            --recurse-submodules \
-            --shallow-submodules \
-            --jobs 8 \
-            "${{ github.server_url }}/${{ github.repository }}.git" .
+            "${SERVER_URL}/${{ github.repository }}.git" .
+
+          git config --global url."${SERVER_URL}/jotego/".insteadOf "https://github.com/jotego/"
+          git config --global --add url."${SERVER_URL}/jotego/".insteadOf "https://www.github.com/jotego/"
+          git config --global --add url."${SERVER_URL}/jotego/".insteadOf "git@github.com:jotego/"
+          git config --global url."${SERVER_URL}/jotego/fx68k.git".insteadOf "https://github.com/jtfpga/fx68k"
+          git config --global url."https://github.com/colinbourassa/".insteadOf "git@github.com:colinbourassa/"
+
+          git submodule set-url cores/cps3 "${SERVER_URL}/jotego/cps3.git"
+          git submodule set-url modules/fx68k "${SERVER_URL}/jotego/fx68k.git"
+          git submodule set-url modules/jt51 "${SERVER_URL}/jotego/jt51.git"
+          git submodule set-url modules/jt5205 "${SERVER_URL}/jotego/jt5205.git"
+          git submodule set-url modules/jt12 "${SERVER_URL}/jotego/jt12.git"
+          git submodule set-url modules/jtopl "${SERVER_URL}/jotego/jtopl.git"
+          git submodule set-url modules/jt6295 "${SERVER_URL}/jotego/jt6295.git"
+          git submodule set-url modules/jteeprom "${SERVER_URL}/jotego/jteeprom.git"
+          git submodule set-url modules/jttms "${SERVER_URL}/jotego/jttms.git"
+          git submodule set-url modules/jt49 "${SERVER_URL}/jotego/jt49.git"
+          git submodule set-url modules/jt89 "${SERVER_URL}/jotego/jt89.git"
+          git submodule set-url modules/jt7759 "${SERVER_URL}/jotego/jt7759.git"
+          git submodule set-url modules/jtdsp16 "${SERVER_URL}/jotego/jtdsp16.git"
+          git submodule set-url modules/jt8255 "${SERVER_URL}/jotego/jt8255.git"
+          git submodule set-url modules/jtkcpu "${SERVER_URL}/jotego/jtkcpu.git"
+          git submodule set-url modules/jt900h "${SERVER_URL}/jotego/jt900h.git"
+          git submodule set-url modules/jtframe/target/pocket "${SERVER_URL}/jotego/pocket.git"
+          git submodule set-url modules/jt539 "${SERVER_URL}/jotego/jt539.git"
+          git submodule set-url modules/jt680x/crasm "https://github.com/colinbourassa/crasm.git"
+
+          git -c "http.${SERVER_URL}/.extraHeader=Authorization: token ${PAT}" submodule update \
+            --init \
+            --recursive \
+            --depth 1 \
+            --jobs 8
 
       - name: Get core/setname pairs
         id: get
@@ -154,18 +185,7 @@ jobs:
         batch: ${{ fromJSON(needs.sample_batches.outputs.batches) }}
 
     steps:
-      - name: Clone repo
-        env:
-          PAT: ${{ secrets.PAT }}
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          git -c http.extraHeader="Authorization: token ${PAT}" clone \
-            --depth 1 \
-            --recurse-submodules \
-            --shallow-submodules \
-            --jobs 8 \
-            "${{ github.server_url }}/${{ github.repository }}.git" .
+      - *clone_repo
 
       - name: Run regression
         env:
