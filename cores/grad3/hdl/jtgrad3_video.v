@@ -141,7 +141,7 @@ always @* begin
     lyra_addr = { lyra_col[4:2], lyra_col[0], pre_a[10:0] };
     lyrb_addr = { lyrb_col[4:2], lyrb_col[0], pre_b[10:0] };
     ocode_eff = { opal[0], ocode };
-    opal_eff  = { 1'b0, opal[6:5], 1'b1, opal[4:1] };
+    opal_eff  = { opal[7:1],1'b0 };
 end
 
 always @(posedge clk, posedge rst) begin
