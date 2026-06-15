@@ -13,7 +13,7 @@ jobs:
     outputs:
       pairs: ${{ steps.get.outputs.pairs }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: http://gitea.jotego.es/actions/checkout@v4
 
       - name: Get core/setname pairs
         id: get
@@ -144,7 +144,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: http://gitea.jotego.es/actions/checkout@v4
         with:
           submodules: recursive
           token: ${{ secrets.PAT }}
