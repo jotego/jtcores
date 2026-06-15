@@ -7,7 +7,7 @@ on:
 
 jobs:
   list_setnames:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     container:
       image: jotego/simulator
     outputs:
@@ -36,7 +36,7 @@ jobs:
           echo "pairs=$JSON" >> "$GITHUB_OUTPUT"
 
   make_batches:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     container:
       image: jotego/simulator
     outputs:
@@ -84,7 +84,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
   sample_batches:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     container:
       image: jotego/simulator
     outputs:
@@ -129,9 +129,12 @@ jobs:
 
   simulate:
     name: Regression (5%) ${{ matrix.batch.title }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     container:
       image: jotego/simulator
+      volumes:
+        - ${{ secrets.MAME }}:${{ secrets.MAME }}:ro
+        - ${{ secrets.REGRUNS }}:${{ secrets.REGRUNS }}
     needs:
       - sample_batches
     strategy:
@@ -146,24 +149,12 @@ jobs:
           submodules: recursive
           token: ${{ secrets.PAT }}
 
-      - name: Setup SSH key
-        uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.SFTP_PRIVATE_KEY }}
-
-      - name: Accept SFTP server connection
-        run: |
-          cat <<'EOF' >> /etc/ssh/ssh_config
-          Host "${{ secrets.SERVER_IP }}"
-            HostName "${{ secrets.SERVER_IP }}"
-            Port "${{ secrets.SSH_PORT }}"
-            User "${{ secrets.SSH_USER }}"
-            StrictHostKeyChecking accept-new
-          EOF
 
       - name: Run regression
         env:
           GH_TOKEN: ${{ github.token }}
+          MAME: ${{ secrets.MAME }}
+          REGRUNS: ${{ secrets.REGRUNS }}
         shell: bash
         run: |
           git config --global --add safe.directory /__w/jtcores/jtcores
@@ -173,12 +164,10 @@ jobs:
           yq -r '.[] | .core' batch.json > cores.lst
           yq -r '.[] | .setname' batch.json > setnames.lst
           delay=$(( RANDOM % 901 ))
-          echo "Waiting ${delay}s before starting regression downloads"
+          echo "Waiting ${delay}s before starting regression"
           sleep "$delay"
           job='
             source setprj.sh
-            export MAME_HTTP_BASE_URL=${{ secrets.MAME_HTTP_BASE_URL }}
-            export MAME_HTTP_SECRET=${{ secrets.MAME_HTTP_SECRET }}
             run_regression.sh {1} {2} --check --push
             ec=$?
             # create_regression_issue.sh "$ec" {1} {2} || true

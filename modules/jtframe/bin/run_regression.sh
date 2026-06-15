@@ -30,7 +30,7 @@ main() {
     case $simulate_ec in
         0) echo "[INFO] Simulation succeed" ;;
         1)
-            echo "[ERROR] Cannot get required zips"
+            echo "[ERROR] Cannot prepare ROM data"
             ec=11
         ;;
         2)
@@ -42,7 +42,7 @@ main() {
     local check_video_ec=0
     local check_audio_ec=0
 
-    if ( $check || $local_check ) && [[ $simulate_ec == 0 ]]; then
+    if $check && [[ $simulate_ec == 0 ]]; then
         check_video
         check_video_ec=$?
 
@@ -124,14 +124,11 @@ clean_up() {
 }
 
 parse_args() {
-    LOCAL_DIR=""
     check=false
-    local_check=false
     local_rom=false
     push=false
-    MAME_HTTP_BASE_URL=${MAME_HTTP_BASE_URL:-}
-    MAME_HTTP_SECRET=${MAME_HTTP_SECRET:-}
-    MAME_HTTP_USER=${MAME_HTTP_USER:-regression}
+    MAME=${MAME:-}
+    REGRUNS=${REGRUNS:-}
 
     if [[ $1 == --help || $1 == -h ]]; then
         print_help
@@ -154,8 +151,8 @@ parse_args() {
                 echo "[ERROR] --local-check requires an argument"
                 exit 1
             fi
-            local_check=true
-            LOCAL_DIR="$2"
+            check=true
+            REGRUNS="$2"
             shift 2
             ;;
         --local-rom)
@@ -177,13 +174,23 @@ parse_args() {
     esac; done
 
     if ! $local_rom; then
-        if [[ -z $MAME_HTTP_BASE_URL ]]; then
-            echo "[ERROR] MAME_HTTP_BASE_URL is required for HTTP ROM downloads"
+        if [[ -z $MAME ]]; then
+            echo "[ERROR] MAME must point to the folder containing MAME zip files"
             exit 1
         fi
+        if [[ ! -d $MAME ]]; then
+            echo "[ERROR] MAME folder does not exist: $MAME"
+            exit 1
+        fi
+    fi
 
-        if [[ -z $MAME_HTTP_SECRET ]]; then
-            echo "[ERROR] MAME_HTTP_SECRET is required when using HTTP ROM downloads"
+    if $check || $push; then
+        if [[ -z $REGRUNS ]]; then
+            echo "[ERROR] REGRUNS must point to the regression reference/results folder"
+            exit 1
+        fi
+        if [[ ! -d $REGRUNS ]]; then
+            echo "[ERROR] REGRUNS folder does not exist: $REGRUNS"
             exit 1
         fi
     fi
@@ -197,24 +204,19 @@ If the corresponding folder doesn't exist it will be created.
 Usage: run_regression.sh <core> <setname> [--check] [--local-check LOCAL_DIR] [--local-rom] [--push] [-h|--help]
 
 Options:
-  --check                   Validate extracted simulation against reference results stored
-                            remotely. Can be used with --local-check.
+  --check                   Validate extracted simulation against reference results
+                            stored under REGRUNS.
   --local-check LOCAL_DIR   Validate extracted simulation against reference results
-                            stored in LOCAL_DIR in your machine. Can be used with --check.
-  --local-rom               Will use your ROM files stored on ~/.mame/roms, Instead of
-                            downloading them remotely.
-  --push                    Upload extracted simulation to the server.
-                            If it is not used with --check or --local-check, only uploads
-                            simulations to the folder NOT CHECKED. WARNING. Otherwise, it will
-                            upload to the folders VALID (if check was successfull), FAIL (if
-                            check was failed) or NOT CHECKED (if there weren't enough references
-                            to check)
+                            stored in LOCAL_DIR. This is an alias for REGRUNS=LOCAL_DIR --check.
+  --local-rom               Use jtframe's default local ROM lookup instead of MAME.
+  --push                    Store failed or incomplete simulation results under REGRUNS.
 
 Environment:
-  MAME_HTTP_BASE_URL        If set, use the HTTP endpoints for downloads and uploads.
-  MAME_HTTP_SECRET          Shared secret used to sign HTTP download links
-                            and as the password for HTTP Basic Auth.
-  MAME_HTTP_USER            Username for HTTP Basic Auth (default: regression).
+  MAME                      Folder containing MAME zip files. Required unless --local-rom is used.
+  REGRUNS                   Regression reference/results folder. Required with --check or --push.
+
+Reference files are read from REGRUNS/<core>/<setname>/valid. Results are written
+to REGRUNS/<core>/<setname-or-variant>/{fail,not_checked}.
 
 By default, simulations are extracted without validation or upload.
 EOF
@@ -261,12 +263,9 @@ cd_ver_folder() {
 
 simulate() {
     if ! $local_rom; then
-        local roms_dir
-        if ! get_zips roms_dir; then return 1; fi
-        jtframe mra --path $roms_dir --setname $setname
-        rm -rf $roms_dir
+        jtframe mra --path "$MAME" --setname "$setname"
     else
-        jtframe mra --setname $setname
+        jtframe mra --setname "$setname"
     fi
 
     declare -a sim_opts
@@ -292,213 +291,6 @@ create_nvram_files() {
     jtutil sdram $setname
 }
 
-get_zips() {
-    local target_name="$1"
-    local -n roms_dir_ref="$target_name"
-
-    declare -a zip_names
-    declare -a missing_zips
-    if ! get_zip_names zip_names; then return 1; fi
-    
-    roms_dir_ref=$(mktemp -d)
-    TODELETE+=("$roms_dir_ref")
-
-    local transfer_log
-    transfer_log=$(mktemp)
-    TODELETE+=("$transfer_log")
-
-    get_many_via_http "$roms_dir_ref" "$transfer_log" "${zip_names[@]}" || true
-    collect_missing_zips missing_zips "$roms_dir_ref" "${zip_names[@]}"
-
-    if [[ "${#missing_zips[@]}" -gt 0 ]]; then
-        get_with_retry missing_zips "$roms_dir_ref" "$transfer_log"
-        collect_missing_zips missing_zips "$roms_dir_ref" "${zip_names[@]}"
-    fi
-
-    if [[ "${#missing_zips[@]}" -gt 0 ]]; then
-        echo "[WARNING] Missing zip files after HTTP retries: ${missing_zips[*]}" >&2
-        echo "[WARNING] HTTP log follows:" >&2
-        cat "$transfer_log" >&2
-    fi
-
-    if [[ "${#missing_zips[@]}" == "${#zip_names[@]}" ]]; then
-        return 1
-    fi
-}
-
-get_zip_names() {
-    local target_name="$1"
-    local -n zip_names_ref="$target_name"
-    local zip_names_raw
-    local -a sanitized_zips
-    local zip
-
-    jtframe mra --skipROM
-
-    zip_names_raw=$(
-        JTBIN="$JTROOT/release" jtutil mra -c -z |
-        awk -F'|' -v setname="$setname" '
-            {
-                name = $4; zips = $5
-                gsub(/^[ \t]+|[ \t]+$/, "", name)
-                gsub(/^[ \t]+|[ \t]+$/, "", zips)
-            }
-            name == setname {
-                split(zips, a, /[ \t]+/)
-                for (i in a) print a[i]
-            }
-        '
-    )
-    readarray -t zip_names_ref <<< "$zip_names_raw"
-
-    sanitized_zips=()
-    for zip in "${zip_names_ref[@]}"; do
-        zip="${zip#${zip%%[![:space:]]*}}"
-        zip="${zip%${zip##*[![:space:]]}}"
-        [[ -n "$zip" ]] && sanitized_zips+=("$zip")
-    done
-    zip_names_ref=("${sanitized_zips[@]}")
-
-    if [[ "${#zip_names_ref[@]}" == 0 ]]; then return 1; fi
-}
-
-collect_missing_zips() {
-    local target_name="$1"
-    local -n missing_zips_ref="$target_name"
-    local roms_dir_ref="$2"
-    shift 2
-
-    missing_zips_ref=()
-    local zip
-    for zip in "$@"; do
-        [[ -n "$zip" ]] || continue
-        if ! zip_file_ready "$roms_dir_ref/$zip"; then
-            missing_zips_ref+=("$zip")
-        fi
-    done
-}
-
-zip_file_ready() {
-    local zip_path="$1"
-
-    if [[ ! -s "$zip_path" ]]; then
-        return 1
-    fi
-
-    if unzip -t "$zip_path" >/dev/null 2>&1; then
-        return 0
-    fi
-
-    echo "[WARNING] Invalid zip file detected, removing before retry: $zip_path" >&2
-    rm -f "$zip_path"
-    return 1
-}
-
-get_with_retry() {
-    local target_name="$1"
-    local -n missing_zips_ref="$target_name"
-    local roms_dir_ref="$2"
-    local transfer_log="$3"
-    local attempts=7
-
-    while [[ $attempts -gt 0 && "${#missing_zips_ref[@]}" -gt 0 ]]; do
-        get_many_via_http "$roms_dir_ref" "$transfer_log" "${missing_zips_ref[@]}" || true
-        collect_missing_zips "$target_name" "$roms_dir_ref" "${missing_zips_ref[@]}"
-        attempts=$((attempts-1))
-        if [[ $attempts -gt 0 && "${#missing_zips_ref[@]}" -gt 0 ]]; then
-            random_wait
-        fi
-    done
-
-    if [[ "${#missing_zips_ref[@]}" -gt 0 ]]; then
-        return 1
-    fi
-
-    return 0
-}
-
-http_base_url() {
-    printf '%s' "${MAME_HTTP_BASE_URL%/}"
-}
-
-http_signature() {
-    local payload="$1"
-    local expiry="$2"
-    printf '%s' "${payload}|${expiry}" | openssl dgst -sha256 -hmac "$MAME_HTTP_SECRET" -hex | awk '{print $2}'
-}
-
-http_download_url() {
-    printf '%s/download.php' "$(http_base_url)"
-}
-
-http_upload_url() {
-    printf '%s/upload.php' "$(http_base_url)"
-}
-
-http_fetch_signed_file() {
-    local remote_path="$1"
-    local output_path="$2"
-    local label="$3"
-    local expiry
-    expiry=$(( $(date +%s) + 3600 ))
-
-    local sig
-    sig=$(http_signature "$remote_path" "$expiry")
-
-    local tmp_file
-    tmp_file=$(mktemp)
-
-    local http_code
-    http_code=$(curl -sS --retry 3 --retry-delay 2 \
-        -u "${MAME_HTTP_USER}:${MAME_HTTP_SECRET}" \
-        --get \
-        --data-urlencode "f=$remote_path" \
-        --data-urlencode "exp=$expiry" \
-        --data-urlencode "sig=$sig" \
-        -o "$tmp_file" \
-        -w '%{http_code}' \
-        "$(http_download_url)")
-    local curl_ec=$?
-
-    if [[ $curl_ec -ne 0 ]]; then
-        rm -f "$tmp_file"
-        echo "[ERROR] HTTP download failed for $label" >&2
-        return 1
-    fi
-
-    if [[ $http_code != 200 ]]; then
-        rm -f "$tmp_file"
-        echo "[ERROR] HTTP download returned $http_code for $label" >&2
-        return 1
-    fi
-
-    mv "$tmp_file" "$output_path"
-}
-
-get_many_via_http() {
-    local roms_dir_ref="$1"
-    local transfer_log="$2"
-    shift 2
-
-    {
-        printf '[INFO] HTTP get for ROM zips\n'
-        printf '[INFO] Expiry window: 3600s\n'
-    } >>"$transfer_log"
-
-    local expiry
-    expiry=$(( $(date +%s) + 3600 ))
-
-    local zip
-    for zip in "$@"; do
-        if ! http_fetch_signed_file "mame/$zip" "$roms_dir_ref/$zip" "$zip" >>"$transfer_log" 2>&1; then
-            return 1
-        fi
-    done
-}
-
-random_wait() {
-    sleep $((RANDOM%30+10))
-}
 
 add_sim_option() {
     local _add_opts_name="$1"
@@ -584,35 +376,45 @@ check_video() {
 
     if $check; then
         local frames_dir
-        if ! get_remote_frames frames_dir; then return 1; fi
+        if ! get_reference_frames frames_dir; then return 1; fi
         check_frames "$frames_dir/frames"
-        return $?
-    fi
-
-    if $local_check; then
-        check_frames $LOCAL_DIR/$core/$setname/frames
         return $?
     fi
 }
 
-get_remote_frames() {
+regression_root() {
+    printf '%s' "${REGRUNS%/}"
+}
+
+reference_dir() {
+    printf '%s/%s/%s/valid' "$(regression_root)" "$core" "$setname"
+}
+
+result_dir() {
+    local folder="$1"
+    printf '%s/%s/%s/%s' "$(regression_root)" "$core" "$fullname" "$folder"
+}
+
+get_reference_frames() {
     declare -n dir="$1"
+    local ref_dir
+    ref_dir="$(reference_dir)"
+
+    if [[ -d "$ref_dir/frames" ]]; then
+        dir="$ref_dir"
+        return 0
+    fi
+
+    if [[ ! -f "$ref_dir/frames.zip" ]]; then
+        echo "[WARNING] Reference frames not found in $ref_dir"
+        return 1
+    fi
+
     dir=$(mktemp -d)
     TODELETE+=("$dir")
 
-    echo "[INFO] Downloading remote frames for $setname"
-    local remote_path="regression/$core/$setname/valid/frames.zip"
-    if ! http_fetch_signed_file "$remote_path" "$dir/frames.zip" "remote frames for $setname"; then
-        echo "[WARNING] Cannot download remote frames.zip"
-        return 1
-    fi
-    if [[ ! -f "$dir/frames.zip" ]]; then
-        echo "[WARNING] Remote frames.zip is missing after download"
-        return 1
-    fi
-    if ! unzip -q -d "$dir" "$dir/frames.zip"; then
-        echo "[WARNING] Cannot unpack frames.zip"
-        rm -f "$dir/frames.zip"
+    if ! unzip -q -d "$dir" "$ref_dir/frames.zip"; then
+        echo "[WARNING] Cannot unpack $ref_dir/frames.zip"
         return 1
     fi
 }
@@ -673,17 +475,10 @@ check_audio() {
     fi
 
     if $check; then
-        if ! get_remote_audio; then
-            echo "[WARNING] Cannot get remote audio"
+        if ! get_reference_audio; then
+            echo "[WARNING] Cannot get reference audio"
             return 1;
         fi
-    elif $local_check; then
-        if [[ ! -f $LOCAL_DIR/$core/$setname/audio.wav ]]; then
-            echo "[ERROR] Local audio doesn't exist"
-            return 2
-        fi
-        cp "$LOCAL_DIR/$core/$setname/audio.wav" .
-        TODELETE+=("$(realpath audio.wav)")
     fi
 
     len_ref=$(soxi -D $ref_audio)
@@ -708,22 +503,27 @@ check_audio() {
     fi
 }
 
-get_remote_audio() {
-    echo "[INFO] Downloading remote audio for $setname"
-    local remote_path="regression/$core/$setname/valid/audio.zip"
-    if ! http_fetch_signed_file "$remote_path" "audio.zip" "remote audio for $setname"; then
-        echo "[WARNING] Cannot download remote audio.zip"
-        return 1
-    fi
-    if [[ ! -f "audio.zip" ]]; then return 1; fi
+get_reference_audio() {
+    local ref_dir
+    ref_dir="$(reference_dir)"
 
-    if ! unzip -q -o -d . audio.zip; then
-        echo "[WARNING] Cannot unpack audio.zip"
-        rm -f audio.zip
+    if [[ -f "$ref_dir/audio.wav" ]]; then
+        cp "$ref_dir/audio.wav" .
+        TODELETE+=("$(realpath audio.wav)")
+        return 0
+    fi
+
+    if [[ ! -f "$ref_dir/audio.zip" ]]; then
+        echo "[WARNING] Reference audio not found in $ref_dir"
         return 1
     fi
-    rm -f audio.zip
-    TODELETE+=(`realpath audio.wav`)
+
+    if ! unzip -q -o -d . "$ref_dir/audio.zip"; then
+        echo "[WARNING] Cannot unpack $ref_dir/audio.zip"
+        rm -f audio.wav
+        return 1
+    fi
+    TODELETE+=("$(realpath audio.wav)")
 }
 
 upload_results() {
@@ -753,37 +553,31 @@ upload_results() {
 
     if [ "$ec" != 0 ]; then prepare_zip_files; fi
 
-    echo "[INFO] Starting upload"
-    local expiry
-    expiry=$(( $(date +%s) + 3600 ))
-    local target_dir="regression/$core/$fullname/$folder"
-    local upload_url
-    upload_url="$(http_upload_url)"
+    local target_dir
+    target_dir="$(result_dir "$folder")"
+    mkdir -p "$target_dir"
+
+    echo "[INFO] Storing regression results in $target_dir"
     local f
     for f in "${files[@]}"; do
         [[ -n "$f" ]] || continue
-        local remote_path="$target_dir/$f"
-        local sig
-        sig=$(http_signature "$remote_path" "$expiry")
-        if ! curl -fsS --retry 3 --retry-delay 2 \
-            -u "${MAME_HTTP_USER}:${MAME_HTTP_SECRET}" \
-            -X POST \
-            -F "path=$remote_path" \
-            -F "exp=$expiry" \
-            -F "sig=$sig" \
-            -F "file=@$f" \
-            "$upload_url" >/dev/null; then
-            echo "[ERROR] Failed uploading $f to $remote_path"
-            return 1
+        if [[ ! -f "$f" ]]; then
+            echo "[WARNING] Skipping missing result file $f"
+            continue
         fi
+        cp -f "$f" "$target_dir/"
     done
-    echo "[INFO] Upload finished"
+    echo "[INFO] Result storage finished"
 }
 
 prepare_zip_files() {
-    zip -q frames.zip frames/*
-    mv --force --no-copy test.wav audio.wav
-    zip -q audio.zip audio.wav
+    if compgen -G "frames/*" >/dev/null; then
+        zip -q -r frames.zip frames
+    fi
+    if [[ -f test.wav ]]; then
+        cp --force test.wav audio.wav
+        zip -q audio.zip audio.wav
+    fi
 }
 
 delete_duplicated_frames() {

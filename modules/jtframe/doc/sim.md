@@ -92,7 +92,7 @@ By default, all audio output gets dumped to test.wav. If the **Audio** section o
 
 # Regression
 
-The script `run_regression.sh` is used for automatic regressions triggered by GitHub Actions. It executes a regression for all setnames defined in the configuration files (explained below). If any problem occurs during execution (simulation failure, missing audio/frames, audio/frames validation failure, etc.), an issue will be created on GitHub specifying the reason for the failure.
+The script `run_regression.sh` is used for automatic regressions triggered by Gitea Actions. It executes a regression for all setnames defined in the configuration files (explained below). If any problem occurs during execution (simulation failure, missing audio/frames, audio/frames validation failure, etc.), the workflow reports the failing regression result.
 
 The script `run_regression.sh` runs a simulation using `jtsim` according to the options defined in a configuration file located in `<core>/cfg`, called `reg.yaml`. In this file, you can specify the same options available when using `jtsim`. The syntax is as follows:
 
@@ -128,15 +128,14 @@ d: MACRO1,MACRO2
 > [!NOTE]
 > To see all available options for these configuration files, run jtsim --help.
 
-This script also allows validating a simulation against a reference. To do this, use the --check or --local-check <folder> flags, which let you compare results against either a remote SFTP server or a local folder. If you use an SFTP server, you must also provide --port <port>, --host <host>, and --user <user> to define the connection. The server must already be registered in known_hosts.
+This script also allows validating a simulation against a reference. To do this, use the `--check` flag. MAME zip files are read from the folder pointed to by `MAME`, and reference/results data is read from and written to the folder pointed to by `REGRUNS`. The `--local-check <folder>` flag is kept as a convenience alias for `REGRUNS=<folder> --check`.
 
-When using a remote SFTP server, the following folder structure is required under the root path defined with `--path`:
-- mame/: contains all zipped ROMs.
-- regression/<core>/<setname>/valid, not_checked, fail/: contains reference and uploaded simulation results.
+The following folder structure is required:
+- `$MAME/`: contains all zipped ROMs.
+- `$REGRUNS/<core>/<setname>/valid/`: contains reference `frames.zip` or `frames/`, and `audio.zip` or `audio.wav`.
+- `$REGRUNS/<core>/<setname-or-variant>/{not_checked,fail}/`: receives generated regression results when `--push` is used.
 
-The script will download and extract the required files for simulation and comparison.
-
-You can also use the --push flag to upload your simulation results. Depending on the validation outcome, results will be uploaded to either the fail or not_checked folder. Reference frames/audio must always be uploaded manually to the valid folder.
+You can also use the `--push` flag to store simulation results. Depending on the validation outcome, results will be copied to either the `fail` or `not_checked` folder. Reference frames/audio must always be added manually to the `valid` folder.
 
 > [!IMPORTANT]
-> When run by GitHub Actions, the script is executed with the --check and --push flags. The workflow will only pass if validation succeeds.
+> When run by Gitea Actions, the script is executed with the `--check` and `--push` flags. The workflow will only pass if validation succeeds.
