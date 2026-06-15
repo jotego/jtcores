@@ -63,6 +63,7 @@ wire [HW-1:0] nx_rd_addr;
 reg  [HW-1:0] hblen, hlim, hcnt;
 wire          fb_over;
 reg 		  bram_rd;
+reg  [VW-1:0] wr_v;
 
 reg    [15:0] ram[(2**AW)-1:0];
 wire   [20:0] bram_addr;
@@ -133,12 +134,16 @@ always @( posedge clk ) begin
         line     <= 0;
         scr_we   <= 0;
         ln_done_l<= 0;
+        wr_v     <= 0;
         do_wr    <= 0;
         st       <= IDLE;
     end else begin
         fb_done <= 0;
         ln_done_l <= ln_done;
-        if (ln_done && !ln_done_l ) do_wr <= 1;
+        if (ln_done && !ln_done_l ) begin
+            do_wr <= 1;
+            wr_v  <= ln_v;
+        end
         if( fb_clr ) begin
             // the line is cleared outside the state machine so a
             // read operation can happen independently
@@ -164,7 +169,7 @@ always @( posedge clk ) begin
                 end else if( do_wr && !fb_clr &&
                     hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
                     fb_addr  <= 0;
-                    act_addr <= {  frame, ln_v, {HW{1'd0}}  };
+                    act_addr <= {  frame, wr_v, {HW{1'd0}}  };
                     bram_we  <= 0;
                     do_wr    <= 0;
                     st       <= WRITE;

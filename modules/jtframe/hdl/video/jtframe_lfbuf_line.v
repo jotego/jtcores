@@ -74,12 +74,15 @@ module jtframe_lfbuf_line #(parameter
     input               scr_we
 );
 
-reg           vsl, lvbl_l, hs_l, lhbl_l, vend_good;
+reg           vsl, vsl2, lvbl_l, hs_l, lhbl_l, vend_good;
 reg  [   5:0] porch;
 reg  [VW-1:0] vstart=0, vend=0;
 wire [  15:0] linein_pxl, scr_pxl;
 wire          info_rdy;
-reg  [FW:0]   dh, dv; // keeps zoom factor constant during rendering
+// dh/dv apply to the bank being read out. The write-side extent uses dv_wr
+// because the newly written bank will be displayed on the following frame.
+reg  [FW:0]   dh, dv, dv_wr;
+reg  [FW:0]   h_step_l, v_step_l;
 
 localparam [FW:0] STEP_ONE = { 1'b1, {FW{1'b0}} };
 
@@ -103,9 +106,12 @@ end
 always @(posedge clk) begin
     if( rst ) begin
         lvbl_l <= 0;
+        vsl    <= 0;
+        vsl2   <= 0;
     end else begin
         lvbl_l <= lvbl;
         vsl    <= vs;
+        vsl2   <= vsl;
         vend_good <= |vend;
         if( !lvbl &&  lvbl_l ) begin
             vend    <= vrender;
@@ -120,9 +126,25 @@ end
 reg       done;
 reg [3:0] st;
 reg fbd_l;
+wire vs_start = vsl && !vsl2;
 
 localparam [3:0] ACTIVE=4'b1_000,
                  VBTOSY=4'b0_001;
+
+// Vertical zoom extent. vend_eff is used by the line-request state machine.
+localparam VWIDTH = VW + 1,
+           VPRODW = VW + FW + 2;
+
+reg  [VW+FW-1:0] v_acc;
+reg  [VW-1:0]    vread_acc;
+wire [VWIDTH-1:0] vlen       = { 1'b0, vend } - { 1'b0, vstart } + 1'd1;
+wire [VPRODW-1:0] vlen_scale = vlen * dv_wr;
+wire [  VW+1:0]   vlen_zoom  = vlen_scale[VPRODW-1:FW];
+wire [VWIDTH-1:0] vmax_len   = { 1'b1, {VW{1'b0}} } - { 1'b0, vstart };
+wire              vlen_over  = vlen_zoom[VW+1] || vlen_zoom[VW:0] > vmax_len;
+wire [VWIDTH-1:0] vlen_eff   = dv_wr > STEP_ONE ? ( vlen_over ? vmax_len : vlen_zoom[VW:0] ) : vlen;
+wire [VWIDTH-1:0] vend_scaled= { 1'b0, vstart } + vlen_eff - 1'd1;
+wire [VW-1:0]     vend_eff   = dv_wr > STEP_ONE ? vend_scaled[VW-1:0] : vend;
 
 `ifdef JTFRAME_LF_FULLV
     wire [5:0] vbs_len, vsy_len, vsa_len;
@@ -170,6 +192,9 @@ always @(posedge clk) begin
         ln_v     <= 0;
         dh       <= STEP_ONE;
         dv       <= STEP_ONE;
+        dv_wr    <= STEP_ONE;
+        h_step_l <= STEP_ONE;
+        v_step_l <= STEP_ONE;
         done     <= 0;
         fbd_l    <= 0;
     `ifdef JTFRAME_LF_FULLV
@@ -181,12 +206,15 @@ always @(posedge clk) begin
     end else if(info_rdy) begin
         ln_hs <= 0;
         fbd_l <= fb_done;
-        if( vs && !vsl ) begin // object parsing starts during VB
+        if( vs_start ) begin // object parsing starts during VB
             frame <= ~frame;
             ln_v  <= vstart;
             ln_hs <= 1;
-            dh    <= h_step;
-            dv    <= v_step;
+            dh    <= h_step_l;
+            dv    <= v_step_l;
+            dv_wr <= v_step;
+            h_step_l <= h_step;
+            v_step_l <= v_step;
             done  <= 0;
             `ifdef JTFRAME_LF_FULLV
                 ln_lvbl <= 0;
@@ -249,22 +277,9 @@ wire             hs_rise  = hs && !hs_l;
 wire             hstart   = lhbl && !lhbl_l;
 wire             h_id     = dh == STEP_ONE;
 wire             v_id     = dv == STEP_ONE;
-wire [HW-1:0]    h_rd     = h_id ? hdump : h_acc_rd;
+wire [HW-1:0]    h_rd     = h_id || hstart ? hdump : h_acc_rd;
 
 // Vertical step accumulator for zoom
-localparam VWIDTH = VW + 1,
-           VPRODW = VW + FW + 2;
-
-reg  [VW+FW-1:0] v_acc;
-reg  [VW-1:0]    vread_acc;
-wire [VWIDTH-1:0] vlen       = { 1'b0, vend } - { 1'b0, vstart } + 1'd1;
-wire [VPRODW-1:0] vlen_scale = vlen * dv;
-wire [  VW+1:0]   vlen_zoom  = vlen_scale[VPRODW-1:FW];
-wire [VWIDTH-1:0] vmax_len   = { 1'b1, {VW{1'b0}} } - { 1'b0, vstart };
-wire              vlen_over  = vlen_zoom[VW+1] || vlen_zoom[VW:0] > vmax_len;
-wire [VWIDTH-1:0] vlen_eff   = dv > STEP_ONE ? ( vlen_over ? vmax_len : vlen_zoom[VW:0] ) : vlen;
-wire [VWIDTH-1:0] vend_scaled= { 1'b0, vstart } + vlen_eff - 1'd1;
-wire [VW-1:0]     vend_eff   = dv > STEP_ONE ? vend_scaled[VW-1:0] : vend;
 wire [VW+FW-1:0] v_next     = v_acc + { {(VW-1){1'b0}}, dv };
 wire [VW-1:0]    v_acc_int  = v_acc[VW+FW-1:FW];
 
@@ -282,14 +297,14 @@ always @(posedge clk) begin
             h_acc <= h_acc + { {(HW-1){1'b0}}, dh };
         end
 
-        if( v_id ) begin
-            v_acc <= {vrender, {FW{1'b0}}};
-            vread_acc <= vrender;
-        end else if( vs && !vsl ) begin
-            v_acc <= { vstart, {FW{1'b0}} } + { {(VW-1){1'b0}}, v_step };
+        if( vs_start ) begin
+            v_acc <= { vstart, {FW{1'b0}} } + { {(VW-1){1'b0}}, v_step_l };
             vread_acc <= vstart;
         end else if( lvbl && !lvbl_l ) begin
             v_acc <= { vrender, {FW{1'b0}} } + { {(VW-1){1'b0}}, dv };
+            vread_acc <= vrender;
+        end else if( v_id ) begin
+            v_acc <= {vrender, {FW{1'b0}}};
             vread_acc <= vrender;
         end else if( hs_rise && lvbl ) begin
             vread_acc <= v_acc_int;

@@ -99,6 +99,7 @@ reg    [ 3:0] st;
 reg    [ 4:0] cntup; // use a larger count to capture data using Signal Tap
 wire   [ 7:0] vram; // current row (v) being processed through the external RAM
 reg    [15:0] adq_reg;
+reg  [VW-1:0] wr_v;
 reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
 reg           lhbl_l, do_wr, wait1, adq_en,
               csn, ln_done_l, vsl, startup;
@@ -114,7 +115,7 @@ assign fb_dout = cr_oen ? 16'd0 : cr_adq;
 assign cr_adq  =!cr_oen ? 16'hzzzz : adq_en ? adq_reg : fb_din;
 assign cr_clk  = clk;
 assign fb_over =&fb_addr;
-assign vram    = lhbl ? ln_v : vrender;
+assign vram    = lhbl ? wr_v : vrender;
 assign scr_we  = cr_wait & ~cr_oen;
 
 always @( posedge clk ) begin
@@ -144,12 +145,18 @@ always @( posedge clk ) begin
     end
 end
 
+wire skip_blank_lines = do_wr && fb_blank;
+
 always @( posedge clk ) begin
     if( rst ) begin
         do_wr <= 0;
+        wr_v  <= 0;
     end else begin
         ln_done_l <= ln_done;
-        if( ln_done & ~ln_done_l    ) do_wr <= 1;
+        if( ln_done & ~ln_done_l ) begin
+            do_wr <= 1;
+            wr_v  <= ln_v;
+        end
         if( st==WRITEOUT && fb_over ) do_wr <= 0;
         if( st==IDLE && skip_blank_lines ) do_wr <= 0;
     end
@@ -179,8 +186,6 @@ initial begin
     init_seq[14] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 }; // idle
     init_seq[15] =  { 1'b1, 1'b0, 1'b1, 1'b1, 1'b1 };
 end
-
-wire skip_blank_lines = do_wr && fb_blank;
 
 always @( posedge clk ) begin
     if( rst ) begin
