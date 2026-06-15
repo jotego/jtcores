@@ -13,7 +13,18 @@ jobs:
     outputs:
       pairs: ${{ steps.get.outputs.pairs }}
     steps:
-      - uses: http://gitea.jotego.es/actions/checkout@v4
+      - name: Clone repo
+        env:
+          PAT: ${{ secrets.PAT }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git -c http.extraHeader="Authorization: token ${PAT}" clone \
+            --depth 1 \
+            --recurse-submodules \
+            --shallow-submodules \
+            --jobs 8 \
+            "${{ github.server_url }}/${{ github.repository }}.git" .
 
       - name: Get core/setname pairs
         id: get
@@ -143,12 +154,18 @@ jobs:
         batch: ${{ fromJSON(needs.sample_batches.outputs.batches) }}
 
     steps:
-      - name: Checkout repo
-        uses: http://gitea.jotego.es/actions/checkout@v4
-        with:
-          submodules: recursive
-          token: ${{ secrets.PAT }}
-
+      - name: Clone repo
+        env:
+          PAT: ${{ secrets.PAT }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git -c http.extraHeader="Authorization: token ${PAT}" clone \
+            --depth 1 \
+            --recurse-submodules \
+            --shallow-submodules \
+            --jobs 8 \
+            "${{ github.server_url }}/${{ github.repository }}.git" .
 
       - name: Run regression
         env:
