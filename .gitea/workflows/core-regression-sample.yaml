@@ -1,9 +1,9 @@
 name: Core regression (5% daily)
 
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 6 * * *' # runs every day at 03:00 UTC
+# on:
+#   workflow_dispatch:
+#   schedule:
+#     - cron: '0 6 * * *' # runs every day at 03:00 UTC
 
 jobs:
   list_setnames:
@@ -175,8 +175,8 @@ jobs:
     container:
       image: jotego/simulator
       volumes:
-        - ${{ secrets.MAME }}:${{ secrets.MAME }}:ro
-        - ${{ secrets.REGRUNS }}:${{ secrets.REGRUNS }}
+        - ${{ secrets.MAME }}:/root/.mame/roms:ro
+        - ${{ secrets.REGRUNS }}:/nobackup/regression
     needs:
       - sample_batches
     strategy:
