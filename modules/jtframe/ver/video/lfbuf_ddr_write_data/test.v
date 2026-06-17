@@ -21,9 +21,6 @@ reg              ln_done = 1'b0;
 reg  [HW-1:0]    ln_addr = 0;
 reg  [15:0]      ln_data = 0;
 reg              ln_we = 1'b0;
-reg  [15:0]      ddram_model_dout = 16'd0;
-reg              ddram_busy = 1'b0;
-reg              ddram_dout_ready = 1'b1;
 reg  [7:0]       st_addr = 8'd0;
 
 wire             ln_hs, ln_vs, ln_lvbl;
@@ -36,13 +33,16 @@ wire             fb_clr;
 wire             fb_done;
 wire             fb_blank;
 wire [15:0]      fb_dout;
+wire [63:0]      ddram_dout;
 wire [HW-1:0]    rd_addr;
 wire             line;
 wire             scr_we;
 wire             ddram_clk;
+wire             ddram_busy;
 wire [7:0]       ddram_burstcnt;
 wire [31:3]      ddram_addr;
 wire             ddram_rd;
+wire             ddram_dout_ready;
 wire [63:0]      ddram_din;
 wire [7:0]       ddram_be;
 wire             ddram_we;
@@ -50,8 +50,10 @@ wire [7:0]       st_dout;
 
 integer errors = 0;
 integer write_count = 0;
+integer read_count = 0;
 integer timeout = 0;
 integer i;
+reg check_reads = 1'b0;
 
 `include "test_tasks.vh"
 
@@ -90,7 +92,7 @@ jtframe_lfbuf_ddr_ctrl #(
     .ddram_busy         ( ddram_busy         ),
     .ddram_burstcnt     ( ddram_burstcnt     ),
     .ddram_addr         ( ddram_addr         ),
-    .ddram_dout         ( {48'd0, ddram_model_dout} ),
+    .ddram_dout         ( ddram_dout         ),
     .ddram_dout_ready   ( ddram_dout_ready   ),
     .ddram_rd           ( ddram_rd           ),
     .ddram_din          ( ddram_din          ),
@@ -140,6 +142,20 @@ jtframe_lfbuf_line #(
     .scr_we     ( scr_we    )
 );
 
+
+jtframe_ddr_model u_ddr (
+    .clk        ( clk                ),
+    .busy       ( ddram_busy         ),
+    .burstcnt   ( ddram_burstcnt     ),
+    .addr       ( ddram_addr         ),
+    .dout       ( ddram_dout         ),
+    .dout_ready ( ddram_dout_ready   ),
+    .rd         ( ddram_rd           ),
+    .din        ( ddram_din          ),
+    .be         ( ddram_be           ),
+    .we         ( ddram_we           )
+);
+
 always @(posedge clk) begin
     if( !rst && ddram_we && !ddram_busy ) begin
         if( write_count < LINE_W ) begin
@@ -151,6 +167,22 @@ always @(posedge clk) begin
             end
         end
         write_count = write_count + 1;
+    end
+end
+
+
+always @(posedge clk) begin
+    if( !rst && check_reads && scr_we ) begin
+        if( rd_addr !== read_count[HW-1:0] ) begin
+            $display("FAIL: lineout write %0d used rd_addr=%0d", read_count, rd_addr);
+            fail();
+        end
+        if( fb_dout !== pattern(read_count[HW-1:0]) ) begin
+            $display("FAIL: lineout write %0d addr=%0d got %04x expected %04x frame=%0d ddram_addr=%0h",
+                read_count, rd_addr, fb_dout, pattern(read_count[HW-1:0]), frame, ddram_addr);
+            fail();
+        end
+        read_count = read_count + 1;
     end
 end
 
@@ -200,6 +232,17 @@ begin
 end
 endtask
 
+
+task pulse_vs;
+begin
+    @(negedge clk);
+    vs = 1'b1;
+    @(posedge clk);
+    @(negedge clk);
+    vs = 1'b0;
+end
+endtask
+
 task pulse_done;
 begin
     @(negedge clk);
@@ -231,6 +274,23 @@ initial begin
 
     if( write_count < LINE_W ) begin
         $display("FAIL: observed only %0d DDR writes, expected %0d", write_count, LINE_W);
+        errors = errors + 1;
+    end
+
+    pulse_vs();
+    repeat(2) @(posedge clk);
+    vrender = req_v;
+    read_count = 0;
+    check_reads = 1'b1;
+    blank(400);
+
+    for(timeout=0; timeout<400 && read_count<LINE_W; timeout=timeout+1) begin
+        @(posedge clk);
+    end
+    check_reads = 1'b0;
+
+    if( read_count < LINE_W ) begin
+        $display("FAIL: observed only %0d lineout writes, expected %0d", read_count, LINE_W);
         errors = errors + 1;
     end
 

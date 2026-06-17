@@ -43,7 +43,7 @@ module jtframe_lfbuf_ddr_ctrl #(parameter
     output     [  15:0] fb_dout,
     output reg [HW-1:0] rd_addr,
     output reg          line,
-    output reg          scr_we,
+    output              scr_we,
 
     output              ddram_clk,
     input               ddram_busy,
@@ -64,15 +64,17 @@ module jtframe_lfbuf_ddr_ctrl #(parameter
 localparam AW=HW+VW+1;
 localparam [1:0] IDLE=0, READ=1, WRITE=2;
 
-reg           lhbl_l, ln_done_l, do_wr;
+reg           lhbl_l, ln_done_l, do_wr, rd_wait;
 reg  [   1:0] st;
 reg  [AW-1:0] act_addr;
 wire [HW-1:0] nx_rd_addr;
-reg  [HW-1:0] hblen, hlim, hcnt;
-wire          fb_over;
+reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
+wire          fb_over, wr_over;
 reg  [VW-1:0] wr_v;
 
 assign fb_over    = &fb_addr;
+assign wr_over    = &wr_addr;
+assign scr_we     = st == READ && !ddram_busy && ddram_dout_ready && !rd_wait;
 assign ddram_clk  = clk;
 assign ddram_burstcnt = 8'h80;
 assign ddram_addr = { 4'd3, {29-4-AW{1'd0}}, act_addr };
@@ -123,12 +125,13 @@ always @( posedge clk ) begin
         ddram_we <= 0;
         ddram_rd <= 0;
         fb_addr  <= 0;
+        wr_addr  <= 0;
         fb_clr   <= 0;
         fb_done  <= 0;
         act_addr <= 0;
         rd_addr  <= 0;
         line     <= 0;
-        scr_we   <= 0;
+        rd_wait  <= 0;
         ln_done_l<= 0;
         wr_v     <= 0;
         do_wr    <= 0;
@@ -152,19 +155,20 @@ always @( posedge clk ) begin
             IDLE: begin
                 ddram_we <= 0;
                 ddram_rd <= 0;
-                scr_we   <= 0;
+                rd_wait  <= 0;
                 if( lhbl_l & ~lhbl ) begin
                     act_addr <= { ~frame, vrender, {HW{1'd0}}  };
                     ddram_rd <= 1;
                     rd_addr  <= 0;
-                    scr_we   <= 1;
+                    rd_wait  <= 1;
                     st       <= READ;
                 end else if( skip_blank_lines ) begin
                     fb_done  <= 1;
                     do_wr    <= 0;
                 end else if( do_wr && !fb_clr &&
                     hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
-                    fb_addr  <= 0;
+                    fb_addr  <= 1;
+                    wr_addr  <= 0;
                     act_addr <= {  frame, wr_v, {HW{1'd0}}  };
                     ddram_we <= 1;
                     do_wr    <= 0;
@@ -173,23 +177,30 @@ always @( posedge clk ) begin
             end
             READ: if(!ddram_busy) begin
                 ddram_rd <= 0;
-                if( ddram_dout_ready ) begin
+                if( rd_wait ) begin
+                    if( !ddram_dout_ready ) begin
+                        rd_wait <= 0;
+                    end
+                end else if( ddram_dout_ready ) begin
                     rd_addr <= nx_rd_addr;
                     if( &rd_addr ) begin
                         st <= IDLE;
                     end else if( &rd_addr[6:0] ) begin
                         act_addr[HW-1:0] <= nx_rd_addr;
                         ddram_rd <= 1;
+                        rd_wait <= 1;
                     end
                 end
             end
             WRITE: if(!ddram_busy) begin
-                if( &fb_addr[6:0] ) begin
+                if( &wr_addr[6:0] ) begin
                     act_addr[HW-1:7] <= act_addr[HW-1:7]+1'd1;
                 end
-                fb_addr <= fb_addr +1'd1;
-                if( fb_over ) begin
+                wr_addr <= wr_addr + 1'd1;
+                fb_addr <= fb_addr + 1'd1;
+                if( wr_over ) begin
                     ddram_we <= 0;
+                    fb_addr  <= 0;
                     line     <= ~line;
                     fb_done  <= 1;
                     fb_clr   <= 1;
