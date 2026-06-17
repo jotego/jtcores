@@ -17,7 +17,7 @@ reg              frame = 1'b0;
 reg              fb_blank = 1'b0;
 reg  [15:0]      fb_din = 16'h1234;
 reg              ddram_busy = 1'b0;
-reg              ddram_dout_ready = 1'b1;
+reg              ddram_dout_ready = 1'b0;
 reg  [63:0]      ddram_dout = 64'h0;
 reg  [7:0]       st_addr = 8'd0;
 
@@ -42,6 +42,9 @@ integer cycle = 0;
 integer write_seen = 0;
 reg [VW-1:0] expected_v = 0;
 reg [VW-1:0] got_v = 0;
+reg [7:0] ddram_read_cnt = 0;
+reg [3:0] ddram_read_wait = 0;
+reg       ddram_reading = 1'b0;
 
 `include "test_tasks.vh"
 
@@ -115,6 +118,26 @@ begin
     ln_done = 1'b0;
 end
 endtask
+
+
+always @(posedge clk) begin
+    ddram_dout_ready <= 1'b0;
+    if( ddram_rd ) begin
+        ddram_read_wait <= 4'd7;
+        ddram_read_cnt  <= ddram_burstcnt;
+        ddram_reading   <= 1'b1;
+    end else if( ddram_read_wait != 0 ) begin
+        ddram_read_wait <= ddram_read_wait - 1'd1;
+    end else if( ddram_reading ) begin
+        ddram_dout_ready <= 1'b1;
+        if( ddram_read_cnt == 8'd1 ) begin
+            ddram_read_cnt <= 0;
+            ddram_reading  <= 1'b0;
+        end else begin
+            ddram_read_cnt <= ddram_read_cnt - 1'd1;
+        end
+    end
+end
 
 always @(posedge clk) begin
     if( ddram_we && !write_seen ) begin
