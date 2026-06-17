@@ -30475,6 +30475,486 @@
 		</port>
 		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
 	</machine>
+	<machine name="bucky" sourcefile="konami/moo.cpp">
+		<description>Bucky O'Hare (ver EAB)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="173eab01.q5" size="262144" crc="7785ac8a" sha1="ef78d14f54d3a0b724b9702a18c67891e2d366a7" region="maincpu" offset="0"/>
+		<rom name="173eab02.q6" size="262144" crc="9b45f122" sha1="325af1612e6f90ef9ae9353c43dc645be1f3465c" region="maincpu" offset="1"/>
+		<rom name="173a03.t5" size="131072" crc="cd724026" sha1="525445499604b713da4d8bc0a88e428654ceab95" region="maincpu" offset="200000"/>
+		<rom name="173a04.t6" size="131072" crc="7dd54d6f" sha1="b0ee8ec445b92254bca881eefd4449972fed506a" region="maincpu" offset="200001"/>
+		<rom name="173a07.f5" size="262144" crc="4cdaee71" sha1="bdc05d4475415f6fac65d7cdbc48df398e57845e" region="soundcpu" offset="0"/>
+		<rom name="173a05.t8" size="1048576" crc="d14333b4" sha1="d1a15ead2d156e1fceca0bf202ab3962411caf11" region="k056832" offset="0"/>
+		<rom name="173a06.t10" size="1048576" crc="6541a34f" sha1="15cf481498e3b7e0b2f7bfe5434121cc3bd65662" region="k056832" offset="2"/>
+		<rom name="173a10.b8" size="2097152" crc="42fb0a0c" sha1="d68c932cfabdec7896698b433525fe47ef4698d0" region="k053246" offset="0"/>
+		<rom name="173a11.a8" size="2097152" crc="b0d747c4" sha1="0cf1ee1b9a35ded31a81c321df2a076f7b588971" region="k053246" offset="2"/>
+		<rom name="173a12.b10" size="2097152" crc="0fc2ad24" sha1="6eda1043ee1266b8ba938a03a90bc7787210a936" region="k053246" offset="4"/>
+		<rom name="173a13.a10" size="2097152" crc="4cf85439" sha1="8c298bf0e659a830a1830a1180f4ce71215ade45" region="k053246" offset="6"/>
+		<rom name="173a08.b6" size="2097152" crc="dcdded95" sha1="8eeb546a0b60a35a6dce36c5ee872e6c93c577c9" region="k054539" offset="0"/>
+		<rom name="173a09.a6" size="2097152" crc="c93697c4" sha1="0528a604868267a30d281b822c187df118566691" region="k054539" offset="200000"/>
+		<rom name="bucky.nv" size="128" crc="6a5986f3" sha1="3efddeed261b09031c582e12318f00c2cbb214ea" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="k053252"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k053251"/>
+		<device_ref name="k054338"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<device_ref name="k054000"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="Konami 054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Sound Output" tag="IN1" mask="16">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Mono" value="16"/>
+			<dipvalue name="Stereo" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin Mechanism" tag="IN1" mask="32">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Common" value="32" default="yes"/>
+			<dipvalue name="Independent" value="0"/>
+		</dipswitch>
+		<dipswitch name="Number of Players" tag="IN1" mask="192">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="2" value="192"/>
+			<dipvalue name="3" value="64"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="buckyaa" sourcefile="konami/moo.cpp" cloneof="bucky" romof="bucky">
+		<description>Bucky O'Hare (ver AA)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="173aa01.q4" size="262144" crc="e18518a6" sha1="6b0bac8080032b7528b47e802c2f6a5264da5f55" region="maincpu" offset="0"/>
+		<rom name="173aa02.q5" size="262144" crc="c888d0c7" sha1="e11d270049ea8e2d9673224c990c8beecf7942be" region="maincpu" offset="1"/>
+		<rom name="173a03.t5" merge="173a03.t5" size="131072" crc="cd724026" sha1="525445499604b713da4d8bc0a88e428654ceab95" region="maincpu" offset="200000"/>
+		<rom name="173a04.t6" merge="173a04.t6" size="131072" crc="7dd54d6f" sha1="b0ee8ec445b92254bca881eefd4449972fed506a" region="maincpu" offset="200001"/>
+		<rom name="173a07.f5" merge="173a07.f5" size="262144" crc="4cdaee71" sha1="bdc05d4475415f6fac65d7cdbc48df398e57845e" region="soundcpu" offset="0"/>
+		<rom name="173a05.t8" merge="173a05.t8" size="1048576" crc="d14333b4" sha1="d1a15ead2d156e1fceca0bf202ab3962411caf11" region="k056832" offset="0"/>
+		<rom name="173a06.t10" merge="173a06.t10" size="1048576" crc="6541a34f" sha1="15cf481498e3b7e0b2f7bfe5434121cc3bd65662" region="k056832" offset="2"/>
+		<rom name="173a10.b8" merge="173a10.b8" size="2097152" crc="42fb0a0c" sha1="d68c932cfabdec7896698b433525fe47ef4698d0" region="k053246" offset="0"/>
+		<rom name="173a11.a8" merge="173a11.a8" size="2097152" crc="b0d747c4" sha1="0cf1ee1b9a35ded31a81c321df2a076f7b588971" region="k053246" offset="2"/>
+		<rom name="173a12.b10" merge="173a12.b10" size="2097152" crc="0fc2ad24" sha1="6eda1043ee1266b8ba938a03a90bc7787210a936" region="k053246" offset="4"/>
+		<rom name="173a13.a10" merge="173a13.a10" size="2097152" crc="4cf85439" sha1="8c298bf0e659a830a1830a1180f4ce71215ade45" region="k053246" offset="6"/>
+		<rom name="173a08.b6" merge="173a08.b6" size="2097152" crc="dcdded95" sha1="8eeb546a0b60a35a6dce36c5ee872e6c93c577c9" region="k054539" offset="0"/>
+		<rom name="173a09.a6" merge="173a09.a6" size="2097152" crc="c93697c4" sha1="0528a604868267a30d281b822c187df118566691" region="k054539" offset="200000"/>
+		<rom name="bucky.nv" merge="bucky.nv" size="128" crc="6a5986f3" sha1="3efddeed261b09031c582e12318f00c2cbb214ea" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="k053252"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k053251"/>
+		<device_ref name="k054338"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<device_ref name="k054000"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="Konami 054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Sound Output" tag="IN1" mask="16">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Mono" value="16"/>
+			<dipvalue name="Stereo" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin Mechanism" tag="IN1" mask="32">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Common" value="32" default="yes"/>
+			<dipvalue name="Independent" value="0"/>
+		</dipswitch>
+		<dipswitch name="Number of Players" tag="IN1" mask="192">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="2" value="192"/>
+			<dipvalue name="3" value="64"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="buckyaab" sourcefile="konami/moo.cpp" cloneof="bucky" romof="bucky">
+		<description>Bucky O'Hare (ver AAB)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="173aab01.q5" size="262144" crc="9193e89f" sha1="574d6eb4097cd10c3dea99060ee09f220d41f1dc" region="maincpu" offset="0"/>
+		<rom name="173aab02.q6" size="262144" crc="2567f3eb" sha1="ccdb2a4b3ad1464f70d1442df8a3a7a7e34f6cd7" region="maincpu" offset="1"/>
+		<rom name="173a03.t5" merge="173a03.t5" size="131072" crc="cd724026" sha1="525445499604b713da4d8bc0a88e428654ceab95" region="maincpu" offset="200000"/>
+		<rom name="173a04.t6" merge="173a04.t6" size="131072" crc="7dd54d6f" sha1="b0ee8ec445b92254bca881eefd4449972fed506a" region="maincpu" offset="200001"/>
+		<rom name="173a07.f5" merge="173a07.f5" size="262144" crc="4cdaee71" sha1="bdc05d4475415f6fac65d7cdbc48df398e57845e" region="soundcpu" offset="0"/>
+		<rom name="173a05.t8" merge="173a05.t8" size="1048576" crc="d14333b4" sha1="d1a15ead2d156e1fceca0bf202ab3962411caf11" region="k056832" offset="0"/>
+		<rom name="173a06.t10" merge="173a06.t10" size="1048576" crc="6541a34f" sha1="15cf481498e3b7e0b2f7bfe5434121cc3bd65662" region="k056832" offset="2"/>
+		<rom name="173a10.b8" merge="173a10.b8" size="2097152" crc="42fb0a0c" sha1="d68c932cfabdec7896698b433525fe47ef4698d0" region="k053246" offset="0"/>
+		<rom name="173a11.a8" merge="173a11.a8" size="2097152" crc="b0d747c4" sha1="0cf1ee1b9a35ded31a81c321df2a076f7b588971" region="k053246" offset="2"/>
+		<rom name="173a12.b10" merge="173a12.b10" size="2097152" crc="0fc2ad24" sha1="6eda1043ee1266b8ba938a03a90bc7787210a936" region="k053246" offset="4"/>
+		<rom name="173a13.a10" merge="173a13.a10" size="2097152" crc="4cf85439" sha1="8c298bf0e659a830a1830a1180f4ce71215ade45" region="k053246" offset="6"/>
+		<rom name="173a08.b6" merge="173a08.b6" size="2097152" crc="dcdded95" sha1="8eeb546a0b60a35a6dce36c5ee872e6c93c577c9" region="k054539" offset="0"/>
+		<rom name="173a09.a6" merge="173a09.a6" size="2097152" crc="c93697c4" sha1="0528a604868267a30d281b822c187df118566691" region="k054539" offset="200000"/>
+		<rom name="buckyaab.nv" merge="bucky.nv" size="128" crc="6a5986f3" sha1="3efddeed261b09031c582e12318f00c2cbb214ea" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="k053252"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k053251"/>
+		<device_ref name="k054338"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<device_ref name="k054000"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="Konami 054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Sound Output" tag="IN1" mask="16">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Mono" value="16"/>
+			<dipvalue name="Stereo" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin Mechanism" tag="IN1" mask="32">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Common" value="32" default="yes"/>
+			<dipvalue name="Independent" value="0"/>
+		</dipswitch>
+		<dipswitch name="Number of Players" tag="IN1" mask="192">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="2" value="192"/>
+			<dipvalue name="3" value="64"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="buckyea" sourcefile="konami/moo.cpp" cloneof="bucky" romof="bucky">
+		<description>Bucky O'Hare (ver EA)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="2.d5" size="262144" crc="e18518a6" sha1="6b0bac8080032b7528b47e802c2f6a5264da5f55" region="maincpu" offset="0"/>
+		<rom name="3.d6" size="262144" crc="45ef9545" sha1="370862e916410e7052e094033cc18ac727c75d8e" region="maincpu" offset="1"/>
+		<rom name="173a03.t5" merge="173a03.t5" size="131072" crc="cd724026" sha1="525445499604b713da4d8bc0a88e428654ceab95" region="maincpu" offset="200000"/>
+		<rom name="173a04.t6" merge="173a04.t6" size="131072" crc="7dd54d6f" sha1="b0ee8ec445b92254bca881eefd4449972fed506a" region="maincpu" offset="200001"/>
+		<rom name="173a07.f5" merge="173a07.f5" size="262144" crc="4cdaee71" sha1="bdc05d4475415f6fac65d7cdbc48df398e57845e" region="soundcpu" offset="0"/>
+		<rom name="173a05.t8" merge="173a05.t8" size="1048576" crc="d14333b4" sha1="d1a15ead2d156e1fceca0bf202ab3962411caf11" region="k056832" offset="0"/>
+		<rom name="173a06.t10" merge="173a06.t10" size="1048576" crc="6541a34f" sha1="15cf481498e3b7e0b2f7bfe5434121cc3bd65662" region="k056832" offset="2"/>
+		<rom name="173a10.b8" merge="173a10.b8" size="2097152" crc="42fb0a0c" sha1="d68c932cfabdec7896698b433525fe47ef4698d0" region="k053246" offset="0"/>
+		<rom name="173a11.a8" merge="173a11.a8" size="2097152" crc="b0d747c4" sha1="0cf1ee1b9a35ded31a81c321df2a076f7b588971" region="k053246" offset="2"/>
+		<rom name="173a12.b10" merge="173a12.b10" size="2097152" crc="0fc2ad24" sha1="6eda1043ee1266b8ba938a03a90bc7787210a936" region="k053246" offset="4"/>
+		<rom name="173a13.a10" merge="173a13.a10" size="2097152" crc="4cf85439" sha1="8c298bf0e659a830a1830a1180f4ce71215ade45" region="k053246" offset="6"/>
+		<rom name="173a08.b6" merge="173a08.b6" size="2097152" crc="dcdded95" sha1="8eeb546a0b60a35a6dce36c5ee872e6c93c577c9" region="k054539" offset="0"/>
+		<rom name="173a09.a6" merge="173a09.a6" size="2097152" crc="c93697c4" sha1="0528a604868267a30d281b822c187df118566691" region="k054539" offset="200000"/>
+		<rom name="bucky.nv" merge="bucky.nv" size="128" crc="6a5986f3" sha1="3efddeed261b09031c582e12318f00c2cbb214ea" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="k053252"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k053251"/>
+		<device_ref name="k054338"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<device_ref name="k054000"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="Konami 054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Sound Output" tag="IN1" mask="16">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Mono" value="16"/>
+			<dipvalue name="Stereo" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin Mechanism" tag="IN1" mask="32">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Common" value="32" default="yes"/>
+			<dipvalue name="Independent" value="0"/>
+		</dipswitch>
+		<dipswitch name="Number of Players" tag="IN1" mask="192">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="2" value="192"/>
+			<dipvalue name="3" value="64"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="buckyjaa" sourcefile="konami/moo.cpp" cloneof="bucky" romof="bucky">
+		<description>Bucky O'Hare (ver JAA)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="173jaa01.05" size="262144" crc="0a32bde7" sha1="17b7654fd69eb1b82e2949ef324ce599113360aa" region="maincpu" offset="0"/>
+		<rom name="173jaa02.06" size="262144" crc="3e6f3955" sha1="09ca39da8bdb37cb5517fe59cff5467c0623c380" region="maincpu" offset="1"/>
+		<rom name="173a03.t5" merge="173a03.t5" size="131072" crc="cd724026" sha1="525445499604b713da4d8bc0a88e428654ceab95" region="maincpu" offset="200000"/>
+		<rom name="173a04.t6" merge="173a04.t6" size="131072" crc="7dd54d6f" sha1="b0ee8ec445b92254bca881eefd4449972fed506a" region="maincpu" offset="200001"/>
+		<rom name="173a07.f5" merge="173a07.f5" size="262144" crc="4cdaee71" sha1="bdc05d4475415f6fac65d7cdbc48df398e57845e" region="soundcpu" offset="0"/>
+		<rom name="173a05.t8" merge="173a05.t8" size="1048576" crc="d14333b4" sha1="d1a15ead2d156e1fceca0bf202ab3962411caf11" region="k056832" offset="0"/>
+		<rom name="173a06.t10" merge="173a06.t10" size="1048576" crc="6541a34f" sha1="15cf481498e3b7e0b2f7bfe5434121cc3bd65662" region="k056832" offset="2"/>
+		<rom name="173a10.b8" merge="173a10.b8" size="2097152" crc="42fb0a0c" sha1="d68c932cfabdec7896698b433525fe47ef4698d0" region="k053246" offset="0"/>
+		<rom name="173a11.a8" merge="173a11.a8" size="2097152" crc="b0d747c4" sha1="0cf1ee1b9a35ded31a81c321df2a076f7b588971" region="k053246" offset="2"/>
+		<rom name="173a12.b10" merge="173a12.b10" size="2097152" crc="0fc2ad24" sha1="6eda1043ee1266b8ba938a03a90bc7787210a936" region="k053246" offset="4"/>
+		<rom name="173a13.a10" merge="173a13.a10" size="2097152" crc="4cf85439" sha1="8c298bf0e659a830a1830a1180f4ce71215ade45" region="k053246" offset="6"/>
+		<rom name="173a08.b6" merge="173a08.b6" size="2097152" crc="dcdded95" sha1="8eeb546a0b60a35a6dce36c5ee872e6c93c577c9" region="k054539" offset="0"/>
+		<rom name="173a09.a6" merge="173a09.a6" size="2097152" crc="c93697c4" sha1="0528a604868267a30d281b822c187df118566691" region="k054539" offset="200000"/>
+		<rom name="buckyja.nv" size="128" crc="2f280a74" sha1="c4b4472da57599587325bad6d9e7760916076816" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="k053252"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k053251"/>
+		<device_ref name="k054338"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<device_ref name="k054000"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="Konami 054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Sound Output" tag="IN1" mask="16">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Mono" value="16"/>
+			<dipvalue name="Stereo" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin Mechanism" tag="IN1" mask="32">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Common" value="32" default="yes"/>
+			<dipvalue name="Independent" value="0"/>
+		</dipswitch>
+		<dipswitch name="Number of Players" tag="IN1" mask="192">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="2" value="192"/>
+			<dipvalue name="3" value="64"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="buckyuab" sourcefile="konami/moo.cpp" cloneof="bucky" romof="bucky">
+		<description>Bucky O'Hare (ver UAB)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="173uab01.q5" size="262144" crc="dcaecca0" sha1="c41847c9d89cdaf7cfa81ad9cc018c32592a882f" region="maincpu" offset="0"/>
+		<rom name="173uab02.q6" size="262144" crc="e3c856a6" sha1="33cc8a29643e44b31ee280015c0c994bed72a0e3" region="maincpu" offset="1"/>
+		<rom name="173a03.t5" merge="173a03.t5" size="131072" crc="cd724026" sha1="525445499604b713da4d8bc0a88e428654ceab95" region="maincpu" offset="200000"/>
+		<rom name="173a04.t6" merge="173a04.t6" size="131072" crc="7dd54d6f" sha1="b0ee8ec445b92254bca881eefd4449972fed506a" region="maincpu" offset="200001"/>
+		<rom name="173a07.f5" merge="173a07.f5" size="262144" crc="4cdaee71" sha1="bdc05d4475415f6fac65d7cdbc48df398e57845e" region="soundcpu" offset="0"/>
+		<rom name="173a05.t8" merge="173a05.t8" size="1048576" crc="d14333b4" sha1="d1a15ead2d156e1fceca0bf202ab3962411caf11" region="k056832" offset="0"/>
+		<rom name="173a06.t10" merge="173a06.t10" size="1048576" crc="6541a34f" sha1="15cf481498e3b7e0b2f7bfe5434121cc3bd65662" region="k056832" offset="2"/>
+		<rom name="173a10.b8" merge="173a10.b8" size="2097152" crc="42fb0a0c" sha1="d68c932cfabdec7896698b433525fe47ef4698d0" region="k053246" offset="0"/>
+		<rom name="173a11.a8" merge="173a11.a8" size="2097152" crc="b0d747c4" sha1="0cf1ee1b9a35ded31a81c321df2a076f7b588971" region="k053246" offset="2"/>
+		<rom name="173a12.b10" merge="173a12.b10" size="2097152" crc="0fc2ad24" sha1="6eda1043ee1266b8ba938a03a90bc7787210a936" region="k053246" offset="4"/>
+		<rom name="173a13.a10" merge="173a13.a10" size="2097152" crc="4cf85439" sha1="8c298bf0e659a830a1830a1180f4ce71215ade45" region="k053246" offset="6"/>
+		<rom name="173a08.b6" merge="173a08.b6" size="2097152" crc="dcdded95" sha1="8eeb546a0b60a35a6dce36c5ee872e6c93c577c9" region="k054539" offset="0"/>
+		<rom name="173a09.a6" merge="173a09.a6" size="2097152" crc="c93697c4" sha1="0528a604868267a30d281b822c187df118566691" region="k054539" offset="200000"/>
+		<rom name="buckyuab.nv" size="128" crc="a5cb137a" sha1="119df859d6b5c366481305b1433eea0deadc3fa9" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="k053252"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k053251"/>
+		<device_ref name="k054338"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<device_ref name="k054000"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="Konami 054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+			<control type="joy" player="3" buttons="3" ways="8"/>
+			<control type="joy" player="4" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Sound Output" tag="IN1" mask="16">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Mono" value="16"/>
+			<dipvalue name="Stereo" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin Mechanism" tag="IN1" mask="32">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Common" value="32" default="yes"/>
+			<dipvalue name="Independent" value="0"/>
+		</dipswitch>
+		<dipswitch name="Number of Players" tag="IN1" mask="192">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="2" value="192"/>
+			<dipvalue name="3" value="64"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
 	<machine name="bullet" sourcefile="sega/segas16b.cpp">
 		<description>Bullet (FD1094 317-0041)</description>
 		<year>1987</year>
@@ -110415,6 +110895,388 @@
 		<port tag=":DIPSW">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="moomesa" sourcefile="konami/moo.cpp">
+		<description>Wild West C.O.W.-Boys of Moo Mesa (ver EAB)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="151b01.q5" size="262144" crc="fb2fa298" sha1="f03b24681a2b329ba797fd2780ac9a3cf862ebcb" region="maincpu" offset="0"/>
+		<rom name="151eab02.q6" size="262144" crc="37b30c01" sha1="cb91739097a4a36f8f8d92998d822ffc851e1279" region="maincpu" offset="1"/>
+		<rom name="151a03.t5" size="262144" crc="c896d3ea" sha1="ea83c63e2c3dbc4f1e1d49f1852a78ffc1f0ea4b" region="maincpu" offset="100000"/>
+		<rom name="151a04.t6" size="262144" crc="3b24706a" sha1="c2a77944284e35ff57f0774fa7b67e53d3b63e1f" region="maincpu" offset="100001"/>
+		<rom name="151a07.f5" size="262144" crc="cde247fc" sha1="cdee0228db55d53ae43d7cd2d9001dadd20c2c61" region="soundcpu" offset="0"/>
+		<rom name="151a05.t8" size="1048576" crc="bc616249" sha1="58c1f1a03ce9bead8f79d12ce4b2d342432b24b5" region="k056832" offset="0"/>
+		<rom name="151a06.t10" size="1048576" crc="38dbcac1" sha1="c357779733921695b20ac586db5b475f5b2b8f4c" region="k056832" offset="2"/>
+		<rom name="151a10.b8" size="2097152" crc="376c64f1" sha1="eb69c5a27f9795e28f04a503955132f0a9e4de12" region="k053246" offset="0"/>
+		<rom name="151a11.a8" size="2097152" crc="e7f49225" sha1="1255b214f29b6507540dad5892c60a7ae2aafc5c" region="k053246" offset="2"/>
+		<rom name="151a12.b10" size="2097152" crc="4978555f" sha1="d9871f21d0c8a512b408e137e2e80e9392c2bf6f" region="k053246" offset="4"/>
+		<rom name="151a13.a10" size="2097152" crc="4771f525" sha1="218d86b6230919b5db0304dac00513eb6b27ba9a" region="k053246" offset="6"/>
+		<rom name="151a08.b6" size="2097152" crc="962251d7" sha1="32dccf515d2ca8eeffb45cada3dcc60089991b77" region="k054539" offset="0"/>
+		<rom name="moomesa.nv" size="128" crc="7bd904a8" sha1="8747c5c62d1832e290be8ace73c61b1f228c0bec" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="k053252"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k053251"/>
+		<device_ref name="k054338"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="Konami 054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+			<control type="joy" player="3" buttons="2" ways="8"/>
+			<control type="joy" player="4" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Sound Output" tag="IN1" mask="16">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Mono" value="16"/>
+			<dipvalue name="Stereo" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin Mechanism" tag="IN1" mask="32">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Common" value="32" default="yes"/>
+			<dipvalue name="Independent" value="0"/>
+		</dipswitch>
+		<dipswitch name="Number of Players" tag="IN1" mask="192">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="2" value="192"/>
+			<dipvalue name="3" value="64"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="moomesaaab" sourcefile="konami/moo.cpp" cloneof="moomesa" romof="moomesa">
+		<description>Wild West C.O.W.-Boys of Moo Mesa (ver AAB)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="151b01.q5" merge="151b01.q5" size="262144" crc="fb2fa298" sha1="f03b24681a2b329ba797fd2780ac9a3cf862ebcb" region="maincpu" offset="0"/>
+		<rom name="151aab02.q6" size="262144" crc="2162d593" sha1="a6cfe4a57b3f22b2aa0f04f91acefe3b7bea9e76" region="maincpu" offset="1"/>
+		<rom name="151a03.t5" merge="151a03.t5" size="262144" crc="c896d3ea" sha1="ea83c63e2c3dbc4f1e1d49f1852a78ffc1f0ea4b" region="maincpu" offset="100000"/>
+		<rom name="151a04.t6" merge="151a04.t6" size="262144" crc="3b24706a" sha1="c2a77944284e35ff57f0774fa7b67e53d3b63e1f" region="maincpu" offset="100001"/>
+		<rom name="151a07.f5" merge="151a07.f5" size="262144" crc="cde247fc" sha1="cdee0228db55d53ae43d7cd2d9001dadd20c2c61" region="soundcpu" offset="0"/>
+		<rom name="151a05.t8" merge="151a05.t8" size="1048576" crc="bc616249" sha1="58c1f1a03ce9bead8f79d12ce4b2d342432b24b5" region="k056832" offset="0"/>
+		<rom name="151a06.t10" merge="151a06.t10" size="1048576" crc="38dbcac1" sha1="c357779733921695b20ac586db5b475f5b2b8f4c" region="k056832" offset="2"/>
+		<rom name="151a10.b8" merge="151a10.b8" size="2097152" crc="376c64f1" sha1="eb69c5a27f9795e28f04a503955132f0a9e4de12" region="k053246" offset="0"/>
+		<rom name="151a11.a8" merge="151a11.a8" size="2097152" crc="e7f49225" sha1="1255b214f29b6507540dad5892c60a7ae2aafc5c" region="k053246" offset="2"/>
+		<rom name="151a12.b10" merge="151a12.b10" size="2097152" crc="4978555f" sha1="d9871f21d0c8a512b408e137e2e80e9392c2bf6f" region="k053246" offset="4"/>
+		<rom name="151a13.a10" merge="151a13.a10" size="2097152" crc="4771f525" sha1="218d86b6230919b5db0304dac00513eb6b27ba9a" region="k053246" offset="6"/>
+		<rom name="151a08.b6" merge="151a08.b6" size="2097152" crc="962251d7" sha1="32dccf515d2ca8eeffb45cada3dcc60089991b77" region="k054539" offset="0"/>
+		<rom name="moomesaaab.nv" merge="moomesa.nv" size="128" crc="7bd904a8" sha1="8747c5c62d1832e290be8ace73c61b1f228c0bec" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="k053252"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k053251"/>
+		<device_ref name="k054338"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="Konami 054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+			<control type="joy" player="3" buttons="2" ways="8"/>
+			<control type="joy" player="4" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Sound Output" tag="IN1" mask="16">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Mono" value="16"/>
+			<dipvalue name="Stereo" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin Mechanism" tag="IN1" mask="32">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Common" value="32" default="yes"/>
+			<dipvalue name="Independent" value="0"/>
+		</dipswitch>
+		<dipswitch name="Number of Players" tag="IN1" mask="192">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="2" value="192"/>
+			<dipvalue name="3" value="64"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="moomesabl" sourcefile="konami/moo.cpp" cloneof="moomesa" romof="moomesa">
+		<description>Wild West C.O.W.-Boys of Moo Mesa (bootleg)</description>
+		<year>1992</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="moo03.rom" size="524288" crc="fed6a1cb" sha1="be58e266973930d643b5e15dcc974a82e1a3ae35" region="maincpu" offset="0"/>
+		<rom name="moo04.rom" size="524288" crc="ec45892a" sha1="594330cbbfbca87e61ddf519e565018b6eaf5a20" region="maincpu" offset="100000"/>
+		<rom name="moo03.rom" size="524288" crc="fed6a1cb" sha1="be58e266973930d643b5e15dcc974a82e1a3ae35" region="user1" offset="0"/>
+		<rom name="moo04.rom" size="524288" crc="ec45892a" sha1="594330cbbfbca87e61ddf519e565018b6eaf5a20" region="user1" offset="80000"/>
+		<rom name="moo05.rom" size="524288" crc="8c045f9c" sha1="cde81a722a4bc2efac09a26d7e300664059ec7bb" region="k056832" offset="0"/>
+		<rom name="moo07.rom" size="524288" crc="b9e29f50" sha1="c2af095df0af45064d49210085370425b319b82b" region="k056832" offset="2"/>
+		<rom name="moo06.rom" size="524288" crc="1261aa89" sha1="b600916911bc0d8b6348e2ad4a16ed1a1c528261" region="k056832" offset="100000"/>
+		<rom name="moo08.rom" size="524288" crc="e6937229" sha1="089b3d4af33e8d8fbc1f3abb81e047a7a590567c" region="k056832" offset="100002"/>
+		<rom name="151a10" merge="151a10.b8" size="2097152" crc="376c64f1" sha1="eb69c5a27f9795e28f04a503955132f0a9e4de12" region="k053246" offset="0"/>
+		<rom name="151a11" merge="151a11.a8" size="2097152" crc="e7f49225" sha1="1255b214f29b6507540dad5892c60a7ae2aafc5c" region="k053246" offset="2"/>
+		<rom name="151a12" merge="151a12.b10" size="2097152" crc="4978555f" sha1="d9871f21d0c8a512b408e137e2e80e9392c2bf6f" region="k053246" offset="4"/>
+		<rom name="151a13" merge="151a13.a10" size="2097152" crc="4771f525" sha1="218d86b6230919b5db0304dac00513eb6b27ba9a" region="k053246" offset="6"/>
+		<rom name="moo01.rom" size="524288" crc="3311338a" sha1="c0b5cd16f0275b5b93a2ea4fc64013c848c5fa43" region="oki" offset="0"/>
+		<rom name="moo02.rom" size="524288" crc="2cf3a7c6" sha1="06f495ba8250b34c32569d49c8b84e6edef562d3" region="oki" offset="170000"/>
+		<rom name="moo.nv" merge="moomesa.nv" size="128" crc="7bd904a8" sha1="8747c5c62d1832e290be8ace73c61b1f228c0bec" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k053251"/>
+		<device_ref name="k054338"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+			<control type="joy" player="3" buttons="2" ways="8"/>
+			<control type="joy" player="4" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Sound Output" tag="IN1" mask="16">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Mono" value="16"/>
+			<dipvalue name="Stereo" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin Mechanism" tag="IN1" mask="32">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Common" value="32" default="yes"/>
+			<dipvalue name="Independent" value="0"/>
+		</dipswitch>
+		<dipswitch name="Number of Players" tag="IN1" mask="192">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="2" value="192"/>
+			<dipvalue name="3" value="64"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="preliminary" emulation="preliminary" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+	</machine>
+	<machine name="moomesauab" sourcefile="konami/moo.cpp" cloneof="moomesa" romof="moomesa">
+		<description>Wild West C.O.W.-Boys of Moo Mesa (ver UAB)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="151b01.q5" merge="151b01.q5" size="262144" crc="fb2fa298" sha1="f03b24681a2b329ba797fd2780ac9a3cf862ebcb" region="maincpu" offset="0"/>
+		<rom name="151uab02.q6" size="262144" crc="3d9f4d59" sha1="db47044bd4935fce94ec659242c9819c30eb6d0f" region="maincpu" offset="1"/>
+		<rom name="151a03.t5" merge="151a03.t5" size="262144" crc="c896d3ea" sha1="ea83c63e2c3dbc4f1e1d49f1852a78ffc1f0ea4b" region="maincpu" offset="100000"/>
+		<rom name="151a04.t6" merge="151a04.t6" size="262144" crc="3b24706a" sha1="c2a77944284e35ff57f0774fa7b67e53d3b63e1f" region="maincpu" offset="100001"/>
+		<rom name="151a07.f5" merge="151a07.f5" size="262144" crc="cde247fc" sha1="cdee0228db55d53ae43d7cd2d9001dadd20c2c61" region="soundcpu" offset="0"/>
+		<rom name="151a05.t8" merge="151a05.t8" size="1048576" crc="bc616249" sha1="58c1f1a03ce9bead8f79d12ce4b2d342432b24b5" region="k056832" offset="0"/>
+		<rom name="151a06.t10" merge="151a06.t10" size="1048576" crc="38dbcac1" sha1="c357779733921695b20ac586db5b475f5b2b8f4c" region="k056832" offset="2"/>
+		<rom name="151a10.b8" merge="151a10.b8" size="2097152" crc="376c64f1" sha1="eb69c5a27f9795e28f04a503955132f0a9e4de12" region="k053246" offset="0"/>
+		<rom name="151a11.a8" merge="151a11.a8" size="2097152" crc="e7f49225" sha1="1255b214f29b6507540dad5892c60a7ae2aafc5c" region="k053246" offset="2"/>
+		<rom name="151a12.b10" merge="151a12.b10" size="2097152" crc="4978555f" sha1="d9871f21d0c8a512b408e137e2e80e9392c2bf6f" region="k053246" offset="4"/>
+		<rom name="151a13.a10" merge="151a13.a10" size="2097152" crc="4771f525" sha1="218d86b6230919b5db0304dac00513eb6b27ba9a" region="k053246" offset="6"/>
+		<rom name="151a08.b6" merge="151a08.b6" size="2097152" crc="962251d7" sha1="32dccf515d2ca8eeffb45cada3dcc60089991b77" region="k054539" offset="0"/>
+		<rom name="moomesauab.nv" size="128" crc="a5cb137a" sha1="119df859d6b5c366481305b1433eea0deadc3fa9" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="k053252"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k053251"/>
+		<device_ref name="k054338"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="Konami 054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+			<control type="joy" player="3" buttons="2" ways="8"/>
+			<control type="joy" player="4" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Sound Output" tag="IN1" mask="16">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Mono" value="16"/>
+			<dipvalue name="Stereo" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin Mechanism" tag="IN1" mask="32">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Common" value="32" default="yes"/>
+			<dipvalue name="Independent" value="0"/>
+		</dipswitch>
+		<dipswitch name="Number of Players" tag="IN1" mask="192">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="2" value="192"/>
+			<dipvalue name="3" value="64"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" overall="imperfect"/>
+	</machine>
+	<machine name="moomesauac" sourcefile="konami/moo.cpp" cloneof="moomesa" romof="moomesa">
+		<description>Wild West C.O.W.-Boys of Moo Mesa (ver UAC)</description>
+		<year>1992</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="151c01.q5" size="262144" crc="10555732" sha1="b67cb756c250ddd6f3291683b3f3449e13a2ee83" region="maincpu" offset="0"/>
+		<rom name="151uac02.q6" size="262144" crc="52ae87b0" sha1="552d41a2ddd040f92c6a3cfdc07f9d6e751ac9c1" region="maincpu" offset="1"/>
+		<rom name="151a03.t5" merge="151a03.t5" size="262144" crc="c896d3ea" sha1="ea83c63e2c3dbc4f1e1d49f1852a78ffc1f0ea4b" region="maincpu" offset="100000"/>
+		<rom name="151a04.t6" merge="151a04.t6" size="262144" crc="3b24706a" sha1="c2a77944284e35ff57f0774fa7b67e53d3b63e1f" region="maincpu" offset="100001"/>
+		<rom name="151a07.f5" merge="151a07.f5" size="262144" crc="cde247fc" sha1="cdee0228db55d53ae43d7cd2d9001dadd20c2c61" region="soundcpu" offset="0"/>
+		<rom name="151a05.t8" merge="151a05.t8" size="1048576" crc="bc616249" sha1="58c1f1a03ce9bead8f79d12ce4b2d342432b24b5" region="k056832" offset="0"/>
+		<rom name="151a06.t10" merge="151a06.t10" size="1048576" crc="38dbcac1" sha1="c357779733921695b20ac586db5b475f5b2b8f4c" region="k056832" offset="2"/>
+		<rom name="151a10.b8" merge="151a10.b8" size="2097152" crc="376c64f1" sha1="eb69c5a27f9795e28f04a503955132f0a9e4de12" region="k053246" offset="0"/>
+		<rom name="151a11.a8" merge="151a11.a8" size="2097152" crc="e7f49225" sha1="1255b214f29b6507540dad5892c60a7ae2aafc5c" region="k053246" offset="2"/>
+		<rom name="151a12.b10" merge="151a12.b10" size="2097152" crc="4978555f" sha1="d9871f21d0c8a512b408e137e2e80e9392c2bf6f" region="k053246" offset="4"/>
+		<rom name="151a13.a10" merge="151a13.a10" size="2097152" crc="4771f525" sha1="218d86b6230919b5db0304dac00513eb6b27ba9a" region="k053246" offset="6"/>
+		<rom name="151a08.b6" merge="151a08.b6" size="2097152" crc="962251d7" sha1="32dccf515d2ca8eeffb45cada3dcc60089991b77" region="k054539" offset="0"/>
+		<rom name="moomesauac.nv" size="128" crc="a5cb137a" sha1="119df859d6b5c366481305b1433eea0deadc3fa9" region="eeprom" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="er5911_8"/>
+		<device_ref name="k053252"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k053247"/>
+		<device_ref name="k056832"/>
+		<device_ref name="k053251"/>
+		<device_ref name="k054338"/>
+		<device_ref name="speaker"/>
+		<device_ref name="k054321"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="k054539"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="16000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="8000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="k054539" name="Konami 054539 ADPCM" clock="18432000"/>
+		<display tag="screen" type="raster" rotate="0" width="384" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="4" coins="4" service="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+			<control type="joy" player="3" buttons="2" ways="8"/>
+			<control type="joy" player="4" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Sound Output" tag="IN1" mask="16">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Mono" value="16"/>
+			<dipvalue name="Stereo" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin Mechanism" tag="IN1" mask="32">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="Common" value="32" default="yes"/>
+			<dipvalue name="Independent" value="0"/>
+		</dipswitch>
+		<dipswitch name="Number of Players" tag="IN1" mask="192">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="2" value="192"/>
+			<dipvalue name="3" value="64"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":P1_P3">
+		</port>
+		<port tag=":P2_P4">
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="sound" overall="imperfect"/>
 	</machine>
 	<machine name="mpang" sourcefile="capcom/cps2.cpp">
 		<description>Mighty! Pang (Europe 001010)</description>
