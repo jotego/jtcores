@@ -101,6 +101,7 @@ func TestCab2Hex_comment2(t *testing.T) {
 
 func TestCab2Hex_single(t *testing.T) {
 	cab := strings.NewReader(`coin
+2coin
 service
 1p
 2p
@@ -111,6 +112,13 @@ up
 b1
 b2
 b3
+2right
+2left
+2down
+2up
+2b1
+2b2
+2b3
 test
 `)
 	var uut cab_converter
@@ -121,8 +129,9 @@ test
 	reader := bytes.NewReader(converted)
 	scanner := bufio.NewScanner(reader)
 	linecnt := 0
-	expected := []string{"1", "2", "4", "8", "10", "20", "40",
-		"80", "100", "200", "400", "800"}
+	expected := []string{"1", "2000", "2", "4", "8", "10", "20", "40",
+		"80", "100", "200", "400", "4000", "8000", "10000", "20000",
+		"40000", "80000", "100000", "800"}
 	for scanner.Scan() {
 		linecnt++
 		line := scanner.Text()
@@ -130,8 +139,8 @@ test
 			t.Errorf("Expecting line %2d to be %3s but got %3s", linecnt, expected[linecnt-1], line)
 		}
 	}
-	if linecnt != 12 {
-		t.Errorf("Expecting 12 lines, got %d", linecnt)
+	if linecnt != len(expected) {
+		t.Errorf("Expecting %d lines, got %d", len(expected), linecnt)
 	}
 }
 
@@ -181,6 +190,66 @@ right b2
 0
 210
 0
+`
+	var uut cab_converter
+	converted, e := uut.make_hexfile(cab)
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	test_cab2hex_compare(converted, expected, t)
+}
+
+func TestCab2Hex_2p_inputs(t *testing.T) {
+	cab := strings.NewReader(`2coin
+2right 2b1
+2left 2b2
+2down 2b3
+2up
+`)
+	expected := `2000
+44000
+88000
+110000
+20000
+`
+	var uut cab_converter
+	converted, e := uut.make_hexfile(cab)
+	if e != nil {
+		t.Error(e)
+		return
+	}
+	test_cab2hex_compare(converted, expected, t)
+}
+
+func TestCab2Hex_backwards_compatible(t *testing.T) {
+	cab := strings.NewReader(`coin
+service
+1p
+2p
+right
+left
+down
+up
+b1
+b2
+b3
+test
+reset
+`)
+	expected := `1
+2
+4
+8
+10
+20
+40
+80
+100
+200
+400
+800
+1000
 `
 	var uut cab_converter
 	converted, e := uut.make_hexfile(cab)

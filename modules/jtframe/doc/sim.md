@@ -29,6 +29,9 @@ bit  | meaning
 10:8 | buttons {B3, B2, B1}
 11   | test button
 12   | reset
+13   | coin[1]
+17:14| 2P joystick {up, down, left, right}
+20:18| 2P buttons {B3, B2, B1}
 
 Each line will be applied on a new frame.
 
