@@ -65,12 +65,13 @@ reg           vsl, lhbl_l, ln_done_l, do_wr;
 reg  [   1:0] st;
 reg  [AW-1:0] act_addr;
 wire [HW-1:0] nx_rd_addr;
-reg  [HW-1:0] hblen, hlim, hcnt;
-wire          fb_over;
+reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
+wire          fb_over, wr_over;
 reg 		  sram_rd;
 reg  [VW-1:0] wr_v;
 
 assign fb_over    = &fb_addr;
+assign wr_over    = &wr_addr;
 assign sram_addr  = { {21-AW{1'd0}}, act_addr };
 assign nx_rd_addr = rd_addr + 1'd1;
 assign sram_data  = sram_we  ? 16'hzzzz : fb_din;
@@ -121,6 +122,7 @@ always @( posedge clk ) begin
         sram_we  <= 1;
         sram_rd  <= 0;
         fb_addr  <= 0;
+        wr_addr  <= 0;
         fb_clr   <= 0;
         fb_done  <= 0;
         act_addr <= 0;
@@ -162,7 +164,8 @@ always @( posedge clk ) begin
                     do_wr    <= 0;
                 end else if( do_wr && !fb_clr &&
                     hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
-                    fb_addr  <= 0;
+                    fb_addr  <= 1;
+                    wr_addr  <= 0;
                     act_addr <= {  frame, wr_v, {HW{1'd0}}  };
                     sram_we  <= 0;
                     do_wr    <= 0;
@@ -178,9 +181,11 @@ always @( posedge clk ) begin
             end
             WRITE: begin
                 act_addr[HW-1:0] <= act_addr[HW-1:0]+1'd1;
-                fb_addr <= fb_addr +1'd1;
-                if( fb_over ) begin
+                wr_addr <= wr_addr + 1'd1;
+                fb_addr <= fb_addr + 1'd1;
+                if( wr_over ) begin
                     sram_we <= 1;
+                    fb_addr  <= 0;
                     line     <= ~line;
                     fb_done  <= 1;
                     fb_clr   <= 1;
