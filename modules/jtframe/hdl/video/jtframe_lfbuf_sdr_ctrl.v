@@ -69,7 +69,7 @@ module jtframe_lfbuf_sdr_ctrl #(parameter
 );
 
 localparam AW=HW+VW+1;
-localparam [2:0] IDLE=0, READ1=1, WRITE1=2, READ=3, WRITE=4;
+localparam [2:0] IDLE=0, READ1=1, WRITE1=2, READ=3, WRITE=4, WRITE2=5;
 
 localparam RASCAS_DELAY   = 3'd2;   // tRCD=20ns -> 2 cycles@<100MHz
 localparam BURST_LENGTH   = 3'b000; // 000=1, 001=2, 010=4, 011=8
@@ -106,6 +106,12 @@ reg           sdram_oe;
 reg     [3:0] sdram_cmd = CMD_NOP;
 reg     [1:0] sdram_del;
 reg           sdram_prechg;
+wire [HW-1:0] fb_addr_prev = fb_addr - 1'd1;
+wire [12:0]   sdram_act_addr = { {13-HW{1'b0}}, act_addr };
+wire [12:0]   sdram_fb_prev  = { {13-HW{1'b0}}, fb_addr_prev };
+wire [12:0]   sdram_fb_last  = { {13-HW{1'b0}}, {HW{1'b1}} };
+wire [12:0]   sdram_rd_row   = { {12-VW{1'b0}}, ~frame, vrender };
+wire [12:0]   sdram_wr_row   = { {12-VW{1'b0}},  frame, wr_v    };
 
 assign SDRAM_CKE = 1;
 assign SDRAM_BA = 0;
@@ -220,7 +226,7 @@ always @( posedge clk ) begin
                     if( lhbl_l & ~lhbl ) begin
                         act_addr <= 0;
                         rd_addr  <= 0;
-                        SDRAM_A  <= { ~frame, vrender };
+                        SDRAM_A  <= sdram_rd_row;
                         sdram_cmd<= CMD_ACTIVE;
                         sdram_del<= 3;
                         st       <= READ1;
@@ -231,7 +237,7 @@ always @( posedge clk ) begin
                         hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
                         fb_addr  <= 0;
                         act_addr <= 0;
-                        SDRAM_A  <= { frame, wr_v };
+                        SDRAM_A  <= sdram_wr_row;
                         sdram_cmd<= CMD_ACTIVE;
                         do_wr    <= 0;
                         st       <= WRITE1;
@@ -241,7 +247,7 @@ always @( posedge clk ) begin
 
             READ1: st <= READ;
             READ: begin
-                SDRAM_A <= act_addr;
+                SDRAM_A <= sdram_act_addr;
 
                 if ( !sdram_prechg ) begin
                     sdram_cmd <= CMD_READ;
@@ -272,19 +278,28 @@ always @( posedge clk ) begin
             end
 
             WRITE: begin
-                SDRAM_A <= fb_addr - 1'd1;
+                SDRAM_A <= sdram_fb_prev;
                 { SDRAM_DQML, SDRAM_DQMH } <= 2'b00;
                 sdram_cmd <= CMD_WRITE;
                 sdram_oe <= 1;
                 sdram_din <= fb_din;
                 if ( &fb_addr ) begin
-                    SDRAM_A[10] <= 1;
-                    fb_done <= 1;
-                    fb_clr  <= 1;
-                    line    <= ~line;
-                    st      <= IDLE;
+                    st      <= WRITE2;
                 end
                 fb_addr <= fb_addr +1'd1;
+            end
+
+            WRITE2: begin
+                SDRAM_A <= sdram_fb_last;
+                SDRAM_A[10] <= 1;
+                { SDRAM_DQML, SDRAM_DQMH } <= 2'b00;
+                sdram_cmd <= CMD_WRITE;
+                sdram_oe  <= 1;
+                sdram_din <= fb_din;
+                fb_done   <= 1;
+                fb_clr    <= 1;
+                line      <= ~line;
+                st        <= IDLE;
             end
 
             default: st <= IDLE;

@@ -56,17 +56,17 @@ module jtframe_lfbuf_bram_ctrl #(parameter
 localparam AW=HW+VW+1;
 localparam [1:0] IDLE=0, READ=1, WRITE=2;
 
-reg           vsl, lhbl_l, ln_done_l, do_wr;
+reg           vsl, lhbl_l, ln_done_l, do_wr, rd_wait;
 reg  [   1:0] st;
 reg  [AW-1:0] act_addr;
-wire [HW-1:0] nx_rd_addr;
-reg  [HW-1:0] hblen, hlim, hcnt;
-wire          fb_over;
+wire [HW-1:0] nx_rd_addr, nx_req_addr;
+reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
+wire          fb_over, wr_over;
 reg 		  bram_rd;
 reg  [VW-1:0] wr_v;
 
 reg    [15:0] ram[(2**AW)-1:0];
-wire   [20:0] bram_addr;
+wire   [AW-1:0] bram_addr;
 wire   [15:0] bram_data;   
 reg    [15:0] douta;
 reg           bram_we;	
@@ -78,8 +78,10 @@ always @(posedge clk)
         douta <= ram[bram_addr];
 
 assign fb_over    = &fb_addr;
+assign wr_over    = &wr_addr;
 assign bram_addr  = act_addr;
 assign nx_rd_addr = rd_addr + 1'd1;
+assign nx_req_addr = nx_rd_addr + 1'd1;
 assign bram_data  = bram_we  ? 16'hzzzz : fb_din;
 assign fb_dout    = ~bram_we ? 16'd0    : douta;
 
@@ -131,6 +133,8 @@ always @( posedge clk ) begin
         fb_done  <= 0;
         act_addr <= 0;
         rd_addr  <= 0;
+        wr_addr  <= 0;
+        rd_wait  <= 0;
         line     <= 0;
         scr_we   <= 0;
         ln_done_l<= 0;
@@ -156,19 +160,21 @@ always @( posedge clk ) begin
             IDLE: begin
                 bram_we <= 1;
                 bram_rd <= 0;
+                rd_wait <= 0;
                 scr_we   <= 0;
                 if( lhbl_l & ~lhbl ) begin
                     act_addr <= { ~frame, vrender, {HW{1'd0}}  };
                     bram_rd <= 1;
                     rd_addr  <= 0;
-                    scr_we   <= 1;
+                    rd_wait  <= 1;
                     st       <= READ;
                 end else if( skip_blank_lines ) begin
                     fb_done  <= 1;
                     do_wr    <= 0;
                 end else if( do_wr && !fb_clr &&
                     hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
-                    fb_addr  <= 0;
+                    fb_addr  <= 1;
+                    wr_addr  <= 0;
                     act_addr <= {  frame, wr_v, {HW{1'd0}}  };
                     bram_we  <= 0;
                     do_wr    <= 0;
@@ -176,17 +182,28 @@ always @( posedge clk ) begin
                 end
             end
             READ: begin
-                bram_rd <= 0;
-                rd_addr <= nx_rd_addr;
-                if( &rd_addr ) st <= IDLE;
-                else act_addr[HW-1:0] <= nx_rd_addr;
                 bram_rd <= 1;
+                scr_we  <= 1;
+                if( rd_wait ) begin
+                    rd_wait <= 0;
+                    act_addr[HW-1:0] <= nx_rd_addr;
+                end else begin
+                    rd_addr <= nx_rd_addr;
+                    if( &rd_addr ) begin
+                        scr_we <= 0;
+                        st     <= IDLE;
+                    end else begin
+                        act_addr[HW-1:0] <= nx_req_addr;
+                    end
+                end
             end
             WRITE: begin
                 act_addr[HW-1:0] <= act_addr[HW-1:0]+1'd1;
-                fb_addr <= fb_addr +1'd1;
-                if( fb_over ) begin
+                wr_addr <= wr_addr + 1'd1;
+                fb_addr <= fb_addr + 1'd1;
+                if( wr_over ) begin
                     bram_we <= 1;
+                    fb_addr  <= 0;
                     line     <= ~line;
                     fb_done  <= 1;
                     fb_clr   <= 1;
