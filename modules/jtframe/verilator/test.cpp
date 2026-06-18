@@ -213,17 +213,19 @@ public:
             dut.cab_1p = 0xf;
             dut.coin   = 0xf;
             dut.joystick1    = 0x3ff;
+            dut.joystick2    = 0x3ff;
         }
     }
     void parse_inputs( unsigned v ) {
         v = ~v;
         apply_reset(v);
-        apply_joystick(v);
+        apply_joystick(v, 4,  dut.joystick1);
+        apply_joystick(v, 14, dut.joystick2);
         auto coin_l   = dut.coin&3;
         dut.dip_test  = (v & 0x800) ? 1 : 0;
         dut.service   = (v & 0x002) ? 1 : 0;
         dut.cab_1p    = 0xc | ((v>>2)&3);
-        dut.coin      = 0xe | (v&1);
+        dut.coin      = 0xc | (v&1) | ((v>>12)&2);
         if( coin_l != (dut.coin&3) && coin_l!=3 ) {
             cout << "\ncoin inserted (sim_inputs.hex line " << line << ")\n";
         }
@@ -244,30 +246,30 @@ public:
             dut.rst96=1;
         }
     }
-    void apply_joystick(unsigned v) {
-        dut.joystick1 = 0x30f | ((v>>4)&0xf0);
-        v >>= 4;
-        dut.joystick1    = (dut.joystick1&0xf0) | (v&0xf);
+    void apply_joystick(unsigned v, int shift, decltype(dut.joystick1)& joystick) {
+        joystick = 0x30f | ((v>>shift)&0xf0);
+        v >>= shift;
+        joystick = (joystick&0xf0) | (v&0xf);
 #ifdef _JTFRAME_JOY_LRUD
-        dut.joystick1    = (dut.joystick1&0xf0) | ((v&3)<<2) | ((v>>2)&3);
+        joystick = (joystick&0xf0) | ((v&3)<<2) | ((v>>2)&3);
 #endif
 #ifdef _JTFRAME_JOY_LRDU
-        dut.joystick1    = (dut.joystick1&0xf0) | ((v&3)<<2) | ((v>>3)&1) | ((v>>1)&2);
+        joystick = (joystick&0xf0) | ((v&3)<<2) | ((v>>3)&1) | ((v>>1)&2);
 #endif
 #ifdef _JTFRAME_JOY_RLDU
-        dut.joystick1    = (dut.joystick1&0xf0) | ((v&1)<<3) | ((v&2)<<1) | ((v&4)>>1) | ((v&8)>>3);
+        joystick = (joystick&0xf0) | ((v&1)<<3) | ((v&2)<<1) | ((v&4)>>1) | ((v&8)>>3);
 #endif
 #ifdef _JTFRAME_JOY_RLUD
-        dut.joystick1    = (dut.joystick1&0xf0) | ((v&1)<<3) | ((v&2)<<1) | ((v&4)>>2) | ((v&8)>>2);
+        joystick = (joystick&0xf0) | ((v&1)<<3) | ((v&2)<<1) | ((v&4)>>2) | ((v&8)>>2);
 #endif
 #ifdef _JTFRAME_JOY_DURL
-        dut.joystick1    = (dut.joystick1&0xf0) | ((v&8)>>1) | ((v&4)<<1) | ((v&2)>>1) | ((v&1)<<1);
+        joystick = (joystick&0xf0) | ((v&8)>>1) | ((v&4)<<1) | ((v&2)>>1) | ((v&1)<<1);
 #endif
 #ifdef _JTFRAME_JOY_DULR
-        dut.joystick1    = (dut.joystick1&0xf0) | ((v&8)>>1) | ((v&4)<<1) | (v&3);
+        joystick = (joystick&0xf0) | ((v&8)>>1) | ((v&4)<<1) | (v&3);
 #endif
 #ifdef _JTFRAME_JOY_UDRL
-        dut.joystick1    = (dut.joystick1&0xf0) | (v&0xc) | ((v&2)>>1) | ((v&1)<<1);
+        joystick = (joystick&0xf0) | (v&0xc) | ((v&2)>>1) | ((v&1)<<1);
 #endif
     }
 };
