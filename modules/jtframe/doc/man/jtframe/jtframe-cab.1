@@ -37,7 +37,8 @@ A line with only a number generates idle frames.
 .PP
 The valid button names are:
 .IP
-coin, service, 1p, 2p, right, left, down, up, b1, b2, b3, test, reset
+coin, 2coin, service, 1p, 2p, right, left, down, up, b1, b2, b3,
+2right, 2left, 2down, 2up, 2b1, 2b2, 2b3, test, reset
 .SH TIMING SEMANTICS
 The first token of a normal line controls its duration:
 .TP
@@ -85,10 +86,22 @@ test
 .TP
 bit 12
 reset
+.TP
+bit 13
+coin[1]
+.TP
+bits 17:14
+2P joystick {up, down, left, right}
+.TP
+bits 20:18
+2P buttons {b3, b2, b1}
 .PP
 The Verilator test bench inverts these bits internally before driving the DUT.
 The reset bit is handled specially and can override the normal simulation reset
 sequence.
+.PP
+Older .cab files and older sim_inputs.hex files remain valid. If the new 2P
+bits are not present, coin[1] and joystick2 stay inactive.
 .SH EXAMPLES
 .PP
 Convert a file explicitly:
@@ -108,6 +121,12 @@ Simple cabinet script:
 8
 .br
 2 1p
+.PP
+2P coin and movement:
+.IP
+2coin
+.br
+2 2right 2b1
 .PP
 Pulse a button in a loop:
 .IP
