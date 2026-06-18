@@ -98,10 +98,10 @@ localparam [21:0] BUS_CFG = {
 reg    [ 3:0] st;
 reg    [ 4:0] cntup; // use a larger count to capture data using Signal Tap
 wire   [ 7:0] vram; // current row (v) being processed through the external RAM
-reg    [15:0] adq_reg;
+reg    [15:0] adq_reg, wr_first;
 reg  [VW-1:0] wr_v;
 reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
-reg           lhbl_l, do_wr, wait1, adq_en,
+reg           lhbl_l, do_wr, wait1, adq_en, wr_first_sel,
               csn, ln_done_l, vsl, startup;
 wire          fb_over;
 wire          wring;
@@ -202,6 +202,8 @@ always @( posedge clk ) begin
         wait1    <= 0;
         init_cnt <= 0;
         adq_en   <= 0;
+        wr_first_sel <= 0;
+        wr_first     <= 0;
     end else begin
         fb_done <= 0;
         wait1   <= 0;
@@ -248,10 +250,12 @@ always @( posedge clk ) begin
                 end else if( do_wr && !fb_clr &&
                     hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
                     csn     <= 0;
-                    fb_addr <= 0;
-                    wr_addr <= 0;
-                    cr_oen  <= 1;
-                    st      <= WRITE_ADDR;
+                    fb_addr      <= 1;
+                    wr_addr      <= 0;
+                    wr_first     <= fb_din;
+                    wr_first_sel <= 1;
+                    cr_oen       <= 1;
+                    st           <= WRITE_ADDR;
                 end
             end
             WRITE_ADDR, READ_ADDR: begin
@@ -260,21 +264,30 @@ always @( posedge clk ) begin
                 cr_advn         <= 0;
                 adq_en          <= 1;
                 cr_oen          <= 1;
-                cr_wen          <= ~wring;
+                cr_wen          <= 1;
                 st              <= wring ? WRITEOUT : READIN;
                 wait1           <= 1; // give time to cr_wait to react
             end
-            WRITEOUT: if( cr_wait && !wait1 ) begin // Write line from internal BRAM to PSRAM
-                if ( ~&fb_addr ) fb_addr <= fb_addr + 1'd1;
-                wr_addr <= fb_addr;
-                if( &wr_addr ) begin // This violates the max 4us time, but it is ok as refresh is not required
-                    st      <= IDLE;
-                    csn     <= 1;
-                    fb_addr <= fb_addr + 1'd1;
-                    wr_addr <= wr_addr + 1'd1;
-                    fb_clr  <= 1;
-                    line    <= ~line;
-                    fb_done <= 1;
+            WRITEOUT: begin // Write line from internal BRAM to PSRAM
+                adq_en  <= wr_first_sel;
+                adq_reg <= wr_first;
+                cr_wen  <= 0;
+                if( cr_wait && !wait1 ) begin
+                    wr_first_sel <= 0;
+                    adq_en       <= 0;
+                    if( &wr_addr ) begin // This violates the max 4us time, but it is ok as refresh is not required
+                        st      <= IDLE;
+                        csn     <= 1;
+                        cr_wen  <= 1;
+                        fb_addr <= 0;
+                        fb_clr  <= 1;
+                        line    <= ~line;
+                        fb_done <= 1;
+                        adq_en  <= 0;
+                    end else begin
+                        fb_addr <= fb_addr + 1'd1;
+                        wr_addr <= wr_addr + 1'd1;
+                    end
                 end
             end
             READIN: begin // Read line from PSRAM

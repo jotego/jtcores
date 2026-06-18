@@ -33,19 +33,23 @@ module jtframe_ddr_model(
 
     reg [63:0] mem[0:SIZE-1]; // only the first 8MB are modelled
     reg [ 4:0] busy_cnt;
-    reg [ 7:0] cnt;
+    reg [ 7:0] rcnt, wcnt;
     reg [ 3:0] dout_cnt;
-    reg [SW-1:0] areg;
+    reg [SW-1:0] raddr, waddr, wr_addr;
     reg        rding, wring;
 
-    assign dout = mem[areg];
+    assign dout = mem[raddr];
 
     integer aux;
     initial begin
-        busy       = 1;
+        busy       = 0;
         busy_cnt   = 0;
         dout_cnt   = 0;
-        cnt        = 0;
+        rcnt       = 0;
+        wcnt       = 0;
+        raddr      = 0;
+        waddr      = 0;
+        wr_addr    = 0;
         dout_ready = 0;
         rding      = 0;
         wring      = 0;
@@ -54,35 +58,51 @@ module jtframe_ddr_model(
         end
     end
 
-    assign busy = 0; //busy_cnt==7 && !(rding || wring);
-
     always @(posedge clk) begin
+        busy <= 0;
         busy_cnt <= busy_cnt+1'd1;
-        if(dout_cnt != 0) begin
+
+        dout_ready <= 0;
+        if( rd && !busy ) begin
+            rcnt     <= burstcnt;
+            raddr    <= addr[SW-1:0];
+            rding    <= 1;
+            dout_cnt <= 7;
+        end else if( dout_cnt != 0 ) begin
             dout_cnt <= dout_cnt-1'd1;
-        end else begin
-            dout_ready <= rding;
+        end else if( rding ) begin
+            if( dout_ready ) begin
+                if( rcnt <= 8'd1 ) begin
+                    rcnt  <= 0;
+                    rding <= 0;
+                end else begin
+                    rcnt       <= rcnt-8'd1;
+                    raddr      <= raddr+1'd1;
+                    dout_ready <= 1;
+                end
+            end else begin
+                dout_ready <= 1;
+            end
         end
-        if( cnt==0 ) begin
-            rding <= 0;
-            wring <= 0;
-            dout_ready <= 0;
-        end
-        if( (wring || dout_ready) && cnt != 0 && !busy ) begin
-            cnt  <= cnt-8'd1;
-            areg <= areg + 1'd1;
-        end
-        if( (rd || (we&&!wring)) && !busy ) begin
-            cnt        <= burstcnt;
-            areg       <= addr[SW-1:0];
-            rding      <= rd;
-            wring      <= we;
-            dout_ready <= 0;
-            dout_cnt   <= 7;
-        end
-        if( wring ) begin
+
+        if( we && !busy ) begin
+            wr_addr = (!wring || wcnt==0) ? addr[SW-1:0] : waddr;
             for( aux=0;aux<8;aux=aux+1)
-                if( be[aux] ) mem[areg][8*aux+:8] <= din[8*aux+:8];
+                if( be[aux] ) mem[wr_addr][8*aux+:8] <= din[8*aux+:8];
+            wring <= 1;
+            if( burstcnt <= 8'd1 ) begin
+                wcnt  <= 0;
+                waddr <= wr_addr;
+            end else if( !wring || wcnt==0 ) begin
+                wcnt  <= burstcnt-8'd1;
+                waddr <= wr_addr+1'd1;
+            end else begin
+                wcnt  <= wcnt-8'd1;
+                waddr <= wr_addr+1'd1;
+            end
+        end else begin
+            wring <= 0;
+            wcnt  <= 0;
         end
     end
 
