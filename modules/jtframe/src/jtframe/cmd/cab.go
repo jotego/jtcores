@@ -71,6 +71,30 @@ type cab_converter struct {
 }
 
 const (
+	CAB_COIN    = 0x0001
+	CAB_SERVICE = 0x0002
+	CAB_START1  = 0x0004
+	CAB_START2  = 0x0008
+	CAB_RIGHT1  = 0x0010
+	CAB_LEFT1   = 0x0020
+	CAB_DOWN1   = 0x0040
+	CAB_UP1     = 0x0080
+	CAB_B1_1    = 0x0100
+	CAB_B2_1    = 0x0200
+	CAB_B3_1    = 0x0400
+	CAB_TEST    = 0x0800
+	CAB_RESET   = 0x1000
+	CAB_COIN2   = 0x2000
+	CAB_RIGHT2  = 0x4000
+	CAB_LEFT2   = 0x8000
+	CAB_DOWN2   = 0x10000
+	CAB_UP2     = 0x20000
+	CAB_B1_2    = 0x40000
+	CAB_B2_2    = 0x80000
+	CAB_B3_2    = 0x100000
+)
+
+const (
 	NO_LOOP    = 0
 	LOOP_START = -1
 	// positive values mean that the loop sequence must be executed that number of times
@@ -194,31 +218,47 @@ func (cab *cab_converter) parse_tokens(tokens []string) (parsed []byte, e error)
 		case "":
 			break
 		case "coin":
-			value |= 0x0001
+			value |= CAB_COIN
+		case "2coin":
+			value |= CAB_COIN2
 		case "service":
-			value |= 0x0002
+			value |= CAB_SERVICE
 		case "1p":
-			value |= 0x0004
+			value |= CAB_START1
 		case "2p":
-			value |= 0x0008
+			value |= CAB_START2
 		case "right":
-			value |= 0x0010
+			value |= CAB_RIGHT1
+		case "2right":
+			value |= CAB_RIGHT2
 		case "left":
-			value |= 0x0020
+			value |= CAB_LEFT1
+		case "2left":
+			value |= CAB_LEFT2
 		case "down":
-			value |= 0x0040
+			value |= CAB_DOWN1
+		case "2down":
+			value |= CAB_DOWN2
 		case "up":
-			value |= 0x0080
+			value |= CAB_UP1
+		case "2up":
+			value |= CAB_UP2
 		case "b1":
-			value |= 0x0100
+			value |= CAB_B1_1
+		case "2b1":
+			value |= CAB_B1_2
 		case "b2":
-			value |= 0x0200
+			value |= CAB_B2_1
+		case "2b2":
+			value |= CAB_B2_2
 		case "b3":
-			value |= 0x0400
+			value |= CAB_B3_1
+		case "2b3":
+			value |= CAB_B3_2
 		case "test":
-			value |= 0x0800
+			value |= CAB_TEST
 		case "reset":
-			value |= 0x1000
+			value |= CAB_RESET
 		default:
 			return nil, fmt.Errorf("Unknown action '%s'", action)
 		}
