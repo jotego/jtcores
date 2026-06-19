@@ -21,7 +21,7 @@ localparam [25:0] BA2_START  =`ifdef JTFRAME_BA2_START  `JTFRAME_BA2_START  `els
 localparam [25:0] BA3_START  =`ifdef JTFRAME_BA3_START  `JTFRAME_BA3_START  `else 26'd0 `endif;
 localparam [25:0] PROM_START =`ifdef JTFRAME_PROM_START `JTFRAME_PROM_START `else 26'd0 `endif;
 localparam [25:0] HEADER_LEN =`ifdef JTFRAME_HEADER     `JTFRAME_HEADER     `else 26'd0 `endif;
-localparam        SDRAMW     =`ifdef JTFRAME_SDRAM_LARGE 24 `else 23 `endif;
+localparam        SDRAMW     =`ifdef JTFRAME_SDRAM_XL 25 `elsif JTFRAME_SDRAM_LARGE 24 `else 23 `endif;
 /* verilator lint_on WIDTH */
 
 {{ range .Params }}
@@ -332,8 +332,12 @@ jtframe_dwnld #(
     .HEADER    ( `JTFRAME_HEADER   ),
 `endif{{ if .Balut }}
     .BALUT      ( {{.Balut}}    ),  // Using offsets in header for
+    .BALUT_LEN  ( {{.BalutEntries}} ),
     .LUTSH      ( {{.Lutsh}}    ),  // bank assignment
     .BALUT_REVERSE( {{if .BalutReverse}}1{{else}}0{{end}} ),
+`ifdef JTFRAME_SDRAM_XL
+    .XL         ( 1 ),
+`endif
 {{else}}
 `ifdef JTFRAME_BA1_START
     .BA1_START ( BA1_START ),
@@ -396,6 +400,7 @@ jtframe_cache_mux #(
     .BLKSIZE{{$index}} ( {{ $line.Blocks.Size_bytes }} ),
     .DW{{$index}}      ( {{ printf "%2d" $line.Data_width }} ),
     .BA{{$index}}      ( {{ if $line.Full_range }}0{{ else }}{{ $line.At.Bank }}{{ end }} ),
+    .CHIP{{$index}}    ( {{ if $line.Full_range }}0{{ else }}{{ $line.At.Chip }}{{ end }} ),
     .OFFSET{{$index}}  ( {{ if and (not $line.Full_range) $line.At.Offset }}{{ $line.At.Offset }}{{ else }}0{{ end }} ),
     .INVAL_MASK{{$index}} ( {{ cache_inval_mask $.SDRAM.Cache_lanes $index }} ){{- end }}
 ) u_cache(

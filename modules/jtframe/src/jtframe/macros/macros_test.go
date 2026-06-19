@@ -85,3 +85,29 @@ func Test_check_macros_lf_buffer_vertical(t *testing.T) {
 		t.Fatal("Expected vertical lf-buffer combination to be rejected")
 	}
 }
+
+func Test_check_macros_rejects_sdram_xl_and_large(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"TARGET":              "mister",
+		"JTFRAME_SDRAM_XL":    "1",
+		"JTFRAME_SDRAM_LARGE": "1",
+		"JTFRAME_WIDTH":       "320",
+		"JTFRAME_HEIGHT":      "224",
+	})
+	if err := CheckMacros(); err == nil {
+		t.Fatal("Expected JTFRAME_SDRAM_XL with JTFRAME_SDRAM_LARGE to be rejected")
+	}
+}
+
+func Test_check_macros_rejects_sdram_xl_ba_start(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"TARGET":             "mister",
+		"JTFRAME_SDRAM_XL":   "1",
+		"JTFRAME_BA1_START":  "0x100000",
+		"JTFRAME_WIDTH":      "320",
+		"JTFRAME_HEIGHT":     "224",
+	})
+	if err := CheckMacros(); err == nil {
+		t.Fatal("Expected JTFRAME_SDRAM_XL with JTFRAME_BA1_START to be rejected")
+	}
+}

@@ -472,6 +472,9 @@ class JTSim {
     bool download;
     VerilatedVcdC* tracer;
     SDRAM sdram;
+#ifdef _JTFRAME_SDRAM_XL
+    SDRAM sdram2;
+#endif
     SimInputs sim_inputs;
     Download dwn;
     int frame_cnt, last_LVBL, last_VS, last_flip;
@@ -552,7 +555,11 @@ void JTSim::reset( int v ) {
 }
 
 JTSim::JTSim( UUT& g, int argc, char *argv[]) :
-    wav("test.wav",48000,false), sdram(g), sim_inputs(g), dwn(g), game(g),vrate(0)
+    wav("test.wav",48000,false), sdram(g)
+#ifdef _JTFRAME_SDRAM_XL
+    , sdram2(g, "sdram2", true)
+#endif
+    , sim_inputs(g), dwn(g), game(g),vrate(0)
 {
     simtime   = 0;
     frame_cnt = 0;
@@ -637,6 +644,9 @@ void JTSim::clock(int n) {
         game.eval();
         if( game.contextp()->gotFinish() ) return;
         sdram.update(simtime + multi_clock->get_semi_period());
+#ifdef _JTFRAME_SDRAM_XL
+        sdram2.update(simtime + multi_clock->get_semi_period());
+#endif
         dwn.update();
         if( !cur_dwn && last_dwnd ) {
             fprintf(stderr,"\nROM file transfered (frame %d)\n",frame_cnt);
@@ -644,7 +654,12 @@ void JTSim::clock(int n) {
             if( finish_frame>0 && _DUMP_START==0 ) {
                 finish_frame += frame_cnt;
             }
-            if ( dwn.FullDownload() ) sdram.dump();
+            if ( dwn.FullDownload() ) {
+                sdram.dump();
+#ifdef _JTFRAME_SDRAM_XL
+                sdram2.dump();
+#endif
+            }
             reset(0);
         }
 #ifdef _RST_DLY
@@ -659,6 +674,9 @@ void JTSim::clock(int n) {
         game.eval();
         if( game.contextp()->gotFinish() ) return;
         sdram.update(simtime + multi_clock->get_semi_period());
+#ifdef _JTFRAME_SDRAM_XL
+        sdram2.update(simtime + multi_clock->get_semi_period());
+#endif
         simtime += multi_clock->get_semi_period();
         ticks++;
 

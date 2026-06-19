@@ -18,12 +18,14 @@
 /* verilator coverage_off */
 module jtframe_sdram64_init #(parameter
     HF      =1,
-    BURSTLEN=64
+    BURSTLEN=64,
+    XL      =0
 ) (
     input               rst,
     input               clk,
 
     output   reg        init,
+    output   reg        chip,
     output   reg  [3:0] cmd,
     output   reg [12:0] sdram_a
 );
@@ -50,6 +52,7 @@ always @(posedge clk) begin
     if( rst ) begin
         // initialization loop
         init     <= 1;
+        chip     <= 0;
         wait_cnt <= INIT_WAIT; // wait for 100us
         init_st  <= 3'd0;
         init_cmd <= CMD_NOP;
@@ -84,7 +87,14 @@ always @(posedge clk) begin
                     wait_cnt <= 14'd3;
                 end
                 3'd4: begin
-                    init <= 0;
+                    if( XL && !chip ) begin
+                        chip     <= 1;
+                        init_st  <= 3'd0;
+                        init_cmd <= CMD_NOP;
+                        wait_cnt <= 14'd2;
+                    end else begin
+                        init <= 0;
+                    end
                 end
                 default: begin
                     cmd  <= init_cmd;

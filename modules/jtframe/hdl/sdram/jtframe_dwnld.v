@@ -39,8 +39,10 @@ module jtframe_dwnld #(
     parameter        GFX16B0   = 0, // bit 0 for HHVVVV sequence
     parameter        BALUT     = 0, // 1 to use the header as the start for banks and PROM sections
                                     // header format: two bytes for the offset of each bank and PROM
+    parameter        BALUT_LEN = 5,
     parameter        BALUT_REVERSE = 1, // header offset bytes are low/high when set
-    parameter        LUTSH     = 0  // bit shift to apply to ioctl_addr for BALUT comparisons
+    parameter        LUTSH     = 0, // bit shift to apply to ioctl_addr for BALUT comparisons
+    parameter        XL        = 0
 )(
     input                clk,
     input                ioctl_rom,
@@ -118,19 +120,23 @@ end
 `ifndef SIM_LOAD_PROM
 /////////////////////////////////////////////////
 // Normal operation
-reg  [ 1:0] bank;
+reg  [ 2:0] bank;
 reg  [25:0] offset;
 reg  [25:0] eff_addr;
-reg [2*5*8-1:0] ba_start=0; // 16 bits per offset
+reg [2*9*8-1:0] ba_start=0; // 16 bits per offset
 
 initial prog_ba = 0;
 
 always @(*) begin
     case( bank )
-        2'd0: offset = 0;
-        2'd1: offset = BALUT==0 ? BA1_START : header_offset(ba_start[16+:16]);
-        2'd2: offset = BALUT==0 ? BA2_START : header_offset(ba_start[32+:16]);
-        2'd3: offset = BALUT==0 ? BA3_START : header_offset(ba_start[48+:16]);
+        3'd0: offset = 0;
+        3'd1: offset = BALUT==0 ? BA1_START : header_offset(ba_start[16+:16]);
+        3'd2: offset = BALUT==0 ? BA2_START : header_offset(ba_start[32+:16]);
+        3'd3: offset = BALUT==0 ? BA3_START : header_offset(ba_start[48+:16]);
+        3'd4: offset = XL && BALUT!=0 ? header_offset(ba_start[64+:16]) : 26'd0;
+        3'd5: offset = XL && BALUT!=0 ? header_offset(ba_start[80+:16]) : 26'd0;
+        3'd6: offset = XL && BALUT!=0 ? header_offset(ba_start[96+:16]) : 26'd0;
+        3'd7: offset = XL && BALUT!=0 ? header_offset(ba_start[112+:16]) : 26'd0;
         default: offset = 0;
     endcase // bank
     eff_addr = part_addr-offset;
@@ -139,17 +145,17 @@ end
 generate
     if( BALUT==0 || !BA_EN ) begin
         always @(part_addr) begin
-            bank = !BA_EN ? 2'd0 : ( /* verilator lint_off UNSIGNED */
-                    part_addr >= BA3_START ? 2'd3 : (
-                    part_addr >= BA2_START ? 2'd2 : (
-                    part_addr >= BA1_START ? 2'd1 : 2'd0 ))); /* verilator lint_on UNSIGNED */
+            bank = !BA_EN ? 3'd0 : ( /* verilator lint_off UNSIGNED */
+                    part_addr >= BA3_START ? 3'd3 : (
+                    part_addr >= BA2_START ? 3'd2 : (
+                    part_addr >= BA1_START ? 3'd1 : 3'd0 ))); /* verilator lint_on UNSIGNED */
         end
         assign is_prom = PROM_EN && part_addr>=PROM_START;
     end else begin
         // header table containing each bank start offset shifted by LUTSH bits
         always @(posedge clk) begin
-            if ( ioctl_wr && ioctl_rom && header && ioctl_addr[6:0]<10 ) begin
-                ba_start <= { ioctl_dout, ba_start[79:8] };
+            if ( ioctl_wr && ioctl_rom && header && ioctl_addr[6:0]<(BALUT_LEN<<1) ) begin
+                ba_start <= { ioctl_dout, ba_start[143:8] };
             end
         end
         /* verilator lint_off WIDTHEXPAND */
@@ -158,8 +164,13 @@ generate
             if( part_addr >= header_offset(ba_start[16+:16]) ) bank = 1;
             if( part_addr >= header_offset(ba_start[32+:16]) ) bank = 2;
             if( part_addr >= header_offset(ba_start[48+:16]) ) bank = 3;
+            if( XL && BALUT_LEN>4 && part_addr >= header_offset(ba_start[64+:16]) ) bank = 4;
+            if( XL && BALUT_LEN>5 && part_addr >= header_offset(ba_start[80+:16]) ) bank = 5;
+            if( XL && BALUT_LEN>6 && part_addr >= header_offset(ba_start[96+:16]) ) bank = 6;
+            if( XL && BALUT_LEN>7 && part_addr >= header_offset(ba_start[112+:16]) ) bank = 7;
         end
-        assign is_prom = part_addr >= header_offset(ba_start[64+:16]);
+        assign is_prom = (!XL && BALUT_LEN>4 && part_addr >= header_offset(ba_start[64+:16])) ||
+                         ( XL && BALUT_LEN>8 && part_addr >= header_offset(ba_start[128+:16]));
         /* verilator lint_on WIDTHEXPAND */
     end
 endgenerate
@@ -171,10 +182,10 @@ always @(posedge clk) begin
             prom_we   <= 1;
             prog_we   <= 0;
         end else begin
-            prog_addr <= eff_addr[SDRAMW-1:1];
+            prog_addr <= XL ? { bank[2], eff_addr[SDRAMW-2:1] } : eff_addr[SDRAMW-1:1];
             prom_we   <= 0;
             prog_we   <= 1;
-            prog_ba   <= bank;
+            prog_ba   <= bank[1:0];
         end
         data_out  <= ioctl_dout;
         prog_mask <= (eff_addr[0]^SWAB[0]) ? 2'b10 : 2'b01;
