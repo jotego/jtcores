@@ -27,6 +27,7 @@ module jtframe_cache_mux #(
               DW0       = 8,
               AW0_0     = DW0==128 ? 4 : DW0==64 ? 3 : DW0==32 ? 2 : DW0==16 ? 1 : 0,
               BA0       = 0,
+              CHIP0     = 0,
               OFFSET0   = 0,
               INVAL_MASK0 = 8'd0,
               ENDIAN1   = ENDIAN,
@@ -37,6 +38,7 @@ module jtframe_cache_mux #(
               DW1       = 8,
               AW0_1     = DW1==128 ? 4 : DW1==64 ? 3 : DW1==32 ? 2 : DW1==16 ? 1 : 0,
               BA1       = 0,
+              CHIP1     = 0,
               OFFSET1   = 0,
               INVAL_MASK1 = 8'd0,
               ENDIAN2   = ENDIAN,
@@ -47,6 +49,7 @@ module jtframe_cache_mux #(
               DW2       = 8,
               AW0_2     = DW2==128 ? 4 : DW2==64 ? 3 : DW2==32 ? 2 : DW2==16 ? 1 : 0,
               BA2       = 0,
+              CHIP2     = 0,
               OFFSET2   = 0,
               INVAL_MASK2 = 8'd0,
               ENDIAN3   = ENDIAN,
@@ -57,6 +60,7 @@ module jtframe_cache_mux #(
               DW3       = 8,
               AW0_3     = DW3==128 ? 4 : DW3==64 ? 3 : DW3==32 ? 2 : DW3==16 ? 1 : 0,
               BA3       = 0,
+              CHIP3     = 0,
               OFFSET3   = 0,
               INVAL_MASK3 = 8'd0,
               ENDIAN4   = ENDIAN,
@@ -67,6 +71,7 @@ module jtframe_cache_mux #(
               DW4       = 8,
               AW0_4     = DW4==128 ? 4 : DW4==64 ? 3 : DW4==32 ? 2 : DW4==16 ? 1 : 0,
               BA4       = 0,
+              CHIP4     = 0,
               OFFSET4   = 0,
               INVAL_MASK4 = 8'd0,
               ENDIAN5   = ENDIAN,
@@ -77,6 +82,7 @@ module jtframe_cache_mux #(
               DW5       = 8,
               AW0_5     = DW5==128 ? 4 : DW5==64 ? 3 : DW5==32 ? 2 : DW5==16 ? 1 : 0,
               BA5       = 0,
+              CHIP5     = 0,
               OFFSET5   = 0,
               INVAL_MASK5 = 8'd0,
               ENDIAN6   = ENDIAN,
@@ -87,6 +93,7 @@ module jtframe_cache_mux #(
               DW6       = 8,
               AW0_6     = DW6==128 ? 4 : DW6==64 ? 3 : DW6==32 ? 2 : DW6==16 ? 1 : 0,
               BA6       = 0,
+              CHIP6     = 0,
               OFFSET6   = 0,
               INVAL_MASK6 = 8'd0,
               ENDIAN7   = ENDIAN,
@@ -97,6 +104,7 @@ module jtframe_cache_mux #(
               DW7       = 8,
               AW0_7     = DW7==128 ? 4 : DW7==64 ? 3 : DW7==32 ? 2 : DW7==16 ? 1 : 0,
               BA7       = 0,
+              CHIP7     = 0,
               OFFSET7   = 0,
               INVAL_MASK7 = 8'd0
 )(
@@ -229,6 +237,7 @@ wire [7:0] cache_invalidate_done;
 wire [7:0] cache_invalidate;
 wire [3:0] flush_done_out, flush_inval_active;
 wire cache_flush_ro  = 1'b0;
+wire xl_addr = SDRAM_AW == 25;
 wire unused_flush    = flush4 | flush5 | flush6 | flush7;
 wire inactive_status = unused_flush & 1'b0;
 
@@ -343,80 +352,96 @@ always @(*) begin
     case( active_sel )
         3'd0: begin
             if( FULL0 ) begin
-                addr = ext_addr0[SDRAM_AW-1:1];
-                ba   = ext_addr0[EW0-1 -: 2];
+                addr = xl_addr ? { ext_addr0[EW0-1], ext_addr0[SDRAM_AW-2:1] } :
+                                 ext_addr0[SDRAM_AW-1:1];
+                ba   = xl_addr ? ext_addr0[EW0-2 -: 2] : ext_addr0[EW0-1 -: 2];
             end else begin
-                addr = bank_addr0[SDRAM_AW-2:0];
+                addr = xl_addr ? { CHIP0[0], bank_addr0[SDRAM_AW-3:0] } :
+                                 bank_addr0[SDRAM_AW-2:0];
                 ba   = BA0[1:0];
             end
             dout = ext_dout0;
         end
         3'd1: begin
             if( FULL1 ) begin
-                addr = ext_addr1[SDRAM_AW-1:1];
-                ba   = ext_addr1[EW1-1 -: 2];
+                addr = xl_addr ? { ext_addr1[EW1-1], ext_addr1[SDRAM_AW-2:1] } :
+                                 ext_addr1[SDRAM_AW-1:1];
+                ba   = xl_addr ? ext_addr1[EW1-2 -: 2] : ext_addr1[EW1-1 -: 2];
             end else begin
-                addr = bank_addr1[SDRAM_AW-2:0];
+                addr = xl_addr ? { CHIP1[0], bank_addr1[SDRAM_AW-3:0] } :
+                                 bank_addr1[SDRAM_AW-2:0];
                 ba   = BA1[1:0];
             end
             dout = ext_dout1;
         end
         3'd2: begin
             if( FULL2 ) begin
-                addr = ext_addr2[SDRAM_AW-1:1];
-                ba   = ext_addr2[EW2-1 -: 2];
+                addr = xl_addr ? { ext_addr2[EW2-1], ext_addr2[SDRAM_AW-2:1] } :
+                                 ext_addr2[SDRAM_AW-1:1];
+                ba   = xl_addr ? ext_addr2[EW2-2 -: 2] : ext_addr2[EW2-1 -: 2];
             end else begin
-                addr = bank_addr2[SDRAM_AW-2:0];
+                addr = xl_addr ? { CHIP2[0], bank_addr2[SDRAM_AW-3:0] } :
+                                 bank_addr2[SDRAM_AW-2:0];
                 ba   = BA2[1:0];
             end
             dout = ext_dout2;
         end
         3'd3: begin
             if( FULL3 ) begin
-                addr = ext_addr3[SDRAM_AW-1:1];
-                ba   = ext_addr3[EW3-1 -: 2];
+                addr = xl_addr ? { ext_addr3[EW3-1], ext_addr3[SDRAM_AW-2:1] } :
+                                 ext_addr3[SDRAM_AW-1:1];
+                ba   = xl_addr ? ext_addr3[EW3-2 -: 2] : ext_addr3[EW3-1 -: 2];
             end else begin
-                addr = bank_addr3[SDRAM_AW-2:0];
+                addr = xl_addr ? { CHIP3[0], bank_addr3[SDRAM_AW-3:0] } :
+                                 bank_addr3[SDRAM_AW-2:0];
                 ba   = BA3[1:0];
             end
             dout = ext_dout3;
         end
         3'd4: begin
             if( FULL4 ) begin
-                addr = ext_addr4[SDRAM_AW-1:1];
-                ba   = ext_addr4[EW4-1 -: 2];
+                addr = xl_addr ? { ext_addr4[EW4-1], ext_addr4[SDRAM_AW-2:1] } :
+                                 ext_addr4[SDRAM_AW-1:1];
+                ba   = xl_addr ? ext_addr4[EW4-2 -: 2] : ext_addr4[EW4-1 -: 2];
             end else begin
-                addr = bank_addr4[SDRAM_AW-2:0];
+                addr = xl_addr ? { CHIP4[0], bank_addr4[SDRAM_AW-3:0] } :
+                                 bank_addr4[SDRAM_AW-2:0];
                 ba   = BA4[1:0];
             end
             dout = ext_dout4;
         end
         3'd5: begin
             if( FULL5 ) begin
-                addr = ext_addr5[SDRAM_AW-1:1];
-                ba   = ext_addr5[EW5-1 -: 2];
+                addr = xl_addr ? { ext_addr5[EW5-1], ext_addr5[SDRAM_AW-2:1] } :
+                                 ext_addr5[SDRAM_AW-1:1];
+                ba   = xl_addr ? ext_addr5[EW5-2 -: 2] : ext_addr5[EW5-1 -: 2];
             end else begin
-                addr = bank_addr5[SDRAM_AW-2:0];
+                addr = xl_addr ? { CHIP5[0], bank_addr5[SDRAM_AW-3:0] } :
+                                 bank_addr5[SDRAM_AW-2:0];
                 ba   = BA5[1:0];
             end
             dout = ext_dout5;
         end
         3'd6: begin
             if( FULL6 ) begin
-                addr = ext_addr6[SDRAM_AW-1:1];
-                ba   = ext_addr6[EW6-1 -: 2];
+                addr = xl_addr ? { ext_addr6[EW6-1], ext_addr6[SDRAM_AW-2:1] } :
+                                 ext_addr6[SDRAM_AW-1:1];
+                ba   = xl_addr ? ext_addr6[EW6-2 -: 2] : ext_addr6[EW6-1 -: 2];
             end else begin
-                addr = bank_addr6[SDRAM_AW-2:0];
+                addr = xl_addr ? { CHIP6[0], bank_addr6[SDRAM_AW-3:0] } :
+                                 bank_addr6[SDRAM_AW-2:0];
                 ba   = BA6[1:0];
             end
             dout = ext_dout6;
         end
         default: begin
             if( FULL7 ) begin
-                addr = ext_addr7[SDRAM_AW-1:1];
-                ba   = ext_addr7[EW7-1 -: 2];
+                addr = xl_addr ? { ext_addr7[EW7-1], ext_addr7[SDRAM_AW-2:1] } :
+                                 ext_addr7[SDRAM_AW-1:1];
+                ba   = xl_addr ? ext_addr7[EW7-2 -: 2] : ext_addr7[EW7-1 -: 2];
             end else begin
-                addr = bank_addr7[SDRAM_AW-2:0];
+                addr = xl_addr ? { CHIP7[0], bank_addr7[SDRAM_AW-3:0] } :
+                                 bank_addr7[SDRAM_AW-2:0];
                 ba   = BA7[1:0];
             end
             dout = ext_dout7;

@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 29-4-2021 */
 /* verilator coverage_off */
-module jtframe_sdram64_rfsh #(parameter HF=1, RFSHCNT=9)
+module jtframe_sdram64_rfsh #(parameter HF=1, RFSHCNT=9, XL=0)
 (
     input               rst,
     input               clk,
@@ -26,6 +26,7 @@ module jtframe_sdram64_rfsh #(parameter HF=1, RFSHCNT=9)
     input               bg,
     input               noreq,
     output   reg        rfshing,
+    output   reg        chip,
     output   reg  [3:0] cmd,
     output   reg        help,
     output       [12:0] sdram_a
@@ -77,6 +78,7 @@ always @(posedge clk) begin
         cnt     <= 0;
         br      <= 0;
         rfshing <= 0;
+        chip    <= 0;
         help    <= 0;
     end else begin
         // Forces a refresh if we have built up too much debt
@@ -103,6 +105,7 @@ always @(posedge clk) begin
         if( st[STW-1] ) begin
             if( cnt!=0 ) begin
                 cnt <= cnt - 1'd1;
+                if( XL ) chip <= ~chip;
                 if( !noreq ) begin
                     rfshing <= 0;
                 end else  begin

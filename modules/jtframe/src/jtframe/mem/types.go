@@ -261,6 +261,7 @@ type MemConfig struct {
 	Gfx16, Gfx16b, Gfx16c string
 	Gfx8b0, Gfx16b0       int
 	Balut, Lutsh          int
+	BalutEntries          int
 	BalutReverse          bool
 }
 
@@ -352,6 +353,7 @@ type SDRAMCacheSimfile struct {
 
 type SDRAMCacheAddr struct {
 	Bank         int    `yaml:"bank"`
+	Chip         int    `yaml:"chip"`
 	Offset       string `yaml:"offset"`
 	Length       string `yaml:"length"`
 	Length_bytes int
@@ -666,12 +668,13 @@ func (sim *SDRAMCacheSimfile) UnmarshalYAML(unmarshal func(interface{}) error) (
 func (addr *SDRAMCacheAddr) UnmarshalYAML(unmarshal func(interface{}) error) (err error) {
 	type raw_addr struct {
 		Bank   int    `yaml:"bank"`
+		Chip   int    `yaml:"chip"`
 		Offset string `yaml:"offset"`
 		Length string `yaml:"length"`
 	}
 	err = common.Validator{
 		Context: "cache line address",
-		Valid: []string{"bank", "offset", "length"},
+		Valid: []string{"bank", "chip", "offset", "length"},
 	}.Validate(unmarshal)
 	if err != nil {
 		return err
@@ -682,6 +685,7 @@ func (addr *SDRAMCacheAddr) UnmarshalYAML(unmarshal func(interface{}) error) (er
 	}
 	addr.Defined = true
 	addr.Bank = aux.Bank
+	addr.Chip = aux.Chip
 	addr.Offset = aux.Offset
 	addr.Length = aux.Length
 	return nil

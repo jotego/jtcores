@@ -31,6 +31,7 @@ module jtframe_burst_ctrl #(
     input       [15:0]  din,
     output              burst_idle,
     output              burst_act,
+    output              burst_chip,
     output reg   [ 3:0] burst_cmd,
     output reg   [12:0] burst_a,
     output      [ 1:0]  burst_ba,
@@ -68,7 +69,9 @@ localparam B_IDLE      = 5'd0,
            B_PRE       = 5'd15,
            B_TRP1      = 5'd16;
 
-localparam COLW = AW == 23 ? 10 : 9;
+localparam XL   = AW == 24;
+localparam PAW  = XL ? 23 : AW;
+localparam COLW = PAW == 23 ? 10 : 9;
 
 reg  [ 4:0] burst_st;
 reg  [AW-1:0] burst_addr;
@@ -77,13 +80,15 @@ reg         burst_write;
 reg         burst_first;
 reg         post_write_read_wait;
 
-wire [12:0] burst_row = burst_addr[AW-1:COLW];
-wire [COLW-1:0] burst_col = burst_addr[COLW-1:0];
+wire [PAW-1:0] burst_phys_addr = burst_addr[PAW-1:0];
+wire [12:0] burst_row = burst_phys_addr[PAW-1:COLW];
+wire [COLW-1:0] burst_col = burst_phys_addr[COLW-1:0];
 wire [ 9:0] burst_col_a = { {(10-COLW){1'b0}}, burst_col };
 wire        page_last = &burst_col;
 
 assign burst_idle = burst_st == B_IDLE;
 assign burst_act = burst_st == B_ACT;
+assign burst_chip = XL ? burst_addr[AW-1] : 1'b0;
 assign burst_ba = burst_bank_r;
 
 always @(posedge clk) begin

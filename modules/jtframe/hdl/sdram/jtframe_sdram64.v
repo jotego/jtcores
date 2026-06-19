@@ -276,6 +276,7 @@ jtframe_sdram64_init #(.HF(HF),.BURSTLEN(BURSTLEN)) u_init(
     .clk        ( clk       ),
 
     .init       ( init      ),
+    .chip       (           ),
     .cmd        ( init_cmd  ),
     .sdram_a    ( init_a    )
 );
@@ -289,6 +290,7 @@ jtframe_sdram64_rfsh #(.HF(HF),.RFSHCNT(RFSHCNT)) u_rfsh(
     .bg         ( rfsh_bg   ),
     .noreq      ( noreq     ),
     .rfshing    ( rfshing   ),
+    .chip       (           ),
     .cmd        ( rfsh_cmd  ),
     .help       ( help      ),
     .sdram_a    ( rfsh_a    )

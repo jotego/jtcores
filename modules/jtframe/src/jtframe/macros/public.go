@@ -138,6 +138,16 @@ func CheckMacros() error {
 	if IsSet("JTFRAME_JOY1_POS") && GetInt("JTFRAME_DIPBASE")<20 {
 		return fmt.Errorf("jtframe: JTFRAME_JOY1_POS requires JTFRAME_DIPBASE to be at least 20")
 	}
+	if IsSet("JTFRAME_SDRAM_XL") && IsSet("JTFRAME_SDRAM_LARGE") {
+		return fmt.Errorf("jtframe: cannot define both JTFRAME_SDRAM_XL and JTFRAME_SDRAM_LARGE")
+	}
+	if IsSet("JTFRAME_SDRAM_XL") {
+		for _, name := range []string{"JTFRAME_BA1_START", "JTFRAME_BA2_START", "JTFRAME_BA3_START"} {
+			if IsSet(name) {
+				return fmt.Errorf("jtframe: %s cannot be defined with JTFRAME_SDRAM_XL; use header.offset in mame2mra.toml", name)
+			}
+		}
+	}
 	// sim macros
 	maxframe_str   := Get("MAXFRAME")
 	dumpstart_str  := Get("DUMP_START")
