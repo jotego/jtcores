@@ -53,6 +53,9 @@ func ParseToml(corename string, toml_file io.Reader) (mra_cfg Mame2MRA, e error)
 	if e = mra_cfg.prepare_regions(); e!=nil {
 		return Mame2MRA{},fmt.Errorf("%w in core %s",e,corename)
 	}
+	if e = mra_cfg.validate_header_offset_order(); e!=nil {
+		return Mame2MRA{},fmt.Errorf("%w in core %s",e,corename)
+	}
 	return mra_cfg, nil
 }
 
@@ -110,6 +113,29 @@ func (mra_cfg *Mame2MRA) prepare_regions() error {
 			len(this.Sequence) > 0 {
 			this.No_offset = true
 		}
+	}
+	return nil
+}
+func (mra_cfg *Mame2MRA) validate_header_offset_order() error {
+	if len(mra_cfg.Header.Offset.Regions) == 0 || len(mra_cfg.ROM.Order) == 0 {
+		return nil
+	}
+	last := -1
+	for _, region := range mra_cfg.Header.Offset.Regions {
+		pos := -1
+		for k, ordered := range mra_cfg.ROM.Order {
+			if ordered == region {
+				pos = k
+				break
+			}
+		}
+		if pos < 0 {
+			return fmt.Errorf("header.offset region %s is not present in rom.order", region)
+		}
+		if pos < last {
+			return fmt.Errorf("header.offset region %s appears before a previous offset region in rom.order", region)
+		}
+		last = pos
 	}
 	return nil
 }

@@ -4,6 +4,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 class UUT;
@@ -120,9 +121,11 @@ class SDRAM {
     UUT& dut;
     SDRAMModel model;
     bool last_clk;
+    std::string prefix;
+    bool invert_ncs;
 
 public:
-    explicit SDRAM(UUT& _dut);
+    explicit SDRAM(UUT& _dut, const char* _prefix = "sdram", bool _invert_ncs = false);
     ~SDRAM();
     void update(std::uint64_t simtime_ps = 0);
     void dump();

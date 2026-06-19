@@ -78,10 +78,15 @@ wire [ 3:0] pre_cmd;
 wire        rfsh_br, rfshing, help;
 wire [12:0] rfsh_a, init_a;
 wire [ 3:0] rfsh_cmd, init_cmd;
+wire        init_chip, rfsh_chip, mode_chip, prog_chip, burst_chip;
+
+localparam XL  = AW == 24;
+localparam PAW = XL ? 23 : AW;
 
 wire        prog_rst, rfsh_rst;
-wire [AW-1:0] prog_bank_addr = AW==23 ? { prog_addr[9], prog_addr[AW-1:10], prog_addr[8:0] } :
-                                          prog_addr;
+wire [PAW-1:0] prog_phys_addr = XL ? prog_addr[PAW-1:0] : prog_addr;
+wire [PAW-1:0] prog_bank_addr = PAW==23 ? { prog_phys_addr[9], prog_phys_addr[PAW-1:10], prog_phys_addr[8:0] } :
+                                             prog_phys_addr;
 wire [ 3:0] mode_cmd;
 wire [12:0] mode_a;
 wire        mode_busy;
@@ -108,6 +113,7 @@ wire       prog_clear = pre_idle_ok && !pre_br;
 wire       rfsh_bg = !ctrl_busy && (prog_en ? (prog_clear && (noreq | help)) :
                                      (burst_idle_ok && (noreq | help))) && rfsh_br;
 wire       prog_bg = pre_br & !ctrl_busy;
+assign prog_chip = XL ? prog_addr[AW-1] : 1'b0;
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -139,6 +145,7 @@ wire        burst_rdy;
 wire        next_dq_oe;
 wire [15:0] next_dq;
 wire        sel_act;
+wire        sel_chip;
 wire [ 3:0] sel_cmd;
 wire [12:0] sel_a;
 wire [ 1:0] sel_ba;
@@ -154,17 +161,20 @@ wire        sel_prog_rdy;
 
 jtframe_sdram64_init #(
     .HF      ( HF       ),
-    .BURSTLEN( PROG_LEN )
+    .BURSTLEN( PROG_LEN ),
+    .XL      ( XL       )
 ) u_init(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .init       ( init      ),
+    .chip       ( init_chip ),
     .cmd        ( init_cmd  ),
     .sdram_a    ( init_a    )
 );
 
 jtframe_burst_mode #(
-    .PROG_LEN( PROG_LEN )
+    .PROG_LEN( PROG_LEN ),
+    .XL      ( XL       )
 ) u_mode(
     .rst            ( rst            ),
     .clk            ( clk            ),
@@ -176,13 +186,15 @@ jtframe_burst_mode #(
     .prog_rst       ( prog_rst       ),
     .rfsh_rst       ( rfsh_rst       ),
     .mode_busy      ( mode_busy      ),
+    .mode_chip      ( mode_chip      ),
     .mode_cmd       ( mode_cmd       ),
     .mode_a         ( mode_a         )
 );
 
 jtframe_sdram64_rfsh #(
     .HF      ( HF       ),
-    .RFSHCNT ( RFSHCNT  )
+    .RFSHCNT ( XL ? (RFSHCNT<<1) : RFSHCNT ),
+    .XL      ( XL       )
 ) u_rfsh(
     .rst        ( rfsh_rst  ),
     .clk        ( clk       ),
@@ -191,13 +203,14 @@ jtframe_sdram64_rfsh #(
     .bg         ( rfsh_bg   ),
     .noreq      ( noreq     ),
     .rfshing    ( rfshing   ),
+    .chip       ( rfsh_chip ),
     .cmd        ( rfsh_cmd  ),
     .help       ( help      ),
     .sdram_a    ( rfsh_a    )
 );
 
 jtframe_sdram64_bank #(
-    .AW            ( AW       ),
+    .AW            ( PAW      ),
     .HF            ( HF       ),
     .SHIFTED       ( 0        ),
     .BALEN         ( PROG_LEN ),
@@ -249,6 +262,7 @@ jtframe_burst_ctrl #(
     .din                ( din                  ),
     .burst_idle         ( burst_idle           ),
     .burst_act          ( burst_act            ),
+    .burst_chip         ( burst_chip           ),
     .burst_cmd          ( burst_cmd            ),
     .burst_a            ( burst_a              ),
     .burst_ba           ( burst_ba             ),
@@ -267,6 +281,7 @@ jtframe_burst_mux u_mux(
     .rfshing        ( rfsh_sel       ),
     .prog_en        ( prog_en        ),
     .prog_wr        ( prog_wr        ),
+    .prog_chip      ( prog_chip      ),
     .prog_din       ( prog_din       ),
     .prog_dsn       ( prog_dsn       ),
     .prog_ba        ( prog_ba        ),
@@ -276,13 +291,17 @@ jtframe_burst_mux u_mux(
     .pre_dst        ( pre_dst        ),
     .pre_dok        ( pre_dok        ),
     .pre_rdy        ( pre_rdy        ),
+    .init_chip      ( init_chip      ),
     .init_cmd       ( init_cmd       ),
     .init_a         ( init_a         ),
+    .rfsh_chip      ( rfsh_chip      ),
     .rfsh_cmd       ( rfsh_cmd       ),
     .rfsh_a         ( rfsh_a         ),
+    .mode_chip      ( mode_chip      ),
     .mode_cmd       ( mode_cmd       ),
     .mode_a         ( mode_a         ),
     .burst_act      ( burst_act      ),
+    .burst_chip     ( burst_chip     ),
     .burst_cmd      ( burst_cmd      ),
     .burst_a        ( burst_a        ),
     .burst_ba       ( burst_ba       ),
@@ -296,6 +315,7 @@ jtframe_burst_mux u_mux(
     .next_dq_oe     ( next_dq_oe     ),
     .next_dq        ( next_dq        ),
     .sel_act        ( sel_act        ),
+    .sel_chip       ( sel_chip       ),
     .sel_cmd        ( sel_cmd        ),
     .sel_a          ( sel_a          ),
     .sel_ba         ( sel_ba         ),
@@ -340,6 +360,7 @@ jtframe_burst_io #(
     .next_dq_oe     ( next_dq_oe     ),
     .next_dq        ( next_dq        ),
     .sel_act        ( sel_act        ),
+    .sel_chip       ( sel_chip       ),
     .sel_cmd        ( sel_cmd        ),
     .sel_a          ( sel_a          ),
     .sel_ba         ( sel_ba         ),

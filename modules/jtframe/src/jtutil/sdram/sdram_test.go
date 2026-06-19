@@ -578,6 +578,39 @@ func TestApplySimFileRejectsWrongSize(t *testing.T) {
 	}
 }
 
+
+func TestSdramBankNameUsesSecondChipPrefix(t *testing.T) {
+	cases := map[int]string{
+		0: "sdram_bank0.bin",
+		3: "sdram_bank3.bin",
+		4: "sdram2_bank0.bin",
+		7: "sdram2_bank3.bin",
+	}
+	for bank, want := range cases {
+		if got := sdramBankName(bank); got != want {
+			t.Fatalf("wrong bank name for %d: got=%q want=%q", bank, got, want)
+		}
+	}
+}
+
+func TestValidateSimBoundsRejectsSecondChipWithoutXL(t *testing.T) {
+	macros.MakeFromMap(nil)
+	err := validateSimBoundsChip(0, 1, 0, 1024, "cache-lane", "tiles")
+	if err == nil {
+		t.Fatal("Expected second SDRAM chip to require JTFRAME_SDRAM_XL")
+	}
+	if !strings.Contains(err.Error(), "JTFRAME_SDRAM_XL") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestValidateSimBoundsAcceptsSecondChipWithXL(t *testing.T) {
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM_XL": ""})
+	if err := validateSimBoundsChip(3, 1, 0, 16*1024*1024, "cache-lane", "tiles"); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func captureStdout(t *testing.T, fn func()) string {
 	t.Helper()
 	old := os.Stdout

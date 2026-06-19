@@ -189,17 +189,20 @@ func cache_line_addr_range(line SDRAMCacheLine) string {
 }
 
 func cache_line_uses_banked_at(line SDRAMCacheLine) bool {
-	return line.At.Defined || line.At.Length != "" || line.At.Offset != "" || line.At.Bank != 0
+	return line.At.Defined || line.At.Length != "" || line.At.Offset != "" || line.At.Bank != 0 || line.At.Chip != 0
 }
 
 func cache_bank_size_bytes() int64 {
-	if macros.IsSet("JTFRAME_SDRAM_LARGE") {
+	if macros.IsSet("JTFRAME_SDRAM_LARGE") || macros.IsSet("JTFRAME_SDRAM_XL") {
 		return 16 * 1024 * 1024
 	}
 	return 8 * 1024 * 1024
 }
 
 func cache_total_sdram_bytes() int {
+	if macros.IsSet("JTFRAME_SDRAM_XL") {
+		return int(cache_bank_size_bytes() << 3)
+	}
 	return int(cache_bank_size_bytes() << 2)
 }
 
@@ -612,6 +615,7 @@ func bankOffset(cfg *MemConfig, corename string) (e error) {
 		return nil
 	}
 	cfg.Balut = 1
+	cfg.BalutEntries = len(mra_cfg.Header.Offset.Regions)
 	cfg.Lutsh = mra_cfg.Header.Offset.Bits
 	cfg.BalutReverse = mra_cfg.Header.Offset.Reverse
 	return nil
@@ -757,7 +761,7 @@ func (cfg *MemConfig) check_cache_lanes() error {
 		return fmt.Errorf("jtframe mem: burst size %d bytes is not an exact power of two", burst_len)
 	}
 	burst_limit := 512
-	if macros.IsSet("JTFRAME_SDRAM_LARGE") {
+	if macros.IsSet("JTFRAME_SDRAM_LARGE") || macros.IsSet("JTFRAME_SDRAM_XL") {
 		burst_limit = 1024
 	}
 	if burst_len > burst_limit {
@@ -851,6 +855,15 @@ func (cfg *MemConfig) parse_cache_lanes(param_values map[string]string) (total_c
 			max_cache_size = size_bytes
 		}
 		if cache_line_uses_banked_at(*line) {
+			if line.At.Bank < 0 || line.At.Bank > 3 {
+				return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s targets invalid SDRAM bank %d", line.Name, line.At.Bank)
+			}
+			if line.At.Chip != 0 && !macros.IsSet("JTFRAME_SDRAM_XL") {
+				return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s uses at.chip, but JTFRAME_SDRAM_XL is not set", line.Name)
+			}
+			if line.At.Chip < 0 || line.At.Chip > 1 {
+				return 0, 0, fmt.Errorf("jtframe mem: cache-lane %s targets invalid SDRAM chip %d", line.Name, line.At.Chip)
+			}
 			length_bytes, e := parse_memory_size(line.At.Length)
 			if e != nil {
 				return 0, 0, fmt.Errorf("jtframe mem: invalid length for %s: %w", line.Name, e)
@@ -932,7 +945,7 @@ func cache_lane_abs_range(line SDRAMCacheLine, param_values map[string]string) (
 	if err != nil {
 		return 0, 0, err
 	}
-	start = int64(line.At.Bank)*cache_bank_size_bytes() + (offset_words << 1)
+	start = int64(line.At.Chip)*cache_bank_size_bytes()*4 + int64(line.At.Bank)*cache_bank_size_bytes() + (offset_words << 1)
 	end = start + int64(line.At.Length_bytes)
 	return start, end, nil
 }

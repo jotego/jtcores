@@ -60,7 +60,7 @@
 
 using namespace std;
 
-#ifdef _JTFRAME_SDRAM_LARGE
+#if defined(_JTFRAME_SDRAM_LARGE) || defined(_JTFRAME_SDRAM_XL)
 const int DEFAULT_COLW = 10;
 #else
 const int DEFAULT_COLW = 9;
@@ -464,10 +464,10 @@ SDRAMOutputs SDRAMModel::tick(const SDRAMPins& pins, uint64_t simtime_ps) {
 
 #if JTFRAME_VERILATOR_HAS_UUT
 
-SDRAM::SDRAM(UUT& _dut) : dut(_dut), model(DEFAULT_COLW, true), last_clk(dut.SDRAM_CLK) {
+SDRAM::SDRAM(UUT& _dut, const char* _prefix, bool _invert_ncs) : dut(_dut), model(DEFAULT_COLW, true), last_clk(dut.SDRAM_CLK), prefix(_prefix), invert_ncs(_invert_ncs) {
     for( int k = 0; k < 4; k++ ) {
         char fname[32];
-        snprintf(fname, sizeof(fname), "sdram_bank%d.bin", k);
+        snprintf(fname, sizeof(fname), "%s_bank%d.bin", prefix.c_str(), k);
         ifstream fin(fname, ios_base::binary);
         if( !fin ) {
 #ifndef _LOADROM
@@ -494,7 +494,7 @@ void SDRAM::update(uint64_t simtime_ps) {
     if( neg_edge ) {
         SDRAMPins pins;
         pins.cke = dut.SDRAM_CKE != 0;
-        pins.ncs = dut.SDRAM_nCS != 0;
+        pins.ncs = (dut.SDRAM_nCS != 0) ^ invert_ncs;
         pins.nras = dut.SDRAM_nRAS != 0;
         pins.ncas = dut.SDRAM_nCAS != 0;
         pins.nwe = dut.SDRAM_nWE != 0;
@@ -503,7 +503,11 @@ void SDRAM::update(uint64_t simtime_ps) {
         pins.a = dut.SDRAM_A;
         pins.din = dut.SDRAM_DIN;
         auto out = model.tick(pins, simtime_ps);
-        dut.SDRAM_DQ = out.dq_drive ? out.dq : 0;
+        if( out.dq_drive ) {
+            dut.SDRAM_DQ = out.dq;
+        } else if( !invert_ncs ) {
+            dut.SDRAM_DQ = 0;
+        }
     }
     last_clk = dut.SDRAM_CLK;
 }
@@ -512,7 +516,7 @@ void SDRAM::dump() {
     vector<uint8_t> aux(model.bank_byte_len());
     for( int k = 0; k < 4; k++ ) {
         char fname[32];
-        snprintf(fname, sizeof(fname), "sdram_bank%d.bin", k);
+        snprintf(fname, sizeof(fname), "%s_bank%d.bin", prefix.c_str(), k);
         ofstream fout(fname, ios_base::binary);
         if( !fout.good() ) {
             fprintf(stderr, "ERROR: (sdram.cpp) creating %s\n", fname);

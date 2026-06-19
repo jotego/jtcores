@@ -130,6 +130,7 @@ func (hdr *HeaderCfg)FillData(reg_offsets map[string]int, total int, machine *Ma
 	}
 	headbytes := make_byte_slice(byte(hdr.Fill),hdr.len)
 	hdr.bank_offset( headbytes, reg_offsets)
+	if e = hdr.check_data_offset_overlap(machine); e!=nil { return e }
 	headbytes = hdr.parse_data(headbytes,machine)
 	headbytes, e = hdr.parse_regs(headbytes,machine); if e!=nil { return e }
 	hdr.node.SetText(hexdump(headbytes, 8))
@@ -306,6 +307,22 @@ func (reg *HeaderReg) apply_value_to_header(headbytes []byte,value int) error {
 		value_mask := 1<<(chunk.msb-chunk.lsb+1)-1
 		valid_bits := byte(value>>chunk.at) & byte(value_mask)
 		headbytes[chunk.offset] = (headbytes[chunk.offset] & byte(^chunk.mask)) | (valid_bits<<chunk.lsb)
+	}
+	return nil
+}
+func (hdr HeaderCfg) check_data_offset_overlap(machine *MachineXML) error {
+	if len(hdr.Offset.Regions) == 0 { return nil }
+	start := hdr.Offset.Start
+	end := start + (len(hdr.Offset.Regions) << 1)
+	for _, each := range hdr.Data {
+		if each.Match(machine) == 0 { continue }
+		if each.Dev!="" && !has_dev(each.Dev,machine.Devices) { continue }
+		rawbytes := hdr.get_entry_bytes(each,machine)
+		data_start := each.Offset
+		data_end := data_start + len(rawbytes)
+		if data_start < end && start < data_end {
+			return fmt.Errorf("header data at %X-%X overwrites header.offset table at %X-%X", data_start, data_end-1, start, end-1)
+		}
 	}
 	return nil
 }
