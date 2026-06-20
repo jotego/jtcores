@@ -13,6 +13,7 @@ parse_args() {
     KEEP_WORKDIR=false
     VERBOSE=false
     JOBS=1
+    RUN_INDEX=""
     REQUESTED_SETNAME=""
     REQUESTED_CORES=()
     CORE_RESULTS=()
@@ -199,6 +200,8 @@ run_one_core() {
     local setname
     local ver_dir
     local core_work
+    local job_jtbin
+    local macro_undefs
     local jtsim_log
     local jtutil_log
     local jtutil_rc
@@ -215,8 +218,8 @@ run_one_core() {
         return 2
     fi
     if ! core_uses_sdram "$core"; then
-        record_core_detail "$core" "core does not define SDRAM banks in mem.yaml"
-        echo "[SKIP] $core - no SDRAM banks in mem.yaml"
+        record_core_detail "$core" "core does not define SDRAM banks/cache lanes in mem.yaml"
+        echo "[SKIP] $core - no SDRAM banks/cache lanes in mem.yaml"
         return 2
     fi
 
@@ -230,10 +233,23 @@ run_one_core() {
         return 2
     fi
 
+    core_work="$WORKROOT/$core-$setname"
+    if test -n "$RUN_INDEX"; then
+        core_work="$WORKROOT/job-$RUN_INDEX-$core-$setname"
+    fi
+    mkdir -p "$core_work/sim" "$core_work/jtutil"
+
+    job_jtbin=""
+    if test "$JOBS" -gt 1; then
+        job_jtbin="$core_work/jtbin"
+        mkdir -p "$job_jtbin"
+    fi
+    macro_undefs="$(get_mister_undefs "$core")"
+
     echo "[INFO] $core -> $setname"
 
     rm -f "$JTROOT/rom/$setname.rom"
-    if ! generate_rom_for_set "$core" "$setname"; then
+    if ! generate_rom_for_set "$core" "$setname" "$job_jtbin"; then
         record_core_detail "$core" "jtframe mra failed for $setname"
         echo "[FAIL] $core - jtframe mra failed"
         return 1
@@ -243,7 +259,7 @@ run_one_core() {
         echo "[SKIP] $core - ROM was not generated"
         return 2
     fi
-    if ! generate_mem_for_core "$core"; then
+    if ! generate_mem_for_core "$core" "$job_jtbin"; then
         record_core_detail "$core" "jtframe mem failed"
         echo "[FAIL] $core - jtframe mem failed"
         return 1
@@ -251,14 +267,9 @@ run_one_core() {
 
     ver_dir="$JTROOT/cores/$core/ver/$setname"
     mkdir -p "$ver_dir"
-    core_work="$WORKROOT/$core-$setname"
-    if test -n "$RUN_INDEX"; then
-        core_work="$WORKROOT/job-$RUN_INDEX-$core-$setname"
-    fi
-    mkdir -p "$core_work/sim" "$core_work/jtutil"
     jtsim_log="$core_work/jtsim.log"
 
-    if ! run_jtsim_load "$ver_dir" "$setname" "$jtsim_log"; then
+    if ! run_jtsim_load "$ver_dir" "$setname" "$jtsim_log" "$job_jtbin" "$macro_undefs"; then
         if grep -q "JTFRAME_WIDTH must be an integer" "$jtsim_log"; then
             record_core_detail "$core" "missing width/macros for simulation target"
             echo "[SKIP] $core - missing width/macros for simulation target"
@@ -278,7 +289,7 @@ run_one_core() {
     fi
 
     jtutil_log="$core_work/jtutil.log"
-    run_jtutil_sdram "$ver_dir" "$setname" "$jtutil_log"
+    run_jtutil_sdram "$ver_dir" "$setname" "$jtutil_log" "$job_jtbin" "$macro_undefs"
     jtutil_rc=$?
     if test $jtutil_rc -ne 0; then
         if grep -q "does not support download address/data transforms" "$jtutil_log"; then
@@ -370,21 +381,48 @@ core_uses_sdram() {
     local core="$1"
     local mem_file="$JTROOT/cores/$core/cfg/mem.yaml"
     local banks_len
+    local cache_len
 
     if ! test -f "$mem_file"; then
         return 1
     fi
-    banks_len="$(yq -r '.sdram.banks | length' "$mem_file" 2>/dev/null)"
+    banks_len="$(yq -r '.sdram.banks // [] | length' "$mem_file" 2>/dev/null)"
+    cache_len="$(yq -r '.sdram."cache-lanes" // [] | length' "$mem_file" 2>/dev/null)"
     if test -z "$banks_len" || test "$banks_len" = "null"; then
-        return 1
+        banks_len=0
     fi
-    test "$banks_len" -gt 0
+    if test -z "$cache_len" || test "$cache_len" = "null"; then
+        cache_len=0
+    fi
+    test $((banks_len + cache_len)) -gt 0
+}
+
+get_mister_undefs() {
+    local core="$1"
+    local err_file
+
+    err_file="$(mktemp)"
+    if jtframe cfgstr "$core" --output bash --target mister --def JTFRAME_WIDTH=320,JTFRAME_HEIGHT=240 >/dev/null 2>"$err_file"; then
+        rm -f "$err_file"
+        return
+    fi
+    if grep -q "cannot define both JTFRAME_SDRAM_XL and JTFRAME_SDRAM_LARGE" "$err_file"; then
+        echo "JTFRAME_SDRAM_LARGE"
+    fi
+    rm -f "$err_file"
 }
 
 generate_rom_for_set() {
     local core="$1"
     local setname="$2"
-    if $VERBOSE; then
+    local job_jtbin="$3"
+    if test -n "$job_jtbin"; then
+        if $VERBOSE; then
+            JTBIN="$job_jtbin" jtframe mra "$core" -o --setname "$setname" --path "$ROM_PATH"
+        else
+            JTBIN="$job_jtbin" jtframe mra "$core" -o --setname "$setname" --path "$ROM_PATH" >/dev/null 2>&1
+        fi
+    elif $VERBOSE; then
         jtframe mra "$core" -o --setname "$setname" --path "$ROM_PATH"
     else
         jtframe mra "$core" -o --setname "$setname" --path "$ROM_PATH" >/dev/null 2>&1
@@ -393,7 +431,14 @@ generate_rom_for_set() {
 
 generate_mem_for_core() {
     local core="$1"
-    if $VERBOSE; then
+    local job_jtbin="$2"
+    if test -n "$job_jtbin"; then
+        if $VERBOSE; then
+            JTBIN="$job_jtbin" jtframe mem "$core"
+        else
+            JTBIN="$job_jtbin" jtframe mem "$core" >/dev/null 2>&1
+        fi
+    elif $VERBOSE; then
         jtframe mem "$core"
     else
         jtframe mem "$core" >/dev/null 2>&1
@@ -404,10 +449,22 @@ run_jtsim_load() {
     local ver_dir="$1"
     local setname="$2"
     local log_file="$3"
+    local job_jtbin="$4"
+    local macro_undefs="$5"
+    local args
+    local undef
+
+    args=(-batch -mr -load -setname "$setname")
+    for undef in $macro_undefs; do
+        args+=(-u "$undef")
+    done
     (
         cd "$ver_dir" || exit 1
+        if test -n "$job_jtbin"; then
+            export JTBIN="$job_jtbin"
+        fi
         rm -f sdram*.bin
-        jtsim -batch -mr -load -setname "$setname"
+        jtsim "${args[@]}"
     ) >"$log_file" 2>&1
 }
 
@@ -431,10 +488,22 @@ run_jtutil_sdram() {
     local ver_dir="$1"
     local setname="$2"
     local log_file="$3"
+    local job_jtbin="$4"
+    local macro_undefs="$5"
+    local args
+    local undef
+
+    args=(sdram --target mister "$setname")
+    for undef in $macro_undefs; do
+        args+=(-u "$undef")
+    done
     (
         cd "$ver_dir" || exit 1
+        if test -n "$job_jtbin"; then
+            export JTBIN="$job_jtbin"
+        fi
         rm -f sdram*.bin
-        jtutil sdram "$setname"
+        jtutil "${args[@]}"
     ) >"$log_file" 2>&1
 }
 
@@ -521,7 +590,8 @@ Options:
     --setname <setname>  Force setname instead of using main_setnames
     --rom-path <path>    Path to MAME zip files (default: ~/.mame/roms)
     --keep               Keep temporary workdir
-    -j, --jobs <n>       Run up to n core/set simulations in parallel (default: 1)
+    -j, --jobs <n>       Run up to n core/set simulations in parallel (default: 1).
+                         Parallel jobs use separate temporary JTBIN folders.
     -v, --verbose        Show command outputs
     -h, --help           Show this help
 EOF

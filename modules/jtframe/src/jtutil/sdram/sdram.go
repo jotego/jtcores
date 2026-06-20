@@ -34,8 +34,21 @@ var verbose bool
 var size_re = regexp.MustCompile(`^(\d+)(?:\s*(B|k|kB|M|MB))?$`)
 var header_reg_re = regexp.MustCompile(`^([0-9]+)\[([0-7]):?([0-7])?\]$`)
 
+type RunOptions struct {
+	ApplySim bool
+	Target   string
+	Undef    []string
+}
+
 func Run(args []string, v, apply_sim bool) error {
+	return RunWithOptions(args, v, RunOptions{ApplySim: apply_sim})
+}
+
+func RunWithOptions(args []string, v bool, opts RunOptions) error {
 	verbose = v
+	if opts.Target == "" {
+		opts.Target = "mist"
+	}
 	var game string
 	if len(args) != 0 {
 		game = args[0]
@@ -53,7 +66,11 @@ func Run(args []string, v, apply_sim bool) error {
 	if err != nil {
 		return err
 	}
-	macros.MakeMacros(core, "mist")
+	macros.MakeMacros(core, opts.Target)
+	macros.Remove(opts.Undef...)
+	if err := macros.CheckMacros(); err != nil {
+		return err
+	}
 	memCfg, err := parseMemConfig(core)
 	if err != nil {
 		return err
@@ -61,7 +78,7 @@ func Run(args []string, v, apply_sim bool) error {
 	if err := extractSDRAM(memCfg, core, game); err != nil {
 		return err
 	}
-	if apply_sim {
+	if opts.ApplySim {
 		if err := applySimFiles(memCfg); err != nil {
 			return err
 		}
@@ -170,16 +187,13 @@ func extractSDRAM(memCfg *mem.MemConfig, core, game string) error {
 	swapBytes(rom, 0)
 	header := macros.GetInt("JTFRAME_HEADER")
 	bankFill := sdramBankSize()
-	bankCount := len(memCfg.SDRAM.Banks)
 	maxBankCount := 4
 	promIdx := 4
 	if macros.IsSet("JTFRAME_SDRAM_XL") {
 		maxBankCount = 8
 		promIdx = 8
 	}
-	if bankCount > maxBankCount {
-		bankCount = maxBankCount
-	}
+	bankCount := sdramDumpBankCount(memCfg, offsets, maxBankCount, promIdx)
 	promStart := len(rom)
 	if promIdx < len(offsets) {
 		promStart = offsets[promIdx]
@@ -219,6 +233,40 @@ func bankEndOffset(bank, bankCount int, offsets []int, promStart int) int {
 		return offsets[bank+1]
 	}
 	return promStart
+}
+
+func sdramDumpBankCount(cfg *mem.MemConfig, offsets []int, maxBankCount, promIdx int) int {
+	if len(cfg.SDRAM.Banks) > 0 {
+		return clampBankCount(len(cfg.SDRAM.Banks), maxBankCount)
+	}
+	if len(cfg.SDRAM.Cache_lanes) == 0 {
+		return 0
+	}
+	count := len(offsets)
+	if count > promIdx {
+		count = promIdx
+	}
+	for _, line := range cfg.SDRAM.Cache_lanes {
+		if line.At.Defined {
+			laneBank := line.At.Chip*4 + line.At.Bank + 1
+			if laneBank > count {
+				count = laneBank
+			}
+		} else if maxBankCount > count {
+			count = maxBankCount
+		}
+	}
+	return clampBankCount(count, maxBankCount)
+}
+
+func clampBankCount(count, maxBankCount int) int {
+	if count > maxBankCount {
+		return maxBankCount
+	}
+	if count < 0 {
+		return 0
+	}
+	return count
 }
 
 func sdramBankName(bank int) string {
