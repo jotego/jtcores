@@ -205,8 +205,7 @@ wire [127:0]    flush_rd_resp_word = pack_data(req_q, flush_rd_off_l);
 assign miss_busy = st != S_IDLE;
 assign fill_done = fill_tail_seen;
 assign fill_word = stream_word;
-assign req_addr  = |req_we ? req_wr_addr :
-                   req_load_addr ? req_addr_n : req_ram_addr_l;
+assign req_addr  = req_load_addr ? req_addr_n : req_ram_addr_l;
 assign stream_addr = |stream_we ? stream_wr_addr :
                      stream_load_addr ? stream_addr_n : stream_ram_addr_l;
 assign tag_rd_set = st == S_IDLE && req_valid ? front_req_set :
@@ -466,12 +465,9 @@ always @* begin
                 tag_advance_en    = 1'b1;
                 tag_advance_way_n = victim_way_now;
             end
-            if( hit_now && !req_wr_l ) begin
+            if( hit_now ) begin
                 req_load_addr = 1'b1;
                 req_addr_n    = req_baddr(hit_blk_now, req_off_l);
-            end else if( !hit_now && victim_dirty_now ) begin
-                stream_load_addr = 1'b1;
-                stream_addr_n    = stream_baddr(victim_blk_now, {WW{1'b0}});
             end
         end
         S_WB_LOAD: begin
@@ -675,7 +671,7 @@ always @(posedge clk) begin
                     stream_word    <= {WW{1'b0}};
                     fill_tail_seen <= 1'b0;
                     if( victim_dirty_now )
-                        st <= S_WB_PRIME;
+                        st <= S_WB_LOAD;
                     else
                         st <= S_FILL_REQ;
                 end
