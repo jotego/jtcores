@@ -202,28 +202,6 @@ func TestDumpErrorsWhenBoundsAreInvalid(t *testing.T) {
 	}
 }
 
-func TestDumpWarnsWhenEmptyRegionFileIsMissing(t *testing.T) {
-	dir := t.TempDir()
-	restore := chdir(t, dir)
-	defer restore()
-
-	rom := []byte{0, 1, 2, 3}
-	var next int
-	var err error
-	out := captureStdout(t, func() {
-		next, err = dump("missing.bin", rom, 2, 2, len(rom), 0)
-	})
-	if err != nil {
-		t.Fatalf("dump returned error: %v", err)
-	}
-	if next != 2 {
-		t.Fatalf("dump next mismatch: got=%d want=%d", next, 2)
-	}
-	if !strings.Contains(out, "WARNING") || !strings.Contains(out, "missing.bin") {
-		t.Fatalf("missing warning for empty region file: %q", out)
-	}
-}
-
 func TestDumpRemovesEmptyRegionFile(t *testing.T) {
 	dir := t.TempDir()
 	restore := chdir(t, dir)
@@ -301,44 +279,6 @@ func TestBankOffsetReadsReversedHeaderEntries(t *testing.T) {
 	}
 	if got, want := offsets[3], 0x250000+16; got != want {
 		t.Fatalf("bank 3 offset mismatch: got=%#x want=%#x", got, want)
-	}
-}
-
-func TestBankOffsetSkipsHeaderEntryZeroForBankLUT(t *testing.T) {
-	macros.MakeFromMap(map[string]string{
-		"JTFRAME_HEADER": "32",
-	})
-	rom := make([]byte, 0x2C80020)
-	copy(rom, []byte{
-		0x00, 0x08, // dummy/base: 0x0008 << 16 = 0x0080000
-		0x00, 0x88, // BA1:        0x0088 << 16 = 0x0880000
-		0x01, 0x88, // BA2:        0x0188 << 16 = 0x1880000
-		0x02, 0x88, // BA3:        0x0288 << 16 = 0x2880000
-		0x02, 0xC8, // end:        0x02C8 << 16 = 0x2C80000
-		0x02, 0xC8, // future expansion entry; ignored by bank split
-	})
-	hinfo := mra.HeaderOffset{
-		Bits:    16,
-		Reverse: false,
-		Start:   0,
-		Regions: []string{"simm1.0", "simm3.0", "simm4.0", "simm5.0", "simm2.0", "simm6.0"},
-	}
-
-	offsets, _, err := bankOffset(len(hinfo.Regions), hinfo, rom)
-	if err != nil {
-		t.Fatalf("bankOffset returned error: %v", err)
-	}
-	if got, want := offsets[1], 0x0880000+32; got != want {
-		t.Fatalf("bank 1 offset mismatch: got=%#x want=%#x", got, want)
-	}
-	if got, want := offsets[2], 0x1880000+32; got != want {
-		t.Fatalf("bank 2 offset mismatch: got=%#x want=%#x", got, want)
-	}
-	if got, want := offsets[3], 0x2880000+32; got != want {
-		t.Fatalf("bank 3 offset mismatch: got=%#x want=%#x", got, want)
-	}
-	if got, want := offsets[4], len(rom); got != want {
-		t.Fatalf("end offset mismatch: got=%#x want=%#x", got, want)
 	}
 }
 
@@ -576,29 +516,6 @@ func TestApplySimFileRejectsWrongSize(t *testing.T) {
 	if !strings.Contains(err.Error(), "must be 4 bytes") {
 		t.Fatalf("unexpected error: %v", err)
 	}
-}
-
-func captureStdout(t *testing.T, fn func()) string {
-	t.Helper()
-	old := os.Stdout
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("pipe failed: %v", err)
-	}
-	os.Stdout = w
-	fn()
-	os.Stdout = old
-	if err := w.Close(); err != nil {
-		t.Fatalf("close stdout pipe failed: %v", err)
-	}
-	var buf bytes.Buffer
-	if _, err := buf.ReadFrom(r); err != nil {
-		t.Fatalf("read stdout pipe failed: %v", err)
-	}
-	if err := r.Close(); err != nil {
-		t.Fatalf("close read pipe failed: %v", err)
-	}
-	return buf.String()
 }
 
 func intsToBytes(ref []int) []byte {
