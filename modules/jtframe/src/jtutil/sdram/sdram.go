@@ -32,6 +32,7 @@ import (
 
 var verbose bool
 var size_re = regexp.MustCompile(`^(\d+)(?:\s*(B|k|kB|M|MB))?$`)
+var header_reg_re = regexp.MustCompile(`^([0-9]+)\[([0-7]):?([0-7])?\]$`)
 
 func Run(args []string, v, apply_sim bool) error {
 	verbose = v
@@ -162,21 +163,22 @@ func extractSDRAM(memCfg *mem.MemConfig, core, game string) error {
 	if err != nil {
 		return err
 	}
-	if err = applyGfxSort(memCfg, game, rom, offsets); err != nil {
+	if err = applyGfxSort(memCfg, game, rom, offsets, mraCfg.Header.Registers); err != nil {
 		return err
 	}
 	// Swap the bytes so sdram.bin files get written correctly as 16-bit words.
 	swapBytes(rom, 0)
 	header := macros.GetInt("JTFRAME_HEADER")
 	bankFill := sdramBankSize()
-	bankCount := 4
+	bankCount := len(memCfg.SDRAM.Banks)
+	maxBankCount := 4
 	promIdx := 4
 	if macros.IsSet("JTFRAME_SDRAM_XL") {
-		bankCount = 8
+		maxBankCount = 8
 		promIdx = 8
 	}
-	if bankCount > len(offsets) {
-		bankCount = len(offsets)
+	if bankCount > maxBankCount {
+		bankCount = maxBankCount
 	}
 	promStart := len(rom)
 	if promIdx < len(offsets) {
@@ -184,10 +186,7 @@ func extractSDRAM(memCfg *mem.MemConfig, core, game string) error {
 	}
 	nxStart := header
 	for bank := 0; bank < bankCount; bank++ {
-		nx := 0
-		if bank+1 < len(offsets) {
-			nx = offsets[bank+1]
-		}
+		nx := bankEndOffset(bank, bankCount, offsets, promStart)
 		name := sdramBankName(bank)
 		nxStart, err = dump(name, rom, nxStart, nx, promStart, bankFill)
 		if err != nil {
@@ -213,6 +212,13 @@ func extractSDRAM(memCfg *mem.MemConfig, core, game string) error {
 		}
 	}
 	return nil
+}
+
+func bankEndOffset(bank, bankCount int, offsets []int, promStart int) int {
+	if bank+1 < bankCount && bank+1 < len(offsets) && offsets[bank+1] < promStart {
+		return offsets[bank+1]
+	}
+	return promStart
 }
 
 func sdramBankName(bank int) string {
@@ -548,7 +554,7 @@ func parseMemConfig(core string) (*mem.MemConfig, error) {
 	return &cfg, nil
 }
 
-func applyGfxSort(cfg *mem.MemConfig, game string, rom []byte, offsets []int) error {
+func applyGfxSort(cfg *mem.MemConfig, game string, rom []byte, offsets []int, regs []mra.HeaderReg) error {
 	if len(cfg.SDRAM.Banks) == 0 {
 		return nil
 	}
@@ -565,7 +571,7 @@ func applyGfxSort(cfg *mem.MemConfig, game string, rom []byte, offsets []int) er
 				continue
 			}
 			if strings.TrimSpace(bus.Gfx_en) != "" {
-				if !shouldApplyGfxEn(bus.Gfx_en, game) {
+				if !shouldApplyGfxEn(bus.Gfx_en, game, rom, regs) {
 					if verbose {
 						fmt.Printf("Skipping conditional gfx_sort %-8s on bus=%s (gfx_sort_en=%s)\n", gfx, bus.Name, bus.Gfx_en)
 					}
@@ -621,10 +627,13 @@ func applyGfxSort(cfg *mem.MemConfig, game string, rom []byte, offsets []int) er
 	return nil
 }
 
-func shouldApplyGfxEn(expr, game string) bool {
+func shouldApplyGfxEn(expr, game string, rom []byte, regs []mra.HeaderReg) bool {
 	name := strings.TrimSpace(strings.ToLower(expr))
 	if name == "" {
 		return true
+	}
+	if value, ok := headerRegisterValue(name, rom, regs); ok {
+		return value != 0
 	}
 	g := strings.ToLower(game)
 	if strings.HasPrefix(name, "not_") {
@@ -632,6 +641,67 @@ func shouldApplyGfxEn(expr, game string) bool {
 		return !strings.Contains(g, term)
 	}
 	return strings.Contains(g, name)
+}
+
+func headerRegisterValue(name string, rom []byte, regs []mra.HeaderReg) (int, bool) {
+	for _, reg := range regs {
+		if strings.ToLower(strings.TrimSpace(reg.Name)) != name {
+			continue
+		}
+		value, err := readHeaderRegister(reg.Pos, rom)
+		return value, err == nil
+	}
+	return 0, false
+}
+
+func readHeaderRegister(pos string, rom []byte) (int, error) {
+	parts := strings.Split(pos, ",")
+	value := 0
+	at := 0
+	for k := len(parts) - 1; k >= 0; k-- {
+		offset, msb, lsb, err := parseHeaderRegisterPart(strings.TrimSpace(parts[k]))
+		if err != nil {
+			return 0, err
+		}
+		if offset < 0 || offset >= len(rom) {
+			return 0, fmt.Errorf("header register offset %d outside ROM length %d", offset, len(rom))
+		}
+		width := msb - lsb + 1
+		mask := (1 << width) - 1
+		chunk := (int(rom[offset]) >> lsb) & mask
+		value |= chunk << at
+		at += width
+	}
+	return value, nil
+}
+
+func parseHeaderRegisterPart(pos string) (offset, msb, lsb int, err error) {
+	chunks := header_reg_re.FindStringSubmatch(pos)
+	if len(chunks) != 4 {
+		return 0, 0, 0, fmt.Errorf("wrong header register position %q", pos)
+	}
+	offset64, err := strconv.ParseInt(chunks[1], 10, 32)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	msb64, err := strconv.ParseInt(chunks[2], 10, 32)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	lsb64 := msb64
+	if chunks[3] != "" {
+		lsb64, err = strconv.ParseInt(chunks[3], 10, 32)
+		if err != nil {
+			return 0, 0, 0, err
+		}
+	}
+	offset = int(offset64)
+	msb = int(msb64)
+	lsb = int(lsb64)
+	if lsb > msb || msb > 7 || lsb < 0 {
+		return 0, 0, 0, fmt.Errorf("invalid header register bit range %q", pos)
+	}
+	return offset, msb, lsb, nil
 }
 
 func bankBounds(bankIdx int, offsets []int, romLen int) (int, int) {

@@ -124,6 +124,15 @@ reg  [ 2:0] bank;
 reg  [25:0] offset;
 reg  [25:0] eff_addr;
 reg [2*9*8-1:0] ba_start=0; // 16 bits per offset
+reg [SDRAMW-1:1] pend_addr;
+reg [ 7:0] pend_data;
+reg [ 1:0] pend_mask, pend_ba;
+reg        pend_we;
+wire [ 7:0] balut_bit_addr = { ioctl_addr[4:0], 3'b000 };
+wire [SDRAMW-1:1] nx_prog_addr = XL ? { bank[2], eff_addr[SDRAMW-2:1] } : eff_addr[SDRAMW-1:1];
+wire [ 1:0] nx_prog_mask = (eff_addr[0]^SWAB[0]) ? 2'b10 : 2'b01;
+wire [ 1:0] nx_prog_ba   = bank[1:0];
+wire        sdram_pending = prog_we && !sdram_ack;
 
 initial prog_ba = 0;
 
@@ -155,7 +164,7 @@ generate
         // header table containing each bank start offset shifted by LUTSH bits
         always @(posedge clk) begin
             if ( ioctl_wr && ioctl_rom && header && ioctl_addr[6:0]<(BALUT_LEN<<1) ) begin
-                ba_start <= { ioctl_dout, ba_start[143:8] };
+                ba_start[balut_bit_addr+:8] <= ioctl_dout;
             end
         end
         /* verilator lint_off WIDTHEXPAND */
@@ -176,23 +185,57 @@ generate
 endgenerate
 
 always @(posedge clk) begin
-    if ( ioctl_wr && ioctl_rom && !header ) begin
+    if( ioctl_wr && ioctl_rom && !header ) begin
         if( is_prom ) begin
             prog_addr <= part_addr[SDRAMW-2:0];
             prom_we   <= 1;
             prog_we   <= 0;
+            data_out  <= ioctl_dout;
+            prog_mask <= nx_prog_mask;
+        end else if( sdram_pending ) begin
+            pend_addr <= nx_prog_addr;
+            pend_data <= ioctl_dout;
+            pend_mask <= nx_prog_mask;
+            pend_ba   <= nx_prog_ba;
+            pend_we   <= 1;
+            prom_we   <= 0;
+        end else if( prog_we && sdram_ack && pend_we ) begin
+            prog_addr <= pend_addr;
+            data_out  <= pend_data;
+            prog_mask <= pend_mask;
+            prog_ba   <= pend_ba;
+            prog_we   <= 1;
+            prom_we   <= 0;
+            pend_addr <= nx_prog_addr;
+            pend_data <= ioctl_dout;
+            pend_mask <= nx_prog_mask;
+            pend_ba   <= nx_prog_ba;
+            pend_we   <= 1;
         end else begin
-            prog_addr <= XL ? { bank[2], eff_addr[SDRAMW-2:1] } : eff_addr[SDRAMW-1:1];
+            prog_addr <= nx_prog_addr;
+            data_out  <= ioctl_dout;
+            prog_mask <= nx_prog_mask;
+            prog_ba   <= nx_prog_ba;
             prom_we   <= 0;
             prog_we   <= 1;
-            prog_ba   <= bank[1:0];
         end
-        data_out  <= ioctl_dout;
-        prog_mask <= (eff_addr[0]^SWAB[0]) ? 2'b10 : 2'b01;
-    end
-    else begin
-        if(!ioctl_rom || sdram_ack) prog_we <= 0;
-        if(!ioctl_rom) prom_we <= 0;
+    end else begin
+        if( !ioctl_rom ) begin
+            prog_we <= 0;
+            prom_we <= 0;
+            pend_we <= 0;
+        end else if( sdram_ack ) begin
+            if( pend_we ) begin
+                prog_addr <= pend_addr;
+                data_out  <= pend_data;
+                prog_mask <= pend_mask;
+                prog_ba   <= pend_ba;
+                prog_we   <= 1;
+                pend_we   <= 0;
+            end else begin
+                prog_we <= 0;
+            end
+        end
     end
 end
 
