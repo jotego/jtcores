@@ -372,6 +372,33 @@ func TestBankEndOffsetCapsNextBankAtProm(t *testing.T) {
 	}
 }
 
+func TestSdramDumpBankCountUsesDeclaredBanks(t *testing.T) {
+	cfg := &mem.MemConfig{}
+	cfg.SDRAM.Banks = make([]mem.SDRAMBank, 3)
+	if got, want := sdramDumpBankCount(cfg, []int{0, 1, 2, 3, 4, 5}, 8, 8), 3; got != want {
+		t.Fatalf("declared bank count mismatch: got=%d want=%d", got, want)
+	}
+}
+
+func TestSdramDumpBankCountUsesHeaderOffsetsForCacheLanes(t *testing.T) {
+	cfg := &mem.MemConfig{}
+	cfg.SDRAM.Cache_lanes = []mem.SDRAMCacheLine{{
+		Name: "simm2",
+		At:   mem.SDRAMCacheAddr{Defined: true, Bank: 0, Chip: 1},
+	}}
+	if got, want := sdramDumpBankCount(cfg, []int{0, 1, 2, 3, 4, 5}, 8, 8), 6; got != want {
+		t.Fatalf("cache-lane header-offset bank count mismatch: got=%d want=%d", got, want)
+	}
+}
+
+func TestSdramDumpBankCountUsesFullRangeForCacheLanes(t *testing.T) {
+	cfg := &mem.MemConfig{}
+	cfg.SDRAM.Cache_lanes = []mem.SDRAMCacheLine{{Name: "gfxdma"}}
+	if got, want := sdramDumpBankCount(cfg, []int{0, 1, 2, 3, 4, 5}, 8, 8), 8; got != want {
+		t.Fatalf("full-range cache-lane bank count mismatch: got=%d want=%d", got, want)
+	}
+}
+
 func TestRemapAddressBitsHvvvx(t *testing.T) {
 	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER": "0"})
 	gfx, err := parseGfxPattern("hvvvx")
