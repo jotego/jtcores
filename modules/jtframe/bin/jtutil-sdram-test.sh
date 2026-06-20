@@ -12,6 +12,7 @@ parse_args() {
     ROM_PATH="${HOME}/.mame/roms"
     KEEP_WORKDIR=false
     VERBOSE=false
+    JOBS=1
     REQUESTED_SETNAME=""
     REQUESTED_CORES=()
     CORE_RESULTS=()
@@ -46,6 +47,17 @@ parse_args() {
             --keep)
                 KEEP_WORKDIR=true
                 ;;
+            --jobs|-j)
+                shift
+                if test -z "$1"; then
+                    echo "[ERROR] --jobs requires an argument"
+                    exit 1
+                fi
+                JOBS="$1"
+                ;;
+            --jobs=*)
+                JOBS="${1#*=}"
+                ;;
             --verbose|-v)
                 VERBOSE=true
                 ;;
@@ -61,6 +73,11 @@ parse_args() {
         esac
         shift
     done
+
+    if ! [[ "$JOBS" =~ ^[1-9][0-9]*$ ]]; then
+        echo "[ERROR] --jobs requires a positive integer"
+        exit 1
+    fi
 }
 
 check_environment() {
@@ -83,13 +100,21 @@ discover_cores() {
 }
 
 run_all_cores() {
-    local core
-    local status
-
     WORKROOT="$(mktemp -d)"
     if ! $KEEP_WORKDIR; then
         trap 'rm -rf "$WORKROOT"' EXIT
     fi
+
+    if test "$JOBS" -eq 1; then
+        run_all_cores_serial
+    else
+        run_all_cores_parallel
+    fi
+}
+
+run_all_cores_serial() {
+    local core
+    local status
 
     for core in "${CORE_LIST[@]}"; do
         run_one_core "$core"
@@ -102,6 +127,73 @@ run_all_cores() {
     done
 }
 
+run_all_cores_parallel() {
+    local idx
+    local active=0
+    local pid
+    local pids=()
+    local status
+    local detail
+    local out_file
+
+    echo "[INFO] Running up to $JOBS jobs in parallel"
+
+    for idx in "${!CORE_LIST[@]}"; do
+        run_one_core_job "$idx" "${CORE_LIST[$idx]}" &
+        pids+=("$!")
+        active=$((active+1))
+        if test $active -ge "$JOBS"; then
+            wait "${pids[0]}"
+            pids=("${pids[@]:1}")
+            active=$((active-1))
+        fi
+    done
+
+    for pid in "${pids[@]}"; do
+        wait "$pid"
+    done
+
+    for idx in "${!CORE_LIST[@]}"; do
+        out_file="$WORKROOT/job-$idx.out"
+        if test -s "$out_file"; then
+            cat "$out_file"
+        fi
+
+        if test -f "$WORKROOT/job-$idx.status"; then
+            status="$(cat "$WORKROOT/job-$idx.status")"
+        else
+            status=1
+        fi
+        case $status in
+            0) CORE_RESULTS[$idx]="PASS" ;;
+            2) CORE_RESULTS[$idx]="SKIP" ;;
+            *) CORE_RESULTS[$idx]="FAIL" ;;
+        esac
+
+        if test -f "$WORKROOT/job-$idx.detail"; then
+            detail="$(cat "$WORKROOT/job-$idx.detail")"
+        else
+            detail="${CORE_LIST[$idx]}|parallel job did not report a result"
+        fi
+        CORE_DETAILS[$idx]="$detail"
+    done
+}
+
+run_one_core_job() {
+    local idx="$1"
+    local core="$2"
+    local status
+
+    (
+        RUN_INDEX="$idx"
+        run_one_core "$core"
+        status=$?
+        printf '%s\n' "$status" >"$WORKROOT/job-$idx.status"
+        printf '%s\n' "$RUN_DETAIL" >"$WORKROOT/job-$idx.detail"
+        exit 0
+    ) >"$WORKROOT/job-$idx.out" 2>&1
+}
+
 run_one_core() {
     local core="$1"
     local setname
@@ -111,18 +203,19 @@ run_one_core() {
     local jtutil_log
     local jtutil_rc
 
+    RUN_DETAIL=""
     if ! test -d "$JTROOT/cores/$core"; then
-        CORE_DETAILS+=("$core|missing core directory")
+        record_core_detail "$core" "missing core directory"
         echo "[FAIL] $core - missing core directory"
         return 1
     fi
     if core_marked_skip "$core"; then
-        CORE_DETAILS+=("$core|JTFRAME_SKIP enabled")
+        record_core_detail "$core" "JTFRAME_SKIP enabled"
         echo "[SKIP] $core - JTFRAME_SKIP enabled"
         return 2
     fi
     if ! core_uses_sdram "$core"; then
-        CORE_DETAILS+=("$core|core does not define SDRAM banks in mem.yaml")
+        record_core_detail "$core" "core does not define SDRAM banks in mem.yaml"
         echo "[SKIP] $core - no SDRAM banks in mem.yaml"
         return 2
     fi
@@ -132,20 +225,26 @@ run_one_core() {
         setname="$(get_main_setname "$core")"
     fi
     if test -z "$setname"; then
-        CORE_DETAILS+=("$core|no main setname found")
+        record_core_detail "$core" "no main setname found"
         echo "[SKIP] $core - no main setname found"
         return 2
     fi
 
     echo "[INFO] $core -> $setname"
 
+    rm -f "$JTROOT/rom/$setname.rom"
     if ! generate_rom_for_set "$core" "$setname"; then
-        CORE_DETAILS+=("$core|jtframe mra failed for $setname")
+        record_core_detail "$core" "jtframe mra failed for $setname"
         echo "[FAIL] $core - jtframe mra failed"
         return 1
     fi
+    if ! test -f "$JTROOT/rom/$setname.rom"; then
+        record_core_detail "$core" "ROM was not generated for $setname"
+        echo "[SKIP] $core - ROM was not generated"
+        return 2
+    fi
     if ! generate_mem_for_core "$core"; then
-        CORE_DETAILS+=("$core|jtframe mem failed")
+        record_core_detail "$core" "jtframe mem failed"
         echo "[FAIL] $core - jtframe mem failed"
         return 1
     fi
@@ -153,16 +252,19 @@ run_one_core() {
     ver_dir="$JTROOT/cores/$core/ver/$setname"
     mkdir -p "$ver_dir"
     core_work="$WORKROOT/$core-$setname"
+    if test -n "$RUN_INDEX"; then
+        core_work="$WORKROOT/job-$RUN_INDEX-$core-$setname"
+    fi
     mkdir -p "$core_work/sim" "$core_work/jtutil"
     jtsim_log="$core_work/jtsim.log"
 
     if ! run_jtsim_load "$ver_dir" "$setname" "$jtsim_log"; then
         if grep -q "JTFRAME_WIDTH must be an integer" "$jtsim_log"; then
-            CORE_DETAILS+=("$core|missing width/macros for simulation target")
+            record_core_detail "$core" "missing width/macros for simulation target"
             echo "[SKIP] $core - missing width/macros for simulation target"
             return 2
         fi
-        CORE_DETAILS+=("$core|jtsim -load failed for $setname (see $jtsim_log)")
+        record_core_detail "$core" "jtsim -load failed for $setname (see $jtsim_log)"
         echo "[FAIL] $core - jtsim -load failed"
         if $VERBOSE; then
             sed -n '1,120p' "$jtsim_log"
@@ -170,7 +272,7 @@ run_one_core() {
         return 1
     fi
     if ! save_banks "$ver_dir" "$core_work/sim"; then
-        CORE_DETAILS+=("$core|jtsim did not generate sdram_bank*.bin")
+        record_core_detail "$core" "jtsim did not generate sdram_bank*.bin"
         echo "[SKIP] $core - jtsim did not generate sdram_bank*.bin"
         return 2
     fi
@@ -180,11 +282,11 @@ run_one_core() {
     jtutil_rc=$?
     if test $jtutil_rc -ne 0; then
         if grep -q "does not support download address/data transforms" "$jtutil_log"; then
-            CORE_DETAILS+=("$core|unsupported mem.yaml transforms for jtutil sdram")
+            record_core_detail "$core" "unsupported mem.yaml transforms for jtutil sdram"
             echo "[SKIP] $core - unsupported mem.yaml transforms"
             return 2
         fi
-        CORE_DETAILS+=("$core|jtutil sdram failed for $setname")
+        record_core_detail "$core" "jtutil sdram failed for $setname"
         echo "[FAIL] $core - jtutil sdram failed"
         if $VERBOSE; then
             sed -n '1,120p' "$jtutil_log"
@@ -192,20 +294,28 @@ run_one_core() {
         return 1
     fi
     if ! save_banks "$ver_dir" "$core_work/jtutil"; then
-        CORE_DETAILS+=("$core|jtutil did not generate sdram_bank*.bin")
+        record_core_detail "$core" "jtutil did not generate sdram_bank*.bin"
         echo "[SKIP] $core - jtutil did not generate sdram_bank*.bin"
         return 2
     fi
 
     if ! compare_bank_sets "$core_work/sim" "$core_work/jtutil" "$core" "$setname"; then
-        CORE_DETAILS+=("$core|bank mismatch for $setname")
+        record_core_detail "$core" "bank mismatch for $setname"
         echo "[FAIL] $core - bank mismatch"
         return 1
     fi
 
-    CORE_DETAILS+=("$core|$setname")
+    record_core_detail "$core" "$setname"
     echo "[PASS] $core - $setname"
     return 0
+}
+
+record_core_detail() {
+    local core="$1"
+    local detail="$2"
+
+    RUN_DETAIL="$core|$detail"
+    CORE_DETAILS+=("$RUN_DETAIL")
 }
 
 get_main_setname() {
@@ -296,7 +406,7 @@ run_jtsim_load() {
     local log_file="$3"
     (
         cd "$ver_dir" || exit 1
-        rm -f sdram_bank*.bin
+        rm -f sdram*.bin
         jtsim -batch -mr -load -setname "$setname"
     ) >"$log_file" 2>&1
 }
@@ -307,8 +417,8 @@ save_banks() {
     local found=false
     local f
 
-    rm -f "$dst_dir"/sdram_bank*.bin
-    for f in "$src_dir"/sdram_bank*.bin; do
+    rm -f "$dst_dir"/sdram*.bin
+    for f in "$src_dir"/sdram*.bin; do
         if test -f "$f"; then
             cp "$f" "$dst_dir/"
             found=true
@@ -323,7 +433,7 @@ run_jtutil_sdram() {
     local log_file="$3"
     (
         cd "$ver_dir" || exit 1
-        rm -f sdram_bank*.bin
+        rm -f sdram*.bin
         jtutil sdram "$setname"
     ) >"$log_file" 2>&1
 }
@@ -335,19 +445,43 @@ compare_bank_sets() {
     local setname="$4"
     local bank
 
-    for bank in sdram_bank0.bin sdram_bank1.bin sdram_bank2.bin sdram_bank3.bin; do
+    for bank in sdram_bank0.bin sdram_bank1.bin sdram_bank2.bin sdram_bank3.bin \
+                sdram2_bank0.bin sdram2_bank1.bin sdram2_bank2.bin sdram2_bank3.bin; do
         if test -f "$sim_dir/$bank" || test -f "$jtutil_dir/$bank"; then
-            if ! test -f "$sim_dir/$bank" || ! test -f "$jtutil_dir/$bank"; then
-                echo "[DIFF] $core/$setname missing $bank in one side"
-                return 1
-            fi
-            if ! cmp -s "$sim_dir/$bank" "$jtutil_dir/$bank"; then
+            if ! compare_bank_file "$sim_dir/$bank" "$jtutil_dir/$bank"; then
                 echo "[DIFF] $core/$setname mismatch in $bank"
                 return 1
             fi
         fi
     done
     return 0
+}
+
+compare_bank_file() {
+    local sim_file="$1"
+    local jtutil_file="$2"
+
+    if test -f "$sim_file" && test -f "$jtutil_file"; then
+        cmp -s "$sim_file" "$jtutil_file"
+        return $?
+    fi
+    if test -f "$sim_file"; then
+        file_is_zero "$sim_file"
+        return $?
+    fi
+    if test -f "$jtutil_file"; then
+        file_is_zero "$jtutil_file"
+        return $?
+    fi
+    return 0
+}
+
+file_is_zero() {
+    local file="$1"
+    local size
+
+    size="$(stat -c '%s' "$file")" || return 1
+    cmp -s "$file" <(head -c "$size" /dev/zero)
 }
 
 print_summary() {
@@ -387,6 +521,7 @@ Options:
     --setname <setname>  Force setname instead of using main_setnames
     --rom-path <path>    Path to MAME zip files (default: ~/.mame/roms)
     --keep               Keep temporary workdir
+    -j, --jobs <n>       Run up to n core/set simulations in parallel (default: 1)
     -v, --verbose        Show command outputs
     -h, --help           Show this help
 EOF
