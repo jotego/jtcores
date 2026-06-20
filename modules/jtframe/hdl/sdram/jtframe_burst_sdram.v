@@ -84,7 +84,7 @@ localparam XL  = AW == 24;
 localparam PAW = XL ? 23 : AW;
 
 wire        prog_rst, rfsh_rst;
-wire [PAW-1:0] prog_phys_addr = XL ? prog_addr[PAW-1:0] : prog_addr;
+wire [PAW-1:0] prog_phys_addr = prog_addr[PAW-1:0];
 wire [PAW-1:0] prog_bank_addr = PAW==23 ? { prog_phys_addr[9], prog_phys_addr[PAW-1:10], prog_phys_addr[8:0] } :
                                              prog_phys_addr;
 wire [ 3:0] mode_cmd;
