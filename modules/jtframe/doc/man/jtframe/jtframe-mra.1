@@ -173,6 +173,45 @@ requests automatic header-module generation from named bitfields.
 \fBoffset={ start=0, bits=8, reverse=true, regions=[ "maincpu", "gfx1", ... ] }\fR
 creates a region-offset table in the header and also enables LUT parameters in
 \fBjtframe_dwnld\fR.
+.RS
+.IP \[bu] 2
+\fBstart\fR is the byte position, inside the header, where the table begins.
+Each table entry occupies two bytes.
+.IP \[bu] 2
+Each named
+\fBregions\fR
+entry stores the byte offset at which that MAME ROM region begins in the merged
+payload. The payload offset does not include the download header bytes.
+.IP \[bu] 2
+\fBbits\fR
+right-shifts the stored value. The downloader restores the byte offset by
+left-shifting the 16-bit table entry by the same amount.
+.IP \[bu] 2
+\fBreverse=true\fR
+stores each 16-bit entry as low byte followed by high byte. With
+\fBreverse=false\fR,
+entries are stored high byte first.
+.IP \[bu] 2
+For SDRAM bank selection, entry 0 is the implicit bank-0 start and is normally
+zero. Entry 1 is bank 1 start, entry 2 is bank 2 start, entry 3 is bank 3 start,
+and entry 4 is the PROM start for non-XL SDRAM. With
+\fBJTFRAME_SDRAM_XL\fR,
+entries 4 through 7 are banks 4 through 7 and entry 8 is the PROM start.
+.IP \[bu] 2
+When
+\fBROM.order\fR
+is present, every
+\fBheader.offset.regions\fR
+name must appear in that order and the offset regions must be listed in the same
+relative order. This keeps the header table monotonic for
+\fBjtframe_dwnld\fR
+and
+\fBjtutil sdram\fR.
+.IP \[bu] 2
+Explicit
+\fBheader.data\fR
+entries must not overlap the byte range occupied by the offset table.
+.RE
 .IP \[bu] 2
 \fBframes=[ { width=8 }, ... ]\fR
 overrides automatic frame trimming when black side bars in the original game
