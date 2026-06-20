@@ -487,15 +487,20 @@ func bankOffset(regCnt int, hinfo mra.HeaderOffset, rom []byte) ([]int, []string
 		}
 	}
 	// Final values from header (if defined).
-	headerOffsets, err := readHeaderOffsets(hinfo, rom, header)
-	if err != nil {
-		return nil, nil, err
-	}
-	for k := 1; k < len(headerOffsets); k++ {
-		if k >= len(offsets) {
-			break
+	for k := 1; k < len(hinfo.Regions); k++ {
+		idx := hinfo.Start + (k << 1)
+		if idx+1 >= len(rom) {
+			return nil, nil, fmt.Errorf("wrong header: offset index %d for %s is outside ROM length %X", idx, hinfo.Regions[k], len(rom))
 		}
-		offsets[k] = headerOffsets[k]
+		pos := (int(rom[idx]) << 8) | int(rom[idx+1])
+		if hinfo.Reverse {
+			pos = (int(rom[idx+1]) << 8) | int(rom[idx])
+		}
+		pos <<= hinfo.Bits
+		if pos+header > len(rom) {
+			return nil, nil, fmt.Errorf("wrong header: computed offset %X for %s exceeds ROM length %X", pos+header, hinfo.Regions[k], len(rom))
+		}
+		offsets[k] = pos + header
 		if verbose {
 			fmt.Printf("%-4d %-20s %X\n", k, hinfo.Regions[k], offsets[k])
 		}
@@ -508,26 +513,6 @@ func bankOffset(regCnt int, hinfo mra.HeaderOffset, rom []byte) ([]int, []string
 		fmt.Println()
 	}
 	return offsets, hinfo.Regions, nil
-}
-
-func readHeaderOffsets(hinfo mra.HeaderOffset, rom []byte, header int) ([]int, error) {
-	offsets := make([]int, len(hinfo.Regions))
-	for k := range hinfo.Regions {
-		idx := hinfo.Start + (k << 1)
-		if idx+1 >= len(rom) {
-			return nil, fmt.Errorf("wrong header: offset index %d for %s is outside ROM length %X", idx, hinfo.Regions[k], len(rom))
-		}
-		pos := (int(rom[idx]) << 8) | int(rom[idx+1])
-		if hinfo.Reverse {
-			pos = (int(rom[idx+1]) << 8) | int(rom[idx])
-		}
-		pos <<= hinfo.Bits
-		if pos+header > len(rom) {
-			return nil, fmt.Errorf("wrong header: computed offset %X for %s exceeds ROM length %X", pos+header, hinfo.Regions[k], len(rom))
-		}
-		offsets[k] = pos + header
-	}
-	return offsets, nil
 }
 
 func parseMemConfig(core string) (*mem.MemConfig, error) {
@@ -776,13 +761,10 @@ func dump(name string, rom []byte, p0, p1, lim, fill int) (int, error) {
 	}
 	if p1 == p0 && fill == 0 {
 		err := os.Remove(name)
-		if os.IsNotExist(err) {
-			fmt.Printf("WARNING: empty region file %s does not exist\n", name)
-		} else if err != nil {
+		if err != nil {
 			return 0, err
-		} else {
-			fmt.Println("Removed file", name)
 		}
+		fmt.Println("Removed file", name)
 		return p1, nil
 	}
 	if err := os.WriteFile(name, rom[p0:p1], 0664); err != nil {
