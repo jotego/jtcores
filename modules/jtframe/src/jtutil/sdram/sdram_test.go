@@ -342,6 +342,36 @@ func TestBankOffsetSkipsHeaderEntryZeroForBankLUT(t *testing.T) {
 	}
 }
 
+func TestBankEndOffsetEndsLastDeclaredBankAtProm(t *testing.T) {
+	offsets := []int{0, 0x30004, 0x38004, 0x90004, 0xc0004}
+	if got, want := bankEndOffset(0, 3, offsets, offsets[4]), offsets[1]; got != want {
+		t.Fatalf("bank 0 end mismatch: got=%#x want=%#x", got, want)
+	}
+	if got, want := bankEndOffset(1, 3, offsets, offsets[4]), offsets[2]; got != want {
+		t.Fatalf("bank 1 end mismatch: got=%#x want=%#x", got, want)
+	}
+	if got, want := bankEndOffset(2, 3, offsets, offsets[4]), offsets[4]; got != want {
+		t.Fatalf("last declared bank end mismatch: got=%#x want=%#x", got, want)
+	}
+}
+
+func TestBankEndOffsetUsesPromForSingleBankCore(t *testing.T) {
+	offsets := []int{0, 0x200000, 0x200000, 0x200000, 0x128000}
+	if got, want := bankEndOffset(0, 1, offsets, offsets[4]), offsets[4]; got != want {
+		t.Fatalf("single bank end mismatch: got=%#x want=%#x", got, want)
+	}
+}
+
+func TestBankEndOffsetCapsNextBankAtProm(t *testing.T) {
+	offsets := []int{0, 0x40008, 0x340008, 0x3e0008, 0x3d0008}
+	if got, want := bankEndOffset(2, 4, offsets, offsets[4]), offsets[4]; got != want {
+		t.Fatalf("bank before PROM end mismatch: got=%#x want=%#x", got, want)
+	}
+	if got, want := bankEndOffset(3, 4, offsets, offsets[4]), offsets[4]; got != want {
+		t.Fatalf("blank bank after PROM end mismatch: got=%#x want=%#x", got, want)
+	}
+}
+
 func TestRemapAddressBitsHvvvx(t *testing.T) {
 	macros.MakeFromMap(map[string]string{"JTFRAME_HEADER": "0"})
 	gfx, err := parseGfxPattern("hvvvx")
@@ -403,17 +433,40 @@ func TestApplyGfxSortRangeHvvvv(t *testing.T) {
 }
 
 func TestShouldApplyGfxEn(t *testing.T) {
-	if !shouldApplyGfxEn("not_higemaru", "1942") {
+	if !shouldApplyGfxEn("not_higemaru", "1942", nil, nil) {
 		t.Fatalf("not_higemaru should apply for game 1942")
 	}
-	if shouldApplyGfxEn("not_higemaru", "higemaru") {
+	if shouldApplyGfxEn("not_higemaru", "higemaru", nil, nil) {
 		t.Fatalf("not_higemaru should not apply for game higemaru")
 	}
-	if shouldApplyGfxEn("metrocrs", "rthunder") {
+	if shouldApplyGfxEn("metrocrs", "rthunder", nil, nil) {
 		t.Fatalf("metrocrs should not apply for game rthunder")
 	}
-	if !shouldApplyGfxEn("metrocrs", "metrocrs") {
+	if !shouldApplyGfxEn("metrocrs", "metrocrs", nil, nil) {
 		t.Fatalf("metrocrs should apply for game metrocrs")
+	}
+}
+
+func TestShouldApplyGfxEnUsesHeaderRegister(t *testing.T) {
+	regs := []mra.HeaderReg{{Name: "metrocrs", Pos: "2[3]"}}
+	rom := []byte{0, 0, 0x08}
+	if !shouldApplyGfxEn("metrocrs", "aliensec", rom, regs) {
+		t.Fatalf("metrocrs header bit should apply for aliensec")
+	}
+	rom[2] = 0
+	if shouldApplyGfxEn("metrocrs", "metrocrs", rom, regs) {
+		t.Fatalf("cleared metrocrs header bit should override setname fallback")
+	}
+}
+
+func TestReadHeaderRegisterMultiPart(t *testing.T) {
+	rom := []byte{0, 0, 0x80, 0x34}
+	got, err := readHeaderRegister("2[7],3[7:0]", rom)
+	if err != nil {
+		t.Fatalf("readHeaderRegister returned error: %v", err)
+	}
+	if want := 0x134; got != want {
+		t.Fatalf("header register value mismatch: got=%#x want=%#x", got, want)
 	}
 }
 
@@ -577,7 +630,6 @@ func TestApplySimFileRejectsWrongSize(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
-
 
 func TestSdramBankNameUsesSecondChipPrefix(t *testing.T) {
 	cases := map[int]string{
