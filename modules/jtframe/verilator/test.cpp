@@ -702,8 +702,10 @@ void JTSim::video_dump() {
 #endif
     static int LHBLl, LVBLl;
     static int cntw[2], cnth[2];
+    static bool active_video;
     static int last_pxlcen=0;
     if( game.pxl_cen && !last_pxlcen ) {
+        if( game.LHBL && game.LVBL ) active_video = true;
         if( game.LHBL && game.LVBL && frame_cnt>0 ) {
             const int MASK = (1<<_JTFRAME_COLORW)-1;
             int red   = game.red   & MASK;
@@ -719,6 +721,9 @@ void JTSim::video_dump() {
             totalw = cntw[0];
             activew= cntw[1];
             cntw[0]=0; cntw[1]=0;
+            cnth[0]++;
+            if( active_video ) cnth[1]++;
+            active_video = false;
             if( !game.LVBL && LVBLl!=0 ) {
                 report_flip_changes();
                 totalh = cnth[0];
@@ -748,9 +753,6 @@ void JTSim::video_dump() {
                         exit(0);
                     }
                 }
-            } else {
-                cnth[0]++;
-                if( game.LVBL!=0 ) cnth[1]++;
             }
             LVBLl = game.LVBL;
         } else {
