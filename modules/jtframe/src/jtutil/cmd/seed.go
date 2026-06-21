@@ -214,7 +214,7 @@ func (cfg *seed_config) start_batch(output_base string, batch int) []seed_job {
 		output := filepath.Join(output_base, strconv.Itoa(seed))
 		job, e := start_jtcore_logged(cfg.jtcore_args, seed, output)
 		if e != nil {
-			fmt.Printf("Seed %d failed\n", seed)
+			fmt.Printf("Seed %5d failed\n", seed)
 			fmt.Println(e)
 		} else {
 			jobs = append(jobs, job)
@@ -230,7 +230,7 @@ func (cfg *seed_config) wait_batch(jobs []seed_job, pass *bool) (bool, error) {
 		job.pass = job.wait()
 		report := job.log_report()
 		if report.error_msg != "" {
-			fmt.Printf("Seed %d error: %s\n", job.seed, report.error_msg)
+			fmt.Printf("Seed %5d error: %s\n", job.seed, report.error_msg)
 			return false, fmt.Errorf("jtcore error in %s: %s", job.logname, report.error_msg)
 		}
 		if !job.pass && !report.done {
@@ -238,17 +238,17 @@ func (cfg *seed_config) wait_batch(jobs []seed_job, pass *bool) (bool, error) {
 			if msg == "" {
 				msg = "jtcore exited without PASS/FAIL"
 			}
-			fmt.Printf("Seed %d error: %s\n", job.seed, msg)
+			fmt.Printf("Seed %5d error: %s\n", job.seed, msg)
 			return false, fmt.Errorf("jtcore stopped before PASS/FAIL in %s: %s", job.logname, msg)
 		}
 		slack := job.worst_slack()
 		copy_msg := cfg.copy_if_best(job, slack)
 		if job.pass {
-			fmt.Printf("Seed %d passed, worst slack %s%s\n", job.seed, slack, copy_msg)
+			fmt.Printf("Seed %5d passed, worst slack %s%s\n", job.seed, slack, copy_msg)
 			*pass = true
 			batch_pass = true
 		} else {
-			fmt.Printf("Seed %d failed, worst slack %s%s\n", job.seed, slack, copy_msg)
+			fmt.Printf("Seed %5d failed, worst slack %s%s\n", job.seed, slack, copy_msg)
 		}
 	}
 	return batch_pass || *pass, nil
