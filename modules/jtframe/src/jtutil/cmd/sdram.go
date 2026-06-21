@@ -41,7 +41,7 @@ var sdramCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(sdramCmd)
 	sdramCmd.Flags().BoolVar(&sdram_sim, "sim", false, "Apply mem.yaml simfile overlays to SDRAM bank files")
-	sdramCmd.Flags().StringVarP(&sdram_target, "target", "t", "mist", "Target platform used when parsing macros.def")
+	sdramCmd.Flags().StringVarP(&sdram_target, "target", "t", "mister", "Target platform used when parsing macros.def")
 	sdramCmd.Flags().StringSliceVarP(&sdram_undef, "undef", "u", nil, "Undefine macros while parsing macros.def")
 }
 
