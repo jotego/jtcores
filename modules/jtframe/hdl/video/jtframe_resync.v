@@ -30,6 +30,7 @@ module jtframe_resync(
 );
 
 parameter CNTW = 10; // max 1024 pixels/lines
+parameter WIDE = `JTFRAME_WIDTH >= 320;
 
 reg [CNTW-1:0]   hs_pos[0:1], vs_hpos[0:1], vs_vpos[0:1],// relative positions of the original sync pulses
                  hs_len[0:1], vs_len[0:1],               // count the length of the original sync pulses
@@ -40,7 +41,8 @@ reg              last_LHBL, last_LVBL, last_hsin, last_vsin;
 wire             hb_edge, hs_edge, hs_n_edge, vb_edge, vs_edge, vs_n_edge;
 reg              field;
 
-wire [CNTW-1:0]  hpos_off = { {CNTW-4{hoffset[3]}}, hoffset[3:0]  };
+wire [CNTW-1:0]  hpos_off = WIDE==1 ? { {CNTW-5{hoffset[3]}}, hoffset[3:0], 1'b0 }:
+                                      { {CNTW-4{hoffset[3]}}, hoffset[3:0]  };
 wire [CNTW-1:0]  htrip = hs_pos[field] + hpos_off;
 wire [CNTW-1:0]  vs_htrip = vs_hpos[field] + hpos_off;
 wire [CNTW-1:0]  vs_vtrip = vs_vpos[field] + { {CNTW-4{voffset[3]}}, voffset[3:0]  };
