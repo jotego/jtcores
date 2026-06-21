@@ -96,7 +96,7 @@ Use `git clone --recurse-submodules` in order to get all submodules when you clo
 
 # Compilation
 
-Please check [the compilation guide in JTFRAME](modules/jframe/doc/compilation.md)
+Please check [the compilation guide in JTFRAME](../../modules/jtframe/doc/compilation.md)
 
 # Credits
 
