@@ -690,6 +690,44 @@ func TestValidateSimBoundsAcceptsSecondChipWithXL(t *testing.T) {
 	}
 }
 
+func TestMakeSymlinkLinksNvramToRestoreBramNames(t *testing.T) {
+	dir := t.TempDir()
+	restore := chdir(t, dir)
+	defer restore()
+
+	jtroot := filepath.Join(dir, "jtroot")
+	mustMkdirAll(t, filepath.Join(jtroot, "rom"))
+	t.Setenv("JTROOT", jtroot)
+	if err := os.WriteFile(filepath.Join(jtroot, "rom", "JOJON.RAM"), []byte{1, 2, 3, 4}, 0664); err != nil {
+		t.Fatalf("setup failed: %v", err)
+	}
+
+	cfg := &mem.MemConfig{
+		BRAM: []mem.BRAMBus{
+			{Name: "eeprom", Ioctl: mem.BRAMBus_Ioctl{Restore: true}},
+			{Name: "shadow", Ioctl: mem.BRAMBus_Ioctl{Save: true}},
+		},
+	}
+	if err := makeSymlink(cfg, "jojon"); err != nil {
+		t.Fatalf("makeSymlink returned error: %v", err)
+	}
+
+	wantRam := filepath.Join(jtroot, "rom", "JOJON.RAM")
+	if got, err := os.Readlink("nvram.bin"); err != nil || got != wantRam {
+		t.Fatalf("nvram.bin link mismatch: got=%q err=%v", got, err)
+	}
+	if got, err := os.Readlink("eeprom.bin"); err != nil || got != wantRam {
+		t.Fatalf("eeprom.bin link mismatch: got=%q err=%v", got, err)
+	}
+	if _, err := os.Lstat("shadow.bin"); !os.IsNotExist(err) {
+		t.Fatalf("save-only BRAM should not be linked, stat err=%v", err)
+	}
+	wantRom := filepath.Join(jtroot, "rom", "jojon.rom")
+	if got, err := os.Readlink("rom.bin"); err != nil || got != wantRom {
+		t.Fatalf("rom.bin link mismatch: got=%q err=%v", got, err)
+	}
+}
+
 func captureStdout(t *testing.T, fn func()) string {
 	t.Helper()
 	old := os.Stdout
