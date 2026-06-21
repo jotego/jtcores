@@ -83,7 +83,7 @@ func RunWithOptions(args []string, v bool, opts RunOptions) error {
 			return err
 		}
 	}
-	if err := makeSymlink(game); err != nil {
+	if err := makeSymlink(memCfg, game); err != nil {
 		return err
 	}
 	return nil
@@ -934,7 +934,7 @@ func dump(name string, rom []byte, p0, p1, lim, fill int) (int, error) {
 	return p1, nil
 }
 
-func makeSymlink(game string) error {
+func makeSymlink(memCfg *mem.MemConfig, game string) error {
 	// Link ROM files.
 	src := filepath.Join(mustEnv("JTROOT"), "rom", game+".rom")
 	os.Remove("rom.bin")
@@ -948,9 +948,20 @@ func makeSymlink(game string) error {
 		return nil // No RAM file.
 	}
 	defer f.Close()
-	os.Remove("nvram.bin")
-	if err := os.Symlink(src, "nvram.bin"); err != nil {
+	if err := linkFile("nvram.bin", src); err != nil {
 		return err
 	}
+	for _, bram := range memCfg.BRAM {
+		if bram.Ioctl.Restore && bram.Name != "" {
+			if err := linkFile(bram.Name+".bin", src); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
+}
+
+func linkFile(dst, src string) error {
+	os.Remove(dst)
+	return os.Symlink(src, dst)
 }
