@@ -70,6 +70,7 @@ JTFRAME_MR_FASTIO        | MiSTer  | 16-bit ROM load in MiSTer. Set by default i
 JTFRAME_NO_ANALOGIZER    | Pocket  | Disables analog video output and SNAC controllers through cartridge pins. Defined by default if JTFRAME_RELEASE is not defined
 JTFRAME_NO_DB15          | MiSTer  | Disables DB15 controller modules
 JTFRAME_NOSTA            |         | jtcore will not check STA and will produce a PASS regardless of it
+JTFRAME_EASY_STA         |         | jtcore accepts small negative STA slack down to -0.333 ns
 JTFRAME_NOHOLDBUS        |         | Reduces bus noise (non-interleaved SDRAM controller)
 JTFRAME_NOHQ2X           | MiSTer  | Disables HQ2X filter in MiSTer
 JTFRAME_OSD_FLIP         |         | flip option on OSD

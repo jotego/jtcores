@@ -294,9 +294,14 @@ if [ $SKIP_COMPILE = FALSE ]; then
         fi
         rm -f $AUX
         # Report timing
-        if grep --color=auto "Worst-case.*-[0-9.]*" "$LOG"; then
+        if neg_slack=$(worst_negative_sta_slack "$LOG"); then
+            grep --color=auto "Worst-case.*-[0-9.]*" "$LOG" || true
             if [[ -z "$SKIPTIMING" && ! -v JTFRAME_NOSTA ]]; then
-                FAIL=1
+                if [[ -v JTFRAME_EASY_STA ]] && easy_sta_accepts "$neg_slack"; then
+                    echo "JTFRAME_EASY_STA accepts worst slack $neg_slack ns (limit -0.333 ns)"
+                else
+                    FAIL=1
+                fi
             fi
         fi
         report_sdc_problems "$RPTPATH"
