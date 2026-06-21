@@ -172,7 +172,9 @@ module emu
     `endif
 );
 
-`ifdef JTFRAME_SDRAM_LARGE
+`ifdef JTFRAME_SDRAM_XL
+    localparam SDRAMW=24; // 128 MB
+`elsif JTFRAME_SDRAM_LARGE
     localparam SDRAMW=23; // 64 MB
 `else
     localparam SDRAMW=22; // 32 MB
