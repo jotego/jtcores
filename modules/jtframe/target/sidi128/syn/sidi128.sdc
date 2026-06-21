@@ -122,6 +122,19 @@ set_false_path -from [get_ports HDMI_SDA]
 set_multicycle_path -hold -end -to [get_clocks {HDMI_CLK}]  -from  [get_clocks {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[1]}] 2
 set_multicycle_path -hold -end -to [get_clocks {HDMI_CLK}]  -from  [get_clocks {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[2]}] 2
 
+# The SDR line-frame-buffer vertical extent/step state is captured once per
+# frame. Its calculation only controls when the line-request sequence stops,
+# so the done term does not need to settle in one clk_rom cycle.
+set lfbuf_vextent_src [get_registers -nowarn {*jtframe_lfbuf_sdr:u_lf_buf|jtframe_lfbuf_line:u_line|vstart*}]
+set lfbuf_vextent_src [add_to_collection $lfbuf_vextent_src [get_registers -nowarn {*jtframe_lfbuf_sdr:u_lf_buf|jtframe_lfbuf_line:u_line|vend*}]]
+set lfbuf_vextent_src [add_to_collection $lfbuf_vextent_src [get_registers -nowarn {*jtframe_lfbuf_sdr:u_lf_buf|jtframe_lfbuf_line:u_line|v_step_l*}]]
+set lfbuf_vextent_dst [get_registers -nowarn {*jtframe_lfbuf_sdr:u_lf_buf|jtframe_lfbuf_line:u_line|done*}]
+
+if { [get_collection_size $lfbuf_vextent_src] > 0 && [get_collection_size $lfbuf_vextent_dst] > 0 } {
+    set_multicycle_path -setup -end -from $lfbuf_vextent_src -to $lfbuf_vextent_dst 3
+    set_multicycle_path -hold  -end -from $lfbuf_vextent_src -to $lfbuf_vextent_dst 2
+}
+
 #**************************************************************
 # Set Maximum Delay
 #**************************************************************
