@@ -8,7 +8,7 @@ Capcom System 1/1.5/2 compatible verilog core for FPGA by Jose Tejada (jotego).
 
 # Original Documentation
 
-[The internet archive](www.archive.org) holds some schematics related to this work.
+[The Internet Archive](https://archive.org) holds some schematics related to this work.
 
 * [Forgotten Worlds manual](https://archive.org/details/arcademanual_forgotten-worlds/page/n15/mode/2up)
 
@@ -41,7 +41,7 @@ The _rotate screen_ OSD option is ignored for horizontal games.
 
 ## MiST
 
-You need to generate the .rom file using this (tool)[https://github.com/sebdel/mra-tools-c/tree/master/release]. Basically call it like this:
+You need to generate the .rom file using this [tool](https://github.com/sebdel/mra-tools-c/tree/master/release). Basically call it like this:
 
 `mra ghouls.mra -z rompath -A`
 
@@ -57,7 +57,7 @@ Pang! 3 and all CPS 1.5/2 games did not use DIP switches to configure the game, 
 
 # Issues
 
-Please report issues (here)[https://github.com/jotego/jtcores/issues].
+Please report issues [here](https://github.com/jotego/jtcores/issues).
 
 ## QSound Hiss
 
@@ -98,7 +98,7 @@ jedutil -view wl24b.1a gal16v8
 In order to see the equations for Willow's PAL.
 
 # Compilation
-The core is compiled using jtcore from **JTFRAME**. Follow the instructions in the README file of (JTFRAME)[https://github.com/jotego/jtcores/tree/master/modules/jtframe] and then:
+The core is compiled using jtcore from **JTFRAME**. Follow the instructions in the README file of [JTFRAME](https://github.com/jotego/jtcores/tree/master/modules/jtframe) and then:
 
 ```
 source setprj.sh
