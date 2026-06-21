@@ -316,7 +316,7 @@ func (cfg *seed_config) report_walltime() {
 	if cfg.walljobs == 0 {
 		return
 	}
-	fmt.Printf("Average compilation walltime per job: %s\n", cfg.walltime/time.Duration(cfg.walljobs))
+	fmt.Printf("Average compilation walltime per job: %s\n", (cfg.walltime/time.Duration(cfg.walljobs)).Round(time.Second))
 }
 
 func (cfg *seed_config) record_sta_slack(slack string) {
