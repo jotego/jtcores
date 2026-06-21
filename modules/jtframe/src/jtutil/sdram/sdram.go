@@ -47,7 +47,7 @@ func Run(args []string, v, apply_sim bool) error {
 func RunWithOptions(args []string, v bool, opts RunOptions) error {
 	verbose = v
 	if opts.Target == "" {
-		opts.Target = "mist"
+		opts.Target = "mister"
 	}
 	var game string
 	if len(args) != 0 {
