@@ -46,6 +46,11 @@ type seed_config struct {
 	best_valid  bool
 	release     seed_release
 	nosta      bool
+	easy_sta   bool
+	sta_slack  float64
+	sta_valid  bool
+	walltime   time.Duration
+	walljobs   int
 }
 
 type seed_release struct {
@@ -61,7 +66,11 @@ type seed_job struct {
 	output   string
 	builddir string
 	pass     bool
+	start    time.Time
+	walltime time.Duration
 }
+
+const seed_easy_sta_limit = -0.5
 
 var seed_parallel, seed_max_trials int
 var seed_stop, seed_zero bool
@@ -165,7 +174,9 @@ func (cfg *seed_config) prepare() error {
 		return e
 	}
 	cfg.release = info
-	cfg.nosta = cfg.core_has_nosta()
+	cfg.load_core_macros()
+	cfg.nosta = macros.IsSet("JTFRAME_NOSTA")
+	cfg.easy_sta = macros.IsSet("JTFRAME_EASY_STA")
 	cfg.append_nosta_undef()
 	return nil
 }
@@ -182,6 +193,7 @@ func (cfg *seed_config) run_trials() error {
 	if e != nil {
 		return e
 	}
+	defer cfg.report_walltime()
 	pass := false
 	for cfg.max_trials > 0 {
 		batch := cfg.parallel
@@ -194,17 +206,32 @@ func (cfg *seed_config) run_trials() error {
 			return e
 		}
 		if batch_pass && seed_stop {
-			return nil
+			return cfg.finish_trials(pass)
 		}
 		if stop_requested() {
-			return nil
+			return cfg.finish_trials(pass)
 		}
 	}
-	if cfg.nosta {
+	return cfg.finish_trials(pass)
+}
+
+func (cfg *seed_config) finish_trials(pass bool) error {
+	if pass || cfg.nosta {
 		fmt.Println("PASS")
 		return nil
 	}
-	return fmt.Errorf("Maximum number of seed trial reached")
+	if cfg.easy_sta && cfg.sta_passes_easy_limit() {
+		fmt.Printf("PASS: best STA slack %.3f ns is better than %.3f ns\n", cfg.sta_slack, seed_easy_sta_limit)
+		return nil
+	}
+	if cfg.sta_valid {
+		return fmt.Errorf("STA timing was not met by any seed build, best slack %.3f ns", cfg.sta_slack)
+	}
+	return fmt.Errorf("STA timing was not met by any seed build")
+}
+
+func (cfg *seed_config) sta_passes_easy_limit() bool {
+	return cfg.sta_valid && cfg.sta_slack > seed_easy_sta_limit
 }
 
 func (cfg *seed_config) start_batch(output_base string, batch int) []seed_job {
@@ -226,32 +253,78 @@ func (cfg *seed_config) start_batch(output_base string, batch int) []seed_job {
 
 func (cfg *seed_config) wait_batch(jobs []seed_job, pass *bool) (bool, error) {
 	batch_pass := false
-	for _, job := range jobs {
-		job.pass = job.wait()
+	var first_error error
+	for _, job := range wait_seed_jobs(jobs) {
+		cfg.add_walltime(job.walltime)
 		report := job.log_report()
 		if report.error_msg != "" {
-			fmt.Printf("Seed %5d error: %s\n", job.seed, report.error_msg)
-			return false, fmt.Errorf("jtcore error in %s: %s", job.logname, report.error_msg)
+			fmt.Printf("Seed %5d error after %s: %s\n", job.seed, job.walltime, report.error_msg)
+			if first_error == nil {
+				first_error = fmt.Errorf("jtcore error in %s: %s", job.logname, report.error_msg)
+			}
+			continue
 		}
 		if !job.pass && !report.done {
 			msg := report.last_line
 			if msg == "" {
 				msg = "jtcore exited without PASS/FAIL"
 			}
-			fmt.Printf("Seed %5d error: %s\n", job.seed, msg)
-			return false, fmt.Errorf("jtcore stopped before PASS/FAIL in %s: %s", job.logname, msg)
+			fmt.Printf("Seed %5d error after %s: %s\n", job.seed, job.walltime, msg)
+			if first_error == nil {
+				first_error = fmt.Errorf("jtcore stopped before PASS/FAIL in %s: %s", job.logname, msg)
+			}
+			continue
 		}
 		slack := job.worst_slack()
+		cfg.record_sta_slack(slack)
 		copy_msg := cfg.copy_if_best(job, slack)
 		if job.pass {
-			fmt.Printf("Seed %5d passed, worst slack %s%s\n", job.seed, slack, copy_msg)
+			fmt.Printf("Seed %5d passed in %s, worst slack %s%s\n", job.seed, job.walltime, slack, copy_msg)
 			*pass = true
 			batch_pass = true
 		} else {
-			fmt.Printf("Seed %5d failed, worst slack %s%s\n", job.seed, slack, copy_msg)
+			fmt.Printf("Seed %5d failed in %s, worst slack %s%s\n", job.seed, job.walltime, slack, copy_msg)
 		}
 	}
+	if first_error != nil {
+		return false, first_error
+	}
 	return batch_pass || *pass, nil
+}
+
+func wait_seed_jobs(jobs []seed_job) []seed_job {
+	done := make(chan seed_job, len(jobs))
+	for _, job := range jobs {
+		go func(job seed_job) {
+			job.pass = job.wait()
+			done <- job
+		}(job)
+	}
+	waited := make([]seed_job, 0, len(jobs))
+	for range jobs {
+		waited = append(waited, <-done)
+	}
+	return waited
+}
+
+func (cfg *seed_config) add_walltime(elapsed time.Duration) {
+	cfg.walltime += elapsed
+	cfg.walljobs++
+}
+
+func (cfg *seed_config) report_walltime() {
+	if cfg.walljobs == 0 {
+		return
+	}
+	fmt.Printf("Average compilation walltime per job: %s\n", cfg.walltime/time.Duration(cfg.walljobs))
+}
+
+func (cfg *seed_config) record_sta_slack(slack string) {
+	value, ok := parse_slack_value(slack)
+	if ok && (!cfg.sta_valid || value > cfg.sta_slack) {
+		cfg.sta_slack = value
+		cfg.sta_valid = true
+	}
 }
 
 func (cfg *seed_config) copy_if_best(job seed_job, slack string) string {
@@ -274,8 +347,17 @@ func (cfg *seed_config) copy_if_best(job seed_job, slack string) string {
 }
 
 func (cfg *seed_config) core_has_nosta() bool {
-	macros.MakeMacros(cfg.release.core, cfg.release.target, cfg.convert_args_to_macros()...)
+	cfg.load_core_macros()
 	return macros.IsSet("JTFRAME_NOSTA")
+}
+
+func (cfg *seed_config) core_has_easy_sta() bool {
+	cfg.load_core_macros()
+	return macros.IsSet("JTFRAME_EASY_STA")
+}
+
+func (cfg *seed_config) load_core_macros() {
+	macros.MakeMacros(cfg.release.core, cfg.release.target, cfg.convert_args_to_macros()...)
 }
 
 func (cfg *seed_config) convert_args_to_macros() []string {
@@ -469,15 +551,17 @@ func start_jtcore_with_io(jtcore_args []string, seed int, output string, stdout,
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
+	start := time.Now()
 	e := cmd.Start()
 	if e != nil {
 		return seed_job{}, e
 	}
-	return seed_job{seed: seed, cmd: cmd}, nil
+	return seed_job{seed: seed, cmd: cmd, start: start}, nil
 }
 
-func (job seed_job) wait() bool {
+func (job *seed_job) wait() bool {
 	e := job.cmd.Wait()
+	job.walltime = time.Since(job.start)
 	if job.logfile != nil {
 		job.logfile.Close()
 	}
