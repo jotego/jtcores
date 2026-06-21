@@ -303,3 +303,27 @@ report_cram_warnings() {
     local rpt="$1"
     grep -i "Warning.*cram.*" "$rpt"
 }
+
+worst_negative_sta_slack() {
+    local log="$1"
+    gawk '
+    match($0, /Worst-case.*slack[^-+0-9]*([-+]?[0-9]+(\.[0-9]+)?)/, m) {
+        slack = m[1] + 0
+        if (slack < 0 && (!found || slack < worst)) {
+            worst = slack
+            found = 1
+        }
+    }
+    END {
+        if (found) {
+            printf "%.3f\n", worst
+            exit 0
+        }
+        exit 1
+    }' "$log"
+}
+
+easy_sta_accepts() {
+    local slack="$1"
+    gawk -v slack="$slack" 'BEGIN { exit(slack >= -0.333 ? 0 : 1) }'
+}
