@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"io"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -261,14 +262,17 @@ func Test_seed_release_info_paths(t *testing.T) {
 	}
 }
 
-func Test_seed_core_has_nosta_uses_macro_loader(t *testing.T) {
-	setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\nJTFRAME_NOSTA\n")
+func Test_seed_core_macros_use_macro_loader(t *testing.T) {
+	setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\nJTFRAME_NOSTA\nJTFRAME_EASY_STA\n")
 	cfg := &seed_config{
 		release:     seed_release{core: "gng", target: "mist"},
 		jtcore_args: []string{"gng", "--target", "mist"},
 	}
 	if !cfg.core_has_nosta() {
 		t.Fatalf("expected JTFRAME_NOSTA to be detected")
+	}
+	if !cfg.core_has_easy_sta() {
+		t.Fatalf("expected JTFRAME_EASY_STA to be detected")
 	}
 	setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\n")
 	cfg = &seed_config{
@@ -277,6 +281,9 @@ func Test_seed_core_has_nosta_uses_macro_loader(t *testing.T) {
 	}
 	if cfg.core_has_nosta() {
 		t.Fatalf("unexpected JTFRAME_NOSTA detection")
+	}
+	if cfg.core_has_easy_sta() {
+		t.Fatalf("unexpected JTFRAME_EASY_STA detection")
 	}
 }
 
@@ -289,6 +296,9 @@ func Test_prepare_appends_nosta_undef(t *testing.T) {
 	}
 	if !cfg.nosta {
 		t.Fatalf("expected NOSTA mode")
+	}
+	if cfg.easy_sta {
+		t.Fatalf("unexpected EASY_STA mode")
 	}
 	if cfg.release.target != "mist" {
 		t.Fatalf("unexpected release info: %#v", cfg.release)
@@ -324,9 +334,18 @@ func Test_run_parallel_one_uses_seed_output(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	e = cfg.run()
-	if e != nil {
-		t.Fatal(e)
+	var run_e error
+	out := capture_seed_stdout(t, func() {
+		run_e = cfg.run()
+	})
+	if run_e != nil {
+		t.Fatal(run_e)
+	}
+	if !strings.Contains(out, "Seed     0 passed in ") {
+		t.Fatalf("missing seed walltime report:\n%s", out)
+	}
+	if !strings.Contains(out, "Average compilation walltime per job: ") {
+		t.Fatalf("missing average walltime report:\n%s", out)
 	}
 	output := filepath.Join(root, "cores", "gng", "seed", "mist", "0")
 	if _, e := os.Stat(filepath.Join(output, "jtcore.log")); e != nil {
@@ -361,6 +380,40 @@ func Test_run_nosta_core_uses_all_trials_and_passes(t *testing.T) {
 	}
 	if len(logs) != 2 {
 		t.Fatalf("expected two seed attempts, got %d: %#v", len(logs), logs)
+	}
+}
+
+func Test_run_easy_sta_passes_with_relaxed_slack(t *testing.T) {
+	setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\nJTFRAME_EASY_STA\n")
+	install_fake_jtcore_sequence_with_slack(t, "-0.400", 1)
+	flags := new_seed_test_flags(t, "--max-trials", "1")
+	cfg, e := new_config(flags, []string{"gng", "--target", "mist"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	var run_e error
+	out := capture_seed_stdout(t, func() {
+		run_e = cfg.run()
+	})
+	if run_e != nil {
+		t.Fatal(run_e)
+	}
+	if !strings.Contains(out, "PASS: best STA slack -0.400 ns") {
+		t.Fatalf("missing EASY_STA pass report:\n%s", out)
+	}
+}
+
+func Test_run_easy_sta_fails_at_limit(t *testing.T) {
+	setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\nJTFRAME_EASY_STA\n")
+	install_fake_jtcore_sequence_with_slack(t, "-0.500", 1)
+	flags := new_seed_test_flags(t, "--max-trials", "1")
+	cfg, e := new_config(flags, []string{"gng", "--target", "mist"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	e = cfg.run()
+	if e == nil || !strings.Contains(e.Error(), "best slack -0.500 ns") {
+		t.Fatalf("expected EASY_STA limit failure, got %v", e)
 	}
 }
 
@@ -492,6 +545,24 @@ func Test_copy_if_best_updates_release(t *testing.T) {
 	}
 }
 
+func capture_seed_stdout(t *testing.T, fn func()) string {
+	t.Helper()
+	old := os.Stdout
+	r, w, e := os.Pipe()
+	if e != nil {
+		t.Fatal(e)
+	}
+	os.Stdout = w
+	fn()
+	w.Close()
+	os.Stdout = old
+	out, e := io.ReadAll(r)
+	if e != nil {
+		t.Fatal(e)
+	}
+	return string(out)
+}
+
 func setup_seed_macro_tree(t *testing.T, core, macro_text string) string {
 	t.Helper()
 	root := t.TempDir()
@@ -549,6 +620,11 @@ func install_fake_jtcore(t *testing.T, code int) {
 
 func install_fake_jtcore_sequence(t *testing.T, codes ...int) {
 	t.Helper()
+	install_fake_jtcore_sequence_with_slack(t, "-1.250", codes...)
+}
+
+func install_fake_jtcore_sequence_with_slack(t *testing.T, slack string, codes ...int) {
+	t.Helper()
 	tmp := t.TempDir()
 	fake_jtcore := filepath.Join(tmp, "jtcore")
 	code_text := make([]string, len(codes))
@@ -582,7 +658,7 @@ done
 echo $((count+1)) > "$count_file"
 mkdir -p "$out"
 echo fake-rbf > "$out/jtgng.rbf"
-echo "Worst-case setup slack is -1.250"
+echo "Worst-case setup slack is ` + slack + `"
 if [ "$code" = 0 ]; then
     echo PASS
 else
