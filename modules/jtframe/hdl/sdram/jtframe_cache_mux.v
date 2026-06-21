@@ -220,14 +220,16 @@ wire [15:0] ext_dout0, ext_dout1, ext_dout2, ext_dout3;
 wire [15:0] ext_dout4, ext_dout5, ext_dout6, ext_dout7;
 wire ext_rd0, ext_rd1, ext_rd2, ext_rd3, ext_rd4, ext_rd5, ext_rd6, ext_rd7;
 wire ext_wr0, ext_wr1, ext_wr2, ext_wr3, ext_wr4, ext_wr5, ext_wr6, ext_wr7;
-wire [SDRAM_AW-2:0] offset0 = (SDRAM_AW-1)'(OFFSET0);
-wire [SDRAM_AW-2:0] offset1 = (SDRAM_AW-1)'(OFFSET1);
-wire [SDRAM_AW-2:0] offset2 = (SDRAM_AW-1)'(OFFSET2);
-wire [SDRAM_AW-2:0] offset3 = (SDRAM_AW-1)'(OFFSET3);
-wire [SDRAM_AW-2:0] offset4 = (SDRAM_AW-1)'(OFFSET4);
-wire [SDRAM_AW-2:0] offset5 = (SDRAM_AW-1)'(OFFSET5);
-wire [SDRAM_AW-2:0] offset6 = (SDRAM_AW-1)'(OFFSET6);
-wire [SDRAM_AW-2:0] offset7 = (SDRAM_AW-1)'(OFFSET7);
+/* verilator lint_off WIDTHEXPAND */
+wire [SDRAM_AW-2:0] offset0 = OFFSET0;
+wire [SDRAM_AW-2:0] offset1 = OFFSET1;
+wire [SDRAM_AW-2:0] offset2 = OFFSET2;
+wire [SDRAM_AW-2:0] offset3 = OFFSET3;
+wire [SDRAM_AW-2:0] offset4 = OFFSET4;
+wire [SDRAM_AW-2:0] offset5 = OFFSET5;
+wire [SDRAM_AW-2:0] offset6 = OFFSET6;
+wire [SDRAM_AW-2:0] offset7 = OFFSET7;
+/* verilator lint_on WIDTHEXPAND */
 wire [SDRAM_AW-1:0] bank_addr0, bank_addr1, bank_addr2, bank_addr3;
 wire [SDRAM_AW-1:0] bank_addr4, bank_addr5, bank_addr6, bank_addr7;
 wire cache_ok0, cache_ok1, cache_ok2, cache_ok3;
