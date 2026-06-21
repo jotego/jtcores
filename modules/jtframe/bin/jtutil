@@ -23,4 +23,4 @@ if [ $RECOMPILE = TRUE ]; then
     cd - > /dev/null
 fi
 
-$BIN $*
+$BIN "$@"
