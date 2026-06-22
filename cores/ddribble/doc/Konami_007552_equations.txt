@@ -1,0 +1,61 @@
+# Konami_007552.jed — MAIN CPU address decoder (PAL10L8 at C15, schematic page 0)
+# Decoded by MAME jedutil 0.276 on 2026-06-01
+#
+# Pin labels (which input/output corresponds to which schematic net) —
+#   inputs : i1=NEQ (E&Q product, active-low enable), i3=A15, i4=A14,
+#            i5=A13, i6=A12, i7=A11
+#   outputs: /o12=/RBN   ROM enable        (0x8000-0xFFFF)
+#            /o13=/GATE1 005885 chip 1 CS  (0x0000-0x07FF + 0x2000-0x3FFF)
+#            /o14=/GATE2 005885 chip 2 CS  (0x0800-0x0FFF + 0x6000-0x7FFF)
+#            /o15=/CWORK shared with sub   (0x4000-0x5FFF)
+#            /o16=/DMP   (CPU never touches 0x1000-0x17FF — strobe unused)
+#            /o17=/CORAM palette /CE       (0x1800-0x1FFF; 128 B physical)
+#            /o18=/G2AB11 forces chip 2 A11=0 inside 0x0800-0x0FFF window
+#            /o19=/SEL   bank-switch latch (0x8000-0x9FFF, NOT NEQ-gated)
+#
+# Authoritative for jtddribble_main.v's address decoder.
+
+Inputs:
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 11
+
+Outputs:
+
+12 (Combinatorial, No output feedback, Active low)
+13 (Combinatorial, No output feedback, Active low)
+14 (Combinatorial, No output feedback, Active low)
+15 (Combinatorial, No output feedback, Active low)
+16 (Combinatorial, No output feedback, Active low)
+17 (Combinatorial, No output feedback, Active low)
+18 (Combinatorial, No output feedback, Active low)
+19 (Combinatorial, No output feedback, Active low)
+
+Equations:
+
+/o12 = /i1 & i3
+o12.oe = vcc
+
+/o13 = /i1 & /i3 & /i4 & i5 +
+       /i1 & /i3 & /i4 & /i5 & /i6 & /i7
+o13.oe = vcc
+
+/o14 = /i1 & /i3 & i4 & i5 +
+       /i1 & /i3 & /i4 & /i5 & /i6 & i7
+o14.oe = vcc
+
+/o15 = /i1 & /i3 & i4 & /i5
+o15.oe = vcc
+
+/o16 = /i1 & /i3 & /i4 & /i5 & i6 & /i7
+o16.oe = vcc
+
+/o17 = /i1 & /i3 & /i4 & /i5 & i6 & i7
+o17.oe = vcc
+
+/o18 = /i1 & /i3 & /i4 & /i5 & /i6 & i7 +
+       /i7
+o18.oe = vcc
+
+/o19 = i3 & /i4 & /i5
+o19.oe = vcc
+

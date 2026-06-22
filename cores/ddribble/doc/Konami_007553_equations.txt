@@ -1,0 +1,62 @@
+# Konami_007553.jed — SUB CPU address decoder (PAL10L8 at C11, schematic page 1)
+# Decoded by MAME jedutil 0.276 on 2026-06-01
+#
+# Pin labels: see cores/ddribble/doc/Konami_007553_pinout.md
+#   inputs : i1=EN (NEQ-equivalent for sub), i3=A15, i4=A14, i5=A13,
+#            i6=A12, i7=A11 (post-LS157 H10 mux), i8=A10 (post-mux)
+#   outputs: /o12=/ROM   sub ROM /CE  (PAL fires 0x4000-0xFFFF — narrowed
+#                                      to 0x8000-0xFFFF by downstream A15
+#                                      gate before reaching the 27512 /CE)
+#            /o13=/CRAM  shared with main   (0x0000-0x1FFF)
+#            /o14=/AFE   watchdog kick      (0x3C00-0x3FFF — write)
+#            /o15=/SET   coin-counter latch (0x3400-0x37FF — write)
+#            /o16=/DIP3  DIP-switch 3 buf   (0x3000-0x33FF)
+#            /o17=/DIP2  DIP-switch 2 buf   (0x2C00-0x2FFF)
+#            /o18=/IOIN  joystick/system    (0x2800-0x2BFF; A[1:0] sub-decoded
+#                                            by external LS153/LS155)
+#            /o19=/SRAM  shared with sound  (0x2000-0x27FF)
+#
+# Authoritative for jtddribble_sub.v's address decoder.
+
+Inputs:
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 11
+
+Outputs:
+
+12 (Combinatorial, No output feedback, Active low)
+13 (Combinatorial, No output feedback, Active low)
+14 (Combinatorial, No output feedback, Active low)
+15 (Combinatorial, No output feedback, Active low)
+16 (Combinatorial, No output feedback, Active low)
+17 (Combinatorial, No output feedback, Active low)
+18 (Combinatorial, No output feedback, Active low)
+19 (Combinatorial, No output feedback, Active low)
+
+Equations:
+
+/o12 = i1 & i3 +
+       i1 & /i3 & i4
+o12.oe = vcc
+
+/o13 = i1 & /i3 & /i4 & /i5
+o13.oe = vcc
+
+/o14 = i1 & /i3 & /i4 & i5 & i6 & i7 & i8
+o14.oe = vcc
+
+/o15 = i1 & /i3 & /i4 & i5 & i6 & /i7 & i8
+o15.oe = vcc
+
+/o16 = i1 & /i3 & /i4 & i5 & i6 & /i7 & /i8
+o16.oe = vcc
+
+/o17 = i1 & /i3 & /i4 & i5 & /i6 & i7 & i8
+o17.oe = vcc
+
+/o18 = i1 & /i3 & /i4 & i5 & /i6 & i7 & /i8
+o18.oe = vcc
+
+/o19 = i1 & /i3 & /i4 & i5 & /i6 & /i7
+o19.oe = vcc
+
