@@ -197,12 +197,18 @@ jt03 #(.YM2203_LUMPED(1)) u_ym2203(
     .irq_n      ( ym_irq_n  ),                  // TODO: route to sound CPU IRQ via IRQEN latch (LS138 A9 Y2)
     .IOA_in     ( 8'h00     ),
     .IOA_out    ( ym_ioa_out),                  // → VLM ctrl + 4066 below
+    .IOA_oe     (           ),                  // unused — port-A output enable not modelled
     .IOB_in     ( ym_iob_in ),
     .IOB_out    (           ),
+    .IOB_oe     (           ),                  // unused
     .fm_snd     ( fm_snd     ),
     .psg_snd    ( psg_snd    ),
+    .psg_A      (            ),     // unused — per-channel PSG taps not needed
+    .psg_B      (            ),
+    .psg_C      (            ),
     .snd        (            ),     // unused — we use fm_snd and psg_snd
-    .snd_sample (            )      // jt03 port name is 'snd_sample', not 'sample'
+    .snd_sample (            ),     // jt03 port name is 'snd_sample', not 'sample'
+    .debug_view (            )      // unused
 );
 
 // ---------------------------------------------------------------------------
