@@ -2,6 +2,9 @@ name: Pull Request checks
 
 on:
   pull_request:
+    # ready_for_review makes the heavy jobs fire the moment a PR leaves draft;
+    # the other three are the defaults, which must be restated once types is set.
+    types: [opened, synchronize, reopened, ready_for_review]
 
 concurrency:
   group: ${{ github.head_ref || github.ref }}-pr-checks
@@ -21,10 +24,15 @@ jobs:
     secrets: inherit
 
   unit_simulations:
+    # Skip the 63-job sim fan-out on draft PRs. Safe here because this
+    # workflow only runs on pull_request, so the draft field always exists.
+    if: github.event.pull_request.draft == false
     uses: ./.github/workflows/simunit.yaml
     secrets: inherit
 
   compile_all:
+    # Skip the full compile (74 cores x 3 toolchains) on draft PRs.
+    if: github.event.pull_request.draft == false
     needs:
       - beta_checks
       - framework_tests
