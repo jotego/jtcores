@@ -18,11 +18,11 @@ delete=[{ names=["Unused","Unknown"] }]
 [ROM]
 regions = [
     { name="maincpu"  },
-    { name="subcpu"   },
+    { name="subcpu",   start="JTFRAME_BA1_START" },
     { name="audiocpu" },
     { name="vlm"      },
-    { name="gfx1", width=16, no_offset=true },
-    { name="gfx2", width=16, no_offset=true },
+    { name="gfx1", width=16, no_offset=true, start="JTFRAME_BA2_START" },
+    { name="gfx2", width=16, no_offset=true, start="JTFRAME_BA3_START" },
     { name="proms", start="JTFRAME_PROM_START" },
 ]
 
