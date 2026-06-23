@@ -133,20 +133,19 @@ assign rom_addr = addr[14:0];          // 32 KB ROM, MSB always 1 in CPU view
 // bits are don't-cares (partial decode → mirrors, as on the PCB). The /IOIN
 // window is sub-decoded by the external LS153/LS155 on A[1:0] only, so DSW1/P1/
 // P2/SYSTEM mirror across 0x2800-0x2BFF.
-wire en  = VMA;     // i1 = EN (active-high on this PAL)
 wire a15=addr[15], a14=addr[14], a13=addr[13], a12=addr[12], a11=addr[11], a10=addr[10];
 
 // /o12 /ROM fires 0x4000-0xFFFF; the 27512 /CE is narrowed by a downstream A15 gate
-wire pal_rom = en & (a15 | (~a15 & a14));
-wire ioin_cs = en & ~a15 & ~a14 & a13 & ~a12 & a11 & ~a10;       // /o18 0x2800-0x2BFF
+wire pal_rom = VMA & (a15 | (~a15 & a14));
+wire ioin_cs = VMA & ~a15 & ~a14 & a13 & ~a12 & a11 & ~a10;       // /o18 0x2800-0x2BFF
 
 always @(*) begin
     rom_cs       = pal_rom & a15;                                // /ROM  → 0x8000-0xFFFF
-    shared_ms_cs = en & ~a15 & ~a14 & ~a13;                      // /CRAM 0x0000-0x1FFF
-    shared_sa_cs = en & ~a15 & ~a14 &  a13 & ~a12 & ~a11;        // /SRAM 0x2000-0x27FF
-    dsw2_cs      = en & ~a15 & ~a14 &  a13 & ~a12 &  a11 &  a10;  // /DIP2 0x2C00-0x2FFF
-    dsw3_cs      = en & ~a15 & ~a14 &  a13 &  a12 & ~a11 & ~a10;  // /DIP3 0x3000-0x33FF
-    coin_cs      = en & ~a15 & ~a14 &  a13 &  a12 & ~a11 &  a10 & ~RnW; // /SET 0x3400-0x37FF (write)
+    shared_ms_cs = VMA & ~a15 & ~a14 & ~a13;                      // /CRAM 0x0000-0x1FFF
+    shared_sa_cs = VMA & ~a15 & ~a14 &  a13 & ~a12 & ~a11;        // /SRAM 0x2000-0x27FF
+    dsw2_cs      = VMA & ~a15 & ~a14 &  a13 & ~a12 &  a11 &  a10;  // /DIP2 0x2C00-0x2FFF
+    dsw3_cs      = VMA & ~a15 & ~a14 &  a13 &  a12 & ~a11 & ~a10;  // /DIP3 0x3000-0x33FF
+    coin_cs      = VMA & ~a15 & ~a14 &  a13 &  a12 & ~a11 &  a10 & ~RnW; // /SET 0x3400-0x37FF (write)
     dsw1_cs      = ioin_cs & (addr[1:0]==2'b00);                 // /IOIN + A[1:0]=00
     p1_cs        = ioin_cs & (addr[1:0]==2'b01);                 // /IOIN + A[1:0]=01
     p2_cs        = ioin_cs & (addr[1:0]==2'b10);                 // /IOIN + A[1:0]=10

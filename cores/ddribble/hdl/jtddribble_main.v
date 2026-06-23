@@ -153,9 +153,8 @@ assign rom_addr = (addr[15:13] == 3'b100)   // 0x8000-0x9FFF window?
 // │                                            │  CPU never accesses this)   │
 // │ /o17 /CORAM = NEQ & /A15&/A14&/A13&        │                             │
 // │                      A12& A11              │ pal_cs     0x1800-0x1FFF    │
-// │                                            │ (HDL narrowed to 0x1800-    │
-// │                                            │  0x187F — only 128 B exist  │
-// │                                            │  physically; rest mirrors)  │
+// │                                            │ (128 B BRAM; window mirrors │
+// │                                            │  via pal_addr=main_A[6:0])  │
 // │ /o18 /G2AB11= NEQ & /A15&/A14&/A13&        │ Forces chip 2 A11=0 in      │
 // │                      /A12& A11   |  /A11   │ 0x0800-0x0FFF window —      │
 // │                                            │ implemented in game.v as    │
@@ -170,30 +169,21 @@ assign rom_addr = (addr[15:13] == 3'b100)   // 0x8000-0x9FFF window?
 // 0x0020-0x005F (chip 1) and 0x0820-0x085F (chip 2). The PAL equations decode
 // the whole window; narrowing it would silently drop those writes.
 //
-// Priority-encoded: each else-if checks a narrower range. Defaults to 0.
+// Each select is the literal PAL product-term on A15..A11; the within-window low
+// bits are don't-cares (partial decode → mirrors, as on the PCB). Terms are
+// mutually exclusive, so the assignments are flat (no priority ladder).
+// /o16 /DMP (0x1000-0x17FF) is unused by the CPU → no select. /o18 /G2AB11 is an
+// address-modify (chip-2 A11 mask), applied in game.v, not a select here.
+wire a15=addr[15], a14=addr[14], a13=addr[13], a12=addr[12], a11=addr[11];
+
 always @(*) begin
-    rom_cs     = 0;
-    pal_cs     = 0;
-    shared_cs  = 0;
-    k5885_1_cs = 0;
-    k5885_2_cs = 0;
-    bank_cs    = 0;
-
-    if (VMA) begin
-        if      (addr >= 16'h8000)                          rom_cs     = 1;  // /RBN   0x8000-0xFFFF
-        else if (addr >= 16'h6000 && addr <= 16'h7FFF)      k5885_2_cs = 1;  // /GATE2 0x6000-0x7FFF  (chip 2 VRAM)
-        else if (addr >= 16'h4000 && addr <= 16'h5FFF)      shared_cs  = 1;  // /CWORK 0x4000-0x5FFF
-        else if (addr >= 16'h2000 && addr <= 16'h3FFF)      k5885_1_cs = 1;  // /GATE1 0x2000-0x3FFF  (chip 1 VRAM)
-        else if (addr >= 16'h1800 && addr <= 16'h187F)      pal_cs     = 1;  // /CORAM (HDL narrowed to physical 128 B)
-        else if (addr >= 16'h0800 && addr <= 16'h0FFF)      k5885_2_cs = 1;  // /GATE2 0x0800-0x0FFF  (chip 2 regs + zure)
-        else if (                    addr <= 16'h07FF)      k5885_1_cs = 1;  // /GATE1 0x0000-0x07FF  (chip 1 regs + zure)
-    end
-
-    // /SEL (pin 19): NOT NEQ-gated, fires for 0x8000-0x9FFF on any cycle.
-    // We only care about the write side — that's the bank-switch latch.
-    // (Same address space also reads as banked ROM; rom_cs above already
-    //  gates the ROM read path.)
-    if (VMA && !RnW && addr >= 16'h8000 && addr <= 16'h9FFF) bank_cs = 1;
+    rom_cs     = VMA &  a15;                                                // /RBN   0x8000-0xFFFF
+    k5885_1_cs = VMA & ~a15 & ~a14 & ( a13 | (~a13 & ~a12 & ~a11) );        // /GATE1 0x0000-07FF + 0x2000-3FFF
+    k5885_2_cs = VMA & ~a15 & ( (a14 & a13) | (~a14 & ~a13 & ~a12 & a11) ); // /GATE2 0x0800-0FFF + 0x6000-7FFF
+    shared_cs  = VMA & ~a15 &  a14 & ~a13;                                  // /CWORK 0x4000-0x5FFF
+    pal_cs     = VMA & ~a15 & ~a14 & ~a13 & a12 & a11;                      // /CORAM 0x1800-0x1FFF
+    // /SEL (pin 19) is NOT NEQ-gated; we latch the bank on the write side only.
+    bank_cs    = VMA & a15 & ~a14 & ~a13 & ~RnW;                            // /SEL   0x8000-0x9FFF (write)
 end
 
 // ---------------------------------------------------------------------------
