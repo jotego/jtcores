@@ -2945,6 +2945,16 @@
 	)
 	(wire
 		(pts
+			(xy 135.89 222.25) (xy 152.4 222.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6556e2fe-4fdd-4f93-9cb4-326f00aa746d")
+	)
+	(wire
+		(pts
 			(xy 43.18 83.82) (xy 54.61 83.82)
 		)
 		(stroke
@@ -3265,6 +3275,16 @@
 	)
 	(wire
 		(pts
+			(xy 135.89 224.79) (xy 152.4 224.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "80e60dec-8132-413c-a929-5e026541dfc2")
+	)
+	(wire
+		(pts
 			(xy 90.17 78.74) (xy 101.6 78.74)
 		)
 		(stroke
@@ -3422,6 +3442,16 @@
 			(type default)
 		)
 		(uuid "8dfca55e-8d7c-4e74-b6bc-d8a67653c191")
+	)
+	(wire
+		(pts
+			(xy 208.28 26.67) (xy 191.77 26.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8ec8ae43-f957-4e19-86fe-6a012de97aba")
 	)
 	(bus
 		(pts
@@ -3795,6 +3825,16 @@
 	)
 	(wire
 		(pts
+			(xy 208.28 24.13) (xy 191.77 24.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ab5517ff-7d9b-458f-993f-c526d4e0879d")
+	)
+	(wire
+		(pts
 			(xy 317.5 91.44) (xy 334.01 91.44)
 		)
 		(stroke
@@ -3972,16 +4012,6 @@
 			(type default)
 		)
 		(uuid "b93a23cb-8b1b-4099-9b04-f3d9c7f2df8b")
-	)
-	(wire
-		(pts
-			(xy 191.77 229.87) (xy 208.28 229.87)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ba3e53d3-43f3-4898-8f98-06879c0487aa")
 	)
 	(wire
 		(pts
@@ -5234,6 +5264,16 @@
 		)
 		(uuid "2508a8dd-723e-481f-9381-f71dba85bc5a")
 	)
+	(label "~{HSYNC}"
+		(at 135.89 224.79 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2850bf7b-74cf-4cd3-b14c-718728743196")
+	)
 	(label "~{M6}"
 		(at 144.78 49.53 0)
 		(effects
@@ -5724,6 +5764,16 @@
 		)
 		(uuid "5ee99581-3669-4082-89bf-02d09c71d618")
 	)
+	(label "~{VSYNC}"
+		(at 208.28 26.67 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "5ef75fdc-a7b5-4963-b9c0-3ac8f69474ca")
+	)
 	(label "MCLK2"
 		(at 135.89 143.51 0)
 		(effects
@@ -5834,6 +5884,16 @@
 		)
 		(uuid "6d5950e5-1005-4a97-96f6-c6125cbe3af3")
 	)
+	(label "~{HSYNC}"
+		(at 208.28 24.13 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "6fde48ab-cb97-4306-bd67-f39a287a969d")
+	)
 	(label "M16"
 		(at 135.89 214.63 0)
 		(effects
@@ -5893,16 +5953,6 @@
 			(justify right bottom)
 		)
 		(uuid "74e01c06-54ad-4c97-af84-8d4c076a1e19")
-	)
-	(label "~{HSYNC}"
-		(at 208.28 229.87 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "7859f0fc-406f-4591-950c-54d33fb9f274")
 	)
 	(label "COIN_CNT_2"
 		(at 101.6 45.72 180)
@@ -6053,6 +6103,16 @@
 			(justify left bottom)
 		)
 		(uuid "873ed7e6-b3bf-404c-be19-417d3b51a1e3")
+	)
+	(label "~{VSYNC}"
+		(at 135.89 222.25 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "887c89a6-28cd-4cd8-ba8e-a82e548a7779")
 	)
 	(label "REGCS"
 		(at 208.28 83.82 180)
@@ -9025,16 +9085,6 @@
 				(justify left top)
 			)
 		)
-		(pin "~{HSYNC}" output
-			(at 191.77 229.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-			(uuid "a1fc0adc-5ea8-4312-8290-bd2a82305634")
-		)
 		(pin "FCOL[3..0]" output
 			(at 191.77 217.17 0)
 			(effects
@@ -9244,6 +9294,26 @@
 				(justify right)
 			)
 			(uuid "b50d8a02-f6ba-48b6-ba1c-f695d3e3e4cf")
+		)
+		(pin "~{VSYNC}" input
+			(at 152.4 222.25 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "fca111d1-fad6-4c58-88b3-555f4109e41d")
+		)
+		(pin "~{HSYNC}" input
+			(at 152.4 224.79 180)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+			(uuid "7d1dd82b-8684-45f1-8d02-030143d84407")
 		)
 		(instances
 			(project "moomesa"
@@ -9978,6 +10048,26 @@
 				(justify right)
 			)
 			(uuid "8c472793-e74d-4f3a-a59c-400fa1ebbdba")
+		)
+		(pin "~{HSYNC}" output
+			(at 191.77 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "6bab237b-e1ff-4f0b-80db-9a31c1e0ee89")
+		)
+		(pin "~{VSYNC}" output
+			(at 191.77 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+			(uuid "a47c799b-a5c2-497a-9747-71daf724d48b")
 		)
 		(instances
 			(project "moomesa"

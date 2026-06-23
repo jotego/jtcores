@@ -18290,14 +18290,6 @@
 		(uuid "d9357fbc-f4e8-4868-b00d-da3d9d427aab")
 	)
 	(no_connect
-		(at 351.79 92.71)
-		(uuid "e2bb83f8-8c3c-4b52-99ad-7cbd82173cf1")
-	)
-	(no_connect
-		(at 351.79 97.79)
-		(uuid "eac485ad-b973-4686-a7d7-195e49e51862")
-	)
-	(no_connect
 		(at 297.18 86.36)
 		(uuid "f00e9f04-e4e3-4d80-ab40-5c532212fabc")
 	)
@@ -22276,6 +22268,16 @@
 			(type default)
 		)
 		(uuid "2d9f5b63-81e6-4cd5-8d7c-352a61d5ca21")
+	)
+	(wire
+		(pts
+			(xy 351.79 97.79) (xy 353.06 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2de44cbc-bf79-4617-a0a8-eb296311cde8")
 	)
 	(bus
 		(pts
@@ -27466,6 +27468,16 @@
 			(type default)
 		)
 		(uuid "d2ecb6b4-2c3c-44a5-a919-fb00b8b94cb7")
+	)
+	(wire
+		(pts
+			(xy 351.79 92.71) (xy 353.06 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d30245c4-4c16-4865-98f7-7eaa91dbe050")
 	)
 	(wire
 		(pts
@@ -33172,6 +33184,17 @@
 		)
 		(uuid "20c56b2f-2d7b-4a38-95e9-8d29060ca52f")
 	)
+	(hierarchical_label "~{VSYNC}"
+		(shape output)
+		(at 353.06 92.71 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "269f69ff-72a3-4e20-8d8f-390c5987f865")
+	)
 	(hierarchical_label "~{UDS}"
 		(shape output)
 		(at 121.92 148.59 0)
@@ -33501,6 +33524,17 @@
 			(justify left)
 		)
 		(uuid "efb1aacc-723f-4135-bdee-1d47e5cb8ae5")
+	)
+	(hierarchical_label "~{HSYNC}"
+		(shape output)
+		(at 353.06 97.79 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "f453acd0-03d2-4dbc-bfea-86d9dfc0f232")
 	)
 	(hierarchical_label "BNK~{SCR}"
 		(shape output)
