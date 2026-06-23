@@ -100,25 +100,18 @@ assign rom_addr = addr[14:0];   // 15 bits for 32 KB ROM (MSB always 1 in CPU vi
 //        the 6809 IRQ. NMI/FIRQ are pull-up only; YM2203 /IRQ (pin 25) is unconnected.
 //   Y0=SWORK; Y2,Y4,Y5,Y7 unlabelled/unused on the schematic.
 //
-// In our HDL the *block-level* decode is 100% schematic-confirmed via this
-// LS138. The fine address bits within each block (e.g. why YM2203 is at
-// exactly 0x1000-0x1001 within Y1's 0x1000-0x1FFF block) come from MAME
-// because the downstream sub-block decoders aren't fully visible on our tiles.
-// VMA below is the jtframe_sys6809 equivalent of the NEQ bus-phase gate.
+// Block decode = the LS138 itself: enable on A15=0 + bus phase, select on
+// A[14:12]. The peripheral's own low-bit decode handles within-block addresses
+// (e.g. YM2203 A0 = register/data), so each block mirrors as on the PCB.
+// VMA is the jtframe_sys6809 equivalent of the NEQ bus-phase gate.
+wire       en138   = VMA & ~addr[15];    // LS138 enabled (/G2A=A15 low, /G2B=NEQ)
+wire [2:0] ls138_y = addr[14:12];        // pins A,B,C
 always @(*) begin
-    rom_cs     = 0;
-    shared_cs  = 0;
-    ym_cs      = 0;
-    vlm_dlatch = 0;
-    irqen_cs   = 0;
-
-    if (VMA) begin
-        if      (addr >= 16'h8000)                          rom_cs     = 1;
-        else if (addr <= 16'h07FF)                          shared_cs  = 1;  // 0x0000-0x07FF
-        else if (addr[15:1] == 15'h0800)                    ym_cs      = 1;  // 0x1000-0x1001
-        else if (addr == 16'h3000)                          vlm_dlatch = 1;  // 0x3000 W (VDATA)
-        else if (addr[15:12] == 4'h6)                       irqen_cs  = 1;  // 0x6000 LS138 Y6 = IRQ ack
-    end
+    rom_cs     = VMA & addr[15];              // 0x8000-0xFFFF (sound ROM, outside the LS138)
+    shared_cs  = en138 & (ls138_y==3'd0);     // Y0 0x0000-0x0FFF (2K SRAM mirrors in block)
+    ym_cs      = en138 & (ls138_y==3'd1);     // Y1 0x1000-0x1FFF (YM2203, A0=reg/data)
+    vlm_dlatch = en138 & (ls138_y==3'd3);     // Y3 0x3000-0x3FFF (VLM data latch)
+    irqen_cs   = en138 & (ls138_y==3'd6);     // Y6 0x6000-0x6FFF (sound-IRQ ack)
 end
 
 // ---------------------------------------------------------------------------
