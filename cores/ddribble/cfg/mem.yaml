@@ -1,86 +1,51 @@
-# mem.yaml — Double Dribble (Konami GX690)
-
-# ---------------------------------------------------------------------------
-# Clock domains
-# PCB xtals: 18.432 MHz master (page 0, osc "18.432MHZ-0" → LS244 G14 → CK18)
-#            3.58  MHz audio  (page 1, osc "3.58MHZ-0"   → LS244 G14 → SCLK).
-# ---------------------------------------------------------------------------
 clocks:
   clk24:
-    # 3x MC6809E E-clock = 18.432/12 = 1.536 MHz. Feed 4×E here: jtframe_sys6809
-    # CENDIV divides its input cen by 4 to make the E enable.
     - freq: 6144000
-      gate: [ main, sub ]       # hold cpu_cen low while a main/sub SDRAM fetch is busy
-      outputs: [ cpu ]          # main + sub + video → wire 'cpu_cen'
-    # Sound 6809E gates on its OWN 'snd' SDRAM fetch only (not main/sub) — its
-    # 'snd' ok already reflects bank-1 contention. This is purely cen gating;
-    # the sub<->sound data link is the shared_sa BRAM (below) and is unaffected.
+      gate: [ main, sub ]
+      outputs: [ cpu ]
     - freq: 6144000
       gate: [ snd ]
       outputs: [ sndcpu ]
-    # YM2203 CLK + VLM5030 OSC1, both on the 3.58 MHz SCLK net. MUST be two W=1
-    # blocks: a single outputs:[ym,vlm] makes a W=2 cen whose 2nd output is
-    # half-rate (would run the VLM at half speed).
     - freq: 3579545
       outputs: [ ym ]
     - freq: 3579545
       outputs: [ vlm ]
 
-# ---------------------------------------------------------------------------
-# SDRAM — ROM regions. addr_width is the BYTE-range exponent (a 16-bit bus then
-# yields an [N-1:1] word port); an off-by-one truncates the top gfx addr line.
-# Offsets/params are WORD offsets within the bank.
-# ---------------------------------------------------------------------------
 params:
-  - { name: SND_OFFSET, value: "22'h4000" }     # snd at word 0x4000 of bank 1 (after sub 32 KB)
-  - { name: VLM_OFFSET, value: "22'h8000" }     # vlm at word 0x8000 of bank 1 (after sub+snd 64 KB)
+  - { name: SND_OFFSET, value: "22'h4000" }
+  - { name: VLM_OFFSET, value: "22'h8000" }
 
 sdram:
   banks:
-    # Bank 0 — main CPU only (heavy traffic)
     - buses:
-        # 27512 (64 KB) at C19; /CE from 007552 PAL pin 12 (/RBN). Main 6809E at A19.
         - name: main
           addr_width: 16
           data_width: 8
 
-    # Bank 1 — sub + sound + VLM
     - buses:
-        # Sub EPROM at C12; 007553 PAL pin 12 (/ROM) drives /CE. Chip is a 27512
-        # (64 KB) but only the low 32 KB is real data → width 15.
         - name: sub
           addr_width: 15
           data_width: 8
-        # 27256 (32 KB) next to the sound 6809E (A8), page 1 top-right.
         - name: snd
           addr_width: 15
           data_width: 8
           offset: SND_OFFSET
-        # VLM5030 voice MASK1M (128 KB) at E7, A0..A16 → VLM5030.
         - name: vlm
           addr_width: 17
           data_width: 8
           offset: VLM_OFFSET
-        # Sprite-lookup PROM (I15) is NOT an SDRAM slot — it loads into chip-2
-        # BRAM via prom_we/prog_addr at JTFRAME_PROM_START (see castle's cfg).
 
-    # Bank 2 — 005885 #1 gfx (E14 + surrounding MASK1Ms), 256 KB
     - buses:
         - name: gfx1
           addr_width: 18
           data_width: 16
 
-    # Bank 3 — 005885 #2 gfx (H16 + MASK1Ms I7-I13), 512 KB
     - buses:
         - name: gfx2
           addr_width: 19
           data_width: 16
 
-# ---------------------------------------------------------------------------
-# BRAM — dual-port: side 'a' = CPU writer (rw), side 'b' = consumer.
-# ---------------------------------------------------------------------------
 bram:
-  # MAIN<->SUB shared SRAM, 8 KB (6264-class). main 0x4000-0x5fff / sub 0x0000-0x1fff.
   - name: shared_ms
     addr_width: 13
     data_width: 8
@@ -91,7 +56,6 @@ bram:
       dout: shared_ms_b_dout
       rw:   true
 
-  # SUB<->SOUND shared SRAM, 2 KB (2128SL near sound CPU). sub 0x2000-0x27ff / sound 0x0000-0x07ff.
   - name: shared_sa
     addr_width: 11
     data_width: 8
@@ -102,31 +66,18 @@ bram:
       dout: shared_sa_b_dout
       rw:   true
 
-  # VRAM + sprite RAM are NOT here: each 005885 owns a private 6264SL the CPU
-  # reaches only through the chip bus (A/DB/NRD/NXCS) — modelled inside
-  # jtddribble_k005885.v, not as a mem.yaml BRAM.
-
-  # Palette RAM, 128 B — embedded in the 007327; main 0x1800-0x187f.
   - name: pal
     addr_width: 7
     data_width: 8
     rw: true
-    simfile: {}                 # scene replay loads pal.bin (rest2bin.sh splits it)
+    simfile: {}
     dual_port:
       name: pal_v
       dout: pal_v_dout
       rw:   false
 
-# ---------------------------------------------------------------------------
-# Audio mixer — SCHEMATIC page 1, LA6358 final mixer (feedback R3 = 10K):
-#   FM (YM-3014 DAC) → R6=3.3K ; SSG (YM2203 A/B/C) → R7=5.6K via R9+R10 (=7.6K),
-#   R9*C17 ≈ 4.8 kHz LPF ; VLM → R8=3.3K + a 5.1× pre-amp (R17/R22) the static
-#   model can't reproduce, so vlm rsum is boosted. Treat channel rsums as RATIOS,
-#   final level tuned by ear. (The 4066-gated per-SSG 0.15uF/2.2K filter is
-#   runtime-switched and omitted.)
-# ---------------------------------------------------------------------------
 audio:
-  rsum: 3.3k                    # = LA6358 feedback R3, set so FM gain ≈ unity in JTFRAME
+  rsum: 3.3k
   rc:   { r: 1k, c: 10n }
   channels:
     - { name: fm,  module: jt03_fm,  rsum: 3.3k }

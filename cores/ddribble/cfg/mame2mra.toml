@@ -8,9 +8,6 @@ author=["jotego"]
 sourcefile=[ "ddribble.cpp" ]
 
 [buttons]
-# Double Dribble = 3 action buttons per player
-# Per MAME konamipt.h KONAMI8_B132: BUTTON1, BUTTON2, BUTTON3
-# Konami's manual labels for the basketball game: Pass / Shoot / Steal
 names=[
     { names="Pass,Shoot,Steal" }
 ]
@@ -19,23 +16,14 @@ names=[
 delete=[{ names=["Unused","Unknown"] }]
 
 [ROM]
-# Region inventory from MAME ddribble.cpp:584-610
-#   maincpu   0x10000 (1x 27512)              main CPU program
-#   subcpu    0x08000 (1x 27256)              sub  CPU program
-#   audiocpu  0x08000 (1x 27256)              sound CPU program
-#   gfx1      0x40000 (2x 128 K MASK1M, 16b)  005885 #1 tiles/sprites
-#   gfx2      0x80000 (4x 128 K MASK1M, 16b)  005885 #2 tiles/sprites
-#   proms     0x00100 (1x 256 B)              sprite-lookup PROM
-#   vlm       0x20000 (1x 128 K MASK1M)       VLM5030 voice ROM
-#   plds      (PAL eqn, not loaded by core)
 regions = [
-    { name="maincpu"  },                                          # → SDRAM bus 'main'
-    { name="subcpu"   },                                          # → SDRAM bus 'sub'
-    { name="audiocpu" },                                          # → SDRAM bus 'snd'
-    { name="vlm"      },                                          # → SDRAM bus 'vlm'
-    { name="gfx1", width=16, no_offset=true },                    # → SDRAM bus 'gfx1' (16-bit interleaved)
-    { name="gfx2", width=16, no_offset=true },                    # → SDRAM bus 'gfx2'
-    { name="proms", start="JTFRAME_PROM_START" },                 # → wrapper BRAM via prom_we (NOT SDRAM)
+    { name="maincpu"  },
+    { name="subcpu"   },
+    { name="audiocpu" },
+    { name="vlm"      },
+    { name="gfx1", width=16, no_offset=true },
+    { name="gfx2", width=16, no_offset=true },
+    { name="proms", start="JTFRAME_PROM_START" },
 ]
 
 order = [

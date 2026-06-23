@@ -5,29 +5,8 @@ CORENAME=JTDDRIBBLE
 VIDEO_MODULE=jtddribble_video
 MAIN_MODULE=jtddribble_main
 
-# SDRAM bank layout — byte offsets in the loaded ROM image where each bank
-# starts. Must match what the MRA generator (jtframe mra tool) actually
-# produces in release/mra/*.mra — otherwise the SDRAM controller reads
-# from the wrong offsets and the chips fetch garbage data.
-#
-# The `prom` region (256 B, sprite-lookup) is placed by the MRA generator
-# at the VERY END of the image (after gfx2), NOT inside bank 1, so don't
-# allocate room for it inside bank 1's start offset.
-#
-#   Bank 0: main  (64 KB)                                       -> ends at 0x10000
-#   Bank 1: sub (32) + snd (32) + vlm (128) = 0x30000           -> ends at 0x40000
-#   Bank 2: gfx1 (256 KB)                                       -> ends at 0x80000
-#   Bank 3: gfx2 (512 KB)
-#
-# Earlier values 0x40100 / 0x80100 added an extra 256 B for prom, which
-# was wrong and shifted gfx1/gfx2 reads by 256 B → tiles loaded the wrong
-# bitmap (right tile-grid layout, wrong characters in each tile).
 JTFRAME_BA1_START=0x10000
 JTFRAME_BA2_START=0x40000
 JTFRAME_BA3_START=0x80000
 
-# Sprite-lookup PROM (256 B). Placed at the VERY END of the ROM image,
-# after gfx2. JTFRAME loads it through the `prom_we`/`prog_addr` download
-# path directly into the chip wrapper's internal BRAM — NOT into SDRAM.
-# Required by mame2mra.toml's `{ name="proms", start="JTFRAME_PROM_START" }`.
 JTFRAME_PROM_START=0x100000
