@@ -22,7 +22,6 @@ jobs:
     secrets: inherit
 
   unit_simulations:
-    if: github.event.pull_request.draft == false
     uses: ./.github/workflows/simunit.yaml
     secrets: inherit
 
