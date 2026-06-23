@@ -124,20 +124,31 @@ end
 // drives LS74 (A10) CK; with D=+5 the CK rising edge (count 0xF0=240) SETS the latch
 // once per frame and /Q pulls the 6809 IRQ low. Writing IRQEN (0x6000) CLRs the latch.
 reg  [7:0] snd_lcnt;
-reg        hs_d, irq_ck_d, snd_irq;
+wire       snd_irq, hs_tick;
 wire       irq_ck = &snd_lcnt[7:4];          // bits 7..4 all 1 -> count in 0xF0..0xFF
+
+// LS393 scanline counter: +1 per H-sync rising edge, cleared each frame by V-sync
+jtframe_edge_pulse u_hs_tick(
+    .rst   ( rst     ),
+    .clk   ( clk     ),
+    .cen   ( 1'b1    ),
+    .sigin ( HS      ),
+    .pulse ( hs_tick )
+);
 always @(posedge clk, posedge rst) begin
-    if (rst) begin
-        snd_lcnt <= 8'd0; hs_d <= 1'b0; irq_ck_d <= 1'b0; snd_irq <= 1'b0;
-    end else begin
-        hs_d <= HS;
-        if      (VS)          snd_lcnt <= 8'd0;              // ~NVSYNC clears the LS393
-        else if (HS && !hs_d) snd_lcnt <= snd_lcnt + 8'd1;   // one count per H-sync line
-        irq_ck_d <= irq_ck;
-        if      (irqen_cs)            snd_irq <= 1'b0;        // IRQEN (0x6000) = acknowledge
-        else if (irq_ck && !irq_ck_d) snd_irq <= 1'b1;        // CK rising = assert (line 240)
-    end
+    if      (rst)     snd_lcnt <= 8'd0;
+    else if (VS)      snd_lcnt <= 8'd0;          // ~NVSYNC clears the LS393
+    else if (hs_tick) snd_lcnt <= snd_lcnt + 8'd1;
 end
+
+// LS74 IRQ latch: set when the count reaches 0xF0, cleared by the IRQEN (0x6000) write
+jtframe_edge #(.QSET(1), .ATRST(0)) u_snd_irq(
+    .rst    ( rst      ),
+    .clk    ( clk      ),
+    .edgeof ( irq_ck   ),
+    .clr    ( irqen_cs ),
+    .q      ( snd_irq  )
+);
 
 /* verilator lint_off UNUSED */
 wire cpu_irq_ack;   // sys6809 IRQ-acknowledge strobe — SIMULATION debug tap only
@@ -320,7 +331,7 @@ vlm5030_gl u_vlm(
     .o_mte     ( vlm_mte         ),
     .o_bsy     ( vlm_bsy         ),
     .o_dao     (                 ),       // 6-bit raw DAC — unused, we use o_audio
-    .o_audio   ( vlm_snd.        )
+    .o_audio   ( vlm_snd         )
 );
 
 // ---------------------------------------------------------------------------
