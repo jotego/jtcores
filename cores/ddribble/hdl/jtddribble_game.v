@@ -27,7 +27,7 @@ wire [ 2:0] main_bank;
 // ---------------------------------------------------------------------------
 `ifndef NOMAIN
 jtddribble_main u_main(
-    .rst         ( rst        ),
+    .rst         ( rst24      ),
     .clk         ( clk24      ),
     .cen         ( cpu_cen    ),
     .cpu_cen     (            ),     // Q-phase strobe, unused
@@ -52,9 +52,9 @@ jtddribble_main u_main(
     .k5885_2_dout ( k5885_2_dout   ),
     .bank_out     ( main_bank      ),     // 0x8000 bank latch
     // chip 1 interrupts fan to both CPUs (NFIR↔IRQ / NIRQ↔FIRQ swap)
-    .cpu_irqn    ( k5885_1_NFIR ),
-    .cpu_nmin    ( k5885_1_NNMI ),
-    .cpu_firqn   ( k5885_1_NIRQ )
+    .cpu_irqn    ( k5885_1_fir_n ),
+    .cpu_nmin    ( k5885_1_nmi_n ),
+    .cpu_firqn   ( k5885_1_irq_n )
 );
 `else
 // Scene replay (NOMAIN): stub the main CPU so it never writes the chip RAMs
@@ -102,7 +102,7 @@ wire [7:0] dsw2_byte = dipsw[15: 8];
 wire [7:0] dsw3_byte = dipsw[23:16];
 
 jtddribble_sub u_sub(
-    .rst            ( rst        ),
+    .rst            ( rst24      ),
     .clk            ( clk24      ),
     .cen            ( cpu_cen    ),
     .cpu_cen        (            ),
@@ -125,9 +125,9 @@ jtddribble_sub u_sub(
     .system_input   ( sys_byte     ),
     .coin_counter   ( sub_coin_counter ),
     // chip 1 fans the same interrupts to both CPUs (NFIR↔IRQ / NIRQ↔FIRQ swap)
-    .cpu_irqn       ( k5885_1_NFIR ),
-    .cpu_nmin       ( k5885_1_NNMI ),
-    .cpu_firqn      ( k5885_1_NIRQ )
+    .cpu_irqn       ( k5885_1_fir_n ),
+    .cpu_nmin       ( k5885_1_nmi_n ),
+    .cpu_firqn      ( k5885_1_irq_n )
 );
 
 // ---------------------------------------------------------------------------
@@ -153,7 +153,7 @@ assign pal_we      = pal_cs    && !main_rnw;
 // ---------------------------------------------------------------------------
 // Video pipeline (2x 005885 + VRAM BRAMs + colmix; drives RGB/sync)
 // ---------------------------------------------------------------------------
-wire        k5885_1_NIRQ, k5885_1_NNMI, k5885_1_NFIR;
+wire        k5885_1_irq_n, k5885_1_nmi_n, k5885_1_fir_n;
 wire [15:0] k5885_1_R,    k5885_2_R;
 wire        k5885_1_RA16, k5885_1_RA17, k5885_1_rom_cs;
 wire        k5885_2_RA16, k5885_2_RA17, k5885_2_rom_cs;
@@ -187,9 +187,9 @@ jtddribble_video u_video(
     .gfx2_data      ( gfx2_data      ),
     .gfx2_ok        ( gfx2_ok        ),
     // interrupts (chip 1 fans to both CPUs)
-    .k5885_1_NFIR   ( k5885_1_NFIR   ),
-    .k5885_1_NIRQ   ( k5885_1_NIRQ   ),
-    .k5885_1_NNMI   ( k5885_1_NNMI   ),
+    .k5885_1_fir_n   ( k5885_1_fir_n   ),
+    .k5885_1_irq_n   ( k5885_1_irq_n   ),
+    .k5885_1_nmi_n   ( k5885_1_nmi_n   ),
     // video sync
     .LHBL           ( LHBL           ),
     .LVBL           ( LVBL           ),
@@ -244,7 +244,7 @@ wire        sound_rnw;
 wire        sound_shared_cs, sound_ym_cs, sound_vlm_cs;
 
 jtddribble_sound u_sound(
-    .rst         ( rst        ),
+    .rst         ( rst24      ),
     .clk         ( clk24      ),
     .clk24       ( clk24      ),
     .cen         ( sndcpu_cen ),     // snd-gated cen

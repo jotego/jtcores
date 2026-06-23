@@ -48,9 +48,9 @@ module jtddribble_video(
 
     // Interrupts — chip 1 fans NFIR/NIRQ/NNMI to BOTH CPUs (game.v applies the
     // NFIR->IRQ / NIRQ->FIRQ swap).
-    output              k5885_1_NFIR,
-    output              k5885_1_NIRQ,
-    output              k5885_1_NNMI,
+    output              k5885_1_fir_n,
+    output              k5885_1_irq_n,
+    output              k5885_1_nmi_n,
 
     // Chip-owned video sync to the framework (chip 1 = master timing). Derived
     // from the same h_cnt/v_cnt that scans the tilemap, so the display window
@@ -127,9 +127,9 @@ jtddribble_k005885 #(
     .NXCS       ( ~k5885_1_cs    ),
     .NRD        ( ~main_rnw      ),
     .NEXR       ( 1'b1           ),
-    .NIRQ       ( k5885_1_NIRQ   ),
-    .NNMI       ( k5885_1_NNMI   ),
-    .NFIR       ( k5885_1_NFIR   ),
+    .NIRQ       ( k5885_1_irq_n   ),
+    .NNMI       ( k5885_1_nmi_n   ),
+    .NFIR       ( k5885_1_fir_n   ),
     // gfx ROM
     .R          ( k5885_1_R      ),
     .RA16       ( k5885_1_RA16   ),
