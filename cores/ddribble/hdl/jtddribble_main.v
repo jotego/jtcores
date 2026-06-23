@@ -99,15 +99,13 @@ module jtddribble_main(
 wire [15:0] addr;        // CPU A0..A15 bus (visible on SCHEMATIC page 1 main CPU pins)
 wire        RnW, VMA;    // R/!W pin (visible on schematic), VMA = Valid-Memory-Address
 reg  [ 7:0] cpu_din;     // data fed back to CPU (multiplexed from peripherals)
-reg  [ 2:0] bank;        // 3-bit bank-switch latch
-                         // (see MAME ddribble.cpp:331-334 for the 3-bit & 0x07 width;
-                         //  exact PCB latch chip not yet located)
-wire        bank_cs;     // 1-cycle pulse when CPU writes to 0x8000
+wire [ 7:0] bank8;       // bank-switch latch (8-bit, LS273-class; only [2:0] wired out)
+wire        bank_cs;    // /SEL region decode (0x8000-0x9FFF)
 
 // Expose internals as module outputs
 assign A        = addr;
 assign cpu_rnw  = RnW;
-assign bank_out = bank;     // 3-bit bank-switch register → gfx ROM high bits in game.v
+assign bank_out = bank8[2:0];   // → gfx ROM high bits in game.v
 
 // ROM address composition — physical chip is one 27512 (64 KB) on SCHEMATIC page 1.
 // The 6809 only addresses 32 KB of ROM at a time (0x8000-0xFFFF) but the 27512
@@ -116,7 +114,7 @@ assign bank_out = bank;     // 3-bit bank-switch register → gfx ROM high bits 
 //   CPU 0xA000-0xFFFF  → fixed:         rom_addr = addr  (ROM offsets 0xA000..0xFFFF)
 // Outside ROM (0x0000-0x7FFF) rom_addr can be anything — rom_cs will be 0 anyway.
 assign rom_addr = (addr[15:13] == 3'b100)   // 0x8000-0x9FFF window?
-                ? { bank, addr[12:0] }       // banked
+                ? { bank8[2:0], addr[12:0] } // banked
                 : addr;                      // fixed (or don't-care)
 
 // ---------------------------------------------------------------------------
@@ -156,7 +154,7 @@ assign rom_addr = (addr[15:13] == 3'b100)   // 0x8000-0x9FFF window?
 // │                      /A12& A11   |  /A11   │ 0x0800-0x0FFF window —      │
 // │                                            │ implemented in game.v as    │
 // │                                            │ k5885_2_A11_masked          │
-// │ /o19 /SEL   = A15 & /A14 & /A13            │ bank_cs    0x8000-0x9FFF    │
+// │ /o19 /SEL   = A15 & /A14 & /A13            │ bank_cs   0x8000-0x9FFF    │
 // │              (NOT NEQ-gated!)              │ (write-only — bank latch)   │
 // └─────────┴───────────────────────────────────┴─────────────────────────────┘
 //
@@ -178,8 +176,8 @@ assign k5885_1_cs = VMA & ~a15 & ~a14 & ( a13 | (~a13 & ~a12 & ~a11) );        /
 assign k5885_2_cs = VMA & ~a15 & ( (a14 & a13) | (~a14 & ~a13 & ~a12 & a11) ); // /GATE2 0x0800-0FFF + 0x6000-7FFF
 assign shared_cs  = VMA & ~a15 &  a14 & ~a13;                                  // /CWORK 0x4000-0x5FFF
 assign pal_cs     = VMA & ~a15 & ~a14 & ~a13 & a12 & a11;                      // /CORAM 0x1800-0x1FFF
-// /SEL (pin 19) is NOT NEQ-gated; we latch the bank on the write side only.
-assign bank_cs    = VMA & a15 & ~a14 & ~a13 & ~RnW;                            // /SEL   0x8000-0x9FFF (write)
+// /SEL (pin 19) is NOT NEQ-gated; the write is gated by wr_n in u_bank below.
+assign bank_cs    = VMA & a15 & ~a14 & ~a13;                                  // /SEL   0x8000-0x9FFF
 
 // ---------------------------------------------------------------------------
 // Data multiplexer — pick which peripheral feeds the CPU on a read cycle
@@ -210,12 +208,14 @@ end
 // MAME ref: konami/ddribble.cpp:331-334
 //   void bankswitch_w(uint8_t data) { m_mainbank->set_entry(data & 0x07); }
 // → 3-bit bank field, latched on write to 0x8000.
-always @(posedge clk, posedge rst) begin
-    if (rst)
-        bank <= 3'd0;
-    else if (cen && bank_cs)
-        bank <= cpu_dout[2:0];
-end
+jtframe_8bit_reg u_bank(
+    .rst ( rst      ),
+    .clk ( clk      ),
+    .wr_n( RnW      ),          // active-low write
+    .din ( cpu_dout ),
+    .cs  ( bank_cs ),         // /SEL region (0x8000-0x9FFF)
+    .dout( bank8    )
+);
 
 // ---------------------------------------------------------------------------
 // FIRQ — schematic-faithful: directly from chip 1 NIRQ output (= cpu_firqn
