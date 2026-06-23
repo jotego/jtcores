@@ -70,6 +70,8 @@ bram:
     addr_width: 7
     data_width: 8
     rw: true
+    addr: main_A[6:0]
+    din:  main_dout
     simfile: {}
     dual_port:
       name: pal_v

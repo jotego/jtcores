@@ -37,26 +37,16 @@ module jtddribble_main(
     input               cen,           // 1.5 MHz CPU clock-enable (from mem.yaml cpu_cen)
     output              cpu_cen,       // CPU Q-phase strobe — for downstream registers
 
-    // ROM bus to SDRAM — physical 27512 EPROM (SCHEMATIC page 1) = 64 KB
-    output      [15:0]  rom_addr,
-    output reg          rom_cs,        // SCHEMATIC: corresponds to 007552 PAL /RBN output (pin 12)
-    input       [ 7:0]  rom_data,
-    input               rom_ok,
-
     // CPU bus (exposed so jtddribble_video etc. can decode sub-regions)
     output      [15:0]  A,
     output              cpu_rnw,
     output      [ 7:0]  cpu_dout,
 
-    // Per-region chip-selects (active high)
-    // The names in [brackets] correspond to 007552 PAL output pins visible on the schematic.
-    output reg          pal_cs,        // 0x1800-0x187F  palette RAM       [007552 /CORAM, pin 17]
-    output reg          shared_cs,     // 0x4000-0x5FFF  shared with SUB   [007552 /CWORK, pin 15]
-    output reg          k5885_1_cs,    // 005885 #1 (E14) — covers BOTH the register window
-                                       //   0x0000-0x0004 AND the VRAM/sprite window 0x2000-0x3FFF
-                                       //   (the chip owns its own 6264SL SRAM and decodes internally
-                                       //    from A[13:0]; we just gate NXCS for both regions)
-    output reg          k5885_2_cs,    // 005885 #2 (H16) — covers 0x0800-0x0804 AND 0x6000-0x7FFF
+    // Per-region chip-selects (active high; [brackets] = 007552 PAL pin)
+    output              pal_cs,        // [/CORAM] palette
+    output              shared_cs,     // [/CWORK] shared with SUB
+    output              k5885_1_cs,    // [/GATE1] 005885 #1 (regs + VRAM/sprite window)
+    output              k5885_2_cs,    // [/GATE2] 005885 #2
 
     // Per-region read-back data — back into CPU
     input       [ 7:0]  pal_dout,
@@ -93,9 +83,16 @@ module jtddribble_main(
     // own outputs idle) and we need V-blank FIRQ to keep firing regardless.
     input               cpu_irqn,      // → IRQ pin   (game.v wires chip 1 NFIR here)
     input               cpu_nmin,      // → NMI pin   (chip 1 NNMI)
-    input               cpu_firqn      // → FIRQ pin  (chip 1 NIRQ — schematic-faithful, no LVBL fallback)
+    input               cpu_firqn,     // → FIRQ pin  (chip 1 NIRQ — schematic-faithful, no LVBL fallback)
+
+    // ROM bus to SDRAM — 27512 EPROM (64 KB); rom_cs = 007552 PAL /RBN (pin 12)
+    output      [15:0]  rom_addr,
+    output              rom_cs,
+    input       [ 7:0]  rom_data,
+    input               rom_ok
 );
 
+`ifndef NOMAIN
 // ---------------------------------------------------------------------------
 // Internal signals
 // ---------------------------------------------------------------------------
@@ -105,7 +102,7 @@ reg  [ 7:0] cpu_din;     // data fed back to CPU (multiplexed from peripherals)
 reg  [ 2:0] bank;        // 3-bit bank-switch latch
                          // (see MAME ddribble.cpp:331-334 for the 3-bit & 0x07 width;
                          //  exact PCB latch chip not yet located)
-reg         bank_cs;     // 1-cycle pulse when CPU writes to 0x8000
+wire        bank_cs;     // 1-cycle pulse when CPU writes to 0x8000
 
 // Expose internals as module outputs
 assign A        = addr;
@@ -176,15 +173,13 @@ assign rom_addr = (addr[15:13] == 3'b100)   // 0x8000-0x9FFF window?
 // address-modify (chip-2 A11 mask), applied in game.v, not a select here.
 wire a15=addr[15], a14=addr[14], a13=addr[13], a12=addr[12], a11=addr[11];
 
-always @(*) begin
-    rom_cs     = VMA &  a15;                                                // /RBN   0x8000-0xFFFF
-    k5885_1_cs = VMA & ~a15 & ~a14 & ( a13 | (~a13 & ~a12 & ~a11) );        // /GATE1 0x0000-07FF + 0x2000-3FFF
-    k5885_2_cs = VMA & ~a15 & ( (a14 & a13) | (~a14 & ~a13 & ~a12 & a11) ); // /GATE2 0x0800-0FFF + 0x6000-7FFF
-    shared_cs  = VMA & ~a15 &  a14 & ~a13;                                  // /CWORK 0x4000-0x5FFF
-    pal_cs     = VMA & ~a15 & ~a14 & ~a13 & a12 & a11;                      // /CORAM 0x1800-0x1FFF
-    // /SEL (pin 19) is NOT NEQ-gated; we latch the bank on the write side only.
-    bank_cs    = VMA & a15 & ~a14 & ~a13 & ~RnW;                            // /SEL   0x8000-0x9FFF (write)
-end
+assign rom_cs     = VMA &  a15;                                                // /RBN   0x8000-0xFFFF
+assign k5885_1_cs = VMA & ~a15 & ~a14 & ( a13 | (~a13 & ~a12 & ~a11) );        // /GATE1 0x0000-07FF + 0x2000-3FFF
+assign k5885_2_cs = VMA & ~a15 & ( (a14 & a13) | (~a14 & ~a13 & ~a12 & a11) ); // /GATE2 0x0800-0FFF + 0x6000-7FFF
+assign shared_cs  = VMA & ~a15 &  a14 & ~a13;                                  // /CWORK 0x4000-0x5FFF
+assign pal_cs     = VMA & ~a15 & ~a14 & ~a13 & a12 & a11;                      // /CORAM 0x1800-0x1FFF
+// /SEL (pin 19) is NOT NEQ-gated; we latch the bank on the write side only.
+assign bank_cs    = VMA & a15 & ~a14 & ~a13 & ~RnW;                            // /SEL   0x8000-0x9FFF (write)
 
 // ---------------------------------------------------------------------------
 // Data multiplexer — pick which peripheral feeds the CPU on a read cycle
@@ -253,5 +248,11 @@ jtframe_sys6809 #(.RAM_AW(0)) u_cpu(
     .cpu_dout   ( cpu_dout  ),
     .cpu_din    ( cpu_din   )
 );
+`else
+// Scene replay (NOMAIN): stub all outputs; cpu_rnw held high so the chip/
+// palette write-enables downstream never assert.
+assign cpu_cen=0, rom_addr=0, rom_cs=0, A=0, cpu_rnw=1'b1, cpu_dout=0,
+       pal_cs=0, shared_cs=0, k5885_1_cs=0, k5885_2_cs=0, bank_out=0;
+`endif
 
 endmodule

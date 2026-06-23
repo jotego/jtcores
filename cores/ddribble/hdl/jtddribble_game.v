@@ -8,6 +8,9 @@ module jtddribble_game(
     `include "jtframe_game_ports.inc"
 );
 
+assign dip_flip   = 0;
+assign debug_view = 0;
+
 // ---------------------------------------------------------------------------
 // Internal wires between sub-modules
 // ---------------------------------------------------------------------------
@@ -25,7 +28,6 @@ wire [ 2:0] main_bank;
 // ---------------------------------------------------------------------------
 // Main CPU sub-module
 // ---------------------------------------------------------------------------
-`ifndef NOMAIN
 jtddribble_main u_main(
     .rst         ( rst24      ),
     .clk         ( clk24      ),
@@ -56,20 +58,6 @@ jtddribble_main u_main(
     .cpu_nmin    ( k5885_1_nmi_n ),
     .cpu_firqn   ( k5885_1_irq_n )
 );
-`else
-// Scene replay (NOMAIN): stub the main CPU so it never writes the chip RAMs
-// or palette; main_rnw held high so write-enables never assert.
-assign main_addr  = 16'd0;
-assign main_cs    = 1'b0;
-assign main_A     = 16'd0;
-assign main_rnw   = 1'b1;
-assign main_dout  = 8'd0;
-assign pal_cs     = 1'b0;
-assign shared_cs  = 1'b0;
-assign k5885_1_cs = 1'b0;
-assign k5885_2_cs = 1'b0;
-assign main_bank  = 3'd0;
-`endif
 
 // ---------------------------------------------------------------------------
 // Sub CPU sub-module
@@ -144,11 +132,9 @@ assign shared_ms_b_din  = sub_dout;
 assign shared_ms_b_we   = sub_shared_ms_cs && !sub_rnw;
 
 // ---------------------------------------------------------------------------
-// Palette RAM — mem.yaml `pal` BRAM (128 B), CPU write side
+// Palette RAM — mem.yaml `pal` BRAM (128 B); addr/din bound in mem.yaml
 // ---------------------------------------------------------------------------
-assign pal_addr    = main_A[6:0];
-assign pal_din     = main_dout;
-assign pal_we      = pal_cs    && !main_rnw;
+assign pal_we      = pal_cs && !main_rnw;
 
 // ---------------------------------------------------------------------------
 // Video pipeline (2x 005885 + VRAM BRAMs + colmix; drives RGB/sync)
@@ -241,7 +227,7 @@ assign shared_sa_b_we   = sound_shared_cs && !sound_rnw;
 wire [15:0] sound_A;                     // sound CPU address bus
 wire [ 7:0] sound_dout;
 wire        sound_rnw;
-wire        sound_shared_cs, sound_ym_cs, sound_vlm_cs;
+wire        sound_shared_cs, sound_ym_cs;
 
 jtddribble_sound u_sound(
     .rst         ( rst24      ),
@@ -258,7 +244,7 @@ jtddribble_sound u_sound(
     .cpu_dout    ( sound_dout ),
     .shared_cs   ( sound_shared_cs ),
     .ym_cs       ( sound_ym_cs ),
-    .vlm_cs      ( sound_vlm_cs ),
+    .vlm_cs      ( vlm_cs     ),
     .shared_dout ( shared_sa_b_dout ),
     .ym_cen      ( ym_cen     ),
     .vlm_cen     ( vlm_cen    ),
@@ -271,10 +257,5 @@ jtddribble_sound u_sound(
     .psg_snd     ( psg        ),
     .vlm_snd     ( vlm        )
 );
-
-assign vlm_cs = sound_vlm_cs;
-
-assign dip_flip  = 0;
-assign debug_view= 0;
 
 endmodule
