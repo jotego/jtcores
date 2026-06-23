@@ -2,6 +2,7 @@ name: Pull Request checks
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 concurrency:
   group: ${{ github.head_ref || github.ref }}-pr-checks
@@ -25,6 +26,7 @@ jobs:
     secrets: inherit
 
   compile_all:
+    if: github.event.pull_request.draft == false
     needs:
       - beta_checks
       - framework_tests
