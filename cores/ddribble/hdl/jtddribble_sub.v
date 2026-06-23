@@ -129,38 +129,28 @@ assign rom_addr = addr[14:0];          // 32 KB ROM, MSB always 1 in CPU view
 //
 // 0x3800-0x3BFF: no PAL output fires → open bus (8'hff).
 //
-// Within the /IOIN 1 KB window (0x2800-0x2BFF), an external LS153/LS155
-// mux decodes A[1:0] to pick which 8-bit source (DSW1/P1/P2/SYSTEM) drives
-// the buffer onto the sub data bus. The CPU only ever touches 0x2800-0x2803
-// (verified in 3000-frame attract-mode sim log 2026-06-02), so we model
-// just those 4 exact bytes and ignore mirrors at 0x2804..0x2BFF.
-//
-// /SET and /AFE write-only at the SPECIFIC byte address inside their 1 KB
-// windows is sufficient — boot code never touches 0x3401+ or 0x3C01+.
-always @(*) begin
-    rom_cs       = 0;
-    shared_ms_cs = 0;
-    shared_sa_cs = 0;
-    dsw1_cs      = 0;
-    dsw2_cs      = 0;
-    dsw3_cs      = 0;
-    p1_cs        = 0;
-    p2_cs        = 0;
-    sys_cs       = 0;
-    coin_cs      = 0;
+// Each select is the literal PAL product-term on A15..A10; the within-window low
+// bits are don't-cares (partial decode → mirrors, as on the PCB). The /IOIN
+// window is sub-decoded by the external LS153/LS155 on A[1:0] only, so DSW1/P1/
+// P2/SYSTEM mirror across 0x2800-0x2BFF.
+wire en  = VMA;     // i1 = EN (active-high on this PAL)
+wire a15=addr[15], a14=addr[14], a13=addr[13], a12=addr[12], a11=addr[11], a10=addr[10];
 
-    if (VMA) begin
-        if      (addr >= 16'h8000)                          rom_cs       = 1;  // /ROM   0x8000-0xFFFF
-        else if (addr <= 16'h1FFF)                          shared_ms_cs = 1;  // /CRAM  0x0000-0x1FFF
-        else if (addr >= 16'h2000 && addr <= 16'h27FF)      shared_sa_cs = 1;  // /SRAM  0x2000-0x27FF
-        else if (addr == 16'h2800)                          dsw1_cs      = 1;  // /IOIN + A[1:0]=00
-        else if (addr == 16'h2801)                          p1_cs        = 1;  // /IOIN + A[1:0]=01
-        else if (addr == 16'h2802)                          p2_cs        = 1;  // /IOIN + A[1:0]=10
-        else if (addr == 16'h2803)                          sys_cs       = 1;  // /IOIN + A[1:0]=11
-        else if (addr >= 16'h2C00 && addr <= 16'h2FFF)      dsw2_cs      = 1;  // /DIP2  0x2C00-0x2FFF
-        else if (addr >= 16'h3000 && addr <= 16'h33FF)      dsw3_cs      = 1;  // /DIP3  0x3000-0x33FF
-        else if (addr == 16'h3400 && !RnW)                  coin_cs      = 1;  // /SET   (write-only latch)
-    end
+// /o12 /ROM fires 0x4000-0xFFFF; the 27512 /CE is narrowed by a downstream A15 gate
+wire pal_rom = en & (a15 | (~a15 & a14));
+wire ioin_cs = en & ~a15 & ~a14 & a13 & ~a12 & a11 & ~a10;       // /o18 0x2800-0x2BFF
+
+always @(*) begin
+    rom_cs       = pal_rom & a15;                                // /ROM  → 0x8000-0xFFFF
+    shared_ms_cs = en & ~a15 & ~a14 & ~a13;                      // /CRAM 0x0000-0x1FFF
+    shared_sa_cs = en & ~a15 & ~a14 &  a13 & ~a12 & ~a11;        // /SRAM 0x2000-0x27FF
+    dsw2_cs      = en & ~a15 & ~a14 &  a13 & ~a12 &  a11 &  a10;  // /DIP2 0x2C00-0x2FFF
+    dsw3_cs      = en & ~a15 & ~a14 &  a13 &  a12 & ~a11 & ~a10;  // /DIP3 0x3000-0x33FF
+    coin_cs      = en & ~a15 & ~a14 &  a13 &  a12 & ~a11 &  a10 & ~RnW; // /SET 0x3400-0x37FF (write)
+    dsw1_cs      = ioin_cs & (addr[1:0]==2'b00);                 // /IOIN + A[1:0]=00
+    p1_cs        = ioin_cs & (addr[1:0]==2'b01);                 // /IOIN + A[1:0]=01
+    p2_cs        = ioin_cs & (addr[1:0]==2'b10);                 // /IOIN + A[1:0]=10
+    sys_cs       = ioin_cs & (addr[1:0]==2'b11);                 // /IOIN + A[1:0]=11
 end
 
 // ---------------------------------------------------------------------------
