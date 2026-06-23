@@ -66,8 +66,6 @@ module jtddribble_sub(
 
     // Output strobes / registers
     output reg  [ 1:0]  coin_counter,  // 0x3400 W  — latched in this module
-    output reg          wdog_kick,     // 0x3C00 W  — 1-cycle pulse per write
-                                       //            (game.v / framework decides what to do)
 
     // Interrupt inputs.
     //
@@ -92,7 +90,7 @@ wire [15:0] addr;
 wire        RnW, VMA;
 // nFIRQ replaced by `combined_firqn` (chip 1 NIRQ AND vblank_firqn) below.
 reg  [ 7:0] cpu_din;
-reg         coin_cs, wdog_cs;
+reg         coin_cs;
 reg         dsw1_cs, dsw2_cs, dsw3_cs;
 reg         p1_cs, p2_cs, sys_cs;
 
@@ -119,7 +117,7 @@ assign rom_addr = addr[14:0];          // 32 KB ROM, MSB always 1 in CPU view
 // │               combining /ROM with A15; we model  │  is implicit in our      │
 // │               the combined net here.)            │  rom_cs polarity)        │
 // │ /o13 /CRAM  = EN & /A15&/A14&/A13                │ shared_ms_cs 0x0000-1FFF │
-// │ /o14 /AFE   = EN & /A15&/A14&A13&A12&A11&A10     │ wdog_cs      0x3C00-3FFF │
+// │ /o14 /AFE   = EN & /A15&/A14&A13&A12&A11&A10     │ watchdog (not modeled)   │
 // │ /o15 /SET   = EN & /A15&/A14&A13&A12&/A11&A10    │ coin_cs      0x3400-37FF │
 // │ /o16 /DIP3  = EN & /A15&/A14&A13&A12&/A11&/A10   │ dsw3_cs      0x3000-33FF │
 // │ /o17 /DIP2  = EN & /A15&/A14&A13&/A12&A11&A10    │ dsw2_cs      0x2C00-2FFF │
@@ -150,7 +148,6 @@ always @(*) begin
     p2_cs        = 0;
     sys_cs       = 0;
     coin_cs      = 0;
-    wdog_cs      = 0;
 
     if (VMA) begin
         if      (addr >= 16'h8000)                          rom_cs       = 1;  // /ROM   0x8000-0xFFFF
@@ -163,7 +160,6 @@ always @(*) begin
         else if (addr >= 16'h2C00 && addr <= 16'h2FFF)      dsw2_cs      = 1;  // /DIP2  0x2C00-0x2FFF
         else if (addr >= 16'h3000 && addr <= 16'h33FF)      dsw3_cs      = 1;  // /DIP3  0x3000-0x33FF
         else if (addr == 16'h3400 && !RnW)                  coin_cs      = 1;  // /SET   (write-only latch)
-        else if (addr == 16'h3C00 && !RnW)                  wdog_cs      = 1;  // /AFE   (write-only kick)
     end
 end
 
@@ -195,20 +191,6 @@ always @(posedge clk, posedge rst) begin
         coin_counter <= 2'b00;
     else if (cen && coin_cs)
         coin_counter <= cpu_dout[1:0];
-end
-
-// ---------------------------------------------------------------------------
-// Watchdog kick pulse — 1 cycle high per write to 0x3C00
-// ---------------------------------------------------------------------------
-// HARDWARE: real PCB has a 555-or-monostable that resets the whole system
-// if not kicked within ~200 ms. In HDL we just expose the kick pulse and
-// let game.v / JTFRAME decide what to do (typically: nothing in MiSTer,
-// the framework's own reset handling supersedes).
-always @(posedge clk, posedge rst) begin
-    if (rst)
-        wdog_kick <= 1'b0;
-    else
-        wdog_kick <= cen && wdog_cs;
 end
 
 // ---------------------------------------------------------------------------

@@ -78,7 +78,6 @@ wire [15:0] sub_A;                       // sub CPU address bus
 wire [ 7:0] sub_dout;
 wire        sub_rnw;
 wire        sub_shared_ms_cs, sub_shared_sa_cs;
-wire        sub_wdog_kick;
 wire [ 1:0] sub_coin_counter;
 
 // ---------------------------------------------------------------------------
@@ -125,7 +124,6 @@ jtddribble_sub u_sub(
     .p2_input       ( p2_bytes     ),
     .system_input   ( sys_byte     ),
     .coin_counter   ( sub_coin_counter ),
-    .wdog_kick      ( sub_wdog_kick    ),
     // chip 1 fans the same interrupts to both CPUs (NFIR↔IRQ / NIRQ↔FIRQ swap)
     .cpu_irqn       ( k5885_1_NFIR ),
     .cpu_nmin       ( k5885_1_NNMI ),

@@ -58,7 +58,7 @@ module jtddribble_sound(
     input       [ 7:0]  shared_dout,
 
     // VLM5030 voice ROM bus (SDRAM region 'vlm' from mem.yaml, 128 KB)
-    output      [16:0]  vlm_addr,
+    output  reg [16:0]  vlm_addr,
     input       [ 7:0]  vlm_data,
     input               vlm_ok,
 
@@ -246,7 +246,6 @@ wire        vlm_bank  = ym_ioa_out[3];   // YM2203 IOA[3] → voice-ROM A16 (ban
 wire        vlm_bsy;
 wire        vlm_me_n, vlm_mte;
 wire [15:0] vlm_internal_addr;
-wire [ 9:0] vlm_audio_raw;
 // --- Re-time the voice-ROM address from the VLM's 24 MHz domain to the 48 MHz SDRAM ---
 // vlm_internal_addr is the VLM's voice-ROM address (its o_a output), produced
 // COMBINATIONALLY by the chip's slow internal clk2 logic; vlm_bank is the A16 page
@@ -260,9 +259,7 @@ wire [ 9:0] vlm_audio_raw;
 // aligned value. The one extra cycle of latency is harmless: vlm_ceng already
 // stalls the VLM on vlm_ok until the SDRAM has served the byte. (Same approach as
 // the sbaskt core.)
-reg [16:0] vlm_addr_r;
-always @(posedge clk24) vlm_addr_r <= { vlm_bank, vlm_internal_addr };  // capture o_a each clk24
-assign vlm_addr = vlm_addr_r;                                            // stable address out to SDRAM
+always @(posedge clk24) vlm_addr <= { vlm_bank, vlm_internal_addr };  // capture o_a each clk24
 
 // VLM data pins are SHARED: the CPU command latch when loading a phrase, the voice
 // ROM byte when the chip reads it (/ME asserted, o_me_l low). SCHEMATIC: the E7 MASK1M
@@ -306,11 +303,6 @@ wire       vlm_i_vcu   = vlm_vcu;
 wire [7:0] vlm_i_d     = vlm_din;
 `endif
 
-// Pass the raw 10-bit unsigned VLM audio straight through — JTFRAME's mixer
-// handles unsigned-to-signed conversion via the channel's `unsigned: true`
-// flag (which we'd add to mem.yaml if not auto-detected from module=vlm5030).
-assign vlm_snd = vlm_audio_raw;
-
 // The VLM5030 gate-level model runs in the clk24 domain (its internal clk2 logic
 // won't close timing at 48 MHz; its vlm_cen is a clk24 cen). The CPU/ROM signals
 // into it (vlm_din, vlm_ceng) are slow, stable-when-sampled levels — safe CDC.
@@ -335,7 +327,7 @@ vlm5030_gl u_vlm(
     .o_mte     ( vlm_mte         ),
     .o_bsy     ( vlm_bsy         ),
     .o_dao     (                 ),       // 6-bit raw DAC — unused, we use o_audio
-    .o_audio   ( vlm_audio_raw   )
+    .o_audio   ( vlm_snd.        )
 );
 
 // ---------------------------------------------------------------------------
