@@ -91,6 +91,12 @@ wire [13:0] k5885_2_A         = { main_A[13:12], k5885_2_A11_masked, main_A[10:0
 // this module (these used to be outputs to game.v, where the colmix lived).
 wire [ 6:0] k5885_1_pxl_out, k5885_2_pxl_out;
 
+// The 005885 chips + their VRAMs + the colmix run on clk (49.152 MHz) with pxl_cen
+// (clk/8 = 6.144 MHz) — exactly as contra runs its 007121. Do NOT move them to
+// clk24: at 24.576 the sprite line-fill FSM gets half the SDRAM fetch bandwidth and
+// sprites starve (confirmed on hardware). The CPUs/YM2203/VLM5030 run on clk24
+// (see game.v); CPU↔chip-VRAM is the one 2:1-synchronous crossing, same as contra.
+
 // ---------------------------------------------------------------------------
 // 005885 chip 1 — FG layer (E16), gfx1
 // ---------------------------------------------------------------------------

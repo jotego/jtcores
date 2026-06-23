@@ -30,7 +30,7 @@ wire [ 2:0] main_bank;                          // 3-bit bank-switch register fr
 `ifndef NOMAIN
 jtddribble_main u_main(
     .rst         ( rst        ),
-    .clk         ( clk        ),
+    .clk         ( clk24      ),     // 24 MHz domain — cpu_cen is generated on clk24
     .cen         ( cpu_cen    ),     // 1.5 MHz, from mem.yaml clocks block
     .cpu_cen     (            ),     // Q-phase strobe — unused this round
     // ROM
@@ -118,7 +118,7 @@ wire [7:0] dsw3_byte = dipsw[23:16];
 
 jtddribble_sub u_sub(
     .rst            ( rst        ),
-    .clk            ( clk        ),
+    .clk            ( clk24      ),     // 24 MHz domain
     .cen            ( cpu_cen    ),
     .cpu_cen        (            ),
     .rom_addr       ( sub_addr   ),     // → SDRAM region 'sub' from mem.yaml
@@ -318,8 +318,8 @@ wire        sound_shared_cs, sound_ym_cs, sound_vlm_cs;
 
 jtddribble_sound u_sound(
     .rst         ( rst        ),
-    .clk         ( clk        ),
-    .clk24       ( clk24      ),     // VLM5030 runs here (timing + its clk24 cen)
+    .clk         ( clk24      ),     // 24 MHz domain — sndcpu_cen + YM2203 + VLM5030 all on clk24
+    .clk24       ( clk24      ),     // (redundant now clk==clk24; kept for interface stability)
     .cen         ( sndcpu_cen ),     // own [snd]-gated 1.5 MHz cen — decoupled from main/sub SDRAM stalls
     .cpu_cen     (            ),
     .rom_addr    ( snd_addr   ),     // → SDRAM region 'snd' from mem.yaml
