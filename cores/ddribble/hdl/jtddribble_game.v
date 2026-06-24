@@ -68,27 +68,7 @@ wire        sub_rnw;
 wire        sub_shared_ms_cs, sub_shared_sa_cs;
 wire [ 1:0] sub_coin_counter;
 
-// ---------------------------------------------------------------------------
-// Input matrix
-// ---------------------------------------------------------------------------
-wire [7:0] p1_bytes = { 1'b1,
-                          joystick1[5], joystick1[6], joystick1[4],   // B2, B3, B1
-                          joystick1[0], joystick1[1],                  // DOWN, UP
-                          joystick1[2], joystick1[3] };                // RIGHT, LEFT
-wire [7:0] p2_bytes = { 1'b1,
-                          joystick2[5], joystick2[6], joystick2[4],
-                          joystick2[0], joystick2[1],
-                          joystick2[2], joystick2[3] };
-// SYSTEM byte (KONAMI8_SYSTEM_UNK): bit 0 = COIN1, 1 = COIN2,
-// 2 = SERVICE, 3 = START1, 4 = START2, 5..7 unused (=1, not pressed)
-wire [7:0] sys_byte = { 3'b111,
-                          cab_1p[1], cab_1p[0], service,
-                          coin[1], coin[0] };
-// DSW slicing — convention: dipsw[7:0]=DSW1, [15:8]=DSW2, [23:16]=DSW3.
-wire [7:0] dsw1_byte = dipsw[ 7: 0];
-wire [7:0] dsw2_byte = dipsw[15: 8];
-wire [7:0] dsw3_byte = dipsw[23:16];
-
+// Sub CPU — also the I/O board (assembles + reads the control ports)
 jtddribble_sub u_sub(
     .rst            ( rst24      ),
     .clk            ( clk24      ),
@@ -105,12 +85,12 @@ jtddribble_sub u_sub(
     .shared_sa_cs   ( sub_shared_sa_cs  ),
     .shared_ms_dout ( shared_ms_b_dout  ),
     .shared_sa_dout ( shared_sa_dout    ),     // sub↔sound link
-    .dsw1           ( dsw1_byte    ),
-    .dsw2           ( dsw2_byte    ),
-    .dsw3           ( dsw3_byte    ),
-    .p1_input       ( p1_bytes     ),
-    .p2_input       ( p2_bytes     ),
-    .system_input   ( sys_byte     ),
+    .joystick1      ( joystick1    ),
+    .joystick2      ( joystick2    ),
+    .cab_1p         ( cab_1p       ),
+    .coin           ( coin         ),
+    .service        ( service      ),
+    .dipsw          ( dipsw        ),
     .coin_counter   ( sub_coin_counter ),
     // chip 1 fans the same interrupts to both CPUs (NFIR↔IRQ / NIRQ↔FIRQ swap)
     .cpu_irqn       ( k5885_1_fir_n ),
@@ -132,8 +112,10 @@ assign shared_ms_b_din  = sub_dout;
 assign shared_ms_b_we   = sub_shared_ms_cs && !sub_rnw;
 
 // ---------------------------------------------------------------------------
-// Palette RAM — mem.yaml `pal` BRAM (128 B); addr/din bound in mem.yaml
+// Palette RAM — mem.yaml `pal` BRAM (128 B)
 // ---------------------------------------------------------------------------
+assign pal_addr    = main_A[6:0];
+assign pal_din     = main_dout;
 assign pal_we      = pal_cs && !main_rnw;
 
 // ---------------------------------------------------------------------------
@@ -147,7 +129,6 @@ wire        k5885_2_RA16, k5885_2_RA17, k5885_2_rom_cs;
 jtddribble_video u_video(
     .rst            ( rst            ),
     .clk            ( clk            ),
-    .clk24          ( clk24          ),
     .pxl_cen        ( pxl_cen        ),
     .pxl2_cen       ( pxl2_cen       ),
     .cpu_cen        ( cpu_cen        ),
@@ -184,6 +165,19 @@ jtddribble_video u_video(
     // palette read port
     .pal_v_addr     ( pal_v_addr     ),
     .pal_v_dout     ( pal_v_dout     ),
+    // chip VRAM (mem.yaml vram1/vram2 dual-port BRAMs)
+    .vram1_cpu_addr ( vram1_addr     ),
+    .vram1_cpu_din  ( vram1_din      ),
+    .vram1_cpu_we   ( vram1_we       ),
+    .vram1_cpu_dout ( vram1_dout     ),
+    .vram1_scn_addr ( vram1_scn_addr ),
+    .vram1_scn_dout ( vram1_scn_dout ),
+    .vram2_cpu_addr ( vram2_addr     ),
+    .vram2_cpu_din  ( vram2_din      ),
+    .vram2_cpu_we   ( vram2_we       ),
+    .vram2_cpu_dout ( vram2_dout     ),
+    .vram2_scn_addr ( vram2_scn_addr ),
+    .vram2_scn_dout ( vram2_scn_dout ),
     // RGB out
     .red            ( red            ),
     .green          ( green          ),
@@ -232,7 +226,6 @@ wire        sound_shared_cs, sound_ym_cs;
 jtddribble_sound u_sound(
     .rst         ( rst24      ),
     .clk         ( clk24      ),
-    .clk24       ( clk24      ),
     .cen         ( sndcpu_cen ),     // snd-gated cen
     .cpu_cen     (            ),
     .rom_addr    ( snd_addr   ),

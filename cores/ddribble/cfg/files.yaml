@@ -4,6 +4,7 @@ ddribble:
     - jtddribble_sub.v
     - jtddribble_sound.v
     - jtddribble_k005885.v            # ground-up 005885 port (Iron Horse / Ace model) — the active
+    - jtddribble_obj.v                # 005885 sprite engine (D9, split out of the chip)
     - jtddribble_colmix.v             # colour mixer: 007327 palette LUT/RGB DAC + LS157/LS32 priority
     - jtddribble_video.v              # video pipeline: 2x jtddribble_k005885 + their VRAM BRAMs
     - jtddribble_game.v
@@ -12,6 +13,9 @@ jtframe:
       - jtframe_ff.v              # edge-triggered FF helper used for FIRQ latches
       - jtframe_8bit_reg.v        # CPU-written 8-bit register (main bank latch)
       - jtframe_edge.v            # edge latch/pulse helpers (sound-IRQ + scanline counter)
+  - from: video
+    get:
+      - jtframe_vtimer.v          # video timing for the 005885 (E1)
   - from: ram
     get:
       - jtframe_obj_buffer.v      # sprite line buffer used by jtddribble_k005885

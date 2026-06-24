@@ -26,10 +26,6 @@
 module jtddribble_sound(
     input               rst,
     input               clk,
-    input               clk24,         // 24 MHz — clocks the VLM5030 gate-level model.
-                                       // Its internal clk2 logic is too slow for 48 MHz,
-                                       // and its enable (vlm_cen) is already a clk24-domain
-                                       // cen (mem.yaml). Matches the contra/ajax convention.
     input               cen,           // 1.5 MHz CPU clock-enable
     input               ym_cen,        // 3.58 MHz (from mem.yaml — SCLK source)
     input               vlm_cen,       // 3.58 MHz (same — SCLK fans to both)
@@ -188,10 +184,7 @@ assign ym_iob_in = { 7'h00, vlm_bsy };          // bit 0 = VLM BSY; rest unused
 
 jt03 #(.YM2203_LUMPED(1)) u_ym2203(
     .rst        ( rst       ),
-    .clk        ( clk24     ),                 // MUST match ym_cen's domain (gen'd on clk24).
-                                               // Clocking on clk48 made jt12_div count each
-                                               // 1-clk24-wide cen pulse TWICE → FM ran 2× fast.
-                                               // The VLM (also clk24) never had this bug.
+    .clk        ( clk       ),                 // MUST match ym_cen's domain (gen'd on clk24).
     .cen        ( ym_cen    ),                 // real 3.58 MHz — on clk24, counted once/pulse
     .din        ( cpu_dout  ),
     .addr       ( A[0]      ),                  // 0 = address register, 1 = data
@@ -250,20 +243,10 @@ wire        vlm_bank  = ym_ioa_out[3];   // YM2203 IOA[3] → voice-ROM A16 (ban
 wire        vlm_bsy;
 wire        vlm_me_n, vlm_mte;
 wire [15:0] vlm_internal_addr;
-// --- Re-time the voice-ROM address from the VLM's 24 MHz domain to the 48 MHz SDRAM ---
-// vlm_internal_addr is the VLM's voice-ROM address (its o_a output), produced
-// COMBINATIONALLY by the chip's slow internal clk2 logic; vlm_bank is the A16 page
-// bit. The voice ROM lives in SDRAM, whose controller runs on the 48 MHz clk — a
-// faster clock domain than the VLM (clk24). Driving that combinational address
-// straight across the boundary asks the VLM's ~37 ns path to settle within ONE
-// 48 MHz period (20.8 ns); it can't, so the build failed timing on that hop
-// (-13.6 ns, a clk24->clk48 setup violation).
-// Latching the address into a clk24 register first makes the crossing a clean
-// register-to-register transfer — the SDRAM only ever samples a stable, clock-
-// aligned value. The one extra cycle of latency is harmless: vlm_ceng already
-// stalls the VLM on vlm_ok until the SDRAM has served the byte. (Same approach as
-// the sbaskt core.)
-always @(posedge clk24) vlm_addr <= { vlm_bank, vlm_internal_addr };  // capture o_a each clk24
+
+// register, not assign: vlm_internal_addr (the VLM's o_a) is a slow ~37 ns
+// combinational output; this keeps that long path off the SDRAM address input.
+always @(posedge clk) vlm_addr <= { vlm_bank, vlm_internal_addr };
 
 // VLM data pins are SHARED: the CPU command latch when loading a phrase, the voice
 // ROM byte when the chip reads it (/ME asserted, o_me_l low). SCHEMATIC: the E7 MASK1M
@@ -285,7 +268,7 @@ assign vlm_cs = ~vlm_me_n;
 `ifdef VLM_FORCE_START
 reg        vlmtst_rst = 1'b1, vlmtst_st = 1'b0;
 reg [24:0] vlmtst_cnt = 25'd0;
-always @(posedge clk24) begin
+always @(posedge clk) begin
     vlmtst_cnt <= vlmtst_cnt + 25'd1;
     if (vlmtst_cnt==25'd2000000) vlmtst_rst <= 1'b0;   // release reset
     if (vlmtst_cnt==25'd3000000) vlmtst_st  <= 1'b1;   // START rising edge (held)
@@ -311,7 +294,7 @@ wire [7:0] vlm_i_d     = vlm_din;
 // won't close timing at 48 MHz; its vlm_cen is a clk24 cen). The CPU/ROM signals
 // into it (vlm_din, vlm_ceng) are slow, stable-when-sampled levels — safe CDC.
 vlm5030_gl u_vlm(
-    .i_clk     ( clk24           ),       // 24 MHz (was clk/48 MHz — timing + cen alignment)
+    .i_clk     ( clk             ),       // 24 MHz (was clk/48 MHz — timing + cen alignment)
     .i_oscen   ( vlm_ceng        ),       // 3.58 MHz tick, held until voice-ROM byte ready
     .i_rst     ( vlm_i_rst       ),       // model is active-HIGH reset
     .i_start   ( vlm_i_start     ),       // active-HIGH ST (IOA5, schematic pin 31)

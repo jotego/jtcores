@@ -70,12 +70,32 @@ bram:
     addr_width: 7
     data_width: 8
     rw: true
-    addr: main_A[6:0]
-    din:  main_dout
     simfile: {}
     dual_port:
       name: pal_v
       dout: pal_v_dout
+      rw:   false
+
+  # 005885 chip VRAM (8 KB 6264SL each). Port A = CPU-mediated, port B = render
+  # scan (read-only). simfile loads the scene-replay dump (vram{1,2}.bin).
+  - name: vram1
+    addr_width: 13
+    data_width: 8
+    rw: true
+    simfile: {}
+    dual_port:
+      name: vram1_scn
+      dout: vram1_scn_dout
+      rw:   false
+
+  - name: vram2
+    addr_width: 13
+    data_width: 8
+    rw: true
+    simfile: {}
+    dual_port:
+      name: vram2_scn
+      dout: vram2_scn_dout
       rw:   false
 
 audio:

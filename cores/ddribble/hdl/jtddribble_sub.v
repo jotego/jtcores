@@ -56,13 +56,11 @@ module jtddribble_sub(
     input       [ 7:0]  shared_ms_dout,
     input       [ 7:0]  shared_sa_dout,
 
-    // I/O port inputs (8-bit each, supplied by game.v from JTFRAME signals)
-    input       [ 7:0]  dsw1,          // 0x2800
-    input       [ 7:0]  dsw2,          // 0x2C00
-    input       [ 7:0]  dsw3,          // 0x3000
-    input       [ 7:0]  p1_input,      // 0x2801  joystick1 + buttons
-    input       [ 7:0]  p2_input,      // 0x2802  joystick2 + buttons
-    input       [ 7:0]  system_input,  // 0x2803  coin/start/service
+    input  [`JTFRAME_BUTTONS+3:0] joystick1, joystick2,
+    input       [ 3:0]  cab_1p,
+    input       [ 3:0]  coin,
+    input               service,
+    input       [31:0]  dipsw,
 
     // Output strobes / registers
     output reg  [ 1:0]  coin_counter,  // 0x3400 W  — latched in this module
@@ -93,6 +91,21 @@ reg  [ 7:0] cpu_din;
 reg         coin_cs;
 reg         dsw1_cs, dsw2_cs, dsw3_cs;
 reg         p1_cs, p2_cs, sys_cs;
+
+// I/O-port assembly: raw JTFRAME controls -> Konami port bytes (read mux below)
+wire [7:0] p1_input = { 1'b1,
+                        joystick1[5], joystick1[6], joystick1[4],   // B2, B3, B1
+                        joystick1[0], joystick1[1],                 // DOWN, UP
+                        joystick1[2], joystick1[3] };               // RIGHT, LEFT
+wire [7:0] p2_input = { 1'b1,
+                        joystick2[5], joystick2[6], joystick2[4],
+                        joystick2[0], joystick2[1],
+                        joystick2[2], joystick2[3] };
+// SYSTEM: b0=COIN1 b1=COIN2 b2=SERVICE b3=START1 b4=START2
+wire [7:0] system_input = { 3'b111, cab_1p[1], cab_1p[0], service, coin[1], coin[0] };
+wire [7:0] dsw1 = dipsw[ 7: 0];
+wire [7:0] dsw2 = dipsw[15: 8];
+wire [7:0] dsw3 = dipsw[23:16];
 
 assign A        = addr;
 assign cpu_rnw  = RnW;

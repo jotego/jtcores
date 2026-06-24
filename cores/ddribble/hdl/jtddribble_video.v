@@ -1,10 +1,10 @@
 /*  jtddribble_video.v — Video pipeline for Double Dribble (Konami GX690)
 
     Per jtcores convention this "_video" module is the video PIPELINE: it holds
-    the two Konami 005885 graphics generators (E16 = FG, H16 = BG) and their
-    EXTERNAL RAMs (the 8 KB 6264SL VRAM each, modeled as jtframe_dual_ram here;
-    the 4464 sprite line-buffers land with the sprite engine). The colour side
-    (007327 palette + LS157 priority mux + sync) is jtddribble_colmix.v.
+    the two Konami 005885 graphics generators (E16 = FG, H16 = BG). Their 8 KB
+    6264SL VRAMs are mem.yaml dual-port BRAMs (vram1/vram2); this module exposes
+    each chip's VRAM ports up to game.v, which wires them to those BRAMs. The
+    colour side (007327 palette + LS157 priority mux + sync) is jtddribble_colmix.v.
     jtddribble_game.v instantiates this module and the colmix module.
 
     The CPU never reaches the VRAMs directly — it goes through each 005885's bus
@@ -18,7 +18,6 @@
 module jtddribble_video(
     input               rst,
     input               clk,
-    input               clk24,
     input               pxl_cen,
     input               pxl2_cen,
     input               cpu_cen,
@@ -64,6 +63,21 @@ module jtddribble_video(
     output     [ 6:0]   pal_v_addr,
     input      [ 7:0]   pal_v_dout,
 
+    // Chip VRAM (mem.yaml `vram1`/`vram2` dual-port BRAMs, D10/D11). Port A =
+    // CPU-mediated, port B = render scan (read-only).
+    output     [12:0]   vram1_cpu_addr,
+    output     [ 7:0]   vram1_cpu_din,
+    output              vram1_cpu_we,
+    input      [ 7:0]   vram1_cpu_dout,
+    output     [12:0]   vram1_scn_addr,
+    input      [ 7:0]   vram1_scn_dout,
+    output     [12:0]   vram2_cpu_addr,
+    output     [ 7:0]   vram2_cpu_din,
+    output              vram2_cpu_we,
+    input      [ 7:0]   vram2_cpu_dout,
+    output     [12:0]   vram2_scn_addr,
+    input      [ 7:0]   vram2_scn_dout,
+
     // RGB to the JTFRAME framework — the colmix now lives in this module.
     output     [ 3:0]   red,
     output     [ 3:0]   green,
@@ -91,19 +105,9 @@ wire [13:0] k5885_2_A         = { main_A[13:12], k5885_2_A11_masked, main_A[10:0
 // this module (these used to be outputs to game.v, where the colmix lived).
 wire [ 6:0] k5885_1_pxl_out, k5885_2_pxl_out;
 
-// The 005885 chips + their VRAMs + the colmix run on clk (49.152 MHz) with pxl_cen
-// (clk/8 = 6.144 MHz) — exactly as contra runs its 007121. Do NOT move them to
-// clk24: at 24.576 the sprite line-fill FSM gets half the SDRAM fetch bandwidth and
-// sprites starve (confirmed on hardware). The CPUs/YM2203/VLM5030 run on clk24
-// (see game.v); CPU↔chip-VRAM is the one 2:1-synchronous crossing, same as contra.
-
 // ---------------------------------------------------------------------------
 // 005885 chip 1 — FG layer (E16), gfx1
 // ---------------------------------------------------------------------------
-wire [12:0] vram1_cpu_addr, vram1_scn_addr;
-wire [ 7:0] vram1_cpu_din, vram1_cpu_dout, vram1_scn_dout;
-wire        vram1_cpu_we;
-
 // Chip 1 sync (active-low Konami pins / active-high blanks) -> framework levels.
 wire        k5885_1_HBLK, k5885_1_VBLK, k5885_1_NHSY, k5885_1_NYSY;
 assign      LHBL = ~k5885_1_HBLK;
@@ -157,20 +161,9 @@ jtddribble_k005885 #(
     .pxl_out    ( k5885_1_pxl_out)
 );
 
-// Chip 1 external VRAM (8 KB 6264SL): port A = CPU-mediated, port B = render.
-// SIMFILE loads the scene-replay VRAM image (rest2bin.sh builds vram1.bin).
-jtframe_dual_ram #(.DW(8),.AW(13),.SIMFILE("vram1.bin")) u_vram1(
-    .clk0(clk), .data0(vram1_cpu_din), .addr0(vram1_cpu_addr), .we0(vram1_cpu_we), .q0(vram1_cpu_dout),
-    .clk1(clk), .data1(8'd0),          .addr1(vram1_scn_addr), .we1(1'b0),         .q1(vram1_scn_dout)
-);
-
 // ---------------------------------------------------------------------------
 // 005885 chip 2 — BG layer (H16), gfx2
 // ---------------------------------------------------------------------------
-wire [12:0] vram2_cpu_addr, vram2_scn_addr;
-wire [ 7:0] vram2_cpu_din, vram2_cpu_dout, vram2_scn_dout;
-wire        vram2_cpu_we;
-
 jtddribble_k005885 #(
     .LAYER_BG     ( 1          ),
     .BYPASS_OPROM ( 0          ),
@@ -206,11 +199,6 @@ jtddribble_k005885 #(
     .prog_data  ( prog_data      ),
     .prom_we    ( prom_we        ),
     .pxl_out    ( k5885_2_pxl_out)
-);
-
-jtframe_dual_ram #(.DW(8),.AW(13),.SIMFILE("vram2.bin")) u_vram2(
-    .clk0(clk), .data0(vram2_cpu_din), .addr0(vram2_cpu_addr), .we0(vram2_cpu_we), .q0(vram2_cpu_dout),
-    .clk1(clk), .data1(8'd0),          .addr1(vram2_scn_addr), .we1(1'b0),         .q1(vram2_scn_dout)
 );
 
 // ---------------------------------------------------------------------------
