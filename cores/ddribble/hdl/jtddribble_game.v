@@ -247,7 +247,12 @@ jtddribble_sound u_sound(
     .vlm_data    ( vlm_data   ),
     .vlm_ok      ( vlm_ok     ),
     .fm_snd      ( fm         ),
-    .psg_snd     ( psg        ),
+    .psga        ( psga       ),
+    .psgb        ( psgb       ),
+    .psgc        ( psgc       ),
+    .psga_rcen   ( psga_rcen  ),
+    .psgb_rcen   ( psgb_rcen  ),
+    .psgc_rcen   ( psgc_rcen  ),
     .vlm_snd     ( vlm        )
 );
 

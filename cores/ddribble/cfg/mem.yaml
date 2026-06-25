@@ -38,12 +38,12 @@ sdram:
     - buses:
         - name: gfx1
           addr_width: 18
-          data_width: 16
+          data_width: 32
 
     - buses:
         - name: gfx2
           addr_width: 19
-          data_width: 16
+          data_width: 32
 
 bram:
   - name: shared_ms
@@ -76,8 +76,6 @@ bram:
       dout: pal_v_dout
       rw:   false
 
-  # 005885 chip VRAM (8 KB 6264SL each). Port A = CPU-mediated, port B = render
-  # scan (read-only). simfile loads the scene-replay dump (vram{1,2}.bin).
   - name: vram1
     addr_width: 13
     data_width: 8
@@ -98,10 +96,13 @@ bram:
       dout: vram2_scn_dout
       rw:   false
 
+# analog output network detailed in doc/RC_FILTER.md (Audio output network)
 audio:
-  rsum: 3.3k
+  rsum: 10k
   rc:   { r: 1k, c: 10n }
   channels:
-    - { name: fm,  module: jt03_fm,  rsum: 3.3k }
-    - { name: psg, module: jt03_psg, rsum: 7.6k, rc: [{ r: 1k, c: 33n }] }
-    - { name: vlm, module: vlm5030,  rsum: 1.5k, rc: [{ r: 10k, c: 47p }, { r: 2.5k, c: 1n }] }
+    - { name: fm,   module: jt03_fm, rsum: 5.3k, rc: [{ r: 0.81k, c: 33n }] }
+    - { name: psga, data_width: 8, unsigned: true, rsum: 20k, rc_en: true, dcrm: true, rc: [{ r: 0.78k, c: 150n }] }
+    - { name: psgb, data_width: 8, unsigned: true, rsum: 20k, rc_en: true, dcrm: true, rc: [{ r: 0.78k, c: 150n }] }
+    - { name: psgc, data_width: 8, unsigned: true, rsum: 20k, rc_en: true, dcrm: true, rc: [{ r: 0.78k, c: 150n }] }
+    - { name: vlm,  module: vlm5030, rsum: 3.3k, pre: 5.1, dcrm: true, rc: [{ r: 10k, c: 3.9n }, { r: 10k, c: 3.9n }] }

@@ -3,27 +3,32 @@ ddribble:
     - jtddribble_main.v
     - jtddribble_sub.v
     - jtddribble_sound.v
-    - jtddribble_k005885.v            # ground-up 005885 port (Iron Horse / Ace model) — the active
-    - jtddribble_obj.v                # 005885 sprite engine (D9, split out of the chip)
+    - jtddribble_k005885.v            # ground-up 005885 port — wraps jtframe_scroll
+    - jtddribble_scroll.v             # 005885 tilemap layer (jtframe_scroll + packed converter)
+    - jtddribble_obj.v                # 005885 sprite engine (blanked during the tilemap stage)
     - jtddribble_colmix.v             # colour mixer: 007327 palette LUT/RGB DAC + LS157/LS32 priority
     - jtddribble_video.v              # video pipeline: 2x jtddribble_k005885 + their VRAM BRAMs
     - jtddribble_game.v
 jtframe:
   - get:
-      - jtframe_ff.v              # edge-triggered FF helper used for FIRQ latches
-      - jtframe_8bit_reg.v        # CPU-written 8-bit register (main bank latch)
-      - jtframe_edge.v            # edge latch/pulse helpers (sound-IRQ + scanline counter)
+      - jtframe_ff.v 
+      - jtframe_8bit_reg.v
+      - jtframe_edge.v
   - from: video
     get:
       - jtframe_vtimer.v          # video timing for the 005885 (E1)
+      - jtframe_scroll.yaml       # jtframe_scroll tilemap + scroll_offset (E3)
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v  # packed->planar gfx converter for jtframe_scroll
   - from: ram
     get:
       - jtframe_obj_buffer.v      # sprite line buffer used by jtddribble_k005885
       - jtframe_bram_dma.v        # vblank OBJ-list snapshot (sprite frame-buffer emulation)
   - from: cpu
     get:
-      - jtframe_6809.yaml         # pulls in jtframe_sys6809 + helpers for our 3 CPUs
+      - jtframe_6809.yaml
 jt12:
   - get:
-    - jt03.yaml                   # YM2203 (jt03 module)
-vlm5030:                          # VLM5030 voice synth (vlm5030_gl module)
+    - jt03.yaml
+vlm5030:

@@ -63,21 +63,6 @@ module jtddribble_main(
     output      [ 2:0]  bank_out,
 
     // Interrupt inputs — all three come from the 005885 chip 1 (E16, page 0).
-    //
-    // SCHEMATIC FINDING (2026-06-01): the chip's pin labels are MISLEADING.
-    // The wiring on the real PCB is:
-    //    chip pin NFIR  →  CPU IRQ pin
-    //    chip pin NIRQ  →  CPU FIRQ pin    ← swapped from what the name suggests
-    //    chip pin NNMI  →  CPU NMI pin
-    // Whoever named the chip pins chose names that match the chip's INTERNAL
-    // logic semantics (e.g. once-per-2-frames pin was called NFIR), while the
-    // PCB designer routed those signals to the CPU pin that best matches the
-    // actual rate (once-per-2-frames goes to IRQ, which is the slower-handler
-    // interrupt; once-per-frame goes to FIRQ for fast service).
-    //
-    // game.v wires this correctly via the port names below: cpu_firqn receives
-    // chip 1 NIRQ, cpu_irqn receives chip 1 NFIR.
-    //
     // cpu_firqn is then AND'd (active-low) with a direct LVBL→jtframe_ff
     // shortcut below, because boot code zeroes mmr[4] (gating the chip's
     // own outputs idle) and we need V-blank FIRQ to keep firing regardless.

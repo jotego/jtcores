@@ -12,8 +12,8 @@
         visible output pins: IRQEN, VDATA, OPN, SWORK
           OPN  → YM2203 /CS  (mapped at 0x1000-0x1001)
           VDATA → VLM5030 data-latch /CS (mapped at 0x3000)
-      - 3x 4066 at D5 — analog mute switches for SSG-A/B/C
-        (driven by YM2203 IOA[2:0] per MAME ddribble.cpp:373-379)
+      - 3x 4066 at D5 — each switches a 0.15uF low-pass cap (C20/C21/C22) onto one
+        SSG channel (SSG-A/B/C), gated by YM2203 IOA[2:0]. Modeled as rc_en in mem.yaml.
 
     YM2203 + VLM5030 both run on the 3.58 MHz xtal — SCHEMATIC page 1.
     MAME ref (pinned 347fd2c) for things not directly readable from the sheets:
@@ -60,7 +60,9 @@ module jtddribble_sound(
 
     // Audio outputs (to mem.yaml mixer)
     output signed [15:0] fm_snd,    // YM2203 FM (matches mem.yaml channel 'fm')
-    output        [ 9:0] psg_snd,   // YM2203 PSG/SSG (matches channel 'psg')
+    // 3 SSG channels, each with its own 4066-switched 0.15uF low-pass (gated by IOA[2:0])
+    output        [ 7:0] psga, psgb, psgc,
+    output               psga_rcen, psgb_rcen, psgc_rcen,
     output        [ 9:0] vlm_snd        // VLM5030 speech output (10-bit unsigned, matches auto-gen 'vlm' wire width)
 );
 
@@ -182,7 +184,7 @@ wire       ym_irq_n;
 // checksum → POST showed SOUND ROM A 6 BAD.
 assign ym_iob_in = { 7'h00, vlm_bsy };          // bit 0 = VLM BSY; rest unused
 
-jt03 #(.YM2203_LUMPED(1)) u_ym2203(
+jt03 u_ym2203(             // un-lumped: 3 SSG chans drive separate 1k resistors (R18/R24/R25)
     .rst        ( rst       ),
     .clk        ( clk       ),                 // MUST match ym_cen's domain (gen'd on clk24).
     .cen        ( ym_cen    ),                 // real 3.58 MHz — on clk24, counted once/pulse
@@ -199,11 +201,11 @@ jt03 #(.YM2203_LUMPED(1)) u_ym2203(
     .IOB_out    (           ),
     .IOB_oe     (           ),                  // unused
     .fm_snd     ( fm_snd     ),
-    .psg_snd    ( psg_snd    ),
-    .psg_A      (            ),     // unused — per-channel PSG taps not needed
-    .psg_B      (            ),
-    .psg_C      (            ),
-    .snd        (            ),     // unused — we use fm_snd and psg_snd
+    .psg_snd    (            ),     // unused — the 3 SSG channels are taken separately
+    .psg_A      ( psga       ),     // CHA (pin 20) → R18 1k → mix; per-channel 4066 0.15uF switch
+    .psg_B      ( psgb       ),     // CHB (pin 19) → R24
+    .psg_C      ( psgc       ),     // CHC (pin 18) → R25
+    .snd        (            ),     // unused — we use fm_snd and the 3 SSG taps
     .snd_sample (            ),     // jt03 port name is 'snd_sample', not 'sample'
     .debug_view (            )      // unused
 );
@@ -238,6 +240,9 @@ wire        vlm_rst = ym_ioa_out[6];   // YM2203 IOA[6] → VLM RST (pin 40, act
 wire        vlm_st  = ym_ioa_out[5];   // YM2203 IOA[5] → VLM ST  (pin 31, active-HIGH)
 wire        vlm_vcu = ym_ioa_out[4];   // YM2203 IOA[4] → VLM VCU (pin 32, active-HIGH)
 wire        vlm_bank  = ym_ioa_out[3];   // YM2203 IOA[3] → voice-ROM A16 (bank)
+
+// SSG filter switches — IOA[2:0] drive the 3x 4066 (D5).
+assign {psga_rcen, psgb_rcen, psgc_rcen} = ym_ioa_out[2:0];
 
 // Bank latch bit forms MSB of voice-ROM address
 wire        vlm_bsy;

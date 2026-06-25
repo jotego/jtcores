@@ -70,7 +70,6 @@ reg  [ 2:0] s_size;
 reg         s_fx, s_fy, s_x8;
 reg  [ 5:0] row_sp;        // sprite-space row (0..obj_h-1, vflip-adjusted)
 reg  [ 5:0] spr_hp;        // screen-space column within the sprite (0..obj_w-1)
-reg  [ 5:0] fhp = 6'd0;    // fetch column — leads spr_hp by one group (prefetch)
 reg  [15:0] spr_word;      // fetched gfx word (4 px)
 reg  [ 1:0] spr_dn;        // nibble counter for the dump
 reg         old_hblk_obj;
@@ -93,17 +92,15 @@ wire [10:0] base_num = (s_size==3'b100) ? (spr_num & ~11'd3) :
                        (s_size==3'b001) ? (spr_num & ~11'd1) : spr_num;
 // Multi-tile expansion: 32px sprite = 4x 16x16 sub-tiles (x_offset {0,1},
 // y_offset {0,2}); the sub-tile index follows spr_hp / row_sp.
-wire        sub_x   = (obj_w==6'd32) & fhp[4];   // fetch col drives the sub-tile
+wire        sub_x   = (obj_w==6'd32) & spr_hp[4];
 wire        sub_y   = (obj_h==6'd32) & row_sp[4];
 wire [10:0] eff_num = base_num + {10'd0,sub_x} + {9'd0,sub_y,1'b0};
 
-// Sprite gfx word address (FETCH column fhp): eff_num*64 + quad*16 + vsub*2 + h4,
-// masked to the chip's OBJ region.
-wire [16:0] spr_local = { eff_num, row_sp[3], fhp[3], row_sp[2:0], fhp[2] };
+// Sprite gfx word address: eff_num*64 + quad*16 + vsub*2 + h4, masked to the
+// chip's OBJ region.
+wire [16:0] spr_local = { eff_num, row_sp[3], spr_hp[3], row_sp[2:0], spr_hp[2] };
 assign spr_rom_addr = OBJSTART | ({1'b0, spr_local} & OBJMASK);
-// rom_cs stays asserted through the dump (st8) so the prefetch overlaps it.
-assign spr_rom_cs   = obj_run && (obj_st==4'd6 || obj_st==4'd7 ||
-                                  obj_st==4'd8 || obj_st==4'd10);
+assign spr_rom_cs   = obj_run && (obj_st==4'd6 || obj_st==4'd7);
 
 // Screen column for the write. No wrap: a column >=256 is off-screen (dropped).
 // h-flip mirrors the column within the sprite.
@@ -151,17 +148,14 @@ always @(posedge clk) begin
                 3'd5: begin s_xpos<={s_x8,vram_scn_dout};                         // byte3
                     // sprite-space row within the (16 or 32)-tall sprite; vflip mirrors it.
                     row_sp <= s_fy ? (obj_h - 6'd1 - (vrr[5:0]-s_y[5:0])) : (vrr[5:0]-s_y[5:0]);
-                    spr_hp <= 6'd0; fhp <= 6'd0; obj_st <= 4'd6; end
+                    spr_hp <= 6'd0; obj_st <= 4'd6; end
                 default:;
             endcase
             // y_hit valid once s_y is captured (phase 2); skip off-scanline sprites.
             if (obj_rp==3'd3 && !y_hit) obj_st <= 4'd9;
         end
-        4'd6: obj_st<=4'd7;                                    // issue first fetch (fhp=0)
-        // capture the fetched word, then immediately advance fhp and issue the
-        // NEXT group's fetch so its SDRAM round-trip overlaps the dump below.
-        4'd7: if (rom_ok) begin spr_word<={RDU,RDL}; spr_dn<=2'd0;
-                  fhp<=fhp+6'd4; obj_st<=4'd8; end
+        4'd6: obj_st<=4'd7;                                    // issue gfx fetch
+        4'd7: if (rom_ok) begin spr_word<={RDU,RDL}; spr_dn<=2'd0; obj_st<=4'd8; end
         4'd8: begin                                            // dump 4 px (high-nibble first)
                   // write only if on-screen and opaque (OCD!=0)
                   line_we   <= ~|full_col[9:8] & (obj_ocd != 4'd0);
@@ -171,12 +165,8 @@ always @(posedge clk) begin
                   spr_hp    <= spr_hp + 6'd1;
                   spr_dn    <= spr_dn + 2'd1;
                   if (spr_dn==2'd3)
-                      obj_st <= ((spr_hp+6'd1) >= obj_w) ? 4'd9 : 4'd10;
+                      obj_st <= ((spr_hp+6'd1) >= obj_w) ? 4'd9 : 4'd6;
               end
-        // grab the word prefetched during the dump, kick off the following
-        // group's fetch. Only stalls here if Twait exceeded the dump length.
-        4'd10: if (rom_ok) begin spr_word<={RDU,RDL}; spr_dn<=2'd0;
-                   fhp<=fhp+6'd4; obj_st<=4'd8; end
         4'd9: begin                                            // next sprite
                   obj_byte<=3'd4; obj_st<=4'd0; obj_rp<=3'd0;
                   if (obj_base >= OBJ_BYTES-9'd5) obj_run<=1'b0;

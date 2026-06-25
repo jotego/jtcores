@@ -50,8 +50,7 @@ module jtddribble_k005885 #(
     output             RA17,
     output             RA16,
     output     [15:0]  R,
-    input      [ 7:0]  RDU,          // upper byte
-    input      [ 7:0]  RDL,          // lower byte
+    input      [31:0]  RD,           // 32-bit packed gfx row (jtframe_scroll path)
 
     // Vertical sync (active low). Final COL[4:0] is exposed via pxl_out below.
     output             NYSY,
@@ -247,191 +246,103 @@ assign DBo = (ram_cs       & ~NRD) ? ram_Dout      :
              ((tile_cs|spriteram_cs) & ~NRD) ? vram_cpu_dout :
              8'hFF;
 
-//------------------------------------------------------------------------
-//  Tilemap line-buffer renderer (007121 mechanism)
-//------------------------------------------------------------------------
-// The scanline is rendered into a double-buffered line buffer at the fine-scroll
-// column tm_hrender, read back at the screen column. The render FSM time-shares
-// the VRAM + gfx ROM ports with the sprite engine (tilemap when h_cnt<272,
-// sprites in obj_win). Render leads display by one line; the buffer's 1-line
-// read latency cancels it.
-reg  [3:0]  tm_st;
-reg  [1:0]  tm_wait;
-reg         tm_run, tm_sel, tm_line, old_tm_obj;
-reg  [8:0]  tm_hn;          // scan h = {scroll_ctrl[0],scroll_x}, +4 per gfx half
-reg  [8:0]  tm_hrender;     // line-buffer write column (fine offset applied)
-reg  [5:0]  tm_col;         // tiles rendered this line
-reg  [1:0]  tm_bank;
-reg  [7:0]  tm_index;
-reg         tm_hflip, tm_vflip, tm_a5;
-reg  [15:0] tm_word;
-reg  [1:0]  tm_dn;
-reg         tm_we;
-reg  [8:0]  tm_waddr;
-reg  [3:0]  tm_wdata;
 
-wire [11:0] obj_rd_addr;
-wire        obj_win  = h_cnt >= 9'd272;
-wire [8:0]  tm_vpos  = ((v_cnt + 9'd1) ^ {9{flipscreen}}) + {1'd0, scroll_y};
-// SIM-only fine-scroll test hook (-d SIM_SCROLLX=N); scroll_x is otherwise 0
-// because the scene-sim CPU is stubbed.
-`ifdef SIM_SCROLLX
-wire [7:0]  r_scroll_x = `SIM_SCROLLX;
-`else
-wire [7:0]  r_scroll_x = scroll_x;
-`endif
-// ---------------------------------------------------------------------------
-// OBJ-list snapshot — emulates the 4464 sprite frame-buffer's 1-frame delay.
-// The real 005885 renders OBJ into a frame-buffer shown one frame later, so the
-// displayed sprites are a stable snapshot: the game updates the OBJ list in
-// vblank and it appears next frame, never torn. We use a line buffer (not the
-// full framebuffer, to save BRAM), so we DMA-copy the OBJ list into a shadow at
-// vblank and the OBJ scanner reads the shadow. Without it the scanner reads the
-// live list mid-CPU-write -> sprites tear / drop rows in live play (scene replay
-// loads a static VRAM dump, so the bug is invisible there). cninja/karnov pattern.
-// ---------------------------------------------------------------------------
+//------------------------------------------------------------------------
+//  Tilemap renderer — jtframe_scroll + jtframe_8x8x4_packed_msb (E3/A3).
+//------------------------------------------------------------------------
+wire [15:0] scroll_rom_addr;
+wire        scroll_rom_cs;
+wire [12:0] scroll_vram_addr;
+wire [ 4:0] sc_pxl;
+
+jtddribble_scroll #( .LAYER_BG(LAYER_BG) ) u_scroll(
+    .rst      ( rst         ),
+    .clk      ( clk         ),
+    .pxl_cen  ( pxl_cen     ),
+    .hs       ( vt_hs       ),
+    .blankn   ( vt_lvbl & (h_cnt < 9'd272) ),  // tiles fetch h_cnt 0..271; obj_win (272+) is the sprites'
+    .flip     ( flipscreen  ),
+    .vdump    ( v_cnt       ),
+    .hdump    ( h_cnt       ),
+    .scrx     ( {scroll_ctrl[0], scroll_x} ),
+    .scry     ( scroll_y    ),
+    .tile_hi  ( LAYER_BG ? tile_ctrl[1:0] : {1'b0, tile_ctrl[1]} ),
+    .vram_addr( scroll_vram_addr ),
+    .vram_dout( vram_scn_dout    ),
+    .rom_cs   ( scroll_rom_cs    ),
+    .rom_addr ( scroll_rom_addr  ),
+    .rom_data ( RD               ),                 // 32-bit packed gfx
+    .rom_ok   ( rom_ok           ),
+    .pxl      ( sc_pxl           )
+);
+
+//------------------------------------------------------------------------
+//  Sprite engine — jtddribble_obj on the 32-bit gfx bus. Time-shares the gfx
+//  ROM with the tilemap (sprites in obj_win h_cnt>=272, tiles otherwise). OBJ
+//  list = vblank snapshot (sprite frame-buffer 1-frame delay).
+//------------------------------------------------------------------------
+wire obj_win = h_cnt >= 9'd272;
+
 localparam OBJ_AW = 9;                  // OBJ list <=320 B -> 512-entry shadow
 wire [OBJ_AW-1:0] dma_addr;
 wire              dma_we;
-wire [7:0]        obj_list_dout;        // shadow read -> OBJ scanner list data
+wire [7:0]        obj_list_dout;
+wire [11:0]       obj_rd_addr;
 jtframe_bram_dma #(.AW(OBJ_AW)) u_objdma(
-    .rst ( rst ), .clk ( clk ), .cen ( pxl_cen ),   // cen must NOT be 1'b1
-    .addr( dma_addr ), .start( vblank ), .we( dma_we )
+    .rst(rst), .clk(clk), .cen(pxl_cen),    // cen must NOT be 1'b1
+    .addr(dma_addr), .start(vblank), .we(dma_we)
 );
 jtframe_dual_ram #(.DW(8),.AW(OBJ_AW)) u_objshadow(
-    // port A: DMA write — the live OBJ list read out of the VRAM scn port
-    .clk0(clk), .data0(vram_scn_dout), .addr0(dma_addr),
-    .we0 (dma_we & pxl_cen), .q0(),
-    // port B: OBJ scanner read
-    .clk1(clk), .data1(8'd0), .addr1(obj_rd_addr[OBJ_AW-1:0]),
-    .we1 (1'b0), .q1(obj_list_dout)
+    .clk0(clk), .data0(vram_scn_dout), .addr0(dma_addr), .we0(dma_we & pxl_cen), .q0(),
+    .clk1(clk), .data1(8'd0), .addr1(obj_rd_addr[OBJ_AW-1:0]), .we1(1'b0), .q1(obj_list_dout)
 );
 
-// VRAM scan port: tilemap render owns it (non-obj window); the snapshot DMA
-// borrows it during vblank to read the live OBJ list (A12=1). The OBJ scanner
-// no longer reads this port directly — it reads u_objshadow (obj_list_dout).
-assign vram_scn_addr = dma_we ? { 1'b1, 3'd0, dma_addr }
-                              : { 1'b0, tm_hn[8], ~tm_sel, tm_vpos[7:3], tm_hn[7:3] };
+// VRAM scan port: tilemap owns it; the snapshot DMA borrows it during vblank.
+assign vram_scn_addr = dma_we ? { 1'b1, 3'd0, dma_addr } : scroll_vram_addr;
 
-// Tile gfx address for the current 4px half (tm_hn[2] selects the half)
-wire [12:0] tm_code = { LAYER_BG ? tile_ctrl[1:0] : { 1'b0, tile_ctrl[1] },
-                        tm_a5, tm_bank, tm_index };
-wire [16:0] tm_rom_addr = { tm_code, tm_vpos[2:0] ^ {3{tm_vflip}}, tm_hn[2] ^ tm_hflip };
-wire        tm_rom_cs   = tm_run && (tm_st==4'd2 || tm_st==4'd3);
-wire [3:0]  tm_pixel    = tm_hflip ? tm_word[3:0] : tm_word[15:12];
-
-// gfx ROM port — TIME-SHARED tilemap render (non-obj) / sprite (obj_win)
+// sprite gfx: the engine reads 16-bit; pick the right half of the 32-bit word.
+// Low half (RD[15:0]) = first 4px, same packing as the tilemap.
 wire [17:0] spr_rom_addr;
 wire        spr_rom_cs;
-wire [17:0] rom_addr = obj_win ? spr_rom_addr : { 1'b0, tm_rom_addr };
-assign R      = rom_addr[15:0];
-assign RA16   = rom_addr[16];
-assign RA17   = rom_addr[17];
-assign rom_cs = obj_win ? spr_rom_cs : tm_rom_cs;
-
-// Render FSM: per tile read ATTR then CODE, fetch the two 4px gfx halves, dump
-// each into the line buffer at tm_hrender. Fine scroll = scroll_x[1:0] offset.
-always @(posedge clk) begin
-    old_tm_obj <= obj_win;
-    tm_we      <= 1'b0;
-    if (rst) begin
-        tm_run<=0; tm_st<=0; tm_line<=0; tm_sel<=1; tm_wait<=0;
-        tm_hn<=0; tm_hrender<=0; tm_col<=0;
-    end else if (old_tm_obj && !obj_win) begin   // line start (obj_win falling)
-        tm_run    <= 1'b1;
-        tm_st     <= 4'd0;
-        tm_sel    <= 1'b1;                         // attr byte first
-        tm_wait   <= 2'd0;
-        tm_col    <= 6'd0;
-        tm_hn     <= { scroll_ctrl[0], r_scroll_x };
-        tm_hrender<= TM_HSTART - { 7'd0, r_scroll_x[1:0] };
-        tm_line   <= ~tm_line;                     // swap double buffer
-    end else if (obj_win) begin
-        tm_run    <= 1'b0;
-    end else if (tm_run) case (tm_st)
-        4'd0: if (tm_wait!=2'd2) tm_wait<=tm_wait+2'd1;   // read ATTR (tm_sel=1)
-              else begin tm_wait<=2'd0;
-                  tm_bank <= vram_scn_dout[7:6];
-                  tm_hflip<= vram_scn_dout[4];
-                  tm_vflip<= vram_scn_dout[5];
-                  tm_a5   <= vram_scn_dout[5];
-                  tm_sel  <= 1'b0; tm_st<=4'd1; end
-        4'd1: if (tm_wait!=2'd2) tm_wait<=tm_wait+2'd1;   // read CODE (tm_sel=1)
-              else begin tm_wait<=2'd0; tm_index<=vram_scn_dout; tm_st<=4'd2; end
-        4'd2: tm_st<=4'd3;                                // issue gfx fetch
-        4'd3: if (rom_ok) begin tm_word<={RDU,RDL}; tm_dn<=2'd0; tm_st<=4'd4; end
-        4'd4: begin                                       // dump 4 px into the buffer
-                  tm_we     <= 1'b1;
-                  tm_waddr  <= tm_hrender;
-                  tm_wdata  <= tm_pixel;
-                  tm_hrender <= tm_hrender + 9'd1;
-                  tm_word   <= tm_hflip ? {4'd0, tm_word[15:4]} : {tm_word[11:0], 4'd0};
-                  tm_dn     <= tm_dn + 2'd1;
-                  if (tm_dn==2'd3) begin
-                      tm_hn <= tm_hn + 9'd4;
-                      if (!tm_hn[2]) tm_st <= 4'd2;        // half0 done -> half1 (same tile)
-                      else begin                          // half1 done -> next tile
-                          tm_sel <= 1'b1; tm_st <= 4'd0;
-                          tm_col <= tm_col + 6'd1;
-                          if (tm_col >= 6'd33) tm_run <= 1'b0;
-                      end
-                  end
-              end
-        default: tm_run<=1'b0;
-    endcase
-end
-
-// Tilemap line buffer (double-buffered): render writes bank tm_line, display
-// reads bank ~tm_line. Read column derived straight from h_cnt to avoid a
-// pre-display wrap. 9-bit column so the 34-tile render never wraps onto visible.
-localparam [8:0] TM_HSTART = 9'd6;      // render/display column offset
-wire [8:0] tm_rdcol = h_cnt - TM_HSTART;
-wire [3:0] tm_buf_px;
-jtframe_dual_ram #(.DW(4), .AW(10)) u_tm_line(
-    .clk0 ( clk ), .clk1 ( clk ),
-    .data0( tm_wdata ), .addr0( { tm_line,  tm_waddr } ), .we0( tm_we ), .q0(),
-    .data1( 4'd0 ),     .addr1( { ~tm_line, tm_rdcol } ), .we1( 1'b0 ), .q1( tm_buf_px )
-);
-reg [3:0] tilemap_px;
-always @(posedge clk) if(cen_6m) tilemap_px <= tm_buf_px;
-
-//------------------------------------------------------------------------
-//  Sprite engine (005885 OBJ) — own module (D9). Time-shares the VRAM-scan
-//  and gfx-ROM ports with the tilemap above (muxed by obj_win); the parent
-//  drives the shared buses from obj_rd_addr / spr_rom_addr.
-//------------------------------------------------------------------------
-wire [3:0] obj_pxl;     // looked-up sprite colour (OCD); 0 = transparent
+wire        spr_half = spr_rom_addr[0];
+wire [15:0] spr_gfx16 = spr_half ? RD[31:16] : RD[15:0];
+wire [3:0]  obj_pxl;
 jtddribble_obj #(
     .BYPASS_OPROM ( BYPASS_OPROM ),
     .LAYER_BG     ( LAYER_BG     ),
     .OBJSTART     ( OBJSTART     ),
     .OBJMASK      ( OBJMASK      )
-) u_obj (
-    .clk          ( clk           ),
-    .rst          ( rst           ),
-    .pxl_cen      ( pxl_cen       ),
-    .h_cnt        ( h_cnt         ),
-    .v_cnt        ( v_cnt         ),
-    .obj_win      ( obj_win       ),
-    .hblank       ( hblank        ),
-    .obj_rd_addr  ( obj_rd_addr   ),
-    .vram_scn_dout( obj_list_dout ),   // snapshot shadow, not the live VRAM port
-    .spr_rom_addr ( spr_rom_addr  ),
-    .spr_rom_cs   ( spr_rom_cs    ),
-    .RDU          ( RDU           ),
-    .RDL          ( RDL           ),
-    .rom_ok       ( rom_ok        ),
-    .prog_addr    ( prog_addr     ),
-    .prog_data    ( prog_data     ),
-    .prom_we      ( prom_we       ),
-    .obj_pxl      ( obj_pxl       )
+) u_obj(
+    .clk          ( clk            ),
+    .rst          ( rst            ),
+    .pxl_cen      ( pxl_cen        ),
+    .h_cnt        ( h_cnt          ),
+    .v_cnt        ( v_cnt          ),
+    .obj_win      ( obj_win        ),
+    .hblank       ( hblank         ),
+    .obj_rd_addr  ( obj_rd_addr    ),
+    .vram_scn_dout( obj_list_dout  ),   // snapshot shadow, not the live VRAM
+    .spr_rom_addr ( spr_rom_addr   ),
+    .spr_rom_cs   ( spr_rom_cs     ),
+    .RDU          ( spr_gfx16[ 7:0]),
+    .RDL          ( spr_gfx16[15:8]),
+    .rom_ok       ( rom_ok         ),
+    .prog_addr    ( prog_addr      ),
+    .prog_data    ( prog_data      ),
+    .prom_we      ( prom_we        ),
+    .obj_pxl      ( obj_pxl        )
 );
 
 //------------------------------------------------------------------------
-//  Colour out — sprite over tilemap into COL[4:0]
+//  gfx ROM bus: sprites during obj_win, tilemap otherwise. RD is 32-bit; the
+//  sprite addresses 32-bit words via spr_rom_addr[16:1] (bit[0] = the half).
 //------------------------------------------------------------------------
-// Opaque sprite -> COL[4]=0, tile -> COL[4]=1 (COL[4] picks the palette half).
-wire [4:0] COL = (obj_pxl != 4'h0) ? { 1'b0, obj_pxl } : { 1'b1, tilemap_px };
-assign pxl_out = { 2'b00, COL };
+assign R      = obj_win ? spr_rom_addr[16:1] : scroll_rom_addr;
+assign RA16   = obj_win ? spr_rom_addr[17]   : 1'b0;
+assign RA17   = 1'b0;
+assign rom_cs = obj_win ? spr_rom_cs : scroll_rom_cs;
+
+// COL out: opaque sprite over tile.
+assign pxl_out = { 2'b00, (obj_pxl != 4'h0) ? { 1'b0, obj_pxl } : { 1'b1, sc_pxl[3:0] } };
 
 endmodule

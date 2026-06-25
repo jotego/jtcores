@@ -36,13 +36,13 @@ module jtddribble_video(
     output              k5885_1_RA16,
     output              k5885_1_RA17,
     output              k5885_1_rom_cs,
-    input      [15:0]   gfx1_data,
+    input      [31:0]   gfx1_data,
     input               gfx1_ok,
     output     [15:0]   k5885_2_R,
     output              k5885_2_RA16,
     output              k5885_2_RA17,
     output              k5885_2_rom_cs,
-    input      [15:0]   gfx2_data,
+    input      [31:0]   gfx2_data,
     input               gfx2_ok,
 
     // Interrupts — chip 1 fans NFIR/NIRQ/NNMI to BOTH CPUs (game.v applies the
@@ -138,8 +138,7 @@ jtddribble_k005885 #(
     .R          ( k5885_1_R      ),
     .RA16       ( k5885_1_RA16   ),
     .RA17       ( k5885_1_RA17   ),
-    .RDU        ( gfx1_data[ 7:0]),
-    .RDL        ( gfx1_data[15:8]),
+    .RD         ( gfx1_data      ),
     .rom_cs     ( k5885_1_rom_cs ),
     .rom_ok     ( gfx1_ok        ),
     // sync — chip 1 owns the framework's video timing
@@ -184,8 +183,7 @@ jtddribble_k005885 #(
     .R          ( k5885_2_R      ),
     .RA16       ( k5885_2_RA16   ),
     .RA17       ( k5885_2_RA17   ),
-    .RDU        ( gfx2_data[ 7:0]),
-    .RDL        ( gfx2_data[15:8]),
+    .RD         ( gfx2_data      ),
     .rom_cs     ( k5885_2_rom_cs ),
     .rom_ok     ( gfx2_ok        ),
     .NHSY(), .NYSY(), .HBLK(), .VBLK(),   // chip 2 sync unused (chip 1 owns timing)
@@ -203,9 +201,8 @@ jtddribble_k005885 #(
 
 // ---------------------------------------------------------------------------
 // Colour mixer — 007327 palette LUT / RGB DAC + LS157/LS32 priority network.
-// Was started from jtcastle but then it diverged. in theory should be the same chip
 // Fed by the two 005885 COL buses; reads the `pal` BRAM (CPU-write side in
-// game.v); drives the framework RGB. (Was instantiated in game.v.)
+// game.v); drives the framework RGB.
 // ---------------------------------------------------------------------------
 jtddribble_colmix u_colmix(
     .rst        ( rst                  ),
