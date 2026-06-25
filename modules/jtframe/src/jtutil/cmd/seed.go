@@ -56,6 +56,7 @@ type seed_config struct {
 type seed_release struct {
 	core   string
 	target string
+	rbf    string
 }
 
 type seed_job struct {
@@ -175,6 +176,7 @@ func (cfg *seed_config) prepare() error {
 	}
 	cfg.release = info
 	cfg.load_core_macros()
+	cfg.release.rbf = strings.ToLower(macros.Get("CORENAME"))
 	cfg.nosta = macros.IsSet("JTFRAME_NOSTA")
 	cfg.easy_sta = macros.IsSet("JTFRAME_EASY_STA")
 	cfg.append_nosta_undef()
@@ -454,7 +456,7 @@ func get_jtroot() (string, error) {
 
 func (info seed_release) source_rbf(output string) string {
 	base := output
-	name := "jt" + info.core + ".rbf"
+	name := info.rbf_name() + ".rbf"
 	if info.is_mister_target() || info.target == "neptuno" {
 		base = filepath.Join(base, "output_files")
 	}
@@ -470,9 +472,16 @@ func (info seed_release) release_rbf() string {
 		return ""
 	}
 	if info.target == "pocket" {
-		return filepath.Join(root, "release", "pocket", "raw", "Cores", "jotego."+info.core, "jt"+info.core+".rbf_r")
+		return filepath.Join(root, "release", "pocket", "raw", "Cores", "jotego."+info.core, info.rbf_name()+".rbf_r")
 	}
-	return filepath.Join(root, "release", info.target, "jt"+info.core+".rbf")
+	return filepath.Join(root, "release", info.target, info.rbf_name()+".rbf")
+}
+
+func (info seed_release) rbf_name() string {
+	if info.rbf != "" {
+		return info.rbf
+	}
+	return "jt" + info.core
 }
 
 func (info seed_release) is_mister_target() bool {
