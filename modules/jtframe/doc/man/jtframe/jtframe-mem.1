@@ -1,4 +1,4 @@
-.TH JTFRAME-MEM 1 "April 2026" "JTFRAME" "User Commands"
+.TH JTFRAME-MEM 1 "June 2026" "JTFRAME" "User Commands"
 .SH NAME
 jtframe-mem \- generate RTL files from a core \fBmem.yaml\fR
 .SH SYNOPSIS
@@ -28,7 +28,10 @@ The selected target matters because
 also consumes the target-side framework files already present under
 \fB$JTFRAME/target/<target>/\fR.
 .SS mem.yaml Syntax
-All keys are strict: unknown keys cause parse errors.
+The recognized top-level keys are listed below.
+Many nested entries use strict parsers: unknown keys in SDRAM buses,
+cache lanes, cache block selectors, cache address entries, simfile entries,
+BRAM entries, and cache flush entries cause parse errors.
 
 The top-level file supports:
 .TP
@@ -187,8 +190,13 @@ sdram:
       data_width: 32
       rw: true
       flush: { enable: true, invalidates: [scndma, scrmap] }
-      blocks: { count: 64, size: 256 }
-      at: { bank: 0, length: 16MB }
+      blocks:
+        count: 64
+        size: 256
+        select:
+          - when: [ SIDI128 ]
+            count: 32
+      at: { bank: 0, chip: 0, length: 16MB }
 .fi
 .RE
 .TP
@@ -339,7 +347,7 @@ Supported: \fBmute\fR, \fBrc\fR, \fBrsum\fR, \fBrsum_feedback_res\fR, \fBgain\fR
 Supported: \fBr\fR, \fBc\fR.
 .TP
 .B audio.pcb[]
-Supported: \fBmachine\fR, \fBrfb\fR, \fBrsums\fR, \fBpres\fR.
+Supported: \fBmachine\fR, \fBmachines\fR, \fBrfb\fR, \fBrsums\fR, \fBpres\fR.
 .TP
 .B audio.channels[]
 Supported: \fBname\fR, \fBmodule\fR, \fBrsum\fR, \fBrout\fR, \fBpre\fR, \fBvpp\fR,
@@ -350,11 +358,15 @@ Supported: \fBname\fR, \fBmodule\fR, \fBrsum\fR, \fBrout\fR, \fBpre\fR, \fBvpp\f
 Supported: \fBbanks\fR, \fBcache-lanes\fR, \fBburst\fR, \fBbig_endian\fR.
 .TP
 .B sdram.banks[]
+Supported: \fBbuses\fR.
+.TP
+.B sdram.banks[].buses[]
 Supported: \fBname\fR, \fBoffset\fR, \fBaddr\fR, \fBaddr_width\fR, \fBdata_width\fR,
 \fBcache_size\fR, \fBrw\fR, \fBdo_not_erase\fR, \fBdsn\fR, \fBdin\fR, \fBcs\fR,
+\fBlatch\fR,
 \fBgfx_sort\fR, \fBgfx_sort_en\fR, \fBsimfile\fR, \fBwhen\fR, \fBunless\fR.
 .TP
-.B sdram.banks[].simfile
+.B sdram.banks[].buses[].simfile
 Supported: \fBname\fR, \fBbig_endian\fR, \fBdata_type\fR (u16/u32).
 .TP
 .B sdram.cache-lanes[]
@@ -370,10 +382,17 @@ after this lane's dirty writeback completes. If \fBenable\fR is false or omitted
 \fBinvalidates\fR must be empty or omitted.
 .TP
 .B sdram.cache-lanes.blocks
-Supported: \fBcount\fR, \fBsize\fR.
+Supported: \fBcount\fR, \fBsize\fR, \fBselect\fR.
+.TP
+.B sdram.cache-lanes.blocks.select[]
+Optional conditional overrides for \fBblocks.count\fR and \fBblocks.size\fR.
+Supported: \fBwhen\fR, \fBunless\fR, \fBcount\fR, \fBsize\fR.
+Entries are applied in order when their macro conditions match; a selected
+entry only overrides the fields it defines.
 .TP
 .B sdram.cache-lanes.at
-Supported: \fBbank\fR, \fBoffset\fR, \fBlength\fR.
+Supported: \fBbank\fR, \fBchip\fR, \fBoffset\fR, \fBlength\fR.
+\fBchip\fR is only valid with \fBJTFRAME_SDRAM_XL\fR and may be 0 or 1.
 .TP
 .B sdram.cache-lanes.simfile
 Supported: \fBname\fR, \fBbig_endian\fR, \fBdata_type\fR (u16/u32).
@@ -397,7 +416,9 @@ Supported: \fBoffset\fR.
 
 .SS Validation and defaults
 .IP \[bu] 2
-Unknown keys are rejected with parse errors.
+Unknown keys are rejected in the nested entries that have strict parsers:
+SDRAM buses, cache lanes, cache flush, cache blocks, cache block selectors,
+cache addresses, SDRAM/BRAM simfile objects, and BRAM entries.
 .IP \[bu] 2
 \fBsdram.banks\fR and \fBsdram.cache-lanes\fR are mutually exclusive.
 Use exactly one when defining SDRAM.
@@ -459,6 +480,11 @@ ranges; whole target caches are invalidated.
 .IP \[bu] 2
 Cache-lane offsets and lengths are evaluated through params/macro expressions.
 \fBoffset\fR may be a parameter name or hexadecimal literal.
+\fBlength\fR is parsed as a memory size.
+\fBbank\fR must be 0..3.
+\fBchip\fR must be 0..1 and requires
+\fBJTFRAME_SDRAM_XL\fR
+when non-zero.
 .IP \[bu] 2
 \fBsdram.burst\fR must be a power of two and not exceed 512 bytes
 (1024 when \fBJTFRAME_SDRAM_LARGE\fR is defined).
