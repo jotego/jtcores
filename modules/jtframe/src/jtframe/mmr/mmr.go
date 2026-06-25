@@ -88,16 +88,16 @@ type checker interface {
 	check(bytenum,lsb,msb int)
 }
 
-func GetMMRPath( corename string ) (mmrpath string) {
-	return filepath.Join(os.Getenv("CORES"),corename,"cfg","mmr.yaml")
+func GetMMRPath( name string, module bool ) (mmrpath string) {
+	return filepath.Join(get_root(module),name,"cfg","mmr.yaml")
 }
 
-func Generate( corename string, verbose bool ) (e error) {
-	fname := GetMMRPath(corename)
+func Generate( corename string, verbose, module bool ) (e error) {
+	fname := GetMMRPath(corename,module)
 	buf, e := os.ReadFile(fname); if e != nil { return e }
 	var mmr = mmr_gen{
 		corename: corename,
-		hdl_path: filepath.Join(os.Getenv("CORES"), corename, "hdl"),
+		hdl_path: filepath.Join(get_root(module), corename, "hdl"),
 	}
 	var entries []mmr_entry
 	e = yaml.Unmarshal( buf, &entries ); if e != nil { return e }
@@ -107,6 +107,11 @@ func Generate( corename string, verbose bool ) (e error) {
 	e = mmr.generate(); if e != nil { return e }
 	e = mmr.dump_all()
 	return e
+}
+
+func get_root( module bool ) string {
+	if module { return os.Getenv("MODULES") }
+	return os.Getenv("CORES")
 }
 
 func (mmr *mmr_gen) expand(entries []mmr_entry, includes map[string]bool) (cfg []MMRdef, e error) {
@@ -149,7 +154,7 @@ func (mmr *mmr_gen) loadImported(include MMRInclude, includes map[string]bool) (
 }
 
 func (mmr *mmr_gen) loadImportedFromCore(core string, includes map[string]bool) (cfg []MMRdef, e error) {
-	mmr_path := GetMMRPath(core)
+	mmr_path := GetMMRPath(core,false)
 	buf, e := os.ReadFile(mmr_path)
 	if e != nil {
 		return nil, fmt.Errorf("Error: cannot read mmr from %q: %w", core, e)

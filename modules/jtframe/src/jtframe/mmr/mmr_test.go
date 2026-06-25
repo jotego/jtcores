@@ -139,6 +139,49 @@ func Test_event_conditions(t *testing.T) {
 	must_contain(t, got, "if(cs && !rnw && addr=='d3 && !dsn[0] && din[0]==1'b0) evzero <= 1;")
 }
 
+func Test_get_mmr_path_for_core_and_module(t *testing.T) {
+	tmp := t.TempDir()
+	oldCoreEnv := os.Getenv("CORES")
+	oldModuleEnv := os.Getenv("MODULES")
+	os.Setenv("CORES", filepath.Join(tmp, "cores"))
+	os.Setenv("MODULES", filepath.Join(tmp, "modules"))
+	defer os.Setenv("CORES", oldCoreEnv)
+	defer os.Setenv("MODULES", oldModuleEnv)
+	corePath := filepath.Join(tmp, "cores", "gng", "cfg", "mmr.yaml")
+	modulePath := filepath.Join(tmp, "modules", "jt05415x", "cfg", "mmr.yaml")
+	if got := GetMMRPath("gng", false); got != corePath {
+		t.Fatalf("Expected core path %s, got %s", corePath, got)
+	}
+	if got := GetMMRPath("jt05415x", true); got != modulePath {
+		t.Fatalf("Expected module path %s, got %s", modulePath, got)
+	}
+}
+
+func Test_generate_module_writes_under_modules(t *testing.T) {
+	tmp := t.TempDir()
+	oldModuleEnv := os.Getenv("MODULES")
+	os.Setenv("MODULES", filepath.Join(tmp, "modules"))
+	defer os.Setenv("MODULES", oldModuleEnv)
+	cfgPath := filepath.Join(tmp, "modules", "jtmod", "cfg")
+	hdlPath := filepath.Join(tmp, "modules", "jtmod", "hdl")
+	if e := os.MkdirAll(cfgPath, 0o755); e != nil { t.Fatal(e) }
+	if e := os.MkdirAll(hdlPath, 0o755); e != nil { t.Fatal(e) }
+	text := `
+- name: test
+  size: 4
+  regs:
+    - name: plain
+      dw: 8
+      at: "0"
+`
+	if e := os.WriteFile(filepath.Join(cfgPath, "mmr.yaml"), []byte(text), 0o644); e != nil { t.Fatal(e) }
+	e := Generate("jtmod", false, true); if e != nil { t.Fatal(e) }
+	generated := filepath.Join(hdlPath, "jtjtmod_test_mmr.v")
+	if _, e := os.Stat(generated); e != nil {
+		t.Fatalf("Expected generated module at %s: %v", generated, e)
+	}
+}
+
 func Test_import_all_and_multiple_names(t *testing.T) {
 	tmp := t.TempDir()
 	oldCoreEnv := os.Getenv("CORES")
