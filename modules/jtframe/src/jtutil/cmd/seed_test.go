@@ -326,6 +326,25 @@ func Test_prepare_keeps_long_target_shortcut(t *testing.T) {
 	}
 }
 
+func Test_prepare_uses_target_core_name_for_rbf_paths(t *testing.T) {
+	root := setup_seed_macro_tree(t, "ngp", "CORENAME=JTNGP\n[mister]\nCORENAME=NeoGeoPocket\n")
+	cfg := &seed_config{jtcore_args: []string{"ngp", "--target", "mister"}}
+	e := cfg.prepare()
+	if e != nil {
+		t.Fatal(e)
+	}
+	if cfg.release.rbf != "neogeopocket" {
+		t.Fatalf("unexpected RBF name: %#v", cfg.release)
+	}
+	builddir := filepath.Join(root, "cores", "ngp", "seed", "mister", "0", "build")
+	if got := cfg.release.source_rbf(builddir); got != filepath.Join(builddir, "output_files", "neogeopocket.rbf") {
+		t.Fatalf("unexpected source path: %s", got)
+	}
+	if got := cfg.release.release_rbf(); got != filepath.Join(root, "release", "mister", "neogeopocket.rbf") {
+		t.Fatalf("unexpected release path: %s", got)
+	}
+}
+
 func Test_run_parallel_one_uses_seed_output(t *testing.T) {
 	root := setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\n")
 	install_fake_jtcore(t, 0)
