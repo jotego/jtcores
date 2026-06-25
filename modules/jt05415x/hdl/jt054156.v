@@ -15,58 +15,6 @@
 // Preliminary 054156 primitive cells extracted from the schematic.
 // Only cells whose symbol polarity has been visually checked are modeled here.
 
-module jt054156_a4h(
-    input  wire [3:0] a,
-    input  wire [3:0] b,
-    input  wire       ci,
-    output wire [3:0] s,
-    output wire       co
-);
-
-assign { co, s } = { 1'b0, a } + { 1'b0, b } + { 4'b0, ci };
-
-endmodule
-
-module jt054156_a1n(
-    input  wire a,
-    input  wire b,
-    input  wire ci,
-    output wire s,
-    output wire co
-);
-
-wire [1:0] sum;
-
-assign sum = { 1'b0, a } + { 1'b0, b } + { 1'b0, ci };
-assign s   = sum[0];
-assign co  = sum[1];
-
-endmodule
-
-module jt054156_a1a(
-    input  wire a,
-    input  wire b,
-    output wire s,
-    output wire co
-);
-
-assign s  = a ^ b;
-assign co = a & b;
-
-endmodule
-
-module jt054156_a2n(
-    input  wire [1:0] a,
-    input  wire [1:0] b,
-    input  wire       ci,
-    output wire [1:0] s,
-    output wire       co
-);
-
-assign { co, s } = { 1'b0, a } + { 1'b0, b } + { 2'b0, ci };
-
-endmodule
-
 module jt054156_p24(
     input  wire a1,
     input  wire b1,
@@ -110,72 +58,6 @@ assign x = ~selected;
 
 endmodule
 
-module jt054156_t2d(
-    input  wire a,
-    input  wire b,
-    input  wire s1,
-    input  wire s2,
-    output wire x
-);
-
-wire select_a = ~s1 & s2;
-wire select_b = s1 & ~s2;
-wire selected = (select_a & a) | (select_b & b);
-
-assign x = ~selected;
-
-endmodule
-
-module jt054156_t2e(
-    input  wire a1,
-    input  wire a2,
-    input  wire b1,
-    input  wire b2,
-    input  wire s,
-    output wire x0,
-    output wire x1
-);
-
-wire select_a = ~s;
-wire select_b =  s;
-wire selected_x0 = (select_a & a1) | (select_b & a2);
-wire selected_x1 = (select_a & b1) | (select_b & b2);
-
-assign x0 = ~selected_x0;
-assign x1 = ~selected_x1;
-
-endmodule
-
-module jt054156_t2f(
-    input  wire a1,
-    input  wire a2,
-    input  wire b1,
-    input  wire b2,
-    input  wire c1,
-    input  wire c2,
-    input  wire d1,
-    input  wire d2,
-    input  wire s,
-    output wire x0,
-    output wire x1,
-    output wire x2,
-    output wire x3
-);
-
-wire select_0 = ~s;
-wire select_1 =  s;
-wire selected_x0 = (select_0 & a1) | (select_1 & a2);
-wire selected_x1 = (select_0 & b1) | (select_1 & b2);
-wire selected_x2 = (select_0 & c1) | (select_1 & c2);
-wire selected_x3 = (select_0 & d1) | (select_1 & d2);
-
-assign x0 = ~selected_x0;
-assign x1 = ~selected_x1;
-assign x2 = ~selected_x2;
-assign x3 = ~selected_x3;
-
-endmodule
-
 module jt054156_t5a(
     input  wire a1,
     input  wire a2,
@@ -204,215 +86,6 @@ assign x = ~selected;
 
 endmodule
 
-module jt054156_fdm(
-    input  wire ck,
-    input  wire d,
-    output reg  q,
-    output wire nq
-);
-
-always @(posedge ck) begin
-    q <= d;
-end
-
-assign nq = ~q;
-
-endmodule
-
-module jt054156_fdn(
-    input  wire ck,
-    input  wire d,
-    input  wire ns,
-    output reg  q,
-    output wire nq
-);
-
-always @(posedge ck or negedge ns) begin
-    if (!ns) begin
-        q <= 1'b1;
-    end else begin
-        q <= d;
-    end
-end
-
-assign nq = ~q;
-
-endmodule
-
-module jt054156_fdo(
-    input  wire ck,
-    input  wire d,
-    input  wire nr,
-    output reg  q,
-    output wire nq
-);
-
-always @(posedge ck or negedge nr) begin
-    if (!nr) begin
-        q <= 1'b0;
-    end else begin
-        q <= d;
-    end
-end
-
-assign nq = ~q;
-
-endmodule
-
-module jt054156_fdp(
-    input  wire ck,
-    input  wire d,
-    input  wire ns,
-    input  wire nr,
-    output reg  q,
-    output wire nq
-);
-
-always @(posedge ck or negedge ns or negedge nr) begin
-    if (!ns) begin
-        q <= 1'b1;
-    end else if (!nr) begin
-        q <= 1'b0;
-    end else begin
-        q <= d;
-    end
-end
-
-assign nq = ~q;
-
-endmodule
-
-module jt054156_fd5(
-    input  wire ck,
-    input  wire d,
-    input  wire ncl,
-    output reg  q,
-    output wire nq
-);
-
-always @(posedge ck or negedge ncl) begin
-    if (!ncl) begin
-        q <= 1'b0;
-    end else begin
-        q <= d;
-    end
-end
-
-assign nq = ~q;
-
-endmodule
-
-module jt054156_fds(
-    input  wire       ck,
-    input  wire [3:0] d,
-    output reg  [3:0] q
-);
-
-always @(posedge ck) begin
-    q <= d;
-end
-
-endmodule
-
-module jt054156_fdr(
-    input  wire       ck,
-    input  wire [3:0] d,
-    input  wire       ncl,
-    output reg  [3:0] q
-);
-
-always @(posedge ck or negedge ncl) begin
-    if (!ncl) begin
-        q <= 4'd0;
-    end else begin
-        q <= d;
-    end
-end
-
-endmodule
-
-module jt054156_ltl(
-    input  wire d,
-    input  wire ng,
-    input  wire ncl,
-    output reg  q,
-    output wire xq
-);
-
-/* verilator lint_off LATCH */
-always @(*) begin
-    if (!ncl) begin
-        q = 1'b0;
-    end else if (!ng) begin
-        q = d;
-    end
-end
-/* verilator lint_on LATCH */
-
-assign xq = ~q;
-
-endmodule
-
-module jt054156_ltm(
-    input  wire [3:0] d,
-    input  wire       ng,
-    input  wire       ncl,
-    output reg  [3:0] q,
-    output wire [3:0] nq
-);
-
-/* verilator lint_off LATCH */
-always @(*) begin
-    if (!ncl) begin
-        q = 4'd0;
-    end else if (!ng) begin
-        q = d;
-    end
-end
-/* verilator lint_on LATCH */
-
-assign nq = ~q;
-
-endmodule
-
-module jt054156_lt4(
-    input  wire       ng,
-    input  wire [3:0] d,
-    output reg  [3:0] q,
-    output wire [3:0] nq
-);
-
-/* verilator lint_off LATCH */
-always @(*) begin
-    if (!ng) begin
-        q = d;
-    end
-end
-/* verilator lint_on LATCH */
-
-assign nq = ~q;
-
-endmodule
-
-module jt054156_ltk(
-    input  wire d,
-    input  wire ng,
-    output reg  q,
-    output wire xq
-);
-
-/* verilator lint_off LATCH */
-always @(*) begin
-    if (!ng) begin
-        q = d;
-    end
-end
-/* verilator lint_on LATCH */
-
-assign xq = ~q;
-
-endmodule
-
 module jt054156_c43(
     input  wire       ck,
     input  wire [3:0] d,
@@ -437,42 +110,6 @@ end
 assign co = &{ q, ci };
 
 endmodule
-
-module jt054156_de6(
-    input  wire       s1,
-    input  wire       s2,
-    input  wire       s3,
-    input  wire       g1,
-    input  wire       g2_n,
-    input  wire       g3_n,
-    output wire [7:0] x_n
-);
-
-wire       enabled = g1 & ~g2_n & ~g3_n;
-wire [2:0] sel     = { s3, s2, s1 };
-wire [7:0] onehot;
-
-assign onehot = 8'b0000_0001 << sel;
-assign x_n    = enabled ? ~onehot : 8'hff;
-
-endmodule
-
-module jt054156_de4(
-    input  wire       a,
-    input  wire       b,
-    input  wire       g_n,
-    output wire [3:0] x_n
-);
-
-wire       enabled = ~g_n;
-wire [1:0] sel     = { b, a };
-wire [3:0] onehot;
-
-assign onehot = 4'b0001 << sel;
-assign x_n    = enabled ? ~onehot : 4'hf;
-
-endmodule
-
 
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_connected.v
@@ -2447,26 +2084,8 @@ assign ab74_2_en_n = ~&{n17b_y,ab4_n,ab5_buf,ab6_n}; // m8b
 assign ab74_1_en_n = ~&{n17b_y,ab4_buf,ab5_n,ab6_n}; // m7a
 assign ab74_3_en_n = ~&{n17b_y,ab4_buf,ab5_buf,ab6_n}; // m5a
 assign m6b_y = ~&{n17b_y,ab4_n,ab5_n,ab6_n}; // m6b
-jt054156_de6 u_k26(
-    .s1   ( ab1          ),
-    .s2   ( ab2          ),
-    .s3   ( ab3          ),
-    .g1   ( vcc          ),
-    .g2_n ( ab74_2_en_n  ),
-    .g3_n ( ab_hi_or     ),
-    .x_n  ( reg2x_dec_n  )
-);
-
-jt054156_de6 u_l26(
-    .s1   ( ab1          ),
-    .s2   ( ab2          ),
-    .s3   ( ab3          ),
-    .g1   ( vcc          ),
-    .g2_n ( ab74_1_en_n  ),
-    .g3_n ( ab_hi_or     ),
-    .x_n  ( reg1x_dec_n  )
-);
-
+assign reg2x_dec_n = vcc & ~ab74_2_en_n & ~ab_hi_or ? ~(8'b0000_0001 << { ab3, ab2, ab1 }) : 8'hff; // k26
+assign reg1x_dec_n = vcc & ~ab74_1_en_n & ~ab_hi_or ? ~(8'b0000_0001 << { ab3, ab2, ab1 }) : 8'hff; // l26
 assign ab74_3_nrcs = ~|{ab74_3_en_n,ab_hi_or}; // l9b
 assign ab74_0_nrcs = ~|{m6b_y,ab_hi_or}; // m12a
 assign reg10_dec_n = reg1x_dec_n[0];
@@ -2514,38 +2133,39 @@ module jt054156_page01_ab_latch_en(
     output wire p188b_y,
     output wire k209b_y
 );
+reg     p174a_q;
+reg     p179a_q;
 
-wire p174b_y, p164_y, p188a_y, p189a_y;
-
+wire    p174b_y, p164_y, p188a_y, p189a_y;
 assign p174b_y = ~pin_clk; // p174b
 assign p164_y = ~pin_nccs; // p164
-jt054156_fdn u_p174a(
-    .ck ( p174b_y   ),
-    .d  ( pin_dclk  ),
-    .ns ( p164_y    ),
-    .q  (           ),
-    .nq ( p174a_nq  )
-);
+always @(posedge p174b_y or negedge p164_y) begin
+    if (!p164_y) begin
+        p174a_q <= 1'b1;
+    end else begin
+        p174a_q <= pin_dclk;
+    end
+end // p174a
 
+assign p174a_nq = ~p174a_q; // p174a
 assign p165b_y = pin_dclk & p174a_nq; // p165b
 assign p144a_y = reg4_db5 & pin_cram; // p144a
 assign lat_ab_reg = ~|{p165b_y,p144a_y}; // p144b
 assign p188a_y = ~pin_clk; // p188a
 assign p189a_y = ~pin_nvcs; // p189a
-jt054156_fdn u_p179a(
-    .ck ( p188a_y  ),
-    .d  ( pin_dclk ),
-    .ns ( p189a_y  ),
-    .q  (          ),
-    .nq ( p179a_nq )
-);
+always @(posedge p188a_y or negedge p189a_y) begin
+    if (!p189a_y) begin
+        p179a_q <= 1'b1;
+    end else begin
+        p179a_q <= pin_dclk;
+    end
+end // p179a
 
+assign p179a_nq = ~p179a_q; // p179a
 assign p188b_y = pin_dclk & p179a_nq; // p188b
 assign k209b_y = ~reg0_db7; // k209b
 assign lat_ab_ram = ~|{p188b_y,k209b_y}; // k199a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page01_ab_source.v
 // -----------------------------------------------------------------------------
@@ -2562,8 +2182,8 @@ module jt054156_page01_ab_source(
     input  wire        regc_db1,
     input  wire        lat_ab_reg,
     input  wire        lat_ab_ram,
-    output wire [10:0] ab_ram,
-    output wire [10:0] ab_mux_ram,
+    output reg [10:0] ab_ram,
+    output reg [10:0] ab_mux_ram,
     output wire        ab_mux_2_3,
     output wire        ab_mux_3_4,
     output wire        ab_mux_4_5,
@@ -2580,251 +2200,167 @@ module jt054156_page01_ab_source(
     output wire        regc_db1_buf,
     output wire        regc_db1_n
 );
+reg [3:0] e15_q;
+reg     e46_q;
+reg     e48_q;
+reg     e50_q;
+reg [3:0] e6_q;
+reg [3:0] f25_q;
+reg [3:0] f39_q;
 
 wire [3:0] f17_x, f13_x, g37_x, f21_x;
 wire [3:0] e15_nq, e6_nq, f25_nq, f39_nq;
-wire       h49a_x, h51b_x, h51a_x;
-wire       g49b_x, g51b_x, g51a_x;
-wire       e48_xq, e46_xq, e50_xq;
-
+wire    h49a_x, h51b_x, h51a_x;
+wire    g49b_x, g51b_x, g51a_x;
+wire    e48_xq, e46_xq, e50_xq;
 assign reg4_db3_n = ~reg4_db3; // h109b
 assign reg4_db3_buf = ~reg4_db3_n; // h50b
-jt054156_t2f u_f17(
-    .a1 ( pin_ab[3]    ),
-    .a2 ( pin_ab[2]    ),
-    .b1 ( pin_ab[4]    ),
-    .b2 ( pin_ab[3]    ),
-    .c1 ( pin_ab[5]    ),
-    .c2 ( pin_ab[4]    ),
-    .d1 ( pin_ab[6]    ),
-    .d2 ( pin_ab[5]    ),
-    .s  ( reg4_db3_buf ),
-    .x0 ( f17_x[0]     ),
-    .x1 ( f17_x[1]     ),
-    .x2 ( f17_x[2]     ),
-    .x3 ( f17_x[3]     )
-);
 
-jt054156_lt4 u_e15(
-    .ng ( lat_ab_reg ),
-    .d  ( f17_x      ),
-    .q  (            ),
-    .nq ( e15_nq     )
-);
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_reg) begin
+        e15_q = f17_x;
+    end
+end // e15
+/* verilator lint_on LATCH */
 
+assign e15_nq = ~e15_q; // e15
 assign { ab_mux_5_6, ab_mux_4_5, ab_mux_3_4, ab_mux_2_3 } = e15_nq;
 
-jt054156_t2f u_f13(
-    .a1 ( pin_ab[7]    ),
-    .a2 ( pin_ab[6]    ),
-    .b1 ( pin_ab[8]    ),
-    .b2 ( pin_ab[7]    ),
-    .c1 ( pin_ab[9]    ),
-    .c2 ( pin_ab[8]    ),
-    .d1 ( pin_ab[10]   ),
-    .d2 ( pin_ab[9]    ),
-    .s  ( reg4_db3_buf ),
-    .x0 ( f13_x[0]     ),
-    .x1 ( f13_x[1]     ),
-    .x2 ( f13_x[2]     ),
-    .x3 ( f13_x[3]     )
-);
 
-jt054156_lt4 u_e6(
-    .ng ( lat_ab_reg ),
-    .d  ( f13_x      ),
-    .q  (            ),
-    .nq ( e6_nq      )
-);
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_reg) begin
+        e6_q = f13_x;
+    end
+end // e6
+/* verilator lint_on LATCH */
 
+assign e6_nq = ~e6_q; // e6
 assign { ab_mux_9_10, ab_mux_8_9, ab_mux_7_8, ab_mux_6_7 } = e6_nq;
 
-jt054156_t2b u_h49a(
-    .a  ( pin_ab[11]   ),
-    .b  ( pin_ab[10]   ),
-    .s1 ( reg4_db3_n   ),
-    .s2 ( reg4_db3_buf ),
-    .x  ( h49a_x       )
-);
+assign h49a_x = reg4_db3_n ? ~pin_ab[10] : ~pin_ab[11]; // h49a
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_reg) begin
+        e48_q = h49a_x;
+    end
+end // e48
+/* verilator lint_on LATCH */
 
-jt054156_ltk u_e48(
-    .d  ( h49a_x      ),
-    .ng ( lat_ab_reg  ),
-    .q  (             ),
-    .xq ( e48_xq      )
-);
-
+assign e48_xq = ~e48_q; // e48
 assign ab_mux_10_11 = e48_xq;
 
-jt054156_t2b u_h51b(
-    .a  ( pin_ab[12]   ),
-    .b  ( pin_ab[11]   ),
-    .s1 ( reg4_db3_n   ),
-    .s2 ( reg4_db3_buf ),
-    .x  ( h51b_x       )
-);
+assign h51b_x = reg4_db3_n ? ~pin_ab[11] : ~pin_ab[12]; // h51b
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_reg) begin
+        e46_q = h51b_x;
+    end
+end // e46
+/* verilator lint_on LATCH */
 
-jt054156_ltk u_e46(
-    .d  ( h51b_x      ),
-    .ng ( lat_ab_reg  ),
-    .q  (             ),
-    .xq ( e46_xq      )
-);
-
+assign e46_xq = ~e46_q; // e46
 assign ab_mux_11_12 = e46_xq;
 
-jt054156_t2b u_h51a(
-    .a  ( pin_ab[13]   ),
-    .b  ( pin_ab[12]   ),
-    .s1 ( reg4_db3_n   ),
-    .s2 ( reg4_db3_buf ),
-    .x  ( h51a_x       )
-);
+assign h51a_x = reg4_db3_n ? ~pin_ab[12] : ~pin_ab[13]; // h51a
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_reg) begin
+        e50_q = h51a_x;
+    end
+end // e50
+/* verilator lint_on LATCH */
 
-jt054156_ltk u_e50(
-    .d  ( h51a_x      ),
-    .ng ( lat_ab_reg  ),
-    .q  (             ),
-    .xq ( e50_xq      )
-);
-
+assign e50_xq = ~e50_q; // e50
 assign ab_mux_12_13 = e50_xq;
 
-jt054156_lt4 u_f32(
-    .ng ( lat_ab_ram           ),
-    .d  ( pin_ab[5:2]          ),
-    .q  ( ab_ram[3:0]          ),
-    .nq (                      )
-);
-
-jt054156_lt4 u_f46(
-    .ng ( lat_ab_ram           ),
-    .d  ( pin_ab[9:6]          ),
-    .q  ( ab_ram[7:4]          ),
-    .nq (                      )
-);
-
-jt054156_ltk u_g60(
-    .d  ( pin_ab[10]  ),
-    .ng ( lat_ab_ram  ),
-    .q  ( ab_ram[8]   ),
-    .xq (             )
-);
-
-jt054156_ltk u_g62(
-    .d  ( pin_ab[11]  ),
-    .ng ( lat_ab_ram  ),
-    .q  ( ab_ram[9]   ),
-    .xq (             )
-);
-
-jt054156_ltk u_g64(
-    .d  ( pin_ab[12]  ),
-    .ng ( lat_ab_ram  ),
-    .q  ( ab_ram[10]  ),
-    .xq (             )
-);
-
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_ram) begin
+        ab_ram[3:0] = pin_ab[5:2];
+    end
+end // f32
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_ram) begin
+        ab_ram[7:4] = pin_ab[9:6];
+    end
+end // f46
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_ram) begin
+        ab_ram[8] = pin_ab[10];
+    end
+end // g60
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_ram) begin
+        ab_ram[9] = pin_ab[11];
+    end
+end // g62
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_ram) begin
+        ab_ram[10] = pin_ab[12];
+    end
+end // g64
+/* verilator lint_on LATCH */
 assign regc_db1_buf = regc_db1; // h109a
 assign regc_db1_n = ~regc_db1_buf; // g48a
-jt054156_t2f u_g37(
-    .a1 ( pin_ab[1]    ),
-    .a2 ( pin_uds      ),
-    .b1 ( pin_ab[2]    ),
-    .b2 ( pin_ab[1]    ),
-    .c1 ( pin_ab[3]    ),
-    .c2 ( pin_ab[2]    ),
-    .d1 ( pin_ab[4]    ),
-    .d2 ( pin_ab[3]    ),
-    .s  ( regc_db1_n   ),
-    .x0 ( g37_x[0]     ),
-    .x1 ( g37_x[1]     ),
-    .x2 ( g37_x[2]     ),
-    .x3 ( g37_x[3]     )
-);
 
-jt054156_lt4 u_f25(
-    .ng ( lat_ab_ram ),
-    .d  ( g37_x      ),
-    .q  (            ),
-    .nq ( f25_nq     )
-);
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_ram) begin
+        f25_q = g37_x;
+    end
+end // f25
+/* verilator lint_on LATCH */
 
+assign f25_nq = ~f25_q; // f25
 assign ab_mux_ram[3:0] = f25_nq;
 
-jt054156_t2f u_f21(
-    .a1 ( pin_ab[5]    ),
-    .a2 ( pin_ab[4]    ),
-    .b1 ( pin_ab[6]    ),
-    .b2 ( pin_ab[5]    ),
-    .c1 ( pin_ab[7]    ),
-    .c2 ( pin_ab[6]    ),
-    .d1 ( pin_ab[8]    ),
-    .d2 ( pin_ab[7]    ),
-    .s  ( regc_db1_n   ),
-    .x0 ( f21_x[0]     ),
-    .x1 ( f21_x[1]     ),
-    .x2 ( f21_x[2]     ),
-    .x3 ( f21_x[3]     )
-);
 
-jt054156_lt4 u_f39(
-    .ng ( lat_ab_ram ),
-    .d  ( f21_x      ),
-    .q  (            ),
-    .nq ( f39_nq     )
-);
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_ram) begin
+        f39_q = f21_x;
+    end
+end // f39
+/* verilator lint_on LATCH */
 
+assign f39_nq = ~f39_q; // f39
 assign ab_mux_ram[7:4] = f39_nq;
 
-jt054156_t2b u_g49b(
-    .a  ( pin_ab[9]    ),
-    .b  ( pin_ab[8]    ),
-    .s1 ( regc_db1_buf ),
-    .s2 ( regc_db1_n   ),
-    .x  ( g49b_x       )
-);
-
-jt054156_ltk u_g56(
-    .d  ( g49b_x        ),
-    .ng ( lat_ab_ram    ),
-    .q  ( ab_mux_ram[8] ),
-    .xq (               )
-);
-
-jt054156_t2b u_g51b(
-    .a  ( pin_ab[10]   ),
-    .b  ( pin_ab[9]    ),
-    .s1 ( regc_db1_buf ),
-    .s2 ( regc_db1_n   ),
-    .x  ( g51b_x       )
-);
-
-jt054156_ltk u_g54(
-    .d  ( g51b_x        ),
-    .ng ( lat_ab_ram    ),
-    .q  ( ab_mux_ram[9] ),
-    .xq (               )
-);
-
-jt054156_t2b u_g51a(
-    .a  ( pin_ab[11]   ),
-    .b  ( pin_ab[10]   ),
-    .s1 ( regc_db1_buf ),
-    .s2 ( regc_db1_n   ),
-    .x  ( g51a_x       )
-);
-
-jt054156_ltk u_g58(
-    .d  ( g51a_x         ),
-    .ng ( lat_ab_ram     ),
-    .q  ( ab_mux_ram[10] ),
-    .xq (                )
-);
-
+assign g49b_x = regc_db1_buf ? ~pin_ab[8] : ~pin_ab[9]; // g49b
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_ram) begin
+        ab_mux_ram[8] = g49b_x;
+    end
+end // g56
+/* verilator lint_on LATCH */
+assign g51b_x = regc_db1_buf ? ~pin_ab[9] : ~pin_ab[10]; // g51b
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_ram) begin
+        ab_mux_ram[9] = g51b_x;
+    end
+end // g54
+/* verilator lint_on LATCH */
+assign g51a_x = regc_db1_buf ? ~pin_ab[10] : ~pin_ab[11]; // g51a
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!lat_ab_ram) begin
+        ab_mux_ram[10] = g51a_x;
+    end
+end // g58
+/* verilator lint_on LATCH */
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page01_cpu_reg_wr_decode.v
 // -----------------------------------------------------------------------------
@@ -3251,43 +2787,15 @@ module jt054156_page02_db_mux(
 wire reg6_db5_n;
 
 assign reg6_db5_n = ~reg6_db5; // h131a
-jt054156_p24 u_h125(
-    .a1 ( pin_db_in[14] ),
-    .b1 ( db_in_buf3[6] ),
-    .a2 ( pin_db_in[12] ),
-    .b2 ( db_in_buf3[4] ),
-    .a3 ( pin_db_in[15] ),
-    .b3 ( db_in_buf3[7] ),
-    .a4 ( pin_db_in[13] ),
-    .b4 ( db_in_buf3[5] ),
-    .sa ( reg6_db5      ),
-    .sb ( reg6_db5_n    ),
-    .x1 ( db_mux_6_14   ),
-    .x2 ( db_mux_4_12   ),
-    .x3 ( db_mux_7_15   ),
-    .x4 ( db_mux_5_13   )
-);
-
-jt054156_p24 u_f129(
-    .a1 ( pin_db_in[10] ),
-    .b1 ( db_in_buf3[2] ),
-    .a2 ( pin_db_in[8]  ),
-    .b2 ( db_in_buf3[0] ),
-    .a3 ( pin_db_in[11] ),
-    .b3 ( db_in_buf3[3] ),
-    .a4 ( pin_db_in[9]  ),
-    .b4 ( db_in_buf3[1] ),
-    .sa ( reg6_db5      ),
-    .sb ( reg6_db5_n    ),
-    .x1 ( db_mux_2_10   ),
-    .x2 ( db_mux_0_8    ),
-    .x3 ( db_mux_3_11   ),
-    .x4 ( db_mux_1_9    )
-);
-
+assign db_mux_6_14 = reg6_db5 ? db_in_buf3[6] : pin_db_in[14]; // h125
+assign db_mux_4_12 = reg6_db5 ? db_in_buf3[4] : pin_db_in[12]; // h125
+assign db_mux_7_15 = reg6_db5 ? db_in_buf3[7] : pin_db_in[15]; // h125
+assign db_mux_5_13 = reg6_db5 ? db_in_buf3[5] : pin_db_in[13]; // h125
+assign db_mux_2_10 = reg6_db5 ? db_in_buf3[2] : pin_db_in[10]; // f129
+assign db_mux_0_8 = reg6_db5 ? db_in_buf3[0] : pin_db_in[8]; // f129
+assign db_mux_3_11 = reg6_db5 ? db_in_buf3[3] : pin_db_in[11]; // f129
+assign db_mux_1_9 = reg6_db5 ? db_in_buf3[1] : pin_db_in[9]; // f129
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page02_high_regs.v
 // -----------------------------------------------------------------------------
@@ -3328,29 +2836,28 @@ module jt054156_page02_high_regs(
     input  wire       reg3cu_wr_n,
     input  wire       reg3cl_wr_n,
 
-    output wire [5:0] reg30_d,
-    output wire [5:0] reg32_d,
-    output wire [7:0] reg34u_d,
-    output wire [7:0] reg34l_d,
-    output wire [1:0] reg36_d,
-    output wire [15:0] reg38_d,
-    output wire [11:0] reg3a_d,
-    output wire [10:0] reg3c_d
+    output reg [5:0] reg30_d,
+    output reg [5:0] reg32_d,
+    output reg [7:0] reg34u_d,
+    output reg [7:0] reg34l_d,
+    output reg [1:0] reg36_d,
+    output reg [15:0] reg38_d,
+    output reg [11:0] reg3a_d,
+    output reg [10:0] reg3c_d
 );
 
-wire       reset13_3032_buf_n;
-wire       reset7_34l_buf_n;
-wire       reset7_34u_buf_n;
-wire       reset6_38l_buf_n;
-wire       reset6_38u_buf_n;
-wire       reset3_3a_buf_n;
-wire       reset13_3cl_buf_n;
-wire       reset13_3cu_buf_n;
+wire    reset13_3032_buf_n;
+wire    reset7_34l_buf_n;
+wire    reset7_34u_buf_n;
+wire    reset6_38l_buf_n;
+wire    reset6_38u_buf_n;
+wire    reset3_3a_buf_n;
+wire    reset13_3cl_buf_n;
+wire    reset13_3cu_buf_n;
 wire [3:0] db_mux_0_3;
 wire [3:0] db_mux_4_7;
 wire [3:0] reg34u_hi_d;
-wire [3:0] reg34u_hi_q;
-
+reg [3:0] reg34u_hi_q;
 assign db_mux_0_3 = { db_mux_3_11, db_mux_2_10, db_mux_1_9, db_mux_0_8 };
 assign db_mux_4_7 = { db_mux_7_15, db_mux_6_14, db_mux_5_13, db_mux_4_12 };
 assign reg34u_hi_d = { db_mux_7_15, db_mux_4_12, db_mux_5_13, db_mux_6_14 };
@@ -3363,206 +2870,228 @@ assign reset6_38u_buf_n = reset6_n; // h79b
 assign reset3_3a_buf_n = reset3_n; // e79b
 assign reset13_3cl_buf_n = reset13_n; // k154b
 assign reset13_3cu_buf_n = reset13_n; // h159b
-jt054156_ltm u_h190(
-    .d   ( db_in[3:0]          ),
-    .ng  ( reg30_wr_n          ),
-    .ncl ( reset13_3032_buf_n  ),
-    .q   ( reg30_d[3:0]        ),
-    .nq  (                     )
-);
-
-jt054156_ltl u_h187a(
-    .d   ( db_in[4]            ),
-    .ng  ( reg30_wr_n          ),
-    .ncl ( reset13_3032_buf_n  ),
-    .q   ( reg30_d[4]          ),
-    .xq  (                     )
-);
-
-jt054156_ltl u_h185(
-    .d   ( db_in[5]            ),
-    .ng  ( reg30_wr_n          ),
-    .ncl ( reset13_3032_buf_n  ),
-    .q   ( reg30_d[5]          ),
-    .xq  (                     )
-);
-
-jt054156_ltm u_j195(
-    .d   ( db_in[3:0]          ),
-    .ng  ( reg32_wr_n          ),
-    .ncl ( reset13_3032_buf_n  ),
-    .q   ( reg32_d[3:0]        ),
-    .nq  (                     )
-);
-
-jt054156_ltl u_j190(
-    .d   ( db_in[4]            ),
-    .ng  ( reg32_wr_n          ),
-    .ncl ( reset13_3032_buf_n  ),
-    .q   ( reg32_d[4]          ),
-    .xq  (                     )
-);
-
-jt054156_ltl u_j192a(
-    .d   ( db_in[5]            ),
-    .ng  ( reg32_wr_n          ),
-    .ncl ( reset13_3032_buf_n  ),
-    .q   ( reg32_d[5]          ),
-    .xq  (                     )
-);
-
-jt054156_ltm u_g17(
-    .d   ( db_in_buf2[7:4]     ),
-    .ng  ( reg34l_wr_n         ),
-    .ncl ( reset7_34l_buf_n    ),
-    .q   ( reg34l_d[7:4]       ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_e33(
-    .d   ( db_in_buf2[3:0]     ),
-    .ng  ( reg34l_wr_n         ),
-    .ncl ( reset7_34l_buf_n    ),
-    .q   ( reg34l_d[3:0]       ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_j42(
-    .d   ( reg34u_hi_d         ),
-    .ng  ( reg34u_wr_n         ),
-    .ncl ( reset7_34u_buf_n    ),
-    .q   ( reg34u_hi_q         ),
-    .nq  (                     )
-);
-
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_3032_buf_n) begin
+        reg30_d[3:0] = 4'd0;
+    end else if (!reg30_wr_n) begin
+        reg30_d[3:0] = db_in[3:0];
+    end
+end // h190
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_3032_buf_n) begin
+        reg30_d[4] = 1'b0;
+    end else if (!reg30_wr_n) begin
+        reg30_d[4] = db_in[4];
+    end
+end // h187a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_3032_buf_n) begin
+        reg30_d[5] = 1'b0;
+    end else if (!reg30_wr_n) begin
+        reg30_d[5] = db_in[5];
+    end
+end // h185
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_3032_buf_n) begin
+        reg32_d[3:0] = 4'd0;
+    end else if (!reg32_wr_n) begin
+        reg32_d[3:0] = db_in[3:0];
+    end
+end // j195
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_3032_buf_n) begin
+        reg32_d[4] = 1'b0;
+    end else if (!reg32_wr_n) begin
+        reg32_d[4] = db_in[4];
+    end
+end // j190
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_3032_buf_n) begin
+        reg32_d[5] = 1'b0;
+    end else if (!reg32_wr_n) begin
+        reg32_d[5] = db_in[5];
+    end
+end // j192a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset7_34l_buf_n) begin
+        reg34l_d[7:4] = 4'd0;
+    end else if (!reg34l_wr_n) begin
+        reg34l_d[7:4] = db_in_buf2[7:4];
+    end
+end // g17
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset7_34l_buf_n) begin
+        reg34l_d[3:0] = 4'd0;
+    end else if (!reg34l_wr_n) begin
+        reg34l_d[3:0] = db_in_buf2[3:0];
+    end
+end // e33
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset7_34u_buf_n) begin
+        reg34u_hi_q = 4'd0;
+    end else if (!reg34u_wr_n) begin
+        reg34u_hi_q = reg34u_hi_d;
+    end
+end // j42
+/* verilator lint_on LATCH */
 assign reg34u_d[4] = reg34u_hi_q[2];
 assign reg34u_d[5] = reg34u_hi_q[1];
 assign reg34u_d[6] = reg34u_hi_q[0];
 assign reg34u_d[7] = reg34u_hi_q[3];
 
-jt054156_ltm u_h41(
-    .d   ( db_mux_0_3          ),
-    .ng  ( reg34u_wr_n         ),
-    .ncl ( reset7_34u_buf_n    ),
-    .q   ( reg34u_d[3:0]       ),
-    .nq  (                     )
-);
-
-jt054156_ltl u_j37a(
-    .d   ( db_in_buf2[0]       ),
-    .ng  ( reg36_wr_n          ),
-    .ncl ( reset7_n            ),
-    .q   ( reg36_d[0]          ),
-    .xq  (                     )
-);
-
-jt054156_ltl u_j35(
-    .d   ( db_in_buf2[1]       ),
-    .ng  ( reg36_wr_n          ),
-    .ncl ( reset7_n            ),
-    .q   ( reg36_d[1]          ),
-    .xq  (                     )
-);
-
-jt054156_ltm u_h100(
-    .d   ( db_in_buf2[7:4]     ),
-    .ng  ( reg38l_wr_n         ),
-    .ncl ( reset6_38l_buf_n    ),
-    .q   ( reg38_d[7:4]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_h87(
-    .d   ( db_in_buf2[3:0]     ),
-    .ng  ( reg38l_wr_n         ),
-    .ncl ( reset6_38l_buf_n    ),
-    .q   ( reg38_d[3:0]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_j100(
-    .d   ( db_mux_4_7          ),
-    .ng  ( reg38u_wr_n         ),
-    .ncl ( reset6_38u_buf_n    ),
-    .q   ( reg38_d[15:12]      ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_j82(
-    .d   ( db_mux_0_3          ),
-    .ng  ( reg38u_wr_n         ),
-    .ncl ( reset6_38u_buf_n    ),
-    .q   ( reg38_d[11:8]       ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_e169(
-    .d   ( db_in_buf3[3:0]     ),
-    .ng  ( reg3al_wr_n         ),
-    .ncl ( reset3_3a_buf_n     ),
-    .q   ( reg3a_d[3:0]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_g154(
-    .d   ( db_in_buf3[7:4]     ),
-    .ng  ( reg3al_wr_n         ),
-    .ncl ( reset3_3a_buf_n     ),
-    .q   ( reg3a_d[7:4]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_f60(
-    .d   ( db_mux_0_3          ),
-    .ng  ( reg3au_wr_n         ),
-    .ncl ( reset3_3a_buf_n     ),
-    .q   ( reg3a_d[11:8]       ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_m110(
-    .d   ( db_in[3:0]          ),
-    .ng  ( reg3cl_wr_n         ),
-    .ncl ( reset13_3cl_buf_n   ),
-    .q   ( reg3c_d[3:0]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_k115(
-    .d   ( db_in[7:4]          ),
-    .ng  ( reg3cl_wr_n         ),
-    .ncl ( reset13_3cl_buf_n   ),
-    .q   ( reg3c_d[7:4]        ),
-    .nq  (                     )
-);
-
-jt054156_ltl u_h63a(
-    .d   ( db_mux_0_8          ),
-    .ng  ( reg3cu_wr_n         ),
-    .ncl ( reset13_3cu_buf_n   ),
-    .q   ( reg3c_d[8]          ),
-    .xq  (                     )
-);
-
-jt054156_ltl u_h58a(
-    .d   ( db_mux_1_9          ),
-    .ng  ( reg3cu_wr_n         ),
-    .ncl ( reset13_3cu_buf_n   ),
-    .q   ( reg3c_d[9]          ),
-    .xq  (                     )
-);
-
-jt054156_ltl u_h61(
-    .d   ( db_mux_2_10         ),
-    .ng  ( reg3cu_wr_n         ),
-    .ncl ( reset13_3cu_buf_n   ),
-    .q   ( reg3c_d[10]         ),
-    .xq  (                     )
-);
-
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset7_34u_buf_n) begin
+        reg34u_d[3:0] = 4'd0;
+    end else if (!reg34u_wr_n) begin
+        reg34u_d[3:0] = db_mux_0_3;
+    end
+end // h41
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset7_n) begin
+        reg36_d[0] = 1'b0;
+    end else if (!reg36_wr_n) begin
+        reg36_d[0] = db_in_buf2[0];
+    end
+end // j37a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset7_n) begin
+        reg36_d[1] = 1'b0;
+    end else if (!reg36_wr_n) begin
+        reg36_d[1] = db_in_buf2[1];
+    end
+end // j35
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset6_38l_buf_n) begin
+        reg38_d[7:4] = 4'd0;
+    end else if (!reg38l_wr_n) begin
+        reg38_d[7:4] = db_in_buf2[7:4];
+    end
+end // h100
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset6_38l_buf_n) begin
+        reg38_d[3:0] = 4'd0;
+    end else if (!reg38l_wr_n) begin
+        reg38_d[3:0] = db_in_buf2[3:0];
+    end
+end // h87
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset6_38u_buf_n) begin
+        reg38_d[15:12] = 4'd0;
+    end else if (!reg38u_wr_n) begin
+        reg38_d[15:12] = db_mux_4_7;
+    end
+end // j100
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset6_38u_buf_n) begin
+        reg38_d[11:8] = 4'd0;
+    end else if (!reg38u_wr_n) begin
+        reg38_d[11:8] = db_mux_0_3;
+    end
+end // j82
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset3_3a_buf_n) begin
+        reg3a_d[3:0] = 4'd0;
+    end else if (!reg3al_wr_n) begin
+        reg3a_d[3:0] = db_in_buf3[3:0];
+    end
+end // e169
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset3_3a_buf_n) begin
+        reg3a_d[7:4] = 4'd0;
+    end else if (!reg3al_wr_n) begin
+        reg3a_d[7:4] = db_in_buf3[7:4];
+    end
+end // g154
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset3_3a_buf_n) begin
+        reg3a_d[11:8] = 4'd0;
+    end else if (!reg3au_wr_n) begin
+        reg3a_d[11:8] = db_mux_0_3;
+    end
+end // f60
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_3cl_buf_n) begin
+        reg3c_d[3:0] = 4'd0;
+    end else if (!reg3cl_wr_n) begin
+        reg3c_d[3:0] = db_in[3:0];
+    end
+end // m110
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_3cl_buf_n) begin
+        reg3c_d[7:4] = 4'd0;
+    end else if (!reg3cl_wr_n) begin
+        reg3c_d[7:4] = db_in[7:4];
+    end
+end // k115
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_3cu_buf_n) begin
+        reg3c_d[8] = 1'b0;
+    end else if (!reg3cu_wr_n) begin
+        reg3c_d[8] = db_mux_0_8;
+    end
+end // h63a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_3cu_buf_n) begin
+        reg3c_d[9] = 1'b0;
+    end else if (!reg3cu_wr_n) begin
+        reg3c_d[9] = db_mux_1_9;
+    end
+end // h58a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_3cu_buf_n) begin
+        reg3c_d[10] = 1'b0;
+    end else if (!reg3cu_wr_n) begin
+        reg3c_d[10] = db_mux_2_10;
+    end
+end // h61
+/* verilator lint_on LATCH */
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page02_low_regs.v
 // -----------------------------------------------------------------------------
@@ -3592,136 +3121,133 @@ module jt054156_page02_low_regs(
     input  wire       rega_wr_n,
     input  wire       regc_wr_n,
 
-    output wire [7:0] reg0_db,
-    output wire [7:0] reg2_db,
-    output wire [7:0] reg4_db,
-    output wire [7:0] reg6_db,
-    output wire [7:0] reg8_db,
-    output wire [7:0] rega_db,
-    output wire [5:0] regc_db
+    output reg [7:0] reg0_db,
+    output reg [7:0] reg2_db,
+    output reg [7:0] reg4_db,
+    output reg [7:0] reg6_db,
+    output reg [7:0] reg8_db,
+    output reg [7:0] rega_db,
+    output reg [5:0] regc_db
 );
 
-wire reset20_buf_n;
-wire [3:0] reg4_hi_q;
-
+wire    reset20_buf_n;
+reg [3:0] reg4_hi_q;
 assign reset20_buf_n = reset20_n; // f120a
-jt054156_fdr u_j122(
-    .ck  ( reg0_wr_n       ),
-    .d   ( db_in_buf4[3:0] ),
-    .ncl ( reset11_n       ),
-    .q   ( reg0_db[3:0]    )
-);
-
-jt054156_fdr u_j150(
-    .ck  ( reg0_wr_n       ),
-    .d   ( db_in_buf4[7:4] ),
-    .ncl ( reset11_n       ),
-    .q   ( reg0_db[7:4]    )
-);
-
-jt054156_ltm u_g116(
-    .d   ( db_in_buf2[3:0] ),
-    .ng  ( reg2_wr_n       ),
-    .ncl ( reset20_buf_n   ),
-    .q   ( reg2_db[3:0]    ),
-    .nq  (                 )
-);
-
-jt054156_ltm u_g108(
-    .d   ( db_in_buf2[7:4] ),
-    .ng  ( reg2_wr_n       ),
-    .ncl ( reset20_buf_n   ),
-    .q   ( reg2_db[7:4]    ),
-    .nq  (                 )
-);
-
-jt054156_fdr u_h110(
-    .ck  ( reg4_wr_n       ),
-    .d   ( db_in_buf4[3:0] ),
-    .ncl ( reset11_n       ),
-    .q   ( reg4_db[3:0]    )
-);
-
-jt054156_fdr u_j137(
-    .ck  ( reg4_wr_n       ),
-    .d   ( db_in_buf4[7:4] ),
-    .ncl ( reset11_n       ),
-    .q   ( reg4_hi_q       )
-);
-
+always @(posedge reg0_wr_n or negedge reset11_n) begin
+    if (!reset11_n) begin
+        reg0_db[3:0] <= 4'd0;
+    end else begin
+        reg0_db[3:0] <= db_in_buf4[3:0];
+    end
+end // j122
+always @(posedge reg0_wr_n or negedge reset11_n) begin
+    if (!reset11_n) begin
+        reg0_db[7:4] <= 4'd0;
+    end else begin
+        reg0_db[7:4] <= db_in_buf4[7:4];
+    end
+end // j150
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset20_buf_n) begin
+        reg2_db[3:0] = 4'd0;
+    end else if (!reg2_wr_n) begin
+        reg2_db[3:0] = db_in_buf2[3:0];
+    end
+end // g116
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset20_buf_n) begin
+        reg2_db[7:4] = 4'd0;
+    end else if (!reg2_wr_n) begin
+        reg2_db[7:4] = db_in_buf2[7:4];
+    end
+end // g108
+/* verilator lint_on LATCH */
+always @(posedge reg4_wr_n or negedge reset11_n) begin
+    if (!reset11_n) begin
+        reg4_db[3:0] <= 4'd0;
+    end else begin
+        reg4_db[3:0] <= db_in_buf4[3:0];
+    end
+end // h110
+always @(posedge reg4_wr_n or negedge reset11_n) begin
+    if (!reset11_n) begin
+        reg4_hi_q <= 4'd0;
+    end else begin
+        reg4_hi_q <= db_in_buf4[7:4];
+    end
+end // j137
 assign reg4_db[4] = reg4_hi_q[0];
 assign reg4_db[5] = reg4_hi_q[1];
 assign reg4_db[6] = reg4_hi_q[2];
 assign reg4_db[7] = reg4_hi_q[3];
 
-jt054156_fdr u_k138(
-    .ck  ( reg6_wr_n      ),
-    .d   ( pin_db_in[3:0] ),
-    .ncl ( reset11_n      ),
-    .q   ( reg6_db[3:0]   )
-);
-
-jt054156_fdr u_j109(
-    .ck  ( reg6_wr_n      ),
-    .d   ( pin_db_in[7:4] ),
-    .ncl ( reset11_n      ),
-    .q   ( reg6_db[7:4]   )
-);
-
-jt054156_fdr u_h163(
-    .ck  ( reg8_wr_n    ),
-    .d   ( db_in[3:0]   ),
-    .ncl ( reset2_n     ),
-    .q   ( reg8_db[3:0] )
-);
-
-jt054156_fdr u_m165(
-    .ck  ( reg8_wr_n    ),
-    .d   ( db_in[7:4]   ),
-    .ncl ( reset2_n     ),
-    .q   ( reg8_db[7:4] )
-);
-
-jt054156_fdr u_h136(
-    .ck  ( rega_wr_n      ),
-    .d   ( pin_db_in[3:0] ),
-    .ncl ( reset11_n      ),
-    .q   ( rega_db[3:0]   )
-);
-
-jt054156_fdr u_j164(
-    .ck  ( rega_wr_n      ),
-    .d   ( pin_db_in[7:4] ),
-    .ncl ( reset11_n      ),
-    .q   ( rega_db[7:4]   )
-);
-
-jt054156_fdr u_l205(
-    .ck  ( regc_wr_n    ),
-    .d   ( db_in[3:0]   ),
-    .ncl ( reset2_n     ),
-    .q   ( regc_db[3:0] )
-);
-
-jt054156_fdo u_k193(
-    .ck ( regc_wr_n    ),
-    .d  ( db_in[4]     ),
-    .nr ( reset2_n     ),
-    .q  ( regc_db[4]   ),
-    .nq (              )
-);
-
-jt054156_fdo u_k190(
-    .ck ( regc_wr_n    ),
-    .d  ( db_in[5]     ),
-    .nr ( reset2_n     ),
-    .q  ( regc_db[5]   ),
-    .nq (              )
-);
-
+always @(posedge reg6_wr_n or negedge reset11_n) begin
+    if (!reset11_n) begin
+        reg6_db[3:0] <= 4'd0;
+    end else begin
+        reg6_db[3:0] <= pin_db_in[3:0];
+    end
+end // k138
+always @(posedge reg6_wr_n or negedge reset11_n) begin
+    if (!reset11_n) begin
+        reg6_db[7:4] <= 4'd0;
+    end else begin
+        reg6_db[7:4] <= pin_db_in[7:4];
+    end
+end // j109
+always @(posedge reg8_wr_n or negedge reset2_n) begin
+    if (!reset2_n) begin
+        reg8_db[3:0] <= 4'd0;
+    end else begin
+        reg8_db[3:0] <= db_in[3:0];
+    end
+end // h163
+always @(posedge reg8_wr_n or negedge reset2_n) begin
+    if (!reset2_n) begin
+        reg8_db[7:4] <= 4'd0;
+    end else begin
+        reg8_db[7:4] <= db_in[7:4];
+    end
+end // m165
+always @(posedge rega_wr_n or negedge reset11_n) begin
+    if (!reset11_n) begin
+        rega_db[3:0] <= 4'd0;
+    end else begin
+        rega_db[3:0] <= pin_db_in[3:0];
+    end
+end // h136
+always @(posedge rega_wr_n or negedge reset11_n) begin
+    if (!reset11_n) begin
+        rega_db[7:4] <= 4'd0;
+    end else begin
+        rega_db[7:4] <= pin_db_in[7:4];
+    end
+end // j164
+always @(posedge regc_wr_n or negedge reset2_n) begin
+    if (!reset2_n) begin
+        regc_db[3:0] <= 4'd0;
+    end else begin
+        regc_db[3:0] <= db_in[3:0];
+    end
+end // l205
+always @(posedge regc_wr_n or negedge reset2_n) begin
+    if (!reset2_n) begin
+        regc_db[4] <= 1'b0;
+    end else begin
+        regc_db[4] <= db_in[4];
+    end
+end // k193
+always @(posedge regc_wr_n or negedge reset2_n) begin
+    if (!reset2_n) begin
+        regc_db[5] <= 1'b0;
+    end else begin
+        regc_db[5] <= db_in[5];
+    end
+end // k190
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page02_mid_regs.v
 // -----------------------------------------------------------------------------
@@ -3777,42 +3303,41 @@ module jt054156_page02_mid_regs(
     input  wire        reg2eu_wr_n,
     input  wire        reg2el_wr_n,
 
-    output wire [5:0]  reg10_d,
-    output wire [5:0]  reg12_d,
-    output wire [5:0]  reg14_d,
-    output wire [5:0]  reg16_d,
-    output wire [5:0]  reg18_d,
-    output wire [5:0]  reg1a_d,
-    output wire [5:0]  reg1c_d,
-    output wire [5:0]  reg1e_d,
-    output wire [10:0] reg20_d,
-    output wire [10:0] reg22_d,
-    output wire [10:0] reg24_d,
-    output wire [10:0] reg26_d,
-    output wire [11:0] reg28_d,
-    output wire [11:0] reg2a_d,
-    output wire [11:0] reg2c_d,
-    output wire [11:0] reg2e_d
+    output reg [5:0]  reg10_d,
+    output reg [5:0]  reg12_d,
+    output reg [5:0]  reg14_d,
+    output reg [5:0]  reg16_d,
+    output reg [5:0]  reg18_d,
+    output reg [5:0]  reg1a_d,
+    output reg [5:0]  reg1c_d,
+    output reg [5:0]  reg1e_d,
+    output reg [10:0] reg20_d,
+    output reg [10:0] reg22_d,
+    output reg [10:0] reg24_d,
+    output reg [10:0] reg26_d,
+    output reg [11:0] reg28_d,
+    output reg [11:0] reg2a_d,
+    output reg [11:0] reg2c_d,
+    output reg [11:0] reg2e_d
 );
 
-wire       reset13_reg12_buf_n;
-wire       reset4_reg1e_buf_n;
-wire       reset14_reg20l_buf_n;
-wire       reset14_reg20u_buf_n;
-wire       reset8_reg22l_buf_n;
-wire       reset8_reg22u_buf_n;
-wire       reset12_reg24l_buf_n;
-wire       reset13_reg24u_buf_n;
-wire       reset9_reg26l_buf_n;
-wire       reset9_reg26u_buf_n;
-wire       reset17_reg28l_buf_n;
-wire       reset17_reg28u_n;
-wire       reset17_reg2a_buf_n;
-wire       reset16_reg2cl_buf_n;
-wire       reset16_reg2el_buf_n;
-wire       reset16_reg2eu_n;
+wire    reset13_reg12_buf_n;
+wire    reset4_reg1e_buf_n;
+wire    reset14_reg20l_buf_n;
+wire    reset14_reg20u_buf_n;
+wire    reset8_reg22l_buf_n;
+wire    reset8_reg22u_buf_n;
+wire    reset12_reg24l_buf_n;
+wire    reset13_reg24u_buf_n;
+wire    reset9_reg26l_buf_n;
+wire    reset9_reg26u_buf_n;
+wire    reset17_reg28l_buf_n;
+wire    reset17_reg28u_n;
+wire    reset17_reg2a_buf_n;
+wire    reset16_reg2cl_buf_n;
+wire    reset16_reg2el_buf_n;
+wire    reset16_reg2eu_n;
 wire [3:0] db_mux_0_3;
-
 assign db_mux_0_3 = { db_mux_3_11, db_mux_2_10, db_mux_1_9, db_mux_0_8 };
 
 assign reset13_reg12_buf_n = reset13_n; // k156a
@@ -3832,457 +3357,511 @@ assign reset16_reg2el_buf_n = reset16_n; // b69b
 assign reset17_reg28u_n = reset17_n;
 assign reset16_reg2eu_n = reset16_n;
 
-jt054156_ltm u_l135(
-    .d   ( db_in[3:0] ),
-    .ng  ( reg10_wr_n ),
-    .ncl ( reset14_n  ),
-    .q   ( reg10_d[3:0] ),
-    .nq  (            )
-);
-
-jt054156_ltl u_l170a(
-    .d   ( db_in[4]   ),
-    .ng  ( reg10_wr_n ),
-    .ncl ( reset14_n  ),
-    .q   ( reg10_d[4] ),
-    .xq  (            )
-);
-
-jt054156_ltl u_l173(
-    .d   ( db_in[5]   ),
-    .ng  ( reg10_wr_n ),
-    .ncl ( reset14_n  ),
-    .q   ( reg10_d[5] ),
-    .xq  (            )
-);
-
-jt054156_ltm u_l143(
-    .d   ( db_in[3:0]          ),
-    .ng  ( reg12_wr_n          ),
-    .ncl ( reset13_reg12_buf_n ),
-    .q   ( reg12_d[3:0]        ),
-    .nq  (                     )
-);
-
-jt054156_ltl u_l165a(
-    .d   ( db_in[4]            ),
-    .ng  ( reg12_wr_n          ),
-    .ncl ( reset13_reg12_buf_n ),
-    .q   ( reg12_d[4]          ),
-    .xq  (                     )
-);
-
-jt054156_ltl u_l168(
-    .d   ( db_in[5]            ),
-    .ng  ( reg12_wr_n          ),
-    .ncl ( reset13_reg12_buf_n ),
-    .q   ( reg12_d[5]          ),
-    .xq  (                     )
-);
-
-jt054156_ltm u_k127(
-    .d   ( db_in[3:0]   ),
-    .ng  ( reg14_wr_n   ),
-    .ncl ( reset12_n    ),
-    .q   ( reg14_d[3:0] ),
-    .nq  (              )
-);
-
-jt054156_ltl u_k159a(
-    .d   ( db_in[4]     ),
-    .ng  ( reg14_wr_n   ),
-    .ncl ( reset12_n    ),
-    .q   ( reg14_d[4]   ),
-    .xq  (              )
-);
-
-jt054156_ltl u_k157(
-    .d   ( db_in[5]     ),
-    .ng  ( reg14_wr_n   ),
-    .ncl ( reset12_n    ),
-    .q   ( reg14_d[5]   ),
-    .xq  (              )
-);
-
-jt054156_ltm u_l127(
-    .d   ( db_in[3:0]   ),
-    .ng  ( reg16_wr_n   ),
-    .ncl ( reset9_n     ),
-    .q   ( reg16_d[3:0] ),
-    .nq  (              )
-);
-
-jt054156_ltl u_l175a(
-    .d   ( db_in[4]     ),
-    .ng  ( reg16_wr_n   ),
-    .ncl ( reset9_n     ),
-    .q   ( reg16_d[4]   ),
-    .xq  (              )
-);
-
-jt054156_ltl u_l163(
-    .d   ( db_in[5]     ),
-    .ng  ( reg16_wr_n   ),
-    .ncl ( reset9_n     ),
-    .q   ( reg16_d[5]   ),
-    .xq  (              )
-);
-
-jt054156_ltm u_c190(
-    .d   ( db_in_buf3[3:0] ),
-    .ng  ( reg18_wr_n      ),
-    .ncl ( reset18_n       ),
-    .q   ( reg18_d[3:0]    ),
-    .nq  (                 )
-);
-
-jt054156_ltl u_g197a(
-    .d   ( db_in_buf3[4] ),
-    .ng  ( reg18_wr_n    ),
-    .ncl ( reset18_n     ),
-    .q   ( reg18_d[4]    ),
-    .xq  (               )
-);
-
-jt054156_ltl u_g195(
-    .d   ( db_in_buf3[5] ),
-    .ng  ( reg18_wr_n    ),
-    .ncl ( reset18_n     ),
-    .q   ( reg18_d[5]    ),
-    .xq  (               )
-);
-
-jt054156_ltm u_c170(
-    .d   ( db_in_buf3[3:0] ),
-    .ng  ( reg1a_wr_n      ),
-    .ncl ( reset18_n       ),
-    .q   ( reg1a_d[3:0]    ),
-    .nq  (                 )
-);
-
-jt054156_ltl u_f202(
-    .d   ( db_in_buf3[4] ),
-    .ng  ( reg1a_wr_n    ),
-    .ncl ( reset18_n     ),
-    .q   ( reg1a_d[4]    ),
-    .xq  (               )
-);
-
-jt054156_ltl u_g192a(
-    .d   ( db_in_buf3[5] ),
-    .ng  ( reg1a_wr_n    ),
-    .ncl ( reset18_n     ),
-    .q   ( reg1a_d[5]    ),
-    .xq  (               )
-);
-
-jt054156_ltm u_c179(
-    .d   ( db_in_buf3[3:0] ),
-    .ng  ( reg1c_wr_n      ),
-    .ncl ( reset18_n       ),
-    .q   ( reg1c_d[3:0]    ),
-    .nq  (                 )
-);
-
-jt054156_ltl u_f199a(
-    .d   ( db_in_buf3[4] ),
-    .ng  ( reg1c_wr_n    ),
-    .ncl ( reset18_n     ),
-    .q   ( reg1c_d[4]    ),
-    .xq  (               )
-);
-
-jt054156_ltl u_f197(
-    .d   ( db_in_buf3[5] ),
-    .ng  ( reg1c_wr_n    ),
-    .ncl ( reset18_n     ),
-    .q   ( reg1c_d[5]    ),
-    .xq  (               )
-);
-
-jt054156_ltm u_b194(
-    .d   ( db_in_buf3[3:0]   ),
-    .ng  ( reg1e_wr_n        ),
-    .ncl ( reset4_reg1e_buf_n ),
-    .q   ( reg1e_d[3:0]      ),
-    .nq  (                   )
-);
-
-jt054156_ltl u_a200a(
-    .d   ( db_in_buf3[4]     ),
-    .ng  ( reg1e_wr_n        ),
-    .ncl ( reset4_reg1e_buf_n ),
-    .q   ( reg1e_d[4]        ),
-    .xq  (                   )
-);
-
-jt054156_ltl u_b203(
-    .d   ( db_in_buf3[5]     ),
-    .ng  ( reg1e_wr_n        ),
-    .ncl ( reset4_reg1e_buf_n ),
-    .q   ( reg1e_d[5]        ),
-    .xq  (                   )
-);
-
-jt054156_ltm u_m135(
-    .d   ( db_in[3:0]           ),
-    .ng  ( reg20l_wr_n          ),
-    .ncl ( reset14_reg20l_buf_n ),
-    .q   ( reg20_d[3:0]         ),
-    .nq  (                      )
-);
-
-jt054156_ltm u_n110(
-    .d   ( db_in[7:4]           ),
-    .ng  ( reg20l_wr_n          ),
-    .ncl ( reset14_reg20l_buf_n ),
-    .q   ( reg20_d[7:4]         ),
-    .nq  (                      )
-);
-
-jt054156_ltl u_k100a(
-    .d   ( db_mux_0_8           ),
-    .ng  ( reg20u_wr_n          ),
-    .ncl ( reset14_reg20u_buf_n ),
-    .q   ( reg20_d[8]           ),
-    .xq  (                      )
-);
-
-jt054156_ltl u_k103(
-    .d   ( db_mux_1_9           ),
-    .ng  ( reg20u_wr_n          ),
-    .ncl ( reset14_reg20u_buf_n ),
-    .q   ( reg20_d[9]           ),
-    .xq  (                      )
-);
-
-jt054156_ltl u_k105a(
-    .d   ( db_mux_2_10          ),
-    .ng  ( reg20u_wr_n          ),
-    .ncl ( reset14_reg20u_buf_n ),
-    .q   ( reg20_d[10]          ),
-    .xq  (                      )
-);
-
-jt054156_ltm u_n152(
-    .d   ( db_in[3:0]          ),
-    .ng  ( reg22l_wr_n         ),
-    .ncl ( reset8_reg22l_buf_n ),
-    .q   ( reg22_d[3:0]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_n127(
-    .d   ( db_in[7:4]          ),
-    .ng  ( reg22l_wr_n         ),
-    .ncl ( reset8_reg22l_buf_n ),
-    .q   ( reg22_d[7:4]        ),
-    .nq  (                     )
-);
-
-jt054156_ltl u_l105a(
-    .d   ( db_mux_0_8          ),
-    .ng  ( reg22u_wr_n         ),
-    .ncl ( reset8_reg22u_buf_n ),
-    .q   ( reg22_d[8]          ),
-    .xq  (                     )
-);
-
-jt054156_ltl u_k90(
-    .d   ( db_mux_1_9          ),
-    .ng  ( reg22u_wr_n         ),
-    .ncl ( reset8_reg22u_buf_n ),
-    .q   ( reg22_d[9]          ),
-    .xq  (                     )
-);
-
-jt054156_ltl u_k87a(
-    .d   ( db_mux_2_10         ),
-    .ng  ( reg22u_wr_n         ),
-    .ncl ( reset8_reg22u_buf_n ),
-    .q   ( reg22_d[10]         ),
-    .xq  (                     )
-);
-
-jt054156_ltm u_m143(
-    .d   ( db_in[3:0]           ),
-    .ng  ( reg24l_wr_n          ),
-    .ncl ( reset12_reg24l_buf_n ),
-    .q   ( reg24_d[3:0]         ),
-    .nq  (                      )
-);
-
-jt054156_ltm u_m119(
-    .d   ( db_in[7:4]           ),
-    .ng  ( reg24l_wr_n          ),
-    .ncl ( reset12_reg24l_buf_n ),
-    .q   ( reg24_d[7:4]         ),
-    .nq  (                      )
-);
-
-jt054156_ltl u_k92a(
-    .d   ( db_mux_0_8           ),
-    .ng  ( reg24u_wr_n          ),
-    .ncl ( reset13_reg24u_buf_n ),
-    .q   ( reg24_d[8]           ),
-    .xq  (                      )
-);
-
-jt054156_ltl u_k95a(
-    .d   ( db_mux_1_9           ),
-    .ng  ( reg24u_wr_n          ),
-    .ncl ( reset13_reg24u_buf_n ),
-    .q   ( reg24_d[9]           ),
-    .xq  (                      )
-);
-
-jt054156_ltl u_k98(
-    .d   ( db_mux_2_10          ),
-    .ng  ( reg24u_wr_n          ),
-    .ncl ( reset13_reg24u_buf_n ),
-    .q   ( reg24_d[10]          ),
-    .xq  (                      )
-);
-
-jt054156_ltm u_m155(
-    .d   ( db_in[3:0]          ),
-    .ng  ( reg26l_wr_n         ),
-    .ncl ( reset9_reg26l_buf_n ),
-    .q   ( reg26_d[3:0]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_m127(
-    .d   ( db_in[7:4]          ),
-    .ng  ( reg26l_wr_n         ),
-    .ncl ( reset9_reg26l_buf_n ),
-    .q   ( reg26_d[7:4]        ),
-    .nq  (                     )
-);
-
-jt054156_ltl u_k85(
-    .d   ( db_mux_0_8          ),
-    .ng  ( reg26u_wr_n         ),
-    .ncl ( reset9_reg26u_buf_n ),
-    .q   ( reg26_d[8]          ),
-    .xq  (                     )
-);
-
-jt054156_ltl u_k82a(
-    .d   ( db_mux_1_9          ),
-    .ng  ( reg26u_wr_n         ),
-    .ncl ( reset9_reg26u_buf_n ),
-    .q   ( reg26_d[9]          ),
-    .xq  (                     )
-);
-
-jt054156_ltl u_k80(
-    .d   ( db_mux_2_10         ),
-    .ng  ( reg26u_wr_n         ),
-    .ncl ( reset9_reg26u_buf_n ),
-    .q   ( reg26_d[10]         ),
-    .xq  (                     )
-);
-
-jt054156_ltm u_e121(
-    .d   ( db_in_buf[3:0]      ),
-    .ng  ( reg28l_wr_n         ),
-    .ncl ( reset17_reg28l_buf_n ),
-    .q   ( reg28_d[3:0]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_c127(
-    .d   ( db_in_buf[7:4]      ),
-    .ng  ( reg28l_wr_n         ),
-    .ncl ( reset17_reg28l_buf_n ),
-    .q   ( reg28_d[7:4]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_e80(
-    .d   ( db_mux_0_3          ),
-    .ng  ( reg28u_wr_n         ),
-    .ncl ( reset17_reg28u_n    ),
-    .q   ( reg28_d[11:8]       ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_d121(
-    .d   ( db_in_buf[3:0]     ),
-    .ng  ( reg2al_wr_n        ),
-    .ncl ( reset17_reg2a_buf_n ),
-    .q   ( reg2a_d[3:0]       ),
-    .nq  (                    )
-);
-
-jt054156_ltm u_b109(
-    .d   ( db_in_buf[7:4]     ),
-    .ng  ( reg2al_wr_n        ),
-    .ncl ( reset17_reg2a_buf_n ),
-    .q   ( reg2a_d[7:4]       ),
-    .nq  (                    )
-);
-
-jt054156_ltm u_e72(
-    .d   ( db_mux_0_3         ),
-    .ng  ( reg2au_wr_n        ),
-    .ncl ( reset17_reg2a_buf_n ),
-    .q   ( reg2a_d[11:8]      ),
-    .nq  (                    )
-);
-
-jt054156_ltm u_e135(
-    .d   ( db_in_buf[3:0]      ),
-    .ng  ( reg2cl_wr_n         ),
-    .ncl ( reset16_reg2cl_buf_n ),
-    .q   ( reg2c_d[3:0]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_a172(
-    .d   ( db_in_buf[7:4]      ),
-    .ng  ( reg2cl_wr_n         ),
-    .ncl ( reset16_reg2cl_buf_n ),
-    .q   ( reg2c_d[7:4]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_d56(
-    .d   ( db_mux_0_3    ),
-    .ng  ( reg2cu_wr_n   ),
-    .ncl ( reset16_n     ),
-    .q   ( reg2c_d[11:8] ),
-    .nq  (               )
-);
-
-jt054156_ltm u_f135(
-    .d   ( db_in_buf[3:0]      ),
-    .ng  ( reg2el_wr_n         ),
-    .ncl ( reset16_reg2el_buf_n ),
-    .q   ( reg2e_d[3:0]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_b179(
-    .d   ( db_in_buf[7:4]      ),
-    .ng  ( reg2el_wr_n         ),
-    .ncl ( reset16_reg2el_buf_n ),
-    .q   ( reg2e_d[7:4]        ),
-    .nq  (                     )
-);
-
-jt054156_ltm u_e60(
-    .d   ( db_mux_0_3         ),
-    .ng  ( reg2eu_wr_n        ),
-    .ncl ( reset16_reg2eu_n   ),
-    .q   ( reg2e_d[11:8]      ),
-    .nq  (                    )
-);
-
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset14_n) begin
+        reg10_d[3:0] = 4'd0;
+    end else if (!reg10_wr_n) begin
+        reg10_d[3:0] = db_in[3:0];
+    end
+end // l135
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset14_n) begin
+        reg10_d[4] = 1'b0;
+    end else if (!reg10_wr_n) begin
+        reg10_d[4] = db_in[4];
+    end
+end // l170a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset14_n) begin
+        reg10_d[5] = 1'b0;
+    end else if (!reg10_wr_n) begin
+        reg10_d[5] = db_in[5];
+    end
+end // l173
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_reg12_buf_n) begin
+        reg12_d[3:0] = 4'd0;
+    end else if (!reg12_wr_n) begin
+        reg12_d[3:0] = db_in[3:0];
+    end
+end // l143
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_reg12_buf_n) begin
+        reg12_d[4] = 1'b0;
+    end else if (!reg12_wr_n) begin
+        reg12_d[4] = db_in[4];
+    end
+end // l165a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_reg12_buf_n) begin
+        reg12_d[5] = 1'b0;
+    end else if (!reg12_wr_n) begin
+        reg12_d[5] = db_in[5];
+    end
+end // l168
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset12_n) begin
+        reg14_d[3:0] = 4'd0;
+    end else if (!reg14_wr_n) begin
+        reg14_d[3:0] = db_in[3:0];
+    end
+end // k127
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset12_n) begin
+        reg14_d[4] = 1'b0;
+    end else if (!reg14_wr_n) begin
+        reg14_d[4] = db_in[4];
+    end
+end // k159a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset12_n) begin
+        reg14_d[5] = 1'b0;
+    end else if (!reg14_wr_n) begin
+        reg14_d[5] = db_in[5];
+    end
+end // k157
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset9_n) begin
+        reg16_d[3:0] = 4'd0;
+    end else if (!reg16_wr_n) begin
+        reg16_d[3:0] = db_in[3:0];
+    end
+end // l127
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset9_n) begin
+        reg16_d[4] = 1'b0;
+    end else if (!reg16_wr_n) begin
+        reg16_d[4] = db_in[4];
+    end
+end // l175a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset9_n) begin
+        reg16_d[5] = 1'b0;
+    end else if (!reg16_wr_n) begin
+        reg16_d[5] = db_in[5];
+    end
+end // l163
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset18_n) begin
+        reg18_d[3:0] = 4'd0;
+    end else if (!reg18_wr_n) begin
+        reg18_d[3:0] = db_in_buf3[3:0];
+    end
+end // c190
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset18_n) begin
+        reg18_d[4] = 1'b0;
+    end else if (!reg18_wr_n) begin
+        reg18_d[4] = db_in_buf3[4];
+    end
+end // g197a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset18_n) begin
+        reg18_d[5] = 1'b0;
+    end else if (!reg18_wr_n) begin
+        reg18_d[5] = db_in_buf3[5];
+    end
+end // g195
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset18_n) begin
+        reg1a_d[3:0] = 4'd0;
+    end else if (!reg1a_wr_n) begin
+        reg1a_d[3:0] = db_in_buf3[3:0];
+    end
+end // c170
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset18_n) begin
+        reg1a_d[4] = 1'b0;
+    end else if (!reg1a_wr_n) begin
+        reg1a_d[4] = db_in_buf3[4];
+    end
+end // f202
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset18_n) begin
+        reg1a_d[5] = 1'b0;
+    end else if (!reg1a_wr_n) begin
+        reg1a_d[5] = db_in_buf3[5];
+    end
+end // g192a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset18_n) begin
+        reg1c_d[3:0] = 4'd0;
+    end else if (!reg1c_wr_n) begin
+        reg1c_d[3:0] = db_in_buf3[3:0];
+    end
+end // c179
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset18_n) begin
+        reg1c_d[4] = 1'b0;
+    end else if (!reg1c_wr_n) begin
+        reg1c_d[4] = db_in_buf3[4];
+    end
+end // f199a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset18_n) begin
+        reg1c_d[5] = 1'b0;
+    end else if (!reg1c_wr_n) begin
+        reg1c_d[5] = db_in_buf3[5];
+    end
+end // f197
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset4_reg1e_buf_n) begin
+        reg1e_d[3:0] = 4'd0;
+    end else if (!reg1e_wr_n) begin
+        reg1e_d[3:0] = db_in_buf3[3:0];
+    end
+end // b194
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset4_reg1e_buf_n) begin
+        reg1e_d[4] = 1'b0;
+    end else if (!reg1e_wr_n) begin
+        reg1e_d[4] = db_in_buf3[4];
+    end
+end // a200a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset4_reg1e_buf_n) begin
+        reg1e_d[5] = 1'b0;
+    end else if (!reg1e_wr_n) begin
+        reg1e_d[5] = db_in_buf3[5];
+    end
+end // b203
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset14_reg20l_buf_n) begin
+        reg20_d[3:0] = 4'd0;
+    end else if (!reg20l_wr_n) begin
+        reg20_d[3:0] = db_in[3:0];
+    end
+end // m135
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset14_reg20l_buf_n) begin
+        reg20_d[7:4] = 4'd0;
+    end else if (!reg20l_wr_n) begin
+        reg20_d[7:4] = db_in[7:4];
+    end
+end // n110
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset14_reg20u_buf_n) begin
+        reg20_d[8] = 1'b0;
+    end else if (!reg20u_wr_n) begin
+        reg20_d[8] = db_mux_0_8;
+    end
+end // k100a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset14_reg20u_buf_n) begin
+        reg20_d[9] = 1'b0;
+    end else if (!reg20u_wr_n) begin
+        reg20_d[9] = db_mux_1_9;
+    end
+end // k103
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset14_reg20u_buf_n) begin
+        reg20_d[10] = 1'b0;
+    end else if (!reg20u_wr_n) begin
+        reg20_d[10] = db_mux_2_10;
+    end
+end // k105a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset8_reg22l_buf_n) begin
+        reg22_d[3:0] = 4'd0;
+    end else if (!reg22l_wr_n) begin
+        reg22_d[3:0] = db_in[3:0];
+    end
+end // n152
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset8_reg22l_buf_n) begin
+        reg22_d[7:4] = 4'd0;
+    end else if (!reg22l_wr_n) begin
+        reg22_d[7:4] = db_in[7:4];
+    end
+end // n127
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset8_reg22u_buf_n) begin
+        reg22_d[8] = 1'b0;
+    end else if (!reg22u_wr_n) begin
+        reg22_d[8] = db_mux_0_8;
+    end
+end // l105a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset8_reg22u_buf_n) begin
+        reg22_d[9] = 1'b0;
+    end else if (!reg22u_wr_n) begin
+        reg22_d[9] = db_mux_1_9;
+    end
+end // k90
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset8_reg22u_buf_n) begin
+        reg22_d[10] = 1'b0;
+    end else if (!reg22u_wr_n) begin
+        reg22_d[10] = db_mux_2_10;
+    end
+end // k87a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset12_reg24l_buf_n) begin
+        reg24_d[3:0] = 4'd0;
+    end else if (!reg24l_wr_n) begin
+        reg24_d[3:0] = db_in[3:0];
+    end
+end // m143
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset12_reg24l_buf_n) begin
+        reg24_d[7:4] = 4'd0;
+    end else if (!reg24l_wr_n) begin
+        reg24_d[7:4] = db_in[7:4];
+    end
+end // m119
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_reg24u_buf_n) begin
+        reg24_d[8] = 1'b0;
+    end else if (!reg24u_wr_n) begin
+        reg24_d[8] = db_mux_0_8;
+    end
+end // k92a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_reg24u_buf_n) begin
+        reg24_d[9] = 1'b0;
+    end else if (!reg24u_wr_n) begin
+        reg24_d[9] = db_mux_1_9;
+    end
+end // k95a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset13_reg24u_buf_n) begin
+        reg24_d[10] = 1'b0;
+    end else if (!reg24u_wr_n) begin
+        reg24_d[10] = db_mux_2_10;
+    end
+end // k98
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset9_reg26l_buf_n) begin
+        reg26_d[3:0] = 4'd0;
+    end else if (!reg26l_wr_n) begin
+        reg26_d[3:0] = db_in[3:0];
+    end
+end // m155
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset9_reg26l_buf_n) begin
+        reg26_d[7:4] = 4'd0;
+    end else if (!reg26l_wr_n) begin
+        reg26_d[7:4] = db_in[7:4];
+    end
+end // m127
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset9_reg26u_buf_n) begin
+        reg26_d[8] = 1'b0;
+    end else if (!reg26u_wr_n) begin
+        reg26_d[8] = db_mux_0_8;
+    end
+end // k85
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset9_reg26u_buf_n) begin
+        reg26_d[9] = 1'b0;
+    end else if (!reg26u_wr_n) begin
+        reg26_d[9] = db_mux_1_9;
+    end
+end // k82a
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset9_reg26u_buf_n) begin
+        reg26_d[10] = 1'b0;
+    end else if (!reg26u_wr_n) begin
+        reg26_d[10] = db_mux_2_10;
+    end
+end // k80
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset17_reg28l_buf_n) begin
+        reg28_d[3:0] = 4'd0;
+    end else if (!reg28l_wr_n) begin
+        reg28_d[3:0] = db_in_buf[3:0];
+    end
+end // e121
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset17_reg28l_buf_n) begin
+        reg28_d[7:4] = 4'd0;
+    end else if (!reg28l_wr_n) begin
+        reg28_d[7:4] = db_in_buf[7:4];
+    end
+end // c127
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset17_reg28u_n) begin
+        reg28_d[11:8] = 4'd0;
+    end else if (!reg28u_wr_n) begin
+        reg28_d[11:8] = db_mux_0_3;
+    end
+end // e80
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset17_reg2a_buf_n) begin
+        reg2a_d[3:0] = 4'd0;
+    end else if (!reg2al_wr_n) begin
+        reg2a_d[3:0] = db_in_buf[3:0];
+    end
+end // d121
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset17_reg2a_buf_n) begin
+        reg2a_d[7:4] = 4'd0;
+    end else if (!reg2al_wr_n) begin
+        reg2a_d[7:4] = db_in_buf[7:4];
+    end
+end // b109
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset17_reg2a_buf_n) begin
+        reg2a_d[11:8] = 4'd0;
+    end else if (!reg2au_wr_n) begin
+        reg2a_d[11:8] = db_mux_0_3;
+    end
+end // e72
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset16_reg2cl_buf_n) begin
+        reg2c_d[3:0] = 4'd0;
+    end else if (!reg2cl_wr_n) begin
+        reg2c_d[3:0] = db_in_buf[3:0];
+    end
+end // e135
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset16_reg2cl_buf_n) begin
+        reg2c_d[7:4] = 4'd0;
+    end else if (!reg2cl_wr_n) begin
+        reg2c_d[7:4] = db_in_buf[7:4];
+    end
+end // a172
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset16_n) begin
+        reg2c_d[11:8] = 4'd0;
+    end else if (!reg2cu_wr_n) begin
+        reg2c_d[11:8] = db_mux_0_3;
+    end
+end // d56
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset16_reg2el_buf_n) begin
+        reg2e_d[3:0] = 4'd0;
+    end else if (!reg2el_wr_n) begin
+        reg2e_d[3:0] = db_in_buf[3:0];
+    end
+end // f135
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset16_reg2el_buf_n) begin
+        reg2e_d[7:4] = 4'd0;
+    end else if (!reg2el_wr_n) begin
+        reg2e_d[7:4] = db_in_buf[7:4];
+    end
+end // b179
+/* verilator lint_on LATCH */
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!reset16_reg2eu_n) begin
+        reg2e_d[11:8] = 4'd0;
+    end else if (!reg2eu_wr_n) begin
+        reg2e_d[11:8] = db_mux_0_3;
+    end
+end // e60
+/* verilator lint_on LATCH */
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page03_hcnt.v
 // -----------------------------------------------------------------------------
@@ -4380,10 +3959,10 @@ module jt054156_page03_hload(
     output wire       r51a_x,
     output wire       r45b_x
 );
+reg     r48_q;
 
-wire hcnt5, hcnt7, hcnt8;
-wire r54b_y, r58a_y, r44a_y, r47b_y, r45a_y;
-
+wire    hcnt5, hcnt7, hcnt8;
+wire    r54b_y, r58a_y, r44a_y, r47b_y, r45a_y;
 assign hcnt5 = hcnt[5];
 assign hcnt7 = hcnt[7];
 assign hcnt8 = hcnt[8];
@@ -4391,37 +3970,22 @@ assign hcnt8 = hcnt[8];
 assign r54b_y = ~hcnt8; // r54b
 assign r58a_y = &{r54b_y,hcnt5,hcnt7,p56_co}; // r58a
 assign r44a_y = ~reg0_db6; // r44a
-jt054156_t2b u_r51a(
-    .a  ( r58a_y   ),
-    .b  ( p84_co   ),
-    .s1 ( reg0_db6 ),
-    .s2 ( r44a_y   ),
-    .x  ( r51a_x   )
-);
-
+assign r51a_x = reg0_db6 ? ~p84_co : ~r58a_y; // r51a
 assign r43b_y = pin_enhs | p40b; // r43b
-jt054156_fdn u_r48(
-    .ck ( dclk3_buf ),
-    .d  ( r43b_y    ),
-    .ns ( reg0_db2  ),
-    .q  (           ),
-    .nq ( r48_nq    )
-);
+always @(posedge dclk3_buf or negedge reg0_db2) begin
+    if (!reg0_db2) begin
+        r48_q <= 1'b1;
+    end else begin
+        r48_q <= r43b_y;
+    end
+end // r48
 
+assign r48_nq = ~r48_q; // r48
 assign r47b_y = ~&{r43b_y,r48_nq}; // r47b
 assign r45a_y = ~reg0_db2; // r45a
-jt054156_t2b u_r45b(
-    .a  ( r51a_x   ),
-    .b  ( r47b_y   ),
-    .s1 ( reg0_db2 ),
-    .s2 ( r45a_y   ),
-    .x  ( r45b_x   )
-);
-
+assign r45b_x = reg0_db2 ? ~r47b_y : ~r51a_x; // r45b
 assign hload_n = ~r45b_x; // r52b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page03_horizontal.v
 // -----------------------------------------------------------------------------
@@ -4564,18 +4128,18 @@ module jt054156_page03_nhbl(
     input  wire       n29_co,
     output wire       pin_nhbl,
     output wire       n8b_y,
-    output wire       n9a_q,
+    output reg       n9a_q,
     output wire       n80a_y,
     output wire       n85b_x,
     output wire       n81b_x
 );
 
-wire hcnt2, hcnt3, hcnt4, hcnt5, hcnt7;
-wire n104b_y, n72b_y, n71b_y, n6_y, p8a_y, p11b_x;
-wire n76b_y, r74b_y, r72a_y, n95a_y, n80b_y, n107a_y, n105_y;
-wire m104_q, p46_y, p15b_y, p16a_q;
-wire n88_q, n91a_q;
-
+wire    hcnt2, hcnt3, hcnt4, hcnt5, hcnt7;
+wire    n104b_y, n72b_y, n71b_y, n6_y, p8a_y, p11b_x;
+wire    n76b_y, r74b_y, r72a_y, n95a_y, n80b_y, n107a_y, n105_y;
+wire    p46_y, p15b_y;
+reg     m104_q, p16a_q;
+reg     n88_q, n91a_q;
 assign hcnt2 = hcnt[2];
 assign hcnt3 = hcnt[3];
 assign hcnt4 = hcnt[4];
@@ -4584,22 +4148,20 @@ assign hcnt7 = hcnt[7];
 
 assign n104b_y = ~hcnt7; // n104b
 assign n80a_y = ~&{n104b_y,hcnt4,hcnt3}; // n80a
-jt054156_fdo u_n88(
-    .ck ( hcnt2     ),
-    .d  ( n80a_y    ),
-    .nr ( reset10_n ),
-    .q  ( n88_q     ),
-    .nq (           )
-);
-
-jt054156_fdo u_n91a(
-    .ck ( hcnt4     ),
-    .d  ( hcnt7     ),
-    .nr ( reset10_n ),
-    .q  ( n91a_q    ),
-    .nq (           )
-);
-
+always @(posedge hcnt2 or negedge reset10_n) begin
+    if (!reset10_n) begin
+        n88_q <= 1'b0;
+    end else begin
+        n88_q <= n80a_y;
+    end
+end // n88
+always @(posedge hcnt4 or negedge reset10_n) begin
+    if (!reset10_n) begin
+        n91a_q <= 1'b0;
+    end else begin
+        n91a_q <= hcnt7;
+    end
+end // n91a
 assign n76b_y = ~reg0_db3; // n76b
 assign r74b_y = hcnt3 | n76b_y; // r74b
 assign r72a_y = ~&{r74b_y,hcnt5,hcnt7}; // r72a
@@ -4607,25 +4169,24 @@ assign n95a_y = hcnt3 & reg0_db3; // n95a
 assign n80b_y = ~|{hcnt4,n95a_y}; // n80b
 assign n107a_y = ~hcnt7; // n107a
 assign n105_y = n107a_y; // n105
-jt054156_fdp u_m104(
-    .ck ( hcnt2     ),
-    .d  ( n80b_y    ),
-    .ns ( n105_y    ),
-    .nr ( reset10_n ),
-    .q  ( m104_q    ),
-    .nq (           )
-);
-
+always @(posedge hcnt2 or negedge n105_y or negedge reset10_n) begin
+    if (!n105_y) begin
+        m104_q <= 1'b1;
+    end else if (!reset10_n) begin
+        m104_q <= 1'b0;
+    end else begin
+        m104_q <= n80b_y;
+    end
+end // m104
 assign p46_y = m104_q; // p46
 assign p15b_y = r72a_y & p16a_q; // p15b
-jt054156_fdn u_p16a(
-    .ck ( hcnt2   ),
-    .d  ( p15b_y  ),
-    .ns ( p46_y   ),
-    .q  ( p16a_q  ),
-    .nq (         )
-);
-
+always @(posedge hcnt2 or negedge p46_y) begin
+    if (!p46_y) begin
+        p16a_q <= 1'b1;
+    end else begin
+        p16a_q <= p15b_y;
+    end
+end // p16a
 jt054156_t2b u_n85b(
     .a  ( hcnt2      ),
     .b  ( hcnt3      ),
@@ -4653,27 +4214,17 @@ jt054156_page03_n8b_term u_n8b_term(
     .n82a_y   (          )
 );
 
-jt054156_fdn u_n9a(
-    .ck ( n72b_y ),
-    .d  ( n8b_y  ),
-    .ns ( n6_y   ),
-    .q  ( n9a_q  ),
-    .nq (        )
-);
-
+always @(posedge n72b_y or negedge n6_y) begin
+    if (!n6_y) begin
+        n9a_q <= 1'b1;
+    end else begin
+        n9a_q <= n8b_y;
+    end
+end // n9a
 assign p8a_y = ~reg0_db6; // p8a
-jt054156_t2b u_p11b(
-    .a  ( p16a_q   ),
-    .b  ( n9a_q    ),
-    .s1 ( reg0_db6 ),
-    .s2 ( p8a_y    ),
-    .x  ( p11b_x   )
-);
-
+assign p11b_x = reg0_db6 ? ~n9a_q : ~p16a_q; // p11b
 assign pin_nhbl = ~p11b_x; // r8b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page03_nhsy.v
 // -----------------------------------------------------------------------------
@@ -4690,12 +4241,12 @@ module jt054156_page03_nhsy(
     output wire       pin_nhsy,
     output wire       r34_xq,
     output wire       r43a_y,
-    output wire       r55_q
+    output reg       r55_q
 );
+reg     r34_q;
 
-wire hcnt2, hcnt3, hcnt5, hcnt6, hcnt7, hcnt8;
-wire r29a_y, r37a_x, r46a_y, r53a_y, r74a_y;
-
+wire    hcnt2, hcnt3, hcnt5, hcnt6, hcnt7, hcnt8;
+wire    r29a_y, r37a_x, r46a_y, r53a_y, r74a_y;
 assign hcnt2 = hcnt[2];
 assign hcnt3 = hcnt[3];
 assign hcnt5 = hcnt[5];
@@ -4707,29 +4258,27 @@ assign pin_nhsy = r37a_x;
 
 assign r74a_y = ~&{hcnt3,hcnt5,hcnt6}; // r74a
 assign r53a_y = r74a_y & r55_q; // r53a
-jt054156_fdn u_r55(
-    .ck ( hcnt2   ),
-    .d  ( r53a_y  ),
-    .ns ( hcnt7   ),
-    .q  ( r55_q   ),
-    .nq (         )
-);
-
+always @(posedge hcnt2 or negedge hcnt7) begin
+    if (!hcnt7) begin
+        r55_q <= 1'b1;
+    end else begin
+        r55_q <= r53a_y;
+    end
+end // r55
 assign r46a_y = reg0_db2 | r55_q; // r46a
 assign r43a_y = ~&{r46a_y,pin_enhs}; // r43a
 assign r29a_y = ~r0_2or6; // r29a
 assign r37a_x = ~((r29a_y & hcnt8) | (r0_2or6 & r43a_y) | (hcnt8 & r43a_y)); // r37a
-jt054156_fdo u_r34(
-    .ck ( dclk2     ),
-    .d  ( pin_nhsy  ),
-    .nr ( reset15_n ),
-    .q  (           ),
-    .nq ( r34_xq    )
-);
+always @(posedge dclk2 or negedge reset15_n) begin
+    if (!reset15_n) begin
+        r34_q <= 1'b0;
+    end else begin
+        r34_q <= pin_nhsy;
+    end
+end // r34
 
+assign r34_xq = ~r34_q; // r34
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page04_sync_irq.v
 // -----------------------------------------------------------------------------
@@ -4749,104 +4298,87 @@ module jt054156_page04_sync_irq(
     input  wire       m11_y,
     output wire       pin_nvbl,
     output wire       pin_nvsy,
-    output wire       pin_irq,
-    output wire       pin_firq,
-    output wire       pin_nmi,
+    output reg       pin_irq,
+    output reg       pin_firq,
+    output reg       pin_nmi,
     output wire       p9b_y,
     output wire       p11a_x,
     output wire       p15a_y,
-    output wire       p20_q,
+    output reg       p20_q,
     output wire       r7b_y,
     output wire       r13b_y,
     output wire       r7a_y,
     output wire       r6b_y,
     output wire       r5a_x,
     output wire       r129_y,
-    output wire       r131a_q,
+    output reg       r131a_q,
     output wire       r131a_nq,
     output wire       r178_y,
-    output wire       r169a_q,
+    output reg       r169a_q,
     output wire       r169a_nq
 );
 
-wire gnd = 1'b0;
-
+wire    gnd = 1'b0;
 assign p9b_y = ~reg0_db6; // p9b
-jt054156_t2b u_p11a(
-    .a  ( m11_y    ),
-    .b  ( vcnt[8]  ),
-    .s1 ( reg0_db6 ),
-    .s2 ( p9b_y    ),
-    .x  ( p11a_x   )
-);
-
+assign p11a_x = reg0_db6 ? ~vcnt[8] : ~m11_y; // p11a
 assign p15a_y = ~p11a_x; // p15a
-jt054156_fdo u_p20(
-    .ck ( n23a_y    ),
-    .d  ( p15a_y    ),
-    .nr ( reset15_n ),
-    .q  ( p20_q     ),
-    .nq ( pin_nvbl  )
-);
+always @(posedge n23a_y or negedge reset15_n) begin
+    if (!reset15_n) begin
+        p20_q <= 1'b0;
+    end else begin
+        p20_q <= p15a_y;
+    end
+end // p20
 
+assign pin_nvbl = ~p20_q; // p20
 assign r7b_y = ~vcnt[8]; // r7b
 assign r13b_y = reg0_db2 & n13a_nq; // r13b
 assign r7a_y = r13b_y & pin_envs; // r7a
 assign r6b_y = ~r0_2or6; // r6b
-jt054156_t2b u_r5a(
-    .a  ( r7b_y   ),
-    .b  ( r7a_y   ),
-    .s1 ( r0_2or6 ),
-    .s2 ( r6b_y   ),
-    .x  ( r5a_x   )
-);
-
+assign r5a_x = r0_2or6 ? ~r7a_y : ~r7b_y; // r5a
 assign pin_nvsy = ~r5a_x; // r11b
-jt054156_fdn u_p136a(
-    .ck ( n23a_y     ),
-    .d  ( gnd        ),
-    .ns ( reg6_db[0] ),
-    .q  ( pin_irq    ),
-    .nq (            )
-);
-
-jt054156_fdn u_p137(
-    .ck ( vcnt[0]    ),
-    .d  ( gnd        ),
-    .ns ( reg6_db[1] ),
-    .q  ( pin_firq   ),
-    .nq (            )
-);
-
+always @(posedge n23a_y or negedge reg6_db[0]) begin
+    if (!reg6_db[0]) begin
+        pin_irq <= 1'b1;
+    end else begin
+        pin_irq <= gnd;
+    end
+end // p136a
+always @(posedge vcnt[0] or negedge reg6_db[1]) begin
+    if (!reg6_db[1]) begin
+        pin_firq <= 1'b1;
+    end else begin
+        pin_firq <= gnd;
+    end
+end // p137
 assign r129_y = r131a_nq; // r129
-jt054156_fdo u_r131a(
-    .ck ( vcnt[1]   ),
-    .d  ( r129_y   ),
-    .nr ( reset1_n ),
-    .q  ( r131a_q  ),
-    .nq ( r131a_nq )
-);
+always @(posedge vcnt[1] or negedge reset1_n) begin
+    if (!reset1_n) begin
+        r131a_q <= 1'b0;
+    end else begin
+        r131a_q <= r129_y;
+    end
+end // r131a
 
+assign r131a_nq = ~r131a_q; // r131a
 assign r178_y = r169a_nq; // r178
-jt054156_fdo u_r169a(
-    .ck ( r131a_q  ),
-    .d  ( r178_y   ),
-    .nr ( reset1_n ),
-    .q  ( r169a_q  ),
-    .nq ( r169a_nq )
-);
+always @(posedge r131a_q or negedge reset1_n) begin
+    if (!reset1_n) begin
+        r169a_q <= 1'b0;
+    end else begin
+        r169a_q <= r178_y;
+    end
+end // r169a
 
-jt054156_fdn u_l184a(
-    .ck ( r169a_q    ),
-    .d  ( gnd        ),
-    .ns ( reg6_db[2] ),
-    .q  ( pin_nmi    ),
-    .nq (            )
-);
-
+assign r169a_nq = ~r169a_q; // r169a
+always @(posedge r169a_q or negedge reg6_db[2]) begin
+    if (!reg6_db[2]) begin
+        pin_nmi <= 1'b1;
+    end else begin
+        pin_nmi <= gnd;
+    end
+end // l184a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page04_vcnt.v
 // -----------------------------------------------------------------------------
@@ -4869,7 +4401,7 @@ module jt054156_page04_vcnt(
     output wire       n8a_y,
     output wire       p37a_y,
     output wire       n23a_y,
-    output wire       n13a_q,
+    output reg       n13a_q,
     output wire       n13a_nq,
     output wire       r16b_y,
     output wire       r13a_y,
@@ -4889,12 +4421,12 @@ module jt054156_page04_vcnt(
     output wire       m11_y,
     output wire       p28_x
 );
+reg     r30a_q;
 
-wire       vcnt0;
+reg     vcnt0;
 wire [3:0] n29_q, m25_q;
 wire [3:0] n29_d, m25_d;
-wire       n26b_y, p36a_y, p8b_y, p9a_x, p10b_y;
-
+wire    n26b_y, p36a_y, p8b_y, p9a_x, p10b_y;
 assign vcnt[0]   = vcnt0;
 assign vcnt[4:1] = n29_q;
 assign vcnt[8:5] = m25_q;
@@ -4910,59 +4442,46 @@ assign p37a_y = ~reg0_db2_n; // p37a
 assign n26b_y = reg0_db6 & reg0_db2_n; // n26b
 assign p36a_y = ~|{reg0_db6,p37a_y}; // p36a
 assign n23a_y = vcnt[1] & vcnt[2]; // n23a
-jt054156_fdo u_n13a(
-    .ck ( n23a_y   ),
-    .d  ( vcnt[4]  ),
-    .nr ( vcnt[8]  ),
-    .q  ( n13a_q  ),
-    .nq ( n13a_nq )
-);
+always @(posedge n23a_y or negedge vcnt[8]) begin
+    if (!vcnt[8]) begin
+        n13a_q <= 1'b0;
+    end else begin
+        n13a_q <= vcnt[4];
+    end
+end // n13a
 
+assign n13a_nq = ~n13a_q; // n13a
 assign r16b_y = reg0_db2 | n13a_q; // r16b
 assign r13a_y = r16b_y & pin_envs; // r13a
-jt054156_fdo u_r30a(
-    .ck ( dclk2    ),
-    .d  ( r13a_y   ),
-    .nr ( reset15_n ),
-    .q  (          ),
-    .nq ( r30a_nq )
-);
+always @(posedge dclk2 or negedge reset15_n) begin
+    if (!reset15_n) begin
+        r30a_q <= 1'b0;
+    end else begin
+        r30a_q <= r13a_y;
+    end
+end // r30a
 
+assign r30a_nq = ~r30a_q; // r30a
 assign r29b_y = ~&{r30a_nq,r13a_y}; // r29b
 assign p8b_y = ~r0_2or6; // p8b
-jt054156_t2b u_p9a(
-    .a  ( p36a_y  ),
-    .b  ( r29b_y  ),
-    .s1 ( r0_2or6 ),
-    .s2 ( p8b_y   ),
-    .x  ( p9a_x   )
-);
-
+assign p9a_x = r0_2or6 ? ~r29b_y : ~p36a_y; // p9a
 assign p10b_y = ~p9a_x; // p10b
 assign p26a_y = p36a_y | p10b_y; // p26a
 assign n18a_y = p26b_y; // n18a
 assign p36b_y = reset15_n & p26a_y; // p36b
 assign p30_y = p36b_y; // p30
 assign p23b_y = ~test2; // p23b
-jt054156_t2b u_p23a(
-    .a  ( p26b_y ),
-    .b  ( p26b_y ),
-    .s1 ( test2  ),
-    .s2 ( p23b_y ),
-    .x  ( p23a_x )
-);
-
+assign p23a_x = test2 ? ~p26b_y : ~p26b_y; // p23a
 assign r15b_y = ~p23a_x; // r15b
 assign r17a_y = r15b_y; // r17a
 assign p28_x = n18a_y ^ vcnt0; // p28
-jt054156_fdo u_p32a(
-    .ck ( dclk2     ),
-    .d  ( p28_x     ),
-    .nr ( p30_y     ),
-    .q  ( vcnt0     ),
-    .nq (           )
-);
-
+always @(posedge dclk2 or negedge p30_y) begin
+    if (!p30_y) begin
+        vcnt0 <= 1'b0;
+    end else begin
+        vcnt0 <= p28_x;
+    end
+end // p32a
 jt054156_c43 u_n29(
     .ck      ( dclk2     ),
     .d       ( n29_d     ),
@@ -4984,10 +4503,7 @@ jt054156_c43 u_m25(
     .q       ( m25_q     ),
     .co      ( m25_co    )
 );
-
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page05_start_size_mux.v
 // -----------------------------------------------------------------------------
@@ -5322,63 +4838,19 @@ assign reg4_db0_buf = reg4_db0; // a59b
 assign reg4_db0_n = ~reg4_db0_buf; // a48a
 assign reg4_db1_n = ~reg4_db1; // b29a
 assign reg4_db2_n = ~reg4_db2; // b34b
-jt054156_t2b u_a47b(
-    .a  ( vd_reg_11_19 ),
-    .b  ( lu[1]        ),
-    .s1 ( reg4_db0_n   ),
-    .s2 ( reg4_db0_buf ),
-    .x  ( col3_x       )
-);
-
+assign col3_x = reg4_db0_buf ? ~vd_reg_11_19 : ~lu[1]; // a47b
 assign col[3] = ~col3_x; // a47a
-jt054156_t2b u_b41a(
-    .a  ( vd_reg_10_18 ),
-    .b  ( lu[0]        ),
-    .s1 ( reg4_db0_n   ),
-    .s2 ( reg4_db0_buf ),
-    .x  ( col2_x       )
-);
-
+assign col2_x = reg4_db0_buf ? ~vd_reg_10_18 : ~lu[0]; // b41a
 assign col[2] = ~col2_x; // b42b
-jt054156_t2b u_a15a(
-    .a  ( vd_reg_9_17 ),
-    .b  ( lu[1]       ),
-    .s1 ( reg4_db1_n  ),
-    .s2 ( reg4_db1    ),
-    .x  ( col1_x      )
-);
-
+assign col1_x = reg4_db1 ? ~vd_reg_9_17 : ~lu[1]; // a15a
 assign col[1] = ~col1_x; // a16b
-jt054156_t2b u_b33a(
-    .a  ( vd_reg_8_16 ),
-    .b  ( lu[0]       ),
-    .s1 ( reg4_db1_n  ),
-    .s2 ( reg4_db1    ),
-    .x  ( col0_x      )
-);
-
+assign col0_x = reg4_db1 ? ~vd_reg_8_16 : ~lu[0]; // b33a
 assign col[0] = ~col0_x; // b30a
-jt054156_t2b u_b25b(
-    .a  ( vd_reg_23  ),
-    .b  ( vd_reg_23  ),
-    .s1 ( reg4_db2_n ),
-    .s2 ( reg4_db2   ),
-    .x  ( ca18_x     )
-);
-
+assign ca18_x = reg4_db2 ? ~vd_reg_23 : ~vd_reg_23; // b25b
 assign ca18 = ~ca18_x; // b7a
-jt054156_t2b u_b29b(
-    .a  ( vd_reg_22  ),
-    .b  ( vd_reg_22  ),
-    .s1 ( reg4_db2_n ),
-    .s2 ( reg4_db2   ),
-    .x  ( ca17_x     )
-);
-
+assign ca17_x = reg4_db2 ? ~vd_reg_22 : ~vd_reg_22; // b29b
 assign ca17 = ~ca17_x; // a1b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page06_db_out_ctrl.v
 // -----------------------------------------------------------------------------
@@ -5498,25 +4970,9 @@ assign n26a_y = ~p41_x; // n26a
 assign n25a_y = ~p39a_x; // n25a
 assign m118b_y = ~reg6_db5; // m118b
 assign m118a_y = ~reg6_db5; // m118a
-jt054156_t2b u_m53a(
-    .a  ( n25b_y   ),
-    .b  ( n57b_y   ),
-    .s1 ( reg6_db5 ),
-    .s2 ( m118b_y  ),
-    .x  ( m53a_y   )
-);
-
-jt054156_t2b u_m53b(
-    .a  ( n26a_y   ),
-    .b  ( n25a_y   ),
-    .s1 ( reg6_db5 ),
-    .s2 ( m118a_y  ),
-    .x  ( m53b_y   )
-);
-
+assign m53a_y = reg6_db5 ? ~n57b_y : ~n25b_y; // m53a
+assign m53b_y = reg6_db5 ? ~n25a_y : ~n26a_y; // m53b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page06_db_out_p54a.v
 // -----------------------------------------------------------------------------
@@ -5577,50 +5033,15 @@ wire gnd = 1'b0;
 assign p51b_y = ~p110a_y; // p51b
 assign p50b_y = ~p124b_y; // p50b
 assign p52a_y = ~pin_ab11; // p52a
-jt054156_t5a u_p43a(
-    .a1 ( pin_uds  ),
-    .a2 ( pin_uds  ),
-    .s1 ( p124b_y  ),
-    .s2 ( p50b_y   ),
-    .s5 ( p110a_y  ),
-    .s6 ( p51b_y   ),
-    .s3 ( p124b_y  ),
-    .s4 ( p50b_y   ),
-    .b1 ( p52a_y   ),
-    .b2 ( gnd      ),
-    .x  ( p43a_x   )
-);
-
+assign p43a_x = ~(p110a_y ? (p124b_y ? gnd : p52a_y) : (p124b_y ? pin_uds : pin_uds)); // p43a
 assign p51a_y = ~p110a_y; // p51a
 assign p50a_y = ~p124b_y; // p50a
 assign p52b_y = ~pin_ab12; // p52b
-jt054156_t5a u_p41(
-    .a1 ( pin_ab1  ),
-    .a2 ( p52b_y   ),
-    .s1 ( p124b_y  ),
-    .s2 ( p50a_y   ),
-    .s5 ( p110a_y  ),
-    .s6 ( p51a_y   ),
-    .s3 ( p124b_y  ),
-    .s4 ( p50a_y   ),
-    .b1 ( p52b_y   ),
-    .b2 ( gnd      ),
-    .x  ( p41_x    )
-);
-
+assign p41_x = ~(p110a_y ? (p124b_y ? gnd : p52b_y) : (p124b_y ? p52b_y : pin_ab1)); // p41
 assign p38_y = p124b_y ^ p110a_y; // p38
 assign p29a_y = ~p38_y; // p29a
-jt054156_t2b u_p39a(
-    .a  ( pin_ab1 ),
-    .b  ( p52b_y  ),
-    .s1 ( p38_y   ),
-    .s2 ( p29a_y  ),
-    .x  ( p39a_x  )
-);
-
+assign p39a_x = p38_y ? ~p52b_y : ~pin_ab1; // p39a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page06_flip_en_mux.v
 // -----------------------------------------------------------------------------
@@ -5712,6 +5133,8 @@ module jt054156_page06_linescroll_ctrl(
     output wire       tick_c,
     output wire       tick_d
 );
+reg     n171_q;
+reg     n178_q;
 
 assign h74_y = scrolly[0] ^ reg0_db5; // h74
 assign h75a_y = scrolly[1] ^ reg0_db5; // h75a
@@ -5727,35 +5150,19 @@ assign tick_mask_n[0] = ~|{n75a_y,rega_odd_n[0]}; // n164b
 assign tick_mask_n[1] = ~|{n75a_y,rega_odd_n[1]}; // n163a
 assign tick_mask_n[2] = ~|{n75a_y,rega_odd_n[2]}; // n169b
 assign tick_mask_n[3] = ~|{n75a_y,rega_odd_n[3]}; // n170b
-jt054156_fdm u_n171(
-    .ck ( dclk     ),
-    .d  ( n186_x3  ),
-    .q  (          ),
-    .nq ( n171_nq  )
-);
+always @(posedge dclk) begin
+    {n171_q,n178_q} <= {n186_x3,n186_x2}; // n171, n178
+end
 
-jt054156_fdm u_n178(
-    .ck ( dclk     ),
-    .d  ( n186_x2  ),
-    .q  (          ),
-    .nq ( n178_nq  )
-);
-
+assign n171_nq = ~n171_q; // n171
+assign n178_nq = ~n178_q; // n178
 assign j181b_y = ~&{pin_sz,n186_x1_n}; // j181b
-jt054156_de4 u_n174(
-    .a   ( n171_nq   ),
-    .b   ( n178_nq   ),
-    .g_n ( j181b_y   ),
-    .x_n ( n174_x_n  )
-);
-
+assign n174_x_n = ~j181b_y ? ~(4'b0001 << { n178_nq, n171_nq }) : 4'hf; // n174
 assign tick_a = tick_mask_n[0] | n174_x_n[0]; // n165b
 assign tick_b = tick_mask_n[1] | n174_x_n[1]; // n164a
 assign tick_c = tick_mask_n[2] | n174_x_n[2]; // n167b
 assign tick_d = tick_mask_n[3] | n174_x_n[3]; // n167a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page06_lu_source.v
 // -----------------------------------------------------------------------------
@@ -5787,101 +5194,21 @@ wire j90_x, j92a_x, j95_x, j97a_x;
 
 assign reg4_db1_n = ~reg4_db1; // b13b
 assign reg4_db2_n = ~reg4_db2; // b14b
-jt054156_t5a u_b26a(
-    .a1 ( vd_reg_11_19 ),
-    .a2 ( vd_reg_9_17  ),
-    .s1 ( reg4_db1     ),
-    .s2 ( reg4_db1_n   ),
-    .s5 ( reg4_db2     ),
-    .s6 ( reg4_db2_n   ),
-    .s3 ( reg4_db1     ),
-    .s4 ( reg4_db1_n   ),
-    .b1 ( vd_reg_23    ),
-    .b2 ( vd_reg_23    ),
-    .x  ( b26a_x       )
-);
-
+assign b26a_x = ~(reg4_db2 ? (reg4_db1 ? vd_reg_23 : vd_reg_23) : (reg4_db1 ? vd_reg_9_17 : vd_reg_11_19)); // b26a
 assign lut_addr[1] = ~b26a_x; // b60b
 assign lut_addr_n[1] = ~lut_addr[1]; // j79a
-jt054156_t5a u_b31(
-    .a1 ( vd_reg_10_18 ),
-    .a2 ( vd_reg_8_16  ),
-    .s1 ( reg4_db1     ),
-    .s2 ( reg4_db1_n   ),
-    .s5 ( reg4_db2     ),
-    .s6 ( reg4_db2_n   ),
-    .s3 ( reg4_db1     ),
-    .s4 ( reg4_db1_n   ),
-    .b1 ( vd_reg_22    ),
-    .b2 ( vd_reg_22    ),
-    .x  ( b31_x        )
-);
-
+assign b31_x = ~(reg4_db2 ? (reg4_db1 ? vd_reg_22 : vd_reg_22) : (reg4_db1 ? vd_reg_8_16 : vd_reg_10_18)); // b31
 assign lut_addr[0] = ~b31_x; // b60a
 assign lut_addr_n[0] = ~lut_addr[0]; // j81a
-jt054156_t5a u_j90(
-    .a1 ( reg38_d[3]    ),
-    .a2 ( reg38_d[7]    ),
-    .s1 ( lut_addr[0]   ),
-    .s2 ( lut_addr_n[0] ),
-    .s5 ( lut_addr[1]   ),
-    .s6 ( lut_addr_n[1] ),
-    .s3 ( lut_addr[0]   ),
-    .s4 ( lut_addr_n[0] ),
-    .b1 ( reg38_d[11]   ),
-    .b2 ( reg38_d[15]   ),
-    .x  ( j90_x         )
-);
-
+assign j90_x = ~(lut_addr[1] ? (lut_addr[0] ? reg38_d[15] : reg38_d[11]) : (lut_addr[0] ? reg38_d[7] : reg38_d[3])); // j90
 assign lu[3] = ~j90_x; // j57a
-jt054156_t5a u_j92a(
-    .a1 ( reg38_d[2]    ),
-    .a2 ( reg38_d[6]    ),
-    .s1 ( lut_addr[0]   ),
-    .s2 ( lut_addr_n[0] ),
-    .s5 ( lut_addr[1]   ),
-    .s6 ( lut_addr_n[1] ),
-    .s3 ( lut_addr[0]   ),
-    .s4 ( lut_addr_n[0] ),
-    .b1 ( reg38_d[10]   ),
-    .b2 ( reg38_d[14]   ),
-    .x  ( j92a_x        )
-);
-
+assign j92a_x = ~(lut_addr[1] ? (lut_addr[0] ? reg38_d[14] : reg38_d[10]) : (lut_addr[0] ? reg38_d[6] : reg38_d[2])); // j92a
 assign lu[2] = ~j92a_x; // j57b
-jt054156_t5a u_j95(
-    .a1 ( reg38_d[1]    ),
-    .a2 ( reg38_d[5]    ),
-    .s1 ( lut_addr[0]   ),
-    .s2 ( lut_addr_n[0] ),
-    .s5 ( lut_addr[1]   ),
-    .s6 ( lut_addr_n[1] ),
-    .s3 ( lut_addr[0]   ),
-    .s4 ( lut_addr_n[0] ),
-    .b1 ( reg38_d[9]    ),
-    .b2 ( reg38_d[13]   ),
-    .x  ( j95_x         )
-);
-
+assign j95_x = ~(lut_addr[1] ? (lut_addr[0] ? reg38_d[13] : reg38_d[9]) : (lut_addr[0] ? reg38_d[5] : reg38_d[1])); // j95
 assign lu[1] = ~j95_x; // a58a
-jt054156_t5a u_j97a(
-    .a1 ( reg38_d[0]    ),
-    .a2 ( reg38_d[4]    ),
-    .s1 ( lut_addr[0]   ),
-    .s2 ( lut_addr_n[0] ),
-    .s5 ( lut_addr[1]   ),
-    .s6 ( lut_addr_n[1] ),
-    .s3 ( lut_addr[0]   ),
-    .s4 ( lut_addr_n[0] ),
-    .b1 ( reg38_d[8]    ),
-    .b2 ( reg38_d[12]   ),
-    .x  ( j97a_x        )
-);
-
+assign j97a_x = ~(lut_addr[1] ? (lut_addr[0] ? reg38_d[12] : reg38_d[8]) : (lut_addr[0] ? reg38_d[4] : reg38_d[0])); // j97a
 assign lu[0] = ~j97a_x; // b68a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page06_m191a_source.v
 // -----------------------------------------------------------------------------
@@ -5911,10 +5238,10 @@ module jt054156_page06_m191a_source(
     output wire       k200b_y,
     output wire       k201a_x
 );
+reg     m201_q;
 
 wire [2:0] k201a_a, k201a_b, k201a_c, k201a_d;
 wire [2:0] m191a_a, m191a_b;
-
 assign k201a_a = { regc_db[3], k200b_y, j203a_y };
 assign k201a_b = { k200b_y,   k200a_y, regc_db[2] };
 assign k201a_c = { regc_db[5], j203a_y, j189a_y };
@@ -5924,14 +5251,7 @@ assign m191a_a = { m201_xq, p140_xq, reg0_db0 };
 assign m191a_b = { m201_xq, hcnt0,   m200b_y  };
 
 assign m200a_y = ~reg0_db0; // m200a
-jt054156_t2b u_m190b(
-    .a  ( p140_xq  ),
-    .b  ( hcnt0    ),
-    .s1 ( reg0_db0 ),
-    .s2 ( m200a_y  ),
-    .x  ( m190b_x  )
-);
-
+assign m190b_x = reg0_db0 ? ~hcnt0 : ~p140_xq; // m190b
 assign m205a_y = ~m190b_x; // m205a
 assign j203a_y = ~n186_x2t_n; // j203a
 assign k200a_y = ~j203a_y; // k200a
@@ -5940,20 +5260,19 @@ assign g182a_y = g185a_y ^ reg0_db4; // g182a
 assign j189a_y = ~|{reg0_db0,g182a_y}; // j189a
 assign k200b_y = ~j189a_y; // k200b
 assign k201a_x = ~(|{ &k201a_a, &k201a_b, &k201a_c, &k201a_d }); // k201a
-jt054156_fdn u_m201(
-    .ck ( m205a_y  ),
-    .d  ( k201a_x  ),
-    .ns ( reset2_n ),
-    .q  (          ),
-    .nq ( m201_xq  )
-);
+always @(posedge m205a_y or negedge reset2_n) begin
+    if (!reset2_n) begin
+        m201_q <= 1'b1;
+    end else begin
+        m201_q <= k201a_x;
+    end
+end // m201
 
+assign m201_xq = ~m201_q; // m201
 assign m200b_y = ~reg0_db0; // m200b
 assign m191a = ~(&{ |m191a_a, |m191a_b }); // m191a
 assign pin_namp = m191a; // n211a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page06_n186.v
 // -----------------------------------------------------------------------------
@@ -6094,15 +5413,6 @@ assign n186_x2_n = ~n186_x2; // g184a
 assign n186_x3_n = ~n186_x3; // n214b
 assign m217b_y = ~n186_x2; // m217b
 assign m211b_y = ~pin_test; // m211b
-jt054156_t2e u_m208a(
-    .a1 ( test1     ),
-    .a2 ( n186_x3_n ),
-    .b1 ( test0     ),
-    .b2 ( m217b_y   ),
-    .s  ( m211b_y   ),
-    .x0 ( m208a_x0  ),
-    .x1 ( m208a_x1  )
-);
 
 assign n186_x3t_n = ~m208a_x0; // j208a
 assign n186_x2t_n = ~m208a_x1; // m211a
@@ -6138,21 +5448,6 @@ wire tied_low = 1'b0;
 
 assign n185b_y = ~hcnt0; // n185b
 assign n185a_y = ~reg0_db0; // n185a
-jt054156_t2f u_n186(
-    .a1 ( p140_q    ),
-    .a2 ( n185b_y   ),
-    .b1 ( hcnt0     ),
-    .b2 ( p140_xq   ),
-    .c1 ( hcnt0f    ),
-    .c2 ( hcnt1f    ),
-    .d1 ( hcnt1f    ),
-    .d2 ( tied_low  ),
-    .s  ( n185a_y   ),
-    .x0 ( n186_x0_n ),
-    .x1 ( n186_x1_n ),
-    .x2 ( n186_x2   ),
-    .x3 ( n186_x3   )
-);
 
 assign n186_x0 = ~n186_x0_n; // n183a
 assign n186_x1 = ~n186_x1_n; // j189b
@@ -6170,7 +5465,7 @@ module jt054156_page06_p140(
     input  wire p155_q,
     input  wire hload_n,
     input  wire reset15_n,
-    output wire p140_q,
+    output reg p140_q,
     output wire p140_xq,
     output wire p140_q_n,
     output wire p140_xq_n,
@@ -6180,19 +5475,18 @@ module jt054156_page06_p140(
 
 assign p145b_y = ~p155_q; // p145b
 assign p135b_y = p155_q & hload_n; // p135b
-jt054156_fd5 u_p140(
-    .ck  ( p145b_y   ),
-    .d   ( p135b_y   ),
-    .ncl ( reset15_n ),
-    .q   ( p140_q    ),
-    .nq  ( p140_xq   )
-);
+always @(posedge p145b_y or negedge reset15_n) begin
+    if (!reset15_n) begin
+        p140_q <= 1'b0;
+    end else begin
+        p140_q <= p135b_y;
+    end
+end // p140
 
+assign p140_xq = ~p140_q; // p140
 assign p140_q_n = ~p140_q; // n184a
 assign p140_xq_n = ~p140_xq; // n184b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page06_p155_p159.v
 // -----------------------------------------------------------------------------
@@ -6201,9 +5495,9 @@ endmodule
 module jt054156_page06_p155_p159(
     input  wire pin_clk,
     input  wire reset19_n,
-    output wire p155_q,
+    output reg p155_q,
     output wire p155_nq,
-    output wire p159_q,
+    output reg p159_q,
     output wire p159_nq,
     output wire p165a_y,
     output wire p152a_y,
@@ -6216,22 +5510,24 @@ module jt054156_page06_p155_p159(
 );
 
 assign p165a_y = ~pin_clk; // p165a
-jt054156_fd5 u_p159(
-    .ck  ( p165a_y  ),
-    .d   ( p152a_y  ),
-    .ncl ( reset19_n ),
-    .q   ( p159_q   ),
-    .nq  ( p159_nq  )
-);
+always @(posedge p165a_y or negedge reset19_n) begin
+    if (!reset19_n) begin
+        p159_q <= 1'b0;
+    end else begin
+        p159_q <= p152a_y;
+    end
+end // p159
 
-jt054156_fd5 u_p155(
-    .ck  ( p165a_y  ),
-    .d   ( p151_y   ),
-    .ncl ( reset19_n ),
-    .q   ( p155_q   ),
-    .nq  ( p155_nq  )
-);
+assign p159_nq = ~p159_q; // p159
+always @(posedge p165a_y or negedge reset19_n) begin
+    if (!reset19_n) begin
+        p155_q <= 1'b0;
+    end else begin
+        p155_q <= p151_y;
+    end
+end // p155
 
+assign p155_nq = ~p155_q; // p155
 assign p152a_y = p159_nq; // p152a
 assign p150a_y = ~p152a_y; // p150a
 assign p146_y = p155_q; // p146
@@ -6239,10 +5535,7 @@ assign p151_y = p150a_y ^ p146_y; // p151
 assign dclk2 = p159_q; // r127a
 assign pin_dclk = p159_q; // p172b
 assign dclk3 = p159_q;
-
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page06_reg0_inv.v
 // -----------------------------------------------------------------------------
@@ -6271,37 +5564,17 @@ module jt054156_page06_test_source(
     input  wire       pin_test,
     input  wire [2:0] pin_db_in,
 
-    output wire test0,
-    output wire test1,
+    output reg test0,
+    output reg test1,
     output wire test2,
-    output wire p115_q
+    output reg p115_q
 );
 
-jt054156_fdm u_m194(
-    .ck ( pin_test     ),
-    .d  ( pin_db_in[0] ),
-    .q  ( test0        ),
-    .nq (              )
-);
-
-jt054156_fdm u_m197(
-    .ck ( pin_test     ),
-    .d  ( pin_db_in[1] ),
-    .q  ( test1        ),
-    .nq (              )
-);
-
-jt054156_fdm u_p115(
-    .ck ( pin_test     ),
-    .d  ( pin_db_in[2] ),
-    .q  ( p115_q       ),
-    .nq (              )
-);
-
+always @(posedge pin_test) begin
+    {test0,test1,p115_q} <= {pin_db_in[0],pin_db_in[1],pin_db_in[2]}; // m194, m197, p115
+end
 assign test2 = pin_test & p115_q; // p108b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page06_va_ctrl.v
 // -----------------------------------------------------------------------------
@@ -6329,36 +5602,14 @@ module jt054156_page06_va_ctrl(
 
 assign g174a_y = ~n186_x3t_n; // g174a
 assign g175b_y = ~n186_x2t_n; // g175b
-jt054156_t5a u_g175a(
-    .a1 ( reg8_db[0] ),
-    .a2 ( reg8_db[1] ),
-    .s1 ( n186_x2t_n ),
-    .s2 ( g175b_y    ),
-    .s5 ( n186_x3t_n ),
-    .s6 ( g174a_y    ),
-    .s3 ( n186_x2t_n ),
-    .s4 ( g175b_y    ),
-    .b1 ( reg8_db[2] ),
-    .b2 ( reg8_db[3] ),
-    .x  ( g175a_x    )
-);
-
+assign g175a_x = ~(n186_x3t_n ? (n186_x2t_n ? reg8_db[3] : reg8_db[2]) : (n186_x2t_n ? reg8_db[1] : reg8_db[0])); // g175a
 assign h183_y = ~|{g175a_x,pin_sz}; // h183
 assign j182a_y = regc_db0; // j182a
 assign h180_x = regc_db1_buf ^ j182a_y; // h180
 assign k209a = reg0_db7 | m191a; // k209a
 assign h184a_y = ~k209a; // h184a
-jt054156_t2d u_h181a(
-    .a  ( h183_y  ),
-    .b  ( h180_x  ),
-    .s1 ( k209a   ),
-    .s2 ( h184a_y ),
-    .x  ( h181a   )
-);
-
+assign h181a = k209a ? ~h180_x : ~h183_y; // h181a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page07_hadd.v
 // -----------------------------------------------------------------------------
@@ -6405,222 +5656,54 @@ assign hb[3] = d155_s[1];
 assign hc[3] = e154_s[1];
 assign hd[3] = f143_s[1];
 
-jt054156_a2n u_e190(
-    .a  ( src_a[1:0] ),
-    .b  ( hofs[1:0]  ),
-    .ci ( gnd        ),
-    .s  ( e190_s     ),
-    .co ( e190_co    )
-);
-
-jt054156_a2n u_e143(
-    .a  ( src_a[3:2] ),
-    .b  ( hofs[3:2]  ),
-    .ci ( e190_co    ),
-    .s  ( e143_s     ),
-    .co ( e143_co    )
-);
-
-jt054156_a2n u_c154(
-    .a  ( src_a[5:4] ),
-    .b  ( hofs[5:4]  ),
-    .ci ( e143_co    ),
-    .s  ( c154_s     ),
-    .co ( c154_co    )
-);
-
+assign { e190_co, e190_s } = { 1'b0, src_a[1:0] } + { 1'b0, hofs[1:0] } + { 2'b0, gnd }; // e190
+assign { e143_co, e143_s } = { 1'b0, src_a[3:2] } + { 1'b0, hofs[3:2] } + { 2'b0, e190_co }; // e143
+assign { c154_co, c154_s } = { 1'b0, src_a[5:4] } + { 1'b0, hofs[5:4] } + { 2'b0, e143_co }; // c154
 assign ha[5:4] = c154_s;
 
-jt054156_a2n u_a135(
-    .a  ( src_a[7:6] ),
-    .b  ( hofs[7:6]  ),
-    .ci ( c154_co    ),
-    .s  ( a135_s     ),
-    .co ( a135_co    )
-);
-
+assign { a135_co, a135_s } = { 1'b0, src_a[7:6] } + { 1'b0, hofs[7:6] } + { 2'b0, c154_co }; // a135
 assign ha[7:6] = a135_s;
 
-jt054156_a2n u_c92(
-    .a  ( src_a[9:8] ),
-    .b  ( hofs[9:8]  ),
-    .ci ( a135_co    ),
-    .s  ( c92_s      ),
-    .co ( c92_co     )
-);
-
+assign { c92_co, c92_s } = { 1'b0, src_a[9:8] } + { 1'b0, hofs[9:8] } + { 2'b0, a135_co }; // c92
 assign ha[9:8] = c92_s;
 
-jt054156_a2n u_b92(
-    .a  ( src_a[11:10] ),
-    .b  ( hofs[11:10]  ),
-    .ci ( c92_co       ),
-    .s  ( ha[11:10]    ),
-    .co (              )
-);
-
-jt054156_a2n u_d165(
-    .a  ( src_b[1:0] ),
-    .b  ( hofs[1:0]  ),
-    .ci ( gnd        ),
-    .s  ( d165_s     ),
-    .co ( d165_co    )
-);
-
-jt054156_a2n u_d155(
-    .a  ( src_b[3:2] ),
-    .b  ( hofs[3:2]  ),
-    .ci ( d165_co    ),
-    .s  ( d155_s     ),
-    .co ( d155_co    )
-);
-
-jt054156_a2n u_b135(
-    .a  ( src_b[5:4] ),
-    .b  ( hofs[5:4]  ),
-    .ci ( d155_co    ),
-    .s  ( b135_s     ),
-    .co ( b135_co    )
-);
-
+assign ha[11:10] = src_a[11:10] + hofs[11:10] + { 1'b0, c92_co }; // b92
+assign { d165_co, d165_s } = { 1'b0, src_b[1:0] } + { 1'b0, hofs[1:0] } + { 2'b0, gnd }; // d165
+assign { d155_co, d155_s } = { 1'b0, src_b[3:2] } + { 1'b0, hofs[3:2] } + { 2'b0, d165_co }; // d155
+assign { b135_co, b135_s } = { 1'b0, src_b[5:4] } + { 1'b0, hofs[5:4] } + { 2'b0, d155_co }; // b135
 assign hb[5:4] = b135_s;
 
-jt054156_a2n u_b127(
-    .a  ( src_b[7:6] ),
-    .b  ( hofs[7:6]  ),
-    .ci ( b135_co    ),
-    .s  ( b127_s     ),
-    .co ( b127_co    )
-);
-
+assign { b127_co, b127_s } = { 1'b0, src_b[7:6] } + { 1'b0, hofs[7:6] } + { 2'b0, b135_co }; // b127
 assign hb[7:6] = b127_s;
 
-jt054156_a2n u_c100(
-    .a  ( src_b[9:8] ),
-    .b  ( hofs[9:8]  ),
-    .ci ( b127_co    ),
-    .s  ( c100_s     ),
-    .co ( c100_co    )
-);
-
+assign { c100_co, c100_s } = { 1'b0, src_b[9:8] } + { 1'b0, hofs[9:8] } + { 2'b0, b127_co }; // c100
 assign hb[9:8] = c100_s;
 
-jt054156_a2n u_b84(
-    .a  ( src_b[11:10] ),
-    .b  ( hofs[11:10]  ),
-    .ci ( c100_co      ),
-    .s  ( hb[11:10]    ),
-    .co (              )
-);
-
-jt054156_a2n u_d190(
-    .a  ( src_c[1:0] ),
-    .b  ( hofs[1:0]  ),
-    .ci ( gnd        ),
-    .s  ( d190_s     ),
-    .co ( d190_co    )
-);
-
-jt054156_a2n u_e154(
-    .a  ( src_c[3:2] ),
-    .b  ( hofs[3:2]  ),
-    .ci ( d190_co    ),
-    .s  ( e154_s     ),
-    .co ( e154_co    )
-);
-
-jt054156_a2n u_a143(
-    .a  ( src_c[5:4] ),
-    .b  ( hofs[5:4]  ),
-    .ci ( e154_co    ),
-    .s  ( a143_s     ),
-    .co ( a143_co    )
-);
-
+assign hb[11:10] = src_b[11:10] + hofs[11:10] + { 1'b0, c100_co }; // b84
+assign { d190_co, d190_s } = { 1'b0, src_c[1:0] } + { 1'b0, hofs[1:0] } + { 2'b0, gnd }; // d190
+assign { e154_co, e154_s } = { 1'b0, src_c[3:2] } + { 1'b0, hofs[3:2] } + { 2'b0, d190_co }; // e154
+assign { a143_co, a143_s } = { 1'b0, src_c[5:4] } + { 1'b0, hofs[5:4] } + { 2'b0, e154_co }; // a143
 assign hc[5:4] = a143_s;
 
-jt054156_a2n u_b143(
-    .a  ( src_c[7:6] ),
-    .b  ( hofs[7:6]  ),
-    .ci ( a143_co    ),
-    .s  ( b143_s     ),
-    .co ( b143_co    )
-);
-
+assign { b143_co, b143_s } = { 1'b0, src_c[7:6] } + { 1'b0, hofs[7:6] } + { 2'b0, a143_co }; // b143
 assign hc[7:6] = b143_s;
 
-jt054156_a2n u_c84(
-    .a  ( src_c[9:8] ),
-    .b  ( hofs[9:8]  ),
-    .ci ( b143_co    ),
-    .s  ( c84_s      ),
-    .co ( c84_co     )
-);
-
+assign { c84_co, c84_s } = { 1'b0, src_c[9:8] } + { 1'b0, hofs[9:8] } + { 2'b0, b143_co }; // c84
 assign hc[9:8] = c84_s;
 
-jt054156_a2n u_b72(
-    .a  ( src_c[11:10] ),
-    .b  ( hofs[11:10]  ),
-    .ci ( c84_co       ),
-    .s  ( hc[11:10]    ),
-    .co (              )
-);
-
-jt054156_a2n u_f167(
-    .a  ( src_d[1:0] ),
-    .b  ( hofs[1:0]  ),
-    .ci ( gnd        ),
-    .s  ( f167_s     ),
-    .co ( f167_co    )
-);
-
-jt054156_a2n u_f143(
-    .a  ( src_d[3:2] ),
-    .b  ( hofs[3:2]  ),
-    .ci ( f167_co    ),
-    .s  ( f143_s     ),
-    .co ( f143_co    )
-);
-
-jt054156_a2n u_b155(
-    .a  ( src_d[5:4] ),
-    .b  ( hofs[5:4]  ),
-    .ci ( f143_co    ),
-    .s  ( b155_s     ),
-    .co ( b155_co    )
-);
-
+assign hc[11:10] = src_c[11:10] + hofs[11:10] + { 1'b0, c84_co }; // b72
+assign { f167_co, f167_s } = { 1'b0, src_d[1:0] } + { 1'b0, hofs[1:0] } + { 2'b0, gnd }; // f167
+assign { f143_co, f143_s } = { 1'b0, src_d[3:2] } + { 1'b0, hofs[3:2] } + { 2'b0, f167_co }; // f143
+assign { b155_co, b155_s } = { 1'b0, src_d[5:4] } + { 1'b0, hofs[5:4] } + { 2'b0, f143_co }; // b155
 assign hd[5:4] = b155_s;
 
-jt054156_a2n u_a164(
-    .a  ( src_d[7:6] ),
-    .b  ( hofs[7:6]  ),
-    .ci ( b155_co    ),
-    .s  ( a164_s     ),
-    .co ( a164_co    )
-);
-
+assign { a164_co, a164_s } = { 1'b0, src_d[7:6] } + { 1'b0, hofs[7:6] } + { 2'b0, b155_co }; // a164
 assign hd[7:6] = a164_s;
 
-jt054156_a2n u_b100(
-    .a  ( src_d[9:8] ),
-    .b  ( hofs[9:8]  ),
-    .ci ( a164_co    ),
-    .s  ( b100_s     ),
-    .co ( b100_co    )
-);
-
+assign { b100_co, b100_s } = { 1'b0, src_d[9:8] } + { 1'b0, hofs[9:8] } + { 2'b0, a164_co }; // b100
 assign hd[9:8] = b100_s;
 
-jt054156_a2n u_a96(
-    .a  ( src_d[11:10] ),
-    .b  ( hofs[11:10]  ),
-    .ci ( b100_co      ),
-    .s  ( hd[11:10]    ),
-    .co (              )
-);
-
+assign hd[11:10] = src_d[11:10] + hofs[11:10] + { 1'b0, b100_co }; // a96
 endmodule
 
 
@@ -6687,66 +5770,18 @@ assign f195a_y = ~(reg0_db0 ^ g184b_y); // f195a
 assign f176b_y = g184b_y & reg0_db0_n; // f176b
 assign f176a_y = reg0_db0_n & reg0_db4_n; // f176a
 assign f188a_y = reg0_db0 & reg0_db4_n; // f188a
-jt054156_a1a u_e209a(
-    .a  ( corr_a[0] ),
-    .b  ( ha_pre[0] ),
-    .s  ( ha[0]     ),
-    .co ( e209a_co  )
-);
-
-jt054156_a2n u_e198(
-    .a  ( ha_pre[2:1] ),
-    .b  ( corr_a[2:1] ),
-    .ci ( e209a_co    ),
-    .s  ( ha[2:1]     ),
-    .co (              )
-);
-
-jt054156_a1a u_d175a(
-    .a  ( corr_b[0] ),
-    .b  ( hb_pre[0] ),
-    .s  ( hb[0]     ),
-    .co ( d175a_co  )
-);
-
-jt054156_a2n u_d179(
-    .a  ( hb_pre[2:1] ),
-    .b  ( corr_b[2:1] ),
-    .ci ( d175a_co    ),
-    .s  ( hb[2:1]     ),
-    .co (              )
-);
-
-jt054156_a1a u_d212a(
-    .a  ( corr_c[0] ),
-    .b  ( hc_pre[0] ),
-    .s  ( hc[0]     ),
-    .co ( d212a_co  )
-);
-
-jt054156_a2n u_d198(
-    .a  ( hc_pre[2:1] ),
-    .b  ( corr_c[2:1] ),
-    .ci ( d212a_co    ),
-    .s  ( hc[2:1]     ),
-    .co (              )
-);
-
-jt054156_a1a u_f186(
-    .a  ( corr_d[0] ),
-    .b  ( hd_pre[0] ),
-    .s  ( hd[0]     ),
-    .co ( f186_co   )
-);
-
-jt054156_a2n u_f178(
-    .a  ( hd_pre[2:1] ),
-    .b  ( corr_d[2:1] ),
-    .ci ( f186_co     ),
-    .s  ( hd[2:1]     ),
-    .co (              )
-);
-
+assign ha[0] = corr_a[0] ^ ha_pre[0]; // e209a
+assign e209a_co = corr_a[0] & ha_pre[0]; // e209a
+assign ha[2:1] = ha_pre[2:1] + corr_a[2:1] + { 1'b0, e209a_co }; // e198
+assign hb[0] = corr_b[0] ^ hb_pre[0]; // d175a
+assign d175a_co = corr_b[0] & hb_pre[0]; // d175a
+assign hb[2:1] = hb_pre[2:1] + corr_b[2:1] + { 1'b0, d175a_co }; // d179
+assign hc[0] = corr_c[0] ^ hc_pre[0]; // d212a
+assign d212a_co = corr_c[0] & hc_pre[0]; // d212a
+assign hc[2:1] = hc_pre[2:1] + corr_c[2:1] + { 1'b0, d212a_co }; // d198
+assign hd[0] = corr_d[0] ^ hd_pre[0]; // f186
+assign f186_co = corr_d[0] & hd_pre[0]; // f186
+assign hd[2:1] = hd_pre[2:1] + corr_d[2:1] + { 1'b0, f186_co }; // f178
 endmodule
 
 
@@ -6924,60 +5959,19 @@ wire gnd = 1'b0;
 
 assign g172a_y = reg0_db4; // g172a
 assign g162a_y = ~g172a_y; // g162a
-jt054156_p24 u_f72(
-    .a1 ( gnd          ),
-    .b1 ( reg3au_d[10] ),
-    .a2 ( gnd          ),
-    .b2 ( reg3au_d[8]  ),
-    .a3 ( gnd          ),
-    .b3 ( reg3au_d[11] ),
-    .a4 ( gnd          ),
-    .b4 ( reg3au_d[9]  ),
-    .sa ( g172a_y      ),
-    .sb ( g162a_y      ),
-    .x1 ( hofs[10]     ),
-    .x2 ( hofs[8]      ),
-    .x3 ( hofs[11]     ),
-    .x4 ( hofs[9]      )
-);
-
-jt054156_p24 u_f157(
-    .a1 ( gnd         ),
-    .b1 ( reg3al_d[6] ),
-    .a2 ( gnd         ),
-    .b2 ( reg3al_d[4] ),
-    .a3 ( gnd         ),
-    .b3 ( reg3al_d[7] ),
-    .a4 ( gnd         ),
-    .b4 ( reg3al_d[5] ),
-    .sa ( g172a_y     ),
-    .sb ( g162a_y     ),
-    .x1 ( hofs[6]     ),
-    .x2 ( hofs[4]     ),
-    .x3 ( hofs[7]     ),
-    .x4 ( hofs[5]     )
-);
-
-jt054156_p24 u_e163(
-    .a1 ( gnd         ),
-    .b1 ( reg3al_d[2] ),
-    .a2 ( gnd         ),
-    .b2 ( reg3al_d[0] ),
-    .a3 ( gnd         ),
-    .b3 ( reg3al_d[3] ),
-    .a4 ( gnd         ),
-    .b4 ( reg3al_d[1] ),
-    .sa ( g172a_y     ),
-    .sb ( g162a_y     ),
-    .x1 ( hofs[2]     ),
-    .x2 ( hofs[0]     ),
-    .x3 ( hofs[3]     ),
-    .x4 ( hofs[1]     )
-);
-
+assign hofs[10] = g172a_y ? reg3au_d[10] : gnd; // f72
+assign hofs[8] = g172a_y ? reg3au_d[8] : gnd; // f72
+assign hofs[11] = g172a_y ? reg3au_d[11] : gnd; // f72
+assign hofs[9] = g172a_y ? reg3au_d[9] : gnd; // f72
+assign hofs[6] = g172a_y ? reg3al_d[6] : gnd; // f157
+assign hofs[4] = g172a_y ? reg3al_d[4] : gnd; // f157
+assign hofs[7] = g172a_y ? reg3al_d[7] : gnd; // f157
+assign hofs[5] = g172a_y ? reg3al_d[5] : gnd; // f157
+assign hofs[2] = g172a_y ? reg3al_d[2] : gnd; // e163
+assign hofs[0] = g172a_y ? reg3al_d[0] : gnd; // e163
+assign hofs[3] = g172a_y ? reg3al_d[3] : gnd; // e163
+assign hofs[1] = g172a_y ? reg3al_d[1] : gnd; // e163
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page07_hscroll.v
 // -----------------------------------------------------------------------------
@@ -7285,48 +6279,15 @@ assign hcnt_phase[5] = hcnt[5] ^ n169a_y; // n97a
 assign hcnt_phase[6] = hcnt[6] ^ n169a_y; // n100a
 assign hcnt_phase[7] = hcnt[7] ^ n169a_y; // n102
 assign hcnt_phase[8] = hcnt[8] ^ n169a_y; // n99
-jt054156_a4h u_g84(
-    .a  ( g84_a    ),
-    .b  ( g84_b    ),
-    .ci ( tied_low ),
-    .s  ( g84_s    ),
-    .co ( g84_co   )
-);
-
-jt054156_a4h u_f84(
-    .a  ( f84_a  ),
-    .b  ( f84_b  ),
-    .ci ( g84_co ),
-    .s  ( f84_s  ),
-    .co ( f84_co )
-);
-
-jt054156_a1n u_f191(
-    .a  ( hmux[11] ),
-    .b  ( f84_co   ),
-    .ci ( tied_low ),
-    .s  ( f191_s   ),
-    .co (          )
-);
-
+assign { g84_co, g84_s } = { 1'b0, g84_a } + { 1'b0, g84_b } + { 4'b0, tied_low }; // g84
+assign { f84_co, f84_s } = { 1'b0, f84_a } + { 1'b0, f84_b } + { 4'b0, g84_co }; // f84
+assign f191_s = hmux[11] ^ f84_co ^ tied_low; // f191
 assign hs_mux[0] = f84_s3 & hb_mux[0]; // f78a
 assign hs_mux[1] = f84_s4 & hb_mux[1]; // f82a
 assign hs_mux[2] = f191_s & hb_mux[2]; // f204a
-jt054156_a1a u_f214(
-    .a  ( hs_mux[0] ),
-    .b  ( hs_mux[0] ),
-    .s  ( pagex[0]  ),
-    .co ( f214_co   )
-);
-
-jt054156_a2n u_f206(
-    .a  ( hs_mux[2:1] ),
-    .b  ( hs_mux[2:1] ),
-    .ci ( f214_co     ),
-    .s  ( pagex[2:1]  ),
-    .co (              )
-);
-
+assign pagex[0] = hs_mux[0] ^ hs_mux[0]; // f214
+assign f214_co = hs_mux[0] & hs_mux[0]; // f214
+assign pagex[2:1] = hs_mux[2:1] + hs_mux[2:1] + { 1'b0, f214_co }; // f206
 endmodule
 
 
@@ -7363,20 +6324,17 @@ module jt054156_page07_xsrc(
     output wire        e162_y
 );
 
-wire [3:0] vd_low_d  = { pin_vd_in[3],  pin_vd_in[2],  pin_vd_in[1],  pin_vd_in[0]  };
-wire [3:0] vd_mid_d  = { pin_vd_in[7],  pin_vd_in[6],  pin_vd_in[5],  pin_vd_in[4]  };
+wire [3:0] vd_low_d  = { pin_vd_in[3], pin_vd_in[2], pin_vd_in[1], pin_vd_in[0]  };
+wire [3:0] vd_mid_d  = { pin_vd_in[7], pin_vd_in[6], pin_vd_in[5], pin_vd_in[4]  };
 wire [3:0] vd_high_d = { pin_vd_in[19], pin_vd_in[18], pin_vd_in[17], pin_vd_in[16] };
-
-wire [3:0] e111_q, c113_q, d92_q;
-wire [3:0] d111_q, a113_q, e88_q;
-wire [3:0] d135_q, a190_q, d64_q;
-wire [3:0] g141_q, a180_q, e98_q;
-
+reg [3:0] e111_q, c113_q, d92_q;
+reg [3:0] d111_q, a113_q, e88_q;
+reg [3:0] d135_q, a190_q, d64_q;
+reg [3:0] g141_q, a180_q, e98_q;
 wire [3:0] e129_x, c135_x, d102_x;
 wire [3:0] d129_x, b117_x, d80_x;
 wire [3:0] d145_x, b163_x, d74_x;
 wire [3:0] f151_x, b169_x, d86_x;
-
 assign line_a = { d92_q[3:0], c113_q[3:0], e111_q[3:0] };
 assign line_b = { e88_q[3:0], a113_q[3:0], d111_q[3:0] };
 assign line_c = { d64_q[3:0], a190_q[3:0], d135_q[3:0] };
@@ -7402,285 +6360,67 @@ assign e110_y = ~rega_db[0]; // e110
 assign d110a_y = ~rega_db[2]; // d110a
 assign d164a_y = ~rega_db[4]; // d164a
 assign e162_y = ~rega_db[6]; // e162
-jt054156_fds u_e111(
-    .ck ( tick_a   ),
-    .d  ( vd_low_d ),
-    .q  ( e111_q   )
-);
-
-jt054156_fds u_c113(
-    .ck ( tick_a   ),
-    .d  ( vd_mid_d ),
-    .q  ( c113_q   )
-);
-
-jt054156_fds u_d92(
-    .ck ( tick_a    ),
-    .d  ( vd_high_d ),
-    .q  ( d92_q     )
-);
-
-jt054156_fds u_d111(
-    .ck ( tick_b   ),
-    .d  ( vd_low_d ),
-    .q  ( d111_q   )
-);
-
-jt054156_fds u_a113(
-    .ck ( tick_b   ),
-    .d  ( vd_mid_d ),
-    .q  ( a113_q   )
-);
-
-jt054156_fds u_e88(
-    .ck ( tick_b    ),
-    .d  ( vd_high_d ),
-    .q  ( e88_q     )
-);
-
-jt054156_fds u_d135(
-    .ck ( tick_c   ),
-    .d  ( vd_low_d ),
-    .q  ( d135_q   )
-);
-
-jt054156_fds u_a190(
-    .ck ( tick_c   ),
-    .d  ( vd_mid_d ),
-    .q  ( a190_q   )
-);
-
-jt054156_fds u_d64(
-    .ck ( tick_c    ),
-    .d  ( vd_high_d ),
-    .q  ( d64_q     )
-);
-
-jt054156_fds u_g141(
-    .ck ( tick_d   ),
-    .d  ( vd_low_d ),
-    .q  ( g141_q   )
-);
-
-jt054156_fds u_a180(
-    .ck ( tick_d   ),
-    .d  ( vd_mid_d ),
-    .q  ( a180_q   )
-);
-
-jt054156_fds u_e98(
-    .ck ( tick_d    ),
-    .d  ( vd_high_d ),
-    .q  ( e98_q     )
-);
-
-jt054156_p24 u_e129(
-    .a1 ( e111_q[1]  ),
-    .b1 ( reg28_d[1] ),
-    .a2 ( e111_q[3]  ),
-    .b2 ( reg28_d[3] ),
-    .a3 ( e111_q[0]  ),
-    .b3 ( reg28_d[0] ),
-    .a4 ( e111_q[2]  ),
-    .b4 ( reg28_d[2] ),
-    .sa ( rega_db[0] ),
-    .sb ( e110_y     ),
-    .x1 ( e129_x[0]  ),
-    .x2 ( e129_x[1]  ),
-    .x3 ( e129_x[2]  ),
-    .x4 ( e129_x[3]  )
-);
-
-jt054156_p24 u_c135(
-    .a1 ( c113_q[1]  ),
-    .b1 ( reg28_d[5] ),
-    .a2 ( c113_q[3]  ),
-    .b2 ( reg28_d[7] ),
-    .a3 ( c113_q[0]  ),
-    .b3 ( reg28_d[4] ),
-    .a4 ( c113_q[2]  ),
-    .b4 ( reg28_d[6] ),
-    .sa ( rega_db[0] ),
-    .sb ( e110_y     ),
-    .x1 ( c135_x[0]  ),
-    .x2 ( c135_x[1]  ),
-    .x3 ( c135_x[2]  ),
-    .x4 ( c135_x[3]  )
-);
-
-jt054156_p24 u_d102(
-    .a1 ( d92_q[1]    ),
-    .b1 ( reg28_d[9]  ),
-    .a2 ( d92_q[3]    ),
-    .b2 ( reg28_d[11] ),
-    .a3 ( d92_q[0]    ),
-    .b3 ( reg28_d[8]  ),
-    .a4 ( d92_q[2]    ),
-    .b4 ( reg28_d[10] ),
-    .sa ( rega_db[0]  ),
-    .sb ( e110_y      ),
-    .x1 ( d102_x[0]   ),
-    .x2 ( d102_x[1]   ),
-    .x3 ( d102_x[2]   ),
-    .x4 ( d102_x[3]   )
-);
-
-jt054156_p24 u_d129(
-    .a1 ( d111_q[1]  ),
-    .b1 ( reg2a_d[1] ),
-    .a2 ( d111_q[3]  ),
-    .b2 ( reg2a_d[3] ),
-    .a3 ( d111_q[0]  ),
-    .b3 ( reg2a_d[0] ),
-    .a4 ( d111_q[2]  ),
-    .b4 ( reg2a_d[2] ),
-    .sa ( rega_db[2] ),
-    .sb ( d110a_y    ),
-    .x1 ( d129_x[0]  ),
-    .x2 ( d129_x[1]  ),
-    .x3 ( d129_x[2]  ),
-    .x4 ( d129_x[3]  )
-);
-
-jt054156_p24 u_b117(
-    .a1 ( a113_q[1]  ),
-    .b1 ( reg2a_d[5] ),
-    .a2 ( a113_q[3]  ),
-    .b2 ( reg2a_d[7] ),
-    .a3 ( a113_q[0]  ),
-    .b3 ( reg2a_d[4] ),
-    .a4 ( a113_q[2]  ),
-    .b4 ( reg2a_d[6] ),
-    .sa ( rega_db[2] ),
-    .sb ( d110a_y    ),
-    .x1 ( b117_x[0]  ),
-    .x2 ( b117_x[1]  ),
-    .x3 ( b117_x[2]  ),
-    .x4 ( b117_x[3]  )
-);
-
-jt054156_p24 u_d80(
-    .a1 ( e88_q[1]    ),
-    .b1 ( reg2a_d[9]  ),
-    .a2 ( e88_q[3]    ),
-    .b2 ( reg2a_d[11] ),
-    .a3 ( e88_q[0]    ),
-    .b3 ( reg2a_d[8]  ),
-    .a4 ( e88_q[2]    ),
-    .b4 ( reg2a_d[10] ),
-    .sa ( rega_db[2]  ),
-    .sb ( d110a_y     ),
-    .x1 ( d80_x[0]    ),
-    .x2 ( d80_x[1]    ),
-    .x3 ( d80_x[2]    ),
-    .x4 ( d80_x[3]    )
-);
-
-jt054156_p24 u_d145(
-    .a1 ( d135_q[1]  ),
-    .b1 ( reg2c_d[1] ),
-    .a2 ( d135_q[3]  ),
-    .b2 ( reg2c_d[3] ),
-    .a3 ( d135_q[0]  ),
-    .b3 ( reg2c_d[0] ),
-    .a4 ( d135_q[2]  ),
-    .b4 ( reg2c_d[2] ),
-    .sa ( rega_db[4] ),
-    .sb ( d164a_y    ),
-    .x1 ( d145_x[0]  ),
-    .x2 ( d145_x[1]  ),
-    .x3 ( d145_x[2]  ),
-    .x4 ( d145_x[3]  )
-);
-
-jt054156_p24 u_b163(
-    .a1 ( a190_q[1]  ),
-    .b1 ( reg2c_d[5] ),
-    .a2 ( a190_q[3]  ),
-    .b2 ( reg2c_d[7] ),
-    .a3 ( a190_q[0]  ),
-    .b3 ( reg2c_d[4] ),
-    .a4 ( a190_q[2]  ),
-    .b4 ( reg2c_d[6] ),
-    .sa ( rega_db[4] ),
-    .sb ( d164a_y    ),
-    .x1 ( b163_x[0]  ),
-    .x2 ( b163_x[1]  ),
-    .x3 ( b163_x[2]  ),
-    .x4 ( b163_x[3]  )
-);
-
-jt054156_p24 u_d74(
-    .a1 ( d64_q[1]    ),
-    .b1 ( reg2c_d[9]  ),
-    .a2 ( d64_q[3]    ),
-    .b2 ( reg2c_d[11] ),
-    .a3 ( d64_q[0]    ),
-    .b3 ( reg2c_d[8]  ),
-    .a4 ( d64_q[2]    ),
-    .b4 ( reg2c_d[10] ),
-    .sa ( rega_db[4]  ),
-    .sb ( d164a_y     ),
-    .x1 ( d74_x[0]    ),
-    .x2 ( d74_x[1]    ),
-    .x3 ( d74_x[2]    ),
-    .x4 ( d74_x[3]    )
-);
-
-jt054156_p24 u_f151(
-    .a1 ( g141_q[1]  ),
-    .b1 ( reg2e_d[1] ),
-    .a2 ( g141_q[3]  ),
-    .b2 ( reg2e_d[3] ),
-    .a3 ( g141_q[0]  ),
-    .b3 ( reg2e_d[0] ),
-    .a4 ( g141_q[2]  ),
-    .b4 ( reg2e_d[2] ),
-    .sa ( rega_db[6] ),
-    .sb ( e162_y     ),
-    .x1 ( f151_x[0]  ),
-    .x2 ( f151_x[1]  ),
-    .x3 ( f151_x[2]  ),
-    .x4 ( f151_x[3]  )
-);
-
-jt054156_p24 u_b169(
-    .a1 ( a180_q[1]  ),
-    .b1 ( reg2e_d[5] ),
-    .a2 ( a180_q[3]  ),
-    .b2 ( reg2e_d[7] ),
-    .a3 ( a180_q[0]  ),
-    .b3 ( reg2e_d[4] ),
-    .a4 ( a180_q[2]  ),
-    .b4 ( reg2e_d[6] ),
-    .sa ( rega_db[6] ),
-    .sb ( e162_y     ),
-    .x1 ( b169_x[0]  ),
-    .x2 ( b169_x[1]  ),
-    .x3 ( b169_x[2]  ),
-    .x4 ( b169_x[3]  )
-);
-
-jt054156_p24 u_d86(
-    .a1 ( e98_q[1]    ),
-    .b1 ( reg2e_d[9]  ),
-    .a2 ( e98_q[3]    ),
-    .b2 ( reg2e_d[11] ),
-    .a3 ( e98_q[0]    ),
-    .b3 ( reg2e_d[8]  ),
-    .a4 ( e98_q[2]    ),
-    .b4 ( reg2e_d[10] ),
-    .sa ( rega_db[6]  ),
-    .sb ( e162_y      ),
-    .x1 ( d86_x[0]    ),
-    .x2 ( d86_x[1]    ),
-    .x3 ( d86_x[2]    ),
-    .x4 ( d86_x[3]    )
-);
-
+always @(posedge tick_a) begin
+    {e111_q,c113_q,d92_q} <= {vd_low_d,vd_mid_d,vd_high_d}; // e111, c113, d92
+end
+always @(posedge tick_b) begin
+    {d111_q,a113_q,e88_q} <= {vd_low_d,vd_mid_d,vd_high_d}; // d111, a113, e88
+end
+always @(posedge tick_c) begin
+    {d135_q,a190_q,d64_q} <= {vd_low_d,vd_mid_d,vd_high_d}; // d135, a190, d64
+end
+always @(posedge tick_d) begin
+    {g141_q,a180_q,e98_q} <= {vd_low_d,vd_mid_d,vd_high_d}; // g141, a180, e98
+end
+assign e129_x[0] = rega_db[0] ? reg28_d[1] : e111_q[1]; // e129
+assign e129_x[1] = rega_db[0] ? reg28_d[3] : e111_q[3]; // e129
+assign e129_x[2] = rega_db[0] ? reg28_d[0] : e111_q[0]; // e129
+assign e129_x[3] = rega_db[0] ? reg28_d[2] : e111_q[2]; // e129
+assign c135_x[0] = rega_db[0] ? reg28_d[5] : c113_q[1]; // c135
+assign c135_x[1] = rega_db[0] ? reg28_d[7] : c113_q[3]; // c135
+assign c135_x[2] = rega_db[0] ? reg28_d[4] : c113_q[0]; // c135
+assign c135_x[3] = rega_db[0] ? reg28_d[6] : c113_q[2]; // c135
+assign d102_x[0] = rega_db[0] ? reg28_d[9] : d92_q[1]; // d102
+assign d102_x[1] = rega_db[0] ? reg28_d[11] : d92_q[3]; // d102
+assign d102_x[2] = rega_db[0] ? reg28_d[8] : d92_q[0]; // d102
+assign d102_x[3] = rega_db[0] ? reg28_d[10] : d92_q[2]; // d102
+assign d129_x[0] = rega_db[2] ? reg2a_d[1] : d111_q[1]; // d129
+assign d129_x[1] = rega_db[2] ? reg2a_d[3] : d111_q[3]; // d129
+assign d129_x[2] = rega_db[2] ? reg2a_d[0] : d111_q[0]; // d129
+assign d129_x[3] = rega_db[2] ? reg2a_d[2] : d111_q[2]; // d129
+assign b117_x[0] = rega_db[2] ? reg2a_d[5] : a113_q[1]; // b117
+assign b117_x[1] = rega_db[2] ? reg2a_d[7] : a113_q[3]; // b117
+assign b117_x[2] = rega_db[2] ? reg2a_d[4] : a113_q[0]; // b117
+assign b117_x[3] = rega_db[2] ? reg2a_d[6] : a113_q[2]; // b117
+assign d80_x[0] = rega_db[2] ? reg2a_d[9] : e88_q[1]; // d80
+assign d80_x[1] = rega_db[2] ? reg2a_d[11] : e88_q[3]; // d80
+assign d80_x[2] = rega_db[2] ? reg2a_d[8] : e88_q[0]; // d80
+assign d80_x[3] = rega_db[2] ? reg2a_d[10] : e88_q[2]; // d80
+assign d145_x[0] = rega_db[4] ? reg2c_d[1] : d135_q[1]; // d145
+assign d145_x[1] = rega_db[4] ? reg2c_d[3] : d135_q[3]; // d145
+assign d145_x[2] = rega_db[4] ? reg2c_d[0] : d135_q[0]; // d145
+assign d145_x[3] = rega_db[4] ? reg2c_d[2] : d135_q[2]; // d145
+assign b163_x[0] = rega_db[4] ? reg2c_d[5] : a190_q[1]; // b163
+assign b163_x[1] = rega_db[4] ? reg2c_d[7] : a190_q[3]; // b163
+assign b163_x[2] = rega_db[4] ? reg2c_d[4] : a190_q[0]; // b163
+assign b163_x[3] = rega_db[4] ? reg2c_d[6] : a190_q[2]; // b163
+assign d74_x[0] = rega_db[4] ? reg2c_d[9] : d64_q[1]; // d74
+assign d74_x[1] = rega_db[4] ? reg2c_d[11] : d64_q[3]; // d74
+assign d74_x[2] = rega_db[4] ? reg2c_d[8] : d64_q[0]; // d74
+assign d74_x[3] = rega_db[4] ? reg2c_d[10] : d64_q[2]; // d74
+assign f151_x[0] = rega_db[6] ? reg2e_d[1] : g141_q[1]; // f151
+assign f151_x[1] = rega_db[6] ? reg2e_d[3] : g141_q[3]; // f151
+assign f151_x[2] = rega_db[6] ? reg2e_d[0] : g141_q[0]; // f151
+assign f151_x[3] = rega_db[6] ? reg2e_d[2] : g141_q[2]; // f151
+assign b169_x[0] = rega_db[6] ? reg2e_d[5] : a180_q[1]; // b169
+assign b169_x[1] = rega_db[6] ? reg2e_d[7] : a180_q[3]; // b169
+assign b169_x[2] = rega_db[6] ? reg2e_d[4] : a180_q[0]; // b169
+assign b169_x[3] = rega_db[6] ? reg2e_d[6] : a180_q[2]; // b169
+assign d86_x[0] = rega_db[6] ? reg2e_d[9] : e98_q[1]; // d86
+assign d86_x[1] = rega_db[6] ? reg2e_d[11] : e98_q[3]; // d86
+assign d86_x[2] = rega_db[6] ? reg2e_d[8] : e98_q[0]; // d86
+assign d86_x[3] = rega_db[6] ? reg2e_d[10] : e98_q[2]; // d86
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page07_zout.v
 // -----------------------------------------------------------------------------
@@ -7698,17 +6438,16 @@ module jt054156_page07_zout(
     input  wire [2:0] hb,
     input  wire [2:0] hc,
     input  wire [2:0] hd,
-    output wire       pin_z1h,
-    output wire       pin_z2h,
-    output wire       pin_z4h,
+    output reg       pin_z1h,
+    output reg       pin_z2h,
+    output reg       pin_z4h,
     output wire       dclk_n,
     output wire [2:0] z_mux_x,
     output wire [2:0] z_mux
 );
 
-wire e183_y, d188_y, g187_y;
-wire e180b_y, e178b_y, e178a_y;
-
+wire    e183_y, d188_y, g187_y;
+wire    e180b_y, e178b_y, e178a_y;
 assign dclk_n = ~pin_dclk; // n170a
 assign e183_y = p140_xq; // e183
 assign e180b_y = ~e183_y; // e180b
@@ -7716,75 +6455,22 @@ assign d188_y = p140_xq; // d188
 assign e178b_y = ~d188_y; // e178b
 assign g187_y = hcnt0; // g187
 assign e178a_y = ~g187_y; // e178a
-jt054156_t5a u_e180a(
-    .a1 ( hb[0]            ),
-    .a2 ( hc[0]            ),
-    .s1 ( d188_y           ),
-    .s2 ( e178b_y          ),
-    .s5 ( g187_y           ),
-    .s6 ( e178a_y          ),
-    .s3 ( e183_y           ),
-    .s4 ( e180b_y          ),
-    .b1 ( hd[0]            ),
-    .b2 ( ha[0]            ),
-    .x  ( z_mux_x[0]       )
-);
-
+assign z_mux_x[0] = ~(g187_y ? (e183_y ? ha[0] : hd[0]) : (d188_y ? hc[0] : hb[0])); // e180a
 assign z_mux[0] = ~z_mux_x[0]; // e177a
-jt054156_fdm u_k187(
-    .ck ( dclk_n   ),
-    .d  ( z_mux[0] ),
-    .q  ( pin_z1h  ),
-    .nq (          )
-);
-
-jt054156_t5a u_e187a(
-    .a1 ( hb[1]            ),
-    .a2 ( hc[1]            ),
-    .s1 ( d188_y           ),
-    .s2 ( e178b_y          ),
-    .s5 ( g187_y           ),
-    .s6 ( e178a_y          ),
-    .s3 ( e183_y           ),
-    .s4 ( e180b_y          ),
-    .b1 ( hd[1]            ),
-    .b2 ( ha[1]            ),
-    .x  ( z_mux_x[1]       )
-);
-
+always @(posedge dclk_n) begin
+    pin_z1h <= z_mux[0]; // k187
+end
+assign z_mux_x[1] = ~(g187_y ? (e183_y ? ha[1] : hd[1]) : (d188_y ? hc[1] : hb[1])); // e187a
 assign z_mux[1] = ~z_mux_x[1]; // e179a
-jt054156_fdm u_j183(
-    .ck ( dclk_n   ),
-    .d  ( z_mux[1] ),
-    .q  ( pin_z2h  ),
-    .nq (          )
-);
-
-jt054156_t5a u_e185(
-    .a1 ( hb[2]            ),
-    .a2 ( hc[2]            ),
-    .s1 ( d188_y           ),
-    .s2 ( e178b_y          ),
-    .s5 ( g187_y           ),
-    .s6 ( e178a_y          ),
-    .s3 ( e183_y           ),
-    .s4 ( e180b_y          ),
-    .b1 ( hd[2]            ),
-    .b2 ( ha[2]            ),
-    .x  ( z_mux_x[2]       )
-);
-
+always @(posedge dclk_n) begin
+    pin_z2h <= z_mux[1]; // j183
+end
+assign z_mux_x[2] = ~(g187_y ? (e183_y ? ha[2] : hd[2]) : (d188_y ? hc[2] : hb[2])); // e185
 assign z_mux[2] = ~z_mux_x[2]; // e179b
-jt054156_fdm u_j186(
-    .ck ( dclk_n   ),
-    .d  ( z_mux[2] ),
-    .q  ( pin_z4h  ),
-    .nq (          )
-);
-
+always @(posedge dclk_n) begin
+    pin_z4h <= z_mux[2]; // j186
+end
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page08_scrolly.v
 // -----------------------------------------------------------------------------
@@ -7976,53 +6662,13 @@ assign vcnt_phase[3] = vcnt[3] ^ l79b_y; // n27a
 assign vcnt_phase[2] = vcnt[2] ^ l79b_y; // n69a
 assign vcnt_phase[1] = vcnt[1] ^ l79b_y; // m51
 assign vcnt_phase[0] = vcnt[0] ^ l79b_y; // m23
-jt054156_a1a u_m65a(
-    .a  ( reg3cl_gated[0] ),
-    .b  ( vcnt_phase[0]   ),
-    .s  ( yofs_scan[0]    ),
-    .co ( m65a_co         )
-);
-
-jt054156_a2n u_m68(
-    .a  ( reg3cl_gated[2:1] ),
-    .b  ( vcnt_phase[2:1]   ),
-    .ci ( m65a_co           ),
-    .s  ( m68_s             ),
-    .co ( m68_co            )
-);
-
-jt054156_a2n u_m55(
-    .a  ( reg3cl_gated[4:3] ),
-    .b  ( vcnt_phase[4:3]   ),
-    .ci ( m68_co            ),
-    .s  ( m55_s             ),
-    .co ( m55_co            )
-);
-
-jt054156_a2n u_l55(
-    .a  ( reg3cl_gated[6:5] ),
-    .b  ( vcnt_phase[6:5]   ),
-    .ci ( m55_co            ),
-    .s  ( l55_s             ),
-    .co ( l55_co            )
-);
-
-jt054156_a2n u_j58(
-    .a  ( reg3cl_gated[8:7] ),
-    .b  ( vcnt_phase[8:7]   ),
-    .ci ( l55_co            ),
-    .s  ( j58_s             ),
-    .co ( j58_co            )
-);
-
-jt054156_a2n u_j71(
-    .a  ( reg3cl_gated[10:9] ),
-    .b  ( j71_b              ),
-    .ci ( j58_co             ),
-    .s  ( j71_s              ),
-    .co ( j71_co             )
-);
-
+assign yofs_scan[0] = reg3cl_gated[0] ^ vcnt_phase[0]; // m65a
+assign m65a_co = reg3cl_gated[0] & vcnt_phase[0]; // m65a
+assign { m68_co, m68_s } = { 1'b0, reg3cl_gated[2:1] } + { 1'b0, vcnt_phase[2:1] } + { 2'b0, m65a_co }; // m68
+assign { m55_co, m55_s } = { 1'b0, reg3cl_gated[4:3] } + { 1'b0, vcnt_phase[4:3] } + { 2'b0, m68_co }; // m55
+assign { l55_co, l55_s } = { 1'b0, reg3cl_gated[6:5] } + { 1'b0, vcnt_phase[6:5] } + { 2'b0, m55_co }; // l55
+assign { j58_co, j58_s } = { 1'b0, reg3cl_gated[8:7] } + { 1'b0, vcnt_phase[8:7] } + { 2'b0, l55_co }; // j58
+assign { j71_co, j71_s } = { 1'b0, reg3cl_gated[10:9] } + { 1'b0, j71_b } + { 2'b0, j58_co }; // j71
 assign layer_scroll[10] = scrolly_mux[10] & scrolly_en_mux; // k153a
 assign layer_scroll[9] = scrolly_mux[9] & scrolly_en_mux; // k136a
 assign layer_scroll[8] = scrolly_mux[8] & scrolly_en_mux; // k125a
@@ -8034,48 +6680,15 @@ assign layer_scroll[3] = scrolly_mux[3] & scrolly_en_mux; // r118a
 assign layer_scroll[2] = scrolly_mux[2] & scrolly_en_mux; // r119b
 assign layer_scroll[1] = scrolly_mux[1] & scrolly_en_mux; // r120a
 assign layer_scroll[0] = scrolly_mux[0] & scrolly_en_mux; // r117b
-jt054156_a4h u_m80(
-    .a  ( m80_a  ),
-    .b  ( m80_b  ),
-    .ci ( gnd    ),
-    .s  ( m80_s  ),
-    .co ( m80_co )
-);
-
-jt054156_a4h u_l80(
-    .a  ( l80_a  ),
-    .b  ( l80_b  ),
-    .ci ( m80_co ),
-    .s  ( l80_s  ),
-    .co ( l80_co )
-);
-
-jt054156_a4h u_k163(
-    .a  ( k163_a  ),
-    .b  ( k163_b  ),
-    .ci ( l80_co  ),
-    .s  ( k163_s  ),
-    .co ( k163_co )
-);
-
+assign { m80_co, m80_s } = { 1'b0, m80_a } + { 1'b0, m80_b } + { 4'b0, gnd }; // m80
+assign { l80_co, l80_s } = { 1'b0, l80_a } + { 1'b0, l80_b } + { 4'b0, m80_co }; // l80
+assign { k163_co, k163_s } = { 1'b0, k163_a } + { 1'b0, k163_b } + { 4'b0, l80_co }; // k163
 assign vs_mux[0] = scrolly[8] & vb_mux[0]; // l183b
 assign vs_mux[1] = scrolly[9] & vb_mux[1]; // l182a
 assign vs_mux[2] = scrolly[10] & vb_mux[2]; // l188b
-jt054156_a1a u_k197(
-    .a  ( vs_mux[0]  ),
-    .b  ( vs_mux[0]  ),
-    .s  ( pagey[0]   ),
-    .co ( k197_co    )
-);
-
-jt054156_a2n u_l197(
-    .a  ( vs_mux[2:1] ),
-    .b  ( vs_mux[2:1] ),
-    .ci ( k197_co     ),
-    .s  ( l197_s      ),
-    .co ( l197_co     )
-);
-
+assign pagey[0] = vs_mux[0] ^ vs_mux[0]; // k197
+assign k197_co = vs_mux[0] & vs_mux[0]; // k197
+assign { l197_co, l197_s } = { 1'b0, vs_mux[2:1] } + { 1'b0, vs_mux[2:1] } + { 2'b0, k197_co }; // l197
 assign pagey[2:1] = l197_s;
 
 endmodule
@@ -8103,47 +6716,33 @@ module jt054156_page08_scrolly_ctrl(
     output wire       n186_x3t_buf,
     output wire       m180_x,
     output wire       m79a_y,
-    output wire       r60_q,
+    output reg       r60_q,
     output wire       r60_nq,
     output wire       r114b_y,
     output wire       p164b_y
 );
 
-wire gnd = 1'b0;
-
+wire    gnd = 1'b0;
 assign n186_x3t_buf = ~n186_x3t_buf_n; // m187a
 assign n186_x2t_buf = ~n186_x2t_buf_n; // m188a
-jt054156_t5a u_m180(
-    .a1 ( reg8_db[4]     ),
-    .a2 ( reg8_db[5]     ),
-    .s1 ( n186_x2t_buf_n ),
-    .s2 ( n186_x2t_buf   ),
-    .s5 ( n186_x3t_buf_n ),
-    .s6 ( n186_x3t_buf   ),
-    .s3 ( n186_x2t_buf_n ),
-    .s4 ( n186_x2t_buf   ),
-    .b1 ( reg8_db[6]     ),
-    .b2 ( reg8_db[7]     ),
-    .x  ( m180_x         )
-);
-
+assign m180_x = ~(n186_x3t_buf_n ? (n186_x2t_buf_n ? reg8_db[7] : reg8_db[6]) : (n186_x2t_buf_n ? reg8_db[5] : reg8_db[4])); // m180
 assign m79a_y = ~pin_test; // m79a
-jt054156_fdp u_r60(
-    .ck ( hcnt2    ),
-    .d  ( gnd      ),
-    .ns ( pin_nhsy ),
-    .nr ( reset20_n ),
-    .q  ( r60_q    ),
-    .nq ( r60_nq   )
-);
+always @(posedge hcnt2 or negedge pin_nhsy or negedge reset20_n) begin
+    if (!pin_nhsy) begin
+        r60_q <= 1'b1;
+    end else if (!reset20_n) begin
+        r60_q <= 1'b0;
+    end else begin
+        r60_q <= gnd;
+    end
+end // r60
 
+assign r60_nq = ~r60_q; // r60
 assign pin_sz = m79a_y & r60_q; // n103a
 assign r114b_y = pin_test | r60_nq; // r114b
 assign p164b_y = ~r114b_y; // p164b
 assign scrolly_en_mux = ~&{m180_x,p164b_y}; // p171a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page08_scrolly_mux.v
 // -----------------------------------------------------------------------------
@@ -8412,13 +7011,7 @@ module jt054156_page09_addr_decode(
     output wire [3:0]   n53_x_n
 );
 
-jt054156_de4 u_n53(
-    .a   ( pin_ab[12] ),
-    .b   ( pin_ab[11] ),
-    .g_n ( pin_ab[13] ),
-    .x_n ( n53_x_n    )
-);
-
+assign n53_x_n = ~pin_ab[13] ? ~(4'b0001 << { pin_ab[11], pin_ab[12] }) : 4'hf; // n53
 endmodule
 
 
@@ -8455,26 +7048,11 @@ assign k211a_y = pin_sz | k214b_y; // k211a
 assign k213b_y = ~&{reg6_db3,k211a_y}; // k213b
 assign k213a_y = reg6_db3 & k211a_y; // k213a
 assign g202b_y = ~k210b_y; // g202b
-jt054156_p24 u_g208(
-    .a1 ( k213b_y  ),
-    .b1 ( j208b_y  ),
-    .a2 ( k213a_y  ),
-    .b2 ( j209a_y  ),
-    .a3 ( k213b_y  ),
-    .b3 ( j207a_y  ),
-    .a4 ( k213a_y  ),
-    .b4 ( j209b_y  ),
-    .sa ( g202b_y  ),
-    .sb ( k210b_y  ),
-    .x1 ( pin_csz1  ),
-    .x2 ( pin_cs1   ),
-    .x3 ( pin_csz2  ),
-    .x4 ( pin_cs2   )
-);
-
+assign pin_csz1 = k210b_y ? k213b_y : j208b_y; // g208
+assign pin_cs1 = k210b_y ? k213a_y : j209a_y; // g208
+assign pin_csz2 = k210b_y ? k213b_y : j207a_y; // g208
+assign pin_cs2 = k210b_y ? k213a_y : j209b_y; // g208
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page09_vram_ctrl.v
 // -----------------------------------------------------------------------------
@@ -8744,54 +7322,13 @@ assign n59b_y = ~regc_db0_buf; // n59b
 assign n69b_y = ~regc_db1_buf; // n69b
 assign n58a_y = ~regc_db0_buf; // n58a
 assign n68a_y = ~regc_db1_buf; // n68a
-jt054156_t5a u_n60a(
-    .a1 ( pin_ab1    ),
-    .a2 ( n58b_y     ),
-    .s1 ( regc_db0_buf ),
-    .s2 ( n59a_y     ),
-    .s5 ( regc_db1_buf ),
-    .s6 ( n60b_y     ),
-    .s3 ( regc_db0_buf ),
-    .s4 ( n59a_y     ),
-    .b1 ( n53_x_n[2] ),
-    .b2 ( n53_x_n[2] ),
-    .x  ( n60a_x     )
-);
-
+assign n60a_x = ~(regc_db1_buf ? (regc_db0_buf ? n53_x_n[2] : n53_x_n[2]) : (regc_db0_buf ? n58b_y : pin_ab1)); // n60a
 assign n195a_y = ~n60a_x; // n195a
-jt054156_t5a u_n65a(
-    .a1 ( n57a_y     ),
-    .a2 ( n58b_y     ),
-    .s1 ( regc_db0_buf ),
-    .s2 ( n59b_y     ),
-    .s5 ( regc_db1_buf ),
-    .s6 ( n69b_y     ),
-    .s3 ( regc_db0_buf ),
-    .s4 ( n59b_y     ),
-    .b1 ( n53_x_n[0] ),
-    .b2 ( n53_x_n[0] ),
-    .x  ( n65a_x     )
-);
-
+assign n65a_x = ~(regc_db1_buf ? (regc_db0_buf ? n53_x_n[0] : n53_x_n[0]) : (regc_db0_buf ? n58b_y : n57a_y)); // n65a
 assign n200b_y = ~n65a_x; // n200b
-jt054156_t5a u_n63(
-    .a1 ( n57a_y     ),
-    .a2 ( n58b_y     ),
-    .s1 ( regc_db0_buf ),
-    .s2 ( n58a_y     ),
-    .s5 ( regc_db1_buf ),
-    .s6 ( n68a_y     ),
-    .s3 ( regc_db0_buf ),
-    .s4 ( n58a_y     ),
-    .b1 ( n53_x_n[1] ),
-    .b2 ( n53_x_n[1] ),
-    .x  ( n63_x      )
-);
-
+assign n63_x = ~(regc_db1_buf ? (regc_db0_buf ? n53_x_n[1] : n53_x_n[1]) : (regc_db0_buf ? n58b_y : n57a_y)); // n63
 assign n196b_y = ~n63_x; // n196b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page09_vram_timing_source.v
 // -----------------------------------------------------------------------------
@@ -8819,73 +7356,59 @@ module jt054156_page09_vram_timing_source(
     output wire n192b_x,
     output wire n193a_x,
     output wire n213b_y,
-    output wire n208_q,
+    output reg n208_q,
     output wire n208_nq,
     output wire n201a_y,
-    output wire n196a_q,
+    output reg n196a_q,
     output wire n196a_nq,
     output wire n213a_y,
-    output wire n202a_q,
+    output reg n202a_q,
     output wire n202a_nq,
     output wire n201b_y
 );
 
-wire vcc = 1'b1;
-
+wire    vcc = 1'b1;
 assign n200a_y = ~reg0_db0; // n200a
-jt054156_t2b u_n192b(
-    .a  ( pin_clk  ),
-    .b  ( dclk3    ),
-    .s1 ( reg0_db0 ),
-    .s2 ( n200a_y  ),
-    .x  ( n192b_x  )
-);
-
-jt054156_t2b u_n193a(
-    .a  ( dclk3    ),
-    .b  ( p140_q   ),
-    .s1 ( reg0_db0 ),
-    .s2 ( n200a_y  ),
-    .x  ( n193a_x  )
-);
-
+assign n192b_x = reg0_db0 ? ~dclk3 : ~pin_clk; // n192b
+assign n193a_x = reg0_db0 ? ~p140_q : ~dclk3; // n193a
 assign n213b_y = ~n193a_x; // n213b
 assign n201a_y = ~|{pin_nvcs,pin_nrd_inv}; // n201a
-jt054156_fdo u_n196a(
-    .ck ( n186_x0_n ),
-    .d  ( n201a_y   ),
-    .nr ( n201a_y   ),
-    .q  ( n196a_q   ),
-    .nq ( n196a_nq  )
-);
+always @(posedge n186_x0_n or negedge n201a_y) begin
+    if (!n201a_y) begin
+        n196a_q <= 1'b0;
+    end else begin
+        n196a_q <= n201a_y;
+    end
+end // n196a
 
-jt054156_fdo u_n208(
-    .ck ( n192b_x  ),
-    .d  ( n213b_y  ),
-    .nr ( n201b_y  ),
-    .q  ( n208_q   ),
-    .nq ( n208_nq  )
-);
+assign n196a_nq = ~n196a_q; // n196a
+always @(posedge n192b_x or negedge n201b_y) begin
+    if (!n201b_y) begin
+        n208_q <= 1'b0;
+    end else begin
+        n208_q <= n213b_y;
+    end
+end // n208
 
+assign n208_nq = ~n208_q; // n208
 assign m212b_y = m191a_y; // m212b
 assign m212a_y = n208_q & m212b_y; // m212a
 assign n213a_y = ~m212a_y; // n213a
-jt054156_fdo u_n202a(
-    .ck ( n213a_y  ),
-    .d  ( vcc      ),
-    .nr ( n201a_y  ),
-    .q  ( n202a_q  ),
-    .nq ( n202a_nq )
-);
+always @(posedge n213a_y or negedge n201a_y) begin
+    if (!n201a_y) begin
+        n202a_q <= 1'b0;
+    end else begin
+        n202a_q <= vcc;
+    end
+end // n202a
 
+assign n202a_nq = ~n202a_q; // n202a
 assign n201b_y = n196a_q & n202a_nq; // n201b
 assign k216a_y = ~reg0_db7; // k216a
 assign k210b_y = m212b_y & k216a_y; // k210b
 assign k217b_y = ~m212b_y; // k217b
 assign k206a_y = ~|{k217b_y,pin_nrd_inv}; // k206a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page10_va_high.v
 // -----------------------------------------------------------------------------
@@ -8920,99 +7443,19 @@ assign a2_src = reg30_d;
 
 assign k209a_n = ~k209a; // h218b
 assign pin_sz_n = ~pin_sz; // h218a
-jt054156_t5a u_h214a(
-    .a1 ( a1_src[0]    ),
-    .a2 ( a2_src[0]    ),
-    .s1 ( pin_sz_n     ),
-    .s2 ( pin_sz       ),
-    .s5 ( k209a_n      ),
-    .s6 ( k209a        ),
-    .s3 ( pin_sz_n     ),
-    .s4 ( pin_sz       ),
-    .b1 ( reg32_d[0]   ),
-    .b2 ( reg32_d[0]   ),
-    .x  ( va_mux_x[11] )
-);
-
+assign va_mux_x[11] = ~(k209a ? (pin_sz ? a1_src[0] : a2_src[0]) : (pin_sz ? reg32_d[0] : reg32_d[0])); // h214a
 assign pin_va[11] = ~va_mux_x[11]; // g214a
-jt054156_t5a u_h209a(
-    .a1 ( a1_src[1]    ),
-    .a2 ( a2_src[1]    ),
-    .s1 ( pin_sz_n     ),
-    .s2 ( pin_sz       ),
-    .s5 ( k209a_n      ),
-    .s6 ( k209a        ),
-    .s3 ( pin_sz_n     ),
-    .s4 ( pin_sz       ),
-    .b1 ( reg32_d[1]   ),
-    .b2 ( reg32_d[1]   ),
-    .x  ( va_mux_x[12] )
-);
-
+assign va_mux_x[12] = ~(k209a ? (pin_sz ? a1_src[1] : a2_src[1]) : (pin_sz ? reg32_d[1] : reg32_d[1])); // h209a
 assign pin_va[12] = ~va_mux_x[12]; // g205a
-jt054156_t5a u_h212(
-    .a1 ( a1_src[2]    ),
-    .a2 ( a2_src[2]    ),
-    .s1 ( pin_sz_n     ),
-    .s2 ( pin_sz       ),
-    .s5 ( k209a_n      ),
-    .s6 ( k209a        ),
-    .s3 ( pin_sz_n     ),
-    .s4 ( pin_sz       ),
-    .b1 ( reg32_d[2]   ),
-    .b2 ( reg32_d[2]   ),
-    .x  ( va_mux_x[13] )
-);
-
+assign va_mux_x[13] = ~(k209a ? (pin_sz ? a1_src[2] : a2_src[2]) : (pin_sz ? reg32_d[2] : reg32_d[2])); // h212
 assign pin_va[13] = ~va_mux_x[13]; // g205b
-jt054156_t5a u_h203a(
-    .a1 ( a1_src[3]    ),
-    .a2 ( a2_src[3]    ),
-    .s1 ( pin_sz_n     ),
-    .s2 ( pin_sz       ),
-    .s5 ( k209a_n      ),
-    .s6 ( k209a        ),
-    .s3 ( pin_sz_n     ),
-    .s4 ( pin_sz       ),
-    .b1 ( reg32_d[3]   ),
-    .b2 ( reg32_d[3]   ),
-    .x  ( va_mux_x[14] )
-);
-
+assign va_mux_x[14] = ~(k209a ? (pin_sz ? a1_src[3] : a2_src[3]) : (pin_sz ? reg32_d[3] : reg32_d[3])); // h203a
 assign pin_va[14] = ~va_mux_x[14]; // g200a
-jt054156_t5a u_h201(
-    .a1 ( a1_src[4]    ),
-    .a2 ( a2_src[4]    ),
-    .s1 ( pin_sz_n     ),
-    .s2 ( pin_sz       ),
-    .s5 ( k209a_n      ),
-    .s6 ( k209a        ),
-    .s3 ( pin_sz_n     ),
-    .s4 ( pin_sz       ),
-    .b1 ( reg32_d[4]   ),
-    .b2 ( reg32_d[4]   ),
-    .x  ( va_mux_x[15] )
-);
-
+assign va_mux_x[15] = ~(k209a ? (pin_sz ? a1_src[4] : a2_src[4]) : (pin_sz ? reg32_d[4] : reg32_d[4])); // h201
 assign pin_va[15] = ~va_mux_x[15]; // g200b
-jt054156_t5a u_h198a(
-    .a1 ( a1_src[5]    ),
-    .a2 ( a2_src[5]    ),
-    .s1 ( pin_sz_n     ),
-    .s2 ( pin_sz       ),
-    .s5 ( k209a_n      ),
-    .s6 ( k209a        ),
-    .s3 ( pin_sz_n     ),
-    .s4 ( pin_sz       ),
-    .b1 ( reg32_d[5]   ),
-    .b2 ( reg32_d[5]   ),
-    .x  ( va_mux_x[16] )
-);
-
+assign va_mux_x[16] = ~(k209a ? (pin_sz ? a1_src[5] : a2_src[5]) : (pin_sz ? reg32_d[5] : reg32_d[5])); // h198a
 assign pin_va[16] = ~va_mux_x[16]; // g201b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page10_va_low.v
 // -----------------------------------------------------------------------------
@@ -9599,55 +8042,64 @@ module jt054156_page11_vd_latch(
     output wire        f78b_y
 );
 
-wire [23:0] vd_latch;
-
+reg [23:0] vd_latch;
 assign k207a_y = reg0_db7 | m191a_y; // k207a
 assign f78b_y = ~k207a_y; // f78b
-jt054156_lt4 u_f53(
-    .ng ( f78b_y           ),
-    .d  ( pin_vd_in[3:0]  ),
-    .q  ( vd_latch[3:0]   ),
-    .nq ( vd_latch_n[3:0] )
-);
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!f78b_y) begin
+        vd_latch[3:0] = pin_vd_in[3:0];
+    end
+end // f53
+/* verilator lint_on LATCH */
 
-jt054156_lt4 u_c73(
-    .ng ( f78b_y           ),
-    .d  ( pin_vd_in[7:4]  ),
-    .q  ( vd_latch[7:4]   ),
-    .nq ( vd_latch_n[7:4] )
-);
+assign vd_latch_n[3:0] = ~vd_latch[3:0]; // f53
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!f78b_y) begin
+        vd_latch[7:4] = pin_vd_in[7:4];
+    end
+end // c73
+/* verilator lint_on LATCH */
 
-jt054156_lt4 u_c66(
-    .ng ( f78b_y             ),
-    .d  ( pin_vd_in[11:8]   ),
-    .q  ( vd_latch[11:8]    ),
-    .nq ( vd_latch_n[11:8]  )
-);
+assign vd_latch_n[7:4] = ~vd_latch[7:4]; // c73
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!f78b_y) begin
+        vd_latch[11:8] = pin_vd_in[11:8];
+    end
+end // c66
+/* verilator lint_on LATCH */
 
-jt054156_lt4 u_b61(
-    .ng ( f78b_y             ),
-    .d  ( pin_vd_in[15:12]  ),
-    .q  ( vd_latch[15:12]   ),
-    .nq ( vd_latch_n[15:12] )
-);
+assign vd_latch_n[11:8] = ~vd_latch[11:8]; // c66
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!f78b_y) begin
+        vd_latch[15:12] = pin_vd_in[15:12];
+    end
+end // b61
+/* verilator lint_on LATCH */
 
-jt054156_lt4 u_e53(
-    .ng ( f78b_y             ),
-    .d  ( pin_vd_in[19:16]  ),
-    .q  ( vd_latch[19:16]   ),
-    .nq ( vd_latch_n[19:16] )
-);
+assign vd_latch_n[15:12] = ~vd_latch[15:12]; // b61
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!f78b_y) begin
+        vd_latch[19:16] = pin_vd_in[19:16];
+    end
+end // e53
+/* verilator lint_on LATCH */
 
-jt054156_lt4 u_b53(
-    .ng ( f78b_y             ),
-    .d  ( pin_vd_in[23:20]  ),
-    .q  ( vd_latch[23:20]   ),
-    .nq ( vd_latch_n[23:20] )
-);
+assign vd_latch_n[19:16] = ~vd_latch[19:16]; // e53
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!f78b_y) begin
+        vd_latch[23:20] = pin_vd_in[23:20];
+    end
+end // b53
+/* verilator lint_on LATCH */
 
+assign vd_latch_n[23:20] = ~vd_latch[23:20]; // b53
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page11_vd_out.v
 // -----------------------------------------------------------------------------
@@ -9731,26 +8183,11 @@ assign p112b_y = ~p114b_y; // p112b
 assign p125a_y = regc_db0; // p125a
 assign p118b_y = ~p125a_y; // p118b
 assign p109a_y = ~pin_ab12; // p109a
-jt054156_t5a u_p118a(
-    .a1 ( pin_ab1  ),
-    .a2 ( p109a_y  ),
-    .s1 ( p125a_y  ),
-    .s2 ( p118b_y  ),
-    .s5 ( p114b_y  ),
-    .s6 ( p112b_y  ),
-    .s3 ( p125a_y  ),
-    .s4 ( p118b_y  ),
-    .b1 ( p114b_y  ),
-    .b2 ( p114b_y  ),
-    .x  ( p118a_x  )
-);
-
+assign p118a_x = ~(p114b_y ? (p125a_y ? p114b_y : p114b_y) : (p125a_y ? p109a_y : pin_ab1)); // p118a
 assign p112a_y = ~p118a_x; // p112a
 assign p113a_y = reg6_db5 & p112a_y; // p113a
 assign p121a_y = &{l125a,reg6_db5,p112b_y}; // p121a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page11_vd_out_mux.v
 // -----------------------------------------------------------------------------
@@ -9801,77 +8238,23 @@ assign pin_vd_out[5] = g124_x[3];
 
 assign f120b_y = ~p113a_y; // f120b
 assign f122a_y = ~p121a_y; // f122a
-jt054156_p24 u_f108(
-    .a1 ( db_in_buf2[2] ),
-    .b1 ( pin_db_in[10] ),
-    .a2 ( db_in_buf2[0] ),
-    .b2 ( pin_db_in[8]  ),
-    .a3 ( db_in_buf2[3] ),
-    .b3 ( pin_db_in[11] ),
-    .a4 ( db_in_buf2[1] ),
-    .b4 ( pin_db_in[9]  ),
-    .sa ( p113a_y       ),
-    .sb ( f120b_y       ),
-    .x1 ( f108_x[0]     ),
-    .x2 ( f108_x[1]     ),
-    .x3 ( f108_x[2]     ),
-    .x4 ( f108_x[3]     )
-);
-
-jt054156_p24 u_f114(
-    .a1 ( db_in_buf2[6] ),
-    .b1 ( pin_db_in[14] ),
-    .a2 ( db_in_buf2[4] ),
-    .b2 ( pin_db_in[12] ),
-    .a3 ( db_in_buf2[7] ),
-    .b3 ( pin_db_in[15] ),
-    .a4 ( db_in_buf2[5] ),
-    .b4 ( pin_db_in[13] ),
-    .sa ( p113a_y       ),
-    .sb ( f120b_y       ),
-    .x1 ( f114_x[0]     ),
-    .x2 ( f114_x[1]     ),
-    .x3 ( f114_x[2]     ),
-    .x4 ( f114_x[3]     )
-);
-
-jt054156_p24 u_f123(
-    .a1 ( db_in_buf2[2] ),
-    .b1 ( pin_db_in[10] ),
-    .a2 ( db_in_buf2[0] ),
-    .b2 ( pin_db_in[8]  ),
-    .a3 ( db_in_buf2[3] ),
-    .b3 ( pin_db_in[11] ),
-    .a4 ( db_in_buf2[1] ),
-    .b4 ( pin_db_in[9]  ),
-    .sa ( p121a_y       ),
-    .sb ( f122a_y       ),
-    .x1 ( f123_x[0]     ),
-    .x2 ( f123_x[1]     ),
-    .x3 ( f123_x[2]     ),
-    .x4 ( f123_x[3]     )
-);
-
-jt054156_p24 u_g124(
-    .a1 ( db_in_buf2[6] ),
-    .b1 ( pin_db_in[14] ),
-    .a2 ( db_in_buf2[4] ),
-    .b2 ( pin_db_in[12] ),
-    .a3 ( db_in_buf2[7] ),
-    .b3 ( pin_db_in[15] ),
-    .a4 ( db_in_buf2[5] ),
-    .b4 ( pin_db_in[13] ),
-    .sa ( p121a_y       ),
-    .sb ( f122a_y       ),
-    .x1 ( g124_x[0]     ),
-    .x2 ( g124_x[1]     ),
-    .x3 ( g124_x[2]     ),
-    .x4 ( g124_x[3]     )
-);
-
+assign f108_x[0] = p113a_y ? pin_db_in[10] : db_in_buf2[2]; // f108
+assign f108_x[1] = p113a_y ? pin_db_in[8] : db_in_buf2[0]; // f108
+assign f108_x[2] = p113a_y ? pin_db_in[11] : db_in_buf2[3]; // f108
+assign f108_x[3] = p113a_y ? pin_db_in[9] : db_in_buf2[1]; // f108
+assign f114_x[0] = p113a_y ? pin_db_in[14] : db_in_buf2[6]; // f114
+assign f114_x[1] = p113a_y ? pin_db_in[12] : db_in_buf2[4]; // f114
+assign f114_x[2] = p113a_y ? pin_db_in[15] : db_in_buf2[7]; // f114
+assign f114_x[3] = p113a_y ? pin_db_in[13] : db_in_buf2[5]; // f114
+assign f123_x[0] = p121a_y ? pin_db_in[10] : db_in_buf2[2]; // f123
+assign f123_x[1] = p121a_y ? pin_db_in[8] : db_in_buf2[0]; // f123
+assign f123_x[2] = p121a_y ? pin_db_in[11] : db_in_buf2[3]; // f123
+assign f123_x[3] = p121a_y ? pin_db_in[9] : db_in_buf2[1]; // f123
+assign g124_x[0] = p121a_y ? pin_db_in[14] : db_in_buf2[6]; // g124
+assign g124_x[1] = p121a_y ? pin_db_in[12] : db_in_buf2[4]; // g124
+assign g124_x[2] = p121a_y ? pin_db_in[15] : db_in_buf2[7]; // g124
+assign g124_x[3] = p121a_y ? pin_db_in[13] : db_in_buf2[5]; // g124
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page12_ca_col_high.v
 // -----------------------------------------------------------------------------
@@ -9906,86 +8289,25 @@ wire h23a_y, j24a_y;
 
 assign h23a_y = sel_sb; // h23a
 assign j24a_y = ~h23a_y; // j24a
-jt054156_p24 u_e27(
-    .a1 ( vd_reg[19]   ),
-    .b1 ( reg34l_d[3]  ),
-    .a2 ( vd_reg[17]   ),
-    .b2 ( reg34l_d[1]  ),
-    .a3 ( vd_reg[20]   ),
-    .b3 ( reg34l_d[4]  ),
-    .a4 ( vd_reg[18]   ),
-    .b4 ( reg34l_d[2]  ),
-    .sa ( j24a_y       ),
-    .sb ( h23a_y       ),
-    .x1 ( pin_ca[14]   ),
-    .x2 ( pin_ca[12]   ),
-    .x3 ( pin_ca[15]   ),
-    .x4 ( pin_ca[13]   )
-);
-
-jt054156_p24 u_g7(
-    .a1 ( ca18         ),
-    .b1 ( reg34l_d[7]  ),
-    .a2 ( vd_reg[21]   ),
-    .b2 ( reg34l_d[5]  ),
-    .a3 ( col[0]       ),
-    .b3 ( reg34u_d[0]  ),
-    .a4 ( ca17         ),
-    .b4 ( reg34l_d[6]  ),
-    .sa ( j24a_y       ),
-    .sb ( h23a_y       ),
-    .x1 ( pin_ca[18]   ),
-    .x2 ( pin_ca[16]   ),
-    .x3 ( pin_col[0]   ),
-    .x4 ( pin_ca[17]   )
-);
-
-jt054156_p24 u_h27(
-    .a1 ( col[3]       ),
-    .b1 ( reg34u_d[3]  ),
-    .a2 ( col[1]       ),
-    .b2 ( reg34u_d[1]  ),
-    .a3 ( vd_reg_12_20 ),
-    .b3 ( reg34u_d[4]  ),
-    .a4 ( col[2]       ),
-    .b4 ( reg34u_d[2]  ),
-    .sa ( j24a_y       ),
-    .sb ( h23a_y       ),
-    .x1 ( pin_col[3]   ),
-    .x2 ( pin_col[1]   ),
-    .x3 ( pin_col[4]   ),
-    .x4 ( pin_col[2]   )
-);
-
-jt054156_p24 u_j27(
-    .a1 ( vd_reg_15_23 ),
-    .b1 ( reg34u_d[7]  ),
-    .a2 ( vd_reg_13_21 ),
-    .b2 ( reg34u_d[5]  ),
-    .a3 ( lu2          ),
-    .b3 ( reg36_d[0]   ),
-    .a4 ( vd_reg_14_22 ),
-    .b4 ( reg34u_d[6]  ),
-    .sa ( j24a_y       ),
-    .sb ( h23a_y       ),
-    .x1 ( pin_col[7]   ),
-    .x2 ( pin_col[5]   ),
-    .x3 ( pin_vrc[0]   ),
-    .x4 ( pin_col[6]   )
-);
-
-jt054156_t2b u_j33a(
-    .a  ( lu3        ),
-    .b  ( reg36_d[1] ),
-    .s1 ( j24a_y     ),
-    .s2 ( h23a_y     ),
-    .x  ( j33a_x     )
-);
-
+assign pin_ca[14] = h23a_y ? vd_reg[19] : reg34l_d[3]; // e27
+assign pin_ca[12] = h23a_y ? vd_reg[17] : reg34l_d[1]; // e27
+assign pin_ca[15] = h23a_y ? vd_reg[20] : reg34l_d[4]; // e27
+assign pin_ca[13] = h23a_y ? vd_reg[18] : reg34l_d[2]; // e27
+assign pin_ca[18] = h23a_y ? ca18 : reg34l_d[7]; // g7
+assign pin_ca[16] = h23a_y ? vd_reg[21] : reg34l_d[5]; // g7
+assign pin_col[0] = h23a_y ? col[0] : reg34u_d[0]; // g7
+assign pin_ca[17] = h23a_y ? ca17 : reg34l_d[6]; // g7
+assign pin_col[3] = h23a_y ? col[3] : reg34u_d[3]; // h27
+assign pin_col[1] = h23a_y ? col[1] : reg34u_d[1]; // h27
+assign pin_col[4] = h23a_y ? vd_reg_12_20 : reg34u_d[4]; // h27
+assign pin_col[2] = h23a_y ? col[2] : reg34u_d[2]; // h27
+assign pin_col[7] = h23a_y ? vd_reg_15_23 : reg34u_d[7]; // j27
+assign pin_col[5] = h23a_y ? vd_reg_13_21 : reg34u_d[5]; // j27
+assign pin_vrc[0] = h23a_y ? lu2 : reg36_d[0]; // j27
+assign pin_col[6] = h23a_y ? vd_reg_14_22 : reg34u_d[6]; // j27
+assign j33a_x = h23a_y ? ~lu3 : ~reg36_d[1]; // j33a
 assign pin_vrc[1] = ~j33a_x; // j7a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page12_ca_low.v
 // -----------------------------------------------------------------------------
@@ -10147,39 +8469,11 @@ module jt054156_page12_flip_en_mux(
 
 assign h37a_y = ~reg6_db6; // h37a
 assign h38b_y = ~reg6_db7; // h38b
-jt054156_t5a u_h38a(
-    .a1 ( vd_reg_15_23 ),
-    .a2 ( vd_reg_13_21 ),
-    .s1 ( h37a_y       ),
-    .s2 ( reg6_db6     ),
-    .s5 ( h38b_y       ),
-    .s6 ( reg6_db7     ),
-    .s3 ( h37a_y       ),
-    .s4 ( reg6_db6     ),
-    .b1 ( col[3]       ),
-    .b2 ( col[1]       ),
-    .x  ( h38a_x       )
-);
-
+assign h38a_x = ~(reg6_db7 ? (reg6_db6 ? vd_reg_15_23 : vd_reg_13_21) : (reg6_db6 ? col[3] : col[1])); // h38a
 assign h36_y = ~|{vflip_en_mux,h38a_x}; // h36
-jt054156_t5a u_h33a(
-    .a1 ( vd_reg_14_22 ),
-    .a2 ( vd_reg_12_20 ),
-    .s1 ( h37a_y       ),
-    .s2 ( reg6_db6     ),
-    .s5 ( h38b_y       ),
-    .s6 ( reg6_db7     ),
-    .s3 ( h37a_y       ),
-    .s4 ( reg6_db6     ),
-    .b1 ( col[2]       ),
-    .b2 ( col[0]       ),
-    .x  ( h33a_x       )
-);
-
+assign h33a_x = ~(reg6_db7 ? (reg6_db6 ? vd_reg_14_22 : vd_reg_12_20) : (reg6_db6 ? col[2] : col[0])); // h33a
 assign f11a_y = ~|{hflip_en_mux,h33a_x}; // f11a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page12_high_outputs.v
 // -----------------------------------------------------------------------------
@@ -10687,8 +8981,8 @@ module jt054156_page12_scroll_capture(
     output wire        e52a_y,
     output wire        h162_y,
     output wire        e14a_y,
-    output wire        h156_q,
-    output wire        n186_x3_dly,
+    output reg        h156_q,
+    output reg        n186_x3_dly,
     output wire        n186_x3_dly_n,
     output wire [8:3]  scrollx_l,
     output wire [2:0]  scrolly_l,
@@ -10700,11 +8994,10 @@ module jt054156_page12_scroll_capture(
     output wire [2:0]  scrolly_mux
 );
 
-wire [3:0] c25_q, c15_q, h3_q;
-wire       c7_q, e22_q, f8_q;
-wire       h14_q, h17_q, h20_q;
+reg [3:0] c25_q, c15_q, h3_q;
+reg     c7_q, e22_q, f8_q;
+reg     h14_q, h17_q, h20_q;
 wire [3:0] c25_d, c15_d, h3_d;
-
 assign c25_d = { scrollx[6], scrollx[5], scrollx[4], scrollx[3] };
 assign c15_d = { e22_q,     c25_q[3],   c25_q[2],   c25_q[1]   };
 assign h3_d  = { h20_q,     h17_q,      h14_q,      f8_q       };
@@ -10722,107 +9015,35 @@ assign scrolly_l[2] = h3_q[3];
 
 assign e52a_y = ~n186_x0; // e52a
 assign h162_y = ~n186_x3; // h162
-jt054156_fdm u_h156(
-    .ck ( e52a_y ),
-    .d  ( h162_y ),
-    .q  ( h156_q ),
-    .nq (        )
-);
+always @(posedge e52a_y) begin
+    h156_q <= h162_y; // h156
+end
+always @(posedge n186_x0) begin
+    n186_x3_dly <= h156_q; // g151
+end
 
-jt054156_fdm u_g151(
-    .ck ( n186_x0        ),
-    .d  ( h156_q         ),
-    .q  ( n186_x3_dly   ),
-    .nq ( n186_x3_dly_n )
-);
-
+assign n186_x3_dly_n = ~n186_x3_dly; // g151
 assign e14a_y = e52a_y; // e14a
-jt054156_fds u_c25(
-    .ck ( e14a_y ),
-    .d  ( c25_d  ),
-    .q  ( c25_q  )
-);
-
-jt054156_fdm u_e22(
-    .ck ( e14a_y     ),
-    .d  ( scrollx[7] ),
-    .q  ( e22_q      ),
-    .nq (            )
-);
-
-jt054156_fdm u_f8(
-    .ck ( e14a_y     ),
-    .d  ( scrollx[8] ),
-    .q  ( f8_q       ),
-    .nq (            )
-);
-
+always @(posedge e14a_y) begin
+    c25_q <= c25_d; // c25
+end
+always @(posedge e14a_y) begin
+    {e22_q,f8_q} <= {scrollx[7],scrollx[8]}; // e22, f8
+end
 assign j18a_y = scrolly[0] | pin_test; // j18a
-jt054156_fdm u_h14(
-    .ck ( e14a_y ),
-    .d  ( j18a_y ),
-    .q  ( h14_q  ),
-    .nq (        )
-);
-
-jt054156_fdm u_h17(
-    .ck ( e14a_y    ),
-    .d  ( scrolly[1] ),
-    .q  ( h17_q     ),
-    .nq (           )
-);
-
-jt054156_fdm u_h20(
-    .ck ( e14a_y    ),
-    .d  ( scrolly[2] ),
-    .q  ( h20_q     ),
-    .nq (           )
-);
-
-jt054156_fdm u_c7(
-    .ck ( n186_x0 ),
-    .d  ( c25_q[0] ),
-    .q  ( c7_q    ),
-    .nq (         )
-);
-
-jt054156_fds u_c15(
-    .ck ( n186_x0 ),
-    .d  ( c15_d   ),
-    .q  ( c15_q   )
-);
-
-jt054156_fds u_h3(
-    .ck ( n186_x0 ),
-    .d  ( h3_d    ),
-    .q  ( h3_q    )
-);
-
+always @(posedge e14a_y) begin
+    {h14_q,h17_q,h20_q} <= {j18a_y,scrolly[1],scrolly[2]}; // h14, h17, h20
+end
+always @(posedge n186_x0) begin
+    c7_q <= c25_q[0]; // c7
+end
+always @(posedge n186_x0) begin
+    {c15_q,h3_q} <= {c15_d,h3_d}; // c15, h3
+end
 assign j6a_y = ~pin_test; // j6a
-jt054156_t2b u_j8b(
-    .a  ( h3_q[1]          ),
-    .b  ( scrolly[0]       ),
-    .s1 ( j6a_y            ),
-    .s2 ( pin_test         ),
-    .x  ( scrolly_t2b_x[0] )
-);
-
-jt054156_t2b u_j10b(
-    .a  ( h3_q[2]          ),
-    .b  ( scrolly[1]       ),
-    .s1 ( j6a_y            ),
-    .s2 ( pin_test         ),
-    .x  ( scrolly_t2b_x[1] )
-);
-
-jt054156_t2b u_j9a(
-    .a  ( h3_q[3]          ),
-    .b  ( scrolly[2]       ),
-    .s1 ( j6a_y            ),
-    .s2 ( pin_test         ),
-    .x  ( scrolly_t2b_x[2] )
-);
-
+assign scrolly_t2b_x[0] = pin_test ? ~h3_q[1] : ~scrolly[0]; // j8b
+assign scrolly_t2b_x[1] = pin_test ? ~h3_q[2] : ~scrolly[1]; // j10b
+assign scrolly_t2b_x[2] = pin_test ? ~h3_q[3] : ~scrolly[2]; // j9a
 assign scrolly_mux[0] = ~scrolly_t2b_x[0]; // j8a
 assign scrolly_mux[1] = ~scrolly_t2b_x[1]; // j7b
 assign scrolly_mux[2] = ~scrolly_t2b_x[2]; // j6b
@@ -10836,8 +9057,6 @@ assign scrolly_xor[0] = scrolly_mux[0] ^ h36_y; // j15a
 assign scrolly_xor[1] = scrolly_mux[1] ^ h36_y; // j14
 assign scrolly_xor[2] = scrolly_mux[2] ^ h36_y; // j11a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_page12_select_source.v
 // -----------------------------------------------------------------------------
@@ -10897,8 +9116,7 @@ module jt054156_page12_vd_capture(
     output wire        vd_reg_13_21
 );
 
-wire [3:0] d43_q, c43_q, c56_q, b43_q, d31_q, b15_q;
-
+reg [3:0] d43_q, c43_q, c56_q, b43_q, d31_q, b15_q;
 assign vd_reg[ 3: 0] = d43_q;
 assign vd_reg[ 7: 4] = c43_q;
 assign vd_reg[11: 8] = c56_q;
@@ -10906,80 +9124,19 @@ assign vd_reg[15:12] = b43_q;
 assign vd_reg[19:16] = d31_q;
 assign vd_reg[23:20] = b15_q;
 
-jt054156_fds u_d43(
-    .ck ( n186_x0       ),
-    .d  ( pin_vd_in[3:0] ),
-    .q  ( d43_q         )
-);
-
-jt054156_fds u_c43(
-    .ck ( n186_x0       ),
-    .d  ( pin_vd_in[7:4] ),
-    .q  ( c43_q         )
-);
-
-jt054156_fds u_c56(
-    .ck ( n186_x0        ),
-    .d  ( pin_vd_in[11:8] ),
-    .q  ( c56_q          )
-);
-
-jt054156_fds u_b43(
-    .ck ( n186_x0         ),
-    .d  ( pin_vd_in[15:12] ),
-    .q  ( b43_q           )
-);
-
-jt054156_fds u_d31(
-    .ck ( n186_x0         ),
-    .d  ( pin_vd_in[19:16] ),
-    .q  ( d31_q           )
-);
-
-jt054156_fds u_b15(
-    .ck ( n186_x0         ),
-    .d  ( pin_vd_in[23:20] ),
-    .q  ( b15_q           )
-);
-
+always @(posedge n186_x0) begin
+    {d43_q,c43_q,c56_q,b43_q,d31_q,b15_q} <= {pin_vd_in[3:0],pin_vd_in[7:4],pin_vd_in[11:8],pin_vd_in[15:12],pin_vd_in[19:16],pin_vd_in[23:20]}; // d43, c43, c56, b43, d31, b15
+end
 assign c13b_y = ~reg6_db4; // c13b
-jt054156_p24 u_c35(
-    .a1 ( c56_q[2]     ),
-    .b1 ( d31_q[2]     ),
-    .a2 ( c56_q[0]     ),
-    .b2 ( d31_q[0]     ),
-    .a3 ( c56_q[3]     ),
-    .b3 ( d31_q[3]     ),
-    .a4 ( c56_q[1]     ),
-    .b4 ( d31_q[1]     ),
-    .sa ( c13b_y       ),
-    .sb ( reg6_db4     ),
-    .x1 ( vd_reg_10_18 ),
-    .x2 ( vd_reg_8_16  ),
-    .x3 ( vd_reg_11_19 ),
-    .x4 ( vd_reg_9_17  )
-);
-
-jt054156_p24 u_b35(
-    .a1 ( b43_q[2]     ),
-    .b1 ( b15_q[2]     ),
-    .a2 ( b43_q[0]     ),
-    .b2 ( b15_q[0]     ),
-    .a3 ( b43_q[3]     ),
-    .b3 ( b15_q[3]     ),
-    .a4 ( b43_q[1]     ),
-    .b4 ( b15_q[1]     ),
-    .sa ( c13b_y       ),
-    .sb ( reg6_db4     ),
-    .x1 ( vd_reg_14_22 ),
-    .x2 ( vd_reg_12_20 ),
-    .x3 ( vd_reg_15_23 ),
-    .x4 ( vd_reg_13_21 )
-);
-
+assign vd_reg_10_18 = reg6_db4 ? c56_q[2] : d31_q[2]; // c35
+assign vd_reg_8_16 = reg6_db4 ? c56_q[0] : d31_q[0]; // c35
+assign vd_reg_11_19 = reg6_db4 ? c56_q[3] : d31_q[3]; // c35
+assign vd_reg_9_17 = reg6_db4 ? c56_q[1] : d31_q[1]; // c35
+assign vd_reg_14_22 = reg6_db4 ? b43_q[2] : b15_q[2]; // b35
+assign vd_reg_12_20 = reg6_db4 ? b43_q[0] : b15_q[0]; // b35
+assign vd_reg_15_23 = reg6_db4 ? b43_q[3] : b15_q[3]; // b35
+assign vd_reg_13_21 = reg6_db4 ? b43_q[1] : b15_q[1]; // b35
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_reset_source.v
 // -----------------------------------------------------------------------------
@@ -11010,20 +9167,18 @@ module jt054156_reset_source(
     output wire reset18_n,
     output wire reset19_n,
     output wire reset20_n,
-    output wire reset_root
+    output reg reset_root
 );
 
-wire p169b_y, r113a_y, k156b_y, j108a_y, a78b_y;
-wire tied_high = 1'b1;
-
-jt054156_fdo u_p183(
-    .ck ( pin_clk    ),
-    .d  ( tied_high  ),
-    .nr ( pin_nres   ),
-    .q  ( reset_root ),
-    .nq (            )
-);
-
+wire    p169b_y, r113a_y, k156b_y, j108a_y, a78b_y;
+wire    tied_high = 1'b1;
+always @(posedge pin_clk or negedge pin_nres) begin
+    if (!pin_nres) begin
+        reset_root <= 1'b0;
+    end else begin
+        reset_root <= tied_high;
+    end
+end // p183
 assign reset19_n = reset_root; // p166a
 assign p169b_y = reset_root; // p169b
 assign r113a_y = p169b_y; // r113a
@@ -11055,8 +9210,6 @@ assign reset6_n = reset_root; // h78a
 assign reset17_n = reset5_n; // a77a
 assign reset16_n = reset4_n; // a76a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054156_scroll_timing_ctrl.v
 // -----------------------------------------------------------------------------

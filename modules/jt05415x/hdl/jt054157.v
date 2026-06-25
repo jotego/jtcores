@@ -15,465 +15,6 @@
 // Preliminary 054157 primitive cells, seeded from the 054156 gate-array cell catalog.
 // Treat this as a working library until each 054157 primitive use is audited.
 
-module jt054157_a4h(
-    input  wire [3:0] a,
-    input  wire [3:0] b,
-    input  wire       ci,
-    output wire [3:0] s,
-    output wire       co
-);
-
-assign { co, s } = { 1'b0, a } + { 1'b0, b } + { 4'b0, ci };
-
-endmodule
-
-module jt054157_a1n(
-    input  wire a,
-    input  wire b,
-    input  wire ci,
-    output wire s,
-    output wire co
-);
-
-wire [1:0] sum;
-
-assign sum = { 1'b0, a } + { 1'b0, b } + { 1'b0, ci };
-assign s   = sum[0];
-assign co  = sum[1];
-
-endmodule
-
-module jt054157_a1a(
-    input  wire a,
-    input  wire b,
-    output wire s,
-    output wire co
-);
-
-assign s  = a ^ b;
-assign co = a & b;
-
-endmodule
-
-module jt054157_a2n(
-    input  wire [1:0] a,
-    input  wire [1:0] b,
-    input  wire       ci,
-    output wire [1:0] s,
-    output wire       co
-);
-
-assign { co, s } = { 1'b0, a } + { 1'b0, b } + { 2'b0, ci };
-
-endmodule
-
-module jt054157_p24(
-    input  wire a1,
-    input  wire b1,
-    input  wire a2,
-    input  wire b2,
-    input  wire a3,
-    input  wire b3,
-    input  wire a4,
-    input  wire b4,
-    input  wire sa,
-    input  wire sb,
-    output wire x1,
-    output wire x2,
-    output wire x3,
-    output wire x4
-);
-
-wire select_a = ~sa &  sb;
-wire select_b =  sa & ~sb;
-
-assign x1 = (select_a & a1) | (select_b & b1);
-assign x2 = (select_a & a2) | (select_b & b2);
-assign x3 = (select_a & a3) | (select_b & b3);
-assign x4 = (select_a & a4) | (select_b & b4);
-
-endmodule
-
-module jt054157_t2b(
-    input  wire a,
-    input  wire b,
-    input  wire s1,
-    input  wire s2,
-    output wire x
-);
-
-wire select_a = ~s1 & s2;
-wire select_b = s1 & ~s2;
-wire selected = (select_a & a) | (select_b & b);
-
-assign x = ~selected;
-
-endmodule
-
-module jt054157_t2d(
-    input  wire a,
-    input  wire b,
-    input  wire s1,
-    input  wire s2,
-    output wire x
-);
-
-wire select_a = ~s1 & s2;
-wire select_b = s1 & ~s2;
-wire selected = (select_a & a) | (select_b & b);
-
-assign x = ~selected;
-
-endmodule
-
-module jt054157_t2e(
-    input  wire a1,
-    input  wire a2,
-    input  wire b1,
-    input  wire b2,
-    input  wire s,
-    output wire x0,
-    output wire x1
-);
-
-wire select_a = ~s;
-wire select_b =  s;
-wire selected_x0 = (select_a & a1) | (select_b & a2);
-wire selected_x1 = (select_a & b1) | (select_b & b2);
-
-assign x0 = ~selected_x0;
-assign x1 = ~selected_x1;
-
-endmodule
-
-module jt054157_t2f(
-    input  wire a1,
-    input  wire a2,
-    input  wire b1,
-    input  wire b2,
-    input  wire c1,
-    input  wire c2,
-    input  wire d1,
-    input  wire d2,
-    input  wire s,
-    output wire x0,
-    output wire x1,
-    output wire x2,
-    output wire x3
-);
-
-wire select_0 = ~s;
-wire select_1 =  s;
-wire selected_x0 = (select_0 & a1) | (select_1 & a2);
-wire selected_x1 = (select_0 & b1) | (select_1 & b2);
-wire selected_x2 = (select_0 & c1) | (select_1 & c2);
-wire selected_x3 = (select_0 & d1) | (select_1 & d2);
-
-assign x0 = ~selected_x0;
-assign x1 = ~selected_x1;
-assign x2 = ~selected_x2;
-assign x3 = ~selected_x3;
-
-endmodule
-
-module jt054157_t5a(
-    input  wire a1,
-    input  wire a2,
-    input  wire s1,
-    input  wire s2,
-    input  wire s5,
-    input  wire s6,
-    input  wire s3,
-    input  wire s4,
-    input  wire b1,
-    input  wire b2,
-    output wire x
-);
-
-wire select_a1 = ~s1 &  s2;
-wire select_a2 =  s1 & ~s2;
-wire select_b1 = ~s3 &  s4;
-wire select_b2 =  s3 & ~s4;
-wire select_a  = ~s5 &  s6;
-wire select_b  =  s5 & ~s6;
-wire mux_a     = (select_a1 & a1) | (select_a2 & a2);
-wire mux_b     = (select_b1 & b1) | (select_b2 & b2);
-wire selected  = (select_a & mux_a) | (select_b & mux_b);
-
-assign x = ~selected;
-
-endmodule
-
-module jt054157_fdm(
-    input  wire ck,
-    input  wire d,
-    output reg  q,
-    output wire nq
-);
-
-always @(posedge ck) begin
-    q <= d;
-end
-
-assign nq = ~q;
-
-endmodule
-
-module jt054157_fdn(
-    input  wire ck,
-    input  wire d,
-    input  wire ns,
-    output reg  q,
-    output wire nq
-);
-
-always @(posedge ck or negedge ns) begin
-    if (!ns) begin
-        q <= 1'b1;
-    end else begin
-        q <= d;
-    end
-end
-
-assign nq = ~q;
-
-endmodule
-
-module jt054157_fdo(
-    input  wire ck,
-    input  wire d,
-    input  wire nr,
-    output reg  q,
-    output wire nq
-);
-
-always @(posedge ck or negedge nr) begin
-    if (!nr) begin
-        q <= 1'b0;
-    end else begin
-        q <= d;
-    end
-end
-
-assign nq = ~q;
-
-endmodule
-
-module jt054157_fdp(
-    input  wire ck,
-    input  wire d,
-    input  wire ns,
-    input  wire nr,
-    output reg  q,
-    output wire nq
-);
-
-always @(posedge ck or negedge ns or negedge nr) begin
-    if (!ns) begin
-        q <= 1'b1;
-    end else if (!nr) begin
-        q <= 1'b0;
-    end else begin
-        q <= d;
-    end
-end
-
-assign nq = ~q;
-
-endmodule
-
-module jt054157_fd5(
-    input  wire ck,
-    input  wire d,
-    input  wire ncl,
-    output reg  q,
-    output wire nq
-);
-
-always @(posedge ck or negedge ncl) begin
-    if (!ncl) begin
-        q <= 1'b0;
-    end else begin
-        q <= d;
-    end
-end
-
-assign nq = ~q;
-
-endmodule
-
-module jt054157_fds(
-    input  wire       ck,
-    input  wire [3:0] d,
-    output reg  [3:0] q
-);
-
-always @(posedge ck) begin
-    q <= d;
-end
-
-endmodule
-
-module jt054157_fdr(
-    input  wire       ck,
-    input  wire [3:0] d,
-    input  wire       ncl,
-    output reg  [3:0] q
-);
-
-always @(posedge ck or negedge ncl) begin
-    if (!ncl) begin
-        q <= 4'd0;
-    end else begin
-        q <= d;
-    end
-end
-
-endmodule
-
-module jt054157_ltl(
-    input  wire d,
-    input  wire ng,
-    input  wire ncl,
-    output reg  q,
-    output wire xq
-);
-
-/* verilator lint_off LATCH */
-always @(*) begin
-    if (!ncl) begin
-        q = 1'b0;
-    end else if (!ng) begin
-        q = d;
-    end
-end
-/* verilator lint_on LATCH */
-
-assign xq = ~q;
-
-endmodule
-
-module jt054157_ltm(
-    input  wire [3:0] d,
-    input  wire       ng,
-    input  wire       ncl,
-    output reg  [3:0] q,
-    output wire [3:0] nq
-);
-
-/* verilator lint_off LATCH */
-always @(*) begin
-    if (!ncl) begin
-        q = 4'd0;
-    end else if (!ng) begin
-        q = d;
-    end
-end
-/* verilator lint_on LATCH */
-
-assign nq = ~q;
-
-endmodule
-
-module jt054157_lt4(
-    input  wire       ng,
-    input  wire [3:0] d,
-    output reg  [3:0] q,
-    output wire [3:0] nq
-);
-
-/* verilator lint_off LATCH */
-always @(*) begin
-    if (!ng) begin
-        q = d;
-    end
-end
-/* verilator lint_on LATCH */
-
-assign nq = ~q;
-
-endmodule
-
-module jt054157_ltk(
-    input  wire d,
-    input  wire ng,
-    output reg  q,
-    output wire xq
-);
-
-/* verilator lint_off LATCH */
-always @(*) begin
-    if (!ng) begin
-        q = d;
-    end
-end
-/* verilator lint_on LATCH */
-
-assign xq = ~q;
-
-endmodule
-
-module jt054157_c43(
-    input  wire       ck,
-    input  wire [3:0] d,
-    input  wire       load_n,
-    input  wire       en,
-    input  wire       ci,
-    input  wire       clear_n,
-    output reg  [3:0] q,
-    output wire       co
-);
-
-always @(posedge ck or negedge clear_n) begin
-    if (!clear_n) begin
-        q <= 4'd0;
-    end else if (!load_n) begin
-        q <= d;
-    end else if (en & ci) begin
-        q <= q + 1'b1;
-    end
-end
-
-assign co = &{ q, ci };
-
-endmodule
-
-module jt054157_de6(
-    input  wire       s1,
-    input  wire       s2,
-    input  wire       s3,
-    input  wire       g1,
-    input  wire       g2_n,
-    input  wire       g3_n,
-    output wire [7:0] x_n
-);
-
-wire       enabled = g1 & ~g2_n & ~g3_n;
-wire [2:0] sel     = { s3, s2, s1 };
-wire [7:0] onehot;
-
-assign onehot = 8'b0000_0001 << sel;
-assign x_n    = enabled ? ~onehot : 8'hff;
-
-endmodule
-
-module jt054157_de4(
-    input  wire       a,
-    input  wire       b,
-    input  wire       g_n,
-    output wire [3:0] x_n
-);
-
-wire       enabled = ~g_n;
-wire [1:0] sel     = { b, a };
-wire [3:0] onehot;
-
-assign onehot = 4'b0001 << sel;
-assign x_n    = enabled ? ~onehot : 4'hf;
-
-endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page01_clock_fanout.v
 // -----------------------------------------------------------------------------
@@ -491,7 +32,7 @@ module jt054157_page01_clock_fanout(
     input  wire reg0_d3,
 
     output wire k112_y,
-    output wire k116_q,
+    output reg k116_q,
     output wire k116_nq,
     output wire k114a,
     output wire j136a,
@@ -501,33 +42,34 @@ module jt054157_page01_clock_fanout(
     output wire l152_nq,
     output wire l135a
 );
+reg     l152_q;
 
 assign k112_y = nres_sync2; // k112
-jt054157_fdn u_k116(
-    .ck ( pin_clk  ),
-    .d  ( k116_nq  ),
-    .ns ( k112_y   ),
-    .q  ( k116_q   ),
-    .nq ( k116_nq  )
-);
+always @(posedge pin_clk or negedge k112_y) begin
+    if (!k112_y) begin
+        k116_q <= 1'b1;
+    end else begin
+        k116_q <= k116_nq;
+    end
+end // k116
 
+assign k116_nq = ~k116_q; // k116
 assign j136a = k116_q; // j136a
 assign k114a = k116_nq; // k114a
 assign j152a = k114a; // j152a
 assign j121b = k114a; // j121b
 assign j152b = j121b; // j152b
-jt054157_fdn u_l152(
-    .ck ( j152b   ),
-    .d  ( pin113  ),
-    .ns ( reg0_d3 ),
-    .q  (         ),
-    .nq ( l152_nq )
-);
+always @(posedge j152b or negedge reg0_d3) begin
+    if (!reg0_d3) begin
+        l152_q <= 1'b1;
+    end else begin
+        l152_q <= pin113;
+    end
+end // l152
 
+assign l152_nq = ~l152_q; // l152
 assign l135a = ~&{l152_nq,pin113}; // l135a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page01_counter_raw.v
 // -----------------------------------------------------------------------------
@@ -602,12 +144,11 @@ module jt054157_page01_load_ctrl(
     output wire       loadd
 );
 
-wire       reg0_d0_buf;
+wire    reg0_d0_buf;
 wire [2:0] hofsa_x, hofsb_x, hofsc_x, hofsd_x;
-wire       j164a_y, l190a_y, k154_y, j163_y;
+wire    j164a_y, l190a_y, k154_y, j163_y;
 wire [3:0] j141_d;
-wire [3:0] load_q;
-
+reg [3:0] load_q;
 assign j141_d = { j163_y, k154_y, l190a_y, j164a_y };
 
 assign reg0_d0_buf = reg0_d0; // k186a
@@ -627,20 +168,14 @@ assign j164a_y = ~&{hofsd_x[0],hofsd_x[1],hofsd_x[2]}; // j164a
 assign l190a_y = ~&{hofsc_x[0],hofsc_x[1],hofsc_x[2]}; // l190a
 assign k154_y = ~&{hofsb_x[0],hofsb_x[1],hofsb_x[2]}; // k154
 assign j163_y = ~&{hofsa_x[0],hofsa_x[1],hofsa_x[2]}; // j163
-jt054157_fds u_j141(
-    .ck ( j136a  ),
-    .d  ( j141_d ),
-    .q  ( load_q )
-);
-
+always @(posedge j136a) begin
+    load_q <= j141_d; // j141
+end
 assign loadd = load_q[0];
 assign loadc = load_q[1];
 assign loadb = load_q[2];
 assign loada = load_q[3];
-
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page01_lower_state.v
 // -----------------------------------------------------------------------------
@@ -662,17 +197,17 @@ module jt054157_page01_lower_state(
     output wire l161a,
     output wire l159,
     output wire l161b,
-    output wire l155_q,
+    output reg l155_q,
     output wire l155_nq,
     output wire k159a,
     output wire k142,
     output wire k138b,
-    output wire k147a_q,
+    output reg k147a_q,
     output wire k147a_nq,
     output wire k137a,
     output wire j156a,
     output wire k135a,
-    output wire k144_q,
+    output reg k144_q,
     output wire k144_xq,
     output wire k153a,
     output wire k160b,
@@ -682,42 +217,43 @@ module jt054157_page01_lower_state(
 assign l161a = k159a; // l161a
 assign l159 = l161a ^ k153b; // l159
 assign l161b = l135a & l159; // l161b
-jt054157_fdo u_l155a(
-    .ck ( j152b     ),
-    .d  ( l161b     ),
-    .nr ( nres_sync ),
-    .q  ( l155_q    ),
-    .nq ( l155_nq   )
-);
+always @(posedge j152b or negedge nres_sync) begin
+    if (!nres_sync) begin
+        l155_q <= 1'b0;
+    end else begin
+        l155_q <= l161b;
+    end
+end // l155a
 
+assign l155_nq = ~l155_q; // l155a
 assign k159a = l155_q; // k159a
 assign k142 = k160b ^ k137a; // k142
 assign k138b = l135a & k142; // k138b
-jt054157_fdo u_k147a(
-    .ck ( j152b      ),
-    .d  ( k138b      ),
-    .nr ( nres_sync2 ),
-    .q  ( k147a_q    ),
-    .nq ( k147a_nq   )
-);
+always @(posedge j152b or negedge nres_sync2) begin
+    if (!nres_sync2) begin
+        k147a_q <= 1'b0;
+    end else begin
+        k147a_q <= k138b;
+    end
+end // k147a
 
+assign k147a_nq = ~k147a_q; // k147a
 assign k137a = k147a_q; // k137a
 assign j156a = k147a_nq; // j156a
 assign k135a = l135a & k142; // k135a
-jt054157_fdo u_k144(
-    .ck ( j152b      ),
-    .d  ( k135a      ),
-    .nr ( nres_sync2 ),
-    .q  ( k144_q     ),
-    .nq ( k144_xq    )
-);
+always @(posedge j152b or negedge nres_sync2) begin
+    if (!nres_sync2) begin
+        k144_q <= 1'b0;
+    end else begin
+        k144_q <= k135a;
+    end
+end // k144
 
+assign k144_xq = ~k144_q; // k144
 assign k153a = k144_q; // k153a
 assign k160b = ~k153a; // k160b
 assign k153b = k160b | k137a; // k153b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page01_pin_counter.v
 // -----------------------------------------------------------------------------
@@ -740,83 +276,42 @@ module jt054157_page01_pin_counter(
     input  wire       j161a,
     input  wire       j161b,
 
-    output wire       pin114,
+    output reg       pin114,
     output wire       pin115,
     output wire       pin116,
     output wire       c114b,
     output wire       j135a,
     output wire       m118a,
-    output wire [3:0] h109_q
+    output reg [3:0] h109_q
 );
 
 wire [1:0] j154_x_n, j138a_x_n, k139a_x_n;
 wire [3:0] h119_x_n;
-wire       j162b_y;
-wire       j158_nq;
-wire       j120b_y, k125b_y;
-wire       gnd = 1'b0;
-
-jt054157_t2e u_j154(
-    .a1 ( j154_a1    ),
-    .a2 ( j161a      ),
-    .b1 ( gnd        ),
-    .b2 ( k161       ),
-    .s  ( j161b      ),
-    .x0 ( j154_x_n[0] ),
-    .x1 ( j154_x_n[1] )
-);
+wire    j162b_y;
+wire    j158_nq;
+wire    j120b_y, k125b_y;
+wire    gnd = 1'b0;
 
 assign pin116 = ~j154_x_n[0]; // m156a
 assign j162b_y = ~j154_x_n[1]; // j162b
-jt054157_fdm u_j158(
-    .ck ( pin116  ),
-    .d  ( j162b_y ),
-    .q  ( pin114  ),
-    .nq ( j158_nq )
-);
+always @(posedge pin116) begin
+    pin114 <= j162b_y; // j158
+end
 
-jt054157_t2e u_j138a(
-    .a1 ( j138a_a1    ),
-    .a2 ( j152a       ),
-    .b1 ( j161a       ),
-    .b2 ( j136a       ),
-    .s  ( j161b       ),
-    .x0 ( j138a_x_n[0] ),
-    .x1 ( j138a_x_n[1] )
-);
+assign j158_nq = ~pin114; // j158
 
 assign c114b = ~j138a_x_n[0]; // c114b
 assign j135a = ~j138a_x_n[1]; // j135a
-jt054157_t2e u_k139a(
-    .a1 ( k155        ),
-    .a2 ( k157        ),
-    .b1 ( k139a_b1    ),
-    .b2 ( j138a_a1    ),
-    .s  ( j161b       ),
-    .x0 ( k139a_x_n[0] ),
-    .x1 ( k139a_x_n[1] )
-);
 
 assign pin115 = ~k139a_x_n[0]; // k123a
 assign j120b_y = pin115; // j120b
 assign k125b_y = ~k139a_x_n[1]; // k125b
 assign m118a = k125b_y; // m118a
-jt054157_de4 u_h119(
-    .a   ( pin114   ),
-    .b   ( j120b_y  ),
-    .g_n ( k125b_y  ),
-    .x_n ( h119_x_n )
-);
-
-jt054157_fds u_h109(
-    .ck ( j135a    ),
-    .d  ( h119_x_n ),
-    .q  ( h109_q   )
-);
-
+assign h119_x_n = ~k125b_y ? ~(4'b0001 << { j120b_y, pin114 }) : 4'hf; // h119
+always @(posedge j135a) begin
+    h109_q <= h119_x_n; // h109
+end
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page01_partial.v
 // -----------------------------------------------------------------------------
@@ -1017,69 +512,69 @@ module jt054157_page02_cpu_entry(
     output wire       reg6_d7
 );
 
-wire k108a_q, k108a_nq;
-wire k188a_y;
-wire m159a_y;
-wire [3:0] l163_d, l163_q;
-wire [3:0] k163_d, k163_q;
-wire [3:0] l138_d, l138_q;
-wire [3:0] m165_d, m165_q;
-wire       reg4_d4_src;
+wire    k108a_nq;
 
+reg     k108a_q;
+wire    k188a_y;
+wire    m159a_y;
+wire [3:0] l163_d;
+reg [3:0] l163_q;
+wire [3:0] k163_d;
+reg [3:0] k163_q;
+wire [3:0] l138_d;
+reg [3:0] l138_q;
+wire [3:0] m165_d;
+reg [3:0] m165_q;
+wire    reg4_d4_src;
 assign l163_d = { pin_db_in[4], pin_db_in[3], 1'b0, pin_db_in[0] };
 assign k163_d = { pin_db_in[0], pin_db_in[2], pin_db_in[4], pin_db_in[6] };
 assign l138_d = { pin_db_in[6], pin_db_in[5], pin_db_in[4], pin_db_in[3] };
 assign m165_d = { pin_db_in[7], pin_db_in[6], pin_db_in[5], 1'b0 };
 
-jt054157_fdo u_k108a(
-    .ck ( pin_clk  ),
-    .d  ( 1'b1     ),
-    .nr ( pin_nres ),
-    .q  ( k108a_q  ),
-    .nq ( k108a_nq )
-);
+always @(posedge pin_clk or negedge pin_nres) begin
+    if (!pin_nres) begin
+        k108a_q <= 1'b0;
+    end else begin
+        k108a_q <= 1'b1;
+    end
+end // k108a
 
+assign k108a_nq = ~k108a_q; // k108a
 assign nres_sync = k108a_q; // k125a
 assign nres_sync2 = ~k108a_nq; // k115b
 assign m159a_y = nres_sync; // m159a
 assign k188a_y = pin64 | pin112; // k188a
-jt054157_de4 u_l179(
-    .a   ( pin_ab2  ),
-    .b   ( pin_ab1  ),
-    .g_n ( k188a_y  ),
-    .x_n ( reg_wr_n )
-);
-
-jt054157_fdr u_l163(
-    .ck  ( reg_wr_n[0] ),
-    .d   ( l163_d      ),
-    .ncl ( m159a_y     ),
-    .q   ( l163_q      )
-);
-
+assign reg_wr_n = ~k188a_y ? ~(4'b0001 << { pin_ab1, pin_ab2 }) : 4'hf; // l179
+always @(posedge reg_wr_n[0] or negedge m159a_y) begin
+    if (!m159a_y) begin
+        l163_q <= 4'd0;
+    end else begin
+        l163_q <= l163_d;
+    end
+end // l163
 assign reg0_d0 = l163_q[0];
 assign reg0_d3 = l163_q[2];
 assign reg0_d4 = l163_q[3];
 
-jt054157_fdr u_k163(
-    .ck  ( reg_wr_n[1] ),
-    .d   ( k163_d      ),
-    .ncl ( m159a_y     ),
-    .q   ( k163_q      )
-);
-
+always @(posedge reg_wr_n[1] or negedge m159a_y) begin
+    if (!m159a_y) begin
+        k163_q <= 4'd0;
+    end else begin
+        k163_q <= k163_d;
+    end
+end // k163
 assign reg2_d6 = k163_q[0];
 assign reg2_d4 = k163_q[1];
 assign reg2_d2 = k163_q[2];
 assign reg2_d0 = k163_q[3];
 
-jt054157_fdr u_l138(
-    .ck  ( reg_wr_n[2] ),
-    .d   ( l138_d      ),
-    .ncl ( m159a_y     ),
-    .q   ( l138_q      )
-);
-
+always @(posedge reg_wr_n[2] or negedge m159a_y) begin
+    if (!m159a_y) begin
+        l138_q <= 4'd0;
+    end else begin
+        l138_q <= l138_d;
+    end
+end // l138
 assign reg4_d3 = l138_q[0]; // p66a
 assign reg4_d3_buf = reg4_d3; // n83a
 assign reg4_d3_buf2 = reg4_d3; // n106a
@@ -1092,20 +587,18 @@ assign g124a = reg4_d4_src; // g124a
 assign reg4_d4_buf = g124a; // n142a
 assign reg4_d4_buf2 = reg4_d4_src; // g112a
 assign reg4_d4_buf3 = reg4_d4_src; // g113b
-jt054157_fdr u_m165(
-    .ck  ( reg_wr_n[3] ),
-    .d   ( m165_d      ),
-    .ncl ( m159a_y     ),
-    .q   ( m165_q      )
-);
-
+always @(posedge reg_wr_n[3] or negedge m159a_y) begin
+    if (!m159a_y) begin
+        m165_q <= 4'd0;
+    end else begin
+        m165_q <= m165_d;
+    end
+end // m165
 assign reg6_d5 = m165_q[1];
 
 assign reg6_d6 = m165_q[2]; // n183a
 assign reg6_d7 = m165_q[3]; // n186a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page03_pin153_slice.v
 // -----------------------------------------------------------------------------
@@ -1135,18 +628,17 @@ module jt054157_page03_pin153_slice(
     input  wire       pin24_in,
 
     output wire       pin153,
-    output wire [3:0] c31_q,
-    output wire [3:0] c15_q,
-    output wire [3:0] b42_q,
-    output wire [3:0] b31_q,
+    output reg [3:0] c31_q,
+    output reg [3:0] c15_q,
+    output reg [3:0] b42_q,
+    output reg [3:0] b31_q,
     output wire [7:0] b22_terms
 );
 
-wire       hofsa0_l, hofsa0_h;
-wire       hofsa1_l, hofsa1_h;
-wire       hofsa2_l, hofsa2_h;
+wire    hofsa0_l, hofsa0_h;
+wire    hofsa1_l, hofsa1_h;
+wire    hofsa2_l, hofsa2_h;
 wire [3:0] c31_d, b42_d;
-
 assign c31_d = { pin17_in, pin11_in, pin4_in,  pin156_in };
 assign b42_d = { pin45_in, pin37_in, pin31_in, pin24_in  };
 
@@ -1156,30 +648,12 @@ assign hofsa1_l = ~hofsa1f; // b54b
 assign hofsa1_h = ~hofsa1_l; // b29a
 assign hofsa2_l = ~hofsa2f; // b53a
 assign hofsa2_h = ~hofsa2_l; // b30a
-jt054157_fds u_c31(
-    .ck ( b54a  ),
-    .d  ( c31_d ),
-    .q  ( c31_q )
-);
-
-jt054157_fds u_b42(
-    .ck ( b54a  ),
-    .d  ( b42_d ),
-    .q  ( b42_q )
-);
-
-jt054157_fds u_c15(
-    .ck ( c13a  ),
-    .d  ( c31_q ),
-    .q  ( c15_q )
-);
-
-jt054157_fds u_b31(
-    .ck ( c13a  ),
-    .d  ( b42_q ),
-    .q  ( b31_q )
-);
-
+always @(posedge b54a) begin
+    {c31_q,b42_q} <= {c31_d,b42_d}; // c31, b42
+end
+always @(posedge c13a) begin
+    {c15_q,b31_q} <= {c31_q,b42_q}; // c15, b31
+end
 assign b22_terms[7] = ~&{c15_q[3],hofsa2_l,hofsa1_l,hofsa0_l}; // b20a
 assign b22_terms[6] = ~&{c15_q[2],hofsa2_l,hofsa1_l,hofsa0_h}; // b20b
 assign b22_terms[5] = ~&{c15_q[1],hofsa2_l,hofsa1_h,hofsa0_l}; // b18a
@@ -1190,8 +664,6 @@ assign b22_terms[1] = ~&{b31_q[1],hofsa2_h,hofsa1_h,hofsa0_l}; // b27a
 assign b22_terms[0] = ~&{b31_q[0],hofsa2_h,hofsa1_h,hofsa0_h}; // b25a
 assign pin153 = ~&{b22_terms[7],b22_terms[6],b22_terms[5],b22_terms[4],b22_terms[3],b22_terms[2],b22_terms[1],b22_terms[0]}; // b22
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page03_pin146_slice.v
 // -----------------------------------------------------------------------------
@@ -1221,18 +693,17 @@ module jt054157_page03_pin146_slice(
     input  wire       pin24_in,
 
     output wire       pin146,
-    output wire [3:0] f41_q,
-    output wire [3:0] f26_q,
-    output wire [3:0] g41_q,
-    output wire [3:0] g27_q,
+    output reg [3:0] f41_q,
+    output reg [3:0] f26_q,
+    output reg [3:0] g41_q,
+    output reg [3:0] g27_q,
     output wire [7:0] g10_terms
 );
 
-wire       hofsd0_l, hofsd0_h;
-wire       hofsd1_l, hofsd1_h;
-wire       hofsd2_l, hofsd2_h;
+wire    hofsd0_l, hofsd0_h;
+wire    hofsd1_l, hofsd1_h;
+wire    hofsd2_l, hofsd2_h;
 wire [3:0] f41_d, g41_d;
-
 assign f41_d = { pin17_in, pin11_in, pin4_in,  pin156_in };
 assign g41_d = { pin45_in, pin37_in, pin31_in, pin24_in  };
 
@@ -1242,30 +713,12 @@ assign hofsd1_l = ~hofsd1f; // g8a
 assign hofsd1_h = ~hofsd1_l; // g22a
 assign hofsd2_l = ~hofsd2f; // g9a
 assign hofsd2_h = ~hofsd2_l; // g16b
-jt054157_fds u_f41(
-    .ck ( b81a  ),
-    .d  ( f41_d ),
-    .q  ( f41_q )
-);
-
-jt054157_fds u_g41(
-    .ck ( b81a  ),
-    .d  ( g41_d ),
-    .q  ( g41_q )
-);
-
-jt054157_fds u_f26(
-    .ck ( c45b  ),
-    .d  ( f41_q ),
-    .q  ( f26_q )
-);
-
-jt054157_fds u_g27(
-    .ck ( c45b  ),
-    .d  ( g41_q ),
-    .q  ( g27_q )
-);
-
+always @(posedge b81a) begin
+    {f41_q,g41_q} <= {f41_d,g41_d}; // f41, g41
+end
+always @(posedge c45b) begin
+    {f26_q,g27_q} <= {f41_q,g41_q}; // f26, g27
+end
 assign g10_terms[7] = ~&{f26_q[3],hofsd2_l,hofsd1_l,hofsd0_l}; // g14a
 assign g10_terms[6] = ~&{f26_q[2],hofsd2_l,hofsd1_l,hofsd0_h}; // g18a
 assign g10_terms[5] = ~&{f26_q[1],hofsd2_l,hofsd1_h,hofsd0_l}; // g16a
@@ -1276,8 +729,6 @@ assign g10_terms[1] = ~&{g27_q[1],hofsd2_h,hofsd1_h,hofsd0_l}; // g20a
 assign g10_terms[0] = ~&{g27_q[0],hofsd2_h,hofsd1_h,hofsd0_h}; // g19b
 assign pin146 = ~&{g10_terms[7],g10_terms[6],g10_terms[5],g10_terms[4],g10_terms[3],g10_terms[2],g10_terms[1],g10_terms[0]}; // g10
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page03_pin152_slice.v
 // -----------------------------------------------------------------------------
@@ -1307,18 +758,17 @@ module jt054157_page03_pin152_slice(
     input  wire       pin23_in,
 
     output wire       pin152,
-    output wire [3:0] d85_q,
-    output wire [3:0] d65_q,
-    output wire [3:0] d98_q,
-    output wire [3:0] d75_q,
+    output reg [3:0] d85_q,
+    output reg [3:0] d65_q,
+    output reg [3:0] d98_q,
+    output reg [3:0] d75_q,
     output wire [7:0] d10_terms
 );
 
-wire       hofsc0_l, hofsc0_h;
-wire       hofsc1_l, hofsc1_h;
-wire       hofsc2_l, hofsc2_h;
+wire    hofsc0_l, hofsc0_h;
+wire    hofsc1_l, hofsc1_h;
+wire    hofsc2_l, hofsc2_h;
 wire [3:0] d85_d, d98_d;
-
 assign d85_d = { pin16_in, pin9_in,  pin3_in,  pin155_in };
 assign d98_d = { pin44_in, pin36_in, pin29_in, pin23_in  };
 
@@ -1328,30 +778,12 @@ assign hofsc1_l = ~hofsc1f; // f18a
 assign hofsc1_h = ~hofsc1_l; // d5a
 assign hofsc2_l = ~hofsc2f; // f19a
 assign hofsc2_h = ~hofsc2_l; // d23a
-jt054157_fds u_d85(
-    .ck ( b96b  ),
-    .d  ( d85_d ),
-    .q  ( d85_q )
-);
-
-jt054157_fds u_d98(
-    .ck ( b96b  ),
-    .d  ( d98_d ),
-    .q  ( d98_q )
-);
-
-jt054157_fds u_d65(
-    .ck ( c80a  ),
-    .d  ( d85_q ),
-    .q  ( d65_q )
-);
-
-jt054157_fds u_d75(
-    .ck ( c80a  ),
-    .d  ( d98_q ),
-    .q  ( d75_q )
-);
-
+always @(posedge b96b) begin
+    {d85_q,d98_q} <= {d85_d,d98_d}; // d85, d98
+end
+always @(posedge c80a) begin
+    {d65_q,d75_q} <= {d85_q,d98_q}; // d65, d75
+end
 assign d10_terms[7] = ~&{d65_q[3],hofsc2_l,hofsc1_l,hofsc0_l}; // d21a
 assign d10_terms[6] = ~&{d65_q[2],hofsc2_l,hofsc1_l,hofsc0_h}; // d8a
 assign d10_terms[5] = ~&{d65_q[1],hofsc2_l,hofsc1_h,hofsc0_l}; // d17a
@@ -1362,8 +794,6 @@ assign d10_terms[1] = ~&{d75_q[1],hofsc2_h,hofsc1_h,hofsc0_l}; // d15a
 assign d10_terms[0] = ~&{d75_q[0],hofsc2_h,hofsc1_h,hofsc0_h}; // d6b
 assign pin152 = ~&{d10_terms[7],d10_terms[6],d10_terms[5],d10_terms[4],d10_terms[3],d10_terms[2],d10_terms[1],d10_terms[0]}; // d10
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page03_pin149_slice.v
 // -----------------------------------------------------------------------------
@@ -1393,18 +823,17 @@ module jt054157_page03_pin149_slice(
     input  wire       pin23_in,
 
     output wire       pin149,
-    output wire [3:0] e75_q,
-    output wire [3:0] e55_q,
-    output wire [3:0] e85_q,
-    output wire [3:0] d55_q,
+    output reg [3:0] e75_q,
+    output reg [3:0] e55_q,
+    output reg [3:0] e85_q,
+    output reg [3:0] d55_q,
     output wire [7:0] e7_terms
 );
 
-wire       hofsc0_l, hofsc0_h;
-wire       hofsc1_l, hofsc1_h;
-wire       hofsc2_l, hofsc2_h;
+wire    hofsc0_l, hofsc0_h;
+wire    hofsc1_l, hofsc1_h;
+wire    hofsc2_l, hofsc2_h;
 wire [3:0] e75_d, e85_d;
-
 assign e75_d = { pin16_in, pin9_in,  pin3_in,  pin155_in };
 assign e85_d = { pin44_in, pin36_in, pin29_in, pin23_in  };
 
@@ -1414,30 +843,12 @@ assign hofsc1_l = ~hofsc1f; // f20a
 assign hofsc1_h = ~hofsc1_l; // d24a
 assign hofsc2_l = ~hofsc2f; // f21b
 assign hofsc2_h = ~hofsc2_l; // d21b
-jt054157_fds u_e75(
-    .ck ( b83a  ),
-    .d  ( e75_d ),
-    .q  ( e75_q )
-);
-
-jt054157_fds u_e85(
-    .ck ( b83a  ),
-    .d  ( e85_d ),
-    .q  ( e85_q )
-);
-
-jt054157_fds u_e55(
-    .ck ( c78a  ),
-    .d  ( e75_q ),
-    .q  ( e55_q )
-);
-
-jt054157_fds u_d55(
-    .ck ( c78a  ),
-    .d  ( e85_q ),
-    .q  ( d55_q )
-);
-
+always @(posedge b83a) begin
+    {e75_q,e85_q} <= {e75_d,e85_d}; // e75, e85
+end
+always @(posedge c78a) begin
+    {e55_q,d55_q} <= {e75_q,e85_q}; // e55, d55
+end
 assign e7_terms[7] = ~&{e55_q[3],hofsc2_l,hofsc1_l,hofsc0_l}; // e17a
 assign e7_terms[6] = ~&{e55_q[2],hofsc2_l,hofsc1_l,hofsc0_h}; // e19a
 assign e7_terms[5] = ~&{e55_q[1],hofsc2_l,hofsc1_h,hofsc0_l}; // e21a
@@ -1448,8 +859,6 @@ assign e7_terms[1] = ~&{d55_q[1],hofsc2_h,hofsc1_h,hofsc0_l}; // d17b
 assign e7_terms[0] = ~&{d55_q[0],hofsc2_h,hofsc1_h,hofsc0_h}; // d19b
 assign pin149 = ~&{e7_terms[7],e7_terms[6],e7_terms[5],e7_terms[4],e7_terms[3],e7_terms[2],e7_terms[1],e7_terms[0]}; // e7
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page03_pin151_slice.v
 // -----------------------------------------------------------------------------
@@ -1479,18 +888,17 @@ module jt054157_page03_pin151_slice(
     input  wire       pin24_in,
 
     output wire       pin151,
-    output wire [3:0] d43_q,
-    output wire [3:0] e42_q,
-    output wire [3:0] d31_q,
-    output wire [3:0] e25_q,
+    output reg [3:0] d43_q,
+    output reg [3:0] e42_q,
+    output reg [3:0] d31_q,
+    output reg [3:0] e25_q,
     output wire [7:0] e10_terms
 );
 
-wire       hofsb0_l, hofsb0_h;
-wire       hofsb1_l, hofsb1_h;
-wire       hofsb2_l, hofsb2_h;
+wire    hofsb0_l, hofsb0_h;
+wire    hofsb1_l, hofsb1_h;
+wire    hofsb2_l, hofsb2_h;
 wire [3:0] d43_d, d31_d;
-
 assign d43_d = { pin17_in, pin11_in, pin4_in,  pin156_in };
 assign d31_d = { pin45_in, pin37_in, pin31_in, pin24_in  };
 
@@ -1500,30 +908,12 @@ assign hofsb1_l = ~hofsb1f; // f22a
 assign hofsb1_h = ~hofsb1_l; // f15a
 assign hofsb2_l = ~hofsb2f; // f24a
 assign hofsb2_h = ~hofsb2_l; // f16a
-jt054157_fds u_d43(
-    .ck ( a99b  ),
-    .d  ( d43_d ),
-    .q  ( d43_q )
-);
-
-jt054157_fds u_d31(
-    .ck ( a99b  ),
-    .d  ( d31_d ),
-    .q  ( d31_q )
-);
-
-jt054157_fds u_e42(
-    .ck ( c49b  ),
-    .d  ( d43_q ),
-    .q  ( e42_q )
-);
-
-jt054157_fds u_e25(
-    .ck ( c49b  ),
-    .d  ( d31_q ),
-    .q  ( e25_q )
-);
-
+always @(posedge a99b) begin
+    {d43_q,d31_q} <= {d43_d,d31_d}; // d43, d31
+end
+always @(posedge c49b) begin
+    {e42_q,e25_q} <= {d43_q,d31_q}; // e42, e25
+end
 assign e10_terms[7] = ~&{e42_q[3],hofsb2_l,hofsb1_l,hofsb0_l}; // e23b
 assign e10_terms[6] = ~&{e42_q[2],hofsb2_l,hofsb1_l,hofsb0_h}; // e13b
 assign e10_terms[5] = ~&{e42_q[1],hofsb2_l,hofsb1_h,hofsb0_l}; // e15b
@@ -1534,8 +924,6 @@ assign e10_terms[1] = ~&{e25_q[1],hofsb2_h,hofsb1_h,hofsb0_l}; // e21b
 assign e10_terms[0] = ~&{e25_q[0],hofsb2_h,hofsb1_h,hofsb0_h}; // e15a
 assign pin151 = ~&{e10_terms[7],e10_terms[6],e10_terms[5],e10_terms[4],e10_terms[3],e10_terms[2],e10_terms[1],e10_terms[0]}; // e10
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page03_pin148_slice.v
 // -----------------------------------------------------------------------------
@@ -1564,18 +952,17 @@ module jt054157_page03_pin148_slice(
     input  wire       pin156_in,
 
     output wire       pin148,
-    output wire [3:0] g70_q,
-    output wire [3:0] f56_q,
-    output wire [3:0] f70_q,
-    output wire [3:0] g57_q,
+    output reg [3:0] g70_q,
+    output reg [3:0] f56_q,
+    output reg [3:0] f70_q,
+    output reg [3:0] g57_q,
     output wire [7:0] f10_terms
 );
 
-wire       hofsc0_l, hofsc0_h;
-wire       hofsc1_l, hofsc1_h;
-wire       hofsc2_l, hofsc2_h;
+wire    hofsc0_l, hofsc0_h;
+wire    hofsc1_l, hofsc1_h;
+wire    hofsc2_l, hofsc2_h;
 wire [3:0] g70_d, f70_d;
-
 assign g70_d = { pin45_in, pin37_in, pin31_in, pin24_in  };
 assign f70_d = { pin17_in, pin11_in, pin4_in,  pin156_in };
 
@@ -1585,30 +972,12 @@ assign hofsc1_l = ~hofsc1f; // f18b
 assign hofsc1_h = ~hofsc1_l; // f3a
 assign hofsc2_l = ~hofsc2f; // f20b
 assign hofsc2_h = ~hofsc2_l; // f2a
-jt054157_fds u_g70(
-    .ck ( b81b  ),
-    .d  ( g70_d ),
-    .q  ( g70_q )
-);
-
-jt054157_fds u_f70(
-    .ck ( b81b  ),
-    .d  ( f70_d ),
-    .q  ( f70_q )
-);
-
-jt054157_fds u_f56(
-    .ck ( c47b  ),
-    .d  ( g70_q ),
-    .q  ( f56_q )
-);
-
-jt054157_fds u_g57(
-    .ck ( c47b  ),
-    .d  ( f70_q ),
-    .q  ( g57_q )
-);
-
+always @(posedge b81b) begin
+    {g70_q,f70_q} <= {g70_d,f70_d}; // g70, f70
+end
+always @(posedge c47b) begin
+    {f56_q,g57_q} <= {g70_q,f70_q}; // f56, g57
+end
 assign f10_terms[7] = ~&{f56_q[3],hofsc2_l,hofsc1_l,hofsc0_l}; // f16b
 assign f10_terms[6] = ~&{f56_q[2],hofsc2_l,hofsc1_l,hofsc0_h}; // f8a
 assign f10_terms[5] = ~&{f56_q[1],hofsc2_l,hofsc1_h,hofsc0_l}; // f14b
@@ -1619,8 +988,6 @@ assign f10_terms[1] = ~&{g57_q[1],hofsc2_h,hofsc1_h,hofsc0_l}; // f6b
 assign f10_terms[0] = ~&{g57_q[0],hofsc2_h,hofsc1_h,hofsc0_h}; // f4b
 assign pin148 = ~&{f10_terms[7],f10_terms[6],f10_terms[5],f10_terms[4],f10_terms[3],f10_terms[2],f10_terms[1],f10_terms[0]}; // f10
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page03_pin147_slice.v
 // -----------------------------------------------------------------------------
@@ -1649,18 +1016,17 @@ module jt054157_page03_pin147_slice(
     input  wire       pin23_in,
 
     output wire       pin147,
-    output wire [3:0] f98_q,
-    output wire [3:0] f82_q,
-    output wire [3:0] e98_q,
-    output wire [3:0] e65_q,
+    output reg [3:0] f98_q,
+    output reg [3:0] f82_q,
+    output reg [3:0] e98_q,
+    output reg [3:0] e65_q,
     output wire [7:0] d26_terms
 );
 
-wire       hofsd0_l, hofsd0_h;
-wire       hofsd1_l, hofsd1_h;
-wire       hofsd2_l, hofsd2_h;
+wire    hofsd0_l, hofsd0_h;
+wire    hofsd1_l, hofsd1_h;
+wire    hofsd2_l, hofsd2_h;
 wire [3:0] f98_d, e98_d;
-
 assign f98_d = { pin16_in, pin9_in,  pin3_in,  pin155_in };
 assign e98_d = { pin44_in, pin36_in, pin29_in, pin23_in  };
 
@@ -1670,30 +1036,12 @@ assign hofsd1_l = ~hofsd1f; // g37a
 assign hofsd1_h = ~hofsd1_l; // e52a
 assign hofsd2_l = ~hofsd2f; // f24b
 assign hofsd2_h = ~hofsd2_l; // e35b
-jt054157_fds u_f98(
-    .ck ( b97a  ),
-    .d  ( f98_d ),
-    .q  ( f98_q )
-);
-
-jt054157_fds u_e98(
-    .ck ( b97a  ),
-    .d  ( e98_d ),
-    .q  ( e98_q )
-);
-
-jt054157_fds u_f82(
-    .ck ( c82b  ),
-    .d  ( f98_q ),
-    .q  ( f82_q )
-);
-
-jt054157_fds u_e65(
-    .ck ( c82b  ),
-    .d  ( e98_q ),
-    .q  ( e65_q )
-);
-
+always @(posedge b97a) begin
+    {f98_q,e98_q} <= {f98_d,e98_d}; // f98, e98
+end
+always @(posedge c82b) begin
+    {f82_q,e65_q} <= {f98_q,e98_q}; // f82, e65
+end
 assign d26_terms[7] = ~&{f82_q[3],hofsd2_l,hofsd1_l,hofsd0_l}; // e35a
 assign d26_terms[6] = ~&{f82_q[2],hofsd2_l,hofsd1_l,hofsd0_h}; // e39b
 assign d26_terms[5] = ~&{f82_q[1],hofsd2_l,hofsd1_h,hofsd0_l}; // e37b
@@ -1704,8 +1052,6 @@ assign d26_terms[1] = ~&{e65_q[1],hofsd2_h,hofsd1_h,hofsd0_l}; // e39a
 assign d26_terms[0] = ~&{e65_q[0],hofsd2_h,hofsd1_h,hofsd0_h}; // d41a
 assign pin147 = ~&{d26_terms[7],d26_terms[6],d26_terms[5],d26_terms[4],d26_terms[3],d26_terms[2],d26_terms[1],d26_terms[0]}; // d26
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page03_pin154_slice.v
 // -----------------------------------------------------------------------------
@@ -1734,18 +1080,17 @@ module jt054157_page03_pin154_slice(
     input  wire       pin23_in,
 
     output wire       pin154,
-    output wire [3:0] c68_q,
-    output wire [3:0] b56_q,
-    output wire [3:0] b69_q,
-    output wire [3:0] a54_q,
+    output reg [3:0] c68_q,
+    output reg [3:0] b56_q,
+    output reg [3:0] b69_q,
+    output reg [3:0] a54_q,
     output wire [7:0] a41_terms
 );
 
-wire       hofsa0_l, hofsa0_h;
-wire       hofsa1_l, hofsa1_h;
-wire       hofsa2_l, hofsa2_h;
+wire    hofsa0_l, hofsa0_h;
+wire    hofsa1_l, hofsa1_h;
+wire    hofsa2_l, hofsa2_h;
 wire [3:0] c68_d, b69_d;
-
 assign c68_d = { pin16_in, pin9_in,  pin3_in,  pin155_in };
 assign b69_d = { pin44_in, pin36_in, pin29_in, pin23_in  };
 
@@ -1755,30 +1100,12 @@ assign hofsa1_l = ~hofsa1f; // a77a
 assign hofsa1_h = ~hofsa1_l; // b52a
 assign hofsa2_l = ~hofsa2f; // a78a
 assign hofsa2_h = ~hofsa2_l; // a44a
-jt054157_fds u_c68(
-    .ck ( b83b  ),
-    .d  ( c68_d ),
-    .q  ( c68_q )
-);
-
-jt054157_fds u_b69(
-    .ck ( b83b  ),
-    .d  ( b69_d ),
-    .q  ( b69_q )
-);
-
-jt054157_fds u_b56(
-    .ck ( c64a  ),
-    .d  ( c68_q ),
-    .q  ( b56_q )
-);
-
-jt054157_fds u_a54(
-    .ck ( c64a  ),
-    .d  ( b69_q ),
-    .q  ( a54_q )
-);
-
+always @(posedge b83b) begin
+    {c68_q,b69_q} <= {c68_d,b69_d}; // c68, b69
+end
+always @(posedge c64a) begin
+    {b56_q,a54_q} <= {c68_q,b69_q}; // b56, a54
+end
 assign a41_terms[7] = ~&{b56_q[3],hofsa2_l,hofsa1_l,hofsa0_l}; // a51a
 assign a41_terms[6] = ~&{b56_q[2],hofsa2_l,hofsa1_l,hofsa0_h}; // a51b
 assign a41_terms[5] = ~&{b56_q[1],hofsa2_l,hofsa1_h,hofsa0_l}; // a49a
@@ -1789,8 +1116,6 @@ assign a41_terms[1] = ~&{a54_q[1],hofsa2_h,hofsa1_h,hofsa0_l}; // a47a
 assign a41_terms[0] = ~&{a54_q[0],hofsa2_h,hofsa1_h,hofsa0_h}; // a45b
 assign pin154 = ~&{a41_terms[7],a41_terms[6],a41_terms[5],a41_terms[4],a41_terms[3],a41_terms[2],a41_terms[1],a41_terms[0]}; // a41
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page03_outputs_integrated.v
 // -----------------------------------------------------------------------------
@@ -2118,77 +1443,76 @@ module jt054157_page04_input_fds(
     input  wire       pin38_in,
     input  wire       pin32_in,
 
-    output wire [3:0] j26_q,
-    output wire [3:0] h30_q,
-    output wire [3:0] j15_q,
-    output wire [3:0] h15_q,
-    output wire [3:0] h98_q,
-    output wire [3:0] k52_q,
-    output wire [3:0] j98_q,
-    output wire [3:0] k85_q,
-    output wire [3:0] l84_q,
-    output wire [3:0] n85_q,
-    output wire [3:0] m83_q,
-    output wire [3:0] n96_q,
-    output wire [3:0] l62_q,
-    output wire [3:0] r53_q,
-    output wire [3:0] p70_q,
-    output wire [3:0] r70_q,
-    output wire [3:0] l52_q,
-    output wire [3:0] p56_q,
-    output wire [3:0] m63_q,
-    output wire [3:0] p43_q,
-    output wire [3:0] l72_q,
-    output wire [3:0] m53_q,
-    output wire [3:0] n70_q,
-    output wire [3:0] n55_q,
-    output wire [3:0] b125_q,
-    output wire [3:0] b137_q,
-    output wire [3:0] b153_q,
-    output wire [3:0] a139_q,
-    output wire [3:0] f141_q,
-    output wire [3:0] g194_q,
-    output wire [3:0] f164_q,
-    output wire [3:0] g206_q,
-    output wire [3:0] e131_q,
-    output wire [3:0] d168_q,
-    output wire [3:0] e153_q,
-    output wire [3:0] d180_q,
-    output wire [3:0] b113_q,
-    output wire [3:0] c141_q,
-    output wire [3:0] c123_q,
-    output wire [3:0] c153_q,
-    output wire [3:0] c166_q,
-    output wire [3:0] b165_q,
-    output wire [3:0] c180_q,
-    output wire [3:0] b180_q,
-    output wire [3:0] d109_q,
-    output wire [3:0] d121_q,
-    output wire [3:0] d141_q,
-    output wire [3:0] d131_q,
-    output wire [3:0] e111_q,
-    output wire [3:0] e168_q,
-    output wire [3:0] e141_q,
-    output wire [3:0] e180_q,
-    output wire [3:0] e121_q,
-    output wire [3:0] f206_q,
-    output wire [3:0] f153_q,
-    output wire [3:0] f195_q,
-    output wire [3:0] h82_q,
-    output wire [3:0] k62_q,
-    output wire [3:0] j82_q,
-    output wire [3:0] k75_q,
-    output wire [3:0] j58_q,
-    output wire [3:0] k96_q,
-    output wire [3:0] j70_q,
-    output wire [3:0] l95_q
+    output reg [3:0] j26_q,
+    output reg [3:0] h30_q,
+    output reg [3:0] j15_q,
+    output reg [3:0] h15_q,
+    output reg [3:0] h98_q,
+    output reg [3:0] k52_q,
+    output reg [3:0] j98_q,
+    output reg [3:0] k85_q,
+    output reg [3:0] l84_q,
+    output reg [3:0] n85_q,
+    output reg [3:0] m83_q,
+    output reg [3:0] n96_q,
+    output reg [3:0] l62_q,
+    output reg [3:0] r53_q,
+    output reg [3:0] p70_q,
+    output reg [3:0] r70_q,
+    output reg [3:0] l52_q,
+    output reg [3:0] p56_q,
+    output reg [3:0] m63_q,
+    output reg [3:0] p43_q,
+    output reg [3:0] l72_q,
+    output reg [3:0] m53_q,
+    output reg [3:0] n70_q,
+    output reg [3:0] n55_q,
+    output reg [3:0] b125_q,
+    output reg [3:0] b137_q,
+    output reg [3:0] b153_q,
+    output reg [3:0] a139_q,
+    output reg [3:0] f141_q,
+    output reg [3:0] g194_q,
+    output reg [3:0] f164_q,
+    output reg [3:0] g206_q,
+    output reg [3:0] e131_q,
+    output reg [3:0] d168_q,
+    output reg [3:0] e153_q,
+    output reg [3:0] d180_q,
+    output reg [3:0] b113_q,
+    output reg [3:0] c141_q,
+    output reg [3:0] c123_q,
+    output reg [3:0] c153_q,
+    output reg [3:0] c166_q,
+    output reg [3:0] b165_q,
+    output reg [3:0] c180_q,
+    output reg [3:0] b180_q,
+    output reg [3:0] d109_q,
+    output reg [3:0] d121_q,
+    output reg [3:0] d141_q,
+    output reg [3:0] d131_q,
+    output reg [3:0] e111_q,
+    output reg [3:0] e168_q,
+    output reg [3:0] e141_q,
+    output reg [3:0] e180_q,
+    output reg [3:0] e121_q,
+    output reg [3:0] f206_q,
+    output reg [3:0] f153_q,
+    output reg [3:0] f195_q,
+    output reg [3:0] h82_q,
+    output reg [3:0] k62_q,
+    output reg [3:0] j82_q,
+    output reg [3:0] k75_q,
+    output reg [3:0] j58_q,
+    output reg [3:0] k96_q,
+    output reg [3:0] j70_q,
+    output reg [3:0] l95_q
 );
 
 wire [3:0] pin_low_d, pin_high_d;
 wire [3:0] pin_alt_low_d, pin_alt_high_d;
 wire [3:0] pin_bf_low_d, pin_bf_high_d;
 wire [3:0] pin_ed_low_d, pin_ed_high_d;
-
 assign pin_low_d  = { pin22_in, pin15_in, pin8_in,  pin2_in  };
 assign pin_high_d = { pin49_in, pin43_in, pin35_in, pin28_in };
 assign pin_alt_low_d  = { pin21_in, pin14_in, pin7_in,  pin159_in };
@@ -2198,393 +1522,103 @@ assign pin_bf_high_d  = { pin47_in, pin39_in, pin33_in, pin25_in  };
 assign pin_ed_low_d   = { pin18_in, pin12_in, pin5_in,  pin157_in };
 assign pin_ed_high_d  = { pin46_in, pin38_in, pin32_in, pin25_in  };
 
-jt054157_fds u_j26(
-    .ck ( g86b      ),
-    .d  ( pin_low_d ),
-    .q  ( j26_q     )
-);
-
-jt054157_fds u_h30(
-    .ck ( g86b       ),
-    .d  ( pin_high_d ),
-    .q  ( h30_q      )
-);
-
-jt054157_fds u_j15(
-    .ck ( j13b  ),
-    .d  ( j26_q ),
-    .q  ( j15_q )
-);
-
-jt054157_fds u_h15(
-    .ck ( j13b  ),
-    .d  ( h30_q ),
-    .q  ( h15_q )
-);
-
-jt054157_fds u_h98(
-    .ck ( g100a     ),
-    .d  ( pin_low_d ),
-    .q  ( h98_q     )
-);
-
-jt054157_fds u_k52(
-    .ck ( g100a      ),
-    .d  ( pin_high_d ),
-    .q  ( k52_q      )
-);
-
-jt054157_fds u_j98(
-    .ck ( j51b  ),
-    .d  ( h98_q ),
-    .q  ( j98_q )
-);
-
-jt054157_fds u_k85(
-    .ck ( j51b  ),
-    .d  ( k52_q ),
-    .q  ( k85_q )
-);
-
-jt054157_fds u_l84(
-    .ck ( c96b          ),
-    .d  ( pin_alt_low_d ),
-    .q  ( l84_q         )
-);
-
-jt054157_fds u_n85(
-    .ck ( c96b           ),
-    .d  ( pin_alt_high_d ),
-    .q  ( n85_q          )
-);
-
-jt054157_fds u_m83(
-    .ck ( m39a  ),
-    .d  ( l84_q ),
-    .q  ( m83_q )
-);
-
-jt054157_fds u_n96(
-    .ck ( m39a  ),
-    .d  ( n85_q ),
-    .q  ( n96_q )
-);
-
-jt054157_fds u_l62(
-    .ck ( c93a          ),
-    .d  ( pin_alt_low_d ),
-    .q  ( l62_q         )
-);
-
-jt054157_fds u_r53(
-    .ck ( c93a           ),
-    .d  ( pin_alt_high_d ),
-    .q  ( r53_q          )
-);
-
-jt054157_fds u_p70(
-    .ck ( m39b  ),
-    .d  ( l62_q ),
-    .q  ( p70_q )
-);
-
-jt054157_fds u_r70(
-    .ck ( m39b  ),
-    .d  ( r53_q ),
-    .q  ( r70_q )
-);
-
-jt054157_fds u_l52(
-    .ck ( c82a          ),
-    .d  ( pin_alt_low_d ),
-    .q  ( l52_q         )
-);
-
-jt054157_fds u_p56(
-    .ck ( c82a           ),
-    .d  ( pin_alt_high_d ),
-    .q  ( p56_q          )
-);
-
-jt054157_fds u_m63(
-    .ck ( m51b  ),
-    .d  ( l52_q ),
-    .q  ( m63_q )
-);
-
-jt054157_fds u_p43(
-    .ck ( m51b  ),
-    .d  ( p56_q ),
-    .q  ( p43_q )
-);
-
-jt054157_fds u_l72(
-    .ck ( c96a          ),
-    .d  ( pin_alt_low_d ),
-    .q  ( l72_q         )
-);
-
-jt054157_fds u_m53(
-    .ck ( c96a           ),
-    .d  ( pin_alt_high_d ),
-    .q  ( m53_q          )
-);
-
-jt054157_fds u_n70(
-    .ck ( m51a  ),
-    .d  ( l72_q ),
-    .q  ( n70_q )
-);
-
-jt054157_fds u_n55(
-    .ck ( m51a  ),
-    .d  ( m53_q ),
-    .q  ( n55_q )
-);
-
-jt054157_fds u_b125(
-    .ck ( b111b        ),
-    .d  ( pin_bf_low_d ),
-    .q  ( b125_q       )
-);
-
-jt054157_fds u_b137(
-    .ck ( b111b         ),
-    .d  ( pin_bf_high_d ),
-    .q  ( b137_q        )
-);
-
-jt054157_fds u_b153(
-    .ck ( c133b  ),
-    .d  ( b125_q ),
-    .q  ( b153_q )
-);
-
-jt054157_fds u_a139(
-    .ck ( c133b  ),
-    .d  ( b137_q ),
-    .q  ( a139_q )
-);
-
-jt054157_fds u_f141(
-    .ck ( c139b        ),
-    .d  ( pin_ed_low_d ),
-    .q  ( f141_q       )
-);
-
-jt054157_fds u_g194(
-    .ck ( c139b         ),
-    .d  ( pin_ed_high_d ),
-    .q  ( g194_q        )
-);
-
-jt054157_fds u_f164(
-    .ck ( f135a  ),
-    .d  ( f141_q ),
-    .q  ( f164_q )
-);
-
-jt054157_fds u_g206(
-    .ck ( f135a  ),
-    .d  ( g194_q ),
-    .q  ( g206_q )
-);
-
-jt054157_fds u_e131(
-    .ck ( c137b        ),
-    .d  ( pin_ed_low_d ),
-    .q  ( e131_q       )
-);
-
-jt054157_fds u_d168(
-    .ck ( c137b         ),
-    .d  ( pin_ed_high_d ),
-    .q  ( d168_q        )
-);
-
-jt054157_fds u_e153(
-    .ck ( f137a  ),
-    .d  ( e131_q ),
-    .q  ( e153_q )
-);
-
-jt054157_fds u_d180(
-    .ck ( f137a  ),
-    .d  ( d168_q ),
-    .q  ( d180_q )
-);
-
-jt054157_fds u_b113(
-    .ck ( a121a        ),
-    .d  ( pin_bf_low_d ),
-    .q  ( b113_q       )
-);
-
-jt054157_fds u_c141(
-    .ck ( a121a         ),
-    .d  ( pin_bf_high_d ),
-    .q  ( c141_q        )
-);
-
-jt054157_fds u_c123(
-    .ck ( c133a  ),
-    .d  ( b113_q ),
-    .q  ( c123_q )
-);
-
-jt054157_fds u_c153(
-    .ck ( c133a  ),
-    .d  ( c141_q ),
-    .q  ( c153_q )
-);
-
-jt054157_fds u_c166(
-    .ck ( b111a        ),
-    .d  ( pin_bf_low_d ),
-    .q  ( c166_q       )
-);
-
-jt054157_fds u_b165(
-    .ck ( b111a         ),
-    .d  ( pin_bf_high_d ),
-    .q  ( b165_q        )
-);
-
-jt054157_fds u_c180(
-    .ck ( c139a  ),
-    .d  ( c166_q ),
-    .q  ( c180_q )
-);
-
-jt054157_fds u_b180(
-    .ck ( c139a  ),
-    .d  ( b165_q ),
-    .q  ( b180_q )
-);
-
-jt054157_fds u_d109(
-    .ck ( b109a        ),
-    .d  ( pin_bf_low_d ),
-    .q  ( d109_q       )
-);
-
-jt054157_fds u_d121(
-    .ck ( b109a         ),
-    .d  ( pin_bf_high_d ),
-    .q  ( d121_q        )
-);
-
-jt054157_fds u_d141(
-    .ck ( d119a  ),
-    .d  ( d109_q ),
-    .q  ( d141_q )
-);
-
-jt054157_fds u_d131(
-    .ck ( d119a  ),
-    .d  ( d121_q ),
-    .q  ( d131_q )
-);
-
-jt054157_fds u_e111(
-    .ck ( c137a        ),
-    .d  ( pin_ed_low_d ),
-    .q  ( e111_q       )
-);
-
-jt054157_fds u_e168(
-    .ck ( c137a         ),
-    .d  ( pin_ed_high_d ),
-    .q  ( e168_q        )
-);
-
-jt054157_fds u_e141(
-    .ck ( f131b  ),
-    .d  ( e111_q ),
-    .q  ( e141_q )
-);
-
-jt054157_fds u_e180(
-    .ck ( f131b  ),
-    .d  ( e168_q ),
-    .q  ( e180_q )
-);
-
-jt054157_fds u_e121(
-    .ck ( c135a        ),
-    .d  ( pin_ed_low_d ),
-    .q  ( e121_q       )
-);
-
-jt054157_fds u_f206(
-    .ck ( c135a         ),
-    .d  ( pin_ed_high_d ),
-    .q  ( f206_q        )
-);
-
-jt054157_fds u_f153(
-    .ck ( f133b  ),
-    .d  ( e121_q ),
-    .q  ( f153_q )
-);
-
-jt054157_fds u_f195(
-    .ck ( f133b  ),
-    .d  ( f206_q ),
-    .q  ( f195_q )
-);
-
-jt054157_fds u_h82(
-    .ck ( g90b      ),
-    .d  ( pin_low_d ),
-    .q  ( h82_q     )
-);
-
-jt054157_fds u_k62(
-    .ck ( g90b       ),
-    .d  ( pin_high_d ),
-    .q  ( k62_q      )
-);
-
-jt054157_fds u_j82(
-    .ck ( j49a  ),
-    .d  ( h82_q ),
-    .q  ( j82_q )
-);
-
-jt054157_fds u_k75(
-    .ck ( j49a  ),
-    .d  ( k62_q ),
-    .q  ( k75_q )
-);
-
-jt054157_fds u_j58(
-    .ck ( g92b      ),
-    .d  ( pin_low_d ),
-    .q  ( j58_q     )
-);
-
-jt054157_fds u_k96(
-    .ck ( g92b       ),
-    .d  ( pin_high_d ),
-    .q  ( k96_q      )
-);
-
-jt054157_fds u_j70(
-    .ck ( j51a  ),
-    .d  ( j58_q ),
-    .q  ( j70_q )
-);
-
-jt054157_fds u_l95(
-    .ck ( j51a  ),
-    .d  ( k96_q ),
-    .q  ( l95_q )
-);
-
+always @(posedge g86b) begin
+    {j26_q,h30_q} <= {pin_low_d,pin_high_d}; // j26, h30
+end
+always @(posedge j13b) begin
+    {j15_q,h15_q} <= {j26_q,h30_q}; // j15, h15
+end
+always @(posedge g100a) begin
+    {h98_q,k52_q} <= {pin_low_d,pin_high_d}; // h98, k52
+end
+always @(posedge j51b) begin
+    {j98_q,k85_q} <= {h98_q,k52_q}; // j98, k85
+end
+always @(posedge c96b) begin
+    {l84_q,n85_q} <= {pin_alt_low_d,pin_alt_high_d}; // l84, n85
+end
+always @(posedge m39a) begin
+    {m83_q,n96_q} <= {l84_q,n85_q}; // m83, n96
+end
+always @(posedge c93a) begin
+    {l62_q,r53_q} <= {pin_alt_low_d,pin_alt_high_d}; // l62, r53
+end
+always @(posedge m39b) begin
+    {p70_q,r70_q} <= {l62_q,r53_q}; // p70, r70
+end
+always @(posedge c82a) begin
+    {l52_q,p56_q} <= {pin_alt_low_d,pin_alt_high_d}; // l52, p56
+end
+always @(posedge m51b) begin
+    {m63_q,p43_q} <= {l52_q,p56_q}; // m63, p43
+end
+always @(posedge c96a) begin
+    {l72_q,m53_q} <= {pin_alt_low_d,pin_alt_high_d}; // l72, m53
+end
+always @(posedge m51a) begin
+    {n70_q,n55_q} <= {l72_q,m53_q}; // n70, n55
+end
+always @(posedge b111b) begin
+    {b125_q,b137_q} <= {pin_bf_low_d,pin_bf_high_d}; // b125, b137
+end
+always @(posedge c133b) begin
+    {b153_q,a139_q} <= {b125_q,b137_q}; // b153, a139
+end
+always @(posedge c139b) begin
+    {f141_q,g194_q} <= {pin_ed_low_d,pin_ed_high_d}; // f141, g194
+end
+always @(posedge f135a) begin
+    {f164_q,g206_q} <= {f141_q,g194_q}; // f164, g206
+end
+always @(posedge c137b) begin
+    {e131_q,d168_q} <= {pin_ed_low_d,pin_ed_high_d}; // e131, d168
+end
+always @(posedge f137a) begin
+    {e153_q,d180_q} <= {e131_q,d168_q}; // e153, d180
+end
+always @(posedge a121a) begin
+    {b113_q,c141_q} <= {pin_bf_low_d,pin_bf_high_d}; // b113, c141
+end
+always @(posedge c133a) begin
+    {c123_q,c153_q} <= {b113_q,c141_q}; // c123, c153
+end
+always @(posedge b111a) begin
+    {c166_q,b165_q} <= {pin_bf_low_d,pin_bf_high_d}; // c166, b165
+end
+always @(posedge c139a) begin
+    {c180_q,b180_q} <= {c166_q,b165_q}; // c180, b180
+end
+always @(posedge b109a) begin
+    {d109_q,d121_q} <= {pin_bf_low_d,pin_bf_high_d}; // d109, d121
+end
+always @(posedge d119a) begin
+    {d141_q,d131_q} <= {d109_q,d121_q}; // d141, d131
+end
+always @(posedge c137a) begin
+    {e111_q,e168_q} <= {pin_ed_low_d,pin_ed_high_d}; // e111, e168
+end
+always @(posedge f131b) begin
+    {e141_q,e180_q} <= {e111_q,e168_q}; // e141, e180
+end
+always @(posedge c135a) begin
+    {e121_q,f206_q} <= {pin_ed_low_d,pin_ed_high_d}; // e121, f206
+end
+always @(posedge f133b) begin
+    {f153_q,f195_q} <= {e121_q,f206_q}; // f153, f195
+end
+always @(posedge g90b) begin
+    {h82_q,k62_q} <= {pin_low_d,pin_high_d}; // h82, k62
+end
+always @(posedge j49a) begin
+    {j82_q,k75_q} <= {h82_q,k62_q}; // j82, k75
+end
+always @(posedge g92b) begin
+    {j58_q,k96_q} <= {pin_low_d,pin_high_d}; // j58, k96
+end
+always @(posedge j51a) begin
+    {j70_q,l95_q} <= {j58_q,k96_q}; // j70, l95
+end
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page04_acol2_decode.v
 // -----------------------------------------------------------------------------
@@ -3939,38 +2973,30 @@ module jt054157_page05_hofs_flips(
     output wire [2:0] hofs_b_f,
     output wire [2:0] hofsa_f,
 
-    output wire [3:0] k28_q,
-    output wire [3:0] k43_q,
-    output wire [3:0] k15_q,
-    output wire [3:0] l15_q,
-    output wire [3:0] l31_q,
-    output wire [3:0] l43_q,
-    output wire [3:0] k3_q,
-    output wire [3:0] h2_q
+    output reg [3:0] k28_q,
+    output reg [3:0] k43_q,
+    output reg [3:0] k15_q,
+    output reg [3:0] l15_q,
+    output reg [3:0] l31_q,
+    output reg [3:0] l43_q,
+    output reg [3:0] k3_q,
+    output reg [3:0] h2_q
 );
 
-wire hofsd_flip;
-wire hofsc_flip;
-wire hofs_b_flip;
-wire hofsa_flip;
-
+wire    hofsd_flip;
+wire    hofsc_flip;
+wire    hofs_b_flip;
+wire    hofsa_flip;
 wire [2:0] hofsd_x1b;
 wire [2:0] hofsc_x1b;
 wire [2:0] hofs_b_x1b;
 wire [2:0] hofsa_x1b;
-
-jt054157_fds u_k28(
-    .ck ( g23b    ),
-    .d  ( hofsd_d ),
-    .q  ( k28_q   )
-);
-
-jt054157_fds u_k43(
-    .ck ( j2b   ),
-    .d  ( k28_q ),
-    .q  ( k43_q )
-);
-
+always @(posedge g23b) begin
+    k28_q <= hofsd_d; // k28
+end
+always @(posedge j2b) begin
+    k43_q <= k28_q; // k43
+end
 assign pin117 = k43_q[2];
 assign pin118 = k43_q[1];
 assign pin119 = k43_q[0];
@@ -3982,18 +3008,12 @@ assign hofsd_x1b[0] = ~(hofsd[0] ^ hofsd_flip); // g175
 assign hofsd_f[2] = ~hofsd_x1b[2]; // f205a
 assign hofsd_f[1] = ~hofsd_x1b[1]; // g168a
 assign hofsd_f[0] = ~hofsd_x1b[0]; // g168b
-jt054157_fds u_k15(
-    .ck ( g21b    ),
-    .d  ( hofsc_d ),
-    .q  ( k15_q   )
-);
-
-jt054157_fds u_l15(
-    .ck ( j13a  ),
-    .d  ( k15_q ),
-    .q  ( l15_q )
-);
-
+always @(posedge g21b) begin
+    k15_q <= hofsc_d; // k15
+end
+always @(posedge j13a) begin
+    l15_q <= k15_q; // l15
+end
 assign pin125 = l15_q[2];
 assign pin126 = l15_q[1];
 assign pin127 = l15_q[0];
@@ -4005,18 +3025,12 @@ assign hofsc_x1b[0] = ~(hofsc[0] ^ hofsc_flip); // l198
 assign hofsc_f[2] = ~hofsc_x1b[2]; // l209a
 assign hofsc_f[1] = ~hofsc_x1b[1]; // l203b
 assign hofsc_f[0] = ~hofsc_x1b[0]; // l202b
-jt054157_fds u_l31(
-    .ck ( g25a     ),
-    .d  ( hofs_b_d ),
-    .q  ( l31_q    )
-);
-
-jt054157_fds u_l43(
-    .ck ( j39a  ),
-    .d  ( l31_q ),
-    .q  ( l43_q )
-);
-
+always @(posedge g25a) begin
+    l31_q <= hofs_b_d; // l31
+end
+always @(posedge j39a) begin
+    l43_q <= l31_q; // l43
+end
 assign pin132 = l43_q[2];
 assign pin133 = l43_q[1];
 assign pin134 = l43_q[0];
@@ -4028,18 +3042,12 @@ assign hofs_b_x1b[0] = ~(hofs_b[0] ^ hofs_b_flip); // f139
 assign hofs_b_f[2] = ~hofs_b_x1b[2]; // f136b
 assign hofs_b_f[1] = ~hofs_b_x1b[1]; // g169b
 assign hofs_b_f[0] = ~hofs_b_x1b[0]; // f134a
-jt054157_fds u_k3(
-    .ck ( g7b     ),
-    .d  ( hofsa_d ),
-    .q  ( k3_q    )
-);
-
-jt054157_fds u_h2(
-    .ck ( j2a  ),
-    .d  ( k3_q ),
-    .q  ( h2_q )
-);
-
+always @(posedge g7b) begin
+    k3_q <= hofsa_d; // k3
+end
+always @(posedge j2a) begin
+    h2_q <= k3_q; // h2
+end
 assign pin138 = h2_q[2];
 assign pin141 = h2_q[1];
 assign pin142 = h2_q[0];
@@ -4052,8 +3060,6 @@ assign hofsa_f[2] = ~hofsa_x1b[2]; // e165b
 assign hofsa_f[1] = ~hofsa_x1b[1]; // e167b
 assign hofsa_f[0] = ~hofsa_x1b[0]; // e164a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page05_left_outputs.v
 // -----------------------------------------------------------------------------
@@ -4103,14 +3109,14 @@ module jt054157_page05_left_outputs(
     output wire       pin144,
     output wire       pin145,
 
-    output wire [3:0] n15_q,
-    output wire [3:0] n3_q,
-    output wire [3:0] n31_q,
-    output wire [3:0] n41_q,
-    output wire [3:0] m29_q,
-    output wire [3:0] m41_q,
-    output wire [3:0] m15_q,
-    output wire [3:0] m3_q,
+    output reg [3:0] n15_q,
+    output reg [3:0] n3_q,
+    output reg [3:0] n31_q,
+    output reg [3:0] n41_q,
+    output reg [3:0] m29_q,
+    output reg [3:0] m41_q,
+    output reg [3:0] m15_q,
+    output reg [3:0] m3_q,
 
     output wire       r33b_x,
     output wire       r35b_x,
@@ -4122,72 +3128,48 @@ module jt054157_page05_left_outputs(
     output wire       n29a_x
 );
 
-jt054157_fds u_n15(
-    .ck ( g23b   ),
-    .d  ( dcol_d ),
-    .q  ( n15_q  )
-);
-
-jt054157_fds u_n3(
-    .ck ( j2b  ),
-    .d  ( n15_q ),
-    .q  ( n3_q  )
-);
-
+always @(posedge g23b) begin
+    n15_q <= dcol_d; // n15
+end
+always @(posedge j2b) begin
+    n3_q <= n15_q; // n3
+end
 assign pin122 = n3_q[3];
 
 assign r33b_x = ~((r33b_d24[3] & r33b_d24[2]) | (r33b_d24[1] & r33b_d24[0])); // r33b
 assign pin123 = ~r33b_x; // p10b
 assign r35b_x = ~((r35b_d24[3] & r35b_d24[2]) | (r35b_d24[1] & r35b_d24[0])); // r35b
 assign pin124 = ~r35b_x; // r34a
-jt054157_fds u_n31(
-    .ck ( g21b   ),
-    .d  ( ccol_d ),
-    .q  ( n31_q  )
-);
-
-jt054157_fds u_n41(
-    .ck ( j13a  ),
-    .d  ( n31_q ),
-    .q  ( n41_q )
-);
-
+always @(posedge g21b) begin
+    n31_q <= ccol_d; // n31
+end
+always @(posedge j13a) begin
+    n41_q <= n31_q; // n41
+end
 assign pin128 = n41_q[3];
 
 assign n51b_x = ~((n51b_d24[3] & n51b_d24[2]) | (n51b_d24[1] & n51b_d24[0])); // n51b
 assign pin129 = ~n51b_x; // m26b
 assign n27a_x = ~((n27a_d24[3] & n27a_d24[2]) | (n27a_d24[1] & n27a_d24[0])); // n27a
 assign pin131 = ~n27a_x; // n2a
-jt054157_fds u_m29(
-    .ck ( g25a   ),
-    .d  ( bcol_d ),
-    .q  ( m29_q  )
-);
-
-jt054157_fds u_m41(
-    .ck ( j39a  ),
-    .d  ( m29_q ),
-    .q  ( m41_q )
-);
-
+always @(posedge g25a) begin
+    m29_q <= bcol_d; // m29
+end
+always @(posedge j39a) begin
+    m41_q <= m29_q; // m41
+end
 assign pin135 = m41_q[3];
 
 assign n51a_x = ~((n51a_d24[3] & n51a_d24[2]) | (n51a_d24[1] & n51a_d24[0])); // n51a
 assign pin136 = ~n51a_x; // m26a
 assign n27b_x = ~((n27b_d24[3] & n27b_d24[2]) | (n27b_d24[1] & n27b_d24[0])); // n27b
 assign pin137 = ~n27b_x; // m25a
-jt054157_fds u_m15(
-    .ck ( g7b    ),
-    .d  ( acol_d ),
-    .q  ( m15_q  )
-);
-
-jt054157_fds u_m3(
-    .ck ( j2a  ),
-    .d  ( m15_q ),
-    .q  ( m3_q  )
-);
-
+always @(posedge g7b) begin
+    m15_q <= acol_d; // m15
+end
+always @(posedge j2a) begin
+    m3_q <= m15_q; // m3
+end
 assign pin143 = m3_q[3];
 
 assign n29b_x = ~((n29b_d24[3] & n29b_d24[2]) | (n29b_d24[1] & n29b_d24[0])); // n29b
@@ -4195,8 +3177,6 @@ assign pin144 = ~n29b_x; // n13b
 assign n29a_x = ~((n29a_d24[3] & n29a_d24[2]) | (n29a_d24[1] & n29a_d24[0])); // n29a
 assign pin145 = ~n29a_x; // m13b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page05_left_package_output_map.v
 // -----------------------------------------------------------------------------
@@ -5433,224 +4413,67 @@ module jt054157_page07_h_offset(
     output wire [2:0] hofsc,
     output wire [2:0] hofsa,
     output wire [2:0] hofs_b,
-    output wire [2:0] hofsd_q,
-    output wire [2:0] hofsc_q,
-    output wire [2:0] hofsa_q,
-    output wire [2:0] hofs_b_q,
+    output reg [2:0] hofsd_q,
+    output reg [2:0] hofsc_q,
+    output reg [2:0] hofsa_q,
+    output reg [2:0] hofs_b_q,
     output wire [2:0] hofsd_co,
     output wire [2:0] hofsc_co,
     output wire [2:0] hofsa_co,
     output wire [2:0] hofs_b_co
 );
 
-wire k176a_y;
-wire hofsd_s2, hofsd_s1, hofsd_s0;
-wire hofsc_s2, hofsc_s1, hofsc_s0;
-wire hofsa_s2, hofsa_s1, hofsa_s0;
-wire hofs_b_s2, hofs_b_s1, hofs_b_s0;
-
+wire    k176a_y;
+wire    hofsd_s2, hofsd_s1, hofsd_s0;
+wire    hofsc_s2, hofsc_s1, hofsc_s0;
+wire    hofsa_s2, hofsa_s1, hofsa_s0;
+wire    hofs_b_s2, hofs_b_s1, hofs_b_s0;
 assign k176a_y = hcnt1_raw; // k176a
-jt054157_de4 u_j172(
-    .a   ( k176a_y   ),
-    .b   ( hcnt0_raw ),
-    .g_n ( j152a     ),
-    .x_n ( j172_x_n  )
-);
-
+assign j172_x_n = ~j152a ? ~(4'b0001 << { hcnt0_raw, k176a_y }) : 4'hf; // j172
 assign j205a_y = pin_z4h; // j205a
 assign j205b_y = pin_z2h; // j205b
 assign j204a_y = pin_z1h; // j204a
-jt054157_fdm u_h209(
-    .ck ( j172_x_n[3] ),
-    .d  ( j205a_y     ),
-    .q  ( hofsd_q[2] ),
-    .nq (             )
-);
-
-jt054157_fdm u_h206(
-    .ck ( j172_x_n[3] ),
-    .d  ( j205b_y     ),
-    .q  ( hofsd_q[1] ),
-    .nq (             )
-);
-
-jt054157_fdm u_j207(
-    .ck ( j172_x_n[3] ),
-    .d  ( j204a_y     ),
-    .q  ( hofsd_q[0] ),
-    .nq (             )
-);
-
-jt054157_a1a u_k208(
-    .a  ( hcnt[0]     ),
-    .b  ( hofsd_q[0]  ),
-    .s  ( hofsd_s0    ),
-    .co ( hofsd_co[0] )
-);
-
-jt054157_a1n u_k212(
-    .a  ( hcnt[1]     ),
-    .b  ( hofsd_q[1]  ),
-    .ci ( hofsd_co[0] ),
-    .s  ( hofsd_s1    ),
-    .co ( hofsd_co[1] )
-);
-
-jt054157_a1n u_h214(
-    .a  ( hcnt[2]     ),
-    .b  ( hofsd_q[2]  ),
-    .ci ( hofsd_co[1] ),
-    .s  ( hofsd_s2    ),
-    .co ( hofsd_co[2] )
-);
-
+always @(posedge j172_x_n[3]) begin
+    {hofsd_q[2],hofsd_q[1],hofsd_q[0]} <= {j205a_y,j205b_y,j204a_y}; // h209, h206, j207
+end
+assign hofsd_s0 = hcnt[0] ^ hofsd_q[0]; // k208
+assign hofsd_co[0] = hcnt[0] & hofsd_q[0]; // k208
+assign { hofsd_co[1], hofsd_s1 } = { 1'b0, hcnt[1] } + { 1'b0, hofsd_q[1] } + { 1'b0, hofsd_co[0] }; // k212
+assign { hofsd_co[2], hofsd_s2 } = { 1'b0, hcnt[2] } + { 1'b0, hofsd_q[2] } + { 1'b0, hofsd_co[1] }; // h214
 assign hofsd[0] = hofsd_s0; // k200b
 assign hofsd[1] = hofsd_s1; // k210a
 assign hofsd[2] = hofsd_s2; // h212a
-jt054157_fdm u_j197(
-    .ck ( j172_x_n[2] ),
-    .d  ( j205a_y     ),
-    .q  ( hofsc_q[2] ),
-    .nq (             )
-);
-
-jt054157_fdm u_j194(
-    .ck ( j172_x_n[2] ),
-    .d  ( j205b_y     ),
-    .q  ( hofsc_q[1] ),
-    .nq (             )
-);
-
-jt054157_fdm u_j191(
-    .ck ( j172_x_n[2] ),
-    .d  ( j204a_y     ),
-    .q  ( hofsc_q[0] ),
-    .nq (             )
-);
-
-jt054157_a1a u_k197a(
-    .a  ( hcnt[0]     ),
-    .b  ( hofsc_q[0]  ),
-    .s  ( hofsc_s0    ),
-    .co ( hofsc_co[0] )
-);
-
-jt054157_a1n u_k202(
-    .a  ( hcnt[1]     ),
-    .b  ( hofsc_q[1]  ),
-    .ci ( hofsc_co[0] ),
-    .s  ( hofsc_s1    ),
-    .co ( hofsc_co[1] )
-);
-
-jt054157_a1n u_j200(
-    .a  ( hcnt[2]     ),
-    .b  ( hofsc_q[2]  ),
-    .ci ( hofsc_co[1] ),
-    .s  ( hofsc_s2    ),
-    .co ( hofsc_co[2] )
-);
-
+always @(posedge j172_x_n[2]) begin
+    {hofsc_q[2],hofsc_q[1],hofsc_q[0]} <= {j205a_y,j205b_y,j204a_y}; // j197, j194, j191
+end
+assign hofsc_s0 = hcnt[0] ^ hofsc_q[0]; // k197a
+assign hofsc_co[0] = hcnt[0] & hofsc_q[0]; // k197a
+assign { hofsc_co[1], hofsc_s1 } = { 1'b0, hcnt[1] } + { 1'b0, hofsc_q[1] } + { 1'b0, hofsc_co[0] }; // k202
+assign { hofsc_co[2], hofsc_s2 } = { 1'b0, hcnt[2] } + { 1'b0, hofsc_q[2] } + { 1'b0, hofsc_co[1] }; // j200
 assign hofsc[0] = hofsc_s0; // l202a
 assign hofsc[1] = hofsc_s1; // l204b
 assign hofsc[2] = hofsc_s2; // l204a
-jt054157_fdm u_h198(
-    .ck ( j172_x_n[1] ),
-    .d  ( j205a_y     ),
-    .q  ( hofsa_q[2] ),
-    .nq (             )
-);
-
-jt054157_fdm u_h201(
-    .ck ( j172_x_n[1] ),
-    .d  ( j205b_y     ),
-    .q  ( hofsa_q[1] ),
-    .nq (             )
-);
-
-jt054157_fdm u_j184(
-    .ck ( j172_x_n[1] ),
-    .d  ( j204a_y     ),
-    .q  ( hofsa_q[0] ),
-    .nq (             )
-);
-
-jt054157_a1a u_j187(
-    .a  ( hcnt[0]     ),
-    .b  ( hofsa_q[0]  ),
-    .s  ( hofsa_s0    ),
-    .co ( hofsa_co[0] )
-);
-
-jt054157_a1n u_h194(
-    .a  ( hcnt[1]     ),
-    .b  ( hofsa_q[1]  ),
-    .ci ( hofsa_co[0] ),
-    .s  ( hofsa_s1    ),
-    .co ( hofsa_co[1] )
-);
-
-jt054157_a1n u_h190(
-    .a  ( hcnt[2]     ),
-    .b  ( hofsa_q[2]  ),
-    .ci ( hofsa_co[1] ),
-    .s  ( hofsa_s2    ),
-    .co ( hofsa_co[2] )
-);
-
+always @(posedge j172_x_n[1]) begin
+    {hofsa_q[2],hofsa_q[1],hofsa_q[0]} <= {j205a_y,j205b_y,j204a_y}; // h198, h201, j184
+end
+assign hofsa_s0 = hcnt[0] ^ hofsa_q[0]; // j187
+assign hofsa_co[0] = hcnt[0] & hofsa_q[0]; // j187
+assign { hofsa_co[1], hofsa_s1 } = { 1'b0, hcnt[1] } + { 1'b0, hofsa_q[1] } + { 1'b0, hofsa_co[0] }; // h194
+assign { hofsa_co[2], hofsa_s2 } = { 1'b0, hcnt[2] } + { 1'b0, hofsa_q[2] } + { 1'b0, hofsa_co[1] }; // h190
 assign hofsa[0] = hofsa_s0; // j168a
 assign hofsa[1] = hofsa_s1; // h204a
 assign hofsa[2] = hofsa_s2; // h167a
-jt054157_fdm u_h175(
-    .ck ( j172_x_n[0] ),
-    .d  ( j205a_y     ),
-    .q  ( hofs_b_q[2] ),
-    .nq (             )
-);
-
-jt054157_fdm u_h187(
-    .ck ( j172_x_n[0] ),
-    .d  ( j205b_y     ),
-    .q  ( hofs_b_q[1] ),
-    .nq (             )
-);
-
-jt054157_fdm u_h169(
-    .ck ( j172_x_n[0] ),
-    .d  ( j204a_y     ),
-    .q  ( hofs_b_q[0] ),
-    .nq (             )
-);
-
-jt054157_a1a u_h172a(
-    .a  ( hcnt[0]      ),
-    .b  ( hofs_b_q[0]  ),
-    .s  ( hofs_b_s0    ),
-    .co ( hofs_b_co[0] )
-);
-
-jt054157_a1n u_h183(
-    .a  ( hcnt[1]      ),
-    .b  ( hofs_b_q[1]  ),
-    .ci ( hofs_b_co[0] ),
-    .s  ( hofs_b_s1    ),
-    .co ( hofs_b_co[1] )
-);
-
-jt054157_a1n u_h179(
-    .a  ( hcnt[2]      ),
-    .b  ( hofs_b_q[2]  ),
-    .ci ( hofs_b_co[1] ),
-    .s  ( hofs_b_s2    ),
-    .co ( hofs_b_co[2] )
-);
-
+always @(posedge j172_x_n[0]) begin
+    {hofs_b_q[2],hofs_b_q[1],hofs_b_q[0]} <= {j205a_y,j205b_y,j204a_y}; // h175, h187, h169
+end
+assign hofs_b_s0 = hcnt[0] ^ hofs_b_q[0]; // h172a
+assign hofs_b_co[0] = hcnt[0] & hofs_b_q[0]; // h172a
+assign { hofs_b_co[1], hofs_b_s1 } = { 1'b0, hcnt[1] } + { 1'b0, hofs_b_q[1] } + { 1'b0, hofs_b_co[0] }; // h183
+assign { hofs_b_co[2], hofs_b_s2 } = { 1'b0, hcnt[2] } + { 1'b0, hofs_b_q[2] } + { 1'b0, hofs_b_co[1] }; // h179
 assign hofs_b[0] = hofs_b_s0; // h165b
 assign hofs_b[1] = hofs_b_s1; // h167b
 assign hofs_b[2] = hofs_b_s2; // h165a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page05_06_07_hofs_path_integrated.v
 // -----------------------------------------------------------------------------
@@ -8020,13 +6843,7 @@ module jt054157_page09_m121_m181_decode(
 
 assign m121a_x = ~((reg4_d6 & pin95) | (m120a_y & m111a_y)); // m121a
 assign n111a_y = ~m121a_x; // n111a
-jt054157_de4 u_m181(
-    .a   ( pin_ab2  ),
-    .b   ( pin_ab1  ),
-    .g_n ( l132b_y  ),
-    .x_n ( m181_x_n )
-);
-
+assign m181_x_n = ~l132b_y ? ~(4'b0001 << { pin_ab1, pin_ab2 }) : 4'hf; // m181
 assign m187b_y = m181_x_n[0] & m181_x_n[1]; // m187b
 assign m185b_y = m181_x_n[1] & m181_x_n[2]; // m185b
 endmodule
@@ -8175,8 +6992,8 @@ module jt054157_page09_lower_right_clocked(
     output wire n65b_y,
     output wire n65a_y,
     output wire m109a_y,
-    output wire m76a_q,
-    output wire m73_q,
+    output reg m76a_q,
+    output reg m73_q,
     output wire pin108,
     output wire k124b_y,
     output wire k137b_y,
@@ -8186,8 +7003,8 @@ module jt054157_page09_lower_right_clocked(
     output wire l118a_y,
     output wire l119b_y,
     output wire l112_y,
-    output wire l108a_q,
-    output wire k119a_q,
+    output reg l108a_q,
+    output reg k119a_q,
     output wire l116a_y,
     output wire l117b_y,
     output wire l115b_y,
@@ -8202,22 +7019,20 @@ assign l127_y = |{pin_crom,l132a_y,p141b_y}; // l127
 assign n65b_y = ~l127_y; // n65b
 assign n65a_y = n65b_y; // n65a
 assign m109a_y = j135a; // m109a
-jt054157_fdn u_m76a(
-    .ck ( m118a   ),
-    .d  ( l127_y  ),
-    .ns ( n65a_y  ),
-    .q  ( m76a_q  ),
-    .nq (         )
-);
-
-jt054157_fdn u_m73(
-    .ck ( m109a_y ),
-    .d  ( m76a_q  ),
-    .ns ( n65a_y  ),
-    .q  ( m73_q   ),
-    .nq (         )
-);
-
+always @(posedge m118a or negedge n65a_y) begin
+    if (!n65a_y) begin
+        m76a_q <= 1'b1;
+    end else begin
+        m76a_q <= l127_y;
+    end
+end // m76a
+always @(posedge m109a_y or negedge n65a_y) begin
+    if (!n65a_y) begin
+        m73_q <= 1'b1;
+    end else begin
+        m73_q <= m76a_q;
+    end
+end // m73
 assign k124b_y = ~reg0_d4; // k124b
 assign k137b_y = ~reg0_d4; // k137b
 assign k126b_x = ~((reg0_d4 & k114a) | (k124b_y & pin_clk)); // k126b
@@ -8226,22 +7041,20 @@ assign k124a_y = ~k135b_x; // k124a
 assign l118a_y = ~pin95; // l118a
 assign l119b_y = ~|{pin_crom,l118a_y}; // l119b
 assign l112_y = l119b_y; // l112
-jt054157_fdo u_l108a(
-    .ck ( m118a    ),
-    .d  ( l119b_y  ),
-    .nr ( l112_y   ),
-    .q  ( l108a_q  ),
-    .nq (          )
-);
-
-jt054157_fdo u_k119a(
-    .ck ( k126b_x  ),
-    .d  ( k124a_y  ),
-    .nr ( l108a_q  ),
-    .q  ( k119a_q  ),
-    .nq (          )
-);
-
+always @(posedge m118a or negedge l112_y) begin
+    if (!l112_y) begin
+        l108a_q <= 1'b0;
+    end else begin
+        l108a_q <= l119b_y;
+    end
+end // l108a
+always @(posedge k126b_x or negedge l108a_q) begin
+    if (!l108a_q) begin
+        k119a_q <= 1'b0;
+    end else begin
+        k119a_q <= k124a_y;
+    end
+end // k119a
 assign l116a_y = l118a_y | pin_crom; // l116a
 assign l117b_y = ~reg4_d6; // l117b
 assign l115b_y = l117b_y & pin116; // l115b
@@ -8249,10 +7062,7 @@ assign l119a_y = |{l116a_y,pin_crom,l115b_y}; // l119a
 assign l121b_y = ~l119a_y; // l121b
 assign pin108 = m73_q;
 assign l121b  = l121b_y;
-
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page09_integrated.v
 // -----------------------------------------------------------------------------
@@ -8330,8 +7140,8 @@ module jt054157_page09_integrated(
     output wire       n65b_y,
     output wire       n65a_y,
     output wire       m109a_y,
-    output wire       m76a_q,
-    output wire       m73_q,
+    output reg       m76a_q,
+    output reg       m73_q,
     output wire       k124b_y,
     output wire       k137b_y,
     output wire       k126b_x,
@@ -8340,8 +7150,8 @@ module jt054157_page09_integrated(
     output wire       l118a_y,
     output wire       l119b_y,
     output wire       l112_y,
-    output wire       l108a_q,
-    output wire       k119a_q,
+    output reg       l108a_q,
+    output reg       k119a_q,
     output wire       l116a_y,
     output wire       l117b_y,
     output wire       l115b_y,
@@ -8357,13 +7167,7 @@ assign l130b_y = ~pin112; // l130b
 assign l132b_y = pin_crom | l130b_y; // l132b
 assign m121a_x = ~((reg4_d6 & pin95) | (m120a_y & m111a_y)); // m121a
 assign n111a_y = ~m121a_x; // n111a
-jt054157_de4 u_m181(
-    .a   ( pin_ab2  ),
-    .b   ( pin_ab1  ),
-    .g_n ( l132b_y  ),
-    .x_n ( m181_x_n )
-);
-
+assign m181_x_n = ~l132b_y ? ~(4'b0001 << { pin_ab1, pin_ab2 }) : 4'hf; // m181
 assign m187b_y = m181_x_n[0] & m181_x_n[1]; // m187b
 assign m185b_y = m181_x_n[1] & m181_x_n[2]; // m185b
 assign m187a_y = m181_x_n[2] & m181_x_n[3]; // m187a
@@ -8395,22 +7199,20 @@ assign l127_y = |{pin_crom,l132a_y,p141b_y}; // l127
 assign n65b_y = ~l127_y; // n65b
 assign n65a_y = n65b_y; // n65a
 assign m109a_y = j135a; // m109a
-jt054157_fdn u_m76a(
-    .ck ( m118a   ),
-    .d  ( l127_y  ),
-    .ns ( n65a_y  ),
-    .q  ( m76a_q  ),
-    .nq (         )
-);
-
-jt054157_fdn u_m73(
-    .ck ( m109a_y ),
-    .d  ( m76a_q  ),
-    .ns ( n65a_y  ),
-    .q  ( m73_q   ),
-    .nq (         )
-);
-
+always @(posedge m118a or negedge n65a_y) begin
+    if (!n65a_y) begin
+        m76a_q <= 1'b1;
+    end else begin
+        m76a_q <= l127_y;
+    end
+end // m76a
+always @(posedge m109a_y or negedge n65a_y) begin
+    if (!n65a_y) begin
+        m73_q <= 1'b1;
+    end else begin
+        m73_q <= m76a_q;
+    end
+end // m73
 assign k124b_y = ~reg0_d4; // k124b
 assign k137b_y = ~reg0_d4; // k137b
 assign k126b_x = ~((reg0_d4 & k114a) | (k124b_y & pin_clk)); // k126b
@@ -8419,22 +7221,20 @@ assign k124a_y = ~k135b_x; // k124a
 assign l118a_y = ~pin95; // l118a
 assign l119b_y = ~|{pin_crom,l118a_y}; // l119b
 assign l112_y = l119b_y; // l112
-jt054157_fdo u_l108a(
-    .ck ( m118a    ),
-    .d  ( l119b_y  ),
-    .nr ( l112_y   ),
-    .q  ( l108a_q  ),
-    .nq (          )
-);
-
-jt054157_fdo u_k119a(
-    .ck ( k126b_x  ),
-    .d  ( k124a_y  ),
-    .nr ( l108a_q  ),
-    .q  ( k119a_q  ),
-    .nq (          )
-);
-
+always @(posedge m118a or negedge l112_y) begin
+    if (!l112_y) begin
+        l108a_q <= 1'b0;
+    end else begin
+        l108a_q <= l119b_y;
+    end
+end // l108a
+always @(posedge k126b_x or negedge l108a_q) begin
+    if (!l108a_q) begin
+        k119a_q <= 1'b0;
+    end else begin
+        k119a_q <= k124a_y;
+    end
+end // k119a
 assign l116a_y = l118a_y | pin_crom; // l116a
 assign l117b_y = ~reg4_d6; // l117b
 assign l115b_y = l117b_y & pin116; // l115b
@@ -8448,10 +7248,7 @@ assign p162a            = p162a_y;
 assign pin_db_lower_dir = p160b_y;
 assign pin_db_upper_dir = r161a_y;
 assign l121b            = l121b_y;
-
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page09_package_output_map.v
 // -----------------------------------------------------------------------------
@@ -9128,9 +7925,6 @@ module jt054157_page10_readout_d0_d1(
     output wire       f110b_y,
     output wire       f116b_y,
 
-    output wire       f108b_x,
-    output wire       f113a_x,
-    output wire       f111b_x,
     output wire       f124b_y,
     output wire       f126a_y,
     output wire       f126b_y,
@@ -9143,8 +7937,7 @@ module jt054157_page10_readout_d0_d1(
     output wire       g126_x,
     output wire       g139a_x,
     output wire       readout_d0,
-    output wire       readout_d1
-);
+    output wire       readout_d1);
 
 wire [2:0] g126_a_resolved;
 wire [2:0] g126_b_resolved;
@@ -9168,12 +7961,9 @@ assign f109a_y = ~reg4_d4_buf2; // f109a
 assign f112a_y = ~f109a_y; // f112a
 assign f110b_y = ~reg4_d4_buf2; // f110b
 assign f116b_y = ~f110b_y; // f116b
-assign f108b_x = ~((f116b_y & pin34_in) | (f110b_y & pin3_in)); // f108b
-assign f124b_y = ~f108b_x; // f124b
-assign f113a_x = ~((f112a_y & pin12_in) | (f109a_y & pin16_in)); // f113a
-assign f126a_y = ~f113a_x; // f126a
-assign f111b_x = ~((f116b_y & pin35_in) | (f110b_y & pin4_in)); // f111b
-assign f126b_y = ~f111b_x; // f126b
+assign f124b_y = f110b_y ? pin3_in : pin34_in; // f108b, f124b
+assign f126a_y = f109a_y ? pin16_in : pin12_in; // f113a, f126a
+assign f126b_y = f110b_y ? pin4_in : pin35_in; // f111b, f126b
 assign g123b_y = ~g123b_a; // g123b
 assign g125b_y = ~g125b_a; // g125b
 assign g126_x = ~(|{ &g126_a_resolved, &g126_b_resolved, &g126_c_resolved, &g126_d_resolved }); // g126
@@ -9183,8 +7973,6 @@ assign g149a_y = ~g149a_a; // g149a
 assign g139a_x = ~(|{ &g139a_a_resolved, &g139a_b_resolved, &g139a_c_resolved, &g139a_d_resolved }); // g139a
 assign readout_d1 = ~g139a_x; // h156b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page10_readout_d2_d3.v
 // -----------------------------------------------------------------------------
@@ -9325,13 +8113,7 @@ module jt054157_page10_readout_d4_d5(
     input  wire       f127b_y,
     input  wire       g103b_y,
 
-    output wire       h65a_x,
-    output wire       h124a_x,
     output wire       f113b_x,
-    output wire       f39a_x,
-    output wire       g39a_x,
-    output wire       h59a_x,
-    output wire       h127a_x,
     output wire       h65b_y,
     output wire       h126a_y,
     output wire       f115b_y,
@@ -9357,8 +8139,7 @@ module jt054157_page10_readout_d4_d5(
     output wire       g118a_x,
     output wire       g135_x,
     output wire       readout_d4,
-    output wire       readout_d5
-);
+    output wire       readout_d5);
 
 wire [2:0] g118a_a_resolved;
 wire [2:0] g118a_b_resolved;
@@ -9386,20 +8167,14 @@ assign h124b_y = ~reg4_d3_buf3; // h124b
 assign h48b_y = ~reg4_d3_buf3; // h48b
 assign h132a_y = ~h124b_y; // h132a
 assign g38a_y = ~h48b_y; // g38a
-assign h65a_x = ~((h57a_y & pin48_in) | (g67a_y & pin48_in)); // h65a
-assign h65b_y = ~h65a_x; // h65b
-assign h124a_x = ~((h132a_y & h65b_y) | (h124b_y & pin36_in)); // h124a
-assign h126a_y = ~h124a_x; // h126a
+assign h65b_y = g67a_y ? pin48_in : pin48_in; // h65a, h65b
+assign h126a_y = h124b_y ? pin36_in : h65b_y; // h124a, h126a
 assign f113b_x = ~((pin25_in & f112a_y) | (pin7_in & f109a_y)); // f113b
 assign f115b_y = ~f113b_x; // f115b
-assign f39a_x = ~((f36b_y & pin3_in) | (f66a_y & pin21_in)); // f39a
-assign g37b_y = ~f39a_x; // g37b
-assign g39a_x = ~((g38a_y & g37b_y) | (h48b_y & pin9_in)); // g39a
-assign g103a_y = ~g39a_x; // g103a
-assign h59a_x = ~((h57a_y & pin49_in) | (g67a_y & pin49_in)); // h59a
-assign h60b_y = ~h59a_x; // h60b
-assign h127a_x = ~((h132a_y & h60b_y) | (h124b_y & pin37_in)); // h127a
-assign h140a_y = ~h127a_x; // h140a
+assign g37b_y = f66a_y ? pin21_in : pin3_in; // f39a, g37b
+assign g103a_y = h48b_y ? pin9_in : g37b_y; // g39a, g103a
+assign h60b_y = g67a_y ? pin49_in : pin49_in; // h59a, h60b
+assign h140a_y = h124b_y ? pin37_in : h60b_y; // h127a, h140a
 assign g112b_y = ~g112b_a; // g112b
 assign g110b_y = ~g110b_a; // g110b
 assign g118a_x = ~(|{ &g118a_a_resolved, &g118a_b_resolved, &g118a_c_resolved, &g118a_d_resolved }); // g118a
@@ -9409,8 +8184,6 @@ assign g149b_y = ~g149b_a; // g149b
 assign g135_x = ~(|{ &g135_a_resolved, &g135_b_resolved, &g135_c_resolved, &g135_d_resolved }); // g135
 assign readout_d5 = ~g135_x; // h156a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page10_readout_d6_d7.v
 // -----------------------------------------------------------------------------
@@ -10129,6 +8902,7 @@ assign j110b_y = ~j92a_x; // j110b
 assign h127b_x = ~((p10_x1350_rail & pin31_in) | (p10_x1357_rail & pin43_in)); // h127b
 assign j129a_y = ~h127b_x; // j129a
 jt054157_page10_readout_d0_d1 u_d0_d1(
+
     .j122a_y      ( j122a_y      ),
     .g114a_y      ( g114a_y      ),
     .reg4_d4_buf2 ( reg4_d4_buf2 ),
@@ -10151,9 +8925,6 @@ jt054157_page10_readout_d0_d1 u_d0_d1(
     .f112a_y    ( f112a_y ),
     .f110b_y    ( f110b_y ),
     .f116b_y    ( f116b_y ),
-    .f108b_x    (  ),
-    .f113a_x    (  ),
-    .f111b_x    (  ),
     .f124b_y    (  ),
     .f126a_y    (  ),
     .f126b_y    (  ),
@@ -10166,7 +8937,6 @@ jt054157_page10_readout_d0_d1 u_d0_d1(
     .readout_d0 ( readout_d[0] ),
     .readout_d1 ( readout_d[1] )
 );
-
 jt054157_page10_readout_d2_d3 u_d2_d3(
     .j122a_y    ( j122a_y ),
     .g114a_y    ( g114a_y ),
@@ -10213,6 +8983,7 @@ jt054157_page10_readout_d2_d3 u_d2_d3(
 );
 
 jt054157_page10_readout_d4_d5 u_d4_d5(
+
     .j122a_y      ( j122a_y      ),
     .g114a_y      ( g114a_y      ),
     .reg4_d4_buf2 ( reg4_d4_buf2 ),
@@ -10236,13 +9007,7 @@ jt054157_page10_readout_d4_d5 u_d4_d5(
     .g149b_a    ( g149b_a ),
     .f127b_y    ( f127b_y ),
     .g103b_y    ( g103b_y ),
-    .h65a_x     (  ),
-    .h124a_x    (  ),
     .f113b_x    (  ),
-    .f39a_x     (  ),
-    .g39a_x     (  ),
-    .h59a_x     (  ),
-    .h127a_x    (  ),
     .h65b_y     (  ),
     .h126a_y    (  ),
     .f115b_y    (  ),
@@ -10267,7 +9032,6 @@ jt054157_page10_readout_d4_d5 u_d4_d5(
     .readout_d4 ( readout_d[4] ),
     .readout_d5 ( readout_d[5] )
 );
-
 jt054157_page10_readout_d6_d7 u_d6_d7(
     .g114a_y ( g114a_y ),
     .j122a_y ( j122a_y ),
@@ -10555,25 +9319,16 @@ module jt054157_page11_db_output_matrix(
 
     output wire       l133a_y,
     output wire       l136a_y,
-    output wire       p185b_y,
 
-    output wire [3:0] p171_q,
+    output reg [3:0] p171_q,
     output wire [3:0] p171_nq,
-    output wire [3:0] p152_q,
+    output reg [3:0] p152_q,
     output wire [3:0] p152_nq,
-    output wire [3:0] k179_q,
+    output reg [3:0] k179_q,
     output wire [3:0] k179_nq,
-    output wire [3:0] l183_q,
+    output reg [3:0] l183_q,
     output wire [3:0] l183_nq,
 
-    output wire       p195b_x,
-    output wire       p194a_x,
-    output wire       p188b_x,
-    output wire       p193a_x,
-    output wire       p195a_x,
-    output wire       r171a_x,
-    output wire       r172b_x,
-    output wire       r172a_x,
 
     output wire       pin_db0_out,
     output wire       pin_db1_out,
@@ -10590,69 +9345,65 @@ module jt054157_page11_db_output_matrix(
     output wire       pin_db12_out,
     output wire       pin_db13_out,
     output wire       pin_db14_out,
-    output wire       pin_db15_out
-);
+    output wire       pin_db15_out);
 
 assign l133a_y = &{reg4_d6,reg4_d5,pin112,pin116}; // l133a
 assign l136a_y = l133a_y; // l136a
-jt054157_lt4 u_p171(
-    .ng ( l136a_y        ),
-    .d  ( readout_d8_d11 ),
-    .q  ( p171_q         ),
-    .nq ( p171_nq        )
-);
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!l136a_y) begin
+        p171_q = readout_d8_d11;
+    end
+end // p171
+/* verilator lint_on LATCH */
 
+assign p171_nq = ~p171_q; // p171
 assign pin_db8_out  = p171_q[0];
 assign pin_db9_out  = p171_q[1];
 assign pin_db10_out = p171_q[2];
 assign pin_db11_out = p171_q[3];
 
-jt054157_lt4 u_p152(
-    .ng ( l136a_y         ),
-    .d  ( readout_d12_d15 ),
-    .q  ( p152_q          ),
-    .nq ( p152_nq         )
-);
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!l136a_y) begin
+        p152_q = readout_d12_d15;
+    end
+end // p152
+/* verilator lint_on LATCH */
 
+assign p152_nq = ~p152_q; // p152
 assign pin_db12_out = p152_q[0];
 assign pin_db13_out = p152_q[1];
 assign pin_db14_out = p152_q[2];
 assign pin_db15_out = p152_q[3];
 
-jt054157_lt4 u_k179(
-    .ng ( l136a_y       ),
-    .d  ( readout_d0_d3 ),
-    .q  ( k179_q        ),
-    .nq ( k179_nq       )
-);
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!l136a_y) begin
+        k179_q = readout_d0_d3;
+    end
+end // k179
+/* verilator lint_on LATCH */
 
-jt054157_lt4 u_l183(
-    .ng ( l136a_y       ),
-    .d  ( readout_d4_d7 ),
-    .q  ( l183_q        ),
-    .nq ( l183_nq       )
-);
+assign k179_nq = ~k179_q; // k179
+/* verilator lint_off LATCH */
+always @(*) begin
+    if (!l136a_y) begin
+        l183_q = readout_d4_d7;
+    end
+end // l183
+/* verilator lint_on LATCH */
 
-assign p185b_y = ~p162a; // p185b
-assign p195b_x = ~((p185b_y & p171_q[0]) | (p162a & k179_q[0])); // p188a
-assign pin_db0_out = ~p195b_x; // p195b_buf
-assign p194a_x = ~((p185b_y & p171_q[1]) | (p162a & k179_q[1])); // p186a
-assign pin_db1_out = ~p194a_x; // p194a_buf
-assign p188b_x = ~((p185b_y & p171_q[2]) | (p162a & k179_q[2])); // p188b
-assign pin_db2_out = ~p188b_x; // p194b
-assign p193a_x = ~((p185b_y & p171_q[3]) | (p162a & k179_q[3])); // p184a
-assign pin_db3_out = ~p193a_x; // p193a_buf
-assign p195a_x = ~((p185b_y & p152_q[0]) | (p162a & l183_q[0])); // p186b
-assign pin_db4_out = ~p195a_x; // p195a_buf
-assign r171a_x = ~((p185b_y & p152_q[1]) | (p162a & l183_q[1])); // p181b
-assign pin_db5_out = ~r171a_x; // r171a_buf
-assign r172b_x = ~((p185b_y & p152_q[2]) | (p162a & l183_q[2])); // p183b
-assign pin_db6_out = ~r172b_x; // r172b_buf
-assign r172a_x = ~((p185b_y & p152_q[3]) | (p162a & l183_q[3])); // p179b
-assign pin_db7_out = ~r172a_x; // r172a_buf
+assign l183_nq = ~l183_q; // l183
+assign pin_db0_out = p162a ? k179_q[0] : p171_q[0]; // p188a, p195b_buf
+assign pin_db1_out = p162a ? k179_q[1] : p171_q[1]; // p186a, p194a_buf
+assign pin_db2_out = p162a ? k179_q[2] : p171_q[2]; // p188b, p194b
+assign pin_db3_out = p162a ? k179_q[3] : p171_q[3]; // p184a, p193a_buf
+assign pin_db4_out = p162a ? l183_q[0] : p152_q[0]; // p186b, p195a_buf
+assign pin_db5_out = p162a ? l183_q[1] : p152_q[1]; // p181b, r171a_buf
+assign pin_db6_out = p162a ? l183_q[2] : p152_q[2]; // p183b, r172b_buf
+assign pin_db7_out = p162a ? l183_q[3] : p152_q[3]; // p179b, r172a_buf
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page11_vc_dir.v
 // -----------------------------------------------------------------------------
@@ -10689,9 +9440,7 @@ module jt054157_page11_vc_dir(
     output wire       g108a_y,
 
     output wire       n111b_x,
-    output wire       g116a_x,
     output wire       j120a_x,
-    output wire       g115b_x,
     output wire       r111a_y,
     output wire       g109a_y,
     output wire       j122a_y,
@@ -10704,8 +9453,7 @@ module jt054157_page11_vc_dir(
     output wire       l122b_y,
     output wire       l124a_y,
     output wire       l128a_y,
-    output wire [7:0] pins_vc_dir
-);
+    output wire [7:0] pins_vc_dir);
 
 assign n120a_y = ~pin_ab2; // n120a
 assign n110b_y = ~reg4_d3_buf2; // n110b
@@ -10713,8 +9461,7 @@ assign g111a_y = ~pin_ab1; // g111a
 assign g108b_y = ~reg4_d4_buf3; // g108b
 assign n111b_x = ~((n120a_y & n110b_y) | (g111a_y & reg4_d3_buf2)); // n111b
 assign r111a_y = ~n111b_x; // r111a
-assign g116a_x = ~((g111a_y & g108b_y) | (pin_ab1 & reg4_d4_buf3)); // g116a
-assign g109a_y = ~g116a_x; // g109a
+assign g109a_y = pin_ab1 ? reg4_d4_buf3 : g108b_y; // g116a, g109a
 assign n115b_y = reg4_d3_buf2 & g109a_y; // n115b
 assign m130a_y = ~pin_ab2; // m130a
 assign j114a_y = ~reg4_d3_buf3; // j114a
@@ -10722,8 +9469,7 @@ assign j120a_x = ~((m130a_y & reg4_d3_buf3) | (g111b_y & j114a_y)); // j120a
 assign j122a_y = ~j120a_x; // j122a
 assign g111b_y = ~pin_ab1; // g111b
 assign g108a_y = ~reg4_d4_buf2; // g108a
-assign g115b_x = ~((g111b_y & g108a_y) | (pin_ab1 & reg4_d4_buf2)); // g115b
-assign g109b_y = ~g115b_x; // g109b
+assign g109b_y = pin_ab1 ? reg4_d4_buf2 : g108a_y; // g115b, g109b
 assign g114a_y = reg4_d3_buf3 & g109b_y; // g114a
 assign l121a_y = reg4_d6 | m118a; // l121a
 assign k129_y = l121a_y; // k129
@@ -10739,8 +9485,6 @@ assign pins_vc_dir[5] = ~l128a_y; // c209a
 assign pins_vc_dir[6] = ~l128a_y; // c176a
 assign pins_vc_dir[7] = ~l128a_y; // c177a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page11_integrated.v
 // -----------------------------------------------------------------------------
@@ -10783,6 +9527,7 @@ module jt054157_page11_integrated(
 );
 
 jt054157_page11_db_output_matrix u_db_output_matrix(
+
     .reg4_d6        ( reg4_d6        ),
     .reg4_d5        ( reg4_d5        ),
     .pin112         ( pin112         ),
@@ -10794,7 +9539,6 @@ jt054157_page11_db_output_matrix u_db_output_matrix(
     .readout_d4_d7  ( readout_d4_d7  ),
     .l133a_y        (                 ),
     .l136a_y        (                 ),
-    .p185b_y        (                 ),
     .p171_q         (                 ),
     .p171_nq        (                 ),
     .p152_q         (                 ),
@@ -10803,14 +9547,6 @@ jt054157_page11_db_output_matrix u_db_output_matrix(
     .k179_nq        (                 ),
     .l183_q         (                 ),
     .l183_nq        (                 ),
-    .p195b_x        (                 ),
-    .p194a_x        (                 ),
-    .p188b_x        (                 ),
-    .p193a_x        (                 ),
-    .p195a_x        (                 ),
-    .r171a_x        (                 ),
-    .r172b_x        (                 ),
-    .r172a_x        (                 ),
     .pin_db0_out    ( pin_db_out[0]  ),
     .pin_db1_out    ( pin_db_out[1]  ),
     .pin_db2_out    ( pin_db_out[2]  ),
@@ -10828,8 +9564,8 @@ jt054157_page11_db_output_matrix u_db_output_matrix(
     .pin_db14_out   ( pin_db_out[14] ),
     .pin_db15_out   ( pin_db_out[15] )
 );
-
 jt054157_page11_vc_dir u_vc_dir(
+
     .pin_ab2       ( pin_ab2       ),
     .pin_ab1       ( pin_ab1       ),
     .reg4_d3_buf2  ( reg4_d3_buf2  ),
@@ -10851,9 +9587,7 @@ jt054157_page11_vc_dir u_vc_dir(
     .g111b_y       (               ),
     .g108a_y       (               ),
     .n111b_x       (               ),
-    .g116a_x       (               ),
     .j120a_x       (               ),
-    .g115b_x       (               ),
     .r111a_y       ( r111a_y       ),
     .g109a_y       (               ),
     .j122a_y       ( j122a_y       ),
@@ -10867,7 +9601,6 @@ jt054157_page11_vc_dir u_vc_dir(
     .l128a_y       (               ),
     .pins_vc_dir   ( pins_vc_dir   )
 );
-
 endmodule
 
 
@@ -12914,50 +11647,27 @@ module jt054157_page08_top_mux_outputs(
     input  wire       db7_15,
 
     output wire       n134b_y,
-    output wire       n129b_y,
     output wire       m119b_y,
-    output wire       m116a_y,
-    output wire       n127b_x,
-    output wire       n125b_x,
-    output wire       n132b_x,
-    output wire       n130b_x,
     output wire       n118b_y,
     output wire       n119b_y,
     output wire       n121b_y,
     output wire       n122b_y,
-    output wire       m117b_x,
-    output wire       m108b_x,
-    output wire       m114a_x,
-    output wire       m112a_x,
     output wire       pin155_out,
     output wire       pin156_out,
     output wire       pin157_out,
-    output wire       pin158_out
-);
+    output wire       pin158_out);
 
 assign n134b_y = ~g124a; // n134b
-assign n129b_y = ~n134b_y; // n129b
 assign m119b_y = ~reg4_d3_buf; // m119b
-assign m116a_y = ~m119b_y; // m116a
-assign n127b_x = ~((n129b_y & n172b) | (n134b_y & n185b)); // n127b
-assign n118b_y = ~n127b_x; // n118b
-assign n125b_x = ~((n129b_y & n173b) | (n134b_y & n186b)); // n125b
-assign n119b_y = ~n125b_x; // n119b
-assign n132b_x = ~((n129b_y & p162b) | (n134b_y & n172b)); // n132b
-assign n121b_y = ~n132b_x; // n121b
-assign n130b_x = ~((n129b_y & p161a) | (n134b_y & n173b)); // n130b
-assign n122b_y = ~n130b_x; // n122b
-assign m117b_x = ~((m116a_y & n118b_y) | (m119b_y & db4_12)); // m117b
-assign pin155_out = ~m117b_x; // h27b
-assign m108b_x = ~((m116a_y & n119b_y) | (m119b_y & db5_13)); // m108b
-assign pin156_out = ~m108b_x; // h26a
-assign m114a_x = ~((m116a_y & n121b_y) | (m119b_y & db6_14)); // m114a
-assign pin157_out = ~m114a_x; // h26b
-assign m112a_x = ~((m116a_y & n122b_y) | (m119b_y & db7_15)); // m112a
-assign pin158_out = ~m112a_x; // h25a
+assign n118b_y = n134b_y ? n185b : n172b; // n127b, n118b
+assign n119b_y = n134b_y ? n186b : n173b; // n125b, n119b
+assign n121b_y = n134b_y ? n172b : p162b; // n132b, n121b
+assign n122b_y = n134b_y ? n173b : p161a; // n130b, n122b
+assign pin155_out = m119b_y ? db4_12 : n118b_y; // m117b, h27b
+assign pin156_out = m119b_y ? db5_13 : n119b_y; // m108b, h26a
+assign pin157_out = m119b_y ? db6_14 : n121b_y; // m114a, h26b
+assign pin158_out = m119b_y ? db7_15 : n122b_y; // m112a, h25a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_reg4d4_upper_mux_outputs.v
 // -----------------------------------------------------------------------------
@@ -12976,21 +11686,12 @@ module jt054157_page08_reg4d4_upper_mux_outputs(
     input  wire       p162b,
     input  wire       p161a,
 
-    output wire       m145a_y,
-    output wire       m140a_x,
-    output wire       m138a_x,
     output wire       pin159_out,
-    output wire       pin2_out
-);
+    output wire       pin2_out);
 
-assign m145a_y = ~reg4_d4_buf; // m145a
-assign m140a_x = ~((reg4_d4_buf & l136b) | (m145a_y & p162b)); // m140a
-assign pin159_out = ~m140a_x; // h25b
-assign m138a_x = ~((reg4_d4_buf & l137b) | (m145a_y & p161a)); // m138a
-assign pin2_out = ~m138a_x; // h29a
+assign pin159_out = reg4_d4_buf ? l136b : p162b; // m140a, h25b
+assign pin2_out = reg4_d4_buf ? l137b : p161a; // m138a, h29a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_reg4d3_mid_mux_outputs.v
 // -----------------------------------------------------------------------------
@@ -13019,50 +11720,27 @@ module jt054157_page08_reg4d3_mid_mux_outputs(
     input  wire       pin_db7_in,
 
     output wire       n174b_y,
-    output wire       n175b_y,
     output wire       n112a_y,
-    output wire       n110a_y,
-    output wire       n170b_x,
-    output wire       n168b_x,
-    output wire       n164b_x,
-    output wire       n166b_x,
     output wire       n157b_y,
     output wire       n158b_y,
     output wire       n138b_y,
     output wire       n117b_y,
-    output wire       n118a_x,
-    output wire       n116a_x,
-    output wire       n121a_x,
-    output wire       n108a_x,
     output wire       pin3_out,
     output wire       pin4_out,
     output wire       pin5_out,
-    output wire       pin6_out
-);
+    output wire       pin6_out);
 
 assign n174b_y = ~g124a; // n174b
-assign n175b_y = ~n174b_y; // n175b
 assign n112a_y = ~reg4_d3_buf; // n112a
-assign n110a_y = ~n112a_y; // n110a
-assign n170b_x = ~((n175b_y & pin_db4_in) | (n174b_y & pin_db0_in)); // n170b
-assign n157b_y = ~n170b_x; // n157b
-assign n168b_x = ~((n175b_y & pin_db5_in) | (n174b_y & pin_db1_in)); // n168b
-assign n158b_y = ~n168b_x; // n158b
-assign n164b_x = ~((n175b_y & pin_db6_in) | (n174b_y & pin_db2_in)); // n164b
-assign n138b_y = ~n164b_x; // n138b
-assign n166b_x = ~((n175b_y & pin_db7_in) | (n174b_y & pin_db3_in)); // n166b
-assign n117b_y = ~n166b_x; // n117b
-assign n118a_x = ~((n110a_y & n157b_y) | (n112a_y & db0_8)); // n118a
-assign pin3_out = ~n118a_x; // h28b
-assign n116a_x = ~((n110a_y & n158b_y) | (n112a_y & db1_9)); // n116a
-assign pin4_out = ~n116a_x; // h27a
-assign n121a_x = ~((n110a_y & n138b_y) | (n112a_y & db2_10)); // n121a
-assign pin5_out = ~n121a_x; // h29b
-assign n108a_x = ~((n110a_y & n117b_y) | (n112a_y & db3_11)); // n108a
-assign pin6_out = ~n108a_x; // h28a
+assign n157b_y = n174b_y ? pin_db0_in : pin_db4_in; // n170b, n157b
+assign n158b_y = n174b_y ? pin_db1_in : pin_db5_in; // n168b, n158b
+assign n138b_y = n174b_y ? pin_db2_in : pin_db6_in; // n164b, n138b
+assign n117b_y = n174b_y ? pin_db3_in : pin_db7_in; // n166b, n117b
+assign pin3_out = n112a_y ? db0_8 : n157b_y; // n118a, h28b
+assign pin4_out = n112a_y ? db1_9 : n158b_y; // n116a, h27a
+assign pin5_out = n112a_y ? db2_10 : n138b_y; // n121a, h29b
+assign pin6_out = n112a_y ? db3_11 : n117b_y; // n108a, h28a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_reg4d4_mid_mux_outputs.v
 // -----------------------------------------------------------------------------
@@ -13081,21 +11759,12 @@ module jt054157_page08_reg4d4_mid_mux_outputs(
     input  wire       pin_db4_in,
     input  wire       pin_db5_in,
 
-    output wire       m146a_y,
-    output wire       m143a_x,
-    output wire       m139b_x,
     output wire       pin7_out,
-    output wire       pin8_out
-);
+    output wire       pin8_out);
 
-assign m146a_y = ~reg4_d4_buf; // m146a
-assign m143a_x = ~((reg4_d4_buf & n185b) | (m146a_y & pin_db4_in)); // m143a
-assign pin7_out = ~m143a_x; // h40b
-assign m139b_x = ~((reg4_d4_buf & n186b) | (m146a_y & pin_db5_in)); // m139b
-assign pin8_out = ~m139b_x; // h40a
+assign pin7_out = reg4_d4_buf ? n185b : pin_db4_in; // m143a, h40b
+assign pin8_out = reg4_d4_buf ? n186b : pin_db5_in; // m139b, h40a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_reg4d3_lower_mid_mux_outputs.v
 // -----------------------------------------------------------------------------
@@ -13124,50 +11793,27 @@ module jt054157_page08_reg4d3_lower_mid_mux_outputs(
     input  wire       pin_db7_in,
 
     output wire       n132a_y,
-    output wire       n125a_y,
-    output wire       n133a_x,
-    output wire       n126a_x,
-    output wire       n130a_x,
-    output wire       n128a_x,
     output wire       m124b_y,
     output wire       n114a_y,
     output wire       n113a_y,
     output wire       n115a_y,
     output wire       m120b_y,
-    output wire       m114b_y,
-    output wire       m121b_x,
-    output wire       m115b_x,
-    output wire       m110b_x,
-    output wire       m112b_x,
     output wire       pin9_out,
     output wire       pin11_out,
     output wire       pin12_out,
-    output wire       pin13_out
-);
+    output wire       pin13_out);
 
 assign n132a_y = ~g124a; // n132a
-assign n125a_y = ~n132a_y; // n125a
-assign n133a_x = ~((n125a_y & l136b) | (n132a_y & n185b)); // n133a
-assign m124b_y = ~n133a_x; // m124b
-assign n126a_x = ~((n125a_y & l137b) | (n132a_y & n186b)); // n126a
-assign n114a_y = ~n126a_x; // n114a
-assign n130a_x = ~((n125a_y & pin_db0_in) | (n132a_y & n172b)); // n130a
-assign n113a_y = ~n130a_x; // n113a
-assign n128a_x = ~((n125a_y & pin_db1_in) | (n132a_y & n173b)); // n128a
-assign n115a_y = ~n128a_x; // n115a
+assign m124b_y = n132a_y ? n185b : l136b; // n133a, m124b
+assign n114a_y = n132a_y ? n186b : l137b; // n126a, n114a
+assign n113a_y = n132a_y ? n172b : pin_db0_in; // n130a, n113a
+assign n115a_y = n132a_y ? n173b : pin_db1_in; // n128a, n115a
 assign m120b_y = ~reg4_d3_buf; // m120b
-assign m114b_y = ~m120b_y; // m114b
-assign m121b_x = ~((m114b_y & m124b_y) | (m120b_y & pin_db4_in)); // m121b
-assign pin9_out = ~m121b_x; // h41a
-assign m115b_x = ~((m114b_y & n114a_y) | (m120b_y & pin_db5_in)); // m115b
-assign pin11_out = ~m115b_x; // h48a
-assign m110b_x = ~((m114b_y & n113a_y) | (m120b_y & pin_db6_in)); // m110b
-assign pin12_out = ~m110b_x; // h67a
-assign m112b_x = ~((m114b_y & n115a_y) | (m120b_y & pin_db7_in)); // m112b
-assign pin13_out = ~m112b_x; // h76b
+assign pin9_out = m120b_y ? pin_db4_in : m124b_y; // m121b, h41a
+assign pin11_out = m120b_y ? pin_db5_in : n114a_y; // m115b, h48a
+assign pin12_out = m120b_y ? pin_db6_in : n113a_y; // m110b, h67a
+assign pin13_out = m120b_y ? pin_db7_in : n115a_y; // m112b, h76b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_reg4d4_lower_mid_mux_outputs.v
 // -----------------------------------------------------------------------------
@@ -13184,21 +11830,12 @@ module jt054157_page08_reg4d4_lower_mid_mux_outputs(
     input  wire       p162b,
     input  wire       p161a,
 
-    output wire       m155a_y,
-    output wire       m149a_x,
-    output wire       m147a_x,
     output wire       pin14_out,
-    output wire       pin15_out
-);
+    output wire       pin15_out);
 
-assign m155a_y = ~reg4_d4_buf; // m155a
-assign m149a_x = ~((reg4_d4_buf & pin_db2_in) | (m155a_y & p162b)); // m149a
-assign pin14_out = ~m149a_x; // h77a
-assign m147a_x = ~((reg4_d4_buf & pin_db1_in) | (m155a_y & p161a)); // m147a
-assign pin15_out = ~m147a_x; // j94b
+assign pin14_out = reg4_d4_buf ? pin_db2_in : p162b; // m149a, h77a
+assign pin15_out = reg4_d4_buf ? pin_db1_in : p161a; // m147a, j94b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_reg4d3_lower_mux_outputs.v
 // -----------------------------------------------------------------------------
@@ -13222,30 +11859,17 @@ module jt054157_page08_reg4d3_lower_mux_outputs(
     input  wire       pin_db3_in,
 
     output wire       m134b_y,
-    output wire       m125b_y,
-    output wire       m128b_x,
-    output wire       m126b_x,
-    output wire       m132b_x,
-    output wire       m130b_x,
     output wire       pin16_out,
     output wire       pin17_out,
     output wire       pin18_out,
-    output wire       pin19_out
-);
+    output wire       pin19_out);
 
 assign m134b_y = ~g124a; // m134b
-assign m125b_y = ~m134b_y; // m125b
-assign m128b_x = ~((m125b_y & db0_8) | (m134b_y & pin_db0_in)); // m128b
-assign pin16_out = ~m128b_x; // j94a
-assign m126b_x = ~((m125b_y & db1_9) | (m134b_y & pin_db1_in)); // m126b
-assign pin17_out = ~m126b_x; // l84b
-assign m132b_x = ~((m125b_y & db2_10) | (m134b_y & pin_db2_in)); // m132b
-assign pin18_out = ~m132b_x; // l84a
-assign m130b_x = ~((m125b_y & db3_11) | (m134b_y & pin_db3_in)); // m130b
-assign pin19_out = ~m130b_x; // l107a
+assign pin16_out = m134b_y ? pin_db0_in : db0_8; // m128b, j94a
+assign pin17_out = m134b_y ? pin_db1_in : db1_9; // m126b, l84b
+assign pin18_out = m134b_y ? pin_db2_in : db2_10; // m132b, l84a
+assign pin19_out = m134b_y ? pin_db3_in : db3_11; // m130b, l107a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_reg4d4_lower_right_outputs.v
 // -----------------------------------------------------------------------------
@@ -13262,21 +11886,12 @@ module jt054157_page08_reg4d4_lower_right_outputs(
     input  wire       p162b,
     input  wire       p161a,
 
-    output wire       m162b_y,
-    output wire       m154b_x,
-    output wire       m152b_x,
     output wire       pin42_out,
-    output wire       pin43_out
-);
+    output wire       pin43_out);
 
-assign m162b_y = ~reg4_d4_buf; // m162b
-assign m154b_x = ~((reg4_d4_buf & n172b) | (m162b_y & p162b)); // m154b
-assign pin42_out = ~m154b_x; // m161a
-assign m152b_x = ~((reg4_d4_buf & n173b) | (m162b_y & p161a)); // m152b
-assign pin43_out = ~m152b_x; // m162a
+assign pin42_out = reg4_d4_buf ? n172b : p162b; // m154b, m161a
+assign pin43_out = reg4_d4_buf ? n173b : p161a; // m152b, m162a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_reg4d4_right_mid_outputs.v
 // -----------------------------------------------------------------------------
@@ -13294,21 +11909,12 @@ module jt054157_page08_reg4d4_right_mid_outputs(
     input  wire       pin_db4_in,
     input  wire       pin_db5_in,
 
-    output wire       m164b_y,
-    output wire       m179a_x,
-    output wire       m163a_x,
     output wire       pin34_out,
-    output wire       pin35_out
-);
+    output wire       pin35_out);
 
-assign m164b_y = ~reg4_d4_buf; // m164b
-assign m179a_x = ~((reg4_d4_buf & pin_db0_in) | (m164b_y & pin_db4_in)); // m179a
-assign pin34_out = ~m179a_x; // m189b
-assign m163a_x = ~((reg4_d4_buf & pin_db1_in) | (m164b_y & pin_db5_in)); // m163a
-assign pin35_out = ~m163a_x; // n185a
+assign pin34_out = reg4_d4_buf ? pin_db0_in : pin_db4_in; // m179a, m189b
+assign pin35_out = reg4_d4_buf ? pin_db1_in : pin_db5_in; // m163a, n185a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_reg4d3_right_mid_outputs.v
 // -----------------------------------------------------------------------------
@@ -13333,50 +11939,27 @@ module jt054157_page08_reg4d3_right_mid_outputs(
     input  wire       pin_db7_in,
 
     output wire       n170a_y,
-    output wire       n175a_y,
-    output wire       n171a_x,
-    output wire       n173a_x,
-    output wire       n167a_x,
-    output wire       n165a_x,
     output wire       n176a_y,
     output wire       n177a_y,
     output wire       n176b_y,
     output wire       n177b_y,
     output wire       n161a_y,
-    output wire       n187b_y,
-    output wire       n179a_x,
-    output wire       n181a_x,
-    output wire       n181b_x,
-    output wire       n183b_x,
     output wire       pin36_out,
     output wire       pin37_out,
     output wire       pin38_out,
-    output wire       pin39_out
-);
+    output wire       pin39_out);
 
 assign n170a_y = ~g124a; // n170a
-assign n175a_y = ~n170a_y; // n175a
-assign n171a_x = ~((n175a_y & pin_db6_in) | (n170a_y & n185b)); // n171a
-assign n176a_y = ~n171a_x; // n176a
-assign n173a_x = ~((n175a_y & pin_db7_in) | (n170a_y & n186b)); // n173a
-assign n177a_y = ~n173a_x; // n177a
-assign n167a_x = ~((n175a_y & n185b) | (n170a_y & n172b)); // n167a
-assign n176b_y = ~n167a_x; // n176b
-assign n165a_x = ~((n175a_y & n186b) | (n170a_y & n173b)); // n165a
-assign n177b_y = ~n165a_x; // n177b
+assign n176a_y = n170a_y ? n185b : pin_db6_in; // n171a, n176a
+assign n177a_y = n170a_y ? n186b : pin_db7_in; // n173a, n177a
+assign n176b_y = n170a_y ? n172b : n185b; // n167a, n176b
+assign n177b_y = n170a_y ? n173b : n186b; // n165a, n177b
 assign n161a_y = ~reg4_d3_buf; // n161a
-assign n187b_y = ~n161a_y; // n187b
-assign n179a_x = ~((n187b_y & n176a_y) | (n161a_y & pin_db4_in)); // n179a
-assign pin36_out = ~n179a_x; // n188a
-assign n181a_x = ~((n187b_y & n177a_y) | (n161a_y & pin_db5_in)); // n181a
-assign pin37_out = ~n181a_x; // n189a
-assign n181b_x = ~((n187b_y & n176b_y) | (n161a_y & pin_db6_in)); // n181b
-assign pin38_out = ~n181b_x; // n188b
-assign n183b_x = ~((n187b_y & n177b_y) | (n161a_y & pin_db7_in)); // n183b
-assign pin39_out = ~n183b_x; // n189b
+assign pin36_out = n161a_y ? pin_db4_in : n176a_y; // n179a, n188a
+assign pin37_out = n161a_y ? pin_db5_in : n177a_y; // n181a, n189a
+assign pin38_out = n161a_y ? pin_db6_in : n176b_y; // n181b, n188b
+assign pin39_out = n161a_y ? pin_db7_in : n177b_y; // n183b, n189b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_top_right_pin21_pin26_outputs.v
 // -----------------------------------------------------------------------------
@@ -13407,63 +11990,34 @@ module jt054157_page08_top_right_pin21_pin26_outputs(
     input  wire       pin_db4_in,
     input  wire       pin_db5_in,
 
-    output wire       m156b_y,
-    output wire       m149b_x,
-    output wire       m147b_x,
     output wire       pin21_out,
     output wire       pin22_out,
 
     output wire       n136b_y,
-    output wire       n137b_y,
-    output wire       n149b_x,
-    output wire       n145b_x,
-    output wire       n147b_x,
-    output wire       n143b_x,
     output wire       n139a_y,
     output wire       n141b_y,
     output wire       n140b_y,
     output wire       n139b_y,
 
     output wire       n136a_y,
-    output wire       m138b_y,
-    output wire       m141b_x,
-    output wire       m143b_x,
-    output wire       m136b_x,
-    output wire       m145b_x,
     output wire       pin23_out,
     output wire       pin24_out,
     output wire       pin25_out,
-    output wire       pin26_out
-);
+    output wire       pin26_out);
 
-assign m156b_y = ~reg4_d4_buf; // m156b
-assign m149b_x = ~((m156b_y & p162b) | (reg4_d4_buf & pin_db4_in)); // m149b
-assign pin21_out = ~m149b_x; // m133a
-assign m147b_x = ~((m156b_y & p161a) | (reg4_d4_buf & pin_db5_in)); // m147b
-assign pin22_out = ~m147b_x; // m134a
+assign pin21_out = reg4_d4_buf ? pin_db4_in : p162b; // m149b, m133a
+assign pin22_out = reg4_d4_buf ? pin_db5_in : p161a; // m147b, m134a
 assign n136b_y = ~g124a; // n136b
-assign n137b_y = ~n136b_y; // n137b
-assign n149b_x = ~((n137b_y & pin_db2_in) | (n136b_y & n185b)); // n149b
-assign n139a_y = ~n149b_x; // n139a
-assign n145b_x = ~((n137b_y & pin_db3_in) | (n136b_y & n186b)); // n145b
-assign n141b_y = ~n145b_x; // n141b
-assign n147b_x = ~((n137b_y & pin_db4_in) | (n136b_y & n172b)); // n147b
-assign n140b_y = ~n147b_x; // n140b
-assign n143b_x = ~((n137b_y & pin_db5_in) | (n136b_y & n173b)); // n143b
-assign n139b_y = ~n143b_x; // n139b
+assign n139a_y = n136b_y ? n185b : pin_db2_in; // n149b, n139a
+assign n141b_y = n136b_y ? n186b : pin_db3_in; // n145b, n141b
+assign n140b_y = n136b_y ? n172b : pin_db4_in; // n147b, n140b
+assign n139b_y = n136b_y ? n173b : pin_db5_in; // n143b, n139b
 assign n136a_y = ~reg4_d3_buf; // n136a
-assign m138b_y = ~n136a_y; // m138b
-assign m141b_x = ~((m138b_y & n139a_y) | (n136a_y & db4_12)); // m141b
-assign pin23_out = ~m141b_x; // m137a
-assign m143b_x = ~((m138b_y & n141b_y) | (n136a_y & db5_13)); // m143b
-assign pin24_out = ~m143b_x; // m136a
-assign m136b_x = ~((m138b_y & n140b_y) | (n136a_y & db6_14)); // m136b
-assign pin25_out = ~m136b_x; // m142a
-assign m145b_x = ~((m138b_y & n139b_y) | (n136a_y & db7_15)); // m145b
-assign pin26_out = ~m145b_x; // m158a
+assign pin23_out = n136a_y ? db4_12 : n139a_y; // m141b, m137a
+assign pin24_out = n136a_y ? db5_13 : n141b_y; // m143b, m136a
+assign pin25_out = n136a_y ? db6_14 : n140b_y; // m136b, m142a
+assign pin26_out = n136a_y ? db7_15 : n139b_y; // m145b, m158a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_reg4d4_right_upper_outputs.v
 // -----------------------------------------------------------------------------
@@ -13481,21 +12035,12 @@ module jt054157_page08_reg4d4_right_upper_outputs(
     input  wire       p162b,
     input  wire       p161a,
 
-    output wire       m161b_y,
-    output wire       m157b_x,
-    output wire       m159b_x,
     output wire       pin27_out,
-    output wire       pin28_out
-);
+    output wire       pin28_out);
 
-assign m161b_y = ~reg4_d4_buf; // m161b
-assign m157b_x = ~((reg4_d4_buf & pin_db6_in) | (m161b_y & p162b)); // m157b
-assign pin27_out = ~m157b_x; // m157a
-assign m159b_x = ~((reg4_d4_buf & pin_db7_in) | (m161b_y & p161a)); // m159b
-assign pin28_out = ~m159b_x; // m160a
+assign pin27_out = reg4_d4_buf ? pin_db6_in : p162b; // m157b, m157a
+assign pin28_out = reg4_d4_buf ? pin_db7_in : p161a; // m159b, m160a
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_reg4d3_right_upper_outputs.v
 // -----------------------------------------------------------------------------
@@ -13524,50 +12069,27 @@ module jt054157_page08_reg4d3_right_upper_outputs(
     input  wire       pin_db3_in,
 
     output wire       n137a_y,
-    output wire       n138a_y,
     output wire       n157a_y,
-    output wire       n159b_y,
-    output wire       n149a_x,
-    output wire       n147a_x,
-    output wire       n140a_x,
-    output wire       n145a_x,
     output wire       n156a_y,
     output wire       n153b_y,
     output wire       n144a_y,
     output wire       n154b_y,
-    output wire       n158a_x,
-    output wire       n160b_x,
-    output wire       n154a_x,
-    output wire       n155b_x,
     output wire       pin29_out,
     output wire       pin31_out,
     output wire       pin32_out,
-    output wire       pin33_out
-);
+    output wire       pin33_out);
 
 assign n137a_y = ~g124a; // n137a
-assign n138a_y = ~n137a_y; // n138a
 assign n157a_y = ~reg4_d3_buf; // n157a
-assign n159b_y = ~n157a_y; // n159b
-assign n149a_x = ~((n138a_y & p162b) | (n137a_y & pin_db0_in)); // n149a
-assign n156a_y = ~n149a_x; // n156a
-assign n147a_x = ~((n138a_y & p161a) | (n137a_y & pin_db1_in)); // n147a
-assign n153b_y = ~n147a_x; // n153b
-assign n140a_x = ~((n138a_y & l136b) | (n137a_y & pin_db2_in)); // n140a
-assign n144a_y = ~n140a_x; // n144a
-assign n145a_x = ~((n138a_y & l137b) | (n137a_y & pin_db3_in)); // n145a
-assign n154b_y = ~n145a_x; // n154b
-assign n158a_x = ~((n159b_y & n156a_y) | (n157a_y & n185b)); // n158a
-assign pin29_out = ~n158a_x; // n160a
-assign n160b_x = ~((n159b_y & n153b_y) | (n157a_y & n186b)); // n160b
-assign pin31_out = ~n160b_x; // n169a
-assign n154a_x = ~((n159b_y & n144a_y) | (n157a_y & n172b)); // n154a
-assign pin32_out = ~n154a_x; // n162a
-assign n155b_x = ~((n159b_y & n154b_y) | (n157a_y & n173b)); // n155b
-assign pin33_out = ~n155b_x; // n162b
+assign n156a_y = n137a_y ? pin_db0_in : p162b; // n149a, n156a
+assign n153b_y = n137a_y ? pin_db1_in : p161a; // n147a, n153b
+assign n144a_y = n137a_y ? pin_db2_in : l136b; // n140a, n144a
+assign n154b_y = n137a_y ? pin_db3_in : l137b; // n145a, n154b
+assign pin29_out = n157a_y ? n185b : n156a_y; // n158a, n160a
+assign pin31_out = n157a_y ? n186b : n153b_y; // n160b, n169a
+assign pin32_out = n157a_y ? n172b : n144a_y; // n154a, n162a
+assign pin33_out = n157a_y ? n173b : n154b_y; // n155b, n162b
 endmodule
-
-
 // -----------------------------------------------------------------------------
 // Source: artifacts/hdl/jt054157_page08_outputs_integrated.v
 // -----------------------------------------------------------------------------
@@ -13723,6 +12245,7 @@ jt054157_page08_db_pin_buffers u_db_pin_buffers(
 );
 
 jt054157_page08_top_mux_outputs u_top_mux_outputs(
+
     .g124a       ( g124a       ),
     .reg4_d3_buf ( reg4_d3_buf ),
     .n172b       ( n172b       ),
@@ -13736,41 +12259,28 @@ jt054157_page08_top_mux_outputs u_top_mux_outputs(
     .db6_14      ( db6_14      ),
     .db7_15      ( db7_15      ),
     .n134b_y     (             ),
-    .n129b_y     (             ),
     .m119b_y     (             ),
-    .m116a_y     (             ),
-    .n127b_x     (             ),
-    .n125b_x     (             ),
-    .n132b_x     (             ),
-    .n130b_x     (             ),
     .n118b_y     (             ),
     .n119b_y     (             ),
     .n121b_y     (             ),
     .n122b_y     (             ),
-    .m117b_x     (             ),
-    .m108b_x     (             ),
-    .m114a_x     (             ),
-    .m112a_x     (             ),
     .pin155_out  ( pin155_out  ),
     .pin156_out  ( pin156_out  ),
     .pin157_out  ( pin157_out  ),
     .pin158_out  ( pin158_out  )
 );
-
 jt054157_page08_reg4d4_upper_mux_outputs u_reg4d4_upper_mux_outputs(
+
     .reg4_d4_buf ( reg4_d4_buf ),
     .l136b       ( l136b       ),
     .l137b       ( l137b       ),
     .p162b       ( p162b       ),
     .p161a       ( p161a       ),
-    .m145a_y     (             ),
-    .m140a_x     (             ),
-    .m138a_x     (             ),
     .pin159_out  ( pin159_out  ),
     .pin2_out    ( pin2_out    )
 );
-
 jt054157_page08_reg4d3_mid_mux_outputs u_reg4d3_mid_mux_outputs(
+
     .g124a       ( g124a       ),
     .reg4_d3_buf ( reg4_d3_buf ),
     .db0_8       ( db0_8       ),
@@ -13786,41 +12296,28 @@ jt054157_page08_reg4d3_mid_mux_outputs u_reg4d3_mid_mux_outputs(
     .pin_db6_in  ( pin_db6_in  ),
     .pin_db7_in  ( pin_db7_in  ),
     .n174b_y     (             ),
-    .n175b_y     (             ),
     .n112a_y     (             ),
-    .n110a_y     (             ),
-    .n170b_x     (             ),
-    .n168b_x     (             ),
-    .n164b_x     (             ),
-    .n166b_x     (             ),
     .n157b_y     (             ),
     .n158b_y     (             ),
     .n138b_y     (             ),
     .n117b_y     (             ),
-    .n118a_x     (             ),
-    .n116a_x     (             ),
-    .n121a_x     (             ),
-    .n108a_x     (             ),
     .pin3_out    ( pin3_out    ),
     .pin4_out    ( pin4_out    ),
     .pin5_out    ( pin5_out    ),
     .pin6_out    ( pin6_out    )
 );
-
 jt054157_page08_reg4d4_mid_mux_outputs u_reg4d4_mid_mux_outputs(
+
     .reg4_d4_buf ( reg4_d4_buf ),
     .n185b       ( n185b       ),
     .n186b       ( n186b       ),
     .pin_db4_in  ( pin_db4_in  ),
     .pin_db5_in  ( pin_db5_in  ),
-    .m146a_y     (             ),
-    .m143a_x     (             ),
-    .m139b_x     (             ),
     .pin7_out    ( pin7_out    ),
     .pin8_out    ( pin8_out    )
 );
-
 jt054157_page08_reg4d3_lower_mid_mux_outputs u_reg4d3_lower_mid_mux_outputs(
+
     .g124a       ( g124a       ),
     .reg4_d3_buf ( reg4_d3_buf ),
     .l136b       ( l136b       ),
@@ -13836,41 +12333,28 @@ jt054157_page08_reg4d3_lower_mid_mux_outputs u_reg4d3_lower_mid_mux_outputs(
     .pin_db6_in  ( pin_db6_in  ),
     .pin_db7_in  ( pin_db7_in  ),
     .n132a_y     (             ),
-    .n125a_y     (             ),
-    .n133a_x     (             ),
-    .n126a_x     (             ),
-    .n130a_x     (             ),
-    .n128a_x     (             ),
     .m124b_y     (             ),
     .n114a_y     (             ),
     .n113a_y     (             ),
     .n115a_y     (             ),
     .m120b_y     (             ),
-    .m114b_y     (             ),
-    .m121b_x     (             ),
-    .m115b_x     (             ),
-    .m110b_x     (             ),
-    .m112b_x     (             ),
     .pin9_out    ( pin9_out    ),
     .pin11_out   ( pin11_out   ),
     .pin12_out   ( pin12_out   ),
     .pin13_out   ( pin13_out   )
 );
-
 jt054157_page08_reg4d4_lower_mid_mux_outputs u_reg4d4_lower_mid_mux_outputs(
+
     .reg4_d4_buf ( reg4_d4_buf ),
     .pin_db2_in  ( pin_db2_in  ),
     .pin_db1_in  ( pin_db1_in  ),
     .p162b       ( p162b       ),
     .p161a       ( p161a       ),
-    .m155a_y     (             ),
-    .m149a_x     (             ),
-    .m147a_x     (             ),
     .pin14_out   ( pin14_out   ),
     .pin15_out   ( pin15_out   )
 );
-
 jt054157_page08_reg4d3_lower_mux_outputs u_reg4d3_lower_mux_outputs(
+
     .g124a      ( g124a      ),
     .db0_8      ( db0_8      ),
     .db1_9      ( db1_9      ),
@@ -13881,44 +12365,33 @@ jt054157_page08_reg4d3_lower_mux_outputs u_reg4d3_lower_mux_outputs(
     .pin_db2_in ( pin_db2_in ),
     .pin_db3_in ( pin_db3_in ),
     .m134b_y    (            ),
-    .m125b_y    (            ),
-    .m128b_x    (            ),
-    .m126b_x    (            ),
-    .m132b_x    (            ),
-    .m130b_x    (            ),
     .pin16_out  ( pin16_out  ),
     .pin17_out  ( pin17_out  ),
     .pin18_out  ( pin18_out  ),
     .pin19_out  ( pin19_out  )
 );
-
 jt054157_page08_reg4d4_lower_right_outputs u_reg4d4_lower_right_outputs(
+
     .reg4_d4_buf ( reg4_d4_buf ),
     .n172b       ( n172b       ),
     .n173b       ( n173b       ),
     .p162b       ( p162b       ),
     .p161a       ( p161a       ),
-    .m162b_y     (             ),
-    .m154b_x     (             ),
-    .m152b_x     (             ),
     .pin42_out   ( pin42_out   ),
     .pin43_out   ( pin43_out   )
 );
-
 jt054157_page08_reg4d4_right_mid_outputs u_reg4d4_right_mid_outputs(
+
     .reg4_d4_buf ( reg4_d4_buf ),
     .pin_db0_in  ( pin_db0_in  ),
     .pin_db1_in  ( pin_db1_in  ),
     .pin_db4_in  ( pin_db4_in  ),
     .pin_db5_in  ( pin_db5_in  ),
-    .m164b_y     (             ),
-    .m179a_x     (             ),
-    .m163a_x     (             ),
     .pin34_out   ( pin34_out   ),
     .pin35_out   ( pin35_out   )
 );
-
 jt054157_page08_reg4d3_right_mid_outputs u_reg4d3_right_mid_outputs(
+
     .g124a       ( g124a       ),
     .reg4_d3_buf ( reg4_d3_buf ),
     .n172b       ( n172b       ),
@@ -13930,28 +12403,18 @@ jt054157_page08_reg4d3_right_mid_outputs u_reg4d3_right_mid_outputs(
     .pin_db6_in  ( pin_db6_in  ),
     .pin_db7_in  ( pin_db7_in  ),
     .n170a_y     (             ),
-    .n175a_y     (             ),
-    .n171a_x     (             ),
-    .n173a_x     (             ),
-    .n167a_x     (             ),
-    .n165a_x     (             ),
     .n176a_y     (             ),
     .n177a_y     (             ),
     .n176b_y     (             ),
     .n177b_y     (             ),
     .n161a_y     (             ),
-    .n187b_y     (             ),
-    .n179a_x     (             ),
-    .n181a_x     (             ),
-    .n181b_x     (             ),
-    .n183b_x     (             ),
     .pin36_out   ( pin36_out   ),
     .pin37_out   ( pin37_out   ),
     .pin38_out   ( pin38_out   ),
     .pin39_out   ( pin39_out   )
 );
-
 jt054157_page08_top_right_pin21_pin26_outputs u_top_right_pin21_pin26_outputs(
+
     .reg4_d4_buf ( reg4_d4_buf ),
     .reg4_d3_buf ( reg4_d3_buf ),
     .g124a       ( g124a       ),
@@ -13969,47 +12432,31 @@ jt054157_page08_top_right_pin21_pin26_outputs u_top_right_pin21_pin26_outputs(
     .pin_db3_in  ( pin_db3_in  ),
     .pin_db4_in  ( pin_db4_in  ),
     .pin_db5_in  ( pin_db5_in  ),
-    .m156b_y     (             ),
-    .m149b_x     (             ),
-    .m147b_x     (             ),
     .pin21_out   ( pin21_out   ),
     .pin22_out   ( pin22_out   ),
     .n136b_y     (             ),
-    .n137b_y     (             ),
-    .n149b_x     (             ),
-    .n145b_x     (             ),
-    .n147b_x     (             ),
-    .n143b_x     (             ),
     .n139a_y     (             ),
     .n141b_y     (             ),
     .n140b_y     (             ),
     .n139b_y     (             ),
     .n136a_y     (             ),
-    .m138b_y     (             ),
-    .m141b_x     (             ),
-    .m143b_x     (             ),
-    .m136b_x     (             ),
-    .m145b_x     (             ),
     .pin23_out   ( pin23_out   ),
     .pin24_out   ( pin24_out   ),
     .pin25_out   ( pin25_out   ),
     .pin26_out   ( pin26_out   )
 );
-
 jt054157_page08_reg4d4_right_upper_outputs u_reg4d4_right_upper_outputs(
+
     .reg4_d4_buf ( reg4_d4_buf ),
     .pin_db6_in  ( pin_db6_in  ),
     .pin_db7_in  ( pin_db7_in  ),
     .p162b       ( p162b       ),
     .p161a       ( p161a       ),
-    .m161b_y     (             ),
-    .m157b_x     (             ),
-    .m159b_x     (             ),
     .pin27_out   ( pin27_out   ),
     .pin28_out   ( pin28_out   )
 );
-
 jt054157_page08_reg4d3_right_upper_outputs u_reg4d3_right_upper_outputs(
+
     .g124a       ( g124a       ),
     .reg4_d3_buf ( reg4_d3_buf ),
     .l136b       ( l136b       ),
@@ -14025,27 +12472,16 @@ jt054157_page08_reg4d3_right_upper_outputs u_reg4d3_right_upper_outputs(
     .pin_db2_in  ( pin_db2_in  ),
     .pin_db3_in  ( pin_db3_in  ),
     .n137a_y     (             ),
-    .n138a_y     (             ),
     .n157a_y     (             ),
-    .n159b_y     (             ),
-    .n149a_x     (             ),
-    .n147a_x     (             ),
-    .n140a_x     (             ),
-    .n145a_x     (             ),
     .n156a_y     (             ),
     .n153b_y     (             ),
     .n144a_y     (             ),
     .n154b_y     (             ),
-    .n158a_x     (             ),
-    .n160b_x     (             ),
-    .n154a_x     (             ),
-    .n155b_x     (             ),
     .pin29_out   ( pin29_out   ),
     .pin31_out   ( pin31_out   ),
     .pin32_out   ( pin32_out   ),
     .pin33_out   ( pin33_out   )
 );
-
 endmodule
 
 
