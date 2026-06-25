@@ -280,9 +280,38 @@ wire [7:0]  r_scroll_x = `SIM_SCROLLX;
 `else
 wire [7:0]  r_scroll_x = scroll_x;
 `endif
-// VRAM scan port: render FSM owns it in the non-obj window, sprite scan in obj_win
-assign vram_scn_addr = obj_win ? { 1'b1, obj_rd_addr }
-                               : { 1'b0, tm_hn[8], ~tm_sel, tm_vpos[7:3], tm_hn[7:3] };
+// ---------------------------------------------------------------------------
+// OBJ-list snapshot — emulates the 4464 sprite frame-buffer's 1-frame delay.
+// The real 005885 renders OBJ into a frame-buffer shown one frame later, so the
+// displayed sprites are a stable snapshot: the game updates the OBJ list in
+// vblank and it appears next frame, never torn. We use a line buffer (not the
+// full framebuffer, to save BRAM), so we DMA-copy the OBJ list into a shadow at
+// vblank and the OBJ scanner reads the shadow. Without it the scanner reads the
+// live list mid-CPU-write -> sprites tear / drop rows in live play (scene replay
+// loads a static VRAM dump, so the bug is invisible there). cninja/karnov pattern.
+// ---------------------------------------------------------------------------
+localparam OBJ_AW = 9;                  // OBJ list <=320 B -> 512-entry shadow
+wire [OBJ_AW-1:0] dma_addr;
+wire              dma_we;
+wire [7:0]        obj_list_dout;        // shadow read -> OBJ scanner list data
+jtframe_bram_dma #(.AW(OBJ_AW)) u_objdma(
+    .rst ( rst ), .clk ( clk ), .cen ( pxl_cen ),   // cen must NOT be 1'b1
+    .addr( dma_addr ), .start( vblank ), .we( dma_we )
+);
+jtframe_dual_ram #(.DW(8),.AW(OBJ_AW)) u_objshadow(
+    // port A: DMA write — the live OBJ list read out of the VRAM scn port
+    .clk0(clk), .data0(vram_scn_dout), .addr0(dma_addr),
+    .we0 (dma_we & pxl_cen), .q0(),
+    // port B: OBJ scanner read
+    .clk1(clk), .data1(8'd0), .addr1(obj_rd_addr[OBJ_AW-1:0]),
+    .we1 (1'b0), .q1(obj_list_dout)
+);
+
+// VRAM scan port: tilemap render owns it (non-obj window); the snapshot DMA
+// borrows it during vblank to read the live OBJ list (A12=1). The OBJ scanner
+// no longer reads this port directly — it reads u_objshadow (obj_list_dout).
+assign vram_scn_addr = dma_we ? { 1'b1, 3'd0, dma_addr }
+                              : { 1'b0, tm_hn[8], ~tm_sel, tm_vpos[7:3], tm_hn[7:3] };
 
 // Tile gfx address for the current 4px half (tm_hn[2] selects the half)
 wire [12:0] tm_code = { LAYER_BG ? tile_ctrl[1:0] : { 1'b0, tile_ctrl[1] },
@@ -386,7 +415,7 @@ jtddribble_obj #(
     .obj_win      ( obj_win       ),
     .hblank       ( hblank        ),
     .obj_rd_addr  ( obj_rd_addr   ),
-    .vram_scn_dout( vram_scn_dout ),
+    .vram_scn_dout( obj_list_dout ),   // snapshot shadow, not the live VRAM port
     .spr_rom_addr ( spr_rom_addr  ),
     .spr_rom_cs   ( spr_rom_cs    ),
     .RDU          ( RDU           ),
