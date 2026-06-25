@@ -11,3 +11,5 @@ The two schematics have been converted to verilog as a single file in:
 
 There is an implementation of these chips in C++ in `doc/mame/`. But this implementation is imperfect as it is based on interpreting what the game software does and what the actual game seems to do in reaction. So the C++ version is roughly right, but it will surely be missing plenty of details.
 
+The current mapping between the MAME registers and the extracted HDL registers
+is documented in `doc/register_map.md`.
