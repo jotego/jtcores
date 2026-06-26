@@ -281,14 +281,19 @@ package SH2_PKG;
 					end
 					4'b1001:	begin
 						case (IR[7:4])
-							4'b0000: begin	//NOP
+							4'b0000: begin
+								case (IR[11:8])
+									4'b0000: begin	//NOP
+									end
+									default: DECI.ILI = 1;
+								endcase
 							end
 							4'b0001: begin
 								case (IR[11:8])
 									4'b0000: begin	//DIV0U
 										DECI.CTRL = '{1, SR_, DIV0U};
 									end
-									default:;
+									default: DECI.ILI = 1;
 								endcase
 							end
 							4'b0010: begin	//MOVT Rn (1&SR->Rn)
