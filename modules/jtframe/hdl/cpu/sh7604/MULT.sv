@@ -28,10 +28,10 @@ module SH7604_MULT (
 	bit [31:0] MA;
 	bit [31:0] MB;
 	bit        MM_DONE;
+	bit         SIGNED;
 	
-	wire [63:0] SRES =   $signed(MA) *   $signed(MB);
-	wire [63:0] URES = $unsigned(MA) * $unsigned(MB);
-	wire [63:0] ACC64  = $signed({MACH,MACL}) + $signed(SRES);
+	wire [64:0] SRES =   $signed({MA[31]&SIGNED,MA}) *   $signed({MB[31]&SIGNED,MB});
+	wire [63:0] ACC64  = $signed({MACH,MACL}) + $signed(SRES[63:0]);
 	wire [32:0] ACC32  = $signed({MACL[31],MACL}) + $signed(SRES[32:0]);
 	
 	always @(posedge CLK or negedge RST_N) begin
@@ -41,7 +41,6 @@ module SH7604_MULT (
 		bit         MACW_EXEC;
 		bit         MACL_EXEC;
 		bit         SAT;
-		bit         SIGNED;
 		bit [15: 0] DW;
 		
 		if (!RST_N) begin
@@ -126,14 +125,12 @@ module SH7604_MULT (
 			end
 			
 			if (MUL_EXEC) begin
-				if (SIGNED) MACL <= SRES[31:0];
-				else        MACL <= URES[31:0];
+				MACL <= SRES[31:0];
 				MUL_EXEC <= 0;
 			end
 			
 			if (DMUL_EXEC) begin
-				if (SIGNED) {MACH,MACL} <= SRES;
-				else        {MACH,MACL} <= URES;
+				{MACH,MACL} <= SRES[63:0];
 				DMUL_EXEC <= 0;
 			end
 			
