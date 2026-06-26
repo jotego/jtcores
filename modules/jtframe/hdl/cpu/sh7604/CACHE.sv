@@ -55,7 +55,7 @@ module SH7604_CACHE (
 	wire NOCACHE_AREA    = (CBUS_A[31:29] == 3'b001);
 	wire PURGE_AREA      = (CBUS_A[31:29] == 3'b010);
 	wire CACHE_ADDR_AREA = (CBUS_A[31:29] == 3'b011);
-	wire CACHE_DATA_AREA = (CBUS_A[31:29] == 3'b110);
+	wire CACHE_DATA_AREA = (CBUS_A[31:29] == 3'b110 || CBUS_A[31:29] == 3'b100);
 	wire IO_AREA         = (CBUS_A[31:29] == 3'b111) && !CCR_SEL;
 	
 	
