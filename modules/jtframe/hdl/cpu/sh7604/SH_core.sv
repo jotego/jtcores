@@ -188,9 +188,9 @@ module SH_core
 	
 	assign PC = NPC;
 
-	wire LOAD_ISSUE = (PIPE.EX.DI.MEM.R | PIPE.EX.DI.MAC.R) & ((PIPE.EX.DI.RA.N == ID_DECI.RA.N & ID_DECI.RA.R) |
-	                                                           (PIPE.EX.DI.RA.N == ID_DECI.RB.N & ID_DECI.RB.R) |
-	                                                           (PIPE.EX.DI.RA.N ==         5'd0 & ID_DECI.R0R));
+	wire LOAD_ISSUE = (PIPE.EX.DI.MEM.R | (PIPE.EX.DI.MAC.R & ~PIPE.EX.DI.MEM.W)) & ((PIPE.EX.DI.RA.W & PIPE.EX.DI.RA.N == ID_DECI.RA.N & ID_DECI.RA.R) |
+	                                                                                 (PIPE.EX.DI.RA.W & PIPE.EX.DI.RA.N == ID_DECI.RB.N & ID_DECI.RB.R) |
+	                                                                                 (PIPE.EX.DI.RA.W & PIPE.EX.DI.RA.N ==         5'd0 & ID_DECI.R0R));
 	wire INST_ISSUE = ((IFID_STALL & ~PC[1]) | ~PIPE.ID.PC[1]) & (PIPE.EX.DI.MEM.R | PIPE.EX.DI.MEM.W | PIPE.EX.DI.MAC.R | PIPE.EX.DI.MAC.W) & ~(ID_DECI.BR.BI & ID_DECI.BR.BT == UCB & ID_DECI.IMMT == SIMM12);
 	
 	always @(posedge CLK or negedge RST_N) begin
@@ -212,7 +212,7 @@ module SH_core
 		end
 		else if (EN && CE) begin
 			// synopsys translate_off
-			if (LOAD_ISSUE && !INST_SPLIT && (!MA_ACTIVE || !BUS_WAIT) && !EX_STALL) begin
+			if (LOAD_ISSUE && !INST_SPLIT && (!MA_ACTIVE || !BUS_WAIT) && (STATE == 3'd0) && !EX_STALL) begin
 				LOAD_SPLIT <= 1;
 			end else if (INST_SPLIT && (!MA_ACTIVE || !BUS_WAIT)) begin
 				LOAD_SPLIT <= 0;
@@ -238,7 +238,7 @@ module SH_core
 			end
 			
 			if ((INST_ISSUE && !INST_SPLIT && (!MA_ACTIVE || !BUS_WAIT) && (!IFID_STALL || STATE == ID_DECI.LST)) || 
-				 (LOAD_ISSUE && !INST_SPLIT && (!MA_ACTIVE || !BUS_WAIT) && !EX_STALL)) begin
+				 (LOAD_ISSUE && !INST_SPLIT && (!MA_ACTIVE || !BUS_WAIT) && (STATE == 3'd0) && !EX_STALL)) begin
 				INST_SPLIT <= 1;
 			end else if (INST_SPLIT && (!MA_ACTIVE || !BUS_WAIT)) begin
 				INST_SPLIT <= 0;
