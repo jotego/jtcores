@@ -132,23 +132,46 @@ module SH7604_INTC (
 	end
 	assign IRL_REQ = |IRL_LVL; 
 	
-	always_comb begin
-		if      (NMI_REQ                              ) begin INT_ACTIVE = NMI_INT; end
-		else if (UBC_IRQ     && 4'hF        > INT_MASK) begin INT_ACTIVE = UBC_INT; end
-		else if (IRL_REQ     && IRL_LVL     > INT_MASK) begin INT_ACTIVE = IRL_INT; end
-		else if (DIVU_IRQ    && IPRA.DIVUIP > INT_MASK) begin INT_ACTIVE = DIVU_INT; end
-		else if (DMAC0_IRQ   && IPRA.DMACIP > INT_MASK) begin INT_ACTIVE = DMAC0_INT; end
-		else if (DMAC1_IRQ   && IPRA.DMACIP > INT_MASK) begin INT_ACTIVE = DMAC1_INT; end
-		else if (WDT_IRQ     && IPRA.WDTIP  > INT_MASK) begin INT_ACTIVE = WDT_INT; end
-		else if (BSC_IRQ     && IPRA.WDTIP  > INT_MASK) begin INT_ACTIVE = BSC_INT; end
-		else if (SCI_ERI_IRQ && IPRB.SCIIP  > INT_MASK) begin INT_ACTIVE = SCI_ERI_INT; end
-		else if (SCI_RXI_IRQ && IPRB.SCIIP  > INT_MASK) begin INT_ACTIVE = SCI_RXI_INT; end
-		else if (SCI_TXI_IRQ && IPRB.SCIIP  > INT_MASK) begin INT_ACTIVE = SCI_TXI_INT; end
-		else if (SCI_TEI_IRQ && IPRB.SCIIP  > INT_MASK) begin INT_ACTIVE = SCI_TEI_INT; end
-		else if (FRT_ICI_IRQ && IPRB.FRTIP  > INT_MASK) begin INT_ACTIVE = FRT_ICI_INT; end
-		else if (FRT_OCI_IRQ && IPRB.FRTIP  > INT_MASK) begin INT_ACTIVE = FRT_OCI_INT; end
-		else if (FRT_OVI_IRQ && IPRB.FRTIP  > INT_MASK) begin INT_ACTIVE = FRT_OVI_INT; end
-		else                                            begin INT_ACTIVE = '0; end
+	always @(posedge CLK) begin
+		bit  [ 4: 0] IP[7];
+		bit  [ 3: 0] INT;
+
+		IP = '{7{5'd0}};
+		INT = '0;
+
+		if ( NMI_REQ                                                                                                          ) begin
+			IP[0] = 5'd16; IP[1] = 5'd16; IP[2] = 5'd16; IP[3] = 5'd16; IP[4] = 5'd16; IP[5] = 5'd16; IP[6] = 5'd16;
+			INT = NMI_INT;
+		end
+		if ( UBC_IRQ                                                   && 4'd15       > INT_MASK && 5'd15              > IP[0]) begin
+			IP[1] = 5'd15; IP[2] = 5'd15; IP[3] = 5'd15; IP[4] = 5'd15; IP[5] = 5'd15; IP[6] = 5'd15;
+			INT = UBC_INT;
+		end
+		if ( IRL_REQ                                                   && IRL_LVL     > INT_MASK && {1'b0,IRL_LVL}     > IP[1]) begin
+			IP[2] = {1'b0,IRL_LVL}; IP[3] = {1'b0,IRL_LVL}; IP[4] = {1'b0,IRL_LVL}; IP[5] = {1'b0,IRL_LVL}; IP[6] = {1'b0,IRL_LVL};
+			INT = IRL_INT;
+		end
+		if ( DIVU_IRQ                                                  && IPRA.DIVUIP > INT_MASK && {1'b0,IPRA.DIVUIP} > IP[2]) begin
+			IP[3] = {1'b0,IPRA.DIVUIP};  IP[4] = {1'b0,IPRA.DIVUIP}; IP[5] = {1'b0,IPRA.DIVUIP}; IP[6] = {1'b0,IPRA.DIVUIP};
+			INT = DIVU_INT;
+		end
+		if ((DMAC0_IRQ   || DMAC1_IRQ                                ) && IPRA.DMACIP > INT_MASK && {1'b0,IPRA.DMACIP} > IP[3]) begin
+			IP[4] = {1'b0,IPRA.DMACIP}; IP[5] = {1'b0,IPRA.DMACIP}; IP[6] = {1'b0,IPRA.DMACIP};
+			INT = DMAC0_IRQ ? DMAC0_INT : DMAC1_INT;
+		end
+		if ((WDT_IRQ     || BSC_IRQ                                  ) && IPRA.WDTIP  > INT_MASK && {1'b0,IPRA.WDTIP}  > IP[4]) begin
+			IP[5] = {1'b0,IPRA.WDTIP}; IP[6] = {1'b0,IPRA.WDTIP};
+			INT = WDT_IRQ ? WDT_INT : BSC_INT;
+		end
+		if ((SCI_ERI_IRQ || SCI_RXI_IRQ || SCI_TXI_IRQ || SCI_TEI_IRQ) && IPRB.SCIIP  > INT_MASK && {1'b0,IPRB.SCIIP}  > IP[5]) begin
+			IP[6] = {1'b0,IPRB.SCIIP};
+			INT = SCI_ERI_IRQ ? SCI_ERI_INT : SCI_RXI_IRQ ? SCI_RXI_INT : SCI_TXI_IRQ ? SCI_TXI_INT : SCI_TEI_INT;
+		end
+		if ((FRT_ICI_IRQ || FRT_OCI_IRQ || FRT_OVI_IRQ               ) && IPRB.FRTIP  > INT_MASK && {1'b0,IPRB.FRTIP}  > IP[6]) begin
+			INT = FRT_ICI_IRQ ? FRT_ICI_INT : FRT_OCI_IRQ ? FRT_OCI_INT : FRT_OVI_INT;
+		end
+
+		INT_ACTIVE <= INT;
 	end
 	assign INT_REQ = |INT_ACTIVE;
 	
