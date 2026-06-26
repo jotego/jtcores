@@ -165,6 +165,6 @@ module SH7604_MULT (
 	end
 	
 	assign CBUS_DO = MAC_SEL[1] ? MACH : MACL;
-	assign CBUS_BUSY = ~MM_DONE && |MAC_SEL;
+	assign CBUS_BUSY = ~MM_DONE && (!MAC_OP[2] ? MAC_SEL[0] : |MAC_SEL);
 
 endmodule
