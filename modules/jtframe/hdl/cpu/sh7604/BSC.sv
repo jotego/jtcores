@@ -134,14 +134,24 @@ module SH7604_BSC
 	endfunction	
 	
 	function bit IsSDRAMArea(input bit [1:0] area, input BCR1_t BCR1);
+		bit       dram3,sdram2,sdram3;
 		bit       res;
 	
+		{dram3,sdram2,sdram3} = '0;
+		case (BCR1.DRAM)
+			3'h1: sdram3 = 1;
+			3'h2: dram3 = 1;
+			3'h4: sdram2 = 1;
+			3'h5: {sdram2,sdram3} = '1;
+		endcase
+
 		case (area)
 			2'd0: res = 0;
 			2'd1: res = 0;
-			2'd2: res = BCR1.DRAM[2];
-			2'd3: res = ~BCR1.DRAM[1] & BCR1.DRAM[0];
+			2'd2: res = sdram2;
+			2'd3: res = dram3|sdram3;
 		endcase
+
 		return res;
 	endfunction 
 	
