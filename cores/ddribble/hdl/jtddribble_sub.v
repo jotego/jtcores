@@ -8,29 +8,12 @@
                       A0..A15, D0..D7
       - Konami 007553 PAL at C11 — confirmed sub-side address decoder.
         JEDEC + decoded equations + pin-label mapping live in:
-          cores/ddribble/doc/Konami_007553.jed
           cores/ddribble/doc/Konami_007553_equations.txt
-          cores/ddribble/doc/Konami_007553_pinout.md
-        Outputs (active-low): /ROM (pin 12, sub ROM CE at C12),
-          /CRAM (pin 13, shared with main 0x0000-0x1FFF),
-          /AFE (pin 14, watchdog 0x3C00),
-          /SET (pin 15, coin counter 0x3400),
-          /DIP3 (pin 16), /DIP2 (pin 17),
-          /IOIN (pin 18, joystick/system at 0x2800),
-          /SRAM (pin 19, shared with sound 0x2000-0x27FF).
-      - 27512 EPROM at designator C12 — physical chip is 64 KB but MAME's
-        romset only loads 32 KB of data; the upper half is presumed unused
-        or banking that we haven't yet investigated.
       - LS245 J9  bus transceiver between sub-CPU data bus and shared SRAM
       - LS157 C14 address mux (CPU-side vs main-side select for shared SRAM)
       - LS244 G14 buffer (same chip that buffers CK18 and SCLK — different gates)
       - LS04  H8 inverter, LS74 D15 flip-flop, glue
       - 32 KB program EPROM (27256) somewhere near A19 — TBD which designator
-
-    MAME ref (pinned commit 347fd2c) for things NOT visible on the sheets:
-      - konami/ddribble.cpp:537     MC6809E @ XTAL(18'432'000) / 12 = 1.536 MHz
-      - konami/ddribble.cpp:327     FIRQ on V-blank fall (HOLD_LINE)
-    (The address ranges below come from the 007553 PAL equations, not MAME.)
 */
 
 module jtddribble_sub(
@@ -111,41 +94,6 @@ assign A        = addr;
 assign cpu_rnw  = RnW;
 assign rom_addr = addr[14:0];          // 32 KB ROM, MSB always 1 in CPU view
 
-// ---------------------------------------------------------------------------
-// Address decoder
-// ---------------------------------------------------------------------------
-// HARDWARE: real decode is the Konami 007553 PAL at C11 on schematic page 1.
-// ★ AUTHORITATIVE source: cores/ddribble/doc/Konami_007553_equations.txt
-//   (decoded by jedutil from the JEDEC fuse dump on 2026-06-01).
-// Pin labels (which PAL input/output corresponds to which schematic net) in
-//   cores/ddribble/doc/Konami_007553_pinout.md
-//
-// PAL OUTPUTS (active-low) → HDL CHIP-SELECT MAPPING:
-// ┌─────────┬────────────────────────────────────────┬──────────────────────────┐
-// │ /pin    │ Equation (PAL, with EN = NEQ asserted) │ HDL signal — addr range  │
-// ├─────────┼────────────────────────────────────────┼──────────────────────────┤
-// │ /o12 /ROM   = EN & (A15 | (/A15 & A14))          │ rom_cs       0x8000-FFFF │
-// │              (PAL fires 0x4000-0xFFFF — narrowed │ (downstream A15 gating   │
-// │               to 0x8000-0xFFFF by downstream LS  │  on the 27512 /CE pin    │
-// │               combining /ROM with A15; we model  │  is implicit in our      │
-// │               the combined net here.)            │  rom_cs polarity)        │
-// │ /o13 /CRAM  = EN & /A15&/A14&/A13                │ shared_ms_cs 0x0000-1FFF │
-// │ /o14 /AFE   = EN & /A15&/A14&A13&A12&A11&A10     │ watchdog (not modeled)   │
-// │ /o15 /SET   = EN & /A15&/A14&A13&A12&/A11&A10    │ coin_cs      0x3400-37FF │
-// │ /o16 /DIP3  = EN & /A15&/A14&A13&A12&/A11&/A10   │ dsw3_cs      0x3000-33FF │
-// │ /o17 /DIP2  = EN & /A15&/A14&A13&/A12&A11&A10    │ dsw2_cs      0x2C00-2FFF │
-// │ /o18 /IOIN  = EN & /A15&/A14&A13&/A12&A11&/A10   │ split by A[1:0] downstrm │
-// │                                                  │ → dsw1/p1/p2/sys @       │
-// │                                                  │   0x2800-0x2803          │
-// │ /o19 /SRAM  = EN & /A15&/A14&A13&/A12&/A11       │ shared_sa_cs 0x2000-27FF │
-// └─────────┴────────────────────────────────────────┴──────────────────────────┘
-//
-// 0x3800-0x3BFF: no PAL output fires → open bus (8'hff).
-//
-// Each select is the literal PAL product-term on A15..A10; the within-window low
-// bits are don't-cares (partial decode → mirrors, as on the PCB). The /IOIN
-// window is sub-decoded by the external LS153/LS155 on A[1:0] only, so DSW1/P1/
-// P2/SYSTEM mirror across 0x2800-0x2BFF.
 wire a15=addr[15], a14=addr[14], a13=addr[13], a12=addr[12], a11=addr[11], a10=addr[10];
 
 // /o12 /ROM fires 0x4000-0xFFFF; the 27512 /CE is narrowed by a downstream A15 gate
@@ -194,21 +142,6 @@ always @(posedge clk, posedge rst) begin
     else if (cen && coin_cs)
         coin_counter <= cpu_dout[1:0];
 end
-
-// ---------------------------------------------------------------------------
-// FIRQ — pulsed on V-blank falling edge
-// ---------------------------------------------------------------------------
-// HARDWARE: sub CPU's FIRQ pin (pin 3) on A12 is visible on SCHEMATIC page 1.
-// Source: same V-blank chain as the main CPU's FIRQ (the LS74 sync flops
-// on page 0 produce NVSY which crosses pages and feeds both CPUs' FIRQ).
-// Note: 007553 has no dedicated IRQ-mask output — the FIRQ path on this
-// PCB is direct (V-blank → CPU FIRQ pin), not gated by the chip's MMR.
-// MAME ddribble.cpp:327: m_subcpu->set_input_line(M6809_FIRQ_LINE, HOLD_LINE)
-// FIRQ source: chip 1 NIRQ (= cpu_firqn input per the schematic IRQ/FIRQ
-// pin swap). Previously combined with an LVBL→jtframe_ff bring-up shortcut;
-// removed after the NRD inversion bug was fixed (2026-06-01) made the
-// chip's interrupt-enable writes apply correctly. Chip-side FIRQ is now
-// the schematic-faithful path.
 
 // ---------------------------------------------------------------------------
 // MC6809E CPU core

@@ -18,9 +18,6 @@
     YM2203 + VLM5030 both run on the 3.58 MHz xtal — SCHEMATIC page 1.
     MAME ref (pinned 347fd2c) for things not directly readable from the sheets:
       - konami/ddribble.cpp:413-419  sound CPU memory map (exact ranges)
-      - konami/ddribble.cpp:540      MC6809E sound CPU @ 18.432 MHz / 12
-      - konami/ddribble.cpp:355-381  vlm5030_ctrl_w — bits 7..0 of YM2203 IOA
-      - NO sound IRQ wired in MAME — sound CPU is polling-style on shared RAM
 */
 
 module jtddribble_sound(
@@ -164,27 +161,15 @@ wire cpu_irq_ack;   // sys6809 IRQ-acknowledge strobe — SIMULATION debug tap o
 //   IOA[7:0] = VLM5030 control + 4066 filter switches (see vlm5030_ctrl below).
 //   IOB[7]   = VLM5030 BSY readback.
 // YM2203 runs on the 3.58 MHz xtal (SCHEMATIC page 1).
-// MAME ref (chip-internal port routing, not on the sheets):
-//   ddribble.cpp:566    port_b_read = vlm5030_busy_r
-//   ddribble.cpp:567    port_a_write = vlm5030_ctrl_w
 
 wire [7:0] ym_dout;
 wire [7:0] ym_iob_in;
 wire [7:0] ym_ioa_out;
 wire       ym_irq_n;
 
-// SCHEMATIC-CONFIRMED (user traced 2026-06-02): VLM5030 pin 6 (BSY) goes
-// directly to YM2203 PB0 (port B, bit 0). Other PB pins are unused inputs
-// on the real chip, default low.
-//
-// We previously had vlm_bsy at IOB[7] with 7'h7f filling — that broke
-// the sound-CPU POST polling loop at 0x8A0C (LDA $1001; BITA #$01;
-// BNE -7) which waits for IOB[0] to clear. The 7'h7f filler made bit 0
-// always 1 → loop stuck forever → sound CPU never reached its ROM
-// checksum → POST showed SOUND ROM A 6 BAD.
 assign ym_iob_in = { 7'h00, vlm_bsy };          // bit 0 = VLM BSY; rest unused
 
-jt03 u_ym2203(             // un-lumped: 3 SSG chans drive separate 1k resistors (R18/R24/R25)
+jt03 u_ym2203(
     .rst        ( rst       ),
     .clk        ( clk       ),                 // MUST match ym_cen's domain (gen'd on clk24).
     .cen        ( ym_cen    ),                 // real 3.58 MHz — on clk24, counted once/pulse
@@ -218,11 +203,6 @@ jt03 u_ym2203(             // un-lumped: 3 SSG chans drive separate 1k resistors
 //   triggered by VDATA strobe (LS138 A9 Y3). We model that latch here as
 //   the 'vlm_data_latch' register.
 // VLM5030 runs on the 3.58 MHz xtal (SCHEMATIC page 1), gated by vlm_cen.
-// MAME ref:
-//   ddribble.cpp:417    VLM5030 data at 0x3000 W
-//   ddribble.cpp:355    bit 7 = "vlm data bus OE"  (the latch's OE — we don't
-//                       gate it because the latch's output is always valid in
-//                       our HDL model; the OE just disconnects in real HW)
 
 // Latch CPU data on writes to 0x3000 (VDATA strobe)
 reg [7:0] vlm_data_latch;
@@ -233,7 +213,7 @@ always @(posedge clk, posedge rst) begin
         vlm_data_latch <= cpu_dout;
 end
 
-// VLM5030 control signals (routed via YM2203 IOA — see MAME ddribble.cpp:355-381)
+// VLM5030 control signals (routed via YM2203 IOA)
 // SCHEMATIC: VLM5030 RST/ST/VCU are ACTIVE-HIGH (pins 40/31/32, labelled with NO "/"),
 // wired straight from YM2203 IOA[6:4]. ST (pin 31) ← IOA5 confirmed by the user's trace.
 wire        vlm_rst = ym_ioa_out[6];   // YM2203 IOA[6] → VLM RST (pin 40, active-HIGH)
@@ -249,8 +229,7 @@ wire        vlm_bsy;
 wire        vlm_me_n, vlm_mte;
 wire [15:0] vlm_internal_addr;
 
-// register, not assign: vlm_internal_addr (the VLM's o_a) is a slow ~37 ns
-// combinational output; this keeps that long path off the SDRAM address input.
+
 always @(posedge clk) vlm_addr <= { vlm_bank, vlm_internal_addr };
 
 // VLM data pins are SHARED: the CPU command latch when loading a phrase, the voice
@@ -295,9 +274,6 @@ wire       vlm_i_vcu   = vlm_vcu;
 wire [7:0] vlm_i_d     = vlm_din;
 `endif
 
-// The VLM5030 gate-level model runs in the clk24 domain (its internal clk2 logic
-// won't close timing at 48 MHz; its vlm_cen is a clk24 cen). The CPU/ROM signals
-// into it (vlm_din, vlm_ceng) are slow, stable-when-sampled levels — safe CDC.
 vlm5030_gl u_vlm(
     .i_clk     ( clk             ),       // 24 MHz (was clk/48 MHz — timing + cen alignment)
     .i_oscen   ( vlm_ceng        ),       // 3.58 MHz tick, held until voice-ROM byte ready
@@ -305,10 +281,6 @@ vlm5030_gl u_vlm(
     .i_start   ( vlm_i_start     ),       // active-HIGH ST (IOA5, schematic pin 31)
     .i_vcu     ( vlm_i_vcu       ),       // active-HIGH VCU (IOA4, schematic pin 32)
     .i_vref    ( 1'b1            ),       // normal operation
-    // TST1 low = normal operation. The model gates its test address paths on
-    // ntst1vref=(i_tst1 nand i_vref); with i_vref=1, tying TST1 high makes
-    // ntst1vref=0 and can enable the test routing during start. Working sbaskt/
-    // yiear VLM cores tie i_tst1=0. (was 1'b1 — a wrong "tie high" guess.)
     .i_tst1    ( 1'b0            ),       // test pin — tie LOW (normal op)
     .i_tst3    ( 1'b1            ),
     .i_d       ( vlm_i_d         ),       // command latch, or voice-ROM byte when /ME low
@@ -322,10 +294,7 @@ vlm5030_gl u_vlm(
     .o_audio   ( vlm_snd         )
 );
 
-// ---------------------------------------------------------------------------
-// Data multiplexer update — now includes YM2203 readback
-// ---------------------------------------------------------------------------
-// (REPLACE the existing always block — add ym_cs case)
+
 always @(*) begin
     cpu_din = 8'hff;
     if      (rom_cs)     cpu_din = rom_data;
@@ -334,9 +303,6 @@ always @(*) begin
     // vlm_cs is write-only
 end
 
-// ---------------------------------------------------------------------------
-// MC6809E CPU core (unchanged from before)
-// ---------------------------------------------------------------------------
 jtframe_sys6809 #(.RAM_AW(0)) u_cpu(
     .rstn       ( ~rst      ),
     .clk        ( clk       ),

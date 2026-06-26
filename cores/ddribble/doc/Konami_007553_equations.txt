@@ -1,22 +1,38 @@
-# Konami_007553.jed — SUB CPU address decoder (PAL10L8 at C11, schematic page 1)
-# Decoded by MAME jedutil 0.276 on 2026-06-01
-#
-# Pin labels: see cores/ddribble/doc/Konami_007553_pinout.md
-#   inputs : i1=EN (NEQ-equivalent for sub), i3=A15, i4=A14, i5=A13,
-#            i6=A12, i7=A11 (post-LS157 H10 mux), i8=A10 (post-mux)
-#   outputs: /o12=/ROM   sub ROM /CE  (PAL fires 0x4000-0xFFFF — narrowed
-#                                      to 0x8000-0xFFFF by downstream A15
-#                                      gate before reaching the 27512 /CE)
-#            /o13=/CRAM  shared with main   (0x0000-0x1FFF)
-#            /o14=/AFE   watchdog kick      (0x3C00-0x3FFF — write)
-#            /o15=/SET   coin-counter latch (0x3400-0x37FF — write)
-#            /o16=/DIP3  DIP-switch 3 buf   (0x3000-0x33FF)
-#            /o17=/DIP2  DIP-switch 2 buf   (0x2C00-0x2FFF)
-#            /o18=/IOIN  joystick/system    (0x2800-0x2BFF; A[1:0] sub-decoded
-#                                            by external LS153/LS155)
-#            /o19=/SRAM  shared with sound  (0x2000-0x27FF)
-#
-# Authoritative for jtddribble_sub.v's address decoder.
+// ---------------------------------------------------------------------------
+// Address decoder
+// ---------------------------------------------------------------------------
+// HARDWARE: real decode is the Konami 007553 PAL at C11 on schematic page 1.
+// ★ AUTHORITATIVE source: cores/ddribble/doc/Konami_007553_equations.txt
+//   (decoded by jedutil from the JEDEC fuse dump on 2026-06-01).
+// Pin labels (which PAL input/output corresponds to which schematic net) in
+//   cores/ddribble/doc/Konami_007553_pinout.md
+//
+// PAL OUTPUTS (active-low) → HDL CHIP-SELECT MAPPING:
+// ┌─────────┬────────────────────────────────────────┬──────────────────────────┐
+// │ /pin    │ Equation (PAL, with EN = NEQ asserted) │ HDL signal — addr range  │
+// ├─────────┼────────────────────────────────────────┼──────────────────────────┤
+// │ /o12 /ROM   = EN & (A15 | (/A15 & A14))          │ rom_cs       0x8000-FFFF │
+// │              (PAL fires 0x4000-0xFFFF — narrowed │ (downstream A15 gating   │
+// │               to 0x8000-0xFFFF by downstream LS  │  on the 27512 /CE pin    │
+// │               combining /ROM with A15; we model  │  is implicit in our      │
+// │               the combined net here.)            │  rom_cs polarity)        │
+// │ /o13 /CRAM  = EN & /A15&/A14&/A13                │ shared_ms_cs 0x0000-1FFF │
+// │ /o14 /AFE   = EN & /A15&/A14&A13&A12&A11&A10     │ watchdog (not modeled)   │
+// │ /o15 /SET   = EN & /A15&/A14&A13&A12&/A11&A10    │ coin_cs      0x3400-37FF │
+// │ /o16 /DIP3  = EN & /A15&/A14&A13&A12&/A11&/A10   │ dsw3_cs      0x3000-33FF │
+// │ /o17 /DIP2  = EN & /A15&/A14&A13&/A12&A11&A10    │ dsw2_cs      0x2C00-2FFF │
+// │ /o18 /IOIN  = EN & /A15&/A14&A13&/A12&A11&/A10   │ split by A[1:0] downstrm │
+// │                                                  │ → dsw1/p1/p2/sys @       │
+// │                                                  │   0x2800-0x2803          │
+// │ /o19 /SRAM  = EN & /A15&/A14&A13&/A12&/A11       │ shared_sa_cs 0x2000-27FF │
+// └─────────┴────────────────────────────────────────┴──────────────────────────┘
+//
+// 0x3800-0x3BFF: no PAL output fires → open bus (8'hff).
+//
+// Each select is the literal PAL product-term on A15..A10; the within-window low
+// bits are don't-cares (partial decode → mirrors, as on the PCB). The /IOIN
+// window is sub-decoded by the external LS153/LS155 on A[1:0] only, so DSW1/P1/
+// P2/SYSTEM mirror across 0x2800-0x2BFF.
 
 Inputs:
 

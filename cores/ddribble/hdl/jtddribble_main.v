@@ -19,16 +19,6 @@
     Address decoder: from the 007552 PAL equations (the schematic-side
     authority). See `cores/ddribble/doc/Konami_007552_equations.txt`.
 
-    MAME ref (pinned commit 347fd2c) for things NOT visible on our sheets:
-      - konami/ddribble.cpp:534     CPU clock = 18.432 MHz / 12 = 1.536 MHz
-                                     (18.432 MHz osc-can is SCHEMATIC-confirmed
-                                      on page 0 r0c1 → LS244 G14 → CK18 net;
-                                      /12 divider chain not yet traced)
-      - konami/ddribble.cpp:324     FIRQ-on-V-blank behaviour (HOLD_LINE)
-      - konami/ddribble.cpp:331-334 bank-switch latch (3-bit, at 0x8000 W)
-                                     — exact latch chip not yet located on schematic;
-                                       MAY be the downstream consumer of 007552's
-                                       /SEL strobe (pin 19, ungated by NEQ)
 */
 
 module jtddribble_main(
@@ -105,55 +95,7 @@ assign rom_addr = (addr[15:13] == 3'b100)   // 0x8000-0x9FFF window?
 // ---------------------------------------------------------------------------
 // Address decoder — combinational chip-select generation
 // ---------------------------------------------------------------------------
-// HARDWARE: the real PCB decodes addresses in 2 stages on the main CPU page:
-//   1. 007552 PAL at C15 produces coarse strobes (/RBN, /GATE1, /GATE2,
-//      /CWORK, /DMP, /CORAM, /G2AB11, /SEL).
-//      ★ AUTHORITATIVE source: cores/ddribble/doc/Konami_007552_equations.txt
-//        (decoded by jedutil from the JEDEC fuse dump on 2026-06-01).
-//   2. Downstream LS-series chips (LS245 transceivers, LS157 muxes, plus
-//      the 005885 chips' internal register decoders) take those coarse
-//      strobes and refine them to specific addresses.
-//
-// PAL OUTPUTS (active-low) → HDL CHIP-SELECT MAPPING:
-// ┌─────────┬───────────────────────────────────┬─────────────────────────────┐
-// │ /pin    │ Equation (PAL)                    │ HDL signal — address range  │
-// ├─────────┼───────────────────────────────────┼─────────────────────────────┤
-// │ /o12 /RBN   = NEQ & A15                    │ rom_cs     0x8000-0xFFFF    │
-// │ /o13 /GATE1 = NEQ & /A15&/A14&A13          │                             │
-// │              | NEQ & /A15&/A14&/A13&       │                             │
-// │                       /A12&/A11            │ k5885_1_cs 0x0000-0x07FF    │
-// │                                            │             + 0x2000-0x3FFF │
-// │ /o14 /GATE2 = NEQ & /A15& A14&A13          │                             │
-// │              | NEQ & /A15&/A14&/A13&       │                             │
-// │                       /A12& A11            │ k5885_2_cs 0x0800-0x0FFF    │
-// │                                            │             + 0x6000-0x7FFF │
-// │ /o15 /CWORK = NEQ & /A15& A14&/A13         │ shared_cs  0x4000-0x5FFF    │
-// │ /o16 /DMP   = NEQ & /A15&/A14&/A13&        │                             │
-// │                      A12&/A11              │ (unused — 0x1000-0x17FF;    │
-// │                                            │  CPU never accesses this)   │
-// │ /o17 /CORAM = NEQ & /A15&/A14&/A13&        │                             │
-// │                      A12& A11              │ pal_cs     0x1800-0x1FFF    │
-// │                                            │ (128 B BRAM; window mirrors │
-// │                                            │  via pal_addr=main_A[6:0])  │
-// │ /o18 /G2AB11= NEQ & /A15&/A14&/A13&        │ Forces chip 2 A11=0 in      │
-// │                      /A12& A11   |  /A11   │ 0x0800-0x0FFF window —      │
-// │                                            │ implemented in game.v as    │
-// │                                            │ k5885_2_A11_masked          │
-// │ /o19 /SEL   = A15 & /A14 & /A13            │ bank_cs   0x8000-0x9FFF    │
-// │              (NOT NEQ-gated!)              │ (write-only — bank latch)   │
-// └─────────┴───────────────────────────────────┴─────────────────────────────┘
-//
-// NOTE: each k5885_*_cs window spans the FULL 007552 GATE1/GATE2 range, not
-// just the base register bytes — the 005885 also has scroll/strip registers
-// at chip addr 0x20-0x5F (zure_cs in the gfx wrapper), written via main
-// 0x0020-0x005F (chip 1) and 0x0820-0x085F (chip 2). The PAL equations decode
-// the whole window; narrowing it would silently drop those writes.
-//
-// Each select is the literal PAL product-term on A15..A11; the within-window low
-// bits are don't-cares (partial decode → mirrors, as on the PCB). Terms are
-// mutually exclusive, so the assignments are flat (no priority ladder).
-// /o16 /DMP (0x1000-0x17FF) is unused by the CPU → no select. /o18 /G2AB11 is an
-// address-modify (chip-2 A11 mask), applied in game.v, not a select here.
+
 wire a15=addr[15], a14=addr[14], a13=addr[13], a12=addr[12], a11=addr[11];
 
 assign rom_cs     = VMA &  a15;                                                // /RBN   0x8000-0xFFFF
@@ -167,12 +109,6 @@ assign bank_cs    = VMA & a15 & ~a14 & ~a13;                                  //
 // ---------------------------------------------------------------------------
 // Data multiplexer — pick which peripheral feeds the CPU on a read cycle
 // ---------------------------------------------------------------------------
-// HARDWARE: on the PCB, the bus mux is done by LS245 transceivers (visible
-// on the schematic around the main CPU and 007552 PAL at C15) plus LS157
-// address muxes that arbitrate between CPU side and CRT side of the shared
-// video RAMs.
-// The 8'hff default below mimics the open-bus behaviour of a real arcade PCB
-// (TTL bus pull-ups + DRAM precharge sit around VCC when nothing drives).
 always @(*) begin
     cpu_din = 8'hff;
     if      (rom_cs)     cpu_din = rom_data;
