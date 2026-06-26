@@ -618,6 +618,11 @@ module SH7604_CACHE (
 							end
 						end
 					end
+					else if (PURGE_AREA) begin
+						CACHE_WR_ADDR <= CBUS_A[28:2];
+						CACHE_WR_WAY <= WAY_TAG;
+						CACHE_LINE_PURGE <= 1;
+					end
 				end
 			end
 			
