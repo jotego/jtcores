@@ -1,8 +1,8 @@
 //============================================================================
-//  jtddribble_k005885.v — Konami 005885 for Double Dribble (GX690).
+//  jtddrbl_k005885.v — Konami 005885 for Double Dribble (GX690).
 //  Hosted in JTFRAME (framework clk + clock-enables, SDRAM gfx on one
 //  time-shared ROM bus). Instantiated twice: E16=FG/gfx1, H16=BG/gfx2; each
-//  emits COL[4:0] into jtddribble_colmix.
+//  emits COL[4:0] into jtddrbl_colmix.
 //----------------------------------------------------------------------------
 //  Portions derived from the MIT-licensed k005885.sv by Ace. MIT notice:
 //    Permission is hereby granted, free of charge, to any person obtaining a
@@ -16,9 +16,7 @@
 //  Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
 //============================================================================
 
-module jtddribble_k005885 #(
-    // Sprite colour: 0 = use the 256-byte I15 LUT PROM (chip 2), 1 = pens 1:1 (chip 1)
-    parameter BYPASS_OPROM = 1,
+module jtddrbl_k005885 #(
     // 0 = FG (chip 1, gfx1, 12-bit code), 1 = BG (chip 2, gfx2, 13-bit code)
     parameter        LAYER_BG = 0,
     // Sprite-ROM region (sprite patterns live in the upper half of each gfx region)
@@ -34,8 +32,8 @@ module jtddribble_k005885 #(
 ) (
     // CPU bus
     input      [13:0]  A,
-    input      [ 7:0]  DBi,          // data in
-    output     [ 7:0]  DBo,          // data out
+    input      [ 7:0]  din,
+    output     [ 7:0]  dout,
     input              NXCS,         // chip select
     input              NRD,          // read enable; =1 means write
     input              NEXR,         // external reset
@@ -52,6 +50,8 @@ module jtddribble_k005885 #(
     output     [15:0]  R,
     input      [31:0]  RD,           // 32-bit packed gfx row (jtframe_scroll path)
 
+    output     [ 3:0]  OCF,OCB,
+    input      [ 3:0]  OCD,
     // Vertical sync (active low). Final COL[4:0] is exposed via pxl_out below.
     output             NYSY,
 
@@ -66,18 +66,13 @@ module jtddribble_k005885 #(
     input              rom_ok,
     output             rom_cs,
 
-    // PROM-loading interface (sprite-colour LUT)
-    input      [ 8:0]  prog_addr,           // [8] gates the low 256 entries
-    input      [ 3:0]  prog_data,
-    input              prom_we,
-
     // Video blanking (active high) + hsync (active low)
     output             HBLK,
     output             VBLK,
     output             NHSY,
 
     // External 8 KB 6264SL VRAM (tile attr/code + sprite list), modeled as a
-    // mem.yaml dual-port BRAM in jtddribble_video.v. Port A = CPU-mediated
+    // mem.yaml dual-port BRAM in jtddrbl_video.v. Port A = CPU-mediated
     // (tile A[12]=0, sprite A[12]=1), port B = render scanner.
     output     [12:0]  vram_cpu_addr,
     output     [ 7:0]  vram_cpu_din,
@@ -161,15 +156,15 @@ reg nmi_mask = 0, irq_mask = 0, firq_mask = 0, flipscreen = 0;
 always @(posedge clk) if(cpu_cen) begin
     if(regs_cs && NRD)              // NRD=1 => write cycle (registers clocked on cpu_cen)
         case(A[2:0])
-            3'b000: scroll_y    <= DBi;
-            3'b001: scroll_x    <= DBi;
-            3'b010: scroll_ctrl <= DBi;
-            3'b011: tile_ctrl   <= DBi;
+            3'b000: scroll_y    <= din;
+            3'b001: scroll_x    <= din;
+            3'b010: scroll_ctrl <= din;
+            3'b011: tile_ctrl   <= din;
             3'b100: begin
-                nmi_mask   <= DBi[0];
-                irq_mask   <= DBi[1];
-                firq_mask  <= DBi[2];
-                flipscreen <= DBi[3];
+                nmi_mask   <= din[0];
+                irq_mask   <= din[1];
+                firq_mask  <= din[2];
+                flipscreen <= din[3];
             end
             default:;
         endcase
@@ -217,29 +212,29 @@ wire [7:0] ram_Dout, zram0_Dout, zram1_Dout, zram2_Dout;
 // External 6264SL VRAM, port A (CPU-mediated). Write captured once per cpu_cen
 // (NRD=1 => write); port B (render scanner) is driven by the FSM below.
 assign vram_cpu_addr = A[12:0];
-assign vram_cpu_din  = DBi;
+assign vram_cpu_din  = din;
 assign vram_cpu_we   = (tile_cs | spriteram_cs) & NRD & cpu_cen;
 
 // ---- Internal scratch / ZRAM (NOT external on the schematic) ---------
 jtframe_dual_ram #(.DW(8),.AW(5)) u_ram(
-    .clk0(clk), .data0(DBi), .addr0(A[4:0]), .we0(ram_cs & NRD), .q0(ram_Dout),
+    .clk0(clk), .data0(din), .addr0(A[4:0]), .we0(ram_cs & NRD), .q0(ram_Dout),
     .clk1(clk), .data1(8'd0),.addr1(5'd0),   .we1(1'b0),         .q1()
 );
 jtframe_dual_ram #(.DW(8),.AW(5)) u_zram0(
-    .clk0(clk), .data0(DBi), .addr0(A[4:0]), .we0(zram0_cs & NRD), .q0(zram0_Dout),
+    .clk0(clk), .data0(din), .addr0(A[4:0]), .we0(zram0_cs & NRD), .q0(zram0_Dout),
     .clk1(clk), .data1(8'd0),.addr1(5'd0),   .we1(1'b0),          .q1()
 );
 jtframe_dual_ram #(.DW(8),.AW(5)) u_zram1(
-    .clk0(clk), .data0(DBi), .addr0(A[4:0]), .we0(zram1_cs & NRD), .q0(zram1_Dout),
+    .clk0(clk), .data0(din), .addr0(A[4:0]), .we0(zram1_cs & NRD), .q0(zram1_Dout),
     .clk1(clk), .data1(8'd0),.addr1(5'd0),   .we1(1'b0),          .q1()
 );
 jtframe_dual_ram #(.DW(8),.AW(7)) u_zram2(
-    .clk0(clk), .data0(DBi), .addr0(A[6:0]), .we0(zram2_cs & NRD), .q0(zram2_Dout),
+    .clk0(clk), .data0(din), .addr0(A[6:0]), .we0(zram2_cs & NRD), .q0(zram2_Dout),
     .clk1(clk), .data1(8'd0),.addr1(7'd0),   .we1(1'b0),          .q1()
 );
 
 // CPU read mux (NRD=0 => read)
-assign DBo = (ram_cs       & ~NRD) ? ram_Dout      :
+assign dout = (ram_cs       & ~NRD) ? ram_Dout      :
              (zram0_cs     & ~NRD) ? zram0_Dout    :
              (zram1_cs     & ~NRD) ? zram1_Dout    :
              (zram2_cs     & ~NRD) ? zram2_Dout    :
@@ -255,7 +250,7 @@ wire        scroll_rom_cs;
 wire [12:0] scroll_vram_addr;
 wire [ 4:0] sc_pxl;
 
-jtddribble_scroll #( .LAYER_BG(LAYER_BG) ) u_scroll(
+jtddrbl_scroll #( .LAYER_BG(LAYER_BG) ) u_scroll(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .pxl_cen  ( pxl_cen     ),
@@ -277,7 +272,7 @@ jtddribble_scroll #( .LAYER_BG(LAYER_BG) ) u_scroll(
 );
 
 //------------------------------------------------------------------------
-//  Sprite engine — jtddribble_obj on the 32-bit gfx bus. Time-shares the gfx
+//  Sprite engine — jtddrbl_obj on the 32-bit gfx bus. Time-shares the gfx
 //  ROM with the tilemap (sprites in obj_win h_cnt>=272, tiles otherwise). OBJ
 //  list = vblank snapshot (sprite frame-buffer 1-frame delay).
 //------------------------------------------------------------------------
@@ -307,8 +302,7 @@ wire        spr_rom_cs;
 wire        spr_half = spr_rom_addr[0];
 wire [15:0] spr_gfx16 = spr_half ? RD[31:16] : RD[15:0];
 wire [3:0]  obj_pxl;
-jtddribble_obj #(
-    .BYPASS_OPROM ( BYPASS_OPROM ),
+jtddrbl_obj #(
     .LAYER_BG     ( LAYER_BG     ),
     .OBJSTART     ( OBJSTART     ),
     .OBJMASK      ( OBJMASK      )
@@ -322,21 +316,19 @@ jtddribble_obj #(
     .hblank       ( hblank         ),
     .obj_rd_addr  ( obj_rd_addr    ),
     .vram_scn_dout( obj_list_dout  ),   // snapshot shadow, not the live VRAM
-    .spr_rom_addr ( spr_rom_addr   ),
-    .spr_rom_cs   ( spr_rom_cs     ),
+    .rom_addr     ( spr_rom_addr   ),
+    .rom_cs       ( spr_rom_cs     ),
     .RDU          ( spr_gfx16[ 7:0]),
     .RDL          ( spr_gfx16[15:8]),
+    .OCF          ( OCF            ),
+    .OCB          ( OCB            ),
+    .OCD          ( OCD            ),
     .rom_ok       ( rom_ok         ),
-    .prog_addr    ( prog_addr      ),
-    .prog_data    ( prog_data      ),
-    .prom_we      ( prom_we        ),
     .obj_pxl      ( obj_pxl        )
 );
 
-//------------------------------------------------------------------------
 //  gfx ROM bus: sprites during obj_win, tilemap otherwise. RD is 32-bit; the
 //  sprite addresses 32-bit words via spr_rom_addr[16:1] (bit[0] = the half).
-//------------------------------------------------------------------------
 assign R      = obj_win ? spr_rom_addr[16:1] : scroll_rom_addr;
 assign RA16   = obj_win ? spr_rom_addr[17]   : 1'b0;
 assign RA17   = 1'b0;

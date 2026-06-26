@@ -18,7 +18,7 @@ Status legend:
 
 ---
 
-## A. ROM sizes — `cores/ddribble/cfg/mem.yaml`
+## A. ROM sizes — `cores/ddrbl/cfg/mem.yaml`
 
 | ☑ | Item | Location | What to verify | Source files & lines |
 |---|---|---|---|---|
@@ -34,7 +34,7 @@ Status legend:
 
 ---
 
-## B. Clock sources — `cores/ddribble/cfg/mem.yaml`
+## B. Clock sources — `cores/ddrbl/cfg/mem.yaml`
 
 | ☑ | Item | Location | What to verify | Source |
 |---|---|---|---|---|
@@ -45,7 +45,7 @@ Status legend:
 
 ---
 
-## C. BRAM sizes — `cores/ddribble/cfg/mem.yaml` (most likely to have discrepancies)
+## C. BRAM sizes — `cores/ddrbl/cfg/mem.yaml` (most likely to have discrepancies)
 
 | ☑ | Item | Currently says | What to verify on schematic | Notes |
 |---|---|---|---|---|
@@ -66,7 +66,7 @@ Status legend:
 
 ---
 
-## D. BRAM address ranges — `cores/ddribble/hdl/jtddribble_main.v`
+## D. BRAM address ranges — `cores/ddrbl/hdl/jtddrbl_main.v`
 
 | ☑ | Item | Currently MAME-ref | What to verify on schematic |
 |---|---|---|---|
@@ -84,7 +84,7 @@ Status legend:
 
 ---
 
-## E. BRAM address ranges — `cores/ddribble/hdl/jtddribble_sub.v`
+## E. BRAM address ranges — `cores/ddrbl/hdl/jtddrbl_sub.v`
 
 | ☑ | Item | Currently MAME-ref | What to verify on schematic |
 |---|---|---|---|
@@ -99,7 +99,7 @@ Status legend:
 
 ---
 
-## F. BRAM address ranges — `cores/ddribble/hdl/jtddribble_sound.v` (mostly done)
+## F. BRAM address ranges — `cores/ddrbl/hdl/jtddrbl_sound.v` (mostly done)
 
 | ☑ | Item | Status | Notes |
 |---|---|---|---|
@@ -110,7 +110,7 @@ Status legend:
 
 ---
 
-## G. CPU interrupt wiring — `cores/ddribble/hdl/jtddribble_*.v`
+## G. CPU interrupt wiring — `cores/ddrbl/hdl/jtddrbl_*.v`
 
 | ☑ | Item | Currently MAME-ref | What to verify on schematic |
 |---|---|---|---|
@@ -121,7 +121,7 @@ Status legend:
 
 ---
 
-## H. Bank-switch latch hardware — `cores/ddribble/hdl/jtddribble_main.v`
+## H. Bank-switch latch hardware — `cores/ddrbl/hdl/jtddrbl_main.v`
 
 | ☑ | Item | Currently MAME-ref | What to verify on schematic |
 |---|---|---|---|
@@ -130,7 +130,7 @@ Status legend:
 
 ---
 
-## I. VLM5030 control wiring — `cores/ddribble/hdl/jtddribble_sound.v`
+## I. VLM5030 control wiring — `cores/ddrbl/hdl/jtddrbl_sound.v`
 
 | ☑ | Item | Currently MAME-ref | What to verify on schematic |
 |---|---|---|---|
@@ -144,7 +144,7 @@ Status legend:
 
 ---
 
-## J. Audio R/C values — `cores/ddribble/cfg/mem.yaml` (all PLACEHOLDER)
+## J. Audio R/C values — `cores/ddrbl/cfg/mem.yaml` (all PLACEHOLDER)
 
 | ☑ | Item | Currently | What to measure on schematic |
 |---|---|---|---|
@@ -162,7 +162,7 @@ Mapping each value to its position in the audio network requires methodical trac
 
 ---
 
-## K. Input matrix — `cores/ddribble/hdl/jtddribble_game.v` (MAME-ref dependency removed by your trace methodology in `PART A` discussion)
+## K. Input matrix — `cores/ddrbl/hdl/jtddrbl_game.v` (MAME-ref dependency removed by your trace methodology in `PART A` discussion)
 
 | ☑ | Item | What to verify on schematic |
 |---|---|---|
@@ -225,7 +225,7 @@ For these, MAME source (or the existing MiSTer `k005885.sv` for the 005885) is t
 
 ---
 
-## M. Video timing parameters — `cores/ddribble/hdl/jtddribble_game.v` (vtimer params)
+## M. Video timing parameters — `cores/ddrbl/hdl/jtddrbl_game.v` (vtimer params)
 
 Currently uses kicker's values (Konami GX standard, MAME-verified-on-PCB). Each parameter has a corresponding schematic structure that, traced, would replace the MAME dependency.
 
@@ -271,4 +271,4 @@ Estimated time for M (video timing): ~2 hours but very low priority (matches kic
 
 ## When all `☐` become `☑` or `⛔`
 
-`cores/ddribble/hdl/*.v` and `cfg/mem.yaml` should have a SCHEMATIC reference for every fact except the 8 items in section L. The doc rule becomes: **MAME ref appears only where L explicitly justifies it; everywhere else it's a code-smell indicating someone gave up too early on schematic verification.**
+`cores/ddrbl/hdl/*.v` and `cfg/mem.yaml` should have a SCHEMATIC reference for every fact except the 8 items in section L. The doc rule becomes: **MAME ref appears only where L explicitly justifies it; everywhere else it's a code-smell indicating someone gave up too early on schematic verification.**

@@ -1,21 +1,20 @@
 //============================================================================
-//  jtddribble_obj.v — Konami 005885 sprite engine for Double Dribble (GX690).
-//  Extracted from jtddribble_k005885.v (D9). Scans the 5-byte OBJ list in the
+//  jtddrbl_obj.v — Konami 005885 sprite engine for Double Dribble (GX690).
+//  Extracted from jtddrbl_k005885.v (D9). Scans the 5-byte OBJ list in the
 //  chip's VRAM (A12=1, render port), fetches the packed 4bpp sprite gfx, looks
 //  up the sprite colour (I15 256x4 PROM on chip 2 / 1:1 on chip 1) and fills a
 //  jtframe_obj_buffer that is read back at display time as obj_pxl (0=transp.).
 //
 //  The VRAM-scan and gfx-ROM ports are time-shared with the tilemap engine in
 //  the parent chip: this module owns them only during obj_win (h_cnt>=272); the
-//  parent muxes obj_rd_addr / spr_rom_addr onto the shared buses.
+//  parent muxes obj_rd_addr / rom_addr onto the shared buses.
 //
 //  Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
 //  JTCORES integration is GPL-3 (see jtcores LICENSE).
 //============================================================================
 
-module jtddribble_obj #(
+module jtddrbl_obj #(
     // Sprite colour: 0 = use the 256-byte I15 LUT PROM (chip 2), 1 = pens 1:1 (chip 1)
-    parameter        BYPASS_OPROM = 1,
     // 0 = FG (chip 1, 25 sprites), 1 = BG (chip 2, 64 sprites)
     parameter        LAYER_BG     = 0,
     parameter [17:0] OBJSTART     = 18'h0_0000,
@@ -35,19 +34,16 @@ module jtddribble_obj #(
     output     [11:0]  obj_rd_addr,
     input      [ 7:0]  vram_scn_dout,
 
+    // External PROM
+    output     [ 3:0]  OCF,OCB,
+    input      [ 3:0]  OCD,
     // sprite gfx fetch on the shared gfx-ROM bus (parent muxes when obj_win)
-    output     [17:0]  spr_rom_addr,
-    output             spr_rom_cs,
+    output     [17:0]  rom_addr,
+    output             rom_cs,
     input      [ 7:0]  RDU,
     input      [ 7:0]  RDL,
     input              rom_ok,
 
-    // sprite-colour LUT PROM load (I15)
-    input      [ 8:0]  prog_addr,
-    input      [ 3:0]  prog_data,
-    input              prom_we,
-
-    // looked-up sprite colour for the current display column (0 = transparent)
     output     [ 3:0]  obj_pxl
 );
 
@@ -78,6 +74,7 @@ reg  [ 7:0] line_addr;
 reg  [ 3:0] line_data;     // OCD (looked-up sprite colour), 0 = transparent
 
 assign obj_rd_addr = { 3'd0, obj_base } + { 9'd0, obj_byte };
+assign { OCF, OCB }= { s_col, dump_nibble };
 
 wire [10:0] spr_num = { s_b1[2:0], s_b0 };                  // 11-bit sprite number
 wire [ 8:0] vrr   = v_cnt + OBJ_DY;                         // render row (next line)
@@ -96,11 +93,9 @@ wire        sub_x   = (obj_w==6'd32) & spr_hp[4];
 wire        sub_y   = (obj_h==6'd32) & row_sp[4];
 wire [10:0] eff_num = base_num + {10'd0,sub_x} + {9'd0,sub_y,1'b0};
 
-// Sprite gfx word address: eff_num*64 + quad*16 + vsub*2 + h4, masked to the
-// chip's OBJ region.
 wire [16:0] spr_local = { eff_num, row_sp[3], spr_hp[3], row_sp[2:0], spr_hp[2] };
-assign spr_rom_addr = OBJSTART | ({1'b0, spr_local} & OBJMASK);
-assign spr_rom_cs   = obj_run && (obj_st==4'd6 || obj_st==4'd7);
+assign rom_addr = OBJSTART | ({1'b0, spr_local} & OBJMASK);
+assign rom_cs   = obj_run && (obj_st==4'd6 || obj_st==4'd7);
 
 // Screen column for the write. No wrap: a column >=256 is off-screen (dropped).
 // h-flip mirrors the column within the sprite.
@@ -108,13 +103,7 @@ wire [ 5:0] hp_scr   = s_fx ? (obj_w - 6'd1 - spr_hp) : spr_hp;
 // -1: the sprite layer measured 1px right of MAME; shift it left to align.
 wire [ 9:0] full_col = ({1'b0, s_xpos} + {4'd0, hp_scr}) - 10'd1;
 
-// Sprite colour LUT: OCD = PROM[{OCF=s_col, OCB=pixel}]. chip2 uses the I15
-// 256x4 PROM; chip1 maps 1:1 (BYPASS_OPROM).
-reg  [3:0] oprom [0:255];
-always @(posedge clk) if (prom_we && !prog_addr[8]) oprom[prog_addr[7:0]] <= prog_data;
 wire [3:0] dump_nibble = spr_word[15:12];                 // OCB (sprite pixel)
-wire [3:0] prom_ocd    = oprom[{s_col, dump_nibble}];     // OCD = PROM[{OCF,OCB}]
-wire [3:0] obj_ocd     = BYPASS_OPROM ? dump_nibble : prom_ocd;
 
 // Scan the OBJ list in the sprite window: size+Y first (skip non-overlap), else
 // read code/colour/X and fetch+dump the 16x16 gfx row into the line buffer.
@@ -158,9 +147,9 @@ always @(posedge clk) begin
         4'd7: if (rom_ok) begin spr_word<={RDU,RDL}; spr_dn<=2'd0; obj_st<=4'd8; end
         4'd8: begin                                            // dump 4 px (high-nibble first)
                   // write only if on-screen and opaque (OCD!=0)
-                  line_we   <= ~|full_col[9:8] & (obj_ocd != 4'd0);
+                  line_we   <= ~|full_col[9:8] & (OCD != 4'd0);
                   line_addr <= full_col[7:0];
-                  line_data <= obj_ocd;                        // looked-up sprite colour
+                  line_data <= OCD;                        // looked-up sprite colour
                   spr_word  <= { spr_word[11:0], 4'd0 };
                   spr_hp    <= spr_hp + 6'd1;
                   spr_dn    <= spr_dn + 2'd1;

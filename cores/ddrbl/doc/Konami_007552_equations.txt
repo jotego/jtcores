@@ -4,7 +4,7 @@
 // HARDWARE: the real PCB decodes addresses in 2 stages on the main CPU page:
 //   1. 007552 PAL at C15 produces coarse strobes (/RBN, /GATE1, /GATE2,
 //      /CWORK, /DMP, /CORAM, /G2AB11, /SEL).
-//      ★ AUTHORITATIVE source: cores/ddribble/doc/Konami_007552_equations.txt
+//      ★ AUTHORITATIVE source: cores/ddrbl/doc/Konami_007552_equations.txt
 //        (decoded by jedutil from the JEDEC fuse dump on 2026-06-01).
 //   2. Downstream LS-series chips (LS245 transceivers, LS157 muxes, plus
 //      the 005885 chips' internal register decoders) take those coarse

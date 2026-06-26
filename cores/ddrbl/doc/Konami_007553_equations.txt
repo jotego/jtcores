@@ -2,10 +2,10 @@
 // Address decoder
 // ---------------------------------------------------------------------------
 // HARDWARE: real decode is the Konami 007553 PAL at C11 on schematic page 1.
-// ★ AUTHORITATIVE source: cores/ddribble/doc/Konami_007553_equations.txt
+// ★ AUTHORITATIVE source: cores/ddrbl/doc/Konami_007553_equations.txt
 //   (decoded by jedutil from the JEDEC fuse dump on 2026-06-01).
 // Pin labels (which PAL input/output corresponds to which schematic net) in
-//   cores/ddribble/doc/Konami_007553_pinout.md
+//   cores/ddrbl/doc/Konami_007553_pinout.md
 //
 // PAL OUTPUTS (active-low) → HDL CHIP-SELECT MAPPING:
 // ┌─────────┬────────────────────────────────────────┬──────────────────────────┐

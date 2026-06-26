@@ -1,4 +1,4 @@
-/*  jtddribble_sound.v — sound CPU (MC6809E) for Double Dribble (Konami GX690)
+/*  jtddrbl_sound.v — sound CPU (MC6809E) for Double Dribble (Konami GX690)
     GPL3 — see jtcores LICENSE
 
     Hardware on SCHEMATIC page 1 top-right (tile_p1_topR.png):
@@ -20,7 +20,7 @@
       - konami/ddribble.cpp:413-419  sound CPU memory map (exact ranges)
 */
 
-module jtddribble_sound(
+module jtddrbl_sound(
     input               rst,
     input               clk,
     input               cen,           // 1.5 MHz CPU clock-enable

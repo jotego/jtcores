@@ -330,7 +330,7 @@ SOUND ROM A 6 is no longer red. Boot can now proceed past POST.
 5. **BA-offset fix in macros.def** — BA2_START=0x40000 (not 0x40100),
    BA3_START=0x80000 (not 0x80100). The +0x100 was wrongly reserving
    space for prom, but prom lives outside all banks per the MRA layout.
-6. **007327 module** (`jtddribble_colmix.v`) — bundles the LS157 H13/H14
+6. **007327 module** (`jtddrbl_colmix.v`) — bundles the LS157 H13/H14
    layer-mux + PRI gate logic + 128-byte palette BRAM lookup + BLK
    blanking. Models the schematic chip + surrounding glue.
 7. **Bank routing for chip 2 gfx ROM** — main CPU's 3-bit bank register
@@ -347,7 +347,7 @@ SOUND ROM A 6 is no longer red. Boot can now proceed past POST.
    tile rendering.
 
 10. **VLM BSY routing to YM2203 IOB[0]** (was IOB[7]) — single-bit
-    fix in `jtddribble_sound.v` line 131. We had `{vlm_bsy, 7'h7f}`
+    fix in `jtddrbl_sound.v` line 131. We had `{vlm_bsy, 7'h7f}`
     placing it at bit 7. Sound CPU's POST routine polls
     `LDA $1001; BITA #$01; BNE` waiting for IOB[0] to clear. Our 7'h7f
     filler made bit 0 always 1 → loop stuck forever → sound CPU never
@@ -427,7 +427,7 @@ the checksum compare still fails. Theories ranked:
 **P2 — task #27**. Two known V1 expedients to revisit:
   - PRI is the educated-guess `(g1col[3:0]==0) & g2col[4]` not the
     schematic-traced `(|g1col[3:0]) & g2col[4]` (commented out in
-    jtddribble_colmix.v).
+    jtddrbl_colmix.v).
   - RDU/RDL bytes are swapped in game.v on both 005885 wrappers. Without
     swap → garbage chars. With swap → readable POST. WHY the swap is
     needed isn't traced — probably MRA `<interleave>` map="01"/"10" vs
@@ -442,7 +442,7 @@ reset on that net.
 These were applied during V1 bring-up because they produce better visual
 output than the schematic-faithful version. Both must be revisited:
 
-1. **PRI logic in `jtddribble_colmix.v` uses educated guess instead of
+1. **PRI logic in `jtddrbl_colmix.v` uses educated guess instead of
    the schematic-traced gate network.** The schematic-traced version
    (`PRI = (|G1COL[3:0]) & G2COL[4]`) — which the user read off the
    LS32 H12 + LS08 G11 gate network 2026-06-02 — is implemented but
@@ -453,7 +453,7 @@ output than the schematic-faithful version. Both must be revisited:
    output matches MAME.
 
 2. **Graphics ROM RDU/RDL bytes are swapped vs the natural mapping
-   in `jtddribble_game.v` u_k5885_1 + u_k5885_2.** With the byte-swap
+   in `jtddrbl_game.v` u_k5885_1 + u_k5885_2.** With the byte-swap
    applied, the POST screen renders readable text (matches MAME up to
    color decode). Without the swap, the POST text appears as garbage
    characters. The swap is empirically correct but we haven't proven

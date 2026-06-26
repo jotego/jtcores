@@ -1,5 +1,5 @@
 //============================================================================
-//  jtddribble_scroll.v — 005885 tilemap layer (E3/A3).
+//  jtddrbl_scroll.v — 005885 tilemap layer (E3/A3).
 //
 //  jtframe_scroll tile renderer. 005885 gfx is 8x8x4 PIXEL-PACKED, so the 32-bit
 //  ROM word is run through jtframe_8x8x4_packed_msb to make the PLANAR word
@@ -13,7 +13,7 @@
 //  Author: Andrea Bogazzi <andreabogazzi79@gmail.com>   GPL3 (see jtcores LICENSE)
 //============================================================================
 
-module jtddribble_scroll #(
+module jtddrbl_scroll #(
     parameter LAYER_BG = 0
 )(
     input               rst,

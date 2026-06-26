@@ -1,11 +1,11 @@
 //============================================================================
 //
-//  *** READ-ONLY REFERENCE — DO NOT INCLUDE IN cores/ddribble/cfg/files.yaml ***
+//  *** READ-ONLY REFERENCE — DO NOT INCLUDE IN cores/ddrbl/cfg/files.yaml ***
 //
 //  This is a verbatim copy of the MIT-licensed k005885.sv from the MiSTer
 //  Iron Horse core (https://github.com/MiSTer-devel/Arcade-IronHorse_MiSTer)
 //  by Ace (2020, 2022). It is kept here as a behavioural reference while we
-//  write our own jtddribble_5885.v that fits JTFRAME conventions.
+//  write our own jtddrbl_5885.v that fits JTFRAME conventions.
 //
 //  License: MIT (full text below in the original header).
 //  Compatibility: MIT is GPL-compatible — code derived from this can ship

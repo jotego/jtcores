@@ -1,4 +1,4 @@
-/*  jtddribble_main.v — main CPU (MC6809E) for Double Dribble (Konami GX690)
+/*  jtddrbl_main.v — main CPU (MC6809E) for Double Dribble (Konami GX690)
     GPL3 — see jtcores LICENSE
 
     Hardware on the same SCHEMATIC page that holds the MAIN MC6809E:
@@ -11,28 +11,25 @@
         visible output pin names: /RBN, /GATE1, /GATE2, /CWORK, /DMP,
                                    /CORAM, /G2AB11, /SEL
         Pin labels confirmed by reading the schematic plus jedutil decode of
-        the PAL JEDEC dump (cores/ddribble/doc/Konami_007552_equations.txt).
+        the PAL JEDEC dump (cores/ddrbl/doc/Konami_007552_equations.txt).
       - Two 005885 graphics chips (designators E16 + H16) also on this page
       - LS245 bus transceivers, LS157 address muxes
       - 3.58 MHz oscillator can near LS74 H9 (sound xtal, shared with YM2203)
 
     Address decoder: from the 007552 PAL equations (the schematic-side
-    authority). See `cores/ddribble/doc/Konami_007552_equations.txt`.
+    authority). See `cores/ddrbl/doc/Konami_007552_equations.txt`.
 
 */
 
-module jtddribble_main(
+module jtddrbl_main(
     input               rst,
     input               clk,
     input               cen,           // 1.5 MHz CPU clock-enable (from mem.yaml cpu_cen)
-    output              cpu_cen,       // CPU Q-phase strobe — for downstream registers
 
-    // CPU bus (exposed so jtddribble_video etc. can decode sub-regions)
     output      [15:0]  A,
     output              cpu_rnw,
     output      [ 7:0]  cpu_dout,
 
-    // Per-region chip-selects (active high; [brackets] = 007552 PAL pin)
     output              pal_cs,        // [/CORAM] palette
     output              shared_cs,     // [/CWORK] shared with SUB
     output              k5885_1_cs,    // [/GATE1] 005885 #1 (regs + VRAM/sprite window)
@@ -44,23 +41,12 @@ module jtddribble_main(
     input       [ 7:0]  k5885_1_dout,  // 005885 #1 returns SRAM/register data when k5885_1_cs && RnW
     input       [ 7:0]  k5885_2_dout,  // 005885 #2 same
 
-    // Bank-switch register — 3 bits latched on CPU write to 0x8000.
-    // MAME ddribble.cpp:331-334 says `data & 0x07` (so 3 bits used).
-    // On the real PCB this register's outputs are labelled R16, R17, R17N
-    // and they gate the MASK1M chip-enables for the gfx ROM banking.
-    // We expose them here so game.v can route them into the gfx2 (and
-    // potentially gfx1) SDRAM address high bits.
     output      [ 2:0]  bank_out,
 
-    // Interrupt inputs — all three come from the 005885 chip 1 (E16, page 0).
-    // cpu_firqn is then AND'd (active-low) with a direct LVBL→jtframe_ff
-    // shortcut below, because boot code zeroes mmr[4] (gating the chip's
-    // own outputs idle) and we need V-blank FIRQ to keep firing regardless.
-    input               cpu_irqn,      // → IRQ pin   (game.v wires chip 1 NFIR here)
-    input               cpu_nmin,      // → NMI pin   (chip 1 NNMI)
-    input               cpu_firqn,     // → FIRQ pin  (chip 1 NIRQ — schematic-faithful, no LVBL fallback)
+    input               cpu_irqn,
+    input               cpu_nmin,
+    input               cpu_firqn,
 
-    // ROM bus to SDRAM — 27512 EPROM (64 KB); rom_cs = 007552 PAL /RBN (pin 12)
     output      [15:0]  rom_addr,
     output              rom_cs,
     input       [ 7:0]  rom_data,
@@ -153,7 +139,7 @@ jtframe_sys6809 #(.RAM_AW(0)) u_cpu(
     .rstn       ( ~rst      ),
     .clk        ( clk       ),
     .cen        ( cen       ),         // 1.5 MHz tick (24 MHz / 16, from mem.yaml)
-    .cpu_cen    ( cpu_cen   ),
+    .cpu_cen    (           ),
     .nIRQ       ( cpu_irqn  ),         // chip 1 NFIR (swap per schematic)
     .nFIRQ      ( cpu_firqn ),         // chip 1 NIRQ (swap per schematic)
     .nNMI       ( cpu_nmin  ),         // chip 1 NNMI
