@@ -193,12 +193,12 @@ jtddribble_video u_video(
 // ---------------------------------------------------------------------------
 // SDRAM gfx ROM routing — chip R/RA16/RA17 → gfx{1,2} word address
 // ---------------------------------------------------------------------------
-// gfx1: 256 KB, only {RA16,R} used (RA17 stays 0).
-assign gfx1_addr = { k5885_1_RA16, k5885_1_R };
+// gfx1: 256 KB (64K x 32-bit words) -> 16-bit address. RA16/RA17 stay 0 on chip 1.
+assign gfx1_addr = k5885_1_R;
 assign gfx1_cs   = k5885_1_rom_cs;
 
-// gfx2: 512 KB, full {RA17,RA16,R} used.
-assign gfx2_addr = { k5885_2_RA17, k5885_2_RA16, k5885_2_R };
+// gfx2: 512 KB (128K x 32-bit words) -> 17-bit address {RA16,R}. RA17 stays 0.
+assign gfx2_addr = { k5885_2_RA16, k5885_2_R };
 assign gfx2_cs   = k5885_2_rom_cs;
 
 // ---------------------------------------------------------------------------

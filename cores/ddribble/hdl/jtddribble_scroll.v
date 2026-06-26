@@ -86,7 +86,7 @@ assign vram_addr = { 1'b0, sc_vaddr[5], plane, sc_vaddr[10:6], sc_vaddr[4:0] };
 assign sc_code  = { tile_hi, attr_l[5], attr_l[7:6], code_l };
 assign sc_hflip = attr_l[4];
 assign sc_vflip = attr_l[5];
-assign sc_pal   = attr_l[3:0];           // 005885 tile colour bits
+assign sc_pal   = { 1'b0, attr_l[3:0] };  // 005885 tile colour bits (pad to PW-4)
 
 assign rom_addr = sc_romaddr;
 
