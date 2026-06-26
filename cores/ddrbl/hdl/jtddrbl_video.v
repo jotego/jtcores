@@ -187,7 +187,7 @@ jtddrbl_k005885 #(
     .NHSY(), .NYSY(), .HBLK(), .VBLK()
 );
 
-jtframe_prom #(.AW(8),.DW(4))u_prom(
+jtframe_prom #(.AW(8),.DW(4),.ASYNC(1)) u_prom(
     .clk    ( clk                ),
     .cen    ( 1'b1               ),
     .we     ( prom_we            ),

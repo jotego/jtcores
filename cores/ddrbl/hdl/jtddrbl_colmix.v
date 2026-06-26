@@ -16,9 +16,9 @@ module jtddrbl_colmix(
     output     [ 6:0]   pal_addr,
     input      [ 7:0]   pal_dout,
 
-    output     [ 4:0]   red,
-    output     [ 4:0]   green,
-    output     [ 4:0]   blue,
+    output reg [ 4:0]   red,
+    output reg [ 4:0]   green,
+    output reg [ 4:0]   blue,
     input      [ 7:0]   debug_bus
 );
 
@@ -32,16 +32,14 @@ reg         pal_half;
 reg  [15:0] pxl_aux;
 assign pal_addr = { pri, col_mux, pal_half };
 
-assign red   = blank ? 5'h0 : pxl_aux[ 4: 0];
-assign green = blank ? 5'h0 : pxl_aux[ 9: 5];
-assign blue  = blank ? 5'h0 : pxl_aux[14:10];
-
 always @(posedge clk) begin
-    pal_half <= pxl_cen ? 1'b1 : ~pal_half;
-    if(pal_half)
-        pxl_aux[15:8] <= pal_dout;
-    else
-        pxl_aux[ 7:0] <= pal_dout;
+    pxl_aux  <= { pxl_aux[7:0], pal_dout };
+    pal_half <= pxl_cen ? 1'b0 : ~pal_half;
+    if( pxl_cen ) begin
+        red   <= blank ? 5'h0 : pxl_aux[ 4: 0];
+        green <= blank ? 5'h0 : pxl_aux[ 9: 5];
+        blue  <= blank ? 5'h0 : pxl_aux[14:10];
+    end
 end
 
 endmodule
