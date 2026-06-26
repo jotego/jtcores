@@ -195,7 +195,7 @@ package SH2_PKG;
 							4'b0000,			//STC SR,Rn
 							4'b0001,			//STC GBR,Rn
 							4'b0010: begin	//STC VBR,Rn
-								DECI.RA = '{RAN, 0, 1};
+								DECI.RA = '{RAN, 1, 1};
 								DECI.DP.RSB = SCR;
 								case (IR[5:4])
 									2'b00:  DECI.CTRL = '{0, SR_,  LOAD};
@@ -215,7 +215,7 @@ package SH2_PKG;
 									case (STATE)
 										3'd0: begin
 											DECI.RA = '{RAN, 1, 0};
-											DECI.RB = '{PR,  0, ~IR[5]};
+											DECI.RB = '{PR,  ~IR[5], ~IR[5]};
 											DECI.DP.RSB = BPC;
 											DECI.ALU = '{0, 0, ADD, 4'b0000, 3'b000};
 											DECI.PCW = 1;
@@ -292,7 +292,7 @@ package SH2_PKG;
 								endcase
 							end
 							4'b0010: begin	//MOVT Rn (1&SR->Rn)
-								DECI.RA = '{RAN, 0, 1};
+								DECI.RA = '{RAN, 1, 1};
 								DECI.DP.RSB = SCR;
 								DECI.DP.RSC = RSC_IMM;
 								DECI.IMMT = ONE;
@@ -306,13 +306,13 @@ package SH2_PKG;
 						case (IR[7:4])
 							4'b0000,			//STS MACH,Rn
 							4'b0001: begin	//STS MACL,Rn
-								DECI.RA = '{RAN, 0, 1};
+								DECI.RA = '{RAN, 1, 1};
 								DECI.MEM.SZ = 2'b10;
 								DECI.MAC = '{{~IR[4],IR[4]}, 1, 0, 4'b1100};
 								DECI.IBI = 1;
 							end
 							4'b0010: begin	//STS PR,Rn
-								DECI.RA = '{RAN, 0, 1};
+								DECI.RA = '{RAN, 1, 1};
 								DECI.RB = '{PR, 1, 0};
 								DECI.IBI = 1;
 							end
@@ -387,7 +387,7 @@ package SH2_PKG;
 						endcase
 					end
 					4'b1100,4'b1101,4'b1110:	begin	//MOV.x @(R0,Rm),Rn ((Rm+R0)->Rn)
-						DECI.RA = '{RAN, 0, 1};
+						DECI.RA = '{RAN, 1, 1};
 						DECI.RB = '{RBN, 1, 0};
 						DECI.R0R = 1;
 						DECI.ALU = '{1, 0, ADD, 4'b0000, 3'b000};
@@ -679,7 +679,7 @@ package SH2_PKG;
 					end
 					8'b00101010: begin	//LDS Rm,PR
 						DECI.RA = '{RAN, 1, 0};
-						DECI.RB = '{PR,  0, 1};
+						DECI.RB = '{PR,  1, 1};
 						DECI.DP.RSC = RSC_IMM;
 						DECI.IMMT = ZERO;
 						DECI.ALU = '{0, 1, ADD, 4'b0000, 3'b000};
@@ -690,7 +690,7 @@ package SH2_PKG;
 						case (STATE)
 							3'd0: begin
 								DECI.RA = '{RAN, 1, 0};
-								DECI.RB = '{PR, 0, ~IR[5]};
+								DECI.RB = '{PR, ~IR[5], ~IR[5]};
 								DECI.DP.RSB = BPC;
 								DECI.DP.RSC = RSC_IMM;
 								DECI.IMMT = ZERO;
@@ -807,7 +807,7 @@ package SH2_PKG;
 			end
 			
 			4'b0101:	begin	//MOV.L @(disp,Rm),Rn ((Rm+disp*4)->Rn)
-				DECI.RA = '{RAN, 0, 1};
+				DECI.RA = '{RAN, 1, 1};
 				DECI.RB = '{RBN, 1, 0};
 				DECI.DP.RSC = RSC_IMM;
 				DECI.IMMT = ZIMM4;
@@ -818,7 +818,7 @@ package SH2_PKG;
 			4'b0110:	begin
 				case (IR[3:0])
 					4'b0000,4'b0001,4'b0010:	begin	//MOV.x @Rm,Rn ((0+Rm)->Rn)
-						DECI.RA = '{RAN, 0, 1};
+						DECI.RA = '{RAN, 1, 1};
 						DECI.RB = '{RBN, 1, 0};
 						DECI.DP.RSC = RSC_IMM;
 						DECI.IMMT = ZERO;
@@ -826,14 +826,14 @@ package SH2_PKG;
 						DECI.MEM = '{ALURES, ALUB, IR[1:0], 1, 0};
 					end
 					4'b0011:	begin	//MOV Rm,Rn (0+Rm->Rn)
-						DECI.RA = '{RAN, 0, 1};
+						DECI.RA = '{RAN, 1, 1};
 						DECI.RB = '{RBN, 1, 0};
 						DECI.DP.RSC = RSC_IMM;
 						DECI.IMMT = ZERO;
 						DECI.ALU = '{1, 0, ADD, 4'b0000, 3'b000};
 					end
 					4'b0100,4'b0101,4'b0110: begin	//MOV.x @Rm+,Rn ((Rm)->Rn, (1*size)+Rm->Rm)
-						DECI.RA = '{RAN, 0, 1};
+						DECI.RA = '{RAN, 1, 1};
 						DECI.RB = '{RBN, 1, 1};
 						DECI.DP.RSC = RSC_IMM;
 						DECI.IMMT = ONE;
@@ -841,7 +841,7 @@ package SH2_PKG;
 						DECI.MEM = '{ALUB, ALUB, IR[1:0], 1, 0};
 					end
 					4'b0111:	begin	//NOT Rm,Rn (0|~Rm->Rn)
-						DECI.RA = '{RAN, 0, 1};
+						DECI.RA = '{RAN, 1, 1};
 						DECI.RB = '{RBN, 1, 0};
 						DECI.DP.RSC = RSC_IMM;
 						DECI.IMMT = ZERO;
@@ -849,13 +849,13 @@ package SH2_PKG;
 					end
 					4'b1000,			//SWAP.B Rm,Rn
 					4'b1001:	begin	//SWAP.W Rm,Rn
-						DECI.RA = '{RAN, 0, 1};
+						DECI.RA = '{RAN, 1, 1};
 						DECI.RB = '{RBN, 1, 0};
 						DECI.ALU = '{0, 0, EXT, {3'b000,IR[0]}, 3'b000};
 					end
 					4'b1010,			//NEGC Rm,Rn (0-Rm-T->Rn)
 					4'b1011:	begin	//NEG Rm,Rn (0-Rm->Rn)
-						DECI.RA = '{RAN, 0, 1};
+						DECI.RA = '{RAN, 1, 1};
 						DECI.RB = '{RBN, 1, 0};
 						DECI.DP.RSC = RSC_IMM;
 						DECI.IMMT = ZERO;
@@ -866,7 +866,7 @@ package SH2_PKG;
 					4'b1101,			//EXTU.W Rm,Rn
 					4'b1110,			//EXTS.B Rm,Rn
 					4'b1111:	begin	//EXTS.W Rm,Rn
-						DECI.RA = '{RAN, 0, 1};
+						DECI.RA = '{RAN, 1, 1};
 						DECI.RB = '{RBN, 1, 0};
 						DECI.ALU = '{0, 0, EXT, {2'b01,IR[1:0]}, 3'b000};
 					end
@@ -955,7 +955,7 @@ package SH2_PKG;
 			
 			4'b1001,			//MOV.W @(disp,PC),Rn ((PC+disp*2)->Rn)
 			4'b1101:	begin	//MOV.L @(disp,PC),Rn ((PC+disp*4)->Rn)
-				DECI.RA = '{RAN, 0, 1};
+				DECI.RA = '{RAN, 1, 1};
 				DECI.DP.RSB = BPC;
 				DECI.DP.RSC = RSC_IMM;
 				DECI.DP.PCM = IR[14];
@@ -968,7 +968,7 @@ package SH2_PKG;
 			4'b1011:	begin	//BSR label
 				case (STATE)
 					3'd0: begin
-						DECI.RB = '{PR, 0, IR[12]};
+						DECI.RB = '{PR, IR[12], IR[12]};
 						DECI.DP.RSB = BPC;
 						DECI.DP.RSC = RSC_IMM;
 						DECI.IMMT = SIMM12;
@@ -1044,7 +1044,7 @@ package SH2_PKG;
 						DECI.LST = 3'd6;
 					end
 					4'b0100,4'b0101,4'b0110: begin	//MOV.x @(disp,GBR),R0 ((GBR+disp*1/2/4)->R0)
-						DECI.RA = '{R0, 0, 1};
+						DECI.RA = '{R0, 1, 1};
 						DECI.DP.RSB = SCR;
 						DECI.DP.RSC = RSC_IMM;
 						DECI.IMMT = ZIMM8;
@@ -1053,7 +1053,7 @@ package SH2_PKG;
 						DECI.MEM = '{ALURES, ALUA, IR[9:8], 1, 0};
 					end
 					4'b0111:	begin	//MOVA @(disp,PC),R0 ((PC+disp*4)->R0)
-						DECI.RA = '{R0, 0, 1};
+						DECI.RA = '{R0, 1, 1};
 						DECI.DP.RSB = BPC;
 						DECI.DP.RSC = RSC_IMM;
 						DECI.DP.PCM = 1;
@@ -1124,7 +1124,7 @@ package SH2_PKG;
 			end
 			
 			4'b1110:	begin	//MOV #imm,Rn
-				DECI.RA = '{RAN, 0, 1};
+				DECI.RA = '{RAN, 1, 1};
 				DECI.DP.RSC = RSC_IMM;
 				DECI.ALU = '{0, 1, NOP, 4'b0000, 3'b000};
 			end
