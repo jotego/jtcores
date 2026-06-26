@@ -115,7 +115,7 @@ module SH7604_CACHE (
 				6'b0??11?: res = 4'b0010;
 				6'b?0?0?1: res = 4'b0100;
 				6'b??0?00: res = 4'b1000;
-				default:   res = 4'b0001;
+				default:   res = 4'b0000;
 			endcase
 		end
 		return res;
@@ -128,7 +128,7 @@ module SH7604_CACHE (
 		      way[2] ? {lru[5],1'b1  ,lru[3],1'b1  ,lru[1],1'b0  } :
 		      way[1] ? {1'b1  ,lru[4],lru[3],1'b0  ,1'b0  ,lru[0]} :
 				way[0] ? {1'b0  ,1'b0  ,1'b0  ,lru[2],lru[1],lru[0]} :
-				         {1'b0  ,1'b0  ,1'b0  ,lru[2],lru[1],lru[0]};
+				         {lru[5],lru[4],lru[3],lru[2],lru[1],lru[0]};
 		return res;
 	endfunction
 	
