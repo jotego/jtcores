@@ -12,6 +12,16 @@ assign dip_flip   = 0;
 assign debug_view = 0;
 
 // ---------------------------------------------------------------------------
+// Pause — dip_pause is active-low (0 = paused). Freeze the three CPUs, the
+// 005885 CPU-write timing, and the YM2203 + VLM cens so gameplay AND music
+// stop. pxl_cen is left free so the last frame stays on screen.
+// ---------------------------------------------------------------------------
+wire cpu_cen_g    = cpu_cen    & dip_pause;
+wire sndcpu_cen_g = sndcpu_cen & dip_pause;
+wire ym_cen_g     = ym_cen     & dip_pause;
+wire vlm_cen_g    = vlm_cen    & dip_pause;
+
+// ---------------------------------------------------------------------------
 // Internal wires between sub-modules
 // ---------------------------------------------------------------------------
 wire [15:0] main_A;           // raw 16-bit address from main CPU
@@ -31,7 +41,7 @@ wire [ 2:0] main_bank;
 jtddribble_main u_main(
     .rst         ( rst24      ),
     .clk         ( clk24      ),
-    .cen         ( cpu_cen    ),
+    .cen         ( cpu_cen_g  ),
     .cpu_cen     (            ),     // Q-phase strobe, unused
     // ROM
     .rom_addr    ( main_addr  ),
@@ -72,7 +82,7 @@ wire [ 1:0] sub_coin_counter;
 jtddribble_sub u_sub(
     .rst            ( rst24      ),
     .clk            ( clk24      ),
-    .cen            ( cpu_cen    ),
+    .cen            ( cpu_cen_g  ),
     .cpu_cen        (            ),
     .rom_addr       ( sub_addr   ),
     .rom_cs         ( sub_cs     ),
@@ -131,7 +141,7 @@ jtddribble_video u_video(
     .clk            ( clk            ),
     .pxl_cen        ( pxl_cen        ),
     .pxl2_cen       ( pxl2_cen       ),
-    .cpu_cen        ( cpu_cen        ),
+    .cpu_cen        ( cpu_cen_g      ),
     // CPU bus
     .main_A         ( main_A         ),
     .main_dout      ( main_dout      ),
@@ -226,7 +236,7 @@ wire        sound_shared_cs, sound_ym_cs;
 jtddribble_sound u_sound(
     .rst         ( rst24      ),
     .clk         ( clk24      ),
-    .cen         ( sndcpu_cen ),     // snd-gated cen
+    .cen         ( sndcpu_cen_g ),   // snd-gated cen, frozen on pause
     .cpu_cen     (            ),
     .rom_addr    ( snd_addr   ),
     .rom_cs      ( snd_cs     ),
@@ -239,8 +249,8 @@ jtddribble_sound u_sound(
     .ym_cs       ( sound_ym_cs ),
     .vlm_cs      ( vlm_cs     ),
     .shared_dout ( shared_sa_b_dout ),
-    .ym_cen      ( ym_cen     ),
-    .vlm_cen     ( vlm_cen    ),
+    .ym_cen      ( ym_cen_g   ),
+    .vlm_cen     ( vlm_cen_g  ),
     .HS          ( HS         ),        // sound-IRQ scanline clock (NSYNC)
     .VS          ( VS         ),        // sound-IRQ counter reset (NVSYNC)
     .vlm_addr    ( vlm_addr   ),
