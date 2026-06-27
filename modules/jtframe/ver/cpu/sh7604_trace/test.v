@@ -92,6 +92,7 @@ jtsh7604 #(
     .cpu_din    ( mem_dout   ),
     .cps3_key1  ( 32'd0      ),
     .cps3_key2  ( 32'd0      ),
+    .cps3_crypt_mode ( 2'd2  ),
     .cache_ok   ( cache_ok   ),
 
     .A          ( A          ),
