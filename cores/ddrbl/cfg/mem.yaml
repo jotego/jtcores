@@ -17,9 +17,10 @@ audio:
   rc:   { r: 1k, c: 10n }
   channels:
     - { name: fm,   module: jt03_fm, rsum: 5.3k, rc: [{ r: 0.81k, c: 33n }] }
-    - { name: psga, data_width: 8, unsigned: true, rsum: 20k, rc_en: true, dcrm: true, rc: [{ r: 0.78k, c: 150n }] }
-    - { name: psgb, data_width: 8, unsigned: true, rsum: 20k, rc_en: true, dcrm: true, rc: [{ r: 0.78k, c: 150n }] }
-    - { name: psgc, data_width: 8, unsigned: true, rsum: 20k, rc_en: true, dcrm: true, rc: [{ r: 0.78k, c: 150n }] }
+    # psg rsum was 20k from the schematic; raised to 56.4k for ~-9 dB attenuation.
+    - { name: psga, data_width: 8, unsigned: true, rsum: 56.4k, rc_en: true, dcrm: true, rc: [{ r: 0.78k, c: 150n }] }
+    - { name: psgb, data_width: 8, unsigned: true, rsum: 56.4k, rc_en: true, dcrm: true, rc: [{ r: 0.78k, c: 150n }] }
+    - { name: psgc, data_width: 8, unsigned: true, rsum: 56.4k, rc_en: true, dcrm: true, rc: [{ r: 0.78k, c: 150n }] }
     - { name: vlm,  module: vlm5030, rsum: 3.3k, pre: 5.1, dcrm: true, rc: [{ r: 10k, c: 3.9n }, { r: 10k, c: 3.9n }] }
 
 params:

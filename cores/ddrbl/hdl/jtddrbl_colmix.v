@@ -28,13 +28,15 @@ wire pri = (|g1col[3:0]) & g2col[4];
 // LS157 H13/H14 layer mux: pri ? FG : BG
 wire [4:0] col_mux = pri ? g1col : g2col;
 
-reg         pal_half;
+reg         pal_half, pal_half_l;
 reg  [15:0] pxl_aux;
 assign pal_addr = { pri, col_mux, pal_half };
 
 always @(posedge clk) begin
-    pxl_aux  <= { pxl_aux[7:0], pal_dout };
-    pal_half <= pxl_cen ? 1'b0 : ~pal_half;
+    pal_half   <= pxl_cen ? 1'b0 : ~pal_half;
+    pal_half_l <= pal_half;
+    if( pal_half_l ) pxl_aux[ 7:0] <= pal_dout;
+    else             pxl_aux[15:8] <= pal_dout;
     if( pxl_cen ) begin
         red   <= blank ? 5'h0 : pxl_aux[ 4: 0];
         green <= blank ? 5'h0 : pxl_aux[ 9: 5];
