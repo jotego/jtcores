@@ -35,7 +35,11 @@
     input   [ 7:0]  prog_data,
     input           prog_we,
     input   [ 1:0]  prog_ba,
+`ifdef JTFRAME_SDRAM_XL
+    input   [26:0]  ioctl_addr,
+`else
     input   [25:0]  ioctl_addr,
+`endif
     input           prom_we,
 {{- if .Download.Post_addr }}
 `ifdef JTFRAME_SDRAM_XL

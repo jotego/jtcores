@@ -6,12 +6,12 @@ module test;
 
 localparam SDRAMW     = 24;
 localparam HEADER     = 26'd32;
-localparam LUTSH      = 4;
+localparam LUTSH      = 16;
 localparam CHIP1_ADDR = 23'h400000;
 
 reg         clk = 0;
 reg         ioctl_rom = 1;
-reg [25:0] ioctl_addr = 0;
+reg [26:0] ioctl_addr = 0;
 reg [ 7:0] ioctl_dout = 0;
 reg         ioctl_wr = 0;
 
@@ -39,7 +39,7 @@ jtframe_dwnld #(
     .BALUT_LEN     ( 9       ),
     .BALUT_REVERSE ( 1       ),
     .LUTSH         ( LUTSH   ),
-    .PROM_START    ( ~26'd0  ),
+    .PROM_START    ( ~27'd0  ),
     .XL            ( 1       )
 ) uut(
     .clk        ( clk        ),
@@ -64,7 +64,7 @@ jtframe_dwnld #(
 );
 
 task write_byte;
-    input [25:0] addr;
+    input [26:0] addr;
     input [ 7:0] data;
     begin
         @(negedge clk);
@@ -80,13 +80,13 @@ task write_offset;
     input [ 3:0] index;
     input [15:0] offset_word;
     begin
-        write_byte( {22'd0, index, 1'b0}, offset_word[ 7:0] );
-        write_byte( {22'd0, index, 1'b1}, offset_word[15:8] );
+        write_byte( {23'd0, index, 1'b0}, offset_word[ 7:0] );
+        write_byte( {23'd0, index, 1'b1}, offset_word[15:8] );
     end
 endtask
 
 task check_bank;
-    input [25:0] part_addr;
+    input [26:0] part_addr;
     input [ 1:0] want_ba;
     input        want_chip;
     begin
@@ -111,7 +111,7 @@ task check_bank;
 endtask
 
 task check_prom;
-    input [25:0] part_addr;
+    input [26:0] part_addr;
     begin
         @(negedge clk);
         ioctl_addr = HEADER + part_addr;
@@ -137,25 +137,25 @@ endtask
 initial begin
     repeat (2) @(negedge clk);
 
-    write_offset( 4'd0, 16'h0000 );
-    write_offset( 4'd1, 16'h0001 );
-    write_offset( 4'd2, 16'h0002 );
-    write_offset( 4'd3, 16'h0003 );
-    write_offset( 4'd4, 16'h0004 );
-    write_offset( 4'd5, 16'h0005 );
-    write_offset( 4'd6, 16'h0006 );
-    write_offset( 4'd7, 16'h0007 );
-    write_offset( 4'd8, 16'h0008 );
+    write_offset( 4'd0, 16'h0008 );
+    write_offset( 4'd1, 16'h0088 );
+    write_offset( 4'd2, 16'h0188 );
+    write_offset( 4'd3, 16'h0288 );
+    write_offset( 4'd4, 16'h0388 );
+    write_offset( 4'd5, 16'h0408 );
+    write_offset( 4'd6, 16'h0418 );
+    write_offset( 4'd7, 16'h0428 );
+    write_offset( 4'd8, 16'h0438 );
 
-    check_bank( 26'h00, 2'd0, 1'b0 );
-    check_bank( 26'h10, 2'd1, 1'b0 );
-    check_bank( 26'h20, 2'd2, 1'b0 );
-    check_bank( 26'h30, 2'd3, 1'b0 );
-    check_bank( 26'h40, 2'd0, 1'b1 );
-    check_bank( 26'h50, 2'd1, 1'b1 );
-    check_bank( 26'h60, 2'd2, 1'b1 );
-    check_bank( 26'h70, 2'd3, 1'b1 );
-    check_prom( 26'h80 );
+    check_bank( 27'h0000000, 2'd0, 1'b0 );
+    check_bank( 27'h0880000, 2'd1, 1'b0 );
+    check_bank( 27'h1880000, 2'd2, 1'b0 );
+    check_bank( 27'h2880000, 2'd3, 1'b0 );
+    check_bank( 27'h3880000, 2'd0, 1'b1 );
+    check_bank( 27'h4080000, 2'd1, 1'b1 );
+    check_bank( 27'h4180000, 2'd2, 1'b1 );
+    check_bank( 27'h4280000, 2'd3, 1'b1 );
+    check_prom( 27'h4380000 );
 
     pass();
 end

@@ -38,9 +38,9 @@ localparam integer HF     = 1;
 
 `ifdef TEST_BALUT
 localparam [25:0] DNL_HEADER        = 26'd32;
-localparam [25:0] DNL_BA1_START     = ~26'd0;
-localparam [25:0] DNL_BA2_START     = ~26'd0;
-localparam [25:0] DNL_BA3_START     = ~26'd0;
+localparam [26:0] DNL_BA1_START     = ~27'd0;
+localparam [26:0] DNL_BA2_START     = ~27'd0;
+localparam [26:0] DNL_BA3_START     = ~27'd0;
 localparam integer DNL_BALUT        = 1;
 localparam integer DNL_LUTSH        = 16;
 `ifdef TEST_BALUT_REVERSE
