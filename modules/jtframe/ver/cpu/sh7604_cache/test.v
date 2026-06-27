@@ -126,6 +126,7 @@ jtsh7604 u_cpu(
     .cpu_din    ( cpu_din_i   ),
     .cps3_key1  ( 32'd0       ),
     .cps3_key2  ( 32'd0       ),
+    .cps3_crypt_mode ( 2'd2   ),
     .cache_ok   ( cpu_cache_ok ),
 
     .A          ( cpu_a       ),

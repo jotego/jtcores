@@ -35,7 +35,7 @@ module jtsh7604 #(
     input      [31:0]  cpu_din,
     input      [31:0]  cps3_key1,
     input      [31:0]  cps3_key2,
-    input              cps3_key_valid,
+    input      [ 1:0]  cps3_crypt_mode,
 
     input              cache_ok,
 
@@ -84,11 +84,17 @@ module jtsh7604 #(
     wire [26:0] bus_a = req_active ? cpu_a_l : cpu_a;
     wire        bus_rd_n = req_active ? cpu_rd_n_l : cpu_rd_n;
     wire        bus_dbus_rd = req_active ? cpu_bus_dbus_rd_l : cpu_bus_dbus_rd;
-    wire        cps3_bios_rd = cps3_key_valid && bus_a[26:19] == 8'h00 && !bus_rd_n && !bus_dbus_rd;
-    wire        cps3_simm1_rd = cps3_key_valid &&
+    localparam [1:0] CPS3_CRYPT_NORMAL = 2'd0,
+                     CPS3_CRYPT_ALT    = 2'd1,
+                     CPS3_CRYPT_NONE   = 2'd2;
+
+    wire        cps3_decrypt_en = cps3_crypt_mode != CPS3_CRYPT_NONE;
+    wire        cps3_simm_data_xor_en = cps3_crypt_mode == CPS3_CRYPT_NORMAL;
+    wire        cps3_bios_rd = cps3_decrypt_en && bus_a[26:19] == 8'h00 && !bus_rd_n && !bus_dbus_rd;
+    wire        cps3_simm1_rd = cps3_simm_data_xor_en &&
                                   bus_a[26:25] == 2'b11 && !bus_a[24] && !bus_a[23] &&
                                   !bus_rd_n && !bus_dbus_rd;
-    wire        cps3_simm2_rd = cps3_key_valid &&
+    wire        cps3_simm2_rd = cps3_simm_data_xor_en &&
                                   bus_a[26:25] == 2'b11 && !bus_a[24] && bus_a[23] &&
                                   !bus_rd_n && !bus_dbus_rd;
     wire        cps3_simm_rd  = cps3_simm1_rd | cps3_simm2_rd;
@@ -288,7 +294,7 @@ module jtsh7604 #(
         .MD        ( MD_CFG    ),
         .FAST      ( 1'b0      ),
 
-        .CPS3_DECRYPT ( cps3_key_valid ),
+        .CPS3_DECRYPT ( cps3_decrypt_en ),
         .CPS3_KEY1    ( cps3_key1 ),
         .CPS3_KEY2    ( cps3_key2 )
     );
