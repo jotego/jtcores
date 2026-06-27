@@ -276,6 +276,20 @@ SYSNAME=`derive_corename_from_folder`
 mkdir -p frames
 require "$SYSNAME" "Missing core name. Run jtsim for a cores/corename/ver/setname folder"
 
+generate_mra_header_module() {
+    local toml="$CORES/$SYSNAME/cfg/mame2mra.toml"
+    local header_file="$CORES/$SYSNAME/hdl/jt${SYSNAME}_header.v"
+
+    if [ ! -e "$toml" ] || [ -e "$header_file" ]; then
+        return 0
+    fi
+    if grep -q '^[[:space:]]*registers[[:space:]]*=' "$toml"; then
+        jtframe mra "$SYSNAME" --skipMRA --skipROM --skipPocket --mainonly > /dev/null
+    fi
+}
+
+generate_mra_header_module || exit $?
+
 if jtcfgstr bash | grep -q 'JTFRAME_ROMLESS='; then
     ROMLESS=1
 fi
