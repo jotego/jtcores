@@ -143,6 +143,7 @@ module SH7604_BSC
 			3'h2: dram3 = 1;
 			3'h4: sdram2 = 1;
 			3'h5: {sdram2,sdram3} = '1;
+			default:;
 		endcase
 
 		case (area)

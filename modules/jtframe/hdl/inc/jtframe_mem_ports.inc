@@ -6,7 +6,11 @@
     output    [ 1:0]  sram_dsn,
     input             sram_ok,
 `endif
+`ifdef JTFRAME_SDRAM_XL
+    input   [26:0]  ioctl_addr,
+`else
     input   [25:0]  ioctl_addr,
+`endif
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     input           ioctl_rom,

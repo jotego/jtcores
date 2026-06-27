@@ -73,7 +73,11 @@ module game_test(
     output          dwnld_busy,
 
     // ROM LOAD
+`ifdef JTFRAME_SDRAM_XL
+    input   [26:0]  ioctl_addr,
+`else
     input   [25:0]  ioctl_addr,
+`endif
     input   [ 7:0]  ioctl_dout,
     input           ioctl_wr,
     input           ioctl_ram,

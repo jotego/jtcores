@@ -22,6 +22,7 @@ localparam [25:0] BA3_START  =`ifdef JTFRAME_BA3_START  `JTFRAME_BA3_START  `els
 localparam [25:0] PROM_START =`ifdef JTFRAME_PROM_START `JTFRAME_PROM_START `else 26'd0 `endif;
 localparam [25:0] HEADER_LEN =`ifdef JTFRAME_HEADER     `JTFRAME_HEADER     `else 26'd0 `endif;
 localparam        SDRAMW     =`ifdef JTFRAME_SDRAM_XL 25 `elsif JTFRAME_SDRAM_LARGE 24 `else 23 `endif;
+localparam        IOCTL_AW   =`ifdef JTFRAME_SDRAM_XL 27 `else 26 `endif;
 /* verilator lint_on WIDTH */
 
 {{ range .Params }}
@@ -86,7 +87,7 @@ assign {{.Name}}_flush_done = {{.Name}}_flush;
 wire        prom_we, header;
 wire [SDRAMW-2:0] raw_addr, post_addr;
 wire [SDRAMW-2:0] ioctl_prog_addr   = ioctl_addr[SDRAMW-2:0];
-wire [25:0] pre_addr, dwnld_addr, ioctl_addr_noheader;
+wire [IOCTL_AW-1:0] pre_addr, dwnld_addr, ioctl_addr_noheader;
 wire [ 7:0] post_data;
 wire [15:0] raw_data;
 wire [ 7:0] pcb_id;
@@ -317,6 +318,11 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
 /* verilator tracing_off */
 assign dwnld_busy = ioctl_rom | prom_we; // prom_we is really just for sims
 assign dwnld_addr = {{if .Download.Pre_addr }}pre_addr{{else}}ioctl_addr{{end}};
+`ifdef JTFRAME_SDRAM_XL
+wire [26:0] dwnld_addr_wide = dwnld_addr;
+`else
+wire [26:0] dwnld_addr_wide = {1'b0,dwnld_addr};
+`endif
 assign prog_addr = {{if .Download.Post_addr }}post_addr{{else}}raw_addr{{end}};
 assign prog_data = {{if .Download.Post_data }}{2{post_data}}{{else}}raw_data{{end}};
 assign gfx4_en   = {{ .Gfx4 }}
@@ -357,7 +363,7 @@ jtframe_dwnld #(
 ) u_dwnld(
     .clk          ( clk            ),
     .ioctl_rom    ( ioctl_dwn      ),
-    .ioctl_addr   ( dwnld_addr     ),
+    .ioctl_addr   ( dwnld_addr_wide),
     .ioctl_dout   ( ioctl_dout     ),
     .ioctl_wr     ( ioctl_wr       ),
     .gfx4_en      ( gfx4_en        ),

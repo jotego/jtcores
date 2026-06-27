@@ -29,11 +29,11 @@
 module jtframe_dwnld #(
     parameter        SDRAMW    = 23, // bank size, default = 8MB for 32MB SDRAM
     parameter        SIMFILE   = "rom.bin",
-    parameter [25:0] PROM_START= `ifdef JTFRAME_PROM_START `JTFRAME_PROM_START `else ~26'd0 `endif,
-    parameter [25:0] BA1_START = ~26'd0,
-    parameter [25:0] BA2_START = ~26'd0,
-    parameter [25:0] BA3_START = ~26'd0,
-    parameter [25:0] HEADER    = `ifdef JTFRAME_HEADER `JTFRAME_HEADER `else 0 `endif,
+    parameter [26:0] PROM_START= `ifdef JTFRAME_PROM_START `JTFRAME_PROM_START `else ~27'd0 `endif,
+    parameter [26:0] BA1_START = ~27'd0,
+    parameter [26:0] BA2_START = ~27'd0,
+    parameter [26:0] BA3_START = ~27'd0,
+    parameter [26:0] HEADER    = `ifdef JTFRAME_HEADER `JTFRAME_HEADER `else 0 `endif,
     parameter [25:0] SWAB      = 0, // swap every pair of input bytes (SDRAM only)
     parameter        GFX8B0    = 0, // bit 0 for HHVVV  sequence
     parameter        GFX16B0   = 0, // bit 0 for HHVVVV sequence
@@ -46,7 +46,7 @@ module jtframe_dwnld #(
 )(
     input                clk,
     input                ioctl_rom,
-    input      [25:0]    ioctl_addr, // max 64 MB
+    input      [26:0]    ioctl_addr, // max 128 MB
     input      [ 7:0]    ioctl_dout,
     input                ioctl_wr,
     output reg [SDRAMW-1:1] prog_addr,
@@ -76,12 +76,12 @@ initial begin
 end
 `endif
 
-localparam BA_EN   = BA1_START!=~26'd0 || BA2_START!=~26'd0 || BA3_START!=~26'd0 || BALUT!=0,
-           PROM_EN = PROM_START!=~26'd0;
+localparam BA_EN   = BA1_START!=~27'd0 || BA2_START!=~27'd0 || BA3_START!=~27'd0 || BALUT!=0,
+           PROM_EN = PROM_START!=~27'd0;
 /* verilator lint_on  WIDTH */
 reg  [ 7:0] data_out;
 wire        is_prom;
-reg  [25:0] part_addr, nohdr_addr;
+reg  [26:0] part_addr, nohdr_addr;
 
 assign prog_data = {2{data_out}};
 assign prog_rd   = 0;
@@ -93,12 +93,12 @@ function [15:0] header_word;
     end
 endfunction
 
-function [25:0] header_offset;
+function [26:0] header_offset;
     input [15:0] raw;
     reg   [15:0] word;
     begin
         word = header_word(raw);
-        header_offset = {10'd0, word} << LUTSH;
+        header_offset = {11'd0, word} << LUTSH;
     end
 endfunction
 
@@ -121,8 +121,8 @@ end
 /////////////////////////////////////////////////
 // Normal operation
 reg  [ 2:0] bank;
-reg  [25:0] offset;
-reg  [25:0] eff_addr;
+reg  [26:0] offset;
+reg  [26:0] eff_addr;
 reg [2*9*8-1:0] ba_start=0; // 16 bits per offset
 reg [SDRAMW-1:1] pend_addr;
 reg [ 7:0] pend_data;
@@ -142,10 +142,10 @@ always @(*) begin
         3'd1: offset = BALUT==0 ? BA1_START : header_offset(ba_start[16+:16]);
         3'd2: offset = BALUT==0 ? BA2_START : header_offset(ba_start[32+:16]);
         3'd3: offset = BALUT==0 ? BA3_START : header_offset(ba_start[48+:16]);
-        3'd4: offset = XL && BALUT!=0 ? header_offset(ba_start[64+:16]) : 26'd0;
-        3'd5: offset = XL && BALUT!=0 ? header_offset(ba_start[80+:16]) : 26'd0;
-        3'd6: offset = XL && BALUT!=0 ? header_offset(ba_start[96+:16]) : 26'd0;
-        3'd7: offset = XL && BALUT!=0 ? header_offset(ba_start[112+:16]) : 26'd0;
+        3'd4: offset = XL && BALUT!=0 ? header_offset(ba_start[64+:16]) : 27'd0;
+        3'd5: offset = XL && BALUT!=0 ? header_offset(ba_start[80+:16]) : 27'd0;
+        3'd6: offset = XL && BALUT!=0 ? header_offset(ba_start[96+:16]) : 27'd0;
+        3'd7: offset = XL && BALUT!=0 ? header_offset(ba_start[112+:16]) : 27'd0;
         default: offset = 0;
     endcase // bank
     eff_addr = part_addr-offset;

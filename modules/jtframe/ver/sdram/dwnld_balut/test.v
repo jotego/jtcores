@@ -8,7 +8,7 @@ reg clk = 0;
 always #5 clk = ~clk;
 
 reg         ioctl_rom = 1;
-reg [25:0] addr_f = 0, addr_r = 0;
+reg [26:0] addr_f = 0, addr_r = 0;
 reg [ 7:0] dout_f = 0, dout_r = 0;
 reg        wr_f = 0, wr_r = 0;
 
@@ -27,7 +27,7 @@ jtframe_dwnld #(
     .BALUT         ( 1 ),
     .BALUT_REVERSE ( 0 ),
     .LUTSH         ( 4 ),
-    .PROM_START    ( ~26'd0 )
+    .PROM_START    ( ~27'd0 )
 ) uut_forward (
     .clk        ( clk ),
     .ioctl_rom  ( ioctl_rom ),
@@ -56,7 +56,7 @@ jtframe_dwnld #(
     .BALUT         ( 1 ),
     .BALUT_REVERSE ( 1 ),
     .LUTSH         ( 4 ),
-    .PROM_START    ( ~26'd0 )
+    .PROM_START    ( ~27'd0 )
 ) uut_reverse (
     .clk        ( clk ),
     .ioctl_rom  ( ioctl_rom ),
@@ -80,7 +80,7 @@ jtframe_dwnld #(
 );
 
 task write_forward;
-    input [25:0] a;
+    input [26:0] a;
     input [ 7:0] d;
     begin
         @(negedge clk);
@@ -93,7 +93,7 @@ task write_forward;
 endtask
 
 task write_reverse;
-    input [25:0] a;
+    input [26:0] a;
     input [ 7:0] d;
     begin
         @(negedge clk);
