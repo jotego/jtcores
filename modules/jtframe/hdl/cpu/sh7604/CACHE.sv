@@ -652,9 +652,10 @@ module SH7604_CACHE (
 	wire cps3_simm_opcode_area = CBUS_A[31:24] == 8'h06;
 	wire cps3_dec_en = CPS3_DECRYPT && CBUS_ID && CACHE_DATA_AREA;
 	wire cps3_alt_dec_en = CPS3_ALT_DECRYPT && CBUS_ID && CACHE_AREA && cps3_simm_opcode_area;
+	wire [31:0] cps3_ibus_data_dec = IBUS_DI ^ cps3_mask({CBUS_A[31:2], 2'b00}, CPS3_KEY1, CPS3_KEY2);
 
 	assign CBUS_DO = CCR_SEL ? {4{CCR & CCR_RMASK}}    :
-					 IBDATA_RDY  ? IBUS_DI             :
+					 IBDATA_RDY  ? (cps3_alt_dec_en ? cps3_ibus_data_dec : IBUS_DI) :
 					 (cps3_dec_en || cps3_alt_dec_en) ? cps3_cache_data_dec : CACHE_DATA;
 	assign CBUS_BUSY = CBUS_REQ && (IBUS_READ || IBUS_READARRAY || IBUS_READ_PEND || IBUS_WRITE_PEND ||
 						(IBUS_WRITE && !IO_AREA));
