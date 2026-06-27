@@ -74,6 +74,7 @@ module SH7604
 	input             FAST,
 
 	input             CPS3_DECRYPT,
+	input             CPS3_ALT_DECRYPT,
 	input      [31:0] CPS3_KEY1,
 	input      [31:0] CPS3_KEY2
 	
@@ -333,6 +334,7 @@ module SH7604
 		.IBUS_LOCK(IBUS_LOCK),
 		.IBUS_WAIT(IBUS_WAIT),
 		.CPS3_DECRYPT(CPS3_DECRYPT),
+		.CPS3_ALT_DECRYPT(CPS3_ALT_DECRYPT),
 		.CPS3_KEY1(CPS3_KEY1),
 		.CPS3_KEY2(CPS3_KEY2)
 	);
