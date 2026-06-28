@@ -1,0 +1,38 @@
+# arbalest reuses the cal50 (downtown.cpp / Seta 1st-gen) building blocks.
+# Files are IMPORTED from cal50/kiwi/jtframe, not copied — only the modules
+# that differ for the metafox/arbalest bus topology live in cores/arbalest/hdl.
+arbalest:
+  - get: [ "*.v" ]            # jtarbalest_{game,main,sub,sound}.v (the differences)
+cal50:
+  - get:
+    - jtcal50_video.v         # single X1-012 layer + X1-001 sprites + colmix (unchanged)
+    - jtcal50_colmix.v        # direct xRGB-555 mixing (unchanged)
+    - jtx1012.v               # X1-012 tilemap (mmr regs generated locally from cfg/mmr.yaml)
+kiwi:
+  - get:
+    - jtkiwi_gfx.v            # X1-001/002 sprite engine
+    - jtkiwi_obj.v
+    - jtkiwi_draw.v
+    - jtkiwi_tilemap.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+      - jtframe_8bit_reg.v
+      - jtframe_edge.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram16.v
+      - jtframe_obj_buffer.v
+      - jtframe_prom.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_scroll.yaml
+  - from: cpu
+    get:
+      - jtframe_m68k.yaml
+jt680x:
+  - get:
+    - jt65c02.yaml             # I/O / protection sub-CPU (not sound, unlike cal50)
+jtx1010:                       # X1-010 PCM — driven by the main 68000 here
