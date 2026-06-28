@@ -1,12 +1,7 @@
-       \BARBALESTER\W
-       \B/ META FOX\W
-    FPGA core by \RJOTEGO\W
-     patreon.com/jotego
+\BArbalester - Metafox\W FPGA core
 
-  Version \C - \D
+   by \GAndr\Wea Bog\Razzi\W
+   on the \RJTCORES\W framework
+     by JOTEGO + community
 
-      Seta downtown.cpp
-      family (metafox-class)
-
-      Reuses the cal50
-      building blocks
+   Reviewed by Jose Tejada

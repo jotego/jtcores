@@ -1,6 +1,3 @@
-# arbalest reuses the cal50 (downtown.cpp / Seta 1st-gen) building blocks.
-# Files are IMPORTED from cal50/kiwi/jtframe, not copied — only the modules
-# that differ for the metafox/arbalest bus topology live in cores/arbalest/hdl.
 arbalest:
   - get: [ "*.v" ]            # jtarbalest_{game,main,sub,sound}.v (the differences)
 cal50:

@@ -16,9 +16,6 @@
     Version: 1.0
     Date: 17-06-2026 */
 
-// X1-010 PCM. In the metafox-class boards the X1-010 is mapped directly on the
-// main 68000 bus (0x100000-0x103fff), so there is no sound CPU / command FIFO
-// This module is just the chip wrapper.
 module jtarbalest_sound(
     input              clk,
     input              rst,
