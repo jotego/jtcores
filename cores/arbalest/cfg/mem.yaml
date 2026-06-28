@@ -102,9 +102,7 @@ bram:
     dual_port:
       name: col
       dout: col_data
-  # X1-001 external video RAM. metafox is 16 KB (0xe00000-0xe03fff): two 8 KB
-  # sprite buffers (CPU-written; setac bank selects which the engine displays).
-  # calibr50 is 8 KB (addr_width 13); metafox needs addr_width 14.
+  # X1-001 external video RAM. metafox is 16 KB (0xe00000-0xe03fff): two 8 KB sprite buffers
   - name: dma
     addr_width: 14
     data_width: 16
