@@ -149,7 +149,7 @@ jtarbalest_sound u_sound(
 );
 
 /* verilator tracing_on */
-jtcal50_video #(.OBJAW(13),.SETAC(1),
+jtcal50_video #(.SPRMODE(1), // SETAC: 16KB sprite RAM + 0x1000 bank
     // metafox/arbalest visarea = 224 lines (MAME set_visarea rows 16..239)
     .VB_END(9'd7), .VB_START(9'd231),
 
