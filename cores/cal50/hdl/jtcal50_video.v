@@ -16,7 +16,22 @@
     Version: 1.0
     Date: 15-11-2025 */
 
-module jtcal50_video(
+module jtcal50_video #(
+    parameter OBJAW=12, // sprite addr width: 12=8KB (calibr50), 13=16KB (metafox)
+    parameter SETAC=0,  // metafox-style 2-buffer sprite bank
+    // vtimer vertical window; defaults = calibr50 (240 lines), metafox/arbalest = 224
+    parameter [8:0] V_START  = 9'd0,
+    parameter [8:0] VB_START = 9'd240,
+    parameter [8:0] VB_END   = 9'd0,
+    parameter [8:0] VS_START = 9'd253,
+    parameter [8:0] VS_END   = 9'd261,
+    parameter [8:0] VCNT_END = 9'd271,
+    parameter [15:0] THOFFS  = 16'h20, // X1-012 scroll origin; default = calibr50
+    parameter [ 8:0] TVOFFS  =  9'd0,
+    parameter [ 8:0] SPR_VADJ = 9'd8,  // X1-001 vdump/hdump offset; default = calibr50
+    parameter [ 8:0] SPR_HADJ = 9'd5,
+    parameter        SCR_EN   = 0      // blend the X1-001 background layer
+)(
     input               rst,
     input               clk,
     input               clk_cpu,
@@ -56,11 +71,11 @@ module jtcal50_video(
     input      [ 7:0]   col_data, yram_dout,
     output              yram_we,
     // X1-001 External VRAM (defined in mem.yaml)
-    output     [12:1]   dma_addr,
+    output     [OBJAW:1]   dma_addr,
     output     [15:0]   dma_din,
     output     [ 1:0]   dma_we,
     input      [15:0]   dma_dout, code_dout,
-    output     [11:0]   code_addr,
+    output     [OBJAW-1:0] code_addr,
     // SDRAM interface
     output     [20:2]   scr_addr,
     input      [31:0]   scr_data,
@@ -111,12 +126,12 @@ jtframe_vtimer #(
     .HS_START( 9'd409 ),
     .HS_END  ( 9'd461 ),
     .HCNT_END( 9'd511 ),
-    .V_START ( 9'd000 ),
-    .VS_START( 9'd253 ),
-    .VS_END  ( 9'd261 ),
-    .VB_START( 9'd240 ),
-    .VB_END  ( 9'd000 ),
-    .VCNT_END( 9'd271 )
+    .V_START ( V_START  ),
+    .VS_START( VS_START ),
+    .VS_END  ( VS_END   ),
+    .VB_START( VB_START ),
+    .VB_END  ( VB_END   ),
+    .VCNT_END( VCNT_END )
 ) u_timer(
     .clk        ( clk        ),
     .pxl_cen    ( pxl_cen    ),
@@ -132,7 +147,7 @@ jtframe_vtimer #(
     .VS         ( VS         )
 );
 /* verilator tracing_off */
-jtx1012 u_tiles(
+jtx1012 #(.HOFFS(THOFFS),.VOFFS(TVOFFS)) u_tiles(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
@@ -166,14 +181,14 @@ jtx1012 u_tiles(
     .st_dout    ( st_tiles      )
 );
 
-localparam [8:0] VADJ = 9'd8,HADJ=9'd5;
+localparam [8:0] VADJ = SPR_VADJ, HADJ = SPR_HADJ;
 
 wire [8:0] vdump_adj   = vdump   + VADJ,
            vrender_adj = vrender + VADJ,
            hdump_adj   = hdump   + HADJ;
 
 /* verilator tracing_on */
-jtkiwi_gfx #(.CPUW(16)) u_gfx(
+jtkiwi_gfx #(.CPUW(16),.OBJAW(OBJAW),.SETAC(SETAC)) u_gfx(
     .rst        ( rst            ),
     .clk        ( clk            ),
     .clk_cpu    ( clk_cpu        ),
@@ -228,7 +243,7 @@ jtkiwi_gfx #(.CPUW(16)) u_gfx(
     .st_dout    ( st_kiwi        )
 );
 /* verilator tracing_on */
-jtcal50_colmix u_colmix(
+jtcal50_colmix #(.SCR_EN(SCR_EN)) u_colmix(
     .clk        ( clk            ),
     .clk_cpu    ( clk_cpu        ),
     .pxl_cen    ( pxl_cen        ),

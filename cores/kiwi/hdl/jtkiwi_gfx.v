@@ -24,7 +24,9 @@
 // be an internal dual-line buffer and another larger memory
 
 module jtkiwi_gfx #(
-    parameter CPUW=8
+    parameter CPUW=8,
+    parameter OBJAW=12, // sprite LUT/code address width. 12=8KB (tnzs/cal50), 13=16KB (metafox)
+    parameter SETAC=0   // 1 = metafox-style sprite bank (2x 8KB buffers, bank at word 0x1000)
 )(
     input               rst,
     input               clk,
@@ -58,11 +60,11 @@ module jtkiwi_gfx #(
     input      [ 7:0]   col_data, yram_dout,
     output              yram_we,
     // External VRAM (defined in mem.yaml)
-    output     [12:1]   dma_addr,
+    output     [OBJAW:1] dma_addr,
     output     [15:0]   dma_din,
     output     [ 1:0]   dma_we,
     input      [15:0]   dma_dout, code_dout,
-    output reg [12:1]   code_addr,
+    output reg [OBJAW:1] code_addr,
     // SDRAM interface
     output     [20:2]   scr_addr,
     input      [31:0]   scr_data,
@@ -83,7 +85,8 @@ module jtkiwi_gfx #(
 wire        video_en;
 wire [ 1:0] vram_we;
 wire [11:0] tm_addr;
-wire [12:1] lut_addr, dma_txa;
+wire [OBJAW:1] lut_addr;
+wire [12:1] dma_txa;
 wire [ 7:0] scol_addr;
 reg  [ 7:0] attr, xpos, ypos;
 reg  [ 7:0] cfg[0:3], flag;
@@ -114,10 +117,12 @@ assign obj_pg_en= cfg[0][3];   // uncertain. only cal50 keeps it low
 assign tm_page  = cfg[1][6];
 assign obj_bufb = cfg[1][5];
 assign obj_page = obj_pg_en ? tm_page ^ ~obj_bufb : 1'b1;
+// metafox sprite-buffer bank (MAME seta001 draw_foreground; cfg[1]=m_spritectrl[1])
+wire setac_bank = ((cfg[1] ^ (~cfg[1]<<1)) & 8'h40)!=0;
 assign dma_src  = obj_pg_en ? tm_page ^  dma_tm   : 1'b0;
 assign col_cfg  = cfg[1][3:0];
 assign col_xmsb = { cfg[3], cfg[2] };
-assign dma_addr = dma_bsy ? dma_txa : cpu_addr[11:0];
+assign dma_addr = dma_bsy ? {{(OBJAW-12){1'b0}},dma_txa} : cpu_addr[OBJAW-1:0]; // SETAC: full 16KB CPU write window
 assign dma_txa  ={dma_src ^ dma_st, dma_tm, dma_cnt};
 assign dma_din  = dma_bsy ? dma_data   : vram_d16;
 assign dma_we   = dma_bsy ? dma_bsy_we : vram_we;
@@ -203,7 +208,8 @@ always @* begin
     case( cen_cnt )
         0,1: begin
             col_addr  = { 2'b10, scol_addr };
-            code_addr = tm_addr;
+            // SETAC: bg buffer bank in the code_addr MSB (like the fg lut_addr)
+            code_addr = { {(OBJAW-12){SETAC ? setac_bank : 1'b0}}, tm_addr };
         end
         2,3: begin // objects
             col_addr  = { 1'b0, y_addr };
@@ -220,7 +226,8 @@ jtkiwi_tilemap u_tilemap(
 
     .hs         ( hs        ),
     .flip       ( flip      ),
-    .page       ( tm_page   ),
+    // SETAC: no 0x800 page split (bank is the code_addr MSB); TNZS uses tm_page
+    .page       ( SETAC ? 1'b0 : tm_page ),
     .drtoppel   ( drtoppel  ),
 
     .col_xmsb   ( col_xmsb  ),
@@ -245,7 +252,7 @@ jtkiwi_tilemap u_tilemap(
     .debug_bus  ( debug_bus )
 );
 
-jtkiwi_obj u_obj(
+jtkiwi_obj #(.OBJAW(OBJAW),.SETAC(SETAC)) u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .lut_cen    ( lut_cen   ),
@@ -253,7 +260,7 @@ jtkiwi_obj u_obj(
 
     .hs         ( hs        ),
     .flip       ( flip      ),
-    .page       ( obj_page  ),
+    .page       ( SETAC ? setac_bank : obj_page ),
 
     .lut_addr   ( lut_addr  ),
     .lut_data   ( code_dout ),

@@ -1,0 +1,8 @@
+*.tr
+frames/
+*.mp4
+test.wav
+*.raw
+sdram_bank*.bin
+rom.bin
+game/65c02.vh

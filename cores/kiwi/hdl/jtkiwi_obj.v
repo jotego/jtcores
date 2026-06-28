@@ -18,7 +18,10 @@
 
 // This is object processor section of the SETA chip
 
-module jtkiwi_obj(
+module jtkiwi_obj #(
+    parameter OBJAW = 12,   // sprite LUT addr width: 12=8KB (tnzs/cal50), 13=16KB (metafox)
+    parameter SETAC = 0     // metafox-style 2-buffer bank (word 0x1000)
+)(
     input               rst,
     input               clk,
     input               lut_cen,
@@ -28,7 +31,7 @@ module jtkiwi_obj(
     input               flip,
     input               page,
 
-    output     [12:1]   lut_addr,
+    output     [OBJAW:1] lut_addr,
     input      [15:0]   lut_data,
 
     output     [ 8:0]   y_addr,
@@ -62,7 +65,11 @@ wire        dr_busy;
 wire [ 8:0] buf_din, buf_addr;
 wire        buf_we;
 
-assign lut_addr = { page, 1'b0, ~st[1], objcnt }; // 1 + 1 + 1 + 9 = 12
+// SETAC: page is the 0x1000 buffer bank; non-SETAC: the 0x800 TNZS page
+generate
+    if( SETAC ) assign lut_addr = { page, 2'b00, ~st[1], objcnt }; // 13b
+    else        assign lut_addr = { page, 1'b0,  ~st[1], objcnt }; // 12b
+endgenerate
 assign y_addr   = objcnt;
 assign vf       = {9{flip}} ^ (vdump-9'd1);
 
