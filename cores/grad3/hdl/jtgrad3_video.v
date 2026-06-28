@@ -30,7 +30,8 @@ module jtgrad3_video(
     input             m_tilesys_cs,
     input             s_tilesys_cs,
     input             objsys_cs,
-    output            vdtack,
+    output            m_vdtack,
+    output            s_vdtack,
     output     [ 7:0] tilesys_dout,
     output     [ 7:0] objsys_dout,
     output     [11:1] pal_rd_addr,
@@ -83,21 +84,25 @@ wire [ 7:0] st_scr, st_obj;
 wire [ 7:0] scroll_din, obj_din, scroll_mmr, obj_reg;
 wire        rst8, e, q, ormrd, obj_irqn, obj_nmin, shadow;
 wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
-wire        cpu_weg, obj_cpu_weg, tilesys_cs;
+wire        cpu_weg, obj_cpu_weg, tilesys_cs, vdtack;
+wire        m_tile_req, s_tile_req, m_tile_grant, s_tile_grant;
 wire [ 1:0] tile_cpu_dsn;
 wire [15:0] tile_cpu_dout;
 wire        tile_cpu_we;
 reg  [13:0] ocode_eff;
 reg  [ 7:0] opal_eff;
 
-// Gradius 3 wires the 16-bit CPU buses to byte-wide Konami video chips through
-// the board glue logic. The word address selects the chip offset and the active
-// byte lane selects the data byte driven onto the 8-bit device bus.
-assign tile_cpu_addr = s_tilesys_cs ? s_cpu_addr : m_cpu_addr;
-assign tile_cpu_dsn  = s_tilesys_cs ? s_cpu_dsn  : m_cpu_dsn;
-assign tile_cpu_dout = s_tilesys_cs ? s_cpu_dout : m_cpu_dout;
-assign tile_cpu_we   = s_tilesys_cs ? s_cpu_we   : m_cpu_we;
-assign tilesys_cs    = m_tilesys_cs | s_tilesys_cs;
+assign m_tile_req    = m_tilesys_cs && m_cpu_dsn != 2'b11;
+assign s_tile_req    = s_tilesys_cs && s_cpu_dsn != 2'b11;
+assign s_tile_grant  = s_tile_req;
+assign m_tile_grant  = m_tile_req && !s_tile_req;
+assign tile_cpu_addr = s_tile_grant ? s_cpu_addr : m_cpu_addr;
+assign tile_cpu_dsn  = s_tile_grant ? s_cpu_dsn  : m_cpu_dsn;
+assign tile_cpu_dout = s_tile_grant ? s_cpu_dout : m_cpu_dout;
+assign tile_cpu_we   = s_tile_grant ? s_cpu_we   : m_cpu_we;
+assign tilesys_cs    = m_tile_grant | s_tile_grant;
+assign m_vdtack      = vdtack & m_tile_grant;
+assign s_vdtack      = vdtack & s_tile_grant;
 assign cpu_saddr     = tile_cpu_addr;
 assign cpu_oaddr     = s_cpu_addr[11:1];
 assign cpu_d8        = tile_cpu_dout[7:0];
@@ -105,7 +110,7 @@ assign obj_cpu_d8    = !s_cpu_dsn[0] ? s_cpu_dout[7:0] : s_cpu_dout[15:8];
 assign cpu_weg       = tile_cpu_we && tile_cpu_dsn != 2'b11;
 assign obj_cpu_weg   = s_cpu_we && s_cpu_dsn != 2'b11;
 assign lyro_addr     = ca;
-assign st_dout       = (s_tilesys_cs | objsys_cs) ? st_obj : st_scr;
+assign st_dout       = (s_tile_grant | objsys_cs) ? st_obj : st_scr;
 
 wire [18:0] ca;
 wire [ 1:0] obj_pri;

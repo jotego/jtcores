@@ -13,7 +13,8 @@ wire [ 7:0] tile_dout, obj_dout, snd_latch;
 wire [ 7:0] video_din, st_snd;
 wire        m_cpu_we,   s_cpu_we,  snd_irq,   sub_rst, sub_irq;
 wire        m_tile_cs,  s_tile_cs, s_obj_cs,  pal_cs;
-wire        tile_dtack, tile_irqn, tile_nmin, sub_irq2;
+wire        m_tile_dtack, s_tile_dtack;
+wire        tile_irqn, tile_nmin, sub_irq2;
 wire        rmrd, prio;
 
 assign debug_view = st_snd;
@@ -46,7 +47,7 @@ jtgrad3_main u_main(
 
     .tile_cs    ( m_tile_cs    ),
     .tile_dout  ( tile_dout    ),
-    .tile_dtack ( tile_dtack   ),
+    .tile_dtack ( m_tile_dtack ),
 
     .gchar_cs   ( m_gchar_cs   ),
     .gchar_we   ( m_gchar_we   ),
@@ -98,7 +99,7 @@ jtgrad3_sub u_sub(
 
     .tile_cs    ( s_tile_cs    ),
     .tile_dout  ( tile_dout    ),
-    .tile_dtack ( tile_dtack   ),
+    .tile_dtack ( s_tile_dtack ),
 
     .obj_cs     ( s_obj_cs     ),
     .obj_dout   ( obj_dout     ),
@@ -144,7 +145,8 @@ jtgrad3_video u_video(
     .m_tilesys_cs ( m_tile_cs       ),
     .s_tilesys_cs ( s_tile_cs       ),
     .objsys_cs    ( s_obj_cs        ),
-    .vdtack       ( tile_dtack      ),
+    .m_vdtack     ( m_tile_dtack    ),
+    .s_vdtack     ( s_tile_dtack    ),
     .tilesys_dout ( tile_dout       ),
     .objsys_dout  ( obj_dout        ),
     .pal_rd_addr  ( palrd_addr      ),
