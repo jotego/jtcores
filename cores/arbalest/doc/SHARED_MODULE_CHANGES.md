@@ -1,227 +1,228 @@
-# Arbalest — changes made to shared modules (cal50 / jtkiwi / jtframe / jtx1010)
+# Arbalest — changes made to shared modules (cal50 / jtkiwi / jtx1010)
 
-The arbalest core (Seta `downtown.cpp`: **metafox** = game_id 0, **arbalester** =
-game_id 1) reuses building blocks from other cores instead of copying them — see
-`cores/arbalest/cfg/files.yaml`. Bringing metafox/arbalest up forced a handful of
-changes to those **shared** files. This document explains, in plain English, every
-such change, why it was needed, and the source that verifies it.
+This document lists, precisely, every shared file
+this branch changes, what the change is, why it was needed, and the source that
+verifies it.
 
-> Scope: only files **outside** `cores/arbalest/` are covered here. Per-core HDL
-> (`jtarbalest_*.v`) is documented in `STATUS.md` and `fixes_journal.md`.
+> **Scope.** This branch touches exactly **six** files outside `cores/arbalest/`:
 >
-> Honesty note on `jtframe`: the arbalest branch made **no behavioural change** to
-> `modules/jtframe`. The jtframe diffs you may see on this branch
-> (`jtframe_pxlcen.v` PXLCLK 55/70, `doc/audio.md` `rc_en`) come from the **cabal /
-> taitob / ddribble** work that shares this branch's lineage, not from arbalest.
-> They are listed at the bottom only so nobody mistakes them for arbalest work.
+> | File | Change |
+> |---|---|
+> | `cores/cal50/hdl/jtcal50_video.v`  | new parameters (sprite width, vtimer, scroll/sprite offsets, bg blend) + forwarding |
+> | `cores/cal50/hdl/jtcal50_colmix.v` | `SCR_EN` — optionally blend the X1-001 background layer |
+> | `cores/cal50/hdl/jtx1012.v`        | `HOFFS`/`VOFFS` — parametrize the tilemap scroll origin |
+> | `cores/kiwi/hdl/jtkiwi_gfx.v`      | `SPRMODE` — 16 KB sprite RAM + metafox bank (width derived) |
+> | `cores/kiwi/hdl/jtkiwi_obj.v`      | `SPRMODE` — wider sprite LUT address + bank |
+> | `modules/jtx1010/hdl/jtx1010_pcm.sv` | 9-bit sample-end page (the PCM-silence fix) |
+>
+> Per-core HDL lives in `cores/arbalest/hdl/jtarbalest_*.v`. **No `modules/jtframe`
+> behaviour is changed by this branch.**
 
-The shared building blocks all originate from the **calibr50** (`cal50`) core, which
-is the *other*, simpler member of `downtown.cpp`. Every change below was made to let
-the **same** module serve both calibr50 (its original target) **and** the
-metafox/arbalest variant, with parameter defaults that reproduce calibr50 exactly —
-so calibr50 is byte-for-byte unaffected.
+Every shared change is gated by a **parameter whose default reproduces the original
+behaviour**, so the existing users — **calibr50** (`cal50`) and the **kiwi/TNZS**
+family — are byte-for-byte unaffected and lint unchanged. arbalest opts in via the
+instantiation in `jtarbalest_game.v`:
+
+```verilog
+jtcal50_video #(.SPRMODE(1),              // SETAC: 16KB sprite RAM + 0x1000 bank
+    .VB_END(9'd7), .VB_START(9'd231),     // 224-line visarea
+    .THOFFS(16'h06), .TVOFFS(-9'd8),      // tilemap scroll origin
+    .SPR_HADJ(9'd5-9'd8),                 // sprite x offset (SPR_VADJ left at 8)
+    .SCR_EN(1)                            // X1-001 background layer
+) u_video( ... );
+```
+
 
 ---
 
-## 1. `cores/cal50/cfg/mmr.yaml` — X1-012 tilemap **bank bit** was wrong
+## 0. (Context) X1-012 tilemap bank bit — changed in arbalest's own cfg
+
+Not a shared-file change, but recorded here because it is the same chip the shared
+`jtx1012.v` drives. The X1-012 keeps two tile pages (VRAM 0 and 0x1000); `vctrl[2]`
+selects which is shown. The bank is **bit 3** (`0x08`), and bit 4 (`0x10`) is a
+separate colour/gfx-mode bit. arbalest's `cfg/mmr.yaml` decodes `at: "4[3]"`.
+
+**Source.** MAME `seta/x1_012.cpp`: tilemap RAM bank = `vctrl[2] & 0x08`. Confirmed
+by a register dump on the metafox/arbalest title screen (`vctrl[2] = 0x0009`, bit 3
+set → page 1, where the title lives).
+
+---
+
+## 1. `cores/cal50/hdl/jtcal50_video.v` — video top made parametrizable
+
+Five independent generalisations, each with a calibr50-preserving default. The
+parameters are forwarded to `jtx1012`, `jtkiwi_gfx` and `jtcal50_colmix`.
+
+### 1a. Sprite mode — `SPRMODE` (address width derived)
+```verilog
+parameter  SPRMODE=0, // 0 = TNZS  (8KB, 0x800 page — calibr50)
+                      // 1 = SETAC (16KB, 0x1000 bank — metafox; MAME seta001 setac_eof)
+localparam OBJAW = SPRMODE ? 13 : 12; // sprite addr width
+```
+A single `SPRMODE` knob selects the sprite scheme; the address width (`OBJAW`,
+12=8KB / 13=16KB) is **derived** from it, since the two always co-vary (`SETAC`
+needs the 13-bit address). The sprite-RAM ports widen with `OBJAW`
+(`dma_addr[OBJAW:1]`, `code_addr[OBJAW-1:0]`) and `SPRMODE` passes into `jtkiwi_gfx`.
+`SPRMODE=0` (default) = the old calibr50 wiring.
+
+### 1b. Vertical visible area — vtimer parameters
+The `jtframe_vtimer` vertical constants become parameters:
+```verilog
+parameter [8:0] V_START=0, VB_START=240, VB_END=0,
+                VS_START=253, VS_END=261, VCNT_END=271; // defaults = calibr50 (240 lines)
+```
+arbalest overrides `VB_END=7, VB_START=231` for its **224-line** window. Horizontal
+timing and refresh are unchanged; only the vertical window moves.
+
+**Source.** MAME `downtown.cpp` `set_visarea`: metafox/arbalest show rows 16..239
+(224 lines) vs calibr50's taller window.
+
+### 1c. Tilemap scroll origin — `THOFFS` / `TVOFFS`
+```verilog
+parameter [15:0] THOFFS = 16'h20; // default = calibr50
+parameter [ 8:0] TVOFFS =  9'd0;
+```
+Forwarded to `jtx1012` as `#(.HOFFS(THOFFS),.VOFFS(TVOFFS))`. arbalest uses
+`THOFFS=0x06, TVOFFS=-8` to line the X1-012 layer up with MAME. Default `0x20/0`
+reproduces calibr50 exactly (see change 2).
+
+### 1d. Sprite vdump/hdump offset — `SPR_VADJ` / `SPR_HADJ`
+```verilog
+localparam [8:0] VADJ = SPR_VADJ, HADJ = SPR_HADJ; // defaults 8 / 5 = calibr50
+```
+These were the hard-coded `VADJ=9'd8, HADJ=9'd5` literals; now parameters. arbalest
+keeps `SPR_VADJ=8` but uses `SPR_HADJ=5-8=-3` to align sprites horizontally.
+
+## Side effects
+
+calibr50 instantiates `jtcal50_video` with all defaults, so every
+widened bus collapses to 12 bits, the vtimer keeps its 240-line numbers, the offsets
+keep `0x20/0/8/5`, and the colmix bg path is bypassed. calibr50 lints unchanged.
+
+---
+
+## 2. `cores/cal50/hdl/jtx1012.v` — parametrized tilemap scroll origin
 
 ### What changed
-The X1-012 tilemap control word `vctrl[2]` has a 1-bit "bank" field. It was decoded
-from **bit 4** (`at: "4[4]"`); it is now decoded from **bit 3** (`at: "4[3]"`).
-
-```yaml
-# before
-- name: bank
-  dw: 1
-  at: "4[4]"
-# after
-# vctrl[2]: bit3 (0x08)=tilemap bank (vram 0 / 0x1000), bit4 (0x10)=color/gfx mode
-- name: bank
-  dw: 1
-  at: "4[3]"
+The hard-coded scroll origin became two parameters:
+```verilog
+parameter [15:0] HOFFS = 16'h20; // was the literal +16'h20 on hpos
+parameter [ 8:0] VOFFS =  9'd0;  // new vertical scroll bias
+...
+hpos <= pre_hpos + HOFFS;            // was pre_hpos + 16'h20
+wire [8:0] vscr = vpos[8:0] + VOFFS; // new; feeds jtframe_scroll .scry
 ```
 
 ### Plain English
-The X1-012 tilemap chip keeps two screens of tile data (page 0 at VRAM offset 0 and
-page 1 at offset 0x1000). One bit of its control register picks which page is shown.
-We were reading the wrong bit, so the title screen (which lives in page 1) was never
-selected — the wrong half of VRAM was drawn. Bit 3 (mask `0x08`) is the real bank
-select; bit 4 (mask `0x10`) is a separate colour/graphics-mode bit.
+The X1-012 tile layer needs a constant scroll offset to position the picture. The
+horizontal offset was baked at `0x20` (calibr50's value); it is now `HOFFS`, and a
+matching vertical bias `VOFFS` was added (`vpos` fed `jtframe_scroll` directly
+before). metafox/arbalest pass `HOFFS=0x06, VOFFS=-8`.
 
-### Why it's right / source
-- MAME `seta/x1_012.cpp` (`x1_012_device`): the tilemap RAM bank is taken from
-  `vctrl[2] & 0x08`, and the colour/mode select is `& 0x10`.
-- Confirmed empirically: a MAME register dump on the metafox/arbalest **title**
-  screen reads `vctrl[2] = 0x0009`, i.e. bit 3 set → page 1. With the old bit-4
-  decode the title page was never reached.
-
-### Blast radius
-calibr50 also uses this mmr — but calibr50's tilemap behaviour is unchanged because
-the corrected bit is simply the one the hardware actually uses; calibr50 lints clean.
+### Side effects
+Defaults are the original literals (`HOFFS=0x20`, `VOFFS=0` ⇒ `vscr==vpos`), so
+calibr50's tilemap is byte-identical.
 
 ---
 
-## 2. `cores/cal50/hdl/jtcal50_video.v` — made the video top **parametrizable**
+## 3. `cores/kiwi/hdl/jtkiwi_gfx.v` + `jtkiwi_obj.v` — 16 KB sprite RAM + metafox bank
 
-Two independent generalisations, both with calibr50-preserving defaults.
+The X1-001 object engine (shared with the kiwi/TNZS family) gained a single
+`SPRMODE` knob; the address width `OBJAW` is derived from it (`SPRMODE ? 13 : 12`).
 
-### 2a. Sprite address width — `OBJAW` / `SETAC` parameters
-New module parameters:
+### `jtkiwi_obj.v`
 ```verilog
-parameter OBJAW=12, // sprite code/LUT addr width: 12 = 8 KB (calibr50), 13 = 16 KB (metafox)
-parameter SETAC=0,  // 1 = metafox-style sprite bank (2x 8 KB buffers)
-```
-The sprite-RAM ports widen with `OBJAW` (`dma_addr [OBJAW:1]`,
-`code_addr [OBJAW-1:0]`) and the parameters are forwarded to `jtkiwi_gfx`.
-
-**Plain English.** The X1-001 sprite chip has a different amount of sprite RAM per
-game. calibr50 has **8 KB** (one buffer). metafox/arbalest have **16 KB** — two 8 KB
-sprite buffers, with a hardware "bank" bit choosing which buffer the engine shows
-this frame. The video module was hard-wired to 8 KB; it is now sized by `OBJAW`
-(12 bits = 8 KB, 13 bits = 16 KB) with `SETAC` turning on the second-buffer bank.
-Defaults (`OBJAW=12, SETAC=0`) = the old calibr50 wiring exactly.
-
-**Source.** MAME `seta/seta001.cpp` (X1-001): the sprite-RAM size and the
-double-buffer bank are per-game. metafox/arbalest use 16 KB with the "setac" bank;
-calibr50 uses 8 KB. (The bank equation itself lives in change 3b.)
-
-### 2b. Vertical visible area — vtimer parameters
-The `jtframe_vtimer` vertical constants were turned into parameters:
-```verilog
-parameter [8:0] V_START=0, VB_START=240, VB_END=0,
-                VS_START=253, VS_END=261, VCNT_END=271; // defaults = calibr50
-```
-arbalest's `jtarbalest_game.v` overrides `VB_END=7, VB_START=231`.
-
-**Plain English.** "Visible area" is which scan-lines actually appear on screen.
-calibr50 shows **240** lines; metafox/arbalest show **224** (the picture is shorter,
-with bigger top/bottom borders). The vertical timing was baked in for calibr50's 240
-lines; it is now adjustable so metafox/arbalest can request their 224-line window
-without changing the refresh rate. The horizontal timing is identical for all three,
-so only the vertical numbers move.
-
-**Source.** MAME `downtown.cpp` machine config `set_visarea`:
-- metafox / arbalest: `(0, 383, 16, 239)` → rows 16..239 = **224** lines.
-- calibr50: `(0, 383, 8, 247)` → rows 8..247 = **240** lines.
-
-### Blast radius
-calibr50 instantiates `jtcal50_video` with no parameter overrides, so it gets
-`OBJAW=12, SETAC=0` and the 240-line defaults — identical to before.
-
----
-
-## 3. `cores/kiwi/hdl/jtkiwi_obj.v` and `jtkiwi_gfx.v` — X1-001 sprite engine, 8 KB↔16 KB
-
-These two files are the shared SETA X1-001 sprite engine (originally written for
-TNZS/kiwi, reused by calibr50). They were parametrized the same way: `OBJAW` widens
-the sprite-RAM address, `SETAC` switches in the metafox double-buffer behaviour.
-Defaults reproduce the kiwi/calibr50 (8 KB, no bank) behaviour bit-for-bit.
-
-### 3a. `jtkiwi_obj.v` — sprite LUT address + bank layout
-```verilog
-// non-SETAC (8 KB): {page, 0,  ~st[1], objcnt} = page*0x800  + ...
-// SETAC   (16 KB): {page, 00, ~st[1], objcnt} = page*0x1000 + ...   (bank @ word 0x1000)
+parameter  SPRMODE = 0;             // 0=TNZS (8KB), 1=SETAC (16KB)
+localparam OBJAW   = SPRMODE ? 13 : 12;
+output [OBJAW:1] lut_addr;
 generate
-    if( SETAC ) assign lut_addr = { page, 2'b00, ~st[1], objcnt }; // 13-bit
-    else        assign lut_addr = { page, 1'b0,  ~st[1], objcnt }; // 12-bit
+    if( SPRMODE ) assign lut_addr = { page, 2'b00, ~st[1], objcnt }; // 13-bit
+    else          assign lut_addr = { page, 1'b0,  ~st[1], objcnt }; // 12-bit (TNZS/cal50)
 endgenerate
 ```
 
-**Plain English.** When reading a sprite's attributes, the engine builds an address
-into sprite RAM. For 8 KB RAM that address is 12 bits and the "page" bit lands at the
-0x800 boundary. For 16 KB RAM the address is 13 bits and the page (now a buffer-bank)
-bit lands at the 0x1000 boundary — which is where metafox keeps its second sprite
-buffer (`0xe02000`). The `generate` picks the right layout from `SETAC`.
+### `jtkiwi_gfx.v`
+- `lut_addr`/`code_addr`/`dma_addr` widen with the derived `OBJAW`.
+- The metafox display-buffer bank:
+  ```verilog
+  wire setac_bank = ((cfg[1] ^ (~cfg[1]<<1)) & 8'h40)!=0; // cfg[1] = m_spritectrl[1]
+  ```
+- Routing chooses the bank source per `SPRMODE`:
+  ```verilog
+  .page( SPRMODE ? setac_bank : obj_page )   // jtkiwi_obj (foreground)
+  code_addr = { {(OBJAW-12){SPRMODE ? setac_bank : 1'b0}}, tm_addr }; // bg buffer MSB
+  .page( SPRMODE ? 1'b0 : tm_page )          // jtkiwi_tilemap: no 0x800 split under SETAC
+  dma_addr = dma_bsy ? {{(OBJAW-12){1'b0}},dma_txa} : cpu_addr[OBJAW-1:0]; // full CPU window
+  ```
 
-### 3b. `jtkiwi_gfx.v` — the metafox **buffer-bank** equation + full 16 KB CPU window
-```verilog
-// metafox (setac) foreground bank, from MAME seta001 draw_foreground:
-//   banked when ((ctrl2 ^ (~ctrl2<<1)) & 0x40) != 0,  ctrl2 = m_spritectrl[1] = cfg[1]
-wire setac_bank = ((cfg[1] ^ (~cfg[1]<<1)) & 8'h40)!=0;
-...
-.page( SETAC ? setac_bank : obj_page )                 // pick the bank source per game
-assign dma_addr = dma_bsy ? {{(OBJAW-12){1'b0}},dma_txa}
-                          : cpu_addr[OBJAW-1:0];         // SETAC: full 16 KB CPU write window
-```
+### source
+MAME `seta/seta001.cpp` `draw_foreground()`: the foreground bank adds `bank_size`
+(0x1000 words) when `((m_spritectrl[1] ^ (~m_spritectrl[1] << 1)) & 0x40)` — exactly
+`setac_bank`. `m_spritectrl[1]` is `cfg[1]`. The mode name follows MAME's
+`seta001_device::setac_eof()` (the seta.cpp 0x1000-bank scheme) vs `tnzs_eof()`.
 
-**Plain English.** Two metafox-specific things:
-1. **Which buffer is displayed.** metafox flips between its two sprite buffers using
-   a quirky bit-twiddle of sprite-control word 1 (`ctrl2`): the buffer is the second
-   one when `((ctrl2 ^ (~ctrl2<<1)) & 0x40)` is non-zero. calibr50 uses its existing
-   `obj_page` logic instead; `SETAC` chooses which source feeds the engine's `page`.
-2. **CPU write window.** The 68000 must be able to write the whole 16 KB sprite RAM,
-   so the CPU-side `dma_addr` uses the full `OBJAW`-wide address (zero-extended back
-   to 12 bits for the 8 KB case so calibr50 is unchanged).
-
-**Source.** MAME `seta/seta001.cpp`, `draw_foreground()`: the foreground sprite bank
-adds `bank_size` (0x1000 words) when `((m_spritectrl[1] ^ (~m_spritectrl[1] << 1)) &
-0x40)` — exactly the `setac_bank` expression. `m_spritectrl[1]` is `cfg[1]` here.
-
-### Blast radius
-kiwi (TNZS family) and calibr50 instantiate these with the default `OBJAW=12,
-SETAC=0`, so `setac_bank` is never selected and all widths collapse to the original
-12-bit form. No change for them.
+### Side effects
+kiwi (TNZS) and calibr50 instantiate with the default `SPRMODE=0` (→ `OBJAW=12`), so
+`setac_bank` is never selected, the generate picks the original 12-bit `lut_addr`, and
+the page routing reverts to `obj_page`/`tm_page`. No change for them; both lint clean.
 
 ---
 
-## 4. `modules/jtx1010/hdl/jtx1010_pcm.sv` — X1-010 PCM was silent (the audio fix)
+## 4. `cores/cal50/hdl/jtcal50_colmix.v` — optional X1-001 background layer (`SCR_EN`)
 
 ### What changed
-The PCM voice's sample **end** comparison was widened from 8 to 9 bits, and the
-sample address is now formed as a 21-bit sum so the top-of-range carry survives:
 ```verilog
-// before
-reg [7:0] finish;  finish <= -cfg_data;
-... if(rom_addr[19:12] >= finish) keyoff;
-// after
-reg [8:0] finish;  finish <= 9'h100 - {1'b0,cfg_data};
-wire [20:0] full_addr = {1'b0,start,12'd0}+{5'd0,cur[19:4]};
-rom_addr <= full_addr[19:0];
-... if(full_addr[20:12] >= finish) keyoff;
+module jtcal50_colmix #(parameter SCR_EN = 0) ( ... );
+// X1-001 pen-bit order, applied to the background just like the sprites
+assign scr_srt = {scr_pxl[8:4],scr_pxl[1],scr_pxl[3],scr_pxl[0],scr_pxl[2]};
+assign scr_sel = SCR_EN & gfx_en[1] & (scr_srt[3:0]!=4'h0);
+assign bg      = scr_sel ? scr_srt : tiles_pxl;     // bg replaces tiles_pxl in the mux
+...
+    2'b01: col_addr = bg;                 // was tiles_pxl
+    2'b11: col_addr = obj_sel ? obj_srt : bg; // was : tiles_pxl
 ```
+`scr_pxl` (the X1-001 `draw_background` column-scrolled output, previously marked
+"unused ?") is now consumed.
 
-### Plain English
-The X1-010 plays a PCM sample from a **start** page to an **end** page. metafox and
-arbalester set up start/volume/frequency but **never write the end register**,
-relying on the chip rule "end = 0 means play the whole 1 MB". The engine computed the
-stop point as `-end` in **8 bits**, so `end = 0` wrapped to `0`, and the very first
-sample's page (≥ start) already satisfied "page ≥ 0" → the voice keyed **off
-immediately**, on every channel → total silence. Using a 9-bit end page, `end = 0`
-correctly becomes page `0x100` (the top of the 1 MB range), so the voice plays.
-For any non-zero end the 9-bit compare is identical to the old 8-bit one, so nothing
-else changes.
+### Side effects
+For `SCR_EN=0` (calibr50) `scr_sel` is always 0 ⇒ `bg == tiles_pxl`, so the `case`
+is byte-identical to the original. calibr50 lints clean.
 
-### Why it's right / source
-- MAME `sound/x1_010.cpp`, `sound_stream_update()`:
-  `end_addr = (0x100 - reg->end) << 12` — a 9-bit end page; `end = 0` → `0x100000`.
-- Verified live: a probe after the fix shows `finish=0x100`, `start=0x60`,
-  `delta=0x04` — matching MAME's channel-15 config — and the PCM bytes read at
-  `0x60000` are **byte-identical** to the metafox `x1snd` ROM (`up001015`). The sim
-  `test.wav` went from −91 dB (silence) to −22 dBFS (metafox) / −25.8 dBFS
-  (arbalest). Full write-up: `fixes_journal.md`, entry 2026-06-26.
-- Bus-level findings that ruled out the wrong suspect (the "16-bit byte lane"): each
-  X1-010 register maps to one 68000 word, so the register index is `cpu_addr[13:1]`,
-  and the data is on `D[7:0]`. metafox's frequency write hits the high lane but the
-  68000 model broadcasts the byte to both lanes, so it still lands.
-
-### Blast radius
-Only **arbalest** and **cal50** use `jtx1010`. For `end ≠ 0` the behaviour is
-bit-identical to before, so calibr50 is unaffected (lints clean). The fix is strictly
-a correction for the previously-broken `end = 0` case.
+### Source
+MAME `seta/seta001.cpp` `draw_background()` (the column-scrolled sprite background);
+the pen-bit reorder matches the foreground `obj_srt` permutation already in this file.
 
 ---
 
-## 5. `modules/jtframe/…` — NOT arbalest work (listed to avoid confusion)
+## 5. `modules/jtx1010/hdl/jtx1010_pcm.sv` - widen 1 bit
 
-These shared-folder diffs exist on the branch but were authored for other cores:
+### What changed
+The sample **end** comparison widened from 8 to 9 bits, and the sample address is
+formed as a 21-bit sum so the top-of-range carry survives:
+```verilog
+// before
+reg  [7:0] finish;  finish <= -cfg_data;
+rom_addr <= {start,12'd0}+{4'd0,cur[19:4]};
+if(rom_addr[19:12] >= finish) keyoff;
+// after
+reg  [8:0] finish;  finish <= 9'h100 - {1'b0,cfg_data};
+wire [20:0] full_addr = {1'b0,start,12'd0}+{5'd0,cur[19:4]};
+rom_addr <= full_addr[19:0];
+if(full_addr[20:12] >= finish) keyoff;
+```
 
-| File | Real owner | What it is |
-|---|---|---|
-| `hdl/clocking/jtframe_pxlcen.v` | **taitob** (commit `285b09d44`) | adds PXLCLK codes 55 (cabal) / 70 (taitob); arbalest uses PXLCLK 8 and is untouched by it |
-| `doc/audio.md`, `doc/macros.md` | **ddribble** | documents the `rc_en` switchable RC filter |
-| `bin/*`, `devops/xjtcore.sh`, `src/jtframe/*`, `target/mister/*`, `verilator/test.cpp` | general tooling / branch merges | build & sim tooling that diverges from `master-andrea`; not arbalest RTL |
+### source
+- MAME `sound/x1_010.cpp`, `sound_stream_update()`:
+  `end_addr = (0x100 - reg->end) << 12` — a 9-bit end page; `end=0` → `0x100000`.
+- Verified live: a probe shows `finish=0x100`, `start=0x60`, `delta=0x04` (matching
+  MAME's channel-15 config); PCM bytes read at `0x60000` are byte-identical to the
+  metafox `x1snd` ROM. The sim `test.wav` went −91 dB (silence) → −22 dBFS (metafox)
+  / −25.8 dBFS (arbalest).
 
-Arbalest itself adds **no** behavioural change to `modules/jtframe`.
+### Side effects
+Only **arbalest** and **cal50** use `jtx1010`. For `end ≠ 0` the behaviour is
+bit-identical, so calibr50 is unaffected (lints clean); the fix strictly corrects the
+previously-broken `end = 0` case.
 
 ---
 
@@ -229,10 +230,12 @@ Arbalest itself adds **no** behavioural change to `modules/jtframe`.
 
 | Change | Primary source |
 |---|---|
-| X1-012 bank bit (`vctrl[2]&0x08`) | MAME `seta/x1_012.cpp` + title-screen register dump (`vctrl[2]=0x0009`) |
-| Sprite RAM 8 KB↔16 KB + bank | MAME `seta/seta001.cpp` `draw_foreground()` (`((ctrl2^(~ctrl2<<1))&0x40)`) |
-| Vertical visarea 224 vs 240 | MAME `downtown.cpp` `set_visarea` (metafox `16..239`, calibr50 `8..247`) |
+| X1-012 bank bit (`vctrl[2]&0x08`, in arbalest cfg) | MAME `seta/x1_012.cpp` + title register dump (`vctrl[2]=0x0009`) |
+| Sprite RAM 8 KB↔16 KB + bank (`SPRMODE`) | MAME `seta/seta001.cpp` `draw_foreground()` (`((ctrl2^(~ctrl2<<1))&0x40)`) |
+| X1-001 background blend (`SCR_EN`) | MAME `seta/seta001.cpp` `draw_background()` |
+| Vertical visarea 224 vs 240 | MAME `downtown.cpp` `set_visarea` (metafox rows 16..239) |
+| Tilemap / sprite offsets (`THOFFS/TVOFFS/SPR_*`) | per-pixel grading vs MAME (scene harness) |
 | X1-010 end page / silence fix | MAME `sound/x1_010.cpp` `sound_stream_update` (`end_addr=(0x100-end)<<12`) + live bus/PCM probe |
 
-All MAME references are mirrored locally under `cores/arbalest/doc/` and
+All MAME references are mirrored locally under `cores/cal50/doc/` and
 `modules/jtx1010/doc/` for offline lookup.
