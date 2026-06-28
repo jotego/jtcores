@@ -1,7 +1,5 @@
 CORENAME=JTARBALEST
 
-# metafox / arbalest are plain 2-button joystick shooters (ROT270).
-# No dial/spinner (that is calibr50-only in this driver).
 JTFRAME_JOY_RLDU
 JTFRAME_BUTTONS=2
 
