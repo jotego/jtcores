@@ -35,6 +35,23 @@ func Test_make_clocks_pll5369_sdram96(t *testing.T) {
 	}
 }
 
+func Test_make_clocks_pll7000_sdram96(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"JTFRAME_PLL":     "jtframe_pll7000",
+		"JTFRAME_SDRAM96": "1",
+	})
+	mclk := make_clocks("MISTER")
+	if mclk != 112000000 {
+		t.Fatalf("Bad JTFRAME_MCLK for jtframe_pll7000 with SDRAM96. Got %d", mclk)
+	}
+	if got := Get("JTFRAME_MCLK"); got != "112000000" {
+		t.Fatalf("Bad JTFRAME_MCLK macro. Got %s", got)
+	}
+	if !IsSet("JTFRAME_PLL7000") {
+		t.Fatal("Expected JTFRAME_PLL7000 macro to be set")
+	}
+}
+
 func Test_uses_sdram_cache(t *testing.T) {
 	root := t.TempDir()
 	t.Setenv("JTROOT", root)
