@@ -1,0 +1,14 @@
+# verification: insert coins during title windows, then start + move
+=540
+14 coin
+=720
+14 coin
+=860
+12 1p
+=940
+loop
+22 b1
+12 up
+22 b1
+14 right
+repeat 18
