@@ -17,8 +17,8 @@
     Date: 15-11-2025 */
 
 module jtcal50_video #(
-    parameter OBJAW=12, // sprite addr width: 12=8KB (calibr50), 13=16KB (metafox)
-    parameter SETAC=0,  // metafox-style 2-buffer sprite bank
+    parameter SPRMODE=0, // 0 = TNZS  (8KB, 0x800 page — calibr50)
+                         // 1 = SETAC (16KB, 0x1000 bank — metafox; MAME seta001 setac_eof)
     // vtimer vertical window; defaults = calibr50 (240 lines), metafox/arbalest = 224
     parameter [8:0] V_START  = 9'd0,
     parameter [8:0] VB_START = 9'd240,
@@ -30,7 +30,8 @@ module jtcal50_video #(
     parameter [ 8:0] TVOFFS  =  9'd0,
     parameter [ 8:0] SPR_VADJ = 9'd8,  // X1-001 vdump/hdump offset; default = calibr50
     parameter [ 8:0] SPR_HADJ = 9'd5,
-    parameter        SCR_EN   = 0      // blend the X1-001 background layer
+    parameter        SCR_EN   = 0,     // blend the X1-001 background layer
+    localparam       OBJAW    = SPRMODE ? 13 : 12 // sprite addr width
 )(
     input               rst,
     input               clk,
@@ -188,7 +189,7 @@ wire [8:0] vdump_adj   = vdump   + VADJ,
            hdump_adj   = hdump   + HADJ;
 
 /* verilator tracing_on */
-jtkiwi_gfx #(.CPUW(16),.OBJAW(OBJAW),.SETAC(SETAC)) u_gfx(
+jtkiwi_gfx #(.CPUW(16),.SPRMODE(SPRMODE)) u_gfx(
     .rst        ( rst            ),
     .clk        ( clk            ),
     .clk_cpu    ( clk_cpu        ),

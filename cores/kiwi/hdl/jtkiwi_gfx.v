@@ -24,9 +24,10 @@
 // be an internal dual-line buffer and another larger memory
 
 module jtkiwi_gfx #(
-    parameter CPUW=8,
-    parameter OBJAW=12, // sprite LUT/code address width. 12=8KB (tnzs/cal50), 13=16KB (metafox)
-    parameter SETAC=0   // 1 = metafox-style sprite bank (2x 8KB buffers, bank at word 0x1000)
+    parameter  CPUW=8,
+    parameter  SPRMODE=0, // 0 = TNZS  (8KB, 0x800 page — tnzs/cal50)
+                          // 1 = SETAC (16KB, 0x1000 bank — metafox; MAME seta001 setac_eof)
+    localparam OBJAW = SPRMODE ? 13 : 12 // sprite LUT/code address width
 )(
     input               rst,
     input               clk,
@@ -209,7 +210,7 @@ always @* begin
         0,1: begin
             col_addr  = { 2'b10, scol_addr };
             // SETAC: bg buffer bank in the code_addr MSB (like the fg lut_addr)
-            code_addr = { {(OBJAW-12){SETAC ? setac_bank : 1'b0}}, tm_addr };
+            code_addr = { {(OBJAW-12){SPRMODE ? setac_bank : 1'b0}}, tm_addr };
         end
         2,3: begin // objects
             col_addr  = { 1'b0, y_addr };
@@ -227,7 +228,7 @@ jtkiwi_tilemap u_tilemap(
     .hs         ( hs        ),
     .flip       ( flip      ),
     // SETAC: no 0x800 page split (bank is the code_addr MSB); TNZS uses tm_page
-    .page       ( SETAC ? 1'b0 : tm_page ),
+    .page       ( SPRMODE ? 1'b0 : tm_page ),
     .drtoppel   ( drtoppel  ),
 
     .col_xmsb   ( col_xmsb  ),
@@ -252,7 +253,7 @@ jtkiwi_tilemap u_tilemap(
     .debug_bus  ( debug_bus )
 );
 
-jtkiwi_obj #(.OBJAW(OBJAW),.SETAC(SETAC)) u_obj(
+jtkiwi_obj #(.SPRMODE(SPRMODE)) u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .lut_cen    ( lut_cen   ),
@@ -260,7 +261,7 @@ jtkiwi_obj #(.OBJAW(OBJAW),.SETAC(SETAC)) u_obj(
 
     .hs         ( hs        ),
     .flip       ( flip      ),
-    .page       ( SETAC ? setac_bank : obj_page ),
+    .page       ( SPRMODE ? setac_bank : obj_page ),
 
     .lut_addr   ( lut_addr  ),
     .lut_data   ( code_dout ),
