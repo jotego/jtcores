@@ -27,7 +27,7 @@ module jtkiwi_gfx #(
     parameter  CPUW=8,
     parameter  SPRMODE=0, // 0 = TNZS  (8KB, 0x800 page — tnzs/cal50)
                           // 1 = SETAC (16KB, 0x1000 bank — metafox; MAME seta001 setac_eof)
-    localparam OBJAW = SPRMODE ? 13 : 12 // sprite LUT/code address width
+    parameter  OBJAW = SPRMODE ? 13 : 12 // sprite LUT/code address width
 )(
     input               rst,
     input               clk,

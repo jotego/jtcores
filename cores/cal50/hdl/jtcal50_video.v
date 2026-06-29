@@ -31,7 +31,7 @@ module jtcal50_video #(
     parameter [ 8:0] SPR_VADJ = 9'd8,  // X1-001 vdump/hdump offset; default = calibr50
     parameter [ 8:0] SPR_HADJ = 9'd5,
     parameter        SCR_EN   = 0,     // blend the X1-001 background layer
-    localparam       OBJAW    = SPRMODE ? 13 : 12 // sprite addr width
+    parameter        OBJAW    = SPRMODE ? 13 : 12 // sprite addr width
 )(
     input               rst,
     input               clk,
