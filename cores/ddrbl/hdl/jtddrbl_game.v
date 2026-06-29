@@ -33,6 +33,9 @@ wire        sound_shared_cs, sound_ym_cs;
 assign dip_flip   = 0;
 assign debug_view = 0;
 
+wire fir_n_pause = fir_n | ~dip_pause;
+wire irq_n_pause = irq_n | ~dip_pause;
+
 // MAIN <-> SUB
 // Side A — main CPU (0x4000-0x5FFF → BRAM 0x0-0x1FFF)
 assign shared_ms_addr = main_A[12:0];
@@ -79,9 +82,9 @@ jtddrbl_main u_main(
     .k5885_2_dout ( k5885_2_dout   ),
     .bank_out     ( main_bank      ),
     // chip 1 interrupts fan to both CPUs (NFIR↔IRQ / NIRQ↔FIRQ swap)
-    .cpu_irqn     ( fir_n          ),
+    .cpu_irqn     ( fir_n_pause    ),
     .cpu_nmin     ( nmi_n          ),
-    .cpu_firqn    ( irq_n          ),
+    .cpu_firqn    ( irq_n_pause    ),
 
     .rom_addr     ( main_addr      ),
     .rom_cs       ( main_cs        ),
@@ -109,9 +112,9 @@ jtddrbl_sub u_sub(
     .service        ( service           ),
     .dipsw          ( dipsw             ),
     // chip 1 fans the same interrupts to both CPUs (NFIR↔IRQ / NIRQ↔FIRQ swap)
-    .cpu_irqn       ( fir_n             ),
+    .cpu_irqn       ( fir_n_pause       ),
     .cpu_nmin       ( nmi_n             ),
-    .cpu_firqn      ( irq_n             ),
+    .cpu_firqn      ( irq_n_pause       ),
 
     .rom_addr       ( sub_addr          ),
     .rom_cs         ( sub_cs            ),
@@ -183,7 +186,7 @@ jtddrbl_video u_video(
 jtddrbl_sound u_sound(
     .rst         ( rst24      ),
     .clk         ( clk24      ),
-    .cen         ( sndcpu_cen ),   // snd-gated cen, frozen on pause
+    .cen         ( sndcpu_cen ),
     .cpu_cen     (            ),
     .rom_addr    ( snd_addr   ),
     .rom_cs      ( snd_cs     ),
