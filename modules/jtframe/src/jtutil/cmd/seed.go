@@ -472,7 +472,7 @@ func (info seed_release) release_rbf() string {
 		return ""
 	}
 	if info.target == "pocket" {
-		return filepath.Join(root, "release", "pocket", "raw", "Cores", "jotego."+info.core, info.rbf_name()+".rbf_r")
+		return filepath.Join(root, "release", "pocket", "raw", "Cores", "jotego."+info.rbf_name(), info.rbf_name()+".rbf_r")
 	}
 	return filepath.Join(root, "release", info.target, info.rbf_name()+".rbf")
 }
