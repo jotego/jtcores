@@ -115,7 +115,7 @@ wire signed [10:0] chroma_SIN_LUT[256] = '{
 	11'h7E7, 11'h7ED, 11'h7F3, 11'h7F9
 };
 
-logic [39:0] phase_accum;
+logic [39:0] phase_accum = 40'd0;
 logic PAL_FLIP = 1'd0;
 logic PAL_line_count = 1'd0;
 
@@ -202,7 +202,7 @@ always_ff @(posedge clk) begin
 
 			// Divide U*sin(wt) and V*cos(wt) to fit results to 8 bit
 			phase[3].u <= $signed(phase[2].u[20:9]) + $signed(phase[2].u[20:10]) + $signed(phase[2].u[20:14]);
-			phase[3].v <= $signed(phase[2].v[20:9]) + $signed(phase[2].v[20:10]) + $signed(phase[2].u[20:14]);
+			phase[3].v <= $signed(phase[2].v[20:9]) + $signed(phase[2].v[20:10]) + $signed(phase[2].v[20:14]);
 		end
 
 		// Stop the colorburst timer as its only needed for the initial pulse
@@ -211,11 +211,12 @@ always_ff @(posedge clk) begin
 
 			// Calculate for chroma (Note: "PAL SWITCH" routine flips V * COS(Wt) every other line)
 		if (PAL_EN) begin
-			if (PAL_FLIP)
+			if (PAL_FLIP) begin
 				phase[4].c <= vref + phase[3].u - phase[3].v;
-			else 
+			end else begin
 				phase[4].c <= vref + phase[3].u + phase[3].v;
-				PAL_line_count <= 1'd1;
+			end
+			PAL_line_count <= 1'd1;
 		end else
 				phase[4].c <= vref + phase[3].u + phase[3].v;
 	end
