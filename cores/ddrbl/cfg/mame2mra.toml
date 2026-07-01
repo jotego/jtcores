@@ -1,0 +1,30 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "ddribble.cpp" ]
+
+[buttons]
+names=[
+    { names="Pass,Shoot,Steal" }
+]
+
+[dipsw]
+delete=[{ names=["Unused","Unknown"] }]
+rename=[{name="Allow vs match with 1 Credit", to="vs match with 1 credit"}]
+
+[ROM]
+regions = [
+    { name="maincpu"  },
+    { name="subcpu",   start="JTFRAME_BA1_START" },
+    { name="audiocpu" },
+    { name="vlm"      },
+    { name="gfx1", width=16, no_offset=true, start="JTFRAME_BA2_START" },
+    { name="gfx2", width=16, no_offset=true, start="JTFRAME_BA3_START" },
+    { name="proms", start="JTFRAME_PROM_START" },
+    { name="plds", skip=true }
+]
+
+order = [
+    "maincpu", "subcpu", "audiocpu", "vlm", "gfx1", "gfx2", "proms"
+]
