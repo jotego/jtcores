@@ -20,13 +20,20 @@ EOF
 export PATH=`python $TMP`
 rm -f $TMP
 
+setup_dir() {
+    local setup_script=${BASH_SOURCE[0]}
+    if [[ "$setup_script" != */* ]]; then
+        setup_script=$(type -P -- "$setup_script")
+    fi
+    cd -- "$(dirname -- "$setup_script")" && pwd -P
+}
+
 # restore all environment variables
-export JTROOT=$(pwd)
+export JTROOT=$(setup_dir)
 export JTFRAME=$JTROOT/modules/jtframe
 export CODEX_HOME=$JTROOT/.codex
 
 source $JTFRAME/bin/setprj.sh
-cd $JTROOT
 
 if [ ! -z "$*" ]; then
     # execute the rest as a command
