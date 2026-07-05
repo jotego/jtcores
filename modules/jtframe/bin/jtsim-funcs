@@ -461,10 +461,47 @@ make_rombin_link() {
 
 get_file_length() {
     local filename="$1"
-    if ! stat --version > /dev/null; then
-        stat -L -f %z $filename
+    if ! stat --version > /dev/null 2>&1; then
+        stat -L -f %z "$filename"
     else
-        stat -L -c%s $filename
+        stat -L -c%s "$filename"
+    fi
+}
+
+get_file_mtime() {
+    local filename="$1"
+    if ! stat --version > /dev/null 2>&1; then
+        stat -L -f %m "$filename"
+    else
+        stat -L -c%Y "$filename"
+    fi
+}
+
+check_mra_outputs_current() {
+    local toml="$CORES/$SYSNAME/cfg/mame2mra.toml"
+    local stale=
+    local filename
+    local toml_mtime file_mtime
+
+    if [[ -n "$ROMLESS" || ! -e "$toml" ]]; then
+        return 0
+    fi
+
+    toml_mtime=$(get_file_mtime "$toml") || return 1
+    for filename in rom.bin sdram_bank?.bin; do
+        if [ ! -e "$filename" ]; then
+            continue
+        fi
+        file_mtime=$(get_file_mtime "$filename") || return 1
+        if (( toml_mtime > file_mtime )); then
+            stale="$stale $filename"
+        fi
+    done
+
+    if [ -n "$stale" ]; then
+        echo "${rBG}Error:${NC} $toml is newer than generated ROM data:$stale" >&2
+        echo "Run: jtframe mra $SYSNAME" >&2
+        exit 1
     fi
 }
 
