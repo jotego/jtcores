@@ -1,16 +1,30 @@
 #!/bin/bash -e
 
 DUMP=dump.bin
+DELETE=
 
 main() {
-	set_input_file $1
+	parse_args "$@"
+	if [ -n "$DELETE" ]; then
+		delete_parts
+		return
+	fi
+	require_input_file
 	split_into_parts
 	run_core_specific_script
 }
 
-set_input_file() {
-	local scene_file="$1"
-	if [ ! -z "scene_file" ]; then DUMP="$scene_file"; fi
+parse_args() {
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			--delete) DELETE=1;;
+			*) DUMP="$1";;
+		esac
+		shift
+	done
+}
+
+require_input_file() {
 	if [ ! -e "$DUMP" ]; then
 		echo "Cannot find $DUMP"
 		return 1
@@ -29,6 +43,16 @@ split_into_parts() {
 	make_rest
 }
 
+delete_parts() {
+	{{ range .Ioctl.Buses }}{{ if .Name -}}
+	rm -f {{.Name}}.bin
+	{{ if eq .DW 16 -}}
+	rm -f {{.Name}}_hi.bin {{.Name}}_lo.bin
+	{{end }}
+	{{ end }}{{ end  }}
+	rm -f rest.bin
+}
+
 make_rest() {
 	dd if="$DUMP" of=rest.bin bs=64 skip={{.Ioctl.SkipAll}}
 }
@@ -44,4 +68,4 @@ run_core_specific_script() {
 	done
 }
 
-main $*
+main "$@"

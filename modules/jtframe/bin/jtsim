@@ -311,6 +311,7 @@ if [ $SETNAME = game ]; then
     fi
 fi
 
+delete_scene_dump_files || exit $?
 
 echo "${wBG}=========== JTSIM $SYSNAME $SETNAME ($TARGET) ===========${NC}" > /dev/stderr
 warn_if_longsim_noinputs

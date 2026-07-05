@@ -445,6 +445,13 @@ copy_mod_file() {
     cp $ROM/${setname}.mod core.mod
 }
 
+delete_scene_dump_files() {
+    if [[ -n "$SCENE" || ! -x ../game/dump2bin.sh ]]; then
+        return 0
+    fi
+    ../game/dump2bin.sh --delete
+}
+
 make_rombin_link() {
     local setname="$1"
     if [ -z "$setname" ]; then
