@@ -4,13 +4,30 @@ webpage="https://ko-fi.com/solalretrogaming"
 twitter="@s_on_vg"
 
 [parse]
-sourcefile=["toki.cpp"]
-skip.Setnames=["tokip"]
+sourcefile=["toki.cpp","cabal.cpp"]
+skip.Setnames=[
+    "tokip",
+    "cabalus",  # trackball controls use uPD4701 counters, not wired yet
+    "cabalus2", # trackball controls use uPD4701 counters, not wired yet
+    "cabaluk",  # trackball controls use uPD4701 counters, not wired yet
+    "cabalbl",  # bootleg has alternate sound hardware
+    "cabalbl2", # bootleg has alternate sound ROM/opcode arrangement
+]
 skip.bootlegs=true
 
 [buttons]
 names = [
-    { names="Shoot,Jump" }
+    { machines=["toki","jujuba"], names="Shoot,Jump" },
+    { machine="cabal", names="Fire,Roll,Grenade" },
+]
+
+[header]
+info="""
+    byte 0: 00 = Toki/Juju
+            01 = Cabal joystick hardware
+"""
+data = [
+    { machine="cabal", offset=0, data="01" },
 ]
 
 [dipsw]
@@ -22,13 +39,18 @@ delete=[
 [ROM]
 regions=[
     { name="maincpu",  no_offset=true, width=16, reverse=true },
-    { name="chars",    no_offset=true },
-    { name="sprites",  no_offset=true },
+    { name="audiocpu", no_offset=true, start="JTFRAME_BA1_START" },
+    { name="oki",      no_offset=true },
+    { machine="cabal", name="adpcm1", no_offset=true, start="ADPCM1_START" },
+    { machine="cabal", name="adpcm2", no_offset=true, start="ADPCM2_START" },
+    { name="chars",    no_offset=true, start="JTFRAME_BA2_START" },
+    { machine="cabal", name="chars", no_offset=true, start="JTFRAME_BA2_START", rename="chars" },
     { name="bgtiles",  no_offset=true },
     { name="fgtiles",  no_offset=true },
-    { name="audiocpu", no_offset=true },
-    { name="oki",      no_offset=true },
+    { machine="cabal", name="tiles", start="GFX3_START", width=16, rename="bgtiles" },
+    { name="sprites",  no_offset=true, start="JTFRAME_BA3_START" },
+    { machine="cabal", name="sprites", start="JTFRAME_BA3_START", width=16 },
     { name="proms",    no_offset=true },
 ]
 
-order=[ "maincpu", "chars", "sprites", "bgtiles", "fgtiles", "audiocpu", "oki", "proms" ]
+order=[ "maincpu", "audiocpu", "oki", "adpcm1", "adpcm2", "chars", "bgtiles", "fgtiles", "sprites", "proms" ]

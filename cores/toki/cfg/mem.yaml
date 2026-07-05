@@ -1,48 +1,182 @@
 params:
-  # gfx bank 1
-  - { name: GFX_1_OFFSET,     value:  "22'h30000" } #divide by 2 for 16 bits ram 
-  - { name: GFX_2_OFFSET,     value:  "22'h40000" }
-  - { name: GFX_3_OFFSET,     value:  "22'hc0000" }
-  - { name: GFX_4_OFFSET,     value:  "22'h100000"}
-  #audio bank 1
-  - { name: BANK_OFFSET,      value: "22'h1000" } # start after 8.m3 (2nd bank start at + BA1_START )
-  - { name: OKI_OFFSET,       value: "22'h9000" } # start at 8.m3 + 7.m7 / 2 
+  # offsets are relative to each SDRAM bank start and divided by two
+  - { name: GFX_1_HI_OFFSET,  value:  "26'h08000" }
+  - { name: GFX_3_OFFSET,     value:  "26'h10000" }
+  - { name: GFX_4_OFFSET,     value:  "26'h50000" }
+  - { name: BANK_OFFSET,      value:  "22'h1000"  }
+  - { name: OKI_OFFSET,       value:  "22'h9000"  }
+  - { name: ADPCM1_OFFSET,    value:  "(`ADPCM1_START-`JTFRAME_BA1_START)>>1" }
+  - { name: ADPCM2_OFFSET,    value:  "(`ADPCM2_START-`JTFRAME_BA1_START)>>1" }
 clocks:
-  clk48:
+  clk:
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+    - freq: 375000
+      gate: [ adpcm1, adpcm2 ]
+      outputs:
+        - msm_cen
     - freq:  1M
       outputs:
         - oki
+audio:
+  channels:
+    - { name: fm,   data_width: 16, rsum: 10k }
+    - { name: pcm0, data_width: 14, rsum: 10k }
+    - { name: pcm1, data_width: 14, rsum: 10k }
 sdram:
   banks:
     - buses:
-        - name: cpu_rom 
-          addr_width: 19
-          data_width: 16
-        - name: gfx1_rom
-          addr_width: 17
-          data_width: 16
-          offset : GFX_1_OFFSET
-        - name: gfx2_rom
-          addr_width: 20
-          data_width: 16
-          offset : GFX_2_OFFSET
-        - name: gfx3_rom
-          addr_width: 19
-          data_width: 16
-          offset : GFX_3_OFFSET
-        - name: gfx4_rom
-          addr_width: 19
-          data_width: 16
-          offset : GFX_4_OFFSET
+      - name: cpu_rom
+        addr_width: 19
+        data_width: 16
     - buses:
-        - name: z80_rom
-          addr_width: 13 # 8.m3
-          data_width: 8 
-        - name: bank_rom 
-          addr_width: 16 # 7.m7  
-          data_width: 8 
-          offset: BANK_OFFSET 
-        - name: pcm_rom 
-          addr_width: 17 # 9.m1 
-          data_width: 8 
-          offset: OKI_OFFSET 
+      - name: snd
+        addr_width: 13 # 8.m3
+        data_width: 8
+      - name: bank_rom
+        addr_width: 16 # 7.m7
+        data_width: 8
+        offset: BANK_OFFSET
+      - name: pcm
+        addr_width: 17 # 9.m1
+        data_width: 8
+        offset: OKI_OFFSET
+      - name: adpcm1
+        addr_width: 16
+        data_width: 8
+        offset: ADPCM1_OFFSET
+      - name: adpcm2
+        addr_width: 16
+        data_width: 8
+        offset: ADPCM2_OFFSET
+    - buses:
+      - name: gfx1
+        addr_width: 16
+        data_width: 16
+      - name: gfx1_hi
+        addr_width: 16
+        data_width: 16
+        offset: GFX_1_HI_OFFSET
+      - name: gfx3
+        addr_width: 19
+        data_width: 32
+        offset : GFX_3_OFFSET
+      - name: gfx4
+        addr_width: 19
+        data_width: 32
+        offset : GFX_4_OFFSET
+    - buses:
+      - name: gfx2
+        addr_width: 20
+        data_width: 16
+bram:
+  - name: ram
+    addr_width: 16
+    data_width: 16
+    addr: ram_addr
+    din: cpu_dout
+    dout: ram_dout
+    we: ram_we
+    rw: true
+  - name: pal
+    addr_width: 11
+    data_width: 16
+    simfile: {}
+    ioctl:
+      save: true
+      restore: true
+      order: 0
+      unless: [ JTFRAME_RELEASE ]
+    addr: pal_cpu_addr
+    din: cpu_dout
+    dout: pal_dout
+    we: pal_we
+    rw: true
+    dual_port:
+      name: palrd
+      dout: pal_data
+  - name: vram
+    addr_width: 11
+    data_width: 16
+    simfile: {}
+    ioctl:
+      save: true
+      restore: true
+      order: 1
+      unless: [ JTFRAME_RELEASE ]
+    addr: vram_cpu_addr
+    din: cpu_dout
+    dout: vram_dout
+    we: vram_we
+    rw: true
+    dual_port:
+      name: vramrd
+      addr: vram_addr
+      dout: vram_out
+  - name: scr1
+    addr_width: 11
+    data_width: 16
+    simfile: {}
+    ioctl:
+      save: true
+      restore: true
+      order: 2
+      unless: [ JTFRAME_RELEASE ]
+    addr: scr1_cpu_addr
+    din: cpu_dout
+    dout: scr1_dout
+    we: scr1_we
+    rw: true
+    dual_port:
+      name: scr1rd
+      addr: scr1_addr
+      dout: scr1_out
+  - name: scr2
+    addr_width: 11
+    data_width: 16
+    simfile: {}
+    ioctl:
+      save: true
+      restore: true
+      order: 3
+      unless: [ JTFRAME_RELEASE ]
+    addr: scr2_cpu_addr
+    din: cpu_dout
+    dout: scr2_dout
+    we: scr2_we
+    rw: true
+    dual_port:
+      name: scr2rd
+      addr: scr2_addr
+      dout: scr2_out
+  - name: obj
+    addr_width: 11
+    data_width: 16
+    simfile: {}
+    ioctl:
+      save: true
+      restore: true
+      order: 4
+      unless: [ JTFRAME_RELEASE ]
+    addr: obj_cpu_addr
+    din: cpu_dout
+    dout: obj_dout
+    we: obj_we
+    rw: true
+    dual_port:
+      name: objsrc
+      addr: objsrc_addr
+      dout: objsrc_data
+  - name: objbuf
+    addr_width: 12
+    data_width: 16
+    addr: objbuf_copy_addr
+    din: objbuf_copy_din
+    we: objbuf_copy_we
+    rw: true
+    dual_port:
+      name: objrd
+      addr: objrd_addr
+      dout: obj_data
