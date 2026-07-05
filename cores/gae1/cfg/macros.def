@@ -17,5 +17,5 @@ JTFRAME_BA3_START=0x600000
 [mist|sidi]
 -JTFRAME_CREDITS
 
-[sidi]
+[mist|sidi]
 JTFRAME_NOSTA
