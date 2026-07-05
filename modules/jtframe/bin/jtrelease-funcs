@@ -9,7 +9,7 @@ clean_up() {
 
 parse_args() {
 	HASH=
-	LAST=
+	DATEARG=
 	SKIPROM=--skipROM
 	VERBOSE=
 	while [ $# -gt 0 ]; do
@@ -17,7 +17,9 @@ parse_args() {
 			-l|--local)
 				unset JTBIN;;
 			--last)
-				LAST="--last";;
+				DATEARG="--last";;
+			--today)
+				DATEARG="--today";;
 			--host)
 				shift
 				export MRHOST=$1;;
@@ -57,6 +59,7 @@ hash to it, and the file is looked upon in the \$JTBUILDS path $JTBUILDS
     --last      Use last friday's date, instead of next's
                 or latest published date, if it is more recent
                 than last friday's
+    --today     Use today's date for jtfriday zip files
 --host			MiSTer host name
 -r, --rom		Regenerate ROM files
 -v, --verbose   Verbose
