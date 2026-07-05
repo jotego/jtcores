@@ -1,0 +1,120 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "gaelco.cpp" ]
+mustbe.machines=[ "squash", "thoop", "biomtoy", "bigkarnk" ]
+skip.setnames=[
+    "bigkarnka", # not booting
+    "squasha",
+    "squashb",
+    "thoopa",
+    "thoopb",
+    "thoopna",
+    "thoopnna",
+    "thoopnnaa",
+    "bioplayc",
+]
+
+[buttons]
+names=[
+    { machine="squash", names="Hit,Slow" },
+    { machine="thoop",  names="Fire,Jump" },
+    { machine="biomtoy", names="Fire,Jump" },
+    { machine="bigkarnk", names="Fire,Jump" },
+]
+
+[dipsw]
+bitcnt=16
+rename=[
+    { name="2 Player Continue", to="2P Continue", values=["1/3 Games", "2/5 Games"] },
+    { name="2 Credits to Start, 1 to Continue", to="2C Start 1C Cont" },
+]
+
+[header]
+registers=[
+    { name="squash",           pos="0[0]",   values=[{ machine="squash", value=1 }], desc="Squash game select" },
+    { name="thoop",            pos="0[1]",   values=[{ machine="thoop", value=1 }], desc="Thunder Hoop game select" },
+    { name="biomtoy",          pos="0[2]",   values=[{ machine="biomtoy", value=1 }], desc="Biomechanical Toy game select" },
+    { name="bigkarnk",         pos="0[4]",   values=[{ machine="bigkarnk", value=1 }], desc="Big Karnak game select" },
+    { name="vcrypt",           pos="0[3]",   values=[{ machine="squash", value=1 }, { machine="thoop", value=1 }], desc="Video write encryption enable" },
+    { name="vram_p1",          pos="1[5:0]", values=[{ machine="squash", value=0x0f }, { machine="thoop", value=0x0e }, { machine="biomtoy", value=0x00 }], desc="Gaelco VRAM decrypt P1 key" },
+    { name="gfx_4m",           pos="2[0]",   values=[{ machine="thoop", value=1 }, { machine="biomtoy", value=1 }], desc="Use the full 4 MB graphics window" },
+    { name="spr_force_high",   pos="3[5:0]", values=[{ machine="squash", value=0x3c }, { machine="thoop", value=0x38 }, { machine="biomtoy", value=0x38 }, { machine="bigkarnk", value=0x38 }], desc="Sprite color threshold for highest priority" },
+]
+
+[ROM]
+regions=[
+    { name="maincpu", machine="squash", width=16, reverse=true, no_offset=true, len=0x100000 },
+    { name="maincpu", machine="thoop", width=16, no_offset=true, parts=[
+        { name="th18dea1.040", crc="59bad625", length=0x40000, map="10" },
+        { name="th161eb4.020", crc="6add61ed", length=0x40000, map="01" },
+        { name="th18dea1.040", crc="59bad625", offset=0x40000, length=0x40000, map="10" },
+        { name="th161eb4.020", crc="6add61ed", length=0x40000, map="01" },
+    ] },
+    { name="maincpu", machine="biomtoy", width=16, reverse=true, no_offset=true },
+    { name="maincpu", machine="bigkarnk", width=16, reverse=true, no_offset=true },
+    { name="gfx", machine="squash", start="JTFRAME_BA1_START", width=32, sequence=[0,1,2,3] },
+    { name="gfx", machine="thoop",  start="JTFRAME_BA1_START", width=32, parts=[
+        { name="c12", crc="29a5ca36", offset=0x00000, length=0x40000, map="0001" },
+        { name="c11", crc="7403ef7e", offset=0x00000, length=0x40000, map="0010" },
+        { name="c10", crc="2d227085", offset=0x00000, length=0x40000, map="0100" },
+        { name="c09", crc="06f0edbf", offset=0x00000, length=0x40000, map="1000" },
+        { name="c12", crc="29a5ca36", offset=0x80000, length=0x40000, map="0001" },
+        { name="c11", crc="7403ef7e", offset=0x80000, length=0x40000, map="0010" },
+        { name="c10", crc="2d227085", offset=0x80000, length=0x40000, map="0100" },
+        { name="c09", crc="06f0edbf", offset=0x80000, length=0x40000, map="1000" },
+        { name="c12", crc="29a5ca36", offset=0x40000, length=0x40000, map="0001" },
+        { name="c11", crc="7403ef7e", offset=0x40000, length=0x40000, map="0010" },
+        { name="c10", crc="2d227085", offset=0x40000, length=0x40000, map="0100" },
+        { name="c09", crc="06f0edbf", offset=0x40000, length=0x40000, map="1000" },
+        { name="c12", crc="29a5ca36", offset=0xc0000, length=0x40000, map="0001" },
+        { name="c11", crc="7403ef7e", offset=0xc0000, length=0x40000, map="0010" },
+        { name="c10", crc="2d227085", offset=0xc0000, length=0x40000, map="0100" },
+        { name="c09", crc="06f0edbf", offset=0xc0000, length=0x40000, map="1000" },
+    ] },
+    { name="gfx", setnames=["biomtoy", "biomtoya", "biomtoyb"], start="JTFRAME_BA1_START", width=32, parts=[
+        { name="j6",  crc="e923728b", offset=0x00000, length=0x40000, map="0001" },
+        { name="j7",  crc="0e18fac2", offset=0x00000, length=0x40000, map="0010" },
+        { name="j9",  crc="1c93f050", offset=0x00000, length=0x40000, map="0100" },
+        { name="j10", crc="8e3e96cc", offset=0x00000, length=0x40000, map="1000" },
+        { name="h6",  crc="9416a729", offset=0x00000, length=0x40000, map="0001" },
+        { name="h7",  crc="9c984d7b", offset=0x00000, length=0x40000, map="0010" },
+        { name="h9",  crc="8c1f6718", offset=0x00000, length=0x40000, map="0100" },
+        { name="h10", crc="aca1702b", offset=0x00000, length=0x40000, map="1000" },
+        { name="j6",  crc="e923728b", offset=0x40000, length=0x40000, map="0001" },
+        { name="j7",  crc="0e18fac2", offset=0x40000, length=0x40000, map="0010" },
+        { name="j9",  crc="1c93f050", offset=0x40000, length=0x40000, map="0100" },
+        { name="j10", crc="8e3e96cc", offset=0x40000, length=0x40000, map="1000" },
+        { name="h6",  crc="9416a729", offset=0x40000, length=0x40000, map="0001" },
+        { name="h7",  crc="9c984d7b", offset=0x40000, length=0x40000, map="0010" },
+        { name="h9",  crc="8c1f6718", offset=0x40000, length=0x40000, map="0100" },
+        { name="h10", crc="aca1702b", offset=0x40000, length=0x40000, map="1000" },
+    ] },
+    { name="gfx", setname="biomtoyc", start="JTFRAME_BA1_START", width=32, parts=[
+        { name="gfx10.j6",  crc="7b2dc36c", offset=0x00000, length=0x40000, map="0001" },
+        { name="gfx11.j7",  crc="aff7fd0e", offset=0x00000, length=0x40000, map="0010" },
+        { name="gfx12.j9",  crc="7b27b2a9", offset=0x00000, length=0x40000, map="0100" },
+        { name="gfx13.j10", crc="52c984df", offset=0x00000, length=0x40000, map="1000" },
+        { name="gfx6.h6",   crc="ab19a1ce", offset=0x00000, length=0x40000, map="0001" },
+        { name="gfx7.h7",   crc="4bc82598", offset=0x00000, length=0x40000, map="0010" },
+        { name="gfx8.h9",   crc="09de4799", offset=0x00000, length=0x40000, map="0100" },
+        { name="gfx9.h10",  crc="38bcd72d", offset=0x00000, length=0x40000, map="1000" },
+        { name="gfx10.j6",  crc="7b2dc36c", offset=0x40000, length=0x40000, map="0001" },
+        { name="gfx11.j7",  crc="aff7fd0e", offset=0x40000, length=0x40000, map="0010" },
+        { name="gfx12.j9",  crc="7b27b2a9", offset=0x40000, length=0x40000, map="0100" },
+        { name="gfx13.j10", crc="52c984df", offset=0x40000, length=0x40000, map="1000" },
+        { name="gfx6.h6",   crc="ab19a1ce", offset=0x40000, length=0x40000, map="0001" },
+        { name="gfx7.h7",   crc="4bc82598", offset=0x40000, length=0x40000, map="0010" },
+        { name="gfx8.h9",   crc="09de4799", offset=0x40000, length=0x40000, map="0100" },
+        { name="gfx9.h10",  crc="38bcd72d", offset=0x40000, length=0x40000, map="1000" },
+    ] },
+    { name="gfx", machine="bigkarnk", start="JTFRAME_BA1_START", width=32, sequence=[0,1,2,3] },
+    { name="oki", start="JTFRAME_BA2_START" },
+    { name="audiocpu", machine="bigkarnk", start="JTFRAME_BA3_START", rename="snd0" },
+    { name="plds", skip=true },
+]
+
+order=[
+    "maincpu", "gfx", "oki", "snd0"
+]

@@ -1,0 +1,81 @@
+params:
+  - { name: RAM_OFFSET, value: "22'h10_0000" }
+
+clocks:
+  clk48:
+    - freq: 1M
+      outputs:
+        - cen_oki
+    - freq: 2M
+      outputs:
+        - cen_snd
+    - freq: 4M
+      outputs:
+        - cen_opl
+
+audio:
+  rsum: 20k
+  channels:
+    - { name: opl, module: jtopl2, rsum: 56k }
+    - { name: pcm, module: jt6295, rsum: 20k, fir: fir_192k_4k.csv }
+
+sdram:
+  banks:
+    - buses:
+        - name: ram
+          addr_width: 16
+          data_width: 16
+          din: cpu_dout
+          offset: RAM_OFFSET
+          rw: true
+        - { name: main, addr_width: 20, data_width: 16 }
+
+    - buses:
+        - { name: gfx0, addr_width: 22, data_width: 32 }
+        - { name: gfx1, addr_width: 22, data_width: 32 }
+        - { name: obj, addr_width: 22, data_width: 32 }
+
+    - buses:
+        - { name: oki, addr_width: 20, data_width: 8 }
+
+    - buses:
+        - { name: snd0, addr_width: 16, data_width: 8 }
+
+bram:
+  - name: vram0
+    addr_width: 13
+    data_width: 32
+    latch: outputs
+    ioctl: { save: true, restore: true, order: 0 }
+    dual_port: { name: cpu, addr: vram_cpu_addr, din: vram_cpu_din, dout: vram0_cpu_dout, we: vram_we, rw: true }
+  - name: vram1
+    addr_width: 13
+    data_width: 32
+    latch: outputs
+    ioctl: { save: true, restore: true, order: 1 }
+    dual_port: { name: cpu, addr: vram_cpu_addr, din: vram_cpu_din, dout: vram1_cpu_dout, we: vram_we, rw: true }
+
+  - name: scrram
+    addr_width: 13
+    data_width: 16
+    ioctl: { save: true, restore: true, order: 2 }
+    dual_port: { name: cpu, addr: scrram_cpu_addr, din: vmem_dec_wdata, dout: scrram_cpu_dout, we: scrram_we, rw: true }
+
+  - name: pal
+    addr_width: 11
+    data_width: 16
+    latch: outputs
+    ioctl: { save: true, restore: true, order: 3 }
+    dual_port: { name: cpu, addr: pal_cpu_addr, din: vmem_io_wdata, dout: pal_cpu_dout, we: pal_we, rw: true }
+  - name: palb
+    addr_width: 11
+    data_width: 16
+    latch: outputs
+    ioctl: { save: true, restore: true, order: 4 }
+    dual_port: { name: cpu, addr: pal_cpu_addr, din: vmem_io_wdata, dout: palb_cpu_dout, we: pal_we, rw: true }
+
+  - name: spr
+    addr_width: 12
+    data_width: 16
+    ioctl: { save: true, restore: true, order: 5 }
+    dual_port: { name: cpu, addr: spr_cpu_addr, din: vmem_io_wdata, dout: spr_cpu_dout, we: spr_we, rw: true }
