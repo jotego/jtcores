@@ -319,7 +319,7 @@ convert_raw2wav() {
 check_shasum() {
 	if [ ! -z "$SETNAME" ]; then
 	    if [ ! -z "$SHAUP" ]; then
-	        shasum frame*jpg > ../$SETNAME.sha;
+	        shasum frames/frame*png frames/frame*jpg 2>/dev/null > ../$SETNAME.sha;
 	    elif [ -e ../$SETNAME.sha ]; then
 	        if shasum --check ../$SETNAME.sha; then echo PASS; else echo FAIL; fi
 	    fi
@@ -327,11 +327,15 @@ check_shasum() {
 }
 
 count_frame_images() {
-	ls frames/frame*jpg 2>/dev/null | wc -l
+	ls frames/frame*png frames/frame*jpg 2>/dev/null | wc -l
+}
+
+last_frame_image() {
+	ls frames/frame_*.png frames/frame_*.jpg 2>/dev/null | tail -n 1
 }
 
 make_mpeg() {
-    if [[ ! $(has_macro JTFRAME_SIM_VIDEO) && $(ls frames/frame*jpg 2>/dev/null | wc -l ) -gt 2000 ]]; then
+    if [[ ! $(has_macro JTFRAME_SIM_VIDEO) && $(count_frame_images) -gt 2000 ]]; then
         echo "Large number of frames... maybe enable JTFRAME_SIM_VIDEO to create a full video"
     fi
     
@@ -342,8 +346,12 @@ make_mpeg() {
     fi
 
     if [[ "$VIDEO_DUMP" = TRUE ]]; then
+        local frame_ext=png
+        if [[ ! -e frames/frame_00000.png && -e frames/frame_00000.jpg ]]; then
+            frame_ext=jpg
+        fi
         ffmpeg -y -framerate $FRAMERATE \
-        -start_number 0 -i 'frames/frame_%05d.jpg' \
+        -start_number 0 -i "frames/frame_%05d.$frame_ext" \
         -i test.wav \
         -c:v libx264 -vf "scale=iw*3:ih*3,pad=ceil(iw/2)*2:ceil(ih/2)*2" -pix_fmt yuv420p \
         -c:a aac -shortest \
@@ -366,14 +374,66 @@ convert_channel_raw2wav() {
 }
 
 copy_scene_frame() {
-    SCNNUM=$(basename $(dirname $SCENE))
-    set -v
-    mv `ls frames/frame_*.jpg | tail -n 1` `dirname $SCENE`/$SCNNUM.jpg
-    set +v
+    local scnnum=$(basename $(dirname "$SCENE"))
+    local frame=$(last_frame_image)
+    local dst=$(dirname "$SCENE")/$scnnum.png
+    mv "$frame" "$dst"
+    echo "$dst"
+}
+
+compare_scene_snapshot() {
+    local candidate="$1"
+    local scene_dir=$(dirname "$SCENE")
+    local snapshot="$scene_dir/snapshot.png"
+    local scene_name=$(basename "$scene_dir")
+    local diff="$scene_dir/$scene_name-diff.png"
+    local csv="$scene_dir/$scene_name-compare.csv"
+
+    [ -e "$snapshot" ] || return 0
+    [ -e "$candidate" ] || return 0
+    if ! command -v identify >/dev/null || ! command -v convert >/dev/null || ! command -v compare >/dev/null; then
+        echo "Scene snapshot compare skipped: ImageMagick tools not found"
+        return 0
+    fi
+
+    local ref_size cand_size
+    ref_size=$(identify -format "%w,%h" "$snapshot" 2>/dev/null) || return 0
+    cand_size=$(identify -format "%w,%h" "$candidate" 2>/dev/null) || return 0
+    if [ "$ref_size" != "$cand_size" ]; then
+        echo "scene,core,ref,diff,nonzero,total,nonzero_pct,mean_abs,max_abs,status" > "$csv"
+        echo "$scene_name,$candidate,$snapshot,,0,0,0,0,0,size_mismatch:${ref_size/,/x}:${cand_size/,/x}" >> "$csv"
+        echo "Scene snapshot compare: MISMATCH $scene_name size mismatch ref=$ref_size core=$cand_size"
+        return 0
+    fi
+
+    convert "$snapshot" "$candidate" -compose difference -composite "$diff" 2>/dev/null || return 0
+
+    local width height total nonzero mean_abs max_abs nonzero_pct
+    width=${ref_size%,*}
+    height=${ref_size#*,}
+    total=$((width * height))
+    nonzero=$(compare -metric AE "$snapshot" "$candidate" null: 2>&1 >/dev/null)
+    read -r mean_abs max_abs < <(identify -format "%[fx:mean*255] %[fx:maxima*255]" "$diff" 2>/dev/null)
+    nonzero_pct=$(awk -v n="$nonzero" -v t="$total" 'BEGIN { if (t) printf "%.4f", 100*n/t; else print "0.0000" }')
+    mean_abs=$(awk -v v="$mean_abs" 'BEGIN { printf "%.4f", v }')
+    max_abs=$(awk -v v="$max_abs" 'BEGIN { printf "%.0f", v }')
+
+    local status label
+    if [ "$nonzero" = 0 ] && [ "$mean_abs" = "0.0000" ] && [ "$max_abs" = 0 ]; then
+        status=match
+        label=MATCH
+    else
+        status=mismatch
+        label=MISMATCH
+    fi
+
+    echo "scene,core,ref,diff,nonzero,total,nonzero_pct,mean_abs,max_abs,status" > "$csv"
+    echo "$scene_name,$candidate,$snapshot,$diff,$nonzero,$total,$nonzero_pct,$mean_abs,$max_abs,$status" >> "$csv"
+    echo "Scene snapshot compare: $label $scene_name nonzero=$nonzero/$total (${nonzero_pct}%) mean_abs=$mean_abs max_abs=$max_abs"
 }
 
 display_scene_frame() {
-	last_frame_image=`ls frames/frame_*.jpg | tail -n 1`
+	last_frame_image=$(last_frame_image)
 	eom $last_frame_image
 }
 

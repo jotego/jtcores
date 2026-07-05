@@ -20,12 +20,12 @@ previous available frame. Audio is muxed and video framerate is derived to match
 audio duration.
 
 Arguments:
-  <frames_dir>  Directory with files matching frame_00001.jpg ... frame_06522.jpg
+  <frames_dir>  Directory with files matching frame_00001.png ... frame_06522.png
                 Output file defaults to: <parent-folder-name>.mp4 (e.g. a/frames -> a.mp4)
                 Audio is taken from test.wav inside frames dir, then its parent dir.
 
 Options:
-  --frame-ext <ext>      Default: jpg
+  --frame-ext <ext>      Default: png, with jpg fallback
   --crf <0-51>           Default: 18 (lower for better quality)
   --start <num>          Optional explicit first frame number
   --end <num>            Optional explicit last frame number
@@ -53,7 +53,8 @@ parse_args() {
     shift
 
     frame_prefix="frame_"
-    frame_ext="jpg"
+    frame_ext="png"
+    frame_ext_set=false
     crf=18
     audio_bitrate="128k"
     start_frame=""
@@ -67,6 +68,7 @@ parse_args() {
                 ;;
             --frame-ext)
                 frame_ext="$2"
+                frame_ext_set=true
                 shift 2
                 ;;
             --crf)
@@ -107,6 +109,10 @@ collect_frames() {
     shopt -s nullglob
     local files
     files=("$frames_dir"/${frame_prefix}*[0-9]*."$frame_ext")
+    if ! $frame_ext_set && [ ${#files[@]} -eq 0 ] && [ "$frame_ext" = png ]; then
+        frame_ext="jpg"
+        files=("$frames_dir"/${frame_prefix}*[0-9]*."$frame_ext")
+    fi
     if [ ${#files[@]} -eq 0 ]; then
         echo "[ERROR] No frames found in $frames_dir with prefix '$frame_prefix' and extension '$frame_ext'"
         exit 1

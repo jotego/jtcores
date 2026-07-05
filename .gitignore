@@ -72,6 +72,7 @@ cores/*/ver/regrun
 cores/*/ver/*/frames
 cores/*/zxuno/*
 cores/*/hdl/*_mmr.v
+cores/*/hdl/*_header.v
 default.dip
 defmacros.h
 dump2bin.sh

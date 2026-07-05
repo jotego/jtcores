@@ -190,7 +190,7 @@ EOF
 
 # Cleans up the simulation folder
 function cleansim {
-    rm -f *.wav *.f *.def *bak *.raw *.bin test.* game_test.v frame*jpg \
+    rm -f *.wav *.f *.def *bak *.raw *.bin test.* game_test.v frame*jpg frame*png \
           microrom.mem nanorom.mem *.log *.h waiver
     rm -rf obj_dir sdram.old cfg history
 }

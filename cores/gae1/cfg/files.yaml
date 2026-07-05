@@ -1,0 +1,36 @@
+gae1:
+  - get:
+    - jtgae1_game.v
+    - jtgae1_main.v
+    - jtgae1_sound.v
+    - jtgae1_scroll_mmr.v
+    - jtgae1_vram_decrypt.v
+    - jtgae1_video.v
+    - jtgae1_scroll.v
+    - jtgae1_tilemap.v
+    - jtgae1_obj.v
+    - jtgae1_colmix.v
+    - jtgae1_header.v
+
+jtframe:
+  - get:
+      - jtframe_edge.v
+      - jtframe_8bit_reg.v
+      - jtframe_ff.v
+  - from: cpu
+    get:
+      - jtframe_m68k.yaml
+      - jtframe_6809.yaml
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+  - from: video/tilemap
+    get:
+      - jtframe_scroll.v
+      - jtframe_scroll_offset.v
+      - jtframe_tilemap.v
+jt6295:
+jtopl:
+  - get:
+    - jtopl2.yaml

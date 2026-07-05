@@ -211,8 +211,7 @@ case "$1" in
         if [[ -e "$SCENE" && -x ../game/dump2bin.sh ]]; then
             ../game/dump2bin.sh "$SCENE" 2> /dev/null || exit 1
             add_macro NOMAIN NOSOUND DUMP DUMP_VIDEO MAXFRAME=3 SIMSCENE
-            set_zoom
-            rm -rf video.bin frame_*.jpg frame.raw frames
+            rm -rf video.bin frame_*.jpg frame_*.png frame.raw frames
             VIDEO_DUMP=TRUE
         else
             echo "Scene file $SCENE or dump2bin.sh were not found"
@@ -242,7 +241,7 @@ case "$1" in
             shift
             add_macro MAXFRAME=$1
         fi
-        rm -rf video.bin frame_*.jpg frame.raw frames
+        rm -rf video.bin frame_*.jpg frame_*.png frame.raw frames
         VIDEO_DUMP=TRUE
         ;;
     -load)
@@ -591,10 +590,15 @@ SECONDS=$[$COMPILE_TIME % 60]
 
 echo "====== JTSIM finished in "$MINUTES\'$SECONDS\"" ======"
 
-if [[ ! -z "$SCENE" && -e frames/frame_00001.jpg ]]; then
+if [[ ! -z "$SCENE" && ( -e frames/frame_00001.png || -e frames/frame_00001.jpg ) ]]; then
     if [ ! -z "$BATCH" ]; then
-        copy_scene_frame
-    elif which eom > /dev/null; then
-        display_scene_frame&
+        scene_frame=$(copy_scene_frame)
+        compare_scene_snapshot "$scene_frame"
+    else
+        scene_frame=$(last_frame_image)
+        compare_scene_snapshot "$scene_frame"
+        if which eom > /dev/null; then
+            display_scene_frame&
+        fi
     fi
 fi
