@@ -14,6 +14,7 @@ Common options:
     -inputs [file]                       Feed sim_inputs.hex or a cabinet-input file
     -setname <name>                      Build the ROM for a specific setname
     -scene | -s <path>                   Run a saved scene dump
+    -zoom                                Scale dumped frames to 200%
     -lint                                Run Verilator lint instead of simulation
     -help | -h | --help                  Show this summary
 
