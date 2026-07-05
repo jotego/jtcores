@@ -1,0 +1,81 @@
+params:
+  - { name: BG1_OFFSET,   value: "(`BG1_START-`JTFRAME_BA2_START)>>1" }
+  - { name: TXT_OFFSET,   value: "(`TXT_START-`JTFRAME_BA2_START)>>1" }
+  - { name: VROM1_OFFSET, value: "(`VROM1_START-`JTFRAME_BA2_START)>>1" }
+  - { name: VROM2_OFFSET, value: "(`VROM2_START-`JTFRAME_BA2_START)>>1" }
+
+clocks:
+  clk48:
+    - freq: 5M
+      gate: [ "main", "snd" ]
+      outputs:
+        - cen5
+        - cen5b
+    - freq: 1500000
+      outputs:
+        - cen1p5
+        - cen1p5b
+
+audio:
+  rsum: 10k
+  gain: 0.7
+  channels:
+    - { name: fm,  module: jt03_fm,  rsum: 20k, rc: [{ r: 1rout, c: 1.2n }] }
+    - { name: psg, module: jt03_psg, rsum: 60k }
+
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 18
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 16
+        data_width: 8
+    - buses:
+      - name: bg0
+        addr_width: 17
+        data_width: 32
+      - name: bg1
+        addr_width: 15
+        data_width: 32
+        offset: BG1_OFFSET
+      - name: txt
+        addr_width: 15
+        data_width: 32
+        offset: TXT_OFFSET
+      - name: vrom1
+        addr_width: 15
+        data_width: 16
+        offset: VROM1_OFFSET
+      - name: vrom2
+        addr_width: 15
+        data_width: 16
+        offset: VROM2_OFFSET
+    - buses:
+      - name: obj
+        addr_width: 17
+        data_width: 32
+bram:
+  - name: ram
+    addr_width: 13
+    data_width: 8
+    addr: "main_addr[12:0]"
+    din: cpu_dout
+    rw: true
+    dual_port: { name: ram_obj, dout: ram_obj_dout, din: "8'b0", }
+  - name: tx
+    addr_width: 11
+    data_width: 16
+    addr: "main_addr[10:1]"
+    din: "{2{cpu_dout}}"
+    rw: true
+    dual_port: { name: tx_vid, dout: tx_vid_dout, din: "16'b0"}
+  - name: bg1
+    addr_width: 11
+    data_width: 16
+    addr: "main_addr[10:1]"
+    din: "{2{cpu_dout}}"
+    rw: true
+    dual_port: { name: bg1_vid, dout: bg1_vid_dout, din: "16'b0"}

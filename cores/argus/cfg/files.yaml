@@ -1,0 +1,29 @@
+argus:
+  - get:
+    - jtargus_*.v
+jtframe:
+  - get:
+    - jtframe_edge.v
+    - jtframe_sh.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_z80wait.v
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+      - jtframe_obj_buffer.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_scroll.yaml
+      - jtframe_draw.v
+      - jtframe_objdraw.v
+      - jtframe_objdraw_gate.v
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v
+jt12:
+  - get:
+    - jt03.yaml
