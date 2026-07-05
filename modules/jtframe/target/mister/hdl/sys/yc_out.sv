@@ -1,5 +1,5 @@
 //============================================================================
-// 	YC - Luma / Chroma Generation 
+// 	YC - Luma / Chroma Generation
 //  Copyright (C) 2022 Mike Simone
 //
 //  This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 //  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 //============================================================================
-/* 
+/*
 Colorspace
 Y	0.299R' + 0.587G' + 0.114B'
 U	0.492(B' - Y) = 504 (X 1024)
@@ -86,29 +86,34 @@ logic [7:0]  chroma_LUT_SIN; // Chroma sin LUT reference
 logic [7:0]  chroma_LUT_BURST; // Chroma colorburst LUT reference
 logic [7:0]  chroma_LUT = 8'd0;
 
-/*************************************
-	8 bit sine look up table, first quarter only
-**************************************/
-wire signed [10:0] chroma_SIN_LUT[64] = '{
-	11'h000, 11'h006, 11'h00C, 11'h012, 11'h018, 11'h01F, 11'h025, 11'h02B, 11'h031, 11'h037, 11'h03D, 11'h044, 11'h04A, 11'h04F, 
-	11'h055, 11'h05B, 11'h061, 11'h067, 11'h06D, 11'h072, 11'h078, 11'h07D, 11'h083, 11'h088, 11'h08D, 11'h092, 11'h097, 11'h09C, 
-	11'h0A1, 11'h0A6, 11'h0AB, 11'h0AF, 11'h0B4, 11'h0B8, 11'h0BC, 11'h0C1, 11'h0C5, 11'h0C9, 11'h0CC, 11'h0D0, 11'h0D4, 11'h0D7, 
-	11'h0DA, 11'h0DD, 11'h0E0, 11'h0E3, 11'h0E6, 11'h0E9, 11'h0EB, 11'h0ED, 11'h0F0, 11'h0F2, 11'h0F4, 11'h0F5, 11'h0F7, 11'h0F8, 
-	11'h0FA, 11'h0FB, 11'h0FC, 11'h0FD, 11'h0FD, 11'h0FE, 11'h0FE, 11'h0FE
-};
+/*
+THe following LUT table was calculated by Sin(2*pi*t/2^8) where t: 0 - 255
+*/
 
-function automatic signed [10:0] chroma_sin;
-	input [7:0] idx;
-	logic [5:0] lut_addr;
-	logic peak;
-	logic signed [10:0] lut_data;
-begin
-	lut_addr   = idx[6] ? (6'd0 - idx[5:0]) : idx[5:0];
-	peak       = idx[6] && (idx[5:0] == 6'd0);
-	lut_data   = peak ? 11'sh0ff : chroma_SIN_LUT[lut_addr];
-	chroma_sin = idx[7] ? -lut_data : lut_data;
-end
-endfunction
+/*************************************
+		8 bit Sine look up Table
+**************************************/
+wire signed [10:0] chroma_SIN_LUT[256] = '{
+	11'h000, 11'h006, 11'h00C, 11'h012, 11'h018, 11'h01F, 11'h025, 11'h02B, 11'h031, 11'h037, 11'h03D, 11'h044, 11'h04A, 11'h04F,
+	11'h055, 11'h05B, 11'h061, 11'h067, 11'h06D, 11'h072, 11'h078, 11'h07D, 11'h083, 11'h088, 11'h08D, 11'h092, 11'h097, 11'h09C,
+	11'h0A1, 11'h0A6, 11'h0AB, 11'h0AF, 11'h0B4, 11'h0B8, 11'h0BC, 11'h0C1, 11'h0C5, 11'h0C9, 11'h0CC, 11'h0D0, 11'h0D4, 11'h0D7,
+	11'h0DA, 11'h0DD, 11'h0E0, 11'h0E3, 11'h0E6, 11'h0E9, 11'h0EB, 11'h0ED, 11'h0F0, 11'h0F2, 11'h0F4, 11'h0F5, 11'h0F7, 11'h0F8,
+	11'h0FA, 11'h0FB, 11'h0FC, 11'h0FD, 11'h0FD, 11'h0FE, 11'h0FE, 11'h0FE, 11'h0FF, 11'h0FE, 11'h0FE, 11'h0FE, 11'h0FD, 11'h0FD,
+	11'h0FC, 11'h0FB, 11'h0FA, 11'h0F8, 11'h0F7, 11'h0F5, 11'h0F4, 11'h0F2, 11'h0F0, 11'h0ED, 11'h0EB, 11'h0E9, 11'h0E6, 11'h0E3,
+	11'h0E0, 11'h0DD, 11'h0DA, 11'h0D7, 11'h0D4, 11'h0D0, 11'h0CC, 11'h0C9, 11'h0C5, 11'h0C1, 11'h0BC, 11'h0B8, 11'h0B4, 11'h0AF,
+	11'h0AB, 11'h0A6, 11'h0A1, 11'h09C, 11'h097, 11'h092, 11'h08D, 11'h088, 11'h083, 11'h07D, 11'h078, 11'h072, 11'h06D, 11'h067,
+	11'h061, 11'h05B, 11'h055, 11'h04F, 11'h04A, 11'h044, 11'h03D, 11'h037, 11'h031, 11'h02B, 11'h025, 11'h01F, 11'h018, 11'h012,
+	11'h00C, 11'h006, 11'h000, 11'h7F9, 11'h7F3, 11'h7ED, 11'h7E7, 11'h7E0, 11'h7DA, 11'h7D4, 11'h7CE, 11'h7C8, 11'h7C2, 11'h7BB,
+	11'h7B5, 11'h7B0, 11'h7AA, 11'h7A4, 11'h79E, 11'h798, 11'h792, 11'h78D, 11'h787, 11'h782, 11'h77C, 11'h777, 11'h772, 11'h76D,
+	11'h768, 11'h763, 11'h75E, 11'h759, 11'h754, 11'h750, 11'h74B, 11'h747, 11'h743, 11'h73E, 11'h73A, 11'h736, 11'h733, 11'h72F,
+	11'h72B, 11'h728, 11'h725, 11'h722, 11'h71F, 11'h71C, 11'h719, 11'h716, 11'h714, 11'h712, 11'h70F, 11'h70D, 11'h70B, 11'h70A,
+	11'h708, 11'h707, 11'h705, 11'h704, 11'h703, 11'h702, 11'h702, 11'h701, 11'h701, 11'h701, 11'h701, 11'h701, 11'h701, 11'h701,
+	11'h702, 11'h702, 11'h703, 11'h704, 11'h705, 11'h707, 11'h708, 11'h70A, 11'h70B, 11'h70D, 11'h70F, 11'h712, 11'h714, 11'h716,
+	11'h719, 11'h71C, 11'h71F, 11'h722, 11'h725, 11'h728, 11'h72B, 11'h72F, 11'h733, 11'h736, 11'h73A, 11'h73E, 11'h743, 11'h747,
+	11'h74B, 11'h750, 11'h754, 11'h759, 11'h75E, 11'h763, 11'h768, 11'h76D, 11'h772, 11'h777, 11'h77C, 11'h782, 11'h787, 11'h78D,
+	11'h792, 11'h798, 11'h79E, 11'h7A4, 11'h7AA, 11'h7B0, 11'h7B5, 11'h7BB, 11'h7C2, 11'h7C8, 11'h7CE, 11'h7D4, 11'h7DA, 11'h7E0,
+	11'h7E7, 11'h7ED, 11'h7F3, 11'h7F9
+};
 
 logic [39:0] phase_accum = 40'd0;
 logic PAL_FLIP = 1'd0;
@@ -177,7 +182,7 @@ always_ff @(posedge clk) begin
 	else begin // Generate Colorburst for 9 cycles
 		if (cburst_phase >= COLORBURST_RANGE[16:10] && cburst_phase <= COLORBURST_RANGE[9:0]) begin // Start the color burst signal at 40 samples or 0.9 us
 			// COLORBURST SIGNAL GENERATION (9 CYCLES ONLY or between count 40 - 240)
-			phase[2].u <= $signed({chroma_sin(chroma_LUT_BURST),5'd0});
+			phase[2].u <= $signed({chroma_SIN_LUT[chroma_LUT_BURST],5'd0});
 			phase[2].v <= 21'b0;
 
 			// Division to scale down the results to fit 8 bit.
@@ -192,8 +197,8 @@ always_ff @(posedge clk) begin
 			U,V are both multiplied by 1024 earlier to scale for the decimals in the YUV colorspace conversion.
 			U and V are both divided by 2^10 which introduce chroma subsampling of 4:1:1 (25% or from 8 bit to 6 bit)
 			*/
-			phase[2].u <= $signed((phase[1].u)>>>10) * $signed(chroma_sin(chroma_LUT_SIN));
-			phase[2].v <= $signed((phase[1].v)>>>10) * $signed(chroma_sin(chroma_LUT_COS));
+			phase[2].u <= $signed((phase[1].u)>>>10) * $signed(chroma_SIN_LUT[chroma_LUT_SIN]);
+			phase[2].v <= $signed((phase[1].v)>>>10) * $signed(chroma_SIN_LUT[chroma_LUT_COS]);
 
 			// Divide U*sin(wt) and V*cos(wt) to fit results to 8 bit
 			phase[3].u <= $signed(phase[2].u[20:9]) + $signed(phase[2].u[20:10]) + $signed(phase[2].u[20:14]);
