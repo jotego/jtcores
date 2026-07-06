@@ -17,7 +17,8 @@ audio:
   rc:   { r: 1k, c: 10n }
   channels:
     - { name: fm,   module: jt03_fm, rsum: 5.3k, rc: [{ r: 0.81k, c: 33n }] }
-    # psg rsum was 20k from the schematic; raised to 56.4k for ~-9 dB attenuation.
+    # psg rsum was 20k from the schematic; raised to 56.4k for ~-9 dB attenuation
+    # (gain ~ 1/rsum, 20/56.4 = 0.355 = -9 dB) — found necessary by ear vs FM/VLM.
     - { name: psga, data_width: 8, unsigned: true, rsum: 56.4k, rc_en: true, dcrm: true, rc: [{ r: 0.78k, c: 150n }] }
     - { name: psgb, data_width: 8, unsigned: true, rsum: 56.4k, rc_en: true, dcrm: true, rc: [{ r: 0.78k, c: 150n }] }
     - { name: psgc, data_width: 8, unsigned: true, rsum: 56.4k, rc_en: true, dcrm: true, rc: [{ r: 0.78k, c: 150n }] }
@@ -48,12 +49,18 @@ sdram:
           offset: VLM_OFFSET
 
     - buses:
-        - name: gfx1
+        - name: gfx1          # chip1 tiles (RA16=0 half)
+          addr_width: 18
+          data_width: 32
+        - name: gfx1obj       # chip1 sprites (high half) — own slot, same region
           addr_width: 18
           data_width: 32
 
     - buses:
-        - name: gfx2
+        - name: gfx2          # chip2 tiles (RA16=0 half)
+          addr_width: 19
+          data_width: 32
+        - name: gfx2obj       # chip2 sprites (RA16=1 half) — own slot, same region
           addr_width: 19
           data_width: 32
 
