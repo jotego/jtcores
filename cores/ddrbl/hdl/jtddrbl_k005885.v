@@ -4,14 +4,34 @@
 //  time-shared ROM bus). Instantiated twice: E16=FG/gfx1, H16=BG/gfx2; each
 //  emits COL[4:0] into jtddrbl_colmix.
 //----------------------------------------------------------------------------
-//  Portions derived from the MIT-licensed k005885.sv by Ace. MIT notice:
+//  This file contains portions derived from k005885.sv by Ace, used under the
+//  MIT License. The original copyright notice and MIT permission notice are
+//  reproduced below in full, as that license requires:
+//
+//    Copyright (C) 2020, 2022 Ace
+//
 //    Permission is hereby granted, free of charge, to any person obtaining a
-//    copy of this software and associated documentation files (the
-//    "Software"), to deal in the Software without restriction... The above
-//    copyright notice and this permission notice shall be included in all
-//    copies or substantial portions of the Software. THE SOFTWARE IS
-//    PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
-//  JTCORES integration is GPL-3 (see jtcores LICENSE).
+//    copy of this software and associated documentation files (the "Software"),
+//    to deal in the Software without restriction, including without limitation
+//    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+//    and/or sell copies of the Software, and to permit persons to whom the
+//    Software is furnished to do so, subject to the following conditions:
+//
+//    The above copyright notice and this permission notice shall be included in
+//    all copies or substantial portions of the Software.
+//
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+//    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+//    DEALINGS IN THE SOFTWARE.
+//
+//  The MIT-derived portion is the CPU register file, interrupt generators and
+//  internal-RAM address decode. The JTFRAME integration, video timing, and the
+//  tilemap/sprite datapath (here and in jtddribble_scroll.v / jtddribble_obj.v)
+//  are original work, licensed GPL-3 (see jtcores LICENSE).
 //
 //  Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
 //============================================================================
@@ -97,6 +117,7 @@ wire cen_6m = pxl_cen;     // chip pixel clock
 //------------------------------------------------------------------------
 wire [8:0] vt_H, vt_vdump;
 wire       vt_lhbl, vt_lvbl, vt_hs, vt_vs;
+
 jtframe_vtimer #(
     .HCNT_END ( 9'd383 ),
     .HB_START ( 9'd269 ),   // LHBL=0 at 269 -> visible 14..269 (256 px)
