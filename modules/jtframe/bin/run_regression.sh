@@ -424,10 +424,18 @@ check_frames() {
 
     local failed=false
 
-    local frames=(frames/*.jpg)
+    shopt -s nullglob
+    local frames=(frames/*.png)
+    if [[ ${#frames[@]} -eq 0 ]]; then
+        frames=(frames/*.jpg)
+    fi
     local n_frames="${#frames[@]}"
-    local ref_frames=($ref_dir/*.jpg)
+    local ref_frames=($ref_dir/*.png)
+    if [[ ${#ref_frames[@]} -eq 0 ]]; then
+        ref_frames=($ref_dir/*.jpg)
+    fi
     local n_ref_frames="${#ref_frames[@]}"
+    shopt -u nullglob
 
     if [[ $n_frames -eq 0 ]]; then
         echo "[WARNING] No frames were produced by this simulation"
@@ -583,7 +591,8 @@ prepare_zip_files() {
 delete_duplicated_frames() {
     local first=true
     local last
-    for i in frames/frame*jpg; do
+    shopt -s nullglob
+    for i in frames/frame*png frames/frame*jpg; do
         if $first; then
             first=false
             last=$i
@@ -595,6 +604,7 @@ delete_duplicated_frames() {
         fi
         last=$i
     done
+    shopt -u nullglob
 }
 
 main "$@"

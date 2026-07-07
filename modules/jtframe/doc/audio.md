@@ -28,3 +28,35 @@ rc: [ r: 1k, c: 33n ]
 If the filter is of second order without an amplifier separating each filter pole, an equivalent 2-stage single-pole filter must be calculated. See the image below.
 
 ![second-order filter in a single stage](images/rc-equivalent.png)
+
+## Switchable filters (`rc_en`)
+
+`rc_en: true` makes a channel's filter switchable at runtime, modelling a 4066 that gates a cap in/out. It exposes a `<name>_rcen` game output and selects the pole by it: `rcen ? pole : 0` (0 = filter off). With `rc_en` the two-pole limit is lifted — list more poles and each pair becomes one switchable filter, with `<name>_rcen` widening to `[N-1:0]`.
+
+```yaml
+- { name: psga, rsum: 1k, rc_en: true, rc: [{ r: 1k, c: 150n }] }
+```
+
+Drive `<name>_rcen` from the relevant control bits (example in ddribble: YM2203 IOA[2:0] via the 4066 D5); 
+This feauture is used by `ddribble`, `mikie`, `comsc`, `circus`, `roc`.
+
+### Complete example — ddribble SSG voices
+
+Three SSG channels, each with a 0.15uF cap switched by one bit of the YM2203 port-A output:
+
+```yaml
+audio:
+  channels:
+    - { name: psga, rsum: 1k, rc_en: true, rc: [{ r: 1k, c: 150n }] }
+    - { name: psgb, rsum: 1k, rc_en: true, rc: [{ r: 1k, c: 150n }] }
+    - { name: psgc, rsum: 1k, rc_en: true, rc: [{ r: 1k, c: 150n }] }
+```
+
+The sound program enables/disables each cap by writing the YM2203 port A. Wire each `*_rcen` to its IOA bit — writing `1` switches the cap in (filter on), `0` switches it out (filter off):
+
+```verilog
+wire [7:0] ym_ioa_out;
+jt03 u_ym2203( /* ... */ .IOA_out( ym_ioa_out ) /* ... */ );
+
+assign { psga_rcen, psgb_rcen, psgc_rcen } = ym_ioa_out[2:0];
+```

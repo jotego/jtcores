@@ -1,6 +1,8 @@
 shouse:
   - get:
     - "*.v"
+    - jtcus30.sv
+    - jtshouse_scr.sv
 jtframe:
   - get:
       - jtframe_ff.v

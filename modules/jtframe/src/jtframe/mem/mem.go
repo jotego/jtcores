@@ -1281,7 +1281,8 @@ func check_ioctl_size(dump_size int) {
 		fmt.Printf("WARNING: JTFRAME_IOCTL_RD in macros.def is %d too short.\n", dump_size-ioctl_rd)
 	}
 	if suggest {
-		fmt.Printf("Set:\tJTFRAME_IOCTL_RD=%d\n", dump_size)
+		fmt.Printf("Set:\tJTFRAME_IOCTL_RD=%d to cover for mem.yaml requirements\n", dump_size)
+		fmt.Println("\tadd extra space to JTFRAME_IOCTL_RD to cover for data dumped directly from the game module.")
 	}
 }
 

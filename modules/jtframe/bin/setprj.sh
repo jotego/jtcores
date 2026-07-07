@@ -1,15 +1,22 @@
 #!/bin/bash
-# Define JTROOT before sourcing this file
-
+# This script may be sourced from any folder inside the project hierarchy.
+setup_dir() {
+    local setup_script=${BASH_SOURCE[0]}
+    if [[ "$setup_script" != */* ]]; then
+        setup_script=$(type -P -- "$setup_script")
+    fi
+    cd -- "$(dirname -- "$setup_script")" && pwd -P
+}
 if (echo $PATH | grep modules/jtframe/bin -q); then
-    unalias jtcore
+    unalias jtcore 2>/dev/null
     PATH=$(echo $PATH | sed 's/:[^:]*jtframe\/bin//g')
     PATH=$(echo $PATH | sed 's/:\.//g')
     unset JT12 JT51 CC MRA ROM CORES
 fi
 
-export JTROOT=$(pwd)
+export JTROOT=$(cd -- "$(setup_dir)/../../.." && pwd -P)
 export JTFRAME=$JTROOT/modules/jtframe
+export CODEX_HOME=$JTROOT/.codex
 # . path comes before JTFRAME/bin as setprj.sh
 # can be in the working directory and in JTFRAME/bin
 PATH=$PATH:.:$JTFRAME/bin
@@ -183,7 +190,7 @@ EOF
 
 # Cleans up the simulation folder
 function cleansim {
-    rm -f *.wav *.f *.def *bak *.raw *.bin test.* game_test.v frame*jpg \
+    rm -f *.wav *.f *.def *bak *.raw *.bin test.* game_test.v frame*jpg frame*png \
           microrom.mem nanorom.mem *.log *.h waiver
     rm -rf obj_dir sdram.old cfg history
 }

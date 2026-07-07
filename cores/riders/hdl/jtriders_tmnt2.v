@@ -127,8 +127,8 @@ jtriders_tmnt2_zoom u_yzoom(
 );
 
 jtframe_dual_ram #(
-    .DW        ( 9                  ),
-    .SYNFILE   ("../../hdl/log2.hex")
+    .DW         ( 9                 ),
+    .SYNFILE    ( "log2.hex"        )
 )u_log(
     .clk0       ( clk               ),
     .clk1       ( clk               ),
@@ -145,9 +145,9 @@ jtframe_dual_ram #(
 );
 
 jtframe_dual_ram #(
-    .DW        ( 15                 ),
-    .AW        ( 10                 ),
-    .SYNFILE   ("../../hdl/exp2.hex")
+    .DW         ( 15                ),
+    .AW         ( 10                ),
+    .SYNFILE    ("exp2.hex"         )
 )u_exp(
     .clk0       ( clk               ),
     .clk1       ( clk               ),

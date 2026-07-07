@@ -1,0 +1,11 @@
+8
+loop
+2 1p
+8
+2 coin
+repeat 5
+10
+loop
+2 down right b1
+20 down right
+repeat 200

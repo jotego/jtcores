@@ -27,4 +27,4 @@ parallel $RUN_FOLDER ::: $GAME
 rm -f $RUN_FOLDER
 rm -rf allscenes
 mkdir -p allscenes
-find scenes -name "*jpg" | xargs -I_ mv _ allscenes
+find scenes \( -name "*png" -o -name "*jpg" \) | xargs -I_ mv _ allscenes

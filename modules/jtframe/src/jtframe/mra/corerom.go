@@ -152,7 +152,9 @@ type region_parts struct {
 func make_region_parts(reg string, reg_cfg *RegCfg, reg_roms []MameROM, machine *MachineXML, cfg Mame2MRA) (parts region_parts, e error) {
 	parts.node = MakeNode("parts")
 	if len(reg_cfg.Parts) != 0 {
-		parts.length += reg_cfg.parse_parts(&parts.node, reg_roms)
+		if parts.length, e = reg_cfg.parse_parts(&parts.node, reg_roms); e != nil {
+			return parts, e
+		}
 	} else if reg_cfg.Singleton {
 		// Singleton interleave case
 		parts.length += parse_singleton(reg_roms, reg_cfg, &parts.node)
@@ -529,7 +531,7 @@ func is_blank(curpos int, reg string, machine *MachineXML, cfg Mame2MRA) (blank_
 	}
 }
 
-func (reg_cfg *RegCfg) parse_parts(p *XMLNode, roms []MameROM) int {
+func (reg_cfg *RegCfg) parse_parts(p *XMLNode, roms []MameROM) (int, error) {
 	dumped := 0
 	n := p
 	reg_cfg.check_width_vs_parts()
@@ -570,12 +572,13 @@ func (reg_cfg *RegCfg) parse_parts(p *XMLNode, roms []MameROM) int {
 			}
 		}
 		if each.Length == 0 {
-			each.get_size_from_mame(roms)
+			if e := each.get_size_from_mame(roms); e != nil {
+				return dumped, fmt.Errorf("While parsing region %s: %w", reg_cfg.Name, e)
+			}
 		} else {
 			e := each.verify_size(roms)
 			if e != nil {
-				fmt.Println(roms)
-				panic(fmt.Errorf("While parsing region %s:\n\t%s", reg_cfg.Name, e))
+				return dumped, fmt.Errorf("While parsing region %s: %w", reg_cfg.Name, e)
 			}
 		}
 		m.AddAttr("length", fmt.Sprintf("0x%X", each.Length))
@@ -585,19 +588,20 @@ func (reg_cfg *RegCfg) parse_parts(p *XMLNode, roms []MameROM) int {
 		dumped += each.Length
 	}
 	reg_cfg.check_parts_consistency()
-	return dumped
+	return dumped, nil
 }
 
 func (reg_cfg *RegCfg) add_interleave(p *XMLNode) *XMLNode {
 	return p.AddNode("interleave").AddAttr("output", fmt.Sprintf("%d", reg_cfg.Width))
 }
 
-func (part *RegParts) get_size_from_mame(roms []MameROM) {
+func (part *RegParts) get_size_from_mame(roms []MameROM) error {
 	idx := part.find_rom(roms)
 	if idx == -1 {
-		panic(part.error_unknown_rom())
+		return part.error_unknown_rom()
 	}
 	part.Length = roms[idx].Size
+	return nil
 }
 
 func (reg_cfg *RegCfg) check_parts_consistency() {

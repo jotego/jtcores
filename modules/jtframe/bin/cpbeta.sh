@@ -40,6 +40,8 @@ parse_args() {
         case "$1" in
             --last)
                 FRIDAY="last friday";;
+            --today)
+                FRIDAY="today";;
             -h|--help)
                 show_help
                 exit 0;;
@@ -62,6 +64,7 @@ Creates zip files for distribution on JTFRIDAY.
 -l, --last      Use last friday's date, instead of next's
                 or latest published date, if it is more recent
                 than last friday's
+    --today     Use today's date for jtfriday zip files
 EOF
 }
 

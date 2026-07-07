@@ -1,0 +1,78 @@
+// ---------------------------------------------------------------------------
+// Address decoder
+// ---------------------------------------------------------------------------
+// HARDWARE: real decode is the Konami 007553 PAL at C11 on schematic page 1.
+// ★ AUTHORITATIVE source: cores/ddrbl/doc/Konami_007553_equations.txt
+//   (decoded by jedutil from the JEDEC fuse dump on 2026-06-01).
+// Pin labels (which PAL input/output corresponds to which schematic net) in
+//   cores/ddrbl/doc/Konami_007553_pinout.md
+//
+// PAL OUTPUTS (active-low) → HDL CHIP-SELECT MAPPING:
+// ┌─────────┬────────────────────────────────────────┬──────────────────────────┐
+// │ /pin    │ Equation (PAL, with EN = NEQ asserted) │ HDL signal — addr range  │
+// ├─────────┼────────────────────────────────────────┼──────────────────────────┤
+// │ /o12 /ROM   = EN & (A15 | (/A15 & A14))          │ rom_cs       0x8000-FFFF │
+// │              (PAL fires 0x4000-0xFFFF — narrowed │ (downstream A15 gating   │
+// │               to 0x8000-0xFFFF by downstream LS  │  on the 27512 /CE pin    │
+// │               combining /ROM with A15; we model  │  is implicit in our      │
+// │               the combined net here.)            │  rom_cs polarity)        │
+// │ /o13 /CRAM  = EN & /A15&/A14&/A13                │ shared_ms_cs 0x0000-1FFF │
+// │ /o14 /AFE   = EN & /A15&/A14&A13&A12&A11&A10     │ watchdog (not modeled)   │
+// │ /o15 /SET   = EN & /A15&/A14&A13&A12&/A11&A10    │ coin_cs      0x3400-37FF │
+// │ /o16 /DIP3  = EN & /A15&/A14&A13&A12&/A11&/A10   │ dsw3_cs      0x3000-33FF │
+// │ /o17 /DIP2  = EN & /A15&/A14&A13&/A12&A11&A10    │ dsw2_cs      0x2C00-2FFF │
+// │ /o18 /IOIN  = EN & /A15&/A14&A13&/A12&A11&/A10   │ split by A[1:0] downstrm │
+// │                                                  │ → dsw1/p1/p2/sys @       │
+// │                                                  │   0x2800-0x2803          │
+// │ /o19 /SRAM  = EN & /A15&/A14&A13&/A12&/A11       │ shared_sa_cs 0x2000-27FF │
+// └─────────┴────────────────────────────────────────┴──────────────────────────┘
+//
+// 0x3800-0x3BFF: no PAL output fires → open bus (8'hff).
+//
+// Each select is the literal PAL product-term on A15..A10; the within-window low
+// bits are don't-cares (partial decode → mirrors, as on the PCB). The /IOIN
+// window is sub-decoded by the external LS153/LS155 on A[1:0] only, so DSW1/P1/
+// P2/SYSTEM mirror across 0x2800-0x2BFF.
+
+Inputs:
+
+1, 2, 3, 4, 5, 6, 7, 8, 9, 11
+
+Outputs:
+
+12 (Combinatorial, No output feedback, Active low)
+13 (Combinatorial, No output feedback, Active low)
+14 (Combinatorial, No output feedback, Active low)
+15 (Combinatorial, No output feedback, Active low)
+16 (Combinatorial, No output feedback, Active low)
+17 (Combinatorial, No output feedback, Active low)
+18 (Combinatorial, No output feedback, Active low)
+19 (Combinatorial, No output feedback, Active low)
+
+Equations:
+
+/o12 = i1 & i3 +
+       i1 & /i3 & i4
+o12.oe = vcc
+
+/o13 = i1 & /i3 & /i4 & /i5
+o13.oe = vcc
+
+/o14 = i1 & /i3 & /i4 & i5 & i6 & i7 & i8
+o14.oe = vcc
+
+/o15 = i1 & /i3 & /i4 & i5 & i6 & /i7 & i8
+o15.oe = vcc
+
+/o16 = i1 & /i3 & /i4 & i5 & i6 & /i7 & /i8
+o16.oe = vcc
+
+/o17 = i1 & /i3 & /i4 & i5 & /i6 & i7 & i8
+o17.oe = vcc
+
+/o18 = i1 & /i3 & /i4 & i5 & /i6 & i7 & /i8
+o18.oe = vcc
+
+/o19 = i1 & /i3 & /i4 & i5 & /i6 & /i7
+o19.oe = vcc
+

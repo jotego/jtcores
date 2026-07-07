@@ -1,7 +1,8 @@
 #!/bin/bash -e
 # Make a release to JTBIN from GitHub builds
 
-source jtrelease-funcs
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+source "$SCRIPT_DIR/jtrelease-funcs"
 
 trap clean_up ERR
 
@@ -31,7 +32,7 @@ make_all_pocket_zips
 make_md5_reference_file
 # note that the beta zip files are generated before deleting
 # the mist and sidi beta files from JTBIN
-cpbeta.sh $LAST
+"$SCRIPT_DIR/cpbeta.sh" $DATEARG
 remove_mist_betas
 make_game_list
 make_sound_balance_audit

@@ -153,6 +153,9 @@ func dump_cpp(def map[string]string) {
         if k == "JTFRAME_PLL" {
             v = strings.TrimPrefix(v, "jtframe_pll")
         }
+        if k == "JTFRAME_MCLK" && (v == "48000000" || v == "96000000") {
+            continue
+        }
         // Get only the numerical part
         fmt.Printf("#define _%s %s\n", k, v)
         _, exists := expected[k]

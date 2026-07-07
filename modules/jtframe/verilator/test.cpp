@@ -760,7 +760,7 @@ void JTSim::video_dump() {
                             dump.fout.close();
                             char exes[512];
                             snprintf(exes,512,"convert -filter Point "
-                                "-size %dx%d %s -depth 8 RGBA:frame.raw %s frames/frame_%05d.jpg",
+                                "-size %dx%d %s -depth 8 RGBA:frame.raw %s frames/frame_%05d.png",
                                 activew, activeh,
                                 (coremod&1) ? (CCW ? "-rotate -90" : "-rotate 90") : "",
                                 convert_options.c_str(), frame_cnt);

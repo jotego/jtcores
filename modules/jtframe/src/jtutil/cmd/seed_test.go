@@ -257,7 +257,11 @@ func Test_seed_release_info_paths(t *testing.T) {
 	if got := info.source_rbf(filepath.Join(root, "cores", "gng", "seed", "7")); got != filepath.Join(root, "cores", "gng", "seed", "7", "jtgng.rbf_r") {
 		t.Fatalf("unexpected pocket source path: %s", got)
 	}
-	if got := info.release_rbf(); got != filepath.Join(root, "release", "pocket", "raw", "Cores", "jotego.gng", "jtgng.rbf_r") {
+	old_pocket_path := filepath.Join(root, "release", "pocket", "raw", "Cores", "jotego.gng", "jtgng.rbf_r")
+	if got := info.release_rbf(); got == old_pocket_path {
+		t.Fatalf("pocket release path still uses core folder instead of rbf folder: %s", got)
+	}
+	if got := info.release_rbf(); got != filepath.Join(root, "release", "pocket", "raw", "Cores", "jotego.jtgng", "jtgng.rbf_r") {
 		t.Fatalf("unexpected pocket release path: %s", got)
 	}
 }
