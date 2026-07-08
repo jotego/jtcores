@@ -245,6 +245,7 @@ func add_extra_dip(n *XMLNode, create_parent bool, machine *MachineXML, cfg Mame
     // Add DIP switches in the extra section, note that these
     // one will always have a default value of 1
     for _, each := range cfg.Dipsw.Extra {
+        if each.Target != "" && each.Target != args.Target { continue }
         if Verbose {
             fmt.Printf("\tChecking extra DIPSW %s for %s/%s (current %s/%s)\n",
                 each.Name, each.Machine, each.Setname, machine.Cloneof, machine.Name)
