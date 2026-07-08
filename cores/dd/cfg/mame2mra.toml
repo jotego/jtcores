@@ -39,6 +39,10 @@ Names = [
 [dipsw]
 # Flip screen not supported
 delete=[{names=["Unused","Unknown"]}]
+bitcnt = 16
+extra=[
+    { name="Turbo", options="off,on", bits="16" },
+]
 rename = [
     { name="Bonus Life", to="Bonus" },
 ]

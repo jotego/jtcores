@@ -31,5 +31,3 @@ JTFRAME_ARX=5
 JTFRAME_ARY=4
 
 [pocket]
-# turbo does not work with the new CPU
-ALWAYS_TURBO
