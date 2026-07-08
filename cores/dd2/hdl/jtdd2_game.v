@@ -41,7 +41,7 @@ wire       [ 8:0]  scrhpos, scrvpos;
 wire cpu_cen;
 wire turbo;
 
-assign turbo      = status[13];
+assign turbo      = `ifdef POCKET dipsw[16] `else status[13] `endif ;
 assign dip_flip   = flip;
 assign debug_view = 0;
 assign scr_cs     = LVBL;
