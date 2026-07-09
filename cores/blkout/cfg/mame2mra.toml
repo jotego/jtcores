@@ -1,0 +1,22 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "blockout.cpp" ]
+
+[buttons]
+names=[
+    { names="A,B,C,Drop" }
+]
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+
+[ROM]
+regions = [
+    { name="maincpu",  width=16, reverse=true, no_offset=true },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="oki",      start="PCM_START" },
+]
+
+order = [ "maincpu", "audiocpu", "oki" ]

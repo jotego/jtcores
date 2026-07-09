@@ -1,0 +1,104 @@
+clocks:
+  clk24:
+    - freq: 3579545
+      gate: [ snd ]
+      outputs:
+        - cen_snd
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+    - freq: 1056k
+      outputs:
+        - cen_oki
+
+audio:
+  rsum: 10k
+  channels:
+    - { name: fm,  module: jt51,   rsum: 10k }
+    - { name: pcm, module: jt6295, rsum: 10k, fir: fir_192k_4k.csv }
+
+params:
+  # OKI sample ROM sits right after the Z80 ROM inside bank 1.
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+
+sdram:
+  banks:
+    # ── Bank 0 ── 68k program ROM (256 KB, 16-bit) ──────────────────────────
+    - buses:
+      - name: main
+        addr_width: 18      # [17:1] word addr = 256 KB
+        data_width: 16
+
+    # ── Bank 1 ── Z80 audio ROM (32 KB) + OKI samples (128 KB / 256 KB region) ─
+    - buses:
+      - name: snd
+        addr_width: 15      # 32 KB
+        data_width: 8
+      - name: pcm
+        addr_width: 18      # 256 KB oki region (128 KB loaded, MRA pads)
+        data_width: 8
+        offset: PCM_OFFSET
+
+    # ── Bank 2 ── back framebuffer (256 KB, R/W) ────────────────────────────
+    # Two byte-per-pixel 512x256 planes (front @0, back @0x20000). Own bank so
+    # the per-line video fetch never contends with program ROM or OKI samples.
+    - buses:
+      - name: fbram
+        addr_width: 18      # [17:1] word addr = 128K x 16 = 256 KB
+        data_width: 16
+        rw: true
+        cs: fbram_sel       # must differ from the bus's auto 'fbram_cs'
+        din: fb_wdata
+      - name: fbrd
+        addr_width: 18
+        data_width: 16
+
+bram:
+  # Work RAM — 6264 SRAMs, mirror-decoded (0x1d4000 / 0x1f4000 / 0x208000).
+  # SP=0x1dfffe; boot clear writes 0x2c00 longs from 0x1d4000. 64 KB covers
+  # 0x1d0000-0x1dffff (SP + clear + early stack). No addr: -> game drives
+  # work_addr. CPU-only (no video read) -> no dual_port. DRAFT: extend to the
+  # other mirror ranges once the boot diff needs them.
+  - name: work
+    addr_width: 16      # work_addr[15:1] = 32K words = 64 KB
+    data_width: 16
+    din: cpu_dout
+    rw: true
+  # Second work RAM bank 0x1f4000-0x1fffff (MAME main_map). The 3D wireframe is
+  # rendered here (e.g. src 0x1fb500) then block-copied into the overlay; without
+  # it the copy reads open-bus 0xffff and floods pen-512 white.
+  - name: work2
+    addr_width: 16      # work2_addr[15:1] = 32K words = 64 KB (covers 1f0000-1fffff)
+    data_width: 16
+    din: cpu_dout
+    rw: true
+  # Third RAM bank 0x208000-0x21ffff (MAME "???" .ram()). Same 0x200000 page as
+  # the overlay, above it. Addressed by A[16:1] (words 0x4000-0xffff used).
+  - name: work3
+    addr_width: 17      # work3_addr[16:1] = 64K words = 128 KB (covers 208000-21ffff)
+    data_width: 16
+    din: cpu_dout
+    rw: true
+  # Front 1bpp overlay VRAM (0x200000-0x207fff, 32 KB = 16K words).
+  - name: fvram
+    addr_width: 15      # 16K words = 32 KB
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[14:1]
+    rw: true
+    dual_port:
+      name: fvrd
+      dout: fvram_data
+  # Palette RAM (0x280200-0x2805ff, 512 x 16). Pen 512 is a separate register.
+  # No addr: binding — the base 0x280200 sets A[9] and the 512-word range crosses
+  # 0x280400, so A[9:1] does NOT equal the pen. game.v drives pal_addr = the true
+  # pen {A[10],A[8:1]} so CPU writes and the video pen-indexed read agree.
+  - name: pal
+    addr_width: 10      # pal_addr[9:1] = 512 entries
+    data_width: 16
+    din: cpu_dout
+    rw: true
+    dual_port:
+      name: palrd
+      dout: pal_data
