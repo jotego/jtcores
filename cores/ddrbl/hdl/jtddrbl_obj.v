@@ -5,10 +5,6 @@
 //  up the sprite colour (I15 256x4 PROM on chip 2 / 1:1 on chip 1) and fills a
 //  jtframe_obj_buffer that is read back at display time as obj_pxl (0=transp.).
 //
-//  The VRAM-scan and gfx-ROM ports are time-shared with the tilemap engine in
-//  the parent chip: this module owns them only during obj_win (h_cnt>=272); the
-//  parent muxes obj_rd_addr / rom_addr onto the shared buses.
-//
 //  Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
 //  JTCORES integration is GPL-3 (see jtcores LICENSE).
 //============================================================================
@@ -27,17 +23,17 @@ module jtddrbl_obj #(
     // video timing from the parent chip
     input      [ 8:0]  h_cnt,
     input      [ 8:0]  v_cnt,
-    input              obj_win,          // sprite window (h_cnt>=272)
+    input              obj_win,          // sprite window
     input              hblank,           // active-high horizontal blank (display gate)
 
-    // OBJ-list scan on the shared VRAM render port (parent muxes when obj_win)
+    // OBJ-list scan
     output     [11:0]  obj_rd_addr,
     input      [ 7:0]  vram_scn_dout,
 
     // External PROM
     output     [ 3:0]  OCF,OCB,
     input      [ 3:0]  OCD,
-    // sprite gfx fetch on the shared gfx-ROM bus (parent muxes when obj_win)
+    // sprite gfx fetch on the gfx-ROM bus
     output     [17:0]  rom_addr,
     output             rom_cs,
     input      [ 7:0]  RDU,
