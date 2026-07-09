@@ -19,7 +19,6 @@ audio:
     - { name: pcm, module: jt6295, rsum: 10k, fir: fir_192k_4k.csv }
 
 params:
-  # OKI sample ROM sits right after the Z80 ROM inside bank 1.
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
 
 sdram:

@@ -6,9 +6,8 @@ PCB (Palco, 1991).
 
 ## Status
 
-Scaffold / WIP — **cfg only**. See [doc/STATUS.md](doc/STATUS.md) for the full
-bring-up plan and hardware notes; the verbatim MAME driver is mirrored in
-[doc/blockout.cpp](doc/blockout.cpp).
+Complete.
+Audio may need some balance.
 
 ## Hardware in one line
 
@@ -20,7 +19,6 @@ palette. 320×240, ~57 Hz, horizontal.
 ## Donors
 
 - **rastan** — 68k + Z80 + YM2151 spine on `JTFRAME_CLK24`.
-- **volfied** — SDRAM-backed player-drawn bitmap framebuffer (`jtvolfied_fb.v`).
 - **dd2** — YM2151 + OKI M6295 audio-channel pairing.
 
 ## Sets

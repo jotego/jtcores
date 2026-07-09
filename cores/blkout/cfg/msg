@@ -1,5 +1,10 @@
-        \BBLOCK OUT\W
-   FPGA core by \GANDREA\W
-       Scaffold / WIP
+  \BBlockout\W FPGA core
+   Technos (1989) to MiSTer
 
-   Made with JT FRAMEWORK
+   Based on MAME driver
+
+       by \GAndr\Wea Bog\Razzi\W
+   on the \RJTCORES\W framework
+       by JOTEGO + community
+
+    Reviewed by Jose Tejada
