@@ -12,20 +12,17 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Block Out back-framebuffer video fetch (clk 48 MHz / SDRAM domain).
+    Block Out back-framebuffer video fetch (SDRAM domain).
 
     The 256 KB framebuffer (SDRAM bank 2) holds two byte-per-pixel 512x256
-    planes: front @ byte 0 (word 0x00000-0x0ffff), back @ byte 0x20000 (word
-    0x10000-0x1ffff). Word address = {plane, y[7:0], wcol[7:0]}; each 16-bit
-    word packs 2 pixels — even x (68k big-endian) in the high byte, odd x low.
-    Composite per MAME videoram_w:  pen = front ? {0,front} : {1,back}  (9-bit).
-
-    A double line buffer (2 pixels/entry) is filled a line ahead; scanout reads
-    the displayed half. CPU R/W to the bitmap is handled separately (straight to
-    the fbram SDRAM port in the game top) so this module stays purely clk48.
+    planes: front @ word 0x00000, back @ word 0x10000. Word address =
+    {plane, y[7:0], wcol[7:0]}; each 16-bit word packs 2 pixels — even x in the
+    high byte, odd x in the low byte (68k big-endian). Composite per MAME
+    videoram_w: pen = front ? {0,front} : {1,back} (9-bit). A double line buffer
+    is filled a line ahead; scanout reads the displayed half.
 */
 
-module jtblockout_fb(
+module jtblkout_fb(
     input               rst,
     input               clk,
     input               pxl_cen,
@@ -43,10 +40,8 @@ module jtblockout_fb(
     output reg   [ 8:0] fb_pxl       // 9-bit pen at hdump (0..511)
 );
 
-// ── line fetch FSM ──────────────────────────────────────────────────────────
-// Each SDRAM read fully handshakes: assert cs+addr, wait ok, capture, drop cs
-// (forces ok low before the next request). Per column: front word, back word,
-// then compose+store 2 pixels.
+// Line fetch FSM. Each SDRAM read fully handshakes: assert cs+addr, wait ok,
+// capture, drop cs. Per column: front word, back word, then compose+store 2 px.
 localparam [2:0] IDLE=0, F_REQ=1, F_WAIT=2, B_REQ=3, B_WAIT=4, STORE=5;
 reg  [ 2:0] st;
 reg         disp, HSl;
@@ -92,9 +87,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// horizontal read: +2 aligns the displayed image with MAME (measured by
-// cross-correlation). The read runs 2 px ahead so the fb_pxl->rgb pipeline is
-// primed by the first visible pixel.
+// read runs 2px ahead so the fb_pxl->rgb pipeline is primed at the first pixel
 wire [8:0] hrd = hdump + 9'd2;
 
 // double line buffer: 256 cols x 2 buffers, 2 pixels/entry

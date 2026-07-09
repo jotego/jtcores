@@ -12,13 +12,11 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Block Out video (clk 48 MHz). vtimer -> framebuffer scanout (jtblockout_fb,
-    two-plane composite) -> 1bpp overlay (pen 512) -> palette (xBGR-444) -> RGB.
-    Timing 7 MHz pxl, htotal 448 / hvis 320, vtotal 272 / vvis 240. DRAFT V
-    offset + H/pixel-pipeline offsets (tune vs MAME screen.png).
+    Block Out video: vtimer -> framebuffer scanout (two-plane composite) ->
+    1bpp overlay (pen 512) -> palette (xBGR-444) -> RGB. Visible 320x240.
 */
 
-module jtblockout_video(
+module jtblkout_video(
     input               rst,
     input               clk,
     input               pxl_cen,
@@ -52,15 +50,8 @@ module jtblockout_video(
 
 wire [8:0] hdump, vdump, vrender, vrender1;
 wire [8:0] fb_pxl;
-wire       lhbl_v, lvbl_v;
 
-assign LHBL = lhbl_v;
-assign LVBL = lvbl_v;
-
-// 8 MHz pxl (24 MHz video xtal / 3; PXLCLK=8 = 48/6). Real board timing:
-// H-total 512 (15.625 kHz H-rate), V-total 269 -> 8M/(512*269) = 58.1 Hz,
-// matching the board's measured 58 Hz VSync. Visible 320x240.
-// The 10px-up / 3px-left image offset is applied in jtblockout_fb (fy+10, hdump+3).
+// 8 MHz pxl, H-total 512 (15.625 kHz), V-total 269 -> 58.1 Hz (board is 58 Hz).
 jtframe_vtimer #(
     .V_START  ( 9'd0   ),
     .VB_START ( 9'd239 ),
@@ -80,13 +71,13 @@ jtframe_vtimer #(
     .H        ( hdump    ),
     .Hinit    (          ),
     .Vinit    (          ),
-    .LHBL     ( lhbl_v   ),
-    .LVBL     ( lvbl_v   ),
+    .LHBL     ( LHBL     ),
+    .LVBL     ( LVBL     ),
     .HS       ( HS       ),
     .VS       ( VS       )
 );
 
-jtblockout_fb u_fb(
+jtblkout_fb u_fb(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -102,11 +93,9 @@ jtblockout_fb u_fb(
 
 wire [8:0] hovl = hdump + 9'd2;
 
-// ── overlay line buffer ─────────────────────────────────────────────────────
-// The CPU rewrites the 1bpp overlay VRAM continuously (fill/erase loop). Reading
-// it live during scanout collided with the in-flight fills (read 0xffff -> the
-// pen-512 white flood). So fetch the line's 64 overlay words into a buffer a
-// line ahead (during HBLANK) and scan out from that, exactly like the bitmap.
+// Overlay line buffer: the CPU rewrites the 1bpp overlay VRAM continuously, so
+// its 64 words for the next line are fetched a line ahead (during HBLANK) and
+// scanned out from the buffer, like the bitmap.
 reg        ov_disp, HSov, ov_busy, ov_ph;
 reg [ 5:0] ov_col;
 reg [ 7:0] ov_row;
@@ -148,19 +137,15 @@ jtframe_dual_ram #(.DW(8),.AW(7)) u_ovlb(
     .clk1 ( clk       ), .data1( 8'd0     ), .addr1( {ov_disp,hovl[8:3]}), .we1( 1'b0    ), .q1( ovlb_q )
 );
 
-// ── pixel pipeline: pen -> palette / buffered overlay -> RGB ─────────────────
+// pixel pipeline: pen -> palette / buffered overlay -> RGB
 assign palrd_addr = fb_pxl;                       // 9-bit pen index
 reg       overlay_1;
-// Sample the overlay bit with the SAME hovl used for the byte address (ovlb_q),
-// registered once to line up with fb_pxl. (Delaying only the bit index shifts
-// it 1px inside each 8px byte -> dropped/dotted wireframe pixels.)
+// Sample the overlay bit with the same hovl used for the byte address, then
+// register once to line up with fb_pxl.
 always @(posedge clk) if( pxl_cen ) overlay_1 <= ovlb_q[7 - hovl[2:0]];
 
 wire [11:0] color = overlay_1 ? frontcol : pal_data[11:0];  // xBGR-444
-// Blank keys off the CURRENT lhbl/lvbl (only the final rgb register delays it),
-// not a doubly-delayed copy — else it eats the first ~2 visible columns while
-// the +2 read-ahead already has valid data there.
-wire blank = ~(lhbl_v & lvbl_v);
+wire blank = ~(LHBL & LVBL);
 always @(posedge clk) if( pxl_cen ) begin
     if( blank ) begin red<=0; green<=0; blue<=0; end
     else begin

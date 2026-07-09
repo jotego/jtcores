@@ -55,28 +55,21 @@ sdram:
         data_width: 16
 
 bram:
-  # Work RAM — 6264 SRAMs, mirror-decoded (0x1d4000 / 0x1f4000 / 0x208000).
-  # SP=0x1dfffe; boot clear writes 0x2c00 longs from 0x1d4000. 64 KB covers
-  # 0x1d0000-0x1dffff (SP + clear + early stack). No addr: -> game drives
-  # work_addr. CPU-only (no video read) -> no dual_port. DRAFT: extend to the
-  # other mirror ranges once the boot diff needs them.
+  # Work RAM 0x1d0000-0x1dffff (6264). SP=0x1dfffe. game.v drives work_addr.
   - name: work
     addr_width: 16      # work_addr[15:1] = 32K words = 64 KB
     data_width: 16
     din: cpu_dout
     rw: true
-  # Second work RAM bank 0x1f4000-0x1fffff (MAME main_map). The 3D wireframe is
-  # rendered here (e.g. src 0x1fb500) then block-copied into the overlay; without
-  # it the copy reads open-bus 0xffff and floods pen-512 white.
+  # Work RAM 0x1f0000-0x1fffff.
   - name: work2
-    addr_width: 16      # work2_addr[15:1] = 32K words = 64 KB (covers 1f0000-1fffff)
+    addr_width: 16      # work2_addr[15:1] = 32K words = 64 KB
     data_width: 16
     din: cpu_dout
     rw: true
-  # Third RAM bank 0x208000-0x21ffff (MAME "???" .ram()). Same 0x200000 page as
-  # the overlay, above it. Addressed by A[16:1] (words 0x4000-0xffff used).
+  # Work RAM 0x208000-0x21ffff (same 0x200000 page, above the overlay).
   - name: work3
-    addr_width: 17      # work3_addr[16:1] = 64K words = 128 KB (covers 208000-21ffff)
+    addr_width: 17      # work3_addr[16:1] = 64K words = 128 KB
     data_width: 16
     din: cpu_dout
     rw: true
@@ -91,9 +84,7 @@ bram:
       name: fvrd
       dout: fvram_data
   # Palette RAM (0x280200-0x2805ff, 512 x 16). Pen 512 is a separate register.
-  # No addr: binding — the base 0x280200 sets A[9] and the 512-word range crosses
-  # 0x280400, so A[9:1] does NOT equal the pen. game.v drives pal_addr = the true
-  # pen {A[10],A[8:1]} so CPU writes and the video pen-indexed read agree.
+  # game.v drives pal_addr = pen {A[10],A[8:1]} since A[9] is the base bit.
   - name: pal
     addr_width: 10      # pal_addr[9:1] = 512 entries
     data_width: 16

@@ -12,21 +12,23 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Block Out main CPU (68000 @ 10 MHz). Address decode from technos/blockout.cpp:
+    Block Out main CPU (68000 @ 10 MHz). Address map (technos/blockout.cpp):
       000000-03ffff  program ROM              (SDRAM bank 0)
       100000-100009  P1/P2/SYSTEM/DSW1/DSW2   (read, A[3:1] selects)
       100010         IRQ6 ack (w)
       100012         IRQ5 ack (w)
       100015         sound latch (w, low byte)
       180000-1bffff  back framebuffer         (SDRAM bank 2, videoram_r/w)
-      1d0000-1dffff  work RAM (6264 mirror)    (BRAM)
-      200000-207fff  front 1bpp overlay VRAM   (BRAM)
-      280002         front colour reg (w)      -> pen 512
-      280200-2805ff  palette RAM               (BRAM)
+      1d4000-1dffff  work RAM                 (BRAM)
+      1f4000-1fffff  work RAM                 (BRAM)
+      200000-207fff  front 1bpp overlay VRAM  (BRAM)
+      208000-21ffff  work RAM                 (BRAM)
+      280002         front colour reg (w)     -> pen 512
+      280200-2805ff  palette RAM              (BRAM)
     IRQ6 @ scanline 250 (vblank-out), IRQ5 @ scanline 0 (vblank-in); acked by w.
 */
 
-module jtblockout_main(
+module jtblkout_main(
     input                rst,
     input                clk,        // 24 MHz logic domain (clk24); SDRAM is 48 MHz
     input                LVBL,
@@ -56,7 +58,7 @@ module jtblockout_main(
     input                rom_ok,
 
     // sound latch (0x100015)
-    output reg           snd_latch_we,
+    output reg           snd_irq,
     output reg    [ 7:0] snd_latch,
 
     // cabinet (active-low, idle=1; no inversion)
@@ -103,10 +105,10 @@ always @* begin
     rom_cs      = allFC && A[23:18]==6'h0  && !ASn;                 // 000000-03ffff
     io_cs       = allFC && A[23:16]==8'h10 && !ASn;                 // 100000-10ffff
     fb_cs       = allFC && A[23:18]==6'h6  && !ASn;                 // 180000-1bffff
-    work_cs     = allFC && A[23:16]==8'h1d && !ASn;                 // 1d4000-1dffff work RAM
-    work2_cs    = allFC && A[23:16]==8'h1f && !ASn;                 // 1f4000-1fffff work RAM
+    work_cs     = allFC && A[23:16]==8'h1d && !ASn;                 // 1d0000-1dffff
+    work2_cs    = allFC && A[23:16]==8'h1f && !ASn;                 // 1f0000-1fffff
     fvram_cs    = allFC && A[23:15]==9'h40 && !ASn;                 // 200000-207fff
-    // 208000-21ffff RAM: same 0x200000 page, above the overlay (A[16] or A[15] set)
+    // 208000-21ffff: same 0x200000 page, above the overlay (A[16] or A[15] set)
     work3_cs    = allFC && A[23:17]==7'h10 && (A[16]|A[15]) && !ASn;
     // 280000 page: pen-512 colour reg @280002 (A[10:9]==0) vs palette @280200-2805ff
     pal_cs      = allFC && A[23:16]==8'h28 && A[15:11]==0 && (A[10]|A[9]) && !ASn;
@@ -140,10 +142,10 @@ end
 // sound latch @ 0x100015 (odd byte -> LDS)
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        snd_latch_we <= 0;
-        snd_latch    <= 0;
+        snd_irq   <= 0;
+        snd_latch <= 0;
     end else begin
-        snd_latch_we <= io_cs && !RnW && A[4:1]==4'hA && !LDSn;
+        snd_irq   <= io_cs && !RnW && A[4:1]==4'hA && !LDSn;
         if( io_cs && !RnW && A[4:1]==4'hA && !LDSn ) snd_latch <= cpu_dout[7:0];
     end
 end
@@ -154,15 +156,14 @@ always @(posedge clk, posedge rst) begin
     else if( frontcol_cs ) frontcol <= cpu_dout[11:0];
 end
 
-// Dual vblank IRQ. DRAFT: fire on LVBL edges; refine to exact lines 250/0 with
-// vdump once the video vtimer is wired. Software acks via 100010 / 100012.
+// Dual vblank IRQ on LVBL edges; software acks via 100010 / 100012.
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         irq6n <= 1; irq5n <= 1; LVBLl <= 0;
     end else begin
         LVBLl <= LVBL;
-        if(  LVBLl && !LVBL ) irq6n <= 0;   // entering vblank (~line 250)
-        if( !LVBLl &&  LVBL ) irq5n <= 0;   // leaving vblank  (~line 0)
+        if(  LVBLl && !LVBL ) irq6n <= 0;   // entering vblank
+        if( !LVBLl &&  LVBL ) irq5n <= 0;   // leaving vblank
         if( irq6ack ) irq6n <= 1;
         if( irq5ack ) irq5n <= 1;
     end
@@ -220,7 +221,7 @@ wire _unused = &{1'b0, service, tilt, cab_1p[3:2], coin[3]};
 assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=1;
 initial begin
     rom_cs=0; work_cs=0; work2_cs=0; work3_cs=0; fvram_cs=0; pal_cs=0; fb_cs=0; frontcol_cs=0;
-    frontcol=0; snd_latch_we=0; snd_latch=0;
+    frontcol=0; snd_irq=0; snd_latch=0;
 end
 `endif
 endmodule

@@ -1,11 +1,11 @@
-blockout:
+blkout:
   - get:
-    - jtblockout_game.v
-    - jtblockout_main.v
-    - jtblockout_video.v
-    - jtblockout_fb.v
+    - jtblkout_game.v
+    - jtblkout_main.v
+    - jtblkout_video.v
+    - jtblkout_fb.v
 
-# Sound reused as-is: identical Technos Z80+YM2151+OKI6295 subsystem, same map.
+# Technos Z80 + YM2151 + OKI6295 sound subsystem, reused as-is.
 dd2:
   - get:
     - jtdd2_sound.v
