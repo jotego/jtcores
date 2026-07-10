@@ -1,6 +1,7 @@
 include common.def
 
 CORENAME=JTKICKER
+JTFRAME_RATE=60.60
 
 VIDEO_MODULE=jtkicker_video
 MAIN_MODULE=jtkicker_main
