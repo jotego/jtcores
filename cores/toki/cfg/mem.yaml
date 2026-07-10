@@ -8,7 +8,7 @@ params:
   - { name: ADPCM1_OFFSET,    value:  "(`ADPCM1_START-`JTFRAME_BA1_START)>>1" }
   - { name: ADPCM2_OFFSET,    value:  "(`ADPCM2_START-`JTFRAME_BA1_START)>>1" }
 clocks:
-  clk:
+  clk48:
     - freq: 3579545
       outputs:
         - cen_fm
