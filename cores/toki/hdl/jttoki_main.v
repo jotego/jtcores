@@ -91,7 +91,7 @@ localparam [4:0] CEN_DEN = 5'd24;
 wire [23:0] cpu_a;
 reg  [15:0] cpu_din;
 wire [ 2:0] cpu_fc;
-wire        cpu_wr, cpu_as_n, cpu_lds_n, cpu_uds_n,
+wire        cpu_wrn, cpu_as_n, cpu_lds_n, cpu_uds_n,
             cen10, cen10b, dtack_n, int1;
 wire [ 1:0] cpu_dsn, ram_byte_we, pal_byte_we, obj_byte_we,
             vram_byte_we, scr1_byte_we, scr2_byte_we;
@@ -102,12 +102,12 @@ wire [23:0] sound_base;
 assign cpu_a[0] = 0;
 
 assign cpu_dsn       = { cpu_uds_n, cpu_lds_n };
-assign ram_byte_we   = { ram_cs     && !cpu_wr && !cpu_uds_n, ram_cs     && !cpu_wr && !cpu_lds_n };
-assign pal_byte_we   = { palette_cs && !cpu_wr && !cpu_uds_n, palette_cs && !cpu_wr && !cpu_lds_n };
-assign obj_byte_we   = { sprite_cs  && !cpu_wr && !cpu_uds_n, sprite_cs  && !cpu_wr && !cpu_lds_n };
-assign vram_byte_we  = { vram_cs    && !cpu_wr && !cpu_uds_n, vram_cs    && !cpu_wr && !cpu_lds_n };
-assign scr1_byte_we  = { scr1_cs    && !cpu_wr && !cpu_uds_n, scr1_cs    && !cpu_wr && !cpu_lds_n };
-assign scr2_byte_we  = { scr2_cs    && !cpu_wr && !cpu_uds_n, scr2_cs    && !cpu_wr && !cpu_lds_n };
+assign ram_byte_we   = { ram_cs     && !cpu_wrn && !cpu_uds_n, ram_cs     && !cpu_wrn && !cpu_lds_n };
+assign pal_byte_we   = { palette_cs && !cpu_wrn && !cpu_uds_n, palette_cs && !cpu_wrn && !cpu_lds_n };
+assign obj_byte_we   = { sprite_cs  && !cpu_wrn && !cpu_uds_n, sprite_cs  && !cpu_wrn && !cpu_lds_n };
+assign vram_byte_we  = { vram_cs    && !cpu_wrn && !cpu_uds_n, vram_cs    && !cpu_wrn && !cpu_lds_n };
+assign scr1_byte_we  = { scr1_cs    && !cpu_wrn && !cpu_uds_n, scr1_cs    && !cpu_wrn && !cpu_lds_n };
+assign scr2_byte_we  = { scr2_cs    && !cpu_wrn && !cpu_uds_n, scr2_cs    && !cpu_wrn && !cpu_lds_n };
 
 assign ram_addr      = cpu_a[15:1];
 assign ram_we        = ram_byte_we;
@@ -160,7 +160,7 @@ fx68k u_cpu(
         .iEdb     ( cpu_din     ),
         .oEdb     ( cpu_dout    ),
         .ASn      ( cpu_as_n    ),
-        .eRWn     ( cpu_wr      ),
+        .eRWn     ( cpu_wrn     ),
         .UDSn     ( cpu_uds_n   ),
         .LDSn     ( cpu_lds_n   ),
         .DTACKn   ( dtack_n     ),
@@ -352,7 +352,7 @@ jttoki_video_mmr u_video_mmr(
 `ifndef NOMAIN
     .cs           ( scroll_cs            ),
     .addr         ( cpu_a[6:1]           ),
-    .rnw          ( cpu_wr               ),
+    .rnw          ( cpu_wrn              ),
     .dsn          ( cpu_dsn              ),
 `else
     .cs           ( 1'b0                 ),

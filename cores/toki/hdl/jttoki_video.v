@@ -88,13 +88,11 @@ module jttoki_video(
 
 wire [7:0] fix_pxl, scr1_pxl, scr2_pxl, obj_pxl;
 wire [8:0] hdump, vdump, vrender;
-wire       edge_fix_en;
 wire [7:0] line_number = vrender[7:0];
 wire [10:1] toki_scr2_addr;
 wire [18:2] toki_gfx4_addr;
 wire        toki_gfx4_cs;
 
-assign edge_fix_en = !bg_order;
 assign scr2_addr   = cabal ? 10'd0             : toki_scr2_addr;
 assign gfx4_addr   = toki_gfx4_addr;
 assign gfx4_cs     = cabal ? 1'b0              : toki_gfx4_cs;
@@ -107,15 +105,16 @@ jtframe_vtimer #(
     .VS_END     ( 9'd253 ),
     .VCNT_END   ( 9'd257 ),
 
-    .HB_START   ( 9'd257 ),
-    .HB_END     ( 9'd1   ),
-    .HS_START   ( 9'd300 ),
-    .HS_END     ( 9'd332 ),
-    .HCNT_END   ( 9'd389 ),
-    .H_VB       ( 9'd389 ),
-    .H_VS       ( 9'd300 ),
-    .H_VNEXT    ( 9'd389 ),
-    .HINIT      ( 9'd389 )
+    .HB_START   ( 9'h189 ),
+    .HB_END     ( 9'h009 ),
+    .HS_START   ( 9'h1ab ),
+    .HS_END     ( 9'h1cb ),
+    .HJUMP      ( 1      ),
+    .H_VB       ( 9'h1ff ),
+    .H_VS       ( 9'h1ab ),
+    .H_VNEXT    ( 9'h1ff ),
+    .HCNT_END   ( 9'h1ff ),
+    .HINIT      ( 9'h1ff )
 ) u_vtimer(
     .clk        ( clk     ),
     .pxl_cen    ( pxl_cen ),
@@ -170,7 +169,6 @@ jttoki_scroll u_scr1(
 
     .scroll_x     ( scr1_scroll_x ),
     .scroll_y     ( scr1_scroll_y ),
-    .edge_fix_en  ( edge_fix_en    ),
 
     .vram_addr    ( scr1_addr      ),
     .vram_out     ( scr1_out       ),
@@ -196,7 +194,6 @@ jttoki_scroll u_scr2(
 
     .scroll_x     ( scr2_scroll_x ),
     .scroll_y     ( scr2_scroll_y ),
-    .edge_fix_en  ( edge_fix_en    ),
 
     .vram_addr    ( toki_scr2_addr ),
     .vram_out     ( scr2_out       ),
