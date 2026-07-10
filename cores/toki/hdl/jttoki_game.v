@@ -260,6 +260,7 @@ jttoki_sound u_sound(
     .fm                 ( fm                 ),
     .pcm0               ( pcm0               ),
     .pcm1               ( pcm1               ),
+    .oki                ( oki                ),
 
     .rom_addr           ( snd_addr           ),
     .rom_data           ( snd_data           ),
@@ -298,8 +299,9 @@ jttoki_sound u_sound(
 );
 `else
 assign fm                 = 16'd0;
-assign pcm0               = 14'd0;
-assign pcm1               = 14'd0;
+assign pcm0               = 12'd0;
+assign pcm1               = 12'd0;
+assign oki                = 14'd0;
 assign snd_addr           = 13'd0;
 assign snd_cs             = 1'b0;
 assign bank_rom_addr      = 16'd0;

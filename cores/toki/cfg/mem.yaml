@@ -8,7 +8,7 @@ params:
   - { name: ADPCM1_OFFSET,    value:  "(`ADPCM1_START-`JTFRAME_BA1_START)>>1" }
   - { name: ADPCM2_OFFSET,    value:  "(`ADPCM2_START-`JTFRAME_BA1_START)>>1" }
 clocks:
-  clk48:
+  clk:
     - freq: 3579545
       outputs:
         - cen_fm
@@ -23,8 +23,9 @@ clocks:
 audio:
   channels:
     - { name: fm,   data_width: 16, rsum: 10k }
-    - { name: pcm0, data_width: 14, rsum: 10k }
-    - { name: pcm1, data_width: 14, rsum: 40k }
+    - { name: pcm0, data_width: 12, rsum: 40k }
+    - { name: pcm1, data_width: 12, rsum: 20k }
+    - { name: oki,  data_width: 14, rsum: 10k }
 sdram:
   banks:
     - buses:

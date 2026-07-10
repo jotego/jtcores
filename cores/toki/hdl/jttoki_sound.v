@@ -26,8 +26,9 @@ module jttoki_sound(
     input       [1:0] coin,
 
     output signed [15:0] fm,
-    output signed [13:0] pcm0,
-    output signed [13:0] pcm1,
+    output signed [11:0] pcm0,
+    output signed [11:0] pcm1,
+    output signed [13:0] oki,
 
     input       [7:0] rom_data,
     input             rom_ok,
@@ -386,7 +387,8 @@ jt51 u_jt51(
 assign cabal_fm_snd = (jt51_l >>> 1) + (jt51_r >>> 1);
 
 assign fm   = cabal ? cabal_fm_snd : opl_snd;
-assign pcm0 = cabal ? {cabal_adpcm0_snd, 2'd0} : oki_snd;
-assign pcm1 = cabal ? {cabal_adpcm1_snd, 2'd0} : 14'sd0;
+assign pcm0 = cabal ? cabal_adpcm0_snd : 12'sd0;
+assign pcm1 = cabal ? cabal_adpcm1_snd : 12'sd0;
+assign oki  = cabal ? 14'sd0 : oki_snd;
 
 endmodule
