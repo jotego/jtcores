@@ -108,6 +108,9 @@ public:
         cnt=0;
 #ifdef _JTFRAME_MCLK
         semi = (vluint64_t)(1e12/(_JTFRAME_MCLK));
+    #if !(_JTFRAME_SIM96 || _JTFRAME_SDRAM96)
+        semi >>= 1;
+    #endif
 #else
         semi = (vluint64_t)10416;
 #endif
