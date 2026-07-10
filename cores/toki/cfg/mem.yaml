@@ -24,7 +24,7 @@ audio:
   channels:
     - { name: fm,   data_width: 16, rsum: 10k }
     - { name: pcm0, data_width: 14, rsum: 10k }
-    - { name: pcm1, data_width: 14, rsum: 20k }
+    - { name: pcm1, data_width: 14, rsum: 40k }
 sdram:
   banks:
     - buses:

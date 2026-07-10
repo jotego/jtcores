@@ -255,6 +255,9 @@ always @(posedge clk) begin
         else if (oki6295_irq_n == 1'b0) //~m68k_sound_cs_4
             irq_rst18 <= 1'b1;
 
+        if (!irq_ack && (cabal ? jt51_irq_n : ym3812_irq_n) == 1'b1)
+            irq_rst10 <= 1'b0;
+
         if (irq_ack & irq_rst10)
             stop_irq_10 <= 1'b1;
         else if (irq_ack & irq_rst18)
