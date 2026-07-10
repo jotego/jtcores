@@ -294,7 +294,12 @@ prepare_fst_pipe() {
 }
 
 run_verilator_sim() {
-	$SHOWCMD obj_dir/sim $TRACE -time $SIM_MS || echo "Verilator sim exit code $?"
+	$SHOWCMD obj_dir/sim $TRACE -time $SIM_MS
+	local rc=$?
+	if [ $rc != 0 ]; then
+		echo "Verilator sim exit code $rc"
+		exit $rc
+	fi
 }
 
 clean_fst_pipe() {
