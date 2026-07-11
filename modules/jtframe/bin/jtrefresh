@@ -1,0 +1,180 @@
+#!/bin/bash
+
+# This file is part of JTFRAME.
+# JTFRAME program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+main() {
+    TARGET=sidi128
+    FRAMES=3
+    JOBS=1
+    ALL=
+    CORES_TO_RUN=()
+
+    if [ "$1" = "--worker" ]; then
+        shift
+        TARGET=${JTREFRESH_TARGET:-sidi128}
+        FRAMES=${JTREFRESH_FRAMES:-3}
+        run_one "$1"
+        exit $?
+    fi
+
+    parse_args "$@"
+    require_environment
+    select_cores
+    run_many
+}
+
+show_help() {
+    cat << EOF
+JTFRAME refresh-rate test
+usage: jtrefresh [options] <core> [core...]
+       jtrefresh [options] --all
+
+Options:
+    --all                 Test every core under \$CORES
+    -j, --jobs <n>        Run up to <n> simulations in parallel
+    --target <target>     Target used for macro expansion and jtsim (default: sidi128)
+    --frames <n>          Number of frames to simulate (default: 3)
+    -h, --help            Show this help
+
+Cores without JTFRAME_RATE, cores with JTFRAME_SKIP_RATE_TEST, and cores without
+cores/<core>/ver/game are skipped before simulation.
+EOF
+}
+
+parse_args() {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --all)
+                ALL=1
+                ;;
+            -j|--jobs)
+                shift
+                JOBS=$1
+                ;;
+            --target)
+                shift
+                TARGET=$1
+                ;;
+            --frames)
+                shift
+                FRAMES=$1
+                ;;
+            -h|--help)
+                show_help
+                exit 0
+                ;;
+            -*)
+                echo "jtrefresh: unknown option $1" >&2
+                show_help >&2
+                exit 1
+                ;;
+            *)
+                CORES_TO_RUN+=("$1")
+                ;;
+        esac
+        shift
+    done
+}
+
+require_environment() {
+    if [ -z "$JTFRAME" ] || [ -z "$CORES" ]; then
+        echo "jtrefresh: source setprj.sh before running this script" >&2
+        exit 1
+    fi
+    if ! [[ "$JOBS" =~ ^[0-9]+$ ]] || [ "$JOBS" -lt 1 ]; then
+        echo "jtrefresh: --jobs must be a positive integer" >&2
+        exit 1
+    fi
+    if ! [[ "$FRAMES" =~ ^[0-9]+$ ]] || [ "$FRAMES" -lt 2 ]; then
+        echo "jtrefresh: --frames must be an integer >= 2" >&2
+        exit 1
+    fi
+}
+
+select_cores() {
+    local core_dir
+
+    if [ -n "$ALL" ]; then
+        CORES_TO_RUN=()
+        for core_dir in "$CORES"/*; do
+            if [ -e "$core_dir/cfg/macros.def" ]; then
+                CORES_TO_RUN+=("$(basename "$core_dir")")
+            fi
+        done
+    fi
+
+    if [ ${#CORES_TO_RUN[@]} = 0 ]; then
+        echo "jtrefresh: pass one or more core names, or use --all" >&2
+        show_help >&2
+        exit 1
+    fi
+}
+
+run_many() {
+    local self
+
+    self=$(realpath "$0")
+    export JTREFRESH_TARGET="$TARGET"
+    export JTREFRESH_FRAMES="$FRAMES"
+
+    printf "%s\0" "${CORES_TO_RUN[@]}" |
+        xargs -0 -n1 -P "$JOBS" "$self" --worker
+}
+
+run_one() {
+    local core="$1"
+    local macro_out rate sim_dir log rc got
+
+    macro_out=$(jtframe cfgstr "$core" --target="$TARGET" --output=cpp 2>&1)
+    rc=$?
+    if [ $rc != 0 ]; then
+        echo "FAIL $core: jtframe cfgstr failed"
+        printf "%s\n" "$macro_out" > "$CORES/$core/jtrefresh-cfgstr.log" 2>/dev/null
+        return 1
+    fi
+
+    if ! printf "%s\n" "$macro_out" | grep -q '^#define _JTFRAME_RATE[[:space:]]'; then
+        echo "SKIP $core: JTFRAME_RATE is not defined"
+        return 0
+    fi
+
+    if printf "%s\n" "$macro_out" | grep -q '^#define _JTFRAME_SKIP_RATE_TEST[[:space:]]'; then
+        echo "SKIP $core: JTFRAME_SKIP_RATE_TEST is defined"
+        return 0
+    fi
+
+    rate=$(printf "%s\n" "$macro_out" |
+        awk '$1=="#define" && $2=="_JTFRAME_RATE" { print $3; exit }')
+    sim_dir="$CORES/$core/ver/game"
+    log="$sim_dir/jtrefresh.log"
+
+    if [ ! -d "$sim_dir" ]; then
+        echo "SKIP $core: cores/$core/ver/game is missing"
+        return 0
+    fi
+
+    (
+        cd "$sim_dir" || exit 1
+        jtsim -dummyROM -frame "$FRAMES" \
+            -d NOMAIN \
+            -d NOSOUND \
+            -d JTFRAME_SIM_SKIP_FRAME_DUMP \
+            -d JTFRAME_SIM_SKIP_VSIZE
+    ) > "$log" 2>&1
+    rc=$?
+
+    if [ $rc = 0 ]; then
+        got=$(sed -n 's/.*Frame rate: \([0-9.][0-9.]*\) Hz.*/\1/p' "$log" | tail -n 1)
+        echo "PASS $core: ${got:-unknown} Hz expected $rate Hz"
+        return 0
+    fi
+
+    echo "FAIL $core: jtsim exited with $rc, see $log"
+    return $rc
+}
+
+main "$@"
