@@ -53,6 +53,17 @@ sdram:
         addr_width: 18
         data_width: 16
 
+    # ── Bank 3 ── 68k work RAM 0x208000-0x21ffff (128 KB, R/W) ──────────────
+    # CPU-only scratch, never read by video. Kept out of BRAM (128 M10K) so the
+    # core fits the Pocket; least-accessed of the three work regions in gameplay.
+    - buses:
+      - name: work3
+        addr_width: 17      # [16:1] word addr = 64K x 16 = 128 KB
+        data_width: 16
+        rw: true
+        cs: work3_sel       # must differ from the bus's auto 'work3_cs'
+        din: work3_wdata
+
 bram:
   # Work RAM 0x1d0000-0x1dffff (6264). SP=0x1dfffe. game.v drives work_addr.
   - name: work
@@ -63,12 +74,6 @@ bram:
   # Work RAM 0x1f0000-0x1fffff.
   - name: work2
     addr_width: 16      # work2_addr[15:1] = 32K words = 64 KB
-    data_width: 16
-    din: cpu_dout
-    rw: true
-  # Work RAM 0x208000-0x21ffff (same 0x200000 page, above the overlay).
-  - name: work3
-    addr_width: 17      # work3_addr[16:1] = 64K words = 128 KB
     data_width: 16
     din: cpu_dout
     rw: true

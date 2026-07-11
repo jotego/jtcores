@@ -32,8 +32,6 @@ assign work_addr = main_addr[15:1];
 assign work_we   = {2{work_cs  & ~main_rnw}} & ~main_dsn;
 assign work2_addr= main_addr[15:1];
 assign work2_we  = {2{work2_cs & ~main_rnw}} & ~main_dsn;
-assign work3_addr= main_addr[16:1];
-assign work3_we  = {2{work3_cs & ~main_rnw}} & ~main_dsn;
 assign fvram_we  = {2{fvram_cs & ~main_rnw}} & ~main_dsn;
 // palette pen = (A-0x280200)>>1 = {A[10],A[8:1]} (A[9] is the base bit)
 assign pal_addr  = {main_addr[10], main_addr[8:1]};
@@ -48,6 +46,15 @@ assign fbram_addr= main_addr[17:1];
 assign fbram_dsn = main_dsn;
 assign fbram_we  = fb_wr & main_dsn!=2'b11;
 assign fb_wdata  = cpu_dout;
+
+// Work RAM 0x208000-0x21ffff (SDRAM bank 3): CPU R/W straight-through, same
+// byte-strobe handling as the framebuffer. No video read -> single rw bus.
+wire work3_wr = work3_cs & ~main_rnw;
+assign work3_sel  = main_rnw ? work3_cs : (work3_wr & main_dsn!=2'b11);
+assign work3_addr = main_addr[16:1];
+assign work3_dsn  = main_dsn;
+assign work3_we   = work3_wr & main_dsn!=2'b11;
+assign work3_wdata= cpu_dout;
 
 jtblkout_main u_main(
     .rst        ( rst24     ),
@@ -70,7 +77,8 @@ jtblkout_main u_main(
 
     .work_dout  ( work_dout ),
     .work2_dout ( work2_dout),
-    .work3_dout ( work3_dout),
+    .work3_dout ( work3_data),
+    .work3_ok   ( work3_ok  ),
     .fvram_dout ( fvram_dout),
     .pal_dout   ( pal_dout  ),
     .fb_dout    ( fbram_data),

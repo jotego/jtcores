@@ -54,6 +54,7 @@ module jtblkout_main(
     input         [15:0] pal_dout,
     input         [15:0] fb_dout,
     input                fb_ok,
+    input                work3_ok,   // work3 lives in SDRAM (bank 3)
     input         [15:0] rom_data,
     input                rom_ok,
 
@@ -97,8 +98,8 @@ assign VPAn      = !(!ASn && FC==7);     // autovector all IRQs
 assign irq6ack   = io_cs && !RnW && A[4:1]==4'h8; // 100010
 assign irq5ack   = io_cs && !RnW && A[4:1]==4'h9; // 100012
 // SDRAM regions pace DTACK; BRAM/regs auto-ack (single-cycle, ok held high).
-assign bus_cs    = rom_cs | fb_cs;
-assign bus_busy  = (rom_cs & ~rom_ok) | (fb_cs & ~fb_ok);
+assign bus_cs    = rom_cs | fb_cs | work3_cs;
+assign bus_busy  = (rom_cs & ~rom_ok) | (fb_cs & ~fb_ok) | (work3_cs & ~work3_ok);
 assign bus_legit = 0;
 
 always @* begin
