@@ -10,6 +10,7 @@ Common options:
     -frame <n>                           Simulate a fixed number of frames
     -time <ms>                           Simulate for a fixed number of milliseconds
     -video [frames]                      Dump video output
+    -dummyROM                            Use a local dummy rom.bin without set-name lookup
     -w [frame] | -deep [frame]           Dump waveform data
     -inputs [file]                       Feed sim_inputs.hex or a cabinet-input file
     -setname <name>                      Build the ROM for a specific setname
@@ -556,7 +557,7 @@ check_mra_outputs_current() {
     local filename
     local toml_mtime file_mtime
 
-    if [[ -n "$ROMLESS" || ! -e "$toml" ]]; then
+    if [[ -n "$ROMLESS" || -n "$DUMMYROM" || ! -e "$toml" ]]; then
         return 0
     fi
 
