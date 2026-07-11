@@ -32,5 +32,6 @@ jtframe:
   - from: ram
     get:
       - jtframe_dual_ram16.v
+      - jtframe_dual_nvram.v
 jt51:
 jt007232:

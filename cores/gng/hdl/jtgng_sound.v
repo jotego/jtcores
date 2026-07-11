@@ -385,5 +385,6 @@ jt03 u_fm1(
     assign  fm1        = 0;
     assign  psg0       = 0;
     assign  psg1       = 0;
+    assign  mcu_srd    = 0;
 `endif
 endmodule // jtgng_sound
