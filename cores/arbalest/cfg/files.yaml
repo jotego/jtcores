@@ -1,13 +1,13 @@
 arbalest:
-  - get: [ "*.v" ]            # jtarbalest_{game,main,sub,sound}.v (the differences)
+  - get: [ "*.v" ]
 cal50:
   - get:
-    - jtcal50_video.v         # single X1-012 layer + X1-001 sprites + colmix (unchanged)
-    - jtcal50_colmix.v        # direct xRGB-555 mixing (unchanged)
-    - jtx1012.v               # X1-012 tilemap (mmr regs generated locally from cfg/mmr.yaml)
+    - jtcal50_video.v
+    - jtcal50_colmix.v
+    - jtx1012.v
 kiwi:
   - get:
-    - jtkiwi_gfx.v            # X1-001/002 sprite engine
+    - jtkiwi_gfx.v
     - jtkiwi_obj.v
     - jtkiwi_draw.v
     - jtkiwi_tilemap.v

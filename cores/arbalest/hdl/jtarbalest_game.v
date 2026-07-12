@@ -44,7 +44,7 @@ always @(posedge clk) if( prog_we && header ) case( prog_addr[3:0] )
     default:;
 endcase
 
-assign debug_view = debug_bus[7] ? st_sub : st_video;
+assign debug_view = st_video;
 assign dip_flip   = ~flip;
 assign mute       = 0;
 
