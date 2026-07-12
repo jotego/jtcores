@@ -13,11 +13,10 @@ clocks:
         - cen_oki
 
 audio:
-  gain: 1.5
   channels:
     # as dd2 no schematics, assuming same for dd2 - unverified
-    - { name: fm,  module: jt51,   rsum: 20k, rc: [{ r: 1rout, c: 1.2n }] }
-    - { name: pcm, module: jt6295, rsum: 10k, fir: fir_192k_4k.csv }
+    - { name: fm,  module: jt51,   rsum: 30k }
+    - { name: pcm, module: jt6295, rsum: 10k }
 
 params:
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
