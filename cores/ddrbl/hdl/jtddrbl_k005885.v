@@ -63,12 +63,16 @@ module jtddrbl_k005885 #(
     output             NNMI,
     output             NFIR,
 
-    // Graphics-ROM bus. The chip emits R[15:0]; RA16/RA17 (made off-chip by the
-    // LS74 chain on the PCB) are exposed so game.v drives the gfx-region MSBs.
-    output             RA17,
-    output             RA16,
-    output     [15:0]  R,
-    input      [31:0]  RD,           // 32-bit packed gfx row (jtframe_scroll path)
+    // Graphics-ROM bus — independent tile and sprite SDRAM slots
+    // (mem.yaml gfx{1,2}=tiles, gfx{1,2}obj=sprites).
+    output     [15:0]  scr_addr,     // tile gfx word address
+    output             scr_cs,
+    input      [31:0]  scr_data,     // 32-bit packed gfx row (jtframe_scroll path)
+    input              scr_ok,
+    output     [16:0]  obj_addr,     // sprite gfx word address (= spr_rom_addr[17:1])
+    output             obj_cs,
+    input      [31:0]  obj_data,
+    input              obj_ok,
 
     output     [ 3:0]  OCF,OCB,
     input      [ 3:0]  OCD,
@@ -81,10 +85,6 @@ module jtddrbl_k005885 #(
     input              clk,
     input              pxl_cen,             // pixel-rate clock-enable (clk/8)
     input              cpu_cen,             // CPU-rate clock-enable
-
-    // SDRAM ready-handshake (graphics ROM fetch)
-    input              rom_ok,
-    output             rom_cs,
 
     // Video blanking (active high) + hsync (active low)
     output             HBLK,
@@ -117,7 +117,6 @@ wire cen_6m = pxl_cen;     // chip pixel clock
 //------------------------------------------------------------------------
 wire [8:0] vt_H, vt_vdump;
 wire       vt_lhbl, vt_lvbl, vt_hs, vt_vs;
-
 jtframe_vtimer #(
     .HCNT_END ( 9'd383 ),
     .HB_START ( 9'd269 ),   // LHBL=0 at 269 -> visible 14..269 (256 px)
@@ -287,17 +286,18 @@ jtddrbl_scroll #( .LAYER_BG(LAYER_BG) ) u_scroll(
     .vram_dout( vram_scn_dout    ),
     .rom_cs   ( scroll_rom_cs    ),
     .rom_addr ( scroll_rom_addr  ),
-    .rom_data ( RD               ),                 // 32-bit packed gfx
-    .rom_ok   ( rom_ok           ),
+    .rom_data ( scr_data         ),                 // 32-bit packed gfx (tile slot)
+    .rom_ok   ( scr_ok           ),
     .pxl      ( sc_pxl           )
 );
 
 //------------------------------------------------------------------------
-//  Sprite engine — jtddrbl_obj on the 32-bit gfx bus. Time-shares the gfx
-//  ROM with the tilemap (sprites in obj_win h_cnt>=272, tiles otherwise). OBJ
-//  list = vblank snapshot (sprite frame-buffer 1-frame delay).
+//  Sprite engine — jtddrbl_obj on its OWN gfx slot (gfx*obj).
+//  OBJ list = vblank snapshot (sprite frame-buffer 1-frame delay).
 //------------------------------------------------------------------------
-wire obj_win = h_cnt >= 9'd272;
+// Sprite-scan window: whole line, starting a few pixels after the line-buffer
+// bank toggle (objbuf_lhbl falls at h_cnt 2) to avoid a first-write/toggle race.
+wire obj_win = h_cnt >= 9'd8;
 
 localparam OBJ_AW = 9;                  // OBJ list <=320 B -> 512-entry shadow
 wire [OBJ_AW-1:0] dma_addr;
@@ -321,7 +321,7 @@ assign vram_scn_addr = dma_we ? { 1'b1, 3'd0, dma_addr } : scroll_vram_addr;
 wire [17:0] spr_rom_addr;
 wire        spr_rom_cs;
 wire        spr_half = spr_rom_addr[0];
-wire [15:0] spr_gfx16 = spr_half ? RD[31:16] : RD[15:0];
+wire [15:0] spr_gfx16 = spr_half ? obj_data[31:16] : obj_data[15:0];
 wire [3:0]  obj_pxl;
 jtddrbl_obj #(
     .LAYER_BG     ( LAYER_BG     ),
@@ -344,16 +344,17 @@ jtddrbl_obj #(
     .OCF          ( OCF            ),
     .OCB          ( OCB            ),
     .OCD          ( OCD            ),
-    .rom_ok       ( rom_ok         ),
+    .rom_ok       ( obj_ok         ),
     .obj_pxl      ( obj_pxl        )
 );
 
-//  gfx ROM bus: sprites during obj_win, tilemap otherwise. RD is 32-bit; the
-//  sprite addresses 32-bit words via spr_rom_addr[16:1] (bit[0] = the half).
-assign R      = obj_win ? spr_rom_addr[16:1] : scroll_rom_addr;
-assign RA16   = obj_win ? spr_rom_addr[17]   : 1'b0;
-assign RA17   = 1'b0;
-assign rom_cs = obj_win ? spr_rom_cs : scroll_rom_cs;
+//  gfx ROM buses: tile and sprite fetches drive independent SDRAM slots.
+//  spr_rom_addr[0] is the 16-bit half selector, dropped from the word address
+//  (obj_data returns the full 32-bit word).
+assign scr_addr = scroll_rom_addr;
+assign scr_cs   = scroll_rom_cs;
+assign obj_addr = spr_rom_addr[17:1];
+assign obj_cs   = spr_rom_cs;
 
 // COL out: opaque sprite over tile.
 assign pxl_out = { 2'b00, (obj_pxl != 4'h0) ? { 1'b0, obj_pxl } : { 1'b1, sc_pxl[3:0] } };

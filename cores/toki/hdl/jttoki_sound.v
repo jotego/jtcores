@@ -43,7 +43,7 @@ module jttoki_sound(
     input       [7:0] pcm_data,
     input             pcm_ok,
     output     [16:0] pcm_addr,
-    output            pcm_cs,
+    output reg        pcm_cs,
 
     // Cabal MSM5205 ADPCM
     input       [7:0] adpcm1_data,
@@ -56,9 +56,9 @@ module jttoki_sound(
     output     [15:0] adpcm2_addr,
     output            adpcm2_cs,
 
-    input             m68k_sound_cs_2,
-    input             m68k_sound_cs_4,
-    input             m68k_sound_cs_6,
+    input             m68k_sound_wr_2,
+    input             m68k_sound_wr_4,
+    input             m68k_sound_wr_6,
 
     input      [15:0] m68k_sound_latch_0,
     input      [15:0] m68k_sound_latch_1,
@@ -74,8 +74,10 @@ wire        rom_sel, bank_rom_sel, z80_ram_sel, ym_sel_0, ym_sel_1,
             m68k_latch0_sel, m68k_latch1_sel, pending_set_sel,
             main_data_pending_sel, read_coin_sel, bank_switch_sel, sound_latch0_sel,
             sound_latch1_sel, oki_sel, adpcm0_addr_sel, adpcm1_addr_sel,
-            adpcm0_ctl_sel, adpcm1_ctl_sel;
-wire        z80_ram_cs, ym_cs_0, ym_cs_1, pending_set_cs;
+            adpcm0_ctl_sel, adpcm1_ctl_sel, irq_clear_sel, rst10_ack_sel,
+            rst18_ack_sel;
+wire        z80_ram_cs, ym_cs_0, ym_cs_1, pending_set_cs, irq_clear_cs,
+            rst10_ack_cs, rst18_ack_cs;
 wire        z80_rd_n, z80_wr_n, z80_mem_acc, z80_mem_wr,
             ym_rd, ym_wr, oki_rd, oki_wr;
 wire        z80_wait_cs, z80_wait_ok;
@@ -84,9 +86,12 @@ assign z80_mem_acc           = ~z80_mreq_n & z80_rfsh_n;
 assign z80_mem_wr            = z80_mem_acc & ~z80_wr_n;
 assign rom_sel               = z80_addr[15:0] < 16'h2000;
 assign z80_ram_sel           = z80_addr[15:0] >= 16'h2000 && z80_addr[15:0] < 16'h2800;
-assign pending_set_sel       = z80_addr[15:0] == 16'h4000;
+assign pending_set_sel       = !cabal && z80_addr[15:0] == 16'h4000;
+assign irq_clear_sel         = z80_addr[15:0] == 16'h4001;
+assign rst10_ack_sel         = z80_addr[15:0] == 16'h4002;
+assign rst18_ack_sel         = z80_addr[15:0] == 16'h4003;
 assign main_data_pending_sel = z80_addr[15:0] == 16'h4012;
-assign bank_switch_sel       = z80_addr[15:0] == 16'h4007;
+assign bank_switch_sel       = !cabal && z80_addr[15:0] == 16'h4007;
 assign ym_sel_0              = z80_addr[15:0] == 16'h4008;
 assign ym_sel_1              = z80_addr[15:0] == 16'h4009;
 assign m68k_latch0_sel       = z80_addr[15:0] == 16'h4010;
@@ -107,6 +112,9 @@ assign rom_cs                = z80_rfsh_n & rom_sel;
 assign z80_ram_cs            = z80_rfsh_n & z80_ram_sel;
 assign bank_rom_cs           = z80_rfsh_n & bank_rom_sel;
 assign pending_set_cs        = z80_mem_wr  & pending_set_sel;
+assign irq_clear_cs          = z80_mem_wr  & irq_clear_sel;
+assign rst10_ack_cs          = z80_mem_wr  & rst10_ack_sel;
+assign rst18_ack_cs          = z80_mem_wr  & rst18_ack_sel;
 assign ym_cs_0               = z80_rfsh_n & ym_sel_0;
 assign ym_cs_1               = z80_rfsh_n & ym_sel_1;
 assign ym_wr                 = z80_mem_wr & (ym_sel_0 | ym_sel_1);
@@ -142,7 +150,9 @@ sei80bu u_sei80bu(
 reg bank_selected = 1'b0; // switch to data bank
 
 always @(posedge clk) begin
-    if (z80_mem_wr & bank_switch_sel)
+    if (rst)
+        bank_selected <= 1'b0;
+    else if (z80_mem_wr & bank_switch_sel)
         bank_selected <= z80_dout[0];
 end
 
@@ -190,6 +200,7 @@ always @(posedge clk) begin //XXX speed must be same than 68k din ?
     if (rst) begin
         z80_sound_latch_0 <= 16'b0;
         z80_sound_latch_1 <= 16'b0;
+        z80_sound_latch_2 <= 16'b0;
         sub2main_pending  <= 1'b0;
         oki6295_irq_n     <= 1'b1;
     end else begin
@@ -203,13 +214,13 @@ always @(posedge clk) begin //XXX speed must be same than 68k din ?
         if (pending_set_cs) begin
             z80_sound_latch_2 <= 16'b0;
             sub2main_pending <= 1'b1;
-        end else if (m68k_sound_cs_6 == 1'b1 || m68k_sound_cs_2 == 1'b1) begin
+        end else if (m68k_sound_wr_6 == 1'b1 || m68k_sound_wr_2 == 1'b1) begin
             z80_sound_latch_2 <= 16'b1;
             sub2main_pending <= 1'b0;
         end
 
         // main cpu assert irq for oki6295
-        if (m68k_sound_cs_4 == 1'b1)
+        if (m68k_sound_wr_4 == 1'b1)
             oki6295_irq_n <= 1'b0;
         else
             oki6295_irq_n <= 1'b1;
@@ -244,7 +255,13 @@ always @(posedge clk) begin
         stop_irq_10 <= 1'b0;
         stop_irq_18 <= 1'b0;
     end else begin
-        if (~irq_ack & stop_irq_10) begin
+        if (rst10_ack_cs) begin
+            irq_rst10   <= 1'b0;
+            stop_irq_10 <= 1'b0;
+        end else if (irq_clear_cs | rst18_ack_cs) begin
+            irq_rst18   <= 1'b0;
+            stop_irq_18 <= 1'b0;
+        end else if (~irq_ack & stop_irq_10) begin
             irq_rst10   <= 1'b0;
             stop_irq_10 <= 1'b0;
         end else if (~irq_ack & stop_irq_18) begin
@@ -252,19 +269,19 @@ always @(posedge clk) begin
             stop_irq_18 <= 1'b0;
         end else if ((cabal ? jt51_irq_n : ym3812_irq_n) == 1'b0)
             irq_rst10 <= 1'b1;
-        else if (oki6295_irq_n == 1'b0) //~m68k_sound_cs_4
+        else if (oki6295_irq_n == 1'b0)
             irq_rst18 <= 1'b1;
 
-        if (irq_ack & irq_rst10)
-            stop_irq_10 <= 1'b1;
-        else if (irq_ack & irq_rst18)
+        if (irq_ack & irq_rst18)
             stop_irq_18 <= 1'b1;
+        else if (irq_ack & irq_rst10)
+            stop_irq_10 <= 1'b1;
 
-        z80_din <= irq_ack & irq_rst10                      ? 8'hd7 :
-                   irq_ack & irq_rst18                      ? 8'hdf :
+        z80_din <= irq_ack & irq_rst18                      ? 8'hdf :
+                   irq_ack & irq_rst10                      ? 8'hd7 :
                    main_data_pending_sel &  sub2main_pending ? 8'b1  :
                    main_data_pending_sel & ~sub2main_pending ? 8'b0  :
-                   ym_rd                                    ? (cabal ? cabal_jt51_dout : ym3812_dout) :
+                   ym_rd                                    ? (cabal ? jt51_dout : ym3812_dout) :
                    oki_rd                                   ? oki_dout :
                    bank_rom_sel                             ? bank_rom_data :
                    m68k_latch0_sel                          ? m68k_sound_latch_0[7:0] :
@@ -281,11 +298,14 @@ wire signed [13:0] oki_snd;
 wire [17:0] adpcm_rom_addr;
 wire        oki_wrn;
 
-assign pcm_cs = 1'b1;
 assign oki_wrn    = ~oki_wr;
 
 // pcm rom byte 13 and 15 are swapped, that could be a simple encryption
 assign pcm_addr = { adpcm_rom_addr[16], adpcm_rom_addr[13], adpcm_rom_addr[14] ,adpcm_rom_addr[15] , adpcm_rom_addr[12:0]};
+
+always @(posedge clk) begin
+    pcm_cs <= ~cabal;
+end
 
 jt6295 #(.INTERPOL(1))  u_adpcm(
     .rst      ( rst            ),
@@ -338,14 +358,12 @@ jttoki_cabal_adpcm u_cabal_adpcm1(
 
 wire signed [15:0] opl_snd;
 wire        ym_cs_n, ym_wr_n, opl_sample;
-wire [ 7:0] jt51_dout, cabal_jt51_dout;
+wire [ 7:0] jt51_dout;
 wire        jt51_irq_n;
 wire signed [15:0] jt51_l, jt51_r, cabal_fm_snd;
 
 assign ym_cs_n = ~(ym_cs_0 | ym_cs_1);
 assign ym_wr_n = ~(ym_wr & !cabal);
-assign cabal_jt51_dout = {1'b0, jt51_dout[6:0]};
-
 jtopl2 u_opl2(
     .rst    ( rst           ),
     .clk    ( clk           ),
@@ -383,7 +401,7 @@ jt51 u_jt51(
 assign cabal_fm_snd = (jt51_l >>> 1) + (jt51_r >>> 1);
 
 assign fm   = cabal ? cabal_fm_snd : opl_snd;
-assign pcm0 = cabal ? {cabal_adpcm0_snd, 2'd0} : oki_snd;
-assign pcm1 = cabal ? {cabal_adpcm1_snd, 2'd0} : 14'sd0;
+assign pcm0 = cabal ? {cabal_adpcm0_snd[11],cabal_adpcm0_snd, 1'd0} : oki_snd;
+assign pcm1 = cabal ? {cabal_adpcm1_snd[11],cabal_adpcm1_snd, 1'd0} : 14'sd0;
 
 endmodule

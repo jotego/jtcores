@@ -77,9 +77,9 @@ wire [18:0] second_word_addr;
 wire [10:1] fetch_lut_addr, next_lut_addr;
 wire [12:0] code;
 wire [ 8:0] render_line = vrender - 9'd1;
-wire [ 8:0] x_offset, y_offset, xpos, ypos;
+wire [ 8:0] toki_x_offset;
+wire [ 8:0] y_offset, xpos, ypos;
 wire [ 8:0] line_delta;
-wire [ 8:0] obj_hdump = cabal ? hdump - 9'd1 : hdump;
 wire [ 7:0] next_index;
 wire [ 5:0] hzoom;
 wire [ 3:0] pal;
@@ -92,9 +92,9 @@ assign hzoom           = 6'd0;
 assign flip            = 1'b0;
 assign hz_keep         = 1'b0;
 assign vflip           = 1'b0;
-assign x_offset        = cabal ? lut_words[2][8:0] : {1'b0, lut_words[0][7:4], 4'd0};
+assign toki_x_offset   = {1'b0, lut_words[0][7:4], 4'd0};
+assign xpos            = lut_words[2][8:0] + 9'd1 + (cabal ? 9'd0 : toki_x_offset);
 assign y_offset        = {1'b0, lut_words[0][3:0], 4'd0};
-assign xpos            = cabal ? x_offset : lut_words[2][8:0] + x_offset + 9'd1;
 assign ypos            = cabal ? {1'b0, lut_words[0][7:0]} : lut_words[3][8:0] + y_offset;
 assign line_delta      = render_line - ypos;
 assign code            = cabal ? {1'b0, lut_words[1][11:0]} : {lut_words[2][15], lut_words[1][11:0]};
@@ -187,7 +187,7 @@ always @(posedge clk) begin
             ST_START_DECODING: begin
                 if (enabled && line_hit && x_hits_screen) begin
                     dr_code  <= code;
-                    dr_xpos  <= xpos;
+                    dr_xpos  <= xpos + 9'h8;
                     dr_ysub  <= cabal ? 4'd15 - line_delta[3:0] : line_delta[3:0];
                     dr_hflip <= hflip;
                     dr_pal   <= pal;
@@ -285,6 +285,7 @@ jtframe_objdraw #(
     .AW       ( 9    ),
     .CW       ( 13   ),
     .PW       ( 8    ),
+    .HJUMP    ( 1    ),
     .HFIX     ( 0    ),
     .LATCH    ( 1    ),
     .KEEP_OLD ( 1    ),
@@ -295,7 +296,7 @@ jtframe_objdraw #(
     .pxl_cen  ( pxl_cen       ),
     .hs       ( hs            ),
     .flip     ( flip          ),
-    .hdump    ( obj_hdump     ),
+    .hdump    ( hdump         ),
 
     .draw     ( draw          ),
     .busy     ( dr_busy       ),
