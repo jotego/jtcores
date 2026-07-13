@@ -40,11 +40,11 @@ reg  [ 3:0] vol_l, vol_r;
 reg  [ 7:0] delta, start;
 reg  [ 8:0] finish;
 reg  [15:0] buf_l;
-wire [19:0] cur;
-reg  [19:0] nx_cur;
+wire [23:0] cur;
+reg  [23:0] nx_cur;
 // 9-bit sample page so end=0 maps to page 0x100 (full 1 MB range, as in MAME's
 // end_addr=(0x100-end)<<12) instead of wrapping the 8-bit page to 0 (= instant key-off).
-wire [20:0] full_addr = {1'b0,start,12'd0}+{5'd0,cur[19:4]};
+wire [20:0] full_addr = {1'b0,start,12'd0}+{1'b0,cur[23:4]};
 
 reg signed [15:0] mul;
 reg signed [ 7:0] mul_in1, mul_in2;
@@ -58,7 +58,7 @@ end
 
 wire we = st==31;
 
-jtframe_ram #(.DW(20), .AW(4))u_ram(
+jtframe_ram #(.DW(24), .AW(4))u_ram(
     .clk    ( clk           ),
     .cen    ( 1'b1          ),
     .data   ( nx_cur        ),
@@ -81,7 +81,7 @@ always_ff @(posedge clk) if(cen) begin
        11: rom_addr <= full_addr[19:0];
        12: if(full_addr[20:12]>=finish) cfg[KEYON] <= 0;
        13: rom_cs <= cfg[KEYON] && !cfg[WAV];
-       14: nx_cur <= cfg[KEYON] ? cur+{12'd0,delta} : 20'd0;
+       14: nx_cur <= cfg[KEYON] ? cur+{16'd0,delta} : 24'd0;
        // 14 -> 21 waiting for rom data for 7us
        // MAME driver questions vol_l bits
        21: begin mul_in <= vol_l;               end
