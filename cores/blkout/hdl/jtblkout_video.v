@@ -96,11 +96,11 @@ wire [8:0] hovl = hdump + 9'd2;
 // Overlay line buffer: the CPU rewrites the 1bpp overlay VRAM continuously, so
 // its 64 words for the next line are fetched a line ahead (during HBLANK) and
 // scanned out from the buffer, like the bitmap.
-reg        ov_disp, HSov, ov_busy, ov_ph;
+reg        HSov, ov_busy, ov_ph;
 reg [ 5:0] ov_col;
 reg [ 7:0] ov_row;
 reg [ 7:0] ovlb_din;
-reg [ 6:0] ovlb_wa;
+reg [ 5:0] ovlb_wa;
 reg        ovlb_we;
 wire [7:0] ovlb_q;
 
@@ -108,12 +108,11 @@ assign fvrd_addr = { ov_row, ov_col };   // 8+6 = 14 bits, swept during fetch
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        ov_disp<=0; HSov<=0; ov_busy<=0; ov_col<=0; ov_ph<=0; ovlb_we<=0; ov_row<=0;
+        HSov<=0; ov_busy<=0; ov_col<=0; ov_ph<=0; ovlb_we<=0; ov_row<=0;
     end else begin
         HSov    <= HS;
         ovlb_we <= 0;
         if( HS && !HSov ) begin           // new line: fetch overlay for vrender+10
-            ov_disp <= ~ov_disp;
             ov_row  <= vrender[7:0] + 8'd10;
             ov_col  <= 0;
             ov_ph   <= 0;
@@ -122,7 +121,7 @@ always @(posedge clk, posedge rst) begin
             if( ov_ph==1'b0 ) ov_ph<=1'b1;   // 1-cycle BRAM read latency
             else begin
                 ovlb_din <= fvram_data[7:0];   // low byte = 8 overlay pixels
-                ovlb_wa  <= { ~ov_disp, ov_col };
+                ovlb_wa  <= ov_col;
                 ovlb_we  <= 1'b1;
                 ov_ph    <= 1'b0;
                 if( ov_col==6'd63 ) ov_busy<=1'b0;
@@ -132,9 +131,16 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_dual_ram #(.DW(8),.AW(7)) u_ovlb(
-    .clk0 ( clk       ), .data0( ovlb_din ), .addr0( ovlb_wa            ), .we0( ovlb_we ), .q0(       ),
-    .clk1 ( clk       ), .data1( 8'd0     ), .addr1( {ov_disp,hovl[8:3]}), .we1( 1'b0    ), .q1( ovlb_q )
+// jtframe_linebuf owns the buffer swap (on ~HS falling = HS rising).
+jtframe_linebuf #(.DW(8),.AW(6)) u_ovlb(
+    .clk     ( clk        ),
+    .LHBL    ( ~HS        ),
+    .wr_addr ( ovlb_wa    ),
+    .wr_data ( ovlb_din   ),
+    .we      ( ovlb_we    ),
+    .rd_addr ( hovl[8:3]  ),
+    .rd_data ( ovlb_q     ),
+    .rd_gated(            )
 );
 
 // pixel pipeline: pen -> palette / buffered overlay -> RGB
