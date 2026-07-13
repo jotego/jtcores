@@ -1,5 +1,6 @@
 include ../../midres/cfg/macros.def
 
 CORENAME=JTSLYSPY
+JTFRAME_RATE=57.45
 NOTRACKBALL
 -JTFRAME_CHEAT

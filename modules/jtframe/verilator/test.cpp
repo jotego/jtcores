@@ -108,6 +108,9 @@ public:
         cnt=0;
 #ifdef _JTFRAME_MCLK
         semi = (vluint64_t)(1e12/(_JTFRAME_MCLK));
+    #if !(_JTFRAME_SIM96 || _JTFRAME_SDRAM96)
+        semi >>= 1;
+    #endif
 #else
         semi = (vluint64_t)10416;
 #endif
@@ -857,6 +860,16 @@ int main(int argc, char *argv[]) {
         Verilated::threadContextp()->coveragep()->write("logs/coverage.dat");
 #endif
         report_vrate( sim.vrate );
+#if defined(_JTFRAME_RATE) && !defined(_JTFRAME_SKIP_RATE_TEST)
+        float rate_delta = sim.vrate - _JTFRAME_RATE;
+        if( rate_delta < 0 ) rate_delta = -rate_delta;
+        if( rate_delta > 0.1f ) {
+            fprintf(stderr,
+                "\nERROR: (test.cpp) frame rate mismatch. Expected %.2f Hz but got %.2f Hz\n",
+                float(_JTFRAME_RATE), sim.vrate );
+            return 64;
+        }
+#endif
         if( sim.get_frame()>1 ) fputc('\n',stderr);
     } catch( const char *error ) {
         fputs(error,stderr);

@@ -70,6 +70,7 @@ module jtcastle_main(
     input      [3:0]    dipsw_c,
     output              buserror
 );
+`ifndef NOMAIN
 
 localparam RAM_AW = 13;
 
@@ -212,4 +213,25 @@ jtkcpu u_cpu(
     .buserror   (           )
 );
 /* verilator tracing_on */
+`else
+assign cpu_cen  = 0;
+assign cpu_addr = 0;
+assign cpu_rnw  = 1;
+assign cpu_dout = 0;
+assign ram_addr = 0;
+assign ram_we   = 0;
+assign gfx1_cs  = 0;
+assign gfx2_cs  = 0;
+assign pal_cs   = 0;
+assign buserror = 0;
+
+initial begin
+    snd_irq    = 0;
+    snd_latch  = 0;
+    rom_addr   = 0;
+    rom_cs     = 0;
+    video_bank = 0;
+    prio       = 0;
+end
+`endif
 endmodule

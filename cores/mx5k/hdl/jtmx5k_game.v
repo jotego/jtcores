@@ -83,14 +83,8 @@ jtcontra_main #(.GAME(2)) u_main(
     .dipsw_c        ( dipsw_c       )
 );
 `else
-// load a sound code for simulation
 assign snd_latch = 8'h22;
-reg pre_irq=0;
-initial begin
-    #100_000_000 pre_irq=1;
-end
-
-assign snd_irq = pre_irq;
+assign snd_irq=0;
 `endif
 
 `ifndef NOVIDEO
