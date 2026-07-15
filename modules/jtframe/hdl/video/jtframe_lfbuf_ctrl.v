@@ -264,7 +264,7 @@ always @( posedge clk ) begin
                 cr_advn         <= 0;
                 adq_en          <= 1;
                 cr_oen          <= 1;
-                cr_wen          <= 1;
+                cr_wen          <=~wring;
                 st              <= wring ? WRITEOUT : READIN;
                 wait1           <= 1; // give time to cr_wait to react
             end
