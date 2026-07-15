@@ -96,6 +96,19 @@ jobs:
 
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v "$(pwd)":/jtcores "$docker_image" /jtcores/modules/jtframe/devops/xjtcore.sh "${{ matrix.core }}" "${{ matrix.target }}"
 
+      # On a failed compile, ship the build log for triage. jtframe/bin/jtcore
+      # writes it to log/<target>/<core>.log inside the container, which maps
+      # to ./log/<target>/<core>.log on the runner via the $(pwd) -> /jtcores
+      # bind mount.
+      - id: upload-log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-${{ matrix.target }}-${{ matrix.core }}
+          path: log
+          retention-days: 7
+          if-no-files-found: warn
+
       - id: upload
         uses: actions/upload-artifact@v4
         with:
