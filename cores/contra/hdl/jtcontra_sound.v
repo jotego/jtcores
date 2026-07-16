@@ -148,8 +148,5 @@ always @(negedge snd_irq) $display("INFO: sound latch %X", snd_latch );
 `else // NOSOUND
     initial rom_cs   = 0;
     assign  rom_addr = 0;
-    assign  snd_left = 0;
-    assign  snd_right= 0;
-    assign  sample   = 0;
 `endif
 endmodule

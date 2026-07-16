@@ -1,6 +1,7 @@
 include ../../kicker/cfg/common.def
 
 CORENAME=JTYIEAR
+JTFRAME_RATE=60.60
 
 VIDEO_MODULE=jtyiear_video
 MAIN_MODULE=jtyiear_main

@@ -84,6 +84,7 @@ JTFRAME_PADDLE           |         | Enables paddle inputs to the game module
 JTFRAME_PADDLE_MAX       |         | Maximum paddle value used by jtframe_paddle (mouse-to-paddle emulation)
 JTFRAME_PLL              |         | PLL module name to be used. PLL names must end in the pixel clock frequency in kHz
 JTFRAME_PXLCLK           |         | 6 or 8. Defines the pixel clock. See [clocks](clocks.md)
+JTFRAME_RATE             |         | Expected video refresh rate in Hz. Verilator `jtsim` checks this when the core produces frames.
 JTFRAME_RELEASE          |         | Disables debug control via keyboard
 JTFRAME_RFSH_WC          |         | Automatic. Used by SDRAM refresh in jtframe_board
 JTFRAME_RFSH_N           |         | Automatic. Used by SDRAM refresh in jtframe_board
@@ -99,6 +100,7 @@ JTFRAME_SHIFT            |         | Set to 1 if the SDRAM clock phase has a lar
 JTFRAME_SIGNALTAP        |         | Enables SignalTap QSF merge in `jtcore`; set by `jtcore --signaltap` or define in `macros.def`
 JTFRAME_SIGNED_SND       |         | Set to 0 if the game only uses unsigned sound sources
 JTFRAME_SKIP             |         | If defined, jtcore will not compile the core and just return a PASS
+JTFRAME_SKIP_RATE_TEST   |         | Documents that the core needs software-programmed video counters, so Verilator `jtsim` skips the `JTFRAME_RATE` check.
 JTFRAME_SND48K           |         | Enables a stereo 20kHz filter, 2kHz pass-band. Core's sample signal must be 48kHz and clk_sys=48MHz!
 JTFRAME_STATUS           |         | Game module will receive an 8-bit address and can output 8-bit data in response
 JTFRAME_STEREO           |         | Enables stereo sound (snd_left/right outputs from game module instead of single snd)

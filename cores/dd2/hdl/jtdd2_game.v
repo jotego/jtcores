@@ -117,24 +117,8 @@ assign cpu_wrn   = 1'b1;
 assign scrhpos   = 9'h0;
 assign scrvpos   = 9'h0;
 assign mcu_rstb  = 1'b0;
-
-    `ifndef SIMULATION
-    assign snd_latch = 8'd0;
-    assign snd_irq   = 1'b0;
-    `else
-    reg [7:0] snd_latch2;
-    reg       snd_irq2;
-    assign snd_latch = snd_latch2;
-    assign snd_irq   = snd_irq2;
-    initial begin
-        snd_latch2 = 8'hfe;
-        snd_irq2   = 1'b0;
-        #11_000_000 snd_latch2 = 8'h3a; // coin sound
-        snd_irq2 = 1'b1;
-        #100_000 snd_irq2 = 1'b0;
-        snd_latch2 = 8'hfe;
-    end
-    `endif
+assign snd_latch = 8'd0;
+assign snd_irq   = 1'b0;
 `endif
 
 wire mcu_cen = turbo ? cen8 : cen4;

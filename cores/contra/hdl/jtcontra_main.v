@@ -63,8 +63,9 @@ module jtcontra_main(
     input      [7:0]    dipsw_b,
     input      [3:0]    dipsw_c
 );
-`ifndef NOMAIN
 parameter  GAME=0;
+
+`ifndef NOMAIN
 localparam RAM_AW = GAME==0 ? 12 : 13;
 
 wire [ 7:0] ram_dout;

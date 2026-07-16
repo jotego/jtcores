@@ -72,9 +72,9 @@ module jttoki_main(
 
     output            bg_order,
 
-    output reg        sound_cs_2,
-    output reg        sound_cs_4,
-    output reg        sound_cs_6,
+    output reg        sound_wr_2,
+    output reg        sound_wr_4,
+    output reg        sound_wr_6,
 
     output reg [15:0] m68k_sound_latch_0,
     output reg [15:0] m68k_sound_latch_1,
@@ -91,23 +91,24 @@ localparam [4:0] CEN_DEN = 5'd24;
 wire [23:0] cpu_a;
 reg  [15:0] cpu_din;
 wire [ 2:0] cpu_fc;
-wire        cpu_wr, cpu_as_n, cpu_lds_n, cpu_uds_n,
+wire        cpu_wrn, cpu_as_n, cpu_lds_n, cpu_uds_n,
             cen10, cen10b, dtack_n, int1;
 wire [ 1:0] cpu_dsn, ram_byte_we, pal_byte_we, obj_byte_we,
             vram_byte_we, scr1_byte_we, scr2_byte_we;
 wire [15:0] cab_dout, system_dout, cabal_joy_dout, cabal_inputs_dout;
-wire        inta_n, inta_clr, bus_cs, bus_busy;
+wire        inta_n, inta_clr, bus_cs, bus_busy, sound_lwr;
 wire [23:0] sound_base;
 
 assign cpu_a[0] = 0;
 
 assign cpu_dsn       = { cpu_uds_n, cpu_lds_n };
-assign ram_byte_we   = { ram_cs     && !cpu_wr && !cpu_uds_n, ram_cs     && !cpu_wr && !cpu_lds_n };
-assign pal_byte_we   = { palette_cs && !cpu_wr && !cpu_uds_n, palette_cs && !cpu_wr && !cpu_lds_n };
-assign obj_byte_we   = { sprite_cs  && !cpu_wr && !cpu_uds_n, sprite_cs  && !cpu_wr && !cpu_lds_n };
-assign vram_byte_we  = { vram_cs    && !cpu_wr && !cpu_uds_n, vram_cs    && !cpu_wr && !cpu_lds_n };
-assign scr1_byte_we  = { scr1_cs    && !cpu_wr && !cpu_uds_n, scr1_cs    && !cpu_wr && !cpu_lds_n };
-assign scr2_byte_we  = { scr2_cs    && !cpu_wr && !cpu_uds_n, scr2_cs    && !cpu_wr && !cpu_lds_n };
+assign ram_byte_we   = { ram_cs     && !cpu_wrn && !cpu_uds_n, ram_cs     && !cpu_wrn && !cpu_lds_n };
+assign pal_byte_we   = { palette_cs && !cpu_wrn && !cpu_uds_n, palette_cs && !cpu_wrn && !cpu_lds_n };
+assign obj_byte_we   = { sprite_cs  && !cpu_wrn && !cpu_uds_n, sprite_cs  && !cpu_wrn && !cpu_lds_n };
+assign vram_byte_we  = { vram_cs    && !cpu_wrn && !cpu_uds_n, vram_cs    && !cpu_wrn && !cpu_lds_n };
+assign scr1_byte_we  = { scr1_cs    && !cpu_wrn && !cpu_uds_n, scr1_cs    && !cpu_wrn && !cpu_lds_n };
+assign scr2_byte_we  = { scr2_cs    && !cpu_wrn && !cpu_uds_n, scr2_cs    && !cpu_wrn && !cpu_lds_n };
+assign sound_lwr     = !cpu_wrn && !cpu_lds_n;
 
 assign ram_addr      = cpu_a[15:1];
 assign ram_we        = ram_byte_we;
@@ -139,10 +140,10 @@ always @(posedge clk) begin
         m68k_sound_latch_0 <= 16'b0;
         m68k_sound_latch_1 <= 16'b0;
     end else begin
-        if (cpu_a[23:0] == sound_base)
-            m68k_sound_latch_0[15:0] <= cpu_dout[15:0];
-        if (cpu_a[23:0] == sound_base + 24'd2)
-            m68k_sound_latch_1[15:0] <= cpu_dout[15:0];
+        if ((cpu_a[23:0] == sound_base) && sound_lwr)
+            m68k_sound_latch_0 <= {8'b0, cpu_dout[7:0]};
+        if ((cpu_a[23:0] == sound_base + 24'd2) && sound_lwr)
+            m68k_sound_latch_1 <= {8'b0, cpu_dout[7:0]};
     end
 end
 
@@ -160,7 +161,7 @@ fx68k u_cpu(
         .iEdb     ( cpu_din     ),
         .oEdb     ( cpu_dout    ),
         .ASn      ( cpu_as_n    ),
-        .eRWn     ( cpu_wr      ),
+        .eRWn     ( cpu_wrn     ),
         .UDSn     ( cpu_uds_n   ),
         .LDSn     ( cpu_lds_n   ),
         .DTACKn   ( dtack_n     ),
@@ -238,8 +239,8 @@ jtframe_68kdtack_cen  u_dtack(
 // 0x0c0004, 0x0c0005 : system port        (ro)
 //
 reg ram_cs, sprite_cs, palette_cs, scr1_cs, scr2_cs, vram_cs,
-        scroll_cs, dsw_cs, inputs_cs, system_cs;
-reg sound_cs_3, sound_cs_5;
+    scroll_cs, dsw_cs, inputs_cs, system_cs;
+reg sound_cs_2, sound_cs_3, sound_cs_4, sound_cs_5, sound_cs_6;
 
 always @(posedge clk) begin
     ram_cs       <= 1'd0;
@@ -259,6 +260,9 @@ always @(posedge clk) begin
     sound_cs_4   <= 1'd0;
     sound_cs_5   <= 1'd0;
     sound_cs_6   <= 1'd0;
+    sound_wr_2   <= 1'd0;
+    sound_wr_4   <= 1'd0;
+    sound_wr_6   <= 1'd0;
     if(!cpu_as_n) begin
         if (cpu_a[23:0] < (cabal ? 24'h40000 : 24'h60000))
             cpu_rom_addr[18:1] <= cpu_a[18:1];
@@ -279,6 +283,9 @@ always @(posedge clk) begin
             sound_cs_4 <= cpu_a[23:0] == 24'he8008;
             sound_cs_5 <= cpu_a[23:0] == 24'he800a;
             sound_cs_6 <= cpu_a[23:0] == 24'he800c;
+            sound_wr_2 <= (cpu_a[23:0] == 24'he8004) && sound_lwr;
+            sound_wr_4 <= (cpu_a[23:0] == 24'he8008) && sound_lwr;
+            sound_wr_6 <= (cpu_a[23:0] == 24'he800c) && sound_lwr;
         end else begin
             ram_cs     <= cpu_a[23:0] >= 24'h60000 && cpu_a[23:0] < 24'h6d800;
             //video
@@ -293,6 +300,9 @@ always @(posedge clk) begin
             sound_cs_4 <= cpu_a[23:0] == 24'h80008;
             sound_cs_5 <= cpu_a[23:0] == 24'h8000a;
             sound_cs_6 <= cpu_a[23:0] == 24'h8000c;
+            sound_wr_2 <= (cpu_a[23:0] == 24'h80004) && sound_lwr;
+            sound_wr_4 <= (cpu_a[23:0] == 24'h80008) && sound_lwr;
+            sound_wr_6 <= (cpu_a[23:0] == 24'h8000c) && sound_lwr;
             //scroll
             scroll_cs  <= cpu_a[23:0] >= 24'ha0000 && cpu_a[23:0] < 24'ha005f; //96
             //IO
@@ -336,9 +346,9 @@ assign scr2_we       = 2'd0;
 initial begin
     cpu_rom_addr       = 18'd0;
     cpu_rom_cs         = 1'b0;
-    sound_cs_2         = 1'b0;
-    sound_cs_4         = 1'b0;
-    sound_cs_6         = 1'b0;
+    sound_wr_2         = 1'b0;
+    sound_wr_4         = 1'b0;
+    sound_wr_6         = 1'b0;
     m68k_sound_latch_0 = 16'd0;
     m68k_sound_latch_1 = 16'd0;
 end
@@ -352,7 +362,7 @@ jttoki_video_mmr u_video_mmr(
 `ifndef NOMAIN
     .cs           ( scroll_cs            ),
     .addr         ( cpu_a[6:1]           ),
-    .rnw          ( cpu_wr               ),
+    .rnw          ( cpu_wrn              ),
     .dsn          ( cpu_dsn              ),
 `else
     .cs           ( 1'b0                 ),

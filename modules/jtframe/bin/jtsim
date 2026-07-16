@@ -30,6 +30,7 @@ SIMULATOR=verilator
 SETNAME=
 SKIPROM=
 ROMLESS=
+DUMMYROM=
 TOP=game_test
 TARGET=
 FILES=
@@ -169,6 +170,7 @@ case "$1" in
         echo Simulate up to $1 frames
         ;;
     -skipROM) SKIPROM="--skipROM";;
+    -dummyROM) DUMMYROM=1;;
     -srate)
         shift
         if [ "$1" = "" ]; then
@@ -294,13 +296,15 @@ if jtcfgstr bash | grep -q 'JTFRAME_ROMLESS='; then
 fi
 
 # Load a specific rom set
-if [ ! -z "$SETNAME" ]; then
+if [ -n "$DUMMYROM" ]; then
+    unset SETNAME
+elif [ ! -z "$SETNAME" ]; then
     use_setname
 else
     SETNAME=`derive_setname_from_folder`
 fi
 
-if [ $SETNAME = game ]; then
+if [ "$SETNAME" = game ]; then
     if [ -n "$ROMLESS" ]; then
         unset SETNAME
     else
@@ -322,7 +326,17 @@ fi
 if [ -n "$SETNAME" ]; then
     copy_mod_file $SETNAME
 fi
-if [ -n "$ROMLESS" ]; then
+if [ -n "$DUMMYROM" ]; then
+    if [ -L rom.bin ]; then
+        unlink rom.bin
+    fi
+    if ls sdram_bank?.* > /dev/null 2>&1; then
+        echo "Moving old sdram_bank files to sdram.old" >&2
+        mkdir -p sdram.old
+        mv sdram_bank?.* sdram.old > /dev/null
+    fi
+    dd if=/dev/zero of=rom.bin bs=1 count=64 status=none
+elif [ -n "$ROMLESS" ]; then
     if [ -L rom.bin ]; then
         unlink rom.bin
     fi
