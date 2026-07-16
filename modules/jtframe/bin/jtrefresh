@@ -7,6 +7,8 @@
 # (at your option) any later version.
 
 main() {
+    setup_environment
+
     TARGET=sidi128
     FRAMES=3
     JOBS=1
@@ -25,6 +27,14 @@ main() {
     require_environment
     select_cores
     run_many
+}
+
+setup_environment() {
+    if [ -z "$JTFRAME" ]; then
+        cd /jtcores
+        git config --global --add safe.directory /jtcores
+        source setprj.sh
+    fi
 }
 
 show_help() {
