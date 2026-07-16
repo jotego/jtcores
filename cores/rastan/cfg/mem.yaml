@@ -2,6 +2,16 @@ params:
   - { name:  RAM_OFFSET, value: "22'h10_0000" }
   - { name: VRAM_OFFSET, value: "22'h11_0000" }
   - { name:  PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1"}
+bram:
+  # 68000 work RAM (0x10c000-0x10ffff, 16kB). Not shared with the video, so it
+  # does not need to sit in SDRAM. In BRAM the CPU runs without wait states,
+  # like the 16kB SRAM on the board.
+  - name: wram
+    addr_width: 14
+    data_width: 16
+    addr: main_addr[13:1]
+    din: main_dout
+    rw: true
 audio:
   rsum: 10k
   channels:
@@ -10,7 +20,7 @@ audio:
 sdram:
   banks:
     - buses:
-      - name: ram
+      - name: ram   # VRAM only; the 68k work RAM is in BRAM (see above)
         addr_width: 18
         data_width: 16
         cs: xram_cs
