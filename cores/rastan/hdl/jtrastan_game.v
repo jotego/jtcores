@@ -31,13 +31,10 @@ wire        sn_rd, sn_we, snd_rstn, mintn, mcpu_cen;
 wire [ 3:0] sn_dout;
 
 assign dip_flip = flip;
-// VRAM stays in SDRAM: the tilemaps read it back through scr0ram/scr1ram.
-// The 68k work RAM is in BRAM (wram), so it costs no wait states.
-assign ram_addr = { 2'b10, main_addr[15:1] };
+assign ram_addr = ram_cs ? {4'd0, main_addr[13:1] } : { 2'b10, main_addr[15:1] };
 assign ram_we   = xram_cs & ~main_rnw;
-assign xram_cs  = vram_cs;
+assign xram_cs  = ram_cs | vram_cs;
 assign ram_dsn  = main_dsn;
-assign wram_we  = ~main_dsn & {2{ram_cs & ~main_rnw}};
 
 jtrastan_main u_main(
     .rst        ( rst       ),
@@ -61,7 +58,6 @@ jtrastan_main u_main(
     .pal_dout   ( pal_dout  ),
     .ram_dout   ( ram_data  ),
     .ram_ok     ( ram_ok    ),
-    .wram_dout  ( wram_dout ),
     .rom_data   ( main_data ),
     .rom_ok     ( main_ok   ),
 
