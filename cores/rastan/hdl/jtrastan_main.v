@@ -235,7 +235,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_68kdtack_cen #(.W(8)) u_dtack(
+jtframe_68kdtack_cen #(.W(12)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -246,8 +246,11 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
-    .num        ( 7'd1      ),  // numerator
-    .den        ( 8'd6      ),  // denominator
+    // Same divider chain as the Z80: on the board both CPUs come off the one
+    // 16MHz XTAL, exactly 2:1.
+    // This runs on clk48 and the z80 runs on clk24
+    .num        ( 11'd231   ),
+    .den        ( 12'd1541  ),
     .DTACKn     ( DTACKn    ),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
