@@ -89,6 +89,9 @@ jtrastan_main u_main(
 jtrastan_snd u_sound(
     .rst        ( rst24         ),
     .clk        ( clk24         ), // 24 MHz
+    .cen4       ( cen4          ),
+    .cen2       ( cen2          ),
+    .pcm_cen    ( pcm_cen       ),
 
     // From main CPU
     .rst48      ( rst           ),
