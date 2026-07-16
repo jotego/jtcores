@@ -23,6 +23,7 @@ module jtrastan_snd(
     // From main CPU
     input                rst48,
     input                clk48,
+    input                main_cen, // 68000 cpu_cen = the CIU's MCLK rate
     input                main_addr,
     input         [ 3:0] main_dout,
     output        [ 3:0] main_din,
@@ -141,6 +142,8 @@ jtframe_frac_cen #(.WC(8)) u_pcmcen(
 jtrastan_pc060 u_pc060(
     .rst48      ( rst48     ),
     .clk48      ( clk48     ),
+    .cen_m      ( main_cen  ),
+    .cen_s      ( cen4      ), // SCLK = the Z80's own 4 MHz
     .main_dout  ( main_dout ),
     .main_din   ( main_din  ),
     .main_addr  ( main_addr ),

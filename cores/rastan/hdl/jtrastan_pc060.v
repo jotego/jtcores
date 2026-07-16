@@ -22,6 +22,8 @@
 module jtrastan_pc060(
     input           rst48,
     input           clk48,
+    input           cen_m,   // MCLK = 8M on the schematics
+    input           cen_s,   // SCLK = 4M on the schematics
     input     [3:0] main_dout,
     output    [3:0] main_din,
     input           main_addr,
@@ -51,9 +53,10 @@ module jtrastan_pc060(
     assign main_din   = main_ptr[2] ? status : main_ram;
     assign snd_din    =  snd_ptr[2] ? status : snd_ram;
 
-    jtrastan_pc060_unit u_main(
+    jtrastan_pc060_unit #(.MASTER(1)) u_main(
         .rst        ( rst48     ),
         .clk        ( clk48     ),
+        .cen        ( cen_m     ),
         .clk_other  ( clk24     ),
 
         .din        ( main_dout ),
@@ -74,9 +77,10 @@ module jtrastan_pc060(
         .flag       ( subrst    )
     );
 
-    jtrastan_pc060_unit u_snd(
+    jtrastan_pc060_unit #(.MASTER(0)) u_snd(
         .rst        ( rst24     ),
         .clk        ( clk24     ),
+        .cen        ( cen_s     ),
         .clk_other  ( clk48     ),
 
         .din        ( snd_dout  ),
@@ -126,9 +130,10 @@ endmodule
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 
-module jtrastan_pc060_unit(
+module jtrastan_pc060_unit #(parameter MASTER=0)(
     input            rst,
     input            clk,
+    input            cen,
     input            clk_other,
     input            cs,
     input            a,
@@ -166,7 +171,7 @@ module jtrastan_pc060_unit(
             ptr     <= 0;
             full_rq <= 0;
             is_full <= 0;
-        end else begin
+        end else if( cen ) begin
             wel <= we;
             csl <= cs;
             al  <= a;
@@ -189,9 +194,11 @@ module jtrastan_pc060_unit(
                                 full_rq[1] <= 1;
                             else
                                 is_full[1] <= 0;
-                        4: flag <= din[0];
-                        5: flag <= 0;
-                        6: flag <= 1;
+                        // writes only. Mode 4 is the sub CPU reset on the main side
+                        // and the AMP/MUTE pin on the sound side (not connected here)
+                        4: if( wel &&  MASTER!=0 ) flag <= din[0];
+                        5: if( wel && MASTER==0 ) flag <= 0;
+                        6: if( wel && MASTER==0 ) flag <= 1;
                         default:;
                     endcase
                 end
