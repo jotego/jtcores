@@ -16,14 +16,6 @@
     Version: 1.0
     Date: 4-4-2022 */
 
-// Designed according to MAME's description:
-// it lacks the mute output for the amp
-
-// Both CPUs run on the single 48MHz clk; they are told apart only by their cens
-// (cen_m = 68000 8MHz MCLK, cen_s = Z80 4MHz SCLK), which are phase-locked 2:1 like
-// the board's one 16MHz crystal. The internal 2FF "sync" stages are kept (they cross
-// clk->clk now, i.e. plain 2-cycle latency) because that latency is part of the
-// validated handshake timing.
 module jtrastan_pc060(
     input           rst,
     input           clk,

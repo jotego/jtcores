@@ -218,38 +218,6 @@ jt5205 u_5205( // 8kHz, 4 bits/sample
     .irq    (           ),
     .vclk_o ( vclk      )
 );
-`ifdef SND_TRACE
-`ifndef SND_TRACE_START
-    `define SND_TRACE_START 12000000
-`endif
-reg [31:0] tick=0;
-reg trc=0, fl=0, nmil=1, ial=1, mwel=0, mrdl=0, pwl=0, prl=0;
-wire pw = pc6_cs && !wr_n;
-wire pr = pc6_cs && !rd_n;
-wire fetch  = !m1_n && !mreq_n && !rd_n;
-wire intack = !m1_n && !iorq_n;
-always @(posedge clk) begin
-    tick <= tick+1;
-    if( tick==`SND_TRACE_START ) begin trc<=1; $display("---- pc trace on ----"); end
-    fl<=fetch; ial<=intack; nmil<=nmi_n; mwel<=sn_we; mrdl<=sn_rd; pwl<=pw; prl<=pr;
-    if( trc ) begin
-        if( fetch && !fl ) case( A )
-            16'h01ab: $display("%0d PC 01AB loop_top", tick);
-            16'h01c9: $display("%0d PC 01C9 post_echo", tick);
-            16'h01dc: $display("%0d PC 01DC post_e0", tick);
-            16'h0254: $display("%0d PC 0254 drain", tick);
-            16'h0066: $display("%0d PC 0066 nmi_handler", tick);
-            default:;
-        endcase
-        if( intack && !ial ) $display("%0d INT ack", tick);
-        if( nmil && !nmi_n ) $display("%0d NMI", tick);
-        if( sn_we && !mwel ) $display("%0d MAIN wr a=%0d %h", tick, main_addr, main_dout);
-        if( !sn_rd && mrdl ) $display("%0d MAIN rd a=%0d %h", tick, main_addr, main_din);
-        if( pw && !pwl ) $display("%0d SNDC wr a=%0d %h", tick, A[0], dout[3:0]);
-        if( pr && !prl ) $display("%0d SNDC rd a=%0d %h", tick, A[0], pc6_dout);
-    end
-end
-`endif
 `else
 assign main_din=0, rom_addr=0, fm_l=0, fm_r=0, pcm=0;
 initial begin
