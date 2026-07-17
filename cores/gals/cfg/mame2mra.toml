@@ -23,7 +23,9 @@ data=[
 
 [ROM]
 regions=[
-    { setname="galpanic", name="maincpu", width=16, reverse=true },
+    { setname="galpanic", name="maincpu", width=16, reverse=true, overrules=[
+        { names=[ "pm017e" ], reverse=false },
+    ] },
     { setname="galpanicb", name="maincpu", width=16, reverse=true },
     { setname="galpanicc", name="maincpu", width=16, reverse=true },
     { setname="galpanica", name="maincpu", width=16, reverse=true, No_offset=true, rom_len=0x20000, sequence=[
@@ -38,4 +40,8 @@ regions=[
 
 order=[
     "maincpu", "oki", "sprites",
+]
+
+blanks = [
+    { setname="galpanic", region="maincpu", offset=0x40000, len=0x40000 },
 ]
