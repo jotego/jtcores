@@ -2,7 +2,7 @@
 author=["jotego"]
 
 [parse]
-sourcefile=[ "tmnt.cpp", "tmnt2" ]
+sourcefile=[ "tmnt.cpp", "tmnt2.cpp" ]
 skip = { machines=[
     "cuebrick",
     "lgtnfght",

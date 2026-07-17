@@ -103,6 +103,7 @@ assign fd1089_we = prom_we && prog_addr[21: 8]==FD_PROM [21: 8];
 `ifdef JTFRAME_LF_BUFFER
     assign game_hdump = hdump;
     assign game_vrender = vrender[7:0];
+    assign fb_keep = 1'b0;
 `endif
 
 initial begin

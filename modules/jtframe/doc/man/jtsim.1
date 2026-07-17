@@ -205,6 +205,11 @@ Simulate a saved scene dump.
 This mode uses the dump file and
 \fBdump2bin.sh\fR
 to prepare a short replay-oriented simulation.
+If the scene has a
+\fBsnapshot.png\fR
+reference and the rendered frame does not match it,
+\fBjtsim\fR
+exits with a nonzero status.
 .TP
 .BI "\-setname " name
 Build or reuse the ROM for the given MAME set name.

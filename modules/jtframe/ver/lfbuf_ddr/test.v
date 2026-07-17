@@ -210,6 +210,7 @@ jtframe_lfbuf_ddr uut(
     .ln_vs      ( ln_vs     ),
     .ln_lvbl    ( ln_lvbl   ),
     .ln_we      ( ln_we     ),
+    .fb_keep    ( 1'b0      ),
 
     // DDR3 RAM
     .ddram_clk      ( lf_ddram_clk      ),

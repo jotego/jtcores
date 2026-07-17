@@ -1,0 +1,41 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "galpanic.cpp" ]
+
+[buttons]
+names=[
+    { names="Cut,Unused" }
+]
+
+[dipsw]
+bitcnt=16
+delete=[{names=["Unused","Unknown"]}]
+
+[header]
+info="""Byte 0:
+             bit 0 = ULA watchdog"""
+data=[
+    { setname="galpanicb", data="01" },
+    { setname="galpanicc", data="01" },
+]
+
+[ROM]
+regions=[
+    { setname="galpanic", name="maincpu", width=16, reverse=true },
+    { setname="galpanicb", name="maincpu", width=16, reverse=true },
+    { setname="galpanicc", name="maincpu", width=16, reverse=true },
+    { setname="galpanica", name="maincpu", width=16, reverse=true, No_offset=true, rom_len=0x20000, sequence=[
+        0, 3, 11, 12, 21, 22, 31, 32,
+        4, 5, 14, 15, 24, 25, 34, 35,
+        6, 7, 16, 17, 26, 27, 36, 37,
+        8, 9, 18, 19, 28, 29, 38, 39,
+    ] },
+    { name="oki",     start="JTFRAME_BA1_START", No_offset=true },
+    { name="sprites", start="JTFRAME_BA2_START", No_offset=true, width=32 },
+]
+
+order=[
+    "maincpu", "oki", "sprites",
+]
