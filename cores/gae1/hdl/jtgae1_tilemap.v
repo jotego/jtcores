@@ -59,7 +59,8 @@ jtframe_scroll #(
     .SIZE      ( 16 ),
     .VA        ( 10 ),
     .CW        ( 15 ),
-    .PW        ( 12 )
+    .PW        ( 12 ),
+    .HJUMP     (  0 )
 ) u_scroll (
     .rst       ( rst     ),
     .clk       ( clk     ),
