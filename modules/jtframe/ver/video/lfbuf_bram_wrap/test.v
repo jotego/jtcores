@@ -185,13 +185,19 @@ endtask
 
 task check_storage;
 begin
-    for(i=0; i<BRAM_LINE_W; i=i+1) begin
+    for(i=0; i<BRAM_LINE_W-1; i=i+1) begin
         check_addr = { 1'b0, {VW{1'b0}}, i[BRAM_HW-1:0] };
         if( stored_word(check_addr) !== pattern(i[HW-1:0]) ) begin
             $display("FAIL: BRAM storage addr=%0d got %04x expected %04x",
                 i, stored_word(check_addr), pattern(i[HW-1:0]));
             errors = errors + 1;
         end
+    end
+    check_addr = { 1'b0, {VW{1'b0}}, {BRAM_HW{1'b1}} };
+    if( stored_word(check_addr) !== pattern({HW{1'b1}}) ) begin
+        $display("FAIL: BRAM edge storage got %04x expected %04x",
+            stored_word(check_addr), pattern({HW{1'b1}}));
+        errors = errors + 1;
     end
 end
 endtask
