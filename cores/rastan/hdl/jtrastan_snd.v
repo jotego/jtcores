@@ -18,7 +18,10 @@
 
 module jtrastan_snd(
     input                rst,
-    input                clk, // 24 MHz
+    input                clk,  // 24 MHz
+    input                cen4, // generated in mem.yaml
+    input                cen2,
+    input                pcm_cen,
 
     // From main CPU
     input                rst48,
@@ -44,7 +47,6 @@ module jtrastan_snd(
     output signed [11:0] pcm
 );
 `ifndef NOSOUND
-wire               cen4, cen2, pcm_cen, nc;
 wire signed [15:0] pre_snd, left_opm, right_opm;
 wire signed [11:0] pcm_snd;
 wire               int_n;
@@ -121,22 +123,6 @@ always @(posedge clk) begin
             pc6_cs ? { 4'hf, pc6_dout } :
             8'hff;
 end
-
-jtframe_frac_cen #(.WC(11)) u_cpucen(
-    .clk  ( clk          ),
-    .n    ( 11'd231      ),
-    .m    ( 11'd1541     ),
-    .cen  ( {cen2,cen4 } ),
-    .cenb (              )
-);
-
-jtframe_frac_cen #(.WC(8)) u_pcmcen(
-    .clk  ( clk          ), // clk = 24 *6.667/6.0 = 26.668 MHz
-    .n    ( 8'd2         ), // 2/139*26.668 MHz = 384 kHz
-    .m    ( 8'd139       ),
-    .cen  ({nc,pcm_cen } ),
-    .cenb (              )
-);
 
 jtrastan_pc060 u_pc060(
     .rst48      ( rst48     ),

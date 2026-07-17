@@ -1,3 +1,12 @@
+clocks:
+  clk24:
+    - freq: 4 MHz
+      outputs:
+        - cen4
+        - cen2
+    - freq: 384 kHz
+      outputs:
+        - pcm_cen
 params:
   - { name:  RAM_OFFSET, value: "22'h10_0000" }
   - { name: VRAM_OFFSET, value: "22'h11_0000" }
