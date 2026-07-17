@@ -236,6 +236,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+// RECOVERY(0) because RECOVERY(1) speed up the audio when recovering cycles for 68000.
 jtframe_68kdtack_cen #(.W(12),.RECOVERY(0)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -247,9 +248,6 @@ jtframe_68kdtack_cen #(.W(12),.RECOVERY(0)) u_dtack(
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
-    // On the board both CPUs come off the one 16MHz XTAL, exactly 2:1. Here
-    // cpu_cen is this 8MHz enable on clk, and the Z80's 4MHz cen is derived by
-    // halving it (jtrastan_game), so the two stay phase-locked 2:1.
     .num        ( 11'd231   ),
     .den        ( 12'd1541  ),
     .DTACKn     ( DTACKn    ),

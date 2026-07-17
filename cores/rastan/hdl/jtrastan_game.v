@@ -104,13 +104,13 @@ jtrastan_main u_main(
 
 jtrastan_snd u_sound(
     .rst        ( rst           ),
-    .clk        ( clk           ), // 48 MHz: sound phase-locked to the 68000 via cen
+    .clk        ( clk           ),
     .cen4       ( cen4          ),
     .cen2       ( cen2          ),
     .pcm_cen    ( pcm_cen       ),
 
     // From main CPU
-    .main_cen   ( mcpu_cen      ),  // 68000 8MHz enable = CIU MCLK rate
+    .main_cen   ( mcpu_cen      ),
     .main_addr  (main_addr[1]   ),
     .main_dout  (main_dout[3:0] ),
     .main_din   ( sn_dout       ),

@@ -18,13 +18,13 @@
 
 module jtrastan_snd(
     input                rst,
-    input                clk,  // 48 MHz (sound phase-locked to the 68000 via cen)
-    input                cen4, // = cpu_cen/2, generated in jtrastan_game
+    input                clk,
+    input                cen4,
     input                cen2,
     input                pcm_cen,
 
     // From main CPU
-    input                main_cen, // 68000 cpu_cen = the CIU's MCLK (8MHz) rate
+    input                main_cen,
     input                main_addr,
     input         [ 3:0] main_dout,
     output        [ 3:0] main_din,
