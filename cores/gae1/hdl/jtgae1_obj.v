@@ -17,26 +17,30 @@
     Date: 2-7-2026 */
 
 module jtgae1_obj #(
-    parameter VTOTAL = 348,
-    parameter integer YOFFS = 16
+    parameter         VTOTAL    = 348,
+    parameter integer YOFFS     = 16,
+    parameter         ROM_AW    = 21,
+    parameter         CODE_EXT  = 0,
+    parameter [8:0]   HDUMP_OFF = 9'd4,
+    parameter [8:0]   OBJ_XOFFS = 9'd4
 )(
-    input        clk,
-    input        rst,
-    input        pxl_cen,
-    input        hs,
-    input [8:0]  vpos,
-    input [8:0]  hpos,
-    input [5:0]  spr_force_high,
+    input               clk,
+    input               rst,
+    input               pxl_cen,
+    input               hs,
+    input        [ 8:0] vpos,
+    input        [ 8:0] hpos,
+    input        [ 5:0] spr_force_high,
 
-    output [10:0] spr_a,
-    input [15:0]  spr_q,
+    output       [10:0] spr_a,
+    input        [15:0] spr_q,
 
-    output        rom_cs,
-    output [21:2] rom_addr,
-    input [31:0]  rom_data,
-    input         rom_ok,
+    output              rom_cs,
+    output [ROM_AW:2]  rom_addr,
+    input        [31:0] rom_data,
+    input               rom_ok,
 
-    output [12:0] pxl
+    output       [12:0] pxl
 );
 localparam [ 3:0] IDLE  = 4'd0,
                   LOAD0 = 4'd1,
@@ -47,44 +51,56 @@ localparam [ 3:0] IDLE  = 4'd0,
                   DRAW  = 4'd6,
                   NEXT  = 4'd7,
                   DONE  = 4'd8;
+localparam CODEW = CODE_EXT ? 18 : 16;
 
-reg  [8:0] vpos_d;
-always @(posedge clk) vpos_d <= vpos;
-wire line_change = (vpos != vpos_d);
+wire [CODEW+6:2] pre_addr;
+wire [CODEW-1:0] obj_code;
+wire [31:0]      sorted_data;
+wire [15:0]      code_base;
+wire [ 8:0]      draw_hpos, next_vpos, line, draw_pal;
+wire [ 8:0]      py0, py_c;
+wire [ 7:0]      sy0, sy_c;
+wire [ 5:0]      hzoom;
+wire [ 4:0]      sprh0, spr_h, spr_row;
+wire [ 1:0]      trunc_sel;
+wire             dr_busy, draw_flip, hz_keep, line_change, online0, size8, sprite_on;
 
-wire [8:0] next_vpos = (vpos == VTOTAL-1) ? 9'd0 : (vpos + 9'd1);
-wire [8:0] line = next_vpos + YOFFS[8:0];
+reg  [CODEW-1:0] dr_code;
+reg  [15:0]      w0_r, w2_r, w3_r;
+reg  [10:0]      spr_idx;
+reg  [ 8:0]      line_r, dr_xpos;
+reg  [ 5:0]      dr_color;
+reg  [ 3:0]      st, dr_ysub;
+reg  [ 2:0]      dr_prio;
+reg              hs_l, start, dr_hflip, dr_vflip, dr_draw, dr_trunc, rom_trunc;
 
-reg  [ 3:0] state;
-reg  [10:0] spr_idx;
-reg  [ 8:0] line_r;
-reg  [15:0] w0_r, w2_r, w3_r;
-reg  [ 8:0] dr_xpos;
-reg  [ 5:0] dr_color;
-reg  [ 2:0] dr_prio;
-reg  [15:0] dr_code;
-reg  [ 3:0] dr_ysub;
-reg         dr_hflip, dr_vflip, dr_draw, dr_trunc;
+assign draw_hpos   = hpos - HDUMP_OFF;
+assign line_change = hs & ~hs_l;
+assign next_vpos   = vpos == VTOTAL-1 ? 9'd0 : vpos + 9'd1;
+assign line        = next_vpos + YOFFS[8:0];
 
-wire        dr_busy;
-wire [22:2] pre_addr;
-wire [21:2] norm_addr;
-wire [31:0] sorted_data;
-wire [ 8:0] draw_pal  = { dr_prio, dr_color };
-wire [ 1:0] cell_quad = {pre_addr[6], 1'b0} + {1'b0, pre_addr[5]};
-wire [ 1:0] trunc_sel = { dr_trunc, 1'b0 };
-wire [ 7:0] sy0       = 8'd240 - spr_q[7:0];
-wire [ 8:0] py0       = (line_r - {1'b0, sy0}) & 9'h1ff;
-wire [ 4:0] sprh0     = spr_q[11] ? 5'd8 : 5'd16;
-wire        online0   = py0 < {4'b0, sprh0};
-wire [ 7:0] sy_c      = 8'd240 - w0_r[7:0];
-wire [ 8:0] py_c      = (line_r - {1'b0, sy_c}) & 9'h1ff;
-wire        size8     = w0_r[11];
-wire        sprite_on = py_c < (size8 ? 9'd8 : 9'd16);
+assign sy0       = 8'd240 - spr_q[7:0];
+assign py0       = (line_r - {1'b0, sy0}) & 9'h1ff;
+assign sprh0     = spr_q[11] ? 5'd8 : 5'd16;
+assign online0   = py0 < {4'b0, sprh0};
+assign sy_c      = 8'd240 - w0_r[7:0];
+assign py_c      = (line_r - {1'b0, sy_c}) & 9'h1ff;
+assign size8     = w0_r[11];
+assign sprite_on = py_c < (size8 ? 9'd8 : 9'd16);
+assign spr_h     = size8 ? 5'd8 : 5'd16;
+assign spr_row   = w0_r[15] ? spr_h - 5'd1 - py_c[4:0] : py_c[4:0];
 
-assign spr_a = state == LOAD0 ? spr_idx :
-               state == RDW0  ? spr_idx + 11'd2 :
-               state == RDW2  ? spr_idx + 11'd3 : 11'd0;
+assign draw_pal  = { dr_prio, dr_color };
+assign trunc_sel = { dr_trunc, 1'b0 };
+assign hzoom     = 6'd0;
+assign draw_flip = 1'b0;
+assign hz_keep   = 1'b0;
+
+assign spr_a = st == LOAD0 ? spr_idx :
+               st == RDW0  ? spr_idx + 11'd2 :
+               st == RDW2  ? spr_idx + 11'd3 : 11'd0;
+
+assign code_base = size8 ? w3_r : {w3_r[15:2], 2'b00};
 
 assign sorted_data = {
     rom_data[ 0], rom_data[ 1], rom_data[ 2], rom_data[ 3],
@@ -97,84 +113,106 @@ assign sorted_data = {
     rom_data[28], rom_data[29], rom_data[30], rom_data[31]
 };
 
-assign norm_addr = dr_trunc ? { 1'b0, pre_addr[22:7], pre_addr[4:2] } :
-                              { 1'b0, pre_addr[22:9], cell_quad, pre_addr[4:2] };
-assign rom_addr  = norm_addr;
+generate
+    if (CODE_EXT) begin : gen_ext_addr
+        assign obj_code = { w3_r[1:0], code_base };
+        assign rom_addr = rom_trunc ? { pre_addr[24:7], pre_addr[4:2] } :
+                                      { pre_addr[24:9], pre_addr[6:2] };
+    end else begin : gen_addr
+        assign obj_code = code_base;
+        assign rom_addr = rom_trunc ? { 1'b0, pre_addr[22:7], pre_addr[4:2] } :
+                                      { 1'b0, pre_addr[22:9], pre_addr[6:2] };
+    end
+endgenerate
 
-reg  start;
-always @(posedge clk or posedge rst) begin
-    if (rst) start <= 1'b0; else start <= line_change;
+always @(posedge clk) begin
+    if (rst) begin
+        hs_l <= 1'b0;
+    end else begin
+        hs_l <= hs;
+    end
 end
 
-always @(posedge clk or posedge rst) begin
+always @(posedge clk) begin
     if (rst) begin
-        state   <= IDLE;
+        start <= 1'b0;
+    end else begin
+        start <= line_change;
+    end
+end
+
+always @(posedge clk) begin
+    if (rst) begin
+        st      <= IDLE;
         spr_idx <= 11'd2043;
         dr_draw <= 1'b0;
+        rom_trunc <= 1'b0;
     end else begin
         dr_draw <= 1'b0;
         if (start) begin
             line_r  <= line;
             spr_idx <= 11'd2043;
-            state   <= LOAD0;
+            st      <= LOAD0;
         end else begin
-            case (state)
+            case (st)
                 IDLE: ;
-                LOAD0: state <= RDW0;
+                LOAD0: st <= RDW0;
                 RDW0: begin
                     w0_r  <= spr_q;
-                    state <= online0 ? RDW2 : NEXT;
+                    st    <= online0 ? RDW2 : NEXT;
                 end
                 RDW2: begin
                     w2_r  <= spr_q;
-                    state <= RDW3;
+                    st    <= RDW3;
                 end
                 RDW3: begin
                     w3_r  <= spr_q;
-                    state <= TEST;
+                    st    <= TEST;
                 end
                 TEST: begin
                     dr_hflip <= w0_r[14];
-                    dr_vflip <= w0_r[15];
-                    dr_xpos  <= w2_r[8:0] - 9'd15;
+                    dr_vflip <= 1'b0;
+                    dr_xpos  <= w2_r[8:0] - OBJ_XOFFS;
                     dr_color <= w2_r[14:9];
                     dr_prio  <= w2_r[14:9] >= spr_force_high ? 3'd4 : {1'b0, w0_r[13:12]};
-                    dr_code  <= size8 ? w3_r : {w3_r[15:2], 2'b00};
-                    dr_ysub  <= { size8 ? 1'b0 : py_c[3], py_c[2:0] };
+                    dr_code  <= obj_code;
+                    dr_ysub  <= { size8 ? 1'b0 : spr_row[3], spr_row[2:0] };
                     dr_trunc <= size8;
-                    state    <= sprite_on ? DRAW : NEXT;
+                    st       <= sprite_on ? DRAW : NEXT;
                 end
                 DRAW: begin
                     if (!dr_busy) begin
-                        dr_draw <= 1'b1;
-                        state   <= NEXT;
+                        dr_draw   <= 1'b1;
+                        rom_trunc <= dr_trunc;
+                        st        <= NEXT;
                     end
                 end
                 NEXT: if (spr_idx >= 11'd7) begin
                     spr_idx <= spr_idx - 11'd4;
-                    state   <= LOAD0;
+                    st      <= LOAD0;
                 end else begin
-                    state <= DONE;
+                    st <= DONE;
                 end
-                DONE: state <= IDLE;
-                default: state <= IDLE;
+                DONE: st <= IDLE;
+                default: st <= IDLE;
             endcase
         end
     end
 end
 
 jtframe_objdraw_trunc #(
-    .CW       (  16 ),
+    .CW       ( CODEW ),
     .PW       (  13 ),
     .LATCH    (   1 ),
-    .KEEP_OLD (   1 )
+    .KEEP_OLD (   1 ),
+    .KEEP_MAP (   1 )
 ) u_draw (
     .rst      ( rst                    ),
     .clk      ( clk                    ),
     .pxl_cen  ( pxl_cen                ),
     .hs       ( hs                     ),
-    .flip     ( 1'b0                   ),
-    .hdump    ( hpos                   ),
+    .flip     ( draw_flip              ),
+    .hdump    ( draw_hpos              ),
     .trunc    ( trunc_sel              ),
 
     .draw     ( dr_draw                ),
@@ -182,8 +220,8 @@ jtframe_objdraw_trunc #(
     .code     ( dr_code                ),
     .xpos     ( dr_xpos                ),
     .ysub     ( dr_ysub                ),
-    .hzoom    ( 6'd0                   ),
-    .hz_keep  ( 1'b0                   ),
+    .hzoom    ( hzoom                  ),
+    .hz_keep  ( hz_keep                ),
 
     .hflip    ( dr_hflip               ),
     .vflip    ( dr_vflip               ),

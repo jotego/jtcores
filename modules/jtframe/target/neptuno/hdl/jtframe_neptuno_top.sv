@@ -505,6 +505,7 @@ wire        game_tx, game_rx;
     wire        [15:0] ln_data;
     wire               ln_done;
     wire               ln_we;
+    wire               fb_keep;
     wire               ln_hs, ln_vs, ln_vbl;
     wire        [15:0] ln_dout;
     wire        [15:0] ln_pxl;
@@ -537,6 +538,7 @@ wire        game_tx, game_rx;
         .ln_pxl     ( ln_pxl        ),
         .ln_v       ( ln_v          ),
         .ln_we      ( ln_we         ),
+        .fb_keep    ( fb_keep       ),
 `ifdef JTFRAME_LF_ZOOM
         .h_step     ( game_h_step   ),
         .v_step     ( game_v_step   ),

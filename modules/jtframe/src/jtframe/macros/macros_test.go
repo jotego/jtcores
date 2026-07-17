@@ -98,8 +98,85 @@ func Test_check_macros_lf_buffer_vertical(t *testing.T) {
 		"JTFRAME_WIDTH":     "320",
 		"JTFRAME_HEIGHT":    "224",
 	})
+	if err := CheckMacros(); err != nil {
+		t.Fatalf("Expected vertical lf-buffer combination to be accepted: %v", err)
+	}
+}
+
+func Test_check_macros_lf_bram_requires_vertical(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"TARGET":             "mister",
+		"JTFRAME_LF_BUFFER":  "1",
+		"JTFRAME_LF_HW":      "9",
+		"JTFRAME_LF_VW":      "8",
+		"JTFRAME_MR_LF_BRAM": "1",
+		"JTFRAME_WIDTH":      "320",
+		"JTFRAME_HEIGHT":     "224",
+	})
 	if err := CheckMacros(); err == nil {
-		t.Fatal("Expected vertical lf-buffer combination to be rejected")
+		t.Fatal("Expected JTFRAME_MR_LF_BRAM without JTFRAME_VERTICAL to be rejected")
+	}
+}
+
+func Test_make_mr_lf_bram_macro(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"JTFRAME_LF_BUFFER": "1",
+		"JTFRAME_VERTICAL":  "1",
+	})
+	make_mr_lf_bram_macro("mister")
+	if !IsSet("JTFRAME_MR_LF_BRAM") {
+		t.Fatal("Expected MiSTer vertical lf-buffer combination to select BRAM lf-buffer")
+	}
+}
+
+func Test_check_macros_lf_buffer_vertical_pocket(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"TARGET":            "pocket",
+		"JTFRAME_LF_BUFFER": "1",
+		"JTFRAME_LF_HW":     "9",
+		"JTFRAME_LF_VW":     "8",
+		"JTFRAME_VERTICAL":  "1",
+		"JTFRAME_WIDTH":     "256",
+		"JTFRAME_HEIGHT":    "224",
+	})
+	if err := CheckMacros(); err != nil {
+		t.Fatalf("Expected non-MiSTer vertical lf-buffer combination to be accepted: %v", err)
+	}
+}
+
+func Test_check_macros_lf_buffer_vertical_sidi128(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"TARGET":            "sidi128",
+		"JTFRAME_LF_BUFFER": "1",
+		"JTFRAME_LF_HW":     "9",
+		"JTFRAME_LF_VW":     "8",
+		"JTFRAME_VERTICAL":  "1",
+		"JTFRAME_WIDTH":     "256",
+		"JTFRAME_HEIGHT":    "224",
+	})
+	if err := CheckMacros(); err != nil {
+		t.Fatalf("Expected sidi128 vertical lf-buffer combination to be accepted: %v", err)
+	}
+}
+
+func Test_remove_lf_buffer_rotation_conflict(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"JTFRAME_LF_BUFFER":      "1",
+		"JTFRAME_SDRAM_ROTATION": "1",
+	})
+	remove_lf_buffer_rotation_conflict()
+	if IsSet("JTFRAME_SDRAM_ROTATION") {
+		t.Fatal("Expected JTFRAME_SDRAM_ROTATION to be removed when LF buffer is enabled")
+	}
+}
+
+func Test_keep_sdram_rotation_without_lf_buffer(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"JTFRAME_SDRAM_ROTATION": "1",
+	})
+	remove_lf_buffer_rotation_conflict()
+	if !IsSet("JTFRAME_SDRAM_ROTATION") {
+		t.Fatal("Expected JTFRAME_SDRAM_ROTATION to remain when LF buffer is disabled")
 	}
 }
 

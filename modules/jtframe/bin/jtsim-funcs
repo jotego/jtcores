@@ -410,7 +410,7 @@ compare_scene_snapshot() {
         echo "scene,core,ref,diff,nonzero,total,nonzero_pct,mean_abs,max_abs,status" > "$csv"
         echo "$scene_name,$candidate,$snapshot,,0,0,0,0,0,size_mismatch:${ref_size/,/x}:${cand_size/,/x}" >> "$csv"
         echo "Scene snapshot compare: MISMATCH $scene_name size mismatch ref=$ref_size core=$cand_size"
-        return 0
+        return 1
     fi
 
     convert "$snapshot" "$candidate" -compose difference -composite "$diff" 2>/dev/null || return 0
@@ -437,6 +437,7 @@ compare_scene_snapshot() {
     echo "scene,core,ref,diff,nonzero,total,nonzero_pct,mean_abs,max_abs,status" > "$csv"
     echo "$scene_name,$candidate,$snapshot,$diff,$nonzero,$total,$nonzero_pct,$mean_abs,$max_abs,$status" >> "$csv"
     echo "Scene snapshot compare: $label $scene_name nonzero=$nonzero/$total (${nonzero_pct}%) mean_abs=$mean_abs max_abs=$max_abs"
+    [ "$status" = match ]
 }
 
 display_scene_frame() {

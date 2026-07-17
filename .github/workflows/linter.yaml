@@ -23,4 +23,4 @@ jobs:
         # pwd will be: /home/runner/work/jtcores/jtcores
         docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/bin/lint-all.sh
         docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/bin/lint-mra.sh
-        docker run --network host -v `pwd`:/jtcores jotego/linter bash -lc "cd /jtcores && source setprj.sh && jtrefresh --all --jobs 4"
+        docker run --network host -v `pwd`:/jtcores jotego/linter /jtcores/modules/jtframe/bin/jtrefresh --all --jobs 4
