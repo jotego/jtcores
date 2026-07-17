@@ -19,9 +19,14 @@
 // Designed according to MAME's description:
 // it lacks the mute output for the amp
 
+// Both CPUs run on the single 48MHz clk; they are told apart only by their cens
+// (cen_m = 68000 8MHz MCLK, cen_s = Z80 4MHz SCLK), which are phase-locked 2:1 like
+// the board's one 16MHz crystal. The internal 2FF "sync" stages are kept (they cross
+// clk->clk now, i.e. plain 2-cycle latency) because that latency is part of the
+// validated handshake timing.
 module jtrastan_pc060(
-    input           rst48,
-    input           clk48,
+    input           rst,
+    input           clk,
     input           cen_m,   // MCLK = 8MHz on the schematics (68000 side)
     input           cen_s,   // SCLK = 4MHz on the schematics (Z80 side)
     input     [3:0] main_dout,
@@ -30,8 +35,6 @@ module jtrastan_pc060(
     input           main_rnw,
     input           main_cs,
 
-    input           rst24,
-    input           clk24,
     input     [3:0] snd_dout,
     output    [3:0] snd_din,
     input           snd_addr,
@@ -54,10 +57,10 @@ module jtrastan_pc060(
     assign snd_din    =  snd_ptr[2] ? status : snd_ram;
 
     jtrastan_pc060_unit u_main(
-        .rst        ( rst48     ),
-        .clk        ( clk48     ),
+        .rst        ( rst       ),
+        .clk        ( clk       ),
         .cen        ( cen_m     ),
-        .clk_other  ( clk24     ),
+        .clk_other  ( clk       ),
 
         .din        ( main_dout ),
         .cs         ( main_cs   ),
@@ -78,10 +81,10 @@ module jtrastan_pc060(
     );
 
     jtrastan_pc060_unit u_snd(
-        .rst        ( rst24     ),
-        .clk        ( clk24     ),
+        .rst        ( rst       ),
+        .clk        ( clk       ),
         .cen        ( cen_s     ),
-        .clk_other  ( clk48     ),
+        .clk_other  ( clk       ),
 
         .din        ( snd_dout  ),
         .cs         (  snd_cs   ),
@@ -102,8 +105,8 @@ module jtrastan_pc060(
     );
 
     jtframe_sync #(.W(1),.LATCHIN(1)) u_sync1(
-        .clk_in ( clk48     ),
-        .clk_out( clk24     ),
+        .clk_in ( clk       ),
+        .clk_out( clk       ),
         .raw    ( subrst    ),
         .sync   ( snd_rst   )
     );
@@ -111,13 +114,13 @@ module jtrastan_pc060(
     // Force 1kB RAM to be used, so synthesis works
     jtframe_dual_ram #(.DW(4),.AW(10)) u_share(
         // Port 0: main
-        .clk0   ( clk48         ),
+        .clk0   ( clk           ),
         .data0  ( main_dout     ),
         .addr0  ( { 7'd0,main_ramwr, main_ptr[1:0] } ),
         .we0    ( main_ramwr    ),
         .q0     ( main_ram      ),
         // Port 1: sound sub CPU
-        .clk1   ( clk24         ),
+        .clk1   ( clk           ),
         .addr1  ( { 7'd0,~snd_ramwr, snd_ptr[1:0] } ),
         .data1  ( snd_dout      ),
         .we1    ( snd_ramwr     ),

@@ -46,13 +46,10 @@ always @(posedge clk, posedge rst) begin
 end
 
 assign dip_flip = flip;
-// VRAM stays in SDRAM (tilemaps read it back via scr0ram/scr1ram); the 68k work
-// RAM is in BRAM (wram) with no wait states, like the board's SRAM.
-assign ram_addr = { 2'b10, main_addr[15:1] };
+assign ram_addr = ram_cs ? {4'd0, main_addr[13:1] } : { 2'b10, main_addr[15:1] };
 assign ram_we   = xram_cs & ~main_rnw;
-assign xram_cs  = vram_cs;
+assign xram_cs  = ram_cs | vram_cs;
 assign ram_dsn  = main_dsn;
-assign wram_we  = ~main_dsn & {2{ram_cs & ~main_rnw}};
 
 jtrastan_main u_main(
     .rst        ( rst       ),
@@ -76,7 +73,6 @@ jtrastan_main u_main(
     .pal_dout   ( pal_dout  ),
     .ram_dout   ( ram_data  ),
     .ram_ok     ( ram_ok    ),
-    .wram_dout  ( wram_dout ),
     .rom_data   ( main_data ),
     .rom_ok     ( main_ok   ),
 
@@ -114,8 +110,6 @@ jtrastan_snd u_sound(
     .pcm_cen    ( pcm_cen       ),
 
     // From main CPU
-    .rst48      ( rst           ),
-    .clk48      ( clk           ),
     .main_cen   ( mcpu_cen      ),  // 68000 8MHz enable = CIU MCLK rate
     .main_addr  (main_addr[1]   ),
     .main_dout  (main_dout[3:0] ),

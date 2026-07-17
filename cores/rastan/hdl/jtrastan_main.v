@@ -99,7 +99,6 @@ module jtrastan_main(
     input         [15:0] oram_dout,
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
-    input         [15:0] wram_dout,
     input         [15:0] rom_data,
     input                ram_ok,
     input                rom_ok,
@@ -148,8 +147,8 @@ assign main_dout= cpu_dout;
 assign allFC    = ~&FC; // allFC is high if the CPU is not accessing the "CPU space"
 assign IPLn     = { intn, 1'b1, intn };
 assign VPAn     = !(!ASn && FC==7 && A[3:1]==5 && RnW);
-assign bus_cs   = rom_cs | vram_cs; // ram_cs is BRAM: never busy
-assign bus_busy = (rom_cs & ~rom_ok) | ( vram_cs & ~ram_ok);
+assign bus_cs   = rom_cs | vram_cs | ram_cs;
+assign bus_busy = (rom_cs & ~rom_ok) | ( (vram_cs | ram_cs) & ~ram_ok);
 assign bus_legit= vram_cs & ~sdakn;
 
 
@@ -190,8 +189,7 @@ end
 
 always @(posedge clk) begin
     cpu_din <= rom_cs    ? rom_data :
-               ram_cs    ? wram_dout :
-               vram_cs   ? ram_dout  :
+               ( ram_cs | vram_cs ) ? ram_dout :
                obj_cs    ? oram_dout :
                pal_cs    ? pal_dout  :
                inport_cs ? { 8'hff, cab_dout }  :
@@ -249,9 +247,9 @@ jtframe_68kdtack_cen #(.W(12)) u_dtack(
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
-    // Same divider chain as the Z80: on the board both CPUs come off the one
-    // 16MHz XTAL, exactly 2:1.
-    // This runs on clk48 and the z80 runs on clk24
+    // On the board both CPUs come off the one 16MHz XTAL, exactly 2:1. Here
+    // cpu_cen is this 8MHz enable on clk, and the Z80's 4MHz cen is derived by
+    // halving it (jtrastan_game), so the two stay phase-locked 2:1.
     .num        ( 11'd231   ),
     .den        ( 12'd1541  ),
     .DTACKn     ( DTACKn    ),

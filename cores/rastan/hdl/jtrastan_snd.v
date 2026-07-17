@@ -24,8 +24,6 @@ module jtrastan_snd(
     input                pcm_cen,
 
     // From main CPU
-    input                rst48,
-    input                clk48,
     input                main_cen, // 68000 cpu_cen = the CIU's MCLK (8MHz) rate
     input                main_addr,
     input         [ 3:0] main_dout,
@@ -126,8 +124,8 @@ always @(posedge clk) begin
 end
 
 jtrastan_pc060 u_pc060(
-    .rst48      ( rst48     ),
-    .clk48      ( clk48     ),
+    .rst        ( rst       ),
+    .clk        ( clk       ),
     .cen_m      ( main_cen  ),  // MCLK = 68000's 8MHz enable
     .cen_s      ( cen4      ),  // SCLK = Z80's 4MHz enable
     .main_dout  ( main_dout ),
@@ -136,8 +134,6 @@ jtrastan_pc060 u_pc060(
     .main_rnw   ( main_rnw  ),
     .main_cs    ( main_cs   ),
 
-    .rst24      ( rst       ),
-    .clk24      ( clk       ),
     .snd_dout   ( dout[3:0] ),
     .snd_din    ( pc6_dout  ),
     .snd_addr   ( A[0]      ),

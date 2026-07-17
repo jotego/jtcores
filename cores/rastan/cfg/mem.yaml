@@ -11,16 +11,6 @@ params:
   - { name:  RAM_OFFSET, value: "22'h10_0000" }
   - { name: VRAM_OFFSET, value: "22'h11_0000" }
   - { name:  PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1"}
-bram:
-  # 68000 work RAM (0x10c000-0x10ffff, 16kB) in BRAM, like the board's 16kB SRAM:
-  # zero wait states. Removes the sim's idealised-SDRAM advantage so the service
-  # test fails like real hardware -> honest oracle for the CIU rebuild.
-  - name: wram
-    addr_width: 14
-    data_width: 16
-    addr: main_addr[13:1]
-    din: main_dout
-    rw: true
 audio:
   rsum: 10k
   channels:
@@ -29,7 +19,7 @@ audio:
 sdram:
   banks:
     - buses:
-      - name: ram   # VRAM only now; 68k work RAM is in BRAM (wram, see above)
+      - name: ram
         addr_width: 18
         data_width: 16
         cs: xram_cs
