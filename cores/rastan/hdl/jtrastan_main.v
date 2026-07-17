@@ -83,6 +83,7 @@ module jtrastan_main(
     input                clk, // 48 MHz
     input                LVBL,
 
+    output               cpu_cen,   // 8MHz enable = the 68000's MCLK on the CIU
     output        [18:1] main_addr,
     output        [ 1:0] main_dsn,
     output        [15:0] main_dout,
@@ -98,6 +99,7 @@ module jtrastan_main(
     input         [15:0] oram_dout,
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
+    input         [15:0] wram_dout,
     input         [15:0] rom_data,
     input                ram_ok,
     input                rom_ok,
@@ -129,7 +131,7 @@ module jtrastan_main(
 );
 `ifndef NOMAIN
 wire [23:1] A;
-wire        cpu_cen, cpu_cenb;
+wire        cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         io_cs, out_cs, otport1_cs, inport_cs;
@@ -146,8 +148,8 @@ assign main_dout= cpu_dout;
 assign allFC    = ~&FC; // allFC is high if the CPU is not accessing the "CPU space"
 assign IPLn     = { intn, 1'b1, intn };
 assign VPAn     = !(!ASn && FC==7 && A[3:1]==5 && RnW);
-assign bus_cs   = rom_cs | vram_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | ( (vram_cs | ram_cs) & ~ram_ok);
+assign bus_cs   = rom_cs | vram_cs; // ram_cs is BRAM: never busy
+assign bus_busy = (rom_cs & ~rom_ok) | ( vram_cs & ~ram_ok);
 assign bus_legit= vram_cs & ~sdakn;
 
 
@@ -188,7 +190,8 @@ end
 
 always @(posedge clk) begin
     cpu_din <= rom_cs    ? rom_data :
-               ( ram_cs | vram_cs ) ? ram_dout :
+               ram_cs    ? wram_dout :
+               vram_cs   ? ram_dout  :
                obj_cs    ? oram_dout :
                pal_cs    ? pal_dout  :
                inport_cs ? { 8'hff, cab_dout }  :
@@ -290,7 +293,7 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
-assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0;
+assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0, cpu_cen=0;
 initial begin
     rom_cs   = 0;
     ram_cs   = 0;

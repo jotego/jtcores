@@ -27,18 +27,22 @@ wire        scr_cs, pal_cs, sdakn, odakn;
 wire [ 2:0] obj_pal;
 
 wire        flip;
-wire        sn_rd, sn_we, snd_rstn, mintn;
+wire        sn_rd, sn_we, snd_rstn, mintn, mcpu_cen;
 wire [ 3:0] sn_dout;
 
 assign dip_flip = flip;
-assign ram_addr = ram_cs ? {4'd0, main_addr[13:1] } : { 2'b10, main_addr[15:1] };
+// VRAM stays in SDRAM (tilemaps read it back via scr0ram/scr1ram); the 68k work
+// RAM is in BRAM (wram) with no wait states, like the board's SRAM.
+assign ram_addr = { 2'b10, main_addr[15:1] };
 assign ram_we   = xram_cs & ~main_rnw;
-assign xram_cs  = ram_cs | vram_cs;
+assign xram_cs  = vram_cs;
 assign ram_dsn  = main_dsn;
+assign wram_we  = ~main_dsn & {2{ram_cs & ~main_rnw}};
 
 jtrastan_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ), // 48 MHz
+    .cpu_cen    ( mcpu_cen  ),
     .LVBL       ( LVBL      ),
 
     .main_addr  ( main_addr ),
@@ -57,6 +61,7 @@ jtrastan_main u_main(
     .pal_dout   ( pal_dout  ),
     .ram_dout   ( ram_data  ),
     .ram_ok     ( ram_ok    ),
+    .wram_dout  ( wram_dout ),
     .rom_data   ( main_data ),
     .rom_ok     ( main_ok   ),
 
@@ -96,6 +101,7 @@ jtrastan_snd u_sound(
     // From main CPU
     .rst48      ( rst           ),
     .clk48      ( clk           ),
+    .main_cen   ( mcpu_cen      ),  // 68000 8MHz enable = CIU MCLK rate
     .main_addr  (main_addr[1]   ),
     .main_dout  (main_dout[3:0] ),
     .main_din   ( sn_dout       ),

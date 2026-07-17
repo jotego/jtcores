@@ -22,6 +22,8 @@
 module jtrastan_pc060(
     input           rst48,
     input           clk48,
+    input           cen_m,   // MCLK = 8MHz on the schematics (68000 side)
+    input           cen_s,   // SCLK = 4MHz on the schematics (Z80 side)
     input     [3:0] main_dout,
     output    [3:0] main_din,
     input           main_addr,
@@ -54,6 +56,7 @@ module jtrastan_pc060(
     jtrastan_pc060_unit u_main(
         .rst        ( rst48     ),
         .clk        ( clk48     ),
+        .cen        ( cen_m     ),
         .clk_other  ( clk24     ),
 
         .din        ( main_dout ),
@@ -77,6 +80,7 @@ module jtrastan_pc060(
     jtrastan_pc060_unit u_snd(
         .rst        ( rst24     ),
         .clk        ( clk24     ),
+        .cen        ( cen_s     ),
         .clk_other  ( clk48     ),
 
         .din        ( snd_dout  ),
@@ -129,6 +133,7 @@ endmodule
 module jtrastan_pc060_unit(
     input            rst,
     input            clk,
+    input            cen,       // run the register FSM at the real chip rate (8/4MHz)
     input            clk_other,
     input            cs,
     input            a,
@@ -160,13 +165,14 @@ module jtrastan_pc060_unit(
         .sync   ( set_full_s )
     );
 
+    // Data/flag handshake FSM, stepped at the real chip access rate (cen = 8/4MHz).
+    // Empirically this yields fewer race slivers than free-running at full clock.
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
-            flag    <= 0;
             ptr     <= 0;
             full_rq <= 0;
             is_full <= 0;
-        end else begin
+        end else if( cen ) begin
             wel <= we;
             csl <= cs;
             al  <= a;
@@ -189,13 +195,28 @@ module jtrastan_pc060_unit(
                                 full_rq[1] <= 1;
                             else
                                 is_full[1] <= 0;
-                        4: flag <= din[0];
-                        5: flag <= 0;
-                        6: flag <= 1;
                         default:;
                     endcase
                 end
             end
         end
+    end
+
+    // Control flag (slave side = NMI mask H2_Q, master side = sub-CPU reset A10_Q).
+    // Decap-faithful: on the real chip these are driven DIRECTLY by the reg-4/5/6
+    // write strobe (async), NOT by the cen-gated FSM. React on the fast clock the
+    // instant the write is decoded, so the NMI mask (mode 5) lands essentially
+    // immediately at the reg-5 write instead of one cen-gated access later -> the
+    // NMI sliver the service-test race lives in is closed.
+    always @(posedge clk, posedge rst) begin
+        if( rst )
+            flag <= 0;
+        else if( cs & we & a & ptr[2] & ~ptr[3] ) // data write to reg 4/5/6
+            case( ptr[1:0] )
+                2'd0: flag <= din[0]; // mode 4
+                2'd1: flag <= 1'b0;   // mode 5 -> mask NMI
+                2'd2: flag <= 1'b1;   // mode 6 -> unmask NMI
+                default:;
+            endcase
     end
 endmodule
