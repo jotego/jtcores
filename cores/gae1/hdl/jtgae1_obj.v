@@ -72,7 +72,7 @@ reg  [ 8:0]      line_r, dr_xpos;
 reg  [ 5:0]      dr_color;
 reg  [ 3:0]      st, dr_ysub;
 reg  [ 2:0]      dr_prio;
-reg              hs_l, start, dr_hflip, dr_vflip, dr_draw, dr_trunc, rom_trunc;
+reg              hs_l, start, dr_hflip, dr_vflip, dr_draw, dr_trunc, draw_trunc, rom_trunc;
 
 assign draw_hpos   = hpos - HDUMP_OFF;
 assign line_change = hs & ~hs_l;
@@ -91,7 +91,7 @@ assign spr_h     = size8 ? 5'd8 : 5'd16;
 assign spr_row   = w0_r[15] ? spr_h - 5'd1 - py_c[4:0] : py_c[4:0];
 
 assign draw_pal  = { dr_prio, dr_color };
-assign trunc_sel = { dr_trunc, 1'b0 };
+assign trunc_sel = { draw_trunc, 1'b0 };
 assign hzoom     = 6'd0;
 assign draw_flip = 1'b0;
 assign hz_keep   = 1'b0;
@@ -144,14 +144,15 @@ end
 always @(posedge clk) begin
     if (rst) begin
         st      <= IDLE;
-        spr_idx <= 11'd2043;
+        spr_idx <= 11'd3;
         dr_draw <= 1'b0;
+        draw_trunc <= 1'b0;
         rom_trunc <= 1'b0;
     end else begin
         dr_draw <= 1'b0;
         if (start) begin
             line_r  <= line;
-            spr_idx <= 11'd2043;
+            spr_idx <= 11'd3;
             st      <= LOAD0;
         end else begin
             case (st)
@@ -183,12 +184,13 @@ always @(posedge clk) begin
                 DRAW: begin
                     if (!dr_busy) begin
                         dr_draw   <= 1'b1;
+                        draw_trunc <= dr_trunc;
                         rom_trunc <= dr_trunc;
                         st        <= NEXT;
                     end
                 end
-                NEXT: if (spr_idx >= 11'd7) begin
-                    spr_idx <= spr_idx - 11'd4;
+                NEXT: if (spr_idx <= 11'd2039) begin
+                    spr_idx <= spr_idx + 11'd4;
                     st      <= LOAD0;
                 end else begin
                     st <= DONE;
@@ -203,9 +205,7 @@ end
 jtframe_objdraw_trunc #(
     .CW       ( CODEW ),
     .PW       (  13 ),
-    .LATCH    (   1 ),
-    .KEEP_OLD (   1 ),
-    .KEEP_MAP (   1 )
+    .LATCH    (   1 )
 ) u_draw (
     .rst      ( rst                    ),
     .clk      ( clk                    ),
