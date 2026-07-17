@@ -68,6 +68,7 @@
     output   [15:0] ln_data,
     output          ln_done,
     output          ln_we,
+    output          fb_keep,
     input           ln_hs, ln_vs, ln_lvbl,
     input    [15:0] ln_dout,
     input    [15:0] ln_pxl,
