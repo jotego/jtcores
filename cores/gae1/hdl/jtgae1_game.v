@@ -21,7 +21,6 @@ module jtgae1_game(
 );
 
 wire        vblank_irq;
-wire        hblank, vblank;
 wire        flip;
 wire [13:0] vmem_addr;
 wire        vmem_uds, vmem_lds, vmem_we;
@@ -73,8 +72,6 @@ assign scrram_addr  = 12'd0;
 
 assign gfx0_cs   = 1'b1;
 assign gfx1_cs   = 1'b1;
-assign LHBL = ~hblank;
-assign LVBL = ~vblank;
 
 assign debug_view = { bigkarnk, gfx_4m, vcrypt, spr_force_high[2:1], biomtoy, thoop, squash };
 assign dip_flip   = flip;
@@ -204,10 +201,10 @@ jtgae1_video u_video (
     .rom_a1         ( gfx1_addr      ),
     .gfx1_data      ( gfx1_data      ),
     .gfx1_ok        ( gfx1_ok        ),
-    .color_addr     ( pal_addr       ),
-    .color_data     ( pal_dout       ),
-    .spr_color_addr ( palb_addr      ),
-    .spr_color_data ( palb_dout      ),
+    .scr_pal_addr   ( pal_addr       ),
+    .scr_pal_dout   ( pal_dout       ),
+    .obj_pal_addr   ( palb_addr      ),
+    .obj_pal_dout   ( palb_dout      ),
     .spr_a          ( spr_addr       ),
     .spr_q          ( spr_dout       ),
     .obj_cs         ( obj_cs         ),
@@ -219,8 +216,8 @@ jtgae1_video u_video (
     .blue           ( blue           ),
     .hsync          ( HS             ),
     .vsync          ( VS             ),
-    .hblank         ( hblank         ),
-    .vblank         ( vblank         )
+    .lhbl           ( LHBL           ),
+    .lvbl           ( LVBL           )
 );
 
 endmodule

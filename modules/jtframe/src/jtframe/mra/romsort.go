@@ -62,10 +62,20 @@ func apply_sequence(reg_cfg *RegCfg, roms []MameROM) []MameROM {
 	}
 	copy(seqd, roms)
 	for i, k := range reg_cfg.Sequence {
+		chunk := 0
+		if reg_cfg.Rom_len > 0 && k >= kmax {
+			chunk = k / kmax
+			k = k % kmax
+		}
 		if k >= kmax {
 			k = 0 // Not necessarily an error, as some ROM sets may have more files than others
 		}
 		seqd[i] = roms[k]
+		if reg_cfg.Rom_len > 0 && reg_cfg.Rom_len < seqd[i].Size {
+			seqd[i].Size = reg_cfg.Rom_len
+			seqd[i].show_len = true
+			seqd[i].add_offset = chunk * reg_cfg.Rom_len
+		}
 	}
 	return seqd
 }

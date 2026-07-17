@@ -28,6 +28,7 @@ module jtframe_lfbuf_ctrl #(parameter
     input               lhbl,
     input               vs,
     input               ln_done,
+    input               fb_keep,
     input      [VW-1:0] vrender,
     input      [VW-1:0] ln_v,
     // data written to external memory
@@ -105,18 +106,25 @@ reg           lhbl_l, do_wr, wait1, adq_en, wr_first_sel,
               csn, ln_done_l, vsl, startup;
 wire          fb_over;
 wire          wring;
+wire   [15:0] cr_wr_data;
+wire          cr_keep_blank, cr_bank;
+
+localparam [15:0] LFBUF_CLR = `ifndef JTFRAME_LFBUF_CLR 0 `else `JTFRAME_LFBUF_CLR `endif ;
 
 `ifdef SIMULATION
 wire   rding   = st[3]; `endif
 assign wring   = st[2];
 assign cr_cen  = { 1'b1, csn }; // I call it csn to avoid the confusion with the common cen (clock enable) signal
-assign cr_dsn  = 0;
+assign cr_dsn  = {2{cr_keep_blank}};
 assign fb_dout = cr_oen ? 16'd0 : cr_adq;
 assign cr_adq  =!cr_oen ? 16'hzzzz : adq_en ? adq_reg : fb_din;
 assign cr_clk  = clk;
 assign fb_over =&fb_addr;
 assign vram    = lhbl ? wr_v : vrender;
 assign scr_we  = cr_wait & ~cr_oen;
+assign cr_wr_data    = wr_first_sel ? wr_first : fb_din;
+assign cr_keep_blank = fb_keep && st == WRITEOUT && cr_wr_data == LFBUF_CLR;
+assign cr_bank       = fb_keep ? 1'b0 : lhbl ^ frame;
 
 always @( posedge clk ) begin
     if( rst ) begin
@@ -237,7 +245,7 @@ always @( posedge clk ) begin
                 cr_wen  <= 1;
                 cr_cre  <= 0;
                 adq_reg <= { vram[VW-6:0], {16+5-VW{1'b0}} };
-                cr_addr <= { lhbl ^ frame, vram[VW-1-:5]  };
+                cr_addr <= { cr_bank, vram[VW-1-:5]  };
                 if( lhbl_l & ~lhbl ) begin
                     // it doesn't matter if vrender changes after the LHBL edge
                     // is set as it is latched in { cr_addr, adq_reg }

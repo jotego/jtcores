@@ -140,6 +140,9 @@ regions = [
 	{ name=maincpu, machine=optional, start="MACRONAME_START", width=16, len=0x10000,
 		reverse=true, no_offset=true, overrules=[ { names="...", reverse=false }, ... ] },
 	{ name==soundcpu, sequence=[2,1,0,0], no_offset=true } # inverts the order and repeats the first ROM
+	# With rom_len set, sequence values >= file count select fixed-size chunks:
+	# index + chunk*file_count selects chunk N of that file.
+	{ name="maincpu", sequence=[0,1,8,9], rom_len=0x20000, no_offset=true }
 	{ name="simm3.?", width=16, sequence=[0,1,2,3,4,5,6,7], no_offset=true } # merge matching MAME regions
 	{ name=plds, skip=true },
 	# Set mirror=true to duplicate the parts until the region is filled, instead of filling with FF

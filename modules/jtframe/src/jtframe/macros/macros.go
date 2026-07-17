@@ -102,6 +102,8 @@ func MakeMacros(core, target string, extra ...string) {
 	add_credits_for_releases(core) // credits must come before parse_def
 	core_def := ConfigFilePath(core, "macros.def")
 	parse_def(core_def, target)
+	make_mr_lf_bram_macro(target)
+	remove_lf_buffer_rotation_conflict()
 	mem_managed := is_mem_managed(core)
 	set_separator(target)
 	// Adds a macro with the target name
@@ -130,6 +132,18 @@ func MakeMacros(core, target string, extra ...string) {
 	set_sdram_refresh_rate(int64(mclk))
 	add_subcarrier_clk(int64(mclk))
 	make_beta_macros(core, target)
+}
+
+func remove_lf_buffer_rotation_conflict() {
+	if IsSet("JTFRAME_LF_BUFFER") && IsSet("JTFRAME_SDRAM_ROTATION") {
+		Remove("JTFRAME_SDRAM_ROTATION")
+	}
+}
+
+func make_mr_lf_bram_macro(target string) {
+	if target == "mister" && IsSet("JTFRAME_LF_BUFFER") && IsSet("JTFRAME_VERTICAL") {
+		Set("JTFRAME_MR_LF_BRAM", "")
+	}
 }
 
 func read_target_macros(target string) {
