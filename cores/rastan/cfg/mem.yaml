@@ -1,9 +1,9 @@
 clocks:
-  clk24:
-    - freq: 4 MHz
-      outputs:
-        - cen4
-        - cen2
+  clk:
+    # cen4 (Z80/jt51/CIU slave) and cen2 are NOT generated here anymore: they are
+    # derived in HDL by halving the 68000's cpu_cen, so the Z80 is phase-locked to
+    # the 68000 exactly 2:1 (like the board's single 16MHz XTAL). pcm_cen (MSM5205
+    # sample rate) is independent and stays here, on the clk domain.
     - freq: 384 kHz
       outputs:
         - pcm_cen

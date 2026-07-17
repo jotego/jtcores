@@ -30,6 +30,21 @@ wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn, mcpu_cen;
 wire [ 3:0] sn_dout;
 
+// Phase-locked sound cens: halve the 68000's cpu_cen so the Z80 runs at exactly
+// half the 68000 rate with a fixed 2:1 phase, like the board's one 16MHz crystal.
+reg  cen4_tog, cen2_tog;
+wire cen4 = mcpu_cen & cen4_tog;
+wire cen2 = cen4     & cen2_tog;
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        cen4_tog <= 0;
+        cen2_tog <= 0;
+    end else begin
+        if( mcpu_cen ) cen4_tog <= ~cen4_tog;
+        if( cen4     ) cen2_tog <= ~cen2_tog;
+    end
+end
+
 assign dip_flip = flip;
 // VRAM stays in SDRAM (tilemaps read it back via scr0ram/scr1ram); the 68k work
 // RAM is in BRAM (wram) with no wait states, like the board's SRAM.
@@ -92,8 +107,8 @@ jtrastan_main u_main(
 );
 
 jtrastan_snd u_sound(
-    .rst        ( rst24         ),
-    .clk        ( clk24         ), // 24 MHz
+    .rst        ( rst           ),
+    .clk        ( clk           ), // 48 MHz: sound phase-locked to the 68000 via cen
     .cen4       ( cen4          ),
     .cen2       ( cen2          ),
     .pcm_cen    ( pcm_cen       ),

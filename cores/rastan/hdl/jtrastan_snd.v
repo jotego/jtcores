@@ -18,8 +18,8 @@
 
 module jtrastan_snd(
     input                rst,
-    input                clk,  // 24 MHz
-    input                cen4, // generated in mem.yaml
+    input                clk,  // 48 MHz (sound phase-locked to the 68000 via cen)
+    input                cen4, // = cpu_cen/2, generated in jtrastan_game
     input                cen2,
     input                pcm_cen,
 
