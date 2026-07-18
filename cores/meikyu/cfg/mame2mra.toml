@@ -1,0 +1,42 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "vigilant.cpp" ]
+# Meikyu Jima only. kikcubicb ("Kickle Cubele") is a bootleg (blocked by
+# bootlegs=true) and needs its own ROM_RELOAD handling -> follow-up.
+mustbe.machines=[ "kikcubic" ]
+skip = { bootlegs=true }
+
+[Audio]
+volume = [
+    { machine="kikcubic", value=0x59 },
+]
+
+[buttons]
+Names = [ { names="Attack, Jump "} ]
+
+[rbf]
+name="jtmeikyu"
+
+[dipsw]
+bitcnt = 16
+delete = [ {names=[ "Unused", "Unknown", "Coinage", "Coin A", "Coin B" ]} ]
+rename=[ { name="Invulnerability (Cheat)", to="Cheat"} ]
+
+[ROM]
+regions = [
+    { name="maincpu", no_offset=true   },
+    { name="soundcpu", start="JTFRAME_BA1_START" },
+    { name="m72",      start="PCM_START" },
+
+    { name="chars",   start="JTFRAME_BA2_START", width=16, no_offset=true },
+    { name="sprites", start="JTFRAME_BA3_START", width=16, no_offset=true, sort_even=true },
+    { name="plds",    skip=true },
+    { name="proms",   skip=true }
+]
+
+order = [
+    "maincpu", "soundcpu", "m72",
+    "chars", "sprites"
+]
