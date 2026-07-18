@@ -30,18 +30,16 @@ wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn, mcpu_cen;
 wire [ 3:0] sn_dout;
 
-// Phase-locked sound cens: halve the 68000's cpu_cen so the Z80 runs at exactly
-// half the 68000 rate with a fixed 2:1 phase, like the board's one 16MHz crystal.
-reg  cen4_tog, cen2_tog;
+// Z80 and CIU slave: halve the 68000's cpu_cen so the Z80 is phase-locked to the
+// 68000 exactly 2:1, like the board's single 16MHz crystal. The YM2151 does not
+// use this; it runs off the steady fm_cen4/fm_cen2 generated in mem.yaml.
+reg  cen4_tog;
 wire cen4 = mcpu_cen & cen4_tog;
-wire cen2 = cen4     & cen2_tog;
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         cen4_tog <= 0;
-        cen2_tog <= 0;
     end else begin
         if( mcpu_cen ) cen4_tog <= ~cen4_tog;
-        if( cen4     ) cen2_tog <= ~cen2_tog;
     end
 end
 
@@ -106,7 +104,8 @@ jtrastan_snd u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen4       ( cen4          ),
-    .cen2       ( cen2          ),
+    .fm_cen4    ( fm_cen4       ),
+    .fm_cen2    ( fm_cen2       ),
     .pcm_cen    ( pcm_cen       ),
 
     // From main CPU

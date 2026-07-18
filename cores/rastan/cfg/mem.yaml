@@ -1,9 +1,12 @@
 clocks:
   clk:
-    # cen4 (Z80/jt51/CIU slave) and cen2 are NOT generated here anymore: they are
-    # derived in HDL by halving the 68000's cpu_cen, so the Z80 is phase-locked to
-    # the 68000 exactly 2:1 (like the board's single 16MHz XTAL). pcm_cen (MSM5205
-    # sample rate) is independent and stays here, on the clk domain.
+    # YM2151 timebase: exact 4/2MHz (16MHz/4 on the PCB). Kept off cpu_cen so the FM
+    # chip does not inherit the 68000's SDRAM wait bursts.
+    - freq: 4M
+      outputs:
+        - fm_cen4
+        - fm_cen2
+    # cen4 (Z80 + CIU slave) is derived in HDL from cpu_cen, so it is not listed here.
     - freq: 384 kHz
       outputs:
         - pcm_cen

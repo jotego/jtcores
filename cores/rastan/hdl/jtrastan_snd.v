@@ -20,7 +20,8 @@ module jtrastan_snd(
     input                rst,
     input                clk,
     input                cen4,
-    input                cen2,
+    input                fm_cen4,
+    input                fm_cen2,
     input                pcm_cen,
 
     // From main CPU
@@ -187,8 +188,8 @@ jtopl u_opl(
 jt51 u_jt51(
     .rst    ( ~snd_rstn ),
     .clk    ( clk       ),
-    .cen    ( cen4      ),
-    .cen_p1 ( cen2      ),
+    .cen    ( fm_cen4   ),
+    .cen_p1 ( fm_cen2   ),
     .cs_n   ( ~opm_cs   ),
     .wr_n   ( wr_n      ),
     .a0     ( A[0]       ),
