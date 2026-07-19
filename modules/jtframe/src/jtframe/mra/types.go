@@ -358,7 +358,7 @@ type DipswCfg struct {
 	}
 	Extra []struct {
 		Selectable
-		Name, Options, Bits string
+		Name, Options, Bits, Target string
 	}
 	Rename []DipswCfgRename
 }
