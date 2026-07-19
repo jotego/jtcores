@@ -3,10 +3,12 @@ author=["jotego"]
 
 [parse]
 sourcefile=[ "vigilant.cpp" ]
-# Meikyu Jima only. kikcubicb ("Kickle Cubele") is a bootleg (blocked by
-# bootlegs=true) and needs its own ROM_RELOAD handling -> follow-up.
+# Meikyu Jima only. mustbe.machines matches whole families, so the clone
+# must be listed explicitly: skip.bootlegs only looks at the MAME description,
+# and kikcubicb's is "Kickle Cubele" (the "bootleg" tag is in the manufacturer
+# field). It also needs its own ROM_RELOAD handling -> follow-up.
 mustbe.machines=[ "kikcubic" ]
-skip = { bootlegs=true }
+skip = { bootlegs=true, setnames=[ "kikcubicb" ] }
 
 [Audio]
 volume = [
@@ -14,15 +16,21 @@ volume = [
 ]
 
 [buttons]
-Names = [ { names="Attack, Jump "} ]
+# Kickle freezes enemies into ice cubes and raises/melts ice pillars.
+# Names are used verbatim (no trimming), so no spaces around the comma.
+names = [ { names="Freeze,Pillar" } ]
 
 [rbf]
 name="jtmeikyu"
 
 [dipsw]
 bitcnt = 16
-delete = [ {names=[ "Unused", "Unknown", "Coinage", "Coin A", "Coin B" ]} ]
-rename=[ { name="Invulnerability (Cheat)", to="Cheat"} ]
+# Coin Mode only picks between the Coin A/B and Coinage tables, both deleted.
+# Invulnerability is a cheat, not a player-facing setting: dropped so it cannot
+# be switched on by accident. MAME's default for the bit is Off, which is what
+# the MRA now hardcodes.
+delete = [ {names=[ "Unused", "Unknown", "Coinage", "Coin A", "Coin B",
+                    "Coin Mode", "Invulnerability*" ]} ]
 
 [ROM]
 regions = [
