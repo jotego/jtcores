@@ -46,8 +46,7 @@ module jt65c02_ctrl(
     output reg stack_busy
 );
 
-`include "65c02_param.vh"
-`include "65c02.vh"
+	`include "65c02_param.vh"
 
 localparam [2:0] NMI_VECTOR   = 5,
                  RESET_VECTOR = 6,
@@ -56,10 +55,13 @@ localparam [2:0] NMI_VECTOR   = 5,
 wire [4:0] jsr_sel;
 reg  [2:0] iv_sel;
 wire [1:0] bcd_sel;
-reg        nmi_l, pendng;
+reg        nmi_l, nmi_pnd, nmi_served;
 wire       halt, swi, waiting;
-wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 wire       wait4cy, nobr;
+
+	`include "65c02.vh"
+
+wire [3:0] nx_ualo = uaddr[3:0] + 1'd1;
 
 reg [2:0] waitcnt;
 assign waiting = ~waitcnt[2];
@@ -76,8 +78,8 @@ always @(posedge clk) begin
 end
 
 wire enable = cen && !halt && !waiting;
-wire next_instruction = ni && !do_bcd;
 wire do_bcd = bcd_sel!=0 && d;
+wire next_instruction = ni && !do_bcd;
 
 always @(posedge clk) begin
     if(enable | rst) nmi_l <= nmi;
@@ -92,14 +94,23 @@ endtask
 
 always @(posedge clk) begin
     if( rst ) begin
+        nmi_pnd <= 0;
+    end else begin
+        if( nmi & ~nmi_l ) nmi_pnd <= 1;
+        if( nmi_served   ) nmi_pnd <= 0;
+    end
+end
+
+always @(posedge clk) begin
+    if( rst ) begin
         uaddr      <= IVRD_SEQA;
         jsr_ret    <= 0;
         iv         <= RESET_VECTOR;
-        pendng     <= 0;
         ir         <= 0;
         stack_busy <= 0;
+        nmi_served <= 0;
     end else if(enable) begin
-        if( nmi & ~nmi_l ) pendng <= 1;
+        nmi_served <= 0;
         uaddr[3:0] <= nx_ualo;
         if( swi ) iv <= BRK_VECTOR;
         if( next_instruction ) begin
@@ -111,8 +122,8 @@ always @(posedge clk) begin
                 uaddr  <= ISRV_SEQA; // irq service
                 stack_busy <= 1;
             end
-            if( pendng ) begin
-                pendng <= 0;
+            if( nmi_pnd ) begin
+                nmi_served <= 1;
                 iv         <= NMI_VECTOR; // same one for IRQ and BRK
                 uaddr      <= ISRV_SEQA; // irq service
                 stack_busy <= 1;
