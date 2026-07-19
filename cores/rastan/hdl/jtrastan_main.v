@@ -82,6 +82,7 @@ module jtrastan_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
+    input                opwolf,
 
     output        [18:1] main_addr,
     output        [ 1:0] main_dsn,
@@ -118,6 +119,8 @@ module jtrastan_main(
 
     input         [ 5:0] joystick1,
     input         [ 5:0] joystick2,
+    input         [ 8:0] gun_x,
+    input         [ 8:0] gun_y,
     input         [ 1:0] cab_1p,
     input         [ 1:0] coin,
     input                service,
@@ -132,9 +135,10 @@ wire [23:1] A;
 wire        cpu_cen, cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
-reg         io_cs, out_cs, otport1_cs, inport_cs;
+reg         io_cs, out_cs, otport1_cs, inport_cs, dip_cs, gun_cs;
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
+wire [ 8:0] opwolf_gun_x, opwolf_gun_y;
 wire [15:0] cpu_dout;
 reg         intn, LVBLl;
 wire        bus_cs, bus_busy, bus_legit;
@@ -149,12 +153,15 @@ assign VPAn     = !(!ASn && FC==7 && A[3:1]==5 && RnW);
 assign bus_cs   = rom_cs | vram_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | ( (vram_cs | ram_cs) & ~ram_ok);
 assign bus_legit= vram_cs & ~sdakn;
+assign opwolf_gun_x = gun_x + 9'd26;
+assign opwolf_gun_y = gun_y - 9'd6;
 
 
 always @* begin
-    rom_cs  = allFC && A[23:17]<3 && !ASn;
+    rom_cs  = allFC && (opwolf ? A[23:18]==0 : A[23:17]<3) && !ASn;
     vram_cs = allFC && A[23:19]==5'h18 && !ASn && {UDSn,LDSn}!=3;
-    ram_cs  = allFC && A[23:18]==6'h4  && !ASn && {UDSn,LDSn}!=3;
+    ram_cs  = allFC && (opwolf ? A[23:15]==9'h20 : A[23:18]==6'h4) &&
+              !ASn && {UDSn,LDSn}!=3;
     obj_cs  = allFC && A[23:20]==4'hd && !ASn;
     io_cs   = allFC && A[23:20]==4'h3 && !ASn;
     pal_cs  = allFC && A[23:18]==6'h8 && !ASn;
@@ -173,7 +180,15 @@ always @* begin
     sn_we      = 0;
     sn_rd      = 0;
     inport_cs  = 0;
-    if( io_cs && !LDSn && A[19] ) begin
+    dip_cs     = 0;
+    gun_cs     = 0;
+    if( opwolf && io_cs ) begin
+        out_cs = !RnW && A[19:17]==3'b100;
+        dip_cs =  RnW && A[19:17]==3'b100;
+        gun_cs =  RnW && A[19:17]==3'b101;
+        sn_we  = !RnW && !UDSn && A[19:17]==3'b111;
+        sn_rd  =  RnW && !UDSn && A[19:17]==3'b111 && A[1];
+    end else if( io_cs && !LDSn && A[19] ) begin
         case( {RnW, A[18:17]} )
             0: out_cs     = 1;
             1: otport1_cs = 1;
@@ -191,8 +206,12 @@ always @(posedge clk) begin
                ( ram_cs | vram_cs ) ? ram_dout :
                obj_cs    ? oram_dout :
                pal_cs    ? pal_dout  :
+               dip_cs    ? {8'hff, A[1] ? dipsw_b : dipsw_a} :
+               gun_cs    ? (A[1] ? {5'd0, ~coin[1:0], opwolf_gun_y} :
+                                      {2'd0, cab_1p[0], tilt, service,
+                                       joystick1[5], joystick1[4], opwolf_gun_x}) :
                inport_cs ? { 8'hff, cab_dout }  :
-               sn_rd     ? { 12'hfff, sn_dout } :
+               sn_rd     ? (opwolf ? {4'hf, sn_dout, 8'hff} : {12'hfff, sn_dout}) :
                16'hffff;
 end
 
@@ -220,7 +239,7 @@ always @(posedge clk, posedge rst) begin
         snd_rstn <= 0;
         cab_dout <= 0;
     end else begin
-        if( out_cs ) obj_pal <= cpu_dout[7:5]; // coin counters here too
+        if( out_cs ) obj_pal <= cpu_dout[7:5];
         if( otport1_cs ) { mintn, snd_rstn } <= cpu_dout[1:0];
         case( A[3:1] )
             0: cab_dout <= { 2'b11, mapjoy(joystick1) };
