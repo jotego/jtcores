@@ -165,6 +165,7 @@ jtvigil_obj u_obj (
     .LHBL       ( LHBL        ),
     .main_addr  ( main_addr   ),
     .main_dout  ( main_dout   ),
+    .main_din   (             ),
     .oram_cs    ( oram_cs     ),
     .h          ( h           ),
     .v          ( vrender     ),
