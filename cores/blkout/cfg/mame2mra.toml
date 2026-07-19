@@ -1,12 +1,23 @@
 [global]
-author=["jotego"]
+author=["Andrea Bogazzi"]
 
 [parse]
 sourcefile=[ "blockout.cpp" ]
+skip.setnames=["aggress"]
+
+[header]
+info = """ Header to identify the PCB type
+        Byte 0 = 0 for blockout, 1 for blockoutj
+"""
+data = [
+    { machine="blockout",   offset=0, data="00" },
+    { machine="blockoutj", offset=0, data="01" },
+]
 
 [buttons]
 names=[
-    { names="A,B,C,Drop" }
+    { machine="blockout", names="A,B,C,Drop"},
+    { machine="blockoutj", names="Drop,B,C"}
 ]
 
 [dipsw]
