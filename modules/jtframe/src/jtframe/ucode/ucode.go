@@ -892,10 +892,8 @@ func read_yaml( fpath string ) UcDesc {
 		if desc.Cfg.Entries==0 	 { desc.Cfg.Entries=inc.Cfg.Entries 	}
 		if desc.Cfg.CycleK==0 	 { desc.Cfg.CycleK=inc.Cfg.CycleK 		}
 		if desc.Cfg.BusError=="" { desc.Cfg.BusError=inc.Cfg.BusError 	}
-		if len(inc.Ops)!=0 {
-			fmt.Printf("Include file %s has an ops section. This is still not supported\n", each)
-			os.Exit(1)
-		}
+		if !desc.Cfg.Implicit   { desc.Cfg.Implicit=inc.Cfg.Implicit 	}
+		desc.Ops = append(inc.Ops, desc.Ops...)
 		next_chunk:
 		for k, _ := range inc.Chunks {
 			if inc.Chunks[k].Name!="" {
