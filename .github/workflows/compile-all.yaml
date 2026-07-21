@@ -6,10 +6,50 @@ on:
   repository_dispatch:
     types: rebuild
   schedule:
-    - cron: '0 2 * * *' # runs every night at 3am
+    - cron: '0 1 * * *' # GitHub cron is UTC; 3am in GMT+2
 jobs:
+  check_schedule:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    outputs:
+      should_compile: ${{ steps.check.outputs.should_compile }}
+    steps:
+      - id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            if (context.eventName !== 'schedule') {
+              core.setOutput('should_compile', 'true');
+              return;
+            }
+
+            const branch = context.ref.replace('refs/heads/', '');
+            const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'compile-all.yaml',
+              branch,
+              per_page: 100,
+            });
+            const previousRun = runs.find((run) => run.id !== context.runId);
+            const previousRunSucceeded = previousRun &&
+              previousRun.status === 'completed' &&
+              previousRun.conclusion === 'success';
+            const shouldCompile = !previousRunSucceeded || previousRun.head_sha !== context.sha;
+
+            if (previousRun) {
+              core.info(`Previous run ${previousRun.id} used ${previousRun.head_sha} and concluded ${previousRun.conclusion}; current is ${context.sha}`);
+            } else {
+              core.info('No previous run found');
+            }
+            core.setOutput('should_compile', shouldCompile ? 'true' : 'false');
+
   list_cores:
     runs-on: ubuntu-latest
+    needs:
+      - check_schedule
+    if: ${{ needs.check_schedule.outputs.should_compile == 'true' }}
     defaults:
       run:
         shell: bash
@@ -41,7 +81,9 @@ jobs:
       run:
         shell: bash
     needs:
+      - check_schedule
       - list_cores
+    if: ${{ needs.check_schedule.outputs.should_compile == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -68,7 +110,9 @@ jobs:
       run:
         shell: bash
     needs:
+      - check_schedule
       - list_cores
+    if: ${{ needs.check_schedule.outputs.should_compile == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -95,7 +139,9 @@ jobs:
       run:
         shell: bash
     needs:
+      - check_schedule
       - list_cores
+    if: ${{ needs.check_schedule.outputs.should_compile == 'true' }}
     strategy:
       fail-fast: false
       matrix:
@@ -118,8 +164,8 @@ jobs:
 
   upload:
     runs-on: ubuntu-latest
-    needs: [ compile_cores13, mister-pocket, sidis ]
-    if: ${{ always() }} # upload the results even if some core did not compile correctly
+    needs: [ check_schedule, compile_cores13, mister-pocket, sidis ]
+    if: ${{ always() && needs.check_schedule.outputs.should_compile == 'true' }} # upload the results even if some core did not compile correctly
     steps:
       - uses: actions/checkout@v4
       - name: Download all artifacts

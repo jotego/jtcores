@@ -9,6 +9,7 @@ toki:
     - jttoki_fix.v
     - jttoki_scroll.v
     - jttoki_obj.v
+    - jttoki_irq.v
     - jttoki_sound.v
     - sei80bu.v
 jtframe:

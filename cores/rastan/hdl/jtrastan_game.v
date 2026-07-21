@@ -28,7 +28,8 @@ wire [ 2:0] obj_pal;
 
 wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn, mcpu_cen;
-wire [ 3:0] sn_dout;
+wire [ 3:0] main2snd, sn_dout;
+reg         opwolf;
 
 // Z80 and CIU slave: halve the 68000's cpu_cen so the Z80 is phase-locked to the
 // 68000 exactly 2:1, like the board's single 16MHz crystal. The YM2151 does not
@@ -44,16 +45,23 @@ always @(posedge clk, posedge rst) begin
 end
 
 assign dip_flip = flip;
-assign ram_addr = ram_cs ? {4'd0, main_addr[13:1] } : { 2'b10, main_addr[15:1] };
+assign ram_addr = ram_cs ? (opwolf ? {3'd0, main_addr[14:1]} : {4'd0, main_addr[13:1]}) :
+                           {2'b10, main_addr[15:1]};
 assign ram_we   = xram_cs & ~main_rnw;
 assign xram_cs  = ram_cs | vram_cs;
 assign ram_dsn  = main_dsn;
+assign main2snd = opwolf ? main_dout[11:8] : main_dout[3:0];
+
+always @(posedge clk) begin
+    if (header && prog_we && prog_addr[3:0]==0) opwolf <= prog_data[0];
+end
 
 jtrastan_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ), // 48 MHz
     .cpu_cen    ( mcpu_cen  ),
     .LVBL       ( LVBL      ),
+    .opwolf     ( opwolf    ),
 
     .main_addr  ( main_addr ),
     .main_dout  ( main_dout ),
@@ -89,6 +97,8 @@ jtrastan_main u_main(
 
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
+    .gun_x      ( gun_1p_x  ),
+    .gun_y      ( gun_1p_y  ),
     .cab_1p     (cab_1p[1:0]),
     .coin       ( coin[1:0] ),
     .tilt       ( tilt      ),
@@ -107,11 +117,12 @@ jtrastan_snd u_sound(
     .fm_cen4    ( fm_cen4       ),
     .fm_cen2    ( fm_cen2       ),
     .pcm_cen    ( pcm_cen       ),
+    .opwolf     ( opwolf        ),
 
     // From main CPU
     .main_cen   ( mcpu_cen      ),
     .main_addr  (main_addr[1]   ),
-    .main_dout  (main_dout[3:0] ),
+    .main_dout  ( main2snd      ),
     .main_din   ( sn_dout       ),
     .main_rnw   ( main_rnw      ),
     .sn_we      ( sn_we         ),
@@ -122,14 +133,19 @@ jtrastan_snd u_sound(
     .rom_ok     ( snd_ok        ),
     .rom_data   ( snd_data      ),
 
-    .pcm_addr   ( pcm_addr      ),
-    .pcm_cs     ( pcm_cs        ),
-    .pcm_ok     ( pcm_ok        ),
-    .pcm_data   ( pcm_data      ),
+    .pcm0_addr  ( pcm0_addr     ),
+    .pcm0_cs    ( pcm0_cs       ),
+    .pcm0_ok    ( pcm0_ok       ),
+    .pcm0_data  ( pcm0_data     ),
+    .pcm1_addr  ( pcm1_addr     ),
+    .pcm1_cs    ( pcm1_cs       ),
+    .pcm1_ok    ( pcm1_ok       ),
+    .pcm1_data  ( pcm1_data     ),
 
     .fm_l       ( fm_l          ),
     .fm_r       ( fm_r          ),
-    .pcm        ( pcm           )
+    .pcm0       ( pcm0          ),
+    .pcm1       ( pcm1          )
 );
 
 jtrastan_video u_video(
@@ -137,6 +153,7 @@ jtrastan_video u_video(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
+    .opwolf     ( opwolf    ),
 
     .HS         ( HS        ),
     .VS         ( VS        ),

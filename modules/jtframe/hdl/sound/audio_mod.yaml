@@ -20,6 +20,7 @@ jt5232:   { data_width: 16, unsigned: true, vpp: 1.0 }
 # YM2203's PSG output stage seems to be a source follower, gm=3.95mS -> Rout=253 Ohm
 # output is 1.2Vpp, rather than the AY's 1V
 jt03_psg: { data_width: 10, unsigned: true, dcrm: true, vpp: 0.72, rout: 253 }
+jt03_psg_split: { data_width: 8, unsigned: true, dcrm: true }
 # jt007232: resistor DAC is external
 jt007232: { data_width: 11, vpp: 1.0       }
 jt007232_stereo: { data_width: 11, vpp: 1.0, stereo: true }

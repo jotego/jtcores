@@ -35,7 +35,7 @@ ls -l $JTUTIL/beta.bin
 if [ -e $CORES/$CORENAME/cfg/macros.def ]; then
     # Beta key is enabled for cores listed in beta.yaml
     for TARGET in $*; do
-        if jtframe cfgstr $CORENAME --target=$TARGET --output bash | grep JTFRAME_SKIP; then
+        if jtframe cfgstr $CORENAME --target=$TARGET --output bash | grep -q '^export JTFRAME_SKIP='; then
             echo "Skipping $CORENAME for $TARGET because of JTFRAME_SKIP"
             continue
         fi

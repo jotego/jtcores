@@ -2,16 +2,27 @@
 author=["jotego"]
 
 [parse]
-sourcefile=[ "rastan.cpp" ]
+sourcefile=[ "rastan.cpp", "opwolf.cpp" ]
+
+[parse.skip]
+setnames=[ "opwolf", "opwolfa", "opwolfj", "opwolfjsc", "opwolfu", "opwolfb" ]
 
 [Audio]
 volume = [
     { machine="rastan", value=0x71 },
+    { setname="opwolfp", value=0x71 },
 ]
 
 [buttons]
 names=[
-    { names="Slash,Jump" }
+    { machine="rastan",  names="Slash,Jump" },
+    { setname="opwolfp", names="Bullet,Grenade" },
+]
+
+[header]
+info="Byte 0 bit 0: Operation Wolf hardware"
+data = [
+    { setname="opwolfp", offset=0, data="01" },
 ]
 
 [dipsw]

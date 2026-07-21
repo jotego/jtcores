@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 28-11-2025 */
 /* verilator coverage_off */
-module jt65c02_regs(
+module jt65c02_regs #(parameter DECO222=0)(
     input             rst,
     input             clk,
     input             cen,
@@ -24,6 +24,7 @@ module jt65c02_regs(
     // interrupts
     input      [ 2:0] iv,
     input             irq,
+    input             opdec,
     // CONTROL
     input             branch, branch_lo, ni,
     input             brlatch,
@@ -57,6 +58,7 @@ reg  [15:0] ea, pc;
 reg         v,n,z; // other condition codes (b=break)
 
 wire [7:0] cc = {n,v,2'b10,d,i,z,c};
+wire [7:0] md_op = DECO222 && opdec ? { md[7], md[5], md[6], md[4:0] } : md;
 
 `ifdef SIMULATION
     wire [7:0] p = cc;
@@ -162,7 +164,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         brok <= 0;
     end else if(cen) begin
-        if( brlatch ) case(md[7:4])
+        if( brlatch ) case(md_op[7:4])
             4'b1000: brok <= 1;  // bra
             4'b1001: brok <= !c; // bcc
             4'b1011: brok <=  c; // bcs

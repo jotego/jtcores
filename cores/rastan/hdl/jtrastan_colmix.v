@@ -20,6 +20,7 @@ module jtrastan_colmix(
     input           rst,
     input           clk,
     input           pxl_cen,
+    input           opwolf,
 
     input    [11:1] main_addr,
     input    [15:0] main_dout,
@@ -46,6 +47,7 @@ module jtrastan_colmix(
 );
 
 wire [15:0] pal_dout;
+wire [14:0] pal_rgb;
 reg  [10:0] pal_addr;
 wire        scr1_blank, obj_blank;
 wire [ 1:0] cpu_we;
@@ -53,12 +55,17 @@ wire [ 1:0] cpu_we;
 assign scr1_blank = scr1_pxl[3:0]==0 || !gfx_en[0];
 assign obj_blank  =  obj_pxl[3:0]==0 || !gfx_en[3];
 assign cpu_we     = ~main_dsn & {2{pal_cs & ~main_rnw}};
+assign pal_rgb    = opwolf ? {pal_dout[3:0],pal_dout[12],
+                             pal_dout[7:4],pal_dout[13],
+                             pal_dout[11:8],pal_dout[14]} : pal_dout[14:0];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         pal_addr <= 0;
     end else if(pxl_cen) begin
-        if( !obj_blank )
+        if( opwolf && !scr1_blank )
+            pal_addr <= scr1_pxl;
+        else if( !obj_blank )
             pal_addr <= { obj_pal, obj_pxl };
         else if( !scr1_blank )
             pal_addr <= scr1_pxl;
@@ -103,7 +110,7 @@ jtframe_blank #(
     .LHBL       ( LHBL              ),
     .LVBL       ( LVBL              ),
     .preLBL     (                   ),
-    .rgb_in     ( pal_dout[14:0]    ),
+    .rgb_in     ( pal_rgb           ),
     .rgb_out    ( {blue,green,red}  )
 );
 

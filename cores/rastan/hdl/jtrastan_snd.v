@@ -23,6 +23,7 @@ module jtrastan_snd(
     input                fm_cen4,
     input                fm_cen2,
     input                pcm_cen,
+    input                opwolf,
 
     // From main CPU
     input                main_cen,
@@ -38,60 +39,132 @@ module jtrastan_snd(
     input                rom_ok,
     input         [ 7:0] rom_data,
 
-    output reg    [15:0] pcm_addr,
-    output reg           pcm_cs,
-    input                pcm_ok,
-    input         [ 7:0] pcm_data,
+    output reg    [18:0] pcm0_addr,
+    output reg           pcm0_cs,
+    input                pcm0_ok,
+    input         [ 7:0] pcm0_data,
+    output reg    [18:0] pcm1_addr,
+    output reg           pcm1_cs,
+    input                pcm1_ok,
+    input         [ 7:0] pcm1_data,
 
     output signed [15:0] fm_l, fm_r,
-    output signed [11:0] pcm
+    output signed [11:0] pcm0, pcm1
 );
 `ifndef NOSOUND
-wire signed [15:0] pre_snd, left_opm, right_opm;
-wire signed [11:0] pcm_snd;
 wire               int_n;
 wire        [15:0] A;
 wire        [ 7:0] dout, opm_dout, ram_dout;
 wire        [ 3:0] pc6_dout;
-reg                opm_cs, opl_cs, ram_cs, pc6_cs;
-reg                pcm_rst, pcm_stop, pcm_start, pcm_addr_cs;
+reg                opm_cs, ram_cs, pc6_cs;
+reg                pcm0_rst, pcm1_rst, pcm_stop, pcm_start, pcm_addr_cs;
+reg                pcm0_reg_cs, pcm1_reg_cs;
 wire               m1_n, iorq_n, rd_n, wr_n, mreq_n, rfsh_n, nmi_n;
-wire               ct1, ct2, vclk, pc6_rst;
-reg                nibble_sel, vclk_l, snd_rstn;
-reg         [15:0] pcm_cnt;
-wire        [ 3:0] pcm_nibble;
+wire               ct1, ct2, vclk0, vclk1, pc6_rst;
+reg                nibble0, nibble1, vclk0_l, vclk1_l, snd_rstn;
+wire        [ 3:0] pcm0_nibble, pcm1_nibble;
+wire signed [11:0] pcm0_raw, pcm1_raw;
+wire signed [20:0] pcm0_scaled, pcm1_scaled;
+wire signed [11:0] pcm0_atten, pcm1_atten;
+reg         [15:0] pcm0_start, pcm0_end, pcm1_start, pcm1_end;
+reg         [ 7:0] pcm0_vol, pcm1_vol;
 reg         [ 7:0] din;
 wire               main_cs;
 assign main_cs    = sn_rd | sn_we;
 assign rom_addr   = A[14] ? { ct2, ct1, A[13:0]  } : A;
-assign pcm_nibble = !nibble_sel ? pcm_data[7:4] : pcm_data[3:0];
+assign pcm0_nibble = !nibble0 ? pcm0_data[7:4] : pcm0_data[3:0];
+assign pcm1_nibble = !nibble1 ? pcm1_data[7:4] : pcm1_data[3:0];
+assign pcm0_scaled = pcm0_raw * $signed({1'b0,pcm0_vol});
+assign pcm1_scaled = pcm1_raw * $signed({1'b0,pcm1_vol});
+assign pcm0_atten = pcm0_scaled[19:8];
+assign pcm1_atten = pcm1_scaled[19:8];
+assign pcm0 = opwolf ? pcm0_atten : pcm0_raw;
+assign pcm1 = pcm1_atten;
 
 always @(posedge clk) begin
     snd_rstn <= ~(rst | pc6_rst);
 end
 
-// PCM controller
+// Rastan has one simple ADPCM address latch. Operation Wolf has two
+// independent start/end controllers with 16-byte address granularity.
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        pcm_addr   <= 0;
-        pcm_cs     <= 0;
-        nibble_sel <= 0;
-        pcm_rst    <= 1;
+        pcm0_addr  <= 0;
+        pcm1_addr  <= 0;
+        pcm0_start <= 0;
+        pcm0_end   <= 0;
+        pcm1_start <= 0;
+        pcm1_end   <= 0;
+        pcm0_vol   <= 0;
+        pcm1_vol   <= 0;
+        pcm0_cs    <= 0;
+        pcm1_cs    <= 0;
+        nibble0    <= 0;
+        nibble1    <= 0;
+        pcm0_rst   <= 1;
+        pcm1_rst   <= 1;
     end else begin
-        vclk_l <= vclk;
-        if( pcm_addr_cs ) pcm_addr[15:8] <= dout;
+        vclk0_l <= vclk0;
+        vclk1_l <= vclk1;
+        if( pcm_addr_cs ) pcm0_addr[15:8] <= dout;
         if( pcm_start ) begin
-            pcm_cs         <= 1;
-            pcm_rst        <= 0;
-            pcm_addr[ 7:0] <= 0;
-            nibble_sel     <= 0;
+            pcm0_cs         <= 1;
+            pcm0_rst        <= 0;
+            pcm0_addr[ 7:0] <= 0;
+            nibble0         <= 0;
         end
-        if( pcm_stop    ) begin
-            pcm_cs         <= 0;
-            pcm_rst        <= 1;
+        if( pcm_stop ) begin
+            pcm0_cs  <= 0;
+            pcm0_rst <= 1;
         end
-        if( vclk && ! vclk_l && !pcm_rst)
-            { pcm_addr, nibble_sel } <= { pcm_addr, nibble_sel } + 1'd1;
+        if( pcm0_reg_cs && !wr_n ) begin
+            case( A[2:0] )
+                0: pcm0_start[ 7:0] <= dout;
+                1: pcm0_start[15:8] <= dout;
+                2: pcm0_end[ 7:0]   <= dout;
+                3: pcm0_end[15:8]   <= dout;
+                4: begin
+                    pcm0_addr <= {pcm0_start[14:0],4'd0};
+                    pcm0_cs   <= 1;
+                    pcm0_rst  <= 0;
+                    nibble0   <= 0;
+                end
+                5: pcm0_vol <= dout;
+                default:;
+            endcase
+        end
+        if( pcm1_reg_cs && !wr_n ) begin
+            case( A[2:0] )
+                0: pcm1_start[ 7:0] <= dout;
+                1: pcm1_start[15:8] <= dout;
+                2: pcm1_end[ 7:0]   <= dout;
+                3: pcm1_end[15:8]   <= dout;
+                4: begin
+                    pcm1_addr <= {pcm1_start[14:0],4'd0};
+                    pcm1_cs   <= 1;
+                    pcm1_rst  <= 0;
+                    nibble1   <= 0;
+                end
+                5: pcm1_vol <= dout;
+                default:;
+            endcase
+        end
+        if( vclk0 && !vclk0_l && !pcm0_rst && pcm0_ok ) begin
+            if( opwolf && nibble0 && pcm0_addr + 1'd1 == {pcm0_end[14:0],4'd0} ) begin
+                pcm0_cs  <= 0;
+                pcm0_rst <= 1;
+            end else begin
+                {pcm0_addr,nibble0} <= {pcm0_addr,nibble0} + 1'd1;
+            end
+        end
+        if( vclk1 && !vclk1_l && !pcm1_rst && pcm1_ok ) begin
+            if( nibble1 && pcm1_addr + 1'd1 == {pcm1_end[14:0],4'd0} ) begin
+                pcm1_cs  <= 0;
+                pcm1_rst <= 1;
+            end else begin
+                {pcm1_addr,nibble1} <= {pcm1_addr,nibble1} + 1'd1;
+            end
+        end
     end
 end
 
@@ -103,14 +176,18 @@ always @* begin
     pcm_addr_cs = 0;
     pcm_start   = 0;
     pcm_stop    = 0;
+    pcm0_reg_cs = 0;
+    pcm1_reg_cs = 0;
     if( !mreq_n && rfsh_n && A[15]) begin
         case( A[14:12] )
             0: ram_cs = 1;
             1: opm_cs = 1;
             2: pc6_cs = 1;
-            3: pcm_addr_cs = 1;
-            4: pcm_start = 1;
-            5: pcm_stop  = 1;
+            3: if( opwolf ) pcm0_reg_cs = A[11:3]==0;
+               else         pcm_addr_cs = 1;
+            4: if( opwolf ) pcm1_reg_cs = A[11:3]==0;
+               else         pcm_start   = 1;
+            5: if( !opwolf ) pcm_stop = 1;
             default:;
         endcase
     end
@@ -208,23 +285,37 @@ jt51 u_jt51(
     .xright ( fm_r      )
 );
 
-jt5205 u_5205( // 8kHz, 4 bits/sample
-    .rst    ( pcm_rst   ),
+jt5205 u_pcm0( // 8kHz, 4 bits/sample
+    .rst    ( pcm0_rst   ),
     .clk    ( clk       ),
     .cen    ( pcm_cen   ),
     .sel    ( 2'b10     ),
-    .din    ( pcm_nibble),
-    .sound  ( pcm       ),
+    .din    ( pcm0_nibble),
+    .sound  ( pcm0_raw  ),
     .sample (           ),
     .irq    (           ),
-    .vclk_o ( vclk      )
+    .vclk_o ( vclk0     )
+);
+
+jt5205 u_pcm1( // 8kHz, 4 bits/sample
+    .rst    ( pcm1_rst   ),
+    .clk    ( clk        ),
+    .cen    ( pcm_cen    ),
+    .sel    ( 2'b10      ),
+    .din    ( pcm1_nibble),
+    .sound  ( pcm1_raw   ),
+    .sample (            ),
+    .irq    (            ),
+    .vclk_o ( vclk1      )
 );
 `else
-assign main_din=0, rom_addr=0, fm_l=0, fm_r=0, pcm=0;
+assign main_din=0, rom_addr=0, fm_l=0, fm_r=0, pcm0=0, pcm1=0;
 initial begin
     rom_cs=0;
-    pcm_addr=0;
-    pcm_cs=0;
+    pcm0_addr=0;
+    pcm1_addr=0;
+    pcm0_cs=0;
+    pcm1_cs=0;
 end
 `endif
 endmodule

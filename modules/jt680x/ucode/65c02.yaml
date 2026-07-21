@@ -295,7 +295,7 @@ ucode:
       - fetch, i1_cc
       - ni
   - name: isrv
-    start: 0x62
+    start: 0x8b
     cycles: 7
     seq:
       # push PC
@@ -309,14 +309,14 @@ ucode:
       - ivrd_jsr
   # 2nd cycle of branch instructions that did not branch
   - name: nobranch
-    start: 0xf4
+    start: 0xc3
     seq:
       - fetch
       -
       -
       - ni
   - name: imm
-    start: 0xc2
+    start: 0xab
     seq:
       - fetch, inc_pc, ret_jsr
   - name: zpa
@@ -339,7 +339,7 @@ ucode:
       - m_ea
       - m_ea, fetch, ret_jsr
   - name: zpya
-    start: 0xfc
+    start: 0xcb
     seq:
       - fetch, inc_pc
       - y_rmux, ld1_opnd
@@ -349,7 +349,7 @@ ucode:
       - # idle
       - add_alu, zp_ld, ret_jsr
   - name: zpy
-    start: 0x5c
+    start: 0xa3
     seq:
       - fetch, inc_pc
       - y_rmux, ld1_opnd
@@ -361,7 +361,7 @@ ucode:
       - m_ea
       - m_ea, fetch, ret_jsr
   - name: zpxa
-    start: 0xd4
+    start: 0xb3
     seq:
       - fetch, inc_pc
       - x_rmux, ld1_opnd
@@ -384,7 +384,7 @@ ucode:
       - m_ea
       - m_ea, fetch, ret_jsr
   - name: absa
-    start: 0x54
+    start: 0x93
     seq:
       - fetch, inc_pc
       - # mem wait cycle
@@ -515,7 +515,7 @@ ucode:
       - m_ea
       - m_ea, fetch, ret_jsr
   - name: inda
-    start: 0x44
+    start: 0x9b
     seq:
       - fetch, inc_pc
       - # mem wait cycle
@@ -543,7 +543,7 @@ ucode:
       - m_ea
       - m_ea, fetch, ret_jsr
   - name: wait4
-    start: 0xdc
+    start: 0xbb
     seq:
       - #idle
       - #idle
