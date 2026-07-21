@@ -265,10 +265,10 @@ jttoki_sound u_sound(
     .rom_ok             ( snd_ok             ),
     .rom_cs             ( snd_cs             ),
 
-    .bank_rom_addr      ( bank_rom_addr      ),
-    .bank_rom_data      ( bank_rom_data      ),
-    .bank_rom_ok        ( bank_rom_ok        ),
-    .bank_rom_cs        ( bank_rom_cs        ),
+    .bank_addr          ( bank_rom_addr      ),
+    .bank_data          ( bank_rom_data      ),
+    .bank_ok            ( bank_rom_ok        ),
+    .bank_cs            ( bank_rom_cs        ),
 
     .pcm_addr           ( pcm_addr           ),
     .pcm_data           ( pcm_data           ),

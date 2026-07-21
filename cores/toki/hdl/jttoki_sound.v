@@ -32,12 +32,12 @@ module jttoki_sound(
     input       [7:0] rom_data,
     input             rom_ok,
     output     [12:0] rom_addr,
-    output            rom_cs,
+    output reg        rom_cs,
 
-    input       [7:0] bank_rom_data,
-    input             bank_rom_ok,
-    output     [15:0] bank_rom_addr,
-    output            bank_rom_cs,
+    input       [7:0] bank_data,
+    input             bank_ok,
+    output     [15:0] bank_addr,
+    output reg        bank_cs,
 
     // OKI 6295 ADPCM
     input       [7:0] pcm_data,
@@ -77,10 +77,10 @@ wire signed [13:0] oki_snd;
 wire        [ 7:0] cpu_dout, ram_dout, dec_data, im0_opcode,
                     ym3812_dout, oki_dout, jt51_dout;
 wire signed [11:0] cabal_adpcm0_snd, cabal_adpcm1_snd;
-wire               ram_cs, ym_cs_0, ym_cs_1, dec_ok,
+wire               dec_ok,
                    pending_set_wr, irq_clear_wr, fm_eoi_wr,
                    main_eoi_wr, cpu_rd_n, cpu_wr_n, mem_acc, mem_wr,
-                   ym_rd, ym_wr, oki_rd, oki_wr, wait_cs, wait_ok,
+                   ym_rd, ym_wr, oki_rd, oki_wr, wait_cs,
                    cpu_m1_n, cpu_mreq_n, cpu_rfsh_n, m1, rst_n, irq_n, cpu_iorq_n,
                    ym3812_irq_n, jt51_irq_n, irq_ack, oki_wrn,
                    fm_irq_n, main_eoi, ym_cs_n,
@@ -88,7 +88,7 @@ wire               ram_cs, ym_cs_0, ym_cs_1, dec_ok,
                    adpcm0_addr_we, adpcm1_addr_we, adpcm0_ctl_we,
                    adpcm1_ctl_we;
 reg         [ 7:0] din;
-reg                rom_addr_cs, bank_rom_addr_cs, ram_addr_cs, ym0_cs, ym1_cs,
+reg                ram_cs, ym0_cs, ym1_cs, wait_ok,
                    m68k_latch0_cs, m68k_latch1_cs, pending_set_cs,
                    main2sub_cs, read_coin_cs, bank_switch_cs,
                    sound_latch0_cs, sound_latch1_cs, oki_cs,
@@ -99,21 +99,15 @@ reg                rom_addr_cs, bank_rom_addr_cs, ram_addr_cs, ym0_cs, ym1_cs,
 assign mem_acc           = ~cpu_mreq_n & cpu_rfsh_n;
 assign mem_wr            = mem_acc & ~cpu_wr_n;
 
-assign rom_cs          = cpu_rfsh_n & rom_addr_cs;
-assign ram_cs          = cpu_rfsh_n & ram_addr_cs;
-assign bank_rom_cs     = cpu_rfsh_n & bank_rom_addr_cs;
 assign pending_set_wr  = mem_wr & pending_set_cs;
 assign irq_clear_wr    = mem_wr & irq_clear_cs;
 assign fm_eoi_wr       = mem_wr & fm_eoi_cs;
 assign main_eoi_wr     = mem_wr & main_eoi_cs;
-assign ym_cs_0         = cpu_rfsh_n & ym0_cs;
-assign ym_cs_1         = cpu_rfsh_n & ym1_cs;
 assign ym_rd           = (ym0_cs | (cabal & ym1_cs)) & ~cpu_rd_n;
 assign ym_wr           = mem_wr & (ym0_cs | ym1_cs);
 assign oki_rd          = oki_cs & ~cpu_rd_n;
 assign oki_wr          = mem_wr & oki_cs;
-assign wait_cs         = mem_acc & (rom_addr_cs | bank_rom_addr_cs);
-assign wait_ok         = rom_addr_cs ? dec_ok : bank_rom_ok;
+assign wait_cs         = mem_acc & (rom_cs | bank_cs);
 assign irq_ack         = ~cpu_iorq_n & ~cpu_m1_n;
 assign main_eoi        = irq_clear_wr | main_eoi_wr;
 
@@ -121,9 +115,9 @@ assign m1              = ~cpu_m1_n;
 assign rst_n           = ~rst;
 assign sei80bu_addr    = {3'd0, rom_addr};
 assign rom_addr        = cpu_addr[12:0];
-assign bank_rom_addr   = bank_selected ? cpu_addr : cpu_addr - 16'h8000;
+assign bank_addr   = bank_selected ? cpu_addr : cpu_addr - 16'h8000;
 assign oki_wrn         = ~oki_wr;
-assign ym_cs_n         = ~(ym_cs_0 | ym_cs_1);
+assign ym_cs_n         = ~(ym0_cs | ym1_cs);
 assign opl_wr_n        = ~(ym_wr & !cabal);
 assign jt51_wr_n       = ~(ym_wr & cabal);
 assign fm_irq_n        = cabal ? jt51_irq_n : ym3812_irq_n;
@@ -140,33 +134,41 @@ assign pcm_addr = {adpcm_rom_addr[16], adpcm_rom_addr[13], adpcm_rom_addr[14],
 assign cabal_fm_snd = (jt51_l >>> 1) + (jt51_r >>> 1);
 
 always @(posedge clk) begin
+    if( rst ) begin
+        wait_ok <= 0;
+    end else begin
+        wait_ok <= (rom_cs & dec_ok) | (bank_cs & bank_ok);
+    end
+end
+
+always @(posedge clk) begin
     fm   <= cabal ? cabal_fm_snd : opl_snd;
     pcm0 <= cabal ? {cabal_adpcm0_snd[11], cabal_adpcm0_snd, 1'b0} : oki_snd;
     pcm1 <= cabal ? {cabal_adpcm1_snd[11], cabal_adpcm1_snd, 1'b0} : 14'sd0;
 end
 
 always @* begin
-    rom_addr_cs           = cpu_addr < 16'h2000;
-    ram_addr_cs           = cpu_addr >= 16'h2000 && cpu_addr < 16'h2800;
-    pending_set_cs        = !cabal && cpu_addr == 16'h4000;
-    irq_clear_cs          = cpu_addr == 16'h4001;
-    fm_eoi_cs             = cpu_addr == 16'h4002;
-    main_eoi_cs           = cpu_addr == 16'h4003;
-    bank_switch_cs        = !cabal && cpu_addr == 16'h4007;
-    ym0_cs                = cpu_addr == 16'h4008;
-    ym1_cs                = cpu_addr == 16'h4009;
-    m68k_latch0_cs        = cpu_addr == 16'h4010;
-    m68k_latch1_cs        = cpu_addr == 16'h4011;
-    main2sub_cs           = cpu_addr == 16'h4012;
-    read_coin_cs          = cpu_addr == 16'h4013;
-    sound_latch0_cs       = cpu_addr == 16'h4018;
-    sound_latch1_cs       = cpu_addr == 16'h4019;
-    adpcm0_ctl_cs         = cabal && cpu_addr == 16'h401a;
-    adpcm0_addr_cs        = cabal && (cpu_addr == 16'h4005 || cpu_addr == 16'h4006);
-    oki_cs                = !cabal && cpu_addr == 16'h6000;
-    adpcm1_ctl_cs         = cabal && cpu_addr == 16'h601a;
-    adpcm1_addr_cs        = cabal && (cpu_addr == 16'h6005 || cpu_addr == 16'h6006);
-    bank_rom_addr_cs      = cpu_addr >= 16'h8000;
+    rom_cs          = mem_acc && cpu_addr < 16'h2000;
+    ram_cs          = mem_acc && cpu_addr >= 16'h2000 && cpu_addr < 16'h2800;
+    pending_set_cs  = !cabal && cpu_addr == 16'h4000;
+    irq_clear_cs    = cpu_addr == 16'h4001;
+    fm_eoi_cs       = cpu_addr == 16'h4002;
+    main_eoi_cs     = cpu_addr == 16'h4003;
+    bank_switch_cs  = !cabal && cpu_addr == 16'h4007;
+    ym0_cs          = mem_acc && cpu_addr == 16'h4008;
+    ym1_cs          = mem_acc && cpu_addr == 16'h4009;
+    m68k_latch0_cs  = cpu_addr == 16'h4010;
+    m68k_latch1_cs  = cpu_addr == 16'h4011;
+    main2sub_cs     = cpu_addr == 16'h4012;
+    read_coin_cs    = cpu_addr == 16'h4013;
+    sound_latch0_cs = cpu_addr == 16'h4018;
+    sound_latch1_cs = cpu_addr == 16'h4019;
+    adpcm0_ctl_cs   = cabal && cpu_addr == 16'h401a;
+    adpcm0_addr_cs  = cabal && (cpu_addr == 16'h4005 || cpu_addr == 16'h4006);
+    oki_cs          = !cabal && cpu_addr == 16'h6000;
+    adpcm1_ctl_cs   = cabal && cpu_addr == 16'h601a;
+    adpcm1_addr_cs  = cabal && (cpu_addr == 16'h6005 || cpu_addr == 16'h6006);
+    bank_cs         = mem_acc && cpu_addr >= 16'h8000;
 end
 
 always @(posedge clk) begin
@@ -209,12 +211,12 @@ always @(posedge clk) begin
                    main2sub_cs & ~sub2main_pending ? 8'b0  :
                    ym_rd                           ? (cabal ? jt51_dout : ym3812_dout) :
                    oki_rd                          ? oki_dout :
-                   bank_rom_addr_cs                ? bank_rom_data :
+                   bank_cs                         ? bank_data :
                    m68k_latch0_cs                  ? m68k_sound_latch_0[7:0] :
                    m68k_latch1_cs                  ? m68k_sound_latch_1[7:0] :
                    read_coin_cs                    ? {6'b0, ~coin[1], ~coin[0]} :
-                   ram_addr_cs                     ? ram_dout :
-                   rom_addr_cs                     ? dec_data : 8'hff;
+                   ram_cs                          ? ram_dout :
+                   rom_cs                          ? dec_data : 8'hff;
     end
 end
 
@@ -295,7 +297,7 @@ jtopl2 u_opl2(
     .clk    ( clk           ),
     .cen    ( fm_cen        ),
     .din    ( cpu_dout      ),
-    .addr   ( ym_cs_1       ), // cmd addr
+    .addr   ( cpu_addr[0]   ), // cmd addr
     .cs_n   ( ym_cs_n       ),
     .wr_n   ( opl_wr_n      ),
     .dout   ( ym3812_dout   ),
@@ -311,8 +313,8 @@ jt51 u_jt51(
     .cen_p1 ( fm2_cen              ),
     .cs_n   ( ym_cs_n              ),
     .wr_n   ( jt51_wr_n            ),
-    .a0     ( ym1_cs               ),
-    .din    ( cpu_dout            ),
+    .a0     ( cpu_addr[0]          ),
+    .din    ( cpu_dout             ),
     .dout   ( jt51_dout            ),
     .ct1    (                      ),
     .ct2    (                      ),
@@ -353,8 +355,8 @@ jtframe_sysz80 #(.RAM_AW(11)) u_z80(
 
 assign rom_addr          = 13'd0;
 assign rom_cs            = 1'b0;
-assign bank_rom_addr     = 16'd0;
-assign bank_rom_cs       = 1'b0;
+assign bank_addr     = 16'd0;
+assign bank_cs       = 1'b0;
 assign pcm_addr          = 17'd0;
 assign adpcm1_addr       = 16'd0;
 assign adpcm1_cs         = 1'b0;
