@@ -73,7 +73,7 @@ module jttoki_main(
     output            bg_order,
 
     output reg        sound_wr_2,
-    output reg        sound_wr_4,
+    output reg        main_irq_trig,
     output reg        sound_wr_6,
 
     output reg [15:0] m68k_sound_latch_0,
@@ -260,9 +260,9 @@ always @(posedge clk) begin
     sound_cs_4   <= 1'd0;
     sound_cs_5   <= 1'd0;
     sound_cs_6   <= 1'd0;
-    sound_wr_2   <= 1'd0;
-    sound_wr_4   <= 1'd0;
-    sound_wr_6   <= 1'd0;
+    sound_wr_2    <= 1'd0;
+    main_irq_trig <= 1'd0;
+    sound_wr_6    <= 1'd0;
     if(!cpu_as_n) begin
         if (cpu_a[23:0] < (cabal ? 24'h40000 : 24'h60000))
             cpu_rom_addr[18:1] <= cpu_a[18:1];
@@ -283,9 +283,9 @@ always @(posedge clk) begin
             sound_cs_4 <= cpu_a[23:0] == 24'he8008;
             sound_cs_5 <= cpu_a[23:0] == 24'he800a;
             sound_cs_6 <= cpu_a[23:0] == 24'he800c;
-            sound_wr_2 <= (cpu_a[23:0] == 24'he8004) && sound_lwr;
-            sound_wr_4 <= (cpu_a[23:0] == 24'he8008) && sound_lwr;
-            sound_wr_6 <= (cpu_a[23:0] == 24'he800c) && sound_lwr;
+            sound_wr_2    <= (cpu_a[23:0] == 24'he8004) && sound_lwr;
+            main_irq_trig <= (cpu_a[23:0] == 24'he8008) && sound_lwr;
+            sound_wr_6    <= (cpu_a[23:0] == 24'he800c) && sound_lwr;
         end else begin
             ram_cs     <= cpu_a[23:0] >= 24'h60000 && cpu_a[23:0] < 24'h6d800;
             //video
@@ -300,9 +300,9 @@ always @(posedge clk) begin
             sound_cs_4 <= cpu_a[23:0] == 24'h80008;
             sound_cs_5 <= cpu_a[23:0] == 24'h8000a;
             sound_cs_6 <= cpu_a[23:0] == 24'h8000c;
-            sound_wr_2 <= (cpu_a[23:0] == 24'h80004) && sound_lwr;
-            sound_wr_4 <= (cpu_a[23:0] == 24'h80008) && sound_lwr;
-            sound_wr_6 <= (cpu_a[23:0] == 24'h8000c) && sound_lwr;
+            sound_wr_2    <= (cpu_a[23:0] == 24'h80004) && sound_lwr;
+            main_irq_trig <= (cpu_a[23:0] == 24'h80008) && sound_lwr;
+            sound_wr_6    <= (cpu_a[23:0] == 24'h8000c) && sound_lwr;
             //scroll
             scroll_cs  <= cpu_a[23:0] >= 24'ha0000 && cpu_a[23:0] < 24'ha005f; //96
             //IO
@@ -347,7 +347,7 @@ initial begin
     cpu_rom_addr       = 18'd0;
     cpu_rom_cs         = 1'b0;
     sound_wr_2         = 1'b0;
-    sound_wr_4         = 1'b0;
+    main_irq_trig      = 1'b0;
     sound_wr_6         = 1'b0;
     m68k_sound_latch_0 = 16'd0;
     m68k_sound_latch_1 = 16'd0;

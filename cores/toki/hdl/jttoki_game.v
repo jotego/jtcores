@@ -92,7 +92,7 @@ wire [8:0]  scr2_scroll_y;
 wire        bg_order;
 
 wire m68k_sound_wr_2;
-wire m68k_sound_wr_4;
+wire main_irq_trig;
 wire m68k_sound_wr_6;
 
 wire [15:0] m68k_sound_latch_0;
@@ -161,7 +161,7 @@ jttoki_main  u_main(
 
     //Sound latch
     .sound_wr_2         ( m68k_sound_wr_2    ),
-    .sound_wr_4         ( m68k_sound_wr_4    ),
+    .main_irq_trig      ( main_irq_trig      ),
     .sound_wr_6         ( m68k_sound_wr_6    ),
 
     .m68k_sound_latch_0 ( m68k_sound_latch_0 ),
@@ -287,7 +287,7 @@ jttoki_sound u_sound(
     .adpcm2_cs          ( adpcm2_cs          ),
 
     .m68k_sound_wr_2    ( m68k_sound_wr_2    ),
-    .m68k_sound_wr_4    ( m68k_sound_wr_4    ),
+    .main_irq_trig      ( main_irq_trig      ),
     .m68k_sound_wr_6    ( m68k_sound_wr_6    ),
 
     .m68k_sound_latch_0 ( m68k_sound_latch_0 ),
