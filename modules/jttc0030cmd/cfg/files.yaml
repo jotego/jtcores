@@ -1,0 +1,11 @@
+jttc0030cmd:
+  - get:
+    # IKA87AD core (vendored, Raki, BSD-2 + clause 3 — see LICENSE.IKA87AD).
+    # Packages first so the imports resolve.
+    - IKA87AD_mnemonics.sv
+    - IKA87AD_primitives.sv
+    - IKA87AD_opdec.sv
+    - IKA87AD_microcode.sv
+    - IKA87AD.sv
+    # jtframe C-chip wrapper (TC0030CMD memory subsystem + 68k glue)
+    - jttc0030cmd.v
