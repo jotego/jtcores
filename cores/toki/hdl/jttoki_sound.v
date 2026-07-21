@@ -77,7 +77,7 @@ wire signed [13:0] oki_snd;
 wire        [ 7:0] cpu_dout, ram_dout, dec_data, im0_opcode,
                     ym3812_dout, oki_dout, jt51_dout;
 wire signed [11:0] cabal_adpcm0_snd, cabal_adpcm1_snd;
-wire               ram_cs, ym_cs_0, ym_cs_1,
+wire               ram_cs, ym_cs_0, ym_cs_1, dec_ok,
                    pending_set_wr, irq_clear_wr, fm_eoi_wr,
                    main_eoi_wr, cpu_rd_n, cpu_wr_n, mem_acc, mem_wr,
                    ym_rd, ym_wr, oki_rd, oki_wr, wait_cs, wait_ok,
@@ -113,7 +113,7 @@ assign ym_wr           = mem_wr & (ym0_cs | ym1_cs);
 assign oki_rd          = oki_cs & ~cpu_rd_n;
 assign oki_wr          = mem_wr & oki_cs;
 assign wait_cs         = mem_acc & (rom_addr_cs | bank_rom_addr_cs);
-assign wait_ok         = rom_addr_cs ? rom_ok : bank_rom_ok;
+assign wait_ok         = rom_addr_cs ? dec_ok : bank_rom_ok;
 assign irq_ack         = ~cpu_iorq_n & ~cpu_m1_n;
 assign main_eoi        = irq_clear_wr | main_eoi_wr;
 
@@ -242,7 +242,7 @@ sei80bu u_sei80bu(
     .rom_cs   ( rom_cs       ),
     .z80_m1   ( m1           ),
     .dec_data ( dec_data     ),
-    .dec_ok   (              )
+    .dec_ok   ( dec_ok       )
 );
 
 jt6295 #(.INTERPOL(1)) u_adpcm(
