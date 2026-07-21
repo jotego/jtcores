@@ -97,9 +97,9 @@ wire m68k_sound_wr_6;
 
 wire [15:0] m68k_sound_latch_0;
 wire [15:0] m68k_sound_latch_1;
-wire [15:0] z80_sound_latch_0;
-wire [15:0] z80_sound_latch_1;
-wire [15:0] z80_sound_latch_2;
+wire [15:0] cpu_sound_latch_0;
+wire [15:0] cpu_sound_latch_1;
+wire [15:0] cpu_sound_latch_2;
 
 assign debug_view = 0;
 assign dip_flip   = 0;
@@ -168,9 +168,9 @@ jttoki_main  u_main(
     .m68k_sound_latch_1 ( m68k_sound_latch_1 ),
 
     //Sound input from z80
-    .z80_sound_latch_0  ( z80_sound_latch_0  ),
-    .z80_sound_latch_1  ( z80_sound_latch_1  ),
-    .z80_sound_latch_2  ( z80_sound_latch_2  )
+    .sound_latch_0      ( cpu_sound_latch_0  ),
+    .sound_latch_1      ( cpu_sound_latch_1  ),
+    .sound_latch_2      ( cpu_sound_latch_2  )
 );
 
 `ifdef SIMSCENE
@@ -244,14 +244,13 @@ jttoki_video u_video(
     .bg_order      ( bg_order      )
 );
 
-`ifndef NOSOUND
 jttoki_sound u_sound(
     .rst                ( rst                ),
     .clk                ( clk                ),
 
     .cabal              ( game_id == 2'd1    ),
-    .cen_fm             ( cen_fm             ),
-    .cen_fm2            ( cen_fm2            ),
+    .fm_cen             ( cen_fm             ),
+    .fm2_cen            ( cen_fm2            ),
     .msm_cen            ( msm_cen            ),
     .oki_cen            ( oki_cen            ),
 
@@ -292,27 +291,9 @@ jttoki_sound u_sound(
 
     .m68k_sound_latch_0 ( m68k_sound_latch_0 ),
     .m68k_sound_latch_1 ( m68k_sound_latch_1 ),
-    .z80_sound_latch_0  ( z80_sound_latch_0  ),
-    .z80_sound_latch_1  ( z80_sound_latch_1  ),
-    .z80_sound_latch_2  ( z80_sound_latch_2  )
+    .cpu_sound_latch_0  ( cpu_sound_latch_0  ),
+    .cpu_sound_latch_1  ( cpu_sound_latch_1  ),
+    .cpu_sound_latch_2  ( cpu_sound_latch_2  )
 );
-`else
-assign fm                 = 16'd0;
-assign pcm0               = 14'd0;
-assign pcm1               = 14'd0;
-assign snd_addr           = 13'd0;
-assign snd_cs             = 1'b0;
-assign bank_rom_addr      = 16'd0;
-assign bank_rom_cs        = 1'b0;
-assign pcm_addr           = 17'd0;
-assign pcm_cs             = 1'b0;
-assign adpcm1_addr        = 16'd0;
-assign adpcm1_cs          = 1'b0;
-assign adpcm2_addr        = 16'd0;
-assign adpcm2_cs          = 1'b0;
-assign z80_sound_latch_0  = 16'd0;
-assign z80_sound_latch_1  = 16'd0;
-assign z80_sound_latch_2  = 16'd0;
-`endif
 
 endmodule

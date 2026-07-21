@@ -79,9 +79,9 @@ module jttoki_main(
     output reg [15:0] m68k_sound_latch_0,
     output reg [15:0] m68k_sound_latch_1,
 
-    input      [15:0] z80_sound_latch_0,
-    input      [15:0] z80_sound_latch_1,
-    input      [15:0] z80_sound_latch_2
+    input      [15:0] sound_latch_0,
+    input      [15:0] sound_latch_1,
+    input      [15:0] sound_latch_2
 );
 
 `ifndef NOMAIN
@@ -323,9 +323,9 @@ always @(posedge clk) begin
                             dsw_cs     ? dipsw[15:0] :
                             inputs_cs  ? (cabal ? cabal_joy_dout    : cab_dout) :
                             system_cs  ? (cabal ? cabal_inputs_dout : system_dout) :
-                            sound_cs_2 ? z80_sound_latch_0 :
-                            sound_cs_3 ? z80_sound_latch_1 :
-                            sound_cs_5 ? z80_sound_latch_2 :
+                            sound_cs_2 ? sound_latch_0 :
+                            sound_cs_3 ? sound_latch_1 :
+                            sound_cs_5 ? sound_latch_2 :
                             16'd0;
 end
 `else
