@@ -53,6 +53,11 @@ Host (68k) external pins `A0-A10`, `D0-D7`, `/CS`, `R/W`, `/DTACK`:
 
 - The C-chip has **no 68k interrupt output** (pin 34 is `/DTACK`); games poll
   the shared RAM. `int1` (vblank) and `nmi_n` are inputs to the MCU.
+- `int1` is **edge-triggered and conditioned internally**: assert it (rising
+  edge) to request one IRQ. Wire the raw vblank straight in — pulse, short
+  level, or a full-vblank level (`~LVBL`) all work; the module holds the request
+  across the IKA sample filter and releases on its own, so no per-game pulse
+  shaper is needed and a sustained level never re-triggers.
 - IKA87AD exposes the full 16-bit address (`o_A`) directly, so the
   MODE0/MODE1/MM external memory remap is not modelled — the wrapper simply
   places storage at the addresses above.
@@ -76,7 +81,7 @@ docker run --platform linux/arm64 --rm -v "$(pwd)":/jtcores -w /jtcores \
 | Test | Covers |
 |------|--------|
 | `lint`    | elaboration + a short smoke run (verilator lint gate) |
-| `int1`    | INT1 conditioning: a pulse *or* level is held across the core's sample filter (~192 cen ticks), once per assert, counted in `cen` ticks so it is clock-rate tolerant |
+| `int1`    | INT1 conditioning: edge-triggered — a pulse, a short level, and a full-vblank-length level each give exactly one ~192-cen-tick hold measured from the rising edge (a long level releases mid-level, not extended); counted in `cen` ticks so it is clock-rate tolerant |
 | `hostmem` | 68k-side memory map: shared-SRAM windowing, `bank_68k` independence, the ASIC 4-byte reg file, `/DTACK` |
 
 These cover the **wrapper** (the new code). The **CPU core** is validated

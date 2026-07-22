@@ -91,6 +91,24 @@ module test;
             $finish;
         end
 
+        // ---- 4: a long (full-vblank-like) level must release MID-level -------
+        // Regression for the Op Wolf boot hang: a raw vblank level held high for
+        // the whole vblank must give one hold measured from the rising edge and
+        // then release even though the level is still high (not re-trigger).
+        @(posedge clk) int1 = 1;              // rising edge arms the hold
+        cen_cnt = 0;
+        while (cen_cnt <= 260) begin           // keep the level HIGH well past 192 cen
+            @(posedge clk);
+            if (cen) cen_cnt = cen_cnt + 1;
+        end
+        if (uut.int1_held) begin
+            $display("FAIL: int1_held still high after 260 cen with level stuck high");
+            $finish;
+        end
+        $display("long level: int1_held released mid-level after ~192 cen (good)");
+        int1 = 0;
+        repeat (20) @(posedge clk);
+
         $display("PASS");
         $finish;
     end

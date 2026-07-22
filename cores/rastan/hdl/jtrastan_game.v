@@ -40,7 +40,6 @@ wire [ 8:0] gun_yoffs = {gun_yoff8[7], gun_yoff8};
 // C-chip (Operation Wolf good sets)
 wire        cchip_cs;
 wire [ 7:0] cchip_dout;
-reg         cchip_int1, LVBLl_cc;
 
 assign dip_flip = flip;
 assign ram_addr = ram_cs ? (opwolf ? {3'd0, main_addr[14:1]} : {4'd0, main_addr[13:1]}) :
@@ -251,15 +250,6 @@ jtframe_ioctl_range #(.AW(13), .OFFSET(`JTFRAME_PROM_START+22'h1000)) u_ccepr_dl
     .dout   ( cc_epr_dd     )
 );
 
-// INT1 = vblank. MAME pulses the c-chip ext_interrupt at vblank start; a 1-clk
-// pulse on LVBL's falling edge is the right request. The module holds it across
-// the IKA glitch filter (INT1_HOLD). NB: do NOT pass the raw ~LVBL level — high
-// for the whole vblank (~80x the filter window) it re-triggers and breaks boot.
-always @(posedge clk) begin
-    LVBLl_cc   <= LVBL;
-    cchip_int1 <= LVBLl_cc && !LVBL;
-end
-
 jttc0030cmd u_cchip(
     .rst        ( rst               ),
     .clk        ( clk               ),
@@ -273,8 +263,9 @@ jttc0030cmd u_cchip(
     // write with LDS deasserted looks like a read (no store). main_dsn[0]=LDSn.
     .rnw        ( main_rnw | main_dsn[0] ),
     .dtack_n    (                   ), // 68k DTACK handled in jtrastan_main
-    // Interrupts
-    .int1       ( cchip_int1        ),
+    // Interrupts: INT1 = vblank. The module edge-detects and conditions this,
+    // so the raw vblank-active level (~LVBL) can be wired straight in.
+    .int1       ( ~LVBL             ),
     .nmi_n      ( 1'b1              ), // /NMI only used by Rainbow Islands
     // GPIO: PB=IN0 (coins), PC=IN1 (buttons/service/tilt/start). PA unused.
     // JT cab inputs are ACTIVE LOW (idle=1) like MAME's IN1, so buttons/service/

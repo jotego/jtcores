@@ -63,9 +63,11 @@ module jttc0030cmd #(
     output            dtack_n,
 
     // ---- MCU interrupt inputs ----
-    input             int1,       // INT1 request (vblank). Pulse OR level; the
-                                  // module holds it across the core's sample
-                                  // filter (see INT1_HOLD), one IRQ per assert.
+    input             int1,       // INT1 request (vblank). Edge-triggered: assert
+                                  // (rising edge) to request one IRQ. Wire the
+                                  // raw vblank in as-is — pulse OR level, any
+                                  // width; the module conditions it internally
+                                  // (see INT1_HOLD). No pulse shaper needed.
     input             nmi_n,      // /NMI pin
 
     // ---- MCU GPIO (PA/PB/PC bidirectional; direction is game-controlled) ----
@@ -249,19 +251,29 @@ module jttc0030cmd #(
     // comfortable number of *cen* ticks so it is always recognised — exactly
     // once per request — independent of the request width and of the cen
     // rate passed in (the count is in cen ticks, not clk cycles).
+    // Arm on the RISING EDGE of int1, then hold for INT1_HOLD cen ticks measured
+    // from that edge. This makes the request width irrelevant: a 1-clk pulse, a
+    // short level, or a full-vblank level (~LVBL, thousands of cen ticks) all
+    // produce exactly one clean hold and release on their own — a sustained
+    // level does NOT extend the hold or re-trigger. Edge-detecting here is what
+    // lets the parent wire its raw vblank straight in without a pulse shaper.
     localparam [8:0] INT1_HOLD = 9'd192;   // > 3 sample windows + phase margin
     reg  [8:0] int1_cnt;
-    reg        int1_held;
+    reg        int1_held, int1_l;
     always @(posedge clk) begin
         if( rst ) begin
             int1_cnt  <= 9'd0;
             int1_held <= 1'b0;
-        end else if( int1 ) begin               // (re)arm on request
-            int1_held <= 1'b1;
-            int1_cnt  <= INT1_HOLD;
-        end else if( cen && int1_cnt != 9'd0 ) begin
-            int1_cnt <= int1_cnt - 9'd1;
-            if( int1_cnt == 9'd1 ) int1_held <= 1'b0;
+            int1_l    <= 1'b0;
+        end else begin
+            int1_l <= int1;
+            if( int1 & ~int1_l ) begin          // arm once, on the rising edge
+                int1_held <= 1'b1;
+                int1_cnt  <= INT1_HOLD;
+            end else if( cen && int1_cnt != 9'd0 ) begin
+                int1_cnt <= int1_cnt - 9'd1;
+                if( int1_cnt == 9'd1 ) int1_held <= 1'b0;
+            end
         end
     end
 
