@@ -1,28 +1,35 @@
 [global]
 author=["jotego"]
 
+zip.alt="cchip.zip"
+
 [parse]
 sourcefile=[ "rastan.cpp", "opwolf.cpp" ]
 
 [parse.skip]
-setnames=[ "opwolf", "opwolfa", "opwolfj", "opwolfjsc", "opwolfu", "opwolfb" ]
+# opwolfb is the Bear Corp bootleg: it replaces the C-chip with an extra Z80
+# (different hardware), so it stays unsupported for now.
+setnames=[ "opwolfb" ]
 
 [Audio]
 volume = [
     { machine="rastan", value=0x71 },
     { setname="opwolfp", value=0x71 },
+    { setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=0x71 },
 ]
 
 [buttons]
 names=[
     { machine="rastan",  names="Slash,Jump" },
     { setname="opwolfp", names="Bullet,Grenade" },
+    { setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], names="Bullet,Grenade" },
 ]
 
 [header]
-info="Byte 0 bit 0: Operation Wolf hardware"
+info="Byte 0 bit 0: Operation Wolf hardware; bit 1: C-chip present"
 data = [
     { setname="opwolfp", offset=0, data="01" },
+    { setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], offset=0, data="03" },
 ]
 
 [dipsw]
@@ -39,9 +46,12 @@ regions = [
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="adpcm", start="PCM_START"    },
     { name="pc080sn", start="JTFRAME_BA2_START", width=16, no_offset=true  },
-    { name="pc090oj", start="JTFRAME_BA3_START", width=16, no_offset=true  }
+    { name="pc090oj", start="JTFRAME_BA3_START", width=16, no_offset=true  },
+    { name="cchip_bios", setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], start="JTFRAME_PROM_START", rom_len=0x1000, files=[ { name="cchip_upd78c11.bin", crc="43021521", size=0x1000 } ] },
+    { name="cchip:cchip_eprom", rename="cchip_eprom", setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], rom_len=0x2000 }
 ]
 
 order = [
-    "maincpu", "audiocpu", "adpcm", "pc080sn", "pc090oj"
+    "maincpu", "audiocpu", "adpcm", "pc080sn", "pc090oj",
+    "cchip_bios", "cchip_eprom"
 ]

@@ -29,7 +29,13 @@ wire [ 2:0] obj_pal;
 wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn;
 wire [ 3:0] main2snd, sn_dout;
-reg         opwolf;
+reg         opwolf, cchip;
+
+// C-chip (Operation Wolf good sets)
+wire        cchip_cs;
+wire [ 7:0] cchip_dout;
+wire        cchip_cen;
+reg         cchip_int1, LVBLl_cc;
 
 assign dip_flip = flip;
 assign ram_addr = ram_cs ? (opwolf ? {3'd0, main_addr[14:1]} : {4'd0, main_addr[13:1]}) :
@@ -39,8 +45,9 @@ assign xram_cs  = ram_cs | vram_cs;
 assign ram_dsn  = main_dsn;
 assign main2snd = opwolf ? main_dout[11:8] : main_dout[3:0];
 
+// Header byte 0: bit0 = Operation Wolf hardware, bit1 = C-chip present
 always @(posedge clk) begin
-    if (header && prog_we && prog_addr[3:0]==0) opwolf <= prog_data[0];
+    if (header && prog_we && prog_addr[3:0]==0) {cchip, opwolf} <= prog_data[1:0];
 end
 
 jtrastan_main u_main(
@@ -48,6 +55,9 @@ jtrastan_main u_main(
     .clk        ( clk       ), // 48 MHz
     .LVBL       ( LVBL      ),
     .opwolf     ( opwolf    ),
+    .cchip      ( cchip     ),
+    .cchip_cs   ( cchip_cs  ),
+    .cchip_dout ( cchip_dout),
 
     .main_addr  ( main_addr ),
     .main_dout  ( main_dout ),
@@ -196,6 +206,88 @@ jtrastan_video u_video(
     .ioctl_addr ( ioctl_addr[10:0]),
     .ioctl_din  ( ioctl_din ),
     .debug_view ( debug_view)
+);
+
+wire [ 1:0] cchip_cen2;
+wire [11:0] cc_mask_waddr;
+wire [12:0] cc_epr_waddr;
+wire        cc_mrom_we, cc_eprom_we;
+wire [ 7:0] cc_mask_dd, cc_epr_dd;
+
+wire [12:0] cc_prog_addr = cc_eprom_we ? cc_epr_waddr : {1'b0, cc_mask_waddr};
+wire [ 7:0] cc_prog_data = cc_eprom_we ? cc_epr_dd    : cc_mask_dd;
+assign      cchip_cen    = cchip_cen2[0];
+
+// 12 MHz MCU clock enable (clk = pxl*8 = 53.34 MHz; 9/40 = 12.00 MHz)
+jtframe_frac_cen #(.W(2),.WC(6)) u_cchip_cen(
+    .clk    ( clk           ),
+    .n      ( 6'd9          ),
+    .m      ( 6'd40         ),
+    .cen    ( cchip_cen2    ),
+    .cenb   (               )
+);
+
+jtframe_ioctl_range #(.AW(12), .OFFSET(`JTFRAME_PROM_START)) u_ccmask_dl(
+    .clk    ( clk           ),
+    .addr   ( prog_addr     ),
+    .addr_rel( cc_mask_waddr),
+    .en     ( prom_we       ),
+    .inrange( cc_mrom_we    ),
+    .din    ( prog_data     ),
+    .dout   ( cc_mask_dd    )
+);
+
+jtframe_ioctl_range #(.AW(13), .OFFSET(`JTFRAME_PROM_START+22'h1000)) u_ccepr_dl(
+    .clk    ( clk           ),
+    .addr   ( prog_addr     ),
+    .addr_rel( cc_epr_waddr ),
+    .en     ( prom_we       ),
+    .inrange( cc_eprom_we   ),
+    .din    ( prog_data     ),
+    .dout   ( cc_epr_dd     )
+);
+
+always @(posedge clk) begin
+    LVBLl_cc   <= LVBL;
+    cchip_int1 <= LVBLl_cc && !LVBL;
+end
+
+jttc0030cmd u_cchip(
+    .rst        ( rst               ),
+    .clk        ( clk               ),
+    .cen        ( cchip_cen         ),
+    // Host (68k) side
+    .cs         ( cchip_cs          ),
+    .addr       ( main_addr[11:1]   ),
+    .din        ( main_dout[7:0]    ),
+    .dout       ( cchip_dout        ),
+    // Reads answer on region select; writes only when LDS is asserted, so a
+    // write with LDS deasserted looks like a read (no store). main_dsn[0]=LDSn.
+    .rnw        ( main_rnw | main_dsn[0] ),
+    .dtack_n    (                   ), // 68k DTACK handled in jtrastan_main
+    // Interrupts
+    .int1       ( cchip_int1        ),
+    .nmi_n      ( 1'b1              ), // /NMI only used by Rainbow Islands
+    // GPIO: PB=IN0 (coins), PC=IN1 (buttons/service/tilt/start). PA unused.
+    // JT cab inputs are ACTIVE LOW (idle=1) like MAME's IN1, so buttons/service/
+    // tilt/start pass through un-inverted; MAME's IN0 coins are ACTIVE HIGH, so
+    // those get inverted (matches the prototype gun-read code in jtrastan_main).
+    .pa_in      ( 8'h00             ),
+    .pb_in      ( {6'h3f, ~coin[1:0]}),
+    .pc_in      ( {3'b111, cab_1p[0], tilt, service,
+                   joystick1[5], joystick1[4]} ),
+    .pa_out     (                   ),
+    .pb_out     (                   ), // coin lockout/counters, ignored
+    .pc_out     (                   ),
+    .an         ( 8'h00             ), // ADC unused on Operation Wolf
+    // ROM download into internal BRAM
+    .prog_addr  ( cc_prog_addr      ),
+    .prog_data  ( cc_prog_data      ),
+    .mrom_we    ( cc_mrom_we        ),
+    .eprom_we   ( cc_eprom_we       ),
+    // debug (unused)
+    .dbg_pc     (                   ),
+    .dbg_fetch  (                   )
 );
 
 endmodule
