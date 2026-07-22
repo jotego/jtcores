@@ -31,16 +31,10 @@ names=[
 # opwolfp reproduces the prototype's fixed +26/-6.
 [header]
 registers=[
-    { name="opwolf",    pos="0[0]", desc="Operation Wolf hardware",
-      values=[{ setnames=["opwolfp","opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }] },
-    { name="cchip",     pos="0[1]", desc="C-chip present",
-      values=[{ setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }] },
-    { name="gun_xoff8", pos="1[7:0]", desc="Light-gun X offset (signed)",
-      values=[{ setname="opwolfp", value=0x1A }, { setnames=["opwolf","opwolfa"], value=0x11 },
-              { setnames=["opwolfj","opwolfjsc"], value=0x15 }, { setname="opwolfu", value=0x15 }] },
-    { name="gun_yoff8", pos="2[7:0]", desc="Light-gun Y offset (signed)",
-      values=[{ setname="opwolfp", value=0xFA }, { setnames=["opwolf","opwolfa"], value=0xF0 },
-              { setnames=["opwolfj","opwolfjsc"], value=0xF8 }, { setname="opwolfu", value=0xDC }] },
+    { name="opwolf",    pos="0[0]",   desc="Operation Wolf hardware", values=[{ setnames=["opwolfp","opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }] },
+    { name="cchip",     pos="0[1]",   desc="C-chip present",          values=[{ setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }] },
+    { name="gun_xoff8", pos="1[7:0]", desc="Light-gun X offset (signed)", values=[{ setname="opwolfp", value=0x1A }, { setnames=["opwolf","opwolfa"], value=0x11 }, { setnames=["opwolfj","opwolfjsc"], value=0x15 }, { setname="opwolfu", value=0x15 }] },
+    { name="gun_yoff8", pos="2[7:0]", desc="Light-gun Y offset (signed)", values=[{ setname="opwolfp", value=0xFA }, { setnames=["opwolf","opwolfa"], value=0xF0 }, { setnames=["opwolfj","opwolfjsc"], value=0xF8 }, { setname="opwolfu", value=0xDC }] },
 ]
 
 [dipsw]

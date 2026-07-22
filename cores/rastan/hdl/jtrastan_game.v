@@ -29,11 +29,9 @@ wire [ 2:0] obj_pal;
 wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn;
 wire [ 3:0] main2snd, sn_dout;
-reg         opwolf, cchip;
+wire        opwolf, cchip;
 // Light-gun offsets: signed 8-bit values from header bytes 1/2, sign-extended.
-// mame2mra computes them per set from rom[0x3ffb0]/rom[0x3ffae] the way MAME's
-// init_opwolf does (X = 0x101-romx, Y = 0x1f8-romy), so the HDL just applies them.
-reg  [ 7:0] gun_xoff8, gun_yoff8;
+wire [ 7:0] gun_xoff8, gun_yoff8;
 wire [ 8:0] gun_xoffs = {gun_xoff8[7], gun_xoff8};
 wire [ 8:0] gun_yoffs = {gun_yoff8[7], gun_yoff8};
 
@@ -49,16 +47,19 @@ assign xram_cs  = ram_cs | vram_cs;
 assign ram_dsn  = main_dsn;
 assign main2snd = opwolf ? main_dout[11:8] : main_dout[3:0];
 
-// Header: byte0 bit0=Op Wolf hardware, bit1=C-chip present; byte1/byte2 =
-// the gun-calibration ROM bytes (rom[0x3ffb0]/rom[0x3ffae]) written in by mame2mra.
-always @(posedge clk) begin
-    if (header && prog_we) case (prog_addr[3:0])
-        4'd0: {cchip, opwolf} <= prog_data[1:0];
-        4'd1: gun_xoff8       <= prog_data;
-        4'd2: gun_yoff8       <= prog_data;
-        default:;
-    endcase
-end
+// Header fields (byte0 bit0=Op Wolf hardware, bit1=C-chip; byte1/2 = signed
+// gun X/Y offsets) — latched by the generated jtrastan_header (see mame2mra.toml).
+jtrastan_header u_header(
+    .clk        ( clk            ),
+    .header     ( header         ),
+    .prog_we    ( prog_we        ),
+    .opwolf     ( opwolf         ),
+    .cchip      ( cchip          ),
+    .gun_xoff8  ( gun_xoff8      ),
+    .gun_yoff8  ( gun_yoff8      ),
+    .prog_addr  ( prog_addr[2:0] ),
+    .prog_data  ( prog_data      )
+);
 
 jtrastan_main u_main(
     .rst        ( rst       ),

@@ -1,6 +1,7 @@
 rastan:
   - get:
     - jtrastan_game.v
+    - jtrastan_header.v
     - jtrastan_main.v
     - jtrastan_video.v
     - jtrastan_colmix.v
