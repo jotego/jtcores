@@ -83,6 +83,7 @@ docker run --platform linux/arm64 --rm -v "$(pwd)":/jtcores -w /jtcores \
 | `lint`    | elaboration + a short smoke run (verilator lint gate) |
 | `int1`    | INT1 conditioning: edge-triggered — a pulse, a short level, and a full-vblank-length level each give exactly one ~192-cen-tick hold measured from the rising edge (a long level releases mid-level, not extended); counted in `cen` ticks so it is clock-rate tolerant |
 | `hostmem` | 68k-side memory map: shared-SRAM windowing, `bank_68k` independence, the ASIC 4-byte reg file, `/DTACK` |
+| `boot` | A boot sequence made with a custom rom |
 
 These cover the **wrapper** (the new code). The **CPU core** is validated
 upstream: IKA87AD's own `sim/` runs every instruction/addressing mode and
