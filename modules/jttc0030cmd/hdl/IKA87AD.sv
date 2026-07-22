@@ -1,19 +1,3 @@
-// IKA87AD — NEC uCOM-87AD (uPD78C11) microcontroller core.
-// Copyright (c) 2023, Raki (Sehyeon Kim). Vendored verbatim from
-// https://github.com/ika-musume/IKA87AD
-//
-// Licensed under the "Taito C-Chip Temporary License" (BSD-2 + clause 3).
-// Full text: modules/jttc0030cmd/LICENSE.IKA87AD
-//
-// *** LICENSE CLAUSE 3 (live restriction) ***
-// This code — even a snippet — MUST NOT be used to implement Taito's
-// game "Rainbow Islands". Do NOT wire jttc0030cmd to the rbisland driver
-// until Raki removes this clause. Superman / Operation Wolf / other Taito
-// C-chip games are unaffected.
-//
-// Vendoring lint waivers: the upstream core mixes nibble-width masks with
-// 8/16-bit operands and uses don't-care case patterns by design. Harmless,
-// but noisy under verilator; silenced here without touching the logic.
 /* verilator lint_off WIDTHEXPAND */
 /* verilator lint_off WIDTHTRUNC */
 /* verilator lint_off CASEOVERLAP */

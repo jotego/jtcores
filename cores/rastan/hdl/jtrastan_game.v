@@ -220,39 +220,26 @@ jtrastan_video u_video(
     .debug_view ( debug_view)
 );
 
-// cchip_cen (12 MHz MCU clock enable) and the two C-chip ROM BRAMs
-// (cchip_mask_addr/data, cchip_eprom_addr/data — the mask ROM + game EPROM,
-// self-loaded from the PROM download) are declared in mem.yaml and arrive as ports.
 jttc0030cmd u_cchip(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .cen        ( cchip_cen         ),
-    // Host (68k) side
     .cs         ( cchip_cs          ),
     .addr       ( main_addr[11:1]   ),
     .din        ( main_dout[7:0]    ),
     .dout       ( cchip_dout        ),
-    // Reads answer on region select; writes only when LDS is asserted, so a
-    // write with LDS deasserted looks like a read (no store). main_dsn[0]=LDSn.
     .rnw        ( main_rnw | main_dsn[0] ),
-    .dtack_n    (                   ), // 68k DTACK handled in jtrastan_main
-    // Interrupts: INT1 = vblank. The module edge-detects and conditions this,
-    // so the raw vblank-active level (~LVBL) can be wired straight in.
+    .dtack_n    (                   ),
     .int1       ( ~LVBL             ),
-    .nmi_n      ( 1'b1              ), // /NMI only used by Rainbow Islands
-    // GPIO: PB=IN0 (coins), PC=IN1 (buttons/service/tilt/start). PA unused.
-    // JT cab inputs are ACTIVE LOW (idle=1) like MAME's IN1, so buttons/service/
-    // tilt/start pass through un-inverted; MAME's IN0 coins are ACTIVE HIGH, so
-    // those get inverted (matches the prototype gun-read code in jtrastan_main).
+    .nmi_n      ( 1'b1              ),
     .pa_in      ( 8'h00             ),
     .pb_in      ( {6'h3f, ~coin[1:0]}),
     .pc_in      ( {3'b111, cab_1p[0], tilt, service,
                    joystick1[5], joystick1[4]} ),
     .pa_out     (                   ),
-    .pb_out     (                   ), // coin lockout/counters, ignored
+    .pb_out     (                   ),
     .pc_out     (                   ),
-    .an         ( 8'h00             ), // ADC unused on Operation Wolf
-    // ROM read ports -> external BRAMs generated from mem.yaml
+    .an         ( 8'h00             ),
     .mrom_addr  ( cchip_mask_addr   ),
     .mrom_data  ( cchip_mask_data   ),
     .eprom_addr ( cchip_eprom_addr  ),

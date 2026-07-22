@@ -15,41 +15,10 @@
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
     Version: 1.0
     Date: 21-7-2026 */
-
-// Taito TC0030CMD "C-Chip" — jtframe wrapper around the IKA87AD core.
-//
-// The physical package holds four dies (see doc, from the Op.Wolf schematic):
-//   1 - uPD78C11 MCU + 4 KB internal mask ROM  (common to every game)
-//   2 - uPD27C64 8 KB EPROM                     (game specific)
-//   3 - uPD4464 8 KB SRAM                       (shared, banked 1 KB windows)
-//   4 - ASIC (NEC ULA): 4-byte reg file + two bank registers + /DTACK gen
-//
-// The MCU (IKA87AD, decap-based, cycle-accurate) exposes the full 16-bit
-// address directly, so the wrapper implements the internal memory map that
-// MAME's taito_cchip_device::cchip_map describes:
-//   0x0000-0x0FFF  internal mask ROM  (read only)
-//   0x1000-0x13FF  1 KB window into the 8 KB shared SRAM, bank = bank_mcu
-//   0x1400-0x17FF  ASIC region: 0x1600 write -> bank_mcu; else 4-byte reg
-//   0x2000-0x3FFF  game EPROM         (read only)
-//   0xFF00-0xFFFF  256 B MCU internal RAM
-//
-// The host (68k) side mirrors the real C-chip external pins (A0-A10, D0-D7,
-// /CS, R/W, /DTACK):
-//   0x000-0x3FF  1 KB window into the shared SRAM, bank = bank_68k
-//   0x400-0x5FF  ASIC 4-byte reg file
-//   0x600        bank_68k select (low 3 bits)
-//
-// There are two independent bank registers (bank_mcu / bank_68k) into the one
-// 8 KB SRAM, exactly as MAME keeps m_upd4464_bank and m_upd4464_bank68.
-//
-// The C-chip drives no 68k interrupt line (pin 34 is /DTACK, there is no INT
-// out pin); games poll the shared RAM.  INT1/NMI are inputs to the MCU
-// (INT1 = vblank via MAME's ext_interrupt -> INTF1; NMI used by Rainbow Is.).
-
 module jttc0030cmd (
-    input             rst,        // active high, synchronous
+    input             rst,
     input             clk,
-    input             cen,        // MCU clock enable (positive-edge PCEN)
+    input             cen,
 
     // ---- Host (68k) side: real C-chip external pins ----
     input             cs,         // active high (parent inverts /CS)
@@ -91,40 +60,28 @@ module jttc0030cmd (
     output            dbg_fetch   // opcode-fetch cycle (M1)
 );
 
-    // --------------------------------------------------------------------
-    // MCU bus (from IKA87AD)
-    // --------------------------------------------------------------------
     wire [15:0] mcu_addr;
     wire [ 7:0] mcu_dout;
     wire        mcu_wr_n, mcu_m1_n;
     reg  [ 7:0] mcu_din;
-    wire        mcu_wr = ~mcu_wr_n;   // read strobe (o_RD_n) unused: storage is
-                                      // always readable, CPU samples when ready
+    wire        mcu_wr = ~mcu_wr_n;
 
     assign dbg_pc    = mcu_addr;
     assign dbg_fetch = ~mcu_m1_n;
 
-    // MCU-side region decodes (partial, mirror cchip_map exactly)
     wire mcu_mask = mcu_addr <  16'h1000;                     // 0x0000-0x0FFF
     wire mcu_sram = mcu_addr[15:10]==6'b0001_00;              // 0x1000-0x13FF
     wire mcu_asic = mcu_addr[15:10]==6'b0001_01;              // 0x1400-0x17FF
     wire mcu_epr  = mcu_addr[15:13]==3'b001;                  // 0x2000-0x3FFF
     wire mcu_iram = &mcu_addr[15:8];                          // 0xFF00-0xFFFF
-    // Within the ASIC region the bank register is offset 0x200 (byte 0x1600).
     wire mcu_asic_off = mcu_addr[9];                          // 1 => 0x1600-0x17FF
     wire mcu_bank_we  = mcu_wr & mcu_asic & (mcu_addr[9:0]==10'h200);
 
-    // --------------------------------------------------------------------
-    // Host (68k) side decodes
-    // --------------------------------------------------------------------
     wire k68_sram    = cs & ~addr[10];                        // 0x000-0x3FF
     wire k68_asic    = cs &  addr[10];                        // 0x400-0x7FF
     wire k68_wr      = cs & ~rnw;
     wire k68_bank_we = k68_wr & k68_asic & (addr[9:0]==10'h200); // byte 0x600
 
-    // --------------------------------------------------------------------
-    // Bank registers (two views into the same 8 KB SRAM)
-    // --------------------------------------------------------------------
     reg [2:0] bank_mcu, bank_68k;
     reg [7:0] asic_ram[0:3];
 
@@ -135,9 +92,7 @@ module jttc0030cmd (
             asic_ram[0] <= 8'd0; asic_ram[1] <= 8'd0;
             asic_ram[2] <= 8'd0; asic_ram[3] <= 8'd0;
         end else begin
-            // ASIC 4-byte reg file: any ASIC write that is not a bank-set
-            // lands in asic_ram[offset&3] (MAME asic_w / asic68_w).  68k wins
-            // a same-cycle collision with the MCU.
+            // 68k wins a same-cycle ASIC-reg write collision with the MCU
             if     ( k68_wr & k68_asic & ~k68_bank_we ) asic_ram[addr[1:0]]     <= din;
             else if( mcu_wr & mcu_asic & ~mcu_bank_we ) asic_ram[mcu_addr[1:0]] <= mcu_dout;
             if( k68_bank_we ) bank_68k <= din[2:0];
@@ -145,26 +100,16 @@ module jttc0030cmd (
         end
     end
 
-    // ASIC read-back: offset < 0x200 returns the reg file, else 0 (bank regs
-    // are write-only on read, per MAME asic_r).
+    // bank-register offset reads back as 0 (write-only)
     wire [7:0] mcu_asic_rd = mcu_asic_off ? 8'h00 : asic_ram[mcu_addr[1:0]];
     wire [7:0] k68_asic_rd = addr[9]      ? 8'h00 : asic_ram[addr[1:0]];
 
-    // --------------------------------------------------------------------
-    // Storage.  BRAM runs on the full-rate clk (cen tied high) so its 1-cycle
-    // latency is hidden inside the much slower MCU cycle; mcu_addr / addr are
-    // held stable across the whole access, so the read mux can be combinational.
-    // --------------------------------------------------------------------
     wire [7:0] iram_q;
     wire [7:0] sram_qmcu, sram_q68;
 
-    // Mask ROM (4 KB) and EPROM (8 KB) live in parent-owned BRAMs. We just drive
-    // the read address; the data (mrom_data/eprom_data) comes back with the same
-    // 1-cycle BRAM latency the internal proms had, hidden inside the slow MCU cycle.
     assign mrom_addr  = mcu_addr[11:0];
     assign eprom_addr = mcu_addr[12:0];
 
-    // 8 KB shared SRAM — port 0 = MCU, port 1 = 68k, each with its own bank.
     jtframe_dual_ram #(.DW(8),.AW(13)) u_sram(
         .clk0   ( clk                         ),
         .data0  ( mcu_dout                    ),
@@ -178,7 +123,6 @@ module jttc0030cmd (
         .q1     ( sram_q68                    )
     );
 
-    // 256 B MCU internal RAM (single port on port 0).
     jtframe_dual_ram #(.DW(8),.AW(8)) u_iram(
         .clk0   ( clk                 ),
         .data0  ( mcu_dout            ),
@@ -192,7 +136,6 @@ module jttc0030cmd (
         .q1     (                     )
     );
 
-    // MCU read mux
     always @* begin
         case( 1'b1 )
             mcu_mask: mcu_din = mrom_data;
@@ -204,7 +147,6 @@ module jttc0030cmd (
         endcase
     end
 
-    // Host read mux
     always @* begin
         if     ( k68_sram ) dout = sram_q68;
         else if( k68_asic ) dout = k68_asic_rd;
@@ -219,29 +161,9 @@ module jttc0030cmd (
     end
     assign dtack_n = ~dtack;
 
-    // --------------------------------------------------------------------
-    // ADC: MAME returns 0xFF/0x00 per AN bit; AN4-7 double as the digital
-    // edge inputs.
-    // --------------------------------------------------------------------
     wire [2:0] adc_ch;
     wire [7:0] adc_data = an[adc_ch] ? 8'hFF : 8'h00;
 
-    // --------------------------------------------------------------------
-    // INT1 conditioning. The IKA core samples INT1 through a datasheet-
-    // accurate noise filter: it takes one sample every 36 MCU-clock (cen)
-    // ticks and only recognises the request once it has read high across 3
-    // consecutive samples (~108-144 cen ticks). On real hardware the /INT1
-    // pin is a vblank LEVEL that easily spans that; a short FPGA pulse would
-    // be rejected. Hold an incoming int1 request (pulse OR level) high for a
-    // comfortable number of *cen* ticks so it is always recognised — exactly
-    // once per request — independent of the request width and of the cen
-    // rate passed in (the count is in cen ticks, not clk cycles).
-    // Arm on the RISING EDGE of int1, then hold for INT1_HOLD cen ticks measured
-    // from that edge. This makes the request width irrelevant: a 1-clk pulse, a
-    // short level, or a full-vblank level (~LVBL, thousands of cen ticks) all
-    // produce exactly one clean hold and release on their own — a sustained
-    // level does NOT extend the hold or re-trigger. Edge-detecting here is what
-    // lets the parent wire its raw vblank straight in without a pulse shaper.
     localparam [8:0] INT1_HOLD = 9'd192;   // > 3 sample windows + phase margin
     reg  [8:0] int1_cnt;
     reg        int1_held, int1_l;
@@ -262,9 +184,6 @@ module jttc0030cmd (
         end
     end
 
-    // --------------------------------------------------------------------
-    // MCU core
-    // --------------------------------------------------------------------
     IKA87AD u_mcu(
         .i_EMUCLK           ( clk           ),
         .i_MCUCLK_PCEN      ( cen           ),
