@@ -25,17 +25,22 @@ names=[
     { setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], names="Bullet,Grenade" },
 ]
 
+# Registers generate cores/rastan/hdl/jtrastan_header.v (named, latched outputs)
+# and set the per-set header bytes. Gun offsets are signed 8-bit, computed per set
+# the way MAME's init_opwolf does (X = 0x101-rom[0x3ffb0], Y = 0x1f8-rom[0x3ffae]);
+# opwolfp reproduces the prototype's fixed +26/-6.
 [header]
-info="Byte 0 bit0: Operation Wolf hardware; bit1: C-chip present. Byte 1/2: light-gun X/Y offset (signed)"
-data = [
-    { setname="opwolfp", offset=0, data="01" },
-    { setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], offset=0, data="03" },
-    # Light-gun offsets (signed 8-bit): X = 0x101-rom[0x3ffb0], Y = 0x1f8-rom[0x3ffae],
-    # per MAME init_opwolf. opwolfp reproduces the prototype's fixed +26/-6.
-    { setname="opwolfp",                offset=1, data="1A FA" },
-    { setnames=["opwolf","opwolfa"],    offset=1, data="11 F0" },
-    { setnames=["opwolfj","opwolfjsc"], offset=1, data="15 F8" },
-    { setname="opwolfu",                offset=1, data="15 DC" },
+registers=[
+    { name="opwolf",    pos="0[0]", desc="Operation Wolf hardware",
+      values=[{ setnames=["opwolfp","opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }] },
+    { name="cchip",     pos="0[1]", desc="C-chip present",
+      values=[{ setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }] },
+    { name="gun_xoff8", pos="1[7:0]", desc="Light-gun X offset (signed)",
+      values=[{ setname="opwolfp", value=0x1A }, { setnames=["opwolf","opwolfa"], value=0x11 },
+              { setnames=["opwolfj","opwolfjsc"], value=0x15 }, { setname="opwolfu", value=0x15 }] },
+    { name="gun_yoff8", pos="2[7:0]", desc="Light-gun Y offset (signed)",
+      values=[{ setname="opwolfp", value=0xFA }, { setnames=["opwolf","opwolfa"], value=0xF0 },
+              { setnames=["opwolfj","opwolfjsc"], value=0xF8 }, { setname="opwolfu", value=0xDC }] },
 ]
 
 [dipsw]
