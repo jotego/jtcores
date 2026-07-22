@@ -146,7 +146,7 @@ wire [ 2:0] FC, IPLn;
 reg         io_cs, out_cs, otport1_cs, inport_cs, dip_cs, gun_cs;
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
-wire [ 8:0] opwolf_gun_x, opwolf_gun_y;
+reg  [ 8:0] opwolf_gun_x, opwolf_gun_y;
 wire [15:0] cpu_dout;
 reg         intn, LVBLl;
 wire        bus_cs, bus_busy, bus_legit;
@@ -163,8 +163,12 @@ assign bus_busy = (rom_cs & ~rom_ok) | ( (vram_cs | ram_cs) & ~ram_ok);
 assign bus_legit= vram_cs & ~sdakn;
 // Light-gun offsets come from the header (gun_xoffs/gun_yoffs inputs), derived
 // per set at MRA build time from the same ROM bytes MAME's init_opwolf reads.
-assign opwolf_gun_x = gun_x + gun_xoffs;
-assign opwolf_gun_y = gun_y + gun_yoffs;
+// Registered (adder out of the read path); the gun value is quasi-static so the
+// 1-cycle latency is harmless.
+always @(posedge clk) begin
+    opwolf_gun_x <= gun_x + gun_xoffs;
+    opwolf_gun_y <= gun_y + gun_yoffs;
+end
 
 always @* begin
     rom_cs  = allFC && (opwolf ? A[23:18]==0 : A[23:17]<3) && !ASn;
