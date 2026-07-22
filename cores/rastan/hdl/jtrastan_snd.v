@@ -66,6 +66,7 @@ wire        [ 3:0] pcm0_nibble, pcm1_nibble;
 wire signed [11:0] pcm0_raw, pcm1_raw;
 wire signed [20:0] pcm0_scaled, pcm1_scaled;
 wire signed [11:0] pcm0_atten, pcm1_atten;
+reg  signed [11:0] pcm0_q,     pcm1_q;
 reg         [15:0] pcm0_start, pcm0_end, pcm1_start, pcm1_end;
 reg         [ 7:0] pcm0_vol, pcm1_vol;
 reg         [ 7:0] din;
@@ -78,10 +79,14 @@ assign pcm0_scaled = pcm0_raw * $signed({1'b0,pcm0_vol});
 assign pcm1_scaled = pcm1_raw * $signed({1'b0,pcm1_vol});
 assign pcm0_atten = pcm0_scaled[19:8];
 assign pcm1_atten = pcm1_scaled[19:8];
-assign pcm0 = opwolf ? pcm0_atten : pcm0_raw;
-assign pcm1 = pcm1_atten;
+assign pcm0 = pcm0_q;
+assign pcm1 = pcm1_q;
 
+// Register the volume-scaled PCM before the RC mixer to break a long combiational path
+// that miss the timings on pocket at 53Mhz
 always @(posedge clk) begin
+    pcm0_q   <= opwolf ? pcm0_atten : pcm0_raw;
+    pcm1_q   <= pcm1_atten;
     snd_rstn <= ~(rst | pc6_rst);
 end
 
