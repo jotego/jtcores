@@ -9,6 +9,7 @@ rastan:
     - jtrastan_obj.v
     - jtrastan_snd.v
     - jtrastan_pc060.v
+    - timing.sdc
 jtframe:
   - from: ram
     get:
