@@ -28,7 +28,7 @@ module test;
         .pa_in(8'd0), .pb_in(8'd0), .pc_in(8'd0),
         .pa_out(), .pb_out(), .pc_out(),
         .an(8'd0),
-        .prog_addr(13'd0), .prog_data(8'd0), .mrom_we(1'b0), .eprom_we(1'b0),
+        .mrom_addr(), .mrom_data(8'd0), .eprom_addr(), .eprom_data(8'd0),
         .dbg_pc(), .dbg_fetch()
     );
 

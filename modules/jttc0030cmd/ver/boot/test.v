@@ -20,15 +20,28 @@ module test;
     wire [ 7:0] dout;
     wire        dtack_n;
 
-    jttc0030cmd #(.SIMHEX_MROM("boot_mrom.hex")) uut(
+    wire [11:0] mrom_addr;
+    wire [12:0] eprom_addr;
+    wire [ 7:0] mrom_data;
+
+    jttc0030cmd uut(
         .rst(rst), .clk(clk), .cen(cen),
         .cs(cs), .addr(addr), .din(din), .dout(dout), .rnw(rnw), .dtack_n(dtack_n),
         .int1(1'b0), .nmi_n(1'b1),
         .pa_in(8'd0), .pb_in(8'd0), .pc_in(8'd0),
         .pa_out(), .pb_out(), .pc_out(),
         .an(8'd0),
-        .prog_addr(13'd0), .prog_data(8'd0), .mrom_we(1'b0), .eprom_we(1'b0),
+        .mrom_addr(mrom_addr), .mrom_data(mrom_data),
+        .eprom_addr(eprom_addr), .eprom_data(8'd0),
         .dbg_pc(), .dbg_fetch()
+    );
+
+    // External mask-ROM BRAM loaded with the custom boot firmware — models what
+    // the parent core supplies from a mem.yaml `bram:` (the module no longer
+    // owns its ROM storage). This mask-ROM-only test needs no external EPROM.
+    jtframe_prom #(.DW(8),.AW(12),.SIMHEX("boot_mrom.hex")) u_mask(
+        .clk(clk), .cen(1'b1), .data(8'd0),
+        .rd_addr(mrom_addr), .wr_addr(12'd0), .we(1'b0), .q(mrom_data)
     );
 
     reg [7:0] q;

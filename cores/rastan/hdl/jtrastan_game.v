@@ -220,36 +220,9 @@ jtrastan_video u_video(
     .debug_view ( debug_view)
 );
 
-wire [11:0] cc_mask_waddr;
-wire [12:0] cc_epr_waddr;
-wire        cc_mrom_we, cc_eprom_we;
-wire [ 7:0] cc_mask_dd, cc_epr_dd;
-
-wire [12:0] cc_prog_addr = cc_eprom_we ? cc_epr_waddr : {1'b0, cc_mask_waddr};
-wire [ 7:0] cc_prog_data = cc_eprom_we ? cc_epr_dd    : cc_mask_dd;
-// cchip_cen (12 MHz MCU clock enable, on the clk domain) is generated from the
-// clocks section of mem.yaml and arrives as an input port.
-
-jtframe_ioctl_range #(.AW(12), .OFFSET(`JTFRAME_PROM_START)) u_ccmask_dl(
-    .clk    ( clk           ),
-    .addr   ( prog_addr     ),
-    .addr_rel( cc_mask_waddr),
-    .en     ( prom_we       ),
-    .inrange( cc_mrom_we    ),
-    .din    ( prog_data     ),
-    .dout   ( cc_mask_dd    )
-);
-
-jtframe_ioctl_range #(.AW(13), .OFFSET(`JTFRAME_PROM_START+22'h1000)) u_ccepr_dl(
-    .clk    ( clk           ),
-    .addr   ( prog_addr     ),
-    .addr_rel( cc_epr_waddr ),
-    .en     ( prom_we       ),
-    .inrange( cc_eprom_we   ),
-    .din    ( prog_data     ),
-    .dout   ( cc_epr_dd     )
-);
-
+// cchip_cen (12 MHz MCU clock enable) and the two C-chip ROM BRAMs
+// (cchip_mask_addr/data, cchip_eprom_addr/data — the mask ROM + game EPROM,
+// self-loaded from the PROM download) are declared in mem.yaml and arrive as ports.
 jttc0030cmd u_cchip(
     .rst        ( rst               ),
     .clk        ( clk               ),
@@ -279,11 +252,11 @@ jttc0030cmd u_cchip(
     .pb_out     (                   ), // coin lockout/counters, ignored
     .pc_out     (                   ),
     .an         ( 8'h00             ), // ADC unused on Operation Wolf
-    // ROM download into internal BRAM
-    .prog_addr  ( cc_prog_addr      ),
-    .prog_data  ( cc_prog_data      ),
-    .mrom_we    ( cc_mrom_we        ),
-    .eprom_we   ( cc_eprom_we       ),
+    // ROM read ports -> external BRAMs generated from mem.yaml
+    .mrom_addr  ( cchip_mask_addr   ),
+    .mrom_data  ( cchip_mask_data   ),
+    .eprom_addr ( cchip_eprom_addr  ),
+    .eprom_data ( cchip_eprom_data  ),
     // debug (unused)
     .dbg_pc     (                   ),
     .dbg_fetch  (                   )

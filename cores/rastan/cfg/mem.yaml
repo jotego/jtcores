@@ -11,6 +11,10 @@ clocks:
     - freq: 12 MHz          # Operation Wolf C-chip MCU (uPD78C11) clock enable
       outputs:
         - cchip_cen
+bram:
+  # Operation Wolf C-chip ROMs, loaded from the PROM download region into BRAM.
+  - { name: cchip_mask,  addr_width: 12, data_width: 8, prom: true }  # 4KB shared mask ROM
+  - { name: cchip_eprom, addr_width: 13, data_width: 8, prom: true }  # 8KB game EPROM
 params:
   - { name:  RAM_OFFSET, value: "22'h10_0000" }
   - { name: VRAM_OFFSET, value: "22'h11_0000" }

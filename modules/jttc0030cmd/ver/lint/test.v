@@ -37,10 +37,10 @@ module test;
         .pb_out   ( pb_out   ),
         .pc_out   ( pc_out   ),
         .an       ( 8'h00    ),
-        .prog_addr( 13'd0    ),
-        .prog_data( 8'd0     ),
-        .mrom_we  ( 1'b0     ),
-        .eprom_we ( 1'b0     )
+        .mrom_addr (          ),
+        .mrom_data ( 8'd0     ),
+        .eprom_addr(          ),
+        .eprom_data( 8'd0     )
     );
 
     initial begin

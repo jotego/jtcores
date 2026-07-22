@@ -46,10 +46,7 @@
 // out pin); games poll the shared RAM.  INT1/NMI are inputs to the MCU
 // (INT1 = vblank via MAME's ext_interrupt -> INTF1; NMI used by Rainbow Is.).
 
-module jttc0030cmd #(
-    parameter        SIMHEX_MROM  = "",   // 4 KB common mask ROM (sim load)
-    parameter        SIMHEX_EPROM = ""    // 8 KB game EPROM      (sim load)
-)(
+module jttc0030cmd (
     input             rst,        // active high, synchronous
     input             clk,
     input             cen,        // MCU clock enable (positive-edge PCEN)
@@ -81,11 +78,13 @@ module jttc0030cmd #(
     // ---- ADC / digital AN inputs (an[x]=1 reads back as 0xFF) ----
     input      [ 7:0] an,
 
-    // ---- ROM download (jtframe): common mask ROM + game EPROM ----
-    input      [12:0] prog_addr,  // 13 bits: 8 KB EPROM; low 12 for mask ROM
-    input      [ 7:0] prog_data,
-    input             mrom_we,    // write strobe: 4 KB mask ROM
-    input             eprom_we,   // write strobe: 8 KB EPROM
+    // ---- ROM read ports: wire to external BRAMs owned by the parent (declare
+    //      them in mem.yaml `bram:` — the two 4 KB / 8 KB ROMs load themselves
+    //      from the download; see the README wiring section) ----
+    output     [11:0] mrom_addr,   // 4 KB common mask ROM
+    input      [ 7:0] mrom_data,
+    output     [12:0] eprom_addr,  // 8 KB game EPROM
+    input      [ 7:0] eprom_data,
 
     // ---- debug taps (sim) ----
     output     [15:0] dbg_pc,     // MCU bus address (= PC during opcode fetch)
@@ -156,28 +155,14 @@ module jttc0030cmd #(
     // latency is hidden inside the much slower MCU cycle; mcu_addr / addr are
     // held stable across the whole access, so the read mux can be combinational.
     // --------------------------------------------------------------------
-    wire [7:0] mrom_q, epr_q, iram_q;
+    wire [7:0] iram_q;
     wire [7:0] sram_qmcu, sram_q68;
 
-    jtframe_prom #(.DW(8),.AW(12),.SIMHEX(SIMHEX_MROM)) u_mask(
-        .clk    ( clk               ),
-        .cen    ( 1'b1              ),
-        .data   ( prog_data         ),
-        .rd_addr( mcu_addr[11:0]    ),
-        .wr_addr( prog_addr[11:0]   ),
-        .we     ( mrom_we           ),
-        .q      ( mrom_q            )
-    );
-
-    jtframe_prom #(.DW(8),.AW(13),.SIMHEX(SIMHEX_EPROM)) u_eprom(
-        .clk    ( clk               ),
-        .cen    ( 1'b1              ),
-        .data   ( prog_data         ),
-        .rd_addr( mcu_addr[12:0]    ),
-        .wr_addr( prog_addr[12:0]   ),
-        .we     ( eprom_we          ),
-        .q      ( epr_q             )
-    );
+    // Mask ROM (4 KB) and EPROM (8 KB) live in parent-owned BRAMs. We just drive
+    // the read address; the data (mrom_data/eprom_data) comes back with the same
+    // 1-cycle BRAM latency the internal proms had, hidden inside the slow MCU cycle.
+    assign mrom_addr  = mcu_addr[11:0];
+    assign eprom_addr = mcu_addr[12:0];
 
     // 8 KB shared SRAM — port 0 = MCU, port 1 = 68k, each with its own bank.
     jtframe_dual_ram #(.DW(8),.AW(13)) u_sram(
@@ -210,10 +195,10 @@ module jttc0030cmd #(
     // MCU read mux
     always @* begin
         case( 1'b1 )
-            mcu_mask: mcu_din = mrom_q;
+            mcu_mask: mcu_din = mrom_data;
             mcu_sram: mcu_din = sram_qmcu;
             mcu_asic: mcu_din = mcu_asic_rd;
-            mcu_epr:  mcu_din = epr_q;
+            mcu_epr:  mcu_din = eprom_data;
             mcu_iram: mcu_din = iram_q;
             default:  mcu_din = 8'hFF;
         endcase

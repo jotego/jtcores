@@ -63,10 +63,58 @@ Host (68k) external pins `A0-A10`, `D0-D7`, `/CS`, `R/W`, `/DTACK`:
   places storage at the addresses above.
 - ADC: each `an[x]` reads back as `0xFF`/`0x00` (MAME's `anN_func`); AN4-7 also
   feed the digital edge detector.
-- BRAM runs at full `clk` rate; its 1-cycle latency hides inside the slower
-  `cen`-gated MCU cycle, so the read mux is combinational.
-- Load the mask ROM via `mrom_we` and the EPROM via `eprom_we` (jtframe
-  download), or point `SIMHEX_MROM` / `SIMHEX_EPROM` at hex files for sim.
+- The mask ROM (4 KB) and game EPROM (8 KB) are **not** owned by the module.
+  Wire `mrom_addr`/`mrom_data` and `eprom_addr`/`eprom_data` to two parent-owned
+  BRAMs (declare them in the core's `mem.yaml`, see *Wiring* below). The BRAM's
+  1-cycle read latency hides inside the slower `cen`-gated MCU cycle, so the
+  internal read mux is combinational.
+
+## Wiring (parent core)
+
+Declare the two ROMs as BRAMs in the core `mem.yaml` — they load themselves from
+the PROM download region, no manual decode needed:
+
+```yaml
+clocks:
+  clk48:                                 # the module runs on the main clk domain
+    - { freq: 12 MHz, outputs: [cchip_cen] }   # uPD78C11, 12 MHz (pin 20)
+bram:
+  - { name: cchip_mask,  addr_width: 12, data_width: 8, prom: true }  # 4 KB mask ROM
+  - { name: cchip_eprom, addr_width: 13, data_width: 8, prom: true }  # 8 KB game EPROM
+```
+
+That gives the game module the ports `cchip_cen`, `cchip_{mask,eprom}_addr`
+(out) and `cchip_{mask,eprom}_data` (in). Instantiate the chip:
+
+```verilog
+jttc0030cmd u_cchip(
+    .rst(rst), .clk(clk), .cen(cchip_cen),
+    // 68k host bus: cs on the region; LDS-gate writes only (reads answer on cs)
+    .cs(cchip_cs), .addr(A[11:1]), .din(dout68[7:0]), .dout(cchip_dout),
+    .rnw(rnw | lds_n), .dtack_n(),           // /DTACK: poll shared RAM, or use it
+    .int1(~LVBL), .nmi_n(1'b1),              // INT1 = raw vblank (edge-conditioned)
+    .pa_in(...), .pb_in(...), .pc_in(...),   // game-specific I/O ports
+    .pa_out(), .pb_out(), .pc_out(), .an(8'h00),
+    .mrom_addr(cchip_mask_addr),   .mrom_data(cchip_mask_data),
+    .eprom_addr(cchip_eprom_addr), .eprom_data(cchip_eprom_data),
+    .dbg_pc(), .dbg_fetch()
+);
+```
+
+In `mame2mra.toml`, place the two ROMs in the PROM region in this order (mask
+first, EPROM second) so they land at the offsets the BRAMs expect:
+
+```toml
+[ROM]
+regions = [
+    # ... game regions ...
+    { name="cchip_bios", start="JTFRAME_PROM_START", rom_len=0x1000,
+      files=[{ name="cchip_upd78c11.bin", crc="43021521", size=0x1000 }] },
+    { name="cchip:cchip_eprom", rename="cchip_eprom", rom_len=0x2000 },
+]
+```
+The 4 KB mask ROM is a MAME device romset (`cchip.zip`); add it via
+`[global] zip.alt="cchip.zip"`.
 
 ## Tests
 
