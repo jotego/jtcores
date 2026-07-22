@@ -30,6 +30,12 @@ wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn;
 wire [ 3:0] main2snd, sn_dout;
 reg         opwolf, cchip;
+// Light-gun offsets: signed 8-bit values from header bytes 1/2, sign-extended.
+// mame2mra computes them per set from rom[0x3ffb0]/rom[0x3ffae] the way MAME's
+// init_opwolf does (X = 0x101-romx, Y = 0x1f8-romy), so the HDL just applies them.
+reg  [ 7:0] gun_xoff8, gun_yoff8;
+wire [ 8:0] gun_xoffs = {gun_xoff8[7], gun_xoff8};
+wire [ 8:0] gun_yoffs = {gun_yoff8[7], gun_yoff8};
 
 // C-chip (Operation Wolf good sets)
 wire        cchip_cs;
@@ -44,9 +50,15 @@ assign xram_cs  = ram_cs | vram_cs;
 assign ram_dsn  = main_dsn;
 assign main2snd = opwolf ? main_dout[11:8] : main_dout[3:0];
 
-// Header byte 0: bit0 = Operation Wolf hardware, bit1 = C-chip present
+// Header: byte0 bit0=Op Wolf hardware, bit1=C-chip present; byte1/byte2 =
+// the gun-calibration ROM bytes (rom[0x3ffb0]/rom[0x3ffae]) written in by mame2mra.
 always @(posedge clk) begin
-    if (header && prog_we && prog_addr[3:0]==0) {cchip, opwolf} <= prog_data[1:0];
+    if (header && prog_we) case (prog_addr[3:0])
+        4'd0: {cchip, opwolf} <= prog_data[1:0];
+        4'd1: gun_xoff8       <= prog_data;
+        4'd2: gun_yoff8       <= prog_data;
+        default:;
+    endcase
 end
 
 jtrastan_main u_main(
@@ -57,6 +69,8 @@ jtrastan_main u_main(
     .cchip      ( cchip     ),
     .cchip_cs   ( cchip_cs  ),
     .cchip_dout ( cchip_dout),
+    .gun_xoffs  ( gun_xoffs ),
+    .gun_yoffs  ( gun_yoffs ),
 
     .main_addr  ( main_addr ),
     .main_dout  ( main_dout ),
@@ -237,6 +251,10 @@ jtframe_ioctl_range #(.AW(13), .OFFSET(`JTFRAME_PROM_START+22'h1000)) u_ccepr_dl
     .dout   ( cc_epr_dd     )
 );
 
+// INT1 = vblank. MAME pulses the c-chip ext_interrupt at vblank start; a 1-clk
+// pulse on LVBL's falling edge is the right request. The module holds it across
+// the IKA glitch filter (INT1_HOLD). NB: do NOT pass the raw ~LVBL level — high
+// for the whole vblank (~80x the filter window) it re-triggers and breaks boot.
 always @(posedge clk) begin
     LVBLl_cc   <= LVBL;
     cchip_int1 <= LVBLl_cc && !LVBL;

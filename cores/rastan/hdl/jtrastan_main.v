@@ -88,6 +88,10 @@ module jtrastan_main(
     output reg           cchip_cs,
     input         [ 7:0] cchip_dout,
 
+    // Light-gun offsets (from the header, derived per set at MRA build time)
+    input         [ 8:0] gun_xoffs,
+    input         [ 8:0] gun_yoffs,
+
     output        [18:1] main_addr,
     output        [ 1:0] main_dsn,
     output        [15:0] main_dout,
@@ -147,19 +151,7 @@ wire [15:0] cpu_dout;
 reg         intn, LVBLl;
 wire        bus_cs, bus_busy, bus_legit;
 
-// --- Light-gun calibration boot read (Operation Wolf good sets) ---------
-// MAME init_opwolf derives the light-gun offsets from the main ROM:
-//   final X = raw + 0x15  + (0xec - rom[0x3ffb0]&0xff) = raw + (0x101 - romx)
-//   final Y = raw - 0x24  + (0x1c - rom[0x3ffae]&0xff) = raw + (-8   - romy)
-// The &0xff byte is the odd (low, D0-D7) ROM lane = main data[7:0]. We hold the
-// CPU in reset, read the two words from SDRAM, latch the offsets, then start.
-reg  [ 8:0] gun_xoffs, gun_yoffs;
-reg         boot_st, boot_busy, rom_okl;
-reg  [18:1] boot_addr;
-wire        boot_ok = rom_ok & ~rom_okl;   // rising edge = fresh word ready
-wire        cpu_rst = rst | boot_busy;
-
-assign main_addr= boot_busy ? boot_addr : A[18:1];
+assign main_addr= A[18:1];
 assign main_dsn = {UDSn, LDSn};
 assign main_rnw = RnW;
 assign main_dout= cpu_dout;
@@ -169,38 +161,13 @@ assign VPAn     = !(!ASn && FC==7 && A[3:1]==5 && RnW);
 assign bus_cs   = rom_cs | vram_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | ( (vram_cs | ram_cs) & ~ram_ok);
 assign bus_legit= vram_cs & ~sdakn;
+// Light-gun offsets come from the header (gun_xoffs/gun_yoffs inputs), derived
+// per set at MRA build time from the same ROM bytes MAME's init_opwolf reads.
 assign opwolf_gun_x = gun_x + gun_xoffs;
 assign opwolf_gun_y = gun_y + gun_yoffs;
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        boot_st   <= 1'b0;
-        boot_busy <= cchip;          // only the good sets need the ROM read
-        boot_addr <= 18'h1ffd8;      // word of byte 0x3ffb0 (X calibration)
-        rom_okl   <= 1'b0;
-        // Nominal deltas (romx==0xec, romy==0x1c) until the read completes; the
-        // prototype (cchip=0) keeps the historical fixed offsets.
-        gun_xoffs <= cchip ? 9'h015 : 9'd26;
-        gun_yoffs <= cchip ? 9'h1f8 : 9'h1fa;
-    end else if( boot_busy ) begin
-        rom_okl <= rom_ok;
-        case( boot_st )
-            1'b0: if( boot_ok ) begin     // romx = ROM low byte @ 0x3ffb0
-                gun_xoffs <= 9'h101 - {1'b0, rom_data[7:0]};
-                boot_addr <= 18'h1ffd7;   // word of byte 0x3ffae (Y calibration)
-                boot_st   <= 1'b1;
-            end
-            1'b1: if( boot_ok ) begin      // romy = ROM low byte @ 0x3ffae
-                gun_yoffs <= 9'h1f8 - {1'b0, rom_data[7:0]};
-                boot_busy <= 1'b0;         // release the CPU
-            end
-        endcase
-    end
-end
-
 always @* begin
-    rom_cs  = boot_busy ? 1'b1 :
-              allFC && (opwolf ? A[23:18]==0 : A[23:17]<3) && !ASn;
+    rom_cs  = allFC && (opwolf ? A[23:18]==0 : A[23:17]<3) && !ASn;
     vram_cs = allFC && A[23:19]==5'h18 && !ASn && {UDSn,LDSn}!=3;
     ram_cs  = allFC && (opwolf ? A[23:15]==9'h20 : A[23:18]==6'h4) &&
               !ASn && {UDSn,LDSn}!=3;
@@ -329,7 +296,7 @@ jtframe_68kdtack_cen #(.W(12)) u_dtack(
 
 jtframe_m68k u_cpu(
     .clk        ( clk         ),
-    .rst        ( cpu_rst     ), // held until gun calibration read completes
+    .rst        ( rst         ),
     .RESETn     (             ),
     .cpu_cen    ( cpu_cen     ),
     .cpu_cenb   ( cpu_cenb    ),

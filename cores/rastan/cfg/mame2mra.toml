@@ -26,10 +26,16 @@ names=[
 ]
 
 [header]
-info="Byte 0 bit 0: Operation Wolf hardware; bit 1: C-chip present"
+info="Byte 0 bit0: Operation Wolf hardware; bit1: C-chip present. Byte 1/2: light-gun X/Y offset (signed)"
 data = [
     { setname="opwolfp", offset=0, data="01" },
     { setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], offset=0, data="03" },
+    # Light-gun offsets (signed 8-bit): X = 0x101-rom[0x3ffb0], Y = 0x1f8-rom[0x3ffae],
+    # per MAME init_opwolf. opwolfp reproduces the prototype's fixed +26/-6.
+    { setname="opwolfp",                offset=1, data="1A FA" },
+    { setnames=["opwolf","opwolfa"],    offset=1, data="11 F0" },
+    { setnames=["opwolfj","opwolfjsc"], offset=1, data="15 F8" },
+    { setname="opwolfu",                offset=1, data="15 DC" },
 ]
 
 [dipsw]
