@@ -21,7 +21,6 @@ jtframe:
   - from: clocking
     get:
       - jtframe_sync.v
-      - jtframe_frac_cen.v
   - from: sdram
     get:
       - jtframe_ioctl_range.v

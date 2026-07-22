@@ -7,6 +7,10 @@ clocks:
     - freq: 384 kHz
       outputs:
         - pcm_cen
+  clk48:                    # on the main clk domain (where the C-chip host bus lives)
+    - freq: 12 MHz          # Operation Wolf C-chip MCU (uPD78C11) clock enable
+      outputs:
+        - cchip_cen
 params:
   - { name:  RAM_OFFSET, value: "22'h10_0000" }
   - { name: VRAM_OFFSET, value: "22'h11_0000" }

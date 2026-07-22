@@ -34,7 +34,6 @@ reg         opwolf, cchip;
 // C-chip (Operation Wolf good sets)
 wire        cchip_cs;
 wire [ 7:0] cchip_dout;
-wire        cchip_cen;
 reg         cchip_int1, LVBLl_cc;
 
 assign dip_flip = flip;
@@ -208,7 +207,6 @@ jtrastan_video u_video(
     .debug_view ( debug_view)
 );
 
-wire [ 1:0] cchip_cen2;
 wire [11:0] cc_mask_waddr;
 wire [12:0] cc_epr_waddr;
 wire        cc_mrom_we, cc_eprom_we;
@@ -216,16 +214,8 @@ wire [ 7:0] cc_mask_dd, cc_epr_dd;
 
 wire [12:0] cc_prog_addr = cc_eprom_we ? cc_epr_waddr : {1'b0, cc_mask_waddr};
 wire [ 7:0] cc_prog_data = cc_eprom_we ? cc_epr_dd    : cc_mask_dd;
-assign      cchip_cen    = cchip_cen2[0];
-
-// 12 MHz MCU clock enable (clk = pxl*8 = 53.34 MHz; 9/40 = 12.00 MHz)
-jtframe_frac_cen #(.W(2),.WC(6)) u_cchip_cen(
-    .clk    ( clk           ),
-    .n      ( 6'd9          ),
-    .m      ( 6'd40         ),
-    .cen    ( cchip_cen2    ),
-    .cenb   (               )
-);
+// cchip_cen (12 MHz MCU clock enable, on the clk domain) is generated from the
+// clocks section of mem.yaml and arrives as an input port.
 
 jtframe_ioctl_range #(.AW(12), .OFFSET(`JTFRAME_PROM_START)) u_ccmask_dl(
     .clk    ( clk           ),
