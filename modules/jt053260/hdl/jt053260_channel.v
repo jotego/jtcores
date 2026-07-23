@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 14-4-2023 */
 
-module jt053260_channel#(parameter TESTRD=0)(
+module jt053260_channel#(parameter TESTRD=0, parameter ADPCM_SAT=1)(
     input                    rst,
     input                    clk,
     input                    cen,
@@ -168,7 +168,7 @@ always @(posedge clk) begin
                             end
                         end
                     end
-                    pre_snd <= adpcm_en ? adpcm_lim : rom_data;
+                    pre_snd <= adpcm_en ? (ADPCM_SAT ? adpcm_lim : pre_snd + kadpcm) : rom_data;
                 end
             end
         end

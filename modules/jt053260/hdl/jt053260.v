@@ -16,7 +16,7 @@
     Version: 1.0
     Date: 14-4-2023 */
 
-module jt053260(
+module jt053260#(parameter [3:0] ADPCM_SAT=4'hF, parameter AUX_MODE_EN=1)(
     input                    rst,
     input                    clk,
     input                    cen,
@@ -95,7 +95,7 @@ assign mmr_we  = {4{ cs & ~wr_n & mmr_en }} &
 assign tst_nx  = tst_rd & ~tst_rdl;
 assign left_en = sum_en[4:0];
 assign right_en={sum_en[5],sum_en[3:0]};
-assign aux_en  = mode[3:2];
+assign aux_en  = AUX_MODE_EN ? mode[3:2] : 2'b11;
 `ifdef SIMULATION
 assign tim2_enb= test_2b[3]; // it should disable tim2 when high. Not connected for now
 wire any_wr = cs & ~wr_n;
@@ -234,7 +234,7 @@ always @* begin
     pan3_r = pan_dec_r( ch3_pan );
 end
 
-jt053260_channel #(.TESTRD(1)) u_ch0(
+jt053260_channel #(.TESTRD(1),.ADPCM_SAT(ADPCM_SAT[0])) u_ch0(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .cen      ( cen         ),
@@ -263,7 +263,7 @@ jt053260_channel #(.TESTRD(1)) u_ch0(
     .snd_r    ( ch0_snd_r   )
 );
 
-jt053260_channel u_ch1(
+jt053260_channel #(.ADPCM_SAT(ADPCM_SAT[1])) u_ch1(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .cen      ( cen         ),
@@ -292,7 +292,7 @@ jt053260_channel u_ch1(
     .snd_r    ( ch1_snd_r   )
 );
 
-jt053260_channel u_ch2(
+jt053260_channel #(.ADPCM_SAT(ADPCM_SAT[2])) u_ch2(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .cen      ( cen         ),
@@ -321,7 +321,7 @@ jt053260_channel u_ch2(
     .snd_r    ( ch2_snd_r   )
 );
 
-jt053260_channel u_ch3(
+jt053260_channel #(.ADPCM_SAT(ADPCM_SAT[3])) u_ch3(
     .rst      ( rst         ),
     .clk      ( clk         ),
     .cen      ( cen         ),
