@@ -70,15 +70,11 @@ module jtrastan_scr(
     output   [ 7:0] debug_view
 );
 
-wire [ 8:0] vdump, vrender_raw;
+wire [ 8:0] vdump;
 reg  [15:0] scr0_hpos, scr1_hpos, scr0_vpos, scr1_vpos;
-
-localparam [8:0] VADJ = 9'd1;
-wire [ 8:0] vdump_adj = vdump + VADJ;
 
 assign dtackn = 0;
 assign debug_view = scr1_hpos[8:1];
-assign vrender    = vrender_raw + VADJ; // sprites (obj) sample by vrender
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -120,9 +116,9 @@ jtframe_vtimer #(
 ) u_vtimer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .vdump      ( vdump     ),
-    .vrender    ( vrender_raw ),
-    .vrender1   (           ),
+    .vdump      (           ),
+    .vrender    ( vdump     ),
+    .vrender1   ( vrender   ),
     .H          ( hdump     ),
     .Hinit      (           ),
     .Vinit      (           ),
@@ -138,7 +134,7 @@ jtrastan_tilemap u_scr0( // background
 
     .flip       ( flip      ),
     .hdump      ( hdump     ),
-    .vdump      ( vdump_adj ),
+    .vdump      ( vdump     ),
 
     .hpos       ( scr0_hpos[8:0] ),
     .vpos       ( scr0_vpos[8:0] ),
@@ -163,7 +159,7 @@ jtrastan_tilemap #(1) u_scr1( // foreground
 
     .flip       ( flip      ),
     .hdump      ( hdump     ),
-    .vdump      ( vdump_adj ),
+    .vdump      ( vdump     ),
 
     .hpos       ( scr1_hpos[8:0] ),
     .vpos       ( scr1_vpos[8:0] ),
