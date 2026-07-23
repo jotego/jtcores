@@ -57,7 +57,7 @@ jtrastan_header u_header(
     .cchip      ( cchip          ),
     .gun_xoff8  ( gun_xoff8      ),
     .gun_yoff8  ( gun_yoff8      ),
-    .prog_addr  ( prog_addr[2:0] ),
+    .prog_addr  ( prog_addr[3:0] ),
     .prog_data  ( prog_data      )
 );
 

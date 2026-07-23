@@ -20,6 +20,7 @@ package mra
 import (
 	"bytes"
 	"fmt"
+	"math/bits"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -27,18 +28,25 @@ import (
 	"strings"
 	"text/template"
 
+	"jotego/jtframe/macros"
 	. "jotego/jtframe/xmlnode"
 	"github.com/Masterminds/sprig/v3"	// more template functions
 )
 
 func (hdr *HeaderCfg) MakeVerilog(corename string) ([]byte,error) {
 	if len(hdr.Registers)==0 { return nil, nil }
+	addrMSB := 2
+	if hlen := macros.GetInt("JTFRAME_HEADER"); hlen > 8 {
+		addrMSB = bits.Len(uint(hlen-1)) - 1
+	}
 	info := struct{
 		Core string
+		AddrMSB int
 		Names []reg_names
 		Registers []reg_info
 	}{
 		Core: corename,
+		AddrMSB: addrMSB,
 		Names: hdr.make_reg_names(),
 		Registers: hdr.make_reg_info(),
 	}
