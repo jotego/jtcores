@@ -68,6 +68,7 @@ wire signed [20:0] pcm0_scaled, pcm1_scaled;
 wire signed [11:0] pcm0_atten, pcm1_atten;
 reg         [15:0] pcm0_start, pcm0_end, pcm1_start, pcm1_end;
 reg         [ 7:0] pcm0_vol, pcm1_vol, mvol0, mvol1, eff0, eff1;
+reg         [ 7:0] pcm0_avol, pcm1_avol;
 reg         [ 7:0] din;
 wire               main_cs;
 assign main_cs    = sn_rd | sn_we;
@@ -82,8 +83,8 @@ assign pcm1_atten = pcm1_scaled[19:8];
 // Register the volume-scaled PCM before the RC mixer to break a long combiational path
 // that miss the timings on pocket at 53Mhz
 always @(posedge clk) begin
-    eff0     <= (pcm0_vol * mvol0) >> 8;
-    eff1     <= (pcm1_vol * mvol1) >> 8;
+    eff0     <= ({8'd0, pcm0_avol} * mvol0) >> 8;
+    eff1     <= ({8'd0, pcm1_avol} * mvol1) >> 8;
     pcm0     <= opwolf ? pcm0_atten : pcm0_raw;
     pcm1     <= pcm1_atten;
     snd_rstn <= ~(rst | pc6_rst);
@@ -101,6 +102,8 @@ always @(posedge clk, posedge rst) begin
         pcm1_end   <= 0;
         pcm0_vol   <= 0;
         pcm1_vol   <= 0;
+        pcm0_avol  <= 0;
+        pcm1_avol  <= 0;
         mvol0      <= 8'hff;
         mvol1      <= 8'hff;
         pcm0_cs    <= 0;
@@ -134,6 +137,7 @@ always @(posedge clk, posedge rst) begin
                     pcm0_cs   <= 1;
                     pcm0_rst  <= 0;
                     nibble0   <= 0;
+                    pcm0_avol <= pcm0_vol;
                 end
                 5: pcm0_vol <= dout;
                 default:;
@@ -150,6 +154,7 @@ always @(posedge clk, posedge rst) begin
                     pcm1_cs   <= 1;
                     pcm1_rst  <= 0;
                     nibble1   <= 0;
+                    pcm1_avol <= pcm1_vol;
                 end
                 5: pcm1_vol <= dout;
                 default:;
