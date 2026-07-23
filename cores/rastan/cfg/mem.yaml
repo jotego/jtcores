@@ -10,7 +10,7 @@ clocks:
     - freq: 384 kHz
       outputs:
         - pcm_cen
-  clk48:
+    # C-chip MCU (uPD78C11) 12 MHz enable.
     - freq: 12 MHz
       outputs:
         - cchip_cen
