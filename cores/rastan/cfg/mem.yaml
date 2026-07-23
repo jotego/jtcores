@@ -1,13 +1,16 @@
 clocks:
-  clk24:
-    - freq: 4 MHz
+  clk:
+    # YM2151 timebase: exact 4/2MHz (16MHz/4 on the PCB). Kept off cpu_cen so the FM
+    # chip does not inherit the 68000's SDRAM wait bursts.
+    - freq: 4M
       outputs:
-        - cen4
-        - cen2
+        - fm_cen4
+        - fm_cen2
+    # cen4 (Z80 + CIU slave) is derived in HDL from cpu_cen, so it is not listed here.
     - freq: 384 kHz
       outputs:
         - pcm_cen
-  clk48:
+    # C-chip MCU (uPD78C11) 12 MHz enable.
     - freq: 12 MHz
       outputs:
         - cchip_cen

@@ -18,15 +18,15 @@
 
 module jtrastan_snd(
     input                rst,
-    input                clk,  // 24 MHz
-    input                cen4, // generated in mem.yaml
-    input                cen2,
+    input                clk,
+    input                cen4,
+    input                fm_cen4,
+    input                fm_cen2,
     input                pcm_cen,
     input                opwolf,
 
     // From main CPU
-    input                rst48,
-    input                clk48,
+    input                main_cen,
     input                main_addr,
     input         [ 3:0] main_dout,
     output        [ 3:0] main_din,
@@ -204,16 +204,16 @@ always @(posedge clk) begin
 end
 
 jtrastan_pc060 u_pc060(
-    .rst48      ( rst48     ),
-    .clk48      ( clk48     ),
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen_m      ( main_cen  ),  // MCLK = 68000's 8MHz enable
+    .cen_s      ( cen4      ),  // SCLK = Z80's 4MHz enable
     .main_dout  ( main_dout ),
     .main_din   ( main_din  ),
     .main_addr  ( main_addr ),
     .main_rnw   ( main_rnw  ),
     .main_cs    ( main_cs   ),
 
-    .rst24      ( rst       ),
-    .clk24      ( clk       ),
     .snd_dout   ( dout[3:0] ),
     .snd_din    ( pc6_dout  ),
     .snd_addr   ( A[0]      ),
@@ -267,8 +267,8 @@ jtopl u_opl(
 jt51 u_jt51(
     .rst    ( ~snd_rstn ),
     .clk    ( clk       ),
-    .cen    ( cen4      ),
-    .cen_p1 ( cen2      ),
+    .cen    ( fm_cen4   ),
+    .cen_p1 ( fm_cen2   ),
     .cs_n   ( ~opm_cs   ),
     .wr_n   ( wr_n      ),
     .a0     ( A[0]       ),

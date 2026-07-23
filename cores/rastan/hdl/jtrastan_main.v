@@ -92,6 +92,7 @@ module jtrastan_main(
     input         [ 8:0] gun_xoffs,
     input         [ 8:0] gun_yoffs,
 
+    output               cpu_cen,   // 8MHz enable = the 68000's MCLK on the CIU
     output        [18:1] main_addr,
     output        [ 1:0] main_dsn,
     output        [15:0] main_dout,
@@ -140,7 +141,7 @@ module jtrastan_main(
 );
 `ifndef NOMAIN
 wire [23:1] A;
-wire        cpu_cen, cpu_cenb;
+wire        cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         io_cs, out_cs, otport1_cs, inport_cs, dip_cs, gun_cs;
@@ -274,7 +275,8 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_68kdtack_cen #(.W(12)) u_dtack(
+// RECOVERY(0) because RECOVERY(1) speed up the audio when recovering cycles for 68000.
+jtframe_68kdtack_cen #(.W(12),.RECOVERY(0)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -285,9 +287,6 @@ jtframe_68kdtack_cen #(.W(12)) u_dtack(
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
-    // Same divider chain as the Z80: on the board both CPUs come off the one
-    // 16MHz XTAL, exactly 2:1.
-    // This runs on clk48 and the z80 runs on clk24
     .num        ( 11'd231   ),
     .den        ( 12'd1541  ),
     .DTACKn     ( DTACKn    ),
@@ -329,7 +328,7 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
-assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0;
+assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0, cpu_cen=0;
 initial begin
     rom_cs   = 0;
     ram_cs   = 0;

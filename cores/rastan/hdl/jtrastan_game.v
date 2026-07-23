@@ -27,7 +27,7 @@ wire        scr_cs, pal_cs, sdakn, odakn;
 wire [ 2:0] obj_pal;
 
 wire        flip;
-wire        sn_rd, sn_we, snd_rstn, mintn;
+wire        sn_rd, sn_we, snd_rstn, mintn, mcpu_cen;
 wire [ 3:0] main2snd, sn_dout;
 wire        opwolf, cchip;
 // Light-gun offsets: signed 8-bit values from header bytes 1/2, sign-extended.
@@ -38,6 +38,19 @@ wire [ 8:0] gun_yoffs = {gun_yoff8[7], gun_yoff8};
 // C-chip (Operation Wolf good sets)
 wire        cchip_cs;
 wire [ 7:0] cchip_dout;
+
+// Z80 and CIU slave: halve the 68000's cpu_cen so the Z80 is phase-locked to the
+// 68000 exactly 2:1, like the board's single 16MHz crystal. The YM2151 does not
+// use this; it runs off the steady fm_cen4/fm_cen2 generated in mem.yaml.
+reg  cen4_tog;
+wire cen4 = mcpu_cen & cen4_tog;
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        cen4_tog <= 0;
+    end else begin
+        if( mcpu_cen ) cen4_tog <= ~cen4_tog;
+    end
+end
 
 assign dip_flip = flip;
 assign ram_addr = ram_cs ? (opwolf ? {3'd0, main_addr[14:1]} : {4'd0, main_addr[13:1]}) :
@@ -64,6 +77,7 @@ jtrastan_header u_header(
 jtrastan_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ), // 48 MHz
+    .cpu_cen    ( mcpu_cen  ),
     .LVBL       ( LVBL      ),
     .opwolf     ( opwolf    ),
     .cchip      ( cchip     ),
@@ -120,16 +134,16 @@ jtrastan_main u_main(
 );
 
 jtrastan_snd u_sound(
-    .rst        ( rst24         ),
-    .clk        ( clk24         ), // 24 MHz
+    .rst        ( rst           ),
+    .clk        ( clk           ),
     .cen4       ( cen4          ),
-    .cen2       ( cen2          ),
+    .fm_cen4    ( fm_cen4       ),
+    .fm_cen2    ( fm_cen2       ),
     .pcm_cen    ( pcm_cen       ),
     .opwolf     ( opwolf        ),
 
     // From main CPU
-    .rst48      ( rst           ),
-    .clk48      ( clk           ),
+    .main_cen   ( mcpu_cen      ),
     .main_addr  (main_addr[1]   ),
     .main_dout  ( main2snd      ),
     .main_din   ( sn_dout       ),
