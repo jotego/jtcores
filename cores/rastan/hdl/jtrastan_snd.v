@@ -58,7 +58,7 @@ wire        [ 7:0] dout, opm_dout, ram_dout;
 wire        [ 3:0] pc6_dout;
 reg                opm_cs, ram_cs, pc6_cs;
 reg                pcm0_rst, pcm1_rst, pcm_stop, pcm_start, pcm_addr_cs;
-reg                pcm0_reg_cs, pcm1_reg_cs;
+reg                pcm0_reg_cs, pcm1_reg_cs, mvol0_cs, mvol1_cs;
 wire               m1_n, iorq_n, rd_n, wr_n, mreq_n, rfsh_n, nmi_n;
 wire               ct1, ct2, vclk0, vclk1, pc6_rst;
 reg                nibble0, nibble1, vclk0_l, vclk1_l, snd_rstn;
@@ -67,21 +67,23 @@ wire signed [11:0] pcm0_raw, pcm1_raw;
 wire signed [20:0] pcm0_scaled, pcm1_scaled;
 wire signed [11:0] pcm0_atten, pcm1_atten;
 reg         [15:0] pcm0_start, pcm0_end, pcm1_start, pcm1_end;
-reg         [ 7:0] pcm0_vol, pcm1_vol;
+reg         [ 7:0] pcm0_vol, pcm1_vol, mvol0, mvol1, eff0, eff1;
 reg         [ 7:0] din;
 wire               main_cs;
 assign main_cs    = sn_rd | sn_we;
 assign rom_addr   = A[14] ? { ct2, ct1, A[13:0]  } : A;
 assign pcm0_nibble = !nibble0 ? pcm0_data[7:4] : pcm0_data[3:0];
 assign pcm1_nibble = !nibble1 ? pcm1_data[7:4] : pcm1_data[3:0];
-assign pcm0_scaled = pcm0_raw * $signed({1'b0,pcm0_vol});
-assign pcm1_scaled = pcm1_raw * $signed({1'b0,pcm1_vol});
+assign pcm0_scaled = pcm0_raw * $signed({1'b0,eff0});
+assign pcm1_scaled = pcm1_raw * $signed({1'b0,eff1});
 assign pcm0_atten = pcm0_scaled[19:8];
 assign pcm1_atten = pcm1_scaled[19:8];
 
 // Register the volume-scaled PCM before the RC mixer to break a long combiational path
 // that miss the timings on pocket at 53Mhz
 always @(posedge clk) begin
+    eff0     <= (pcm0_vol * mvol0) >> 8;
+    eff1     <= (pcm1_vol * mvol1) >> 8;
     pcm0     <= opwolf ? pcm0_atten : pcm0_raw;
     pcm1     <= pcm1_atten;
     snd_rstn <= ~(rst | pc6_rst);
@@ -99,6 +101,8 @@ always @(posedge clk, posedge rst) begin
         pcm1_end   <= 0;
         pcm0_vol   <= 0;
         pcm1_vol   <= 0;
+        mvol0      <= 8'hff;
+        mvol1      <= 8'hff;
         pcm0_cs    <= 0;
         pcm1_cs    <= 0;
         nibble0    <= 0;
@@ -151,6 +155,8 @@ always @(posedge clk, posedge rst) begin
                 default:;
             endcase
         end
+        if( mvol0_cs && !wr_n ) mvol0 <= dout;
+        if( mvol1_cs && !wr_n ) mvol1 <= dout;
         if( vclk0 && !vclk0_l && !pcm0_rst && pcm0_ok ) begin
             if( opwolf && nibble0 && pcm0_addr + 1'd1 == {pcm0_end[14:0],4'd0} ) begin
                 pcm0_cs  <= 0;
@@ -180,6 +186,8 @@ always @* begin
     pcm_stop    = 0;
     pcm0_reg_cs = 0;
     pcm1_reg_cs = 0;
+    mvol0_cs    = 0;
+    mvol1_cs    = 0;
     if( !mreq_n && rfsh_n && A[15]) begin
         case( A[14:12] )
             0: ram_cs = 1;
@@ -189,7 +197,9 @@ always @* begin
                else         pcm_addr_cs = 1;
             4: if( opwolf ) pcm1_reg_cs = A[11:3]==0;
                else         pcm_start   = 1;
-            5: if( !opwolf ) pcm_stop = 1;
+            5: if( opwolf ) mvol0_cs = 1;
+               else         pcm_stop = 1;
+            6: if( opwolf ) mvol1_cs = 1;
             default:;
         endcase
     end
