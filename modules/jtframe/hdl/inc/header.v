@@ -27,7 +27,7 @@ module jt{{ .Core }}_header(
 );
 
 always @(posedge clk) begin{{ range .Registers }}
-    if( header && prog_addr=={{.Offset}} && prog_we )
+    if( header && prog_addr[{{.AddrMSB}}:0]=={{.Offset}} && prog_we )
         {{.Name}} <= prog_data{{.Index}};{{ end }}
 end
 

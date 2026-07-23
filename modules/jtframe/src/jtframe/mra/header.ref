@@ -28,13 +28,13 @@ module jtxx_header(
 );
 
 always @(posedge clk) begin
-    if( header && prog_addr==1 && prog_we )
+    if( header && prog_addr[2:0]==1 && prog_we )
         gfx <= prog_data[2];
-    if( header && prog_addr==3 && prog_we )
+    if( header && prog_addr[2:0]==3 && prog_we )
         snd <= prog_data[4:2];
-    if( header && prog_addr==5 && prog_we )
+    if( header && prog_addr[2:0]==5 && prog_we )
         long[8:7] <= prog_data[1:0];
-    if( header && prog_addr==4 && prog_we )
+    if( header && prog_addr[2:0]==4 && prog_we )
         long[6:0] <= prog_data[7:1];
 end
 
