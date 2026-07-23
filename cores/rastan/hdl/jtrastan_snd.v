@@ -49,7 +49,7 @@ module jtrastan_snd(
     input         [ 7:0] pcm1_data,
 
     output signed [15:0] fm_l, fm_r,
-    output signed [11:0] pcm0, pcm1
+    output reg signed [11:0] pcm0, pcm1
 );
 `ifndef NOSOUND
 wire               int_n;
@@ -78,10 +78,12 @@ assign pcm0_scaled = pcm0_raw * $signed({1'b0,pcm0_vol});
 assign pcm1_scaled = pcm1_raw * $signed({1'b0,pcm1_vol});
 assign pcm0_atten = pcm0_scaled[19:8];
 assign pcm1_atten = pcm1_scaled[19:8];
-assign pcm0 = opwolf ? pcm0_atten : pcm0_raw;
-assign pcm1 = pcm1_atten;
 
+// Register the volume-scaled PCM before the RC mixer to break a long combiational path
+// that miss the timings on pocket at 53Mhz
 always @(posedge clk) begin
+    pcm0     <= opwolf ? pcm0_atten : pcm0_raw;
+    pcm1     <= pcm1_atten;
     snd_rstn <= ~(rst | pc6_rst);
 end
 
