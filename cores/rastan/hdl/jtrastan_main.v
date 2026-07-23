@@ -83,6 +83,14 @@ module jtrastan_main(
     input                clk, // 48 MHz
     input                LVBL,
     input                opwolf,
+    input                cchip,      // Operation Wolf C-chip present (good sets)
+
+    output reg           cchip_cs,
+    input         [ 7:0] cchip_dout,
+
+    // Light-gun offsets (from the header, derived per set at MRA build time)
+    input         [ 8:0] gun_xoffs,
+    input         [ 8:0] gun_yoffs,
 
     output        [18:1] main_addr,
     output        [ 1:0] main_dsn,
@@ -138,7 +146,7 @@ wire [ 2:0] FC, IPLn;
 reg         io_cs, out_cs, otport1_cs, inport_cs, dip_cs, gun_cs;
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
-wire [ 8:0] opwolf_gun_x, opwolf_gun_y;
+reg  [ 8:0] opwolf_gun_x, opwolf_gun_y;
 wire [15:0] cpu_dout;
 reg         intn, LVBLl;
 wire        bus_cs, bus_busy, bus_legit;
@@ -153,9 +161,14 @@ assign VPAn     = !(!ASn && FC==7 && A[3:1]==5 && RnW);
 assign bus_cs   = rom_cs | vram_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | ( (vram_cs | ram_cs) & ~ram_ok);
 assign bus_legit= vram_cs & ~sdakn;
-assign opwolf_gun_x = gun_x + 9'd26;
-assign opwolf_gun_y = gun_y - 9'd6;
-
+// Light-gun offsets come from the header (gun_xoffs/gun_yoffs inputs), derived
+// per set at MRA build time from the same ROM bytes MAME's init_opwolf reads.
+// Registered (adder out of the read path); the gun value is quasi-static so the
+// 1-cycle latency is harmless.
+always @(posedge clk) begin
+    opwolf_gun_x <= gun_x + gun_xoffs;
+    opwolf_gun_y <= gun_y + gun_yoffs;
+end
 
 always @* begin
     rom_cs  = allFC && (opwolf ? A[23:18]==0 : A[23:17]<3) && !ASn;
@@ -166,6 +179,7 @@ always @* begin
     io_cs   = allFC && A[23:20]==4'h3 && !ASn;
     pal_cs  = allFC && A[23:18]==6'h8 && !ASn;
     sub_cs  = allFC && A[23:20]==4'h8 && !ASn;
+    cchip_cs= cchip && allFC && A[23:16]==8'h0f && !ASn;
     // Video control registers are not written to SDRAM
     if( vram_cs && A[18:16]!=0 ) begin
         scr_cs  = 1;
@@ -206,10 +220,16 @@ always @(posedge clk) begin
                ( ram_cs | vram_cs ) ? ram_dout :
                obj_cs    ? oram_dout :
                pal_cs    ? pal_dout  :
+               cchip_cs  ? {8'hff, cchip_dout} :
                dip_cs    ? {8'hff, A[1] ? dipsw_b : dipsw_a} :
-               gun_cs    ? (A[1] ? {5'd0, ~coin[1:0], opwolf_gun_y} :
+               // Good sets read a pure light-gun value here; coins/buttons/
+               // service/start/tilt come through the C-chip instead. The
+               // prototype packs those inputs into the same word.
+               gun_cs    ? (cchip ? (A[1] ? {7'h7f, opwolf_gun_y} :
+                                            {7'h7f, opwolf_gun_x}) :
+                                    (A[1] ? {5'd0, ~coin[1:0], opwolf_gun_y} :
                                       {2'd0, cab_1p[0], tilt, service,
-                                       joystick1[5], joystick1[4], opwolf_gun_x}) :
+                                       joystick1[5], joystick1[4], opwolf_gun_x})) :
                inport_cs ? { 8'hff, cab_dout }  :
                sn_rd     ? (opwolf ? {4'hf, sn_dout, 8'hff} : {12'hfff, sn_dout}) :
                16'hffff;
@@ -321,6 +341,7 @@ initial begin
     sn_we    = 0;
     sn_rd    = 0;
     sub_cs   = 0;
+    cchip_cs = 0;
     snd_rstn = 0;
     mintn    = 0;
 end

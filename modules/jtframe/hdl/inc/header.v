@@ -22,12 +22,12 @@ module jt{{ .Core }}_header(
     {{ range .Names }}
     output reg {{ if ne .Msb 0 }}[{{.Msb}}:0]{{else}}     {{ end }} {{.Name}}=0,
     {{- end }}
-    input      [2:0] prog_addr,
+    input      [{{.AddrMSB}}:0] prog_addr,
     input      [7:0] prog_data
 );
 
 always @(posedge clk) begin{{ range .Registers }}
-    if( header && prog_addr[2:0]=={{.Offset}} && prog_we )
+    if( header && prog_addr[{{$.AddrMSB}}:0]=={{.Offset}} && prog_we )
         {{.Name}} <= prog_data{{.Index}};{{ end }}
 end
 

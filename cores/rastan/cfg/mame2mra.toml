@@ -1,28 +1,40 @@
 [global]
 author=["jotego"]
 
+zip.alt="cchip.zip"
+
 [parse]
 sourcefile=[ "rastan.cpp", "opwolf.cpp" ]
 
 [parse.skip]
-setnames=[ "opwolf", "opwolfa", "opwolfj", "opwolfjsc", "opwolfu", "opwolfb" ]
+# opwolfb is the Bear Corp bootleg: it replaces the C-chip with an extra Z80
+# (different hardware), so it stays unsupported for now.
+setnames=[ "opwolfb" ]
 
 [Audio]
 volume = [
     { machine="rastan", value=0x71 },
     { setname="opwolfp", value=0x71 },
+    { setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=0x71 },
 ]
 
 [buttons]
 names=[
     { machine="rastan",  names="Slash,Jump" },
     { setname="opwolfp", names="Bullet,Grenade" },
+    { setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], names="Bullet,Grenade" },
 ]
 
+# Registers generate cores/rastan/hdl/jtrastan_header.v (named, latched outputs)
+# and set the per-set header bytes. Gun offsets are signed 8-bit, computed per set
+# the way MAME's init_opwolf does (X = 0x101-rom[0x3ffb0], Y = 0x1f8-rom[0x3ffae]);
+# opwolfp reproduces the prototype's fixed +26/-6.
 [header]
-info="Byte 0 bit 0: Operation Wolf hardware"
-data = [
-    { setname="opwolfp", offset=0, data="01" },
+registers=[
+    { name="opwolf",    pos="0[0]",   desc="Operation Wolf hardware", values=[{ setnames=["opwolfp","opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }] },
+    { name="cchip",     pos="0[1]",   desc="C-chip present",          values=[{ setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }] },
+    { name="gun_xoff8", pos="1[7:0]", desc="Light-gun X offset (signed)", values=[{ setname="opwolfp", value=0x1A }, { setnames=["opwolf","opwolfa"], value=0x11 }, { setnames=["opwolfj","opwolfjsc"], value=0x15 }, { setname="opwolfu", value=0x15 }] },
+    { name="gun_yoff8", pos="2[7:0]", desc="Light-gun Y offset (signed)", values=[{ setname="opwolfp", value=0xFA }, { setnames=["opwolf","opwolfa"], value=0xF0 }, { setnames=["opwolfj","opwolfjsc"], value=0xF8 }, { setname="opwolfu", value=0xDC }] },
 ]
 
 [dipsw]
@@ -39,9 +51,13 @@ regions = [
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="adpcm", start="PCM_START"    },
     { name="pc080sn", start="JTFRAME_BA2_START", width=16, no_offset=true  },
-    { name="pc090oj", start="JTFRAME_BA3_START", width=16, no_offset=true  }
+    { name="pc090oj", start="JTFRAME_BA3_START", width=16, no_offset=true  },
+    # mask ROM is a device/BIOS ROM (cchip.zip) not in the per-machine dump, so it requires special handling.
+    { name="cchip_bios", setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], start="JTFRAME_PROM_START", rom_len=0x1000, files=[ { name="cchip_upd78c11.bin", crc="43021521", size=0x1000 } ] },
+    { name="cchip:cchip_eprom", rename="cchip_eprom", rom_len=0x2000 }
 ]
 
 order = [
-    "maincpu", "audiocpu", "adpcm", "pc080sn", "pc090oj"
+    "maincpu", "audiocpu", "adpcm", "pc080sn", "pc090oj",
+    "cchip_bios", "cchip_eprom"
 ]
