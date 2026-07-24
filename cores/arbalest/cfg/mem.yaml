@@ -1,0 +1,116 @@
+params:
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+clocks:
+  clk48:
+    - freq: 8 MHz
+      gate: [ snd ]
+      outputs:
+        - cen8
+    - freq: 16 MHz
+      outputs:
+        - cen_pcm
+audio:
+  mute: true
+  channels:
+    # Same dual 4k/8k anti-alias filtering as cal50 (X1-010 left/right mono mix)
+    - { name: pcm_4k, data_width: 16, rsum:  47k, fir: fir_192k_4k.csv }
+    - { name: pcm_8k, data_width: 16, rsum:  47k, fir: fir_192k_8k.csv }
+sdram:
+  banks:
+    - buses:
+        - name: main
+          addr_width: 20
+          data_width: 16
+    - buses:
+        - name: snd        # 65C02 I/O sub-CPU program ROM (region "sub")
+          addr_width: 18
+          data_width: 8
+        - name: pcm        # X1-010 samples (region "x1snd")
+          addr_width: 20
+          data_width: 8
+          offset: PCM_OFFSET
+    - buses:
+        - name: tile
+          addr_width: 21
+          data_width: 32
+          gfx_sort: hvvvx
+    - buses:
+        - name: scr
+          addr_width: 21
+          data_width: 32
+        - name: obj
+          addr_width: 21
+          data_width: 32
+bram:
+  - name: ram        # M68K work RAM (0xf00000-)
+    addr_width: 16
+    data_width: 16
+    din: cpu_dout
+    rw: true
+  # Shared RAM between the main 68000 (0xb00000, byte) and the I/O 65C02 (0x5000)
+  - name: shram
+    addr_width: 11
+    data_width: 8
+    din: cpu_dout[7:0]
+    addr: main_addr[11:1]
+    rw: true
+    dual_port:
+      name: subsh
+      din: subsh_din
+      dout: subsh_dout
+      rw: true
+      we: subsh_we
+  # X1-012 Video RAM
+  - name: tlv
+    addr_width: 14
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[13:1]
+    rw: true
+    ioctl:
+      save: true
+      order: 0
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: tlrd
+      dout: tlrd_data
+  # Palette RAM
+  - name: pal
+    addr_width: 10
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[9:1]
+    rw: true
+    ioctl:
+      save: true
+      order: 1
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: palrd
+      dout: pal_data
+  # X1-001 internal RAM
+  - name: yram
+    addr_width: 10
+    data_width: 8
+    din: cpu_dout[7:0]
+    addr: main_addr[10:1]
+    rw: true
+    ioctl:
+      save: true
+      order: 2
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: col
+      dout: col_data
+  # X1-001 external video RAM. metafox is 16 KB (0xe00000-0xe03fff): two 8 KB sprite buffers
+  - name: dma
+    addr_width: 14
+    data_width: 16
+    rw: true
+    ioctl:
+      save: true
+      order: 3
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: code
+      dout: code_dout
