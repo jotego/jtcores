@@ -23,6 +23,7 @@ module jtrastan_snd(
     input                fm_cen4,
     input                fm_cen2,
     input                pcm_cen,
+    input                fir_cen,
     input                opwolf,
 
     // From main CPU
@@ -48,43 +49,44 @@ module jtrastan_snd(
     input                pcm1_ok,
     input         [ 7:0] pcm1_data,
 
-    output signed [15:0] fm_l, fm_r,
-    output reg signed [11:0] pcm0, pcm1
+    output reg signed [15:0] left, right,
+    output reg           peak,
+    input         [ 7:0] debug_bus
 );
 `ifndef NOSOUND
 wire               int_n;
 wire        [15:0] A;
-wire        [ 7:0] dout, opm_dout, ram_dout;
+wire        [ 7:0] dout, fm_dout, ram_dout;
 wire        [ 3:0] pc6_dout;
 reg                opm_cs, ram_cs, pc6_cs;
 reg                pcm0_rst, pcm1_rst, pcm_stop, pcm_start, pcm_addr_cs;
-reg                pcm0_reg_cs, pcm1_reg_cs;
+reg                pcm0_reg_cs, pcm1_reg_cs, total_vol1_cs, total_vol2_cs;
 wire               m1_n, iorq_n, rd_n, wr_n, mreq_n, rfsh_n, nmi_n;
 wire               ct1, ct2, vclk0, vclk1, pc6_rst;
+wire               va_vol_we, vb_vol_we;
 reg                nibble0, nibble1, vclk0_l, vclk1_l, snd_rstn;
 wire        [ 3:0] pcm0_nibble, pcm1_nibble;
-wire signed [11:0] pcm0_raw, pcm1_raw;
-wire signed [20:0] pcm0_scaled, pcm1_scaled;
-wire signed [11:0] pcm0_atten, pcm1_atten;
+wire signed [15:0] fm_l, fm_r;
+wire signed [15:0] rastan_snd, opwolf_l, opwolf_r;
+wire signed [11:0] pcm0, pcm1;
 reg         [15:0] pcm0_start, pcm0_end, pcm1_start, pcm1_end;
-reg         [ 7:0] pcm0_vol, pcm1_vol;
 reg         [ 7:0] din;
-wire               main_cs;
-assign main_cs    = sn_rd | sn_we;
-assign rom_addr   = A[14] ? { ct2, ct1, A[13:0]  } : A;
+wire               main_cs, rastan_peak, opwolf_peak;
+assign main_cs     = sn_rd | sn_we;
+assign rom_addr    = A[14] ? { ct2, ct1, A[13:0]  } : A;
 assign pcm0_nibble = !nibble0 ? pcm0_data[7:4] : pcm0_data[3:0];
 assign pcm1_nibble = !nibble1 ? pcm1_data[7:4] : pcm1_data[3:0];
-assign pcm0_scaled = pcm0_raw * $signed({1'b0,pcm0_vol});
-assign pcm1_scaled = pcm1_raw * $signed({1'b0,pcm1_vol});
-assign pcm0_atten = pcm0_scaled[19:8];
-assign pcm1_atten = pcm1_scaled[19:8];
+assign va_vol_we    = pcm0_reg_cs && !wr_n && A[2:0]==5;
+assign vb_vol_we    = pcm1_reg_cs && !wr_n && A[2:0]==5;
 
-// Register the volume-scaled PCM before the RC mixer to break a long combiational path
-// that miss the timings on pocket at 53Mhz
 always @(posedge clk) begin
-    pcm0     <= opwolf ? pcm0_atten : pcm0_raw;
-    pcm1     <= pcm1_atten;
     snd_rstn <= ~(rst | pc6_rst);
+    peak <= rastan_peak | opwolf_peak;
+end
+
+always @(posedge clk) begin
+    left  <= opwolf ? opwolf_l : rastan_snd;
+    right <= opwolf ? opwolf_r : rastan_snd;
 end
 
 // Rastan has one simple ADPCM address latch. Operation Wolf has two
@@ -97,8 +99,6 @@ always @(posedge clk, posedge rst) begin
         pcm0_end   <= 0;
         pcm1_start <= 0;
         pcm1_end   <= 0;
-        pcm0_vol   <= 0;
-        pcm1_vol   <= 0;
         pcm0_cs    <= 0;
         pcm1_cs    <= 0;
         nibble0    <= 0;
@@ -131,7 +131,6 @@ always @(posedge clk, posedge rst) begin
                     pcm0_rst  <= 0;
                     nibble0   <= 0;
                 end
-                5: pcm0_vol <= dout;
                 default:;
             endcase
         end
@@ -147,7 +146,6 @@ always @(posedge clk, posedge rst) begin
                     pcm1_rst  <= 0;
                     nibble1   <= 0;
                 end
-                5: pcm1_vol <= dout;
                 default:;
             endcase
         end
@@ -171,7 +169,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 always @* begin
-    rom_cs      = !A[15] && !rd_n;
+    rom_cs      = !A[15] && !rd_n && !mreq_n && rfsh_n ;
     ram_cs      = 0;
     opm_cs      = 0;
     pc6_cs      = 0;
@@ -180,16 +178,20 @@ always @* begin
     pcm_stop    = 0;
     pcm0_reg_cs = 0;
     pcm1_reg_cs = 0;
+    total_vol1_cs  = 0;
+    total_vol2_cs  = 0;
     if( !mreq_n && rfsh_n && A[15]) begin
         case( A[14:12] )
             0: ram_cs = 1;
             1: opm_cs = 1;
             2: pc6_cs = 1;
-            3: if( opwolf ) pcm0_reg_cs = A[11:3]==0;
-               else         pcm_addr_cs = 1;
-            4: if( opwolf ) pcm1_reg_cs = A[11:3]==0;
-               else         pcm_start   = 1;
-            5: if( !opwolf ) pcm_stop = 1;
+            3: if( opwolf ) pcm0_reg_cs   = 1;
+               else         pcm_addr_cs   = 1;
+            4: if( opwolf ) pcm1_reg_cs   = 1;
+               else         pcm_start     = 1;
+            5: if( opwolf ) total_vol1_cs = 1;
+               else         pcm_stop      = 1;
+            6: if( opwolf ) total_vol2_cs = 1;
             default:;
         endcase
     end
@@ -198,7 +200,7 @@ end
 always @(posedge clk) begin
     din <=  rom_cs ? rom_data :
             ram_cs ? ram_dout :
-            opm_cs ? opm_dout :
+            opm_cs ? fm_dout  :
             pc6_cs ? { 4'hf, pc6_dout } :
             8'hff;
 end
@@ -223,7 +225,7 @@ jtrastan_pc060 u_pc060(
     .snd_rst    ( pc6_rst   )
 );
 
-jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
+jtframe_sysz80 u_cpu(
     .rst_n      ( snd_rstn  ),
     .clk        ( clk       ),
     .cen        ( cen4      ),
@@ -248,70 +250,80 @@ jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    )
 );
-/*
-jtopl u_opl(
-    .rst    ( rst       ),        // rst should be at least 6 clk&cen cycles long
-    .clk    ( clk       ),        // CPU clock
-    .cen    ( cen       ),        // optional clock enable, it not needed leave as 1'b1
-    .din    ( din       ),
-    .addr   ( A[0]      ),
-    .cs_n   ( cs_n      ),
-    .wr_n   ( wr_n      ),
-    .dout   ( opl_dout  ),
-    .irq_n  ( irqn_opl  ),
-    // combined output
-    .snd    ( snd_opl   ),
-    .sample ( spl_opl   )
-);
-*/
-jt51 u_jt51(
+
+jtikaopm u_opm( // IKAOPM version used for sword sound
     .rst    ( ~snd_rstn ),
     .clk    ( clk       ),
-    .cen    ( fm_cen4   ),
-    .cen_p1 ( fm_cen2   ),
+    .cen    ( fm_cen4      ),
     .cs_n   ( ~opm_cs   ),
+    .rd_n   ( rd_n      ),
     .wr_n   ( wr_n      ),
-    .a0     ( A[0]       ),
+    .a0     ( A[0]      ),
     .din    ( dout      ),
-    .dout   ( opm_dout  ),
-    // peripheral control
+    .dout   ( fm_dout   ),
     .ct1    ( ct1       ),
     .ct2    ( ct2       ),
     .irq_n  ( int_n     ),
-    // Low resolution output (same as real chip)
-    .sample (           ),
-    .left   (           ),
-    .right  (           ),
-    // Full resolution output
-    .xleft  ( fm_l      ),
-    .xright ( fm_r      )
+    .left   ( fm_l      ),
+    .right  ( fm_r      )
 );
 
 jt5205 u_pcm0( // 8kHz, 4 bits/sample
-    .rst    ( pcm0_rst   ),
-    .clk    ( clk       ),
-    .cen    ( pcm_cen   ),
-    .sel    ( 2'b10     ),
-    .din    ( pcm0_nibble),
-    .sound  ( pcm0_raw  ),
-    .sample (           ),
-    .irq    (           ),
-    .vclk_o ( vclk0     )
+    .rst    ( pcm0_rst    ),
+    .clk    ( clk         ),
+    .cen    ( pcm_cen     ),
+    .sel    ( 2'b10       ),
+    .din    ( pcm0_nibble ),
+    .sound  ( pcm0        ),
+    .sample (             ),
+    .irq    (             ),
+    .vclk_o ( vclk0       )
 );
 
 jt5205 u_pcm1( // 8kHz, 4 bits/sample
-    .rst    ( pcm1_rst   ),
-    .clk    ( clk        ),
-    .cen    ( pcm_cen    ),
-    .sel    ( 2'b10      ),
-    .din    ( pcm1_nibble),
-    .sound  ( pcm1_raw   ),
-    .sample (            ),
-    .irq    (            ),
-    .vclk_o ( vclk1      )
+    .rst    ( pcm1_rst    ),
+    .clk    ( clk         ),
+    .cen    ( pcm_cen     ),
+    .sel    ( 2'b10       ),
+    .din    ( pcm1_nibble ),
+    .sound  ( pcm1        ),
+    .sample (             ),
+    .irq    (             ),
+    .vclk_o ( vclk1       )
+);
+
+jtrastan_mix u_rastan_mix(
+    .rst    ( rst         ),
+    .clk    ( clk         ),
+    .sample ( fir_cen     ),
+    .fm_l   ( fm_l        ),
+    .fm_r   ( fm_r        ),
+    .pcm    ( pcm0        ),
+    .snd    ( rastan_snd  ),
+    .peak   ( rastan_peak )
+);
+
+jtopwolf_mix u_opwolf_mix(
+    .rst         ( rst           ),
+    .clk         ( clk           ),
+    .sample      ( fir_cen       ),
+    .va_vol_we   ( va_vol_we     ),
+    .vb_vol_we   ( vb_vol_we     ),
+    .spk1_vol_we ( total_vol1_cs ),
+    .spk2_vol_we ( total_vol2_cs ),
+    .din         ( dout          ),
+    .fm_l        ( debug_bus[0] ? 16'd0 : fm_l          ),
+    .fm_r        ( debug_bus[0] ? 16'd0 : fm_r          ),
+    // .fm_l        ( 16'd0         ),
+    // .fm_r        ( 16'd0         ),
+    .va          ( pcm0          ),
+    .vb          ( pcm1          ),
+    .snd_l       ( opwolf_l      ),
+    .snd_r       ( opwolf_r      ),
+    .peak        ( opwolf_peak   )
 );
 `else
-assign main_din=0, rom_addr=0, fm_l=0, fm_r=0, pcm0=0, pcm1=0;
+assign main_din=0, rom_addr=0, left=0, right=0;
 initial begin
     rom_cs=0;
     pcm0_addr=0;

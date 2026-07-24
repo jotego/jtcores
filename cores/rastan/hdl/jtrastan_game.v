@@ -59,6 +59,7 @@ assign ram_we   = xram_cs & ~main_rnw;
 assign xram_cs  = ram_cs | vram_cs;
 assign ram_dsn  = main_dsn;
 assign main2snd = opwolf ? main_dout[11:8] : main_dout[3:0];
+assign sample   = 0;
 
 // Header fields (byte0 bit0=Op Wolf hardware, bit1=C-chip; byte1/2 = signed
 // gun X/Y offsets) — latched by the generated jtrastan_header (see mame2mra.toml).
@@ -140,6 +141,7 @@ jtrastan_snd u_sound(
     .fm_cen4    ( fm_cen4       ),
     .fm_cen2    ( fm_cen2       ),
     .pcm_cen    ( pcm_cen       ),
+    .fir_cen    ( fir_cen       ),
     .opwolf     ( opwolf        ),
 
     // From main CPU
@@ -165,10 +167,10 @@ jtrastan_snd u_sound(
     .pcm1_ok    ( pcm1_ok       ),
     .pcm1_data  ( pcm1_data     ),
 
-    .fm_l       ( fm_l          ),
-    .fm_r       ( fm_r          ),
-    .pcm0       ( pcm0          ),
-    .pcm1       ( pcm1          )
+    .left       ( snd_left      ),
+    .right      ( snd_right     ),
+    .peak       (               ),
+    .debug_bus  ( debug_bus     )
 );
 
 jtrastan_video u_video(

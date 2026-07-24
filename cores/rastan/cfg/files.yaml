@@ -9,7 +9,10 @@ rastan:
     - jtrastan_tilemap.v
     - jtrastan_obj.v
     - jtrastan_snd.v
+    - jtrastan_mix.v
+    - jtopwolf_mix.v
     - jtrastan_pc060.v
+    - jt060dca.v
     - timing.sdc
 jtframe:
   - from: ram
@@ -31,6 +34,6 @@ jtframe:
       - jtframe_z80.yaml
       - jtframe_m68k.yaml
 jttc0030cmd:
-jt51:
+ikaopm:
 jt5205:
 jtopl:
