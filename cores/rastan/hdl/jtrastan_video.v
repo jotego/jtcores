@@ -178,7 +178,7 @@ jtrastan_colmix u_colmix(
     .pxl_cen    ( pxl_cen   ),
     .opwolf     ( opwolf    ),
 
-    .main_addr  ( main_addr[11:1] ),
+    .main_addr  ( main_addr[13:1] ),
     .main_dout  ( main_dout ),
     .main_dsn   ( main_dsn  ),
     .main_din   ( pal_dout  ),

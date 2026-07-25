@@ -7,15 +7,9 @@ full Taito C-chip as a single reusable module.
 Used by Taito games that carry the C-chip: Superman and the rest of the
 taito-x family, Operation Wolf, etc.
 
-## ⚠ License restriction (read before wiring a new game)
+## License
 
-The vendored IKA87AD files are under the **"Taito C-Chip Temporary License"**
-(`LICENSE.IKA87AD`): BSD-2 **plus clause 3**, which forbids using this code —
-even a snippet — to implement Taito's **Rainbow Islands** until the upstream
-author ships his own FPGA core for that game.
-
-**Do not connect `jttc0030cmd` to the `rbisland` driver.** Every other C-chip
-game is unaffected. Revisit if/when Raki removes the clause upstream.
+The vendored IKA87AD files are under BSD-2 (`LICENSE.IKA87AD`).
 
 ## Package contents (the real chip, 4 dies)
 

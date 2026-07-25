@@ -30,6 +30,7 @@ wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn;
 wire [ 3:0] main2snd, sn_dout;
 wire        opwolf, cchip;
+wire        rbisland = cchip & ~opwolf; // Rainbow Islands
 // Light-gun offsets: signed 8-bit values from header bytes 1/2, sign-extended.
 wire [ 7:0] gun_xoff8, gun_yoff8;
 wire [ 8:0] gun_xoffs = {gun_xoff8[7], gun_xoff8};
@@ -235,14 +236,20 @@ jttc0030cmd u_cchip(
     .dtack_n    (                   ),
     .int1       ( ~LVBL             ),
     .nmi_n      ( 1'b1              ),
-    .pa_in      ( 8'h00             ),
+    // Op Wolf: gun trigger/grenade on PC, coins on PB. Rainbow Islands:
+    // service/start on PA, coins (active high) on PB, P1 joystick/buttons on PC.
+    .pa_in      ( rbisland ? { service, cab_1p[0], cab_1p[1], 5'h1f } : 8'h00 ),
+    // coins are active high at the C-chip PB pins (MAME 800009), while JTFRAME
+    // delivers coin active low, so invert for both Op Wolf and Rainbow Islands
     .pb_in      ( {6'h3f, ~coin[1:0]}),
-    .pc_in      ( {3'b111, cab_1p[0], tilt, service,
-                   joystick1[5], joystick1[4]} ),
+    .pc_in      ( rbisland ? { joystick1[5], joystick1[4], joystick1[3],
+                               joystick1[2], 3'b111, tilt } :
+                             { 3'b111, cab_1p[0], tilt, service,
+                               joystick1[5], joystick1[4] } ),
     .pa_out     (                   ),
     .pb_out     (                   ),
     .pc_out     (                   ),
-    .an         ( 8'h00             ),
+    .an         ( rbisland ? 8'hff : 8'h00 ),
     .mrom_addr  ( cchip_mask_addr   ),
     .mrom_data  ( cchip_mask_data   ),
     .eprom_addr ( cchip_eprom_addr  ),
