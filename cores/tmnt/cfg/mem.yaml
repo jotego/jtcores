@@ -40,7 +40,7 @@ sdram:
           data_width: 16
     - buses:
         - name: snd
-          addr_width: 16   # 64kB: thndrx2 maps Z80 ROM flat 0000-EFFF
+          addr_width: 16
           data_width: 8
         - name: pcma
           addr_width: 21
