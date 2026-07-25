@@ -34,34 +34,7 @@ wire [15:0] pal_dout;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
-reg         dip_test_mx;
-
-// "FM in mono mode" DIP, thndrx2 only (dipsw[1], see mame2mra.toml [dipsw]).
-// When the game's own sound option is set to mono it centres the K053260 PCM
-// but leaves the YM2151 hard-panned left, The PCB also does this. "Centre" sums the FM to
-// centre so it matches; "Left" (bit=1, default) passes it through unchanged.
-// NB: the core cannot read the game's mono/stereo setting, so this acts
-// unconditionally -- selecting Centre while the game is in stereo also collapses
-// the FM to mono. Intended use is game=mono + Centre.
-wire signed [15:0] fm_raw_l, fm_raw_r, fm_mono;
-wire        fm_mono_en = game_id==THNDRX2 && ~dipsw[1];
-
-jtframe_st2mono #(.W(16),.STEREO_IN(1),.STEREO_OUT(0)) u_fm_mono(
-    .sin ( { fm_raw_l, fm_raw_r } ),
-    .sout( fm_mono                )
-);
-
-wire signed [15:0] fm_sel_l = fm_mono_en ? fm_mono : fm_raw_l;
-wire signed [15:0] fm_sel_r = fm_mono_en ? fm_mono : fm_raw_r;
-
-// thndrx2 balance: on hardware the K053260 PCM sits above the YM2151 FM, ~FM 70%
-// / PCM 100%. This is matched to recordings. The shared mixer runs FM and K053260 at equal gain, so attenuate
-// the FM to ~0.7 for thndrx2 only (45/64 = 0.703). Attenuation, so no clipping.
-// Punk Shot uses a different balance and keeps the shared 1:1 (game_id gate).
-wire signed [21:0] fm_att_l = fm_sel_l * 7'sd45;
-wire signed [21:0] fm_att_r = fm_sel_r * 7'sd45;
-assign fm_l = game_id==THNDRX2 ? fm_att_l[21:6] : fm_sel_l;
-assign fm_r = game_id==THNDRX2 ? fm_att_r[21:6] : fm_sel_r;
+reg         dip_test_mx, fm_mono_en;
 
 assign debug_view = debug_mux;
 assign ram_addr   = { main_addr[17], main_addr[13:1] };
@@ -70,6 +43,7 @@ assign ram_we     = cpu_we;
 wire [ 7:0] ioctl_din;
 `endif
 always @(posedge clk) begin
+    fm_mono_en <= dipsw[1] || game_id != THNDRX2;
     case( debug_bus[7:6] )
         0: debug_mux <= { 7'd0, dip_flip };
         1: debug_mux <= st_video;
@@ -221,6 +195,7 @@ jttmnt_sound u_sound(
     .cen_640    ( cen_640       ),
     .cen_20     ( cen_20        ),
     .game_id    ( game_id       ),
+    .fm_mono_en ( fm_mono_en    ),
     // communication with main CPU
     .main_dout  ( ram_din[7:0]  ),
     .main_din   ( snd2main      ),
@@ -264,8 +239,8 @@ jttmnt_sound u_sound(
     .title_addr ( title_addr    ),
     .title_ok   ( title_ok      ),
     // Sound output
-    .fm_l       ( fm_raw_l      ),
-    .fm_r       ( fm_raw_r      ),
+    .fm_l       ( fm_l          ),
+    .fm_r       ( fm_r          ),
     .pcm        ( pcm           ),
     .upd        ( upd           ),
     .k60_l      ( k60_l         ),
