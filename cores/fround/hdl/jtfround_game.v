@@ -231,6 +231,7 @@ jttmnt_sound u_sound(
     .cen_640    ( cen_640       ),
     .cen_20     ( 1'b0          ),  // for title music in TMNT, unused here
     .game_id    ( 3'd0          ),
+    .fm_mono_en ( 1'b0          ),
     // communication with main CPU
     .main_dout  ( 8'd0          ),
     .main_din   (               ),
