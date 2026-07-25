@@ -22,7 +22,7 @@ module jtrastan_colmix(
     input           pxl_cen,
     input           opwolf,
 
-    input    [13:1] main_addr,
+    input    [11:1] main_addr,
     input    [15:0] main_dout,
     output   [15:0] main_din,
     input    [ 1:0] main_dsn,
@@ -78,12 +78,8 @@ end
 // So it could break the output unless it access
 // only during blankings.
 `ifndef GRAY
-// AW=13 (0x4000 bytes) so Rainbow Islands' 0x201000-0x203fff scratch RAM is
-// backed here alongside the palette (0x200000-0x200fff). The colour lookup only
-// uses the low 2048 entries; the rest is plain CPU RAM. Rastan/Op Wolf never
-// access above 0x200fff, so the extra depth is harmless for them.
 jtframe_dual_ram16 #(
-    .AW         (        13  ),
+    .AW         (        11  ),
     .SIMFILE    ( "pal.bin"  )
 ) u_palram(
     // Port 0: CPU
@@ -95,7 +91,7 @@ jtframe_dual_ram16 #(
     // Port 1
     .clk1   ( clk       ),
     .data1  ( 16'd0     ),
-    .addr1  ( {2'b0, pal_addr} ),
+    .addr1  ( pal_addr  ),
     .we1    ( 2'd0      ),
     .q1     ( pal_dout  )
 );

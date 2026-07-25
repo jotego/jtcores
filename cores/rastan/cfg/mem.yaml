@@ -64,3 +64,6 @@ sdram:
 bram:
   - { name: cchip_mask,  addr_width: 12, data_width: 8, prom: true }
   - { name: cchip_eprom, addr_width: 13, data_width: 8, prom: true }
+  # Rainbow Islands CPU scratch RAM at 0x201000-0x203fff (a separate MB8464 on
+  # the PCB, distinct from the palette). Used by the boot RAM check.
+  - { name: wram, addr_width: 13, data_width: 16, addr: "main_addr[13:1]", din: main_dout, rw: true }

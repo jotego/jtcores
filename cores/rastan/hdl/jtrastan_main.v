@@ -82,11 +82,16 @@ module jtrastan_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
-    input                opwolf,
-    input                cchip,      // Operation Wolf C-chip present (good sets)
+    input                opwolf,     // Operation Wolf hardware (opwolf/opwolfp)
+    input                rbisland,   // Rainbow Islands
+    input                cchip,      // C-chip present (Op Wolf good sets, Rainbow)
 
     output reg           cchip_cs,
     input         [ 7:0] cchip_dout,
+
+    // Rainbow Islands CPU scratch RAM 0x201000-0x203fff (own BRAM, see mem.yaml)
+    output reg           wram_cs,
+    input         [15:0] wram_dout,
 
     // Light-gun offsets (from the header, derived per set at MRA build time)
     input         [ 8:0] gun_xoffs,
@@ -150,7 +155,6 @@ reg  [ 8:0] opwolf_gun_x, opwolf_gun_y;
 wire [15:0] cpu_dout;
 reg         intn, LVBLl;
 wire        bus_cs, bus_busy, bus_legit;
-wire        rbisland = cchip & ~opwolf; // Rainbow Islands: C-chip, no Op Wolf hw
 
 assign main_addr= A[18:1];
 assign main_dsn = {UDSn, LDSn};
@@ -181,7 +185,9 @@ always @* begin
               !ASn && {UDSn,LDSn}!=3;
     obj_cs  = allFC && A[23:20]==4'hd && !ASn;
     io_cs   = allFC && A[23:20]==4'h3 && !ASn;
-    pal_cs  = allFC && A[23:18]==6'h8 && !ASn;
+    pal_cs  = allFC && A[23:12]==12'h200 && !ASn;
+    // Rainbow Islands scratch RAM 0x201000-0x203fff (separate from the palette)
+    wram_cs = rbisland && allFC && A[23:12]>=12'h201 && A[23:12]<=12'h203 && !ASn;
     sub_cs  = allFC && A[23:20]==4'h8 && !ASn && !rbisland;
     // Op Wolf C-chip at 0x0f0000; Rainbow Islands C-chip at 0x800000
     cchip_cs= cchip && allFC && (opwolf ? A[23:16]==8'h0f : A[23:20]==4'h8) && !ASn;
@@ -231,6 +237,7 @@ always @(posedge clk) begin
                ( ram_cs | vram_cs ) ? ram_dout :
                obj_cs    ? oram_dout :
                pal_cs    ? pal_dout  :
+               wram_cs   ? wram_dout :
                cchip_cs  ? {8'hff, cchip_dout} :
                dip_cs    ? {8'hff, (rbisland ? A[17] : A[1]) ? dipsw_b : dipsw_a} :
                // Good sets read a pure light-gun value here; coins/buttons/
@@ -354,6 +361,7 @@ initial begin
     sn_rd    = 0;
     sub_cs   = 0;
     cchip_cs = 0;
+    wram_cs  = 0;
     snd_rstn = 0;
     mintn    = 0;
 end

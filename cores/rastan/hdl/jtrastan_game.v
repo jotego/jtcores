@@ -29,16 +29,22 @@ wire [ 2:0] obj_pal;
 wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn;
 wire [ 3:0] main2snd, sn_dout;
-wire        opwolf, cchip;
-wire        rbisland = cchip & ~opwolf; // Rainbow Islands
+// Explicit game selector from the header: 0=Rastan, 1=Op Wolf, 2=Rainbow Islands
+wire [ 1:0] game_id;
+wire        cchip;                     // C-chip present (Op Wolf good sets, Rainbow)
+wire        opwolf   = game_id==2'd1;  // Op Wolf hardware (opwolf/opwolfp)
+wire        rbisland = game_id==2'd2;  // Rainbow Islands
 // Light-gun offsets: signed 8-bit values from header bytes 1/2, sign-extended.
 wire [ 7:0] gun_xoff8, gun_yoff8;
 wire [ 8:0] gun_xoffs = {gun_xoff8[7], gun_xoff8};
 wire [ 8:0] gun_yoffs = {gun_yoff8[7], gun_yoff8};
 
-// C-chip (Operation Wolf good sets)
+// C-chip (Operation Wolf good sets, Rainbow Islands)
 wire        cchip_cs;
 wire [ 7:0] cchip_dout;
+// Rainbow Islands CPU scratch RAM (BRAM declared in mem.yaml as "wram")
+wire        wram_cs;
+assign      wram_we = {2{wram_cs & ~main_rnw}} & ~main_dsn;
 
 assign dip_flip = flip;
 assign ram_addr = ram_cs ? (opwolf ? {3'd0, main_addr[14:1]} : {4'd0, main_addr[13:1]}) :
@@ -49,17 +55,17 @@ assign ram_dsn  = main_dsn;
 assign main2snd = opwolf ? main_dout[11:8] : main_dout[3:0];
 assign sample   = 0;
 
-// Header fields (byte0 bit0=Op Wolf hardware, bit1=C-chip; byte1/2 = signed
-// gun X/Y offsets) — latched by the generated jtrastan_header (see mame2mra.toml).
+// Header fields (byte0 [1:0]=game id, [2]=C-chip present; byte1/2 = signed gun
+// X/Y offsets) — latched by the generated jtrastan_header (see mame2mra.toml).
 jtrastan_header u_header(
     .clk        ( clk            ),
     .header     ( header         ),
     .prog_we    ( prog_we        ),
-    .opwolf     ( opwolf         ),
+    .game_id    ( game_id        ),
     .cchip      ( cchip          ),
     .gun_xoff8  ( gun_xoff8      ),
     .gun_yoff8  ( gun_yoff8      ),
-    .prog_addr  ( prog_addr[3:0] ),
+    .prog_addr  ( prog_addr[2:0] ),
     .prog_data  ( prog_data      )
 );
 
@@ -68,9 +74,12 @@ jtrastan_main u_main(
     .clk        ( clk       ), // 48 MHz
     .LVBL       ( LVBL      ),
     .opwolf     ( opwolf    ),
+    .rbisland   ( rbisland  ),
     .cchip      ( cchip     ),
     .cchip_cs   ( cchip_cs  ),
     .cchip_dout ( cchip_dout),
+    .wram_cs    ( wram_cs   ),
+    .wram_dout  ( wram_dout ),
     .gun_xoffs  ( gun_xoffs ),
     .gun_yoffs  ( gun_yoffs ),
 
