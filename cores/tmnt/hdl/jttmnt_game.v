@@ -34,6 +34,7 @@ wire [15:0] pal_dout;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
+reg         dip_test_mx;
 
 // "FM in mono mode" DIP, thndrx2 only (dipsw[1], see mame2mra.toml [dipsw]).
 // When the game's own sound option is set to mono it centres the K053260 PCM
@@ -80,6 +81,10 @@ end
 always @(posedge clk) begin
     if( prog_addr==0 && prog_we && header )
         game_id <= prog_data[2:0];
+end
+
+always @(posedge clk) begin
+    dip_test_mx <= game_id==THNDRX2 ? (dip_test & dipsw[0]) : dip_test;
 end
 
 /* verilator tracing_off */
@@ -135,8 +140,8 @@ jttmnt_main u_main(
     .nv_we          ( nvram_we      ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
-    .dip_test       ( dip_test      ),
-    .dipsw          ( { dipsw[19:16], dipsw[15:0] } ),
+    .dip_test       ( dip_test_mx   ),
+    .dipsw          ( dipsw[19:0]   ),
     // Debug
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
