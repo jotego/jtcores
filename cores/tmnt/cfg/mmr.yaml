@@ -1,5 +1,3 @@
-# K054000 collision chip register map (Thunder Cross II).
-# Copied from cores/simson/cfg/mmr.yaml. `jtframe mmr` generates jtk054000_mmr.v.
 - name: k054000
   no_core_name: true
   size: 24
