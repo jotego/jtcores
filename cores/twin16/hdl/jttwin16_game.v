@@ -52,7 +52,7 @@ assign stile_we  = sram_we;
 `else
 wire [31:0] lyra_data, lyrb_data;
 wire [17:2] lyra_addr, lyrb_addr;
-wire   stile_cs, lyra_cs, lyrb_cs;
+wire   stile_cs, lyra_cs, lyrb_cs, nc;
 reg    stile_ok;
 assign stile_we  = stile_we16;
 always @(posedge clk) stile_ok <= stile_cs;
@@ -326,6 +326,7 @@ jttmnt_sound u_sound(
     .cen_640    ( cen_640       ),
     .cen_20     ( 1'b0          ),  // for title music in TMNT, unused here
     .game_id    ( 3'd0          ),
+    .fm_mono_en ( 1'b0          ),
     // communication with main CPU
     .main_dout  ( 8'd0          ),
     .main_din   (               ),
@@ -334,7 +335,7 @@ jttmnt_sound u_sound(
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
     // ROM
-    .rom_addr   ( snd_addr      ),
+    .rom_addr   ( {nc,snd_addr} ),
     .rom_cs     ( snd_cs        ),
     .rom_data   ( snd_data      ),
     .rom_ok     ( snd_ok        ),

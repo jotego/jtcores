@@ -29,7 +29,7 @@ The core does not currently support video ROM checks, so the ROMs will be report
 
 Contributed by *niknakniknak* and reviewed by Jose Tejada. The PCB belongs to the same family of TMNT so even if we do not have schematics for it, the confidence is quite high on this game.
 
-The only question mark is sound FM-PCM balance. We are using MAME's values for it.
+The sound FM-PCM balance was measured on the PCB.
 
 # Credits
 
