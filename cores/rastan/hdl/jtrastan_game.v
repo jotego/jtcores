@@ -29,7 +29,6 @@ wire [ 2:0] obj_pal;
 wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn;
 wire [ 3:0] main2snd, sn_dout;
-// Explicit game selector from the header: 0=Rastan, 1=Op Wolf, 2=Rainbow Islands
 wire [ 1:0] game_id;
 wire        cchip;                     // C-chip present (Op Wolf good sets, Rainbow)
 wire        opwolf   = game_id==2'd1;  // Op Wolf hardware (opwolf/opwolfp)
@@ -42,7 +41,6 @@ wire [ 8:0] gun_yoffs = {gun_yoff8[7], gun_yoff8};
 // C-chip (Operation Wolf good sets, Rainbow Islands)
 wire        cchip_cs;
 wire [ 7:0] cchip_dout;
-// Rainbow Islands CPU scratch RAM (BRAM declared in mem.yaml as "wram")
 wire        wram_cs;
 assign      wram_we = {2{wram_cs & ~main_rnw}} & ~main_dsn;
 
