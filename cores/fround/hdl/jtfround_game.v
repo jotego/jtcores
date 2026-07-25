@@ -31,7 +31,7 @@ wire [15:0] scr_bank;
 wire [19:1] cpu_addr;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
-wire        oram_wex;
+wire        oram_wex, nc;
 // reg  [ 2:0] game_id;
 
 assign main_addr  = cpu_addr[18:1];
@@ -231,6 +231,7 @@ jttmnt_sound u_sound(
     .cen_640    ( cen_640       ),
     .cen_20     ( 1'b0          ),  // for title music in TMNT, unused here
     .game_id    ( 3'd0          ),
+    .fm_mono_en ( 1'b0          ),
     // communication with main CPU
     .main_dout  ( 8'd0          ),
     .main_din   (               ),
@@ -239,7 +240,7 @@ jttmnt_sound u_sound(
     .snd_irq    ( snd_irq       ),
     .snd_latch  ( snd_latch     ),
     // ROM
-    .rom_addr   ( snd_addr      ),
+    .rom_addr   ( {nc,snd_addr} ),
     .rom_cs     ( snd_cs        ),
     .rom_data   ( snd_data      ),
     .rom_ok     ( snd_ok        ),

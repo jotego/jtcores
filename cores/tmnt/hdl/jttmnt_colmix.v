@@ -95,7 +95,7 @@ assign ioctl_din = ioctl_addr[0]^IOCTL_A0[0] ? pal_dout[7:0] : pal_dout[15:8];
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
 always @(posedge clk) begin
-    k251_en <= game_id==PUNKSHOT;
+    k251_en <= game_id==PUNKSHOT || game_id==THNDRX2;
 end
 
 always @* begin

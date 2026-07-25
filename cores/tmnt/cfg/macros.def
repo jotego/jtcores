@@ -12,24 +12,27 @@ JTFRAME_STEREO
 
 JTFRAME_CREDITS_PAGES=4
 JTFRAME_CREDITS_HSTART=32
-# JTFRAME_CREDITS_HIDEVERT
 
 JTFRAME_JOY_DURL
 JTFRAME_BUTTONS=3
 JTFRAME_JOY1_POS
+# NB: no JTFRAME_OSD_TEST and no CORE_OSD service entry. Both put a second
+# "Service Mode" in the main OSD, which for TMNT/MIA/Punk Shot would duplicate
+# the one they already have under DIP Switches. thndrx2 is then missing a way
+# to enter the service menu via OSD. Only F2-key method available for now
 
 # ROM configuration
 JTFRAME_HEADER=8
 JTFRAME_BA1_START =0x060000
-PCM_START         =0x068000
-UPD_START         =0x088000
-TITLE_START       =0x0A8000
-JTFRAME_BA2_START =0x128000
-JTFRAME_BA3_START =0x228000
-JTFRAME_PROM_START=0x428000
+PCM_START         =0x070000
+UPD_START         =0x0F0000
+TITLE_START       =0x110000
+JTFRAME_BA2_START =0x190000
+JTFRAME_BA3_START =0x290000
+JTFRAME_PROM_START=0x490000
 
-# Debugging
-debug JTFRAME_IOCTL_RD=28705
+JTFRAME_IOCTL_RD=128
+debug JTFRAME_IOCTL_RD+=28705
 
 [mist|sidi]
 # OSD credits cannot be used when

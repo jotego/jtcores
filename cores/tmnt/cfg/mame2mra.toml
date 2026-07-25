@@ -11,7 +11,6 @@ skip = { machines=[
     "tmnt2",
     "qgakumon",
     "ssriders",
-    "thndrx2",
     "prmrsocr",
     # from tmnt2 (only punkshot is taken in)
     "lgtnfght",
@@ -19,7 +18,6 @@ skip = { machines=[
     "glfgreat",
     "tmnt2",
     "ssriders",
-    "thndrx2",
     "prmrsocr"
 ], bootlegs=true }
 
@@ -35,25 +33,34 @@ names = [
     { machine="tmnt", names="Jump, Attack" },
     { machine="mia",  names="Knife, Weapon, Weapon select" },
     { machine="punkshot",names="Pass, Shoot" },
+    { machine="thndrx2", names="Shot, Option" },
 ]
 
 [header]
 info="""
     byte 0: 00 = TMNT
             01 = MIA
-            02 = Punk Shot"""
+            02 = Punk Shot
+            03 = Thunder Cross II"""
 data = [
     { machine="mia",      offset=0, data="01" },
     { machine="punkshot", offset=0, data="02" },
+    { machine="thndrx2",  offset=0, data="03" },
 ]
 
 [dipsw]
 delete=[{names=["Unused","Unknown"]}]
+# thndrx2 has no MAME dipswitches, so it gets no <switches> block and no way to
+# reach service mode. Added Service Mode Switch - latching not momentary. End user must
+# flip to off or boot will freeze at init. PCB does the same if Service button held
+extra=[
+    { machine="thndrx2", name="Service Mode", Options="On,Off", Bits="0" },
+    { machine="thndrx2", name="FM in mono mode", Options="Centre,Original", Bits="1" },
+]
 offset=[
     { machine="punkshot", name="COINS_DSW3",value=4 },
     { machine="punkshot", name="DSW1_DSW2", value=0 }
 ]
-
 [ROM]
 regions = [
     { name="maincpu", width=16, reverse=true  }, # First 32kB go to $8000, the rest are banked at $6000
@@ -66,6 +73,7 @@ regions = [
 
     { name="k052109",   start="JTFRAME_BA2_START", width=32 }, # tiles
     { name="k051960",   start="JTFRAME_BA3_START", width=32, reverse=true }, # sprites
+    { name="eeprom",     skip=true },
     { name="proms",     start="JTFRAME_PROM_START" }, # last one is the priority encoder
     { machine="mia", name="proms", start="JTFRAME_PROM_START", sequence=[0,0] }, # repeat it so it falls in the right location
 ]
@@ -76,3 +84,38 @@ patches = [
     # { machine="tmnt", offset=0x106e, data="4E 71 4E 71 4E 71" } # no memory check
     { machine="tmnt", offset=0x106e, data="71 4E 71 4E 71 4E" } # no memory check
 ]
+
+# Per-region EEPROM defaults. Byte 7 is a region checksum (2e/1e/d6) and the
+# Japan set also differs at byte 5.
+nvram={ Defaults=[
+    { setname="thndrx2", data="""\
+00 00 40 c0 80 00 00 2e ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+"""},
+    { setname="thndrx2a", data="""\
+00 00 40 c0 80 00 00 1e ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+"""},
+    { setname="thndrx2j", data="""\
+00 00 40 c0 80 20 00 d6 ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+"""}
+] }
