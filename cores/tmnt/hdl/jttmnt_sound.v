@@ -97,7 +97,7 @@ wire                upd_bsyn;
 wire                upper4k;
 reg                 upd_rst, k7232_rst, k53260_rst, k60, nmi_clr;
 
-assign rom_addr = A[15:0]; // thndrx2 maps ROM flat up to EFFF; others never set A[15]
+assign rom_addr = A[15:0];
 assign title_cs = 1;
 assign st_dout  = snd_latch;
 assign upper4k  = &A[15:12];
