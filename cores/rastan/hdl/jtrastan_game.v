@@ -28,18 +28,50 @@ wire [ 2:0] obj_pal;
 
 wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn;
-wire [ 3:0] sn_dout;
+wire [ 3:0] main2snd, sn_dout;
+wire        opwolf, cchip;
+// Light-gun offsets: signed 8-bit values from header bytes 1/2, sign-extended.
+wire [ 7:0] gun_xoff8, gun_yoff8;
+wire [ 8:0] gun_xoffs = {gun_xoff8[7], gun_xoff8};
+wire [ 8:0] gun_yoffs = {gun_yoff8[7], gun_yoff8};
+
+// C-chip (Operation Wolf good sets)
+wire        cchip_cs;
+wire [ 7:0] cchip_dout;
 
 assign dip_flip = flip;
-assign ram_addr = ram_cs ? {4'd0, main_addr[13:1] } : { 2'b10, main_addr[15:1] };
+assign ram_addr = ram_cs ? (opwolf ? {3'd0, main_addr[14:1]} : {4'd0, main_addr[13:1]}) :
+                           {2'b10, main_addr[15:1]};
 assign ram_we   = xram_cs & ~main_rnw;
 assign xram_cs  = ram_cs | vram_cs;
 assign ram_dsn  = main_dsn;
+assign main2snd = opwolf ? main_dout[11:8] : main_dout[3:0];
+assign sample   = 0;
+
+// Header fields (byte0 bit0=Op Wolf hardware, bit1=C-chip; byte1/2 = signed
+// gun X/Y offsets) — latched by the generated jtrastan_header (see mame2mra.toml).
+jtrastan_header u_header(
+    .clk        ( clk            ),
+    .header     ( header         ),
+    .prog_we    ( prog_we        ),
+    .opwolf     ( opwolf         ),
+    .cchip      ( cchip          ),
+    .gun_xoff8  ( gun_xoff8      ),
+    .gun_yoff8  ( gun_yoff8      ),
+    .prog_addr  ( prog_addr[3:0] ),
+    .prog_data  ( prog_data      )
+);
 
 jtrastan_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ), // 48 MHz
     .LVBL       ( LVBL      ),
+    .opwolf     ( opwolf    ),
+    .cchip      ( cchip     ),
+    .cchip_cs   ( cchip_cs  ),
+    .cchip_dout ( cchip_dout),
+    .gun_xoffs  ( gun_xoffs ),
+    .gun_yoffs  ( gun_yoffs ),
 
     .main_addr  ( main_addr ),
     .main_dout  ( main_dout ),
@@ -75,6 +107,8 @@ jtrastan_main u_main(
 
     .joystick1  ( joystick1 ),
     .joystick2  ( joystick2 ),
+    .gun_x      ( gun_1p_x  ),
+    .gun_y      ( gun_1p_y  ),
     .cab_1p     (cab_1p[1:0]),
     .coin       ( coin[1:0] ),
     .tilt       ( tilt      ),
@@ -87,17 +121,19 @@ jtrastan_main u_main(
 );
 
 jtrastan_snd u_sound(
-    .rst        ( rst24         ),
-    .clk        ( clk24         ), // 24 MHz
+    .rst        ( rst           ),
+    .clk        ( clk           ),
     .cen4       ( cen4          ),
     .cen2       ( cen2          ),
     .pcm_cen    ( pcm_cen       ),
+    .fir_cen    ( fir_cen       ),
+    .opwolf     ( opwolf        ),
 
     // From main CPU
     .rst48      ( rst           ),
     .clk48      ( clk           ),
     .main_addr  (main_addr[1]   ),
-    .main_dout  (main_dout[3:0] ),
+    .main_dout  ( main2snd      ),
     .main_din   ( sn_dout       ),
     .main_rnw   ( main_rnw      ),
     .sn_we      ( sn_we         ),
@@ -108,14 +144,19 @@ jtrastan_snd u_sound(
     .rom_ok     ( snd_ok        ),
     .rom_data   ( snd_data      ),
 
-    .pcm_addr   ( pcm_addr      ),
-    .pcm_cs     ( pcm_cs        ),
-    .pcm_ok     ( pcm_ok        ),
-    .pcm_data   ( pcm_data      ),
+    .pcm0_addr  ( pcm0_addr     ),
+    .pcm0_cs    ( pcm0_cs       ),
+    .pcm0_ok    ( pcm0_ok       ),
+    .pcm0_data  ( pcm0_data     ),
+    .pcm1_addr  ( pcm1_addr     ),
+    .pcm1_cs    ( pcm1_cs       ),
+    .pcm1_ok    ( pcm1_ok       ),
+    .pcm1_data  ( pcm1_data     ),
 
-    .fm_l       ( fm_l          ),
-    .fm_r       ( fm_r          ),
-    .pcm        ( pcm           )
+    .left       ( snd_left      ),
+    .right      ( snd_right     ),
+    .peak       (               ),
+    .debug_bus  ( debug_bus     )
 );
 
 jtrastan_video u_video(
@@ -123,6 +164,7 @@ jtrastan_video u_video(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
+    .opwolf     ( opwolf    ),
 
     .HS         ( HS        ),
     .VS         ( VS        ),
@@ -179,6 +221,35 @@ jtrastan_video u_video(
     .ioctl_addr ( ioctl_addr[10:0]),
     .ioctl_din  ( ioctl_din ),
     .debug_view ( debug_view)
+);
+
+jttc0030cmd u_cchip(
+    .rst        ( rst               ),
+    .clk        ( clk               ),
+    .cen        ( cchip_cen         ),
+    .cs         ( cchip_cs          ),
+    .addr       ( main_addr[11:1]   ),
+    .din        ( main_dout[7:0]    ),
+    .dout       ( cchip_dout        ),
+    .rnw        ( main_rnw | main_dsn[0] ),
+    .dtack_n    (                   ),
+    .int1       ( ~LVBL             ),
+    .nmi_n      ( 1'b1              ),
+    .pa_in      ( 8'h00             ),
+    .pb_in      ( {6'h3f, ~coin[1:0]}),
+    .pc_in      ( {3'b111, cab_1p[0], tilt, service,
+                   joystick1[5], joystick1[4]} ),
+    .pa_out     (                   ),
+    .pb_out     (                   ),
+    .pc_out     (                   ),
+    .an         ( 8'h00             ),
+    .mrom_addr  ( cchip_mask_addr   ),
+    .mrom_data  ( cchip_mask_data   ),
+    .eprom_addr ( cchip_eprom_addr  ),
+    .eprom_data ( cchip_eprom_data  ),
+    // debug (unused)
+    .dbg_pc     (                   ),
+    .dbg_fetch  (                   )
 );
 
 endmodule

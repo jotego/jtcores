@@ -19,6 +19,7 @@
 module jtrastan_video(
     input           rst,
     input           clk,
+    input           opwolf,
     output          pxl_cen,
     output          pxl2_cen,
 
@@ -83,6 +84,16 @@ wire        preLHBL, preLVBL;
 wire [10:0] scr1_pxl, scr0_pxl;
 wire [ 7:0] obj_pxl;
 wire [ 8:0] hdump, vrender;
+wire [31:0] scr0rom_data, scr1rom_data, objrom_data;
+
+// Operation Wolf graphics ROMs use ROM_LOAD16_WORD_SWAP, whereas Rastan's
+// paired byte ROMs already arrive in the native renderer order.
+assign scr0rom_data = opwolf ? {rom0_data[23:16],rom0_data[31:24],
+                                rom0_data[ 7: 0],rom0_data[15: 8]} : rom0_data;
+assign scr1rom_data = opwolf ? {rom1_data[23:16],rom1_data[31:24],
+                                rom1_data[ 7: 0],rom1_data[15: 8]} : rom1_data;
+assign objrom_data  = opwolf ? {orom_data[23:16],orom_data[31:24],
+                                orom_data[ 7: 0],orom_data[15: 8]} : orom_data;
 
 jtrastan_scr u_scr(
     .rst        ( rst       ),
@@ -111,7 +122,7 @@ jtrastan_scr u_scr(
     .ram0_cs    ( ram0_cs   ),
 
     .rom0_addr  ( rom0_addr ),
-    .rom0_data  ( rom0_data ),
+    .rom0_data  ( scr0rom_data ),
     .rom0_ok    ( rom0_ok   ),
     .rom0_cs    ( rom0_cs   ),
 
@@ -121,7 +132,7 @@ jtrastan_scr u_scr(
     .ram1_cs    ( ram1_cs   ),
 
     .rom1_addr  ( rom1_addr ),
-    .rom1_data  ( rom1_data ),
+    .rom1_data  ( scr1rom_data ),
     .rom1_ok    ( rom1_ok   ),
     .rom1_cs    ( rom1_cs   ),
 
@@ -150,7 +161,7 @@ jtrastan_obj u_obj(
     .dtackn     ( odakn     ),
 
     .rom_addr   ( orom_addr ),
-    .rom_data   ( orom_data ),
+    .rom_data   ( objrom_data ),
     .rom_cs     ( orom_cs   ),
     .rom_ok     ( orom_ok   ),
     .pxl        ( obj_pxl   ),
@@ -165,6 +176,7 @@ jtrastan_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .opwolf     ( opwolf    ),
 
     .main_addr  ( main_addr[11:1] ),
     .main_dout  ( main_dout ),

@@ -139,7 +139,7 @@ always @(posedge clk, posedge rst) begin
             rom_addr <= { code[12:0], ydiff[3:0]^{4{~attr[15]}}, attr[14] };
             half     <= 0;
             dr_busy  <= 1;
-            buf_pos  <= xpos[8:0] + 9'd14;
+            buf_pos  <= xpos[8:0] + 9'd13;
             cur_pal  <= attr[3:0];
             cur_hflip<= attr[14];
             buf_we   <= 0;

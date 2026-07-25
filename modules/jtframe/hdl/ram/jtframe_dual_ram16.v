@@ -29,6 +29,7 @@
 module jtframe_dual_ram16 #(parameter AW=10,
     SIMFILE="",
     SIMHEXFILE_LO="", SIMHEXFILE_HI="",
+    SYNFILE_LO="",    SYNFILE_HI="",
     ENDIAN=0,
     VERBOSE=0,          // set to 1 to display memory writes
     VERBOSE_OFFSET=0,   // value added to the address when displaying
@@ -87,6 +88,7 @@ jtframe_dual_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_LO ),
     .SIMFILE_BYTE( LO_BYTE     ),
+    .SYNFILE   ( SYNFILE_LO    ),
     .FULL_DW   ( 16            ),
     .LATCH0_IN ( LATCH0_IN     ),
     .LATCH0_OUT( LATCH0_OUT    ),
@@ -113,6 +115,7 @@ jtframe_dual_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_HI ),
     .SIMFILE_BYTE( HI_BYTE     ),
+    .SYNFILE   ( SYNFILE_HI    ),
     .FULL_DW   ( 16            ),
     .LATCH0_IN ( LATCH0_IN     ),
     .LATCH0_OUT( LATCH0_OUT    ),

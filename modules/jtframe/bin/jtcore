@@ -296,6 +296,16 @@ if [ $SKIP_COMPILE = FALSE ]; then
         # Report timing
         if neg_slack=$(worst_negative_sta_slack "$LOG"); then
             grep --color=auto "Worst-case.*-[0-9.]*" "$LOG" || true
+            # Emit the worst-path detail so a timing failure can be triaged from
+            # the CI log artifact alone. Runs only when slack is negative, so it
+            # adds no time to cores that already close. Lands next to $LOG, which
+            # the compile workflow uploads on failure.
+            TIMING_RPT="$JTROOT/log/$TARGET/$corename.timing.rpt"
+            if quartus_sta -t $JTFRAME/bin/jtreport_timing.tcl $corename > "$TIMING_RPT" 2>&1; then
+                echo "Detailed timing report written to $TIMING_RPT"
+            else
+                echo "WARNING: could not generate detailed timing report (see $TIMING_RPT)"
+            fi
             if [[ -z "$SKIPTIMING" && ! -v JTFRAME_NOSTA ]]; then
                 if [[ -v JTFRAME_EASY_STA ]] && easy_sta_accepts "$neg_slack"; then
                     echo "JTFRAME_EASY_STA accepts worst slack $neg_slack ns (limit -0.333 ns)"

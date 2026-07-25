@@ -75,14 +75,7 @@ reg  [15:0] scr0_hpos, scr1_hpos, scr0_vpos, scr1_vpos;
 
 assign dtackn = 0;
 assign debug_view = scr1_hpos[8:1];
-/*
-reg LVBLl;
 
-always @(posedge clk) begin
-    LVBLl <= LVBL;
-    if( ~LVBL && LVBLl ) scr0_hpos <= scr0_hpos + 1'd1;
-end
-*/
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         scr0_hpos <= 0;
@@ -116,16 +109,16 @@ jtframe_vtimer #(
     .VB_START   ( 9'd239          ),
     .VB_END     ( 9'd239+9'd23    ),
     .VS_START   ( 9'd239+9'd7     ),
-    .HB_END     ( 9'hF            ),
-    .HB_START   ( 9'h14F          ),
+    .HB_END     ( 9'hA            ),
+    .HB_START   ( 9'h14A          ),
     .HCNT_END   ( 9'd319+9'd104   ),
     .HS_START   ( 9'd320+9'd44    )
 ) u_vtimer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .vdump      ( vdump     ),
-    .vrender    ( vrender   ),
-    .vrender1   (           ),
+    .vdump      (           ),
+    .vrender    ( vdump     ),
+    .vrender1   ( vrender   ),
     .H          ( hdump     ),
     .Hinit      (           ),
     .Vinit      (           ),

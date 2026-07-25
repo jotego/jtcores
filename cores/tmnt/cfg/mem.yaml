@@ -40,7 +40,7 @@ sdram:
           data_width: 16
     - buses:
         - name: snd
-          addr_width: 15
+          addr_width: 16
           data_width: 8
         - name: pcma
           addr_width: 21
@@ -80,3 +80,10 @@ sdram:
         - name: lyro
           addr_width: 21
           data_width: 32
+bram:
+  # Thunder Cross II ER5911 EEPROM (128 x 8), saved/restored via NVRAM ioctl
+  - name: nvram
+    addr_width: 7
+    data_width: 8
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }
