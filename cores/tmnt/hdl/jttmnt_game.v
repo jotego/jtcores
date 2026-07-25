@@ -37,8 +37,7 @@ reg  [ 2:0] game_id;
 
 // "FM in mono mode" DIP, thndrx2 only (dipsw[1], see mame2mra.toml [dipsw]).
 // When the game's own sound option is set to mono it centres the K053260 PCM
-// but leaves the YM2151 hard-panned left, because the real PCB sums the FM
-// downstream and the core cannot see that setting. "Centre" sums the FM to
+// but leaves the YM2151 hard-panned left, The PCB also does this. "Centre" sums the FM to
 // centre so it matches; "Left" (bit=1, default) passes it through unchanged.
 // NB: the core cannot read the game's mono/stereo setting, so this acts
 // unconditionally -- selecting Centre while the game is in stereo also collapses
@@ -55,7 +54,7 @@ wire signed [15:0] fm_sel_l = fm_mono_en ? fm_mono : fm_raw_l;
 wire signed [15:0] fm_sel_r = fm_mono_en ? fm_mono : fm_raw_r;
 
 // thndrx2 balance: on hardware the K053260 PCM sits above the YM2151 FM, ~FM 70%
-// / PCM 100%. The shared mixer runs FM and K053260 at equal gain, so attenuate
+// / PCM 100%. This is matched to recordings. The shared mixer runs FM and K053260 at equal gain, so attenuate
 // the FM to ~0.7 for thndrx2 only (45/64 = 0.703). Attenuation, so no clipping.
 // Punk Shot uses a different balance and keeps the shared 1:1 (game_id gate).
 wire signed [21:0] fm_att_l = fm_sel_l * 7'sd45;
