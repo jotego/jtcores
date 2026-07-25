@@ -135,10 +135,7 @@ jttmnt_main u_main(
     .nv_we          ( nvram_we      ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
-    // thndrx2 has no MAME dips, so its "Service Mode" DIP (dipsw[0], active low)
-    // drives the TEST line directly, latching like the other games' service DIP:
-    // On = held in service, Off (default) = play. Switch position matches state.
-    .dip_test       ( game_id==THNDRX2 ? (dip_test & dipsw[0]) : dip_test ),
+    .dip_test       ( dip_test      ),
     .dipsw          ( { dipsw[19:16], dipsw[15:0] } ),
     // Debug
     .st_dout        ( st_main       ),

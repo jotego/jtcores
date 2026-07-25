@@ -87,8 +87,7 @@ wire [ 2:0] FC, IPLn;
 reg         snddt_cs, shoot_cs, snd_cs, punk_cab,
             dip_cs, dip3_cs, syswr_cs, iowr_cs, int16en;
 // Thunder Cross II
-reg         hip_cs, eepr_cs, rdio_cs;
-reg  [15:0] thn_io;
+reg         hip_cs, eepr_cs, rdio_cs, irq_mode;
 reg         eep_di, eep_clk, eep_cs;
 wire        eep_do, eep_rdy;
 wire [ 7:0] hip_dout;
@@ -103,7 +102,7 @@ wire [23:0] A_full = {A,1'b0};
 
 assign main_addr= A[18:1];
 assign ram_dsn  = {UDSn, LDSn};
-assign IPLn     = (game_id==PUNKSHOT || game_id==THNDRX2) ? { tile_irqn & tile_nmin, 1'b1, tile_nmin } : { intn, 1'b1, intn };
+assign IPLn     = irq_mode ? { tile_irqn & tile_nmin, 1'b1, tile_nmin } : { intn, 1'b1, intn };
 assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
@@ -114,6 +113,10 @@ assign st_dout  = { rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = ~( A[23] & ~ASn );
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
+
+always @(posedge clk) begin
+    irq_mode <= game_id==PUNKSHOT || game_id==THNDRX2;
+end
 
 always @* begin
     rom_cs   = 0;
@@ -223,25 +226,10 @@ always @(posedge clk) begin
                pal_cs  ? pal_dout       :
                snd_cs  ? {8'd0,snd2main}:
                hip_cs  ? {8'd0,hip_dout}:      // K054000 status
-               rdio_cs ? thn_io         :      // thndrx2 coins/EEPROM
+               rdio_cs ? cab_dout       :      // thndrx2 coins/EEPROM
                dip3_cs ? { 12'd0, dipsw[19:16] } :
                (shoot_cs | dip_cs | punk_cab) ? cab_dout :
                { 16'hffff };
-end
-
-// Thunder Cross II input reads (KONAMI16_LSB low byte + status high byte)
-always @(posedge clk) begin
-    case( A[1] )
-        1'b0: // 50'0200 P1_COINS
-            // bit 11 is the TEST switch, active low. dip_test is pulsed by the
-            // OSD "Service Mode" DIP in jttmnt_game.v, since the PCB switch is
-            // momentary rather than latching.
-            thn_io <= { 4'hf, dip_test, service, coin[1], coin[0],
-                        cab_1p[0], joystick1[6:0] };
-        1'b1: // 50'0202 P2_EEPROM
-            thn_io <= { 6'h3f, eep_rdy, eep_do,
-                        cab_1p[1], joystick2[6:0] };
-    endcase
 end
 
 always @(posedge clk, posedge rst) begin
@@ -260,27 +248,42 @@ end
 always @(posedge rmrd) $display("RMRD high");
 
 always @(posedge clk) begin
-    cab_dout[15:8] <= 0;
-    if(dip_cs) case( A[2:1] )
-        ~2'd0: cab_dout[7:0] <= 0;
-        ~2'd1: cab_dout[7:0] <= game_id == TMNT ? { cab_1p[3], joystick4[6:0] } : 8'hff;
-        ~2'd2: cab_dout[7:0] <= dipsw[15:8];
-        ~2'd3: cab_dout[7:0] <= dipsw[7:0];
-    endcase
-    else case( A[2:1] )
-        ~2'd0: cab_dout[7:0] <= game_id == TMNT ? { cab_1p[2], joystick3[6:0] } : 8'hff;
-        ~2'd1: cab_dout[7:0] <= { cab_1p[1], joystick2[6:0] };
-        ~2'd2: cab_dout[7:0] <= { cab_1p[0], joystick1[6:0] };
-        ~2'd3: cab_dout[7:0] <= game_id == TMNT ? { {4{service}}, coin } :
-                            { 1'b1, service, 1'b1, cab_1p[1:0], 1'b1, coin[1:0] };
-    endcase
-    if( punk_cab ) begin // 16-bit interface
-        case( A[2:1] )
-            ~2'd0: cab_dout <= { 1'b1, joystick2[6:0],  1'b1, joystick1[6:0] };
-            ~2'd1: cab_dout <= { 1'b1, joystick4[6:0],  1'b1, joystick3[6:0] };
-            ~2'd2: cab_dout <= { dipsw[19:16], 1'b1, dip_test, cab_1p[1:0], {4{service}}, coin };
-            ~2'd3: cab_dout <= dipsw[15:0];
+    if( game_id==THNDRX2 ) begin
+        // Thunder Cross II input reads (KONAMI16_LSB low byte + status high byte)
+        case( A[1] )
+            1'b0: // 50'0200 P1_COINS
+                // bit 11 is the TEST switch, active low. dip_test is pulsed by the
+                // OSD "Service Mode" DIP in jttmnt_game.v, since the PCB switch is
+                // momentary rather than latching.
+                cab_dout <= { 4'hf, dip_test, service, coin[1], coin[0],
+                              cab_1p[0], joystick1[6:0] };
+            1'b1: // 50'0202 P2_EEPROM
+                cab_dout <= { 6'h3f, eep_rdy, eep_do,
+                              cab_1p[1], joystick2[6:0] };
         endcase
+    end else begin
+        cab_dout[15:8] <= 0;
+        if(dip_cs) case( A[2:1] )
+            ~2'd0: cab_dout[7:0] <= 0;
+            ~2'd1: cab_dout[7:0] <= game_id == TMNT ? { cab_1p[3], joystick4[6:0] } : 8'hff;
+            ~2'd2: cab_dout[7:0] <= dipsw[15:8];
+            ~2'd3: cab_dout[7:0] <= dipsw[7:0];
+        endcase
+        else case( A[2:1] )
+            ~2'd0: cab_dout[7:0] <= game_id == TMNT ? { cab_1p[2], joystick3[6:0] } : 8'hff;
+            ~2'd1: cab_dout[7:0] <= { cab_1p[1], joystick2[6:0] };
+            ~2'd2: cab_dout[7:0] <= { cab_1p[0], joystick1[6:0] };
+            ~2'd3: cab_dout[7:0] <= game_id == TMNT ? { {4{service}}, coin } :
+                                { 1'b1, service, 1'b1, cab_1p[1:0], 1'b1, coin[1:0] };
+        endcase
+        if( punk_cab ) begin // 16-bit interface
+            case( A[2:1] )
+                ~2'd0: cab_dout <= { 1'b1, joystick2[6:0],  1'b1, joystick1[6:0] };
+                ~2'd1: cab_dout <= { 1'b1, joystick4[6:0],  1'b1, joystick3[6:0] };
+                ~2'd2: cab_dout <= { dipsw[19:16], 1'b1, dip_test, cab_1p[1:0], {4{service}}, coin };
+                ~2'd3: cab_dout <= dipsw[15:0];
+            endcase
+        end
     end
 end
 

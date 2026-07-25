@@ -140,8 +140,6 @@ always @(*) begin
     k60_cs   = 0;
     nmi_clr  = 1;
 
-    // thndrx2 shares Punk Shot's Z80 map exactly; only the ROM extent differs
-    // (0000-EFFF vs 0000-7FFF) and ~upper4k already decodes 0000-EFFF.
     if( game_id==PUNKSHOT || game_id==THNDRX2 ) begin
         mem_upper = mem_acc &  upper4k;
         rom_cs    = mem_acc & ~upper4k;

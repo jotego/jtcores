@@ -224,9 +224,6 @@ always @* begin
         lyra_addr = { pre_a[12:11], lyra_col[3:2], lyra_col[4], lyra_col[1:0], pre_a[10:0] };
         lyrb_addr = { pre_b[12:11], lyrb_col[3:2], lyrb_col[4], lyrb_col[1:0], pre_b[10:0] };
         opal_eff  = { opal[7:5], 1'b0, opal[3:0] };
-        // MAME punkshot_sprite_callback does `code |= (color & 0x10) << 9`;
-        // thndrx2_sprite_callback omits it and is otherwise identical. Punk Shot
-        // has 2MB of sprite ROM and needs the extra index bit, thndrx2 has 1MB.
         ocode_eff = { game_id==THNDRX2 ? 1'b0 : opal[4], ocode };
         lyro_addr = ca;
         end
