@@ -130,9 +130,6 @@ jtframe_vtimer #(
     .VS         ( VS        )
 );
 
-// Rainbow Islands displays 224 active lines (MAME visarea 16-239 -> vtimer
-// lines 8-231) instead of the 240 shown by Rastan/Op Wolf. Same 262-line
-// frame, so VS/IRQ timing is unchanged; only the visible window shrinks.
 assign LVBL = rbisland ? lvbl_vt & (vtdump>=9'd8 && vtdump<9'd232) : lvbl_vt;
 
 jtrastan_tilemap u_scr0( // background

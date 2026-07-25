@@ -169,9 +169,6 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// The PC090OJ has 0x1000 words of RAM but only the first 0x400 (256 sprites)
-// are drawn; the rest is CPU scratch (and the flip register at word 0xdff).
-// Keeping the full depth stops those writes from aliasing onto the sprites.
 jtframe_dual_nvram16 #(.AW(12),.SIMFILE("obj.bin")) u_ram(
     // Port 0
     .clk0   ( clk       ),
@@ -179,7 +176,7 @@ jtframe_dual_nvram16 #(.AW(12),.SIMFILE("obj.bin")) u_ram(
     .addr0  ( main_addr ),
     .we0    ( main_we   ),
     .q0     ( main_din  ),
-    // Port 1: scanner only reads the 256 drawn sprites (low 0x400 words)
+    // Port 1
     .clk1   ( clk       ),
     .data1  (           ),
     .addr1a ( {2'b0,obj_cnt,scan_cnt} ),
