@@ -72,7 +72,7 @@ module jtgng_main(
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 wire        nRESET, bus_busy, cpu_cen;
-reg         sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs;
+reg         sound_cs, scrpos_cs, in_cs, flip_cs, ram_cs, bank_cs, ok_dly;
 reg  [ 7:0] cpu_din, cabinet_input;
 reg  [ 2:0] bank;
 
@@ -170,6 +170,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 always @(posedge clk) begin
+    ok_dly  <= rom_ok;
     cpu_din <= ram_cs  ? ram_dout  :
                char_cs ? char_dout :
                scr_cs  ? scr_dout  :
@@ -212,7 +213,7 @@ jtframe_sys6809_dma #(
     .VMA        (           ),
     .ram_cs     ( ram_cs    ),
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
+    .rom_ok     ( ok_dly    ),
     // Bus multiplexer is external
     .ram_dout   ( ram_dout  ),
     .cpu_dout   ( cpu_dout  ),
