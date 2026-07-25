@@ -154,7 +154,7 @@ jtrastan_obj u_obj(
     .hdump      ( hdump     ),
     .vrender    ( vrender   ),
 
-    .main_addr  ( main_addr[10:1] ),
+    .main_addr  ( main_addr[12:1] ),
     .main_dout  ( main_dout ),
     .main_din   ( oram_dout ),
     .main_dsn   ( main_dsn  ),
