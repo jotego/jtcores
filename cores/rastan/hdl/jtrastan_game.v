@@ -250,8 +250,8 @@ jttc0030cmd u_cchip(
     // coins are active high at the C-chip PB pins (MAME 800009), while JTFRAME
     // delivers coin active low, so invert for both Op Wolf and Rainbow Islands
     .pb_in      ( {6'h3f, ~coin[1:0]}),
-    .pc_in      ( rbisland ? { joystick1[5], joystick1[4], joystick1[3],
-                               joystick1[2], 3'b111, tilt } :
+    .pc_in      ( rbisland ? { joystick1[5], joystick1[4], joystick1[0],
+                               joystick1[1], 3'b111, tilt } :
                              { 3'b111, cab_1p[0], tilt, service,
                                joystick1[5], joystick1[4] } ),
     .pa_out     (                   ),
