@@ -17,19 +17,30 @@ JTFRAME_CREDITS_HSTART=32
 JTFRAME_JOY_DURL
 JTFRAME_BUTTONS=3
 JTFRAME_JOY1_POS
+# NB: no JTFRAME_OSD_TEST and no CORE_OSD service entry. Both put a second
+# "Service Mode" in the main OSD, which for TMNT/MIA/Punk Shot would duplicate
+# the one they already have under DIP Switches. thndrx2 gets a synthesised DIP
+# instead -- see the [dipsw] extra block in mame2mra.toml.
 
 # ROM configuration
 JTFRAME_HEADER=8
 JTFRAME_BA1_START =0x060000
-PCM_START         =0x068000
-UPD_START         =0x088000
-TITLE_START       =0x0A8000
-JTFRAME_BA2_START =0x128000
-JTFRAME_BA3_START =0x228000
-JTFRAME_PROM_START=0x428000
+PCM_START         =0x070000
+UPD_START         =0x0F0000
+TITLE_START       =0x110000
+JTFRAME_BA2_START =0x190000
+JTFRAME_BA3_START =0x290000
+JTFRAME_PROM_START=0x490000
+
+# NVRAM readback: thndrx2 ER5911 is 128 bytes. Base value so release builds
+# report <nvram size="128">; the debug readback is added on top with += below.
+# Exactly as cores/simson (same ER5911 chip). Release builds skip debug lines,
+# so the persisted NVRAM is 128 bytes; debug builds report 128+28705=28833,
+# which MiSTer handles fine (proven by simson).
+JTFRAME_IOCTL_RD=128
 
 # Debugging
-debug JTFRAME_IOCTL_RD=28705
+debug JTFRAME_IOCTL_RD+=28705
 
 [mist|sidi]
 # OSD credits cannot be used when

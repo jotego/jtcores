@@ -21,6 +21,8 @@ module jttmnt_game(
 );
 
 /* verilator tracing_off */
+`include "game_id.inc"
+
 wire [ 7:0] snd_latch;
 wire        snd_irq, rmrd, rst8;
 wire        pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs;
@@ -32,6 +34,34 @@ wire [15:0] pal_dout;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
+
+// "FM in mono mode" DIP, thndrx2 only (dipsw[1], see mame2mra.toml [dipsw]).
+// When the game's own sound option is set to mono it centres the K053260 PCM
+// but leaves the YM2151 hard-panned left, because the real PCB sums the FM
+// downstream and the core cannot see that setting. "Centre" sums the FM to
+// centre so it matches; "Left" (bit=1, default) passes it through unchanged.
+// NB: the core cannot read the game's mono/stereo setting, so this acts
+// unconditionally -- selecting Centre while the game is in stereo also collapses
+// the FM to mono. Intended use is game=mono + Centre.
+wire signed [15:0] fm_raw_l, fm_raw_r, fm_mono;
+wire        fm_mono_en = game_id==THNDRX2 && ~dipsw[1];
+
+jtframe_st2mono #(.W(16),.STEREO_IN(1),.STEREO_OUT(0)) u_fm_mono(
+    .sin ( { fm_raw_l, fm_raw_r } ),
+    .sout( fm_mono                )
+);
+
+wire signed [15:0] fm_sel_l = fm_mono_en ? fm_mono : fm_raw_l;
+wire signed [15:0] fm_sel_r = fm_mono_en ? fm_mono : fm_raw_r;
+
+// thndrx2 balance: on hardware the K053260 PCM sits above the YM2151 FM, ~FM 70%
+// / PCM 100%. The shared mixer runs FM and K053260 at equal gain, so attenuate
+// the FM to ~0.7 for thndrx2 only (45/64 = 0.703). Attenuation, so no clipping.
+// Punk Shot uses a different balance and keeps the shared 1:1 (game_id gate).
+wire signed [21:0] fm_att_l = fm_sel_l * 7'sd45;
+wire signed [21:0] fm_att_r = fm_sel_r * 7'sd45;
+assign fm_l = game_id==THNDRX2 ? fm_att_l[21:6] : fm_sel_l;
+assign fm_r = game_id==THNDRX2 ? fm_att_r[21:6] : fm_sel_r;
 
 assign debug_view = debug_mux;
 assign ram_addr   = { main_addr[17], main_addr[13:1] };
@@ -99,9 +129,17 @@ jttmnt_main u_main(
     .sndon          ( snd_irq       ),
     .snd2main       ( snd2main      ),
     .snd_wrn        ( snd_wrn       ),
+    // EEPROM (Thunder Cross II)
+    .nv_addr        ( nvram_addr    ),
+    .nv_dout        ( nvram_dout    ),
+    .nv_din         ( nvram_din     ),
+    .nv_we          ( nvram_we      ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
-    .dip_test       ( dip_test      ),
+    // thndrx2 has no MAME dips, so its "Service Mode" DIP (dipsw[0], active low)
+    // drives the TEST line directly, latching like the other games' service DIP:
+    // On = held in service, Off (default) = play. Switch position matches state.
+    .dip_test       ( game_id==THNDRX2 ? (dip_test & dipsw[0]) : dip_test ),
     .dipsw          ( { dipsw[19:16], dipsw[15:0] } ),
     // Debug
     .st_dout        ( st_main       ),
@@ -225,8 +263,8 @@ jttmnt_sound u_sound(
     .title_addr ( title_addr    ),
     .title_ok   ( title_ok      ),
     // Sound output
-    .fm_l       ( fm_l          ),
-    .fm_r       ( fm_r          ),
+    .fm_l       ( fm_raw_l      ),
+    .fm_r       ( fm_raw_r      ),
     .pcm        ( pcm           ),
     .upd        ( upd           ),
     .k60_l      ( k60_l         ),

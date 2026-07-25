@@ -33,7 +33,7 @@ module jttmnt_sound(
     input           snd_irq,
     input   [ 7:0]  snd_latch,  // latch for other games
     // ROM
-    output  [14:0]  rom_addr,
+    output  [15:0]  rom_addr,
     output  reg     rom_cs,
     input   [ 7:0]  rom_data,
     input           rom_ok,
@@ -97,7 +97,7 @@ wire                upd_bsyn;
 wire                upper4k;
 reg                 upd_rst, k7232_rst, k53260_rst, k60, nmi_clr;
 
-assign rom_addr = A[14:0];
+assign rom_addr = A[15:0]; // thndrx2 maps ROM flat up to EFFF; others never set A[15]
 assign title_cs = 1;
 assign st_dout  = snd_latch;
 assign upper4k  = &A[15:12];
@@ -106,9 +106,10 @@ assign pcmb_addr = k60 ? k60b_addr : { 4'd0, k32b_addr };
 assign pcma_cs   = k60 ? k60a_cs : k32a_cs;
 assign pcmb_cs   = k60 ? k60b_cs : k32b_cs;
 
+
 always @(posedge clk) begin
     // keep unused chips in reset state
-    if( game_id==PUNKSHOT ) begin
+    if( game_id==PUNKSHOT || game_id==THNDRX2 ) begin
        k60        <= 1;
        upd_rst    <= 1;
        k7232_rst  <= 1;
@@ -139,7 +140,9 @@ always @(*) begin
     k60_cs   = 0;
     nmi_clr  = 1;
 
-    if( game_id==PUNKSHOT ) begin
+    // thndrx2 shares Punk Shot's Z80 map exactly; only the ROM extent differs
+    // (0000-EFFF vs 0000-7FFF) and ~upper4k already decodes 0000-EFFF.
+    if( game_id==PUNKSHOT || game_id==THNDRX2 ) begin
         mem_upper = mem_acc &  upper4k;
         rom_cs    = mem_acc & ~upper4k;
         ram_cs    = mem_upper && A[11]==0;
