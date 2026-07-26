@@ -88,7 +88,7 @@ reg         snddt_cs, shoot_cs, snd_cs, punk_cab,
             dip_cs, dip3_cs, syswr_cs, iowr_cs, int16en;
 // Thunder Cross II
 reg         hip_cs, eepr_cs, rdio_cs, irq_mode;
-reg         eep_di, eep_clk, eep_cs;
+reg         eep_di, eep_clk, eep_cs, ok_dly;
 wire        eep_do, eep_rdy;
 wire [ 7:0] hip_dout;
 reg  [15:0] cpu_din, cab_dout;
@@ -104,7 +104,7 @@ assign main_addr= A[18:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = irq_mode ? { tile_irqn & tile_nmin, 1'b1, tile_nmin } : { intn, 1'b1, intn };
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
+assign bus_busy = (rom_cs | ram_cs ) & ~ok_dly;
 assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
@@ -115,6 +115,7 @@ assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
 
 always @(posedge clk) begin
+    ok_dly   <= rom_ok | ram_ok;
     irq_mode <= game_id==PUNKSHOT || game_id==THNDRX2;
 end
 
