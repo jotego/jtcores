@@ -144,8 +144,20 @@ function copy_to_sd_card {
     echo "MiSTer SD card detected"
     rm -rf "/media/$USER/MiSTer_Data/_JTBIN"
     cp -r "$TEMP/_JTBIN" "/media/$USER/MiSTer_Data" || echo "Copy to MiSTer SD card failed"
+    copy_console_core_to_sd_card neogeopocket.rbf NeoGeoPocket.rbf
+    copy_console_core_to_sd_card neogeopocket-color.rbf NeoGeoPocket-Color.rbf
     if [ -e "$JTUTIL/jtbeta.zip" ]; then
         cp "$JTUTIL/jtbeta.zip" "/media/$USER/MiSTer_Data/games/mame"
+    fi
+}
+
+function copy_console_core_to_sd_card {
+    local source_name=$1
+    local console_name=$2
+
+    if [ -e "$JTBIN/mister/$source_name" ]; then
+        mkdir -p "/media/$USER/MiSTer_Data/_Console"
+        cp "$TEMP/_JTBIN/cores/$source_name" "/media/$USER/MiSTer_Data/_Console/$console_name"
     fi
 }
 
