@@ -90,6 +90,7 @@ localparam [4:0] CEN_DEN = 5'd24;
 
 wire [23:0] cpu_a;
 reg  [15:0] cpu_din;
+reg         cpu_rom_ok_dly;
 wire [ 2:0] cpu_fc;
 wire        cpu_wrn, cpu_as_n, cpu_lds_n, cpu_uds_n,
             cen10, cen10b, dtack_n, int1;
@@ -197,7 +198,7 @@ jtframe_virq u_virq(
 );
 
 assign bus_cs   = cpu_rom_cs;
-assign bus_busy = cpu_rom_cs & ~cpu_rom_ok;
+assign bus_busy = cpu_rom_cs & ~cpu_rom_ok_dly;
 
 jtframe_68kdtack_cen  u_dtack(
         .rst        ( rst       ),
@@ -314,6 +315,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
+    cpu_rom_ok_dly <= cpu_rom_ok;
     cpu_din <= cpu_rom_cs ? cpu_rom_data :
                             ram_cs     ? ram_dout :
                             palette_cs ? pal_dout :

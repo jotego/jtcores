@@ -107,6 +107,7 @@ reg         cab_cs, snd_cs, iowr_hi, iowr_lo, iowr_cs, HALTn,
             eep_di, eep_clk, eep_cs, omsb_cs, pslrm_cs, psvrm_cs,
             riders_son, riders_rmrd, adc_cs, out_cs, hit_cs, prot_cs;
 reg  [15:0] cpu_din, cab_dout;
+reg         ok_dly;
 wire [15:0] glfgreat_cab, cpu_dout;
 wire [ 7:0] riders_cab, lgtnfght_cab;
 wire [ 2:0] lgtnfght_dim;
@@ -121,7 +122,7 @@ assign a_mx     = ~tmnt_bgackn ? tmnt_addr : A;
 assign main_addr= lgtnfght ? {2'd0,A[17:1]} : a_mx[19:1];
 assign ram_dsn  = ~tmnt_bgackn ? tmnt_dsn : {UDSn, LDSn};
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
+assign bus_busy = (rom_cs | ram_cs) & ~ok_dly;
 assign BUSn     = asn_mx | &ram_dsn;
 
 assign cpu_we   = ~tmnt_bgackn ? ~tmnt_wrn : ~RnW;
@@ -249,6 +250,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    ok_dly  <= rom_ok | ram_ok;
     IPLn    <= {tile_irqn,1'b1, (lgtnfght | glfgreat) ? tile_irqn : prot_irqn};
     HALTn   <= dip_pause & ~rst;
     cab_dout<= glfgreat ? glfgreat_cab:

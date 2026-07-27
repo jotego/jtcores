@@ -136,7 +136,7 @@ wire [23:0] A_full = {A,1'b0};
 wire        BRn, BGACKn, BGn;
 wire        ASn, UDSn, LDSn, BUSn;
 wire        ok_dly;
-reg         sdram_ok;
+reg         sdram_ok, ram_ok_dly;
 wire [15:0] rom_dec, cpu_dout_raw, mul_dout, cmp_dout, cmp2_dout;
 
 reg         io_cs, mul_cs, cmp_cs, cmp2_cs, wdog_cs, tbank_cs;
@@ -305,7 +305,7 @@ jtframe_8751mcu #(
 
 // System 16B memory map
 always @* begin
-    sdram_ok = ASn || (rom_cs ? ok_dly : ram_ok);
+    sdram_ok = ASn || (rom_cs ? ok_dly : ram_ok_dly);
 end
 
 always @(posedge clk, posedge rst) begin
@@ -477,6 +477,7 @@ jts16b_cabinet u_cabinet(
 
 // Data bus input
 always @(posedge clk) begin
+    ram_ok_dly <= ram_ok;
     if(rst) begin
         cpu_din <= 0;
     end else begin

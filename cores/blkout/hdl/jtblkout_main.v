@@ -83,6 +83,7 @@ reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
 wire [15:0] cpu_dout;
 reg         irq6n, irq5n, LVBLl;
+reg         ok_dly;
 wire        irq6ack, irq5ack;
 wire        bus_cs, bus_busy, bus_legit;
 
@@ -99,7 +100,7 @@ assign irq6ack   = io_cs && !RnW && A[4:1]==4'h8; // 100010
 assign irq5ack   = io_cs && !RnW && A[4:1]==4'h9; // 100012
 // SDRAM regions pace DTACK; BRAM/regs auto-ack (single-cycle, ok held high).
 assign bus_cs    = rom_cs | fb_cs | work3_cs;
-assign bus_busy  = (rom_cs & ~rom_ok) | (fb_cs & ~fb_ok) | (work3_cs & ~work3_ok);
+assign bus_busy  = (rom_cs | fb_cs | work3_cs) & ~ok_dly;
 assign bus_legit = 0;
 
 always @* begin
@@ -129,6 +130,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    ok_dly  <= rom_ok | fb_ok | work3_ok;
     cpu_din <= rom_cs   ? rom_data   :
                work_cs  ? work_dout  :
                work2_cs ? work2_dout :

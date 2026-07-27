@@ -146,6 +146,7 @@ wire [ 2:0] FC, IPLn;
 reg         io_cs, out_cs, otport1_cs, inport_cs, dip_cs, gun_cs;
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
+reg         ok_dly;
 reg  [ 8:0] opwolf_gun_x, opwolf_gun_y;
 wire [15:0] cpu_dout;
 reg         intn, LVBLl;
@@ -159,7 +160,7 @@ assign allFC    = ~&FC; // allFC is high if the CPU is not accessing the "CPU sp
 assign IPLn     = { intn, 1'b1, intn };
 assign VPAn     = !(!ASn && FC==7 && A[3:1]==5 && RnW);
 assign bus_cs   = rom_cs | vram_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | ( (vram_cs | ram_cs) & ~ram_ok);
+assign bus_busy = (rom_cs | vram_cs | ram_cs) & ~ok_dly;
 assign bus_legit= vram_cs & ~sdakn;
 // Light-gun offsets come from the header (gun_xoffs/gun_yoffs inputs), derived
 // per set at MRA build time from the same ROM bytes MAME's init_opwolf reads.
@@ -216,6 +217,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    ok_dly  <= rom_ok | ram_ok;
     cpu_din <= rom_cs    ? rom_data :
                ( ram_cs | vram_cs ) ? ram_dout :
                obj_cs    ? oram_dout :
