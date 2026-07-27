@@ -89,10 +89,6 @@ module jtrastan_main(
     output reg           cchip_cs,
     input         [ 7:0] cchip_dout,
 
-    output reg           wram_cs,
-    output        [ 1:0] wram_we,
-    input         [15:0] wram_dout,
-
     input         [ 8:0] gun_xoffs,
     input         [ 8:0] gun_yoffs,
 
@@ -159,7 +155,6 @@ assign main_addr= A[18:1];
 assign main_dsn = {UDSn, LDSn};
 assign main_rnw = RnW;
 assign main_dout= cpu_dout;
-assign wram_we  = {2{wram_cs & ~RnW}} & ~{UDSn,LDSn};
 assign allFC    = ~&FC; // allFC is high if the CPU is not accessing the "CPU space"
 // Rastan/Op Wolf take the video IRQ on level 5; Rainbow Islands on level 4.
 assign IPLn     = { intn, 1'b1, rbisland ? 1'b1 : intn };
@@ -185,9 +180,7 @@ always @* begin
               !ASn && {UDSn,LDSn}!=3;
     obj_cs  = allFC && A[23:20]==4'hd && !ASn;
     io_cs   = allFC && A[23:20]==4'h3 && !ASn;
-    pal_cs  = allFC && A[23:12]==12'h200 && !ASn;
-    // Rainbow Islands scratch RAM 0x201000-0x203fff
-    wram_cs = rbisland && allFC && A[23:12]>=12'h201 && A[23:12]<=12'h203 && !ASn;
+    pal_cs  = allFC && A[23:18]==6'h8 && !ASn;
     sub_cs  = allFC && A[23:20]==4'h8 && !ASn && !rbisland;
     // Op Wolf C-chip at 0x0f0000; Rainbow Islands C-chip at 0x800000
     cchip_cs= cchip && allFC && (opwolf ? A[23:16]==8'h0f : A[23:20]==4'h8) && !ASn;
@@ -237,7 +230,6 @@ always @(posedge clk) begin
                ( ram_cs | vram_cs ) ? ram_dout :
                obj_cs    ? oram_dout :
                pal_cs    ? pal_dout  :
-               wram_cs   ? wram_dout :
                cchip_cs  ? {8'hff, cchip_dout} :
                dip_cs    ? {8'hff, (rbisland ? A[17] : A[1]) ? dipsw_b : dipsw_a} :
                gun_cs    ? (cchip ? (A[1] ? {7'h7f, opwolf_gun_y} :
@@ -345,7 +337,7 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
-assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0, wram_we=0;
+assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0;
 initial begin
     rom_cs   = 0;
     ram_cs   = 0;
@@ -358,7 +350,6 @@ initial begin
     sn_rd    = 0;
     sub_cs   = 0;
     cchip_cs = 0;
-    wram_cs  = 0;
     snd_rstn = 0;
     mintn    = 0;
 end

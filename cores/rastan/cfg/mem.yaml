@@ -64,5 +64,3 @@ sdram:
 bram:
   - { name: cchip_mask,  addr_width: 12, data_width: 8, prom: true }
   - { name: cchip_eprom, addr_width: 13, data_width: 8, prom: true }
-  # required by rainbow islands only
-  - { name: wram, addr_width: 14, data_width: 16, addr: "main_addr[13:1]", din: main_dout, rw: true }
