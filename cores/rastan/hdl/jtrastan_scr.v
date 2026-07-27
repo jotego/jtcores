@@ -26,7 +26,6 @@
 module jtrastan_scr(
     input           rst,
     input           clk,
-    input           rbisland,     // Rainbow Islands shows 224 lines (vs 240)
     output          pxl_cen,
     output          pxl2_cen,
 
@@ -71,8 +70,7 @@ module jtrastan_scr(
     output   [ 7:0] debug_view
 );
 
-wire [ 8:0] vdump, vtdump;
-wire        lvbl_vt;
+wire [ 8:0] vdump;
 reg  [15:0] scr0_hpos, scr1_hpos, scr0_vpos, scr1_vpos;
 
 assign dtackn = 0;
@@ -118,19 +116,17 @@ jtframe_vtimer #(
 ) u_vtimer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .vdump      ( vtdump    ),
+    .vdump      (           ),
     .vrender    ( vdump     ),
     .vrender1   ( vrender   ),
     .H          ( hdump     ),
     .Hinit      (           ),
     .Vinit      (           ),
     .LHBL       ( LHBL      ),
-    .LVBL       ( lvbl_vt   ),
+    .LVBL       ( LVBL      ),
     .HS         ( HS        ),
     .VS         ( VS        )
 );
-
-assign LVBL = rbisland ? lvbl_vt & (vtdump>=9'd8 && vtdump<9'd232) : lvbl_vt;
 
 jtrastan_tilemap u_scr0( // background
     .rst        ( rst       ),

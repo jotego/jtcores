@@ -20,7 +20,6 @@ module jtrastan_video(
     input           rst,
     input           clk,
     input           opwolf,
-    input           rbisland,
     output          pxl_cen,
     output          pxl2_cen,
 
@@ -99,7 +98,6 @@ assign objrom_data  = opwolf ? {orom_data[23:16],orom_data[31:24],
 jtrastan_scr u_scr(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .rbisland   ( rbisland  ),
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
 

@@ -173,7 +173,6 @@ jtrastan_video u_video(
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
     .opwolf     ( opwolf    ),
-    .rbisland   ( rbisland  ),
 
     .HS         ( HS        ),
     .VS         ( VS        ),
