@@ -13,20 +13,11 @@ sourcefile=[ "rastan.cpp", "opwolf.cpp", "rbisland.cpp" ]
 # RAM and no C-chip (different hardware), so they stay unsupported for now.
 setnames=[ "opwolfb", "jumping", "jumpinga", "jumpingi" ]
 
-[Audio]
-volume = [
-    { machine="rastan", value=0x71 },
-    { setname="opwolfp", value=0x71 },
-    { setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=0x71 },
-    { setnames=["rbisland","rbislando","rbislande"], value=0x71 },
-]
-
 [buttons]
 names=[
     { machine="rastan",  names="Slash,Jump" },
-    { setname="opwolfp", names="Bullet,Grenade" },
-    { setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], names="Bullet,Grenade" },
-    { setnames=["rbisland","rbislando","rbislande"], names="Jump,Rainbow" },
+    { machine="opwolf", names="Bullet,Grenade" },
+    { machine="rbisland", names="Jump,Rainbow" },
 ]
 
 # Registers generate cores/rastan/hdl/jtrastan_header.v (named, latched outputs)
