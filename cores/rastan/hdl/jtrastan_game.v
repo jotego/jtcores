@@ -229,6 +229,22 @@ jtrastan_video u_video(
     .debug_view ( debug_view)
 );
 
+
+reg [7:0] cc_pa, cc_pb, cc_pc, cc_an;
+always @(posedge clk) begin
+    // Op Wolf: gun trigger/grenade on PC, coins on PB. Rainbow Islands: service/
+    // start on PA, coins (active high) on PB, P1 joystick/buttons on PC. 
+    cc_pa <= rbisland ? { service, cab_1p[0], cab_1p[1], 5'h1f } : 8'h00;
+    // Coins are active high at the pins but JTFRAME delivers them active low, so invert.
+    cc_pb <= { 6'h3f, ~coin[1:0] };
+    cc_pc <= rbisland ? { joystick1[5], joystick1[4], joystick1[0],
+                          joystick1[1], 3'b111, tilt } :
+                        { 3'b111, cab_1p[0], tilt, service,
+                          joystick1[5], joystick1[4] };
+    // Needs extra investigation to see if we can live without this.
+    cc_an <= rbisland ? 8'hff : 8'h00;
+end
+
 jttc0030cmd u_cchip(
     .rst        ( rst               ),
     .clk        ( clk               ),
@@ -241,20 +257,13 @@ jttc0030cmd u_cchip(
     .dtack_n    (                   ),
     .int1       ( ~LVBL             ),
     .nmi_n      ( 1'b1              ),
-    // Op Wolf: gun trigger/grenade on PC, coins on PB. Rainbow Islands:
-    // service/start on PA, coins (active high) on PB, P1 joystick/buttons on PC.
-    .pa_in      ( rbisland ? { service, cab_1p[0], cab_1p[1], 5'h1f } : 8'h00 ),
-    // coins are active high at the C-chip PB pins (MAME 800009), while JTFRAME
-    // delivers coin active low, so invert for both Op Wolf and Rainbow Islands
-    .pb_in      ( {6'h3f, ~coin[1:0]}),
-    .pc_in      ( rbisland ? { joystick1[5], joystick1[4], joystick1[0],
-                               joystick1[1], 3'b111, tilt } :
-                             { 3'b111, cab_1p[0], tilt, service,
-                               joystick1[5], joystick1[4] } ),
+    .pa_in      ( cc_pa             ),
+    .pb_in      ( cc_pb             ),
+    .pc_in      ( cc_pc             ),
     .pa_out     (                   ),
     .pb_out     (                   ),
     .pc_out     (                   ),
-    .an         ( rbisland ? 8'hff : 8'h00 ),
+    .an         ( cc_an             ),
     .mrom_addr  ( cchip_mask_addr   ),
     .mrom_data  ( cchip_mask_data   ),
     .eprom_addr ( cchip_eprom_addr  ),

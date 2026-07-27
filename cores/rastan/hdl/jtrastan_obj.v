@@ -179,10 +179,10 @@ jtframe_dual_nvram16 #(.AW(12),.SIMFILE("obj.bin")) u_ram(
     // Port 1
     .clk1   ( clk       ),
     .data1  (           ),
-    .addr1a ( {2'b0,obj_cnt,scan_cnt} ),
+    .addr1a ( {obj_cnt,scan_cnt} ),
     .q1a    ( scan_dout ),
     // NVRAM dump
-    .addr1b ( {2'b0,ioctl_addr} ),
+    .addr1b ( {ioctl_addr} ),
     .sel_b  ( ioctl_ram ),
     .we1b   ( 1'd0      ),
     .q1b    ( ioctl_din )

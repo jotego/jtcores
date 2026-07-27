@@ -186,7 +186,7 @@ always @* begin
     obj_cs  = allFC && A[23:20]==4'hd && !ASn;
     io_cs   = allFC && A[23:20]==4'h3 && !ASn;
     pal_cs  = allFC && A[23:12]==12'h200 && !ASn;
-    // Rainbow Islands scratch RAM 0x201000-0x203fff (separate from the palette)
+    // Rainbow Islands scratch RAM 0x201000-0x203fff
     wram_cs = rbisland && allFC && A[23:12]>=12'h201 && A[23:12]<=12'h203 && !ASn;
     sub_cs  = allFC && A[23:20]==4'h8 && !ASn && !rbisland;
     // Op Wolf C-chip at 0x0f0000; Rainbow Islands C-chip at 0x800000
