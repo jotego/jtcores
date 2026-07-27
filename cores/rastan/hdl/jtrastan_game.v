@@ -36,11 +36,10 @@ wire [ 7:0] gun_xoff8, gun_yoff8;
 wire [ 8:0] gun_xoffs = {gun_xoff8[7], gun_xoff8};
 wire [ 8:0] gun_yoffs = {gun_yoff8[7], gun_yoff8};
 
-// C-chip (Operation Wolf good sets, Rainbow Islands)
+// C-chip (Operation Wolf, Rainbow Islands)
 wire        cchip_cs;
 wire [ 7:0] cchip_dout;
 wire        wram_cs;
-assign      wram_we = {2{wram_cs & ~main_rnw}} & ~main_dsn;
 
 assign dip_flip = flip;
 assign ram_addr = ram_cs ? (opwolf ? {3'd0, main_addr[14:1]} : {4'd0, main_addr[13:1]}) :
@@ -75,6 +74,7 @@ jtrastan_main u_main(
     .cchip_cs   ( cchip_cs  ),
     .cchip_dout ( cchip_dout),
     .wram_cs    ( wram_cs   ),
+    .wram_we    ( wram_we   ),
     .wram_dout  ( wram_dout ),
     .gun_xoffs  ( gun_xoffs ),
     .gun_yoffs  ( gun_yoffs ),

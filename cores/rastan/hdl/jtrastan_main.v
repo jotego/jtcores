@@ -90,6 +90,7 @@ module jtrastan_main(
     input         [ 7:0] cchip_dout,
 
     output reg           wram_cs,
+    output        [ 1:0] wram_we,
     input         [15:0] wram_dout,
 
     input         [ 8:0] gun_xoffs,
@@ -158,6 +159,7 @@ assign main_addr= A[18:1];
 assign main_dsn = {UDSn, LDSn};
 assign main_rnw = RnW;
 assign main_dout= cpu_dout;
+assign wram_we  = {2{wram_cs & ~RnW}} & ~{UDSn,LDSn};
 assign allFC    = ~&FC; // allFC is high if the CPU is not accessing the "CPU space"
 // Rastan/Op Wolf take the video IRQ on level 5; Rainbow Islands on level 4.
 assign IPLn     = { intn, 1'b1, rbisland ? 1'b1 : intn };
@@ -346,7 +348,7 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
-assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0;
+assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0, wram_we=0;
 initial begin
     rom_cs   = 0;
     ram_cs   = 0;
