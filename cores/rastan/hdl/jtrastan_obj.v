@@ -28,12 +28,12 @@ module jtrastan_obj(
     input    [8:0]  hdump,
     input    [8:0]  vrender,
 
-    input    [12:1] main_addr,   // full 0x1000-word PC090OJ RAM (4x MCM2018)
+    input    [12:1] main_addr,
     input    [15:0] main_dout,
     output   [15:0] main_din,
     input    [ 1:0] main_dsn,
     input           main_rnw,
-    input           obj_cs,        // selection from address decoder
+    input           obj_cs,
     output          dtackn,
 
     output reg [18:1] rom_addr,

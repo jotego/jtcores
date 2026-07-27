@@ -35,8 +35,10 @@ names=[
 # opwolfp reproduces the prototype's fixed +26/-6.
 [header]
 registers=[
-    { name="game_id",   pos="0[1:0]", desc="Game: 0=Rastan 1=Op Wolf 2=Rainbow Islands", values=[{ setnames=["opwolfp","opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }, { setnames=["rbisland","rbislando","rbislande"], value=2 }] },
-    { name="cchip",     pos="0[2]",   desc="C-chip present",          values=[{ setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }, { setnames=["rbisland","rbislando","rbislande"], value=1 }] },
+    { name="rastan",    pos="0[0]",   desc="Rastan hardware",         values=[{ machine="rastan", value=1 }] },
+    { name="opwolf",    pos="0[1]",   desc="Operation Wolf hardware", values=[{ setnames=["opwolfp","opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }] },
+    { name="rbisland",  pos="0[2]",   desc="Rainbow Islands",         values=[{ setnames=["rbisland","rbislando","rbislande"], value=1 }] },
+    { name="cchip",     pos="0[3]",   desc="C-chip present",          values=[{ setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }, { setnames=["rbisland","rbislando","rbislande"], value=1 }] },
     { name="gun_xoff8", pos="1[7:0]", desc="Light-gun X offset (signed)", values=[{ setname="opwolfp", value=0x1A }, { setnames=["opwolf","opwolfa"], value=0x11 }, { setnames=["opwolfj","opwolfjsc"], value=0x15 }, { setname="opwolfu", value=0x15 }] },
     { name="gun_yoff8", pos="2[7:0]", desc="Light-gun Y offset (signed)", values=[{ setname="opwolfp", value=0xFE }, { setnames=["opwolf","opwolfa"], value=0xF4 }, { setnames=["opwolfj","opwolfjsc"], value=0xFC }, { setname="opwolfu", value=0xE0 }] },
 ]

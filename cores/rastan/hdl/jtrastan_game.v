@@ -29,10 +29,8 @@ wire [ 2:0] obj_pal;
 wire        flip;
 wire        sn_rd, sn_we, snd_rstn, mintn;
 wire [ 3:0] main2snd, sn_dout;
-wire [ 1:0] game_id;
+wire        rastan, opwolf, rbisland;  // one-hot game select, straight from header
 wire        cchip;                     // C-chip present (Op Wolf good sets, Rainbow)
-wire        opwolf   = game_id==2'd1;  // Op Wolf hardware (opwolf/opwolfp)
-wire        rbisland = game_id==2'd2;  // Rainbow Islands
 // Light-gun offsets: signed 8-bit values from header bytes 1/2, sign-extended.
 wire [ 7:0] gun_xoff8, gun_yoff8;
 wire [ 8:0] gun_xoffs = {gun_xoff8[7], gun_xoff8};
@@ -57,7 +55,9 @@ jtrastan_header u_header(
     .clk        ( clk            ),
     .header     ( header         ),
     .prog_we    ( prog_we        ),
-    .game_id    ( game_id        ),
+    .rastan     ( rastan         ),
+    .opwolf     ( opwolf         ),
+    .rbisland   ( rbisland       ),
     .cchip      ( cchip          ),
     .gun_xoff8  ( gun_xoff8      ),
     .gun_yoff8  ( gun_yoff8      ),
