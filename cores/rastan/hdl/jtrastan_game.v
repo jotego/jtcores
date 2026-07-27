@@ -53,8 +53,6 @@ assign ram_dsn  = main_dsn;
 assign main2snd = opwolf ? main_dout[11:8] : main_dout[3:0];
 assign sample   = 0;
 
-// Header fields (byte0 [1:0]=game id, [2]=C-chip present; byte1/2 = signed gun
-// X/Y offsets) — latched by the generated jtrastan_header (see mame2mra.toml).
 jtrastan_header u_header(
     .clk        ( clk            ),
     .header     ( header         ),

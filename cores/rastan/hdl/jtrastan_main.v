@@ -82,18 +82,16 @@ module jtrastan_main(
     input                rst,
     input                clk, // 48 MHz
     input                LVBL,
-    input                opwolf,     // Operation Wolf hardware (opwolf/opwolfp)
-    input                rbisland,   // Rainbow Islands
-    input                cchip,      // C-chip present (Op Wolf good sets, Rainbow)
+    input                opwolf,
+    input                rbisland,
+    input                cchip,
 
     output reg           cchip_cs,
     input         [ 7:0] cchip_dout,
 
-    // Rainbow Islands CPU scratch RAM 0x201000-0x203fff (own BRAM, see mem.yaml)
     output reg           wram_cs,
     input         [15:0] wram_dout,
 
-    // Light-gun offsets (from the header, derived per set at MRA build time)
     input         [ 8:0] gun_xoffs,
     input         [ 8:0] gun_yoffs,
 
