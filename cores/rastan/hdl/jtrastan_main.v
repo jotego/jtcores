@@ -240,9 +240,6 @@ always @(posedge clk) begin
                wram_cs   ? wram_dout :
                cchip_cs  ? {8'hff, cchip_dout} :
                dip_cs    ? {8'hff, (rbisland ? A[17] : A[1]) ? dipsw_b : dipsw_a} :
-               // Good sets read a pure light-gun value here; coins/buttons/
-               // service/start/tilt come through the C-chip instead. The
-               // prototype packs those inputs into the same word.
                gun_cs    ? (cchip ? (A[1] ? {7'h7f, opwolf_gun_y} :
                                             {7'h7f, opwolf_gun_x}) :
                                     (A[1] ? {5'd0, ~coin[1:0], opwolf_gun_y} :

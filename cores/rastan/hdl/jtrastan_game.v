@@ -232,10 +232,7 @@ jtrastan_video u_video(
 
 reg [7:0] cc_pa, cc_pb, cc_pc, cc_an;
 always @(posedge clk) begin
-    // Op Wolf: gun trigger/grenade on PC, coins on PB. Rainbow Islands: service/
-    // start on PA, coins (active high) on PB, P1 joystick/buttons on PC. 
     cc_pa <= rbisland ? { service, cab_1p[0], cab_1p[1], 5'h1f } : 8'h00;
-    // Coins are active high at the pins but JTFRAME delivers them active low, so invert.
     cc_pb <= { 6'h3f, ~coin[1:0] };
     cc_pc <= rbisland ? { joystick1[5], joystick1[4], joystick1[0],
                           joystick1[1], 3'b111, tilt } :
