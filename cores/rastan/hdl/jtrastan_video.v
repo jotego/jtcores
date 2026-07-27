@@ -20,6 +20,7 @@ module jtrastan_video(
     input           rst,
     input           clk,
     input           opwolf,
+    input           rbisland,
     output          pxl_cen,
     output          pxl2_cen,
 
@@ -177,6 +178,7 @@ jtrastan_colmix u_colmix(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .opwolf     ( opwolf    ),
+    .rbisland   ( rbisland  ),
 
     .main_addr  ( main_addr[11:1] ),
     .main_dout  ( main_dout ),
