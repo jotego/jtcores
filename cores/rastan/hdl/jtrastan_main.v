@@ -83,12 +83,12 @@ module jtrastan_main(
     input                clk, // 48 MHz
     input                LVBL,
     input                opwolf,
-    input                cchip,      // Operation Wolf C-chip present (good sets)
+    input                rbisland,
+    input                cchip,
 
     output reg           cchip_cs,
     input         [ 7:0] cchip_dout,
 
-    // Light-gun offsets (from the header, derived per set at MRA build time)
     input         [ 8:0] gun_xoffs,
     input         [ 8:0] gun_yoffs,
 
@@ -147,6 +147,7 @@ wire [ 2:0] FC, IPLn;
 reg         io_cs, out_cs, otport1_cs, inport_cs, dip_cs, gun_cs;
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
+reg         ok_dly;
 reg  [ 8:0] opwolf_gun_x, opwolf_gun_y;
 wire [15:0] cpu_dout;
 reg         intn, LVBLl;
@@ -157,10 +158,13 @@ assign main_dsn = {UDSn, LDSn};
 assign main_rnw = RnW;
 assign main_dout= cpu_dout;
 assign allFC    = ~&FC; // allFC is high if the CPU is not accessing the "CPU space"
-assign IPLn     = { intn, 1'b1, intn };
-assign VPAn     = !(!ASn && FC==7 && A[3:1]==5 && RnW);
+// Rastan/Op Wolf take the video IRQ on level 5; Rainbow Islands on level 4.
+assign IPLn     = { intn, 1'b1, rbisland ? 1'b1 : intn };
+// Autovector the video IRQ during its IACK cycle: level 5 for Rastan/Op Wolf,
+// level 4 for Rainbow Islands (A[3:1] carries the acknowledged level).
+assign VPAn     = !(!ASn && FC==7 && A[3:1]==(rbisland ? 3'd4 : 3'd5) && RnW);
 assign bus_cs   = rom_cs | vram_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | ( (vram_cs | ram_cs) & ~ram_ok);
+assign bus_busy = (rom_cs | vram_cs | ram_cs) & ~ok_dly;
 assign bus_legit= vram_cs & ~sdakn;
 // Light-gun offsets come from the header (gun_xoffs/gun_yoffs inputs), derived
 // per set at MRA build time from the same ROM bytes MAME's init_opwolf reads.
@@ -172,15 +176,16 @@ always @(posedge clk) begin
 end
 
 always @* begin
-    rom_cs  = allFC && (opwolf ? A[23:18]==0 : A[23:17]<3) && !ASn;
+    rom_cs  = allFC && (opwolf ? A[23:18]==0 : rbisland ? A[23:19]==0 : A[23:17]<3) && !ASn;
     vram_cs = allFC && A[23:19]==5'h18 && !ASn && {UDSn,LDSn}!=3;
     ram_cs  = allFC && (opwolf ? A[23:15]==9'h20 : A[23:18]==6'h4) &&
               !ASn && {UDSn,LDSn}!=3;
     obj_cs  = allFC && A[23:20]==4'hd && !ASn;
     io_cs   = allFC && A[23:20]==4'h3 && !ASn;
     pal_cs  = allFC && A[23:18]==6'h8 && !ASn;
-    sub_cs  = allFC && A[23:20]==4'h8 && !ASn;
-    cchip_cs= cchip && allFC && A[23:16]==8'h0f && !ASn;
+    sub_cs  = allFC && A[23:20]==4'h8 && !ASn && !rbisland;
+    // Op Wolf C-chip at 0x0f0000; Rainbow Islands C-chip at 0x800000
+    cchip_cs= cchip && allFC && (opwolf ? A[23:16]==8'h0f : A[23:20]==4'h8) && !ASn;
     // Video control registers are not written to SDRAM
     if( vram_cs && A[18:16]!=0 ) begin
         scr_cs  = 1;
@@ -203,6 +208,12 @@ always @* begin
         gun_cs =  RnW && A[19:17]==3'b101;
         sn_we  = !RnW && !UDSn && A[19:17]==3'b111;
         sn_rd  =  RnW && !UDSn && A[19:17]==3'b111 && A[1];
+    end else if( rbisland && io_cs ) begin
+        // 3a0000 sprite ctrl, 390000/3b0000 DSWA/DSWB, 3e0001/3 sound (PC060HA)
+        out_cs = !RnW && A[19:16]==4'ha;
+        dip_cs =  RnW && (A[19:16]==4'h9 || A[19:16]==4'hb);
+        sn_we  = !RnW && !LDSn && A[19:16]==4'he;
+        sn_rd  =  RnW && !LDSn && A[19:16]==4'he && A[1];
     end else if( io_cs && !LDSn && A[19] ) begin
         case( {RnW, A[18:17]} )
             0: out_cs     = 1;
@@ -217,15 +228,13 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    ok_dly  <= rom_ok | ram_ok;
     cpu_din <= rom_cs    ? rom_data :
                ( ram_cs | vram_cs ) ? ram_dout :
                obj_cs    ? oram_dout :
                pal_cs    ? pal_dout  :
                cchip_cs  ? {8'hff, cchip_dout} :
-               dip_cs    ? {8'hff, A[1] ? dipsw_b : dipsw_a} :
-               // Good sets read a pure light-gun value here; coins/buttons/
-               // service/start/tilt come through the C-chip instead. The
-               // prototype packs those inputs into the same word.
+               dip_cs    ? {8'hff, (rbisland ? A[17] : A[1]) ? dipsw_b : dipsw_a} :
                gun_cs    ? (cchip ? (A[1] ? {7'h7f, opwolf_gun_y} :
                                             {7'h7f, opwolf_gun_x}) :
                                     (A[1] ? {5'd0, ~coin[1:0], opwolf_gun_y} :
@@ -247,6 +256,7 @@ always @(posedge clk, posedge rst) begin
             intn <= 0;
     end
 end
+
 
 function [5:0] mapjoy( input [5:0] j );
     mapjoy = { j[5:4], j[0], j[1], j[2], j[3] };

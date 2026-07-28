@@ -124,6 +124,7 @@ wire [15:0] rom_dec, cpu_dout_raw;
 
 reg         io_cs, ppi_cs, adc_wr;
 wire        cpu_RnW, dec_ok;
+reg         vram_ok_dly;
 
 reg  [ 7:0] cab_dout, cab_ctrl;
 wire [ 7:0] active, sys_inputs, st_mapper,
@@ -132,7 +133,7 @@ wire [ 2:0] cpu_ipln, mix_ipln;
 wire        DTACKn, cpu_vpan;
 
 wire bus_cs    = pal_cs | char_cs | vram_cs | ram_cs | rom_cs | objram_cs | io_cs | sub_cs;
-wire bus_busy  = |{ rom_cs & ~dec_ok,  vram_cs & ~vram_ok, sub_cs & ~sub_ok };
+wire bus_busy  = |{ rom_cs & ~dec_ok,  vram_cs & ~vram_ok_dly, sub_cs & ~sub_ok };
 wire cpu_rst, cpu_haltn, cpu_asn, cpu_oresetn;
 wire [ 1:0] cpu_dsn;
 reg  [15:0] cpu_din, dacana1, dacana1b;
@@ -434,6 +435,7 @@ wire bad_cs = ~|{ram_cs, vram_cs, rom_cs, char_cs, pal_cs, objram_cs, sub_cs, io
 
 // Data bus input
 always @(posedge clk) begin
+    vram_ok_dly <= vram_ok;
     if(rst) begin
         cpu_din <= 0;
     end else begin

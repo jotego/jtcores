@@ -91,7 +91,7 @@ wire        irq3_clr, irq5_clr, irq3_trig, irq5_trig, vdump32;
 wire [15:0] dsw1_dout, dsw2_dout, system_dout, calc_dout;
 reg         fg_cs, bg_cs, pal_cs, objram_cs, objaux_cs,
             dsw1_cs, dsw2_cs, system_cs, calc_cs;
-reg         lvbl_l, wdog_rst, main_rst;
+reg         lvbl_l, wdog_rst, main_rst, ok_dly;
 reg  [ 7:0] wdog_frame_cnt;
 
 assign rom_addr      = A[22:1];
@@ -102,7 +102,7 @@ assign bus_n         = as_n | (lds_n & uds_n);
 assign oki_wr        = oki_cs && !wr_n && !lds_n;
 assign oki_bank_we   = !as_n && A[23:1] == 23'h480000 && !wr_n;
 assign bus_cs        = rom_cs | ram_cs;
-assign bus_busy      = (rom_cs && !rom_ok) | (ram_cs && !ram_ok);
+assign bus_busy      = (rom_cs | ram_cs) && !ok_dly;
 assign int_ack       = fc == 3'b111 && !as_n;
 assign vpa_n         = !int_ack;
 assign ipl_n         = !irq5_n ? 3'b010 : (!irq3_n ? 3'b100 : 3'b111);
@@ -168,6 +168,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    ok_dly  <= rom_ok | ram_ok;
     cpu_din <= rom_cs    ? rom_data :
                fg_cs     ? fg_dout :
                ram_cs    ? ram_data :

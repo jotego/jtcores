@@ -4,25 +4,20 @@ author=["jotego"]
 zip.alt="cchip.zip"
 
 [parse]
-sourcefile=[ "rastan.cpp", "opwolf.cpp" ]
+sourcefile=[ "rastan.cpp", "opwolf.cpp", "rbisland.cpp" ]
 
 [parse.skip]
 # opwolfb is the Bear Corp bootleg: it replaces the C-chip with an extra Z80
 # (different hardware), so it stays unsupported for now.
-setnames=[ "opwolfb" ]
-
-[Audio]
-volume = [
-    { machine="rastan", value=0x71 },
-    { setname="opwolfp", value=0x71 },
-    { setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=0x71 },
-]
+# jumping* are Rainbow Islands bootlegs: extra Z80 for sound, relocated sprite
+# RAM and no C-chip (different hardware), so they stay unsupported for now.
+setnames=[ "opwolfb", "jumping", "jumpinga", "jumpingi" ]
 
 [buttons]
 names=[
     { machine="rastan",  names="Slash,Jump" },
-    { setname="opwolfp", names="Bullet,Grenade" },
-    { setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], names="Bullet,Grenade" },
+    { machine="opwolf", names="Bullet,Grenade" },
+    { machine="rbisland", names="Jump,Rainbow" },
 ]
 
 # Registers generate cores/rastan/hdl/jtrastan_header.v (named, latched outputs)
@@ -31,16 +26,20 @@ names=[
 # opwolfp reproduces the prototype's fixed +26/-6.
 [header]
 registers=[
-    { name="opwolf",    pos="0[0]",   desc="Operation Wolf hardware", values=[{ setnames=["opwolfp","opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }] },
-    { name="cchip",     pos="0[1]",   desc="C-chip present",          values=[{ setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }] },
+    { name="rastan",    pos="0[0]",   desc="Rastan hardware",         values=[{ machine="rastan", value=1 }] },
+    { name="opwolf",    pos="0[1]",   desc="Operation Wolf hardware", values=[{ setnames=["opwolfp","opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }] },
+    { name="rbisland",  pos="0[2]",   desc="Rainbow Islands",         values=[{ setnames=["rbisland","rbislando","rbislande"], value=1 }] },
+    { name="cchip",     pos="0[3]",   desc="C-chip present",          values=[{ setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], value=1 }, { setnames=["rbisland","rbislando","rbislande"], value=1 }] },
     { name="gun_xoff8", pos="1[7:0]", desc="Light-gun X offset (signed)", values=[{ setname="opwolfp", value=0x1A }, { setnames=["opwolf","opwolfa"], value=0x11 }, { setnames=["opwolfj","opwolfjsc"], value=0x15 }, { setname="opwolfu", value=0x15 }] },
-    { name="gun_yoff8", pos="2[7:0]", desc="Light-gun Y offset (signed)", values=[{ setname="opwolfp", value=0xFA }, { setnames=["opwolf","opwolfa"], value=0xF0 }, { setnames=["opwolfj","opwolfjsc"], value=0xF8 }, { setname="opwolfu", value=0xDC }] },
+    { name="gun_yoff8", pos="2[7:0]", desc="Light-gun Y offset (signed)", values=[{ setname="opwolfp", value=0xFE }, { setnames=["opwolf","opwolfa"], value=0xF4 }, { setnames=["opwolfj","opwolfjsc"], value=0xFC }, { setname="opwolfu", value=0xE0 }] },
 ]
 
 [dipsw]
 delete=[{names=["Unused","Unknown"]}]
 rename=[
-    {name="Bonus Life", to="1PUP" }
+    {name="Bonus Life", to="1PUP" },
+    {name="Discount When Continuing", to="Continue discount" },
+    {name="Display Hit Percentage (Cheat)", to="Hit Percentage Cheat" },
 ]
 
 [ROM]
@@ -52,8 +51,10 @@ regions = [
     { name="adpcm", start="PCM_START"    },
     { name="pc080sn", start="JTFRAME_BA2_START", width=16, no_offset=true  },
     { name="pc090oj", start="JTFRAME_BA3_START", width=16, no_offset=true  },
+    { name="pc080sn", setnames=["rbisland","rbislando","rbislande"], start="JTFRAME_BA2_START", width=16, reverse=true },
+    { name="pc090oj", setnames=["rbisland","rbislando","rbislande"], start="JTFRAME_BA3_START", width=16, reverse=true },
     # mask ROM is a device/BIOS ROM (cchip.zip) not in the per-machine dump, so it requires special handling.
-    { name="cchip_bios", setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu"], start="JTFRAME_PROM_START", rom_len=0x1000, files=[ { name="cchip_upd78c11.bin", crc="43021521", size=0x1000 } ] },
+    { name="cchip_bios", setnames=["opwolf","opwolfa","opwolfj","opwolfjsc","opwolfu","rbisland","rbislando","rbislande"], start="JTFRAME_PROM_START", rom_len=0x1000, files=[ { name="cchip_upd78c11.bin", crc="43021521", size=0x1000 } ] },
     { name="cchip:cchip_eprom", rename="cchip_eprom", rom_len=0x2000 }
 ]
 

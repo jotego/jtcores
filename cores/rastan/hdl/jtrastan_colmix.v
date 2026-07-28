@@ -21,6 +21,7 @@ module jtrastan_colmix(
     input           clk,
     input           pxl_cen,
     input           opwolf,
+    input           rbisland,
 
     input    [11:1] main_addr,
     input    [15:0] main_dout,
@@ -63,7 +64,7 @@ always @(posedge clk, posedge rst) begin
     if( rst ) begin
         pal_addr <= 0;
     end else if(pxl_cen) begin
-        if( opwolf && !scr1_blank )
+        if( (opwolf || rbisland) && !scr1_blank )
             pal_addr <= scr1_pxl;
         else if( !obj_blank )
             pal_addr <= { obj_pal, obj_pxl };

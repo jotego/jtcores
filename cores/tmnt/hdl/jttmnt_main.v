@@ -57,6 +57,12 @@ module jttmnt_main(
     output reg           rmrd,
     output reg    [ 1:0] prio,
 
+    // EEPROM (Thunder Cross II - ER5911)
+    output        [ 6:0] nv_addr,
+    input         [ 7:0] nv_dout,
+    output        [ 7:0] nv_din,
+    output               nv_we,
+
     input         [ 6:0] joystick1,
     input         [ 6:0] joystick2,
     input         [ 6:0] joystick3,
@@ -80,6 +86,11 @@ wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         snddt_cs, shoot_cs, snd_cs, punk_cab,
             dip_cs, dip3_cs, syswr_cs, iowr_cs, int16en;
+// Thunder Cross II
+reg         hip_cs, eepr_cs, rdio_cs, irq_mode;
+reg         eep_di, eep_clk, eep_cs, ok_dly;
+wire        eep_do, eep_rdy;
+wire [ 7:0] hip_dout;
 reg  [15:0] cpu_din, cab_dout;
 reg         intn, LVBLl, div8;
 wire        bus_cs, bus_busy, BUSn;
@@ -91,9 +102,9 @@ wire [23:0] A_full = {A,1'b0};
 
 assign main_addr= A[18:1];
 assign ram_dsn  = {UDSn, LDSn};
-assign IPLn     = game_id==PUNKSHOT ? { tile_irqn & tile_nmin, 1'b1, tile_nmin } : { intn, 1'b1, intn };
+assign IPLn     = irq_mode ? { tile_irqn & tile_nmin, 1'b1, tile_nmin } : { intn, 1'b1, intn };
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | ( ram_cs & ~ram_ok);
+assign bus_busy = (rom_cs | ram_cs ) & ~ok_dly;
 assign BUSn     = ASn | (LDSn & UDSn);
 
 assign cpu_we   = ~RnW;
@@ -102,6 +113,11 @@ assign st_dout  = { rmrd, 1'd0, prio, div8, game_id };
 assign VPAn     = ~( A[23] & ~ASn );
 assign dtac_mux = DTACKn | ~vdtac;
 assign snd_wrn  = ~(snd_cs & ~RnW);
+
+always @(posedge clk) begin
+    ok_dly   <= rom_ok | ram_ok;
+    irq_mode <= game_id==PUNKSHOT || game_id==THNDRX2;
+end
 
 always @* begin
     rom_cs   = 0;
@@ -118,7 +134,28 @@ always @* begin
     snd_cs   = 0;
     pcu_cs   = 0;
     punk_cab = 0;
+    hip_cs   = 0;
+    eepr_cs  = 0;
+    rdio_cs  = 0;
     if(!ASn) begin
+      if( game_id==THNDRX2 ) begin
+        case( A[22:20] )
+            3'd0: rom_cs  = 1;              // 00'0000-03'FFFF program
+            3'd1: ram_cs  = ~BUSn;          // 10'0000-10'3FFF main RAM
+            3'd2: pal_cs  = 1;              // 20'0000-20'0FFF palette
+            3'd3: pcu_cs  = 1;              // 30'0000-30'001F K053251
+            3'd4: snd_cs  = 1;              // 40'0000-40'0003 K053260
+            3'd5: case( A[9:8] )            // 50'xxxx
+                    2'd0: hip_cs  = (A[7:6]==2'd0); // 50'0000-50'003F K054000
+                    2'd1: eepr_cs = ~RnW & ~LDSn; // 50'0100 EEPROM/IRQ/RMRD write (low byte only)
+                    2'd2: rdio_cs = 1;      // 50'0200 P1_COINS / 50'0202 P2_EEPROM
+                    default:;               // 50'0300 watchdog -> ignore
+                  endcase
+            3'd6: vram_cs = 1;              // 60'0000-60'7FFF K052109
+            3'd7: obj_cs  = 1;              // 70'0000-70'07FF K051960/051937
+            default:;
+        endcase
+      end else begin
         if(!A[20]) case( A[19:17] )
             0,1: rom_cs = 1;  // 0'0000 ~ 3'FFFF
             2: case( game_id )  // 4'0000 ~ 5'FFFF
@@ -178,6 +215,7 @@ always @* begin
                         default:;
                     endcase
             endcase
+      end
     end
 end
 
@@ -188,6 +226,8 @@ always @(posedge clk) begin
                vram_cs ? {2{vram_dout}} :
                pal_cs  ? pal_dout       :
                snd_cs  ? {8'd0,snd2main}:
+               hip_cs  ? {8'd0,hip_dout}:      // K054000 status
+               rdio_cs ? cab_dout       :      // thndrx2 coins/EEPROM
                dip3_cs ? { 12'd0, dipsw[19:16] } :
                (shoot_cs | dip_cs | punk_cab) ? cab_dout :
                { 16'hffff };
@@ -209,27 +249,42 @@ end
 always @(posedge rmrd) $display("RMRD high");
 
 always @(posedge clk) begin
-    cab_dout[15:8] <= 0;
-    if(dip_cs) case( A[2:1] )
-        ~2'd0: cab_dout[7:0] <= 0;
-        ~2'd1: cab_dout[7:0] <= game_id == TMNT ? { cab_1p[3], joystick4[6:0] } : 8'hff;
-        ~2'd2: cab_dout[7:0] <= dipsw[15:8];
-        ~2'd3: cab_dout[7:0] <= dipsw[7:0];
-    endcase
-    else case( A[2:1] )
-        ~2'd0: cab_dout[7:0] <= game_id == TMNT ? { cab_1p[2], joystick3[6:0] } : 8'hff;
-        ~2'd1: cab_dout[7:0] <= { cab_1p[1], joystick2[6:0] };
-        ~2'd2: cab_dout[7:0] <= { cab_1p[0], joystick1[6:0] };
-        ~2'd3: cab_dout[7:0] <= game_id == TMNT ? { {4{service}}, coin } :
-                            { 1'b1, service, 1'b1, cab_1p[1:0], 1'b1, coin[1:0] };
-    endcase
-    if( punk_cab ) begin // 16-bit interface
-        case( A[2:1] )
-            ~2'd0: cab_dout <= { 1'b1, joystick2[6:0],  1'b1, joystick1[6:0] };
-            ~2'd1: cab_dout <= { 1'b1, joystick4[6:0],  1'b1, joystick3[6:0] };
-            ~2'd2: cab_dout <= { dipsw[19:16], 1'b1, dip_test, cab_1p[1:0], {4{service}}, coin };
-            ~2'd3: cab_dout <= dipsw[15:0];
+    if( game_id==THNDRX2 ) begin
+        // Thunder Cross II input reads (KONAMI16_LSB low byte + status high byte)
+        case( A[1] )
+            1'b0: // 50'0200 P1_COINS
+                // bit 11 is the TEST switch, active low. dip_test is pulsed by the
+                // OSD "Service Mode" DIP in jttmnt_game.v, since the PCB switch is
+                // momentary rather than latching.
+                cab_dout <= { 4'hf, dip_test, service, coin[1], coin[0],
+                              cab_1p[0], joystick1[6:0] };
+            1'b1: // 50'0202 P2_EEPROM
+                cab_dout <= { 6'h3f, eep_rdy, eep_do,
+                              cab_1p[1], joystick2[6:0] };
         endcase
+    end else begin
+        cab_dout[15:8] <= 0;
+        if(dip_cs) case( A[2:1] )
+            ~2'd0: cab_dout[7:0] <= 0;
+            ~2'd1: cab_dout[7:0] <= game_id == TMNT ? { cab_1p[3], joystick4[6:0] } : 8'hff;
+            ~2'd2: cab_dout[7:0] <= dipsw[15:8];
+            ~2'd3: cab_dout[7:0] <= dipsw[7:0];
+        endcase
+        else case( A[2:1] )
+            ~2'd0: cab_dout[7:0] <= game_id == TMNT ? { cab_1p[2], joystick3[6:0] } : 8'hff;
+            ~2'd1: cab_dout[7:0] <= { cab_1p[1], joystick2[6:0] };
+            ~2'd2: cab_dout[7:0] <= { cab_1p[0], joystick1[6:0] };
+            ~2'd3: cab_dout[7:0] <= game_id == TMNT ? { {4{service}}, coin } :
+                                { 1'b1, service, 1'b1, cab_1p[1:0], 1'b1, coin[1:0] };
+        endcase
+        if( punk_cab ) begin // 16-bit interface
+            case( A[2:1] )
+                ~2'd0: cab_dout <= { 1'b1, joystick2[6:0],  1'b1, joystick1[6:0] };
+                ~2'd1: cab_dout <= { 1'b1, joystick4[6:0],  1'b1, joystick3[6:0] };
+                ~2'd2: cab_dout <= { dipsw[19:16], 1'b1, dip_test, cab_1p[1:0], {4{service}}, coin };
+                ~2'd3: cab_dout <= dipsw[15:0];
+            endcase
+        end
     end
 end
 
@@ -240,8 +295,11 @@ always @(posedge clk, posedge rst) begin
         int16en <= 0;
         sndon   <= 0;
         div8    <= 0;
+        eep_di  <= 0;
+        eep_clk <= 0;
+        eep_cs  <= 0;
     end else begin
-        div8 <= game_id != PUNKSHOT;
+        div8 <= game_id != PUNKSHOT && game_id != THNDRX2; // 12MHz for both
         if( syswr_cs ) prio <= cpu_dout[3:2];
         if( iowr_cs  ) begin
             case(game_id)
@@ -252,6 +310,14 @@ always @(posedge clk, posedge rst) begin
             endcase
         end
         if( snddt_cs ) snd_latch <= cpu_dout[7:0];
+        // Thunder Cross II 0x500100 write
+        if( eepr_cs ) begin
+            eep_di  <=  cpu_dout[0];
+            eep_cs  <=  cpu_dout[1];   // active high (MAME EEPROMOUT bit is IP_ACTIVE_HIGH)
+            eep_clk <=  cpu_dout[2];
+            sndon   <=  cpu_dout[5];   // Z80 IRQ (CLR_INT self-clears on ack)
+            rmrd    <=  cpu_dout[6];
+        end
     end
 end
 
@@ -306,6 +372,34 @@ jtframe_m68k u_cpu(
     .DTACKn     ( dtac_mux    ),
     .IPLn       ( IPLn        ) // VBLANK
 );
+
+// Thunder Cross II: K054000 collision chip (0x500000-0x50003F)
+jtk054000 u_hip(
+    .rst    ( rst           ),
+    .clk    ( clk           ),
+    .cs     ( hip_cs        ),
+    .addr   ( A[5:1]        ),
+    .we     ( cpu_we        ),
+    .din    ( cpu_dout[7:0] ),
+    .dout   ( hip_dout      )
+);
+
+// Thunder Cross II: ER5911 serial EEPROM (128 x 8)
+jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .sclk       ( eep_clk   ),
+    .sdi        ( eep_di    ),
+    .sdo        ( eep_do    ),
+    .rdy        ( eep_rdy   ),
+    .scs        ( eep_cs    ),
+    .mem_addr   ( nv_addr   ),
+    .mem_din    ( nv_din    ),
+    .mem_we     ( nv_we     ),
+    .mem_dout   ( nv_dout   ),
+    .dump_clr   ( 1'b0      ),
+    .dump_flag  (           )
+);
 `else
     integer framecnt=0;
     always @(posedge LVBL) begin
@@ -343,6 +437,9 @@ jtframe_m68k u_cpu(
         main_addr = 0,
         ram_dsn   = 0,
         snd_wrn   = 0,
+        nv_addr   = 0,
+        nv_din    = 0,
+        nv_we     = 0,
         st_dout   = 0;
 `endif
 endmodule
