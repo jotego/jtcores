@@ -91,6 +91,7 @@ wire        vdec_is2nd;
 wire [15:0] vdec_prev_enc, vdec_prev_dec;
 
 reg  [15:0] cpu_din;
+reg         ok_dly;
 reg  [15:0] vdec_last_enc, vdec_last_dec;
 reg  [15:0] pend_enc, pend_dec;
 reg  [12:0] vdec_prev_woff, pend_woff;
@@ -110,7 +111,7 @@ assign scroll_dsn       = cpu_dsn;
 assign BUSn             = ASn | &cpu_dsn;
 assign VPAn             = !(!ASn && FC == 3'd7 && RnW);
 assign bus_cs           = main_cs | ram_cs;
-assign bus_busy         = (main_cs & ~main_data_ok) | (ram_cs & ~ram_ok);
+assign bus_busy         = (main_cs | ram_cs) & ~ok_dly;
 assign IPLn             = { IPL_n, IPL_n, 1'b1 };
 assign LDSWn            = RnW | LDSn;
 assign oki_wrn          = LDSWn | ~oki_cs;
@@ -189,6 +190,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    ok_dly  <= main_data_ok | ram_ok;
     cpu_din <= main_cs  ? main_data        :
                ram_cs   ? ram_data         :
                vram_cs   ? vmem_vram_rdata  :

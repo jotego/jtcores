@@ -66,6 +66,7 @@ wire        bus_busy, bus_cs;
 wire        cpu_cen, cpu_cenb;
 wire        inta_n;
 reg         BGACKnl;
+reg         ok_dly;
 
 `ifdef SIMULATION
 wire [19:0] A_full = {A,1'b0};
@@ -78,7 +79,7 @@ assign RnW      = BGACKn ? cpu_RnW : main_rnw;
 assign cpu_dout = BGACKn ? cpu_dout_raw : main_dout;
 assign A        = BGACKn ? cpu_A[19:1] : main_A;
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
+assign bus_busy = (rom_cs & ~ok_dly) | (ram_cs & ~ok_dly);
 assign inta_n   = ~&FC[1:0];
 assign VPAn     = ~(~ASn & ~inta_n); // autovector
 assign sub_ok   = ~BGACKnl & ~bus_busy; // for
@@ -122,9 +123,11 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
+        ok_dly  <= 0;
         cpu_din <= 0;
         sub_din <= 0;
     end else begin
+        ok_dly  <= rom_ok | ram_ok;
         cpu_din <= bus_mux;
         if( sub_br ) sub_din <= bus_mux;
     end

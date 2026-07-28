@@ -14,6 +14,7 @@ skip.setnames=[
     "3wonders1",
     "ffightjh",
     "ffightae", # missing patch information. Mantained by Toryala1 in https://github.com/Toryalai1/Arcade_Offset
+    "cps1mult", # DarkSoft multi, not really a game
     # CPS1.5 bootlegs
     "dinohunt",
     "punisherbz",

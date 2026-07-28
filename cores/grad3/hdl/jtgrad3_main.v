@@ -68,7 +68,7 @@ wire [ 7:0] ctrl;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 reg  [ 4:0] snd_cnt;
-reg         sh_cs, ram_cs, io_dec_cs;
+reg         sh_cs, ram_cs, io_dec_cs, ok_dly;
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
 `endif
@@ -91,8 +91,8 @@ assign snd_irq    = |snd_cnt;
 assign cab_cs   = io_cs  | dsw_cs;
 assign bus_cs   = rom_cs | ram_cs | pal_cs | tile_cs | gchar_cs | sh_cs |
                   ctrl_cs | io_cs | dsw_cs | snd_latch_cs | snd_irq_cs | wdog_cs;
-assign bus_busy = (rom_cs   & ~rom_ok)   |
-                  (gchar_cs & ~gchar_ok) |
+assign bus_busy = (rom_cs   & ~ok_dly)   |
+                  (gchar_cs & ~ok_dly)   |
                   (tile_cs  & ~tile_dtack);
 assign vdtackn  = DTACKn | (tile_cs & ~tile_dtack);
 assign VPAn     = ~( A[23] & ~ASn );
@@ -155,6 +155,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    ok_dly  <= rom_ok | gchar_ok;
     cpu_din <= rom_cs   ? rom_dout            :
                ram_cs   ? ram_dout            :
                pal_cs   ? pal_dout            :

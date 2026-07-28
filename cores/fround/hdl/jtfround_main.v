@@ -92,7 +92,7 @@ reg         fix_cs, snd_cs, syswr_cs, vbank_cs, io_cs, vram_cs, oram_cs,
             pal_cs, dma_cs, crom_cs, orom_cs, int16en;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
-reg         intn, LVBLl;
+reg         intn, LVBLl, ok_dly;
 wire        bus_cs, bus_busy, bus_legit, BUSn;
 
 `ifdef SIMULATION
@@ -103,7 +103,7 @@ assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = { intn, 1'b1, intn };
 assign bus_cs   = rom_cs | ram_cs | crom_cs | orom_cs | oram_cs;
-assign bus_busy = (rom_cs  & ~rom_ok) | (ram_cs  & ~ram_ok) |
+assign bus_busy = (rom_cs  & ~ok_dly) | (ram_cs  & ~ok_dly) |
                   (crom_cs & ~scr_ok) | (orom_cs & ~obj_ok) |
                                         (oram_cs & dma_bsy);
 assign BUSn     = ASn | (LDSn & UDSn);
@@ -175,6 +175,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    ok_dly  <= rom_ok | ram_ok;
     cpu_din <= rom_cs  ? rom_data  :
                ram_cs  ? ram_dout  :
                oram_cs ? mo_dout   :

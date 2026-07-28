@@ -27,6 +27,7 @@ module jtframe_lfbuf_ddr_ctrl #(parameter
 
     input               lhbl,
     input               ln_done,
+    input               fb_keep,
     input      [VW-1:0] vrender,
     input      [VW-1:0] ln_v,
     input               vs,
@@ -63,13 +64,14 @@ module jtframe_lfbuf_ddr_ctrl #(parameter
 
 localparam AW=HW+VW+1;
 localparam [1:0] IDLE=0, READ=1, WRITE=2;
+localparam [15:0] LFBUF_CLR = `ifndef JTFRAME_LFBUF_CLR 0 `else `JTFRAME_LFBUF_CLR `endif ;
 
 reg           lhbl_l, ln_done_l, do_wr, rd_wait;
 reg  [   1:0] st;
 reg  [AW-1:0] act_addr;
 wire [HW-1:0] nx_rd_addr;
 reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
-wire          fb_over, wr_over;
+wire          fb_over, wr_over, fb_rd_bank, fb_wr_bank, ddram_keep_blank;
 reg  [VW-1:0] wr_v;
 
 assign fb_over    = &fb_addr;
@@ -79,9 +81,12 @@ assign ddram_clk  = clk;
 assign ddram_burstcnt = 8'h80;
 assign ddram_addr = { 4'd3, {29-4-AW{1'd0}}, act_addr };
 assign ddram_din  = { 48'd0, fb_din };
-assign ddram_be   = 3;
+assign ddram_be   = ddram_keep_blank ? 8'h00 : 8'h03;
 assign nx_rd_addr = rd_addr + 1'd1;
 assign fb_dout    = ddram_dout[15:0];
+assign fb_rd_bank = fb_keep ? 1'b0 : ~frame;
+assign fb_wr_bank = fb_keep ? 1'b0 :  frame;
+assign ddram_keep_blank = fb_keep && fb_din == LFBUF_CLR;
 
 always @(posedge clk) begin
     case( st_addr[3:0] )
@@ -157,7 +162,7 @@ always @( posedge clk ) begin
                 ddram_rd <= 0;
                 rd_wait  <= 0;
                 if( lhbl_l & ~lhbl ) begin
-                    act_addr <= { ~frame, vrender, {HW{1'd0}}  };
+                    act_addr <= { fb_rd_bank, vrender, {HW{1'd0}}  };
                     ddram_rd <= 1;
                     rd_addr  <= 0;
                     rd_wait  <= 1;
@@ -169,7 +174,7 @@ always @( posedge clk ) begin
                     hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
                     fb_addr  <= 1;
                     wr_addr  <= 0;
-                    act_addr <= {  frame, wr_v, {HW{1'd0}}  };
+                    act_addr <= { fb_wr_bank, wr_v, {HW{1'd0}}  };
                     ddram_we <= 1;
                     do_wr    <= 0;
                     st       <= WRITE;

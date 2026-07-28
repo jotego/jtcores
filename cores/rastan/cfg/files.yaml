@@ -1,6 +1,7 @@
 rastan:
   - get:
     - jtrastan_game.v
+    - jtrastan_header.v
     - jtrastan_main.v
     - jtrastan_video.v
     - jtrastan_colmix.v
@@ -8,7 +9,11 @@ rastan:
     - jtrastan_tilemap.v
     - jtrastan_obj.v
     - jtrastan_snd.v
+    - jtrastan_mix.v
+    - jtopwolf_mix.v
     - jtrastan_pc060.v
+    - jt060dca.v
+    - timing.sdc
 jtframe:
   - from: ram
     get:
@@ -28,6 +33,7 @@ jtframe:
     get:
       - jtframe_z80.yaml
       - jtframe_m68k.yaml
-jt51:
+jttc0030cmd:
+ikaopm:
 jt5205:
 jtopl:

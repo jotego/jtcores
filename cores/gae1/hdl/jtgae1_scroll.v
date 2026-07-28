@@ -49,7 +49,9 @@ module jtgae1_scroll (
 localparam [8:0] SCR0_XOFF = 9'd3;
 localparam [8:0] SCR1_XOFF = 9'd1;
 localparam [8:0] SCR_YOFF  = 9'd16;
+localparam [8:0] HDUMP_OFF = 9'd4;
 
+wire [8:0] hdump = hpos - HDUMP_OFF;
 wire [8:0] scrx0 = scr0_x[8:0] + SCR0_XOFF;
 wire [8:0] scry0 = scr0_y[8:0] + SCR_YOFF;
 wire [8:0] scrx1 = scr1_x[8:0] - SCR1_XOFF;
@@ -61,7 +63,7 @@ jtgae1_tilemap u_tilemap0 (
     .pxl_cen  ( pxl_cen   ),
     .gfx_4m   ( gfx_4m    ),
     .hsync    ( hsync     ),
-    .hdump    ( hpos      ),
+    .hdump    ( hdump     ),
     .vdump    ( vpos      ),
     .scrx     ( scrx0     ),
     .scry     ( scry0     ),
@@ -80,7 +82,7 @@ jtgae1_tilemap u_tilemap1 (
     .pxl_cen  ( pxl_cen   ),
     .gfx_4m   ( gfx_4m    ),
     .hsync    ( hsync     ),
-    .hdump    ( hpos      ),
+    .hdump    ( hdump     ),
     .vdump    ( vpos      ),
     .scrx     ( scrx1     ),
     .scry     ( scry1     ),

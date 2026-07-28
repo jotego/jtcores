@@ -30,6 +30,7 @@ module jtframe_lfbuf_sram_ctrl #(parameter
 
     input               lhbl,
     input               ln_done,
+    input               fb_keep,
     input      [VW-1:0] vrender,
     input      [VW-1:0] ln_v,
     input               vs,
@@ -51,7 +52,7 @@ module jtframe_lfbuf_sram_ctrl #(parameter
     // SRAM
     output      [20:0] sram_addr,
     inout       [15:0] sram_data,   
-    output reg         sram_we,		//negative logic
+    output             sram_we,		//negative logic
 
     // Status
     input       [7:0]   st_addr,
@@ -60,14 +61,16 @@ module jtframe_lfbuf_sram_ctrl #(parameter
 
 localparam AW=HW+VW+1;
 localparam [1:0] IDLE=0, READ=1, WRITE=2;
+localparam [15:0] LFBUF_CLR = `ifndef JTFRAME_LFBUF_CLR 0 `else `JTFRAME_LFBUF_CLR `endif ;
 
 reg           vsl, lhbl_l, ln_done_l, do_wr;
 reg  [   1:0] st;
 reg  [AW-1:0] act_addr;
 wire [HW-1:0] nx_rd_addr;
 reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
-wire          fb_over, wr_over;
+wire          fb_over, wr_over, fb_rd_bank, fb_wr_bank, sram_keep_blank;
 reg 		  sram_rd;
+reg           sram_wen;
 reg  [VW-1:0] wr_v;
 
 assign fb_over    = &fb_addr;
@@ -76,6 +79,10 @@ assign sram_addr  = { {21-AW{1'd0}}, act_addr };
 assign nx_rd_addr = rd_addr + 1'd1;
 assign sram_data  = sram_we  ? 16'hzzzz : fb_din;
 assign fb_dout    = ~sram_we ? 16'd0    : sram_data;
+assign sram_we    = !(sram_wen && !sram_keep_blank);
+assign fb_rd_bank = fb_keep ? 1'b0 : ~frame;
+assign fb_wr_bank = fb_keep ? 1'b0 :  frame;
+assign sram_keep_blank = fb_keep && fb_din == LFBUF_CLR;
 
 
 always @(posedge clk) begin
@@ -119,7 +126,7 @@ wire skip_blank_lines = do_wr && fb_blank;
 
 always @( posedge clk ) begin
     if( rst ) begin
-        sram_we  <= 1;
+        sram_wen <= 0;
         sram_rd  <= 0;
         fb_addr  <= 0;
         wr_addr  <= 0;
@@ -150,11 +157,11 @@ always @( posedge clk ) begin
         end
         case( st )
             IDLE: begin
-                sram_we <= 1;
+                sram_wen <= 0;
                 sram_rd <= 0;
                 scr_we   <= 0;
                 if( lhbl_l & ~lhbl ) begin
-                    act_addr <= { ~frame, vrender, {HW{1'd0}}  };
+                    act_addr <= { fb_rd_bank, vrender, {HW{1'd0}}  };
                     sram_rd <= 1;
                     rd_addr  <= 0;
                     scr_we   <= 1;
@@ -166,8 +173,8 @@ always @( posedge clk ) begin
                     hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
                     fb_addr  <= 1;
                     wr_addr  <= 0;
-                    act_addr <= {  frame, wr_v, {HW{1'd0}}  };
-                    sram_we  <= 0;
+                    act_addr <= { fb_wr_bank, wr_v, {HW{1'd0}}  };
+                    sram_wen <= 1;
                     do_wr    <= 0;
                     st       <= WRITE;
                 end
@@ -184,7 +191,7 @@ always @( posedge clk ) begin
                 wr_addr <= wr_addr + 1'd1;
                 fb_addr <= fb_addr + 1'd1;
                 if( wr_over ) begin
-                    sram_we <= 1;
+                    sram_wen <= 0;
                     fb_addr  <= 0;
                     line     <= ~line;
                     fb_done  <= 1;

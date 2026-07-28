@@ -371,6 +371,9 @@ if ! jtcfgstr $SIMULATOR > core.def; then
     cat core.def
     exit 1
 fi
+if [[ "$SIMULATOR" = verilator && "$TARGET" = mister ]]; then
+    $SED 's/+define+JTFRAME_SHIFT=1/+define+JTFRAME_SHIFT=0/' core.def
+fi
 
 disable_patreon_credits
 
@@ -607,12 +610,14 @@ echo "====== JTSIM finished in "$MINUTES\'$SECONDS\"" ======"
 if [[ ! -z "$SCENE" && ( -e frames/frame_00001.png || -e frames/frame_00001.jpg ) ]]; then
     if [ ! -z "$BATCH" ]; then
         scene_frame=$(copy_scene_frame)
-        compare_scene_snapshot "$scene_frame"
+        compare_scene_snapshot "$scene_frame" || exit $?
     else
         scene_frame=$(last_frame_image)
-        compare_scene_snapshot "$scene_frame"
+        scene_compare_status=0
+        compare_scene_snapshot "$scene_frame" || scene_compare_status=$?
         if which eom > /dev/null; then
             display_scene_frame&
         fi
+        exit $scene_compare_status
     fi
 fi

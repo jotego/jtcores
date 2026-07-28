@@ -45,6 +45,7 @@ module jtframe_lfbuf_ddr #(parameter
     input      [DW-1:0] ln_data,
     input               ln_done,
     input               ln_we,
+    input               fb_keep,
     output              ln_hs, ln_vs, ln_lvbl,
     output     [DW-1:0] ln_dout,
     output     [DW-1:0] ln_pxl,
@@ -79,6 +80,7 @@ jtframe_lfbuf_ddr_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .lhbl       ( lhbl      ),
     .vs         ( vs        ),
     .ln_done    ( ln_done   ),
+    .fb_keep    ( fb_keep   ),
     .vrender    ( vread     ),
     .ln_v       ( ln_v      ),
     // data written to external memory

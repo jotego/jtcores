@@ -17,8 +17,6 @@
     Date: 2-7-2026 */
 
 module jtgae1_video #(
-    parameter integer LAT    = 13,
-    parameter integer DEADJ  = 0,
     parameter integer VTOTAL = 272
 )(
     input        clk,
@@ -37,8 +35,8 @@ module jtgae1_video #(
     output [10:0] tile_a1, input [31:0] tile_q1,
     output [21:2] rom_a1,  input [31:0] gfx1_data, input gfx1_ok,
 
-    output [9:0]  color_addr,     input [15:0] color_data,
-    output [9:0]  spr_color_addr, input [15:0] spr_color_data,
+    output [9:0]  scr_pal_addr, input [15:0] scr_pal_dout,
+    output [9:0]  obj_pal_addr, input [15:0] obj_pal_dout,
 
     output [10:0] spr_a,   input [15:0] spr_q,
     output        obj_cs,
@@ -47,16 +45,21 @@ module jtgae1_video #(
     input         obj_ok,
 
     output [4:0]  red, green, blue,
-    output        hsync, vsync, hblank, vblank
+    output        hsync, vsync, lhbl, lvbl
 );
 
 localparam HVIS     = 320;
 localparam HFP      = 18;
 localparam HSW      = 28;
 localparam HBP      = 18;
+localparam HBL_DLY  = 14;
 localparam VVIS     = 240;
 localparam VFP      = 8;
 localparam VSW      = 8;
+localparam HB_START = HVIS + HBL_DLY;
+localparam HB_END   = HBL_DLY;
+localparam VB_START = VVIS - 1;
+localparam VB_END   = VTOTAL - 1;
 localparam HS_START = HVIS + HFP;
 localparam HS_END   = HVIS + HFP + HSW;
 localparam VS_START = VVIS + VFP;
@@ -64,28 +67,20 @@ localparam VS_END   = VVIS + VFP + VSW;
 localparam HTOTAL   = HVIS + HFP + HSW + HBP;
 localparam HCNT_END = HTOTAL[8:0] - 9'd1;
 localparam VCNT_END = VTOTAL[8:0] - 9'd1;
-localparam SD       = LAT + DEADJ;
 
-wire [ 9:0] hpos;
-wire [ 8:0] vpos;
-wire [ 8:0] render_hpos;
-wire [ 8:0] render_vpos;
 wire [ 8:0] hdump;
 wire [ 8:0] vdump;
 wire [12:0] obj_pxl;
-wire        hs_i, vs_i, hb_i, vb_i;
-wire        hblank_n, vblank_n;
-wire        frame_vblank;
 
 jtframe_vtimer #(
     .HCNT_END ( HCNT_END      ),
-    .HB_START ( HVIS[8:0]    ),
-    .HB_END   ( 9'd0         ),
+    .HB_START ( HB_START[8:0] ),
+    .HB_END   ( HB_END[8:0]   ),
     .HS_START ( HS_START[8:0] ),
     .HS_END   ( HS_END[8:0]   ),
     .VCNT_END ( VCNT_END      ),
-    .VB_START ( VVIS[8:0]    ),
-    .VB_END   ( 9'd0         ),
+    .VB_START ( VB_START[8:0] ),
+    .VB_END   ( VB_END[8:0]   ),
     .VS_START ( VS_START[8:0] ),
     .VS_END   ( VS_END[8:0]   )
 ) u_vtimer (
@@ -97,25 +92,11 @@ jtframe_vtimer #(
     .H        ( hdump   ),
     .Hinit    (         ),
     .Vinit    (         ),
-    .LHBL     ( hblank_n ),
-    .LVBL     ( vblank_n ),
-    .HS       ( hs_i    ),
-    .VS       ( vs_i    )
+    .LHBL     ( lhbl    ),
+    .LVBL     ( lvbl    ),
+    .HS       ( hsync   ),
+    .VS       ( vsync   )
 );
-
-reg hblank_r, vblank_r;
-always @(posedge clk) if (pxl_cen) begin
-    hblank_r <= ~hblank_n;
-    vblank_r <= ~vblank_n;
-end
-
-assign hpos        = {1'b0, hdump};
-assign vpos        = vdump;
-assign render_hpos = hpos[8:0] - 9'd4;
-assign render_vpos = vpos - 9'd1;
-assign hb_i        = hblank_r;
-assign vb_i        = vblank_r;
-assign frame_vblank = (vdump == 9'd0) || (vdump > VVIS[8:0]);
 
 wire [11:0] scr0_pxl, scr1_pxl;
 jtgae1_scroll u_scroll (
@@ -123,9 +104,9 @@ jtgae1_scroll u_scroll (
     .rst       ( rst       ),
     .pxl_cen   ( pxl_cen   ),
     .gfx_4m    ( gfx_4m     ),
-    .hsync     ( hs_i      ),
-    .hpos      ( render_hpos ),
-    .vpos      ( render_vpos ),
+    .hsync     ( hsync     ),
+    .hpos      ( hdump     ),
+    .vpos      ( vdump     ),
     .scr0_y    ( scr0_y    ),
     .scr0_x    ( scr0_x    ),
     .scr1_y    ( scr1_y    ),
@@ -150,9 +131,9 @@ jtgae1_obj #(
     .clk            ( clk            ),
     .rst            ( rst            ),
     .pxl_cen        ( pxl_cen        ),
-    .hs             ( hs_i           ),
-    .vpos           ( render_vpos    ),
-    .hpos           ( render_hpos    ),
+    .hs             ( hsync          ),
+    .vpos           ( vdump          ),
+    .hpos           ( hdump          ),
     .spr_force_high ( spr_force_high ),
     .spr_a          ( spr_a          ),
     .spr_q          ( spr_q          ),
@@ -171,26 +152,14 @@ jtgae1_colmix u_colmix (
     .gfx_en         ( gfx_en         ),
     .scr0_pxl       ( scr0_pxl       ),
     .scr1_pxl       ( scr1_pxl       ),
-    .color_addr     ( color_addr     ),
-    .color_data     ( color_data     ),
+    .scr_pal_addr   ( scr_pal_addr   ),
+    .scr_pal_dout   ( scr_pal_dout   ),
     .obj_pxl        ( obj_pxl        ),
-    .spr_color_addr ( spr_color_addr ),
-    .spr_color_data ( spr_color_data ),
+    .obj_pal_addr   ( obj_pal_addr   ),
+    .obj_pal_dout   ( obj_pal_dout   ),
     .red            ( red            ),
     .green          ( green          ),
     .blue           ( blue           )
 );
-
-reg [SD-1:0] hs_sr, vs_sr, hb_sr, vb_sr;
-always @(posedge clk) if (pxl_cen) begin
-    hs_sr <= {hs_sr[SD-2:0], hs_i};
-    vs_sr <= {vs_sr[SD-2:0], vs_i};
-    hb_sr <= {hb_sr[SD-2:0], hb_i};
-    vb_sr <= {vb_sr[SD-2:0], vb_i};
-end
-assign hsync  = hs_sr[SD-1];
-assign vsync  = vs_sr[SD-1];
-assign hblank = hb_sr[SD-1];
-assign vblank = frame_vblank;
 
 endmodule

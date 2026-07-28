@@ -127,7 +127,8 @@ u_game(
     .ln_v         ( ln_v             ),
     .ln_vs        ( ln_vs            ),
     .ln_lvbl      ( ln_lvbl          ),
-    .ln_we        ( ln_we            ), `endif
+    .ln_we        ( ln_we            ),
+    .fb_keep      ( fb_keep          ), `endif
 
 `ifdef JTFRAME_LF_ZOOM
     .h_step       ( game_h_step      ),

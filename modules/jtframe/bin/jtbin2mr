@@ -2,6 +2,22 @@
 # Copies the contents of JTBIN to a test folder
 # in MiSTer
 
+function main {
+    LOCAL=1
+    V=
+    BUILD=
+
+    check_jtroot
+    parse_args "$@"
+    extract_build
+    select_source
+    check_mister_password
+    set_mister_defaults
+    gather_files
+    copy_to_mister
+    rm -rf "$TEMP"
+}
+
 function show_help {
 cat<<HELP
     JTFRAME (c) Jose Tejada 2023
@@ -24,114 +40,159 @@ jtbin2mr [build hash]
 HELP
 }
 
-LOCAL=1
-V=
-BUILD=
+function check_jtroot {
+    if [ -z "$JTROOT" ]; then
+        echo "JTROOT is undefined"
+        exit 1
+    fi
+}
 
-if [ -z "$JTROOT" ]; then
-    echo "JTROOT is undefined"
-    exit 1
-fi
+function check_mister_password {
+    if [ -z "$MISTERPASSWD" ]; then
+        echo "Define the MiSTer password in the environment variable MISTERPASSWD"
+        exit 1
+    fi
+}
 
-while [ $# -gt 0 ]; do
-    case "$1" in
-        -g|--git)
-            LOCAL=0;; # JTBIN will not be modified
-        -m|--mr)
-            shift
-            export MRHOST=$1;;
-        -v|--verbose)
-            V=-v;;
-        -h|--help)
-            show_help
-            exit 1;;
-        *)
-            HASH=`git rev-parse --short $1`
-            HASH=${HASH:0:7}
-            BUILD="$JTBUILDS/${HASH}.zip"
-            if [ ! -e "$BUILD" ]; then
-                echo "Cannot find $BUILD"
-                echo "Unknown argument $1"
-                exit 1
-            fi;;
-    esac
-    shift
-done
+function parse_args {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -g|--git)
+                LOCAL=0;; # JTBIN will not be modified
+            -m|--mr)
+                shift
+                export MRHOST=$1;;
+            -v|--verbose)
+                V=-v;;
+            -h|--help)
+                show_help
+                exit 1;;
+            *)
+                HASH=$(git rev-parse --short "$1")
+                HASH=${HASH:0:7}
+                BUILD="$JTBUILDS/${HASH}.zip"
+                if [ ! -e "$BUILD" ]; then
+                    echo "Cannot find $BUILD"
+                    echo "Unknown argument $1"
+                    exit 1
+                fi;;
+        esac
+        shift
+    done
+}
 
-if [ ! -z "$BUILD" ]; then
-    rm -rf $JTROOT/release
-    if unzip -l $BUILD | grep '\brelease/' > /dev/null; then
-        unzip -q $BUILD -d $JTROOT
+function extract_build {
+    if [ -z "$BUILD" ]; then
+        return
+    fi
+
+    rm -rf "$JTROOT/release"
+    if unzip -l "$BUILD" | grep '\brelease/' > /dev/null; then
+        unzip -q "$BUILD" -d "$JTROOT"
     else
-        mkdir $JTROOT/release
-        unzip -q $BUILD -d $JTROOT/release
+        mkdir "$JTROOT/release"
+        unzip -q "$BUILD" -d "$JTROOT/release"
     fi
-fi
+}
 
-if  pwd | grep "$JTBIN"; then
-    echo "Copying from JTBIN as the current working dir is JTBIN"
-elif [ $LOCAL = 1 ]; then
-    export JTBIN=$JTROOT/release
-fi
+function select_source {
+    if pwd | grep "$JTBIN"; then
+        echo "Copying from JTBIN as the current working dir is JTBIN"
+    elif [ "$LOCAL" = 1 ]; then
+        export JTBIN=$JTROOT/release
+    fi
+}
 
-if [ -z "$MISTERPASSWD" ]; then
-    echo "Define the MiSTer password in the environment variable MISTERPASSWD"
-    exit 1
-fi
+function set_mister_defaults {
+    if [ -z "$MRHOST" ]; then
+        MRHOST=mister.home
+    fi
 
-if [ -z "$MRHOST" ]; then
-    MRHOST=mister.home
-fi
+    if [ -z "$MRUSER" ]; then
+        MRUSER=root
+    fi
+}
 
-if [ -z "$MRUSER" ]; then
-    MRUSER=root
-fi
+function gather_files {
+    if [ "$V" = -v ]; then echo "Gathering the files from $JTBIN"; fi
+    TEMP=$(mktemp --directory)
+    ROOT=$TEMP/_JTBIN
+    CORES=$ROOT/cores
 
-########################################################
-if [ "$V" = -v ]; then echo "Gathering the files from $JTBIN"; fi
-TEMP=`mktemp --directory`
-ROOT=$TEMP/_JTBIN
-CORES=$ROOT/cores
+    mkdir -p "$CORES"
 
-mkdir -p $CORES
+    if [ -d "$JTBIN/mister" ]; then
+        cp "$JTBIN"/mister/*.rbf "$CORES"
+    fi
 
-if [ -d $JTBIN/mister ]; then
-    cp $JTBIN/mister/*.rbf $CORES
-fi
+    cp -r "$JTBIN"/mra/* "$ROOT"
+    if [ -d "$JTBIN/games" ]; then cp -r "$JTBIN/games" "$ROOT"; fi
+}
 
-cp -r $JTBIN/mra/* $ROOT
-if [ -d $JTBIN/games ]; then cp -r $JTBIN/games $ROOT; fi
+function copy_to_mister {
+    if [ -n "$V" ]; then echo -e "\nCopying the files to MiSTer"; fi
+    if [ -d "/media/$USER/MiSTer_Data" ]; then
+        copy_to_sd_card
+    elif ping -c 1 -q "$MRHOST" > /dev/null; then
+        copy_over_network
+    else
+        echo "$MRHOST is not online"
+    fi
+}
 
-# Copy the files to MiSTer
-if [ ! -z "$V" ]; then echo -e "\nCopying the files to MiSTer"; fi
-if [ -d /media/$USER/MiSTer_Data ]; then
+function copy_to_sd_card {
     echo "MiSTer SD card detected"
-    rm -rf /media/$USER/MiSTer_Data/_JTBIN
-    cp -r $TEMP/_JTBIN /media/$USER/MiSTer_Data || echo "Copy to MiSTer SD card failed"
-    if [ -e $JTUTIL/jtbeta.zip ]; then
-        cp $JTUTIL/jtbeta.zip /media/$USER/MiSTer_Data/games/mame
+    rm -rf "/media/$USER/MiSTer_Data/_JTBIN"
+    cp -r "$TEMP/_JTBIN" "/media/$USER/MiSTer_Data" || echo "Copy to MiSTer SD card failed"
+    copy_console_core_to_sd_card neogeopocket.rbf NeoGeoPocket.rbf
+    copy_console_core_to_sd_card neogeopocket-color.rbf NeoGeoPocket-Color.rbf
+    if [ -e "$JTUTIL/jtbeta.zip" ]; then
+        cp "$JTUTIL/jtbeta.zip" "/media/$USER/MiSTer_Data/games/mame"
     fi
-elif ping -c 1 -q $MRHOST > /dev/null; then
+}
+
+function copy_console_core_to_sd_card {
+    local source_name=$1
+    local console_name=$2
+
+    if [ -e "$JTBIN/mister/$source_name" ]; then
+        mkdir -p "/media/$USER/MiSTer_Data/_Console"
+        cp "$TEMP/_JTBIN/cores/$source_name" "/media/$USER/MiSTer_Data/_Console/$console_name"
+    fi
+}
+
+function copy_over_network {
     MRCMD="sshpass -p $MISTERPASSWD ssh -l $MRUSER $MRHOST"
     $MRCMD "rm -rf /media/fat/_JTBIN"
     $MRCMD "rm -rf /media/fat/config/*.{cfg,CFG}"
     $MRCMD "rm -rf /media/fat/config/nvram/*.nvm"
     $MRCMD "rm -rf /media/fat/config/dips/*"
-    if sshpass -p $MISTERPASSWD scp -r $TEMP/* $MRUSER@${MRHOST}:/media/fat; then
-        if [ -e $JTBIN/mister/neogeopocket.rbf ]; then
-            $MRCMD "cp /media/fat/_JTBIN/cores/neogeopocket.rbf /media/fat/_Console/NeoGeoPocket.rbf"
-        fi
-        rm -rf $TEMP
+    if sshpass -p "$MISTERPASSWD" scp -r "$TEMP"/* "$MRUSER@${MRHOST}:/media/fat"; then
+        copy_console_core neogeopocket.rbf NeoGeoPocket.rbf
+        copy_console_core neogeopocket-color.rbf NeoGeoPocket-Color.rbf
+        rm -rf "$TEMP"
     else
-        echo "Copy to MiSTer failed. Temporary files in " $TEMP
+        echo "Copy to MiSTer failed. Temporary files in $TEMP"
         exit 1
     fi
-    if [ -e $JTUTIL/jtbeta.zip ]; then
-        sshpass -p $MISTERPASSWD scp -r $JTUTIL/jtbeta.zip $MRUSER@${MRHOST}:/media/fat/games/mame
+    copy_beta_zip
+}
+
+function copy_console_core {
+    local source_name=$1
+    local console_name=$2
+
+    if [ -e "$JTBIN/mister/$source_name" ]; then
+        $MRCMD "cp /media/fat/_JTBIN/cores/$source_name /media/fat/_Console/$console_name"
+    fi
+}
+
+function copy_beta_zip {
+    if [ -e "$JTUTIL/jtbeta.zip" ]; then
+        sshpass -p "$MISTERPASSWD" scp -r "$JTUTIL/jtbeta.zip" "$MRUSER@${MRHOST}:/media/fat/games/mame"
     else
         echo "Skipping jtbeta.zip copy"
     fi
-else
-    echo "$MRHOST is not online"
-fi
-rm -rf $TEMP
+}
+
+main "$@"

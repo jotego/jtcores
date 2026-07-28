@@ -33,6 +33,7 @@ module jtframe_lfbuf_sdr_ctrl #(parameter
 
     input               lhbl,
     input               ln_done,
+    input               fb_keep,
     input      [VW-1:0] vrender,
     input      [VW-1:0] ln_v,
     input               vs,
@@ -90,6 +91,7 @@ localparam CMD_BURST_TERMINATE = 4'b0110;
 localparam CMD_PRECHARGE       = 4'b0010;
 localparam CMD_AUTO_REFRESH    = 4'b0001;
 localparam CMD_LOAD_MODE       = 4'b0000;
+localparam [15:0] LFBUF_CLR = `ifndef JTFRAME_LFBUF_CLR 0 `else `JTFRAME_LFBUF_CLR `endif ;
 
 reg           lhbl_l, ln_done_l, do_wr;
 reg  [   2:0] st;
@@ -106,12 +108,13 @@ reg           sdram_oe;
 reg     [3:0] sdram_cmd = CMD_NOP;
 reg     [1:0] sdram_del;
 reg           sdram_prechg;
+wire          fb_rd_bank, fb_wr_bank, sdram_keep_blank;
 wire [HW-1:0] fb_addr_prev = fb_addr - 1'd1;
 wire [12:0]   sdram_act_addr = { {13-HW{1'b0}}, act_addr };
 wire [12:0]   sdram_fb_prev  = { {13-HW{1'b0}}, fb_addr_prev };
 wire [12:0]   sdram_fb_last  = { {13-HW{1'b0}}, {HW{1'b1}} };
-wire [12:0]   sdram_rd_row   = { {12-VW{1'b0}}, ~frame, vrender };
-wire [12:0]   sdram_wr_row   = { {12-VW{1'b0}},  frame, wr_v    };
+wire [12:0]   sdram_rd_row   = { {12-VW{1'b0}}, fb_rd_bank, vrender };
+wire [12:0]   sdram_wr_row   = { {12-VW{1'b0}}, fb_wr_bank, wr_v    };
 
 assign SDRAM_CKE = 1;
 assign SDRAM_BA = 0;
@@ -123,6 +126,9 @@ assign SDRAM_nWE  = sdram_cmd[0];
 
 assign fb_over    = &fb_addr;
 assign fb_dout    = sdram_dout[15:0];
+assign fb_rd_bank = fb_keep ? 1'b0 : ~frame;
+assign fb_wr_bank = fb_keep ? 1'b0 :  frame;
+assign sdram_keep_blank = fb_keep && fb_din == LFBUF_CLR;
 
 always @(posedge clk) begin
     case( st_addr[3:0] )
@@ -279,7 +285,7 @@ always @( posedge clk ) begin
 
             WRITE: begin
                 SDRAM_A <= sdram_fb_prev;
-                { SDRAM_DQML, SDRAM_DQMH } <= 2'b00;
+                { SDRAM_DQML, SDRAM_DQMH } <= {2{sdram_keep_blank}};
                 sdram_cmd <= CMD_WRITE;
                 sdram_oe <= 1;
                 sdram_din <= fb_din;
@@ -292,7 +298,7 @@ always @( posedge clk ) begin
             WRITE2: begin
                 SDRAM_A <= sdram_fb_last;
                 SDRAM_A[10] <= 1;
-                { SDRAM_DQML, SDRAM_DQMH } <= 2'b00;
+                { SDRAM_DQML, SDRAM_DQMH } <= {2{sdram_keep_blank}};
                 sdram_cmd <= CMD_WRITE;
                 sdram_oe  <= 1;
                 sdram_din <= fb_din;

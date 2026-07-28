@@ -75,6 +75,7 @@ reg         io_cs, txt_cs, scra_cs, scrb_cs, obj_cs, pal_cs, regs_cs, cab_cs,
             txtx_cs, scrax_cs, scrbx_cs, objy_cs, flip_cs, clr_int,
             mcu_rd,  mcu_wr;
 reg  [15:0] cpu_din, cab_dout;
+reg         rom_ok_dly;
 wire [15:0] cpu_dout, wf_lut;
 wire        bus_cs, bus_busy, intn, short_en, long_en;
 
@@ -89,7 +90,7 @@ assign IPLn     = { intn, 1'b1, intn };
 assign VPAn     = !(!ASn && FC==7 && RnW);
 assign ram_we   = ram_cs & ~RnW;
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
+assign bus_busy = (rom_cs & ~rom_ok_dly) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 assign txt_we   = {2{txt_cs &~RnW}} & ~{UDSn,LDSn};
 assign scra_we  = {2{scra_cs&~RnW}} & ~{UDSn,LDSn};
@@ -136,6 +137,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
+    rom_ok_dly <= rom_ok;
     cpu_din <= rom_cs  ? rom_data :
                ram_cs  ? ram_dout :
                txt_cs  ? mt_dout  :

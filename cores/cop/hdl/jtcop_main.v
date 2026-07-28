@@ -233,7 +233,7 @@ always @(posedge clk, posedge rst) begin
         // prisel  <= 0;
         mixpsel <= 0;
     end else begin
-        ok_dly <= rom_ok;
+        ok_dly <= rom_ok | ram_ok;
 
         LVBL_l <= LVBL;
         if( vint_clr )
@@ -390,7 +390,7 @@ end
 
 reg  disp_busy;
 wire bus_cs    = pal_cs!=0 || pre_ram_cs || rom_cs;
-wire bus_busy  = |{ rom_cs & ~ok_dly, pre_ram_cs & ~ram_ok, disp_cs & disp_busy };
+wire bus_busy  = |{ rom_cs & ~ok_dly, pre_ram_cs & ~ok_dly, disp_cs & disp_busy };
 wire bus_legit = disp_cs;
 
 // Memory access to the display area gets locked until a blank starts

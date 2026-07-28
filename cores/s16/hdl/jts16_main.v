@@ -127,6 +127,7 @@ wire [23:0] A_full = {A,1'b0};
 wire        BRn, BGACKn, BGn;
 wire        ASn, UDSn, LDSn, BUSn, VPAn;
 wire        ok_dly;
+reg         ram_ok_dly;
 wire [15:0] rom_dec, cpu_dout_raw;
 reg  [15:0] cpu_din;
 wire        cpu_LDSn, cpu_UDSn, cpu_RnW, DTACKn;
@@ -516,6 +517,7 @@ jt8255 u_8255(
 
 // Data bus input
 always @(posedge clk) begin
+    ram_ok_dly <= ram_ok;
     if(rst) begin
         cpu_din <= 16'hffff;
     end else begin
@@ -552,7 +554,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 wire bus_cs    = pal_cs | char_cs | pre_vram_cs | pre_ram_cs | rom_cs | objram_cs | io_cs;
-wire bus_busy  = |{ rom_cs & ok_dly===0, (pre_ram_cs | pre_vram_cs) & ~ram_ok };
+wire bus_busy  = |{ rom_cs & ok_dly===0, (pre_ram_cs | pre_vram_cs) & ~ram_ok_dly };
 wire bus_legit = 0;
 
 jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack(

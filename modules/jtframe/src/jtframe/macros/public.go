@@ -132,8 +132,8 @@ func CheckMacros() error {
 			return fmt.Errorf("MiST DIP base is smaller than the required value by JTFRAME_OSD_TEST")
 		}
 	}
-	if IsSet("JTFRAME_LF_BUFFER") && IsSet("JTFRAME_VERTICAL") {
-		return fmt.Errorf("jtframe: cannot define both JTFRAME_LF_BUFFER and JTFRAME_VERTICAL")
+	if IsSet("JTFRAME_MR_LF_BRAM") && !IsSet("JTFRAME_VERTICAL") {
+		return fmt.Errorf("jtframe: JTFRAME_MR_LF_BRAM requires JTFRAME_VERTICAL")
 	}
 	if IsSet("JTFRAME_JOY1_POS") && GetInt("JTFRAME_DIPBASE")<20 {
 		return fmt.Errorf("jtframe: JTFRAME_JOY1_POS requires JTFRAME_DIPBASE to be at least 20")

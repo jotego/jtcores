@@ -1,0 +1,19 @@
+- name: bac06
+  size: 24
+  regs:
+    - name: ctrl0
+      desc: "BAC06 control register 0"
+      dw: 8
+      at: 0
+    - name: ctrl3
+      desc: "BAC06 control register 3"
+      dw: 8
+      at: 3
+    - name: ctrl1_0
+      desc: "BAC06 control register 1 byte 0"
+      dw: 8
+      at: 8
+    - name: ctrl1_1
+      desc: "BAC06 control register 1 byte 1"
+      dw: 8
+      at: 9

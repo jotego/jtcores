@@ -1,0 +1,102 @@
+clocks:
+  clk24:
+    - freq: 3579545
+      gate: [ snd ]
+      outputs:
+        - cen_snd
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+    - freq: 1056k
+      outputs:
+        - cen_oki
+
+audio:
+  channels:
+    # as dd2 no schematics, assuming same for dd2 - unverified
+    - { name: fm,  module: jt51,   rsum: 30k }
+    - { name: pcm, module: jt6295, rsum: 10k }
+
+params:
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+
+sdram:
+  banks:
+    # ── Bank 0 ── 68k program ROM (256 KB, 16-bit) ──────────────────────────
+    - buses:
+      - name: main
+        addr_width: 18      # [17:1] word addr = 256 KB
+        data_width: 16
+
+    # ── Bank 1 ── Z80 audio ROM (32 KB) + OKI samples (128 KB / 256 KB region) ─
+    - buses:
+      - name: snd
+        addr_width: 15      # 32 KB
+        data_width: 8
+      - name: pcm
+        addr_width: 18      # 256 KB oki region (128 KB loaded, MRA pads)
+        data_width: 8
+        offset: PCM_OFFSET
+
+    # ── Bank 2 ── back framebuffer (256 KB, R/W) ────────────────────────────
+    # Two byte-per-pixel 512x256 planes (front @0, back @0x20000). Own bank so
+    # the per-line video fetch never contends with program ROM or OKI samples.
+    - buses:
+      - name: fbram
+        addr_width: 18      # [17:1] word addr = 128K x 16 = 256 KB
+        data_width: 16
+        rw: true
+        cs: fbram_sel       # must differ from the bus's auto 'fbram_cs'
+        din: cpu_dout
+      - name: fbrd
+        addr_width: 18
+        data_width: 16
+
+    # ── Bank 3 ── 68k work RAM 0x208000-0x21ffff (128 KB, R/W) ──────────────
+    # Kept out of BRAM (128 M10K) for smaller platforms
+    - buses:
+      - name: work3
+        addr_width: 17      # [16:1] word addr = 64K x 16 = 128 KB
+        data_width: 16
+        rw: true
+        cs: work3_sel       # must differ from the bus's auto 'work3_cs'
+        din: cpu_dout
+        do_not_erase: true
+
+bram:
+  # Work RAM 0x1d0000-0x1dffff (6264). SP=0x1dfffe.
+  - name: work
+    addr_width: 16      # [15:1] = 32K words = 64 KB
+    data_width: 16
+    addr: main_addr[15:1]
+    din: cpu_dout
+    rw: true
+  # Work RAM 0x1f0000-0x1fffff.
+  - name: work2
+    addr_width: 16      # [15:1] = 32K words = 64 KB
+    data_width: 16
+    addr: main_addr[15:1]
+    din: cpu_dout
+    rw: true
+  # Front 1bpp overlay VRAM (0x200000-0x207fff, 32 KB = 16K words).
+  - name: fvram
+    addr_width: 15      # 16K words = 32 KB
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[14:1]
+    rw: true
+    dual_port:
+      name: fvrd
+      dout: fvram_data
+  # Palette RAM (0x280200-0x2805ff, 512 x 16). Pen 512 is a separate register.
+  # pal_addr = pen {A[10],A[8:1]} since A[9] is the base bit.
+  - name: pal
+    addr_width: 10      # [9:1] = 512 entries
+    data_width: 16
+    addr: "{main_addr[10], main_addr[8:1]}"
+    din: cpu_dout
+    rw: true
+    dual_port:
+      name: palrd
+      dout: pal_data

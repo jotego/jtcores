@@ -21,6 +21,7 @@ reg              ln_done = 1'b0;
 reg  [HW-1:0]    ln_addr = 0;
 reg  [15:0]      ln_data = 0;
 reg              ln_we = 1'b0;
+reg              fb_keep = 1'b0;
 reg  [7:0]       st_addr = 8'd0;
 
 wire             ln_hs, ln_vs, ln_lvbl;
@@ -75,6 +76,7 @@ jtframe_lfbuf_ddr_ctrl #(
     .pxl_cen            ( pxl_cen            ),
     .lhbl               ( lhbl               ),
     .ln_done            ( ln_done            ),
+    .fb_keep            ( fb_keep            ),
     .vrender            ( vrender            ),
     .ln_v               ( req_v              ),
     .vs                 ( vs                 ),
