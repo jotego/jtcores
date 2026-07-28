@@ -27,7 +27,7 @@ wire        scr_cs, pal_cs, sdakn, odakn;
 wire [ 2:0] obj_pal;
 
 wire        flip;
-wire        sn_rd, sn_we, snd_rstn, mintn;
+wire        sn_rd, sn_we, snd_rstn, mintn, main_cen;
 wire [ 3:0] main2snd, sn_dout;
 wire        rastan, opwolf, rbisland;  // one-hot game select, straight from header
 wire        cchip;                     // C-chip present (Op Wolf good sets, Rainbow)
@@ -68,6 +68,7 @@ jtrastan_header u_header(
 jtrastan_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ), // 48 MHz
+    .cpu_cen    ( main_cen  ),
     .LVBL       ( LVBL      ),
     .opwolf     ( opwolf    ),
     .rbisland   ( rbisland  ),
@@ -127,8 +128,7 @@ jtrastan_main u_main(
 jtrastan_snd u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen4       ( cen4          ),
-    .cen2       ( cen2          ),
+    .fm_cen     ( fm_cen        ),
     .pcm_cen    ( pcm_cen       ),
     .fir_cen    ( fir_cen       ),
 
@@ -136,8 +136,7 @@ jtrastan_snd u_sound(
     .rbisland   ( rbisland      ),
 
     // From main CPU
-    .rst48      ( rst           ),
-    .clk48      ( clk           ),
+    .main_cen   ( main_cen      ),
     .main_addr  (main_addr[1]   ),
     .main_dout  ( main2snd      ),
     .main_din   ( sn_dout       ),
@@ -164,7 +163,7 @@ jtrastan_snd u_sound(
     .peak       (               ),
     .debug_bus  ( debug_bus     )
 );
-
+/* verilator tracing_off */
 jtrastan_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),

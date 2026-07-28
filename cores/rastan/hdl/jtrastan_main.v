@@ -92,6 +92,7 @@ module jtrastan_main(
     input         [ 8:0] gun_xoffs,
     input         [ 8:0] gun_yoffs,
 
+    output               cpu_cen,
     output        [18:1] main_addr,
     output        [ 1:0] main_dsn,
     output        [15:0] main_dout,
@@ -140,7 +141,7 @@ module jtrastan_main(
 );
 `ifndef NOMAIN
 wire [23:1] A;
-wire        cpu_cen, cpu_cenb;
+wire        cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg         io_cs, out_cs, otport1_cs, inport_cs, dip_cs, gun_cs;
@@ -339,7 +340,7 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
-assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0;
+assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0, cpu_cen=0;
 initial begin
     rom_cs   = 0;
     ram_cs   = 0;
