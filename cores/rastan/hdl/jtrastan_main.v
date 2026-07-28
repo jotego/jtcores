@@ -251,7 +251,7 @@ always @(posedge clk, posedge rst) begin
         LVBLl <= LVBL;
         if( !VPAn )
             intn <= 1;
-        else if( !LVBL && LVBLl )
+        else if( !LVBL && LVBLl && dip_pause)
             intn <= 0;
     end
 end
@@ -330,7 +330,7 @@ jtframe_m68k u_cpu(
 
     .BERRn      ( 1'b1        ),
     // Bus arbitrion
-    .HALTn      ( dip_pause   ),
+    .HALTn      ( 1'b1        ),
     .BRn        ( 1'b1        ),
     .BGACKn     ( 1'b1        ),
     .BGn        (             ),
