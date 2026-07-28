@@ -37,7 +37,9 @@ registers=[
 [dipsw]
 delete=[{names=["Unused","Unknown"]}]
 rename=[
-    {name="Bonus Life", to="1PUP" }
+    {name="Bonus Life", to="1PUP" },
+    {name="Discount When Continuing", to="Continue discount" },
+    {name="Display Hit Percentage (Cheat)", to="Hit Percentage Cheat" },
 ]
 
 [ROM]
