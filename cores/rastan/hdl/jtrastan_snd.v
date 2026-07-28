@@ -23,7 +23,7 @@ module jtrastan_snd(
     input                cen2,
     input                pcm_cen,
     input                fir_cen,
-    input                opwolf,
+    input                opwolf, rbisland,
 
     // From main CPU
     input                rst48,
@@ -85,8 +85,8 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    left  <= opwolf ? opwolf_l : rastan_snd;
-    right <= opwolf ? opwolf_r : rastan_snd;
+    left  <= rbisland ? fm_l : opwolf ? opwolf_l : rastan_snd;
+    right <= rbisland ? fm_r : opwolf ? opwolf_r : rastan_snd;
 end
 
 // Rastan has one simple ADPCM address latch. Operation Wolf has two

@@ -129,7 +129,9 @@ jtrastan_snd u_sound(
     .cen2       ( cen2          ),
     .pcm_cen    ( pcm_cen       ),
     .fir_cen    ( fir_cen       ),
+
     .opwolf     ( opwolf        ),
+    .rbisland   ( rbisland      ),
 
     // From main CPU
     .rst48      ( rst           ),
