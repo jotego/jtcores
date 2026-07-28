@@ -20,6 +20,7 @@ module jtrastan_video(
     input           rst,
     input           clk,
     input           opwolf,
+    input           rbisland,
     output          pxl_cen,
     output          pxl2_cen,
 
@@ -152,7 +153,7 @@ jtrastan_obj u_obj(
     .hdump      ( hdump     ),
     .vrender    ( vrender   ),
 
-    .main_addr  ( main_addr[10:1] ),
+    .main_addr  ( main_addr[12:1] ),
     .main_dout  ( main_dout ),
     .main_din   ( oram_dout ),
     .main_dsn   ( main_dsn  ),
@@ -177,6 +178,7 @@ jtrastan_colmix u_colmix(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .opwolf     ( opwolf    ),
+    .rbisland   ( rbisland  ),
 
     .main_addr  ( main_addr[11:1] ),
     .main_dout  ( main_dout ),

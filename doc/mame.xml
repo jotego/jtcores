@@ -248068,4 +248068,451 @@
 		<description>Gaelco CG1V</description>
 		<sound channels="0"/>
 	</machine>
+	<machine name="rbisland" sourcefile="taito/rbisland.cpp">
+		<description>Rainbow Islands (rev 1)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="b22-10-1.19" size="65536" crc="e34a50ca" sha1="17a92cd7182db1e18000b1ae689758fcfd70fe16" region="maincpu" offset="0"/>
+		<rom name="b22-11-1.20" size="65536" crc="6a31a093" sha1="1e99ae47811c0d3774d138dab02ac50bc1b92173" region="maincpu" offset="1"/>
+		<rom name="b22-08-1.21" size="65536" crc="15d6e17a" sha1="7b0339180239e75adf1437aee276b652a1bfee51" region="maincpu" offset="20000"/>
+		<rom name="b22-09-1.22" size="65536" crc="454e66bc" sha1="54d57dee90da04101f4b1473770b38001d63230f" region="maincpu" offset="20001"/>
+		<rom name="b22-03.23" size="131072" crc="3ebb0fb8" sha1="1b41b305623d121255eb70cb992e4d9da13abd82" region="maincpu" offset="40000"/>
+		<rom name="b22-04.24" size="131072" crc="91625e7f" sha1="765afd973d9b82bb496b04beca284bf2769d6e6f" region="maincpu" offset="40001"/>
+		<rom name="cchip_b22-15.53" size="8192" crc="08c588a6" sha1="7e38342be68d37f7106df069dd2021c509be1244" region="cchip:cchip_eprom" offset="0"/>
+		<rom name="b22-14.43" size="65536" crc="113c1a5b" sha1="effa2adf54a6be78b2d4baf3a47529342fb0d895" region="audiocpu" offset="0"/>
+		<rom name="b22-01.2" size="524288" crc="b76c9168" sha1="e924be0c8294b930488bb04583784254a840a52e" region="pc080sn" offset="0"/>
+		<rom name="b22-02.5" size="524288" crc="1b87ecf0" sha1="37a463184f4064fe0565367236e289d57639614c" region="pc090oj" offset="0"/>
+		<rom name="b22-13.6" size="65536" crc="2fda099f" sha1="a1e27a4497f6733608be924d69d965b19f725b99" region="pc090oj" offset="80000"/>
+		<rom name="b22-12.7" size="65536" crc="67a76dc6" sha1="626ee684eb3ea859c695ffe03344ccaa442da4af" region="pc090oj" offset="80001"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="cchip"/>
+		<device_ref name="upd78c11"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="cpu" tag="cchip:upd7811" name="NEC uPD78C11" clock="12000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="2"/>
+			<control type="joy" player="2" buttons="2" ways="2"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<dipvalue name="4 Coins/1 Credit" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="3 Coins/1 Credit" value="16">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/1 Credit" value="16">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/1 Credit" value="32">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/3 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="32">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<dipvalue name="2 Coins/1 Credit" value="64">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/3 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="128">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/3 Credits" value="128">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/4 Credits" value="64">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/6 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="4">
+			<dipvalue name="100k 1000k" value="4" default="yes"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Complete Bonus" tag="DSWB" mask="8">
+			<dipvalue name="1 Up" value="8" default="yes"/>
+			<dipvalue name="100k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<dipvalue name="1" value="16"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+		</dipswitch>
+		<dipswitch name="Language" tag="DSWB" mask="64">
+			<dipvalue name="English" value="0" default="yes"/>
+			<dipvalue name="Japanese" value="64"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSWB" mask="128">
+			<dipvalue name="Mode A (Japan)" value="128" default="yes"/>
+			<dipvalue name="Mode B (World)" value="0"/>
+		</dipswitch>
+		<port tag=":800007">
+		</port>
+		<port tag=":800009">
+		</port>
+		<port tag=":80000B">
+		</port>
+		<port tag=":80000D">
+		</port>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="rbislande" sourcefile="taito/rbisland.cpp">
+		<description>Rainbow Islands - Extra Version</description>
+		<year>1988</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="b39-01.19" size="65536" crc="50690880" sha1="88cd8739eaa6e4e5988be225c31d2a6605173d39" region="maincpu" offset="0"/>
+		<rom name="b39-02.20" size="65536" crc="4dead71f" sha1="03e9df33fc8fc64d6eeb1c3a763acac00b10c071" region="maincpu" offset="1"/>
+		<rom name="b39-03.21" size="65536" crc="4a4cb785" sha1="6ba7de3901a001cbb31713664ccb68b943a5578f" region="maincpu" offset="20000"/>
+		<rom name="b39-04.22" size="65536" crc="4caa53bd" sha1="302c668b77de41ffef96a3ca9d94877b4affc466" region="maincpu" offset="20001"/>
+		<rom name="b22-03.23" size="131072" crc="3ebb0fb8" sha1="1b41b305623d121255eb70cb992e4d9da13abd82" region="maincpu" offset="40000"/>
+		<rom name="b22-04.24" size="131072" crc="91625e7f" sha1="765afd973d9b82bb496b04beca284bf2769d6e6f" region="maincpu" offset="40001"/>
+		<rom name="cchip_b39-05.53" size="8192" crc="397735e3" sha1="86e78dbe7930f826dc8fce0ba56f5e79216df852" region="cchip:cchip_eprom" offset="0"/>
+		<rom name="b22-14.43" size="65536" crc="113c1a5b" sha1="effa2adf54a6be78b2d4baf3a47529342fb0d895" region="audiocpu" offset="0"/>
+		<rom name="b22-01.2" size="524288" crc="b76c9168" sha1="e924be0c8294b930488bb04583784254a840a52e" region="pc080sn" offset="0"/>
+		<rom name="b22-02.5" size="524288" crc="1b87ecf0" sha1="37a463184f4064fe0565367236e289d57639614c" region="pc090oj" offset="0"/>
+		<rom name="b22-13.6" size="65536" crc="2fda099f" sha1="a1e27a4497f6733608be924d69d965b19f725b99" region="pc090oj" offset="80000"/>
+		<rom name="b22-12.7" size="65536" crc="67a76dc6" sha1="626ee684eb3ea859c695ffe03344ccaa442da4af" region="pc090oj" offset="80001"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="cchip"/>
+		<device_ref name="upd78c11"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="cpu" tag="cchip:upd7811" name="NEC uPD78C11" clock="12000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="2"/>
+			<control type="joy" player="2" buttons="2" ways="2"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<dipvalue name="4 Coins/1 Credit" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="3 Coins/1 Credit" value="16">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/1 Credit" value="16">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/1 Credit" value="32">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/3 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="32">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<dipvalue name="2 Coins/1 Credit" value="64">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/3 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="128">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/3 Credits" value="128">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/4 Credits" value="64">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/6 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="4">
+			<dipvalue name="100k 1000k" value="4" default="yes"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Complete Bonus" tag="DSWB" mask="8">
+			<dipvalue name="1 Up" value="8" default="yes"/>
+			<dipvalue name="100k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<dipvalue name="1" value="16"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+		</dipswitch>
+		<dipswitch name="Language" tag="DSWB" mask="64">
+			<dipvalue name="English" value="0" default="yes"/>
+			<dipvalue name="Japanese" value="64"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSWB" mask="128">
+			<dipvalue name="Mode A (Japan)" value="128" default="yes"/>
+			<dipvalue name="Mode B (World)" value="0"/>
+		</dipswitch>
+		<port tag=":800007">
+		</port>
+		<port tag=":800009">
+		</port>
+		<port tag=":80000B">
+		</port>
+		<port tag=":80000D">
+		</port>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="rbislando" sourcefile="taito/rbisland.cpp" cloneof="rbisland" romof="rbisland">
+		<description>Rainbow Islands</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="b22-10.19" size="65536" crc="3b013495" sha1="fc89f401a80b9bde174df8a257bb7fad4937c838" region="maincpu" offset="0"/>
+		<rom name="b22-11.20" size="65536" crc="80041a3d" sha1="619d71a2bef5fd898a15d37d8016850f832428c3" region="maincpu" offset="1"/>
+		<rom name="b22-08.21" size="65536" crc="962fb845" sha1="1c5581e697902ee5cde0fb841ef05eade04a901b" region="maincpu" offset="20000"/>
+		<rom name="b22-09.22" size="65536" crc="f43efa27" sha1="f92bcdbe9bbc1c200946c10605846bb406d8e963" region="maincpu" offset="20001"/>
+		<rom name="b22-03.23" merge="b22-03.23" size="131072" crc="3ebb0fb8" sha1="1b41b305623d121255eb70cb992e4d9da13abd82" region="maincpu" offset="40000"/>
+		<rom name="b22-04.24" merge="b22-04.24" size="131072" crc="91625e7f" sha1="765afd973d9b82bb496b04beca284bf2769d6e6f" region="maincpu" offset="40001"/>
+		<rom name="cchip_b22-15.53" merge="cchip_b22-15.53" size="8192" crc="08c588a6" sha1="7e38342be68d37f7106df069dd2021c509be1244" region="cchip:cchip_eprom" offset="0"/>
+		<rom name="b22-14.43" merge="b22-14.43" size="65536" crc="113c1a5b" sha1="effa2adf54a6be78b2d4baf3a47529342fb0d895" region="audiocpu" offset="0"/>
+		<rom name="b22-01.2" merge="b22-01.2" size="524288" crc="b76c9168" sha1="e924be0c8294b930488bb04583784254a840a52e" region="pc080sn" offset="0"/>
+		<rom name="b22-02.5" merge="b22-02.5" size="524288" crc="1b87ecf0" sha1="37a463184f4064fe0565367236e289d57639614c" region="pc090oj" offset="0"/>
+		<rom name="b22-13.6" merge="b22-13.6" size="65536" crc="2fda099f" sha1="a1e27a4497f6733608be924d69d965b19f725b99" region="pc090oj" offset="80000"/>
+		<rom name="b22-12.7" merge="b22-12.7" size="65536" crc="67a76dc6" sha1="626ee684eb3ea859c695ffe03344ccaa442da4af" region="pc090oj" offset="80001"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="cchip"/>
+		<device_ref name="upd78c11"/>
+		<device_ref name="timer"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="cpu" tag="cchip:upd7811" name="NEC uPD78C11" clock="12000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="2"/>
+			<control type="joy" player="2" buttons="2" ways="2"/>
+		</input>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<dipvalue name="4 Coins/1 Credit" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="3 Coins/1 Credit" value="16">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/1 Credit" value="16">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/1 Credit" value="32">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/3 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="32">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<dipvalue name="2 Coins/1 Credit" value="64">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/3 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="128">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/3 Credits" value="128">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/4 Credits" value="64">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/6 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="4">
+			<dipvalue name="100k 1000k" value="4" default="yes"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Complete Bonus" tag="DSWB" mask="8">
+			<dipvalue name="1 Up" value="8" default="yes"/>
+			<dipvalue name="100k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<dipvalue name="1" value="16"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
+		</dipswitch>
+		<dipswitch name="Language" tag="DSWB" mask="64">
+			<dipvalue name="English" value="0" default="yes"/>
+			<dipvalue name="Japanese" value="64"/>
+		</dipswitch>
+		<dipswitch name="Coin Mode" tag="DSWB" mask="128">
+			<dipvalue name="Mode A (Japan)" value="128" default="yes"/>
+			<dipvalue name="Mode B (World)" value="0"/>
+		</dipswitch>
+		<port tag=":800007">
+		</port>
+		<port tag=":800009">
+		</port>
+		<port tag=":80000B">
+		</port>
+		<port tag=":80000D">
+		</port>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 </mame>
