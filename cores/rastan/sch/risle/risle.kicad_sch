@@ -1816,7 +1816,6 @@
 	)
 	(label "OUT[0..7]"
 		(at 214.63 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1827,7 +1826,6 @@
 	)
 	(label "MA1"
 		(at 234.95 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1838,7 +1836,6 @@
 	)
 	(label "OUT[8..10]"
 		(at 152.4 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1849,7 +1846,6 @@
 	)
 	(label "MA[1..18]"
 		(at 190.5 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1860,7 +1856,6 @@
 	)
 	(label "OUT[0..10]"
 		(at 228.6 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2513,7 +2508,7 @@
 			)
 			(uuid "b8504511-13c7-45ed-abeb-43a4d8d3a81a")
 		)
-		(pin "S[10..13]" output
+		(pin "S1[0..3]" output
 			(at 213.36 107.95 0)
 			(effects
 				(font
@@ -3234,7 +3229,7 @@
 			)
 			(uuid "c77235ff-b095-45b7-b4ff-bccbc951b2f6")
 		)
-		(pin "S[10..13]" input
+		(pin "S1[0..3]" input
 			(at 241.3 107.95 180)
 			(effects
 				(font

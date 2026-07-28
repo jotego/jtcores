@@ -8260,7 +8260,6 @@
 	(hierarchical_label "~{WATCHDOG}"
 		(shape input)
 		(at 86.36 54.61 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8272,7 +8271,6 @@
 	(hierarchical_label "~{RST}"
 		(shape output)
 		(at 200.66 54.61 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8284,7 +8282,6 @@
 	(hierarchical_label "CLK8M"
 		(shape output)
 		(at 372.11 38.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8296,7 +8293,6 @@
 	(hierarchical_label "CLK4M"
 		(shape output)
 		(at 372.11 40.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8308,7 +8304,6 @@
 	(hierarchical_label "CLK13.343M"
 		(shape output)
 		(at 278.13 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8320,7 +8315,6 @@
 	(hierarchical_label "~{RESET}"
 		(shape output)
 		(at 88.9 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8332,7 +8326,6 @@
 	(hierarchical_label "~{VBL}"
 		(shape input)
 		(at 91.44 36.83 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
