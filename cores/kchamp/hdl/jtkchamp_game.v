@@ -83,7 +83,6 @@ jtframe_frac_cen #(.W(2),.WC(6)) u_snd_cen(
     .cenb   (       )
 );
 
-`ifndef NOMAIN
 jtkchamp_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -124,15 +123,6 @@ jtkchamp_main u_main(
     .dip_pause      ( dip_pause     ),
     .dipsw          ( dipsw[7:0]    )
 );
-`else
-    assign main_cs   = 0;
-    assign oram_cs   = 0;
-    assign vram_cs   = 0;
-    assign cpu_rnw   = 1;
-    assign main_addr = 0;
-    assign cpu_dout  = 0;
-    assign main_flip = 1;
-`endif
 
 jtkchamp_snd u_sound(
     .rst        ( rst24     ),

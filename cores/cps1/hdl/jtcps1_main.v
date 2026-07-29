@@ -93,6 +93,8 @@ module jtcps1_main(
     `endif
 );
 
+`ifndef NOMAIN
+
 wire [23:1] A;
 wire        BERRn = 1'b1;
 
@@ -561,6 +563,40 @@ always @(posedge cpu_cen) begin
 end
 
 `endif
+`endif
+
+`else
+
+assign cen10   = 1'b0;
+assign cen10b  = 1'b0;
+assign cpu_cen = 1'b0;
+assign UDSWn   = 1'b1;
+assign LDSWn   = 1'b1;
+assign busack  = 1'b1;
+assign RnW     = 1'b1;
+assign addr    = 17'd0;
+assign cpu_dout = 16'd0;
+assign fave    = 16'd0;
+
+initial begin
+    ppu1_cs   = 1'b0;
+    ppu2_cs   = 1'b0;
+    ppu_rstn  = 1'b1;
+    snd_latch0 = 8'd0;
+    snd_latch1 = 8'd0;
+    ram_cs    = 1'b0;
+    vram_cs   = 1'b0;
+    rom_cs    = 1'b0;
+    rom_addr  = 21'd0;
+    `ifdef CPS15
+    eeprom_sclk = 1'b0;
+    eeprom_sdi  = 1'b0;
+    eeprom_scs  = 1'b0;
+    main2qs_addr = 23'd0;
+    main2qs_cs   = 1'b0;
+    `endif
+end
+
 `endif
 
 endmodule

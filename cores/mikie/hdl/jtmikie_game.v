@@ -70,7 +70,6 @@ always @(*) begin
     end
 end
 
-`ifndef NOMAIN
 jtmikie_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -111,18 +110,6 @@ jtmikie_main u_main(
     .dipsw_b        ( dipsw_b       ),
     .dipsw_c        ( dipsw_c       )
 );
-`else
-    assign main_cs = 0;
-    assign objram_cs = 0;
-    assign snd     = 0;
-    assign sample  = 0;
-    assign game_led= 0;
-    `ifndef PALSEL
-    `define PALSEL 0
-    `endif
-    assign pal_sel = `PALSEL;
-    assign flip    = 0;
-`endif
 
 jtmikie_snd u_sound(
     .rst        ( rst       ),

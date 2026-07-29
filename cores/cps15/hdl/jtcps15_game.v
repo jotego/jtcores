@@ -114,7 +114,6 @@ wire busreq_cpu = busreq & ~turbo;
 wire busack_cpu;
 assign busack = busack_cpu | turbo;
 
-`ifndef NOMAIN
 jtcps1_main u_main(
     .rst        ( rst_game          ),
     .clk        ( clk48             ),
@@ -184,18 +183,6 @@ jtcps1_main u_main(
     .snd_latch1  (                  ),
     .joymode     ( 2'd0             )
 );
-`else
-assign ram_addr = 17'd0;
-assign main_ram_cs = 1'b0;
-assign main_vram_cs = 1'b0;
-assign main_rom_cs = 1'b0;
-assign dsn = 2'b11;
-assign main_rnw   = 1'b1;
-assign sclk       = 0;
-assign sdo        = 0;
-assign scs        = 0;
-assign busack_cpu = 1;
-`endif
 
 reg rst_video, rst_sdram;
 
@@ -295,9 +282,6 @@ jtcps1_video #(REGSIZE) u_video(
     .watch          (               )
 );
 
-`ifndef NOZ80
-// Sound CPU cannot be disabled as there is
-// interaction between both CPUs at power up
 jtcps15_sound u_sound(
     .rst        ( rst               ),
     .clk48      ( clk48             ),
@@ -341,12 +325,6 @@ jtcps15_sound u_sound(
     .sample     ( sample            ),
     .volume     (                   )
 );
-`else
-assign snd_cs = 0;
-assign snd_addr = 0;
-assign qsnd_cs = 0;
-assign qsnd_addr = 0;
-`endif
 
 wire nc0, nc1, nc2, nc3, nc4;
 

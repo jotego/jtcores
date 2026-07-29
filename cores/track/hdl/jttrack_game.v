@@ -57,7 +57,6 @@ always @(*) begin
     end
 end
 
-`ifndef NOMAIN
 jttrack_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -104,23 +103,7 @@ jttrack_main u_main(
     .ioctl_wr       ( prog_we       ),
     .ioctl_addr     ( prog_addr[15:0])
 );
-`else
-    assign main_cs   = 0;
-    assign main_addr = 0;
-    assign cpu_rnw   = 1;
-    assign vram_cs   = 0;
-    assign cpu_dout  = 0;
-    assign m2s_irq   = 0;
-    assign m2s_data  = 0;
-    assign objram_cs = 0;
-    assign snd       = 0;
-    assign sample    = 0;
-    assign game_led  = 0;
-    assign flip      = 0;
-    assign pcm_addr  = 0;
-`endif
 
-`ifndef NOSOUND
 jttrack_snd u_sound(
     .rst        ( rst       ),
     .clk        ( clk24     ),
@@ -148,15 +131,6 @@ jttrack_snd u_sound(
     .rdac_rcen  ( rdac_rcen ),
     .debug_view (debug_view )
 );
-`else
-    assign snd_cs=0;
-    assign snd_addr=0;
-    assign pcm_addr=0;
-    assign snd=0;
-    assign sample=0;
-    assign game_led=0;
-    assign debug_view = 0;
-`endif
 
 jttrack_video u_video(
     .rst        ( rst       ),

@@ -84,6 +84,10 @@ module jttoki_main(
     input      [15:0] sound_latch_2
 );
 
+wire        mmr_cs, mmr_rnw;
+wire [ 5:0] mmr_addr;
+wire [ 1:0] mmr_dsn;
+
 `ifndef NOMAIN
 localparam [3:0] CEN_NUM =  4'd5;
 localparam [4:0] CEN_DEN = 5'd24;
@@ -103,6 +107,10 @@ wire [23:0] sound_base;
 assign cpu_a[0] = 0;
 
 assign cpu_dsn       = { cpu_uds_n, cpu_lds_n };
+assign mmr_cs        = scroll_cs;
+assign mmr_addr      = cpu_a[6:1];
+assign mmr_rnw       = cpu_wrn;
+assign mmr_dsn       = cpu_dsn;
 assign ram_byte_we   = { ram_cs     && !cpu_wrn && !cpu_uds_n, ram_cs     && !cpu_wrn && !cpu_lds_n };
 assign pal_byte_we   = { palette_cs && !cpu_wrn && !cpu_uds_n, palette_cs && !cpu_wrn && !cpu_lds_n };
 assign obj_byte_we   = { sprite_cs  && !cpu_wrn && !cpu_uds_n, sprite_cs  && !cpu_wrn && !cpu_lds_n };
@@ -332,6 +340,10 @@ always @(posedge clk) begin
 end
 `else
 assign cpu_dout      = 16'd0;
+assign mmr_cs        = 1'b0;
+assign mmr_addr      = 6'd0;
+assign mmr_rnw       = 1'b1;
+assign mmr_dsn       = 2'b11;
 assign ram_addr      = 15'd0;
 assign ram_we        = 2'd0;
 assign pal_cpu_addr  = 10'd0;
@@ -361,17 +373,10 @@ jttoki_video_mmr u_video_mmr(
     .clk          ( clk                  ),
 
     .din          ( cpu_dout             ),
-`ifndef NOMAIN
-    .cs           ( scroll_cs            ),
-    .addr         ( cpu_a[6:1]           ),
-    .rnw          ( cpu_wrn              ),
-    .dsn          ( cpu_dsn              ),
-`else
-    .cs           ( 1'b0                 ),
-    .addr         ( 6'd0                 ),
-    .rnw          ( 1'b1                 ),
-    .dsn          ( 2'b11                ),
-`endif
+    .cs           ( mmr_cs               ),
+    .addr         ( mmr_addr             ),
+    .rnw          ( mmr_rnw              ),
+    .dsn          ( mmr_dsn              ),
 
     .scr1_scroll_x( scr1_scroll_x        ),
     .scr1_scroll_y( scr1_scroll_y        ),

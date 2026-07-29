@@ -59,6 +59,8 @@ module jtpinpon_main(
     output signed [10:0] snd
 );
 
+`ifndef NOMAIN
+
 reg  [ 7:0] cabinet, cpu_din;
 wire [15:0] A;
 wire        rd_n, wr_n, int_n, nmi_n, m1_n, iorq_n;
@@ -212,5 +214,15 @@ jtframe_z80_romwait  u_cpu(
     .rom_cs     ( rom_cs      ),
     .rom_ok     ( rom_ok      )
 );
+
+`else
+assign cpu_cen  = 1'b0;
+assign rom_addr = 15'd0;
+assign cpu_rnw  = 1'b1;
+assign cpu_dout = 8'd0;
+assign flip     = 1'b0;
+assign snd      = 11'sd0;
+initial begin rom_cs=0; vram_cs=0; oram_cs=0; end
+`endif
 
 endmodule

@@ -40,7 +40,6 @@ wire        prio_latch;
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
 assign debug_view = st_video;
 
-`ifndef NOMAIN
 jtcontra_main #(.GAME(2)) u_main(
     .clk            ( clk24         ),        // 24 MHz
     .rst            ( rst24         ),
@@ -82,10 +81,6 @@ jtcontra_main #(.GAME(2)) u_main(
     .dipsw_b        ( dipsw_b       ),
     .dipsw_c        ( dipsw_c       )
 );
-`else
-assign snd_latch = 8'h22;
-assign snd_irq=0;
-`endif
 
 `ifndef NOVIDEO
 jtmx5k_video u_video (

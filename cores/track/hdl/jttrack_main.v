@@ -69,6 +69,8 @@ module jttrack_main(
     output     [ 7:0]   ioctl_din
 );
 
+`ifndef NOMAIN
+
 reg  [ 7:0] cabinet, cpu_din;
 wire [ 7:0] ram_dout;
 wire [15:0] A;
@@ -205,4 +207,12 @@ jtframe_sys6809_dma #(.RAM_AW(11),.KONAMI(1)) u_cpu(
     .dma_we     ( nvram_we      )
 );
 
+`else
+assign cpu_cen   = 1'b0;
+assign rom_addr  = 16'd0;
+assign cpu_rnw   = 1'b1;
+assign cpu_dout  = 8'd0;
+assign ioctl_din = 8'd0;
+initial begin rom_cs=0; vram_cs=0; objram_cs=0; snd_data_cs=0; snd_irq=0; flip=0; end
+`endif
 endmodule

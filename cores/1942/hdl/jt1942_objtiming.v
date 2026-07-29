@@ -123,4 +123,4 @@ always @(*) begin
 end
 */
 
-endmodule // jt1942_obj
+endmodule

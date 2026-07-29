@@ -51,7 +51,6 @@ assign cpu_cen    = turbo_l ? cen6 : cen3;
 
 always @(posedge clk) if( mcu_cen && cpu_cen ) turbo_l <= turbo;
 
-`ifndef NOMAIN
 /* verilator tracing_on */
 // CPU and sub CPU from slower clock in order to
 // prevent timing error in 6809 CC bit Z
@@ -106,23 +105,6 @@ jtdd_main u_main(
     .dipsw_a        ( dipsw[ 7:0]   ),
     .dipsw_b        ( dipsw[15:8]   )
 );
-`else
-assign main_cs   = 1'b0;
-assign main_addr = 18'd0;
-assign cram_cs   = 1'b0;
-assign vram_cs   = 1'b0;
-assign oram_cs   = 1'b0;
-assign pal_cs    = 1'b0;
-assign mcu_cs    = 1'b0;
-assign flip      = 1'b0;
-assign cpu_AB    = 13'd0;
-assign cpu_wrn   = 1'b1;
-assign scrhpos   = 9'h0;
-assign scrvpos   = 9'h0;
-assign snd_latch = 8'd0;
-assign snd_irq   = 1'b0;
-assign mcu_rstb  = 1'b0;
-`endif
 
 /* verilator tracing_on */
 jtdd_mcu u_mcu(

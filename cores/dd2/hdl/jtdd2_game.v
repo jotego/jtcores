@@ -51,7 +51,6 @@ assign cram_we    = {2{cram_cs & ~cpu_wrn}} & { ~main_addr[0], main_addr[0]};
 assign char_dout  = main_addr[0] ? char16_dout[7:0] : char16_dout[15:8];
 assign cpu_cen    = turbo ? cen6 : cen3;
 
-`ifndef NOMAIN
 jtdd_main u_main(
     .clk            ( clk24         ),  // slower clock to ease synthesis
     .rst            ( rst24         ),
@@ -103,23 +102,6 @@ jtdd_main u_main(
     .dipsw_a        ( dipsw[ 7:0]   ),
     .dipsw_b        ( dipsw[15:8]   )
 );
-`else
-assign main_cs   = 1'b0;
-assign main_addr = 18'd0;
-assign cram_cs   = 1'b0;
-assign vram_cs   = 1'b0;
-assign oram_cs   = 1'b0;
-assign pal_cs    = 1'b0;
-assign mcu_cs    = 1'b0;
-assign flip      = 1'b0;
-assign cpu_AB    = 13'd0;
-assign cpu_wrn   = 1'b1;
-assign scrhpos   = 9'h0;
-assign scrvpos   = 9'h0;
-assign mcu_rstb  = 1'b0;
-assign snd_latch = 8'd0;
-assign snd_irq   = 1'b0;
-`endif
 
 wire mcu_cen = turbo ? cen8 : cen4;
 

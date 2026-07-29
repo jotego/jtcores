@@ -55,7 +55,6 @@ always @(posedge clk) begin
     if( header && prog_we && prog_addr[1:0]==0 ) decode <= prog_data[0];
 end
 
-`ifndef NOMAIN
 jtsbaskt_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -100,16 +99,6 @@ jtsbaskt_main u_main(
     .dipsw_a        ( dipsw_a       ),
     .dipsw_b        ( dipsw_b       )
 );
-`else
-    assign main_cs = 0;
-    assign objram_cs = 0;
-    assign snd     = 0;
-    assign sample  = 0;
-    assign game_led= 0;
-    assign pal_sel = 0;
-    assign flip    = 0;
-    assign pcm_addr= 0;
-`endif
 
 jtsbaskt_snd u_sound(
     .rst        ( rst       ),

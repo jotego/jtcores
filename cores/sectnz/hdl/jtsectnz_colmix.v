@@ -154,4 +154,4 @@ jtframe_blank #(.DLY(8),.DW(12)) u_dly(
 );
 
 
-endmodule // jtgng_colmix
+endmodule

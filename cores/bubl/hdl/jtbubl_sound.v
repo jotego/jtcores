@@ -42,6 +42,8 @@ module jtbubl_sound(
     input         [ 7:0] debug_bus
 );
 
+`ifndef NOSOUND
+
 wire        [15:0] A;
 wire               iorq_n, m1_n, wr_n, rd_n;
 wire        [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
@@ -202,5 +204,19 @@ jtopl u_opl(
     .snd        ( fm26       ),
     .sample     (            )
 );
+
+`else
+assign snd_flag = 1'b0;
+assign rom_addr = 15'd0;
+assign fm03     = 16'sd0;
+assign fm26     = 16'sd0;
+
+initial begin
+    main_latch = 8'd0;
+    main_stb   = 1'b0;
+    rom_cs     = 1'b0;
+    psg        = 10'd0;
+end
+`endif
 
 endmodule

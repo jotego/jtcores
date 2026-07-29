@@ -31,7 +31,6 @@ wire [ 7:0] pal_dout, cpu_dout, gfx_dout, st_video;
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
 assign debug_view = st_video;
 
-`ifndef NOMAIN
 jtflane_main u_main(
     .clk            ( clk24         ),        // 24 MHz
     .rst            ( rst24         ),
@@ -91,9 +90,6 @@ jtflane_main u_main(
     .pcm0           ( pcm0          ),
     .pcm1           ( pcm1          )
 );
-`else
-assign main_cs = 0;
-`endif
 
 `ifndef NOVIDEO
 jtlabrun_video #(.GAME(1))
