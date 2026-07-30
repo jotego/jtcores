@@ -43,7 +43,7 @@ reg  [ 1:0] vsize;
 reg  [15:0] y;
 reg  [ 8:0] ydiff, vlatch;
 reg         inzone, hs_l, done, busy_l, skip;
-wire        busy_g, valid_y;
+wire        busy_g;
 reg  [ 6:0] ydf;
 reg  [ 2:0] st;
 reg  [ 7:0] objcnt;
@@ -51,7 +51,6 @@ reg         in_hwindow=0;
 
 assign scan_addr = {objcnt,st[1:0]};
 assign busy_g    = busy_l | dr_busy;
-assign valid_y   = y<16'h180 || y>=16'hff00;
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
@@ -114,7 +113,7 @@ always @(posedge clk, posedge rst) begin
                     y[PW-1:0] <=  scan_dout[PW-1:0] + {{PW-9{1'b0}},9'h1f-9'h20};
                 end
                 3: begin
-                    skip <= ~scan_dout[15] && valid_y;
+                    skip <= ~scan_dout[15];
                     if( scan_dout[14] ) begin
                         done <= 1;
                     end
