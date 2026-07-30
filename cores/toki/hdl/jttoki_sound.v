@@ -21,23 +21,23 @@ module jttoki_sound(
     input             clk,
 
     input             cabal,
-    input             cen_fm, cen_fm2, msm_cen, oki_cen,
+    input             fm_cen, fm2_cen, msm_cen, oki_cen,
 
-    input       [1:0] coin,
+    input       [1:0]  coin,
 
-    output signed [15:0] fm,
-    output signed [13:0] pcm0,
-    output signed [13:0] pcm1,
+    output reg signed [15:0] fm,
+    output reg signed [13:0] pcm0,
+    output reg signed [13:0] pcm1,
 
     input       [7:0] rom_data,
     input             rom_ok,
     output     [12:0] rom_addr,
-    output            rom_cs,
+    output reg        rom_cs,
 
-    input       [7:0] bank_rom_data,
-    input             bank_rom_ok,
-    output reg [15:0] bank_rom_addr,
-    output            bank_rom_cs,
+    input       [7:0] bank_data,
+    input             bank_ok,
+    output     [15:0] bank_addr,
+    output reg        bank_cs,
 
     // OKI 6295 ADPCM
     input       [7:0] pcm_data,
@@ -57,336 +57,264 @@ module jttoki_sound(
     output            adpcm2_cs,
 
     input             m68k_sound_wr_2,
-    input             m68k_sound_wr_4,
+    input             main_irq_trig,
     input             m68k_sound_wr_6,
 
     input      [15:0] m68k_sound_latch_0,
     input      [15:0] m68k_sound_latch_1,
 
-    output reg   [15:0] z80_sound_latch_0,
-    output reg   [15:0] z80_sound_latch_1,
-    output reg   [15:0] z80_sound_latch_2
+    output reg [15:0] cpu_sound_latch_0,
+    output reg [15:0] cpu_sound_latch_1,
+    output reg [15:0] cpu_sound_latch_2
 );
 
-wire [15:0] z80_addr, sei80bu_addr;
-wire [ 7:0] ym3812_dout, z80_dout;
-wire        rom_sel, bank_rom_sel, z80_ram_sel, ym_sel_0, ym_sel_1,
-            m68k_latch0_sel, m68k_latch1_sel, pending_set_sel,
-            main_data_pending_sel, read_coin_sel, bank_switch_sel, sound_latch0_sel,
-            sound_latch1_sel, oki_sel, adpcm0_addr_sel, adpcm1_addr_sel,
-            adpcm0_ctl_sel, adpcm1_ctl_sel, irq_clear_sel, rst10_ack_sel,
-            rst18_ack_sel;
-wire        z80_ram_cs, ym_cs_0, ym_cs_1, pending_set_cs, irq_clear_cs,
-            rst10_ack_cs, rst18_ack_cs;
-wire        z80_rd_n, z80_wr_n, z80_mem_acc, z80_mem_wr,
-            ym_rd, ym_wr, oki_rd, oki_wr;
-wire        z80_wait_cs, z80_wait_ok;
+`ifndef NOSOUND
 
-assign z80_mem_acc           = ~z80_mreq_n & z80_rfsh_n;
-assign z80_mem_wr            = z80_mem_acc & ~z80_wr_n;
-assign rom_sel               = z80_addr[15:0] < 16'h2000;
-assign z80_ram_sel           = z80_addr[15:0] >= 16'h2000 && z80_addr[15:0] < 16'h2800;
-assign pending_set_sel       = !cabal && z80_addr[15:0] == 16'h4000;
-assign irq_clear_sel         = z80_addr[15:0] == 16'h4001;
-assign rst10_ack_sel         = z80_addr[15:0] == 16'h4002;
-assign rst18_ack_sel         = z80_addr[15:0] == 16'h4003;
-assign main_data_pending_sel = z80_addr[15:0] == 16'h4012;
-assign bank_switch_sel       = !cabal && z80_addr[15:0] == 16'h4007;
-assign ym_sel_0              = z80_addr[15:0] == 16'h4008;
-assign ym_sel_1              = z80_addr[15:0] == 16'h4009;
-assign m68k_latch0_sel       = z80_addr[15:0] == 16'h4010;
-assign m68k_latch1_sel       = z80_addr[15:0] == 16'h4011;
-assign read_coin_sel         = z80_addr[15:0] == 16'h4013;
-assign sound_latch0_sel      = z80_addr[15:0] == 16'h4018;
-assign sound_latch1_sel      = z80_addr[15:0] == 16'h4019;
-assign oki_sel               = !cabal && z80_addr[15:0] == 16'h6000;
-assign adpcm0_addr_sel       =  cabal && (z80_addr[15:0] == 16'h4005 || z80_addr[15:0] == 16'h4006);
-assign adpcm1_addr_sel       =  cabal && (z80_addr[15:0] == 16'h6005 || z80_addr[15:0] == 16'h6006);
-assign adpcm0_ctl_sel        =  cabal && z80_addr[15:0] == 16'h401a;
-assign adpcm1_ctl_sel        =  cabal && z80_addr[15:0] == 16'h601a;
-assign bank_rom_sel          = z80_addr[15:0] >= 16'h8000;
-assign ym_rd                 = (ym_sel_0 | (cabal & ym_sel_1)) & ~z80_rd_n;
-assign oki_rd                = oki_sel  & ~z80_rd_n;
+wire        [17:0] adpcm_rom_addr;
+wire        [15:0] cpu_addr, sei80bu_addr;
+wire signed [15:0] opl_snd, jt51_l, jt51_r, cabal_fm_snd;
+wire signed [13:0] oki_snd;
+wire        [ 7:0] cpu_dout, ram_dout, dec_data, im0_opcode,
+                    ym3812_dout, oki_dout, jt51_dout;
+wire signed [11:0] cabal_adpcm0_snd, cabal_adpcm1_snd;
+wire               dec_ok,
+                   pending_set_wr, irq_clear_wr, fm_eoi_wr,
+                   main_eoi_wr, cpu_rd_n, cpu_wr_n, mem_acc, mem_wr,
+                   ym_rd, ym_wr, oki_rd, oki_wr, wait_cs,
+                   cpu_m1_n, cpu_mreq_n, cpu_rfsh_n, m1, rst_n, irq_n, cpu_iorq_n,
+                   ym3812_irq_n, jt51_irq_n, irq_ack, oki_wrn,
+                   fm_irq_n, main_eoi, ym_cs_n,
+                   opl_wr_n, jt51_wr_n, adpcm_addr_hi,
+                   adpcm0_addr_we, adpcm1_addr_we, adpcm0_ctl_we,
+                   adpcm1_ctl_we;
+reg         [ 7:0] din;
+reg                ram_cs, ym0_cs, ym1_cs, wait_ok,
+                   m68k_latch0_cs, m68k_latch1_cs, pending_set_cs,
+                   main2sub_cs, read_coin_cs, bank_switch_cs,
+                   sound_latch0_cs, sound_latch1_cs, oki_cs,
+                   adpcm0_addr_cs, adpcm1_addr_cs, adpcm0_ctl_cs,
+                   adpcm1_ctl_cs, irq_clear_cs, fm_eoi_cs, main_eoi_cs,
+                   bank_selected, sub2main_pending;
 
-assign rom_cs                = z80_rfsh_n & rom_sel;
-assign z80_ram_cs            = z80_rfsh_n & z80_ram_sel;
-assign bank_rom_cs           = z80_rfsh_n & bank_rom_sel;
-assign pending_set_cs        = z80_mem_wr  & pending_set_sel;
-assign irq_clear_cs          = z80_mem_wr  & irq_clear_sel;
-assign rst10_ack_cs          = z80_mem_wr  & rst10_ack_sel;
-assign rst18_ack_cs          = z80_mem_wr  & rst18_ack_sel;
-assign ym_cs_0               = z80_rfsh_n & ym_sel_0;
-assign ym_cs_1               = z80_rfsh_n & ym_sel_1;
-assign ym_wr                 = z80_mem_wr & (ym_sel_0 | ym_sel_1);
-assign oki_wr                = z80_mem_wr & oki_sel;
-assign z80_wait_cs           = z80_mem_acc & (rom_sel | bank_rom_sel);
-assign z80_wait_ok           = rom_sel ? rom_ok : bank_rom_ok;
-assign sei80bu_addr          = {3'd0, rom_addr};
-assign rom_addr              = z80_addr[12:0];
+assign mem_acc           = ~cpu_mreq_n & cpu_rfsh_n;
+assign mem_wr            = mem_acc & ~cpu_wr_n;
 
-wire [7:0] dec_data;
-wire       dec_ok;
+assign pending_set_wr  = mem_wr & pending_set_cs;
+assign irq_clear_wr    = mem_wr & irq_clear_cs;
+assign fm_eoi_wr       = mem_wr & fm_eoi_cs;
+assign main_eoi_wr     = mem_wr & main_eoi_cs;
+assign ym_rd           = (ym0_cs | (cabal & ym1_cs)) & ~cpu_rd_n;
+assign ym_wr           = mem_wr & (ym0_cs | ym1_cs);
+assign oki_rd          = oki_cs & ~cpu_rd_n;
+assign oki_wr          = mem_wr & oki_cs;
+assign wait_cs         = mem_acc & (rom_cs | bank_cs);
+assign irq_ack         = ~cpu_iorq_n & ~cpu_m1_n;
+assign main_eoi        = irq_clear_wr | main_eoi_wr;
 
-wire       z80_m1_n;   //m1 low => opcode
-wire       z80_mreq_n;
-wire       z80_rfsh_n;
-wire       z80_m1, z80_rst_n, z80_int_n;
+assign m1              = ~cpu_m1_n;
+assign rst_n           = ~rst;
+assign sei80bu_addr    = {3'd0, rom_addr};
+assign rom_addr        = cpu_addr[12:0];
+assign bank_addr   = bank_selected ? cpu_addr : cpu_addr - 16'h8000;
+assign oki_wrn         = ~oki_wr;
+assign ym_cs_n         = ~(ym0_cs | ym1_cs);
+assign opl_wr_n        = ~(ym_wr & !cabal);
+assign jt51_wr_n       = ~(ym_wr & cabal);
+assign fm_irq_n        = cabal ? jt51_irq_n : ym3812_irq_n;
+assign adpcm_addr_hi   = ~cpu_addr[0];
+assign adpcm0_addr_we  = mem_wr & adpcm0_addr_cs;
+assign adpcm1_addr_we  = mem_wr & adpcm1_addr_cs;
+assign adpcm0_ctl_we   = mem_wr & adpcm0_ctl_cs;
+assign adpcm1_ctl_we   = mem_wr & adpcm1_ctl_cs;
 
-assign z80_m1    = ~z80_m1_n;
-assign z80_rst_n = ~rst;
-assign z80_int_n = ~(irq_rst10 | irq_rst18);
+// PCM ROM address bits 13 and 15 are swapped, possibly as simple encryption.
+assign pcm_addr = {adpcm_rom_addr[16], adpcm_rom_addr[13], adpcm_rom_addr[14],
+                   adpcm_rom_addr[15], adpcm_rom_addr[12:0]};
 
-sei80bu u_sei80bu(
-    .clk      ( clk             ),
-    .rom_addr ( sei80bu_addr    ),
-    .rom_data ( rom_data        ),
-    .rom_ok   ( rom_ok          ),
-    .rom_cs   ( rom_cs          ),
-    .z80_m1   ( z80_m1          ),
-    .dec_data ( dec_data        ),
-    .dec_ok   ( dec_ok          )
-);
+assign cabal_fm_snd = (jt51_l >>> 1) + (jt51_r >>> 1);
 
-reg bank_selected = 1'b0; // switch to data bank
+always @(posedge clk) begin
+    if( rst ) begin
+        wait_ok <= 0;
+    end else begin
+        wait_ok <= (rom_cs & dec_ok) | (bank_cs & bank_ok);
+    end
+end
+
+always @(posedge clk) begin
+    fm   <= cabal ? cabal_fm_snd : opl_snd;
+    pcm0 <= cabal ? {cabal_adpcm0_snd[11], cabal_adpcm0_snd, 1'b0} : oki_snd;
+    pcm1 <= cabal ? {cabal_adpcm1_snd[11], cabal_adpcm1_snd, 1'b0} : 14'sd0;
+end
+
+always @* begin
+    rom_cs          = mem_acc && cpu_addr < 16'h2000;
+    ram_cs          = mem_acc && cpu_addr >= 16'h2000 && cpu_addr < 16'h2800;
+    pending_set_cs  = !cabal && cpu_addr == 16'h4000;
+    irq_clear_cs    = cpu_addr == 16'h4001;
+    fm_eoi_cs       = cpu_addr == 16'h4002;
+    main_eoi_cs     = cpu_addr == 16'h4003;
+    bank_switch_cs  = !cabal && cpu_addr == 16'h4007;
+    ym0_cs          = mem_acc && cpu_addr == 16'h4008;
+    ym1_cs          = mem_acc && cpu_addr == 16'h4009;
+    m68k_latch0_cs  = cpu_addr == 16'h4010;
+    m68k_latch1_cs  = cpu_addr == 16'h4011;
+    main2sub_cs     = cpu_addr == 16'h4012;
+    read_coin_cs    = cpu_addr == 16'h4013;
+    sound_latch0_cs = cpu_addr == 16'h4018;
+    sound_latch1_cs = cpu_addr == 16'h4019;
+    adpcm0_ctl_cs   = cabal && cpu_addr == 16'h401a;
+    adpcm0_addr_cs  = cabal && (cpu_addr == 16'h4005 || cpu_addr == 16'h4006);
+    oki_cs          = !cabal && cpu_addr == 16'h6000;
+    adpcm1_ctl_cs   = cabal && cpu_addr == 16'h601a;
+    adpcm1_addr_cs  = cabal && (cpu_addr == 16'h6005 || cpu_addr == 16'h6006);
+    bank_cs         = mem_acc && cpu_addr >= 16'h8000;
+end
 
 always @(posedge clk) begin
     if (rst)
         bank_selected <= 1'b0;
-    else if (z80_mem_wr & bank_switch_sel)
-        bank_selected <= z80_dout[0];
+    else if (mem_wr & bank_switch_cs)
+        bank_selected <= cpu_dout[0];
 end
-
-always @(*) begin
-    if (!bank_selected)
-        bank_rom_addr = z80_addr[15:0] - 16'h8000;
-    else
-        bank_rom_addr = z80_addr[15:0];
-end
-
-reg  [7:0] z80_din;
-wire z80_iorq_n;
-wire ym3812_irq_n;
-wire [7:0] z80_ram_dout;
-
-jtframe_sysz80 #(.RAM_AW(11)) u_z80(
-    .rst_n    ( z80_rst_n    ),
-    .clk      ( clk          ),
-    .cen      ( cen_fm       ),
-    .cpu_cen  (              ),
-    .int_n    ( z80_int_n    ),
-    .nmi_n    ( 1'b1         ),
-    .busrq_n  ( 1'b1         ),
-    .m1_n     ( z80_m1_n     ),
-    .mreq_n   ( z80_mreq_n   ),
-    .iorq_n   ( z80_iorq_n   ),
-    .rd_n     ( z80_rd_n     ),
-    .wr_n     ( z80_wr_n     ),
-    .rfsh_n   ( z80_rfsh_n   ),
-    .halt_n   (              ),
-    .busak_n  (              ),
-    .A        ( z80_addr     ),
-    .cpu_din  ( z80_din      ),
-    .cpu_dout ( z80_dout     ),
-    .ram_dout ( z80_ram_dout ),
-    .ram_cs   ( z80_ram_cs   ),
-    .rom_cs   ( z80_wait_cs  ),
-    .rom_ok   ( z80_wait_ok  )
-);
-
-reg oki6295_irq_n;
-reg sub2main_pending;
 
 always @(posedge clk) begin //XXX speed must be same than 68k din ?
     if (rst) begin
-        z80_sound_latch_0 <= 16'b0;
-        z80_sound_latch_1 <= 16'b0;
-        z80_sound_latch_2 <= 16'b0;
+        cpu_sound_latch_0 <= 16'b0;
+        cpu_sound_latch_1 <= 16'b0;
+        cpu_sound_latch_2 <= 16'b0;
         sub2main_pending  <= 1'b0;
-        oki6295_irq_n     <= 1'b1;
     end else begin
         // send z80 data to 68k cpu
-        if (z80_mem_wr & sound_latch0_sel)
-            z80_sound_latch_0 <= {8'b0, z80_dout[7:0]};
-        if (z80_mem_wr & sound_latch1_sel)
-            z80_sound_latch_1 <= {8'b0, z80_dout[7:0]};
+        if (mem_wr & sound_latch0_cs)
+            cpu_sound_latch_0 <= {8'b0, cpu_dout};
+        if (mem_wr & sound_latch1_cs)
+            cpu_sound_latch_1 <= {8'b0, cpu_dout};
 
         // data from z80 is pending read from 68k
-        if (pending_set_cs) begin
-            z80_sound_latch_2 <= 16'b0;
-            sub2main_pending <= 1'b1;
+        if (pending_set_wr) begin
+            cpu_sound_latch_2 <= 16'b0;
+            sub2main_pending  <= 1'b1;
         end else if (m68k_sound_wr_6 == 1'b1 || m68k_sound_wr_2 == 1'b1) begin
-            z80_sound_latch_2 <= 16'b1;
-            sub2main_pending <= 1'b0;
+            cpu_sound_latch_2 <= 16'b1;
+            sub2main_pending  <= 1'b0;
         end
-
-        // main cpu assert irq for oki6295
-        if (m68k_sound_wr_4 == 1'b1)
-            oki6295_irq_n <= 1'b0;
-        else
-            oki6295_irq_n <= 1'b1;
     end
 end
-
-////// Z80 databus input   ///////////////////////
-//
-//  IRQ use z80 interrupt mode 0 :
-//  After interrupt is asserted, the cpu signal it's
-//  ready by putting iorq and m1 high
-//  it then read on the databus
-//  this data is directly executed by the cpu as an opcode
-//
-//  - ym3821 assert irq and put 0xd7 (rst10) on the bus
-//  - 68k main cpu assert irq and put 0xdf (rst18) on the bus
-//
-//  both interrupt are needed to handle sound and coin input
-//
-reg irq_rst10;
-reg irq_rst18;
-reg stop_irq_10;
-reg stop_irq_18;
-wire irq_ack;
-assign irq_ack = ~z80_iorq_n & ~z80_m1_n;
 
 always @(posedge clk) begin
     if (rst) begin
-        z80_din     <= 8'hff;
-        irq_rst10   <= 1'b0;
-        irq_rst18   <= 1'b0;
-        stop_irq_10 <= 1'b0;
-        stop_irq_18 <= 1'b0;
+        din <= 8'hff;
     end else begin
-        if (rst10_ack_cs) begin
-            irq_rst10   <= 1'b0;
-            stop_irq_10 <= 1'b0;
-        end else if (irq_clear_cs | rst18_ack_cs) begin
-            irq_rst18   <= 1'b0;
-            stop_irq_18 <= 1'b0;
-        end else if (~irq_ack & stop_irq_10) begin
-            irq_rst10   <= 1'b0;
-            stop_irq_10 <= 1'b0;
-        end else if (~irq_ack & stop_irq_18) begin
-            irq_rst18   <= 1'b0;
-            stop_irq_18 <= 1'b0;
-        end else if ((cabal ? jt51_irq_n : ym3812_irq_n) == 1'b0)
-            irq_rst10 <= 1'b1;
-        else if (oki6295_irq_n == 1'b0)
-            irq_rst18 <= 1'b1;
-
-        if (irq_ack & irq_rst18)
-            stop_irq_18 <= 1'b1;
-        else if (irq_ack & irq_rst10)
-            stop_irq_10 <= 1'b1;
-
-        z80_din <= irq_ack & irq_rst18                      ? 8'hdf :
-                   irq_ack & irq_rst10                      ? 8'hd7 :
-                   main_data_pending_sel &  sub2main_pending ? 8'b1  :
-                   main_data_pending_sel & ~sub2main_pending ? 8'b0  :
-                   ym_rd                                    ? (cabal ? jt51_dout : ym3812_dout) :
-                   oki_rd                                   ? oki_dout :
-                   bank_rom_sel                             ? bank_rom_data :
-                   m68k_latch0_sel                          ? m68k_sound_latch_0[7:0] :
-                   m68k_latch1_sel                          ? m68k_sound_latch_1[7:0] :
-                   read_coin_sel                            ? {6'b0, ~coin[1], ~coin[0]} :
-                   z80_ram_sel                              ? z80_ram_dout :
-                   rom_sel                                  ? dec_data : 8'hff;
+        din <= irq_ack                             ? im0_opcode :
+                   main2sub_cs &  sub2main_pending ? 8'b1  :
+                   main2sub_cs & ~sub2main_pending ? 8'b0  :
+                   ym_rd                           ? (cabal ? jt51_dout : ym3812_dout) :
+                   oki_rd                          ? oki_dout :
+                   bank_cs                         ? bank_data :
+                   m68k_latch0_cs                  ? m68k_sound_latch_0[7:0] :
+                   m68k_latch1_cs                  ? m68k_sound_latch_1[7:0] :
+                   read_coin_cs                    ? {6'b0, ~coin[1], ~coin[0]} :
+                   ram_cs                          ? ram_dout :
+                   rom_cs                          ? dec_data : 8'hff;
     end
 end
-
-wire [7:0] oki_dout;
-wire       oki_sample;
-wire signed [13:0] oki_snd;
-wire [17:0] adpcm_rom_addr;
-wire        oki_wrn;
-
-assign oki_wrn    = ~oki_wr;
-
-// pcm rom byte 13 and 15 are swapped, that could be a simple encryption
-assign pcm_addr = { adpcm_rom_addr[16], adpcm_rom_addr[13], adpcm_rom_addr[14] ,adpcm_rom_addr[15] , adpcm_rom_addr[12:0]};
 
 always @(posedge clk) begin
     pcm_cs <= ~cabal;
 end
 
-jt6295 #(.INTERPOL(1))  u_adpcm(
+jttoki_irq u_irq(
+    .rst           ( rst           ),
+    .clk           ( clk           ),
+    .fm_irq_n      ( fm_irq_n      ),
+    .main_irq_trig ( main_irq_trig ),
+    .cpu_irq_ack   ( irq_ack       ),
+    .fm_eoi        ( fm_eoi_wr     ),
+    .main_eoi      ( main_eoi      ),
+    .cpu_irq_n     ( irq_n         ),
+    .im0_opcode    ( im0_opcode    )
+);
+
+sei80bu u_sei80bu(
+    .clk      ( clk          ),
+    .rom_addr ( sei80bu_addr ),
+    .rom_data ( rom_data     ),
+    .rom_ok   ( rom_ok       ),
+    .rom_cs   ( rom_cs       ),
+    .z80_m1   ( m1           ),
+    .dec_data ( dec_data     ),
+    .dec_ok   ( dec_ok       )
+);
+
+jt6295 #(.INTERPOL(1)) u_adpcm(
     .rst      ( rst            ),
     .clk      ( clk            ),
     .cen      ( oki_cen        ),
-    .ss       ( 1'b1           ), // pin7 high, select low sample rate
+    .ss       ( 1'b1           ), // pin 7 high: low sample rate
     .wrn      ( oki_wrn        ),
-    .din      ( z80_dout       ),
+    .din      ( cpu_dout        ),
     .dout     ( oki_dout       ),
     .rom_addr ( adpcm_rom_addr ),
     .rom_data ( pcm_data       ),
     .rom_ok   ( pcm_ok         ),
-    .sound    ( oki_snd[13:0]  ),
-    .sample   ( oki_sample     )
+    .sound    ( oki_snd        ),
+    .sample   (                )
 );
 
-////////// Cabal ADPCM //////////////////////////////
-
-wire signed [11:0] cabal_adpcm0_snd, cabal_adpcm1_snd;
-
 jttoki_cabal_adpcm u_cabal_adpcm0(
-    .rst      ( rst                          ),
-    .clk      ( clk                          ),
-    .cen      ( msm_cen                      ),
-    .cpu_dout ( z80_dout                     ),
-    .addr_we  ( z80_mem_wr & adpcm0_addr_sel ),
-    .addr_hi  ( ~z80_addr[0]                 ),
-    .ctl_we   ( z80_mem_wr & adpcm0_ctl_sel  ),
-    .rom_addr ( adpcm1_addr                  ),
-    .rom_cs   ( adpcm1_cs                    ),
-    .rom_data ( adpcm1_data                  ),
-    .rom_ok   ( adpcm1_ok                    ),
-    .snd      ( cabal_adpcm0_snd             )
+    .rst      ( rst                  ),
+    .clk      ( clk                  ),
+    .cen      ( msm_cen              ),
+    .cpu_dout ( cpu_dout             ),
+    .addr_we  ( adpcm0_addr_we       ),
+    .addr_hi  ( adpcm_addr_hi        ),
+    .ctl_we   ( adpcm0_ctl_we        ),
+    .rom_addr ( adpcm1_addr          ),
+    .rom_cs   ( adpcm1_cs            ),
+    .rom_data ( adpcm1_data          ),
+    .rom_ok   ( adpcm1_ok            ),
+    .snd      ( cabal_adpcm0_snd     )
 );
 
 jttoki_cabal_adpcm u_cabal_adpcm1(
-    .rst      ( rst                          ),
-    .clk      ( clk                          ),
-    .cen      ( msm_cen                      ),
-    .cpu_dout ( z80_dout                     ),
-    .addr_we  ( z80_mem_wr & adpcm1_addr_sel ),
-    .addr_hi  ( ~z80_addr[0]                 ),
-    .ctl_we   ( z80_mem_wr & adpcm1_ctl_sel  ),
-    .rom_addr ( adpcm2_addr                  ),
-    .rom_cs   ( adpcm2_cs                    ),
-    .rom_data ( adpcm2_data                  ),
-    .rom_ok   ( adpcm2_ok                    ),
-    .snd      ( cabal_adpcm1_snd             )
+    .rst      ( rst                  ),
+    .clk      ( clk                  ),
+    .cen      ( msm_cen              ),
+    .cpu_dout ( cpu_dout             ),
+    .addr_we  ( adpcm1_addr_we       ),
+    .addr_hi  ( adpcm_addr_hi        ),
+    .ctl_we   ( adpcm1_ctl_we        ),
+    .rom_addr ( adpcm2_addr          ),
+    .rom_cs   ( adpcm2_cs            ),
+    .rom_data ( adpcm2_data          ),
+    .rom_ok   ( adpcm2_ok            ),
+    .snd      ( cabal_adpcm1_snd     )
 );
 
-wire signed [15:0] opl_snd;
-wire        ym_cs_n, ym_wr_n, opl_sample;
-wire [ 7:0] jt51_dout;
-wire        jt51_irq_n;
-wire signed [15:0] jt51_l, jt51_r, cabal_fm_snd;
-
-assign ym_cs_n = ~(ym_cs_0 | ym_cs_1);
-assign ym_wr_n = ~(ym_wr & !cabal);
 jtopl2 u_opl2(
     .rst    ( rst           ),
     .clk    ( clk           ),
-    .cen    ( cen_fm        ),
-    .din    ( z80_dout      ),
-    .addr   ( ym_cs_1       ), // cmd addr
+    .cen    ( fm_cen        ),
+    .din    ( cpu_dout      ),
+    .addr   ( cpu_addr[0]   ), // cmd addr
     .cs_n   ( ym_cs_n       ),
-    .wr_n   ( ym_wr_n       ),
+    .wr_n   ( opl_wr_n      ),
     .dout   ( ym3812_dout   ),
     .irq_n  ( ym3812_irq_n  ),
-    .snd    ( opl_snd[15:0] ),
-    .sample ( opl_sample    )
+    .snd    ( opl_snd       ),
+    .sample (               )
 );
 
 jt51 u_jt51(
     .rst    ( rst                  ),
     .clk    ( clk                  ),
-    .cen    ( cen_fm               ),
-    .cen_p1 ( cen_fm2              ),
-    .cs_n   ( ~(ym_cs_0 | ym_cs_1) ),
-    .wr_n   ( ~(ym_wr & cabal)     ),
-    .a0     ( ym_sel_1             ),
-    .din    ( z80_dout             ),
+    .cen    ( fm_cen               ),
+    .cen_p1 ( fm2_cen              ),
+    .cs_n   ( ym_cs_n              ),
+    .wr_n   ( jt51_wr_n            ),
+    .a0     ( cpu_addr[0]          ),
+    .din    ( cpu_dout             ),
     .dout   ( jt51_dout            ),
     .ct1    (                      ),
     .ct2    (                      ),
@@ -398,10 +326,53 @@ jt51 u_jt51(
     .xright ( jt51_r               )
 );
 
-assign cabal_fm_snd = (jt51_l >>> 1) + (jt51_r >>> 1);
+jtframe_sysz80 #(.RAM_AW(11)) u_z80(
+    .rst_n    ( rst_n        ),
+    .clk      ( clk          ),
+    .cen      ( fm_cen       ),
+    .cpu_cen  (              ),
+    .int_n    ( irq_n        ),
+    .nmi_n    ( 1'b1         ),
+    .busrq_n  ( 1'b1         ),
+    .m1_n     ( cpu_m1_n     ),
+    .mreq_n   ( cpu_mreq_n   ),
+    .iorq_n   ( cpu_iorq_n   ),
+    .rd_n     ( cpu_rd_n     ),
+    .wr_n     ( cpu_wr_n     ),
+    .rfsh_n   ( cpu_rfsh_n   ),
+    .halt_n   (              ),
+    .busak_n  (              ),
+    .A        ( cpu_addr     ),
+    .cpu_din  ( din          ),
+    .cpu_dout ( cpu_dout     ),
+    .ram_dout ( ram_dout     ),
+    .ram_cs   ( ram_cs       ),
+    .rom_cs   ( wait_cs      ),
+    .rom_ok   ( wait_ok      )
+);
 
-assign fm   = cabal ? cabal_fm_snd : opl_snd;
-assign pcm0 = cabal ? {cabal_adpcm0_snd[11],cabal_adpcm0_snd, 1'd0} : oki_snd;
-assign pcm1 = cabal ? {cabal_adpcm1_snd[11],cabal_adpcm1_snd, 1'd0} : 14'sd0;
+`else
+
+assign rom_addr          = 13'd0;
+assign rom_cs            = 1'b0;
+assign bank_addr     = 16'd0;
+assign bank_cs       = 1'b0;
+assign pcm_addr          = 17'd0;
+assign adpcm1_addr       = 16'd0;
+assign adpcm1_cs         = 1'b0;
+assign adpcm2_addr       = 16'd0;
+assign adpcm2_cs         = 1'b0;
+
+initial begin
+    pcm_cs            = 1'b0;
+    fm                = 16'sd0;
+    pcm0              = 14'sd0;
+    pcm1              = 14'sd0;
+    cpu_sound_latch_0 = 16'd0;
+    cpu_sound_latch_1 = 16'd0;
+    cpu_sound_latch_2 = 16'd0;
+end
+
+`endif
 
 endmodule

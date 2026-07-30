@@ -60,6 +60,8 @@ module jtlabrun_main(
     output        [ 9:0] psg0, psg1
 );
 
+`ifndef NOMAIN
+
 localparam RAM_AW = 11;
 
 wire [ 7:0] ram_dout, prot_dout, ym0_dout, ym1_dout;
@@ -242,5 +244,16 @@ jt03 u_fm1(
     .snd        (            ),
     .debug_view (            )
 );
+
+`else
+assign cpu_cen  = 1'b0;
+assign cpu_rnw  = 1'b1;
+assign cpu_dout = 8'd0;
+assign fm0      = 16'sd0;
+assign fm1      = 16'sd0;
+assign psg0     = 10'd0;
+assign psg1     = 10'd0;
+initial begin rom_addr=0; rom_cs=0; gfx_addr=0; gfx_cs=0; pal_cs=0; end
+`endif
 
 endmodule

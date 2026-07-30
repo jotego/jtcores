@@ -82,4 +82,4 @@ always @(posedge clk) begin
 end
 
 
-endmodule // jtgng_objdraw
+endmodule

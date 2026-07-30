@@ -1,0 +1,15 @@
+// Custom uPD78C11 boot firmware for the jttc0030cmd boot unit test.
+// ORIGINAL code (not derived from any game's C-chip mask ROM). It sets the
+// ASIC "ready" flag, then echoes shared-RAM byte 0 into byte 1 forever, so the
+// test can prove a host<->MCU round trip through the shared RAM. $readmemh
+// ignores the // comments; each token below is one program byte.
+//
+//   addr  bytes       mnemonic          effect
+69 01     //  0000  MVI  A,#$01
+34 01 14  //  0002  LXI  H,#$1401     ; ASIC reg 1 address
+3B        //  0005  STAX H            ; asic[1] = $01  (boot ready)
+34 00 10  //  0006  LXI  H,#$1000     ; shared-RAM byte 0
+2B        //  0009  LDAX H            ; A = [byte0]    (host command)
+34 01 10  //  000A  LXI  H,#$1001     ; shared-RAM byte 1
+3B        //  000D  STAX H            ; [byte1] = A    (echo back)
+54 06 00  //  000E  JMP  $0006        ; loop

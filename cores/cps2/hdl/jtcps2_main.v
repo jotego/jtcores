@@ -91,6 +91,8 @@ module jtcps2_main(
     output reg  [ 7:0] st_dout
 );
 
+`ifndef NOMAIN
+
 localparam [1:0] BUT6   = 2'b00,
                  PUZZL2 = 2'b01,
                  ECOFGT = 2'b10;
@@ -113,7 +115,7 @@ reg         io_cs, eeprom_cs,
             sys_cs, paddle_en;
 reg         pre_ram_cs, pre_vram_cs, pre_oram_cs,
             reg_ram_cs, reg_vram_cs, reg_oram_cs;
-reg         dsn_dly, one_wait;
+reg         dsn_dly, one_wait, ram_ok_dly;
 wire [11:0] spin1p, spin2p;
 wire        dir1p,  dir2p;
 
@@ -322,6 +324,7 @@ end
 reg  [15:0] cpu_din;
 
 always @(posedge clk) begin
+    ram_ok_dly <= ram_ok;
     if(rst) begin
         cpu_din <= 16'hffff;
     end else begin
@@ -340,7 +343,7 @@ end
 wire       inta_n;
 wire       bus_cs =   |{ rom_cs, pre_ram_cs, pre_vram_cs, pre_oram_cs, main2qs_cs };
 wire       bus_busy = |{ rom_cs & ~(rom_ok&rom_ok2),
-                    (pre_ram_cs|pre_vram_cs|pre_oram_cs) & ~ram_ok,
+                    (pre_ram_cs|pre_vram_cs|pre_oram_cs) & ~ram_ok_dly,
                     main2qs_cs & ~main2qs_waitn };
 
 wire       DTACKn;
@@ -465,5 +468,38 @@ jtframe_m68k u_cpu(
     .DTACKn     ( DTACKn      ),
     .IPLn       ( { int2, int1, 1'b1 } ) // Raster, VBLANK
 );
+
+`else
+
+assign cpu_cen  = 1'b0;
+assign ppu_rstn = 1'b1;
+assign UDSWn    = 1'b1;
+assign LDSWn    = 1'b1;
+assign busack   = 1'b1;
+assign RnW      = 1'b1;
+assign addr     = 17'd0;
+assign cpu_dout = 16'd0;
+assign ram_cs   = 1'b0;
+assign vram_cs  = 1'b0;
+assign oram_cs  = 1'b0;
+
+initial begin
+    ppu1_cs      = 1'b0;
+    ppu2_cs      = 1'b0;
+    objcfg_cs    = 1'b0;
+    obank        = 1'b0;
+    oram_base    = 16'd0;
+    rom_cs       = 1'b0;
+    rom_addr     = 21'd0;
+    eeprom_sclk  = 1'b0;
+    eeprom_sdi   = 1'b0;
+    eeprom_scs   = 1'b0;
+    z80_rstn     = 1'b1;
+    main2qs_addr = 23'd0;
+    main2qs_cs   = 1'b0;
+    st_dout      = 8'd0;
+end
+
+`endif
 
 endmodule

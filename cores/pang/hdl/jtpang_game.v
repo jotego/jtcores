@@ -149,7 +149,6 @@ jtpang_main u_main(
     .rom_ok      ( main_ok      )
 );
 
-`ifndef NOSOUND
 jtpang_snd u_snd(
     .rst        ( rst24         ),
     .clk        ( clk24         ),
@@ -170,13 +169,6 @@ jtpang_snd u_snd(
     .fm         ( fm            ),
     .pcm        ( pcm           )
 );
-`else
-    assign pcm_addr = 0;
-    assign sample   = 0;
-    assign game_led = 0;
-    assign snd      = 0;
-    assign pcm_dout = 0;
-`endif
 
 jtpang_video u_video(
     .rst        ( rst           ),

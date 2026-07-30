@@ -9462,6 +9462,240 @@
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
 	</machine>
+	<machine name="agress" sourcefile="technos/blockout.cpp">
+		<description>Agress - Missile Daisenryaku (Japan)</description>
+		<year>1991</year>
+		<manufacturer>Palco</manufacturer>
+		<rom name="palco1.81" size="131072" crc="3acc917a" sha1="14960588673458d862daf14a8d7474af6c95c2ad" region="maincpu" offset="0"/>
+		<rom name="palco2.91" size="131072" crc="abfd5bcc" sha1="bf0ea8ba00750ea2ddf2b8afc96393bf8a730068" region="maincpu" offset="1"/>
+		<rom name="palco3.73" size="32768" crc="2a21c97d" sha1="7f71bf18db3e6ff9c69c589268450e66c6585cdd" region="audiocpu" offset="0"/>
+		<rom name="palco4.78" size="131072" crc="9dfd9cfe" sha1="5ea8f98bc0cd117cde81c04f02aa33199afe8231" region="oki" offset="0"/>
+		<rom name="82s129pr.25" size="256" crc="b25bbda7" sha1="840f1470886bd0019db3cd29e3d1d80205a65f48" region="proms" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="10" vbstart="250" />
+		<sound channels="1"/>
+		<input players="2" coins="3">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Opening Cut" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="4" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Normal" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Very Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="1" value="0"/>
+			<dipvalue name="2" value="4" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="agressb" sourcefile="technos/blockout.cpp" cloneof="agress" romof="agress">
+		<description>Agress - Missile Daisenryaku (English bootleg)</description>
+		<year>2003</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="palco1.ic81" size="131072" crc="a1875175" sha1="6c9946bcd4fe7987d4f817ea25bfc76432188883" region="maincpu" offset="0"/>
+		<rom name="palco2.ic91" size="131072" crc="ab3182c3" sha1="788a3e7cf6ef889262f3d72af8be9ec951eb397b" region="maincpu" offset="1"/>
+		<rom name="palco3.ic73" merge="palco3.73" size="32768" crc="2a21c97d" sha1="7f71bf18db3e6ff9c69c589268450e66c6585cdd" region="audiocpu" offset="0"/>
+		<rom name="palco4.ic78" merge="palco4.78" size="131072" crc="9dfd9cfe" sha1="5ea8f98bc0cd117cde81c04f02aa33199afe8231" region="oki" offset="0"/>
+		<rom name="prom29-mb7114h.ic25" merge="82s129pr.25" size="256" crc="b25bbda7" sha1="840f1470886bd0019db3cd29e3d1d80205a65f48" region="proms" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="10" vbstart="250" />
+		<sound channels="1"/>
+		<input players="2" coins="3">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Opening Cut" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="4" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Normal" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Very Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="1" value="0"/>
+			<dipvalue name="2" value="4" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="ajax" sourcefile="konami/ajax.cpp">
 		<description>Ajax</description>
 		<year>1987</year>
@@ -27317,6 +27551,444 @@
 		<port tag=":IN2">
 		</port>
 		<port tag=":SYS0">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="blockout" sourcefile="technos/blockout.cpp">
+		<description>Block Out (set 1)</description>
+		<year>1989</year>
+		<manufacturer>Technos Japan / California Dreams</manufacturer>
+		<rom name="bo29a0-2.bin" size="131072" crc="b0103427" sha1="53cac2adc04783abbde21e9f3c0e655f22f68f69" region="maincpu" offset="0"/>
+		<rom name="bo29a1-2.bin" size="131072" crc="5984d5a2" sha1="4b350856d0313d40eaa3d8a8d9e310f74bc20398" region="maincpu" offset="1"/>
+		<rom name="bo29e3-0.bin" size="32768" crc="3ea01f78" sha1="5fc4ad4d9f03d7c26d2afc3e7ede75589e40b0d8" region="audiocpu" offset="0"/>
+		<rom name="bo29e2-0.bin" size="131072" crc="15c5a99d" sha1="89091eda454a028fd1f17501584bd589baf6d523" region="oki" offset="0"/>
+		<rom name="mb7114h.25" size="256" crc="b25bbda7" sha1="840f1470886bd0019db3cd29e3d1d80205a65f48" region="proms" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="10" vbstart="250" />
+		<sound channels="1"/>
+		<input players="2" coins="3">
+			<control type="joy" player="1" buttons="4" ways="8"/>
+			<control type="joy" player="2" buttons="4" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="1 Coin to Continue" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Normal" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Very Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Rotate Buttons" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="4" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="blockout2" sourcefile="technos/blockout.cpp" cloneof="blockout" romof="blockout">
+		<description>Block Out (set 2)</description>
+		<year>1989</year>
+		<manufacturer>Technos Japan / California Dreams</manufacturer>
+		<rom name="29a0" size="131072" crc="605f931e" sha1="65fa7227dafde1fc8564e09fa949fe575b394d8a" region="maincpu" offset="0"/>
+		<rom name="29a1" size="131072" crc="38f07000" sha1="e4070e3067d77cc1b0d8d0c63786f2729c5c703a" region="maincpu" offset="1"/>
+		<rom name="bo29e3-0.bin" merge="bo29e3-0.bin" size="32768" crc="3ea01f78" sha1="5fc4ad4d9f03d7c26d2afc3e7ede75589e40b0d8" region="audiocpu" offset="0"/>
+		<rom name="bo29e2-0.bin" merge="bo29e2-0.bin" size="131072" crc="15c5a99d" sha1="89091eda454a028fd1f17501584bd589baf6d523" region="oki" offset="0"/>
+		<rom name="mb7114h.25" merge="mb7114h.25" size="256" crc="b25bbda7" sha1="840f1470886bd0019db3cd29e3d1d80205a65f48" region="proms" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="10" vbstart="250" />
+		<sound channels="1"/>
+		<input players="2" coins="3">
+			<control type="joy" player="1" buttons="4" ways="8"/>
+			<control type="joy" player="2" buttons="4" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="1 Coin to Continue" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Normal" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Very Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Rotate Buttons" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="4" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="blockout3" sourcefile="technos/blockout.cpp" cloneof="blockout" romof="blockout">
+		<description>Block Out (Europe and Oceania)</description>
+		<year>1989</year>
+		<manufacturer>Technos Japan / California Dreams</manufacturer>
+		<rom name="blockout-1-27c010-ic81.bin" size="131072" crc="36fc13a0" sha1="d7a7b5fb0c7c0ae2e61b94e313c3a972babc78c9" region="maincpu" offset="0"/>
+		<rom name="blockout-2-27c010-ic91.bin" size="131072" crc="48916a07" sha1="e3d9907cb5333f41ed4811112aefe1424b0b3d32" region="maincpu" offset="1"/>
+		<rom name="blockout-3-27256-ic73.bin" merge="bo29e3-0.bin" size="32768" crc="3ea01f78" sha1="5fc4ad4d9f03d7c26d2afc3e7ede75589e40b0d8" region="audiocpu" offset="0"/>
+		<rom name="blockout-4-27c010-ic78.bin" merge="bo29e2-0.bin" size="131072" crc="15c5a99d" sha1="89091eda454a028fd1f17501584bd589baf6d523" region="oki" offset="0"/>
+		<rom name="blockout-82s129-ic25.bin" merge="mb7114h.25" size="256" crc="b25bbda7" sha1="840f1470886bd0019db3cd29e3d1d80205a65f48" region="proms" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="10" vbstart="250" />
+		<sound channels="1"/>
+		<input players="2" coins="3">
+			<control type="joy" player="1" buttons="4" ways="8"/>
+			<control type="joy" player="2" buttons="4" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="1 Coin to Continue" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Normal" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Very Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Rotate Buttons" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="4" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="blockoutj" sourcefile="technos/blockout.cpp" cloneof="blockout" romof="blockout">
+		<description>Block Out (Japan)</description>
+		<year>1989</year>
+		<manufacturer>Technos Japan / California Dreams</manufacturer>
+		<rom name="2.bin" size="131072" crc="e16cf065" sha1="541b30b054cf08f10d6ca4746423759f4326c005" region="maincpu" offset="0"/>
+		<rom name="1.bin" size="131072" crc="950b28a3" sha1="7d1635ac2a3fc1efdd2f78cd6038bd7b4c907b1b" region="maincpu" offset="1"/>
+		<rom name="bo29e3-0.bin" merge="bo29e3-0.bin" size="32768" crc="3ea01f78" sha1="5fc4ad4d9f03d7c26d2afc3e7ede75589e40b0d8" region="audiocpu" offset="0"/>
+		<rom name="bo29e2-0.bin" merge="bo29e2-0.bin" size="131072" crc="15c5a99d" sha1="89091eda454a028fd1f17501584bd589baf6d523" region="oki" offset="0"/>
+		<rom name="mb7114h.25" merge="mb7114h.25" size="256" crc="b25bbda7" sha1="840f1470886bd0019db3cd29e3d1d80205a65f48" region="proms" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="timer"/>
+		<device_ref name="z80"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="10" vbstart="250" />
+		<sound channels="1"/>
+		<input players="2" coins="3">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="1 Coin to Continue" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Normal" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Very Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
@@ -127248,6 +127920,959 @@
 		<driver status="imperfect" emulation="good" savestate="supported"/>
 		<feature type="sound" status="imperfect"/>
 	</machine>
+	<machine name="opwolf" sourcefile="taito/opwolf.cpp">
+		<description>Operation Wolf (World, rev 2, set 1)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation Japan</manufacturer>
+		<rom name="b20-05-02.40" size="65536" crc="3ffbfe3a" sha1="e41257e6af18bab4e36267a0c25a6aaa742972d2" region="maincpu" offset="0"/>
+		<rom name="b20-03-02.30" size="65536" crc="fdabd8a5" sha1="866ec6168489024b8d157f2d5b1553d7f6e3d9b7" region="maincpu" offset="1"/>
+		<rom name="b20-04.39" size="65536" crc="216b4838" sha1="2851cae00bb3e32e20f35fdab8ed6f149e658363" region="maincpu" offset="20000"/>
+		<rom name="b20-20.29" size="65536" crc="d244431a" sha1="cb6c1d330a526f05c205f68247328161b8d4a1ba" region="maincpu" offset="20001"/>
+		<rom name="b20-07.10" size="65536" crc="45c7ace3" sha1="06f7393f6b973b7735c27e8380cb4148650cfc16" region="audiocpu" offset="0"/>
+		<rom name="b20-18.73" size="8192" crc="5987b4e9" sha1="d4b3d1c35a6eac86c86bd4ea49f1f157a2c05b2a" region="cchip:cchip_eprom" offset="0"/>
+		<rom name="b20-13.13" size="524288" crc="f6acdab1" sha1="716b94ab3fa330ecf22df576f6a9f47a49c7554a" region="pc080sn" offset="0"/>
+		<rom name="b20-14.72" size="524288" crc="89f889e5" sha1="1592f6ce4fbb75e33d6ab957e5b90242a7a7a8c4" region="pc090oj" offset="0"/>
+		<rom name="b20-08.21" size="524288" crc="f3e19c64" sha1="39d48645f776c9c2ade537d959ecc6f9dc6dfa1b" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="cchip"/>
+		<device_ref name="upd78c11"/>
+		<device_ref name="timer"/>
+		<device_ref name="pc060ha"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="tc0060dca"/>
+		<device_ref name="tc0060dca"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="cpu" tag="cchip:upd7811" name="NEC uPD78C11" clock="12000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm0" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="msm1" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="tc0060dca0" name="Taito TC0060DCA volume control"/>
+		<chip type="audio" tag="tc0060dca1" name="Taito TC0060DCA volume control"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="1" coins="2" tilt="yes">
+			<control type="lightgun" buttons="2" minimum="0" maximum="255" sensitivity="25" keydelta="15"/>
+		</input>
+		<dipswitch name="Unused" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="No" value="2" default="yes"/>
+			<dipvalue name="Yes" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="4 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Ammo Magazines at Start" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="4" value="0"/>
+			<dipvalue name="5" value="4"/>
+			<dipvalue name="6" value="12" default="yes"/>
+			<dipvalue name="7" value="8"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Discount When Continuing" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="No" value="64"/>
+			<dipvalue name="Yes" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Language" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Japanese" value="128"/>
+			<dipvalue name="English" value="0" default="yes"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":P1X">
+			<analog mask="255"/>
+		</port>
+		<port tag=":P1Y">
+			<analog mask="255"/>
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
+	<machine name="opwolfa" sourcefile="taito/opwolf.cpp" cloneof="opwolf" romof="opwolf">
+		<description>Operation Wolf (World, rev 2, set 2)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation Japan</manufacturer>
+		<rom name="b20-05-02.40" merge="b20-05-02.40" size="65536" crc="3ffbfe3a" sha1="e41257e6af18bab4e36267a0c25a6aaa742972d2" region="maincpu" offset="0"/>
+		<rom name="b20-03-02.30" merge="b20-03-02.30" size="65536" crc="fdabd8a5" sha1="866ec6168489024b8d157f2d5b1553d7f6e3d9b7" region="maincpu" offset="1"/>
+		<rom name="b20-04.39" merge="b20-04.39" size="65536" crc="216b4838" sha1="2851cae00bb3e32e20f35fdab8ed6f149e658363" region="maincpu" offset="20000"/>
+		<rom name="b20-17.29" size="65536" crc="6043188e" sha1="3a6f4836b1c19d37713f5714a947276baf1df50c" region="maincpu" offset="20001"/>
+		<rom name="b20-07.10" merge="b20-07.10" size="65536" crc="45c7ace3" sha1="06f7393f6b973b7735c27e8380cb4148650cfc16" region="audiocpu" offset="0"/>
+		<rom name="b20-18.73" merge="b20-18.73" size="8192" crc="5987b4e9" sha1="d4b3d1c35a6eac86c86bd4ea49f1f157a2c05b2a" region="cchip:cchip_eprom" offset="0"/>
+		<rom name="b20-13.13" merge="b20-13.13" size="524288" crc="f6acdab1" sha1="716b94ab3fa330ecf22df576f6a9f47a49c7554a" region="pc080sn" offset="0"/>
+		<rom name="b20-14.72" merge="b20-14.72" size="524288" crc="89f889e5" sha1="1592f6ce4fbb75e33d6ab957e5b90242a7a7a8c4" region="pc090oj" offset="0"/>
+		<rom name="b20-08.21" merge="b20-08.21" size="524288" crc="f3e19c64" sha1="39d48645f776c9c2ade537d959ecc6f9dc6dfa1b" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="cchip"/>
+		<device_ref name="upd78c11"/>
+		<device_ref name="timer"/>
+		<device_ref name="pc060ha"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="tc0060dca"/>
+		<device_ref name="tc0060dca"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="cpu" tag="cchip:upd7811" name="NEC uPD78C11" clock="12000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm0" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="msm1" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="tc0060dca0" name="Taito TC0060DCA volume control"/>
+		<chip type="audio" tag="tc0060dca1" name="Taito TC0060DCA volume control"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="1" coins="2" tilt="yes">
+			<control type="lightgun" buttons="2" minimum="0" maximum="255" sensitivity="25" keydelta="15"/>
+		</input>
+		<dipswitch name="Unused" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="No" value="2" default="yes"/>
+			<dipvalue name="Yes" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="4 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Ammo Magazines at Start" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="4" value="0"/>
+			<dipvalue name="5" value="4"/>
+			<dipvalue name="6" value="12" default="yes"/>
+			<dipvalue name="7" value="8"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Discount When Continuing" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="No" value="64"/>
+			<dipvalue name="Yes" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Language" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Japanese" value="128"/>
+			<dipvalue name="English" value="0" default="yes"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":P1X">
+			<analog mask="255"/>
+		</port>
+		<port tag=":P1Y">
+			<analog mask="255"/>
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
+	<machine name="opwolfb" sourcefile="taito/opwolf.cpp" cloneof="opwolf" romof="opwolf">
+		<description>Operation Bear (bootleg of Operation Wolf)</description>
+		<year>1987</year>
+		<manufacturer>bootleg (Bear Corporation Korea)</manufacturer>
+		<rom name="opwlfb.12" size="65536" crc="d87e4405" sha1="de8a7763acd57293fbbff609e949ecd66c0f9234" region="maincpu" offset="0"/>
+		<rom name="opwlfb.10" size="65536" crc="9ab6f75c" sha1="85310258ca005ffb031e8d6b3f43c3d1fc29ef14" region="maincpu" offset="1"/>
+		<rom name="opwlfb.13" size="65536" crc="61230c6e" sha1="942764aec0c55ba00df8dbb54e127b73e24192ae" region="maincpu" offset="20000"/>
+		<rom name="opwlfb.11" size="65536" crc="342e318d" sha1="a52918d16884ca42b2a3b910bc71bfd81b45f1ab" region="maincpu" offset="20001"/>
+		<rom name="opwlfb.30" size="32768" crc="0669b94c" sha1="f10894a6fad8ed144a528db696436b58f62ddee4" region="audiocpu" offset="0"/>
+		<rom name="opwlfb.09" size="32768" crc="ab27a3dd" sha1="cf589e7a9ccf3e86020b86f917fb91f3d8ba7512" region="sub" offset="0"/>
+		<rom name="opwlfb.08" size="65536" crc="134d294e" sha1="bd05169dbd761c2944f0ac51c1ec114577777452" region="pc080sn" offset="0"/>
+		<rom name="opwlfb.06" size="65536" crc="317d0e66" sha1="70298c0ef5243f481b18f904be9404527d1d99d5" region="pc080sn" offset="20000"/>
+		<rom name="opwlfb.07" size="65536" crc="e1c4095e" sha1="d5f1d26d6612e78001002f92de670e68e00c6f9e" region="pc080sn" offset="40000"/>
+		<rom name="opwlfb.05" size="65536" crc="fd9e72c8" sha1="7a76f57641c3f0198565cd163188b581253173b2" region="pc080sn" offset="60000"/>
+		<rom name="opwlfb.04" size="65536" crc="de0ca98d" sha1="066e89ec0c64da14bdcd2b337f95c0de5de33c11" region="pc080sn" offset="1"/>
+		<rom name="opwlfb.02" size="65536" crc="6231fdd0" sha1="1c830c106cf3c94a8d06ed2fff030a5d516ab6d6" region="pc080sn" offset="20001"/>
+		<rom name="opwlfb.03" size="65536" crc="ccf8ba80" sha1="8366f5ef0de885e5241567d1a083d98a8a2875d9" region="pc080sn" offset="40001"/>
+		<rom name="opwlfb.01" size="65536" crc="0a65f256" sha1="4dfcd3cb138a87d002eb65a02f94e33f4d07676d" region="pc080sn" offset="60001"/>
+		<rom name="opwlfb.14" size="65536" crc="663786eb" sha1="a25710f6c16158e51d0934f184390a01ff0a614a" region="pc090oj" offset="0"/>
+		<rom name="opwlfb.15" size="65536" crc="315b8aa9" sha1="4a904e5532421d933e4c401c03c958eb32b15e03" region="pc090oj" offset="20000"/>
+		<rom name="opwlfb.16" size="65536" crc="e01099e3" sha1="4c5391d71978f72c57c140e58a767e138acdce12" region="pc090oj" offset="40000"/>
+		<rom name="opwlfb.17" size="65536" crc="56fbe61d" sha1="0e4dce8ee981bdd851e500fa9dca5d40908e142f" region="pc090oj" offset="60000"/>
+		<rom name="opwlfb.18" size="65536" crc="de9ab08e" sha1="ef674c965f35efaf747f1ddbf9e9164fcceb0c1c" region="pc090oj" offset="1"/>
+		<rom name="opwlfb.19" size="65536" crc="645cf85e" sha1="91c244c2e238b61c8b2f39e5fa01cc23ebbfe2ce" region="pc090oj" offset="20001"/>
+		<rom name="opwlfb.20" size="65536" crc="d80b9cc6" sha1="b189f35eb206da1ab313620e251e6bb10edeee04" region="pc090oj" offset="40001"/>
+		<rom name="opwlfb.21" size="65536" crc="97d25157" sha1="cfb3f76ed860d90235dc0e32919a5ec3d3e683dd" region="pc090oj" offset="60001"/>
+		<rom name="opwlfb.29" size="65536" crc="05a9eac0" sha1="26eb1acc65aeb759920b35bcbcac6d6c2789584c" region="adpcm" offset="0"/>
+		<rom name="opwlfb.28" size="65536" crc="281b2175" sha1="3789e58da682041226f70eba87b31876cb206906" region="adpcm" offset="20000"/>
+		<rom name="opwlfb.27" size="65536" crc="441211a6" sha1="82e84ae90765df5f7f6b6f32a2bb52ac40132f8d" region="adpcm" offset="40000"/>
+		<rom name="opwlfb.26" size="65536" crc="86d1d42d" sha1="9d63e9e35fa51d8e6eac30556ba5a4dca7c14418" region="adpcm" offset="60000"/>
+		<rom name="opwlfb.25" size="65536" crc="85b87f58" sha1="f26cf4ab8f9d30d1b1ac84be328ca821524b234e" region="adpcm" offset="1"/>
+		<rom name="opwlfb.24" size="65536" crc="8efc5d4d" sha1="21068d7fcfe293d99ad9f999d84483bf1a49ec6d" region="adpcm" offset="20001"/>
+		<rom name="opwlfb.23" size="65536" crc="a874c703" sha1="c9d6074265f5d5028c69c81eaba29fa178943341" region="adpcm" offset="40001"/>
+		<rom name="opwlfb.22" size="65536" crc="9228481f" sha1="8160f919f5e6a347c915a2bd7488b488fe2401bc" region="adpcm" offset="60001"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="pc060ha"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="tc0060dca"/>
+		<device_ref name="tc0060dca"/>
+		<device_ref name="z80"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="cpu" tag="sub" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm0" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="msm1" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="tc0060dca0" name="Taito TC0060DCA volume control"/>
+		<chip type="audio" tag="tc0060dca1" name="Taito TC0060DCA volume control"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="1" coins="2" tilt="yes">
+			<control type="lightgun" buttons="2" minimum="0" maximum="255" sensitivity="25" keydelta="15"/>
+		</input>
+		<dipswitch name="Unused" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="No" value="2" default="yes"/>
+			<dipvalue name="Yes" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="4 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Ammo Magazines at Start" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="4" value="0"/>
+			<dipvalue name="5" value="4"/>
+			<dipvalue name="6" value="12" default="yes"/>
+			<dipvalue name="7" value="8"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Discount When Continuing" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="No" value="64"/>
+			<dipvalue name="Yes" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="128">
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":P1X">
+			<analog mask="255"/>
+		</port>
+		<port tag=":P1Y">
+			<analog mask="255"/>
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
+	<machine name="opwolfj" sourcefile="taito/opwolf.cpp" cloneof="opwolf" romof="opwolf">
+		<description>Operation Wolf (Japan, rev 2)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="b20-05-02.40" merge="b20-05-02.40" size="65536" crc="3ffbfe3a" sha1="e41257e6af18bab4e36267a0c25a6aaa742972d2" region="maincpu" offset="0"/>
+		<rom name="b20-03-02.30" merge="b20-03-02.30" size="65536" crc="fdabd8a5" sha1="866ec6168489024b8d157f2d5b1553d7f6e3d9b7" region="maincpu" offset="1"/>
+		<rom name="b20-04.39" merge="b20-04.39" size="65536" crc="216b4838" sha1="2851cae00bb3e32e20f35fdab8ed6f149e658363" region="maincpu" offset="20000"/>
+		<rom name="b20-18.29" size="65536" crc="fd202470" sha1="3108c14953d2f50d861946e9f646813b7050b58a" region="maincpu" offset="20001"/>
+		<rom name="b20-07.10" merge="b20-07.10" size="65536" crc="45c7ace3" sha1="06f7393f6b973b7735c27e8380cb4148650cfc16" region="audiocpu" offset="0"/>
+		<rom name="b20-18.73" merge="b20-18.73" size="8192" crc="5987b4e9" sha1="d4b3d1c35a6eac86c86bd4ea49f1f157a2c05b2a" region="cchip:cchip_eprom" offset="0"/>
+		<rom name="b20-13.13" merge="b20-13.13" size="524288" crc="f6acdab1" sha1="716b94ab3fa330ecf22df576f6a9f47a49c7554a" region="pc080sn" offset="0"/>
+		<rom name="b20-14.72" merge="b20-14.72" size="524288" crc="89f889e5" sha1="1592f6ce4fbb75e33d6ab957e5b90242a7a7a8c4" region="pc090oj" offset="0"/>
+		<rom name="b20-08.21" merge="b20-08.21" size="524288" crc="f3e19c64" sha1="39d48645f776c9c2ade537d959ecc6f9dc6dfa1b" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="cchip"/>
+		<device_ref name="upd78c11"/>
+		<device_ref name="timer"/>
+		<device_ref name="pc060ha"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="tc0060dca"/>
+		<device_ref name="tc0060dca"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="cpu" tag="cchip:upd7811" name="NEC uPD78C11" clock="12000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm0" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="msm1" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="tc0060dca0" name="Taito TC0060DCA volume control"/>
+		<chip type="audio" tag="tc0060dca1" name="Taito TC0060DCA volume control"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="1" coins="2" tilt="yes">
+			<control type="lightgun" buttons="2" minimum="0" maximum="255" sensitivity="25" keydelta="15"/>
+		</input>
+		<dipswitch name="Unused" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="No" value="2" default="yes"/>
+			<dipvalue name="Yes" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Ammo Magazines at Start" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="4" value="0"/>
+			<dipvalue name="5" value="4"/>
+			<dipvalue name="6" value="12" default="yes"/>
+			<dipvalue name="7" value="8"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Discount When Continuing" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="No" value="64"/>
+			<dipvalue name="Yes" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Language" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Japanese" value="128"/>
+			<dipvalue name="English" value="0" default="yes"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":P1X">
+			<analog mask="255"/>
+		</port>
+		<port tag=":P1Y">
+			<analog mask="255"/>
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
+	<machine name="opwolfjsc" sourcefile="taito/opwolf.cpp" cloneof="opwolf" romof="opwolf">
+		<description>Operation Wolf (Japan, SC)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="b20_27.ic40.27512" size="65536" crc="6bd02046" sha1="3d3047b7665635e890337f1f46351427e307bfe7" region="maincpu" offset="0"/>
+		<rom name="b20_26.ic30.27512" size="65536" crc="644dd415" sha1="0cdc1152cb16fb872387f8cab3d9ee4b6286b965" region="maincpu" offset="1"/>
+		<rom name="b20-04.39" merge="b20-04.39" size="65536" crc="216b4838" sha1="2851cae00bb3e32e20f35fdab8ed6f149e658363" region="maincpu" offset="20000"/>
+		<rom name="b20-18.29" size="65536" crc="fd202470" sha1="3108c14953d2f50d861946e9f646813b7050b58a" region="maincpu" offset="20001"/>
+		<rom name="b20-07.10" merge="b20-07.10" size="65536" crc="45c7ace3" sha1="06f7393f6b973b7735c27e8380cb4148650cfc16" region="audiocpu" offset="0"/>
+		<rom name="b20-18.73" merge="b20-18.73" size="8192" crc="5987b4e9" sha1="d4b3d1c35a6eac86c86bd4ea49f1f157a2c05b2a" region="cchip:cchip_eprom" offset="0"/>
+		<rom name="b20-13.13" merge="b20-13.13" size="524288" crc="f6acdab1" sha1="716b94ab3fa330ecf22df576f6a9f47a49c7554a" region="pc080sn" offset="0"/>
+		<rom name="b20-14.72" merge="b20-14.72" size="524288" crc="89f889e5" sha1="1592f6ce4fbb75e33d6ab957e5b90242a7a7a8c4" region="pc090oj" offset="0"/>
+		<rom name="b20-08.21" merge="b20-08.21" size="524288" crc="f3e19c64" sha1="39d48645f776c9c2ade537d959ecc6f9dc6dfa1b" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="cchip"/>
+		<device_ref name="upd78c11"/>
+		<device_ref name="timer"/>
+		<device_ref name="pc060ha"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="tc0060dca"/>
+		<device_ref name="tc0060dca"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="cpu" tag="cchip:upd7811" name="NEC uPD78C11" clock="12000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm0" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="msm1" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="tc0060dca0" name="Taito TC0060DCA volume control"/>
+		<chip type="audio" tag="tc0060dca1" name="Taito TC0060DCA volume control"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="1" coins="2" tilt="yes">
+			<control type="lightgun" buttons="2" minimum="0" maximum="255" sensitivity="25" keydelta="15"/>
+		</input>
+		<dipswitch name="Unused" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="No" value="2" default="yes"/>
+			<dipvalue name="Yes" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Ammo Magazines at Start" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="4" value="0"/>
+			<dipvalue name="5" value="4"/>
+			<dipvalue name="6" value="12" default="yes"/>
+			<dipvalue name="7" value="8"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Discount When Continuing" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="No" value="64"/>
+			<dipvalue name="Yes" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Language" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Japanese" value="128"/>
+			<dipvalue name="English" value="0" default="yes"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":P1X">
+			<analog mask="255"/>
+		</port>
+		<port tag=":P1Y">
+			<analog mask="255"/>
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
+	<machine name="opwolfp" sourcefile="taito/opwolf.cpp" cloneof="opwolf" romof="opwolf">
+		<description>Operation Wolf (Japan, prototype)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="ic40" size="65536" crc="81f56008" sha1="8ff02c088ef325a1920b29651672bad2d2d2a7a2" region="maincpu" offset="0"/>
+		<rom name="ic30" size="65536" crc="d90cebb2" sha1="c36070c20dfad0e1c56c4ac016a115e9e9601ecb" region="maincpu" offset="1"/>
+		<rom name="ic39" size="65536" crc="aeef5cfc" sha1="3c75d1df80db6ae2d690fdf23b3c44b21056d24a" region="maincpu" offset="20000"/>
+		<rom name="ic29" size="65536" crc="5ce89249" sha1="be22fd57e29114cde66cf4339c26740b3e0f830f" region="maincpu" offset="20001"/>
+		<rom name="ic10" size="65536" crc="684b40dd" sha1="0546e01cf2c76b9c60730a14835cdeaaec21d26f" region="audiocpu" offset="0"/>
+		<rom name="b20-13.13" merge="b20-13.13" size="524288" crc="f6acdab1" sha1="716b94ab3fa330ecf22df576f6a9f47a49c7554a" region="pc080sn" offset="0"/>
+		<rom name="b20-06.ic72" merge="b20-14.72" size="524288" crc="89f889e5" sha1="1592f6ce4fbb75e33d6ab957e5b90242a7a7a8c4" region="pc090oj" offset="0"/>
+		<rom name="b20-08.21" merge="b20-08.21" size="524288" crc="f3e19c64" sha1="39d48645f776c9c2ade537d959ecc6f9dc6dfa1b" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="pc060ha"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="tc0060dca"/>
+		<device_ref name="tc0060dca"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm0" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="msm1" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="tc0060dca0" name="Taito TC0060DCA volume control"/>
+		<chip type="audio" tag="tc0060dca1" name="Taito TC0060DCA volume control"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="1" coins="2" tilt="yes">
+			<control type="lightgun" buttons="2" minimum="0" maximum="255" sensitivity="25" keydelta="15"/>
+		</input>
+		<dipswitch name="Unused" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="No" value="2" default="yes"/>
+			<dipvalue name="Yes" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="4 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="16"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="128"/>
+			<dipvalue name="1 Coin/4 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Ammo Magazines at Start" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="4" value="0"/>
+			<dipvalue name="5" value="4"/>
+			<dipvalue name="6" value="12" default="yes"/>
+			<dipvalue name="7" value="8"/>
+		</dipswitch>
+		<dipswitch name="Display Hit Percentage (Cheat)" tag="DSWB" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="No" value="16" default="yes"/>
+			<dipvalue name="Yes" value="0"/>
+		</dipswitch>
+		<dipswitch name="Infinite Health (Cheat)" tag="DSWB" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="No" value="32" default="yes"/>
+			<dipvalue name="Yes" value="0"/>
+		</dipswitch>
+		<dipswitch name="Infinite Ammo (Cheat)" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="No" value="64" default="yes"/>
+			<dipvalue name="Yes" value="0"/>
+		</dipswitch>
+		<dipswitch name="Language" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Japanese" value="128" default="yes"/>
+			<dipvalue name="English (invalid)" value="0"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":P1X">
+			<analog mask="255"/>
+		</port>
+		<port tag=":P1Y">
+			<analog mask="255"/>
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
+	<machine name="opwolfu" sourcefile="taito/opwolf.cpp" cloneof="opwolf" romof="opwolf">
+		<description>Operation Wolf (US, rev 2)</description>
+		<year>1987</year>
+		<manufacturer>Taito America Corporation</manufacturer>
+		<rom name="b20-05-02.40" merge="b20-05-02.40" size="65536" crc="3ffbfe3a" sha1="e41257e6af18bab4e36267a0c25a6aaa742972d2" region="maincpu" offset="0"/>
+		<rom name="b20-03-02.30" merge="b20-03-02.30" size="65536" crc="fdabd8a5" sha1="866ec6168489024b8d157f2d5b1553d7f6e3d9b7" region="maincpu" offset="1"/>
+		<rom name="b20-04.39" merge="b20-04.39" size="65536" crc="216b4838" sha1="2851cae00bb3e32e20f35fdab8ed6f149e658363" region="maincpu" offset="20000"/>
+		<rom name="b20-19.29" size="65536" crc="b71bc44c" sha1="5b404bd7630f01517ab98bda40ca43c11268035a" region="maincpu" offset="20001"/>
+		<rom name="b20-07.10" merge="b20-07.10" size="65536" crc="45c7ace3" sha1="06f7393f6b973b7735c27e8380cb4148650cfc16" region="audiocpu" offset="0"/>
+		<rom name="b20-18.73" merge="b20-18.73" size="8192" crc="5987b4e9" sha1="d4b3d1c35a6eac86c86bd4ea49f1f157a2c05b2a" region="cchip:cchip_eprom" offset="0"/>
+		<rom name="b20-13.13" merge="b20-13.13" size="524288" crc="f6acdab1" sha1="716b94ab3fa330ecf22df576f6a9f47a49c7554a" region="pc080sn" offset="0"/>
+		<rom name="b20-14.72" merge="b20-14.72" size="524288" crc="89f889e5" sha1="1592f6ce4fbb75e33d6ab957e5b90242a7a7a8c4" region="pc090oj" offset="0"/>
+		<rom name="b20-08.21" merge="b20-08.21" size="524288" crc="f3e19c64" sha1="39d48645f776c9c2ade537d959ecc6f9dc6dfa1b" region="adpcm" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="cchip"/>
+		<device_ref name="upd78c11"/>
+		<device_ref name="timer"/>
+		<device_ref name="pc060ha"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="msm5205"/>
+		<device_ref name="tc0060dca"/>
+		<device_ref name="tc0060dca"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="cpu" tag="cchip:upd7811" name="NEC uPD78C11" clock="12000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="msm0" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="msm1" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<chip type="audio" tag="tc0060dca0" name="Taito TC0060DCA volume control"/>
+		<chip type="audio" tag="tc0060dca1" name="Taito TC0060DCA volume control"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="1" coins="2" tilt="yes">
+			<control type="lightgun" buttons="2" minimum="0" maximum="255" sensitivity="25" keydelta="15"/>
+		</input>
+		<dipswitch name="Unused" tag="DSWA" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWA" mask="2">
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="No" value="2" default="yes"/>
+			<dipvalue name="Yes" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Easy" value="2"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
+			<dipvalue name="Hard" value="1"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Ammo Magazines at Start" tag="DSWB" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="4" value="0"/>
+			<dipvalue name="5" value="4"/>
+			<dipvalue name="6" value="12" default="yes"/>
+			<dipvalue name="7" value="8"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Discount When Continuing" tag="DSWB" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="No" value="64"/>
+			<dipvalue name="Yes" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Language" tag="DSWB" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Japanese" value="128"/>
+			<dipvalue name="English" value="0" default="yes"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":P1X">
+			<analog mask="255"/>
+		</port>
+		<port tag=":P1Y">
+			<analog mask="255"/>
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
 	<machine name="outrun" sourcefile="sega/segaorun.cpp">
 		<description>Out Run (sitdown/upright, Rev B)</description>
 		<year>1986</year>
@@ -132980,6 +134605,414 @@
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
 	</machine>
+	<machine name="pcktgal" sourcefile="dataeast/pcktgal.cpp">
+		<description>Pocket Gal (Japan)</description>
+		<year>1987</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="eb04.j7" size="65536" crc="8215d60d" sha1="ac26dfce7e215be21f2a17f864c5e966b8b8322e" region="maincpu" offset="0"/>
+		<rom name="eb03.f2" size="65536" crc="cb029b02" sha1="fbb3da08ed05ae73fbeeb13e0e2ff735aaf83db8" region="audiocpu" offset="0"/>
+		<rom name="eb01.d11" size="65536" crc="63542c3d" sha1="4f42af99a6d9d4766afe0bebe10d6a97811a0082" region="chars" offset="0"/>
+		<rom name="eb02.d12" size="65536" crc="a9dcd339" sha1="245824ab86cdfe4b842ce1be0af60f2ff4c6ae07" region="chars" offset="10000"/>
+		<rom name="eb00.a1" size="65536" crc="6c1a14a8" sha1="03201197304c5f1d854b8c4f4a5c78336b51f872" region="sprites" offset="0"/>
+		<rom name="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" region="proms" offset="0"/>
+		<rom name="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" region="proms" offset="200"/>
+		<device_ref name="m6502"/>
+		<device_ref name="deco222"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco_bac06"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="msm5205"/>
+		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
+		<chip type="cpu" tag="audiocpu" name="DECO 222" clock="1500000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
+		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="0"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="1 Coin/3 Credits" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Time" tag="DSW" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="100" value="0"/>
+			<dipvalue name="120" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="pcktgal2" sourcefile="dataeast/pcktgal.cpp" cloneof="pcktgal" romof="pcktgal">
+		<description>Pocket Gal 2 (English)</description>
+		<year>1989</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="eb04-2.j7" size="65536" crc="0c7f2905" sha1="882dbc1888a0149486c1fac5568dc3d297c2dadd" region="maincpu" offset="0"/>
+		<rom name="eb03-2.f2" size="65536" crc="9408ffb4" sha1="ddcb67da4acf3d986d54ad10404f213528a8bb62" region="audiocpu" offset="0"/>
+		<rom name="eb01-2.rom" size="65536" crc="e52b1f97" sha1="4814fe3b2eb08ac173e09ffadc6e5daa9affa1a0" region="chars" offset="0"/>
+		<rom name="eb02-2.rom" size="65536" crc="f30d965d" sha1="a787457b33ad39e78fcf8da0715fab7a63869bf9" region="chars" offset="10000"/>
+		<rom name="eb00.a1" merge="eb00.a1" size="65536" crc="6c1a14a8" sha1="03201197304c5f1d854b8c4f4a5c78336b51f872" region="sprites" offset="0"/>
+		<rom name="eb05.k14" merge="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" region="proms" offset="0"/>
+		<rom name="eb06.k15" merge="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" region="proms" offset="200"/>
+		<device_ref name="m6502"/>
+		<device_ref name="m6502"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco_bac06"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="msm5205"/>
+		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
+		<chip type="cpu" tag="audiocpu" name="MOS Technology 6502" clock="1500000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
+		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="0"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="1 Coin/3 Credits" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Time" tag="DSW" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="100" value="0"/>
+			<dipvalue name="120" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="pcktgal2j" sourcefile="dataeast/pcktgal.cpp" cloneof="pcktgal" romof="pcktgal">
+		<description>Pocket Gal 2 (Japanese)</description>
+		<year>1989</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="eb04-2.j7" size="65536" crc="0c7f2905" sha1="882dbc1888a0149486c1fac5568dc3d297c2dadd" region="maincpu" offset="0"/>
+		<rom name="eb03-2.f2" size="65536" crc="9408ffb4" sha1="ddcb67da4acf3d986d54ad10404f213528a8bb62" region="audiocpu" offset="0"/>
+		<rom name="eb01-2.d11" size="65536" crc="8f42ab1a" sha1="315fb26bbe004c08629a0a3a6e9d129768119e6b" region="chars" offset="0"/>
+		<rom name="eb02-2.d12" size="65536" crc="f394cb35" sha1="f351b8b6fd8a6637ef9031f7a410a334da8ea5ae" region="chars" offset="10000"/>
+		<rom name="eb00.a1" merge="eb00.a1" size="65536" crc="6c1a14a8" sha1="03201197304c5f1d854b8c4f4a5c78336b51f872" region="sprites" offset="0"/>
+		<rom name="eb05.k14" merge="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" region="proms" offset="0"/>
+		<rom name="eb06.k15" merge="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" region="proms" offset="200"/>
+		<device_ref name="m6502"/>
+		<device_ref name="m6502"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco_bac06"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="msm5205"/>
+		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
+		<chip type="cpu" tag="audiocpu" name="MOS Technology 6502" clock="1500000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
+		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="0"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="1 Coin/3 Credits" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Time" tag="DSW" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="100" value="0"/>
+			<dipvalue name="120" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="pcktgalb" sourcefile="dataeast/pcktgal.cpp" cloneof="pcktgal" romof="pcktgal">
+		<description>Pocket Gal (Yada East bootleg)</description>
+		<year>1987</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="sexybill.001" size="65536" crc="4acb3e84" sha1="c83d03969587c6be80fb8fc84afe250907674a44" region="maincpu" offset="0"/>
+		<rom name="eb03.f2" merge="eb03.f2" size="65536" crc="cb029b02" sha1="fbb3da08ed05ae73fbeeb13e0e2ff735aaf83db8" region="audiocpu" offset="0"/>
+		<rom name="sexybill.005" size="65536" crc="3128dc7b" sha1="d011181e544b8284ecdf54578da5469804e06c63" region="chars" offset="0"/>
+		<rom name="sexybill.006" size="65536" crc="0fc91eeb" sha1="9d9a54c8dd41c10d07aabb6a2d8dbaf35c6e4533" region="chars" offset="10000"/>
+		<rom name="sexybill.003" size="32768" crc="58182daa" sha1="55ce4b0ea2cb1c559c12815c9e453624e0d95515" region="sprites" offset="0"/>
+		<rom name="sexybill.004" size="32768" crc="33a67af6" sha1="6d9c04658ed75b970821a5c8b1f60c3c08fdda0a" region="sprites" offset="8000"/>
+		<rom name="eb05.k14" merge="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" region="proms" offset="0"/>
+		<rom name="eb06.k15" merge="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" region="proms" offset="200"/>
+		<rom name="pal16l8" size="260" crc="b8d4b318" sha1="6dd68892501c9b61714aaa7a3cfe14cc8ad1a877" region="plds" offset="0"/>
+		<rom name="pal16r6" size="260" crc="43aad537" sha1="892104f4315d7a739718ce32b910694ea9b13fae" region="plds" offset="200"/>
+		<device_ref name="m6502"/>
+		<device_ref name="deco222"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco_bac06"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="msm5205"/>
+		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
+		<chip type="cpu" tag="audiocpu" name="DECO 222" clock="1500000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
+		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="0"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="1 Coin/3 Credits" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Time" tag="DSW" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="100" value="0"/>
+			<dipvalue name="120" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="pcktgalba" sourcefile="dataeast/pcktgal.cpp" cloneof="pcktgal" romof="pcktgal">
+		<description>Pocket Gal / unknown card game</description>
+		<year>1987</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="sex_v1.3" size="65536" crc="e278da6b" sha1="71306fc8f8129cb2f924c67fe8dfdf82f02652e8" region="maincpu" offset="0"/>
+		<rom name="2_sex" merge="eb03.f2" size="65536" crc="cb029b02" sha1="fbb3da08ed05ae73fbeeb13e0e2ff735aaf83db8" region="audiocpu" offset="0"/>
+		<rom name="5_sex" size="65536" crc="3128dc7b" sha1="d011181e544b8284ecdf54578da5469804e06c63" region="chars" offset="0"/>
+		<rom name="6_sex" size="65536" crc="0fc91eeb" sha1="9d9a54c8dd41c10d07aabb6a2d8dbaf35c6e4533" region="chars" offset="10000"/>
+		<rom name="3_sex" size="32768" crc="58182daa" sha1="55ce4b0ea2cb1c559c12815c9e453624e0d95515" region="sprites" offset="0"/>
+		<rom name="4_sex" size="32768" crc="33a67af6" sha1="6d9c04658ed75b970821a5c8b1f60c3c08fdda0a" region="sprites" offset="8000"/>
+		<rom name="prom1" merge="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" status="baddump" region="proms" offset="0"/>
+		<rom name="prom2" merge="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" status="baddump" region="proms" offset="200"/>
+		<rom name="7_sex.u45" size="16384" crc="65b0b6d0" sha1="29dc3da40ff990df943b3b0e7474a0ba3fbb6468" region="z80" offset="0"/>
+		<rom name="8_sex.u35" size="8192" crc="36e450e5" sha1="848000d656cd00d32898c22677940f11789e50d4" region="card_chars" offset="0"/>
+		<rom name="9_sex.u36" size="8192" crc="ffcc1198" sha1="d90ae88e2755f614fdea11cd6935366f4d588144" region="card_chars" offset="2000"/>
+		<rom name="10_sex.u37" size="8192" crc="73cf56a0" sha1="fd2fdd997bca7b96ddd3898f0b6279c1dd60ec92" region="card_chars" offset="4000"/>
+		<device_ref name="m6502"/>
+		<device_ref name="deco222"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco_bac06"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="msm5205"/>
+		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
+		<chip type="cpu" tag="audiocpu" name="DECO 222" clock="1500000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
+		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="0"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="1 Coin/3 Credits" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Time" tag="DSW" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="100" value="0"/>
+			<dipvalue name="120" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<driver status="preliminary" emulation="preliminary" savestate="supported"/>
+	</machine>
 	<machine name="pfghtj" sourcefile="capcom/cps2.cpp" cloneof="sgemf" romof="sgemf">
 		<description>Pocket Fighter (Japan 970904)</description>
 		<year>1997</year>
@@ -133817,574 +135850,6 @@
 		<port tag=":CONTROL1">
 		</port>
 		<port tag=":DIPSW">
-		</port>
-		<driver status="good" emulation="good" savestate="supported"/>
-	</machine>
-	<machine name="pcktgal" sourcefile="dataeast/pcktgal.cpp">
-		<description>Pocket Gal (Japan)</description>
-		<year>1987</year>
-		<manufacturer>Data East Corporation</manufacturer>
-		<rom name="eb04.j7" size="65536" crc="8215d60d" sha1="ac26dfce7e215be21f2a17f864c5e966b8b8322e" region="maincpu" offset="0"/>
-		<rom name="eb03.f2" size="65536" crc="cb029b02" sha1="fbb3da08ed05ae73fbeeb13e0e2ff735aaf83db8" region="audiocpu" offset="0"/>
-		<rom name="eb01.d11" size="65536" crc="63542c3d" sha1="4f42af99a6d9d4766afe0bebe10d6a97811a0082" region="chars" offset="0"/>
-		<rom name="eb02.d12" size="65536" crc="a9dcd339" sha1="245824ab86cdfe4b842ce1be0af60f2ff4c6ae07" region="chars" offset="10000"/>
-		<rom name="eb00.a1" size="65536" crc="6c1a14a8" sha1="03201197304c5f1d854b8c4f4a5c78336b51f872" region="sprites" offset="0"/>
-		<rom name="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" region="proms" offset="0"/>
-		<rom name="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" region="proms" offset="200"/>
-		<device_ref name="m6502"/>
-		<device_ref name="deco222"/>
-		<device_ref name="screen"/>
-		<device_ref name="gfxdecode"/>
-		<device_ref name="palette"/>
-		<device_ref name="deco_bac06"/>
-		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
-		<device_ref name="ym2203"/>
-		<device_ref name="ym3812"/>
-		<device_ref name="msm5205"/>
-		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
-		<chip type="cpu" tag="audiocpu" name="DECO 222" clock="1500000"/>
-		<chip type="audio" tag="mono" name="Speaker"/>
-		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
-		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
-		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
-		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
-		<sound channels="1"/>
-		<input players="2" coins="2">
-			<control type="joy" player="1" buttons="2" ways="8"/>
-			<control type="joy" player="2" buttons="2" ways="8"/>
-		</input>
-		<dipswitch name="Coinage" tag="DSW" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="2 Coins/1 Credit" value="0"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
-			<dipvalue name="1 Coin/3 Credits" value="1"/>
-		</dipswitch>
-		<dipswitch name="Flip Screen" tag="DSW" mask="4">
-			<diplocation name="SW1" number="3"/>
-			<dipvalue name="Off" value="4" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="No" value="0"/>
-			<dipvalue name="Yes" value="8" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="16" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Time" tag="DSW" mask="32">
-			<diplocation name="SW1" number="6"/>
-			<dipvalue name="100" value="0"/>
-			<dipvalue name="120" value="32" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Lives" tag="DSW" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="3" value="0" default="yes"/>
-			<dipvalue name="4" value="64"/>
-		</dipswitch>
-		<dipswitch name="Unknown" tag="DSW" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW">
-		</port>
-		<port tag=":P1">
-		</port>
-		<port tag=":P2">
-		</port>
-		<driver status="good" emulation="good" savestate="supported"/>
-	</machine>
-	<machine name="pcktgal2" sourcefile="dataeast/pcktgal.cpp" cloneof="pcktgal" romof="pcktgal">
-		<description>Pocket Gal 2 (English)</description>
-		<year>1989</year>
-		<manufacturer>Data East Corporation</manufacturer>
-		<rom name="eb04-2.j7" size="65536" crc="0c7f2905" sha1="882dbc1888a0149486c1fac5568dc3d297c2dadd" region="maincpu" offset="0"/>
-		<rom name="eb03-2.f2" size="65536" crc="9408ffb4" sha1="ddcb67da4acf3d986d54ad10404f213528a8bb62" region="audiocpu" offset="0"/>
-		<rom name="eb01-2.rom" size="65536" crc="e52b1f97" sha1="4814fe3b2eb08ac173e09ffadc6e5daa9affa1a0" region="chars" offset="0"/>
-		<rom name="eb02-2.rom" size="65536" crc="f30d965d" sha1="a787457b33ad39e78fcf8da0715fab7a63869bf9" region="chars" offset="10000"/>
-		<rom name="eb00.a1" merge="eb00.a1" size="65536" crc="6c1a14a8" sha1="03201197304c5f1d854b8c4f4a5c78336b51f872" region="sprites" offset="0"/>
-		<rom name="eb05.k14" merge="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" region="proms" offset="0"/>
-		<rom name="eb06.k15" merge="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" region="proms" offset="200"/>
-		<device_ref name="m6502"/>
-		<device_ref name="m6502"/>
-		<device_ref name="screen"/>
-		<device_ref name="gfxdecode"/>
-		<device_ref name="palette"/>
-		<device_ref name="deco_bac06"/>
-		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
-		<device_ref name="ym2203"/>
-		<device_ref name="ym3812"/>
-		<device_ref name="msm5205"/>
-		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
-		<chip type="cpu" tag="audiocpu" name="MOS Technology 6502" clock="1500000"/>
-		<chip type="audio" tag="mono" name="Speaker"/>
-		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
-		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
-		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
-		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
-		<sound channels="1"/>
-		<input players="2" coins="2">
-			<control type="joy" player="1" buttons="2" ways="8"/>
-			<control type="joy" player="2" buttons="2" ways="8"/>
-		</input>
-		<dipswitch name="Coinage" tag="DSW" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="2 Coins/1 Credit" value="0"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
-			<dipvalue name="1 Coin/3 Credits" value="1"/>
-		</dipswitch>
-		<dipswitch name="Flip Screen" tag="DSW" mask="4">
-			<diplocation name="SW1" number="3"/>
-			<dipvalue name="Off" value="4" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="No" value="0"/>
-			<dipvalue name="Yes" value="8" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="16" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Time" tag="DSW" mask="32">
-			<diplocation name="SW1" number="6"/>
-			<dipvalue name="100" value="0"/>
-			<dipvalue name="120" value="32" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Lives" tag="DSW" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="3" value="0" default="yes"/>
-			<dipvalue name="4" value="64"/>
-		</dipswitch>
-		<dipswitch name="Unknown" tag="DSW" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW">
-		</port>
-		<port tag=":P1">
-		</port>
-		<port tag=":P2">
-		</port>
-		<driver status="good" emulation="good" savestate="supported"/>
-	</machine>
-	<machine name="pcktgal2j" sourcefile="dataeast/pcktgal.cpp" cloneof="pcktgal" romof="pcktgal">
-		<description>Pocket Gal 2 (Japanese)</description>
-		<year>1989</year>
-		<manufacturer>Data East Corporation</manufacturer>
-		<rom name="eb04-2.j7" size="65536" crc="0c7f2905" sha1="882dbc1888a0149486c1fac5568dc3d297c2dadd" region="maincpu" offset="0"/>
-		<rom name="eb03-2.f2" size="65536" crc="9408ffb4" sha1="ddcb67da4acf3d986d54ad10404f213528a8bb62" region="audiocpu" offset="0"/>
-		<rom name="eb01-2.d11" size="65536" crc="8f42ab1a" sha1="315fb26bbe004c08629a0a3a6e9d129768119e6b" region="chars" offset="0"/>
-		<rom name="eb02-2.d12" size="65536" crc="f394cb35" sha1="f351b8b6fd8a6637ef9031f7a410a334da8ea5ae" region="chars" offset="10000"/>
-		<rom name="eb00.a1" merge="eb00.a1" size="65536" crc="6c1a14a8" sha1="03201197304c5f1d854b8c4f4a5c78336b51f872" region="sprites" offset="0"/>
-		<rom name="eb05.k14" merge="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" region="proms" offset="0"/>
-		<rom name="eb06.k15" merge="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" region="proms" offset="200"/>
-		<device_ref name="m6502"/>
-		<device_ref name="m6502"/>
-		<device_ref name="screen"/>
-		<device_ref name="gfxdecode"/>
-		<device_ref name="palette"/>
-		<device_ref name="deco_bac06"/>
-		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
-		<device_ref name="ym2203"/>
-		<device_ref name="ym3812"/>
-		<device_ref name="msm5205"/>
-		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
-		<chip type="cpu" tag="audiocpu" name="MOS Technology 6502" clock="1500000"/>
-		<chip type="audio" tag="mono" name="Speaker"/>
-		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
-		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
-		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
-		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
-		<sound channels="1"/>
-		<input players="2" coins="2">
-			<control type="joy" player="1" buttons="2" ways="8"/>
-			<control type="joy" player="2" buttons="2" ways="8"/>
-		</input>
-		<dipswitch name="Coinage" tag="DSW" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="2 Coins/1 Credit" value="0"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
-			<dipvalue name="1 Coin/3 Credits" value="1"/>
-		</dipswitch>
-		<dipswitch name="Flip Screen" tag="DSW" mask="4">
-			<diplocation name="SW1" number="3"/>
-			<dipvalue name="Off" value="4" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="No" value="0"/>
-			<dipvalue name="Yes" value="8" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="16" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Time" tag="DSW" mask="32">
-			<diplocation name="SW1" number="6"/>
-			<dipvalue name="100" value="0"/>
-			<dipvalue name="120" value="32" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Lives" tag="DSW" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="3" value="0" default="yes"/>
-			<dipvalue name="4" value="64"/>
-		</dipswitch>
-		<dipswitch name="Unknown" tag="DSW" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW">
-		</port>
-		<port tag=":P1">
-		</port>
-		<port tag=":P2">
-		</port>
-		<driver status="good" emulation="good" savestate="supported"/>
-	</machine>
-	<machine name="pcktgalb" sourcefile="dataeast/pcktgal.cpp" cloneof="pcktgal" romof="pcktgal">
-		<description>Pocket Gal (Yada East bootleg)</description>
-		<year>1987</year>
-		<manufacturer>bootleg</manufacturer>
-		<rom name="sexybill.001" size="65536" crc="4acb3e84" sha1="c83d03969587c6be80fb8fc84afe250907674a44" region="maincpu" offset="0"/>
-		<rom name="eb03.f2" merge="eb03.f2" size="65536" crc="cb029b02" sha1="fbb3da08ed05ae73fbeeb13e0e2ff735aaf83db8" region="audiocpu" offset="0"/>
-		<rom name="sexybill.005" size="65536" crc="3128dc7b" sha1="d011181e544b8284ecdf54578da5469804e06c63" region="chars" offset="0"/>
-		<rom name="sexybill.006" size="65536" crc="0fc91eeb" sha1="9d9a54c8dd41c10d07aabb6a2d8dbaf35c6e4533" region="chars" offset="10000"/>
-		<rom name="sexybill.003" size="32768" crc="58182daa" sha1="55ce4b0ea2cb1c559c12815c9e453624e0d95515" region="sprites" offset="0"/>
-		<rom name="sexybill.004" size="32768" crc="33a67af6" sha1="6d9c04658ed75b970821a5c8b1f60c3c08fdda0a" region="sprites" offset="8000"/>
-		<rom name="eb05.k14" merge="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" region="proms" offset="0"/>
-		<rom name="eb06.k15" merge="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" region="proms" offset="200"/>
-		<rom name="pal16l8" size="260" crc="b8d4b318" sha1="6dd68892501c9b61714aaa7a3cfe14cc8ad1a877" region="plds" offset="0"/>
-		<rom name="pal16r6" size="260" crc="43aad537" sha1="892104f4315d7a739718ce32b910694ea9b13fae" region="plds" offset="200"/>
-		<device_ref name="m6502"/>
-		<device_ref name="deco222"/>
-		<device_ref name="screen"/>
-		<device_ref name="gfxdecode"/>
-		<device_ref name="palette"/>
-		<device_ref name="deco_bac06"/>
-		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
-		<device_ref name="ym2203"/>
-		<device_ref name="ym3812"/>
-		<device_ref name="msm5205"/>
-		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
-		<chip type="cpu" tag="audiocpu" name="DECO 222" clock="1500000"/>
-		<chip type="audio" tag="mono" name="Speaker"/>
-		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
-		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
-		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
-		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
-		<sound channels="1"/>
-		<input players="2" coins="2">
-			<control type="joy" player="1" buttons="2" ways="8"/>
-			<control type="joy" player="2" buttons="2" ways="8"/>
-		</input>
-		<dipswitch name="Coinage" tag="DSW" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="2 Coins/1 Credit" value="0"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
-			<dipvalue name="1 Coin/3 Credits" value="1"/>
-		</dipswitch>
-		<dipswitch name="Flip Screen" tag="DSW" mask="4">
-			<diplocation name="SW1" number="3"/>
-			<dipvalue name="Off" value="4" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="No" value="0"/>
-			<dipvalue name="Yes" value="8" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="16" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Time" tag="DSW" mask="32">
-			<diplocation name="SW1" number="6"/>
-			<dipvalue name="100" value="0"/>
-			<dipvalue name="120" value="32" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Lives" tag="DSW" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="3" value="0" default="yes"/>
-			<dipvalue name="4" value="64"/>
-		</dipswitch>
-		<dipswitch name="Unknown" tag="DSW" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW">
-		</port>
-		<port tag=":P1">
-		</port>
-		<port tag=":P2">
-		</port>
-		<driver status="good" emulation="good" savestate="supported"/>
-	</machine>
-	<machine name="pcktgalba" sourcefile="dataeast/pcktgal.cpp" cloneof="pcktgal" romof="pcktgal">
-		<description>Pocket Gal / unknown card game</description>
-		<year>1987</year>
-		<manufacturer>bootleg</manufacturer>
-		<rom name="sex_v1.3" size="65536" crc="e278da6b" sha1="71306fc8f8129cb2f924c67fe8dfdf82f02652e8" region="maincpu" offset="0"/>
-		<rom name="2_sex" merge="eb03.f2" size="65536" crc="cb029b02" sha1="fbb3da08ed05ae73fbeeb13e0e2ff735aaf83db8" region="audiocpu" offset="0"/>
-		<rom name="5_sex" size="65536" crc="3128dc7b" sha1="d011181e544b8284ecdf54578da5469804e06c63" region="chars" offset="0"/>
-		<rom name="6_sex" size="65536" crc="0fc91eeb" sha1="9d9a54c8dd41c10d07aabb6a2d8dbaf35c6e4533" region="chars" offset="10000"/>
-		<rom name="3_sex" size="32768" crc="58182daa" sha1="55ce4b0ea2cb1c559c12815c9e453624e0d95515" region="sprites" offset="0"/>
-		<rom name="4_sex" size="32768" crc="33a67af6" sha1="6d9c04658ed75b970821a5c8b1f60c3c08fdda0a" region="sprites" offset="8000"/>
-		<rom name="prom1" merge="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" status="baddump" region="proms" offset="0"/>
-		<rom name="prom2" merge="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" status="baddump" region="proms" offset="200"/>
-		<rom name="7_sex.u45" size="16384" crc="65b0b6d0" sha1="29dc3da40ff990df943b3b0e7474a0ba3fbb6468" region="z80" offset="0"/>
-		<rom name="8_sex.u35" size="8192" crc="36e450e5" sha1="848000d656cd00d32898c22677940f11789e50d4" region="card_chars" offset="0"/>
-		<rom name="9_sex.u36" size="8192" crc="ffcc1198" sha1="d90ae88e2755f614fdea11cd6935366f4d588144" region="card_chars" offset="2000"/>
-		<rom name="10_sex.u37" size="8192" crc="73cf56a0" sha1="fd2fdd997bca7b96ddd3898f0b6279c1dd60ec92" region="card_chars" offset="4000"/>
-		<device_ref name="m6502"/>
-		<device_ref name="deco222"/>
-		<device_ref name="screen"/>
-		<device_ref name="gfxdecode"/>
-		<device_ref name="palette"/>
-		<device_ref name="deco_bac06"/>
-		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
-		<device_ref name="ym2203"/>
-		<device_ref name="ym3812"/>
-		<device_ref name="msm5205"/>
-		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
-		<chip type="cpu" tag="audiocpu" name="DECO 222" clock="1500000"/>
-		<chip type="audio" tag="mono" name="Speaker"/>
-		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
-		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
-		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
-		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
-		<sound channels="1"/>
-		<input players="2" coins="2">
-			<control type="joy" player="1" buttons="2" ways="8"/>
-			<control type="joy" player="2" buttons="2" ways="8"/>
-		</input>
-		<dipswitch name="Coinage" tag="DSW" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="2 Coins/1 Credit" value="0"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
-			<dipvalue name="1 Coin/3 Credits" value="1"/>
-		</dipswitch>
-		<dipswitch name="Flip Screen" tag="DSW" mask="4">
-			<diplocation name="SW1" number="3"/>
-			<dipvalue name="Off" value="4" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="No" value="0"/>
-			<dipvalue name="Yes" value="8" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="16" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Time" tag="DSW" mask="32">
-			<diplocation name="SW1" number="6"/>
-			<dipvalue name="100" value="0"/>
-			<dipvalue name="120" value="32" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Lives" tag="DSW" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="3" value="0" default="yes"/>
-			<dipvalue name="4" value="64"/>
-		</dipswitch>
-		<dipswitch name="Unknown" tag="DSW" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW">
-		</port>
-		<port tag=":P1">
-		</port>
-		<port tag=":P2">
-		</port>
-		<driver status="preliminary" emulation="preliminary" savestate="supported"/>
-	</machine>
-	<machine name="spool3" sourcefile="dataeast/pcktgal.cpp" cloneof="pcktgal" romof="pcktgal">
-		<description>Super Pool III (English)</description>
-		<year>1989</year>
-		<manufacturer>Data East Corporation</manufacturer>
-		<rom name="eb04-2.j7" size="65536" crc="0c7f2905" sha1="882dbc1888a0149486c1fac5568dc3d297c2dadd" region="maincpu" offset="0"/>
-		<rom name="eb03-2.f2" size="65536" crc="9408ffb4" sha1="ddcb67da4acf3d986d54ad10404f213528a8bb62" region="audiocpu" offset="0"/>
-		<rom name="deco2.bin" size="65536" crc="0a23f0cf" sha1="8554215001ffc9e6f141e57cc11b400a853f89f2" region="chars" offset="0"/>
-		<rom name="deco3.bin" size="65536" crc="55ea7c45" sha1="a8a6ff0c8a5aaee3afbfc3e71a171fb1d2360b45" region="chars" offset="10000"/>
-		<rom name="eb00.a1" merge="eb00.a1" size="65536" crc="6c1a14a8" sha1="03201197304c5f1d854b8c4f4a5c78336b51f872" region="sprites" offset="0"/>
-		<rom name="eb05.k14" merge="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" region="proms" offset="0"/>
-		<rom name="eb06.k15" merge="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" region="proms" offset="200"/>
-		<device_ref name="m6502"/>
-		<device_ref name="m6502"/>
-		<device_ref name="screen"/>
-		<device_ref name="gfxdecode"/>
-		<device_ref name="palette"/>
-		<device_ref name="deco_bac06"/>
-		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
-		<device_ref name="ym2203"/>
-		<device_ref name="ym3812"/>
-		<device_ref name="msm5205"/>
-		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
-		<chip type="cpu" tag="audiocpu" name="MOS Technology 6502" clock="1500000"/>
-		<chip type="audio" tag="mono" name="Speaker"/>
-		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
-		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
-		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
-		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
-		<sound channels="1"/>
-		<input players="2" coins="2">
-			<control type="joy" player="1" buttons="2" ways="8"/>
-			<control type="joy" player="2" buttons="2" ways="8"/>
-		</input>
-		<dipswitch name="Coinage" tag="DSW" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="2 Coins/1 Credit" value="0"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
-			<dipvalue name="1 Coin/3 Credits" value="1"/>
-		</dipswitch>
-		<dipswitch name="Flip Screen" tag="DSW" mask="4">
-			<diplocation name="SW1" number="3"/>
-			<dipvalue name="Off" value="4" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="No" value="0"/>
-			<dipvalue name="Yes" value="8" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="16" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Time" tag="DSW" mask="32">
-			<diplocation name="SW1" number="6"/>
-			<dipvalue name="100" value="0"/>
-			<dipvalue name="120" value="32" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Lives" tag="DSW" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="3" value="0" default="yes"/>
-			<dipvalue name="4" value="64"/>
-		</dipswitch>
-		<dipswitch name="Unknown" tag="DSW" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW">
-		</port>
-		<port tag=":P1">
-		</port>
-		<port tag=":P2">
-		</port>
-		<driver status="good" emulation="good" savestate="supported"/>
-	</machine>
-	<machine name="spool3i" sourcefile="dataeast/pcktgal.cpp" cloneof="pcktgal" romof="pcktgal">
-		<description>Super Pool III (I-Vics)</description>
-		<year>1990</year>
-		<manufacturer>Data East Corporation (I-Vics license)</manufacturer>
-		<rom name="de1.bin" size="65536" crc="a59980fe" sha1="64b55af4d0b314d14184784e9f817b56be0f24f2" region="maincpu" offset="0"/>
-		<rom name="eb03-2.f2" size="65536" crc="9408ffb4" sha1="ddcb67da4acf3d986d54ad10404f213528a8bb62" region="audiocpu" offset="0"/>
-		<rom name="deco2.bin" size="65536" crc="0a23f0cf" sha1="8554215001ffc9e6f141e57cc11b400a853f89f2" region="chars" offset="0"/>
-		<rom name="deco3.bin" size="65536" crc="55ea7c45" sha1="a8a6ff0c8a5aaee3afbfc3e71a171fb1d2360b45" region="chars" offset="10000"/>
-		<rom name="eb00.a1" merge="eb00.a1" size="65536" crc="6c1a14a8" sha1="03201197304c5f1d854b8c4f4a5c78336b51f872" region="sprites" offset="0"/>
-		<rom name="eb05.k14" merge="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" region="proms" offset="0"/>
-		<rom name="eb06.k15" merge="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" region="proms" offset="200"/>
-		<device_ref name="m6502"/>
-		<device_ref name="m6502"/>
-		<device_ref name="screen"/>
-		<device_ref name="gfxdecode"/>
-		<device_ref name="palette"/>
-		<device_ref name="deco_bac06"/>
-		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
-		<device_ref name="ym2203"/>
-		<device_ref name="ym3812"/>
-		<device_ref name="msm5205"/>
-		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
-		<chip type="cpu" tag="audiocpu" name="MOS Technology 6502" clock="1500000"/>
-		<chip type="audio" tag="mono" name="Speaker"/>
-		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
-		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
-		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
-		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
-		<sound channels="1"/>
-		<input players="2" coins="2">
-			<control type="joy" player="1" buttons="2" ways="8"/>
-			<control type="joy" player="2" buttons="2" ways="8"/>
-		</input>
-		<dipswitch name="Coinage" tag="DSW" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="2 Coins/1 Credit" value="0"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
-			<dipvalue name="1 Coin/3 Credits" value="1"/>
-		</dipswitch>
-		<dipswitch name="Flip Screen" tag="DSW" mask="4">
-			<diplocation name="SW1" number="3"/>
-			<dipvalue name="Off" value="4" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="No" value="0"/>
-			<dipvalue name="Yes" value="8" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="16" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Time" tag="DSW" mask="32">
-			<diplocation name="SW1" number="6"/>
-			<dipvalue name="100" value="0"/>
-			<dipvalue name="120" value="32" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Lives" tag="DSW" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="3" value="0" default="yes"/>
-			<dipvalue name="4" value="64"/>
-		</dipswitch>
-		<dipswitch name="Unknown" tag="DSW" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW">
-		</port>
-		<port tag=":P1">
-		</port>
-		<port tag=":P2">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
@@ -194789,6 +196254,166 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="spool3" sourcefile="dataeast/pcktgal.cpp" cloneof="pcktgal" romof="pcktgal">
+		<description>Super Pool III (English)</description>
+		<year>1989</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="eb04-2.j7" size="65536" crc="0c7f2905" sha1="882dbc1888a0149486c1fac5568dc3d297c2dadd" region="maincpu" offset="0"/>
+		<rom name="eb03-2.f2" size="65536" crc="9408ffb4" sha1="ddcb67da4acf3d986d54ad10404f213528a8bb62" region="audiocpu" offset="0"/>
+		<rom name="deco2.bin" size="65536" crc="0a23f0cf" sha1="8554215001ffc9e6f141e57cc11b400a853f89f2" region="chars" offset="0"/>
+		<rom name="deco3.bin" size="65536" crc="55ea7c45" sha1="a8a6ff0c8a5aaee3afbfc3e71a171fb1d2360b45" region="chars" offset="10000"/>
+		<rom name="eb00.a1" merge="eb00.a1" size="65536" crc="6c1a14a8" sha1="03201197304c5f1d854b8c4f4a5c78336b51f872" region="sprites" offset="0"/>
+		<rom name="eb05.k14" merge="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" region="proms" offset="0"/>
+		<rom name="eb06.k15" merge="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" region="proms" offset="200"/>
+		<device_ref name="m6502"/>
+		<device_ref name="m6502"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco_bac06"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="msm5205"/>
+		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
+		<chip type="cpu" tag="audiocpu" name="MOS Technology 6502" clock="1500000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
+		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="0"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="1 Coin/3 Credits" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Time" tag="DSW" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="100" value="0"/>
+			<dipvalue name="120" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="spool3i" sourcefile="dataeast/pcktgal.cpp" cloneof="pcktgal" romof="pcktgal">
+		<description>Super Pool III (I-Vics)</description>
+		<year>1990</year>
+		<manufacturer>Data East Corporation (I-Vics license)</manufacturer>
+		<rom name="de1.bin" size="65536" crc="a59980fe" sha1="64b55af4d0b314d14184784e9f817b56be0f24f2" region="maincpu" offset="0"/>
+		<rom name="eb03-2.f2" size="65536" crc="9408ffb4" sha1="ddcb67da4acf3d986d54ad10404f213528a8bb62" region="audiocpu" offset="0"/>
+		<rom name="deco2.bin" size="65536" crc="0a23f0cf" sha1="8554215001ffc9e6f141e57cc11b400a853f89f2" region="chars" offset="0"/>
+		<rom name="deco3.bin" size="65536" crc="55ea7c45" sha1="a8a6ff0c8a5aaee3afbfc3e71a171fb1d2360b45" region="chars" offset="10000"/>
+		<rom name="eb00.a1" merge="eb00.a1" size="65536" crc="6c1a14a8" sha1="03201197304c5f1d854b8c4f4a5c78336b51f872" region="sprites" offset="0"/>
+		<rom name="eb05.k14" merge="eb05.k14" size="512" crc="3b6198cb" sha1="d32b364cfce99637998ca83ad21783f80364dd65" region="proms" offset="0"/>
+		<rom name="eb06.k15" merge="eb06.k15" size="512" crc="1fbd4b59" sha1="84e20329003cf09b849b49e1d83edc330d49f404" region="proms" offset="200"/>
+		<device_ref name="m6502"/>
+		<device_ref name="m6502"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco_bac06"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2203"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="msm5205"/>
+		<chip type="cpu" tag="maincpu" name="MOS Technology 6502" clock="2000000"/>
+		<chip type="cpu" tag="audiocpu" name="MOS Technology 6502" clock="1500000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ym1" name="YM2203 OPN" clock="1500000"/>
+		<chip type="audio" tag="ym2" name="YM3812 OPL2" clock="3000000"/>
+		<chip type="audio" tag="msm" name="OKI MSM5205 ADPCM" clock="384000"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="60.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coinage" tag="DSW" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="0"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="1 Coin/3 Credits" value="1"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW" mask="4">
+			<diplocation name="SW1" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow 2 Players Game" tag="DSW" mask="8">
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Time" tag="DSW" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="100" value="0"/>
+			<dipvalue name="120" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="3" value="0" default="yes"/>
+			<dipvalue name="4" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="squash" sourcefile="gaelco/gaelco.cpp">
 		<description>Squash (World, ver. 1.0, checksum 015aef61)</description>
 		<year>1992</year>
@@ -246443,675 +248068,450 @@
 		<description>Gaelco CG1V</description>
 		<sound channels="0"/>
 	</machine>
-<machine name="blockout" sourcefile="technos/blockout.cpp">
-		<description>Block Out (set 1)</description>
-		<year>1989</year>
-		<manufacturer>Technos Japan / California Dreams</manufacturer>
-		<rom name="bo29a0-2.bin" size="131072" crc="b0103427" sha1="53cac2adc04783abbde21e9f3c0e655f22f68f69" region="maincpu" offset="0"/>
-		<rom name="bo29a1-2.bin" size="131072" crc="5984d5a2" sha1="4b350856d0313d40eaa3d8a8d9e310f74bc20398" region="maincpu" offset="1"/>
-		<rom name="bo29e3-0.bin" size="32768" crc="3ea01f78" sha1="5fc4ad4d9f03d7c26d2afc3e7ede75589e40b0d8" region="audiocpu" offset="0"/>
-		<rom name="bo29e2-0.bin" size="131072" crc="15c5a99d" sha1="89091eda454a028fd1f17501584bd589baf6d523" region="oki" offset="0"/>
-		<rom name="mb7114h.25" size="256" crc="b25bbda7" sha1="840f1470886bd0019db3cd29e3d1d80205a65f48" region="proms" offset="0"/>
+	<machine name="rbisland" sourcefile="taito/rbisland.cpp">
+		<description>Rainbow Islands (rev 1)</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="b22-10-1.19" size="65536" crc="e34a50ca" sha1="17a92cd7182db1e18000b1ae689758fcfd70fe16" region="maincpu" offset="0"/>
+		<rom name="b22-11-1.20" size="65536" crc="6a31a093" sha1="1e99ae47811c0d3774d138dab02ac50bc1b92173" region="maincpu" offset="1"/>
+		<rom name="b22-08-1.21" size="65536" crc="15d6e17a" sha1="7b0339180239e75adf1437aee276b652a1bfee51" region="maincpu" offset="20000"/>
+		<rom name="b22-09-1.22" size="65536" crc="454e66bc" sha1="54d57dee90da04101f4b1473770b38001d63230f" region="maincpu" offset="20001"/>
+		<rom name="b22-03.23" size="131072" crc="3ebb0fb8" sha1="1b41b305623d121255eb70cb992e4d9da13abd82" region="maincpu" offset="40000"/>
+		<rom name="b22-04.24" size="131072" crc="91625e7f" sha1="765afd973d9b82bb496b04beca284bf2769d6e6f" region="maincpu" offset="40001"/>
+		<rom name="cchip_b22-15.53" size="8192" crc="08c588a6" sha1="7e38342be68d37f7106df069dd2021c509be1244" region="cchip:cchip_eprom" offset="0"/>
+		<rom name="b22-14.43" size="65536" crc="113c1a5b" sha1="effa2adf54a6be78b2d4baf3a47529342fb0d895" region="audiocpu" offset="0"/>
+		<rom name="b22-01.2" size="524288" crc="b76c9168" sha1="e924be0c8294b930488bb04583784254a840a52e" region="pc080sn" offset="0"/>
+		<rom name="b22-02.5" size="524288" crc="1b87ecf0" sha1="37a463184f4064fe0565367236e289d57639614c" region="pc090oj" offset="0"/>
+		<rom name="b22-13.6" size="65536" crc="2fda099f" sha1="a1e27a4497f6733608be924d69d965b19f725b99" region="pc090oj" offset="80000"/>
+		<rom name="b22-12.7" size="65536" crc="67a76dc6" sha1="626ee684eb3ea859c695ffe03344ccaa442da4af" region="pc090oj" offset="80001"/>
 		<device_ref name="m68000"/>
-		<device_ref name="timer"/>
 		<device_ref name="z80"/>
+		<device_ref name="cchip"/>
+		<device_ref name="upd78c11"/>
+		<device_ref name="timer"/>
 		<device_ref name="screen"/>
 		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
 		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
 		<device_ref name="ym2151"/>
-		<device_ref name="okim6295"/>
-		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
-		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
-		<chip type="audio" tag="speaker" name="Speaker"/>
-		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
-		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
-		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="10" vbstart="250" />
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="cpu" tag="cchip:upd7811" name="NEC uPD78C11" clock="12000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="224" refresh="60.000000" />
 		<sound channels="1"/>
-		<input players="2" coins="3">
-			<control type="joy" player="1" buttons="4" ways="8"/>
-			<control type="joy" player="2" buttons="4" ways="8"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="2"/>
+			<control type="joy" player="2" buttons="2" ways="2"/>
 		</input>
-		<dipswitch name="Coinage" tag="DSW1" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="3 Coins/1 Credit" value="0"/>
-			<dipvalue name="2 Coins/1 Credit" value="1"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="4">
-			<diplocation name="SW1" number="3"/>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
 			<dipvalue name="Off" value="4" default="yes"/>
 			<dipvalue name="On" value="0"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="Off" value="8" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="1 Coin to Continue" tag="DSW1" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="16" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW1" mask="32">
-			<diplocation name="SW1" number="6"/>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
 			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="32" default="yes"/>
+			<dipvalue name="On" value="8" default="yes"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="Off" value="64" default="yes"/>
-			<dipvalue name="On" value="0"/>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<dipvalue name="4 Coins/1 Credit" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="3 Coins/1 Credit" value="16">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/1 Credit" value="16">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/1 Credit" value="32">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/3 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="32">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<dipvalue name="2 Coins/1 Credit" value="64">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/3 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="128">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/3 Credits" value="128">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/4 Credits" value="64">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/6 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
 		</dipswitch>
-		<dipswitch name="Difficulty" tag="DSW2" mask="3">
-			<diplocation name="SW2" number="1"/>
-			<diplocation name="SW2" number="2"/>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
 			<dipvalue name="Easy" value="2"/>
-			<dipvalue name="Normal" value="3" default="yes"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
 			<dipvalue name="Hard" value="1"/>
-			<dipvalue name="Very Hard" value="0"/>
+			<dipvalue name="Hardest" value="0"/>
 		</dipswitch>
-		<dipswitch name="Rotate Buttons" tag="DSW2" mask="4">
-			<diplocation name="SW2" number="3"/>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="4">
+			<dipvalue name="100k 1000k" value="4" default="yes"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Complete Bonus" tag="DSWB" mask="8">
+			<dipvalue name="1 Up" value="8" default="yes"/>
+			<dipvalue name="100k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<dipvalue name="1" value="16"/>
 			<dipvalue name="2" value="0"/>
-			<dipvalue name="3" value="4" default="yes"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="8">
-			<diplocation name="SW2" number="4"/>
-			<dipvalue name="Off" value="8" default="yes"/>
-			<dipvalue name="On" value="0"/>
+		<dipswitch name="Language" tag="DSWB" mask="64">
+			<dipvalue name="English" value="0" default="yes"/>
+			<dipvalue name="Japanese" value="64"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="16">
-			<diplocation name="SW2" number="5"/>
-			<dipvalue name="Off" value="16" default="yes"/>
-			<dipvalue name="On" value="0"/>
+		<dipswitch name="Coin Mode" tag="DSWB" mask="128">
+			<dipvalue name="Mode A (Japan)" value="128" default="yes"/>
+			<dipvalue name="Mode B (World)" value="0"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="32">
-			<diplocation name="SW2" number="6"/>
-			<dipvalue name="Off" value="32" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW1">
+		<port tag=":800007">
 		</port>
-		<port tag=":DSW2">
+		<port tag=":800009">
 		</port>
-		<port tag=":P1">
+		<port tag=":80000B">
 		</port>
-		<port tag=":P2">
+		<port tag=":80000D">
 		</port>
-		<port tag=":SYSTEM">
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
-<machine name="blockout2" sourcefile="technos/blockout.cpp" cloneof="blockout" romof="blockout">
-		<description>Block Out (set 2)</description>
-		<year>1989</year>
-		<manufacturer>Technos Japan / California Dreams</manufacturer>
-		<rom name="29a0" size="131072" crc="605f931e" sha1="65fa7227dafde1fc8564e09fa949fe575b394d8a" region="maincpu" offset="0"/>
-		<rom name="29a1" size="131072" crc="38f07000" sha1="e4070e3067d77cc1b0d8d0c63786f2729c5c703a" region="maincpu" offset="1"/>
-		<rom name="bo29e3-0.bin" merge="bo29e3-0.bin" size="32768" crc="3ea01f78" sha1="5fc4ad4d9f03d7c26d2afc3e7ede75589e40b0d8" region="audiocpu" offset="0"/>
-		<rom name="bo29e2-0.bin" merge="bo29e2-0.bin" size="131072" crc="15c5a99d" sha1="89091eda454a028fd1f17501584bd589baf6d523" region="oki" offset="0"/>
-		<rom name="mb7114h.25" merge="mb7114h.25" size="256" crc="b25bbda7" sha1="840f1470886bd0019db3cd29e3d1d80205a65f48" region="proms" offset="0"/>
+	<machine name="rbislande" sourcefile="taito/rbisland.cpp">
+		<description>Rainbow Islands - Extra Version</description>
+		<year>1988</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="b39-01.19" size="65536" crc="50690880" sha1="88cd8739eaa6e4e5988be225c31d2a6605173d39" region="maincpu" offset="0"/>
+		<rom name="b39-02.20" size="65536" crc="4dead71f" sha1="03e9df33fc8fc64d6eeb1c3a763acac00b10c071" region="maincpu" offset="1"/>
+		<rom name="b39-03.21" size="65536" crc="4a4cb785" sha1="6ba7de3901a001cbb31713664ccb68b943a5578f" region="maincpu" offset="20000"/>
+		<rom name="b39-04.22" size="65536" crc="4caa53bd" sha1="302c668b77de41ffef96a3ca9d94877b4affc466" region="maincpu" offset="20001"/>
+		<rom name="b22-03.23" size="131072" crc="3ebb0fb8" sha1="1b41b305623d121255eb70cb992e4d9da13abd82" region="maincpu" offset="40000"/>
+		<rom name="b22-04.24" size="131072" crc="91625e7f" sha1="765afd973d9b82bb496b04beca284bf2769d6e6f" region="maincpu" offset="40001"/>
+		<rom name="cchip_b39-05.53" size="8192" crc="397735e3" sha1="86e78dbe7930f826dc8fce0ba56f5e79216df852" region="cchip:cchip_eprom" offset="0"/>
+		<rom name="b22-14.43" size="65536" crc="113c1a5b" sha1="effa2adf54a6be78b2d4baf3a47529342fb0d895" region="audiocpu" offset="0"/>
+		<rom name="b22-01.2" size="524288" crc="b76c9168" sha1="e924be0c8294b930488bb04583784254a840a52e" region="pc080sn" offset="0"/>
+		<rom name="b22-02.5" size="524288" crc="1b87ecf0" sha1="37a463184f4064fe0565367236e289d57639614c" region="pc090oj" offset="0"/>
+		<rom name="b22-13.6" size="65536" crc="2fda099f" sha1="a1e27a4497f6733608be924d69d965b19f725b99" region="pc090oj" offset="80000"/>
+		<rom name="b22-12.7" size="65536" crc="67a76dc6" sha1="626ee684eb3ea859c695ffe03344ccaa442da4af" region="pc090oj" offset="80001"/>
 		<device_ref name="m68000"/>
-		<device_ref name="timer"/>
 		<device_ref name="z80"/>
+		<device_ref name="cchip"/>
+		<device_ref name="upd78c11"/>
+		<device_ref name="timer"/>
 		<device_ref name="screen"/>
 		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
 		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
 		<device_ref name="ym2151"/>
-		<device_ref name="okim6295"/>
-		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
-		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
-		<chip type="audio" tag="speaker" name="Speaker"/>
-		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
-		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
-		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="10" vbstart="250" />
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="cpu" tag="cchip:upd7811" name="NEC uPD78C11" clock="12000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="224" refresh="60.000000" />
 		<sound channels="1"/>
-		<input players="2" coins="3">
-			<control type="joy" player="1" buttons="4" ways="8"/>
-			<control type="joy" player="2" buttons="4" ways="8"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="2"/>
+			<control type="joy" player="2" buttons="2" ways="2"/>
 		</input>
-		<dipswitch name="Coinage" tag="DSW1" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="3 Coins/1 Credit" value="0"/>
-			<dipvalue name="2 Coins/1 Credit" value="1"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="4">
-			<diplocation name="SW1" number="3"/>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
 			<dipvalue name="Off" value="4" default="yes"/>
 			<dipvalue name="On" value="0"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="Off" value="8" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="1 Coin to Continue" tag="DSW1" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="16" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW1" mask="32">
-			<diplocation name="SW1" number="6"/>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
 			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="32" default="yes"/>
+			<dipvalue name="On" value="8" default="yes"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="Off" value="64" default="yes"/>
-			<dipvalue name="On" value="0"/>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<dipvalue name="4 Coins/1 Credit" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="3 Coins/1 Credit" value="16">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/1 Credit" value="16">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/1 Credit" value="32">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/3 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="32">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<dipvalue name="2 Coins/1 Credit" value="64">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/3 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="128">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/3 Credits" value="128">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/4 Credits" value="64">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/6 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
 		</dipswitch>
-		<dipswitch name="Difficulty" tag="DSW2" mask="3">
-			<diplocation name="SW2" number="1"/>
-			<diplocation name="SW2" number="2"/>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
 			<dipvalue name="Easy" value="2"/>
-			<dipvalue name="Normal" value="3" default="yes"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
 			<dipvalue name="Hard" value="1"/>
-			<dipvalue name="Very Hard" value="0"/>
+			<dipvalue name="Hardest" value="0"/>
 		</dipswitch>
-		<dipswitch name="Rotate Buttons" tag="DSW2" mask="4">
-			<diplocation name="SW2" number="3"/>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="4">
+			<dipvalue name="100k 1000k" value="4" default="yes"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Complete Bonus" tag="DSWB" mask="8">
+			<dipvalue name="1 Up" value="8" default="yes"/>
+			<dipvalue name="100k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<dipvalue name="1" value="16"/>
 			<dipvalue name="2" value="0"/>
-			<dipvalue name="3" value="4" default="yes"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="8">
-			<diplocation name="SW2" number="4"/>
-			<dipvalue name="Off" value="8" default="yes"/>
-			<dipvalue name="On" value="0"/>
+		<dipswitch name="Language" tag="DSWB" mask="64">
+			<dipvalue name="English" value="0" default="yes"/>
+			<dipvalue name="Japanese" value="64"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="16">
-			<diplocation name="SW2" number="5"/>
-			<dipvalue name="Off" value="16" default="yes"/>
-			<dipvalue name="On" value="0"/>
+		<dipswitch name="Coin Mode" tag="DSWB" mask="128">
+			<dipvalue name="Mode A (Japan)" value="128" default="yes"/>
+			<dipvalue name="Mode B (World)" value="0"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="32">
-			<diplocation name="SW2" number="6"/>
-			<dipvalue name="Off" value="32" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW1">
+		<port tag=":800007">
 		</port>
-		<port tag=":DSW2">
+		<port tag=":800009">
 		</port>
-		<port tag=":P1">
+		<port tag=":80000B">
 		</port>
-		<port tag=":P2">
+		<port tag=":80000D">
 		</port>
-		<port tag=":SYSTEM">
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
-<machine name="blockout3" sourcefile="technos/blockout.cpp" cloneof="blockout" romof="blockout">
-		<description>Block Out (Europe and Oceania)</description>
-		<year>1989</year>
-		<manufacturer>Technos Japan / California Dreams</manufacturer>
-		<rom name="blockout-1-27c010-ic81.bin" size="131072" crc="36fc13a0" sha1="d7a7b5fb0c7c0ae2e61b94e313c3a972babc78c9" region="maincpu" offset="0"/>
-		<rom name="blockout-2-27c010-ic91.bin" size="131072" crc="48916a07" sha1="e3d9907cb5333f41ed4811112aefe1424b0b3d32" region="maincpu" offset="1"/>
-		<rom name="blockout-3-27256-ic73.bin" merge="bo29e3-0.bin" size="32768" crc="3ea01f78" sha1="5fc4ad4d9f03d7c26d2afc3e7ede75589e40b0d8" region="audiocpu" offset="0"/>
-		<rom name="blockout-4-27c010-ic78.bin" merge="bo29e2-0.bin" size="131072" crc="15c5a99d" sha1="89091eda454a028fd1f17501584bd589baf6d523" region="oki" offset="0"/>
-		<rom name="blockout-82s129-ic25.bin" merge="mb7114h.25" size="256" crc="b25bbda7" sha1="840f1470886bd0019db3cd29e3d1d80205a65f48" region="proms" offset="0"/>
+	<machine name="rbislando" sourcefile="taito/rbisland.cpp" cloneof="rbisland" romof="rbisland">
+		<description>Rainbow Islands</description>
+		<year>1987</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="b22-10.19" size="65536" crc="3b013495" sha1="fc89f401a80b9bde174df8a257bb7fad4937c838" region="maincpu" offset="0"/>
+		<rom name="b22-11.20" size="65536" crc="80041a3d" sha1="619d71a2bef5fd898a15d37d8016850f832428c3" region="maincpu" offset="1"/>
+		<rom name="b22-08.21" size="65536" crc="962fb845" sha1="1c5581e697902ee5cde0fb841ef05eade04a901b" region="maincpu" offset="20000"/>
+		<rom name="b22-09.22" size="65536" crc="f43efa27" sha1="f92bcdbe9bbc1c200946c10605846bb406d8e963" region="maincpu" offset="20001"/>
+		<rom name="b22-03.23" merge="b22-03.23" size="131072" crc="3ebb0fb8" sha1="1b41b305623d121255eb70cb992e4d9da13abd82" region="maincpu" offset="40000"/>
+		<rom name="b22-04.24" merge="b22-04.24" size="131072" crc="91625e7f" sha1="765afd973d9b82bb496b04beca284bf2769d6e6f" region="maincpu" offset="40001"/>
+		<rom name="cchip_b22-15.53" merge="cchip_b22-15.53" size="8192" crc="08c588a6" sha1="7e38342be68d37f7106df069dd2021c509be1244" region="cchip:cchip_eprom" offset="0"/>
+		<rom name="b22-14.43" merge="b22-14.43" size="65536" crc="113c1a5b" sha1="effa2adf54a6be78b2d4baf3a47529342fb0d895" region="audiocpu" offset="0"/>
+		<rom name="b22-01.2" merge="b22-01.2" size="524288" crc="b76c9168" sha1="e924be0c8294b930488bb04583784254a840a52e" region="pc080sn" offset="0"/>
+		<rom name="b22-02.5" merge="b22-02.5" size="524288" crc="1b87ecf0" sha1="37a463184f4064fe0565367236e289d57639614c" region="pc090oj" offset="0"/>
+		<rom name="b22-13.6" merge="b22-13.6" size="65536" crc="2fda099f" sha1="a1e27a4497f6733608be924d69d965b19f725b99" region="pc090oj" offset="80000"/>
+		<rom name="b22-12.7" merge="b22-12.7" size="65536" crc="67a76dc6" sha1="626ee684eb3ea859c695ffe03344ccaa442da4af" region="pc090oj" offset="80001"/>
 		<device_ref name="m68000"/>
-		<device_ref name="timer"/>
 		<device_ref name="z80"/>
+		<device_ref name="cchip"/>
+		<device_ref name="upd78c11"/>
+		<device_ref name="timer"/>
 		<device_ref name="screen"/>
 		<device_ref name="palette"/>
+		<device_ref name="pc080sn"/>
+		<device_ref name="pc090oj"/>
 		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
 		<device_ref name="ym2151"/>
-		<device_ref name="okim6295"/>
-		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
-		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
-		<chip type="audio" tag="speaker" name="Speaker"/>
-		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
-		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
-		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="10" vbstart="250" />
+		<device_ref name="pc060ha"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="8000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="cpu" tag="cchip:upd7811" name="NEC uPD78C11" clock="12000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="224" refresh="60.000000" />
 		<sound channels="1"/>
-		<input players="2" coins="3">
-			<control type="joy" player="1" buttons="4" ways="8"/>
-			<control type="joy" player="2" buttons="4" ways="8"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="2"/>
+			<control type="joy" player="2" buttons="2" ways="2"/>
 		</input>
-		<dipswitch name="Coinage" tag="DSW1" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="3 Coins/1 Credit" value="0"/>
-			<dipvalue name="2 Coins/1 Credit" value="1"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		<dipswitch name="Cabinet" tag="DSWA" mask="1">
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="1"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="4">
-			<diplocation name="SW1" number="3"/>
+		<dipswitch name="Flip Screen" tag="DSWA" mask="2">
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="4">
 			<dipvalue name="Off" value="4" default="yes"/>
 			<dipvalue name="On" value="0"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="Off" value="8" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="1 Coin to Continue" tag="DSW1" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="16" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW1" mask="32">
-			<diplocation name="SW1" number="6"/>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="8">
 			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="32" default="yes"/>
+			<dipvalue name="On" value="8" default="yes"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="Off" value="64" default="yes"/>
-			<dipvalue name="On" value="0"/>
+		<dipswitch name="Coin A" tag="DSWA" mask="48">
+			<dipvalue name="4 Coins/1 Credit" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="3 Coins/1 Credit" value="16">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/1 Credit" value="16">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/1 Credit" value="32">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/3 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="32">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
+		<dipswitch name="Coin B" tag="DSWA" mask="192">
+			<dipvalue name="2 Coins/1 Credit" value="64">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="2 Coins/3 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="128">
+				<condition tag="DSWB" mask="128" relation="eq" value="128"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/2 Credits" value="192" default="yes">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/3 Credits" value="128">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/4 Credits" value="64">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
+			<dipvalue name="1 Coin/6 Credits" value="0">
+				<condition tag="DSWB" mask="128" relation="eq" value="0"/>
+			</dipvalue>
 		</dipswitch>
-		<dipswitch name="Difficulty" tag="DSW2" mask="3">
-			<diplocation name="SW2" number="1"/>
-			<diplocation name="SW2" number="2"/>
+		<dipswitch name="Difficulty" tag="DSWB" mask="3">
 			<dipvalue name="Easy" value="2"/>
-			<dipvalue name="Normal" value="3" default="yes"/>
+			<dipvalue name="Medium" value="3" default="yes"/>
 			<dipvalue name="Hard" value="1"/>
-			<dipvalue name="Very Hard" value="0"/>
+			<dipvalue name="Hardest" value="0"/>
 		</dipswitch>
-		<dipswitch name="Rotate Buttons" tag="DSW2" mask="4">
-			<diplocation name="SW2" number="3"/>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="4">
+			<dipvalue name="100k 1000k" value="4" default="yes"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Complete Bonus" tag="DSWB" mask="8">
+			<dipvalue name="1 Up" value="8" default="yes"/>
+			<dipvalue name="100k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="48">
+			<dipvalue name="1" value="16"/>
 			<dipvalue name="2" value="0"/>
-			<dipvalue name="3" value="4" default="yes"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="32"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="8">
-			<diplocation name="SW2" number="4"/>
-			<dipvalue name="Off" value="8" default="yes"/>
-			<dipvalue name="On" value="0"/>
+		<dipswitch name="Language" tag="DSWB" mask="64">
+			<dipvalue name="English" value="0" default="yes"/>
+			<dipvalue name="Japanese" value="64"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="16">
-			<diplocation name="SW2" number="5"/>
-			<dipvalue name="Off" value="16" default="yes"/>
-			<dipvalue name="On" value="0"/>
+		<dipswitch name="Coin Mode" tag="DSWB" mask="128">
+			<dipvalue name="Mode A (Japan)" value="128" default="yes"/>
+			<dipvalue name="Mode B (World)" value="0"/>
 		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="32">
-			<diplocation name="SW2" number="6"/>
-			<dipvalue name="Off" value="32" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW1">
+		<port tag=":800007">
 		</port>
-		<port tag=":DSW2">
+		<port tag=":800009">
 		</port>
-		<port tag=":P1">
+		<port tag=":80000B">
 		</port>
-		<port tag=":P2">
+		<port tag=":80000D">
 		</port>
-		<port tag=":SYSTEM">
+		<port tag=":DSWA">
 		</port>
-		<driver status="good" emulation="good" savestate="supported"/>
-	</machine>
-<machine name="blockoutj" sourcefile="technos/blockout.cpp" cloneof="blockout" romof="blockout">
-		<description>Block Out (Japan)</description>
-		<year>1989</year>
-		<manufacturer>Technos Japan / California Dreams</manufacturer>
-		<rom name="2.bin" size="131072" crc="e16cf065" sha1="541b30b054cf08f10d6ca4746423759f4326c005" region="maincpu" offset="0"/>
-		<rom name="1.bin" size="131072" crc="950b28a3" sha1="7d1635ac2a3fc1efdd2f78cd6038bd7b4c907b1b" region="maincpu" offset="1"/>
-		<rom name="bo29e3-0.bin" merge="bo29e3-0.bin" size="32768" crc="3ea01f78" sha1="5fc4ad4d9f03d7c26d2afc3e7ede75589e40b0d8" region="audiocpu" offset="0"/>
-		<rom name="bo29e2-0.bin" merge="bo29e2-0.bin" size="131072" crc="15c5a99d" sha1="89091eda454a028fd1f17501584bd589baf6d523" region="oki" offset="0"/>
-		<rom name="mb7114h.25" merge="mb7114h.25" size="256" crc="b25bbda7" sha1="840f1470886bd0019db3cd29e3d1d80205a65f48" region="proms" offset="0"/>
-		<device_ref name="m68000"/>
-		<device_ref name="timer"/>
-		<device_ref name="z80"/>
-		<device_ref name="screen"/>
-		<device_ref name="palette"/>
-		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
-		<device_ref name="ym2151"/>
-		<device_ref name="okim6295"/>
-		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
-		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
-		<chip type="audio" tag="speaker" name="Speaker"/>
-		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
-		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
-		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="10" vbstart="250" />
-		<sound channels="1"/>
-		<input players="2" coins="3">
-			<control type="joy" player="1" buttons="3" ways="8"/>
-			<control type="joy" player="2" buttons="3" ways="8"/>
-		</input>
-		<dipswitch name="Coinage" tag="DSW1" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="3 Coins/1 Credit" value="0"/>
-			<dipvalue name="2 Coins/1 Credit" value="1"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="4">
-			<diplocation name="SW1" number="3"/>
-			<dipvalue name="Off" value="4" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="Off" value="8" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="1 Coin to Continue" tag="DSW1" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="16" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW1" mask="32">
-			<diplocation name="SW1" number="6"/>
-			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="32" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="Off" value="64" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Difficulty" tag="DSW2" mask="3">
-			<diplocation name="SW2" number="1"/>
-			<diplocation name="SW2" number="2"/>
-			<dipvalue name="Easy" value="2"/>
-			<dipvalue name="Normal" value="3" default="yes"/>
-			<dipvalue name="Hard" value="1"/>
-			<dipvalue name="Very Hard" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unknown" tag="DSW2" mask="4">
-			<diplocation name="SW2" number="3"/>
-			<dipvalue name="Off" value="4" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="8">
-			<diplocation name="SW2" number="4"/>
-			<dipvalue name="Off" value="8" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="16">
-			<diplocation name="SW2" number="5"/>
-			<dipvalue name="Off" value="16" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="32">
-			<diplocation name="SW2" number="6"/>
-			<dipvalue name="Off" value="32" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="64">
-			<diplocation name="SW2" number="7"/>
-			<dipvalue name="Off" value="64" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="128">
-			<diplocation name="SW2" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW1">
-		</port>
-		<port tag=":DSW2">
-		</port>
-		<port tag=":P1">
-		</port>
-		<port tag=":P2">
-		</port>
-		<port tag=":SYSTEM">
-		</port>
-		<driver status="good" emulation="good" savestate="supported"/>
-	</machine>
-<machine name="agress" sourcefile="technos/blockout.cpp">
-		<description>Agress - Missile Daisenryaku (Japan)</description>
-		<year>1991</year>
-		<manufacturer>Palco</manufacturer>
-		<rom name="palco1.81" size="131072" crc="3acc917a" sha1="14960588673458d862daf14a8d7474af6c95c2ad" region="maincpu" offset="0"/>
-		<rom name="palco2.91" size="131072" crc="abfd5bcc" sha1="bf0ea8ba00750ea2ddf2b8afc96393bf8a730068" region="maincpu" offset="1"/>
-		<rom name="palco3.73" size="32768" crc="2a21c97d" sha1="7f71bf18db3e6ff9c69c589268450e66c6585cdd" region="audiocpu" offset="0"/>
-		<rom name="palco4.78" size="131072" crc="9dfd9cfe" sha1="5ea8f98bc0cd117cde81c04f02aa33199afe8231" region="oki" offset="0"/>
-		<rom name="82s129pr.25" size="256" crc="b25bbda7" sha1="840f1470886bd0019db3cd29e3d1d80205a65f48" region="proms" offset="0"/>
-		<device_ref name="m68000"/>
-		<device_ref name="timer"/>
-		<device_ref name="z80"/>
-		<device_ref name="screen"/>
-		<device_ref name="palette"/>
-		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
-		<device_ref name="ym2151"/>
-		<device_ref name="okim6295"/>
-		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
-		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
-		<chip type="audio" tag="speaker" name="Speaker"/>
-		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
-		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
-		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="10" vbstart="250" />
-		<sound channels="1"/>
-		<input players="2" coins="3">
-			<control type="joy" player="1" buttons="3" ways="8"/>
-			<control type="joy" player="2" buttons="3" ways="8"/>
-		</input>
-		<dipswitch name="Coinage" tag="DSW1" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="3 Coins/1 Credit" value="0"/>
-			<dipvalue name="2 Coins/1 Credit" value="1"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
-		</dipswitch>
-		<dipswitch name="Opening Cut" tag="DSW1" mask="4">
-			<diplocation name="SW1" number="3"/>
-			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="4" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="Off" value="8" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="16" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW1" mask="32">
-			<diplocation name="SW1" number="6"/>
-			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="32" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="Off" value="64" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Difficulty" tag="DSW2" mask="3">
-			<diplocation name="SW2" number="1"/>
-			<diplocation name="SW2" number="2"/>
-			<dipvalue name="Easy" value="2"/>
-			<dipvalue name="Normal" value="3" default="yes"/>
-			<dipvalue name="Hard" value="1"/>
-			<dipvalue name="Very Hard" value="0"/>
-		</dipswitch>
-		<dipswitch name="Lives" tag="DSW2" mask="4">
-			<diplocation name="SW2" number="3"/>
-			<dipvalue name="1" value="0"/>
-			<dipvalue name="2" value="4" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="8">
-			<diplocation name="SW2" number="4"/>
-			<dipvalue name="Off" value="8" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="16">
-			<diplocation name="SW2" number="5"/>
-			<dipvalue name="Off" value="16" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="32">
-			<diplocation name="SW2" number="6"/>
-			<dipvalue name="Off" value="32" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unknown" tag="DSW2" mask="64">
-			<diplocation name="SW2" number="7"/>
-			<dipvalue name="Off" value="64" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unknown" tag="DSW2" mask="128">
-			<diplocation name="SW2" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW1">
-		</port>
-		<port tag=":DSW2">
-		</port>
-		<port tag=":P1">
-		</port>
-		<port tag=":P2">
-		</port>
-		<port tag=":SYSTEM">
-		</port>
-		<driver status="good" emulation="good" savestate="supported"/>
-	</machine>
-<machine name="agressb" sourcefile="technos/blockout.cpp" cloneof="agress" romof="agress">
-		<description>Agress - Missile Daisenryaku (English bootleg)</description>
-		<year>2003</year>
-		<manufacturer>bootleg</manufacturer>
-		<rom name="palco1.ic81" size="131072" crc="a1875175" sha1="6c9946bcd4fe7987d4f817ea25bfc76432188883" region="maincpu" offset="0"/>
-		<rom name="palco2.ic91" size="131072" crc="ab3182c3" sha1="788a3e7cf6ef889262f3d72af8be9ec951eb397b" region="maincpu" offset="1"/>
-		<rom name="palco3.ic73" merge="palco3.73" size="32768" crc="2a21c97d" sha1="7f71bf18db3e6ff9c69c589268450e66c6585cdd" region="audiocpu" offset="0"/>
-		<rom name="palco4.ic78" merge="palco4.78" size="131072" crc="9dfd9cfe" sha1="5ea8f98bc0cd117cde81c04f02aa33199afe8231" region="oki" offset="0"/>
-		<rom name="prom29-mb7114h.ic25" merge="82s129pr.25" size="256" crc="b25bbda7" sha1="840f1470886bd0019db3cd29e3d1d80205a65f48" region="proms" offset="0"/>
-		<device_ref name="m68000"/>
-		<device_ref name="timer"/>
-		<device_ref name="z80"/>
-		<device_ref name="screen"/>
-		<device_ref name="palette"/>
-		<device_ref name="speaker"/>
-		<device_ref name="generic_latch_8"/>
-		<device_ref name="ym2151"/>
-		<device_ref name="okim6295"/>
-		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
-		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
-		<chip type="audio" tag="speaker" name="Speaker"/>
-		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
-		<chip type="audio" tag="oki" name="OKI MSM6295 ADPCM" clock="1056000"/>
-		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="57.444853" pixclock="7000000" htotal="448" hbend="0" hbstart="320" vtotal="272" vbend="10" vbstart="250" />
-		<sound channels="1"/>
-		<input players="2" coins="3">
-			<control type="joy" player="1" buttons="3" ways="8"/>
-			<control type="joy" player="2" buttons="3" ways="8"/>
-		</input>
-		<dipswitch name="Coinage" tag="DSW1" mask="3">
-			<diplocation name="SW1" number="1"/>
-			<diplocation name="SW1" number="2"/>
-			<dipvalue name="3 Coins/1 Credit" value="0"/>
-			<dipvalue name="2 Coins/1 Credit" value="1"/>
-			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
-			<dipvalue name="1 Coin/2 Credits" value="2"/>
-		</dipswitch>
-		<dipswitch name="Opening Cut" tag="DSW1" mask="4">
-			<diplocation name="SW1" number="3"/>
-			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="4" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="8">
-			<diplocation name="SW1" number="4"/>
-			<dipvalue name="Off" value="8" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="16">
-			<diplocation name="SW1" number="5"/>
-			<dipvalue name="Off" value="16" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Demo Sounds" tag="DSW1" mask="32">
-			<diplocation name="SW1" number="6"/>
-			<dipvalue name="Off" value="0"/>
-			<dipvalue name="On" value="32" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="64">
-			<diplocation name="SW1" number="7"/>
-			<dipvalue name="Off" value="64" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW1" mask="128">
-			<diplocation name="SW1" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Difficulty" tag="DSW2" mask="3">
-			<diplocation name="SW2" number="1"/>
-			<diplocation name="SW2" number="2"/>
-			<dipvalue name="Easy" value="2"/>
-			<dipvalue name="Normal" value="3" default="yes"/>
-			<dipvalue name="Hard" value="1"/>
-			<dipvalue name="Very Hard" value="0"/>
-		</dipswitch>
-		<dipswitch name="Lives" tag="DSW2" mask="4">
-			<diplocation name="SW2" number="3"/>
-			<dipvalue name="1" value="0"/>
-			<dipvalue name="2" value="4" default="yes"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="8">
-			<diplocation name="SW2" number="4"/>
-			<dipvalue name="Off" value="8" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="16">
-			<diplocation name="SW2" number="5"/>
-			<dipvalue name="Off" value="16" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unused" tag="DSW2" mask="32">
-			<diplocation name="SW2" number="6"/>
-			<dipvalue name="Off" value="32" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unknown" tag="DSW2" mask="64">
-			<diplocation name="SW2" number="7"/>
-			<dipvalue name="Off" value="64" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<dipswitch name="Unknown" tag="DSW2" mask="128">
-			<diplocation name="SW2" number="8"/>
-			<dipvalue name="Off" value="128" default="yes"/>
-			<dipvalue name="On" value="0"/>
-		</dipswitch>
-		<port tag=":DSW1">
-		</port>
-		<port tag=":DSW2">
-		</port>
-		<port tag=":P1">
-		</port>
-		<port tag=":P2">
-		</port>
-		<port tag=":SYSTEM">
+		<port tag=":DSWB">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>

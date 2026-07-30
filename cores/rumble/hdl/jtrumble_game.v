@@ -96,7 +96,6 @@ jtframe_cendiv u_cendiv(
     .cen_da ( cen24_2   )
 );
 
-`ifndef NOMAIN
 jtrumble_main u_main(
     .rst        ( rst24         ),
     .clk        ( clk24         ),
@@ -147,17 +146,6 @@ jtrumble_main u_main(
     .dipsw_a     ( dipsw[ 7:0]  ),
     .dipsw_b     ( dipsw[15:8]  )
 );
-`else
-    assign main_cs  = 0;
-    assign main_rnw = 1;
-    assign main_addr= 0;
-    assign cpu_dout = 0;
-    assign char_cs  = 0;
-    assign scr_cs   = 0;
-    assign pal_cs   = 0;
-    assign flip     = 0;
-    assign cpu_AB   = 0;
-`endif
 
 jtrumble_video u_video(
     .rst        ( rst           ),
@@ -214,7 +202,6 @@ jtrumble_video u_video(
     .blue       ( blue          )
 );
 
-`ifndef NOSOUND
 // Fx is very loud in this game
 wire signed [15:0] pre_fm0,  pre_fm1;
 wire        [ 9:0] pre_psg0, pre_psg1;
@@ -245,15 +232,5 @@ jtgng_sound #(.LAYOUT (10 )) u_fmcpu(
     .mcu_sdin   ( 8'd0          ),
     .mcu_srd    (               )
 );
-`else
-    assign snd_addr = 0;
-    assign snd_cs   = 0;
-    assign snd      = 0;
-    assign fm0      = 0;
-    assign fm1      = 0;
-    assign psg0     = 0;
-    assign psg1     = 0;
-//    assign debug_view = 0;
-`endif
 
 endmodule

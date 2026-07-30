@@ -88,7 +88,6 @@ end
 wire [15:0] scrposh, scrposv, dmaout;
 wire        UDSWn, LDSWn;
 
-`ifndef NOMAIN
 jtsf_main u_main (
     .rst        ( main_rst      ),
     .clk        ( clk           ),
@@ -164,53 +163,6 @@ jtsf_main u_main (
     .dipsw_a    ( dipsw[31:16]  ),
     .dipsw_b    ( dipsw[15: 0]  )
 );
-`else
-    `ifndef SIM_SND_LATCH
-    `define SIM_SND_LATCH 8'd0
-    `endif
-    assign main_addr = 0;
-    assign cpu_AB    = 13'd0;
-    assign char_cs   = 0;
-    assign main_cs   = 0;
-    assign bus_ack   = 1;
-    assign flip      = 0;
-    assign scr1posh  = `SIM_SCR1POS;
-    assign scr2posh  = `SIM_SCR2POS;
-    assign cpu_cen   = 0;
-    assign charon    = 1;
-    assign scr1on    = 1;
-    assign scr2on    = 1;
-    assign objon     = 1;
-    assign snd_latch = `SIM_SND_LATCH;
-    `ifdef OBJLOAD
-    jtsf_objload u_objload( // this doesn't work after moving OBJ RAM to its own BRAM
-        .clk        ( clk       ),
-        .rst        ( rst       ),
-        .obj_AB     ( obj_AB    ),
-        .cen8       ( pxl_cen   ),
-        .LVBL       ( LVBL      ),
-        .ram_addr   ( ram_addr  ),
-        .cpu_dout   ( cpu_dout  ),
-        .ram_data   ( ram_data  ),
-        .dmaout     ( dmaout    ),
-        .UDSWn      ( UDSWn     ),
-        .LDSWn      ( LDSWn     ),
-        .RnW        ( RnW       ),
-        .ram_cs     ( ram_cs    ),
-        .OKOUT      ( OKOUT     )
-    );
-    `else
-    assign OKOUT    = 0;
-    assign cpu_dout = 16'd0;
-    assign RnW      = 1;
-    assign UDSWn    = 1;
-    assign LDSWn    = 1;
-    assign ram_addr = 0;
-    assign ram_cs   = 0;
-    assign col_uw   = 0;
-    assign col_lw   = 0;
-    `endif
-`endif
 
 `ifndef NOMCU
     jtsf_mcu u_mcu(

@@ -128,7 +128,7 @@ assign last[13] = `BITSWAP( xored_last_in[13], 6,3,7,0,5,4,2,1 );
 assign last[14] = `BITSWAP( xored_last_in[14], 6,1,3,2,7,4,5,0 );
 assign last[15] = `BITSWAP( xored_last_in[15], 1,6,3,5,0,7,4,2 );
 
-assign ok_dly = dec_en ? ok_latch : rom_ok;
+assign ok_dly = ok_latch;
 
 always @(posedge clk) ok_latch <= rom_ok;
 
@@ -267,4 +267,3 @@ jtframe_prom #(.AW(8),.SIMFILE("fd1089.bin")) u_lut(
 `undef BITSWAP
 
 endmodule
-

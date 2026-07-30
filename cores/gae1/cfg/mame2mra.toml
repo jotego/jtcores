@@ -18,10 +18,10 @@ skip.setnames=[
 
 [buttons]
 names=[
-    { machine="squash", names="Hit,Slow" },
-    { machine="thoop",  names="Fire,Jump" },
-    { machine="biomtoy", names="Fire,Jump" },
-    { machine="bigkarnk", names="Fire,Jump" },
+    { machine="squash", names="Slow,Hit" },
+    { machine="thoop",  names="Jump,Fire" },
+    { machine="biomtoy", names="Jump,Fire" },
+    { machine="bigkarnk", names="Jump,Fire" },
 ]
 
 [dipsw]

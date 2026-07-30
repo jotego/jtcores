@@ -53,6 +53,8 @@ module jtkchamp_main(
     input              rom_ok
 );
 
+`ifndef NOMAIN
+
 wire        m1_n, mreq_n, rfsh_n, iorq_n, rd_n, wr_n,
             bus_cen, nmi_n;
 reg         nmi_on, bus_bsyn, iord_cs, iowr_cs;
@@ -192,5 +194,15 @@ jtframe_sysz80 #(.RAM_AW(12)) u_cpu(
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    )
 );
+
+`else
+assign cpu_dout = 8'd0;
+assign cpu_rnw  = 1'b1;
+assign bus_addr = 16'd0;
+initial begin
+    flip=0; vram_cs=0; oram_cs=0; snd_latch=0; snd_req=0; snd_rstn=1;
+    rom_cs=0;
+end
+`endif
 
 endmodule

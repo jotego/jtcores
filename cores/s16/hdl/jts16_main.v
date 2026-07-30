@@ -104,6 +104,8 @@ module jts16_main(
     output reg  [ 7:0] st_dout
 );
 
+`ifndef NOMAIN
+
 localparam [7:0] GAME_HWCHAMP =`GAME_HWCHAMP ,
                  GAME_QUARTET =`GAME_QUARTET ,
                  GAME_PASSSHT =`GAME_PASSSHT ,
@@ -127,6 +129,7 @@ wire [23:0] A_full = {A,1'b0};
 wire        BRn, BGACKn, BGn;
 wire        ASn, UDSn, LDSn, BUSn, VPAn;
 wire        ok_dly;
+reg         ram_ok_dly;
 wire [15:0] rom_dec, cpu_dout_raw;
 reg  [15:0] cpu_din;
 wire        cpu_LDSn, cpu_UDSn, cpu_RnW, DTACKn;
@@ -516,6 +519,7 @@ jt8255 u_8255(
 
 // Data bus input
 always @(posedge clk) begin
+    ram_ok_dly <= ram_ok;
     if(rst) begin
         cpu_din <= 16'hffff;
     end else begin
@@ -552,7 +556,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 wire bus_cs    = pal_cs | char_cs | pre_vram_cs | pre_ram_cs | rom_cs | objram_cs | io_cs;
-wire bus_busy  = |{ rom_cs & ok_dly===0, (pre_ram_cs | pre_vram_cs) & ~ram_ok };
+wire bus_busy  = |{ rom_cs & ok_dly===0, (pre_ram_cs | pre_vram_cs) & ~ram_ok_dly };
 wire bus_legit = 0;
 
 jtframe_68kdtack_cen #(.W(8),.MFREQ(50_347)) u_dtack(
@@ -682,4 +686,25 @@ always @(posedge clk) begin
     endcase
 end
 
+`else
+assign cpu_cen   = 1'b0;
+assign cpu_cenb  = 1'b0;
+assign flip      = 1'b0;
+assign video_en  = 1'b0;
+assign colscr_en = 1'b0;
+assign rowscr_en = 1'b0;
+assign ram_cs    = 1'b0;
+assign vram_cs   = 1'b0;
+assign cpu_dout  = 16'd0;
+assign UDSWn     = 1'b1;
+assign LDSWn     = 1'b1;
+assign RnW       = 1'b1;
+assign cpu_addr  = 12'd0;
+assign snd_latch = 8'd0;
+assign snd_irqn  = 1'b1;
+assign sound_en  = 1'b0;
+assign rom_addr  = 18'd0;
+assign key_addr  = 13'd0;
+initial begin char_cs=0; pal_cs=0; objram_cs=0; rom_cs=0; st_dout=0; end
+`endif
 endmodule

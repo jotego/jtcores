@@ -214,7 +214,7 @@ jtframe_sysz80 #(.RAM_AW(10)) u_cpu(
 `else
     assign rom_cs     = 0;
     assign rom_addr   = 0;
-    assign st_snd     = 0;
+    assign st_dout    = 0;
     assign psg0a      = 0;
     assign psg0b      = 0;
     assign psg0c      = 0;

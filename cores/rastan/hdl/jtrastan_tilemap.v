@@ -137,18 +137,7 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
-/*
-`ifdef SIMULATION
-reg check=0;
-always @(posedge clk) begin
-    if(hinit) check<=1;
-    if ( hdump<320 && hdump > hcnt && check && hcnt!=0) begin
-        $display("Horizontal buffer overrun %m");
-        //$finish;
-    end
-end
-`endif
-*/
+
 // Not a double line buffer
 jtframe_dual_ram #(
     .DW (4+7    ),

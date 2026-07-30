@@ -66,6 +66,7 @@ module jttwin16_sub(
 );
 `ifndef NOMAIN
 reg  [15:0] cpu_din;
+reg         ok_dly;
 wire [15:0] vdout;
 wire [23:1] A;
 wire [ 1:0] dws;
@@ -95,8 +96,8 @@ assign sh_we    = dws & {2{sh_cs}};
 assign rom_addr[16: 1] = A[16:1];
 assign rom_addr[18:17] = rom_part;
 assign bus_cs   =  rom_cs | ram_cs | obj_cs | stile_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs   & ~ram_ok) |
-                  (obj_cs & ~obj_ok) | (stile_cs & ~stile_ok);
+assign bus_busy = (rom_cs & ~ok_dly) | (ram_cs   & ~ok_dly) |
+                  (obj_cs & ~ok_dly) | (stile_cs & ~ok_dly);
 assign BUSn     = ASn | (LDSn & UDSn);
 // Object Tile RAM is mapped at the bottom
 // so the lyro SDRAM slot has access to it
@@ -136,6 +137,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    ok_dly  <= rom_ok | ram_ok | obj_ok | stile_ok;
     cpu_din <= rom_cs   ? rom_data  :
                ram_cs   ? ram_dout  :
                otram_cs ? ram_dout  :

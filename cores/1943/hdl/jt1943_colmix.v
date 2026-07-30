@@ -166,4 +166,4 @@ always @(posedge clk) if(cen6) begin
         pre_BL==2'b11 ?  {pal_red, pal_green, pal_blue} : 12'd0; // blanking
 end
 
-endmodule // jtgng_colmix
+endmodule

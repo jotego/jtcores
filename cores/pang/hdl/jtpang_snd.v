@@ -41,6 +41,8 @@ module jtpang_snd(
     output signed [13:0] pcm
 );
 
+`ifndef NOSOUND
+
 localparam [7:0] FM_GAIN  = 8'h10,
                  PCM_GAIN = 8'h0c;
 
@@ -80,5 +82,10 @@ jt6295 u_pcm (
 );
 
 /* verilator tracing_on */
+`else
+assign pcm_dout = 8'd0;
+assign rom_addr = 18'd0;
+assign fm       = 16'sd0;
+assign pcm      = 14'sd0;
+`endif
 endmodule
-

@@ -233,7 +233,7 @@ always @(posedge clk, posedge rst) begin
         // prisel  <= 0;
         mixpsel <= 0;
     end else begin
-        ok_dly <= rom_ok;
+        ok_dly <= rom_ok | ram_ok;
 
         LVBL_l <= LVBL;
         if( vint_clr )
@@ -390,7 +390,7 @@ end
 
 reg  disp_busy;
 wire bus_cs    = pal_cs!=0 || pre_ram_cs || rom_cs;
-wire bus_busy  = |{ rom_cs & ~ok_dly, pre_ram_cs & ~ram_ok, disp_cs & disp_busy };
+wire bus_busy  = |{ rom_cs & ~ok_dly, pre_ram_cs & ~ok_dly, disp_cs & disp_busy };
 wire bus_legit = disp_cs;
 
 // Memory access to the display area gets locked until a blank starts
@@ -489,7 +489,6 @@ end
 
 localparam [6:0] MHZ = `ifdef DEC1 12 `else 10 `endif ; // 12 MHz used on Midnight Resistance
 
-`ifndef NOMAIN
 wire DTACKn;
 
 jtframe_68kdtack_cen #(.W(8)) u_dtack(
@@ -544,22 +543,6 @@ jtframe_m68k u_cpu(
     .IPLn       ( IPLn        ) // VBLANK
 );
 `else
-    jtframe_simwr_68k u_simwr(
-        .rst    ( rst       ),
-        .clk    ( clk       ),
-        .DTACKn ( DTACKn    ),
-        .A      ( A         ),
-        .dout   ( cpu_dout  ),
-        .dsn    ({UDSn,LDSn}),
-        .wrn    ( RnW       ),
-        .ASn    ( ASn       )
-    );
-
-    assign fave = 0;
-    assign FC   = 0;
-    // assign obj_copy = !LVBL && LVBL_l;
-`endif
-`else
     // sound
     // reg [7:0]   snd_aux;
     // always @* snd_latch = snd_aux;
@@ -575,19 +558,19 @@ jtframe_m68k u_cpu(
     );
 
     assign  cpu_dout = 0,
-            //cpu_addr = 0,
+            cpu_addr = 0,
             UDSWn    = 1,
             LDSWn    = 1,
             RnW      = 0,
             sec      = 0,
             pal_cs   = 0,
-            // fmode_cs = 0,
+            fmode_cs = 0,
             fsft_cs  = 0,
             fmap_cs  = 0,
-            // bmode_cs = 0,
+            bmode_cs = 0,
             bsft_cs  = 0,
             bmap_cs  = 0,
-            // cmode_cs = 0,
+            cmode_cs = 0,
             csft_cs  = 0,
             cmap_cs  = 0,
             huc_cs   = 0,

@@ -21,6 +21,8 @@ module jttmnt_game(
 );
 
 /* verilator tracing_off */
+`include "game_id.inc"
+
 wire [ 7:0] snd_latch;
 wire        snd_irq, rmrd, rst8;
 wire        pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs;
@@ -32,6 +34,7 @@ wire [15:0] pal_dout;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
 reg  [ 2:0] game_id;
+reg         dip_test_mx, fm_mono_en;
 
 assign debug_view = debug_mux;
 assign ram_addr   = { main_addr[17], main_addr[13:1] };
@@ -40,6 +43,7 @@ assign ram_we     = cpu_we;
 wire [ 7:0] ioctl_din;
 `endif
 always @(posedge clk) begin
+    fm_mono_en <= dipsw[1] || game_id != THNDRX2;
     case( debug_bus[7:6] )
         0: debug_mux <= { 7'd0, dip_flip };
         1: debug_mux <= st_video;
@@ -51,6 +55,10 @@ end
 always @(posedge clk) begin
     if( prog_addr==0 && prog_we && header )
         game_id <= prog_data[2:0];
+end
+
+always @(posedge clk) begin
+    dip_test_mx <= game_id==THNDRX2 ? (dip_test & dipsw[0]) : dip_test;
 end
 
 /* verilator tracing_off */
@@ -99,10 +107,15 @@ jttmnt_main u_main(
     .sndon          ( snd_irq       ),
     .snd2main       ( snd2main      ),
     .snd_wrn        ( snd_wrn       ),
+    // EEPROM (Thunder Cross II)
+    .nv_addr        ( nvram_addr    ),
+    .nv_dout        ( nvram_dout    ),
+    .nv_din         ( nvram_din     ),
+    .nv_we          ( nvram_we      ),
     // DIP switches
     .dip_pause      ( dip_pause     ),
-    .dip_test       ( dip_test      ),
-    .dipsw          ( { dipsw[19:16], dipsw[15:0] } ),
+    .dip_test       ( dip_test_mx   ),
+    .dipsw          ( dipsw[19:0]   ),
     // Debug
     .st_dout        ( st_main       ),
     .debug_bus      ( debug_bus     )
@@ -182,6 +195,7 @@ jttmnt_sound u_sound(
     .cen_640    ( cen_640       ),
     .cen_20     ( cen_20        ),
     .game_id    ( game_id       ),
+    .fm_mono_en ( fm_mono_en    ),
     // communication with main CPU
     .main_dout  ( ram_din[7:0]  ),
     .main_din   ( snd2main      ),

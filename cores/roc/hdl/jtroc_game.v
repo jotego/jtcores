@@ -70,7 +70,6 @@ always @(*) begin
     end
 end
 
-`ifndef NOMAIN
 jtroc_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -110,14 +109,6 @@ jtroc_main u_main(
     .dipsw          ( dipsw[23:0]   ),
     .st_dout        ( st_main       )
 );
-`else
-    assign objram_cs = 0;
-    assign vram_cs   = 0;
-    assign cpu_rnw   = 1;
-    assign cpu_addr  = 0;
-    assign cpu_dout  = 0;
-    assign flip      = 1;
-`endif
 
 jtroc_snd u_sound(
     .rst        ( rst24     ),

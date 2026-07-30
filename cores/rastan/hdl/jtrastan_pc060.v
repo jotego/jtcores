@@ -16,20 +16,17 @@
     Version: 1.0
     Date: 4-4-2022 */
 
-// Designed according to MAME's description:
-// it lacks the mute output for the amp
-
 module jtrastan_pc060(
-    input           rst48,
-    input           clk48,
+    input           rst,
+    input           clk,
+    input           main_cen,
+    input           snd_cen,
     input     [3:0] main_dout,
     output    [3:0] main_din,
     input           main_addr,
     input           main_rnw,
     input           main_cs,
 
-    input           rst24,
-    input           clk24,
     input     [3:0] snd_dout,
     output    [3:0] snd_din,
     input           snd_addr,
@@ -52,9 +49,10 @@ module jtrastan_pc060(
     assign snd_din    =  snd_ptr[2] ? status : snd_ram;
 
     jtrastan_pc060_unit u_main(
-        .rst        ( rst48     ),
-        .clk        ( clk48     ),
-        .clk_other  ( clk24     ),
+        .rst        ( rst       ),
+        .clk        ( clk       ),
+        .cen        ( main_cen  ),
+        .clk_other  ( clk       ),
 
         .din        ( main_dout ),
         .cs         ( main_cs   ),
@@ -75,9 +73,10 @@ module jtrastan_pc060(
     );
 
     jtrastan_pc060_unit u_snd(
-        .rst        ( rst24     ),
-        .clk        ( clk24     ),
-        .clk_other  ( clk48     ),
+        .rst        ( rst       ),
+        .clk        ( clk       ),
+        .cen        ( snd_cen   ),
+        .clk_other  ( clk       ),
 
         .din        ( snd_dout  ),
         .cs         (  snd_cs   ),
@@ -98,8 +97,8 @@ module jtrastan_pc060(
     );
 
     jtframe_sync #(.W(1),.LATCHIN(1)) u_sync1(
-        .clk_in ( clk48     ),
-        .clk_out( clk24     ),
+        .clk_in ( clk       ),
+        .clk_out( clk       ),
         .raw    ( subrst    ),
         .sync   ( snd_rst   )
     );
@@ -107,13 +106,13 @@ module jtrastan_pc060(
     // Force 1kB RAM to be used, so synthesis works
     jtframe_dual_ram #(.DW(4),.AW(10)) u_share(
         // Port 0: main
-        .clk0   ( clk48         ),
+        .clk0   ( clk           ),
         .data0  ( main_dout     ),
         .addr0  ( { 7'd0,main_ramwr, main_ptr[1:0] } ),
         .we0    ( main_ramwr    ),
         .q0     ( main_ram      ),
         // Port 1: sound sub CPU
-        .clk1   ( clk24         ),
+        .clk1   ( clk           ),
         .addr1  ( { 7'd0,~snd_ramwr, snd_ptr[1:0] } ),
         .data1  ( snd_dout      ),
         .we1    ( snd_ramwr     ),
@@ -121,7 +120,6 @@ module jtrastan_pc060(
     );
 
 endmodule
-
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
@@ -129,6 +127,7 @@ endmodule
 module jtrastan_pc060_unit(
     input            rst,
     input            clk,
+    input            cen,
     input            clk_other,
     input            cs,
     input            a,
@@ -162,11 +161,10 @@ module jtrastan_pc060_unit(
 
     always @(posedge clk, posedge rst) begin
         if( rst ) begin
-            flag    <= 0;
             ptr     <= 0;
             full_rq <= 0;
             is_full <= 0;
-        end else begin
+        end else if( cen ) begin
             wel <= we;
             csl <= cs;
             al  <= a;
@@ -189,13 +187,22 @@ module jtrastan_pc060_unit(
                                 full_rq[1] <= 1;
                             else
                                 is_full[1] <= 0;
-                        4: flag <= din[0];
-                        5: flag <= 0;
-                        6: flag <= 1;
                         default:;
                     endcase
                 end
             end
         end
+    end
+
+    always @(posedge clk, posedge rst) begin
+        if( rst )
+            flag <= 0;
+        else if( cs & we & a & ptr[2] & ~ptr[3] )
+            case( ptr[1:0] )
+                2'd0: flag <= din[0];
+                2'd1: flag <= 1'b0;
+                2'd2: flag <= 1'b1;
+                default:;
+            endcase
     end
 endmodule
