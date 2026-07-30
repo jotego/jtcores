@@ -42,8 +42,6 @@ reg  [ 8:0] finish;
 reg  [15:0] buf_l;
 wire [23:0] cur;
 reg  [23:0] nx_cur;
-// 9-bit sample page so end=0 maps to page 0x100 (full 1 MB range, as in MAME's
-// end_addr=(0x100-end)<<12) instead of wrapping the 8-bit page to 0 (= instant key-off).
 wire [20:0] full_addr = {1'b0,start,12'd0}+{1'b0,cur[23:4]};
 
 reg signed [15:0] mul;
