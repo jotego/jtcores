@@ -74,7 +74,10 @@ set_output_delay -clock  SDRAM_CLK -min -0.8 \
 
 set_multicycle_path -hold -end -from  [get_clocks {SDRAM_CLK}]  -to  [get_clocks {u_clocks|u_pll_game|altpll_component|auto_generated|pll1|clk[1]}] 2
 
-set_multicycle_path -setup -end -from [get_keepers {SDRAM_DQ[*]}] -to [get_keepers {jtframe_mist:u_frame|jtframe_board:u_board|jtframe_sdram64:u_sdram|dout[*]}] 2
+# The SDRAM port is wrapped by jtframe_board_sdram in current JTFRAME builds.
+# Match the leaf instance so the two-cycle SDRAM read constraint remains valid
+# regardless of that wrapper hierarchy.
+set_multicycle_path -setup -end -from [get_keepers {SDRAM_DQ[*]}] -to [get_keepers {*|jtframe_sdram64:u_sdram|dout[*]}] 2
 
 #**************************************************************
 # Set Maximum Delay

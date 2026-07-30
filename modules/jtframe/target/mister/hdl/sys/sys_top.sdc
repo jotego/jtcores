@@ -81,6 +81,24 @@ set_false_path -to   {sysmem|fpga_interfaces|clocks_resets|f2h*}
 set_false_path -to [get_keepers {audio_out:audio_out|cl1[*]}]
 set_false_path -to [get_keepers {audio_out:audio_out|cr1[*]}]
 
+# The VU meter is a debug-only display. Audio-rate mixer data may cross into
+# its system-clock accumulators without affecting game audio or video.
+set jtframe_vumeter_mixed [get_keepers -nowarn {*|jtframe_rcmix:u_rcmix|mixed[*]}]
+set jtframe_vumeter_ml    [get_keepers -nowarn {*|jtframe_vumeter:vumeter|ml[*]}]
+set jtframe_vumeter_mr    [get_keepers -nowarn {*|jtframe_vumeter:vumeter|mr[*]}]
+set jtframe_vumeter_l2r2  [get_keepers -nowarn {*|jtframe_vumeter:vumeter|l2r2[*]}]
+if { [get_collection_size $jtframe_vumeter_mixed] > 0 } {
+    if { [get_collection_size $jtframe_vumeter_ml] > 0 } {
+        set_false_path -from $jtframe_vumeter_mixed -to $jtframe_vumeter_ml
+    }
+    if { [get_collection_size $jtframe_vumeter_mr] > 0 } {
+        set_false_path -from $jtframe_vumeter_mixed -to $jtframe_vumeter_mr
+    }
+    if { [get_collection_size $jtframe_vumeter_l2r2] > 0 } {
+        set_false_path -from $jtframe_vumeter_mixed -to $jtframe_vumeter_l2r2
+    }
+}
+
 # Reset synchronization signal
 set_false_path -from [get_keepers {emu:emu|jtframe_mister:u_frame|jtframe_board:u_board|jtframe_reset:u_reset|rst_rom[0]}] -to [get_keepers {emu:emu|jtframe_mister:u_frame|jtframe_board:u_board|jtframe_reset:u_reset|rst_rom_sync}]
 set_false_path -to emu:emu|sRESET[0]
