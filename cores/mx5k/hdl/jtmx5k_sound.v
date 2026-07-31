@@ -192,6 +192,8 @@ jt007232 u_pcm(
 initial rom_cs   = 0;
 assign  pcma_cs  = 0;
 assign  pcmb_cs  = 0;
+assign  pcma_addr= 18'd0;
+assign  pcmb_addr= 18'd0;
 assign  rom_addr = 15'd0;
 assign  pcm      = 0;
 assign  fm_l     = 0;

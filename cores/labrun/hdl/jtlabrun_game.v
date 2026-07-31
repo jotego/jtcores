@@ -52,7 +52,6 @@ jtlabrun_simloader u_simloader(
     .pal_cs     ( pal_cs        )
 );
 `else
-`ifndef NOMAIN
 jtlabrun_main u_main(
     .clk            ( clk24         ),        // 24 MHz
     .rst            ( rst24         ),
@@ -93,9 +92,6 @@ jtlabrun_main u_main(
     .psg0           ( psg0          ),
     .psg1           ( psg1          )
 );
-`else
-assign main_cs = 0;
-`endif
 `endif
 
 `ifndef NOVIDEO

@@ -133,7 +133,6 @@ end
 assign key_mcaddr=0;
 `endif
 /* verilator tracing_on */
-`ifndef NOMAIN
 `JTS16_MAIN u_main(
     .rst        ( rstx      ),
     .clk        ( clk       ),
@@ -228,53 +227,6 @@ assign key_mcaddr=0;
     .st_addr     ( st_addr    ),
     .st_dout     ( st_main    )
 );
-`else
-    assign flip      = 0;
-    assign main_addr = 0;
-    assign main_cs   = 0;
-    assign ram_cs    = 0;
-    assign pal_cs    = 0;
-    assign vram_cs   = 0;
-    assign UDSWn     = 1;
-    assign LDSWn     = 1;
-    assign main_rnw  = 1;
-    assign main_dout = 0;
-    assign video_en  = 1;
-    assign mute_n    = 0; // active low (?)
-    `ifdef S16B
-        reg aux_obf = 0;
-        reg [7:0] aux_dout=0;
-        assign sndmap_dout = aux_dout;
-        assign sndmap_pbf  = aux_obf;
-        integer framecnt=0, last_fcnt=0;
-
-        always @(negedge LVBL) begin
-            framecnt <= framecnt+1;
-        end
-        always @(negedge LHBL) begin
-            last_fcnt <= framecnt;
-            aux_obf <= last_fcnt != framecnt && (framecnt==10
-                || framecnt==12
-                // || framecnt==32
-                // || framecnt==72
-                // || framecnt==112
-            );
-            if( framecnt == 11 ) aux_dout <= 8'h4b; //8'h48 Ok; 4c
-            //if( framecnt == 31 ) aux_dout <= 8'h42;
-            //if( framecnt == 71 ) aux_dout <= 8'h41;
-            //if( framecnt ==111 ) aux_dout <= 8'h40;
-        end
-    `endif
-    `ifdef SIMULATION
-        reg [7:0] sim_def[0:1];
-
-        initial begin
-            $readmemh("tilebank.hex",sim_def);
-            $display("Tile bank set to %X",sim_def[0]);
-        end
-        assign tile_bank = sim_def[0][5:0];
-    `endif
-`endif
 /* verilator tracing_off */
 `JTS16_SND u_sound(
     .rst        ( rst       ),

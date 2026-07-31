@@ -79,6 +79,8 @@ module jtbubl_main(
     input      [ 7:0]   debug_bus
 );
 
+`ifndef NOMAIN
+
 wire        cen_main, cen_sub;
 reg  [ 7:0] main_din, sub_din;
 wire [ 7:0] ram2sub, main_dout, sub_dout, comm2main, comm2mcu, mcu_dout,
@@ -575,4 +577,18 @@ jtkunio_mcu u_mcu05(
     .rom_data   ( mcu_rom_data  )
 );
 
+`else
+assign cpu_addr      = 13'd0;
+assign cpu_dout      = 8'd0;
+assign cpu_rnw       = 1'b1;
+assign main_flag     = 1'b0;
+assign main_rom_addr = 18'd0;
+assign sub_rom_addr  = 15'd0;
+assign mcu_rom_addr  = 12'd0;
+assign mcu_rom_cs    = 1'b0;
+initial begin
+    vram_cs=0; pal_cs=0; black_n=1; flip=0; snd_latch=0; snd_stb=0; snd_rst=0;
+    main_rom_cs=0; sub_rom_cs=0;
+end
+`endif
 endmodule

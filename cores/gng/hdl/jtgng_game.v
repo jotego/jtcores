@@ -137,7 +137,6 @@ jtgng_main u_main(
     .dipsw_b    ( dipsw[15:8]   )
 );
 
-`ifndef NOSOUND
 jtgng_sound u_sound (
     .rst            ( rst        ),
     .clk            ( clk        ),
@@ -165,15 +164,6 @@ jtgng_sound u_sound (
     .mcu_srd        (            ),
     .snd2_latch     (            )
 );
-`else
-    assign snd_addr = 0;
-    assign snd_cs   = 0;
-    assign fm0      = 0;
-    assign fm1      = 0;
-    assign psg0     = 0;
-    assign psg1     = 0;
-    assign st_snd   = 0;
-`endif
 
 /* verilator tracing_off */
 jtgng_video #(.GNGPAL(1)) u_video(

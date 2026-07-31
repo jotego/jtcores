@@ -102,7 +102,6 @@ always @(*) begin
     if(ioctl_addr>= OBJ_START[25:0] && ioctl_addr<PROM_START[25:0]) post_addr[5:1] = { prog_addr[4:1], prog_addr[5] };
 end
 
-`ifndef NOMAIN
 jtcommnd_main #(.GAME(3)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -174,16 +173,6 @@ jtcommnd_main #(.GAME(3)) u_main(
     .dipsw_a    ( dipsw[ 7:0]   ),
     .dipsw_b    ( dipsw[15:8]   )
 );
-`else
-assign main_addr   = 17'd0;
-assign char_cs     = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign RnW         = 1'b1;
-assign scr1_hpos   = 0;
-assign scr1_vpos   = 0;
-assign cpu_cen     = cen3;
-`endif
 
 jtexed_sound u_sound(
     .rst            ( rst            ),

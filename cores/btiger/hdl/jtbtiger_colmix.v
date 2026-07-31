@@ -138,4 +138,4 @@ jtframe_blank #(.DLY(8),.DW(12)) u_dly(
     .rgb_out    ( {red, green, blue } )
 );
 
-endmodule // jtgng_colmix
+endmodule

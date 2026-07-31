@@ -28,12 +28,12 @@ module jtrastan_obj(
     input    [8:0]  hdump,
     input    [8:0]  vrender,
 
-    input    [10:1] main_addr,
+    input    [12:1] main_addr,
     input    [15:0] main_dout,
     output   [15:0] main_din,
     input    [ 1:0] main_dsn,
     input           main_rnw,
-    input           obj_cs,        // selection from address decoder
+    input           obj_cs,
     output          dtackn,
 
     output reg [18:1] rom_addr,
@@ -169,7 +169,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_dual_nvram16 #(.SIMFILE("obj.bin")) u_ram(
+jtframe_dual_nvram16 #(.AW(12),.SIMFILE("obj.bin")) u_ram(
     // Port 0
     .clk0   ( clk       ),
     .data0  ( main_dout ),
@@ -179,10 +179,10 @@ jtframe_dual_nvram16 #(.SIMFILE("obj.bin")) u_ram(
     // Port 1
     .clk1   ( clk       ),
     .data1  (           ),
-    .addr1a ( {obj_cnt,scan_cnt} ),
+    .addr1a ( {2'b0, obj_cnt, scan_cnt} ),
     .q1a    ( scan_dout ),
     // NVRAM dump
-    .addr1b ( ioctl_addr),
+    .addr1b ( {2'b0, ioctl_addr} ),
     .sel_b  ( ioctl_ram ),
     .we1b   ( 1'd0      ),
     .q1b    ( ioctl_din )

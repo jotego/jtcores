@@ -82,6 +82,7 @@ reg         cab_cs, HALTn, pair_cs,
             eep_di, eep_clk, eep_cs, omsb_cs, pslrm_cs,
             psvrm_cs, eep_wr, cfg_wr;
 reg  [15:0] cpu_din, cab_dout;
+reg         ok_dly;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -90,7 +91,7 @@ wire [23:0] A_full = {A,1'b0};
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
+assign bus_busy = (rom_cs | ram_cs) & ~ok_dly;
 assign BUSn     = ASn | &ram_dsn;
 assign UDWn     = UDSn   | RnW;
 assign LDWn     = LDSn   | RnW;
@@ -151,6 +152,7 @@ always @* begin
 end
 
 always @(posedge clk) begin
+    ok_dly  <= rom_ok | ram_ok;
     IPLn    <= {tile_irqn,1'b1,tile_irqn};
     HALTn   <= dip_pause & ~rst;
     case( A[1] )

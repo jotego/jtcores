@@ -9135,16 +9135,6 @@
 	)
 	(bus
 		(pts
-			(xy 113.03 203.2) (xy 116.84 203.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bbeb6404-ea95-45ba-af9a-3d83d149b11d")
-	)
-	(bus
-		(pts
 			(xy 321.31 135.89) (xy 321.31 139.7)
 		)
 		(stroke
@@ -9472,6 +9462,16 @@
 			(type default)
 		)
 		(uuid "c9b3f40c-da56-4432-acb0-624ff1d6e0cc")
+	)
+	(wire
+		(pts
+			(xy 243.84 181.61) (xy 243.84 179.07)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c9b69d37-eddc-47e9-889d-2edf920d0277")
 	)
 	(bus
 		(pts
@@ -10546,7 +10546,6 @@
 	)
 	(label "CM6"
 		(at 238.76 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10557,7 +10556,6 @@
 	)
 	(label "MD1"
 		(at 355.6 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10568,7 +10566,6 @@
 	)
 	(label "SEL1"
 		(at 134.62 173.99 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10579,7 +10576,6 @@
 	)
 	(label "CLD14"
 		(at 323.85 215.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10590,7 +10586,6 @@
 	)
 	(label "OUT9"
 		(at 134.62 72.39 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10601,7 +10596,6 @@
 	)
 	(label "CLD0"
 		(at 312.42 77.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10612,7 +10606,6 @@
 	)
 	(label "CLD[0..15]"
 		(at 321.31 119.38 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10623,7 +10616,6 @@
 	)
 	(label "CLD12"
 		(at 323.85 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10634,7 +10626,6 @@
 	)
 	(label "CLD1"
 		(at 323.85 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10645,7 +10636,6 @@
 	)
 	(label "S02"
 		(at 134.62 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10656,7 +10646,6 @@
 	)
 	(label "CLA3"
 		(at 285.75 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10667,7 +10656,6 @@
 	)
 	(label "CB0"
 		(at 180.34 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10678,7 +10666,6 @@
 	)
 	(label "MD9"
 		(at 355.6 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10689,7 +10676,6 @@
 	)
 	(label "CLD6"
 		(at 323.85 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10700,7 +10686,6 @@
 	)
 	(label "MD4"
 		(at 355.6 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10711,7 +10696,6 @@
 	)
 	(label "MD7"
 		(at 355.6 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10722,7 +10706,6 @@
 	)
 	(label "CLA1"
 		(at 269.24 163.83 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10733,7 +10716,6 @@
 	)
 	(label "CLD15"
 		(at 323.85 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10744,7 +10726,6 @@
 	)
 	(label "CLA2"
 		(at 285.75 82.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10755,7 +10736,6 @@
 	)
 	(label "CM2"
 		(at 210.82 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10766,7 +10746,6 @@
 	)
 	(label "SEL0"
 		(at 63.5 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10777,7 +10756,6 @@
 	)
 	(label "CB1"
 		(at 180.34 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10788,7 +10766,6 @@
 	)
 	(label "CLD7"
 		(at 312.42 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10799,7 +10776,6 @@
 	)
 	(label "CLD0"
 		(at 323.85 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10810,7 +10786,6 @@
 	)
 	(label "CLD10"
 		(at 312.42 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10821,7 +10796,6 @@
 	)
 	(label "CLD9"
 		(at 323.85 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10832,7 +10806,6 @@
 	)
 	(label "CB2"
 		(at 166.37 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10843,7 +10816,6 @@
 	)
 	(label "MA5"
 		(at 238.76 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10854,7 +10826,6 @@
 	)
 	(label "S11"
 		(at 134.62 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10865,7 +10836,6 @@
 	)
 	(label "CLA0"
 		(at 285.75 77.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10876,7 +10846,6 @@
 	)
 	(label "CLA6"
 		(at 269.24 121.92 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10887,7 +10856,6 @@
 	)
 	(label "CLD3"
 		(at 323.85 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10898,7 +10866,6 @@
 	)
 	(label "CLD2"
 		(at 323.85 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10909,7 +10876,6 @@
 	)
 	(label "OUT3"
 		(at 38.1 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10920,7 +10886,6 @@
 	)
 	(label "S12"
 		(at 134.62 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10931,7 +10896,6 @@
 	)
 	(label "CLD4"
 		(at 323.85 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10942,7 +10906,6 @@
 	)
 	(label "CLD6"
 		(at 323.85 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10953,7 +10916,6 @@
 	)
 	(label "SB7"
 		(at 134.62 96.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10964,7 +10926,6 @@
 	)
 	(label "CB9"
 		(at 166.37 66.04 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10975,7 +10936,6 @@
 	)
 	(label "CLA10"
 		(at 269.24 83.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10986,7 +10946,6 @@
 	)
 	(label "CM4"
 		(at 210.82 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10997,7 +10956,6 @@
 	)
 	(label "OUT2"
 		(at 38.1 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11008,7 +10966,6 @@
 	)
 	(label "CLD12"
 		(at 323.85 210.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11019,7 +10976,6 @@
 	)
 	(label "CLA1"
 		(at 285.75 80.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11030,7 +10986,6 @@
 	)
 	(label "CM1"
 		(at 210.82 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11041,7 +10996,6 @@
 	)
 	(label "MD3"
 		(at 355.6 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11052,7 +11006,6 @@
 	)
 	(label "MD14"
 		(at 355.6 215.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11063,7 +11016,6 @@
 	)
 	(label "CLA4"
 		(at 285.75 87.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11074,7 +11026,6 @@
 	)
 	(label "MD10"
 		(at 355.6 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11085,7 +11036,6 @@
 	)
 	(label "CB2"
 		(at 180.34 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11096,7 +11046,6 @@
 	)
 	(label "CLD11"
 		(at 312.42 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11107,7 +11056,6 @@
 	)
 	(label "CLA0"
 		(at 285.75 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11118,7 +11066,6 @@
 	)
 	(label "CB5"
 		(at 180.34 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11129,7 +11076,6 @@
 	)
 	(label "CM4"
 		(at 238.76 133.35 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11140,7 +11086,6 @@
 	)
 	(label "CM[0..10]"
 		(at 220.98 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11151,7 +11096,6 @@
 	)
 	(label "SEL1"
 		(at 134.62 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11162,7 +11106,6 @@
 	)
 	(label "CLD8"
 		(at 323.85 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11173,7 +11116,6 @@
 	)
 	(label "CLD8"
 		(at 312.42 137.16 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11184,7 +11126,6 @@
 	)
 	(label "SB10"
 		(at 134.62 57.15 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11195,7 +11136,6 @@
 	)
 	(label "MA2"
 		(at 238.76 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11206,7 +11146,6 @@
 	)
 	(label "SB6"
 		(at 134.62 99.06 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11217,7 +11156,6 @@
 	)
 	(label "CB7"
 		(at 166.37 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11228,7 +11166,6 @@
 	)
 	(label "CM7"
 		(at 238.76 125.73 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11239,7 +11176,6 @@
 	)
 	(label "CLD2"
 		(at 323.85 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11250,7 +11186,6 @@
 	)
 	(label "MD5"
 		(at 355.6 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11261,7 +11196,6 @@
 	)
 	(label "CLD13"
 		(at 323.85 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11272,7 +11206,6 @@
 	)
 	(label "SB4"
 		(at 134.62 104.14 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11283,7 +11216,6 @@
 	)
 	(label "CLA9"
 		(at 269.24 86.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11294,7 +11226,6 @@
 	)
 	(label "SEL1"
 		(at 63.5 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11305,7 +11236,6 @@
 	)
 	(label "CM1"
 		(at 238.76 170.18 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11316,7 +11246,6 @@
 	)
 	(label "CLA9"
 		(at 285.75 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11327,7 +11256,6 @@
 	)
 	(label "MA1"
 		(at 238.76 160.02 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11338,7 +11266,6 @@
 	)
 	(label "CB10"
 		(at 180.34 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11349,7 +11276,6 @@
 	)
 	(label "SEL0"
 		(at 134.62 220.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11360,7 +11286,6 @@
 	)
 	(label "CLD3"
 		(at 312.42 85.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11371,7 +11296,6 @@
 	)
 	(label "CLA5"
 		(at 285.75 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11382,7 +11306,6 @@
 	)
 	(label "OUT10"
 		(at 134.62 69.85 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11393,7 +11316,6 @@
 	)
 	(label "CM10"
 		(at 238.76 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11404,7 +11326,6 @@
 	)
 	(label "MA4"
 		(at 238.76 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11415,7 +11336,6 @@
 	)
 	(label "CLA2"
 		(at 269.24 161.29 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11426,7 +11346,6 @@
 	)
 	(label "MD2"
 		(at 355.6 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11437,7 +11356,6 @@
 	)
 	(label "CLA6"
 		(at 285.75 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11448,7 +11366,6 @@
 	)
 	(label "SB9"
 		(at 134.62 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11459,7 +11376,6 @@
 	)
 	(label "CLD3"
 		(at 323.85 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11470,7 +11386,6 @@
 	)
 	(label "CLA6"
 		(at 285.75 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11481,7 +11396,6 @@
 	)
 	(label "S13"
 		(at 38.1 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11492,7 +11406,6 @@
 	)
 	(label "CLD9"
 		(at 312.42 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11503,7 +11416,6 @@
 	)
 	(label "CLD5"
 		(at 323.85 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11514,7 +11426,6 @@
 	)
 	(label "CM0"
 		(at 210.82 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11525,7 +11436,6 @@
 	)
 	(label "S00"
 		(at 134.62 185.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11536,7 +11446,6 @@
 	)
 	(label "S01"
 		(at 134.62 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11547,7 +11456,6 @@
 	)
 	(label "CM2"
 		(at 238.76 167.64 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11558,7 +11466,6 @@
 	)
 	(label "CB1"
 		(at 166.37 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11569,7 +11476,6 @@
 	)
 	(label "CLA8"
 		(at 285.75 157.48 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11580,7 +11486,6 @@
 	)
 	(label "CM7"
 		(at 210.82 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11591,7 +11496,6 @@
 	)
 	(label "MA6"
 		(at 238.76 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11602,7 +11506,6 @@
 	)
 	(label "CB4"
 		(at 166.37 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11613,7 +11516,6 @@
 	)
 	(label "CLA10"
 		(at 285.75 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11624,7 +11526,6 @@
 	)
 	(label "CM3"
 		(at 238.76 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11635,7 +11536,6 @@
 	)
 	(label "MD6"
 		(at 355.6 177.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11646,7 +11546,6 @@
 	)
 	(label "CLA8"
 		(at 269.24 88.9 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11657,7 +11556,6 @@
 	)
 	(label "CLD10"
 		(at 323.85 205.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11668,7 +11566,6 @@
 	)
 	(label "CB7"
 		(at 180.34 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11679,7 +11576,6 @@
 	)
 	(label "CLA3"
 		(at 285.75 85.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11690,7 +11586,6 @@
 	)
 	(label "CM3"
 		(at 210.82 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11701,7 +11596,6 @@
 	)
 	(label "MD8"
 		(at 355.6 200.66 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11712,7 +11606,6 @@
 	)
 	(label "CLD11"
 		(at 323.85 208.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11723,7 +11616,6 @@
 	)
 	(label "CLA1"
 		(at 285.75 139.7 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11734,7 +11626,6 @@
 	)
 	(label "MA3"
 		(at 238.76 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11745,7 +11636,6 @@
 	)
 	(label "S10"
 		(at 134.62 187.96 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11756,7 +11646,6 @@
 	)
 	(label "CM0"
 		(at 238.76 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11767,7 +11656,6 @@
 	)
 	(label "MA7"
 		(at 238.76 115.57 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11778,7 +11666,6 @@
 	)
 	(label "SEL1"
 		(at 134.62 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11789,7 +11676,6 @@
 	)
 	(label "SEL1"
 		(at 134.62 223.52 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11800,7 +11686,6 @@
 	)
 	(label "CLD4"
 		(at 312.42 87.63 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11811,7 +11696,6 @@
 	)
 	(label "CLA7"
 		(at 285.75 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11822,7 +11706,6 @@
 	)
 	(label "CM10"
 		(at 210.82 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11833,7 +11716,6 @@
 	)
 	(label "CB9"
 		(at 180.34 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11844,7 +11726,6 @@
 	)
 	(label "OUT2"
 		(at 134.62 140.97 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11855,7 +11736,6 @@
 	)
 	(label "OUT5"
 		(at 134.62 114.3 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11866,7 +11746,6 @@
 	)
 	(label "CLA9"
 		(at 285.75 100.33 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11877,7 +11756,6 @@
 	)
 	(label "CB[0..10]"
 		(at 173.99 129.54 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11888,7 +11766,6 @@
 	)
 	(label "CLA7"
 		(at 285.75 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11899,7 +11776,6 @@
 	)
 	(label "CLA0"
 		(at 269.24 166.37 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11910,7 +11786,6 @@
 	)
 	(label "OUT7"
 		(at 134.62 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11921,7 +11796,6 @@
 	)
 	(label "CB4"
 		(at 180.34 144.78 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11932,7 +11806,6 @@
 	)
 	(label "S12"
 		(at 38.1 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11943,7 +11816,6 @@
 	)
 	(label "OUT3"
 		(at 134.62 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11954,7 +11826,6 @@
 	)
 	(label "S13"
 		(at 134.62 156.21 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11965,7 +11836,6 @@
 	)
 	(label "CLA10"
 		(at 285.75 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11976,7 +11846,6 @@
 	)
 	(label "CLA2"
 		(at 285.75 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11987,7 +11856,6 @@
 	)
 	(label "CB3"
 		(at 180.34 142.24 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -11998,7 +11866,6 @@
 	)
 	(label "MA9"
 		(at 238.76 82.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12009,7 +11876,6 @@
 	)
 	(label "S11"
 		(at 38.1 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12020,7 +11886,6 @@
 	)
 	(label "CLD0"
 		(at 323.85 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12031,7 +11896,6 @@
 	)
 	(label "CLD8"
 		(at 323.85 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12042,7 +11906,6 @@
 	)
 	(label "CLD7"
 		(at 323.85 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12053,7 +11916,6 @@
 	)
 	(label "MA8"
 		(at 238.76 113.03 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12064,7 +11926,6 @@
 	)
 	(label "CM5"
 		(at 210.82 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12075,7 +11936,6 @@
 	)
 	(label "S03"
 		(at 134.62 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12086,7 +11946,6 @@
 	)
 	(label "MA11"
 		(at 238.76 77.47 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12097,7 +11956,6 @@
 	)
 	(label "OUT0"
 		(at 134.62 190.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12108,7 +11966,6 @@
 	)
 	(label "CLA4"
 		(at 269.24 127 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12119,7 +11976,6 @@
 	)
 	(label "CLD2"
 		(at 312.42 82.55 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12130,7 +11986,6 @@
 	)
 	(label "MD15"
 		(at 355.6 218.44 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12141,7 +11996,6 @@
 	)
 	(label "CLA4"
 		(at 285.75 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12152,7 +12006,6 @@
 	)
 	(label "OUT0"
 		(at 38.1 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12163,7 +12016,6 @@
 	)
 	(label "OUT1"
 		(at 38.1 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12174,7 +12026,6 @@
 	)
 	(label "CLD12"
 		(at 312.42 147.32 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12185,7 +12036,6 @@
 	)
 	(label "SB8"
 		(at 134.62 62.23 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12196,7 +12046,6 @@
 	)
 	(label "CB8"
 		(at 180.34 106.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12207,7 +12056,6 @@
 	)
 	(label "MD0"
 		(at 355.6 162.56 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12218,7 +12066,6 @@
 	)
 	(label "CLD1"
 		(at 323.85 165.1 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12229,7 +12076,6 @@
 	)
 	(label "MD13"
 		(at 355.6 213.36 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12240,7 +12086,6 @@
 	)
 	(label "CLD5"
 		(at 323.85 175.26 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12251,7 +12096,6 @@
 	)
 	(label "OUT8"
 		(at 134.62 74.93 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12262,7 +12106,6 @@
 	)
 	(label "CLA7"
 		(at 269.24 119.38 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12273,7 +12116,6 @@
 	)
 	(label "OUT6"
 		(at 134.62 111.76 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12284,7 +12126,6 @@
 	)
 	(label "CLD4"
 		(at 323.85 172.72 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12295,7 +12136,6 @@
 	)
 	(label "CLA[0..10]"
 		(at 278.13 142.24 90)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12306,7 +12146,6 @@
 	)
 	(label "CLD5"
 		(at 312.42 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12317,7 +12156,6 @@
 	)
 	(label "CM8"
 		(at 238.76 95.25 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12328,7 +12166,6 @@
 	)
 	(label "MD11"
 		(at 355.6 208.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12339,7 +12176,6 @@
 	)
 	(label "CB6"
 		(at 180.34 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12350,7 +12186,6 @@
 	)
 	(label "CLD15"
 		(at 312.42 154.94 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12361,7 +12196,6 @@
 	)
 	(label "CM9"
 		(at 210.82 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12372,7 +12206,6 @@
 	)
 	(label "CLD6"
 		(at 312.42 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12383,7 +12216,6 @@
 	)
 	(label "CLA3"
 		(at 269.24 158.75 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12394,7 +12226,6 @@
 	)
 	(label "CM8"
 		(at 210.82 106.68 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12405,7 +12236,6 @@
 	)
 	(label "CLD13"
 		(at 323.85 135.89 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12416,7 +12246,6 @@
 	)
 	(label "CM6"
 		(at 210.82 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12427,7 +12256,6 @@
 	)
 	(label "CLD1"
 		(at 312.42 80.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12438,7 +12266,6 @@
 	)
 	(label "S10"
 		(at 38.1 110.49 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12449,7 +12276,6 @@
 	)
 	(label "SEL[0..1]"
 		(at 100.33 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12460,7 +12286,6 @@
 	)
 	(label "CLD13"
 		(at 312.42 149.86 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12471,7 +12296,6 @@
 	)
 	(label "OUT1"
 		(at 134.62 208.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12482,7 +12306,6 @@
 	)
 	(label "CLA5"
 		(at 269.24 124.46 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12493,7 +12316,6 @@
 	)
 	(label "CB0"
 		(at 166.37 185.42 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12504,7 +12326,6 @@
 	)
 	(label "CLA8"
 		(at 285.75 97.79 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12515,7 +12336,6 @@
 	)
 	(label "CB5"
 		(at 166.37 107.95 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12526,7 +12346,6 @@
 	)
 	(label "CB10"
 		(at 166.37 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12537,7 +12356,6 @@
 	)
 	(label "CB3"
 		(at 166.37 153.67 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12548,7 +12366,6 @@
 	)
 	(label "CM5"
 		(at 238.76 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12559,7 +12376,6 @@
 	)
 	(label "CLD9"
 		(at 323.85 203.2 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12570,7 +12386,6 @@
 	)
 	(label "CLD14"
 		(at 312.42 152.4 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12581,7 +12396,6 @@
 	)
 	(label "MD12"
 		(at 355.6 210.82 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12592,7 +12406,6 @@
 	)
 	(label "~{CLWE}"
 		(at 269.24 81.28 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12603,7 +12416,6 @@
 	)
 	(label "~{CSYNC}"
 		(at 63.5 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12614,7 +12426,6 @@
 	)
 	(label "OUT4"
 		(at 134.62 116.84 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12625,7 +12436,6 @@
 	)
 	(label "CLD7"
 		(at 323.85 180.34 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12636,7 +12446,6 @@
 	)
 	(label "SEL0"
 		(at 134.62 171.45 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12647,7 +12456,6 @@
 	)
 	(label "CB6"
 		(at 166.37 105.41 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12658,7 +12466,6 @@
 	)
 	(label "SB5"
 		(at 134.62 101.6 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12669,7 +12476,6 @@
 	)
 	(label "MA10"
 		(at 238.76 80.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12680,7 +12486,6 @@
 	)
 	(label "CLD10"
 		(at 323.85 128.27 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12691,7 +12496,6 @@
 	)
 	(label "CB8"
 		(at 166.37 68.58 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12702,7 +12506,6 @@
 	)
 	(label "CLA5"
 		(at 285.75 90.17 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12713,7 +12516,6 @@
 	)
 	(label "CLD14"
 		(at 323.85 138.43 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12724,7 +12526,6 @@
 	)
 	(label "CLD11"
 		(at 323.85 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12735,7 +12536,6 @@
 	)
 	(label "CM9"
 		(at 238.76 92.71 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12747,7 +12547,6 @@
 	(hierarchical_label "OVCK"
 		(shape input)
 		(at 185.42 119.38 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12759,7 +12558,6 @@
 	(hierarchical_label "R~{W}"
 		(shape input)
 		(at 330.2 185.42 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12768,10 +12566,9 @@
 		)
 		(uuid "0cf347e1-a5c5-4381-b987-44d35b13cb1d")
 	)
-	(hierarchical_label "S[10..13]"
+	(hierarchical_label "S1[0..3]"
 		(shape input)
 		(at 27.94 90.17 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12783,7 +12580,6 @@
 	(hierarchical_label "S0[0..3]"
 		(shape input)
 		(at 113.03 208.28 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12795,7 +12591,6 @@
 	(hierarchical_label "~{HSYNC}"
 		(shape input)
 		(at 73.66 95.25 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12807,7 +12602,6 @@
 	(hierarchical_label "~{COLRAM}"
 		(shape input)
 		(at 229.87 99.06 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12819,7 +12613,6 @@
 	(hierarchical_label "R~{W}"
 		(shape input)
 		(at 330.2 223.52 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12831,7 +12624,6 @@
 	(hierarchical_label "SYNC"
 		(shape output)
 		(at 105.41 123.19 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12843,7 +12635,6 @@
 	(hierarchical_label "~{COLRAM}"
 		(shape input)
 		(at 229.87 176.53 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12855,7 +12646,6 @@
 	(hierarchical_label "SB[4..10]"
 		(shape input)
 		(at 118.11 52.07 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12867,7 +12657,6 @@
 	(hierarchical_label "BLUE"
 		(shape output)
 		(at 388.62 134.62 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12879,7 +12668,6 @@
 	(hierarchical_label "OUT[0..10]"
 		(shape input)
 		(at 29.21 115.57 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12891,7 +12679,6 @@
 	(hierarchical_label "SEL0"
 		(shape output)
 		(at 73.66 120.65 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12903,7 +12690,6 @@
 	(hierarchical_label "~{COLRAM}"
 		(shape input)
 		(at 229.87 137.16 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12915,7 +12701,6 @@
 	(hierarchical_label "~{VSYNC}"
 		(shape input)
 		(at 73.66 97.79 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12927,7 +12712,6 @@
 	(hierarchical_label "MD[0..15]"
 		(shape bidirectional)
 		(at 358.14 232.41 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12939,7 +12723,6 @@
 	(hierarchical_label "~{COLRAMWR}"
 		(shape input)
 		(at 231.14 74.93 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12951,7 +12734,6 @@
 	(hierarchical_label "~{VBL}"
 		(shape input)
 		(at 330.2 143.51 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12963,7 +12745,6 @@
 	(hierarchical_label "GREEN"
 		(shape output)
 		(at 388.62 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12975,7 +12756,6 @@
 	(hierarchical_label "OVCK"
 		(shape input)
 		(at 185.42 157.48 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -12984,22 +12764,9 @@
 		)
 		(uuid "aade4837-a9dc-4f34-947f-8e65630ea758")
 	)
-	(hierarchical_label "S[10..13]"
-		(shape input)
-		(at 113.03 203.2 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "b8cf6e07-4332-4c03-adf4-6e532283b42f")
-	)
 	(hierarchical_label "~{COLRAM}"
 		(shape input)
 		(at 330.2 187.96 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13011,7 +12778,6 @@
 	(hierarchical_label "~{HBL}"
 		(shape input)
 		(at 330.2 146.05 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13023,7 +12789,6 @@
 	(hierarchical_label "RED"
 		(shape output)
 		(at 388.62 102.87 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13035,7 +12800,6 @@
 	(hierarchical_label "~{COLRAM}"
 		(shape input)
 		(at 330.2 226.06 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13047,7 +12811,6 @@
 	(hierarchical_label "MA[1..11]"
 		(shape input)
 		(at 231.14 80.01 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -13059,7 +12822,6 @@
 	(hierarchical_label "OVCK"
 		(shape input)
 		(at 330.2 148.59 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -16919,7 +16681,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 243.84 179.07 270)
+		(at 243.84 181.61 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -16927,7 +16689,7 @@
 		(dnp no)
 		(uuid "e6940da2-0684-45bc-8a0a-392382256881")
 		(property "Reference" "#PWR012"
-			(at 237.49 179.07 0)
+			(at 243.84 187.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16936,7 +16698,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 241.3 179.07 90)
+			(at 243.84 184.15 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16945,7 +16707,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 243.84 179.07 0)
+			(at 243.84 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16954,7 +16716,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 243.84 179.07 0)
+			(at 243.84 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16963,7 +16725,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 243.84 179.07 0)
+			(at 243.84 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)

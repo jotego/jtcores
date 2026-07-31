@@ -72,12 +72,14 @@ module jtroadf_main(
     output     [ 7:0]   ioctl_din
 );
 
+`ifndef NOMAIN
+
 reg  [ 7:0] cabinet, cpu_din;
 wire [ 7:0] ram_dout;
 wire [15:0] A;
 wire        RnW, irq_n, nmi_n;
 wire        irq_trigger;
-reg         irq_clrn, ram_cs;
+reg         irq_clrn, ram_cs, ok_dly;
 reg         ior_cs, in5_cs, intst_cs, intst_l,
             iow_cs;
 wire        VMA, nvram_we;
@@ -127,6 +129,7 @@ function [2:0] rev3( input [6:0] x );
 endfunction
 
 always @(posedge clk) begin
+    ok_dly <= rom_ok;
     // Shockingly, if bit 6 for cabinet inputs 1/2 is high, the game won't boot,
     // however these are regular button inputs in the schematics with pullup resistors
     case( A[1:0] )
@@ -214,7 +217,7 @@ jtframe_sys6809_dma #(.RAM_AW(12),.KONAMI(1)) u_cpu(
     .VMA        ( VMA       ),
     .ram_cs     ( ram_cs    ),
     .rom_cs     ( rom_cs    ),
-    .rom_ok     ( rom_ok    ),
+    .rom_ok     ( ok_dly    ),
     // Bus multiplexer is external
     .ram_dout   ( ram_dout  ),
     .cpu_dout   ( cpu_dout  ),
@@ -227,4 +230,14 @@ jtframe_sys6809_dma #(.RAM_AW(12),.KONAMI(1)) u_cpu(
     .dma_we     ( nvram_we      )
 );
 
+`else
+assign cpu_cen   = 1'b0;
+assign rom_addr  = 16'd0;
+assign cpu_rnw   = 1'b1;
+assign cpu_dout  = 8'd0;
+assign ioctl_din = 8'd0;
+initial begin
+    rom_cs=0; vram_cs=0; objram_cs=0; obj_frame=0; snd_data_cs=0; snd_irq=0; flip=0;
+end
+`endif
 endmodule

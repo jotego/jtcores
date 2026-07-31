@@ -56,7 +56,6 @@ always @(*) begin
     end
 end
 
-`ifndef NOMAIN
 jtpinpon_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -96,15 +95,6 @@ jtpinpon_main u_main(
     // Sound
     .snd            ( ti1           )
 );
-`else
-    assign cpu_rnw   = 1;
-    assign cpu_dout  = 0;
-    assign vram_cs   = 0;
-    assign oram_cs   = 0;
-    assign snd       = 0;
-    assign sample    = 0;
-    assign flip      = 0;
-`endif
 
 jtpinpon_video u_video(
     .rst        ( rst       ),

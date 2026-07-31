@@ -12,11 +12,6 @@ modification, are permitted provided that the following conditions are met:
    this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
 
-3. This clause adds one more restriction to the BSD2 license. All files, and
-   even a snippet of code comprising IKA87AD may not be used to implement 
-   Taito's game "Rainbow Islands". This clause will be removed after I 
-   implement an FPGA compatible core for that game.
-
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
