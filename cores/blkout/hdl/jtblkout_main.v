@@ -58,6 +58,8 @@ module jtblkout_main(
     input         [15:0] rom_data,
     input                rom_ok,
 
+    input                blockout
+    input                blockoutj
     // sound latch (0x100015)
     output reg           snd_irq,
     output reg    [ 7:0] snd_latch,

@@ -3,15 +3,16 @@ author=["Andrea Bogazzi"]
 
 [parse]
 sourcefile=[ "blockout.cpp" ]
-skip.setnames=["aggress"]
+skip.setnames=["agress", "agressb]
 
 [header]
 info = """ Header to identify the PCB type
         Byte 0 = 0 for blockout, 1 for blockoutj
 """
-data = [
-    { machine="blockout",   offset=0, data="00" },
-    { machine="blockoutj", offset=0, data="01" },
+[header]
+registers=[
+    { name="blockout",    pos="0[0]",   desc="Blockout",   values=[{ machine="blockout", value=1 }] },
+    { name="blockoutj",    pos="0[1]",   desc="Blockoutj",  values=[{ machine="blockoutj", value=1 }] },
 ]
 
 [buttons]
@@ -28,6 +29,7 @@ regions = [
     { name="maincpu",  width=16, reverse=true, no_offset=true },
     { name="audiocpu", start="JTFRAME_BA1_START" },
     { name="oki",      start="PCM_START" },
+    { name="proms", skip=true },
 ]
 
 order = [ "maincpu", "audiocpu", "oki" ]

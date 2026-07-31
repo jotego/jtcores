@@ -48,6 +48,17 @@ assign work3_sel = main_rnw ? work3_cs : (work3_wr & main_dsn!=2'b11);
 assign work3_addr= main_addr[16:1];
 assign work3_dsn = main_dsn;
 assign work3_we  = work3_wr & main_dsn!=2'b11;
+wire blockout, blockoutj;
+
+jtblkout_header u_header(
+    .clk        ( clk            ),
+    .header     ( header         ),
+    .prog_we    ( prog_we        ),
+    .blockout   ( blockout       ),
+    .blockoutj  ( blockoutj      ),
+    .prog_addr  ( prog_addr[2:0] ),
+    .prog_data  ( prog_data      )
+);
 
 jtblkout_main u_main(
     .rst        ( rst24     ),
@@ -68,6 +79,8 @@ jtblkout_main u_main(
     .frontcol_cs( frontcol_cs ),
     .frontcol   ( frontcol  ),
 
+    .blockout   ( blockout  ),
+    .blockoutj  ( blockoutj ),
     .work_dout  ( work_dout ),
     .work2_dout ( work2_dout),
     .work3_dout ( work3_data),
