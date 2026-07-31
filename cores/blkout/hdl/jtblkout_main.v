@@ -105,16 +105,14 @@ assign bus_legit = 0;
 
 always @* begin
     rom_cs      = allFC && A[23:18]==6'h0  && !ASn;                 // 000000-03ffff
-    io_cs       = allFC && A[23:16]==8'h10 && !ASn;                 // 100000-10ffff
+    io_cs       = allFC && A[23:5]==8'h8000 && !ASn;               // 100000-100012
     fb_cs       = allFC && A[23:18]==6'h6  && !ASn;                 // 180000-1bffff
-    work_cs     = allFC && A[23:16]==8'h1d && !ASn;                 // 1d0000-1dffff
-    work2_cs    = allFC && A[23:16]==8'h1f && !ASn;                 // 1f0000-1fffff
+    work_cs     = allFC && A[23:16]==8'h1d && (A[15]|A[14]) && !ASn;// 1d4000-1dffff
+    work2_cs    = allFC && A[23:16]==8'h1f && (A[15]|A[14]) && !ASn;// 1f4000-1fffff
     fvram_cs    = allFC && A[23:15]==9'h40 && !ASn;                 // 200000-207fff
-    // 208000-21ffff: same 0x200000 page, above the overlay (A[16] or A[15] set)
-    work3_cs    = allFC && A[23:17]==7'h10 && (A[16]|A[15]) && !ASn;
-    // 280000 page: pen-512 colour reg @280002 (A[10:9]==0) vs palette @280200-2805ff
-    pal_cs      = allFC && A[23:16]==8'h28 && A[15:11]==0 && (A[10]|A[9]) && !ASn;
-    frontcol_cs = allFC && A[23:16]==8'h28 && A[15:9]==0 && !ASn && !RnW; // 280002 (w)
+    work3_cs    = allFC && A[23:17]==7'h10 && (A[16]|A[15]) && !ASn; // 208000-21ffff
+    pal_cs      = allFC && A[23:16]==8'h28 && A[15:11]==0 && (A[10]|A[9]) && !ASn; // 280200-2805ff
+    frontcol_cs = allFC && A[23:16]==8'h28 && A[15:2]==0 && !ASn && !RnW; // 280002 (w)
     io_rd       = io_cs && RnW;
 end
 
