@@ -92,6 +92,7 @@ JTFRAME_RFSH_N           |         | Automatic. Used by SDRAM refresh in jtframe
 JTFRAME_RFSH_M           |         | Automatic. Used by SDRAM refresh in jtframe_board
 JTFRAME_ROTATE           |         | Enables more rotate options in the OSD
 JTFRAME_SAVEGAME         |         | Enables game saving options in the OSD
+JTFRAME_SAVEGAME_SIZE    | Pocket  | Maximum byte size of the compact game-save slot; enables Pocket save-slot metadata
 JTFRAME_SCAN2X_NOBLEND   | MiST    | Disables pixel blending
 JTFRAME_SRAM             | Pocket  | Enables SRAM ports at the game module
 JTFRAME_SDRAM96          |         | SDRAM is clocked at 96MHz and the clk input of game is 96MHz

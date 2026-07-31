@@ -46,3 +46,6 @@ JTFRAME_SKIP
 
 [pocket]
 JTFRAME_JOY_B1B0
+# Compact cartridge-save transport: one 256-byte range header plus at most
+# 254 changed 256-byte flash blocks. Pocket shrinks this to the actual range.
+JTFRAME_SAVEGAME_SIZE=65280
