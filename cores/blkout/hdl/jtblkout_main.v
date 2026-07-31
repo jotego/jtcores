@@ -120,11 +120,11 @@ end
 
 always @* begin
     case( A[3:1] )
-        3'd0:    cab_dout = { cab_1p[0], joystick1[6], joystick1[5], joystick1[7], joystick1[3:0] }; // P1
-        3'd1:    cab_dout = { cab_1p[1], joystick2[6], joystick2[5], joystick2[7], joystick2[3:0] }; // P2
+        3'd0:    cab_dout = { cab_1p[0], joystick1[6], joystick1[5], blockoutj ? joystick1[4] : joystick1[7], joystick1[3:0] }; // P1
+        3'd1:    cab_dout = { cab_1p[1], joystick2[6], joystick2[5], blockoutj ? joystick2[4] : joystick2[7], joystick2[3:0] }; // P2
         3'd2:    cab_dout = { 4'hf, coin[2:0], 1'b1 };                    // SYSTEM: coin3/2/1 @ b3/2/1
         3'd3:    cab_dout = dipsw_a;                                      // DSW1
-        3'd4:    cab_dout = { joystick2[4], joystick1[4], dipsw_b[5:0] }; // DSW2: b7=P2 A, b6=P1 A
+        3'd4:    cab_dout = blockoutj ? dipsw_b[7:0] : { joystick2[4], joystick1[4], dipsw_b[5:0] }; // DSW2: b7=P2 A, b6=P1 A
         default: cab_dout = 8'hff;
     endcase
 end
