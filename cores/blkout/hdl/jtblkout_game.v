@@ -11,6 +11,10 @@
 
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Andrea Bogazzi. email: andreabogazzi79@gmail.com
+    Version: 1.0
+    Date: 31-7-2026
 */
 
 module jtblkout_game(

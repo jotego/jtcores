@@ -12,20 +12,9 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Block Out main CPU (68000 @ 10 MHz). Address map (technos/blockout.cpp):
-      000000-03ffff  program ROM              (SDRAM bank 0)
-      100000-100009  P1/P2/SYSTEM/DSW1/DSW2   (read, A[3:1] selects)
-      100010         IRQ6 ack (w)
-      100012         IRQ5 ack (w)
-      100015         sound latch (w, low byte)
-      180000-1bffff  back framebuffer         (SDRAM bank 2, videoram_r/w)
-      1d4000-1dffff  work RAM                 (BRAM)
-      1f4000-1fffff  work RAM                 (BRAM)
-      200000-207fff  front 1bpp overlay VRAM  (BRAM)
-      208000-21ffff  work RAM                 (BRAM)
-      280002         front colour reg (w)     -> pen 512
-      280200-2805ff  palette RAM              (BRAM)
-    IRQ6 @ scanline 250 (vblank-out), IRQ5 @ scanline 0 (vblank-in); acked by w.
+    Author: Andrea Bogazzi. email: andreabogazzi79@gmail.com
+    Version: 1.0
+    Date: 31-7-2026
 */
 
 module jtblkout_main(
@@ -58,8 +47,8 @@ module jtblkout_main(
     input         [15:0] rom_data,
     input                rom_ok,
 
-    input                blockout
-    input                blockoutj
+    input                blockout,
+    input                blockoutj,
     // sound latch (0x100015)
     output reg           snd_irq,
     output reg    [ 7:0] snd_latch,

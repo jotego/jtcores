@@ -12,14 +12,9 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Block Out back-framebuffer video fetch (SDRAM domain).
-
-    The 256 KB framebuffer (SDRAM bank 2) holds two byte-per-pixel 512x256
-    planes: front @ word 0x00000, back @ word 0x10000. Word address =
-    {plane, y[7:0], wcol[7:0]}; each 16-bit word packs 2 pixels — even x in the
-    high byte, odd x in the low byte (68k big-endian). Composite per MAME
-    videoram_w: pen = front ? {0,front} : {1,back} (9-bit). A double line buffer
-    is filled a line ahead; scanout reads the displayed half.
+    Author: Andrea Bogazzi. email: andreabogazzi79@gmail.com
+    Version: 1.0
+    Date: 31-7-2026
 */
 
 module jtblkout_fb(

@@ -12,8 +12,9 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Block Out video: vtimer -> framebuffer scanout (two-plane composite) ->
-    1bpp overlay (pen 512) -> palette (xBGR-444) -> RGB. Visible 320x240.
+    Author: Andrea Bogazzi. email: andreabogazzi79@gmail.com
+    Version: 1.0
+    Date: 31-7-2026
 */
 
 module jtblkout_video(
