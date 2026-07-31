@@ -113,6 +113,10 @@ initial begin
     repeat(2) @(posedge clk);
     rst = 0;
 
+    // APF keeps each data-slot table entry independently writable. Seed the
+    // existing NVRAM entry to make sure the game-save update cannot replace it.
+    write_reg(32'hf8002014,32'd12356);
+
     // Pocket writes a slot byte at each address. The adapter keeps the
     // existing save protocol's byte order and byte enables intact.
     ioctl_savegame = 1;
@@ -142,6 +146,8 @@ initial begin
     #1 check(sys_din=={"cm",16'h0188}, "flush target command was not posted");
     read_reg(32'hf800201c);
     #1 check(sys_din==32'd1280, "runtime save size was not published in table");
+    read_reg(32'hf8002014);
+    #1 check(sys_din==32'd12356, "game-save table update changed NVRAM slot 2");
 
     // Pocket completes the flush. The adapter forwards the acknowledgement to
     // the flash core only after the successful target-command response.
