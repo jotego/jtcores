@@ -45,6 +45,8 @@ module jttrack_snd(
     output        [ 7:0] debug_view
 );
 
+`ifndef NOSOUND
+
 // Road Fighter: sch. has bit A10 as a jumper to either ground or VDD
 // Track'n Field has A10 connected to the CPU, so RAM_AW must be set to 11 for it
 parameter RAM_AW=11;
@@ -167,5 +169,18 @@ jtsbaskt_snd_dev #( .RAM_AW(RAM_AW),.CNTW(CNTW)) u_dev(
     .debug_bus  ( 8'd0      )
 );
 
+`else
+assign rom_addr   = 14'd0;
+assign pcm_addr   = 16'd0;
+assign psg        = 11'sd0;
+assign vlm        = 10'sd0;
+assign rdac       = 8'sd0;
+assign vlm_rcen   = 2'd0;
+assign psg_rcen   = 2'd0;
+assign rdac_rcen  = 1'b0;
+assign debug_view = 8'd0;
+
+initial rom_cs = 1'b0;
+`endif
 
 endmodule

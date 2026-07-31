@@ -180,6 +180,7 @@ assign  rom_addr = 0;
 assign  pcm_addr = 0;
 assign  pcm_cs   = 0;
 assign  fm_l     = 0;
+assign  fm_r     = 0;
 assign  pcm      = 0;
 initial rom_cs   = 0;
 `endif

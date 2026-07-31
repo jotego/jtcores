@@ -154,7 +154,6 @@ jtframe_prom #(.AW(13),.SIMFILE("317-5021.key")) u_key(
     assign key_data = 0;
 `endif
 /* verilator tracing_on */
-`ifndef NOMAIN
 jtoutrun_main u_main(
     .rst         ( rst48      ),
     .clk         ( clk48      ),
@@ -233,29 +232,6 @@ jtoutrun_main u_main(
     .st_addr     ( st_addr    ),
     .st_dout     ( st_main    )
 );
-`else
-    assign flip        = 0;
-    assign sndmap_dout = 0;
-    assign main_cs     = 0;
-    assign full_addr   = 0;
-    assign obj_swap    = 0;
-    assign main_dsn    = 3;
-    assign char_cs     = 0;
-    assign pal_cs      = 0;
-    assign objram_cs   = 0;
-    assign ram_cs      = 0;
-    assign sub_br      = 0;
-    assign vram_cs     = 0;
-    assign main_rnw    = 1;
-    assign main_dout   = 0;
-    assign video_en    = 1;
-    assign key_addr    = 0;
-    assign st_main     = 0;
-    assign obj_cfg     = 0;
-    assign snd_rstb    = 0;
-    assign mute        = 0;
-    assign creset      = 0;
-`endif
 /* verilator tracing_on */
 `ifndef NOSUB
 jtoutrun_sub u_sub(
@@ -309,7 +285,6 @@ jtoutrun_sub u_sub(
     assign st_sub   = 0;
 `endif
 /* verilator tracing_off */
-`ifndef NOSOUND
 jtoutrun_snd u_sound(
     .rst        ( rst48     ),
     .clk        ( clk48     ),
@@ -346,20 +321,6 @@ jtoutrun_snd u_sound(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_snd    )
 );
-`else
-    assign snd_cs    = 0;
-    assign pcm_cs    = 0;
-    assign pcm_addr  = 0;
-    assign snd_addr  = 0;
-    assign fm_l      = 0;
-    assign fm_r      = 0;
-    assign pcm_l     = 0;
-    assign pcm_r     = 0;
-    assign sndmap_rd = 0;
-    assign sndmap_wr = 0;
-    assign sndmap_din= 0;
-    assign st_snd    = 0;
-`endif
 /* verilator tracing_on */
 jtoutrun_video u_video(
     .rst        ( rst       ),

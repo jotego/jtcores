@@ -94,4 +94,4 @@ end
 
 endgenerate
 
-endmodule // jtframe_romrq
+endmodule

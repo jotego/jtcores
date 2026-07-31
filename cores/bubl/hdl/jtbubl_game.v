@@ -54,7 +54,6 @@ always @(posedge clk) begin
     endcase
 end
 /* verilator tracing_off */
-`ifndef NOMAIN
 jtbubl_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),        // 24 MHz
@@ -113,13 +112,6 @@ jtbubl_main u_main(
     .dipsw_b        ( dipsw_b       ),
     .debug_bus      ( debug_bus     )
 );
-`else
-assign main_cs = 0;
-assign cpu_rnw = 1;
-assign vram_cs = 0;
-assign pal_cs  = 0;
-assign black_n = 1;
-`endif
 /* verilator tracing_on */
 jtbubl_video u_video(
     .rst            ( rst           ),
@@ -160,7 +152,6 @@ jtbubl_video u_video(
     .gfx_en         ( gfx_en        )
 );
 /* verilator tracing_off */
-`ifndef NOSOUND
 jtbubl_sound u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ), // 24 MHz
@@ -187,15 +178,5 @@ jtbubl_sound u_sound(
     .psg        ( psg           ),
     .debug_bus  ( debug_bus     )
 );
-`else
-assign snd_cs   = 0;
-assign snd_addr = 0;
-assign snd      = 0;
-assign sample   = 0;
-assign snd_flag = 0;
-assign main_stb = 0;
-assign game_led = 0;
-assign main_latch = 0;
-`endif
 
 endmodule

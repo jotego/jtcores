@@ -18,16 +18,14 @@
 
 module jtrastan_snd(
     input                rst,
-    input                clk,  // 24 MHz
-    input                cen4, // generated in mem.yaml
-    input                cen2,
+    input                clk,
+    input                fm_cen,
     input                pcm_cen,
     input                fir_cen,
-    input                opwolf,
+    input                opwolf, rbisland,
 
     // From main CPU
-    input                rst48,
-    input                clk48,
+    input                main_cen,
     input                main_addr,
     input         [ 3:0] main_dout,
     output        [ 3:0] main_din,
@@ -53,6 +51,14 @@ module jtrastan_snd(
     output reg           peak,
     input         [ 7:0] debug_bus
 );
+reg  snd_cen_tog;
+wire snd_cen = main_cen & snd_cen_tog;
+always @(posedge clk, posedge rst) begin
+    if( rst )
+        snd_cen_tog <= 0;
+    else if( main_cen )
+        snd_cen_tog <= ~snd_cen_tog;
+end
 `ifndef NOSOUND
 wire               int_n;
 wire        [15:0] A;
@@ -85,8 +91,8 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    left  <= opwolf ? opwolf_l : rastan_snd;
-    right <= opwolf ? opwolf_r : rastan_snd;
+    left  <= rbisland ? fm_l : opwolf ? opwolf_l : rastan_snd;
+    right <= rbisland ? fm_r : opwolf ? opwolf_r : rastan_snd;
 end
 
 // Rastan has one simple ADPCM address latch. Operation Wolf has two
@@ -206,16 +212,16 @@ always @(posedge clk) begin
 end
 
 jtrastan_pc060 u_pc060(
-    .rst48      ( rst48     ),
-    .clk48      ( clk48     ),
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .main_cen   ( main_cen  ),
+    .snd_cen    ( snd_cen   ),
     .main_dout  ( main_dout ),
     .main_din   ( main_din  ),
     .main_addr  ( main_addr ),
     .main_rnw   ( main_rnw  ),
     .main_cs    ( main_cs   ),
 
-    .rst24      ( rst       ),
-    .clk24      ( clk       ),
     .snd_dout   ( dout[3:0] ),
     .snd_din    ( pc6_dout  ),
     .snd_addr   ( A[0]      ),
@@ -228,7 +234,7 @@ jtrastan_pc060 u_pc060(
 jtframe_sysz80 u_cpu(
     .rst_n      ( snd_rstn  ),
     .clk        ( clk       ),
-    .cen        ( cen4      ),
+    .cen        ( snd_cen   ),
     .cpu_cen    (           ),
     .int_n      ( int_n     ),
     .nmi_n      ( nmi_n     ),
@@ -250,11 +256,11 @@ jtframe_sysz80 u_cpu(
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    )
 );
-
+/* verilator tracing_off */
 jtikaopm u_opm( // IKAOPM version used for sword sound
     .rst    ( ~snd_rstn ),
     .clk    ( clk       ),
-    .cen    ( cen4      ),
+    .cen    ( fm_cen    ),
     .cs_n   ( ~opm_cs   ),
     .rd_n   ( rd_n      ),
     .wr_n   ( wr_n      ),

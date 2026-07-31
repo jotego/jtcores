@@ -98,11 +98,7 @@ always @(posedge clk) begin
         bgr      <= 0;
         shl      <= 0;
     end else begin
-`ifndef GRAY
         pxl_aux <= { pxl_aux[7:0], pal_dout };
-`else
-        pxl_aux <= {1'b0,{3{pxl[4:0]}}};
-`endif
         if( pxl_cen ) begin
             shl <= shad;
             bgr <= dim(pxl_aux[14:0], shl);
@@ -111,18 +107,6 @@ always @(posedge clk) begin
             pal_half <= ~pal_half;
     end
 end
-/*
-jtframe_prom #(.DW(3), .AW(8)) u_prio (
-    .clk    ( clk           ),
-    .cen    ( 1'b1          ),
-    .data   ( prog_data     ),
-    .rd_addr( prio_addr     ),
-    .wr_addr( prog_addr     ),
-    .we     ( prom_we       ),
-    .q      ({shad,prom_prio})
-);*/
-
-
 
 always @* begin
     shad = |{ ~|prio_addr[2:0], prio_addr[4:3], prio_addr[6] & prio_addr[0],
@@ -137,51 +121,5 @@ always @* begin
         }),
       prio_addr[3] | (prio_addr[0] & |{~prio_addr[2],~prio_addr[4],prio_addr[6]}) };
 end
-/*
-always @* begin
-    casez( prio_addr )
-    8'h1?,8'h3?,8'h9?,8'hb?:
-        case( prog_addr[2:0] )
-            0,2: {shad, prom_prio} = 4;
-            1,3: {shad, prom_prio} = 5;
-            default: {shad, prom_prio} = 6;
-        endcase
-    8'h0?,8'h2?,8'h8?,8'ha?:
-        case( prog_addr[2:0] )
-            0: {shad, prom_prio} = 4;
-            1,3,5,7: {shad, prom_prio} = 1;
-            2,6: {shad, prom_prio} = 0;
-            4: {shad, prom_prio} = 2;
-        endcase
-    8'h4?,8'h6?,8'hc?:
-        case( prog_addr[2:0] )
-            0: {shad, prom_prio} = 4;
-            1,3,5,7: {shad, prom_prio} = 5;
-            2,6: {shad, prom_prio} = 0;
-            4: {shad, prom_prio} = 2;
-        endcase
-    8'h5?,8'h7?,8'hd?:
-        case( prog_addr[2:0] )
-            0,2: {shad, prom_prio} = 4;
-            1,3,5,7: {shad, prom_prio} = 5;
-            4,6: {shad, prom_prio} = 6;
-        endcase
-    8'he?:
-        case( prog_addr[2:0] )
-            0,2,6: {shad, prom_prio} = 4;
-            1,3,5,7: {shad, prom_prio} = 5;
-            4: {shad, prom_prio} = 2;
-        endcase
-    8'hf?:
-        case( prog_addr[2:0] )
-            0,2,6: {shad, prom_prio} = 4;
-            1,3,5,7: {shad, prom_prio} = 5;
-            4: {shad, prom_prio} = 6;
-        endcase
-    default: {shad, prom_prio} = 7;
-    endcase
-    if( prio_addr[3] ) {shad, prom_prio} = 7;
-end
-*/
 
 endmodule

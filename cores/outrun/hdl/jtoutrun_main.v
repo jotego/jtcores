@@ -102,6 +102,8 @@ module jtoutrun_main(
     output reg  [ 7:0] st_dout
 );
 
+`ifndef NOMAIN
+
 //  Mapper regions, CSS signals in schematics
 localparam [2:0] REG_MEM  = 0,
                  REG_SCR  = 1,
@@ -578,4 +580,21 @@ always @(posedge clk) begin
     end
 end
 
+`else
+assign cpu_cen    = 1'b0;
+assign cpu_cenb   = 1'b0;
+assign flip       = 1'b0;
+assign cpu_dout   = 16'd0;
+assign RnW        = 1'b1;
+assign dsn        = 2'b11;
+assign creset     = 1'b0;
+assign addr       = 19'd0;
+assign key_addr   = 13'd0;
+assign sndmap_dout= 8'd0;
+assign sndmap_pbf = 1'b0;
+initial begin
+    snd_rstb=1; char_cs=0; pal_cs=0; objram_cs=0; video_en=0; mute=0; obj_cfg=0;
+    obj_swap=0; vram_cs=0; ram_cs=0; sub_cs=0; rom_cs=0; st_dout=0;
+end
+`endif
 endmodule

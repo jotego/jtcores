@@ -27,7 +27,7 @@ wire        scr_cs, pal_cs, sdakn, odakn;
 wire [ 2:0] obj_pal;
 
 wire        flip;
-wire        sn_rd, sn_we, snd_rstn, mintn;
+wire        sn_rd, sn_we, snd_rstn, mintn, main_cen;
 wire [ 3:0] main2snd, sn_dout;
 wire        rastan, opwolf, rbisland;  // one-hot game select, straight from header
 wire        cchip;                     // C-chip present (Op Wolf good sets, Rainbow)
@@ -39,6 +39,7 @@ wire [ 8:0] gun_yoffs = {gun_yoff8[7], gun_yoff8};
 // C-chip (Operation Wolf, Rainbow Islands)
 wire        cchip_cs;
 wire [ 7:0] cchip_dout;
+wire        cchip_rnw;
 
 assign dip_flip = flip;
 assign ram_addr = ram_cs ? (opwolf ? {3'd0, main_addr[14:1]} : {4'd0, main_addr[13:1]}) :
@@ -48,6 +49,7 @@ assign xram_cs  = ram_cs | vram_cs;
 assign ram_dsn  = main_dsn;
 assign main2snd = opwolf ? main_dout[11:8] : main_dout[3:0];
 assign sample   = 0;
+assign cchip_rnw = main_rnw | main_dsn[0];
 
 jtrastan_header u_header(
     .clk        ( clk            ),
@@ -66,6 +68,7 @@ jtrastan_header u_header(
 jtrastan_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ), // 48 MHz
+    .cpu_cen    ( main_cen  ),
     .LVBL       ( LVBL      ),
     .opwolf     ( opwolf    ),
     .rbisland   ( rbisland  ),
@@ -125,15 +128,15 @@ jtrastan_main u_main(
 jtrastan_snd u_sound(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen4       ( cen4          ),
-    .cen2       ( cen2          ),
+    .fm_cen     ( fm_cen        ),
     .pcm_cen    ( pcm_cen       ),
     .fir_cen    ( fir_cen       ),
+
     .opwolf     ( opwolf        ),
+    .rbisland   ( rbisland      ),
 
     // From main CPU
-    .rst48      ( rst           ),
-    .clk48      ( clk           ),
+    .main_cen   ( main_cen      ),
     .main_addr  (main_addr[1]   ),
     .main_dout  ( main2snd      ),
     .main_din   ( sn_dout       ),
@@ -160,7 +163,7 @@ jtrastan_snd u_sound(
     .peak       (               ),
     .debug_bus  ( debug_bus     )
 );
-
+/* verilator tracing_off */
 jtrastan_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -226,45 +229,26 @@ jtrastan_video u_video(
     .debug_view ( debug_view)
 );
 
-
-reg [7:0] cc_pa, cc_pb, cc_pc, cc_an;
-always @(posedge clk) begin
-    cc_pa <= rbisland ? { service, cab_1p[0], cab_1p[1], 5'h1f } : 8'h00;
-    cc_pb <= { 6'h3f, ~coin[1:0] };
-    cc_pc <= rbisland ? { joystick1[5], joystick1[4], joystick1[0],
-                          joystick1[1], 3'b111, tilt } :
-                        { 3'b111, cab_1p[0], tilt, service,
-                          joystick1[5], joystick1[4] };
-    // Needs extra investigation to see if we can live without this.
-    cc_an <= rbisland ? 8'hff : 8'h00;
-end
-
-jttc0030cmd u_cchip(
-    .rst        ( rst               ),
-    .clk        ( clk               ),
-    .cen        ( cchip_cen         ),
-    .cs         ( cchip_cs          ),
-    .addr       ( main_addr[11:1]   ),
-    .din        ( main_dout[7:0]    ),
-    .dout       ( cchip_dout        ),
-    .rnw        ( main_rnw | main_dsn[0] ),
-    .dtack_n    (                   ),
-    .int1       ( ~LVBL             ),
-    .nmi_n      ( 1'b1              ),
-    .pa_in      ( cc_pa             ),
-    .pb_in      ( cc_pb             ),
-    .pc_in      ( cc_pc             ),
-    .pa_out     (                   ),
-    .pb_out     (                   ),
-    .pc_out     (                   ),
-    .an         ( cc_an             ),
-    .mrom_addr  ( cchip_mask_addr   ),
-    .mrom_data  ( cchip_mask_data   ),
-    .eprom_addr ( cchip_eprom_addr  ),
-    .eprom_data ( cchip_eprom_data  ),
-    // debug (unused)
-    .dbg_pc     (                   ),
-    .dbg_fetch  (                   )
+jtrastan_cchip u_cchip(
+    .rst             ( rst              ),
+    .clk             ( clk              ),
+    .cen             ( cchip_cen        ),
+    .cs              ( cchip_cs         ),
+    .addr            ( main_addr[11:1]  ),
+    .din             ( main_dout[7:0]   ),
+    .dout            ( cchip_dout       ),
+    .rnw             ( cchip_rnw        ),
+    .LVBL            ( LVBL             ),
+    .rbisland        ( rbisland         ),
+    .service         ( service          ),
+    .cab_1p          ( cab_1p[1:0]      ),
+    .coin            ( coin[1:0]        ),
+    .tilt            ( tilt             ),
+    .joystick1       ( joystick1        ),
+    .cchip_mask_addr ( cchip_mask_addr  ),
+    .cchip_mask_data ( cchip_mask_data  ),
+    .cchip_eprom_addr( cchip_eprom_addr ),
+    .cchip_eprom_data( cchip_eprom_data )
 );
 
 endmodule

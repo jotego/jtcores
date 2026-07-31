@@ -104,6 +104,8 @@ module jts16_main(
     output reg  [ 7:0] st_dout
 );
 
+`ifndef NOMAIN
+
 localparam [7:0] GAME_HWCHAMP =`GAME_HWCHAMP ,
                  GAME_QUARTET =`GAME_QUARTET ,
                  GAME_PASSSHT =`GAME_PASSSHT ,
@@ -684,4 +686,25 @@ always @(posedge clk) begin
     endcase
 end
 
+`else
+assign cpu_cen   = 1'b0;
+assign cpu_cenb  = 1'b0;
+assign flip      = 1'b0;
+assign video_en  = 1'b0;
+assign colscr_en = 1'b0;
+assign rowscr_en = 1'b0;
+assign ram_cs    = 1'b0;
+assign vram_cs   = 1'b0;
+assign cpu_dout  = 16'd0;
+assign UDSWn     = 1'b1;
+assign LDSWn     = 1'b1;
+assign RnW       = 1'b1;
+assign cpu_addr  = 12'd0;
+assign snd_latch = 8'd0;
+assign snd_irqn  = 1'b1;
+assign sound_en  = 1'b0;
+assign rom_addr  = 18'd0;
+assign key_addr  = 13'd0;
+initial begin char_cs=0; pal_cs=0; objram_cs=0; rom_cs=0; st_dout=0; end
+`endif
 endmodule

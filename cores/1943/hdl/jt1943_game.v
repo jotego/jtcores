@@ -105,7 +105,6 @@ end
 
 assign cpu_cen = cen6;
 
-`ifndef NOMAIN
 jt1943_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -163,28 +162,6 @@ jt1943_main u_main(
     .eres_n     (               ),
     .wrerr_n    (               )
 );
-`else
-    assign scr1posh  = 16'h5f3a;
-    assign scr2posh  = 16'h6000;
-    assign scrposv   = 0;
-    assign char_cs   = 0;
-    assign SC1ON     = 1;
-    assign SC2ON     = 1;
-    assign OBJON     = 1;
-    assign  CHON     = 1;
-    assign main_addr = 0;
-    assign main_cs   = 0;
-    assign main_ram  = 0;
-    assign rd_n      = 1;
-    assign wr_n      = 1;
-    assign cpu_AB    = 0;
-    assign sres_b    = 1;
-    assign snd_latch = 0;
-    assign cpu_dout  = 0;
-    assign OKOUT     = 0;
-    assign bus_ack   = 1;
-    assign flip      = 0;
-`endif
 
 jtgng_sound u_sound (
     .rst            ( rst        ),

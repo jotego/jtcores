@@ -51,6 +51,8 @@ module jtoutrun_snd(
     output signed [15:0] pcm_l, pcm_r
 );
 
+`ifndef NOSOUND
+
 wire [15:0] A;
 reg         fm_cs, mapper_cs, ram_cs, pcm_ce;
 wire        mreq_n, rfsh_n, iorq_n, int_n;
@@ -162,5 +164,21 @@ jtoutrun_pcm u_pcm(
     .snd_right  ( pcm_r         ),
     .sample     (               )
 );
+
+`else
+assign mapper_rd  = 1'b0;
+assign mapper_wr  = 1'b0;
+assign mapper_din = 8'd0;
+assign st_dout    = 8'd0;
+assign rom_addr   = 16'd0;
+assign pcm_addr   = 19'd0;
+assign pcm_cs     = 1'b0;
+assign fm_l       = 16'sd0;
+assign fm_r       = 16'sd0;
+assign pcm_l      = 16'sd0;
+assign pcm_r      = 16'sd0;
+
+initial rom_cs = 1'b0;
+`endif
 
 endmodule

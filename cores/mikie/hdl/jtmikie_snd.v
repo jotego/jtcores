@@ -188,6 +188,7 @@ jtframe_sysz80 #(.RAM_AW(10)) u_cpu(
     assign  psg2      = 0;
     assign  psg1_rcen = 0;
     assign  psg2_rcen = 0;
-    assign  dac_rcen  = 0;
+    assign  rdac_rcen = 0;
+    assign  st_dout   = 0;
 `endif
 endmodule

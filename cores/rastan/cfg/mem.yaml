@@ -6,8 +6,7 @@ clocks:
   clk:
     - freq: 4 MHz
       outputs:
-        - cen4
-        - cen2
+        - fm_cen
     - freq: 384 kHz
       outputs:
         - pcm_cen

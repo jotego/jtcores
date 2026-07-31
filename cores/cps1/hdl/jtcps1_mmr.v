@@ -314,7 +314,8 @@ initial begin
     // layer_ctrl     = {2'b0, 2'd0,2'd3,2'd1,2'd2,6'h1f}; // no carrier
     //layer_ctrl     = {  8'b01_00_10_11 , 6'b011010 };
     //layer_ctrl     = {  8'b01_10_00_11 , 6'b011010 }; // works
-    obj_dma_ok = 1'b1; // so data is copied at the beginning of sim.
+    pal_copy   = 1'b1; // so the scene palette is copied at the beginning of sim.
+    obj_dma_ok = 1'b1; // so the scene object table is copied at the beginning of sim.
 end
 assign reg_rst = 1'b0;  // reset is skipped for this type of simulation
 `else

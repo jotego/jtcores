@@ -118,8 +118,8 @@ localparam REGSIZE=24;
 // Turbo speed disables DMA
 wire busreq_cpu = busreq & ~turbo;
 wire busack_cpu;
+assign busack = busack_cpu | turbo;
 
-`ifndef NOMAIN
 jtcps2_main u_main(
     .rst        ( rst_game          ),
     .clk_rom    ( clk               ),
@@ -196,32 +196,6 @@ jtcps2_main u_main(
     .debug_bus   ( debug_bus        ),
     .st_dout     ( debug_view       )
 );
-
-assign busack = busack_cpu | turbo;
-
-`else
-    assign ram_addr      = 0;
-    assign main_ram_cs   = 0;
-    assign main_vram_cs  = 0;
-    assign main_rom_cs   = 0;
-    assign oram_base     = 0;
-    assign main_oram_cs  = 0;
-    assign main_rom_addr = 0;
-    assign main_dout     = 0;
-    assign z80_rstn      = 1;
-    assign dsn           = 2'b11;
-    assign main_rnw      = 1;
-    assign sclk          = 0;
-    assign sdi           = 0;
-    assign scs           = 0;
-    assign obank         = 0;
-    assign busack        = 1;
-    assign ppu1_cs       = 0;
-    assign ppu2_cs       = 0;
-    assign objcfg_cs     = 0;
-    assign ppu_rstn      = 1;
-    assign cpu_dout      = 0;
-`endif
 
 reg rst_video, rst_sdram;
 
@@ -346,7 +320,6 @@ end
 wire vol_up   = ~(coin[0] | joystick1[3]);
 wire vol_down = ~(coin[0] | joystick1[2]);
 
-`ifndef NOMAIN
 jtcps15_sound u_sound(
     .rst        ( qsnd_rst          ),
     .clk48      ( clk48             ),
@@ -390,15 +363,6 @@ jtcps15_sound u_sound(
     .right      ( snd_right         ),
     .sample     ( sample            )
 );
-`else
-    assign snd_left  = 0;
-    assign snd_right = 0;
-    assign sample    = 0;
-    assign snd_cs    = 0;
-    assign snd_addr  = 0;
-    assign qsnd_cs   = 0;
-    assign qsnd_addr = 0;
-`endif
 /* verilator tracing_on */
 jtcps1_sdram #(.CPS(2), .REGSIZE(REGSIZE)) u_sdram (
     .rst         ( rst_sdram     ),

@@ -61,6 +61,8 @@ module jtmikie_main(
     input      [1:0]    dipsw_c
 );
 
+`ifndef NOMAIN
+
 reg  [ 7:0] cabinet, cpu_din;
 wire [ 7:0] ram_dout;
 wire [15:0] A;
@@ -185,4 +187,13 @@ jtframe_sys6809 #(.RAM_AW(10)) u_cpu(
     .cpu_din    ( cpu_din   )
 );
 
+`else
+assign cpu_cen  = 1'b0;
+assign rom_addr = 16'd0;
+assign cpu_rnw  = 1'b1;
+assign cpu_dout = 8'd0;
+initial begin
+    rom_cs=0; vram_cs=0; objram_cs=0; snd_latch=0; snd_on=0; pal_sel=0; flip=0;
+end
+`endif
 endmodule

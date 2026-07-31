@@ -81,6 +81,8 @@ module jtflane_main(
     output signed [10:0] pcm0, pcm1
 );
 
+`ifndef NOMAIN
+
 wire [ 7:0] prot_dout, ram_dout;
 wire [15:0] A;
 wire        RnW, irq_n, irq_ack;
@@ -286,6 +288,24 @@ jt007232 #(.INVA0(1)) u_pcm1(
     assign pcmb_cs = 0;
     assign pcmc_cs = 0;
     assign pcmd_cs = 0;
+`endif
+
+`else
+assign cpu_cen   = 1'b0;
+assign gfx_addr  = 14'd0;
+assign cpu_rnw   = 1'b1;
+assign cpu_dout  = 8'd0;
+assign pcma_addr = 17'd0;
+assign pcma_cs   = 1'b0;
+assign pcmb_addr = 17'd0;
+assign pcmb_cs   = 1'b0;
+assign pcmc_addr = 19'd0;
+assign pcmc_cs   = 1'b0;
+assign pcmd_addr = 19'd0;
+assign pcmd_cs   = 1'b0;
+assign pcm0      = 11'sd0;
+assign pcm1      = 11'sd0;
+initial begin rom_addr=0; rom_cs=0; gfx_cs=0; end
 `endif
 
 endmodule

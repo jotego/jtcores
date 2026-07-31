@@ -92,7 +92,6 @@ wire busreq_cpu = busreq & ~turbo;
 wire busack_cpu;
 assign busack = busack_cpu | turbo;
 /* verilator tracing_on */
-`ifndef NOMAIN
 jtcps1_main u_main(
     .rst        ( rst_game          ),
     .clk        ( clk48             ),
@@ -150,20 +149,6 @@ jtcps1_main u_main(
     .dipsw_c     ( dipsw_c          ),
     .fave        ( fave             )
 );
-`else
-assign ram_addr      = 0;
-assign main_ram_cs   = 0;
-assign main_vram_cs  = 0;
-assign main_rom_cs   = 0;
-assign main_rom_addr = 0;
-assign main_dout     = 0;
-assign dsn           = 2'b11;
-assign main_rnw      = 1'b1;
-assign busack_cpu    = 1;
-assign ppu1_cs       = 0;
-assign ppu2_cs       = 0;
-assign ppu_rstn      = 1;
-`endif
 
 reg rst_video;
 
@@ -265,7 +250,6 @@ jtcps1_video #(REGSIZE) u_video(
     .debug_bus      ( debug_bus     )
 );
 
-`ifndef NOSOUND
 `ifdef FAKE_LATCH
 integer snd_frame_cnt=0;
 reg [7:0] fake_latch0 = 8'h0, fake_latch1 = 8'h0;
@@ -360,16 +344,6 @@ jtcps1_sound u_sound(
     .peak           ( snd_peak      ),
     .debug_bus      ( debug_bus     )
 );
-`else
-assign snd_addr   = 0;
-assign snd_cs     = 0;
-assign snd_left   = 0;
-assign snd_right  = 0;
-assign snd_peak   = 0;
-assign adpcm_addr = 0;
-assign adpcm_cs   = 0;
-assign sample     = 0;
-`endif
 
 reg rst_sdram;
 always @(posedge clk) rst_sdram <= rst;
