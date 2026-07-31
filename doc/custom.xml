@@ -151,4 +151,77 @@
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
 	</machine>
-</mame>	
+	<!-- ROM definitions for CPS1 hacks not represented in the MAME database. -->
+	<machine name="sf2cre" sourcefile="capcom/cps1.cpp">
+		<description>Street Fighter II': Champion Re-Edit (Hack, v0.29.7)</description>
+		<year>1992</year>
+		<manufacturer>Capcom</manufacturer>
+		<rom name="sf2cre_23b.8f" size="524288" crc="ffa481c9" region="maincpu" offset="0"/>
+		<rom name="sf2cre_22b.7f" size="524288" crc="e2944558" region="maincpu" offset="80000"/>
+		<rom name="sf2cre_21a.6f" size="524288" crc="c9c4acb8" region="maincpu" offset="100000"/>
+		<rom name="s92_09.11a" size="65536" crc="08f6b60e" region="audiocpu" offset="0"/>
+		<rom name="s92_18.11c" size="131072" crc="7f162009" region="oki" offset="0"/>
+		<rom name="s92_19.12c" size="131072" crc="beade53f" region="oki" offset="20000"/>
+		<rom name="s92-1m.3a" size="524288" crc="03b0d852" region="gfx" offset="0"/>
+		<rom name="s92-3m.5a" size="524288" crc="840289ec" region="gfx" offset="2"/>
+		<rom name="s92-2m.4a" size="524288" crc="cdb5f027" region="gfx" offset="4"/>
+		<rom name="s92-4m.6a" size="524288" crc="e2799472" region="gfx" offset="6"/>
+		<rom name="s92-5m.7a" size="524288" crc="ba8a2761" region="gfx" offset="200000"/>
+		<rom name="s92-7m.9a" size="524288" crc="e584bfb5" region="gfx" offset="200002"/>
+		<rom name="s92-6m.8a" size="524288" crc="21e3f87d" region="gfx" offset="200004"/>
+		<rom name="s92-8m.10a" size="524288" crc="befc47df" region="gfx" offset="200006"/>
+		<rom name="s92-10m.3c" size="524288" crc="960687d5" region="gfx" offset="400000"/>
+		<rom name="s92-12m.5c" size="524288" crc="978ecd18" region="gfx" offset="400002"/>
+		<rom name="s92-11m.4c" size="524288" crc="d6ec9a0a" region="gfx" offset="400004"/>
+		<rom name="s92-13m.6c" size="524288" crc="ed2c67f6" region="gfx" offset="400006"/>
+		<device_ref name="ym2151"/>
+		<display rotate="0" width="384" height="224"/>
+		<input players="2"><control type="joy" player="1" buttons="6" ways="8"/><control type="joy" player="2" buttons="6" ways="8"/></input>
+		<!-- Retain CPS1 switch-bit positions used by the core. -->
+		<dipswitch name="Unused" tag="DSWA" mask="255"><dipvalue name="Off" value="255" default="yes"/></dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="7"><dipvalue name="7 (Hardest)" value="0"/><dipvalue name="6" value="1"/><dipvalue name="5" value="2"/><dipvalue name="4" value="3"/><dipvalue name="3 (Normal)" value="4" default="yes"/><dipvalue name="2" value="5"/><dipvalue name="1" value="6"/><dipvalue name="0 (Easiest)" value="7"/></dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="248"><dipvalue name="Off" value="248" default="yes"/></dipswitch>
+		<dipswitch name="Free Play" tag="DSWC" mask="4"><dipvalue name="On" value="0"/><dipvalue name="Off" value="4" default="yes"/></dipswitch>
+		<dipswitch name="Freeze" tag="DSWC" mask="8"><dipvalue name="On" value="0"/><dipvalue name="Off" value="8" default="yes"/></dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWC" mask="16"><dipvalue name="On" value="0"/><dipvalue name="Off" value="16" default="yes"/></dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWC" mask="32"><dipvalue name="On" value="0" default="yes"/><dipvalue name="Off" value="32"/></dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWC" mask="64"><dipvalue name="Yes" value="0" default="yes"/><dipvalue name="No" value="64"/></dipswitch>
+		<dipswitch name="Game Mode" tag="DSWC" mask="128"><dipvalue name="Test" value="0"/><dipvalue name="Game" value="128" default="yes"/></dipswitch>
+	</machine>
+	<machine name="sf2hfsce" sourcefile="capcom/cps1.cpp">
+		<description>Street Fighter II': Special Champion Edition (Sr Street hack)</description>
+		<year>1992</year>
+		<manufacturer>Capcom</manufacturer>
+		<rom name="s2tsce_23.8f" size="524288" crc="ee74bae8" region="maincpu" offset="0"/>
+		<rom name="s2tsce_22.7f" size="524288" crc="eea9b9c0" region="maincpu" offset="80000"/>
+		<rom name="s2tsce_21.6f" size="524288" crc="d6246802" region="maincpu" offset="100000"/>
+		<rom name="s92_09.11a" size="65536" crc="08f6b60e" region="audiocpu" offset="0"/>
+		<rom name="s92_18.11c" size="131072" crc="7f162009" region="oki" offset="0"/>
+		<rom name="s92_19.12c" size="131072" crc="beade53f" region="oki" offset="20000"/>
+		<rom name="s92-1m.3a" size="524288" crc="03b0d852" region="gfx" offset="0"/>
+		<rom name="s92-3m.5a" size="524288" crc="840289ec" region="gfx" offset="2"/>
+		<rom name="s92-2m.4a" size="524288" crc="cdb5f027" region="gfx" offset="4"/>
+		<rom name="s92-4m.6a" size="524288" crc="e2799472" region="gfx" offset="6"/>
+		<rom name="s92sce-5m.7a" size="524288" crc="75e20f8c" region="gfx" offset="200000"/>
+		<rom name="s92sce-7m.9a" size="524288" crc="ee803831" region="gfx" offset="200002"/>
+		<rom name="s92sce-6m.8a" size="524288" crc="779c37ed" region="gfx" offset="200004"/>
+		<rom name="s92sce-8m.10a" size="524288" crc="005867b6" region="gfx" offset="200006"/>
+		<rom name="ss92sce-10m.3c" size="524288" crc="d374589b" region="gfx" offset="400000"/>
+		<rom name="s92sce-12m.5c" size="524288" crc="d43d5f31" region="gfx" offset="400002"/>
+		<rom name="s92sce-11m.4c" size="524288" crc="09e7ea4b" region="gfx" offset="400004"/>
+		<rom name="s92sce-13m.6c" size="524288" crc="136d9999" region="gfx" offset="400006"/>
+		<device_ref name="ym2151"/>
+		<display rotate="0" width="384" height="224"/>
+		<input players="2"><control type="joy" player="1" buttons="6" ways="8"/><control type="joy" player="2" buttons="6" ways="8"/></input>
+		<!-- Retain CPS1 switch-bit positions used by the core. -->
+		<dipswitch name="Unused" tag="DSWA" mask="255"><dipvalue name="Off" value="255" default="yes"/></dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="7"><dipvalue name="7 (Hardest)" value="0"/><dipvalue name="6" value="1"/><dipvalue name="5" value="2"/><dipvalue name="4" value="3"/><dipvalue name="3 (Normal)" value="4" default="yes"/><dipvalue name="2" value="5"/><dipvalue name="1" value="6"/><dipvalue name="0 (Easiest)" value="7"/></dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="248"><dipvalue name="Off" value="248" default="yes"/></dipswitch>
+		<dipswitch name="Free Play" tag="DSWC" mask="4"><dipvalue name="On" value="0"/><dipvalue name="Off" value="4" default="yes"/></dipswitch>
+		<dipswitch name="Freeze" tag="DSWC" mask="8"><dipvalue name="On" value="0"/><dipvalue name="Off" value="8" default="yes"/></dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWC" mask="16"><dipvalue name="On" value="0"/><dipvalue name="Off" value="16" default="yes"/></dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWC" mask="32"><dipvalue name="On" value="0" default="yes"/><dipvalue name="Off" value="32"/></dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWC" mask="64"><dipvalue name="Yes" value="0" default="yes"/><dipvalue name="No" value="64"/></dipswitch>
+		<dipswitch name="Game Mode" tag="DSWC" mask="128"><dipvalue name="Test" value="0"/><dipvalue name="Game" value="128" default="yes"/></dipswitch>
+	</machine>
+</mame>
