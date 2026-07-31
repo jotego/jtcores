@@ -110,6 +110,24 @@ set_clock_groups -asynchronous -group [get_clocks {QSCK}] -group [get_clocks {*|
 #**************************************************************
 
 set_false_path -to [get_ports {SPDIF}]
+
+# The VU meter is a debug-only display. Audio-rate mixer data may cross into
+# its system-clock accumulators without affecting game audio or video.
+set jtframe_vumeter_mixed [get_keepers -nowarn {*|jtframe_rcmix:u_rcmix|mixed[*]}]
+set jtframe_vumeter_ml    [get_keepers -nowarn {*|jtframe_vumeter:vumeter|ml[*]}]
+set jtframe_vumeter_mr    [get_keepers -nowarn {*|jtframe_vumeter:vumeter|mr[*]}]
+set jtframe_vumeter_l2r2  [get_keepers -nowarn {*|jtframe_vumeter:vumeter|l2r2[*]}]
+if { [get_collection_size $jtframe_vumeter_mixed] > 0 } {
+    if { [get_collection_size $jtframe_vumeter_ml] > 0 } {
+        set_false_path -from $jtframe_vumeter_mixed -to $jtframe_vumeter_ml
+    }
+    if { [get_collection_size $jtframe_vumeter_mr] > 0 } {
+        set_false_path -from $jtframe_vumeter_mixed -to $jtframe_vumeter_mr
+    }
+    if { [get_collection_size $jtframe_vumeter_l2r2] > 0 } {
+        set_false_path -from $jtframe_vumeter_mixed -to $jtframe_vumeter_l2r2
+    }
+}
 set_false_path -to [get_ports {HDMI_BCK HDMI_LRCK HDMI_SDATA}]
 set_false_path -to [get_ports {I2S_BCK I2S_LRCK I2S_DATA}]
 set_false_path -to [get_ports {HDMI_SCL HDMI_SDA}]
@@ -156,4 +174,3 @@ if { [get_collection_size $lfbuf_vextent_src] > 0 && [get_collection_size $lfbuf
 #**************************************************************
 # Set Input Delay
 #**************************************************************
-

@@ -151,4 +151,242 @@
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
 	</machine>
-</mame>	
+	<!-- ROM definitions for CPS1 hacks not represented in the MAME database. -->
+	<machine name="sf2cre" sourcefile="capcom/cps1.cpp">
+		<description>Street Fighter II': Champion Re-Edit (Hack, v0.29.7)</description>
+		<year>1992</year>
+		<manufacturer>Capcom</manufacturer>
+		<rom name="sf2cre_23b.8f" size="524288" crc="ffa481c9" region="maincpu" offset="0"/>
+		<rom name="sf2cre_22b.7f" size="524288" crc="e2944558" region="maincpu" offset="80000"/>
+		<rom name="sf2cre_21a.6f" size="524288" crc="c9c4acb8" region="maincpu" offset="100000"/>
+		<rom name="s92_09.11a" size="65536" crc="08f6b60e" region="audiocpu" offset="0"/>
+		<rom name="s92_18.11c" size="131072" crc="7f162009" region="oki" offset="0"/>
+		<rom name="s92_19.12c" size="131072" crc="beade53f" region="oki" offset="20000"/>
+		<rom name="s92-1m.3a" size="524288" crc="03b0d852" region="gfx" offset="0"/>
+		<rom name="s92-3m.5a" size="524288" crc="840289ec" region="gfx" offset="2"/>
+		<rom name="s92-2m.4a" size="524288" crc="cdb5f027" region="gfx" offset="4"/>
+		<rom name="s92-4m.6a" size="524288" crc="e2799472" region="gfx" offset="6"/>
+		<rom name="s92-5m.7a" size="524288" crc="ba8a2761" region="gfx" offset="200000"/>
+		<rom name="s92-7m.9a" size="524288" crc="e584bfb5" region="gfx" offset="200002"/>
+		<rom name="s92-6m.8a" size="524288" crc="21e3f87d" region="gfx" offset="200004"/>
+		<rom name="s92-8m.10a" size="524288" crc="befc47df" region="gfx" offset="200006"/>
+		<rom name="s92-10m.3c" size="524288" crc="960687d5" region="gfx" offset="400000"/>
+		<rom name="s92-12m.5c" size="524288" crc="978ecd18" region="gfx" offset="400002"/>
+		<rom name="s92-11m.4c" size="524288" crc="d6ec9a0a" region="gfx" offset="400004"/>
+		<rom name="s92-13m.6c" size="524288" crc="ed2c67f6" region="gfx" offset="400006"/>
+		<device_ref name="ym2151"/>
+		<display rotate="0" width="384" height="224"/>
+		<input players="2"><control type="joy" player="1" buttons="6" ways="8"/><control type="joy" player="2" buttons="6" ways="8"/></input>
+		<!-- Retain CPS1 switch-bit positions used by the core. -->
+		<dipswitch name="Unused" tag="DSWA" mask="255"><dipvalue name="Off" value="255" default="yes"/></dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="7"><dipvalue name="7 (Hardest)" value="0"/><dipvalue name="6" value="1"/><dipvalue name="5" value="2"/><dipvalue name="4" value="3"/><dipvalue name="3 (Normal)" value="4" default="yes"/><dipvalue name="2" value="5"/><dipvalue name="1" value="6"/><dipvalue name="0 (Easiest)" value="7"/></dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="248"><dipvalue name="Off" value="248" default="yes"/></dipswitch>
+		<dipswitch name="Free Play" tag="DSWC" mask="4"><dipvalue name="On" value="0"/><dipvalue name="Off" value="4" default="yes"/></dipswitch>
+		<dipswitch name="Freeze" tag="DSWC" mask="8"><dipvalue name="On" value="0"/><dipvalue name="Off" value="8" default="yes"/></dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWC" mask="16"><dipvalue name="On" value="0"/><dipvalue name="Off" value="16" default="yes"/></dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWC" mask="32"><dipvalue name="On" value="0" default="yes"/><dipvalue name="Off" value="32"/></dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWC" mask="64"><dipvalue name="Yes" value="0" default="yes"/><dipvalue name="No" value="64"/></dipswitch>
+		<dipswitch name="Game Mode" tag="DSWC" mask="128"><dipvalue name="Test" value="0"/><dipvalue name="Game" value="128" default="yes"/></dipswitch>
+	</machine>
+	<machine name="sf2hfsce" sourcefile="capcom/cps1.cpp">
+		<description>Street Fighter II': Special Champion Edition (Sr Street hack)</description>
+		<year>1992</year>
+		<manufacturer>Capcom</manufacturer>
+		<rom name="s2tsce_23.8f" size="524288" crc="ee74bae8" region="maincpu" offset="0"/>
+		<rom name="s2tsce_22.7f" size="524288" crc="eea9b9c0" region="maincpu" offset="80000"/>
+		<rom name="s2tsce_21.6f" size="524288" crc="d6246802" region="maincpu" offset="100000"/>
+		<rom name="s92_09.11a" size="65536" crc="08f6b60e" region="audiocpu" offset="0"/>
+		<rom name="s92_18.11c" size="131072" crc="7f162009" region="oki" offset="0"/>
+		<rom name="s92_19.12c" size="131072" crc="beade53f" region="oki" offset="20000"/>
+		<rom name="s92-1m.3a" size="524288" crc="03b0d852" region="gfx" offset="0"/>
+		<rom name="s92-3m.5a" size="524288" crc="840289ec" region="gfx" offset="2"/>
+		<rom name="s92-2m.4a" size="524288" crc="cdb5f027" region="gfx" offset="4"/>
+		<rom name="s92-4m.6a" size="524288" crc="e2799472" region="gfx" offset="6"/>
+		<rom name="s92sce-5m.7a" size="524288" crc="75e20f8c" region="gfx" offset="200000"/>
+		<rom name="s92sce-7m.9a" size="524288" crc="ee803831" region="gfx" offset="200002"/>
+		<rom name="s92sce-6m.8a" size="524288" crc="779c37ed" region="gfx" offset="200004"/>
+		<rom name="s92sce-8m.10a" size="524288" crc="005867b6" region="gfx" offset="200006"/>
+		<rom name="ss92sce-10m.3c" size="524288" crc="d374589b" region="gfx" offset="400000"/>
+		<rom name="s92sce-12m.5c" size="524288" crc="d43d5f31" region="gfx" offset="400002"/>
+		<rom name="s92sce-11m.4c" size="524288" crc="09e7ea4b" region="gfx" offset="400004"/>
+		<rom name="s92sce-13m.6c" size="524288" crc="136d9999" region="gfx" offset="400006"/>
+		<device_ref name="ym2151"/>
+		<display rotate="0" width="384" height="224"/>
+		<input players="2"><control type="joy" player="1" buttons="6" ways="8"/><control type="joy" player="2" buttons="6" ways="8"/></input>
+		<!-- Retain CPS1 switch-bit positions used by the core. -->
+		<dipswitch name="Unused" tag="DSWA" mask="255"><dipvalue name="Off" value="255" default="yes"/></dipswitch>
+		<dipswitch name="Difficulty" tag="DSWB" mask="7"><dipvalue name="7 (Hardest)" value="0"/><dipvalue name="6" value="1"/><dipvalue name="5" value="2"/><dipvalue name="4" value="3"/><dipvalue name="3 (Normal)" value="4" default="yes"/><dipvalue name="2" value="5"/><dipvalue name="1" value="6"/><dipvalue name="0 (Easiest)" value="7"/></dipswitch>
+		<dipswitch name="Unused" tag="DSWB" mask="248"><dipvalue name="Off" value="248" default="yes"/></dipswitch>
+		<dipswitch name="Free Play" tag="DSWC" mask="4"><dipvalue name="On" value="0"/><dipvalue name="Off" value="4" default="yes"/></dipswitch>
+		<dipswitch name="Freeze" tag="DSWC" mask="8"><dipvalue name="On" value="0"/><dipvalue name="Off" value="8" default="yes"/></dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWC" mask="16"><dipvalue name="On" value="0"/><dipvalue name="Off" value="16" default="yes"/></dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWC" mask="32"><dipvalue name="On" value="0" default="yes"/><dipvalue name="Off" value="32"/></dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWC" mask="64"><dipvalue name="Yes" value="0" default="yes"/><dipvalue name="No" value="64"/></dipswitch>
+		<dipswitch name="Game Mode" tag="DSWC" mask="128"><dipvalue name="Test" value="0"/><dipvalue name="Game" value="128" default="yes"/></dipswitch>
+	</machine>
+    <!-- Out Run added-music hack; ROM data follows FBNeo outrunm. -->
+	<machine name="outrunm" sourcefile="sega/segaorun.cpp" cloneof="outrun">
+		<description>Out Run (sitdown/upright, Rev B) (added music)</description>
+		<year>2016</year>
+		<manufacturer>cmonkey</manufacturer>
+		<rom name="music-epr-10380b.133" size="65536" crc="9bf1d4df" region="maincpu" offset="0"/>
+		<rom name="music-epr-10382b.118" size="65536" crc="86f90666" region="maincpu" offset="1"/>
+		<rom name="music-epr-10381b.132" size="65536" crc="cbec3f7e" region="maincpu" offset="20000"/>
+		<rom name="music-epr-10383b.117" size="65536" crc="e3c5cdca" region="maincpu" offset="20001"/>
+		<rom name="epr-10327a.76" size="65536" crc="e28a5baf" sha1="f715bde96c73ed47035acf5a41630fdeb41bb2f9" region="subcpu" offset="0"/>
+		<rom name="epr-10329a.58" size="65536" crc="da131c81" sha1="57d5219bd0e2fd886217e37e8773fd76be9b40eb" region="subcpu" offset="1"/>
+		<rom name="epr-10328a.75" size="65536" crc="d5ec5e5d" sha1="a4e3cfca4d803e72bc4fcf91ab00e21bf3f8959f" region="subcpu" offset="20000"/>
+		<rom name="epr-10330a.57" size="65536" crc="ba9ec82a" sha1="2136c9572e26b7ae6de402c0cd53174407cc6018" region="subcpu" offset="20001"/>
+		<rom name="opr-10268.99" size="32768" crc="95344b04" sha1="b3480714b11fc49b449660431f85d4ba92f799ba" region="gfx1" offset="0"/>
+		<rom name="opr-10232.102" size="32768" crc="776ba1eb" sha1="e3477961d19e694c97643066534a1f720e0c4327" region="gfx1" offset="8000"/>
+		<rom name="opr-10267.100" size="32768" crc="a85bb823" sha1="a7e0143dee5a47e679fd5155e58e717813912692" region="gfx1" offset="10000"/>
+		<rom name="opr-10231.103" size="32768" crc="8908bcbf" sha1="8e1237b640a6f26bdcbfd5e201dadb2687c4febb" region="gfx1" offset="18000"/>
+		<rom name="opr-10266.101" size="32768" crc="9f6f1a74" sha1="09164e858ebeedcff4d389524ddf89e7c216dcae" region="gfx1" offset="20000"/>
+		<rom name="opr-10230.104" size="32768" crc="686f5e50" sha1="03697b892f911177968aa40de6c5f464eb0258e7" region="gfx1" offset="28000"/>
+		<rom name="mpr-10371.9" size="131072" crc="7cc86208" sha1="21320f945f7c8e990c97c9b1232a0f4b6bd00f8f" region="sprites" offset="0"/>
+		<rom name="mpr-10373.10" size="131072" crc="b0d26ac9" sha1="3a9ce8547cd43b7b04abddf9a9ab5634e0bbfaba" region="sprites" offset="1"/>
+		<rom name="mpr-10375.11" size="131072" crc="59b60bd7" sha1="e5d8c67e020608edd24ba87b7687b2ac2483ee7f" region="sprites" offset="2"/>
+		<rom name="mpr-10377.12" size="131072" crc="17a1b04a" sha1="9f7210cb4153ac9029a785dcd4b45f4513a4b008" region="sprites" offset="3"/>
+		<rom name="mpr-10372.13" size="131072" crc="b557078c" sha1="a3746a2da077a8df4932348f650a061f413e8430" region="sprites" offset="80000"/>
+		<rom name="mpr-10374.14" size="131072" crc="8051e517" sha1="9c8509fbed170b4ac74c169da573393e54774f49" region="sprites" offset="80001"/>
+		<rom name="mpr-10376.15" size="131072" crc="f3b8f318" sha1="a5f2532613f33a64441e0f75443c10ba78dccc6e" region="sprites" offset="80002"/>
+		<rom name="mpr-10378.16" size="131072" crc="a1062984" sha1="4399030a155caf71f2dec7f75c4b65531ab53576" region="sprites" offset="80003"/>
+		<rom name="opr-10186.47" size="32768" crc="22794426" sha1="a554d4b68e71861a0d0da4d031b3b811b246f082" region="segaic16road" offset="0"/>
+		<rom name="opr-10185.11" size="32768" crc="22794426" sha1="a554d4b68e71861a0d0da4d031b3b811b246f082" region="segaic16road" offset="8000"/>
+		<rom name="music-epr-10187.88" size="131072" crc="9f89439e" region="soundcpu" offset="0"/>
+		<rom name="opr-10193.66" size="32768" crc="bcd10dde" sha1="417ce1d7242884640c5b14f4db8ee57cde7d085d" region="pcm" offset="0"/>
+		<rom name="opr-10192.67" size="32768" crc="770f1270" sha1="686bdf44d45c1d6002622f6658f037735382f3e0" region="pcm" offset="10000"/>
+		<rom name="opr-10191.68" size="32768" crc="20a284ab" sha1="7c9027416d4122791ba53782fe2230cf02b7d506" region="pcm" offset="20000"/>
+		<rom name="opr-10190.69" size="32768" crc="7cab70e2" sha1="a3c581d2b438630d0d4c39481dcfd85681c9f889" region="pcm" offset="30000"/>
+		<rom name="opr-10189.70" size="32768" crc="01366b54" sha1="f467a6b807694d5832a985f5381c170d24aaee4e" region="pcm" offset="40000"/>
+		<rom name="opr-10188.71a" size="32768" crc="c2de09b2" region="pcm" offset="50000"/>
+		<device_ref name="m68000"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="i8255"/>
+		<device_ref name="adc0804"/>
+		<device_ref name="sega_315_5195"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="screen"/>
+		<device_ref name="segaic16_video"/>
+		<device_ref name="segaic16_road"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="segapcm"/>
+		<device_ref name="timer"/>
+		<device_ref name="sega_outrun_sprite"/>
+		<device_ref name="nvram"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="subcpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="soundcpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="4000000"/>
+		<chip type="audio" tag="pcm" name="Sega PCM" clock="4000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="224" refresh="60.054389" pixclock="6293700" htotal="400" hbend="0" hbstart="320" vtotal="262" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="1" coins="2" service="yes">
+			<control type="paddle" buttons="1" minimum="32" maximum="224" sensitivity="100" keydelta="4"/>
+			<control type="pedal" minimum="0" maximum="255" sensitivity="100" keydelta="40"/>
+		</input>
+		<dipswitch name="Coin A" tag="COINAGE" mask="15">
+			<diplocation name="SWA" number="1"/>
+			<diplocation name="SWA" number="2"/>
+			<diplocation name="SWA" number="3"/>
+			<diplocation name="SWA" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="7"/>
+			<dipvalue name="3 Coins/1 Credit" value="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="9"/>
+			<dipvalue name="2 Coins/1 Credit, 5/3, 6/4" value="5"/>
+			<dipvalue name="2 Coins/1 Credit, 4/3" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="1 Coin/1 Credit, 5/6" value="3"/>
+			<dipvalue name="1 Coin/1 Credit, 4/5" value="2"/>
+			<dipvalue name="1 Coin/1 Credit, 2/3" value="1"/>
+			<dipvalue name="2 Coins/3 Credits" value="6"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="Free Play (if Coin B too) or 1/1" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="COINAGE" mask="240">
+			<diplocation name="SWA" number="5"/>
+			<diplocation name="SWA" number="6"/>
+			<diplocation name="SWA" number="7"/>
+			<diplocation name="SWA" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="112"/>
+			<dipvalue name="3 Coins/1 Credit" value="128"/>
+			<dipvalue name="2 Coins/1 Credit" value="144"/>
+			<dipvalue name="2 Coins/1 Credit, 5/3, 6/4" value="80"/>
+			<dipvalue name="2 Coins/1 Credit, 4/3" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="1 Coin/1 Credit, 5/6" value="48"/>
+			<dipvalue name="1 Coin/1 Credit, 4/5" value="32"/>
+			<dipvalue name="1 Coin/1 Credit, 2/3" value="16"/>
+			<dipvalue name="2 Coins/3 Credits" value="96"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="Free Play (if Coin A too) or 1/1" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW" mask="3">
+			<diplocation name="SWB" number="1"/>
+			<diplocation name="SWB" number="2"/>
+			<dipvalue name="Moving" value="3"/>
+			<dipvalue name="Up Cockpit" value="2"/>
+			<dipvalue name="Mini Up" value="1" default="yes"/>
+			<dipvalue name="Unused" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW" mask="4">
+			<diplocation name="SWB" number="3"/>
+			<dipvalue name="Off" value="4"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW" mask="8">
+			<diplocation name="SWB" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Time Adj." tag="DSW" mask="48">
+			<diplocation name="SWB" number="5"/>
+			<diplocation name="SWB" number="6"/>
+			<dipvalue name="Easy" value="32"/>
+			<dipvalue name="Normal" value="48" default="yes"/>
+			<dipvalue name="Hard" value="16"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW" mask="192">
+			<diplocation name="SWB" number="7"/>
+			<diplocation name="SWB" number="8"/>
+			<dipvalue name="Easy" value="128"/>
+			<dipvalue name="Normal" value="192" default="yes"/>
+			<dipvalue name="Hard" value="64"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<port tag=":ADC.0">
+			<analog mask="255"/>
+		</port>
+		<port tag=":ADC.1">
+			<analog mask="255"/>
+		</port>
+		<port tag=":ADC.2">
+			<analog mask="255"/>
+		</port>
+		<port tag=":ADC.3">
+		</port>
+		<port tag=":COINAGE">
+		</port>
+		<port tag=":DSW">
+		</port>
+		<port tag=":SERVICE">
+		</port>
+		<port tag=":UNKNOWN">
+		</port>
+		<driver status="good" emulation="good" savestate="unsupported"/>
+	</machine>
+</mame>

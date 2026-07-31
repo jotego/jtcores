@@ -32,7 +32,6 @@ wire [19:1] cpu_addr;
 wire [ 1:0] prio;
 reg  [ 7:0] debug_mux;
 wire        oram_wex, nc;
-// reg  [ 2:0] game_id;
 
 assign main_addr  = cpu_addr[18:1];
 assign debug_view = debug_mux;
@@ -224,8 +223,8 @@ jtfround_video u_video (
 
 /* verilator tracing_off */
 jttmnt_sound u_sound(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
+    .rst        ( rst48         ),
+    .clk        ( clk48         ),
     .cen_fm     ( cen_fm        ),
     .cen_fm2    ( cen_fm2       ),
     .cen_640    ( cen_640       ),
