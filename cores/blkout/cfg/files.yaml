@@ -1,6 +1,7 @@
 blkout:
   - get:
     - jtblkout_game.v
+    - jtblkout_header.v
     - jtblkout_main.v
     - jtblkout_video.v
     - jtblkout_fb.v

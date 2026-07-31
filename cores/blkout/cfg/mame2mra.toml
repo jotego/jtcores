@@ -10,14 +10,14 @@ info = """ Header to identify the PCB type
         Byte 0 = 0 for blockout, 1 for blockoutj
 """
 registers=[
-    { name="blockout",    pos="0[0]",   desc="Blockout",   values=[{ machine="blockout", value=1 }] },
-    { name="blockoutj",    pos="0[1]",   desc="Blockoutj",  values=[{ machine="blockoutj", value=1 }] },
+    { name="blockout",    pos="0[0]",   desc="Blockout",   values=[{ setnames=["blockout","blockout2","blockout3"], value=1 }] },
+    { name="blockoutj",    pos="0[1]",   desc="Blockoutj",  values=[{ setname="blockoutj", value=1 }] },
 ]
 
 [buttons]
 names=[
-    { machine="blockout", names="A,B,C,Drop"},
-    { machine="blockoutj", names="Drop,B,C"}
+    { setnames=["blockout","blockout2","blockout3"], names="A,B,C,Drop"},
+    { setname="blockoutj", names="Drop,B,C"}
 ]
 
 [dipsw]
