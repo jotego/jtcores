@@ -165,6 +165,16 @@ initial begin
     @(posedge clk);
     #1 check(save_size==17'h0ff00, "oversize changed range was not clamped");
 
+    // A failed APF flush must leave the save pending. Only a later successful
+    // completion may acknowledge the flash core and clear sav_change.
+    @(posedge clk);
+    write_reg(32'hf8001000,{"ok",16'd1});
+    #1 check(!flush_ack && !sav_ack, "failed flush acknowledged the save core");
+    read_reg(32'hf8001000);
+    #1 check(sys_din=={"cm",16'h0188}, "failed flush was not retried");
+    write_reg(32'hf8001000,{"ok",16'd0});
+    #1 check(flush_ack && sav_ack, "retry did not acknowledge the save core");
+
     pass();
 end
 
