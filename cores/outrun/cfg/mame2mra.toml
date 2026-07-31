@@ -38,7 +38,10 @@ data = [
 regions = [
     { name="maincpu",     width=16, reverse=true },
     { name="subcpu",      start="JTFRAME_BA1_START", width=16, reverse=true },
-    { name="soundcpu",    start="SND_START" },
+    # OutRunm's single 0x20000 Z80 image has no known bank-switching support.
+    # Keep only its visible first 64 KiB; sequence is required for Rom_len to
+    # emit a truncated MRA part rather than the complete input file.
+    { name="soundcpu",    start="SND_START", sequence=[0], Rom_len=0x10000 },
     { name="pcm",         start="PCM_START", No_offset=true, Rom_len=0x10000 },
     { name="gfx1",        start="JTFRAME_BA2_START", width=32, sequence=[0,2,4,4, 1,3,5,5 ] },
     { name="gfx1",        start="JTFRAME_BA2_START", width=32, sequence=[0,1,2,2 ], No_offset=true, machine="toutrun" },
