@@ -105,7 +105,7 @@ assign bus_legit = 0;
 
 always @* begin
     rom_cs      = allFC && A[23:18]==6'h0  && !ASn;                 // 000000-03ffff
-    io_cs       = allFC && A[23:5]==8'h8000 && !ASn;               // 100000-100012
+    io_cs       = allFC && A[23:5]==19'h8000 && !ASn;               // 100000-100012
     fb_cs       = allFC && A[23:18]==6'h6  && !ASn;                 // 180000-1bffff
     work_cs     = allFC && A[23:16]==8'h1d && (A[15]|A[14]) && !ASn;// 1d4000-1dffff
     work2_cs    = allFC && A[23:16]==8'h1f && (A[15]|A[14]) && !ASn;// 1f4000-1fffff
