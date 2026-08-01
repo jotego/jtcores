@@ -70,7 +70,14 @@ module jtframe_sdram64_bank #(
     // higher level. This makes it possible to short the pins
     // of the SDRAM, as done in the MiSTer 128MB module
     output reg  [12:0]  sdram_a,        // SDRAM Address bus 13 Bits
-    output reg  [ 3:0]  cmd
+    output reg  [ 3:0]  cmd,
+    // cmd==CMD_ACTIVE, decoded before the top level's grant mux.  The MiSTer
+    // target muxes SDRAM_A[12:11] on this term AFTER the 7-deep grant mux,
+    // which put a 4-bit compare in series with the longest cone in the
+    // design (bank FSM -> grant mux -> A[12:11] DDIO register at the pin).
+    // Exporting the 1-bit decode lets the top select it in parallel with
+    // the address instead.  Same logic, one cycle, no protocol change.
+    output reg          act
 );
 
 localparam ROW=13,
@@ -215,6 +222,7 @@ always @(*) begin
     cmd = do_prech ? CMD_PRECHARGE : (
           do_act   ? CMD_ACTIVE    : (
           do_read  ? (rd ? CMD_READ : CMD_WRITE ) : CMD_NOP ));
+    act = ~do_prech & do_act;   // == (cmd==CMD_ACTIVE), by the priority above
     sdram_a[12:11] =  addr_row[12:11];
     sdram_a[10:0] = do_act ? addr_row[10:0] :
             { do_read ? AUTOPRECH[0] : PRECHARGE_ALL[0], addr[AW-1], addr[8:0]};

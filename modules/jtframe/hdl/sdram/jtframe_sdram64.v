@@ -126,6 +126,7 @@ localparam CMD_LOAD_MODE   = 4'b0___0____0____0, // 0
            CMD_NOP         = 4'b0___1____1____1, // 7
            CMD_INHIBIT     = 4'b1___0____0____0; // 8
 
+wire        bx0_act, bx1_act, bx2_act, bx3_act, next_is_act;
 wire  [3:0] br, bx0_cmd, bx1_cmd, bx2_cmd, bx3_cmd, rfsh_cmd,
             ba_dst, ba_dbusy, ba_dbusy64, ba_rdy, ba_dok,
             init_cmd, post_act, next_cmd, dqm_busy, match;
@@ -170,6 +171,30 @@ assign {next_ba, next_cmd, next_a } =
                        bg[2] ? { 2'd2, bx2_cmd, bx2_a } : (
                        bg[1] ? { 2'd1, bx1_cmd, bx1_a } :
                                { 2'd0, bx0_cmd, bx0_a } )))));
+
+// next_cmd==CMD_ACTIVE, but selected as ONE bit in parallel with the mux
+// above instead of compared after it.  The MiSTer target's SDRAM_A[12:11]
+// register (which doubles as DQMH/L on the shorted-pin 128MB module) muxes
+// on this term, and it lives in the DDIO cell at the pin -- the serial
+// compare made bank-FSM -> grant-mux -> compare -> A[12:11] the longest
+// cone in the design (measured -0.21 ns at 96 MHz on jtcps2, with every
+// violating path through it).  The leaves mirror the mux exactly: banks
+// pre-decode cmd==ACTIVE as `act`; init/rfsh/prog compare their own 4-bit
+// cmd off the critical path.  Equivalence is asserted in simulation below.
+assign next_is_act =    init ? init_cmd==CMD_ACTIVE : (
+                      rfshing? rfsh_cmd==CMD_ACTIVE : (
+                      prog_en? pre_cmd ==CMD_ACTIVE : (
+                       bg[3] ? bx3_act : (
+                       bg[2] ? bx2_act : (
+                       bg[1] ? bx1_act :
+                               bx0_act )))));
+
+`ifdef SIMULATION
+always @(posedge clk) if( next_is_act != (next_cmd==CMD_ACTIVE) ) begin
+    $display("%m ASSERT FAIL: next_is_act=%b but next_cmd=%b", next_is_act, next_cmd);
+    $finish;
+end
+`endif
 
 assign prio     = prio_lfsr[1:0];
 assign mask_mux = prog_en ? prog_dsn :
@@ -226,7 +251,7 @@ always @(posedge clk) begin
     sdram_din <= prog_en ? prog_din : din;
 `endif
     if( MISTER ) begin
-        if( next_cmd==CMD_ACTIVE )
+        if( next_is_act )
             sdram_a[12:11] <= next_a[12:11];
         else
             sdram_a[12:11] <= wr_cycle ? mask_mux : 2'd0;
@@ -392,7 +417,8 @@ jtframe_sdram64_bank #(
     .bg         ( bg[0]      ), // bus grant
 
     .sdram_a    ( bx0_a      ),
-    .cmd        ( bx0_cmd    )
+    .cmd        ( bx0_cmd    ),
+    .act        ( bx0_act    )
 );
 
 jtframe_sdram64_bank #(
@@ -439,7 +465,8 @@ jtframe_sdram64_bank #(
     .bg         ( bg[1]      ), // bus grant
 
     .sdram_a    ( bx1_a      ),
-    .cmd        ( bx1_cmd    )
+    .cmd        ( bx1_cmd    ),
+    .act        ( bx1_act    )
 );
 
 jtframe_sdram64_bank #(
@@ -486,7 +513,8 @@ jtframe_sdram64_bank #(
     .bg         ( bg[2]      ), // bus grant
 
     .sdram_a    ( bx2_a      ),
-    .cmd        ( bx2_cmd    )
+    .cmd        ( bx2_cmd    ),
+    .act        ( bx2_act    )
 );
 
 jtframe_sdram64_bank #(
@@ -533,7 +561,8 @@ jtframe_sdram64_bank #(
     .bg         ( bg[3]      ), // bus grant
 
     .sdram_a    ( bx3_a      ),
-    .cmd        ( bx3_cmd    )
+    .cmd        ( bx3_cmd    ),
+    .act        ( bx3_act    )
 );
 
 always @(*) begin
