@@ -5,9 +5,18 @@
 trap "clean_up; exit 1" INT KILL
 
 main() {
+    if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+        usage
+        return 0
+    fi
+    if [[ -z "$1" ]]; then
+        usage >&2
+        return 1
+    fi
+
     CORE=$1
     shift
-    parse_args $*
+    parse_args "$@"
     set_target
     read_core_macros "$FRAME_ARGS" || exit $?
 
@@ -23,6 +32,23 @@ main() {
     run_linter "$SIM_ARGS"
     check_msg
     clean_up
+}
+
+usage() {
+    cat <<'EOF'
+Usage: lint-one.sh <core> [options]
+
+Lint one JT core with Verilator.
+
+Options:
+  -d, --def <macro>       Define a Verilog macro
+  -u, --undef <macro>     Undefine a core macro
+      --nodbg             Disable debug features
+  -t, --target <target>   Select the target (default: mister)
+  -mist|-mister|-pocket|-sidi128
+                          Select the target using shorthand
+  -h, --help              Show this help and exit
+EOF
 }
 
 parse_args() {
@@ -107,4 +133,4 @@ clean_up() {
     rm -rf $TEST_FOLDER
 }
 
-main $*
+main "$@"
