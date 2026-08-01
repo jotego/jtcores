@@ -512,6 +512,34 @@ void SDRAM::update(uint64_t simtime_ps) {
     last_clk = dut.SDRAM_CLK;
 }
 
+void SDRAM::write_bytes(unsigned bank, unsigned offset, unsigned byte_mask, unsigned data) {
+    if( bank >= 4 ) throw "ERROR: (sdram.cpp) cheat bank is outside the SDRAM range\n";
+    if( byte_mask == 0 || byte_mask > 3 ) throw "ERROR: (sdram.cpp) cheat byte-mask must be 1, 2, or 3\n";
+    const unsigned bank_bytes = static_cast<unsigned>(model.bank_byte_len());
+    if( offset >= bank_bytes || ((byte_mask & 2) && offset + 1 >= bank_bytes) ) {
+        throw "ERROR: (sdram.cpp) cheat offset is outside the SDRAM bank\n";
+    }
+
+    unsigned word_addr = offset >> 1;
+    uint16_t word = model.read_word(bank, word_addr);
+    // Bank files are loaded in big-endian byte order, so an even byte offset
+    // addresses the high byte of the corresponding SDRAM word.
+    if( byte_mask & 1 ) {
+        if( offset & 1 ) word = (word & 0xff00) | (data & 0xff);
+        else             word = (word & 0x00ff) | ((data & 0xff) << 8);
+    }
+    if( byte_mask & 2 ) {
+        unsigned next = offset + 1;
+        unsigned next_addr = next >> 1;
+        uint16_t next_word = next_addr == word_addr ? word : model.read_word(bank, next_addr);
+        if( next & 1 ) next_word = (next_word & 0xff00) | ((data >> 8) & 0xff);
+        else           next_word = (next_word & 0x00ff) | ((data & 0xff00));
+        if( next_addr == word_addr ) word = next_word;
+        else model.write_word(bank, next_addr, next_word);
+    }
+    model.write_word(bank, word_addr, word);
+}
+
 void SDRAM::dump() {
     vector<uint8_t> aux(model.bank_byte_len());
     for( int k = 0; k < 4; k++ ) {

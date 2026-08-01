@@ -210,7 +210,6 @@ JTFRAME_SIM_SKIP_FRAME_DUMP|verilator| Skip the generic Verilator harness frame 
 JTFRAME_SIM_SKIP_VSIZE   |verilator| Skip the frame-size assertion in the generic Verilator harness
 JTFRAME_SIM_SLOWLOAD     |verilator| slows down the ROM load in case the core needs extra time
 JTFRAME_SIM_SNDEN        |verilator| Enable sound channels (bits active high) following the order in mem.yaml
-JTFRAME_SIM_VIDEO        |verilator| Create PNG files for all frames. Good for creation of video files.
 LOADROM                  |         | Sends ROM data via serial interface. Set by `jtsim -load`
 SIM_LOAD_PROM            |         | Manually enable it to force PROM load on offset-header cores (like JTS18)
 SIMSCENE                 |         | Set when jtsim is called with -scene

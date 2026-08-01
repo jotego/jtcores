@@ -55,6 +55,9 @@ UNDEF=
 FAST=
 # Extra arguments for the simulator, passed with -args
 SIMULATOR_EXTRA=
+# Arguments passed to the generated simulation executable.
+RUNTIME_ARGS=()
+CABINET_INPUTS=
 
 # sed and stat are different for MacOS and GNU
 if [ `uname` = Darwin ]; then
@@ -137,38 +140,31 @@ case "$1" in
         shift
         add_macro JTFRAME_SIM_GFXEN=0x${1#0x};;
     -fast) FAST=1;;
-    -inputs)
-        if [[ $2 != -* ]]; then
-            shift
-            if [ ! -e "$1" ]; then
-                echo "Error: cannot find input file $1"
-                exit 1
-            fi
-            if [[ "$1" == *.cab ]]; then
-                jtframe cab "$1" || exit $?
-            else
-                cp "$1" sim_inputs.hex
-            fi
-        elif [ ! -e sim_inputs.hex ]; then
-            echo "-inputs specified but there is no sim_inputs.hex file"
+    *.cab)
+        if [ "$SIMULATOR" != verilator ]; then
+            echo "Error: .cab cabinet scripts require the Verilator simulator"
             exit 1
         fi
-        add_macro SIM_INPUTS;;
+        if [ -n "$CABINET_INPUTS" ]; then
+            echo "Error: only one .cab cabinet script may be specified"
+            exit 1
+        fi
+        if [ ! -f "$1" ]; then
+            echo "Error: cabinet inputs must be an existing .cab file: $1"
+            exit 1
+        fi
+        RUNTIME_ARGS+=(--inputs "$(realpath "$1")")
+        CABINET_INPUTS=1
+        # Trace support is compiled for cabinet runs. The Verilator harness
+        # parses tracing_on and decides whether to write waveform samples.
+        DUMP=1
+        add_macro DUMP;;
     -keepcpp)
         shift
         TESTCPP=KEEP
         ;;
     -pause)
         add_macro DIP_PAUSE;;
-    -frame)
-        shift
-        if [ "$1" = "" ]; then
-            echo "${rBG}Error:${NC} Must specify the number of frames to simulate"
-            exit 1
-        fi
-        add_macro MAXFRAME=$1
-        echo Simulate up to $1 frames
-        ;;
     -skipROM) SKIPROM="--skipROM";;
     -dummyROM) DUMMYROM=1;;
     -srate)
@@ -242,6 +238,7 @@ case "$1" in
             # get number of frames to simulate
             shift
             add_macro MAXFRAME=$1
+            RUNTIME_ARGS+=(--video-limit)
         fi
         rm -rf video.bin frame_*.jpg frame_*.png frame.raw frames
         VIDEO_DUMP=TRUE
@@ -274,7 +271,6 @@ fi
 
 SYSNAME=`derive_corename_from_folder`
 
-mkdir -p frames
 require "$SYSNAME" "Missing core name. Run jtsim for a cores/corename/ver/setname folder"
 
 generate_mra_header_module() {
@@ -386,6 +382,15 @@ fi
 # Get the macros in cfg/macros.def into bash
 eval `jtcfgstr bash`
 
+# Cabinet cheats are optional per-core metadata. The Verilator harness only
+# reads it when a cabinet script requests cheat=<name>.
+export JTFRAME_SIM_SETNAME="$SETNAME"
+if [ -f "$CORES/$SYSNAME/cfg/cheat.yaml" ]; then
+    export JTFRAME_SIM_CHEATS="$CORES/$SYSNAME/cfg/cheat.yaml"
+else
+    unset JTFRAME_SIM_CHEATS
+fi
+
 build_core_firmware "$CORES/$SYSNAME"
 
 if [ -z "$GAMETOP" ]; then
@@ -478,6 +483,7 @@ iverilog)
         -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl \
         -DDUMP_VIDEO_FNAME=\"video.pipe\" $FILES \
     || exit 1
+    clear_frames
     $SHOWCMD $SIMEXE -lxt
     rm -f $SIMEXE;;
 modelsim|questasim)
@@ -499,10 +505,12 @@ modelsim|questasim)
 run -all
 EOF
     fi
+    clear_frames
     vsim -64 -batch -do "do vsim.do" $TOP || exit $?
     if [ -e test.vcd ]; then vcd2fst test.vcd test.fst && rm test.vcd; fi
     ;;
 xcelium)
+    clear_frames
     $SHOWCMD xrun -64bit -access +r -timescale 1ns/1ps\
         -f filtered.f $FILES -nowarn RECOME \
         -top $TOP \
@@ -513,6 +521,7 @@ xcelium)
         $EXTRA -l /dev/null || exit $?;;
 synapticad)
     # ls $JTFRAME/hdl/cpu/t80/T80{pa,_ALU,_Reg,_MCode,"",s}.vhd >> jtsim_vhdl.f
+    clear_frames
     $SHOWCMD simx +access+r +define+SYNAPTICAD +timescale+1ns/1ps\
         -f filtered.f $FILES \
         +scd_top+$TOP \
@@ -523,6 +532,7 @@ synapticad)
         $EXTRA -l /dev/null || exit $?;;
 ncverilog)
     # ls $JTFRAME/hdl/cpu/t80/T80{pa,_ALU,_Reg,_MCode,"",s}.vhd >> jtsim_vhdl.f
+    clear_frames
     $SHOWCMD ncverilog +access+r +nc64bit +define+NCVERILOG +nctimescale+1ns/1ps\
         -mcmaxcores 3 -mccodegen \
         -sysv -f jtsim_vhdl.f \
@@ -548,12 +558,24 @@ verilator)
         cp $JTFRAME/verilator/sdram.h .
         cp $JTFRAME/verilator/wavewritter.cpp .
         cp $JTFRAME/verilator/wavewritter.h .
+        cp $JTFRAME/verilator/cabinet.cpp .
+        cp $JTFRAME/verilator/cabinet.h .
+        cp $JTFRAME/verilator/cheats.cpp .
+        cp $JTFRAME/verilator/cheats.h .
+        cp $JTFRAME/verilator/sim_utils.cpp .
+        cp $JTFRAME/verilator/sim_utils.h .
     else
         [ -e test.cpp ] || cp $JTFRAME/verilator/test.cpp .
         [ -e sdram.cpp ] || cp $JTFRAME/verilator/sdram.cpp .
         [ -e sdram.h ] || cp $JTFRAME/verilator/sdram.h .
         [ -e wavewritter.cpp ] || cp $JTFRAME/verilator/wavewritter.cpp .
         [ -e wavewritter.h ] || cp $JTFRAME/verilator/wavewritter.h .
+        [ -e cabinet.cpp ] || cp $JTFRAME/verilator/cabinet.cpp .
+        [ -e cabinet.h ] || cp $JTFRAME/verilator/cabinet.h .
+        [ -e cheats.cpp ] || cp $JTFRAME/verilator/cheats.cpp .
+        [ -e cheats.h ] || cp $JTFRAME/verilator/cheats.h .
+        [ -e sim_utils.cpp ] || cp $JTFRAME/verilator/sim_utils.cpp .
+        [ -e sim_utils.h ] || cp $JTFRAME/verilator/sim_utils.h .
     fi
     # verilog to C++ conversion
     GAME_VLT=
@@ -579,6 +601,7 @@ verilator)
         compile_verilator_sim
         # Run the simulation
         prepare_fst_pipe
+        clear_frames
         run_verilator_sim
         clean_fst_pipe
         if [ -e logs/coverage.dat ]; then

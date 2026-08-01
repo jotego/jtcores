@@ -169,7 +169,7 @@ run_one() {
 
     (
         cd "$sim_dir" || exit 1
-        jtsim -dummyROM -frame "$FRAMES" \
+        jtsim -dummyROM -d MAXFRAME="$FRAMES" \
             -d NOMAIN \
             -d NOSOUND \
             -d JTFRAME_SIM_SKIP_FRAME_DUMP \
