@@ -65,7 +65,8 @@ func Test_Convert_romless_mra(t *testing.T) {
 	if e := os.MkdirAll(core_hdl, 0775); e != nil {
 		t.Fatal(e)
 	}
-	if e := os.WriteFile(filepath.Join(core_cfg, "macros.def"), []byte("CORENAME=JTTEST85\n"), 0664); e != nil {
+	macro_data := "CORENAME=JTTEST85\nJTFRAME_WIDTH=320\nJTFRAME_HEIGHT=240\nJTFRAME_LF_HW=9\nJTFRAME_LF_VW=8\n"
+	if e := os.WriteFile(filepath.Join(core_cfg, "macros.def"), []byte(macro_data), 0664); e != nil {
 		t.Fatal(e)
 	}
 	toml := []byte("[global]\nplatform=\"test85\"\n")

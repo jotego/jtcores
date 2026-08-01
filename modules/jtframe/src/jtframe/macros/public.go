@@ -160,6 +160,9 @@ func CheckMacros() error {
 		header := Get("JTFRAME_HEADER")
 		return fmt.Errorf("Cannot parse JTFRAME_HEADER=%s\n", header )
 	}
+	if IsSet("JTFRAME_HEADER") && GetInt("JTFRAME_HEADER")%4!=0 {
+		return fmt.Errorf("jtframe: JTFRAME_HEADER must be a multiple of four for Analogue Pocket compatibility")
+	}
 	if e:=check_integer("JTFRAME_WIDTH","JTFRAME_HEIGHT","JTFRAME_LF_HW","JTFRAME_LF_VW"); e!=nil {
 		return e
 	}
