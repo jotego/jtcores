@@ -9,7 +9,7 @@ main() {
     shift
     parse_args $*
     set_target
-    read_core_macros "$FRAME_ARGS"
+    read_core_macros "$FRAME_ARGS" || exit $?
 
     if must_skip; then
         echo "Skipping $CORE"
@@ -71,7 +71,9 @@ set_target() {
 }
 
 read_core_macros() {
-    eval `jtframe cfgstr $CORE --output bash --target $TARGET $*`
+    local core_macros
+    core_macros=$(jtframe cfgstr $CORE --output bash --target $TARGET $*) || return $?
+    eval "$core_macros"
 }
 
 must_skip() {

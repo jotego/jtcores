@@ -159,6 +159,36 @@ func Test_check_macros_lf_buffer_vertical_sidi128(t *testing.T) {
 	}
 }
 
+func Test_check_macros_header_alignment(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		header string
+		valid  bool
+	}{
+		{"aligned", "4", true},
+		{"zero", "0", true},
+		{"misaligned", "1", false},
+		{"nonnumeric", "bad", false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			MakeFromMap(map[string]string{
+				"JTFRAME_HEADER": test.header,
+				"JTFRAME_WIDTH":  "320",
+				"JTFRAME_HEIGHT": "240",
+				"JTFRAME_LF_HW":  "9",
+				"JTFRAME_LF_VW":  "8",
+			})
+			err := CheckMacros()
+			if test.valid && err != nil {
+				t.Fatalf("Expected JTFRAME_HEADER=%s to be accepted: %v", test.header, err)
+			}
+			if !test.valid && err == nil {
+				t.Fatalf("Expected JTFRAME_HEADER=%s to be rejected", test.header)
+			}
+		})
+	}
+}
+
 func Test_remove_lf_buffer_rotation_conflict(t *testing.T) {
 	MakeFromMap(map[string]string{
 		"JTFRAME_LF_BUFFER":      "1",
