@@ -1,14 +1,67 @@
 module test;
 
-wire rst, clk, hs, DTACKn, pxl_cen;
-reg  [ 3:0] num;
-reg  [ 4:0] den;
-wire [15:0] fave, fworst;
 wire [31:0] framecnt;
-reg         asn, bus_busy;
+wire [15:0] fave, fworst;
+wire        rst, clk, hs, DTACKn, pxl_cen,
+            cpu_cen, cpu_cenb, eff_cen, eff_cenb,
+            ref_cen, ref_cenb, bus_cs;
+reg  [31:0] cpu_cen_count, cpu_cenb_count,
+            eff_cen_count, eff_cenb_count,
+            ref_cen_count, ref_cenb_count;
+reg  [ 4:0] den;
+reg  [ 3:0] num;
+reg         asn, bus_busy, stats_clr;
+integer     errors;
 
 `include "test_tasks.vh"
 
+assign eff_cen  = cpu_cen  && !uut.delayed;
+assign eff_cenb = cpu_cenb && !uut.delayed;
+assign bus_cs   = !asn;
+
+always @(posedge clk) begin
+    if( rst || stats_clr ) begin
+        cpu_cen_count  <= 0;
+        cpu_cenb_count <= 0;
+        eff_cen_count  <= 0;
+        eff_cenb_count <= 0;
+        ref_cen_count  <= 0;
+        ref_cenb_count <= 0;
+    end else begin
+        if( cpu_cen  ) cpu_cen_count  <= cpu_cen_count  + 1'd1;
+        if( cpu_cenb ) cpu_cenb_count <= cpu_cenb_count + 1'd1;
+        if( eff_cen  ) eff_cen_count  <= eff_cen_count  + 1'd1;
+        if( eff_cenb ) eff_cenb_count <= eff_cenb_count + 1'd1;
+        if( ref_cen  ) ref_cen_count  <= ref_cen_count  + 1'd1;
+        if( ref_cenb ) ref_cenb_count <= ref_cenb_count + 1'd1;
+    end
+end
+
+task clear_stats(); begin
+    @(negedge clk);
+    stats_clr = 1;
+    @(negedge clk);
+    stats_clr = 0;
+end endtask
+
+task realistic_bus_traffic(input integer transactions);
+    integer k;
+begin
+    for( k=0; k<transactions; k=k+1 ) begin
+        // A short SDRAM response followed by the small inter-cycle gap
+        // produced by fx68k. Vary both lengths deterministically.
+        @(negedge clk);
+        asn      = 0;
+        bus_busy = 1;
+        repeat( 6 + k%5 ) @(posedge clk);
+        @(negedge clk);
+        bus_busy = 0;
+        while( DTACKn ) @(posedge clk);
+        @(negedge clk);
+        asn = 1;
+        repeat( 2 + k%4 ) @(posedge clk);
+    end
+end endtask
 
 task random_asn_pulses(); begin
     repeat (800) begin
@@ -36,8 +89,47 @@ task random_asn_pulses(); begin
 end endtask
 
 initial begin
-    asn=1;
-    bus_busy=0;
+    asn      = 1;
+    bus_busy = 0;
+    stats_clr = 1;
+    errors   = 0;
+
+    // Reproduce the sustained SDRAM traffic seen by Toki. Once traffic
+    // stops, give the recovery engine enough time to drain all visible debt.
+    // A correct implementation must then match the no-wait reference.
+    @(negedge rst);
+    num = 4'd5;
+    den = 5'd24;
+    repeat (32) @(posedge clk);
+    clear_stats();
+    // With the current 11-bit debt counter this workload wraps exactly once.
+    realistic_bus_traffic(3000);
+    // This is much longer than the time needed to repay the maximum visible
+    // 11-bit debt. Any deficit left afterward was discarded, not pending.
+    repeat (10000) @(posedge clk);
+    @(negedge clk);
+
+    $display("recovery test: raw=%0d/%0d effective=%0d/%0d reference=%0d/%0d",
+        cpu_cen_count, cpu_cenb_count,
+        eff_cen_count, eff_cenb_count,
+        ref_cen_count, ref_cenb_count);
+
+    if( cpu_cen_count>cpu_cenb_count+1 || cpu_cenb_count>cpu_cen_count+1 ) begin
+        $display("Raw cpu_cen/cpu_cenb phase counts differ by more than one");
+        errors = errors+1;
+    end
+    if( eff_cen_count>eff_cenb_count+1 || eff_cenb_count>eff_cen_count+1 ) begin
+        $display("Effective cpu_cen/cpu_cenb phase counts differ by more than one");
+        errors = errors+1;
+    end
+    if( eff_cen_count>ref_cen_count+1 || ref_cen_count>eff_cen_count+1 ||
+        eff_cenb_count>ref_cenb_count+1 || ref_cenb_count>eff_cenb_count+1 ) begin
+        $display("Elapsed CPU time was not recovered after bus_busy returned low");
+        errors = errors+1;
+    end
+    if( errors!=0 ) fail();
+
+    stats_clr = 1;
     // 8MHz test
     // used in CPS1, sf, rastan
     num=1;
@@ -92,15 +184,19 @@ initial begin
         assert_msg(uut.fave<16'h1608,"frequency too fast +0.5%%");
         assert_msg(uut.fave>16'h1592,"frequency too slow -0.5%%");
     end
+
     pass();
 end
 
-jtframe_68kdtack_cen #(.RECOVERY(1),.MFREQ(48000))uut(
+jtframe_68kdtack_cen #(
+    .RECOVERY   ( 1      ),
+    .MFREQ      ( 48_000 )
+) uut(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cpu_cen    (           ),
-    .cpu_cenb   (           ),
-    .bus_cs     ( bus_busy  ),
+    .cpu_cen    ( cpu_cen   ),
+    .cpu_cenb   ( cpu_cenb  ),
+    .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
     .bus_ack    ( 1'b0      ),
@@ -114,6 +210,29 @@ jtframe_68kdtack_cen #(.RECOVERY(1),.MFREQ(48000))uut(
     .DTACKn     ( DTACKn    ),
     .fave       ( fave      ), // average cpu_cen frequency in kHz
     .fworst     ( fworst    )  // average cpu_cen frequency in kHz
+);
+
+jtframe_68kdtack_cen #(
+    .RECOVERY   ( 0      ),
+    .MFREQ      ( 48_000 )
+) uut_ref(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cpu_cen    ( ref_cen   ),
+    .cpu_cenb   ( ref_cenb  ),
+    .bus_cs     ( 1'b0      ),
+    .bus_busy   ( 1'b0      ),
+    .bus_legit  ( 1'b0      ),
+    .bus_ack    ( 1'b0      ),
+    .ASn        ( 1'b1      ),
+    .DSn        ( 2'b11     ),
+    .num        ( num       ),
+    .den        ( den       ),
+    .DTACKn     (           ),
+    .wait2      ( 1'b0      ),
+    .wait3      ( 1'b0      ),
+    .fave       (           ),
+    .fworst     (           )
 );
 
 jtframe_test_clocks clocks(
