@@ -1,0 +1,31 @@
+ \B Space Harrier\W core by \Rniknak\W
+ built on \RJTFRAME\W by \RJotego\W
+  http://patreon.com/jotego
+
+PCB supplied by \Rniknak\W
+
+Sega Hang-On hardware:
+dual 68000 + Z80 + YM2203
++ SegaPCM and an i8751 MCU.
+
+Developed against an original
+cabinet and known good PCBs.
+
+Options in the DIP menu:
+-Stick Direction
+   Arcade is the cabinet's
+   aircraft stick: push up
+   and Harrier goes down
+-D-Pad Control
+   Arcade springs back to
+   centre, Console holds
+-V Glyph Fix
+   the letter V is drawn
+   wrong in the original ROM
+
+
+Space Harrier is an analog
+game. The stick is the
+intended control.
+
+Service mode: F2 or Test
