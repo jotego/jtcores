@@ -31,16 +31,20 @@ module jttoki_main(
     input             dip_pause,
     input             service,
 
-    input      [15:0] cpu_rom_data,
-    input             cpu_rom_ok,
-    output reg [18:1] cpu_rom_addr,
-    output reg        cpu_rom_cs,
+    input      [15:0] rom_data,
+    input             rom_ok,
+    output reg [18:1] rom_addr,
+    output reg        rom_cs,
     output     [15:0] cpu_dout,
 
-    // Main RAM
+    // Main RAM (SDRAM)
     output     [15:1] ram_addr,
-    output     [ 1:0] ram_we,
-    input      [15:0] ram_dout,
+    output            ram_we,
+    output     [15:0] ram_din,
+    output     [ 1:0] ram_dsn,
+    output reg        ram_cs,
+    input      [15:0] ram_data,
+    input             ram_ok,
 
     // Palette RAM
     output     [10:1] pal_cpu_addr,
@@ -94,24 +98,26 @@ localparam [4:0] CEN_DEN = 5'd24;
 
 wire [23:0] cpu_a;
 reg  [15:0] cpu_din;
-reg         cpu_rom_ok_dly;
+reg         cpu_rom_ok_dly, ram_ok_dly;
 wire [ 2:0] cpu_fc;
 wire        cpu_wrn, cpu_as_n, cpu_lds_n, cpu_uds_n,
             cen10, cen10b, dtack_n, int1;
-wire [ 1:0] cpu_dsn, ram_byte_we, pal_byte_we, obj_byte_we,
+wire [ 1:0] cpu_dsn, pal_byte_we, obj_byte_we,
             vram_byte_we, scr1_byte_we, scr2_byte_we;
 wire [15:0] cab_dout, system_dout, cabal_joy_dout, cabal_inputs_dout;
-wire        inta_n, inta_clr, bus_cs, bus_busy, sound_lwr;
+wire        inta_n, inta_clr, bus_cs, bus_busy, sound_lwr, cpu_bus;
 wire [23:0] sound_base;
 
 assign cpu_a[0] = 0;
 
 assign cpu_dsn       = { cpu_uds_n, cpu_lds_n };
+// DSn must delimit SDRAM writes in read-modify-write cycles, while ROM/RAM
+// reads need to start as soon as /AS falls so their data is ready for /DTACK.
+assign cpu_bus       = !cpu_as_n && (cpu_wrn || cpu_dsn != 2'b11);
 assign mmr_cs        = scroll_cs;
 assign mmr_addr      = cpu_a[6:1];
 assign mmr_rnw       = cpu_wrn;
 assign mmr_dsn       = cpu_dsn;
-assign ram_byte_we   = { ram_cs     && !cpu_wrn && !cpu_uds_n, ram_cs     && !cpu_wrn && !cpu_lds_n };
 assign pal_byte_we   = { palette_cs && !cpu_wrn && !cpu_uds_n, palette_cs && !cpu_wrn && !cpu_lds_n };
 assign obj_byte_we   = { sprite_cs  && !cpu_wrn && !cpu_uds_n, sprite_cs  && !cpu_wrn && !cpu_lds_n };
 assign vram_byte_we  = { vram_cs    && !cpu_wrn && !cpu_uds_n, vram_cs    && !cpu_wrn && !cpu_lds_n };
@@ -120,7 +126,9 @@ assign scr2_byte_we  = { scr2_cs    && !cpu_wrn && !cpu_uds_n, scr2_cs    && !cp
 assign sound_lwr     = !cpu_wrn && !cpu_lds_n;
 
 assign ram_addr      = cpu_a[15:1];
-assign ram_we        = ram_byte_we;
+assign ram_we        = ram_cs && !cpu_wrn;
+assign ram_din       = cpu_dout;
+assign ram_dsn       = cpu_dsn;
 assign pal_cpu_addr  = cpu_a[10:1];
 assign pal_we        = pal_byte_we;
 assign obj_cpu_addr  = cpu_a[10:1];
@@ -205,8 +213,8 @@ jtframe_virq u_virq(
         .custom_n   ()
 );
 
-assign bus_cs   = cpu_rom_cs;
-assign bus_busy = cpu_rom_cs & ~cpu_rom_ok_dly;
+assign bus_cs   = rom_cs | ram_cs;
+assign bus_busy = (rom_cs & ~cpu_rom_ok_dly) | (ram_cs & ~ram_ok_dly);
 
 jtframe_68kdtack_cen  u_dtack(
         .rst        ( rst       ),
@@ -247,7 +255,7 @@ jtframe_68kdtack_cen  u_dtack(
 // 0x0c0002, 0x0c0003 : input port         (ro)
 // 0x0c0004, 0x0c0005 : system port        (ro)
 //
-reg ram_cs, sprite_cs, palette_cs, scr1_cs, scr2_cs, vram_cs,
+reg sprite_cs, palette_cs, scr1_cs, scr2_cs, vram_cs,
     scroll_cs, dsw_cs, inputs_cs, system_cs;
 reg sound_cs_2, sound_cs_3, sound_cs_4, sound_cs_5, sound_cs_6;
 
@@ -262,8 +270,8 @@ always @(posedge clk) begin
     dsw_cs       <= 1'd0;
     inputs_cs    <= 1'd0;
     system_cs    <= 1'd0;
-    cpu_rom_addr <= 18'd0;
-    cpu_rom_cs   <= 1'd0;
+    rom_addr <= 18'd0;
+    rom_cs   <= 1'd0;
     sound_cs_2   <= 1'd0;
     sound_cs_3   <= 1'd0;
     sound_cs_4   <= 1'd0;
@@ -272,11 +280,11 @@ always @(posedge clk) begin
     sound_wr_2    <= 1'd0;
     main_irq_trig <= 1'd0;
     sound_wr_6    <= 1'd0;
-    if(!cpu_as_n) begin
+    if(cpu_bus) begin
         if (cpu_a[23:0] < (cabal ? 24'h40000 : 24'h60000))
-            cpu_rom_addr[18:1] <= cpu_a[18:1];
+            rom_addr[18:1] <= cpu_a[18:1];
 
-        cpu_rom_cs <= cpu_a[23:0] < (cabal ? 24'h40000 : 24'h60000);
+        rom_cs <= cpu_a[23:0] < (cabal ? 24'h40000 : 24'h60000);
         if (cabal) begin
             sprite_cs  <= cpu_a[23:0] >= 24'h43800 && cpu_a[23:0] < 24'h44000;
             ram_cs     <= (cpu_a[23:0] >= 24'h40000 && cpu_a[23:0] < 24'h43800) ||
@@ -323,9 +331,10 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    cpu_rom_ok_dly <= cpu_rom_ok;
-    cpu_din <= cpu_rom_cs ? cpu_rom_data :
-                            ram_cs     ? ram_dout :
+    cpu_rom_ok_dly <= rom_ok;
+    ram_ok_dly     <= ram_ok;
+    cpu_din <= rom_cs ? rom_data :
+                            ram_cs     ? ram_data :
                             palette_cs ? pal_dout :
                             sprite_cs  ? obj_dout :
                             vram_cs    ? vram_dout :
@@ -345,7 +354,9 @@ assign mmr_addr      = 6'd0;
 assign mmr_rnw       = 1'b1;
 assign mmr_dsn       = 2'b11;
 assign ram_addr      = 15'd0;
-assign ram_we        = 2'd0;
+assign ram_we        = 1'b0;
+assign ram_din       = 16'd0;
+assign ram_dsn       = 2'b11;
 assign pal_cpu_addr  = 10'd0;
 assign pal_we        = 2'd0;
 assign obj_cpu_addr  = 10'd0;
@@ -358,8 +369,9 @@ assign scr2_cpu_addr = 10'd0;
 assign scr2_we       = 2'd0;
 
 initial begin
-    cpu_rom_addr       = 18'd0;
-    cpu_rom_cs         = 1'b0;
+    rom_addr           = 18'd0;
+    rom_cs             = 1'b0;
+    ram_cs             = 1'b0;
     sound_wr_2         = 1'b0;
     main_irq_trig      = 1'b0;
     sound_wr_6         = 1'b0;
