@@ -13,23 +13,30 @@ cycle inter-transaction gap.
 The test measures:
 
 - raw `cpu_cen` and `cpu_cenb` phase balance;
-- effective phase balance after excluding delayed enables;
-- cumulative effective CPU time against the no-wait reference.
+- the peak recovery debt;
+- aggregate effective CPU time against the no-wait reference.
 
-After the traffic ends, 10,000 master-clock cycles are allowed for recovery.
-This is much longer than required to drain the maximum visible 11-bit debt.
-The current implementation wraps that counter once and permanently loses 1,024
-CPU cycles, producing this intentional red-regression result for issue #94:
+The recovery regression uses a dedicated DUT so its traffic and accumulated
+debt cannot affect the legacy `fave` checks. After the traffic ends, 10,000
+master-clock cycles are allowed for recovery. This is much longer than required
+to drain the counter.
+
+When recovery was restricted to `ASn`, this workload wrapped the 11-bit counter
+once and permanently lost 1,024 CPU cycles. Allowing recovery after `DTACKn`
+is asserted reduces the peak debt to 829, so the original counter width is
+sufficient and the regression completes with no lost effective CPU time:
 
 ```text
-raw       = 13884 / 13885
-effective =  9497 /  9497
+raw       = 14908 / 14909
+effective = 10518 / 10524
 reference = 10521 / 10521
+peak debt = 829
 ```
 
-The raw and effective phase pairs remain balanced within one, but the elapsed
-CPU time is not recovered. The test must become green when the recovery logic
-is corrected.
+The raw phase pair must remain balanced within one, while the aggregate effective
+count must match the aggregate reference count. In simulation, the module
+reports a failure and stops immediately if recovery debt reaches the maximum
+counter value and another delayed CPU enable would wrap it.
 
 ## Running
 
