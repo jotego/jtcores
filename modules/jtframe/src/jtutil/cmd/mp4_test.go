@@ -152,6 +152,15 @@ func TestMP4_run(t *testing.T) {
 	if !strings.Contains(string(args), "frame_%04d.png") {
 		t.Fatalf("image sequence was not passed to ffmpeg: %s", args)
 	}
+	if !strings.Contains(string(args), "-crf\n0\n") {
+		t.Fatalf("high-quality video setting was not passed to ffmpeg: %s", args)
+	}
+	if !strings.Contains(string(args), "-pix_fmt\nyuv444p\n") {
+		t.Fatalf("full-chroma video format was not passed to ffmpeg: %s", args)
+	}
+	if !strings.Contains(string(args), "-b:a\n192k\n") {
+		t.Fatalf("high-quality audio bitrate was not passed to ffmpeg: %s", args)
+	}
 	if _, e = os.Stat(filepath.Join(sim, "test.mp4")); e != nil {
 		t.Fatal(e)
 	}
