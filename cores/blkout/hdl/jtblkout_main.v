@@ -89,21 +89,21 @@ assign IPLn      = !irq6n ? 3'b001 :     // level 6
 assign VPAn      = !(!ASn && FC==7);     // autovector all IRQs
 assign irq6ack   = io_cs && !RnW && A[4:1]==4'h8; // 100010
 assign irq5ack   = io_cs && !RnW && A[4:1]==4'h9; // 100012
-// SDRAM regions pace DTACK; BRAM/regs auto-ack (single-cycle, ok held high).
+// SDRAM regions pace DTACK;
 assign bus_cs    = rom_cs | fb_cs | work3_cs;
 assign bus_busy  = (rom_cs | fb_cs | work3_cs) & ~ok_dly;
 assign bus_legit = 0;
 
 always @* begin
-    rom_cs      = allFC && A[23:18]==6'h0  && !ASn;                 // 000000-03ffff
-    io_cs       = allFC && A[23:5]==19'h8000 && !ASn;               // 100000-100012
-    fb_cs       = allFC && A[23:18]==6'h6  && !ASn;                 // 180000-1bffff
-    work_cs     = allFC && A[23:16]==8'h1d && (A[15]|A[14]) && !ASn;// 1d4000-1dffff
-    work2_cs    = allFC && A[23:16]==8'h1f && (A[15]|A[14]) && !ASn;// 1f4000-1fffff
-    fvram_cs    = allFC && A[23:15]==9'h40 && !ASn;                 // 200000-207fff
-    work3_cs    = allFC && A[23:17]==7'h10 && (A[16]|A[15]) && !ASn; // 208000-21ffff
+    rom_cs      = allFC && A[23:18]==6'h0  && !ASn && {UDSn,LDSn} != 2'b11;        // 000000-03ffff
+    io_cs       = allFC && A[23:5]==19'h8000 && !ASn && {UDSn,LDSn} != 2'b11;      // 100000-100012
+    fb_cs       = allFC && A[23:18]==6'h6  && !ASn;                                // 180000-1bffff
+    work_cs     = allFC && A[23:16]==8'h1d && (A[15]|A[14]) && !ASn;               // 1d4000-1dffff
+    work2_cs    = allFC && A[23:16]==8'h1f && (A[15]|A[14]) && !ASn;               // 1f4000-1fffff
+    fvram_cs    = allFC && A[23:15]==9'h40 && !ASn;                                // 200000-207fff
+    work3_cs    = allFC && A[23:17]==7'h10 && (A[16]|A[15]) && !ASn && {UDSn,LDSn} != 2'b11; // 208000-21ffff
     pal_cs      = allFC && A[23:16]==8'h28 && A[15:11]==0 && (A[10]|A[9]) && !ASn; // 280200-2805ff
-    frontcol_cs = allFC && A[23:16]==8'h28 && A[15:2]==0 && !ASn && !RnW; // 280002 (w)
+    frontcol_cs = allFC && A[23:16]==8'h28 && A[15:2]==0 && !ASn && !RnW;          // 280002 (w)
     io_rd       = io_cs && RnW;
 end
 
