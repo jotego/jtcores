@@ -85,7 +85,8 @@ module jttoki_main(
 
     input      [15:0] sound_latch_0,
     input      [15:0] sound_latch_1,
-    input      [15:0] sound_latch_2
+    input      [15:0] sound_latch_2,
+    input      [ 7:0] debug_bus
 );
 
 wire        mmr_cs, mmr_rnw;

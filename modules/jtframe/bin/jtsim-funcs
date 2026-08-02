@@ -347,9 +347,7 @@ last_frame_image() {
 }
 
 make_mpeg() {
-    if [[ "$VIDEO_DUMP" = TRUE ]]; then
-        jtutil mp4 --rate "$(<framerate)"
-    fi
+    jtutil mp4 --rate "$(<framerate)"
 }
 
 convert_channel_raw2wav() {

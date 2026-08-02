@@ -124,7 +124,7 @@ func (mp4 *MP4) run_ffmpeg() error {
 	ffmpeg_args := []string{
 		"-y", "-framerate", strconv.FormatFloat(mp4.rate, 'f', -1, 64),
 		"-start_number", strconv.Itoa(mp4.first), "-i", pattern, "-i", mp4.audio_file,
-		"-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac",
+		"-c:v", "libx264", "-crf", "0", "-pix_fmt", "yuv444p", "-c:a", "aac", "-b:a", "192k",
 		"-movflags", "+faststart", mp4.output,
 	}
 	fmt.Printf("Frame rate: %.2f Hz\nOutput: %s\n", mp4.rate, mp4.output)

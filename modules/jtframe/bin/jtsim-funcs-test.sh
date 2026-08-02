@@ -93,7 +93,6 @@ test_make_mpeg() {
     cd "$test_dir"
     rate=59.64
     echo "$rate" > framerate
-    VIDEO_DUMP=TRUE
     jtutil() { echo "$*" > jtutil.args; }
     make_mpeg
     if [ "$(<jtutil.args)" != "mp4 --rate $rate" ]; then
@@ -101,7 +100,6 @@ test_make_mpeg() {
         bad=1
     fi
     unset -f jtutil
-    unset VIDEO_DUMP
     cd "$old_dir"
     rm -rf "$test_dir"
     pass $bad
