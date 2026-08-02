@@ -102,8 +102,8 @@ always @* begin
     work2_cs    = allFC && A[23:16]==8'h1f && (A[15]|A[14]) && !ASn;               // 1f4000-1fffff
     fvram_cs    = allFC && A[23:15]==9'h40 && !ASn;                                // 200000-207fff
     work3_cs    = allFC && A[23:17]==7'h10 && (A[16]|A[15]) && !ASn && {UDSn,LDSn} != 2'b11; // 208000-21ffff
-    pal_cs      = allFC && A[23:16]==8'h28 && A[15:11]==0 && (A[10]|A[9]) && !ASn; // 280200-2805ff
-    frontcol_cs = allFC && A[23:16]==8'h28 && A[15:2]==0 && !ASn && !RnW;          // 280002 (w)
+    pal_cs      = allFC && A[23:12]==12'h280 && A[11]==0 && (A[10]^A[9]) && !ASn; // 280200-2805ff
+    frontcol_cs = allFC && A[23:4]==20'h28000 && A[3:2]==0 && !ASn && !RnW;        // 280002 (w)
     io_rd       = io_cs && RnW;
 end
 
