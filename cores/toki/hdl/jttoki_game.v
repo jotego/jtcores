@@ -174,7 +174,9 @@ jttoki_main  u_main(
     //Sound input from z80
     .sound_latch_0      ( cpu_sound_latch_0  ),
     .sound_latch_1      ( cpu_sound_latch_1  ),
-    .sound_latch_2      ( cpu_sound_latch_2  )
+    .sound_latch_2      ( cpu_sound_latch_2  ),
+
+    .debug_bus          ( debug_bus          )
 );
 
 `ifdef SIMSCENE
