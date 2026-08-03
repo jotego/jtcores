@@ -151,14 +151,14 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_edge #(QSET(0), ATRST(1)) u_irq5 (
+jtframe_edge #(.QSET(0), .ATRST(1)) u_irq5 (
     .rst    ( rst       ),
     .clk    ( clk       ),
     .edgeof ( LVBL     ),
     .q      ( irq5n   )
 );
 
-jtframe_edge #(QSET(0), ATRST(1)) u_irq6 (
+jtframe_edge #(.QSET(0), .ATRST(1)) u_irq6 (
     .rst    ( rst       ),
     .clk    ( clk       ),
     .edgeof ( ~LVBL     ),
