@@ -44,12 +44,12 @@ module jtblkout_video(
     output       [13:0] fvrd_addr,
     input        [15:0] fvram_data,
 
-    output reg   [ 3:0] red,
-    output reg   [ 3:0] green,
-    output reg   [ 3:0] blue
+    output       [ 3:0] red,
+    output       [ 3:0] green,
+    output       [ 3:0] blue
 );
 
-wire [8:0] hdump, vdump, vrender, vrender1;
+wire [8:0] hdump, vrender;
 wire [8:0] fb_pxl;
 
 // 8 MHz pxl, H-total 512 (15.625 kHz), V-total 269 -> 58.1 Hz (board is 58 Hz).
@@ -66,9 +66,9 @@ jtframe_vtimer #(
 ) u_vtimer(
     .clk      ( clk      ),
     .pxl_cen  ( pxl_cen  ),
-    .vdump    ( vdump    ),
+    .vdump    (          ),
     .vrender  ( vrender  ),
-    .vrender1 ( vrender1 ),
+    .vrender1 (          ),
     .H        ( hdump    ),
     .Hinit    (          ),
     .Vinit    (          ),
@@ -146,20 +146,19 @@ jtframe_linebuf #(.DW(8),.AW(6)) u_ovlb(
 
 // pixel pipeline: pen -> palette / buffered overlay -> RGB
 assign palrd_addr = fb_pxl;                       // 9-bit pen index
-reg       overlay_1;
-// Sample the overlay bit with the same hovl used for the byte address, then
-// register once to line up with fb_pxl.
-always @(posedge clk) if( pxl_cen ) overlay_1 <= ovlb_q[7 - hovl[2:0]];
 
-wire [11:0] color = overlay_1 ? frontcol : pal_data[11:0];  // xBGR-444
-wire blank = ~(LHBL & LVBL);
-always @(posedge clk) if( pxl_cen ) begin
-    if( blank ) begin red<=0; green<=0; blue<=0; end
-    else begin
-        red   <= color[ 3:0];
-        green <= color[ 7:4];
-        blue  <= color[11:8];
-    end
-end
+jtblkout_colmix u_colmix(
+    .clk        ( clk        ),
+    .pxl_cen    ( pxl_cen    ),
+    .LHBL       ( LHBL       ),
+    .LVBL       ( LVBL       ),
+    .frontcol   ( frontcol   ),
+    .pal_data   ( pal_data   ),
+    .ovlb_q     ( ovlb_q     ),
+    .hovl       ( hovl[2:0]  ),
+    .red        ( red        ),
+    .green      ( green      ),
+    .blue       ( blue       )
+);
 
 endmodule

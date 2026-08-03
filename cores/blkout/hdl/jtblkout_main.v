@@ -152,25 +152,20 @@ always @(posedge clk, posedge rst) begin
 end
 
 jtframe_edge #(.QSET(0), .ATRST(1)) u_irq5 (
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .edgeof ( LVBL     ),
-    .q      ( irq5n   )
+    .rst    ( rst              ),
+    .clk    ( clk              ),
+    .edgeof ( LVBL & dip_pause ),
+    .clr    ( irq5ack          ),
+    .q      ( irq5n            )
 );
 
 jtframe_edge #(.QSET(0), .ATRST(1)) u_irq6 (
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .edgeof ( ~LVBL     ),
-    .q      ( irq6n   )
+    .rst    ( rst               ),
+    .clk    ( clk               ),
+    .edgeof ( ~LVBL & dip_pause ),
+    .clr    ( irq6ack           ),
+    .q      ( irq6n             )
 );
-
-// Dual vblank IRQ on LVBL edges; software acks via 100010 / 100012.
-always @(posedge clk) begin
-    if( irq5ack && ~dip_pause ) irq5n <= 1;
-    if( irq6ack && ~dip_pause ) irq6n <= 1;
-end
-
 
 jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .rst        ( rst       ),
