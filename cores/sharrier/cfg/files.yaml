@@ -8,6 +8,24 @@ sharrier:
     unless: [VERILATOR, IVERILOG]
     get:
       - mc8051_p.vhd
+      - mc8051_control_.vhd
+      - mc8051_control_struc.vhd
+      - mc8051_core_.vhd
+      - mc8051_core_struc.vhd
+  - from: 8051
+    when: [VERILATOR, IVERILOG]
+    get:
+      - mc8051.v
+
+s16:
+  - get:
+    - tilemap.yaml
+    - jts16_colmix.v
+
+jtframe:
+  - unless: [VERILATOR, IVERILOG]
+    from: cpu/8051
+    get:
       - control_fsm_.vhd
       - control_fsm_rtl.vhd
       - control_fsm_rtl_cfg.vhd
@@ -47,22 +65,7 @@ sharrier:
       - mc8051_alu_.vhd
       - mc8051_alu_struc.vhd
       - mc8051_alu_struc_cfg.vhd
-      - mc8051_control_.vhd
-      - mc8051_control_struc.vhd
       - mc8051_control_struc_cfg.vhd
-      - mc8051_core_.vhd
-      - mc8051_core_struc.vhd
-  - from: 8051
-    when: [VERILATOR, IVERILOG]
-    get:
-      - mc8051.v
-
-s16:
-  - get:
-    - tilemap.yaml
-    - jts16_colmix.v
-
-jtframe:
   - from: cpu
     get:
       - jtframe_m68k.yaml
