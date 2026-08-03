@@ -73,7 +73,7 @@ reg         io_cs, io_rd;
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
 wire [15:0] cpu_dout;
-reg         irq6n, irq5n, LVBLl;
+wire        irq6n, irq5n;
 reg         ok_dly;
 wire        irq6ack, irq5ack;
 wire        bus_cs, bus_busy, bus_legit;
@@ -219,6 +219,7 @@ jtframe_m68k u_cpu(
     .DTACKn     ( DTACKn      ),
     .IPLn       ( IPLn        )
 );
+// this is a claude 'make lint pass' artifact. and i need time to understand what to do.
 wire _unused = &{1'b0, service, tilt, cab_1p[3:2], coin[3]};
 `else
 assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=1;
