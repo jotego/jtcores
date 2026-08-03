@@ -18,9 +18,15 @@ main() {
     shift
     parse_args "$@"
     set_target
+
+    if must_skip_without_macros; then
+        echo "Skipping $CORE"
+        exit 0
+    fi
+
     read_core_macros "$FRAME_ARGS" || exit $?
 
-    if must_skip; then
+    if must_skip_from_macros; then
         echo "Skipping $CORE"
         exit 0
     fi
@@ -102,8 +108,12 @@ read_core_macros() {
     eval "$core_macros"
 }
 
-must_skip() {
-    [[ ! -e $CORES/$CORE/cfg/macros.def || -e $CORES/$CORE/cfg/skip || -v JTFRAME_SKIP ]]
+must_skip_without_macros() {
+    [[ ! -e $CORES/$CORE/cfg/macros.def || -e $CORES/$CORE/cfg/skip ]]
+}
+
+must_skip_from_macros() {
+    [[ -v JTFRAME_SKIP ]]
 }
 
 prepare_test_folder() {
