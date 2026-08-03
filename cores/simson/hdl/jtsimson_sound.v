@@ -198,7 +198,7 @@ jt51 u_jt51(
     .xright     (           )
 );
 /* verilator tracing_off */
-jt053260 u_pcm(
+jt053260 #(.ADPCM_SAT(4'b0000),.AUX_MODE_EN(0)) u_pcm(
     .rst        ( rst_z80   ),
     .clk        ( clk       ),
     .cen        ( cen_fm    ),
