@@ -1,0 +1,80 @@
+# SHARRIER — Space Harrier (Sega Hang-On / Space Harrier hardware)
+# NOTE: comments must be on their OWN line. Inline '#' after a macro is NOT
+# stripped by the parser and will break the build.
+
+CORENAME=JTSHARRIER
+GAMETOP=jtsharrier_game_sdram
+
+JTFRAME_PXLCLK=6
+
+# Space Harrier: analog flight stick + three fire buttons. The test menu lists
+# three and they all do the same thing. 5 = those three plus TEST and SERVICE
+# as per the cabinet; jtframe shifts start/coin up by itself.
+JTFRAME_BUTTONS=5
+
+# THIS CORE MUST NOT USE JTFRAME'S MULTIWAY EMULATION.
+# jtframe_multiway is ON BY DEFAULT and takes the analog stick, then PWM-
+# MODULATES the digital d-pad bits at 25/50/75% duty off a frame counter
+# (jtframe_multiway.v, function pwm) so that games with DIGITAL inputs can be
+# played with an analog pad. Space Harrier reads the analog axes directly, and
+# jtsharrier_game.v ALSO sums in a digital ramp for pad users -- so those PWM'd
+# bits made dig_x/dig_y step by AN_STEP (4) every frame while the raw joyana
+# value sat perfectly still. That is the long-standing off-centre stick jitter:
+# steps of exactly 4, never at centre (pwm() passes the raw bit
+# through when abs[7] is set), and absent at full deflection (abs[6:4]==7 ->
+# pwm=1 constantly). It is also why the per-frame sample-and-hold did not fix
+# it -- the PWM changes per frame, so each frame latched a different phase.
+# The analog siblings outrun and s16 set this too.
+JTFRAME_NOMULTIWAY
+# SegaPCM is stereo (per-channel pan)
+JTFRAME_STEREO
+
+# Real hardware DIPs occupy bits 0-15 (SWA and SWB); extras live at 28-31.
+JTFRAME_DIPBASE=16
+
+# Screen: same timing as the Out Run generation (6.2937 MHz pixel clock)
+JTFRAME_PLL=jtframe_pll6293
+JTFRAME_COLORW=5
+JTFRAME_WIDTH=320
+JTFRAME_HEIGHT=224
+
+# Clock domain
+JTFRAME_CLK48
+
+JTFRAME_HEADER=16
+# 64-bit bursts to speed up gfx fetch (tiles + objects)
+JTFRAME_BA0_LEN=64
+JTFRAME_BA2_LEN=64
+JTFRAME_BA3_LEN=64
+
+JTFRAME_OSD_TEST
+# No boot logo (avoids needing logodata.hex; saves BRAM)
+JTFRAME_OSD_NOLOGO
+
+# ROM regions / SDRAM map (byte offsets in the download image)
+JTFRAME_BA1_START  = 0x040000
+SND_START          = 0x050000
+PCM_START          = 0x058000
+JTFRAME_BA2_START  = 0x080000
+JTFRAME_BA3_START  = 0x0A0000
+ROAD_START         = 0x1A0000
+ROAD1_START        = 0x1A4000
+ZOOM_START         = 0x1A8000
+# The i8751 program loads as a PROM, not SDRAM. jtframe's prom section (where
+# prom_we fires) begins at JTFRAME_PROM_START and must sit AFTER every SDRAM
+# region. zoom ends at 0x1AA000, so start the prom section at 0x1B0000 and place
+# the MCU there. (Non-BALUT path: is_prom = part_addr >= JTFRAME_PROM_START.)
+MCU_START          = 0x1B0000
+JTFRAME_PROM_START = 0x1B0000
+
+# Heavy core: enable only on the larger platforms
+JTFRAME_SKIP
+
+[pocket|mister|sockit|de1soc|de10std|sidi128]
+-JTFRAME_SKIP
+# Line-based frame buffer for the scaled-sprite engine
+JTFRAME_LF_BUFFER
+
+[mister|sockit|de1soc|de10std|sidi128]
+# Analog stick vs digital fallback for the flight stick
+CORE_OSD=OKM,Control Type,A.Stick,Digital;

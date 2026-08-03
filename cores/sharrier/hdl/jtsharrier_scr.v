@@ -1,0 +1,247 @@
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Original author: Jose Tejada Gomez. Twitter: @topapate
+    Modified for jtsharrier by: niknak
+    Version: 1.0
+    Date: 11-3-2021 */
+
+module jtsharrier_scr(
+    input              rst,
+    input              clk,
+    input              pxl2_cen,  // pixel clock enable (2x)
+    input              pxl_cen,   // pixel clock enable
+
+    input              LVBL,
+    input              LHBL,
+    input              start,
+    input              alt_en,
+
+    // MMR
+    input      [15:0]  pages,
+    input      [15:0]  hscr,
+    input      [15:0]  vscr,
+    input      [ 9:0]  rowscr,
+    input              rowscr_en,
+
+    // Column scroll
+    output reg [ 8:0]  hcolscr,
+    input      [ 8:0]  colscr,
+    input              colscr_en,
+    input              col_busy,
+
+    // SDRAM interface
+    input              map_ok,
+    output reg [15:1]  map_addr, // 3(+1 S16B) pages + 11 addr = 14 (32 kB)
+    input      [15:0]  map_data,
+
+    input              scr_ok,
+    output reg [17:2]  scr_addr, // 1 bank + 12 addr + 3 vertical + 1'b0 = 17 bits => 512kB
+    input      [31:0]  scr_data,
+
+    // Video signal
+    input              flip,
+    input      [ 8:0]  vrender,
+    input      [ 8:0]  hdump,
+    output     [10:0]  pxl,       // 1 priority + 7 palette + 3 colour = 11
+    input      [ 7:0]  debug_bus,
+    output reg         bad
+);
+
+/* verilator lint_off WIDTH */
+parameter [9:0] PXL_DLY=0;
+parameter [9:0] ROW_PXL_DLY=PXL_DLY;
+parameter [8:0] HB_END=9'h70, HSCAN0 = 9'h70; //HB_END-9'd24-PXL_DLY[8:0];
+/* verilator lint_on WIDTH */
+parameter       MODEL=0;  // 0 = S16A, 1 = S16B
+
+reg  [10:0] scan_addr;
+reg  [ 8:0] hscan;
+wire [ 1:0] we;
+wire [ 8:0] vrf;
+
+reg  [8:0]  vscan;
+
+// Map reader
+reg  [8:0] hpos;
+reg  [7:0] vpos;
+reg  [3:0] page;
+reg        hov, vov; // overflow bits
+
+reg        done, draw;
+reg  [7:0] busy;
+reg        hsel;
+
+reg  [9:0] eff_hscr, eff_hdly;
+reg  [8:0] eff_vscr;
+reg  [8:0] hscr_adj;
+reg  [8:0] hdly;
+
+assign vrf      = flip ? 9'd223-vrender : vrender;
+
+always @(*) begin
+    eff_hscr = rowscr_en ? rowscr      : hscr[9:0];
+    eff_vscr = colscr_en ? colscr      : vscr[8:0];
+    eff_hdly = rowscr_en ? ROW_PXL_DLY : PXL_DLY;
+    hscr_adj = 0;
+    // Cotton/SDI (System 16B) shift H by 8 when row/col scroll is on. MAME's
+    // tilemap_16a path (which TILEMAP_HANGON uses) does not touch xscroll under
+    // column or row scroll, so for MODEL 0 hscr_adj must stay 0 -- otherwise
+    // enabling column scroll drags the background 8px sideways.
+    if( MODEL!=0 && (rowscr_en || colscr_en) ) hscr_adj = 9'd8;
+    if( MODEL==0 ) begin
+        {hov, hpos } = {1'b0, hscan} - {1'b0, eff_hscr[8:0]} - hscr_adj + eff_hdly; // + { {2{debug_bus[7]}}, debug_bus};
+        {vov, vpos } = vscan + {1'b0, eff_vscr[7:0]};
+    end else begin
+        {hov, hpos } = {1'b1, hscan} - eff_hscr[9:0] - hscr_adj + eff_hdly[9:0];
+        {vov, vpos } = vscan + eff_vscr[8:0];
+    end
+    scan_addr = { vpos[7:3], hpos[8:3] };
+    // VERTICAL PAGE SELECT for MODEL 0. vov is the carry of vscan+vscroll:
+    // vov=0 is the TOP of the screen (map rows 0-255, MAME tilemap_16a's
+    // "upper" page), vov=1 the BOTTOM. MODEL 0 maps the nibble pairs the other
+    // way round from jts16, which only shows when the two vertical pages differ.
+    // Checked against MAME's tilemap_16a nibble map for pages 0x0033 and 0x2233.
+    case( { vov, hov } )
+        2'b00: page = pages[15:12]; // screen TOP    left
+        2'b01: page = pages[11: 8]; // screen TOP    right
+        2'b10: page = pages[ 7: 4]; // screen BOTTOM left
+        2'b11: page = pages[ 3: 0]; // screen BOTTOM right
+    endcase
+    if( MODEL==0 ) page[3]=0; // Only 3-bit pages for System 16A
+    hdly = flip ? 9'hc0 -hdump : hdump;
+end
+
+reg [1:0] map_st;
+reg       start_l, col_busyl;
+
+always @(posedge clk) begin
+    col_busyl <= col_busy;
+end
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        map_addr <= 0;
+        draw     <= 0;
+        map_st   <= 0;
+    end else if(!done) begin
+        map_st <= map_st+1'd1;
+        draw   <= 0;
+        case( map_st )
+            0: hcolscr <= hscan;
+            1: begin
+                if( colscr_en && ((hscan[2:0]==0 && !col_busyl) || busy!=0 ))
+                    map_st <= 1;
+                else
+                    map_addr <= { page, scan_addr };
+            end
+            3:
+                if( !map_ok || busy!=0 || !scr_ok)
+                    map_st <= 3;
+                else
+                    draw   <= 1;
+            default:;
+        endcase
+    end else begin
+        map_st <= 0;
+        draw   <= 0;
+    end
+end
+
+// SDRAM runs at pxl_cen x 8, so new data from SDRAM takes about a
+// pxl_cen time to arrive. Data has information for four pixels
+
+reg [23:0] pxl_data;
+reg [ 7:0] attr;
+reg        scr_good;
+
+wire [10:0] buf_data;
+
+assign buf_data = { attr, pxl_data[23], pxl_data[15], pxl_data[7] };
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        attr     <= 0;
+        pxl_data <= 0;
+
+        start_l  <= 0;
+        done     <= 0;
+        busy     <= 0;
+        hscan    <= 0;
+        bad      <= 0;
+        scr_addr <= 0;
+        vscan    <= 0;
+    end else begin
+        start_l <= start;
+        scr_good <= scr_ok;
+        if( {scr_good, scr_ok}==2'b01 ) pxl_data <= scr_data[23:0];
+
+        if( (start && !start_l) ) begin
+            vscan <= vrf;
+            done  <= 0;
+            busy  <= 0;
+            bad   <= LVBL && !done; // SDRAM activity halted during most of VB
+            hscan <= HSCAN0;
+        end
+
+        if( done ) begin
+            bad   <= 0;
+        end
+
+        if( draw && !done ) begin
+            attr     <= MODEL ? (
+                        alt_en ?
+                            { map_data[15], map_data[11:5] } // Just for three games
+                          : { map_data[15], map_data[12:6] } // most S16B titles
+                        ) : map_data[12:5]; // S16A
+            busy     <= ~8'd0;
+            // TILE CODE WIDTH for MODEL 0. MAME builds a 13-bit code, taking bit12
+            // from map_data[13], but tilemap.h does `code = rawcode % elements()`
+            // and this game's tile GFX is 3 x 32 KB = 4096 tiles, so the modulo
+            // discards bit 12. The scr region is exactly 4096 tiles, so keeping
+            // that bit would address past the end and draw blank tiles. Masking
+            // to 12 bits is the same as MAME's modulo.
+            scr_addr <= { MODEL ? map_data[12:0] : { 1'b0, map_data[11:0] }, // code
+                        vpos[2:0] };
+            scr_good <= 1'b0;
+        end else if( busy!=0 && scr_good && pxl2_cen) begin // This could work
+            // without pxl2_cen, but it stresses the SDRAM too much, causing
+            // glitches in the char layer.
+            pxl_data[23:16] <= pxl_data[23:16]<<1;
+            pxl_data[15: 8] <= pxl_data[15: 8]<<1;
+            pxl_data[ 7: 0] <= pxl_data[ 7: 0]<<1;
+            if( hpos[2:0]==3'd7 )
+                busy <= 8'h80;
+            else
+                busy <= busy<<1;
+            hscan <= hscan + 1'd1;
+            if( &hscan ) done <= 1;
+        end
+    end
+end
+
+jtframe_linebuf #(.DW(11),.AW(9)) u_linebuf(
+    .clk    ( clk      ),
+    .LHBL   ( ~start   ),
+    // New data writes
+    .wr_addr( hscan    ),
+    .wr_data( buf_data ),
+    .we     ( busy[7] & pxl2_cen ),
+    // Old data reads (and erases)
+    .rd_addr( hdly     ),
+    .rd_data( pxl      ),
+    .rd_gated(         )
+);
+
+endmodule

@@ -1,0 +1,90 @@
+# JTSHARRIER MRA generation — first draft.
+# Run with Jotego's `jtframe mra` tool against MAME's segahang hash data.
+# THE SET WE ACTUALLY SHIP IS THE PARENT, `sharrier` (Rev A):
+#   mra/Space Harrier (Rev A, 8751 315-5163A).mra  -> MCU 315-5163a, crc 203dffeb
+# That MCU is a CLEAN DUMP. The clone `sharrier1` goes to _alternatives and its
+# MCU (315-5163, crc 52b0c81a) is flagged BAD_DUMP in MAME -- the comment there
+# reads "handcrafted from decapped rev a mcu", and `mame sharrier1` prints
+# "315-5163.ic32 ROM NEEDS REDUMP" while `mame sharrier` is clean.
+# PREFER THE PARENT for anything MCU-related (it drives the 68000 IPL lines, so
+# boot sequencing runs through it). `main=` below only picks the MRA the tool
+# treats as primary-by-name; both are generated.
+
+[global]
+author=["niknak"]
+
+[parse]
+sourcefile=[ "segahang.cpp" ]
+# Only the Space Harrier machines; drop Hang-On / Enduro / Super Hang-On / bootlegs
+main = "sharrier1"
+
+skip.setnames=[
+    "hangon","hangon1","hangon2","hangonvf",
+    "shangonro","shangonho","shangonrb","shangonrb2","shangupb",
+    "enduror","endurora","endurorb","enduror1","endurobl","enduror1d",
+    "endurob2","endurord"
+]
+skip.bootlegs=true
+
+[buttons]
+
+Names = [
+    { machine="sharrier1", names="Fire,Fire 2,Fire 3,Test,Service" },
+    { machine="sharrier",  names="Fire,Fire 2,Fire 3,Test,Service" },
+]
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+bitcnt = 29
+
+
+[[dipsw.extra]]
+name    = "Stick Direction"
+bits    = "28"
+options = "Normal,Arcade"
+
+[[dipsw.extra]]
+name    = "D-Pad Control"
+bits    = "29"
+options = "Console,Arcade"
+
+[[dipsw.extra]]
+name    = "V Glyph Fix"
+bits    = "31"
+options = "On,Off"
+
+[header]
+fill=0
+
+[ROM]
+regions = [
+    { name="maincpu",      width=16, reverse=true },
+    { name="subcpu",       start="JTFRAME_BA1_START", width=16, reverse=true },
+    { name="soundcpu",     start="SND_START" },
+    { name="pcm",          start="PCM_START", No_offset=true },
+    { name="mcu",          start="MCU_START", No_offset=true },
+    # tiles: 3bpp planar, 3 ROMs
+    { name="gfx1", start="JTFRAME_BA2_START", width=32, sequence=[0,1,2,2] },
+    # sprites: 32-bit little endian, 32 ROMs
+    { name="sprites",      start="JTFRAME_BA3_START", width=32, No_offset=true },
+    { name="segaic16road", start="ROAD_START", width=16, No_offset=true, singleton=true },
+    { name="sprites:zoom", start="ZOOM_START", No_offset=true },
+]
+
+order = [
+    "maincpu", "subcpu", "soundcpu", "pcm",
+    "gfx1", "sprites", "segaic16road", "sprites:zoom",
+    # mcu is a PROM (loads via prom_we), so it MUST come last, after all SDRAM
+    # regions, so it lands in the prom section at/after JTFRAME_PROM_START.
+    "mcu"
+]
+
+
+[[audio.volume]]
+value = 160
+
+
+[[dipsw.rename]]
+name   = "Bonus Life"
+
+values = ["7M", "5M"]

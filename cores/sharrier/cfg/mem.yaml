@@ -1,0 +1,80 @@
+
+params:
+  - { name: ROAD_START }
+  - { name: ROAD1_START }
+  - { name: ZOOM_START }
+  - { name: SND_OFFSET, value: "(`SND_START-`JTFRAME_BA1_START)>>1" }
+  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: VRAM_OFFSET, value: 22'h10_0000 }
+  - { name: RD_OFFSET,  value: "3<<22 | (ROAD_START-`JTFRAME_BA3_START)>>1" }
+  - { name: RD1_OFFSET, value: "3<<22 | (ROAD1_START-`JTFRAME_BA3_START)>>1" }
+  - { name: ZOOM_OFFSET, value: "3<<22 | (ZOOM_START-`JTFRAME_BA3_START)>>1" }
+
+# Gains read off the sound board schematic (834-5670-01). Each output is a TL084
+# inverting summer: 47k feedback (R30/R29), with PCM in through 22k (R5/R6),
+# FM through 47k (R11/R12) and SSG through 47k (R7/R8). gain = Rfeedback/Rsum,
+# so PCM sits 6.6 dB above each YM source.
+audio:
+  rsum: 47k
+  rsum_feedback_res: true
+  rc: { r: 47k, c: 220p }
+  channels:
+    - { name: fm,  module: jt03_fm,  rsum: 47k }
+    - { name: psg, module: jt03_psg, rsum: 47k, pre: 0.398107 }
+    - { name: pcm, rsum: 22k, data_width: 16, stereo: true, vpp: 1.0, pre: 0.630957,
+        rc: [ { r: 13.5k, c: 1n } ] }
+
+clocks:
+  clk48:
+    - freq: 16M
+      gate: [ pcm ]
+      outputs:
+        - cen_pcm
+    - freq: 4M
+      outputs:
+        - cen_fm
+
+sdram:
+  banks:
+    - buses:
+        - { name: xram, addr_width: 16, data_width: 16, offset: VRAM_OFFSET, rw: true }
+        - { name: main, addr_width: 18, data_width: 16 }
+        - { name: map1, addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
+        - { name: map2, addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
+
+    - buses:
+        - { name: subrom, addr_width: 16, data_width: 16 }
+        - { name: snd,    addr_width: 15, data_width: 8, offset: SND_OFFSET }
+        - { name: pcm,    addr_width: 16, data_width: 8, offset: PCM_OFFSET }
+
+    - buses:
+        - { name: char, addr_width: 15, data_width: 32, cs: gfx_cs }
+        - { name: scr1, addr_width: 17, data_width: 32, cs: gfx_cs }
+        - { name: scr2, addr_width: 17, data_width: 32, cs: gfx_cs }
+
+    - buses:
+        - { name: obj,  addr_width: 20, data_width: 32 }
+
+bram:
+  - { name: road0, addr_width: 15, data_width: 16, rom: { offset: RD_OFFSET } }
+  - { name: zoom, addr_width: 13, data_width: 8, rom: { offset: ZOOM_OFFSET } }
+  - { name: wram,   addr_width: 14, data_width: 16, rw: true }
+
+  - name: subram
+    addr_width: 14
+    data_width: 16
+    rw: true
+    dual_port:
+      name: subram_b
+      din:  subram_b_din
+      dout: subram_b_dout
+      rw: true
+  - name: roadram
+    addr_width: 12
+    data_width: 16
+    rw: true
+    dual_port:
+      name: roadram_b
+      din:  roadram_b_din
+      dout: roadram_b_dout
+      rw: true
