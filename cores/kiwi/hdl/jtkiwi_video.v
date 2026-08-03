@@ -146,6 +146,9 @@ jtkiwi_gfx u_gfx(
     .cpu_addr   ( cpu_addr       ),
     .cpu_rnw    ( cpu_rnw        ),
     .cpu_dout   ( cpu_dout       ),
+    // IOCTL dump
+    .ioctl_addr ( 2'd0           ),
+    .ioctl_din  (                ),
     // 16-bit interface -unused-
     .cpu_dsn    ( 2'b00          ),
     // X1-001 Internal RAM

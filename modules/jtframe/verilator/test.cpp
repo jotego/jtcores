@@ -357,6 +357,7 @@ class Download {
     bool nvram = false;
     bool full_download = false;
     bool iodump_busy = false;
+    bool iodump_pause = true;
     bool download_finished = false;
     string iodump_filename;
     int read_buf() {
@@ -508,6 +509,7 @@ public:
                 fprintf(stderr,"\nIOCTL read finished\n");
                 dut.ioctl_addr=0;
                 dut.ioctl_ram=0;
+                dut.dip_pause = iodump_pause;
                 iodump_busy=false;
                 ofstream of(iodump_filename,ios_base::binary);
                 if( !of || !of.write(iodin,_JTFRAME_IOCTL_RD) ) {
@@ -524,6 +526,8 @@ public:
         fprintf(stderr,"\nIOCTL read started\n");
         iodump_busy = true;
         iodump_filename = filename;
+        iodump_pause = dut.dip_pause;
+        dut.dip_pause = 0;
         dut.ioctl_addr=0;
         dut.ioctl_ram=1;
         iodump_ticks=0;
@@ -581,6 +585,7 @@ class JTSim {
     void video_dump();
     void get_coremod();
     void cabinet_dump();
+    void process_sim_inputs();
     bool trace = false;
     bool dump_ok = false;
     bool download = false;
@@ -596,6 +601,7 @@ class JTSim {
     Download dwn;
     int frame_cnt = 0;
     int last_VS = 0;
+    int last_LVBL = 0;
     int last_flip = 0;
     struct t_dump{
         ofstream fout;
@@ -771,6 +777,19 @@ void JTSim::cabinet_dump() {
 #endif
 }
 
+void JTSim::process_sim_inputs() {
+    if( !game.LVBL || last_LVBL ) return;
+
+    if( sim_inputs.is_controlling_reset() || !game.rst ) sim_inputs.next();
+    if( sim_inputs.take_dump() ) cabinet_dump();
+#ifdef _DUMP
+    if( !dump_ok && sim_inputs.take_tracing_on() ) {
+        dump_ok = true;
+        fprintf(stderr, "\nTracing starts (cabinet input frame %d)\n", frame_cnt);
+    }
+#endif
+}
+
 JTSim::~JTSim() {
 #ifdef _DUMP
     delete tracer;
@@ -837,15 +856,9 @@ void JTSim::clock(int n) {
             game.debug_bus++;
 #endif
         }
-        if( game.VS && !last_VS && (sim_inputs.is_controlling_reset() || !game.rst) ) sim_inputs.next();
-        if( game.VS && !last_VS && sim_inputs.take_dump() ) cabinet_dump();
-#ifdef _DUMP
-        if( game.VS && !last_VS && !dump_ok && sim_inputs.take_tracing_on() ) {
-            dump_ok = true;
-            fprintf(stderr, "\nTracing starts (cabinet input frame %d)\n", frame_cnt);
-        }
-#endif
+        process_sim_inputs();
         last_VS   = game.VS;
+        last_LVBL = game.LVBL;
 
         video_dump();
     }
