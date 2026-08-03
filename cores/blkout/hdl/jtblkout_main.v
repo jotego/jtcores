@@ -167,9 +167,8 @@ jtframe_edge #(QSET(0), ATRST(1)) u_irq6 (
 
 // Dual vblank IRQ on LVBL edges; software acks via 100010 / 100012.
 always @(posedge clk) begin
-        if( irq5ack && ~dip_pause ) irq5n <= 1;
-        if( irq6ack && ~dip_pause ) irq6n <= 1;
-    end
+    if( irq5ack && ~dip_pause ) irq5n <= 1;
+    if( irq6ack && ~dip_pause ) irq6n <= 1;
 end
 
 
