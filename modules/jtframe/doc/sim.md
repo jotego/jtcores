@@ -16,7 +16,8 @@ All macros defined in the core's *cfg/macros.def* file are parsed by *jtsim* and
 
 For Verilator simulation, use a cabinet input script with
 `jtsim file.cab`. The simulator validates the full script before it
-starts and applies one entry per video frame. A line has an optional frame
+starts and applies one entry per video frame at the rising edge of `LVBL`,
+after vertical-blank processing has completed. A line has an optional frame
 count followed by button names such as `coin`, `1p`, `up`, and `b1`;
 player two uses the `2` prefix (for example `2coin` and `2b1`).
 `loop`/`repeat` blocks and `=frame` waits are also supported. `tracing_on`

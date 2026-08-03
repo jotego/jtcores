@@ -114,6 +114,9 @@ The file must have the \fB.cab\fR extension. Its contents are validated before
 the simulation starts; malformed timing, loop, action, or cheat entries stop
 the run with an error. Cabinet scripts are supported by the Verilator harness.
 .PP
+Cabinet frames are applied at the rising edge of \fBLVBL\fR, after
+vertical-blank processing has completed.
+.PP
 Without an explicit \fB-video count\fR, the simulation runs until every frame
 expanded from the cabinet script has been executed, including idle-only frame
 count lines.

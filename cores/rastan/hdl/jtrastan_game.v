@@ -163,7 +163,11 @@ jtrastan_snd u_sound(
     .peak       (               ),
     .debug_bus  ( debug_bus     )
 );
+`ifdef SIMSCENE
+/* verilator tracing_on */
+`else
 /* verilator tracing_off */
+`endif
 jtrastan_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
