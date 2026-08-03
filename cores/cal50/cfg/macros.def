@@ -26,6 +26,8 @@ JTFRAME_IOCTL_RD=4096
 # Saves video RAM (not NVRAM) for debug compilations
 debug JTFRAME_IOCTL_RD+=12288
 debug JTFRAME_IOCTL_RD+=8
+# X1-001 configuration registers
+debug JTFRAME_IOCTL_RD+=4
 debug JTFRAME_IOCTL_RD+=1024
 debug JTFRAME_IOCTL_RD+=1024
 debug JTFRAME_IOCTL_RD+=8192

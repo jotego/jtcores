@@ -24,7 +24,11 @@
 // be an internal dual-line buffer and another larger memory
 
 module jtkiwi_gfx #(
-    parameter CPUW=8
+    parameter CPUW=8,
+    parameter [8:0] OBJ_XOFF=0,
+    parameter [7:0] OBJ_YOFF=0,
+    parameter       OBJ_YWRAP=0,
+    parameter [8:0] OBJ_LIMIT=9'h1ff
 )(
     input               rst,
     input               clk,
@@ -52,6 +56,9 @@ module jtkiwi_gfx #(
     input               vctrl_cs,
     input               vflag_cs,
     output [CPUW-1:0]   cpu_din,
+    // IOCTL dump
+    input      [ 1:0]   ioctl_addr,
+    output     [ 7:0]   ioctl_din,
 
     // Internal RAM (defined in mem.yaml)
     output reg [ 9:0]   col_addr,
@@ -113,6 +120,7 @@ assign col0     = cfg[0][1:0]; // start column in the tilemap VRAM
 assign obj_pg_en= cfg[0][3];   // uncertain. only cal50 keeps it low
 assign tm_page  = cfg[1][6];
 assign obj_bufb = cfg[1][5];
+assign ioctl_din= cfg[ioctl_addr];
 assign obj_page = obj_pg_en ? tm_page ^ ~obj_bufb : 1'b1;
 assign dma_src  = obj_pg_en ? tm_page ^  dma_tm   : 1'b0;
 assign col_cfg  = cfg[1][3:0];
@@ -245,7 +253,12 @@ jtkiwi_tilemap u_tilemap(
     .debug_bus  ( debug_bus )
 );
 
-jtkiwi_obj u_obj(
+jtkiwi_obj #(
+    .XOFF( OBJ_XOFF ),
+    .YOFF( OBJ_YOFF ),
+    .YWRAP( OBJ_YWRAP ),
+    .LIMIT( OBJ_LIMIT )
+) u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .lut_cen    ( lut_cen   ),

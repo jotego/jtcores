@@ -76,7 +76,7 @@ module jtcal50_video(
     output     [ 4:0]   green,
     output     [ 4:0]   blue,
     // IOCTL dump
-    input      [ 2:0]   ioctl_addr,
+    input      [ 3:0]   ioctl_addr,
     output     [ 7:0]   ioctl_din,
     // Test
     input      [ 3:0]   gfx_en,
@@ -86,11 +86,17 @@ module jtcal50_video(
 
 wire [ 8:0] vrender, vrender1, vdump;
 wire [ 8:0] scr_pxl, obj_pxl, tiles_pxl;
-wire [ 7:0] st_tiles, st_kiwi;
+wire [ 7:0] st_tiles, st_kiwi, x1012_ioctl_din, x1001_ioctl_din;
 
 reg        LHBL_l;
 reg  [5:0] cnt244;
 wire [6:0] nx_244 = {1'b0,cnt244} + 6'd1;
+// Align the graphics coordinate origin with the PCB/MAME active area.
+wire [8:0] hdump_gfx = hdump - 9'd7;
+wire [8:0] vdump_gfx = vdump - 9'd1,
+           vrender_gfx = vrender - 9'd1;
+
+assign ioctl_din = ioctl_addr[3] ? x1001_ioctl_din : x1012_ioctl_din;
 
 always @(posedge clk) begin
     LHBL_l <= LHBL;
@@ -145,8 +151,8 @@ jtx1012 u_tiles(
 
     .hs         ( HS            ),
     .flip       ( flip          ),
-    .vdump      ( vdump         ),
-    .hdump      ( hdump         ),
+    .vdump      ( vdump_gfx     ),
+    .hdump      ( hdump_gfx     ),
     // Video RAM
     .vram_addr  ( tvram_addr    ),
     .vram_dout  ( tvram_dout    ),
@@ -159,21 +165,29 @@ jtx1012 u_tiles(
 
     .pxl        ( tiles_pxl     ),
     // IOCTL dump
-    .ioctl_addr ( ioctl_addr    ),
-    .ioctl_din  ( ioctl_din     ),
+    .ioctl_addr ( ioctl_addr[2:0]),
+    .ioctl_din  ( x1012_ioctl_din ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_tiles      )
 );
 
-localparam [8:0] VADJ = 9'd8,HADJ=9'd5;
+localparam [8:0] VADJ = 9'd19,HADJ=9'd3;
 
-wire [8:0] vdump_adj   = vdump   + VADJ,
-           vrender_adj = vrender + VADJ,
-           hdump_adj   = hdump   + HADJ;
+wire [8:0] vdump_adj   = vdump_gfx   + VADJ,
+           vrender_adj = vrender_gfx + VADJ,
+           hdump_adj   = hdump_gfx   + HADJ;
 
 /* verilator tracing_on */
-jtkiwi_gfx #(.CPUW(16)) u_gfx(
+// Caliber 50 uses object entries 0-200.  Limiting the scan to that populated
+// range leaves enough line time for sprites that wrap through Y=0.
+jtkiwi_gfx #(
+    .CPUW    ( 16      ),
+    .OBJ_XOFF( 9'h1fe  ),
+    .OBJ_YOFF( 8'hf5   ),
+    .OBJ_YWRAP( 1'b1   ),
+    .OBJ_LIMIT( 9'd200 )
+) u_gfx(
     .rst        ( rst            ),
     .clk        ( clk            ),
     .clk_cpu    ( clk_cpu        ),
@@ -197,6 +211,9 @@ jtkiwi_gfx #(.CPUW(16)) u_gfx(
     .cpu_rnw    ( cpu_rnw        ),
     .cpu_dout   ( cpu_dout       ),
     .cpu_din    ( vram_dout      ),
+    // IOCTL dump
+    .ioctl_addr ( ioctl_addr[1:0]),
+    .ioctl_din  ( x1001_ioctl_din),
     // 16-bit interface
     .cpu_dsn    ( cpu_dsn        ),
     // X1-001 Internal RAM
