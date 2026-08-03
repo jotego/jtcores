@@ -145,8 +145,19 @@ end
 // pen-512 colour register (0x280002, xBGR-444 in the low 12 bits)
 always @(posedge clk, posedge rst) begin
     if( rst ) frontcol <= 0;
-    else if( frontcol_cs ) frontcol <= cpu_dout[11:0];
+    else if( frontcol_cs ) begin
+        if( !LDSn ) frontcol[7:0] <= cpu_dout[7:0];
+        if( !UDSn ) frontcol[11:8] <= cpu_dout[11:8];
+    end
 end
+
+//jtframe_edge #(.QSET(0)) u_irq (
+//    .rst    ( rst       ),
+//    .clk    ( clk       ),
+//    .edgeof ( ~LVBL     ),
+//    .clr    ( ~irqen    ),
+//    .q      ( irqn_ff   )
+//);
 
 // Dual vblank IRQ on LVBL edges; software acks via 100010 / 100012.
 always @(posedge clk, posedge rst) begin
