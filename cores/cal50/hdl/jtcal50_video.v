@@ -27,6 +27,10 @@ module jtcal50_video #(
     output              VS,
     output              flip,
     output     [ 8:0]   hdump,
+    // X1-012 tilemap scroll origin. Per game, so it cannot be a parameter on a
+    // shared bitstream. MAME x1_012 update_scroll: x += 0x10-xoffsets[0], and our
+    // origin sits 0x0d above MAME's -> calibr50 0x20, metafox 0x0d, arbalest 0x1f
+    input      [15:0]   thoffs,
     // Palette
     output     [ 9:1]   pal_addr,
     input      [15:0]   pal_data,
@@ -140,6 +144,7 @@ jtframe_vtimer #(
 /* verilator tracing_off */
 jtx1012 u_tiles(
     .rst        ( rst           ),
+    .hoffs      ( thoffs        ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
 
