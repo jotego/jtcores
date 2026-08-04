@@ -33,8 +33,7 @@ module jtblkout_main(
     output reg           fvram_cs,
     output reg           pal_cs,
     output reg           fb_cs,
-    output reg           frontcol_cs, // 280002 pen-512 colour write
-    output reg    [11:0] frontcol,    // pen-512 xBGR-444 colour
+    output reg           frontcol_cs, // 280000-280003, pen-512 colour register
 
     input         [15:0] work_dout,
     input         [15:0] work2_dout,
@@ -103,7 +102,7 @@ always @* begin
     fvram_cs    = allFC && A[23:15]==9'h40 && !ASn;                                // 200000-207fff
     work3_cs    = allFC && A[23:17]==7'h10 && (A[16]|A[15]) && !ASn && {UDSn,LDSn} != 2'b11; // 208000-21ffff
     pal_cs      = allFC && A[23:12]==12'h280 && A[11]==0 && (A[10]^A[9]) && !ASn; // 280200-2805ff
-    frontcol_cs = allFC && A[23:4]==20'h28000 && A[3:2]==0 && !ASn && !RnW;        // 280002 (w)
+    frontcol_cs = allFC && A[23:4]==20'h28000 && A[3:2]==0 && !ASn;                // 280000-280003
     io_rd       = io_cs && RnW;
 end
 
@@ -142,15 +141,6 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// pen-512 colour register (0x280002, xBGR-444 in the low 12 bits)
-always @(posedge clk, posedge rst) begin
-    if( rst ) frontcol <= 0;
-    else if( frontcol_cs ) begin
-        if( !LDSn ) frontcol[7:0] <= cpu_dout[7:0];
-        if( !UDSn ) frontcol[11:8] <= cpu_dout[11:8];
-    end
-end
-
 jtframe_edge #(.QSET(0), .ATRST(1)) u_irq5 (
     .rst    ( rst              ),
     .clk    ( clk              ),
@@ -167,7 +157,9 @@ jtframe_edge #(.QSET(0), .ATRST(1)) u_irq6 (
     .q      ( irq6n             )
 );
 
-jtframe_68kdtack_cen #(.W(8)) u_dtack(
+// WD widens the recovery counter (CW=W+WD). The CPU pays back its bus debt in
+// bursts while the game fills the framebuffer; the default CW=14 saturates.
+jtframe_68kdtack_cen #(.W(8),.WD(12)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -220,7 +212,7 @@ wire _unused = &{1'b0, service, tilt, cab_1p[3:2], coin[3]};
 assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=1;
 initial begin
     rom_cs=0; work_cs=0; work2_cs=0; work3_cs=0; fvram_cs=0; pal_cs=0; fb_cs=0; frontcol_cs=0;
-    frontcol=0; snd_irq=0; snd_latch=0;
+    snd_irq=0; snd_latch=0;
 end
 `endif
 endmodule

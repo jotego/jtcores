@@ -24,12 +24,11 @@ module jtblkout_game(
 wire [ 1:0] main_dsn;
 wire        main_rnw;
 wire        work_cs, work2_cs, work3_cs, fvram_cs, pal_cs, fb_cs, frontcol_cs;
-wire [11:0] frontcol;
-wire [ 7:0] snd_latch;
+wire [ 7:0] snd_latch, st_video;
 wire        snd_irq;
 
 assign dip_flip   = 0;
-assign debug_view = 0;
+assign debug_view = st_video;   // frontcol MMR bytes, selected by debug_bus
 
 // BRAM write strobes (addr + din wired via mem.yaml)
 assign work_we   = {2{work_cs  & ~main_rnw}} & ~main_dsn;
@@ -81,7 +80,6 @@ jtblkout_main u_main(
     .pal_cs     ( pal_cs    ),
     .fb_cs      ( fb_cs     ),
     .frontcol_cs( frontcol_cs ),
-    .frontcol   ( frontcol  ),
 
     .blockout   ( blockout  ),
     .blockoutj  ( blockoutj ),
@@ -120,7 +118,11 @@ jtblkout_video u_video(
     .HS         ( HS        ),
     .VS         ( VS        ),
 
-    .frontcol   ( frontcol  ),
+    .frontcol_cs( frontcol_cs ),
+    .main_addr  ( main_addr[1] ),
+    .cpu_dout   ( cpu_dout  ),
+    .main_dsn   ( main_dsn  ),
+    .main_rnw   ( main_rnw  ),
 
     .fbrd_addr  ( fbrd_addr ),
     .fbrd_cs    ( fbrd_cs   ),
@@ -135,7 +137,12 @@ jtblkout_video u_video(
 
     .red        ( red       ),
     .green      ( green     ),
-    .blue       ( blue      )
+    .blue       ( blue      ),
+
+    .ioctl_addr ( ioctl_addr),
+    .gfx_en     ( gfx_en    ),
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_video  )
 );
 
 jtdd2_sound u_sound(

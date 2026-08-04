@@ -1,6 +1,7 @@
 blkout:
   - get:
     - jtblkout_colmix.v
+    - jtblkout_frontcol_mmr.v
     - jtblkout_game.v
     - jtblkout_header.v
     - jtblkout_main.v

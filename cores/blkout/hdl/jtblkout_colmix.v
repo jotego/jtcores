@@ -23,21 +23,28 @@ module jtblkout_colmix(
     input               LHBL,
     input               LVBL,
     input        [11:0] frontcol,
+
+    // bitmap pen, looked up in the palette BRAM
+    input        [ 8:0] fb_pxl,
+    output       [ 8:0] pal_addr,
     input        [15:0] pal_data,
 
     // 1bpp overlay: byte from the line buffer plus the bit index within it
     input        [ 7:0] ovlb_q,
     input        [ 2:0] hovl,
 
+    input        [ 3:0] gfx_en,     // [0] bitmap, [3] overlay
     output reg   [ 3:0] red,
     output reg   [ 3:0] green,
     output reg   [ 3:0] blue
 );
 
 reg       overlay_1;
+
+assign pal_addr = gfx_en[0] ? fb_pxl : 9'd0;
 // Sample the overlay bit with the same hovl used for the byte address, then
 // register once to line up with fb_pxl.
-always @(posedge clk) if( pxl_cen ) overlay_1 <= ovlb_q[~hovl];   // MSB = leftmost pixel
+always @(posedge clk) if( pxl_cen ) overlay_1 <= gfx_en[3] & ovlb_q[~hovl];   // MSB = leftmost pixel
 
 wire [11:0] color = overlay_1 ? frontcol : pal_data[11:0];  // xBGR-444
 wire blank = ~(LHBL & LVBL);
@@ -49,5 +56,7 @@ always @(posedge clk) if( pxl_cen ) begin
         blue  <= color[11:8];
     end
 end
+
+wire _unused = &{1'b0, gfx_en[2:1]};
 
 endmodule

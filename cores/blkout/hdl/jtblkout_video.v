@@ -27,8 +27,12 @@ module jtblkout_video(
     output              HS,
     output              VS,
 
-    // pen-512 dynamic colour (from main, 0x280002)
-    input        [11:0] frontcol,
+    // CPU access to the pen-512 colour register (0x280002)
+    input               frontcol_cs,
+    input        [ 1:1] main_addr,
+    input        [15:0] cpu_dout,
+    input        [ 1:0] main_dsn,
+    input               main_rnw,
 
     // back framebuffer — SDRAM bank 2 video read
     output       [17:1] fbrd_addr,
@@ -46,11 +50,19 @@ module jtblkout_video(
 
     output       [ 3:0] red,
     output       [ 3:0] green,
-    output       [ 3:0] blue
+    output       [ 3:0] blue,
+
+    // Test
+    input        [25:0] ioctl_addr,
+    input        [ 3:0] gfx_en,
+    input        [ 7:0] debug_bus,
+    output       [ 7:0] st_dout
 );
 
 wire [8:0] hdump, vrender;
 wire [8:0] fb_pxl;
+wire [11:0] frontcol;
+wire [ 7:0] mmr_ioctl_din;
 
 // 8 MHz pxl, H-total 512 (15.625 kHz), V-total 269 -> 58.1 Hz (board is 58 Hz).
 jtframe_vtimer #(
@@ -144,21 +156,44 @@ jtframe_linebuf #(.DW(8),.AW(6)) u_ovlb(
     .rd_gated(            )
 );
 
-// pixel pipeline: pen -> palette / buffered overlay -> RGB
-assign palrd_addr = fb_pxl;                       // 9-bit pen index
+jtblkout_frontcol_mmr u_frontcol(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
 
+    .cs         ( frontcol_cs   ),
+    .addr       ( main_addr     ),
+    .rnw        ( main_rnw      ),
+    .din        ( cpu_dout      ),
+    .dsn        ( main_dsn      ),
+
+    .frontcol   ( frontcol      ),
+    // IOCTL dump
+    .ioctl_addr ( ioctl_addr[1:0] ),
+    .ioctl_din  ( mmr_ioctl_din ),
+    // Debug
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_dout       )
+);
+
+// pixel pipeline: pen -> palette / buffered overlay -> RGB
 jtblkout_colmix u_colmix(
     .clk        ( clk        ),
     .pxl_cen    ( pxl_cen    ),
     .LHBL       ( LHBL       ),
     .LVBL       ( LVBL       ),
     .frontcol   ( frontcol   ),
+    .fb_pxl     ( fb_pxl     ),
+    .pal_addr   ( palrd_addr ),
     .pal_data   ( pal_data   ),
     .ovlb_q     ( ovlb_q     ),
     .hovl       ( hovl[2:0]  ),
+    .gfx_en     ( gfx_en     ),
     .red        ( red        ),
     .green      ( green      ),
     .blue       ( blue       )
 );
+
+// mmr_ioctl_din feeds the scene dump once JTFRAME_IOCTL_RD is enabled
+wire _unused = &{1'b0, mmr_ioctl_din, ioctl_addr[25:2]};
 
 endmodule
