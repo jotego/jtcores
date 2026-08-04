@@ -12,8 +12,9 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Block Out video: vtimer -> framebuffer scanout (two-plane composite) ->
-    1bpp overlay (pen 512) -> palette (xBGR-444) -> RGB. Visible 320x240.
+    Author: Andrea Bogazzi. email: andreabogazzi79@gmail.com
+    Version: 1.0
+    Date: 31-7-2026
 */
 
 module jtblkout_video(
@@ -26,8 +27,12 @@ module jtblkout_video(
     output              HS,
     output              VS,
 
-    // pen-512 dynamic colour (from main, 0x280002)
-    input        [11:0] frontcol,
+    // CPU access to the pen-512 colour register (0x280002)
+    input               frontcol_cs,
+    input        [ 1:1] main_addr,
+    input        [15:0] cpu_dout,
+    input        [ 1:0] main_dsn,
+    input               main_rnw,
 
     // back framebuffer — SDRAM bank 2 video read
     output       [17:1] fbrd_addr,
@@ -43,13 +48,21 @@ module jtblkout_video(
     output       [13:0] fvrd_addr,
     input        [15:0] fvram_data,
 
-    output reg   [ 3:0] red,
-    output reg   [ 3:0] green,
-    output reg   [ 3:0] blue
+    output       [ 3:0] red,
+    output       [ 3:0] green,
+    output       [ 3:0] blue,
+
+    // Test
+    input        [25:0] ioctl_addr,
+    input        [ 3:0] gfx_en,
+    input        [ 7:0] debug_bus,
+    output       [ 7:0] st_dout
 );
 
-wire [8:0] hdump, vdump, vrender, vrender1;
+wire [8:0] hdump, vrender;
 wire [8:0] fb_pxl;
+wire [11:0] frontcol;
+wire [ 7:0] mmr_ioctl_din;
 
 // 8 MHz pxl, H-total 512 (15.625 kHz), V-total 269 -> 58.1 Hz (board is 58 Hz).
 jtframe_vtimer #(
@@ -65,9 +78,9 @@ jtframe_vtimer #(
 ) u_vtimer(
     .clk      ( clk      ),
     .pxl_cen  ( pxl_cen  ),
-    .vdump    ( vdump    ),
+    .vdump    (          ),
     .vrender  ( vrender  ),
-    .vrender1 ( vrender1 ),
+    .vrender1 (          ),
     .H        ( hdump    ),
     .Hinit    (          ),
     .Vinit    (          ),
@@ -143,22 +156,42 @@ jtframe_linebuf #(.DW(8),.AW(6)) u_ovlb(
     .rd_gated(            )
 );
 
-// pixel pipeline: pen -> palette / buffered overlay -> RGB
-assign palrd_addr = fb_pxl;                       // 9-bit pen index
-reg       overlay_1;
-// Sample the overlay bit with the same hovl used for the byte address, then
-// register once to line up with fb_pxl.
-always @(posedge clk) if( pxl_cen ) overlay_1 <= ovlb_q[7 - hovl[2:0]];
+jtblkout_frontcol_mmr u_frontcol(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
 
-wire [11:0] color = overlay_1 ? frontcol : pal_data[11:0];  // xBGR-444
-wire blank = ~(LHBL & LVBL);
-always @(posedge clk) if( pxl_cen ) begin
-    if( blank ) begin red<=0; green<=0; blue<=0; end
-    else begin
-        red   <= color[ 3:0];
-        green <= color[ 7:4];
-        blue  <= color[11:8];
-    end
-end
+    .cs         ( frontcol_cs   ),
+    .addr       ( main_addr     ),
+    .rnw        ( main_rnw      ),
+    .din        ( cpu_dout      ),
+    .dsn        ( main_dsn      ),
+
+    .frontcol   ( frontcol      ),
+    // IOCTL dump
+    .ioctl_addr ( ioctl_addr[1:0] ),
+    .ioctl_din  ( mmr_ioctl_din ),
+    // Debug
+    .debug_bus  ( debug_bus     ),
+    .st_dout    ( st_dout       )
+);
+
+jtblkout_colmix u_colmix(
+    .clk        ( clk        ),
+    .pxl_cen    ( pxl_cen    ),
+    .LHBL       ( LHBL       ),
+    .LVBL       ( LVBL       ),
+    .frontcol   ( frontcol   ),
+    .fb_pxl     ( fb_pxl     ),
+    .pal_addr   ( palrd_addr ),
+    .pal_data   ( pal_data   ),
+    .ovlb_q     ( ovlb_q     ),
+    .hovl       ( hovl[2:0]  ),
+    .gfx_en     ( gfx_en     ),
+    .red        ( red        ),
+    .green      ( green      ),
+    .blue       ( blue       )
+);
+
+wire _unused = &{1'b0, mmr_ioctl_din, ioctl_addr[25:2]};
 
 endmodule

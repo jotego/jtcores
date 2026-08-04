@@ -11,6 +11,10 @@
 
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Andrea Bogazzi. email: andreabogazzi79@gmail.com
+    Version: 1.0
+    Date: 31-7-2026
 */
 
 module jtblkout_game(
@@ -20,12 +24,11 @@ module jtblkout_game(
 wire [ 1:0] main_dsn;
 wire        main_rnw;
 wire        work_cs, work2_cs, work3_cs, fvram_cs, pal_cs, fb_cs, frontcol_cs;
-wire [11:0] frontcol;
-wire [ 7:0] snd_latch;
+wire [ 7:0] snd_latch, st_video;
 wire        snd_irq;
 
 assign dip_flip   = 0;
-assign debug_view = 0;
+assign debug_view = st_video;
 
 // BRAM write strobes (addr + din wired via mem.yaml)
 assign work_we   = {2{work_cs  & ~main_rnw}} & ~main_dsn;
@@ -48,6 +51,17 @@ assign work3_sel = main_rnw ? work3_cs : (work3_wr & main_dsn!=2'b11);
 assign work3_addr= main_addr[16:1];
 assign work3_dsn = main_dsn;
 assign work3_we  = work3_wr & main_dsn!=2'b11;
+wire blockout, blockoutj;
+
+jtblkout_header u_header(
+    .clk        ( clk            ),
+    .header     ( header         ),
+    .prog_we    ( prog_we        ),
+    .blockout   ( blockout       ),
+    .blockoutj  ( blockoutj      ),
+    .prog_addr  ( prog_addr[2:0] ),
+    .prog_data  ( prog_data      )
+);
 
 jtblkout_main u_main(
     .rst        ( rst24     ),
@@ -66,8 +80,9 @@ jtblkout_main u_main(
     .pal_cs     ( pal_cs    ),
     .fb_cs      ( fb_cs     ),
     .frontcol_cs( frontcol_cs ),
-    .frontcol   ( frontcol  ),
 
+    .blockout   ( blockout  ),
+    .blockoutj  ( blockoutj ),
     .work_dout  ( work_dout ),
     .work2_dout ( work2_dout),
     .work3_dout ( work3_data),
@@ -103,7 +118,11 @@ jtblkout_video u_video(
     .HS         ( HS        ),
     .VS         ( VS        ),
 
-    .frontcol   ( frontcol  ),
+    .frontcol_cs( frontcol_cs ),
+    .main_addr  ( main_addr[1] ),
+    .cpu_dout   ( cpu_dout  ),
+    .main_dsn   ( main_dsn  ),
+    .main_rnw   ( main_rnw  ),
 
     .fbrd_addr  ( fbrd_addr ),
     .fbrd_cs    ( fbrd_cs   ),
@@ -118,7 +137,12 @@ jtblkout_video u_video(
 
     .red        ( red       ),
     .green      ( green     ),
-    .blue       ( blue      )
+    .blue       ( blue      ),
+
+    .ioctl_addr ( ioctl_addr),
+    .gfx_en     ( gfx_en    ),
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_video  )
 );
 
 jtdd2_sound u_sound(

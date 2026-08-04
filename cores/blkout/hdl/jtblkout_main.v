@@ -12,20 +12,9 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Block Out main CPU (68000 @ 10 MHz). Address map (technos/blockout.cpp):
-      000000-03ffff  program ROM              (SDRAM bank 0)
-      100000-100009  P1/P2/SYSTEM/DSW1/DSW2   (read, A[3:1] selects)
-      100010         IRQ6 ack (w)
-      100012         IRQ5 ack (w)
-      100015         sound latch (w, low byte)
-      180000-1bffff  back framebuffer         (SDRAM bank 2, videoram_r/w)
-      1d4000-1dffff  work RAM                 (BRAM)
-      1f4000-1fffff  work RAM                 (BRAM)
-      200000-207fff  front 1bpp overlay VRAM  (BRAM)
-      208000-21ffff  work RAM                 (BRAM)
-      280002         front colour reg (w)     -> pen 512
-      280200-2805ff  palette RAM              (BRAM)
-    IRQ6 @ scanline 250 (vblank-out), IRQ5 @ scanline 0 (vblank-in); acked by w.
+    Author: Andrea Bogazzi. email: andreabogazzi79@gmail.com
+    Version: 1.0
+    Date: 31-7-2026
 */
 
 module jtblkout_main(
@@ -44,8 +33,7 @@ module jtblkout_main(
     output reg           fvram_cs,
     output reg           pal_cs,
     output reg           fb_cs,
-    output reg           frontcol_cs, // 280002 pen-512 colour write
-    output reg    [11:0] frontcol,    // pen-512 xBGR-444 colour
+    output reg           frontcol_cs, // 280000-280003, pen-512 colour register
 
     input         [15:0] work_dout,
     input         [15:0] work2_dout,
@@ -58,6 +46,8 @@ module jtblkout_main(
     input         [15:0] rom_data,
     input                rom_ok,
 
+    input                blockout,
+    input                blockoutj,
     // sound latch (0x100015)
     output reg           snd_irq,
     output reg    [ 7:0] snd_latch,
@@ -82,7 +72,7 @@ reg         io_cs, io_rd;
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
 wire [15:0] cpu_dout;
-reg         irq6n, irq5n, LVBLl;
+wire        irq6n, irq5n;
 reg         ok_dly;
 wire        irq6ack, irq5ack;
 wire        bus_cs, bus_busy, bus_legit;
@@ -98,33 +88,31 @@ assign IPLn      = !irq6n ? 3'b001 :     // level 6
 assign VPAn      = !(!ASn && FC==7);     // autovector all IRQs
 assign irq6ack   = io_cs && !RnW && A[4:1]==4'h8; // 100010
 assign irq5ack   = io_cs && !RnW && A[4:1]==4'h9; // 100012
-// SDRAM regions pace DTACK; BRAM/regs auto-ack (single-cycle, ok held high).
+// SDRAM regions pace DTACK;
 assign bus_cs    = rom_cs | fb_cs | work3_cs;
 assign bus_busy  = (rom_cs | fb_cs | work3_cs) & ~ok_dly;
 assign bus_legit = 0;
 
 always @* begin
-    rom_cs      = allFC && A[23:18]==6'h0  && !ASn;                 // 000000-03ffff
-    io_cs       = allFC && A[23:16]==8'h10 && !ASn;                 // 100000-10ffff
-    fb_cs       = allFC && A[23:18]==6'h6  && !ASn;                 // 180000-1bffff
-    work_cs     = allFC && A[23:16]==8'h1d && !ASn;                 // 1d0000-1dffff
-    work2_cs    = allFC && A[23:16]==8'h1f && !ASn;                 // 1f0000-1fffff
-    fvram_cs    = allFC && A[23:15]==9'h40 && !ASn;                 // 200000-207fff
-    // 208000-21ffff: same 0x200000 page, above the overlay (A[16] or A[15] set)
-    work3_cs    = allFC && A[23:17]==7'h10 && (A[16]|A[15]) && !ASn;
-    // 280000 page: pen-512 colour reg @280002 (A[10:9]==0) vs palette @280200-2805ff
-    pal_cs      = allFC && A[23:16]==8'h28 && A[15:11]==0 && (A[10]|A[9]) && !ASn;
-    frontcol_cs = allFC && A[23:16]==8'h28 && A[15:9]==0 && !ASn && !RnW; // 280002 (w)
+    rom_cs      = allFC && A[23:18]==6'h0  && !ASn && {UDSn,LDSn} != 2'b11;        // 000000-03ffff
+    io_cs       = allFC && A[23:5]==19'h8000 && !ASn && {UDSn,LDSn} != 2'b11;      // 100000-100012
+    fb_cs       = allFC && A[23:18]==6'h6  && !ASn;                                // 180000-1bffff
+    work_cs     = allFC && A[23:16]==8'h1d && (A[15]|A[14]) && !ASn;               // 1d4000-1dffff
+    work2_cs    = allFC && A[23:16]==8'h1f && (A[15]|A[14]) && !ASn;               // 1f4000-1fffff
+    fvram_cs    = allFC && A[23:15]==9'h40 && !ASn;                                // 200000-207fff
+    work3_cs    = allFC && A[23:17]==7'h10 && (A[16]|A[15]) && !ASn && {UDSn,LDSn} != 2'b11; // 208000-21ffff
+    pal_cs      = allFC && A[23:12]==12'h280 && A[11]==0 && (A[10]^A[9]) && !ASn; // 280200-2805ff
+    frontcol_cs = allFC && A[23:4]==20'h28000 && A[3:2]==0 && !ASn;                // 280000-280003
     io_rd       = io_cs && RnW;
 end
 
 always @* begin
     case( A[3:1] )
-        3'd0:    cab_dout = { cab_1p[0], joystick1[6], joystick1[5], joystick1[7], joystick1[3:0] }; // P1
-        3'd1:    cab_dout = { cab_1p[1], joystick2[6], joystick2[5], joystick2[7], joystick2[3:0] }; // P2
+        3'd0:    cab_dout = { cab_1p[0], joystick1[6], joystick1[5], blockoutj ? joystick1[4] : joystick1[7], joystick1[3:0] }; // P1
+        3'd1:    cab_dout = { cab_1p[1], joystick2[6], joystick2[5], blockoutj ? joystick2[4] : joystick2[7], joystick2[3:0] }; // P2
         3'd2:    cab_dout = { 4'hf, coin[2:0], 1'b1 };                    // SYSTEM: coin3/2/1 @ b3/2/1
         3'd3:    cab_dout = dipsw_a;                                      // DSW1
-        3'd4:    cab_dout = { joystick2[4], joystick1[4], dipsw_b[5:0] }; // DSW2: b7=P2 A, b6=P1 A
+        3'd4:    cab_dout = blockoutj ? dipsw_b[7:0] : { joystick2[4], joystick1[4], dipsw_b[5:0] }; // DSW2: b7=P2 A, b6=P1 A
         default: cab_dout = 8'hff;
     endcase
 end
@@ -153,26 +141,24 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// pen-512 colour register (0x280002, xBGR-444 in the low 12 bits)
-always @(posedge clk, posedge rst) begin
-    if( rst ) frontcol <= 0;
-    else if( frontcol_cs ) frontcol <= cpu_dout[11:0];
-end
+jtframe_edge #(.QSET(0), .ATRST(1)) u_irq5 (
+    .rst    ( rst              ),
+    .clk    ( clk              ),
+    .edgeof ( LVBL & dip_pause ),
+    .clr    ( irq5ack          ),
+    .q      ( irq5n            )
+);
 
-// Dual vblank IRQ on LVBL edges; software acks via 100010 / 100012.
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        irq6n <= 1; irq5n <= 1; LVBLl <= 0;
-    end else begin
-        LVBLl <= LVBL;
-        if(  LVBLl && !LVBL ) irq6n <= 0;   // entering vblank
-        if( !LVBLl &&  LVBL ) irq5n <= 0;   // leaving vblank
-        if( irq6ack ) irq6n <= 1;
-        if( irq5ack ) irq5n <= 1;
-    end
-end
+jtframe_edge #(.QSET(0), .ATRST(1)) u_irq6 (
+    .rst    ( rst               ),
+    .clk    ( clk               ),
+    .edgeof ( ~LVBL & dip_pause ),
+    .clr    ( irq6ack           ),
+    .q      ( irq6n             )
+);
 
-jtframe_68kdtack_cen #(.W(8)) u_dtack(
+// TODO: experiment with cache size to save on WD.
+jtframe_68kdtack_cen #(.W(8),.WD(12)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -219,12 +205,13 @@ jtframe_m68k u_cpu(
     .DTACKn     ( DTACKn      ),
     .IPLn       ( IPLn        )
 );
+// this is a claude 'make lint pass' artifact. and i need time to understand what to do.
 wire _unused = &{1'b0, service, tilt, cab_1p[3:2], coin[3]};
 `else
 assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=1;
 initial begin
     rom_cs=0; work_cs=0; work2_cs=0; work3_cs=0; fvram_cs=0; pal_cs=0; fb_cs=0; frontcol_cs=0;
-    frontcol=0; snd_irq=0; snd_latch=0;
+    snd_irq=0; snd_latch=0;
 end
 `endif
 endmodule
