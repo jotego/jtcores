@@ -33,6 +33,8 @@ module jtx1012(
     input              hs, flip,
     input        [8:0] vdump,
     input        [8:0] hdump,
+    // tilemap scroll origin, per game (jtframe_scroll: scrx left)
+    input       [15:0] hoffs,
     // Video RAM
     output     [13:1] vram_addr,
     input      [15:0] vram_dout,
@@ -69,8 +71,9 @@ assign rom_addr = {pre_addr[20:7],pre_addr[5],~flip^pre_addr[6],
 };
 
 always @(posedge clk) begin
-    hpos <= pre_hpos+16'h20;
+    hpos <= pre_hpos+hoffs;
 end
+
 
 always @(posedge clk) begin
     attr <= ~attr;
