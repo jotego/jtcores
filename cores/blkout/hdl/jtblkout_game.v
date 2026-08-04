@@ -28,7 +28,7 @@ wire [ 7:0] snd_latch, st_video;
 wire        snd_irq;
 
 assign dip_flip   = 0;
-assign debug_view = st_video;   // frontcol MMR bytes, selected by debug_bus
+assign debug_view = st_video;
 
 // BRAM write strobes (addr + din wired via mem.yaml)
 assign work_we   = {2{work_cs  & ~main_rnw}} & ~main_dsn;

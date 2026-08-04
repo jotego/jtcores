@@ -175,7 +175,6 @@ jtblkout_frontcol_mmr u_frontcol(
     .st_dout    ( st_dout       )
 );
 
-// pixel pipeline: pen -> palette / buffered overlay -> RGB
 jtblkout_colmix u_colmix(
     .clk        ( clk        ),
     .pxl_cen    ( pxl_cen    ),
@@ -193,7 +192,6 @@ jtblkout_colmix u_colmix(
     .blue       ( blue       )
 );
 
-// mmr_ioctl_din feeds the scene dump once JTFRAME_IOCTL_RD is enabled
 wire _unused = &{1'b0, mmr_ioctl_din, ioctl_addr[25:2]};
 
 endmodule

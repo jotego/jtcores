@@ -157,8 +157,7 @@ jtframe_edge #(.QSET(0), .ATRST(1)) u_irq6 (
     .q      ( irq6n             )
 );
 
-// WD widens the recovery counter (CW=W+WD). The CPU pays back its bus debt in
-// bursts while the game fills the framebuffer; the default CW=14 saturates.
+// TODO: experiment with cache size to save on WD.
 jtframe_68kdtack_cen #(.W(8),.WD(12)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
