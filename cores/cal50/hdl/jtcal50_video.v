@@ -21,11 +21,12 @@ module jtcal50_video #(
     parameter OBJAW  = 12,
     // 1: blend the X1-001 background layer (metafox/arbalest)
     parameter SCR_EN = 0,
-    // X1-012 tilemap scroll origin
-    parameter [15:0] THOFFS = 16'h20,
     // Caliber 50 only populates object entries 0-200; a shorter scan leaves
     // line time for the sprites that wrap through Y=0
-    parameter [ 8:0] OBJ_LIMIT = 9'd200
+    parameter [ 8:0] OBJ_LIMIT = 9'd200,
+    parameter [ 8:0] VB_END   = 9'd0,
+    parameter [ 8:0] VB_START = 9'd240,
+    parameter [ 8:0] OBJ_XOFF = 9'h1fe
 )(
     input               rst,
     input               clk,
@@ -40,6 +41,10 @@ module jtcal50_video #(
     output              VS,
     output              flip,
     output     [ 8:0]   hdump,
+    // X1-012 tilemap scroll origin. Per game, so it cannot be a parameter on a
+    // shared bitstream. MAME x1_012 update_scroll: x += 0x10-xoffsets[0], and our
+    // origin sits 0x0d above MAME's -> calibr50 0x20, metafox 0x0d, arbalest 0x1f
+    input      [15:0]   thoffs,
     // Palette
     output     [ 9:1]   pal_addr,
     input      [15:0]   pal_data,
@@ -105,6 +110,7 @@ wire [6:0] nx_244 = {1'b0,cnt244} + 6'd1;
 wire [8:0] hdump_gfx = hdump - 9'd7;
 wire [8:0] vdump_gfx = vdump - 9'd1,
            vrender_gfx = vrender - 9'd1;
+wire [8:0] vdump_tile = vdump_gfx - VB_END;
 
 assign ioctl_din = ioctl_addr[3] ? x1001_ioctl_din : x1012_ioctl_din;
 
@@ -130,8 +136,8 @@ jtframe_vtimer #(
     .V_START ( 9'd000 ),
     .VS_START( 9'd253 ),
     .VS_END  ( 9'd261 ),
-    .VB_START( 9'd240 ),
-    .VB_END  ( 9'd000 ),
+    .VB_START( VB_START ),
+    .VB_END  ( VB_END   ),
     .VCNT_END( 9'd271 )
 ) u_timer(
     .clk        ( clk        ),
@@ -148,8 +154,9 @@ jtframe_vtimer #(
     .VS         ( VS         )
 );
 /* verilator tracing_off */
-jtx1012 #(.HOFFS(THOFFS)) u_tiles(
+jtx1012 u_tiles(
     .rst        ( rst           ),
+    .hoffs      ( thoffs        ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
 
@@ -161,7 +168,7 @@ jtx1012 #(.HOFFS(THOFFS)) u_tiles(
 
     .hs         ( HS            ),
     .flip       ( flip          ),
-    .vdump      ( vdump_gfx     ),
+    .vdump      ( vdump_tile    ),
     .hdump      ( hdump_gfx     ),
     // Video RAM
     .vram_addr  ( tvram_addr    ),
@@ -193,7 +200,7 @@ wire [8:0] vdump_adj   = vdump_gfx   + VADJ,
 // range leaves enough line time for sprites that wrap through Y=0.
 jtkiwi_gfx #(
     .CPUW    ( 16      ),
-    .OBJ_XOFF( 9'h1fe  ),
+    .OBJ_XOFF( OBJ_XOFF ),
     .OBJ_YOFF( 8'hf5   ),
     .OBJ_YWRAP( 1'b1   ),
     .OBJ_LIMIT( OBJ_LIMIT ),

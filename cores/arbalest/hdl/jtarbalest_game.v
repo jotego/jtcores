@@ -152,10 +152,16 @@ jtarbalest_sound u_sound(
 jtcal50_video #(
     .OBJAW ( 13     ), // 16kB sprite RAM + setac bank
     .SCR_EN( 1      ), // X1-001 background layer (draw_background) draws the attract scenery
-    .THOFFS( 16'h0d ), // MAME x1_012 x += 0x10-xoffsets[0]: metafox 0x00 vs calibr50 0x13
-    .OBJ_LIMIT( 9'h1ff )
+    .OBJ_LIMIT( 9'h1ff ),
+    // MAME visarea rows 16..239 (224 lines) -> vdump 8..231, VS stays centred
+    .VB_END  ( 9'd8    ),
+    .VB_START( 9'd232  ),
+    // set_fg_xoffsets noflip: calibr50 -1, metafox/arbalest 0 -> one count right
+    .OBJ_XOFF( 9'h1ff  )
 ) u_video(
     .rst        ( rst           ),
+    // MAME x1_012 set_xoffsets noflip: metafox 16 -> 0x00, arbalest -2 -> 0x12
+    .thoffs     ( game_id==4'd1 ? 16'h1f : 16'h0d ),
     .clk        ( clk           ),
     .clk_cpu    ( clk           ),
     .cen244     (               ),

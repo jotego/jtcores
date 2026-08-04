@@ -122,6 +122,7 @@ jtcal50_sound u_sound(
 /* verilator tracing_on */
 jtcal50_video u_video(
     .rst            ( rst           ),
+    .thoffs         ( 16'h20        ),
     .clk            ( clk           ),
     .clk_cpu        ( clk           ),
     .cen244         ( cen244        ),
