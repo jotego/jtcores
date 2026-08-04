@@ -72,16 +72,53 @@ module jtrastan_scr(
 
 wire [ 8:0] vdump;
 reg  [15:0] scr0_hpos, scr1_hpos, scr0_vpos, scr1_vpos;
+`ifdef SIMSCENE
+integer scene_file, scene_count;
+reg [7:0] scene_scroll[0:9];
+reg [15:0] scene_scr0_hpos, scene_scr1_hpos, scene_scr0_vpos, scene_scr1_vpos;
+reg        scene_flip;
+
+initial begin
+    scene_scr0_hpos = 0;
+    scene_scr1_hpos = 0;
+    scene_scr0_vpos = 0;
+    scene_scr1_vpos = 0;
+    scene_flip      = 0;
+    scene_file = $fopen("scroll.bin", "rb");
+    if( scene_file == 0 ) begin
+        $display("WARNING: %m cannot open scroll.bin");
+    end else begin
+        scene_count = $fread(scene_scroll, scene_file);
+        $fclose(scene_file);
+        if( scene_count != 10 )
+            $display("WARNING: %m scroll.bin is short (%0d bytes)", scene_count);
+        scene_scr0_hpos = { scene_scroll[1], scene_scroll[0] };
+        scene_scr1_hpos = { scene_scroll[3], scene_scroll[2] };
+        scene_scr0_vpos = { scene_scroll[5], scene_scroll[4] };
+        scene_scr1_vpos = { scene_scroll[7], scene_scroll[6] };
+        scene_flip      = scene_scroll[8][0];
+    end
+end
+`endif
 
 assign dtackn = 0;
 assign debug_view = scr1_hpos[8:1];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
+`ifdef SIMSCENE
+        scr0_hpos <= scene_scr0_hpos;
+        scr1_hpos <= scene_scr1_hpos;
+        scr0_vpos <= scene_scr0_vpos;
+        scr1_vpos <= scene_scr1_vpos;
+        flip      <= scene_flip;
+`else
         scr0_hpos <= 0;
         scr1_hpos <= 0;
         scr0_vpos <= 0;
         scr1_vpos <= 0;
+        flip      <= 0;
+`endif
     end else if(scr_cs && !main_rnw) begin
         case( {main_addr[18:16],main_addr[1]} )
             {3'd2,1'b0}: scr0_vpos <= main_dout;

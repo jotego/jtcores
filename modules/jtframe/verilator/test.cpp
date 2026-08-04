@@ -23,12 +23,18 @@
 
 #include <cstring>
 #include <cstdlib>
-#include <iostream>
+#include <cerrno>
 #include <fstream>
+#include <memory>
+#include <stdexcept>
 #include <string>
+#include <vector>
 #include <sys/stat.h>
 #include "UUT.h"
+#include "cabinet.h"
+#include "cheats.h"
 #include "defmacros.h"
+#include "sim_utils.h"
 #include "sdram.h"
 #include "wavewritter.h"
 
@@ -131,11 +137,6 @@ public:
     virtual void advance_half_period();
 };
 
-class MultiClockSim96 : MultiClock {
-public:
-    virtual void advance_half_period();
-};
-
 MultiClock* MakeMultiClock(UUT& game) {
     return use96 ? (MultiClock*)new MultiClock96(game):
                    (MultiClock*)new MultiClock48(game);
@@ -164,14 +165,44 @@ void MultiClock96::advance_half_period() {
 }
 
 class SimInputs {
-    ifstream fin;
     UUT& dut;
-    int line;
-    bool done, rst_assigned;
+    SDRAM& sdram;
+    unique_ptr<CabinetScript> cab;
+    unique_ptr<CheatDatabase> cheat_db;
+    vector<string> pending_cheats;
+    int line = 0;
+    bool done = true;
+    bool has_dipsw = false;
+    bool has_pending = false;
+    bool rst_assigned = false;
+    bool trace_requested = false;
+    bool dump_requested = false;
+    unsigned dipsw = 0;
+    string cheat_target;
+
+    void apply_pending_cheats() {
+        if( !has_pending ) return;
+        if( !cheat_db ) {
+            throw runtime_error("cabinet script requests a cheat but JTFRAME_SIM_CHEATS is not set");
+        }
+        if( !cheat_db->has_target(cheat_target) ) {
+            throw runtime_error("cabinet script requests a cheat but no cheats target set '" + cheat_target + "'");
+        }
+        for( const auto& name : pending_cheats ) {
+            const vector<CheatWrite>* writes = cheat_db->find(cheat_target, name);
+            if( writes == nullptr ) {
+                throw runtime_error("cabinet script requests unknown cheat '" + name + "' for target '" + cheat_target + "'");
+            }
+            for( const auto& write : *writes ) sdram.write_bytes(write.bank, write.offset, write.byte_mask, write.data);
+            fprintf(stderr, "Applied cheat %s for %s (%zu SDRAM write%s)\n", name.c_str(), cheat_target.c_str(), writes->size(),
+                writes->size() == 1 ? "" : "s");
+        }
+        pending_cheats.clear();
+        has_pending = false;
+    }
 public:
-    SimInputs( UUT& _dut) : dut(_dut) {
+    SimInputs( UUT& _dut, SDRAM& _sdram, const char *filename) : dut(_dut), sdram(_sdram) {
         dut.dip_pause = 1;
-        rst_assigned  = 0;
         dut.joystick1 = 0xff;
         dut.joystick2 = 0xff;
         dut.joystick3 = 0xff;
@@ -184,35 +215,60 @@ public:
 #ifdef _JTFRAME_OSD_FLIP
         dut.dip_flip  = 1;
 #endif
-#ifdef _SIM_INPUTS
-        line = 0;
-        done = false;
-        fin.open("sim_inputs.hex");
-        if( fin.bad() ) {
-            fputs("ERROR: (test.cpp)  could not open sim_inputs.hex\n", stderr );
-        } else {
-            fputs("reading sim_inputs.hex\n", stderr );
+        if( filename != nullptr && *filename != 0 ) {
+            done = false;
+            cab.reset(new CabinetScript(filename));
+            fprintf(stderr, "Validated %llu frames from %s\n", static_cast<unsigned long long>(cab->frame_count()), filename);
+            const char *cheat_file = getenv("JTFRAME_SIM_CHEATS");
+            if( cheat_file != nullptr && *cheat_file != 0 ) {
+                cheat_db.reset(new CheatDatabase(cheat_file));
+                fprintf(stderr, "Loaded %zu cheat definitions for %zu target%s from %s\n", cheat_db->definition_count(),
+                    cheat_db->target_count(), cheat_db->target_count() == 1 ? "" : "s", cheat_file);
+            }
+            const char *active_set = getenv("JTFRAME_SIM_SETNAME");
+            cheat_target = active_set == nullptr ? "" : active_set;
+            next();
         }
-        next();
-#else
-        done = true;
-#endif
     }
     bool is_controlling_reset() { return rst_assigned; }
+    bool has_cabinet_script() const { return cab != nullptr; }
+    bool cabinet_done() const { return cab != nullptr && done; }
+    bool take_tracing_on() {
+        const bool requested = trace_requested;
+        trace_requested = false;
+        return requested;
+    }
+    bool take_dump() {
+        const bool requested = dump_requested;
+        dump_requested = false;
+        return requested;
+    }
+    void restore_dipsw() {
+        if( has_dipsw ) {
+            dut.dipsw = dipsw;
+            fprintf(stderr, "DIP sw overridden to %X (cabinet input frame %d)\n", dut.dipsw, line);
+        }
+    }
     void next() {
-        if( !done && fin.good() ) {
-            string s;
-            unsigned v;
+        apply_pending_cheats();
+        if( !done && !cab->done() ) {
             ++line;
-            getline( fin, s );
-            if( sscanf( s.c_str(),"%x", &v )==1 ) parse_inputs(v);
-            if( fin.eof() ) {
-                done = true;
-                fprintf(stderr,"\nsim_inputs.hex finished at line %d\n", line);
-                fin.close();
+            const CabinetFrame& frame = cab->next();
+            parse_inputs(frame.inputs);
+            if( frame.has_dipsw ) {
+                dipsw = frame.dipsw;
+                has_dipsw = true;
+                restore_dipsw();
             }
-
+            pending_cheats = frame.cheats;
+            has_pending = !pending_cheats.empty();
+            if( frame.tracing_on ) trace_requested = true;
+            if( frame.dump ) dump_requested = true;
         } else {
+            if( !done && cab != nullptr && cab->done() ) {
+                done = true;
+                fprintf(stderr,"\ncabinet input file loaded through frame %d\n", line);
+            }
             dut.cab_1p = 0xf;
             dut.coin   = 0xf;
             dut.joystick1    = 0x3ff;
@@ -230,7 +286,7 @@ public:
         dut.cab_1p    = 0xc | ((v>>2)&3);
         dut.coin      = 0xc | (v&1) | ((v>>12)&2);
         if( coin_l != (dut.coin&3) && coin_l!=3 ) {
-            cout << "\ncoin inserted (sim_inputs.hex line " << line << ")\n";
+            fprintf(stderr, "\ncoin inserted (cabinet input frame %d)\n", line);
         }
     }
     void apply_reset(unsigned v) {
@@ -242,7 +298,7 @@ public:
             dut.rst96=0;
         }
         if( (v&RESET_BIT)==0 ) {
-            if(!rst_assigned) cout << "\nReset forced through cabinet input file";
+            if(!rst_assigned) fputs("\nReset forced through cabinet input file", stderr);
             rst_assigned = true;
             dut.rst  =1;
             dut.rst24=1;
@@ -279,28 +335,45 @@ public:
 
 int fileLength( const char *name ) {
     ifstream fin( name, ios_base::binary );
+    if( !fin ) return 0;
     fin.seekg( 0, ios_base::end );
-    return (int)fin.tellg();
+    const streamoff length = fin.tellg();
+    return length > 0 ? static_cast<int>(length) : 0;
 }
 
 class Download {
     UUT& dut;
-    int addr, din, ticks, zeroat, len, cart_start, nvram_start;
-    char *buf, *iodin;
-    bool done, cart, nvram, full_download, iodump_busy;
+    int addr = 0;
+    int ticks = 0;
+    int iodump_ticks = 0;
+    int zeroat = 0;
+    int len = 0;
+    int cart_start = 0;
+    int nvram_start = 0;
+    char *buf = nullptr;
+    char *iodin = nullptr;
+    bool done = false;
+    bool cart = false;
+    bool nvram = false;
+    bool full_download = false;
+    bool iodump_busy = false;
+    bool iodump_pause = true;
+    bool download_finished = false;
+    string iodump_filename;
     int read_buf() {
         return (buf!=nullptr && addr<len) ? buf[addr] : 0;
     }
 public:
     Download(UUT& _dut) : dut(_dut) {
-        done = false;
-        buf = nullptr;
-        iodin = nullptr;
         ifstream fin( "rom.bin", ios_base::binary );
+        if( !fin ) {
+            fputs("Verilator test.cpp: cannot open file rom.bin\n",stderr);
+            return;
+        }
         fin.seekg( 0, ios_base::end );
         len = (int)fin.tellg();
         int rom_len = len;
-        if( len == 0 || fin.bad() ) {
+        if( len <= 0 || !fin ) {
             fputs("Verilator test.cpp: cannot open file rom.bin\n",stderr);
         } else {
             int cart_len = fileLength("cart.bin");
@@ -318,16 +391,15 @@ public:
 
             buf = new char[len];
             fin.seekg(0, ios_base::beg);
-            fin.read(buf,len);
-            if( fin.bad() ) {
+            fin.read(buf,rom_len);
+            if( !fin ) {
                 fputs("Verilator test.cpp: problem while reading rom.bin\n",stderr);
             } else {
                 fprintf(stderr,"Read %d bytes from rom.bin\n",rom_len);
             }
             if( cart ) {
                 ifstream fcart( "cart.bin", ios_base::binary );
-                fcart.read( buf+cart_start, cart_len );
-                if( fin.bad() ) {
+                if( !fcart || !fcart.read( buf+cart_start, cart_len ) ) {
                     fputs("Verilator test.cpp: problem while reading cart.bin\n",stderr);
                 } else {
                     fprintf(stderr,"Read %d bytes from cart.bin (starts at %x)\n",cart_len,cart_start);
@@ -335,8 +407,7 @@ public:
             }
             if( nvram ) {
                 ifstream fcart( "nvram.bin", ios_base::binary );
-                fcart.read( buf+nvram_start, nvram_len );
-                if( fin.bad() ) {
+                if( !fcart || !fcart.read( buf+nvram_start, nvram_len ) ) {
                     fputs("Verilator test.cpp: problem while reading nvram.bin\n",stderr);
                 } else {
                     fprintf(stderr,"Read %d bytes from nvram.bin (starts at %x)\n",nvram_len,nvram_start);
@@ -351,6 +422,11 @@ public:
         iodin=nullptr;
     };
     bool FullDownload() { return full_download; }
+    bool take_download_finished() {
+        const bool finished = download_finished;
+        download_finished = false;
+        return finished;
+    }
     void start( bool download ) {
         full_download = download;
         if( !full_download ) {
@@ -364,6 +440,7 @@ public:
         }
         ticks = 0; zeroat = 0;
         done = false;
+        download_finished = false;
         dut.ioctl_rom = 1;
         dut.ioctl_addr = 0;
         dut.ioctl_dout = read_buf();
@@ -414,6 +491,7 @@ public:
 #endif
                         dut.ioctl_rom = 0;
                         done = true;
+                        download_finished = true;
                     }
                     break;
             }
@@ -425,62 +503,106 @@ public:
     void iodump_step() {
 #ifdef _JTFRAME_IOCTL_RD
         const int STEP=3;
-        if( (ticks&STEP)==STEP) {
+        if( (iodump_ticks&STEP)==STEP) {
             iodin[dut.ioctl_addr] = dut.ioctl_din;
             if( ++dut.ioctl_addr == _JTFRAME_IOCTL_RD ) {
                 fprintf(stderr,"\nIOCTL read finished\n");
                 dut.ioctl_addr=0;
                 dut.ioctl_ram=0;
+                dut.dip_pause = iodump_pause;
                 iodump_busy=false;
-                auto of = ofstream("dump.bin",ios_base::binary);
-                of.write(iodin,_JTFRAME_IOCTL_RD);
-                if( of.bad() ) {
-                    fprintf(stderr,"ERROR: (test.cpp) creating dump.bin\n" );
+                ofstream of(iodump_filename,ios_base::binary);
+                if( !of || !of.write(iodin,_JTFRAME_IOCTL_RD) ) {
+                    fprintf(stderr,"ERROR: (test.cpp) creating %s\n", iodump_filename.c_str() );
                 }
             }
         }
-        ticks++;
+        iodump_ticks++;
 #endif
     }
-    void iodump_start() {
+    bool iodump_start(const string& filename = "dump.bin") {
 #ifdef _JTFRAME_IOCTL_RD
-        if( iodump_busy ) return;
+        if( iodump_busy ) return false;
         fprintf(stderr,"\nIOCTL read started\n");
         iodump_busy = true;
+        iodump_filename = filename;
+        iodump_pause = dut.dip_pause;
+        dut.dip_pause = 0;
         dut.ioctl_addr=0;
         dut.ioctl_ram=1;
-        ticks=0;
+        iodump_ticks=0;
         if(iodin==nullptr) {
             iodin=new char[_JTFRAME_IOCTL_RD];
         }
+        return true;
+#else
+        fprintf(stderr, "ERROR: (test.cpp) IOCTL dump requested but JTFRAME_IOCTL_RD is not defined\n");
+        return false;
 #endif
     }
 };
 
 const int VIDEO_BUFLEN = _JTFRAME_WIDTH*_JTFRAME_HEIGHT;
 
+struct HarnessOptions {
+    const char *cabinet_input = nullptr;
+    bool explicit_video_limit = false;
+    bool trace = false;
+    int finish_time = 10;
+    int finish_frame = -1;
+};
+
+static HarnessOptions parse_harness_options(int argc, char *argv[]) {
+    HarnessOptions options;
+    for( int k = 1; k < argc; k++ ) {
+        if( strcmp(argv[k], "--inputs") == 0 ) {
+            if( ++k >= argc || argv[k][0] == 0 ) throw runtime_error("--inputs requires a cabinet input file");
+            if( options.cabinet_input != nullptr ) throw runtime_error("--inputs may only be specified once");
+            options.cabinet_input = argv[k];
+        } else if( strcmp(argv[k], "--video-limit") == 0 ) {
+            options.explicit_video_limit = true;
+        } else if( strcmp(argv[k], "--trace") == 0 ) {
+            options.trace = true;
+        } else if( strcmp(argv[k], "-time") == 0 ) {
+            if( ++k >= argc ) throw runtime_error("expecting time after -time argument");
+            options.finish_time = static_cast<int>(parse_number(argv[k], "simulation time"));
+        }
+    }
+#ifdef _MAXFRAME
+    options.finish_frame = _MAXFRAME;
+#endif
+    return options;
+}
+
 class JTSim {
-    vluint64_t simtime;
+    vluint64_t simtime = 0;
     WaveWritter wav;
     string convert_options;
-    int coremod;
-    MultiClock *multi_clock;
+    int coremod = 0;
+    MultiClock *multi_clock = nullptr;
 
-    void parse_args( int argc, char *argv[] );
     void measure_screen_rate();
     void video_dump();
     void get_coremod();
-    bool trace;
-    bool dump_ok;
-    bool download;
-    VerilatedVcdC* tracer;
+    void cabinet_dump();
+    void process_sim_inputs();
+    bool trace = false;
+    bool dump_ok = false;
+    bool download = false;
+    bool explicit_video_limit = false;
+    vluint64_t last_frame_time = 0;
+    HarnessOptions options;
+    VerilatedVcdC* tracer = nullptr;
     SDRAM sdram;
 #ifdef _JTFRAME_SDRAM_XL
     SDRAM sdram2;
 #endif
     SimInputs sim_inputs;
     Download dwn;
-    int frame_cnt, last_LVBL, last_VS, last_flip;
+    int frame_cnt = 0;
+    int last_VS = 0;
+    int last_LVBL = 0;
+    int last_flip = 0;
     struct t_dump{
         ofstream fout;
         int k, half;
@@ -536,6 +658,7 @@ public:
     float vrate;
     bool done() {
         if( game.contextp()->gotFinish() ) return true;
+        if( sim_inputs.has_cabinet_script() && !explicit_video_limit && !sim_inputs.cabinet_done() ) return false;
         return (finish_frame>0 ? frame_cnt > finish_frame :
                 simtime/1000'000'000 >= finish_time ) &&
                (!game.ioctl_rom && !game.ioctl_ram && !game.dwnld_busy);
@@ -558,16 +681,12 @@ void JTSim::reset( int v ) {
 }
 
 JTSim::JTSim( UUT& g, int argc, char *argv[]) :
-    wav("test.wav",48000,false), sdram(g)
+    wav("test.wav",48000,false), options(parse_harness_options(argc, argv)), sdram(g)
 #ifdef _JTFRAME_SDRAM_XL
     , sdram2(g, "sdram2", true)
 #endif
-    , sim_inputs(g), dwn(g), game(g),vrate(0)
+    , sim_inputs(g, sdram, options.cabinet_input), dwn(g), game(g),vrate(0)
 {
-    simtime   = 0;
-    frame_cnt = 0;
-    last_LVBL = 0;
-    last_VS   = 0;
     char *opt = getenv("CONVERT_OPTIONS");
     if ( opt!=NULL ) convert_options = opt;
     multi_clock = MakeMultiClock(g);
@@ -582,7 +701,11 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
 #ifdef _JTFRAME_SIM_DEBUG
     game.debug_bus = _JTFRAME_SIM_DEBUG;
 #endif
-    parse_args( argc, argv );
+    trace = options.trace;
+    explicit_video_limit = options.explicit_video_limit;
+    finish_time = options.finish_time;
+    finish_frame = options.finish_frame;
+    dump_ok = trace && !sim_inputs.has_cabinet_script() && _DUMP_START==0;
 #ifdef _DUMP
     if( trace ) {
         Verilated::traceEverOn(true);
@@ -601,6 +724,7 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
 #endif
     game.dipsw=_JTFRAME_SIM_DIPS;
     fprintf(stderr,"DIP sw set to %X\n",game.dipsw);
+    sim_inputs.restore_dipsw();
     reset(0);
     game.sdram_rst = 0;
     clock(24);
@@ -630,6 +754,42 @@ void JTSim::get_coremod() {
     }
 }
 
+void JTSim::cabinet_dump() {
+#ifndef _JTFRAME_IOCTL_RD
+    fprintf(stderr, "ERROR: (test.cpp) cabinet dump requested but JTFRAME_IOCTL_RD is not defined\n");
+    return;
+#else
+    const string scene_root = "scenes";
+    const string scene_dir = scene_root + "/" + to_string(frame_cnt);
+    auto make_directory = [](const string& path) {
+        if( mkdir(path.c_str(), 0775) == 0 ) return true;
+        if( errno != EEXIST ) return false;
+        struct stat status;
+        return stat(path.c_str(), &status) == 0 && S_ISDIR(status.st_mode);
+    };
+    if( !make_directory(scene_root) || !make_directory(scene_dir) ) {
+        fprintf(stderr, "ERROR: (test.cpp) cannot create scene directory %s: %s\n", scene_dir.c_str(), strerror(errno));
+        return;
+    }
+    if( !dwn.iodump_start(scene_dir + "/dump.bin") ) {
+        fprintf(stderr, "ERROR: (test.cpp) cabinet dump ignored at frame %d\n", frame_cnt);
+    }
+#endif
+}
+
+void JTSim::process_sim_inputs() {
+    if( !game.LVBL || last_LVBL ) return;
+
+    if( sim_inputs.is_controlling_reset() || !game.rst ) sim_inputs.next();
+    if( sim_inputs.take_dump() ) cabinet_dump();
+#ifdef _DUMP
+    if( !dump_ok && sim_inputs.take_tracing_on() ) {
+        dump_ok = true;
+        fprintf(stderr, "\nTracing starts (cabinet input frame %d)\n", frame_cnt);
+    }
+#endif
+}
+
 JTSim::~JTSim() {
 #ifdef _DUMP
     delete tracer;
@@ -639,10 +799,7 @@ JTSim::~JTSim() {
 }
 
 void JTSim::clock(int n) {
-    static int ticks=0;
-    static int last_dwnd=0;
     while( n-- > 0 ) {
-        int cur_dwn = game.ioctl_rom | game.ioctl_ram | game.dwnld_busy;
         multi_clock->advance_half_period();
         game.eval();
         if( game.contextp()->gotFinish() ) return;
@@ -651,7 +808,7 @@ void JTSim::clock(int n) {
         sdram2.update(simtime + multi_clock->get_semi_period());
 #endif
         dwn.update();
-        if( !cur_dwn && last_dwnd ) {
+        if( dwn.take_download_finished() ) {
             fprintf(stderr,"\nROM file transfered (frame %d)\n",frame_cnt);
             if( finish_time>0 ) finish_time += simtime/1000'000'000;
             if( finish_frame>0 && _DUMP_START==0 ) {
@@ -668,7 +825,6 @@ void JTSim::clock(int n) {
 #ifdef _RST_DLY
         reset( simtime < RST_DLY*1000'000L ? 1 : 0);
 #endif
-        last_dwnd = cur_dwn;
         simtime += multi_clock->get_semi_period();
 #ifdef _DUMP
         if( tracer && dump_ok ) tracer->dump(simtime);
@@ -681,8 +837,6 @@ void JTSim::clock(int n) {
         sdram2.update(simtime + multi_clock->get_semi_period());
 #endif
         simtime += multi_clock->get_semi_period();
-        ticks++;
-
 #ifdef _DUMP
         if( tracer && dump_ok ) tracer->dump(simtime);
 #endif
@@ -702,18 +856,17 @@ void JTSim::clock(int n) {
             game.debug_bus++;
 #endif
         }
-        if( game.VS && !last_VS && (sim_inputs.is_controlling_reset() || !game.rst) ) sim_inputs.next();
-        last_LVBL = game.LVBL;
+        process_sim_inputs();
         last_VS   = game.VS;
+        last_LVBL = game.LVBL;
 
         video_dump();
     }
 }
 
 void JTSim::measure_screen_rate() {
-    static vluint64_t last=0;
-    auto vperiod=simtime-last;
-    last=simtime;
+    auto vperiod=simtime-last_frame_time;
+    last_frame_time=simtime;
     vrate = 1e12/float(vperiod);
 }
 
@@ -768,7 +921,7 @@ void JTSim::video_dump() {
                                 (coremod&1) ? (CCW ? "-rotate -90" : "-rotate 90") : "",
                                 convert_options.c_str(), frame_cnt);
                             if( system(exes) ) {
-                                printf("WARNING: (test.cpp) convert tool did not succeed\n");
+                                fputs("WARNING: (test.cpp) convert tool did not succeed\n", stderr);
                             }
                         }
                         exit(0);
@@ -792,40 +945,8 @@ void JTSim::update_wav() {
     wav.write(snd);
 }
 
-void JTSim::parse_args( int argc, char *argv[] ) {
-    trace = false;
-    finish_frame = -1;
-    finish_time  = 10;
-    for( int k=1; k<argc; k++ ) {
-        if( strcmp( argv[k], "--trace")==0 ) {
-            trace=true;
-            dump_ok = _DUMP_START==0;
-            continue;
-        }
-        if( strcmp( argv[k], "-time")==0 ) {
-            if( ++k >= argc ) {
-                fputs("ERROR: (test.cpp)  expecting time after -time argument\n", stderr);
-            } else {
-                finish_time = atol(argv[k]);
-            }
-            continue;
-        }
-        if( strcmp( argv[k], "-frame")==0 ) {
-            if( ++k >= argc ) {
-                fputs("ERROR: (test.cpp)  expecting frame count after -frame argument\n", stderr);
-            } else {
-                finish_frame = atol(argv[k]);
-            }
-            continue;
-        }
-    }
-    #ifdef _MAXFRAME
-    finish_frame = _MAXFRAME;
-    #endif
-}
-
 void report_vrate( float vrate ) {
-    printf("\nFrame rate: %.2f Hz\n",vrate);
+    fprintf(stderr, "\nFrame rate: %.2f Hz\n",vrate);
     ofstream framerate("framerate");
     framerate << vrate;
     framerate.close();
@@ -874,6 +995,9 @@ int main(int argc, char *argv[]) {
     } catch( const char *error ) {
         fputs(error,stderr);
         fputc('\n',stderr);
+        return 1;
+    } catch( const exception& error ) {
+        fprintf(stderr, "ERROR: (test.cpp)  %s\n", error.what());
         return 1;
     }
     return 0;

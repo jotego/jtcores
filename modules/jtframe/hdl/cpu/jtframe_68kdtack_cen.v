@@ -123,7 +123,7 @@ end
 
 generate if (RECOVERY==1) begin
     reg [CW-1:0] missing;
-    assign recover =  ASn && missing>0 && !over && !bus_ack;
+    assign recover =  (ASn || !DTACKn) && missing>0 && !over && !bus_ack;
     assign delayed = !ASn && !rstl && {waitsh,wait1}==0 && (bus_cs && bus_busy && !bus_legit);
 
     always @(posedge clk) begin
@@ -131,6 +131,12 @@ generate if (RECOVERY==1) begin
             missing <= 0;
         end else begin
             if( delayed && (cpu_cen|cpu_cenb) ) begin
+`ifdef SIMULATION
+                if( &missing && !recover ) begin
+                    $display("FAIL: %m recovery counter overflow (CW=%0d)",CW);
+                    $finish;
+                end
+`endif
                 missing <= missing + 1'b1;
             end
             if( recover ) begin

@@ -126,16 +126,20 @@ jttoki_main  u_main(
     .service            ( service            ),
 
     // 68K rom
-    .cpu_rom_addr       ( cpu_rom_addr       ),
-    .cpu_rom_cs         ( cpu_rom_cs         ),
-    .cpu_rom_ok         ( cpu_rom_ok         ),
-    .cpu_rom_data       ( cpu_rom_data       ),
+    .rom_addr           ( main_addr          ),
+    .rom_cs             ( main_cs            ),
+    .rom_ok             ( main_ok            ),
+    .rom_data           ( main_data          ),
 
-    // Generated palette RAM
+    // Generated RAM buses
     .cpu_dout           ( cpu_dout           ),
     .ram_addr           ( ram_addr           ),
     .ram_we             ( ram_we             ),
-    .ram_dout           ( ram_dout           ),
+    .ram_din            ( ram_din            ),
+    .ram_dsn            ( ram_dsn            ),
+    .ram_cs             ( ram_cs             ),
+    .ram_data           ( ram_data           ),
+    .ram_ok             ( ram_ok             ),
     .pal_cpu_addr       ( pal_cpu_addr       ),
     .pal_we             ( pal_we             ),
     .pal_dout           ( pal_dout           ),
@@ -170,7 +174,9 @@ jttoki_main  u_main(
     //Sound input from z80
     .sound_latch_0      ( cpu_sound_latch_0  ),
     .sound_latch_1      ( cpu_sound_latch_1  ),
-    .sound_latch_2      ( cpu_sound_latch_2  )
+    .sound_latch_2      ( cpu_sound_latch_2  ),
+
+    .debug_bus          ( debug_bus          )
 );
 
 `ifdef SIMSCENE

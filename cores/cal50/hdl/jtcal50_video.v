@@ -17,21 +17,15 @@
     Date: 15-11-2025 */
 
 module jtcal50_video #(
-    parameter SPRMODE=0, // 0 = TNZS  (8KB, 0x800 page — calibr50)
-                         // 1 = SETAC (16KB, 0x1000 bank — metafox; MAME seta001 setac_eof)
-    // vtimer vertical window; defaults = calibr50 (240 lines), metafox/arbalest = 224
-    parameter [8:0] V_START  = 9'd0,
-    parameter [8:0] VB_START = 9'd240,
-    parameter [8:0] VB_END   = 9'd0,
-    parameter [8:0] VS_START = 9'd253,
-    parameter [8:0] VS_END   = 9'd261,
-    parameter [8:0] VCNT_END = 9'd271,
-    parameter [15:0] THOFFS  = 16'h20, // X1-012 scroll origin; default = calibr50
-    parameter [ 8:0] TVOFFS  =  9'd0,
-    parameter [ 8:0] SPR_VADJ = 9'd8,  // X1-001 vdump/hdump offset; default = calibr50
-    parameter [ 8:0] SPR_HADJ = 9'd5,
-    parameter        SCR_EN   = 0,     // blend the X1-001 background layer
-    parameter        OBJAW    = SPRMODE ? 13 : 12 // sprite addr width
+    // 12 = 8kB sprite RAM (calibr50), 13 = 16kB + setac bank (metafox/arbalest)
+    parameter OBJAW  = 12,
+    // 1: blend the X1-001 background layer (metafox/arbalest)
+    parameter SCR_EN = 0,
+    // X1-012 tilemap scroll origin
+    parameter [15:0] THOFFS = 16'h20,
+    // Caliber 50 only populates object entries 0-200; a shorter scan leaves
+    // line time for the sprites that wrap through Y=0
+    parameter [ 8:0] OBJ_LIMIT = 9'd200
 )(
     input               rst,
     input               clk,
@@ -92,7 +86,7 @@ module jtcal50_video #(
     output     [ 4:0]   green,
     output     [ 4:0]   blue,
     // IOCTL dump
-    input      [ 2:0]   ioctl_addr,
+    input      [ 3:0]   ioctl_addr,
     output     [ 7:0]   ioctl_din,
     // Test
     input      [ 3:0]   gfx_en,
@@ -102,11 +96,17 @@ module jtcal50_video #(
 
 wire [ 8:0] vrender, vrender1, vdump;
 wire [ 8:0] scr_pxl, obj_pxl, tiles_pxl;
-wire [ 7:0] st_tiles, st_kiwi;
+wire [ 7:0] st_tiles, st_kiwi, x1012_ioctl_din, x1001_ioctl_din;
 
 reg        LHBL_l;
 reg  [5:0] cnt244;
 wire [6:0] nx_244 = {1'b0,cnt244} + 6'd1;
+// Align the graphics coordinate origin with the PCB/MAME active area.
+wire [8:0] hdump_gfx = hdump - 9'd7;
+wire [8:0] vdump_gfx = vdump - 9'd1,
+           vrender_gfx = vrender - 9'd1;
+
+assign ioctl_din = ioctl_addr[3] ? x1001_ioctl_din : x1012_ioctl_din;
 
 always @(posedge clk) begin
     LHBL_l <= LHBL;
@@ -127,12 +127,12 @@ jtframe_vtimer #(
     .HS_START( 9'd409 ),
     .HS_END  ( 9'd461 ),
     .HCNT_END( 9'd511 ),
-    .V_START ( V_START  ),
-    .VS_START( VS_START ),
-    .VS_END  ( VS_END   ),
-    .VB_START( VB_START ),
-    .VB_END  ( VB_END   ),
-    .VCNT_END( VCNT_END )
+    .V_START ( 9'd000 ),
+    .VS_START( 9'd253 ),
+    .VS_END  ( 9'd261 ),
+    .VB_START( 9'd240 ),
+    .VB_END  ( 9'd000 ),
+    .VCNT_END( 9'd271 )
 ) u_timer(
     .clk        ( clk        ),
     .pxl_cen    ( pxl_cen    ),
@@ -148,7 +148,7 @@ jtframe_vtimer #(
     .VS         ( VS         )
 );
 /* verilator tracing_off */
-jtx1012 #(.HOFFS(THOFFS),.VOFFS(TVOFFS)) u_tiles(
+jtx1012 #(.HOFFS(THOFFS)) u_tiles(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
@@ -161,8 +161,8 @@ jtx1012 #(.HOFFS(THOFFS),.VOFFS(TVOFFS)) u_tiles(
 
     .hs         ( HS            ),
     .flip       ( flip          ),
-    .vdump      ( vdump         ),
-    .hdump      ( hdump         ),
+    .vdump      ( vdump_gfx     ),
+    .hdump      ( hdump_gfx     ),
     // Video RAM
     .vram_addr  ( tvram_addr    ),
     .vram_dout  ( tvram_dout    ),
@@ -175,21 +175,30 @@ jtx1012 #(.HOFFS(THOFFS),.VOFFS(TVOFFS)) u_tiles(
 
     .pxl        ( tiles_pxl     ),
     // IOCTL dump
-    .ioctl_addr ( ioctl_addr    ),
-    .ioctl_din  ( ioctl_din     ),
+    .ioctl_addr ( ioctl_addr[2:0]),
+    .ioctl_din  ( x1012_ioctl_din ),
     // Debug
     .debug_bus  ( debug_bus     ),
     .st_dout    ( st_tiles      )
 );
 
-localparam [8:0] VADJ = SPR_VADJ, HADJ = SPR_HADJ;
+localparam [8:0] VADJ = 9'd19,HADJ=9'd3;
 
-wire [8:0] vdump_adj   = vdump   + VADJ,
-           vrender_adj = vrender + VADJ,
-           hdump_adj   = hdump   + HADJ;
+wire [8:0] vdump_adj   = vdump_gfx   + VADJ,
+           vrender_adj = vrender_gfx + VADJ,
+           hdump_adj   = hdump_gfx   + HADJ;
 
 /* verilator tracing_on */
-jtkiwi_gfx #(.CPUW(16),.SPRMODE(SPRMODE)) u_gfx(
+// Caliber 50 uses object entries 0-200.  Limiting the scan to that populated
+// range leaves enough line time for sprites that wrap through Y=0.
+jtkiwi_gfx #(
+    .CPUW    ( 16      ),
+    .OBJ_XOFF( 9'h1fe  ),
+    .OBJ_YOFF( 8'hf5   ),
+    .OBJ_YWRAP( 1'b1   ),
+    .OBJ_LIMIT( OBJ_LIMIT ),
+    .OBJAW    ( OBJAW  )
+) u_gfx(
     .rst        ( rst            ),
     .clk        ( clk            ),
     .clk_cpu    ( clk_cpu        ),
@@ -213,6 +222,9 @@ jtkiwi_gfx #(.CPUW(16),.SPRMODE(SPRMODE)) u_gfx(
     .cpu_rnw    ( cpu_rnw        ),
     .cpu_dout   ( cpu_dout       ),
     .cpu_din    ( vram_dout      ),
+    // IOCTL dump
+    .ioctl_addr ( ioctl_addr[1:0]),
+    .ioctl_din  ( x1001_ioctl_din),
     // 16-bit interface
     .cpu_dsn    ( cpu_dsn        ),
     // X1-001 Internal RAM

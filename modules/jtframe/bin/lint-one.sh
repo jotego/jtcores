@@ -5,13 +5,28 @@
 trap "clean_up; exit 1" INT KILL
 
 main() {
+    if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+        usage
+        return 0
+    fi
+    if [[ -z "$1" ]]; then
+        usage >&2
+        return 1
+    fi
+
     CORE=$1
     shift
-    parse_args $*
+    parse_args "$@"
     set_target
-    read_core_macros "$FRAME_ARGS"
 
-    if must_skip; then
+    if must_skip_without_macros; then
+        echo "Skipping $CORE"
+        exit 0
+    fi
+
+    read_core_macros "$FRAME_ARGS" || exit $?
+
+    if must_skip_from_macros; then
         echo "Skipping $CORE"
         exit 0
     fi
@@ -23,6 +38,23 @@ main() {
     run_linter "$SIM_ARGS"
     check_msg
     clean_up
+}
+
+usage() {
+    cat <<'EOF'
+Usage: lint-one.sh <core> [options]
+
+Lint one JT core with Verilator.
+
+Options:
+  -d, --def <macro>       Define a Verilog macro
+  -u, --undef <macro>     Undefine a core macro
+      --nodbg             Disable debug features
+  -t, --target <target>   Select the target (default: mister)
+  -mist|-mister|-pocket|-sidi128
+                          Select the target using shorthand
+  -h, --help              Show this help and exit
+EOF
 }
 
 parse_args() {
@@ -71,11 +103,17 @@ set_target() {
 }
 
 read_core_macros() {
-    eval `jtframe cfgstr $CORE --output bash --target $TARGET $*`
+    local core_macros
+    core_macros=$(jtframe cfgstr $CORE --output bash --target $TARGET $*) || return $?
+    eval "$core_macros"
 }
 
-must_skip() {
-    [[ ! -e $CORES/$CORE/cfg/macros.def || -e $CORES/$CORE/cfg/skip || -v JTFRAME_SKIP ]]
+must_skip_without_macros() {
+    [[ ! -e $CORES/$CORE/cfg/macros.def || -e $CORES/$CORE/cfg/skip ]]
+}
+
+must_skip_from_macros() {
+    [[ -v JTFRAME_SKIP ]]
 }
 
 prepare_test_folder() {
@@ -105,4 +143,4 @@ clean_up() {
     rm -rf $TEST_FOLDER
 }
 
-main $*
+main "$@"

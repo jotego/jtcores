@@ -14,26 +14,28 @@ All macros defined in the core's *cfg/macros.def* file are parsed by *jtsim* and
 
 # Cabinet Inputs During Simulation
 
-You can use a hex file with inputs for simulation. Enable this with the macro
-SIM_INPUTS. The file must be called sim_inputs.hex. When using `jtsim`, the
-usual frontend is `-inputs file.cab`: if the file ends in `.cab`, `jtsim`
-automatically runs `jtframe cab file.cab` to generate `sim_inputs.hex`.
+For Verilator simulation, use a cabinet input script with
+`jtsim file.cab`. The simulator validates the full script before it
+starts and applies one entry per video frame at the rising edge of `LVBL`,
+after vertical-blank processing has completed. A line has an optional frame
+count followed by button names such as `coin`, `1p`, `up`, and `b1`;
+player two uses the `2` prefix (for example `2coin` and `2b1`).
+`loop`/`repeat` blocks and `=frame` waits are also supported. `tracing_on`
+enables Verilator tracing at its cabinet frame, equivalent to using
+`jtsim -w <frame>`; frames before it are not written to `test.fst`.
+With `=frame action`, any action fires only at that final frame.
+`dump` starts an IOCTL state dump and writes `scenes/<frame>/dump.bin`, ready
+for `jtsim -s <frame>`.
+See `man jtsim` for the complete schema.
+`dipsw=<hex-value>` overrides the simulation DIP-switch value from that
+frame onward; the `0x` prefix is optional.
 
-Each line of `sim_inputs.hex` has a hexadecimal number with inputs coded.
-Active high only:
-
-bit  | meaning
------|------------
-3:0  | {start[1:0], service, coin[0]}
-7:4  | 1P joystick {up, down, left, right}
-10:8 | buttons {B3, B2, B1}
-11   | test button
-12   | reset
-13   | coin[1]
-17:14| 2P joystick {up, down, left, right}
-20:18| 2P buttons {B3, B2, B1}
-
-Each line will be applied on a new frame.
+A line may also contain `cheat=<name>`. The name resolves to the active
+core's `cfg/cheat.yaml`; its declared SDRAM byte writes are applied once for
+each frame requested by that line. This only models MAME cheats that write
+SDRAM-backed CPU RAM. The top level is a map whose keys are MAME setnames or
+machine names; each key contains its applicable cheat array. `jtsim` selects
+the array for the active set and rejects a cheat request for another target.
 
 # Fast Load
 

@@ -149,16 +149,12 @@ jtarbalest_sound u_sound(
 );
 
 /* verilator tracing_on */
-jtcal50_video #(.SPRMODE(1), // SETAC: 16KB sprite RAM + 0x1000 bank
-    // metafox/arbalest visarea = 224 lines (MAME set_visarea rows 16..239)
-    .VB_END(9'd7), .VB_START(9'd231),
-
-    .THOFFS(16'h06), .TVOFFS(-9'd8),
-    .SPR_HADJ(9'd5-9'd8),
-    // metafox/arbalest use the X1-001 background layer (draw_background) for the
-    // attract scenery;
-    .SCR_EN(1)
-) u_video( // metafox: 16KB sprite RAM + setac bank
+jtcal50_video #(
+    .OBJAW ( 13     ), // 16kB sprite RAM + setac bank
+    .SCR_EN( 1      ), // X1-001 background layer (draw_background) draws the attract scenery
+    .THOFFS( 16'h0d ), // MAME x1_012 x += 0x10-xoffsets[0]: metafox 0x00 vs calibr50 0x13
+    .OBJ_LIMIT( 9'h1ff )
+) u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .clk_cpu    ( clk           ),
@@ -218,7 +214,7 @@ jtcal50_video #(.SPRMODE(1), // SETAC: 16KB sprite RAM + 0x1000 bank
     .green      ( green         ),
     .blue       ( blue          ),
 
-    .ioctl_addr (ioctl_addr[2:0]),
+    .ioctl_addr (ioctl_addr[3:0]),
     .ioctl_din  ( ioctl_din     ),
     .gfx_en     ( gfx_en        ),
     .debug_bus  ( debug_bus     ),

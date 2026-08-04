@@ -19,9 +19,13 @@
 // This is object processor section of the SETA chip
 
 module jtkiwi_obj #(
-    parameter  SPRMODE = 0, // 0 = TNZS  (8KB, 0x800 page — tnzs/cal50)
-                            // 1 = SETAC (16KB, 0x1000 bank — metafox; MAME seta001 setac_eof)
-    parameter  OBJAW   = SPRMODE ? 13 : 12 // sprite LUT addr width
+    parameter [8:0] XOFF=0,
+    parameter [7:0] YOFF=0,
+    parameter       YWRAP=0,
+    parameter [8:0] LIMIT=9'h1ff,
+    // 12 = 8kB sprite RAM, page selects the 0x800 half (tnzs/calibr50)
+    // 13 = 16kB, page selects the 0x1000 buffer (metafox/arbalest, MAME seta001 setac)
+    parameter       OBJAW=12
 )(
     input               rst,
     input               clk,
@@ -56,6 +60,7 @@ reg  [ 4:0] pal, dr_pal;
 reg  [ 3:0] dr_ysub, ysub;
 reg  [ 8:0] ydiff, dr_xpos;
 reg  [ 8:0] xpos;
+wire [ 7:0] ypos;
 wire [ 8:0] vf;
 reg  [ 1:0] st;
 reg         dr_draw, dr_hflip, dr_vflip,
@@ -66,17 +71,22 @@ wire        dr_busy;
 wire [ 8:0] buf_din, buf_addr;
 wire        buf_we;
 
-// SPRMODE: page is the 0x1000 buffer bank (SETAC); else the 0x800 TNZS page
 generate
-    if( SPRMODE ) assign lut_addr = { page, 2'b00, ~st[1], objcnt }; // 13b
-    else          assign lut_addr = { page, 1'b0,  ~st[1], objcnt }; // 12b
+    if( OBJAW==13 ) assign lut_addr = { page, 2'b00, ~st[1], objcnt }; // 1 + 2 + 1 + 9 = 13
+    else            assign lut_addr = { page, 1'b0,  ~st[1], objcnt }; // 1 + 1 + 1 + 9 = 12
 endgenerate
 assign y_addr   = objcnt;
 assign vf       = {9{flip}} ^ (vdump-9'd1);
+assign ypos     = y_data + YOFF;
 
 always @* begin
-    ydiff = { 1'b0, vf[7:0] } - {1'b0, y_data };
-    match = ydiff[8:4]==0;
+    if( YWRAP ) begin
+        ydiff = {1'b0, vf[7:0] - ypos};
+        match = ydiff[7:4]==0;
+    end else begin
+        ydiff = {1'b0, vf[7:0]} - {1'b0, ypos};
+        match = ydiff[8:4]==0;
+    end
 end
 
 // Columns are 32-pixel wide
@@ -93,8 +103,8 @@ always @(posedge clk, posedge rst) begin
         dr_ysub <= 0;
     end else begin
         dr_draw <= 0;
-        if( hs || vdump>9'hf8 ) begin
-            objcnt  <= 9'h1ff;
+        if( hs || (!YWRAP && vdump>9'hf8) ) begin
+            objcnt  <= LIMIT;
             done    <= 0;
             st      <= 0;
             dr_draw <= 0;
@@ -118,7 +128,7 @@ always @(posedge clk, posedge rst) begin
                         dr_hflip <= hflip^flip;
                         dr_vflip <= vflip;
                         dr_pal   <= pal;
-                        dr_xpos  <= xpos;
+                        dr_xpos  <= xpos + XOFF;
                         dr_ysub  <= ~ysub;
                         objcnt   <= objcnt - 1'd1;
                         done     <= objcnt==0;

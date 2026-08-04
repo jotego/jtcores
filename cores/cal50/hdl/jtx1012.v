@@ -20,9 +20,8 @@
 // 64 columns, 32 rows, 16x16 tiles
 // 1024x512 pixels
 module jtx1012 #(
-    // tilemap scroll origin; defaults = calibr50 (jtframe_scroll: scrx left, scry up)
-    parameter [15:0] HOFFS = 16'h20,
-    parameter [ 8:0] VOFFS =  9'd0
+    // tilemap scroll origin; default = calibr50 (jtframe_scroll: scrx left)
+    parameter [15:0] HOFFS = 16'h20
 )(
     input             rst,
     input             clk,
@@ -75,8 +74,6 @@ assign rom_addr = {pre_addr[20:7],pre_addr[5],~flip^pre_addr[6],
 always @(posedge clk) begin
     hpos <= pre_hpos+HOFFS;
 end
-
-wire [8:0] vscr = vpos[8:0]+VOFFS;
 
 always @(posedge clk) begin
     attr <= ~attr;
@@ -140,7 +137,7 @@ jtframe_scroll #(
     .flip       (~flip          ),
     .blankn     ( 1'b1          ),
     .scrx       ( hpos[9:0]     ),
-    .scry       ( vscr          ),
+    .scry       ( vpos[8:0]     ),
 
     .vram_addr  (vram_addr[11:1]),
     .code       ( code          ),

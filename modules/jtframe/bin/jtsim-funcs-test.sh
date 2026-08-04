@@ -5,6 +5,7 @@ source $JTFRAME/bin/jtsim-funcs
 main() {
     test_get_macro
     test_has_macro
+    test_make_mpeg
     test_verilator_optimization_default
     test_verilator_optimization_long
     test_verilator_optimization_fast
@@ -82,6 +83,25 @@ test_get_macro() {
         fail "Cannot find JTFRAME_SIM_DIPS"
         bad=1
     fi
+    pass $bad
+}
+
+test_make_mpeg() {
+    local bad test_dir old_dir rate
+    test_dir=$(mktemp -d)
+    old_dir=$(pwd)
+    cd "$test_dir"
+    rate=59.64
+    echo "$rate" > framerate
+    jtutil() { echo "$*" > jtutil.args; }
+    make_mpeg
+    if [ "$(<jtutil.args)" != "mp4 --rate $rate" ]; then
+        fail "did not pass the simulation frame rate"
+        bad=1
+    fi
+    unset -f jtutil
+    cd "$old_dir"
+    rm -rf "$test_dir"
     pass $bad
 }
 

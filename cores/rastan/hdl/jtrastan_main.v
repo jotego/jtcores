@@ -341,6 +341,23 @@ jtframe_m68k u_cpu(
 );
 `else
 assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0, cpu_cen=0;
+`ifdef SIMSCENE
+integer scene_file, scene_count;
+reg [7:0] scene_objctrl[0:1];
+
+initial begin
+    scene_file = $fopen("objctrl.bin", "rb");
+    if( scene_file == 0 ) begin
+        $display("WARNING: %m cannot open objctrl.bin");
+    end else begin
+        scene_count = $fread(scene_objctrl, scene_file);
+        $fclose(scene_file);
+        if( scene_count != 2 )
+            $display("WARNING: %m objctrl.bin is short (%0d bytes)", scene_count);
+        obj_pal = scene_objctrl[0][7:5];
+    end
+end
+`endif
 initial begin
     rom_cs   = 0;
     ram_cs   = 0;
@@ -348,7 +365,9 @@ initial begin
     scr_cs   = 0;
     pal_cs   = 0;
     obj_cs   = 0;
+`ifndef SIMSCENE
     obj_pal  = 0;
+`endif
     sn_we    = 0;
     sn_rd    = 0;
     sub_cs   = 0;
