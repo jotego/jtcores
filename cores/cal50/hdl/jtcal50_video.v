@@ -96,9 +96,8 @@ wire [6:0] nx_244 = {1'b0,cnt244} + 6'd1;
 // flip state. flip==1 is the upright screen.
 // Object X is not mirrored by the chip: the game rewrites it. Measured on the
 // object RAM, it mirrors sprites drawn from font tiles (code<1024) 3 pixels
-// apart from the rest, so no single OBJ_HOFF_F serves both. This value follows
-// the graphics sprites (199/210 in game, 135/210 on the title screen) and
-// leaves the HUD/title text 3 pixels off. To be checked on the PCB.
+// apart from the rest, so no single OBJ_HOFF_F serves both.
+// To be checked on the PCB.
 localparam [8:0] OBJ_VOFF =  9'd18, OBJ_VOFF_F = -9'd4,
                  OBJ_HOFF = -9'd4,  OBJ_HOFF_F = -9'd7;
 
