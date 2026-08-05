@@ -22,9 +22,6 @@ names = [
     { machine="calibr50", names="Shoot,Grenade,Turn Left,Turn Right" },
 ]
 
-[header]
-frames = [ { width=8 }, ]
-
 [dipsw]
 delete= [
 	{names=["Copyright / License", "Licensed To"] },
