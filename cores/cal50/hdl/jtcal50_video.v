@@ -191,7 +191,7 @@ jtkiwi_gfx #(
     .OBJ_XOFF( 9'h1fe  ),
     .OBJ_YOFF( 8'hf5   ),
     .OBJ_YWRAP( 1'b1   ),
-    .OBJ_LIMIT( 9'h0ff )
+    .OBJ_LIMIT( 9'h1ff )
 ) u_gfx(
     .rst        ( rst            ),
     .clk        ( clk            ),
