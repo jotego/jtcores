@@ -16,7 +16,11 @@
     Version: 1.0
     Date: 1-5-2022 */
 
-module jtvigil_obj(
+module jtvigil_obj #(
+    parameter [8:0] XBASE     = 9'h180, // sprite X origin
+    parameter [8:0] VSCORE    = 9'd48,  // rows above this get no sprites (0=none)
+    parameter       CODE_SWAP = 1       // 1: code MSB bits 10<->11 swapped
+)(
     input             rst,
     input             clk,
     input             clk_cpu,
@@ -26,6 +30,7 @@ module jtvigil_obj(
 
     input      [ 7:0] main_addr,
     input      [ 7:0] main_dout,
+    output     [ 7:0] main_din,   // sprite-RAM read-back (CPU does RMW on it)
     input             oram_cs,
 
     input      [ 8:0] h,
@@ -47,8 +52,7 @@ module jtvigil_obj(
 //   6    |  X
 //   7    |  0 - X msb
 
-localparam [8:0] TILE_DLY = 9'ha,
-                 VSCORE   = 9'd48;
+localparam [8:0] TILE_DLY = 9'ha;
 
 reg  [ 4:0] obj_cnt;
 reg  [ 2:0] sub_cnt;
@@ -59,6 +63,7 @@ reg  [11:0] code;
 reg         vflip, hflip, match, dr_busy;
 reg  [ 1:0] hsize;
 wire [ 8:0] ydiff;
+wire        vcut;
 wire [ 7:0] scan_dout, scan_addr;
 
 // Draw
@@ -73,6 +78,15 @@ reg         cur_hflip, half_done;
 
 assign scan_addr = { obj_cnt, sub_cnt };
 assign ydiff     = vf-ypos;
+
+// VSCORE=0 -> no cut. The generate keeps the comparison out of the netlist,
+// as v<0 would be a constant-false unsigned compare.
+generate
+    if( VSCORE!=0 )
+        assign vcut = v < VSCORE;
+    else
+        assign vcut = 0;
+endgenerate
 
 // Table scan
 always @(posedge clk, posedge rst) begin
@@ -111,7 +125,8 @@ always @(posedge clk, posedge rst) begin
                 5: begin
                     { vflip, hflip } <= scan_dout[7:6]^{2{flip}};
                     hsize            <= scan_dout[5:4];
-                    code[11:8]       <= { scan_dout[2], scan_dout[3], scan_dout[1:0] };
+                    code[11:8]       <= CODE_SWAP ?
+                        { scan_dout[2], scan_dout[3], scan_dout[1:0] } : scan_dout[3:0];
                 end
                 6: xpos[7:0] <= scan_dout;
                 7: xpos      <= { scan_dout[0], xpos[7:0] }; // this state will repeat if dr_busy
@@ -132,7 +147,7 @@ always @(posedge clk, posedge rst) begin
                         code[2:0] <= ydiff[6:4]^{3{vflip}};
                     end
                 endcase
-                if( v < VSCORE ) match <= 0;
+                if( vcut ) match <= 0;
             end
             if( sub_cnt==7 ) begin
                 if( !match || (match && !dr_busy ) ) begin
@@ -175,7 +190,7 @@ always @(posedge clk, posedge rst) begin
                 dr_busy  <= 1;
                 cur_pal  <= pal;
                 cur_hflip<= hflip;
-                buf_addr <= xpos + 9'h180 + TILE_DLY;
+                buf_addr <= xpos + XBASE + TILE_DLY;
                 rom_cs   <= 1;
                 rom_good <= 0;
                 buf_cnt  <= 0;
@@ -213,7 +228,7 @@ jtframe_dual_ram #(.AW(8),.SIMFILE("obj.bin")) u_vram(
     .addr0( main_addr ),
     .data0( main_dout ),
     .we0  ( oram_cs   ),
-    .q0   (           ),
+    .q0   ( main_din  ),
     // Tilemap scan
     .clk1 ( clk       ),
     .addr1( scan_addr ),
