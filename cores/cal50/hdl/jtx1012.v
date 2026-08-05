@@ -53,6 +53,7 @@ module jtx1012(
 );
 
 wire [20:2] pre_addr;
+wire [ 8:0] vscr;
 wire [15:0] pre_hpos, vpos;
 wire [31:0] rom_sorted,g;
 wire        bank;
@@ -69,8 +70,10 @@ assign rom_addr = {pre_addr[20:7],pre_addr[5],~flip^pre_addr[6],
 };
 
 always @(posedge clk) begin
-    hpos <= pre_hpos+16'h20;
+    hpos <= flip ? pre_hpos + 16'h20 : 16'h1e1 - pre_hpos;
 end
+
+assign vscr = vpos[8:0] - (flip ? 9'd0 : 9'd256);
 
 always @(posedge clk) begin
     attr <= ~attr;
@@ -122,7 +125,8 @@ jtframe_scroll #(
     .MAP_HW ( 10    ),
     .MAP_VW (  9    ),
     .HJUMP  (  0    ),
-    .HLOOP  ( 9'h180)
+    .HLOOP  ( 9'h180),
+    .HFLIPW (  9    )
 )u_scroll(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -134,7 +138,7 @@ jtframe_scroll #(
     .flip       (~flip          ),
     .blankn     ( 1'b1          ),
     .scrx       ( hpos[9:0]     ),
-    .scry       ( vpos[8:0]     ),
+    .scry       ( vscr          ),
 
     .vram_addr  (vram_addr[11:1]),
     .code       ( code          ),
