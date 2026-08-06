@@ -162,8 +162,6 @@ jtkiwi_draw #(.SWAP_HALVES(1'b1)) u_draw (
 );
 
 // During HS the contents of the memory are cleared
-// The buffers swap at HS, so a draw still in flight would spill its
-// remaining pixels onto the next line. Drop that tail.
 
 jtframe_obj_buffer #(
     .DW   ( 9 ),
@@ -174,7 +172,7 @@ jtframe_obj_buffer #(
     .flip   ( 1'b0      ),
     .LHBL   ( ~hs       ),
     // New line writting
-    .we     ( buf_we & ~hs ),
+    .we     ( buf_we    ),
     .wr_data( buf_din   ),
     .wr_addr( buf_addr  ),
     // Previous line reading
