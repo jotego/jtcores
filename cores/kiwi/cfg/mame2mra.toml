@@ -7,10 +7,6 @@ sourcefile=[ "tnzs.cpp" ]
 skip = { setnames = [
     # Inputs not working
     "plumppop",     # most left column missing, see service screen
-    "chukatai",     # top screen row missing for objects plus garbage at top left
-    "chukataij",
-    "chukataija",
-    "chukataiu",
 
     # Korean hack on mostly unrelated hardware
     "jpopnics",
@@ -62,6 +58,7 @@ Names = [ { machine="insectx",  names="Fire,Warp"},
           { machine="kabuki",   names="Attack,Block"},
           { machine="kageki",   names="Left jab,Right hook"},
           { machine="arknoid2", names="Shoot"},
+          { machine="chukatai", names="Fire"},
 ]
 
 [dipsw]
@@ -87,6 +84,14 @@ regions = [
 order = [
     "maincpu", "sub", "audiocpu", "samples",
     "gfx1", "proms", "mcu"
+]
+
+# Chuka Taisen only clears 0x17E of the 512 sprite Y slots at boot
+# (LD BC,$017D + LDIR at $004E), leaving $F17E-$F1FF at zero. Those slots
+# then draw sprite 0 over the top two screen rows and starve the per-line
+# object budget, clipping the header text. Widen the fill to the whole table.
+patches = [
+    { setnames=["chukatai","chukataij","chukataiu","chukataija"], offset=0x004F, data="FF" },
 ]
 
 
