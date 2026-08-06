@@ -24,7 +24,7 @@ Interpreted meaning:
 |     2  |                                   |
 |   1:0  | start column in tile map          |
 
-Bit 6 decides where an object with `y=0` lands, because `jtkiwi_obj.vf` is
+Bit 6 influences where an object with `y=0` lands, because `jtkiwi_obj.vf` is
 `{9{flip}} ^ (vdump-1)` and `flip = ~cfg[0][6]`:
 
 | cfg[0] bit 6 | games                        | y=0 matches on | visible?          |
@@ -57,8 +57,7 @@ spent before the scan reaches any real object: the header text on the top two ro
 disappears.
 
 `mame2mra.toml` patches the count byte to `$01FF` so the fill covers the whole
-table. Do not widen the preceding fill at `$0041`; it targets the `$E080` work-RAM
-mirror and would overwrite adjacent variables.
+table.
 
 # SETA X1-001 Register 1
 
