@@ -56,6 +56,8 @@ sdram:
         - name: obj
           addr_width: 21
           data_width: 32
+          # objects repeat the same tile often within a line
+          cache_size: 4
 bram:
   - name: bram
     addr_width: 15

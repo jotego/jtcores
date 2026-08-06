@@ -64,6 +64,12 @@ reg         dr_draw, dr_hflip, dr_vflip,
             match, vflip, hflip;
 reg  [15:0] code;
 reg  [13:0] dr_code;
+// object waiting for the drawing engine, so the scan can move on
+reg         pend, pd_hflip, pd_vflip;
+reg  [13:0] pd_code;
+reg  [ 4:0] pd_pal;
+reg  [ 8:0] pd_xpos;
+reg  [ 3:0] pd_ysub;
 wire        dr_busy;
 wire [ 8:0] buf_din, buf_addr;
 wire        buf_we;
@@ -95,6 +101,7 @@ always @(posedge clk, posedge rst) begin
         dr_vflip<= 0;
         dr_xpos <= 0;
         dr_ysub <= 0;
+        pend    <= 0;
     end else begin
         dr_draw <= 0;
         if( hs || (!YWRAP && vdump>9'hf8) ) begin
@@ -102,35 +109,50 @@ always @(posedge clk, posedge rst) begin
             done    <= 0;
             st      <= 0;
             dr_draw <= 0;
-        end else if( !done && lut_cen ) begin
-            st <= st + 1'd1;
-            case( st )
-                0: begin
-                    ysub <= ydiff[3:0];
-                    if( !match ) begin
-                        objcnt <= objcnt - 1'd1;
-                        st     <= 0;
-                        done   <= objcnt==0;
+            pend    <= 0;
+        end else begin
+            // hand the waiting object over as soon as the engine is free
+            if( pend && !dr_busy && !dr_draw ) begin
+                dr_draw  <= 1;
+                dr_code  <= pd_code;
+                dr_hflip <= pd_hflip;
+                dr_vflip <= pd_vflip;
+                dr_pal   <= pd_pal;
+                dr_xpos  <= pd_xpos;
+                dr_ysub  <= pd_ysub;
+                pend     <= 0;
+            end
+            // the scan keeps running while the engine draws
+            if( !done && lut_cen ) begin
+                st <= st + 1'd1;
+                case( st )
+                    0: begin
+                        ysub <= ydiff[3:0];
+                        if( !match ) begin
+                            objcnt <= objcnt - 1'd1;
+                            st     <= 0;
+                            done   <= objcnt==0;
+                        end
                     end
-                end
-                1: { pal, code[15:14], xpos } <= lut_data;
-                2: { hflip, vflip, code[13:0] } <= lut_data;
-                3: begin
-                    if( !dr_busy )  begin
-                        dr_draw  <= 1;
-                        dr_code  <= code[13:0];
-                        dr_hflip <= hflip^flip;
-                        dr_vflip <= vflip;
-                        dr_pal   <= pal;
-                        dr_xpos  <= xpos + XOFF;
-                        dr_ysub  <= ~ysub;
-                        objcnt   <= objcnt - 1'd1;
-                        done     <= objcnt==0;
-                    end else begin
-                        st <= st;
+                    1: { pal, code[15:14], xpos } <= lut_data;
+                    2: { hflip, vflip, code[13:0] } <= lut_data;
+                    3: begin
+                        if( !pend )  begin
+                            pend     <= 1;
+                            pd_code  <= code[13:0];
+                            pd_hflip <= hflip^flip;
+                            pd_vflip <= vflip;
+                            pd_pal   <= pal;
+                            pd_xpos  <= xpos + XOFF;
+                            pd_ysub  <= ~ysub;
+                            objcnt   <= objcnt - 1'd1;
+                            done     <= objcnt==0;
+                        end else begin
+                            st <= st;
+                        end
                     end
-                end
-            endcase
+                endcase
+            end
         end
     end
 end
@@ -162,6 +184,8 @@ jtkiwi_draw #(.SWAP_HALVES(1'b1)) u_draw (
 );
 
 // During HS the contents of the memory are cleared
+// The buffers swap at HS, so a draw still in flight would spill its
+// remaining pixels onto the next line. Drop that tail.
 
 jtframe_obj_buffer #(
     .DW   ( 9 ),
@@ -172,7 +196,7 @@ jtframe_obj_buffer #(
     .flip   ( 1'b0      ),
     .LHBL   ( ~hs       ),
     // New line writting
-    .we     ( buf_we    ),
+    .we     ( buf_we & ~hs ),
     .wr_data( buf_din   ),
     .wr_addr( buf_addr  ),
     // Previous line reading
