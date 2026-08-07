@@ -1,0 +1,52 @@
+superman:
+  - get:
+    - jtsuperman_game.v
+    - jtsuperman_main.v
+    - jtsuperman_snd.v
+    # New, Superman-specific module — TC0140SYT
+    - jtsuperman_syt.v
+    # C-chip: real uPD78C11 emulation (Fulvio's work, adapted) +
+    # game-specific wrapper (shared RAM, ASIC regs, 68k bus glue).
+    # Currently treated as Superman-internal; promote to a jt78c11
+    # module under modules/ once a second Taito-C-chip game lands.
+    - jtsuperman_upd78c11.v
+    - jtsuperman_cchip.v
+    # Sprite-position renderer (first cut) — places coloured 16x16 squares
+    # at each sprite's (X,Y) per X1-001A OBJ-RAM layout, no tile gfx yet.
+    - jtsuperman_obj_v2.v
+    # Kiwi-derived sprite engine — used WITH an address translator in
+    # game.v so its 12-bit LUT addressing maps onto X1-001A's
+    # OBJ word N / OBJ[0x200+N] split.  Provides the line-buffered
+    # SDRAM-fetch rendering needed to display real sprite tile gfx.
+    - jtsuperman_obj.v
+    - jtsuperman_draw.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_cen24.v
+      - jtframe_sync.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+      - jtframe_obj_buffer.v
+      - jtframe_prom.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_m68k.yaml
+jt12:
+  - get:
+    - jt12.yaml      # pulls the entire jt12 module incl. jt10 (YM2610) wrapper
+# jt680x for the Taito C-chip MCU (HD6305) — deferred until cchip lands
+# jt680x:
+#   - get:
+#     - jt6805.yaml

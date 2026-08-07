@@ -1,0 +1,97 @@
+CORENAME=JTSUPERMAN
+
+# Hardware: Taito X System (Seta-built P0-039A, ROM-set prefix b61)
+# Reference: MAME taito/taito_x.cpp (mirrored in cores/superman/doc/)
+#
+# Target: Superman (1988, Taito X System). Region variants superman /
+# supermanu / supermanj share the same hardware config. C-chip
+# (HD6305-based MCU at 0x900000) is required to boot — implemented in
+# jtsuperman_cchip.v using jt6805 + 2 KB IROM (b61_11.m11).
+#
+# Clocks: 16 MHz master XTAL
+#   68000   = 16/2 = 8 MHz
+#   Z80     = 16/4 = 4 MHz
+#   YM2610  = 16/2 = 8 MHz
+#   C-chip  = 16/2 = 8 MHz
+
+# Controls — bumped to 3 to support Kyustrkr (Short Pass / Long Pass /
+# Shoot).  The other family games tie the third slot high so the extra
+# button is harmless for them:
+#   Superman / Gigandes / Ballbros: in jtsuperman_game.v the third
+#     button slot is wired to joystick1[6] (= JTFRAME-provided B3 input).
+#     For 1/2-button games, MAME/MRA never reports B3 pressed → slot
+#     reads high → game's input handler ignores it.
+#   Kyustrkr: same wire, actually used by the game.
+JTFRAME_BUTTONS=3
+# Joystick reorder: the MiSTer HPS_IO board_joy1 lower 4 bits arrive in
+# RLDU order (bit 0=RIGHT, 1=LEFT, 2=DOWN, 3=UP) — NOT the UDLR order
+# the jtframe_joy_reorder source-comment implies as "default".  MAME's
+# TAITO_JOY_UDLR_2_BUTTONS_START expects UDLR at IN0/IN1 bits 3:0.
+#
+# Without a JTFRAME_JOY_* macro, joystick1 would arrive scrambled (UP
+# press → game sees RIGHT, etc. — confirmed on MiSTer build run58).
+# JTFRAME_JOY_RLDU applies a bit-reverse on bits 3:0
+# ({joy_in[0], joy_in[1], joy_in[2], joy_in[3]}) which is exactly the
+# permutation that maps RLDU → UDLR.  Verified empirically against the
+# Superman PCB schematic (PA0=UP, PA1=DOWN, PA2=LEFT, PA3=RIGHT).
+#
+# Previous attempt with JTFRAME_JOY_DURL (commit 290ca52bc, copied
+# from kiwi) was the wrong macro for the same problem — DURL applies
+# a different permutation than RLDU.
+JTFRAME_JOY_RLDU
+
+# Video: 384x240 horizontal raster, xRGB-555 palette
+JTFRAME_COLORW=5
+JTFRAME_WIDTH=384
+JTFRAME_HEIGHT=240
+
+# 48 MHz frame clock — gives clean integer cens for 16/8/4 MHz
+JTFRAME_CLK48
+
+# Pixel clock — 8 MHz (= 48 MHz / 6).
+# MAME's taito_x.cpp specs a 416×256 grid at 57.43 Hz, implying a real
+# PCB pixel rate of 6.118 MHz, which isn't a clean divisor of our 48 MHz.
+# The framework only supports PXLCLK 6 or 8.  At PXLCLK=6 the H rate
+# (6 MHz / 416 = 14.42 kHz) lands well below the 15.625 kHz NTSC target
+# that MiSTer's HDMI scaler and analog CRTs expect — produces bad
+# vertical stripes on HDMI and CRT refuses to sync.
+# Switching to PXLCLK=8 with a 512×272 grid (see jtsuperman_game.v's
+# vtimer block) gives an exact 15.625 kHz H rate and 57.46 Hz refresh
+# (within 0.05% of MAME), matching the proven pang/cal50 pattern.
+# pxl_cen only drives video — internal gameplay timing (m68k, Z80,
+# YM2610, C-chip) is unaffected.
+JTFRAME_PXLCLK=8
+
+# SDRAM layout — see cfg/mem.yaml. Offsets are placeholders subject to
+# revision once ROM region sizes are pinned down per MAME's ROM_START.
+JTFRAME_HEADER=16
+
+# Bank 0  : 68k main ROM (max 512 KB) + work RAM (RW)
+# Bank 1  : Z80 audio ROM (64 KB) + ADPCM-A samples (~512 KB)
+# Bank 2  : Seta X1-001A graphics ROMs (sprite+tilemap, 32-bit, ~2 MB)
+# Bank 3  : reserved (C-chip EPROM lives here once enabled)
+#
+# Bank offsets verified by mame2mra: BA2 must be ≥0x180000 (gfx1 wouldn't
+# fit otherwise). CCHIP_START moved to 0x380000 for the same reason.
+JTFRAME_BA1_START=0x080000
+JTFRAME_BA2_START=0x180000
+JTFRAME_BA3_START=0x380000
+PCM_START=0x100000
+CCHIP_START=0x380000
+
+# debugging
+JTFRAME_IOCTL_RD=2048
+JTFRAME_STATUS
+
+[mister]
+JTFRAME_ARX=4
+JTFRAME_ARY=3
+
+[mist]
+-JTFRAME_CREDITS
+NOCREDITS
+JTFRAME_OSD_NOCREDITS
+
+[sidi]
+# May not fit on smaller SiDi — leave as build-once and re-evaluate
+JTFRAME_SKIP
