@@ -1,20 +1,19 @@
-volfied:
+vlfied:
   - get:
-    - jtvolfied_game.v
-    - jtvolfied_main.v
-    - jtvolfied_snd.v
-    - jtvolfied_video.v
-    - jtvolfied_fb.v
-    - jtvolfied_obj.v
-    - jtvolfied_colmix.v
-    - jtvolfied_pc060.v
-    - jtvolfied_cchip.v
-    # Real Taito C-chip (TC0030CMD): uPD78C11 MCU + wrapper. Copied from the
-    # Superman core so this core is self-contained. Internal 4 KB mask ROM
-    # (mask_rom.mem) is common to all C-chip games; the 8 KB external EPROM
-    # (cchip_eprom.mem) is Volfied's cchip_c04-23. Both .mem live in hdl/.
-    - jtsuperman_upd78c11.v
-    - jtsuperman_cchip.v
+    - jtvlfied_game.v
+    - jtvlfied_main.v
+    - jtvlfied_snd.v
+    - jtvlfied_video.v
+    - jtvlfied_fb.v
+    - jtvlfied_colmix.v
+    - jtvlfied_cchip.v
+rastan:
+  - get:
+    # Taito customs shared verbatim with rastan/opwolf/rbisland
+    - jtrastan_pc060.v   # PC060HA main<->sound comm
+    - jtrastan_obj.v     # PC090OJ sprites
+# Taito C-chip (TC0030CMD): uPD78C11 MCU + ASIC + banked SRAM
+jttc0030cmd:
 jtframe:
   - from: ram
     get:

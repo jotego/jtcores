@@ -16,7 +16,7 @@
     Palette RAM 0x500000-0x503fff = 8192 entries, xBGR-555 (TC0070RGB/PC050CM).
 */
 
-module jtvolfied_colmix(
+module jtvlfied_colmix(
     input           rst,
     input           clk,
     input           pxl_cen,

@@ -1,7 +1,11 @@
 [global]
 author=["jotego"]
 
+# The C-chip mask ROM is a device ROM, not part of the per-machine dump
+zip.alt="cchip.zip"
+
 [parse]
+main="volfied"
 sourcefile=[ "volfied.cpp" ]
 skip.bootlegs=true
 
@@ -13,11 +17,18 @@ skip.bootlegs=true
 regions = [
     { name="maincpu",          width=16, reverse=true },
     { name="audiocpu",         start="JTFRAME_BA1_START" },
-    { name="pc090oj",          start="JTFRAME_BA2_START", width=16, no_offset=true },
-    # cchip EPROM is baked into BRAM ($readmemh cchip_eprom.mem), so it is NOT
-    # loaded into SDRAM. Bank 3 is the RAM-only bitmap framebuffer (see mem.yaml).
+    # MAME ROM_RELOADs c04-10/c04-09 at 0xa0000 (half-size ROMs / unconnected
+    # high address line mirror tiles 0x1000-0x13ff into 0x1400-0x17ff), and
+    # mame2mra does not replicate ROM_RELOAD. Repeat files 4,5 so the region is
+    # a faithful 768 KB instead of FF-padded above 0xa0000.
+    { name="pc090oj",          start="JTFRAME_BA2_START", width=16, no_offset=true, sequence=[0,1,2,3,4,5,4,5] },
+    # C-chip ROMs land in BRAM as PROMs (see mem.yaml `bram:`), not SDRAM.
+    # Bank 3 is the RAM-only bitmap framebuffer (see mem.yaml).
+    { name="cchip_bios",       start="JTFRAME_PROM_START", rom_len=0x1000, files=[ { name="cchip_upd78c11.bin", crc="43021521", size=0x1000 } ] },
+    { name="cchip:cchip_eprom", rename="cchip_eprom", rom_len=0x2000 },
 ]
 
 order = [
-    "maincpu", "audiocpu", "pc090oj"
+    "maincpu", "audiocpu", "pc090oj",
+    "cchip_bios", "cchip_eprom"
 ]

@@ -22,13 +22,12 @@
     DIP switches A/B are read through the YM2203 port A/B inputs.
 */
 
-module jtvolfied_snd(
-    input                rst,            // 24/48 MHz domain (see clk)
+module jtvlfied_snd(
+    input                rst,
     input                clk,            // 48 MHz
 
     // From main CPU (PC060HA master side)
-    input                rst48,
-    input                clk48,
+    input                main_cen,       // 68k cen, 8 MHz
     input                main_addr,      // = A[1]
     input         [ 3:0] main_dout,
     output        [ 3:0] main_din,
@@ -47,6 +46,16 @@ module jtvolfied_snd(
     output signed [15:0] fm,           // YM2203 FM  -> mem.yaml channel 'fm'
     output        [ 9:0] psg           // YM2203 PSG -> mem.yaml channel 'psg'
 );
+// Z80 and the PC060HA sound side share one cen, half of the 68k's: the
+// handshake edge detection inside the PC060HA samples on it.
+reg  snd_cen_tog;
+wire snd_cen = main_cen & snd_cen_tog;
+always @(posedge clk, posedge rst) begin
+    if( rst )
+        snd_cen_tog <= 0;
+    else if( main_cen )
+        snd_cen_tog <= ~snd_cen_tog;
+end
 `ifndef NOSOUND
 wire        [ 1:0] cen_pair;
 wire               cen4 = cen_pair[0];
@@ -88,7 +97,7 @@ always @(posedge clk) begin
            8'hff;
 end
 
-jtframe_frac_cen #(.W(2),.WC(11)) u_cpucen(  // 48 MHz -> 4 MHz Z80/YM
+jtframe_frac_cen #(.W(2),.WC(11)) u_cpucen(  // 48 MHz -> 4 MHz YM2203
     .clk  ( clk          ),
     .n    ( 11'd1        ),
     .m    ( 11'd12       ),
@@ -96,17 +105,17 @@ jtframe_frac_cen #(.W(2),.WC(11)) u_cpucen(  // 48 MHz -> 4 MHz Z80/YM
     .cenb (              )
 );
 
-jtvolfied_pc060 u_pc060(
-    .rst48      ( rst48     ),
-    .clk48      ( clk48     ),
+jtrastan_pc060 u_pc060(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .main_cen   ( main_cen  ),
+    .snd_cen    ( snd_cen   ),
     .main_dout  ( main_dout ),
     .main_din   ( main_din  ),
     .main_addr  ( main_addr ),
     .main_rnw   ( main_rnw  ),
     .main_cs    ( main_cs   ),
 
-    .rst24      ( rst       ),
-    .clk24      ( clk       ),
     .snd_dout   ( dout[3:0] ),
     .snd_din    ( pc6_dout  ),
     .snd_addr   ( A[0]      ),
@@ -116,10 +125,13 @@ jtvolfied_pc060 u_pc060(
     .snd_rst    ( pc6_rst   )
 );
 
+// RECOVERY cannot be set because snd_cen comes from fx68k and it
+// may not have enough idle clock cycles for RECOVERY to work.
+// See https://github.com/jotego/jtcores/issues/1502
 jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
     .rst_n      ( snd_rstn  ),
     .clk        ( clk       ),
-    .cen        ( cen4      ),
+    .cen        ( snd_cen   ),
     .cpu_cen    (           ),
     .int_n      ( int_n     ),
     .nmi_n      ( nmi_n     ),

@@ -16,7 +16,7 @@
     No tilemap chip on this hardware.
 */
 
-module jtvolfied_video(
+module jtvlfied_video(
     input           rst,
     input           clk,
     input           pxl_cen,
@@ -109,7 +109,7 @@ jtframe_vtimer #(
     .VS         ( vs        )
 );
 
-jtvolfied_fb u_fb(
+jtvlfied_fb u_fb(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -146,7 +146,7 @@ jtvolfied_fb u_fb(
     .fb_pxl     ( fb_pxl    )
 );
 
-jtvolfied_obj u_obj(
+jtrastan_obj u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -156,7 +156,7 @@ jtvolfied_obj u_obj(
     .hdump      ( H         ),
     .vrender    ( vrender   ),
 
-    .main_addr  ( main_addr[10:1] ), // TODO: widen — Volfied PC090OJ RAM is 16 KB
+    .main_addr  ( main_addr[12:1] ),
     .main_dout  ( main_dout ),
     .main_din   ( oram_dout ),
     .main_dsn   ( main_dsn  ),
@@ -175,7 +175,7 @@ jtvolfied_obj u_obj(
     .ioctl_din  ( ioctl_din )
 );
 
-jtvolfied_colmix u_colmix(
+jtvlfied_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

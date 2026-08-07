@@ -1,7 +1,7 @@
-CORENAME=JTVOLFIED
+CORENAME=JTVLFIED
 
 # Hardware: Taito single-board (MAME taito/volfied.cpp), ROM-set prefix c04
-# Reference: src/mame/taito/volfied.cpp (mirrored in cores/volfied/doc/)
+# Reference: src/mame/taito/volfied.cpp (mirrored in cores/vlfied/doc/)
 #
 # Target: Volfied (1989, Taito). A Qix-style area-capture game. Unusual
 # for Taito of this era: it has NO tilemap chip (no PC080SN / TC0100SCN).
@@ -12,12 +12,12 @@ CORENAME=JTVOLFIED
 #   68000   main CPU        @ 8 MHz   (jtframe_m68k     — see rastan/superman)
 #   Z80     audio CPU       @ 4 MHz   (jtframe_sysz80   — see rastan)
 #   YM2203  OPN             @ 4 MHz   (jt03            — see ddribble)
-#   PC060HA audio interface           (jtvolfied_pc060  — copied from rastan)
-#   PC090OJ sprites                   (jtvolfied_obj    — copied from rastan)
+#   PC060HA audio interface           (jtvlfied_pc060  — copied from rastan)
+#   PC090OJ sprites                   (jtvlfied_obj    — copied from rastan)
 #   TC0030CMD C-chip = uPD78C11 + 8KB EPROM + 8KB DRAM
 #                                     (jtsuperman_upd78c11 + jtsuperman_cchip)
 #   TC0070RGB / PC050CM  colour DAC, xBGR-555
-#   <bitmap framebuffer>  ** NEW, no donor — jtvolfied_fb.v **
+#   <bitmap framebuffer>  ** NEW, no donor — jtvlfied_fb.v **
 #
 # Clocks: 32 MHz master XTAL (also 26.686 MHz and 20 MHz on PCB)
 #   68000   = 32/4 = 8 MHz
@@ -60,6 +60,9 @@ JTFRAME_BA2_START=0x120000
 # bank 3 is the R/W bitmap framebuffer:
 JTFRAME_BA3_START=0x200000
 JTFRAME_BA3_WEN
+# C-chip mask ROM + EPROM are downloaded as PROMs into BRAM. Bank 3 downloads
+# nothing (RAM framebuffer), so the PROM stream starts at its base.
+JTFRAME_PROM_START=0x200000
 
 # debugging
 JTFRAME_IOCTL_RD=2048

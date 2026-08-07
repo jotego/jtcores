@@ -1,4 +1,4 @@
-# Volfied (JTVOLFIED) — scaffold
+# Volfied (JTVLFIED) — scaffold
 
 Taito, 1989. Qix-style area-capture game. MAME driver: `taito/volfied.cpp`.
 
@@ -13,11 +13,11 @@ stubs.
 | Main CPU | 68000 @ 8 MHz | `jtframe_m68k` (rastan) |
 | Audio CPU | Z80 @ 4 MHz | `jtframe_sysz80` (rastan) |
 | Sound | YM2203 @ 4 MHz | `jt03` (ddribble) |
-| Audio I/F | PC060HA | `jtvolfied_pc060` ← rastan, verbatim |
-| Sprites | PC090OJ | `jtvolfied_obj` ← rastan, verbatim |
+| Audio I/F | PC060HA | `jtvlfied_pc060` ← rastan, verbatim |
+| Sprites | PC090OJ | `jtvlfied_obj` ← rastan, verbatim |
 | Protection | TC0030CMD (uPD78C11 + 8 KB EPROM + 8 KB DRAM) | `jtsuperman_upd78c11` + `jtsuperman_cchip` |
 | Colour | TC0070RGB / PC050CM, xBGR-555 | colmix |
-| Background | **player-drawn bitmap framebuffer** | **none — `jtvolfied_fb.v`, NEW** |
+| Background | **player-drawn bitmap framebuffer** | **none — `jtvlfied_fb.v`, NEW** |
 
 Resolution 320×240 visible, ~60 Hz. Master XTAL 32 MHz (also 26.686 and 20 MHz).
 
@@ -29,11 +29,11 @@ no donor is the Qix-style bitmap framebuffer.
 
 ## Open work (in priority order)
 
-1. **`jtvolfied_cchip.v`** — currently a STUB (RAM + placeholder input
+1. **`jtvlfied_cchip.v`** — currently a STUB (RAM + placeholder input
    injection + immediate DTACK). Drop in `jtsuperman_cchip` (REAL_MCU=1),
    load Volfied's EPROM via the `ceprom` bus, and verify the MCU port→input
    mapping against MAME. Trace MAME first (per MEMORY).
-2. **`jtvolfied_fb.v`** — the real new block. Decide BRAM vs. SDRAM+linebuffer
+2. **`jtvlfied_fb.v`** — the real new block. Decide BRAM vs. SDRAM+linebuffer
    for the 512 KB bitmap; implement per-bit write masking (RMW); confirm the
    scanout map and `video_ctrl` page-flip / `0x60` status read.
 3. Pin video timing totals to MAME (vtimer params are placeholders).

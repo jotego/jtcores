@@ -15,7 +15,7 @@
     Volfied top level. Forked from cores/rastan.
 */
 
-module jtvolfied_game(
+module jtvlfied_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
@@ -23,12 +23,12 @@ wire [15:0] oram_dout, pal_dout, fb_dout, vctrl_dout, main_dout;
 wire [ 1:0] main_dsn;
 wire        obj_cs, ram_cs, fb_cs, pal_cs, vmask_cs, sprctrl_cs, vctrl_cs, main_rnw;
 wire        flip;
-wire        sn_we, sn_rd;
+wire        sn_we, sn_rd, main_cen;
 wire [ 7:0] sn_dout;
 wire [ 3:0] obj_pal;
 
 // C-chip 68k-side interface
-wire        cchip_cs, cchip_dtackn;
+wire        cchip_cs;
 wire [11:1] cchip_addr;
 wire [ 7:0] cchip_dout;
 wire        fb_ok;          // bitmap framebuffer SDRAM ready -> 68k DTACK
@@ -43,11 +43,6 @@ assign dip_flip   = 1'b0;
 assign flip       = ~dipsw[1];
 assign st_dout    = 0;
 assign debug_view = 0;
-
-// VBL pulse for the C-chip external interrupt (one clk at start of vblank).
-// volfied.cpp: VBL fires both the 68k level-4 IRQ and m_cchip->ext_interrupt.
-reg LVBL_l; wire vbl_pulse = LVBL_l & ~LVBL;
-always @(posedge clk) LVBL_l <= LVBL;
 
 // 16 KB work RAM (0x100000-0x103fff) as on-chip BRAM — coherent single-cycle
 // access (SDRAM work RAM gave read-after-write/latency corruption: the 68k
@@ -69,7 +64,7 @@ jtframe_dual_ram16 #(.AW(13)) u_workram(
     .q1     (                 )
 );
 
-jtvolfied_main u_main(
+jtvlfied_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .LVBL       ( LVBL      ),
@@ -101,10 +96,10 @@ jtvolfied_main u_main(
     .cchip_cs   ( cchip_cs  ),
     .cchip_addr ( cchip_addr),
     .cchip_dout ( cchip_dout),
-    .cchip_dtackn(cchip_dtackn),
     .fb_ok      ( fb_ok     ),
 
     // Sound interface
+    .cpu_cen    ( main_cen  ),
     .sn_dout    ( sn_dout   ),
     .sn_rd      ( sn_rd     ),
     .sn_we      ( sn_we     ),
@@ -112,39 +107,35 @@ jtvolfied_main u_main(
     .dip_pause  ( dip_pause )
 );
 
-jtvolfied_cchip u_cchip(
+jtvlfied_cchip u_cchip(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .cen        ( cchip_cen ),
 
     .cs         ( cchip_cs  ),
     .addr       ( cchip_addr),
     .din        ( main_dout[7:0] ),
     .dout       ( cchip_dout),
     .rnw        ( main_rnw  ),
-    .dsn        ( main_dsn  ),
-    .dtackn     ( cchip_dtackn ),
-    .ext_tick   ( vbl_pulse ),
-
-    // EPROM is baked into BRAM ($readmemh) — no SDRAM bus
-    .eprom_addr (           ),
-    .eprom_data ( 8'd0      ),
-    .eprom_cs   (           ),
-    .eprom_ok   ( 1'b0      ),
+    .LVBL       ( LVBL      ),
 
     .joystick1  ( joystick1[4:0] ),
-    .joystick2  ( joystick2[4:0] ),
     .start_button( cab_1p[1:0] ),
     .coin       ( coin[1:0] ),
     .service    ( service   ),
-    .tilt       ( tilt      )
+    .tilt       ( tilt      ),
+
+    .cchip_mask_addr ( cchip_mask_addr  ),
+    .cchip_mask_data ( cchip_mask_data  ),
+    .cchip_eprom_addr( cchip_eprom_addr ),
+    .cchip_eprom_data( cchip_eprom_data )
 );
 
-jtvolfied_snd u_sound(
+jtvlfied_snd u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
-    .rst48      ( rst       ),
-    .clk48      ( clk       ),
+    .main_cen   ( main_cen  ),
     .main_addr  ( main_addr[1]   ),
     .main_dout  ( main_dout[3:0] ),
     .main_din   ( sn_dout[3:0]   ),
@@ -166,7 +157,7 @@ jtvolfied_snd u_sound(
 
 assign sn_dout[7:4] = 4'hf;
 
-jtvolfied_video u_video(
+jtvlfied_video u_video(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

@@ -30,7 +30,7 @@
     ===========================================================================
 */
 
-module jtvolfied_fb #(parameter FETCH_W = 512 )(
+module jtvlfied_fb #(parameter FETCH_W = 512 )(
     input               rst,
     input               clk,
     input               pxl_cen,

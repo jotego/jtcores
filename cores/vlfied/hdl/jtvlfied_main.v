@@ -17,7 +17,7 @@
       080000-0fffff  data ROM
       100000-103fff  work RAM
       200000-203fff  PC090OJ sprite RAM    (word_r/word_w)
-      400000-47ffff  bitmap VRAM           (video_ram_w, masked) -> jtvolfied_fb
+      400000-47ffff  bitmap VRAM           (video_ram_w, masked) -> jtvlfied_fb
       500000-503fff  palette RAM
       600000         video_mask_w
       700000         PC090OJ sprite_ctrl_w
@@ -28,7 +28,7 @@
       f00800-f00fff  C-chip asic_r/asic68_w(umask 0x00ff)
 */
 
-module jtvolfied_main(
+module jtvlfied_main(
     input                rst,
     input                clk,            // 48 MHz
     input                LVBL,
@@ -60,12 +60,14 @@ module jtvolfied_main(
     output reg           cchip_cs,
     output        [11:1] cchip_addr,
     input         [ 7:0] cchip_dout,
-    input                cchip_dtackn,
 
-    // bitmap framebuffer in SDRAM (jtvolfied_fb) — fb_ok paces the 68k
+    // bitmap framebuffer in SDRAM (jtvlfied_fb) — fb_ok paces the 68k
     input                fb_ok,
 
-    // Sound interface (PC060HA master side)
+    // Sound interface (PC060HA master side). cpu_cen paces the PC060HA main
+    // side and, halved, the Z80 — on the board both come off the one 32 MHz
+    // XTAL, exactly 2:1.
+    output               cpu_cen,
     input         [ 7:0] sn_dout,
     output reg           sn_we,
     output reg           sn_rd,
@@ -74,7 +76,7 @@ module jtvolfied_main(
 );
 `ifndef NOMAIN
 wire [23:1] A;
-wire        cpu_cen, cpu_cenb;
+wire        cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg  [15:0] cpu_din;
@@ -111,7 +113,7 @@ always @* begin
     cchip_cs   = allFC && A[23:20]==4'hf && !ASn;             // f00000-f00fff
 
     // PC060HA master interface at e00001 (port) / e00003 (comm), odd byte -> LDS.
-    // A[1] selects port(0) vs comm(1); jtvolfied_snd takes A[1] as its "main_addr".
+    // A[1] selects port(0) vs comm(1); jtvlfied_snd takes A[1] as its "main_addr".
     sn_we = allFC && A[23:20]==4'he && !ASn && !LDSn && !RnW;
     sn_rd = allFC && A[23:20]==4'he && !ASn && !LDSn &&  RnW;
 end
@@ -243,14 +245,12 @@ jtframe_m68k u_cpu(
     .BGn        (             ),
 
     // Non-SDRAM regions (obj/pal/fb/vctrl/sound/C-chip) are auto-acked by
-    // u_dtack when bus_cs=0. The C-chip stub is BRAM-fast so it needs no extra
-    // wait state; cchip_dtackn is reserved for the real-MCU path (REAL_MCU=1).
+    // u_dtack when bus_cs=0.
     .DTACKn     ( DTACKn      ),
     .IPLn       ( IPLn        )
 );
-wire _unused_dtack = &{1'b0, cchip_dtackn};
 `else
-assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=1, cchip_addr=0;
+assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=1, cchip_addr=0, cpu_cen=0;
 initial begin
     rom_cs=0; ram_cs=0; obj_cs=0; fb_cs=0; pal_cs=0;
     vmask_cs=0; sprctrl_cs=0; vctrl_cs=0; cchip_cs=0; sn_we=0; sn_rd=0; obj_pal=0;
