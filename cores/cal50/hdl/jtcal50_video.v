@@ -185,7 +185,6 @@ wire [8:0] vdump_adj   = vdump   + (flip ? OBJ_VOFF : OBJ_VOFF_F),
            hdump_adj   = hdump   + (flip ? OBJ_HOFF : OBJ_HOFF_F);
 
 /* verilator tracing_on */
-// We limit Caliber 50 to FF sprites to leave time for sprites that wrap with Y=0
 jtkiwi_gfx #(
     .CPUW    ( 16      ),
     .OBJ_XOFF( 9'h1fe  ),
