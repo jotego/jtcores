@@ -12,19 +12,20 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    ===========================================================================
-    Volfied C-chip (TC0030CMD). 68k window f00000-f00fff, lower byte only:
-        $000-$7FF  shared SRAM   (mem68)
-        $800-$FFF  ASIC regs     (asic68)
+    Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
+    Version: 1.0
+    Date: 7-8-2026 */
 
-    Port map from volfied.cpp machine_config:
-        PA: bit5=START2 bit6=START1 bit7=SERVICE1
-        PB: bit0=COIN1  bit1=COIN2
-        PC: bit0=TILT   bit2..5=U/D/L/R  bit6=BUTTON1
-        AD: P2 cocktail (idle)
-    Idle bytes verified against MAME: PA=FF PB=FC PC=FF AD=FF.
-    ===========================================================================
-*/
+/*  TC0030CMD C-chip. 68k window f00000-f00fff, lower byte only:
+      $000-$7FF  shared SRAM
+      $800-$FFF  ASIC registers
+
+    MCU port assignment (volfied.cpp machine_config):
+      PA: bit5=START2 bit6=START1 bit7=SERVICE1
+      PB: bit0=COIN1  bit1=COIN2
+      PC: bit0=TILT   bit2..5=U/D/L/R  bit6=BUTTON1
+      AD: P2 cocktail
+    Idle port bytes measured on MAME: PA=FF PB=FC PC=FF AD=FF.    */
 
 module jtvlfied_cchip(
     input             rst,

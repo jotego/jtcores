@@ -12,11 +12,12 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Volfied top level. Forked from cores/rastan.
-*/
+    Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
+    Version: 1.0
+    Date: 7-8-2026 */
 
 module jtvlfied_game(
-    `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
+    `include "jtframe_game_ports.inc"
 );
 
 wire [15:0] oram_dout, pal_dout, fb_dout, vctrl_dout, main_dout;
@@ -27,26 +28,20 @@ wire        sn_we, sn_rd, main_cen;
 wire [ 7:0] sn_dout;
 wire [ 3:0] obj_pal;
 
-// C-chip 68k-side interface
 wire        cchip_cs;
 wire [11:1] cchip_addr;
 wire [ 7:0] cchip_dout;
-wire        fb_ok;          // bitmap framebuffer SDRAM ready -> 68k DTACK
+wire        fb_ok;          // framebuffer SDRAM ready -> 68k DTACK
 
-// Flip Screen DIP (dipsw[1]: 0=On per MRA; default fe -> bit1=1 -> Off).
-// The 68k SOFTWARE redraws the bitmap mirrored when this is on, so we must
-// NOT also flip the framework output (dip_flip stays 0 — that would double-
-// flip the background). Instead `flip` drives the SPRITE engine (H+V) so the
-// hardware-rendered sprites match the software-flipped bitmap. In normal play
-// flip=0 and every flip path is identity, so upright play is unaffected.
+// The 68k redraws the bitmap mirrored in software when the cocktail DIP is on,
+// so only the sprite engine needs a hardware flip; flipping the framework
+// output too would mirror the background twice.
 assign dip_flip   = 1'b0;
 assign flip       = ~dipsw[1];
 assign st_dout    = 0;
 assign debug_view = 0;
 
-// 16 KB work RAM (0x100000-0x103fff) as on-chip BRAM — coherent single-cycle
-// access (SDRAM work RAM gave read-after-write/latency corruption: the 68k
-// stack RTS read back 0).
+// Work RAM must be on-chip: SDRAM latency breaks the 68k's read-after-write.
 wire [15:0] ram_data;
 wire        ram_ok = 1'b1;
 wire [ 1:0] ram_we = {2{ram_cs & ~main_rnw}} & ~main_dsn;
@@ -135,6 +130,7 @@ jtvlfied_snd u_sound(
     .rst        ( rst       ),
     .clk        ( clk       ),
 
+    .fm_cen     ( fm_cen    ),
     .main_cen   ( main_cen  ),
     .main_addr  ( main_addr[1]   ),
     .main_dout  ( main_dout[3:0] ),
@@ -193,7 +189,7 @@ jtvlfied_video u_video(
     .fbram_addr ( fbram_addr),
     .fbram_dsn  ( fbram_dsn ),
     .fbram_we   ( fbram_we  ),
-    .fbram_cs   ( fbram_sel ),   // framework cs signal is named per mem.yaml cs:
+    .fbram_cs   ( fbram_sel ),   // name comes from the cs: key in mem.yaml
     .fb_wdata   ( fb_wdata  ),
     .fbram_data ( fbram_data),
     .fbram_ok   ( fbram_ok  ),

@@ -12,9 +12,12 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Volfied video: vtimer + bitmap framebuffer + PC090OJ sprites + colour mix.
-    No tilemap chip on this hardware.
-*/
+    Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
+    Version: 1.0
+    Date: 7-8-2026 */
+
+/*  There is no tilemap chip on this hardware: the background is a
+    player-drawn bitmap framebuffer.    */
 
 module jtvlfied_video(
     input           rst,
@@ -31,7 +34,7 @@ module jtvlfied_video(
     input    [18:1] main_addr,
     input    [15:0] main_dout,
     output   [15:0] oram_dout,
-    output   [15:0] pal_dout,    // = palette CPU read
+    output   [15:0] pal_dout,
     output   [15:0] fb_dout,
     output   [15:0] vctrl_dout,
     input    [ 1:0] main_dsn,
@@ -84,16 +87,15 @@ wire        dummy_dtack;
 assign HS = hs;
 assign VS = vs;
 
-// Video timing: pxl_cen = 8 MHz (CLK48/6). 320x240 visible.
-//   Htotal = HB_END+1 = 512  -> H rate 8M/512    = 15.625 kHz (CRT/HDMI clean)
-//   Vtotal = VB_END+1 = 260  -> refresh 8M/(512*260) = 60.1 Hz  (MAME = 60.00)
-// (Real PCB pixel clock is 26.686/4 = 6.67 MHz; 8 MHz is the Superman/MiSTer
-//  choice for a clean 15.625 kHz line rate — the scaler output is identical.)
+// 424x263 at the 6.671 MHz pixel clock -> 15.73 kHz line rate, 59.8 Hz
 jtframe_vtimer #(
-    .HB_END   ( 9'd511 ),
-    .HB_START ( 9'd319 ),
-    .VB_START ( 9'd239 ),
-    .VB_END   ( 9'd259 )
+    .VB_START   ( 9'd239          ),
+    .VB_END     ( 9'd239+9'd23    ),
+    .VS_START   ( 9'd239+9'd7     ),
+    .HB_END     ( 9'hA            ),
+    .HB_START   ( 9'h14A          ),
+    .HCNT_END   ( 9'd319+9'd104   ),
+    .HS_START   ( 9'd320+9'd44    )
 ) u_vtimer(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

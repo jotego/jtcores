@@ -12,9 +12,12 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Volfied colour mixer: bitmap (background) behind PC090OJ sprites.
-    Palette RAM 0x500000-0x503fff = 8192 entries, xBGR-555 (TC0070RGB/PC050CM).
-*/
+    Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
+    Version: 1.0
+    Date: 7-8-2026 */
+
+/*  Palette RAM 500000-503fff = 8192 entries, xBGR-555 (TC0070RGB/PC050CM).
+    The bitmap sits behind the PC090OJ sprites.    */
 
 module jtvlfied_colmix(
     input           rst,
@@ -57,10 +60,10 @@ always @(posedge clk, posedge rst) begin
         pal_addr <= 0;
     end else if(pxl_cen) begin
         if( !obj_blank )
-            // sprites: palette idx = {1, sprite_ctrl[5:2], obj_pxl} = 0x1000-0x1fff
+            // sprites occupy palette 0x1000-0x1fff, the bitmap 0x000-0xfff
             pal_addr <= { 1'b1, obj_pal, obj_pxl };
         else
-            pal_addr <= gfx_en[0] ? { 1'b0, fb_pxl } : 13'd0; // 12-bit bitmap index
+            pal_addr <= gfx_en[0] ? { 1'b0, fb_pxl } : 13'd0;
 
     end
 end
@@ -87,12 +90,11 @@ jtframe_dual_ram16 #(
 integer rgbnz=0, palwrnz=0, pdnz_all=0, palwr_lo=0; reg [15:0] maxpd=0; reg [12:0] maxpaddr=0, minwr=13'h1fff, maxwr=0; reg [27:0] vh=0;
 always @(posedge clk) begin
     if(|cpu_we && main_dout!=0) begin
-        palwrnz<=palwrnz+1;                            // nonzero palette writes
-        if(main_addr<=13'h0bf) palwr_lo<=palwr_lo+1;   // ...into the read range 0-0xbf
+        palwrnz<=palwrnz+1;
+        if(main_addr<=13'h0bf) palwr_lo<=palwr_lo+1;
         if(main_addr<minwr) minwr<=main_addr;
         if(main_addr>maxwr) maxwr<=main_addr;
     end
-    // whole-frame (not gated by active window): does the palette EVER read nonzero?
     if(pal_dout[14:0]!=0) begin pdnz_all<=pdnz_all+1; if(pal_dout>maxpd) maxpd<=pal_dout; end
     if(pal_addr>maxpaddr) maxpaddr<=pal_addr;
     if(LHBL && LVBL && pal_dout[14:0]!=0) rgbnz<=rgbnz+1;

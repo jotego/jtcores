@@ -12,21 +12,24 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Volfied main CPU (68000). Address decode from taito/volfied.cpp:
+    Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
+    Version: 1.0
+    Date: 7-8-2026 */
+
+/*  68000 address map:
       000000-03ffff  program ROM
       080000-0fffff  data ROM
       100000-103fff  work RAM
-      200000-203fff  PC090OJ sprite RAM    (word_r/word_w)
-      400000-47ffff  bitmap VRAM           (video_ram_w, masked) -> jtvlfied_fb
+      200000-203fff  PC090OJ sprite RAM
+      400000-47ffff  bitmap VRAM (masked writes)
       500000-503fff  palette RAM
       600000         video_mask_w
       700000         PC090OJ sprite_ctrl_w
       d00000         video_ctrl_r / video_ctrl_w
       e00001         PC060HA master_port_w
       e00003         PC060HA master_comm_r/w
-      f00000-f007ff  C-chip mem68_r/w      (umask 0x00ff)
-      f00800-f00fff  C-chip asic_r/asic68_w(umask 0x00ff)
-*/
+      f00000-f007ff  C-chip shared SRAM, lower byte only
+      f00800-f00fff  C-chip ASIC regs,   lower byte only    */
 
 module jtvlfied_main(
     input                rst,
@@ -84,17 +87,13 @@ wire [15:0] cpu_dout;
 reg         intn, LVBLl;
 wire        bus_cs, bus_busy, bus_legit;
 
-// maincpu region (honouring MAME offsets, no no_offset): program 0x00000-
-// 0x3ffff then a 0x40000-0x7ffff FF gap then data 0x80000-0xfffff. The data
-// ROM lands at SDRAM 0x80000, matching the 68k map 1:1.
 assign main_addr = A[19:1];
 assign main_dsn  = {UDSn, LDSn};
 assign main_rnw  = RnW;
 assign main_dout = cpu_dout;
 assign cchip_addr= A[11:1];
 assign allFC     = ~&FC;
-// VBL is a level-4 autovector interrupt (volfied.cpp: set_input_line(4,...)).
-// IPLn[2:0]={IPL2n,IPL1n,IPL0n}; level 4 asserted => 3'b011.
+// VBL is a level-4 autovector interrupt
 assign IPLn      = { intn, 2'b11 };
 assign VPAn      = !(!ASn && FC==7);
 assign bus_cs    = rom_cs | ram_cs | fb_cs;
@@ -112,8 +111,7 @@ always @* begin
     vctrl_cs   = allFC && A[23:20]==4'hd && !ASn;             // d00000
     cchip_cs   = allFC && A[23:20]==4'hf && !ASn;             // f00000-f00fff
 
-    // PC060HA master interface at e00001 (port) / e00003 (comm), odd byte -> LDS.
-    // A[1] selects port(0) vs comm(1); jtvlfied_snd takes A[1] as its "main_addr".
+    // PC060HA is on the odd byte only; A[1] selects port (0) from comm (1)
     sn_we = allFC && A[23:20]==4'he && !ASn && !LDSn && !RnW;
     sn_rd = allFC && A[23:20]==4'he && !ASn && !LDSn &&  RnW;
 end
@@ -130,15 +128,13 @@ always @(posedge clk) begin
                16'hffff;
 end
 
-// sprite control (0x700000). volfied.cpp colpri_cb:
-//   sprite_colbank = 0x100 | ((sprite_ctrl & 0x3c) << 2)
-// PC090OJ pen = (colbank+color)*16+pixel => palette idx = {1, sprite_ctrl[5:2], obj_pxl}
+// PC090OJ colbank = 0x100 | ((sprite_ctrl & 0x3c)<<2), and its pen is
+// (colbank+color)*16+pixel, so the palette index is {1, sprite_ctrl[5:2], pixel}
 always @(posedge clk, posedge rst) begin
     if( rst ) obj_pal <= 0;
     else if( sprctrl_cs && !main_rnw ) obj_pal <= cpu_dout[5:2];
 end
 
-// VBL interrupt
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         LVBLl <= 0;
@@ -152,7 +148,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_68kdtack_cen #(.W(8)) u_dtack(
+jtframe_68kdtack_cen #(.W(12)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -163,8 +159,9 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
-    .num        ( 7'd1      ),
-    .den        ( 8'd6      ),
+    // 8 MHz off the 53.372 MHz base
+    .num        ( 11'd231   ),
+    .den        ( 12'd1541  ),
     .DTACKn     ( DTACKn    ),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
@@ -173,8 +170,6 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
 );
 
 `ifdef SIMULATION
-// Boot-progress instrumentation (mirrors the MAME boot order:
-// VCTRL-W -> VMASK-W -> PC060 -> C-chip RAM init -> palette/obj/bitmap).
 integer vctrl_w=0, vmask_w=0, sn_w=0, cchip_a=0, ram_w=0, pal_w=0, obj_w=0, fb_w=0;
 reg vctrl_l=0, vmask_l=0, sn_l=0, cchip_l=0, ram_l=0, pal_l=0, obj_l=0, fb_l=0;
 reg [27:0] heart=0; integer cen_cnt=0;
@@ -197,24 +192,21 @@ always @(posedge clk) if(!rst) begin
       cen_cnt<=0;
     end
 end
-// Interrupt-ack + PC-in-RAM detector. Log each IACK (FC==7) and the first
-// time the CPU fetches an instruction from RAM (PC gone wild).
 reg asn_l2=1; reg pcwild=0, booted=0;
-reg [23:0] rp0=0, rp1=0, rp2=0, rp3=0;   // last 4 distinct program PCs
+reg [23:0] rp0=0, rp1=0, rp2=0, rp3=0;
 always @(posedge clk) if(!rst) begin
     asn_l2<=ASn;
     if(asn_l2 && !ASn && FC==3'd6) begin   // supervisor program fetch
-        if({A,1'b0}>=24'h1400) booted<=1;  // boot main code reached
-        // Real derail = program fetch from the work-RAM region (0x100000+).
-        // (The game legitimately runs code below 0x1400, e.g. 0xf9a, so that
-        // is NOT a derail.)
+        if({A,1'b0}>=24'h1400) booted<=1;
+        // The game legitimately runs code below 0x1400, so only a fetch from
+        // the work-RAM region counts as a derail
         if(!pcwild && {A,1'b0}>=24'h100000 && {A,1'b0}<24'h400000) begin
             pcwild<=1;
             $display("[%0t] *** PC DERAIL *** prev PCs %06x,%06x,%06x,%06x -> %06x  intn=%b",
                      $time,rp3,rp2,rp1,rp0,{A,1'b0},intn);
         end
         if(!pcwild && {A,1'b0}!=rp0) begin
-            rp3<=rp2; rp2<=rp1; rp1<=rp0; rp0<={A,1'b0};   // shift history
+            rp3<=rp2; rp2<=rp1; rp1<=rp0; rp0<={A,1'b0};
         end
     end
 end
@@ -244,8 +236,7 @@ jtframe_m68k u_cpu(
     .BGACKn     ( 1'b1        ),
     .BGn        (             ),
 
-    // Non-SDRAM regions (obj/pal/fb/vctrl/sound/C-chip) are auto-acked by
-    // u_dtack when bus_cs=0.
+    // Non-SDRAM regions are auto-acked by u_dtack when bus_cs=0
     .DTACKn     ( DTACKn      ),
     .IPLn       ( IPLn        )
 );

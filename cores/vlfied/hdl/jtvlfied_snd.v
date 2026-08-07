@@ -12,19 +12,23 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Volfied sound: Z80 @ 4 MHz + YM2203 @ 4 MHz + PC060HA, from volfied.cpp:
+    Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
+    Version: 1.0
+    Date: 7-8-2026 */
+
+/*  Z80 address map:
       0000-7fff  ROM
       8000-87ff  RAM
       8800       PC060HA slave_port_w
       8801       PC060HA slave_comm_r/w
       9000-9001  YM2203
-      9800       NOP (write)
-    DIP switches A/B are read through the YM2203 port A/B inputs.
-*/
+      9800       write-only, unconnected
+    DIP switches A/B are read through the YM2203 port A/B inputs.    */
 
 module jtvlfied_snd(
     input                rst,
-    input                clk,            // 48 MHz
+    input                clk,
+    input                fm_cen,         // YM2203, 4 MHz
 
     // From main CPU (PC060HA master side)
     input                main_cen,       // 68k cen, 8 MHz
@@ -57,8 +61,6 @@ always @(posedge clk, posedge rst) begin
         snd_cen_tog <= ~snd_cen_tog;
 end
 `ifndef NOSOUND
-wire        [ 1:0] cen_pair;
-wire               cen4 = cen_pair[0];
 wire        [15:0] A;
 wire        [ 7:0] dout, ym_dout, ram_dout;
 wire        [ 3:0] pc6_dout;
@@ -81,7 +83,7 @@ always @* begin
     ym_cs  = 0;
     if( !mreq_n && rfsh_n && A[15] ) begin
         case( A[14:11] )
-            4'h0: ram_cs = 1;            // 8000-87ff (decoded coarse)
+            4'h0: ram_cs = 1;            // 8000-87ff
             4'h1: pc6_cs = 1;            // 8800-8801
             4'h2: ym_cs  = 1;            // 9000-9001
             default:;
@@ -96,14 +98,6 @@ always @(posedge clk) begin
            pc6_cs ? { 4'hf, pc6_dout } :
            8'hff;
 end
-
-jtframe_frac_cen #(.W(2),.WC(11)) u_cpucen(  // 48 MHz -> 4 MHz YM2203
-    .clk  ( clk          ),
-    .n    ( 11'd1        ),
-    .m    ( 11'd12       ),
-    .cen  ( cen_pair     ),
-    .cenb (              )
-);
 
 jtrastan_pc060 u_pc060(
     .rst        ( rst       ),
@@ -156,7 +150,7 @@ jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
 jt03 u_ym2203(
     .rst        ( ~snd_rstn ),
     .clk        ( clk       ),
-    .cen        ( cen4      ),
+    .cen        ( fm_cen    ),
     .din        ( dout      ),
     .addr       ( A[0]      ),
     .cs_n       ( ~ym_cs    ),

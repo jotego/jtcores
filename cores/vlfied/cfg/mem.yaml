@@ -1,6 +1,8 @@
 clocks:
   clk:
-    # TC0030CMD: 20 MHz OSC next to the C-chip, divided by 2
+    - freq: 4 MHz
+      outputs:
+        - fm_cen
     - freq: 10 MHz
       outputs:
         - cchip_cen
