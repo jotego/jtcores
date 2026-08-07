@@ -1,0 +1,41 @@
+audio:
+  rsum: 10k
+  channels:
+    # YM2203: FM + PSG/SSG (both are used by Volfied).
+    - { name: fm,  module: jt03_fm,  rsum: 10k }
+    - { name: psg, module: jt03_psg, rsum: 10k }
+sdram:
+  banks:
+    # Bank 0 : 68k program/data ROM. (16 KB work RAM is on-chip BRAM, see
+    # jtvolfied_game.v — SDRAM work RAM had read-after-write coherency issues.)
+    - buses:
+      - name: main         # program ROM (0x000000) + data ROM (0x080000)
+        addr_width: 20      # port = [19:1] = 19-bit word address = 1 MB span
+        data_width: 16
+    # Bank 1 : Z80 audio ROM (32 KB)
+    - buses:
+      - name: snd
+        addr_width: 15
+        data_width: 8
+    # Bank 2 : PC090OJ sprite graphics
+    - buses:
+      - name: orom
+        addr_width: 20
+        data_width: 32
+    # Bank 3 : DEDICATED 512 KB player-drawn bitmap framebuffer (0x400000-
+    # 0x47ffff). Own bank so the per-line video fetch never contends with the
+    # 68k program ROM (bank 0) or PC090OJ gfx (bank 2). Two ports:
+    #   fbram : CPU read/write (RW). jtvolfied_fb does the video_mask RMW.
+    #   fbrd  : video line fetch (read) into the double line buffer.
+    # RAM bank, no ROM download. (The C-chip EPROM is baked into BRAM via
+    # $readmemh, so it no longer needs an SDRAM bank.)
+    - buses:
+      - name: fbram
+        addr_width: 19      # port = [18:1] = 18-bit word address = 256K x 16 = 512 KB
+        data_width: 16
+        rw: true
+        cs: fbram_sel       # must differ from the bus's auto '<name>_cs'
+        din: fb_wdata
+      - name: fbrd
+        addr_width: 19
+        data_width: 16

@@ -1,0 +1,39 @@
+volfied:
+  - get:
+    - jtvolfied_game.v
+    - jtvolfied_main.v
+    - jtvolfied_snd.v
+    - jtvolfied_video.v
+    - jtvolfied_fb.v
+    - jtvolfied_obj.v
+    - jtvolfied_colmix.v
+    - jtvolfied_pc060.v
+    - jtvolfied_cchip.v
+    # Real Taito C-chip (TC0030CMD): uPD78C11 MCU + wrapper. Copied from the
+    # Superman core so this core is self-contained. Internal 4 KB mask ROM
+    # (mask_rom.mem) is common to all C-chip games; the 8 KB external EPROM
+    # (cchip_eprom.mem) is Volfied's cchip_c04-23. Both .mem live in hdl/.
+    - jtsuperman_upd78c11.v
+    - jtsuperman_cchip.v
+jtframe:
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+      - jtframe_dual_nvram.v
+      - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v
+      - jtframe_obj_buffer.v
+  - from: clocking
+    get:
+      - jtframe_sync.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_m68k.yaml
+jt12:
+  - get:
+    - jt03.yaml      # YM2203 (jt03 module)

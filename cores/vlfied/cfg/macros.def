@@ -1,0 +1,76 @@
+CORENAME=JTVOLFIED
+
+# Hardware: Taito single-board (MAME taito/volfied.cpp), ROM-set prefix c04
+# Reference: src/mame/taito/volfied.cpp (mirrored in cores/volfied/doc/)
+#
+# Target: Volfied (1989, Taito). A Qix-style area-capture game. Unusual
+# for Taito of this era: it has NO tilemap chip (no PC080SN / TC0100SCN).
+# The background is a player-drawn BITMAP framebuffer in VRAM. Sprites
+# are drawn by a PC090OJ (same chip we already emulate in cores/rastan).
+#
+# Chip inventory (donor in parentheses):
+#   68000   main CPU        @ 8 MHz   (jtframe_m68k     — see rastan/superman)
+#   Z80     audio CPU       @ 4 MHz   (jtframe_sysz80   — see rastan)
+#   YM2203  OPN             @ 4 MHz   (jt03            — see ddribble)
+#   PC060HA audio interface           (jtvolfied_pc060  — copied from rastan)
+#   PC090OJ sprites                   (jtvolfied_obj    — copied from rastan)
+#   TC0030CMD C-chip = uPD78C11 + 8KB EPROM + 8KB DRAM
+#                                     (jtsuperman_upd78c11 + jtsuperman_cchip)
+#   TC0070RGB / PC050CM  colour DAC, xBGR-555
+#   <bitmap framebuffer>  ** NEW, no donor — jtvolfied_fb.v **
+#
+# Clocks: 32 MHz master XTAL (also 26.686 MHz and 20 MHz on PCB)
+#   68000   = 32/4 = 8 MHz
+#   Z80     = 32/8 = 4 MHz
+#   YM2203  = 32/8 = 4 MHz
+#
+# Using JTFRAME_CLK48 like Superman: 48/6 = 8 MHz, 48/12 = 4 MHz, all clean.
+
+JTFRAME_CLK48
+
+# Video: 320x240 raster (MAME visarea 0..319 h, 8..247 v), ~60 Hz, xBGR-555.
+# MAME orientation is rotate=270 -> this is a VERTICAL (portrait) game, same
+# as e.g. cores/1942: WIDTH/HEIGHT are the pre-rotation raster dims and
+# JTFRAME_VERTICAL tells the scaler to rotate for display.
+JTFRAME_COLORW=5
+JTFRAME_WIDTH=320
+JTFRAME_HEIGHT=240
+JTFRAME_VERTICAL
+# Placeholder pixel clock — revisit against the 26.686 MHz video osc and the
+# real H/V totals once the framebuffer scanout timing is pinned down.
+JTFRAME_PXLCLK=8
+
+JTFRAME_BUTTONS=1
+
+# SDRAM layout — see cfg/mem.yaml. Offsets are PLACEHOLDERS, to be pinned
+# down once ROM region sizes are confirmed against MAME's ROM_START.
+#
+# Bank 0 : 68k program ROM (256 KB @ 0) + 0x40000-0x7ffff gap + data ROM
+#          (512 KB @ 0x80000). Region honours MAME offsets => 1 MB total, so
+#          bank 1 must start at 0x100000 (NOT 0xC0000, which would land the
+#          audio CPU inside maincpu's data and corrupt both).
+# Bank 1 : Z80 audio ROM (32 KB)
+# Bank 2 : PC090OJ sprite graphics (768 KB)
+# Bank 3 : C-chip EPROM (8 KB; baked into the MCU via .mem, kept for the .rom)
+JTFRAME_HEADER=16
+# Bank 3 is the RAM-only bitmap framebuffer (no ROM download); BA3_START just
+# marks its base in the download map.
+JTFRAME_BA1_START=0x100000
+JTFRAME_BA2_START=0x120000
+# bank 3 is the R/W bitmap framebuffer:
+JTFRAME_BA3_START=0x200000
+JTFRAME_BA3_WEN
+
+# debugging
+JTFRAME_IOCTL_RD=2048
+JTFRAME_STATUS
+
+[mister]
+JTFRAME_ARX=4
+JTFRAME_ARY=3
+
+[mist]
+JTFRAME_SKIP
+
+[sidi]
+JTFRAME_SKIP

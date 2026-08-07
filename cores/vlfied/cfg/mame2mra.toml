@@ -1,0 +1,23 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "volfied.cpp" ]
+skip.bootlegs=true
+
+[ROM]
+# values starting with $ refer to macro definitions in the .def file
+    # maincpu: program 0x00000-0x3ffff + data 0x80000-0xfffff with a gap at
+    # 0x40000-0x7ffff. Honour the MAME offsets (NO no_offset) so the level
+    # background images land at 0x80000 where the 68k reads them.
+regions = [
+    { name="maincpu",          width=16, reverse=true },
+    { name="audiocpu",         start="JTFRAME_BA1_START" },
+    { name="pc090oj",          start="JTFRAME_BA2_START", width=16, no_offset=true },
+    # cchip EPROM is baked into BRAM ($readmemh cchip_eprom.mem), so it is NOT
+    # loaded into SDRAM. Bank 3 is the RAM-only bitmap framebuffer (see mem.yaml).
+]
+
+order = [
+    "maincpu", "audiocpu", "pc090oj"
+]
