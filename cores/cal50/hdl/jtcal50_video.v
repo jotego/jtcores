@@ -92,9 +92,17 @@ reg        LHBL_l;
 reg  [5:0] cnt244;
 wire [6:0] nx_244 = {1'b0,cnt244} + 6'd1;
 // Align the graphics coordinate origin with the PCB/MAME active area.
+// The X1-001 mirrors vdump itself, so the object offset needs a value per
+// flip state. flip==1 is the upright screen.
+// Object X is not mirrored by the chip: the game rewrites it. Measured on the
+// object RAM, it mirrors sprites drawn from font tiles (code<1024) 3 pixels
+// apart from the rest, so no single OBJ_HOFF_F serves both.
+// To be checked on the PCB.
+localparam [8:0] OBJ_VOFF =  9'd18, OBJ_VOFF_F = -9'd4,
+                 OBJ_HOFF = -9'd4,  OBJ_HOFF_F = -9'd7;
+
 wire [8:0] hdump_gfx = hdump - 9'd7;
-wire [8:0] vdump_gfx = vdump - 9'd1,
-           vrender_gfx = vrender - 9'd1;
+wire [8:0] vdump_gfx = vdump - 9'd1;
 
 assign ioctl_din = ioctl_addr[3] ? x1001_ioctl_din : x1012_ioctl_din;
 
@@ -172,21 +180,17 @@ jtx1012 u_tiles(
     .st_dout    ( st_tiles      )
 );
 
-localparam [8:0] VADJ = 9'd19,HADJ=9'd3;
-
-wire [8:0] vdump_adj   = vdump_gfx   + VADJ,
-           vrender_adj = vrender_gfx + VADJ,
-           hdump_adj   = hdump_gfx   + HADJ;
+wire [8:0] vdump_adj   = vdump   + (flip ? OBJ_VOFF : OBJ_VOFF_F),
+           vrender_adj = vrender + (flip ? OBJ_VOFF : OBJ_VOFF_F),
+           hdump_adj   = hdump   + (flip ? OBJ_HOFF : OBJ_HOFF_F);
 
 /* verilator tracing_on */
-// Caliber 50 uses object entries 0-200.  Limiting the scan to that populated
-// range leaves enough line time for sprites that wrap through Y=0.
 jtkiwi_gfx #(
     .CPUW    ( 16      ),
     .OBJ_XOFF( 9'h1fe  ),
     .OBJ_YOFF( 8'hf5   ),
     .OBJ_YWRAP( 1'b1   ),
-    .OBJ_LIMIT( 9'd200 )
+    .OBJ_LIMIT( 9'h1ff )
 ) u_gfx(
     .rst        ( rst            ),
     .clk        ( clk            ),

@@ -39,7 +39,8 @@ module jtframe_scroll #( parameter
     HJUMP     = 1, // set to 0 for linear hdump starting at zero after HB
     HLOOP      = 0, // see jtframe_scroll_offset
     COL_SCROLL = 0, // set to 1 to enable 8-pixel column scroll
-    LATCH_SCRX = 0  // set to 1 to latch scrx while hs is high
+    LATCH_SCRX = 0, // set to 1 to latch scrx while hs is high
+    HFLIPW     = 8  // see jtframe_scroll_offset
 )(
     input              rst,
     input              clk,
@@ -83,7 +84,8 @@ jtframe_scroll_offset #(
     .VDUMPW     ( VDUMPW    ),
     .HLOOP      ( HLOOP      ),
     .COL_SCROLL ( COL_SCROLL ),
-    .LATCH_SCRX ( LATCH_SCRX )
+    .LATCH_SCRX ( LATCH_SCRX ),
+    .HFLIPW     ( HFLIPW     )
 ) u_offset(
     .clk        ( clk       ),
     .flip       ( flip      ),
