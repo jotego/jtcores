@@ -126,60 +126,52 @@ end
 
 // A whole line time of slack to fetch the next line, so the per-pixel scanout
 // never reaches SDRAM
-reg         disp_buf, HSl, fbusy;
-reg  [ 8:0] fcol;
+reg         HSl, fbusy, lb_we;
+reg  [ 8:0] fcol, lb_wa;
 reg  [ 7:0] fline;
 reg         fpage;
 reg  [15:0] lb_din;
-reg  [ 9:0] lb_waddr;
-reg  [ 1:0] lb_we;
 wire [15:0] lb_q;
 
 assign fbrd_addr = { fpage, fline, fcol };
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        disp_buf<=0; HSl<=0; fbusy<=0; fbrd_cs<=0; fcol<=0; lb_we<=0;
-        fline<=0; fpage<=0;
+        HSl<=0; fbusy<=0; fbrd_cs<=0; fcol<=0; lb_we<=0; fline<=0; fpage<=0;
     end else begin
         HSl  <= HS;
         lb_we<= 0;
         if( HS && !HSl ) begin
-            disp_buf <= ~disp_buf;
             fline    <= vrender[7:0] + 8'd7;
             fpage    <= video_ctrl[0];
             fcol     <= 0;
             fbrd_cs  <= 1;
             fbusy    <= 1;
-        end else if( fbusy ) begin
-            if( fbrd_ok ) begin
-                lb_din   <= fbrd_data;
-                lb_waddr <= { ~disp_buf, fcol };
-                lb_we    <= 2'b11;
-                if( fcol == 9'h1ff ) begin
-                    fbrd_cs <= 0;
-                    fbusy   <= 0;
-                end else fcol <= fcol + 9'd1;
-            end
+        end else if( fbusy && fbrd_ok ) begin
+            lb_din <= fbrd_data;
+            lb_wa  <= fcol;
+            lb_we  <= 1;
+            if( fcol == 9'h1ff ) begin
+                fbrd_cs <= 0;
+                fbusy   <= 0;
+            end else fcol <= fcol + 9'd1;
         end
     end
 end
 
-jtframe_dual_ram16 #(.AW(10)) u_lbuf(
-    .clk0   ( clk       ),
-    .data0  ( lb_din    ),
-    .addr0  ( lb_waddr  ),
-    .we0    ( lb_we     ),
-    .q0     (           ),
-    .clk1   ( clk       ),
-    .data1  ( 16'd0     ),
-    // ROT270 makes display_x = vrender and display_y = 319-hdump, so the fline
-    // and hdump offsets move the bitmap left and up respectively. MAME reads
-    // videoram[y*512 + x+1]; the rest of both offsets is empirical alignment
-    // against the sprites.
-    .addr1  ( { disp_buf, hdump - 9'd2 } ),
-    .we1    ( 2'd0      ),
-    .q1     ( lb_q      )
+// ROT270 makes display_x = vrender and display_y = 319-hdump, so the fline and
+// hdump offsets move the bitmap left and up respectively. MAME reads
+// videoram[y*512 + x+1]; the rest of both offsets is empirical alignment
+// against the sprites.
+jtframe_linebuf #(.DW(16),.AW(9)) u_lbuf(
+    .clk     ( clk           ),
+    .LHBL    ( ~HS           ),
+    .wr_addr ( lb_wa         ),
+    .wr_data ( lb_din        ),
+    .we      ( lb_we         ),
+    .rd_addr ( hdump - 9'd2  ),
+    .rd_data ( lb_q          ),
+    .rd_gated(               )
 );
 
 reg [11:0] color;

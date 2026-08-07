@@ -15,6 +15,8 @@ rastan:
 # Taito C-chip (TC0030CMD): uPD78C11 MCU + ASIC + banked SRAM
 jttc0030cmd:
 jtframe:
+  - get:
+    - jtframe_edge.v
   - from: ram
     get:
       - jtframe_dual_ram.v
@@ -22,6 +24,7 @@ jtframe:
       - jtframe_dual_ram16.v
       - jtframe_dual_nvram16.v
       - jtframe_obj_buffer.v
+      - jtframe_rpwp_ram.v      # used by jtframe_linebuf
   - from: clocking
     get:
       - jtframe_sync.v
@@ -29,6 +32,7 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_blank.v
+      - jtframe_linebuf.v       # framebuffer scanout double line buffer
   - from: cpu
     get:
       - jtframe_z80.yaml

@@ -20,7 +20,7 @@ module jtvlfied_game(
     `include "jtframe_game_ports.inc"
 );
 
-wire [15:0] oram_dout, pal_dout, fb_dout, vctrl_dout, main_dout;
+wire [15:0] oram_dout, pal_dout, fb_dout, vctrl_dout;
 wire [ 1:0] main_dsn;
 wire        obj_cs, ram_cs, fb_cs, pal_cs, vmask_cs, sprctrl_cs, vctrl_cs, main_rnw;
 wire        flip;
@@ -34,30 +34,13 @@ wire [ 7:0] cchip_dout;
 wire        fb_ok;          // framebuffer SDRAM ready -> 68k DTACK
 
 // The 68k redraws the bitmap mirrored in software when the cocktail DIP is on,
-// so only the sprite engine needs a hardware flip; flipping the framework
-// output too would mirror the background twice.
+// so only the sprite engine needs a hardware flip;
 assign dip_flip   = 1'b0;
 assign flip       = ~dipsw[1];
 assign st_dout    = 0;
 assign debug_view = 0;
 
-// Work RAM must be on-chip: SDRAM latency breaks the 68k's read-after-write.
-wire [15:0] ram_data;
-wire        ram_ok = 1'b1;
-wire [ 1:0] ram_we = {2{ram_cs & ~main_rnw}} & ~main_dsn;
-
-jtframe_dual_ram16 #(.AW(13)) u_workram(
-    .clk0   ( clk             ),
-    .data0  ( main_dout       ),
-    .addr0  ( main_addr[13:1] ),
-    .we0    ( ram_we          ),
-    .q0     ( ram_data        ),
-    .clk1   ( clk             ),
-    .data1  ( 16'd0           ),
-    .addr1  ( 13'd0           ),
-    .we1    ( 2'd0            ),
-    .q1     (                 )
-);
+assign ram_we = {2{ram_cs & ~main_rnw}} & ~main_dsn;
 
 jtvlfied_main u_main(
     .rst        ( rst       ),
@@ -82,8 +65,7 @@ jtvlfied_main u_main(
     .pal_dout   ( pal_dout  ),
     .fb_dout    ( fb_dout   ),
     .vctrl_dout ( vctrl_dout),
-    .ram_dout   ( ram_data  ),
-    .ram_ok     ( ram_ok    ),
+    .ram_dout   ( ram_dout  ),
     .rom_data   ( main_data ),
     .rom_ok     ( main_ok   ),
 

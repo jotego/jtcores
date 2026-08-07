@@ -119,9 +119,6 @@ jtrastan_pc060 u_pc060(
     .snd_rst    ( pc6_rst   )
 );
 
-// RECOVERY cannot be set because snd_cen comes from fx68k and it
-// may not have enough idle clock cycles for RECOVERY to work.
-// See https://github.com/jotego/jtcores/issues/1502
 jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
     .rst_n      ( snd_rstn  ),
     .clk        ( clk       ),

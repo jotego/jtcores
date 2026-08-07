@@ -56,7 +56,6 @@ module jtvlfied_main(
     input         [15:0] vctrl_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
-    input                ram_ok,
     input                rom_ok,
 
     // C-chip (TC0030CMD) interface, 8-bit on lower byte
@@ -67,9 +66,6 @@ module jtvlfied_main(
     // bitmap framebuffer in SDRAM (jtvlfied_fb) — fb_ok paces the 68k
     input                fb_ok,
 
-    // Sound interface (PC060HA master side). cpu_cen paces the PC060HA main
-    // side and, halved, the Z80 — on the board both come off the one 32 MHz
-    // XTAL, exactly 2:1.
     output               cpu_cen,
     input         [ 7:0] sn_dout,
     output reg           sn_we,
@@ -84,7 +80,7 @@ wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
 reg  [15:0] cpu_din;
 wire [15:0] cpu_dout;
-reg         intn, LVBLl;
+wire        intn;
 wire        bus_cs, bus_busy, bus_legit;
 
 assign main_addr = A[19:1];
@@ -97,7 +93,7 @@ assign allFC     = ~&FC;
 assign IPLn      = { intn, 2'b11 };
 assign VPAn      = !(!ASn && FC==7);
 assign bus_cs    = rom_cs | ram_cs | fb_cs;
-assign bus_busy  = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok) | (fb_cs & ~fb_ok);
+assign bus_busy  = (rom_cs & ~rom_ok) | (fb_cs & ~fb_ok);
 assign bus_legit = 0;
 
 always @* begin
@@ -135,18 +131,15 @@ always @(posedge clk, posedge rst) begin
     else if( sprctrl_cs && !main_rnw ) obj_pal <= cpu_dout[5:2];
 end
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        LVBLl <= 0;
-        intn  <= 1;
-    end else begin
-        LVBLl <= LVBL;
-        if( !VPAn )
-            intn <= 1;
-        else if( !LVBL && LVBLl )
-            intn <= 0;
-    end
-end
+
+// asserted on the falling edge of LVBL, cleared by the interrupt ack
+jtframe_edge #(.QSET(0)) u_irq(
+    .rst    ( rst   ),
+    .clk    ( clk   ),
+    .edgeof ( ~LVBL ),
+    .clr    ( ~VPAn ),
+    .q      ( intn  )
+);
 
 jtframe_68kdtack_cen #(.W(12)) u_dtack(
     .rst        ( rst       ),
