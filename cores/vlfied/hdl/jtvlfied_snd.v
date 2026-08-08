@@ -144,7 +144,8 @@ jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
     .rom_ok     ( rom_ok    )
 );
 
-jt03 u_ym2203(
+// SSG outputs shorted together on the board: only the highest passes
+jt03 #(.YM2203_LUMPED(1)) u_ym2203(
     .rst        ( ~snd_rstn ),
     .clk        ( clk       ),
     .cen        ( fm_cen    ),

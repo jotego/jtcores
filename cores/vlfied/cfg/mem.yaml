@@ -11,7 +11,7 @@ audio:
   channels:
     # YM2203: FM + PSG/SSG (both are used by Volfied).
     - { name: fm,  module: jt03_fm,  rsum: 10k }
-    - { name: psg, module: jt03_psg, rsum: 10k }
+    - { name: psg, module: jt03_psg, rsum: 15k }
 sdram:
   banks:
     # Bank 0 : 68k program/data ROM. (16 KB work RAM is on-chip BRAM, see
