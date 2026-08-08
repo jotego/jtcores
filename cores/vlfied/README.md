@@ -1,45 +1,20 @@
-# Volfied (JTVLFIED) — scaffold
+# JTVLFIED FPGA Arcade Hardware by Andrea Bogazzi
 
-Taito, 1989. Qix-style area-capture game. MAME driver: `taito/volfied.cpp`.
+You can show your appreciation through
+* [Patreon](https://patreon.com/jotego)
+* [Paypal](https://paypal.me/topapate)
+* [Github](https://github.com/sponsors/jotego)
 
-**Status: SCAFFOLD / step 1 only.** Forked off `cores/rastan`. Untracked WIP —
-not built, not simulated. Boots nothing yet; the C-chip and framebuffer are
-stubs.
+Yes, you always wanted to have an arcade board at home. First you couldn't get it because your parents somehow did not understand you. Then you grow up and your wife doesn't understand you either. Don't worry, JT cores are here to the rescue.
 
-## Hardware
+I hope you will have as much fun with this project as I had while working on it!
 
-| Block | Part | Donor |
-|-------|------|-------|
-| Main CPU | 68000 @ 8 MHz | `jtframe_m68k` (rastan) |
-| Audio CPU | Z80 @ 4 MHz | `jtframe_sysz80` (rastan) |
-| Sound | YM2203 @ 4 MHz | `jt03` (ddribble) |
-| Audio I/F | PC060HA | `jtvlfied_pc060` ← rastan, verbatim |
-| Sprites | PC090OJ | `jtvlfied_obj` ← rastan, verbatim |
-| Protection | TC0030CMD (uPD78C11 + 8 KB EPROM + 8 KB DRAM) | `jtsuperman_upd78c11` + `jtsuperman_cchip` |
-| Colour | TC0070RGB / PC050CM, xBGR-555 | colmix |
-| Background | **player-drawn bitmap framebuffer** | **none — `jtvlfied_fb.v`, NEW** |
+# Technical Notes
 
-Resolution 320×240 visible, ~60 Hz. Master XTAL 32 MHz (also 26.686 and 20 MHz).
+Volfied has no tilemap chip. The background is a player-drawn bitmap that the 68000 writes directly, one 16-bit word per pixel, with a per-bit write mask that turns a masked write into a read-modify-write. It lives in its own SDRAM bank rather than BRAM, where the 512 KB would take almost every M10K block on the device. A double line buffer is filled a line ahead so the per-pixel scanout never reaches SDRAM.
 
-## What's reused vs. new
+The board shares its 26.686 MHz video crystal with Rastan and runs the same raster, so this core uses the Rastan video timing and takes the PC060HA and PC090OJ implementations from that core unmodified. The C-chip comes from the `jttc0030cmd` module. The only block written for this core is the framebuffer.
 
-~80% of the core is parts-bin: Rastan donates the entire sound + sprite +
-PC060HA subsystem; Superman donates the C-chip CPU core. The only block with
-no donor is the Qix-style bitmap framebuffer.
+The YM2203 SSG outputs are shorted together on the board, so only the loudest of the three passes; `jt03` is instanced with `YM2203_LUMPED(1)` to model it.
 
-## Open work (in priority order)
-
-1. **`jtvlfied_cchip.v`** — currently a STUB (RAM + placeholder input
-   injection + immediate DTACK). Drop in `jtsuperman_cchip` (REAL_MCU=1),
-   load Volfied's EPROM via the `ceprom` bus, and verify the MCU port→input
-   mapping against MAME. Trace MAME first (per MEMORY).
-2. **`jtvlfied_fb.v`** — the real new block. Decide BRAM vs. SDRAM+linebuffer
-   for the 512 KB bitmap; implement per-bit write masking (RMW); confirm the
-   scanout map and `video_ctrl` page-flip / `0x60` status read.
-3. Pin video timing totals to MAME (vtimer params are placeholders).
-4. Widen PC090OJ sprite RAM to 16 KB (rastan obj uses 1 KB).
-5. `sprite_ctrl_w` (700000) → obj palette bank.
-6. Confirm 68k IRQ level and PC060HA byte lane (e00001/e00003).
-7. SDRAM offsets in `cfg/macros.def` are placeholders — pin to ROM_START.
-
-See `doc/STATUS.md`.
+The C-chip's internal mask ROM is a device ROM common to every Taito C-chip game and is not part of the per-machine dump. `cchip.zip` has to be available alongside the game set for the MRA to be assembled.
