@@ -84,6 +84,15 @@ On ROT270 the sprite raster-H axis is display-vertical, which the `dx=0` confirm
 
 ## Known gaps
 
+- **The text/sprite layer is one scanline out** relative to the framebuffer
+  (direction in screen terms depends on the ROT270 mapping). Observed on a
+  gameplay screenshot; not yet corrected.
+- Grade video with `ver/volfied/reg.cab` (FPGA) and
+  `ver/volfied/mame_scripts/reg_shots.lua` (MAME, same input schedule). The
+  FPGA frame number leads MAME's by ~110, the length of the ROM download.
+  Judge gameplay, not attract or the intro: those leave the bitmap nearly
+  empty and the sprite layer too sparse to measure against.
+
 - Video timing still placeholder (`JTFRAME_PXLCLK=8`); step 4 lifts rastan's, and
   should be judged against the 9-line sprite offset above.
 - `ifdef SIMULATION` debug counters in `jtvlfied_main.v` / `_colmix.v` / `_fb.v`

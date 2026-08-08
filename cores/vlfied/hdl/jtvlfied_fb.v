@@ -169,17 +169,16 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// ROT270 makes display_x = vrender and display_y = 319-hdump, so the fline and
-// hdump offsets move the bitmap left and up respectively. MAME reads
-// videoram[y*512 + x+1]; the rest of both offsets is empirical alignment
-// against the sprites.
+// The bitmap is read 11 pixels ahead of the raster: MAME reads
+// videoram[y*512 + x+1], and the rest is the fixed skew of the VRAM serial port
+// against the sprite path, which does not go through it.
 jtframe_linebuf #(.DW(16),.AW(9)) u_lbuf(
     .clk     ( clk           ),
     .LHBL    ( ~HS           ),
     .wr_addr ( lb_wa         ),
     .wr_data ( lb_din        ),
     .we      ( lb_we         ),
-    .rd_addr ( hdump - 9'd2  ),
+    .rd_addr ( hdump - 9'd11 ),
     .rd_data ( lb_q          ),
     .rd_gated(               )
 );

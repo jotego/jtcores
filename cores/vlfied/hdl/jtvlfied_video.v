@@ -90,7 +90,9 @@ wire        dummy_dtack;
 assign HS = hs;
 assign VS = vs;
 
-// 424x263 at the 6.671 MHz pixel clock -> 15.73 kHz line rate, 59.8 Hz
+// 424x263 at the 6.671 MHz pixel clock -> 15.73 kHz line rate, 59.8 Hz.
+// Both layers render from vrender1 rather than vrender, i.e. one scanline
+// earlier, matching how rastan feeds its own object engine.
 jtframe_vtimer #(
     .VB_START   ( 9'd239          ),
     .VB_END     ( 9'd239+9'd23    ),
@@ -119,7 +121,7 @@ jtvlfied_fb u_fb(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .hdump      ( H         ),
-    .vrender    ( vrender   ),
+    .vrender    ( vrender1  ),
     .flip       ( flip      ),
     .HS         ( hs        ),
 
@@ -162,7 +164,7 @@ jtrastan_obj u_obj(
     .HS         ( hs        ),
     .flip       ( flip      ),
     .hdump      ( H         ),
-    .vrender    ( vrender   ),
+    .vrender    ( vrender1  ),
 
     .main_addr  ( main_addr[12:1] ),
     .main_dout  ( main_dout ),
