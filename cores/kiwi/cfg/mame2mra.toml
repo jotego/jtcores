@@ -25,7 +25,7 @@ volume = [
 ]
 
 [header]
-info="""bit 0 = MCU
+info="""     bit 0 = MCU
              bit 1 = color PROM
              bit 2 = Kabuki Z (specific sound features)
              bit 3 = Kageki   (specific sound features)
@@ -41,7 +41,7 @@ info="""bit 0 = MCU
              bit 4 = 13 bits tilemap code"""
 data=[
     { setnames=["tnzso","tnzsjo","tnzsoa","tnzsop","tnzsuo"], data="B1 04" }, # HB dly, Banked RAM, MCU, 3MHz FM
-    { machines=["chukatai"], data="41" }, # MCU
+    { machines=["chukatai"], data="41 04" }, # MCU
     { machines=["insectx"],  data="40" }, # dip_flip inversion
     { machines=["drtoppel"], data="03 10" },
     { machines=["extrmatn","plumppop" ], data="03" }, # MCU - Color PROM
