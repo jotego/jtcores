@@ -1,0 +1,42 @@
+vlfied:
+  - get:
+    - jtvlfied_game.v
+    - jtvlfied_main.v
+    - jtvlfied_snd.v
+    - jtvlfied_video.v
+    - jtvlfied_fb.v
+    - jtvlfied_colmix.v
+    - jtvlfied_cchip.v
+rastan:
+  - get:
+    # Taito customs shared verbatim with rastan/opwolf/rbisland
+    - jtrastan_pc060.v   # PC060HA main<->sound comm
+    - jtrastan_obj.v     # PC090OJ sprites
+# Taito C-chip (TC0030CMD): uPD78C11 MCU + ASIC + banked SRAM
+jttc0030cmd:
+jtframe:
+  - get:
+    - jtframe_edge.v
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+      - jtframe_dual_nvram.v
+      - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v
+      - jtframe_obj_buffer.v
+      - jtframe_rpwp_ram.v      # used by jtframe_linebuf
+  - from: clocking
+    get:
+      - jtframe_sync.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_linebuf.v       # framebuffer scanout double line buffer
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_m68k.yaml
+jt12:
+  - get:
+    - jt03.yaml      # YM2203 (jt03 module)
