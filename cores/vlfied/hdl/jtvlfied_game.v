@@ -20,11 +20,12 @@ module jtvlfied_game(
     `include "jtframe_game_ports.inc"
 );
 
-wire [15:0] oram_dout, pal_dout, fb_dout, vctrl_dout;
+wire [15:0] oram_dout, fb_dout, vctrl_dout;
 wire [ 1:0] main_dsn;
 wire        obj_cs, ram_cs, fb_cs, pal_cs, vmask_cs, sprctrl_cs, vctrl_cs, main_rnw;
 wire        flip;
 wire        sn_we, sn_rd, main_cen;
+wire [ 7:0] st_video;
 wire [ 7:0] sn_dout;
 wire [ 3:0] obj_pal;
 
@@ -38,9 +39,10 @@ wire        fb_ok;          // framebuffer SDRAM ready -> 68k DTACK
 assign dip_flip   = 1'b0;
 assign flip       = ~dipsw[1];
 assign st_dout    = 0;
-assign debug_view = 0;
+assign debug_view = st_video;   // video_ctrl / video_mask, selected by debug_bus
 
 assign ram_we = {2{ram_cs & ~main_rnw}} & ~main_dsn;
+assign pal_we = {2{pal_cs & ~main_rnw}} & ~main_dsn;
 
 jtvlfied_main u_main(
     .rst        ( rst       ),
@@ -149,18 +151,19 @@ jtvlfied_video u_video(
     .main_addr  ( main_addr[18:1] ),
     .main_dout  ( main_dout ),
     .oram_dout  ( oram_dout ),
-    .pal_dout   ( pal_dout  ),
     .fb_dout    ( fb_dout   ),
     .vctrl_dout ( vctrl_dout),
     .main_dsn   ( main_dsn  ),
     .main_rnw   ( main_rnw  ),
     .obj_cs     ( obj_cs    ),
-    .pal_cs     ( pal_cs    ),
     .fb_cs      ( fb_cs     ),
     .fb_ok      ( fb_ok     ),
     .vmask_cs   ( vmask_cs  ),
     .vctrl_cs   ( vctrl_cs  ),
     .obj_pal    ( obj_pal   ),       // sprite palette bank from sprite_ctrl_w
+
+    .pal_addr   ( palrd_addr),
+    .pal_data   ( pal_data  ),
 
     .orom_addr  ( orom_addr ),
     .orom_data  ( orom_data ),
@@ -186,6 +189,7 @@ jtvlfied_video u_video(
 
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
+    .st_dout    ( st_video  ),
     .ioctl_addr ( ioctl_addr[10:0]),
     .ioctl_din  ( ioctl_din ),
     .ioctl_ram  ( ioctl_ram )

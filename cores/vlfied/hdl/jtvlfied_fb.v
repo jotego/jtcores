@@ -64,12 +64,22 @@ module jtvlfied_fb #(parameter FETCH_W = 512 )(
     input               fbrd_ok,
 
     // 12-bit palette index to the colour mixer
-    output reg   [11:0] fb_pxl
+    output reg   [11:0] fb_pxl,
+
+    input        [ 7:0] debug_bus,
+    output reg   [ 7:0] st_dout
 );
 
 reg  [15:0] video_mask, video_ctrl;
 
 assign vctrl_dout = 16'h0060;
+
+always @(posedge clk) case( debug_bus[1:0] )
+    2'd0: st_dout <= video_ctrl[ 7:0];
+    2'd1: st_dout <= video_ctrl[15:8];
+    2'd2: st_dout <= video_mask[ 7:0];
+    2'd3: st_dout <= video_mask[15:8];
+endcase
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin

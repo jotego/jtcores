@@ -34,18 +34,20 @@ module jtvlfied_video(
     input    [18:1] main_addr,
     input    [15:0] main_dout,
     output   [15:0] oram_dout,
-    output   [15:0] pal_dout,
     output   [15:0] fb_dout,
     output   [15:0] vctrl_dout,
     input    [ 1:0] main_dsn,
     input           main_rnw,
     input           obj_cs,
-    input           pal_cs,
     input           fb_cs,
     output          fb_ok,          // -> 68k DTACK
     input           vmask_cs,
     input           vctrl_cs,
     input    [ 3:0] obj_pal,
+
+    // palette RAM read port (BRAM declared in mem.yaml)
+    output   [12:0] pal_addr,
+    input    [15:0] pal_data,
 
     // sprite graphics ROM (PC090OJ) — SDRAM bank 2
     output   [18:1] orom_addr,
@@ -72,6 +74,7 @@ module jtvlfied_video(
 
     input     [3:0] gfx_en,
     input     [7:0] debug_bus,
+    output    [7:0] st_dout,
     // NVRAM (debug) dump
     input    [10:0] ioctl_addr,
     output   [ 7:0] ioctl_din,
@@ -145,7 +148,10 @@ jtvlfied_fb u_fb(
     .fbrd_data  ( fbrd_data ),
     .fbrd_ok    ( fbrd_ok   ),
 
-    .fb_pxl     ( fb_pxl    )
+    .fb_pxl     ( fb_pxl    ),
+
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_dout   )
 );
 
 jtrastan_obj u_obj(
@@ -182,12 +188,8 @@ jtvlfied_colmix u_colmix(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
-    .main_addr  ( main_addr[13:1] ),
-    .main_dout  ( main_dout ),
-    .main_dsn   ( main_dsn  ),
-    .main_din   ( pal_dout  ),
-    .main_rnw   ( main_rnw  ),
-    .pal_cs     ( pal_cs    ),
+    .pal_addr   ( pal_addr  ),
+    .pal_data   ( pal_data  ),
 
     .preLHBL    ( preLHBL   ),
     .preLVBL    ( preLVBL   ),

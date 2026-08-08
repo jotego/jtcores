@@ -55,6 +55,16 @@ bram:
     addr: main_addr[13:1]
     din: main_dout
     rw: true
+  # Palette RAM, 500000-503fff. 8192 entries, xBGR-555
+  - name: pal
+    addr_width: 14
+    data_width: 16
+    addr: main_addr[13:1]
+    din: main_dout
+    rw: true
+    dual_port:
+      name: palrd
+      dout: pal_data
   # TC0030CMD ROMs: 4 KB internal mask ROM (shared by all C-chip games) and
   # the 8 KB game EPROM (c04-23). Downloaded as PROMs, not baked via $readmemh.
   - { name: cchip_mask,  addr_width: 12, data_width: 8, prom: true }
