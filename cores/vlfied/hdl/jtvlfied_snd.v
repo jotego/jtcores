@@ -16,15 +16,6 @@
     Version: 1.0
     Date: 7-8-2026 */
 
-/*  Z80 address map:
-      0000-7fff  ROM
-      8000-87ff  RAM
-      8800       PC060HA slave_port_w
-      8801       PC060HA slave_comm_r/w
-      9000-9001  YM2203
-      9800       write-only, unconnected
-    DIP switches A/B are read through the YM2203 port A/B inputs.    */
-
 module jtvlfied_snd(
     input                rst,
     input                clk,
@@ -50,17 +41,9 @@ module jtvlfied_snd(
     output signed [15:0] fm,           // YM2203 FM  -> mem.yaml channel 'fm'
     output        [ 9:0] psg           // YM2203 PSG -> mem.yaml channel 'psg'
 );
-// Z80 and the PC060HA sound side share one cen, half of the 68k's: the
-// handshake edge detection inside the PC060HA samples on it.
+`ifndef NOSOUND
 reg  snd_cen_tog;
 wire snd_cen = main_cen & snd_cen_tog;
-always @(posedge clk, posedge rst) begin
-    if( rst )
-        snd_cen_tog <= 0;
-    else if( main_cen )
-        snd_cen_tog <= ~snd_cen_tog;
-end
-`ifndef NOSOUND
 wire        [15:0] A;
 wire        [ 7:0] dout, ym_dout, ram_dout;
 wire        [ 3:0] pc6_dout;
@@ -69,12 +52,18 @@ wire               m1_n, iorq_n, rd_n, wr_n, mreq_n, rfsh_n, nmi_n;
 wire               int_n, pc6_rst, main_cs;
 reg                snd_rstn;
 reg         [ 7:0] din;
-wire signed [15:0] fm_snd;
 
 assign main_cs  = sn_rd | sn_we;
 assign rom_addr = A[14:0];
 
 always @(posedge clk) snd_rstn <= ~(rst | pc6_rst);
+
+always @(posedge clk, posedge rst) begin
+    if( rst )
+        snd_cen_tog <= 0;
+    else if( main_cen )
+        snd_cen_tog <= ~snd_cen_tog;
+end
 
 always @* begin
     rom_cs = !A[15] && !rd_n;            // 0000-7fff
@@ -144,8 +133,7 @@ jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
     .rom_ok     ( rom_ok    )
 );
 
-// SSG outputs shorted together on the board: only the highest passes
-jt03 #(.YM2203_LUMPED(1)) u_ym2203(
+jt03 u_ym2203(
     .rst        ( ~snd_rstn ),
     .clk        ( clk       ),
     .cen        ( fm_cen    ),
@@ -164,14 +152,13 @@ jt03 #(.YM2203_LUMPED(1)) u_ym2203(
     .psg_A      (           ),
     .psg_B      (           ),
     .psg_C      (           ),
-    .fm_snd     ( fm_snd    ),
+    .fm_snd     ( fm        ),
     .psg_snd    ( psg       ),
     .snd        (           ),
     .snd_sample (           ),
     .debug_view (           )
 );
 
-assign fm = fm_snd;
 `else
 assign main_din=0, rom_addr=0, fm=0, psg=0;
 initial rom_cs=0;

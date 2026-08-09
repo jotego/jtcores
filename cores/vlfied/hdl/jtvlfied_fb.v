@@ -20,9 +20,7 @@
     256 rows x 512 columns x 16 bits. Page select is video_ctrl[0]; the word
     address is y*512+x. Writes are masked per bit by video_mask, so a write
     becomes a read-modify-write unless the mask is all ones. video_ctrl reads
-    back 0x60. Pixel decode follows volfied.cpp refresh_pixel_layer.
-
-    BRAM is not an option here: 512 KB would take ~512 of the 553 M10K blocks.    */
+    back 0x60. Pixel decode follows volfied.cpp refresh_pixel_layer.   */
 
 module jtvlfied_fb #(parameter FETCH_W = 512 )(
     input               rst,
@@ -34,7 +32,6 @@ module jtvlfied_fb #(parameter FETCH_W = 512 )(
     input               flip,
     input               HS,
 
-    // CPU bitmap access (0x400000-0x47ffff). fb_ok feeds the 68k DTACK.
     input        [18:1] main_addr,
     input        [15:0] main_dout,
     output reg   [15:0] main_din,
@@ -44,11 +41,10 @@ module jtvlfied_fb #(parameter FETCH_W = 512 )(
     output              fb_ok,
 
     // control registers
-    input               vmask_cs,       // 600000 video mask write
-    input               vctrl_cs,       // d00000 video control r/w
+    input               vmask_cs,
+    input               vctrl_cs,
     output       [15:0] vctrl_dout,
 
-    // SDRAM bank 3, port A: CPU read/write (RW). din = fb_wdata (the RMW result)
     output reg   [18:1] fbram_addr,
     output reg   [ 1:0] fbram_dsn,
     output reg          fbram_we,
@@ -57,7 +53,6 @@ module jtvlfied_fb #(parameter FETCH_W = 512 )(
     input        [15:0] fbram_data,
     input               fbram_ok,
 
-    // SDRAM bank 3, port B: video line fetch (read)
     output       [18:1] fbrd_addr,
     output reg          fbrd_cs,
     input        [15:0] fbrd_data,

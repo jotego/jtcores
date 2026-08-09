@@ -43,21 +43,16 @@ module jtvlfied_colmix(
     input     [3:0] gfx_en
 );
 
+localparam OBJ=1'b1, BCK=1'b0;
 wire        obj_blank;
 
 assign obj_blank = obj_pxl[3:0]==0 || !gfx_en[3];
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        pal_addr <= 0;
-    end else if(pxl_cen) begin
-        if( !obj_blank )
-            // sprites occupy palette 0x1000-0x1fff, the bitmap 0x000-0xfff
-            pal_addr <= { 1'b1, obj_pal, obj_pxl };
-        else
-            pal_addr <= gfx_en[0] ? { 1'b0, fb_pxl } : 13'd0;
-
-    end
+always @(posedge clk) if(pxl_cen) begin
+    if( !obj_blank )
+        pal_addr <= { OBJ, obj_pal, obj_pxl };
+    else
+        pal_addr <= gfx_en[0] ? { BCK, fb_pxl } : 13'd0;
 end
 
 

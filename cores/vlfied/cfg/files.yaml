@@ -16,6 +16,7 @@ rastan:
 jttc0030cmd:
 jtframe:
   - get:
+    - jtframe_8bit_reg.v
     - jtframe_edge.v
   - from: ram
     get:

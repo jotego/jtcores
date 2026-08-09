@@ -16,9 +16,6 @@
     Version: 1.0
     Date: 7-8-2026 */
 
-/*  There is no tilemap chip on this hardware: the background is a
-    player-drawn bitmap framebuffer.    */
-
 module jtvlfied_video(
     input           rst,
     input           clk,

@@ -14,48 +14,38 @@ audio:
     - { name: psg, module: jt03_psg, rsum: 15k }
 sdram:
   banks:
-    # Bank 0 : 68k program/data ROM. (16 KB work RAM is on-chip BRAM, see
-    # jtvlfied_game.v — SDRAM work RAM had read-after-write coherency issues.)
     - buses:
-      - name: main         # program ROM (0x000000) + data ROM (0x080000)
-        addr_width: 20      # port = [19:1] = 19-bit word address = 1 MB span
+      - name: main
+        addr_width: 20
         data_width: 16
-    # Bank 1 : Z80 audio ROM (32 KB)
     - buses:
       - name: snd
         addr_width: 15
         data_width: 8
-    # Bank 2 : PC090OJ sprite graphics
     - buses:
       - name: orom
         addr_width: 20
         data_width: 32
-    # Bank 3 : DEDICATED 512 KB player-drawn bitmap framebuffer (0x400000-
-    # 0x47ffff). Own bank so the per-line video fetch never contends with the
-    # 68k program ROM (bank 0) or PC090OJ gfx (bank 2). Two ports:
-    #   fbram : CPU read/write (RW). jtvlfied_fb does the video_mask RMW.
-    #   fbrd  : video line fetch (read) into the double line buffer.
-    # RAM bank, no ROM download. (The C-chip EPROM is baked into BRAM via
-    # $readmemh, so it no longer needs an SDRAM bank.)
+    # dedicated 512 KB player-drawn bitmap framebuffer
     - buses:
+      # fbram : CPU read/write (RW). jtvlfied_fb does the video_mask RMW.
       - name: fbram
         addr_width: 19      # port = [18:1] = 18-bit word address = 256K x 16 = 512 KB
         data_width: 16
         rw: true
-        cs: fbram_sel       # must differ from the bus's auto '<name>_cs'
+        cs: fbram_sel
         din: fb_wdata
+      # fbrd  : video line fetch (read) into the double line buffer.
       - name: fbrd
         addr_width: 19
         data_width: 16
 bram:
-  # 68k work RAM, 100000-103fff
   - name: ram
     addr_width: 14
     data_width: 16
     addr: main_addr[13:1]
     din: main_dout
     rw: true
-  # Palette RAM, 500000-503fff. 8192 entries, xBGR-555
   - name: pal
     addr_width: 14
     data_width: 16
@@ -65,7 +55,5 @@ bram:
     dual_port:
       name: palrd
       dout: pal_data
-  # TC0030CMD ROMs: 4 KB internal mask ROM (shared by all C-chip games) and
-  # the 8 KB game EPROM (c04-23). Downloaded as PROMs, not baked via $readmemh.
   - { name: cchip_mask,  addr_width: 12, data_width: 8, prom: true }
   - { name: cchip_eprom, addr_width: 13, data_width: 8, prom: true }

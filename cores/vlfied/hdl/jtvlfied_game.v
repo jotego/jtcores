@@ -32,7 +32,9 @@ wire [ 3:0] obj_pal;
 wire        cchip_cs;
 wire [11:1] cchip_addr;
 wire [ 7:0] cchip_dout;
-wire        fb_ok;          // framebuffer SDRAM ready -> 68k DTACK
+wire        cchip_rnw;
+wire        fb_ok;
+wire [ 7:0] ioctl_obj;
 
 // The 68k redraws the bitmap mirrored in software when the cocktail DIP is on,
 // so only the sprite engine needs a hardware flip;
@@ -40,6 +42,10 @@ assign dip_flip   = 1'b0;
 assign flip       = ~dipsw[1];
 assign st_dout    = 0;
 assign debug_view = st_video;   // video_ctrl / video_mask, selected by debug_bus
+assign cchip_rnw  = main_rnw | main_dsn[0];
+`ifdef JTFRAME_IOCTL_RD
+assign ioctl_din  = ioctl_obj;
+`endif
 
 assign ram_we = {2{ram_cs & ~main_rnw}} & ~main_dsn;
 assign pal_we = {2{pal_cs & ~main_rnw}} & ~main_dsn;
@@ -95,7 +101,7 @@ jtvlfied_cchip u_cchip(
     .addr       ( cchip_addr),
     .din        ( main_dout[7:0] ),
     .dout       ( cchip_dout),
-    .rnw        ( main_rnw  ),
+    .rnw        ( cchip_rnw ),
     .LVBL       ( LVBL      ),
 
     .joystick1  ( joystick1[4:0] ),
@@ -191,7 +197,7 @@ jtvlfied_video u_video(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_video  ),
     .ioctl_addr ( ioctl_addr[10:0]),
-    .ioctl_din  ( ioctl_din ),
+    .ioctl_din  ( ioctl_obj ),
     .ioctl_ram  ( ioctl_ram )
 );
 
