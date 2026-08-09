@@ -1,0 +1,32 @@
+[global]
+author=["jotego","Andrea Bogazzi"]
+
+[parse]
+sourcefile=[ "sauro.cpp" ]
+# Only the Tricky Doc hardware is implemented so far. The sauro sets add a
+# second Z80, an SP0256 speech chip and a FG tile layer
+skip = { setnames=[
+    "sauro","sauroa","saurob","sauroc","saurop","saurorr","saurobl","seawolft"
+] }
+
+[buttons]
+names=[
+    { names="Shot,Jump" }
+]
+
+[dipsw]
+delete=[{ names=["Unused","Unknown"] }]
+
+[ROM]
+regions = [
+    { name="maincpu" },
+    { name="bgtiles", start="JTFRAME_BA1_START" },
+    { name="sprites", start="JTFRAME_BA2_START" },
+    # R, G and B nibble PROMs. MAME leaves 0x400 gaps between them, the core
+    # expects them back to back
+    { name="proms",   start="JTFRAME_PROM_START", no_offset=true },
+    # unidentified PROM, likely the sprite/H timing decoder
+    { name="user1",   skip=true },
+]
+
+order = [ "maincpu", "bgtiles", "sprites", "proms" ]
