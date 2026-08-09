@@ -16,21 +16,6 @@
     Version: 1.0
     Date: 7-8-2026 */
 
-/*  68000 address map:
-      000000-03ffff  program ROM
-      080000-0fffff  data ROM
-      100000-103fff  work RAM
-      200000-203fff  PC090OJ sprite RAM
-      400000-47ffff  bitmap VRAM (masked writes)
-      500000-503fff  palette RAM
-      600000         video_mask_w
-      700000         PC090OJ sprite_ctrl_w
-      d00000         video_ctrl_r / video_ctrl_w
-      e00001         PC060HA master_port_w
-      e00003         PC060HA master_comm_r/w
-      f00000-f007ff  C-chip shared SRAM, lower byte only
-      f00800-f00fff  C-chip ASIC regs,   lower byte only    */
-
 module jtvlfied_main(
     input                rst,
     input                clk,            // 48 MHz
@@ -76,18 +61,15 @@ module jtvlfied_main(
 `ifndef NOMAIN
 wire [23:1] A;
 wire        cpu_cenb;
-wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn, busn;
+wire        UDSn, LDSn, allFC, ASn, VPAn, DTACKn, busn;
 wire [ 2:0] FC, IPLn;
 reg  [15:0] cpu_din;
-wire [15:0] cpu_dout;
 wire [ 7:0] obj_ctrl;
 wire        intn;
 wire        bus_cs, bus_busy, bus_legit;
 
 assign main_addr = A[19:1];
 assign main_dsn  = {UDSn, LDSn};
-assign main_rnw  = RnW;
-assign main_dout = cpu_dout;
 assign cchip_addr= A[11:1];
 assign obj_pal   = obj_ctrl[5:2];
 assign allFC     = ~&FC;
@@ -105,14 +87,14 @@ always @* begin
     obj_cs     = allFC && A[23:18]==6'h8 && !busn;            // 200000-203fff
     fb_cs      = allFC && A[23:19]==5'h8 && !busn;            // 400000-47ffff
     pal_cs     = allFC && A[23:18]==6'h14&& !busn;            // 500000-503fff
-    vmask_cs   = allFC && A[23:20]==4'h6 && !busn && !RnW;    // 600000
-    sprctrl_cs = allFC && A[23:20]==4'h7 && !busn && !RnW;    // 700000
+    vmask_cs   = allFC && A[23:20]==4'h6 && !busn && !main_rnw;    // 600000
+    sprctrl_cs = allFC && A[23:20]==4'h7 && !busn && !main_rnw;    // 700000
     vctrl_cs   = allFC && A[23:20]==4'hd && !busn;            // d00000
     cchip_cs   = allFC && A[23:20]==4'hf && !busn;            // f00000-f00fff
 
     // PC060HA is on the odd byte only; A[1] selects port (0) from comm (1)
-    sn_we = allFC && A[23:20]==4'he && !ASn && !LDSn && !RnW;
-    sn_rd = allFC && A[23:20]==4'he && !ASn && !LDSn &&  RnW;
+    sn_we = allFC && A[23:20]==4'he && !ASn && !LDSn && !main_rnw;
+    sn_rd = allFC && A[23:20]==4'he && !ASn && !LDSn &&  main_rnw;
 end
 
 always @(posedge clk) begin
@@ -146,7 +128,6 @@ jtframe_68kdtack_cen #(.W(12)) u_dtack(
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
-    // 8 MHz off the 53.372 MHz base
     .num        ( 11'd231   ),
     .den        ( 12'd1541  ),
     .DTACKn     ( DTACKn    ),
@@ -162,7 +143,7 @@ jtframe_8bit_reg u_obj_ctrl(
     .rst        ( rst             ),
     .clk        ( clk             ),
     .wr_n       ( main_rnw | LDSn ),
-    .din        ( cpu_dout[7:0]   ),
+    .din        ( main_dout[7:0]   ),
     .cs         ( sprctrl_cs      ),
     .dout       ( obj_ctrl        )
 );
@@ -176,9 +157,9 @@ jtframe_m68k u_cpu(
 
     .eab        ( A           ),
     .iEdb       ( cpu_din     ),
-    .oEdb       ( cpu_dout    ),
+    .oEdb       ( main_dout   ),
 
-    .eRWn       ( RnW         ),
+    .eRWn       ( main_rnw    ),
     .LDSn       ( LDSn        ),
     .UDSn       ( UDSn        ),
     .ASn        ( ASn         ),

@@ -29,7 +29,6 @@ module jtvlfied_fb #(parameter FETCH_W = 512 )(
 
     input        [ 8:0] hdump,
     input        [ 8:0] vrender,
-    input               flip,
     input               HS,
 
     input        [18:1] main_addr,

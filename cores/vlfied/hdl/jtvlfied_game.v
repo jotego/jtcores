@@ -23,9 +23,8 @@ module jtvlfied_game(
 wire [15:0] oram_dout, fb_dout, vctrl_dout;
 wire [ 1:0] main_dsn;
 wire        obj_cs, ram_cs, fb_cs, pal_cs, vmask_cs, sprctrl_cs, vctrl_cs, main_rnw;
-wire        flip;
 wire        sn_we, sn_rd, main_cen;
-wire [ 7:0] st_video;
+wire        flip;
 wire [ 7:0] sn_dout;
 wire [ 3:0] obj_pal;
 
@@ -36,12 +35,10 @@ wire        cchip_rnw;
 wire        fb_ok;
 wire [ 7:0] ioctl_obj;
 
-// The 68k redraws the bitmap mirrored in software when the cocktail DIP is on,
-// so only the sprite engine needs a hardware flip;
 assign dip_flip   = 1'b0;
-assign flip       = ~dipsw[1];
+assign flip       = ~dipsw[1];   // DSWA bit1: 0 = Flip Screen On
 assign st_dout    = 0;
-assign debug_view = st_video;   // video_ctrl / video_mask, selected by debug_bus
+// debug_view carries video_ctrl / video_mask, selected by debug_bus
 assign cchip_rnw  = main_rnw | main_dsn[0];
 `ifdef JTFRAME_IOCTL_RD
 assign ioctl_din  = ioctl_obj;
@@ -196,7 +193,7 @@ jtvlfied_video u_video(
 
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
-    .st_dout    ( st_video  ),
+    .st_dout    ( debug_view),
     .ioctl_addr ( ioctl_addr[10:0]),
     .ioctl_din  ( ioctl_obj ),
     .ioctl_ram  ( ioctl_ram )

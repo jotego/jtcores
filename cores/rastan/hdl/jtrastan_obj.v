@@ -57,6 +57,9 @@ reg  [ 7:0] obj_cnt;
 reg         done, half, dr_busyl;
 wire        last_obj;
 reg         inzone, dr_busy, dr_start, cur_hflip, buf_we;
+// screen flip, Y half: pc090oj does y = 256-y-16 and inverts flipy
+wire [8:0] yeff = flip ? 9'd240 - ypos[8:0] : ypos[8:0];
+wire [8:0] xeff = flip ? 9'd304 - xpos[8:0] : xpos[8:0];   // x = 320-x-16
 reg  [ 3:0] cur_pal;
 reg  [ 2:0] scan_st, xcnt;
 reg  [ 1:0] scan_cnt;
@@ -71,7 +74,7 @@ assign cur_pxl = cur_hflip ? pxl_data[31:28] : pxl_data[3:0];
 assign dtackn = 1;
 
 always @* begin
-    ydiff  = ypos[8:0] - (vrender-9'd8);
+    ydiff  = yeff - (vrender-9'd8);
     inzone = ydiff<16;
 end
 
@@ -136,12 +139,12 @@ always @(posedge clk, posedge rst) begin
         pxl_data  <= 0;
     end else begin
         if( dr_start ) begin
-            rom_addr <= { code[12:0], ydiff[3:0]^{4{~attr[15]}}, attr[14] };
+            rom_addr <= { code[12:0], ydiff[3:0]^{4{~(attr[15]^flip)}}, attr[14]^flip };
             half     <= 0;
             dr_busy  <= 1;
-            buf_pos  <= xpos[8:0] + 9'd13;
+            buf_pos  <= xeff + 9'd13;
             cur_pal  <= attr[3:0];
-            cur_hflip<= attr[14];
+            cur_hflip<= attr[14] ^ flip;
             buf_we   <= 0;
         end
         if( dr_busy ) begin
@@ -194,7 +197,7 @@ jtframe_obj_buffer #(
 ) u_buffer(
     .clk    ( clk       ),
     .LHBL   ( ~HS       ),
-    .flip   ( flip      ),
+    .flip   ( 1'b0      ),   // position by xeff, pixel order by cur_hflip
     // New data writes
     .wr_data( { cur_pal, cur_pxl} ),
     .wr_addr( buf_pos   ),

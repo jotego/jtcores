@@ -78,14 +78,11 @@ module jtvlfied_video(
     input           ioctl_ram
 );
 
-wire        preLHBL, preLVBL, hs, vs;
+wire        preLHBL, preLVBL;
 wire [ 8:0] H, vdump, vrender, vrender1;
 wire [ 7:0] obj_pxl;
 wire [11:0] fb_pxl;
 wire        dummy_dtack;
-
-assign HS = hs;
-assign VS = vs;
 
 // 424x263 at the 6.671 MHz pixel clock -> 15.73 kHz line rate, 59.8 Hz.
 // Both layers render from vrender1 rather than vrender, i.e. one scanline
@@ -109,8 +106,8 @@ jtframe_vtimer #(
     .Vinit      (           ),
     .LHBL       ( preLHBL   ),
     .LVBL       ( preLVBL   ),
-    .HS         ( hs        ),
-    .VS         ( vs        )
+    .HS         ( HS        ),
+    .VS         ( VS        )
 );
 
 jtvlfied_fb u_fb(
@@ -119,8 +116,7 @@ jtvlfied_fb u_fb(
     .pxl_cen    ( pxl_cen   ),
     .hdump      ( H         ),
     .vrender    ( vrender1  ),
-    .flip       ( flip      ),
-    .HS         ( hs        ),
+    .HS         ( HS        ),
 
     .main_addr  ( main_addr ),
     .main_dout  ( main_dout ),
@@ -158,7 +154,7 @@ jtrastan_obj u_obj(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
-    .HS         ( hs        ),
+    .HS         ( HS        ),
     .flip       ( flip      ),
     .hdump      ( H         ),
     .vrender    ( vrender1  ),
