@@ -248515,4 +248515,174 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="chaknpop" sourcefile="taito/chaknpop.cpp">
+		<description>Chack'n Pop</description>
+		<year>1983</year>
+		<manufacturer>Taito Corporation</manufacturer>
+		<rom name="ao4_01.ic28" size="8192" crc="386fe1c8" sha1="cca24abfb8a7f439251e7936036475c694002561" region="maincpu" offset="0"/>
+		<rom name="ao4_02.ic27" size="8192" crc="5562a6a7" sha1="0c5d81f9aaf858f88007a6bca7f83dc3ef59c5b5" region="maincpu" offset="2000"/>
+		<rom name="ao4_03.ic26" size="8192" crc="3e2f0a9c" sha1="f1cf87a4cb07f77104d4a4d369807dac522e052c" region="maincpu" offset="4000"/>
+		<rom name="ao4_04.ic25" size="8192" crc="5209c7d4" sha1="dcba785a697df55d84d65735de38365869a1da9d" region="maincpu" offset="6000"/>
+		<rom name="ao4_05.ic3" size="8192" crc="8720e024" sha1="99e445c117d1501a245f9eb8d014abc4712b4963" region="maincpu" offset="a000"/>
+		<rom name="ao4_06.ic23" size="2048" crc="9c78c24c" sha1="f74c7f3ee106e5c45c907e590ec09614a2bc6751" region="bmcu:mcu" offset="0"/>
+		<rom name="ao4_08.ic14" size="8192" crc="5575a021" sha1="c2fad53fe6a12c19cec69d27c13fce6aea2502f2" region="sprites" offset="0"/>
+		<rom name="ao4_07.ic15" size="8192" crc="ae687c18" sha1="65b25263da88d30cbc0dad94511869596e5c975a" region="sprites" offset="2000"/>
+		<rom name="ao4_09.ic98" size="8192" crc="757a723a" sha1="62ab84d2aaa9bc1ea5aa9df8155aa3b5a1e93889" region="chars" offset="0"/>
+		<rom name="ao4_10.ic97" size="8192" crc="3e3fd608" sha1="053a8fbdb35bf1c142349f78a63e8cd1adb41ef6" region="chars" offset="2000"/>
+		<rom name="ao4-11.ic96" size="1024" crc="9bf0e85f" sha1="44f0a4712c99a715dec54060afb0b27dc48998b4" region="proms" offset="0"/>
+		<rom name="ao4-12.ic95" size="1024" crc="954ce8fc" sha1="e187f9e2cb754264d149c2896ca949dea3bcf2eb" region="proms" offset="400"/>
+		<device_ref name="z80"/>
+		<device_ref name="taito68705"/>
+		<device_ref name="m68705p5"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ay8910"/>
+		<device_ref name="ay8910"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3000000"/>
+		<chip type="cpu" tag="bmcu:mcu" name="Motorola MC68705P5" clock="3000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ay1" name="AY-3-8910A PSG" clock="1500000"/>
+		<chip type="audio" tag="ay2" name="AY-3-8910A PSG" clock="1500000"/>
+		<display tag="screen" type="raster" rotate="0" width="256" height="224" refresh="59.182800" />
+		<sound channels="1"/>
+		<input players="2" coins="2" tilt="yes">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSWA" mask="15">
+			<diplocation name="SWA" number="1"/>
+			<diplocation name="SWA" number="2"/>
+			<diplocation name="SWA" number="3"/>
+			<diplocation name="SWA" number="4"/>
+			<dipvalue name="9 Coins/1 Credit" value="15"/>
+			<dipvalue name="8 Coins/1 Credit" value="14"/>
+			<dipvalue name="7 Coins/1 Credit" value="13"/>
+			<dipvalue name="6 Coins/1 Credit" value="12"/>
+			<dipvalue name="5 Coins/1 Credit" value="11"/>
+			<dipvalue name="4 Coins/1 Credit" value="10"/>
+			<dipvalue name="3 Coins/1 Credit" value="9"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="1 Coin/3 Credits" value="2"/>
+			<dipvalue name="1 Coin/4 Credits" value="3"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="5"/>
+			<dipvalue name="1 Coin/7 Credits" value="6"/>
+			<dipvalue name="1 Coin/8 Credits" value="7"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="240">
+			<diplocation name="SWA" number="5"/>
+			<diplocation name="SWA" number="6"/>
+			<diplocation name="SWA" number="7"/>
+			<diplocation name="SWA" number="8"/>
+			<dipvalue name="9 Coins/1 Credit" value="240"/>
+			<dipvalue name="8 Coins/1 Credit" value="224"/>
+			<dipvalue name="7 Coins/1 Credit" value="208"/>
+			<dipvalue name="6 Coins/1 Credit" value="192"/>
+			<dipvalue name="5 Coins/1 Credit" value="176"/>
+			<dipvalue name="4 Coins/1 Credit" value="160"/>
+			<dipvalue name="3 Coins/1 Credit" value="144"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="1 Coin/1 Credit" value="0" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="16"/>
+			<dipvalue name="1 Coin/3 Credits" value="32"/>
+			<dipvalue name="1 Coin/4 Credits" value="48"/>
+			<dipvalue name="1 Coin/5 Credits" value="64"/>
+			<dipvalue name="1 Coin/6 Credits" value="80"/>
+			<dipvalue name="1 Coin/7 Credits" value="96"/>
+			<dipvalue name="1 Coin/8 Credits" value="112"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="3">
+			<diplocation name="SWB" number="1"/>
+			<diplocation name="SWB" number="2"/>
+			<dipvalue name="80k and every 100k" value="0"/>
+			<dipvalue name="60k and every 100k" value="1"/>
+			<dipvalue name="40k and every 100k" value="2"/>
+			<dipvalue name="20k and every 100k" value="3" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSWB" mask="4">
+			<diplocation name="SWB" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="24">
+			<diplocation name="SWB" number="4"/>
+			<diplocation name="SWB" number="5"/>
+			<dipvalue name="6" value="0"/>
+			<dipvalue name="3" value="8" default="yes"/>
+			<dipvalue name="2" value="16"/>
+			<dipvalue name="1" value="24"/>
+		</dipswitch>
+		<dipswitch name="Training/Difficulty" tag="DSWB" mask="32">
+			<diplocation name="SWB" number="6"/>
+			<dipvalue name="Off/Every 10 Min." value="32"/>
+			<dipvalue name="On/Every 7 Min." value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWB" mask="64">
+			<diplocation name="SWB" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSWB" mask="128">
+			<diplocation name="SWB" number="8"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="128"/>
+		</dipswitch>
+		<dipswitch name="Language" tag="DSWC" mask="1">
+			<diplocation name="SWC" number="1"/>
+			<dipvalue name="English" value="0"/>
+			<dipvalue name="Japanese" value="1" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWC" mask="2">
+			<diplocation name="SWC" number="2"/>
+			<dipvalue name="Off" value="2"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Super Chack'n" tag="DSWC" mask="4">
+			<diplocation name="SWC" number="3"/>
+			<dipvalue name="pi" value="4" default="yes"/>
+			<dipvalue name="1st Chance" value="0"/>
+		</dipswitch>
+		<dipswitch name="Endless (Cheat)" tag="DSWC" mask="8">
+			<diplocation name="SWC" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Credit Info" tag="DSWC" mask="16">
+			<diplocation name="SWC" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Show Year" tag="DSWC" mask="32">
+			<diplocation name="SWC" number="6"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="32" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Infinite (Cheat)" tag="DSWC" mask="64">
+			<diplocation name="SWC" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coinage" tag="DSWC" mask="128">
+			<diplocation name="SWC" number="8"/>
+			<dipvalue name="1 Way" value="0" default="yes"/>
+			<dipvalue name="2 Way" value="128"/>
+		</dipswitch>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":DSWC">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 </mame>
