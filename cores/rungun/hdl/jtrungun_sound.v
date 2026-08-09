@@ -218,7 +218,7 @@ end else begin // 2nd jt539 not present in prmrsocr
 end endgenerate
 
 `else
-assign k539a_l=0, k539a_r=0, k539b_l=0, k539b_r=0,
+assign k539a_l=0, k539a_r=0, k539b_l=0, k539b_r=0, k539_l=0, k539_r=0,
        m1_n=1, mreq_n=1, rfsh_n=1, wr_n=1, A=0, cpu_dout=0, iorq_n=1, tima=0,
        pcma_cs=0, pcmb_cs=0, pcma_addr=0, pcmb_addr=0, ram_dout=0,
        k39a_dout=0, k39b_dout=0, sta_dout=0, stb_dout=0;
