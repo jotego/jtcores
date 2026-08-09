@@ -1,5 +1,34 @@
 #!/bin/bash
 
+main() {
+    if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+        usage
+        return 0
+    fi
+    if [[ -n "$1" ]]; then
+        printf 'lint-all.sh: unknown argument: %s\n' "$1" >&2
+        usage >&2
+        return 1
+    fi
+
+    setup
+    lint_cores
+    report_logs
+    report_result
+}
+
+usage() {
+    cat <<'EOF'
+Usage: lint-all.sh [options]
+
+Lint all JT cores with Verilator and report warnings and errors.
+
+Options:
+  -h, --help   Show this help and exit
+EOF
+}
+
+setup() {
 if [ -z "$JTFRAME" ]; then
     cd /jtcores
     git config --global --add safe.directory /jtcores
@@ -13,7 +42,9 @@ LOGFOLDER=$JTROOT/log/linter
 cd $CORES
 rm -rf $LOGFOLDER
 mkdir -p $LOGFOLDER
+}
 
+lint_cores() {
 for core in *; do
     if [ ! -d $core ]; then continue; fi
     LOG=$LOGFOLDER/lint-$core.log
@@ -28,8 +59,10 @@ for core in *; do
         fi
     fi
 done
+}
 
 # print out all log files that have problems
+report_logs() {
 if [[ ! -z "$WARNLIST" || ! -z "$ERRLIST" ]]; then
     for core in $WARNLIST $ERRLIST; do
         printf "=========== %8s ===========\n" $core
@@ -37,6 +70,7 @@ if [[ ! -z "$WARNLIST" || ! -z "$ERRLIST" ]]; then
         cat $LOGFOLDER/lint-$core.log
     done
 fi
+}
 
 function make_table {
     if which column > /dev/null; then
@@ -50,6 +84,7 @@ function count_cores {
     echo $* | wc -w
 }
 
+report_result() {
 if [ ! -z "$WARNLIST" ]; then
     echo "Cores with linter warnings:"
     make_table $WARNLIST
@@ -72,3 +107,6 @@ else
 fi
 
 rm -f lint*.log
+}
+
+main "$@"

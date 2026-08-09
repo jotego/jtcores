@@ -74,6 +74,8 @@ module jtdd_main(
     input  [7:0]       dipsw_b
 );
 
+`ifndef NOMAIN
+
 wire [15:0] A;
 wire [ 7:0] ram_dout;
 reg io_cs, ram_cs, misc_cs, banked_cs;
@@ -291,4 +293,15 @@ jtframe_sys6809 #(.RAM_AW(13),.CENDIV(0),.RECOVERY(0)) u_cpu(
     .cpu_din    ( cpu_din   )
 );
 
+`else
+assign mcu_nmi_set = 1'b0;
+assign flip        = 1'b0;
+assign cpu_dout    = 8'd0;
+assign cpu_AB      = 13'd0;
+assign RnW         = 1'b1;
+initial begin
+    mcu_haltn=0; com_cs=0; pal_cs=0; mcu_rstb=0; snd_irq=0; snd_latch=0;
+    cram_cs=0; oram_cs=0; vram_cs=0; scrhpos=0; scrvpos=0; rom_cs=0; rom_addr=0;
+end
+`endif
 endmodule // jtdd_main

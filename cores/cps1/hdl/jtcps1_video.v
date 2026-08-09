@@ -361,11 +361,7 @@ jtcps1_mmr #(REGSIZE) u_mmr(
 
     // OBJ DMA
     `ifndef CPS2
-        `ifndef NOMAIN
-            .obj_dma_ok ( obj_dma_ok    ),
-        `else
-            .obj_dma_ok (               ),
-        `endif
+        .obj_dma_ok ( obj_dma_ok        ),
     `else
         .obj_dma_ok (                   ),
     `endif
@@ -390,11 +386,7 @@ jtcps1_mmr #(REGSIZE) u_mmr(
     .vram_row_base  ( vram_row_base     ),
     .row_offset     ( row_offset        ),
     .pal_base       ( pal_base          ),
-`ifndef NOMAIN
     .pal_copy       ( pal_dma_ok        ),
-`else
-    .pal_copy       (                   ),
-`endif
 
     // CPS-B Registers
     .cfg_we         ( cfg_we            ),
@@ -655,24 +647,6 @@ assign vpal_cs   = 1'b0;
 assign vpal_addr = 17'd0;
 assign LVBL_dly  = ~VB;
 assign LHBL_dly  = ~HB;
-`endif
-
-// Fake DMA signals to allow for video-only simulation
-`ifdef  NOMAIN
-reg fake_pal, last_VB;
-
-assign pal_dma_ok = fake_pal;
-assign obj_dma_ok = fake_pal;
-
-always @(posedge clk or posedge rst) begin
-    if( rst ) begin
-        fake_pal <= 0;
-        last_VB  <= 1;
-    end else if(pxl_cen) begin
-        last_VB  <= VB;
-        fake_pal <= VB && !last_VB;
-    end
-end
 `endif
 
 endmodule

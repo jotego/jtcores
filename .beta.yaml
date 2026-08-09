@@ -1,10 +1,11 @@
 # Remember to update JTFRAME_SKIP when adding
 # or removing betas
-ngpc:     [ mister, pocket ]
-riders:   [ mister, pocket ]
-prmr:     [ mister, pocket ]
 cal50:    [ mister, pocket ]
 cps3:     [ mister, pocket ]
 grad3:    [ mister, pocket ]
-ddrbl:    [ mister, pocket ]
 gae1:     [ pocket ]
+blkout:   [ mister, pocket ]
+gals:     [ mister, pocket ]
+pktgal:   [ mister, pocket ]
+rastan:   [ mister, pocket ]
+

@@ -1,5 +1,6 @@
 [*]
 CORENAME=JTCOMSC
+JTFRAME_RATE=59.19
 JTCONTRA_PCB=1
 JTFRAME_CLK24
 # Not really stereo, but left so jtcontra_game

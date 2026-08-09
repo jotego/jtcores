@@ -43,6 +43,9 @@ assign ram_we = ~cpu_rnw;
 assign debug_view=st_snd;
 assign dip_flip = ghflip ^ gvflip;
 assign psrm_dout = {psac2_dout,psac01_dout};
+`ifdef JTFRAME_LF_BUFFER
+assign fb_keep = 1'b0;
+`endif
 
 always @(posedge clk48) begin
     rst_main  <= rst48;

@@ -75,7 +75,7 @@ wire keyoff;
 
 
 always_comb begin
-    kon     = ch[WAV] ? cfg[KEYON] & ~keyoff: cfg[KEYON];
+    kon     = cfg[WAV] ? cfg[KEYON] & ~keyoff: cfg[KEYON];
     cfg_din ={cfg[7:1],kon};
     cfg_we  = up && st==5'o30;
 end

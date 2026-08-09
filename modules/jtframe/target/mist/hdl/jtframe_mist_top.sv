@@ -141,11 +141,12 @@ localparam bit HDMI = 0;
 
 `ifdef JTFRAME_LF_SDRAM_BUFFER
 `define MIST_USE_SDRAM2
-`endif
+`else
 `ifdef JTFRAME_VERTICAL
 `ifdef JTFRAME_SDRAM_ROTATION
 `define MIST_USE_SDRAM2
 `define MIST_USE_SDRAM2_ROTATION
+`endif
 `endif
 `endif
 
@@ -576,6 +577,7 @@ assign UART_TX = game_tx,
     wire        [15:0] ln_data;
     wire               ln_done;
     wire               ln_we;
+    wire               fb_keep;
     wire               ln_hs, ln_vs, ln_lvbl;
     wire        [15:0] ln_dout;
     wire        [15:0] ln_pxl;
@@ -611,6 +613,7 @@ assign UART_TX = game_tx,
         .ln_vs      ( ln_vs         ),
         .ln_lvbl    ( ln_lvbl       ),
         .ln_we      ( ln_we         ),
+        .fb_keep    ( fb_keep       ),
 `ifdef JTFRAME_LF_ZOOM
         .h_step     ( game_h_step   ),
         .v_step     ( game_v_step   ),
@@ -659,6 +662,7 @@ assign UART_TX = game_tx,
         .ln_vs      ( ln_vs         ),
         .ln_lvbl    ( ln_lvbl       ),
         .ln_we      ( ln_we         ),
+        .fb_keep    ( fb_keep       ),
 `ifdef JTFRAME_LF_ZOOM
         .h_step     ( game_h_step   ),
         .v_step     ( game_v_step   ),

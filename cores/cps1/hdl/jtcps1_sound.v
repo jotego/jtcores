@@ -46,6 +46,8 @@ module jtcps1_sound(
     input         [ 7:0] debug_bus
 );
 
+`ifndef NOSOUND
+
 wire signed [13:0] oki_pre, pcm_rc, pcm_butter;
 reg  signed [13:0] pcm_snd;
 wire signed [15:0] fm_left, fm_right;
@@ -288,5 +290,21 @@ jtframe_iir2 #(.G(2), .WS(14)) u_butter(
     .sin        ( oki_pre   ),
     .sout       ( pcm_butter)
 );
+
+`else
+
+assign adpcm_addr = 18'd0;
+assign adpcm_cs   = 1'b0;
+assign left       = 16'sd0;
+assign right      = 16'sd0;
+assign sample     = 1'b0;
+
+initial begin
+    rom_addr = 16'd0;
+    rom_cs   = 1'b0;
+    peak     = 1'b0;
+end
+
+`endif
 
 endmodule

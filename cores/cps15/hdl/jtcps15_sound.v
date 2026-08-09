@@ -60,6 +60,8 @@ module jtcps15_sound(
     output               sample
 );
 
+`ifndef NOSOUND
+
 localparam LATCH=`ifdef KABUKI_LATCH 1 `else 0 `endif ;
 
 wire        cpu_cen, cen_extra;
@@ -95,7 +97,6 @@ reg         base_sample;
 reg         last_pids_n;
 reg         rom_okl, last_romcs;
 
-`ifndef NOSOUND
 assign      dsp_rdy_n = ~(dsp_irq | dsp_iack);
 assign      dsp_doen  = 1; // ignored by dsp16
 
@@ -114,21 +115,6 @@ jtcps15_qsnd_cen u_dspcen(
     .r_out       ( right       ),
     .resample48  ( sample      )
 );
-`else
-reg rdy_reads, last_rd;
-assign dsp_rdy_n = rdy_reads;
-assign left=0, right=0, sample=0;
-
-always @(posedge clk48, posedge rst) begin
-    if( rst ) begin
-        rdy_reads <= 0;
-        last_rd   <= 0;
-    end else begin
-        last_rd <= qsnd_rd;
-        if( !qsnd_rd && last_rd ) rdy_reads <= ~rdy_reads;
-    end
-end
-`endif
 
 `ifdef SIMULATION
 wire bank_access = rom_cs & A[15];
@@ -386,7 +372,6 @@ always @(*) begin
     dsp_pbus_in = dsp_dsel96 ? {8'd0, cpu2dsp_s[23:16]} : cpu2dsp_s[15:0];
 end
 
-`ifndef NOSOUND
 wire        dsp_fault;
 
 assign qsnd_cs = 1;
@@ -431,17 +416,20 @@ jtdsp16 u_dsp16(
     .fault      ( dsp_fault     )
 );
 `else
-assign dsp_pbus_out = 16'd0;
-assign dsp_pods_n   = 1;
-assign dsp_pids_n   = 1;
-assign dsp_do       = 1;
-assign dsp_ock      = 1;
-assign dsp_cen_cko  = 0;
-assign dsp_doen     = 0;
-assign dsp_sadd     = 0;
-assign dsp_psel     = 0;
-assign dsp_ab       = 16'd0;
-assign qsnd_cs      = 0;
+assign main_busakn = 1'b1;
+assign main_waitn  = 1'b1;
+assign qsnd_cs     = 1'b0;
+assign left        = 16'sd0;
+assign right       = 16'sd0;
+assign sample      = 1'b0;
+
+initial begin
+    volume     = 13'd0;
+    main_din   = 8'hff;
+    rom_addr   = 19'd0;
+    rom_cs     = 1'b0;
+    qsnd_addr  = 23'd0;
+end
 `endif
 
 endmodule

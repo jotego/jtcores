@@ -130,6 +130,7 @@ module game_test(
     // input    [15:0] ln_pxl,
     // input    [`JTFRAME_LF_VW-1:0] ln_v,
     // output          ln_we,
+    // output          fb_keep,
 
     // Debug
     input   [3:0]   gfx_en,
@@ -340,6 +341,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
         wire  [15:0] ln_pxl;
         wire  [`JTFRAME_LF_VW-1:0] ln_v;
         wire         ln_we;
+        wire         fb_keep;
 `ifdef JTFRAME_LF_ZOOM
     wire [ 8:0] game_h_step, game_v_step;
 `endif
@@ -380,6 +382,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .ln_vs      ( ln_vs         ),
             .ln_lvbl    ( ln_lvbl       ),
             .ln_we      ( ln_we         ),
+            .fb_keep    ( fb_keep       ),
 `ifdef JTFRAME_LF_ZOOM
             .h_step     ( game_h_step   ),
             .v_step     ( game_v_step   ),
@@ -415,6 +418,43 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .wen    ( cr_wen         )
         );
     `else // MiSTer family
+`ifdef JTFRAME_MR_LF_BRAM
+        jtframe_lfbuf_bram #(.HW(`JTFRAME_LF_HW),.VW(`JTFRAME_LF_VW)) u_lf_buf(
+            .rst        ( rst           ),
+            .clk        ( clk_rom       ),
+            .pxl_cen    ( pxl_cen       ),
+
+            .hs         ( HS            ),
+            .vs         ( VS            ),
+            .lvbl       ( LVBL          ),
+            .lhbl       ( LHBL          ),
+            .vrender    ( game_vrender  ),
+            .hdump      ( game_hdump    ),
+
+            // interface with the game core
+            .ln_addr    ( ln_addr       ),
+            .ln_data    ( ln_data       ),
+            .ln_done    ( ln_done       ),
+            .ln_hs      ( ln_hs         ),
+            .ln_dout    ( ln_dout       ),
+            .ln_pxl     ( ln_pxl        ),
+            .ln_v       ( ln_v          ),
+            .ln_vs      ( ln_vs         ),
+            .ln_lvbl    ( ln_lvbl       ),
+            .ln_we      ( ln_we         ),
+            .fb_keep    ( fb_keep       ),
+`ifdef JTFRAME_LF_ZOOM
+            .h_step     ( game_h_step   ),
+            .v_step     ( game_v_step   ),
+`else
+            .h_step     ( 9'h100        ),
+            .v_step     ( 9'h100        ),
+`endif
+
+            .st_addr    ( 8'd0 ),
+            .st_dout    (      )
+        );
+`else
         wire          DDRAM_CLK, DDRAM_BUSY, DDRAM_RD, DDRAM_WE, DDRAM_DOUT_READY;
         wire    [7:0] DDRAM_BURSTCNT, DDRAM_BE;
         wire   [28:0] DDRAM_ADDR;
@@ -456,6 +496,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .ln_vs      ( ln_vs         ),
             .ln_lvbl    ( ln_lvbl       ),
             .ln_we      ( ln_we         ),
+            .fb_keep    ( fb_keep       ),
 `ifdef JTFRAME_LF_ZOOM
             .h_step     ( game_h_step   ),
             .v_step     ( game_v_step   ),
@@ -477,6 +518,7 @@ jtframe_sdram_stats_sim #(.AW(SDRAMW)) u_stats(
             .st_addr    ( 8'd0 ),
             .st_dout    (      )
         );
+`endif
     `endif
 `endif
 `ifndef JTFRAME_SDRAM_CACHE
@@ -639,6 +681,7 @@ u_game(
     .ln_vs       ( ln_vs          ),
     .ln_lvbl     ( ln_lvbl        ),
     .ln_we       ( ln_we          ),
+    .fb_keep     ( fb_keep        ),
 `ifdef JTFRAME_LF_ZOOM
     .h_step      ( game_h_step    ),
     .v_step      ( game_v_step    ),

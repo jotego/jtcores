@@ -21,6 +21,7 @@ reg              ln_done = 1'b0;
 reg  [HW-1:0]    ln_addr = 0;
 reg  [15:0]      ln_data = 0;
 reg              ln_we = 1'b0;
+reg              fb_keep = 1'b0;
 
 wire             ln_hs, ln_vs, ln_lvbl;
 wire [VW-1:0]    line_ln_v;
@@ -76,6 +77,7 @@ jtframe_lfbuf_ctrl #(
     .lhbl       ( lhbl      ),
     .vs         ( vs        ),
     .ln_done    ( ln_done   ),
+    .fb_keep    ( fb_keep   ),
     .vrender    ( vrender   ),
     .ln_v       ( req_v     ),
     .frame      ( frame     ),
@@ -153,6 +155,7 @@ psram_model #(
     .cr_cen     ( cr_cen     ),
     .cr_oen     ( cr_oen     ),
     .cr_wen     ( cr_wen     ),
+    .cr_dsn     ( cr_dsn     ),
     .wr         ( psram_wr   ),
     .wr_addr    ( psram_addr ),
     .wr_data    ( psram_din  )
@@ -282,6 +285,7 @@ module psram_model #(parameter
     input      [1:0]   cr_cen,
     input              cr_oen,
     input              cr_wen,
+    input      [1:0]   cr_dsn,
     output reg         wr,
     output reg [HW+VW:0] wr_addr,
     output reg [15:0]  wr_data
@@ -324,10 +328,12 @@ always @(posedge clk) begin
             cr_wait <= 1'b1;
             drive   <= read_cyc;
             if( write_cyc ) begin
-                mem[burst_addr[AW-1:0]] <= cr_adq;
-                wr      <= 1'b1;
-                wr_addr <= burst_addr[AW-1:0];
-                wr_data <= cr_adq;
+                if( cr_dsn != 2'b11 ) begin
+                    mem[burst_addr[AW-1:0]] <= cr_adq;
+                    wr      <= 1'b1;
+                    wr_addr <= burst_addr[AW-1:0];
+                    wr_data <= cr_adq;
+                end
                 burst_addr <= burst_addr + 1'd1;
             end else if( read_cyc ) begin
                 dout    <= mem[burst_addr[AW-1:0]];

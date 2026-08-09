@@ -65,6 +65,8 @@ module jtsbaskt_main(
     input      [7:0]    dipsw_b
 );
 
+`ifndef NOMAIN
+
 reg  [ 7:0] cabinet, cpu_din;
 wire [ 7:0] din_dec;
 wire [15:0] A;
@@ -209,4 +211,14 @@ mc6809i u_cpu(
     .RegData    (           )
 );
 
+`else
+assign rom_addr = 16'd0;
+assign ram_we   = 1'b0;
+assign cpu_rnw  = 1'b1;
+assign cpu_dout = 8'd0;
+initial begin
+    rom_cs=0; vscr_cs=0; vram_cs=0; objram_cs=0; obj_frame=0;
+    snd_data_cs=0; snd_on_cs=0; pal_sel=0; flip=0;
+end
+`endif
 endmodule

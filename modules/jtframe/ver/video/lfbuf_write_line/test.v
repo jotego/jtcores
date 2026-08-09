@@ -59,6 +59,7 @@ jtframe_lfbuf_ddr_ctrl #(
     .pxl_cen            ( pxl_cen            ),
     .lhbl               ( lhbl               ),
     .ln_done            ( ln_done            ),
+    .fb_keep            ( 1'b0               ),
     .vrender            ( vrender            ),
     .ln_v               ( ln_v               ),
     .vs                 ( vs                 ),

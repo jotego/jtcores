@@ -66,6 +66,7 @@ JTFRAME_MOUSE_NO2COMPL   |         | Mouse input is provided as sign+magnitude i
 JTFRAME_MOUSE_NOEMU      |         | Disables mouse emulation via joystick
 JTFRAME_MR_DDR           | MiSTer  | Defined internally when MiSTer DDR is used. Do not define manually.
 JTFRAME_MR_DDRLOAD       | MiSTer  | ROM download process uses the DDR as proxy
+JTFRAME_MR_LF_BRAM       | MiSTer  | Use BRAM instead of DDR for JTFRAME_LF_BUFFER. Automatically set when JTFRAME_VERTICAL is also enabled
 JTFRAME_MR_FASTIO        | MiSTer  | 16-bit ROM load in MiSTer. Set by default if CLK96 is set
 JTFRAME_NO_ANALOGIZER    | Pocket  | Disables analog video output and SNAC controllers through cartridge pins. Defined by default if JTFRAME_RELEASE is not defined
 JTFRAME_NO_DB15          | MiSTer  | Disables DB15 controller modules
@@ -84,6 +85,7 @@ JTFRAME_PADDLE           |         | Enables paddle inputs to the game module
 JTFRAME_PADDLE_MAX       |         | Maximum paddle value used by jtframe_paddle (mouse-to-paddle emulation)
 JTFRAME_PLL              |         | PLL module name to be used. PLL names must end in the pixel clock frequency in kHz
 JTFRAME_PXLCLK           |         | 6 or 8. Defines the pixel clock. See [clocks](clocks.md)
+JTFRAME_RATE             |         | Expected video refresh rate in Hz. Verilator `jtsim` checks this when the core produces frames.
 JTFRAME_RELEASE          |         | Disables debug control via keyboard
 JTFRAME_RFSH_WC          |         | Automatic. Used by SDRAM refresh in jtframe_board
 JTFRAME_RFSH_N           |         | Automatic. Used by SDRAM refresh in jtframe_board
@@ -99,6 +101,7 @@ JTFRAME_SHIFT            |         | Set to 1 if the SDRAM clock phase has a lar
 JTFRAME_SIGNALTAP        |         | Enables SignalTap QSF merge in `jtcore`; set by `jtcore --signaltap` or define in `macros.def`
 JTFRAME_SIGNED_SND       |         | Set to 0 if the game only uses unsigned sound sources
 JTFRAME_SKIP             |         | If defined, jtcore will not compile the core and just return a PASS
+JTFRAME_SKIP_RATE_TEST   |         | Documents that the core needs software-programmed video counters, so Verilator `jtsim` skips the `JTFRAME_RATE` check.
 JTFRAME_SND48K           |         | Enables a stereo 20kHz filter, 2kHz pass-band. Core's sample signal must be 48kHz and clk_sys=48MHz!
 JTFRAME_STATUS           |         | Game module will receive an 8-bit address and can output 8-bit data in response
 JTFRAME_STEREO           |         | Enables stereo sound (snd_left/right outputs from game module instead of single snd)
@@ -207,7 +210,6 @@ JTFRAME_SIM_SKIP_FRAME_DUMP|verilator| Skip the generic Verilator harness frame 
 JTFRAME_SIM_SKIP_VSIZE   |verilator| Skip the frame-size assertion in the generic Verilator harness
 JTFRAME_SIM_SLOWLOAD     |verilator| slows down the ROM load in case the core needs extra time
 JTFRAME_SIM_SNDEN        |verilator| Enable sound channels (bits active high) following the order in mem.yaml
-JTFRAME_SIM_VIDEO        |verilator| Create PNG files for all frames. Good for creation of video files.
 LOADROM                  |         | Sends ROM data via serial interface. Set by `jtsim -load`
 SIM_LOAD_PROM            |         | Manually enable it to force PROM load on offset-header cores (like JTS18)
 SIMSCENE                 |         | Set when jtsim is called with -scene

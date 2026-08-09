@@ -1,0 +1,47 @@
+[global]
+author=["jotego"]
+beta=true
+
+[parse]
+sourcefile=[ "pcktgal.cpp" ]
+
+[buttons]
+names=[
+    { names="Shot,Trick" }
+]
+
+[header]
+info="""
+    byte 0: runtime variant flags
+        bit 0 = original Data East char ROM transform
+        bit 1 = bootleg graphics/BAC06 layout
+        bit 2 = DECO 222 encrypted sound CPU opcodes
+
+    `pcktgalba` is included as the Pocket Gal side of the MAME machine.
+    Its unrelated card-game PCB regions are skipped in the ROM layout.
+"""
+fill=0
+registers=[
+    { name="char_orig",    pos="0[0]", values=[{ setnames=["pcktgal","pcktgal2","pcktgal2j","spool3","spool3i"], value=1 }], desc="Original Data East character ROM transform" },
+    { name="char_bootleg", pos="0[1]", values=[{ setnames=["pcktgalb","pcktgalba"], value=1 }], desc="Bootleg graphics and BAC06 layout" },
+    { name="deco222",      pos="0[2]", values=[{ setnames=["pcktgal","pcktgalb","pcktgalba"], value=1 }], desc="DECO 222 encrypted sound CPU opcodes" },
+]
+
+[dipsw]
+defaults=[ { value="bf" } ]
+delete=[ { names=[ "Unknown" ] } ]
+
+[ROM]
+regions=[
+    { name="maincpu",  No_offset=true },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="chars",    start="JTFRAME_BA2_START", width=32, rom_len=0x8000, sequence=[2,3,0,1] },
+    { name="chars",    start="JTFRAME_BA2_START", width=32, rom_len=0x8000, sequence=[0,1,2,3], setnames=["pcktgalb","pcktgalba"] },
+    { name="sprites",  start="JTFRAME_BA3_START" },
+    { name="proms",    start="JTFRAME_PROM_START" },
+    { name="plds",       skip=true },
+    { name="z80",        skip=true },
+    { name="card_chars", skip=true },
+]
+
+order=[ "maincpu", "audiocpu", "chars", "sprites", "proms" ]

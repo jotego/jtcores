@@ -101,3 +101,21 @@ set_output_delay -add_delay -max -clock SPI_SCK  6.4 [get_ports SPI_DO]
 set_output_delay -add_delay -min -clock SPI_SCK  3.2 [get_ports SPI_DO]
 
 set_false_path -to [get_keepers {*|jtframe_sync:*|synchronizer[*].s[0]}]
+
+# The VU meter is a debug-only display. Audio-rate mixer data may cross into
+# its system-clock accumulators without affecting game audio or video.
+set jtframe_vumeter_mixed [get_keepers -nowarn {*|jtframe_rcmix:u_rcmix|mixed[*]}]
+set jtframe_vumeter_ml    [get_keepers -nowarn {*|jtframe_vumeter:vumeter|ml[*]}]
+set jtframe_vumeter_mr    [get_keepers -nowarn {*|jtframe_vumeter:vumeter|mr[*]}]
+set jtframe_vumeter_l2r2  [get_keepers -nowarn {*|jtframe_vumeter:vumeter|l2r2[*]}]
+if { [get_collection_size $jtframe_vumeter_mixed] > 0 } {
+    if { [get_collection_size $jtframe_vumeter_ml] > 0 } {
+        set_false_path -from $jtframe_vumeter_mixed -to $jtframe_vumeter_ml
+    }
+    if { [get_collection_size $jtframe_vumeter_mr] > 0 } {
+        set_false_path -from $jtframe_vumeter_mixed -to $jtframe_vumeter_mr
+    }
+    if { [get_collection_size $jtframe_vumeter_l2r2] > 0 } {
+        set_false_path -from $jtframe_vumeter_mixed -to $jtframe_vumeter_l2r2
+    }
+}

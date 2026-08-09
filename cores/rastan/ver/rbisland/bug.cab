@@ -1,0 +1,7 @@
+# The command from the main CPU that triggers a short melody on boot-up
+# seems to be read multiple times. This simulation catches the problem
+# as the music can be heard re-start before it finishes the first time
+# This gets fixed by turning RECOVERY off for the Z80
+50
+1 tracing_on
+150

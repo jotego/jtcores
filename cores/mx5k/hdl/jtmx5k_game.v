@@ -40,7 +40,6 @@ wire        prio_latch;
 assign { dipsw_c, dipsw_b, dipsw_a } = dipsw[19:0];
 assign debug_view = st_video;
 
-`ifndef NOMAIN
 jtcontra_main #(.GAME(2)) u_main(
     .clk            ( clk24         ),        // 24 MHz
     .rst            ( rst24         ),
@@ -82,16 +81,6 @@ jtcontra_main #(.GAME(2)) u_main(
     .dipsw_b        ( dipsw_b       ),
     .dipsw_c        ( dipsw_c       )
 );
-`else
-// load a sound code for simulation
-assign snd_latch = 8'h22;
-reg pre_irq=0;
-initial begin
-    #100_000_000 pre_irq=1;
-end
-
-assign snd_irq = pre_irq;
-`endif
 
 `ifndef NOVIDEO
 jtmx5k_video u_video (

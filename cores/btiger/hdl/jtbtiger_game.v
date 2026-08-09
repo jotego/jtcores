@@ -85,7 +85,6 @@ jtgng_timer u_timer(
     .Vinit     (          )
 );
 
-`ifndef NOMAIN
 jtbtiger_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -151,19 +150,6 @@ jtbtiger_main u_main(
     .dipsw_a    ( dipsw[15:8]   ),
     .dipsw_b    ( dipsw[ 7:0]   )
 );
-`else
-assign main_addr   = 19'd0;
-assign char_cs     = 1'b0;
-assign scr_cs      = 1'b0;
-assign bus_ack     = 1'b0;
-assign flip        = 1'b0;
-assign RnW         = 1'b1;
-assign scr_hpos    = 9'd0;
-assign scr_vpos    = 9'd0;
-assign cpu_cen     = cen3;
-assign scr_layout  = 1'b0;
-assign scr_bank    = 2'b0;
-`endif
 
 `ifndef NOMCU
 jtbtiger_mcu u_mcu(

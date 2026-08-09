@@ -209,4 +209,4 @@ jtframe_prom #(.AW(8),.DW(4),
     .q      ( prom_dout      )
 );
 
-endmodule // jtgng_objdraw
+endmodule

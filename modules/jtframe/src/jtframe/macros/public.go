@@ -132,8 +132,8 @@ func CheckMacros() error {
 			return fmt.Errorf("MiST DIP base is smaller than the required value by JTFRAME_OSD_TEST")
 		}
 	}
-	if IsSet("JTFRAME_LF_BUFFER") && IsSet("JTFRAME_VERTICAL") {
-		return fmt.Errorf("jtframe: cannot define both JTFRAME_LF_BUFFER and JTFRAME_VERTICAL")
+	if IsSet("JTFRAME_MR_LF_BRAM") && !IsSet("JTFRAME_VERTICAL") {
+		return fmt.Errorf("jtframe: JTFRAME_MR_LF_BRAM requires JTFRAME_VERTICAL")
 	}
 	if IsSet("JTFRAME_JOY1_POS") && GetInt("JTFRAME_DIPBASE")<20 {
 		return fmt.Errorf("jtframe: JTFRAME_JOY1_POS requires JTFRAME_DIPBASE to be at least 20")
@@ -159,6 +159,9 @@ func CheckMacros() error {
 	if IsSet("JTFRAME_HEADER") && !IsInt("JTFRAME_HEADER") {
 		header := Get("JTFRAME_HEADER")
 		return fmt.Errorf("Cannot parse JTFRAME_HEADER=%s\n", header )
+	}
+	if IsSet("JTFRAME_HEADER") && GetInt("JTFRAME_HEADER")%4!=0 {
+		return fmt.Errorf("jtframe: JTFRAME_HEADER must be a multiple of four for Analogue Pocket compatibility")
 	}
 	if e:=check_integer("JTFRAME_WIDTH","JTFRAME_HEIGHT","JTFRAME_LF_HW","JTFRAME_LF_VW"); e!=nil {
 		return e

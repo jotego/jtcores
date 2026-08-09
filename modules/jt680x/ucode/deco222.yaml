@@ -1,0 +1,40 @@
+#    This file is part of JTCORES.
+#    JTCORES program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    JTCORES program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+include:
+  - 65c02.yaml
+ops:
+  - { name: DNOPI,  op: 0x02, cycles: 2, ctl: { addr: imm  }}
+  - { name: DNOPI,  op: 0x22, cycles: 2, ctl: { addr: imm  }}
+  - { name: DNOPI,  op: 0x42, cycles: 2, ctl: { addr: imm  }}
+  - { name: DNOPI,  op: 0x62, cycles: 2, ctl: { addr: imm  }}
+  - { name: DNOPI,  op: 0x82, cycles: 2, ctl: { addr: imm  }}
+  - { name: DNOPI,  op: 0xC2, cycles: 2, ctl: { addr: imm  }}
+  - { name: DNOPI,  op: 0xE2, cycles: 2, ctl: { addr: imm  }}
+  - { name: DNOPZ,  op: 0x44, cycles: 3, ctl: { addr: zp   }}
+  - { name: DNOPZX, op: 0x54, cycles: 4, ctl: { addr: zpx  }}
+  - { name: DNOPZX, op: 0xD4, cycles: 4, ctl: { addr: zpx  }}
+  - { name: DNOPZX, op: 0xF4, cycles: 4, ctl: { addr: zpx  }}
+  - { name: DNOPAX, op: 0x5C, cycles: 4, ctl: { addr: absx }}
+  - { name: DNOPAX, op: 0xDC, cycles: 4, ctl: { addr: absx }}
+  - { name: DNOPAX, op: 0xFC, cycles: 4, ctl: { addr: absx }}
+
+ucode:
+  - mnemo: [
+      DNOPI, DNOPZ, DNOPZX, DNOPAX
+    ]
+    seq:
+      - ${addr}_jsr, inc_pc
+      - fetch
+      - ni

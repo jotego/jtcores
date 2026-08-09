@@ -17,6 +17,7 @@ S16B
 # instance names
 GAMETOP=jts16b_game_sdram
 CORENAME=JTS16B
+JTFRAME_RATE=60.02
 JTS16_MAIN=jts16b_main
 JTS16_SND=jts16b_snd
 

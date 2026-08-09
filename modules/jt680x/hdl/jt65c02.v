@@ -21,20 +21,22 @@
 `endif
 /* verilator coverage_off */
 
-module jt65c02(
+module jt65c02 #(parameter DECO222=0)(
     input             rst,
     input             clk,
     input             cen,  // crystal clock freq. = 4x E pin freq.
-    input             irq,
-    input             nmi,
+    input             irq,  // level sensitive
+    input             nmi,  // edge sensitive
+    input             opdec,
     output            wr,
     output            rd,
+    output            fetch,
     output     [15:0] addr, // always valid
     input      [ 7:0] din,
     output     [ 7:0] dout
 );
 
-wire [7:0] op0, op1, rslt,md, ir;
+wire [7:0] op0, op1, rslt, md, opmd, ir;
 wire [3:0] rslt_cc;
 wire [2:0] iv;
 wire       d, c, i, calt, brcy, stcy;
@@ -49,15 +51,17 @@ wire [3:0] rmux_sel;
 
 wire       branch, branch_lo;
 wire       brlatch, brok;
-wire       fetch, ni;
+wire       ni;
 wire       inc_pc;
 wire       swi, pcpage;
+
+assign opmd = DECO222 && opdec ? { md[7], md[5], md[6], md[4:0] } : md;
 
 jt65c02_ctrl u_ctrl(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
-    .md         ( md        ),
+    .md         ( opmd      ),
     .ir         ( ir        ),
     // interrupt
     .irq        ( irq       ),
@@ -105,7 +109,7 @@ jt65c02_alu u_alu(
     .rslt_cc    ( rslt_cc   )
 );
 
-jt65c02_regs u_regs(
+jt65c02_regs #(.DECO222(DECO222)) u_regs(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen       ),
@@ -130,6 +134,7 @@ jt65c02_regs u_regs(
     .pcpage     ( pcpage    ),
     // interrupts
     .irq        ( irq       ),
+    .opdec      ( opdec     ),
     .i          ( i         ),
     .iv         ( iv        ),
     // ALU

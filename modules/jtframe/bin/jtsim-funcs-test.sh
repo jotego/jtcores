@@ -5,10 +5,14 @@ source $JTFRAME/bin/jtsim-funcs
 main() {
     test_get_macro
     test_has_macro
+    test_make_mpeg
     test_verilator_optimization_default
     test_verilator_optimization_long
     test_verilator_optimization_fast
     test_verilator_optimization_override
+    test_compare_scene_snapshot_match
+    test_compare_scene_snapshot_mismatch
+    test_compare_scene_snapshot_size_mismatch
     if [ "$FAIL" = 1 ]; then
         exit 1
     fi
@@ -82,6 +86,25 @@ test_get_macro() {
     pass $bad
 }
 
+test_make_mpeg() {
+    local bad test_dir old_dir rate
+    test_dir=$(mktemp -d)
+    old_dir=$(pwd)
+    cd "$test_dir"
+    rate=59.64
+    echo "$rate" > framerate
+    jtutil() { echo "$*" > jtutil.args; }
+    make_mpeg
+    if [ "$(<jtutil.args)" != "mp4 --rate $rate" ]; then
+        fail "did not pass the simulation frame rate"
+        bad=1
+    fi
+    unset -f jtutil
+    cd "$old_dir"
+    rm -rf "$test_dir"
+    pass $bad
+}
+
 clear_verilator_optimization() {
     unset ALLMACROS FAST MAXFRAME OPT_FAST OPT_SLOW OPT_GLOBAL
 }
@@ -142,6 +165,69 @@ test_verilator_optimization_override() {
     OPT_FAST="-Og"
     set_verilator_optimization
     check_verilator_opts "-Og" "-O1 -march=native" "-O1 -march=native" || bad=1
+    pass $bad
+}
+
+prepare_scene_compare_test() {
+    SCENE_TEST_TMP=$(mktemp -d)
+    mkdir -p "$SCENE_TEST_TMP/scene"
+    SCENE="$SCENE_TEST_TMP/scene/dump.bin"
+    touch "$SCENE"
+    convert -size 2x2 xc:black "$SCENE_TEST_TMP/scene/snapshot.png"
+}
+
+scene_compare_tools_available() {
+    command -v identify >/dev/null && command -v convert >/dev/null && command -v compare >/dev/null
+}
+
+test_compare_scene_snapshot_match() {
+    local bad tmp
+    if ! scene_compare_tools_available; then
+        pass
+        return
+    fi
+    prepare_scene_compare_test
+    tmp="$SCENE_TEST_TMP"
+    cp "$tmp/scene/snapshot.png" "$tmp/scene/candidate.png"
+    compare_scene_snapshot "$tmp/scene/candidate.png" >/dev/null || {
+        fail "matching snapshot returned failure"
+        bad=1
+    }
+    rm -rf "$tmp"
+    pass $bad
+}
+
+test_compare_scene_snapshot_mismatch() {
+    local bad tmp
+    if ! scene_compare_tools_available; then
+        pass
+        return
+    fi
+    prepare_scene_compare_test
+    tmp="$SCENE_TEST_TMP"
+    convert -size 2x2 xc:white "$tmp/scene/candidate.png"
+    if compare_scene_snapshot "$tmp/scene/candidate.png" >/dev/null; then
+        fail "mismatching snapshot returned success"
+        bad=1
+    fi
+    rm -rf "$tmp"
+    pass $bad
+}
+
+test_compare_scene_snapshot_size_mismatch() {
+    local bad tmp
+    if ! scene_compare_tools_available; then
+        pass
+        return
+    fi
+    prepare_scene_compare_test
+    tmp="$SCENE_TEST_TMP"
+    convert -size 3x2 xc:black "$tmp/scene/candidate.png"
+    if compare_scene_snapshot "$tmp/scene/candidate.png" >/dev/null; then
+        fail "size mismatch returned success"
+        bad=1
+    fi
+    rm -rf "$tmp"
     pass $bad
 }
 

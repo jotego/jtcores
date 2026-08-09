@@ -47,6 +47,7 @@ module jtframe_lfbuf_cram #(parameter
     input      [HW-1:0] ln_addr,
     input      [DW-1:0] ln_data,
     input               ln_done,
+    input               fb_keep,
     output              ln_hs, ln_vs, ln_lvbl,
     output     [DW-1:0] ln_dout,
     output     [DW-1:0] ln_pxl,
@@ -86,6 +87,7 @@ jtframe_lfbuf_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .lhbl       ( lhbl      ),
     .vs         ( vs        ),
     .ln_done    ( ln_done   ),
+    .fb_keep    ( fb_keep   ),
     .vrender    ( vrender   ),
     .ln_v       ( ln_v      ),
     // data written to external memory

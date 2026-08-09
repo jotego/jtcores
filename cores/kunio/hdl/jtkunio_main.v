@@ -182,8 +182,10 @@ jt65c02 u_cpu(
     .cen    ( cen6      ),  // crystal clock freq. = 4x E pin freq.
     .irq    ( irq       ),
     .nmi    ( nmi       ),
+    .opdec  ( 1'b0      ),
     .wr     ( cpu_wr    ),
     .rd     ( cpu_rd    ),
+    .fetch  (           ),
     .addr   ( cpu_addr  ), // always valid
     .din    ( cpu_din   ),
     .dout   ( cpu_dout  )

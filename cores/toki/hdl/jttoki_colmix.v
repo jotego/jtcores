@@ -32,9 +32,9 @@ module jttoki_colmix(
     output reg [10:1] pal_addr,
     input      [15:0] pal_data,
 
-    output reg [3:0]  red = 0,
-    output reg [3:0]  green = 0,
-    output reg [3:0]  blue = 0,
+    output     [3:0]  red,
+    output     [3:0]  green,
+    output     [3:0]  blue,
 
     input      [3:0]  gfx_en
 );
@@ -44,7 +44,7 @@ localparam [1:0] OBJ  = 2'd0,
                  SCR1 = 2'd2,
                  SCR2 = 2'd3;
 
-wire blank = ~lvbl | (~lhbl & hdump > 9'd1);
+wire blank = ~lvbl | ~lhbl;
 wire fix_visible    = cabal ? fix_pxl[1:0] != 2'd3 : fix_pxl[3:0] != 4'hf;
 wire obj_visible    = obj_pxl[3:0] != 4'hf;
 wire scr1_visible   = scr1_pxl[3:0] != 4'hf;
@@ -53,7 +53,11 @@ wire [10:1] fix_pal_addr  = cabal ? {2'b00, fix_pxl[7:2], fix_pxl[1:0]} : {VRAM,
 wire [10:1] obj_pal_addr  = cabal ? {2'b01, obj_pxl} : {OBJ, obj_pxl};
 wire [10:1] scr1_pal_addr = cabal ? {2'b10, scr1_pxl} : {SCR1, scr1_pxl};
 
-always @(posedge clk) begin
+assign red   = blank ? 4'd0 : pal_data[ 3:0];
+assign green = blank ? 4'd0 : pal_data[ 7:4];
+assign blue  = blank ? 4'd0 : pal_data[11:8];
+
+always @(posedge clk) if (pxl_cen) begin
     if (gfx_en[0] && fix_visible)
         pal_addr <= fix_pal_addr;
     else if (gfx_en[3] && obj_visible)
@@ -82,12 +86,5 @@ always @(posedge clk) begin
     end
 end
 
-always @(posedge clk) begin
-    if (pxl_cen) begin
-        red   <= blank ? 4'd0 : pal_data[ 3:0];
-        green <= blank ? 4'd0 : pal_data[ 7:4];
-        blue  <= blank ? 4'd0 : pal_data[11:8];
-    end
-end
 
 endmodule

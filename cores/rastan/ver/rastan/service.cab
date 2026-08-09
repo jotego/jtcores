@@ -1,3 +1,5 @@
+# jtsim -video 40 -inputs service.cab -dipsw fffa
+dipsw=fffa
 35 
 2 1p
 

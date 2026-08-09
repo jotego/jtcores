@@ -71,7 +71,6 @@ always @(posedge clk) begin
     if( header && prog_we && prog_addr[2:0]==0 ) is_hyper <= prog_data[0];
 end
 
-`ifndef NOMAIN
 jtroadf_main u_main(
     .rst            ( rst24         ),
     .clk            ( clk24         ),        // 24 MHz
@@ -121,22 +120,6 @@ jtroadf_main u_main(
     .ioctl_wr       ( prog_we & ioctl_ram      ),
     .ioctl_addr     ( ioctl_addr[15:0])
 );
-`else
-    assign main_cs   = 0;
-    assign main_addr = 0;
-    assign cpu_rnw   = 1;
-    assign vram_cs   = 0;
-    assign cpu_dout  = 0;
-    assign m2s_irq   = 0;
-    assign m2s_data  = 0;
-    assign objram_cs = 0;
-    assign snd       = 0;
-    assign sample    = 0;
-    assign game_led  = 0;
-    assign flip      = 0;
-    assign pcm_addr  = 0;
-    assign obj_frame = 0;
-`endif
 
 jtsbaskt_snd u_sound(
     .rst        ( rst       ),

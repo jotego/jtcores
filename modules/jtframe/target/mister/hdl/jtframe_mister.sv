@@ -78,6 +78,7 @@ module jtframe_mister #(parameter
     input        [15:0] ln_data,
     input               ln_done,
     input               ln_we,
+    input               fb_keep,
     output              ln_hs, ln_vs, ln_lvbl,
     output       [15:0] ln_dout,
     output       [15:0] ln_pxl,
@@ -990,9 +991,10 @@ wire rot_clk;
 
 `ifdef JTFRAME_LF_BUFFER
     wire lfbuf_rst = rst | ioctl_rom;
+`ifndef JTFRAME_MR_LF_BRAM
     wire rot_dout_ready = rot_busy ? 1'b0 : DDRAM_DOUT_READY;
 
-    // line-frame buffer. This won't work with vertical games
+    // DDR-backed line-frame buffer
     jtframe_lfbuf_ddr #(.HW(`JTFRAME_LF_HW),.VW(`JTFRAME_LF_VW)) u_lf_buf(
         .rst        ( lfbuf_rst     ),
         .clk        ( clk_rom       ),
@@ -1016,6 +1018,7 @@ wire rot_clk;
         .ln_vs      ( ln_vs         ),
         .ln_lvbl    ( ln_lvbl       ),
         .ln_we      ( ln_we         ),
+        .fb_keep    ( fb_keep       ),
 `ifdef JTFRAME_LF_ZOOM
         .h_step     ( game_h_step   ),
         .v_step     ( game_v_step   ),
@@ -1037,6 +1040,44 @@ wire rot_clk;
         .st_addr    ( st_addr       ),
         .st_dout    ( st_lpbuf      )
     );
+`else
+    // BRAM-backed line-frame buffer, used when DDR is needed by screen rotation
+    jtframe_lfbuf_bram #(.HW(`JTFRAME_LF_HW),.VW(`JTFRAME_LF_VW)) u_lf_buf(
+        .rst        ( lfbuf_rst     ),
+        .clk        ( clk_rom       ),
+        .pxl_cen    ( pxl1_cen      ),
+
+        .hs         ( hs            ),
+        .vs         ( vs            ),
+        .lvbl       ( LVBL          ),
+        .lhbl       ( LHBL          ),
+        .vrender    ( game_vrender  ),
+        .hdump      ( game_hdump    ),
+
+        // interface with the game core
+        .ln_addr    ( ln_addr       ),
+        .ln_data    ( ln_data       ),
+        .ln_done    ( ln_done       ),
+        .ln_hs      ( ln_hs         ),
+        .ln_dout    ( ln_dout       ),
+        .ln_pxl     ( ln_pxl        ),
+        .ln_v       ( ln_v          ),
+        .ln_vs      ( ln_vs         ),
+        .ln_lvbl    ( ln_lvbl       ),
+        .ln_we      ( ln_we         ),
+        .fb_keep    ( fb_keep       ),
+`ifdef JTFRAME_LF_ZOOM
+        .h_step     ( game_h_step   ),
+        .v_step     ( game_v_step   ),
+`else
+        .h_step     ( 9'h100        ),
+        .v_step     ( 9'h100        ),
+`endif
+
+        .st_addr    ( st_addr       ),
+        .st_dout    ( st_lpbuf      )
+    );
+`endif
 `endif
 
 jtframe_mr_ddrmux u_ddrmux(

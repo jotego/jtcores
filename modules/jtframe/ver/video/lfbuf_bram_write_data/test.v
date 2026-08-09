@@ -22,6 +22,7 @@ reg              ln_done = 1'b0;
 reg  [HW-1:0]    ln_addr = 0;
 reg  [15:0]      ln_data = 0;
 reg              ln_we = 1'b0;
+reg              fb_keep = 1'b0;
 reg  [7:0]       st_addr = 8'd0;
 
 wire             ln_hs, ln_vs, ln_lvbl;
@@ -58,6 +59,16 @@ begin
 end
 endfunction
 
+function [15:0] stored_word;
+    input [AW-1:0] addr;
+begin
+    stored_word = {
+        uut.u_ram.u_hi.u_ram.mem[addr],
+        uut.u_ram.u_lo.u_ram.mem[addr]
+    };
+end
+endfunction
+
 jtframe_lfbuf_bram_ctrl #(
     .VW(VW),
     .HW(HW)
@@ -67,6 +78,7 @@ jtframe_lfbuf_bram_ctrl #(
     .pxl_cen    ( pxl_cen    ),
     .lhbl       ( lhbl       ),
     .ln_done    ( ln_done    ),
+    .fb_keep    ( fb_keep    ),
     .vrender    ( vrender    ),
     .ln_v       ( req_v      ),
     .vs         ( vs         ),
@@ -224,9 +236,9 @@ task check_storage;
 begin
     for(i=0; i<LINE_W; i=i+1) begin
         check_addr = { write_frame, req_v, i[HW-1:0] };
-        if( uut.ram[check_addr] !== pattern(i[HW-1:0]) ) begin
+        if( stored_word(check_addr) !== pattern(i[HW-1:0]) ) begin
             $display("FAIL: BRAM storage addr=%0d got %04x expected %04x",
-                i, uut.ram[check_addr], pattern(i[HW-1:0]));
+                i, stored_word(check_addr), pattern(i[HW-1:0]));
             errors = errors + 1;
         end
     end

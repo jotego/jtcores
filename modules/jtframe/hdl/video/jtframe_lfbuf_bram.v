@@ -49,6 +49,7 @@ module jtframe_lfbuf_bram #(parameter
     input      [DW-1:0] ln_data,
     input               ln_done,
     input               ln_we,
+    input               fb_keep,
     output              ln_hs, ln_vs, ln_lvbl,
     output     [DW-1:0] ln_dout,
     output     [DW-1:0] ln_pxl,
@@ -59,12 +60,19 @@ module jtframe_lfbuf_bram #(parameter
     output      [7:0]   st_dout
 );
 
-wire          frame, fb_clr, fb_done, line, scr_we;
+localparam BRAM_HW =
+`ifdef JTFRAME_WIDTH
+    `JTFRAME_WIDTH <= 256 && HW > 8 ? 8 : HW;
+`else
+    HW;
+`endif
+
+wire          frame, fb_blank, fb_clr, fb_done, line, scr_we;
 wire [HW-1:0] fb_addr, rd_addr;
 wire [  15:0] fb_din, fb_dout;
 wire [VW-1:0] vread;
 
-jtframe_lfbuf_bram_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
+jtframe_lfbuf_bram_ctrl #(.HW(HW),.VW(VW),.BRAM_HW(BRAM_HW)) u_ctrl (
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -72,6 +80,7 @@ jtframe_lfbuf_bram_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .lhbl       ( lhbl      ),
     .vs         ( vs        ),
     .ln_done    ( ln_done   ),
+    .fb_keep    ( fb_keep   ),
     .vrender    ( vread     ),
     .ln_v       ( ln_v      ),
     // data written to external memory

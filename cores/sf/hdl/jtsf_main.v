@@ -107,6 +107,8 @@ module jtsf_main #(
     input       [15:0] dipsw_b
 );
 
+`ifndef NOMAIN
+
 wire [23:1] A;
 wire        cen8, cen8b;
 reg  [15:0] cabinet_input, cpu_din;
@@ -513,6 +515,28 @@ fx68k u_cpu(
 //     );
 // `endif
 
+`else
+assign cpu_cen  = 1'b0;
+assign cpu_dout = 16'd0;
+assign UDSWn    = 1'b1;
+assign LDSWn    = 1'b1;
+assign cpu_AB   = 13'd0;
+assign dmaout   = 16'd0;
+assign RnW      = 1'b1;
+assign bus_ack  = 1'b1;
+assign col_uw   = 1'b0;
+assign col_lw   = 1'b0;
+assign addr     = {MAINW{1'b0}};
+assign ram_addr = {RAMW{1'b0}};
+assign ram_din  = 16'd0;
+assign ram_dsn  = 2'b11;
+assign ram_we   = 1'b0;
+initial begin
+    flip=0; snd_latch=0; snd_nmi_n=1; char_cs=0; scr1posh=0; scr2posh=0;
+    charon=0; scr1on=0; scr2on=0; objon=0; OKOUT=0; mcu_din=0; mcu_DMAONn=1;
+    ram_cs=0; rom_cs=0;
+end
+`endif
 endmodule
 
 module jtsf_intgen(

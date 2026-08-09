@@ -18,7 +18,7 @@ skip.bootlegs=true
 [buttons]
 names = [
     { machines=["toki","jujuba"], names="Shoot,Jump" },
-    { machine="cabal", names="Fire,Roll,Grenade" },
+    { machine="cabal", names="Fire,Grenade,Roll" },
 ]
 
 [header]

@@ -42,7 +42,7 @@ module jtcal50_sound(
     input       [ 7:0] debug_bus,
     output      [ 7:0] st_dout
 );
-`ifndef NOSOUND
+`ifndef NOMAIN  // sound is required to boot
 wire [15:0] A;
 wire [ 3:0] rom_upper;
 reg  [ 7:0] cpu_din;
@@ -143,8 +143,10 @@ jt65c02 u_cpu(
     .cen        ( cen8      ),  // crystal clock freq. = 4x E pin freq.
     .irq        ( irq       ),
     .nmi        ( nmi       ),
+    .opdec      ( 1'b0      ),
     .rd         ( cpu_rd    ),
     .wr         ( cpu_wr    ),
+    .fetch      (           ),
     .addr       ( A         ), // always valid
     .din        ( cpu_din   ),
     .dout       ( cpu_dout  )

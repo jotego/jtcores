@@ -2,6 +2,7 @@ include ../../cps1/cfg/common.def
 
 CPS15
 CORENAME=JTCPS15
+JTFRAME_RATE=59.64
 GAMETOP=jtcps15_game
 
 JTFRAME_HEADER=64

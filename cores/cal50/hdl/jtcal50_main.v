@@ -73,7 +73,7 @@ reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 reg  [ 9:0] cab2_dout;
 reg  [ 2:0] IPLn;
-reg         ram_cs;
+reg         ram_cs, ok_dly;
 wire        int4ms, int16ms,
             cpu_cen, cpu_cenb, dtackn, VPAn, vgfx_cs,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs;
@@ -89,7 +89,7 @@ assign rom_addr = A[19:1];
 assign VPAn     = ~&{A[23],~ASn};
 assign cpu_dsn  = {UDSn, LDSn};
 assign bus_cs   = rom_cs | vgfx_cs;
-assign bus_busy = (rom_cs & ~rom_ok) | vgfx_bsy;
+assign bus_busy = (rom_cs & ~ok_dly) | vgfx_bsy;
 assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_rnw  = RnW;
 assign ram_addr = { buf_cs, A[15:1] };
@@ -148,6 +148,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
+    ok_dly   <= rom_ok;
     HALTn    <= dip_pause & ~rst;
     dial_rst <= 0;
     snd_rst  <= ~coin_coil[4];

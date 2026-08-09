@@ -40,6 +40,15 @@ module jtddrbl_video(
     output              gfx2_cs,
     input      [31:0]   gfx2_data,
     input               gfx2_ok,
+    // sprite gfx slots (own SDRAM bus per chip)
+    output     [17:2]   gfx1obj_addr,
+    output              gfx1obj_cs,
+    input      [31:0]   gfx1obj_data,
+    input               gfx1obj_ok,
+    output     [18:2]   gfx2obj_addr,
+    output              gfx2obj_cs,
+    input      [31:0]   gfx2obj_data,
+    input               gfx2obj_ok,
 
     // Interrupts — chip 1 fans NFIR/NIRQ/NNMI to BOTH CPUs (game.v applies the
     // NFIR->IRQ / NIRQ->FIRQ swap).
@@ -99,6 +108,13 @@ wire        k5885_1_HBLK, k5885_1_VBLK, k5885_1_NHSY, k5885_1_NYSY;
 wire [ 3:0] gfx2_ocf, gfx2_ocb, gfx2_ocd;
 wire [ 3:0] gfx1_ocb;
 
+// gfx-slot address adapters: chip1's obj_addr top bit is always 0 (fits gfx1's
+// 16-bit slot); chip2's tile addr is the low half (RA16=0) of its 17-bit slot.
+wire [16:0] k1_obj_addr;
+wire [15:0] k2_scr_addr;
+assign gfx1obj_addr = k1_obj_addr[15:0];
+assign gfx2_addr    = { 1'b0, k2_scr_addr };
+
 assign LHBL = ~k5885_1_HBLK;
 assign LVBL = ~k5885_1_VBLK;
 assign HS   = ~k5885_1_NHSY;
@@ -123,17 +139,18 @@ jtddrbl_k005885 #(
     .NIRQ       ( k5885_1_irq_n   ),
     .NNMI       ( k5885_1_nmi_n   ),
     .NFIR       ( k5885_1_fir_n   ),
-    // gfx ROM
-    .R          ( gfx1_addr[17:2]),
-    .RA16       (                ),
-    .RA17       (                ),
-    .RD         ( gfx1_data      ),
+    // gfx ROM — tile slot (gfx1) + sprite slot (gfx1obj)
+    .scr_addr   ( gfx1_addr[17:2]),
+    .scr_cs     ( gfx1_cs        ),
+    .scr_data   ( gfx1_data      ),
+    .scr_ok     ( gfx1_ok        ),
+    .obj_addr   ( k1_obj_addr    ),
+    .obj_cs     ( gfx1obj_cs     ),
+    .obj_data   ( gfx1obj_data   ),
+    .obj_ok     ( gfx1obj_ok     ),
     .OCF        (                ),
     .OCB        ( gfx1_ocb       ),
     .OCD        ( gfx1_ocb       ),
-
-    .rom_cs     ( gfx1_cs        ),
-    .rom_ok     ( gfx1_ok        ),
     // sync — chip 1 owns the framework's video timing
     .NHSY       ( k5885_1_NHSY   ),
     .NYSY       ( k5885_1_NYSY   ),
@@ -166,15 +183,18 @@ jtddrbl_k005885 #(
     .NRD        ( ~main_rnw      ),
     .NEXR       ( 1'b1           ),
     .NIRQ(), .NNMI(), .NFIR(),    // chip 2 interrupts unused (chip 1 drives both CPUs)
-    .R          ( gfx2_addr[17:2]),
-    .RA16       ( gfx2_addr[18]  ),
-    .RA17       (                ),
-    .RD         ( gfx2_data      ),
+    // gfx ROM — tile slot (gfx2) + sprite slot (gfx2obj)
+    .scr_addr   ( k2_scr_addr    ),
+    .scr_cs     ( gfx2_cs        ),
+    .scr_data   ( gfx2_data      ),
+    .scr_ok     ( gfx2_ok        ),
+    .obj_addr   ( gfx2obj_addr   ),
+    .obj_cs     ( gfx2obj_cs     ),
+    .obj_data   ( gfx2obj_data   ),
+    .obj_ok     ( gfx2obj_ok     ),
     .OCF        ( gfx2_ocf       ),
     .OCB        ( gfx2_ocb       ),
     .OCD        ( gfx2_ocd       ),
-    .rom_cs     ( gfx2_cs        ),
-    .rom_ok     ( gfx2_ok        ),
     .vram_cpu_addr ( vram2_cpu_addr ),
     .vram_cpu_din  ( vram2_cpu_din  ),
     .vram_cpu_we   ( vram2_cpu_we   ),

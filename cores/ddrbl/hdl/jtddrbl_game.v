@@ -146,6 +146,16 @@ jtddrbl_video u_video(
     .gfx2_cs        ( gfx2_cs        ),
     .gfx2_data      ( gfx2_data      ),
     .gfx2_ok        ( gfx2_ok        ),
+
+    .gfx1obj_addr   ( gfx1obj_addr   ),
+    .gfx1obj_cs     ( gfx1obj_cs     ),
+    .gfx1obj_data   ( gfx1obj_data   ),
+    .gfx1obj_ok     ( gfx1obj_ok     ),
+
+    .gfx2obj_addr   ( gfx2obj_addr   ),
+    .gfx2obj_cs     ( gfx2obj_cs     ),
+    .gfx2obj_data   ( gfx2obj_data   ),
+    .gfx2obj_ok     ( gfx2obj_ok     ),
     // interrupts (chip 1 fans to both CPUs)
     .k5885_1_fir_n  ( fir_n          ),
     .k5885_1_irq_n  ( irq_n          ),

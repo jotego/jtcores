@@ -128,6 +128,9 @@ public:
     explicit SDRAM(UUT& _dut, const char* _prefix = "sdram", bool _invert_ncs = false);
     ~SDRAM();
     void update(std::uint64_t simtime_ps = 0);
+    // Apply a software-side write to the byte-addressed SDRAM image.  This is
+    // used by cabinet-script cheats, which model MAME writes to CPU RAM.
+    void write_bytes(unsigned bank, unsigned offset, unsigned byte_mask, unsigned data);
     void dump();
 };
 

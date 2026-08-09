@@ -422,7 +422,7 @@ jtframe_z80 u_cpu(
     initial snd_latch   = 0;
     initial char_cs     = 0;
     initial CHON        = 0;
-    initial crposv      = 0;
+    initial scrposv     = 0;
     initial scr1posh    = 0;
     initial scr2posh    = 0;
     initial SC1ON       = 0;
