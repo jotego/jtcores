@@ -60,7 +60,7 @@ Names = [ { machine="insectx",  names="Fire,Warp"},
           { machine="kabuki",   names="Attack,Block"},
           { machine="kageki",   names="Left jab,Right hook"},
           { machine="arknoid2", names="Shoot"},
-          { machine="chukatai", names="Fire"},
+          { machine="chukatai", names="Fire,Magic Bomb"},
 ]
 
 [dipsw]
