@@ -1,0 +1,45 @@
+params:
+  - { name: OBJ_OFFSET, value: "(`OBJ_START-`JTFRAME_BA1_START)>>1" }
+clocks:
+  clk48:
+    - freq: 6M
+      gate: [ main ]
+      outputs:
+        - cen6
+        - cen3
+        - cen1p5
+audio:
+  rsum: 10k
+  channels:
+    - { name: psg0, module: jt49, rsum: 10k }
+    - { name: psg1, module: jt49, rsum: 15k }
+sdram:
+  banks:
+    - buses:
+        - name: main          # Z80 program, 0x0000-0x7fff + 0xa000-0xbfff
+          addr_width: 16
+          data_width: 8
+    - buses:
+        # both regions are plane-interleaved by the MRA: [15:8]=MSB plane
+        - name: char          # 8x8 2bpp, word = tile*8+row
+          addr_width: 14
+          data_width: 16
+        - name: obj           # 16x16 2bpp
+          addr_width: 14
+          data_width: 16
+          offset: OBJ_OFFSET
+    - buses:
+        # 4 bitmap planes of 8 kB. word = {plane1,plane0} / {plane3,plane2}
+        # CPU sees 16 kB at 0xc000: plane = {gfxmode[2], a13}, byte lane = plane[0]
+        - name: bmap          # CPU port
+          addr_width: 15
+          data_width: 16
+          rw: true
+        - name: bmapv         # video port, 2 reads per 8 pixels
+          addr_width: 15
+          data_width: 16
+bram:
+  - name: mcu                 # MC68705P5 internal ROM
+    addr_width: 11
+    data_width: 8
+    prom: true

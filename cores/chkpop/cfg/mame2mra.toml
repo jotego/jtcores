@@ -1,0 +1,30 @@
+[global]
+author=["jotego","Andrea Bogazzi"]
+
+[parse]
+sourcefile=[ "chaknpop.cpp" ]
+
+[buttons]
+names=[
+    # TODO confirm against the attract/instructions screen
+    { names="Bomb,Bomb" }
+]
+
+[dipsw]
+# DSWC, DSWB, DSWA in listxml order: 8 bits each
+bitcnt = 24
+
+[ROM]
+regions = [
+    # Offsets are honoured on purpose: ao4_05 sits at 0xa000, leaving the
+    # 0x8000-0x9fff I/O hole as filler so rom_addr = A[15:0]
+    { name="maincpu", len=0xC000 },
+    # both gfx regions are two planes loaded as halves (gfx_layout plane
+    # offset 0x2000*8). width=16 interleaves them so one read = both planes
+    { name="chars",   width=16, start="JTFRAME_BA1_START" },
+    { name="sprites", width=16, start="OBJ_START" },
+    { name="bmcu:mcu", rename="mcu", start="MCU_START" },
+    { name="proms",   start="JTFRAME_PROM_START" },
+]
+
+order = [ "maincpu", "chars", "sprites", "mcu", "proms" ]
