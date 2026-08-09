@@ -24,8 +24,10 @@
       PA: bit5=START2 bit6=START1 bit7=SERVICE1
       PB: bit0=COIN1  bit1=COIN2
       PC: bit0=TILT   bit2..5=U/D/L/R  bit6=BUTTON1
-      AD: P2 cocktail
-    Idle port bytes measured on MAME: PA=FF PB=FC PC=FF AD=FF.    */
+      AD: bit1=UP bit2=DOWN bit4=RIGHT bit5=BUTTON1 bit7=LEFT, all cocktail P2
+    Idle port bytes measured on MAME: PA=FF PB=FC PC=FF AD=FF.
+    P2 LEFT sits on bit 7 rather than bit 3: the AD pins are ADC channels, and
+    only the upper four can be read as digital inputs.    */
 
 module jtvlfied_cchip(
     input             rst,
@@ -42,6 +44,7 @@ module jtvlfied_cchip(
 
     // cabinet inputs. Active LOW (idle = 1), matching JTFRAME/MAME convention.
     input      [ 4:0] joystick1,       // [3:0]=U/D/L/R, [4]=button1
+    input      [ 4:0] joystick2,
     input      [ 1:0] start_button,    // [0]=1P, [1]=2P
     input      [ 1:0] coin,
     input             service,
@@ -53,7 +56,7 @@ module jtvlfied_cchip(
     input      [ 7:0] cchip_eprom_data
 );
 
-reg [7:0] cc_pa, cc_pb, cc_pc;
+reg [7:0] cc_pa, cc_pb, cc_pc, cc_an;
 
 always @(posedge clk) begin
     cc_pa <= { service, start_button[0], start_button[1], 5'h1f };
@@ -66,6 +69,8 @@ always @(posedge clk) begin
     cc_pc <= { 1'b1, joystick1[4],
                joystick1[0], joystick1[1], joystick1[2], joystick1[3],
                1'b1, tilt };
+    cc_an <= { joystick2[1], 1'b1, joystick2[4], joystick2[0],
+               1'b1, joystick2[2], joystick2[3], 1'b1 };
 end
 
 jttc0030cmd u_cchip(
@@ -86,7 +91,7 @@ jttc0030cmd u_cchip(
     .pa_out     (                  ),
     .pb_out     (                  ),   // coin lockout/counters (unused)
     .pc_out     (                  ),
-    .an         ( 8'hff            ),   // AD used only for cocktail, idle
+    .an         ( cc_an            ),
     .mrom_addr  ( cchip_mask_addr  ),
     .mrom_data  ( cchip_mask_data  ),
     .eprom_addr ( cchip_eprom_addr ),

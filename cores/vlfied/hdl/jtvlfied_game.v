@@ -105,6 +105,7 @@ jtvlfied_cchip u_cchip(
     .LVBL       ( LVBL      ),
 
     .joystick1  ( joystick1[4:0] ),
+    .joystick2  ( joystick2[4:0] ),
     .start_button( cab_1p[1:0] ),
     .coin       ( coin[1:0] ),
     .service    ( service   ),
