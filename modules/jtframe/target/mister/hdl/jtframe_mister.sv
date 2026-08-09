@@ -210,6 +210,10 @@ module jtframe_mister #(parameter
     output          scan2x_cen,
     output          scan2x_de,
     output    [1:0] scan2x_sl,
+`ifdef JTFRAME_HSIZE
+    // analogue h-size, applied by sys_top on the VGA branch only
+    output    [4:0] hsize_ctl,
+`endif
     // non standard:
     output            dip_pause,
     inout             dip_flip,
@@ -624,7 +628,27 @@ jtframe_mister_cartsave u_save(
 assign {sav_addr, sav_dout, sav_wr, sav_ack, sd_wait} = 0;
 `endif
 
-`ifndef DEBUG_NOHDMI
+`ifdef JTFRAME_HSIZE
+    // The analogue h-size re-timer lives in sys_top, downstream of the point
+    // where the HDMI branch taps the stream, so the base video is untouched
+    // here and HDMI keeps the core's own timing
+    assign hsize_ctl = { hsize_enable, hsize_scale };
+    assign hsize_hs  = hs_resync;
+    assign hsize_vs  = vs_resync;
+    assign hsize_hb  = ~LHBL;
+    assign hsize_vb  = ~LVBL;
+    assign hsize_r   = game_r;
+    assign hsize_g   = game_g;
+    assign hsize_b   = game_b;
+`elsif DEBUG_NOHDMI
+    assign hsize_hs = hs_resync;
+    assign hsize_vs = vs_resync;
+    assign hsize_hb = ~LHBL;
+    assign hsize_vb = ~LVBL;
+    assign hsize_r  = game_r;
+    assign hsize_g  = game_g;
+    assign hsize_b  = game_b;
+`else
     // scales base video horizontally
     jtframe_hsize #(.COLORW(COLORW)) u_hsize(
         .clk        ( clk_sys   ),
@@ -651,14 +675,6 @@ assign {sav_addr, sav_dout, sav_wr, sav_ack, sd_wait} = 0;
         .g_out      ( hsize_g   ),
         .b_out      ( hsize_b   )
     );
-`else
-    assign hsize_hs = hs_resync;
-    assign hsize_vs = vs_resync;
-    assign hsize_hb = ~LHBL;
-    assign hsize_vb = ~LVBL;
-    assign hsize_r  = game_r;
-    assign hsize_g  = game_g;
-    assign hsize_b  = game_b;
 `endif
 
 localparam VIDEO_DW = COLORW!=5 ? 3*COLORW : 24;

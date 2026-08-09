@@ -61,6 +61,9 @@ module emu
     output  [1:0] VGA_SL,
     output        VGA_SCALER,
     output        VGA_DISABLE, // analog out is off
+`ifdef JTFRAME_HSIZE
+    output  [4:0] VGA_HSIZE,   // { enable, signed scale }, analogue branch only
+`endif
 
     input  [11:0] HDMI_WIDTH,
     input  [11:0] HDMI_HEIGHT,
@@ -644,6 +647,9 @@ u_frame(
     .scan2x_cen     ( CE_PIXEL       ),
     .scan2x_de      ( VGA_DE         ),
     .scan2x_sl      ( VGA_SL         ),
+`ifdef JTFRAME_HSIZE
+    .hsize_ctl      ( VGA_HSIZE      ),
+`endif
     // status
     .st_addr        ( st_addr        ),
     .st_dout        ( st_dout        ),

@@ -30,6 +30,10 @@ JTFRAME_FORCED_DIPSW     | Pocket  | Forces a fixed value for the DIP switches
 JTFRAME_FEEDTHRU         | MiST    | Bypasses video blending hardware. Saves some logic elements
 JTFRAME_HEADER           |         | Set to the length of the ROM file header (derived from TOML)
 JTFRAME_HEIGHT           |         | Sets the video height
+JTFRAME_HSIZE            | MiSTer  | Analogue h-size by re-timing the DAC pixel clock. Replaces the resampling CRT scaler. See [video.md](video.md)
+JTFRAME_HSIZE_STEP       | MiSTer  | Size change per OSD step, as 1/STEP. Power of two, 64 (1.6%) by default
+JTFRAME_HSIZE_DIV        | MiSTer  | Automatic. clk to pixel-clock ratio used by jtframe_hretime
+JTFRAME_HSIZE_DEPTH      | MiSTer  | Automatic. Elastic FIFO depth used by jtframe_hretime
 JTFRAME_INPUT_RECORD     | MiST    | Input data is available as NVRAM. Do not define it in the command line, use macros.def. See [debug.md](debug.md)
 JTFRAME_INTERLACED       |         | Support for interlaced games
 JTFRAME_IOCTL_RD         |         | Enables saving to SD card via NVRAM interface. Set it to the number of bytes to save on MiST. Any value will work for MiSTer

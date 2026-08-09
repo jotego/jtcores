@@ -1375,6 +1375,50 @@ scanlines #(0) VGA_scanlines
 	.ce_out(vga_ce_sl)
 );
 
+// JTFRAME: analogue h-size. Inserted after the HDMI branch has already tapped
+// the stream, so stretching only moves the DAC pixel clock. See
+// $JTFRAME/hdl/video/jtframe_hretime.v
+`ifdef JTFRAME_HSIZE
+wire [23:0] vga_data_hz;
+wire        vga_hs_hz, vga_vs_hz, vga_de_hz;
+wire [ 4:0] VGA_HSIZE;
+// h-size only makes sense on a 15 kHz monitor, and the scandoubler doubles the
+// pixel rate that JTFRAME_HSIZE_DIV describes
+`ifdef MISTER_DUAL_SDRAM
+wire        hsize_off = 1'b1;   // no analogue VGA on a dual SDRAM board
+`else
+wire        hsize_off = forced_scandoubler;
+`endif
+
+jtframe_hretime #(
+	.DIV  (`JTFRAME_HSIZE_DIV  ),
+	.STEP (`JTFRAME_HSIZE_STEP ),
+	.DEPTH(`JTFRAME_HSIZE_DEPTH)
+) u_hretime
+(
+	.clk(clk_vid),
+	.ce_in(vga_ce_sl),
+	.enable(VGA_HSIZE[4] & ~hsize_off),
+	.scale(VGA_HSIZE[3:0]),
+
+	.din(vga_data_sl),
+	.hs_in(vga_hs_sl),
+	.vs_in(vga_vs_sl),
+	.de_in(vga_de_sl),
+
+	.ce_out(),
+	.dout(vga_data_hz),
+	.hs_out(vga_hs_hz),
+	.vs_out(vga_vs_hz),
+	.de_out(vga_de_hz)
+);
+`else
+wire [23:0] vga_data_hz = vga_data_sl;
+wire        vga_hs_hz   = vga_hs_sl,
+            vga_vs_hz   = vga_vs_sl,
+            vga_de_hz   = vga_de_sl;
+`endif
+
 wire [23:0] vga_data_osd;
 wire        vga_vs_osd, vga_hs_osd, vga_de_osd;
 osd vga_osd
@@ -1387,10 +1431,10 @@ osd vga_osd
 	.osd_status(osd_status),
 
 	.clk_video(clk_vid),
-	.din(vga_data_sl),
-	.hs_in(vga_hs_sl),
-	.vs_in(vga_vs_sl),
-	.de_in(vga_de_sl),
+	.din(vga_data_hz),
+	.hs_in(vga_hs_hz),
+	.vs_in(vga_vs_hz),
+	.de_in(vga_de_hz),
 
 	.dout(vga_data_osd),
 	.hs_out(vga_hs_osd),
@@ -1758,6 +1802,10 @@ emu emu
 
 `ifndef MISTER_DUAL_SDRAM
 	.VGA_DISABLE(VGA_DISABLE),
+`endif
+
+`ifdef JTFRAME_HSIZE
+	.VGA_HSIZE(VGA_HSIZE),
 `endif
 
 	.HDMI_WIDTH(direct_video ? 12'd0 : hdmi_width),

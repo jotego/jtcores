@@ -43,8 +43,15 @@ jtframe:
     get:
     - jtframe_shadow.v
   - from: video
+    unless: [ JTFRAME_HSIZE ]
     get:
     - jtframe_hsize.v
+  - from: video
+    when: [ JTFRAME_HSIZE ]
+    get:
+    - jtframe_hretime.v
+  - from: video
+    get:
     - jtframe_lfbuf_ddr.v
     - jtframe_lfbuf_ddr_ctrl.v
     - jtframe_lfbuf_line.v
