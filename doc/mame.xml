@@ -248515,4 +248515,204 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="trckydoc" sourcefile="tecfri/sauro.cpp">
+		<description>Tricky Doc (set 1)</description>
+		<year>1987</year>
+		<manufacturer>Tecfri</manufacturer>
+		<rom name="trckydoc.d9" size="32768" crc="c6242fc3" sha1="c8a6f6abe8b51061a113ed75fead0479df68ec40" region="maincpu" offset="0"/>
+		<rom name="trckydoc.b9" size="32768" crc="8645c840" sha1="79c2acfc1aeafbe94afd9d230200bd7cdd7bcd1b" region="maincpu" offset="8000"/>
+		<rom name="trckydoc.e6" size="32768" crc="ec326392" sha1="e6954fecc501a821caa21e67597914519fbbe58f" region="bgtiles" offset="0"/>
+		<rom name="trckydoc.g6" size="32768" crc="6a65c088" sha1="4a70c104809d86b4eef6cc0df9452966fe7c9859" region="bgtiles" offset="8000"/>
+		<rom name="trckydoc.h1" size="16384" crc="8b73cbf3" sha1="d10f79a38c1596c90bac9cf4c64ba38ae6ecd8cb" region="sprites" offset="0"/>
+		<rom name="trckydoc.e1" size="16384" crc="841be98e" sha1="82da07490b73edcbffc3b9247205aab3a1f7d7ad" region="sprites" offset="4000"/>
+		<rom name="trckydoc.c1" size="16384" crc="1d25574b" sha1="924e4376a7fe6cdfff0fa6045aaa3f7c0633d275" region="sprites" offset="8000"/>
+		<rom name="trckydoc.a1" size="16384" crc="436c59ba" sha1="2aa9c155c432a3c81420520c53bb944dcc613a94" region="sprites" offset="c000"/>
+		<rom name="tdclr3.prm" size="256" crc="671d0140" sha1="7d5fcd9589c46590b0a240cac428f993201bec2a" region="proms" offset="0"/>
+		<rom name="tdclr2.prm" size="256" crc="874f9050" sha1="db40d68f5166657fce0eadcd82143112b0388894" region="proms" offset="400"/>
+		<rom name="tdclr1.prm" size="256" crc="57f127b0" sha1="3d2b18a7a31933579f06d92fa0cc3f0e1fe8b98a" region="proms" offset="800"/>
+		<rom name="tdprm.prm" size="512" crc="5261bc11" sha1="1cc7a9a7376e65f4587b75ef9382049458656372" region="user1" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="nvram"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="gfxdecode"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="5000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM3812 OPL2" clock="2500000"/>
+		<display tag="screen" type="raster" rotate="0" width="240" height="224" refresh="55.720000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Service Mode" tag="DSW1" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="2">
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="2" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="4">
+			<dipvalue name="Upright" value="4" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW1" mask="8">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="48">
+			<dipvalue name="Very Easy" value="48"/>
+			<dipvalue name="Easy" value="32" default="yes"/>
+			<dipvalue name="Hard" value="16"/>
+			<dipvalue name="Very Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW1" mask="64">
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSW1" mask="128">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="3">
+			<dipvalue name="4 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="1"/>
+			<dipvalue name="2 Coins/1 Credit" value="2"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW2" mask="12">
+			<dipvalue name="1 Coin/2 Credits" value="12" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="8"/>
+			<dipvalue name="1 Coin/4 Credits" value="4"/>
+			<dipvalue name="1 Coin/5 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="48">
+			<dipvalue name="2" value="48"/>
+			<dipvalue name="3" value="32" default="yes"/>
+			<dipvalue name="4" value="16"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="64">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="128">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="trckydoca" sourcefile="tecfri/sauro.cpp" cloneof="trckydoc" romof="trckydoc">
+		<description>Tricky Doc (set 2)</description>
+		<year>1987</year>
+		<manufacturer>Tecfri</manufacturer>
+		<rom name="trckydca.d9" size="32768" crc="99c38aa4" sha1="298a19439cc17743e10d101c50a26b9a7348299e" region="maincpu" offset="0"/>
+		<rom name="trckydca.b9" size="32768" crc="b6048a15" sha1="d982fafbfa391ef9bab50bfd52607494e2a9eedf" region="maincpu" offset="8000"/>
+		<rom name="trckydoc.e6" merge="trckydoc.e6" size="32768" crc="ec326392" sha1="e6954fecc501a821caa21e67597914519fbbe58f" region="bgtiles" offset="0"/>
+		<rom name="trckydoc.g6" merge="trckydoc.g6" size="32768" crc="6a65c088" sha1="4a70c104809d86b4eef6cc0df9452966fe7c9859" region="bgtiles" offset="8000"/>
+		<rom name="trckydoc.h1" merge="trckydoc.h1" size="16384" crc="8b73cbf3" sha1="d10f79a38c1596c90bac9cf4c64ba38ae6ecd8cb" region="sprites" offset="0"/>
+		<rom name="trckydoc.e1" merge="trckydoc.e1" size="16384" crc="841be98e" sha1="82da07490b73edcbffc3b9247205aab3a1f7d7ad" region="sprites" offset="4000"/>
+		<rom name="trckydoc.c1" merge="trckydoc.c1" size="16384" crc="1d25574b" sha1="924e4376a7fe6cdfff0fa6045aaa3f7c0633d275" region="sprites" offset="8000"/>
+		<rom name="trckydoc.a1" merge="trckydoc.a1" size="16384" crc="436c59ba" sha1="2aa9c155c432a3c81420520c53bb944dcc613a94" region="sprites" offset="c000"/>
+		<rom name="tdclr3.prm" merge="tdclr3.prm" size="256" crc="671d0140" sha1="7d5fcd9589c46590b0a240cac428f993201bec2a" region="proms" offset="0"/>
+		<rom name="tdclr2.prm" merge="tdclr2.prm" size="256" crc="874f9050" sha1="db40d68f5166657fce0eadcd82143112b0388894" region="proms" offset="400"/>
+		<rom name="tdclr1.prm" merge="tdclr1.prm" size="256" crc="57f127b0" sha1="3d2b18a7a31933579f06d92fa0cc3f0e1fe8b98a" region="proms" offset="800"/>
+		<rom name="tdprm.prm" merge="tdprm.prm" size="512" crc="5261bc11" sha1="1cc7a9a7376e65f4587b75ef9382049458656372" region="user1" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="ls259"/>
+		<device_ref name="nvram"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ym3812"/>
+		<device_ref name="gfxdecode"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="5000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM3812 OPL2" clock="2500000"/>
+		<display tag="screen" type="raster" rotate="0" width="240" height="224" refresh="55.720000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Service Mode" tag="DSW1" mask="1">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="1"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="2">
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="2" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="4">
+			<dipvalue name="Upright" value="4" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Free Play" tag="DSW1" mask="8">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW1" mask="48">
+			<dipvalue name="Very Easy" value="48"/>
+			<dipvalue name="Easy" value="32" default="yes"/>
+			<dipvalue name="Hard" value="16"/>
+			<dipvalue name="Very Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW1" mask="64">
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="64" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSW1" mask="128">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="3">
+			<dipvalue name="4 Coins/1 Credit" value="0"/>
+			<dipvalue name="3 Coins/1 Credit" value="1"/>
+			<dipvalue name="2 Coins/1 Credit" value="2"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW2" mask="12">
+			<dipvalue name="1 Coin/1 Credit" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="12" default="yes"/>
+			<dipvalue name="1 Coin/3 Credits" value="8"/>
+			<dipvalue name="1 Coin/4 Credits" value="4"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="48">
+			<dipvalue name="2" value="48"/>
+			<dipvalue name="3" value="32" default="yes"/>
+			<dipvalue name="4" value="16"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="64">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="128">
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 </mame>
