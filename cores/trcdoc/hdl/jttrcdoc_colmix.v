@@ -16,9 +16,6 @@
     Version: 1.0
     Date: 9-8-2026 */
 
-// Sprites and tiles share one palette. The pen is {colour,pixel} and
-// feeds the three RGB PROMs declared in mem.yaml
-
 module jttrcdoc_colmix(
     input             clk,
     input             pxl_cen,
