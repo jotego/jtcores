@@ -16,8 +16,6 @@
     Version: 1.0
     Date: 9-8-2026 */
 
-// Tricky Doc drives the YM3812 straight off the main CPU bus
-
 module jttrcdoc_snd(
     input                rst,
     input                clk,       // 24 MHz

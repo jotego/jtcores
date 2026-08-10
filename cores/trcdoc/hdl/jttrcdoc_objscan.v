@@ -19,7 +19,7 @@
 // Tricky Doc sprite table scan.
 // Entries are 4 bytes long but the table starts at offset 3, so object n
 // occupies bytes 4n+3 (y), 4n+4 (code), 4n+5 (x) and 4n+6 (attributes).
-// 255 objects are scanned, matching the MAME loop bounds.
+// 255 objects are scanned
 //
 //  attributes: 7:4 colour, 3 vflip, 2 hflip, 1 x sign mode, 0 code MSB
 

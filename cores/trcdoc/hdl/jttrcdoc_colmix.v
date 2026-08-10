@@ -16,9 +16,8 @@
     Version: 1.0
     Date: 9-8-2026 */
 
-// Three 256x4 PROMs hold one RGB component each. The pen index is
-// {colour[3:0], pixel[3:0]}: sprites and tiles share the palette.
-// Download order is R (tdclr3), G (tdclr2), B (tdclr1)
+// Sprites and tiles share one palette. The pen is {colour,pixel} and
+// feeds the three RGB PROMs declared in mem.yaml
 
 module jttrcdoc_colmix(
     input             clk,
@@ -29,62 +28,29 @@ module jttrcdoc_colmix(
     input             preLHBL,
     input             preLVBL,
 
-    input      [ 7:0] prog_data,
-    input      [ 9:0] prog_addr,
-    input             prom_we,
+    // Colour PROMs
+    output reg [ 7:0] pen,
+    input      [ 3:0] r_data, g_data, b_data,
 
     output     [ 3:0] red, green, blue,
     output            LHBL, LVBL,
     input      [ 3:0] gfx_en
 );
 
-// scr_pxl is combinational, obj_pxl comes out of the line buffer one
-// pixel later. One extra stage for the mux and one for the PROMs
-parameter BLANK_DLY = 3;
+// one stage to align scr_pxl with the line buffer, one for the PROM read
+parameter BLANK_DLY = 2;
 
-wire [11:0] raw, rgb;
-wire [ 2:0] prom_sel;
-reg  [ 7:0] scr_l, pen;
+wire [11:0] rgb;
+reg  [ 7:0] scr_l;
 wire        obj_blank;
 
 assign obj_blank = obj_pxl[3:0]==0 || !gfx_en[3];
-assign prom_sel  = { prog_addr[9:8]==2'd2, prog_addr[9:8]==2'd1, prog_addr[9:8]==2'd0 } & {3{prom_we}};
 assign { red, green, blue } = rgb;
 
 always @(posedge clk) if(pxl_cen) begin
     scr_l <= gfx_en[0] ? scr_pxl : 8'd0;
     pen   <= obj_blank ? scr_l : obj_pxl;
 end
-
-jtframe_prom #(.DW(4),.AW(8),.SIMFILE("tdclr3.prm")) u_red(
-    .clk    ( clk               ),
-    .cen    ( pxl_cen           ),
-    .data   ( prog_data[3:0]    ),
-    .wr_addr( prog_addr[7:0]    ),
-    .we     ( prom_sel[0]       ),
-    .rd_addr( pen               ),
-    .q      ( raw[11:8]         )
-);
-
-jtframe_prom #(.DW(4),.AW(8),.SIMFILE("tdclr2.prm")) u_green(
-    .clk    ( clk               ),
-    .cen    ( pxl_cen           ),
-    .data   ( prog_data[3:0]    ),
-    .wr_addr( prog_addr[7:0]    ),
-    .we     ( prom_sel[1]       ),
-    .rd_addr( pen               ),
-    .q      ( raw[7:4]          )
-);
-
-jtframe_prom #(.DW(4),.AW(8),.SIMFILE("tdclr1.prm")) u_blue(
-    .clk    ( clk               ),
-    .cen    ( pxl_cen           ),
-    .data   ( prog_data[3:0]    ),
-    .wr_addr( prog_addr[7:0]    ),
-    .we     ( prom_sel[2]       ),
-    .rd_addr( pen               ),
-    .q      ( raw[3:0]          )
-);
 
 jtframe_blank #(.DLY(BLANK_DLY),.DW(12)) u_blank(
     .clk        ( clk       ),
@@ -94,7 +60,7 @@ jtframe_blank #(.DLY(BLANK_DLY),.DW(12)) u_blank(
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
     .preLBL     (           ),
-    .rgb_in     ( raw       ),
+    .rgb_in     ( { r_data, g_data, b_data } ),
     .rgb_out    ( rgb       )
 );
 

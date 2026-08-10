@@ -1,14 +1,11 @@
 clocks:
   clk24:
-    # Z80: 20MHz XTAL / 4 (verified on PCB)
     - freq: 5M
       gate: [ main ]
       outputs: [ cpu ]
-    # YM3812: 20MHz / 8
     - freq: 2500k
       outputs: [ fm ]
 
-# cpu_addr is wider than the slices used by the BRAMs below
 ports:
   - { name: cpu_addr, msb: 15, lsb: 0 }
   - { name: cpu_dout, msb: 7,  lsb: 0 }
@@ -75,3 +72,8 @@ bram:
       name: cscan
       addr: vscan_addr
       dout: cscan_dout
+  # Colour PROMs. Order must match the proms region in mame2mra.toml:
+  # tdclr3=red, tdclr2=green, tdclr1=blue
+  - { name: rpal, addr_width: 8, data_width: 4, addr: pen, prom: true }
+  - { name: gpal, addr_width: 8, data_width: 4, addr: pen, prom: true }
+  - { name: bpal, addr_width: 8, data_width: 4, addr: pen, prom: true }

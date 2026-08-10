@@ -16,9 +16,6 @@
     Version: 1.0
     Date: 9-8-2026 */
 
-// Tricky Doc video: one 8x8 scrolling tile map plus 16x16 sprites,
-// both 4bpp with the pens packed in nibbles
-
 module jttrcdoc_video(
     input             rst,
     input             clk,
@@ -44,18 +41,15 @@ module jttrcdoc_video(
     output            objrom_cs,
     input             objrom_ok,
 
-    // PROMs
-    input      [ 7:0] prog_data,
-    input      [ 9:0] prog_addr,
-    input             prom_we,
+    // Colour PROMs
+    output     [ 7:0] pen,
+    input      [ 3:0] rpal_data, gpal_data, bpal_data,
 
     output            HS, VS, LHBL, LVBL,
     output     [ 3:0] red, green, blue,
     input      [ 3:0] gfx_en
 );
 
-// The tile map generator outputs its pixels eight dots after the tile
-// they belong to was fetched
 localparam [7:0] HOFFSET = 8'd8;
 
 wire [15:2] obj_araw;
@@ -85,10 +79,6 @@ assign vscan_addr = { scr_vaddr[4:0], scr_vaddr[9:5] };
 //   byte = {3-(row&3), code, row[3:2], half, 2'd0}
 assign objrom_addr = { ~obj_araw[3:2], obj_araw[15:7], obj_araw[5:4], obj_araw[6] };
 
-// 224 visible lines out of 280, 256 visible dots out of 384.
-// HJUMP keeps hdump[7] high during blanking (000-0FF then 180-1FF) so that
-// the tile map and sprite address counters run continuously into the
-// active area
 jtframe_vtimer #(
     .V_START    ( 9'd0      ),
     .VB_START   ( 9'd239    ),
@@ -217,9 +207,10 @@ jttrcdoc_colmix u_colmix(
     .preLHBL    ( preLHBL   ),
     .preLVBL    ( preLVBL   ),
 
-    .prog_data  ( prog_data ),
-    .prog_addr  ( prog_addr ),
-    .prom_we    ( prom_we   ),
+    .pen        ( pen       ),
+    .r_data     ( rpal_data ),
+    .g_data     ( gpal_data ),
+    .b_data     ( bpal_data ),
 
     .red        ( red       ),
     .green      ( green     ),

@@ -77,10 +77,6 @@ reg  [ 7:0] latch;     // LS259 addressable latch
 reg  [ 7:0] scrx_reg;
 reg         io_cs, cab_cs, scrx_cs, latch_cs;
 
-// bare address bits, aliased against the memory map
-wire a15 = A[15], a14 = A[14], a13 = A[13],
-     a12 = A[12], a11 = A[11], a10 = A[10];
-
 assign cpu_addr = A;
 assign cpu_rnw  = wr_n;
 assign rom_addr = A;
@@ -95,12 +91,12 @@ always @* begin
     cram_cs  = 0;
     io_cs    = 0;
     if( !mreq_n && rfsh_n ) begin
-        if( a15 & a14 & a13 ) begin
-            wram_cs =  ~a12 & ~a11;
-            oram_cs =  ~a12 &  a11;
-            vram_cs =   a12 & ~a11 & ~a10;
-            cram_cs =   a12 & ~a11 &  a10;
-            io_cs   =   a12 &  a11;
+        if( A[15] & A[14] & A[13] ) begin
+            wram_cs =  ~A[12] & ~A[11];
+            oram_cs =  ~A[12] &  A[11];
+            vram_cs =   A[12] & ~A[11] & ~A[10];
+            cram_cs =   A[12] & ~A[11] &  A[10];
+            io_cs   =   A[12] &  A[11];
         end else begin
             rom_cs  = 1;
         end
@@ -116,15 +112,13 @@ always @* begin
     // f828: watchdog reset, read only
 end
 
-// Inputs are active high on this PCB, JTFRAME delivers them active low
+// Inputs are active high on this PCB
 always @(posedge clk) begin
     case( A[4:3] )
         0: cabinet <= { dipsw_a[7:1], dipsw_a[0] | ~service };
         1: cabinet <= dipsw_b;
-        2: cabinet <= ~{ joystick1[2], joystick1[3], joystick1[0], joystick1[1],
-                         coin[1], coin[0], joystick1[5], joystick1[4] };
-        3: cabinet <= ~{ joystick2[2], joystick2[3], joystick2[0], joystick2[1],
-                         cab_1p[1], cab_1p[0], joystick2[5], joystick2[4] };
+        2: cabinet <= ~{ joystick1[3:0], coin[1:0],    joystick1[5:4] };
+        3: cabinet <= ~{ joystick2[3:0], cab_1p[1:0],  joystick2[5:4] };
     endcase
     cpu_din <= rom_cs  ? rom_data  :
                wram_cs ? wram_dout :

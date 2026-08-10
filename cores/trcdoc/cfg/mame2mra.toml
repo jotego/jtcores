@@ -1,5 +1,5 @@
 [global]
-author=["jotego","Andrea Bogazzi"]
+author=["Andrea Bogazzi"]
 
 [parse]
 sourcefile=[ "sauro.cpp" ]
@@ -11,7 +11,7 @@ skip = { setnames=[
 
 [buttons]
 names=[
-    { names="Shot,Jump" }
+    { names="Jump,Shot" }
 ]
 
 [dipsw]
@@ -22,8 +22,6 @@ regions = [
     { name="maincpu" },
     { name="bgtiles", start="JTFRAME_BA1_START" },
     { name="sprites", start="JTFRAME_BA2_START" },
-    # R, G and B nibble PROMs. MAME leaves 0x400 gaps between them, the core
-    # expects them back to back
     { name="proms",   start="JTFRAME_PROM_START", no_offset=true },
     # unidentified PROM, likely the sprite/H timing decoder
     { name="user1",   skip=true },

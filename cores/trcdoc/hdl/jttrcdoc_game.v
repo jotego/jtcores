@@ -16,14 +16,10 @@
     Version: 1.0
     Date: 9-8-2026 */
 
-// Tecfri Tricky Doc. MAME covers it in tecfri/sauro.cpp, but Sauro
-// itself is a different board and is not handled here
-
 module jttrcdoc_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-// cpu_addr and cpu_dout are declared in mem.yaml, they feed the BRAMs
 wire [ 7:0] scrx;
 wire        cpu_rnw, flip, fm_cs;
 wire        wram_cs, oram_cs, vram_cs, cram_cs;
@@ -60,7 +56,7 @@ jttrcdoc_main u_main(
     .flip           ( flip          ),
 
     .LVBL           ( LVBL          ),
-    // cabinet I/O
+
     .cab_1p         ( cab_1p[1:0]   ),
     .coin           ( coin[1:0]     ),
     .joystick1      ( joystick1[5:0]),
@@ -113,9 +109,10 @@ jttrcdoc_video u_video(
     .objrom_cs  ( objrom_cs     ),
     .objrom_ok  ( objrom_ok     ),
 
-    .prog_data  ( prog_data     ),
-    .prog_addr  ( prog_addr[9:0]),
-    .prom_we    ( prom_we       ),
+    .pen        ( pen           ),
+    .rpal_data  ( rpal_data     ),
+    .gpal_data  ( gpal_data     ),
+    .bpal_data  ( bpal_data     ),
 
     .HS         ( HS            ),
     .VS         ( VS            ),
