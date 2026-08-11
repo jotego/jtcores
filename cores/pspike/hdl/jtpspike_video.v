@@ -24,7 +24,7 @@ module jtpspike_video(
     input               clk,
     input               pxl_cen,
 
-    input               turbofrc, aerofgt,
+    input               turbofrc, aerofgt, karatblz,
     // C7-01 GGA write port
     input               gga_cs, gga_we, gga_addr,
     input      [ 7:0]   gga_din,
@@ -32,7 +32,7 @@ module jtpspike_video(
     input      [ 2:0]   charbank,
     input      [ 1:0]   objbank,
     input               flip,
-    input      [ 8:0]   scry, scrx1, scry1,
+    input      [ 8:0]   scry, scrx1, scry1, scrx0,
 
     // tilemap VRAM
     output     [12:1]   scr_addr,
@@ -48,9 +48,9 @@ module jtpspike_video(
     output     [10:1]   objr1_addr,
     input      [15:0]   objr1_dout,
     // sprite tile lookup RAM
-    output     [13:1]   objl_addr,
+    output     [15:1]   objl_addr,
     input      [15:0]   objl_dout,
-    output     [13:1]   objl1_addr,
+    output     [15:1]   objl1_addr,
     input      [15:0]   objl1_dout,
     // palette
     output     [11:1]   mix_addr,
@@ -107,8 +107,8 @@ wire [8:0] h_last;
 wire       two      = turbofrc | aerofgt;
 wire [8:0] hoff_scr = aerofgt ? 9'd22 : turbofrc ? 9'd10 : 9'd14;
 // MAME per layer bias: -11 / -7, and aerofgtb adds set_scrolldx(1,1) to both
-wire [8:0] xb0      = aerofgt ? 9'd10 : 9'd11;
-wire [8:0] xb1      = aerofgt ? 9'd6  : 9'd7;
+wire [8:0] xb0      = karatblz ? 9'd8 : aerofgt ? 9'd10 : 9'd11;
+wire [8:0] xb1      = karatblz ? 9'd4 : aerofgt ? 9'd6  : 9'd7;
 wire [8:0] obj_yoffs = aerofgt ? 9'h1ff : 9'd0;  // MAME set_offsets(3,-1)
 wire [8:0] hoff_obj = hoff_scr - (aerofgt ? 9'd12 : 9'd9);
 
@@ -146,7 +146,12 @@ assign o1_op = ~&obj1_pxl[3:0];
 wire [10:0] o0_idx = { 3'b010, obj_pxl [7:4], obj_pxl [3:0] };
 wire [10:0] o1_idx = { 3'b011, obj1_pxl[7:4], obj1_pxl[3:0] };
 
-assign pxl = !two ? ( o0_op ? { 1'b1, obj_pxl[9:0] } : { 1'b0, scr_pxl } ) :
+wire [10:0] kb_pxl = o1_op ? o1_idx :
+                     o0_op ? o0_idx :
+                     s1_op ? { 1'b0, 2'b01, scr1_pxl[7:0] } :
+                             { 1'b0, 2'b00, scr_pxl[7:0] };
+assign pxl = karatblz ? kb_pxl :
+             !two ? ( o0_op ? { 1'b1, obj_pxl[9:0] } : { 1'b0, scr_pxl } ) :
              ( o1_op & obj1_pxl[10] ) ? o1_idx :
              ( o0_op & obj_pxl [10] ) ? o0_idx :
                s1_op                  ? { 1'b0, 2'b01, scr1_pxl[7:0] } :
@@ -186,11 +191,12 @@ jtpspike_scr u_scr(
     .vdump      ( vdump     ),
     .blankn     ( gfx_en[0] ),
     .two        ( two       ),
+    .noraster   ( karatblz  ),
     .xbias      ( xb0       ),
     .layer      ( 1'b0      ),
     .gfxbank    ( gfxbank   ),
     .charbank   ( charbank  ),
-    .scrx       ( 9'd0      ),   // layer 0 takes its scroll from the raster RAM
+    .scrx       ( scrx0     ),   // raster RAM elsewhere, register on karatblz
     .scry       ( scry      ),
     .scr_addr   ( scr_addr  ),
     .scr_vram   ( scr_vram  ),
@@ -214,6 +220,7 @@ jtpspike_scr u_scr1(
     .vdump      ( vdump     ),
     .blankn     ( gfx_en[1] & two ),
     .two        ( two       ),
+    .noraster   ( karatblz  ),
     .xbias      ( xb1       ),
     .layer      ( 1'b1      ),
     .gfxbank    ( gfxbank   ),
@@ -244,6 +251,7 @@ jtpspike_obj u_obj(
     .objbank    ( objbank   ),
     .objr_addr  ( objr_addr[9:1] ),
     .objr_dout  ( objr_dout ),
+    .wide_lut   ( karatblz  ),
     .objl_addr  ( objl_addr ),
     .objl_dout  ( objl_dout ),
     .rom_addr   ( obj0_addr ),
@@ -268,6 +276,7 @@ jtpspike_obj u_obj1(
     .objbank    ( objbank   ),
     .objr_addr  ( objr1_addr[9:1] ),
     .objr_dout  ( objr1_dout),
+    .wide_lut   ( karatblz  ),
     .objl_addr  ( objl1_addr),
     .objl_dout  ( objl1_dout),
     .rom_addr   ( obj1_raw  ),

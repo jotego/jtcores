@@ -116,6 +116,48 @@ the picture changes (so numbering has gaps). sim-core.sh's own ffmpeg step globs
 `frame_*.jpg` and therefore silently skips - encode the mp4 by hand. Globbing for `.jpg`
 also makes a perfectly healthy run look like it produced nothing.
 
+## HARDWARE: CPU stalls immediately (sim is fine) - TOP OPEN ISSUE
+
+On MiSTer the core loads ROMs, the system menu works, but the screen is black
+and there is no sound. Read from the debug build (debug=true, START+UP steps
+debug_bus, START+left/right toggles white debug_view / reddish sys_info):
+
+  view 0  game flags     = 00000001  -> header decodes correctly on hardware
+  view 1  ROM heartbeat  = 26 FROZEN -> ~38 fetches then the 68000 stalls
+  view 3  main_addr[16:9]= FF        -> parked on an all-ones address
+
+Reading: the CPU read 0xFFFF from SDRAM (unprogrammed returns all ones),
+executed it, and hung. The reset vector worked, so the first region is fine and
+a later access got no data. Suspect the ROM DOWNLOAD or the SDRAM bank map, not
+the CPU logic - simulation cannot catch this because its SDRAM model is
+preloaded from the .rom and has no latency.
+
+PRIME SUSPECT - SDRAM IS OVERCLOCKED. pspike does NOT set JTFRAME_SDRAM96, so
+jtframe_emu drives SDRAM_CLK = clk48sh = pll outclk_1. With jtframe_pll7159
+that output is 57.272727 MHz, NOT 48 - the signal names keep saying clk48 while
+the PLL family underneath decides the real frequency. So the SDRAM controller
+runs ~19% over its nominal 48MHz. (The 114.5MHz clk96/clk96sh outputs are
+unused without JTFRAME_SDRAM96.) pspike is the ONLY core in the repo on
+pll7159, so nothing else has ever run the controller this fast. Simulation cannot see it - the Verilator
+SDRAM model has no timing. Fits partial failure (bank 0 some traffic, banks
+1-3 none) better than any logic bug, and fits every game being black on HW
+while all render in sim.
+
+SDRAM stats (sys_info, debug_bus=1000_00xx; bits1:0 = bank, /4096):
+  bank 0 = 01 (~4-8k accesses/frame)   banks 1,2,3 = 00  ZERO TRAFFIC
+Bank 0 holds maincpu + soundbank, so its traffic is probably the Z80 while the
+68000 is parked. Banks 1 (ADPCM), 2 (tiles) and 3 (sprites) are never accessed
+at all - that is black screen AND silence from one fault: the gfx/ADPCM read
+paths never even issue requests on hardware. IOCTL says the download completed
+(F0 = gfx_en 1111, ioctl_rom 0), so the data is there.
+
+Old note: sys_info debug_bus=0111_0000 gives {gfx_en[0:3],0,ioctl_ram,ioctl_cart,
+ioctl_rom}. ioctl_rom still asserted = download never finished. Download OK but
+still stalled = bank map disagrees with what the MRA wrote. NOTE karatblz
+introduced two ZERO-SLACK exact fits in the bank layout (adpcmb fills
+PCMB_START->SPRLUT_START exactly; spritegfx fills BA3_START->OBJ1_START
+exactly) - anything growing there shifts silently.
+
 ## C7-01 GGA
 
 `jtpspike_gga.v` replaces `jtframe_vtimer` - same counter body, parameters turned into
@@ -169,6 +211,82 @@ bit1 turbofrc, bit2 aerofgt. Verified in the blobs: 0001../0002../0004...
 LOST in the conversion: the hand-written module had `SIM_TURBOFRC`/`SIM_AEROFGT`
 overrides for scene replay and a $display probe. Scene sims must now rely on the
 real header byte from the per-setname .rom - UNVERIFIED, needs one scene run.
+
+## karatblz - CPU verified, palette base is wrong
+
+CPU is CORRECT: the code-path diff against MAME passes - every one of the 2991
+addresses MAME executes is reached by the FPGA (1988 extra are 68000 prefetch).
+Captured with ver/karatblz/mame_scripts/trace_main_boot.mame, compared with
+`MAME_TR=/tmp/kb_main.tr cores/pspike/ver/pspikes/verify_main_boot.sh`.
+
+The black screen is the PALETTE BASE. Instrumented in _game.v under SIMULATION:
+
+```
+pal writes nonzero=10500  maxwaddr=3ff   CPU fills palette words 000-3FF
+mix_addr max=4ae                          renderer indexes 400-4AE
+idx_nz=116736 (whole frame) pal_nz=0      every lookup misses -> black
+```
+
+NOT a palette-base bug - that was a wrong first reading. o0_idx spans 0x400-0x4FF
+and max is 0x4AE with EVERY pixel >= 0x400, so every pixel comes from sprite
+chip 0: o0_op is opaque across the whole frame and hides both tile layers. The
+sprite engine is producing garbage for karatblz. Compare turbofrc, which is
+healthy: mix_addr max=400, pal_nz=114365.
+
+Widening the sprite LUT read path (objl_addr 13 -> 15 bits, gated by wide_lut so
+the 16kB games are bit-identical) did NOT change it. That widening is still
+correct on its own - karatblz's LUTs are 64kB and the CPU fills them - but it is
+not the cause. Ruled out so far, each by measurement, not argument:
+- CPU (code-path diff vs MAME passes)
+- palette base (writes are real, 0-3FF, with data)
+- sprite LUT width (widened to 15 bits, no change)
+- sprite priority: WRONG LEAD. set_pritype(1) belongs to spinlbrk (line 2574),
+  not karatblz - read from a bare grep without checking the enclosing function.
+  The change was reverted. ALWAYS resolve which machine_config a call sits in.
+- transparent pen: MAME uses 15 for every game, same as us
+
+METHOD (Andrea's, and it works): diff the machine_config of the broken game
+against a working one call by call, then compare MAME's RAM buffers against
+ours - sprite RAM, sprite list, palette. Do that BEFORE theorising.
+
+karatblz vs aerofgtb config diff - identical gfx decode, identical
+xRGB_555/1024 palette, identical two VSYSTEM_SPR2 + callbacks. Only:
+  screen update   screen_update_karatblz   vs screen_update_turbofrc  <-- READ THIS
+  sound ports     spinlbrk_sound_portmap   vs pspikes_sound_portmap
+  sprite offsets  none                     vs set_offsets(3,-1)
+karatblz is the ONLY game of our set with its own screen_update. Read it
+(pspikes.cpp:613, on pspikes_sound_cpu_state) - vs screen_update_turbofrc:
+
+                  turbofrc                        karatblz
+  lyr0 scroll X   set_scroll_rows(512),           plain reg scrollx[0] - 8
+                  per row rasterram[7] - 11       (NO raster RAM)
+  lyr0 scroll Y   scrolly + 2                     scrolly[0], no +2
+  lyr1 scroll X   scrollx[1] - 7                  scrollx[1] - 4
+  lyr1 scroll Y   scrolly[1] + 2                  scrolly[1], no +2
+  lyr1 draw       draw(...,0,1)  priority 1       draw(...,0,0)  priority 0
+  sprites         same 4 calls                    same 4 calls
+
+The compositing difference is the tilemap[1] draw priority: turbofrc marks the
+priority buffer with 1 so layer 1 masks sprites; karatblz marks 0 so it does
+not. Our mixer hardcodes turbofrc's scheme (s1_op beating sprites). That plus
+the missing 0ff008 layer-0 scroll port are BOTH in this one function, and
+neither is in the sprite engine.
+
+THE remaining invariant: o0_op is asserted on all 116736 pixels while objscan
+reports only 2 draws/line (chip 1: 0). The sprite line buffer is reading back
+non-transparent where nothing was drawn. Look at jtframe_obj_buffer's clear/
+readback for the karatblz case - ALPHA=15 is set, so why is the empty buffer
+not returning 15.
+
+Also done: I/O reads (DSW at A[4:1]=4, pending at 5 - both moved vs turbofrc),
+I/O writes (sound latch at 0ff007 low byte, flip bit 7 of 0ff000, gfxbank
+0ff002 bit0/bit3), P4 on IN3. STILL MISSING: layer 0 scroll X has no port
+(0ff008; karatblz has no raster RAM), and rest2bin.sh does not know the
+151562-byte dump layout.
+
+JTFRAME_BUTTONS=4 widened the top-level joysticks to [7:0]; _main.v declared
+[6:0] and was silently truncating button 4 for every game. Ports and all four
+input packings were corrected.
 
 ## Scenes - capturing screen.png
 

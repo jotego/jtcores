@@ -48,7 +48,7 @@ module jtpspike_main(
     output reg    [ 1:0] objbank,
     output reg           flip,
     output reg    [ 8:0] scry,
-    output reg    [ 8:0] scrx1, scry1,
+    output reg    [ 8:0] scrx1, scry1, scrx0,
 
     // sound interface
     output               gga_cs, gga_we, gga_addr,
@@ -58,7 +58,7 @@ module jtpspike_main(
 
     // cabinet
     input         [ 3:0] cab_1p, coin,
-    input         [ 6:0] joystick1, joystick2, joystick3,
+    input         [ 7:0] joystick1, joystick2, joystick3, joystick4,
     input                service, tilt, dip_test,
     input         [15:0] dipsw
 );
@@ -201,15 +201,28 @@ always @(posedge clk) rom_ok_dly <= rom_ok;
 // The two families do NOT share a layout. pspikes puts player 2 in IN0 and
 // player 1 in IN1. turbofrc is a three player game: IN0 is player 1 plus the
 // system bits, IN1 player 2, IN2 player 3 with START3 in bit 7.
+// karatblz is a four player game and moves DSW and the pending bit:
+//   0ff000 IN0  0ff002 IN1  0ff004 IN2  0ff006 IN3
+//   0ff008 DSW  0ff00b sound latch pending
 always @* begin
+    if( karatblz ) case( A[4:1] )
+        4'd0: cab_dout = { coin[2], service, tilt, dip_test, cab_1p[1:0],
+                           coin[1:0], joystick1 };
+        4'd1: cab_dout = { 8'hff, joystick2 };
+        4'd2: cab_dout = { 8'hff, joystick3 };
+        4'd4: cab_dout = dipsw;
+        4'd5: cab_dout = { 15'h7fff, snd_pending };
+        4'd3: cab_dout = { 8'hff, joystick4 };   // IN3 player 4
+        default: cab_dout = 16'hffff;
+    endcase else
     case( A[4:1] )
         4'd0: cab_dout = two ?
               { coin[2], service, tilt, dip_test, cab_1p[1:0], coin[1:0],
-                1'b1, joystick1 } :
-              { 1'b1, service, 2'b11, cab_1p[1:0], coin[1:0], 1'b1, joystick2 };
-        4'd1: cab_dout = two ? { 9'h1ff, joystick2 } : { 9'h1ff, joystick1 };
+                joystick1 } :
+              { 1'b1, service, 2'b11, cab_1p[1:0], coin[1:0], joystick2 };
+        4'd1: cab_dout = two ? { 8'hff, joystick2 } : { 8'hff, joystick1 };
         4'd2: cab_dout = dipsw;
-        4'd4: cab_dout = { 8'hff, cab_1p[2], joystick3 };  // IN2 / DSW2
+        4'd4: cab_dout = { 7'h7f, cab_1p[2], joystick3 };  // IN2 / DSW2
         default: cab_dout = { 15'h7fff, snd_pending };
     endcase
 end
@@ -244,12 +257,31 @@ always @(posedge clk) begin
         flip      <= 0;
         scry      <= 0;
         scrx1     <= 0;
+        scrx0     <= 0;
         scry1     <= 0;
         snd_latch <= 0;
         snd_wr    <= 0;
     end else begin
         snd_wr <= 0;
         if( io_cs && ~|A[11:5] ) begin
+            if( karatblz ) case( A[4:1] )
+                // 0ff000 flip (bit 7)      0ff002 gfxbank: bit0 -> bank0, bit3 -> bank1
+                // 0ff007 sound latch       0ff008/a/c/e scroll X0/Y0/X1/Y1
+                4'd0: if( hi_we ) flip <= main_dout[15];
+                4'd1: if( hi_we ) begin
+                    bankw[0][3:0] <= { 3'd0, main_dout[ 8] };
+                    bankw[0][7:4] <= { 3'd0, main_dout[11] };
+                end
+                4'd3: if( lo_we ) begin
+                    snd_latch <= main_dout[7:0];
+                    snd_wr    <= 1;
+                end
+                4'd5: if( hi_we ) scry  <= main_dout[8:0];
+                4'd6: if( hi_we ) scrx1 <= main_dout[8:0];
+                4'd7: if( hi_we ) scry1 <= main_dout[8:0];
+                4'd4: if( hi_we ) scrx0 <= main_dout[8:0];   // 0ff008
+                default:;
+            endcase else
             if( !two ) case( A[3:1] )
                 3'd0: if( lo_we ) { flip, charbank, objbank } <= // fff001
                                   { main_dout[7], main_dout[4:2], main_dout[1:0] };

@@ -52,7 +52,8 @@ module jtpspike_objscan(
     output     [ 9:1] objr_addr,
     input      [15:0] objr_dout,
     // tile code lookup RAM
-    output     [12:0] objl_addr,
+    input             wide_lut,   // karatblz LUTs are 64kB, others 16kB
+    output     [14:0] objl_addr,
     input      [15:0] objl_dout,
 
     // jtframe_objdraw
@@ -102,7 +103,20 @@ wire [ 3:0] stride  = xsize<3'd1 ? 4'd1 : xsize<3'd2 ? 4'd2 :
 wire [15:0] mapidx  = w3 + {12'd0,maprow}*{12'd0,stride} + {13'd0,mapcol};
 
 assign objr_addr = rd_addr;
-assign objl_addr = mapidx[12:0];
+assign objl_addr = wide_lut ? mapidx[14:0] : { 2'd0, mapidx[12:0] };
+
+`ifdef SIMULATION
+reg [3:0] zxmin=4'hf, zxmax=0, zymin=4'hf, zymax=0;
+always @(posedge clk) if( draw ) begin
+    if( w1[15:12] < zxmin ) zxmin <= w1[15:12];
+    if( w1[15:12] > zxmax ) zxmax <= w1[15:12];
+    if( w0[15:12] < zymin ) zymin <= w0[15:12];
+    if( w0[15:12] > zymax ) zymax <= w0[15:12];
+end
+always @(negedge hs) if( $time > 200000000 )
+    $display("%m zoom nibble x=%0h..%0h y=%0h..%0h -> zx=%0d..%0d hzoom=%0d",
+        zxmin, zxmax, zymin, zymax, 6'd32-{2'd0,zxmax}, 6'd32-{2'd0,zxmin}, hzoom);
+`endif
 assign code      = objl_dout[12:0];
 // the pri bit rides along with the pixel so the mixer can use it
 assign pal       = { pri, objbank, w2[3:0] };

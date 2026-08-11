@@ -35,6 +35,7 @@ module jtpspike_scr(
     input               blankn,
 
     input               two,        // two layer hardware: turbofrc, aerofgt
+    input               noraster,   // karatblz: both layers scroll from registers
     input      [ 8:0]   xbias,      // per game, per layer constant
     input               layer,      // 0 or 1, selects the gfx bank group
     input      [31:0]   gfxbank,    // eight 4-bit banks
@@ -96,8 +97,8 @@ assign code     = two ? { bank[2:0], scr_vram[10:0] }
 //   both     scrolly + 2
 assign ras_addr = { 3'd0, two ? 8'd7 : vdump[7:0] };
 assign scrx_eff = !two ? ras_dout[8:0] :
-                  layer ? scrx - xbias : ras_dout[8:0] - xbias;
-assign scry_eff = two ? scry + 9'd2 : scry;
+                  (layer | noraster) ? scrx - xbias : ras_dout[8:0] - xbias;
+assign scry_eff = (two & ~noraster) ? scry + 9'd2 : scry;
 assign rom_addr = { 2'd0, tile_addr };
 
 jtframe_scroll #(

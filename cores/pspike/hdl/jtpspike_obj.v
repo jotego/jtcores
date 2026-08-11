@@ -36,7 +36,8 @@ module jtpspike_obj(
     output     [ 9:1]   objr_addr,
     input      [15:0]   objr_dout,
     // tile lookup RAM
-    output     [13:1]   objl_addr,
+    input               wide_lut,
+    output     [15:1]   objl_addr,
     input      [15:0]   objl_dout,
 
     output     [21:2]   rom_addr,

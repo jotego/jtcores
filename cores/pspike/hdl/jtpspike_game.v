@@ -23,7 +23,7 @@ module jtpspike_game(
 wire [31:0] gfxbank;
 wire [ 2:0] charbank;
 wire        turbofrc, pspikes, aerofgt, karatblz;
-wire [ 8:0] scrx1, scry1;
+wire [ 8:0] scrx1, scry1, scrx0;
 wire [ 1:0] objbank;
 wire        flip;
 wire [ 8:0] scry;
@@ -32,7 +32,7 @@ wire        snd_wr, snd_pending;
 wire        main_rnw;
 wire        gga_cs, gga_we, gga_addr;
 // karatblz's LUTs are 64kB; the sprite side still indexes the low 16kB
-wire [13:1] objl_lo, objl1_lo;
+
 wire [ 1:0] main_dsn;
 
 assign dip_flip   = flip;
@@ -59,8 +59,38 @@ assign ram2_addr  = main_addr[13:1];
 assign vram1_addr = main_addr[12:1];
 assign oram1_addr = main_addr[10:1];
 assign lut1_addr  = main_addr[15:1];
-assign objl_addr  = { 2'd0, objl_lo };
-assign objl1_addr = { 2'd0, objl1_lo };
+
+
+`ifdef SIMULATION
+integer pal_n=0, vram_n=0, vram1_n=0, oram_n=0, io_n=0, pal_nzw=0;
+reg [11:1] pal_maxw=0; reg [11:0] mix_max=0;
+always @(posedge clk) begin
+    if( |pal_we   ) pal_n   <= pal_n  +1;
+    if( |pal_we && |main_dout ) pal_nzw <= pal_nzw+1;
+    if( |pal_we && pal_addr>pal_maxw ) pal_maxw <= pal_addr;
+    if( |vram_we  ) vram_n  <= vram_n +1;
+    if( |vram1_we ) vram1_n <= vram1_n+1;
+    if( |oram_we  ) oram_n  <= oram_n +1;
+    if( gga_we    ) io_n    <= io_n   +1;
+end
+// renderer probes: pixels with a non-zero palette index, non-zero palette
+// data, and non-zero RGB. Splits "no pixels drawn" from "palette is black".
+integer idx_nz=0, pal_nz=0, rgb_nz=0, pxl_n=0;
+always @(posedge clk) if( pxl_cen ) begin
+    pxl_n <= pxl_n+1;
+    if( |mix_addr ) idx_nz <= idx_nz+1;
+    if( mix_addr>mix_max ) mix_max <= mix_addr;
+    if( |mix_pal  ) pal_nz <= pal_nz+1;
+    if( |{red,green,blue} ) rgb_nz <= rgb_nz+1;
+end
+always @(negedge LVBL) begin
+    $display("writes pal=%0d vram0=%0d vram1=%0d oram=%0d gga=%0d",
+        pal_n, vram_n, vram1_n, oram_n, io_n);
+    $display("render pxl=%0d idx_nz=%0d pal_nz=%0d rgb_nz=%0d | pal writes nonzero=%0d maxwaddr=%0h | mix_addr max=%0h",
+        pxl_n, idx_nz, pal_nz, rgb_nz, pal_nzw, pal_maxw, mix_max);
+    pxl_n=0; idx_nz=0; pal_nz=0; rgb_nz=0;
+end
+`endif
 
 jtpspike_header u_header(
     .clk        ( clk           ),
@@ -110,6 +140,7 @@ jtpspike_main u_main(
     .flip       ( flip          ),
     .scry       ( scry          ),
     .scrx1      ( scrx1         ),
+    .scrx0      ( scrx0         ),
     .scry1      ( scry1         ),
     .ram2_we    ( ram2_we       ),
     .vram1_we   ( vram1_we      ),
@@ -132,6 +163,7 @@ jtpspike_main u_main(
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
     .joystick3  ( joystick3     ),
+    .joystick4  ( joystick4     ),
     .service    ( service       ),
     .tilt       ( tilt          ),
     .dip_test   ( dip_test      ),
@@ -145,6 +177,7 @@ jtpspike_video u_video(
 
     .turbofrc   ( turbofrc      ),
     .aerofgt    ( aerofgt       ),
+    .karatblz   ( karatblz      ),
     .gga_cs     ( gga_cs        ),
     .gga_we     ( gga_we        ),
     .gga_addr   ( gga_addr      ),
@@ -155,6 +188,7 @@ jtpspike_video u_video(
     .flip       ( flip          ),
     .scry       ( scry          ),
     .scrx1      ( scrx1         ),
+    .scrx0      ( scrx0         ),
     .scry1      ( scry1         ),
 
     .scr_addr   ( scr_addr      ),
@@ -167,9 +201,9 @@ jtpspike_video u_video(
     .objr_dout  ( objr_dout     ),
     .objr1_addr ( objr1_addr    ),
     .objr1_dout ( objr1_dout    ),
-    .objl_addr  ( objl_lo       ),
+    .objl_addr  ( objl_addr     ),
     .objl_dout  ( objl_dout     ),
-    .objl1_addr ( objl1_lo      ),
+    .objl1_addr ( objl1_addr    ),
     .objl1_dout ( objl1_dout    ),
     .mix_addr   ( mix_addr      ),
     .mix_pal    ( mix_pal       ),
