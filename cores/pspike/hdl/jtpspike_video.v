@@ -109,8 +109,6 @@ wire [8:0] hoff_scr = aerofgt ? 9'd22 : turbofrc ? 9'd10 : 9'd14;
 // MAME per layer bias: -11 / -7, and aerofgtb adds set_scrolldx(1,1) to both
 wire [8:0] xb0      = aerofgt ? 9'd10 : 9'd11;
 wire [8:0] xb1      = aerofgt ? 9'd6  : 9'd7;
-// sprites lead the tiles. pspikes/turbofrc need 9, aerofgt 3 more (judged on
-// the scene diffs): a bigger subtraction moves the sprites right on the scanline
 wire [8:0] obj_yoffs = aerofgt ? 9'h1ff : 9'd0;  // MAME set_offsets(3,-1)
 wire [8:0] hoff_obj = hoff_scr - (aerofgt ? 9'd12 : 9'd9);
 

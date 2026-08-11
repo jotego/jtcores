@@ -21,18 +21,13 @@
 // The counter body is jtframe_vtimer with the parameters turned into wires.
 //
 // Registers hold the count in units of 4 pixels (H) or 2 lines (V), biased by
-// one unit, so the programmed edge is (reg+1)*4 or (reg+1)*2. Captured from
-// MAME (skeleton device, logs every write):
+// one unit: the programmed edge is (reg+1)*4 or (reg+1)*2.
 //
 //        reg  00   01   02   03   08   09   0a   0b
 //   pspikes   352  400  424  456  240  244  248  256   also turbofrc
 //   aerofgtb  320  376  400  456  224  226  230  250
 //
-// Regs 04/05/0c/0d read 1f/00/1f/00 on every game in MAME's table (aerofgtb
-// puts 02 in 0d) and have no known effect. They are stored, not used.
-//
-// H totals above 511 do not fit the 9-bit counters. Every known game programs
-// 456.
+// Regs 04/05/0c/0d have no known effect. H total must stay under 512.
 
 module jtpspike_gga(
     input             rst,
@@ -76,9 +71,7 @@ wire [8:0] vs_start = vval(regs[ 9]);
 wire [8:0] vs_end   = vval(regs[10]);
 wire [8:0] v_last   = vval(regs[11]) - 9'd1;
 
-// Reset loads the table the game is going to program anyway, so the picture is
-// stable through reset and the ROM download. It also IS the configuration for
-// scene replay, where NOMAIN means no CPU ever writes the chip.
+// Reset defaults are also the scene-replay configuration: NOMAIN never writes
 always @(posedge clk) begin
     if( rst ) begin
         regs[ 0] <= aerofgt ? 8'h4f : 8'h57;
@@ -102,8 +95,7 @@ always @(posedge clk) begin
     end
 end
 
-// H counter. The wrap compares are >= so a register write that moves the
-// total below the current count cannot wedge the counter.
+// wrap compares are >=: a register write below the current count must not wedge
 always @(posedge clk) begin
     if( rst ) begin
         H     <= hb_start;  // start of horizontal blanking, matches MAME

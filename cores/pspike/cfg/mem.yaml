@@ -13,6 +13,9 @@ clocks:
     - freq: 5 MHz
       outputs:
         - snd_cen
+    - freq: 4 MHz
+      outputs:
+        - snd4_cen
 
 audio:
   channels:
@@ -105,7 +108,7 @@ bram:
     simfile: { big_endian: true }
     dual_port: { name: objr1, dout: objr1_dout }
   - name: lut
-    addr_width: 14
+    addr_width: 16
     data_width: 16
     rw: true
     din: main_dout
@@ -113,7 +116,7 @@ bram:
     dual_port: { name: objl, dout: objl_dout }
   # second sprite chip's lookup RAM, a genuinely separate region
   - name: lut1
-    addr_width: 14
+    addr_width: 16
     data_width: 16
     rw: true
     din: main_dout

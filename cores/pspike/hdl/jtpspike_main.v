@@ -40,7 +40,7 @@ module jtpspike_main(
     output        [ 1:0] ram2_we, vram1_we, oram1_we, lut1_we,
     input         [15:0] ram2_dout, vram1_dout, lut1_dout,
 
-    input                turbofrc, aerofgt,
+    input                turbofrc, karatblz, aerofgt,
 
     // video configuration
     output        [31:0] gfxbank,   // eight 4-bit banks
@@ -69,7 +69,7 @@ reg  [15:0] bankw[0:1];
 
 // used by both branches: the scene stub packs gfxbank the same way
 wire        two;   // turbofrc family: two layers, two sprite chips
-assign      two = turbofrc | aerofgt;
+assign      two = turbofrc | aerofgt | karatblz;
 
 `ifndef NOMAIN
 // 10 MHz out of 57.2727 MHz
@@ -90,6 +90,8 @@ wire        tf_rom, tf_ram, tf_ram2, tf_vram0, tf_vram1, tf_lut0, tf_lut1,
 wire [ 3:0] tf_hi;
 wire        af_rom, af_ram, af_ram2, af_vram0, af_vram1, af_lut0, af_lut1,
             af_oram, af_rascr, af_pal, af_io;
+wire        kb_rom, kb_ram, kb_ram2, kb_vram0, kb_vram1, kb_lut0, kb_lut1,
+            kb_oram, kb_pal, kb_io;
 
 wire        ffblk;
 reg  [15:0] cab_dout;
@@ -130,6 +132,18 @@ assign tf_rascr  = tf_hi == 4'hf & A[15:12]==4'hd;
 assign tf_pal    = tf_hi == 4'hf & A[15:11]==5'b11100;       // 0fe000-0fe7ff
 assign tf_io     = tf_hi == 4'hf & A[15:12]==4'hf;
 
+// karatblz: no raster RAM, layer 0 scroll X is a register. 64kB sprite LUTs
+assign kb_rom    = ~|A[23:19];
+assign kb_vram0  = A[19:16]==4'h8 & A[15:13]==3'd0;          // 080000-081fff
+assign kb_vram1  = A[19:16]==4'h8 & A[15:13]==3'd1;          // 082000-083fff
+assign kb_lut0   = A[19:16]==4'ha;                           // 0a0000-0affff
+assign kb_lut1   = A[19:16]==4'hb;                           // 0b0000-0bffff
+assign kb_ram    = A[19:16]==4'hc;                           // 0c0000-0cffff
+assign kb_ram2   = A[19:16]==4'hf & A[15:14]==2'b10;         // 0f8000-0fbfff
+assign kb_oram   = A[19:16]==4'hf & A[15:11]==5'b11000;      // 0fc000-0fc7ff
+assign kb_pal    = A[19:16]==4'hf & A[15:11]==5'b11100;      // 0fe000-0fe7ff
+assign kb_io     = A[19:16]==4'hf & A[15:12]==4'hf;          // 0ff000-0ff40f
+
 // aerofgtb is turbofrc's layout with palette, I/O and raster RAM moved
 assign af_rom    = ~|A[23:19];
 assign af_ram    = A[23:16]==8'h0c;
@@ -144,17 +158,17 @@ assign af_io     = A[23:16]==8'h0f & A[15:12]==4'he;         // 0fe000-0fe00f
 assign af_rascr  = A[23:16]==8'h0f & A[15:12]==4'hf;         // 0ff000-0fffff
 
 
-assign rom_cs    = cpu_bus & (aerofgt ? af_rom : turbofrc ? tf_rom   : ps_rom  );
-assign ram_cs   = cpu_bus & (aerofgt ? af_ram : turbofrc ? tf_ram : ps_ram);
-assign ram2_cs   = cpu_bus & (aerofgt ? af_ram2  : turbofrc & tf_ram2 );
-assign lut_cs   = cpu_bus & (aerofgt ? af_lut0 : turbofrc ? tf_lut0 : ps_lut);
-assign lut1_cs   = cpu_bus & (aerofgt ? af_lut1  : turbofrc & tf_lut1 );
-assign vram_cs  = cpu_bus & (aerofgt ? af_vram0 : turbofrc ? tf_vram0 : ps_vram);
-assign vram1_cs  = cpu_bus & (aerofgt ? af_vram1 : turbofrc & tf_vram1);
-assign oram_cs  = cpu_bus & (aerofgt ? af_oram : turbofrc ? tf_oram : ps_oram);
+assign rom_cs    = cpu_bus & (karatblz ? kb_rom : aerofgt ? af_rom : turbofrc ? tf_rom   : ps_rom  );
+assign ram_cs   = cpu_bus & (karatblz ? kb_ram : aerofgt ? af_ram : turbofrc ? tf_ram : ps_ram);
+assign ram2_cs   = cpu_bus & (karatblz ? kb_ram2 : aerofgt ? af_ram2  : turbofrc & tf_ram2 );
+assign lut_cs   = cpu_bus & (karatblz ? kb_lut0 : aerofgt ? af_lut0 : turbofrc ? tf_lut0 : ps_lut);
+assign lut1_cs   = cpu_bus & (karatblz ? kb_lut1 : aerofgt ? af_lut1  : turbofrc & tf_lut1 );
+assign vram_cs  = cpu_bus & (karatblz ? kb_vram0 : aerofgt ? af_vram0 : turbofrc ? tf_vram0 : ps_vram);
+assign vram1_cs  = cpu_bus & (karatblz ? kb_vram1 : aerofgt ? af_vram1 : turbofrc & tf_vram1);
+assign oram_cs  = cpu_bus & (karatblz ? kb_oram : aerofgt ? af_oram : turbofrc ? tf_oram : ps_oram);
 assign rascr_cs = cpu_bus & (aerofgt ? af_rascr : turbofrc ? tf_rascr : ps_rascr);
-assign pal_cs   = cpu_bus & (aerofgt ? af_pal : turbofrc ? tf_pal : ps_pal);
-assign io_cs    = cpu_bus & (aerofgt ? af_io : turbofrc ? tf_io : ps_io);
+assign pal_cs   = cpu_bus & (karatblz ? kb_pal : aerofgt ? af_pal : turbofrc ? tf_pal : ps_pal);
+assign io_cs    = cpu_bus & (karatblz ? kb_io : aerofgt ? af_io : turbofrc ? tf_io : ps_io);
 // GGA is io+0x400 on every game: fff400 pspikes, 0ff400 turbofrc, 0fe400 aerofgtb.
 // Write only, low byte of the word (umask 00ff). A[1] picks data / address latch.
 assign gga_cs   = io_cs & A[10];

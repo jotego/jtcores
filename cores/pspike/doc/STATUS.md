@@ -170,6 +170,21 @@ LOST in the conversion: the hand-written module had `SIM_TURBOFRC`/`SIM_AEROFGT`
 overrides for scene replay and a $display probe. Scene sims must now rely on the
 real header byte from the per-setname .rom - UNVERIFIED, needs one scene run.
 
+## Scenes - capturing screen.png
+
+Do NOT set snapname from Lua (`options.entries.snapname` has no working setter in
+MAME 0.276 - both `:set_value()` and `.value =` fail silently or throw). Let MAME
+use its default snapname into a scratch dir, then collate in capture order:
+
+```bash
+~/mame/mame <set> -rompath ~/mameroms -autoboot_script <dump_burst.lua> \
+    -snapshot_directory <scratch> -video soft -window -nothrottle -noreadconfig -nowriteconfig
+# then copy sorted(scratch/**/*.png) onto sorted(scenes/m*) 1:1
+```
+
+Never point `-snapshot_directory` at the scenes folder: MAME creates a `<set>/`
+subdir there that then looks like an extra scene.
+
 ## Scenes
 
 `MAMESET` is needed because the folder name is not the romset:

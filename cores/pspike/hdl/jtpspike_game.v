@@ -22,7 +22,7 @@ module jtpspike_game(
 
 wire [31:0] gfxbank;
 wire [ 2:0] charbank;
-wire        turbofrc, pspikes, aerofgt;
+wire        turbofrc, pspikes, aerofgt, karatblz;
 wire [ 8:0] scrx1, scry1;
 wire [ 1:0] objbank;
 wire        flip;
@@ -31,22 +31,36 @@ wire [ 7:0] snd_latch;
 wire        snd_wr, snd_pending;
 wire        main_rnw;
 wire        gga_cs, gga_we, gga_addr;
+// karatblz's LUTs are 64kB; the sprite side still indexes the low 16kB
+wire [13:1] objl_lo, objl1_lo;
 wire [ 1:0] main_dsn;
 
 assign dip_flip   = flip;
-assign debug_view = 0;
+// debug_bus[1:0] selects the view:
+//   0 game flags   1 ROM-fetch heartbeat   2 VRAM-write heartbeat   3 main_addr
+reg [7:0] rom_beat=0, vram_beat=0;
+always @(posedge clk) begin
+    if( main_cs   ) rom_beat  <= rom_beat +8'd1;
+    if( |vram_we  ) vram_beat <= vram_beat+8'd1;
+end
+assign debug_view = debug_bus[1:0]==2'd0 ? { 4'd0, karatblz, aerofgt, turbofrc, pspikes } :
+                    debug_bus[1:0]==2'd1 ? rom_beat  :
+                    debug_bus[1:0]==2'd2 ? vram_beat :
+                                           main_addr[16:9] ;
 assign st_dout    = 0;
 
 assign ram_addr   = main_addr[15:1];
 assign vram_addr  = main_addr[12:1];
 assign rascr_addr = main_addr[11:1];
 assign oram_addr  = main_addr[10:1];
-assign lut_addr   = main_addr[13:1];
+assign lut_addr   = main_addr[15:1];
 assign pal_addr   = main_addr[11:1];
 assign ram2_addr  = main_addr[13:1];
 assign vram1_addr = main_addr[12:1];
 assign oram1_addr = main_addr[10:1];
-assign lut1_addr  = main_addr[13:1];
+assign lut1_addr  = main_addr[15:1];
+assign objl_addr  = { 2'd0, objl_lo };
+assign objl1_addr = { 2'd0, objl1_lo };
 
 jtpspike_header u_header(
     .clk        ( clk           ),
@@ -56,7 +70,8 @@ jtpspike_header u_header(
     .prog_data  ( prog_data     ),
     .pspikes    ( pspikes       ),
     .turbofrc   ( turbofrc      ),
-    .aerofgt    ( aerofgt       )
+    .aerofgt    ( aerofgt       ),
+    .karatblz   ( karatblz      )
 );
 
 jtpspike_main u_main(
@@ -87,6 +102,7 @@ jtpspike_main u_main(
     .pal_dout   ( pal_dout      ),
 
     .turbofrc   ( turbofrc      ),
+    .karatblz   ( karatblz      ),
     .aerofgt    ( aerofgt       ),
     .gfxbank    ( gfxbank       ),
     .charbank   ( charbank      ),
@@ -151,9 +167,9 @@ jtpspike_video u_video(
     .objr_dout  ( objr_dout     ),
     .objr1_addr ( objr1_addr    ),
     .objr1_dout ( objr1_dout    ),
-    .objl_addr  ( objl_addr     ),
+    .objl_addr  ( objl_lo       ),
     .objl_dout  ( objl_dout     ),
-    .objl1_addr ( objl1_addr    ),
+    .objl1_addr ( objl1_lo      ),
     .objl1_dout ( objl1_dout    ),
     .mix_addr   ( mix_addr      ),
     .mix_pal    ( mix_pal       ),
@@ -190,7 +206,7 @@ jtpspike_video u_video(
 jtpspike_snd u_snd(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .snd_cen    ( snd_cen       ),
+    .snd_cen    ( karatblz ? snd4_cen : snd_cen ), // 8MHz/2 vs 20MHz/4
     .fm_cen     ( fm_cen        ),
 
     .snd_latch  ( snd_latch     ),
