@@ -1,0 +1,51 @@
+[global]
+author=["jotego","andreabogazzi"]
+platform="jtpspike"
+
+[parse]
+sourcefile=[ "pspikes.cpp" ]
+# The whole driver is in scope except the bootlegs: they replace the sound
+# hardware (OKI6295 / MSM5205 / uPD7759) and re-encode the gfx.
+skip.bootlegs=true
+skip.setnames=[
+    "wbbc97",   # Comad, adds a bitmap layer
+    "kickball", # Seoung Youn, different sound hardware
+]
+# Only the Power Spikes family for now. karatblz / spinlbrk / turbofrc /
+# aerofgtb need the second tile layer and the second sprite chip first.
+mustbe.machines=[ "pspikes" ]
+
+[dipsw]
+bitcnt = 16
+delete=[{names=["Unused","Unknown"]}]
+# MiSTer's OSD truncates long DIP lines
+rename=[
+    { name="1 Player Starting Score",   to="1P Start Score" },
+    { name="2 Players Starting Score",  to="2P Start Score" },
+    { name="2 Players Time Per Credit", to="2P Time/Credit" },
+]
+
+[ROM]
+# The 68000 ROM is ROM_LOAD16_WORD_SWAP, so MAME's memory image is the file
+# byte-swapped: SP=0x110000 (top of work RAM), PC=0x400. The jtframe download
+# path already assembles the 16-bit word from the blob in that swapped order,
+# so the region is loaded STRAIGHT - adding reverse=true here swaps twice and
+# the CPU fetches 0x1100 instead of 0x0011.
+#
+# Region names are MAME's. For pspikes gfx1 is the tile layer and gfx2 the
+# sprites; the other sets of this driver name them differently and will need
+# their own setname-qualified entries.
+regions = [
+    { name="maincpu", width=16, no_offset=true },
+    { name="soundbank", start="SND_START" },
+    { name="ymsnd:adpcma", rename="pcma", start="JTFRAME_BA1_START" },
+    { name="ymsnd:adpcmb", rename="pcmb", start="PCMB_START" },
+    { name="gfx1", start="JTFRAME_BA2_START" },
+    { name="gfx2", start="JTFRAME_BA3_START", width=32 },
+    { name="plds", skip=true },
+]
+
+# the sort key is the region name AFTER rename
+order = [
+    "maincpu", "soundbank", "pcma", "pcmb", "gfx1", "gfx2"
+]

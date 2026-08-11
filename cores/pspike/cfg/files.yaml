@@ -1,0 +1,32 @@
+pspike:
+  - get:
+    - jtpspike_game.v
+    - jtpspike_main.v
+    - jtpspike_snd.v
+    - jtpspike_video.v
+    - jtpspike_scr.v
+    - jtpspike_obj.v
+    - jtpspike_objscan.v
+    - jtpspike_colmix.v
+jtframe:
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+      - jtframe_obj_buffer.v
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+  - from: cpu
+    get:
+      - jtframe_virq.v
+      - jtframe_m68k.yaml
+      - jtframe_z80.yaml
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_scroll.yaml
+      - jtframe_obj.yaml
+jt12:
