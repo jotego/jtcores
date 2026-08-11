@@ -69,6 +69,7 @@ type seed_job struct {
 	pass     bool
 	start    time.Time
 	walltime time.Duration
+	wait_e   error
 }
 
 const seed_easy_sta_limit = -0.5
@@ -266,10 +267,13 @@ func (cfg *seed_config) wait_batch(jobs []seed_job, pass *bool) (bool, error) {
 			}
 			continue
 		}
-		if !job.pass && !report.done {
-			msg := report.last_line
+		if !report.done {
+			msg := report.error_context()
 			if msg == "" {
 				msg = "jtcore exited without PASS/FAIL"
+				if job.wait_e != nil {
+					msg = job.wait_e.Error()
+				}
 			}
 			fmt.Printf("Seed %5d error after %s: %s\n", job.seed, job.walltime, msg)
 			if first_error == nil {
@@ -570,6 +574,7 @@ func start_jtcore_with_io(jtcore_args []string, seed int, output string, stdout,
 
 func (job *seed_job) wait() bool {
 	e := job.cmd.Wait()
+	job.wait_e = e
 	job.walltime = time.Since(job.start)
 	if job.logfile != nil {
 		job.logfile.Close()
@@ -588,9 +593,11 @@ func (job seed_job) worst_slack() string {
 }
 
 type jtcore_log_report struct {
-	error_msg string
-	done      bool
-	last_line string
+	error_msg  string
+	error_seen bool
+	done       bool
+	last_line  string
+	context    []string
 }
 
 func (job seed_job) log_report() jtcore_log_report {
@@ -606,6 +613,10 @@ func (job seed_job) log_report() jtcore_log_report {
 		if strings.TrimSpace(line) != "" {
 			report.last_line = strings.TrimSpace(line)
 		}
+		report.add_context_line(line)
+		if strings.Contains(line, "ERROR") {
+			report.error_seen = true
+		}
 		if msg, found := parse_jtcore_error(line); found && report.error_msg == "" {
 			report.error_msg = msg
 		}
@@ -613,7 +624,34 @@ func (job seed_job) log_report() jtcore_log_report {
 			report.done = true
 		}
 	}
+	if report.error_msg == "" && report.error_seen {
+		report.error_msg = report.error_context()
+	}
 	return report
+}
+
+func (report *jtcore_log_report) add_context_line(line string) {
+	line = strings.TrimSpace(line)
+	if line == "" || parse_jtcore_done(line) || is_bare_jtcore_error(line) {
+		return
+	}
+	report.context = append(report.context, line)
+	if len(report.context) > 3 {
+		report.context = report.context[1:]
+	}
+}
+
+func (report jtcore_log_report) error_context() string {
+	if len(report.context) == 0 {
+		if report.error_seen {
+			return "ERROR"
+		}
+		return report.last_line
+	}
+	if report.error_seen {
+		return "ERROR near: " + strings.Join(report.context, " | ")
+	}
+	return strings.Join(report.context, " | ")
 }
 
 func worst_sta_slack(output string) string {
@@ -684,10 +722,16 @@ func parse_worst_slack(line string) (string, bool) {
 }
 
 func parse_jtcore_error(line string) (string, bool) {
-	if !strings.Contains(line, "ERROR") {
+	line = strings.TrimSpace(line)
+	if !strings.Contains(line, "ERROR") || is_bare_jtcore_error(line) {
 		return "", false
 	}
-	return strings.TrimSpace(line), true
+	return line, true
+}
+
+func is_bare_jtcore_error(line string) bool {
+	line = strings.TrimSpace(line)
+	return line == "ERROR" || line == "ERROR:"
 }
 
 func parse_jtcore_done(line string) bool {
