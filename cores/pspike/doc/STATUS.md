@@ -151,6 +151,25 @@ Consequences:
 - Scene replay is NOMAIN so the GGA keeps its defaults - right for pspikes/turbofrc,
   WRONG for any future aerofgtb scene. Its 12 registers must join the scene reg dump.
 
+## Header - GENERATED, do not hand-write
+
+`cores/pspike/hdl/jtpspike_header.v` is produced by `jtframe mra` from the
+`[header] registers` block in mame2mra.toml, and is gitignored
+(`.gitignore:75 cores/*/hdl/*_header.v`). It only gets generated when
+`registers` is present - with plain `data=[...]` bytes, `MakeVerilog` returns
+early and writes NOTHING, which is how it came to be hand-written and then
+missing from the Quartus build.
+
+For the same reason files.yaml uses the glob `jtpspike_*.v`: the generated file
+cannot be listed by name, since a clean checkout would reference a missing file.
+
+Flags live in header byte 1 (byte 0 is left for coremod): bit0 pspikes,
+bit1 turbofrc, bit2 aerofgt. Verified in the blobs: 0001../0002../0004...
+
+LOST in the conversion: the hand-written module had `SIM_TURBOFRC`/`SIM_AEROFGT`
+overrides for scene replay and a $display probe. Scene sims must now rely on the
+real header byte from the per-setname .rom - UNVERIFIED, needs one scene run.
+
 ## Scenes
 
 `MAMESET` is needed because the folder name is not the romset:

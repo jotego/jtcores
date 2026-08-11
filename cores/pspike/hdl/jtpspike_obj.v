@@ -28,6 +28,7 @@ module jtpspike_obj(
     input               en,
     input               flip,
     input      [ 8:0]   hdump, vrender,
+    input      [ 8:0]   yoffs,
 
     input      [ 1:0]   objbank,
 
@@ -67,6 +68,7 @@ jtpspike_objscan u_scan(
     .hs         ( hs        ),
     .scan_en    ( en        ),
     .vrender    ( vrender   ),
+    .yoffs      ( yoffs     ),
     .flip       ( flip      ),
     .objbank    ( objbank   ),
 

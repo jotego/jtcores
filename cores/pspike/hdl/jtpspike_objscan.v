@@ -44,6 +44,7 @@ module jtpspike_objscan(
     input             hs,
     input             scan_en,     // held low when the second chip is unused
     input      [ 8:0] vrender,
+    input      [ 8:0] yoffs,       // vsystem_spr2 set_offsets y, signed
     input             flip,
     input      [ 1:0] objbank,
 
@@ -89,7 +90,7 @@ wire [ 5:0] zx      = 6'd32 - {2'd0,w1[15:12]};
 
 // how many lines the whole block covers, and where this line falls in it
 wire [ 9:0] blk_h   = (({6'd0,ysize}+10'd1)*{4'd0,zy}) >> 1;
-wire [ 8:0] dy      = vrender + 9'd16 - (oy + 9'd16);
+wire [ 8:0] dy      = vrender + 9'd16 - (oy + yoffs + 9'd16);
 wire        on_line = dy < blk_h[8:0];
 wire [ 3:0] row     = src[7:4];
 // the map advances with the unflipped index, the position uses the flipped one

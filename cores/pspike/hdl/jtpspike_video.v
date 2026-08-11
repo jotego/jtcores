@@ -109,7 +109,10 @@ wire [8:0] hoff_scr = aerofgt ? 9'd22 : turbofrc ? 9'd10 : 9'd14;
 // MAME per layer bias: -11 / -7, and aerofgtb adds set_scrolldx(1,1) to both
 wire [8:0] xb0      = aerofgt ? 9'd10 : 9'd11;
 wire [8:0] xb1      = aerofgt ? 9'd6  : 9'd7;
-wire [8:0] hoff_obj = hoff_scr - 9'd9;
+// sprites lead the tiles. pspikes/turbofrc need 9, aerofgt 3 more (judged on
+// the scene diffs): a bigger subtraction moves the sprites right on the scanline
+wire [8:0] obj_yoffs = aerofgt ? 9'h1ff : 9'd0;  // MAME set_offsets(3,-1)
+wire [8:0] hoff_obj = hoff_scr - (aerofgt ? 9'd12 : 9'd9);
 
 wire [ 8:0] vdump, vrender, H, hdump_scr, hdump_obj;
 wire [ 9:0] scr_pxl, scr1_pxl;
@@ -238,7 +241,8 @@ jtpspike_obj u_obj(
     .flip       ( flip      ),
     .hdump      ( hdump_obj ),
     .vrender    ( vrender   ),
-    .en         ( 1'b1      ),
+    .yoffs      ( obj_yoffs ),
+    .en         ( gfx_en[2] ),
     .objbank    ( objbank   ),
     .objr_addr  ( objr_addr[9:1] ),
     .objr_dout  ( objr_dout ),
@@ -258,10 +262,11 @@ jtpspike_obj u_obj1(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .hs         ( HS        ),
-    .en         ( two       ),
+    .en         ( two & gfx_en[3] ),
     .flip       ( flip      ),
     .hdump      ( hdump_obj ),
     .vrender    ( vrender   ),
+    .yoffs      ( obj_yoffs ),
     .objbank    ( objbank   ),
     .objr_addr  ( objr1_addr[9:1] ),
     .objr_dout  ( objr1_dout),

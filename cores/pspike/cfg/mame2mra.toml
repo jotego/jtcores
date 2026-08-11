@@ -19,11 +19,13 @@ skip.setnames=[
 mustbe.machines=[ "pspikes", "turbofrc", "aerofgt" ]
 
 [header]
-info="""bit 0 = pspikes  hardware\n             bit 1 = turbofrc hardware\n             bit 2 = aerofgt  hardware"""
-data=[
-    { setnames=["pspikes", "pspikesk", "pspikesu", "svolly91"], data="01" },
-    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua"], data="02" },
-    { setnames=["aerofgtb", "aerofgtc", "sonicwi"], data="04" },
+info="""byte 1 bit 0 = pspikes  hardware\n             bit 1 = turbofrc hardware\n             bit 2 = aerofgt  hardware"""
+# jtframe generates cores/pspike/hdl/jtpspike_header.v from this block. Byte 0
+# carries coremod (rotation), so the game flags start at byte 1
+registers = [
+    { name="pspikes",  pos="1[0]", values=[{ setnames=["pspikes", "pspikesk", "pspikesu", "svolly91"], value=1 }],       desc="Power Spikes hardware" },
+    { name="turbofrc", pos="1[1]", values=[{ setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua"], value=1 }],  desc="Turbo Force hardware: two tile layers, two sprite chips" },
+    { name="aerofgt",  pos="1[2]", values=[{ setnames=["aerofgtb", "aerofgtc", "sonicwi"], value=1 }],                   desc="Aero Fighters hardware: turbofrc map moved, 320x224" },
 ]
 
 [dipsw]
