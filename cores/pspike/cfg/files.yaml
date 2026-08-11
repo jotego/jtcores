@@ -1,6 +1,7 @@
 pspike:
   - get:
     - jtpspike_game.v
+    - jtpspike_header.v
     - jtpspike_main.v
     - jtpspike_snd.v
     - jtpspike_video.v

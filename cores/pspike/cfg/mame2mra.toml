@@ -34,6 +34,9 @@ rename=[
     { name="1 Player Starting Score",   to="1P Start Score" },
     { name="2 Players Starting Score",  to="2P Start Score" },
     { name="2 Players Time Per Credit", to="2P Time/Credit" },
+    # MiSTer OSD budget is 26 chars for name+option. "Continue Coin" plus
+    # "Start 2/Continue 1" is 31, so both sides are trimmed
+    { name="Continue Coin", to="Continue", values=["Start 2/Cont 1", "Start 1/Cont 1"] },
 ]
 
 [ROM]
