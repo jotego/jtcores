@@ -42,6 +42,7 @@ module jtpspike_objscan(
     input             rst,
     input             clk,
     input             hs,
+    input             scan_en,     // held low when the second chip is unused
     input      [ 8:0] vrender,
     input             flip,
     input      [ 1:0] objbank,
@@ -62,7 +63,7 @@ module jtpspike_objscan(
     output reg [ 7:0] hzoom,
     output reg        hz_keep,
     output reg        hflip, vflip,
-    output     [ 5:0] pal
+    output     [ 6:0] pal
 );
 
 localparam [8:0] LAST = 9'h1f8, PTR = 9'h1fe;
@@ -102,7 +103,8 @@ wire [15:0] mapidx  = w3 + {12'd0,maprow}*{12'd0,stride} + {13'd0,mapcol};
 assign objr_addr = rd_addr;
 assign objl_addr = mapidx[12:0];
 assign code      = objl_dout[12:0];
-assign pal       = { objbank, w2[3:0] };
+// the pri bit rides along with the pixel so the mixer can use it
+assign pal       = { pri, objbank, w2[3:0] };
 
 // dy * 32 / zy, as dy * (8192/zy) >> 8
 reg [8:0] recip;
@@ -160,7 +162,7 @@ always @(posedge clk) begin
         // chip, instead of losing sync for every following line
         if( hs & ~hs_l ) begin
             rd_addr <= PTR;
-            st      <= 1;
+            st      <= scan_en ? 5'd1 : 5'd0;
         end else case( st )
             0: ;                            // idle until the next HS
             1: st <= 2;                     // BRAM latency

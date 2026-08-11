@@ -251028,4 +251028,130 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+<machine name="aerofgt" sourcefile="vsystem/aerofgt.cpp">
+		<description>Aero Fighters (World / USA + Canada / Korea / Hong Kong / Taiwan) (newer hardware)</description>
+		<year>1992</year>
+		<manufacturer>Video System Co.</manufacturer>
+		<rom name="1.u4" size="524288" crc="6fdff0a2" sha1="7cc9529b426091027aa3e23586cb7d162376c0ff" region="maincpu" offset="0"/>
+		<rom name="2.153" size="131072" crc="a1ef64ec" sha1="fa3e434738bf4e742ad68882c1e914100ce0f761" region="audiocpu" offset="0"/>
+		<rom name="538a54.124" size="524288" crc="4d2c4df2" sha1="f51c2b3135f0a921ac1a79e63d6878c03cb6254b" region="tiles" offset="0"/>
+		<rom name="1538a54.124" size="524288" crc="286d109e" sha1="3a5f3d2d89cf58f6ef15e4bd3f570b84e8e695b2" region="tiles" offset="80000"/>
+		<rom name="538a53.u9" size="1048576" crc="630d8e0b" sha1="5a0c252ccd53c5199a695909d25ecb4e53dc15b9" region="sprites" offset="0"/>
+		<rom name="534g8f.u18" size="524288" crc="76ce0926" sha1="5ef4cec215d4dd600d8fcd1bd9a4c09081d59e33" region="sprites" offset="200000"/>
+		<rom name="it-19-01" size="262144" crc="6d42723d" sha1="57c59234e9925430a4c687733682efed06d7eed1" region="ymsnd:adpcmb" offset="0"/>
+		<rom name="it-19-06" size="1048576" crc="cdbbdb1d" sha1="067c816545f246ff1fd4c821d70df1e7eb47938c" region="ymsnd:adpcma" offset="0"/>
+		<device_ref name="m68000"/>
+		<device_ref name="z80"/>
+		<device_ref name="vs9209"/>
+		<device_ref name="mb3773"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="vsystem_spr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2610"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC68000" clock="10000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="5000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2610 OPNB" clock="8000000"/>
+		<display tag="screen" type="raster" rotate="270" width="320" height="224" refresh="61.310000" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coin Slot" tag="DSW1" mask="1">
+			<diplocation name="SW1" number="1"/>
+			<dipvalue name="Same" value="1" default="yes"/>
+			<dipvalue name="Individual" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="14">
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="10"/>
+			<dipvalue name="2 Coins/1 Credit" value="12"/>
+			<dipvalue name="1 Coin/1 Credit" value="14" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+			<dipvalue name="1 Coin/3 Credits" value="6"/>
+			<dipvalue name="1 Coin/4 Credits" value="4"/>
+			<dipvalue name="1 Coin/5 Credits" value="2"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="112">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="96"/>
+			<dipvalue name="1 Coin/1 Credit" value="112" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="64"/>
+			<dipvalue name="1 Coin/3 Credits" value="48"/>
+			<dipvalue name="1 Coin/4 Credits" value="32"/>
+			<dipvalue name="1 Coin/5 Credits" value="16"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Continue Coin" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Start 1 Coin/Continue 1 Coin" value="128" default="yes"/>
+			<dipvalue name="Start 2 Coin/Continue 1 Coin" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Off" value="2"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Easy" value="8"/>
+			<dipvalue name="Normal" value="12" default="yes"/>
+			<dipvalue name="Hard" value="4"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="48">
+			<diplocation name="SW2" number="5"/>
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="1" value="32"/>
+			<dipvalue name="2" value="16"/>
+			<dipvalue name="3" value="48" default="yes"/>
+			<dipvalue name="4" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="200000" value="64" default="yes"/>
+			<dipvalue name="300000" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Region" tag="JP1" mask="15">
+			<dipvalue name="Any" value="0" default="yes"/>
+			<dipvalue name="USA/Canada" value="15"/>
+			<dipvalue name="Korea" value="14"/>
+			<dipvalue name="Hong Kong" value="13"/>
+			<dipvalue name="Taiwan" value="11"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":JP1">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
 </mame>

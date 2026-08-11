@@ -35,13 +35,20 @@ module jtpspike_main(
     output        [ 1:0] ram_we, vram_we, rascr_we, oram_we, lut_we, pal_we,
     input         [15:0] ram_dout, vram_dout, rascr_dout,
                          oram_dout, lut_dout, pal_dout,
+    // second copies, turbofrc onwards. TODO: the turbofrc address map is not
+    // decoded yet, so these stay idle. Scene replay does not need it
+    output        [ 1:0] ram2_we, vram1_we, oram1_we, lut1_we,
+    input         [15:0] ram2_dout, vram1_dout, lut1_dout,
+
+    input                turbofrc, aerofgt,
 
     // video configuration
-    output reg    [ 3:0] gfxbank0, gfxbank1,
+    output        [31:0] gfxbank,   // eight 4-bit banks
     output reg    [ 2:0] charbank,
     output reg    [ 1:0] objbank,
     output reg           flip,
     output reg    [ 8:0] scry,
+    output reg    [ 8:0] scrx1, scry1,
 
     // sound interface
     output reg    [ 7:0] snd_latch,
@@ -50,10 +57,14 @@ module jtpspike_main(
 
     // cabinet
     input         [ 3:0] cab_1p, coin,
-    input         [ 6:0] joystick1, joystick2,
-    input                service,
+    input         [ 6:0] joystick1, joystick2, joystick3,
+    input                service, tilt, dip_test,
     input         [15:0] dipsw
 );
+
+// used by both branches: the real decoder and the scene replay stub
+reg  [ 3:0] gfxbank0, gfxbank1;
+reg  [15:0] bankw[0:1];
 
 `ifndef NOMAIN
 // 10 MHz out of 57.2727 MHz
@@ -67,6 +78,15 @@ wire        cpu_as_n, cpu_uds_n, cpu_lds_n, cpu_rnw;
 wire        cen10, cen10b, dtack_n, inta_n, irq_n;
 wire        bus_cs, bus_busy, cpu_bus, lo_we, hi_we;
 wire        ram_cs, vram_cs, rascr_cs, oram_cs, lut_cs, pal_cs, io_cs;
+wire        ram2_cs, vram1_cs, lut1_cs;
+wire        ps_rom, ps_ram, ps_lut, ps_vram, ps_oram, ps_rascr, ps_pal, ps_io;
+wire        tf_rom, tf_ram, tf_ram2, tf_vram0, tf_vram1, tf_lut0, tf_lut1,
+            tf_oram, tf_rascr, tf_pal, tf_io;
+wire [ 3:0] tf_hi;
+wire        af_rom, af_ram, af_ram2, af_vram0, af_vram1, af_lut0, af_lut1,
+            af_oram, af_rascr, af_pal, af_io;
+wire        two;   // turbofrc family: two layers, two sprite chips
+
 wire        ffblk;
 reg  [15:0] cab_dout;
 reg         rom_ok_dly;
@@ -81,16 +101,57 @@ assign cpu_bus   = ~cpu_as_n && (cpu_rnw || main_dsn!=2'b11);
 assign hi_we     = ~cpu_rnw & ~cpu_uds_n;
 assign lo_we     = ~cpu_rnw & ~cpu_lds_n;
 
-// address decoding
+// Address decoding. pspikes uses the full 24 bits, turbofrc masks to 20 and
+// packs everything into 0c0000-0fffff
 assign ffblk     = &A[23:16];
-assign rom_cs    =  cpu_bus & ~|A[23:18];
-assign ram_cs    =  cpu_bus & A[23:16]==8'h10;
-assign lut_cs    =  cpu_bus & A[23:16]==8'h20 & ~|A[15:14];
-assign vram_cs   =  cpu_bus & ffblk & A[15:12]==4'h8;
-assign oram_cs   =  cpu_bus & ffblk & A[15:12]==4'hc & ~|A[11:10];
-assign rascr_cs  =  cpu_bus & ffblk & A[15:12]==4'hd;
-assign pal_cs    =  cpu_bus & ffblk & A[15:12]==4'he;
-assign io_cs     =  cpu_bus & ffblk & A[15:12]==4'hf;
+assign ps_rom    = ~|A[23:18];
+assign ps_ram    = A[23:16]==8'h10;
+assign ps_lut    = A[23:16]==8'h20 & ~|A[15:14];
+assign ps_vram   = ffblk & A[15:12]==4'h8;
+assign ps_oram   = ffblk & A[15:12]==4'hc & ~|A[11:10];
+assign ps_rascr  = ffblk & A[15:12]==4'hd;
+assign ps_pal    = ffblk & A[15:12]==4'he;
+assign ps_io     = ffblk & A[15:12]==4'hf;
+
+assign tf_hi     = A[19:16];
+assign tf_rom    = tf_hi <  4'hc;
+assign tf_ram    = tf_hi == 4'hc;
+assign tf_vram0  = tf_hi == 4'hd & A[15:13]==3'd0;
+assign tf_vram1  = tf_hi == 4'hd & A[15:13]==3'd1;
+assign tf_lut0   = tf_hi == 4'he & A[15:14]==2'd0;
+assign tf_lut1   = tf_hi == 4'he & A[15:14]==2'd1;
+assign tf_ram2   = tf_hi == 4'hf & A[15:14]==2'b10;          // 0f8000-0fbfff
+assign tf_oram   = tf_hi == 4'hf & A[15:11]==5'b11000;       // 0fc000-0fc7ff
+assign tf_rascr  = tf_hi == 4'hf & A[15:12]==4'hd;
+assign tf_pal    = tf_hi == 4'hf & A[15:11]==5'b11100;       // 0fe000-0fe7ff
+assign tf_io     = tf_hi == 4'hf & A[15:12]==4'hf;
+
+// aerofgtb is turbofrc's layout with palette, I/O and raster RAM moved
+assign af_rom    = ~|A[23:19];
+assign af_ram    = A[23:16]==8'h0c;
+assign af_vram0  = A[23:16]==8'h0d & A[15:13]==3'd0;
+assign af_vram1  = A[23:16]==8'h0d & A[15:13]==3'd1;
+assign af_lut0   = A[23:16]==8'h0e & A[15:14]==2'd0;
+assign af_lut1   = A[23:16]==8'h0e & A[15:14]==2'd1;
+assign af_ram2   = A[23:16]==8'h0f & A[15:14]==2'b10;        // 0f8000-0fbfff
+assign af_oram   = A[23:16]==8'h0f & A[15:11]==5'b11000;     // 0fc000-0fc7ff
+assign af_pal    = A[23:16]==8'h0f & A[15:11]==5'b11010;     // 0fd000-0fd7ff
+assign af_io     = A[23:16]==8'h0f & A[15:12]==4'he;         // 0fe000-0fe00f
+assign af_rascr  = A[23:16]==8'h0f & A[15:12]==4'hf;         // 0ff000-0fffff
+
+assign two       = turbofrc | aerofgt;
+
+assign rom_cs    = cpu_bus & (aerofgt ? af_rom : turbofrc ? tf_rom   : ps_rom  );
+assign ram_cs   = cpu_bus & (aerofgt ? af_ram : turbofrc ? tf_ram : ps_ram);
+assign ram2_cs   = cpu_bus & (aerofgt ? af_ram2  : turbofrc & tf_ram2 );
+assign lut_cs   = cpu_bus & (aerofgt ? af_lut0 : turbofrc ? tf_lut0 : ps_lut);
+assign lut1_cs   = cpu_bus & (aerofgt ? af_lut1  : turbofrc & tf_lut1 );
+assign vram_cs  = cpu_bus & (aerofgt ? af_vram0 : turbofrc ? tf_vram0 : ps_vram);
+assign vram1_cs  = cpu_bus & (aerofgt ? af_vram1 : turbofrc & tf_vram1);
+assign oram_cs  = cpu_bus & (aerofgt ? af_oram : turbofrc ? tf_oram : ps_oram);
+assign rascr_cs = cpu_bus & (aerofgt ? af_rascr : turbofrc ? tf_rascr : ps_rascr);
+assign pal_cs   = cpu_bus & (aerofgt ? af_pal : turbofrc ? tf_pal : ps_pal);
+assign io_cs    = cpu_bus & (aerofgt ? af_io : turbofrc ? tf_io : ps_io);
 
 assign ram_we    = { ram_cs   & hi_we, ram_cs   & lo_we };
 assign vram_we   = { vram_cs  & hi_we, vram_cs  & lo_we };
@@ -98,19 +159,35 @@ assign rascr_we  = { rascr_cs & hi_we, rascr_cs & lo_we };
 assign oram_we   = { oram_cs  & hi_we, oram_cs  & lo_we };
 assign lut_we    = { lut_cs   & hi_we, lut_cs   & lo_we };
 assign pal_we    = { pal_cs   & hi_we, pal_cs   & lo_we };
+assign ram2_we   = { ram2_cs  & hi_we, ram2_cs  & lo_we };
+assign vram1_we  = { vram1_cs & hi_we, vram1_cs & lo_we };
+assign lut1_we   = { lut1_cs  & hi_we, lut1_cs  & lo_we };
+// the second sprite chip's copy is written in lockstep with the first
+assign oram1_we  = oram_we;
+// turbofrc writes all eight banks as two words, four nibbles each.
+// pspikes has two, from fff003: [7:4] for code[12]=0 and [3:0] for the rest
+assign gfxbank   = two ? { bankw[1], bankw[0] }
+                            : { 24'd0, gfxbank1, gfxbank0 };
 
 assign bus_cs    = rom_cs;
 assign bus_busy  = rom_cs & ~rom_ok_dly;
 
 always @(posedge clk) rom_ok_dly <= rom_ok;
 
-// cabinet inputs. Everything is active low, matching the arcade ports
+// Cabinet inputs, all active low to match the arcade ports.
+//
+// The two families do NOT share a layout. pspikes puts player 2 in IN0 and
+// player 1 in IN1. turbofrc is a three player game: IN0 is player 1 plus the
+// system bits, IN1 player 2, IN2 player 3 with START3 in bit 7.
 always @* begin
-    case( A[3:1] )
-        3'd0: cab_dout = { 1'b1, service, 2'b11, cab_1p[1:0], coin[1:0],
-                           1'b1, joystick2 };
-        3'd1: cab_dout = { 9'h1ff, joystick1 };
-        3'd2: cab_dout = dipsw;
+    case( A[4:1] )
+        4'd0: cab_dout = two ?
+              { coin[2], service, tilt, dip_test, cab_1p[1:0], coin[1:0],
+                1'b1, joystick1 } :
+              { 1'b1, service, 2'b11, cab_1p[1:0], coin[1:0], 1'b1, joystick2 };
+        4'd1: cab_dout = two ? { 9'h1ff, joystick2 } : { 9'h1ff, joystick1 };
+        4'd2: cab_dout = dipsw;
+        4'd4: cab_dout = { 8'hff, cab_1p[2], joystick3 };  // IN2 / DSW2
         default: cab_dout = { 15'h7fff, snd_pending };
     endcase
 end
@@ -121,7 +198,10 @@ always @* begin
         rom_cs:   cpu_din = rom_data;
         ram_cs:   cpu_din = ram_dout;
         lut_cs:   cpu_din = lut_dout;
+        lut1_cs:  cpu_din = lut1_dout;
+        ram2_cs:  cpu_din = ram2_dout;
         vram_cs:  cpu_din = vram_dout;
+        vram1_cs: cpu_din = vram1_dout;
         oram_cs:  cpu_din = oram_dout;
         rascr_cs: cpu_din = rascr_dout;
         pal_cs:   cpu_din = pal_dout;
@@ -135,25 +215,43 @@ always @(posedge clk) begin
     if( rst ) begin
         gfxbank0  <= 0;
         gfxbank1  <= 0;
+        bankw[0]  <= 0;
+        bankw[1]  <= 0;
         charbank  <= 0;
         objbank   <= 0;
         flip      <= 0;
         scry      <= 0;
+        scrx1     <= 0;
+        scry1     <= 0;
         snd_latch <= 0;
         snd_wr    <= 0;
     end else begin
         snd_wr <= 0;
-        if( io_cs && ~|A[11:4] ) case( A[3:1] )
-            3'd0: if( lo_we ) { flip, charbank, objbank } <= // fff001
-                              { main_dout[7], main_dout[4:2], main_dout[1:0] };
-            3'd1: if( lo_we ) { gfxbank0, gfxbank1 } <= main_dout[7:0]; // fff003
-            3'd2: if( hi_we ) scry <= main_dout[8:0];                   // fff004
-            3'd3: if( lo_we ) begin                                     // fff007
-                snd_latch <= main_dout[7:0];
-                snd_wr    <= 1;
-            end
-            default:;
-        endcase
+        if( io_cs && ~|A[11:5] ) begin
+            if( !two ) case( A[3:1] )
+                3'd0: if( lo_we ) { flip, charbank, objbank } <= // fff001
+                                  { main_dout[7], main_dout[4:2], main_dout[1:0] };
+                3'd1: if( lo_we ) { gfxbank0, gfxbank1 } <= main_dout[7:0]; // fff003
+                3'd2: if( hi_we ) scry <= main_dout[8:0];                   // fff004
+                3'd3: if( lo_we ) begin                                     // fff007
+                    snd_latch <= main_dout[7:0];
+                    snd_wr    <= 1;
+                end
+                default:;
+            endcase else case( A[4:1] )
+                4'd0: if( lo_we ) flip  <= main_dout[7];    // 0ff001
+                4'd1: if( hi_we ) scry  <= main_dout[8:0];  // 0ff002
+                4'd2: if( hi_we ) scrx1 <= main_dout[8:0];  // 0ff004
+                4'd3: if( hi_we ) scry1 <= main_dout[8:0];  // 0ff006
+                4'd4: if( hi_we ) bankw[0] <= main_dout;    // 0ff008 banks 0-3
+                4'd5: if( hi_we ) bankw[1] <= main_dout;    // 0ff00a banks 4-7
+                4'd7: if( lo_we ) begin                     // 0ff00e
+                    snd_latch <= main_dout[7:0];
+                    snd_wr    <= 1;
+                end
+                default:;
+            endcase
+        end
     end
 end
 
@@ -264,37 +362,62 @@ assign main_dout = 0;
 assign main_rnw  = 1;
 assign main_dsn  = 2'b11;
 assign rom_cs    = 0;
+// the scene registers feed the same bank packing the live decoder uses
+assign gfxbank   = two ? { bankw[1], bankw[0] }
+                            : { 24'd0, gfxbank1, gfxbank0 };
 assign ram_we    = 0;
+assign ram2_we   = 0;
+assign vram1_we  = 0;
+assign oram1_we  = 0;
+assign lut1_we   = 0;
 assign vram_we   = 0;
 assign rascr_we  = 0;
 assign oram_we   = 0;
 assign lut_we    = 0;
 assign pal_we    = 0;
 
-integer fregs, b0, b1, b2, b3;
+integer fregs, k;
+reg [7:0] rb [0:11];
 
 initial begin
     gfxbank0  = 0; gfxbank1 = 0;
     charbank  = 0; objbank  = 0;
     flip      = 0; scry     = 0;
+    scrx1     = 0; scry1    = 0;
+    bankw[0]  = 0; bankw[1] = 0;
     snd_latch = 0; snd_wr   = 0;
+    for( k=0; k<12; k=k+1 ) rb[k] = 8'h0;
     fregs = $fopen("regs.bin","rb");
-    if( fregs != 0 ) begin
-        b0 = $fgetc(fregs);   // palette bank: [1:0] obj, [4:2] char, [7] flip
-        b1 = $fgetc(fregs);   // gfx bank:     [7:4] bank0, [3:0] bank1
-        b2 = $fgetc(fregs);   // scroll Y, high
-        b3 = $fgetc(fregs);   // scroll Y, low
-        $fclose(fregs);
-        objbank  = b0[1:0];
-        charbank = b0[4:2];
-        flip     = b0[7];
-        gfxbank0 = b1[7:4];
-        gfxbank1 = b1[3:0];
-        scry     = { b2[0], b3[7:0] };
-        $display("%m scene regs: palbank=%02X gfxbank=%02X scrolly=%03X",
-                 b0[7:0], b1[7:0], scry);
-    end else begin
+    if( fregs == 0 ) begin
         $display("%m WARNING: regs.bin not found, video registers stay at zero");
+    end else begin
+        k = 0;
+        while( k<12 && !$feof(fregs) ) begin
+            rb[k] = $fgetc(fregs);
+            k = k+1;
+        end
+        $fclose(fregs);
+        if( k >= 12 ) begin
+            // turbofrc: flip, scrollY0, scrollX1, scrollY1, spare, two bank words
+            flip     = rb[0][7];
+            scry     = { rb[1][0], rb[2] };
+            scrx1    = { rb[3][0], rb[4] };
+            scry1    = { rb[5][0], rb[6] };
+            bankw[0] = { rb[8],  rb[9]  };
+            bankw[1] = { rb[10], rb[11] };
+            $display("%m scene regs (turbofrc): scry=%03X scrx1=%03X scry1=%03X banks=%04X/%04X",
+                     scry, scrx1, scry1, bankw[0], bankw[1]);
+        end else begin
+            // pspikes: palette bank, gfx bank, scroll Y
+            objbank  = rb[0][1:0];
+            charbank = rb[0][4:2];
+            flip     = rb[0][7];
+            gfxbank0 = rb[1][7:4];
+            gfxbank1 = rb[1][3:0];
+            scry     = { rb[2][0], rb[3] };
+            $display("%m scene regs (pspikes): palbank=%02X gfxbank=%02X scrolly=%03X",
+                     rb[0], rb[1], scry);
+        end
     end
 end
 `endif

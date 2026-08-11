@@ -22,10 +22,14 @@
 //   7800-7fff  RAM
 //   8000-ffff  one of four 32kB banks of the same ROM
 //
-// I/O, from spinlbrk_sound_portmap - note aerofgtb uses a different one:
-//   00     w   bank select, bits [1:0]
-//   14     r   sound latch      w  acknowledge
-//   18-1b  rw  YM2610
+// Two different port maps:
+//   spinlbrk_sound_portmap (pspikes, turbofrc)
+//     00     w  bank select    14  r latch / w acknowledge    18-1b rw YM2610
+//   pspikes_sound_portmap (aerofgtb) - despite the name, pspikes does NOT use it
+//     00-03 rw  YM2610         04  w bank    08 w acknowledge  0c r latch
+//
+// Getting this wrong stalls the 68000: it polls the pending flag, and if the
+// Z80 never hits the acknowledge port the flag never clears.
 //
 // The latch is two way: a write from the 68000 raises the Z80 NMI and sets a
 // pending flag the 68000 can poll; the Z80 clears both by writing to port 14.
@@ -55,6 +59,7 @@ module jtpspike_snd(
     input      [ 7:0]    pcmb_data,
     input                pcmb_ok,
 
+    input                aerofgt,
     input      [ 7:0]    debug_bus,
 
     output signed [15:0] fm_l, fm_r
@@ -66,11 +71,14 @@ reg  [ 7:0] cpu_din;
 reg  [ 1:0] bank;
 wire        mreq_n, iorq_n, rd_n, wr_n, m1_n, rfsh_n, int_n;
 wire        mem_acc, io_acc;
-wire        ram_cs, bank_cs, latch_cs, fm_cs;
+wire        ram_cs, bank_cs, latch_rd, latch_ack, fm_cs;
 wire [ 7:0] ram_dout;
 wire [19:0] adpcma_addr;
 wire [23:0] adpcmb_addr;
-wire [ 3:0] adpcma_bank;   // jt10.v declares 4 bits here, jt12_top drives 5 - a submodule mismatch, harmless with a 1MB region
+// jt10.v declares adpcma_bank as 4 bits but its own jt12_top drives 5, so
+// one width warning inside the submodule is unavoidable. Match the port and
+// leave it unused: the 1MB region is covered by adpcma_addr alone
+wire [ 3:0] adpcma_bank;
 wire        adpcma_roe_n, adpcmb_roe_n;
 reg  [ 7:0] pcma_l, pcmb_l;
 
@@ -79,9 +87,11 @@ assign io_acc   = ~iorq_n & m1_n;
 // 7800-7fff is the only RAM, everything else in memory space is ROM
 assign ram_cs   = mem_acc & A[15:11]==5'b01111;
 assign rom_cs   = mem_acc & ~ram_cs;
-assign bank_cs  = io_acc  & A[7:0]==8'h00;
-assign latch_cs = io_acc  & A[7:0]==8'h14;
-assign fm_cs    = io_acc  & A[7:2]==6'b0001_10;   // 18-1b
+assign bank_cs  = io_acc & (aerofgt ? A[7:0]==8'h04 : A[7:0]==8'h00);
+assign latch_rd = io_acc & (aerofgt ? A[7:0]==8'h0c : A[7:0]==8'h14);
+assign latch_ack= io_acc & (aerofgt ? A[7:0]==8'h08 : A[7:0]==8'h14);
+assign fm_cs    = io_acc & (aerofgt ? A[7:2]==6'b0000_00     // 00-03
+                                    : A[7:2]==6'b0001_10);   // 18-1b
 assign rom_addr = { A[15] ? bank : 2'd0, A[14:0] };
 
 always @* begin
@@ -89,7 +99,7 @@ always @* begin
     case( 1'b1 )
         ram_cs:   cpu_din = ram_dout;
         rom_cs:   cpu_din = rom_data;
-        latch_cs: cpu_din = snd_latch;
+        latch_rd: cpu_din = snd_latch;
         fm_cs:    cpu_din = fm_dout;
         default:;
     endcase
@@ -102,7 +112,7 @@ always @(posedge clk) begin
     end else begin
         if( bank_cs && !wr_n ) bank <= cpu_dout[1:0];
         // the 68000 write wins over a simultaneous acknowledge
-        if( latch_cs && !wr_n ) snd_pending <= 0;
+        if( latch_ack && !wr_n ) snd_pending <= 0;
         if( snd_wr            ) snd_pending <= 1;
     end
 end

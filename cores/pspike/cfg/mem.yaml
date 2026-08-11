@@ -2,6 +2,8 @@ params:
   # offsets are relative to each SDRAM bank start and divided by two
   - { name: SND_OFFSET,  value: "`SND_START>>1" }
   - { name: PCMB_OFFSET, value: "(`PCMB_START-`JTFRAME_BA1_START)>>1" }
+  - { name: SCR1_OFFSET, value: "(`SCR1_START-`JTFRAME_BA2_START)>>1" }
+  - { name: OBJ1_OFFSET, value: "(`OBJ1_START-`JTFRAME_BA3_START)>>1" }
 
 clocks:
   clk:
@@ -38,10 +40,18 @@ sdram:
       - name: scr0
         addr_width: 20
         data_width: 32
+      - name: scr1
+        addr_width: 21
+        data_width: 32
+        offset: SCR1_OFFSET
     - buses:
       - name: obj0
         addr_width: 22
         data_width: 32
+      - name: obj1
+        addr_width: 21
+        data_width: 32
+        offset: OBJ1_OFFSET
 
 bram:
   - name: ram
@@ -49,13 +59,27 @@ bram:
     data_width: 16
     rw: true
     din: main_dout
+  # turbofrc has a second work RAM block at 0f8000-0fbfff
+  - name: ram2
+    addr_width: 14
+    data_width: 16
+    rw: true
+    din: main_dout
   - name: vram
-    addr_width: 12
+    addr_width: 13
     data_width: 16
     rw: true
     din: main_dout
     simfile: { big_endian: true }
     dual_port: { name: scr, dout: scr_vram }
+  # second tile layer, turbofrc onwards
+  - name: vram1
+    addr_width: 13
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: scr1v, dout: scr1_vram }
   - name: rascr
     addr_width: 12
     data_width: 16
@@ -64,12 +88,22 @@ bram:
     simfile: { big_endian: true }
     dual_port: { name: ras, dout: ras_dout }
   - name: oram
-    addr_width: 10
+    addr_width: 11
     data_width: 16
     rw: true
     din: main_dout
     simfile: { big_endian: true }
     dual_port: { name: objr, dout: objr_dout }
+  # the second sprite chip reads the upper half of the same sprite RAM. A BRAM
+  # has two ports and the CPU owns one, so it gets its own copy written in
+  # lockstep rather than an arbiter on the read side
+  - name: oram1
+    addr_width: 11
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objr1, dout: objr1_dout }
   - name: lut
     addr_width: 14
     data_width: 16
@@ -77,6 +111,14 @@ bram:
     din: main_dout
     simfile: { big_endian: true }
     dual_port: { name: objl, dout: objl_dout }
+  # second sprite chip's lookup RAM, a genuinely separate region
+  - name: lut1
+    addr_width: 14
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objl1, dout: objl1_dout }
   - name: pal
     addr_width: 12
     data_width: 16

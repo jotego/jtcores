@@ -9,6 +9,9 @@ JTFRAME_RATE=61.31
 JTFRAME_WIDTH=352
 JTFRAME_HEIGHT=240
 JTFRAME_COLORW=5
+# turbofrc and aerofgtb are ROT270. Rotation is a per-MRA coremod flag, so one
+# build serves both orientations
+JTFRAME_VERTICAL
 
 JTFRAME_BUTTONS=3
 JTFRAME_JOY_RLDU

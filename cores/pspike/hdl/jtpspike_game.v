@@ -20,8 +20,10 @@ module jtpspike_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [ 3:0] gfxbank0, gfxbank1;
+wire [31:0] gfxbank;
 wire [ 2:0] charbank;
+wire        turbofrc, pspikes, aerofgt;
+wire [ 8:0] scrx1, scry1;
 wire [ 1:0] objbank;
 wire        flip;
 wire [ 8:0] scry;
@@ -35,11 +37,26 @@ assign debug_view = 0;
 assign st_dout    = 0;
 
 assign ram_addr   = main_addr[15:1];
-assign vram_addr  = main_addr[11:1];
+assign vram_addr  = main_addr[12:1];
 assign rascr_addr = main_addr[11:1];
-assign oram_addr  = main_addr[ 9:1];
+assign oram_addr  = main_addr[10:1];
 assign lut_addr   = main_addr[13:1];
 assign pal_addr   = main_addr[11:1];
+assign ram2_addr  = main_addr[13:1];
+assign vram1_addr = main_addr[12:1];
+assign oram1_addr = main_addr[10:1];
+assign lut1_addr  = main_addr[13:1];
+
+jtpspike_header u_header(
+    .clk        ( clk           ),
+    .header     ( header        ),
+    .prog_we    ( prog_we       ),
+    .prog_addr  ( prog_addr[2:0]),
+    .prog_data  ( prog_data     ),
+    .pspikes    ( pspikes       ),
+    .turbofrc   ( turbofrc      ),
+    .aerofgt    ( aerofgt       )
+);
 
 jtpspike_main u_main(
     .rst        ( rst           ),
@@ -68,12 +85,22 @@ jtpspike_main u_main(
     .lut_dout   ( lut_dout      ),
     .pal_dout   ( pal_dout      ),
 
-    .gfxbank0   ( gfxbank0      ),
-    .gfxbank1   ( gfxbank1      ),
+    .turbofrc   ( turbofrc      ),
+    .aerofgt    ( aerofgt       ),
+    .gfxbank    ( gfxbank       ),
     .charbank   ( charbank      ),
     .objbank    ( objbank       ),
     .flip       ( flip          ),
     .scry       ( scry          ),
+    .scrx1      ( scrx1         ),
+    .scry1      ( scry1         ),
+    .ram2_we    ( ram2_we       ),
+    .vram1_we   ( vram1_we      ),
+    .oram1_we   ( oram1_we      ),
+    .lut1_we    ( lut1_we       ),
+    .ram2_dout  ( ram2_dout     ),
+    .vram1_dout ( vram1_dout    ),
+    .lut1_dout  ( lut1_dout     ),
 
     .snd_latch  ( snd_latch     ),
     .snd_wr     ( snd_wr        ),
@@ -83,7 +110,10 @@ jtpspike_main u_main(
     .coin       ( coin          ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
+    .joystick3  ( joystick3     ),
     .service    ( service       ),
+    .tilt       ( tilt          ),
+    .dip_test   ( dip_test      ),
     .dipsw      ( dipsw[15:0]   )
 );
 
@@ -92,21 +122,30 @@ jtpspike_video u_video(
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
 
-    .gfxbank0   ( gfxbank0      ),
-    .gfxbank1   ( gfxbank1      ),
+    .turbofrc   ( turbofrc      ),
+    .aerofgt    ( aerofgt       ),
+    .gfxbank    ( gfxbank       ),
     .charbank   ( charbank      ),
     .objbank    ( objbank       ),
     .flip       ( flip          ),
     .scry       ( scry          ),
+    .scrx1      ( scrx1         ),
+    .scry1      ( scry1         ),
 
     .scr_addr   ( scr_addr      ),
     .scr_vram   ( scr_vram      ),
+    .scr1v_addr ( scr1v_addr    ),
+    .scr1_vram  ( scr1_vram     ),
     .ras_addr   ( ras_addr      ),
     .ras_dout   ( ras_dout      ),
     .objr_addr  ( objr_addr     ),
     .objr_dout  ( objr_dout     ),
+    .objr1_addr ( objr1_addr    ),
+    .objr1_dout ( objr1_dout    ),
     .objl_addr  ( objl_addr     ),
     .objl_dout  ( objl_dout     ),
+    .objl1_addr ( objl1_addr    ),
+    .objl1_dout ( objl1_dout    ),
     .mix_addr   ( mix_addr      ),
     .mix_pal    ( mix_pal       ),
 
@@ -114,11 +153,19 @@ jtpspike_video u_video(
     .scr0_cs    ( scr0_cs       ),
     .scr0_data  ( scr0_data     ),
     .scr0_ok    ( scr0_ok       ),
+    .scr1_addr  ( scr1_addr     ),
+    .scr1_cs    ( scr1_cs       ),
+    .scr1_data  ( scr1_data     ),
+    .scr1_ok    ( scr1_ok       ),
 
     .obj0_addr  ( obj0_addr     ),
     .obj0_cs    ( obj0_cs       ),
     .obj0_data  ( obj0_data     ),
     .obj0_ok    ( obj0_ok       ),
+    .obj1_addr  ( obj1_addr     ),
+    .obj1_cs    ( obj1_cs       ),
+    .obj1_data  ( obj1_data     ),
+    .obj1_ok    ( obj1_ok       ),
 
     .gfx_en     ( gfx_en        ),
 
@@ -140,6 +187,7 @@ jtpspike_snd u_snd(
     .snd_latch  ( snd_latch     ),
     .snd_wr     ( snd_wr        ),
     .snd_pending( snd_pending   ),
+    .aerofgt    ( aerofgt       ),
     .debug_bus  ( debug_bus     ),
 
     .rom_addr   ( snd_addr      ),

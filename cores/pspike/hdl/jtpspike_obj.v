@@ -25,6 +25,7 @@ module jtpspike_obj(
     input               clk,
     input               pxl_cen,
     input               hs,
+    input               en,
     input               flip,
     input      [ 8:0]   hdump, vrender,
 
@@ -42,14 +43,14 @@ module jtpspike_obj(
     input      [31:0]   rom_data,
     input               rom_ok,
 
-    output     [ 9:0]   pxl
+    output     [10:0]   pxl
 );
 
 wire [19:2] draw_addr;
 wire [12:0] code, lut_addr;
 wire [ 8:0] xpos;
 wire [ 7:0] hzoom;
-wire [ 5:0] pal;
+wire [ 6:0] pal;
 wire [ 3:0] ysub;
 wire        draw, busy, hz_keep, hflip, vflip;
 
@@ -64,6 +65,7 @@ jtpspike_objscan u_scan(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .hs         ( hs        ),
+    .scan_en    ( en        ),
     .vrender    ( vrender   ),
     .flip       ( flip      ),
     .objbank    ( objbank   ),
@@ -87,7 +89,7 @@ jtpspike_objscan u_scan(
 
 jtframe_objdraw #(
     .CW         ( 13        ),
-    .PW         ( 10        ),
+    .PW         ( 11        ),
     .ZW         ( 8         ),
     .ZI         ( 6         ),
     .ZENLARGE   ( 1         ),
