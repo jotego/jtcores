@@ -79,7 +79,8 @@ wire [ 7:0] ram_dout;
 wire [15:0] A;
 wire        RnW, irq_n, nmi_n;
 wire        irq_trigger;
-reg         irq_clrn, ram_cs, ok_dly;
+reg         irq_clrn, ram_cs;
+wire        ok_dly;
 reg         ior_cs, in5_cs, intst_cs, intst_l,
             iow_cs;
 wire        VMA, nvram_we;
@@ -129,7 +130,6 @@ function [2:0] rev3( input [6:0] x );
 endfunction
 
 always @(posedge clk) begin
-    ok_dly <= rom_ok;
     // Shockingly, if bit 6 for cabinet inputs 1/2 is high, the game won't boot,
     // however these are regular button inputs in the schematics with pullup resistors
     case( A[1:0] )
@@ -149,6 +149,14 @@ always @(posedge clk) begin
                ior_cs  ? cabinet  :
                in5_cs  ? dipsw_b  : 8'hff;
 end
+
+jtframe_okdly u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( rom_cs ),
+    .ok     ( rom_ok ),
+    .ok_dly ( ok_dly )
+);
 
 always @(posedge clk) begin
     if( rst ) begin

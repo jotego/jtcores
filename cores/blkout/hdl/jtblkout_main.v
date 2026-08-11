@@ -83,9 +83,10 @@ reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
 wire [15:0] cpu_dout;
 reg         irq6n, irq5n, LVBLl;
-reg         ok_dly;
+wire        ok_dly;
 wire        irq6ack, irq5ack;
 wire        bus_cs, bus_busy, bus_legit;
+wire [2:0]  ok_cs, ok_in;
 
 assign main_addr = A[17:1];
 assign main_dsn  = {UDSn, LDSn};
@@ -100,6 +101,8 @@ assign irq6ack   = io_cs && !RnW && A[4:1]==4'h8; // 100010
 assign irq5ack   = io_cs && !RnW && A[4:1]==4'h9; // 100012
 // SDRAM regions pace DTACK; BRAM/regs auto-ack (single-cycle, ok held high).
 assign bus_cs    = rom_cs | fb_cs | work3_cs;
+assign ok_cs     = { rom_cs, fb_cs, work3_cs };
+assign ok_in     = { rom_ok, fb_ok, work3_ok };
 assign bus_busy  = (rom_cs | fb_cs | work3_cs) & ~ok_dly;
 assign bus_legit = 0;
 
@@ -130,7 +133,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= rom_ok | fb_ok | work3_ok;
     cpu_din <= rom_cs   ? rom_data   :
                work_cs  ? work_dout  :
                work2_cs ? work2_dout :
@@ -141,6 +143,14 @@ always @(posedge clk) begin
                io_rd    ? {cab_dout, cab_dout} :
                16'hffff;
 end
+
+jtframe_okdly #(.W(3)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 // sound latch @ 0x100015 (odd byte -> LDS)
 always @(posedge clk, posedge rst) begin

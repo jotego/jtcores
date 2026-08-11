@@ -108,7 +108,8 @@ reg         io_cs, joy_cs, eeprom_cs,
             sys_cs, olatch_cs, snd1_cs, snd0_cs, dial_cs;
 reg         dsn_dly;
 
-reg         sys_sel, ok_dly;
+reg         sys_sel;
+wire        ok_dly;
 `ifdef CPS15
 reg         io15_cs, joy3_cs, joy4_cs;
 `else
@@ -364,7 +365,6 @@ end
 reg  [15:0] cpu_din;
 
 always @(posedge clk) begin
-    ok_dly <= rom_ok | ram_ok;
     if(rst) begin
         cpu_din <= 16'hffff;
     end else begin
@@ -391,6 +391,9 @@ wire       bus_cs =   |{
     main2qs_cs,
 `endif
     rom_cs, ram_cs, vram_cs };
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, ram_cs | vram_cs };
+assign ok_in = { rom_ok, ram_ok };
 
 wire       bus_busy = |{
 `ifdef CPS15
@@ -402,6 +405,14 @@ wire       bus_busy = |{
 wire       DTACKn;
 reg        last_LVBL;
 wire       dtack_clr;
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 `ifdef CPS15
     reg qs_busakn_s;
