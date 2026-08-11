@@ -30,6 +30,7 @@ wire [ 8:0] scry;
 wire [ 7:0] snd_latch;
 wire        snd_wr, snd_pending;
 wire        main_rnw;
+wire        gga_cs, gga_we, gga_addr;
 wire [ 1:0] main_dsn;
 
 assign dip_flip   = flip;
@@ -102,6 +103,10 @@ jtpspike_main u_main(
     .vram1_dout ( vram1_dout    ),
     .lut1_dout  ( lut1_dout     ),
 
+    .gga_cs     ( gga_cs        ),
+    .gga_we     ( gga_we        ),
+    .gga_addr   ( gga_addr      ),
+
     .snd_latch  ( snd_latch     ),
     .snd_wr     ( snd_wr        ),
     .snd_pending( snd_pending   ),
@@ -124,6 +129,10 @@ jtpspike_video u_video(
 
     .turbofrc   ( turbofrc      ),
     .aerofgt    ( aerofgt       ),
+    .gga_cs     ( gga_cs        ),
+    .gga_we     ( gga_we        ),
+    .gga_addr   ( gga_addr      ),
+    .gga_din    ( main_dout[7:0]),
     .gfxbank    ( gfxbank       ),
     .charbank   ( charbank      ),
     .objbank    ( objbank       ),

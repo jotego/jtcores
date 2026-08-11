@@ -116,6 +116,41 @@ the picture changes (so numbering has gaps). sim-core.sh's own ffmpeg step globs
 `frame_*.jpg` and therefore silently skips - encode the mp4 by hand. Globbing for `.jpg`
 also makes a perfectly healthy run look like it produced nothing.
 
+## C7-01 GGA
+
+`jtpspike_gga.v` replaces `jtframe_vtimer` - same counter body, parameters turned into
+wires fed by the chip's 16x8 register file. Decode is `io_cs & A[10]` on every game
+(fff400 pspikes, 0ff400 turbofrc, 0fe400 aerofgtb), write only, low byte, A[1] picks
+data vs address latch.
+
+Registers hold `(reg+1)*4` pixels (H) or `(reg+1)*2` lines (V). Captured from MAME, whose
+skeleton device logs every write:
+
+```
+       reg  00   01   02   03   08   09   0a   0b     grid
+  pspikes   352  400  424  456  240  244  248  256    352x240 on 456x256, 61.31 Hz
+ turbofrc   identical to pspikes
+ aerofgtb   320  376  400  456  224  226  230  250    320x224 on 456x250, 62.80 Hz
+```
+
+MAME's own visarea agrees: turbofrc `0..351 x 0..239`, aerofgtb `12..331 x 0..223`.
+jtsim measured our output as 320x224 @ 62.80 Hz for aerofgtb, matching independently.
+
+Two things the runtime version needs that the parameterised one did not:
+- **reset defaults are the pspikes table**, else the download runs on a 4x2 grid
+- **counter wraps compare `>=`**, so a register write below the current count cannot wedge
+
+Consequences:
+- `JTFRAME_WIDTH/HEIGHT` stay 352x240 (family max, one bitstream). aerofgtb sims need
+  `-d JTFRAME_SIM_SKIP_VSIZE`. Deliberately NOT in macros.def - it would disable a valid
+  regression check for the other two.
+- `JTFRAME_SKIP_RATE_TEST` IS in macros.def: documented for exactly this case, software
+  programmed counters, and the rate is genuinely per-game.
+- aerofgtb's `hoff_scr=22` was tuned on the wrong 352x240 raster and must be re-derived.
+  MAME's aerofgtb visarea starts at x=12, likely most of that 22.
+- Scene replay is NOMAIN so the GGA keeps its defaults - right for pspikes/turbofrc,
+  WRONG for any future aerofgtb scene. Its 12 registers must join the scene reg dump.
+
 ## Scenes
 
 `MAMESET` is needed because the folder name is not the romset:

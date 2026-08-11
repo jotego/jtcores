@@ -4,6 +4,7 @@ pspike:
     - jtpspike_main.v
     - jtpspike_snd.v
     - jtpspike_video.v
+    - jtpspike_gga.v
     - jtpspike_scr.v
     - jtpspike_obj.v
     - jtpspike_objscan.v

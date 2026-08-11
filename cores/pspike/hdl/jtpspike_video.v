@@ -25,6 +25,9 @@ module jtpspike_video(
     input               pxl_cen,
 
     input               turbofrc, aerofgt,
+    // C7-01 GGA write port
+    input               gga_cs, gga_we, gga_addr,
+    input      [ 7:0]   gga_din,
     input      [31:0]   gfxbank,    // eight 4-bit banks
     input      [ 2:0]   charbank,
     input      [ 1:0]   objbank,
@@ -84,16 +87,7 @@ module jtpspike_video(
 //   02=69 -> 424 HS end     03=71 -> 456 H total
 //   08=77 -> 240 VB start   09=79 -> 244 VS start
 //   0a=7b -> 248 VS end     0b=7f -> 256 V total
-localparam [8:0] V_START  = 9'd0,
-                 VB_START = 9'd239,
-                 VB_END   = 9'd255,
-                 VS_START = 9'd244,
-                 VS_END   = 9'd248,
-                 HB_START = 9'd351,
-                 HB_END   = 9'd455,
-                 HS_START = 9'd400,
-                 HS_END   = 9'd424,
-                 HCNT_END = 9'd455;
+wire [8:0] h_last;
 
 // MAME's visible window starts at pixel 4 of the 456 count, and
 // jtframe_tilemap outputs eight pixels behind its fetch. Both layers are fed
@@ -131,8 +125,8 @@ assign obj1_addr = obj1_raw[20:2];
 // the second chip walks the upper half of the sprite RAM
 assign objr1_addr[10] = 1'b1;
 assign objr_addr[10]  = 1'b0;
-assign hdump_scr = H >= (HCNT_END-hoff_scr+9'd1) ? H+hoff_scr-(HCNT_END+9'd1) : H+hoff_scr;
-assign hdump_obj = H >= (HCNT_END-hoff_obj+9'd1) ? H+hoff_obj-(HCNT_END+9'd1) : H+hoff_obj;
+assign hdump_scr = H >= (h_last-hoff_scr+9'd1) ? H+hoff_scr-(h_last+9'd1) : H+hoff_scr;
+assign hdump_obj = H >= (h_last-hoff_obj+9'd1) ? H+hoff_obj-(h_last+9'd1) : H+hoff_obj;
 
 // Sprites are transparent on pen 15 and the line buffer reads back 15 where
 // nothing was drawn. Tile layer 1 is transparent on pen 15 too
@@ -159,20 +153,16 @@ assign pxl = !two ? ( o0_op ? { 1'b1, obj_pxl[9:0] } : { 1'b0, scr_pxl } ) :
                o0_op                  ? o0_idx :
                                         { 1'b0, 2'b00, scr_pxl[7:0] };
 
-jtframe_vtimer #(
-    .V_START    ( V_START   ),
-    .VB_START   ( VB_START  ),
-    .VB_END     ( VB_END    ),
-    .VS_START   ( VS_START  ),
-    .VS_END     ( VS_END    ),
-    .HB_START   ( HB_START  ),
-    .HB_END     ( HB_END    ),
-    .HS_START   ( HS_START  ),
-    .HS_END     ( HS_END    ),
-    .HCNT_END   ( HCNT_END  )
-) u_vtimer(
+jtpspike_gga u_gga(
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .aerofgt    ( aerofgt   ),
+    .cs         ( gga_cs    ),
+    .we         ( gga_we    ),
+    .addr       ( gga_addr  ),
+    .din        ( gga_din   ),
+    .h_last     ( h_last    ),
     .vdump      ( vdump     ),
     .vrender    ( vrender   ),
     .vrender1   (           ),

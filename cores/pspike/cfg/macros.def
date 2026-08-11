@@ -5,7 +5,10 @@ JTFRAME_PLL=jtframe_pll7159
 # and pxl_cen 7.159MHz. The macro name assumes a 48MHz clk, the divider is
 # what matters here
 JTFRAME_PXLCLK=6
+# pspikes/turbofrc rate (61.31 verified on pcb). aerofgtb programs the GGA for a
+# 456x250 grid = 62.80 Hz, so the rate is per-game and the check cannot apply.
 JTFRAME_RATE=61.31
+JTFRAME_SKIP_RATE_TEST
 JTFRAME_WIDTH=352
 JTFRAME_HEIGHT=240
 JTFRAME_COLORW=5

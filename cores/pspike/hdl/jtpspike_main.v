@@ -51,6 +51,7 @@ module jtpspike_main(
     output reg    [ 8:0] scrx1, scry1,
 
     // sound interface
+    output               gga_cs, gga_we, gga_addr,
     output reg    [ 7:0] snd_latch,
     output reg           snd_wr,
     input                snd_pending,
@@ -65,6 +66,10 @@ module jtpspike_main(
 // used by both branches: the real decoder and the scene replay stub
 reg  [ 3:0] gfxbank0, gfxbank1;
 reg  [15:0] bankw[0:1];
+
+// used by both branches: the scene stub packs gfxbank the same way
+wire        two;   // turbofrc family: two layers, two sprite chips
+assign      two = turbofrc | aerofgt;
 
 `ifndef NOMAIN
 // 10 MHz out of 57.2727 MHz
@@ -85,7 +90,6 @@ wire        tf_rom, tf_ram, tf_ram2, tf_vram0, tf_vram1, tf_lut0, tf_lut1,
 wire [ 3:0] tf_hi;
 wire        af_rom, af_ram, af_ram2, af_vram0, af_vram1, af_lut0, af_lut1,
             af_oram, af_rascr, af_pal, af_io;
-wire        two;   // turbofrc family: two layers, two sprite chips
 
 wire        ffblk;
 reg  [15:0] cab_dout;
@@ -139,7 +143,6 @@ assign af_pal    = A[23:16]==8'h0f & A[15:11]==5'b11010;     // 0fd000-0fd7ff
 assign af_io     = A[23:16]==8'h0f & A[15:12]==4'he;         // 0fe000-0fe00f
 assign af_rascr  = A[23:16]==8'h0f & A[15:12]==4'hf;         // 0ff000-0fffff
 
-assign two       = turbofrc | aerofgt;
 
 assign rom_cs    = cpu_bus & (aerofgt ? af_rom : turbofrc ? tf_rom   : ps_rom  );
 assign ram_cs   = cpu_bus & (aerofgt ? af_ram : turbofrc ? tf_ram : ps_ram);
@@ -152,6 +155,11 @@ assign oram_cs  = cpu_bus & (aerofgt ? af_oram : turbofrc ? tf_oram : ps_oram);
 assign rascr_cs = cpu_bus & (aerofgt ? af_rascr : turbofrc ? tf_rascr : ps_rascr);
 assign pal_cs   = cpu_bus & (aerofgt ? af_pal : turbofrc ? tf_pal : ps_pal);
 assign io_cs    = cpu_bus & (aerofgt ? af_io : turbofrc ? tf_io : ps_io);
+// GGA is io+0x400 on every game: fff400 pspikes, 0ff400 turbofrc, 0fe400 aerofgtb.
+// Write only, low byte of the word (umask 00ff). A[1] picks data / address latch.
+assign gga_cs   = io_cs & A[10];
+assign gga_we   = gga_cs & lo_we;
+assign gga_addr = A[1];
 
 assign ram_we    = { ram_cs   & hi_we, ram_cs   & lo_we };
 assign vram_we   = { vram_cs  & hi_we, vram_cs  & lo_we };
@@ -362,6 +370,9 @@ assign main_dout = 0;
 assign main_rnw  = 1;
 assign main_dsn  = 2'b11;
 assign rom_cs    = 0;
+assign gga_cs    = 0;
+assign gga_we    = 0;
+assign gga_addr  = 0;
 // the scene registers feed the same bank packing the live decoder uses
 assign gfxbank   = two ? { bankw[1], bankw[0] }
                             : { 24'd0, gfxbank1, gfxbank0 };
