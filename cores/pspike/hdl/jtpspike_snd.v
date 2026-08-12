@@ -42,6 +42,7 @@ module jtpspike_snd(
 
     input      [ 7:0]    snd_latch,
     input                snd_wr,
+    input                LVBL_snd,
     output reg           snd_pending,
 
     output     [16:0]    rom_addr,
@@ -161,6 +162,28 @@ always @(posedge clk) begin
     if( pcma_cs && pcma_ok ) pcma_l <= pcma_data;
     if( pcmb_cs && pcmb_ok ) pcmb_l <= pcmb_data;
 end
+
+`ifdef SIMULATION
+// sound path probe: is the main CPU sending commands, is the Z80 running,
+// is the YM2610 being written, and is the ADPCM-A bank ever non-zero
+integer cmd_n=0, rom_n=0, fm_n=0, pa_n=0, pb_n=0;
+reg [4:0] bank_max=0;
+always @(posedge clk) begin
+    if( snd_wr             ) cmd_n <= cmd_n+1;
+    if( rom_cs   & rom_ok  ) rom_n <= rom_n+1;
+    if( fm_cs    & ~wr_n   ) fm_n  <= fm_n +1;
+    if( pcma_cs            ) pa_n  <= pa_n +1;
+    if( pcmb_cs            ) pb_n  <= pb_n +1;
+    if( {1'b0,adpcma_bank} > bank_max ) bank_max <= {1'b0,adpcma_bank};
+end
+integer fcnt=0;
+always @(negedge LVBL_snd) begin
+    fcnt <= fcnt+1;
+    if( fcnt[3:0]==0 )
+        $display("SND cmd=%0d z80rom=%0d fmwr=%0d pcma=%0d pcmb=%0d bankmax=%0d",
+            cmd_n, rom_n, fm_n, pa_n, pb_n, bank_max);
+end
+`endif
 
 jt10 u_jt10(
     .rst        ( rst       ),

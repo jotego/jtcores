@@ -246,6 +246,7 @@ jtpspike_snd u_snd(
     .snd_latch  ( snd_latch     ),
     .snd_wr     ( snd_wr        ),
     .snd_pending( snd_pending   ),
+    .LVBL_snd   ( LVBL          ),
     .aerofgt    ( aerofgt       ),
     .debug_bus  ( debug_bus     ),
 

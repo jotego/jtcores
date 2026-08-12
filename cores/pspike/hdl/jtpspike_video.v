@@ -105,14 +105,21 @@ wire [8:0] h_last;
 // Visible window start differs per game: pspikes x=4, turbofrc x=0,
 // aerofgtb x=12 (set_visarea(0*8+12,...)). The other 10 is the tilemap pipeline
 wire       two      = turbofrc | aerofgt;
-// 10 is the tilemap pipeline, plus each game's visarea x origin:
-// pspikes 4, turbofrc 0, karatblz 8 (set_visarea(1*8,..)), aerofgtb 12
-wire [8:0] hoff_scr = karatblz ? 9'd18 : aerofgt ? 9'd22 : turbofrc ? 9'd10 : 9'd14;
-// MAME per layer bias: -11 / -7, and aerofgtb adds set_scrolldx(1,1) to both
+// Each engine is fed an hdump running ahead of H by its own pipeline depth
+// plus the game's visible-window origin, from MAME set_visarea:
+//   pspikes 4 (0*8+4)  turbofrc 0 (0*8)  karatblz 8 (1*8)  aerofgtb 12 (0*8+12)
+// MAME's per-layer scroll bias (-11/-7, -8/-4, +1 on aerofgtb) is applied
+// separately in _scr.v as xb0/xb1. The sprite chip's own x offset comes from
+// vsystem_spr2 set_offsets, which ONLY aerofgtb sets, to (3,-1).
+localparam [8:0] P_SCR = 9'd10,   // tilemap fetch pipeline
+                 P_OBJ = 9'd1;    // sprite line-buffer readout
+wire [8:0] visx     = karatblz ? 9'd8 : aerofgt ? 9'd12 : turbofrc ? 9'd0 : 9'd4;
+wire [8:0] xoffs    = aerofgt ? 9'd3 : 9'd0;          // MAME set_offsets x
+wire [8:0] hoff_scr = visx + P_SCR;
 wire [8:0] xb0      = karatblz ? 9'd8 : aerofgt ? 9'd10 : 9'd11;
 wire [8:0] xb1      = karatblz ? 9'd4 : aerofgt ? 9'd6  : 9'd7;
-wire [8:0] obj_yoffs = aerofgt ? 9'h1ff : 9'd0;  // MAME set_offsets(3,-1)
-wire [8:0] hoff_obj = hoff_scr - (aerofgt ? 9'd12 : 9'd9);
+wire [8:0] obj_yoffs= aerofgt ? 9'h1ff : 9'd0;        // MAME set_offsets y = -1
+wire [8:0] hoff_obj = visx + P_OBJ - xoffs;
 
 wire [ 8:0] vdump, vrender, H, hdump_scr, hdump_obj;
 wire [ 9:0] scr_pxl, scr1_pxl;

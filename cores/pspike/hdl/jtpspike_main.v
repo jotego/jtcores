@@ -299,8 +299,11 @@ always @(posedge clk) begin
                 4'd3: if( hi_we ) scry1 <= main_dout[8:0];  // 0ff006
                 4'd4: if( hi_we ) bankw[0] <= main_dout;    // 0ff008 banks 0-3
                 4'd5: if( hi_we ) bankw[1] <= main_dout;    // 0ff00a banks 4-7
-                4'd7: if( lo_we ) begin                     // 0ff00e
-                    snd_latch <= main_dout[7:0];
+                // 0ff00e / 0fe00e is an EVEN byte: high byte of the word, so
+                // UDS and main_dout[15:8]. karatblz and pspikes latch on an
+                // ODD byte (0ff007 / fff007) and use LDS instead.
+                4'd7: if( hi_we ) begin
+                    snd_latch <= main_dout[15:8];
                     snd_wr    <= 1;
                 end
                 default:;
