@@ -53,12 +53,12 @@ assign ram_addr   = main_addr[15:1];
 assign vram_addr  = main_addr[12:1];
 assign rascr_addr = main_addr[11:1];
 assign oram_addr  = main_addr[10:1];
-assign lut_addr   = main_addr[15:1];
+assign lut_addr   = karatblz ? main_addr[15:1] : { 2'd0, main_addr[13:1] };
 assign pal_addr   = main_addr[11:1];
 assign ram2_addr  = main_addr[13:1];
 assign vram1_addr = main_addr[12:1];
 assign oram1_addr = main_addr[10:1];
-assign lut1_addr  = main_addr[15:1];
+assign lut1_addr  = karatblz ? main_addr[15:1] : { 2'd0, main_addr[13:1] };
 
 
 `ifdef SIMULATION

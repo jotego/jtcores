@@ -73,8 +73,8 @@ assign      two = turbofrc | aerofgt | karatblz;
 
 `ifndef NOMAIN
 // 10 MHz out of 57.2727 MHz
-localparam [5:0] CEN_NUM = 6'd11;
-localparam [6:0] CEN_DEN = 7'd63;
+localparam [6:0] CEN_NUM = 7'd44;
+localparam [7:0] CEN_DEN = 8'd189;   // 945/22MHz * 44/189 = 10.000MHz
 
 wire [23:1] A;
 reg  [15:0] cpu_din;
@@ -358,7 +358,7 @@ jtframe_virq u_virq(
     .custom_n   (           )
 );
 
-jtframe_68kdtack_cen #(.W(7)) u_dtack(
+jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cen10     ),
