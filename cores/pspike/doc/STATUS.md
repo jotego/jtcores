@@ -158,6 +158,29 @@ introduced two ZERO-SLACK exact fits in the bank layout (adpcmb fills
 PCMB_START->SPRLUT_START exactly; spritegfx fills BA3_START->OBJ1_START
 exactly) - anything growing there shifts silently.
 
+## Clocking - pll5369, verified in sim
+
+JTFRAME_PLL name digits = pixel clock in kHz, and JTFRAME_MCLK = digits*8 (x2
+with SDRAM96) - macros.go:435. So the PLL is chosen BY PIXEL CLOCK and every
+mem.yaml cen rescales itself automatically. The 68000 is the ONLY hand-written
+clock (CEN_NUM/CEN_DEN in _main.v) and must be recomputed per PLL.
+
+  JTFRAME_PLL=jtframe_pll5369   clk = SDRAM_CLK = 42.954545 MHz
+  JTFRAME_PXLCLK=8              M=3 -> pxl_cen = clk/6 = 7.159090 MHz (exact)
+  CEN_NUM=44 CEN_DEN=189        42.954545 * 44/189 = 10.000 MHz (exact)
+  jtframe_68kdtack_cen #(.W(8)) num[6:0] den[7:0], 189 needs 8 bits
+
+Both ratios are exact: pxl = 315/44 MHz so mclk = 945/22 MHz. Sim: 61.33 Hz,
+matching the 61.31 measured on PCB.
+
+Beware the naming: clk48/clk48sh carry whatever the PLL family gives, NOT 48.
+On pll7159 that was 57.27 on SDRAM_CLK. PXLCLK only accepts 8 or 6 (M=3 or 4).
+SDRAM96 doubles clk AND SDRAM_CLK (85.9MHz here) - the whole design must then
+close timing at that rate, and CEN_NUM halves to 22.
+
+Earlier settings for reference: pll7159 = 57.272 MHz, CEN_NUM/DEN 11/63.
+pll6671 = 53.365 MHz - with 11/63 the CPU runs 9.32MHz, hence "boots but slow".
+
 ## C7-01 GGA
 
 `jtpspike_gga.v` replaces `jtframe_vtimer` - same counter body, parameters turned into
