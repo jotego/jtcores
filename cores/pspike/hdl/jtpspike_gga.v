@@ -62,14 +62,36 @@ reg        LVBL2, LVBL1;
 function [8:0] hval(input [7:0] r); hval = { r[6:0], 2'd0 } + 9'd4; endfunction
 function [8:0] vval(input [7:0] r); vval = { r[7:0], 1'd0 } + 9'd2; endfunction
 
-wire [8:0] hb_start = hval(regs[ 0]) - 9'd1;    // last visible pixel
-wire [8:0] hs_start = hval(regs[ 1]);
-wire [8:0] hs_end   = hval(regs[ 2]);
-assign     h_last   = hval(regs[ 3]) - 9'd1;
-wire [8:0] vb_start = vval(regs[ 8]) - 9'd1;    // last visible line
-wire [8:0] vs_start = vval(regs[ 9]);
-wire [8:0] vs_end   = vval(regs[10]);
-wire [8:0] v_last   = vval(regs[11]) - 9'd1;
+// The CPU programs the table one byte at a time, so the raw registers pass
+// through nonsense combinations mid-sequence. Latch them once per frame: the
+// counters then only ever see a complete table, and the video mode changes
+// exactly once instead of wobbling through garbage modes that the MiSTer
+// scaler can lock onto until a reset.
+reg [8:0] hb_start, hs_start, hs_end, h_lastr, vb_start, vs_start, vs_end, v_last;
+assign    h_last = h_lastr;
+
+always @(posedge clk) begin
+    if( rst ) begin
+        // regs[] are loaded this same cycle, so take the defaults directly
+        hb_start <= aerofgt ? 9'd319 : 9'd351;
+        hs_start <= aerofgt ? 9'd376 : 9'd400;
+        hs_end   <= aerofgt ? 9'd400 : 9'd424;
+        h_lastr  <= 9'd455;
+        vb_start <= aerofgt ? 9'd223 : 9'd239;
+        vs_start <= aerofgt ? 9'd226 : 9'd244;
+        vs_end   <= aerofgt ? 9'd230 : 9'd248;
+        v_last   <= aerofgt ? 9'd249 : 9'd255;
+    end else if( pxl_cen && H==hs_start && vdump==vs_start ) begin
+        hb_start <= hval(regs[ 0]) - 9'd1;    // last visible pixel
+        hs_start <= hval(regs[ 1]);
+        hs_end   <= hval(regs[ 2]);
+        h_lastr  <= hval(regs[ 3]) - 9'd1;
+        vb_start <= vval(regs[ 8]) - 9'd1;    // last visible line
+        vs_start <= vval(regs[ 9]);
+        vs_end   <= vval(regs[10]);
+        v_last   <= vval(regs[11]) - 9'd1;
+    end
+end
 
 // Reset defaults are also the scene-replay configuration: NOMAIN never writes
 always @(posedge clk) begin
@@ -98,7 +120,7 @@ end
 // wrap compares are >=: a register write below the current count must not wedge
 always @(posedge clk) begin
     if( rst ) begin
-        H     <= hb_start;  // start of horizontal blanking, matches MAME
+        H     <= 9'd0;
         Hinit <= 0;
     end else if( pxl_cen ) begin
         Hinit <= H == hs_start;
@@ -109,9 +131,9 @@ end
 always @(posedge clk) begin
     if( rst ) begin
         // start at the top of vertical blanking, as jtframe_vtimer does
-        vdump    <= vb_start;
-        vrender  <= vb_start + 9'd1;
-        vrender1 <= vb_start + 9'd2;
+        vdump    <= 9'd0;
+        vrender  <= 9'd1;
+        vrender1 <= 9'd2;
         Vinit    <= 0;
         LVBL     <= 0;
         LVBL1    <= 0;
