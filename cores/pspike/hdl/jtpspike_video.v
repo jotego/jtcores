@@ -159,6 +159,19 @@ assign pxl = karatblz ? kb_pxl :
                o0_op                  ? o0_idx :
                                         { 1'b0, 2'b00, scr_pxl[7:0] };
 
+`ifdef PSPIKE_VTIMER
+// hardware A/B: stock timer with the pspikes constants the GGA reproduces
+assign h_last = 9'd455;
+jtframe_vtimer #(
+    .V_START(9'd0), .VB_START(9'd239), .VB_END(9'd255),
+    .VS_START(9'd244), .VS_END(9'd248), .HB_START(9'd351),
+    .HB_END(9'd455), .HS_START(9'd400), .HS_END(9'd424), .HCNT_END(9'd455)
+) u_vtimer(
+    .clk(clk), .pxl_cen(pxl_cen), .vdump(vdump), .vrender(vrender),
+    .vrender1(), .H(H), .Hinit(), .Vinit(),
+    .LHBL(LHBL), .LVBL(LVBL), .HS(HS), .VS(VS)
+);
+`else
 jtpspike_gga u_gga(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -180,6 +193,7 @@ jtpspike_gga u_gga(
     .HS         ( HS        ),
     .VS         ( VS        )
 );
+`endif
 
 jtpspike_scr u_scr(
     .rst        ( rst       ),

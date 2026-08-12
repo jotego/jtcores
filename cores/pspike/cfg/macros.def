@@ -1,7 +1,8 @@
 CORENAME=JTPSPIKE
 
-# JTFRAME_PLL=jtframe_pll7159
-JTFRAME_PLL=jtframe_pll6671
+JTFRAME_PLL=jtframe_pll7159
+# JTFRAME_PLL=jtframe_pll6671
+JTFRAME_PXLCLK=6
 # pspikes/turbofrc rate (61.31 verified on pcb). aerofgtb programs the GGA for a
 # 456x250 grid = 62.80 Hz, so the rate is per-game and the check cannot apply.
 JTFRAME_RATE=61.31
@@ -28,8 +29,12 @@ SCR1_START=0x400000
 JTFRAME_BA3_START=0x600000
 OBJ1_START=0xA00000
 
+# uncomment to bypass the GGA and use jtframe_vtimer (pspikes timing only)
+PSPIKE_VTIMER
+
 # Debug options
 JTFRAME_STATUS
 
 [mist|sidi]
 JTFRAME_SKIP
+
