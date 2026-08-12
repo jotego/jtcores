@@ -1,7 +1,14 @@
 CORENAME=JTPSPIKE
 
-JTFRAME_PLL=jtframe_pll5369
-JTFRAME_PXLCLK=8
+# 53.365384MHz master. Chosen for its SDRAM clock PHASE, not its frequency:
+# outclk_1 (clk48sh) is shifted 5495ps (~106deg), the same family as every PLL
+# proven on hardware (6144 ~98deg / 9 cores, 6293 ~89deg / 2, 6671 / rastan).
+# pll7159 and pll7000 shift only ~42deg and are used by NO shipped core.
+# pll5369 does not shift at all, which also makes Quartus merge outclk_0/1, so
+# the SDC create_generated_clock for SDRAM_CLK finds an empty source and is
+# silently dropped - SDRAM then runs unconstrained AND unshifted.
+JTFRAME_PLL=jtframe_pll6671
+JTFRAME_PXLCLK=6
 # pspikes/turbofrc rate (61.31 verified on pcb). aerofgtb programs the GGA for a
 # 456x250 grid = 62.80 Hz, so the rate is per-game and the check cannot apply.
 JTFRAME_RATE=61.31

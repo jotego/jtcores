@@ -73,8 +73,8 @@ assign      two = turbofrc | aerofgt | karatblz;
 
 `ifndef NOMAIN
 // 10 MHz out of 57.2727 MHz
-localparam [6:0] CEN_NUM = 7'd44;
-localparam [7:0] CEN_DEN = 8'd189;   // 945/22MHz * 44/189 = 10.000MHz
+localparam [6:0] CEN_NUM = 7'd3;
+localparam [7:0] CEN_DEN = 8'd16;    // 53.365MHz * 3/16 = 10.006MHz
 
 wire [23:1] A;
 reg  [15:0] cpu_din;

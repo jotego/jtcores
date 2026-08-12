@@ -105,7 +105,9 @@ wire [8:0] h_last;
 // Visible window start differs per game: pspikes x=4, turbofrc x=0,
 // aerofgtb x=12 (set_visarea(0*8+12,...)). The other 10 is the tilemap pipeline
 wire       two      = turbofrc | aerofgt;
-wire [8:0] hoff_scr = aerofgt ? 9'd22 : turbofrc ? 9'd10 : 9'd14;
+// 10 is the tilemap pipeline, plus each game's visarea x origin:
+// pspikes 4, turbofrc 0, karatblz 8 (set_visarea(1*8,..)), aerofgtb 12
+wire [8:0] hoff_scr = karatblz ? 9'd18 : aerofgt ? 9'd22 : turbofrc ? 9'd10 : 9'd14;
 // MAME per layer bias: -11 / -7, and aerofgtb adds set_scrolldx(1,1) to both
 wire [8:0] xb0      = karatblz ? 9'd8 : aerofgt ? 9'd10 : 9'd11;
 wire [8:0] xb1      = karatblz ? 9'd4 : aerofgt ? 9'd6  : 9'd7;

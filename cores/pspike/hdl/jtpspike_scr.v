@@ -95,6 +95,10 @@ assign code     = two ? { bank[2:0], scr_vram[10:0] }
 // not just shift the picture, it misaligns the layers against each other:
 //   layer 0  rasterram[7] - 11      layer 1  scrollx1 - 7
 //   both     scrolly + 2
+// MAME's set_scrollx((i+scrolly)&0xff, rasterram[i]) indexes TILEMAP rows, and
+// the +scrolly there cancels set_scrolly - so screen row r reads rasterram[r].
+// Do NOT subtract scrolly here. turbofrc/aerofgt use rasterram[7] for every
+// row; karatblz has no raster RAM.
 assign ras_addr = { 3'd0, two ? 8'd7 : vdump[7:0] };
 assign scrx_eff = !two ? ras_dout[8:0] :
                   (layer | noraster) ? scrx - xbias : ras_dout[8:0] - xbias;
