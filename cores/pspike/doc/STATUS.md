@@ -116,47 +116,44 @@ the picture changes (so numbering has gaps). sim-core.sh's own ffmpeg step globs
 `frame_*.jpg` and therefore silently skips - encode the mp4 by hand. Globbing for `.jpg`
 also makes a perfectly healthy run look like it produced nothing.
 
-## HARDWARE: CPU stalls immediately (sim is fine) - TOP OPEN ISSUE
+## HARDWARE: SOLVED - it was the SDRAM CLOCK PHASE, not the frequency
 
-On MiSTer the core loads ROMs, the system menu works, but the screen is black
-and there is no sound. Read from the debug build (debug=true, START+UP steps
-debug_bus, START+left/right toggles white debug_view / reddish sys_info):
+The core was black on hardware for days. It was never overclocking, never the
+GGA, never the CPU. jtframe_emu drives SDRAM_CLK from PLL outclk_1 (clk48sh),
+which must be PHASE SHIFTED. Per-PLL, from pll/pll_0002.v phase_shift1:
 
-  view 0  game flags     = 00000001  -> header decodes correctly on hardware
-  view 1  ROM heartbeat  = 26 FROZEN -> ~38 fetches then the 68000 stalls
-  view 3  main_addr[16:9]= FF        -> parked on an all-ones address
+  pll6144  5549ps ~98deg    9 shipped cores
+  pll6293  4965ps ~89deg    2 (outrun, s16)
+  pll6671  5495ps ~106deg   1 (rastan)      <- WE USE THIS, IT BOOTS
+  pll7000  2232ps ~45deg    0 shipped cores
+  pll7159  1984ps ~41deg    0 shipped cores  <- our original, black
+  pll5369     0ps           0                <- no shift at all, black
 
-Reading: the CPU read 0xFFFF from SDRAM (unprogrammed returns all ones),
-executed it, and hung. The reset vector worked, so the first region is fine and
-a later access got no data. Suspect the ROM DOWNLOAD or the SDRAM bank map, not
-the CPU logic - simulation cannot catch this because its SDRAM model is
-preloaded from the .rom and has no latency.
+Every PLL proven on hardware shifts ~90-106deg. pll7159/pll7000 shift ~42deg
+and NO core has ever shipped with them. pll5369 does not shift at all, and
+that has a second consequence: with outclk_0 and outclk_1 identical Quartus
+MERGES the counters, so the SDC's
+  create_generated_clock -source ...general[1].gpll~PLL_OUTPUT_COUNTER|divclk
+finds an empty collection and is SILENTLY DROPPED. The .sta.rpt then shows
+"Unconstrained Clocks: 1" and SDRAM_CLK in no timing table at all - the build
+"meets timing" because the SDRAM interface was never analysed.
 
-PRIME SUSPECT - SDRAM IS OVERCLOCKED. pspike does NOT set JTFRAME_SDRAM96, so
-jtframe_emu drives SDRAM_CLK = clk48sh = pll outclk_1. With jtframe_pll7159
-that output is 57.272727 MHz, NOT 48 - the signal names keep saying clk48 while
-the PLL family underneath decides the real frequency. So the SDRAM controller
-runs ~19% over its nominal 48MHz. (The 114.5MHz clk96/clk96sh outputs are
-unused without JTFRAME_SDRAM96.) pspike is the ONLY core in the repo on
-pll7159, so nothing else has ever run the controller this fast. Simulation cannot see it - the Verilator
-SDRAM model has no timing. Fits partial failure (bank 0 some traffic, banks
-1-3 none) better than any logic bug, and fits every game being black on HW
-while all render in sim.
+HOW TO CHECK A NEW PLL BEFORE BUILDING:
+  grep phase_shift1 modules/jtframe/target/mister/hdl/pll<NNNN>/pll/pll_0002.v
+  and confirm the core count: grep -l pll<NNNN> cores/*/cfg/macros.def
+If phase_shift1 is 0 or the PLL has no users, do not use it.
 
-SDRAM stats (sys_info, debug_bus=1000_00xx; bits1:0 = bank, /4096):
-  bank 0 = 01 (~4-8k accesses/frame)   banks 1,2,3 = 00  ZERO TRAFFIC
-Bank 0 holds maincpu + soundbank, so its traffic is probably the Z80 while the
-68000 is parked. Banks 1 (ADPCM), 2 (tiles) and 3 (sprites) are never accessed
-at all - that is black screen AND silence from one fault: the gfx/ADPCM read
-paths never even issue requests on hardware. IOCTL says the download completed
-(F0 = gfx_en 1111, ioctl_rom 0), so the data is there.
+Current, boots on hardware:
+  JTFRAME_PLL=jtframe_pll6671   53.365384MHz, SDRAM shift 5495ps
+  JTFRAME_PXLCLK=6              /8 -> 6.670673MHz pixel clock
+  CEN_NUM=3 CEN_DEN=16          53.365 * 3/16 = 10.006MHz for the 68000
 
-Old note: sys_info debug_bus=0111_0000 gives {gfx_en[0:3],0,ioctl_ram,ioctl_cart,
-ioctl_rom}. ioctl_rom still asserted = download never finished. Download OK but
-still stalled = bank map disagrees with what the MRA wrote. NOTE karatblz
-introduced two ZERO-SLACK exact fits in the bank layout (adpcmb fills
-PCMB_START->SPRLUT_START exactly; spritegfx fills BA3_START->OBJ1_START
-exactly) - anything growing there shifts silently.
+COST: refresh is 57.18Hz against the 61.31 measured on PCB - the game and audio
+run ~6.7% slow. The GGA grid is still correct (456x256); only the rate is low.
+FIX LATER: generate pxl_cen with jtframe_frac_cen n=11 m=41 off this clock
+(14.3178/7.1589MHz, -0.0027%) as rastan does, instead of JTFRAME_PXLCLK. Costs
+sub-clock pixel jitter (a pixel is 7.45 master clocks) but restores 61.33Hz and
+makes the PLL choice purely an SDRAM decision.
 
 ## Clocking - pll5369, verified in sim
 

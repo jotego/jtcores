@@ -51,10 +51,10 @@ regions = [
     # pspikes: gfx2 IS the sprite ROM. turbofrc: gfx2 is the second tile layer
     # and the sprites live in spritegfx / gfx4
     { setnames=["pspikes", "pspikesk", "pspikesu", "svolly91"], name="gfx2", start="JTFRAME_BA3_START", width=32 },
-    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua", "aerofgtb", "aerofgtc", "sonicwi"], name="gfx2", start="SCR1_START" },
+    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua", "aerofgtb", "aerofgtc", "sonicwi", "karatblz", "karatblza", "karatblzt", "karatblzu", "karatblzj"], name="gfx2", start="SCR1_START" },
     # sprites: turbofrc ROM_LOAD32_WORD, aerofgt ROM_LOAD32_WORD_SWAP
-    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua"], name="spritegfx", start="JTFRAME_BA3_START", width=32 },
-    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua"], name="gfx4", start="OBJ1_START", width=32 },
+    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua", "karatblz", "karatblza", "karatblzt", "karatblzu", "karatblzj"], name="spritegfx", start="JTFRAME_BA3_START", width=32 },
+    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua", "karatblz", "karatblza", "karatblzt", "karatblzu", "karatblzj"], name="gfx4", start="OBJ1_START", width=32 },
     { setnames=["aerofgtb", "aerofgtc", "sonicwi"], name="spritegfx", start="JTFRAME_BA3_START", width=32, parts=[
         { name="it-19-04", map="0012" },
         { name="it-19-05", map="1200" } ] },
