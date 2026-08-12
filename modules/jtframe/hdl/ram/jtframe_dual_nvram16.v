@@ -52,7 +52,7 @@ assign we1 = {2{we1b}} & { addr1b[0], ~addr1b[0]};
 assign q1b = addr1b[0] ? q1a[15:8] : q1a[7:0];
 
 jtframe_dual_nvram #(
-    .FULL_DW   ( 16            ),
+    .SIMFILE_DW( 16            ),
     .SIMFILE_BYTE( LO_BYTE     ),
     .DW        ( 8             ),
     .AW        ( AW            ),
@@ -76,7 +76,7 @@ u_lo(
 );
 
 jtframe_dual_nvram #(
-    .FULL_DW   ( 16            ),
+    .SIMFILE_DW( 16            ),
     .SIMFILE_BYTE( HI_BYTE     ),
     .DW        ( 8             ),
     .AW        ( AW            ),

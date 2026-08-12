@@ -142,14 +142,14 @@ jtframe_count_ld #(7) u_hscnt(
 
 // CNTA - VB
 jtframe_count_ld #(.W(8),.ONE_SHOT(1)) u_vbcnt(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen        ( pxl_cen   ),
-    .en         ( hbk0_eff  ), // L38B
-    .ld         ( vsov      ), // G51
-    .cnt0       (~vbcnt0    ),
-    .cnt        (           ),
-    .tc         ( vbtc      )
+    .rst        ( rst            ),
+    .clk        ( clk            ),
+    .cen        ( pxl_cen        ),
+    .en         ( hbk0_eff       ), // L38B
+    .ld         ( vsov           ), // G51
+    .cnt0       ( (~vbcnt0)-1'b1 ), // LVBL ends after the programmed final line
+    .cnt        (                ),
+    .tc         ( vbtc           )
 );
 
 // CNTB - HB
@@ -194,7 +194,7 @@ jtframe_ff_jk u_vs(rst,clk,pxl_cen, vld_mx, vstc,  vs, vsn );
 jtframe_ff_jk u_hb(rst,clk,pxl_cen, hbk0,   hbtc,  hb, lhbl);
 jtframe_ff_jk u_vb(rst,clk,pxl_cen, vbk0,   vbtc,  vb, lvbl);
 
-jtk053252_mmr #(.SIMFILE("ccu.bin")) u_mmr(
+jtk053252_mmr #(.SIMFILE("ccu.bin"),.INIT(INIT)) u_mmr(
     .rst        ( rst       ),
     .clk        ( clk       ),
 

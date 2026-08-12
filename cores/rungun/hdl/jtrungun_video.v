@@ -29,6 +29,7 @@ module jtrungun_video(
     output             vs,
     output      [ 8:0] hdump,
     output      [ 7:0] vdump,
+    output      [ 7:0] vrender,
     // CPU interface
     input              ccu_cs,   // timer
     input              psac_cs,
@@ -142,7 +143,8 @@ jtrungun_vtimer u_vtimer(
     .hdump      ( hdump         ),
     .hdumpf     (               ),
     .vdump      ( vdump         ),
-    .vdumpf     (               )
+    .vdumpf     (               ),
+    .vrender    ( vrender       )
 );
 
 // video timer
@@ -315,7 +317,7 @@ jtrungun_psac u_psac(
 localparam [9:0] OVOFFSET = 10'h10f;
 
 jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),
-               .HOFFSET(10'd2),.EDGE_TRIGGER(EDGE_TRIGGER)) u_obj(    // sprite logic
+               .HOFFSET(10'd3),.EDGE_TRIGGER(EDGE_TRIGGER)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( obj_cen   ),
@@ -359,7 +361,7 @@ jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),
-    .debug_bus  ( debug_bus )
+    .debug_bus  ( 8'd0      )
 );
 
 jtrungun_colmix u_colmix(
