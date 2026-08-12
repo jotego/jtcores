@@ -104,16 +104,21 @@ jobs:
           if [ "${{ inputs.debug }}" = "true" ]; then DBG="--debug"; fi
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v "$(pwd)":/jtcores "$docker_image" /jtcores/modules/jtframe/devops/xjtcore.sh "${{ matrix.core }}" $DBG "${{ matrix.target }}"
 
-      # On a failed compile, ship the build log for triage. jtframe/bin/jtcore
-      # writes it to log/<target>/<core>.log inside the container, which maps
-      # to ./log/<target>/<core>.log on the runner via the $(pwd) -> /jtcores
-      # bind mount.
+      # Always ship the build log and the Quartus reports, not just on failure:
+      # the STA report is where the longest timing paths are. jtframe/bin/jtcore
+      # writes the log to log/<target>/<core>.log inside the container, which
+      # maps to ./log/<target>/<core>.log on the runner via the $(pwd) ->
+      # /jtcores bind mount. The .rpt files live under the seed build dirs,
+      # which xjtcore.sh does not delete (it only removes cores/<core>/<target>).
       - id: upload-log
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: log-${{ matrix.target }}-${{ matrix.core }}
-          path: log
+          path: |
+            log
+            cores/${{ matrix.core }}/seed/**/*.rpt
+            cores/${{ matrix.core }}/seed/**/*.summary
           retention-days: 7
           if-no-files-found: warn
 
