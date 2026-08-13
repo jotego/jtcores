@@ -5,15 +5,26 @@ params:
   - { name: OBJ0_OFFSET, value: "(`OBJ0_START-`JTFRAME_BA2_START)>>1" }
   - { name: PCMB_OFFSET, value: "(`PCMB_START-`JTFRAME_BA3_START)>>1" }
 
+# The YM2610 has no wait handshake on its ADPCM ROM pins, so a late SDRAM
+# answer is consumed as if it were real data. Gate its clock enable on the
+# ADPCM buses instead: the chip then stalls until the byte arrives rather than
+# decoding whatever the latch held. FM and SSG stall with it, so heavy
+# contention costs a little pitch rather than corrupting samples.
+# The CPUs already recover on their own - the 68000 through bus_busy into
+# jtframe_68kdtack_cen and the Z80 through jtframe_z80_devwait - so gating
+# snd is belt and braces.
 clocks:
   clk:
     - freq: 8 MHz
+      gate: [pcma, pcmb]
       outputs:
         - fm_cen
     - freq: 5 MHz
+      gate: [snd]
       outputs:
         - snd_cen
     - freq: 4 MHz
+      gate: [snd]
       outputs:
         - snd4_cen
 
