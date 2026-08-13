@@ -102,20 +102,22 @@ endtask
 task check_integer;
     input integer scale;
     input [ZW-1:0] zoom;
+    integer expected;
 begin
     reset_uut();
     wr_count = 0;
     draw_object(zoom);
+    expected = (64*HZONE+zoom-1)/zoom;
     msg = $sformatf("%0dx four-tile object has %0d writes, expected %0d", scale,
-        wr_count, 64*scale);
-    check(wr_count == 64*scale, msg);
-    for( i=0; i<64*scale && i<wr_count; i=i+1 ) begin
+        wr_count, expected);
+    check(wr_count == expected, msg);
+    for( i=0; i<expected && i<wr_count; i=i+1 ) begin
         msg = $sformatf("%0dx four-tile object write %0d has address %0d, expected %0d",
             scale, i, wr_addr[i], i);
         check(wr_addr[i] == i, msg);
         msg = $sformatf("%0dx four-tile object write %0d has pen %0d, expected %0d",
-            scale, i, wr_pxl[i], (i/scale)&4'hf);
-        check(wr_pxl[i] == ((i/scale)&4'hf), msg);
+            scale, i, wr_pxl[i], (i*zoom/HZONE)&4'hf);
+        check(wr_pxl[i] == ((i*zoom/HZONE)&4'hf), msg);
     end
 end
 endtask
@@ -125,20 +127,22 @@ task check_fractional;
     input integer denominator;
     input integer expected;
     input [ZW-1:0] zoom;
+    integer quantized;
 begin
     reset_uut();
     wr_count = 0;
     draw_object(zoom);
+    quantized = (64*HZONE+zoom-1)/zoom;
     msg = $sformatf("%0d/%0dx four-tile object has %0d writes, expected %0d",
-        numerator, denominator, wr_count, expected);
-    check(wr_count == expected, msg);
-    for( i=0; i<expected && i<wr_count; i=i+1 ) begin
+        numerator, denominator, wr_count, quantized);
+    check(wr_count == quantized, msg);
+    for( i=0; i<quantized && i<wr_count; i=i+1 ) begin
         msg = $sformatf("%0d/%0dx four-tile object write %0d has address %0d, expected %0d",
             numerator, denominator, i, wr_addr[i], i);
         check(wr_addr[i] == i, msg);
         msg = $sformatf("%0d/%0dx four-tile object write %0d has pen %0d, expected %0d",
-            numerator, denominator, i, wr_pxl[i], ((i*denominator)/numerator)&4'hf);
-        check(wr_pxl[i] == (((i*denominator)/numerator)&4'hf), msg);
+            numerator, denominator, i, wr_pxl[i], (i*zoom/HZONE)&4'hf);
+        check(wr_pxl[i] == ((i*zoom/HZONE)&4'hf), msg);
     end
 end
 endtask
