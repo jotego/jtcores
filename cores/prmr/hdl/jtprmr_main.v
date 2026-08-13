@@ -46,7 +46,6 @@ module jtprmr_main(
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
-    input                ram_ok,
     input                rom_ok,
     input                vdtac,
     input                tile_irqn,
@@ -90,11 +89,8 @@ wire [23:0] A_full = {A,1'b0};
 
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
-assign bus_cs   = rom_cs | ram_cs;
-wire [1:0] ok_cs, ok_in;
-assign ok_cs = { rom_cs, ram_cs };
-assign ok_in = { rom_ok, ram_ok };
-assign bus_busy = (rom_cs | ram_cs) & ~ok_dly;
+assign bus_cs   = rom_cs;
+assign bus_busy = rom_cs & ~ok_dly;
 assign BUSn     = ASn | &ram_dsn;
 assign UDWn     = UDSn   | RnW;
 assign LDWn     = LDSn   | RnW;
@@ -171,11 +167,11 @@ always @(posedge clk) begin
 	               cab_cs   ? cab_dout         : 16'h0;
 end
 
-jtframe_okdly #(.W(2)) u_okdly(
+jtframe_okdly u_okdly(
     .rst    ( rst    ),
     .clk    ( clk    ),
-    .cs     ( ok_cs  ),
-    .ok     ( ok_in  ),
+    .cs     ( rom_cs ),
+    .ok     ( rom_ok ),
     .ok_dly ( ok_dly )
 );
 
@@ -227,7 +223,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
+    .wait2      ( ram_cs    ),
     .wait3      ( 1'b0      ),
     // Frequency report
     .fave       (           ),

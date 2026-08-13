@@ -29,7 +29,8 @@ localparam SSRIDERS = 0,
 wire        snd_irq, rmrd, rst8, dimmod, dimpol, dma_bsy, psac_cs, psac_bank,
             pal_cs, cpu_we, tilesys_cs, objsys_cs, pcu_cs, cpu_n, enc_done,
             cpu_rnw, vdtac, tile_irqn, tile_nmin, snd_wrn, oaread_en,
-            BGn, riders_brn, riders_bgackn, prot_irqn, riders_cs, objreg_cs, oram_cs;
+            BGn, riders_brn, riders_bgackn, prot_irqn, riders_cs, objreg_cs, oram_cs,
+            ram_cs;
 wire [15:0] pal_dout, oram_dout, prot_dout, oram_din;
 wire [15:0] video_dumpa;
 wire [13:1] oram_addr;
@@ -40,7 +41,7 @@ wire [ 7:0] tilesys_dout, snd2main,
             st_main, st_video;
 wire [ 7:0] platch;
 wire [ 2:0] dim;
-wire [ 1:0] oram_we;
+wire [ 1:0] oram_we, ram_dsn;
 
 wire        tmnt_asn, tmnt_wrn, tmnt_brn, tmnt_bgackn, tmnt_cs, tmnt_dtack_n;
 wire [23:1] tmnt_addr;
@@ -72,8 +73,7 @@ assign tmap_ok   = 1;
 `endif
 
 assign debug_view = debug_mux;
-assign ram_we     = cpu_we & ram_cs;
-assign ram_addr   = main_addr[13:1];
+assign ram_we     = {2{cpu_we & ram_cs}} & ~ram_dsn;
 assign omsb_din   = ram_din[7:0];
 assign oaread_en  = 1'b0; // tmnt2;
 assign video_dumpa= ioctl_addr[15:0]-16'h80; // subtract NVRAM offset
@@ -140,7 +140,6 @@ jtriders_main u_main(
     .ram_dsn        ( ram_dsn       ),
     .ram_dout       ( ram_data      ),
     .ram_cs         ( ram_cs        ),
-    .ram_ok         ( ram_ok        ),
     // cabinet I/O
     .cab_1p         ( cab_1p        ),
     .coin           ( coin          ),
@@ -206,7 +205,7 @@ jtriders_prot u_prot(
     .cpu_we     ( cpu_we        ),
     .din        ( ram_din       ), // = cpu_dout
     .dout       ( prot_dout     ),
-    .ram_we     ( ram_we        ), // includes ram_cs as part of ram_we
+    .ram_we     ( |ram_we       ), // includes ram_cs as part of ram_we
     .dsn        ( ram_dsn       ),
     // DMA
     .objsys_cs  ( objsys_cs     ),
