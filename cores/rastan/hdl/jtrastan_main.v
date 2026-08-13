@@ -147,7 +147,7 @@ wire [ 2:0] FC, IPLn;
 reg         io_cs, out_cs, otport1_cs, inport_cs, dip_cs, gun_cs;
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
-reg         ok_dly;
+wire        ok_dly;
 reg  [ 8:0] opwolf_gun_x, opwolf_gun_y;
 wire [15:0] cpu_dout;
 reg         intn, LVBLl;
@@ -164,6 +164,9 @@ assign IPLn     = { intn, 1'b1, rbisland ? 1'b1 : intn };
 // level 4 for Rainbow Islands (A[3:1] carries the acknowledged level).
 assign VPAn     = !(!ASn && FC==7 && A[3:1]==(rbisland ? 3'd4 : 3'd5) && RnW);
 assign bus_cs   = rom_cs | vram_cs | ram_cs;
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, vram_cs | ram_cs };
+assign ok_in = { rom_ok, ram_ok };
 assign bus_busy = (rom_cs | vram_cs | ram_cs) & ~ok_dly;
 assign bus_legit= vram_cs & ~sdakn;
 // Light-gun offsets come from the header (gun_xoffs/gun_yoffs inputs), derived
@@ -228,7 +231,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= rom_ok | ram_ok;
     cpu_din <= rom_cs    ? rom_data :
                ( ram_cs | vram_cs ) ? ram_dout :
                obj_cs    ? oram_dout :
@@ -241,9 +243,17 @@ always @(posedge clk) begin
                                       {2'd0, cab_1p[0], tilt, service,
                                        joystick1[5], joystick1[4], opwolf_gun_x})) :
                inport_cs ? { 8'hff, cab_dout }  :
-               sn_rd     ? (opwolf ? {4'hf, sn_dout, 8'hff} : {12'hfff, sn_dout}) :
-               16'hffff;
+	               sn_rd     ? (opwolf ? {4'hf, sn_dout, 8'hff} : {12'hfff, sn_dout}) :
+	               16'hffff;
 end
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin

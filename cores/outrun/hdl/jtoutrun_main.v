@@ -126,7 +126,7 @@ wire [15:0] rom_dec, cpu_dout_raw;
 
 reg         io_cs, ppi_cs, adc_wr;
 wire        cpu_RnW, dec_ok;
-reg         vram_ok_dly;
+wire        vram_ok_dly;
 
 reg  [ 7:0] cab_dout, cab_ctrl;
 wire [ 7:0] active, sys_inputs, st_mapper,
@@ -435,9 +435,16 @@ jtoutrun_motor u_motor(
 
 wire bad_cs = ~|{ram_cs, vram_cs, rom_cs, char_cs, pal_cs, objram_cs, sub_cs, io_cs, none_cs} & ~ASn;
 
+jtframe_okdly u_vram_okdly(
+    .rst    ( rst         ),
+    .clk    ( clk         ),
+    .cs     ( vram_cs     ),
+    .ok     ( vram_ok     ),
+    .ok_dly ( vram_ok_dly )
+);
+
 // Data bus input
 always @(posedge clk) begin
-    vram_ok_dly <= vram_ok;
     if(rst) begin
         cpu_din <= 0;
     end else begin

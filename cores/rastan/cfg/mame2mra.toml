@@ -17,7 +17,7 @@ setnames=[ "opwolfb", "jumping", "jumpinga", "jumpingi" ]
 names=[
     { machine="rastan",  names="Slash,Jump" },
     { machine="opwolf", names="Bullet,Grenade" },
-    { machine="rbisland", names="Jump,Rainbow" },
+    { machine="rbisland", names="Rainbow,Jump" },
 ]
 
 # Registers generate cores/rastan/hdl/jtrastan_header.v (named, latched outputs)

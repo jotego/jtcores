@@ -1,0 +1,8 @@
+# skips the RUN&GUN logo and inserts a single coin
+loop
+	1 b1
+	1
+repeat 40
+
+1 coin
+5

@@ -84,7 +84,7 @@ reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
             eep_di, eep_clk, eep_cs, intdma_enb,
             sndon_r, pair_cs;
 reg  [15:0] cpu_din, cab_dout;
-reg         ok_dly;
+wire        ok_dly;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
 wire        dtac_mux, intdma, IPLn1;
 
@@ -95,8 +95,19 @@ wire [23:0] A_full = {A,1'b0};
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign bus_cs   = rom_cs | ram_cs;
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, ram_cs };
+assign ok_in = { rom_ok, ram_ok };
 assign bus_busy = (rom_cs | ram_cs) & ~ok_dly;
 assign BUSn     = ASn | (LDSn & UDSn);
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 assign cpu_we   = ~RnW;
 
@@ -154,7 +165,6 @@ jtframe_edge #(.QSET(0)) u_ff(
 );
 
 always @(posedge clk) begin
-    ok_dly <= rom_ok | ram_ok;
     IPLn <= { intdma | ~IPLn1, IPLn1, intdma & tile_irqn };
 
     HALTn   <= dip_pause & ~rst;
