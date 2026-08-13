@@ -24,6 +24,9 @@
 // turbofrc 64x64 map, layer 1 transparent on pen 15, code[10:0] with one of
 //          eight banks picked by {layer, code[12:11]}, palette code[15:13],
 //          and a single scroll X for the whole frame.
+// karatblz 64x64 map, a THIRD format: code[12:0] with a single bank bit per
+//          layer (gfxbank[Layer]<<13), palette code[15:13], no charbank, and
+//          both layers scrolling from registers - it has no raster RAM.
 
 module jtpspike_scr(
     input               rst,
@@ -34,7 +37,8 @@ module jtpspike_scr(
     input      [ 8:0]   hdump, vdump,
     input               blankn,
 
-    input               two,        // two layer hardware: turbofrc, aerofgt
+    input               two,        // turbofrc/aerofgt tile format and map
+    input               kb,         // karatblz tile format
     input               noraster,   // karatblz: both layers scroll from registers
     input      [ 8:0]   xbias,      // per game, per layer constant
     input               layer,      // 0 or 1, selects the gfx bank group
@@ -81,15 +85,19 @@ assign sorted = {
 // The map is built 64x64. pspikes only has 32 rows, so its row field is one
 // bit narrower and the top address bit is dropped, which also gives it the
 // 256 pixel vertical wrap the real map has
-assign scr_addr = two ? va : { 1'b0, va[10:0] };
+assign scr_addr = two|kb ? va : { 1'b0, va[10:0] };
 
-assign bsel     = two ? { layer, scr_vram[12:11] } : { 2'b00, scr_vram[12] };
+assign bsel     = two ? { layer, scr_vram[12:11] } :
+                  kb  ? { 2'b00, layer }           : { 2'b00, scr_vram[12] };
 assign bank     = gfxbank[{bsel,2'd0}+:4];
 // MAME: tile = (code & 0x7ff) | (gfxbank[bank] << 11), and gfxbank is FOUR
 // bits - turbofrc's gfx1 is 0xa0000 = 20480 tiles and really does use banks
 // 8 and 9, so a 3-bit bank aliases them onto 0 and 1
-assign code     = two ? { bank[3:0], scr_vram[10:0] }
-                           : { 1'b0, bank[1:0], scr_vram[11:0] };
+// MAME karatblz: (code & 0x1fff) | (gfxbank[Layer] << 13), and its gfxbank is
+// a single bit - karatblz_gfxbank_w does setbank(0,0,d&1) / setbank(1,1,d>>3)
+assign code     = two ? { bank[3:0], scr_vram[10:0] }   :
+                  kb  ? { 1'b0, bank[0], scr_vram[12:0] }
+                      : { 1'b0, bank[1:0], scr_vram[11:0] };
 // pspikes reads one raster word per line. turbofrc layer 0 takes a single
 // value from raster word 7 - every entry holds the same number - and layer 1
 // uses its own register.
@@ -103,8 +111,10 @@ assign code     = two ? { bank[3:0], scr_vram[10:0] }
 // Do NOT subtract scrolly here. turbofrc/aerofgt use rasterram[7] for every
 // row; karatblz has no raster RAM.
 assign ras_addr = { 3'd0, two ? 8'd7 : vdump[7:0] };
-assign scrx_eff = !two ? ras_dout[8:0] :
-                  (layer | noraster) ? scrx - xbias : ras_dout[8:0] - xbias;
+assign scrx_eff = noraster ? scrx - xbias          :  // karatblz, registers only
+                  !two     ? ras_dout[8:0]         :  // pspikes, one word per line
+                  layer    ? scrx - xbias             // turbofrc layer 1
+                           : ras_dout[8:0] - xbias;   // turbofrc layer 0, word 7
 assign scry_eff = (two & ~noraster) ? scry + 9'd2 : scry;
 assign rom_addr = { 2'd0, tile_addr };
 
@@ -133,8 +143,8 @@ jtframe_scroll #(
     .vram_addr  ( va        ),
 
     .code       ( code      ),
-    .pal        ( two ? { 3'd0, scr_vram[15:13] }
-                           : { charbank, scr_vram[15:13] } ),
+    .pal        ( two|kb ? { 3'd0, scr_vram[15:13] }
+                              : { charbank, scr_vram[15:13] } ),
     .hflip      ( 1'b0      ),
     .vflip      ( 1'b0      ),
 

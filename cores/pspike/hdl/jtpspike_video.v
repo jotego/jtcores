@@ -104,7 +104,11 @@ wire [8:0] h_last;
 // per layer scroll bias and shifts the whole picture along the scanline
 // Visible window start differs per game: pspikes x=4, turbofrc x=0,
 // aerofgtb x=12 (set_visarea(0*8+12,...)). The other 10 is the tilemap pipeline
-wire       two      = turbofrc | aerofgt;
+wire       two      = turbofrc | aerofgt;   // turbofrc tile format and map
+// karatblz also has two tile layers and two sprite chips - screen_update_karatblz
+// draws tilemap 0 and 1 and both spr devices - but its tile format is its own,
+// so the enables cannot reuse `two`
+wire       dual     = two | karatblz;
 // Sprite tile-code mask: declared ROM_REGION size / 128 - 1. See jtpspike_objscan
 wire [14:0] cmask0 = karatblz ? 15'h7fff : turbofrc ? 15'h3fff : 15'h1fff;
 wire [14:0] cmask1 = karatblz ? 15'h1fff : 15'h0fff;
@@ -222,6 +226,7 @@ jtpspike_scr u_scr(
     .vdump      ( vdump     ),
     .blankn     ( gfx_en[0] ),
     .two        ( two       ),
+    .kb         ( karatblz  ),
     .noraster   ( karatblz  ),
     .xbias      ( xb0       ),
     .layer      ( 1'b0      ),
@@ -249,8 +254,9 @@ jtpspike_scr u_scr1(
     .flip       ( flip      ),
     .hdump      ( hdump_scr ),
     .vdump      ( vdump     ),
-    .blankn     ( gfx_en[1] & two ),
+    .blankn     ( gfx_en[1] & dual ),
     .two        ( two       ),
+    .kb         ( karatblz  ),
     .noraster   ( karatblz  ),
     .xbias      ( xb1       ),
     .layer      ( 1'b1      ),
@@ -300,7 +306,7 @@ jtpspike_obj u_obj1(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .hs         ( HS        ),
-    .en         ( two & gfx_en[3] ),
+    .en         ( dual & gfx_en[3] ),
     .flip       ( flip      ),
     .hdump      ( hdump_obj ),
     .vrender    ( vrender   ),
