@@ -70,6 +70,38 @@ function [8:0] vval(input [7:0] r); vval = { r[7:0], 1'd0 } + 9'd2; endfunction
 reg [8:0] hb_start, hs_start, hs_end, h_lastr, vb_start, vs_start, vs_end, v_last;
 assign    h_last = h_lastr;
 
+// Candidate table, straight off the raw registers
+wire [8:0] nhb = hval(regs[ 0]) - 9'd1,   // last visible pixel
+           nhs = hval(regs[ 1]),
+           nhe = hval(regs[ 2]),
+           nhl = hval(regs[ 3]) - 9'd1,
+           nvb = vval(regs[ 8]) - 9'd1,   // last visible line
+           nvs = vval(regs[ 9]),
+           nve = vval(regs[10]),
+           nvl = vval(regs[11]) - 9'd1;
+
+// Every counter event below is an equality, and H only ever sweeps 0..h_last,
+// vdump only 0..v_last. An edge programmed beyond its total is therefore never
+// reached: the vertical counter stops, HS and VS stop, and because this latch
+// is itself gated on those events nothing can ever restore it - the module
+// wedges until reset. Reject such a table and keep the previous one.
+wire tbl_ok = nhb<=nhl && nhs<=nhl && nhe<=nhl && nhs<nhe &&
+              nvb<=nvl && nvs<=nvl && nve<=nvl && nvs<nve;
+
+// The CPU writes the eight registers one byte at a time, so a latch landing
+// mid-sequence still snapshots a mix of old and new bytes. tbl_ok rejects the
+// mixes that would stop the counters, but belt and braces: if the normal latch
+// point has not been seen for ~2 frames the table is reloaded anyway, so no
+// combination of writes can leave the timing dead.
+reg  [17:0] wdog;
+wire        tick_norm = H==hs_start && vdump==vs_start;
+wire        do_latch  = tick_norm | (&wdog);
+
+always @(posedge clk) begin
+    if( rst ) wdog <= 0;
+    else if( pxl_cen ) wdog <= do_latch ? 18'd0 : wdog + 18'd1;
+end
+
 always @(posedge clk) begin
     if( rst ) begin
         // regs[] are loaded this same cycle, so take the defaults directly
@@ -81,15 +113,15 @@ always @(posedge clk) begin
         vs_start <= aerofgt ? 9'd226 : 9'd244;
         vs_end   <= aerofgt ? 9'd230 : 9'd248;
         v_last   <= aerofgt ? 9'd249 : 9'd255;
-    end else if( pxl_cen && H==hs_start && vdump==vs_start ) begin
-        hb_start <= hval(regs[ 0]) - 9'd1;    // last visible pixel
-        hs_start <= hval(regs[ 1]);
-        hs_end   <= hval(regs[ 2]);
-        h_lastr  <= hval(regs[ 3]) - 9'd1;
-        vb_start <= vval(regs[ 8]) - 9'd1;    // last visible line
-        vs_start <= vval(regs[ 9]);
-        vs_end   <= vval(regs[10]);
-        v_last   <= vval(regs[11]) - 9'd1;
+    end else if( pxl_cen && do_latch && tbl_ok ) begin
+        hb_start <= nhb;
+        hs_start <= nhs;
+        hs_end   <= nhe;
+        h_lastr  <= nhl;
+        vb_start <= nvb;
+        vs_start <= nvs;
+        vs_end   <= nve;
+        v_last   <= nvl;
     end
 end
 
