@@ -444,3 +444,8 @@ Cheapest first, all reusing what exists:
 Hand over renders and audio, never grade them - he judges. No speculative sims. Measure
 before theorising: dumping MAME data found four of five sprite bugs, staring at frames
 found none.
+
+
+## Open task: SDRAM bank re-layout
+
+See doc/TASK_bank_relayout.md - self-contained prompt.

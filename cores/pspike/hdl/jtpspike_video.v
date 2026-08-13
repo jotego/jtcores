@@ -111,7 +111,10 @@ wire       two      = turbofrc | aerofgt;
 // MAME's per-layer scroll bias (-11/-7, -8/-4, +1 on aerofgtb) is applied
 // separately in _scr.v as xb0/xb1. The sprite chip's own x offset comes from
 // vsystem_spr2 set_offsets, which ONLY aerofgtb sets, to (3,-1).
-localparam [8:0] P_SCR = 9'd10,   // tilemap fetch pipeline
+`ifndef PSCR
+ `define PSCR 10
+`endif
+localparam [8:0] P_SCR = `PSCR,   // tilemap fetch pipeline (sweepable)
                  P_OBJ = 9'd1;    // sprite line-buffer readout
 wire [8:0] visx     = karatblz ? 9'd8 : aerofgt ? 9'd12 : turbofrc ? 9'd0 : 9'd4;
 wire [8:0] xoffs    = aerofgt ? 9'd3 : 9'd0;          // MAME set_offsets x
@@ -152,6 +155,11 @@ assign o1_op = ~&obj1_pxl[3:0];
 // sprites with pri==1 - layer 1 masks the low priority sprites
 // turbofrc sprite pixel: pal[6:0] is {pri, objbank, colour}, and only the
 // four colour bits index its 256 entry block
+// MAME GFXDECODE colorbase, 11-bit index: turbofrc/aerofgt/karatblz have a
+// 1024-entry palette with tiles at 0 and 256, spr1 at 512 ({3'b010,..}) and
+// spr2 at 768 ({3'b011,..}). pspikes is the odd one out: 2048 entries with
+// sprites at 1024 ({1'b1,..}). These are correct - verified against
+// GFXDECODE_ENTRY colorbases, do not "fix" them.
 wire [10:0] o0_idx = { 3'b010, obj_pxl [7:4], obj_pxl [3:0] };
 wire [10:0] o1_idx = { 3'b011, obj1_pxl[7:4], obj1_pxl[3:0] };
 
@@ -159,6 +167,13 @@ wire [10:0] kb_pxl = o1_op ? o1_idx :
                      o0_op ? o0_idx :
                      s1_op ? { 1'b0, 2'b01, scr1_pxl[7:0] } :
                              { 1'b0, 2'b00, scr_pxl[7:0] };
+`ifdef SIM_ONLY_SCR0
+assign pxl = { 1'b0, 2'b00, scr_pxl[7:0] };
+`elsif SIM_ONLY_SCR1
+assign pxl = s1_op ? { 1'b0, 2'b01, scr1_pxl[7:0] } : 11'd0;
+`elsif SIM_ONLY_OBJ
+assign pxl = o1_op ? o1_idx : o0_op ? o0_idx : 11'd0;
+`else
 assign pxl = karatblz ? kb_pxl :
              !two ? ( o0_op ? { 1'b1, obj_pxl[9:0] } : { 1'b0, scr_pxl } ) :
              ( o1_op & obj1_pxl[10] ) ? o1_idx :
@@ -167,6 +182,7 @@ assign pxl = karatblz ? kb_pxl :
                o1_op                  ? o1_idx :
                o0_op                  ? o0_idx :
                                         { 1'b0, 2'b00, scr_pxl[7:0] };
+`endif
 
 jtpspike_gga u_gga(
     .rst        ( rst       ),

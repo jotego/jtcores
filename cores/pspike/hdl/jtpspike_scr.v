@@ -59,7 +59,7 @@ module jtpspike_scr(
 
 wire [16:0] tile_addr;
 wire [11:0] va;
-wire [13:0] code;
+wire [14:0] code;
 wire [ 3:0] bank;
 wire [ 2:0] bsel;
 wire [ 8:0] scrx_eff, scry_eff;
@@ -85,8 +85,11 @@ assign scr_addr = two ? va : { 1'b0, va[10:0] };
 
 assign bsel     = two ? { layer, scr_vram[12:11] } : { 2'b00, scr_vram[12] };
 assign bank     = gfxbank[{bsel,2'd0}+:4];
-assign code     = two ? { bank[2:0], scr_vram[10:0] }
-                           : { bank[1:0], scr_vram[11:0] };
+// MAME: tile = (code & 0x7ff) | (gfxbank[bank] << 11), and gfxbank is FOUR
+// bits - turbofrc's gfx1 is 0xa0000 = 20480 tiles and really does use banks
+// 8 and 9, so a 3-bit bank aliases them onto 0 and 1
+assign code     = two ? { bank[3:0], scr_vram[10:0] }
+                           : { 1'b0, bank[1:0], scr_vram[11:0] };
 // pspikes reads one raster word per line. turbofrc layer 0 takes a single
 // value from raster word 7 - every entry holds the same number - and layer 1
 // uses its own register.
@@ -108,10 +111,12 @@ assign rom_addr = { 2'd0, tile_addr };
 jtframe_scroll #(
     .SIZE       ( 8         ),
     .VA         ( 12        ),
-    .CW         ( 14        ),
+    .CW         ( 15        ),
     .PW         ( 10        ),
     .MAP_HW     ( 9         ),  // 64 tiles across
     .MAP_VW     ( 9         ),  // 64 down, masked to 32 for pspikes
+    .HLOOP      ( 0         ),  // folds blanking into
+                                 // hdfix[8:7]=11 so the end-of-blanking fetch fires
     .LATCH_SCRX ( 1         )
 ) u_scroll(
     .rst        ( rst       ),

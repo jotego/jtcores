@@ -182,11 +182,15 @@ always @(posedge clk) begin
             0: ;                            // idle until the next HS
             1: st <= 2;                     // BRAM latency
             2: st <= 3;
+            // MAME clamps the list pointer to 0x1FC and then loops while
+            // start != first-4, so a pointer above LAST (0x1F8) means an EMPTY
+            // list and nothing is drawn. Clamping to LAST instead draws slot
+            // 0x1F8 once - one stale sprite left over from the previous scene.
             3: begin
-                first <= {objr_dout[6:0],2'd0} > LAST ? LAST : {objr_dout[6:0],2'd0};
+                first <= {objr_dout[6:0],2'd0};
                 pass  <= 0;
-                slot  <= {objr_dout[6:0],2'd0} > LAST ? LAST : {objr_dout[6:0],2'd0};
-                st    <= 4;
+                slot  <= {objr_dout[6:0],2'd0};
+                st    <= {objr_dout[6:0],2'd0} > LAST ? 5'd0 : 5'd4;
             end
             // Read the four attribute words. The RAM registers its output, so
             // the word for the address issued in state N lands in state N+2
