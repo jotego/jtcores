@@ -105,6 +105,9 @@ wire [8:0] h_last;
 // Visible window start differs per game: pspikes x=4, turbofrc x=0,
 // aerofgtb x=12 (set_visarea(0*8+12,...)). The other 10 is the tilemap pipeline
 wire       two      = turbofrc | aerofgt;
+// Sprite tile-code mask: declared ROM_REGION size / 128 - 1. See jtpspike_objscan
+wire [14:0] cmask0 = karatblz ? 15'h7fff : turbofrc ? 15'h3fff : 15'h1fff;
+wire [14:0] cmask1 = karatblz ? 15'h1fff : 15'h0fff;
 // Each engine is fed an hdump running ahead of H by its own pipeline depth
 // plus the game's visible-window origin, from MAME set_visarea:
 //   pspikes 4 (0*8+4)  turbofrc 0 (0*8)  karatblz 8 (1*8)  aerofgtb 12 (0*8+12)
@@ -278,6 +281,7 @@ jtpspike_obj u_obj(
     .objr_addr  ( objr_addr[9:1] ),
     .objr_dout  ( objr_dout ),
     .wide_lut   ( karatblz  ),
+    .cmask      ( cmask0    ),
     .objl_addr  ( objl_addr ),
     .objl_dout  ( objl_dout ),
     .rom_addr   ( obj0_addr ),
@@ -303,6 +307,7 @@ jtpspike_obj u_obj1(
     .objr_addr  ( objr1_addr[9:1] ),
     .objr_dout  ( objr1_dout),
     .wide_lut   ( karatblz  ),
+    .cmask      ( cmask1    ),
     .objl_addr  ( objl1_addr),
     .objl_dout  ( objl1_dout),
     .rom_addr   ( obj1_raw  ),

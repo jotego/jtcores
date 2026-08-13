@@ -26,14 +26,21 @@ JTFRAME_JOY_RLDU
 JTFRAME_HEADER=8
 
 
-SND_START=0x0C0000
-JTFRAME_BA1_START=0x100000
-PCMB_START=0x200000
-SPRLUT_START=0x280000
-JTFRAME_BA2_START=0x300000
-SCR1_START=0x400000
-JTFRAME_BA3_START=0x600000
-OBJ1_START=0xA00000
+# One heavy gfx client per bank, so no bank serves two engines that fetch on
+# every visible line. Each bank's slot 0 (absolute priority, see
+# jtframe_rom_2slots) is the gfx engine, except bank 0 where the 68000 keeps it.
+#   bank0  maincpu 000000   scr0/gfx1      100000
+#   bank1  obj1/gfx4 200000 soundbank      300000
+#   bank2  pcma    400000   obj0/spritegfx 500000
+#   bank3  scr1/gfx2 800000 pcmb           900000
+# Sizes are the family maxima: maincpu/scr0/scr1 turbofrc, obj0/obj1/pcmb karatblz
+SCR0_START=0x100000
+JTFRAME_BA1_START=0x200000
+SND_START=0x300000
+JTFRAME_BA2_START=0x400000
+OBJ0_START=0x500000
+JTFRAME_BA3_START=0x800000
+PCMB_START=0x900000
 
 
 # Debug options

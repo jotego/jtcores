@@ -53,13 +53,14 @@ module jtpspike_objscan(
     input      [15:0] objr_dout,
     // tile code lookup RAM
     input             wide_lut,   // karatblz LUTs are 64kB, others 16kB
+    input      [14:0] cmask,      // tile-code mask, gfx region size / 128 - 1
     output     [14:0] objl_addr,
     input      [15:0] objl_dout,
 
     // jtframe_objdraw
     output reg        draw,
     input             busy,
-    output     [12:0] code,
+    output     [14:0] code,
     output reg [ 8:0] xpos,
     output reg [ 3:0] ysub,
     output reg [ 7:0] hzoom,
@@ -117,7 +118,17 @@ always @(negedge hs) if( $time > 200000000 )
     $display("%m zoom nibble x=%0h..%0h y=%0h..%0h -> zx=%0d..%0d hzoom=%0d",
         zxmin, zxmax, zymin, zymax, 6'd32-{2'd0,zxmax}, 6'd32-{2'd0,zxmin}, hzoom);
 `endif
-assign code      = objl_dout[12:0];
+// MAME reduces the lookup value with code % gfx->elements(), where elements is
+// the DECLARED ROM_REGION size / 128, not the bytes actually loaded. Every
+// region here is a power of two, so the remainder is a plain mask - but the
+// width is per chip and per game, and 13 bits truncates turbofrc and karatblz:
+//   chip 0  pspikes gfx2 0x100000 /128 = 8192   -> 13
+//           turbofrc spritegfx 0x200000  = 16384 -> 14  (only 0x180000 loaded)
+//           aerofgt  spritegfx 0x100000  = 8192  -> 13
+//           karatblz spritegfx 0x400000  = 32768 -> 15  (only 0x240000 loaded)
+//   chip 1  turbofrc/aerofgt gfx4 0x80000 = 4096 -> 12
+//           karatblz gfx4 0x100000        = 8192 -> 13
+assign code      = objl_dout[14:0] & cmask;
 // the pri bit rides along with the pixel so the mixer can use it
 assign pal       = { pri, objbank, w2[3:0] };
 

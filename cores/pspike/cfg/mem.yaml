@@ -1,9 +1,9 @@
 params:
   # offsets are relative to each SDRAM bank start and divided by two
-  - { name: SND_OFFSET,  value: "`SND_START>>1" }
-  - { name: PCMB_OFFSET, value: "(`PCMB_START-`JTFRAME_BA1_START)>>1" }
-  - { name: SCR1_OFFSET, value: "(`SCR1_START-`JTFRAME_BA2_START)>>1" }
-  - { name: OBJ1_OFFSET, value: "(`OBJ1_START-`JTFRAME_BA3_START)>>1" }
+  - { name: SCR0_OFFSET, value: "`SCR0_START>>1" }
+  - { name: SND_OFFSET,  value: "(`SND_START -`JTFRAME_BA1_START)>>1" }
+  - { name: OBJ0_OFFSET, value: "(`OBJ0_START-`JTFRAME_BA2_START)>>1" }
+  - { name: PCMB_OFFSET, value: "(`PCMB_START-`JTFRAME_BA3_START)>>1" }
 
 clocks:
   clk:
@@ -21,40 +21,43 @@ audio:
   channels:
     - { name: fm, data_width: 16, stereo: true, rsum: 10k }
 
+# Slot 0 of each bank has absolute priority over slot 1 (jtframe_rom_2slots), so
+# the gfx engine is listed first everywhere except bank 0: the 68000 is the one
+# client whose added latency changes game timing.
 sdram:
   banks:
     - buses:
       - name: main
         addr_width: 20
         data_width: 16
+      - name: scr0
+        addr_width: 20
+        data_width: 32
+        offset: SCR0_OFFSET
+    - buses:
+      - name: obj1
+        addr_width: 21
+        data_width: 32
       - name: snd
         addr_width: 17
         data_width: 8
         offset: SND_OFFSET
     - buses:
+      - name: obj0
+        addr_width: 22
+        data_width: 32
+        offset: OBJ0_OFFSET
       - name: pcma
         addr_width: 20
         data_width: 8
+    - buses:
+      - name: scr1
+        addr_width: 21
+        data_width: 32
       - name: pcmb
         addr_width: 19
         data_width: 8
         offset: PCMB_OFFSET
-    - buses:
-      - name: scr0
-        addr_width: 20
-        data_width: 32
-      - name: scr1
-        addr_width: 21
-        data_width: 32
-        offset: SCR1_OFFSET
-    - buses:
-      - name: obj0
-        addr_width: 22
-        data_width: 32
-      - name: obj1
-        addr_width: 21
-        data_width: 32
-        offset: OBJ1_OFFSET
 
 bram:
   - name: ram

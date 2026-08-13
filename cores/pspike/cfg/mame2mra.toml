@@ -44,28 +44,30 @@ regions = [
     # maincpu: pspikes/turbofrc ROM_LOAD16_WORD_SWAP, aerofgt ROM_LOAD16_BYTE
     { setnames=["pspikes", "pspikesk", "pspikesu", "svolly91", "turbofrc", "turbofrco", "turbofrcu", "turbofrcua"], name="maincpu", no_offset=true },
     { setnames=["aerofgtb", "aerofgtc", "sonicwi"], name="maincpu", width=16, reverse=true, no_offset=true },
+    { name="gfx1", start="SCR0_START" },
     { name="soundbank", start="SND_START" },
-    { name="ymsnd:adpcma", rename="pcma", start="JTFRAME_BA1_START" },
+    { name="ymsnd:adpcma", rename="pcma", start="JTFRAME_BA2_START" },
     { name="ymsnd:adpcmb", rename="pcmb", start="PCMB_START" },
-    { name="gfx1", start="JTFRAME_BA2_START" },
     # pspikes: gfx2 IS the sprite ROM. turbofrc: gfx2 is the second tile layer
     # and the sprites live in spritegfx / gfx4
-    { setnames=["pspikes", "pspikesk", "pspikesu", "svolly91"], name="gfx2", start="JTFRAME_BA3_START", width=32 },
-    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua", "aerofgtb", "aerofgtc", "sonicwi", "karatblz", "karatblza", "karatblzt", "karatblzu", "karatblzj"], name="gfx2", start="SCR1_START" },
+    { setnames=["pspikes", "pspikesk", "pspikesu", "svolly91"], name="gfx2", start="OBJ0_START", width=32 },
+    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua", "aerofgtb", "aerofgtc", "sonicwi", "karatblz", "karatblza", "karatblzt", "karatblzu", "karatblzj"], name="gfx2", start="JTFRAME_BA3_START" },
     # sprites: turbofrc ROM_LOAD32_WORD, aerofgt ROM_LOAD32_WORD_SWAP
-    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua", "karatblz", "karatblza", "karatblzt", "karatblzu", "karatblzj"], name="spritegfx", start="JTFRAME_BA3_START", width=32 },
-    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua", "karatblz", "karatblza", "karatblzt", "karatblzu", "karatblzj"], name="gfx4", start="OBJ1_START", width=32 },
-    { setnames=["aerofgtb", "aerofgtc", "sonicwi"], name="spritegfx", start="JTFRAME_BA3_START", width=32, parts=[
+    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua", "karatblz", "karatblza", "karatblzt", "karatblzu", "karatblzj"], name="spritegfx", start="OBJ0_START", width=32 },
+    { setnames=["turbofrc", "turbofrco", "turbofrcu", "turbofrcua", "karatblz", "karatblza", "karatblzt", "karatblzu", "karatblzj"], name="gfx4", start="JTFRAME_BA1_START", width=32 },
+    { setnames=["aerofgtb", "aerofgtc", "sonicwi"], name="spritegfx", start="OBJ0_START", width=32, parts=[
         { name="it-19-04", map="0012" },
         { name="it-19-05", map="1200" } ] },
-    { setnames=["aerofgtb", "aerofgtc", "sonicwi"], name="gfx4", start="OBJ1_START", width=32, parts=[
+    { setnames=["aerofgtb", "aerofgtc", "sonicwi"], name="gfx4", start="JTFRAME_BA1_START", width=32, parts=[
         { name="g27", map="0012" },
         { name="g26", map="1200" } ] },
     { name="plds", skip=true },
 ]
 
-# the sort key is the region name AFTER rename
+# the sort key is the region name AFTER rename. Must be ascending by start for
+# EVERY set: pspikes has no spritegfx and its gfx2 sits at OBJ0_START, so gfx2
+# has to come after pcma and before pcmb
 order = [
-    "maincpu", "soundbank", "pcma", "pcmb",
-    "gfx1", "gfx2", "spritegfx", "gfx4"
+    "maincpu", "gfx1", "gfx4", "soundbank",
+    "pcma", "spritegfx", "gfx2", "pcmb"
 ]

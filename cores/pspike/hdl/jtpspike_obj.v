@@ -37,6 +37,7 @@ module jtpspike_obj(
     input      [15:0]   objr_dout,
     // tile lookup RAM
     input               wide_lut,
+    input      [14:0]   cmask,
     output     [15:1]   objl_addr,
     input      [15:0]   objl_dout,
 
@@ -48,8 +49,8 @@ module jtpspike_obj(
     output     [10:0]   pxl
 );
 
-wire [19:2] draw_addr;
-wire [12:0] code, lut_addr;
+wire [21:2] draw_addr;
+wire [14:0] code, lut_addr;
 wire [ 8:0] xpos;
 wire [ 7:0] hzoom;
 wire [ 6:0] pal;
@@ -61,7 +62,7 @@ assign objl_addr = lut_addr;
 // 16 rows apart. gfx_16x16x4_packed_lsb is row major - one row is 8 bytes, so
 // the halves are adjacent and the row is the upper field: {code, Y, H}.
 // Without this the tile comes out in scrambled quarters
-assign rom_addr  = { 2'd0, draw_addr[19:7], draw_addr[5:2], draw_addr[6] };
+assign rom_addr  = { draw_addr[21:7], draw_addr[5:2], draw_addr[6] };
 
 jtpspike_objscan u_scan(
     .rst        ( rst       ),
@@ -75,6 +76,8 @@ jtpspike_objscan u_scan(
 
     .objr_addr  ( objr_addr ),
     .objr_dout  ( objr_dout ),
+    .wide_lut   ( wide_lut  ),
+    .cmask      ( cmask     ),
     .objl_addr  ( lut_addr  ),
     .objl_dout  ( objl_dout ),
 
@@ -91,7 +94,7 @@ jtpspike_objscan u_scan(
 );
 
 jtframe_objdraw #(
-    .CW         ( 13        ),
+    .CW         ( 15        ),
     .PW         ( 11        ),
     .ZW         ( 8         ),
     .ZI         ( 6         ),
