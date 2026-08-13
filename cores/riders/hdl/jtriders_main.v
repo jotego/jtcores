@@ -383,6 +383,7 @@ jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
 
 // The board seems to control DTACKn with combinational logic
 // DTACKn follows ASn with a delay of ~15.6ns
+wire slow_mem = rom_cs | ram_cs;
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -397,7 +398,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
     .DTACKn     ( DTACKn    ),
-    .wait2      ( ram_cs    ),  // RAM of that age didn't operate at 16MHz
+    .wait2      ( slow_mem  ),  // RAM of that age didn't operate at 16MHz
     .wait3      ( 1'b0      ),
     // Frequency report
     .fave       (           ),
