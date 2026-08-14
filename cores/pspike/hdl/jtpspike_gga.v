@@ -32,15 +32,7 @@
 module jtpspike_gga(
     input             rst,
     input             clk,
-    // The GGA runs off its own 14.318181MHz crystal, divided by two. jtframe's
-    // JTFRAME_PXLCLK only offers clk/6 or clk/8, and with this PLL neither is
-    // 7.159MHz - clk/8 gives 6.671MHz, i.e. 57.2Hz instead of 61.31Hz. Derive
-    // the real rate with a fractional cen instead: 53365384*11/41 = 14.3175MHz
-    // for pxl2_cen and half that for pxl_cen, 45ppm off the crystal.
-    // The cen is not uniformly spaced, so a CRT will see slight jitter, but the
-    // game speed and every fetch rate are correct
-    output            pxl_cen,
-    output            pxl2_cen,
+    input             pxl_cen,
     input             aerofgt,    // picks the reset default table
 
     // CPU write port. Data is the low byte of the 68000 word (umask 00ff)
@@ -60,14 +52,6 @@ module jtpspike_gga(
     output reg        LVBL,
     output reg        HS,
     output reg        VS
-);
-
-jtframe_frac_cen #(.WC(6),.W(2)) u_pxlcen(
-    .clk    ( clk       ),
-    .n      ( 6'd11     ),
-    .m      ( 6'd41     ),
-    .cen    ( { pxl_cen, pxl2_cen } ),
-    .cenb   (           )
 );
 
 reg  [7:0] regs[0:15];

@@ -22,8 +22,7 @@
 module jtpspike_video(
     input               rst,
     input               clk,
-    output              pxl_cen,    // generated in the GGA, see jtpspike_gga.v
-    output              pxl2_cen,
+    input               pxl_cen,
 
     input               turbofrc, aerofgt, karatblz,
     // C7-01 GGA write port
@@ -198,7 +197,6 @@ jtpspike_gga u_gga(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .pxl2_cen   ( pxl2_cen  ),
     .aerofgt    ( aerofgt   ),
     .cs         ( gga_cs    ),
     .we         ( gga_we    ),
