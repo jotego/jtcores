@@ -84,7 +84,7 @@ wire [W-1:0] num2 = { num, 1'b0 }; // num x 2
 wire         recover, delayed;
 wire         over = cencnt>den-num2;
 reg  [CW:0] cencnt_nx=0;
-reg         risefall=0, wait1;
+reg         risefall=0, wait1, ASn_l;
 
 `ifdef SIMULATION
     // This is needed to prevent X's at the start of simulation
@@ -94,6 +94,10 @@ reg         risefall=0, wait1;
     // Not needed in synthesis
     wire rstl=0;
 `endif
+
+always @(posedge clk) begin
+    ASn_l <= ASn;
+end
 
 always @(posedge clk) begin : dtack_gen
     if( rst ) begin
@@ -106,12 +110,14 @@ always @(posedge clk) begin : dtack_gen
                // is not enough on Rastan
             DTACKn <= 1;
             wait1  <= 1; // gives a clock cycle to bus_busy to toggle
-            waitsh <= {wait3,wait2};
-        end else if( !ASn && (cpu_cen || WAIT1==0) ) begin
-            wait1 <= 0;
-            if( cpu_cen ) waitsh <= waitsh>>1;
-            if( waitsh==0 && !wait1 ) begin
-                DTACKn <= DTACKn && bus_cs && bus_busy;
+        end else if( !ASn ) begin
+            if(ASn_l) waitsh <= {wait3,wait2};
+            if( cpu_cen || WAIT1==0 ) begin
+                wait1 <= 0;
+                if( cpu_cen ) waitsh <= waitsh>>1;
+                if( waitsh==0 && !wait1 ) begin
+                    DTACKn <= DTACKn && bus_cs && bus_busy;
+                end
             end
         end
     end

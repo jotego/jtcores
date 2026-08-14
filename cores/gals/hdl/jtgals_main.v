@@ -91,7 +91,8 @@ wire        irq3_clr, irq5_clr, irq3_trig, irq5_trig, vdump32;
 wire [15:0] dsw1_dout, dsw2_dout, system_dout, calc_dout;
 reg         fg_cs, bg_cs, pal_cs, objram_cs, objaux_cs,
             dsw1_cs, dsw2_cs, system_cs, calc_cs;
-reg         lvbl_l, wdog_rst, main_rst, ok_dly;
+reg         lvbl_l, wdog_rst, main_rst;
+wire        ok_dly;
 reg  [ 7:0] wdog_frame_cnt;
 
 assign rom_addr      = A[22:1];
@@ -102,6 +103,9 @@ assign bus_n         = as_n | (lds_n & uds_n);
 assign oki_wr        = oki_cs && !wr_n && !lds_n;
 assign oki_bank_we   = !as_n && A[23:1] == 23'h480000 && !wr_n;
 assign bus_cs        = rom_cs | ram_cs;
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, ram_cs };
+assign ok_in = { rom_ok, ram_ok };
 assign bus_busy      = (rom_cs | ram_cs) && !ok_dly;
 assign int_ack       = fc == 3'b111 && !as_n;
 assign vpa_n         = !int_ack;
@@ -168,7 +172,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= rom_ok | ram_ok;
     cpu_din <= rom_cs    ? rom_data :
                fg_cs     ? fg_dout :
                ram_cs    ? ram_data :
@@ -180,9 +183,17 @@ always @(posedge clk) begin
                dsw2_cs   ? dsw2_dout :
                system_cs ? system_dout :
                oki_cs    ? { 8'hff, oki_dout } :
-               calc_cs   ? calc_dout :
-               16'hffff;
+	               calc_cs   ? calc_dout :
+	               16'hffff;
 end
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 always @(posedge clk) begin
     lvbl_l   <= lvbl;

@@ -58,7 +58,7 @@ wire        bus_cs, bus_busy, vdtackn;
 wire        irq1n, irq2n, irq4n, rst_cpu, lvbln;
 wire        irq1_clr, irq2_clr, irq4_clr, BUSn;
 reg  [15:0] cpu_din;
-reg         ok_dly;
+wire        ok_dly;
 reg         irqmask_cs, ram_cs, prog_dec_cs, vid_dec_cs, sh_cs;
 reg  [ 2:0] irq_mask;
 
@@ -78,6 +78,9 @@ assign gchar_we  = ~RnW;
 assign cpu_we    = ~RnW;
 
 assign bus_cs    = rom_cs | ram_cs | tile_cs | obj_cs | gchar_cs | gfx_cs | sh_cs | irqmask_cs;
+wire [2:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, gchar_cs, gfx_cs };
+assign ok_in = { rom_ok, gchar_ok, gfx_ok };
 assign bus_busy  = (rom_cs   & ~ok_dly)   |
                    (gchar_cs & ~ok_dly)   |
                    (gfx_cs   & ~ok_dly)   |
@@ -128,7 +131,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= rom_ok | gchar_ok | gfx_ok;
     cpu_din <= rom_cs   ? rom_dout            :
                ram_cs   ? ram_dout            :
                sh_cs    ? sh_dout             :
@@ -138,6 +140,14 @@ always @(posedge clk) begin
                gfx_cs   ? gfx_data            :
                16'hffff;
 end
+
+jtframe_okdly #(.W(3)) u_okdly(
+    .rst    ( rst_cpu ),
+    .clk    ( clk     ),
+    .cs     ( ok_cs   ),
+    .ok     ( ok_in   ),
+    .ok_dly ( ok_dly  )
+);
 
 always @(posedge clk, posedge rst_cpu) begin
     if( rst_cpu ) begin

@@ -58,6 +58,7 @@ SIMULATOR_EXTRA=
 # Arguments passed to the generated simulation executable.
 RUNTIME_ARGS=()
 CABINET_INPUTS=
+TRACE_FROM_COMMAND_LINE=
 
 # sed and stat are different for MacOS and GNU
 if [ `uname` = Darwin ]; then
@@ -103,6 +104,7 @@ case "$1" in
     -w | -deep)
         add_macro DUMP
         DUMP=1
+        TRACE_FROM_COMMAND_LINE=1
         if [ $1 = "-deep" ]; then add_macro DEEPDUMP; fi
         if [[ $2 =~ ^[0-9]+$ ]]; then
             # you can specify at which frame the dumping starts
@@ -264,6 +266,10 @@ esac
     shift
     ARGNUMBER=$((ARGNUMBER+1))
 done
+
+if [ -n "$TRACE_FROM_COMMAND_LINE" ]; then
+    RUNTIME_ARGS+=(--trace-command-line)
+fi
 
 if [ -z "$TARGET" ]; then
     set_sidi128_as_target

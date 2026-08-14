@@ -1,5 +1,4 @@
 params:
-  - { name: RAM_OFFSET,   value: "22'h100000" }
   - { name: PCM_OFFSET,   value: "22'h020000>>1" }
   - { name: PSC_OFFSET,   value: "(`PSC_START-`JTFRAME_BA3_START)>>1" }
   - { name: PSCMAP_OFFSET,value: "(`PSCMAP_START-`JTFRAME_BA3_START)>>1" }
@@ -20,11 +19,6 @@ audio:
 sdram:
   banks:
     - buses:
-        - name: ram
-          addr_width: 14
-          data_width: 16
-          offset: RAM_OFFSET
-          rw: true
         - name: main
           addr_width: 20
           data_width: 16
@@ -59,6 +53,14 @@ sdram:
           data_width: 16
           offset: PSCMAP_OFFSET
 bram:
+  # Main CPU work RAM
+  - name: ram
+    addr_width: 14
+    data_width: 16
+    rw: true
+    addr: main_addr[13:1]
+    din: ram_din
+    dout: ram_data
   # EEROM
   - name: nvram
     addr_width: 7

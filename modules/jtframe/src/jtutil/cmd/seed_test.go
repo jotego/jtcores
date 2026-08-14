@@ -152,6 +152,10 @@ func Test_parse_jtcore_error(t *testing.T) {
 	if !found || msg != "ERROR: Unknown option --sidi128" {
 		t.Fatalf("unexpected error parse: %q %v", msg, found)
 	}
+	_, found = parse_jtcore_error("ERROR")
+	if found {
+		t.Fatalf("bare ERROR should be handled by log context")
+	}
 	_, found = parse_jtcore_error("Warning: no errors found")
 	if found {
 		t.Fatalf("lowercase error text should not match jtcore ERROR")
@@ -161,6 +165,23 @@ func Test_parse_jtcore_error(t *testing.T) {
 	}
 	if parse_jtcore_done("ERROR: no PASS") {
 		t.Fatalf("only standalone PASS/FAIL should complete a jtcore log")
+	}
+}
+
+func Test_seed_log_report_uses_context_for_bare_error(t *testing.T) {
+	tmp := t.TempDir()
+	logname := filepath.Join(tmp, "jtcore.log")
+	log := "Preparing jtcore\nmissing file: cores/gng/cfg/macros.def\nERROR\nERROR\n"
+	e := os.WriteFile(logname, []byte(log), 0644)
+	if e != nil {
+		t.Fatal(e)
+	}
+	report := seed_job{logname: logname}.log_report()
+	if report.error_msg == "" || !strings.Contains(report.error_msg, "missing file") {
+		t.Fatalf("expected contextual ERROR report, got %#v", report)
+	}
+	if report.error_msg == "ERROR" {
+		t.Fatalf("bare ERROR should not hide log context")
 	}
 }
 
@@ -483,6 +504,27 @@ func Test_run_reports_jtcore_error(t *testing.T) {
 	}
 }
 
+func Test_run_reports_bare_jtcore_error_context(t *testing.T) {
+	root := setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\n")
+	install_fake_jtcore_bare_error(t)
+	flags := new_seed_test_flags(t, "--max-trials", "2")
+	cfg, e := new_config(flags, []string{"gng", "--target", "mist"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	e = cfg.run()
+	if e == nil || !strings.Contains(e.Error(), "missing quartus_sh") {
+		t.Fatalf("expected bare ERROR context, got %v", e)
+	}
+	logs, e := filepath.Glob(filepath.Join(root, "cores", "gng", "seed", "mist", "*", "jtcore.log"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	if len(logs) != 1 {
+		t.Fatalf("expected abort after first jtcore error, got %d attempts: %#v", len(logs), logs)
+	}
+}
+
 func Test_run_reports_jtcore_exit_without_pass_fail(t *testing.T) {
 	root := setup_seed_macro_tree(t, "gng", "CORENAME=jtgng\n")
 	install_fake_jtcore_exit_without_status(t, "missing.v did not match any file")
@@ -701,6 +743,18 @@ func install_fake_jtcore_error(t *testing.T, line string) {
 	tmp := t.TempDir()
 	fake_jtcore := filepath.Join(tmp, "jtcore")
 	script := "#!/bin/sh\necho " + strconv.Quote(line) + "\nexit 0\n"
+	e := os.WriteFile(fake_jtcore, []byte(script), 0755)
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Setenv("PATH", tmp+":"+os.Getenv("PATH"))
+}
+
+func install_fake_jtcore_bare_error(t *testing.T) {
+	t.Helper()
+	tmp := t.TempDir()
+	fake_jtcore := filepath.Join(tmp, "jtcore")
+	script := "#!/bin/sh\necho 'missing quartus_sh in PATH'\necho ERROR\necho ERROR\nexit 1\n"
 	e := os.WriteFile(fake_jtcore, []byte(script), 0755)
 	if e != nil {
 		t.Fatal(e)
