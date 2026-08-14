@@ -1,5 +1,4 @@
 params:
-  - { name: RAM_OFFSET,   value: "22'h100000" }
   - { name: PCM_OFFSET,   value: "22'h010000>>1" }
   - { name: PSC_OFFSET,   value: "(`PSC_START-`GLFGREAT_BANK3)>>1" }
   - { name: PSCMAP_OFFSET,value: "(`PSCMAP_START-`GLFGREAT_BANK3)>>1" }
@@ -28,11 +27,6 @@ audio:
 sdram:
   banks:
     - buses:
-        - name: ram
-          addr_width: 14
-          data_width: 16
-          offset: RAM_OFFSET
-          rw: true
         - name: main
           addr_width: 20
           data_width: 16
@@ -83,6 +77,14 @@ sdram:
           data_width: 16
           offset: PSCHI_OFFSET
 bram:
+  # Main CPU work RAM
+  - name: ram
+    addr_width: 14
+    data_width: 16
+    rw: true
+    addr: main_addr[13:1]
+    din: ram_din
+    dout: ram_data
   # RAM holding the MSB bits of the object tile ROM address
   - name: omsb
     addr_width: 9

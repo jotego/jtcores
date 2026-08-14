@@ -32,11 +32,11 @@ reg  [ 7:0] debug_mux;
 reg         prmrsocr=0, rst_main, rst_snd;
 wire [ 7:0] tilesys_dout, pair_dout, obj_dout,
             st_main, st_video, st_snd;
-wire [ 1:0] oram_we, objset_cs;
+wire [ 1:0] oram_we, objset_cs, ram_dsn;
+wire        ram_cs;
 
 assign debug_view = debug_mux;
-assign ram_we     = cpu_we & ram_cs;
-assign ram_addr   = main_addr[13:1];
+assign ram_we     = {2{cpu_we & ram_cs}} & ~ram_dsn;
 assign video_dumpa= ioctl_addr[15:0]-16'h80; // subtract NVRAM offset
 
 always @(posedge clk) begin
@@ -79,7 +79,6 @@ jtprmr_main u_main(
     .ram_dsn        ( ram_dsn       ),
     .ram_dout       ( ram_data      ),
     .ram_cs         ( ram_cs        ),
-    .ram_ok         ( ram_ok        ),
     // cabinet I/O
     .cab_1p         ( cab_1p[1:0]   ),
     .coin           ( coin[1:0]     ),

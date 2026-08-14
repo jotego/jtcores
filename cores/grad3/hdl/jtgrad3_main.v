@@ -68,7 +68,8 @@ wire [ 7:0] ctrl;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 reg  [ 4:0] snd_cnt;
-reg         sh_cs, ram_cs, io_dec_cs, ok_dly;
+reg         sh_cs, ram_cs, io_dec_cs;
+wire        ok_dly;
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
 `endif
@@ -91,6 +92,9 @@ assign snd_irq    = |snd_cnt;
 assign cab_cs   = io_cs  | dsw_cs;
 assign bus_cs   = rom_cs | ram_cs | pal_cs | tile_cs | gchar_cs | sh_cs |
                   ctrl_cs | io_cs | dsw_cs | snd_latch_cs | snd_irq_cs | wdog_cs;
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, gchar_cs };
+assign ok_in = { rom_ok, gchar_ok };
 assign bus_busy = (rom_cs   & ~ok_dly)   |
                   (gchar_cs & ~ok_dly)   |
                   (tile_cs  & ~tile_dtack);
@@ -155,7 +159,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= rom_ok | gchar_ok;
     cpu_din <= rom_cs   ? rom_dout            :
                ram_cs   ? ram_dout            :
                pal_cs   ? pal_dout            :
@@ -165,6 +168,14 @@ always @(posedge clk) begin
                cab_cs   ? { 8'd0, cab_dout }  :
                16'hffff;
 end
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 always @* begin
     cab_dout = 8'hff;

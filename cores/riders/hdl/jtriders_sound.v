@@ -256,13 +256,15 @@ jt053260 u_k53260(
 );
 `else
 assign  main_din   = 0;
-assign  pcma_addr  = 0;
+initial begin
+    pcma_addr  = 0;
+    pcmb_addr  = 0;
+    pcmc_addr  = 0;
+    pcmd_addr  = 0;
+end
 assign  pcma_cs    = 0;
-assign  pcmb_addr  = 0;
 assign  pcmb_cs    = 0;
-assign  pcmc_addr  = 0;
 assign  pcmc_cs    = 0;
-assign  pcmd_addr  = 0;
 assign  pcmd_cs    = 0;
 assign  rom_addr   = 0;
 initial rom_cs     = 0;

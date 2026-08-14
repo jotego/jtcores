@@ -63,7 +63,6 @@ module jtriders_main(
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
-    input                ram_ok,
     input                rom_ok,
     input                vdtac,
     input                tile_irqn,
@@ -107,7 +106,7 @@ reg         cab_cs, snd_cs, iowr_hi, iowr_lo, iowr_cs, HALTn,
             eep_di, eep_clk, eep_cs, omsb_cs, pslrm_cs, psvrm_cs,
             riders_son, riders_rmrd, adc_cs, out_cs, hit_cs, prot_cs;
 reg  [15:0] cpu_din, cab_dout;
-reg         ok_dly;
+wire        ok_dly;
 wire [15:0] glfgreat_cab, cpu_dout;
 wire [ 7:0] riders_cab, lgtnfght_cab;
 wire [ 2:0] lgtnfght_dim;
@@ -121,9 +120,17 @@ wire [23:0] A_full = {A,1'b0};
 assign a_mx     = ~tmnt_bgackn ? tmnt_addr : A;
 assign main_addr= lgtnfght ? {2'd0,A[17:1]} : a_mx[19:1];
 assign ram_dsn  = ~tmnt_bgackn ? tmnt_dsn : {UDSn, LDSn};
-assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs | ram_cs) & ~ok_dly;
+assign bus_cs   = rom_cs;
+assign bus_busy = rom_cs & ~ok_dly;
 assign BUSn     = asn_mx | &ram_dsn;
+
+jtframe_okdly u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( rom_cs ),
+    .ok     ( rom_ok ),
+    .ok_dly ( ok_dly )
+);
 
 assign cpu_we   = ~tmnt_bgackn ? ~tmnt_wrn : ~RnW;
 assign omsb_we  = omsb_cs && cpu_we && !ram_dsn[0];
@@ -250,7 +257,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= rom_ok | ram_ok;
     IPLn    <= {tile_irqn,1'b1, (lgtnfght | glfgreat) ? tile_irqn : prot_irqn};
     HALTn   <= dip_pause & ~rst;
     cab_dout<= glfgreat ? glfgreat_cab:
@@ -377,6 +383,7 @@ jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
 
 // The board seems to control DTACKn with combinational logic
 // DTACKn follows ASn with a delay of ~15.6ns
+wire slow_mem = rom_cs | ram_cs;
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -391,7 +398,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
+    .wait2      ( slow_mem  ),  // RAM of that age didn't operate at 16MHz
     .wait3      ( 1'b0      ),
     // Frequency report
     .fave       (           ),

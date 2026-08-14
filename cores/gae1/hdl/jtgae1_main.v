@@ -91,7 +91,7 @@ wire        vdec_is2nd;
 wire [15:0] vdec_prev_enc, vdec_prev_dec;
 
 reg  [15:0] cpu_din;
-reg         ok_dly;
+wire        ok_dly;
 reg  [15:0] vdec_last_enc, vdec_last_dec;
 reg  [15:0] pend_enc, pend_dec;
 reg  [12:0] vdec_prev_woff, pend_woff;
@@ -111,6 +111,9 @@ assign scroll_dsn       = cpu_dsn;
 assign BUSn             = ASn | &cpu_dsn;
 assign VPAn             = !(!ASn && FC == 3'd7 && RnW);
 assign bus_cs           = main_cs | ram_cs;
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { main_cs, ram_cs };
+assign ok_in = { main_data_ok, ram_ok };
 assign bus_busy         = (main_cs | ram_cs) & ~ok_dly;
 assign IPLn             = { IPL_n, IPL_n, 1'b1 };
 assign LDSWn            = RnW | LDSn;
@@ -190,7 +193,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= main_data_ok | ram_ok;
     cpu_din <= main_cs  ? main_data        :
                ram_cs   ? ram_data         :
                vram_cs   ? vmem_vram_rdata  :
@@ -202,9 +204,17 @@ always @(posedge clk) begin
                dsw1_cs   ? in_dsw1          :
                p1_cs     ? in_p1            :
                p2_cs     ? in_p2            :
-               service_cs ? in_service       :
-               oki_cs    ? { 8'hff, oki_dout } : 16'hffff;
+	               service_cs ? in_service       :
+	               oki_cs    ? { 8'hff, oki_dout } : 16'hffff;
 end
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 always @(posedge clk or posedge rst) begin
     if (rst) begin
