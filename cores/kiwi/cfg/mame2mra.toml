@@ -92,6 +92,9 @@ order = [
 # (LD BC,$017D + LDIR at $004E), leaving $F17E-$F1FF at zero. Those slots
 # then draw sprite 0 over the top two screen rows and starve the per-line
 # object budget, clipping the header text. Widen the fill to the whole table.
+# Open questions: did Chuka Taisen use a different sprite chip? If it is the same
+# chip, is a different MMR setting limiting the number of sprites?
+# Todo: make it work without the patch
 patches = [
     { setnames=["chukatai","chukataij","chukataiu","chukataija"], offset=0x004F, data="FF" },
 ]

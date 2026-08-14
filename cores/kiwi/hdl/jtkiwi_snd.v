@@ -81,7 +81,7 @@ module jtkiwi_snd(
 
     // Sound output
     output signed [15:0] fm,
-    output        [ 9:0] psg,
+    output reg    [ 9:0] psg,
     output        [ 9:0] pcm,
     // Debug
     input      [ 7:0]    debug_bus,
@@ -504,7 +504,9 @@ always @(negedge clk) fm_cen <= fast_fm ? cen3 : cen1p5;
 wire [7:0] psg_a, psg_b, psg_c;
 wire [9:0] psg_lump;
 
-assign psg = unlump ? {2'd0,psg_a} + {2'd0,psg_b} + {2'd0,psg_c} : psg_lump;
+always @(posedge clk) begin
+    psg <= unlump ? {2'd0,psg_a} + {2'd0,psg_b} + {2'd0,psg_c} : psg_lump;
+end
 
 jt03 #(.YM2203_LUMPED(1)) u_2203(
     .rst        ( ~comb_rstn ),
