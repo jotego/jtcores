@@ -147,7 +147,15 @@ assign obj1_addr = obj1_raw[20:2];
 // the second chip walks the upper half of the sprite RAM
 assign objr1_addr[10] = 1'b1;
 assign objr_addr[10]  = 1'b0;
-assign hdump_scr = H >= (h_last-hoff_scr+9'd1) ? H+hoff_scr-(h_last+9'd1) : H+hoff_scr;
+// The 456-count line in the 512-wide map forces heff to jump +56 once per
+// line. jtframe_tilemap's fetch tick is an EDGE detector on heff[3], so if the
+// jump crosses an even number of 8px boundaries - which depends on scrx - the
+// tick is lost and the tile covering x=0..7 is never fetched: the left-edge
+// band, appearing and disappearing with scroll alignment. The subtraction
+// branch is already mod-512 correct; take it from HS onwards (H>=400, inside
+// blanking for every GGA grid used) so the jump lands >=56px before the first
+// visible fetch and the pipeline re-primes in time.
+assign hdump_scr = H >= 9'd400 ? H+hoff_scr-(h_last+9'd1) : H+hoff_scr;
 assign hdump_obj = H >= (h_last-hoff_obj+9'd1) ? H+hoff_obj-(h_last+9'd1) : H+hoff_obj;
 
 // Sprites are transparent on pen 15 and the line buffer reads back 15 where
@@ -325,11 +333,17 @@ jtpspike_obj u_obj1(
     .pxl        ( obj1_pxl  )
 );
 
+// The colmix latches RGB and samples LHBL on the same pxl_cen edge, but the
+// GGA raises LHBL on that very edge (non-blocking), so the first pixel of the
+// line - latched while H is still h_last - sees the OLD LHBL=0 and is zeroed:
+// a permanently black x=0 column. Open the gate combinationally for that edge.
+wire lhbl_gate = LHBL | (H==h_last);
+
 jtpspike_colmix u_colmix(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .LHBL       ( LHBL      ),
+    .LHBL       ( lhbl_gate ),
     .LVBL       ( LVBL      ),
     .pxl        ( pxl       ),
     .mix_addr   ( mix_addr  ),
