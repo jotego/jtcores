@@ -105,8 +105,8 @@ jtpspike_header u_header(
 );
 
 jtpspike_main u_main(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
+    .rst        ( rst48         ),
+    .clk        ( clk48         ),
     .LVBL       ( LVBL          ),
     .dip_pause  ( dip_pause     ),
 
@@ -238,8 +238,8 @@ jtpspike_video u_video(
 );
 
 jtpspike_snd u_snd(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
+    .rst        ( rst48         ),
+    .clk        ( clk48         ),
     .snd_cen    ( karatblz ? snd4_cen : snd_cen ), // 8MHz/2 vs 20MHz/4
     .fm_cen     ( fm_cen        ),
 

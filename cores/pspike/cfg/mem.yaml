@@ -6,7 +6,7 @@ params:
   - { name: PCMB_OFFSET, value: "(`PCMB_START-`JTFRAME_BA3_START)>>1" }
 
 clocks:
-  clk:
+  clk48:
     - freq: 8 MHz
       gate: [pcma, pcmb]
       outputs:

@@ -72,7 +72,7 @@ wire        two;   // turbofrc family: two layers, two sprite chips
 assign      two = turbofrc | aerofgt | karatblz;
 
 `ifndef NOMAIN
-// 10 MHz out of 56 MHz
+// 10 MHz out of clk48. With JTFRAME_SDRAM96 clk is 112MHz and clk48 is 56MHz
 localparam [6:0] CEN_NUM = 7'd5;
 localparam [7:0] CEN_DEN = 8'd28;    // 56 * 5/28 = 10.000MHz
 
