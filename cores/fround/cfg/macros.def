@@ -32,6 +32,12 @@ JTFRAME_BA3_LEN=64
 # 40960 from BRAM and 11 from MMR
 debug JTFRAME_IOCTL_RD=40971
 
+[pocket]
+JTFRAME_NOSTA
+
+[sidi128]
+JTFRAME_EASY_STA
+
 [mist|sidi]
 # Not enough BRAM to implement the LUT frame buffer
 # it would be possible to do it using the last 2kB

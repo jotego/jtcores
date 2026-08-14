@@ -69,7 +69,8 @@ reg         iord_cs, fix_cs, pal_cs, int6_clr, int5_clr,
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
 wire [15:0] cpu_dout;
-reg         intn, LVBLl, ok_dly;
+reg         intn, LVBLl;
+wire        ok_dly;
 wire        bus_cs, bus_busy, bus_legit, int5, int6, c_button;
 
 `ifdef SIMULATION
@@ -82,9 +83,20 @@ assign main_dout = cpu_dout;
 assign IPLn      = ~(int6 ? 3'd6 : int5 ? 3'd5 : 3'd0);
 assign VPAn      = !(!ASn && FC==7);
 assign bus_cs    = rom_cs | ram_cs;
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, ram_cs };
+assign ok_in = { rom_ok, ram_ok };
 assign bus_busy  = (rom_cs | ram_cs) & ~ok_dly;
 assign bus_legit = 0; // fix_cs & ~sdakn;
 assign BUSn      = LDSn & UDSn;
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 assign cram_we   = {~A[1],A[1]} & {2{fix_cs  & ~RnW & ~LDSn}};
 assign scr_we    = {~A[1],A[1]} & {2{scr_cs  & ~RnW & ~LDSn}};
@@ -130,7 +142,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= rom_ok | ram_ok;
     if( snd_on  ) snd_latch <= cpu_dout[7:0];
     if( scrx_cs ) scrx      <= cpu_dout[8:0];
     if( scry_cs ) scry      <= cpu_dout[8:0];

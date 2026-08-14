@@ -20,7 +20,7 @@
 // the memory dump interface for NVRAM implementations
 
 module jtframe_dual_nvram #(parameter DW=8, AW=10,
-    SIMFILE_BYTE=0, FULL_DW=8,
+    SIMFILE_BYTE=0, SIMFILE_DW=8,
     SIMFILE="", SIMHEXFILE="", SYNFILE="", DUMPFILE="dump.hex"
 )(
     // Port 0
@@ -53,7 +53,7 @@ jtframe_dual_ram #(
     .SYNFILE   ( SYNFILE    ),
     .DUMPFILE  ( DUMPFILE   ),
     .SIMFILE_BYTE( SIMFILE_BYTE ),
-    .FULL_DW   ( DW         )
+    .SIMFILE_DW( SIMFILE_DW )
 ) u_dual(
     // Port 0
     .clk0   ( clk0  ),

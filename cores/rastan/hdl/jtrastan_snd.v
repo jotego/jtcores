@@ -332,13 +332,15 @@ jtopwolf_mix u_opwolf_mix(
     .peak        ( opwolf_peak   )
 );
 `else
-assign main_din=0, rom_addr=0, left=0, right=0;
+assign main_din=0, rom_addr=0;
 initial begin
     rom_cs=0;
     pcm0_addr=0;
     pcm1_addr=0;
     pcm0_cs=0;
     pcm1_cs=0;
+    peak=0;
+    left=0; right=0;
 end
 `endif
 endmodule

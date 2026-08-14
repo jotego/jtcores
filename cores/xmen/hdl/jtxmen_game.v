@@ -36,11 +36,11 @@ reg  [ 7:0] debug_mux;
 wire [ 7:0] tilesys_dout, snd2main,
             obj_dout, snd_latch, pair_dout,
             st_main, st_video, st_snd;
-wire [ 1:0] oram_we;
+wire [ 1:0] oram_we, ram_dsn;
+wire        ram_cs;
 
 assign debug_view = debug_mux;
-assign ram_we     = cpu_we & ram_cs;
-assign ram_addr   = main_addr[13:1];
+assign ram_we     = {2{cpu_we & ram_cs}} & ~ram_dsn;
 assign video_dumpa= ioctl_addr[15:0]-16'h80; // subtract NVRAM offset
 
 always @(posedge clk) begin
@@ -59,7 +59,7 @@ end
     xmen     <= game_id == XMEN;
 end
 */
-/* verilator tracing_off */
+/* verilator tracing_on */
 jtxmen_main u_main(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -78,7 +78,6 @@ jtxmen_main u_main(
     .ram_dsn        ( ram_dsn       ),
     .ram_dout       ( ram_data      ),
     .ram_cs         ( ram_cs        ),
-    .ram_ok         ( ram_ok        ),
     // cabinet I/O
     .cab_1p         ( cab_1p        ),
     .coin           ( coin          ),

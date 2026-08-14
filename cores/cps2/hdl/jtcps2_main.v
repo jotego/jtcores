@@ -115,7 +115,8 @@ reg         io_cs, eeprom_cs,
             sys_cs, paddle_en;
 reg         pre_ram_cs, pre_vram_cs, pre_oram_cs,
             reg_ram_cs, reg_vram_cs, reg_oram_cs;
-reg         dsn_dly, one_wait, ram_ok_dly;
+reg         dsn_dly, one_wait;
+wire        ram_ok_dly;
 wire [11:0] spin1p, spin2p;
 wire        dir1p,  dir2p;
 
@@ -324,7 +325,6 @@ end
 reg  [15:0] cpu_din;
 
 always @(posedge clk) begin
-    ram_ok_dly <= ram_ok;
     if(rst) begin
         cpu_din <= 16'hffff;
     end else begin
@@ -347,7 +347,16 @@ wire       bus_busy = |{ rom_cs & ~(rom_ok&rom_ok2),
                     main2qs_cs & ~main2qs_waitn };
 
 wire       DTACKn;
+wire       ram_acc = pre_ram_cs | pre_vram_cs | pre_oram_cs;
 reg        last_LVBL;
+
+jtframe_okdly u_ram_okdly(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cs     ( ram_acc    ),
+    .ok     ( ram_ok     ),
+    .ok_dly ( ram_ok_dly )
+);
 
 reg qs_busakn_s;
 

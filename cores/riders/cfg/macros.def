@@ -35,6 +35,7 @@ JTFRAME_OSD_NOLOGO
 
 # But MiST/SiDi cannot handle that much
 [mist|sidi]
+JTFRAME_SKIP
 NODIMMING
 -JTFRAME_CREDITS
 

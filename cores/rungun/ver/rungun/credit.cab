@@ -1,9 +1,8 @@
-#!/usr/bin/env -S bash -c 'exec jtsim -video 450 -w 380 -inputs "$0" "$@"'
-# skips the RUN&GUN logo
+# skips the RUN&GUN logo, inserts a coin and
 loop
 	1 b1
 	1
-repeat 50
+repeat 40
 
 1 coin
 2

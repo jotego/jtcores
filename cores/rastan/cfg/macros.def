@@ -19,8 +19,15 @@ JTFRAME_PROM_START=0x280000
 
 JTFRAME_CREDITS_HSTART=32
 
-# debugging
-JTFRAME_IOCTL_RD=1024
+# 8 KiB object RAM, 64 KiB tile RAM, 4 KiB palette RAM, 32 bytes of MMR,
+# and the object-palette register
+JTFRAME_IOCTL_RD=77857
 
 [mist]
 JTFRAME_NOSTA
+
+[sidi]
+-JTFRAME_CREDITS
+
+[mist|sidi]
+RASTAN_SCRRAM_SDRAM
