@@ -350,6 +350,32 @@ func TestBankEndOffsetCapsNextBankAtProm(t *testing.T) {
 	}
 }
 
+func TestPromEndOffsetClampsPastROMEnd(t *testing.T) {
+	const romLen = 0x210008
+	got := 0
+	output := captureStdout(t, func() {
+		got = promEndOffset([]int{0, 0x80008, 0x110008, 0x190008, 0x280008}, 4, romLen)
+	})
+	if got != romLen {
+		t.Fatalf("PROM end mismatch: got=%#x want=%#x", got, romLen)
+	}
+	if !strings.Contains(output, "WARNING: JTFRAME_PROM_START ($280008) is beyond ROM end ($210008)") {
+		t.Fatalf("expected PROM warning, got %q", output)
+	}
+}
+
+func TestPromEndOffsetUsesInRangePROM(t *testing.T) {
+	const promStart = 0x280008
+	output := captureStdout(t, func() {
+		if got := promEndOffset([]int{0, 0x80008, 0x110008, 0x190008, promStart}, 4, 0x283008); got != promStart {
+			t.Fatalf("PROM end mismatch: got=%#x want=%#x", got, promStart)
+		}
+	})
+	if output != "" {
+		t.Fatalf("unexpected PROM warning: %q", output)
+	}
+}
+
 func TestSdramDumpBankCountUsesDeclaredBanks(t *testing.T) {
 	cfg := &mem.MemConfig{}
 	cfg.SDRAM.Banks = make([]mem.SDRAMBank, 3)

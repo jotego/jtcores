@@ -33,7 +33,7 @@
 
 module jtframe_ram #(parameter DW=8, AW=10,
         SIMFILE="", SIMHEXFILE="",
-        SIMFILE_BYTE=0, FULL_DW=8,
+        SIMFILE_BYTE=0, SIMFILE_DW=8,
         SYNFILE="", SYNBINFILE="",
         VERBOSE=0,          // set to 1 to display memory writes to screen
         VERBOSE_OFFSET=0,   // value added to the address when displaying
@@ -107,36 +107,36 @@ endgenerate
 `endif
 
 `ifdef SIMULATION
-localparam FULL_BYTES = FULL_DW==32 ? 4 : (FULL_DW==16 ? 2 : 1);
+localparam SIMFILE_BYTES = SIMFILE_DW==32 ? 4 : (SIMFILE_DW==16 ? 2 : 1);
 integer f, readcnt, loadcnt, loadpos;
 reg [7:0] file_data[0:(2**AW)*4-1];
 initial
 begin
-    if( FULL_DW!=8 && FULL_DW!=16 && FULL_DW!=32 ) begin
-        $display("ERROR: %m invalid FULL_DW=%0d", FULL_DW);
+    if( SIMFILE_DW!=8 && SIMFILE_DW!=16 && SIMFILE_DW!=32 ) begin
+        $display("ERROR: %m invalid SIMFILE_DW=%0d", SIMFILE_DW);
         $finish;
     end
-    if( FULL_DW==16 && (SIMFILE_BYTE<0 || SIMFILE_BYTE>1) ) begin
-        $display("ERROR: %m invalid SIMFILE_BYTE=%0d for FULL_DW=16", SIMFILE_BYTE);
+    if( SIMFILE_DW==16 && (SIMFILE_BYTE<0 || SIMFILE_BYTE>1) ) begin
+        $display("ERROR: %m invalid SIMFILE_BYTE=%0d for SIMFILE_DW=16", SIMFILE_BYTE);
         $finish;
     end
-    if( FULL_DW==32 && (SIMFILE_BYTE<0 || SIMFILE_BYTE>3) ) begin
-        $display("ERROR: %m invalid SIMFILE_BYTE=%0d for FULL_DW=32", SIMFILE_BYTE);
+    if( SIMFILE_DW==32 && (SIMFILE_BYTE<0 || SIMFILE_BYTE>3) ) begin
+        $display("ERROR: %m invalid SIMFILE_BYTE=%0d for SIMFILE_DW=32", SIMFILE_BYTE);
         $finish;
     end
-    if( FULL_DW!=8 && DW!=8 ) begin
+    if( SIMFILE_DW!=8 && DW!=8 ) begin
         $display("ERROR: %m partial SIMFILE loading requires DW=8");
         $finish;
     end
     if( SIMFILE != 0 ) begin
         f=$fopen(SIMFILE,"rb");
         if( f != 0 ) begin
-            if( FULL_DW==8 ) begin
+            if( SIMFILE_DW==8 ) begin
                 readcnt=$fread( mem, f );
             end else begin
                 readcnt=$fread( file_data, f );
                 loadcnt = 0;
-                for( loadpos=SIMFILE_BYTE; loadpos<readcnt && loadcnt<(2**AW); loadpos=loadpos+FULL_BYTES ) begin
+                for( loadpos=SIMFILE_BYTE; loadpos<readcnt && loadcnt<(2**AW); loadpos=loadpos+SIMFILE_BYTES ) begin
                     /* verilator lint_off WIDTHTRUNC */
                     /* verilator lint_off WIDTHEXPAND */
                     mem[loadcnt] = file_data[loadpos];
@@ -144,10 +144,10 @@ begin
                     /* verilator lint_on WIDTHTRUNC */
                     loadcnt = loadcnt+1;
                 end
-                if( readcnt%FULL_BYTES != 0 )
-                    $display("WARNING: %m ignored %0d trailing bytes from %s", readcnt%FULL_BYTES, SIMFILE);
+                if( readcnt%SIMFILE_BYTES != 0 )
+                    $display("WARNING: %m ignored %0d trailing bytes from %s", readcnt%SIMFILE_BYTES, SIMFILE);
             end
-            $display("INFO: Read %14s (%4d bytes) for %m",SIMFILE, readcnt/(FULL_DW/8));
+            $display("INFO: Read %14s (%4d bytes) for %m",SIMFILE, readcnt/(SIMFILE_DW/8));
             $fclose(f);
         end else begin
             $display("WARNING: %m cannot open file: %s", SIMFILE);

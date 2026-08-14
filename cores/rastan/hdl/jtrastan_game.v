@@ -20,7 +20,6 @@ module jtrastan_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-wire [15:0] oram_dout, pal_dout;
 wire [ 1:0] main_dsn;
 wire        sub_cs, obj_cs, ram_cs, vram_cs, main_rnw;
 wire        scr_cs, pal_cs, sdakn, odakn;
@@ -40,6 +39,12 @@ wire [ 8:0] gun_yoffs = {gun_yoff8[7], gun_yoff8};
 wire        cchip_cs;
 wire [ 7:0] cchip_dout;
 wire        cchip_rnw;
+wire [ 7:0] mmr_din;
+wire [ 4:0] mmr_addr;
+`ifndef RASTAN_SCRRAM_SDRAM
+wire [15:0] vram_dout;
+`endif
+wire [15:0] mainram_dout;
 
 assign dip_flip = flip;
 assign ram_addr = ram_cs ? (opwolf ? {3'd0, main_addr[14:1]} : {4'd0, main_addr[13:1]}) :
@@ -47,9 +52,23 @@ assign ram_addr = ram_cs ? (opwolf ? {3'd0, main_addr[14:1]} : {4'd0, main_addr[
 assign ram_we   = xram_cs & ~main_rnw;
 assign xram_cs  = ram_cs | vram_cs;
 assign ram_dsn  = main_dsn;
+assign objram_we = ~main_dsn & {2{obj_cs & ~main_rnw}};
+assign palram_we = ~main_dsn & {2{pal_cs & ~main_rnw}};
 assign main2snd = opwolf ? main_dout[11:8] : main_dout[3:0];
 assign sample   = 0;
 assign cchip_rnw = main_rnw | main_dsn[0];
+assign ioctl_din = ioctl_addr[5] ? {obj_pal,5'd0} : mmr_din;
+assign mmr_addr = ioctl_addr[4:0];
+`ifdef RASTAN_SCRRAM_SDRAM
+assign mainram_dout = ram_data;
+`else
+assign vram_cpu_addr = main_addr[15:2];
+assign vram_cpu_din  = {2{main_dout}};
+assign vram_we       = !main_rnw && vram_cs ?
+                       (main_addr[1] ? {~main_dsn,2'b00} : {2'b00,~main_dsn}) : 4'd0;
+assign vram_dout     = main_addr[1] ? vram_cpu_dout[31:16] : vram_cpu_dout[15:0];
+assign mainram_dout  = vram_cs ? vram_dout : ram_data;
+`endif
 
 jtrastan_header u_header(
     .clk        ( clk            ),
@@ -90,9 +109,9 @@ jtrastan_main u_main(
     .scr_cs     ( scr_cs    ),
 
     .obj_pal    ( obj_pal   ),
-    .oram_dout  ( oram_dout ),
-    .pal_dout   ( pal_dout  ),
-    .ram_dout   ( ram_data  ),
+    .oram_dout  ( objram2main_data ),
+    .pal_dout   ( palram_dout ),
+    .ram_dout   ( mainram_dout ),
     .ram_ok     ( ram_ok    ),
     .rom_data   ( main_data ),
     .rom_ok     ( main_ok   ),
@@ -185,30 +204,38 @@ jtrastan_video u_video(
 
     .main_addr  ( main_addr ),
     .main_dout  ( main_dout ),
-    .oram_dout  ( oram_dout ),
-    .pal_dout   ( pal_dout  ),
     .main_dsn   ( main_dsn  ),
     .main_rnw   ( main_rnw  ),
     .scr_cs     ( scr_cs    ),
-    .pal_cs     ( pal_cs    ),
     .obj_cs     ( obj_cs    ),
     .sdakn      ( sdakn     ),
     .odakn      ( odakn     ),
 
-    .ram0_addr  ( scr0ram_addr ),
-    .ram0_data  ( scr0ram_data ),
-    .ram0_ok    ( scr0ram_ok   ),
-    .ram0_cs    ( scr0ram_cs   ),
+    .ioctl_addr ( mmr_addr  ),
+    .ioctl_din  ( mmr_din   ),
+
+    .objram_addr( objram_addr ),
+    .objram_dout( objram_dout ),
+    .palram_addr( palram_addr ),
+    .palram_video_data( palram_video_data ),
+`ifdef RASTAN_SCRRAM_SDRAM
+    .ram0_addr  ( scr0ram_addr  ),
+    .ram0_data  ( scr0ram_data  ),
+    .ram0_ok    ( scr0ram_ok    ),
+    .ram0_cs    ( scr0ram_cs    ),
+    .ram1_addr  ( scr1ram_addr  ),
+    .ram1_data  ( scr1ram_data  ),
+    .ram1_ok    ( scr1ram_ok    ),
+    .ram1_cs    ( scr1ram_cs    ),
+`else
+    .ram_addr   ( vram_vid_addr ),
+    .ram_data   ( scrram_dout   ),
+`endif
 
     .rom0_addr  ( scr0rom_addr ),
     .rom0_data  ( scr0rom_data ),
     .rom0_cs    ( scr0rom_cs   ),
     .rom0_ok    ( scr0rom_ok   ),
-
-    .ram1_addr  ( scr1ram_addr ),
-    .ram1_data  ( scr1ram_data ),
-    .ram1_ok    ( scr1ram_ok   ),
-    .ram1_cs    ( scr1ram_cs   ),
 
     .rom1_addr  ( scr1rom_addr ),
     .rom1_data  ( scr1rom_data ),
@@ -227,9 +254,6 @@ jtrastan_video u_video(
     // Debug
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
-    .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( ioctl_addr[10:0]),
-    .ioctl_din  ( ioctl_din ),
     .debug_view ( debug_view)
 );
 

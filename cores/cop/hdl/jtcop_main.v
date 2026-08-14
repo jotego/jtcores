@@ -117,8 +117,8 @@ wire        disp_cs, sysram_cs, cblk, vint_clr,
             prisel_cs, mixpsel_cs,
             nexrm1,         // used on Heavy Barrel PCB for the track balls
             nexrm0_cs;      // a signal on Robocop sch. unused. Reused for SlySpy for the protection IC
-reg         secirq, vint,
-            ok_dly;
+reg         secirq, vint;
+wire        ok_dly;
 wire        pre_ram_cs;
 wire        cpu_cen, cpu_cenb;
 wire [ 2:0] read_cs;
@@ -229,12 +229,9 @@ always @(posedge clk, posedge rst) begin
         sec2_l  <= 0;
         snd_latch <= 0;
         mcu_din <= 0;
-        ok_dly  <= 0;
         // prisel  <= 0;
         mixpsel <= 0;
     end else begin
-        ok_dly <= rom_ok | ram_ok;
-
         LVBL_l <= LVBL;
         if( vint_clr )
             vint <= 0;
@@ -390,8 +387,19 @@ end
 
 reg  disp_busy;
 wire bus_cs    = pal_cs!=0 || pre_ram_cs || rom_cs;
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, pre_ram_cs };
+assign ok_in = { rom_ok, ram_ok };
 wire bus_busy  = |{ rom_cs & ~ok_dly, pre_ram_cs & ~ok_dly, disp_cs & disp_busy };
 wire bus_legit = disp_cs;
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 // Memory access to the display area gets locked until a blank starts
 // during a blank, each access has a 2 clock delay until DTACKn is generated

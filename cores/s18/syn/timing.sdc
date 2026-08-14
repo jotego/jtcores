@@ -1,11 +1,17 @@
-set_multicycle_path -from {jts18_game_sdram:u_game|jts18_game:u_game|jts18_video:u_video|jts18_vdp:u_vdp|ym7101:u_vdp|*} -setup 2
-set_multicycle_path -from {jts18_game_sdram:u_game|jts18_game:u_game|jts18_video:u_video|jts18_vdp:u_vdp|ym7101:u_vdp|*} -hold 1
+set s18_vdp_root {*jts18_game_sdram:u_game|jts18_game:u_game|jts18_video:u_video|jts18_vdp:u_vdp}
 
-set_multicycle_path -from {jts18_game_sdram:u_game|jts18_game:u_game|jts18_video:u_video|jts18_vdp:u_vdp|clk2} -setup 2
-set_multicycle_path -from {jts18_game_sdram:u_game|jts18_game:u_game|jts18_video:u_video|jts18_vdp:u_vdp|clk2} -hold 1
-
-set_multicycle_path -from {jts18_game_sdram:u_game|jts18_game:u_game|jts18_video:u_video|jts18_vdp:u_vdp|rst_n} -setup 2
-set_multicycle_path -from {jts18_game_sdram:u_game|jts18_game:u_game|jts18_video:u_video|jts18_vdp:u_vdp|rst_n} -hold 1
-
-set_multicycle_path -from {jts18_game_sdram:u_game|jts18_game:u_game|jts18_video:u_video|jts18_vdp:u_vdp|edclk_l} -setup 2
-set_multicycle_path -from {jts18_game_sdram:u_game|jts18_game:u_game|jts18_video:u_video|jts18_vdp:u_vdp|edclk_l} -hold 1
+foreach s18_vdp_mcp [list \
+    [get_keepers -nowarn ${s18_vdp_root}|ym7101:u_vdp|*] \
+    [get_keepers -nowarn ${s18_vdp_root}|vram:u_vram|*] \
+    [get_keepers -nowarn ${s18_vdp_root}|clk2] \
+    [get_keepers -nowarn ${s18_vdp_root}|rst_n] \
+    [get_keepers -nowarn ${s18_vdp_root}|edclk_l] \
+    [get_keepers -nowarn ${s18_vdp_root}|asn_r] \
+    [get_keepers -nowarn ${s18_vdp_root}|rnw_r] \
+    [get_keepers -nowarn ${s18_vdp_root}|dsn_r*] \
+] {
+    if { [get_collection_size $s18_vdp_mcp] > 0 } {
+        set_multicycle_path -from $s18_vdp_mcp -setup 2
+        set_multicycle_path -from $s18_vdp_mcp -hold 1
+    }
+}

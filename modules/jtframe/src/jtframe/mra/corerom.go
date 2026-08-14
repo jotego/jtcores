@@ -513,6 +513,23 @@ func get_reverse_width(reg_cfg *RegCfg, name string, width int) bool {
 	return reg_cfg.Reverse && rev_w
 }
 
+func get_reverse_group(reg_cfg *RegCfg, roms []MameROM) bool {
+	reverse := get_reverse(reg_cfg, roms[0].Name)
+	if roms[0].group == 0 {
+		reverse = get_reverse_width(reg_cfg, roms[0].Name, 16)
+	}
+	for _, each := range roms[1:] {
+		cur_reverse := get_reverse(reg_cfg, each.Name)
+		if each.group == 0 {
+			cur_reverse = get_reverse_width(reg_cfg, each.Name, 16)
+		}
+		if cur_reverse != reverse {
+			return reg_cfg.Reverse
+		}
+	}
+	return reverse
+}
+
 // if the region is marked for a blank at this point returns its length
 // otherwise, zero
 func is_blank(curpos int, reg string, machine *MachineXML, cfg Mame2MRA) (blank_len int) {
@@ -1057,7 +1074,7 @@ func make_interleave_groups(reg string,
 				reg_roms[sel[j]].clen = group_size * reg_roms[sel[j]].wlen
 				new_group = append(new_group, reg_roms[sel[j]])
 			}
-			if reg_cfg.Reverse {
+			if get_reverse_group(reg_cfg, new_group) {
 				rev_str := func(s string) string {
 					runes := []rune(s)
 					for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
@@ -1179,7 +1196,7 @@ func interleave_group(reg string,
 				p.AddComment(fmt.Sprintf("Blank ends at 0x%X", *pos))
 			}
 		}
-		if reg_cfg.Reverse {
+		if get_reverse_group(reg_cfg, reg_roms[k:k+rom_cnt]) {
 			if Verbose {
 				fmt.Printf("Got %d ROMs, with rom_cnt=%d, k=%d\n", len(reg_roms), rom_cnt, k)
 			}

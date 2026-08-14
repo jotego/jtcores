@@ -80,8 +80,12 @@ jtframe_ram_rdmux #(.AW(12),.DW(16)) u_vram_mux(
     .data       ( vram_dout     ),
     .addr_a     ( {1'b0,a_addr} ),
     .addr_b     ( {1'b1,b_addr} ),
+    .cs_a       ( 1'b1          ),
+    .cs_b       ( 1'b1          ),
     .douta      ( a_dout        ),
-    .doutb      ( b_dout        )
+    .doutb      ( b_dout        ),
+    .ok_a       (               ),
+    .ok_b       (               )
 );
 
 jtframe_ram_rdmux #(.AW(5),.DW(8)) u_dec_mux(
@@ -90,8 +94,12 @@ jtframe_ram_rdmux #(.AW(5),.DW(8)) u_dec_mux(
     .data       ( dec_data      ),
     .addr_a     ( adec_addr     ),
     .addr_b     ( bdec_addr     ),
+    .cs_a       ( 1'b1          ),
+    .cs_b       ( 1'b1          ),
     .douta      ( adec_data     ),
-    .doutb      ( bdec_data     )
+    .doutb      ( bdec_data     ),
+    .ok_a       (               ),
+    .ok_b       (               )
 );
 
 jtcus42_mmr #(.SIMFILE(ID==0?"mmr0.bin":"mmr1.bin")) u_mmr(

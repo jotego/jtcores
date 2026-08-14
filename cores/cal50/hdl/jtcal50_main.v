@@ -73,7 +73,8 @@ reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 reg  [ 9:0] cab2_dout;
 reg  [ 2:0] IPLn;
-reg         ram_cs, ok_dly;
+reg         ram_cs;
+wire        ok_dly;
 wire        int4ms, int16ms,
             cpu_cen, cpu_cenb, dtackn, VPAn, vgfx_cs,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs;
@@ -98,6 +99,14 @@ assign nvram_we = ~cpu_dsn & {2{nvram_cs&~RnW}};
 assign pal_we   = ~cpu_dsn & {2{  pal_cs&~RnW}};
 assign tlv_we   = ~cpu_dsn & {2{  tlv_cs&~RnW}};
 assign set_cmd  =  snd_cs & ~(RnW | LDSn);
+
+jtframe_okdly u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( rom_cs ),
+    .ok     ( rom_ok ),
+    .ok_dly ( ok_dly )
+);
 assign st_dout  = 0;
 assign vgfx_cs  = vram_cs | vflag_cs | vctrl_cs;
 
@@ -148,7 +157,6 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    ok_dly   <= rom_ok;
     HALTn    <= dip_pause & ~rst;
     dial_rst <= 0;
     snd_rst  <= ~coin_coil[4];
