@@ -63,7 +63,6 @@ module jtriders_main(
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
-    input                ram_ok,
     input                rom_ok,
     input                vdtac,
     input                tile_irqn,
@@ -121,18 +120,15 @@ wire [23:0] A_full = {A,1'b0};
 assign a_mx     = ~tmnt_bgackn ? tmnt_addr : A;
 assign main_addr= lgtnfght ? {2'd0,A[17:1]} : a_mx[19:1];
 assign ram_dsn  = ~tmnt_bgackn ? tmnt_dsn : {UDSn, LDSn};
-assign bus_cs   = rom_cs | ram_cs;
-wire [1:0] ok_cs, ok_in;
-assign ok_cs = { rom_cs, ram_cs };
-assign ok_in = { rom_ok, ram_ok };
-assign bus_busy = (rom_cs | ram_cs) & ~ok_dly;
+assign bus_cs   = rom_cs;
+assign bus_busy = rom_cs & ~ok_dly;
 assign BUSn     = asn_mx | &ram_dsn;
 
-jtframe_okdly #(.W(2)) u_okdly(
+jtframe_okdly u_okdly(
     .rst    ( rst    ),
     .clk    ( clk    ),
-    .cs     ( ok_cs  ),
-    .ok     ( ok_in  ),
+    .cs     ( rom_cs ),
+    .ok     ( rom_ok ),
     .ok_dly ( ok_dly )
 );
 
@@ -387,6 +383,7 @@ jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
 
 // The board seems to control DTACKn with combinational logic
 // DTACKn follows ASn with a delay of ~15.6ns
+wire slow_mem = rom_cs | ram_cs;
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -401,7 +398,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
+    .wait2      ( slow_mem  ),  // RAM of that age didn't operate at 16MHz
     .wait3      ( 1'b0      ),
     // Frequency report
     .fave       (           ),
