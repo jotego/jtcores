@@ -84,7 +84,7 @@ wire [23:1] A;
 wire [ 2:0] FC;
 wire [15:0] sys1_dout, sys2_dout;
 reg  [15:0] cab_dout, cpu_din, cab1_dout;
-reg         rom_ok_dly;
+wire        rom_ok_dly;
 reg  [ 9:0] cab2_dout;
 wire [ 7:0] vmem_mux;
 reg  [15:0] pmem_mux;
@@ -110,6 +110,15 @@ assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok_dly) | (ram_cs & ~ram_ok);
 assign BUSn     = ASn | (LDSn & UDSn);
 assign cpu_rnw  = RnW;
+
+jtframe_okdly u_rom_okdly(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cs     ( rom_cs     ),
+    .ok     ( rom_ok     ),
+    .ok_dly ( rom_ok_dly )
+);
+
 // sys1
 assign pri      = sys1_dout[14];
 assign l5mas    = sys1_dout[10];
@@ -197,7 +206,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    rom_ok_dly <= rom_ok;
     // To do: remove combination of joystick1 & joystick3 and joystick2 & joystick4
     cab1_dout <= A[1] ? {cab_1p[3],joystick2 & joystick4,cab_1p[1],joystick2 & joystick4}:
                         {cab_1p[2],joystick1 & joystick3,cab_1p[0],joystick1 & joystick3};

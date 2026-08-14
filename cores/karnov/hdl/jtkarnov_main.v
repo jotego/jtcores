@@ -86,7 +86,8 @@ reg  [ 2:0] IPLn;
 wire [ 2:0] FC;
 reg  [15:0] cpu_din;
 reg         pre_ram_cs, cab_cs, pos_cs, vint_ctl,
-            ok_dly, secr, vint_en, seclr;
+            secr, vint_en, seclr;
+wire        ok_dly;
 wire        pre_vb_int, vb_int, mcu2main_int;
 wire        VPAn, ASn, DTACKn, BUSn;
 wire        cpu_cen, cpu_cenb;
@@ -102,6 +103,9 @@ assign st_dout    = st_addr[0] ? fave[15:8] : fave[7:0]; // 10,000kHz = 2710 in 
 assign bus_cs     = pre_ram_cs || rom_cs;
 assign disp_cs    = vram_cs | scrram_cs;
 assign disp_busy  = hdump[1]; // This has approximately the same effect as the original 4-flip flop circuit
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, ram_cs };
+assign ok_in = { rom_ok, ram_ok };
 assign bus_busy   = |{ rom_cs & ~ok_dly, ram_cs & ~ok_dly, disp_cs & disp_busy };
 assign bus_legit  = disp_cs;
 assign BUSn       = ASn | &dsn;
@@ -167,10 +171,8 @@ always @(posedge clk, posedge rst) begin
         scry      <= 0;
         vint_en   <= 0;
         snd_latch <= 0;
-        ok_dly    <= 0;
         mcu_din   <= 0;
     end else begin
-        ok_dly <= rom_ok | ram_ok;
         if( pos_cs ) begin
             if( A[1]) scry <= cpu_dout[8:0];
             if(!A[1]) begin
@@ -196,10 +198,18 @@ always @(posedge clk) begin
                ram_cs    ? ram_data :
                vram_cs   ? vram2main_data :
                scrram_cs ? scrram2main_data :
-               objram_cs ? objram2main_data :
-               secr      ? mcu_dout :
-               cab_cs    ? cab_dout : 16'h0;
+	               objram_cs ? objram2main_data :
+	               secr      ? mcu_dout :
+	               cab_cs    ? cab_dout : 16'h0;
 end
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 jtframe_edge u_mcuint(
     .rst        ( rst           ),

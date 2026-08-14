@@ -169,7 +169,8 @@ jtrungun_sound u_sound(
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )
 );
-/* verilator tracing_off */
+
+/* verilator tracing_on */
 jtrungun_video u_video(
     .rst            ( rst_video     ),
     .clk            ( clk           ),
@@ -188,6 +189,7 @@ jtrungun_video u_video(
     .vs             ( VS            ),
     .hdump          ( game_hdump    ),
     .vdump          ( game_vrender  ),
+    .vrender        (               ),
     // CPU interface
     .ccu_cs         ( ccu_cs        ),   // timer
     .psac_cs        ( psac_cs       ),
@@ -253,5 +255,6 @@ jtrungun_video u_video(
     .ioctl_addr     (ioctl_addr[14:0]),
     .ioctl_din      ( ioctl_din     )
 );
+/* verilator tracing_off */
 
 endmodule

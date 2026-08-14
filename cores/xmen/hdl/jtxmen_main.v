@@ -46,7 +46,6 @@ module jtxmen_main(
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
-    input                ram_ok,
     input                rom_ok,
     input                vdtac,
     input                tile_irqn,
@@ -84,19 +83,27 @@ reg         cab_cs, snd_cs, iowr_hi, iowr_lo, HALTn,
             eep_di, eep_clk, eep_cs, intdma_enb,
             sndon_r, pair_cs;
 reg  [15:0] cpu_din, cab_dout;
-reg         ok_dly;
+wire        ok_dly;
 wire        eep_rdy, eep_do, bus_cs, bus_busy, BUSn;
 wire        dtac_mux, intdma, IPLn1;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
 `endif
-/* verilator tracing_off */
+
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
-assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs | ram_cs) & ~ok_dly;
+assign bus_cs   = rom_cs;
+assign bus_busy = rom_cs & ~ok_dly;
 assign BUSn     = ASn | (LDSn & UDSn);
+
+jtframe_okdly u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( rom_cs ),
+    .ok     ( rom_ok ),
+    .ok_dly ( ok_dly )
+);
 
 assign cpu_we   = ~RnW;
 
@@ -154,7 +161,6 @@ jtframe_edge #(.QSET(0)) u_ff(
 );
 
 always @(posedge clk) begin
-    ok_dly <= rom_ok | ram_ok;
     IPLn <= { intdma | ~IPLn1, IPLn1, intdma & tile_irqn };
 
     HALTn   <= dip_pause & ~rst;
@@ -233,6 +239,7 @@ jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
 
 // The board seems to control DTACKn with combinational logic
 // DTACKn follows ASn with a delay of ~15.6ns
+wire slow_mem = rom_cs | ram_cs;
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -247,7 +254,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
+    .wait2      ( slow_mem  ),
     .wait3      ( 1'b0      ),
     // Frequency report
     .fave       (           ),

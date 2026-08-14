@@ -23,12 +23,8 @@ module jtrastan_colmix(
     input           opwolf,
     input           rbisland,
 
-    input    [11:1] main_addr,
-    input    [15:0] main_dout,
-    output   [15:0] main_din,
-    input    [ 1:0] main_dsn,
-    input           main_rnw,
-    input           pal_cs,        // selection from address decoder
+    output   [11:1] palram_addr,
+    input    [15:0] palram_video_data,
 
     input           preLHBL,
     input           preLVBL,
@@ -47,18 +43,16 @@ module jtrastan_colmix(
     input     [3:0] gfx_en
 );
 
-wire [15:0] pal_dout;
 wire [14:0] pal_rgb;
 reg  [10:0] pal_addr;
 wire        scr1_blank, obj_blank;
-wire [ 1:0] cpu_we;
 
 assign scr1_blank = scr1_pxl[3:0]==0 || !gfx_en[0];
 assign obj_blank  =  obj_pxl[3:0]==0 || !gfx_en[3];
-assign cpu_we     = ~main_dsn & {2{pal_cs & ~main_rnw}};
-assign pal_rgb    = opwolf ? {pal_dout[3:0],pal_dout[12],
-                             pal_dout[7:4],pal_dout[13],
-                             pal_dout[11:8],pal_dout[14]} : pal_dout[14:0];
+assign palram_addr = pal_addr;
+assign pal_rgb    = opwolf ? {palram_video_data[3:0],palram_video_data[12],
+                              palram_video_data[7:4],palram_video_data[13],
+                              palram_video_data[11:8],palram_video_data[14]} : palram_video_data[14:0];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -74,31 +68,6 @@ always @(posedge clk, posedge rst) begin
             pal_addr <= gfx_en[1] ? scr0_pxl : 11'd0;
     end
 end
-
-// The CPU has priority access in the original
-// So it could break the output unless it access
-// only during blankings.
-`ifndef GRAY
-jtframe_dual_ram16 #(
-    .AW         (        11  ),
-    .SIMFILE    ( "pal.bin"  )
-) u_palram(
-    // Port 0: CPU
-    .clk0   ( clk       ),
-    .data0  ( main_dout ),
-    .we0    ( cpu_we    ),
-    .addr0  ( main_addr ),
-    .q0     ( main_din  ),
-    // Port 1
-    .clk1   ( clk       ),
-    .data1  ( 16'd0     ),
-    .addr1  ( pal_addr  ),
-    .we1    ( 2'd0      ),
-    .q1     ( pal_dout  )
-);
-`else
-assign pal_dout = { 1'b0, {3{ pal_addr[3:0],1'b0 }}};
-`endif
 
 jtframe_blank #(
     .DLY( 4),

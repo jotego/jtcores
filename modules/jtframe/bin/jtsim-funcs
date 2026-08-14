@@ -10,7 +10,7 @@ Common options:
     -time <ms>                           Simulate for a fixed number of milliseconds
     -video [frames]                      Dump video output
     -dummyROM                            Use a local dummy rom.bin without set-name lookup
-    -w [frame] | -deep [frame]           Dump waveform data
+    -w [frame] | -deep [frame]           Dump waveform data (overrides .cab tracing_on)
     file.cab                             Feed a cabinet-input script (Verilator)
     -setname <name>                      Build the ROM for a specific setname
     -scene | -s <path>                   Run a saved scene dump
