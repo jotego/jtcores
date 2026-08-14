@@ -5,14 +5,6 @@ params:
   - { name: OBJ0_OFFSET, value: "(`OBJ0_START-`JTFRAME_BA2_START)>>1" }
   - { name: PCMB_OFFSET, value: "(`PCMB_START-`JTFRAME_BA3_START)>>1" }
 
-# The YM2610 has no wait handshake on its ADPCM ROM pins, so a late SDRAM
-# answer is consumed as if it were real data. Gate its clock enable on the
-# ADPCM buses instead: the chip then stalls until the byte arrives rather than
-# decoding whatever the latch held. FM and SSG stall with it, so heavy
-# contention costs a little pitch rather than corrupting samples.
-# The CPUs already recover on their own - the 68000 through bus_busy into
-# jtframe_68kdtack_cen and the Z80 through jtframe_z80_devwait - so gating
-# snd is belt and braces.
 clocks:
   clk:
     - freq: 8 MHz
@@ -32,12 +24,6 @@ audio:
   channels:
     - { name: fm, data_width: 16, stereo: true, rsum: 10k }
 
-# Slot 0 of each bank has absolute priority over slot 1 (jtframe_rom_2slots).
-# Order by who can WAIT, not by who is gfx: the 68000 has DTACK and the sprite
-# engines fill a line buffer across a whole line, so both absorb latency. The
-# tilemap feeds the raster directly, a stalled Z80 kills ALL sound including FM,
-# and the YM2610 has no handshake at all - those go first.
-# Putting snd and scr0 in slot 1 is what cost aerofgtb its sound and tiles.
 sdram:
   banks:
     - buses:

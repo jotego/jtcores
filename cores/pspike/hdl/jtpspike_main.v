@@ -72,9 +72,9 @@ wire        two;   // turbofrc family: two layers, two sprite chips
 assign      two = turbofrc | aerofgt | karatblz;
 
 `ifndef NOMAIN
-// 10 MHz out of 57.2727 MHz
-localparam [6:0] CEN_NUM = 7'd3;
-localparam [7:0] CEN_DEN = 8'd16;    // 53.365MHz * 3/16 = 10.006MHz
+// 10 MHz out of 56 MHz
+localparam [6:0] CEN_NUM = 7'd5;
+localparam [7:0] CEN_DEN = 8'd28;    // 56 * 5/28 = 10.000MHz
 
 wire [23:1] A;
 reg  [15:0] cpu_din;
