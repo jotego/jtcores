@@ -72,9 +72,11 @@ wire        two;   // turbofrc family: two layers, two sprite chips
 assign      two = turbofrc | aerofgt | karatblz;
 
 `ifndef NOMAIN
-// 10 MHz out of clk48. With JTFRAME_SDRAM96 clk is 112MHz and clk48 is 56MHz
-localparam [6:0] CEN_NUM = 7'd5;
-localparam [7:0] CEN_DEN = 8'd28;    // 56 * 5/28 = 10.000MHz
+// 10 MHz (XTAL 20/2) out of clk48. With JTFRAME_SDRAM96 the PLL doubles, so
+// clk is 85.909088MHz and clk48 is 42.954544MHz. 44/189 hits 10 MHz to within
+// 0.34 Hz; num2={num,1'b0}=88 still fits the W=8 field
+localparam [6:0] CEN_NUM = 7'd44;
+localparam [7:0] CEN_DEN = 8'd189;   // 42.954544 * 44/189 = 10.000000MHz
 
 wire [23:1] A;
 reg  [15:0] cpu_din;
@@ -370,7 +372,7 @@ jtframe_virq u_virq(
     .custom_n   (           )
 );
 
-jtframe_68kdtack_cen #(.W(8)) u_dtack(
+jtframe_68kdtack_cen #(.W(8),.MFREQ(`JTFRAME_MCLK/2000)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cen10     ),
