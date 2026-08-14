@@ -30,12 +30,10 @@ module jtvlfied_video(
     // CPU buses
     input    [18:1] main_addr,
     input    [15:0] main_dout,
-    output   [15:0] oram_dout,
     output   [15:0] fb_dout,
     output   [15:0] vctrl_dout,
     input    [ 1:0] main_dsn,
     input           main_rnw,
-    input           obj_cs,
     input           fb_cs,
     output          fb_ok,          // -> 68k DTACK
     input           vmask_cs,
@@ -46,8 +44,11 @@ module jtvlfied_video(
     output   [12:0] pal_addr,
     input    [15:0] pal_data,
 
+    output   [12:1] objram_addr,
+    input    [15:0] objram_dout,
+
     // sprite graphics ROM (PC090OJ) — SDRAM bank 2
-    output   [18:1] orom_addr,
+    output   [19:2] orom_addr,
     input    [31:0] orom_data,
     output          orom_cs,
     input           orom_ok,
@@ -71,11 +72,7 @@ module jtvlfied_video(
 
     input     [3:0] gfx_en,
     input     [7:0] debug_bus,
-    output    [7:0] st_dout,
-    // NVRAM (debug) dump
-    input    [10:0] ioctl_addr,
-    output   [ 7:0] ioctl_din,
-    input           ioctl_ram
+    output    [7:0] st_dout
 );
 
 wire        preLHBL, preLVBL;
@@ -159,12 +156,8 @@ jtrastan_obj u_obj(
     .hdump      ( H         ),
     .vrender    ( vrender1  ),
 
-    .main_addr  ( main_addr[12:1] ),
-    .main_dout  ( main_dout ),
-    .main_din   ( oram_dout ),
-    .main_dsn   ( main_dsn  ),
-    .main_rnw   ( main_rnw  ),
-    .obj_cs     ( obj_cs    ),
+    .ram_addr   ( objram_addr ),
+    .ram_data   ( objram_dout ),
     .dtackn     ( dummy_dtack),
 
     .rom_addr   ( orom_addr ),
@@ -172,10 +165,7 @@ jtrastan_obj u_obj(
     .rom_cs     ( orom_cs   ),
     .rom_ok     ( orom_ok   ),
     .pxl        ( obj_pxl   ),
-    .debug_bus  ( debug_bus ),
-    .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( ioctl_addr),
-    .ioctl_din  ( ioctl_din )
+    .debug_bus  ( debug_bus )
 );
 
 jtvlfied_colmix u_colmix(

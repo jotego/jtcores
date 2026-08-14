@@ -39,6 +39,18 @@ sdram:
         addr_width: 19
         data_width: 16
 bram:
+  - name: objram
+    addr_width: 13
+    data_width: 16
+    addr: objram_addr
+    ioctl: { save: true, restore: true, order: 0 }
+    dual_port:
+      name: main
+      addr: main_addr[12:1]
+      din: main_dout
+      dout: objram2main_data
+      rw: true
+      we: objram_we
   - name: ram
     addr_width: 14
     data_width: 16

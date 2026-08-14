@@ -20,7 +20,7 @@ module jtvlfied_game(
     `include "jtframe_game_ports.inc"
 );
 
-wire [15:0] oram_dout, fb_dout, vctrl_dout;
+wire [15:0] fb_dout, vctrl_dout;
 wire [ 1:0] main_dsn;
 wire        obj_cs, ram_cs, fb_cs, pal_cs, vmask_cs, sprctrl_cs, vctrl_cs, main_rnw;
 wire        sn_we, sn_rd, main_cen;
@@ -33,19 +33,16 @@ wire [11:1] cchip_addr;
 wire [ 7:0] cchip_dout;
 wire        cchip_rnw;
 wire        fb_ok;
-wire [ 7:0] ioctl_obj;
 
 assign dip_flip   = 1'b0;
 assign flip       = ~dipsw[1];   // DSWA bit1: 0 = Flip Screen On
 assign st_dout    = 0;
 // debug_view carries video_ctrl / video_mask, selected by debug_bus
 assign cchip_rnw  = main_rnw | main_dsn[0];
-`ifdef JTFRAME_IOCTL_RD
-assign ioctl_din  = ioctl_obj;
-`endif
 
 assign ram_we = {2{ram_cs & ~main_rnw}} & ~main_dsn;
-assign pal_we = {2{pal_cs & ~main_rnw}} & ~main_dsn;
+assign pal_we    = {2{pal_cs & ~main_rnw}} & ~main_dsn;
+assign objram_we = {2{obj_cs & ~main_rnw}} & ~main_dsn;
 
 jtvlfied_main u_main(
     .rst        ( rst       ),
@@ -61,12 +58,12 @@ jtvlfied_main u_main(
     .obj_cs     ( obj_cs    ),
     .fb_cs      ( fb_cs     ),
     .pal_cs     ( pal_cs    ),
+    .oram_dout  ( objram2main_data ),
     .vmask_cs   ( vmask_cs  ),
     .sprctrl_cs ( sprctrl_cs),
     .vctrl_cs   ( vctrl_cs  ),
     .obj_pal    ( obj_pal   ),
 
-    .oram_dout  ( oram_dout ),
     .pal_dout   ( pal_dout  ),
     .fb_dout    ( fb_dout   ),
     .vctrl_dout ( vctrl_dout),
@@ -154,12 +151,10 @@ jtvlfied_video u_video(
 
     .main_addr  ( main_addr[18:1] ),
     .main_dout  ( main_dout ),
-    .oram_dout  ( oram_dout ),
     .fb_dout    ( fb_dout   ),
     .vctrl_dout ( vctrl_dout),
     .main_dsn   ( main_dsn  ),
     .main_rnw   ( main_rnw  ),
-    .obj_cs     ( obj_cs    ),
     .fb_cs      ( fb_cs     ),
     .fb_ok      ( fb_ok     ),
     .vmask_cs   ( vmask_cs  ),
@@ -168,6 +163,9 @@ jtvlfied_video u_video(
 
     .pal_addr   ( palrd_addr),
     .pal_data   ( pal_data  ),
+
+    .objram_addr( objram_addr ),
+    .objram_dout( objram_dout ),
 
     .orom_addr  ( orom_addr ),
     .orom_data  ( orom_data ),
@@ -193,10 +191,7 @@ jtvlfied_video u_video(
 
     .gfx_en     ( gfx_en    ),
     .debug_bus  ( debug_bus ),
-    .st_dout    ( debug_view),
-    .ioctl_addr ( ioctl_addr[10:0]),
-    .ioctl_din  ( ioctl_obj ),
-    .ioctl_ram  ( ioctl_ram )
+    .st_dout    ( debug_view)
 );
 
 endmodule

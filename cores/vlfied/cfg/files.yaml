@@ -22,13 +22,13 @@ jtframe:
       - jtframe_dual_nvram.v
       - jtframe_dual_ram16.v
       - jtframe_dual_nvram16.v
-      - jtframe_obj_buffer.v
       - jtframe_rpwp_ram.v
   - from: clocking
     get:
       - jtframe_sync.v
   - from: video
     get:
+      - jtframe_obj.yaml
       - jtframe_vtimer.v
       - jtframe_blank.v
       - jtframe_linebuf.v
