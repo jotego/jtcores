@@ -95,7 +95,7 @@ wire        kb_rom, kb_ram, kb_ram2, kb_vram0, kb_vram1, kb_lut0, kb_lut1,
 
 wire        ffblk;
 reg  [15:0] cab_dout;
-reg         rom_ok_dly;
+wire        rom_ok_dly;
 
 assign main_addr = A[19:1];
 assign main_rnw  = cpu_rnw;
@@ -194,7 +194,16 @@ assign gfxbank   = two ? { bankw[1], bankw[0] }
 assign bus_cs    = rom_cs;
 assign bus_busy  = rom_cs & ~rom_ok_dly;
 
-always @(posedge clk) rom_ok_dly <= rom_ok;
+// NOT "ok_dly <= rom_ok": rom_ok can still be high from the PREVIOUS access
+// when rom_cs rises for a new one, which releases DTACK a cycle early and
+// latches stale data. jtframe_okdly ands cs with ok before delaying.
+jtframe_okdly #(.W(1)) u_okdly(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .cs     ( rom_cs    ),
+    .ok     ( rom_ok    ),
+    .ok_dly ( rom_ok_dly)
+);
 
 // Cabinet inputs, all active low to match the arcade ports.
 //
