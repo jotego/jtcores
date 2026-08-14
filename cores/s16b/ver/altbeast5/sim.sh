@@ -1,2 +1,2 @@
 #!/bin/bash
-jtsim -nosnd -inputs -video 196 -w 184
+jtsim -nosnd -video 196 -w 184

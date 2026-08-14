@@ -29,6 +29,7 @@ module jtrungun_video(
     output             vs,
     output      [ 8:0] hdump,
     output      [ 7:0] vdump,
+    output      [ 7:0] vrender,
     // CPU interface
     input              ccu_cs,   // timer
     input              psac_cs,
@@ -104,7 +105,7 @@ wire [ 3:0] fix_pal, ommra;
 wire [ 1:0] oram_we, shadow;
 wire        cpu_we, hld, vld, obj_done;
 reg  [14:0] ioctl_adj;
-wire        iosel_obj, iosel_ccu, iosel_psc, virt_hs, virt_lhbl, virt_cen;
+wire        iosel_obj, iosel_ccu, iosel_psc, virt_hs, virt_lhbl, virt_cen, obj_cen;
 
 assign cpu_we    = ~rnw;
 assign oram_we   = ~cpu_dsn & {2{~rnw}};
@@ -142,7 +143,8 @@ jtrungun_vtimer u_vtimer(
     .hdump      ( hdump         ),
     .hdumpf     (               ),
     .vdump      ( vdump         ),
-    .vdumpf     (               )
+    .vdumpf     (               ),
+    .vrender    ( vrender       )
 );
 
 // video timer
@@ -225,6 +227,7 @@ jtrungun_lfbuf_ctrl u_lfbuf_ctrl(
     .hsa_len    ( hsa_len       ),
 
     .cen        ( virt_cen      ),
+    .obj_cen    ( obj_cen       ),
     .hs         ( virt_hs       ),
     .lhbl       ( virt_lhbl     ),
     .hdump      ( virt_hdump    ),
@@ -314,10 +317,10 @@ jtrungun_psac u_psac(
 localparam [9:0] OVOFFSET = 10'h10f;
 
 jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),
-               .HOFFSET(10'd2),.EDGE_TRIGGER(EDGE_TRIGGER)) u_obj(    // sprite logic
+               .HOFFSET(10'd3),.EDGE_TRIGGER(EDGE_TRIGGER)) u_obj(    // sprite logic
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .pxl_cen    ( virt_cen  ),
+    .pxl_cen    ( obj_cen   ),
     .pxl2_cen   ( pxl2_cen  ),  // for DMA only
     .simson     ( 1'b0      ),
     .ln_done    ( obj_done  ),
@@ -358,7 +361,7 @@ jtsimson_obj #(.PACKED(0),.SHADOW(1),.K55673(1),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),
-    .debug_bus  ( debug_bus )
+    .debug_bus  ( 8'd0      )
 );
 
 jtrungun_colmix u_colmix(

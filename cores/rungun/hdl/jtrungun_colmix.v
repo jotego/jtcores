@@ -30,16 +30,20 @@ module jtrungun_colmix(
     input      [ 7:0] debug_bus
 );
 
-wire        shad, fix_op, psc_op, obj_op;
+localparam [ 1:0] FIX =2'b00, PSC=2'b01;
+localparam [10:0] BACK=11'h7ff;
+localparam [ 0:0] OBJ =1'b1;
 
-assign fix_op = fix_pxl[3:0]!=0 && gfx_en[0];
-assign psc_op = psc_pxl[3:0]!=0;
-assign obj_op = obj_pxl[3:0]!=0;
-assign pxl[15:12]=0;
-assign pxl[11] = lrsw;
-assign pxl[10: 0] =  fix_op ?         {2'b00,fix_pxl, 1'b0} :
-        !psc_op || (!pri && obj_op) ? {1'b1, obj_pxl, 1'b0} :
-                                      {2'b01,psc_pxl, shad};
+wire        shad, fix_op, psc_op, obj_op, obj_wins;
+
+assign fix_op     = fix_pxl[3:0]!=0 && gfx_en[0];
+assign psc_op     = psc_pxl[3:0]!=0;
+assign obj_op     = obj_pxl[3:0]!=0;
+assign obj_wins   = (!psc_op && obj_op ) || (!pri && obj_op);
+assign pxl[15:11] = {4'd0,lrsw};
+assign pxl[10: 0] =  fix_op ? {FIX, fix_pxl, 1'b0} :
+                   obj_wins ? {OBJ, obj_pxl, 1'b0} :
+                     psc_op ? {PSC, psc_pxl, shad} : BACK;
 
 assign shad = |shadow;
 

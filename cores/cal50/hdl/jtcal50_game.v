@@ -186,7 +186,7 @@ jtcal50_video u_video(
     .green          ( green         ),
     .blue           ( blue          ),
     // IOCTL dump
-    .ioctl_addr     (ioctl_addr[2:0]),
+    .ioctl_addr     (ioctl_addr[3:0]),
     .ioctl_din      ( ioctl_din     ),
     // Test
     .gfx_en         ( gfx_en        ),

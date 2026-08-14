@@ -30,7 +30,9 @@ module jtframe_ram_rdmux #(parameter
 
     // read ports
     input      [AW-1:0] addr_a,addr_b,
-    output reg [DW-1:0] douta,doutb
+    input               cs_a,cs_b,
+    output reg [DW-1:0] douta,doutb,
+    output reg          ok_a,ok_b
 );
 
 reg a_sel=0;
@@ -39,9 +41,17 @@ assign addr = a_sel ? addr_a : addr_b;
 
 always @(posedge clk) begin
     a_sel <= ~a_sel;
+    ok_a <= 0;
+    ok_b <= 0;
     // a_sel inverted because of 1-tick latency from RAM
-    if(~a_sel) douta <= data;
-    if( a_sel) doutb <= data;
+    if(~a_sel && cs_a) begin
+        douta <= data;
+        ok_a <= 1;
+    end
+    if( a_sel && cs_b) begin
+        doutb <= data;
+        ok_b <= 1;
+    end
 end
 
 endmodule

@@ -1,0 +1,33 @@
+.TH JTUTIL-MP4 1 "August 2026" "JTFRAME" "User Commands"
+.SH NAME
+jtutil-mp4 \- create an MP4 video from simulation frames and audio
+.SH SYNOPSIS
+.B jtutil mp4
+.RI [ options ]
+.SH DESCRIPTION
+Creates an MP4 video from PNG frames and the accompanying \fBtest.wav\fR.
+By default, it reads \fBframes/frame_*.png\fR and \fBtest.wav\fR below the
+current directory. The \fB-p\fR option selects another simulation directory.
+.PP
+Frames are copied into a temporary directory below \fB/tmp\fR. Missing frame
+numbers are filled by copying the preceding available frame, without changing
+the source frames. Both \fBframe_*.png\fR and \fBframes_*.png\fR names are
+accepted.
+.PP
+The default frame rate is read from \fBJTFRAME_RATE\fR in the current core's
+\fBcfg/macros.def\fR when available. Otherwise, it is 60 Hz. Simulation
+scripts pass their measured frame rate explicitly.
+.PP
+The default output name is \fBtest.mp4\fR.
+.SH OPTIONS
+.TP
+.BI "-p, --path " directory
+Simulation directory containing \fBtest.wav\fR and \fBframes/\fR.
+.TP
+.BI "-o, --output " file
+Output MP4 file. The default is \fBtest.mp4\fR.
+.TP
+.BI "-r, --rate " hz
+Override the video frame rate in Hz.
+.SH SEE ALSO
+.BR ffmpeg (1)

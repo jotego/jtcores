@@ -35,6 +35,7 @@ module jtrungun_lfbuf_ctrl(
                       hsa_len,  // HS end to active video start
 
     output reg        cen=0,
+    output reg        obj_cen=0,
     output reg        hs=0, lhbl=0,
     output reg [ 8:0] hdump=0,
     output     [ 8:0] hdumpf,
@@ -67,8 +68,10 @@ always @(posedge clk) begin
     ln_done <= rest_done && (blank_v || obj_done);
     cencnt  <= (cencnt==2 && data_ok) ? 2'd0 : cencnt!=2 ? cencnt+1'd1 : cencnt;
     cen     <= &{data_ok,cencnt==2, ~rest_done};
+    obj_cen <= &{data_ok,cencnt==2, ~rest_done|~obj_done};
     if(blank_v) begin
-        cen <= ~ln_done;
+        cen     <= ~ln_done;
+        obj_cen <= ~ln_done;
     end
     lnhs_l <= ln_hs;
     if(cen && !rest_done ) begin

@@ -4,6 +4,7 @@ jtsim \- run JTFRAME simulations
 .SH SYNOPSIS
 .B jtsim
 .RI [ options ]
+.RI [ file.cab ]
 .SH DESCRIPTION
 .B jtsim
 runs a core simulation from a verification folder, typically
@@ -83,9 +84,6 @@ This uses the IOCTL dump interface and requires
 Increase C++ optimization for Verilator simulations.
 This can speed up long runs, but may reduce stability in some cases.
 .TP
-.BI "\-frame " count
-Simulate up to the given number of frames.
-.TP
 .B \-fx68k
 Keep FX68K support files for Icarus Verilog runs.
 .TP
@@ -107,35 +105,60 @@ Show the short command-line help.
 Use
 \fBman jtsim\fR
 for the full reference.
+.SH CABINET INPUTS
 .TP
-.B \-inputs
-Enable the
-\fBSIM_INPUTS\fR
-macro and load cabinet inputs either from the file following
-\fB-inputs\fR
-or from an existing
-\fBsim_inputs.hex\fR.
+.BI file.cab
+Pass the cabinet script to the Verilator executable as \fB--inputs file.cab\fR.
 .PP
-If the supplied file ends in
-\fB.cab\fR,
-it is converted with
-\fBjtframe cab\fR.
-Otherwise it is copied directly to
-\fBsim_inputs.hex\fR.
+The file must have the \fB.cab\fR extension. Its contents are validated before
+the simulation starts; malformed timing, loop, action, or cheat entries stop
+the run with an error. Cabinet scripts are supported by the Verilator harness.
 .PP
-Plain hexadecimal input files use one active-high value per line:
+Cabinet frames are applied at the rising edge of \fBLVBL\fR, after
+vertical-blank processing has completed.
+.PP
+Without an explicit \fB-video count\fR, the simulation runs until every frame
+expanded from the cabinet script has been executed, including idle-only frame
+count lines.
+.PP
+Each non-comment line has an optional frame count followed by zero or more
+inputs: \fBcoin\fR, \fB2coin\fR, \fBservice\fR, \fB1p\fR, \fB2p\fR,
+\fBright\fR, \fBleft\fR, \fBdown\fR, \fBup\fR, \fBb1\fR, \fBb2\fR,
+\fBb3\fR, their \fB2...\fR player-two forms, \fBtest\fR, \fBreset\fR,
+and \fBdump\fR.
+.PP
+\fBtracing_on\fR enables Verilator tracing at that cabinet frame. It has
+the same delayed-dump effect as \fBjtsim -w <frame>\fR; no VCD samples are
+written before the command, so the resulting \fBtest.fst\fR begins there. It
+may be used once in a cabinet frame. With \fB=<frame> action\fR, the action
+fires only on the final frame of the absolute wait.
+Use \fBloop\fR and \fBrepeat <count>\fR to repeat a block, or
+\fB=<frame>\fR for an absolute final frame.
+.PP
+\fBdump\fR starts an IOCTL state dump at that cabinet frame. When the read
+finishes, it writes \fBscenes/<frame>/dump.bin\fR, which can be restored with
+\fBjtsim -s <frame>\fR. It requires \fBJTFRAME_IOCTL_RD\fR.
+.PP
+\fBdipsw=<hex-value>\fR overrides the DIP-switch value driven by the test
+bench from that frame onward. It can be combined with button inputs and is
+validated as an unsigned hexadecimal value; the \fB0x\fR prefix is optional.
+.PP
+An entry of the form \fBcheat=<name>\fR applies the named cheat once on each
+requested frame. Cheats are defined by the current core's
+\fBcfg/cheat.yaml\fR and can only write SDRAM-backed CPU RAM. A definition is:
 .RS
 .nf
-3:0   { start[1:0], service, coin[0] }
-7:4   1P joystick: up, down, left, right
-10:8  buttons B3, B2, B1
-11    test
-12    reset
-13    coin[1]
-17:14 2P joystick: up, down, left, right
-20:18 2P buttons: B3, B2, B1
+cabal:
+  - name: finish
+    mame: "Finish Current Level Now!"
+    sdram:
+      - { bank: 0, offset: 0x1234, byte-mask: 0x01, data: 0x01 }
 .fi
 .RE
+Names may contain letters, digits, underscores, and hyphens. The byte mask is
+\fB1\fR, \fB2\fR, or \fB3\fR; bit 0 selects the byte at \fBoffset\fR and bit 1
+selects the following byte. The top-level YAML keys are MAME machine or
+setname selectors, and each contains its applicable cheat array.
 .TP
 .B \-iverilog
 Use Icarus Verilog as the simulator.
@@ -297,11 +320,10 @@ Symbolic link to the selected ROM image for the current set. For cores defining
 .BI "sdram_bank" n ".bin"
 Prebuilt SDRAM bank contents reused by later simulations.
 .TP
-.B sim_inputs.hex
-Cabinet inputs for frame-by-frame replay.
+.BI file.cab
+Cabinet input script for frame-by-frame replay.
 .SH SEE ALSO
 .BR jtframe (1),
-.BR jtframe-cab (1),
 .BR jtframe-cfgstr (1),
 .BR jtframe-files (1),
 .BR jtframe-mem (1),

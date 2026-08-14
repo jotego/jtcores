@@ -79,7 +79,7 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_LO ),
     .SIMFILE_BYTE( LO_BYTE     ),
-    .FULL_DW   ( 16            ),
+    .SIMFILE_DW( 16            ),
     .LATCH_IN  ( LATCH_IN      ),
     .LATCH_OUT ( LATCH_OUT     )  )
 u_lo(
@@ -98,7 +98,7 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_HI ),
     .SIMFILE_BYTE( HI_BYTE     ),
-    .FULL_DW   ( 16            ),
+    .SIMFILE_DW( 16            ),
     .LATCH_IN  ( LATCH_IN      ),
     .LATCH_OUT ( LATCH_OUT     )  )
 u_hi(

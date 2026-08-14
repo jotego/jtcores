@@ -18,7 +18,12 @@
 
 // This is object processor section of the SETA chip
 
-module jtkiwi_obj(
+module jtkiwi_obj #(
+    parameter [8:0] XOFF=0,
+    parameter [7:0] YOFF=0,
+    parameter       YWRAP=0,
+    parameter [8:0] LIMIT=9'h1ff
+)(
     input               rst,
     input               clk,
     input               lut_cen,
@@ -52,6 +57,7 @@ reg  [ 4:0] pal, dr_pal;
 reg  [ 3:0] dr_ysub, ysub;
 reg  [ 8:0] ydiff, dr_xpos;
 reg  [ 8:0] xpos;
+wire [ 7:0] ypos;
 wire [ 8:0] vf;
 reg  [ 1:0] st;
 reg         dr_draw, dr_hflip, dr_vflip,
@@ -65,10 +71,16 @@ wire        buf_we;
 assign lut_addr = { page, 1'b0, ~st[1], objcnt }; // 1 + 1 + 1 + 9 = 12
 assign y_addr   = objcnt;
 assign vf       = {9{flip}} ^ (vdump-9'd1);
+assign ypos     = y_data + YOFF;
 
 always @* begin
-    ydiff = { 1'b0, vf[7:0] } - {1'b0, y_data };
-    match = ydiff[8:4]==0;
+    if( YWRAP ) begin
+        ydiff = {1'b0, vf[7:0] - ypos};
+        match = ydiff[7:4]==0;
+    end else begin
+        ydiff = {1'b0, vf[7:0]} - {1'b0, ypos};
+        match = ydiff[8:4]==0;
+    end
 end
 
 // Columns are 32-pixel wide
@@ -85,8 +97,8 @@ always @(posedge clk, posedge rst) begin
         dr_ysub <= 0;
     end else begin
         dr_draw <= 0;
-        if( hs || vdump>9'hf8 ) begin
-            objcnt  <= 9'h1ff;
+        if( hs || (!YWRAP && vdump>9'hf8) ) begin
+            objcnt  <= LIMIT;
             done    <= 0;
             st      <= 0;
             dr_draw <= 0;
@@ -110,7 +122,7 @@ always @(posedge clk, posedge rst) begin
                         dr_hflip <= hflip^flip;
                         dr_vflip <= vflip;
                         dr_pal   <= pal;
-                        dr_xpos  <= xpos;
+                        dr_xpos  <= xpos + XOFF;
                         dr_ysub  <= ~ysub;
                         objcnt   <= objcnt - 1'd1;
                         done     <= objcnt==0;

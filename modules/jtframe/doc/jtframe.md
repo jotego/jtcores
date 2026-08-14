@@ -154,9 +154,10 @@ The main `jtframe` calls in `jtsim` and `jtsim-funcs` are:
    - Produces the raw simulation file lists that `jtsim` later filters into the
      final `filtered.f`.
 
-7. `jtframe cab <file>.cab` when the user passes `-inputs somefile.cab`
+7. The Verilator harness reads the `.cab` file passed through
+   `jtsim somefile.cab` directly.
 
-   - Converts cabinet input scripts to `sim_inputs.hex`.
+   - It validates the cabinet script before the simulation starts.
 
 So the simulation flow is not a separate hand-maintained project. It is another
 projection of the same core configuration data, with `jtframe` selecting local

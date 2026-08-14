@@ -86,7 +86,7 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_0  ),
     .SIMFILE_BYTE( BYTE0_SEL   ),
-    .FULL_DW   ( 32            ),
+    .SIMFILE_DW( 32            ),
     .LATCH_IN  ( LATCH_IN      ),
     .LATCH_OUT ( LATCH_OUT     )  )
 u_byte0(
@@ -104,7 +104,7 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_1  ),
     .SIMFILE_BYTE( BYTE1_SEL   ),
-    .FULL_DW   ( 32            ),
+    .SIMFILE_DW( 32            ),
     .LATCH_IN  ( LATCH_IN      ),
     .LATCH_OUT ( LATCH_OUT     )  )
 u_byte1(
@@ -122,7 +122,7 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_2  ),
     .SIMFILE_BYTE( BYTE2_SEL   ),
-    .FULL_DW   ( 32            ),
+    .SIMFILE_DW( 32            ),
     .LATCH_IN  ( LATCH_IN      ),
     .LATCH_OUT ( LATCH_OUT     )  )
 u_byte2(
@@ -140,7 +140,7 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_3  ),
     .SIMFILE_BYTE( BYTE3_SEL   ),
-    .FULL_DW   ( 32            ),
+    .SIMFILE_DW( 32            ),
     .LATCH_IN  ( LATCH_IN      ),
     .LATCH_OUT ( LATCH_OUT     )  )
 u_byte3(

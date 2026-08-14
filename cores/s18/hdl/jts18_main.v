@@ -140,7 +140,8 @@ wire [23:0] A_full = {A,1'b0};
 
 wire        BRn, BGACKn, BGn,
             BUSn, cpu_RnW, ok_dly, io_we, io_rd;
-reg         sdram_ok, io_cs, vdp_cs, vram_ok_dly;
+reg         sdram_ok, io_cs, vdp_cs;
+wire        vram_ok_dly;
 wire [15:0] rom_dec, cpu_dout_raw;
 
 wire [ 7:0] active, mcu_din, mcu_dout;
@@ -244,6 +245,14 @@ end
 always @* begin
     sdram_ok = ASn || (rom_cs ? ok_dly : vram_ok_dly);
 end
+
+jtframe_okdly u_vram_okdly(
+    .rst    ( rst         ),
+    .clk    ( clk         ),
+    .cs     ( vram_cs     ),
+    .ok     ( vram_ok     ),
+    .ok_dly ( vram_ok_dly )
+);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -411,7 +420,6 @@ jts18_io u_ioctl(
 
 // Data bus input
 always @(posedge clk) begin
-    vram_ok_dly <= vram_ok;
     if(rst) begin
         cpu_din <= 0;
     end else begin

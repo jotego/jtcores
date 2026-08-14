@@ -136,7 +136,8 @@ wire [23:0] A_full = {A,1'b0};
 wire        BRn, BGACKn, BGn;
 wire        ASn, UDSn, LDSn, BUSn;
 wire        ok_dly;
-reg         sdram_ok, ram_ok_dly;
+reg         sdram_ok;
+wire        ram_ok_dly;
 wire [15:0] rom_dec, cpu_dout_raw, mul_dout, cmp_dout, cmp2_dout;
 
 reg         io_cs, mul_cs, cmp_cs, cmp2_cs, wdog_cs, tbank_cs;
@@ -308,6 +309,16 @@ always @* begin
     sdram_ok = ASn || (rom_cs ? ok_dly : ram_ok_dly);
 end
 
+wire ram_acc = ram_cs | vram_cs;
+
+jtframe_okdly u_ram_okdly(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cs     ( ram_acc    ),
+    .ok     ( ram_ok     ),
+    .ok_dly ( ram_ok_dly )
+);
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
             rom_cs    <= 0;
@@ -477,7 +488,6 @@ jts16b_cabinet u_cabinet(
 
 // Data bus input
 always @(posedge clk) begin
-    ram_ok_dly <= ram_ok;
     if(rst) begin
         cpu_din <= 0;
     end else begin

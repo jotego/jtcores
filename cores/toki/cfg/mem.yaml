@@ -1,5 +1,6 @@
 params:
   # offsets are relative to each SDRAM bank start and divided by two
+  - { name: RAM_OFFSET,       value:  "26'h80000" }
   - { name: GFX_1_HI_OFFSET,  value:  "26'h08000" }
   - { name: GFX_3_OFFSET,     value:  "26'h10000" }
   - { name: GFX_4_OFFSET,     value:  "26'h50000" }
@@ -28,7 +29,12 @@ audio:
 sdram:
   banks:
     - buses:
-      - name: cpu_rom
+      - name: ram
+        addr_width: 16
+        data_width: 16
+        offset: RAM_OFFSET
+        rw: true
+      - name: main
         addr_width: 19
         data_width: 16
     - buses:
@@ -72,14 +78,6 @@ sdram:
         addr_width: 20
         data_width: 16
 bram:
-  - name: ram
-    addr_width: 16
-    data_width: 16
-    addr: ram_addr
-    din: cpu_dout
-    dout: ram_dout
-    we: ram_we
-    rw: true
   - name: pal
     addr_width: 11
     data_width: 16
