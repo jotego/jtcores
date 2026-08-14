@@ -194,10 +194,7 @@ func extractSDRAM(memCfg *mem.MemConfig, core, game string) error {
 		promIdx = 8
 	}
 	bankCount := sdramDumpBankCount(memCfg, offsets, maxBankCount, promIdx)
-	promStart := len(rom)
-	if promIdx < len(offsets) {
-		promStart = offsets[promIdx]
-	}
+	promStart := promEndOffset(offsets, promIdx, len(rom))
 	nxStart := header
 	for bank := 0; bank < bankCount; bank++ {
 		nx := bankEndOffset(bank, bankCount, offsets, promStart)
@@ -231,6 +228,18 @@ func extractSDRAM(memCfg *mem.MemConfig, core, game string) error {
 func bankEndOffset(bank, bankCount int, offsets []int, promStart int) int {
 	if bank+1 < bankCount && bank+1 < len(offsets) && offsets[bank+1] < promStart {
 		return offsets[bank+1]
+	}
+	return promStart
+}
+
+func promEndOffset(offsets []int, promIdx, romLen int) int {
+	if promIdx >= len(offsets) {
+		return romLen
+	}
+	promStart := offsets[promIdx]
+	if promStart > romLen {
+		fmt.Printf("WARNING: JTFRAME_PROM_START ($%X) is beyond ROM end ($%X); using ROM end as PROM boundary\n", promStart, romLen)
+		return romLen
 	}
 	return promStart
 }

@@ -28,47 +28,44 @@ module jtrastan_obj(
     input    [8:0]  hdump,
     input    [8:0]  vrender,
 
-    input    [12:1] main_addr,
-    input    [15:0] main_dout,
-    output   [15:0] main_din,
-    input    [ 1:0] main_dsn,
-    input           main_rnw,
-    input           obj_cs,
+    output   [12:1] ram_addr,
+    input    [15:0] ram_data,
     output          dtackn,
 
-    output reg [18:1] rom_addr,
+    output   [19:2] rom_addr,
     input    [31:0] rom_data,
     output          rom_cs,
     input           rom_ok,
     input    [ 7:0] debug_bus,
-    output   [ 7:0] pxl,
-
-    // NVRAM (debug) dump
-    input    [10:0] ioctl_addr,
-    output   [ 7:0] ioctl_din,
-    input           ioctl_ram
+    output   [ 7:0] pxl
 );
 
-wire [ 1:0] main_we;
 wire [15:0] scan_dout;
+wire [19:2] draw_addr;
+wire [31:0] sorted;
+wire [ 8:0] draw_xpos;
+wire        draw_vflip, dr_busy;
 reg  [15:0] attr, ypos, xpos, code;
 reg         HSl;
 reg  [ 7:0] obj_cnt;
-reg         done, half, dr_busyl;
+reg         done;
 wire        last_obj;
-reg         inzone, dr_busy, dr_start, cur_hflip, buf_we;
-reg  [ 3:0] cur_pal;
-reg  [ 2:0] scan_st, xcnt;
+reg         inzone, dr_start;
+reg  [ 2:0] scan_st;
 reg  [ 1:0] scan_cnt;
-reg  [ 8:0] ydiff, buf_pos;
-reg  [31:0] pxl_data;
-wire [ 3:0] cur_pxl;
+reg  [ 8:0] ydiff;
 
-assign main_we = ~main_dsn & {2{obj_cs & ~main_rnw}};
 assign last_obj = obj_cnt==0;
-assign rom_cs = dr_busy;
-assign cur_pxl = cur_hflip ? pxl_data[31:28] : pxl_data[3:0];
+assign ram_addr = {2'b0, obj_cnt, scan_cnt};
+assign scan_dout = ram_data;
 assign dtackn = 1;
+assign draw_xpos  = xpos[8:0] + 9'd13;
+assign draw_vflip = ~attr[15];
+assign rom_addr   = { draw_addr[19:7], draw_addr[5:2], draw_addr[6] };
+assign sorted     = { rom_data[27:24], rom_data[31:28],
+                      rom_data[19:16], rom_data[23:20],
+                      rom_data[11: 8], rom_data[15:12],
+                      rom_data[ 3: 0], rom_data[ 7: 4] };
 
 always @* begin
     ydiff  = ypos[8:0] - (vrender-9'd8);
@@ -86,7 +83,6 @@ always @(posedge clk, posedge rst) begin
     end else begin
         HSl <= HS;
         dr_start <= 0;
-        dr_busyl <= dr_busy;
 
         if( scan_st != 6 ) begin
             scan_st  <= scan_st + 3'd1;
@@ -115,7 +111,7 @@ always @(posedge clk, posedge rst) begin
                     scan_st <= done ? 3'd0 : 3'd1;
                 end
             end
-            6: if( !dr_busy && !dr_busyl ) begin
+            6: if( !dr_busy ) begin
                 dr_start <= 1;
                 scan_st  <= done ? 3'd0 : 3'd1;
             end
@@ -123,86 +119,37 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// Drawing
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        dr_busy <= 0;
-        buf_we  <= 0;
-        half    <= 0;
-        buf_pos <= 0;
-        cur_pal <= 0;
-        cur_hflip <= 0;
-        rom_addr  <= 0;
-        pxl_data  <= 0;
-    end else begin
-        if( dr_start ) begin
-            rom_addr <= { code[12:0], ydiff[3:0]^{4{~attr[15]}}, attr[14] };
-            half     <= 0;
-            dr_busy  <= 1;
-            buf_pos  <= xpos[8:0] + 9'd13;
-            cur_pal  <= attr[3:0];
-            cur_hflip<= attr[14];
-            buf_we   <= 0;
-        end
-        if( dr_busy ) begin
-            if( rom_cs && rom_ok && !buf_we) begin
-                xcnt <= 7;
-                pxl_data <= {
-                    rom_data[27:24], rom_data[31:28],
-                    rom_data[19:16], rom_data[23:20],
-                    rom_data[11: 8], rom_data[15:12],
-                    rom_data[ 3: 0], rom_data[ 7: 4] };
-                buf_we <= 1;
-            end
-            if( buf_we ) begin
-                rom_addr[1] <= ~cur_hflip;
-                pxl_data <= cur_hflip ? pxl_data<<4: pxl_data>>4;
-                xcnt     <= xcnt-3'd1;
-                buf_pos  <= buf_pos+9'd1;
-                if(xcnt==0) begin
-                    buf_we<=0;
-                    half  <=1;
-                    if( half ) dr_busy <= 0;
-                end
-            end
-        end
-    end
-end
+jtframe_objdraw #(
+    .CW     ( 13 ),
+    .PW     (  8 ),
+    .HJUMP  (  0 ),
+    .HFIX   (  0 ),
+    .LATCH  (  1 ),
+    .PACKED (  1 )
+) u_draw(
+    .rst      ( rst          ),
+    .clk      ( clk          ),
+    .pxl_cen  ( pxl_cen      ),
+    .hs       ( HS           ),
+    .flip     ( flip         ),
+    .hdump    ( hdump        ),
 
-jtframe_dual_nvram16 #(.AW(12),.SIMFILE("obj.bin")) u_ram(
-    // Port 0
-    .clk0   ( clk       ),
-    .data0  ( main_dout ),
-    .addr0  ( main_addr ),
-    .we0    ( main_we   ),
-    .q0     ( main_din  ),
-    // Port 1
-    .clk1   ( clk       ),
-    .data1  (           ),
-    .addr1a ( {2'b0, obj_cnt, scan_cnt} ),
-    .q1a    ( scan_dout ),
-    // NVRAM dump
-    .addr1b ( {2'b0, ioctl_addr} ),
-    .sel_b  ( ioctl_ram ),
-    .we1b   ( 1'd0      ),
-    .q1b    ( ioctl_din )
-);
+    .draw     ( dr_start     ),
+    .busy     ( dr_busy      ),
+    .code     ( code[12:0]   ),
+    .xpos     ( draw_xpos    ),
+    .ysub     ( ydiff[3:0]   ),
+    .hzoom    ( 6'd0         ),
+    .hz_keep  ( 1'b0         ),
+    .hflip    ( attr[14]     ),
+    .vflip    ( draw_vflip   ),
+    .pal      ( attr[3:0]    ),
 
-jtframe_obj_buffer #(
-    .DW     ( 8         ),
-    .ALPHA  ( 0         )
-) u_buffer(
-    .clk    ( clk       ),
-    .LHBL   ( ~HS       ),
-    .flip   ( flip      ),
-    // New data writes
-    .wr_data( { cur_pal, cur_pxl} ),
-    .wr_addr( buf_pos   ),
-    .we     ( buf_we    ),
-    // Old data reads (and erases)
-    .rd_addr( hdump     ),
-    .rd     ( pxl_cen   ),
-    .rd_data( pxl[7:0]  )
+    .rom_addr ( draw_addr    ),
+    .rom_cs   ( rom_cs       ),
+    .rom_ok   ( rom_ok       ),
+    .rom_data ( sorted       ),
+    .pxl      ( pxl          )
 );
 
 endmodule

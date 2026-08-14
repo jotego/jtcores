@@ -33,10 +33,12 @@ sdram:
         addr_width: 16
         data_width: 32
         offset: VRAM_OFFSET
+        when: [ RASTAN_SCRRAM_SDRAM ]
       - name: scr1ram
         addr_width: 16
         data_width: 32
         offset: VRAM_OFFSET
+        when: [ RASTAN_SCRRAM_SDRAM ]
     - buses:
       - name: snd
         addr_width: 16
@@ -63,3 +65,40 @@ sdram:
 bram:
   - { name: cchip_mask,  addr_width: 12, data_width: 8, prom: true }
   - { name: cchip_eprom, addr_width: 13, data_width: 8, prom: true }
+  - name: scrram
+    addr_width: 16
+    data_width: 32
+    addr: vram_vid_addr
+    unless: [ RASTAN_SCRRAM_SDRAM ]
+    ioctl: { save: true, restore: true, order: 1 }
+    dual_port:
+      name: cpu
+      addr: vram_cpu_addr
+      din: vram_cpu_din
+      dout: vram_cpu_dout
+      we: vram_we
+      rw: true
+  - name: objram
+    addr_width: 13
+    data_width: 16
+    addr: objram_addr
+    ioctl: { save: true, restore: true, order: 0 }
+    dual_port:
+      name: main
+      addr: main_addr[12:1]
+      din: main_dout
+      dout: objram2main_data
+      rw: true
+      we: objram_we
+  - name: palram
+    addr_width: 12
+    data_width: 16
+    addr: main_addr[11:1]
+    din: main_dout
+    rw: true
+    we: palram_we
+    ioctl: { save: true, restore: true, order: 2 }
+    dual_port:
+      name: video
+      addr: palram_addr
+      dout: palram_video_data
