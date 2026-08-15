@@ -76,12 +76,10 @@ three names from `[parse.skip]` plus the FM branch in `jttaitox_snd.v`.
   byte-identical to a MAME screenshot — 0 of 92160 pixels differ.
 - Gigandes exercises the paths Superman never touches: the direct input port
   at `900000`, the level-2 interrupt, and the ADPCM-B SDRAM bank.
+- Sound: YM2610 and the TC0140SYT play correctly on hardware.
 
 **Not working**
 
-- **Audio is silent.** The Z80 boots, the TC0140SYT delivers commands and the
-  YM2610's FM operators synthesize (`fm0.raw` is loud), but the chip's mixed
-  output is not. The bug is in the output stage, not the wiring.
 - **Sprite alignment is unverified** beyond the static title screen.
 - **Scene replay does not exist yet.** `ver/superman/mame_scripts/dump_burst.lua`
   captures 20 MAME scenes 300 frames apart (palette, spriteylow, spritectrl,

@@ -116,7 +116,10 @@ assign region   = A[22:20];
 assign dws      = {UDSn,LDSn}!=3;
 
 // F138 #17 - A23 high
-assign syt_cs   = vma &&  a23 && region==3'd0;
+// Qualified by LDS: the comm chip advances its pointer on cs edges, so an
+// address-strobe-only select gives it spurious ones - including from the
+// 800000 read the driver maps as nopr.
+assign syt_cs   = vma &&  a23 && region==3'd0 && !LDSn;
 assign cchip_cs = vma &&  a23 && region==3'd1 && p039a;
 assign pal_cs   = vma &&  a23 && region==3'd3;
 assign vdcm_cs  = vma &&  a23 && region==3'd5;

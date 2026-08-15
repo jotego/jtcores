@@ -105,7 +105,6 @@ always @(posedge clk) begin
            ym_cs   ? ym_dout  :
            syt_sel ? { 4'd0, syt_dout } : 8'hff;
 end
-
 jtrastan_pc060 u_syt(
     .rst        ( rst           ),
     .clk        ( clk           ),

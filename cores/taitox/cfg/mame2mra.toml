@@ -23,18 +23,10 @@ rename=[
     {name="Price to Continue", to="Continue" },
 ]
 
-# Board type, one bit each. The family is three boards and that single
-# fact drives nearly every difference, so the header carries the board and
-# the HDL derives the rest:
-#
+# Board type, one bit each.
 #   p039a  Taito Corp.       superman x3            C-chip, VBL level 6
 #   p051a  Taito Corp.       daisenpu, twinhawk x2  PC060HA + YM2151
 #   p057a  East Technology   gigandes x2, ballbros, kyustrkr
-#
-# Disjoint and complete over all ten sets (driver table lines 18-24), so
-# p057a is strictly redundant with ~p039a & ~p051a - kept one-hot because
-# the board is the core's identity and reads better at the use site.
-#
 # Derived in HDL rather than stored:
 #   direct_in = ~p039a                        taitox_state reads IN0/1/2 at 900000
 #   irq2      = ~p039a                        only the C-chip class installs the L6 ISR
