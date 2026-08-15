@@ -1,4 +1,4 @@
-# JTSUPERMAN — Superman (Taito 1988) FPGA core
+# JTTAITOX — Taito-X (Taito 1988) FPGA core
 
 By Jose Tejada (aka jotego — @topapate)
 
