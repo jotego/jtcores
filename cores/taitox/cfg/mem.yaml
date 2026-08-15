@@ -52,14 +52,12 @@ bram:
     din: cpu_dout
     rw: true
 
-  # Palette RAM behind the X1-006, b00000-b00fff.
-  # 2048 entries = 128 palettes x 16 pens, matching
-  # GFXDECODE_ENTRY("gfx1", 0, tilelayout, 0, 128). Format is xRGB-555
-  # (palette_device::xRGB_555), NOT the xBGR-555 used by most jt cores.
+  # Palette RAM behind the X1-006. The chip only receives 68k A9..A1
+  # (sheet 4, block 55 pins 35-43)
   - name: pal
-    addr_width: 12
+    addr_width: 10
     data_width: 16
-    addr: main_addr[11:1]
+    addr: main_addr[9:1]
     din: cpu_dout
     rw: true
     ioctl:
@@ -70,11 +68,7 @@ bram:
       name: palrd
       dout: pal_data
 
-  # X1-001 internal RAM, d00000-d005ff, one byte per 68000 word:
-  #   0x000-0x1ff sprite Y, 0x200-0x2ff BG column scroll
-  # (seta001.cpp allocates 0x300 bytes for m_spriteylow).
-  # d00600-d00607 are the four spritectrl words — registers in the X1-002,
-  # so they stay in HDL, not here.
+  # X1-001 internal RAM
   - name: yram
     addr_width: 10
     data_width: 8
@@ -90,11 +84,7 @@ bram:
       dout: col_data
 
   # X1-001 external OBJ RAM: the two 4364 SRAMs on schematic sheet 3,
-  # 8K x 16 = 16 kB at e00000-e03fff. taito_x calls draw_sprites with
-  # bank_size 0x1000, i.e. the metafox/arbalest "setac" case, so
-  # jtkiwi_gfx/jtkiwi_obj are instantiated with OBJAW=13.
-  # Addresses and write strobes come from jtkiwi_gfx, which also muxes the
-  # CPU side, so no explicit bindings here.
+  # 8K x 16 = 16 kB at e00000-e03fff.
   - name: dma
     addr_width: 14
     data_width: 16

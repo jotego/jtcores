@@ -187,6 +187,24 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+`ifdef SIMULATION
+// 68000 program-fetch dumper. The stream is a superset of MAME's PC list
+// because the prefetch also fetches extension words.
+integer main_tr; reg asn_q, prog_cyc; reg [23:1] pc_l; reg [15:0] op_l;
+wire prog_rd = FC[1] & ~FC[0] & RnW;
+initial main_tr = $fopen("taitox_main_fpga.tr","w");
+always @(posedge clk) begin
+    asn_q <= ASn;
+    if(!ASn && prog_rd) begin prog_cyc<=1; pc_l<=A; op_l<=cpu_din_w; end
+    if(!asn_q && ASn) begin
+        if(prog_cyc && main_tr!=0) $fwrite(main_tr,"%06X: %04X\n",{pc_l,1'b0},op_l);
+        prog_cyc<=0;
+    end
+end
+final if(main_tr!=0) $fclose(main_tr);
+`endif
+
+
 jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -199,7 +217,7 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
     // 16 MHz XTAL / 2 = 8 MHz, exactly 48/6
-    .num        ( 8'd1      ),
+    .num        ( 7'd1      ),
     .den        ( 8'd6      ),
     .DTACKn     ( DTACKn    ),
     .wait2      ( 1'b0      ),

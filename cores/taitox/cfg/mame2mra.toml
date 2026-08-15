@@ -1,18 +1,11 @@
 [global]
 author=["jotego","Andrea Bogazzi"]
-# The C-chip mask ROM is a device ROM, shipped in cchip.zip rather than in
-# the per-machine set
 zip.alt="cchip.zip"
 
 [parse]
 sourcefile=[ "taito_x.cpp" ]
 
 [parse.skip]
-# daisenpu / twinhawk carry a PC060HA + YM2151 instead of TC0140SYT + YM2610.
-# The comm chip is the same silicon family (jtrastan_pc060.v covers both) but
-# the FM path is not wired yet. Remove these three names once the jt51 branch
-# of jttaitox_snd.v lands — no other cfg change is needed, the SDRAM map and
-# the header registers already cover them.
 setnames=[ "daisenpu", "twinhawk", "twinhawku" ]
 
 [buttons]
@@ -26,18 +19,10 @@ names=[
 
 [dipsw]
 delete=[{names=["Unused","Unknown"]}]
+rename=[
+    {name="Price to Continue", to="Continue" },
+]
 
-# Generates cores/taitox/hdl/jttaitox_header.v with one named, latched output
-# per register, so game.v never decodes raw header bytes by hand.
-#
-# force_flip: MAME tags kyustrkr ROT180, and jtframe's coremod encodes only
-# 90/270 — 180 produces no rotation bit. The game writes spritectrl[0] bit 6
-# every frame to pre-mirror its output expecting the cabinet to undo it, so
-# the HDL inverts that bit instead.
-#
-# fg_yoff8: X1-001 foreground Y offset, signed. MAME's set_fg_yoffsets()
-# first argument; the second (0x0e) and both bg_yoffsets are identical on
-# every set, so they stay as HDL constants.
 [header]
 registers=[
     { name="cchip",        pos="0[0]", desc="TC0030CMD C-chip at 900000", values=[{ setnames=["superman","supermanu","supermanj"], value=1 }] },
@@ -47,24 +32,10 @@ registers=[
     { name="irq2",         pos="0[4]", desc="VBL interrupt on level 2 (Superman uses level 6)", values=[{ setnames=["gigandes","gigandesa","ballbros","kyustrkr","daisenpu","twinhawk","twinhawku"], value=1 }] },
     { name="coinlock_inv", pos="0[5]", desc="Inverted coin-lockout polarity", values=[{ setname="kyustrkr", value=1 }] },
     { name="force_flip",   pos="0[6]", desc="Invert the X1-001 flip bit (ROT180 cabinet)", values=[{ setname="kyustrkr", value=1 }] },
-    { name="fg_yoff8",     pos="1[7:0]", desc="X1-001 foreground Y offset (signed)", values=[{ setnames=["superman","supermanu","supermanj","daisenpu","twinhawk","twinhawku"], value=0xEE }, { setnames=["gigandes","gigandesa","ballbros","kyustrkr"], value=0xF6 }] },
+    { name="fg_yoff_flip",     pos="1[7:0]", desc="X1-001 foreground Y offset when flipped (signed)", values=[{ setnames=["superman","supermanu","supermanj","daisenpu","twinhawk","twinhawku"], value=0xEE }, { setnames=["gigandes","gigandesa","ballbros","kyustrkr"], value=0xF6 }] },
 ]
 
 [ROM]
-# Macro names come from cfg/macros.def. Bank starts are referenced by name so
-# the MRA image and the SDRAM map cannot drift apart.
-#
-# gfx1 plane order: the graphics are 4bpp planar, one byte per plane per 8
-# pixels (tilelayout STEP4(0,8)). Two ROM-loading styles appear in the driver:
-#   ROM_LOAD32_WORD_SWAP (superman, gigandes, twinhawk/daisenpu) -> width=16
-#   ROM_LOAD32_BYTE      (ballbros, kyustrkr)                    -> width=32
-# The byte lane each plane lands on must be BYTE-CHECKED against the raw ROMs
-# once jtkiwi_draw is wired, not hand-derived. If a permutation turns out to
-# be needed, it belongs HERE (`sequence=`) and nowhere else — never split
-# between the MRA and a scramble in the pixel extractor.
-#
-# cchip_bios is the device ROM common to every Taito C-chip game; it is not
-# part of the machine's own dump, hence the explicit files= entry.
 regions = [
     { name="maincpu",      width=16, reverse=true, no_offset=true },
     { name="audiocpu",     start="JTFRAME_BA1_START" },
