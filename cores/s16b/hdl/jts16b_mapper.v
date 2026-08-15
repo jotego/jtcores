@@ -55,6 +55,7 @@ module jts16b_mapper(
     output reg        cpu_rst,
     input             bus_cs,
     input             bus_busy,
+    input             bus_legit,
     input             vint,
 
     // M68000 interface
@@ -303,7 +304,7 @@ jtframe_68kdtack_cen #(.W(8),.RECOVERY(1)) u_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( bus_legit ),
     .bus_ack    ( 1'b0      ),
     .ASn        ( cpu_asn || cpu_fc[1:0]==2'b11  ),  // BUSn = ASn | (LDSn & UDSn)
     .DSn        ( cpu_dsn   ),
