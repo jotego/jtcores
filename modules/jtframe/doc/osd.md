@@ -79,7 +79,8 @@ bit     |  meaning                | Enabled with macro
 10      | Test mode               | JTFRAME_OSD_TEST
 11      | Horizontal filter       | MiSTer only
 12      | Credits/Pause           | JTFRAME_OSD_NOCREDITS (disables it)
-13-15   | Reserved for core use   | CORE_OSD (option char: D,E,F)
+13-15   | Core-specific options   | CORE_OSD (option char: D,E,F)
+13-15   | CRT clock tuning        | JTFRAME_PLL_TUNE (MiSTer)
 16-17   | Aspect Ratio            | MiSTer only, visibility masked
 18-19   | Joystick 1 position     | JTFRAME_JOY1_POS
 20-22   | Game saves options      | JTFRAME_SAVEGAME
@@ -94,6 +95,8 @@ bit     |  meaning                | Enabled with macro
 53-56   | CRT H offset            | MiSTer only
 57-60   | CRT V offset            | MiSTer only
 61-63   |    -- free --           |
+
+Note that CORE_OSD cannot be used with JTFRAME_PLL_TUNE
 
 Credits/Pause are handled differently in MiSTer vs MiST. For MiSTer, bit 12 sets whether credits will be displayed during pause. For MiST, bit 12 sets the pause. This difference is due to MiST missing key mapping, so I assume that MiST users depend more on the OSD for triggering the pause.
 
