@@ -15,8 +15,6 @@
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
     Date: 8-2026 */
 
-// Taito X System (Seta P0-039A / P0-041A) top level.
-
 module jttaitox_game(
     `include "jtframe_game_ports.inc"
 );
@@ -30,7 +28,6 @@ wire [ 3:0] syt_dout;
 wire        cpu_rnw, cpu_cen, flip,
             oram_cs, vdcm_cs, syt_cs, cchip_cs;
 
-// MRA header, decoded in jttaitox_header.v
 wire        p039a, p051a, p057a;
 
 assign debug_view = st_video;

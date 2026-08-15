@@ -15,22 +15,7 @@
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
     Date: 8-2026 */
 
-/*  X1-003 / X1-006 colour stage.
-
-    The X1-001 sprite colour is 5 bits (seta001.cpp draw_foreground:
-    color = (color_pointer[i] & 0xf8) >> 3) and the pen is 4 bits, so the
-    palette index is 9 bits even though the palette RAM holds 2048 words.
-    taito_x's colorbase is 0, so sprites reach entries 0..511 only.
-
-    screen_update fills the bitmap with pen 0x1f0 before drawing, so that
-    is the backdrop wherever neither layer is opaque.
-
-    Palette format is xRGB-555 (palette_device::xRGB_555): R=[14:10],
-    G=[9:5], B=[4:0]. NOT the xBGR-555 most jt cores use.
-
-    Pen extraction from the gfx ROM is taken STRAIGHT here. If the planes
-    come out permuted the fix belongs in cfg/mame2mra.toml, not in a
-    scramble added below - see the gfx1 comment there.    */
+/*  X1-003 / X1-006 colour stage. */
 
 module jttaitox_colmix(
     input             clk,

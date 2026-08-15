@@ -15,54 +15,6 @@
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
     Date: 8-2026 */
 
-/*  X1-001 + X1-002. There is no tilemap chip on this board: MAME's single
-    gfxdecode entry is "sprites & playfield", and the playfield is the
-    X1-001's background COLUMN mode, which jtkiwi_gfx already implements.
-
-    taito_x calls draw_sprites with bank_size 0x1000 -> the metafox/arbalest
-    "setac" case, so jtkiwi_gfx is instantiated with OBJAW=13 (16 kB OBJ RAM,
-    bank selected by spritectrl[1] rather than a 0x800 page split).
-
-    512x272 grid at an 8 MHz dot clock = 15.625 kHz H, 57.44 Hz V. Same
-    numbers as cal50, which runs the same chip off the same 16 MHz crystal.
-
-    X1-001 alignment constants, from taito_x.cpp machine_config. Note the
-    setter order is set_*_yoffsets(FLIP, NOFLIP) - seta001.h:52 - so the
-    argument that differs per game is the FLIPPED one; every set in the
-    family shares noflip fg=+0x0e / bg=-0x01.
-
-      board              sets                    fg_y flip  fg_y noflip
-      Taito P0-039A      superman x3               -0x12       +0x0e
-      Taito P0-051A      daisenpu, twinhawk x2     -0x12       +0x0e
-      East Tech P0-057A  gigandes x2, ballbros,    -0x0a       +0x0e
-                         kyustrkr
-    bg_y is +0x01 flipped / -0x01 not, on every set.
-
-    The flipped fg offset takes only two values and they follow the board
-    builder, so it is hardcoded here as p057a ? -0x0a : -0x12 rather than
-    carried in the header.
-
-      set                 screen size   visarea          refresh
-      superman             416x256      0-383, 8-247     57.43
-      gigandes/ballbros/   416x256      0-383, 8-247     60
-      kyustrkr
-      daisenpu/twinhawk    416x256      0-383, 16-239    60
-
-    x offsets are never set on this driver, so all four are 0.
-    colorbase is 0 (GFXDECODE_ENTRY "gfx1",0,tilelayout,0,128).
-    bank_size is 0x1000 for every set (one shared screen_update).
-
-    Y is computed as, foreground (seta001.cpp draw_foreground):
-        max_y = screen.height() = 256
-        sy    = spriteylow[i] & 0xff
-        row   = max_y - ((sy + yoff) & 0xff)      (plus a -256 wrap copy)
-    background (draw_background) uses a HARDCODED max_y = 0xf0, not the
-    screen height, and only applies it when flipped.
-
-    These are MAME's numbers in MAME's coordinate convention. jtkiwi_gfx
-    has its own OBJ_XOFF/OBJ_YOFF convention, so they are reference values
-    to calibrate against, not constants to paste into the parameters.  */
-
 module jttaitox_video(
     input             rst,
     input             clk,
@@ -122,10 +74,9 @@ module jttaitox_video(
 wire [8:0] vdump, vrender, vrender1;
 wire [8:0] scr_pxl, obj_pxl;
 
-// 512x272 total. The visible window phase was measured against a MAME
-// screenshot of the static title screen: with HB_END=4 / VB_END=0 the picture
-// landed 7 lines low and 3 pixels left, and was otherwise pixel-identical, so
-// the window moves by exactly that and nothing else changes.
+// TODO this timing needs to be verified on an original board
+// mame notes have a different xtal clearly a different board
+// of superman was used to measure timings, not the 039a.
 jtframe_vtimer #(
     .HB_END  ( 9'd1   ),
     .HB_START( 9'd385 ),
@@ -135,8 +86,8 @@ jtframe_vtimer #(
     .V_START ( 9'd000 ),
     .VS_START( 9'd253 ),
     .VS_END  ( 9'd261 ),
-    .VB_START( 9'd247 ),
-    .VB_END  ( 9'd007 ),
+    .VB_START( 9'd246 ),
+    .VB_END  ( 9'd006 ),
     .VCNT_END( 9'd271 )
 ) u_timer(
     .clk        ( clk        ),
@@ -155,7 +106,7 @@ jtframe_vtimer #(
 
 jtkiwi_gfx #(
     .CPUW ( 16 ),
-    .OBJAW( 13 )   // 16 kB OBJ RAM + setac bank
+    .OBJAW( 13 )
 ) u_gfx(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -180,8 +131,7 @@ jtkiwi_gfx #(
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
     .vram_cs    ( oram_cs   ),
-    // spriteylow at d00000-d005ff and spritectrl at d00600-d00607 land on
-    // the same 0x400-word window jtkiwi_gfx decodes with cpu_addr[9:8]
+
     .vctrl_cs   ( vdcm_cs   ),
     .vflag_cs   ( 1'b0      ),   // no flag register on this board
     .cpu_din    ( vid_dout  ),

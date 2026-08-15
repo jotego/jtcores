@@ -15,24 +15,6 @@
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
     Date: 8-2026 */
 
-/*  Z80 sound CPU at 16/4 = 4 MHz, YM2610 at 16/2 = 8 MHz.
-
-    Z80 map (taito_x.cpp sound_map):
-      0000-3fff  ROM, fixed
-      4000-7fff  ROM, banked in 16 kB pages, page latched at f200
-      c000-dfff  8 kB RAM
-      e000-e003  YM2610
-      e200-e201  TC0140SYT  (e200 port, e201 comm)
-      e400-e403  pan, write only, ignored
-      f200       bank latch
-
-    The real TC0140SYT emits the ROM/RAM chip selects and holds the bank
-    latch, but the Z80 sees the same map either way, so the decode lives
-    here next to the ROM address and jtrastan_pc060 stays pure protocol.
-
-    jtrastan_pc060 IS the TC0140SYT: in MAME pc060ha_device derives from
-    tc0140syt_device, one implementation for both packages.    */
-
 module jttaitox_snd(
     input                rst,
     input                clk,
@@ -87,8 +69,7 @@ assign syt_sel  = mem & A[15:8]==8'hE2;
 assign bank_cs  = mem & A[15:8]==8'hF2 & ~wr_n;
 assign rom_addr = { A[14] ? bank : 2'd0, A[13:0] };
 assign rst_n    = ~(rst | snd_rst);
-// jt10 splits the sample address into bank+addr; the family tops out at
-// 512 kB per region so only the low 19 bits are used
+
 assign adpcma_addr = ym_adpcma_addr[18:0];
 assign adpcma_cs   = ~ym_adpcma_roe_n;
 assign adpcmb_addr = ym_adpcmb_addr[18:0];

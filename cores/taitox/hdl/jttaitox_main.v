@@ -15,26 +15,6 @@
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
     Date: 8-2026 */
 
-/*  Address decode, from the Superman schematic (W5100307A) sheet 2.
-
-    Two F138 3-to-8 decoders take A22,A21,A20 on C/B/A. #17 is gated by
-    A23 high and produces the upper map; #18 covers the low half:
-
-      A23=1, A[22:20]                    A23=0, A[22:20]
-        0  800000  SOUND CS  TC0140SYT     0  000000  ROM (A[22:19]==0)
-        1  900000  TC0030CMD CS            3  300000  watchdog-ish, write only
-        3  b00000  CLRAM CS   palette      4  400000  idem
-        4  c00000  VDCS CS    unused       5  500000  DSW read
-        5  d00000  VDCM CS    X1-002       6  600000  idem
-        6  e00000  ORAM CS    X1-001
-        7  f00000  WRAM CS    work RAM
-
-    Partial decode: the chips only see A23 and A[22:20], so every region
-    mirrors through its whole 1 MB slot exactly as on the PCB.
-
-    The X1-001/X1-002 CPU side (ORAM, spriteylow, spritectrl) is owned by
-    the video module, so only the selects leave here.    */
-
 module jttaitox_main(
     input                rst,
     input                clk,        // 48 MHz
@@ -102,7 +82,7 @@ wire [ 2:0] FC, IPLn;
 wire [15:0] cpu_din_w;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
-reg         intn, LVBLl;
+wire        intn;
 wire        bus_cs, bus_busy;
 wire        dws;            // any data strobe
 
@@ -166,19 +146,13 @@ always @(posedge clk) begin
     endcase
 end
 
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        intn  <= 1;
-        LVBLl <= 0;
-    end else begin
-        LVBLl <= LVBL;
-        if( !VPAn )
-            intn <= 1;
-        else if( !LVBL && LVBLl && dip_pause )
-            intn <= 0;
-    end
-end
+jtframe_edge #(.QSET(0)) u_int(
+    .rst    ( rst               ),
+    .clk    ( clk               ),
+    .edgeof ( ~LVBL & dip_pause ),
+    .clr    ( ~VPAn             ),
+    .q      ( intn              )
+);
 
 `ifdef SIMULATION
 // 68000 program-fetch dumper. The stream is a superset of MAME's PC list
