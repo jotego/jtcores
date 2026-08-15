@@ -15,6 +15,10 @@ module pll (
 		output wire  outclk_4, // outclk4.clk
 		output wire  outclk_5, // outclk5.clk
 		output wire  locked    //  locked.export
+`ifdef JTFRAME_PLL_TUNE
+		,input  wire [63:0] reconfig_to_pll,
+		output wire [63:0] reconfig_from_pll
+`endif
 	);
 
 	pll_0002 pll_inst (
@@ -27,6 +31,10 @@ module pll (
 		.outclk_4 (outclk_4), // outclk4.clk
 		.outclk_5 (outclk_5), // outclk5.clk
 		.locked   (locked)    //  locked.export
+`ifdef JTFRAME_PLL_TUNE
+		,.reconfig_to_pll   (reconfig_to_pll),
+		.reconfig_from_pll (reconfig_from_pll)
+`endif
 	);
 
 endmodule

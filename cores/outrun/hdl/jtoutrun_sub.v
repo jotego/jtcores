@@ -32,6 +32,7 @@ module jtoutrun_sub(
     input      [15:0]  road_dout,
     output reg [15:0]  sub_din,     // bus output to sub CPU
     output             sub_ok,
+    output             sub_bsy,
 
     // sub CPU bus
     output     [15:0]  cpu_dout,
@@ -88,6 +89,7 @@ assign VPAn     = ~(~ASn & ~inta_n); // autovector
 assign sub_ok   = ~BGACKnl & ~bus_busy; // for
 assign BUSn     = LDSn & UDSn;
 assign sub_addr = A[18:1];
+assign sub_bsy  = sub_br & BGn & BGACKn;
 
 // memory map
 always @(posedge clk, posedge rst) begin
