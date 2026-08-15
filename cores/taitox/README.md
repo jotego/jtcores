@@ -1,64 +1,151 @@
-# JTTAITOX — Taito-X (Taito 1988) FPGA core
+# JTTAITOX — Taito X System FPGA core
 
-By Jose Tejada (aka jotego — @topapate)
+Core by Andrea Bogazzi, built on JTFRAME by Jose Tejada (jotego, @topapate).
 
 You can show your appreciation through
 * [Patreon](https://patreon.com/jotego)
 * [Paypal](https://paypal.me/topapate)
+* [Github sponsors](https://github.com/sponsors/asturur)
+
+## Disclaimer
+
+This work is for research and historical purposes. This work itself does not
+contain copyrighted software and should not be packed or distributed with
+illegal copies of the copyright protected software.
 
 ## Hardware
 
-This core targets the **Taito X System** PCB used by Superman in 1988
-(Taito P0-039A, ROM-set prefix `b61`). The board was Seta-built and runs:
+The Taito X System is a Seta-designed board sold to Taito and licensed on to
+East Technology. Three variants exist and the differences between the games
+follow the board, not the title:
+
+| Board | Built by | Games |
+|---|---|---|
+| P0-039A | Taito Corp. | Superman |
+| P0-051A | Taito Corp. | Twin Hawk, Daisenpu |
+| P0-057A | East Technology | Gigandes, Last Striker, Balloon Brothers |
+
+A single 16 MHz oscillator feeds everything — confirmed on both the Superman
+schematic (drawing W5100307A, sheet 3) and the board photo in `doc/`. The
+X1-001 divides it down and emits the taps `CK`, `CK3`, `H1`, `H2`, `H3`; the
+Z80 clock is `H1` and the 68000 is strapped to `CK` through a jumper box.
 
 | Chip | Role | Clock |
 |---|---|---|
-| Motorola 68000 | Main CPU | 16 MHz / 2 = 8 MHz |
-| Zilog Z80 | Sound CPU | 16 MHz / 4 = 4 MHz |
-| Yamaha YM2610 | FM + ADPCM-A samples | 16 MHz / 2 = 8 MHz |
-| Seta X1-001A / X1-002A | Sprites + tilemap | 16 MHz |
-| Seta X1-006 / X1-007 | Palette / DAC | — |
-| Seta X1-004 | I/O | — |
-| Taito TC0140SYT | 68k↔Z80 sound comms | — |
-| Taito C-chip (uPD78C11) | Security + cabinet I/O | 16 MHz / 2 = 8 MHz |
+| Motorola 68000 | Main CPU | 16 / 2 = 8 MHz |
+| Zilog Z80 | Sound CPU | 16 / 4 = 4 MHz |
+| Yamaha YM2610 | FM + ADPCM-A + Delta-T | 16 / 2 = 8 MHz |
+| Yamaha YM2151 | FM, P0-051A only | 16 / 4 = 4 MHz |
+| Seta X1-001 | Sprite controller, video timing, OBJ-RAM master | 16 MHz |
+| Seta X1-002 | Sprite renderer, holds spritectrl / spriteylow | 16 MHz |
+| Seta X1-003 | RGB DAC, drives three R-2R ladders | — |
+| Seta X1-006 | 68k ↔ palette bridge | — |
+| Seta X1-004 / X1-007 | I/O | — |
+| Taito TC0140SYT | 68k ↔ Z80 sound comms | — |
+| Taito PC060HA | same silicon, P0-051A only | — |
+| Taito TC0030CMD | C-chip, uPD78C11 MCU, P0-039A only | 16 / 2 = 8 MHz |
+
+There is **no tilemap chip**. MAME's single gfxdecode entry is "sprites &
+playfield", and the playfield is the X1-001's background *column* mode.
 
 ## Supported sets
 
-Only Superman is supported (this core's name reflects that). The cousin
-games on the same hardware — Ballbros, Gigandes, Last Striker, Twin Hawk
-— may be added in a future re-spin called `taitox`.
+| Setname | Game | Board | State |
+|---|---|---|---|
+| `superman` `supermanu` `supermanj` | Superman | P0-039A | boots, renders |
+| `gigandes` `gigandesa` | Gigandes | P0-057A | boots, renders |
+| `ballbros` | Balloon Brothers | P0-057A | MRA builds, not simmed |
+| `kyustrkr` | Last Striker | P0-057A | MRA builds, not simmed |
+| `daisenpu` `twinhawk` `twinhawku` | Daisenpu / Twin Hawk | P0-051A | not enabled |
 
-| Setname | Notes |
-|---|---|
-| `superman`   | World |
-| `supermanu`  | US |
-| `supermanj`  | Japan |
+Daisenpu and Twin Hawk are skipped in `cfg/mame2mra.toml` until the YM2151
+path lands. Their PC060HA is already covered — in MAME `pc060ha_device`
+derives from `tc0140syt_device`, so `jtrastan_pc060.v` serves both — and the
+SDRAM map and header already account for them, so enabling them is removing
+three names from `[parse.skip]` plus the FM branch in `jttaitox_snd.v`.
 
 ## Status
 
-See `doc/STATUS.md` for current bring-up state, what's verified against
-MAME's reference, and the per-block roadmap. **Short version:** 68k +
-sound + framework all elaborate and sim cleanly; the C-chip (uPD78C11
-MCU) is the remaining major piece blocking a full boot.
+**Working**
+
+- 68000 boot verified against MAME: the FPGA fetch stream contains every one
+  of MAME's 1464 distinct PCs on Superman, with no divergence.
+- TC0030CMD C-chip runs the real MCU (`modules/jttc0030cmd`) and clears the
+  signature handshake with no HLE anywhere.
+- Sprites and the background column layer render. Superman's title screen is
+  byte-identical to a MAME screenshot — 0 of 92160 pixels differ.
+- Gigandes exercises the paths Superman never touches: the direct input port
+  at `900000`, the level-2 interrupt, and the ADPCM-B SDRAM bank.
+
+**Not working**
+
+- **Audio is silent.** The Z80 boots, the TC0140SYT delivers commands and the
+  YM2610's FM operators synthesize (`fm0.raw` is loud), but the chip's mixed
+  output is not. The bug is in the output stage, not the wiring.
+- **Sprite alignment is unverified** beyond the static title screen.
+- **Scene replay does not exist yet.** `ver/superman/mame_scripts/dump_burst.lua`
+  captures 20 MAME scenes 300 frames apart (palette, spriteylow, spritectrl,
+  OBJ-RAM, plus `screen.png`), but the FPGA side still needs `rest2bin.sh`,
+  `simfile:` bindings in `mem.yaml` and a NOMAIN replay branch.
+- **No hardware build has been attempted**; timing closure is unknown.
+
+## Video timing
+
+The X1-001 divides the 16 MHz oscillator to an 8 MHz dot clock over a
+512x272 grid: 15.625 kHz horizontal, 57.4449 Hz vertical, matching the
+driver's 57.43. MAME's `set_size(52*8, 32*8)` is the usual Seta
+approximation — at MAME's own refresh it implies a 6.117 MHz dot clock and a
+14.7 kHz line rate, which no JAMMA monitor would lock to.
+
+The H and V totals are **not** derivable from the schematic: the dividers are
+inside the X1-001 die and the board carries no counter chain. The only
+measured figures in the MAME driver (58 Hz / 15.22 kHz, line 217) belong to a
+P0-057A board, not to Superman, whose value has no measurement behind it.
+These numbers are due a scope check on real hardware.
+
+## MRA header
+
+One byte, three bits, carrying the board type only:
+
+| bit | name | sets |
+|---|---|---|
+| 0[0] | `p039a` | superman ×3 |
+| 0[1] | `p051a` | daisenpu, twinhawk ×2 |
+| 0[2] | `p057a` | gigandes ×2, ballbros, kyustrkr |
+
+Everything else is derived in HDL, because it all follows the board split:
+the C-chip, the direct input port (`~p039a`), the interrupt level (`~p039a`)
+and the sprite Y offset (`p057a ? -0x0a : -0x12`).
 
 ## Documentation
 
-The cores have been developed by combining information in the MAME
-drivers (mirrored in `doc/taito_x.cpp` and `doc/taitosnd.cpp`) with
-public references for the Seta X1-001 chip (`doc/seta_x1-001.md`).
-The F2 MiSTer core (GPLv2) was used as a structural reference for the
-TC0140SYT — our implementation is a clean rewrite in JT style, not a
-verbatim port; see `doc/tc0140syt.sv.ref` for the reference RTL.
+`doc/` holds primary sources only — the MAME driver and device sources
+(`taito_x.cpp`, `seta001.cpp`, `taitosnd.cpp`, `taitocchip.cpp`) and photos of
+the P0-039A board. The Superman schematics are the maker's IP and are kept
+out of the repo.
+
+Chip behaviour that took work to establish lives as comments in the HDL that
+implements it — the address decode in `hdl/jttaitox_main.v`, the X1-001
+alignment constants in `hdl/jttaitox_video.v`.
+
+The Taito F2 MiSTer core's `tc0140syt.sv` is kept in `doc/` as a read-only
+cross-check. It is not used: `jtrastan_pc060.v` is in-tree GPL-3 JTCORES code
+that implements the same protocol.
 
 ## Build & sim
 
 ```bash
-# Verilator sim from the repo root (requires jotego/simulator Docker image
-# and a Superman ROM at ~/.mame/roms/superman.zip):
-FRAMES=80 ./sim-core.sh superman superman
-
-# Lint:
-docker run --rm --platform linux/amd64 --network host \
-    -v "$(pwd)":/jtcores jotego/linter \
-    /jtcores/modules/jtframe/bin/lint-all.sh
+./lint-core.sh taitox
 ```
+
+```bash
+ROMS_HOST=~/mameroms FRAMES=560 ./sim-core.sh taitox superman
+```
+
+```bash
+ROMS_HOST=~/mameroms FRAMES=700 ./sim-core.sh taitox gigandes
+```
+
+A boot sim needs `FRAMES` above ~120 — the sim models the ROM download at
+realistic speed before the CPU leaves reset. Rendered frames land in
+`ver/game/frames/`.
