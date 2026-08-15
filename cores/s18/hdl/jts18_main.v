@@ -487,6 +487,7 @@ jts16b_mapper #(.FNUM(7'd5),.FDEN(8'd24)) u_mapper(
     .bus_dsn    ( {UDSn,  LDSn}  ),
     .bus_cs     ( bus_cs         ),
     .bus_busy   ( bus_busy       ),
+    .bus_legit  ( 1'b0           ),
     // effective bus signals
     .addr_out   ( A              ),
 
