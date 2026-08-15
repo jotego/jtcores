@@ -40,11 +40,12 @@ module jttaitox_main(
     input                clk,        // 48 MHz
     input                LVBL,
 
-    // header flags
+    // header flags. The C-chip partitions the family exactly - the three
+    // superman sets are taitox_cchip_state, the other seven taitox_state -
+    // so "reads inputs directly at 900000" and "VBL on level 2" are both
+    // just ~cchip_en and need no bits of their own.
     input                cchip_en,
-    input                direct_in,  // 68k reads IN0/IN1/IN2 at 900000
-    input                irq2,       // VBL on level 2 instead of level 6
-    input                coinlock_inv,
+    input                kyustrkr,
 
     output               cpu_cen,
     output        [23:1] cpu_addr,
@@ -127,15 +128,15 @@ assign ram_cs   = vma &&  a23 && region==3'd7;
 // F138 #18 - A23 low
 assign rom_cs   = vma && !a23 && A[22:19]==4'd0;
 assign dsw_cs   = vma && !a23 && region==3'd5;
-// The C-chip slot doubles as the direct input port on the cousins
-assign in_cs    = vma &&  a23 && region==3'd1 && direct_in;
+// Without a C-chip the same slot is the direct input port
+assign in_cs    = vma &&  a23 && region==3'd1 && !cchip_en;
 
 assign ram_we   = {2{ram_cs & ~RnW}} & ~{UDSn,LDSn};
 assign pal_we   = {2{pal_cs & ~RnW}} & ~{UDSn,LDSn};
 
-// Superman takes the VBL interrupt on level 6, the cousins on level 2
-assign IPLn     = intn ? 3'b111 : (irq2 ? 3'b101 : 3'b001);
-assign VPAn     = !(!ASn && FC==7 && A[3:1]==(irq2 ? 3'd2 : 3'd6) && RnW);
+// The C-chip games take the VBL interrupt on level 6, the rest on level 2
+assign IPLn     = intn ? 3'b111 : (cchip_en ? 3'b001 : 3'b101);
+assign VPAn     = !(!ASn && FC==7 && A[3:1]==(cchip_en ? 3'd6 : 3'd2) && RnW);
 
 assign bus_cs   = rom_cs;
 assign bus_busy = rom_cs & ~rom_ok;
@@ -171,7 +172,7 @@ always @(posedge clk, posedge rst) begin
     if( rst )
         coin_ctrl <= 0;
     else if( in_cs && !RnW && !LDSn && A[2:1]==2'd0 )
-        coin_ctrl <= { coinlock_inv ? cpu_dout[3:2] : ~cpu_dout[3:2], cpu_dout[1:0] };
+        coin_ctrl <= { kyustrkr ? cpu_dout[3:2] : ~cpu_dout[3:2], cpu_dout[1:0] };
 end
 
 always @(posedge clk, posedge rst) begin

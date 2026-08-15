@@ -23,16 +23,24 @@ rename=[
     {name="Price to Continue", to="Continue" },
 ]
 
+# The family partitions three ways by who built the board (driver table
+# lines 18-24), and that one fact carries almost everything:
+#
+#   cchip      Taito P0-039A      superman x3
+#   opm        Taito P0-051A      daisenpu, twinhawk x2
+#   neither    East Tech P0-057A  gigandes x2, ballbros, kyustrkr
+#
+# Disjoint and complete over all ten sets, so anything following the board
+# split needs no bit of its own. Derived in the HDL instead of carried here:
+#   direct_in = ~cchip                        taitox_state reads IN0/1/2 at 900000
+#   irq2      = ~cchip                        only the cchip class installs the L6 ISR
+#   fg_yoff   = ~cchip & ~opm ? -0x0a : -0x12 East Tech vs Taito
+# kyustrkr is the one set whose quirks do not follow the board split.
 [header]
 registers=[
-    { name="cchip",        pos="0[0]", desc="TC0030CMD C-chip at 900000", values=[{ setnames=["superman","supermanu","supermanj"], value=1 }] },
-    { name="direct_in",    pos="0[1]", desc="68k reads IN0/IN1/IN2 directly at 900000", values=[{ setnames=["gigandes","gigandesa","ballbros","kyustrkr","daisenpu","twinhawk","twinhawku"], value=1 }] },
-    { name="opm",          pos="0[2]", desc="PC060HA + YM2151 instead of TC0140SYT + YM2610", values=[{ setnames=["daisenpu","twinhawk","twinhawku"], value=1 }] },
-    { name="deltat",       pos="0[3]", desc="YM2610 Delta-T samples present", values=[{ setnames=["gigandes","gigandesa","ballbros","kyustrkr"], value=1 }] },
-    { name="irq2",         pos="0[4]", desc="VBL interrupt on level 2 (Superman uses level 6)", values=[{ setnames=["gigandes","gigandesa","ballbros","kyustrkr","daisenpu","twinhawk","twinhawku"], value=1 }] },
-    { name="coinlock_inv", pos="0[5]", desc="Inverted coin-lockout polarity", values=[{ setname="kyustrkr", value=1 }] },
-    { name="force_flip",   pos="0[6]", desc="Invert the X1-001 flip bit (ROT180 cabinet)", values=[{ setname="kyustrkr", value=1 }] },
-    { name="fg_yoff_flip",     pos="1[7:0]", desc="X1-001 foreground Y offset when flipped (signed)", values=[{ setnames=["superman","supermanu","supermanj","daisenpu","twinhawk","twinhawku"], value=0xEE }, { setnames=["gigandes","gigandesa","ballbros","kyustrkr"], value=0xF6 }] },
+    { name="cchip",    pos="0[0]", desc="Taito P0-039A: TC0030CMD C-chip", values=[{ setnames=["superman","supermanu","supermanj"], value=1 }] },
+    { name="opm",      pos="0[1]", desc="Taito P0-051A: PC060HA + YM2151", values=[{ setnames=["daisenpu","twinhawk","twinhawku"], value=1 }] },
+    { name="kyustrkr", pos="0[2]", desc="Last Striker quirks: coin lockout, ROT180", values=[{ setname="kyustrkr", value=1 }] },
 ]
 
 [ROM]

@@ -31,12 +31,16 @@
     argument that differs per game is the FLIPPED one; every set in the
     family shares noflip fg=+0x0e / bg=-0x01.
 
-      set                fg_y flip  fg_y noflip  bg_y flip  bg_y noflip
-      superman            -0x12       +0x0e       +0x01       -0x01
-      daisenpu/twinhawk   -0x12       +0x0e       +0x01       -0x01
-      gigandes(a)         -0x0a       +0x0e       +0x01       -0x01
-      ballbros            -0x0a       +0x0e       +0x01       -0x01
-      kyustrkr            -0x0a       +0x0e       +0x01       -0x01   (= ballbros)
+      board              sets                    fg_y flip  fg_y noflip
+      Taito P0-039A      superman x3               -0x12       +0x0e
+      Taito P0-051A      daisenpu, twinhawk x2     -0x12       +0x0e
+      East Tech P0-057A  gigandes x2, ballbros,    -0x0a       +0x0e
+                         kyustrkr
+    bg_y is +0x01 flipped / -0x01 not, on every set.
+
+    The flipped fg offset takes only two values and they follow the board
+    builder, so it is derived as (~cchip & ~opm) ? -0x0a : -0x12 rather than
+    carried in the header.
 
       set                 screen size   visarea          refresh
       superman             416x256      0-383, 8-247     57.43

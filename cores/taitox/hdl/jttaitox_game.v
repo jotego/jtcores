@@ -31,8 +31,7 @@ wire        cpu_rnw, cpu_cen, flip,
             oram_cs, vdcm_cs, syt_cs, cchip_cs;
 
 // MRA header, decoded in jttaitox_header.v
-wire        cchip_en, direct_in, opm, deltat, irq2, coinlock_inv, force_flip;
-wire [ 7:0] fg_yoff_flip;
+wire        cchip_en, opm, kyustrkr;
 
 assign debug_view = st_video;
 assign st_dout    = st_video;
@@ -46,13 +45,8 @@ jttaitox_header u_header(
     .prog_we    ( prog_we       ),
 
     .cchip      ( cchip_en      ),
-    .direct_in  ( direct_in     ),
     .opm        ( opm           ),
-    .deltat     ( deltat        ),
-    .irq2       ( irq2          ),
-    .coinlock_inv( coinlock_inv ),
-    .force_flip ( force_flip    ),
-    .fg_yoff_flip   ( fg_yoff_flip      )
+    .kyustrkr   ( kyustrkr      )
 );
 
 /* verilator tracing_on */
@@ -62,9 +56,7 @@ jttaitox_main u_main(
     .LVBL       ( LVBL          ),
 
     .cchip_en   ( cchip_en      ),
-    .direct_in  ( direct_in     ),
-    .irq2       ( irq2          ),
-    .coinlock_inv( coinlock_inv ),
+    .kyustrkr   ( kyustrkr      ),
 
     .cpu_cen    ( cpu_cen       ),
     .cpu_addr   ( cpu_addr      ),
