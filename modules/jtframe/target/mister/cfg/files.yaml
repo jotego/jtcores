@@ -14,6 +14,9 @@ jtframe/target/mister:
   - when: [ JTFRAME_SAVEGAME ]
     get:
       - jtframe_mister_cartsave.v
+  - when: [ JTFRAME_PLL_TUNE ]
+    get:
+      - jtframe_pll_tune.v
   - when: [ JTFRAME_PLL7159 ]
     get:
       - pll7159.qip
