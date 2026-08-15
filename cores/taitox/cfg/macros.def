@@ -1,0 +1,112 @@
+CORENAME=JTTAITOX
+
+# Taito X System — Seta-built P0-039A / P0-041A boards.
+# Sources of truth, in order:
+#   1. doc/Superman [schematics].pdf  (W5100307A, Taito, 1988-11-24)
+#   2. MAME taito/taito_x.cpp + video/x1_001 (seta001.cpp), mirrored in doc/
+#
+# Custom chips: X1-001 (sprite controller + video timing), X1-002 (sprite
+# renderer + spritectrl/spriteylow registers), X1-003 (RGB DAC), X1-006
+# (68k <-> palette bridge), TC0140SYT or PC060HA (sound comms), TC0030CMD
+# (C-chip, Superman only).
+
+# ---------------------------------------------------------------------------
+# Clocks
+# ---------------------------------------------------------------------------
+# One 16 MHz TTL oscillator (schematic sheet 3) feeds the whole board:
+#   68000       16/2 =  8 MHz   verified on PCB (MAME comment)
+#   Z80         16/4 =  4 MHz   verified on PCB
+#   YM2610      16/2 =  8 MHz   verified on PCB (syt family)
+#   YM2151      16/4 =  4 MHz   verified on PCB (daisenpu/twinhawk)
+#   TC0030CMD   16/2 =  8 MHz   measured on pin 20
+#   X1-001/002  16 MHz
+# 48 MHz divides all of them exactly (48/3, /6, /12), so the default
+# jtframe_pll6000 is used — no JTFRAME_PLL override, no fractional cen.
+# The cen signals are declared in cfg/mem.yaml, not hand-instantiated.
+
+# ---------------------------------------------------------------------------
+# Video
+# ---------------------------------------------------------------------------
+# The X1-001 divides the 16 MHz oscillator down to an 8 MHz dot clock over a
+# 512x272 grid -> 15.625 kHz H, 57.44 Hz V.  MAME's set_size(52*8,32*8) at
+# 57.43 Hz is the usual Seta approximation: it implies a 14.7 kHz H rate,
+# which no JAMMA monitor and no MiSTer HDMI scaler will lock to.
+# Same choice as cal50/arbalest, which run the same chip.
+JTFRAME_PXLCLK=8
+JTFRAME_RATE=57.44
+JTFRAME_WIDTH=384
+JTFRAME_HEIGHT=240
+JTFRAME_COLORW=5
+
+# The raster is identical for every game; only the cabinet differs
+# (superman/gigandes/ballbros ROT0, kyustrkr ROT180, twinhawk/daisenpu
+# ROT270).  Rotation is a per-MRA coremod flag, so one bitstream serves all,
+# but jtframe refuses to emit an MRA for a ROT90/270 set unless this is set.
+JTFRAME_VERTICAL
+
+# ---------------------------------------------------------------------------
+# Controls
+# ---------------------------------------------------------------------------
+# All sets use TAITO_JOY_UDLR_*_BUTTONS_START; the highest button count in
+# the family is kyustrkr's 3 (Short Pass / Long Pass / Shoot).  Games with
+# fewer buttons simply never see the unused slot asserted.
+JTFRAME_BUTTONS=3
+# MiSTer hps_io delivers the low 4 joystick bits as RLDU; MAME's
+# TAITO_JOY_UDLR_* expects UDLR at IN0/IN1 bits 3:0.  RLDU bit-reverses
+# bits 3:0, which is exactly that permutation.
+JTFRAME_JOY_RLDU
+
+# ---------------------------------------------------------------------------
+# SDRAM / ROM layout — see cfg/mem.yaml
+# ---------------------------------------------------------------------------
+# Region sizes are the family maxima across every set in taito_x.cpp:
+#   maincpu      512 kB  (superman, gigandes)
+#   audiocpu      64 kB  (superman, gigandes, ballbros, kyustrkr)
+#   gfx1           2 MB  (superman, gigandes, twinhawk, daisenpu)
+#   adpcma       512 kB
+#   adpcmb       512 kB  (gigandes, ballbros, kyustrkr)
+#   cchip EPROM    8 kB  -> BRAM, not SDRAM
+#   cchip mask     4 kB  -> BRAM, not SDRAM (device ROM, cchip.zip)
+#
+# One heavy client per bank.  gfx1 gets a whole bank to itself because the
+# X1-001 runs two fetchers (foreground sprites + background column) off it.
+#   bank 0  0x000000  maincpu           (512 kB, exactly fills the bank)
+#   bank 1  0x080000  audiocpu + adpcma
+#   bank 2  0x200000  gfx1              (2 MB, exactly fills the bank)
+#   bank 3  0x400000  adpcmb
+#   proms   0x480000  cchip mask ROM + cchip EPROM
+# There is no JTFRAME_BA0_START: bank 0 is "everything below BA1_START", so
+# maincpu must sit at blob offset 0.
+JTFRAME_BA1_START=0x080000
+PCM_START=0x090000
+JTFRAME_BA2_START=0x200000
+JTFRAME_BA3_START=0x400000
+JTFRAME_PROM_START=0x480000
+
+# Byte 0 carries the per-game hardware flags decoded in jttaitox_game.v.
+JTFRAME_HEADER=16
+
+# YM2610 is routed to two speakers in MAME (ch0 to both, ch1 left, ch2 right)
+JTFRAME_STEREO
+
+# ---------------------------------------------------------------------------
+# Debug
+# ---------------------------------------------------------------------------
+JTFRAME_STATUS
+# palette (4 kB) + OBJ RAM (16 kB) + X1-001 Y/scroll RAM (1 kB)
+debug JTFRAME_IOCTL_RD+=4096
+debug JTFRAME_IOCTL_RD+=16384
+debug JTFRAME_IOCTL_RD+=1024
+
+[mister]
+JTFRAME_ARX=4
+JTFRAME_ARY=3
+
+[mist]
+-JTFRAME_CREDITS
+NOCREDITS
+JTFRAME_OSD_NOCREDITS
+
+[mist|sidi]
+# 68000 work RAM + palette + OBJ RAM do not fit in the smaller BRAM budget
+JTFRAME_SKIP
