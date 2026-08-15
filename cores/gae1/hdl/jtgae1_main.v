@@ -111,6 +111,8 @@ assign scroll_dsn       = cpu_dsn;
 assign BUSn             = ASn | &cpu_dsn;
 assign VPAn             = !(!ASn && FC == 3'd7 && RnW);
 assign bus_cs           = main_cs | ram_cs;
+// ST M27C2001-15XF1/M27C4001-15F1 program EPROMs use the 150 ns -15 grade.
+// Two KM62256BLS-10 SRAMs form the 16-bit work RAM; -10 is the 100 ns grade.
 wire [1:0] ok_cs, ok_in;
 assign ok_cs = { main_cs, ram_cs };
 assign ok_in = { main_data_ok, ram_ok };

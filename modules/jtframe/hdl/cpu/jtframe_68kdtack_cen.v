@@ -81,10 +81,10 @@ localparam CW=W+WD;
 reg [CW-1:0] cencnt=0;
 reg  [1:0]   waitsh;
 wire [W-1:0] num2 = { num, 1'b0 }; // num x 2
-wire         recover, delayed;
+wire         recover, delayed, eff_phase, eff_cen;
 wire         over = cencnt>den-num2;
 reg  [CW:0] cencnt_nx=0;
-reg         risefall=0, wait1, ASn_l;
+reg         risefall=0, eff_risefall=0, wait1, ASn_l;
 
 `ifdef SIMULATION
     // This is needed to prevent X's at the start of simulation
@@ -136,7 +136,10 @@ generate if (RECOVERY==1) begin
         if( rst ) begin
             missing <= 0;
         end else begin
-            if( delayed && (cpu_cen|cpu_cenb) ) begin
+            // Charge the phase scheduled on this edge. cpu_cen/cpu_cenb are
+            // registered outputs, so sampling them here would charge the
+            // previous edge after delayed may already have changed.
+            if( delayed && over ) begin
 `ifdef SIMULATION
                 if( &missing && !recover ) begin
                     $display("FAIL: %m recovery counter overflow (CW=%0d)",CW);
@@ -174,7 +177,16 @@ end
 
 // Frequency reporting
 wire [3:0] nc1, nc2;
-wire       eff_cen = cpu_cen && !delayed;
+assign eff_phase = (over && !delayed) || recover;
+assign eff_cen   = eff_phase && eff_risefall;
+
+always @(posedge clk) begin
+    if( rst ) begin
+        eff_risefall <= 0;
+    end else if( eff_phase ) begin
+        eff_risefall <= ~eff_risefall;
+    end
+end
 
 jtframe_freqinfo #(.DIGITS(5),.MFREQ(MFREQ)) u_freq(
     .rst    ( rst               ),

@@ -484,7 +484,7 @@ always @(*) begin
         2'd0: { scanlines, bw_en, blend_en } = { 2'd0, 2'd0 }; // pass thru
         2'd1: { scanlines, bw_en, blend_en } = { 2'd0, 2'd1 }; // no scanlines, linear interpolation
         2'd2: { scanlines, bw_en, blend_en } = { 2'd0, 2'd3 }; // analogue
-        2'd3: { scanlines, bw_en, blend_en } = { 2'd1, 2'd3 }; // analogue + scan lines
+        2'd3: { scanlines, bw_en, blend_en } = { 2'd1, 2'd0 }; // scan lines only
     endcase // status[4:3]
     `ifdef JTFRAME_FEEDTHRU
     { scanlines, bw_en, blend_en } = { 3'd0, 2'd0 }; `endif
