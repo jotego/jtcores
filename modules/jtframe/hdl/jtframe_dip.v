@@ -49,7 +49,7 @@ parameter XOR_ROT=0;
 // "O2,Aspect Ratio,Original,Wide;",
 // "OD,Original screen,No,Yes;",
 // "O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;", -- MiSTer
-// "O34,Video Mode, pass thru, linear, analogue, dark;",  -- MiST
+// "O34,Video Mode, pass thru, linear, analogue, scanlines;",  -- MiST
 // "O6,Test mode,OFF,ON;",
 // "O7,PSG,ON,OFF;",
 // "O8,FM ,ON,OFF;",
