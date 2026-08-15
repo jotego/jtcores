@@ -40,12 +40,11 @@ module jttaitox_main(
     input                clk,        // 48 MHz
     input                LVBL,
 
-    // header flags. The C-chip partitions the family exactly - the three
-    // superman sets are taitox_cchip_state, the other seven taitox_state -
-    // so "reads inputs directly at 900000" and "VBL on level 2" are both
-    // just ~cchip_en and need no bits of their own.
-    input                cchip_en,
-    input                kyustrkr,
+    // Board type from the MRA header. P0-039A is the only board with a
+    // C-chip, and it is also the only one whose class installs the level-6
+    // ISR, so "reads inputs directly at 900000" and "VBL on level 2" are
+    // both just ~p039a and need no bits of their own.
+    input                p039a,
 
     output               cpu_cen,
     output        [23:1] cpu_addr,
@@ -78,8 +77,6 @@ module jttaitox_main(
     output               cchip_cs,
     input         [ 7:0] cchip_dout,
 
-    // coin counters / lockout to the coin door
-    output reg    [ 3:0] coin_ctrl,
 
     input         [ 6:0] joystick1,
     input         [ 6:0] joystick2,
@@ -120,7 +117,7 @@ assign dws      = {UDSn,LDSn}!=3;
 
 // F138 #17 - A23 high
 assign syt_cs   = vma &&  a23 && region==3'd0;
-assign cchip_cs = vma &&  a23 && region==3'd1 && cchip_en;
+assign cchip_cs = vma &&  a23 && region==3'd1 && p039a;
 assign pal_cs   = vma &&  a23 && region==3'd3;
 assign vdcm_cs  = vma &&  a23 && region==3'd5;
 assign oram_cs  = vma &&  a23 && region==3'd6;
@@ -129,14 +126,14 @@ assign ram_cs   = vma &&  a23 && region==3'd7;
 assign rom_cs   = vma && !a23 && A[22:19]==4'd0;
 assign dsw_cs   = vma && !a23 && region==3'd5;
 // Without a C-chip the same slot is the direct input port
-assign in_cs    = vma &&  a23 && region==3'd1 && !cchip_en;
+assign in_cs    = vma &&  a23 && region==3'd1 && !p039a;
 
 assign ram_we   = {2{ram_cs & ~RnW}} & ~{UDSn,LDSn};
 assign pal_we   = {2{pal_cs & ~RnW}} & ~{UDSn,LDSn};
 
 // The C-chip games take the VBL interrupt on level 6, the rest on level 2
-assign IPLn     = intn ? 3'b111 : (cchip_en ? 3'b001 : 3'b101);
-assign VPAn     = !(!ASn && FC==7 && A[3:1]==(cchip_en ? 3'd6 : 3'd2) && RnW);
+assign IPLn     = intn ? 3'b111 : (p039a ? 3'b001 : 3'b101);
+assign VPAn     = !(!ASn && FC==7 && A[3:1]==(p039a ? 3'd6 : 3'd2) && RnW);
 
 assign bus_cs   = rom_cs;
 assign bus_busy = rom_cs & ~rom_ok;
@@ -166,14 +163,6 @@ always @(posedge clk) begin
     endcase
 end
 
-// daisenpu_input_w / kyustrkr_input_w. kyustrkr does not invert its coin
-// lockout bits, every other set does.
-always @(posedge clk, posedge rst) begin
-    if( rst )
-        coin_ctrl <= 0;
-    else if( in_cs && !RnW && !LDSn && A[2:1]==2'd0 )
-        coin_ctrl <= { kyustrkr ? cpu_dout[3:2] : ~cpu_dout[3:2], cpu_dout[1:0] };
-end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -259,7 +248,6 @@ assign cpu_addr=0, cpu_dout=0, cpu_rnw=1, cpu_dsn=3, cpu_cen=0,
        rom_cs=0, rom_addr=0, ram_we=0, pal_we=0,
        oram_cs=0, vdcm_cs=0, syt_cs=0, cchip_cs=0,
        vma=0, a23=0, region=0, ram_cs=0, pal_cs=0, dsw_cs=0, in_cs=0;
-initial coin_ctrl = 0;
 `endif
 
 endmodule

@@ -39,7 +39,7 @@
     bg_y is +0x01 flipped / -0x01 not, on every set.
 
     The flipped fg offset takes only two values and they follow the board
-    builder, so it is derived as (~cchip & ~opm) ? -0x0a : -0x12 rather than
+    builder, so it is hardcoded here as p057a ? -0x0a : -0x12 rather than
     carried in the header.
 
       set                 screen size   visarea          refresh

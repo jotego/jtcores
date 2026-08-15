@@ -23,24 +23,27 @@ rename=[
     {name="Price to Continue", to="Continue" },
 ]
 
-# The family partitions three ways by who built the board (driver table
-# lines 18-24), and that one fact carries almost everything:
+# Board type, one bit each. The family is three boards and that single
+# fact drives nearly every difference, so the header carries the board and
+# the HDL derives the rest:
 #
-#   cchip      Taito P0-039A      superman x3
-#   opm        Taito P0-051A      daisenpu, twinhawk x2
-#   neither    East Tech P0-057A  gigandes x2, ballbros, kyustrkr
+#   p039a  Taito Corp.       superman x3            C-chip, VBL level 6
+#   p051a  Taito Corp.       daisenpu, twinhawk x2  PC060HA + YM2151
+#   p057a  East Technology   gigandes x2, ballbros, kyustrkr
 #
-# Disjoint and complete over all ten sets, so anything following the board
-# split needs no bit of its own. Derived in the HDL instead of carried here:
-#   direct_in = ~cchip                        taitox_state reads IN0/1/2 at 900000
-#   irq2      = ~cchip                        only the cchip class installs the L6 ISR
-#   fg_yoff   = ~cchip & ~opm ? -0x0a : -0x12 East Tech vs Taito
-# kyustrkr is the one set whose quirks do not follow the board split.
+# Disjoint and complete over all ten sets (driver table lines 18-24), so
+# p057a is strictly redundant with ~p039a & ~p051a - kept one-hot because
+# the board is the core's identity and reads better at the use site.
+#
+# Derived in HDL rather than stored:
+#   direct_in = ~p039a                        taitox_state reads IN0/1/2 at 900000
+#   irq2      = ~p039a                        only the C-chip class installs the L6 ISR
+#   fg_yoff   = p057a ? -0x0a : -0x12         East Tech vs Taito, hardcoded in _video.v
 [header]
 registers=[
-    { name="cchip",    pos="0[0]", desc="Taito P0-039A: TC0030CMD C-chip", values=[{ setnames=["superman","supermanu","supermanj"], value=1 }] },
-    { name="opm",      pos="0[1]", desc="Taito P0-051A: PC060HA + YM2151", values=[{ setnames=["daisenpu","twinhawk","twinhawku"], value=1 }] },
-    { name="kyustrkr", pos="0[2]", desc="Last Striker quirks: coin lockout, ROT180", values=[{ setname="kyustrkr", value=1 }] },
+    { name="p039a", pos="0[0]", desc="Taito P0-039A (C-chip)", values=[{ setnames=["superman","supermanu","supermanj"], value=1 }] },
+    { name="p051a", pos="0[1]", desc="Taito P0-051A (PC060HA + YM2151)", values=[{ setnames=["daisenpu","twinhawk","twinhawku"], value=1 }] },
+    { name="p057a", pos="0[2]", desc="East Technology P0-057A", values=[{ setnames=["gigandes","gigandesa","ballbros","kyustrkr"], value=1 }] },
 ]
 
 [ROM]

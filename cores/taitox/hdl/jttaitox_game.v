@@ -26,12 +26,12 @@ wire [15:0] vid_dout;
 wire [ 1:0] cpu_dsn;
 wire [ 8:0] hdump;
 wire [ 7:0] cchip_dout, st_video;
-wire [ 3:0] syt_dout, coin_ctrl;
+wire [ 3:0] syt_dout;
 wire        cpu_rnw, cpu_cen, flip,
             oram_cs, vdcm_cs, syt_cs, cchip_cs;
 
 // MRA header, decoded in jttaitox_header.v
-wire        cchip_en, opm, kyustrkr;
+wire        p039a, p051a, p057a;
 
 assign debug_view = st_video;
 assign st_dout    = st_video;
@@ -44,9 +44,9 @@ jttaitox_header u_header(
     .prog_data  ( prog_data     ),
     .prog_we    ( prog_we       ),
 
-    .cchip      ( cchip_en      ),
-    .opm        ( opm           ),
-    .kyustrkr   ( kyustrkr      )
+    .p039a      ( p039a         ),
+    .p051a      ( p051a         ),
+    .p057a      ( p057a         )
 );
 
 /* verilator tracing_on */
@@ -55,8 +55,7 @@ jttaitox_main u_main(
     .clk        ( clk           ),
     .LVBL       ( LVBL          ),
 
-    .cchip_en   ( cchip_en      ),
-    .kyustrkr   ( kyustrkr      ),
+    .p039a      ( p039a         ),
 
     .cpu_cen    ( cpu_cen       ),
     .cpu_addr   ( cpu_addr      ),
@@ -83,7 +82,6 @@ jttaitox_main u_main(
 
     .cchip_cs   ( cchip_cs      ),
     .cchip_dout ( cchip_dout    ),
-    .coin_ctrl  ( coin_ctrl     ),
 
     .joystick1  ( joystick1[6:0]),
     .joystick2  ( joystick2[6:0]),
