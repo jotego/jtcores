@@ -32,31 +32,40 @@ module jtrastan_video(
 
     input    [18:1] main_addr,
     input    [15:0] main_dout,
-    output   [15:0] oram_dout,
-    output   [15:0] pal_dout,
     input    [ 1:0] main_dsn,
     input           main_rnw,
     input           scr_cs,
-    input           pal_cs,
     input           obj_cs,
     input    [ 2:0] obj_pal,
     output          sdakn,
     output          odakn,
 
+    input    [ 4:0] ioctl_addr,
+    output   [ 7:0] ioctl_din,
+
+    output   [12:1] objram_addr,
+    input    [15:0] objram_dout,
+    output   [11:1] palram_addr,
+    input    [15:0] palram_video_data,
+
+`ifdef RASTAN_SCRRAM_SDRAM
     output   [15:2] ram0_addr,
     input    [31:0] ram0_data,
     input           ram0_ok,
     output          ram0_cs,
+    output   [15:2] ram1_addr,
+    input    [31:0] ram1_data,
+    input           ram1_ok,
+    output          ram1_cs,
+`else
+    output   [15:2] ram_addr,
+    input    [31:0] ram_data,
+`endif
 
     output   [19:2] rom0_addr,
     input    [31:0] rom0_data,
     input           rom0_ok,
     output          rom0_cs,
-
-    output   [15:2] ram1_addr,
-    input    [31:0] ram1_data,
-    input           ram1_ok,
-    output          ram1_cs,
 
     output   [19:2] rom1_addr,
     input    [31:0] rom1_data,
@@ -74,11 +83,7 @@ module jtrastan_video(
 
     input     [3:0] gfx_en,
     input     [7:0] debug_bus,
-    output   [ 7:0] debug_view,
-    // NVRAM (debug) dump
-    input    [10:0] ioctl_addr,
-    output   [ 7:0] ioctl_din,
-    input           ioctl_ram
+    output   [ 7:0] debug_view
 );
 
 wire        preLHBL, preLVBL;
@@ -117,20 +122,27 @@ jtrastan_scr u_scr(
     .scr_cs     ( scr_cs    ),        // selection from address decoder
     .dtackn     ( sdakn     ),
 
+    .ioctl_addr ( ioctl_addr ),
+    .ioctl_din  ( ioctl_din  ),
+
+`ifdef RASTAN_SCRRAM_SDRAM
     .ram0_addr  ( ram0_addr ),
     .ram0_data  ( ram0_data ),
     .ram0_ok    ( ram0_ok   ),
     .ram0_cs    ( ram0_cs   ),
+    .ram1_addr  ( ram1_addr ),
+    .ram1_data  ( ram1_data ),
+    .ram1_ok    ( ram1_ok   ),
+    .ram1_cs    ( ram1_cs   ),
+`else
+    .ram_addr   ( ram_addr  ),
+    .ram_data   ( ram_data  ),
+`endif
 
     .rom0_addr  ( rom0_addr ),
     .rom0_data  ( scr0rom_data ),
     .rom0_ok    ( rom0_ok   ),
     .rom0_cs    ( rom0_cs   ),
-
-    .ram1_addr  ( ram1_addr ),
-    .ram1_data  ( ram1_data ),
-    .ram1_ok    ( ram1_ok   ),
-    .ram1_cs    ( ram1_cs   ),
 
     .rom1_addr  ( rom1_addr ),
     .rom1_data  ( scr1rom_data ),
@@ -153,12 +165,8 @@ jtrastan_obj u_obj(
     .hdump      ( hdump     ),
     .vrender    ( vrender   ),
 
-    .main_addr  ( main_addr[12:1] ),
-    .main_dout  ( main_dout ),
-    .main_din   ( oram_dout ),
-    .main_dsn   ( main_dsn  ),
-    .main_rnw   ( main_rnw  ),
-    .obj_cs     ( obj_cs    ),        // selection from address decoder
+    .ram_addr   ( objram_addr ),
+    .ram_data   ( objram_dout ),
     .dtackn     ( odakn     ),
 
     .rom_addr   ( orom_addr ),
@@ -166,11 +174,7 @@ jtrastan_obj u_obj(
     .rom_cs     ( orom_cs   ),
     .rom_ok     ( orom_ok   ),
     .pxl        ( obj_pxl   ),
-    // Debug
-    .debug_bus  ( debug_bus ),
-    .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( ioctl_addr),
-    .ioctl_din  ( ioctl_din )
+    .debug_bus  ( debug_bus )
 );
 
 jtrastan_colmix u_colmix(
@@ -180,12 +184,8 @@ jtrastan_colmix u_colmix(
     .opwolf     ( opwolf    ),
     .rbisland   ( rbisland  ),
 
-    .main_addr  ( main_addr[11:1] ),
-    .main_dout  ( main_dout ),
-    .main_dsn   ( main_dsn  ),
-    .main_din   ( pal_dout  ),
-    .main_rnw   ( main_rnw  ),
-    .pal_cs     ( pal_cs    ),        // selection from address decoder
+    .palram_addr( palram_addr ),
+    .palram_video_data( palram_video_data ),
 
     .preLHBL    ( preLHBL   ),
     .preLVBL    ( preLVBL   ),

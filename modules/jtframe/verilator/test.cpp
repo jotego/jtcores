@@ -548,6 +548,7 @@ struct HarnessOptions {
     const char *cabinet_input = nullptr;
     bool explicit_video_limit = false;
     bool trace = false;
+    bool trace_from_command_line = false;
     int finish_time = 10;
     int finish_frame = -1;
 };
@@ -563,6 +564,8 @@ static HarnessOptions parse_harness_options(int argc, char *argv[]) {
             options.explicit_video_limit = true;
         } else if( strcmp(argv[k], "--trace") == 0 ) {
             options.trace = true;
+        } else if( strcmp(argv[k], "--trace-command-line") == 0 ) {
+            options.trace_from_command_line = true;
         } else if( strcmp(argv[k], "-time") == 0 ) {
             if( ++k >= argc ) throw runtime_error("expecting time after -time argument");
             options.finish_time = static_cast<int>(parse_number(argv[k], "simulation time"));
@@ -705,7 +708,7 @@ JTSim::JTSim( UUT& g, int argc, char *argv[]) :
     explicit_video_limit = options.explicit_video_limit;
     finish_time = options.finish_time;
     finish_frame = options.finish_frame;
-    dump_ok = trace && !sim_inputs.has_cabinet_script() && _DUMP_START==0;
+    dump_ok = trace && (!sim_inputs.has_cabinet_script() || options.trace_from_command_line) && _DUMP_START==0;
 #ifdef _DUMP
     if( trace ) {
         Verilated::traceEverOn(true);
@@ -783,7 +786,7 @@ void JTSim::process_sim_inputs() {
     if( sim_inputs.is_controlling_reset() || !game.rst ) sim_inputs.next();
     if( sim_inputs.take_dump() ) cabinet_dump();
 #ifdef _DUMP
-    if( !dump_ok && sim_inputs.take_tracing_on() ) {
+    if( !options.trace_from_command_line && !dump_ok && sim_inputs.take_tracing_on() ) {
         dump_ok = true;
         fprintf(stderr, "\nTracing starts (cabinet input frame %d)\n", frame_cnt);
     }

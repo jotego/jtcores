@@ -138,7 +138,6 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// Not a double line buffer
 jtframe_dual_ram #(
     .DW (4+7    ),
     .AW ( 9     )  // 320 points

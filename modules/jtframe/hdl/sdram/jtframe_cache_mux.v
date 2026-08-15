@@ -246,6 +246,7 @@ wire [3:0] cache_flushing, cache_flush_done;
 wire [7:0] cache_invalidate_done;
 wire [7:0] cache_invalidate;
 wire [3:0] flush_done_out, flush_inval_active;
+wire [7:0] cache_ok_fast;
 wire cache_flush_ro  = 1'b0;
 wire xl_addr = SDRAM_AW == 25;
 wire unused_flush    = flush4 | flush5 | flush6 | flush7;
@@ -259,6 +260,14 @@ wire req4 = rd4;
 wire req5 = rd5;
 wire req6 = rd6;
 wire req7 = rd7;
+
+assign cache_ok_fast = {
+    cache_ok7, cache_ok6, cache_ok5, cache_ok4,
+    cache_ok3 & ~flush_inval_active[3],
+    cache_ok2 & ~flush_inval_active[2],
+    cache_ok1 & ~flush_inval_active[1],
+    cache_ok0 & ~flush_inval_active[0]
+};
 
 wire [7:0] ext_rd_bus = { ext_rd7, ext_rd6, ext_rd5, ext_rd4,
                           ext_rd3, ext_rd2, ext_rd1, ext_rd0 };
@@ -287,22 +296,25 @@ reg [DW4-1:0] dout_hold4;
 reg [DW5-1:0] dout_hold5;
 reg [DW6-1:0] dout_hold6;
 reg [DW7-1:0] dout_hold7;
-assign dout0 = dout_hold0;
-assign dout1 = dout_hold1;
-assign dout2 = dout_hold2;
-assign dout3 = dout_hold3;
-assign dout4 = dout_hold4;
-assign dout5 = dout_hold5;
-assign dout6 = dout_hold6;
-assign dout7 = dout_hold7;
-assign ok0   = ok_hold[0];
-assign ok1   = ok_hold[1];
-assign ok2   = ok_hold[2];
-assign ok3   = ok_hold[3];
-assign ok4   = ok_hold[4];
-assign ok5   = ok_hold[5];
-assign ok6   = ok_hold[6];
-assign ok7   = ok_hold[7];
+// cache_okN and cache_doutN are registered in jtframe_cache. Forward that
+// first response cycle directly, then use the hold registers while the
+// requester keeps rd/wr asserted.
+assign dout0 = cache_ok_fast[0] ? cache_dout0 : dout_hold0;
+assign dout1 = cache_ok_fast[1] ? cache_dout1 : dout_hold1;
+assign dout2 = cache_ok_fast[2] ? cache_dout2 : dout_hold2;
+assign dout3 = cache_ok_fast[3] ? cache_dout3 : dout_hold3;
+assign dout4 = cache_ok_fast[4] ? cache_dout4 : dout_hold4;
+assign dout5 = cache_ok_fast[5] ? cache_dout5 : dout_hold5;
+assign dout6 = cache_ok_fast[6] ? cache_dout6 : dout_hold6;
+assign dout7 = cache_ok_fast[7] ? cache_dout7 : dout_hold7;
+assign ok0   = cache_ok_fast[0] | ok_hold[0];
+assign ok1   = cache_ok_fast[1] | ok_hold[1];
+assign ok2   = cache_ok_fast[2] | ok_hold[2];
+assign ok3   = cache_ok_fast[3] | ok_hold[3];
+assign ok4   = cache_ok_fast[4] | ok_hold[4];
+assign ok5   = cache_ok_fast[5] | ok_hold[5];
+assign ok6   = cache_ok_fast[6] | ok_hold[6];
+assign ok7   = cache_ok_fast[7] | ok_hold[7];
 assign flushing0   = cache_flushing[0] | flush_inval_active[0];
 assign flushing1   = cache_flushing[1] | flush_inval_active[1];
 assign flushing2   = cache_flushing[2] | flush_inval_active[2];

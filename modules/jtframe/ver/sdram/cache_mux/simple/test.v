@@ -391,6 +391,30 @@ task wait_lane_ok(input integer lane);
     end
 endtask
 
+task assert_hit_latency(input integer lane, input integer local_addr,
+                        input integer expected_cycles);
+    integer cycles;
+    integer ack_start;
+    begin : wait_loop
+        ack_start = ack_count;
+        @(negedge clk);
+        set_lane_addr(lane, local_addr);
+        set_lane_rd(lane, 1'b1);
+        for( cycles=1; cycles<20; cycles=cycles+1 ) begin
+            @(posedge clk);
+            if( lane_ok(lane) ) begin
+                assert_msg(cycles == expected_cycles,
+                    "cache-hit response has unexpected latency");
+                assert_msg(ack_count == ack_start,
+                    "latency check must exercise a cache hit");
+                disable wait_loop;
+            end
+        end
+        $display("Timed out measuring hit latency on lane %0d", lane);
+        fail();
+    end
+endtask
+
 task assert_lane_word(input integer lane, input integer local_addr);
     reg [15:0] expected;
     begin
@@ -474,14 +498,8 @@ initial begin
     repeat (2) @(posedge clk);
     assert_msg(!lane_ok(0), "ok0 must clear once rd0 is released");
 
-    ack_before = ack_count;
-    @(negedge clk);
-    set_lane_addr(0, 22'd4);
-    set_lane_rd(0, 1'b1);
-
-    wait_lane_ok(0);
+    assert_hit_latency(0, 4, 4);
     assert_lane_word(0, 4);
-    assert_msg(ack_count == ack_before, "same-line hit must not start a new SDRAM burst");
 
     @(negedge clk);
     set_lane_rd(0, 1'b0);
