@@ -145,6 +145,7 @@ jtgae1_main u_main (
     .snd_irq           ( snd_irq         )
 );
 
+/* verilator tracing_off */
 jtgae1_sound u_sound (
     .clk       ( clk            ),
     .rst       ( cpu_rst        ),
