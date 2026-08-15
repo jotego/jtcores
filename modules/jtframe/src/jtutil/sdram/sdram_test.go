@@ -226,6 +226,28 @@ func TestDumpRemovesEmptyRegionFile(t *testing.T) {
 	}
 }
 
+func TestDumpAcceptsMissingEmptyRegionFile(t *testing.T) {
+	dir := t.TempDir()
+	restore := chdir(t, dir)
+	defer restore()
+
+	rom := []byte{0, 1, 2, 3}
+	var next int
+	var err error
+	output := captureStdout(t, func() {
+		next, err = dump("empty.bin", rom, 2, 2, len(rom), 0)
+	})
+	if err != nil {
+		t.Fatalf("dump returned error: %v", err)
+	}
+	if next != 2 {
+		t.Fatalf("dump next mismatch: got=%d want=%d", next, 2)
+	}
+	if !strings.Contains(output, "Warning: empty region file does not exist empty.bin") {
+		t.Fatalf("missing-file warning not reported: %q", output)
+	}
+}
+
 func TestSdramBankSizeDefaultsTo8MB(t *testing.T) {
 	macros.MakeFromMap(map[string]string{})
 	got := sdramBankSize()
