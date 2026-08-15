@@ -1,12 +1,6 @@
 taitox:
   - get: [ "*.v" ]
 
-# X1-001 / X1-002 sprite controller + BG-column renderer.
-# These are the Seta chips already implemented for TNZS (kiwi) and reused by
-# calibr50 and metafox/arbalest. The arbalest branch parametrized them with
-# OBJAW (12 = 8 kB sprite RAM, 13 = 16 kB + the "setac" bank word at 0x1000).
-# Taito X is the 16 kB / setac case, so it instantiates them with OBJAW=13
-# and needs no further change to the shared modules.
 kiwi:
   - get:
     - jtkiwi_gfx.v
@@ -14,19 +8,10 @@ kiwi:
     - jtkiwi_draw.v
     - jtkiwi_tilemap.v
 
-# Taito sound-comm chip. MAME's pc060ha_device DERIVES from
-# tc0140syt_device — one protocol, two package names — so jtrastan_pc060.v
-# covers the TC0140SYT on superman/gigandes/ballbros/kyustrkr and the
-# PC060HA on daisenpu/twinhawk. It is in-tree GPL-3 JTCORES code already
-# proven in rastan, opwolf and volfied; the Taito F2 MiSTer tc0140syt.sv is
-# kept in doc/ as a read-only cross-check only.
 rastan:
   - get:
     - jtrastan_pc060.v
 
-# TC0030CMD C-chip (Superman). See jtvlfied_cchip.v / jtrastan_cchip.v for
-# the wrapper pattern: map the cabinet inputs onto the MCU ports and let this
-# module do the rest.
 jttc0030cmd:
 
 jtframe:
@@ -54,7 +39,4 @@ jtframe:
       - jtframe_z80.yaml
       - jtframe_m68k.yaml
 
-# YM2610 — jt10 ships inside the jt12 module
 jt12:
-
-# YM2151 for daisenpu/twinhawk: add `ikaopm:` here when that path lands.

@@ -43,7 +43,7 @@ regions = [
     { name="maincpu",      width=16, reverse=true, no_offset=true },
     { name="audiocpu",     start="JTFRAME_BA1_START" },
     { name="ymsnd:adpcma", rename="adpcma", start="PCM_START" },
-    { setnames=["ballbros","kyustrkr"], name="gfx1", start="JTFRAME_BA2_START", width=32, no_offset=true },
+    { setnames=["ballbros","kyustrkr"], name="gfx1", start="JTFRAME_BA2_START", width=32, no_offset=true, sequence=[1,3,0,2] },
     { name="gfx1",         start="JTFRAME_BA2_START", width=16, no_offset=true },
     { name="ymsnd:adpcmb", rename="adpcmb", start="JTFRAME_BA3_START" },
     { name="cchip_bios", setnames=["superman","supermanu","supermanj"], start="JTFRAME_PROM_START", rom_len=0x1000, files=[ { name="cchip_upd78c11.bin", crc="43021521", size=0x1000 } ] },
