@@ -61,7 +61,7 @@ reg         dec_en, dec_type,
 wire [ 7:0] key_data;
 wire [12:0] key_addr;
 
-wire        flip, video_en, sound_en, line_intn;
+wire        flip, video_en, sound_en, line_intn, sub_bsy;
 
 // Cabinet inputs
 wire [ 7:0] dipsw_a, dipsw_b;
@@ -190,6 +190,7 @@ jtoutrun_main u_main(
     .sub_cs      ( sub_br     ),
     .sub_ok      ( sub_ok     ),
     .sub_din     ( sub_din    ),
+    .sub_bsy     ( sub_bsy    ),
     .creset      ( creset     ),
     // cabinet I/O
     .ctrl_type   ( ctrl_type  ),
@@ -249,6 +250,7 @@ jtoutrun_sub u_sub(
     .sub_din    ( sub_din   ),
     .main_dout  ( main_dout ),
     .sub_ok     ( sub_ok    ),
+    .sub_bsy    ( sub_bsy   ),
     .road_dout  ( road_dout ),
 
     // sub CPU bus

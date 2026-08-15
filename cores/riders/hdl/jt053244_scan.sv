@@ -125,10 +125,10 @@ always @* begin
     ydiff  = yz_add[6+:10];
     // test ver/parodius/scene/9 -> "bomb", scan_obj 5
     case( vsz )
-        0: vmir_eff = nx_mir[1] && ydiff[3] && ydiff[9:4]==0;
-        1: vmir_eff = nx_mir[1] && ydiff[4] && ydiff[9:5]==0;
-        2: vmir_eff = nx_mir[1] && ydiff[5] && ydiff[9:6]==0;
-        3: vmir_eff = nx_mir[1] && ydiff[6] && ydiff[9:7]==0;
+        0: vmir_eff = nx_mir[1] && !ydiff[3] && ydiff[9:4]==0;
+        1: vmir_eff = nx_mir[1] && !ydiff[4] && ydiff[9:5]==0;
+        2: vmir_eff = nx_mir[1] && !ydiff[5] && ydiff[9:6]==0;
+        3: vmir_eff = nx_mir[1] && !ydiff[6] && ydiff[9:7]==0;
     endcase
     hmir_eff = hmir & hhalf;
     case( vsz )
@@ -227,7 +227,8 @@ always @(posedge clk, posedge rst) begin
                 3: begin
                     { vmir, hmir } <= nx_mir;
                     { shd, attr } <= scan_even[7:0];
-                    vflip <= pre_vf ^ gvf ^ vmir_eff;
+                    // Global Y flip does not invert a locally mirrored sprite.
+                    vflip <= pre_vf ^ (gvf & ~nx_mir[1]) ^ vmir_eff;
                 end
                 4: begin
                     // Add the vertical offset to the code, must wait for zoom
