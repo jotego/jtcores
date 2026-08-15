@@ -913,10 +913,14 @@ func dump(name string, rom []byte, p0, p1, lim, fill int) (int, error) {
 	}
 	if p1 == p0 && fill == 0 {
 		err := os.Remove(name)
-		if err != nil {
+		if err != nil && !os.IsNotExist(err) {
 			return 0, err
 		}
-		fmt.Println("Removed file", name)
+		if err == nil {
+			fmt.Println("Removed file", name)
+		} else {
+			fmt.Println("Warning: empty region file does not exist", name)
+		}
 		return p1, nil
 	}
 	if err := os.WriteFile(name, rom[p0:p1], 0664); err != nil {
