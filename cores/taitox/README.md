@@ -128,9 +128,9 @@ Chip behaviour that took work to establish lives as comments in the HDL that
 implements it — the address decode in `hdl/jttaitox_main.v`, the X1-001
 alignment constants in `hdl/jttaitox_video.v`.
 
-The Taito F2 MiSTer core's `tc0140syt.sv` is kept in `doc/` as a read-only
-cross-check. It is not used: `jtrastan_pc060.v` is in-tree GPL-3 JTCORES code
-that implements the same protocol.
+The Taito F2 MiSTer core's TC0140SYT is kept as `doc/tc0140syt.sv.ref`, a
+read-only cross-check. It is not used: `jtrastan_pc060.v` is in-tree GPL-3 JTCORES code
+that implements the same protocol (`cores/rastan/hdl/jtrastan_pc060.v`).
 
 ## Build & sim
 
