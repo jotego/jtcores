@@ -84,6 +84,7 @@ JTFRAME_OSDCOLOR         |         | Sets the OSD colour. Use 0x30 for red.
 JTFRAME_PADDLE           |         | Enables paddle inputs to the game module
 JTFRAME_PADDLE_MAX       |         | Maximum paddle value used by jtframe_paddle (mouse-to-paddle emulation)
 JTFRAME_PLL              |         | PLL module name to be used. PLL names must end in the pixel clock frequency in kHz
+JTFRAME_PLL_TUNE         | MiSTer  | Enables live game-PLL speed tuning. Adds the CRT clock OSD option on status bits 13:15; the target must provide a reconfigurable PLL implementation.
 JTFRAME_PXLCLK           |         | 6 or 8. Defines the pixel clock. See [clocks](clocks.md)
 JTFRAME_RATE             |         | Expected video refresh rate in Hz. Verilator `jtsim` checks this when the core produces frames.
 JTFRAME_RELEASE          |         | Disables debug control via keyboard
