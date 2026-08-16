@@ -35,6 +35,8 @@ module jtblkout_fb(
 );
 
 localparam [2:0] IDLE=0, F_REQ=1, F_WAIT=2, B_REQ=3, B_WAIT=4, STORE=5;
+localparam [0:0] FRONT=1'b0, BACK=1'b1;
+
 reg  [ 2:0] st;
 reg         HSl;
 reg  [ 7:0] wcol, fy;
@@ -44,7 +46,7 @@ reg  [ 7:0] lb_wa;
 reg         lb_we;
 wire [17:0] lb_q;
 
-// composite one plane-pair -> 9-bit pen
+// select front or back layers
 function [8:0] compose( input [7:0] f, input [7:0] b );
     compose = f!=8'd0 ? {1'b0,f} : {1'b1,b};
 endfunction
@@ -61,9 +63,9 @@ always @(posedge clk, posedge rst) begin
             wcol <= 0;
             st   <= F_REQ;
         end else case( st )
-            F_REQ:  begin fbrd_addr<={1'b0,fy,wcol}; fbrd_cs<=1; st<=F_WAIT; end
+            F_REQ:  begin fbrd_addr<={FRONT,fy,wcol}; fbrd_cs<=1; st<=F_WAIT; end
             F_WAIT: if( fbrd_ok ) begin front_lat<=fbrd_data; fbrd_cs<=0; st<=B_REQ; end
-            B_REQ:  begin fbrd_addr<={1'b1,fy,wcol}; fbrd_cs<=1; st<=B_WAIT; end
+            B_REQ:  begin fbrd_addr<={BACK,fy,wcol}; fbrd_cs<=1; st<=B_WAIT; end
             B_WAIT: if( fbrd_ok ) begin back_lat<=fbrd_data;  fbrd_cs<=0; st<=STORE; end
             STORE:  begin
                 lb_din <= { compose(front_lat[7:0],  back_lat[7:0] ),    // odd  x
