@@ -91,13 +91,6 @@ wire [ 7:0] st_tiles, st_kiwi, x1012_ioctl_din, x1001_ioctl_din;
 reg        LHBL_l;
 reg  [5:0] cnt244;
 wire [6:0] nx_244 = {1'b0,cnt244} + 6'd1;
-// Align the graphics coordinate origin with the PCB/MAME active area.
-// The X1-001 mirrors vdump itself, so the object offset needs a value per
-// flip state. flip==1 is the upright screen.
-// Object X is not mirrored by the chip: the game rewrites it. Measured on the
-// object RAM, it mirrors sprites drawn from font tiles (code<1024) 3 pixels
-// apart from the rest, so no single OBJ_HOFF_F serves both.
-// To be checked on the PCB.
 localparam [8:0] OBJ_VOFF =  9'd18, OBJ_VOFF_F = -9'd4,
                  OBJ_HOFF = -9'd4,  OBJ_HOFF_F = -9'd7;
 
