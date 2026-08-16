@@ -40,7 +40,7 @@ module jtframe_scroll #( parameter
     HLOOP      = 0, // see jtframe_scroll_offset
     COL_SCROLL = 0, // set to 1 to enable 8-pixel column scroll
     LATCH_SCRX = 0, // set to 1 to latch scrx while hs is high
-    FLIP_HW    = 8  // hdump bits inverted by flip
+    FLIP_HW    = 8, // hdump bits inverted by flip
     FLIP_VW    = 8  // vdump bits inverted by flip
 )(
     input              rst,
