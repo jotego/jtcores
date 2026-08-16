@@ -113,7 +113,7 @@ jt1942_objram u_ram(
     .objbuf_data3   ( objbuf_data3  )
 );
 
-wire [8:0] posx;
+wire [8:0] posx, posx_eff;
 wire [3:0] new_pxl;
 
 // draw the sprite
@@ -149,6 +149,8 @@ jt1942_objdraw u_draw(
 
 assign LHBL_eff = LHBL,
        V_eff    = V;
+assign posx_eff = flip ? posx+9'd1 : posx;
+
 jtgng_objpxl #(.PXL_DLY(PXL_DLY))u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -157,7 +159,7 @@ jtgng_objpxl #(.PXL_DLY(PXL_DLY))u_pxlbuf(
     // screen
     .LHBL           ( LHBL          ),
     .flip           ( flip          ),
-    .posx           ( posx          ),
+    .posx           ( posx_eff      ),
     .line           ( line          ),
     // pixel data
     .new_pxl        ( new_pxl       ),
