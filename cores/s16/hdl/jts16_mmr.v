@@ -161,16 +161,16 @@ always @(posedge clk, posedge rst) begin
                 endcase
             end else begin // System 16B
                 case( {cpu_addr[8:1], 1'b0} )
-                    9'h080: scr1_pages_std  <= bytemux( scr1_pages      );
-                    9'h082: scr2_pages_std  <= bytemux( scr2_pages      );
+                    9'h080: scr1_pages_std  <= bytemux( scr1_pages_std  );
+                    9'h082: scr2_pages_std  <= bytemux( scr2_pages_std  );
                     9'h084: scr1_pages_alt  <= bytemux( scr1_pages_alt  );
                     9'h086: scr2_pages_alt  <= bytemux( scr2_pages_alt  );
-                    9'h090: scr1_vpos_std   <= bytemux( scr1_vpos       );
-                    9'h092: scr2_vpos_std   <= bytemux( scr2_vpos       );
+                    9'h090: scr1_vpos_std   <= bytemux( scr1_vpos_std   );
+                    9'h092: scr2_vpos_std   <= bytemux( scr2_vpos_std   );
                     9'h094: scr1_vpos_alt   <= bytemux( scr1_vpos_alt   );
                     9'h096: scr2_vpos_alt   <= bytemux( scr2_vpos_alt   );
-                    9'h098: scr1_hpos_std   <= bytemux( scr1_hpos       );
-                    9'h09a: scr2_hpos_std   <= bytemux( scr2_hpos       );
+                    9'h098: scr1_hpos_std   <= bytemux( scr1_hpos_std   );
+                    9'h09a: scr2_hpos_std   <= bytemux( scr2_hpos_std   );
                     9'h09c: scr1_hpos_alt   <= bytemux( scr1_hpos_alt   );
                     9'h09e: scr2_hpos_alt   <= bytemux( scr2_hpos_alt   );
                     default:;
