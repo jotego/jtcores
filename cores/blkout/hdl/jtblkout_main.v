@@ -27,12 +27,18 @@ module jtblkout_main(
     output        [15:0] main_dout,
     output               main_rnw,
     output reg           rom_cs,
-    output reg           work_cs,
-    output reg           work2_cs,
-    output reg           work3_cs,
-    output reg           fvram_cs,
-    output reg           pal_cs,
-    output reg           fb_cs,
+    output        [ 1:0] work_we,
+    output        [ 1:0] work2_we,
+    output               work3_sel,
+    output        [16:1] work3_addr,
+    output        [ 1:0] work3_dsn,
+    output               work3_we,
+    output        [ 1:0] fvram_we,
+    output        [ 1:0] pal_we,
+    output               fbram_sel,
+    output        [17:1] fbram_addr,
+    output        [ 1:0] fbram_dsn,
+    output               fbram_we,
     output reg           frontcol_cs, // 280000-280003, pen-512 colour register
 
     input         [15:0] work_dout,
@@ -46,7 +52,6 @@ module jtblkout_main(
     input         [15:0] rom_data,
     input                rom_ok,
 
-    input                blockout,
     input                blockoutj,
     // sound latch (0x100015)
     output reg           snd_irq,
@@ -76,7 +81,9 @@ wire        irq6n, irq5n;
 wire        ok_dly;
 wire        irq6ack, irq5ack;
 wire        bus_cs, bus_busy, bus_legit;
+wire        fb_wr, work3_wr;
 wire [2:0]  ok_cs, ok_in;
+reg         work_cs, work2_cs, work3_cs, fvram_cs, pal_cs, fb_cs;
 
 assign main_addr = A[17:1];
 assign main_dsn  = {UDSn, LDSn};
@@ -95,6 +102,21 @@ assign ok_cs     = { rom_cs, fb_cs, work3_cs };
 assign ok_in     = { rom_ok, fb_ok, work3_ok };
 assign bus_busy  = (rom_cs | fb_cs | work3_cs) & ~ok_dly;
 assign bus_legit = 0;
+assign work_we   = {2{work_cs  & ~RnW}} & ~{UDSn, LDSn};
+assign work2_we  = {2{work2_cs & ~RnW}} & ~{UDSn, LDSn};
+assign fvram_we  = {2{fvram_cs & ~RnW}} & ~{UDSn, LDSn};
+assign pal_we    = {2{pal_cs   & ~RnW}} & ~{UDSn, LDSn};
+
+assign fb_wr       = fb_cs & ~RnW;
+assign fbram_sel   = RnW ? fb_cs : (fb_wr & {UDSn, LDSn}!=2'b11);
+assign fbram_addr  = A[17:1];
+assign fbram_dsn   = {UDSn, LDSn};
+assign fbram_we    = fb_wr & {UDSn, LDSn}!=2'b11;
+assign work3_wr    = work3_cs & ~RnW;
+assign work3_sel   = RnW ? work3_cs : (work3_wr & {UDSn, LDSn}!=2'b11);
+assign work3_addr  = A[16:1];
+assign work3_dsn   = {UDSn, LDSn};
+assign work3_we    = work3_wr & {UDSn, LDSn}!=2'b11;
 
 always @* begin
     rom_cs      = allFC && A[23:18]==6'h0  && !ASn && {UDSn,LDSn} != 2'b11;        // 000000-03ffff
@@ -219,8 +241,10 @@ jtframe_m68k u_cpu(
 wire _unused = &{1'b0, service, tilt, cab_1p[3:2], coin[3]};
 `else
 assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=1;
+assign work_we=0, work2_we=0, work3_sel=0, work3_addr=0, work3_dsn=0, work3_we=0;
+assign fvram_we=0, pal_we=0, fbram_sel=0, fbram_addr=0, fbram_dsn=0, fbram_we=0;
 initial begin
-    rom_cs=0; work_cs=0; work2_cs=0; work3_cs=0; fvram_cs=0; pal_cs=0; fb_cs=0; frontcol_cs=0;
+    rom_cs=0; frontcol_cs=0;
     snd_irq=0; snd_latch=0;
 end
 `endif

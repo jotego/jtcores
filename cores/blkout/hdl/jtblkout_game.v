@@ -23,34 +23,13 @@ module jtblkout_game(
 
 wire [ 1:0] main_dsn;
 wire        main_rnw;
-wire        work_cs, work2_cs, work3_cs, fvram_cs, pal_cs, fb_cs, frontcol_cs;
+wire        frontcol_cs;
 wire [ 7:0] snd_latch, st_video;
 wire        snd_irq;
 
 assign dip_flip   = 0;
 assign debug_view = st_video;
 
-// BRAM write strobes (addr + din wired via mem.yaml)
-assign work_we   = {2{work_cs  & ~main_rnw}} & ~main_dsn;
-assign work2_we  = {2{work2_cs & ~main_rnw}} & ~main_dsn;
-assign fvram_we  = {2{fvram_cs & ~main_rnw}} & ~main_dsn;
-assign pal_we    = {2{pal_cs   & ~main_rnw}} & ~main_dsn;
-
-// Back framebuffer (SDRAM bank 2): CPU R/W straight-through, video read is fbrd.
-// A write must wait for a valid byte strobe: fb_cs asserts at ASn but the 68k
-// drives UDSn/LDSn later, so issuing at ASn with dsn=11 would mask the byte.
-wire fb_wr = fb_cs & ~main_rnw;
-assign fbram_sel = main_rnw ? fb_cs : (fb_wr & main_dsn!=2'b11);
-assign fbram_addr= main_addr[17:1];
-assign fbram_dsn = main_dsn;
-assign fbram_we  = fb_wr & main_dsn!=2'b11;
-
-// Work RAM 0x208000-0x21ffff (SDRAM bank 3): same byte-strobe handling, no video read.
-wire work3_wr = work3_cs & ~main_rnw;
-assign work3_sel = main_rnw ? work3_cs : (work3_wr & main_dsn!=2'b11);
-assign work3_addr= main_addr[16:1];
-assign work3_dsn = main_dsn;
-assign work3_we  = work3_wr & main_dsn!=2'b11;
 wire blockout, blockoutj;
 
 jtblkout_header u_header(
@@ -73,15 +52,20 @@ jtblkout_main u_main(
     .main_dsn   ( main_dsn  ),
     .main_rnw   ( main_rnw  ),
     .rom_cs     ( main_cs   ),
-    .work_cs    ( work_cs   ),
-    .work2_cs   ( work2_cs  ),
-    .work3_cs   ( work3_cs  ),
-    .fvram_cs   ( fvram_cs  ),
-    .pal_cs     ( pal_cs    ),
-    .fb_cs      ( fb_cs     ),
+    .work_we    ( work_we   ),
+    .work2_we   ( work2_we  ),
+    .work3_sel  ( work3_sel ),
+    .work3_addr ( work3_addr),
+    .work3_dsn  ( work3_dsn ),
+    .work3_we   ( work3_we  ),
+    .fvram_we   ( fvram_we  ),
+    .pal_we     ( pal_we    ),
+    .fbram_sel  ( fbram_sel ),
+    .fbram_addr ( fbram_addr),
+    .fbram_dsn  ( fbram_dsn ),
+    .fbram_we   ( fbram_we  ),
     .frontcol_cs( frontcol_cs ),
 
-    .blockout   ( blockout  ),
     .blockoutj  ( blockoutj ),
     .work_dout  ( work_dout ),
     .work2_dout ( work2_dout),
