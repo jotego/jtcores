@@ -27,8 +27,8 @@ module jtframe_scroll_offset #(parameter
                     // trasition from blanking to active
     COL_SCROLL = 0, // set to 1 to enable 8-pixel column scroll
     LATCH_SCRX = 0, // set to 1 to latch scrx while hs is high
-    HFLIPW     = 8  // hdump bits mirrored by flip. The mirror is only exact
-                    // modulo 2^HFLIPW, so maps wider than that need more bits
+    FLIP_HW    = 8, // hdump bits inverted by flip
+    FLIP_VW    = 8  // vdump bits inverted by flip
 )(
     input       clk, 
                 flip, hs,
@@ -64,11 +64,11 @@ assign scrx_eff = LATCH_SCRX==1 ? scrx_l : scrx;
 always @* begin
     // hdf should make a perfect subtraction during blanking
     // HLOOP can be used to help achieve that
-    hdf   = {blank,hdfix} ^ { {HDW-HFLIPW{1'b0}}, {HFLIPW{flip}} };
+    hdf   = {blank,hdfix} ^ { {HDW-FLIP_HW{1'b0}}, {FLIP_HW{flip}} };
     hfull = hdf + {{HDW-MAP_HW{1'b0}},scrx_eff};
     heff  = hfull[HDUMPW-1:0];
 
-    vdf   = vdump ^ { 1'b0, {8{flip}} };
+    vdf   = vdump ^ { {VDW-FLIP_VW{1'b0}}, {FLIP_VW{flip}} };
     vfull = vdf + scry;
 end
 
