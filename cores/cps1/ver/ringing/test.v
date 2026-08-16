@@ -57,6 +57,7 @@ endtask
 
 integer decoded = 0;
 integer cycle_count = 0;
+integer unclamped_count = 0;
 reg signed [11:0] old0, old1;
 
 // snd_V changes once per decoded nibble.  Looking here avoids any ambiguity
@@ -68,6 +69,8 @@ always @(posedge clk) if (!rst && uut.u_adpcm.cen) begin
         if (old1 == -12'sd863 && old0 == -12'sd2048 &&
             uut.u_adpcm.snd_V == 12'sd2047)
             cycle_count = cycle_count + 1;
+        if (decoded >= 40 && uut.u_adpcm.snd_V != -12'sd2048)
+            unclamped_count = unclamped_count + 1;
         old1 = old0;
         old0 = uut.u_adpcm.snd_V;
     end
@@ -88,6 +91,10 @@ initial begin
     wait (decoded >= 300);
     if (cycle_count != 0) begin
         $display("FAIL: detected %0d -863/-2048/+2047 clamp cycles", cycle_count);
+        fail();
+    end
+    if (unclamped_count != 0) begin
+        $display("FAIL: decoder left the negative clamp %0d times", unclamped_count);
         fail();
     end
     pass();
