@@ -452,9 +452,7 @@ jtkcpu u_cpu(
     assign cpu_addr  = 0;
     assign ram_we    = 0;
     assign cpu_we    = 0;
-    assign st_dout   = 0;
     assign pal_we    = 0;
-    assign rom_addr  = 0;
     assign snd_wrn   = 1;
     assign nv_din    = 0;
     assign nv_addr   = 0;

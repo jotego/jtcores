@@ -50,7 +50,7 @@ module jtpspike_snd(
     input      [ 7:0]    rom_data,
     input                rom_ok,
 
-    output     [19:0]    pcma_addr,
+    output     [19:0]    pcma_addr,  // driven by u_pcma_pf
     output               pcma_cs,
     input      [ 7:0]    pcma_data,
     input                pcma_ok,
@@ -73,6 +73,7 @@ reg  [ 1:0] bank;
 wire        mreq_n, iorq_n, rd_n, wr_n, m1_n, rfsh_n, int_n;
 wire        mem_acc, io_acc;
 wire        ram_cs, bank_cs, latch_rd, latch_ack, fm_cs;
+reg         fm_busy, fmcs_l;
 wire [ 7:0] ram_dout;
 wire [19:0] adpcma_addr;
 wire [23:0] adpcmb_addr;
@@ -81,7 +82,7 @@ wire [23:0] adpcmb_addr;
 // leave it unused: the 1MB region is covered by adpcma_addr alone
 wire [ 3:0] adpcma_bank;
 wire        adpcma_roe_n, adpcmb_roe_n;
-reg  [ 7:0] pcma_l, pcmb_l;
+wire [ 7:0] pcma_din;
 
 assign mem_acc  = ~mreq_n & rfsh_n;
 assign io_acc   = ~iorq_n & m1_n;
@@ -118,6 +119,16 @@ always @(posedge clk) begin
     end
 end
 
+// The YM2610 raises BUSY for 32 chip cycles after a register write and the Z80
+// must honour it. Measured 1061 writes landing during BUSY over 2400 frames,
+// 306 of them into bank 1 (the ADPCM-A start/end, level/pan and key-on
+// registers), all silently dropped. jt10 does not expose busy as a port, so
+// synthesise one access-long stall the way kiwi does.
+always @(posedge clk) if( fm_cen ) begin
+    fmcs_l  <= fm_cs;
+    fm_busy <= fm_cs & ~fmcs_l;
+end
+
 jtframe_z80_devwait u_cpu(
     .rst_n      ( ~rst      ),
     .clk        ( clk       ),
@@ -139,7 +150,7 @@ jtframe_z80_devwait u_cpu(
     .dout       ( cpu_dout  ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
-    .dev_busy   ( 1'b0      )
+    .dev_busy   ( fm_busy   )
 );
 
 jtframe_ram #(.AW(11)) u_ram(
@@ -151,43 +162,36 @@ jtframe_ram #(.AW(11)) u_ram(
     .q          ( ram_dout  )
 );
 
-// ADPCM ROMs. The chip has no wait handshake, so the byte is latched when
-// SDRAM answers and held until the next request
-assign pcma_cs   = ~adpcma_roe_n;
+// ADPCM ROM paths - the two engines have OPPOSITE interface contracts and
+// must not share a data policy (every shared attempt fixed one and broke the
+// other, see doc/TASK_adpcm_distortion.md):
+//
+//   ADPCM-A  six channels multiplexed on a 666kHz pipeline: the address bus
+//            belongs to each channel for one 1.5us slot and the byte must be
+//            back before the slot ends. A plain SDRAM slot misses that
+//            deadline under bank contention (measured worst 1.6us), so the
+//            chip decodes another channel's byte. Served from a prefetching
+//            cache: each channel walks +1, so fetching N+1 while serving N
+//            makes every in-stream byte a same-slot hit.
+//   ADPCM-B  single channel, narrow roe_n strobe that drops before the SDRAM
+//            answers. The slot's registered dout holds each byte stable until
+//            the next request, so a direct connection is correct. Anything
+//            stricter (cs&&ok, address match) re-silences it: measured 0
+//            cs&&ok overlaps in 900 frames.
 assign pcmb_cs   = ~adpcmb_roe_n;
-assign pcma_addr = adpcma_addr;         // 1 MB region, adpcma_bank stays 0
 assign pcmb_addr = adpcmb_addr[18:0];   // 256 kB region
 
-// Latch on ok alone, NOT on cs&&ok. adpcmb_roe_n is a narrow strobe and the
-// SDRAM answers after it has already dropped, so cs&&ok never coincides for
-// ADPCM-B and the chip is fed a constant zero - silent crowd samples. ADPCM-A
-// only got away with it because its roe_n stays asserted for long stretches.
-always @(posedge clk) begin
-    if( pcma_ok ) pcma_l <= pcma_data;
-    if( pcmb_ok ) pcmb_l <= pcmb_data;
-end
-
-`ifdef SIMULATION
-// sound path probe: is the main CPU sending commands, is the Z80 running,
-// is the YM2610 being written, and is the ADPCM-A bank ever non-zero
-integer cmd_n=0, rom_n=0, fm_n=0, pa_n=0, pb_n=0;
-reg [4:0] bank_max=0;
-always @(posedge clk) begin
-    if( snd_wr             ) cmd_n <= cmd_n+1;
-    if( rom_cs   & rom_ok  ) rom_n <= rom_n+1;
-    if( fm_cs    & ~wr_n   ) fm_n  <= fm_n +1;
-    if( pcma_cs            ) pa_n  <= pa_n +1;
-    if( pcmb_cs            ) pb_n  <= pb_n +1;
-    if( {1'b0,adpcma_bank} > bank_max ) bank_max <= {1'b0,adpcma_bank};
-end
-integer fcnt=0;
-always @(negedge LVBL_snd) begin
-    fcnt <= fcnt+1;
-    if( fcnt[3:0]==0 )
-        $display("SND cmd=%0d z80rom=%0d fmwr=%0d pcma=%0d pcmb=%0d bankmax=%0d",
-            cmd_n, rom_n, fm_n, pa_n, pb_n, bank_max);
-end
-`endif
+jtpspike_pcma_pf u_pcma_pf(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .chip_addr  ( adpcma_addr   ),      // 1 MB region, adpcma_bank stays 0
+    .chip_rd    ( ~adpcma_roe_n ),
+    .chip_data  ( pcma_din      ),
+    .rom_addr   ( pcma_addr     ),
+    .rom_cs     ( pcma_cs       ),
+    .rom_data   ( pcma_data     ),
+    .rom_ok     ( pcma_ok       )
+);
 
 jt10 u_jt10(
     .rst        ( rst       ),
@@ -203,10 +207,10 @@ jt10 u_jt10(
     .adpcma_addr( adpcma_addr  ),
     .adpcma_bank( adpcma_bank  ),
     .adpcma_roe_n(adpcma_roe_n ),
-    .adpcma_data( pcma_l       ),
+    .adpcma_data( pcma_din     ),
     .adpcmb_addr( adpcmb_addr  ),
     .adpcmb_roe_n(adpcmb_roe_n ),
-    .adpcmb_data( pcmb_l       ),
+    .adpcmb_data( pcmb_data    ),
 
     // separated outputs unused, the mixed ones carry everything
     .psg_A      (           ),

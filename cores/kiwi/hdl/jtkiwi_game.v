@@ -34,7 +34,8 @@ wire        cpu_rnw, vctrl_cs, vflag_cs,
 reg         hb_dly=0, dip_flip_xor=0,
             coin_xor=0, banked_ram=0,
             kageki=0, kabuki=0, kabuki_mod = 0, service_xor=0,
-            colprom_en=0, mcu_en=0, aid_en, fast_fm=0, drtoppel=0;
+            colprom_en=0, mcu_en=0, aid_en, fast_fm=0, drtoppel=0,
+            unlump=0;
 
 assign dip_flip   = ~flip ^ dip_flip_xor;
 assign other_st   = { hb_dly, dip_flip_xor, coin_xor,   banked_ram,
@@ -61,7 +62,7 @@ always @(posedge clk) begin
             { hb_dly, dip_flip_xor, coin_xor, banked_ram,
               kageki, kabuki, colprom_en, mcu_en } <= prog_data;
         else if( prog_addr==1 )
-            { drtoppel, kabuki_mod, fast_fm, aid_en, service_xor } <= prog_data[4:0];
+            { unlump, drtoppel, kabuki_mod, fast_fm, aid_en, service_xor } <= prog_data[5:0];
     end
 end
 
@@ -190,6 +191,7 @@ jtkiwi_snd u_sound(
     .clk        ( clk           ),
     .snd_rstn   ( snd_rstn      ),
     .fast_fm    ( fast_fm       ),
+    .unlump     ( unlump        ),
     .cen6       ( cen6          ),
     .cen3       ( cen3          ),
     .cen1p5     ( cen1p5        ),

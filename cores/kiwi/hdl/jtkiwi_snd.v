@@ -25,6 +25,7 @@ module jtkiwi_snd(
 
     input               LVBL,
     input               fast_fm,
+    input               unlump,     // sum the PSG channels instead of shorting them
 
     // MCU
     input               mcu_en,
@@ -80,7 +81,7 @@ module jtkiwi_snd(
 
     // Sound output
     output signed [15:0] fm,
-    output        [ 9:0] psg,
+    output reg    [ 9:0] psg,
     output        [ 9:0] pcm,
     // Debug
     input      [ 7:0]    debug_bus,
@@ -500,6 +501,13 @@ reg fm_cen;
 
 always @(negedge clk) fm_cen <= fast_fm ? cen3 : cen1p5;
 
+wire [7:0] psg_a, psg_b, psg_c;
+wire [9:0] psg_lump;
+
+always @(posedge clk) begin
+    psg <= unlump ? {2'd0,psg_a} + {2'd0,psg_b} + {2'd0,psg_c} : psg_lump;
+end
+
 jt03 #(.YM2203_LUMPED(1)) u_2203(
     .rst        ( ~comb_rstn ),
     .clk        ( clk        ),
@@ -509,7 +517,7 @@ jt03 #(.YM2203_LUMPED(1)) u_2203(
     .addr       ( kabuki ? snd_A[0] : A[0] ),
     .cs_n       ( ~fm_cs & ~snd_fm_cs ),
     .wr_n       ( kabuki ? snd_wr_n : wr_n ),
-    .psg_snd    ( psg        ),
+    .psg_snd    ( psg_lump   ),
     .fm_snd     ( fm         ),
     .snd_sample ( sample     ),
     .irq_n      ( fmint_n    ),
@@ -521,9 +529,9 @@ jt03 #(.YM2203_LUMPED(1)) u_2203(
     .IOB_out    ( portb_dout ),
     .IOB_oe     (            ),
     // unused outputs
-    .psg_A      (            ),
-    .psg_B      (            ),
-    .psg_C      (            ),
+    .psg_A      ( psg_a      ),
+    .psg_B      ( psg_b      ),
+    .psg_C      ( psg_c      ),
     .snd        (            ),
     .debug_view (            )
 );

@@ -33,7 +33,7 @@ module jtrastan_scr(
     output          VS,
     output          LHBL,
     output          LVBL,
-    output reg      flip,
+    output          flip,
     output   [ 8:0] hdump,
     output   [ 8:0] vrender,
 
@@ -44,20 +44,27 @@ module jtrastan_scr(
     input           scr_cs,        // selection from address decoder
     output          dtackn,
 
+    input    [ 4:0] ioctl_addr,
+    output   [ 7:0] ioctl_din,
+
+`ifdef RASTAN_SCRRAM_SDRAM
     output   [15:2] ram0_addr,
     input    [31:0] ram0_data,
     input           ram0_ok,
     output          ram0_cs,
+    output   [15:2] ram1_addr,
+    input    [31:0] ram1_data,
+    input           ram1_ok,
+    output          ram1_cs,
+`else
+    output   [15:2] ram_addr,
+    input    [31:0] ram_data,
+`endif
 
     output   [19:2] rom0_addr,
     input    [31:0] rom0_data,
     input           rom0_ok,
     output          rom0_cs,
-
-    output   [15:2] ram1_addr,
-    input    [31:0] ram1_data,
-    input           ram1_ok,
-    output          ram1_cs,
 
     output   [19:2] rom1_addr,
     input    [31:0] rom1_data,
@@ -66,70 +73,40 @@ module jtrastan_scr(
 
     output   [10:0] scr1_pxl,
     output   [10:0] scr0_pxl,
+
     input    [ 7:0] debug_bus,
     output   [ 7:0] debug_view
 );
 
 wire [ 8:0] vdump;
-reg  [15:0] scr0_hpos, scr1_hpos, scr0_vpos, scr1_vpos;
-`ifdef SIMSCENE
-integer scene_file, scene_count;
-reg [7:0] scene_scroll[0:9];
-reg [15:0] scene_scr0_hpos, scene_scr1_hpos, scene_scr0_vpos, scene_scr1_vpos;
-reg        scene_flip;
-
-initial begin
-    scene_scr0_hpos = 0;
-    scene_scr1_hpos = 0;
-    scene_scr0_vpos = 0;
-    scene_scr1_vpos = 0;
-    scene_flip      = 0;
-    scene_file = $fopen("scroll.bin", "rb");
-    if( scene_file == 0 ) begin
-        $display("WARNING: %m cannot open scroll.bin");
-    end else begin
-        scene_count = $fread(scene_scroll, scene_file);
-        $fclose(scene_file);
-        if( scene_count != 10 )
-            $display("WARNING: %m scroll.bin is short (%0d bytes)", scene_count);
-        scene_scr0_hpos = { scene_scroll[1], scene_scroll[0] };
-        scene_scr1_hpos = { scene_scroll[3], scene_scroll[2] };
-        scene_scr0_vpos = { scene_scroll[5], scene_scroll[4] };
-        scene_scr1_vpos = { scene_scroll[7], scene_scroll[6] };
-        scene_flip      = scene_scroll[8][0];
-    end
-end
+wire [15:0] scr0_hpos, scr1_hpos, scr0_vpos, scr1_vpos;
+`ifndef RASTAN_SCRRAM_SDRAM
+wire [15:2] ram0_addr, ram1_addr;
+wire [31:0] ram0_data, ram1_data;
+wire        ram0_cs, ram1_cs, ram0_ok, ram1_ok;
 `endif
 
 assign dtackn = 0;
 assign debug_view = scr1_hpos[8:1];
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-`ifdef SIMSCENE
-        scr0_hpos <= scene_scr0_hpos;
-        scr1_hpos <= scene_scr1_hpos;
-        scr0_vpos <= scene_scr0_vpos;
-        scr1_vpos <= scene_scr1_vpos;
-        flip      <= scene_flip;
-`else
-        scr0_hpos <= 0;
-        scr1_hpos <= 0;
-        scr0_vpos <= 0;
-        scr1_vpos <= 0;
-        flip      <= 0;
-`endif
-    end else if(scr_cs && !main_rnw) begin
-        case( {main_addr[18:16],main_addr[1]} )
-            {3'd2,1'b0}: scr0_vpos <= main_dout;
-            {3'd2,1'b1}: scr1_vpos <= main_dout;
-            {3'd4,1'b0}: scr0_hpos <= main_dout;
-            {3'd4,1'b1}: scr1_hpos <= main_dout;
-            {3'd5,1'b0}: flip      <= main_dout[0];
-            default:;
-        endcase
-    end
-end
+jtrastan_mmr u_mmr(
+    .rst        ( rst                                ),
+    .clk        ( clk                                ),
+    .cs         ( scr_cs                             ),
+    .addr       ({main_addr[18:16],main_addr[1]}     ),
+    .rnw        ( main_rnw                           ),
+    .din        ( main_dout                          ),
+    .dsn        ( main_dsn                           ),
+    .scr0_vpos  ( scr0_vpos                          ),
+    .scr1_vpos  ( scr1_vpos                          ),
+    .scr0_hpos  ( scr0_hpos                          ),
+    .scr1_hpos  ( scr1_hpos                          ),
+    .flip       ( flip                               ),
+    .ioctl_addr ( ioctl_addr                         ),
+    .ioctl_din  ( ioctl_din                          ),
+    .debug_bus  ( debug_bus                          ),
+    .st_dout    (                                    )
+);
 
 jtframe_frac_cen #(
     .W (  2 )
@@ -214,5 +191,21 @@ jtrastan_tilemap #(1) u_scr1( // foreground
     .pxl        ( scr1_pxl  ),
     .debug_bus  ( debug_bus )
 );
+
+`ifndef RASTAN_SCRRAM_SDRAM
+jtframe_ram_rdmux #(.AW(14),.DW(32)) u_vram_mux(
+    .clk    ( clk       ),
+    .addr   ( ram_addr  ),
+    .data   ( ram_data  ),
+    .addr_a ( ram0_addr ),
+    .addr_b ( ram1_addr ),
+    .cs_a   ( ram0_cs   ),
+    .cs_b   ( ram1_cs   ),
+    .douta  ( ram0_data ),
+    .doutb  ( ram1_data ),
+    .ok_a   ( ram0_ok   ),
+    .ok_b   ( ram1_ok   )
+);
+`endif
 
 endmodule

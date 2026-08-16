@@ -53,6 +53,7 @@ module jtoutrun_main(
     output             RnW,
     output reg         sub_cs,
     input              sub_ok,
+    input              sub_bsy,
     input       [15:0] sub_din,
     output      [ 1:0] dsn,
     output             creset,
@@ -144,14 +145,13 @@ wire [ 2:0] motor_lim;
 wire        none_cs;
 reg  [ 2:0] adc_ch;
 
-assign BUSn  = LDSn & UDSn;
-assign dsn   = { UDSn, LDSn };
-// assign UDSWn = RnW | UDSn;
-assign LDSWn = RnW | LDSn;
-assign flip     = 0;
-assign addr     = A[19:1];
-assign mix_ipln = { cpu_ipln[2], line_intn, 1'b1 };
-assign creset = cpu_rst | ~cpu_oresetn;
+assign BUSn      = LDSn & UDSn;
+assign dsn       = { UDSn, LDSn };
+assign LDSWn     = RnW | LDSn;
+assign flip      = 0;
+assign addr      = A[19:1];
+assign mix_ipln  = { cpu_ipln[2], line_intn, 1'b1 };
+assign creset    = cpu_rst | ~cpu_oresetn;
 
 jts16b_mapper u_mapper(
     .rst        ( rst            ),
@@ -167,6 +167,7 @@ jts16b_mapper u_mapper(
     .bus_dsn    ( {UDSn,  LDSn}  ),
     .bus_cs     ( bus_cs         ),
     .bus_busy   ( bus_busy       ),
+    .bus_legit  ( sub_bsy        ),
     // effective bus signals
     .addr_out   ( A              ),
 
