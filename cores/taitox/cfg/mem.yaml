@@ -4,6 +4,7 @@ params:
 clocks:
   clk:
     - freq: 8 MHz
+      gate: [ adpcma, adpcmb ]
       outputs:
         - cen8
         - cen4

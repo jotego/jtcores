@@ -33,7 +33,7 @@ module jttaitox_main(
     output        [ 1:0] cpu_dsn,
 
     // 68k program ROM (SDRAM bank 0)
-    output               rom_cs,
+    output reg           rom_cs,
     output        [18:1] rom_addr,
     input         [15:0] rom_data,
     input                rom_ok,
@@ -45,16 +45,16 @@ module jttaitox_main(
     input         [15:0] pal_dout,
 
     // X1-001 / X1-002, owned by jttaitox_video
-    output               oram_cs,    // e00000 ORAM CS
-    output               vdcm_cs,    // d00000 VDCM CS
+    output reg           oram_cs,    // e00000 ORAM CS
+    output reg           vdcm_cs,    // d00000 VDCM CS
     input         [15:0] vid_dout,
 
     // TC0140SYT
-    output               syt_cs,
+    output reg           syt_cs,
     input         [ 3:0] syt_dout,
 
     // TC0030CMD
-    output               cchip_cs,
+    output reg           cchip_cs,
     input         [ 7:0] cchip_dout,
 
 
@@ -69,10 +69,7 @@ module jttaitox_main(
     input         [ 7:0] dipsw_b
 );
 
-wire        vma;            // valid memory access: not CPU space, AS asserted
-wire        a23;
-wire [ 2:0] region;
-wire        ram_cs, pal_cs, dsw_cs, in_cs;
+reg         ram_cs, pal_cs, dsw_cs, in_cs;
 
 `ifndef NOMAIN
 wire [23:1] A;
@@ -84,32 +81,37 @@ reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 wire        intn;
 wire        bus_cs, bus_busy;
-wire        dws;            // any data strobe
 
 assign cpu_addr = A;
 assign rom_addr = A[18:1];
 assign cpu_dsn  = { UDSn, LDSn };
 assign cpu_rnw  = RnW;
-assign vma      = ~&FC && !ASn;
-assign a23      = A[23];
-assign region   = A[22:20];
-assign dws      = {UDSn,LDSn}!=3;
-
-// F138 #17 - A23 high
-// Qualified by LDS: the comm chip advances its pointer on cs edges, so an
-// address-strobe-only select gives it spurious ones - including from the
-// 800000 read the driver maps as nopr.
-assign syt_cs   = vma &&  a23 && region==3'd0 && !LDSn;
-assign cchip_cs = vma &&  a23 && region==3'd1 && p039a;
-assign pal_cs   = vma &&  a23 && region==3'd3;
-assign vdcm_cs  = vma &&  a23 && region==3'd5;
-assign oram_cs  = vma &&  a23 && region==3'd6;
-assign ram_cs   = vma &&  a23 && region==3'd7;
-// F138 #18 - A23 low
-assign rom_cs   = vma && !a23 && A[22:19]==4'd0;
-assign dsw_cs   = vma && !a23 && region==3'd5;
-// Without a C-chip the same slot is the direct input port
-assign in_cs    = vma &&  a23 && region==3'd1 && !p039a;
+// Two F138s take A22,A21,A20 on C/B/A; A23 picks which one (schematic
+// sheet 2). Partial decode: each region mirrors through its 1 MB slot.
+always @* begin
+    syt_cs   = 0;
+    cchip_cs = 0;
+    in_cs    = 0;
+    pal_cs   = 0;
+    vdcm_cs  = 0;
+    oram_cs  = 0;
+    ram_cs   = 0;
+    rom_cs   = 0;
+    dsw_cs   = 0;
+    if( !ASn && {UDSn,LDSn}!=2'b11 && ~&FC ) begin
+        // F138 #17 - A23 high
+        syt_cs   =  A[23] && A[22:20]==0;
+        cchip_cs =  A[23] && A[22:20]==1 &&  p039a;
+        in_cs    =  A[23] && A[22:20]==1 && !p039a;  // no C-chip: direct input port
+        pal_cs   =  A[23] && A[22:20]==3;
+        vdcm_cs  =  A[23] && A[22:20]==5;
+        oram_cs  =  A[23] && A[22:20]==6;
+        ram_cs   =  A[23] && A[22:20]==7;
+        // F138 #18 - A23 low
+        rom_cs   = !A[23] && A[22:19]==0;
+        dsw_cs   = !A[23] && A[22:20]==5;
+    end
+end
 
 assign ram_we   = {2{ram_cs & ~RnW}} & ~{UDSn,LDSn};
 assign pal_we   = {2{pal_cs & ~RnW}} & ~{UDSn,LDSn};
@@ -222,9 +224,11 @@ jtframe_m68k u_cpu(
 );
 `else
 assign cpu_addr=0, cpu_dout=0, cpu_rnw=1, cpu_dsn=3, cpu_cen=0,
-       rom_cs=0, rom_addr=0, ram_we=0, pal_we=0,
-       oram_cs=0, vdcm_cs=0, syt_cs=0, cchip_cs=0,
-       vma=0, a23=0, region=0, ram_cs=0, pal_cs=0, dsw_cs=0, in_cs=0;
+       rom_addr=0, ram_we=0, pal_we=0;
+initial begin
+    rom_cs=0; oram_cs=0; vdcm_cs=0; syt_cs=0; cchip_cs=0;
+    ram_cs=0; pal_cs=0; dsw_cs=0; in_cs=0;
+end
 `endif
 
 endmodule
