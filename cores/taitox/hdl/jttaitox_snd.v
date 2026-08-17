@@ -52,21 +52,14 @@ wire [ 7:0] z80_dout, ym_dout, ram_dout;
 wire [ 3:0] syt_dout;
 wire        mreq_n, rd_n, wr_n, iorq_n, m1_n, rfsh_n, int_n, nmi_n, cpu_cen;
 wire        snd_rst, rst_n;
-reg  [ 1:0] bank;
 reg  [ 7:0] din;
-wire        ram_cs, ym_cs, syt_sel, bank_cs, mem;
+wire        ram_cs, ym_cs, syt_sel, opx_n;
 wire [19:0] ym_adpcma_addr;
 wire [23:0] ym_adpcmb_addr;
 wire [ 4:0] ym_adpcma_bank;
 wire        ym_adpcma_roe_n, ym_adpcmb_roe_n;
 
-assign mem      = ~mreq_n & rfsh_n;
-assign rom_cs   = mem & ~A[15];
-assign ram_cs   = mem & A[15:13]==3'b110;
-assign ym_cs    = mem & A[15:8]==8'hE0;
-assign syt_sel  = mem & A[15:8]==8'hE2;
-assign bank_cs  = mem & A[15:8]==8'hF2 & ~wr_n;
-assign rom_addr = { A[14] ? bank : 2'd0, A[13:0] };
+assign ym_cs    = ~opx_n;
 assign rst_n    = ~(rst | snd_rst);
 
 assign adpcma_addr = ym_adpcma_addr[18:0];
@@ -75,36 +68,38 @@ assign adpcmb_addr = ym_adpcmb_addr[18:0];
 assign adpcmb_cs   = ~ym_adpcmb_roe_n;
 
 always @(posedge clk) begin
-    if( rst ) bank <= 0;
-    else if( bank_cs ) bank <= z80_dout[1:0];
-end
-
-always @(posedge clk) begin
     din <= rom_cs  ? rom_data :
            ram_cs  ? ram_dout :
            ym_cs   ? ym_dout  :
            syt_sel ? { 4'd0, syt_dout } : 8'hff;
 end
 
-jtrastan_pc060 u_syt(
+jttaitox_tc0140syc u_syt(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .main_cen   ( main_cen      ),
     .snd_cen    ( snd_cen       ),
 
+    .main_cs    ( syt_cs        ),
+    .main_addr  ( main_addr     ),
     .main_dout  ( main_dout     ),
     .main_din   ( main_din      ),
-    .main_addr  ( main_addr     ),
     .main_rnw   ( main_rnw      ),
-    .main_cs    ( syt_cs        ),
 
-    .snd_dout   ( z80_dout[3:0] ),
-    .snd_din    ( syt_dout      ),
-    .snd_addr   ( A[0]          ),
-    .snd_rnw    ( wr_n          ),
-    .snd_cs     ( syt_sel       ),
-    .snd_nmin   ( nmi_n         ),
-    .snd_rst    ( snd_rst       )
+    .a          ( A             ),
+    .din        ( z80_dout      ),
+    .dout       ( syt_dout      ),
+    .mreq_n     ( mreq_n        ),
+    .rfsh_n     ( rfsh_n        ),
+    .wr_n       ( wr_n          ),
+    .nmi_n      ( nmi_n         ),
+    .z80_rst    ( snd_rst       ),
+
+    .rom_cs     ( rom_cs        ),
+    .rom_addr   ( rom_addr      ),
+    .ram_cs     ( ram_cs        ),
+    .opx_n      ( opx_n         ),
+    .syt_cs     ( syt_sel       )
 );
 
 jtframe_sysz80 #(.RECOVERY(0), .RAM_AW(13)) u_z80(
