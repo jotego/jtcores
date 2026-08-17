@@ -258,12 +258,10 @@ jtpspike_snd u_snd(
     .pcma_addr  ( pcma_addr     ),
     .pcma_cs    ( pcma_cs       ),
     .pcma_data  ( pcma_data     ),
-    .pcma_ok    ( pcma_ok       ),
 
     .pcmb_addr  ( pcmb_addr     ),
     .pcmb_cs    ( pcmb_cs       ),
     .pcmb_data  ( pcmb_data     ),
-    .pcmb_ok    ( pcmb_ok       ),
 
     .fm_l       ( fm_l          ),
     .fm_r       ( fm_r          )

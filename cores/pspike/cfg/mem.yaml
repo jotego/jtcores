@@ -8,12 +8,15 @@ params:
 clocks:
   clk48:
     - freq: 8 MHz
+      gate: [ pcma, pcmb ]
       outputs:
         - fm_cen
     - freq: 5 MHz
+      gate: [ snd ]
       outputs:
         - snd_cen
     - freq: 4 MHz
+      gate: [ snd ]
       outputs:
         - snd4_cen
 

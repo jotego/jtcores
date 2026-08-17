@@ -69,7 +69,7 @@ assign rom_addr = {pre_addr[20:7],pre_addr[5],~flip^pre_addr[6],
 };
 
 always @(posedge clk) begin
-    hpos <= pre_hpos+16'h20;
+    hpos <= flip ? pre_hpos + 16'h20 : 16'h1e1 - pre_hpos;
 end
 
 always @(posedge clk) begin
@@ -122,7 +122,9 @@ jtframe_scroll #(
     .MAP_HW ( 10    ),
     .MAP_VW (  9    ),
     .HJUMP  (  0    ),
-    .HLOOP  ( 9'h180)
+    .HLOOP  ( 9'h180),
+    .FLIP_HW(  9    ),
+    .FLIP_VW(  9    )
 )u_scroll(
     .rst        ( rst           ),
     .clk        ( clk           ),

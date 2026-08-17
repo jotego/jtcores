@@ -50,15 +50,13 @@ module jtpspike_snd(
     input      [ 7:0]    rom_data,
     input                rom_ok,
 
-    output     [19:0]    pcma_addr,  // driven by u_pcma_pf
+    output     [19:0]    pcma_addr,
     output               pcma_cs,
     input      [ 7:0]    pcma_data,
-    input                pcma_ok,
 
     output     [18:0]    pcmb_addr,
     output               pcmb_cs,
     input      [ 7:0]    pcmb_data,
-    input                pcmb_ok,
 
     input                aerofgt,
     input      [ 7:0]    debug_bus,
@@ -82,7 +80,6 @@ wire [23:0] adpcmb_addr;
 // leave it unused: the 1MB region is covered by adpcma_addr alone
 wire [ 3:0] adpcma_bank;
 wire        adpcma_roe_n, adpcmb_roe_n;
-wire [ 7:0] pcma_din;
 
 assign mem_acc  = ~mreq_n & rfsh_n;
 assign io_acc   = ~iorq_n & m1_n;
@@ -162,36 +159,14 @@ jtframe_ram #(.AW(11)) u_ram(
     .q          ( ram_dout  )
 );
 
-// ADPCM ROM paths - the two engines have OPPOSITE interface contracts and
-// must not share a data policy (every shared attempt fixed one and broke the
-// other, see doc/TASK_adpcm_distortion.md):
-//
-//   ADPCM-A  six channels multiplexed on a 666kHz pipeline: the address bus
-//            belongs to each channel for one 1.5us slot and the byte must be
-//            back before the slot ends. A plain SDRAM slot misses that
-//            deadline under bank contention (measured worst 1.6us), so the
-//            chip decodes another channel's byte. Served from a prefetching
-//            cache: each channel walks +1, so fetching N+1 while serving N
-//            makes every in-stream byte a same-slot hit.
-//   ADPCM-B  single channel, narrow roe_n strobe that drops before the SDRAM
-//            answers. The slot's registered dout holds each byte stable until
-//            the next request, so a direct connection is correct. Anything
-//            stricter (cs&&ok, address match) re-silences it: measured 0
-//            cs&&ok overlaps in 900 frames.
+// ADPCM ROM: both engines connect straight to their SDRAM slot. The wait is
+// not done here but by gating fm_cen on (pcma|pcmb)_cs & ~ok in mem.yaml, so
+// the whole YM2610 stalls until the byte is in - the chip's own timing is
+// preserved and no data policy is needed on either bus. Same as taitox.
+assign pcma_cs   = ~adpcma_roe_n;
+assign pcma_addr = adpcma_addr;         // 1 MB region, adpcma_bank stays 0
 assign pcmb_cs   = ~adpcmb_roe_n;
 assign pcmb_addr = adpcmb_addr[18:0];   // 256 kB region
-
-jtpspike_pcma_pf u_pcma_pf(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .chip_addr  ( adpcma_addr   ),      // 1 MB region, adpcma_bank stays 0
-    .chip_rd    ( ~adpcma_roe_n ),
-    .chip_data  ( pcma_din      ),
-    .rom_addr   ( pcma_addr     ),
-    .rom_cs     ( pcma_cs       ),
-    .rom_data   ( pcma_data     ),
-    .rom_ok     ( pcma_ok       )
-);
 
 jt10 u_jt10(
     .rst        ( rst       ),
@@ -207,7 +182,7 @@ jt10 u_jt10(
     .adpcma_addr( adpcma_addr  ),
     .adpcma_bank( adpcma_bank  ),
     .adpcma_roe_n(adpcma_roe_n ),
-    .adpcma_data( pcma_din     ),
+    .adpcma_data( pcma_data    ),
     .adpcmb_addr( adpcmb_addr  ),
     .adpcmb_roe_n(adpcmb_roe_n ),
     .adpcmb_data( pcmb_data    ),
