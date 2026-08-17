@@ -13,7 +13,9 @@
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
-    Date: 8-2026 */
+            Jose Tejada Gomez. Twitter: @topapate
+    Version: 1.0
+    Date: 15-8-2026 */
 
 module jttaitox_game(
     `include "jtframe_game_ports.inc"
@@ -22,13 +24,12 @@ module jttaitox_game(
 wire [23:1] cpu_addr;
 wire [15:0] vid_dout;
 wire [ 1:0] cpu_dsn;
-wire [ 8:0] hdump;
 wire [ 7:0] cchip_dout, st_video;
 wire [ 3:0] syt_dout;
 wire        cpu_rnw, cpu_cen, flip,
             oram_cs, vdcm_cs, syt_cs, cchip_cs;
 
-wire        p039a, p051a, p057a;
+wire        p039a, p057a;
 
 assign debug_view = st_video;
 assign st_dout    = st_video;
@@ -42,11 +43,10 @@ jttaitox_header u_header(
     .prog_we    ( prog_we       ),
 
     .p039a      ( p039a         ),
-    .p051a      ( p051a         ),
+    .p051a      (               ),
     .p057a      ( p057a         )
 );
 
-/* verilator tracing_on */
 jttaitox_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -91,7 +91,6 @@ jttaitox_main u_main(
     .dipsw_b    ( dipsw[15:8]   )
 );
 
-/* verilator tracing_on */
 jttaitox_cchip u_cchip(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -117,11 +116,9 @@ jttaitox_cchip u_cchip(
     .cchip_eprom_data( cchip_eprom_data )
 );
 
-/* verilator tracing_on */
 jttaitox_snd u_snd(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cen4       ( cen4          ),
     .cen8       ( cen8          ),
     .snd_cen    ( snd_cen       ),
 
@@ -140,17 +137,14 @@ jttaitox_snd u_snd(
     .adpcma_addr( adpcma_addr   ),
     .adpcma_cs  ( adpcma_cs     ),
     .adpcma_data( adpcma_data   ),
-    .adpcma_ok  ( adpcma_ok     ),
     .adpcmb_addr( adpcmb_addr   ),
     .adpcmb_cs  ( adpcmb_cs     ),
     .adpcmb_data( adpcmb_data   ),
-    .adpcmb_ok  ( adpcmb_ok     ),
 
     .fm_l       ( fm_l          ),
     .fm_r       ( fm_r          )
 );
 
-/* verilator tracing_on */
 jttaitox_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -161,7 +155,6 @@ jttaitox_video u_video(
     .LVBL       ( LVBL          ),
     .HS         ( HS            ),
     .VS         ( VS            ),
-    .hdump      ( hdump         ),
     .flip       ( flip          ),
 
     .cpu_rnw    ( cpu_rnw       ),

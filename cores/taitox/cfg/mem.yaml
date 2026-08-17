@@ -7,7 +7,6 @@ clocks:
       gate: [ adpcma, adpcmb ]
       outputs:
         - cen8
-        - cen4
     - freq: 4 MHz
       gate: [ snd ]
       outputs:

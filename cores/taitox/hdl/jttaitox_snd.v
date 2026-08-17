@@ -13,12 +13,13 @@
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
-    Date: 8-2026 */
+            Jose Tejada Gomez. Twitter: @topapate
+    Version: 1.0
+    Date: 15-8-2026 */
 
 module jttaitox_snd(
     input                rst,
     input                clk,
-    input                cen4,       // YM2151 rate, reserved for daisenpu
     input                cen8,       // YM2610
     input                snd_cen,    // Z80, gated on the sound-ROM wait
 
@@ -38,11 +39,9 @@ module jttaitox_snd(
     output        [18:0] adpcma_addr,
     output               adpcma_cs,
     input         [ 7:0] adpcma_data,
-    input                adpcma_ok,
     output        [18:0] adpcmb_addr,
     output               adpcmb_cs,
     input         [ 7:0] adpcmb_data,
-    input                adpcmb_ok,
 
     output signed [15:0] fm_l, fm_r
 );
@@ -75,7 +74,7 @@ assign adpcma_cs   = ~ym_adpcma_roe_n;
 assign adpcmb_addr = ym_adpcmb_addr[18:0];
 assign adpcmb_cs   = ~ym_adpcmb_roe_n;
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
     if( rst ) bank <= 0;
     else if( bank_cs ) bank <= z80_dout[1:0];
 end

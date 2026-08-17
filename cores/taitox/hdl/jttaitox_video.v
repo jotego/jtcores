@@ -13,7 +13,9 @@
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
-    Date: 8-2026 */
+            Jose Tejada Gomez. Twitter: @topapate
+    Version: 1.0
+    Date: 15-8-2026 */
 
 module jttaitox_video(
     input             rst,
@@ -25,7 +27,6 @@ module jttaitox_video(
     output            LVBL,
     output            HS,
     output            VS,
-    output     [ 8:0] hdump,
     output            flip,
 
     // 68k side
@@ -71,7 +72,7 @@ module jttaitox_video(
     output     [ 7:0] st_dout
 );
 
-wire [8:0] vdump, vrender, vrender1;
+wire [8:0] vdump, vrender, hdump;
 wire [8:0] scr_pxl, obj_pxl;
 
 // TODO this timing needs to be verified on an original board
@@ -94,7 +95,7 @@ jtframe_vtimer #(
     .pxl_cen    ( pxl_cen    ),
     .vdump      ( vdump      ),
     .vrender    ( vrender    ),
-    .vrender1   ( vrender1   ),
+    .vrender1   (            ),
     .H          ( hdump      ),
     .Hinit      (            ),
     .Vinit      (            ),

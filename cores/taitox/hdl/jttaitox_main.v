@@ -13,7 +13,9 @@
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
-    Date: 8-2026 */
+            Jose Tejada Gomez. Twitter: @topapate
+    Version: 1.0
+    Date: 15-8-2026 */
 
 module jttaitox_main(
     input                rst,

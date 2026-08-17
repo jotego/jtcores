@@ -54,15 +54,12 @@ playfield", and the playfield is the X1-001's background *column* mode.
 |---|---|---|---|
 | `superman` `supermanu` `supermanj` | Superman | P0-039A | boots, renders |
 | `gigandes` `gigandesa` | Gigandes | P0-057A | boots, renders |
-| `ballbros` | Balloon Brothers | P0-057A | MRA builds, not simmed |
-| `kyustrkr` | Last Striker | P0-057A | MRA builds, not simmed |
+| `ballbros` | Balloon Brothers | P0-057A | boots, renders |
+| `kyustrkr` | Last Striker | P0-057A | boots, renders |
 | `daisenpu` `twinhawk` `twinhawku` | Daisenpu / Twin Hawk | P0-051A | not enabled |
 
 Daisenpu and Twin Hawk are skipped in `cfg/mame2mra.toml` until the YM2151
-path lands. Their PC060HA is already covered — in MAME `pc060ha_device`
-derives from `tc0140syt_device`, so `jtrastan_pc060.v` serves both — and the
-SDRAM map and header already account for them, so enabling them is removing
-three names from `[parse.skip]` plus the FM branch in `jttaitox_snd.v`.
+path lands.
 
 ## Status
 
@@ -119,31 +116,5 @@ and the sprite Y offset (`p057a ? -0x0a : -0x12`).
 
 `doc/` holds primary sources only — the MAME driver and device sources
 (`taito_x.cpp`, `seta001.cpp`, `taitosnd.cpp`, `taitocchip.cpp`) and photos of
-the P0-039A board. The Superman schematics are the maker's IP and are kept
+the P0-039A and P057a board. The Superman schematics are the maker's IP and are kept
 out of the repo.
-
-Chip behaviour that took work to establish lives as comments in the HDL that
-implements it — the address decode in `hdl/jttaitox_main.v`, the X1-001
-alignment constants in `hdl/jttaitox_video.v`.
-
-The Taito F2 MiSTer core's TC0140SYT is kept as `doc/tc0140syt.sv.ref`, a
-read-only cross-check. It is not used: `jtrastan_pc060.v` is in-tree GPL-3 JTCORES code
-that implements the same protocol (`cores/rastan/hdl/jtrastan_pc060.v`).
-
-## Build & sim
-
-```bash
-./lint-core.sh taitox
-```
-
-```bash
-ROMS_HOST=~/mameroms FRAMES=560 ./sim-core.sh taitox superman
-```
-
-```bash
-ROMS_HOST=~/mameroms FRAMES=700 ./sim-core.sh taitox gigandes
-```
-
-A boot sim needs `FRAMES` above ~120 — the sim models the ROM download at
-realistic speed before the CPU leaves reset. Rendered frames land in
-`ver/game/frames/`.
