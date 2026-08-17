@@ -22,6 +22,10 @@ delete=[{names=["Unused","Unknown"]}]
 rename=[
     {name="Price to Continue", to="Continue" },
 ]
+# kyustrkr is rendered rotated by 180, so we set flip on by default to make it correct.
+defaults=[
+    { setname="kyustrkr", value="df,ba" },
+]
 
 # Board type, one bit each.
 #   p039a  Taito Corp.       superman x3            C-chip, VBL level 6
