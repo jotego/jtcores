@@ -302,6 +302,22 @@ ARCHITECTURE rtl OF ascal IS
 	END FUNCTION to_std_logic;
 
 	----------------------------------------------------------
+	FUNCTION gray(v : unsigned) RETURN unsigned IS
+	BEGIN
+		RETURN v XOR shift_right(v,1);
+	END FUNCTION gray;
+
+	FUNCTION ungray(v : unsigned) RETURN unsigned IS
+		VARIABLE r : unsigned(v'RANGE);
+	BEGIN
+		r(r'LEFT):=v(v'LEFT);
+		FOR i IN v'LEFT-1 DOWNTO 0 LOOP
+			r(i):=r(i+1) XOR v(i);
+		END LOOP;
+		RETURN r;
+	END FUNCTION ungray;
+
+	----------------------------------------------------------
 	FUNCTION ohres_h(CONSTANT r : natural) RETURN natural IS
 	BEGIN
 		CASE r IS
@@ -427,7 +443,7 @@ ARCHITECTURE rtl OF ascal IS
 	SIGNAL avl_walt,avl_wline,avl_rline : std_logic;
 	SIGNAL avl_dw,avl_dr : unsigned(N_DW-1 DOWNTO 0);
 	SIGNAL avl_wr : std_logic;
-	SIGNAL avl_readdataack,avl_readack : std_logic;
+	SIGNAL avl_rackg,avl_dackg : unsigned(1 DOWNTO 0);
 	SIGNAL avl_radrs,avl_wadrs : unsigned(31 DOWNTO 0);
 	SIGNAL avl_i_offset0,avl_o_offset0 : unsigned(31 DOWNTO 0);
 	SIGNAL avl_i_offset1,avl_o_offset1 : unsigned(31 DOWNTO 0);
@@ -488,8 +504,10 @@ ARCHITECTURE rtl OF ascal IS
 	TYPE enum_o_copy IS (sWAIT,sSHIFT,sCOPY);
 	SIGNAL o_copy : enum_o_copy;
 	SIGNAL o_pshift : natural RANGE 0 TO 15;
-	SIGNAL o_readack,o_readack_sync,o_readack_sync2 : std_logic;
-	SIGNAL o_readdataack,o_readdataack_sync,o_readdataack_sync2 : std_logic;
+	SIGNAL o_readack,o_readdataack : std_logic;
+	SIGNAL o_rack_sync,o_rack_sync2,o_rack_sync3 : unsigned(1 DOWNTO 0);
+	SIGNAL o_dack_sync,o_dack_sync2,o_dack_sync3 : unsigned(1 DOWNTO 0);
+	SIGNAL o_rackg,o_dackg : unsigned(1 DOWNTO 0);
 	SIGNAL o_copyv : unsigned(0 TO 14);
 	SIGNAL o_adrs : unsigned(31 DOWNTO 0); -- Avalon address
 	SIGNAL o_adrs_pre : natural RANGE 0 TO 2**24-1;
@@ -1686,8 +1704,8 @@ BEGIN
 			avl_state<=sIDLE;
 			avl_write_sr<='0';
 			avl_read_sr<='0';
-			avl_readdataack<='0';
-			avl_readack<='0';
+			avl_dackg<=(OTHERS =>'0');
+			avl_rackg<=(OTHERS =>'0');
 
 		ELSIF rising_edge(avl_clk) THEN
 			----------------------------------
@@ -1787,7 +1805,7 @@ BEGIN
 					IF avl_read_i='1' AND avl_waitrequest='0' THEN
 						avl_state<=sIDLE;
 						avl_read_i<='0';
-						avl_readack<=NOT avl_readack;
+						avl_rackg<=gray(ungray(avl_rackg)+1);
 					END IF;
 			END CASE;
 
@@ -1798,7 +1816,7 @@ BEGIN
 				avl_wr<='1';
 				avl_wad<=(avl_wad+1) MOD (2*BLEN);
 				IF (avl_wad MOD BLEN)=BLEN-2 THEN
-					avl_readdataack<=NOT avl_readdataack;
+					avl_dackg<=gray(ungray(avl_dackg)+1);
 				END IF;
 			END IF;
 
@@ -1886,6 +1904,16 @@ BEGIN
 			o_readlev<=0;
 			o_copylev<=0;
 			o_hsp<='0';
+			o_rackg<=(OTHERS =>'0');
+			o_dackg<=(OTHERS =>'0');
+			o_rack_sync<=(OTHERS =>'0');
+			o_rack_sync2<=(OTHERS =>'0');
+			o_rack_sync3<=(OTHERS =>'0');
+			o_dack_sync<=(OTHERS =>'0');
+			o_dack_sync2<=(OTHERS =>'0');
+			o_dack_sync3<=(OTHERS =>'0');
+			o_readack<='0';
+			o_readdataack<='0';
 
 		ELSIF rising_edge(o_clk) THEN
 			------------------------------------------------------
@@ -2036,13 +2064,23 @@ BEGIN
 
 			------------------------------------------------------
 			-- End DRAM READ
-			o_readack_sync<=avl_readack; -- <ASYNC>
-			o_readack_sync2<=o_readack_sync;
-			o_readack<=o_readack_sync XOR o_readack_sync2;
+			o_rack_sync <=avl_rackg; -- <ASYNC>
+			o_rack_sync2<=o_rack_sync;
+			o_rack_sync3<=o_rack_sync2;
+			o_readack<='0';
+			IF o_rack_sync3/=o_rackg THEN
+				o_readack<='1';
+				o_rackg<=gray(ungray(o_rackg)+1);
+			END IF;
 
-			o_readdataack_sync<=avl_readdataack; -- <ASYNC>
-			o_readdataack_sync2<=o_readdataack_sync;
-			o_readdataack<=o_readdataack_sync XOR o_readdataack_sync2;
+			o_dack_sync <=avl_dackg; -- <ASYNC>
+			o_dack_sync2<=o_dack_sync;
+			o_dack_sync3<=o_dack_sync2;
+			o_readdataack<='0';
+			IF o_dack_sync3/=o_dackg THEN
+				o_readdataack<='1';
+				o_dackg<=gray(ungray(o_dackg)+1);
+			END IF;
 
 			------------------------------------------------------
 			lev_inc_v:='0';
