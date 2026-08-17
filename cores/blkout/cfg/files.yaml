@@ -1,6 +1,9 @@
 blkout:
   - get:
+    - jtblkout_colmix.v
+    - jtblkout_frontcol_mmr.v
     - jtblkout_game.v
+    - jtblkout_header.v
     - jtblkout_main.v
     - jtblkout_video.v
     - jtblkout_fb.v
@@ -13,10 +16,11 @@ dd2:
 jtframe:
   - get:
       - jtframe_ff.v
+      - jtframe_edge.v
   - from: ram
     get:
       - jtframe_dual_ram.v
-      - jtframe_rpwp_ram.v      # used by jtframe_linebuf
+      - jtframe_rpwp_ram.v
   - from: clocking
     get:
       - jtframe_frac_cen.v
@@ -24,7 +28,7 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
-      - jtframe_linebuf.v       # fb + overlay double line buffers
+      - jtframe_linebuf.v
   - from: cpu
     get:
       - jtframe_m68k.yaml

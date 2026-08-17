@@ -54,6 +54,10 @@
     #define _JTFRAME_COLORW 4
 #endif
 
+#ifndef _JTFRAME_HEADER
+    #define _JTFRAME_HEADER 0
+#endif
+
 using namespace std;
 
 #ifndef _JTFRAME_SIM_DIPS
@@ -430,10 +434,11 @@ public:
     void start( bool download ) {
         full_download = download;
         if( !full_download ) {
-            if ( len > 32 ) {
-                fputs("ROM download shortened to 32 bytes.\n",stderr);
+            const int header_len = _JTFRAME_HEADER > 32 ? _JTFRAME_HEADER : 32;
+            if ( len > header_len ) {
+                fprintf(stderr, "ROM download shortened to %d bytes.\n", header_len);
                 if( nvram ) fputs("Warning: skipping transfer of nvram.bin.\n",stderr);
-                len=32;
+                len=header_len;
             } else {
                 fputs("Short ROM download\n",stderr);
             }

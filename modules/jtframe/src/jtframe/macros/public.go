@@ -121,7 +121,7 @@ func (item *MacroEnabled) Enabled() bool {
 
 // check incompatible macro settings
 func CheckMacros() error {
-	if IsSet("JTFRAME_PLL_TUNE") && IsSet("CORE_OSD") {
+	if IsSet("JTFRAME_PLL_TUNE") && Get("CORE_OSD") != "" {
 		return fmt.Errorf("jtframe: JTFRAME_PLL_TUNE and CORE_OSD are incompatible because both use status bits 13:15")
 	}
 	// Check that MiST DIPs are defined after the

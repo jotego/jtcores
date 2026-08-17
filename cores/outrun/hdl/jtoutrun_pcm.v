@@ -55,12 +55,14 @@ wire        we = cpu_cs & ~cpu_rnw;
 reg  [ 3:0] st;
 wire [ 2:0] bank;
 wire [ 7:0] cfg_data;
+wire [ 8:0] cfg_ram_addr;
 reg  [ 3:0] cur_ch;
 reg  [ 4:0] cfg_addr;
 reg  [15:0] active;     // high for active channels, debug only
 reg  [ 7:0] cfg_en;
 reg  [ 7:0] delta, cfg_din;
 reg         cfg_we, was_enb;
+wire        cfg_cpu_collision, cfg_ram_we;
 
 reg  [23: 0] cur_addr;
 reg  [23: 8] loop_addr;
@@ -75,6 +77,9 @@ reg  signed [WD-1:0] mul_clip, buf_r;
 
 assign bank     = cfg_en[6:4];
 assign pcm_data = rom_data - 8'h80;
+assign cfg_ram_addr       = { cfg_addr[4:3], cur_ch, cfg_addr[2:0] };
+assign cfg_cpu_collision  = we && !cfg_ram_addr[8] && cpu_addr == cfg_ram_addr[7:0];
+assign cfg_ram_we         = cfg_we & ~cfg_cpu_collision;
 
 // only AW=8 is needed for the CPU. Using AW=9
 // to store the scratch value for lower
@@ -93,8 +98,8 @@ jtframe_dual_ram #(.AW(9),.SIMHEXFILE(SIMHEXFILE)) u_ram(
     // Port 1
     .clk1   ( clk       ),
     .data1  ( cfg_din   ),
-    .addr1  ( { cfg_addr[4:3], cur_ch, cfg_addr[2:0] } ),
-    .we1    ( cfg_we    ),
+    .addr1  ( cfg_ram_addr ),
+    .we1    ( cfg_ram_we   ),
     .q1     ( cfg_data  )
 );
 

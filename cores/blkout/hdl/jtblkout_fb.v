@@ -12,14 +12,9 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Block Out back-framebuffer video fetch (SDRAM domain).
-
-    The 256 KB framebuffer (SDRAM bank 2) holds two byte-per-pixel 512x256
-    planes: front @ word 0x00000, back @ word 0x10000. Word address =
-    {plane, y[7:0], wcol[7:0]}; each 16-bit word packs 2 pixels — even x in the
-    high byte, odd x in the low byte (68k big-endian). Composite per MAME
-    videoram_w: pen = front ? {0,front} : {1,back} (9-bit). A double line buffer
-    is filled a line ahead; scanout reads the displayed half.
+    Author: Andrea Bogazzi. email: andreabogazzi79@gmail.com
+    Version: 1.0
+    Date: 31-7-2026
 */
 
 module jtblkout_fb(
@@ -27,22 +22,21 @@ module jtblkout_fb(
     input               clk,
     input               pxl_cen,
 
-    input        [ 8:0] hdump,      // 0..511 pixel column
+    input        [ 8:0] hdump,
     input        [ 8:0] vrender,    // line to fetch (1 ahead of display)
     input               HS,
 
-    // SDRAM bank 2 video-read port
     output reg   [17:1] fbrd_addr,
     output reg          fbrd_cs,
     input        [15:0] fbrd_data,
     input               fbrd_ok,
 
-    output reg   [ 8:0] fb_pxl       // 9-bit pen at hdump (0..511)
+    output reg   [ 8:0] fb_pxl       // 9-bit pen at hdump
 );
 
-// Line fetch FSM. Each SDRAM read fully handshakes: assert cs+addr, wait ok,
-// capture, drop cs. Per column: front word, back word, then compose+store 2 px.
 localparam [2:0] IDLE=0, F_REQ=1, F_WAIT=2, B_REQ=3, B_WAIT=4, STORE=5;
+localparam [0:0] FRONT=1'b0, BACK=1'b1;
+
 reg  [ 2:0] st;
 reg         HSl;
 reg  [ 7:0] wcol, fy;
@@ -52,7 +46,7 @@ reg  [ 7:0] lb_wa;
 reg         lb_we;
 wire [17:0] lb_q;
 
-// composite one plane-pair -> 9-bit pen
+// select front or back layers
 function [8:0] compose( input [7:0] f, input [7:0] b );
     compose = f!=8'd0 ? {1'b0,f} : {1'b1,b};
 endfunction
@@ -69,9 +63,9 @@ always @(posedge clk, posedge rst) begin
             wcol <= 0;
             st   <= F_REQ;
         end else case( st )
-            F_REQ:  begin fbrd_addr<={1'b0,fy,wcol}; fbrd_cs<=1; st<=F_WAIT; end
+            F_REQ:  begin fbrd_addr<={FRONT,fy,wcol}; fbrd_cs<=1; st<=F_WAIT; end
             F_WAIT: if( fbrd_ok ) begin front_lat<=fbrd_data; fbrd_cs<=0; st<=B_REQ; end
-            B_REQ:  begin fbrd_addr<={1'b1,fy,wcol}; fbrd_cs<=1; st<=B_WAIT; end
+            B_REQ:  begin fbrd_addr<={BACK,fy,wcol}; fbrd_cs<=1; st<=B_WAIT; end
             B_WAIT: if( fbrd_ok ) begin back_lat<=fbrd_data;  fbrd_cs<=0; st<=STORE; end
             STORE:  begin
                 lb_din <= { compose(front_lat[7:0],  back_lat[7:0] ),    // odd  x
@@ -89,8 +83,6 @@ end
 // read runs 2px ahead so the fb_pxl->rgb pipeline is primed at the first pixel
 wire [8:0] hrd = hdump + 9'd2;
 
-// double line buffer: 256 cols x 2 buffers, 2 pixels/entry. jtframe_linebuf
-// owns the buffer swap (on ~HS falling = HS rising, matching the fetch start).
 jtframe_linebuf #(.DW(18), .AW(8)) u_lbuf(
     .clk     ( clk       ),
     .LHBL    ( ~HS       ),
@@ -102,7 +94,8 @@ jtframe_linebuf #(.DW(18), .AW(8)) u_lbuf(
     .rd_gated(           )
 );
 
-always @(posedge clk) if( pxl_cen )
+always @(posedge clk) if( pxl_cen ) begin
     fb_pxl <= hrd[0] ? lb_q[17:9] : lb_q[8:0];
+end
 
 endmodule

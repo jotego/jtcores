@@ -59,8 +59,10 @@ assign last_obj = obj_cnt==0;
 assign ram_addr = {2'b0, obj_cnt, scan_cnt};
 assign scan_dout = ram_data;
 assign dtackn = 1;
-assign draw_xpos  = xpos[8:0] + 9'd13;
-assign draw_vflip = ~attr[15];
+wire [8:0] yeff = flip ? 9'd240 - ypos[8:0] : ypos[8:0];
+wire [8:0] xeff = flip ? 9'd304 - xpos[8:0] : xpos[8:0];
+assign draw_xpos  = xeff + 9'd13;
+assign draw_vflip = ~(attr[15]^flip);
 assign rom_addr   = { draw_addr[19:7], draw_addr[5:2], draw_addr[6] };
 assign sorted     = { rom_data[27:24], rom_data[31:28],
                       rom_data[19:16], rom_data[23:20],
@@ -68,7 +70,7 @@ assign sorted     = { rom_data[27:24], rom_data[31:28],
                       rom_data[ 3: 0], rom_data[ 7: 4] };
 
 always @* begin
-    ydiff  = ypos[8:0] - (vrender-9'd8);
+    ydiff  = yeff - (vrender-9'd8);
     inzone = ydiff<16;
 end
 
@@ -131,7 +133,7 @@ jtframe_objdraw #(
     .clk      ( clk          ),
     .pxl_cen  ( pxl_cen      ),
     .hs       ( HS           ),
-    .flip     ( flip         ),
+    .flip     ( 1'b0         ),
     .hdump    ( hdump        ),
 
     .draw     ( dr_start     ),
@@ -141,7 +143,7 @@ jtframe_objdraw #(
     .ysub     ( ydiff[3:0]   ),
     .hzoom    ( 6'd0         ),
     .hz_keep  ( 1'b0         ),
-    .hflip    ( attr[14]     ),
+    .hflip    ( attr[14]^flip),
     .vflip    ( draw_vflip   ),
     .pal      ( attr[3:0]    ),
 
