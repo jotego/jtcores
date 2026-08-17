@@ -58,7 +58,7 @@ reg  [ 7:0] din;
 wire        ram_cs, ym_cs, syt_sel, bank_cs, mem;
 wire [19:0] ym_adpcma_addr;
 wire [23:0] ym_adpcmb_addr;
-wire [ 3:0] ym_adpcma_bank;
+wire [ 4:0] ym_adpcma_bank;
 wire        ym_adpcma_roe_n, ym_adpcmb_roe_n;
 
 assign mem      = ~mreq_n & rfsh_n;
