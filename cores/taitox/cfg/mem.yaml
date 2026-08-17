@@ -1,5 +1,6 @@
 params:
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: RAM_OFFSET, value: "(`RAM_START)>>1" }
 
 clocks:
   clk:
@@ -20,6 +21,14 @@ audio:
 sdram:
   banks:
     - buses:
+      # 68000 work RAM, f00000-f03fff. In SDRAM rather than BRAM so the
+      # core fits the smaller MiST/SiDi devices; same trick as rastan.
+      - name: ram
+        addr_width: 14
+        data_width: 16
+        din: cpu_dout
+        rw: true
+        offset: RAM_OFFSET
       - name: main
         addr_width: 19
         data_width: 16
@@ -44,14 +53,6 @@ sdram:
         data_width: 8
 
 bram:
-  # 68000 work RAM, f00000-f03fff
-  - name: ram
-    addr_width: 14
-    data_width: 16
-    addr: main_addr[13:1]
-    din: cpu_dout
-    rw: true
-
   # Palette RAM behind the X1-006. The chip only receives 68k A9..A1
   # (sheet 4, block 55 pins 35-43)
   - name: pal

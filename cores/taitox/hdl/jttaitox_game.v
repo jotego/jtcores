@@ -65,8 +65,12 @@ jttaitox_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
 
+    .ram_addr   ( ram_addr      ),
+    .ram_data   ( ram_data      ),
     .ram_we     ( ram_we        ),
-    .ram_dout   ( ram_dout      ),
+    .ram_dsn    ( ram_dsn       ),
+    .ram_ok     ( ram_ok        ),
+    .ram_cs     ( ram_cs        ),
     .pal_we     ( pal_we        ),
     .pal_dout   ( pal_dout      ),
 
