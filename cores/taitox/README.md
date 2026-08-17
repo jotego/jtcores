@@ -116,5 +116,5 @@ and the sprite Y offset (`p057a ? -0x0a : -0x12`).
 
 `doc/` holds primary sources only — the MAME driver and device sources
 (`taito_x.cpp`, `seta001.cpp`, `taitosnd.cpp`, `taitocchip.cpp`) and photos of
-the P0-039A and P057a board. The Superman schematics are the maker's IP and are kept
+the P0-039A and P0-057a board. The Superman schematics are the maker's IP and are kept
 out of the repo.
