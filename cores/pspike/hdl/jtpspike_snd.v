@@ -71,7 +71,9 @@ reg  [ 1:0] bank;
 wire        mreq_n, iorq_n, rd_n, wr_n, m1_n, rfsh_n, int_n;
 wire        mem_acc, io_acc;
 wire        ram_cs, bank_cs, latch_rd, latch_ack, fm_cs;
-reg         fm_busy, fmcs_l;
+reg  [ 6:0] busy_cnt;
+reg         fmwr_l;
+wire        fm_wr, fm_busy;
 wire [ 7:0] ram_dout;
 wire [19:0] adpcma_addr;
 wire [23:0] adpcmb_addr;
@@ -116,14 +118,29 @@ always @(posedge clk) begin
     end
 end
 
-// The YM2610 raises BUSY for 32 chip cycles after a register write and the Z80
-// must honour it. Measured 1061 writes landing during BUSY over 2400 frames,
-// 306 of them into bank 1 (the ADPCM-A start/end, level/pan and key-on
-// registers), all silently dropped. jt10 does not expose busy as a port, so
-// synthesise one access-long stall the way kiwi does.
-always @(posedge clk) if( fm_cen ) begin
-    fmcs_l  <= fm_cs;
-    fm_busy <= fm_cs & ~fmcs_l;
+// jt10 loads the ADPCM-A start/end and level/pan registers only when its
+// 666kHz channel pipeline reaches that channel - up to 9us (6 slots x 1.5us)
+// after the write - and a later write to those registers replaces the pending
+// one (writing END even clears the pending START). The pspikes driver does not
+// poll BUSY: consecutive writes are ~6us apart, so updates were lost or
+// half-applied. Hold the Z80 for one full rotation after each bank-1 data
+// write. Counted in fm_cen ticks (8MHz chip clock, gated on the ADPCM ROM
+// wait) so the window is chip time, independent of the master clock and of
+// SDRAM stalls. Real BUSY is 24us, so a polling driver would wait longer.
+assign fm_wr   = fm_cs & ~wr_n;
+assign fm_busy = busy_cnt!=0;
+
+always @(posedge clk) begin
+    if( rst ) begin
+        busy_cnt <= 0;
+        fmwr_l   <= 0;
+    end else begin
+        fmwr_l <= fm_wr;
+        if( fmwr_l && !fm_wr && A[1:0]==2'b11 )     // end of a bank-1 data write
+            busy_cnt <= 7'd96;                       // 12us at 8MHz
+        else if( fm_cen && busy_cnt!=0 )
+            busy_cnt <= busy_cnt-7'd1;
+    end
 end
 
 jtframe_z80_devwait u_cpu(
