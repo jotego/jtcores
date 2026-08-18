@@ -66,35 +66,29 @@ localparam [8:0] HS_END   = HS_START<(9'd511-HS_LEN) ? (HS_START+HS_LEN) : ( HS_
 
 always @(posedge clk) if(cen8) begin
     hdump     <= hdump+9'd1;
-    //if ( vdump>=9'hf8  ) VB <= 1'b1;
-    //if ( vdump==9'h0F  ) VB <= 1'b0;
     shVB[0] <= vdump<(9'd14) || vdump>9'd237; // 224 visible lines
     HB      <= hdump>=(9'd384+9'd64) || hdump<9'd64;
-    // original HS reported to last for 36 clock ticks
     if( hdump== HS_START ) begin
-        HS <= 1'b1;
-        // VS must occur synchronized with HS for better compatibility
-        // 250/261 wavy
-        // 250/255 best
-        // h100/h001 old
+        HS <= 1'b1; // original HS duration = 36 clock ticks
         if ( vdump==VS_START ) VS <= 1'b1;
         if ( vdump==VS_END   ) VS <= 1'b0;
     end
     if( hdump== HS_END ) HS <= 1'b0;
-    line_start  <= hdump==9'h1ff && vdump<9'hF0 && vdump>9'h0c;
-    line_inc    <= hdump==9'h1ff;
-    if(&hdump) begin
-        hdump   <= 9'd0;
+    line_start  <= hdump==HS_START && vdump<9'hF0 && vdump>9'h0c;
+    line_inc    <= hdump==HS_START;
+    if( hdump==HS_START-1'd1 ) begin
+        { VB, shVB[1] } <= shVB;
+    end
+    if( hdump==HS_START ) begin
         vrender1<= vrender1==9'd261 ? 9'd0 : vrender1+9'd1;
         vrender <= vrender1;
         vdump   <= vrender;
-        { VB, shVB[1] } <= shVB;
-        // What's the right value for the frame start (FI) signal
-        // 260 works well in Cammy's stage and xmvsf (see issue 610)
-        // frame_start <= vrender1==(9'd260 + { debug_bus[7], debug_bus });
-        frame_start <= vrender1==9'd260;
+        frame_start <= vrender1==9'd260; // see issue #610
     end else begin
         frame_start <= 0;
+    end
+    if(&hdump) begin
+        hdump <= 9'd0;
     end
 end
 
