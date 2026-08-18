@@ -1,6 +1,5 @@
-// Vendored core-locally because no modules/jt89 exists yet in jtcores as of
-// this port (checked D:\Arcade\AI\aCORES\JT\real\modules\ directory listing).
-// Should move to a real modules/jt89 submodule if that gets created upstream.
+// Carried core-locally because there is no modules/jt89 submodule in this
+// tree. Should move to a real modules/jt89 submodule if one is added.
 
 /*  This file is part of JT89.
 

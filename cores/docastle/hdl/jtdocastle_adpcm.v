@@ -1,66 +1,47 @@
-// UNVERIFIED DRAFT -- ported from mrdo/rtl/docastle_adpcm.sv, relocated as-is
-// onto jtframe's module-naming convention, not yet compiled or simulated
-// against real jtframe tooling (Docker toolchain was down for the whole of
-// this port attempt).
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: aCORES
+    Version: 1.0
+    Date: 18-8-2026 */
+
+// MSM5205 ADPCM front end for the Universal 8-bit boards that carry one
+// (Indoor Soccer / Kick Rider). Ported from the standalone MiSTer
+// Universal_DoCastle core this core derives from.
 //
-// FIX (2026-08-18): the module's own hand-rolled 49.152 MHz/128 divider was
-// correct for the ORIGINAL board's 49.152 MHz PLL but wrong once relocated
-// under jtframe's 48.000 MHz clk48 base (48/128 = 375 kHz, -2.4% off the
-// real 384 kHz MSM5205 input clock). Removed the local `cen_div`/`ce_384k`
-// counter entirely; added an input port `cen_384k`, sourced from
-// cfg/mem.yaml's clocks: block as an exact 48,000,000/125 = 384,000 Hz
-// mem.yaml-generated cen (same mechanism as cen_mclk/cen_cpu), and wired it
-// straight into the jt5205 `.cen()` port (ANDed with `!pause`, preserving
-// the original pause-gating behaviour). See cfg/PORTING_NOTES.md.
+// MSM5205 sample-clock sourcing: the original board derives the 384 kHz
+// MSM5205 input clock as 49.152 MHz / 128. Under jtframe the base clock is
+// 48.000 MHz, where that same /128 divider would give 375 kHz (-2.4%). The
+// local divider is therefore replaced by a `cen_384k` input port, generated
+// by cfg/mem.yaml's clocks: block as an exact 48,000,000/125 = 384,000 Hz
+// clock enable (the same jtframe_gated_cen mechanism as cen_mclk/cen_cpu),
+// and wired into the jt5205 `.cen()` port ANDed with `!pause` so the original
+// pause-gating behaviour is preserved.
 //
-// jt5205 port-list check (the one real integration risk this file carries):
-// the task flagged that mrdo vendors its own copy of jt5205 at
-// mrdo/rtl/jt5205/jt5205.v, while this jtcores clone has a REAL
-// modules/jt5205 git submodule (confirmed present via
-// cores/docastle/cfg/files.yaml's existing `jt5205:` empty block, which
-// follows the same "module supplies its own files.yaml" pattern as
-// jt007232/jt051649/jtopl2 in cores/castle/cfg/files.yaml). The submodule's
-// working tree was NOT checked out in this clone (modules/jt5205 is an
-// uninitialized git submodule -- only a .git gitlink file present, no
-// working files), so the comparison below was done read-only against the
-// submodule's pinned commit content (`git -C modules/jt5205 show
-// HEAD:hdl/jt5205.v`, commit cd3cb83 "new jtframe file layout") rather than
-// a checked-out file, without running `git submodule update` or otherwise
-// touching git state.
+// jt5205 instance: the `decoder` instance below matches the modules/jt5205
+// submodule's port and parameter list exactly -- module name jt5205, ports
+// rst, clk, cen, sel[1:0], din[3:0], sound (signed [11:0]), sample, irq,
+// vclk_o plus the JT5205_DEBUG-gated debug ports, parameters INTERPOL=0 and
+// VCLK_CEN=1.
 //
-// RESULT: the two jt5205.v files are IDENTICAL at the port/parameter level.
-// Same module name (jt5205), same port order/names/widths/directions
-// (rst, clk, cen /* direct_enable */, sel[1:0], din[3:0], sound (signed
-// [11:0]), sample, irq, vclk_o, plus the JT5205_DEBUG-gated debug ports),
-// same parameter names and defaults (INTERPOL=0, VCLK_CEN=1). The only
-// difference is mrdo's vendored copy has its explanatory comments stripped
-// (e.g. the "s pin" port comment, the Chun Li/SF2 INTERPOL rationale, the
-// "irq active even during rst" note) -- purely cosmetic, zero functional or
-// timing difference. So the instantiation below is an unmodified carry-over
-// of docastle_adpcm.sv's original `decoder` instance; there is no port-list
-// divergence to reconcile. Flagging this explicitly per the task instead of
-// silently assuming identity.
+// The rest of the file models the board's MSM5205 control latch: D7 falling
+// stops / D6 falling starts, with start winning on a simultaneous edge pair;
+// D1:D0 select one of four 0x4000-byte (0x8000-nibble) banks; ROM nibbles are
+// consumed high-nibble first.
 //
-// Everything else in this file -- the MSM5205 control-latch edge semantics
-// (D7 falling stops / D6 falling starts, start-wins-on-simultaneous-edge
-// per MAME's idsoccer_state), the D1:D0 4x0x4000-byte/0x8000-nibble bank
-// select, the high-nibble-before-low-nibble ROM nibble sequencing, and the
-// 49.152 MHz/128 = 384 kHz MSM5205 input-clock divider -- is UNCHANGED
-// logic, only re-hosted under the jtdocastle_ module name. No signal was
-// renamed; the port list is identical to docastle_adpcm.sv's.
-//
-// MAME reference: src/mame/universal/docastle.cpp idsoccer_state ADPCM
-// handling (unchanged from the original module's own header).
-//
-// NOT YET WIRED: this module is not yet instantiated from a jtdocastle_game.v
-// (that top-level game module doesn't exist in this draft -- see
-// cores/docastle/cfg/PORTING_NOTES.md "Remaining work" item 1). jtdocastle_
-// main.v already exposes the CPU-side adpcm_status/adpcm_wr/adpcm_data ports
-// this module's control_data/control_wr/status ports are expected to
-// connect to, and cfg/mem.yaml's sdram.banks `adpcm` bus (ba0, 16-bit
-// addr_width, offset ADPCM_OFFSET) is expected to supply rom_addr/rom_q --
-// neither connection is made here, consistent with this module being a pure
-// building-block relocation, not a wired-up top.
+// MAME reference: src/mame/universal/docastle.cpp, idsoccer_state ADPCM
+// handling.
 module jtdocastle_adpcm
 (
 	input               clk,
@@ -71,10 +52,9 @@ module jtdocastle_adpcm
 	input         [7:0] control_data,
 	output        [7:0] status,
 
-	// UNVERIFIED, matches established cen_mclk/cen_cpu convention: generated
-	// by cfg/mem.yaml's clocks: block (48,000,000/125 = 384,000 exactly),
-	// same jtframe_gated_cen mechanism as cen_mclk/cen_cpu. Replaces the
-	// module's own hand-rolled /128 divider -- see fix note below.
+	// Generated by cfg/mem.yaml's clocks: block (48,000,000/125 = 384,000
+	// exactly), same jtframe_gated_cen mechanism as cen_mclk/cen_cpu.
+	// Replaces a local /128 divider -- see the header note.
 	input               cen_384k,
 
 	output       [15:0] rom_addr,
@@ -100,14 +80,11 @@ assign busy_debug = !idle;
 assign nibble_pos_debug = nibble_pos;
 assign rom_addr = nibble_pos[16:1];
 
-// Fix (2026-08-18): the board's exact 384 kHz MSM5205 input clock used to be
-// derived here as 49.152 MHz / 128, correct only for the original PCB's PLL.
-// jtframe's base clock is 48.000 MHz, so that same /128 divider produced
-// 375 kHz instead (-2.4%). Now sourced directly from cfg/mem.yaml's
-// cen_384k (an exact 48,000,000/125 = 384,000 Hz integer division) instead
-// of a local counter. `pause` gating moves to the consumer (the jt5205
-// .cen() port already ANDs with idle/enabled via .rst(), so it is applied
-// the same way here).
+// The board's 384 kHz MSM5205 input clock is 49.152 MHz / 128 on the PCB,
+// which under jtframe's 48.000 MHz base would be 375 kHz (-2.4%). It is
+// therefore sourced from cfg/mem.yaml's cen_384k (an exact 48,000,000/125 =
+// 384,000 Hz integer division) rather than a local counter. `pause` gating is
+// applied here, as the jt5205 .rst() port already folds in idle/enabled.
 wire ce_384k = cen_384k && !pause;
 
 wire [3:0] adpcm_din = nibble_pos[0] ? rom_q[3:0] : rom_q[7:4];

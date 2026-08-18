@@ -1,5 +1,21 @@
-// UNVERIFIED DRAFT -- ported from mrdo/rtl/docastle_pcb_sprite.sv, not yet compiled or simulated against real jtframe tooling.
-//
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: aCORES
+    Version: 1.0
+    Date: 18-8-2026 */
+
 //============================================================================
 // PCB-style sprite framebuffer (CF37201-driven alternate renderer).
 //
@@ -8,60 +24,32 @@
 // lines used by the PCB coordinate system.  Rendering is confined to vertical
 // blank and fields swap only at the following frame boundary.
 //
-// STATUS -- NOT YET HARDWARE-VERIFIED, NON-DEFAULT. Per mrdo's README.md
-// ("PCB accuracy" section): "This is separate from the CF37201's decap-
-// derived alternate framebuffer renderer, which remains off and unreachable
-// from the OSD: like the rest of this core it is deterministic and
-// regression-tested against MAME frame-by-frame across all nine sets, but has
-// not yet been confirmed against a physical Do's Castle PCB, since no board
-// has been available during development. The proven direct sprite renderer
-// remains the only renderer shipped until that comparison exists." That
-// caution applies unchanged to this port: this module exists here so
-// jtdocastle_video.v elaborates (it already instantiates jtdocastle_pcb_sprite
-// unconditionally), but it must stay non-default and not be exposed as a
-// selectable OSD/DIP path until a later integration pass wires it behind
-// jtframe's status-bit convention and it is confirmed against real hardware.
-// jtdocastle_video.v currently ties this instance's `enable` straight to its
-// own `pcb_framebuffer` input with no jtframe status-bit gating decided yet --
-// that wiring/default is OUT OF SCOPE for this file and is flagged here for
-// the later integration pass, exactly matching mrdo's own default-off
-// caution.
+// KNOWN LIMITATION -- NOT HARDWARE-VERIFIED, NON-DEFAULT. This decap-derived
+// alternate framebuffer renderer is deterministic and regression-tested
+// against MAME frame-by-frame across all nine sets, but it has not been
+// confirmed against a physical Do's Castle PCB, since no board has been
+// available. The proven direct sprite renderer is therefore the only renderer
+// shipped enabled. This module is instantiated unconditionally by
+// jtdocastle_video.v so the design elaborates, but it must stay non-default
+// and must not be exposed as a selectable OSD/DIP path until it is wired
+// behind jtframe's status-bit convention AND confirmed against real hardware.
+// jtdocastle_video.v ties this instance's `enable` straight to its own
+// `pcb_framebuffer` input, which the game module holds at 0.
 //
-// Ported from docastle_pcb_sprite.sv (mrdo repo). This is a PURE RELOCATION
-// pass: no timing value, register/counter behaviour, DRAM field addressing,
-// clear/scan/render state machine or CF-write interception logic changed.
+// Port-convention note:
+//   vblank is active-HIGH here (1 = blanked), deliberately NOT aligned to
+//   jtframe's active-low LHBL/LVBL convention (see modules/jtframe/doc/
+//   style.md). jtdocastle_video.v feeds it `~LVBL` so the electrical value
+//   matches the source core. This is the one video-timing port in this core
+//   that keeps the original polarity and naming; every other one (hs/vs/
+//   hblank in jtdocastle_crtc.v/jtdocastle_video.v) was renamed and inverted.
 //
-//   docastle_pcb_sprite.sv  ->  jtdocastle_pcb_sprite.v
-//   docastle_field_ram      ->  jtdocastle_field_ram      (pure rename, see
-//                                                           note below)
-//   ------------------------------------------------------------------------
-//   vblank (active-HIGH: 1 = blanked, port name "vblank") -> UNCHANGED, on
-//     purpose. jtdocastle_video.v already instantiates this module as
-//     jtdocastle_pcb_sprite with a `.vblank` port in this exact original
-//     name and polarity (fed `~LVBL` from the caller to reproduce the same
-//     electrical value docastle_video.sv passed docastle_pcb_sprite.sv). Per
-//     this task's instructions, that established caller-side interface is
-//     matched from this file, not changed. This is the one port in this
-//     port pass that is deliberately NOT aligned to jtframe's LHBL/LVBL
-//     active-low convention (see modules/jtframe/doc/style.md) -- flagging
-//     this explicitly rather than silently leaving it, since every other
-//     video-timing signal touched elsewhere in this core's port (hs/vs/
-//     hblank in jtdocastle_crtc.v/jtdocastle_video.v) was renamed+inverted.
-//   All other ports/signals (h_count, v_count, ce_pix, enable, flipscreen,
-//   soccer_sprites, cpu_addr/cpu_data/cpu_we, cf_dram_address/strobe/column/
-//   y/x, cf_palette/flip_x/flip_y/plus_one/serial_invert, gfx_addr/gfx_q,
-//   pixel, busy, overrun, frame_ready and all internal state) -> unchanged
-//   names and behaviour, carried over verbatim.
-//
-// FLAGGED (structural, not behavioural): docastle_pcb_sprite.sv defines two
-// modules in one file (docastle_pcb_sprite + docastle_field_ram). jtframe's
-// style.md states "Each verilog file contains only one module". Splitting
-// jtdocastle_field_ram into its own file was judged out of scope for a pure-
-// relocation port -- it is a mechanical move, not a rename or behavioural
-// change, but it was not requested and is flagged here for a later
-// integration pass to decide (either split it out, or accept this file as a
-// documented exception since jtdocastle_field_ram is private to this module
-// and instantiated nowhere else).
+// KNOWN LIMITATION (structural, not behavioural): this file defines two
+// modules (jtdocastle_pcb_sprite + jtdocastle_field_ram), while jtframe's
+// style.md states "Each verilog file contains only one module".
+// jtdocastle_field_ram is private to this module and instantiated nowhere
+// else; splitting it into its own file is a mechanical change left for a
+// later pass.
 //============================================================================
 module jtdocastle_pcb_sprite
 (

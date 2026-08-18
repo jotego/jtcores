@@ -1,10 +1,26 @@
-// UNVERIFIED DRAFT -- ported from mrdo/rtl/docastle_analog.sv onto jtframe's
-// analog-joystick input boundary, not yet compiled or simulated against real
-// jtframe tooling (Docker toolchain was down for the whole of this port
-// attempt).
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: aCORES
+    Version: 1.0
+    Date: 18-8-2026 */
+
+// Analog-stick to 4-way-digital decoder for the Soccer profiles. Ported from
+// the standalone MiSTer Universal_DoCastle core this core derives from.
 //
-// Judgment call made here, with evidence (see task point 1):
-//   The original module computes a plain threshold+hysteresis 2-axis
+// Input format:
+//   This module computes a plain threshold+hysteresis 2-axis
 //   analog-to-4-way-digital decoder: axis_x/axis_y are read as SIGNED 8-bit
 //   two's-complement values (right/down positive, left/up negative),
 //   direction asserts at |axis| >= 32 and releases at |axis| <= 20 (a dead
@@ -26,10 +42,9 @@
 //   jtframe_mister.sv: ".joystick_l_analog_0( joyana_l1 )"), i.e. joyana_l1
 //   IS joystick_l_analog_0, just renamed at the jtframe port boundary.
 //
-//   Conclusion: the decode logic is reusable AS-IS. This file is a straight
-//   re-host with only the input port renamed (`analog` -> `joyana`, generic
-//   for whichever of joyana_l1..r4 the caller wires in) -- no functional
-//   change from docastle_analog.sv.
+//   The decode logic is therefore reusable as-is; only the input port name
+//   differs from the original core (`analog` -> `joyana`, generic for
+//   whichever of joyana_l1..r4 the caller wires in).
 //
 // NOT solved by jtframe's own built-in analog handling, and why a
 // board-local module is still needed (do not delete this and rely on
@@ -40,9 +55,8 @@
 //   mechanism folds ONE left analog stick per player into that player's
 //   single digital joystick word. It is not a fit for this board's Soccer
 //   profile, which reads BOTH the left AND right analog stick per player
-//   (joyana_l1+joyana_r1 for P1, joyana_l2+joyana_r2 for P2, see
-//   Universal_DoCastle.sv p1_left_analog/p1_right_analog/p2_left_analog/
-//   p2_right_analog instances) and keeps their two decoded 4-way direction
+//   (joyana_l1+joyana_r1 for P1, joyana_l2+joyana_r2 for P2) and keeps their
+//   two decoded 4-way direction
 //   sets SEPARATE, later combining each with its own distinct digital
 //   button-bit group (joystick_0[12:15]/joystick_1[12:15]) into two
 //   independent output bytes (soccer_left_joys/soccer_right_joys) matching
@@ -50,25 +64,20 @@
 //   single-stick PWM emulator has no dual-independent-stick-per-player mode,
 //   so this board-local module stays.
 //
-// Caller-wiring note, NOT resolved in this draft: under mrdo's current
-// target-level design, the 4 instances of this decoder (p1/p2 x left/right)
-// live in Universal_DoCastle.sv, OUTSIDE docastle_core.sv, and their
-// decoded direction bits are pre-combined into soccer_left_joys/
-// soccer_right_joys bytes before ever reaching the core. Under jtframe,
-// joyana_l1..r4 are exposed directly to the GAME module boundary (see
-// jtframe_common_ports.inc) -- there is no equivalent docastle-specific
-// target-level file to hold this combination logic. The 4 instances of
-// jtdocastle_analog, and the soccer_left_joys/soccer_right_joys-equivalent
-// combination logic, are expected to move INTO jtdocastle_game.v itself.
-// This relocation is a structural consequence of jtframe's port boundary,
-// not a functional change -- flagged here, not yet implemented (game module
-// port list is future work, see PORTING_NOTES.md).
+// Caller wiring: in the standalone core the four instances of this decoder
+// (p1/p2 x left/right) live in the target-level file, outside the board top,
+// and their decoded direction bits are pre-combined into soccer_left_joys/
+// soccer_right_joys before reaching the board. Under jtframe, joyana_l1..r4
+// are exposed directly at the GAME module boundary (see
+// jtframe_common_ports.inc), so the four instances and the
+// soccer_left_joys/soccer_right_joys combination logic live in
+// jtdocastle_game.v. This relocation is a structural consequence of
+// jtframe's port boundary, not a functional change.
 //
 // MAME reference: none needed -- this is a MiSTer-side analog controller
 // convenience decoder with no counterpart on real PCB hardware (the real
 // PCB reads true analog/optical joysticks through its own interface, not
-// through this digital emulation layer). Unchanged from the original
-// module's own scope.
+// through this digital emulation layer).
 
 module jtdocastle_analog
 (

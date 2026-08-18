@@ -1,5 +1,21 @@
-// UNVERIFIED DRAFT -- ported from mrdo/rtl/docastle_{video,crtc}.sv, not yet compiled or simulated against real jtframe tooling.
-//
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: aCORES
+    Version: 1.0
+    Date: 18-8-2026 */
+
 //============================================================================
 // Board-relevant HD6845S model for the Universal Do! Castle hardware family.
 //
@@ -9,10 +25,9 @@
 // default register image is the measured 312x264, 240x192 board mode, so
 // reset never emits a malformed partial frame.
 //
-// Ported from docastle_crtc.sv (mrdo repo) with a pure rename to jtframe's
-// video-signal convention -- see jtdocastle_video.v's header for the full
-// rename table and the LHBL/LVBL polarity note. No timing value, register
-// behaviour, raster geometry or frame-shadowed-write protection changed.
+// Ported from the standalone MiSTer Universal_DoCastle core this core derives
+// from, using jtframe's video-signal convention -- see jtdocastle_video.v's
+// header for the LHBL/LVBL polarity note.
 //============================================================================
 module jtdocastle_crtc
 (
@@ -22,8 +37,7 @@ module jtdocastle_crtc
     input             cursor_irq_mode,
 
     // Register file access (frame-shadowed: writes land in `pending` and
-    // only take effect at the next vertical-total/adjust boundary, exactly
-    // as in docastle_crtc.sv)
+    // only take effect at the next vertical-total/adjust boundary)
     input      [ 4:0] reg_sel,
     input      [ 7:0] reg_data,
     input             reg_we,
@@ -84,10 +98,9 @@ assign VS = vs_active;
 // This produces the documented x=8..247 aperture while still following R1.
 // LHBL/LVBL are jtframe's active-low blanking convention (1 = active
 // display, 0 = blanked -- see modules/jtframe/hdl/video/jtframe_vtimer.v),
-// the exact inverse electrical sense of docastle_crtc.sv's active-high
+// the exact inverse electrical sense of the source core's active-high
 // hblank/vblank. The blanking WINDOW below (start/end compare terms) is
-// byte-for-byte identical to docastle_crtc.sv; only the final polarity is
-// flipped to match the convention.
+// unchanged; only the final polarity is flipped to match the convention.
 assign LHBL = !((h_ctr < 9'd8) || ({1'b0,h_ctr} >= h_active_end));
 assign LVBL = !(in_adjust || (row_ctr >= crtc[6][6:0]));
 

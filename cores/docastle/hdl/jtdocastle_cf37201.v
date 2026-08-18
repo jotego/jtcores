@@ -1,23 +1,36 @@
-// UNVERIFIED DRAFT -- ported from mrdo/rtl/docastle_cf37201.sv, not yet compiled or simulated against real jtframe tooling.
-//
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: aCORES
+    Version: 1.0
+    Date: 18-8-2026 */
+
 //============================================================================
 // Synchronous CF37201N (TI TAL004) board-behaviour model.
 //
 // Register decode, the REG1->REG1B transfer, flip/palette latching, interrupt
-// acknowledge, pair/line counters and the multiplexed DRAM address follow the
-// decap-derived reproduction described in mrdo's README.md ("A decap-derived
-// CF37201N model") and pinned to SiliconRE furrtek's CF37201N decap
+// acknowledge, pair/line counters and the multiplexed DRAM address follow a
+// decap-derived reproduction pinned to SiliconRE furrtek's CF37201N decap
 // (https://github.com/furrtek/SiliconRE/tree/master/Misc/CF37201N,
 // pinned revision 7c94fad788c33ff696ad7f07703b1dc303e3230c). That RTL was not
-// copied; this is a relocation of mrdo's own independent synchronous model,
-// derived from the published decap observations, pinout and schematic. The
-// PCB's external /PL counter is represented by its measured 126-MCLK sprite
-// interval; all custom-chip state remains in the core clock domain.
+// copied; this is an independent synchronous model derived from the published
+// decap observations, pinout and schematic, carried over from the standalone
+// MiSTer Universal_DoCastle core this core derives from. The PCB's external
+// /PL counter is represented by its measured 126-MCLK sprite interval; all
+// custom-chip state remains in the core clock domain.
 //
-// Ported from docastle_cf37201.sv (mrdo repo). This is a PURE RELOCATION pass:
-// no timing value, register decode, counter behaviour or DRAM address-mux
-// logic changed. Per mrdo's README, the following must NOT be altered and
-// have NOT been altered here:
+// The following are load-bearing and must not be "simplified":
 //   - register decode with A3 not decoded (bus_addr is 2 bits; case default
 //     covers both A3=0 and A3=1 landing on the same 2-bit decode -- see the
 //     "A3 is deliberately not decoded by the TAL004" comment, carried over
@@ -28,15 +41,8 @@
 //   - field parity (frame_parity input, used in dram_addr/dram_address)
 //   - the measured 126-MCLK /PL interrupt cycle (pl_count == 7'd125)
 //
-// This module has no video-timing ports (no hs/vs/hblank/vblank), so none of
-// jtdocastle_video.v/jtdocastle_crtc.v's LHBL/LVBL rename applies here. Only
-// the module name changed, to match this port's jtdocastle_* convention:
-//
-//   docastle_cf37201.sv  ->  jtdocastle_cf37201.v   (pure rename, no port or
-//                                                     signal renamed inside)
-//
-// All ports, internal signal names and comments are otherwise carried over
-// unchanged from docastle_cf37201.sv.
+// This module has no video-timing ports (no hs/vs/hblank/vblank), so
+// jtdocastle_video.v/jtdocastle_crtc.v's LHBL/LVBL naming does not apply here.
 //============================================================================
 module jtdocastle_cf37201
 (

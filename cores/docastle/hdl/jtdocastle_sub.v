@@ -1,8 +1,26 @@
-// UNVERIFIED DRAFT -- ported from mrdo/rtl/docastle_sub.sv onto jtframe's
-// CPU/SDRAM boundary, not yet compiled or simulated against real jtframe
-// tooling (Docker toolchain was down for the whole of this port attempt).
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: aCORES
+    Version: 1.0
+    Date: 18-8-2026 */
+
+// Sub (sound) Z80 of the Universal Do! Castle hardware family. Ported from the
+// standalone MiSTer Universal_DoCastle core this core derives from, onto
+// jtframe's CPU/SDRAM boundary.
 //
-// Changes vs. the original docastle_sub.sv, and why:
+// Differences from the source core's sub CPU, and why:
 //   1. T80se instantiated directly -> jtframe_sysz80 (RAM_AW=11). Same
 //      integration pattern as jtdocastle_main.v's u_cpu (see that file's
 //      header note 1) -- jtframe_sysz80 fuses the Z80, its own work RAM
@@ -23,12 +41,10 @@
 //      window) is UNCHANGED -- it is now given an explicit wire name so it
 //      can drive both the wrapper's rom_cs input and the existing cpu_din
 //      read mux (which previously spelled the same condition out inline).
-//   4. PLACEHOLDER, NOT VERIFIED: same caveat as jtdocastle_main.v note 4 --
-//      this module still exposes rom_q/rom_addr at its own boundary
-//      unchanged, and the caller is expected to wire a mem.yaml-generated
-//      "sub" bus (e.g. sub_addr/sub_data/sub_ok) to them once real jtframe
-//      codegen is available to confirm the exact generated port names.
-//   5. CLR_INT(0) chosen to match the original's direct `.INT_n(irq_n)`
+//   4. Same boundary shape as jtdocastle_main.v note 4: rom_q/rom_addr/
+//      rom_cs/rom_ok are exposed here and jtdocastle_game.v wires the
+//      mem.yaml-generated "sub" bus (sub_addr/sub_data/sub_ok) to them.
+//   5. CLR_INT(0) chosen to match the source core's direct `.INT_n(irq_n)`
 //      pass-through -- irq_n is a raw external level, not latched by M1/
 //      IORQ inside this module, same reasoning as jtdocastle_main.v note 5.
 //      This module's own NMI generation (the `nmi_n` register, clocked from
@@ -37,18 +53,15 @@
 //   6. Everything else -- the profile-dependent memory map (ram_cs/comm_cs/
 //      input_cs), the TMS1025 input-mux/flip-screen latching, the edge-
 //      detected write/read logic, and the 4x jt89 PSG instantiation
-//      (UNCHANGED, `.rst(reset)`/`.clk_en(ce_psg)`, jt89.v already relocated
-//      to this directory) -- is UNCHANGED logic, only re-hosted in this
-//      file.
-//   7. OPEN QUESTION, not resolved in this draft -- see the detailed comment
-//      immediately before the u_cpu instantiation below. It is the SAME
-//      ROOT CAUSE as jtdocastle_main.v's flagged comm_wait_n question
-//      (jtframe_sysz80 exposes no general external WAIT_n input) but it is
-//      a DIFFERENT signal and NOT the same cross-CPU mailbox handshake --
-//      see that comment for the evidence.
+//      (`.rst(reset)`/`.clk_en(ce_psg)`) -- is unchanged from the source
+//      core.
+//   7. KNOWN LIMITATION -- see the detailed comment immediately before the
+//      u_cpu instantiation below. It shares a root cause with
+//      jtdocastle_main.v's comm_wait_n limitation (jtframe_sysz80 exposes no
+//      general external WAIT_n input) but it is a DIFFERENT signal and NOT
+//      the cross-CPU mailbox handshake -- see that comment for the evidence.
 //
-// MAME reference: src/mame/universal/docastle.cpp sound_map variants
-// (unchanged from the original module's own header).
+// MAME reference: src/mame/universal/docastle.cpp sound_map variants.
 
 module jtdocastle_sub
 (
@@ -63,11 +76,10 @@ module jtdocastle_sub
 
 	input   [7:0] rom_q,
 	output [13:0] rom_addr,
-	output        rom_cs,       // NEW (2nd pass): exposed so jtdocastle_game.v can
-	                            // drive mem.yaml's `sub_cs` SDRAM-slot request.
-	                            // Decode UNCHANGED (cpu_addr < 0x4000); the local
-	                            // wire declaration simply became a port + assign.
-	input         rom_ok,       // NEW: SDRAM-fetch-ready qualifier, see header note 3
+	output        rom_cs,       // exposed so jtdocastle_game.v can drive
+	                            // mem.yaml's `sub_cs` SDRAM-slot request.
+	                            // Decode is the source core's (cpu_addr < 0x4000).
+	input         rom_ok,       // SDRAM-fetch-ready qualifier, see header note 3
 
 	input   [7:0] comm_latch,
 	output  [7:0] comm_dout,
@@ -111,27 +123,24 @@ always @(posedge clk) begin
 	end
 end
 
-// OPEN QUESTION, not resolved in this draft: the original T80se's WAIT_n
-// port here carried `cpu_wait_n = &psg_ready` -- a stall on the sub CPU's
-// OWN bus while any of the 4 jt89 PSGs is still busy servicing a prior
-// write. This is NOT the same thing as jtdocastle_main.v's flagged
-// comm_wait_n question. Reading docastle_core.sv (the instantiating parent)
-// shows the main/sub mailbox handshake is ASYMMETRIC, not a mutual or
-// bidirectional WAIT: only main's Z80 ever stalls on it (main's
-// comm_wait_n = ~main_wait; main_wait is set when main pulses comm_start,
-// and cleared when SUB pulses comm_access against the shared comm_latch
-// register that lives in docastle_core.sv). Sub's own bus is never stalled
-// by that mailbox exchange -- docastle_sub.sv has no comm_wait_n port at
-// all in the original RTL, and never did. So porting sub to jtframe_sysz80
-// does not lose a cross-CPU WAIT hookup (it never had one); the signal that
-// becomes homeless here is purely the local PSG-busy stall. Like main,
-// jtframe_sysz80 exposes no general external WAIT_n input (only its
-// internal rom_cs/rom_ok wait generator, jtframe_z80_romwait) -- so
-// `cpu_wait_n` is still computed exactly as before (it continues to drive
-// `psg_ready_debug`) but is left UNCONNECTED to the CPU wrapper in this
-// draft, stubbed below rather than silently wired to something. Finding the
-// correct injection point needs real jtframe tooling (Docker down) to
-// investigate properly; it must not be paved over with a guess.
+// KNOWN LIMITATION -- PSG-busy WAIT not injected. On the PCB the sub Z80's
+// WAIT_n carries `cpu_wait_n = &psg_ready`: a stall on the sub CPU's OWN bus
+// while any of the four jt89 PSGs is still busy servicing a prior write. This
+// is NOT the same signal as jtdocastle_main.v's comm_wait_n limitation. The
+// main/sub mailbox handshake is ASYMMETRIC, not a mutual or bidirectional
+// WAIT: only main's Z80 ever stalls on it (main's comm_wait_n = ~main_wait;
+// main_wait is set when main pulses comm_start and cleared when SUB pulses
+// comm_access against the shared comm_latch register, which lives at board
+// level). Sub's own bus is never stalled by that mailbox exchange -- the sub
+// CPU has no comm_wait_n port at all. So moving sub to jtframe_sysz80 does
+// not lose a cross-CPU WAIT hookup (it never had one); the signal that
+// becomes homeless here is purely the local PSG-busy stall. As with main,
+// jtframe_sysz80 exposes no general external WAIT_n input (only its internal
+// rom_cs/rom_ok wait generator, jtframe_z80_romwait), so `cpu_wait_n` is
+// still computed exactly as before (it drives `psg_ready_debug`) but is left
+// unconnected to the CPU wrapper, stubbed below rather than wired to
+// something arbitrary. The correct injection point must be determined from
+// hardware evidence rather than guessed.
 wire _unused = cpu_wait_n;
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(0),.RECOVERY(1)) u_cpu

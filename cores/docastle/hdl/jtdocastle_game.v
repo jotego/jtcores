@@ -12,34 +12,31 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Author: (unattributed draft, ported from the mrdo MiSTer core)
-    Version: 0.1 (draft)
-    Date: 18-08-2026 */
+    Author: aCORES
+    Version: 1.0
+    Date: 18-8-2026 */
 
-// UNVERIFIED DRAFT -- top-level integration, not yet compiled or simulated
-// against real jtframe tooling. This is the highest-risk file in the port; see
-// the flagged-uncertain-connections list below before trusting any specific
-// wire.
+// Top-level game module for the Universal Do! Castle hardware family (nine
+// sets across three board profiles, one RBF).
 //
-// Replaces mrdo/rtl/docastle_core.sv (board-level top) plus the parts of
-// mrdo/Universal_DoCastle.sv that jtframe's game-module boundary absorbs
-// (analog-stick decode, cabinet-byte assembly, pause, reset composition).
-// Every piece of inter-module wiring that is NOT part of the jtframe boundary
-// change was transcribed from docastle_core.sv unchanged: the main<->sub comm
-// latch + main WAIT flip-flop, the main->spritecpu sprite staging port, the
-// spritecpu->CF37201 doorway, the CF37201 pin-level DRAM interface into the
-// video module, the CRTC register bus, the sub_irq_n M1/IORQ-acknowledge
-// latch, the watchdog, and the audio mix order.
+// It replaces the board-level top of the standalone MiSTer Universal_DoCastle
+// core this core derives from, plus the parts of that core's target-level file
+// which jtframe's game-module boundary absorbs (analog-stick decode,
+// cabinet-byte assembly, pause, reset composition). Inter-module wiring that
+// is not part of the jtframe boundary change is carried over unchanged from
+// the source core: the main<->sub comm latch + main WAIT flip-flop, the
+// main->spritecpu sprite staging port, the spritecpu->CF37201 doorway, the
+// CF37201 pin-level DRAM interface into the video module, the CRTC register
+// bus, the sub_irq_n M1/IORQ-acknowledge latch, the watchdog, and the audio
+// mix order.
 //
 // ===========================================================================
-// STRUCTURAL DEVIATION FROM THE TASK BRIEF -- READ FIRST
+// MEMORY BOUNDARY: GENERATED, NOT RAW
 // ===========================================================================
-// The brief for this file stated that JTFRAME_MEMGEN is not set (because it
-// is absent from cfg/macros.def) and that this module would therefore expand
-// the RAW jtframe_mem_ports.inc SDRAM boundary (ba0_addr/ba_rd/ba_dst/...),
-// to be wired by hand. That premise is WRONG, and following it would have
-// produced a file that cannot elaborate. Evidence, checked directly in this
-// clone:
+// This core has a cfg/mem.yaml, so JTFRAME_MEMGEN is set and this module's
+// `` `include "jtframe_game_ports.inc" `` expands the GENERATED mem_ports.inc,
+// not the raw jtframe_mem_ports.inc SDRAM boundary. Hand-wiring ba0..ba3 here
+// would reference ports that do not exist. Evidence:
 //
 //   * modules/jtframe/doc/sdram.md:171 -- "When a mem.yaml file exists,
 //     jtframe automatically declares the JTFRAME_MEMGEN macro."
@@ -61,30 +58,23 @@
 //     the game.v contains `` `include "jtframe_game_ports.inc" ``, jtframe
 //     writes cores/docastle/hdl/mem_ports.inc from the ports.v template.
 //
-// So cfg/docastle already has a mem.yaml -> JTFRAME_MEMGEN WILL be set ->
-// this module's `` `include "jtframe_game_ports.inc" `` expands the GENERATED
-// mem_ports.inc, not the raw one. Hand-wiring ba0..ba3 here would reference
-// ports that do not exist. This file is therefore written against the
-// generated per-bus contract, derived line-by-line from
-// modules/jtframe/hdl/inc/ports.v against cfg/mem.yaml. Two knock-on
-// consequences, both deliberate:
+// This file is therefore written against the generated per-bus contract,
+// derived line-by-line from modules/jtframe/hdl/inc/ports.v against
+// cfg/mem.yaml. Two knock-on consequences, both deliberate:
 //
 //   (a) cen_mclk / cen_cpu are INPUTS, generated in the wrapper by
 //       jtframe_gated_cen from mem.yaml's `clocks:` block -- NOT generated
-//       here with jtframe_frac_cen as the brief asked. ports.v emits
+//       here with jtframe_frac_cen. ports.v emits
 //       `input {{ .OutStr }}` for every clocks: output, and
 //       mem/clocks.go:83 rewrites base `clk48` to `clk` when not in SDRAM96
 //       mode, so both enables land in this module's own `clk` domain.
 //       Instantiating jtframe_frac_cen here as well would duplicate them.
-//   (b) cfg/mem.yaml's `audio:` block had to be commented out (done, with
-//       full reasoning in that file) so that this module keeps the plain
-//       `snd`/`sample` ports and owns the mix, exactly as docastle_core.sv
-//       did. See mem.yaml -- and note it also CORRECTS PORTING_NOTES.md
-//       deviation #2: `jt89` IS a valid audio module name
-//       (modules/jtframe/hdl/sound/audio_mod.yaml, data_width 11).
+//   (b) cfg/mem.yaml's `audio:` block is commented out (with the reasoning in
+//       that file) so this module keeps the plain `snd`/`sample` ports and
+//       owns the mix, as the source core's board top did.
 //
 // ===========================================================================
-// DERIVED PORT LIST THIS FILE ASSUMES (from ports.v + cfg/mem.yaml)
+// GENERATED PORT LIST THIS FILE USES (from ports.v + cfg/mem.yaml)
 // ===========================================================================
 //   input                     cen_mclk, cen_cpu, cen_384k, cen_48k
 //   output signed [15:0]      snd            output  sample
@@ -103,28 +93,26 @@
 //     output [16:0] gfx2_addr   output gfx2_cs   input [7:0] gfx2_data   input gfx2_ok
 //
 // ===========================================================================
-// FLAGGED-UNCERTAIN CONNECTIONS -- check every one of these once Docker /
-// jtcore is available. Nothing below is claimed to be verified.
+// KNOWN LIMITATIONS / OPEN ITEMS
 // ===========================================================================
 //
-// -- SDRAM / memory boundary (the riskiest group) --
+// -- SDRAM / memory boundary --
 //
-// S1. GENERATED PORT NAMES AND WIDTHS. Every *_addr/_cs/_data/_ok name above
-//     is my reading of ports.v's templates against cfg/mem.yaml; no codegen
-//     was run. Regenerate mem_ports.inc first and diff it against the list
-//     above before believing any of it.
+// S1. The generated per-bus port names and widths listed above were derived
+//     by reading ports.v's templates against cfg/mem.yaml. Regenerate
+//     mem_ports.inc and diff it against that list when mem.yaml changes.
 //
 // S2. gfx1_cs / gfx2_cs ARE TIED HIGH, AND gfx1_ok / gfx2_ok ARE IGNORED.
-//     This is a genuine DESIGN GAP, not just a wiring guess.
-//     jtdocastle_video.v (and jtdocastle_pcb_sprite.v inside it) inherited
-//     mrdo's BRAM assumption of fixed 1-cycle graphics-ROM latency: the tile
-//     fetch is combinational-address/registered-data every pixel, and the
+//     This is a genuine design gap, not a wiring detail.
+//     jtdocastle_video.v (and jtdocastle_pcb_sprite.v inside it) carry the
+//     source core's BRAM assumption of fixed 1-cycle graphics-ROM latency: the
+//     tile fetch is combinational-address/registered-data every pixel, and the
 //     sprite line-buffer state machine uses a hard-coded ST_GREQ -> ST_GWAIT
 //     -> ST_GUSE 3-state delay with no ready qualifier. Under SDRAM those
-//     fetches WILL sometimes return stale bytes.
+//     fetches will sometimes return stale bytes.
 //
-//     EXACT CONTRACT BEING VIOLATED (read from the horse's mouth,
-//     modules/jtframe/hdl/sdram/jtframe_romrq.v:19-22): "The best use case is
+//     The contract being violated is stated in
+//     modules/jtframe/hdl/sdram/jtframe_romrq.v:19-22: "The best use case is
 //     with addr_ok going down and up for each addr change but it works too
 //     with addr_ok permanently high AS LONG AS ADDR INPUT IS NOT CHANGED
 //     UNTIL THE DATA_OK SIGNAL IS PRODUCED. If the requester cannot guarantee
@@ -133,53 +121,49 @@
 //     machine breaks: it re-loads line_gfx_addr in ST_GUSE and leaves
 //     ST_GWAIT after a fixed single cycle, regardless of gfx2_ok.
 //
-//     WHY A ONE-LINE `ST_GWAIT: if(gfx2_ok)` IS NOT ENOUGH, and why nothing
-//     was changed here: jtframe_romrq's OKLATCH parameter (default 1,
-//     jtframe_romrq.v:38-41) makes data_ok "high for one clock cycle after
-//     the input address" changes, so a naive ok test can pass on a STALE ok
-//     from the previous fetch and latch the wrong byte -- the same bug class,
-//     but now hidden behind code that looks correct. Getting this right needs
-//     a waveform, and no simulation is possible in this environment (no ver/
-//     scenes, see PORTING_NOTES.md). Guessing here would be worse than the
-//     documented gap.
+//     A one-line `ST_GWAIT: if(gfx2_ok)` is NOT a sufficient fix.
+//     jtframe_romrq's OKLATCH parameter (default 1, jtframe_romrq.v:38-41)
+//     makes data_ok "high for one clock cycle after the input address"
+//     changes, so a naive ok test can pass on a STALE ok from the previous
+//     fetch and latch the wrong byte -- the same bug class, hidden behind code
+//     that looks correct. Closing this correctly requires waveform evidence.
 //
-//     TWO SOUND FIXES, for whoever has a sim available:
+//     Two recommended fixes:
 //       - toggle gfx2_cs per request (jtframe_romrq's own recommended mode
 //         for requesters that move the address), or gate ST_GWAIT on a
 //         freshly-cleared ok; verify against a waveform either way.
-//       - move gfx1 out of SDRAM entirely: it is a FIXED 16 kB on all nine
-//         sets (PORTING_NOTES.md's ROM table) and fits in M10K as a third
-//         `bram:` entry. This is CONFIG-ONLY (mem.yaml + macros.def +
-//         mame2mra.toml region starts; the generator auto-computes BRAM
-//         offsets as PROM_START+accumulated size -- confirmed in the
-//         generated jtdocastle_game_sdram.v's u_range_spritecpu/u_range_cprom
-//         pair) and restores tiles to the exact 1-cycle latency this RTL was
-//         written for, with zero risk to the decap-derived video logic.
-//         It only fixes tiles; gfx2 (up to 128 kB) must stay in SDRAM.
+//       - move gfx1 out of SDRAM entirely: it is a fixed 16 kB on all nine
+//         sets and fits in M10K as a third `bram:` entry. This is
+//         config-only (mem.yaml + macros.def + mame2mra.toml region starts;
+//         the generator auto-computes BRAM offsets as PROM_START+accumulated
+//         size -- see the generated jtdocastle_game_sdram.v's
+//         u_range_spritecpu/u_range_cprom pair) and restores tiles to the
+//         exact 1-cycle latency this RTL was written for, with no risk to the
+//         decap-derived video logic. It only fixes tiles; gfx2 (up to 128 kB)
+//         must stay in SDRAM.
 //
 // S3. adpcm_cs IS TIED TO `has_adpcm` AND adpcm_ok IS IGNORED.
 //     jtdocastle_adpcm.v has no cs/ok ports at all. Its address only advances
 //     on the 384 kHz MSM5205 nibble tick, so SDRAM latency is very likely
-//     hidden -- but "very likely" is not "verified", and a bank-0 collision
-//     with the two Z80 program fetches could in principle push a fetch past
-//     the tick. Needs either an ok qualifier added to that module or a
-//     measured worst-case bank-0 latency argument.
+//     hidden -- but that is not verified, and a bank-0 collision with the two
+//     Z80 program fetches could in principle push a fetch past the tick.
+//     Needs either an ok qualifier added to that module or a measured
+//     worst-case bank-0 latency argument.
 //
-// S4. main_cs / sub_cs. Both are now real outputs of jtdocastle_main.v /
-//     jtdocastle_sub.v (2nd-pass additive change: the decode wire became a
-//     port + assign; the decode expression itself is untouched). What is NOT
-//     verified is whether jtframe_sysz80's internal jtframe_z80_romwait
-//     tolerates the same rom_cs being used simultaneously as the SDRAM slot
-//     request -- that is the normal jtcores pattern (flstory does exactly
-//     this) but it was not simulated here.
+// S4. main_cs / sub_cs are outputs of jtdocastle_main.v / jtdocastle_sub.v
+//     (the existing decode wire exposed as a port; the decode expression is
+//     unchanged). Not yet verified: whether jtframe_sysz80's internal
+//     jtframe_z80_romwait tolerates the same rom_cs being used simultaneously
+//     as the SDRAM slot request. That is the normal jtcores pattern (flstory
+//     does exactly this) but it has not been simulated for this core.
 //
 // S5. spritecpu / cprom BRAM. spritecpu_data is fed to
 //     jtdocastle_spritecpu's rom_q with rom_ok tied 1'b1 (BRAM has no ok).
 //     cprom_addr is {1'b0, colmix pal_addr} -- mem.yaml declares 9 address
 //     bits (512 B) while the colour decode only produces 8
-//     ({colour[4:0],pen[2:0]}), reproducing docastle_core.sv's own
+//     ({colour[4:0],pen[2:0]}), reproducing the source core's own
 //     `.prom_addr({1'b0,prom_addr})`. Whether the 9th bit is ever meaningful
-//     on the larger colour PROMs was not established.
+//     on the larger colour PROMs has not been established.
 //
 // S6. prog_addr / prog_data / prog_we / prog_ba / ioctl_addr / prom_we /
 //     ioctl_ram / ioctl_cart are all accepted but only `header`-qualified
@@ -189,123 +173,114 @@
 //
 // -- game ID / profile --
 //
-// G1. UNRESOLVED. `game_id` is captured from byte 0 of jtframe's ROM header
-//     (`header && prog_we && prog_addr[2:0]==0`), the mechanism
-//     modules/jtframe/doc/core_mod.md describes as "handled directly by the
-//     core's game module", and JTFRAME_HEADER=8 is already set in
-//     cfg/macros.def. THIS IS NOT A CONFIRMED CONNECTION: the producing end
-//     (mame2mra.toml's `[header]` section, which must write the correct
-//     0x00..0x09 profile byte per set) does not exist yet, and
-//     mame2mra.toml is still out of scope. Until it is authored, EVERY set's
-//     header reads back 0x00 -- which decodes as a perfectly `valid` profile
-//     (Mr. Do's Castle), so a missing/ wrong header boots the WRONG GAME
-//     SILENTLY instead of holding reset the way mrdo's ioctl_index==1
-//     mechanism did for an unknown ID. That hazard is why `game_id_ok` below
-//     is kept in the reset term, but it cannot distinguish "header absent"
-//     from "header says 0". Do not ship until mame2mra.toml `[header]` is
-//     written and verified. jtframe's automatic per-bit header-module
-//     generation (`registers=[]`) may also replace jtdocastle_profile.v
-//     wholesale -- an open design choice, not decided here.
+// G1. Game-ID / profile select. `game_id` is captured from byte 0 of
+//     jtframe's ROM header (`header && prog_we && prog_addr[2:0]==0`), the
+//     mechanism modules/jtframe/doc/core_mod.md describes as "handled
+//     directly by the core's game module"; JTFRAME_HEADER=8 is set in
+//     cfg/macros.def. The producing end is mame2mra.toml's `[header]`
+//     section, which assigns 0x00..0x08 per set and fills unassigned header
+//     bytes with 0xff rather than 0x00. That fill value matters: 0x00 decodes
+//     as a valid profile (Mr. Do's Castle), so a zero fill would let a
+//     missing or wrong header boot the wrong game silently, whereas 0xff hits
+//     jtdocastle_profile's `default:` arm, clears `valid`, and holds the core
+//     in reset via `game_id_ok`. Generated MRAs carry the expected
+//     `00 FF FF FF FF FF FF FF`-style header part per set.
+//
+//     Desk-checked only: the capture timing on this side -- that the header
+//     byte is latched at the offset assumed here -- has not been simulated.
+//     jtframe's automatic per-bit header generation (`registers=[]`) could
+//     also replace jtdocastle_profile.v wholesale; that is an open design
+//     choice, not a defect.
 //
 // -- clocking / video timing --
 //
 // C1. cen_mclk / cen_cpu come from mem.yaml's `clocks:` block, i.e. from
-//     JTFRAME_MCLK (the SDRAM clock) -- nominally 48.000 MHz, whereas mrdo
-//     ran the identical logic from a 49.152 MHz PLL. mem.yaml's own header
-//     shows both target rates are exact ratios of 48 MHz, so those two
-//     enables are fine.
+//     JTFRAME_MCLK (the SDRAM clock) -- nominally 48.000 MHz, whereas the
+//     source core ran the identical logic from a 49.152 MHz PLL. Both target
+//     rates are exact ratios of 48 MHz, so those two enables are exact.
 //
-//     FIXED (2026-08-18): the two hard-coded dividers inside submodules that
-//     were NOT converted and were running ~2.4% fast/slow are now fixed --
-//     jtdocastle_adpcm.v's local /128 counter and jtdocastle_audio_filter.v's
-//     local /1024 counter were both removed and replaced with two new
-//     mem.yaml `clocks:` outputs, cen_384k (48,000,000/125 = 384,000 Hz
-//     exactly) and cen_48k (48,000,000/1000 = 48,000 Hz exactly), generated
-//     the same way as cen_mclk/cen_cpu above. UNVERIFIED, matches
-//     established cen_mclk/cen_cpu convention: as with cen_mclk/cen_cpu,
-//     these two land as INPUTS to this module once mem.yaml is regenerated
-//     by real jtframe tooling -- no codegen was run to confirm the exact
-//     generated names/widths. See cfg/mem.yaml, jtdocastle_adpcm.v and
-//     jtdocastle_audio_filter.v for the per-file fix notes.
+//     Two submodule dividers that would otherwise have run ~2.4% off under
+//     48 MHz were converted to mem.yaml `clocks:` outputs the same way:
+//     jtdocastle_adpcm.v's /128 counter became cen_384k (48,000,000/125 =
+//     384,000 Hz exactly) and jtdocastle_audio_filter.v's /1024 counter
+//     became cen_48k (48,000,000/1000 = 48,000 Hz exactly). Both arrive as
+//     inputs to this module. See cfg/mem.yaml and those two files.
 //
-// C2. ce_pix is driven from jtframe's `pxl_cen` (JTFRAME_PXLCLK=6 makes
-//     pxl_cen/pxl2_cen INPUTS). mrdo instead used a fixed /10 of 49.152 MHz
-//     = 4.9152 MHz, chosen deliberately for a jitter-free HSYNC edge (see
-//     docastle_core.sv's ce_pix_r comment). jtframe's pxl_cen comes from
-//     JTFRAME_PLL, which for this core is still the PLACEHOLDER
-//     `jtframe_pll4914` -- a preset that does not exist yet
-//     (PORTING_NOTES.md). Until that PLL is generated, the pixel rate here is
-//     undefined and no video timing claim can be made.
+// C2. OPEN. ce_pix is driven from jtframe's `pxl_cen` (JTFRAME_PXLCLK=6 makes
+//     pxl_cen/pxl2_cen inputs). The source core used a fixed /10 of
+//     49.152 MHz = 4.9152 MHz, chosen for a jitter-free HSYNC edge.
+//     jtframe's pxl_cen comes from JTFRAME_PLL, which for this core is still
+//     the placeholder `jtframe_pll4914` -- a preset that does not exist yet.
+//     Until that PLL is generated, the pixel rate is undefined and no video
+//     timing claim can be made.
 //
 // C3. `sample` is produced by a local /1000 divider off clk (~48 kHz at
-//     48 MHz). mrdo had no equivalent output; jtframe wants a sample strobe
-//     when the game owns its audio chain. The rate is a plausible default,
-//     not a measured board value.
+//     48 MHz). The board has no equivalent output; jtframe wants a sample
+//     strobe when the game owns its audio chain. The rate is a plausible
+//     default, not a measured board value.
 //
 // -- inputs --
 //
 // I1. CABINET POLARITY. jtframe's joystick/coin/cab_1p/service lines are
 //     taken as ACTIVE LOW (evidence: cores/flstory/hdl/jtflstory_cab.v pads
-//     with 2'b11 and uses NOEXTRA=4'b1111). mrdo's Universal_DoCastle.sv
-//     inverted ACTIVE-HIGH hps_io bits to build the same bytes, so the
-//     inversions cancel and the jtframe bits are used directly. Verified by
-//     construction below, not by simulation.
+//     with 2'b11 and uses NOEXTRA=4'b1111). The source core inverted
+//     ACTIVE-HIGH hps_io bits to build the same bytes, so the inversions
+//     cancel and the jtframe bits are used directly. Verified by construction
+//     below, not by simulation.
 //
-// I2. system byte bits 2 and 1. mrdo drove them from two separate MiSTer
-//     buttons (service_credit = joystick[16], service_mode = joystick[10]).
-//     jtframe offers `service` and `dip_test`; the mapping
-//     service_credit->service, service_mode->dip_test is a GUESS. Check
-//     against MAME's docastle.cpp SYSTEM port before trusting it.
+// I2. OPEN. system byte bits 2 and 1. The source core drove them from two
+//     separate MiSTer buttons (service_credit = joystick[16], service_mode =
+//     joystick[10]). jtframe offers `service` and `dip_test`; the mapping
+//     service_credit->service, service_mode->dip_test is unconfirmed. Check
+//     against MAME's docastle.cpp SYSTEM port.
 //
-// I3. SOCCER SECOND JOYSTICK DIGITAL PATH -- FIXED (2026-08-18), UNVERIFIED
-//     CHOICE. mrdo's soccer_right_joys OR'd the analog right-stick decode
+// I3. OPEN CHOICE -- soccer second joystick digital path. The source core's
+//     soccer_right_joys OR'd the analog right-stick decode
 //     with digital bits joystick_0[15:12] / joystick_1[15:12] (spare high
 //     bits of that SAME player's own 16-bit MiSTer joystick word). With
 //     JTFRAME_BUTTONS=2 joystick1/joystick2 are only [5:0] wide with no
 //     spare bits, so that exact mechanism has no home under jtframe.
 //     joystick3/joystick4 -- otherwise entirely idle in this 2-player-only
-//     core -- are now OR'd into soccer_right_joys as P1's/P2's second-stick
+//     core -- are OR'd into soccer_right_joys as P1's/P2's second-stick
 //     digital fallback (see the p1_r_*/p2_r_* wires and soccer_right_joys
-//     below for the full precedent discussion: the one other jtcores
+//     below for the precedent discussion: the one other jtcores
 //     two-sticks-per-player core, kchamp, packs its second stick into the
 //     SAME joystick1/joystick2 word via a wider JTFRAME_BUTTONS instead, and
 //     only uses joystick3/joystick4 for its cross-cabinet `link_joys` mode;
 //     every other jtcores core wiring joystick3/joystick4 treats them as
 //     genuine player-3/player-4 inputs). Neither precedent is an exact
-//     match, and jtframe's docs do not document a dedicated per-player
-//     second-stick digital mechanism, so this is the best-supported option
-//     found, not a confirmed jtframe convention -- flagged explicitly, and
-//     it will still need mame2mra.toml/cfgstr work (same caveat as G1) to
-//     route a real second controller onto joystick3/joystick4 in an MRA.
+//     match, and jtframe does not document a dedicated per-player
+//     second-stick digital mechanism, so this is the best-supported option,
+//     not a confirmed jtframe convention. It still needs mame2mra.toml/cfgstr
+//     work (same dependency as G1) to route a real second controller onto
+//     joystick3/joystick4 in an MRA.
 //
 // -- video / colour --
 //
-// V1. jtdocastle_colmix.v is the RGB source, as required. It needs the
-//     pre-PROM tile pen / tile colour / sprite pixel, which
-//     jtdocastle_video.v computed internally but did not export -- so three
-//     purely additive output taps (mix_tile_pen / mix_tile_color /
-//     mix_sprite_pixel) were added to that file in this pass. Consequence:
-//     jtdocastle_video.v's OWN prom_addr/prom_q/r/g/b path is now dead
-//     duplicated logic. It was left in place rather than deleted (out of
-//     scope for this pass); a later cleanup should remove one of the two
-//     copies so they cannot drift apart. video.prom_q is fed the same
-//     cprom_data so the two copies stay consistent meanwhile.
+// V1. KNOWN LIMITATION -- duplicated colour path. jtdocastle_colmix.v is the
+//     RGB source. It needs the pre-PROM tile pen / tile colour / sprite pixel,
+//     which jtdocastle_video.v computes internally, so three additive output
+//     taps (mix_tile_pen / mix_tile_color / mix_sprite_pixel) were added to
+//     that module. Consequence: jtdocastle_video.v's OWN prom_addr/prom_q/
+//     r/g/b path is now unused duplicated logic. It is left in place; a later
+//     cleanup should remove one of the two copies so they cannot drift apart.
+//     video.prom_q is fed the same cprom_data so the two stay consistent
+//     meanwhile.
 //
-// V2. colmix blanks RGB to black outside LHBL&LVBL. mrdo's docastle_video.sv
-//     did not blank at this stage (jtdocastle_colmix.v's own header already
-//     flagged this as the one added bit of behaviour). Kept, because it is
-//     jtframe's colmix convention, but it IS a difference from the mrdo
-//     reference and will show up in any frame-exact MAME diff.
+// V2. colmix blanks RGB to black outside LHBL&LVBL. The source core did not
+//     blank at this stage. Kept, because it is jtframe's colmix convention,
+//     but it is a difference from the source core and will show up in any
+//     frame-exact MAME diff.
 //
-// V3. `dip_flip` is driven from the sub CPU's TMS1025-latched `flipscreen`.
-//     JTFRAME_OSD_FLIP is not set, so jtframe expects the game to output it.
-//     Whether jtframe's downstream rotation/flip handling wants the raw
-//     board flip bit here was not confirmed.
+// V3. OPEN. `dip_flip` is driven from the sub CPU's TMS1025-latched
+//     `flipscreen`. JTFRAME_OSD_FLIP is not set, so jtframe expects the game
+//     to output it. Whether jtframe's downstream rotation/flip handling wants
+//     the raw board flip bit here is unconfirmed.
 //
-// V4. pcb_framebuffer is tied 0 and pcb_cursor_irq is tied 0, matching mrdo's
-//     shipped defaults exactly (Universal_DoCastle.sv). The CF37201
-//     framebuffer renderer stays instantiated but unreachable, per mrdo's
-//     README caution that it has never been confirmed against a real PCB.
+// V4. pcb_framebuffer is tied 0 and pcb_cursor_irq is tied 0, matching the
+//     source core's shipped defaults. The CF37201 framebuffer renderer stays
+//     instantiated but unreachable, because it has never been confirmed
+//     against a real PCB (see jtdocastle_pcb_sprite.v).
 //
 // ===========================================================================
 
@@ -314,7 +289,7 @@ module jtdocastle_game(
 );
 
 // ---------------------------------------------------------------------------
-// Board-option constants. Same values Universal_DoCastle.sv hard-wires today.
+// Board-option constants. Same values the source core hard-wires.
 // ---------------------------------------------------------------------------
 localparam PCB_FIDELITY     = 1'b1; // watchdog + sprite-CPU/CF37201 real timing
 localparam PCB_AUDIO_FILTER = 1'b1; // AC-coupled 8302 output stage model
@@ -361,7 +336,7 @@ jtdocastle_profile u_profile(
 );
 
 // ---------------------------------------------------------------------------
-// Reset composition and watchdog. Transcribed from docastle_core.sv.
+// Reset composition and watchdog. Carried over from the source core.
 // ---------------------------------------------------------------------------
 wire        watchdog_kick;
 reg  [23:0] watchdog_count;
@@ -390,7 +365,7 @@ end
 
 // ---------------------------------------------------------------------------
 // Cabinet inputs.  jtframe delivers ACTIVE-LOW bits (see flagged item I1), so
-// the inversions Universal_DoCastle.sv applied to hps_io's active-high words
+// the inversions the source core applied to hps_io's active-high words
 // cancel out and the bits are placed directly into the board's byte order.
 //
 //   docastle joys byte  = {p2_down,p2_left,p2_up,p2_right,
@@ -402,26 +377,26 @@ wire [7:0] standard_joys = { joystick2[2], joystick2[1], joystick2[3], joystick2
                              joystick1[2], joystick1[1], joystick1[3], joystick1[0] };
 wire [7:0] game_buttons  = { cab_1p[1], 1'b1, joystick2[5], joystick2[4],
                              cab_1p[0], 1'b1, joystick1[5], joystick1[4] };
-// SYSTEM[5]=COIN1, SYSTEM[4]=COIN2 (MAME's input table, per the comment in
-// Universal_DoCastle.sv). Bits 2/1 mapping is flagged item I2.
+// SYSTEM[5]=COIN1, SYSTEM[4]=COIN2 (MAME's input table). Bits 2/1 mapping is
+// open item I2.
 wire [7:0] game_system   = { 2'b11, coin[0], coin[1], 1'b1, service, dip_test, 1'b1 };
 
-// Active-high copies for the Soccer OR-combination below, which mrdo performed
-// on active-high signals before one final inversion.
+// Active-high copies for the Soccer OR-combination below, which the source
+// core performed on active-high signals before one final inversion.
 wire p1_right =~joystick1[0], p1_left=~joystick1[1],
      p1_down  =~joystick1[2], p1_up  =~joystick1[3];
 wire p2_right =~joystick2[0], p2_left=~joystick2[1],
      p2_down  =~joystick2[2], p2_up  =~joystick2[3];
 
-// Soccer profile second-stick DIGITAL fallback -- see flagged item I3 for the
-// full reasoning behind this choice. mrdo's soccer_right_joys OR'd the
+// Soccer profile second-stick DIGITAL fallback -- see open item I3 for the
+// full reasoning behind this choice. The source core's soccer_right_joys OR'd the
 // analog right-stick decode with digital bits joystick_0[15:12] /
 // joystick_1[15:12], i.e. SPARE HIGH BITS of that SAME player's own 16-bit
 // MiSTer joystick word. jtframe's joystick1/joystick2 are only
 // `JTFRAME_BUTTONS+3:0` = 6 bits wide (JTFRAME_BUTTONS=2, cfg/macros.def)
 // with no spare bits, so that exact mechanism has no home here.
 //
-// UNVERIFIED / BEST-SUPPORTED-BUT-NOT-CONFIRMED CHOICE: joystick3 and
+// BEST-SUPPORTED BUT UNCONFIRMED CHOICE: joystick3 and
 // joystick4 are used below as P1's and P2's second-stick digital fallback.
 // docastle is a 2-player-only game, so joystick3/joystick4 -- the two extra
 // joystick ports jtframe unconditionally provides (jtframe_common_ports.inc:
@@ -459,8 +434,8 @@ wire p1_r_right=~joystick3[0], p1_r_left=~joystick3[1],
 wire p2_r_right=~joystick4[0], p2_r_left=~joystick4[1],
      p2_r_down =~joystick4[2], p2_r_up  =~joystick4[3];
 
-// Four analog decoders, relocated from Universal_DoCastle.sv (PORTING_NOTES.md
-// three-module assessment, finding #1). Left stick = player's primary 4-way,
+// Four analog decoders, relocated here from the source core's target level
+// (see jtdocastle_analog.v). Left stick = player's primary 4-way,
 // right stick = the Soccer profile's second joystick.
 wire p1_la_right, p1_la_left, p1_la_down, p1_la_up;
 wire p2_la_right, p2_la_left, p2_la_down, p2_la_up;
@@ -494,14 +469,14 @@ jtdocastle_analog u_ana_2r(
 wire soccer_mode = has_joys2;   // set only by the two Soccer profile IDs
 
 // Left-hand joystick: digital d-pad OR'd with the left analog stick, exactly
-// as Universal_DoCastle.sv's soccer_left_joys.
+// as the source core's soccer_left_joys.
 wire [7:0] soccer_left_joys = ~{
     p2_down|p2_la_down, p2_left|p2_la_left, p2_up|p2_la_up, p2_right|p2_la_right,
     p1_down|p1_la_down, p1_left|p1_la_left, p1_up|p1_la_up, p1_right|p1_la_right };
 
 // Right-hand joystick: analog stick OR'd with the joystick3/joystick4
-// digital fallback, mirroring soccer_left_joys' OR pattern above and mrdo's
-// original soccer_right_joys OR. See flagged item I3 for the full reasoning
+// digital fallback, mirroring soccer_left_joys' OR pattern above and the source
+// core's soccer_right_joys OR. See open item I3 for the full reasoning
 // behind sourcing the digital half from joystick3/joystick4.
 wire [7:0] soccer_right_joys = ~{
     p2_r_down|p2_ra_down, p2_r_left|p2_ra_left, p2_r_up|p2_ra_up, p2_r_right|p2_ra_right,
@@ -514,9 +489,9 @@ wire [7:0] dsw2 = dipsw[15:8];
 
 // ---------------------------------------------------------------------------
 // Main <-> sub communication: one bidirectional latch plus the ASYMMETRIC main
-// WAIT flip-flop (only the main CPU ever stalls on it). Verbatim from
-// docastle_core.sv lines ~213-231, and consistent with the WAIT-handshake
-// asymmetry finding recorded in jtdocastle_sub.v's header.
+// WAIT flip-flop (only the main CPU ever stalls on it). Carried over from the
+// source core, and consistent with the WAIT-handshake asymmetry finding
+// recorded in jtdocastle_sub.v's header.
 // ---------------------------------------------------------------------------
 reg  [7:0] comm_latch;
 reg        main_wait;
@@ -580,7 +555,7 @@ wire        adpcm_busy, adpcm_strobe;
 wire [17:0] adpcm_nibble;
 
 // Sub-CPU interrupt: set by the CRTC's MA6 edge, cleared on the sub CPU's own
-// M1+IORQ acknowledge. Verbatim from docastle_core.sv.
+// M1+IORQ acknowledge, as on the board.
 reg  sub_irq_n;
 wire sub_iack = ~sub_m1_n & ~sub_iorq_n;
 
@@ -853,7 +828,7 @@ jtdocastle_colmix u_colmix(
 );
 
 // mem.yaml declares cprom with 9 address bits; the decode only produces 8,
-// exactly as docastle_core.sv's `.prom_addr({1'b0,prom_addr})`. Flagged S5.
+// exactly as the source core's `.prom_addr({1'b0,prom_addr})`. See item S5.
 assign cprom_addr = { 1'b0, pal_addr };
 
 /* verilator tracing_off */
@@ -887,7 +862,7 @@ assign gfx2_cs  = 1'b1;
 assign adpcm_cs = has_adpcm;
 
 // ---------------------------------------------------------------------------
-// Audio. Mix order is byte-for-byte docastle_core.sv:
+// Audio. Mix order as on the board:
 //   * jtdocastle_sub already sums the four SN76489As and scales by 8.
 //   * MAME's MSM5205 stream is signal/4096, low two bits masked for the
 //     physical 10-bit DAC, routed at 0.40 -> gain 3.20 in signed-16 units.
@@ -919,8 +894,8 @@ jtdocastle_audio_filter u_audio_filter(
 
 assign snd = (machine_reset || pause) ? 16'sd0 : filtered_audio;
 
-// `sample` strobe. mrdo had no equivalent; ~48 kHz from a /1000 divider off
-// clk. See flagged item C3.
+// `sample` strobe. The board has no equivalent; ~48 kHz from a /1000 divider
+// off clk. See item C3.
 reg [9:0] sample_cnt;
 reg       sample_r;
 

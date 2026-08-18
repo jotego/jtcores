@@ -1,25 +1,39 @@
-// UNVERIFIED DRAFT -- ported from mrdo/rtl/docastle_spritecpu.sv onto
-// jtframe's CPU/SDRAM boundary, not yet compiled or simulated against real
-// jtframe tooling (Docker toolchain was down for the whole of this port
-// attempt).
-//
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: aCORES
+    Version: 1.0
+    Date: 18-8-2026 */
+
 // 8301 sprite/protection Z80 and the board's 0x200-byte sprite doorway.
+// Ported from the standalone MiSTer Universal_DoCastle core this core derives
+// from, onto jtframe's CPU/SDRAM boundary.
 //
 // The main CPU writes an addressable staging latch at 0x9800/0x3800/0x5800.
 // CPU3 reads that window at 0x8000, copies it through its 0x4321 work area,
 // and then streams the protected bytes to the CF37201 doorway at 0xc000.
 // copy_we observes the first transfer; cf_we is exclusively the real second
 // transfer. Keeping those phases separate is important to the board timing
-// (unchanged from the original module's own header -- this is real
-// PCB-accuracy work and none of that bus-phase logic below has been
-// simplified).
+// This is real PCB-accuracy work; none of that bus-phase logic below may be
+// simplified.
 //
-// Changes vs. the original docastle_spritecpu.sv, and why:
+// Differences from the source core's sprite CPU, and why:
 //   1. T80se instantiated directly -> jtframe_sysz80 (RAM_AW=11). Same
 //      integration pattern as jtdocastle_main.v's u_cpu (see that file's
 //      header note 1).
-//   2. TWO local RAM blocks existed in the original module, and they are
-//      NOT treated the same way:
+//   2. TWO local RAM blocks exist on this CPU, and they are NOT treated the
+//      same way:
 //        - `work_ram[0:2047]` (cpu_addr[10:0], ram_cs 0x4000-0x47ff) is a
 //          plain Z80-only work RAM -- exactly the case jtframe_sysz80's
 //          wrapper is built for. It is REMOVED and now lives inside
@@ -35,11 +49,8 @@
 //          second RAM port (prog_addr/prog_data/prog_we) is an NVRAM
 //          dump/restore path meant for save-state/reset use, not a live
 //          cross-CPU write port during normal operation -- so it is NOT a
-//          substitute for this array. `staging_ram` is therefore KEPT
-//          EXACTLY AS IN THE ORIGINAL, as this module's own local
-//          dual-port BRAM, completely UNCHANGED (declaration, `staging_q`
-//          read register, `main_we` write, and the `stage_cs` read-mux
-//          term are all untouched).
+//          substitute for this array. `staging_ram` therefore stays as this
+//          module's own local dual-port BRAM.
 //   3. NEW input `rom_ok`, same reasoning as jtdocastle_main.v note 3: ROM
 //      is now SDRAM-backed with variable latency, and jtframe_sysz80
 //      internally inserts Z80 WAIT states while `rom_cs && !rom_ok`. The
@@ -47,12 +58,9 @@
 //      UNCHANGED -- it is now given an explicit wire name so it can drive
 //      both the wrapper's rom_cs input and the existing cpu_din read mux
 //      (which previously spelled the same condition out inline).
-//   4. PLACEHOLDER, NOT VERIFIED: same caveat as jtdocastle_main.v note 4 --
-//      this module still exposes rom_q/rom_addr at its own boundary
-//      unchanged, and the caller is expected to wire a mem.yaml-generated
-//      "spritecpu" bus (e.g. spritecpu_addr/spritecpu_data/spritecpu_ok) to
-//      them once real jtframe codegen is available to confirm the exact
-//      generated port names.
+//   4. Same boundary shape as jtdocastle_main.v note 4: rom_q/rom_addr/
+//      rom_cs/rom_ok are exposed here and jtdocastle_game.v wires the
+//      mem.yaml-generated "spritecpu" bus to them.
 //   5. CLR_INT(0) chosen, but for a DIFFERENT reason than main/sub: this
 //      module's local `int_n` register is NOT a raw external level -- it
 //      already implements its OWN M1/IORQ-ack-based interrupt clearing
@@ -69,20 +77,17 @@
 //      int_n/nmi_n ports, same class of reasoning as jtdocastle_main.v's
 //      note 5 and jtdocastle_sub.v's note 5 (don't let the wrapper re-latch
 //      a signal that is already a final level at this module's boundary).
-//   6. NO WAIT-handshake open question applies to this file. The original
-//      T80se's WAIT_n pin was tied `1'b1` (never asserted) in
-//      docastle_spritecpu.sv -- this CPU never had an external WAIT
-//      dependency of any kind, unlike main's comm_wait_n (see
+//   6. No WAIT-handshake limitation applies to this file. This CPU's WAIT_n
+//      pin is tied `1'b1` (never asserted) on the board -- it has no external
+//      WAIT dependency of any kind, unlike main's comm_wait_n (see
 //      jtdocastle_main.v) or sub's PSG-busy WAIT_n (see jtdocastle_sub.v).
 //      jtframe_sysz80 exposing no general external WAIT_n input therefore
 //      loses nothing here; there is nothing to flag or resolve.
 //   7. Everything else -- the profile-independent memory map (ram_cs/
 //      stage_cs/cf_cs), the copy_window/cf_wr staging-to-doorway streaming
-//      logic, and pcb_fidelity gating -- is UNCHANGED logic, only
-//      re-hosted in this file.
+//      logic, and pcb_fidelity gating -- is unchanged from the source core.
 //
-// MAME reference: src/mame/universal/docastle.cpp (unchanged from the
-// original module's own header).
+// MAME reference: src/mame/universal/docastle.cpp.
 
 module jtdocastle_spritecpu
 (

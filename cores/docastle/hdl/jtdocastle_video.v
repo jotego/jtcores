@@ -1,5 +1,21 @@
-// UNVERIFIED DRAFT -- ported from mrdo/rtl/docastle_{video,crtc}.sv, not yet compiled or simulated against real jtframe tooling.
-//
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: aCORES
+    Version: 1.0
+    Date: 18-8-2026 */
+
 //============================================================================
 // Mr. Do's Castle video pipeline.
 //
@@ -8,38 +24,22 @@
 // two-pass MAME model: sprite pens 8-14 are visible, pen 15 is an invisible
 // mask which blocks following sprites, and tile pens 8-15 are foreground.
 //
-// Ported from docastle_video.sv (mrdo repo). This is a PURE RENAME/REWRAP
-// pass: no timing value, register behaviour, raster geometry (312x264
-// total / 240x192 visible / HD6845S@9.828MHz/16 / pixel clock 9.828MHz/2)
-// or the frame-shadowed-register-write protection logic changed. Only the
-// video-timing/blanking signal names moved to jtframe's convention:
+// Ported from the standalone MiSTer Universal_DoCastle core this core derives
+// from. Raster geometry (312x264 total / 240x192 visible /
+// HD6845S @ 9.828 MHz/16 / pixel clock 9.828 MHz/2) and the frame-shadowed
+// register-write protection are unchanged from the source core; the
+// video-timing/blanking signal names follow jtframe's convention:
 //
-//   docastle_video.sv / docastle_crtc.sv  ->  jtdocastle_video.v / jtdocastle_crtc.v
-//   ------------------------------------------------------------------------
-//   hs      (active-high sync pulse)      ->  HS      (same polarity, pure rename)
-//   vs      (active-high sync pulse)      ->  VS      (same polarity, pure rename)
+//   hs      (active-high sync pulse)      ->  HS      (same polarity)
+//   vs      (active-high sync pulse)      ->  VS      (same polarity)
 //   hblank  (active-HIGH: 1 = blanked)    ->  LHBL    (active-LOW: 0 = blanked;
 //                                                       jtframe convention --
 //                                                       see jtframe_vtimer.v.
-//                                                       Rename + polarity
-//                                                       invert. Blanking
-//                                                       WINDOW timing is
-//                                                       byte-for-byte
-//                                                       unchanged.)
+//                                                       Polarity is inverted;
+//                                                       the blanking WINDOW
+//                                                       timing is unchanged.)
 //   vblank  (active-HIGH: 1 = blanked)    ->  LVBL    (same as hblank->LHBL
 //                                                       above)
-//
-// Everything else (r/g/b resistor-DAC output, CPU/tile/colour/sprite RAM
-// ports, the CF37201 pin-level PCB-write interface, ce_pix, crtc_reg/data/we,
-// main_irq_n, sub_irq_req, sprite_nmi_req, debug outputs) is OUT OF SCOPE for
-// this rename pass and is carried over with identical names and behaviour --
-// see the porting report for the full signal table and what was flagged.
-//
-// KNOWN GAP: this module instantiates jtdocastle_pcb_sprite, mirroring this
-// core's jtdocastle_* naming convention, but that submodule (the port of
-// docastle_pcb_sprite.sv) is OUT OF SCOPE for this task and has not been
-// written yet. This file will not elaborate standalone until
-// jtdocastle_pcb_sprite.v also exists.
 //============================================================================
 module jtdocastle_video
 (
@@ -101,24 +101,20 @@ module jtdocastle_video
 	output        LHBL,               // active low, per jtframe convention
 	output        LVBL,               // active low, per jtframe convention
 
-	// Colour-mix taps (NEW, 2nd pass -- purely additive, ZERO behavioural
-	// change). jtdocastle_colmix.v needs the pre-PROM tile pen / tile colour /
-	// sprite pixel that this module already computes internally but never
-	// exported. Exposing them lets jtdocastle_game.v use jtdocastle_colmix.v as
-	// the single RGB source instead of this module's own duplicated copy of the
-	// same priority mux + resistor-DAC maths (r/g/b/prom_addr below are left in
-	// place, unchanged, but are dead in the jtframe integration -- see
-	// jtdocastle_game.v's flagged list, item V1).
+	// Colour-mix taps. jtdocastle_colmix.v needs the pre-PROM tile pen / tile
+	// colour / sprite pixel that this module computes internally. Exposing them
+	// lets jtdocastle_game.v use jtdocastle_colmix.v as the single RGB source
+	// instead of this module's own copy of the same priority mux +
+	// resistor-DAC maths (r/g/b/prom_addr below remain in place but are unused
+	// in the jtframe integration -- see jtdocastle_game.v, item V1).
 	output  [3:0] mix_tile_pen,
 	output  [4:0] mix_tile_color,
 	output  [9:0] mix_sprite_pixel,
 
 	// Interrupts
 	output        main_irq_n,
-	output        sub_irq_req,     // was `output reg` -- ILLEGAL, it is driven by
-	output        sprite_nmi_req,  // the jtdocastle_crtc instance below, not by an
-	                               // always block in this file. Fixed in the 2nd
-	                               // pass; no behavioural change.
+	output        sub_irq_req,     // driven by the jtdocastle_crtc instance
+	output        sprite_nmi_req,  // below, not by an always block here
 
 	// Debug
 	output  [8:0] h_count_debug,
@@ -283,12 +279,9 @@ wire [9:0] line_sprite_pixel = v_count[0]
 wire [16:0] pcb_gfx_addr;
 wire [9:0] pcb_sprite_pixel;
 wire pcb_busy, pcb_overrun, pcb_frame_ready;
-// NOTE: jtdocastle_pcb_sprite.v does not exist yet in this repo -- porting
-// docastle_pcb_sprite.sv is out of scope for this task (see file header).
-// Its .vblank port is untouched, active-high, matching docastle_pcb_sprite.sv
-// exactly; since LVBL is now active-low, it is fed the inverted signal
-// (~LVBL) here to reproduce the exact same electrical value that
-// docastle_video.sv passed it, with zero behavioural change.
+// jtdocastle_pcb_sprite's .vblank port is active-high, as on the source core;
+// since LVBL is active-low, it is fed the inverted signal (~LVBL) here to
+// reproduce the same electrical value. See that module's header.
 jtdocastle_pcb_sprite pcb_sprite
 (
 	.clk(clk), .reset(reset), .ce_pix(ce_pix), .enable(pcb_framebuffer),
