@@ -1,0 +1,43 @@
+# Draft only -- not run through `jtframe files` yet. See PORTING_NOTES.md.
+
+docastle:
+  - get:
+    - "*.v"
+    # jt89 (SN76489A PSG) has no modules/jt89 entry anywhere in this
+    # jtcores clone (confirmed by search) -- per the task's explicit
+    # instruction this stays core-local for now, e.g. a future
+    # hdl/jtdocastle_jt89.v, and is picked up automatically by the
+    # wildcard above rather than getting its own "jt89:" top-level block.
+    # Packaging jt89 as a real jtcores submodule is future work, not part
+    # of this draft.
+jtframe:
+  - get:
+      - jtframe_edge.v
+  - from: clocking
+    get:
+      - jtframe_cendiv.v
+      # mrdo's THIRD_PARTY.md already documents a pinned dependency on
+      # jtframe_rst_sync.v (reset-release synchronization) -- carried
+      # forward here since it is a confirmed, already-in-use primitive,
+      # not a guess.
+      - jtframe_rst_sync.v
+  - from: cpu
+    get:
+      # Pulls in the jtframe_z80 wrapper; the game module instantiates it
+      # three times (main, sub/sound, sprite/protection CPU).
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      # CANDIDATE, unconfirmed -- see PORTING_NOTES.md. docastle_main.sv's
+      # main_wait/comm_latch handshake (main CPU stalls on comm_cs access
+      # until the sub CPU services it) looks structurally similar to the
+      # problem jtframe_wait_on_shared.v solves, and flstory already uses
+      # it for an analogous 2-CPU shared-RAM handshake. Whether it is an
+      # actual drop-in fit for docastle's specific latch-plus-WAIT scheme
+      # is not verified -- this may end up being bespoke logic instead.
+      - jtframe_wait_on_shared.v
+# jt5205 (MSM5205 ADPCM, Soccer profile only) IS a real jtcores submodule
+# (modules/jt5205 exists, confirmed by search) -- referenced the same way
+# castle/cfg/files.yaml references jt007232/jt051649/jtopl2: an empty block,
+# the module's own files.yaml supplies its file list.
+jt5205:

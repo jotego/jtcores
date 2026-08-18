@@ -1,0 +1,326 @@
+# UNVERIFIED DRAFT -- never run through `jtframe mra`, `jtframe files`,
+# `jtframe mem`, Docker, or any jtcore CLI step. The toolchain was not
+# confirmed working before this task started and none of it was invoked here,
+# per the task instructions. Desk-checked only, against:
+#   - modules/jtframe/doc/jtframe-mra.md (the TOML spec)
+#   - cores/flstory/cfg/mame2mra.toml and cores/castle/cfg/mame2mra.toml
+#     (closest structural precedents actually present in this jtcores clone)
+#   - D:\Arcade\AI\aCORES\mrdo\scripts\generate_mras.ps1 and romsets.json
+#     (ground truth for DIP tables, ROM layout, per-set CRCs)
+#   - D:\Arcade\AI\aCORES\mrdo\rtl\docastle_profile.sv and
+#     hdl/jtdocastle_profile.v (ground truth for the [header] game_id table)
+# Everything below needs re-validation once the real toolchain can run. See
+# the "mame2mra.toml authoring pass" section appended to PORTING_NOTES.md for
+# the full rationale behind every non-obvious choice here, in particular the
+# [header] byte table and the [dipsw] extra-vs-rename tradeoff.
+#
+# CRITICAL, NOT YET RESOLVABLE: doc/mame.xml in this jtcores clone has ZERO
+# entries for docastle.cpp (confirmed: `grep -c docastle doc/mame.xml` -> 0).
+# `jtframe mra` derives its actual machine/clone/DIP list from that file at
+# parse time; nothing here can be cross-checked against real MAME driver
+# metadata until doc/mame.xml is regenerated for this sourcefile (normally via
+# `jtframe mra --reduce <path-to-real-mame.xml>`). Every [dipsw]/[parse]
+# decision below is built entirely from scripts/generate_mras.ps1 and
+# scripts/romsets.json (mrdo's own hand-authored ground truth), NOT from MAME
+# source text, and is flagged accordingly inline.
+
+[global]
+author=["aCORES"]
+
+[parse]
+# romsets.json's "mameDriver" field records the full path
+# "src/mame/universal/docastle.cpp"; jtframe's own examples (flstory, castle)
+# use the bare filename with no directory prefix, so that convention is
+# followed here.
+sourcefile=[ "docastle.cpp" ]
+
+# NOT populated, deliberately: whether any of docastle/douni/dorunrun/dowild/
+# jjack/kickridr/spiero/idsoccer/asoccer are MAME-clone-tagged (cloneof) of
+# one another cannot be confirmed without real MAME source or a populated
+# mame.xml (see CRITICAL note above) -- neither is available in this session.
+# scripts/romsets.json's own "parent" field (docastle->docastle, douni-
+# >docastle, spiero->dorunrun, asoccer->idsoccer, etc.) is a *display/folder*
+# grouping used only by generate_mras.ps1's <parent> MRA tag, NOT a confirmed
+# MAME ROM-clone relationship -- it must not be copied into [parse].parents
+# as if it were one. Per the task's own instruction, no parent/clone guess is
+# made here; all 9 are left as independent entries. jtframe will derive real
+# clone grouping automatically from mame.xml once that file has docastle.cpp
+# data (parents=[] only matters when a parent set lives OUTSIDE the selected
+# sourcefile, which cannot apply here since any real clone of any of these 9
+# would necessarily also live in docastle.cpp).
+#
+# ALSO NOT RESOLVED: the real MAME docastle.cpp driver almost certainly
+# defines additional sets beyond these curated 9 (known clone/bootleg
+# variants of docastle and dorunrun exist in MAME history). Once mame.xml is
+# regenerated for this sourcefile, `jtframe mra` will emit an MRA for EVERY
+# matching machine unless explicitly excluded -- this draft cannot populate
+# skip.Setnames correctly without seeing that real set list. Flagged as a
+# required follow-up, not guessed here.
+skip.Bootlegs=true
+
+[dipsw]
+# ---------------------------------------------------------------------------
+# DESIGN CHOICE: `extra=[]` (full hand-authored table) instead of `rename=`/
+# `offset=` (adjustments layered on MAME-parsed dips), because doc/mame.xml
+# currently has NO docastle.cpp entries at all (see CRITICAL note at top) --
+# there is nothing yet for rename/offset to adjust. Every line below is a
+# literal transcription of scripts/generate_mras.ps1's Get-DipLines /
+# Get-CommonCoinDips / Get-SoccerCoinDips functions (bits/ids -> bits/
+# options), which is itself already in the exact MRA <dip bits="" ids=""/>
+# convention, so no plausibility judgement was needed on the bit positions
+# or option orderings, just a mechanical field-name translation
+# (name/options/bits, per [dipsw].extra's documented shape).
+#
+# REQUIRED FOLLOW-UP once doc/mame.xml is regenerated with real docastle.cpp
+# data: `jtframe mra` will then ALSO auto-derive dip switches from MAME's own
+# PORT_DIPNAME/PORT_DIPSETTING definitions for these machines. If those
+# bit positions match what generate_mras.ps1 already encodes (very likely,
+# since bit positions are fixed by real hardware and generate_mras.ps1 was
+# almost certainly itself transcribed from the MAME source), these `extra`
+# entries will DUPLICATE the auto-derived table in the generated MRA. At that
+# point this section should be converted to `rename=`/`defaults=` (adjusting
+# the auto-derived table) and these `extra` entries removed. Do not leave
+# both in place simultaneously.
+# ---------------------------------------------------------------------------
+extra=[
+	# --- Difficulty: identical bits="0,1" wording/options on all 9 sets ---
+	{ machine="docastle", name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
+	{ machine="douni",    name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
+	{ machine="dorunrun", name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
+	{ machine="dowild",   name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
+	{ machine="jjack",    name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
+	{ machine="kickridr", name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
+	{ machine="spiero",   name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
+	{ machine="idsoccer", name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
+	{ machine="asoccer",  name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
+
+	# --- docastle / douni (Get-DipLines "docastle"/"douni" branches: identical) ---
+	{ machine="docastle", name="Rack Test", options="On,Off", bits="2" },
+	{ machine="docastle", name="Bonus Credit for Diamond", options="No,Yes", bits="3" },
+	{ machine="docastle", name="Difficulty of EXTRA", options="Difficult,Easy", bits="4" },
+	{ machine="docastle", name="Cabinet", options="Upright,Cocktail", bits="5" },
+	{ machine="docastle", name="Lives", options="2,5,4,3", bits="6,7" },
+	{ machine="docastle", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
+	{ machine="docastle", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
+
+	{ machine="douni", name="Rack Test", options="On,Off", bits="2" },
+	{ machine="douni", name="Bonus Credit for Diamond", options="No,Yes", bits="3" },
+	{ machine="douni", name="Difficulty of EXTRA", options="Difficult,Easy", bits="4" },
+	{ machine="douni", name="Cabinet", options="Upright,Cocktail", bits="5" },
+	{ machine="douni", name="Lives", options="2,5,4,3", bits="6,7" },
+	{ machine="douni", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
+	{ machine="douni", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
+
+	# --- dorunrun / spiero (Get-DipLines "dorunrun"/"spiero" branches: identical) ---
+	{ machine="dorunrun", name="Demo Sounds", options="Off,On", bits="2" },
+	{ machine="dorunrun", name="Flip Screen", options="On,Off", bits="3" },
+	{ machine="dorunrun", name="Difficulty of EXTRA", options="Difficult,Easy", bits="4" },
+	{ machine="dorunrun", name="Cabinet", options="Upright,Cocktail", bits="5" },
+	{ machine="dorunrun", name="Special", options="Not Given,Given", bits="6" },
+	{ machine="dorunrun", name="Lives", options="5,3", bits="7" },
+	{ machine="dorunrun", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
+	{ machine="dorunrun", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
+
+	{ machine="spiero", name="Demo Sounds", options="Off,On", bits="2" },
+	{ machine="spiero", name="Flip Screen", options="On,Off", bits="3" },
+	{ machine="spiero", name="Difficulty of EXTRA", options="Difficult,Easy", bits="4" },
+	{ machine="spiero", name="Cabinet", options="Upright,Cocktail", bits="5" },
+	{ machine="spiero", name="Special", options="Not Given,Given", bits="6" },
+	{ machine="spiero", name="Lives", options="5,3", bits="7" },
+	{ machine="spiero", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
+	{ machine="spiero", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
+
+	# --- dowild (Get-DipLines "dowild" branch) ---
+	{ machine="dowild", name="Rack Test", options="On,Off", bits="2" },
+	{ machine="dowild", name="Flip Screen", options="On,Off", bits="3" },
+	{ machine="dowild", name="Difficulty of EXTRA", options="Difficult,Easy", bits="4" },
+	{ machine="dowild", name="Cabinet", options="Upright,Cocktail", bits="5" },
+	{ machine="dowild", name="Special", options="Not Given,Given", bits="6" },
+	{ machine="dowild", name="Lives", options="5,3", bits="7" },
+	{ machine="dowild", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
+	{ machine="dowild", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
+
+	# --- jjack (Get-DipLines "jjack" branch) ---
+	{ machine="jjack", name="Rack Test", options="On,Off", bits="2" },
+	{ machine="jjack", name="Flip Screen", options="On,Off", bits="3" },
+	{ machine="jjack", name="Extra", options="Hard,Easy", bits="4" },
+	{ machine="jjack", name="Cabinet", options="Upright,Cocktail", bits="5" },
+	{ machine="jjack", name="Lives", options="2,5,4,3", bits="6,7" },
+	{ machine="jjack", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
+	{ machine="jjack", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
+
+	# --- kickridr (Get-DipLines "kickridr" branch) ---
+	{ machine="kickridr", name="Rack Test", options="On,Off", bits="2" },
+	{ machine="kickridr", name="Flip Screen", options="On,Off", bits="3" },
+	{ machine="kickridr", name="Unknown SWA:4", options="On,Off", bits="4" },
+	{ machine="kickridr", name="Cabinet", options="Upright,Cocktail", bits="5" },
+	{ machine="kickridr", name="Unknown SWA:2", options="On,Off", bits="6" },
+	{ machine="kickridr", name="Unknown SWA:1", options="On,Off", bits="7" },
+	{ machine="kickridr", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
+	{ machine="kickridr", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
+
+	# --- idsoccer (Get-DipLines "idsoccer" branch, Get-SoccerCoinDips) ---
+	{ machine="idsoccer", name="Continuity", options="No,Yes", bits="2" },
+	{ machine="idsoccer", name="Flip Screen", options="On,Off", bits="3" },
+	{ machine="idsoccer", name="Allow Continue (2P)", options="No,Yes", bits="4" },
+	{ machine="idsoccer", name="Allow Continue (1P)", options="No,Yes", bits="5" },
+	{ machine="idsoccer", name="Real Game Time", options="1:00,2:00,2:30,3:00", bits="6,7" },
+	{ machine="idsoccer", name="Coin B", options="Free,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/6,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
+	{ machine="idsoccer", name="Coin A", options="Free,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/6,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
+
+	# --- asoccer (Get-DipLines "asoccer" branch, Get-SoccerCoinDips) ---
+	{ machine="asoccer", name="Joysticks", options="Single,Dual", bits="2" },
+	{ machine="asoccer", name="Flip Screen", options="On,Off", bits="3" },
+	{ machine="asoccer", name="Unknown SWA:4", options="On,Off", bits="4" },
+	{ machine="asoccer", name="Demo Sounds", options="Off,On", bits="5" },
+	{ machine="asoccer", name="Real Game Time", options="1:00,2:00,2:30,3:00", bits="6,7" },
+	{ machine="asoccer", name="Coin B", options="Free,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/6,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
+	{ machine="asoccer", name="Coin A", options="Free,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/6,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
+]
+
+# dsw1,dsw2 default byte values, taken verbatim from each set's romsets.json
+# entry ("dsw1"/"dsw2" fields). byte order is LSB(dsw1) to MSB(dsw2), matching
+# the bit numbering above (dsw1 = bits 0-7, dsw2 = bits 8-15).
+defaults=[
+	{ machine="docastle", value="df,ff" },
+	{ machine="douni",    value="df,ff" },
+	{ machine="dorunrun", value="df,ff" },
+	{ machine="dowild",   value="df,ff" },
+	{ machine="jjack",    value="df,ff" },
+	{ machine="kickridr", value="df,ff" },
+	{ machine="spiero",   value="df,ff" },
+	{ machine="idsoccer", value="ff,ff" },
+	{ machine="asoccer",  value="ff,ff" },
+]
+
+[header]
+# ---------------------------------------------------------------------------
+# THE FIX for the game-ID/profile hazard flagged in PORTING_NOTES.md item G1
+# and in hdl/jtdocastle_profile.v's own header ("a missing/wrong header reads
+# back 0x00 -- which decodes as a perfectly valid profile (Mr. Do's Castle),
+# so a missing/wrong header boots the WRONG GAME silently").
+#
+# JTFRAME_HEADER=8 (cfg/macros.def) prepends an 8-byte header to the main ROM
+# file at MRA-build time. jtdocastle_game.v (hdl/jtdocastle_game.v:286-301)
+# already captures byte 0 of that header into its `game_id`/`game_id_ok` pair
+# via `header && prog_we && prog_addr[2:0]==3'd0`, and feeds `game_id` into
+# jtdocastle_profile (ported unchanged from rtl/docastle_profile.sv) exactly
+# as documented in that module's own header comment. This section is the
+# PRODUCING end of that wiring -- until now, nothing wrote real values into
+# it, so every set would have read back whatever `fill` defaults to (0x00 if
+# unset, which is the exact silent-Mr.-Do's-Castle hazard described above).
+#
+# byte 0: game ID, 0x00-0x08, one value per set. MUST exactly match
+#         hdl/jtdocastle_profile.v's case statement (ported unchanged from
+#         rtl/docastle_profile.sv, which is itself fed by docastle_core.sv's
+#         synthetic ioctl_index==1 download -- see that file's game_id logic,
+#         lines ~67-75). The mapping below is a direct byte-for-byte
+#         cross-check against that case statement, not a new assignment:
+#           0x00 Mr. Do's Castle (docastle)     -- native_vertical
+#           0x01 Mr. Do! vs. Unicorns (douni)   -- native_vertical
+#           0x02 Do! Run Run (dorunrun)         -- PROFILE_RUNRUN, low_pen_priority
+#           0x03 Mr. Do's Wild Ride (dowild)    -- PROFILE_RUNRUN, low_pen_priority
+#           0x04 Jumping Jack (jjack)           -- PROFILE_RUNRUN, low_pen_priority, native_vertical
+#           0x05 Kick Rider (kickridr)          -- PROFILE_RUNRUN, low_pen_priority
+#           0x06 Super Pierrot (spiero)         -- PROFILE_RUNRUN, low_pen_priority
+#           0x07 Indoor Soccer (idsoccer)       -- PROFILE_SOCCER, low_pen_priority, soccer_sprites, has_adpcm, has_joys2
+#           0x08 American Soccer (asoccer)      -- PROFILE_SOCCER, low_pen_priority, soccer_sprites, has_adpcm, has_joys2
+#         (0x09 exists in both profile decoders as a spare "Do! Run Run set 2"
+#         RunRun-profile slot but is not used by any of these 9 curated sets,
+#         and is intentionally not assigned here.)
+# bytes 1-7: unused/reserved, left at `fill` value.
+info="""
+	byte 0: game ID / profile select, see hdl/jtdocastle_profile.v's case
+	        statement (0x00 docastle, 0x01 douni, 0x02 dorunrun, 0x03 dowild,
+	        0x04 jjack, 0x05 kickridr, 0x06 spiero, 0x07 idsoccer, 0x08 asoccer)
+	bytes 1-7: unused, reserved
+"""
+# SAFETY-CRITICAL CHOICE, this is the actual fix, not just documentation:
+# fill=0xFF, NOT 0x00. game_id=0x00 is a VALID id (Mr. Do's Castle) in
+# jtdocastle_profile.v's decoder, so filling unassigned bytes/machines with
+# 0x00 would reproduce the exact silent-wrong-game hazard this section exists
+# to close. 0xFF is not a valid id in the decoder's case statement (falls
+# into `default:`, which clears `valid` and forces the whole core into
+# reset via `base_reset = rst | ~profile_valid | ~game_id_ok` in
+# jtdocastle_game.v -- confirmed unchanged from docastle_core.sv's own
+# `base_reset` term). This also covers the case (see [parse]'s own flagged
+# gap) that mame.xml eventually surfaces additional docastle.cpp machines
+# beyond these curated 9 that slip through without an explicit `data` entry
+# below: such a machine gets fill=0xFF, i.e. held in reset, NOT silently
+# booted as Mr. Do's Castle.
+fill=0xff
+data = [
+	{ machine="docastle", offset=0, data="00" },
+	{ machine="douni",    offset=0, data="01" },
+	{ machine="dorunrun", offset=0, data="02" },
+	{ machine="dowild",   offset=0, data="03" },
+	{ machine="jjack",    offset=0, data="04" },
+	{ machine="kickridr", offset=0, data="05" },
+	{ machine="spiero",   offset=0, data="06" },
+	{ machine="idsoccer", offset=0, data="07" },
+	{ machine="asoccer",  offset=0, data="08" },
+]
+
+[buttons]
+# JTFRAME_BUTTONS=2 (macros.def) is fixed core-wide: Universal_DoCastle.sv /
+# docastle_main.sv wire exactly two action-button lines (p1_b1/p1_b2 ->
+# joystick_0[4:5]) for EVERY one of the 9 games, even though
+# generate_mras.ps1's OLD hand-authored MRAs only ever advertised ONE of them
+# as a "real" button (<num_buttons>1</num_buttons>, second slot hidden with
+# "-") for the 7 non-soccer games -- that hiding convention is an MRA-tag-only
+# choice from the old generator, not evidence the second RTL button line is
+# absent. Since jtframe wants exactly JTFRAME_BUTTONS names per machine, the
+# non-soccer 7 get a generic "Button 2" second name (present in hardware,
+# not confirmed used by that game's own software) rather than silently
+# dropping to 1 name -- flagged as a best-effort placeholder, not a confirmed
+# jtframe naming convention, since it was not possible to verify against a
+# real generated MRA.
+names=[
+	{ machine="docastle", names="Hammer,Button 2" },
+	{ machine="douni",    names="Hammer,Button 2" },
+	{ machine="dorunrun", names="Throw,Button 2" },
+	{ machine="spiero",   names="Throw,Button 2" },
+	{ machine="dowild",   names="Speed,Button 2" },
+	{ machine="jjack",    names="Action,Button 2" },
+	{ machine="kickridr", names="Accelerate,Button 2" },
+	{ machine="idsoccer", names="Kick,Change Player" },
+	{ machine="asoccer",  names="Kick,Change Player" },
+]
+
+[ROM]
+# 7 romsets.json regions, region order/naming/start macros matching
+# cfg/mem.yaml's bank grouping exactly (see PORTING_NOTES.md "ROM-bank
+# mapping" table): ba0 groups main+sub+adpcm via SUB_START/ADPCM_START
+# offsets; ba1=gfx1 at JTFRAME_BA1_START; ba2=gfx2 at JTFRAME_BA2_START;
+# spritecpu+proms(cprom) are the two BRAM regions, anchored at
+# JTFRAME_PROM_START / JTFRAME_PROM2_START respectively (see macros.def --
+# JTFRAME_PROM2_START was added while writing this file; every non-first
+# region needs its own distinct start macro, confirmed against castle's own
+# k007121_2/proms pattern in cores/castle/cfg/mame2mra.toml, so a single
+# shared JTFRAME_PROM_START for both docastle BRAM regions would have been
+# wrong).
+#
+# "adpcm" is a real MAME ROM_REGION only on idsoccer/asoccer (Soccer profile)
+# -- the other 7 sets simply have no such region in their MAME ROM list, so
+# no per-machine restriction is written here; regions absent from a given
+# machine are expected to be skipped automatically by the parser (same as
+# how flstory's "sub"/"user1" regions, restricted with machines=[...], are
+# just absent for machines that lack them -- here the restriction is
+# implicit instead of explicit since no other machine defines "adpcm" at
+# all).
+#
+# All widths are 8-bit / straight linear byte concatenation -- confirmed
+# directly against romsets.json's regionOffset sequences for every set (no
+# odd/even interleave anywhere in this ROM layout, unlike flstory's 16-bit
+# interleaved tile ROMs), so no width=16/sequence= overrides are needed.
+regions = [
+	{ name="maincpu" },
+	{ name="subcpu",    start="SUB_START" },
+	{ name="adpcm",     start="ADPCM_START" },  # idsoccer, asoccer only
+	{ name="gfx1",      start="JTFRAME_BA1_START" },
+	{ name="gfx2",      start="JTFRAME_BA2_START" },
+	{ name="spritecpu", start="JTFRAME_PROM_START" },
+	{ name="proms",     start="JTFRAME_PROM2_START" },
+]
+
+order = [ "maincpu", "subcpu", "adpcm", "gfx1", "gfx2", "spritecpu", "proms" ]

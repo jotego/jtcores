@@ -1,0 +1,140 @@
+# Draft only -- not run through jtframe tooling yet. See PORTING_NOTES.md
+# for the full rationale behind every decision below, in particular the
+# ROM-region-to-bank mapping and the [audio] channel list.
+
+params:
+  - { name: SUB_OFFSET,   value: "`SUB_START>>1"   }
+  - { name: ADPCM_OFFSET, value: "`ADPCM_START>>1" }
+
+# docastle_core.sv currently runs everything from one 49.152 MHz PLL and
+# derives 9.828 MHz (ce_mclk, the CF37201/MCLK domain) and 4 MHz (ce_cpu, the
+# three Z80s and four PSGs) via jtframe_frac_cen ratios 819/4096 and
+# 125/1536. Both target rates are also *exact* integer ratios of the
+# standard jtframe 48 MHz system clock (9,828,000 = 48,000,000 * 819/4000;
+# 4,000,000 = 48,000,000 / 12), so this draft moves to the standard clk48
+# base instead of inventing a bespoke system PLL -- no precision is lost.
+clocks:
+  clk48:
+    - freq: 9828000
+      outputs:
+        - cen_mclk
+    - freq: 4000000
+      outputs:
+        - cen_cpu
+    # Fix (2026-08-18): jtdocastle_adpcm.v/jtdocastle_audio_filter.v were
+    # carrying over their ORIGINAL hand-rolled /128 and /1024 dividers from
+    # mrdo/rtl/docastle_adpcm.sv and mrdo/rtl/docastle_audio_filter.sv, which
+    # are only correct against the original board's 49.152 MHz PLL (128*384kHz,
+    # 1024*48kHz). Under this core's clk48 (48.000 MHz, aliased to `clk`) those
+    # same divisors land at 375 kHz and 46.875 kHz instead of the real MSM5205
+    # 384 kHz input clock and the real 48 kHz IIR update rate -- both ~2.4%
+    # off, and the audio-filter error also detunes both Q16 pole coefficients.
+    # 48,000,000/125 = 384,000 exactly and 48,000,000/1000 = 48,000 exactly, so
+    # these are added as ordinary mem.yaml-generated cens (same mechanism as
+    # cen_mclk/cen_cpu above) instead of reinventing another local counter.
+    - freq: 384000
+      outputs:
+        - cen_384k
+    - freq: 48000
+      outputs:
+        - cen_48k
+
+# DISABLED (commented out, NOT deleted) by the jtdocastle_game.v integration
+# pass -- read this whole block before re-enabling it.
+#
+# New evidence found while writing jtdocastle_game.v, which CORRECTS one claim
+# in PORTING_NOTES.md deviation #2 and then supersedes the section anyway:
+#
+#  1. CORRECTION: `module: jt89` is NOT an unknown name to the generator.
+#     modules/jtframe/hdl/sound/audio_mod.yaml (the table
+#     mem/audio.go:read_modules() loads) contains
+#         jt89: { data_width: 11, vpp: 0.66 }   # vpp is a guess
+#     so the channel list would have validated fine. `modules/jt89` not
+#     existing as a git submodule is irrelevant to the audio generator -- the
+#     two are unrelated lookups. PORTING_NOTES.md deviation #2's worry was
+#     unfounded.
+#
+#  2. WHY IT IS STILL DISABLED: declaring any `audio.channels` changes the
+#     GAME MODULE'S PORT LIST. Per modules/jtframe/hdl/inc/ports.v, when
+#     len(Audio.Channels) > 0 the game module exports `psg0..psg3`/`adpcm`
+#     raw channel outputs and NO `snd`/`sample` port; jtframe's generated
+#     game_audio.v then owns summing, gain-staging and filtering. That would
+#     replace docastle's own hand-verified mix (four PSGs summed and scaled
+#     x8 inside jtdocastle_sub.v, then ADPCM at 13/4 -- see
+#     docastle_core.sv's adpcm_scaled/full_mix maths) AND would leave
+#     jtdocastle_audio_filter.v -- which its own header concludes must remain
+#     a genuine hand-written POST-MIX stage, since no real 8302 R/C values
+#     exist to feed jtframe's `rc:`/`dcrm:` generators -- with nowhere to sit
+#     in the chain.
+#
+#     Keeping the whole chain inside jtdocastle_game.v (PSG sum -> ADPCM mix
+#     -> clamp -> jtdocastle_audio_filter -> `snd`) reproduces docastle_core.sv
+#     bit-for-bit, which is this port's stated zero-behavioural-change goal.
+#     Re-enable this block only together with a deliberate decision to hand
+#     audio gain-staging over to jtframe, and only once real 8302 board R/C
+#     measurements exist to make the rsum/pre/rc numbers honest.
+#
+# audio:
+#   rsum: 1k
+#   channels:
+#     - { name: psg0,  module: jt89,   rsum: 1k, pre: 1.0 }
+#     - { name: psg1,  module: jt89,   rsum: 1k, pre: 1.0 }
+#     - { name: psg2,  module: jt89,   rsum: 1k, pre: 1.0 }
+#     - { name: psg3,  module: jt89,   rsum: 1k, pre: 1.0 }
+#     - { name: adpcm, module: jt5205, rsum: 1k, pre: 1.0 } # Soccer profile only
+
+# 7 real ROM regions (scripts/romsets.json), grouped into 3 of the allowed
+# 1-4 SDRAM banks + 2 BRAM blocks. See PORTING_NOTES.md "ROM-bank mapping"
+# for the full justification.
+sdram:
+  banks:
+    # ba0 (implicit): the two program Z80 ROMs plus ADPCM sample data.
+    # All three are low, CPU/serial-fetch-rate bandwidth consumers, exactly
+    # the same grouping principle flstory uses for its bank0
+    # (main+sub+user1 program ROMs sharing one bus via offset).
+    - buses:
+      - name: main
+        addr_width: 16   # 64kB, docastle_core main_rom_addr[15:0]
+        data_width: 8
+      - name: sub
+        addr_width: 14   # 16kB, docastle_core sub_rom_addr[13:0]
+        data_width: 8
+        offset: SUB_OFFSET
+      - name: adpcm
+        addr_width: 16   # 64kB slot, docastle_core adpcm_rom_addr[15:0]
+        data_width: 8
+        offset: ADPCM_OFFSET
+    # ba1: character/tile ROM. Fixed 16kB on every one of the 9 sets.
+    - buses:
+      - name: gfx1
+        addr_width: 14   # 16kB, docastle_core char_addr[13:0]
+        data_width: 8
+    # ba2: sprite ROM. Largest region (up to 128kB on the Soccer profile)
+    # and the highest-bandwidth fetch path (continuously scanned by the
+    # CF37201 sprite chip every active line) -- gets its own bank, same
+    # reasoning castle uses to split gfx1/gfx2 into separate banks.
+    - buses:
+      - name: gfx2
+        addr_width: 17   # 128kB slot, docastle_core sprite_gfx_addr[16:0]
+        data_width: 8
+    # ba3 intentionally unused.
+
+# spritecpu: the third Z80's 512-byte program ROM. Its CRC32 (2747ca77) is
+# IDENTICAL across all 9 romsets.json sets -- it never varies, so despite
+# living in Z80 program space it behaves like a fixed lookup PROM. Same
+# precedent as flstory's own `mcu` bram block (an MC6805 program ROM flagged
+# prom: true). Too small and too bandwidth-light to justify its own SDRAM
+# bank.
+#
+# cprom: the board's colour PROM (256-512 bytes depending on set,
+# docastle_rom.sv color_prom[0:511] / prom_addr[8:0]). Standard jtcores
+# practice: PROMs go to BRAM, not SDRAM.
+bram:
+  - name: spritecpu
+    addr_width: 9    # 512B, docastle_rom.sv sprite_cpu_rom[0:511]
+    data_width: 8
+    prom: true
+  - name: cprom
+    addr_width: 9    # 512B, docastle_rom.sv color_prom[0:511] / prom_addr[8:0]
+    data_width: 8
+    prom: true

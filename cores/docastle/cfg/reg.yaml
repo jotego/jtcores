@@ -1,0 +1,27 @@
+# Draft only. One entry per scripts/romsets.json "set" (all 9 are top-level
+# MAME machines in the ground-truth romsets.json, no parent/clone
+# relationships recorded there, unlike flstory's bronx/colt/onna34roa
+# clone family) -- mirrors flstory/cfg/reg.yaml's one-line-per-machine
+# `inputs: reg.cab` format.
+#
+# The reg.cab files themselves (per-game jtsim input scripts) do not exist
+# yet -- authoring them under cores/docastle/ver/<setname>/reg.cab is ver/
+# scene-authoring work, explicitly out of scope for this draft.
+docastle:
+  inputs: reg.cab
+douni:
+  inputs: reg.cab
+dorunrun:
+  inputs: reg.cab
+dowild:
+  inputs: reg.cab
+jjack:
+  inputs: reg.cab
+kickridr:
+  inputs: reg.cab
+spiero:
+  inputs: reg.cab
+idsoccer:
+  inputs: reg.cab
+asoccer:
+  inputs: reg.cab

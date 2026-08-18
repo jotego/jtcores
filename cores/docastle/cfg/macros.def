@@ -1,0 +1,108 @@
+CORENAME=JTDOCASTLE
+
+# Verified against the real resistor-weighted colour PROM math in
+# docastle_video.sv (3 real bits/red, 3/green, 2/blue -- classic RRRGGGBB
+# weighted DAC). MSB-truncating each channel's full 8-bit weighted sum to 3
+# bits is lossless on all three channels (proof: hdl/jtdocastle_colmix.v
+# header comment). 4 would just pad with a meaningless constant bit.
+JTFRAME_COLORW=3
+
+# Universal_DoCastle.sv (mrdo repo) wires joystick_0[0]=right, [1]=left,
+# [2]=down, [3]=up (see wire p1_right=joystick_0[0]; ... p1_up=joystick_0[3];
+# in Universal_DoCastle.sv). That is jtframe's RLDU bit order, not the
+# UDLR/UDRL/DURL orders used by the flstory/castle templates.
+JTFRAME_JOY_RLDU
+# docastle_main / Universal_DoCastle.sv drive exactly two action buttons
+# (p1_b1/p1_b2 -> joystick_0[4:5]) for every one of the nine games.
+JTFRAME_BUTTONS=2
+
+JTFRAME_DEBUG_VPOS=3
+# Placeholder, mirrors flstory. docastle's existing profile-select mechanism
+# (docastle_core.sv game_id latched from a synthetic ioctl_index==1 download,
+# see README "ROM index 1 supplies the stable game ID") already does the job
+# JTFRAME_HEADER + [header] in mame2mra.toml is meant for. Reconciling the
+# two is deferred to the mame2mra.toml task. See PORTING_NOTES.md.
+JTFRAME_HEADER=8
+
+# Video configuration. Real raster (docastle README "PCB accuracy" section,
+# decap/schematic-derived): 312 x 264 total, 240 x 192 visible, HD6845S
+# clocked at 9.828 MHz / 16, pixel clock 9.828 MHz / 2 = 4.914 MHz, giving
+# the measured ~59.659 Hz refresh from a fixed /10 raster divider.
+JTFRAME_WIDTH=240
+JTFRAME_HEIGHT=192
+JTFRAME_RATE=59.659
+# jtframe's PXLCLK macro only supports two classes, "6" or "8" (see
+# modules/jtframe/doc/macros.md). 4.914 MHz sits well under both; "6" is the
+# closer class but this is a guess, not a verified jtframe convention.
+JTFRAME_PXLCLK=6
+
+# RESOLVED (was a placeholder -- see PORTING_NOTES.md "JTFRAME_PLL
+# resolution" for the full re-derivation). The earlier TODO conflated
+# docastle's ~4.914 MHz PIXEL clock with JTFRAME_PLL's real job: selecting
+# the preset for the single system/game clock ("clk"/"clk48" per
+# modules/jtframe/doc/clocks.md), from which docastle derives ce_pix
+# internally via its own /10 clock-enable divider (jtdocastle_crtc.v takes
+# ce_pix as an INPUT; nothing in jtframe needs to natively emit 4.914 MHz).
+#
+# mrdo's original hand-built PLL (rtl/pll/pll_0002.v) drives clk_sys at an
+# exact 49.152 MHz from a 50 MHz reference (fractional-N, output_clock_
+# frequency1="49.152000 MHz"). jtframe's own doc/clocks.md documents
+# jtframe_pll6144 as built for exactly this target: "PCB crystal 18.43200,
+# Base clock 49.152, Pixel clocks 6.144", already used by JTKICKER/
+# JTTWIN16/JTFROUND/JTSHOUSE/JTVIGIL. Its real Quartus-computed output
+# (modules/jtframe/target/mister/hdl/pll6144/pll/pll_0002.v,
+# output_clock_frequency0/1) is 49.147727 MHz, wired to clk48/clk (outclk_0)
+# and its SDRAM-shifted twin (outclk_1) in jtframe_emu.sv.
+#
+# Deviation vs. the real 49.152 MHz PCB rate: (49.147727-49.152)/49.152 =
+# -0.008693% (-86.9 ppm). That is below the precision bar this codebase
+# already accepts for this exact clock chain: docastle_core.sv's own /10
+# ce_pix comment (rtl/docastle_core.sv:125-129) calls a 0.0244% (244 ppm)
+# deviation "only... above nominal" and ships it. -86.9 ppm is ~2.8x
+# tighter. Carried through docastle's own /10 pixel derivation, jtframe_
+# pll6144's clk48 gives ce_pix = 49.147727/10 = 4.9147727 MHz, only
+# +0.0157% vs. the 4.914 MHz nominal raster clock -- tighter than the
+# +0.0244% the original bespoke 49.152 MHz PLL itself produces. No new PLL
+# preset is needed.
+JTFRAME_PLL=jtframe_pll6144
+
+# Deliberately NOT set: JTFRAME_VERTICAL. This one core/RBF ships nine games
+# across THREE physical PCB rotations (see scripts/romsets.json "rotation":
+# "vertical (ccw)" for docastle/douni/jjack, "horizontal" for the rest),
+# selected per MRA, not per build. jtframe's JTFRAME_VERTICAL macro is
+# documented as a single core-wide compile-time choice. Whether that model
+# is even compatible with a mixed-orientation multi-MRA core, or whether the
+# existing per-MRA <rotate> tag is sufficient on its own (as it already is
+# in mrdo's own hand-authored MRAs, with no RTL-side rotation), is an open
+# question. See PORTING_NOTES.md.
+
+# SDRAM bank layout -- see cfg/mem.yaml for the bus list per bank, and
+# PORTING_NOTES.md for the full mapping rationale. Bank 0 (ba0, implicit,
+# no *_START macro) packs the three low-bandwidth program/sample ROMs
+# (main+sub Z80 code, ADPCM sample data); bank 1 (ba1) is the
+# character/tile ROM; bank 2 (ba2) is the sprite ROM (highest bandwidth
+# need -- continuously scanned by the CF37201 sprite chip). ba3 is unused.
+# spritecpu program ROM and the colour PROM are small, board-identical or
+# near-identical across sets, and stay in BRAM instead (see mem.yaml).
+# Added while authoring cfg/mame2mra.toml (see that file's [ROM].regions and
+# PORTING_NOTES.md): every non-first ROM.regions entry needs its OWN explicit
+# start=MACRO, confirmed against both cores/flstory/cfg/mame2mra.toml and
+# cores/castle/cfg/mame2mra.toml (castle's own last two BRAM/PROM-area
+# regions, k007121_2 and proms, each get a distinct start macro, not a shared
+# one). bram: in mem.yaml lists two independent regions (spritecpu, cprom);
+# JTFRAME_PROM_START anchors the first (spritecpu, fixed 512B/0x200 on all 9
+# sets), JTFRAME_PROM2_START anchors the second (cprom/"proms" MAME region),
+# packed immediately after with no gap since nothing else follows it.
+SUB_START          =0x20000
+ADPCM_START        =0x30000
+JTFRAME_BA1_START  =0x40000
+JTFRAME_BA2_START  =0x48000
+JTFRAME_PROM_START =0x68000
+JTFRAME_PROM2_START=0x68200
+
+# Copied from the flstory template for structural parity. mrdo's own README
+# states this core targets MiSTer only (DE10-Nano / Cyclone V) -- MiST
+# support is unconfirmed and this section may simply be dead weight. Kept
+# here rather than silently dropped so the decision is visible for review.
+[mist]
+JTFRAME_MIST_DSP_BLOCKS=Auto
