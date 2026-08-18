@@ -2480,6 +2480,11 @@ logic   [4:0]   current_adc_mode;
 logic   [7:0]   adc_state_cntr;
 logic   [2:0]   adc_ch;
 logic           adc_strobe_n;
+logic           anm_wr_pend;
+
+//manual 8.2: writing ANM stops the conversion in progress and restarts from
+//the beginning of the newly selected mode/group, storing into CR0
+wire anm_wr = cycle_tick & reg_SRTMP_wr & (spr_rw_addr == 6'h08);
 
 assign o_ANx_ANALOG_CH = current_adc_mode[0] ? current_adc_mode[3:1] : adc_ch;
 assign o_ANx_ANALOG_RD_n = adc_strobe_n;
@@ -2491,9 +2496,16 @@ always_ff @(posedge emuclk) begin
         current_adc_mode <= 5'b00000;
         adc_state_cntr <= 8'd0;
         adc_ch <= 3'd0;
+        anm_wr_pend <= 1'b0;
     end
     else begin if(div3_tick) begin
-        if(( current_adc_mode[4] && adc_state_cntr == 8'd143) || 
+        if(anm_wr_pend) begin
+            anm_wr_pend <= 1'b0;
+            current_adc_mode <= spr_ANM;
+            adc_ch <= {spr_ANM[3], 2'b00};
+            adc_state_cntr <= 8'd0;
+        end
+        else if(( current_adc_mode[4] && adc_state_cntr == 8'd143) ||
            (~current_adc_mode[4] && adc_state_cntr == 8'd191)) begin
 
             //make a copy of the current ANM reg value
@@ -2520,7 +2532,9 @@ always_ff @(posedge emuclk) begin
             adc_strobe_n <= current_adc_mode[4] ? 1'b0 : 1'b1;
             if(~current_adc_mode[4]) spr_CR[adc_ch[1:0]] <= i_ANx_ANALOG_DATA;
         end
-    end end
+    end
+    if(anm_wr) anm_wr_pend <= 1'b1;
+    end
 end
 
 
