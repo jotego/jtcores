@@ -29,7 +29,7 @@ wire [ 3:0] syt_dout;
 wire        cpu_rnw, cpu_cen, flip,
             oram_cs, vdcm_cs, syt_cs, cchip_cs;
 
-wire        p039a, p051a, p057a;
+wire        p039a, p051a, p057a, lvbl_raw;
 
 assign debug_view = st_video;
 assign st_dout    = st_video;
@@ -50,7 +50,7 @@ jttaitox_header u_header(
 jttaitox_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .LVBL       ( LVBL          ),
+    .LVBL       ( lvbl_raw      ),
 
     .p039a      ( p039a         ),
 
@@ -100,7 +100,7 @@ jttaitox_cchip u_cchip(
     .din        ( cpu_dout[7:0] ),
     .dout       ( cchip_dout    ),
     .rnw        ( cpu_rnw       ),
-    .LVBL       ( LVBL          ),
+    .LVBL       ( lvbl_raw      ),
 
     .joystick1  ( joystick1[6:0]),
     .joystick2  ( joystick2[6:0]),
@@ -153,9 +153,11 @@ jttaitox_video u_video(
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
     .pxl2_cen   ( pxl2_cen      ),
+    .p051a      ( p051a         ),
 
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
+    .lvbl_raw   ( lvbl_raw      ),
     .HS         ( HS            ),
     .VS         ( VS            ),
     .flip       ( flip          ),

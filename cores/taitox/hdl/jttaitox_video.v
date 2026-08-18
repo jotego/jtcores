@@ -22,9 +22,11 @@ module jttaitox_video(
     input             clk,
     input             pxl_cen,
     input             pxl2_cen,
+    input             p051a,
 
     output            LHBL,
-    output            LVBL,
+    output            LVBL,     // cropped, for the framework and the colmix
+    output            lvbl_raw, // uncropped, for the CPU interrupt
     output            HS,
     output            VS,
     output            flip,
@@ -88,6 +90,12 @@ wire [8:0] vdump, vrender, hdump;
 // to the obj module - so vdump is the only counter that shifts anything.
 localparam [8:0] OBJ_VOFF = 9'd0;
 wire [8:0] vdump_adj = vdump + OBJ_VOFF;
+
+// P0-051A shows 224 lines (MAME visarea 2*8..30*8-1) against 240 on the other
+// boards. Crop 8 lines at each end of the visible window (vdump 7..246).
+localparam [8:0] VCROP_START = 9'd16, VCROP_END = 9'd239;
+
+assign LVBL = lvbl_raw & (~p051a | (vdump>=VCROP_START && vdump<=VCROP_END));
 wire [8:0] scr_pxl, obj_pxl;
 
 // TODO this timing needs to be verified on an original board
@@ -115,7 +123,7 @@ jtframe_vtimer #(
     .Hinit      (            ),
     .Vinit      (            ),
     .LHBL       ( LHBL       ),
-    .LVBL       ( LVBL       ),
+    .LVBL       ( lvbl_raw   ),
     .HS         ( HS         ),
     .VS         ( VS         )
 );
@@ -137,7 +145,7 @@ jtkiwi_gfx #(
     .pxl_cen    ( pxl_cen   ),
 
     .LHBL       ( LHBL      ),
-    .LVBL       ( LVBL      ),
+    .LVBL       ( lvbl_raw  ),
     .hs         ( HS        ),
     .vs         ( VS        ),
     .flip       ( flip      ),
