@@ -41,12 +41,8 @@ module jttaitox_main(
     input                rom_ok,
 
     // work RAM lives in SDRAM bank 0, palette in BRAM (see cfg/mem.yaml)
-    output reg           ram_cs,
-    output        [13:1] ram_addr,
-    input         [15:0] ram_data,
-    output               ram_we,
-    output        [ 1:0] ram_dsn,
-    input                ram_ok,
+    output        [ 1:0] ram_we,
+    input         [15:0] ram_dout,
     output        [ 1:0] pal_we,
     input         [15:0] pal_dout,
 
@@ -75,7 +71,7 @@ module jttaitox_main(
     input         [ 7:0] dipsw_b
 );
 
-reg         pal_cs, dsw_cs, in_cs;
+reg         ram_cs, pal_cs, dsw_cs, in_cs;
 
 `ifndef NOMAIN
 wire [23:1] A;
@@ -86,7 +82,7 @@ wire [15:0] cpu_din_w;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 wire        intn;
-wire        bus_cs, bus_busy, ok_dly;
+wire        bus_cs, bus_busy;
 
 assign cpu_addr = A;
 assign rom_addr = A[18:1];
@@ -119,9 +115,7 @@ always @* begin
     end
 end
 
-assign ram_addr = A[13:1];
-assign ram_we   = ram_cs & ~RnW;
-assign ram_dsn  = { UDSn, LDSn };
+assign ram_we   = {2{ram_cs & ~RnW}} & ~{UDSn,LDSn};
 assign pal_we   = {2{pal_cs & ~RnW}} & ~{UDSn,LDSn};
 
 // The C-chip games take the VBL interrupt on level 6, the rest on level 2
@@ -130,11 +124,11 @@ assign VPAn     = !(!ASn && FC==7 && A[3:1]==(p039a ? 3'd6 : 3'd2) && RnW);
 
 // Both SDRAM buses stall the CPU through DTACK. jtframe_okdly holds the
 // busy flag until the slot has answered for the current address.
-assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs | ram_cs) & ~ok_dly;
+assign bus_cs   = rom_cs;
+assign bus_busy = rom_cs & ~rom_ok;
 
 assign cpu_din_w= rom_cs   ? rom_data  :
-                  ram_cs   ? ram_data  :
+                  ram_cs   ? ram_dout  :
                   pal_cs   ? pal_dout  :
                   (oram_cs | vdcm_cs) ? vid_dout :
                   cchip_cs ? { 8'hff, cchip_dout } :
@@ -183,14 +177,6 @@ end
 final if(main_tr!=0) $fclose(main_tr);
 `endif
 
-
-jtframe_okdly #(.W(2)) u_okdly(
-    .rst    ( rst              ),
-    .clk    ( clk              ),
-    .cs     ( { rom_cs, ram_cs } ),
-    .ok     ( { rom_ok, ram_ok } ),
-    .ok_dly ( ok_dly           )
-);
 
 jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .rst        ( rst       ),
@@ -242,7 +228,7 @@ jtframe_m68k u_cpu(
 );
 `else
 assign cpu_addr=0, cpu_dout=0, cpu_rnw=1, cpu_dsn=3, cpu_cen=0,
-       rom_addr=0, ram_addr=0, ram_we=0, ram_dsn=3, pal_we=0;
+       rom_addr=0, ram_we=0, pal_we=0;
 initial begin
     rom_cs=0; oram_cs=0; vdcm_cs=0; syt_cs=0; cchip_cs=0;
     ram_cs=0; pal_cs=0; dsw_cs=0; in_cs=0;
