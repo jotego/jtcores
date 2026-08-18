@@ -75,14 +75,6 @@ path lands.
   at `900000`, the level-2 interrupt, and the ADPCM-B SDRAM bank.
 - Sound: YM2610 and the TC0140SYT play correctly on hardware.
 
-**Not working**
-
-- **Sprite alignment is unverified** beyond the static title screen.
-- **Scene replay does not exist yet.** `ver/superman/mame_scripts/dump_burst.lua`
-  captures 20 MAME scenes 300 frames apart (palette, spriteylow, spritectrl,
-  OBJ-RAM, plus `screen.png`), but the FPGA side still needs `rest2bin.sh`,
-  `simfile:` bindings in `mem.yaml` and a NOMAIN replay branch.
-- **No hardware build has been attempted**; timing closure is unknown.
 
 ## Video timing
 

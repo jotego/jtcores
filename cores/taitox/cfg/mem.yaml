@@ -12,6 +12,11 @@ clocks:
       gate: [ snd ]
       outputs:
         - snd_cen
+    # YM2151 on P0-051A: 16/4, plus the half-rate enable jt51 wants
+    - freq: 4 MHz
+      outputs:
+        - fm_cen
+        - fm_cenp1
 
 audio:
   rsum: 10k

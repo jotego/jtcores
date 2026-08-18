@@ -29,7 +29,7 @@ wire [ 3:0] syt_dout;
 wire        cpu_rnw, cpu_cen, flip,
             oram_cs, vdcm_cs, syt_cs, cchip_cs;
 
-wire        p039a, p057a;
+wire        p039a, p051a, p057a;
 
 assign debug_view = st_video;
 assign st_dout    = st_video;
@@ -43,7 +43,7 @@ jttaitox_header u_header(
     .prog_we    ( prog_we       ),
 
     .p039a      ( p039a         ),
-    .p051a      (               ),
+    .p051a      ( p051a         ),
     .p057a      ( p057a         )
 );
 
@@ -124,6 +124,9 @@ jttaitox_snd u_snd(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen8       ( cen8          ),
+    .fm_cen     ( fm_cen        ),
+    .fm_cenp1   ( fm_cenp1      ),
+    .p051a      ( p051a         ),
     .snd_cen    ( snd_cen       ),
 
     .main_cen   ( cpu_cen       ),

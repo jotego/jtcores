@@ -6,7 +6,7 @@ zip.alt="cchip.zip"
 sourcefile=[ "taito_x.cpp" ]
 
 [parse.skip]
-setnames=[ "daisenpu", "twinhawk", "twinhawku" ]
+setnames=[ ]
 
 [buttons]
 names=[
