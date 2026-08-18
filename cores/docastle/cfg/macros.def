@@ -1,11 +1,13 @@
 CORENAME=JTDOCASTLE
 
-# Verified against the real resistor-weighted colour PROM math in
-# docastle_video.sv (3 real bits/red, 3/green, 2/blue -- classic RRRGGGBB
-# weighted DAC). MSB-truncating each channel's full 8-bit weighted sum to 3
-# bits is lossless on all three channels (proof: hdl/jtdocastle_colmix.v
-# header comment). 4 would just pad with a meaningless constant bit.
-JTFRAME_COLORW=3
+# The real resistor-weighted colour PROM (docastle_video.sv) has 3 real
+# bits/red, 3/green, 2/blue -- classic RRRGGGBB weighted DAC. An earlier
+# draft chose COLORW=3 as the minimum lossless width, but jtframe cfgstr
+# rejects anything below 4 ("macro JTFRAME_COLORW must be between 4 and 8"
+# -- verified against the real tool 2026-08-18). COLORW=4 with the colmix
+# module truncating its 8-bit weighted sums at [7:4] stays exact on every
+# channel and carries one more bit of the true DAC value than 3 did.
+JTFRAME_COLORW=4
 
 # Universal_DoCastle.sv (mrdo repo) wires joystick_0[0]=right, [1]=left,
 # [2]=down, [3]=up (see wire p1_right=joystick_0[0]; ... p1_up=joystick_0[3];
@@ -66,15 +68,16 @@ JTFRAME_PXLCLK=6
 # preset is needed.
 JTFRAME_PLL=jtframe_pll6144
 
-# Deliberately NOT set: JTFRAME_VERTICAL. This one core/RBF ships nine games
-# across THREE physical PCB rotations (see scripts/romsets.json "rotation":
-# "vertical (ccw)" for docastle/douni/jjack, "horizontal" for the rest),
-# selected per MRA, not per build. jtframe's JTFRAME_VERTICAL macro is
-# documented as a single core-wide compile-time choice. Whether that model
-# is even compatible with a mixed-orientation multi-MRA core, or whether the
-# existing per-MRA <rotate> tag is sufficient on its own (as it already is
-# in mrdo's own hand-authored MRAs, with no RTL-side rotation), is an open
-# question. See PORTING_NOTES.md.
+# RESOLVED by the real jtframe mra tool (2026-08-18): running it without
+# JTFRAME_VERTICAL warns per-game "Game docastle (in JTDOCASTLE) is vertical
+# but JTFRAME_VERTICAL is not set" for exactly the three vertical sets
+# (docastle/douni/jjack), derived from real MAME rotation data in
+# doc/mame.xml. So the macro enables the core's rotation *capability*
+# core-wide, while the per-MRA MOD byte (bit 0 vertical, bit 2 CCW --
+# core_mod.md) selects orientation per game. A mixed-rotation multi-MRA
+# core is a supported jtframe configuration; the earlier open question in
+# PORTING_NOTES.md is settled by tool evidence.
+JTFRAME_VERTICAL
 
 # SDRAM bank layout -- see cfg/mem.yaml for the bus list per bank, and
 # PORTING_NOTES.md for the full mapping rationale. Bank 0 (ba0, implicit,

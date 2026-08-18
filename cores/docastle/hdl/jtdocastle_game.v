@@ -121,14 +121,41 @@
 //     fetch is combinational-address/registered-data every pixel, and the
 //     sprite line-buffer state machine uses a hard-coded ST_GREQ -> ST_GWAIT
 //     -> ST_GUSE 3-state delay with no ready qualifier. Under SDRAM those
-//     fetches WILL sometimes return stale bytes. Two candidate fixes, neither
-//     applied here because both are behavioural changes needing simulation:
-//       - add an `ok`-gated stall to the ST_GWAIT state and to the tile
-//         fetch, or
+//     fetches WILL sometimes return stale bytes.
+//
+//     EXACT CONTRACT BEING VIOLATED (read from the horse's mouth,
+//     modules/jtframe/hdl/sdram/jtframe_romrq.v:19-22): "The best use case is
+//     with addr_ok going down and up for each addr change but it works too
+//     with addr_ok permanently high AS LONG AS ADDR INPUT IS NOT CHANGED
+//     UNTIL THE DATA_OK SIGNAL IS PRODUCED. If the requester cannot guarantee
+//     that, it should toggle addr_ok for each request." Tying *_cs high (as
+//     here) selects the second mode, whose precondition the sprite state
+//     machine breaks: it re-loads line_gfx_addr in ST_GUSE and leaves
+//     ST_GWAIT after a fixed single cycle, regardless of gfx2_ok.
+//
+//     WHY A ONE-LINE `ST_GWAIT: if(gfx2_ok)` IS NOT ENOUGH, and why nothing
+//     was changed here: jtframe_romrq's OKLATCH parameter (default 1,
+//     jtframe_romrq.v:38-41) makes data_ok "high for one clock cycle after
+//     the input address" changes, so a naive ok test can pass on a STALE ok
+//     from the previous fetch and latch the wrong byte -- the same bug class,
+//     but now hidden behind code that looks correct. Getting this right needs
+//     a waveform, and no simulation is possible in this environment (no ver/
+//     scenes, see PORTING_NOTES.md). Guessing here would be worse than the
+//     documented gap.
+//
+//     TWO SOUND FIXES, for whoever has a sim available:
+//       - toggle gfx2_cs per request (jtframe_romrq's own recommended mode
+//         for requesters that move the address), or gate ST_GWAIT on a
+//         freshly-cleared ok; verify against a waveform either way.
 //       - move gfx1 out of SDRAM entirely: it is a FIXED 16 kB on all nine
-//         sets (PORTING_NOTES.md's own ROM table) and would fit comfortably
-//         in M10K as a second `bram:` entry, which removes the handshake
-//         problem for tiles outright. gfx2 (up to 128 kB) cannot follow.
+//         sets (PORTING_NOTES.md's ROM table) and fits in M10K as a third
+//         `bram:` entry. This is CONFIG-ONLY (mem.yaml + macros.def +
+//         mame2mra.toml region starts; the generator auto-computes BRAM
+//         offsets as PROM_START+accumulated size -- confirmed in the
+//         generated jtdocastle_game_sdram.v's u_range_spritecpu/u_range_cprom
+//         pair) and restores tiles to the exact 1-cycle latency this RTL was
+//         written for, with zero risk to the decap-derived video logic.
+//         It only fixes tiles; gfx2 (up to 128 kB) must stay in SDRAM.
 //
 // S3. adpcm_cs IS TIED TO `has_adpcm` AND adpcm_ok IS IGNORED.
 //     jtdocastle_adpcm.v has no cs/ok ports at all. Its address only advances

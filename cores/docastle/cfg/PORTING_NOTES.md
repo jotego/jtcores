@@ -899,3 +899,137 @@ actually produces the `header`/`prog_addr`/`prog_we` signals
 `jtdocastle_game.v` already assumes, at the byte-offset timing assumed
 here. That can only be confirmed by running the real toolchain, which
 remains unavailable in every session that has touched this core so far.
+
+---
+
+# TOOLCHAIN VERIFICATION PASS (2026-08-18)
+
+Every earlier section of this file was written **without any working
+jtframe tooling** and says so repeatedly. That is no longer true. This
+section records what was actually executed, what it proved, what it
+disproved, and what genuinely remains open. Where an earlier claim is
+now known wrong, it is corrected here rather than edited in place, so
+the reasoning trail stays honest.
+
+## How the toolchain was obtained
+
+jotego's `jotego/simulator:latest` Docker image is **broken**: no binary
+inside it executes (`/usr/bin/echo: cannot execute binary file`), which
+persists after `docker rmi` + clean re-pull at a verified digest and with
+an explicit `--platform linux/amd64`. Docker itself is healthy on this
+machine (`hello-world` and `alpine` run fine), so this is an upstream
+image problem, not local configuration. This matches the "new docker
+containers" rework noted in jtcores PR #1126.
+
+Workaround, no Docker required: **`jtframe` is a pure Go program.** It
+builds and runs natively:
+
+    cd modules/jtframe/src/jtframe && go build -o jtframe.exe .
+
+Required environment (`setprj.sh` sets these; `MODULES` is easy to miss
+and its absence produces the misleading error
+"Cannot resolve path alias jt5205 meaningfully"):
+
+    JTROOT, JTFRAME=$JTROOT/modules/jtframe, CORES=$JTROOT/cores,
+    MODULES=$JTROOT/modules, JTBIN=<any writable dir>
+
+Verilator ran from the WSL Ubuntu install already present on this
+machine. Submodules must be checked out (`git submodule update --init
+modules/jt5205`) or `jtframe files` fails.
+
+## Gates executed, and their results
+
+| Gate | Command | Result |
+|---|---|---|
+| Config string | `jtframe cfgstr docastle --target mister` | PASS |
+| Memory codegen | `jtframe mem docastle --target mister` | PASS |
+| File lists | `jtframe files syn/sim docastle --target mister` | PASS |
+| Pause message | `jtframe msg docastle` | PASS (this is CI's `check_msg`) |
+| **MRA generation** | `jtframe mra docastle --skipROM --skipPocket` | **PASS, exit 0, silent** — this is exactly what CI's `lint-mra.sh` runs |
+| **Verilator lint** | `--lint-only -Wno-REDEFMACRO -Wno-UNOPTFLAT`, top `jtdocastle_game_sdram` | **PASS: 0 errors, 0 warnings, 205 modules** |
+
+The lint flag set is jotego's own: `jtsim`'s `-lint` mode uses exactly
+`--lint-only -Wno-REDEFMACRO -Wno-UNOPTFLAT` (`modules/jtframe/bin/jtsim:253`).
+No additional warning suppressions were used; an earlier run of this pass
+did add `-Wno-TIMESCALEMOD -Wno-DECLFILENAME`, and those were removed to
+confirm they were not masking anything. They were not.
+
+## Real defects this pass found and fixed
+
+1. **12 fatal `PINNOTFOUND` errors.** `jtdocastle_main.v`, `_sub.v` and
+   `_spritecpu.v` each connected `prog_addr`/`prog_data`/`prog_din`/
+   `prog_we` to `jtframe_sysz80`. Those pins exist only on the inner
+   `jtframe_sysz80_nvram`; the wrapper ties them off itself
+   (`modules/jtframe/hdl/cpu/jtframe_z80.v`). `cores/flstory`'s real
+   instance goes straight from `.ram_dout` to `.ram_cs` — the drafted
+   comment cited flstory as precedent while contradicting it. **The port
+   did not compile at all before this fix.**
+
+2. **`JTFRAME_COLORW=3` is illegal.** `jtframe cfgstr` rejects it:
+   "macro JTFRAME_COLORW must be between 4 and 8". The earlier
+   minimum-lossless-width analysis was arithmetically right but not a
+   legal value. Now `COLORW=4`, with `jtdocastle_colmix.v` truncating its
+   8-bit weighted resistor-DAC sums at `[7:4]` instead of `[7:5]` —
+   still exact and monotonic on all three channels, and one bit closer to
+   the true DAC value than the 3-bit version.
+
+3. **`JTFRAME_VERTICAL` was wrongly omitted.** The earlier open question
+   ("is a mixed-rotation multi-MRA core even supported?") is answered:
+   running without it makes `jtframe mra` warn, per game, "Game docastle
+   (in JTDOCASTLE) is vertical but JTFRAME_VERTICAL is not set" for
+   exactly the three vertical sets (docastle/douni/jjack), derived from
+   real MAME rotation data. The macro enables the capability core-wide;
+   the per-MRA MOD byte selects orientation per game. Mixed-rotation is
+   supported. Now set, and the warnings are gone.
+
+4. **`[dipsw]` produced duplicate switch rows.** With real docastle.cpp
+   data now in `doc/mame.xml`, `jtframe mra` auto-derives the DIP tables
+   from MAME, so the hand-transcribed `extra=[]` table duplicated every
+   row in the output MRA — precisely the outcome its own comment
+   predicted. Replaced with `defaults=` (per-set factory DSW bytes) plus
+   `rename=` for the two options that tripped "DIP option too long for
+   MiSTer". One transcription bug was caught in the process: idsoccer and
+   asoccer are `ff,ff`, not `df,ff` (ground truth: `romsets.json`).
+
+## doc/mame.xml
+
+`jtframe mra` needs docastle.cpp entries, which the repo's reduced
+`doc/mame.xml` lacked entirely (`grep -c docastle` returned 0 — the same
+failure that got jtcores PR #1506 bounced). 20 machine entries were
+merged in from a local `mame.exe -listxml` run.
+
+**Validation of the merged data — this is the strong result:** all
+**123 ROM CRC32s across all 9 generated MRAs match, byte for byte, the
+independently-derived reference data in the standalone core's
+`scripts/romsets.json`** (which was itself validated against real ROM
+files and shipped in nine working hand-authored MRAs). Zero mismatches.
+The generated MRAs also carry correct per-game rotation, the intended
+`00`-`08` header byte with `FF` fill, and a bank-aligned ROM layout.
+
+**Known cosmetic inconsistency:** `doc/mame.xml` is stamped
+`build="0.282"`, while the merged entries came from MAME 0.289, so the
+MRAs report `<mameversion>0282</mameversion>`. The CRC check above shows
+the ROM data is identical either way, but the label is inaccurate. The
+clean fix is for this file to be regenerated wholesale with
+`jtframe mra --reduce <full mame0282.xml>` (or whatever version jtcores
+is standardising on) rather than carrying a hand-merged mix.
+
+## What is still genuinely open
+
+- **`gfx1_ok` / `gfx2_ok` are still ignored (was item S2).** This pass
+  did NOT fix it, and deliberately so. The exact contract being broken is
+  now pinned down and quoted in `jtdocastle_game.v`'s header, along with
+  the reason a naive one-line `if(gfx2_ok)` would silently reintroduce
+  the same bug class via `jtframe_romrq`'s `OKLATCH` behaviour. Fixing it
+  correctly requires a waveform. **This is the most important remaining
+  item and should be treated as a blocker for hardware use.**
+- **No `ver/` scenes.** Requires real MAME state dumps; cannot be
+  fabricated. Without them there is no simulation, hence no way to close
+  the item above or to do any frame-exact comparison.
+- **Never elaborated by Quartus**, so no fit, timing or resource data for
+  this core in its jtframe form.
+- **Never run on hardware** in this form.
+- The `[header]` game-ID path is now produced end-to-end (byte 0 visible
+  in every generated MRA) and the `FF` fill closes the silent-wrong-game
+  hazard, but the *consuming* side timing in `jtdocastle_game.v` is still
+  only desk-checked, for the same lack-of-simulation reason.

@@ -146,12 +146,10 @@ jtframe_sysz80 #(.RAM_AW(13),.CLR_INT(0),.RECOVERY(1)) u_cpu
 	.cpu_din    ( cpu_din     ),
 	.cpu_dout   ( cpu_dout    ),
 	.ram_dout   ( ram_dout    ),
-	// NVRAM dump/restoration -- unused, plain volatile RAM (same pattern
-	// as cores/flstory/hdl/jtflstory_main.v's own u_cpu instance)
-	.prog_addr  (             ),
-	.prog_data  ( 8'd0        ),
-	.prog_din   (             ),
-	.prog_we    ( 1'b0        ),
+	// No NVRAM pins here: jtframe_sysz80 does not expose prog_addr/
+	// prog_data/prog_din/prog_we -- it instantiates jtframe_sysz80_nvram
+	// internally and ties them off itself (jtframe_z80.v). Connecting them
+	// was a drafting error, caught by the first real Verilator lint run.
 	// ROM/RAM access
 	.ram_cs     ( ram_cs      ),
 	.rom_cs     ( rom_cs      ),

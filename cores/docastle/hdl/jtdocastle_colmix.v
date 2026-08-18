@@ -126,9 +126,9 @@ module jtdocastle_colmix(
     output      [7:0] pal_addr,
     input       [7:0] pal_dout,
 
-    output reg  [2:0] red,
-    output reg  [2:0] green,
-    output reg  [2:0] blue,
+    output reg  [3:0] red,
+    output reg  [3:0] green,
+    output reg  [3:0] blue,
 
     // Structural pass-through to match jtframe's game-module port
     // convention (see jtflstory_colmix.v). mrdo's docastle_video.sv has no
@@ -157,11 +157,18 @@ wire [7:0] r_full = (pal_dout[5] ? 8'h23 : 8'h00) + (pal_dout[6] ? 8'h4b : 8'h00
 wire [7:0] g_full = (pal_dout[2] ? 8'h23 : 8'h00) + (pal_dout[3] ? 8'h4b : 8'h00) + (pal_dout[4] ? 8'h91 : 8'h00);
 wire [7:0] b_full = (pal_dout[0] ? 8'h52 : 8'h00) + (pal_dout[1] ? 8'had : 8'h00);
 
+// COLORW=4 correction (2026-08-18, first real jtframe-tool run): jtframe
+// cfgstr rejects JTFRAME_COLORW below 4 ("must be between 4 and 8"), so the
+// earlier COLORW=3 analysis, while arithmetically lossless, is not legal.
+// Truncating the same 8-bit weighted sums at [7:4] instead of [7:5] keeps
+// every channel exact and monotonic (red/green: 16 of 16 codes ordered;
+// blue's four real levels 0x00/0x52/0xad/0xff map to 0/5/10/15) and gains
+// one bit of the true resistor-DAC value over the 3-bit version.
 always @(posedge clk) begin
     if (pxl_cen) begin
-        red   <= blank_n ? r_full[7:5] : 3'd0;
-        green <= blank_n ? g_full[7:5] : 3'd0;
-        blue  <= blank_n ? b_full[7:5] : 3'd0;
+        red   <= blank_n ? r_full[7:4] : 4'd0;
+        green <= blank_n ? g_full[7:4] : 4'd0;
+        blue  <= blank_n ? b_full[7:4] : 4'd0;
     end
 end
 

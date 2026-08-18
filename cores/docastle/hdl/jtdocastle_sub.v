@@ -155,12 +155,8 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(0),.RECOVERY(1)) u_cpu
 	.cpu_din    ( cpu_din     ),
 	.cpu_dout   ( cpu_dout    ),
 	.ram_dout   ( ram_dout    ),
-	// NVRAM dump/restoration -- unused, plain volatile RAM (same pattern
-	// as jtdocastle_main.v's own u_cpu instance)
-	.prog_addr  (             ),
-	.prog_data  ( 8'd0        ),
-	.prog_din   (             ),
-	.prog_we    ( 1'b0        ),
+	// No NVRAM pins: jtframe_sysz80 does not expose prog_addr/prog_data/
+	// prog_din/prog_we -- see the note in jtdocastle_main.v.
 	// ROM/RAM access
 	.ram_cs     ( ram_cs      ),
 	.rom_cs     ( rom_cs      ),

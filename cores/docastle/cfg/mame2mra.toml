@@ -13,17 +13,6 @@
 # the "mame2mra.toml authoring pass" section appended to PORTING_NOTES.md for
 # the full rationale behind every non-obvious choice here, in particular the
 # [header] byte table and the [dipsw] extra-vs-rename tradeoff.
-#
-# CRITICAL, NOT YET RESOLVABLE: doc/mame.xml in this jtcores clone has ZERO
-# entries for docastle.cpp (confirmed: `grep -c docastle doc/mame.xml` -> 0).
-# `jtframe mra` derives its actual machine/clone/DIP list from that file at
-# parse time; nothing here can be cross-checked against real MAME driver
-# metadata until doc/mame.xml is regenerated for this sourcefile (normally via
-# `jtframe mra --reduce <path-to-real-mame.xml>`). Every [dipsw]/[parse]
-# decision below is built entirely from scripts/generate_mras.ps1 and
-# scripts/romsets.json (mrdo's own hand-authored ground truth), NOT from MAME
-# source text, and is flagged accordingly inline.
-
 [global]
 author=["aCORES"]
 
@@ -60,127 +49,22 @@ skip.Bootlegs=true
 
 [dipsw]
 # ---------------------------------------------------------------------------
-# DESIGN CHOICE: `extra=[]` (full hand-authored table) instead of `rename=`/
-# `offset=` (adjustments layered on MAME-parsed dips), because doc/mame.xml
-# currently has NO docastle.cpp entries at all (see CRITICAL note at top) --
-# there is nothing yet for rename/offset to adjust. Every line below is a
-# literal transcription of scripts/generate_mras.ps1's Get-DipLines /
-# Get-CommonCoinDips / Get-SoccerCoinDips functions (bits/ids -> bits/
-# options), which is itself already in the exact MRA <dip bits="" ids=""/>
-# convention, so no plausibility judgement was needed on the bit positions
-# or option orderings, just a mechanical field-name translation
-# (name/options/bits, per [dipsw].extra's documented shape).
+# REWRITTEN 2026-08-18 after doc/mame.xml gained real docastle.cpp entries
+# (merged from a local MAME 0.289 -listxml run). jtframe mra now derives the
+# full DIP tables from MAME's own PORT_DIPNAME data automatically; the
+# earlier hand-authored `extra=[]` transcription of generate_mras.ps1's
+# tables (written when mame.xml had zero docastle data) produced exact
+# duplicates of every row in the generated MRA and has been removed, as its
+# own design-choice comment said to do at this point.
 #
-# REQUIRED FOLLOW-UP once doc/mame.xml is regenerated with real docastle.cpp
-# data: `jtframe mra` will then ALSO auto-derive dip switches from MAME's own
-# PORT_DIPNAME/PORT_DIPSETTING definitions for these machines. If those
-# bit positions match what generate_mras.ps1 already encodes (very likely,
-# since bit positions are fixed by real hardware and generate_mras.ps1 was
-# almost certainly itself transcribed from the MAME source), these `extra`
-# entries will DUPLICATE the auto-derived table in the generated MRA. At that
-# point this section should be converted to `rename=`/`defaults=` (adjusting
-# the auto-derived table) and these `extra` entries removed. Do not leave
-# both in place simultaneously.
+# What remains:
+#  - defaults: the per-set factory DSW bytes, byte order dsw1,dsw2 (LSB
+#    first), copied from scripts/romsets.json's dsw1/dsw2 fields (which the
+#    proven generate_mras.ps1 flow already shipped in nine validated MRAs).
+#  - rename: two MAME option names exceed MiSTer's OSD line width (jtframe
+#    mra warned "DIP option too long for MiSTer" on both); shortened without
+#    losing meaning.
 # ---------------------------------------------------------------------------
-extra=[
-	# --- Difficulty: identical bits="0,1" wording/options on all 9 sets ---
-	{ machine="docastle", name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
-	{ machine="douni",    name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
-	{ machine="dorunrun", name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
-	{ machine="dowild",   name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
-	{ machine="jjack",    name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
-	{ machine="kickridr", name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
-	{ machine="spiero",   name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
-	{ machine="idsoccer", name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
-	{ machine="asoccer",  name="Difficulty", options="Hardest,Hard,Medium,Easy", bits="0,1" },
-
-	# --- docastle / douni (Get-DipLines "docastle"/"douni" branches: identical) ---
-	{ machine="docastle", name="Rack Test", options="On,Off", bits="2" },
-	{ machine="docastle", name="Bonus Credit for Diamond", options="No,Yes", bits="3" },
-	{ machine="docastle", name="Difficulty of EXTRA", options="Difficult,Easy", bits="4" },
-	{ machine="docastle", name="Cabinet", options="Upright,Cocktail", bits="5" },
-	{ machine="docastle", name="Lives", options="2,5,4,3", bits="6,7" },
-	{ machine="docastle", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
-	{ machine="docastle", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
-
-	{ machine="douni", name="Rack Test", options="On,Off", bits="2" },
-	{ machine="douni", name="Bonus Credit for Diamond", options="No,Yes", bits="3" },
-	{ machine="douni", name="Difficulty of EXTRA", options="Difficult,Easy", bits="4" },
-	{ machine="douni", name="Cabinet", options="Upright,Cocktail", bits="5" },
-	{ machine="douni", name="Lives", options="2,5,4,3", bits="6,7" },
-	{ machine="douni", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
-	{ machine="douni", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
-
-	# --- dorunrun / spiero (Get-DipLines "dorunrun"/"spiero" branches: identical) ---
-	{ machine="dorunrun", name="Demo Sounds", options="Off,On", bits="2" },
-	{ machine="dorunrun", name="Flip Screen", options="On,Off", bits="3" },
-	{ machine="dorunrun", name="Difficulty of EXTRA", options="Difficult,Easy", bits="4" },
-	{ machine="dorunrun", name="Cabinet", options="Upright,Cocktail", bits="5" },
-	{ machine="dorunrun", name="Special", options="Not Given,Given", bits="6" },
-	{ machine="dorunrun", name="Lives", options="5,3", bits="7" },
-	{ machine="dorunrun", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
-	{ machine="dorunrun", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
-
-	{ machine="spiero", name="Demo Sounds", options="Off,On", bits="2" },
-	{ machine="spiero", name="Flip Screen", options="On,Off", bits="3" },
-	{ machine="spiero", name="Difficulty of EXTRA", options="Difficult,Easy", bits="4" },
-	{ machine="spiero", name="Cabinet", options="Upright,Cocktail", bits="5" },
-	{ machine="spiero", name="Special", options="Not Given,Given", bits="6" },
-	{ machine="spiero", name="Lives", options="5,3", bits="7" },
-	{ machine="spiero", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
-	{ machine="spiero", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
-
-	# --- dowild (Get-DipLines "dowild" branch) ---
-	{ machine="dowild", name="Rack Test", options="On,Off", bits="2" },
-	{ machine="dowild", name="Flip Screen", options="On,Off", bits="3" },
-	{ machine="dowild", name="Difficulty of EXTRA", options="Difficult,Easy", bits="4" },
-	{ machine="dowild", name="Cabinet", options="Upright,Cocktail", bits="5" },
-	{ machine="dowild", name="Special", options="Not Given,Given", bits="6" },
-	{ machine="dowild", name="Lives", options="5,3", bits="7" },
-	{ machine="dowild", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
-	{ machine="dowild", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
-
-	# --- jjack (Get-DipLines "jjack" branch) ---
-	{ machine="jjack", name="Rack Test", options="On,Off", bits="2" },
-	{ machine="jjack", name="Flip Screen", options="On,Off", bits="3" },
-	{ machine="jjack", name="Extra", options="Hard,Easy", bits="4" },
-	{ machine="jjack", name="Cabinet", options="Upright,Cocktail", bits="5" },
-	{ machine="jjack", name="Lives", options="2,5,4,3", bits="6,7" },
-	{ machine="jjack", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
-	{ machine="jjack", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
-
-	# --- kickridr (Get-DipLines "kickridr" branch) ---
-	{ machine="kickridr", name="Rack Test", options="On,Off", bits="2" },
-	{ machine="kickridr", name="Flip Screen", options="On,Off", bits="3" },
-	{ machine="kickridr", name="Unknown SWA:4", options="On,Off", bits="4" },
-	{ machine="kickridr", name="Cabinet", options="Upright,Cocktail", bits="5" },
-	{ machine="kickridr", name="Unknown SWA:2", options="On,Off", bits="6" },
-	{ machine="kickridr", name="Unknown SWA:1", options="On,Off", bits="7" },
-	{ machine="kickridr", name="Coin B", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
-	{ machine="kickridr", name="Coin A", options="Free,1/1,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
-
-	# --- idsoccer (Get-DipLines "idsoccer" branch, Get-SoccerCoinDips) ---
-	{ machine="idsoccer", name="Continuity", options="No,Yes", bits="2" },
-	{ machine="idsoccer", name="Flip Screen", options="On,Off", bits="3" },
-	{ machine="idsoccer", name="Allow Continue (2P)", options="No,Yes", bits="4" },
-	{ machine="idsoccer", name="Allow Continue (1P)", options="No,Yes", bits="5" },
-	{ machine="idsoccer", name="Real Game Time", options="1:00,2:00,2:30,3:00", bits="6,7" },
-	{ machine="idsoccer", name="Coin B", options="Free,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/6,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
-	{ machine="idsoccer", name="Coin A", options="Free,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/6,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
-
-	# --- asoccer (Get-DipLines "asoccer" branch, Get-SoccerCoinDips) ---
-	{ machine="asoccer", name="Joysticks", options="Single,Dual", bits="2" },
-	{ machine="asoccer", name="Flip Screen", options="On,Off", bits="3" },
-	{ machine="asoccer", name="Unknown SWA:4", options="On,Off", bits="4" },
-	{ machine="asoccer", name="Demo Sounds", options="Off,On", bits="5" },
-	{ machine="asoccer", name="Real Game Time", options="1:00,2:00,2:30,3:00", bits="6,7" },
-	{ machine="asoccer", name="Coin B", options="Free,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/6,1/5,1/4,1/3,1/2,1/1", bits="8,9,10,11" },
-	{ machine="asoccer", name="Coin A", options="Free,1/1,1/1,1/1,1/1,4/1,3/2,3/1,2/3,2/1,1/6,1/5,1/4,1/3,1/2,1/1", bits="12,13,14,15" },
-]
-
-# dsw1,dsw2 default byte values, taken verbatim from each set's romsets.json
-# entry ("dsw1"/"dsw2" fields). byte order is LSB(dsw1) to MSB(dsw2), matching
-# the bit numbering above (dsw1 = bits 0-7, dsw2 = bits 8-15).
 defaults=[
 	{ machine="docastle", value="df,ff" },
 	{ machine="douni",    value="df,ff" },
@@ -191,6 +75,10 @@ defaults=[
 	{ machine="spiero",   value="df,ff" },
 	{ machine="idsoccer", value="ff,ff" },
 	{ machine="asoccer",  value="ff,ff" },
+]
+rename=[
+	{ name="Bonus Credit for Diamond", to="Diamond Bonus" },
+	{ name="Difficulty of EXTRA", to="EXTRA Difficulty" },
 ]
 
 [header]
