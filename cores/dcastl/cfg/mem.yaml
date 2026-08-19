@@ -78,13 +78,6 @@ sdram:
         offset: ADPCM_OFFSET
     # ba1: character/tile ROM. Fixed 16kB on every one of the 9 sets.
     - buses:
-      - name: gfx1
-        addr_width: 14   # 16kB, char_addr[13:0]
-        data_width: 8
-    # ba2: sprite ROM. Largest region (up to 128kB on the Soccer profile) and
-    # the highest-bandwidth fetch path, continuously scanned by the CF37201
-    # sprite chip on every active line, so it gets a bank to itself.
-    - buses:
       - name: gfx2
         addr_width: 17   # 128kB slot, sprite_gfx_addr[16:0]
         data_width: 8
@@ -98,6 +91,13 @@ sdram:
 # cprom: the board's colour PROM (256-512 bytes depending on the set). PROMs go
 # to BRAM rather than SDRAM.
 bram:
+  # Tile ROM. The pixel pipeline reads it combinationally every pixel and
+  # cannot stall, so it is BRAM rather than an SDRAM slot. Fixed 16kB on all
+  # nine sets.
+  - name: gfx1
+    addr_width: 14
+    data_width: 8
+    prom: true
   - name: spritecpu
     addr_width: 9    # 512B, sprite_cpu_rom[0:511]
     data_width: 8

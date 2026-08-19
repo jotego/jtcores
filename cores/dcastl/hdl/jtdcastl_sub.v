@@ -103,14 +103,14 @@ module jtdcastl_sub
 
 localparam [1:0] PROFILE_RUNRUN = 2'd1;
 wire is_runrun = profile == PROFILE_RUNRUN;
-wire cpu_ena = ce_cpu & ~pause;
+wire cpu_ena = ce_cpu & ~pause & cpu_wait_n;
 wire [15:0] cpu_addr;
 wire  [7:0] cpu_dout;
 wire  [7:0] ram_dout;
 reg   [7:0] cpu_din;
 wire m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, rst_n;
 wire [3:0] psg_ready;
-wire cpu_wait_n = &psg_ready;
+wire cpu_wait_n = &psg_ready;   // low while any PSG is servicing a write
 reg nmi_n;
 
 assign rst_n = ~reset;
@@ -141,7 +141,6 @@ end
 // unconnected to the CPU wrapper, stubbed below rather than wired to
 // something arbitrary. The correct injection point must be determined from
 // hardware evidence rather than guessed.
-wire _unused = cpu_wait_n;
 
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(0),.RECOVERY(1)) u_cpu
 (

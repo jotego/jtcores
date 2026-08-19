@@ -59,6 +59,8 @@ module jtdcastl_adpcm
 
 	output       [15:0] rom_addr,
 	input         [7:0] rom_q,
+	output              rom_cs,
+	input               rom_ok,
 
 	output signed [11:0] sound,
 	output              busy_debug,
@@ -79,13 +81,16 @@ assign status = idle ? 8'h00 : 8'h80;
 assign busy_debug = !idle;
 assign nibble_pos_debug = nibble_pos;
 assign rom_addr = nibble_pos[16:1];
+// The sample byte must be valid before a nibble is consumed: request while a
+// sample is playing and hold the nibble counter until the slot answers.
+assign rom_cs   = enabled & ~idle;
 
 // The board's 384 kHz MSM5205 input clock is 49.152 MHz / 128 on the PCB,
 // which under jtframe's 48.000 MHz base would be 375 kHz (-2.4%). It is
 // therefore sourced from cfg/mem.yaml's cen_384k (an exact 48,000,000/125 =
 // 384,000 Hz integer division) rather than a local counter. `pause` gating is
 // applied here, as the jt5205 .rst() port already folds in idle/enabled.
-wire ce_384k = cen_384k && !pause;
+wire ce_384k = cen_384k && !pause && rom_ok;
 
 wire [3:0] adpcm_din = nibble_pos[0] ? rom_q[3:0] : rom_q[7:4];
 wire vclk_irq;
@@ -118,7 +123,7 @@ always @(posedge clk) begin
 		if (!idle && (nibble_pos >= nibble_end))
 			idle <= 1;
 
-		if (vclk_irq && !idle && !pause)
+		if (vclk_irq && !idle && !pause && rom_ok)
 			nibble_pos <= nibble_pos + 1'd1;
 
 		if (control_wr) begin

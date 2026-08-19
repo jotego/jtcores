@@ -117,10 +117,10 @@ regions = [
 	{ name="maincpu" },
 	{ name="subcpu",    start="SUB_START" },
 	{ name="adpcm",     start="ADPCM_START" },  # idsoccer, asoccer only
-	{ name="gfx1",      start="JTFRAME_BA1_START" },
-	{ name="gfx2",      start="JTFRAME_BA2_START" },
-	{ name="spritecpu", start="JTFRAME_PROM_START" },
-	{ name="proms",     start="JTFRAME_PROM2_START" },
+	{ name="gfx2",      start="JTFRAME_BA1_START" },
+	{ name="gfx1",      start="JTFRAME_PROM_START" },
+	{ name="spritecpu", start="JTFRAME_PROM2_START" },
+	{ name="proms",     start="JTFRAME_PROM3_START" },
 ]
 
-order = [ "maincpu", "subcpu", "adpcm", "gfx1", "gfx2", "spritecpu", "proms" ]
+order = [ "maincpu", "subcpu", "adpcm", "gfx2", "gfx1", "spritecpu", "proms" ]

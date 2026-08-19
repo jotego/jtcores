@@ -112,7 +112,7 @@ localparam [1:0] PROFILE_SOCCER = 2'd2;
 
 wire is_runrun = profile == PROFILE_RUNRUN;
 wire is_soccer = profile == PROFILE_SOCCER;
-wire cpu_ena = ce_cpu & ~pause;
+wire cpu_ena = ce_cpu & ~pause & comm_wait_n;
 wire [15:0] cpu_addr;
 wire  [7:0] cpu_dout;
 wire  [7:0] ram_dout;

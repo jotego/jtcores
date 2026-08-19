@@ -114,7 +114,6 @@ module jtdcastl_colmix(
     // Structural pass-through to match jtframe's game-module port
     // convention (see jtflstory_colmix.v). The board has no equivalent
     // per-layer debug-disable at this stage, so these are not wired into any
-    // logic here. KNOWN LIMITATION: gfx_en/debug_bus are accepted but unused.
     input       [7:0] debug_bus,
     input       [3:0] gfx_en
 );
@@ -122,10 +121,12 @@ module jtdcastl_colmix(
 wire blank_n = lvbl & lhbl;
 
 // Tile/sprite priority mux and PROM address (tile_attr renamed tile_color).
-wire       tile_front   = low_pen_priority ? ~tile_pen[3] : tile_pen[3];
-wire       use_sprite   = !tile_front && sprite_pixel[9] && sprite_pixel[8];
-wire [4:0] final_color  = use_sprite ? sprite_pixel[7:3] : tile_color;
-wire [2:0] final_pen    = use_sprite ? sprite_pixel[2:0] : tile_pen[2:0];
+wire [3:0] tile_pen_en  = gfx_en[0] ? tile_pen : 4'd0;
+wire [9:0] sprite_en    = gfx_en[3] ? sprite_pixel : 10'd0;
+wire       tile_front   = low_pen_priority ? ~tile_pen_en[3] : tile_pen_en[3];
+wire       use_sprite   = !tile_front && sprite_en[9] && sprite_en[8];
+wire [4:0] final_color  = use_sprite ? sprite_en[7:3] : tile_color;
+wire [2:0] final_pen    = use_sprite ? sprite_en[2:0] : tile_pen_en[2:0];
 
 assign pal_addr = {final_color, final_pen};
 

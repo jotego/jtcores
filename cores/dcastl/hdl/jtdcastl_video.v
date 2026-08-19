@@ -84,6 +84,8 @@ module jtdcastl_video
 	input   [7:0] char_q,
 	output [16:0] sprite_gfx_addr,
 	input   [7:0] sprite_gfx_q,
+	output reg    sprite_gfx_cs,
+	input         sprite_gfx_ok,
 	output  [7:0] prom_addr,
 	input   [7:0] prom_q,
 
@@ -303,6 +305,7 @@ wire [9:0] sprite_pixel = pcb_framebuffer ? pcb_sprite_pixel : line_sprite_pixel
 always @(posedge clk) begin
 	if (reset) begin
 		render_state <= ST_IDLE;
+		sprite_gfx_cs <= 0;
 		line_overrun <= 0;
 		prep_bank <= 0;
 		target_y <= 0;
@@ -353,9 +356,15 @@ always @(posedge clk) begin
 			ST_GREQ: begin
 				line_gfx_addr <= {active_code,7'b0000000}
 					+ {10'd0,active_row,3'b000} + {14'd0,byte_index};
+				sprite_gfx_cs <= 1;
 				render_state <= ST_GWAIT;
 			end
-			ST_GWAIT: render_state <= ST_GUSE;
+			// Address is held and cs stays asserted until the slot answers,
+			// then cs drops so the next request re-arms ok from scratch.
+			ST_GWAIT: if (sprite_gfx_ok) begin
+				sprite_gfx_cs <= 0;
+				render_state <= ST_GUSE;
+			end
 			ST_GUSE: begin
 				if (prep_bank) begin
 					if (even_we && !line1_even_q[9]) line1_even[even_wr_addr] <= even_wr_data;
@@ -380,6 +389,7 @@ always @(posedge clk) begin
 					line_gfx_addr <= {active_code,7'b0000000}
 						+ {10'd0,active_row,3'b000}
 						+ {14'd0,byte_index} + 17'd1;
+					sprite_gfx_cs <= 1;
 					render_state <= ST_GWAIT;
 				end
 			end

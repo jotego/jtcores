@@ -771,6 +771,8 @@ jtdcastl_video u_video(
     .char_q             ( gfx1_data         ),
     .sprite_gfx_addr    ( gfx2_addr         ),
     .sprite_gfx_q       ( gfx2_data         ),
+    .sprite_gfx_cs      ( gfx2_cs           ),
+    .sprite_gfx_ok      ( gfx2_ok           ),
     // colour PROM: this module's own copy of the decode is dead in the
     // jtframe integration (flagged item V1); jtdcastl_colmix drives the
     // real cprom_addr. prom_q is fed the same data so both stay consistent.
@@ -834,7 +836,6 @@ assign cprom_addr = { 1'b0, pal_addr };
 /* verilator tracing_off */
 // ---------------------------------------------------------------------------
 // MSM5205 ADPCM (Indoor / American Soccer only).
-// adpcm_cs is held while the profile enables the channel; adpcm_ok is ignored.
 // See flagged item S3.
 // ---------------------------------------------------------------------------
 jtdcastl_adpcm u_adpcm(
@@ -848,6 +849,8 @@ jtdcastl_adpcm u_adpcm(
     .status             ( adpcm_status      ),
     .rom_addr           ( adpcm_addr        ),
     .rom_q              ( adpcm_data        ),
+    .rom_cs             ( adpcm_cs          ),
+    .rom_ok             ( adpcm_ok          ),
     .sound              ( adpcm_sound       ),
     .busy_debug         ( adpcm_busy        ),
     .nibble_pos_debug   ( adpcm_nibble      ),
@@ -857,9 +860,6 @@ jtdcastl_adpcm u_adpcm(
 // ---------------------------------------------------------------------------
 // SDRAM slot requests that no submodule owns. See flagged items S2 and S3.
 // ---------------------------------------------------------------------------
-assign gfx1_cs  = 1'b1;
-assign gfx2_cs  = 1'b1;
-assign adpcm_cs = has_adpcm;
 
 // ---------------------------------------------------------------------------
 // Audio. Mix order as on the board:
@@ -943,7 +943,7 @@ wire _unused = &{ 1'b0, main_pc, sub_pc, sprite_pc, psg_ready, main_m1_n,
                   main_iorq_n, sprite_copy_addr, sprite_copy_data,
                   sprite_copy_we, cf_dram_addr, cf_flip_x, cf_flip_y,
                   cf_plus_one, cf_serial_invert, cf_palette, h_count,
-                  adpcm_nibble, adpcm_strobe, gfx1_ok, gfx2_ok, adpcm_ok,
+                  adpcm_nibble, adpcm_strobe, gfx2_ok, adpcm_ok,
                   joyana_l3, joyana_l4, joyana_r3,
                   joyana_r4, dial_x, dial_y, snd_en, snd_vol, status,
                   dipsw[31:16], dip_fxlevel, tilt, prog_ba, prom_we,

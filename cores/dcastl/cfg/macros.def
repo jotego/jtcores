@@ -61,15 +61,13 @@ JTFRAME_VERTICAL
 #
 # Every non-first entry in [ROM].regions needs its own explicit start=MACRO.
 # bram: in mem.yaml lists two independent regions (spritecpu, cprom):
-# JTFRAME_PROM_START anchors the first (spritecpu, a fixed 512 bytes on all nine
-# sets) and JTFRAME_PROM2_START the second (cprom, MAME's "proms" region),
-# packed immediately after with no gap since nothing else follows it.
+# JTFRAME_PROM_START anchors gfx1, then spritecpu and cprom follow.
 SUB_START          =0x20000
 ADPCM_START        =0x30000
 JTFRAME_BA1_START  =0x40000
-JTFRAME_BA2_START  =0x48000
-JTFRAME_PROM_START =0x68000
-JTFRAME_PROM2_START=0x68200
+JTFRAME_PROM_START =0x60000
+JTFRAME_PROM2_START=0x64000
+JTFRAME_PROM3_START=0x64200
 
 # MiST support is unconfirmed; the core is developed and tested on MiSTer
 # (DE10-Nano / Cyclone V).
