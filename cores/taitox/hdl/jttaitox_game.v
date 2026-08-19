@@ -110,10 +110,10 @@ jttaitox_cchip u_cchip(
     .tilt       ( tilt          ),
     .counters   (               ),
 
-    .cchip_mask_addr ( cchip_mask_addr  ),
-    .cchip_mask_data ( cchip_mask_data  ),
-    .cchip_eprom_addr( cchip_eprom_addr ),
-    .cchip_eprom_data( cchip_eprom_data )
+    .ccrom_addr ( ccrom_addr    ),
+    .ccrom_cs   ( ccrom_cs      ),
+    .ccrom_data ( ccrom_data    ),
+    .ccrom_ok   ( ccrom_ok      )
 );
 
 jttaitox_snd u_snd(

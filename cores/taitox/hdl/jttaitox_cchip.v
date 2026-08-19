@@ -41,10 +41,12 @@ module jttaitox_cchip(
     // coin counters / lockouts (pc_out), for the coin door
     output     [ 7:0] counters,
 
-    output     [11:0] cchip_mask_addr,
-    input      [ 7:0] cchip_mask_data,
-    output     [12:0] cchip_eprom_addr,
-    input      [ 7:0] cchip_eprom_data
+    // C-chip mask ROM + game EPROM, kept in SDRAM as one 16 kB region laid
+    // out like the MCU map: mask at 0x0000, EPROM at 0x2000.
+    output     [13:0] ccrom_addr,
+    output            ccrom_cs,
+    input      [ 7:0] ccrom_data,
+    input             ccrom_ok
 );
 
 reg [7:0] cc_pa, cc_pb, cc_an;
@@ -55,10 +57,14 @@ always @(posedge clk) begin
     cc_an <= { tilt, 4'hf, service, coin[1], coin[0] };
 end
 
+// Stall the MCU while a fetch is in flight. The address is combinational on
+// the MCU state, so it stays put while cen is held low.
+wire mcu_cen = cen & ~(ccrom_cs & ~ccrom_ok);
+
 jttc0030cmd u_cchip(
     .rst        ( rst              ),
     .clk        ( clk              ),
-    .cen        ( cen              ),
+    .cen        ( mcu_cen          ),
     .cs         ( cs               ),
     .addr       ( addr             ),
     .din        ( din              ),
@@ -74,10 +80,12 @@ jttc0030cmd u_cchip(
     .pb_out     (                  ),
     .pc_out     ( counters         ),
     .an         ( cc_an            ),
-    .mrom_addr  ( cchip_mask_addr  ),
-    .mrom_data  ( cchip_mask_data  ),
-    .eprom_addr ( cchip_eprom_addr ),
-    .eprom_data ( cchip_eprom_data ),
+    .mrom_addr  (                  ),
+    .mrom_data  ( ccrom_data       ),
+    .eprom_addr (                  ),
+    .eprom_data ( ccrom_data       ),
+    .rom_addr   ( ccrom_addr       ),
+    .rom_cs     ( ccrom_cs         ),
     // debug (unused)
     .dbg_pc     (                  ),
     .dbg_fetch  (                  )

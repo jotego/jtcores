@@ -50,7 +50,7 @@ regions = [
     { setnames=["ballbros","kyustrkr"], name="gfx1", start="JTFRAME_BA2_START", width=32, no_offset=true, sequence=[1,3,0,2] },
     { name="gfx1",         start="JTFRAME_BA2_START", width=16, no_offset=true },
     { name="ymsnd:adpcmb", rename="adpcmb", start="JTFRAME_BA3_START" },
-    { name="cchip_bios", setnames=["superman","supermanu","supermanj"], start="JTFRAME_PROM_START", rom_len=0x1000, files=[ { name="cchip_upd78c11.bin", crc="43021521", size=0x1000 } ] },
+    { name="cchip_bios", setnames=["superman","supermanu","supermanj"], start="CCHIP_START", rom_len=0x2000, files=[ { name="cchip_upd78c11.bin", crc="43021521", size=0x1000 } ] },
     { name="cchip:cchip_eprom", rename="cchip_eprom", rom_len=0x2000 },
 ]
 
