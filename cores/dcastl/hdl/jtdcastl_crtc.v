@@ -49,7 +49,24 @@ module jtdcastl_crtc
 );
 
 reg [7:0] crtc [0:17];
-reg [7:0] pending [0:17];
+wire [7:0] pending [0:17];
+wire [7:0] r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17;
+
+jtdcastl_crtc_mmr #(.INIT(144'h000082008000000007001c18081f62222026)) u_mmr(
+	.rst(reset), .clk(clk),
+	.cs(reg_we), .addr(reg_sel[4:0]), .rnw(1'b0), .din(reg_data), .dout(),
+	.r0(r0),.r1(r1),.r2(r2),.r3(r3),.r4(r4),.r5(r5),.r6(r6),.r7(r7),.r8(r8),
+	.r9(r9),.r10(r10),.r11(r11),.r12(r12),.r13(r13),.r14(r14),.r15(r15),
+	.r16(r16),.r17(r17),
+	.ioctl_addr(5'd0), .ioctl_din(), .debug_bus(8'd0), .st_dout()
+);
+
+assign pending[0]=r0;   assign pending[1]=r1;   assign pending[2]=r2;
+assign pending[3]=r3;   assign pending[4]=r4;   assign pending[5]=r5;
+assign pending[6]=r6;   assign pending[7]=r7;   assign pending[8]=r8;
+assign pending[9]=r9;   assign pending[10]=r10; assign pending[11]=r11;
+assign pending[12]=r12; assign pending[13]=r13; assign pending[14]=r14;
+assign pending[15]=r15; assign pending[16]=r16; assign pending[17]=r17;
 integer ri;
 reg [8:0] h_ctr, v_ctr;
 reg [6:0] row_ctr;
@@ -126,12 +143,6 @@ always @(posedge clk) begin
 		crtc[9] <= 8'h07; crtc[10] <= 8'h00; crtc[11] <= 8'h00;
 		crtc[12] <= 8'h00; crtc[13] <= 8'h80; crtc[14] <= 8'h00;
 		crtc[15] <= 8'h82; crtc[16] <= 8'h00; crtc[17] <= 8'h00;
-		pending[0] <= 8'h26; pending[1] <= 8'h20; pending[2] <= 8'h22;
-		pending[3] <= 8'h62; pending[4] <= 8'h1f; pending[5] <= 8'h08;
-		pending[6] <= 8'h18; pending[7] <= 8'h1c; pending[8] <= 8'h00;
-		pending[9] <= 8'h07; pending[10] <= 8'h00; pending[11] <= 8'h00;
-		pending[12] <= 8'h00; pending[13] <= 8'h80; pending[14] <= 8'h00;
-		pending[15] <= 8'h82; pending[16] <= 8'h00; pending[17] <= 8'h00;
 		h_ctr <= 0; v_ctr <= 0; row_ctr <= 0; ra_ctr <= 0;
 		adjust_ctr <= 0; in_adjust <= 0; frame_ctr <= 0;
 		ma_row_addr <= 14'h0080;
@@ -140,7 +151,6 @@ always @(posedge clk) begin
 		prev_ma6 <= 0; prev_interrupt <= 0;
 		sub_irq_req <= 0; sprite_nmi_req <= 0;
 	end else begin
-		if (reg_we && (reg_sel < 18)) pending[reg_sel] <= reg_data;
 		sub_irq_req <= 0;
 		sprite_nmi_req <= 0;
 

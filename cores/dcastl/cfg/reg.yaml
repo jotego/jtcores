@@ -1,20 +1,9 @@
-# One entry per supported set. The matching per-game jtsim input scripts live
-# at cores/docastle/ver/<setname>/reg.cab.
 docastle:
-  inputs: reg.cab
 douni:
-  inputs: reg.cab
 dorunrun:
-  inputs: reg.cab
 dowild:
-  inputs: reg.cab
 jjack:
-  inputs: reg.cab
 kickridr:
-  inputs: reg.cab
 spiero:
-  inputs: reg.cab
 idsoccer:
-  inputs: reg.cab
 asoccer:
-  inputs: reg.cab
