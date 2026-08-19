@@ -16,31 +16,6 @@
     Version: 1.0
     Date: 18-8-2026 */
 
-//============================================================================
-// Mr. Do's Castle video pipeline.
-//
-// Native raster: 4.914 MHz, 312 x 264 total, 240 x 192 visible after the
-// schematic's 8-pixel left/right blanking. Tile/sprite priority follows the
-// two-pass MAME model: sprite pens 8-14 are visible, pen 15 is an invisible
-// mask which blocks following sprites, and tile pens 8-15 are foreground.
-//
-// Ported from the standalone MiSTer Universal_DoCastle core this core derives
-// from. Raster geometry (312x264 total / 240x192 visible /
-// HD6845S @ 9.828 MHz/16 / pixel clock 9.828 MHz/2) and the frame-shadowed
-// register-write protection are unchanged from the source core; the
-// video-timing/blanking signal names follow jtframe's convention:
-//
-//   hs      (active-high sync pulse)      ->  HS      (same polarity)
-//   vs      (active-high sync pulse)      ->  VS      (same polarity)
-//   hblank  (active-HIGH: 1 = blanked)    ->  LHBL    (active-LOW: 0 = blanked;
-//                                                       jtframe convention --
-//                                                       see jtframe_vtimer.v.
-//                                                       Polarity is inverted;
-//                                                       the blanking WINDOW
-//                                                       timing is unchanged.)
-//   vblank  (active-HIGH: 1 = blanked)    ->  LVBL    (same as hblank->LHBL
-//                                                       above)
-//============================================================================
 module jtdcastl_video
 (
 	input         clk,
@@ -99,12 +74,6 @@ module jtdcastl_video
 	output        LHBL,               // active low, per jtframe convention
 	output        LVBL,               // active low, per jtframe convention
 
-	// Colour-mix taps. jtdcastl_colmix.v needs the pre-PROM tile pen / tile
-	// colour / sprite pixel that this module computes internally. Exposing them
-	// lets jtdcastl_game.v use jtdcastl_colmix.v as the single RGB source
-	// instead of this module's own copy of the same priority mux +
-	// resistor-DAC maths (r/g/b/prom_addr below remain in place but are unused
-	// in the jtframe integration -- see jtdcastl_game.v, item V1).
 	output  [3:0] mix_tile_pen,
 	output  [4:0] mix_tile_color,
 	output  [9:0] mix_sprite_pixel,
@@ -165,10 +134,6 @@ always @(posedge clk) begin
 	end
 end
 
-// Pixel-space mapping uses the board's raw x coordinate.  Only x=8..247 is
-// visible; flip-screen mirrors the full 256-pixel tile/sprite coordinate.
-// The RAM scan ports are registered at the 49.152 MHz master rate, leaving
-// ample settling time before the next 4.9152 MHz pixel enable.
 wire [7:0] tile_number = vram_scan_dout;
 wire [7:0] tile_attr   = cram_scan_dout;
 wire [8:0] tile_code   = {tile_attr[5], tile_number};
@@ -176,10 +141,6 @@ wire [13:0] char_base  = {tile_code,5'b00000};
 assign char_addr = char_base + {9'd0,map_y[2:0],2'b00} + {12'd0,bitmap_x[2:1]};
 wire [3:0] tile_pen = bitmap_x[0] ? char_q[3:0] : char_q[7:4];
 
-// Two alternating sprite line buffers.  Even/odd pixel banks allow the two
-// pixels decoded from each ROM byte to be written concurrently with only one
-// write per physical memory. occupied=1 blocks every lower-priority sprite;
-// visible=0 represents MAME's invisible pen-15 masking pass.
 reg [9:0] line0_even [0:127];
 reg [9:0] line0_odd  [0:127];
 reg [9:0] line1_even [0:127];
@@ -267,9 +228,6 @@ wire [9:0] line_sprite_pixel = v_count[0]
 wire [16:0] pcb_gfx_addr;
 wire [9:0] pcb_sprite_pixel;
 wire pcb_busy, pcb_overrun, pcb_frame_ready;
-// jtdcastl_pcb_sprite's .vblank port is active-high, as on the source core;
-// since LVBL is active-low, it is fed the inverted signal (~LVBL) here to
-// reproduce the same electrical value. See that module's header.
 jtdcastl_pcb_sprite pcb_sprite
 (
 	.clk(clk), .reset(reset), .ce_pix(ce_pix), .enable(pcb_framebuffer),
@@ -368,10 +326,6 @@ always @(posedge clk) begin
 					end
 				end else begin
 					byte_index <= byte_index + 1'd1;
-					// Request the next byte while committing this one. The
-					// synchronous ROM updates during ST_GWAIT, reducing each
-					// remaining byte from three master clocks to two. Even all
-					// 128 sprites on one line now finish well before the next line.
 					line_gfx_addr <= {active_code,7'b0000000}
 						+ {10'd0,active_row,3'b000}
 						+ {14'd0,byte_index} + 17'd1;

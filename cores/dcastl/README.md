@@ -57,32 +57,19 @@ Points worth noting versus emulation:
 
 # Known limitations
 
-**Graphics ROM handshake (must be resolved before hardware use).** The tile
-and sprite fetch paths were written against a fixed one-cycle BRAM latency and
-still ignore `gfx1_ok` / `gfx2_ok`, with `*_cs` tied high. Per
-`jtframe_romrq.v`, holding `addr_ok` high is only valid while the address does
-not change before `data_ok` — which the sprite state machine breaks, so
-fetches can return stale bytes. Note that a bare `ST_GWAIT: if(gfx2_ok)` is
-*not* a sufficient fix: with `OKLATCH=1`, `data_ok` remains high for a cycle
-after the address changes, so a naive test can pass on a stale `ok`. Either
-toggle `gfx2_cs` per request, or gate on a freshly cleared `ok`, and confirm
-against a waveform. Moving `gfx1` to BRAM (a fixed 16 kB on all nine sets)
-would remove the problem for tiles outright, config-only, but sprites must
-stay in SDRAM. See the header of `hdl/jtdcastl_game.v` for the full analysis.
+- The sprite RAM is still an inferred array in the video module rather than a
+  `mem.yaml` block: it is written byte-wise by the sprite CPU but read a whole
+  32-bit entry at a time by the scanner, so moving it needs the scanner to do
+  four sequential reads where it now does one. Tile and colour RAM are already
+  `mem.yaml` dual-port BRAM with scene save/restore.
+- No `ver/` scenes yet, so nothing here has been compared frame by frame.
+- The optional CF37201 framebuffer renderer (`hdl/jtdcastl_pcb_sprite.v`) is
+  not the default and has never been checked against a physical PCB; the
+  direct sprite renderer is the one used.
+- Never elaborated by Quartus and never run on hardware.
+- No physical board has been available, so none of the accuracy work above has
+  been confirmed against one.
 
-**Not yet simulated.** There are no `ver/` scenes, so nothing here has been
-compared frame-by-frame in this form. The core passes `jtframe cfgstr`, `mem`,
-`files`, `msg` and `mra`, and lints clean under Verilator (0 errors, 0
-warnings) with the top at `jtdcastl_game_sdram`, but it has not been
-elaborated by Quartus and has not run on hardware.
-
-**Optional CF37201 framebuffer renderer.** `hdl/jtdcastl_pcb_sprite.v`
-implements the decap-derived alternating-field framebuffer. It is not the
-default and has never been confirmed against a physical PCB; the direct sprite
-renderer is the one used.
-
-**No physical board.** None of the above has been checked against real Do's
-Castle hardware, as no board has been available.
 
 # Credits
 

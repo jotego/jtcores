@@ -16,45 +16,6 @@
     Version: 1.0
     Date: 18-8-2026 */
 
-// Main Z80 of the Universal Do! Castle hardware family. Ported from the
-// standalone MiSTer Universal_DoCastle core this core derives from, onto
-// jtframe's CPU/SDRAM boundary.
-//
-// Differences from the source core's main CPU, and why:
-//   1. T80se instantiated directly -> jtframe_sysz80 (RAM_AW=13). The
-//      wrapper fuses the Z80, its own work RAM (jtframe_dual_nvram), and a
-//      rom_cs/rom_ok wait-state generator (jtframe_z80_romwait) in one
-//      module -- this is jtframe's standard CPU/SDRAM integration pattern
-//      (confirmed against modules/jtframe/hdl/cpu/jtframe_z80.v and
-//      cores/flstory/hdl/jtflstory_main.v's real u_cpu instance).
-//   2. The local `work_ram[0:6143]` BRAM block and its ram_cs read/write
-//      logic are REMOVED -- that RAM now lives inside jtframe_sysz80's own
-//      jtframe_dual_nvram (RAM_AW=13 exactly covers the original 6144-byte,
-//      13-bit-addressed window: cpu_addr[12:0]). ram_cs/ram_dout are wired
-//      to the wrapper instead of a locally-inferred array.
-//   3. NEW input `rom_ok`. The source core's ROM store always returned valid
-//      data with fixed 1-cycle latency, so it never needed to wait for ROM.
-//      Under jtframe, ROM is
-//      SDRAM-backed with variable latency, and jtframe_sysz80 internally
-//      inserts Z80 WAIT states while `rom_cs && !rom_ok`. rom_cs itself is
-//      unchanged -- it's the same profile-dependent address decode as
-//      before, now doubling as the wrapper's wait-state qualifier.
-//   4. This module exposes `rom_q`/`rom_addr`/`rom_cs`/`rom_ok` at its own
-//      boundary; jtdcastl_game.v wires mem.yaml's generated `main` bus to
-//      them (main_data->rom_q, cpu_addr->main_addr, main_ok->rom_ok).
-//   5. CLR_INT(0) chosen to match the source core's direct `.INT_n(irq_n)`
-//      pass-through (a raw level-sensitive interrupt line, not latched by
-//      M1/IORQ) -- see jtframe_z80.v's CLR_INT parameter doc. This differs
-//      from flstory's own CLR_INT(1) choice; flstory's IRQ source works
-//      differently and is not evidence for how docastle's should behave.
-//   6. Everything else -- the profile-dependent memory map (rom_cs/ram_cs/
-//      sprite_cs/video_cs/color_cs/comm_cs/adpcm_cs/nmi_cs/watchdog_cs),
-//      the edge-detected write/read logic, the CRTC register-write
-//      protocol, sub-CPU NMI request, and the comm/adpcm/sprite/video/color
-//      port list -- is unchanged from the source core.
-//
-// MAME reference: src/mame/universal/docastle.cpp main_map variants.
-
 module jtdcastl_main
 (
 	input         rst,
@@ -121,17 +82,6 @@ wire m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, rst_n;
 
 assign rst_n = ~rst;
 
-// KNOWN LIMITATION -- cross-CPU WAIT handshake not injected. On the PCB the
-// main Z80's WAIT_n carries ONLY the cross-CPU comm_wait_n handshake (the
-// main/sub WAIT protocol); there is no ROM-wait mechanism. jtframe_sysz80
-// generates its own internal WAIT for rom_cs/rom_ok and does not expose a
-// combined external WAIT_n input the way T80se does, so comm_wait_n needs a
-// different injection point than "WAIT_n", chosen to compose correctly with
-// jtframe_z80_romwait's wait arbitration. comm_wait_n is therefore threaded
-// through at the port boundary but is not wired into the CPU wrapper. This is
-// the main/sub WAIT-handshake timing that governs real PCB accuracy here; it
-// must be resolved from hardware evidence rather than guessed.
-
 jtframe_sysz80 #(.RAM_AW(13),.CLR_INT(0),.RECOVERY(1)) u_cpu
 (
 	.rst_n      ( rst_n       ),
@@ -153,10 +103,6 @@ jtframe_sysz80 #(.RAM_AW(13),.CLR_INT(0),.RECOVERY(1)) u_cpu
 	.cpu_din    ( cpu_din     ),
 	.cpu_dout   ( cpu_dout    ),
 	.ram_dout   ( ram_dout    ),
-	// No NVRAM pins here: jtframe_sysz80 does not expose prog_addr/
-	// prog_data/prog_din/prog_we -- it instantiates jtframe_sysz80_nvram
-	// internally and ties them off itself (jtframe_z80.v).
-	// ROM/RAM access
 	.ram_cs     ( ram_cs      ),
 	.rom_cs     ( rom_cs      ),
 	.rom_ok     ( rom_ok      )

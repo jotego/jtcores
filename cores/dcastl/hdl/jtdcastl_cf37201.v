@@ -16,34 +16,6 @@
     Version: 1.0
     Date: 18-8-2026 */
 
-//============================================================================
-// Synchronous CF37201N (TI TAL004) board-behaviour model.
-//
-// Register decode, the REG1->REG1B transfer, flip/palette latching, interrupt
-// acknowledge, pair/line counters and the multiplexed DRAM address follow a
-// decap-derived reproduction pinned to SiliconRE furrtek's CF37201N decap
-// (https://github.com/furrtek/SiliconRE/tree/master/Misc/CF37201N,
-// pinned revision 7c94fad788c33ff696ad7f07703b1dc303e3230c). That RTL was not
-// copied; this is an independent synchronous model derived from the published
-// decap observations, pinout and schematic, carried over from the standalone
-// MiSTer Universal_DoCastle core this core derives from. The PCB's external
-// /PL counter is represented by its measured 126-MCLK sprite interval; all
-// custom-chip state remains in the core clock domain.
-//
-// The following are load-bearing and must not be "simplified":
-//   - register decode with A3 not decoded (bus_addr is 2 bits; case default
-//     covers both A3=0 and A3=1 landing on the same 2-bit decode -- see the
-//     "A3 is deliberately not decoded by the TAL004" comment, carried over
-//     verbatim)
-//   - the X/Y counters (y_count, x_count, pair_in_line)
-//   - the two-phase DRAM address mux (h0_phase-selected dram_addr)
-//   - serial inversion (serial_invert = reg1b[0] ^ reg2[6])
-//   - field parity (frame_parity input, used in dram_addr/dram_address)
-//   - the measured 126-MCLK /PL interrupt cycle (pl_count == 7'd125)
-//
-// This module has no video-timing ports (no hs/vs/hblank/vblank), so
-// jtdcastl_video.v/jtdcastl_crtc.v's LHBL/LVBL naming does not apply here.
-//============================================================================
 module jtdcastl_cf37201
 (
 	input clk, input reset, input ce_mclk,
@@ -100,9 +72,6 @@ always @(posedge clk) begin
 		// PACC is the Z80 /IORQ interrupt-acknowledge phase.  REG2 bit 5
 		// also disables and releases PINT exactly as on the gate array.
 		if (irq_ack || reg2[5]) irq_req <= 0;
-		// While enabled, each acknowledged sprite-complete interrupt arms
-		// the next external /PL interval.  CPU3 consequently streams the
-		// protected list one four-byte descriptor per interrupt.
 		if (irq_ack && !reg2[5] && !blit_busy) begin
 			reg1b <= reg1;
 			y_count <= reg0;
@@ -122,9 +91,6 @@ always @(posedge clk) begin
 				2'd2: begin
 					reg2 <= bus_data;
 					if (bus_data[5]) irq_req <= 0;
-					// The protection ROM writes 20h then 00h to C432.
-					// The falling enable transition arms the PCB's external
-					// /PL counter and transfers the transparent register bank.
 					if (reg2[5] && !bus_data[5]) begin
 						if (blit_busy) overrun <= 1;
 						reg1b <= reg1;
@@ -158,9 +124,6 @@ always @(posedge clk) begin
 				end
 			end
 
-			// The external counter releases /PL after 126 MCLK periods.
-			// That edge captures palette/polarity and asserts active-low
-			// PINT when enabled; irq_req is its active-high core form.
 			if (pl_count == 7'd125) begin
 				pl_count <= 0;
 				blit_busy <= 0;

@@ -16,19 +16,6 @@
     Version: 1.0
     Date: 18-8-2026 */
 
-//============================================================================
-// Board-relevant HD6845S model for the Universal Do! Castle hardware family.
-//
-// The CRTC runs at one character clock per eight pixels.  Vertical total,
-// total-adjust, maximum raster, displayed rows, sync position, start
-// address, MA/RA and CURSOR all come from the programmed registers.  The
-// default register image is the measured 312x264, 240x192 board mode, so
-// reset never emits a malformed partial frame.
-//
-// Ported from the standalone MiSTer Universal_DoCastle core this core derives
-// from, using jtframe's video-signal convention -- see jtdcastl_video.v's
-// header for the LHBL/LVBL polarity note.
-//============================================================================
 module jtdcastl_crtc
 (
     input             clk,
@@ -94,13 +81,6 @@ assign HS = ({1'b0,h_ctr} >= h_sync_start) &&
 	({1'b0,h_ctr} < h_sync_end);
 assign VS = vs_active;
 
-// The board blanks one character around the CRTC's 32-character display.
-// This produces the documented x=8..247 aperture while still following R1.
-// LHBL/LVBL are jtframe's active-low blanking convention (1 = active
-// display, 0 = blanked -- see modules/jtframe/hdl/video/jtframe_vtimer.v),
-// the exact inverse electrical sense of the source core's active-high
-// hblank/vblank. The blanking WINDOW below (start/end compare terms) is
-// unchanged; only the final polarity is flipped to match the convention.
 assign LHBL = !((h_ctr < 9'd8) || ({1'b0,h_ctr} >= h_active_end));
 assign LVBL = !(in_adjust || (row_ctr >= crtc[6][6:0]));
 
@@ -109,10 +89,6 @@ wire pending_mode_valid = (pending[0] != 0) && (pending[1] != 0) &&
 	(pending[4] != 0) && (pending[6] != 0);
 wire [13:0] cursor_addr = {crtc[14][5:0],crtc[15]};
 assign ma = ma_row_addr + {8'd0,h_ctr[8:3]};
-// The proven board-family cadence observes MA6 across total-adjust as though
-// the address row continues from the raw scan count.  Keep that behaviour for
-// the release VSYNC path; the fully programmed MA is retained in CURSOR
-// research mode where it can be compared independently.
 wire [13:0] compatibility_row_offset = v_ctr[8:3] * crtc[1];
 wire [13:0] compatibility_ma = {crtc[12][5:0],crtc[13]} +
 	compatibility_row_offset + {8'd0,h_ctr[8:3]};
@@ -138,9 +114,6 @@ assign cursor = !in_adjust && (cursor_skew != 2'b11) &&
 	(ra_ctr >= crtc[10][4:0]) && (ra_ctr <= crtc[11][4:0]) &&
 	cursor_blink;
 
-// The physical CRTC powers up unprogrammed.  Do not expose the reset-image
-// cursor as an interrupt until software's first complete register frame has
-// been sampled; otherwise an impossible scanline-zero IRQ races Z80 startup.
 wire interrupt_level = cursor_irq_mode ? (cursor & timing_ready) : VS;
 assign main_irq_n = ~interrupt_level;
 reg prev_ma6, prev_interrupt;
@@ -167,9 +140,6 @@ always @(posedge clk) begin
 		prev_ma6 <= 0; prev_interrupt <= 0;
 		sub_irq_req <= 0; sprite_nmi_req <= 0;
 	end else begin
-		// The HD6845 timing/start registers are sampled for the next frame.
-		// This prevents a software register burst during active display from
-		// creating a physically impossible partial raster.
 		if (reg_we && (reg_sel < 18)) pending[reg_sel] <= reg_data;
 		sub_irq_req <= 0;
 		sprite_nmi_req <= 0;
@@ -184,10 +154,6 @@ always @(posedge clk) begin
 
 			if ((h_total <= 10'd1) || ({1'b0,h_ctr} == (h_total - 1'd1))) begin
 				h_ctr <= 0;
-				// VSYNC is a scanline-width monostable in the HD6845, not a
-				// simple vertical-address comparison.  This matters while the
-				// game intentionally clears the timing registers: a short frame
-				// must not leave VSYNC permanently asserted.
 				if (vs_active) begin
 					if (vs_count >= v_sync_width) begin
 						vs_active <= 0;

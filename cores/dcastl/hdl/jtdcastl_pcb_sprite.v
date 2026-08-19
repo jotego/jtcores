@@ -16,41 +16,6 @@
     Version: 1.0
     Date: 18-8-2026 */
 
-//============================================================================
-// PCB-style sprite framebuffer (CF37201-driven alternate renderer).
-//
-// The original board renders sprites into alternating 64Kx8 DRAM fields.
-// Both complete 256x256 fields are retained here, including the hidden top 32
-// lines used by the PCB coordinate system.  Rendering is confined to vertical
-// blank and fields swap only at the following frame boundary.
-//
-// KNOWN LIMITATION -- NOT HARDWARE-VERIFIED, NON-DEFAULT. This decap-derived
-// alternate framebuffer renderer is deterministic and regression-tested
-// against MAME frame-by-frame across all nine sets, but it has not been
-// confirmed against a physical Do's Castle PCB, since no board has been
-// available. The proven direct sprite renderer is therefore the only renderer
-// shipped enabled. This module is instantiated unconditionally by
-// jtdcastl_video.v so the design elaborates, but it must stay non-default
-// and must not be exposed as a selectable OSD/DIP path until it is wired
-// behind jtframe's status-bit convention AND confirmed against real hardware.
-// jtdcastl_video.v ties this instance's `enable` straight to its own
-// `pcb_framebuffer` input, which the game module holds at 0.
-//
-// Port-convention note:
-//   vblank is active-HIGH here (1 = blanked), deliberately NOT aligned to
-//   jtframe's active-low LHBL/LVBL convention (see modules/jtframe/doc/
-//   style.md). jtdcastl_video.v feeds it `~LVBL` so the electrical value
-//   matches the source core. This is the one video-timing port in this core
-//   that keeps the original polarity and naming; every other one (hs/vs/
-//   hblank in jtdcastl_crtc.v/jtdcastl_video.v) was renamed and inverted.
-//
-// KNOWN LIMITATION (structural, not behavioural): this file defines two
-// modules (jtdcastl_pcb_sprite + jtdcastl_field_ram), while jtframe's
-// style.md states "Each verilog file contains only one module".
-// jtdcastl_field_ram is private to this module and instantiated nowhere
-// else; splitting it into its own file is a mechanical change left for a
-// later pass.
-//============================================================================
 module jtdcastl_pcb_sprite
 (
 	input clk, input reset, input ce_pix, input enable,
@@ -80,10 +45,6 @@ end
 
 reg display_bank, display_valid;
 reg [15:0] display_addr, build_addr;
-// The three stored pen bits already distinguish a visible source pen (0-6)
-// from pen 15's priority mask (7).  Keep one private occupancy bit plus the
-// board's eight colour/pen bits; reconstruct the renderer's visible flag on
-// read instead of spending a redundant RAM bit in both 64K fields.
 wire [8:0] field0_q, field1_q;
 wire [8:0] display_q = display_bank ? field1_q : field0_q;
 wire [8:0] build_q = display_bank ? field0_q : field1_q;
@@ -91,9 +52,6 @@ reg fb_we;
 reg [15:0] fb_addr;
 reg [8:0] fb_data;
 reg fb_field;
-// A CF byte is a two-pixel external-DRAM location.  The renderer normally
-// writes the descriptor-derived address, but a live CF transaction takes the
-// TAL004's assembled address and field select all the way to the field RAM.
 wire cf_bus_write = cf_dram_strobe && cf_dram_column;
 wire [15:0] cf_pixel_addr = {cf_dram_y,cf_dram_x};
 wire [15:0] cf_pixel_addr_plus = cf_pixel_addr + (cf_plus_one ? 16'd1 : 16'd0);
@@ -284,10 +242,6 @@ always @(posedge clk) begin
 end
 endmodule
 
-// Quartus 17 simple-dual-port inference template used for each physical field.
-// Renamed only (docastle_field_ram -> jtdcastl_field_ram) for this port's
-// jtdcastl_* naming convention; behaviour unchanged. See file header for the
-// flagged one-module-per-file style.md deviation this second module causes.
 module jtdcastl_field_ram
 (
 	input clk,

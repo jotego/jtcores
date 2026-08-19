@@ -16,79 +16,6 @@
     Version: 1.0
     Date: 18-8-2026 */
 
-// 8301 sprite/protection Z80 and the board's 0x200-byte sprite doorway.
-// Ported from the standalone MiSTer Universal_DoCastle core this core derives
-// from, onto jtframe's CPU/SDRAM boundary.
-//
-// The main CPU writes an addressable staging latch at 0x9800/0x3800/0x5800.
-// CPU3 reads that window at 0x8000, copies it through its 0x4321 work area,
-// and then streams the protected bytes to the CF37201 doorway at 0xc000.
-// copy_we observes the first transfer; cf_we is exclusively the real second
-// transfer. Keeping those phases separate is important to the board timing
-// This is real PCB-accuracy work; none of that bus-phase logic below may be
-// simplified.
-//
-// Differences from the source core's sprite CPU, and why:
-//   1. T80se instantiated directly -> jtframe_sysz80 (RAM_AW=11). Same
-//      integration pattern as jtdcastl_main.v's u_cpu (see that file's
-//      header note 1).
-//   2. TWO local RAM blocks exist on this CPU, and they are NOT treated the
-//      same way:
-//        - `work_ram[0:2047]` (cpu_addr[10:0], ram_cs 0x4000-0x47ff) is a
-//          plain Z80-only work RAM -- exactly the case jtframe_sysz80's
-//          wrapper is built for. It is REMOVED and now lives inside
-//          jtframe_sysz80's own jtframe_dual_nvram; RAM_AW=11 exactly
-//          covers its 2048-byte, 11-bit-addressed window. ram_cs/ram_dout
-//          are wired to the wrapper; every use of the old `work_q` read
-//          register in the cpu_din mux is now `ram_dout`.
-//        - `staging_ram[0:511]` (cpu_addr[8:0], stage_cs 0x8000-0x81ff) is
-//          NOT a Z80-only RAM: it is genuinely dual-ported, written live
-//          every cycle by the MAIN CPU's own `main_addr`/`main_data`/
-//          `main_we` port (the addressable staging latch described above),
-//          independent of this CPU's own bus cycles. jtframe_sysz80's
-//          second RAM port (prog_addr/prog_data/prog_we) is an NVRAM
-//          dump/restore path meant for save-state/reset use, not a live
-//          cross-CPU write port during normal operation -- so it is NOT a
-//          substitute for this array. `staging_ram` therefore stays as this
-//          module's own local dual-port BRAM.
-//   3. NEW input `rom_ok`, same reasoning as jtdcastl_main.v note 3: ROM
-//      is now SDRAM-backed with variable latency, and jtframe_sysz80
-//      internally inserts Z80 WAIT states while `rom_cs && !rom_ok`. The
-//      rom_cs decode itself (cpu_addr <= 0x00ff, a 256-byte window) is
-//      UNCHANGED -- it is now given an explicit wire name so it can drive
-//      both the wrapper's rom_cs input and the existing cpu_din read mux
-//      (which previously spelled the same condition out inline).
-//   4. Same boundary shape as jtdcastl_main.v note 4: rom_q/rom_addr/
-//      rom_cs/rom_ok are exposed here and jtdcastl_game.v wires the
-//      mem.yaml-generated "spritecpu" bus to them.
-//   5. CLR_INT(0) chosen, but for a DIFFERENT reason than main/sub: this
-//      module's local `int_n` register is NOT a raw external level -- it
-//      already implements its OWN M1/IORQ-ack-based interrupt clearing
-//      (`int_ack = ~m1_n & ~iorq_n`; `int_n` is forced low while
-//      `pcb_fidelity && cf_irq_req`, and cleared back to 1 on `int_ack`,
-//      exactly matching jtframe_z80's own CLR_INT=1 latch-and-clear-on-ack
-//      pattern, just implemented locally with different set conditions).
-//      Using CLR_INT(1) here would apply a SECOND, redundant layer of
-//      edge-triggered latching on top of a signal this module already
-//      resolves to a final level itself, changing this CPU's
-//      PCB-accuracy-critical IRQ timing. CLR_INT(0) keeps the existing
-//      local `int_n`/`nmi_n` generation logic completely UNCHANGED and
-//      just feeds the already-resolved level into the wrapper's raw
-//      int_n/nmi_n ports, same class of reasoning as jtdcastl_main.v's
-//      note 5 and jtdcastl_sub.v's note 5 (don't let the wrapper re-latch
-//      a signal that is already a final level at this module's boundary).
-//   6. No WAIT-handshake limitation applies to this file. This CPU's WAIT_n
-//      pin is tied `1'b1` (never asserted) on the board -- it has no external
-//      WAIT dependency of any kind, unlike main's comm_wait_n (see
-//      jtdcastl_main.v) or sub's PSG-busy WAIT_n (see jtdcastl_sub.v).
-//      jtframe_sysz80 exposing no general external WAIT_n input therefore
-//      loses nothing here; there is nothing to flag or resolve.
-//   7. Everything else -- the profile-independent memory map (ram_cs/
-//      stage_cs/cf_cs), the copy_window/cf_wr staging-to-doorway streaming
-//      logic, and pcb_fidelity gating -- is unchanged from the source core.
-//
-// MAME reference: src/mame/universal/docastle.cpp.
-
 module jtdcastl_spritecpu
 (
 	input         clk,
@@ -160,10 +87,6 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(0),.RECOVERY(1)) u_cpu
 	.cpu_din    ( cpu_din     ),
 	.cpu_dout   ( cpu_dout    ),
 	.ram_dout   ( ram_dout    ),
-	// No NVRAM pins: jtframe_sysz80 does not expose prog_addr/prog_data/
-	// prog_din/prog_we -- see the note in jtdcastl_main.v. (This was
-	// also never related to `staging_ram` below -- see header note 2.)
-	// ROM/RAM access
 	.ram_cs     ( ram_cs      ),
 	.rom_cs     ( rom_cs      ),
 	.rom_ok     ( rom_ok      )
@@ -172,9 +95,6 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(0),.RECOVERY(1)) u_cpu
 assign rom_addr = cpu_addr[8:0];
 assign cpu_addr_debug = cpu_addr;
 
-// staging_ram is genuinely dual-ported (live cross-CPU write from the main
-// CPU's own main_addr/main_data/main_we), so it is KEPT EXACTLY AS IN THE
-// ORIGINAL -- see header note 2. Only work_ram moved into jtframe_sysz80.
 reg [7:0] staging_ram [0:511];
 reg [7:0] staging_q;
 wire stage_cs = (cpu_addr >= 16'h8000) && (cpu_addr <= 16'h81ff);

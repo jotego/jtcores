@@ -16,53 +16,6 @@
     Version: 1.0
     Date: 18-8-2026 */
 
-// Sub (sound) Z80 of the Universal Do! Castle hardware family. Ported from the
-// standalone MiSTer Universal_DoCastle core this core derives from, onto
-// jtframe's CPU/SDRAM boundary.
-//
-// Differences from the source core's sub CPU, and why:
-//   1. T80se instantiated directly -> jtframe_sysz80 (RAM_AW=11). Same
-//      integration pattern as jtdcastl_main.v's u_cpu (see that file's
-//      header note 1) -- jtframe_sysz80 fuses the Z80, its own work RAM
-//      (jtframe_dual_nvram), and a rom_cs/rom_ok wait-state generator
-//      (jtframe_z80_romwait) in one module.
-//   2. The local `work_ram[0:2047]` BRAM block and its ram_cs read/write
-//      logic are REMOVED -- that RAM now lives inside jtframe_sysz80's own
-//      jtframe_dual_nvram. RAM_AW=11 exactly covers the original 2048-byte,
-//      11-bit-addressed window (cpu_addr[10:0]), matching ram_cs's own
-//      0x8000-0x87ff range (0x800 = 2048 locations). ram_cs/ram_dout are
-//      wired to the wrapper instead of a locally-inferred array; every use
-//      of the old `work_q` read register in the cpu_din mux is now
-//      `ram_dout`.
-//   3. NEW input `rom_ok`, same reasoning as jtdcastl_main.v note 3: ROM
-//      is now SDRAM-backed with variable latency, and jtframe_sysz80
-//      internally inserts Z80 WAIT states while `rom_cs && !rom_ok`. The
-//      rom_cs decode itself (cpu_addr < 0x4000, matching rom_addr's 14-bit
-//      window) is UNCHANGED -- it is now given an explicit wire name so it
-//      can drive both the wrapper's rom_cs input and the existing cpu_din
-//      read mux (which previously spelled the same condition out inline).
-//   4. Same boundary shape as jtdcastl_main.v note 4: rom_q/rom_addr/
-//      rom_cs/rom_ok are exposed here and jtdcastl_game.v wires the
-//      mem.yaml-generated "sub" bus (sub_addr/sub_data/sub_ok) to them.
-//   5. CLR_INT(0) chosen to match the source core's direct `.INT_n(irq_n)`
-//      pass-through -- irq_n is a raw external level, not latched by M1/
-//      IORQ inside this module, same reasoning as jtdcastl_main.v note 5.
-//      This module's own NMI generation (the `nmi_n` register, clocked from
-//      `nmi_req`) is UNCHANGED logic and is now wired straight to
-//      jtframe_sysz80's `nmi_n` port instead of T80se's `NMI_n` pin.
-//   6. Everything else -- the profile-dependent memory map (ram_cs/comm_cs/
-//      input_cs), the TMS1025 input-mux/flip-screen latching, the edge-
-//      detected write/read logic, and the 4x jt89 PSG instantiation
-//      (`.rst(reset)`/`.clk_en(ce_psg)`) -- is unchanged from the source
-//      core.
-//   7. KNOWN LIMITATION -- see the detailed comment immediately before the
-//      u_cpu instantiation below. It shares a root cause with
-//      jtdcastl_main.v's comm_wait_n limitation (jtframe_sysz80 exposes no
-//      general external WAIT_n input) but it is a DIFFERENT signal and NOT
-//      the cross-CPU mailbox handshake -- see that comment for the evidence.
-//
-// MAME reference: src/mame/universal/docastle.cpp sound_map variants.
-
 module jtdcastl_sub
 (
 	input         clk,
@@ -123,25 +76,6 @@ always @(posedge clk) begin
 	end
 end
 
-// KNOWN LIMITATION -- PSG-busy WAIT not injected. On the PCB the sub Z80's
-// WAIT_n carries `cpu_wait_n = &psg_ready`: a stall on the sub CPU's OWN bus
-// while any of the four jt89 PSGs is still busy servicing a prior write. This
-// is NOT the same signal as jtdcastl_main.v's comm_wait_n limitation. The
-// main/sub mailbox handshake is ASYMMETRIC, not a mutual or bidirectional
-// WAIT: only main's Z80 ever stalls on it (main's comm_wait_n = ~main_wait;
-// main_wait is set when main pulses comm_start and cleared when SUB pulses
-// comm_access against the shared comm_latch register, which lives at board
-// level). Sub's own bus is never stalled by that mailbox exchange -- the sub
-// CPU has no comm_wait_n port at all. So moving sub to jtframe_sysz80 does
-// not lose a cross-CPU WAIT hookup (it never had one); the signal that
-// becomes homeless here is purely the local PSG-busy stall. As with main,
-// jtframe_sysz80 exposes no general external WAIT_n input (only its internal
-// rom_cs/rom_ok wait generator, jtframe_z80_romwait), so `cpu_wait_n` is
-// still computed exactly as before (it drives `psg_ready_debug`) but is left
-// unconnected to the CPU wrapper, stubbed below rather than wired to
-// something arbitrary. The correct injection point must be determined from
-// hardware evidence rather than guessed.
-
 jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(0),.RECOVERY(1)) u_cpu
 (
 	.rst_n      ( rst_n       ),
@@ -163,9 +97,6 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(0),.RECOVERY(1)) u_cpu
 	.cpu_din    ( cpu_din     ),
 	.cpu_dout   ( cpu_dout    ),
 	.ram_dout   ( ram_dout    ),
-	// No NVRAM pins: jtframe_sysz80 does not expose prog_addr/prog_data/
-	// prog_din/prog_we -- see the note in jtdcastl_main.v.
-	// ROM/RAM access
 	.ram_cs     ( ram_cs      ),
 	.rom_cs     ( rom_cs      ),
 	.rom_ok     ( rom_ok      )
@@ -222,9 +153,6 @@ always @(posedge clk) begin
 		wr_d <= wr_level;
 		rd_d <= rd_level;
 
-		// A read returns the previously selected TMS1025 port, then latches
-		// A0-A2 for the next read. Port zero is high-Z and retains the value
-		// last driven onto H. Reads and writes both latch A7 as flip-screen.
 		if ((rd_edge || wr_edge) && input_cs)
 			flipscreen <= cpu_addr[7];
 		if (rd_edge && input_cs) begin
