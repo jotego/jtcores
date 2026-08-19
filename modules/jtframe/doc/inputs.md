@@ -152,6 +152,21 @@ By default, the mouse input can be emulated by using the regular joystick and ke
 
 The game *Block* of the [JTPANG](https://www.github.com/jotego/jtpang) can serve as an example.
 
+# PlayStation GunCon through MiSTer SNAC
+
+MiSTer cores with **JTFRAME_LIGHTGUN** can use an NTSC PlayStation GunCon via
+the PSX SNAC adapter. Select **User port -> PSX GunCon SNAC** in the MiSTer OSD.
+This takes ownership of the physical User Port, so it cannot be used at the
+same time as DB15 joystick or UART modes. USB/Bluetooth gamepads and the
+keyboard continue to work normally.
+
+The GunCon trigger maps to action button 1, its B/Cross button maps to action
+button 2, A/Start maps to Start, and Select maps to Coin. Two GunCons are
+supported through the two PSX select lines. The GunCon receives composite sync
+from the core and drives the existing JTFRAME lightgun coordinate inputs. Its
+ten-bit horizontal position is reduced to nine bits by discarding the least
+significant bit; an off-screen aim is reported as an out-of-range input.
+
 # Spinner
 
 Support is enabled with the **JTFRAME_DIAL** macro. This will add dial sensitivity options to the OSD menu. The core is expected to use the [jt4701](../hdl/keyboard/jt4701.v) to convert the dial signals to a number. Many arcade games expect an interface like the one provided by the **jt4701**, which needs dial signals to operate with and not an absolute spinner value.

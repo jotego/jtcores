@@ -280,6 +280,23 @@ wire        ddrld_rd, ddrld_busy;
 // UART
 wire        uart_rx, uart_tx;
 wire [6:0]  joy_in, joy_out;
+wire [1:0]  user_port;
+
+// PSX GunCon SNAC
+wire [15:0] joystick1_guncon, joystick2_guncon;
+wire [ 8:0] board_gun_1p_x, board_gun_1p_y, board_gun_2p_x, board_gun_2p_y;
+wire        guncon_en;
+
+wire        guncon_select1_n, guncon_select2_n;
+wire        guncon_command, guncon_serial_clk, guncon_csync;
+wire        guncon_p1_aim_valid;
+wire [ 9:0] guncon_p1_x;
+wire [ 7:0] guncon_p1_y;
+wire        guncon_p1_trigger, guncon_p1_start, guncon_p1_button, guncon_p1_select;
+wire        guncon_p2_aim_valid;
+wire [ 9:0] guncon_p2_x;
+wire [ 7:0] guncon_p2_y;
+wire        guncon_p2_trigger, guncon_p2_start, guncon_p2_button, guncon_p2_select;
 
 // Vertical crop
 wire [12:0] raw_arx, raw_ary;
@@ -307,14 +324,13 @@ assign game_paddle_4 = paddle_4;
 assign {FB_PAL_CLK, FB_FORCE_BLANK, FB_PAL_ADDR, FB_PAL_DOUT, FB_PAL_WR} = '0;
 `endif
 
-// UART
-// The core and cheat UARTs are connected in parallel
-// If JTFRAME_UART is not defined, the core side is disabled
-// If JTFRAME_CHEAT is not defined, the cheat side is disabled
-// Otherwise, both can listen and talk
+// User port arbitration. A released output bit is high because USER_IO is
+// open-drain. DB15, UART and PSX SNAC are mutually exclusive OSD modes.
 always @(posedge clk_sys) begin
     USER_OUT <= db15_en ? joy_out :
         uart_en ? {~6'h0, uart_tx&game_tx } :
+        guncon_en ? { guncon_csync, guncon_serial_clk, 2'b11,
+                       guncon_command, guncon_select1_n, guncon_select2_n } :
         7'h7f;
 end
 
@@ -343,8 +359,92 @@ jtframe_mister_status u_status(
     .ram_save       ( ram_save       ),
     .ram_load       ( ram_load       ),
     .gun_border_en  ( gun_border_en  ),
-    .uart_en        ( uart_en        )
+    .user_port      ( user_port      )
 );
+
+assign uart_en = user_port == 2'd2;
+
+`ifdef JTFRAME_LIGHTGUN
+assign guncon_en         = user_port == 2'd3 && lightgun_en;
+assign guncon_csync      = ~(scan2x_hs ^ scan2x_vs);
+
+jtframe_guncon_mux #(.BUTTONS(BUTTONS)
+) u_guncon_mux(
+    .rst             ( rst                 ),
+    .clk             ( clk_sys             ),
+    .enable          ( guncon_en           ),
+    .joystick1       ( joystick1           ),
+    .joystick2       ( joystick2           ),
+    .board_gun_1p_x  ( board_gun_1p_x      ),
+    .board_gun_1p_y  ( board_gun_1p_y      ),
+    .board_gun_2p_x  ( board_gun_2p_x      ),
+    .board_gun_2p_y  ( board_gun_2p_y      ),
+    .p1_aim_valid    ( guncon_p1_aim_valid ),
+    .p1_x            ( guncon_p1_x         ),
+    .p1_y            ( guncon_p1_y         ),
+    .p1_trigger      ( guncon_p1_trigger   ),
+    .p1_start        ( guncon_p1_start     ),
+    .p1_button       ( guncon_p1_button    ),
+    .p1_select       ( guncon_p1_select    ),
+    .p2_aim_valid    ( guncon_p2_aim_valid ),
+    .p2_x            ( guncon_p2_x         ),
+    .p2_y            ( guncon_p2_y         ),
+    .p2_trigger      ( guncon_p2_trigger   ),
+    .p2_start        ( guncon_p2_start     ),
+    .p2_button       ( guncon_p2_button    ),
+    .p2_select       ( guncon_p2_select    ),
+    .joystick1_out   ( joystick1_guncon    ),
+    .joystick2_out   ( joystick2_guncon    ),
+    .gun_1p_x        ( gun_1p_x            ),
+    .gun_1p_y        ( gun_1p_y            ),
+    .gun_2p_x        ( gun_2p_x            ),
+    .gun_2p_y        ( gun_2p_y            )
+);
+
+jtframe_guncon_snac u_guncon_snac(
+    .clk         ( clk_sys           ),
+    .rst         ( rst               ),
+    .enable      ( guncon_en         ),
+    .frame_sync  ( scan2x_vs         ),
+    .data_in     ( USER_IN[4]        ),
+    .ack_in      ( USER_IN[3]        ),
+    .select1_n   ( guncon_select1_n  ),
+    .select2_n   ( guncon_select2_n  ),
+    .command     ( guncon_command    ),
+    .serial_clk  ( guncon_serial_clk ),
+    .p1_connected(                   ),
+    .p1_strobe   (                   ),
+    .p1_aim_valid( guncon_p1_aim_valid ),
+    .p1_x        ( guncon_p1_x       ),
+    .p1_y        ( guncon_p1_y       ),
+    .p1_trigger  ( guncon_p1_trigger ),
+    .p1_start    ( guncon_p1_start   ),
+    .p1_button   ( guncon_p1_button  ),
+    .p1_select   ( guncon_p1_select  ),
+    .p2_connected(                   ),
+    .p2_strobe   (                   ),
+    .p2_aim_valid( guncon_p2_aim_valid ),
+    .p2_x        ( guncon_p2_x       ),
+    .p2_y        ( guncon_p2_y       ),
+    .p2_trigger  ( guncon_p2_trigger ),
+    .p2_start    ( guncon_p2_start   ),
+    .p2_button   ( guncon_p2_button  ),
+    .p2_select   ( guncon_p2_select  )
+);
+`else
+assign guncon_en        = 1'b0;
+assign guncon_select1_n = 1'b1;
+assign guncon_select2_n = 1'b1;
+assign guncon_command   = 1'b1;
+assign guncon_serial_clk= 1'b1;
+assign guncon_csync     = 1'b1;
+assign joystick1_guncon = joystick1;
+assign joystick2_guncon = joystick2;
+assign gun_1p_x         = board_gun_1p_x;
+assign gun_1p_y         = board_gun_1p_y;
+assign gun_2p_x         = board_gun_2p_x;
+assign gun_2p_y         = board_gun_2p_y;
+`endif
 
 jtframe_target_info u_target_info(
     .clk            ( clk_sys        ),
@@ -462,7 +562,7 @@ wire [15:0] joyusb_1, joyusb_2;
 
 
 `ifndef JTFRAME_NO_DB15
-assign db15_en  = status[37];
+assign db15_en  = user_port == 2'd1;
 jtframe_joymux #(.BUTTONS(BUTTONS)) u_joymux(
     .rst        ( rst       ),
     .clk        ( clk_sys   ),
@@ -751,8 +851,8 @@ jtframe_board #(
     // joystick
     .ps2_kbd_clk    ( ps2_kbd_clk     ),
     .ps2_kbd_data   ( ps2_kbd_data    ),
-    .board_joystick1( joystick1       ),
-    .board_joystick2( joystick2       ),
+    .board_joystick1( joystick1_guncon),
+    .board_joystick2( joystick2_guncon),
     .board_joystick3( joystick3       ),
     .board_joystick4( joystick4       ),
     .joyana_l1      ( joyana_l1       ),
@@ -788,10 +888,10 @@ jtframe_board #(
     .dial_x         ( dial_x          ),
     .dial_y         ( dial_y          ),
     // Lightguns
-    .gun_1p_x       ( gun_1p_x        ),
-    .gun_1p_y       ( gun_1p_y        ),
-    .gun_2p_x       ( gun_2p_x        ),
-    .gun_2p_y       ( gun_2p_y        ),
+    .gun_1p_x       ( board_gun_1p_x  ),
+    .gun_1p_y       ( board_gun_1p_y  ),
+    .gun_2p_x       ( board_gun_2p_x  ),
+    .gun_2p_y       ( board_gun_2p_y  ),
     .lightgun_en    ( lightgun_en     ),
     // DIP and OSD settings
     .status         ( status          ),

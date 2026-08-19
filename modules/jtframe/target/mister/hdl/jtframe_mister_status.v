@@ -27,7 +27,7 @@ module jtframe_mister_status (
     output [ 1:0] ram_save,
     output        ram_load,
     output        gun_border_en,
-    output        uart_en
+    output [ 1:0] user_port
 );
 
 // Vertical crop
@@ -42,7 +42,8 @@ assign { voffset, hoffset } = status[60:53];
 assign hsize_enable = status[48];
 assign hsize_scale  = status[52:49];
 
-assign uart_en  = status[38]; // It can be used by the cheat engine or the game
+// User port mode: 0=off, 1=DB15, 2=UART, 3=PSX GunCon SNAC.
+assign user_port = { status[38], status[37] };
 
 // Sinden Lightgun white borders
 assign gun_border_en = status[8];

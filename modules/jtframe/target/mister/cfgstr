@@ -40,7 +40,15 @@ d5P1oAD,Crop Offset,0,2,4,8,10,12,-12,-10,-8,-6,-4,-2;
 {{ if .JTFRAME_OSD_VOL }}           O67,FX volume,high,highest,lowest,low; {{ end }}
 {{ if .JTFRAME_OSD_TEST }}          OA,Service mode,Off,On; {{ end }}
 {{ if .JTFRAME_DIAL }}              o03,Sensitivity,high,highest,lowest,low;{{end}}
-{{ if .JTFRAME_UART }}
+{{ if .JTFRAME_LIGHTGUN }}
+    {{ if .JTFRAME_UART }}
+        {{ if .JTFRAME_NO_DB15 }}   o56,User port,Off,Reserved,UART,PSX GunCon SNAC; {{ else }}
+                                    o56,User port,Off,DB15 Joystick,UART,PSX GunCon SNAC; {{ end }}
+    {{ else }}
+        {{ if .JTFRAME_NO_DB15 }}   o56,User port,Off,Reserved,Reserved,PSX GunCon SNAC; {{ else }}
+                                    o56,User port,Off,DB15 Joystick,Reserved,PSX GunCon SNAC; {{ end }}
+    {{ end }}
+{{ else if .JTFRAME_UART }}
     {{ if .JTFRAME_NO_DB15 }}       o6,User port,Off,UART; {{ else }}
                                     o56,User port,Off,DB15 Joystick,UART; {{ end }}
     {{ else }}                      o5,User port,Off,DB15 Joystick; {{ end }}

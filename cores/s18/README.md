@@ -81,3 +81,12 @@ Per-game control labels are defined in `cores/s18/cfg/mame2mra.toml`. Highlights
 * Shadow Dancer uses `Attack`, `Jump` and `Ninja Magic`
 * Desert Breaker and Alien Storm use three-button action layouts
 * Wally wo Sagase! uses confirm/select style controls together with rotary input handling in the core
+
+### PSX GunCon on MiSTer
+
+Laser Ghost can use an NTSC PlayStation GunCon through a MiSTer PSX SNAC
+adapter. Select **User port -> PSX GunCon SNAC** in the OSD. This mode owns the
+physical User Port and is therefore incompatible with DB15 joystick and UART,
+while USB/Bluetooth gamepads and keyboard input remain available. Trigger maps
+to action button 1, B/Cross to action button 2, A/Start to Start, and Select to
+Coin.

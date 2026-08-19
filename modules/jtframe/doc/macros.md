@@ -43,7 +43,7 @@ JTFRAME_JOY_RLUD         |         | Joystick lower 4 bits are:  right, left,  u
 JTFRAME_JOY_UDLR         |         | Joystick lower 4 bits are:  up,    down,  left,  right (default)
 JTFRAME_JOY_UDRL         |         | Joystick lower 4 bits are:  up,    down,  right, left
 JTFRAME_JOY_B1B0         |         | Swaps the first two buttons
-JTFRAME_LIGHTGUN         |         | Enables the crosshair overlay
+JTFRAME_LIGHTGUN         |         | Enables the crosshair overlay and MiSTer PSX GunCon SNAC input selected through the User Port OSD menu
 JTFRAME_LIGHTGUN_ON      |         | Used with JTFRAME_LIGHTGUN, forces crosshair overlay onscreen
 JTFRAME_LIGHTGUN_XOFFSET |         | Used with JTFRAME_LIGHTGUN, adds a 9 bit correction value to lightgun X coordinate sent to core
 JTFRAME_LIGHTGUN_YOFFSET |         | Used with JTFRAME_LIGHTGUN, adds a 9 bit correction value to lightgun Y coordinate sent to core

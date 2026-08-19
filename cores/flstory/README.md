@@ -18,3 +18,12 @@ emulators:
 - there are two background tile banks (not one)
 - the priority bits for sprites and scroll tiles are three and two (fewer used in emulation)
 - there is support for a light gun on the board
+
+## PSX GunCon on MiSTer
+
+Light-gun games can use an NTSC PlayStation GunCon through a MiSTer PSX SNAC
+adapter. In the OSD select **User port -> PSX GunCon SNAC**. This takes over
+the physical User Port, so DB15 joystick and UART modes cannot be used at the
+same time; USB/Bluetooth gamepads and keyboard controls still work. Trigger is
+action button 1, B/Cross is action button 2, A/Start is Start, and Select is
+Coin.

@@ -27,6 +27,14 @@ The PCM chip has a 4th order filter at 4kHz. We model it with `fir_192k_4k.csv`
 
 ## Operation Wolf
 
+### PSX GunCon on MiSTer
+
+Operation Wolf can use an NTSC PlayStation GunCon through a MiSTer PSX SNAC
+adapter. In the OSD select **User port -> PSX GunCon SNAC**. This User Port
+mode cannot be used with DB15 joystick or UART at the same time, but a regular
+USB/Bluetooth gamepad and keyboard remain available. The GunCon trigger is
+Bullet, B/Cross is Grenade, A/Start is Start, and Select is Coin.
+
 There are two MSM5205 chips. They are amplified digitally by a chip labeld as `TC0060DCA`. This chip registers the CPU output with the volume value when the signals VAVOL and VBVOL are set:
 
 - `VAVOL = !mreq_n && A[15:12]==4'b1011 && A[2:0]==5`

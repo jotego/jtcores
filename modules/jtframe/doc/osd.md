@@ -85,7 +85,7 @@ bit     |  meaning                | Enabled with macro
 18-19   | Joystick 1 position     | JTFRAME_JOY1_POS
 20-22   | Game saves options      | JTFRAME_SAVEGAME
 32-33   | Spinner sensitivity     | MiSTer/Pocket only
-37-38   | User output options     | MiSTer, selects DB15, UART, etc.
+37-38   | User port mode          | MiSTer, selects DB15, UART, or PSX GunCon SNAC
 39-40   | Rotate options (MiSTer) | JTFRAME_VERTICAL && JTFRAME_ROTATE (see below)
 41      | Vertical crop (MiSTer)  | MiSTer only
 42-45   | Crop offset   (MiSTer)  | MiSTer only
@@ -143,9 +143,22 @@ It is discouraged to use JTFRAME_ROTATE if the game already provides a flip sett
 
 ### User Port
 
-The user port supports:
+The MiSTer User Port mode occupies status bits 38:37, with bit 37 as the
+least-significant bit. It is selected through the **User port** OSD item.
 
--DB15 joysticks using Villena's interface, support removed with **JTFRAME_NO_DB15**
--A simple UART, which can connect to the cheat engine (**JTFRAME_CHEAT**) or to the core **JTFRAME_UART**)
+Value | Status[38:37] | Mode | Availability
+------|---------------|------|-------------
+0     | `00`          | Off | Always
+1     | `01`          | DB15 joystick | Unless **JTFRAME_NO_DB15** is set
+2     | `10`          | UART | When **JTFRAME_UART** is set; otherwise reserved
+3     | `11`          | PSX GunCon SNAC | When **JTFRAME_LIGHTGUN** is set
 
-Depending on the three macros above are set or unset, the OSD menu will show different options in MiSTer.
+The User Port supports:
+
+- DB15 joysticks using Villena's interface, support removed with **JTFRAME_NO_DB15**.
+- A simple UART, which can connect to the cheat engine (**JTFRAME_CHEAT**) or to the core **JTFRAME_UART**.
+- An NTSC PlayStation GunCon through a PSX SNAC adapter; it is enabled by
+  **JTFRAME_LIGHTGUN** and uses the existing lightgun input ports.
+
+The OSD shows only supported modes; a reserved entry may be retained so that the
+GunCon selection always uses value 3.
