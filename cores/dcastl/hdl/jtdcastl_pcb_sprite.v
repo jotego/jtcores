@@ -30,28 +30,28 @@
 // confirmed against a physical Do's Castle PCB, since no board has been
 // available. The proven direct sprite renderer is therefore the only renderer
 // shipped enabled. This module is instantiated unconditionally by
-// jtdocastle_video.v so the design elaborates, but it must stay non-default
+// jtdcastl_video.v so the design elaborates, but it must stay non-default
 // and must not be exposed as a selectable OSD/DIP path until it is wired
 // behind jtframe's status-bit convention AND confirmed against real hardware.
-// jtdocastle_video.v ties this instance's `enable` straight to its own
+// jtdcastl_video.v ties this instance's `enable` straight to its own
 // `pcb_framebuffer` input, which the game module holds at 0.
 //
 // Port-convention note:
 //   vblank is active-HIGH here (1 = blanked), deliberately NOT aligned to
 //   jtframe's active-low LHBL/LVBL convention (see modules/jtframe/doc/
-//   style.md). jtdocastle_video.v feeds it `~LVBL` so the electrical value
+//   style.md). jtdcastl_video.v feeds it `~LVBL` so the electrical value
 //   matches the source core. This is the one video-timing port in this core
 //   that keeps the original polarity and naming; every other one (hs/vs/
-//   hblank in jtdocastle_crtc.v/jtdocastle_video.v) was renamed and inverted.
+//   hblank in jtdcastl_crtc.v/jtdcastl_video.v) was renamed and inverted.
 //
 // KNOWN LIMITATION (structural, not behavioural): this file defines two
-// modules (jtdocastle_pcb_sprite + jtdocastle_field_ram), while jtframe's
+// modules (jtdcastl_pcb_sprite + jtdcastl_field_ram), while jtframe's
 // style.md states "Each verilog file contains only one module".
-// jtdocastle_field_ram is private to this module and instantiated nowhere
+// jtdcastl_field_ram is private to this module and instantiated nowhere
 // else; splitting it into its own file is a mechanical change left for a
 // later pass.
 //============================================================================
-module jtdocastle_pcb_sprite
+module jtdcastl_pcb_sprite
 (
 	input clk, input reset, input ce_pix, input enable,
 	input [8:0] h_count, input [8:0] v_count, input vblank,
@@ -107,12 +107,12 @@ wire [8:0] write_word1 = {1'b1,cf_bus_write ? cf_palette : active_color,write_pe
 wire [15:0] field0_rd_addr = display_bank ? build_addr : display_addr;
 wire [15:0] field1_rd_addr = display_bank ? display_addr : build_addr;
 
-jtdocastle_field_ram field0
+jtdcastl_field_ram field0
 (
 	.clk(clk), .rd_addr(field0_rd_addr), .rd_data(field0_q),
 	.wr_addr(fb_addr), .wr_data(fb_data), .wr_en(fb_we && !fb_field)
 );
-jtdocastle_field_ram field1
+jtdcastl_field_ram field1
 (
 	.clk(clk), .rd_addr(field1_rd_addr), .rd_data(field1_q),
 	.wr_addr(fb_addr), .wr_data(fb_data), .wr_en(fb_we && fb_field)
@@ -285,10 +285,10 @@ end
 endmodule
 
 // Quartus 17 simple-dual-port inference template used for each physical field.
-// Renamed only (docastle_field_ram -> jtdocastle_field_ram) for this port's
-// jtdocastle_* naming convention; behaviour unchanged. See file header for the
+// Renamed only (docastle_field_ram -> jtdcastl_field_ram) for this port's
+// jtdcastl_* naming convention; behaviour unchanged. See file header for the
 // flagged one-module-per-file style.md deviation this second module causes.
-module jtdocastle_field_ram
+module jtdcastl_field_ram
 (
 	input clk,
 	input [15:0] rd_addr,

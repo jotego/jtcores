@@ -40,7 +40,7 @@
 //      unchanged -- it's the same profile-dependent address decode as
 //      before, now doubling as the wrapper's wait-state qualifier.
 //   4. This module exposes `rom_q`/`rom_addr`/`rom_cs`/`rom_ok` at its own
-//      boundary; jtdocastle_game.v wires mem.yaml's generated `main` bus to
+//      boundary; jtdcastl_game.v wires mem.yaml's generated `main` bus to
 //      them (main_data->rom_q, cpu_addr->main_addr, main_ok->rom_ok).
 //   5. CLR_INT(0) chosen to match the source core's direct `.INT_n(irq_n)`
 //      pass-through (a raw level-sensitive interrupt line, not latched by
@@ -55,7 +55,7 @@
 //
 // MAME reference: src/mame/universal/docastle.cpp main_map variants.
 
-module jtdocastle_main
+module jtdcastl_main
 (
 	input         rst,
 	input         clk,
@@ -66,7 +66,7 @@ module jtdocastle_main
 
 	input   [7:0] rom_q,
 	output [15:0] rom_addr,
-	output        rom_cs,       // exposed so jtdocastle_game.v can drive
+	output        rom_cs,       // exposed so jtdcastl_game.v can drive
 	                            // mem.yaml's `main_cs` SDRAM-slot request. The
 	                            // decode itself is the source core's, unchanged.
 	input         rom_ok,       // SDRAM-fetch-ready qualifier, see header notes 3/4

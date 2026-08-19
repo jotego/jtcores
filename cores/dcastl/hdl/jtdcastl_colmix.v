@@ -77,7 +77,7 @@
 //   jtflstory_colmix.v); the source core blanks elsewhere in its own pipeline.
 // -----------------------------------------------------------------------
 
-module jtdocastle_colmix(
+module jtdcastl_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,

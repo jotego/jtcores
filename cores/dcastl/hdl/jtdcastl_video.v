@@ -41,7 +41,7 @@
 //   vblank  (active-HIGH: 1 = blanked)    ->  LVBL    (same as hblank->LHBL
 //                                                       above)
 //============================================================================
-module jtdocastle_video
+module jtdcastl_video
 (
 	input         clk,
 	input         reset,
@@ -101,19 +101,19 @@ module jtdocastle_video
 	output        LHBL,               // active low, per jtframe convention
 	output        LVBL,               // active low, per jtframe convention
 
-	// Colour-mix taps. jtdocastle_colmix.v needs the pre-PROM tile pen / tile
+	// Colour-mix taps. jtdcastl_colmix.v needs the pre-PROM tile pen / tile
 	// colour / sprite pixel that this module computes internally. Exposing them
-	// lets jtdocastle_game.v use jtdocastle_colmix.v as the single RGB source
+	// lets jtdcastl_game.v use jtdcastl_colmix.v as the single RGB source
 	// instead of this module's own copy of the same priority mux +
 	// resistor-DAC maths (r/g/b/prom_addr below remain in place but are unused
-	// in the jtframe integration -- see jtdocastle_game.v, item V1).
+	// in the jtframe integration -- see jtdcastl_game.v, item V1).
 	output  [3:0] mix_tile_pen,
 	output  [4:0] mix_tile_color,
 	output  [9:0] mix_sprite_pixel,
 
 	// Interrupts
 	output        main_irq_n,
-	output        sub_irq_req,     // driven by the jtdocastle_crtc instance
+	output        sub_irq_req,     // driven by the jtdcastl_crtc instance
 	output        sprite_nmi_req,  // below, not by an always block here
 
 	// Debug
@@ -133,7 +133,7 @@ wire crtc_cursor;
 assign cursor_debug = crtc_cursor;
 wire [13:0] crtc_ma;
 wire [4:0] crtc_ra;
-jtdocastle_crtc crtc
+jtdcastl_crtc crtc
 (
 	.clk(clk), .reset(reset), .ce_pix(ce_pix), .cursor_irq_mode(cursor_irq_mode),
 	.reg_sel(crtc_reg), .reg_data(crtc_data), .reg_we(crtc_we),
@@ -279,10 +279,10 @@ wire [9:0] line_sprite_pixel = v_count[0]
 wire [16:0] pcb_gfx_addr;
 wire [9:0] pcb_sprite_pixel;
 wire pcb_busy, pcb_overrun, pcb_frame_ready;
-// jtdocastle_pcb_sprite's .vblank port is active-high, as on the source core;
+// jtdcastl_pcb_sprite's .vblank port is active-high, as on the source core;
 // since LVBL is active-low, it is fed the inverted signal (~LVBL) here to
 // reproduce the same electrical value. See that module's header.
-jtdocastle_pcb_sprite pcb_sprite
+jtdcastl_pcb_sprite pcb_sprite
 (
 	.clk(clk), .reset(reset), .ce_pix(ce_pix), .enable(pcb_framebuffer),
 	.h_count(h_count), .v_count(v_count), .vblank(~LVBL),
@@ -389,7 +389,7 @@ always @(posedge clk) begin
 	end
 end
 
-// Colour-mix taps for jtdocastle_colmix.v (see port list note). These are the
+// Colour-mix taps for jtdcastl_colmix.v (see port list note). These are the
 // exact same three signals this module feeds into its own priority mux below.
 assign mix_tile_pen     = tile_pen;
 assign mix_tile_color   = tile_attr[4:0];

@@ -30,7 +30,7 @@
 //
 // Differences from the source core's sprite CPU, and why:
 //   1. T80se instantiated directly -> jtframe_sysz80 (RAM_AW=11). Same
-//      integration pattern as jtdocastle_main.v's u_cpu (see that file's
+//      integration pattern as jtdcastl_main.v's u_cpu (see that file's
 //      header note 1).
 //   2. TWO local RAM blocks exist on this CPU, and they are NOT treated the
 //      same way:
@@ -51,15 +51,15 @@
 //          cross-CPU write port during normal operation -- so it is NOT a
 //          substitute for this array. `staging_ram` therefore stays as this
 //          module's own local dual-port BRAM.
-//   3. NEW input `rom_ok`, same reasoning as jtdocastle_main.v note 3: ROM
+//   3. NEW input `rom_ok`, same reasoning as jtdcastl_main.v note 3: ROM
 //      is now SDRAM-backed with variable latency, and jtframe_sysz80
 //      internally inserts Z80 WAIT states while `rom_cs && !rom_ok`. The
 //      rom_cs decode itself (cpu_addr <= 0x00ff, a 256-byte window) is
 //      UNCHANGED -- it is now given an explicit wire name so it can drive
 //      both the wrapper's rom_cs input and the existing cpu_din read mux
 //      (which previously spelled the same condition out inline).
-//   4. Same boundary shape as jtdocastle_main.v note 4: rom_q/rom_addr/
-//      rom_cs/rom_ok are exposed here and jtdocastle_game.v wires the
+//   4. Same boundary shape as jtdcastl_main.v note 4: rom_q/rom_addr/
+//      rom_cs/rom_ok are exposed here and jtdcastl_game.v wires the
 //      mem.yaml-generated "spritecpu" bus to them.
 //   5. CLR_INT(0) chosen, but for a DIFFERENT reason than main/sub: this
 //      module's local `int_n` register is NOT a raw external level -- it
@@ -74,13 +74,13 @@
 //      PCB-accuracy-critical IRQ timing. CLR_INT(0) keeps the existing
 //      local `int_n`/`nmi_n` generation logic completely UNCHANGED and
 //      just feeds the already-resolved level into the wrapper's raw
-//      int_n/nmi_n ports, same class of reasoning as jtdocastle_main.v's
-//      note 5 and jtdocastle_sub.v's note 5 (don't let the wrapper re-latch
+//      int_n/nmi_n ports, same class of reasoning as jtdcastl_main.v's
+//      note 5 and jtdcastl_sub.v's note 5 (don't let the wrapper re-latch
 //      a signal that is already a final level at this module's boundary).
 //   6. No WAIT-handshake limitation applies to this file. This CPU's WAIT_n
 //      pin is tied `1'b1` (never asserted) on the board -- it has no external
 //      WAIT dependency of any kind, unlike main's comm_wait_n (see
-//      jtdocastle_main.v) or sub's PSG-busy WAIT_n (see jtdocastle_sub.v).
+//      jtdcastl_main.v) or sub's PSG-busy WAIT_n (see jtdcastl_sub.v).
 //      jtframe_sysz80 exposing no general external WAIT_n input therefore
 //      loses nothing here; there is nothing to flag or resolve.
 //   7. Everything else -- the profile-independent memory map (ram_cs/
@@ -89,7 +89,7 @@
 //
 // MAME reference: src/mame/universal/docastle.cpp.
 
-module jtdocastle_spritecpu
+module jtdcastl_spritecpu
 (
 	input         clk,
 	input         reset,
@@ -161,7 +161,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(0),.RECOVERY(1)) u_cpu
 	.cpu_dout   ( cpu_dout    ),
 	.ram_dout   ( ram_dout    ),
 	// No NVRAM pins: jtframe_sysz80 does not expose prog_addr/prog_data/
-	// prog_din/prog_we -- see the note in jtdocastle_main.v. (This was
+	// prog_din/prog_we -- see the note in jtdcastl_main.v. (This was
 	// also never related to `staging_ram` below -- see header note 2.)
 	// ROM/RAM access
 	.ram_cs     ( ram_cs      ),

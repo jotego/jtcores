@@ -32,7 +32,7 @@
 //   defaults.
 //
 // Where game_id comes from:
-//   jtdocastle_game.v latches byte 0 of jtframe's ROM header (JTFRAME_HEADER)
+//   jtdcastl_game.v latches byte 0 of jtframe's ROM header (JTFRAME_HEADER)
 //   into `game_id`. In the source MiSTer core the same byte arrived as a
 //   second, separate synthetic ioctl download (`ioctl_index==1`,
 //   `ioctl_addr==0`) issued by that core's MRAs, independent of the main
@@ -66,7 +66,7 @@
 //      per machine/setname in mame2mra.toml), consumed during the *same*
 //      download as the main ROM image via `prog_addr`/`prog_we` while a
 //      `header` qualifier is high. This matches "a byte the game module
-//      itself interprets", and is what jtdocastle_game.v uses.
+//      itself interprets", and is what jtdcastl_game.v uses.
 //
 //   `game_id` is kept as this module's port name (not renamed to `core_mod`
 //   or `header`) because it is a board-ABI value, not a jtframe-defined one.
@@ -86,7 +86,7 @@
 // MAME reference: none -- game_id is a MiSTer-side ROM-ABI construct with no
 // MAME counterpart.
 
-module jtdocastle_profile
+module jtdcastl_profile
 (
 	input      [7:0] game_id,  // ROM-header byte 0, NOT jtframe's core_mod
 	output reg       valid,

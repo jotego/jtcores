@@ -35,13 +35,13 @@ rename=[
 [header]
 # ---------------------------------------------------------------------------
 # JTFRAME_HEADER=8 (cfg/macros.def) prepends an 8-byte header to the main ROM
-# file at MRA-build time. jtdocastle_game captures byte 0 of that header into
+# file at MRA-build time. jtdcastl_game captures byte 0 of that header into
 # its game_id/game_id_ok pair via `header && prog_we && prog_addr[2:0]==3'd0`
-# and feeds game_id into jtdocastle_profile, which decodes it into the per-set
+# and feeds game_id into jtdcastl_profile, which decodes it into the per-set
 # hardware profile. This section is the producing end of that wiring.
 #
 # byte 0: game ID, 0x00-0x08, one value per set. It must match
-#         jtdocastle_profile's case statement:
+#         jtdcastl_profile's case statement:
 #           0x00 Mr. Do's Castle (docastle)     -- native_vertical
 #           0x01 Mr. Do! vs. Unicorns (douni)   -- native_vertical
 #           0x02 Do! Run Run (dorunrun)         -- PROFILE_RUNRUN, low_pen_priority
@@ -55,16 +55,16 @@ rename=[
 #         is not used by any of these 9 sets and is not assigned here.)
 # bytes 1-7: unused/reserved, left at the `fill` value.
 info="""
-	byte 0: game ID / profile select, see hdl/jtdocastle_profile.v's case
+	byte 0: game ID / profile select, see hdl/jtdcastl_profile.v's case
 	        statement (0x00 docastle, 0x01 douni, 0x02 dorunrun, 0x03 dowild,
 	        0x04 jjack, 0x05 kickridr, 0x06 spiero, 0x07 idsoccer, 0x08 asoccer)
 	bytes 1-7: unused, reserved
 """
 # fill=0xff, not 0x00: game_id 0x00 is a valid id (Mr. Do's Castle) in
-# jtdocastle_profile's decoder, so filling unassigned bytes or machines with
+# jtdcastl_profile's decoder, so filling unassigned bytes or machines with
 # 0x00 would silently boot the wrong game. 0xff is not a valid id -- it falls
 # into `default:`, which clears `valid` and holds the core in reset via
-# `base_reset = rst | ~profile_valid | ~game_id_ok` in jtdocastle_game. That
+# `base_reset = rst | ~profile_valid | ~game_id_ok` in jtdcastl_game. That
 # also covers any docastle.cpp machine that reaches the MRA generator without
 # an explicit `data` entry below: it is held in reset rather than booting as
 # Mr. Do's Castle.

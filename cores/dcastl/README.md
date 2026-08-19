@@ -1,4 +1,4 @@
-# JTDOCASTLE, FPGA hardware compatible with Universal's Do's Castle board family
+# JTDCASTL, FPGA hardware compatible with Universal's Do's Castle board family
 
 One core covering nine officially released games on three related Universal
 hardware profiles. A single MRA per game selects its profile at load time
@@ -68,15 +68,15 @@ after the address changes, so a naive test can pass on a stale `ok`. Either
 toggle `gfx2_cs` per request, or gate on a freshly cleared `ok`, and confirm
 against a waveform. Moving `gfx1` to BRAM (a fixed 16 kB on all nine sets)
 would remove the problem for tiles outright, config-only, but sprites must
-stay in SDRAM. See the header of `hdl/jtdocastle_game.v` for the full analysis.
+stay in SDRAM. See the header of `hdl/jtdcastl_game.v` for the full analysis.
 
 **Not yet simulated.** There are no `ver/` scenes, so nothing here has been
 compared frame-by-frame in this form. The core passes `jtframe cfgstr`, `mem`,
 `files`, `msg` and `mra`, and lints clean under Verilator (0 errors, 0
-warnings) with the top at `jtdocastle_game_sdram`, but it has not been
+warnings) with the top at `jtdcastl_game_sdram`, but it has not been
 elaborated by Quartus and has not run on hardware.
 
-**Optional CF37201 framebuffer renderer.** `hdl/jtdocastle_pcb_sprite.v`
+**Optional CF37201 framebuffer renderer.** `hdl/jtdcastl_pcb_sprite.v`
 implements the decap-derived alternating-field framebuffer. It is not the
 default and has never been confirmed against a physical PCB; the direct sprite
 renderer is the one used.

@@ -26,10 +26,10 @@
 // reset never emits a malformed partial frame.
 //
 // Ported from the standalone MiSTer Universal_DoCastle core this core derives
-// from, using jtframe's video-signal convention -- see jtdocastle_video.v's
+// from, using jtframe's video-signal convention -- see jtdcastl_video.v's
 // header for the LHBL/LVBL polarity note.
 //============================================================================
-module jtdocastle_crtc
+module jtdcastl_crtc
 (
     input             clk,
     input             reset,

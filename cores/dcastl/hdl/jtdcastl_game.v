@@ -48,7 +48,7 @@
 //     per-bus names (flstory: main_cs/main_addr/main_data/main_ok; castle:
 //     cen24/cen12/ram_addr/ram_we/ram_dout).
 //   * macros.go:377-385 -- with JTFRAME_MEMGEN set, GAMETOP becomes
-//     `jtdocastle_game_sdram`, an AUTO-GENERATED wrapper (template
+//     `jtdcastl_game_sdram`, an AUTO-GENERATED wrapper (template
 //     modules/jtframe/hdl/inc/game_sdram.v, header: "automatically generated
 //     by JTFRAME / Do not modify it / Do not add it to git"). THAT wrapper
 //     owns the whole raw bank protocol -- it instantiates jtframe_rom_Nslots
@@ -104,7 +104,7 @@
 //
 // S2. gfx1_cs / gfx2_cs ARE TIED HIGH, AND gfx1_ok / gfx2_ok ARE IGNORED.
 //     This is a genuine design gap, not a wiring detail.
-//     jtdocastle_video.v (and jtdocastle_pcb_sprite.v inside it) carry the
+//     jtdcastl_video.v (and jtdcastl_pcb_sprite.v inside it) carry the
 //     source core's BRAM assumption of fixed 1-cycle graphics-ROM latency: the
 //     tile fetch is combinational-address/registered-data every pixel, and the
 //     sprite line-buffer state machine uses a hard-coded ST_GREQ -> ST_GWAIT
@@ -136,21 +136,21 @@
 //         sets and fits in M10K as a third `bram:` entry. This is
 //         config-only (mem.yaml + macros.def + mame2mra.toml region starts;
 //         the generator auto-computes BRAM offsets as PROM_START+accumulated
-//         size -- see the generated jtdocastle_game_sdram.v's
+//         size -- see the generated jtdcastl_game_sdram.v's
 //         u_range_spritecpu/u_range_cprom pair) and restores tiles to the
 //         exact 1-cycle latency this RTL was written for, with no risk to the
 //         decap-derived video logic. It only fixes tiles; gfx2 (up to 128 kB)
 //         must stay in SDRAM.
 //
 // S3. adpcm_cs IS TIED TO `has_adpcm` AND adpcm_ok IS IGNORED.
-//     jtdocastle_adpcm.v has no cs/ok ports at all. Its address only advances
+//     jtdcastl_adpcm.v has no cs/ok ports at all. Its address only advances
 //     on the 384 kHz MSM5205 nibble tick, so SDRAM latency is very likely
 //     hidden -- but that is not verified, and a bank-0 collision with the two
 //     Z80 program fetches could in principle push a fetch past the tick.
 //     Needs either an ok qualifier added to that module or a measured
 //     worst-case bank-0 latency argument.
 //
-// S4. main_cs / sub_cs are outputs of jtdocastle_main.v / jtdocastle_sub.v
+// S4. main_cs / sub_cs are outputs of jtdcastl_main.v / jtdcastl_sub.v
 //     (the existing decode wire exposed as a port; the decode expression is
 //     unchanged). Not yet verified: whether jtframe_sysz80's internal
 //     jtframe_z80_romwait tolerates the same rom_cs being used simultaneously
@@ -158,7 +158,7 @@
 //     does exactly this) but it has not been simulated for this core.
 //
 // S5. spritecpu / cprom BRAM. spritecpu_data is fed to
-//     jtdocastle_spritecpu's rom_q with rom_ok tied 1'b1 (BRAM has no ok).
+//     jtdcastl_spritecpu's rom_q with rom_ok tied 1'b1 (BRAM has no ok).
 //     cprom_addr is {1'b0, colmix pal_addr} -- mem.yaml declares 9 address
 //     bits (512 B) while the colour decode only produces 8
 //     ({colour[4:0],pen[2:0]}), reproducing the source core's own
@@ -182,14 +182,14 @@
 //     bytes with 0xff rather than 0x00. That fill value matters: 0x00 decodes
 //     as a valid profile (Mr. Do's Castle), so a zero fill would let a
 //     missing or wrong header boot the wrong game silently, whereas 0xff hits
-//     jtdocastle_profile's `default:` arm, clears `valid`, and holds the core
+//     jtdcastl_profile's `default:` arm, clears `valid`, and holds the core
 //     in reset via `game_id_ok`. Generated MRAs carry the expected
 //     `00 FF FF FF FF FF FF FF`-style header part per set.
 //
 //     Desk-checked only: the capture timing on this side -- that the header
 //     byte is latched at the offset assumed here -- has not been simulated.
 //     jtframe's automatic per-bit header generation (`registers=[]`) could
-//     also replace jtdocastle_profile.v wholesale; that is an open design
+//     also replace jtdcastl_profile.v wholesale; that is an open design
 //     choice, not a defect.
 //
 // -- clocking / video timing --
@@ -201,8 +201,8 @@
 //
 //     Two submodule dividers that would otherwise have run ~2.4% off under
 //     48 MHz were converted to mem.yaml `clocks:` outputs the same way:
-//     jtdocastle_adpcm.v's /128 counter became cen_384k (48,000,000/125 =
-//     384,000 Hz exactly) and jtdocastle_audio_filter.v's /1024 counter
+//     jtdcastl_adpcm.v's /128 counter became cen_384k (48,000,000/125 =
+//     384,000 Hz exactly) and jtdcastl_audio_filter.v's /1024 counter
 //     became cen_48k (48,000,000/1000 = 48,000 Hz exactly). Both arrive as
 //     inputs to this module. See cfg/mem.yaml and those two files.
 //
@@ -257,11 +257,11 @@
 //
 // -- video / colour --
 //
-// V1. KNOWN LIMITATION -- duplicated colour path. jtdocastle_colmix.v is the
+// V1. KNOWN LIMITATION -- duplicated colour path. jtdcastl_colmix.v is the
 //     RGB source. It needs the pre-PROM tile pen / tile colour / sprite pixel,
-//     which jtdocastle_video.v computes internally, so three additive output
+//     which jtdcastl_video.v computes internally, so three additive output
 //     taps (mix_tile_pen / mix_tile_color / mix_sprite_pixel) were added to
-//     that module. Consequence: jtdocastle_video.v's OWN prom_addr/prom_q/
+//     that module. Consequence: jtdcastl_video.v's OWN prom_addr/prom_q/
 //     r/g/b path is now unused duplicated logic. It is left in place; a later
 //     cleanup should remove one of the two copies so they cannot drift apart.
 //     video.prom_q is fed the same cprom_data so the two stay consistent
@@ -280,11 +280,11 @@
 // V4. pcb_framebuffer is tied 0 and pcb_cursor_irq is tied 0, matching the
 //     source core's shipped defaults. The CF37201 framebuffer renderer stays
 //     instantiated but unreachable, because it has never been confirmed
-//     against a real PCB (see jtdocastle_pcb_sprite.v).
+//     against a real PCB (see jtdcastl_pcb_sprite.v).
 //
 // ===========================================================================
 
-module jtdocastle_game(
+module jtdcastl_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
@@ -306,7 +306,7 @@ reg        game_id_ok;
 
 // TODO UNRESOLVED -- placeholder wiring, not a confirmed jtframe mechanism.
 // Captures byte 0 of the JTFRAME_HEADER=8 ROM header. The consuming end
-// (jtdocastle_profile) is right; the PRODUCING end (mame2mra.toml [header]
+// (jtdcastl_profile) is right; the PRODUCING end (mame2mra.toml [header]
 // writing 0x00..0x09 per set) does not exist yet, so today this always reads
 // 0x00 = Mr. Do's Castle for every one of the nine sets. Do not treat a
 // booting core as evidence this works.
@@ -324,7 +324,7 @@ wire       profile_valid, low_pen_priority, soccer_sprites,
            has_adpcm, has_joys2, native_vertical;
 wire [1:0] profile;
 
-jtdocastle_profile u_profile(
+jtdcastl_profile u_profile(
     .game_id            ( game_id           ),
     .valid              ( profile_valid     ),
     .profile            ( profile           ),
@@ -435,32 +435,32 @@ wire p2_r_right=~joystick4[0], p2_r_left=~joystick4[1],
      p2_r_down =~joystick4[2], p2_r_up  =~joystick4[3];
 
 // Four analog decoders, relocated here from the source core's target level
-// (see jtdocastle_analog.v). Left stick = player's primary 4-way,
+// (see jtdcastl_analog.v). Left stick = player's primary 4-way,
 // right stick = the Soccer profile's second joystick.
 wire p1_la_right, p1_la_left, p1_la_down, p1_la_up;
 wire p2_la_right, p2_la_left, p2_la_down, p2_la_up;
 wire p1_ra_right, p1_ra_left, p1_ra_down, p1_ra_up;
 wire p2_ra_right, p2_ra_left, p2_ra_down, p2_ra_up;
 
-jtdocastle_analog u_ana_1l(
+jtdcastl_analog u_ana_1l(
     .clk    ( clk       ), .reset ( rst       ), .joyana( joyana_l1 ),
     .right  ( p1_la_right ), .left( p1_la_left ),
     .down   ( p1_la_down  ), .up  ( p1_la_up   )
 );
 
-jtdocastle_analog u_ana_2l(
+jtdcastl_analog u_ana_2l(
     .clk    ( clk       ), .reset ( rst       ), .joyana( joyana_l2 ),
     .right  ( p2_la_right ), .left( p2_la_left ),
     .down   ( p2_la_down  ), .up  ( p2_la_up   )
 );
 
-jtdocastle_analog u_ana_1r(
+jtdcastl_analog u_ana_1r(
     .clk    ( clk       ), .reset ( rst       ), .joyana( joyana_r1 ),
     .right  ( p1_ra_right ), .left( p1_ra_left ),
     .down   ( p1_ra_down  ), .up  ( p1_ra_up   )
 );
 
-jtdocastle_analog u_ana_2r(
+jtdcastl_analog u_ana_2r(
     .clk    ( clk       ), .reset ( rst       ), .joyana( joyana_r2 ),
     .right  ( p2_ra_right ), .left( p2_ra_left ),
     .down   ( p2_ra_down  ), .up  ( p2_ra_up   )
@@ -491,7 +491,7 @@ wire [7:0] dsw2 = dipsw[15:8];
 // Main <-> sub communication: one bidirectional latch plus the ASYMMETRIC main
 // WAIT flip-flop (only the main CPU ever stalls on it). Carried over from the
 // source core, and consistent with the WAIT-handshake asymmetry finding
-// recorded in jtdocastle_sub.v's header.
+// recorded in jtdcastl_sub.v's header.
 // ---------------------------------------------------------------------------
 reg  [7:0] comm_latch;
 reg        main_wait;
@@ -571,7 +571,7 @@ end
 // ---------------------------------------------------------------------------
 // Main CPU
 // ---------------------------------------------------------------------------
-jtdocastle_main u_main(
+jtdcastl_main u_main(
     .rst            ( machine_reset     ),
     .clk            ( clk               ),
     .ce_cpu         ( cen_cpu           ),
@@ -621,7 +621,7 @@ jtdocastle_main u_main(
 // ---------------------------------------------------------------------------
 // Sub / sound CPU (also carries the four SN76489A PSGs)
 // ---------------------------------------------------------------------------
-jtdocastle_sub u_sub(
+jtdcastl_sub u_sub(
     .clk            ( clk               ),
     .reset          ( machine_reset     ),
     .ce_cpu         ( cen_cpu           ),
@@ -662,7 +662,7 @@ jtdocastle_sub u_sub(
 // (mem.yaml `bram: spritecpu`, prom: true) -- no ok handshake exists, so
 // rom_ok is tied high. See flagged item S5.
 // ---------------------------------------------------------------------------
-jtdocastle_spritecpu u_spritecpu(
+jtdcastl_spritecpu u_spritecpu(
     .clk            ( clk               ),
     .reset          ( machine_reset     ),
     .ce_cpu         ( cen_cpu           ),
@@ -694,7 +694,7 @@ jtdocastle_spritecpu u_spritecpu(
 // ---------------------------------------------------------------------------
 // CF37201N (TI TAL004) custom sprite chip
 // ---------------------------------------------------------------------------
-jtdocastle_cf37201 u_cf37201(
+jtdcastl_cf37201 u_cf37201(
     .clk            ( clk               ),
     .reset          ( machine_reset     ),
     .ce_mclk        ( cen_mclk          ),
@@ -729,7 +729,7 @@ jtdocastle_cf37201 u_cf37201(
 // sprites) with their cs tied high and their ok IGNORED -- flagged item S2,
 // the single biggest known correctness gap in this integration.
 // ---------------------------------------------------------------------------
-jtdocastle_video u_video(
+jtdcastl_video u_video(
     .clk                ( clk               ),
     .reset              ( machine_reset     ),
     .ce_pix             ( pxl_cen           ),
@@ -772,7 +772,7 @@ jtdocastle_video u_video(
     .sprite_gfx_addr    ( gfx2_addr         ),
     .sprite_gfx_q       ( gfx2_data         ),
     // colour PROM: this module's own copy of the decode is dead in the
-    // jtframe integration (flagged item V1); jtdocastle_colmix drives the
+    // jtframe integration (flagged item V1); jtdcastl_colmix drives the
     // real cprom_addr. prom_q is fed the same data so both stay consistent.
     .prom_addr          (                   ),
     .prom_q             ( cprom_data        ),
@@ -788,7 +788,7 @@ jtdocastle_video u_video(
     .VS                 ( VS                ),
     .LHBL               ( LHBL              ),
     .LVBL               ( LVBL              ),
-    // colour-mix taps into jtdocastle_colmix
+    // colour-mix taps into jtdcastl_colmix
     .mix_tile_pen       ( mix_tile_pen      ),
     .mix_tile_color     ( mix_tile_color    ),
     .mix_sprite_pixel   ( mix_sprite_pixel  ),
@@ -808,7 +808,7 @@ jtdocastle_video u_video(
 // Colour mixer: tile/sprite priority + the 3/3/2-bit weighted resistor PROM
 // DAC, truncated losslessly to JTFRAME_COLORW=3 per channel.
 // ---------------------------------------------------------------------------
-jtdocastle_colmix u_colmix(
+jtdcastl_colmix u_colmix(
     .rst                ( machine_reset     ),
     .clk                ( clk               ),
     .pxl_cen            ( pxl_cen           ),
@@ -837,7 +837,7 @@ assign cprom_addr = { 1'b0, pal_addr };
 // adpcm_cs is held while the profile enables the channel; adpcm_ok is ignored.
 // See flagged item S3.
 // ---------------------------------------------------------------------------
-jtdocastle_adpcm u_adpcm(
+jtdcastl_adpcm u_adpcm(
     .clk                ( clk               ),
     .reset              ( machine_reset     ),
     .pause              ( pause             ),
@@ -863,7 +863,7 @@ assign adpcm_cs = has_adpcm;
 
 // ---------------------------------------------------------------------------
 // Audio. Mix order as on the board:
-//   * jtdocastle_sub already sums the four SN76489As and scales by 8.
+//   * jtdcastl_sub already sums the four SN76489As and scales by 8.
 //   * MAME's MSM5205 stream is signal/4096, low two bits masked for the
 //     physical 10-bit DAC, routed at 0.40 -> gain 3.20 in signed-16 units.
 //     13/4 = 3.25 is the nearest compact fixed-point gain, +0.135 dB off.
@@ -883,7 +883,7 @@ always @(*) begin
     else                              mixed_audio =  full_mix[15:0];
 end
 
-jtdocastle_audio_filter u_audio_filter(
+jtdcastl_audio_filter u_audio_filter(
     .clk        ( clk               ),
     .reset      ( machine_reset     ),
     .enable     ( PCB_AUDIO_FILTER  ),
@@ -891,6 +891,11 @@ jtdocastle_audio_filter u_audio_filter(
     .sample_in  ( mixed_audio       ),
     .sample_out ( filtered_audio    )
 );
+
+// Pixel clock enables. The board runs the pixel rate at MCLK/2, so both come
+// from the same mem.yaml generator entry.
+assign pxl2_cen = cen_mclk;
+assign pxl_cen  = cen_pxl;
 
 assign snd = (machine_reset || pause) ? 16'sd0 : filtered_audio;
 

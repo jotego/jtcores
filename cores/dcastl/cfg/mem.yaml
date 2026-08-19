@@ -10,13 +10,17 @@ params:
 # precision.
 clocks:
   clk48:
+    # MCLK and the pixel clock. The board derives the pixel rate as MCLK/2,
+    # which is what a second output gives: each later output is half the
+    # previous one.
     - freq: 9828000
       outputs:
         - cen_mclk
+        - cen_pxl
     - freq: 4000000
       outputs:
         - cen_cpu
-    # jtdocastle_adpcm and jtdocastle_audio_filter need the real MSM5205
+    # jtdcastl_adpcm and jtdcastl_audio_filter need the real MSM5205
     # 384 kHz input clock and the real 48 kHz IIR update rate. Fixed /128 and
     # /1024 dividers are only correct against a 49.152 MHz base
     # (128*384kHz, 1024*48kHz); under clk48 they would land at 375 kHz and
@@ -37,12 +41,12 @@ clocks:
 # exports raw psg0..psg3/adpcm outputs and no snd/sample port, and jtframe's
 # generated game_audio.v then owns summing, gain staging and filtering. That
 # would replace the board's own mix (four PSGs summed and scaled x8 inside
-# jtdocastle_sub, then ADPCM at 13/4) and would leave jtdocastle_audio_filter --
+# jtdcastl_sub, then ADPCM at 13/4) and would leave jtdcastl_audio_filter --
 # a hand-written post-mix stage, since no real 8302 R/C values exist to feed
 # jtframe's rc:/dcrm: generators -- with nowhere to sit in the chain.
 #
-# Keeping the whole chain inside jtdocastle_game (PSG sum -> ADPCM mix -> clamp
-# -> jtdocastle_audio_filter -> snd) reproduces the board's mix directly. Hand
+# Keeping the whole chain inside jtdcastl_game (PSG sum -> ADPCM mix -> clamp
+# -> jtdcastl_audio_filter -> snd) reproduces the board's mix directly. Hand
 # gain staging over to jtframe only once real 8302 board R/C measurements exist
 # to make the rsum/pre/rc numbers honest.
 #

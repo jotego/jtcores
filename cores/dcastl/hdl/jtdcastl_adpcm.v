@@ -42,7 +42,7 @@
 //
 // MAME reference: src/mame/universal/docastle.cpp, idsoccer_state ADPCM
 // handling.
-module jtdocastle_adpcm
+module jtdcastl_adpcm
 (
 	input               clk,
 	input               reset,

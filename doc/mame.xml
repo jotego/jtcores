@@ -249304,23 +249304,23 @@
 		<rom name="3.ic3" merge="is3" size="16384" crc="27bebba3" sha1="cf752b22603c1e2a0b33958481c652d6d56ebf68" region="adpcm" offset="8000"/>
 		<rom name="4.ic4" merge="is4" size="16384" crc="dd5ffaa2" sha1="4bc4330a54ca93448a8fe05207d3fb1a3a9872e1" region="adpcm" offset="c000"/>
 		<rom name="3-2d.d3-2" merge="id_3d.clr" size="512" crc="a433ff62" sha1="db9afe5fc917d25aafa21576cb1cecec7481d4cb" region="proms" offset="0"/>
-		<device_ref tag=":maincpu" name="z80"/>
-		<device_ref tag=":subcpu" name="z80"/>
-		<device_ref tag=":spritecpu" name="z80"/>
-		<device_ref tag=":inp1" name="tms1025"/>
-		<device_ref tag=":inp2" name="tms1025"/>
-		<device_ref tag=":watchdog" name="watchdog"/>
-		<device_ref tag=":crtc" name="hd6845s"/>
-		<device_ref tag=":screen" name="screen"/>
-		<device_ref tag=":gfxdecode" name="gfxdecode"/>
-		<device_ref tag=":palette" name="palette"/>
-		<device_ref tag=":mono" name="speaker"/>
-		<device_ref tag=":sn1" name="sn76489a"/>
-		<device_ref tag=":sn2" name="sn76489a"/>
-		<device_ref tag=":sn3" name="sn76489a"/>
-		<device_ref tag=":sn4" name="sn76489a"/>
-		<device_ref tag=":sn_ready" name="ipt_merge_any_lo"/>
-		<device_ref tag=":msm" name="msm5205"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="hd6845s"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="ipt_merge_any_lo"/>
+		<device_ref name="msm5205"/>
 		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="subcpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="spritecpu" name="Zilog Z80" clock="4000000"/>
@@ -249442,22 +249442,22 @@
 		<rom name="04j_a8.bin" size="8192" crc="9afb16e9" sha1="f951e75af658623f3b0e18ff388990b2870fad53" region="gfx2" offset="4000"/>
 		<rom name="04h_a9.bin" size="8192" crc="af24bce0" sha1="0f06c5d248c9c92f2a4636d259ab843339737969" region="gfx2" offset="6000"/>
 		<rom name="09c.bin" size="512" crc="066f52bc" sha1="99f4f2d0181bcaf389c16f127cc3e632d62ee417" region="proms" offset="0"/>
-		<device_ref tag=":maincpu" name="z80"/>
-		<device_ref tag=":subcpu" name="z80"/>
-		<device_ref tag=":spritecpu" name="z80"/>
-		<device_ref tag=":inp1" name="tms1025"/>
-		<device_ref tag=":inp2" name="tms1025"/>
-		<device_ref tag=":watchdog" name="watchdog"/>
-		<device_ref tag=":crtc" name="hd6845s"/>
-		<device_ref tag=":screen" name="screen"/>
-		<device_ref tag=":gfxdecode" name="gfxdecode"/>
-		<device_ref tag=":palette" name="palette"/>
-		<device_ref tag=":mono" name="speaker"/>
-		<device_ref tag=":sn1" name="sn76489a"/>
-		<device_ref tag=":sn2" name="sn76489a"/>
-		<device_ref tag=":sn3" name="sn76489a"/>
-		<device_ref tag=":sn4" name="sn76489a"/>
-		<device_ref tag=":sn_ready" name="ipt_merge_any_lo"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="hd6845s"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="ipt_merge_any_lo"/>
 		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="subcpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="spritecpu" name="Zilog Z80" clock="4000000"/>
@@ -249574,22 +249574,22 @@
 		<rom name="2764.j4" size="8192" crc="79287039" sha1="e2e3c056f35a22e48115557e10fcd172ad2f91f1" region="gfx2" offset="4000"/>
 		<rom name="2764.h4" size="8192" crc="523aa999" sha1="1d4aa0af79a2ed7b935d4ce92d978bf738f08eb3" region="gfx2" offset="6000"/>
 		<rom name="dorunrun.clr" size="256" crc="d5bab5d5" sha1="7a465fe30b6008793d33f6e07086c89111e1e407" region="proms" offset="0"/>
-		<device_ref tag=":maincpu" name="z80"/>
-		<device_ref tag=":subcpu" name="z80"/>
-		<device_ref tag=":spritecpu" name="z80"/>
-		<device_ref tag=":inp1" name="tms1025"/>
-		<device_ref tag=":inp2" name="tms1025"/>
-		<device_ref tag=":watchdog" name="watchdog"/>
-		<device_ref tag=":crtc" name="hd6845s"/>
-		<device_ref tag=":screen" name="screen"/>
-		<device_ref tag=":gfxdecode" name="gfxdecode"/>
-		<device_ref tag=":palette" name="palette"/>
-		<device_ref tag=":mono" name="speaker"/>
-		<device_ref tag=":sn1" name="sn76489a"/>
-		<device_ref tag=":sn2" name="sn76489a"/>
-		<device_ref tag=":sn3" name="sn76489a"/>
-		<device_ref tag=":sn4" name="sn76489a"/>
-		<device_ref tag=":sn_ready" name="ipt_merge_any_lo"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="hd6845s"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="ipt_merge_any_lo"/>
 		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="subcpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="spritecpu" name="Zilog Z80" clock="4000000"/>
@@ -249708,22 +249708,22 @@
 		<rom name="dorev8.bin" size="8192" crc="7143ca68" sha1="b5b45e3cf7d0287d93231eb01395a03f39f473fc" region="gfx2" offset="4000"/>
 		<rom name="dorev9.bin" size="8192" crc="893fc004" sha1="15559d11cc14341d2fec190d12205a649bdd484f" region="gfx2" offset="6000"/>
 		<rom name="dorevc9.bin" size="512" crc="96624ebe" sha1="74ff21dc85dcb013c941ec6c06cafdb5bcc16960" region="proms" offset="0"/>
-		<device_ref tag=":maincpu" name="z80"/>
-		<device_ref tag=":subcpu" name="z80"/>
-		<device_ref tag=":spritecpu" name="z80"/>
-		<device_ref tag=":inp1" name="tms1025"/>
-		<device_ref tag=":inp2" name="tms1025"/>
-		<device_ref tag=":watchdog" name="watchdog"/>
-		<device_ref tag=":crtc" name="hd6845s"/>
-		<device_ref tag=":screen" name="screen"/>
-		<device_ref tag=":gfxdecode" name="gfxdecode"/>
-		<device_ref tag=":palette" name="palette"/>
-		<device_ref tag=":mono" name="speaker"/>
-		<device_ref tag=":sn1" name="sn76489a"/>
-		<device_ref tag=":sn2" name="sn76489a"/>
-		<device_ref tag=":sn3" name="sn76489a"/>
-		<device_ref tag=":sn4" name="sn76489a"/>
-		<device_ref tag=":sn_ready" name="ipt_merge_any_lo"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="hd6845s"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="ipt_merge_any_lo"/>
 		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="subcpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="spritecpu" name="Zilog Z80" clock="4000000"/>
@@ -249840,22 +249840,22 @@
 		<rom name="w8" size="8192" crc="ec503251" sha1="ea7bb11c8e51fe69b5ecba4e4806ec8a8e4961d7" region="gfx2" offset="4000"/>
 		<rom name="w9" size="8192" crc="af7bd7eb" sha1="1cc017b4606d1f6d70cc6cdaf9cf7797dd552b4b" region="gfx2" offset="6000"/>
 		<rom name="dowild.clr" size="256" crc="a703dea5" sha1="159abdb62cb8bf3167d9fdc26038fb485219af7c" region="proms" offset="0"/>
-		<device_ref tag=":maincpu" name="z80"/>
-		<device_ref tag=":subcpu" name="z80"/>
-		<device_ref tag=":spritecpu" name="z80"/>
-		<device_ref tag=":inp1" name="tms1025"/>
-		<device_ref tag=":inp2" name="tms1025"/>
-		<device_ref tag=":watchdog" name="watchdog"/>
-		<device_ref tag=":crtc" name="hd6845s"/>
-		<device_ref tag=":screen" name="screen"/>
-		<device_ref tag=":gfxdecode" name="gfxdecode"/>
-		<device_ref tag=":palette" name="palette"/>
-		<device_ref tag=":mono" name="speaker"/>
-		<device_ref tag=":sn1" name="sn76489a"/>
-		<device_ref tag=":sn2" name="sn76489a"/>
-		<device_ref tag=":sn3" name="sn76489a"/>
-		<device_ref tag=":sn4" name="sn76489a"/>
-		<device_ref tag=":sn_ready" name="ipt_merge_any_lo"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="hd6845s"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="ipt_merge_any_lo"/>
 		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="subcpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="spritecpu" name="Zilog Z80" clock="4000000"/>
@@ -249977,23 +249977,23 @@
 		<rom name="is3" size="16384" crc="27bebba3" sha1="cf752b22603c1e2a0b33958481c652d6d56ebf68" region="adpcm" offset="8000"/>
 		<rom name="is4" size="16384" crc="dd5ffaa2" sha1="4bc4330a54ca93448a8fe05207d3fb1a3a9872e1" region="adpcm" offset="c000"/>
 		<rom name="id_3d.clr" size="512" crc="a433ff62" sha1="db9afe5fc917d25aafa21576cb1cecec7481d4cb" region="proms" offset="0"/>
-		<device_ref tag=":maincpu" name="z80"/>
-		<device_ref tag=":subcpu" name="z80"/>
-		<device_ref tag=":spritecpu" name="z80"/>
-		<device_ref tag=":inp1" name="tms1025"/>
-		<device_ref tag=":inp2" name="tms1025"/>
-		<device_ref tag=":watchdog" name="watchdog"/>
-		<device_ref tag=":crtc" name="hd6845s"/>
-		<device_ref tag=":screen" name="screen"/>
-		<device_ref tag=":gfxdecode" name="gfxdecode"/>
-		<device_ref tag=":palette" name="palette"/>
-		<device_ref tag=":mono" name="speaker"/>
-		<device_ref tag=":sn1" name="sn76489a"/>
-		<device_ref tag=":sn2" name="sn76489a"/>
-		<device_ref tag=":sn3" name="sn76489a"/>
-		<device_ref tag=":sn4" name="sn76489a"/>
-		<device_ref tag=":sn_ready" name="ipt_merge_any_lo"/>
-		<device_ref tag=":msm" name="msm5205"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="hd6845s"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="ipt_merge_any_lo"/>
+		<device_ref name="msm5205"/>
 		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="subcpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="spritecpu" name="Zilog Z80" clock="4000000"/>
@@ -250115,22 +250115,22 @@
 		<rom name="j8.bin" size="8192" crc="84f6fc8c" sha1="be631af9525262cf98c982b88cb97d3287366731" region="gfx2" offset="4000"/>
 		<rom name="j9.bin" size="8192" crc="3f9bb09f" sha1="a38f7c9a21e37c7b903497e8170f64a378df730e" region="gfx2" offset="6000"/>
 		<rom name="bprom1.bin" size="512" crc="2f0955f2" sha1="5eb417478669560f447a0a0e6fe93af27804590f" region="proms" offset="0"/>
-		<device_ref tag=":maincpu" name="z80"/>
-		<device_ref tag=":subcpu" name="z80"/>
-		<device_ref tag=":spritecpu" name="z80"/>
-		<device_ref tag=":inp1" name="tms1025"/>
-		<device_ref tag=":inp2" name="tms1025"/>
-		<device_ref tag=":watchdog" name="watchdog"/>
-		<device_ref tag=":crtc" name="hd6845s"/>
-		<device_ref tag=":screen" name="screen"/>
-		<device_ref tag=":gfxdecode" name="gfxdecode"/>
-		<device_ref tag=":palette" name="palette"/>
-		<device_ref tag=":mono" name="speaker"/>
-		<device_ref tag=":sn1" name="sn76489a"/>
-		<device_ref tag=":sn2" name="sn76489a"/>
-		<device_ref tag=":sn3" name="sn76489a"/>
-		<device_ref tag=":sn4" name="sn76489a"/>
-		<device_ref tag=":sn_ready" name="ipt_merge_any_lo"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="hd6845s"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="ipt_merge_any_lo"/>
 		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="subcpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="spritecpu" name="Zilog Z80" clock="4000000"/>
@@ -250247,22 +250247,22 @@
 		<rom name="k8" size="8192" crc="29bed201" sha1="f44b2a65d3bd6612a726dd17c3e5e29e7f8196b2" region="gfx2" offset="4000"/>
 		<rom name="k9" size="8192" crc="847584d3" sha1="14aa799a2d060f49fc955c760b0e97e9c1ac1662" region="gfx2" offset="6000"/>
 		<rom name="kickridr.clr" size="256" crc="73ec281c" sha1="1af32653e03c1e0aadef47b91bdc3f3c56ef7b23" region="proms" offset="0"/>
-		<device_ref tag=":maincpu" name="z80"/>
-		<device_ref tag=":subcpu" name="z80"/>
-		<device_ref tag=":spritecpu" name="z80"/>
-		<device_ref tag=":inp1" name="tms1025"/>
-		<device_ref tag=":inp2" name="tms1025"/>
-		<device_ref tag=":watchdog" name="watchdog"/>
-		<device_ref tag=":crtc" name="hd6845s"/>
-		<device_ref tag=":screen" name="screen"/>
-		<device_ref tag=":gfxdecode" name="gfxdecode"/>
-		<device_ref tag=":palette" name="palette"/>
-		<device_ref tag=":mono" name="speaker"/>
-		<device_ref tag=":sn1" name="sn76489a"/>
-		<device_ref tag=":sn2" name="sn76489a"/>
-		<device_ref tag=":sn3" name="sn76489a"/>
-		<device_ref tag=":sn4" name="sn76489a"/>
-		<device_ref tag=":sn_ready" name="ipt_merge_any_lo"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="hd6845s"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="ipt_merge_any_lo"/>
 		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="subcpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="spritecpu" name="Zilog Z80" clock="4000000"/>
@@ -250381,22 +250381,22 @@
 		<rom name="sp8.bin" size="8192" crc="2e66525a" sha1="50e7b5e5f01d961eb311c65321fc536d8e4eb7b0" region="gfx2" offset="4000"/>
 		<rom name="sp9.bin" size="8192" crc="9c571525" sha1="c7f1c22c6decd6326ef188bbf440115c1e2b16f4" region="gfx2" offset="6000"/>
 		<rom name="bprom1.bin" size="512" crc="fc1b66ff" sha1="0a73f7e00501c638f017473b1e0786d7bcbbe82a" region="proms" offset="0"/>
-		<device_ref tag=":maincpu" name="z80"/>
-		<device_ref tag=":subcpu" name="z80"/>
-		<device_ref tag=":spritecpu" name="z80"/>
-		<device_ref tag=":inp1" name="tms1025"/>
-		<device_ref tag=":inp2" name="tms1025"/>
-		<device_ref tag=":watchdog" name="watchdog"/>
-		<device_ref tag=":crtc" name="hd6845s"/>
-		<device_ref tag=":screen" name="screen"/>
-		<device_ref tag=":gfxdecode" name="gfxdecode"/>
-		<device_ref tag=":palette" name="palette"/>
-		<device_ref tag=":mono" name="speaker"/>
-		<device_ref tag=":sn1" name="sn76489a"/>
-		<device_ref tag=":sn2" name="sn76489a"/>
-		<device_ref tag=":sn3" name="sn76489a"/>
-		<device_ref tag=":sn4" name="sn76489a"/>
-		<device_ref tag=":sn_ready" name="ipt_merge_any_lo"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="tms1025"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="hd6845s"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="speaker"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="sn76489a"/>
+		<device_ref name="ipt_merge_any_lo"/>
 		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="subcpu" name="Zilog Z80" clock="4000000"/>
 		<chip type="cpu" tag="spritecpu" name="Zilog Z80" clock="4000000"/>

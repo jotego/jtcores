@@ -71,7 +71,7 @@
 // are exposed directly at the GAME module boundary (see
 // jtframe_common_ports.inc), so the four instances and the
 // soccer_left_joys/soccer_right_joys combination logic live in
-// jtdocastle_game.v. This relocation is a structural consequence of
+// jtdcastl_game.v. This relocation is a structural consequence of
 // jtframe's port boundary, not a functional change.
 //
 // MAME reference: none needed -- this is a MiSTer-side analog controller
@@ -79,7 +79,7 @@
 // PCB reads true analog/optical joysticks through its own interface, not
 // through this digital emulation layer).
 
-module jtdocastle_analog
+module jtdcastl_analog
 (
 	input         clk,
 	input         reset,

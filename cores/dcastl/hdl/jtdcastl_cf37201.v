@@ -42,9 +42,9 @@
 //   - the measured 126-MCLK /PL interrupt cycle (pl_count == 7'd125)
 //
 // This module has no video-timing ports (no hs/vs/hblank/vblank), so
-// jtdocastle_video.v/jtdocastle_crtc.v's LHBL/LVBL naming does not apply here.
+// jtdcastl_video.v/jtdcastl_crtc.v's LHBL/LVBL naming does not apply here.
 //============================================================================
-module jtdocastle_cf37201
+module jtdcastl_cf37201
 (
 	input clk, input reset, input ce_mclk,
 	input bus_we, input [1:0] bus_addr, input [7:0] bus_data,

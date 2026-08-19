@@ -22,7 +22,7 @@
 //
 // Differences from the source core's sub CPU, and why:
 //   1. T80se instantiated directly -> jtframe_sysz80 (RAM_AW=11). Same
-//      integration pattern as jtdocastle_main.v's u_cpu (see that file's
+//      integration pattern as jtdcastl_main.v's u_cpu (see that file's
 //      header note 1) -- jtframe_sysz80 fuses the Z80, its own work RAM
 //      (jtframe_dual_nvram), and a rom_cs/rom_ok wait-state generator
 //      (jtframe_z80_romwait) in one module.
@@ -34,19 +34,19 @@
 //      wired to the wrapper instead of a locally-inferred array; every use
 //      of the old `work_q` read register in the cpu_din mux is now
 //      `ram_dout`.
-//   3. NEW input `rom_ok`, same reasoning as jtdocastle_main.v note 3: ROM
+//   3. NEW input `rom_ok`, same reasoning as jtdcastl_main.v note 3: ROM
 //      is now SDRAM-backed with variable latency, and jtframe_sysz80
 //      internally inserts Z80 WAIT states while `rom_cs && !rom_ok`. The
 //      rom_cs decode itself (cpu_addr < 0x4000, matching rom_addr's 14-bit
 //      window) is UNCHANGED -- it is now given an explicit wire name so it
 //      can drive both the wrapper's rom_cs input and the existing cpu_din
 //      read mux (which previously spelled the same condition out inline).
-//   4. Same boundary shape as jtdocastle_main.v note 4: rom_q/rom_addr/
-//      rom_cs/rom_ok are exposed here and jtdocastle_game.v wires the
+//   4. Same boundary shape as jtdcastl_main.v note 4: rom_q/rom_addr/
+//      rom_cs/rom_ok are exposed here and jtdcastl_game.v wires the
 //      mem.yaml-generated "sub" bus (sub_addr/sub_data/sub_ok) to them.
 //   5. CLR_INT(0) chosen to match the source core's direct `.INT_n(irq_n)`
 //      pass-through -- irq_n is a raw external level, not latched by M1/
-//      IORQ inside this module, same reasoning as jtdocastle_main.v note 5.
+//      IORQ inside this module, same reasoning as jtdcastl_main.v note 5.
 //      This module's own NMI generation (the `nmi_n` register, clocked from
 //      `nmi_req`) is UNCHANGED logic and is now wired straight to
 //      jtframe_sysz80's `nmi_n` port instead of T80se's `NMI_n` pin.
@@ -57,13 +57,13 @@
 //      core.
 //   7. KNOWN LIMITATION -- see the detailed comment immediately before the
 //      u_cpu instantiation below. It shares a root cause with
-//      jtdocastle_main.v's comm_wait_n limitation (jtframe_sysz80 exposes no
+//      jtdcastl_main.v's comm_wait_n limitation (jtframe_sysz80 exposes no
 //      general external WAIT_n input) but it is a DIFFERENT signal and NOT
 //      the cross-CPU mailbox handshake -- see that comment for the evidence.
 //
 // MAME reference: src/mame/universal/docastle.cpp sound_map variants.
 
-module jtdocastle_sub
+module jtdcastl_sub
 (
 	input         clk,
 	input         reset,
@@ -76,7 +76,7 @@ module jtdocastle_sub
 
 	input   [7:0] rom_q,
 	output [13:0] rom_addr,
-	output        rom_cs,       // exposed so jtdocastle_game.v can drive
+	output        rom_cs,       // exposed so jtdcastl_game.v can drive
 	                            // mem.yaml's `sub_cs` SDRAM-slot request.
 	                            // Decode is the source core's (cpu_addr < 0x4000).
 	input         rom_ok,       // SDRAM-fetch-ready qualifier, see header note 3
@@ -126,7 +126,7 @@ end
 // KNOWN LIMITATION -- PSG-busy WAIT not injected. On the PCB the sub Z80's
 // WAIT_n carries `cpu_wait_n = &psg_ready`: a stall on the sub CPU's OWN bus
 // while any of the four jt89 PSGs is still busy servicing a prior write. This
-// is NOT the same signal as jtdocastle_main.v's comm_wait_n limitation. The
+// is NOT the same signal as jtdcastl_main.v's comm_wait_n limitation. The
 // main/sub mailbox handshake is ASYMMETRIC, not a mutual or bidirectional
 // WAIT: only main's Z80 ever stalls on it (main's comm_wait_n = ~main_wait;
 // main_wait is set when main pulses comm_start and cleared when SUB pulses
@@ -165,7 +165,7 @@ jtframe_sysz80 #(.RAM_AW(11),.CLR_INT(0),.RECOVERY(1)) u_cpu
 	.cpu_dout   ( cpu_dout    ),
 	.ram_dout   ( ram_dout    ),
 	// No NVRAM pins: jtframe_sysz80 does not expose prog_addr/prog_data/
-	// prog_din/prog_we -- see the note in jtdocastle_main.v.
+	// prog_din/prog_we -- see the note in jtdcastl_main.v.
 	// ROM/RAM access
 	.ram_cs     ( ram_cs      ),
 	.rom_cs     ( rom_cs      ),
