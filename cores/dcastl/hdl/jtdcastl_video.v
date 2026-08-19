@@ -12,7 +12,7 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Author: aCORES
+    Author: meathax
     Version: 1.0
     Date: 18-8-2026 */
 
@@ -26,6 +26,10 @@ module jtdcastl_video
 	input         flipscreen,
 	input         low_pen_priority,
 	input         soccer_sprites,
+
+	// CRTC scene dump (18-byte MMR register file)
+	input   [25:0] ioctl_addr,
+	output  [ 7:0] ioctl_din,
 
 	// CPU-side tile, colour and sprite RAM ports
 	output  [9:0] vram_scan_addr,
@@ -56,18 +60,13 @@ module jtdcastl_video
 	input   [7:0] sprite_gfx_q,
 	output reg    sprite_gfx_cs,
 	input         sprite_gfx_ok,
-	output  [7:0] prom_addr,
-	input   [7:0] prom_q,
 
 	// CRTC register access
 	input   [4:0] crtc_reg,
 	input   [7:0] crtc_data,
 	input         crtc_we,
 
-	// Video output
-	output  [7:0] r,
-	output  [7:0] g,
-	output  [7:0] b,
+	// Video timing
 	output        HS,
 	output        VS,
 	output        LHBL,               // active low, per jtframe convention
@@ -106,7 +105,8 @@ jtdcastl_crtc crtc
 	.h_count(h_count), .v_count(v_count), .HS(HS), .VS(VS),
 	.LHBL(LHBL), .LVBL(LVBL), .cursor(crtc_cursor),
 	.ma(crtc_ma), .ra(crtc_ra), .main_irq_n(main_irq_n),
-	.sub_irq_req(sub_irq_req), .sprite_nmi_req(sprite_nmi_req)
+	.sub_irq_req(sub_irq_req), .sprite_nmi_req(sprite_nmi_req),
+	.ioctl_addr(ioctl_addr[4:0]), .ioctl_din(ioctl_din)
 );
 
 wire [7:0] bitmap_x = flipscreen ? (8'd255 - h_count[7:0])
@@ -362,16 +362,5 @@ end
 assign mix_tile_pen     = tile_pen;
 assign mix_tile_color   = tile_attr[4:0];
 assign mix_sprite_pixel = sprite_pixel;
-
-wire tile_front = low_pen_priority ? ~tile_pen[3] : tile_pen[3];
-wire use_sprite = !tile_front && sprite_pixel[9] && sprite_pixel[8];
-wire [4:0] final_color = use_sprite ? sprite_pixel[7:3] : tile_attr[4:0];
-wire [2:0] final_pen   = use_sprite ? sprite_pixel[2:0] : tile_pen[2:0];
-assign prom_addr = {final_color,final_pen};
-
-// PROM resistor network, matching MAME's 0x23/0x4b/0x91 and 0x52/0xad.
-assign r = (prom_q[5] ? 8'h23 : 8'h00) + (prom_q[6] ? 8'h4b : 8'h00) + (prom_q[7] ? 8'h91 : 8'h00);
-assign g = (prom_q[2] ? 8'h23 : 8'h00) + (prom_q[3] ? 8'h4b : 8'h00) + (prom_q[4] ? 8'h91 : 8'h00);
-assign b = (prom_q[0] ? 8'h52 : 8'h00) + (prom_q[1] ? 8'had : 8'h00);
 
 endmodule

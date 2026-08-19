@@ -12,7 +12,7 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Author: aCORES
+    Author: meathax
     Version: 1.0
     Date: 18-8-2026 */
 
@@ -45,7 +45,13 @@ module jtdcastl_crtc
     // Interrupts
     output            main_irq_n,
     output reg        sub_irq_req,
-    output reg        sprite_nmi_req
+    output reg        sprite_nmi_req,
+
+    // Scene IOCTL dump of the MMR register file (18 bytes, mmr.yaml `crtc`).
+    // Driven by/exposed to jtdcastl_game, which muxes it into the aggregate
+    // IOCTL_RD aux tap alongside the mem.yaml BRAM blocks.
+    input      [ 4:0] ioctl_addr,
+    output     [ 7:0] ioctl_din
 );
 
 reg [7:0] crtc [0:17];
@@ -58,7 +64,7 @@ jtdcastl_crtc_mmr #(.INIT(144'h000082008000000007001c18081f62222026)) u_mmr(
 	.r0(r0),.r1(r1),.r2(r2),.r3(r3),.r4(r4),.r5(r5),.r6(r6),.r7(r7),.r8(r8),
 	.r9(r9),.r10(r10),.r11(r11),.r12(r12),.r13(r13),.r14(r14),.r15(r15),
 	.r16(r16),.r17(r17),
-	.ioctl_addr(5'd0), .ioctl_din(), .debug_bus(8'd0), .st_dout()
+	.ioctl_addr(ioctl_addr), .ioctl_din(ioctl_din), .debug_bus(8'd0), .st_dout()
 );
 
 assign pending[0]=r0;   assign pending[1]=r1;   assign pending[2]=r2;

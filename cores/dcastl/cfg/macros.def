@@ -18,8 +18,18 @@ JTFRAME_DEBUG_VPOS=3
 # One header byte carries the game ID that jtdcastl_profile decodes into the
 # per-set hardware profile. See the [header] section of mame2mra.toml.
 JTFRAME_HEADER=8
-# NVRAM window for scene save/restore of the CPU-visible RAMs (see mem.yaml).
-JTFRAME_IOCTL_RD=2560
+# NVRAM window for scene save/restore of the CPU-visible RAMs (see mem.yaml:
+# vram 1024B + cram 1024B + oram 512B = 2560B) plus the CRTC's 18-byte MMR
+# register file (cfg/mmr.yaml `crtc`), dumped by jtdcastl_crtc's ioctl_din/
+# ioctl_addr ports through jtdcastl_game's aux mux tap at aux-local address
+# 0..17 (system ioctl_addr 2560..2577). 2560+18=2578.
+#
+# Gated behind `debug` (unparsed for JTFRAME_RELEASE builds, see
+# modules/jtframe/src/jtframe/macros/macros.go and jtframe-cfgstr.md) per
+# review: the scene save/restore path is not yet fully wired end to end
+# (jtdcastl_game's aux mux is still to be added), so this stays debug-only
+# for now, matching cores/pktgal, cores/rastan, cores/cal50, etc.
+debug JTFRAME_IOCTL_RD=2578
 
 # Video configuration. Real raster, from the Universal service manual schematics
 # and the CF37201N decap: 312 x 264 total, 240 x 192 visible, HD6845S clocked at

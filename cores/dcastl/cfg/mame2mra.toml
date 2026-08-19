@@ -1,4 +1,11 @@
 [global]
+# "aCORES" is the project/contributor identifier used for this port; no
+# individual porting author is documented in this repo (README.md Credits
+# only names the upstream MiSTer Universal_DoCastle core and jt89/jt5205
+# authorship, and git history on this branch carries a single generic
+# committer identity). Left as-is pending jotego's guidance on his preferred
+# author-attribution convention -- other cores in this repo use both real
+# names (e.g. "jotego", "Andrea Bogazzi") and this kind of project handle.
 author=["aCORES"]
 
 [parse]
@@ -8,6 +15,24 @@ sourcefile=[ "docastle.cpp" ]
 # live in docastle.cpp, so jtframe derives the grouping from mame.xml directly.
 # parents=[] only matters when a parent set lives outside the selected
 # sourcefile.
+#
+# main_setnames: douni, spiero and asoccer are clones (of docastle, dorunrun
+# and idsoccer respectively) in mame.xml, so without this they are treated as
+# "just a clone" of their parent and skipped instead of being generated as
+# their own top-level release. All three are curated sets in their own right
+# and need their own MRA.
+main_setnames=["douni","spiero","asoccer"]
+
+# skip.Setnames: the remaining docastle.cpp clones are NOT curated sets. They
+# are explicitly skipped here -- this is not "safe by construction" because of
+# how sourcefile grouping works; nothing about parsing docastle.cpp alone
+# would exclude them. None of these 7 has header/profile data assigned below,
+# so if doc/mame.xml ever gains fuller coverage of docastle.cpp and one of
+# them stopped being skipped, jtframe mra would emit an MRA for it whose
+# header byte 0 falls through to `fill` (0xff), an invalid game_id that holds
+# the core in permanent reset (see [header] below). Listing them here avoids
+# ever reaching that state.
+skip.Setnames=["docastle2","docastleo","dorunrun2","dorunrunc","dorunrunca","idsoccera","idsoccert"]
 skip.Bootlegs=true
 
 [dipsw]
@@ -35,12 +60,17 @@ rename=[
 [header]
 # ---------------------------------------------------------------------------
 # JTFRAME_HEADER=8 (cfg/macros.def) prepends an 8-byte header to the main ROM
-# file at MRA-build time. jtdcastl_game captures byte 0 of that header into
-# its game_id/game_id_ok pair via `header && prog_we && prog_addr[2:0]==3'd0`
-# and feeds game_id into jtdcastl_profile, which decodes it into the per-set
-# hardware profile. This section is the producing end of that wiring.
+# file at MRA-build time. `registers` below makes jtframe mra generate
+# jtdcastl_header.v (see modules/jtframe/hdl/inc/header.v), a small module
+# that latches the game_id field out of the download stream as it goes by
+# (`header && prog_we && prog_addr==<offset>`) and exposes it as a `game_id`
+# output. jtdcastl_game instantiates jtdcastl_header and feeds its game_id
+# output into jtdcastl_profile, which decodes it into the per-set hardware
+# profile. This section is the producing end of that wiring; the game_id
+# register/module replaces the old hand-rolled capture that used to live
+# directly in jtdcastl_game.
 #
-# byte 0: game ID, 0x00-0x08, one value per set. It must match
+# byte 0, bits [3:0]: game ID, 0x0-0x8, one value per set. It must match
 #         jtdcastl_profile's case statement:
 #           0x00 Mr. Do's Castle (docastle)     -- native_vertical
 #           0x01 Mr. Do! vs. Unicorns (douni)   -- native_vertical
@@ -53,32 +83,38 @@ rename=[
 #           0x08 American Soccer (asoccer)      -- PROFILE_SOCCER, low_pen_priority, soccer_sprites, has_adpcm, has_joys2
 #         (0x09 exists in the profile decoder as a spare RunRun-profile slot but
 #         is not used by any of these 9 sets and is not assigned here.)
-# bytes 1-7: unused/reserved, left at the `fill` value.
+# No value= entry is given for the 7 skip.Setnames clones above (docastle2,
+# docastleo, dorunrun2, dorunrunc, dorunrunca, idsoccera, idsoccert): they
+# must never resolve to a valid game_id, on top of being skipped outright.
+# byte 0 bits [7:4] and bytes 1-7: unused/reserved, left at the `fill` value.
 info="""
-	byte 0: game ID / profile select, see hdl/jtdcastl_profile.v's case
-	        statement (0x00 docastle, 0x01 douni, 0x02 dorunrun, 0x03 dowild,
-	        0x04 jjack, 0x05 kickridr, 0x06 spiero, 0x07 idsoccer, 0x08 asoccer)
-	bytes 1-7: unused, reserved
+	byte 0[3:0]: game ID / profile select, see hdl/jtdcastl_profile.v's case
+	        statement (0x0 docastle, 0x1 douni, 0x2 dorunrun, 0x3 dowild,
+	        0x4 jjack, 0x5 kickridr, 0x6 spiero, 0x7 idsoccer, 0x8 asoccer)
+	byte 0[7:4], bytes 1-7: unused, reserved
 """
-# fill=0xff, not 0x00: game_id 0x00 is a valid id (Mr. Do's Castle) in
+# fill=0xff, not 0x00: game_id 0x0 is a valid id (Mr. Do's Castle) in
 # jtdcastl_profile's decoder, so filling unassigned bytes or machines with
-# 0x00 would silently boot the wrong game. 0xff is not a valid id -- it falls
-# into `default:`, which clears `valid` and holds the core in reset via
-# `base_reset = rst | ~profile_valid | ~game_id_ok` in jtdcastl_game. That
-# also covers any docastle.cpp machine that reaches the MRA generator without
-# an explicit `data` entry below: it is held in reset rather than booting as
-# Mr. Do's Castle.
+# 0x00 would silently boot the wrong game. 0xff is not a valid id in bits
+# [3:0] (0xf) -- it falls into `default:`, which clears `valid` and holds the
+# core in reset via `base_reset = rst | ~profile_valid | ~game_id_ok` in
+# jtdcastl_game. That also covers any docastle.cpp machine that reaches the
+# MRA generator without an explicit `values` match below: its game_id byte
+# stays at the `fill` value (0xff, low nibble 0xf), so it is held in reset
+# rather than booting as Mr. Do's Castle.
 fill=0xff
-data = [
-	{ machine="docastle", offset=0, data="00" },
-	{ machine="douni",    offset=0, data="01" },
-	{ machine="dorunrun", offset=0, data="02" },
-	{ machine="dowild",   offset=0, data="03" },
-	{ machine="jjack",    offset=0, data="04" },
-	{ machine="kickridr", offset=0, data="05" },
-	{ machine="spiero",   offset=0, data="06" },
-	{ machine="idsoccer", offset=0, data="07" },
-	{ machine="asoccer",  offset=0, data="08" },
+registers = [
+	{ name="game_id", pos="0[3:0]", desc="Game ID / profile select", values=[
+		{ machine="docastle", value=0x00 },
+		{ setname="douni",    value=0x01 },
+		{ machine="dorunrun", value=0x02 },
+		{ machine="dowild",   value=0x03 },
+		{ machine="jjack",    value=0x04 },
+		{ machine="kickridr", value=0x05 },
+		{ setname="spiero",   value=0x06 },
+		{ machine="idsoccer", value=0x07 },
+		{ setname="asoccer",  value=0x08 },
+	] },
 ]
 
 [buttons]
@@ -100,11 +136,12 @@ names=[
 
 [ROM]
 # 7 regions, ordered and anchored to match cfg/mem.yaml's bank grouping: ba0
-# groups main+sub+adpcm via the SUB_START/ADPCM_START offsets; ba1=gfx1 at
-# JTFRAME_BA1_START; ba2=gfx2 at JTFRAME_BA2_START; spritecpu and proms (cprom)
-# are the two BRAM regions, anchored at JTFRAME_PROM_START and
-# JTFRAME_PROM2_START. Every non-first region needs its own distinct start
-# macro, so the two BRAM regions cannot share one.
+# groups main+sub+adpcm via the SUB_START/ADPCM_START offsets; gfx2 is the
+# SDRAM region, at JTFRAME_BA1_START (SDRAM bank 1); gfx1 is BRAM, anchored at
+# JTFRAME_PROM_START, not SDRAM -- spritecpu and proms (cprom) are the other
+# two BRAM regions, anchored at JTFRAME_PROM2_START and JTFRAME_PROM3_START.
+# Every non-first region needs its own distinct start macro, so the three
+# BRAM regions cannot share one.
 #
 # "adpcm" is a MAME ROM_REGION only on idsoccer/asoccer (Soccer profile). No
 # per-machine restriction is written for it: no other machine defines the region

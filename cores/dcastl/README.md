@@ -41,9 +41,12 @@ Points worth noting versus emulation:
 - Three real Z80s, not one CPU timeshared. The cycle-sensitive main/sub WAIT
   handshake is modelled rather than approximated in software; it is
   asymmetric, only the main CPU stalls.
-- The sprite CPU's ROM actually executes instead of being bypassed. Both
-  observed bus phases are implemented: staging RAM into its `0x8000` work
-  doorway, and its `0xc000`-`0xc7ff` writes into the CF37201.
+- The sprite CPU's ROM actually executes instead of being bypassed. Its
+  `0xc000`-`0xc7ff` writes into the CF37201 doorway drive the real sprite
+  hardware path. The `0x8000` staging-RAM phase is modelled for CPU-bus
+  accuracy but, per real-hardware/decap evidence, never feeds the displayed
+  sprite output on real PCBs — only the optional CF37201 framebuffer
+  renderer (off by default) consumes it.
 - The CRTC exposes writable R0-R15 with frame-shadowed register writes, so a
   programming burst in progress cannot commit a broken timing mode mid-frame —
   a failure the schematic's own CURSOR-interrupt wiring can otherwise trigger.

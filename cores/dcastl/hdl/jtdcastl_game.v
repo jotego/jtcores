@@ -12,7 +12,7 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Author: aCORES
+    Author: meathax
     Version: 1.0
     Date: 18-8-2026 */
 
@@ -27,18 +27,30 @@ localparam PCB_CURSOR_IRQ   = 1'b0; // CRTC CURSOR-sourced IRQ research mode: OF
 
 wire pause = ~dip_pause;
 
-reg  [7:0] game_id;
+wire [3:0] game_id_raw;
 reg        game_id_ok;
 
+// jtdcastl_header (generated from cfg/mame2mra.toml's [header].registers)
+// captures the low nibble of header byte 0. game_id_ok is kept as an
+// explicit sibling register rather than trusting the generated module's
+// power-on default (game_id_raw=0, which is itself a VALID profile,
+// docastle) -- it must only go high once the real capture event fires, the
+// same safety property the fill=0xff/reset-on-invalid scheme relies on.
 always @(posedge clk) begin
-    if( rst ) begin
-        game_id    <= 8'h00;
-        game_id_ok <= 0;
-    end else if( header && prog_we && prog_addr[2:0]==3'd0 ) begin
-        game_id    <= prog_data;
-        game_id_ok <= 1;
-    end
+    if( rst ) game_id_ok <= 0;
+    else if( header && prog_we && prog_addr[2:0]==3'd0 ) game_id_ok <= 1;
 end
+
+jtdcastl_header u_header(
+    .clk        ( clk           ),
+    .header     ( header        ),
+    .prog_we    ( prog_we       ),
+    .prog_addr  ( prog_addr[2:0]),
+    .prog_data  ( prog_data     ),
+    .game_id    ( game_id_raw   )
+);
+
+wire [7:0] game_id = { 4'd0, game_id_raw };
 
 wire       profile_valid, low_pen_priority, soccer_sprites,
            has_adpcm, has_joys2, native_vertical;
@@ -175,9 +187,6 @@ wire [ 7:0] crtc_data;
 wire        crtc_we;
 wire        sub_nmi_req, flipscreen;
 wire        main_irq_n, sub_irq_req, sprite_nmi_req;
-wire [ 8:0] sprite_copy_addr;
-wire [ 7:0] sprite_copy_data;
-wire        sprite_copy_we;
 wire [10:0] cf_addr;
 wire [ 7:0] cf_data;
 wire        cf_we, cf_irq_req, cf_irq_ack;
@@ -318,10 +327,6 @@ jtdcastl_spritecpu u_spritecpu(
     .rom_q          ( spritecpu_data    ),
     .rom_addr       ( spritecpu_addr    ),
     .rom_ok         ( 1'b1              ),
-    // first-phase copy (observed only)
-    .copy_addr      ( sprite_copy_addr  ),
-    .copy_data      ( sprite_copy_data  ),
-    .copy_we        ( sprite_copy_we    ),
     // second phase: the CF37201 doorway
     .cf_addr        ( cf_addr           ),
     .cf_data        ( cf_data           ),
@@ -367,6 +372,8 @@ jtdcastl_video u_video(
     .flipscreen         ( flipscreen        ),
     .low_pen_priority   ( low_pen_priority  ),
     .soccer_sprites     ( soccer_sprites    ),
+    .ioctl_addr         ( ioctl_addr        ),
+    .ioctl_din          ( crtc_ioctl_din    ),
     // CPU-side RAM ports
     .vram_scan_addr     ( vram_scan_addr    ),
     .vram_scan_dout     ( vram_scan_dout    ),
@@ -397,16 +404,10 @@ jtdcastl_video u_video(
     .sprite_gfx_q       ( gfx2_data         ),
     .sprite_gfx_cs      ( gfx2_cs           ),
     .sprite_gfx_ok      ( gfx2_ok           ),
-    .prom_addr          (                   ),
-    .prom_q             ( cprom_data        ),
     // CRTC register bus
     .crtc_reg           ( crtc_reg          ),
     .crtc_data          ( crtc_data         ),
     .crtc_we            ( crtc_we           ),
-    // dead RGB path -- see flagged item V1
-    .r                  (                   ),
-    .g                  (                   ),
-    .b                  (                   ),
     .HS                 ( HS                ),
     .VS                 ( VS                ),
     .LHBL               ( LHBL              ),
@@ -500,25 +501,14 @@ assign pxl_cen  = cen_pxl;
 
 assign snd = (machine_reset || pause) ? 16'sd0 : filtered_audio;
 
-// `sample` strobe. The board has no equivalent; ~48 kHz from a /1000 divider
-// off clk. See item C3.
-reg [9:0] sample_cnt;
-reg       sample_r;
+wire [7:0] crtc_ioctl_din;
+`ifdef JTFRAME_IOCTL_RD
+assign ioctl_din = crtc_ioctl_din;
+`endif
 
-always @(posedge clk) begin
-    if( rst ) begin
-        sample_cnt <= 0;
-        sample_r   <= 0;
-    end else begin
-        sample_r <= 0;
-        if( sample_cnt==10'd999 ) begin
-            sample_cnt <= 0;
-            sample_r   <= 1;
-        end else sample_cnt <= sample_cnt + 1'd1;
-    end
-end
-
-assign sample = sample_r;
+// `sample` strobe. Aligned with cen_48k, the same enable driving the audio
+// filter, so the framework meter samples at the filter's own update rate.
+assign sample = cen_48k;
 
 assign dip_flip = flipscreen;   // flagged item V3
 
@@ -538,14 +528,13 @@ assign debug_view = st_mux;
 
 // Signals kept for traceability/debug but not consumed by any jtframe port.
 wire _unused = &{ 1'b0, oram_dout, main_pc, sub_pc, sprite_pc, psg_ready, main_m1_n,
-                  main_iorq_n, sprite_copy_addr, sprite_copy_data,
-                  sprite_copy_we, cf_dram_addr, cf_flip_x, cf_flip_y,
+                  main_iorq_n, cf_dram_addr, cf_flip_x, cf_flip_y,
                   cf_plus_one, cf_serial_invert, cf_palette, h_count,
                   adpcm_nibble, adpcm_strobe, gfx2_ok, adpcm_ok,
                   joyana_l3, joyana_l4, joyana_r3,
                   joyana_r4, dial_x, dial_y, snd_en, snd_vol, status,
                   dipsw[31:16], dip_fxlevel, tilt, prog_ba, prom_we,
-                  ioctl_addr, ioctl_ram, ioctl_cart, rst24, clk24, rst96,
+                  ioctl_ram, ioctl_cart, rst24, clk24, rst96,
                   clk96, pxl2_cen, cab_1p[3:2], coin[3:2] };
 
 endmodule

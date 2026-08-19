@@ -12,9 +12,12 @@
     You should have received a copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
-    Author: aCORES
+    Author: meathax
     Version: 1.0
     Date: 18-8-2026 */
+
+// Off by default (PCB_FRAMEBUFFER=0), unverified against real hardware.
+// Decap-derived alternate sprite renderer, kept for future validation.
 
 module jtdcastl_pcb_sprite
 (
@@ -239,21 +242,5 @@ always @(posedge clk) begin
 			endcase
 		end
 	end
-end
-endmodule
-
-module jtdcastl_field_ram
-(
-	input clk,
-	input [15:0] rd_addr,
-	output reg [8:0] rd_data,
-	input [15:0] wr_addr,
-	input [8:0] wr_data,
-	input wr_en
-);
-reg [8:0] mem [0:65535];
-always @(posedge clk) begin
-	rd_data <= mem[rd_addr];
-	if (wr_en) mem[wr_addr] <= wr_data;
 end
 endmodule
