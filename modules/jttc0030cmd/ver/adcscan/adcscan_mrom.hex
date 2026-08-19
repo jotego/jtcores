@@ -1,0 +1,57 @@
+// Custom uPD78C11 firmware for the jttc0030cmd ADC scan-group unit test.
+// ORIGINAL code, not derived from any game's C-chip mask ROM.
+//
+// Reproduces the pattern Taito's C-chip firmware uses to read all eight AN
+// pins as digital inputs: it alternates ANM between scan/AN0-AN3 (00) and
+// scan/AN4-AN7 (08) without ever changing the mode bit. Per uPD78C1x manual
+// 8.2, every ANM write must abort the running conversion and restart from
+// the newly selected group's first channel into CR0. After each group has had
+// time to complete, the four CR registers are copied to shared RAM so the
+// host can check them:
+//     word 0..3 = CR0..CR3 after the AN0-AN3 scan
+//     word 4..7 = CR0..CR3 after the AN4-AN7 scan
+//     word 8    = pass marker, toggles 00/FF each loop
+// $readmemh ignores // comments; each token is one program byte.
+//
+//   addr  bytes       mnemonic
+6B 00      //  0000  MVI  C,#$00       ; pass marker register, once
+69 00      //  0002  MVI  A,#$00       ; <-- loop entry
+4D C8      //  0004  MOV  ANM,A        ; scan mode, AN0-AN3
+6A FF      //  0006  MVI  B,#$FF       ; \
+52         //  0008  DCR  B            ;  } delay > 4 conversions
+54 08 00   //  0009  JMP  $0008        ; back to DCR (skipped when B hits 0)
+4C E0      //  000C  MOV  A,CR0
+34 00 10   //  000E  LXI  H,#$1000
+3B         //  0011  STAX H            ; word0 = CR0
+4C E1      //  0012  MOV  A,CR1
+34 01 10   //  0014  LXI  H,#$1001
+3B         //  0017  STAX H            ; word1 = CR1
+4C E2      //  0018  MOV  A,CR2
+34 02 10   //  001A  LXI  H,#$1002
+3B         //  001D  STAX H            ; word2 = CR2
+4C E3      //  001E  MOV  A,CR3
+34 03 10   //  0020  LXI  H,#$1003
+3B         //  0023  STAX H            ; word3 = CR3
+69 08      //  0024  MVI  A,#$08
+4D C8      //  0026  MOV  ANM,A        ; scan mode, AN4-AN7 (mode bit unchanged)
+6A FF      //  0028  MVI  B,#$FF
+52         //  002A  DCR  B
+54 2A 00   //  002B  JMP  $002A        ; back to DCR (skipped when B hits 0)
+4C E0      //  002E  MOV  A,CR0
+34 04 10   //  0030  LXI  H,#$1004
+3B         //  0033  STAX H            ; word4 = CR0
+4C E1      //  0034  MOV  A,CR1
+34 05 10   //  0036  LXI  H,#$1005
+3B         //  0039  STAX H            ; word5 = CR1
+4C E2      //  003A  MOV  A,CR2
+34 06 10   //  003C  LXI  H,#$1006
+3B         //  003F  STAX H            ; word6 = CR2
+4C E3      //  0040  MOV  A,CR3
+34 07 10   //  0042  LXI  H,#$1007
+3B         //  0045  STAX H            ; word7 = CR3
+34 08 10   //  0046  LXI  H,#$1008
+0B         //  0049  MOV  A,C          ; C = pass marker, kept in a register
+74 11 FF   //  004A  XRI  A,#$FF       ; toggle 00<->FF
+1B         //  004D  MOV  C,A
+3B         //  004E  STAX H            ; word8 = marker
+54 02 00   //  004F  JMP  $0002        ; loop
