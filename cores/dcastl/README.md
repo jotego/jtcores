@@ -57,11 +57,6 @@ Points worth noting versus emulation:
 
 # Known limitations
 
-- The sprite RAM is still an inferred array in the video module rather than a
-  `mem.yaml` block: it is written byte-wise by the sprite CPU but read a whole
-  32-bit entry at a time by the scanner, so moving it needs the scanner to do
-  four sequential reads where it now does one. Tile and colour RAM are already
-  `mem.yaml` dual-port BRAM with scene save/restore.
 - No `ver/` scenes yet, so nothing here has been compared frame by frame.
 - The optional CF37201 framebuffer renderer (`hdl/jtdcastl_pcb_sprite.v`) is
   not the default and has never been checked against a physical PCB; the

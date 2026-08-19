@@ -120,6 +120,21 @@ bram:
       name: scan
       addr: cram_scan_addr
       dout: cram_scan_dout
+  # Sprite entry RAM, written byte-wise by the main CPU, scanned byte-wise
+  # by the line renderer.
+  - name: oram
+    addr_width: 9
+    data_width: 8
+    rw: true
+    addr: oram_addr
+    din: oram_din
+    dout: oram_dout
+    we: oram_we
+    ioctl: { save: true, restore: true, order: 2 }
+    dual_port:
+      name: scan
+      addr: oram_scan_addr
+      dout: oram_scan_dout
   # Tile ROM. The pixel pipeline reads it combinationally every pixel and
   # cannot stall, so it is BRAM rather than an SDRAM slot. Fixed 16kB on all
   # nine sets.

@@ -166,6 +166,10 @@ end
 wire [ 8:0] spr_addr;
 wire [ 7:0] spr_din;
 wire        spr_we;
+
+assign oram_addr = spr_addr;
+assign oram_din  = spr_din;
+assign oram_we   = spr_we;
 wire [ 4:0] crtc_reg;
 wire [ 7:0] crtc_data;
 wire        crtc_we;
@@ -368,9 +372,8 @@ jtdcastl_video u_video(
     .vram_scan_dout     ( vram_scan_dout    ),
     .cram_scan_addr     ( cram_scan_addr    ),
     .cram_scan_dout     ( cram_scan_dout    ),
-    .sprite_cpu_addr    ( spr_addr          ),
-    .sprite_cpu_din     ( spr_din           ),
-    .sprite_cpu_we      ( spr_we            ),
+    .oram_scan_addr     ( oram_scan_addr    ),
+    .oram_scan_dout     ( oram_scan_dout    ),
     // C000-C1FF is the physical 512-byte sprite doorway. C432 is the
     // protection/CF control latch and must never corrupt sprite RAM.
     .pcb_sprite_addr    ( cf_addr[8:0]      ),
@@ -534,7 +537,7 @@ end
 assign debug_view = st_mux;
 
 // Signals kept for traceability/debug but not consumed by any jtframe port.
-wire _unused = &{ 1'b0, main_pc, sub_pc, sprite_pc, psg_ready, main_m1_n,
+wire _unused = &{ 1'b0, oram_dout, main_pc, sub_pc, sprite_pc, psg_ready, main_m1_n,
                   main_iorq_n, sprite_copy_addr, sprite_copy_data,
                   sprite_copy_we, cf_dram_addr, cf_flip_x, cf_flip_y,
                   cf_plus_one, cf_serial_invert, cf_palette, h_count,

@@ -32,9 +32,8 @@ module jtdcastl_video
 	input   [7:0] vram_scan_dout,
 	output  [9:0] cram_scan_addr,
 	input   [7:0] cram_scan_dout,
-	input   [8:0] sprite_cpu_addr,
-	input   [7:0] sprite_cpu_din,
-	input         sprite_cpu_we,
+	output  [8:0] oram_scan_addr,
+	input   [7:0] oram_scan_dout,
 	input   [8:0] pcb_sprite_addr,
 	input   [7:0] pcb_sprite_din,
 	input         pcb_sprite_we,
@@ -110,9 +109,6 @@ jtdcastl_crtc crtc
 	.sub_irq_req(sub_irq_req), .sprite_nmi_req(sprite_nmi_req)
 );
 
-// Sprite RAM, written byte-wise by the sprite CPU and read as whole entries.
-reg [31:0] sprite_ram[0:127];
-
 wire [7:0] bitmap_x = flipscreen ? (8'd255 - h_count[7:0])
 	                              : h_count[7:0];
 wire [7:0] source_y = flipscreen ? (8'd191 - v_count[7:0])
@@ -123,16 +119,6 @@ wire [9:0] tile_addr = {map_y[7:3], bitmap_x[7:3]};
 assign vram_scan_addr = tile_addr;
 assign cram_scan_addr = tile_addr;
 
-always @(posedge clk) begin
-	if (sprite_cpu_we) begin
-		case (sprite_cpu_addr[1:0])
-			2'd0: sprite_ram[sprite_cpu_addr[8:2]][7:0]   <= sprite_cpu_din;
-			2'd1: sprite_ram[sprite_cpu_addr[8:2]][15:8]  <= sprite_cpu_din;
-			2'd2: sprite_ram[sprite_cpu_addr[8:2]][23:16] <= sprite_cpu_din;
-			2'd3: sprite_ram[sprite_cpu_addr[8:2]][31:24] <= sprite_cpu_din;
-		endcase
-	end
-end
 
 wire [7:0] tile_number = vram_scan_dout;
 wire [7:0] tile_attr   = cram_scan_dout;
@@ -152,6 +138,7 @@ localparam ST_SCAN  = 3'd2;
 localparam ST_GREQ  = 3'd3;
 localparam ST_GWAIT = 3'd4;
 localparam ST_GUSE  = 3'd5;
+localparam ST_OBJRD = 3'd6;
 reg [2:0] render_state;
 wire line_busy = render_state != ST_IDLE;
 reg line_overrun;
@@ -160,6 +147,8 @@ reg prep_bank;
 reg [8:0] target_y;
 reg [6:0] clear_x;
 reg [6:0] scan_index;
+reg [1:0] obj_byte;
+reg       obj_phase;
 reg [2:0] byte_index;
 reg [9:0] active_code;
 reg [4:0] active_color;
@@ -167,7 +156,8 @@ reg [3:0] active_row;
 reg       active_flipx;
 reg signed [9:0] active_sx;
 
-wire [31:0] entry_data = sprite_ram[scan_index];
+reg  [31:0] entry_data;
+assign oram_scan_addr = {scan_index, obj_byte};
 wire [7:0] entry_y    = entry_data[7:0];
 wire [7:0] entry_x    = entry_data[15:8];
 wire [7:0] entry_attr = entry_data[23:16];
@@ -255,6 +245,9 @@ always @(posedge clk) begin
 		target_y <= 0;
 		clear_x <= 0;
 		scan_index <= 0;
+		obj_byte <= 0;
+		obj_phase <= 0;
+		entry_data <= 0;
 		byte_index <= 0;
 		line_gfx_addr <= 0;
 	end else begin
@@ -262,7 +255,9 @@ always @(posedge clk) begin
 			line_overrun <= 1;
 
 		// Begin rendering line N+1 as line N starts. 3120 master-clock
-		// slots are available, enough for clear + all 128 sprite entries.
+		// slots are available: clear (128) + entry fetch and scan
+		// (9 per sprite, 1152 total) leaves ample room for the pixel
+		// fetches of the sprites that land on the line.
 		if (!pcb_framebuffer && ce_pix && (h_count == 0)) begin
 			prep_bank <= ~v_count[0];
 			target_y <= (v_count == 9'd263) ? 9'd0 : v_count + 1'd1;
@@ -281,8 +276,24 @@ always @(posedge clk) begin
 				end
 				if (clear_x == 7'h7f) begin
 					scan_index <= 7'd127;
-					render_state <= ST_SCAN;
+					obj_byte <= 0;
+					obj_phase <= 0;
+					render_state <= ST_OBJRD;
 				end else clear_x <= clear_x + 1'd1;
+			end
+			// Two clocks per byte: address settle, then latch the registered
+			// BRAM output. Four bytes rebuild the 32-bit entry.
+			ST_OBJRD: if (!obj_phase) obj_phase <= 1;
+			else begin
+				obj_phase <= 0;
+				case (obj_byte)
+					2'd0: entry_data[7:0]   <= oram_scan_dout;
+					2'd1: entry_data[15:8]  <= oram_scan_dout;
+					2'd2: entry_data[23:16] <= oram_scan_dout;
+					2'd3: entry_data[31:24] <= oram_scan_dout;
+				endcase
+				if (obj_byte == 2'd3) render_state <= ST_SCAN;
+				else obj_byte <= obj_byte + 1'd1;
 			end
 			ST_SCAN: begin
 				if (entry_on_line) begin
@@ -295,7 +306,12 @@ always @(posedge clk) begin
 					byte_index <= 0;
 					render_state <= ST_GREQ;
 				end else if (scan_index == 0) render_state <= ST_IDLE;
-				else scan_index <= scan_index - 1'd1;
+				else begin
+					scan_index <= scan_index - 1'd1;
+					obj_byte <= 0;
+					obj_phase <= 0;
+					render_state <= ST_OBJRD;
+				end
 			end
 			ST_GREQ: begin
 				line_gfx_addr <= {active_code,7'b0000000}
@@ -322,7 +338,9 @@ always @(posedge clk) begin
 					if (scan_index == 0) render_state <= ST_IDLE;
 					else begin
 						scan_index <= scan_index - 1'd1;
-						render_state <= ST_SCAN;
+						obj_byte <= 0;
+						obj_phase <= 0;
+						render_state <= ST_OBJRD;
 					end
 				end else begin
 					byte_index <= byte_index + 1'd1;
