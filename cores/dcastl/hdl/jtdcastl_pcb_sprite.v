@@ -66,7 +66,7 @@ module jtdcastl_pcb_sprite
 	output busy, output reg overrun, output reg frame_ready
 );
 
-(* ramstyle = "MLAB, no_rw_check" *) reg [31:0] sprite_ram [0:127];
+reg [31:0] sprite_ram [0:127];
 always @(posedge clk) begin
 	if (cpu_we) begin
 		case (cpu_addr[1:0])
@@ -297,7 +297,7 @@ module jtdcastl_field_ram
 	input [8:0] wr_data,
 	input wr_en
 );
-(* ramstyle = "M10K, no_rw_check" *) reg [8:0] mem [0:65535];
+reg [8:0] mem [0:65535];
 always @(posedge clk) begin
 	rd_data <= mem[rd_addr];
 	if (wr_en) mem[wr_addr] <= wr_data;

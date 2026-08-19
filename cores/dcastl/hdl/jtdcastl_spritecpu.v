@@ -175,7 +175,7 @@ assign cpu_addr_debug = cpu_addr;
 // staging_ram is genuinely dual-ported (live cross-CPU write from the main
 // CPU's own main_addr/main_data/main_we), so it is KEPT EXACTLY AS IN THE
 // ORIGINAL -- see header note 2. Only work_ram moved into jtframe_sysz80.
-(* ramstyle = "M10K, no_rw_check" *) reg [7:0] staging_ram [0:511];
+reg [7:0] staging_ram [0:511];
 reg [7:0] staging_q;
 wire stage_cs = (cpu_addr >= 16'h8000) && (cpu_addr <= 16'h81ff);
 wire rom_cs = cpu_addr <= 16'h00ff;

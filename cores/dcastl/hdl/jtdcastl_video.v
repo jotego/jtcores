@@ -53,14 +53,10 @@ module jtdcastl_video
 	input         soccer_sprites,
 
 	// CPU-side tile, colour and sprite RAM ports
-	input   [9:0] video_cpu_addr,
-	input   [7:0] video_cpu_din,
-	input         video_cpu_we,
-	output  [7:0] video_cpu_q,
-	input   [9:0] color_cpu_addr,
-	input   [7:0] color_cpu_din,
-	input         color_cpu_we,
-	output  [7:0] color_cpu_q,
+	output  [9:0] vram_scan_addr,
+	input   [7:0] vram_scan_dout,
+	output  [9:0] cram_scan_addr,
+	input   [7:0] cram_scan_dout,
 	input   [8:0] sprite_cpu_addr,
 	input   [7:0] sprite_cpu_din,
 	input         sprite_cpu_we,
@@ -145,15 +141,8 @@ jtdcastl_crtc crtc
 	.sub_irq_req(sub_irq_req), .sprite_nmi_req(sprite_nmi_req)
 );
 
-// CPU-visible tile, colour and sprite RAM.
-(* ramstyle = "M10K, no_rw_check" *) reg [7:0] video_ram [0:1023];
-(* ramstyle = "M10K, no_rw_check" *) reg [7:0] color_ram [0:1023];
-(* ramstyle = "MLAB, no_rw_check" *) reg [31:0] sprite_ram[0:127];
-
-reg [7:0] video_cpu_q_r, color_cpu_q_r;
-reg [7:0] video_scan_q, color_scan_q;
-assign video_cpu_q = video_cpu_q_r;
-assign color_cpu_q = color_cpu_q_r;
+// Sprite RAM, written byte-wise by the sprite CPU and read as whole entries.
+reg [31:0] sprite_ram[0:127];
 
 wire [7:0] bitmap_x = flipscreen ? (8'd255 - h_count[7:0])
 	                              : h_count[7:0];
@@ -162,13 +151,10 @@ wire [7:0] source_y = flipscreen ? (8'd191 - v_count[7:0])
 wire [7:0] map_y = source_y + 8'd32;
 wire [9:0] tile_addr = {map_y[7:3], bitmap_x[7:3]};
 
+assign vram_scan_addr = tile_addr;
+assign cram_scan_addr = tile_addr;
+
 always @(posedge clk) begin
-	video_cpu_q_r <= video_ram[video_cpu_addr];
-	color_cpu_q_r <= color_ram[color_cpu_addr];
-	video_scan_q <= video_ram[tile_addr];
-	color_scan_q <= color_ram[tile_addr];
-	if (video_cpu_we)  video_ram[video_cpu_addr] <= video_cpu_din;
-	if (color_cpu_we)  color_ram[color_cpu_addr] <= color_cpu_din;
 	if (sprite_cpu_we) begin
 		case (sprite_cpu_addr[1:0])
 			2'd0: sprite_ram[sprite_cpu_addr[8:2]][7:0]   <= sprite_cpu_din;
@@ -183,8 +169,8 @@ end
 // visible; flip-screen mirrors the full 256-pixel tile/sprite coordinate.
 // The RAM scan ports are registered at the 49.152 MHz master rate, leaving
 // ample settling time before the next 4.9152 MHz pixel enable.
-wire [7:0] tile_number = video_scan_q;
-wire [7:0] tile_attr   = color_scan_q;
+wire [7:0] tile_number = vram_scan_dout;
+wire [7:0] tile_attr   = cram_scan_dout;
 wire [8:0] tile_code   = {tile_attr[5], tile_number};
 wire [13:0] char_base  = {tile_code,5'b00000};
 assign char_addr = char_base + {9'd0,map_y[2:0],2'b00} + {12'd0,bitmap_x[2:1]};
@@ -194,10 +180,10 @@ wire [3:0] tile_pen = bitmap_x[0] ? char_q[3:0] : char_q[7:4];
 // pixels decoded from each ROM byte to be written concurrently with only one
 // write per physical memory. occupied=1 blocks every lower-priority sprite;
 // visible=0 represents MAME's invisible pen-15 masking pass.
-(* ramstyle = "MLAB, no_rw_check" *) reg [9:0] line0_even [0:127];
-(* ramstyle = "MLAB, no_rw_check" *) reg [9:0] line0_odd  [0:127];
-(* ramstyle = "MLAB, no_rw_check" *) reg [9:0] line1_even [0:127];
-(* ramstyle = "MLAB, no_rw_check" *) reg [9:0] line1_odd  [0:127];
+reg [9:0] line0_even [0:127];
+reg [9:0] line0_odd  [0:127];
+reg [9:0] line1_even [0:127];
+reg [9:0] line1_odd  [0:127];
 
 localparam ST_IDLE  = 3'd0;
 localparam ST_CLEAR = 3'd1;

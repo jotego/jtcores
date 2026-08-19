@@ -91,6 +91,35 @@ sdram:
 # cprom: the board's colour PROM (256-512 bytes depending on the set). PROMs go
 # to BRAM rather than SDRAM.
 bram:
+  # Tile and colour RAM. Written by the main CPU, scanned by the video
+  # pipeline, so each has a CPU port and a read-only video port. Both are
+  # saved and restored with scenes.
+  - name: vram
+    addr_width: 10
+    data_width: 8
+    rw: true
+    addr: vram_addr
+    din: vram_din
+    dout: vram_dout
+    we: vram_we
+    ioctl: { save: true, restore: true, order: 0 }
+    dual_port:
+      name: scan
+      addr: vram_scan_addr
+      dout: vram_scan_dout
+  - name: cram
+    addr_width: 10
+    data_width: 8
+    rw: true
+    addr: cram_addr
+    din: cram_din
+    dout: cram_dout
+    we: cram_we
+    ioctl: { save: true, restore: true, order: 1 }
+    dual_port:
+      name: scan
+      addr: cram_scan_addr
+      dout: cram_scan_dout
   # Tile ROM. The pixel pipeline reads it combinationally every pixel and
   # cannot stall, so it is BRAM rather than an SDRAM slot. Fixed 16kB on all
   # nine sets.

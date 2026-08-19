@@ -516,9 +516,6 @@ end
 wire [ 8:0] spr_addr;
 wire [ 7:0] spr_din;
 wire        spr_we;
-wire [ 9:0] video_addr, color_addr;
-wire [ 7:0] video_din, color_din, video_q, color_q;
-wire        video_we, color_we;
 wire [ 4:0] crtc_reg;
 wire [ 7:0] crtc_data;
 wire        crtc_we;
@@ -594,14 +591,14 @@ jtdcastl_main u_main(
     .sprite_din     ( spr_din           ),
     .sprite_we      ( spr_we            ),
     // tile / colour RAM
-    .video_addr     ( video_addr        ),
-    .video_din      ( video_din         ),
-    .video_dout     ( video_q           ),
-    .video_we       ( video_we          ),
-    .color_addr     ( color_addr        ),
-    .color_din      ( color_din         ),
-    .color_dout     ( color_q           ),
-    .color_we       ( color_we          ),
+    .video_addr     ( vram_addr         ),
+    .video_din      ( vram_din          ),
+    .video_dout     ( vram_dout         ),
+    .video_we       ( vram_we           ),
+    .color_addr     ( cram_addr         ),
+    .color_din      ( cram_din          ),
+    .color_dout     ( cram_dout         ),
+    .color_we       ( cram_we           ),
     // ADPCM control port (Soccer profile only)
     .adpcm_status   ( adpcm_status      ),
     .adpcm_wr       ( adpcm_wr          ),
@@ -739,14 +736,10 @@ jtdcastl_video u_video(
     .low_pen_priority   ( low_pen_priority  ),
     .soccer_sprites     ( soccer_sprites    ),
     // CPU-side RAM ports
-    .video_cpu_addr     ( video_addr        ),
-    .video_cpu_din      ( video_din         ),
-    .video_cpu_we       ( video_we          ),
-    .video_cpu_q        ( video_q           ),
-    .color_cpu_addr     ( color_addr        ),
-    .color_cpu_din      ( color_din         ),
-    .color_cpu_we       ( color_we          ),
-    .color_cpu_q        ( color_q           ),
+    .vram_scan_addr     ( vram_scan_addr    ),
+    .vram_scan_dout     ( vram_scan_dout    ),
+    .cram_scan_addr     ( cram_scan_addr    ),
+    .cram_scan_dout     ( cram_scan_dout    ),
     .sprite_cpu_addr    ( spr_addr          ),
     .sprite_cpu_din     ( spr_din           ),
     .sprite_cpu_we      ( spr_we            ),
