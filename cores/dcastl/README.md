@@ -60,6 +60,16 @@ Points worth noting versus emulation:
 
 # Known limitations
 
+- The tile and sprite renderers (`hdl/jtdcastl_video.v`) are hand-rolled, not
+  built on `jtframe_tilemap`/`jtframe_objdraw`. Investigated and deliberately
+  not adopted: both generic modules require bit-planar ROM data, but this
+  board's real, decap-verified gfx ROMs are nibble-packed (2 pixels/byte) --
+  a genuine hardware format mismatch, not a naming one (same situation as
+  `cores/kicker/hdl/jtkicker_objdraw.v`, which hand-decodes its own ROM
+  format for the same reason). `jtframe_obj_buffer`'s registered BRAM read
+  would also add real latency this repo has no pixel-diff harness to verify.
+  See the comment block above `line0_even` in jtdcastl_video.v for the full
+  reasoning.
 - No `ver/` scenes yet, so nothing here has been compared frame by frame.
 - The optional CF37201 framebuffer renderer (`hdl/jtdcastl_pcb_sprite.v`) is
   not the default and has never been checked against a physical PCB; the

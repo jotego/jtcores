@@ -127,6 +127,33 @@ wire [13:0] char_base  = {tile_code,5'b00000};
 assign char_addr = char_base + {9'd0,map_y[2:0],2'b00} + {12'd0,bitmap_x[2:1]};
 wire [3:0] tile_pen = bitmap_x[0] ? char_q[3:0] : char_q[7:4];
 
+// Deliberately not built on jtframe_tilemap / jtframe_objdraw (review item:
+// "rework graphics ROM width/layout with jtframe_tilemap and jtframe_objdraw").
+// Investigated, not adopted -- two independent findings, checked against
+// jtframe source rather than assumed:
+//   1. Both generic modules require bit-PLANAR ROM data (jtframe_tilemap.v:
+//      "pixel data ... in groups of 8 pixels, each byte is for a plane";
+//      jtframe_draw's rom_data likewise). Do's Castle's real, decap-verified
+//      gfx1/gfx2 ROMs are nibble-packed (2 pixels/byte, see tile_pen/
+//      spr_pen0/spr_pen1 above) -- a different physical bit layout, not a
+//      superficial port-naming mismatch. Real jtcores precedent for this
+//      exact situation: cores/kicker/hdl/jtkicker_objdraw.v (used by
+//      cores/circus, another Universal-family board) does not instantiate
+//      the generic jtframe_objdraw either -- it hand-decodes its own native
+//      ROM format and only reuses jtframe_obj_buffer, the shared double-
+//      buffer primitive, for line storage.
+//   2. jtframe_obj_buffer is built on jtframe_dual_ram (confirmed via
+//      source: registered/synchronous read). This module's sprite line
+//      buffers below use a plain reg-array + combinational read; swapping
+//      to jtframe_obj_buffer would add real read latency and shift sprite
+//      pixels horizontally by an amount this repo has no way to verify --
+//      there is no MAME/Verilator pixel-diff harness wired up for
+//      jtcores-new. The current renderer is decap-verified and has already
+//      been through working RBF builds; an unverified timing change here
+//      is a worse risk than keeping the hand-rolled, already-correct logic.
+// Decision: keep this renderer as-is. Revisit only alongside a real pixel-
+// accurate differential harness for this core.
+
 reg [9:0] line0_even [0:127];
 reg [9:0] line0_odd  [0:127];
 reg [9:0] line1_even [0:127];
