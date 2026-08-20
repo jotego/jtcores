@@ -393,6 +393,9 @@ end
 
 `ifndef NOMCU
     reg [7:0] mcu_din;
+    wire [7:0] mcu_rom_din;
+    wire [7:0] mcu_xdin = mcu_ctrl[5:3]>=5 ? mcu_rom_din : mcu_din;
+    reg       mcu_acc_l;
     wire      mcu_br;
 
     assign mcu_bus = ~BGACKn | cpu_rst;
@@ -400,11 +403,28 @@ end
 
     always @(posedge clk24, posedge rst24 ) begin
         if( rst24 ) begin
-            mcu_din <= 0;
-        end else if(mcu_bus) begin
-            mcu_din <= LDSn ? cpu_din[15:8] : cpu_din[7:0];
+            mcu_din   <= 0;
+            mcu_acc_l <= 0;
+        end else begin
+            // The 68k bus return is registered after the request.  Capture
+            // it on the following MCU clock and retain it until the next
+            // transaction; otherwise the idle bus overwrites a valid MOVX
+            // byte before the wrapper's synchronous input reaches the MCU.
+            mcu_acc_l <= mcu_acc;
+            if(mcu_bus && mcu_acc_l)
+                mcu_din <= LDSn ? cpu_din[15:8] : cpu_din[7:0];
         end
     end
+
+    jts16_mcu_romresp u_mcu_romresp(
+        .rst    ( rst         ),
+        .clk    ( clk         ),
+        .mcu_bus( mcu_bus     ),
+        .rom_ok ( rom_ok      ),
+        .LDSn   ( LDSn        ),
+        .rom_din( rom_dec     ),
+        .mcu_din( mcu_rom_din )
+    );
 
     wire mcu_gated;
     reg  mcu_ok, BGACKnl;
@@ -446,7 +466,6 @@ end
     );
 
     jtframe_8751mcu #(
-        .DIVCEN     ( 1             ),
         .SYNC_XDATA ( 1             ),
         .SYNC_P1    ( 1             ),
         .SYNC_INT   ( 1             ),
@@ -459,7 +478,7 @@ end
         .int0n      ( ~vint         ),
         .int1n      ( ~ppib_dout[6] ),
 
-        .p0_i       ( mcu_din       ),
+        .p0_i       ( mcu_xdin      ),
         .p1_i       ( mcu_ctrl      ), // feedback the output, need for PUSH p1 to work as expected
         .p2_i       ( 8'hff         ),
         .p3_i       ( {4'hf, ~ppib_dout[6], ~vint, 2'b11} ), // need for instructions like jb int0,xx
@@ -470,7 +489,7 @@ end
         .p3_o       (               ),
 
         // external memory
-        .x_din      ( mcu_din       ),
+        .x_din      ( mcu_xdin      ),
         .x_dout     ( mcu_dout      ),
         .x_addr     ( mcu_addr      ),
         .x_wr       ( mcu_wr        ),

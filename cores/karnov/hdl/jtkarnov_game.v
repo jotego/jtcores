@@ -170,11 +170,10 @@ jtkarnov_main u_main(
     assign mcu_dout = debug_bus[6] ? {mcu_p1o,mcu_p0o} : aux;
 
     jtframe_8751mcu #(
-        .ROMBIN     ("../../../../rom/chelnov/ee-e.k14"),
+        .ROMBIN     ("../../../../rom/chelnov/ee-e.k14")
         // .SYNC_XDATA ( 1             ),
         //.SYNC_P1    ( 1             ),
-        // .SYNC_INT   ( 1             ),
-        .DIVCEN     ( 1             )
+        // .SYNC_INT   ( 1             )
     ) u_mcu(
         .rst        ( rst24         ),
         .clk        ( clk24         ),

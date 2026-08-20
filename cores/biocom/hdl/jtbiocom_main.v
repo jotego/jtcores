@@ -91,6 +91,7 @@ module jtbiocom_main(
 );
 
 parameter GAME=0; // 0 for Bionic Commando, 1 for Tiger Road/F1Dream
+parameter SAME_CLK=0;
 `ifndef NOMAIN
 wire [19:1] A;
 wire [3:0] ncA;
@@ -122,12 +123,18 @@ wire [ 7:0] mcu_dout_s;
 wire        mcu_wr_s;
 wire [16:1] Aeff   = CPUbus ? A[16:1] : mcu_addr_s;
 
-jtframe_sync #(.W(16+8+1)) u_mcus(
-    .clk_in ( 1'b0      ),
-    .clk_out( clk       ),
-    .raw    ( {mcu_addr, mcu_dout, mcu_wr } ),
-    .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s } )
-);
+generate
+    if( SAME_CLK ) begin : g_same_clk
+        assign {mcu_addr_s, mcu_dout_s, mcu_wr_s} = {mcu_addr, mcu_dout, mcu_wr};
+    end else begin : g_cross_clk
+        jtframe_sync #(.W(16+8+1)) u_mcus(
+            .clk_in ( 1'b0      ),
+            .clk_out( clk       ),
+            .raw    ( {mcu_addr, mcu_dout, mcu_wr } ),
+            .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s } )
+        );
+    end
+endgenerate
 
 always @(*) begin
     ram_cs        = 1'b0;

@@ -442,8 +442,8 @@ func fix_cycles(code []string, desc *UcDesc, verbose bool) {
 			for k:=main-1; k>=0;k-- {
 				code[uaddr+k+delta]=code[uaddr+k]
 			}
-			for ;delta>0;delta-- {
-				code[uaddr+delta]=""
+			for k:=0;k<delta;k++ {
+				code[uaddr+k]=""
 			}
 		}
 	}

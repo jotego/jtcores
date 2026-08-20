@@ -56,37 +56,31 @@ parameter ROMBIN="",
           SYNC_P0 = 0,
           SYNC_P1 = 0,
           SYNC_P2 = 0,
-          SYNC_P3 = 0,
-          DIVCEN = 0; // Divide the input cen by 12
+          SYNC_P3 = 0;
 
 wire [ 7:0] rom_data, ram_data, ram_q;
 reg  [15:0] rom_addr;
 wire [ 6:0] ram_addr;
 wire        ram_we;
-reg  [ 7:0] xin_sync, p0_s, p1_s, p2_s, p3_s;   // input data must be sampled with cen
-wire        cen_eff;
-
-always @(posedge clk) if(cen_eff) begin
-    xin_sync <= x_din;
-    p0_s     <= p0_i;
-    p1_s     <= p1_i;
-    p2_s     <= p2_i;
-    p3_s     <= p3_i;
-end
-
-// Optional clock-enable divider by 12
-// as Oregano's MCU seem to be about
-// 12x faster
-reg [3:0] divcencnt=0;
-reg       cen0;
+reg  [ 7:0] xin_pipe, xin_sync, p0_s, p1_s, p2_s, p3_s;
+wire [ 7:0] pre_dout;
+wire [15:0] pre_addr, pre_rom;
+wire        pre_wr, pre_acc;
+wire        cen_eff = cen;
 
 always @(posedge clk) begin
-    if(cen)
-        divcencnt <= divcencnt==11 ? 4'd0 : divcencnt+1'd1;
-    cen0 <= divcencnt==1 && cen==1;
+    if (rst) begin
+        xin_pipe <= 8'd0;
+        xin_sync <= 8'd0;
+    end else if(cen_eff) begin
+        xin_pipe <= x_din;
+        xin_sync <= xin_pipe;
+        p0_s     <= p0_i;
+        p1_s     <= p1_i;
+        p2_s     <= p2_i;
+        p3_s     <= p3_i;
+    end
 end
-
-assign cen_eff = DIVCEN==1 ? cen0 : cen;
 
 wire int0n_s, int1n_s;
 
@@ -125,10 +119,6 @@ jtframe_ram_rst #(.AW(7),.CEN_RD(1)) u_ramu(
     .q          ( ram_q             )
 );
 
-wire [ 7:0] pre_dout;
-wire [15:0] pre_addr, pre_rom;
-wire        pre_wr, pre_acc;
-
 always @(posedge clk) begin
     x_addr   <= pre_addr;
     x_wr     <= pre_wr;
@@ -136,50 +126,32 @@ always @(posedge clk) begin
     x_acc    <= pre_acc;
     rom_addr <= pre_rom;
 end
-/* verilator tracing_off */
-// Oregano's 8051 core is not cycle accurate. It is slower than the original
-mc8051_core u_mcu(
-    .reset      ( rst       ),
+/* verilator tracing_on */
+jt8051 u_mcu(
+    .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_eff   ),
-    // code ROM
-    .rom_data_i ( rom_data  ),
-    .rom_adr_o  ( pre_rom   ),
-    // internal RAM
-    .ram_data_i ( ram_q     ),
-    .ram_data_o ( ram_data  ),
-    .ram_adr_o  ( ram_addr  ),
-    .ram_wr_o   ( ram_we    ),
-    .ram_en_o   (           ),
-    // external memory: connected to main CPU
-    .datax_i    ( SYNC_XDATA ? xin_sync : x_din ),
-    .datax_o    ( pre_dout  ),
-    .adrx_o     ( pre_addr  ),
-    .wrx_o      ( pre_wr    ),
-    .memx_o     ( pre_acc   ),
-    // interrupts
-    .int0_i     ( SYNC_INT ? int0n_s : int0n ),
-    .int1_i     ( SYNC_INT ? int1n_s : int1n ),
-    // counters
-    .all_t0_i   ( 1'b0      ),
-    .all_t1_i   ( 1'b0      ),
-    // serial interface
-    .all_rxd_i  ( 1'b0      ),
-    .all_rxd_o  (           ),
-    .all_rxdwr_o(           ),
-    .all_txd_o  (           ),
-    // Ports
+    .int0n      ( SYNC_INT ? int0n_s : int0n ),
+    .int1n      ( SYNC_INT ? int1n_s : int1n ),
     .p0_i       ( SYNC_P0 ? p0_s : p0_i ),
-    .p0_o       ( p0_o      ),
-
     .p1_i       ( SYNC_P1 ? p1_s : p1_i ),
-    .p1_o       ( p1_o      ),
-
     .p2_i       ( SYNC_P2 ? p2_s : p2_i ),
-    .p2_o       ( p2_o      ),
-
     .p3_i       ( SYNC_P3 ? p3_s : p3_i ),
-    .p3_o       ( p3_o      )
+    .p0_o       ( p0_o      ),
+    .p1_o       ( p1_o      ),
+    .p2_o       ( p2_o      ),
+    .p3_o       ( p3_o      ),
+    .rom_data   ( rom_data  ),
+    .rom_addr   ( pre_rom   ),
+    .ram_din    ( ram_q     ),
+    .ram_dout   ( ram_data  ),
+    .ram_addr   ( ram_addr  ),
+    .ram_we     ( ram_we    ),
+    .x_din      ( SYNC_XDATA ? xin_sync : x_din ),
+    .x_dout     ( pre_dout  ),
+    .x_addr     ( pre_addr  ),
+    .x_wr       ( pre_wr    ),
+    .x_acc      ( pre_acc   )
 );
 
 endmodule

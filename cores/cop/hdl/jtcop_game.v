@@ -376,7 +376,6 @@ jtcop_snd u_sound(
 
     jtframe_8751mcu #(
         .ROMBIN     ("../../../../rom/ei31.9a"),
-        .DIVCEN     ( 1             ),
         .SYNC_XDATA ( 1             ),
         //.SYNC_P1    ( 1             ),
         .SYNC_INT   ( 1             )

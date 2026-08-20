@@ -59,8 +59,6 @@ wire cen1 = /*(mcu_acc & ~mcu_brn & ~ram_ok) ? 0 : */cencnt==0;
 
 
 // Clock enable for 8MHz, like MAME. I need to measure it on the PCB
-// The current i8751 softcore isn't cycle accurate, so it isn't
-// really relevant now
 always @(posedge clk) cencnt <= cencnt==35 ? 6'd0 : cencnt+1'd1;
 
 jtframe_sync #(.W(8)) u_p3sync(

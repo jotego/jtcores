@@ -7,15 +7,13 @@ clocks:
       outputs:
         - video_cen8
         - nc_cen4
+    - freq: 6M
+      outputs:
+        - mcu_cen
     - freq: 3579545
       outputs:
         - cen_fm
         - cen_fm2
-  clk24:
-    - freq: 3M
-      outputs:
-        - cen3
-        - mcu_cen
 audio:
   rsum: 27k
   channels:

@@ -268,7 +268,6 @@ jts16b_mapper u_mapper(
 
 
 jtframe_8751mcu #(
-    .DIVCEN     ( 1             ),
     .SYNC_XDATA ( 1             ),
     .SYNC_P1    ( 1             ),
     .SYNC_INT   ( 1             )

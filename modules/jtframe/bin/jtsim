@@ -69,11 +69,7 @@ if [ `uname` = Darwin ]; then
     fi
 fi
 
-# set blank .f files
-echo -n > jtsim_vhdl.f
-echo -n > jtsim.f
-
-trap "clean_up; exit 1" INT KILL
+trap "clean_up; exit 1" INT TERM
 
 preparse_args $*
 for arg in "$@"; do
@@ -315,6 +311,16 @@ if [ "$SETNAME" = game ]; then
         exit 1
     fi
 fi
+
+if ! acquire_simulation_lock; then
+    exit 1
+fi
+trap release_simulation_lock EXIT
+
+# Set blank .f files only after taking the folder lock: another simulation
+# may still be compiling or consuming them.
+echo -n > jtsim_vhdl.f
+echo -n > jtsim.f
 
 delete_scene_dump_files || exit $?
 

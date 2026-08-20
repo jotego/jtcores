@@ -1,0 +1,1244 @@
+# SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# 8051 instruction vectors.  Keep the instruction and its expected architectural
+# state together, as in modules/jt680x/ver/65c02/tests.yaml.  The future vector
+# generator assembles each `asm` line with as31 -Fbin and samples `check` on
+# jt8051_ctrl.next_instruction.
+
+register_indirect_direct:
+  test:
+    - { asm: "MOV R0,#20H",  check: "R0=$20" }
+    - { asm: "MOV @R0,#0AAH", check: "IRAM[$20]=$AA" }
+    - { asm: "MOV A,@R0",    check: "A=$AA" }
+    - { asm: "ADD A,#01H",   check: "A=$AB, C=0, AC=0, OV=0" }
+    - { asm: "MOV 30H,A",    check: "IRAM[$30]=$AB" }
+    - { asm: "MOV A,30H",    check: "A=$AB" }
+    - { asm: "MOV P1,A",     check: "P1=$AB" }
+
+stack_and_subroutine:
+  code:
+    - { from: 0x0080, data: "22" }
+  test:
+    - { asm: "MOV A,#12H",   check: "A=$12" }
+    - { asm: "PUSH ACC",     check: "SP=$08, IRAM[$08]=$12" }
+    - { asm: "MOV A,#00H",   check: "A=$00" }
+    - { asm: "POP ACC",      check: "A=$12, SP=$07" }
+    - { asm: "MOV P2,A",     check: "P2=$12" }
+    - { asm: "LCALL 0080H",  check: "SP=$09, PC=$0081" }
+    - { asm: "RET",           check: "SP=$07, PC=$000E" }
+
+code_and_external_memory:
+  code:
+    - { from: 0x0100, data: "00 00 5A" }
+  test:
+    - { asm: "MOV DPTR,#0100H", check: "DPTR=$0100" }
+    - { asm: "MOV A,#02H",      check: "A=$02" }
+    - { asm: "MOVC A,@A+DPTR",  check: "A=$5A" }
+    - { asm: "MOV P0,A",        check: "P0=$5A" }
+    - { asm: "MOV DPTR,#1234H", check: "DPTR=$1234" }
+    - { asm: "MOV A,#66H",      check: "A=$66" }
+    - { asm: "MOVX @DPTR,A",    check: "XRAM[$1234]=$66" }
+    - { asm: "MOV A,#00H",      check: "A=$00" }
+    - { asm: "MOVX A,@DPTR",    check: "A=$66" }
+    - { asm: "MOV P3,A",        check: "P3=$66" }
+
+movc_pc:
+  code:
+    - { from: 0x0005, data: "5A" }
+  test:
+    - { asm: "MOV A,#02H",   check: "A=$02" }
+    - { asm: "MOVC A,@A+PC", check: "A=$5A" }
+
+movx_ri:
+  test:
+    - { asm: "MOV P2,#12H",  check: "P2=$12" }
+    - { asm: "MOV R0,#34H",  check: "R0=$34" }
+    - { asm: "MOV A,#56H",   check: "A=$56" }
+    - { asm: "MOVX @R0,A",   check: "XRAM[$1234]=$56" }
+    - { asm: "MOV A,#00H",   check: "A=$00" }
+    - { asm: "MOVX A,@R0",   check: "A=$56" }
+
+port_latch_rmw:
+  test:
+    - { asm: "MOV P1,#00H", check: "P1=$00" }
+    - { asm: "MOV A,P1",    check: "A=$00" }
+    - { asm: "INC P1",      check: "P1=$01" }
+    - { asm: "MOV A,P1",    check: "A=$01" }
+    - { asm: "MOV P1,#00H", check: "P1=$00" }
+    - { asm: "SETB 90H",    check: "P1=$01" }
+
+djnz_port_latch:
+  test:
+    - { asm: "MOV P1,#00H",   check: "P1=$00" }
+    - { asm: "DJNZ P1,target", check: "P1=$FF, PC=$0008" }
+    - { asm: "NOP",             check: "" }
+    - { asm: "target: NOP",     check: "" }
+
+register_moves_and_bcd:
+  test:
+    - { asm: "MOV R0,#55H",  check: "R0=$55" }
+    - { asm: "MOV A,#3CH",   check: "A=$3C" }
+    - { asm: "MOV R0,A",     check: "R0=$3C" }
+    - { asm: "MOV A,#00H",   check: "A=$00" }
+    - { asm: "MOV A,R0",     check: "A=$3C" }
+    - { asm: "MOV 31H,A",    check: "IRAM[$31]=$3C" }
+    - { asm: "MOV A,#09H",   check: "A=$09" }
+    - { asm: "ADD A,#01H",   check: "A=$0A" }
+    - { asm: "DA A",         check: "A=$10" }
+    - { asm: "MOV 32H,A",    check: "IRAM[$32]=$10" }
+
+move_matrix:
+  test:
+    - { asm: "MOV 20H,#0A5H", check: "IRAM[$20]=$A5" }
+    - { asm: "MOV 21H,20H",   check: "IRAM[$21]=$A5" }
+    - { asm: "MOV R1,20H",    check: "R1=$A5" }
+    - { asm: "MOV 22H,R1",    check: "IRAM[$22]=$A5" }
+    - { asm: "MOV R0,#23H",   check: "R0=$23" }
+    - { asm: "MOV @R0,22H",   check: "IRAM[$23]=$A5" }
+    - { asm: "MOV 24H,@R0",   check: "IRAM[$24]=$A5" }
+    - { asm: "MOV A,24H",     check: "A=$A5" }
+    - { asm: "MOV R2,A",      check: "R2=$A5" }
+    - { asm: "MOV A,R2",      check: "A=$A5" }
+
+arithmetic_flags:
+  test:
+    - { asm: "MOV A,#7FH",    check: "A=$7F" }
+    - { asm: "ADD A,#01H",    check: "A=$80, C=0, AC=1, OV=1" }
+    - { asm: "SETB C",        check: "C=1" }
+    - { asm: "ADDC A,#7FH",   check: "A=$00, C=1, AC=1, OV=0" }
+    - { asm: "CLR C",         check: "C=0" }
+    - { asm: "MOV A,#00H",    check: "A=$00" }
+    - { asm: "SUBB A,#01H",   check: "A=$FF, C=1, AC=1, OV=0" }
+    - { asm: "MOV A,#80H",    check: "A=$80" }
+    - { asm: "CLR C",         check: "C=0" }
+    - { asm: "SUBB A,#01H",   check: "A=$7F, C=0, AC=1, OV=1" }
+
+# All eight C/AC/OV results of ADD, with P checked from the resulting A.
+add_flag_matrix:
+  test:
+    - { asm: "MOV A,#00H", check: "" }
+    - { asm: "ADD A,#00H", check: "A=$00, C=0, AC=0, OV=0, P=0" }
+    - { asm: "MOV A,#10H", check: "" }
+    - { asm: "ADD A,#70H", check: "A=$80, C=0, AC=0, OV=1, P=1" }
+    - { asm: "MOV A,#01H", check: "" }
+    - { asm: "ADD A,#0FH", check: "A=$10, C=0, AC=1, OV=0, P=1" }
+    - { asm: "MOV A,#01H", check: "" }
+    - { asm: "ADD A,#7FH", check: "A=$80, C=0, AC=1, OV=1, P=1" }
+    - { asm: "MOV A,#10H", check: "" }
+    - { asm: "ADD A,#0F0H",check: "A=$00, C=1, AC=0, OV=0, P=0" }
+    - { asm: "MOV A,#80H", check: "" }
+    - { asm: "ADD A,#80H", check: "A=$00, C=1, AC=0, OV=1, P=0" }
+    - { asm: "MOV A,#01H", check: "" }
+    - { asm: "ADD A,#0FFH",check: "A=$00, C=1, AC=1, OV=0, P=0" }
+    - { asm: "MOV A,#81H", check: "" }
+    - { asm: "ADD A,#8FH", check: "A=$10, C=1, AC=1, OV=1, P=1" }
+
+# ADDC needs both carry inputs; each input gets all eight C/AC/OV outcomes.
+addc_flag_inputs:
+  test:
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#00H",   check: "" }
+    - { asm: "ADDC A,#00H",  check: "A=$00, C=0, AC=0, OV=0, P=0" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#10H",   check: "" }
+    - { asm: "ADDC A,#70H",  check: "A=$80, C=0, AC=0, OV=1, P=1" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,#0FH",  check: "A=$10, C=0, AC=1, OV=0, P=1" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,#7FH",  check: "A=$80, C=0, AC=1, OV=1, P=1" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#10H",   check: "" }
+    - { asm: "ADDC A,#0F0H", check: "A=$00, C=1, AC=0, OV=0, P=0" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#80H",   check: "" }
+    - { asm: "ADDC A,#80H",  check: "A=$00, C=1, AC=0, OV=1, P=0" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,#0FFH", check: "A=$00, C=1, AC=1, OV=0, P=0" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#81H",   check: "" }
+    - { asm: "ADDC A,#8FH",  check: "A=$10, C=1, AC=1, OV=1, P=1" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#00H",   check: "" }
+    - { asm: "ADDC A,#00H",  check: "A=$01, C=0, AC=0, OV=0, P=1" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#10H",   check: "" }
+    - { asm: "ADDC A,#70H",  check: "A=$81, C=0, AC=0, OV=1, P=0" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#00H",   check: "" }
+    - { asm: "ADDC A,#0FH",  check: "A=$10, C=0, AC=1, OV=0, P=1" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#00H",   check: "" }
+    - { asm: "ADDC A,#7FH",  check: "A=$80, C=0, AC=1, OV=1, P=1" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#10H",   check: "" }
+    - { asm: "ADDC A,#0F0H", check: "A=$01, C=1, AC=0, OV=0, P=1" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#80H",   check: "" }
+    - { asm: "ADDC A,#80H",  check: "A=$01, C=1, AC=0, OV=1, P=1" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#00H",   check: "" }
+    - { asm: "ADDC A,#0FFH", check: "A=$00, C=1, AC=1, OV=0, P=0" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#80H",   check: "" }
+    - { asm: "ADDC A,#8FH",  check: "A=$10, C=1, AC=1, OV=1, P=1" }
+
+# SUBB likewise covers each C/AC/OV output for both borrow inputs.
+subb_flag_matrix:
+  test:
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#00H",   check: "" }
+    - { asm: "SUBB A,#00H",  check: "A=$00, C=0, AC=0, OV=0, P=0" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#80H",   check: "" }
+    - { asm: "SUBB A,#10H",  check: "A=$70, C=0, AC=0, OV=1, P=1" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#10H",   check: "" }
+    - { asm: "SUBB A,#01H",  check: "A=$0F, C=0, AC=1, OV=0, P=0" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#80H",   check: "" }
+    - { asm: "SUBB A,#01H",  check: "A=$7F, C=0, AC=1, OV=1, P=1" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#00H",   check: "" }
+    - { asm: "SUBB A,#10H",  check: "A=$F0, C=1, AC=0, OV=0, P=0" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#00H",   check: "" }
+    - { asm: "SUBB A,#80H",  check: "A=$80, C=1, AC=0, OV=1, P=1" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#00H",   check: "" }
+    - { asm: "SUBB A,#01H",  check: "A=$FF, C=1, AC=1, OV=0, P=0" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#10H",   check: "" }
+    - { asm: "SUBB A,#81H",  check: "A=$8F, C=1, AC=1, OV=1, P=1" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "SUBB A,#00H",  check: "A=$00, C=0, AC=0, OV=0, P=0" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#81H",   check: "" }
+    - { asm: "SUBB A,#10H",  check: "A=$70, C=0, AC=0, OV=1, P=1" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#10H",   check: "" }
+    - { asm: "SUBB A,#00H",  check: "A=$0F, C=0, AC=1, OV=0, P=0" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#80H",   check: "" }
+    - { asm: "SUBB A,#00H",  check: "A=$7F, C=0, AC=1, OV=1, P=1" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "SUBB A,#10H",  check: "A=$F0, C=1, AC=0, OV=0, P=0" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "SUBB A,#80H",  check: "A=$80, C=1, AC=0, OV=1, P=1" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#00H",   check: "" }
+    - { asm: "SUBB A,#00H",  check: "A=$FF, C=1, AC=1, OV=0, P=0" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#10H",   check: "" }
+    - { asm: "SUBB A,#80H",  check: "A=$8F, C=1, AC=1, OV=1, P=1" }
+
+decimal_adjust:
+  test:
+    - { asm: "MOV A,#15H",   check: "A=$15" }
+    - { asm: "SETB C",        check: "C=1" }
+    - { asm: "DA A",          check: "A=$75, C=1, P=1" }
+    - { asm: "CLR C",         check: "C=0" }
+    - { asm: "MOV A,#0FAH",  check: "A=$FA" }
+    - { asm: "DA A",          check: "A=$60, C=1, P=0" }
+    - { asm: "MOV A,#09H",   check: "A=$09" }
+    - { asm: "MOV PSW,#40H", check: "AC=1, C=0" }
+    - { asm: "DA A",          check: "A=$0F, C=0, P=0" }
+    - { asm: "MOV A,#09H",   check: "" }
+    - { asm: "MOV PSW,#0C4H", check: "C=1, AC=1, OV=1" }
+    - { asm: "DA A",          check: "A=$6F, C=1, AC=1, OV=1, P=0" }
+
+divide:
+  test:
+    - { asm: "MOV A,#17H",   check: "A=$17" }
+    - { asm: "MOV B,#05H",   check: "B=$05" }
+    - { asm: "DIV AB",        check: "A=$04, B=$03, C=0, OV=0, P=1" }
+    - { asm: "MOV 33H,A",    check: "IRAM[$33]=$04" }
+    - { asm: "MOV A,B",      check: "A=$03" }
+    - { asm: "MOV 34H,A",    check: "IRAM[$34]=$03" }
+    - { asm: "SETB C",        check: "C=1" }
+    - { asm: "MOV A,#55H",   check: "A=$55" }
+    - { asm: "MOV B,#00H",   check: "B=$00" }
+    - { asm: "DIV AB",        check: "A=$55, B=$00, C=0, OV=1, P=0" }
+
+multiply:
+  test:
+    - { asm: "MOV A,#10H", check: "A=$10" }
+    - { asm: "MOV B,#10H", check: "B=$10" }
+    - { asm: "MUL AB",      check: "A=$00, B=$01, C=0, OV=1, P=0" }
+    - { asm: "SETB C",      check: "C=1" }
+    - { asm: "MOV A,#02H", check: "A=$02" }
+    - { asm: "MOV B,#03H", check: "B=$03" }
+    - { asm: "MUL AB",      check: "A=$06, B=$00, C=0, OV=0, P=0" }
+
+bit_operations:
+  test:
+    - { asm: "MOV 20H,#00H", check: "IRAM[$20]=$00" }
+    - { asm: "SETB 00H",     check: "IRAM[$20]=$01" }
+    - { asm: "SETB 01H",     check: "IRAM[$20]=$03" }
+    - { asm: "CLR 00H",      check: "IRAM[$20]=$02" }
+    - { asm: "CPL 01H",      check: "IRAM[$20]=$00" }
+    - { asm: "SETB C",       check: "C=1" }
+    - { asm: "MOV 02H,C",    check: "IRAM[$20]=$04" }
+    - { asm: "MOV C,02H",    check: "C=1" }
+
+logic_direct:
+  test:
+    - { asm: "MOV 20H,#0FH", check: "IRAM[$20]=$0F" }
+    - { asm: "ORL 20H,#0F0H",check: "IRAM[$20]=$FF" }
+    - { asm: "ANL 20H,#3FH", check: "IRAM[$20]=$3F" }
+    - { asm: "XRL 20H,#0FH", check: "IRAM[$20]=$30" }
+    - { asm: "MOV A,#81H",   check: "A=$81" }
+    - { asm: "ORL A,20H",    check: "A=$B1" }
+    - { asm: "ANL A,#0F0H",  check: "A=$B0" }
+    - { asm: "XRL A,#0FFH",  check: "A=$4F" }
+
+rotates:
+  test:
+    - { asm: "MOV A,#81H", check: "A=$81, C=0" }
+    - { asm: "RR A",       check: "A=$C0, C=0" }
+    - { asm: "RL A",       check: "A=$81, C=0" }
+    - { asm: "SETB C",     check: "C=1" }
+    - { asm: "RRC A",      check: "A=$C0, C=1" }
+    - { asm: "RLC A",      check: "A=$81, C=1" }
+    - { asm: "CLR C",      check: "C=0" }
+    - { asm: "MOV A,#02H", check: "A=$02" }
+    - { asm: "RRC A",      check: "A=$01, C=0, P=1" }
+    - { asm: "RLC A",      check: "A=$02, C=0, P=1" }
+    - { asm: "SETB C",     check: "C=1" }
+    - { asm: "RR A",       check: "A=$01, C=1, P=1" }
+    - { asm: "RL A",       check: "A=$02, C=1, P=1" }
+
+branch_taken:
+  test:
+    - { asm: "MOV A,#00H", check: "A=$00" }
+    - { asm: "JZ branch",  check: "PC=$0005" }
+    - { asm: "branch: NOP", check: "" }
+
+bit_branch:
+  test:
+    - { asm: "MOV 20H,#00H", check: "IRAM[$20]=$00" }
+    - { asm: "SETB 00H",     check: "IRAM[$20]=$01" }
+    - { asm: "JBC 00H,target", check: "IRAM[$20]=$00, PC=$000A" }
+    - { asm: "NOP",            check: "" }
+    - { asm: "target: NOP",   check: "" }
+
+bit_logic:
+  test:
+    - { asm: "MOV 20H,#01H", check: "IRAM[$20]=$01" }
+    - { asm: "CLR C",         check: "C=0" }
+    - { asm: "ORL C,/00H",    check: "C=0" }
+    - { asm: "SETB C",        check: "C=1" }
+    - { asm: "ANL C,/00H",    check: "C=0" }
+    - { asm: "ORL C,00H",     check: "C=1" }
+    - { asm: "ANL C,00H",     check: "C=1" }
+
+jnb_taken:
+  test:
+    - { asm: "MOV 20H,#00H",  check: "IRAM[$20]=$00" }
+    - { asm: "JNB 00H,target", check: "PC=$0008" }
+    - { asm: "NOP",            check: "" }
+    - { asm: "target: NOP",    check: "" }
+
+djnz_taken:
+  test:
+    - { asm: "MOV 20H,#02H",   check: "IRAM[$20]=$02" }
+    - { asm: "DJNZ 20H,target", check: "IRAM[$20]=$01, PC=$0008" }
+    - { asm: "NOP",             check: "" }
+    - { asm: "target: NOP",     check: "" }
+
+djnz_not_taken:
+  test:
+    - { asm: "MOV R0,#01H",     check: "R0=$01" }
+    - { asm: "DJNZ R0,target",  check: "R0=$00, PC=$0005" }
+    - { asm: "NOP",             check: "" }
+    - { asm: "target: NOP",     check: "" }
+
+cjne_taken:
+  test:
+    - { asm: "MOV A,#01H",       check: "A=$01" }
+    - { asm: "CJNE A,#02H,target", check: "C=1, PC=$0007" }
+    - { asm: "NOP",               check: "" }
+    - { asm: "target: NOP",       check: "" }
+
+cjne_direct:
+  test:
+    - { asm: "MOV A,#01H",         check: "A=$01" }
+    - { asm: "MOV 20H,#00H",       check: "IRAM[$20]=$00" }
+    - { asm: "CJNE A,20H,target",  check: "C=0, PC=$000A" }
+    - { asm: "NOP",                 check: "" }
+    - { asm: "target: NOP",         check: "" }
+
+alu_addressing_forms:
+  test:
+    - { asm: "MOV A,#10H",    check: "A=$10" }
+    - { asm: "MOV 20H,#01H",  check: "IRAM[$20]=$01" }
+    - { asm: "MOV R0,#21H",   check: "R0=$21" }
+    - { asm: "MOV @R0,#02H",  check: "IRAM[$21]=$02" }
+    - { asm: "MOV R7,#03H",   check: "R7=$03" }
+    - { asm: "ADD A,20H",     cycles: 1, check: "A=$11" }
+    - { asm: "ADD A,@R0",     cycles: 1, check: "A=$13" }
+    - { asm: "ADD A,R7",      cycles: 1, check: "A=$16" }
+    - { asm: "CLR C",         check: "C=0" }
+    - { asm: "ADDC A,20H",    cycles: 1, check: "A=$17" }
+    - { asm: "SETB C",        check: "C=1" }
+    - { asm: "ADDC A,@R0",    cycles: 1, check: "A=$1A" }
+    - { asm: "CLR C",         check: "C=0" }
+    - { asm: "ADDC A,R7",     cycles: 1, check: "A=$1D" }
+    - { asm: "MOV A,#10H",    check: "A=$10" }
+    - { asm: "SETB C",        check: "C=1" }
+    - { asm: "SUBB A,20H",    cycles: 1, check: "A=$0E" }
+    - { asm: "CLR C",         check: "C=0" }
+    - { asm: "SUBB A,@R0",    cycles: 1, check: "A=$0C" }
+    - { asm: "SETB C",        check: "C=1" }
+    - { asm: "SUBB A,R7",     cycles: 1, check: "A=$08" }
+
+logic_addressing_forms:
+  test:
+    - { asm: "MOV 20H,#0FH",  check: "IRAM[$20]=$0F" }
+    - { asm: "MOV R0,#21H",   check: "R0=$21" }
+    - { asm: "MOV @R0,#0F0H", check: "IRAM[$21]=$F0" }
+    - { asm: "MOV R7,#33H",   check: "R7=$33" }
+    - { asm: "MOV A,#00H",    check: "A=$00" }
+    - { asm: "ORL A,20H",     cycles: 1, check: "A=$0F" }
+    - { asm: "ORL A,@R0",     cycles: 1, check: "A=$FF" }
+    - { asm: "ORL A,R7",      cycles: 1, check: "A=$FF" }
+    - { asm: "MOV 22H,#0F0H", check: "IRAM[$22]=$F0" }
+    - { asm: "ORL 22H,A",     cycles: 1, check: "IRAM[$22]=$FF" }
+    - { asm: "MOV A,#0FFH",   check: "A=$FF" }
+    - { asm: "ANL A,20H",     cycles: 1, check: "A=$0F" }
+    - { asm: "ANL A,@R0",     cycles: 1, check: "A=$00" }
+    - { asm: "MOV A,#0FFH",   check: "A=$FF" }
+    - { asm: "ANL A,R7",      cycles: 1, check: "A=$33" }
+    - { asm: "MOV 22H,#0F0H", check: "IRAM[$22]=$F0" }
+    - { asm: "ANL 22H,A",     cycles: 1, check: "IRAM[$22]=$30" }
+    - { asm: "MOV A,#0FFH",   check: "A=$FF" }
+    - { asm: "XRL A,20H",     cycles: 1, check: "A=$F0" }
+    - { asm: "XRL A,@R0",     cycles: 1, check: "A=$00" }
+    - { asm: "MOV A,#0FFH",   check: "A=$FF" }
+    - { asm: "XRL A,R7",      cycles: 1, check: "A=$CC" }
+    - { asm: "MOV 22H,#0F0H", check: "IRAM[$22]=$F0" }
+    - { asm: "XRL 22H,A",     cycles: 1, check: "IRAM[$22]=$3C" }
+
+increment_decrement_forms:
+  test:
+    - { asm: "MOV 20H,#0FFH", check: "IRAM[$20]=$FF" }
+    - { asm: "INC 20H",        cycles: 1, check: "IRAM[$20]=$00" }
+    - { asm: "MOV R0,#21H",    check: "R0=$21" }
+    - { asm: "MOV @R0,#0FFH",  check: "IRAM[$21]=$FF" }
+    - { asm: "INC @R0",        cycles: 1, check: "IRAM[$21]=$00" }
+    - { asm: "MOV R7,#0FFH",   check: "R7=$FF" }
+    - { asm: "INC R7",         cycles: 1, check: "R7=$00" }
+    - { asm: "MOV 20H,#00H",   check: "IRAM[$20]=$00" }
+    - { asm: "DEC 20H",        cycles: 1, check: "IRAM[$20]=$FF" }
+    - { asm: "MOV @R0,#00H",   check: "IRAM[$21]=$00" }
+    - { asm: "DEC @R0",        cycles: 1, check: "IRAM[$21]=$FF" }
+    - { asm: "MOV R7,#00H",    check: "R7=$00" }
+    - { asm: "DEC R7",         cycles: 1, check: "R7=$FF" }
+    - { asm: "MOV A,#3CH",     check: "A=$3C" }
+    - { asm: "MOV @R0,#0A5H",  check: "IRAM[$21]=$A5" }
+    - { asm: "XCH A,@R0",      cycles: 1, check: "A=$A5, IRAM[$21]=$3C" }
+
+movx_r1:
+  test:
+    - { asm: "MOV P2,#12H",  check: "P2=$12" }
+    - { asm: "MOV R1,#34H",  check: "R1=$34" }
+    - { asm: "MOV A,#0A5H",  check: "A=$A5" }
+    - { asm: "MOVX @R1,A",   cycles: 2, check: "XRAM[$1234]=$A5" }
+    - { asm: "MOV A,#00H",   check: "A=$00" }
+    - { asm: "MOVX A,@R1",   cycles: 2, check: "A=$A5" }
+
+branch_not_taken:
+  test:
+    - { asm: "MOV A,#01H",      check: "A=$01" }
+    - { asm: "JZ target",       cycles: 2, check: "PC=$0005" }
+    - { asm: "target: NOP",     check: "" }
+    - { asm: "CLR C",           check: "C=0" }
+    - { asm: "JC target2",      cycles: 2, check: "PC=$0009" }
+    - { asm: "target2: NOP",    check: "" }
+    - { asm: "SETB C",          check: "C=1" }
+    - { asm: "JNC target3",     cycles: 2, check: "PC=$000D" }
+    - { asm: "target3: NOP",    check: "" }
+    - { asm: "MOV A,#00H",      check: "A=$00" }
+    - { asm: "JNZ target4",     cycles: 2, check: "PC=$0012" }
+    - { asm: "target4: NOP",    check: "" }
+    - { asm: "MOV 20H,#00H",    check: "IRAM[$20]=$00" }
+    - { asm: "JB 00H,target5",  cycles: 2, check: "PC=$0019" }
+    - { asm: "target5: NOP",    check: "" }
+    - { asm: "SETB 00H",        check: "IRAM[$20]=$01" }
+    - { asm: "JNB 00H,target6", cycles: 2, check: "PC=$001F" }
+    - { asm: "target6: NOP",    check: "" }
+
+cjne_addressing_forms:
+  test:
+    - { asm: "MOV R0,#20H",       check: "R0=$20" }
+    - { asm: "MOV @R0,#10H",      check: "IRAM[$20]=$10" }
+    - { asm: "CJNE @R0,#10H,next", cycles: 2, check: "C=0, PC=$0008" }
+    - { asm: "next: MOV R7,#20H", check: "R7=$20" }
+    - { asm: "CJNE R7,#20H,done", cycles: 2, check: "C=0, PC=$000D" }
+    - { asm: "done: NOP",          check: "" }
+
+carry_complement:
+  test:
+    - { asm: "CLR C",    check: "C=0" }
+    - { asm: "CPL C",    cycles: 1, check: "C=1" }
+    - { asm: "CPL C",    cycles: 1, check: "C=0" }
+
+xchd:
+  test:
+    - { asm: "MOV R0,#20H",  check: "R0=$20" }
+    - { asm: "MOV @R0,#0A5H", check: "IRAM[$20]=$A5" }
+    - { asm: "MOV A,#3CH",    check: "A=$3C" }
+    - { asm: "XCHD A,@R0",    check: "A=$35, IRAM[$20]=$AC" }
+
+inc_dptr:
+  test:
+    - { asm: "MOV DPTR,#12FFH", check: "DPTR=$12FF" }
+    - { asm: "INC DPTR",        check: "DPTR=$1300" }
+
+decrement_and_exchange:
+  test:
+    - { asm: "MOV A,#00H",    check: "A=$00" }
+    - { asm: "DEC A",          check: "A=$FF" }
+    - { asm: "MOV 20H,#0A5H", check: "IRAM[$20]=$A5" }
+    - { asm: "MOV A,#3CH",    check: "A=$3C" }
+    - { asm: "XCH A,20H",     check: "A=$A5, IRAM[$20]=$3C" }
+    - { asm: "SWAP A",         check: "A=$5A" }
+
+absolute_jumps_and_calls:
+  test:
+    - { asm: "AJMP target",     check: "PC=$0004" }
+    - { asm: "NOP",             check: "" }
+    - { asm: "target: NOP",     check: "" }
+
+# as31 uses the first page encoding for mnemonic assembly.  Exercise the
+# affected raw encodings so every AJMP/ACALL page selector stays decoded as
+# its architectural instruction rather than its similarly shaped counterpart.
+ajmp_page_21:
+  code:
+    - { from: 0x0100, data: "00" }
+  test:
+    - { asm: ".DB 21H,00H", check: "SP=$07, PC=$0101" }
+
+ajmp_page_41:
+  code:
+    - { from: 0x0200, data: "00" }
+  test:
+    - { asm: ".DB 41H,00H", check: "SP=$07, PC=$0201" }
+
+ajmp_page_61:
+  code:
+    - { from: 0x0300, data: "00" }
+  test:
+    - { asm: ".DB 61H,00H", check: "SP=$07, PC=$0301" }
+
+ajmp_page_81:
+  code:
+    - { from: 0x0400, data: "00" }
+  test:
+    - { asm: ".DB 81H,00H", check: "SP=$07, PC=$0401" }
+
+ajmp_page_a1:
+  code:
+    - { from: 0x0500, data: "00" }
+  test:
+    - { asm: ".DB 0A1H,00H", check: "SP=$07, PC=$0501" }
+
+ajmp_page_c1:
+  code:
+    - { from: 0x0600, data: "00" }
+  test:
+    - { asm: ".DB 0C1H,00H", check: "SP=$07, PC=$0601" }
+
+ajmp_page_e1:
+  code:
+    - { from: 0x0700, data: "00" }
+  test:
+    - { asm: ".DB 0E1H,00H", check: "SP=$07, PC=$0701" }
+
+acall_return:
+  test:
+    - { asm: "ACALL subr", check: "SP=$09, PC=$0003" }
+    - { asm: "subr: RET",  check: "" }
+
+acall_page_f1:
+  code:
+    - { from: 0x0700, data: "00" }
+  test:
+    - { asm: ".DB 0F1H,00H", check: "SP=$09, PC=$0701" }
+
+acall_page_31:
+  code:
+    - { from: 0x0100, data: "00" }
+  test:
+    - { asm: ".DB 31H,00H", check: "SP=$09, PC=$0101" }
+
+acall_page_51:
+  code:
+    - { from: 0x0200, data: "00" }
+  test:
+    - { asm: ".DB 51H,00H", check: "SP=$09, PC=$0201" }
+
+acall_page_71:
+  code:
+    - { from: 0x0300, data: "00" }
+  test:
+    - { asm: ".DB 71H,00H", check: "SP=$09, PC=$0301" }
+
+acall_page_91:
+  code:
+    - { from: 0x0400, data: "00" }
+  test:
+    - { asm: ".DB 91H,00H", check: "SP=$09, PC=$0401" }
+
+acall_page_b1:
+  code:
+    - { from: 0x0500, data: "00" }
+  test:
+    - { asm: ".DB 0B1H,00H", check: "SP=$09, PC=$0501" }
+
+acall_page_d1:
+  code:
+    - { from: 0x0600, data: "00" }
+  test:
+    - { asm: ".DB 0D1H,00H", check: "SP=$09, PC=$0601" }
+
+lcall_return:
+  test:
+    - { asm: "LCALL subr", check: "SP=$09, PC=$0004" }
+    - { asm: "subr: RET",  check: "" }
+
+long_jump:
+  test:
+    - { asm: "LJMP target", check: "PC=$0004" }
+    - { asm: "target: NOP", check: "" }
+
+short_jump:
+  test:
+    - { asm: "SJMP target", check: "PC=$0003" }
+    - { asm: "target: NOP", check: "" }
+
+computed_jump:
+  test:
+    - { asm: "MOV DPTR,#0006H", check: "DPTR=$0006" }
+    - { asm: "MOV A,#00H",      check: "A=$00" }
+    - { asm: "JMP @A+DPTR",     check: "PC=$0007" }
+    - { asm: "target: NOP",     check: "" }
+
+conditional_branches:
+  test:
+    - { asm: "SETB C",       check: "C=1" }
+    - { asm: "JC jc_target", check: "PC=$0005" }
+    - { asm: "NOP",          check: "" }
+    - { asm: "jc_target: NOP", check: "" }
+
+conditional_not_carry:
+  test:
+    - { asm: "CLR C",         check: "C=0" }
+    - { asm: "JNC jnc_target", check: "PC=$0005" }
+    - { asm: "NOP",            check: "" }
+    - { asm: "jnc_target: NOP", check: "" }
+
+conditional_nonzero:
+  test:
+    - { asm: "MOV A,#01H",   check: "A=$01" }
+    - { asm: "JNZ jnz_target", check: "PC=$0006" }
+    - { asm: "NOP",           check: "" }
+    - { asm: "jnz_target: NOP", check: "" }
+
+bit_set_branch:
+  test:
+    - { asm: "MOV 20H,#01H", check: "IRAM[$20]=$01" }
+    - { asm: "JB 00H,target", check: "PC=$0008" }
+    - { asm: "NOP",            check: "" }
+    - { asm: "target: NOP",   check: "" }
+
+reti:
+  test:
+    - { asm: "MOV SP,#09H",  check: "SP=$09" }
+    - { asm: "MOV 08H,#0AH", check: "IRAM[$08]=$0A" }
+    - { asm: "MOV 09H,#00H", check: "IRAM[$09]=$00" }
+    - { asm: "RETI",          check: "SP=$07, PC=$000B" }
+
+reserved_opcode:
+  test:
+    - { asm: ".DB 0A5H", check: "PC=$0002" }
+
+clock_enable_spacing:
+  test:
+    # jt8051_ctrl itself asserts if two cen pulses share adjacent clk edges.
+    - { asm: "NOP", cycles: 1, check: "" }
+
+# Exercise the individual @R1 and R0-R6 control-ROM entries.  Each operation
+# has a state check so this is functional coverage, not merely opcode fetch.
+register_alias_arithmetic:
+  test:
+    - { asm: "MOV A,#10H",   check: "" }
+    - { asm: "INC A",        check: "A=$11" }
+    - { asm: "MOV R1,#20H",  check: "" }
+    - { asm: "MOV 20H,#10H", check: "" }
+    - { asm: "INC @R1",      check: "IRAM[$20]=$11" }
+    - { asm: "MOV R0,#10H",  check: "" }
+    - { asm: "INC R0",       check: "R0=$11" }
+    - { asm: "MOV R1,#10H",  check: "" }
+    - { asm: "INC R1",       check: "R1=$11" }
+    - { asm: "MOV R2,#10H",  check: "" }
+    - { asm: "INC R2",       check: "R2=$11" }
+    - { asm: "MOV R3,#10H",  check: "" }
+    - { asm: "INC R3",       check: "R3=$11" }
+    - { asm: "MOV R4,#10H",  check: "" }
+    - { asm: "INC R4",       check: "R4=$11" }
+    - { asm: "MOV R5,#10H",  check: "" }
+    - { asm: "INC R5",       check: "R5=$11" }
+    - { asm: "MOV R6,#10H",  check: "" }
+    - { asm: "INC R6",       check: "R6=$11" }
+    - { asm: "MOV R1,#20H",  check: "" }
+    - { asm: "MOV 20H,#10H", check: "" }
+    - { asm: "DEC @R1",      check: "IRAM[$20]=$0F" }
+    - { asm: "MOV R0,#10H",  check: "" }
+    - { asm: "DEC R0",       check: "R0=$0F" }
+    - { asm: "MOV R1,#10H",  check: "" }
+    - { asm: "DEC R1",       check: "R1=$0F" }
+    - { asm: "MOV R2,#10H",  check: "" }
+    - { asm: "DEC R2",       check: "R2=$0F" }
+    - { asm: "MOV R3,#10H",  check: "" }
+    - { asm: "DEC R3",       check: "R3=$0F" }
+    - { asm: "MOV R4,#10H",  check: "" }
+    - { asm: "DEC R4",       check: "R4=$0F" }
+    - { asm: "MOV R5,#10H",  check: "" }
+    - { asm: "DEC R5",       check: "R5=$0F" }
+    - { asm: "MOV R6,#10H",  check: "" }
+    - { asm: "DEC R6",       check: "R6=$0F" }
+    - { asm: "MOV R1,#20H",  check: "" }
+    - { asm: "MOV 20H,#01H", check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADD A,@R1",    check: "A=$02, C=0, AC=0, OV=0, P=1" }
+    - { asm: "MOV R0,#01H",  check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADD A,R0",     check: "A=$02" }
+    - { asm: "MOV R1,#01H",  check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADD A,R1",     check: "A=$02" }
+    - { asm: "MOV R2,#01H",  check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADD A,R2",     check: "A=$02" }
+    - { asm: "MOV R3,#01H",  check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADD A,R3",     check: "A=$02" }
+    - { asm: "MOV R4,#01H",  check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADD A,R4",     check: "A=$02" }
+    - { asm: "MOV R5,#01H",  check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADD A,R5",     check: "A=$02" }
+    - { asm: "MOV R6,#01H",  check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADD A,R6",     check: "A=$02" }
+    - { asm: "MOV R1,#20H",  check: "" }
+    - { asm: "MOV 20H,#01H", check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,@R1",   check: "A=$02, C=0, AC=0, OV=0, P=1" }
+    - { asm: "MOV R0,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R0",    check: "A=$02" }
+    - { asm: "MOV R1,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R1",    check: "A=$02" }
+    - { asm: "MOV R2,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R2",    check: "A=$02" }
+    - { asm: "MOV R3,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R3",    check: "A=$02" }
+    - { asm: "MOV R4,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R4",    check: "A=$02" }
+    - { asm: "MOV R5,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R5",    check: "A=$02" }
+    - { asm: "MOV R6,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R6",    check: "A=$02" }
+
+register_alias_logic_subtract:
+  test:
+    - { asm: "MOV R1,#20H",  check: "" }
+    - { asm: "MOV 20H,#0FH", check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ORL A,@R1",    check: "A=$FF, P=0" }
+    - { asm: "MOV R0,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ORL A,R0",     check: "A=$FF" }
+    - { asm: "MOV R1,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ORL A,R1",     check: "A=$FF" }
+    - { asm: "MOV R2,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ORL A,R2",     check: "A=$FF" }
+    - { asm: "MOV R3,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ORL A,R3",     check: "A=$FF" }
+    - { asm: "MOV R4,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ORL A,R4",     check: "A=$FF" }
+    - { asm: "MOV R5,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ORL A,R5",     check: "A=$FF" }
+    - { asm: "MOV R6,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ORL A,R6",     check: "A=$FF" }
+    - { asm: "MOV R1,#20H",  check: "" }
+    - { asm: "MOV 20H,#0FH", check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ANL A,@R1",    check: "A=$00, P=0" }
+    - { asm: "MOV R0,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ANL A,R0",     check: "A=$00" }
+    - { asm: "MOV R1,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ANL A,R1",     check: "A=$00" }
+    - { asm: "MOV R2,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ANL A,R2",     check: "A=$00" }
+    - { asm: "MOV R3,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ANL A,R3",     check: "A=$00" }
+    - { asm: "MOV R4,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ANL A,R4",     check: "A=$00" }
+    - { asm: "MOV R5,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ANL A,R5",     check: "A=$00" }
+    - { asm: "MOV R6,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "ANL A,R6",     check: "A=$00" }
+    - { asm: "MOV R1,#20H",  check: "" }
+    - { asm: "MOV 20H,#0FH", check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "XRL A,@R1",    check: "A=$FF, P=0" }
+    - { asm: "MOV R0,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "XRL A,R0",     check: "A=$FF" }
+    - { asm: "MOV R1,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "XRL A,R1",     check: "A=$FF" }
+    - { asm: "MOV R2,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "XRL A,R2",     check: "A=$FF" }
+    - { asm: "MOV R3,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "XRL A,R3",     check: "A=$FF" }
+    - { asm: "MOV R4,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "XRL A,R4",     check: "A=$FF" }
+    - { asm: "MOV R5,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "XRL A,R5",     check: "A=$FF" }
+    - { asm: "MOV R6,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",  check: "" }
+    - { asm: "XRL A,R6",     check: "A=$FF" }
+    - { asm: "MOV R1,#20H",  check: "" }
+    - { asm: "MOV 20H,#01H", check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,@R1",   check: "A=$02, C=0, AC=0, OV=0, P=1" }
+    - { asm: "MOV R0,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R0",    check: "A=$02" }
+    - { asm: "MOV R1,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R1",    check: "A=$02" }
+    - { asm: "MOV R2,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R2",    check: "A=$02" }
+    - { asm: "MOV R3,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R3",    check: "A=$02" }
+    - { asm: "MOV R4,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R4",    check: "A=$02" }
+    - { asm: "MOV R5,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R5",    check: "A=$02" }
+    - { asm: "MOV R6,#01H",  check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R6",    check: "A=$02" }
+
+register_alias_moves_control:
+  test:
+    - { asm: "MOV A,#0F0H",   check: "" }
+    - { asm: "ORL A,#0FH",    check: "A=$FF, P=0" }
+    - { asm: "MOV R1,#20H",   check: "" }
+    - { asm: "MOV @R1,#55H",  check: "IRAM[$20]=$55" }
+    - { asm: "MOV 21H,@R1",   check: "IRAM[$21]=$55" }
+    - { asm: "MOV R0,#55H",   check: "" }
+    - { asm: "MOV 22H,R0",    check: "IRAM[$22]=$55" }
+    - { asm: "MOV R2,#55H",   check: "" }
+    - { asm: "MOV 23H,R2",    check: "IRAM[$23]=$55" }
+    - { asm: "MOV R3,#55H",   check: "" }
+    - { asm: "MOV 24H,R3",    check: "IRAM[$24]=$55" }
+    - { asm: "MOV R4,#55H",   check: "" }
+    - { asm: "MOV 25H,R4",    check: "IRAM[$25]=$55" }
+    - { asm: "MOV R5,#55H",   check: "" }
+    - { asm: "MOV 26H,R5",    check: "IRAM[$26]=$55" }
+    - { asm: "MOV R6,#55H",   check: "" }
+    - { asm: "MOV 27H,R6",    check: "IRAM[$27]=$55" }
+    - { asm: "MOV R7,#55H",   check: "" }
+    - { asm: "MOV 28H,R7",    check: "IRAM[$28]=$55" }
+    - { asm: "MOV R1,#20H",   check: "" }
+    - { asm: "MOV 20H,#66H",  check: "" }
+    - { asm: "MOV @R1,20H",   check: "IRAM[$20]=$66" }
+    - { asm: "MOV 20H,#66H",  check: "" }
+    - { asm: "MOV R0,20H",    check: "R0=$66" }
+    - { asm: "MOV R2,20H",    check: "R2=$66" }
+    - { asm: "MOV R3,20H",    check: "R3=$66" }
+    - { asm: "MOV R4,20H",    check: "R4=$66" }
+    - { asm: "MOV R5,20H",    check: "R5=$66" }
+    - { asm: "MOV R6,20H",    check: "R6=$66" }
+    - { asm: "MOV R7,20H",    check: "R7=$66" }
+    - { asm: "MOV R1,#20H",   check: "" }
+    - { asm: "MOV 20H,#10H",  check: "" }
+    - { asm: "CJNE @R1,#10H,cjne_i", check: "C=0" }
+    - { asm: "cjne_i: NOP",   check: "" }
+    - { asm: "MOV R0,#10H",   check: "" }
+    - { asm: "CJNE R0,#10H,cjne_r0", check: "C=0" }
+    - { asm: "cjne_r0: NOP",  check: "" }
+    - { asm: "MOV R1,#10H",   check: "" }
+    - { asm: "CJNE R1,#10H,cjne_r1", check: "C=0" }
+    - { asm: "cjne_r1: NOP",  check: "" }
+    - { asm: "MOV R2,#10H",   check: "" }
+    - { asm: "CJNE R2,#10H,cjne_r2", check: "C=0" }
+    - { asm: "cjne_r2: NOP",  check: "" }
+    - { asm: "MOV R3,#10H",   check: "" }
+    - { asm: "CJNE R3,#10H,cjne_r3", check: "C=0" }
+    - { asm: "cjne_r3: NOP",  check: "" }
+    - { asm: "MOV R4,#10H",   check: "" }
+    - { asm: "CJNE R4,#10H,cjne_r4", check: "C=0" }
+    - { asm: "cjne_r4: NOP",  check: "" }
+    - { asm: "MOV R5,#10H",   check: "" }
+    - { asm: "CJNE R5,#10H,cjne_r5", check: "C=0" }
+    - { asm: "cjne_r5: NOP",  check: "" }
+    - { asm: "MOV R6,#10H",   check: "" }
+    - { asm: "CJNE R6,#10H,cjne_r6", check: "C=0" }
+    - { asm: "cjne_r6: NOP",  check: "" }
+    - { asm: "MOV A,#0A5H",   check: "" }
+    - { asm: "MOV R1,#20H",   check: "" }
+    - { asm: "MOV 20H,#3CH",  check: "" }
+    - { asm: "XCH A,@R1",     check: "A=$3C, IRAM[$20]=$A5" }
+    - { asm: "MOV A,#0A5H",   check: "" }
+    - { asm: "MOV R0,#3CH",   check: "" }
+    - { asm: "XCH A,R0",      check: "A=$3C, R0=$A5" }
+    - { asm: "MOV A,#0A5H",   check: "" }
+    - { asm: "MOV R1,#3CH",   check: "" }
+    - { asm: "XCH A,R1",      check: "A=$3C, R1=$A5" }
+    - { asm: "MOV A,#0A5H",   check: "" }
+    - { asm: "MOV R2,#3CH",   check: "" }
+    - { asm: "XCH A,R2",      check: "A=$3C, R2=$A5" }
+    - { asm: "MOV A,#0A5H",   check: "" }
+    - { asm: "MOV R3,#3CH",   check: "" }
+    - { asm: "XCH A,R3",      check: "A=$3C, R3=$A5" }
+    - { asm: "MOV A,#0A5H",   check: "" }
+    - { asm: "MOV R4,#3CH",   check: "" }
+    - { asm: "XCH A,R4",      check: "A=$3C, R4=$A5" }
+    - { asm: "MOV A,#0A5H",   check: "" }
+    - { asm: "MOV R5,#3CH",   check: "" }
+    - { asm: "XCH A,R5",      check: "A=$3C, R5=$A5" }
+    - { asm: "MOV A,#0A5H",   check: "" }
+    - { asm: "MOV R6,#3CH",   check: "" }
+    - { asm: "XCH A,R6",      check: "A=$3C, R6=$A5" }
+    - { asm: "MOV A,#0A5H",   check: "" }
+    - { asm: "MOV R7,#3CH",   check: "" }
+    - { asm: "XCH A,R7",      check: "A=$3C, R7=$A5" }
+    - { asm: "MOV R1,#20H",   check: "" }
+    - { asm: "MOV 20H,#0A5H", check: "" }
+    - { asm: "MOV A,#3CH",    check: "" }
+    - { asm: "XCHD A,@R1",    check: "A=$35, IRAM[$20]=$AC" }
+    - { asm: "MOV R1,#01H",   check: "" }
+    - { asm: "DJNZ R1,djnz_r1",      check: "R1=$00" }
+    - { asm: "djnz_r1: NOP",          check: "" }
+    - { asm: "MOV R2,#01H",   check: "" }
+    - { asm: "DJNZ R2,djnz_r2",      check: "R2=$00" }
+    - { asm: "djnz_r2: NOP",          check: "" }
+    - { asm: "MOV R3,#01H",   check: "" }
+    - { asm: "DJNZ R3,djnz_r3",      check: "R3=$00" }
+    - { asm: "djnz_r3: NOP",          check: "" }
+    - { asm: "MOV R4,#01H",   check: "" }
+    - { asm: "DJNZ R4,djnz_r4",      check: "R4=$00" }
+    - { asm: "djnz_r4: NOP",          check: "" }
+    - { asm: "MOV R5,#01H",   check: "" }
+    - { asm: "DJNZ R5,djnz_r5",      check: "R5=$00" }
+    - { asm: "djnz_r5: NOP",          check: "" }
+    - { asm: "MOV R6,#01H",   check: "" }
+    - { asm: "DJNZ R6,djnz_r6",      check: "R6=$00" }
+    - { asm: "djnz_r6: NOP",          check: "" }
+    - { asm: "MOV R7,#01H",   check: "" }
+    - { asm: "DJNZ R7,djnz_r7",      check: "R7=$00" }
+    - { asm: "djnz_r7: NOP",          check: "" }
+    - { asm: "MOV A,#55H",    check: "" }
+    - { asm: "CLR A",         check: "A=$00, P=0" }
+    - { asm: "MOV R1,#20H",   check: "" }
+    - { asm: "MOV 20H,#66H",  check: "" }
+    - { asm: "MOV A,@R1",     check: "A=$66, P=0" }
+    - { asm: "MOV R1,#11H",   check: "" }
+    - { asm: "MOV A,R1",      check: "A=$11, P=0" }
+    - { asm: "MOV R3,#13H",   check: "" }
+    - { asm: "MOV A,R3",      check: "A=$13, P=1" }
+    - { asm: "MOV R4,#14H",   check: "" }
+    - { asm: "MOV A,R4",      check: "A=$14, P=0" }
+    - { asm: "MOV R5,#15H",   check: "" }
+    - { asm: "MOV A,R5",      check: "A=$15, P=1" }
+    - { asm: "MOV R6,#16H",   check: "" }
+    - { asm: "MOV A,R6",      check: "A=$16, P=1" }
+    - { asm: "MOV R7,#17H",   check: "" }
+    - { asm: "MOV A,R7",      check: "A=$17, P=0" }
+    - { asm: "MOV A,#5AH",    check: "" }
+    - { asm: "MOV R0,#20H",   check: "" }
+    - { asm: "MOV @R0,A",     check: "IRAM[$20]=$5A" }
+    - { asm: "MOV R1,#21H",   check: "" }
+    - { asm: "MOV @R1,A",     check: "IRAM[$21]=$5A" }
+    - { asm: "MOV R1,A",      check: "R1=$5A" }
+    - { asm: "MOV R3,A",      check: "R3=$5A" }
+    - { asm: "MOV R4,A",      check: "R4=$5A" }
+    - { asm: "MOV R5,A",      check: "R5=$5A" }
+    - { asm: "MOV R6,A",      check: "R6=$5A" }
+    - { asm: "MOV R7,A",      check: "R7=$5A" }
+    - { asm: "MOV A,#55H",    check: "" }
+    - { asm: "CPL A",         check: "A=$AA, P=0" }
+
+# Every memory-writing addressing form below is followed by a CPU readback;
+# the assertion never relies solely on the testbench memory array.
+memory_write_readback:
+  test:
+    - { asm: "MOV 20H,#0A5H", check: "IRAM[$20]=$A5" }
+    - { asm: "MOV A,20H",     check: "A=$A5, P=0" }
+    - { asm: "MOV R0,#21H",   check: "" }
+    - { asm: "MOV @R0,#5AH",  check: "IRAM[$21]=$5A" }
+    - { asm: "MOV A,@R0",     check: "A=$5A, P=0" }
+    - { asm: "MOV A,#3CH",    check: "" }
+    - { asm: "MOV 22H,A",     check: "IRAM[$22]=$3C" }
+    - { asm: "MOV A,22H",     check: "A=$3C, P=0" }
+    - { asm: "MOV R1,#23H",   check: "" }
+    - { asm: "MOV 23H,#0C3H", check: "" }
+    - { asm: "MOV @R1,23H",   check: "IRAM[$23]=$C3" }
+    - { asm: "MOV A,@R1",     check: "A=$C3, P=0" }
+    - { asm: "MOV R2,#66H",   check: "" }
+    - { asm: "MOV 24H,R2",    check: "IRAM[$24]=$66" }
+    - { asm: "MOV A,24H",     check: "A=$66, P=0" }
+    - { asm: "MOV 25H,#0FH",  check: "" }
+    - { asm: "MOV A,#0F0H",   check: "" }
+    - { asm: "ORL 25H,A",     check: "IRAM[$25]=$FF" }
+    - { asm: "MOV A,25H",     check: "A=$FF, P=0" }
+    - { asm: "MOV 26H,#0F0H", check: "" }
+    - { asm: "MOV A,#0FH",    check: "" }
+    - { asm: "ANL 26H,A",     check: "IRAM[$26]=$00" }
+    - { asm: "MOV A,26H",     check: "A=$00, P=0" }
+    - { asm: "MOV 27H,#0F0H", check: "" }
+    - { asm: "MOV A,#0FH",    check: "" }
+    - { asm: "XRL 27H,A",     check: "IRAM[$27]=$FF" }
+    - { asm: "MOV A,27H",     check: "A=$FF, P=0" }
+    - { asm: "MOV 28H,#0FFH", check: "" }
+    - { asm: "INC 28H",       check: "IRAM[$28]=$00" }
+    - { asm: "MOV A,28H",     check: "A=$00, P=0" }
+    - { asm: "MOV R0,#29H",   check: "" }
+    - { asm: "MOV @R0,#00H",  check: "" }
+    - { asm: "DEC @R0",       check: "IRAM[$29]=$FF" }
+    - { asm: "MOV A,@R0",     check: "A=$FF, P=0" }
+    - { asm: "MOV DPTR,#1234H", check: "" }
+    - { asm: "MOV A,#69H",      check: "" }
+    - { asm: "MOVX @DPTR,A",    check: "XRAM[$1234]=$69" }
+    - { asm: "MOV A,#00H",      check: "" }
+    - { asm: "MOVX A,@DPTR",    check: "A=$69, P=0" }
+    - { asm: "MOV P2,#12H",     check: "" }
+    - { asm: "MOV R0,#34H",     check: "" }
+    - { asm: "MOV A,#96H",      check: "" }
+    - { asm: "MOVX @R0,A",      check: "XRAM[$1234]=$96" }
+    - { asm: "MOV A,#00H",      check: "" }
+    - { asm: "MOVX A,@R0",      check: "A=$96, P=0" }
+
+# All four truth-table rows for carry/bit operations, including complemented
+# bit operands.  MOV C,bit and MOV bit,C are checked for both binary values.
+carry_bit_truth_table:
+  test:
+    - { asm: "MOV 20H,#00H", check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "ORL C,00H",     check: "C=0" }
+    - { asm: "SETB 00H",      check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "ORL C,00H",     check: "C=1" }
+    - { asm: "CLR 00H",       check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "ORL C,00H",     check: "C=1" }
+    - { asm: "SETB 00H",      check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "ORL C,00H",     check: "C=1" }
+    - { asm: "CLR 00H",       check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "ANL C,00H",     check: "C=0" }
+    - { asm: "SETB 00H",      check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "ANL C,00H",     check: "C=0" }
+    - { asm: "CLR 00H",       check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "ANL C,00H",     check: "C=0" }
+    - { asm: "SETB 00H",      check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "ANL C,00H",     check: "C=1" }
+    - { asm: "CLR 00H",       check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "ORL C,/00H",    check: "C=1" }
+    - { asm: "SETB 00H",      check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "ORL C,/00H",    check: "C=0" }
+    - { asm: "CLR 00H",       check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "ORL C,/00H",    check: "C=1" }
+    - { asm: "SETB 00H",      check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "ORL C,/00H",    check: "C=1" }
+    - { asm: "CLR 00H",       check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "ANL C,/00H",    check: "C=0" }
+    - { asm: "SETB 00H",      check: "" }
+    - { asm: "CLR C",         check: "" }
+    - { asm: "ANL C,/00H",    check: "C=0" }
+    - { asm: "CLR 00H",       check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "ANL C,/00H",    check: "C=1" }
+    - { asm: "SETB 00H",      check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "ANL C,/00H",    check: "C=0" }
+    - { asm: "CLR 00H",       check: "" }
+    - { asm: "MOV C,00H",     check: "C=0" }
+    - { asm: "MOV 01H,C",     check: "IRAM[$20]=$00" }
+    - { asm: "SETB 00H",      check: "" }
+    - { asm: "MOV C,00H",     check: "C=1" }
+    - { asm: "MOV 01H,C",     check: "IRAM[$20]=$03" }
+
+# The alias coverage above uses carry clear.  These cases prove every ADDC
+# and SUBB source form consumes a set carry input too.
+register_alias_carry_input:
+  test:
+    - { asm: "MOV R1,#20H",  check: "" }
+    - { asm: "MOV 20H,#01H", check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,@R1",   check: "A=$03, C=0, AC=0, OV=0, P=0" }
+    - { asm: "MOV R0,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R0",    check: "A=$03" }
+    - { asm: "MOV R1,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R1",    check: "A=$03" }
+    - { asm: "MOV R2,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R2",    check: "A=$03" }
+    - { asm: "MOV R3,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R3",    check: "A=$03" }
+    - { asm: "MOV R4,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R4",    check: "A=$03" }
+    - { asm: "MOV R5,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R5",    check: "A=$03" }
+    - { asm: "MOV R6,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#01H",   check: "" }
+    - { asm: "ADDC A,R6",    check: "A=$03" }
+    - { asm: "MOV R1,#20H",  check: "" }
+    - { asm: "MOV 20H,#01H", check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,@R1",   check: "A=$01, C=0, AC=0, OV=0, P=1" }
+    - { asm: "MOV R0,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R0",    check: "A=$01" }
+    - { asm: "MOV R1,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R1",    check: "A=$01" }
+    - { asm: "MOV R2,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R2",    check: "A=$01" }
+    - { asm: "MOV R3,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R3",    check: "A=$01" }
+    - { asm: "MOV R4,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R4",    check: "A=$01" }
+    - { asm: "MOV R5,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R5",    check: "A=$01" }
+    - { asm: "MOV R6,#01H",  check: "" }
+    - { asm: "SETB C",        check: "" }
+    - { asm: "MOV A,#03H",   check: "" }
+    - { asm: "SUBB A,R6",    check: "A=$01" }
+
+# CJNE always updates carry, including the register/indirect encodings.  Keep
+# the destination immediately following each branch so this also proves the
+# less-than path is taken.
+cjne_alias_carry_set:
+  test:
+    - { asm: "MOV R0,#20H",       check: "" }
+    - { asm: "MOV 20H,#10H",      check: "" }
+    - { asm: "CJNE @R0,#20H,ci0", check: "C=1" }
+    - { asm: "ci0: NOP",          check: "" }
+    - { asm: "MOV R1,#21H",       check: "" }
+    - { asm: "MOV 21H,#10H",      check: "" }
+    - { asm: "CJNE @R1,#20H,ci1", check: "C=1" }
+    - { asm: "ci1: NOP",          check: "" }
+    - { asm: "MOV R0,#10H",       check: "" }
+    - { asm: "CJNE R0,#20H,cr0",  check: "C=1" }
+    - { asm: "cr0: NOP",          check: "" }
+    - { asm: "MOV R1,#10H",       check: "" }
+    - { asm: "CJNE R1,#20H,cr1",  check: "C=1" }
+    - { asm: "cr1: NOP",          check: "" }
+    - { asm: "MOV R2,#10H",       check: "" }
+    - { asm: "CJNE R2,#20H,cr2",  check: "C=1" }
+    - { asm: "cr2: NOP",          check: "" }
+    - { asm: "MOV R3,#10H",       check: "" }
+    - { asm: "CJNE R3,#20H,cr3",  check: "C=1" }
+    - { asm: "cr3: NOP",          check: "" }
+    - { asm: "MOV R4,#10H",       check: "" }
+    - { asm: "CJNE R4,#20H,cr4",  check: "C=1" }
+    - { asm: "cr4: NOP",          check: "" }
+    - { asm: "MOV R5,#10H",       check: "" }
+    - { asm: "CJNE R5,#20H,cr5",  check: "C=1" }
+    - { asm: "cr5: NOP",          check: "" }
+    - { asm: "MOV R6,#10H",       check: "" }
+    - { asm: "CJNE R6,#20H,cr6",  check: "C=1" }
+    - { asm: "cr6: NOP",          check: "" }
+    - { asm: "MOV R7,#10H",       check: "" }
+    - { asm: "CJNE R7,#20H,cr7",  check: "C=1" }
+    - { asm: "cr7: NOP",          check: "" }

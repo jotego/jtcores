@@ -60,6 +60,7 @@ module jtbiocom_mcu(
 );
 
 parameter SINC_XDATA=1;
+parameter SAME_CLK=0;
 parameter ROMBIN="../../../../rom/biocom/ts.2f";
 `ifndef NOMCU
 wire [15:0] ext_addr;
@@ -75,21 +76,7 @@ assign mcu_brn  = int0n;
 assign DMAn     = p3_os[5];
 reg    last_DMAONn;
 
-jtframe_sync #(.W(8)) u_p3sync(
-    .clk_in ( 1'b0      ),
-    .clk_out( clk_cpu   ),
-    .raw    ( p3_o      ),
-    .sync   ( p3_os     )
-);
-
 wire int0n_mcu;
-
-jtframe_sync #(.W(1)) u_intsync(
-    .clk_in ( 1'b0      ),
-    .clk_out( clk       ),
-    .raw    ( int0n     ),
-    .sync   ( int0n_mcu )
-);
 
 always @(posedge clk_cpu, posedge rst_cpu) begin
     if( rst_cpu ) begin
@@ -145,15 +132,39 @@ end
 wire [7:0] mcu_din_s, x_dout;
 wire       x_wr;
 
-assign mcu_wr = x_wr | ~p3_o[6]; // wr pin
+// P3.6 is the Bionic board's sound-write strobe.  It does not access the
+// shared main-CPU RAM; only an 8051 MOVX write owns that bus write enable.
+assign mcu_wr = x_wr;
 assign mcu_dout = x_wr ? x_dout : p0_o;
 
-jtframe_sync #(.W(8)) u_sync(
-    .clk_in ( clk_cpu   ),
-    .clk_out( clk       ),
-    .raw    ( mcu_din   ),
-    .sync   ( mcu_din_s )
-);
+generate
+    if( SAME_CLK ) begin : g_same_clk
+        assign p3_os    = p3_o;
+        assign int0n_mcu = int0n;
+        assign mcu_din_s = mcu_din;
+    end else begin : g_cross_clk
+        jtframe_sync #(.W(8)) u_p3sync(
+            .clk_in ( 1'b0      ),
+            .clk_out( clk_cpu   ),
+            .raw    ( p3_o      ),
+            .sync   ( p3_os     )
+        );
+
+        jtframe_sync #(.W(1)) u_intsync(
+            .clk_in ( 1'b0      ),
+            .clk_out( clk       ),
+            .raw    ( int0n     ),
+            .sync   ( int0n_mcu )
+        );
+
+        jtframe_sync #(.W(8)) u_sync(
+            .clk_in ( clk_cpu   ),
+            .clk_out( clk       ),
+            .raw    ( mcu_din   ),
+            .sync   ( mcu_din_s )
+        );
+    end
+endgenerate
 
 jtframe_8751mcu #(
     .ROMBIN(ROMBIN),
