@@ -76,22 +76,11 @@ module jttaitox_video(
 
 wire [8:0] vdump, vrender, hdump;
 
-// Vertical placement of the rendered content INSIDE the visible window,
-// the same knob cal50 calls OBJ_VOFF. Distinct from the raster window:
-// moving VB_END/VB_START changes which lines are shown and exposes a
-// blank line, while this changes what the engine draws on each line, so
-// the picture moves with no black band.
-//
-// Keep at 0. The sim is byte-identical to MAME here, so any non-zero
-// value is a deliberate divergence from the only reference we have and
-// needs evidence from a real board, not from a display.
-//
-// Note jtkiwi_gfx ignores its vrender input - internally it feeds vdump
-// to the obj module - so vdump is the only counter that shifts anything.
+
 localparam [8:0] OBJ_VOFF = 9'd0;
 wire [8:0] vdump_adj = vdump + OBJ_VOFF;
 
-// P0-051A shows 224 lines (MAME visarea 2*8..30*8-1) against 240 on the other
+// P0-051A shows 224 lines against 240 on the other
 // boards. Crop 8 lines at each end of the visible window (vdump 7..246).
 localparam [8:0] VCROP_START = 9'd16, VCROP_END = 9'd239;
 
@@ -100,8 +89,7 @@ wire [8:0] scr_pxl, obj_pxl;
 
 // Verified on an original P0-039A with a scope (Aug 2026): 8 MHz dot clock,
 // 64.00 us/line = 512 dots, 17.40 ms/frame = 272 lines (57.45 Hz),
-// HS ~6.6 us (~53 dots), VS 8 lines. The 15.22 kHz note in the MAME driver
-// belongs to the East Tech P0-057A dump report, not this board.
+// HS ~6.6 us (~53 dots), VS 8 lines.
 jtframe_vtimer #(
     .HB_END  ( 9'd1   ),
     .HB_START( 9'd385 ),
@@ -132,11 +120,7 @@ jtframe_vtimer #(
 jtkiwi_gfx #(
     .CPUW ( 16 ),
     .OBJAW( 13 ),
-    // The X1-001 compares an 8-bit line counter against an 8-bit sprite Y,
-    // so a sprite parked near 0xFF wraps onto the first lines. MAME models
-    // the same fact by drawing a second copy at row-256. cal50 and arbalest
-    // set this too.
-    .OBJ_YWRAP( 1'b1 )
+    .OBJ_YWRAP( 1'b1 ) // to be verified, who needs this?
 ) u_gfx(
     .rst        ( rst       ),
     .clk        ( clk       ),

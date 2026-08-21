@@ -22,10 +22,6 @@ module jttaitox_main(
     input                clk,        // 48 MHz
     input                LVBL,
 
-    // Board type from the MRA header. P0-039A is the only board with a
-    // C-chip, and it is also the only one whose class installs the level-6
-    // ISR, so "reads inputs directly at 900000" and "VBL on level 2" are
-    // both just ~p039a and need no bits of their own.
     input                p039a,
 
     output               cpu_cen,

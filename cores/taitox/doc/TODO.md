@@ -97,6 +97,3 @@ Front/back porch split: not measured; we are happy centering the picture.
 screen.set_raw(16_MHz_XTAL/2, 512, 0, 384, 272, 8, 248);
 ```
 
-(same 384x240 visarea, exact 57.4449 Hz). Only for the C-chip config -
-daisenpu/gigandes/ballbros run other boards that remain unmeasured (their
-`set_refresh_hz(60)` is likely also ~57.4, but MAME will ask for scope proof).

@@ -34,7 +34,7 @@ module jttaitox_colmix(
     output     [ 4:0] blue
 );
 
-localparam [8:0] BACKDROP = 9'h1f0;   // screen_update bitmap.fill(0x1f0)
+localparam [8:0] BACKDROP = 9'h1f0;   // palette index where the bg color is stored.
 
 reg  [ 8:0] col;
 reg  [14:0] rgb;

@@ -113,7 +113,6 @@ jttaitox_tc0140syc u_syt(
     .syt_cs     ( syt_cs        )
 );
 
-// The 68000 can hold the whole board in reset through the mailbox
 jt10 u_jt10(
     .rst            ( rst | z80_rst     ),
     .clk            ( clk               ),

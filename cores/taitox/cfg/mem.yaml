@@ -45,11 +45,8 @@ sdram:
         addr_width: 21
         data_width: 32
     - buses:
-      # 68000 work RAM on the devices short of block RAM. It has to be the
-      # first bus of the bank: only slot 0 can write. Bank 3 otherwise carries
-      # just adpcmb, one low-rate channel that superman and twinhawk do not
-      # even have, so the CPU no longer fights its own program fetch the way
-      # it did when this lived in bank 0 next to the main ROM.
+      # 68000 work RAM on the devices short of block RAM.
+      # It has to be the first bus of the bank.
       - name: ram
         when: [ RAM_IN_SDRAM ]
         addr_width: 14
@@ -63,12 +60,6 @@ sdram:
         data_width: 8
 
 bram:
-  # 68000 work RAM, f00000-f03fff. Back in BRAM to rule it out of the
-  # superman stuck-note investigation. The SDRAM version (bank 0, rw,
-  # RAM_OFFSET) is what gets the core onto MiST/SiDi - see doc/TODO.md -
-  # and should be restored once the audio question is settled. The bank
-  # map is deliberately left untouched so this is a one-variable change:
-  # RAM_START/RAM_OFFSET stay defined but unused.
   - name: ram
     unless: [ RAM_IN_SDRAM ]
     addr_width: 14
