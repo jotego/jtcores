@@ -44,17 +44,17 @@ always @* begin
             ov     = ~(lhs[7]^rhs[7]) & (lhs[7]^result[7]);
         end
         ADDC_ALU: begin
-            sum    = {1'b0,lhs}+{1'b0,rhs}+carry;
+            sum    = {1'b0,lhs}+{1'b0,rhs}+{8'd0,carry};
             result = sum[7:0];
             cy     = sum[8];
-            ac     = {1'b0,lhs[3:0]}+{1'b0,rhs[3:0]}+carry > 5'h0f;
+            ac     = {1'b0,lhs[3:0]}+{1'b0,rhs[3:0]}+{4'd0,carry} > 5'h0f;
             ov     = ~(lhs[7]^rhs[7]) & (lhs[7]^result[7]);
         end
         SUBB_ALU: begin
-            sum    = {1'b0,lhs}-{1'b0,rhs}-carry;
+            sum    = {1'b0,lhs}-{1'b0,rhs}-{8'd0,carry};
             result = sum[7:0];
             cy     = sum[8];
-            ac     = {1'b0,lhs[3:0]} < ({1'b0,rhs[3:0]}+carry);
+            ac     = {1'b0,lhs[3:0]} < ({1'b0,rhs[3:0]}+{4'd0,carry});
             ov     = (lhs[7]^rhs[7]) & (lhs[7]^result[7]);
         end
         OR_ALU:    result = lhs | rhs;
