@@ -20,3 +20,16 @@ installed `as31` assembler and evaluates those checks at
 in 8051 machine cycles; the bench measures the corresponding twelve `cen`
 pulses between instruction boundaries.  The direct assembler form is:
 `as31 -Fbin -Otest.bin test.asm`.
+
+## Resource use
+
+The Biocom Pocket build (Cyclone V 5CEBA4F23C8, `--nodbg`) maps the `jt8051`
+instance to 2,631 combinational ALUTs and 340 registers, with no M10K block
+RAM. The microcode ROM is synthesized as logic.
+
+Program ROM and internal data RAM belong to the surrounding `jtframe_8751mcu`
+wrapper rather than `jt8051`: the 4 KiB program ROM uses four M10Ks and the
+128-byte data RAM uses one M10K, for five M10Ks (33,792 implemented bits) for
+the complete MCU wrapper.
+
+So overall: 2631 ALUT, 340 registers, 5 M10Ks
