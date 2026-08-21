@@ -1,0 +1,60 @@
+CORENAME=JTSHARRIER
+GAMETOP=jtsharrier_game_sdram
+
+# jtframe_pll6293 derives 6293700 / (400*262) = 60.05 Hz. 60.02 is shipped
+# deliberately, to match s16/outrun. An "out of range" on hardware is NOT this
+# number -- that was once traced to an incomplete -mrq build with no timing
+# closure. Do not re-derive the rate to fix a sync problem.
+JTFRAME_RATE=60.02
+
+JTFRAME_PXLCLK=6
+JTFRAME_PLL=jtframe_pll6293
+JTFRAME_COLORW=5
+JTFRAME_WIDTH=320
+JTFRAME_HEIGHT=224
+
+JTFRAME_CLK48
+
+# Three fire buttons plus Test and Service as mappable pad buttons, matching the
+# cabinet's momentary switches. jtframe widens joystick1 to [8:0] and the HDL ANDs
+# [7]/[8] into the test/service lines. Changing this changes MiSTer's input map.
+JTFRAME_BUTTONS=5
+JTFRAME_NOMULTIWAY
+JTFRAME_STEREO
+
+JTFRAME_HEADER=16
+JTFRAME_IOCTL_RD=45056
+JTFRAME_OSD_TEST
+JTFRAME_STATUS
+
+# Built for MiSTer only. Enable a platform by removing JTFRAME_SKIP for it.
+JTFRAME_SKIP
+
+JTFRAME_OSD_NOLOGO
+
+# Game codes
+GAME_SHARRIER =0x00
+GAME_SHARRIER1=0x01
+GAME_HANGON   =0x10
+GAME_ENDUROR  =0x20
+
+# ROM file layout
+# BA0 main CPU
+# BA1 sub CPU, sound CPU, PCM
+# BA2 tiles
+# BA3 sprites
+JTFRAME_BA1_START =0x040000
+SND_START         =0x050000
+PCM_START         =0x058000
+JTFRAME_BA2_START =0x068000
+JTFRAME_BA3_START =0x088000
+ROAD_START        =0x188000
+ZOOM_START        =0x190000
+MCU_START         =0x192000
+MAINKEY_START     =0x193000
+
+# Same as MCU_START
+JTFRAME_PROM_START=0x192000
+
+[mister]
+-JTFRAME_SKIP
