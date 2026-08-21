@@ -67,13 +67,11 @@ reg  [ 7:0] ds_snd_latch_r;
 reg         snd_wr_l;
 wire        dseal = game_id==4'd2;
 wire        cbust = game_id==4'd1;
-wire        supbt = game_id==4'd4;     // Super Burger Time
 wire        vapor = game_id==4'd3;     // Vapor Trail / Kuhga (2x deco16ic, no prot)
 // cbuster's soundlatch is a plain generic_latch written from the main bus
 // (0x0bc002), exactly like darkseal's 0x180008 - so both use the direct
-// snd_wr/snd_dout path (main.v asserts snd_wr per game_id). supbtime too
-// (0x1a0001).
-wire        dirsnd = dseal | cbust | supbt | vapor;  // vapor: generic latch @0x100007
+// snd_wr/snd_dout path (main.v asserts snd_wr per game_id).
+wire        dirsnd = dseal | cbust | vapor;  // vapor: generic latch @0x100007
 always @(posedge clk) begin
     snd_wr_l <= snd_wr;
     if( snd_wr ) ds_snd_latch_r <= snd_dout;
@@ -88,7 +86,6 @@ wire [ 8:0] vdump;
 // Video timing / mix
 wire        flip;
 wire        cb_pri;    // cbuster TC-4 layer priority (main -> video colmix)
-wire        cen_opn, cen_opm, cen_oki1, cen_oki2;
 
 assign dsn        = { UDSWn, LDSWn };
 assign dip_flip   = flip;
@@ -141,6 +138,9 @@ wire [19:0] t2w = prog_addr[19:0] - gT2[19:0];   // tiles2-relative word
 // (after main+oki). scr3 reads it parallel to scr2's copy1 in BA1.
 localparam [21:0] GT2B = 22'h0C8000;
 wire [19:0] t2bw = prog_addr[19:0] - GT2B[19:0]; // tiles2-copy2-relative word
+// BA0 holds the sound program above the 2MB sprite slot: (SND_START-0)>>1.
+// It must download raw, so the sprite plane-pair rotate below stops here.
+localparam [21:0] SNDW = 22'h100000;
 always @* begin
     post_data = prog_data;
     post_addr = prog_addr;                                   // identity (proms)
@@ -148,15 +148,15 @@ always @* begin
     // Rotate the plane-pair-select word bit (the FRAC half: planes 0,1 in the low
     // half of the region, 2,3 in the high half) down to the LSB so {pl1,pl0} and
     // {pl3,pl2} land at the two halves of one dw32 word. cninja sprites = 2MB -> bit
-    // 19; darkseal/supbtime 1MB -> bit 18; cbuster is already chunky -> identity.
+    // 19; darkseal 1MB -> bit 18; cbuster is already chunky -> identity.
     // cninja sprites are now packed chunky in the MRA (frac/parts, maps 0021/2100)
     // so they load identity; cbuster sprites are already chunky. Only darkseal/
-    // supbtime still pack the RGN_FRAC(1,2) 1MB plane-pair here (TODO: MRA parts).
-    // darkseal/supbtime sprites are 1MB in the 2MB BA0 slot. Keep prog_addr[20:19]
+    // vaportra still pack the RGN_FRAC(1,2) 1MB plane-pair here (TODO: MRA parts).
+    // Those sprites are 1MB in the 2MB BA0 slot. Keep prog_addr[20:19]
     // (was 3'b0) so the 1MB of 0xFF padding stays in the high half instead of
     // folding the rotate back onto the real sprite data and erasing it (white
     // squares). bit 18 = the RGN_FRAC(1,2) plane-pair split for the 1MB region.
-    if( prog_ba==2'd0 && (dseal | supbt | vapor) )   // vaportra sprites 1MB = same
+    if( prog_ba==2'd0 && (dseal | vapor) && prog_addr < SNDW ) // vaportra sprites 1MB = same
         post_addr = { prog_addr[20:19], prog_addr[17:0], prog_addr[18] };
     // Dark Seal maincpu (BA2, first 512kB) is data-line scrambled: MAME's
     // driver_init swaps data bits D1<->D6 across the whole 68k ROM
@@ -181,8 +181,8 @@ always @* begin
     // ONLY - applying it to cbuster scrambles the tiles into flat (colored-square)
     // garbage. Gate it off for cbust.
     // cninja BA3 (char + tiles1) is now MRA chunky (frac/parts) -> identity.
-    // darkseal/supbtime still pack RGN_FRAC(1,2) here in the download.
-    if( prog_ba==2'd3 && (dseal | supbt | vapor) ) begin     // BA3 = char + tiles1
+    // darkseal/vaportra still pack RGN_FRAC(1,2) here in the download.
+    if( prog_ba==2'd3 && (dseal | vapor) ) begin            // BA3 = char + tiles1
         if( prog_addr < gT1 )                                // char  (half @ word bit15)
             post_addr = { 6'd0, prog_addr[14:0], prog_addr[15] };
         else if( prog_addr < gT2 )                           // tiles1 512KB (half @ word bit17)
@@ -191,13 +191,13 @@ always @* begin
     // BA1 = tiles2 (moved off BA3 so scr2+scr3 fetch in parallel with BA3 char+scr1).
     // Same RGN_FRAC + ROM_CONTINUE rotate, now relative to BA1 (tiles2 at offset 0):
     // gfx_romcont = +ROM_CONTINUE word bit17<->18 swap (1MB cninja) else plain rotate.
-    // cninja tiles2 copy1 is now MRA chunky (frac/parts) -> identity. darkseal/
-    // supbtime still pack RGN_FRAC(1,2) here (single ROM, no ROM_CONTINUE).
+    // cninja tiles2 copy1 is now MRA chunky (frac/parts) -> identity. darkseal
+    // still packs RGN_FRAC(1,2) here (single ROM, no ROM_CONTINUE).
     // vaportra tiles2 is 1MB RGN_FRAC(1,2) (vtmaa02|vtmaa01) -> frac bit is 18;
     // move it to the LSB (no padding bit to keep, the 1MB fills the slot).
     if( prog_ba==2'd1 && vapor )
         post_addr = { 3'd0, prog_addr[17:0], prog_addr[18] };
-    else if( prog_ba==2'd1 && (dseal | supbt) )
+    else if( prog_ba==2'd1 && dseal )
         post_addr = gfx_romcont ? { 3'd0, prog_addr[18], prog_addr[16:0], prog_addr[17] }
                                 : { 3'd0, prog_addr[18], prog_addr[16:0], prog_addr[17] }; // keep bit18: darkseal 512KB tiles2 in 1MB slot, else padding folds onto data
     // BA2 = main + oki + tiles2 COPY 2. main/oki (prog_addr < GT2B) keep identity
@@ -205,14 +205,14 @@ always @* begin
     // (>= GT2B) gets the SAME rotate as the BA1 copy, relative to the BA2 base.
     if( prog_ba==2'd2 && vapor && prog_addr >= GT2B )        // vaportra tiles2 copy2 (1MB, bit18)
         post_addr = GT2B + { 3'd0, t2bw[17:0], t2bw[18] };
-    else if( prog_ba==2'd2 && (dseal | supbt) && prog_addr >= GT2B )
+    else if( prog_ba==2'd2 && dseal && prog_addr >= GT2B )
         post_addr = GT2B + ( gfx_romcont ? { 3'd0, t2bw[18], t2bw[16:0], t2bw[17] }
                                          : { 3'd0, t2bw[18], t2bw[16:0], t2bw[17] } ); // keep bit18 (see BA1)
     // ROW-MAJOR (cninja only, TEST): the MRA-chunky tiles are half-major (L 8px
     // col x16 rows, then R). Move the L/R half-select word bit (prog_addr[5]) down
     // to the dw32-word LSB (bit 1) so a row's two halves are ADJACENT dw32 words ->
     // the 2nd read is a 64-bit cache hit. deco16 roma16 swaps rhalf<->rsubrw to match.
-    if( ~dseal & ~cbust & ~supbt & ~vapor ) begin                   // cninja only
+    if( ~dseal & ~cbust & ~vapor ) begin                            // cninja only
         if( prog_ba==2'd1 ||                                        // tiles2 copy1 (BA1)
             (prog_ba==2'd2 && prog_addr >= GT2B) ||                 // tiles2 copy2 (BA2)
             (prog_ba==2'd3 && prog_addr >= gT1 && prog_addr < gT2) )// tiles1 (BA3)
@@ -255,29 +255,6 @@ always @(posedge clk) begin
         default:;
     endcase
 end
-
-// Sound-domain cens from the 32.220 MHz crystal (clk = 48 MHz):
-//   xtal cen = 48*537/800 = 32.22 MHz, then integer-divide per chip:
-//   YM2203/H6280 /8, YM2151 /9, OKI2 /16, OKI1 /32.
-wire [1:0] xtal_cen;
-wire cen_xtal = xtal_cen[0];
-reg  [4:0] xcnt;     // /8, /16, /32 (power-of-two)
-reg  [3:0] xc9;      // /9
-jtframe_frac_cen #(.WC(10)) u_sndcen(
-    .clk ( clk      ), .n( 10'd537 ), .m( 10'd800 ),
-    .cen ( xtal_cen ), .cenb(        )
-);
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin xcnt<=0; xc9<=0; end
-    else if( cen_xtal ) begin
-        xcnt <= xcnt + 5'd1;
-        xc9  <= xc9==4'd8 ? 4'd0 : xc9+4'd1;
-    end
-end
-assign cen_opn  = cen_xtal & (xcnt[2:0]==3'd0);   // 4.0275 MHz
-assign cen_opm  = cen_xtal & (xc9 ==4'd0);        // 3.58   MHz
-assign cen_oki2 = cen_xtal & (xcnt[3:0]==4'd0);   // 2.0138 MHz
-assign cen_oki1 = cen_xtal & (xcnt[4:0]==5'd0);   // 1.0069 MHz
 
 /* verilator tracing_off */
 jtcninja_main u_main(
@@ -351,6 +328,7 @@ jtcninja_deco104 u_prot(
 jtcninja_snd u_snd(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .cen_snd    ( cen_snd   ),
     .cen_opn    ( cen_opn   ),
     .cen_opm    ( cen_opm   ),
     .cen_oki1   ( cen_oki1  ),
@@ -359,12 +337,11 @@ jtcninja_snd u_snd(
     // From main CPU (via DECO 104 latch)
     .latch      ( snd_latch ),
     .snd_irq    ( snd_irq   ),
-    // Program ROM (64kB HuC6280 program in BRAM, not SDRAM): always ready,
-    // no chip-select needed. snd_addr/snd_data are the generated BRAM ports.
+    // Program ROM: 64kB HuC6280 program in BA0, above the sprite slot
     .rom_addr   ( snd_addr  ),
-    .rom_cs     (           ),
+    .rom_cs     ( snd_cs    ),
     .rom_data   ( snd_data  ),
-    .rom_ok     ( 1'b1      ),
+    .rom_ok     ( snd_ok    ),
     // OKI #1
     .oki1_addr  ( oki1_addr ),
     .oki1_cs    ( oki1_cs   ),

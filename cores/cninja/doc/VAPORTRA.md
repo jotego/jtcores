@@ -1,7 +1,7 @@
 # Vapor Trail / Kuhga (vaportra.cpp) — bring-up notes for the cninja-family core
 
 MAME driver mirrored at `doc/vaportra.cpp`. Target: add as **game_id = 3** (free
-slot; 0=cninja 1=cbuster 2=darkseal 4=supbtime). Closest existing sibling =
+slot; 0=cninja 1=cbuster 2=darkseal 3=vaportra). Closest existing sibling =
 **darkseal** (2×deco16ic + MXC-06 sprites, split palette, YM2203+YM2151+2×OKI,
 NO protection). Model the vaportra path on darkseal and diff where noted.
 

@@ -148,12 +148,6 @@ wire dseal = game_id==4'd2;
 // data window A[15:13] selects: chip0 pf1=000 pf2=001 rs0=010 rs1=011;
 // chip1 pf1=100 pf2=101 rs2=110 rs3=111. Maps cninja-style (pf1=fg, pf2=mg).
 wire cbust = game_id==4'd1;
-// Super Burger Time (game_id==4): single tilegen at 0x300000 (ctrl) / 0x320000
-// (pf1 8x8) / 0x322000 (pf2 16x16) / 0x340000,0x342000 (rowscroll). main.v's
-// pf0_cs gates the {0x30,0x32,0x34} pages; within it A[17]=pf-data (0x32),
-// A[18]=rowscroll (0x34), A[13]=pf1(0)/pf2(1). cpu_addr is [19:1] so A[17:18]
-// are visible. Like cninja, pf1=fg(8x8)/pf2=mg(16x16) -> default vaddr routing.
-wire supbt = game_id==4'd4;
 // Vapor Trail (game_id==3): 2x deco16ic, NO rowscroll (pf_update(0,0)). Map (the
 // video cpu_addr is [19:1] so [19:16] = byte-addr nibble):
 //   tilegen0 (pf0_cs): pf1 0x280000(A19_16=8,~A13) pf2 0x282000(A13) ctrl 0x2c0000(=c)
@@ -172,12 +166,10 @@ wire vapor = game_id==4'd3;
 wire [15:0] t0p1_q, t0p2_q, t1p1_q, t1p2_q;
 wire t0p1 = pf0_cs & (dseal ? (cpu_addr[19:16]==4'h6 & ~cpu_addr[13]) :
                       cbust ? (~cpu_addr[16] & cpu_addr[15:13]==3'b000) :
-                      supbt ? ( cpu_addr[17] & ~cpu_addr[13]) :    // 0x320000-0x321fff pf1
                       vapor ? (cpu_addr[19:16]==4'h8 & ~cpu_addr[13]) :  // 0x280000
                               (cpu_addr[15:13]==3'b010));
 wire t0p2 = pf0_cs & (dseal ? (cpu_addr[19:16]==4'h6 &  cpu_addr[13]) :
                       cbust ? (~cpu_addr[16] & cpu_addr[15:13]==3'b001) :
-                      supbt ? ( cpu_addr[17] &  cpu_addr[13]) :    // 0x322000-0x323fff pf2
                       vapor ? (cpu_addr[19:16]==4'h8 &  cpu_addr[13]) :  // 0x282000
                               (cpu_addr[15:13]==3'b011));
 wire t1p1 = pf1_cs & (dseal ? (cpu_addr[19:16]==4'h0 & ~cpu_addr[13]) :
@@ -278,7 +270,6 @@ initial begin
 end
 wire ctrl_cs  = pf0_cs & (dseal ? (cpu_addr[19:16]==4'ha)    // darkseal t0 ctrl 0x2a0000
                         : cbust ? cpu_addr[16]              // cbuster  t0 ctrl 0x0b5000
-                        : supbt ? (~cpu_addr[17] & ~cpu_addr[18]) // supbtime t0 ctrl 0x300000
                         : vapor ? (cpu_addr[19:16]==4'hc)   // vapor    t0 ctrl 0x2c0000
                                 : (cpu_addr[15:13]==3'b000));// cninja   t0 ctrl 0x14000x
 wire ctrl1_cs = pf1_cs & (dseal ? (cpu_addr[19:16]==4'h4)    // darkseal t1 ctrl 0x240000
@@ -361,16 +352,13 @@ wire bg_bank   = (dseal|cbust) ? 1'b0 : vapor ? ctrl1[7][12] : ~|ctrl1[7][15:12]
 wire [7:0]  bg_pxl;
 wire        bg_romcs;
 wire [19:2] bg_roma;
-// supbtime has one tilegen fed by one 512KB ROM (mae02). mg(16x16) reads it via
-// scr1(GFX2); the fg(8x8) needs it too but the char/GFX1 slot is only 128KB, so
-// route the fg engine onto the (otherwise-unused) scr2 bus = mae02@GFX3.
-assign scr2_cs   = supbt ? fg_romcs : bg_romcs;
-assign scr2_addr = supbt ? fg_roma  : bg_roma;
+assign scr2_cs   = bg_romcs;
+assign scr2_addr = bg_roma;
 
 // TEST: cninja tiles laid out row-major in SDRAM (L/R 8px halves adjacent) so the
 // 2nd half-read is a 64-bit cache hit. Only cninja (game.v post_addr + this engine
-// addr swap); darkseal/supbtime/cbuster stay half-major.
-wire rowmajor = ~dseal & ~cbust & ~supbt & ~vapor;   // vapor download is half-major (identity)
+// addr swap); darkseal/cbuster stay half-major.
+wire rowmajor = ~dseal & ~cbust & ~vapor;   // vapor download is half-major (identity)
 
 jtcninja_deco16 u_bg(   // tilegen1 pf2 (64x32, 16x16 tiles2)
     .rst(rst), .clk(clk), .pxl_cen(pxl_cen), .flip(flip),
@@ -429,7 +417,7 @@ wire        fg_romcs;
 wire [19:2] fg_roma;
 // vaportra fg (tilegen0 pf1, 8x8) reads its 8x8 chars from the char ROM region
 // (GFX1), same bus cninja/darkseal use - vaportra loads a char-major copy there.
-assign char_cs   = supbt ? 1'b0 : fg_romcs;   // supbtime fg reads scr2, not char
+assign char_cs   = fg_romcs;
 assign char_addr = fg_roma[16:2];   // chars 128kB (8x8)
 
 jtcninja_deco16 u_fg(   // tilegen0: cninja pf1 (8x8 chars) / darkseal pf2 (8x8 text)
@@ -441,7 +429,7 @@ jtcninja_deco16 u_fg(   // tilegen0: cninja pf1 (8x8 chars) / darkseal pf2 (8x8 
     .vrender(vrender), .hdump(hdump_rd), .hs(HS),
     .ram_addr(fg_vaddr), .ram_data(dseal?t0p2_vq:t0p1_vq),
     .rom_cs(fg_romcs), .rom_addr(fg_roma),
-    .rom_data(supbt ? scr2_data : char_data), .rom_ok(supbt ? scr2_ok : char_ok),
+    .rom_data(char_data), .rom_ok(char_ok),
     .pxl(fg_pxl)
 );
 
@@ -464,7 +452,6 @@ jtcninja_colmix u_colmix(
     .dseal   ( dseal    ),
     .cbust   ( cbust    ),
     .cbpri   ( cbpri    ),
-    .supbt   ( supbt    ),
     .vapor   ( vapor    ),
     .hdump   ( hdump_rd ),
     .LHBL    ( LHBL     ),

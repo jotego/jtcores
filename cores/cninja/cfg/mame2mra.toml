@@ -2,7 +2,7 @@
 author=["jotego"]
 
 [parse]
-sourcefile=[ "cninja.cpp", "darkseal.cpp", "cbuster.cpp", "supbtime.cpp", "vaportra.cpp" ]
+sourcefile=[ "cninja.cpp", "darkseal.cpp", "cbuster.cpp", "vaportra.cpp" ]
 skip.bootlegs=true
 # vaportra3 has tiles1 split into 4 LOAD16_BYTE ROMs (fl23-26) instead of the
 # single vtmaa00 mask the parent/us/jp sets share - needs its own gfx rule.
@@ -12,7 +12,6 @@ mustbe.machines=[
     "cninja",
     "darkseal",
     "cbuster",
-    "supbtime",
     "vaportra",
 ]
 
@@ -33,10 +32,6 @@ data=[
     # cbuster: game_id=1. gfx region-end bytes are PROVISIONAL (video not yet
     # wired); they only affect the BA3 gfx download remap, not the CPU boot.
     { setnames=["cbuster","cbusterw","cbusterj","twocrude","twocrudea"],     data="01 01 05 09 00" },
-    # supbtime: game_id=4. Single tilegen, decospr sprites, no protection/decrypt.
-    # gfx region-end bytes PROVISIONAL (video not yet wired) - only affect the BA3
-    # download remap, not CPU boot.
-    { setnames=["supbtime","supbtimea","supbtimej"],                          data="04 02 02 06 00" },
     # vaportra: game_id=3. 2x deco16ic + MXC-06, no protection. maincpu byte-swap
     # decrypt (bit7<->bit0) in game.v post_data. BA3: char(128kB, 8x8 fg chars sliced
     # from tiles1) then tiles1(512kB). gfx_t1=01 (char end) gfx_t2=04 (tiles1 end).
@@ -137,29 +132,19 @@ regions = [
         { name="fu08-.5a", crc="c6afc5c8", map="0010" },
         { name="fu09-.7a", crc="526809ca", map="0100" },
         { name="fu10-.8a", crc="6be6d50e", map="1000" } ] },
-    # supbtime sprites: RGN_FRAC(1,2) darkseal-style. MAME "sprites" load order is
-    # mae00@0x80000 (seq 0 = 2nd half = planes 2,3) + mae01@0x00000 (seq 1 = 1st
-    # half = planes 0,1). decospr wants BA0=planes0,1 / BA1=planes2,3, so place
-    # mae01 first (BA0), pad, then mae00 (BA1) via sequence [1,1,0].
-    # single-bank interleave: load raw (mae01=planes0,1 @0 then mae00=planes2,3 @0x80000,
-    # 1MB); game.v rotates the plane-pair bit (18). No BA0/BA1 pad/reorder.
-    { name="sprites", machines=["supbtime","supbtimea","supbtimej"], rename="sprites1", No_offset=true },
-    # ---- vaportra (game_id=3): SAME chip family as darkseal/supbtime (seallayout,
-    # RGN_FRAC(1,2)). Load gfx STRAIGHT (raw) exactly like supbtime/darkseal; the
+    # ---- vaportra (game_id=3): SAME chip family as darkseal (seallayout,
+    # RGN_FRAC(1,2)). Load gfx STRAIGHT (raw) exactly like darkseal; the
     # game.v download rotate does the plane interleave (proven path). pswap=1.
-    # sprites = vtmaa03 (frac1) + vtmaa04 (frac2), 1MB - identical to darkseal/supbt sprites.
+    # sprites = vtmaa03 (frac1) + vtmaa04 (frac2), 1MB - identical to darkseal sprites.
     { name="sprites", machines=["vaportra","vaportrau","kuhga"], rename="sprites1", No_offset=true },
 
     # Generic 68000 maincpu: LOAD16_BYTE even/odd auto-interleave (width=16) +
-    # endianness (reverse). Covers cninja/darkseal/cbuster/supbtime/vaportra.
+    # endianness (reverse). Covers cninja/darkseal/cbuster/vaportra.
     { name="maincpu",  start="JTFRAME_BA2_START", width=16, reverse=true, No_offset=true },
-    # HuC6280 sound program -> BRAM (not SDRAM). "audiocpu:snd" loads the MAME
-    # audiocpu region into the mem.yaml `snd` BRAM via the PROM download stream.
-    { name="audiocpu:snd", start="JTFRAME_PROM_START" },
+    # HuC6280 sound program -> BA0, above the 2MB sprite slot.
+    { name="audiocpu", start="SND_START", No_offset=true },
     { name="oki1",     start="PCM_START",  No_offset=true },
     { name="oki2",     start="PCM2_START", No_offset=true },
-    # supbtime has a single OKI region named "oki" -> map to the oki1 slot.
-    { name="oki", machines=["supbtime","supbtimea","supbtimej"], rename="oki1", start="PCM_START", No_offset=true },
 
     # GFX1 - chars (8x8 text layer). cbuster has no separate "chars" region (its
     # 8x8 chars live inside "tiles1"), so this entry is cninja/darkseal only.
@@ -190,8 +175,8 @@ regions = [
         { name="mag-02.4z", crc="de89c69a", offset=0x40000, length=0x40000, map="2100" },
     ] },
     { name="tiles1", start="GFX2_START", width=16, No_offset=true, machines=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"] },
-    # vaportra tiles1: single 512KB RGN_FRAC(1,2) (vtmaa00) = EXACTLY supbtime's
-    # tiles (mae02). Load straight -> GFX2/scr1; game.v rotates the frac bit (17).
+    # vaportra tiles1: single 512KB RGN_FRAC(1,2) (vtmaa00).
+    # Load straight -> GFX2/scr1; game.v rotates the frac bit (17).
     { name="tiles1", machines=["vaportra","vaportrau","kuhga"], start="GFX2_START", No_offset=true },
     # cbuster 16x16 tiles load RAW: they are RGN_FRAC(1,1) byte-per-plane
     # (planeoffset {24,16,8,0}) = already the chunky {p3,p2,p1,p0} 32-bit word the
@@ -245,15 +230,6 @@ regions = [
     { name="tiles2b", start="GFX3_BA2_START", No_offset=true, machines=["vaportra","vaportrau","kuhga"], files=[ { name="vtmaa02.bin", crc="091ff98e", size=0x80000 }, { name="vtmaa01.bin", crc="c217a31b", size=0x80000 } ] },
     # cbuster tiles2 = mab-01 (16x16), raw chunky load (see tiles1 note above).
     { name="tiles2", machines=["cbuster","cbusterw","cbusterj","twocrude","twocrudea"], start="GFX3_START", No_offset=true },
-    # supbtime tiles: single region mae02 (RGN_FRAC(1,2)) used for BOTH 8x8 (pf1)
-    # and 16x16 (pf2). Provisional placement in the tiles1 slot; the 8x8/16x16
-    # bus routing is sorted at the video stage. Boot does not read gfx.
-    { name="tiles", machines=["supbtime","supbtimea","supbtimej"], rename="tiles1", start="GFX2_START", No_offset=true },
-    # supbtime's single 512KB tile ROM feeds BOTH the 16x16 (mg, scr1=GFX2 above)
-    # and the 8x8 (fg) engines. The 128KB chars/GFX1 slot is too small for mae02,
-    # so put a 2nd copy in the tiles2/GFX3 slot (1MB) and route the fg engine to
-    # the scr2 bus for supbtime (video.v). Explicit `files` = rename-independent.
-    { name="tiles2", machines=["supbtime","supbtimea","supbtimej"], start="GFX3_START", No_offset=true, files=[ { name="mae02.bin", crc="a715cca0", size=0x80000 } ] },
 
     # cninja proms (mb7122h) are marked Unused in MAME and the colmix does the
     # palette in HDL, so they are not assembled into the ROM blob.
@@ -261,10 +237,12 @@ regions = [
     { name="plds",     skip=true }
 ]
 
+# Blob order must follow the SDRAM map in cfg/macros.def:
+#   BA0 sprites1 sprites1hi audiocpu | BA1 tiles2 | BA2 maincpu oki1 oki2 tiles2b
+#   BA3 chars tiles1
 order = [
-    "sprites1", "sprites1hi",
+    "sprites1", "sprites1hi", "audiocpu",
     "tiles2",
     "maincpu", "oki1", "oki2", "tiles2b",
-    "chars", "tiles1",
-    "audiocpu:snd"
+    "chars", "tiles1"
 ]

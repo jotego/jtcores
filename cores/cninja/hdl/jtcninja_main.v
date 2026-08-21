@@ -135,22 +135,6 @@ wire cb_prot_cs = cb_io && A[3:1]==3'd2;          // 0x0bc004 prot  (r/w)
 wire cb_coin_cs = cb_io && A[3:1]==3'd3;          // 0x0bc006 COINS (read)
 wire cb_irqack  = cb_io && A[3:1]==3'd3 && ~RnW;  // 0x0bc006 IRQ4 ack (write)
 
-// Super Burger Time (game_id==4): single-tilegen Data East board, map ~ darkseal
-// (doc/supbtime.cpp ::supbtime_map, doc/SUPBTIME_BOOT_TRACE.md).
-//   ROM 000000-03ffff   work RAM 100000-103fff   sprite RAM 120000-1207ff
-//   palette 140000-1407ff (write16, 1 word/colour - NOT split like darkseal)
-//   I/O 180000 INPUTS r / 180002 DSW r / 180008 SYSTEM r / 18000a vblank-ack r/w
-//   soundlatch 1a0001 w
-//   tilegen ctrl 300000 / pf1 320000 / pf2 322000 / rowscroll 340000,342000
-//   VBLANK -> IRQ6, acked by any access to 0x18000a.
-wire sb = game_id==4'd4;
-wire sb_io      = sb && A[23:16]==8'h18 && A[15:14]==2'b00;
-wire sb_in_cs   = sb_io && A[3:1]==3'd0;          // 0x180000 INPUTS (read)
-wire sb_dsw_cs  = sb_io && A[3:1]==3'd1;          // 0x180002 DSW    (read)
-wire sb_sys_cs  = sb_io && A[3:1]==3'd4;          // 0x180008 SYSTEM (read)
-wire sb_vback   = sb_io && A[3:1]==3'd5;          // 0x18000a vblank ack (r/w)
-wire sb_snd_cs  = sb && A[23:16]==8'h1a && ~RnW;  // 0x1a0001 soundlatch (write)
-
 // Vapor Trail / Kuhga (game_id==3): 2x deco16ic + MXC-06, NO protection
 // (doc/vaportra.cpp ::main_map). Inputs read DIRECTLY:
 //   ROM 000000-07ffff     work RAM ffc000-ffffff
@@ -222,32 +206,28 @@ always @(posedge clk, posedge rst) begin
     endcase
 end
 
-assign rom_cs    = !BUSn && (sb ? A[23:16] < 8'h04            // supbtime ROM 0-3ffff
-                          : (ds|cb|vp) ? A[23:16] < 8'h08 : A[23:16] < 8'h0c);// vapor 0-7ffff
-assign ramdec    = !BUSn && ((ds|sb) ? (A[23:16]==8'h10 && A[15:14]==2'b00)    // 100000-103fff
+assign rom_cs    = !BUSn && ((ds|cb|vp) ? A[23:16] < 8'h08 : A[23:16] < 8'h0c);// vapor 0-7ffff
+assign ramdec    = !BUSn && (ds ? (A[23:16]==8'h10 && A[15:14]==2'b00)         // 100000-103fff
                           : cb ? (A[23:16]==8'h08 && A[15:14]==2'b00)         // 080000-083fff
                           : vp ? (A[23:16]==8'hff && A[15:14]==2'b11)         // ffc000-ffffff
                                 : (A[23:16]==8'h18 && A[15:14]==2'b01));        // 184000-187fff
 assign pal_cs    = !BUSn && (ds ? (A[23:16]==8'h14)                            // 140000-141fff (GR+B)
-                          : sb ? (A[23:16]==8'h14 && A[15:11]==5'd0)          // 140000-1407ff (1 word/col)
                           : cb ? (A[23:16]==8'h0b && A[15:13]==3'b100)        // 0b8000-0b9fff (RG+B)
                           : vp ? (A[23:16]==8'h30 && (A[15:13]==3'b000 || A[15:13]==3'b010)) // 300000 GR + 304000 ext
                                 : (A[23:16]==8'h19 && A[15:13]==3'b110));       // 19c000-19dfff
-assign objram_cs = !BUSn && ((ds|sb) ? (A[23:16]==8'h12 && A[15:11]==5'd0)     // 120000-1207ff
+assign objram_cs = !BUSn && (ds ? (A[23:16]==8'h12 && A[15:11]==5'd0)          // 120000-1207ff
                           : cb ? (A[23:16]==8'h0b && A[15:11]==5'd0)          // 0b0000-0b07ff
                           : vp ? (A[23:16]==8'h31 && A[15:11]==5'b10000)      // 318000-3187ff
                                 : (A[23:16]==8'h1a && A[15:14]==2'b01));        // 1a4000-1a47ff
 // tilegens: cninja packs each in a 64kB window; darkseal/cbuster explode
 // data/control across the map. pf0_cs = tilegen[0] footprint, pf1_cs =
 // tilegen[1] footprint. video.v re-decodes the sub-regions per game_id.
-assign pf0_cs    = !BUSn && (sb ? (A[23:16]==8'h30 || A[23:16]==8'h32 || A[23:16]==8'h34) // ctrl 300/data 320,322/rowscr 340,342
-                          : ds ? (A[23:16]==8'h26 || A[23:16]==8'h2a)         // t0 data 260000 / ctrl 2a0000
+assign pf0_cs    = !BUSn && (ds ? (A[23:16]==8'h26 || A[23:16]==8'h2a)          // t0 data 260000 / ctrl 2a0000
                           : cb ? ((A[23:16]==8'h0a && ~A[15]) ||              // t0 data/rowscr 0a0000-0a7fff
                                   (A[23:16]==8'h0b && A[15:12]==4'h5))        // t0 ctrl 0b5000
                           : vp ? (A[23:16]==8'h28 || A[23:16]==8'h2c)         // t0 data 280/282, ctrl 2c0
                                 : (A[23:16]==8'h14));
-assign pf1_cs    = !BUSn && (sb ? 1'b0                                         // supbtime: single tilegen
-                          : ds ? (A[23:16]==8'h20 || A[23:16]==8'h22 || A[23:16]==8'h24) // t1 data/rowscr/ctrl
+assign pf1_cs    = !BUSn && (ds ? (A[23:16]==8'h20 || A[23:16]==8'h22 || A[23:16]==8'h24) // t1 data/rowscr/ctrl
                           : cb ? ((A[23:16]==8'h0a &&  A[15]) ||              // t1 data/rowscr 0a8000-0affff
                                   (A[23:16]==8'h0b && A[15:12]==4'h6))        // t1 ctrl 0b6000
                           : vp ? (A[23:16]==8'h20 || A[23:16]==8'h24)         // t1 data 200/202, ctrl 240
@@ -258,7 +238,7 @@ assign prot_cs   = !BUSn && !ds && !cb && !vp && A[23:16]==8'h1b && A[15:14]==2'
 assign obj_copy  = ds ? ds_sprdma : cb ? cb_sprdma : vp ? vp_sprdma : (objdma_cs & ~RnW);
 
 // Soundlatch: darkseal 0x180008 / cbuster 0x0bc002 / vapor 0x100007 (game.v muxes)
-assign snd_wr    = ds_snd_cs | cb_snd_cs | sb_snd_cs | vp_snd_cs;
+assign snd_wr    = ds_snd_cs | cb_snd_cs | vp_snd_cs;
 assign snd_dout  = cpu_dout[7:0];
 assign prot_pri  = cb_pri;   // cbuster TC-4 layer priority -> video
 
@@ -281,8 +261,8 @@ wire [15:0] cb_coin_din = { 8'hff, 4'hf, ~LVBL, coin[2], coin[1], coin[0] };
 //   cninja  : vblank (5) > raster2 (4) > raster1 (3)   (deco_irq)
 //   darkseal: vblank (6) only                          (irq6_line_assert)
 always @* begin
-    if( ds || sb || vp ) begin
-        IPLn = vbl_irq ? ~3'd6 : ~3'd0;            // darkseal/supbtime/vapor VBL -> IRQ6
+    if( ds || vp ) begin
+        IPLn = vbl_irq ? ~3'd6 : ~3'd0;            // darkseal/vapor VBL -> IRQ6
     end else if( cb ) begin
         IPLn = vbl_irq ? ~3'd4 : ~3'd0;            // cbuster VBL -> IRQ4
     end else begin
@@ -342,8 +322,6 @@ always @(posedge clk, posedge rst) begin
         if( ds_irqack ) vbl_irq <= 0;
         // Crude Buster: write to 0x0bc006 acks the VBL (IRQ4)
         if( cb_irqack ) vbl_irq <= 0;
-        // Super Burger Time: any access to 0x18000a acks the VBL (IRQ6)
-        if( sb_vback ) vbl_irq <= 0;
         // Vapor Trail: read OR write of 0x308001 acks the VBL (IRQ6)
         if( vp_irqack && ~(UDSn & LDSn) ) vbl_irq <= 0;
     end
@@ -372,9 +350,6 @@ always @(posedge clk) begin
                cb_p1p2_cs ? cb_p1p2_din :   // cbuster  0x0bc000 P1_P2
                cb_coin_cs ? cb_coin_din :   // cbuster  0x0bc006 COINS
                cb_prot_cs ? cb_prot     :   // cbuster  0x0bc004 prot (HLE)
-               sb_dsw_cs  ? dipsw       :   // supbtime 0x180002 DSW
-               sb_in_cs   ? ds_p1p2_din :   // supbtime 0x180000 INPUTS (darkseal fmt)
-               sb_sys_cs  ? ds_sys_din  :   // supbtime 0x180008 SYSTEM (darkseal fmt)
                vp_play_cs ? vp_play_din :   // vapor 0x100000 PLAYERS
                vp_coin_cs ? vp_coin_din :   // vapor 0x100002 COINS
                vp_dsw_cs  ? dipsw       :   // vapor 0x100004 DSW
@@ -416,8 +391,8 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
-    .num        ( 7'd6      ),  // 24MHz/2 = 12MHz CPU (clk=48MHz, 48*6/24)
-    .den        ( 8'd24     ),
+    .num        ( 7'd1      ), // 12 mhz
+    .den        ( 8'd4      ),
     .DTACKn     ( DTACKn    ),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),

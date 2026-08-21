@@ -21,7 +21,6 @@ module jtcninja_colmix(
     input             dseal,             // game_id==2
     input             cbust,             // game_id==1 (Crude Buster)
     input             cbpri,             // cbuster TC-4 m_pri: swaps mg/pf1b order
-    input             supbt,             // game_id==4 (Super Burger Time)
     input             vapor,             // game_id==3 (Vapor Trail)
     input      [ 8:0] hdump,             // for the DSEAL_PALTEST diag ramp
     input             LHBL,
@@ -110,14 +109,6 @@ wire [10:0] cb_pal_idx =
     mid_op                  ? cb_mid          :
     (obj_op2 &  obj_epri)   ? obj_cbidx       :
                               { 3'd4, bg_pxl };
-// Super Burger Time (supbtime.cpp screen_update_supbtime). Draw order back->front:
-//   pf2 (mg, 16x16, opaque backdrop) < sprites < pf1 (fg, 8x8 text, FRONT).
-// gfxdecode bases: sprites 0x000, pf1(fg) 0x100 (col_bank 0), pf2(mg) 0x200
-// (col_bank 0x10). No priority bands. Palette is xBGR_444, 1 word/colour.
-wire [10:0] sb_pal_idx =
-    fg_opaque   ? { 3'd1, fg_pxl       } :   // pf1 (fg/text) FRONT
-    obj_opaque  ? { 3'd0, obj_pxl[7:0] } :   // sprites
-                  { 3'd2, mg_pxl       };    // pf2 (mg/bg) opaque backdrop
 // Vapor Trail (vaportra.cpp screen_update). col_banks: fg(tg0 pf1)=0x00,
 // mg(tg0 pf2)=0x20, pf1b(tg1 pf1)=0x30, bg(tg1 pf2)=0x40 -> pen bases
 // 0/0x200/0x300/0x400; sprites base 0x100. FIRST-render fixed order (the runtime
@@ -134,22 +125,19 @@ wire [10:0] vp_pal_idx =
     pf1b_opaque ? { 3'd3, pf1b_pxl } :   // tilegen1 pf1 (pf1b) base 0x300
                   { 3'd4, bg_pxl   };    // tilegen1 pf2 (bg) base 0x400 backdrop
 wire [10:0] pal_idx = dseal ? ds_pal_idx : cbust ? cb_pal_idx :
-                      supbt ? sb_pal_idx : vapor ? vp_pal_idx : cn_pal_idx;
+                      vapor ? vp_pal_idx : cn_pal_idx;
 `endif
 
 // palette read: 2 words/colour, alternated by `phase`. q1 has 1-cyc latency.
 // cbuster shares darkseal's SPLIT layout: main RAM (write16) = low half {G,R},
 // ext RAM (write16_ext) = high half {x,B}, selected by the bit-12 address split.
-// supbtime is 1 word/colour (xBGR_444), so it reads pal_idx directly (no phase).
 wire splitpal = dseal | cbust | vapor;   // vapor: GR @0x300000 + B @0x304000, RGB888
 reg        phase;
-reg [15:0] xb_w, gr_w, sb_w;
+reg [15:0] xb_w, gr_w;
 always @(posedge clk) begin
     phase    <= ~phase;
-    pal_addr <= supbt    ? { 1'b0, pal_idx } :
-                splitpal ? { phase, pal_idx } : { pal_idx, phase };
-    if( supbt ) sb_w <= pal_data;         // 1 word/colour, 1-cyc latency
-    else if( splitpal ) begin
+    pal_addr <= splitpal ? { phase, pal_idx } : { pal_idx, phase };
+    if( splitpal ) begin
         if( !phase ) gr_w <= pal_data;    // split low half  {G,R}
         else         xb_w <= pal_data;    // split high half {x,B}
     end else begin
@@ -171,10 +159,9 @@ function [7:0] cbwclamp(input [7:0] c);
         cbwclamp = sc[15:8];
     end
 endfunction
-// supbtime xBGR_444: R=word[3:0] G=word[7:4] B=word[11:8], each 4b -> 8b (replicate).
-wire [7:0] r_o = supbt ? {2{sb_w[ 3:0]}} : cbust ? cbwclamp(gr_w[ 7:0]) : gr_w[ 7:0];
-wire [7:0] g_o = supbt ? {2{sb_w[ 7:4]}} : cbust ? cbwclamp(gr_w[15:8]) : gr_w[15:8];
-wire [7:0] b_o = supbt ? {2{sb_w[11:8]}} : cbust ? cbwclamp(xb_w[ 7:0]) : xb_w[ 7:0];
+wire [7:0] r_o = cbust ? cbwclamp(gr_w[ 7:0]) : gr_w[ 7:0];
+wire [7:0] g_o = cbust ? cbwclamp(gr_w[15:8]) : gr_w[15:8];
+wire [7:0] b_o = cbust ? cbwclamp(xb_w[ 7:0]) : xb_w[ 7:0];
 
 jtframe_blank #(.DLY(0),.DW(24)) u_blank(
     .clk     ( clk     ),

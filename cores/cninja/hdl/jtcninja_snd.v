@@ -25,7 +25,8 @@
 module jtcninja_snd(
     input             rst,
     input             clk,
-    input             cen_opn,    // YM2203 / HuC6280 ~4MHz
+    input             cen_snd,    // HuC6280 CLK input (6x the CPU rate)
+    input             cen_opn,    // YM2203 4.0275MHz
     input             cen_opm,    // YM2151 ~3.58MHz
     input             cen_oki1,   // ~1MHz
     input             cen_oki2,   // ~2MHz
@@ -33,17 +34,17 @@ module jtcninja_snd(
     // From main CPU via DECO 104
     input      [ 7:0] latch,
     input             snd_irq,    // 1-clk pulse on soundlatch write
-    // Program ROM (BA1)
+    // Program ROM (BA0)
     output     [15:0] rom_addr,
     output reg        rom_cs,
     input      [ 7:0] rom_data,
     input             rom_ok,
-    // OKI #1 sample ROM (BA1)
+    // OKI #1 sample ROM (BA2)
     output     [17:0] oki1_addr,
     output            oki1_cs,
     input      [ 7:0] oki1_data,
     input             oki1_ok,
-    // OKI #2 sample ROM (BA1)
+    // OKI #2 sample ROM (BA2)
     output     [18:0] oki2_addr,
     output            oki2_cs,
     input      [ 7:0] oki2_data,
@@ -71,14 +72,11 @@ reg         irq1;
 wire        oki1_wrn = ~(oki1_dev & ~wrn);
 wire        oki2_wrn = ~(oki2_dev & ~wrn);
 
-// HuC6280 clock gating: the core makes its own internal cen (~6.89MHz for a
-// 48MHz clk); gating by 3 lands near the real ~4MHz and gives din time to settle
-// (see midres note / jtcores #198).
-reg  [1:0] cencnt;
-reg        hu_cen;
-wire       hu_clk = clk & hu_cen;
-always @(posedge clk)  cencnt <= cencnt==2 ? 2'd0 : cencnt+2'd1;
-always @(negedge clk)  hu_cen <= cencnt==0;
+// HuC6280 gated clock. cen_snd is generated in mem.yaml (gated on the snd ROM);
+// latching it on the negedge keeps hu_clk glitch-free.
+reg  hu_cen;
+wire hu_clk = clk & hu_cen;
+always @(negedge clk) hu_cen <= cen_snd;
 
 assign rom_addr = A[15:0];
 assign ram_we   = ram_cs & ~wrn;
