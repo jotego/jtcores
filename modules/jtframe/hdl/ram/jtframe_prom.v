@@ -26,10 +26,13 @@ module jtframe_prom #(parameter
 `ifdef SIMULATION
 /* verilator lint_off WIDTH */
 integer f, readcnt;
-`ifndef LOADROM
-// load the file only when SPI load is not simulated
+// SIMFILE is ROM-blob content, which the SPI download supplies when LOADROM is
+// set, so it is only read when that download is not simulated. SIMHEX is a
+// synthesis constant (paired with SYNHEX, e.g. a protection LUT) that nothing
+// in the blob ever writes - it must be read even under LOADROM.
 initial begin
     if( SIMFILE != "" ) begin
+`ifndef LOADROM
         f=$fopen(SIMFILE,"rb");
         if( f != 0 ) begin
             readcnt=$fseek( f, OFFSET, 0 );
@@ -39,6 +42,7 @@ initial begin
         end else begin
             $display("WARNING: %m cannot open %s", SIMFILE);
         end
+`endif
     end else if( SIMHEX != "" ) begin
         $display("INFO: reading %14s (hex) for %m", SIMHEX );
         $readmemh( SIMHEX, mem );
@@ -47,7 +51,6 @@ initial begin
             mem[readcnt] = {DW{1'b0}};
     end
 end
-`endif
 `ifdef MEM_CHECK_TIME
     // check contents after 80ms
     reg [DW-1:0] mem_check[0:(2**AW)-1];
