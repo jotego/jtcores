@@ -1,0 +1,4 @@
+trace /tmp/taitox_main.tr,maincpu,noloop
+focus maincpu
+go
+quit
