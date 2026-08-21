@@ -12,11 +12,8 @@ sharrier:
     - jtsharrier_snd.v
 # Sound board 834-5799's PCM is Sega's discrete implementation, which MAME models
 # as SEGAPCM_DISCRETE = segapcm_device<8> -- the same device class as Out Run's
-# sixteen-voice 315-5218, differing only in voice count. jotego's review of PR #1506
-# asked for Out Run's module to be reused rather than a private copy written, so
-# jtsharrier_snd instantiates it directly from cores/outrun. The voice count differs
-# but the register map does not; only the sample rate must be set (16 MHz cen here
-# against Out Run's 8 MHz -- see DO_NOT_REPEAT.md 13).
+# sixteen-voice 315-5218, differing only in voice count. The sample rate must be set 
+# (16 MHz cen here against Out Run's 8 MHz
 outrun:
   - get:
     - jtoutrun_pcm.v
