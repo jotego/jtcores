@@ -1,0 +1,20 @@
+dcastl:
+  - get:
+    - "*.v"
+jtframe:
+  - get:
+      - jtframe_edge.v
+  - from: clocking
+    get:
+      - jtframe_cendiv.v
+      - jtframe_rst_sync.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_wait_on_shared.v
+jt12:
+  - get:
+    - jt89.yaml
+jt5205:

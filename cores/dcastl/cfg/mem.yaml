@@ -1,0 +1,152 @@
+params:
+  - { name: SUB_OFFSET,   value: "`SUB_START>>1"   }
+  - { name: ADPCM_OFFSET, value: "`ADPCM_START>>1" }
+
+# The board's two internal rates are 9.828 MHz (ce_mclk, the CF37201/MCLK
+# domain) and 4 MHz (ce_cpu, the three Z80s and the four PSGs). Both are exact
+# integer ratios of the standard jtframe 48 MHz system clock
+# (9,828,000 = 48,000,000 * 819/4000 and 4,000,000 = 48,000,000 / 12), so the
+# core runs from clk48 rather than a bespoke system PLL, with no loss of
+# precision.
+clocks:
+  clk48:
+    # MCLK and the pixel clock. The board derives the pixel rate as MCLK/2,
+    # which is what a second output gives: each later output is half the
+    # previous one.
+    - freq: 9828000
+      outputs:
+        - cen_mclk
+        - cen_pxl
+    - freq: 4000000
+      outputs:
+        - cen_cpu
+    # jtdcastl_adpcm and jtdcastl_audio_filter need the real MSM5205
+    # 384 kHz input clock and the real 48 kHz IIR update rate. Fixed /128 and
+    # /1024 dividers are only correct against a 49.152 MHz base
+    # (128*384kHz, 1024*48kHz); under clk48 they would land at 375 kHz and
+    # 46.875 kHz, both ~2.4% off, which would also detune the audio filter's
+    # two Q16 pole coefficients. 48,000,000/125 = 384,000 and
+    # 48,000,000/1000 = 48,000 are both exact, so these rates are generated
+    # here as ordinary clock enables instead of local counters.
+    - freq: 384000
+      outputs:
+        - cen_384k
+    - freq: 48000
+      outputs:
+        - cen_48k
+
+# The audio channel list is deliberately not declared. Declaring any
+# audio.channels changes the game module's port list: per
+# modules/jtframe/hdl/inc/ports.v, when len(Audio.Channels) > 0 the game module
+# exports raw psg0..psg3/adpcm outputs and no snd/sample port, and jtframe's
+# generated game_audio.v then owns summing, gain staging and filtering. That
+# would replace the board's own mix (four PSGs summed and scaled x8 inside
+# jtdcastl_sub, then ADPCM at 13/4) and would leave jtdcastl_audio_filter --
+# a hand-written post-mix stage, since no real 8302 R/C values exist to feed
+# jtframe's rc:/dcrm: generators -- with nowhere to sit in the chain.
+#
+# Keeping the whole chain inside jtdcastl_game (PSG sum -> ADPCM mix -> clamp
+# -> jtdcastl_audio_filter -> snd) reproduces the board's mix directly. Hand
+# gain staging over to jtframe only once real 8302 board R/C measurements exist
+# to make the rsum/pre/rc numbers honest.
+#
+# audio:
+#   rsum: 1k
+#   channels:
+#     - { name: psg0,  module: jt89,   rsum: 1k, pre: 1.0 }
+#     - { name: psg1,  module: jt89,   rsum: 1k, pre: 1.0 }
+#     - { name: psg2,  module: jt89,   rsum: 1k, pre: 1.0 }
+#     - { name: psg3,  module: jt89,   rsum: 1k, pre: 1.0 }
+#     - { name: adpcm, module: jt5205, rsum: 1k, pre: 1.0 } # Soccer profile only
+
+# 7 ROM regions, grouped into 3 of the 4 SDRAM banks plus 2 BRAM blocks.
+sdram:
+  banks:
+    # ba0 (implicit): the two program Z80 ROMs plus ADPCM sample data. All three
+    # are low, CPU/serial-fetch-rate bandwidth consumers.
+    - buses:
+      - name: main
+        addr_width: 16   # 64kB, main_rom_addr[15:0]
+        data_width: 8
+      - name: sub
+        addr_width: 14   # 16kB, sub_rom_addr[13:0]
+        data_width: 8
+        offset: SUB_OFFSET
+      - name: adpcm
+        addr_width: 16   # 64kB slot, adpcm_rom_addr[15:0]
+        data_width: 8
+        offset: ADPCM_OFFSET
+    # ba1: character/tile ROM. Fixed 16kB on every one of the 9 sets.
+    - buses:
+      - name: gfx2
+        addr_width: 17   # 128kB slot, sprite_gfx_addr[16:0]
+        data_width: 8
+    # ba3 intentionally unused.
+
+# spritecpu: the third Z80's 512-byte program ROM. Its CRC32 (2747ca77) is
+# identical across all 9 sets -- it never varies, so despite living in Z80
+# program space it behaves like a fixed lookup PROM. Too small and too
+# bandwidth-light to justify an SDRAM bank.
+#
+# cprom: the board's colour PROM (256-512 bytes depending on the set). PROMs go
+# to BRAM rather than SDRAM.
+bram:
+  # Tile and colour RAM. Written by the main CPU, scanned by the video
+  # pipeline, so each has a CPU port and a read-only video port. Both are
+  # saved and restored with scenes.
+  - name: vram
+    addr_width: 10
+    data_width: 8
+    rw: true
+    addr: vram_addr
+    din: vram_din
+    dout: vram_dout
+    we: vram_we
+    ioctl: { save: true, restore: true, order: 0 }
+    dual_port:
+      name: scan
+      addr: vram_scan_addr
+      dout: vram_scan_dout
+  - name: cram
+    addr_width: 10
+    data_width: 8
+    rw: true
+    addr: cram_addr
+    din: cram_din
+    dout: cram_dout
+    we: cram_we
+    ioctl: { save: true, restore: true, order: 1 }
+    dual_port:
+      name: scan
+      addr: cram_scan_addr
+      dout: cram_scan_dout
+  # Sprite entry RAM, written byte-wise by the main CPU, scanned byte-wise
+  # by the line renderer.
+  - name: oram
+    addr_width: 9
+    data_width: 8
+    rw: true
+    addr: oram_addr
+    din: oram_din
+    dout: oram_dout
+    we: oram_we
+    ioctl: { save: true, restore: true, order: 2 }
+    dual_port:
+      name: scan
+      addr: oram_scan_addr
+      dout: oram_scan_dout
+  # Tile ROM. The pixel pipeline reads it combinationally every pixel and
+  # cannot stall, so it is BRAM rather than an SDRAM slot. Fixed 16kB on all
+  # nine sets.
+  - name: gfx1
+    addr_width: 14
+    data_width: 8
+    prom: true
+  - name: spritecpu
+    addr_width: 9    # 512B, sprite_cpu_rom[0:511]
+    data_width: 8
+    prom: true
+  - name: cprom
+    addr_width: 9    # 512B, color_prom[0:511] / prom_addr[8:0]
+    data_width: 8
+    prom: true

@@ -1,0 +1,57 @@
+- name: crtc
+  size: 18
+  regs:
+    - name: r0
+      at: "0"
+      dw: 8
+    - name: r1
+      at: "1"
+      dw: 8
+    - name: r2
+      at: "2"
+      dw: 8
+    - name: r3
+      at: "3"
+      dw: 8
+    - name: r4
+      at: "4"
+      dw: 8
+    - name: r5
+      at: "5"
+      dw: 8
+    - name: r6
+      at: "6"
+      dw: 8
+    - name: r7
+      at: "7"
+      dw: 8
+    - name: r8
+      at: "8"
+      dw: 8
+    - name: r9
+      at: "9"
+      dw: 8
+    - name: r10
+      at: "10"
+      dw: 8
+    - name: r11
+      at: "11"
+      dw: 8
+    - name: r12
+      at: "12"
+      dw: 8
+    - name: r13
+      at: "13"
+      dw: 8
+    - name: r14
+      at: "14"
+      dw: 8
+    - name: r15
+      at: "15"
+      dw: 8
+    - name: r16
+      at: "16"
+      dw: 8
+    - name: r17
+      at: "17"
+      dw: 8

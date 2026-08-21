@@ -1,0 +1,87 @@
+CORENAME=JTDCASTL
+
+# The resistor-weighted colour PROM DAC on the real board carries 3 bits of
+# red, 3 of green and 2 of blue -- classic RRRGGGBB weighted DAC. JTFRAME_COLORW
+# must be between 4 and 8, so 4 is the minimum. jtdcastl_colmix truncates its
+# 8-bit weighted sums at [7:4], which is exact on every channel and carries one
+# more bit of the true DAC value than a 3-bit width would.
+JTFRAME_COLORW=4
+
+# The joystick lines are wired right/left/down/up from bit 0 up, i.e. jtframe's
+# RLDU bit order, not the UDLR/UDRL/DURL orders used by other cores.
+JTFRAME_JOY_RLDU
+# The main CPU decodes exactly two action-button lines per player on all nine
+# games.
+JTFRAME_BUTTONS=2
+
+JTFRAME_DEBUG_VPOS=3
+# One header byte carries the game ID that jtdcastl_profile decodes into the
+# per-set hardware profile. See the [header] section of mame2mra.toml.
+JTFRAME_HEADER=8
+# NVRAM window for scene save/restore of the CPU-visible RAMs (see mem.yaml:
+# vram 1024B + cram 1024B + oram 512B = 2560B) plus the CRTC's 18-byte MMR
+# register file (cfg/mmr.yaml `crtc`), dumped by jtdcastl_crtc's ioctl_din/
+# ioctl_addr ports through jtdcastl_game's aux mux tap at aux-local address
+# 0..17 (system ioctl_addr 2560..2577). 2560+18=2578.
+#
+# Gated behind `debug` (unparsed for JTFRAME_RELEASE builds, see
+# modules/jtframe/src/jtframe/macros/macros.go and jtframe-cfgstr.md) per
+# review: the scene save/restore path is not yet fully wired end to end
+# (jtdcastl_game's aux mux is still to be added), so this stays debug-only
+# for now, matching cores/pktgal, cores/rastan, cores/cal50, etc.
+debug JTFRAME_IOCTL_RD=2578
+
+# Video configuration. Real raster, from the Universal service manual schematics
+# and the CF37201N decap: 312 x 264 total, 240 x 192 visible, HD6845S clocked at
+# 9.828 MHz / 16, pixel clock 9.828 MHz / 2 = 4.914 MHz, giving the measured
+# ~59.659 Hz refresh from a fixed /10 raster divider.
+JTFRAME_WIDTH=240
+JTFRAME_HEIGHT=192
+JTFRAME_RATE=59.66
+
+# JTFRAME_PLL selects the preset for the single system/game clock ("clk"/"clk48"
+# per modules/jtframe/doc/clocks.md). The pixel clock enable is derived inside
+# the core by its own /10 clock-enable divider -- jtdcastl_crtc takes ce_pix
+# as an input, so nothing in jtframe needs to emit 4.914 MHz natively.
+#
+# The PCB clock chain runs from an 18.432 MHz crystal, an exact 49.152 MHz
+# system rate. jtframe_pll6144 is documented for exactly this target ("PCB
+# crystal 18.43200, Base clock 49.152, Pixel clocks 6.144") and is already used
+# by JTKICKER/JTTWIN16/JTFROUND/JTSHOUSE/JTVIGIL. Its Quartus-computed output is
+# 49.147727 MHz, wired to clk48/clk (outclk_0) and its SDRAM-shifted twin
+# (outclk_1) in jtframe_emu.sv.
+#
+# Deviation against the 49.152 MHz PCB rate: (49.147727-49.152)/49.152 =
+# -0.008693%, i.e. -86.9 ppm. Carried through the core's own /10 pixel
+# derivation, ce_pix becomes 49.147727/10 = 4.9147727 MHz, only +0.0157% against
+# the 4.914 MHz nominal raster clock. No new PLL preset is needed.
+JTFRAME_PLL=jtframe_pll6144
+
+# Three of the nine sets (docastle, douni, jjack) are vertical, per MAME's own
+# rotation data. This macro enables the core's rotation capability core-wide,
+# while the per-MRA MOD byte (bit 0 vertical, bit 2 CCW -- see core_mod.md)
+# selects orientation per game.
+JTFRAME_VERTICAL
+
+# SDRAM bank layout -- see cfg/mem.yaml for the bus list per bank. Bank 0 (ba0,
+# implicit, no *_START macro) packs the three low-bandwidth program/sample ROMs
+# (main + sub Z80 code, ADPCM sample data); bank 1 (ba1) is the character/tile
+# ROM; bank 2 (ba2) is the sprite ROM, which has the highest bandwidth need as
+# it is continuously scanned by the CF37201 sprite chip. ba3 is unused. The
+# spritecpu program ROM and the colour PROM are small and board-identical or
+# near-identical across sets, so they stay in BRAM instead.
+#
+# Every non-first entry in [ROM].regions needs its own explicit start=MACRO.
+# bram: in mem.yaml lists two independent regions (spritecpu, cprom):
+# JTFRAME_PROM_START anchors gfx1, then spritecpu and cprom follow.
+SUB_START          =0x20000
+ADPCM_START        =0x30000
+JTFRAME_BA1_START  =0x40000
+JTFRAME_PROM_START =0x60000
+JTFRAME_PROM2_START=0x64000
+JTFRAME_PROM3_START=0x64200
+
+# MiST support is unconfirmed; the core is developed and tested on MiSTer
+# (DE10-Nano / Cyclone V).
+[mist]
+JTFRAME_MIST_DSP_BLOCKS=Auto

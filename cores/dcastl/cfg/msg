@@ -1,0 +1,23 @@
+        \BJTDCASTL\W
+   Universal Do's Castle
+      board family
+
+  Version \C - \D
+
+ Nine games, three hardware
+ profiles: Castle, Run Run
+ and Soccer
+
+     \BBased on\W
+ the Universal service
+ manual schematics and
+ Furrtek's CF37201N
+ (TAL004) decap RE work
+
+ SN76489A PSG (jt89) and
+ MSM5205 ADPCM (jt5205)
+ by \RJOTEGO\W
+
+ Ported to JTFRAME from
+ the standalone MiSTer
+ Universal_DoCastle core
