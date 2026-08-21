@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 12-9-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 12-9-2019 */
 
 // Bionic Commando: Main CPU
 
@@ -91,6 +77,7 @@ module jtbiocom_main(
 );
 
 parameter GAME=0; // 0 for Bionic Commando, 1 for Tiger Road/F1Dream
+parameter SAME_CLK=0;
 `ifndef NOMAIN
 wire [19:1] A;
 wire [3:0] ncA;
@@ -122,12 +109,18 @@ wire [ 7:0] mcu_dout_s;
 wire        mcu_wr_s;
 wire [16:1] Aeff   = CPUbus ? A[16:1] : mcu_addr_s;
 
-jtframe_sync #(.W(16+8+1)) u_mcus(
-    .clk_in ( 1'b0      ),
-    .clk_out( clk       ),
-    .raw    ( {mcu_addr, mcu_dout, mcu_wr } ),
-    .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s } )
-);
+generate
+    if( SAME_CLK ) begin : g_same_clk
+        assign {mcu_addr_s, mcu_dout_s, mcu_wr_s} = {mcu_addr, mcu_dout, mcu_wr};
+    end else begin : g_cross_clk
+        jtframe_sync #(.W(16+8+1)) u_mcus(
+            .clk_in ( 1'b0      ),
+            .clk_out( clk       ),
+            .raw    ( {mcu_addr, mcu_dout, mcu_wr } ),
+            .sync   ( {mcu_addr_s, mcu_dout_s, mcu_wr_s } )
+        );
+    end
+endgenerate
 
 always @(*) begin
     ram_cs        = 1'b0;

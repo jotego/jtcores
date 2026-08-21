@@ -22,7 +22,7 @@ OBJ_START=0xD0000
 
 JTFRAME_PROM_START=0x110000
 
-[mist|sidi]
+[mist]
 #The logo doesn't fit in small devices
 JTFRAME_OSD_NOLOGO
 -JTFRAME_CREDITS
@@ -30,3 +30,7 @@ JTFRAME_OSD_NOLOGO
 [mister]
 JTFRAME_ARX=5
 JTFRAME_ARY=4
+
+[sidi]
+# it won't fit anymore with the new MCU
+JTFRAME_SKIP
