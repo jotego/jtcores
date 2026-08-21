@@ -203,6 +203,58 @@ warn_if_longsim_noinputs() {
     fi
 }
 
+# A jtsim run rewrites generated file lists, obj_dir and output files in its
+# current folder.  Keep that work exclusive while allowing independent game
+# folders to simulate in parallel.
+simulation_process_stamp() {
+    ps -o lstart= -p "$1" 2>/dev/null | tr -s ' ' | sed 's/^ //;s/ $//'
+}
+
+release_simulation_lock() {
+    [ -n "$JTSIM_LOCK_DIR" ] || return
+    [ -f "$JTSIM_LOCK_DIR/pid" ] || return
+    local owner
+    owner=$(head -n 1 "$JTSIM_LOCK_DIR/pid" 2>/dev/null)
+    [ "$owner" = "$$" ] || return
+    rm -f "$JTSIM_LOCK_DIR/pid" "$JTSIM_LOCK_DIR/stamp"
+    rmdir "$JTSIM_LOCK_DIR" 2>/dev/null || true
+    JTSIM_LOCK_DIR=
+}
+
+acquire_simulation_lock() {
+    local lock_dir="${1:-$PWD/.jtsim.lock}"
+    local owner owner_stamp current_stamp
+
+    if mkdir "$lock_dir" 2>/dev/null; then
+        simulation_process_stamp "$$" > "$lock_dir/stamp"
+        printf '%s\n' "$$" > "$lock_dir/pid"
+        JTSIM_LOCK_DIR="$lock_dir"
+        return 0
+    fi
+
+    owner=$(head -n 1 "$lock_dir/pid" 2>/dev/null)
+    owner_stamp=$(cat "$lock_dir/stamp" 2>/dev/null)
+    if [[ "$owner" =~ ^[0-9]+$ ]] && kill -0 "$owner" 2>/dev/null; then
+        current_stamp=$(simulation_process_stamp "$owner")
+        if [ -n "$owner_stamp" ] && [ "$owner_stamp" = "$current_stamp" ]; then
+            echo "Error: a jtsim simulation is already active in $PWD" >&2
+            echo "Active simulation PID: $owner" >&2
+            return 1
+        fi
+    fi
+
+    # The owner exited without running its EXIT trap (for example, after a
+    # forced kill).  A stale lock must not prevent a later simulation.
+    rm -f "$lock_dir/pid" "$lock_dir/stamp"
+    if ! rmdir "$lock_dir" 2>/dev/null || ! mkdir "$lock_dir" 2>/dev/null; then
+        echo "Error: cannot acquire the jtsim lock in $PWD" >&2
+        return 1
+    fi
+    simulation_process_stamp "$$" > "$lock_dir/stamp"
+    printf '%s\n' "$$" > "$lock_dir/pid"
+    JTSIM_LOCK_DIR="$lock_dir"
+}
+
 set_mist_as_target() {
     TOP=mist_test
     TARGET=mist

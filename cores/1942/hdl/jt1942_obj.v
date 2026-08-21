@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 20-1-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 20-1-2019 */
 
 // 1942 Object Generation
 
@@ -113,7 +99,7 @@ jt1942_objram u_ram(
     .objbuf_data3   ( objbuf_data3  )
 );
 
-wire [8:0] posx;
+wire [8:0] posx, posx_eff;
 wire [3:0] new_pxl;
 
 // draw the sprite
@@ -149,6 +135,8 @@ jt1942_objdraw u_draw(
 
 assign LHBL_eff = LHBL,
        V_eff    = V;
+assign posx_eff = flip ? posx+9'd1 : posx;
+
 jtgng_objpxl #(.PXL_DLY(PXL_DLY))u_pxlbuf(
     .rst            ( rst           ),
     .clk            ( clk           ),
@@ -157,7 +145,7 @@ jtgng_objpxl #(.PXL_DLY(PXL_DLY))u_pxlbuf(
     // screen
     .LHBL           ( LHBL          ),
     .flip           ( flip          ),
-    .posx           ( posx          ),
+    .posx           ( posx_eff      ),
     .line           ( line          ),
     // pixel data
     .new_pxl        ( new_pxl       ),

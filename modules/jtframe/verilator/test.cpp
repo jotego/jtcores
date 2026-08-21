@@ -1,20 +1,6 @@
-/*  This file is part of JT_FRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 9-5-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 9-5-2022 */
 
 // All screen output should go through stderr using C functions
 // Do not use C++ IO functions like cout or cerr because it
@@ -52,6 +38,10 @@
 
 #ifndef _JTFRAME_COLORW
     #define _JTFRAME_COLORW 4
+#endif
+
+#ifndef _JTFRAME_HEADER
+    #define _JTFRAME_HEADER 0
 #endif
 
 using namespace std;
@@ -430,10 +420,11 @@ public:
     void start( bool download ) {
         full_download = download;
         if( !full_download ) {
-            if ( len > 32 ) {
-                fputs("ROM download shortened to 32 bytes.\n",stderr);
+            const int header_len = _JTFRAME_HEADER > 32 ? _JTFRAME_HEADER : 32;
+            if ( len > header_len ) {
+                fprintf(stderr, "ROM download shortened to %d bytes.\n", header_len);
                 if( nvram ) fputs("Warning: skipping transfer of nvram.bin.\n",stderr);
-                len=32;
+                len=header_len;
             } else {
                 fputs("Short ROM download\n",stderr);
             }

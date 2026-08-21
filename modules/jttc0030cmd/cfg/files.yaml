@@ -9,3 +9,4 @@ jttc0030cmd:
     - IKA87AD.sv
     # jtframe C-chip wrapper (TC0030CMD memory subsystem + 68k glue)
     - jttc0030cmd.v
+    - timing.sdc

@@ -15,10 +15,11 @@
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
     Version: 1.0
     Date: 21-7-2026 */
+
 module jttc0030cmd (
     input             rst,
     input             clk,
-    input             cen,
+    input             cen,        // See timing.sdc
 
     // ---- Host (68k) side: real C-chip external pins ----
     input             cs,         // active high (parent inverts /CS)
@@ -184,6 +185,7 @@ module jttc0030cmd (
         end
     end
 
+    // keep u_mcu name (see timing.sdc)
     IKA87AD u_mcu(
         .i_EMUCLK           ( clk           ),
         .i_MCUCLK_PCEN      ( cen           ),

@@ -10,7 +10,7 @@ jobs:
     outputs:
       cores: ${{ steps.generate-matrix.outputs.cores }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
       with:
         submodules: 'recursive'
         token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
@@ -41,7 +41,7 @@ jobs:
       matrix:
         core: ${{ fromJSON(needs.list_cores.outputs.cores) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
           token: ${{ secrets.PAT }}
@@ -50,7 +50,7 @@ jobs:
           # Compilation on Quartus 20.1
           docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v `pwd`:/jtcores jotego/jtcore20 /jtcores/modules/jtframe/devops/xjtcore.sh ${{matrix.core}} pocket
       - id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-q20-${{ matrix.core }}
           path: release

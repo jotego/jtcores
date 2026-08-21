@@ -16,7 +16,7 @@ jobs:
     outputs:
       unitsims: ${{ steps.generate-matrix.outputs.unitsims }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
       with:
         submodules: 'recursive'
         token: ${{secrets.PAT}} # Personal Access Token, must be defined in the repo's secrets
@@ -41,7 +41,7 @@ jobs:
       matrix:
         unitsim: ${{ fromJSON(needs.find_unit_sims.outputs.unitsims) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
           token: ${{ secrets.PAT }}
