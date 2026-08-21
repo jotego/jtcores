@@ -1,0 +1,191 @@
+/*  This file is part of JTCORES. GPLv3. See jtcninja_game.v header.
+
+    Palette + priority mixer for the Caveman Ninja hardware family
+    (2x deco16ic = 4 playfields + decospr sprites).
+
+    Composites the four playfield streams and the sprite stream into a palette
+    pen index, looks it up in the (video-owned) palette RAM, and emits RGB.
+
+    Palette format (both games, xBGR_888, 2 words/colour). cninja interleaves
+    2 words/colour (even={x,B}, odd={G,R}); darkseal splits the RAM in half -
+    GR {G,R} in the low 2048 (0x140000), B {x,B} in the high 2048 (0x141000).
+    Either way the final {gr[15:8],gr[7:0],xb[7:0]} = {G,R,B} assembly is the same.
+
+    pen = gfxdecode palette base + (deco_col_bank + tile_pal)*16 + colour.
+    gfx region bases: chars 0x000, tiles1 0x100, tiles2 0x500 (cninja) /
+    sprites 0x100, tiles1 0x300, tiles2 0x400 (darkseal).
+*/
+module jtcninja_colmix(
+    input             clk,
+    input             pxl_cen,
+    input             dseal,             // game_id==2
+    input             cbust,             // game_id==1 (Crude Buster)
+    input             cbpri,             // cbuster TC-4 m_pri: swaps mg/pf1b order
+    input             supbt,             // game_id==4 (Super Burger Time)
+    input             vapor,             // game_id==3 (Vapor Trail)
+    input      [ 8:0] hdump,             // for the DSEAL_PALTEST diag ramp
+    input             LHBL,
+    input             LVBL,
+
+    // layer pixels = {colour[3:0], pixel[3:0]} ; sprites = {pri,colour,pixel}
+    input      [ 7:0] fg_pxl,
+    input      [ 7:0] mg_pxl,
+    input      [ 7:0] bg_pxl,
+    input      [ 7:0] pf1b_pxl,
+    input      [11:0] obj_pxl,           // {epri, pri[1:0], colour[4:0], pixel[3:0]}
+
+    // palette RAM read port (RAM lives in jtcninja_video)
+    output reg [11:0] pal_addr,
+    input      [15:0] pal_data,
+
+    output     [`JTFRAME_COLORW-1:0] red,
+    output     [`JTFRAME_COLORW-1:0] green,
+    output     [`JTFRAME_COLORW-1:0] blue
+);
+
+wire        mg_opaque   = mg_pxl[3:0]  !=4'd0;
+wire        fg_opaque   = fg_pxl[3:0]  !=4'd0;
+wire        bg_opaque   = bg_pxl[3:0]  !=4'd0;
+wire        pf1b_opaque = pf1b_pxl[3:0]!=4'd0;
+wire        obj_opaque  = obj_pxl[3:0] !=4'd0;
+wire [ 1:0] obj_pri     = obj_pxl[10:9];
+wire [10:0] obj_idx     = 11'h300 + { 2'b0, obj_pxl[8:0] }; // 0x300 + colour*16 + pixel
+
+`ifdef DSEAL_PALTEST
+wire [10:0] pal_idx = { 3'd0, hdump[7:0] };  // DIAG: palette colours 0-255 across X
+`elsif BG_ONLY
+wire [10:0] pal_idx = { 3'd5, bg_pxl };
+`elsif FG_ONLY
+wire [10:0] pal_idx = { 3'd0, fg_pxl };
+`elsif MG_ONLY
+wire [10:0] pal_idx = { 3'd1, mg_pxl };
+`elsif PF1B_ONLY
+wire [10:0] pal_idx = { 3'd2, pf1b_pxl };
+`else
+// Sprite priority (decospr pri_callback, x[15:14]): pri0 in front of all
+// tilemaps; pri1 behind mg; pri2/3 behind mg+pf1b.
+//   cninja front->back:  fg > obj0 > mg > obj1 > pf1b > obj23 > bg
+wire obj_f = obj_opaque & (obj_pri==2'd0);
+wire obj_m = obj_opaque & (obj_pri==2'd1);
+wire obj_b = obj_opaque & (obj_pri[1]);          // pri 2 or 3
+wire [10:0] cn_pal_idx = fg_opaque   ? { 3'd0, fg_pxl   } :
+                         obj_f       ? obj_idx            :
+                         mg_opaque   ? { 3'd1, mg_pxl   } :
+                         obj_m       ? obj_idx            :
+                         pf1b_opaque ? { 3'd2, pf1b_pxl } :
+                         obj_b       ? obj_idx            :
+                                       { 3'd5, bg_pxl   };
+// Dark Seal (darkseal.cpp screen_update). Draw order back->front:
+//   tilegen1 pf1 (pf1b) < tilegen1 pf2 (bg, marble) < tilegen0 pf1 (mg, tiles1)
+//   < sprites < tilegen0 pf2 (fg, 8x8 chars/text, FRONT). Backdrop = black pen 0.
+wire [10:0] ds_pal_idx = fg_opaque   ? { 3'd0, fg_pxl   } :              // pf2 chars (FRONT)
+                         obj_opaque  ? 11'h100 + {2'b0, obj_pxl[8:0]} :  // sprites
+                         mg_opaque   ? { 3'd3, mg_pxl   } :              // pf1 tiles1
+                         bg_opaque   ? { 3'd4, bg_pxl   } :              // pf2 tiles2 (marble)
+                         pf1b_opaque ? { 3'd4, pf1b_pxl } :              // pf1 tiles2
+                                       11'd0;                            // black backdrop
+// Crude Buster (cbuster.cpp screen_update). col_banks: fg(chip0 pf1)=0x00,
+// mg(chip0 pf2)=0x20, pf1b(chip1 pf1)=0x30, bg(chip1 pf2)=0x40; sprites base
+// 0x100 -> pen bases 0/0x200/0x300/0x400. Fixed priority for now (m_pri/sprite
+// bands TODO): fg(front) > mg > pf1b > bg(opaque backdrop). Sprites not yet wired.
+// cbuster.cpp screen_update: fg (chip0 pf1) FRONT; then mg(chip0 pf2) & pf1b
+// (chip1 pf1) in an order set by the TC-4 PAL m_pri (cbpri): m_pri=0 -> pf1b then
+// mg (mg on top); m_pri=1 -> mg then pf1b (pf1b on top). bg(chip1 pf2) is the
+// opaque backdrop. (Sprite priority bands TODO when sprites land.)
+// Sprite color-banded priority (decospr inefficient_copy_sprite_bitmap):
+//   pen   = (colour[4] ? 0x500 : 0x100) + colour[3:0]*16 + pixel   (two palette bands)
+//   epri  = sprite word0[15]: 1 -> behind mg+pf1b (early bands 0x0800/0x0900),
+//                             0 -> in front of mg+pf1b (late bands 0x0000/0x0100).
+// Layer order front->back: fg > obj(epri=0) > {mg,pf1b by cbpri} > obj(epri=1) > bg.
+wire        obj_op2   = obj_pxl[3:0]!=4'd0;
+wire        obj_epri  = obj_pxl[11];
+wire [10:0] obj_cbidx = { obj_pxl[8] ? 3'b101 : 3'b001, obj_pxl[7:0] };
+// mg + pf1b middle layers; cbpri (TC-4 m_pri) sets which is on top.
+wire        mid_op    = mg_opaque | pf1b_opaque;
+wire [10:0] cb_mid    = cbpri ? ( pf1b_opaque ? { 3'd3, pf1b_pxl } : { 3'd2, mg_pxl   } )
+                              : ( mg_opaque   ? { 3'd2, mg_pxl   } : { 3'd3, pf1b_pxl } );
+wire [10:0] cb_pal_idx =
+    fg_opaque               ? { 3'd0, fg_pxl } :
+    (obj_op2 & ~obj_epri)   ? obj_cbidx       :
+    mid_op                  ? cb_mid          :
+    (obj_op2 &  obj_epri)   ? obj_cbidx       :
+                              { 3'd4, bg_pxl };
+// Super Burger Time (supbtime.cpp screen_update_supbtime). Draw order back->front:
+//   pf2 (mg, 16x16, opaque backdrop) < sprites < pf1 (fg, 8x8 text, FRONT).
+// gfxdecode bases: sprites 0x000, pf1(fg) 0x100 (col_bank 0), pf2(mg) 0x200
+// (col_bank 0x10). No priority bands. Palette is xBGR_444, 1 word/colour.
+wire [10:0] sb_pal_idx =
+    fg_opaque   ? { 3'd1, fg_pxl       } :   // pf1 (fg/text) FRONT
+    obj_opaque  ? { 3'd0, obj_pxl[7:0] } :   // sprites
+                  { 3'd2, mg_pxl       };    // pf2 (mg/bg) opaque backdrop
+// Vapor Trail (vaportra.cpp screen_update). col_banks: fg(tg0 pf1)=0x00,
+// mg(tg0 pf2)=0x20, pf1b(tg1 pf1)=0x30, bg(tg1 pf2)=0x40 -> pen bases
+// 0/0x200/0x300/0x400; sprites base 0x100. FIRST-render fixed order (the runtime
+// m_priority[0] 4-way mux is a refinement): fg(front) > obj > mg > pf1b > bg.
+wire [10:0] obj_vp = 11'h100 + { 2'b0, obj_pxl[8:0] };
+// Layer order front->back (vaportra.cpp screen_update): fg(tg0 pf1, 8x8, FRONT) >
+// sprites > mg(tg0 pf2) > pf1b(tg1 pf1) > bg(tg1 pf2, opaque backdrop).
+// fg reads its 8x8 chars from the char ROM region (char-major copy sliced from
+// tiles1 in the MRA) -> front-most layer, col bank 0x00 -> pal base 0x000.
+wire [10:0] vp_pal_idx =
+    fg_opaque   ? { 3'd0, fg_pxl   } :   // tilegen0 pf1 (fg, 8x8) base 0x000 FRONT
+    obj_opaque  ? obj_vp             :   // sprites base 0x100
+    mg_opaque   ? { 3'd2, mg_pxl   } :   // tilegen0 pf2 (mg) base 0x200
+    pf1b_opaque ? { 3'd3, pf1b_pxl } :   // tilegen1 pf1 (pf1b) base 0x300
+                  { 3'd4, bg_pxl   };    // tilegen1 pf2 (bg) base 0x400 backdrop
+wire [10:0] pal_idx = dseal ? ds_pal_idx : cbust ? cb_pal_idx :
+                      supbt ? sb_pal_idx : vapor ? vp_pal_idx : cn_pal_idx;
+`endif
+
+// palette read: 2 words/colour, alternated by `phase`. q1 has 1-cyc latency.
+// cbuster shares darkseal's SPLIT layout: main RAM (write16) = low half {G,R},
+// ext RAM (write16_ext) = high half {x,B}, selected by the bit-12 address split.
+// supbtime is 1 word/colour (xBGR_444), so it reads pal_idx directly (no phase).
+wire splitpal = dseal | cbust | vapor;   // vapor: GR @0x300000 + B @0x304000, RGB888
+reg        phase;
+reg [15:0] xb_w, gr_w, sb_w;
+always @(posedge clk) begin
+    phase    <= ~phase;
+    pal_addr <= supbt    ? { 1'b0, pal_idx } :
+                splitpal ? { phase, pal_idx } : { pal_idx, phase };
+    if( supbt ) sb_w <= pal_data;         // 1 word/colour, 1-cyc latency
+    else if( splitpal ) begin
+        if( !phase ) gr_w <= pal_data;    // split low half  {G,R}
+        else         xb_w <= pal_data;    // split high half {x,B}
+    end else begin
+        if( !phase ) xb_w <= pal_data;    // cninja even word {x,B}
+        else         gr_w <= pal_data;    // cninja odd  word {G,R}
+    end
+end
+
+// Crude Buster white-level clamp (cbuster.cpp ::xbgr_888): the analog white is
+// set at 0x8e (resistors before the JAMMA output), so each 8-bit channel is
+// clamped to 0x8e then scaled to full range: out = min(c,0x8e)*255/0x8e. Without
+// this the image reads too bright. 255/0x8e ~= 460/256, so (clamped*460)>>8.
+function [7:0] cbwclamp(input [7:0] c);
+    reg [7:0]  cc;
+    reg [16:0] sc;
+    begin
+        cc = (c > 8'h8e) ? 8'h8e : c;
+        sc = cc * 17'd460;
+        cbwclamp = sc[15:8];
+    end
+endfunction
+// supbtime xBGR_444: R=word[3:0] G=word[7:4] B=word[11:8], each 4b -> 8b (replicate).
+wire [7:0] r_o = supbt ? {2{sb_w[ 3:0]}} : cbust ? cbwclamp(gr_w[ 7:0]) : gr_w[ 7:0];
+wire [7:0] g_o = supbt ? {2{sb_w[ 7:4]}} : cbust ? cbwclamp(gr_w[15:8]) : gr_w[15:8];
+wire [7:0] b_o = supbt ? {2{sb_w[11:8]}} : cbust ? cbwclamp(xb_w[ 7:0]) : xb_w[ 7:0];
+
+jtframe_blank #(.DLY(0),.DW(24)) u_blank(
+    .clk     ( clk     ),
+    .pxl_cen ( pxl_cen ),
+    .preLHBL ( LHBL    ),
+    .preLVBL ( LVBL    ),
+    .LHBL    (         ),
+    .LVBL    (         ),
+    .preLBL  (         ),
+    .rgb_in  ( { g_o, r_o, b_o } ),  // {G, R, B}
+    .rgb_out ( { green, red, blue } )
+);
+
+endmodule

@@ -1,0 +1,98 @@
+params:
+  # main 68k ROM + OKI samples live in BA2 (sprites took BA0+BA1); the
+  # within-bank sample offsets are measured from JTFRAME_BA2_START. The HuC6280
+  # sound program is NOT here - it lives in BRAM (see the `bram` block) to free
+  # BA2 read bandwidth for the OKI sample fetches and the 68k.
+  - { name: PCM_OFFSET,  value: "(`PCM_START -`JTFRAME_BA2_START)>>1" }
+  - { name: PCM2_OFFSET, value: "(`PCM2_START-`JTFRAME_BA2_START)>>1" }
+  # tile ROM offsets within BA3 (gfx moved BA2->BA3). SDRAM slot offsets are in
+  # 16-bit-WORD units (jtframe_romrq: sdram_addr = offset + word_addr), like
+  # SND/PCM above - so >>1, NOT >>2. With >>2 the dw32 reads landed at half the
+  # right address (garbled tiles).
+  - { name: GFX2_OFFSET, value: "(`GFX2_START-`JTFRAME_BA3_START)>>1" }
+  - { name: GFX3_OFFSET,  value: "(`GFX3_START    -`JTFRAME_BA1_START)>>1" }  # tiles2 copy1 in BA1
+  - { name: GFX3B_OFFSET, value: "(`GFX3_BA2_START-`JTFRAME_BA2_START)>>1" }  # tiles2 copy2 in BA2
+clocks:
+  clk:
+    - freq: 6M
+      # No SDRAM gate: the sound CPU ROM is now BRAM (always ready), and the
+      # main 68k / OKI buses have their own dtack/ok handling. (Previously this
+      # gated on the `snd` SDRAM bus, which no longer exists.)
+      outputs:
+        - cen6
+        - cen3
+        - cen1p5
+# TODO: sound domain is the 32.22MHz crystal. H6280/YM2203 = /8, YM2151 = /9,
+#       OKI1 = /32, OKI2 = /16. Generate with jtframe_frac_cen from clk48.
+download:
+  post_addr: true
+  post_data: true
+audio:
+  rsum: 20k
+  channels:
+    # Levels matched to MAME add_route ratios (YM2203 0.60, YM2151 0.45,
+    # OKI1 0.75, OKI2 0.60). The FM/YM (music) was ~2x too quiet vs the OKI
+    # sample channels, burying the melody under the drums/voice. rsum is
+    # inversely proportional to level (summer gain = rsum_global/rsum_ch).
+    - { name: opn,  module: jt03_fm,  rsum: 25k }                         # YM2203 FM  (was 56k)
+    - { name: psg,  module: jt03_psg, rsum: 30k, vpp: 0.45 }              # YM2203 PSG (was 66k)
+    - { name: opm,  module: jt51,     rsum: 33k }                         # YM2151     (was 56k)
+    - { name: pcm1, module: jt6295,   rsum: 20k, fir: fir_192k_4k.csv }   # MSM6295 #1 (oki1 ROM)
+    - { name: pcm2, module: jt6295,   rsum: 25k, fir: fir_192k_4k.csv }   # MSM6295 #2 (oki2 ROM, was 20k)
+# HuC6280 sound program in BRAM (64kB, 8-bit). Loaded from the PROM download
+# stream (JTFRAME_PROM_START) like flstory's MCU - the MRA region "audiocpu:snd"
+# routes the MAME audiocpu ROM into this `snd` BRAM. Generated read ports:
+# snd_addr (in) / snd_data (out); BRAM is always ready so the engine ties
+# rom_ok=1 and leaves rom_cs unconnected. Keeping it out of SDRAM removes the
+# sound CPU's contention on BA2 (shared with the 68k + both OKI sample buses).
+bram:
+  - name: snd
+    addr_width: 16        # 64kB HuC6280 program
+    data_width: 8
+    prom: true
+sdram:
+  banks:
+    # ---- BA0 : ALL sprite gfx, interleaved 32-bit (2MB), read as ONE dw32 ----
+    # game.v download remap rotates the RGN_FRAC(1,2) plane-pair bit to the LSB so
+    # {pl3,pl2,pl1,pl0} of 8px pack into one 32-bit word -> a single dw32 read per
+    # 8px (no 2-bank parallel fetch). objrom != obj_addr to avoid the engine-wire clash.
+    - buses:
+      - name: objrom
+        addr_width: 21        # 2MB span (dw32 -> port [20:2])
+        data_width: 32
+    # ---- BA1 : tiles2 COPY 1 (1MB) - scr2 (tilegen0 pf2) reads here, alone ----
+    - buses:
+      - name: scr2
+        addr_width: 20        # tiles2 1MB
+        data_width: 32
+        offset: GFX3_OFFSET
+    # ---- BA2 : main 68k ROM + OKI samples + tiles2 COPY 2 ----
+    # scr3 (tilegen1 pf1) reads its OWN tiles2 copy here, in parallel with scr2 in
+    # BA1. main/oki are low-bandwidth so scr3 effectively owns BA2.
+    # addr_width 20 (dw16) so the oki offsets + tiles2 copy2 fit
+    - buses:
+      - name: main
+        addr_width: 20
+        data_width: 16
+        din: main_dout
+      - name: oki1
+        addr_width: 18
+        data_width: 8
+        offset: PCM_OFFSET
+      - name: oki2
+        addr_width: 19
+        data_width: 8
+        offset: PCM2_OFFSET
+      - name: scr3            # 2nd tiles2 reader: tilegen1 pf1 (16x16), own copy in BA2
+        addr_width: 20
+        data_width: 32
+        offset: GFX3B_OFFSET
+    # ---- BA3 : char + tiles1 (tiles2 moved to BA1) ----
+    - buses:
+      - name: char
+        addr_width: 17        # chars 128kB
+        data_width: 32
+      - name: scr1
+        addr_width: 19        # tiles1 512kB
+        data_width: 32
+        offset: GFX2_OFFSET
