@@ -98,9 +98,10 @@ localparam [8:0] VCROP_START = 9'd16, VCROP_END = 9'd239;
 assign LVBL = lvbl_raw & (~p051a | (vdump>=VCROP_START && vdump<=VCROP_END));
 wire [8:0] scr_pxl, obj_pxl;
 
-// TODO this timing needs to be verified on an original board
-// mame notes have a different xtal clearly a different board
-// of superman was used to measure timings, not the 039a.
+// Verified on an original P0-039A with a scope (Aug 2026): 8 MHz dot clock,
+// 64.00 us/line = 512 dots, 17.40 ms/frame = 272 lines (57.45 Hz),
+// HS ~6.6 us (~53 dots), VS 8 lines. The 15.22 kHz note in the MAME driver
+// belongs to the East Tech P0-057A dump report, not this board.
 jtframe_vtimer #(
     .HB_END  ( 9'd1   ),
     .HB_START( 9'd385 ),

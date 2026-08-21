@@ -19,20 +19,15 @@
 
 /*  P0-051A sound: PC060HA + YM2151, for Daisenpu and Twin Hawk.
 
-    The Z80 map is the same as the other two boards, so the decode and the
-    bank latch are shared and come from the caller. Only the mailbox chip
-    and the FM chip differ:
-
       P0-039A / P0-057A   TC0140SYT + YM2610 @ 8 MHz
       P0-051A             PC060HA   + YM2151 @ 4 MHz
 
-    Both chips are the same silicon for the mailbox - MAME's pc060ha_device
-    derives from tc0140syt_device - so this uses jtrastan_pc060 too. What
-    it does not do is emit the Z80 chip selects: that is TC0140SYT-only, and
-    on this board the decode is discrete logic we have no schematic for.
-
-    The YM2151 register window is e000-e001 against the YM2610's e000-e003,
-    but the caller decodes A[15:8]==8'hE0, which covers both.             */
+    The mailbox is the same silicon on both - MAME's pc060ha_device derives
+    from tc0140syt_device - so this uses jtrastan_pc060 too. The PC060HA
+    does NOT emit the Z80 chip selects the way the TC0140SYT does: here the
+    decode is board logic, so it lives in this file. The map matches the
+    other boards; the YM2151 answers e000-e001 where the YM2610 takes
+    e000-e003, and A[15:8]==8'hE0 covers both.                            */
 
 module jttaitox_hawk_snd(
     input             rst,
@@ -49,22 +44,53 @@ module jttaitox_hawk_snd(
     output     [ 3:0] main_din,
     input             main_rnw,
 
-    // Z80 side
+    // Z80 bus
     input      [15:0] a,
     input      [ 7:0] din,
-    output     [ 3:0] dout,
+    input             mreq_n,
+    input             rfsh_n,
     input             wr_n,
-    input             syt_cs,      // mailbox select, decoded by the caller
-    input             ym_cs,
+    input      [ 7:0] ram_dout,
+    output reg [ 7:0] cpu_din,
     output            nmi_n,
-    output            z80_rst,
-    output     [ 7:0] ym_dout,
     output            int_n,
+    output            z80_rst,
+
+    output            rom_cs,
+    output     [15:0] rom_addr,
+    output            ram_cs,
+    input      [ 7:0] rom_data,
 
     output signed [15:0] snd_left, snd_right
 );
 
 `ifndef NOSOUND
+wire [ 7:0] ym_dout;
+wire [ 3:0] mbox_dout;
+wire        mem, ym_cs, syt_cs;
+reg  [ 1:0] bank;
+
+assign mem      = ~mreq_n & rfsh_n;
+assign rom_cs   = mem & ~a[15];
+assign ram_cs   = mem & a[15:13]==3'b110;
+assign ym_cs    = mem & a[15:8]==8'hE0;
+assign syt_cs   = mem & a[15:8]==8'hE2;
+assign rom_addr = { a[14] ? bank : 2'd0, a[13:0] };
+
+always @(posedge clk) begin
+    if( rst )
+        bank <= 0;
+    else if( mem && a[15:8]==8'hF2 && !wr_n )
+        bank <= din[1:0];
+end
+
+always @(posedge clk) begin
+    cpu_din <= rom_cs ? rom_data :
+               ram_cs ? ram_dout :
+               ym_cs  ? ym_dout  :
+               syt_cs ? { 4'd0, mbox_dout } : 8'hff;
+end
+
 jtrastan_pc060 u_mailbox(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -78,7 +104,7 @@ jtrastan_pc060 u_mailbox(
     .main_cs    ( main_cs       ),
 
     .snd_dout   ( din[3:0]      ),
-    .snd_din    ( dout          ),
+    .snd_din    ( mbox_dout     ),
     .snd_addr   ( a[0]          ),
     .snd_rnw    ( wr_n          ),
     .snd_cs     ( syt_cs        ),
@@ -106,8 +132,9 @@ jt51 u_jt51(
     .xright     ( snd_right     )
 );
 `else
-assign main_din=0, dout=0, nmi_n=1, z80_rst=0, ym_dout=0, int_n=1,
-       snd_left=0, snd_right=0;
+assign main_din=0, nmi_n=1, z80_rst=0, int_n=1, rom_cs=0, rom_addr=0,
+       ram_cs=0, snd_left=0, snd_right=0;
+initial cpu_din=0;
 `endif
 
 endmodule

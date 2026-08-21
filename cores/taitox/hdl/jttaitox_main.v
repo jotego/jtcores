@@ -40,9 +40,17 @@ module jttaitox_main(
     input         [15:0] rom_data,
     input                rom_ok,
 
-    // work RAM lives in SDRAM bank 0, palette in BRAM (see cfg/mem.yaml)
+    // Work RAM. BRAM by default; RAM_IN_SDRAM moves it to SDRAM bank 3 on the
+    // devices that cannot spare the blocks. See cfg/mem.yaml and cfg/macros.def.
+    output reg           ram_cs,
+    input                ram_ok,
+    input         [15:0] ram_data,
+`ifdef RAM_IN_SDRAM
+    output        [ 1:0] ram_dsn,
+    output               ram_we,
+`else
     output        [ 1:0] ram_we,
-    input         [15:0] ram_dout,
+`endif
     output        [ 1:0] pal_we,
     input         [15:0] pal_dout,
 
@@ -71,7 +79,7 @@ module jttaitox_main(
     input         [ 7:0] dipsw_b
 );
 
-reg         ram_cs, pal_cs, dsw_cs, in_cs;
+reg         pal_cs, dsw_cs, in_cs;
 
 `ifndef NOMAIN
 wire [23:1] A;
@@ -115,7 +123,12 @@ always @* begin
     end
 end
 
+`ifdef RAM_IN_SDRAM
+assign ram_we   = ram_cs & ~RnW;
+assign ram_dsn  = {UDSn,LDSn};
+`else
 assign ram_we   = {2{ram_cs & ~RnW}} & ~{UDSn,LDSn};
+`endif
 assign pal_we   = {2{pal_cs & ~RnW}} & ~{UDSn,LDSn};
 
 // The C-chip games take the VBL interrupt on level 6, the rest on level 2
@@ -124,11 +137,16 @@ assign VPAn     = !(!ASn && FC==7 && A[3:1]==(p039a ? 3'd6 : 3'd2) && RnW);
 
 // Both SDRAM buses stall the CPU through DTACK. jtframe_okdly holds the
 // busy flag until the slot has answered for the current address.
+`ifdef RAM_IN_SDRAM
+assign bus_cs   = rom_cs | ram_cs;
+assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
+`else
 assign bus_cs   = rom_cs;
 assign bus_busy = rom_cs & ~rom_ok;
+`endif
 
 assign cpu_din_w= rom_cs   ? rom_data  :
-                  ram_cs   ? ram_dout  :
+                  ram_cs   ? ram_data  :
                   pal_cs   ? pal_dout  :
                   (oram_cs | vdcm_cs) ? vid_dout :
                   cchip_cs ? { 8'hff, cchip_dout } :
@@ -229,6 +247,9 @@ jtframe_m68k u_cpu(
 `else
 assign cpu_addr=0, cpu_dout=0, cpu_rnw=1, cpu_dsn=3, cpu_cen=0,
        rom_addr=0, ram_we=0, pal_we=0;
+`ifdef RAM_IN_SDRAM
+assign ram_dsn=3;
+`endif
 initial begin
     rom_cs=0; oram_cs=0; vdcm_cs=0; syt_cs=0; cchip_cs=0;
     ram_cs=0; pal_cs=0; dsw_cs=0; in_cs=0;

@@ -1,7 +1,6 @@
 params:
   - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
-  - { name: CCROM_OFFSET, value: "(`CCHIP_START-`JTFRAME_BA3_START)>>1" }
-  - { name: RAM_OFFSET, value: "(`RAM_START)>>1" }
+  - { name: RAM_OFFSET, value: "(`RAM_START-`JTFRAME_BA3_START)>>1" }
 
 clocks:
   clk:
@@ -46,16 +45,22 @@ sdram:
         addr_width: 21
         data_width: 32
     - buses:
+      # 68000 work RAM on the devices short of block RAM. It has to be the
+      # first bus of the bank: only slot 0 can write. Bank 3 otherwise carries
+      # just adpcmb, one low-rate channel that superman and twinhawk do not
+      # even have, so the CPU no longer fights its own program fetch the way
+      # it did when this lived in bank 0 next to the main ROM.
+      - name: ram
+        when: [ RAM_IN_SDRAM ]
+        addr_width: 14
+        data_width: 16
+        offset: RAM_OFFSET
+        addr: main_addr[13:1]
+        din: cpu_dout
+        rw: true
       - name: adpcmb
         addr_width: 19
         data_width: 8
-      # C-chip mask ROM + game EPROM. Bank 3 only carries adpcmb, which is one
-      # low-rate channel and absent altogether on superman, so the MCU fetches
-      # do not contend with anything.
-      - name: ccrom
-        addr_width: 14
-        data_width: 8
-        offset: CCROM_OFFSET
 
 bram:
   # 68000 work RAM, f00000-f03fff. Back in BRAM to rule it out of the
@@ -65,10 +70,12 @@ bram:
   # map is deliberately left untouched so this is a one-variable change:
   # RAM_START/RAM_OFFSET stay defined but unused.
   - name: ram
+    unless: [ RAM_IN_SDRAM ]
     addr_width: 14
     data_width: 16
     addr: main_addr[13:1]
     din: cpu_dout
+    dout: ram_data
     rw: true
 
   # Palette RAM behind the X1-006. The chip only receives 68k A9..A1
@@ -116,3 +123,5 @@ bram:
       name: code
       dout: code_dout
 
+  - { name: cchip_mask,  addr_width: 12, data_width: 8, prom: true }
+  - { name: cchip_eprom, addr_width: 13, data_width: 8, prom: true }

@@ -30,6 +30,9 @@ wire        cpu_rnw, cpu_cen, flip,
             oram_cs, vdcm_cs, syt_cs, cchip_cs;
 
 wire        p039a, p051a, p057a, lvbl_raw;
+`ifndef RAM_IN_SDRAM
+wire        ram_cs, ram_ok = 1'b1;   // work RAM is in BRAM: never busy
+`endif
 
 assign debug_view = st_video;
 assign st_dout    = st_video;
@@ -65,8 +68,13 @@ jttaitox_main u_main(
     .rom_data   ( main_data     ),
     .rom_ok     ( main_ok       ),
 
+    .ram_cs     ( ram_cs        ),
+    .ram_ok     ( ram_ok        ),
+    .ram_data   ( ram_data      ),
     .ram_we     ( ram_we        ),
-    .ram_dout   ( ram_dout      ),
+`ifdef RAM_IN_SDRAM
+    .ram_dsn    ( ram_dsn       ),
+`endif
     .pal_we     ( pal_we        ),
     .pal_dout   ( pal_dout      ),
 
@@ -110,10 +118,10 @@ jttaitox_cchip u_cchip(
     .tilt       ( tilt          ),
     .counters   (               ),
 
-    .ccrom_addr ( ccrom_addr    ),
-    .ccrom_cs   ( ccrom_cs      ),
-    .ccrom_data ( ccrom_data    ),
-    .ccrom_ok   ( ccrom_ok      )
+    .cchip_mask_addr ( cchip_mask_addr  ),
+    .cchip_mask_data ( cchip_mask_data  ),
+    .cchip_eprom_addr( cchip_eprom_addr ),
+    .cchip_eprom_data( cchip_eprom_data )
 );
 
 jttaitox_snd u_snd(
