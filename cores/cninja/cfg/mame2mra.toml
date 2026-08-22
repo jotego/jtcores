@@ -97,7 +97,10 @@ regions = [
     # ROMs (not insert blank gaps), so this is the minimal-duplication form.
     # single-bank interleave: load raw (mac-00=planes0,1 then mac-01=planes2,3, 1MB);
     # game.v rotates the plane-pair bit (18) into the dw32 word. No BA0/BA1 pad dup.
-    { name="sprites", machines=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"], rename="sprites1", No_offset=true },
+    { name="sprites", machines=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"], rename="sprites1", No_offset=true, width=32, parts=[
+        { name="mac-00.b1", crc="52acf1d6", map="0021" },
+        { name="mac-01.b3", crc="b28f7584", map="2100" },
+    ] },
     # cbuster sprites: chunky RGN_FRAC(1,1). MAME "sprites" = mab-02 (ROM_LOAD32_WORD
     # @0 = chunky bytes 0,1 = planes 3,2) + mab-03 (@2 = bytes 2,3 = planes 1,0) +
     # fu07-10 (LOAD32_BYTE, high-code tiles). The decospr engine reads {obj2(BA1),
@@ -136,7 +139,10 @@ regions = [
     # RGN_FRAC(1,2)). Load gfx STRAIGHT (raw) exactly like darkseal; the
     # game.v download rotate does the plane interleave (proven path). pswap=1.
     # sprites = vtmaa03 (frac1) + vtmaa04 (frac2), 1MB - identical to darkseal sprites.
-    { name="sprites", machines=["vaportra","vaportrau","kuhga"], rename="sprites1", No_offset=true },
+    { name="sprites", machines=["vaportra","vaportrau","kuhga"], rename="sprites1", No_offset=true, width=32, parts=[
+        { name="vtmaa03.bin", crc="1a30bf81", map="0021" },
+        { name="vtmaa04.bin", crc="b713e9cc", map="2100" },
+    ] },
 
     # Generic 68000 maincpu: LOAD16_BYTE even/odd auto-interleave (width=16) +
     # endianness (reverse). Covers cninja/darkseal/cbuster/vaportra.
@@ -157,14 +163,19 @@ regions = [
         { name="gl-08.6y", crc="33a2b400", offset=0x8000, length=0x8000, map="1000" },
         { name="gl-09.6z", crc="5a2d4752", offset=0x8000, length=0x8000, map="0100" },
     ] },
-    { name="chars", start="GFX1_START", width=16, No_offset=true, machines=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"] },
+    { name="chars", start="GFX1_START", No_offset=true, width=32, machines=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"], parts=[
+        { name="fz_02.j1", crc="3c9c3012", offset=0x0000, length=0x8000, map="0010" },
+        { name="fz_03.j2", crc="264b90ed", offset=0x0000, length=0x8000, map="0001" },
+        { name="fz_02.j1", crc="3c9c3012", offset=0x8000, length=0x8000, map="1000" },
+        { name="fz_03.j2", crc="264b90ed", offset=0x8000, length=0x8000, map="0100" },
+    ] },
     # vaportra: 8x8 fg chars live INSIDE tiles1 (vtmaa00, RGN_FRAC(1,2)). fg's 12-bit
     # code -> 4096 chars = first 64kB of EACH frac half. Slice those two 64kB blocks
     # and concatenate as a 128kB RGN_FRAC(1,2) char region; game.v's BA3 char branch
     # (bit15 rotate) interleaves the planes char-major, same as darkseal's chars.
-    { name="chars", start="GFX1_START", No_offset=true, machines=["vaportra","vaportrau","kuhga"], files=[ { name="vtmaa00.bin", crc="0330e13b", size=0x80000 } ], parts=[
-        { name="vtmaa00.bin", crc="0330e13b", offset=0x00000, length=0x10000 },
-        { name="vtmaa00.bin", crc="0330e13b", offset=0x40000, length=0x10000 },
+    { name="chars", start="GFX1_START", No_offset=true, width=32, machines=["vaportra","vaportrau","kuhga"], files=[ { name="vtmaa00.bin", crc="0330e13b", size=0x80000 } ], parts=[
+        { name="vtmaa00.bin", crc="0330e13b", offset=0x00000, length=0x10000, map="0021" },
+        { name="vtmaa00.bin", crc="0330e13b", offset=0x40000, length=0x10000, map="2100" },
     ] },
 
     # GFX2 - tiles1 (deco16ic playfield). TODO: deco16ic tile packing for video
@@ -174,7 +185,10 @@ regions = [
         { name="mag-02.4z", crc="de89c69a", offset=0x00000, length=0x40000, map="0021" },
         { name="mag-02.4z", crc="de89c69a", offset=0x40000, length=0x40000, map="2100" },
     ] },
-    { name="tiles1", start="GFX2_START", width=16, No_offset=true, machines=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"] },
+    { name="tiles1", start="GFX2_START", No_offset=true, width=32, machines=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"], parts=[
+        { name="mac-03.h3", crc="9996f3dc", offset=0x00000, length=0x40000, map="0021" },
+        { name="mac-03.h3", crc="9996f3dc", offset=0x40000, length=0x40000, map="2100" },
+    ] },
     # vaportra tiles1: single 512KB RGN_FRAC(1,2) (vtmaa00).
     # Load straight -> GFX2/scr1; game.v rotates the frac bit (17).
     { name="tiles1", machines=["vaportra","vaportrau","kuhga"], start="GFX2_START", No_offset=true },
@@ -205,10 +219,16 @@ regions = [
         { name="mag-01.1z", crc="5b399eed", offset=0x00000, length=0x40000, map="0021" },
         { name="mag-01.1z", crc="5b399eed", offset=0x40000, length=0x40000, map="2100" },
     ] },
-    { name="tiles2",   start="GFX3_START", No_offset=true, machines=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"] },
+    { name="tiles2", start="GFX3_START", No_offset=true, width=32, machines=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"], parts=[
+        { name="mac-02.e20", crc="49504e89", offset=0x00000, length=0x40000, map="0021" },
+        { name="mac-02.e20", crc="49504e89", offset=0x40000, length=0x40000, map="2100" },
+    ] },
     # vaportra tiles2 COPY 1 (BA1, scr2): vtmaa02 (frac1) + vtmaa01 (frac2), 1MB,
     # RGN_FRAC(1,2). Load STRAIGHT; game.v rotates the 1MB frac bit (18).
-    { name="tiles2", machines=["vaportra","vaportrau","kuhga"], start="GFX3_START", No_offset=true },
+    { name="tiles2", machines=["vaportra","vaportrau","kuhga"], start="GFX3_START", No_offset=true, width=32, parts=[
+        { name="vtmaa02.bin", crc="091ff98e", map="0021" },
+        { name="vtmaa01.bin", crc="c217a31b", map="2100" },
+    ] },
     # cbuster tiles2 = mab-01 (16x16), raw chunky load (see tiles1 note above).
     { name="tiles2", machines=["cbuster","cbusterw","cbusterj","twocrude","twocrudea"], start="GFX3_START", No_offset=true },
 

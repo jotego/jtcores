@@ -151,8 +151,6 @@ always @* begin
     // (was 3'b0) so the 1MB of 0xFF padding stays in the high half instead of
     // folding the rotate back onto the real sprite data and erasing it (white
     // squares). bit 18 = the RGN_FRAC(1,2) plane-pair split for the 1MB region.
-    if( prog_ba==2'd0 && (dseal | vapor) && prog_addr < SNDW ) // vaportra sprites 1MB = same
-        post_addr = { prog_addr[20:19], prog_addr[17:0], prog_addr[18] };
     // All three maincpu data-line descrambles (cbuster, darkseal, vaportra) live
     // on the READ path in jtcninja_main: they permute bits inside a byte, which
     // the byte-serial download cannot express for cbuster (no byte lane) and the
@@ -164,12 +162,6 @@ always @* begin
     // garbage. Gate it off for cbust.
     // cninja BA3 (char + tiles1) is now MRA chunky (frac/parts) -> identity.
     // darkseal/vaportra still pack RGN_FRAC(1,2) here in the download.
-    if( prog_ba==2'd3 && (dseal | vapor) ) begin            // BA3 = char + tiles1
-        if( prog_addr < gT1 )                                // char  (half @ word bit15)
-            post_addr = { 6'd0, prog_addr[14:0], prog_addr[15] };
-        else if( prog_addr < gT2 )                           // tiles1 512KB (half @ word bit17)
-            post_addr = gT1 + { 4'd0, t1w[16:0], t1w[17] };
-    end
     // BA1 = tiles2, read by both tilegen1 playfields (scr2 + scr3 slots).
     // Same RGN_FRAC + ROM_CONTINUE rotate, now relative to BA1 (tiles2 at offset 0):
     // gfx_romcont = +ROM_CONTINUE word bit17<->18 swap (1MB cninja) else plain rotate.
@@ -177,15 +169,16 @@ always @* begin
     // still packs RGN_FRAC(1,2) here (single ROM, no ROM_CONTINUE).
     // vaportra tiles2 is 1MB RGN_FRAC(1,2) (vtmaa02|vtmaa01) -> frac bit is 18;
     // move it to the LSB (no padding bit to keep, the 1MB fills the slot).
-    if( prog_ba==2'd1 && vapor )
-        post_addr = { 3'd0, prog_addr[17:0], prog_addr[18] };
-    else if( prog_ba==2'd1 && dseal )
-        post_addr = gfx_romcont ? { 3'd0, prog_addr[18], prog_addr[16:0], prog_addr[17] }
-                                : { 3'd0, prog_addr[18], prog_addr[16:0], prog_addr[17] }; // keep bit18: darkseal 512KB tiles2 in 1MB slot, else padding folds onto data
     // ROW-MAJOR (cninja only, TEST): the MRA-chunky tiles are half-major (L 8px
     // col x16 rows, then R). Move the L/R half-select word bit (prog_addr[5]) down
     // to the dw32-word LSB (bit 1) so a row's two halves are ADJACENT dw32 words ->
     // the 2nd read is a 64-bit cache hit. deco16 roma16 swaps rhalf<->rsubrw to match.
+    // vaportra tiles1 is the one gfx region still packed here: the MRA form that
+    // reproduces this rotate byte-for-byte has not been pinned down yet, and the
+    // other seven regions (darkseal x4, vaportra sprites/tiles2/chars) are MRA
+    // chunky and verified identical. RGN_FRAC(1,2) half at word bit 17.
+    if( prog_ba==2'd3 && vapor && prog_addr >= gT1 && prog_addr < gT2 )
+        post_addr = gT1 + { 4'd0, t1w[16:0], t1w[17] };
     if( ~dseal & ~cbust & ~vapor ) begin                            // cninja only
         if( prog_ba==2'd1 ||                                        // tiles2 (BA1)
             (prog_ba==2'd3 && prog_addr >= gT1 && prog_addr < gT2) )// tiles1 (BA3)
