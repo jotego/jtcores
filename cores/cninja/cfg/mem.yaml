@@ -123,3 +123,18 @@ bram:
       din:  main_dout
       dout: palrw_dout
       rw:   true
+  # Sprite RAM 0x1a4000-0x1a47ff (0x400 words), .ram().share("spriteram1").
+  # objram is the CPU-visible copy; oram is the display buffer the engine scans
+  # (MAME's buffered_spriteram16), refreshed by the DMA-flag write at 0x1b4000.
+  # Same split karnov uses. oram carries the simfile so scene replay - which
+  # never strobes the DMA - still preloads the engine-visible RAM.
+  - name: objram
+    data_width: 16
+    addr_width: 11        # bytes -> AW=10
+    addr: dma_addr
+    dual_port: { name: objcpu, din: main_dout, dout: obj_dout, we: objcpu_we, rw: true }
+  - name: oram
+    data_width: 16
+    addr_width: 11
+    simfile: { big_endian: true }
+    dual_port: { name: dma, din: objram_dout, we: dma_we, rw: true }

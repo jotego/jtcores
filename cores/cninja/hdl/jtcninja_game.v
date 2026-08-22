@@ -38,7 +38,6 @@ wire [15:0] pf0_dout, pf1_dout;
 
 // Sprites (decospr)
 wire        objram_cs, obj_copy;
-wire [15:0] obj_dout;
 // Sprite gfx ROM: the engine drives one logical 32-bit bus (obj_*), fanned out
 // to the two parallel 1MB banks obj1 (BA0, planes 0,1) + obj2 (BA1, planes 2,3).
 wire [20:2] obj_addr;
@@ -87,6 +86,8 @@ wire        flip;
 wire        cb_pri;    // cbuster TC-4 layer priority (main -> video colmix)
 
 assign dsn        = { UDSWn, LDSWn };
+assign objcpu_addr = main_addr[10:1];
+assign objcpu_we   = {2{objram_cs & ~main_rnw}} & ~dsn;
 assign dip_flip   = flip;
 assign debug_view = 8'd0;
 assign st_dout    = 8'd0;
@@ -380,9 +381,11 @@ jtcninja_video u_video(
     .pf1_cs     ( pf1_cs    ),
     .pf0_dout   ( pf0_dout  ),
     .pf1_dout   ( pf1_dout  ),
-    .objram_cs  ( objram_cs ),
     .obj_copy   ( obj_copy  ),
-    .obj_dout   ( obj_dout  ),
+    .oram_addr  ( oram_addr ),
+    .oram_dout  ( oram_dout ),
+    .dma_addr   ( dma_addr  ),
+    .dma_we     ( dma_we    ),
     .pal_cs     ( pal_cs     ),
     .palrw_addr ( palrw_addr ),
     .palrw_we   ( palrw_we   ),

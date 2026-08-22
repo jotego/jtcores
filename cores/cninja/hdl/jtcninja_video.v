@@ -35,9 +35,13 @@ module jtcninja_video(
     input             pf1_cs,
     output     [15:0] pf0_dout,
     output     [15:0] pf1_dout,
-    input             objram_cs,
     input             obj_copy,
-    output     [15:0] obj_dout,
+    // sprite RAM lives in mem.yaml (bram: objram + oram); the engine reads the
+    // display buffer and drives the DMA sweep that refreshes it
+    output     [10:1] oram_addr,
+    input      [15:0] oram_dout,
+    output     [10:1] dma_addr,
+    output     [ 1:0] dma_we,
     input             pal_cs,
     output     [12:1] palrw_addr,
     output     [ 1:0] palrw_we,
@@ -208,32 +212,6 @@ assign palrw_addr = vapor ? {cpu_addr[14], cpu_addr[11:1]} : cpu_addr[12:1];
 assign palrw_we   = {2{pal_cs & wr}} & wmask;
 
 // ---------------------------------------------------------------------------
-// Sprite RAM : 0x1a4000-0x1a47ff (0x400 words), CPU r/w on port 0.
-// Double-buffered like buffered_spriteram16: a write to the DMA flag
-// (obj_copy, 0x1b4000) snapshots the CPU spriteram into u_objbuf, which the
-// obj engine scans. Without it the engine reads the list mid-CPU-update and
-// sprites tear in motion. Copy via jtframe_bram_dma (karnov pattern).
-// ---------------------------------------------------------------------------
-wire [ 9:0] oram_vaddr, objdma_addr;
-wire [15:0] oram_vq, oram_dmaq;
-wire        objdma_we;
-jtframe_dual_ram16 #(.AW(10), .ENDIAN(1)) u_obj(
-    .clk0(clk), .addr0(cpu_addr[10:1]), .data0(cpu_dout),
-    .we0({2{objram_cs & wr}} & wmask), .q0(obj_dout),
-    .clk1(clk), .addr1(objdma_addr), .data1(16'd0), .we1(2'b0), .q1(oram_dmaq));
-
-jtframe_bram_dma #(.AW(10)) u_objdma(
-    .rst(rst), .clk(clk), .cen(pxl_cen),    // cen cannot be 1'b1
-    .addr(objdma_addr), .start(obj_copy), .we(objdma_we));
-
-// Display buffer the obj engine scans. SIMFILE lives HERE (not u_obj) so scene
-// replay - which never strobes obj_copy - still preloads the engine-visible RAM.
-jtframe_dual_ram16 #(.AW(10), .ENDIAN(1), .SIMFILE(SF_ORAM)) u_objbuf(
-    .clk0(clk), .addr0(objdma_addr), .data0(oram_dmaq),
-    .we0({2{objdma_we & pxl_cen}}), .q0(),
-    .clk1(clk), .addr1(oram_vaddr), .data1(16'd0), .we1(2'b0), .q1(oram_vq));
-
-// ---------------------------------------------------------------------------
 // Row/column scroll tables. Board RAM (the driver's m_pf_rowscroll), read+write:
 // the CPU reads back the accumulated value (cninja's boss-sink colscroll does
 // `add.w (A4),D0` to ramp it), so q0 feeds the pf*_dout muxes below.
@@ -381,7 +359,8 @@ wire [11:0] obj_pxl;   // {epri, pri[1:0], colour[4:0], pixel[3:0]}
 jtcninja_obj u_obj_eng(
     .rst(rst), .clk(clk), .pxl_cen(pxl_cen), .flip(flip), .dseal(dseal), .cbust(cbust),
     .HS(HS), .LHBL(LHBL), .LVBL(LVBL), .vrender(vrender), .hdump(hdump_rd),
-    .oram_addr(oram_vaddr), .oram_dout(oram_vq),
+    .obj_copy(obj_copy), .oram_addr(oram_addr), .oram_dout(oram_dout),
+    .dma_addr(dma_addr), .dma_we(dma_we),
     .rom_cs(obj_cs), .rom_addr(obj_addr), .rom_data(obj_data), .rom_ok(obj_ok),
     .pxl(obj_pxl)
 );
