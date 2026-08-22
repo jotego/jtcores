@@ -138,7 +138,6 @@ wire [19:0] t2w = prog_addr[19:0] - gT2[19:0];   // tiles2-relative word
 // It must download raw, so the sprite plane-pair rotate below stops here.
 localparam [21:0] SNDW = 22'h100000;
 always @* begin
-    post_data = prog_data;
     post_addr = prog_addr;                                   // identity (proms)
     // Sprites (BA0): interleave the RGN_FRAC(1,2) plane-pairs into 32-bit chunky.
     // Rotate the plane-pair-select word bit (the FRAC half: planes 0,1 in the low
@@ -154,23 +153,10 @@ always @* begin
     // squares). bit 18 = the RGN_FRAC(1,2) plane-pair split for the 1MB region.
     if( prog_ba==2'd0 && (dseal | vapor) && prog_addr < SNDW ) // vaportra sprites 1MB = same
         post_addr = { prog_addr[20:19], prog_addr[17:0], prog_addr[18] };
-    // Dark Seal maincpu (BA2, first 512kB) is data-line scrambled: MAME's
-    // driver_init swaps data bits D1<->D6 across the whole 68k ROM
-    //   rom = (rom&0xbd) | ((rom&0x02)<<5) | ((rom&0x40)>>5)
-    // Apply the same swap during download (game_id==2 only). The download is
-    // byte-wide (prog_data[7:0]), so swap bits 6<->1 of each byte.
-    if( dseal && prog_ba==2'd2 && prog_addr < 22'h40000 )
-        post_data = { prog_data[7], prog_data[1], prog_data[5:2], prog_data[6], prog_data[0] };
-    // Vapor Trail maincpu (BA2, 512kB) decrypt: MAME driver_init swaps data bit7<->bit0
-    //   rom = bitswap<8>(rom, 0,6,5,4,3,2,1,7)  -> out = {in[0], in[6:1], in[7]}.
-    // Whole 68k ROM (0..0x7ffff bytes = 0..0x40000 words). gfx are MRA-chunky (identity).
-    if( vapor && prog_ba==2'd2 && prog_addr < 22'h40000 )
-        post_data = { prog_data[0], prog_data[6:1], prog_data[7] };
-    // Crude Buster maincpu is also data-line scrambled (MAME init_twocrude) but
-    // with a DIFFERENT permutation per byte of each 68k word, so it cannot be
-    // undone here: the download remap is byte-serial and the game side sees only
-    // the 8-bit data + WORD address (no byte lane). cbuster is instead decrypted
-    // on the READ path in jtcninja_main (where [15:8]=MSB / [7:0]=LSB are known).
+    // All three maincpu data-line descrambles (cbuster, darkseal, vaportra) live
+    // on the READ path in jtcninja_main: they permute bits inside a byte, which
+    // the byte-serial download cannot express for cbuster (no byte lane) and the
+    // MRA cannot express at all.
     // cbuster's tiles are RGN_FRAC(1,1) byte-per-plane = ALREADY chunky
     // {p3,p2,p1,p0} with word-in-tile=half*16+row, so they load with IDENTITY
     // post_addr. The RGN_FRAC(1,2) plane-interleave rotate below is cninja/darkseal

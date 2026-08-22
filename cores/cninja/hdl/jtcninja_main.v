@@ -329,18 +329,29 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// Crude Buster maincpu decrypt (MAME init_twocrude). MAME descrambles the whole
-// 68k ROM in memory; equivalently we store it RAW in SDRAM and undo the data-line
-// scramble on read. Each 68k word uses a DIFFERENT byte permutation: the high
-// (MSB) byte the H-map, the low (LSB) byte the L-map. Here the lanes are known
-// ([15:8]=MSB, [7:0]=LSB), unlike the byte-serial download path. Verified vs MAME:
-// reset vector -> SSP=0x084000 (top of work RAM), PC=0x600; 0x606 = 46 FC 27 00.
-//   H: out={in4,in6,in7,in5,in3:0}   L: out={in7,in1,in5,in4,in6,in2,in3,in0}
-wire [15:0] rom_dec = cb ? {
+// maincpu data-line descrambles. MAME does them once over the whole 68k ROM in
+// driver_init; equivalently the ROM is stored RAW in SDRAM and undone on read.
+// The read path is the only place they CAN live: they permute bits inside a
+// byte, which neither the MRA (byte/file level only) nor the byte-serial
+// download path can express - the download sees no byte lane, and cbuster needs
+// a different permutation per lane.
+//   cbuster  (init_twocrude) per-lane: H out={in4,in6,in7,in5,in3:0}
+//                                      L out={in7,in1,in5,in4,in6,in2,in3,in0}
+//            verified vs MAME: SSP=0x084000, PC=0x600, 0x606 = 46 FC 27 00
+//   darkseal D1<->D6, same map on both lanes
+//   vaportra D7<->D0, same map on both lanes
+// All three are self-inverse, so undoing on read is the same permutation.
+// Each game's descramble covers its whole maincpu region, so gating on rom_cs
+// is enough (no address compare needed).
+wire [15:0] rom_cb = {
     rom_data[12], rom_data[14], rom_data[15], rom_data[13], rom_data[11:8],  // H(MSB)
     rom_data[ 7], rom_data[ 1], rom_data[ 5], rom_data[ 4],
-    rom_data[ 6], rom_data[ 2], rom_data[ 3], rom_data[ 0] }                 // L(LSB)
-    : rom_data;
+    rom_data[ 6], rom_data[ 2], rom_data[ 3], rom_data[ 0] };                // L(LSB)
+wire [15:0] rom_ds = { rom_data[15], rom_data[ 9], rom_data[13:10], rom_data[14], rom_data[8],
+                       rom_data[ 7], rom_data[ 1], rom_data[ 5: 2], rom_data[ 6], rom_data[0] };
+wire [15:0] rom_vp = { rom_data[ 8], rom_data[14:9], rom_data[15],
+                       rom_data[ 0], rom_data[ 6:1], rom_data[ 7] };
+wire [15:0] rom_dec = cb ? rom_cb : ds ? rom_ds : vp ? rom_vp : rom_data;
 
 always @(posedge clk) begin
     cpu_din <= rom_cs     ? rom_dec     :
