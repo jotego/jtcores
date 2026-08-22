@@ -245,7 +245,10 @@ end
 // Register map
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        mmr[0]  <= 0; mmr[1] <= 0; mmr[2] <= 0; mmr[3] <= 0;
+        // Block Hole never writes REG_CFG, it relies on the power-up value.
+        // 13 = memory mapper 11 (attr 0~1, code 2~3, cpu 4~5) + cfg[4:2]=100.
+        // Every other game writes this register during its init code
+        mmr[0]  <= 8'h13; mmr[1] <= 0; mmr[2] <= 0; mmr[3] <= 0;
         mmr[4]  <= 0; mmr[5] <= 0; mmr[6] <= 0;
 `ifdef SIMULATION
         if( fcnt!=0 ) begin

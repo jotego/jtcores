@@ -8,7 +8,7 @@ module jtaliens_video(
     input             pxl_cen,
     input             pxl2_cen,
     input             gx878,
-    input      [ 1:0] cfg,
+    input      [ 2:0] cfg,
     input      [ 1:0] cpu_prio,
 
     // Base Video
@@ -96,10 +96,11 @@ assign prio_we = prom_we & (cfg==SCONTRA | ~prog_addr[7]);
 // the other games use the tilemapper chip instead
 assign cpu_irq_n = cfg==ALIENS || cfg==CRIMFGHT ? obj_irqn : tile_irqn;
 assign cpu_nmi_n = cfg==ALIENS   ? obj_nmin :
-                   cfg==CRIMFGHT ? 1'b1 : tile_nmin;
+                   cfg==CRIMFGHT ||
+                   cfg==BLOCKHL  ? 1'b1 : tile_nmin;
 
-assign opal_eff  = cfg==SCONTRA || cfg==CRIMFGHT ? opal : { 1'b0, opal[6:0] };
-assign ocode_eff = cfg==SCONTRA || cfg==CRIMFGHT ? { 1'b0, ocode } : { opal[7], ocode };
+assign opal_eff  = cfg==SCONTRA || cfg==CRIMFGHT || cfg==BLOCKHL ? opal : { 1'b0, opal[6:0] };
+assign ocode_eff = cfg==SCONTRA || cfg==CRIMFGHT || cfg==BLOCKHL ? { 1'b0, ocode } : { opal[7], ocode };
 
 
 // Debug
@@ -138,6 +139,11 @@ always @* begin
             lyra_addr = { 2'b0, pre_a[11], lyra_col[4:0], pre_a[10:0] };
             lyrb_addr = { 2'b0, pre_b[11], lyrb_col[4:0], pre_b[10:0] };
         end
+        BLOCKHL: begin // 128kB of tiles only, the 052109 bank bits are not used
+            lyrf_addr = { 4'd0, lyrf_col[3:0], pre_f[10:0] };
+            lyra_addr = { 4'd0, lyra_col[3:0], pre_a[10:0] };
+            lyrb_addr = { 4'd0, lyrb_col[3:0], pre_b[10:0] };
+        end
         SCONTRA: begin
             lyrf_addr = { 1'b0, pre_f[12:11], lyrf_col[4:0], pre_f[10:0] };
             lyra_addr = { 1'b0, pre_a[12:11], lyra_col[4:0], pre_a[10:0] };
@@ -152,7 +158,8 @@ always @* begin
 end
 
 function [7:0] cgate( input [7:0] c);
-    cgate = cfg==SCONTRA  || cfg==THUNDERX ? { c[7:5], 5'd0       } :
+    cgate = cfg==SCONTRA  || cfg==THUNDERX ||
+            cfg==BLOCKHL                   ? { c[7:5], 5'd0       } :
             cfg==CRIMFGHT ? { c[7:6], 5'd0, c[5] } :
                             { c[7:6], 6'd0       };
 endfunction

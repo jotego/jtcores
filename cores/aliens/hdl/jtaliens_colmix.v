@@ -6,7 +6,7 @@ module jtaliens_colmix(
     input             rst,
     input             clk,
     input             pxl_cen,
-    input      [ 1:0] cfg,
+    input      [ 2:0] cfg,
     input      [ 1:0] cpu_prio,
 
     // Base Video
@@ -48,15 +48,16 @@ module jtaliens_colmix(
 
 `include "jtaliens.inc"
 
-wire [ 1:0] prio_sel;
+wire [ 1:0] prom_sel;
+reg  [ 1:0] prio_sel;
 wire [ 7:0] pal_dout;
 wire [ 7:0] prio_addr;
-reg         pal_half, shl;
+reg         pal_half, shl, shad;
 reg  [ 9:0] pxl;
 reg  [15:0] pxl_aux;
 reg  [23:0] bgr;
 wire [10:0] pal_addr;
-wire        shad;
+wire        prom_shad;
 
 assign prio_addr = {
     cfg==SCONTRA  ? { cpu_prio[0], shadow, lyro_pxl[ 9:8] } :
@@ -68,6 +69,22 @@ assign prio_addr = {
 assign pal_addr  = { pxl, pal_half };
 assign ioctl_din = pal_dout;
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
+
+// Block Hole does not use the priority PROM. Layer order taken from
+// MAME's blockhl.cpp: B (opaque), A, sprites, F. Sprites with OC4 set
+// are masked by tilemap A
+always @* begin
+    if( cfg==BLOCKHL ) begin
+        prio_sel = lyrf_blnk_n                ? 2'd3 :
+                   lyro_blnk_n & ~lyro_pxl[8] ? 2'd2 :
+                   lyra_blnk_n                ? 2'd0 :
+                   lyro_blnk_n                ? 2'd2 : 2'd1;
+        shad     = shadow & lyro_blnk_n;
+    end else begin
+        prio_sel = prom_sel;
+        shad     = prom_shad;
+    end
+end
 
 always @* begin
     case( cfg )
@@ -85,6 +102,12 @@ always @* begin
             1: pxl = { 3'b010, lyrb_pxl[7:5], lyrb_pxl[3:0] };
             2: pxl = { 2'b10,  lyro_pxl[7:0] };
             3: pxl = { 3'b110, lyrf_pxl[7:5], lyrf_pxl[3:0] };
+        endcase
+        BLOCKHL: case( prio_sel )   // colour bases 0/256/512/768
+            0: pxl = { 3'b001, lyra_pxl[7:5], lyra_pxl[3:0] };
+            1: pxl = { 3'b010, lyrb_pxl[7:5], lyrb_pxl[3:0] };
+            2: pxl = { 2'b11,  lyro_pxl[7:0] };
+            3: pxl = { 3'b000, lyrf_pxl[7:5], lyrf_pxl[3:0] };
         endcase
         default: pxl=0;
     endcase
@@ -126,7 +149,7 @@ jtframe_prom #(.DW(3), .AW(8)) u_prio (
     .rd_addr( prio_addr     ),
     .wr_addr( prog_addr     ),
     .we     ( prom_we       ),
-    .q      ({shad,prio_sel})
+    .q      ({prom_shad,prom_sel})
 );
 
 // Aliens only uses 1kB, Super Contra uses 2kB

@@ -8,7 +8,7 @@ module jtaliens_sound(
     input           cen_fm,
     input           cen_fm2,
     input   [ 1:0]  fxlevel,
-    input   [ 1:0]  cfg,        // board configuration
+    input   [ 2:0]  cfg,        // board configuration
     // communication with main CPU
     input           snd_irq,
     input   [ 7:0]  snd_latch,
@@ -89,7 +89,7 @@ always @(*) begin
             dac_cs    = mem_upper && A[14:13]==3; // E/Fxxx
             bank_cs   = 0;
         end
-        default: begin // super contra, thunder cross
+        default: begin // super contra, thunder cross, block hole
             ram_cs    = mem_upper && A[14:12]==0; // 8/9xxx
             latch_cs  = mem_upper && A[14:12]==2; // Axxx
             dac_cs    = mem_upper && A[14:12]==3; // Bxxx

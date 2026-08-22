@@ -5,6 +5,7 @@ author=["jotego"]
 sourcefile=[ "aliens.cpp",
     "thunderx.cpp",
     "crimfght.cpp",
+    "blockhl.cpp",
 ]
 
 [Audio]
@@ -31,12 +32,14 @@ info="""
         byte 0: PCB ID
         byte 1:
             bit    0 = GX878 (Gang Busters)
-            bits 2:1 = PCB config -> 0=Aliens, 1=Super Contra, 2=Thunder Cross"""
+            bits 3:1 = PCB config -> 0=Aliens, 1=Super Contra, 2=Thunder Cross,
+                       3=Crime Fighters, 4=Block Hole"""
 PCBs = [
     { machine=  "aliens"   },
     { machines=["crimfght","gbusters"] },
     { machine=  "thunderx" },
     { machine=  "scontra"  },
+    { machine=  "blockhl"  },
 ]
 data = [
     { pcb_id=true,        offset=0 },
@@ -44,10 +47,13 @@ data = [
     { machine="thunderx", offset=1, data="04" },
     { machine="crimfght", offset=1, data="06" },
     { machine="gbusters", offset=1, data="05" },
+    { machine="blockhl",  offset=1, data="08" },
 ]
 
 [dipsw]
 delete=[{names=["Unused","Unknown"]}]
+# blockhl keeps its DSW3 switches in the upper nibble of the port
+offset=[ { machine="blockhl", name="DSW3", value=12 } ]
 rename=[ {name="Continue Limit (1Player/2Players)", to="Max cont", values=["5 and 4","3 and 2"] }, ]
 
 [ROM]
@@ -57,10 +63,11 @@ regions = [
     { name="k007232",   start="PCM_START" },
     { name="k052109",   start="JTFRAME_BA2_START", width=32 }, # tiles
     { name="k051960",   start="JTFRAME_BA3_START", width=32, reverse=true }, # sprites
-    { name="proms",     start="JTFRAME_PROM_START" } # last one is the priority encoder
+    { name="proms",     start="JTFRAME_PROM_START" }, # last one is the priority encoder
+    { name="priority",  start="JTFRAME_PROM_START" } # blockhl's name for it
 ]
 
-order = [ "maincpu", "audiocpu", "k007232", "k052109", "k051960", "proms" ]
+order = [ "maincpu", "audiocpu", "k007232", "k052109", "k051960", "proms", "priority" ]
 
 # Skips the RAM check
 patches = [ { setname="aliens",  offset=0x2806a, data="AE AE AE" },

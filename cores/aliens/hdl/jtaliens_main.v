@@ -9,7 +9,7 @@ module jtaliens_main(
     input               cen12,
     output              cpu_cen,
 
-    input       [ 1:0]  cfg,
+    input       [ 2:0]  cfg,
     output      [ 7:0]  cpu_dout,
     output reg          init,
 
@@ -107,6 +107,9 @@ always @(*) begin
         CRIMFGHT: begin
             rom_addr = { 1'b0, A[15] ?  {2'b11,A[14:13]} : Aupper[3:0], A[12:0] };
         end
+        BLOCKHL: begin // 64kB ROM, 4x8kB pages at 6000-7FFF, 8000-FFFF fixed
+            rom_addr = { 2'b0, banked_cs ? {1'b0,eff_bank[1:0]} : A[15:13], A[12:0] };
+        end
         default: begin // Aliens
             rom_addr = banked_cs ? {  Aupper[4:0], A[12:0] } // 5+13=18
                                   : { 2'b10, A }; // 2+16=18
@@ -162,8 +165,8 @@ always @(*) begin
                           | e19_o12
                           | &A[9:7] & norA65 & incs );
         end
-        SCONTRA, THUNDERX: begin
-            banked_cs  = A[15:13]==3 && (init || cfg==THUNDERX); // 6000-7FFFF
+        SCONTRA, THUNDERX, BLOCKHL: begin
+            banked_cs  = A[15:13]==3 && (init || cfg!=SCONTRA); // 6000-7FFFF
             pal_cs     = A[15:12]==5 && A[11] && ~work; // CRAMCS in sch
             ram_cs     = A[15:13]==2 && (!A[11] || !A[12]&&A[11] || work);
             ioout      = A[15:13]==0;
@@ -222,6 +225,11 @@ always @(posedge clk, posedge rst) begin
             init <= Aupper[7];
             rmrd <= Aupper[6];
             work <= Aupper[5];
+        end
+        if( cfg==BLOCKHL ) begin
+            init <= 1;          // no INIT bit on this board
+            rmrd <= Aupper[6];
+            work <= Aupper[5];  // 1 = work RAM at 5800, 0 = palette
         end
         if(cpu_cen) snd_irq <= 0;
         if( io_cs ) case(cfg)
@@ -297,6 +305,21 @@ always @(posedge clk, posedge rst) begin
                     6: rmrd <= cpu_dout[0];
                     7: init <= cpu_dout[0];
                     default:;
+                endcase
+            end
+            BLOCKHL: begin // address map only known from MAME, no schematics
+                if( cpu_we ) case( A[6:0] )
+                    7'h04: snd_latch <= cpu_dout;
+                    7'h08: snd_irq   <= 1;
+                    // 0C: watchdog
+                    default:;
+                endcase else case( A[6:0] )
+                    7'h14: port_in <= { dipsw[19:16], 1'b1, service, coin[1:0] };
+                    7'h15: port_in <= { cab_1p[0], joystick1[6:0] };
+                    7'h16: port_in <= { cab_1p[1], joystick2[6:0] };
+                    7'h17: port_in <= dipsw[ 7:0];
+                    7'h18: port_in <= dipsw[15:8];
+                    default: port_in <= 8'hff;
                 endcase
             end
             ALIENS: begin // Aliens
