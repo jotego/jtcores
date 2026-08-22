@@ -73,7 +73,12 @@ wire [ 8:0] vr    = flip ? 9'd255 - vrender : vrender;
 wire [ 9:0] src_y = (scrolly[9:0] + {1'b0,vr}) & hmask;
 
 // ---- FSM ----
-localparam IDLE=0, XRD=1, XSET=2, CRD=3, CSET=4, RAMW=5, DEC=6, GFXW=7, WR=8;
+// XW*/CW* are wait states: the row/colscroll table is shared with the other
+// playfield of the chip through a single BRAM port (see jtcninja_deco16ic), so
+// rsram_addr must be held long enough for either arbiter phase to be served
+// and captured. Four cycles per read covers the worst case.
+localparam IDLE=0, XRD=1, XSET=2, CRD=3, CSET=4, RAMW=5, DEC=6, GFXW=7, WR=8,
+           XW1=9, XW2=10, CW1=11, CW2=12;
 reg  [ 3:0] st;
 reg  [ 9:0] xstart, src_x;
 reg  [ 8:0] scrx_pos;          // screen X of the current column's first pixel
@@ -110,7 +115,7 @@ wire [10:0] cs_a  = 11'h200 + {2'b0, ((src_x[8:0] >> cs_sh) & 9'h1ff)};
 wire [ 9:0] xnew  = (scrollx[9:0] + (rowscr ? rsram_data[9:0] : 10'd0)) & wmask;
 
 always @* begin
-    rsram_addr = (st==XRD||st==XSET) ? rs_a : cs_a;
+    rsram_addr = (st==XRD||st==XW1||st==XW2||st==XSET) ? rs_a : cs_a;
     ram_addr   = tile16 ? idx16 : idx8;
 end
 
@@ -150,14 +155,18 @@ always @(posedge clk, posedge rst) begin
             colcnt <= 0;
             st     <= en ? XRD : IDLE;     // disabled playfield emits pen 0
         end
-        XRD:  st <= XSET;                  // rsram=rs_a issued
+        XRD:  st <= XW1;                   // rsram=rs_a issued
+        XW1:  st <= XW2;
+        XW2:  st <= XSET;
         XSET: begin                        // rowscroll X ready
             xstart   <= xnew;
             src_x    <= xnew & ~10'd7;
             scrx_pos <= 9'd0 - {6'd0, xnew[2:0]};
             st       <= CRD;
         end
-        CRD:  st <= CSET;                  // rsram=cs_a(src_x) issued
+        CRD:  st <= CW1;                   // rsram=cs_a(src_x) issued
+        CW1:  st <= CW2;
+        CW2:  st <= CSET;
         CSET: begin                        // colscroll Y ready -> mapy
             mapy <= (src_y + (colscr ? rsram_data[9:0] : 10'd0)) & hmask;
             st   <= RAMW;                  // ram_addr now combinationally valid
