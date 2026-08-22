@@ -307,7 +307,7 @@ always @(posedge clk, posedge rst) begin
                     default:;
                 endcase
             end
-            BLOCKHL: begin // address map only known from MAME, no schematics
+            BLOCKHL: begin
                 if( cpu_we ) case( A[6:0] )
                     7'h04: snd_latch <= cpu_dout;
                     7'h08: snd_irq   <= 1;

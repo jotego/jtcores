@@ -100,7 +100,9 @@ assign cpu_nmi_n = cfg==ALIENS   ? obj_nmin :
                    cfg==BLOCKHL  ? 1'b1 : tile_nmin;
 
 assign opal_eff  = cfg==SCONTRA || cfg==CRIMFGHT || cfg==BLOCKHL ? opal : { 1'b0, opal[6:0] };
-assign ocode_eff = cfg==SCONTRA || cfg==CRIMFGHT || cfg==BLOCKHL ? { 1'b0, ocode } : { opal[7], ocode };
+// Block Hole has 128kB of objects, the upper address pins are not wired
+assign ocode_eff = cfg==BLOCKHL ? { 4'd0, ocode[9:0] } :
+                   cfg==SCONTRA || cfg==CRIMFGHT ? { 1'b0, ocode } : { opal[7], ocode };
 
 
 // Debug

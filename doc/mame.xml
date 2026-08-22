@@ -27504,6 +27504,304 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="blockhl" sourcefile="konami/blockhl.cpp">
+		<description>Block Hole</description>
+		<year>1989</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="973l02.e21" size="65536" crc="e14f849a" sha1="d44cf178cc98998b72ed32c6e20b6ebdf1f97579" region="maincpu" offset="0"/>
+		<rom name="973d01.g6" size="32768" crc="eeee9d92" sha1="6c6c324b1f6f4fba0aa12e0d1fc5dbab133ef669" region="audiocpu" offset="0"/>
+		<rom name="973f07.k15" size="32768" crc="1a8cd9b4" sha1="7cb7944d24ac51fa6b610542d9dec68697cacf0f" region="k052109" offset="0"/>
+		<rom name="973f08.k18" size="32768" crc="952b51a6" sha1="017575738d444b688b137cad5611638d53be84f2" region="k052109" offset="1"/>
+		<rom name="973f09.k20" size="32768" crc="77841594" sha1="e1bfdc5bb598d865868d578ef7faba8078becd7a" region="k052109" offset="2"/>
+		<rom name="973f10.k23" size="32768" crc="09039fab" sha1="a9dea17aacf4484d21ef3b16470263447b51b6b5" region="k052109" offset="3"/>
+		<rom name="973f06.k12" size="32768" crc="51acfdb6" sha1="94d243f341b490684f5297d95d4835bd522ece35" region="k051960" offset="0"/>
+		<rom name="973f05.k9" size="32768" crc="4cfea298" sha1="4772b5b99f5fd8174d8884bd84173512e1edabf4" region="k051960" offset="1"/>
+		<rom name="973f04.k7" size="32768" crc="69ca41bd" sha1="9b0b1c888efd2f2d5525f14778e18fb4a7353eb6" region="k051960" offset="2"/>
+		<rom name="973f03.k4" size="32768" crc="21e98472" sha1="8c697d369a1f57be0825c33b4e9107ce1b02a130" region="k051960" offset="3"/>
+		<rom name="973a11.h10" size="256" crc="46d28fe9" sha1="9d0811a928c8907785ef483bfbee5445506b3ec8" region="priority" offset="0"/>
+		<device_ref name="konami_cpu"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k051960"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<chip type="cpu" tag="maincpu" name="KONAMI CPU" clock="12000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="59.185606" pixclock="6000000" htotal="384" hbend="16" hbstart="304" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="4"/>
+			<control type="joy" player="2" buttons="3" ways="4"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="Void" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="1" value="1" default="yes"/>
+			<dipvalue name="2" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Difficult" value="32"/>
+			<dipvalue name="Very Difficult" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW3" mask="16">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW3" mask="32">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW3" mask="64">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW3" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":DSW3">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="quarth" sourcefile="konami/blockhl.cpp" cloneof="blockhl" romof="blockhl">
+		<description>Quarth (Japan)</description>
+		<year>1989</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="973j02.e21" size="65536" crc="27a90118" sha1="51309385b93db29b9277d14252166c4ea1746303" region="maincpu" offset="0"/>
+		<rom name="973d01.g6" merge="973d01.g6" size="32768" crc="eeee9d92" sha1="6c6c324b1f6f4fba0aa12e0d1fc5dbab133ef669" region="audiocpu" offset="0"/>
+		<rom name="973e07.k15" size="32768" crc="0bd6b0f8" sha1="6c59cf637354fe2df424eaa89feb9c1bc1f66a92" region="k052109" offset="0"/>
+		<rom name="973e08.k18" size="32768" crc="104d0d5f" sha1="595698911513113d01e5b565f5b073d1bd033d3f" region="k052109" offset="1"/>
+		<rom name="973e09.k20" size="32768" crc="bd3a6f24" sha1="eb45db3a6a52bb2b25df8c2dace877e59b4130a6" region="k052109" offset="2"/>
+		<rom name="973e10.k23" size="32768" crc="cf5e4b86" sha1="43348753894c1763b26dbfc70245dac92048db8f" region="k052109" offset="3"/>
+		<rom name="973e06.k12" size="32768" crc="0d58af85" sha1="2efd661d614fb305a14cfe1aa4fb17714f215d4f" region="k051960" offset="0"/>
+		<rom name="973e05.k9" size="32768" crc="15d822cb" sha1="70ecad5e0a461df0da6e6eb23f43a7b643297f0d" region="k051960" offset="1"/>
+		<rom name="973e04.k7" size="32768" crc="d70f4a2c" sha1="25f835a17bacf2b8debb2eb8a3cff90cab3f402a" region="k051960" offset="2"/>
+		<rom name="973e03.k4" size="32768" crc="2c5a4b4b" sha1="e2991dd78b9cd96cf93ebd6de0d4e060d346ab9c" region="k051960" offset="3"/>
+		<rom name="973a11.h10" merge="973a11.h10" size="256" crc="46d28fe9" sha1="9d0811a928c8907785ef483bfbee5445506b3ec8" region="priority" offset="0"/>
+		<device_ref name="konami_cpu"/>
+		<device_ref name="z80"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k051960"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<chip type="cpu" tag="maincpu" name="KONAMI CPU" clock="12000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="59.185606" pixclock="6000000" htotal="384" hbend="16" hbstart="304" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="4"/>
+			<control type="joy" player="2" buttons="3" ways="4"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="Void" value="0"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="1" value="1" default="yes"/>
+			<dipvalue name="2" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Difficult" value="32"/>
+			<dipvalue name="Very Difficult" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW3" mask="16">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW3" mask="32">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW3" mask="64">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW3" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":DSW3">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="blockj" sourcefile="capcom/mitchell.cpp" cloneof="block" romof="block">
 		<description>Block Block (Japan 910910)</description>
 		<year>1991</year>

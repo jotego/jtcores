@@ -70,9 +70,8 @@ assign pal_addr  = { pxl, pal_half };
 assign ioctl_din = pal_dout;
 assign {blue,green,red} = (lvbl & lhbl ) ? bgr : 24'd0;
 
-// Block Hole does not use the priority PROM. Layer order taken from
-// MAME's blockhl.cpp: B (opaque), A, sprites, F. Sprites with OC4 set
-// are masked by tilemap A
+// Block Hole has no priority PROM: B, A, objects, F from back to front.
+// Objects with OC4 set go behind tilemap A
 always @* begin
     if( cfg==BLOCKHL ) begin
         prio_sel = lyrf_blnk_n                ? 2'd3 :
@@ -104,8 +103,8 @@ always @* begin
             3: pxl = { 3'b110, lyrf_pxl[7:5], lyrf_pxl[3:0] };
         endcase
         BLOCKHL: case( prio_sel )   // colour bases 0/256/512/768
-            0: pxl = { 3'b001, lyra_pxl[7:5], lyra_pxl[3:0] };
-            1: pxl = { 3'b010, lyrb_pxl[7:5], lyrb_pxl[3:0] };
+            0: pxl = { 3'b010, lyra_pxl[7:5], lyra_pxl[3:0] };
+            1: pxl = { 3'b100, lyrb_pxl[7:5], lyrb_pxl[3:0] };
             2: pxl = { 2'b11,  lyro_pxl[7:0] };
             3: pxl = { 3'b000, lyrf_pxl[7:5], lyrf_pxl[3:0] };
         endcase
