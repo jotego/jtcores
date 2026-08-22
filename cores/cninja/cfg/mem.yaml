@@ -20,28 +20,9 @@ params:
   - { name: GFX3B_OFFSET, value: "(`GFX3_BA2_START-`JTFRAME_BA2_START)>>1" }
   - { name: GFX3_OFFSET,  value: "(`GFX3_START    -`JTFRAME_BA1_START)>>1" }
   - { name: GFX2_OFFSET,  value: "(`GFX2_START    -`JTFRAME_BA3_START)>>1" }
-# Sound domain. Everything is one crystal: 32.220 MHz = 48 MHz * 537/800.
-# 48 MHz is not an integer multiple of it, so the base cen has to be that
-# fraction - but every chip below is then an exact integer division of the
-# crystal, and the ones that fall on a /2 sequence share a single cen chain
-# (outputs[0] is the base, each following output is another /2).
-# Divisions read off the MAME MACHINE_CONFIGs:
-#   cninja.cpp:779,839,841,847,849 | darkseal.cpp:325,374,376,381,383
-#   cbuster.cpp:415,467,469,473,475 | vaportra.cpp:384,438,440,445,447
-#     H6280 (Deco 45)  /8 = 4.0275 MHz    (darkseal /4; cbuster+vaportra 24MHz/4)
-#     YM2203           /8 = 4.0275 MHz    (cbuster writes /24*3 = the same number)
-#     YM2151           /9 = 3.5800 MHz
-#     MSM6295 #2      /16 = 2.01375 MHz
-#     MSM6295 #1      /32 = 1.006875 MHz
+
 clocks:
   clk:
-    # HuC6280 CLK input. The HUC6280 core divides CLK by 6 in high-speed mode
-    # (cpu_clk_cnt wraps at 5, see HUC6280.v), so this is 6x the CPU rate:
-    # 24 MHz -> 4.000 MHz vs MAME's 4.0275. The exact 24.165 MHz is above clk/2
-    # and cannot be produced by a cen. NOT gated on `snd`: at clk/2 the cen is
-    # already at its maximum rate, so jtframe_gated_cen has no spare cycles to
-    # recover a stall and the CPU would just run slow. The snd ROM wait goes
-    # through the HuC6280's own WAIT_N instead.
     - { freq: 24000000, outputs: [ cen_snd ] }
     - { freq:  4027500, outputs: [ cen_opn ] }   # xtal/8
     - { freq:  3580000, outputs: [ cen_opm ] }   # xtal/9
@@ -109,10 +90,7 @@ sdram:
         addr_width: 19        # 512kB
         data_width: 32
         offset: GFX2_OFFSET
-# Palette RAM 0x19c000-0x19dfff, 4096 x 16 (xBGR_888, 2 words/colour). Board
-# SRAM: cninja.cpp maps it .ram().w(palette,write16).share("palette"). Port 0
-# is the colour mixer's read port; the dual port is the CPU side (byte lanes
-# + read-back). big_endian matches the m68k byte order of the scene dumps.
+
 bram:
   - name: pal
     addr_width: 13        # bytes -> 16-bit AW=12
@@ -123,11 +101,6 @@ bram:
       din:  main_dout
       dout: palrw_dout
       rw:   true
-  # Sprite RAM 0x1a4000-0x1a47ff (0x400 words), .ram().share("spriteram1").
-  # objram is the CPU-visible copy; oram is the display buffer the engine scans
-  # (MAME's buffered_spriteram16), refreshed by the DMA-flag write at 0x1b4000.
-  # Same split karnov uses. oram carries the simfile so scene replay - which
-  # never strobes the DMA - still preloads the engine-visible RAM.
   - name: objram
     data_width: 16
     addr_width: 11        # bytes -> AW=10
@@ -138,7 +111,6 @@ bram:
     addr_width: 11
     simfile: { big_endian: true }
     dual_port: { name: dma, din: objram_dout, we: dma_we, rw: true }
-  # 68000 work RAM 0x184000-0x187fff (16kB). cninja.cpp maps it as plain .ram().
   - name: work
     data_width: 16
     addr_width: 14        # bytes -> 8192 words
@@ -146,7 +118,6 @@ bram:
     din: main_dout
     we: work_we
     rw: true
-  # HuC6280 work RAM 0x1f0000-0x1f1fff (8kB), inside the Deco 45's map.
   - name: sndram
     data_width: 8
     addr_width: 13
