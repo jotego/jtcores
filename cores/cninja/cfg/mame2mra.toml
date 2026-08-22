@@ -209,25 +209,6 @@ regions = [
     # vaportra tiles2 COPY 1 (BA1, scr2): vtmaa02 (frac1) + vtmaa01 (frac2), 1MB,
     # RGN_FRAC(1,2). Load STRAIGHT; game.v rotates the 1MB frac bit (18).
     { name="tiles2", machines=["vaportra","vaportrau","kuhga"], start="GFX3_START", No_offset=true },
-    # tiles2 COPY 2 -> BA2 (start=GFX3_BA2_START). scr3 reads this in parallel with
-    # scr2's copy1 in BA1. `files` loads mag-00|mag-01 contiguous = byte-identical to
-    # the "tiles2" naive emit above, so the SAME game.v rotate (at the BA2 base)
-    # converts it. cninja only for now (1MB ROM_CONTINUE pair).
-    # cninja tiles2 COPY 2 (BA2): same MRA chunky pack as copy1. tiles2b is a
-    # synthetic region (not in MAME) so `files` supplies the ROM metadata that
-    # `parts` needs (extract_region uses Files as the region ROM list).
-    { name="tiles2b", start="GFX3_BA2_START", No_offset=true, width=32, machines=["cninja","cninja1","cninjau","joemac"], files=[ { name="mag-00.1y", crc="a8f05d33", size=0x80000 }, { name="mag-01.1z", crc="5b399eed", size=0x80000 } ], parts=[
-        { name="mag-00.1y", crc="a8f05d33", offset=0x00000, length=0x40000, map="0021" },
-        { name="mag-00.1y", crc="a8f05d33", offset=0x40000, length=0x40000, map="2100" },
-        { name="mag-01.1z", crc="5b399eed", offset=0x00000, length=0x40000, map="0021" },
-        { name="mag-01.1z", crc="5b399eed", offset=0x40000, length=0x40000, map="2100" },
-    ] },
-    # darkseal tiles2 copy2 (single 512kB ROM, gfx_romcont=0 -> plain rotate in game.v).
-    { name="tiles2b", start="GFX3_BA2_START", No_offset=true, machines=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"], files=[ { name="mac-02.e20", crc="49504e89", size=0x80000 } ] },
-    # cbuster tiles2 copy2 (mab-01, chunky -> identity remap via the ~cbust gate).
-    { name="tiles2b", start="GFX3_BA2_START", No_offset=true, machines=["cbuster","cbusterw","cbusterj","twocrude","twocrudea"], files=[ { name="mab-01.19a", crc="1080d619", size=0x80000 } ] },
-    # vaportra tiles2 COPY 2 (BA2, scr3): straight copy, game.v rotates at GT2B.
-    { name="tiles2b", start="GFX3_BA2_START", No_offset=true, machines=["vaportra","vaportrau","kuhga"], files=[ { name="vtmaa02.bin", crc="091ff98e", size=0x80000 }, { name="vtmaa01.bin", crc="c217a31b", size=0x80000 } ] },
     # cbuster tiles2 = mab-01 (16x16), raw chunky load (see tiles1 note above).
     { name="tiles2", machines=["cbuster","cbusterw","cbusterj","twocrude","twocrudea"], start="GFX3_START", No_offset=true },
 
@@ -238,11 +219,11 @@ regions = [
 ]
 
 # Blob order must follow the SDRAM map in cfg/macros.def:
-#   BA0 sprites1 sprites1hi audiocpu | BA1 tiles2 | BA2 maincpu oki1 oki2 tiles2b
+#   BA0 sprites1 sprites1hi audiocpu | BA1 tiles2 | BA2 maincpu oki1 oki2
 #   BA3 chars tiles1
 order = [
     "sprites1", "sprites1hi", "audiocpu",
     "tiles2",
-    "maincpu", "oki1", "oki2", "tiles2b",
+    "maincpu", "oki1", "oki2",
     "chars", "tiles1"
 ]

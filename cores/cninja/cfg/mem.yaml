@@ -3,21 +3,21 @@
 #
 #   BA0  0x000000  sprite gfx, chunky dw32 (2MB)   objrom
 #        0x200000  HuC6280 sound program (64kB)    snd
-#   BA1  0x000000  tiles2 copy 1 (1MB)             scr2
+#   BA1  0x000000  tiles2 (1MB)                    scr2 + scr3
 #   BA2  0x000000  68k program                     main
 #        0x0D0000  OKI #1 samples                  oki1
 #        0x110000  OKI #2 samples                  oki2
-#        0x190000  tiles2 copy 2 (1MB)             scr3
 #   BA3  0x000000  chars (128kB)                   char
 #        0x020000  tiles1 (512kB)                  scr1
 #
-# tiles2 is duplicated (BA1 + BA2) so the two deco16ic playfields fetch in
-# parallel instead of serialising on a single bank.
+# Both tilegen1 playfields read tiles2, so BA1 carries two slots over the one
+# copy. An earlier revision kept a second copy in BA2 to fetch them in
+# parallel; the starvation that motivated it was a sprite-engine bug, not
+# bandwidth, so the duplicate ROM and its download remap are gone.
 params:
   - { name: SND_OFFSET,   value: "(`SND_START                       )>>1" }
   - { name: PCM_OFFSET,   value: "(`PCM_START     -`JTFRAME_BA2_START)>>1" }
   - { name: PCM2_OFFSET,  value: "(`PCM2_START    -`JTFRAME_BA2_START)>>1" }
-  - { name: GFX3B_OFFSET, value: "(`GFX3_BA2_START-`JTFRAME_BA2_START)>>1" }
   - { name: GFX3_OFFSET,  value: "(`GFX3_START    -`JTFRAME_BA1_START)>>1" }
   - { name: GFX2_OFFSET,  value: "(`GFX2_START    -`JTFRAME_BA3_START)>>1" }
 
@@ -55,15 +55,17 @@ sdram:
         addr_width: 16        # 64kB
         data_width: 8
         offset: SND_OFFSET
-    # ---- BA1 : tiles2 copy 1 - scr2 (tilegen0 pf2) reads here, alone ----
+    # ---- BA1 : tiles2. Both tilegen1 playfields read it, one slot each. ----
     - buses:
       - name: scr2
         addr_width: 20        # 1MB
         data_width: 32
         offset: GFX3_OFFSET
-    # ---- BA2 : 68k program + OKI samples + tiles2 copy 2 ----
-    # main/oki are low bandwidth, so scr3 (tilegen1 pf1) effectively owns BA2
-    # and runs in parallel with scr2 in BA1.
+      - name: scr3
+        addr_width: 20
+        data_width: 32
+        offset: GFX3_OFFSET
+    # ---- BA2 : 68k program + OKI samples ----
     - buses:
       - name: main
         addr_width: 20
@@ -77,10 +79,6 @@ sdram:
         addr_width: 19
         data_width: 8
         offset: PCM2_OFFSET
-      - name: scr3
-        addr_width: 20        # 1MB
-        data_width: 32
-        offset: GFX3B_OFFSET
     # ---- BA3 : chars + tiles1 ----
     - buses:
       - name: char

@@ -134,10 +134,6 @@ wire [21:0] gT2  = { gfx_t2,  16'd0 };
 wire [21:0] gEND = { gfx_end, 16'd0 };
 wire [19:0] t1w = prog_addr[19:0] - gT1[19:0];   // tiles1-relative word
 wire [19:0] t2w = prog_addr[19:0] - gT2[19:0];   // tiles2-relative word
-// tiles2 COPY 2 lives in BA2 at (GFX3_BA2_START-BA2_START)>>1 = 0xC8000 words
-// (after main+oki). scr3 reads it parallel to scr2's copy1 in BA1.
-localparam [21:0] GT2B = 22'h0C8000;
-wire [19:0] t2bw = prog_addr[19:0] - GT2B[19:0]; // tiles2-copy2-relative word
 // BA0 holds the sound program above the 2MB sprite slot: (SND_START-0)>>1.
 // It must download raw, so the sprite plane-pair rotate below stops here.
 localparam [21:0] SNDW = 22'h100000;
@@ -188,7 +184,7 @@ always @* begin
         else if( prog_addr < gT2 )                           // tiles1 512KB (half @ word bit17)
             post_addr = gT1 + { 4'd0, t1w[16:0], t1w[17] };
     end
-    // BA1 = tiles2 (moved off BA3 so scr2+scr3 fetch in parallel with BA3 char+scr1).
+    // BA1 = tiles2, read by both tilegen1 playfields (scr2 + scr3 slots).
     // Same RGN_FRAC + ROM_CONTINUE rotate, now relative to BA1 (tiles2 at offset 0):
     // gfx_romcont = +ROM_CONTINUE word bit17<->18 swap (1MB cninja) else plain rotate.
     // cninja tiles2 copy1 is now MRA chunky (frac/parts) -> identity. darkseal
@@ -200,21 +196,12 @@ always @* begin
     else if( prog_ba==2'd1 && dseal )
         post_addr = gfx_romcont ? { 3'd0, prog_addr[18], prog_addr[16:0], prog_addr[17] }
                                 : { 3'd0, prog_addr[18], prog_addr[16:0], prog_addr[17] }; // keep bit18: darkseal 512KB tiles2 in 1MB slot, else padding folds onto data
-    // BA2 = main + oki + tiles2 COPY 2. main/oki (prog_addr < GT2B) keep identity
-    // (+ the dseal data-scramble on post_data above); the tiles2 copy2 region
-    // (>= GT2B) gets the SAME rotate as the BA1 copy, relative to the BA2 base.
-    if( prog_ba==2'd2 && vapor && prog_addr >= GT2B )        // vaportra tiles2 copy2 (1MB, bit18)
-        post_addr = GT2B + { 3'd0, t2bw[17:0], t2bw[18] };
-    else if( prog_ba==2'd2 && dseal && prog_addr >= GT2B )
-        post_addr = GT2B + ( gfx_romcont ? { 3'd0, t2bw[18], t2bw[16:0], t2bw[17] }
-                                         : { 3'd0, t2bw[18], t2bw[16:0], t2bw[17] } ); // keep bit18 (see BA1)
     // ROW-MAJOR (cninja only, TEST): the MRA-chunky tiles are half-major (L 8px
     // col x16 rows, then R). Move the L/R half-select word bit (prog_addr[5]) down
     // to the dw32-word LSB (bit 1) so a row's two halves are ADJACENT dw32 words ->
     // the 2nd read is a 64-bit cache hit. deco16 roma16 swaps rhalf<->rsubrw to match.
     if( ~dseal & ~cbust & ~vapor ) begin                            // cninja only
-        if( prog_ba==2'd1 ||                                        // tiles2 copy1 (BA1)
-            (prog_ba==2'd2 && prog_addr >= GT2B) ||                 // tiles2 copy2 (BA2)
+        if( prog_ba==2'd1 ||                                        // tiles2 (BA1)
             (prog_ba==2'd3 && prog_addr >= gT1 && prog_addr < gT2) )// tiles1 (BA3)
             post_addr = { prog_addr[20:6], prog_addr[4:1], prog_addr[5], prog_addr[0] };
     end
