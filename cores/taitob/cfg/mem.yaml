@@ -1,0 +1,102 @@
+# Taito B System SDRAM map — DRAFT
+#
+# Bus widths follow the MAME ROM regions (taito_b.cpp rastsag2 ROM_START):
+#   maincpu : 16-bit (68k), 512 KB
+#   audiocpu:  8-bit (Z80),  64 KB
+#   adpcma  :  8-bit, up to 512 KB (YM2610 ADPCM-A samples)
+#   gfx1    : 16-bit interleaved sprite/tile graphics (TC0180VCU input)
+#
+# Memory map per rastsag2_map (taito_b.cpp:369):
+#   0x000000-0x07FFFF   68k ROM        → SDRAM bank 0 (main bus)
+#   0x200000-0x201FFF   palette RAM    → BRAM in jttaitob_main.v
+#   0x400000-0x47FFFF   TC0180VCU      → BRAM (vram/sprites/scroll/ctrl)
+#   0x600000-0x607FFF   68k work RAM   → BRAM (32 KB)
+#   0x800000-0x800003   TC0140SYT      → jttaitob_syt.v
+#   0xA00000-0xA0000F   TC0220IOC      → jttaitob_ioc.v
+#
+# Bus ordering rule (rastan/gaiden pattern): rw buses come first on their
+# bank so the auto-generated SDRAM slot wires the write enable correctly.
+
+params:
+  - { name: ADPCMA_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: ADPCMB_OFFSET, value: "(`ADPCMB_START-`JTFRAME_BA1_START)>>1" }
+
+audio:
+  rsum: 10k
+  channels:
+    - { name: fm,  module: jt12, rsum: 10k }   # YM2610 FM, wrapped by jt10
+
+sdram:
+  banks:
+      # Bank 0 — 68k main ROM (read-only). Work RAM, palette RAM, VRAM,
+      # sprite RAM, scroll RAM all live in BRAM inside jttaitob_main.v —
+      # SDRAM latency is incompatible with the 68k's memory-test loop and
+      # the BRAM model is the right one for these sizes anyway.
+    - buses:
+      - name: main
+        addr_width: 19
+        data_width: 16
+
+      # Bank 1 — all audio ROM (read-only): Z80 program + YM2610 ADPCM-A and
+      # ADPCM-B (Delta-T) samples. Kept together so banks 2/3 stay pure gfx.
+    - buses:
+      - name: snd
+        addr_width: 16
+        data_width: 8
+      - name: adpcma
+        addr_width: 19
+        data_width: 8
+        offset: ADPCMA_OFFSET
+      - name: adpcmb
+        addr_width: 19
+        data_width: 8
+        offset: ADPCMB_OFFSET
+
+      # Bank 2 — TC0180VCU graphics ROM, copy 1 (1 MB). Read by:
+      #   bg  → BG plane tile fetch
+      #   obj → sprite gfx (active region)
+      #   tx  → text plane (8x8 tiles)
+      # FG has its own copy in bank 3 so the BG fill (bank 2) and FG fill
+      # (bank 3) hit different physical SDRAM banks and interleave.
+      #
+      # gfx_sort=hvvvx (mode gfx4, b0=1) rotates gfx-word address bits [3:0]
+      # so the tilelayout L/R-8px-half bit (px3, word bit 3) becomes the LSB.
+      # That puts a tile-row's two 8px halves at adjacent addresses, so the
+      # SDRAM read-cache turns the 2nd half-read into a hit (~2x fewer SDRAM
+      # round-trips per tile).  The data inside each word is untouched, so the
+      # pen decode is unchanged — the HDL only reorders the bottom address
+      # bits ({A[18:4],A[2:0],A[3]}) in BG/FG/TX address generation.
+      # The three buses share ONE 1 MB region, so the sort is declared on a
+      # single bus to repack the bytes exactly once; the others read the
+      # already-sorted data with the same address swap.  It must go on the
+      # LAST bus of the bank (tx): jtframe mem bounds a gfx_sort range at the
+      # next bus's offset, and bg/obj have none — declaring it on the final
+      # bus instead ends the range at the next bank, covering the full region.
+    - buses:
+      - name: obj
+        addr_width: 20
+        data_width: 16
+      - name: bg
+        addr_width: 20
+        data_width: 16
+      - name: tx
+        addr_width: 20
+        data_width: 16
+        gfx_sort: hvvvx
+
+      # Bank 3 — TC0180VCU graphics ROM, copy 2 (1 MB), read by the FG plane
+      # ONLY. Duplicating the gfx into its own physical SDRAM bank lets the BG
+      # fill (bank 2) and FG fill (bank 3) run on different banks → the SDRAM
+      # controller interleaves their accesses (BG's RAS/CAS latency overlaps
+      # FG's) instead of serializing on one shared bank. The +1 MB buys the
+      # parallel fill that fits the shorter 7 MHz H-blank. gfx_sort applied
+      # (only bus in the bank).
+    - buses:
+      - name: fg
+        addr_width: 20
+        data_width: 16
+        gfx_sort: hvvvx
+
+# BRAM declarations for palette / VRAM / sprite RAM / scroll RAM live
+# inside jttaitob_main.v (cabal/superman pattern). Keeping mem.yaml
+# minimal so the auto-generated port surface stays tight.
