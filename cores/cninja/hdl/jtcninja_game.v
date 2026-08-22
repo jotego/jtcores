@@ -51,7 +51,6 @@ wire [ 1:0] dsn;
 
 // Palette
 wire        pal_cs;
-wire [15:0] pal_dout;
 
 // Protection (DECO 104) -- the critical-path block
 wire        prot_cs;
@@ -281,7 +280,7 @@ jtcninja_main u_main(
     .obj_copy   ( obj_copy  ),
     .obj_dout   ( obj_dout  ),
     .pal_cs     ( pal_cs    ),
-    .pal_dout   ( pal_dout  ),
+    .pal_dout   ( palrw_dout ),
     // Protection (DECO 104) - reads inputs/dips, carries the sound latch
     .prot_cs    ( prot_cs   ),
     .prot_dout  ( prot_dout ),
@@ -384,8 +383,11 @@ jtcninja_video u_video(
     .objram_cs  ( objram_cs ),
     .obj_copy   ( obj_copy  ),
     .obj_dout   ( obj_dout  ),
-    .pal_cs     ( pal_cs    ),
-    .pal_dout   ( pal_dout  ),
+    .pal_cs     ( pal_cs     ),
+    .palrw_addr ( palrw_addr ),
+    .palrw_we   ( palrw_we   ),
+    .pal_addr   ( pal_addr   ),
+    .pal_dout   ( pal_dout   ),
     // Tile ROMs (BA2)
     .char_cs    ( char_cs   ),
     .char_addr  ( char_addr ),

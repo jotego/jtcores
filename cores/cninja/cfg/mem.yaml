@@ -109,3 +109,17 @@ sdram:
         addr_width: 19        # 512kB
         data_width: 32
         offset: GFX2_OFFSET
+# Palette RAM 0x19c000-0x19dfff, 4096 x 16 (xBGR_888, 2 words/colour). Board
+# SRAM: cninja.cpp maps it .ram().w(palette,write16).share("palette"). Port 0
+# is the colour mixer's read port; the dual port is the CPU side (byte lanes
+# + read-back). big_endian matches the m68k byte order of the scene dumps.
+bram:
+  - name: pal
+    addr_width: 13        # bytes -> 16-bit AW=12
+    data_width: 16
+    simfile: { big_endian: true }
+    dual_port:
+      name: palrw
+      din:  main_dout
+      dout: palrw_dout
+      rw:   true

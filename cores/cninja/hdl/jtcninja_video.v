@@ -39,7 +39,11 @@ module jtcninja_video(
     input             obj_copy,
     output     [15:0] obj_dout,
     input             pal_cs,
-    output     [15:0] pal_dout,
+    output     [12:1] palrw_addr,
+    output     [ 1:0] palrw_we,
+    // palette BRAM read port (jtcninja_colmix drives the address)
+    output     [12:1] pal_addr,
+    input      [15:0] pal_dout,
     // Vertical position (for deco_irq raster/vblank in main)
     output     [ 8:0] vdump,
     // Video output
@@ -195,17 +199,13 @@ wire rs_t1p2_we = vapor ? 1'b0 : dseal ? (pf1_cs & cpu_addr[19:16]==4'h2 &  cpu_
 wire [11:0] tile_wa = dseal ? cpu_addr[12:1] : { 1'b0, cpu_addr[11:1] };
 
 // ---------------------------------------------------------------------------
-// Palette RAM : 0x19c000-0x19dfff, xBGR_888 (2 words/colour)
+// Palette RAM lives in mem.yaml (bram: pal). Only the CPU-side address decode
+// is board work: vaportra splits GR @0x300000 / B @0x304000 on byte-addr bit14
+// (-> RAM bit 11) with the colour index in [11:1]; cninja packs 2 words per
+// colour and darkseal/cbuster split on bit 12.
 // ---------------------------------------------------------------------------
-wire [15:0] pal_vq;
-wire [11:0] palrd_a;        // driven by jtcninja_colmix
-jtframe_dual_ram16 #(.AW(12), .ENDIAN(1), .SIMFILE(SF_PAL)) u_pal(
-    // vapor: GR @0x300000 / B @0x304000 split on byte-addr bit14 -> u_pal bit11;
-    // colour index in [11:1]. Others: cninja 2w/colour & darkseal/cbuster bit12.
-    .clk0 ( clk ), .addr0( vapor ? {cpu_addr[14], cpu_addr[11:1]} : cpu_addr[12:1] ), .data0( cpu_dout ),
-    .we0  ( {2{pal_cs & wr}} & wmask ), .q0( pal_dout ),
-    .clk1 ( clk ), .addr1( palrd_a ), .data1( 16'd0 ), .we1( 2'b0 ), .q1( pal_vq )
-);
+assign palrw_addr = vapor ? {cpu_addr[14], cpu_addr[11:1]} : cpu_addr[12:1];
+assign palrw_we   = {2{pal_cs & wr}} & wmask;
 
 // ---------------------------------------------------------------------------
 // Sprite RAM : 0x1a4000-0x1a47ff (0x400 words), CPU r/w on port 0.
@@ -401,8 +401,8 @@ jtcninja_colmix u_colmix(
     .bg_pxl  ( bg_pxl   ),
     .pf1b_pxl( pf1b_pxl ),
     .obj_pxl ( obj_pxl  ),
-    .pal_addr( palrd_a  ),
-    .pal_data( pal_vq   ),
+    .pal_addr( pal_addr ),
+    .pal_data( pal_dout ),
     .red     ( red      ),
     .green   ( green    ),
     .blue    ( blue     )
