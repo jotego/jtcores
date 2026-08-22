@@ -84,6 +84,7 @@ wire [ 8:0] vdump;
 // Video timing / mix
 wire        flip;
 wire        cb_pri;    // cbuster TC-4 layer priority (main -> video colmix)
+wire [15:0] vprio0, vprio1;  // vaportra m_priority[0..1] (main -> video colmix)
 
 assign dsn        = { UDSWn, LDSWn };
 assign objcpu_addr = main_addr[10:1];
@@ -256,6 +257,8 @@ jtcninja_main u_main(
     // Caveman Ninja Hardware family selector + Dark Seal direct I/O
     .game_id    ( game_id   ),
     .prot_pri   ( cb_pri    ),
+    .vprio0     ( vprio0    ),
+    .vprio1     ( vprio1    ),
     .snd_wr     ( snd_wr    ),
     .snd_dout   ( snd_dout  ),
     .joystick1  ( joystick1 ),
@@ -343,6 +346,8 @@ jtcninja_video u_video(
     .flip       ( flip      ),
     .game_id    ( game_id   ),
     .cbpri      ( cb_pri    ),
+    .vprio0     ( vprio0    ),
+    .vprio1     ( vprio1    ),
     // CPU interface (widened to [19:1] so video can decode darkseal's exploded
     // tilegen/palette regions; cninja only needs [15:1])
     .cpu_addr   ( main_addr[19:1] ),

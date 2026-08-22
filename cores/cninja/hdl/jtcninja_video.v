@@ -26,6 +26,8 @@ module jtcninja_video(
     // across the map on some games, so cpu_addr is widened to [19:1].
     input      [ 3:0] game_id,
     input             cbpri,        // cbuster TC-4 layer priority (m_pri)
+    input      [15:0] vprio0,       // vaportra m_priority[0]: playfield draw order
+    input      [15:0] vprio1,       // vaportra m_priority[1]: sprite-behind-fg threshold
     // CPU interface
     input      [19:1] cpu_addr,
     input      [15:0] cpu_dout,
@@ -95,10 +97,11 @@ wire vapor = game_id==4'd3;
 // Video timing
 // ---------------------------------------------------------------------------
 wire [8:0] hdump, vrender;
+wire       pre_LHBL, pre_LVBL;   // vtimer blanking, before the colmix blank delay
 // Horizontal alignment: read the line buffers HOFFSET px ahead to compensate the
-// line-buffer -> colmix -> palette -> blank pipeline. With the combinational
-// blank (jtframe_blank DLY=0) the pipeline is 1px shorter, so HOFFSET=0 keeps the
-// picture pixel-aligned to MAME (HOFFSET=1 + DLY=2 was the earlier registered combo).
+// line-buffer -> colmix -> palette -> blank pipeline. jtframe_blank DLY=1 registers
+// rgb_out, and its delayed LHBL/LVBL drive the core outputs, so picture and window
+// move together and HOFFSET stays 0.
 localparam [8:0] HOFFSET = 9'd0;
 wire [8:0] hdump_rd = hdump + HOFFSET;
 jtframe_vtimer #(
@@ -119,8 +122,8 @@ jtframe_vtimer #(
     .H        ( hdump   ),
     .Hinit    (         ),
     .Vinit    (         ),
-    .LHBL     ( LHBL    ),
-    .LVBL     ( LVBL    ),
+    .LHBL     ( pre_LHBL),
+    .LVBL     ( pre_LVBL),
     .HS       ( HS      ),
     .VS       ( VS      )
 );
@@ -263,11 +266,11 @@ jtcninja_deco16ic #(.SIMFILE1(SF_T0P1), .SIMFILE2(SF_T0P2), .CTRLHEX(HX_CTL0)) u
     .bank_ctl   ( tg0_bank   ),
     // pf1 is the 8x8 char layer except on darkseal, where pf1/pf2 swap roles
     .pf1_pswap  ( dseal | vapor ),
-    .pf2_pswap  ( dseal      ),
+    .pf2_pswap  ( dseal | vapor ),
     .pf1_rowmajor( 1'b0      ),
     .pf2_rowmajor( rowmajor  ),
-    .pf1_bank   ( 3'd0       ),          // tilegen0 has no bank callback
-    .pf2_bank   ( 3'd0       ),
+    .pf1_bank   ( vapor ? tg0_bank[ 6: 4] : 3'd0 ),
+    .pf2_bank   ( vapor ? tg0_bank[14:12] : 3'd0 ),
     .rs_split   ( ~dseal     ),
     .rs_addr    ( rs_wa      ),
     .rs_we      ( {2{rs0_we & wr}} & wmask ),
@@ -297,12 +300,12 @@ jtcninja_deco16ic #(.SIMFILE1(SF_T1P1), .SIMFILE2(SF_T1P2), .CTRLHEX(HX_CTL1)) u
     .pf1_dout   ( t1p1_dout  ),
     .pf2_dout   ( t1p2_dout  ),
     .bank_ctl   ( tg1_bank   ),
-    .pf1_pswap  ( dseal      ),
-    .pf2_pswap  ( dseal      ),
+    .pf1_pswap  ( dseal | vapor ),
+    .pf2_pswap  ( dseal | vapor ),
     .pf1_rowmajor( rowmajor  ),
     .pf2_rowmajor( rowmajor  ),
-    .pf1_bank   ( {2'd0, t1p1_bank} ),
-    .pf2_bank   ( {2'd0, t1p2_bank} ),
+    .pf1_bank   ( vapor ? tg1_bank[ 6: 4] : {2'd0, t1p1_bank} ),
+    .pf2_bank   ( vapor ? tg1_bank[14:12] : {2'd0, t1p2_bank} ),
     .rs_split   ( ~dseal     ),
     .rs_addr    ( rs_wa      ),
     .rs_we      ( {2{rs1_we & wr}} & wmask ),
@@ -355,14 +358,40 @@ assign t0p2_romok   = dseal ? char_ok   : scr1_ok;
 // ---------------------------------------------------------------------------
 // Sprites (MXC-06) and the colour mixer
 // ---------------------------------------------------------------------------
-wire [11:0] obj_pxl;   // {epri, pri[1:0], colour[4:0], pixel[3:0]}
+// cninja / cbuster / darkseal use decospr (DECO 52). vaportra uses the MXC-06
+// instead (vaportra.cpp: "same as Bad Dudes") - a different chip with a different
+// sprite word format, vendored from cores/cop as jtcninja_mxc06 with the dec0
+// seallayout plane order. Both scan the same display buffer and share the obj ROM
+// bus; jtcninja_obj stays instantiated either way because it owns the DMA sweep.
+wire [11:0] obj_pxl, cn_pxl;
+wire [ 9:0] cn_oaddr, vp_oaddr;
+wire        cn_romcs, vp_romcs;
+wire [20:2] cn_roma;
+wire [18:1] vp_roma;   // MXC-06: {code[12:0], half, row} - 13-bit code (1MB sprite ROM)
+wire [ 7:0] vp_pxl;    // MXC-06 pen = {pal[3:0], pixel[3:0]}
+
+assign oram_addr = vapor ? vp_oaddr : cn_oaddr;
+assign obj_cs    = vapor ? vp_romcs : cn_romcs;
+assign obj_addr  = vapor ? { 1'd0, vp_roma } : cn_roma;
+// colmix adds vaportra's 0x100 sprite base itself, so pass the raw pen
+assign obj_pxl   = vapor ? { 4'd0, vp_pxl } : cn_pxl;
+
 jtcninja_obj u_obj_eng(
     .rst(rst), .clk(clk), .pxl_cen(pxl_cen), .flip(flip), .dseal(dseal), .cbust(cbust),
-    .HS(HS), .LHBL(LHBL), .LVBL(LVBL), .vrender(vrender), .hdump(hdump_rd),
-    .obj_copy(obj_copy), .oram_addr(oram_addr), .oram_dout(oram_dout),
+    .HS(HS), .LHBL(pre_LHBL), .LVBL(pre_LVBL), .vrender(vrender), .hdump(hdump_rd),
+    .obj_copy(obj_copy), .oram_addr(cn_oaddr), .oram_dout(oram_dout),
     .dma_addr(dma_addr), .dma_we(dma_we),
-    .rom_cs(obj_cs), .rom_addr(obj_addr), .rom_data(obj_data), .rom_ok(obj_ok),
-    .pxl(obj_pxl)
+    .rom_cs(cn_romcs), .rom_addr(cn_roma), .rom_data(obj_data), .rom_ok(obj_ok),
+    .pxl(cn_pxl)
+);
+
+jtcninja_mxc06 u_obj_mxc(
+    .rst(rst), .clk(clk), .pxl_cen(pxl_cen),
+    .HS(HS), .LHBL(pre_LHBL), .LVBL(pre_LVBL), .flip(flip),
+    .hdump(hdump_rd), .vrender(vrender),
+    .tbl_addr(vp_oaddr), .tbl_dout(oram_dout),
+    .rom_cs(vp_romcs), .rom_addr(vp_roma), .rom_data(obj_data), .rom_ok(obj_ok),
+    .pxl(vp_pxl)
 );
 
 jtcninja_colmix u_colmix(
@@ -371,10 +400,14 @@ jtcninja_colmix u_colmix(
     .dseal   ( dseal    ),
     .cbust   ( cbust    ),
     .cbpri   ( cbpri    ),
+    .vprio0  ( vprio0   ),
+    .vprio1  ( vprio1   ),
     .vapor   ( vapor    ),
     .hdump   ( hdump_rd ),
-    .LHBL    ( LHBL     ),
-    .LVBL    ( LVBL     ),
+    .LHBL    ( pre_LHBL ),
+    .LVBL    ( pre_LVBL ),
+    .LHBL_o  ( LHBL     ),
+    .LVBL_o  ( LVBL     ),
     .fg_pxl  ( fg_pxl   ),
     .mg_pxl  ( mg_pxl   ),
     .bg_pxl  ( bg_pxl   ),

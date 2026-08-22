@@ -52,6 +52,10 @@ module jtcninja_main(
     input      [ 3:0] game_id,
     // Crude Buster TC-4 PAL layer priority (m_pri): swaps mg/pf1b draw order
     output            prot_pri,
+    // Vapor Trail priority regs (0x100000/2). [0]&3 picks one of four playfield
+    // draw orders; sprites with colour >= [1] go behind the pri-4 tilemap.
+    output     [15:0] vprio0,
+    output     [15:0] vprio1,
     // Direct cabinet inputs (darkseal reads these straight off the bus at
     // 0x180000-0x180004; cninja goes through the DECO 104 and ignores them)
     output            snd_wr,      // darkseal soundlatch write strobe (0x180008)
@@ -219,7 +223,7 @@ assign pal_cs    = !BUSn && (ds ? (A[23:16]==8'h14)                            /
                                 : (A[23:16]==8'h19 && A[15:13]==3'b110));       // 19c000-19dfff
 assign objram_cs = !BUSn && (ds ? (A[23:16]==8'h12 && A[15:11]==5'd0)          // 120000-1207ff
                           : cb ? (A[23:16]==8'h0b && A[15:11]==5'd0)          // 0b0000-0b07ff
-                          : vp ? (A[23:16]==8'h31 && A[15:11]==5'b10000)      // 318000-3187ff
+                          : vp ? (A[21]&A[20]&A[16]&A[15]&~|A[14:11])         // 318000-3187ff, mirrored at 0xff8000 (vaportra.cpp mirror(0xce0000))
                                 : (A[23:16]==8'h1a && A[15:14]==2'b01));        // 1a4000-1a47ff
 // tilegens: cninja packs each in a 64kB window; darkseal/cbuster explode
 // data/control across the map. pf0_cs = tilegen[0] footprint, pf1_cs =
@@ -243,6 +247,8 @@ assign obj_copy  = ds ? ds_sprdma : cb ? cb_sprdma : vp ? vp_sprdma : (objdma_cs
 assign snd_wr    = ds_snd_cs | cb_snd_cs | vp_snd_cs;
 assign snd_dout  = cpu_dout[7:0];
 assign prot_pri  = cb_pri;   // cbuster TC-4 layer priority -> video
+assign vprio0    = vp_prio0;
+assign vprio1    = vp_prio1;
 
 // Dark Seal direct input words. jtframe joystick/cab/coin are ALREADY active-low
 // (idle=1), matching MAME's IP_ACTIVE_LOW - so NO inversion (same as the DECO 104
@@ -308,7 +314,11 @@ always @(posedge clk, posedge rst) begin
             else               vbl_irq <= 1;
         end
         // Raster IRQ when the beam reaches the programmed (visible) line
-        if( !rs_mask && rs_line<8'd240 && vdump=={1'b0,rs_line} && vdump_l!={1'b0,rs_line} )
+        // MAME's deco_irq only fires the raster IRQ when the programmed line is
+        // inside the visible area [8,247] (set_raw ..., 8, 248). Without the lower
+        // bound, a game that parks rs_line=0 to DISABLE the raster gets a spurious
+        // raster1 IRQ instead.
+        if( !rs_mask && rs_line>=8'd8 && rs_line<=8'd247 && vdump=={1'b0,rs_line} && vdump_l!={1'b0,rs_line} )
             ras_irq <= 1;
         // Register writes (byte data on D[7:0])
         if( irq_cs && !RnW ) case( A[3:1] )
@@ -375,9 +385,14 @@ always @(posedge clk) begin
                16'hffff;
 end
 
-// Only the SDRAM-backed ROM read stalls the bus; work RAM is now BRAM.
+// Only the SDRAM-backed ROM read stalls the bus; work RAM is BRAM.
+// Require BOTH the current rom_ok AND its 1-clk delay (ok_dly, for the registered
+// cpu_din). ok_dly alone let a FRESH read (rom_ok=0) proceed while ok_dly was
+// still 1 from the PREVIOUS read, so the CPU latched stale data. It only bit
+// non-sequential reads landing in that window - notably an autovector fetch
+// after an IACK, which read 0xFFFF and jumped to a bad handler.
 wire bus_cs   = rom_cs;
-wire bus_busy = rom_cs & ~ok_dly;
+wire bus_busy = rom_cs & ~(ok_dly & rom_ok);
 
 
 jtframe_68kdtack_cen #(.W(8)) u_dtack(
@@ -459,5 +474,6 @@ end
     assign pf0_cs=0; assign pf1_cs=0; assign objram_cs=0; assign obj_copy=0;
     assign pal_cs=0; assign prot_cs=0;
     assign snd_wr=0; assign snd_dout=0; assign prot_pri=0;
+    assign vprio0=0; assign vprio1=0;
 `endif
 endmodule

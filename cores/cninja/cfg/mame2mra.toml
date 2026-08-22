@@ -29,7 +29,9 @@ data=[
     { setnames=["cninja","cninja1","cninjau","joemac"],                      data="00 01 05 0D 01" },
     { setnames=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"],  data="02 01 05 09 00" },
     { setnames=["cbuster","cbusterw","cbusterj","twocrude","twocrudea"],     data="01 01 05 09 00" },
-    { setnames=["vaportra","vaportrau","kuhga"],                             data="03 01 04 04 00" },
+    # gfx_t2=05 = tiles1 END (0x10000+0x40000). 04 truncated it, so the last
+    # 128kB missed the plane-pair rotate and codes >=3072 fetched garbage.
+    { setnames=["vaportra","vaportrau","kuhga"],                             data="03 01 05 05 00" },
 ]
 
 [Audio]

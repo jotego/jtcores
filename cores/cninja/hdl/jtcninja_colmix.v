@@ -21,6 +21,8 @@ module jtcninja_colmix(
     input             dseal,             // game_id==2
     input             cbust,             // game_id==1 (Crude Buster)
     input             cbpri,             // cbuster TC-4 m_pri: swaps mg/pf1b order
+    input      [15:0] vprio0,            // vaportra m_priority[0]: playfield order
+    input      [15:0] vprio1,            // vaportra m_priority[1]: sprite threshold
     input             vapor,             // game_id==3 (Vapor Trail)
     input      [ 8:0] hdump,             // for the DSEAL_PALTEST diag ramp
     input             LHBL,
@@ -36,6 +38,11 @@ module jtcninja_colmix(
     // palette RAM read port (RAM lives in jtcninja_video)
     output reg [11:0] pal_addr,
     input      [15:0] pal_data,
+
+    // blanking delayed by the same pixel as rgb_out - these drive the core's
+    // LHBL/LVBL so the window travels WITH the picture (else a pixel is eaten)
+    output                           LHBL_o,
+    output                           LVBL_o,
 
     output     [`JTFRAME_COLORW-1:0] red,
     output     [`JTFRAME_COLORW-1:0] green,
@@ -114,16 +121,32 @@ wire [10:0] cb_pal_idx =
 // 0/0x200/0x300/0x400; sprites base 0x100. FIRST-render fixed order (the runtime
 // m_priority[0] 4-way mux is a refinement): fg(front) > obj > mg > pf1b > bg.
 wire [10:0] obj_vp = 11'h100 + { 2'b0, obj_pxl[8:0] };
-// Layer order front->back (vaportra.cpp screen_update): fg(tg0 pf1, 8x8, FRONT) >
-// sprites > mg(tg0 pf2) > pf1b(tg1 pf1) > bg(tg1 pf2, opaque backdrop).
-// fg reads its 8x8 chars from the char ROM region (char-major copy sliced from
-// tiles1 in the MRA) -> front-most layer, col bank 0x00 -> pal base 0x000.
+// vaportra.cpp screen_update picks the playfield draw order at RUNTIME from
+// m_priority[0]&3. Drawn back->front with tilemap priorities 1 (opaque backdrop),
+// 2 (middle) and 4 (top):
+//   pri 0: bg(op) < pf1b < mg     pri 1: pf1b(op) < bg   < mg
+//   pri 2: bg(op) < mg   < pf1b   pri 3: pf1b(op) < mg   < bg
+// then sprites, then fg on top. colpri_cb pushes a sprite BEHIND the pri-4
+// tilemap when its colour >= m_priority[1].
+wire [1:0]  vp_pri   = vprio0[1:0];
+wire [3:0]  vp_ocol  = obj_pxl[7:4];                   // MXC-06 pen = {pal,pixel}
+wire        vp_oback = { 12'd0, vp_ocol } >= vprio1;
+wire [10:0] vp_l3    = vp_pri==2'd2 ? { 3'd3, pf1b_pxl } :
+                       vp_pri==2'd3 ? { 3'd4, bg_pxl   } : { 3'd2, mg_pxl };
+wire        vp_l3op  = vp_pri==2'd2 ? pf1b_opaque :
+                       vp_pri==2'd3 ? bg_opaque   : mg_opaque;
+wire [10:0] vp_l2    = vp_pri==2'd0 ? { 3'd3, pf1b_pxl } :
+                       vp_pri==2'd1 ? { 3'd4, bg_pxl   } : { 3'd2, mg_pxl };
+wire        vp_l2op  = vp_pri==2'd0 ? pf1b_opaque :
+                       vp_pri==2'd1 ? bg_opaque   : mg_opaque;
+wire [10:0] vp_l1    = vp_pri[0] ? { 3'd3, pf1b_pxl } : { 3'd4, bg_pxl };
 wire [10:0] vp_pal_idx =
-    fg_opaque   ? { 3'd0, fg_pxl   } :   // tilegen0 pf1 (fg, 8x8) base 0x000 FRONT
-    obj_opaque  ? obj_vp             :   // sprites base 0x100
-    mg_opaque   ? { 3'd2, mg_pxl   } :   // tilegen0 pf2 (mg) base 0x200
-    pf1b_opaque ? { 3'd3, pf1b_pxl } :   // tilegen1 pf1 (pf1b) base 0x300
-                  { 3'd4, bg_pxl   };    // tilegen1 pf2 (bg) base 0x400 backdrop
+    fg_opaque                ? { 3'd0, fg_pxl } :   // tg0 pf1 (fg, 8x8) FRONT
+    (obj_opaque & ~vp_oback) ? obj_vp           :   // sprites above the tilemaps
+    vp_l3op                  ? vp_l3            :   // top tilemap (pri 4)
+    (obj_opaque &  vp_oback) ? obj_vp           :   // sprites behind the pri-4 layer
+    vp_l2op                  ? vp_l2            :   // middle tilemap (pri 2)
+                               vp_l1;               // opaque backdrop (pri 1)
 wire [10:0] pal_idx = dseal ? ds_pal_idx : cbust ? cb_pal_idx :
                       vapor ? vp_pal_idx : cn_pal_idx;
 `endif
@@ -134,9 +157,16 @@ wire [10:0] pal_idx = dseal ? ds_pal_idx : cbust ? cb_pal_idx :
 wire splitpal = dseal | cbust | vapor;   // vapor: GR @0x300000 + B @0x304000, RGB888
 reg        phase;
 reg [15:0] xb_w, gr_w;
+// A colour takes TWO cycles (phase 0 = {G,R}, phase 1 = {x,B}). pal_idx must be
+// HELD across the pair, or when the priority mux moves to another pen between
+// them the B half addresses a DIFFERENT colour than R/G - blue arrives late, worst
+// at layer edges.
+reg  [10:0] pal_idx_l;
+wire [10:0] pal_idx_eff = phase ? pal_idx_l : pal_idx;
 always @(posedge clk) begin
     phase    <= ~phase;
-    pal_addr <= splitpal ? { phase, pal_idx } : { pal_idx, phase };
+    if( !phase ) pal_idx_l <= pal_idx;   // latch when the first half is issued
+    pal_addr <= splitpal ? { phase, pal_idx_eff } : { pal_idx_eff, phase };
     if( splitpal ) begin
         if( !phase ) gr_w <= pal_data;    // split low half  {G,R}
         else         xb_w <= pal_data;    // split high half {x,B}
@@ -163,13 +193,20 @@ wire [7:0] r_o = cbust ? cbwclamp(gr_w[ 7:0]) : gr_w[ 7:0];
 wire [7:0] g_o = cbust ? cbwclamp(gr_w[15:8]) : gr_w[15:8];
 wire [7:0] b_o = cbust ? cbwclamp(xb_w[ 7:0]) : xb_w[ 7:0];
 
-jtframe_blank #(.DLY(0),.DW(24)) u_blank(
+// gr_w ({G,R}) and xb_w ({x,B}) are captured on OPPOSITE phases, so a
+// combinational rgb path is only settled for part of each pixel - fine in sim, but
+// on hardware the video stage can sample it mid-update and B lands one colour
+// late. DLY=1 registers rgb_out. The delayed LHBL/LVBL MUST be routed out: leaving
+// them unconnected keeps the core exporting the undelayed vtimer blanking while
+// the RGB moves, which EATS the first visible pixel instead of shifting the
+// picture (HOFFSET cannot compensate - it moves content, not the window).
+jtframe_blank #(.DLY(1),.DW(24)) u_blank(
     .clk     ( clk     ),
     .pxl_cen ( pxl_cen ),
     .preLHBL ( LHBL    ),
     .preLVBL ( LVBL    ),
-    .LHBL    (         ),
-    .LVBL    (         ),
+    .LHBL    ( LHBL_o  ),
+    .LVBL    ( LVBL_o  ),
     .preLBL  (         ),
     .rgb_in  ( { g_o, r_o, b_o } ),  // {G, R, B}
     .rgb_out ( { green, red, blue } )
