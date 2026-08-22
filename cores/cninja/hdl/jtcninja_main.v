@@ -95,7 +95,13 @@ wire        irq_cs, objdma_cs, ramdec;
 
 assign UDSWn    = RnW | UDSn;
 assign LDSWn    = RnW | LDSn;
-assign BUSn     = ASn | (LDSn & UDSn);
+// A real memory access is: address valid, at least one data strobe asserted, and
+// NOT an interrupt acknowledge. FC==7 marks an IACK, which drives the same strobes
+// with A=0xffffx but is not a memory cycle - VPAn below autovectors it. No region
+// happens to match that address today, but the selects include partial decodes
+// (vaportra's mirrored sprite RAM), and a partial decode that did match would
+// start an SDRAM burst during the acknowledge.
+assign BUSn     = ASn | (LDSn & UDSn) | &FC;
 assign VPAn     = ~&{ FC, ~ASn };
 assign cpu_addr = A[19:1];
 assign work_we  = {2{ramdec & ~RnW}} & ~{UDSn,LDSn};
