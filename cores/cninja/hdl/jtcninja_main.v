@@ -22,6 +22,8 @@ module jtcninja_main(
     input             LVBL,
     input             LHBL,
     // CPU bus (19-bit word address: 768kB main ROM needs A[19:1])
+    output     [ 1:0] work_we,     // 68k work RAM (mem.yaml bram)
+    input      [15:0] work_dout,
     output     [19:1] cpu_addr,
     output     [15:0] cpu_dout,
     output            UDSWn,
@@ -86,13 +88,13 @@ wire [ 7:0] irq_status = { 1'b1, 1'b0, ras_irq, vbl_irq, 2'b00, ~LVBL, ~LHBL };
 
 // Address decode (byte top = A[23:16] since byte addr = {A,1'b0})
 wire        irq_cs, objdma_cs, ramdec;
-wire [15:0] ram_q;
 
 assign UDSWn    = RnW | UDSn;
 assign LDSWn    = RnW | LDSn;
 assign BUSn     = ASn | (LDSn & UDSn);
 assign VPAn     = ~&{ FC, ~ASn };
 assign cpu_addr = A[19:1];
+assign work_we  = {2{ramdec & ~RnW}} & ~{UDSn,LDSn};
 // flip is owned by jtcninja_video (deco16ic control reg); not driven here.
 
 // Work RAM (0x184000-0x187fff, 16kB) lives in BRAM, NOT SDRAM: the 68000
@@ -342,7 +344,7 @@ wire [15:0] rom_dec = cb ? {
 
 always @(posedge clk) begin
     cpu_din <= rom_cs     ? rom_dec     :
-               ramdec     ? ram_q       :
+               ramdec     ? work_dout   :
                ds_dsw_cs  ? dipsw       :   // darkseal 0x180000 DSW
                ds_p1p2_cs ? ds_p1p2_din :   // darkseal 0x180002 P1_P2
                ds_sys_cs  ? ds_sys_din  :   // darkseal 0x180004 SYSTEM
@@ -366,19 +368,6 @@ end
 wire bus_cs   = rom_cs;
 wire bus_busy = rom_cs & ~ok_dly;
 
-// Work RAM in BRAM (single-cycle, like the real SRAM)
-jtframe_dual_ram16 #(.AW(13)) u_ram(
-    .clk0   ( clk       ),
-    .addr0  ( A[13:1]   ),
-    .data0  ( cpu_dout  ),
-    .we0    ( {2{ramdec & ~RnW}} & ~{UDSn,LDSn} ),
-    .q0     ( ram_q     ),
-    .clk1   ( clk       ),
-    .addr1  ( 13'd0     ),
-    .data1  ( 16'd0     ),
-    .we1    ( 2'b0      ),
-    .q1     (           )
-);
 
 jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .rst        ( rst       ),
@@ -453,7 +442,7 @@ end
 `else
     // NOMAIN scene replay: the CPU is fully tied off and the video BRAMs in
     // jtcninja_video preload the captured scene via SIMFILE (see README).
-    assign cpu_addr  = 0; assign cpu_dout = 0;
+    assign cpu_addr  = 0; assign cpu_dout = 0; assign work_we = 0;
     assign UDSWn=1; assign LDSWn=1; assign RnW=1;
     assign rom_cs=0;
     assign pf0_cs=0; assign pf1_cs=0; assign objram_cs=0; assign obj_copy=0;

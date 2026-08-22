@@ -138,3 +138,16 @@ bram:
     addr_width: 11
     simfile: { big_endian: true }
     dual_port: { name: dma, din: objram_dout, we: dma_we, rw: true }
+  # 68000 work RAM 0x184000-0x187fff (16kB). cninja.cpp maps it as plain .ram().
+  - name: work
+    data_width: 16
+    addr_width: 14        # bytes -> 8192 words
+    addr: main_addr[13:1]
+    din: main_dout
+    we: work_we
+    rw: true
+  # HuC6280 work RAM 0x1f0000-0x1f1fff (8kB), inside the Deco 45's map.
+  - name: sndram
+    data_width: 8
+    addr_width: 13
+    rw: true

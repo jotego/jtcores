@@ -263,6 +263,8 @@ jtcninja_main u_main(
     .LVBL       ( LVBL      ),
     .LHBL       ( LHBL      ),
     // CPU bus
+    .work_we    ( work_we   ),
+    .work_dout  ( work_dout ),
     .cpu_addr   ( main_addr ),
     .cpu_dout   ( main_dout ),
     .UDSWn      ( UDSWn     ),
@@ -338,6 +340,10 @@ jtcninja_snd u_snd(
     .latch      ( snd_latch ),
     .snd_irq    ( snd_irq   ),
     // Program ROM: 64kB HuC6280 program in BA0, above the sprite slot
+    .sndram_addr( sndram_addr ),
+    .sndram_din ( sndram_din  ),
+    .sndram_we  ( sndram_we   ),
+    .sndram_dout( sndram_dout ),
     .rom_addr   ( snd_addr  ),
     .rom_cs     ( snd_cs    ),
     .rom_data   ( snd_data  ),

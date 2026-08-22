@@ -34,6 +34,11 @@ module jtcninja_snd(
     // From main CPU via DECO 104
     input      [ 7:0] latch,
     input             snd_irq,    // 1-clk pulse on soundlatch write
+    // Work RAM 0x1f0000-0x1f1fff (mem.yaml bram: sndram)
+    output     [12:0] sndram_addr,
+    output     [ 7:0] sndram_din,
+    output            sndram_we,
+    input      [ 7:0] sndram_dout,
     // Program ROM (BA0)
     output     [15:0] rom_addr,
     output reg        rom_cs,
@@ -63,8 +68,6 @@ wire [ 7:0] dout, opn_dout, opm_dout, oki1_dout, oki2_dout;
 reg  [ 7:0] din;
 wire        wrn, rdn, SX;
 wire        ce, cek_n, ce7_n, cer_n;
-wire        ram_we;
-wire [ 7:0] ram_dout;
 reg         rom_good;
 reg         ram_cs, opn_cs, opm_cs, oki1_dev, oki2_dev, latch_cs;
 wire        opn_irqn, opm_irqn;
@@ -79,7 +82,9 @@ wire hu_clk = clk & hu_cen;
 always @(negedge clk) hu_cen <= cen_snd;
 
 assign rom_addr = A[15:0];
-assign ram_we   = ram_cs & ~wrn;
+assign sndram_we   = ram_cs & ~wrn;
+assign sndram_addr = A[12:0];
+assign sndram_din  = dout;
 assign oki1_cs  = 1'b1;     // jt6295 fetches ROM continuously
 assign oki2_cs  = 1'b1;
 
@@ -106,7 +111,7 @@ end
 
 always @(posedge clk) begin
     rom_good <= !rom_cs || rom_ok;
-    din <= ram_cs   ? ram_dout  :
+    din <= ram_cs   ? sndram_dout :
            opn_cs   ? opn_dout  :
            opm_cs   ? opm_dout  :
            oki1_dev ? oki1_dout :
@@ -125,10 +130,6 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-jtframe_ram #(.AW(13)) u_ram(    // 8kB work RAM @ 0x1f0000
-    .clk ( clk      ), .cen( 1'b1 ),
-    .data( dout     ), .addr( A[12:0] ), .we( ram_we ), .q( ram_dout )
-);
 
 HUC6280 u_huc(
     .CLK    ( hu_clk   ),
