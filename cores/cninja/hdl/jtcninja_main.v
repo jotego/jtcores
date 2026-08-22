@@ -49,7 +49,11 @@ module jtcninja_main(
     output            prot_cs,
     input      [15:0] prot_dout,
     // Caveman Ninja Hardware family selector (0=cninja, 2=darkseal)
-    input      [ 3:0] game_id,
+    // Board select, one boolean per game (MRA header -> jtcninja_header)
+    input             ds,       // Dark Seal / Gate of Doom
+    input             cb,       // Crude Buster / Two Crude
+    input             vp,       // Vapor Trail / Kuhga
+    input             cn,       // Caveman Ninja / Joe & Mac
     // Crude Buster TC-4 PAL layer priority (m_pri): swaps mg/pf1b draw order
     output            prot_pri,
     // Vapor Trail priority regs (0x100000/2). [0]&3 picks one of four playfield
@@ -111,13 +115,11 @@ assign work_we  = {2{ramdec & ~RnW}} & ~{UDSn,LDSn};
 // must clear it during init fast enough to reach 0x47a before the first
 // VBLANK, else the VBL ISR preempts init and the boot handshake stalls.
 //
-// Address decode is muxed for the Caveman Ninja Hardware family (game_id):
-//   game_id 0 = cninja (default)         game_id 2 = darkseal
+// Address decode is muxed per board; cninja is the fall-through case.
 // Dark Seal's map (doc/DARKSEAL_HW.md): ROM <0x80000, work RAM 0x100000,
 // objram 0x120000, palette 0x140000(RG)+0x141000(B), I/O 0x180000-0x18000b
 // DIRECT (no DECO 104), tilegen[1] 0x20/0x22/0x24, tilegen[0] 0x26/0x2a.
-wire ds = game_id==4'd2;
-// Crude Buster (game_id==1) shares the deco16ic/decospr family but has its own
+// Crude Buster shares the deco16ic/decospr family but has its own
 // memory map (doc/cbuster.cpp ::main_map):
 //   ROM      000000-07ffff      work RAM 080000-083fff
 //   tilegen0 0a0000-0a7fff (pf1 0a0/pf2 0a2/rowscroll 0a4,0a6) + ctrl 0b5000
@@ -126,7 +128,6 @@ wire ds = game_id==4'd2;
 //   0bc000 P1_P2 r / sprite-DMA w   0bc002 DSW r / soundlatch w
 //   0bc004 prot r/w (PAL HLE)       0bc006 COINS r / IRQ4-ack w
 // VBLANK -> IRQ4 (irq4_line_assert), acked by the 0bc006 write.
-wire cb = game_id==4'd1;
 
 // Dark Seal direct I/O window 0x180000-0x18000f (read inputs, write control)
 wire ds_io      = ds && A[23:16]==8'h18 && A[15:14]==2'b00;
@@ -147,7 +148,7 @@ wire cb_prot_cs = cb_io && A[3:1]==3'd2;          // 0x0bc004 prot  (r/w)
 wire cb_coin_cs = cb_io && A[3:1]==3'd3;          // 0x0bc006 COINS (read)
 wire cb_irqack  = cb_io && A[3:1]==3'd3 && ~RnW;  // 0x0bc006 IRQ4 ack (write)
 
-// Vapor Trail / Kuhga (game_id==3): 2x deco16ic + MXC-06, NO protection
+// Vapor Trail / Kuhga: 2x deco16ic + MXC-06, NO protection
 // (doc/vaportra.cpp ::main_map). Inputs read DIRECTLY:
 //   ROM 000000-07ffff     work RAM ffc000-ffffff
 //   100000 PLAYERS r / priority[0] w    100002 COINS r / priority[1] w
@@ -157,7 +158,6 @@ wire cb_irqack  = cb_io && A[3:1]==3'd3 && ~RnW;  // 0x0bc006 IRQ4 ack (write)
 //   palette 300000 (GR) + 304000 (B-ext)   308001 irq6-ack r/w
 //   30c000 sprite DMA w   318000-3187ff spriteram
 //   VBLANK -> IRQ6 (irq6_line_assert), acked by r/w of 0x308001.
-wire vp = game_id==4'd3;
 wire vp_io      = vp && A[23:16]==8'h10 && A[15:14]==2'b00;  // 0x100000-0x103fff
 wire vp_play_cs = vp_io && A[3:1]==3'd0;          // 0x100000 PLAYERS (read)
 wire vp_coin_cs = vp_io && A[3:1]==3'd1;          // 0x100002 COINS   (read)
@@ -233,7 +233,7 @@ assign objram_cs = !BUSn && (ds ? (A[23:16]==8'h12 && A[15:11]==5'd0)          /
                                 : (A[23:16]==8'h1a && A[15:14]==2'b01));        // 1a4000-1a47ff
 // tilegens: cninja packs each in a 64kB window; darkseal/cbuster explode
 // data/control across the map. pf0_cs = tilegen[0] footprint, pf1_cs =
-// tilegen[1] footprint. video.v re-decodes the sub-regions per game_id.
+// tilegen[1] footprint. video.v re-decodes the sub-regions per board.
 assign pf0_cs    = !BUSn && (ds ? (A[23:16]==8'h26 || A[23:16]==8'h2a)          // t0 data 260000 / ctrl 2a0000
                           : cb ? ((A[23:16]==8'h0a && ~A[15]) ||              // t0 data/rowscr 0a0000-0a7fff
                                   (A[23:16]==8'h0b && A[15:12]==4'h5))        // t0 ctrl 0b5000
@@ -244,9 +244,9 @@ assign pf1_cs    = !BUSn && (ds ? (A[23:16]==8'h20 || A[23:16]==8'h22 || A[23:16
                                   (A[23:16]==8'h0b && A[15:12]==4'h6))        // t1 ctrl 0b6000
                           : vp ? (A[23:16]==8'h20 || A[23:16]==8'h24)         // t1 data 200/202, ctrl 240
                                 : (A[23:16]==8'h15));
-assign irq_cs    = !BUSn && !ds && !cb && !vp && A[23:16]==8'h19 && A[15:4]==12'h0; // cninja deco_irq
-assign objdma_cs = !BUSn && !ds && !cb && !vp && A[23:16]==8'h1b && A[15:14]==2'b01; // cninja sprite DMA
-assign prot_cs   = !BUSn && !ds && !cb && !vp && A[23:16]==8'h1b && A[15:14]==2'b11; // cninja DECO 104
+assign irq_cs    = !BUSn && cn && A[23:16]==8'h19 && A[15:4]==12'h0; // cninja deco_irq
+assign objdma_cs = !BUSn && cn && A[23:16]==8'h1b && A[15:14]==2'b01; // cninja sprite DMA
+assign prot_cs   = !BUSn && cn && A[23:16]==8'h1b && A[15:14]==2'b11; // cninja DECO 104
 assign obj_copy  = ds ? ds_sprdma : cb ? cb_sprdma : vp ? vp_sprdma : (objdma_cs & ~RnW);
 
 // Soundlatch: darkseal 0x180008 / cbuster 0x0bc002 / vapor 0x100007 (game.v muxes)
@@ -466,8 +466,8 @@ always @(posedge clk) begin   // edge-detect the actual write (DS-asserted)
 end
 always @(negedge LVBL) begin
     frcnt = frcnt + 1;
-    $display("CNINJA hb: frame=%0d gid=%0d A=%06x pal=%0d tile=%0d obj=%0d | IPLn=%b vbl_set=%0d irqack=%0d",
-             frcnt, game_id, {A,1'b0}, palw, tilew, objw, IPLn, vbl_set, irqack);
+    $display("CNINJA hb: frame=%0d dcv=%03b A=%06x pal=%0d tile=%0d obj=%0d | IPLn=%b vbl_set=%0d irqack=%0d",
+             frcnt, {ds,cb,vp}, {A,1'b0}, palw, tilew, objw, IPLn, vbl_set, irqack);
 end
 
 `endif

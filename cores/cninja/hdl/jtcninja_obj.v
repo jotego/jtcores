@@ -12,8 +12,8 @@ module jtcninja_obj(
     input             clk,
     input             pxl_cen,
     input             flip,
-    input             dseal,           // game_id==2 (darkseal plane order)
-    input             cbust,           // game_id==1 (cbuster chunky plane reverse)
+    input             dseal,           // Dark Seal plane order
+    input             cbust,           // Crude Buster chunky plane reverse
 
     input             HS,
     input             LHBL,

@@ -21,10 +21,13 @@ module jtcninja_video(
     input             pxl_cen,
     input      [ 3:0] gfx_en,
     output            flip,
-    // Caveman Ninja Hardware family selector (0=cninja, 1=cbuster, 2=darkseal,
-    // 3=vaportra). The tilegen data/control/rowscroll regions are exploded
-    // across the map on some games, so cpu_addr is widened to [19:1].
-    input      [ 3:0] game_id,
+    // Board select, one boolean per game (MRA header -> jtcninja_header). The
+    // tilegen data/control/rowscroll regions are exploded across the map on some
+    // boards, so cpu_addr is widened to [19:1].
+    input             dseal,
+    input             cbust,
+    input             vapor,
+    input             cninja,
     input             cbpri,        // cbuster TC-4 layer priority (m_pri)
     input      [15:0] vprio0,       // vaportra m_priority[0]: playfield draw order
     input      [15:0] vprio1,       // vaportra m_priority[1]: sprite-behind-fg threshold
@@ -88,10 +91,6 @@ module jtcninja_video(
 );
 
 assign flip = 1'b0;     // TODO: from deco16ic control register
-
-wire dseal = game_id==4'd2;
-wire cbust = game_id==4'd1;
-wire vapor = game_id==4'd3;
 
 // ---------------------------------------------------------------------------
 // Video timing
@@ -233,7 +232,7 @@ wire        rs1_we = rs_t1p1_we | rs_t1p2_we;
 // gfx packing, per playfield (a download property, see game.v post_addr):
 // tiles laid out row-major only for cninja; the 8x8 char layer is never
 // row-major (no L/R half). pswap follows the RGN_FRAC plane-pair order.
-wire rowmajor = ~dseal & ~cbust & ~vapor;
+wire rowmajor = cninja;
 
 wire [15:0] tg0_bank, tg1_bank;
 // deco16ic bank callback (driver-provided in MAME). cninja's tilegen1 needs it
@@ -403,7 +402,6 @@ jtcninja_colmix u_colmix(
     .vprio0  ( vprio0   ),
     .vprio1  ( vprio1   ),
     .vapor   ( vapor    ),
-    .hdump   ( hdump_rd ),
     .LHBL    ( pre_LHBL ),
     .LVBL    ( pre_LVBL ),
     .LHBL_o  ( LHBL     ),

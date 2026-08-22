@@ -56,19 +56,17 @@ wire        prot_cs;
 wire [15:0] prot_dout;
 
 // Sound. cninja routes the soundlatch through the DECO 104 (prot_*); darkseal
-// writes 0x180008 directly (main.v snd_wr/snd_dout). Muxed on game_id below.
+// writes 0x180008 directly (main.v snd_wr/snd_dout). Muxed on the board booleans below.
 wire [ 7:0] snd_latch, prot_snd_latch, ds_snd_latch;
 wire        snd_irq,   prot_snd_irq;
 wire        snd_wr;
 wire [ 7:0] snd_dout;
 reg  [ 7:0] ds_snd_latch_r;
 reg         snd_wr_l;
-wire        dseal = game_id==4'd2;
-wire        cbust = game_id==4'd1;
-wire        vapor = game_id==4'd3;     // Vapor Trail / Kuhga (2x deco16ic, no prot)
+wire        dseal, cbust, vapor, cninja;   // one per board, from the MRA header
 // cbuster's soundlatch is a plain generic_latch written from the main bus
 // (0x0bc002), exactly like darkseal's 0x180008 - so both use the direct
-// snd_wr/snd_dout path (main.v asserts snd_wr per game_id).
+// snd_wr/snd_dout path (main.v asserts snd_wr per board).
 wire        dirsnd = dseal | cbust | vapor;  // vapor: generic latch @0x100007
 always @(posedge clk) begin
     snd_wr_l <= snd_wr;
@@ -118,23 +116,12 @@ assign obj_ok      = objrom_ok;
 // blob start, and the jtframe_dwnld boundary at JTFRAME_BA1_START splits the
 // RGN_FRAC(1,2) plane pairs into BA0 (planes 0,1) + BA1 (planes 2,3) for free.
 // The sprite engine then reads both banks in parallel (obj1/obj2 combine below).
-// Per-game gfx region boundaries (BA3 word offsets), carried in the MRA header
-// and latched at download (see the header decode below). The header stores them
-// in 64kB-word units (value<<16 = word offset). This replaces the hardcoded
-// cninja constants so any game's gfx layout works without HDL edits: mame2mra
-// computes the ends from the actual ROM region sizes. It fixes the overlap class
-// of bug (a region smaller than its slot leaves blob padding that the RGN_FRAC
-// rotate would otherwise fold back onto - and overwrite - the real data, because
-// the rotate ignores prog_addr bits above the region size).
-reg  [ 5:0] gfx_t1  = 6'h01;   // char end / tiles1 base  (cninja default)
-reg  [ 5:0] gfx_t2  = 6'h05;   // tiles1 end / tiles2 base
-reg  [ 5:0] gfx_end = 6'h0d;   // tiles2 end
-reg         gfx_romcont = 1'b1;// tiles2 has ROM_CONTINUE (word bit 17<->18 swap)
-wire [21:0] gT1  = { gfx_t1,  16'd0 };
-wire [21:0] gT2  = { gfx_t2,  16'd0 };
-wire [21:0] gEND = { gfx_end, 16'd0 };
+// BA3 gfx bounds. Every game has the same BA3 layout - chars at GFX1_START then
+// tiles1 (512kB) at GFX2_START - so these are constants off the macros, not the
+// per-game header bytes they used to be. Word addresses, hence >>1.
+localparam [21:0] gT1 = (`GFX2_START-`GFX1_START)>>1,      // chars end / tiles1 base
+                  gT2 = gT1 + 22'h40000;                   // tiles1 end (512kB)
 wire [19:0] t1w = prog_addr[19:0] - gT1[19:0];   // tiles1-relative word
-wire [19:0] t2w = prog_addr[19:0] - gT2[19:0];   // tiles2-relative word
 // BA0 holds the sound program above the 2MB sprite slot: (SND_START-0)>>1.
 // It must download raw, so the sprite plane-pair rotate below stops here.
 localparam [21:0] SNDW = 22'h100000;
@@ -180,7 +167,7 @@ always @* begin
     // chunky and verified identical. RGN_FRAC(1,2) half at word bit 17.
     if( prog_ba==2'd3 && vapor && prog_addr >= gT1 && prog_addr < gT2 )
         post_addr = gT1 + { 4'd0, t1w[16:0], t1w[17] };
-    if( ~dseal & ~cbust & ~vapor ) begin                            // cninja only
+    if( cninja ) begin
         if( prog_ba==2'd1 ||                                        // tiles2 (BA1)
             (prog_ba==2'd3 && prog_addr >= gT1 && prog_addr < gT2) )// tiles1 (BA3)
             post_addr = { prog_addr[20:6], prog_addr[4:1], prog_addr[5], prog_addr[0] };
@@ -190,38 +177,36 @@ always @* begin
 end
 
 // ---------------------------------------------------------------------------
-// Caveman Ninja Hardware family selector (multi-game, header-driven).
-// MRA header byte 0 = game_id, latched during the header phase of the download
-// (superman/kiwi pattern). 0=cninja, 1=cbuster/twocrude, 2=darkseal/gatedoom.
-// The address decoder / I/O / clock cens mux on game_id; game_id=0 == cninja.
+// Board select: one boolean per game, latched from the MRA header by the
+// generated jtcninja_header (see [header].registers in cfg/mame2mra.toml).
+// Scene replay (NOMAIN) primes the SDRAM directly and never runs the download,
+// so the header does not arrive - JTFRAME_SIM_GAMEID forces the board there.
 // ---------------------------------------------------------------------------
-// Header is delivered BYTE-addressed during the header phase: game_sdram.v
-// feeds the game prog_addr=ioctl_addr (byte index) and prog_data=ioctl_dout
-// (the byte in [7:0]; [15:8] is zero-extended). So each header byte lands at
-// its own prog_addr[3:0] and must be read from prog_data[7:0] - NOT packed two
-// bytes per 16-bit word. Byte layout (matches mame2mra [header] data order):
-//   byte 0 = game_id     byte 1 = gfx_t1 (char end / tiles1 base)
-//   byte 2 = gfx_t2      byte 3 = gfx_end (tiles2 end)
-//   byte 4 bit0 = tiles2 ROM_CONTINUE      (all values in 64kB-word units)
-// game_id is normally latched from the MRA header during the ROM download.
-// Scene replay (NOMAIN) primes the SDRAM from sdram_bank*.bin and skips that
-// download, so the header never arrives - force game_id via JTFRAME_SIM_GAMEID
-// (e.g. -d JTFRAME_SIM_GAMEID=2 for darkseal) so the video uses the right paths.
+wire hdr_cninja, hdr_cbust, hdr_dseal, hdr_vapor;
+
+jtcninja_header u_header(
+    .clk       ( clk        ),
+    .header    ( header     ),
+    .prog_we   ( prog_we    ),
+    .prog_addr ( prog_addr[3:0] ),
+    .prog_data ( prog_data  ),
+    .cninja    ( hdr_cninja ),
+    .cbust     ( hdr_cbust  ),
+    .dseal     ( hdr_dseal  ),
+    .vapor     ( hdr_vapor  )
+);
+
 `ifdef JTFRAME_SIM_GAMEID
-reg [3:0] game_id = `JTFRAME_SIM_GAMEID;
+assign cbust = `JTFRAME_SIM_GAMEID==1;
+assign dseal = `JTFRAME_SIM_GAMEID==2;
+assign vapor = `JTFRAME_SIM_GAMEID==3;
+assign cninja = `JTFRAME_SIM_GAMEID==0;
 `else
-reg [3:0] game_id = 4'd0;
+assign cbust = hdr_cbust;
+assign dseal = hdr_dseal;
+assign vapor = hdr_vapor;
+assign cninja = hdr_cninja;
 `endif
-always @(posedge clk) begin
-    if( prog_we && header ) case( prog_addr[3:0] )
-        4'd0: game_id     <= prog_data[3:0];
-        4'd1: gfx_t1      <= prog_data[5:0];
-        4'd2: gfx_t2      <= prog_data[5:0];
-        4'd3: gfx_end     <= prog_data[5:0];
-        4'd4: gfx_romcont <= prog_data[0];
-        default:;
-    endcase
-end
 
 /* verilator tracing_off */
 jtcninja_main u_main(
@@ -255,7 +240,10 @@ jtcninja_main u_main(
     .prot_cs    ( prot_cs   ),
     .prot_dout  ( prot_dout ),
     // Caveman Ninja Hardware family selector + Dark Seal direct I/O
-    .game_id    ( game_id   ),
+    .ds         ( dseal     ),
+    .cb         ( cbust     ),
+    .vp         ( vapor     ),
+    .cn         ( cninja    ),
     .prot_pri   ( cb_pri    ),
     .vprio0     ( vprio0    ),
     .vprio1     ( vprio1    ),
@@ -344,7 +332,10 @@ jtcninja_video u_video(
     .pxl_cen    ( pxl_cen   ),
     .gfx_en     ( gfx_en    ),
     .flip       ( flip      ),
-    .game_id    ( game_id   ),
+    .dseal      ( dseal     ),
+    .cbust      ( cbust     ),
+    .vapor      ( vapor     ),
+    .cninja     ( cninja    ),
     .cbpri      ( cb_pri    ),
     .vprio0     ( vprio0    ),
     .vprio1     ( vprio1    ),

@@ -30,7 +30,7 @@ module jtcninja_snd(
     input             cen_opm,    // YM2151 ~3.58MHz
     input             cen_oki1,   // ~1MHz
     input             cen_oki2,   // ~2MHz
-    input             dseal,      // game_id==2: darkseal OKI2 is 256kB, NOT banked
+    input             dseal,      // Dark Seal OKI2 is 256kB, NOT banked
     // From main CPU via DECO 104
     input      [ 7:0] latch,
     input             snd_irq,    // 1-clk pulse on soundlatch write
