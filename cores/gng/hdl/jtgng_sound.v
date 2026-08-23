@@ -38,7 +38,7 @@ module jtgng_sound(
 
     // Debug
     input      [ 7:0] debug_bus,
-    output reg [ 7:0] debug_view
+    output     [ 7:0] debug_view
 );
 parameter       LAYOUT=0;
 `ifndef NOSOUND
@@ -69,7 +69,7 @@ localparam READ_FM    = LAYOUT==3 || LAYOUT==4 || LAYOUT==8 || LAYOUT==10;
 localparam FM_SAMECEN = LAYOUT==3 || LAYOUT==4 || LAYOUT==8 || LAYOUT==10;
 
 wire [15:0] A, fave;
-wire        iorq_n, m1_n, wr_n, rd_n, cenfm;
+wire        iorq_n, m1_n, wr_n, rd_n, cenfm, cen_cpu;
 wire [ 7:0] ram_dout, dout, fm0_dout, fm1_dout;
 reg         fm1_cs, fm0_cs, latch_cs, ram_cs, mcu_cs;
 wire        mreq_n, rfsh_n;
@@ -80,14 +80,7 @@ assign cenfm    = FM_SAMECEN ? cen3 : cen1p5;
 assign mcu_srd  = mcu_cs && !rd_n;
 // assign snd_dout   = dout;
 // assign snd_mcu_wr = 1'b0;
-
-always @* begin
-    case( debug_bus[7:6] )
-        1: debug_view = fave[ 7:0];
-        3,2: debug_view = fave[15:8];
-        default: debug_view ={ fm1_debug[3:0], fm0_debug[3:0] };
-    endcase
-end
+assign debug_view ={ fm1_debug[3:0], fm0_debug[3:0] };
 
 always @(*) begin
     rom_cs   = 1'b0;
@@ -165,25 +158,6 @@ end
 
 wire intn_fm0, intn_fm1;
 
-wire RAM_we = ram_cs && !wr_n;
-
-// `define SIM_SND_RAM ,.SIMFILE("snd_ram.hex")
-`ifndef SIM_SND_RAM
-`define SIM_SND_RAM
-`endif
-
-jtframe_ram #(
-    .AW(11)
-    `SIM_SND_RAM
-) u_ram(
-    .clk    ( clk      ),
-    .cen    ( 1'b1     ),
-    .data   ( dout     ),
-    .addr   ( A[10:0]  ),
-    .we     ( RAM_we   ),
-    .q      ( ram_dout )
-);
-
 reg [7:0] din;
 
 // Only some layouts can read the status register
@@ -243,14 +217,15 @@ always @(negedge clk)
         end else reset_n <= 1'b1;
     end
 
-// Wait_n generation
+// FM accesses take two Z80 cycles. The wrapper supplies the RAM and ROM
+// wait logic, while this gate preserves the original FM access delay.
 
 reg [1:0] fm_wait;
-reg wait_n;
 wire fmx_cs = fm0_cs|fm1_cs;
 reg last_fmx_cs;
 wire fmx_cs_posedge = !last_fmx_cs && fmx_cs;
 wire fm_lock = |fm_wait;
+assign cen_cpu = cen3 && !fm_lock;
 
 always @(posedge clk or negedge reset_n)
     if( !reset_n ) begin
@@ -260,24 +235,11 @@ always @(posedge clk or negedge reset_n)
         fm_wait  <= {  fm_wait[0], fmx_cs_posedge };
     end
 
-reg last_rom_cs, rom_lock;
-
-always @(posedge clk or negedge reset_n) begin
-    if( !reset_n )
-        wait_n <= 1'b1;
-    else begin
-        last_rom_cs <= rom_cs;
-        if( rom_cs && !last_rom_cs ) rom_lock <= 1'b1;
-        if( rom_ok ) rom_lock <= 1'b0;
-        wait_n <= !fm_lock && !rom_lock;
-    end
-end
-
-jtframe_z80 u_cpu(
+jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .rst_n      ( reset_n     ),
     .clk        ( clk         ),
-    .cen        ( cen3        ),
-    .wait_n     ( wait_n      ),
+    .cen        ( cen_cpu     ),
+    .cpu_cen    (             ),
     .int_n      ( int_n       ),
     .nmi_n      ( 1'b1        ),
     .busrq_n    ( 1'b1        ),
@@ -290,19 +252,12 @@ jtframe_z80 u_cpu(
     .halt_n     (             ),
     .busak_n    (             ),
     .A          ( A           ),
-    .din        ( din         ),
-    .dout       ( dout        )
-);
-
-jtframe_freqinfo #(
-    .KHZ   (        0 ),
-    .MFREQ (   24_000 )
-) u_freqinfo(
-    .rst    ( rst   ),
-    .clk    ( clk   ),
-    .pulse  ( int_n ),
-    .fave   ( fave  ),
-    .fworst (       )
+    .cpu_din    ( din         ),
+    .cpu_dout   ( dout        ),
+    .ram_dout   ( ram_dout    ),
+    .ram_cs     ( ram_cs      ),
+    .rom_cs     ( rom_cs      ),
+    .rom_ok     ( rom_ok      )
 );
 
 jt03 u_fm0(
@@ -364,8 +319,8 @@ jt03 u_fm1(
 );
 `else
     initial snd2_latch = 0;
-    initial debug_view = 0;
     initial rom_cs     = 0;
+    assign  debug_view = 0;
     assign  rom_addr   = 0;
     assign  fm0        = 0;
     assign  fm1        = 0;

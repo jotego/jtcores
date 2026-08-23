@@ -2,7 +2,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 12-10-2019 */
 
-
 module jttora_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
@@ -13,7 +12,7 @@ wire [13:1] cpu_AB;
 wire        char_cs, col_uw, col_lw;
 wire        flip;
 wire [15:0] char_dout, cpu_dout;
-wire        rd, cpu_cen, video_cen8;
+wire        rd, cpu_cen;
 wire        char_busy;
 
 // MCU interface
@@ -67,63 +66,11 @@ always @* begin
     endcase
 end
 
-/////////////////////////////////////
-// 48 MHz based clock enable signals
-jtframe_cen48 u_cen48(
-    .clk    ( clk           ),
-    .cen16  (               ),
-    .cen16b (               ),
-    .cen12  ( pxl2_cen      ),
-    .cen12b (               ),
-    .cen8   ( video_cen8    ),
-    .cen6   ( pxl_cen       ),
-    .cen6b  (               ),
-    .cen4   (               ),
-    .cen4_12(               ),
-    .cen3   (               ),
-    .cen3q  (               ),
-    .cen3qb (               ),
-    .cen3b  (               ),
-    .cen1p5 (               ),
-    .cen1p5b(               )
-);
-
-/////////////////////////////////////
-// 24 MHz based clock enable signals
-wire        cen3, mcu_cen, clk_mcu;
-wire        cenfm, cenp384;
-wire        cen10b;
+wire        clk_mcu;
 reg         rst_mcu;
 
-jtframe_cen24 u_cen(
-    .clk    ( clk24     ),
-    .cen12  (           ),
-    .cen12b (           ),
-    .cen8   (           ),
-    .cen4   (           ),
-    .cen6   (           ),
-    .cen6b  (           ),
-    .cen3   ( cen3      ),
-    .cen3q  (           ),
-    .cen3b  (           ),
-    .cen3qb (           ),
-    .cen1p5 ( mcu_cen   ),
-    .cen1p5b(           )
-);
-
-assign clk_mcu = clk24;
-always @(posedge clk) rst_mcu <= rst24 | ~f1dream;
-
-jtframe_cen3p57 #(.CLK24(1)) u_cen3p57(
-    .clk      ( clk24     ),
-    .cen_3p57 ( cenfm     ),
-    .cen_1p78 (           )     // unused
-);
-
-jtframe_cenp384 #(.CLK24(1)) u_cenp384(
-    .clk      ( clk24     ),
-    .cen_p384 ( cenp384   )
-);
+assign clk_mcu = clk;
+always @(posedge clk) rst_mcu <= rst | ~f1dream;
 
 jtbiocom_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
@@ -224,8 +171,8 @@ jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
 );
 
 jttora_sound u_sound (
-    .rst            ( rst24          ),
-    .clk            ( clk24          ),
+    .rst            ( rst            ),
+    .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cenfm          ( cenfm          ),
     .cenp384        ( cenp384        ),
