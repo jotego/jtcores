@@ -38,7 +38,7 @@ module jtcninja_decospr(
 
     // sprite ROM
     output reg        rom_cs,
-    output reg [20:2] rom_addr,
+    output reg [22:2] rom_addr,     // 16-bit code -> up to 5MB (edrandy)
     input      [31:0] rom_data,
     input             rom_ok,
 
@@ -47,7 +47,7 @@ module jtcninja_decospr(
 
 // ---------- parse: scan the 256 sprites, find those on this line ----------
 reg  [ 8:0] xpos;
-reg  [13:0] id;
+reg  [15:0] id;                 // full 16-bit sprite code
 reg  [ 4:0] pal;
 reg  [ 1:0] pri;            // x[15:14] : sprite/playfield priority
 reg         epri;           // y[15]    : extra priority bit (cbuster front/back)
@@ -100,7 +100,7 @@ always @(posedge clk, posedge rst) begin
                     end else
                         oram_addr <= oram_addr + 10'd1;
                 end
-                1: begin id <= oram_dout[13:0]; oram_addr <= oram_addr + 10'd1; end
+                1: begin id <= oram_dout[15:0]; oram_addr <= oram_addr + 10'd1; end
                 2: begin     // word2 (x) : xpos/colour/priority
                     xpos     <= 9'd240 - oram_dout[8:0];
                     pal      <= oram_dout[13:9];
@@ -118,13 +118,13 @@ end
 
 // ---------- draw: fetch the sprite tile ROM, shift pixels to the buffer ----------
 // effective 16x16 tile id for this scanline's row within a multi-tile sprite
-reg  [13:0] id_eff;
+reg  [15:0] id_eff;
 always @* begin
     id_eff = id;
     case( vsize )
-        1: id_eff = { id[13:1],     vflip^veff[4]    };
-        2: id_eff = { id[13:2], {2{vflip}}^veff[5:4] };
-        3: id_eff = { id[13:3], {3{vflip}}^veff[6:4] };
+        1: id_eff = { id[15:1],     vflip^veff[4]    };
+        2: id_eff = { id[15:2], {2{vflip}}^veff[5:4] };
+        3: id_eff = { id[15:3], {3{vflip}}^veff[6:4] };
         default:;
     endcase
 end
@@ -184,7 +184,7 @@ always @(posedge clk, posedge rst) begin
                     half <= 0; draw_cnt <= 0;                    // half already fetching
                 end else if( wide && !col ) begin                // -> wing column @xpos-16
                     col <= 1; half <= 1; line_cnt <= line_cnt + 1'd1;
-                    rom_addr <= { id_eff-{10'd0,mult2}, ~hflip, veff[3:0]^{4{vflip}} };
+                    rom_addr <= { id_eff-{12'd0,mult2}, ~hflip, veff[3:0]^{4{vflip}} };
                     buf_waddr<= xpos - 9'd16;
                     rom_cs <= 1; rom_good <= 0; fresh <= 0; draw_cnt <= 0;
                 end else begin                                   // sprite done

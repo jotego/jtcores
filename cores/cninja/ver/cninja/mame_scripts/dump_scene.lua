@@ -77,6 +77,16 @@ local BOARDS = {
     rs1  = {{0x0ac000,0x800},{0x0ae000,0x800}},
     oram = {{0x0b0000,0x800}},
   },
+  edrandy = {
+    sets = { edrandy=1 },
+    ctl0 = 0x140000, ctl1 = 0x150000,
+    pal  = {{0x188000,0x2000}},
+    t0p1 = {{0x144000,0x1000}}, t0p2 = {{0x146000,0x1000}},
+    t1p1 = {{0x154000,0x1000}}, t1p2 = {{0x156000,0x1000}},
+    rs0  = {{0x14c000,0x800},{0x14e000,0x800}},
+    rs1  = {{0x15c000,0x800},{0x15e000,0x800}},
+    oram = {{0x1bc000,0x800}},
+  },
   vaportra = {
     sets = { vaportra=1, vaportrau=1, kuhga=1 },
     ctl0 = 0x2c0000, ctl1 = 0x240000,

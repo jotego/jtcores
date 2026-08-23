@@ -6,12 +6,15 @@ sourcefile=[ "cninja.cpp", "darkseal.cpp", "cbuster.cpp", "vaportra.cpp" ]
 skip.bootlegs=true
 # vaportra3 splits tiles1 into 4 LOAD16_BYTE ROMs instead of the single vtmaa00
 # mask the other sets share, so it needs its own gfx rule.
-skip.setnames=["vaportra3"]
+# edrandy clones use different char/maincpu ROM names than the parent, so the
+# parts rules below do not match them.
+skip.setnames=["vaportra3","edrandy1","edrandy2","edrandyj"]
 mustbe.machines=[
     "cninja",
     "darkseal",
     "cbuster",
     "vaportra",
+    "edrandy",
 ]
 
 [header]
@@ -24,6 +27,7 @@ registers=[
     { name="cbust",  pos="0[1]", desc="Crude Buster hardware",  values=[{ setnames=["cbuster","cbusterw","cbusterj","twocrude","twocrudea"], value=1 }] },
     { name="dseal",  pos="0[2]", desc="Dark Seal hardware",     values=[{ setnames=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"], value=1 }] },
     { name="vapor",  pos="0[3]", desc="Vapor Trail hardware",   values=[{ setnames=["vaportra","vaportrau","kuhga"], value=1 }] },
+    { name="edrndy", pos="0[4]", desc="Edward Randy hardware",   values=[{ setnames=["edrandy"], value=1 }] },
 ]
 
 [Audio]
@@ -77,6 +81,17 @@ regions = [
         { name="vtmaa03.bin", crc="1a30bf81", map="0021" },
         { name="vtmaa04.bin", crc="b713e9cc", map="2100" },
     ] },
+    # edrandy: 5MB RGN_FRAC(1,2), same tilelayout as cninja. Planes 0,1 are
+    # mad-05/06/08/11/12 (first half) and planes 2,3 mad-03/04/07/10/09 (second
+    # half, in that order); pair each with its partner so the 512kB blocks stay
+    # in region order after the chunky pack.
+    { name="sprites1", machines=["edrandy"], No_offset=true, width=32, parts=[
+        { name="mad-05", crc="3f2ccf95", map="0021" }, { name="mad-03", crc="c0bff892", map="2100" },
+        { name="mad-06", crc="60871f77", map="0021" }, { name="mad-04", crc="464f3eb9", map="2100" },
+        { name="mad-08", crc="1b420ec8", map="0021" }, { name="mad-07", crc="ac03466e", map="2100" },
+        { name="mad-11", crc="03c1f982", map="0021" }, { name="mad-10", crc="42da8ef0", map="2100" },
+        { name="mad-12", crc="a0bd62b6", map="0021" }, { name="mad-09", crc="930f4900", map="2100" },
+    ] },
 
     { name="maincpu",  start="JTFRAME_BA2_START", width=16, reverse=true, No_offset=true },
     { name="audiocpu", start="SND_START", No_offset=true },
@@ -97,6 +112,12 @@ regions = [
         { name="fz_02.j1", crc="3c9c3012", offset=0x8000, length=0x8000, map="1000" },
         { name="fz_03.j2", crc="264b90ed", offset=0x8000, length=0x8000, map="0100" },
     ] },
+    { name="chars", start="GFX1_START", No_offset=true, width=32, machines=["edrandy"], parts=[
+        { name="gg-10.y6", crc="b96c6cbe", offset=0x0000, length=0x8000, map="0010" },
+        { name="gg-11.z6", crc="ee567448", offset=0x0000, length=0x8000, map="0001" },
+        { name="gg-10.y6", crc="b96c6cbe", offset=0x8000, length=0x8000, map="1000" },
+        { name="gg-11.z6", crc="ee567448", offset=0x8000, length=0x8000, map="0100" },
+    ] },
     # vaportra has no chars ROM: the 8x8 fg tiles live inside tiles1, as the first
     # 64kB of each RGN_FRAC half (12-bit code = 4096 chars).
     { name="chars", start="GFX1_START", No_offset=true, width=32, machines=["vaportra","vaportrau","kuhga"], files=[ { name="vtmaa00.bin", crc="0330e13b", size=0x80000 } ], parts=[
@@ -107,6 +128,10 @@ regions = [
     { name="tiles1", start="GFX2_START", No_offset=true, width=32, machines=["cninja","cninja1","cninjau","joemac"], parts=[
         { name="mag-02.4z", crc="de89c69a", offset=0x00000, length=0x40000, map="0021" },
         { name="mag-02.4z", crc="de89c69a", offset=0x40000, length=0x40000, map="2100" },
+    ] },
+    { name="tiles1", start="GFX2_START", No_offset=true, width=32, machines=["edrandy"], parts=[
+        { name="mad-02", crc="6c76face", offset=0x00000, length=0x40000, map="0021" },
+        { name="mad-02", crc="6c76face", offset=0x40000, length=0x40000, map="2100" },
     ] },
     { name="tiles1", start="GFX2_START", No_offset=true, width=32, machines=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"], parts=[
         { name="mac-03.h3", crc="9996f3dc", offset=0x00000, length=0x40000, map="0021" },
@@ -129,6 +154,14 @@ regions = [
         { name="mag-00.1y", crc="a8f05d33", offset=0x40000, length=0x40000, map="2100" },
         { name="mag-01.1z", crc="5b399eed", offset=0x00000, length=0x40000, map="0021" },
         { name="mag-01.1z", crc="5b399eed", offset=0x40000, length=0x40000, map="2100" },
+    ] },
+    # edrandy tiles2: mad-00|mad-01, each 512kB with ROM_CONTINUE, exactly the
+    # cninja mag-00/01 shape -> the same four sliced 256K blocks.
+    { name="tiles2", start="GFX3_START", No_offset=true, width=32, machines=["edrandy"], parts=[
+        { name="mad-00", crc="3735b22d", offset=0x00000, length=0x40000, map="0021" },
+        { name="mad-00", crc="3735b22d", offset=0x40000, length=0x40000, map="2100" },
+        { name="mad-01", crc="7bb13e1c", offset=0x00000, length=0x40000, map="0021" },
+        { name="mad-01", crc="7bb13e1c", offset=0x40000, length=0x40000, map="2100" },
     ] },
     { name="tiles2", start="GFX3_START", No_offset=true, width=32, machines=["darkseal","darkseal1","darksealj","gatedoom","gatedoom1"], parts=[
         { name="mac-02.e20", crc="49504e89", offset=0x00000, length=0x40000, map="0021" },

@@ -1,12 +1,12 @@
 # SDRAM map. Bank offsets below are 16-bit-WORD units (jtframe_romrq does
 # sdram_addr = offset + word_addr) -> >>1, even for the dw32 buses.
 #
-#   BA0  0x000000  sprite gfx, chunky dw32 (2MB)   objrom
-#        0x200000  HuC6280 sound program (64kB)    snd
+#   BA0  0x000000  sprite gfx, chunky dw32 (5MB)   objrom
+#        0x500000  HuC6280 sound program (64kB)    snd
 #   BA1  0x000000  tiles2 (1MB)                    scr2 + scr3
 #   BA2  0x000000  68k program                     main
-#        0x0D0000  OKI #1 samples                  oki1
-#        0x110000  OKI #2 samples                  oki2
+#        0x100000  OKI #1 samples                  oki1
+#        0x140000  OKI #2 samples                  oki2
 #   BA3  0x000000  chars (128kB)                   char
 #        0x020000  tiles1 (512kB)                  scr1
 #
@@ -44,7 +44,7 @@ sdram:
     # objrom != obj_addr to avoid clashing with the engine wire in game.v.
     - buses:
       - name: objrom
-        addr_width: 21        # 2MB span (dw32 -> port [20:2])
+        addr_width: 23        # 5MB slot inside the bank (dw32 -> port [22:2])
         data_width: 32
       - name: snd             # HuC6280 program: low bandwidth, rides above the sprites
         addr_width: 16        # 64kB
@@ -63,7 +63,7 @@ sdram:
     # ---- BA2 : 68k program + OKI samples ----
     - buses:
       - name: main
-        addr_width: 20
+        addr_width: 20        # 1MB program slot (edrandy)
         data_width: 16
         din: main_dout
       - name: oki1

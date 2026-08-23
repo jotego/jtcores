@@ -23,10 +23,13 @@ for ((f=first; f<=last; f+=step)); do mkdir -p "$(printf '%s/%04d' "$OUT" "$f")"
 # margin so the last target is reached
 SECS=$(( last / 60 + 5 ))
 
-# keep MAME's own cfg/nvram/snap out of the repo
+# -autoboot_delay 0 is REQUIRED: edrandy writes its deco16ic control registers
+# once at boot, so a tap installed after MAME's default 2 s delay captures zeros.
+# Harmless for the others, which rewrite the registers every frame.
+# The rest keeps MAME's own cfg/nvram/snap out of the repo.
 CNJ_SCENE_BASE="$OUT" CNJ_SCENE_FRAMES="$FRAMES" \
     "$MAME" -rompath "$ROMS" "$SETNAME" -video none -sound none \
             -cfg_directory /tmp/mame_cfg -nvram_directory /tmp/mame_nvram \
             -snapshot_directory /tmp/mame_snap \
-            -seconds_to_run "$SECS" -nothrottle \
+            -seconds_to_run "$SECS" -nothrottle -autoboot_delay 0 \
             -autoboot_script "$HERE/dump_scene.lua"

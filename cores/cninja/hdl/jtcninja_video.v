@@ -85,7 +85,7 @@ module jtcninja_video(
     input             scr3_ok,
     // Sprite ROM
     output            obj_cs,
-    output     [20:2] obj_addr,
+    output     [22:2] obj_addr,
     input      [31:0] obj_data,
     input             obj_ok,
     // deco16ic register dump / peek. Bit 4 picks the tile generator.
@@ -388,13 +388,13 @@ assign t0p2_romok   = dseal ? char_ok   : scr1_ok;
 wire [11:0] obj_pxl, cn_pxl;
 wire [ 9:0] cn_oaddr, vp_oaddr;
 wire        cn_romcs, vp_romcs;
-wire [20:2] cn_roma;
+wire [22:2] cn_roma;   // decospr: 16-bit code -> up to 5MB (edrandy)
 wire [18:1] vp_roma;   // MXC-06: {code[12:0], half, row} - 13-bit code (1MB sprite ROM)
 wire [ 7:0] vp_pxl;    // MXC-06 pen = {pal[3:0], pixel[3:0]}
 
 assign oram_addr = vapor ? vp_oaddr : cn_oaddr;
 assign obj_cs    = vapor ? vp_romcs : cn_romcs;
-assign obj_addr  = vapor ? { 1'd0, vp_roma } : cn_roma;
+assign obj_addr  = vapor ? { 3'd0, vp_roma } : cn_roma;
 // colmix adds vaportra's 0x100 sprite base itself, so pass the raw pen
 assign obj_pxl   = vapor ? { 4'd0, vp_pxl } : cn_pxl;
 

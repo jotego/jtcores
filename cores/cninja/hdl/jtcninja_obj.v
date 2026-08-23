@@ -29,7 +29,7 @@ module jtcninja_obj(
     output     [ 1:0] dma_we,
 
     output            rom_cs,
-    output     [20:2] rom_addr,
+    output     [22:2] rom_addr,
     input      [31:0] rom_data,
     input             rom_ok,
 

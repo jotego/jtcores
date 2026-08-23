@@ -40,7 +40,7 @@ wire [15:0] pf0_dout, pf1_dout;
 wire        objram_cs, obj_copy;
 // Sprite gfx ROM: the engine drives one logical 32-bit bus (obj_*), fanned out
 // to the two parallel 1MB banks obj1 (BA0, planes 0,1) + obj2 (BA1, planes 2,3).
-wire [20:2] obj_addr;
+wire [22:2] obj_addr;
 wire        obj_cs, obj_ok;
 wire [31:0] obj_data;
 
@@ -63,7 +63,7 @@ wire        snd_wr;
 wire [ 7:0] snd_dout;
 reg  [ 7:0] ds_snd_latch_r;
 reg         snd_wr_l;
-wire        dseal, cbust, vapor, cninja;   // one per board, from the MRA header
+wire        dseal, cbust, vapor, cninja, edrndy;  // one per board, from the MRA header
 // cbuster's soundlatch is a plain generic_latch written from the main bus
 // (0x0bc002), exactly like darkseal's 0x180008 - so both use the direct
 // snd_wr/snd_dout path (main.v asserts snd_wr per board).
@@ -97,7 +97,7 @@ wire [7:0] vid_iodin;
 // Sprite gfx: ONE interleaved 2MB bank (BA0), read as a single dw32 (8px/read).
 // The download remap (below) packs the RGN_FRAC(1,2) plane-pairs into 32-bit
 // {pl3,pl2,pl1,pl0} words, so no 2-bank parallel fetch / recombine.
-assign objrom_addr = obj_addr;       // engine 32-bit word index -> dw32 port [20:2]
+assign objrom_addr = obj_addr;       // engine 32-bit word index -> dw32 port [22:2]
 assign objrom_cs   = obj_cs;
 assign obj_data    = objrom_data;
 assign obj_ok      = objrom_ok;
@@ -185,7 +185,7 @@ end
 // Scene replay (NOMAIN) primes the SDRAM directly and never runs the download,
 // so the header does not arrive - JTFRAME_SIM_GAMEID forces the board there.
 // ---------------------------------------------------------------------------
-wire hdr_cninja, hdr_cbust, hdr_dseal, hdr_vapor;
+wire hdr_cninja, hdr_cbust, hdr_dseal, hdr_vapor, hdr_edrndy;
 
 jtcninja_header u_header(
     .clk       ( clk        ),
@@ -196,7 +196,8 @@ jtcninja_header u_header(
     .cninja    ( hdr_cninja ),
     .cbust     ( hdr_cbust  ),
     .dseal     ( hdr_dseal  ),
-    .vapor     ( hdr_vapor  )
+    .vapor     ( hdr_vapor  ),
+    .edrndy    ( hdr_edrndy )
 );
 
 `ifdef JTFRAME_SIM_GAMEID
@@ -204,11 +205,13 @@ assign cbust = `JTFRAME_SIM_GAMEID==1;
 assign dseal = `JTFRAME_SIM_GAMEID==2;
 assign vapor = `JTFRAME_SIM_GAMEID==3;
 assign cninja = `JTFRAME_SIM_GAMEID==0;
+assign edrndy = `JTFRAME_SIM_GAMEID==4;
 `else
 assign cbust = hdr_cbust;
 assign dseal = hdr_dseal;
 assign vapor = hdr_vapor;
 assign cninja = hdr_cninja;
+assign edrndy = hdr_edrndy;
 `endif
 
 /* verilator tracing_off */
