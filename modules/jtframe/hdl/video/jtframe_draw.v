@@ -97,9 +97,6 @@ always @(posedge clk) begin
                 cnt     <= 8;
                 no_zoom <= hzoom == HZONE || hzoom == 0; // zoom=0 is not valid. Makes counts keep going and busy stays forever. Check simpsons/scene 32
                 if( !hz_keep ) begin
-                    // enlarging needs hz_cnt=hzoom for exact integer factors,
-                    // shrinking needs a full step or the first borrow always
-                    // lands on the second pixel and drops a column of the sprite
                     hz_cnt   <= ZENLARGE==1 ? hzoom : {ZW{1'b1}};
                     buf_addr <= xpos;
                 end
