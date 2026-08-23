@@ -125,6 +125,52 @@ artifacts rather than blob content, and it is why the `LOADROM`-suppresses-
 `SIMHEX` bug (fixed in `jtframe_prom`) was able to leave a table reading all
 zeros in every real-ROM sim without any warning.
 
+## Tile line buffers — removable, and worth trying
+
+Each `jtcninja_deco16` renderer ends in a `jtframe_linebuf #(.DW(8),.AW(9))`.
+Two renderers per deco16ic and two chips = **4 buffers**, 1024x8 = 8192 bits
+each (two 512-pixel halves, double buffered), 32 kbit in total.
+
+| device | block | mode | per buffer | all four |
+|---|---|---|---|---|
+| M9K (Cyclone III) | 9216 bit | 1024x9 | 1 | 4 |
+| M10K (Cyclone V) | 10240 bit | 1024x10 | 1 | 4 |
+
+Arithmetic, not a fit report.
+
+### Why they are there
+
+Not throughput. At 48 MHz with `JTFRAME_PXLCLK=6` a line is 376 px x 6 = 2256
+clocks and the engine needs 34 columns x ~15 = ~510, under a quarter of the
+budget. The problem is **burstiness**: `WR` emits 8 pixels in 8 consecutive
+48 MHz clocks - six times faster than the display drains them - then stalls for
+the next column's three reads (colscroll BRAM, tile BRAM, gfx SDRAM). The buffer
+is the rate matcher between a bursty producer and a constant-rate consumer.
+
+### Why removing them is worth it
+
+- deletes one **line** of latency from every playfield;
+- deletes the no-clear trap: `jtframe_linebuf` has no clear, so a layer whose
+  enable drops replays its last two lines until something overwrites them. That
+  was the cninja level-2 waterfall bug, now papered over by gating `pxl` on `en`
+  in `jtcninja_deco16`. A just-in-time renderer has nothing to replay.
+
+### What blocks it
+
+`jtframe_tilemap` / `jtframe_scroll` are already just-in-time - they pace
+fetches to `pxl_cen` and shift pixels out of a register - but neither supports
+per-column colscroll, which is what forces our hand: a column's Y is not known
+until its scroll-table entry comes back, and that table is one BRAM shared with
+the other playfield through the 2-phase arbiter in `jtcninja_deco16ic` (the
+`XW*`/`CW*` wait states). Going JIT means prefetching that lookup a column ahead
+through the arbiter. Real work, not a tidy-up.
+
+### Priority
+
+Low as a BRAM play - 4 blocks against a design asking >=250 M9K, under 2%. The
+protection tables are twice that and have a cheaper fix (see above). Do this one
+for the latency and the no-clear trap, not for the memory.
+
 ## Smaller items
 
 - **vaportra `tiles1`** is the only gfx region still rotated by `post_addr` in
