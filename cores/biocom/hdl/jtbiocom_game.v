@@ -189,7 +189,7 @@ jtbiocom_sound #(.RECOVERY(1)) u_sound (
     .fm_l           ( fm_l           ),
     .fm_r           ( fm_r           )
 );
-
+/* verilator tracing_off */
 jtbiocom_video #(
     .OBJ_PAL      (2'b10),
     .PALETTE_PROM (1),

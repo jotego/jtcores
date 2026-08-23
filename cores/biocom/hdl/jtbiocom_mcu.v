@@ -186,14 +186,6 @@ jtframe_8751mcu #(
     .prom_din   ( prom_din  ),
     .prom_we    ( prom_we   )
 );
-
-`ifdef SIMULATION
-always @(negedge int0n)
-    $display ("MCU: int0n edge - main CPU");
-
-always @(negedge int1n)
-    $display ("MCU: int1n edge - sound CPU");
-`endif
 `else // NOMCU
     assign mcu_dout=0;
     assign mcu_wr=0;
