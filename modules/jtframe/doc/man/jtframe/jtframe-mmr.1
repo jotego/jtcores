@@ -138,6 +138,85 @@ is omitted or zero, the item is treated as event-only.
 .B desc
 Optional metadata only.
 It does not affect code generation.
+.SH PARAMETERS
+The generated module carries three Verilog parameters. They are not set from
+\fBmmr.yaml\fR; the instantiating code passes them.
+.TP
+.B SIMFILE
+File the simulation restores the register file from. Defaults to
+\fBrest.bin\fR, the block that
+\fBdump2bin.sh\fR
+leaves after every
+\fBmem.yaml\fR
+\fBioctl\fR
+region.
+.TP
+.B SEEK
+Byte offset of this block inside
+\fBSIMFILE\fR.
+Defaults to 0.
+The generator does NOT assign these: with more than one MMR instance the
+offsets are chosen by hand and must not overlap, and they must agree with
+whatever produced the dump.
+.TP
+.B INIT
+Power-on contents used in synthesis, packed
+\fB{mmr[SIZE-1],...,mmr[0]}\fR.
+Defaults to 0.
+.SH SCENE REPLAY
+This is what
+\fBmmr.yaml\fR
+is mainly for.
+A scene replay simulation is built with
+\fBNOMAIN\fR,
+so there is no CPU to write the registers and every scroll register would read
+zero.
+The generated module reads
+\fBSIMFILE\fR
+at
+\fBSEEK\fR
+in an
+\fBinitial\fR
+block and loads it on reset, putting the chip back into the state it had when
+the scene was captured.
+Registers that the core never reads are still worth declaring, because whatever
+is inside
+\fBmmr[]\fR
+is carried by the dump.
+.PP
+The scene can come from hardware, through the
+\fBioctl_din\fR
+port and a large enough
+\fBJTFRAME_IOCTL_RD\fR,
+or from a MAME script that writes the same byte layout.
+Note that the hardware path only covers RAM declared in
+\fBmem.yaml\fR
+(at most six
+\fBioctl\fR
+regions); a core whose video RAM lives inside HDL chip models has to capture
+from MAME.
+.PP
+Byte order:
+\fBmmr[]\fR
+is byte addressed, so on a 16-bit bus word N occupies bytes 2N (low) and 2N+1
+(high) and the dump file is little endian, whatever the CPU is.
+.SH FILES
+The generated module lands in
+\fB$CORES/<core>/hdl/\fR
+next to hand written sources but is a build artefact:
+\fB.gitignore\fR
+carries
+\fBcores/*/hdl/*_mmr.v\fR.
+It still has to be listed in
+\fBcfg/files.yaml\fR
+like any other file, unless the core picks up
+\fB*.v\fR
+wholesale.
+A hand written module named
+\fB*_mmr.v\fR
+is silently ignored by git; use
+\fBgit add -f\fR
+or another suffix.
 .SH FLAGS
 .TP
 .B \-h, \-\-help

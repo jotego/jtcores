@@ -87,7 +87,12 @@ module jtcninja_video(
     output            obj_cs,
     output     [20:2] obj_addr,
     input      [31:0] obj_data,
-    input             obj_ok
+    input             obj_ok,
+    // deco16ic register dump / peek. Bit 4 picks the tile generator.
+    input      [ 4:0] ioctl_addr,
+    output     [ 7:0] ioctl_din,
+    input      [ 7:0] debug_bus,
+    output     [ 7:0] st_dout
 );
 
 assign flip = 1'b0;     // TODO: from deco16ic control register
@@ -128,20 +133,20 @@ jtframe_vtimer #(
 );
 
 // ---------------------------------------------------------------------------
-// Scene replay (NOMAIN): the video RAMs preload MAME's captured state from
-// <scene>/{pal,t0p1,t0p2,t1p1,t1p2,oram}.bin (ENDIAN=1 = m68k byte order) and
-// the control registers from ctrl0/ctrl1.hex, so `jtsim -s <scene>` renders
-// with the CPU tied off. Empty in normal runs. See ver/cninja/README.md.
+// Scene replay (NOMAIN): `jtsim -s <scene>` renders with the CPU tied off, so
+// every piece of video state has to come from the captured scene. rest2bin.sh
+// splits dump.bin into the .bin images below; the deco16ic control registers
+// are read straight out of rest.bin by their MMR block at these offsets.
+// Empty / zero in normal runs. See ver/cninja/README.md for the dump layout.
 // ---------------------------------------------------------------------------
 `ifdef NOMAIN
-localparam SF_PAL ="pal.bin",  SF_ORAM="oram.bin",
-           SF_T0P1="t0p1.bin", SF_T0P2="t0p2.bin",
-           SF_T1P1="t1p1.bin", SF_T1P2="t1p2.bin",
-           HX_CTL0="ctrl0.hex", HX_CTL1="ctrl1.hex";
+localparam SF_T0P1="t0p1.bin", SF_T0P2="t0p2.bin", SF_RS0="rs0.bin",
+           SF_T1P1="t1p1.bin", SF_T1P2="t1p2.bin", SF_RS1="rs1.bin";
 `else
-localparam SF_PAL ="", SF_ORAM="", SF_T0P1="", SF_T0P2="",
-           SF_T1P1="", SF_T1P2="", HX_CTL0="", HX_CTL1="";
+localparam SF_T0P1="", SF_T0P2="", SF_RS0="",
+           SF_T1P1="", SF_T1P2="", SF_RS1="";
 `endif
+localparam MMR_TG0=0, MMR_TG1=16;   // rest.bin offsets, 16 bytes each
 
 wire       wr    = ~cpu_rnw;
 wire [1:0] wmask = ~cpu_dsn;
@@ -250,7 +255,12 @@ wire [19:2] t0p1_roma,  t0p2_roma,  t1p1_roma,  t1p2_roma;
 wire [31:0] t0p1_romdata, t0p2_romdata;
 wire        t0p1_romok,   t0p2_romok;
 
-jtcninja_deco16ic #(.SIMFILE1(SF_T0P1), .SIMFILE2(SF_T0P2), .CTRLHEX(HX_CTL0)) u_tg0(
+wire [ 7:0] tg0_iodin, tg1_iodin, tg0_st, tg1_st;
+assign ioctl_din = ioctl_addr[4] ? tg1_iodin : tg0_iodin;
+assign st_dout   = debug_bus[4]  ? tg1_st    : tg0_st;
+
+jtcninja_deco16ic #(.SIMFILE1(SF_T0P1), .SIMFILE2(SF_T0P2), .SIMFILRS(SF_RS0),
+                   .MMRSEEK(MMR_TG0)) u_tg0(
     .rst(rst), .clk(clk), .pxl_cen(pxl_cen), .hs(HS),
     .vrender(vrender), .hdump(hdump_rd), .flip(flip),
     .fullheight ( dseal      ),          // darkseal tg0 = DECO_64x64
@@ -259,7 +269,9 @@ jtcninja_deco16ic #(.SIMFILE1(SF_T0P1), .SIMFILE2(SF_T0P2), .CTRLHEX(HX_CTL0)) u
     .pf1_we     ( {2{t0p1_cs & wr}} & wmask ),
     .pf2_we     ( {2{t0p2_cs & wr}} & wmask ),
     .ctrl_addr  ( cpu_addr[3:1] ),
-    .ctrl_we    ( {2{ctl0_cs & wr}} & wmask ),
+    .ctrl_cs    ( ctl0_cs    ),
+    .cpu_rnw    ( cpu_rnw    ),
+    .cpu_dsn    ( cpu_dsn    ),
     .pf1_dout   ( t0p1_dout  ),
     .pf2_dout   ( t0p2_dout  ),
     .bank_ctl   ( tg0_bank   ),
@@ -283,10 +295,15 @@ jtcninja_deco16ic #(.SIMFILE1(SF_T0P1), .SIMFILE2(SF_T0P2), .CTRLHEX(HX_CTL0)) u
     .pf2_romcs  ( t0p2_romcs ),
     .pf2_roma   ( t0p2_roma  ),
     .pf2_romdata( t0p2_romdata ),
-    .pf2_romok  ( t0p2_romok )
+    .pf2_romok  ( t0p2_romok ),
+    .ioctl_addr ( ioctl_addr[3:0] ),
+    .ioctl_din  ( tg0_iodin  ),
+    .debug_bus  ( debug_bus  ),
+    .st_dout    ( tg0_st     )
 );
 
-jtcninja_deco16ic #(.SIMFILE1(SF_T1P1), .SIMFILE2(SF_T1P2), .CTRLHEX(HX_CTL1)) u_tg1(
+jtcninja_deco16ic #(.SIMFILE1(SF_T1P1), .SIMFILE2(SF_T1P2), .SIMFILRS(SF_RS1),
+                   .MMRSEEK(MMR_TG1)) u_tg1(
     .rst(rst), .clk(clk), .pxl_cen(pxl_cen), .hs(HS),
     .vrender(vrender), .hdump(hdump_rd), .flip(flip),
     .fullheight ( 1'b0       ),
@@ -295,7 +312,9 @@ jtcninja_deco16ic #(.SIMFILE1(SF_T1P1), .SIMFILE2(SF_T1P2), .CTRLHEX(HX_CTL1)) u
     .pf1_we     ( {2{t1p1_cs & wr}} & wmask ),
     .pf2_we     ( {2{t1p2_cs & wr}} & wmask ),
     .ctrl_addr  ( cpu_addr[3:1] ),
-    .ctrl_we    ( {2{ctl1_cs & wr}} & wmask ),
+    .ctrl_cs    ( ctl1_cs    ),
+    .cpu_rnw    ( cpu_rnw    ),
+    .cpu_dsn    ( cpu_dsn    ),
     .pf1_dout   ( t1p1_dout  ),
     .pf2_dout   ( t1p2_dout  ),
     .bank_ctl   ( tg1_bank   ),
@@ -318,7 +337,11 @@ jtcninja_deco16ic #(.SIMFILE1(SF_T1P1), .SIMFILE2(SF_T1P2), .CTRLHEX(HX_CTL1)) u
     .pf2_romcs  ( t1p2_romcs ),
     .pf2_roma   ( t1p2_roma  ),
     .pf2_romdata( scr2_data  ),
-    .pf2_romok  ( scr2_ok    )
+    .pf2_romok  ( scr2_ok    ),
+    .ioctl_addr ( ioctl_addr[3:0] ),
+    .ioctl_din  ( tg1_iodin  ),
+    .debug_bus  ( debug_bus  ),
+    .st_dout    ( tg1_st     )
 );
 
 // CPU read-back. The rowscroll tables answer for their own address windows

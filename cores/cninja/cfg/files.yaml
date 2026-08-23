@@ -4,6 +4,9 @@ cninja:
 jtframe:
   - get:
       - jtframe_ff.v
+  - from: debug
+    get:
+      - jtframe_simdumper.v
   - from: sdram
     get:
       - jtframe_dwnld.v

@@ -1,0 +1,25 @@
+# Data East deco16ic (custom chips 55/56/74) m_pf12_control: eight write-only
+# 16-bit registers, deco16ic.cpp pf_control_w(offset). Modelled as an MMR so
+# that NOMAIN scene replay restores scroll/mode/bank from rest.bin - with the
+# CPU tied off nothing would write them and every layer would render at 0.
+#
+# Byte index: word N occupies bytes 2N (low) and 2N+1 (high), so a 16-bit
+# register reads "2N+1,2N". Word 0 is never used by the device; it is still
+# stored and carried in the dump.
+- name: deco16ic
+  no_core_name: true      # the chip is shared with other Data East boards
+  size: 16
+  dw: 16
+  read_only: true         # the boards map pf_control_w only
+  regs:
+    - { name: pf1_scrollx, desc: "word 1",  dw: 16, at: "3,2"   }
+    - { name: pf1_scrolly, desc: "word 2",  dw: 16, at: "5,4"   }
+    - { name: pf2_scrollx, desc: "word 3",  dw: 16, at: "7,6"   }
+    - { name: pf2_scrolly, desc: "word 4",  dw: 16, at: "9,8"   }
+    # word 5 = control0: [7]=enable [6:3]=rowscroll style [2:0]=colscroll style
+    - { name: pf1_ctrl0,   desc: "word 5 low",  dw: 8, at: "10" }
+    - { name: pf2_ctrl0,   desc: "word 5 high", dw: 8, at: "11" }
+    # word 6 = control1: [7]=8x8 [6]=rowscroll [5]=colscroll [1:0]=tile flip en
+    - { name: pf1_ctrl1,   desc: "word 6 low",  dw: 8, at: "12" }
+    - { name: pf2_ctrl1,   desc: "word 6 high", dw: 8, at: "13" }
+    - { name: bank_ctl,    desc: "word 7 -> board bank callback", dw: 16, at: "15,14" }

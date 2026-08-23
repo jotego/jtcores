@@ -479,7 +479,16 @@ end
     assign rom_cs=0;
     assign pf0_cs=0; assign pf1_cs=0; assign objram_cs=0; assign obj_copy=0;
     assign pal_cs=0; assign prot_cs=0;
-    assign snd_wr=0; assign snd_dout=0; assign prot_pri=0;
-    assign vprio0=0; assign vprio1=0;
+    assign snd_wr=0; assign snd_dout=0;
 `endif
+
+// Board priority registers: cbuster's TC-4 m_pri and vaportra's m_priority.
+// They live outside the deco16ic, so scene replay restores them here - the
+// dumper turns into a reader under NOMAIN and drives the three outputs.
+jtframe_simdumper #(.DW(33),.SEEK(32)) u_dumper(
+    .clk        ( clk       ),
+    .data       ( { prot_pri, vprio1, vprio0 } ),
+    .ioctl_addr ( 3'd0      ),
+    .ioctl_din  (           )
+);
 endmodule

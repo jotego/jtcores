@@ -89,7 +89,10 @@ assign objcpu_addr = main_addr[10:1];
 assign objcpu_we   = {2{objram_cs & ~main_rnw}} & ~dsn;
 assign dip_flip   = flip;
 assign debug_view = 8'd0;
-assign st_dout    = 8'd0;
+// debug_bus[4] picks the tile generator peeked through st_dout. The deco16ic
+// register dump has no consumer: JTFRAME_IOCTL_RD is not set, so the core has
+// no ioctl_din output and scenes are captured from MAME, not from hardware.
+wire [7:0] vid_iodin;
 
 // Sprite gfx: ONE interleaved 2MB bank (BA0), read as a single dw32 (8px/read).
 // The download remap (below) packs the RGN_FRAC(1,2) plane-pairs into 32-bit
@@ -381,6 +384,10 @@ jtcninja_video u_video(
     .obj_addr   ( obj_addr  ),
     .obj_data   ( obj_data  ),
     .obj_ok     ( obj_ok    ),
+    .ioctl_addr ( ioctl_addr[4:0] ),
+    .ioctl_din  ( vid_iodin ),
+    .debug_bus  ( debug_bus ),
+    .st_dout    ( st_dout   ),
     // Vertical position
     .vdump      ( vdump     ),
     // Video output
@@ -392,5 +399,7 @@ jtcninja_video u_video(
     .green      ( green     ),
     .blue       ( blue      )
 );
+
+wire _unused = &{1'b0, vid_iodin, ioctl_addr[25:5]};
 
 endmodule
