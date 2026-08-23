@@ -131,16 +131,19 @@ wire [15:0] e_src  = e_port ? (e_psel==2'd0 ? port_a :
                             : ram_q;
 
 // rambank in BRAM: port0 = CPU write at access start, port1 = protection read.
-jtframe_dual_ram #(.DW(16), .AW(8)) u_rambank(
+// Byte lanes, matching COMBINE_DATA in write_protport - the 68000 writes these
+// registers a byte at a time on some boards (edrandy does), and storing the
+// whole word clobbers the half it never touched.
+jtframe_dual_ram16 #(.AW(8)) u_rambank(
     .clk0   ( clk    ),
     .data0  ( din    ),
     .addr0  ( {curbank, ra_off[7:1]} ),
-    .we0    ( acc_start & is_wr      ),
+    .we0    ( {2{acc_start & is_wr}} & ~dsn ),
     .q0     (        ),
     .clk1   ( clk    ),
     .data1  ( 16'd0  ),
     .addr1  ( {curbank, e_off[7:1]}  ),
-    .we1    ( 1'b0   ),
+    .we1    ( 2'b0   ),
     .q1     ( ram_q  )
 );
 
@@ -216,9 +219,16 @@ always @(posedge clk, posedge rst) begin
             latchdata <= din;
             latchflag <= 1;
             // rambank write handled by u_rambank port0 (we0 = acc_start & is_wr)
+            // COMBINE_DATA: merge by byte lane, do not clobber the other half
             case( ra_off )
-                XOR_PORT:  m_xor  <= din;
-                NAND_PORT: m_nand <= din;
+                XOR_PORT:  begin
+                    if( !dsn[0] ) m_xor [ 7:0] <= din[ 7:0];
+                    if( !dsn[1] ) m_xor [15:8] <= din[15:8];
+                end
+                NAND_PORT: begin
+                    if( !dsn[0] ) m_nand[ 7:0] <= din[ 7:0];
+                    if( !dsn[1] ) m_nand[15:8] <= din[15:8];
+                end
                 SND_PORT:  begin snd_latch <= din[7:0]; snd_irq <= 1; end
                 default:;
             endcase
