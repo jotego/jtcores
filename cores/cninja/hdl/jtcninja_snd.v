@@ -6,7 +6,7 @@
     Sound crystal 32.220 MHz:
       HuC6280 (H6280)  @ /8  = 4.0275 MHz   (modules/HUC6280, full 21-bit MMU map)
       YM2203  (jt03)   @ /8  = 4.0275 MHz   -> opn + psg
-      YM2151  (jt51)   @ /9  = 3.58   MHz   -> opm_l/opm_r, IRQ -> H6280 IRQ2
+      YM2151 (ikaopm)  @ /9  = 3.58   MHz   -> opm_l/opm_r, IRQ -> H6280 IRQ2
       MSM6295 (jt6295) @ /32 = 1.0069 MHz   -> pcm1  (oki1, 256kB)
       MSM6295 (jt6295) @ /16 = 2.0138 MHz   -> pcm2  (oki2, 512kB, banked by YM2151 CT)
 
@@ -187,15 +187,15 @@ jt03 u_2203(
 );
 
 // ---- YM2151 (stereo); CT1 banks OKI2 ----
+// IKAOPM, the gate-accurate YM2151. cen_opm is phiM (xtal/9 = 3.58 MHz), the
+// same rate jt51 took, and the wrapper inverts it into i_phiM_PCEN_n.
 wire ym_ct1, ym_ct2;
-reg  cen_opm_p1;
-always @(posedge clk) if(cen_opm) cen_opm_p1 <= ~cen_opm_p1;
-jt51 u_2151(
+jtikaopm u_2151(
     .rst    ( rst      ),
     .clk    ( clk      ),
     .cen    ( cen_opm  ),
-    .cen_p1 ( cen_opm & cen_opm_p1 ),
     .cs_n   ( ~opm_cs  ),
+    .rd_n   ( rdn      ),
     .wr_n   ( wrn      ),
     .a0     ( A[0]     ),
     .din    ( dout     ),
@@ -203,11 +203,8 @@ jt51 u_2151(
     .ct1    ( ym_ct1   ),
     .ct2    ( ym_ct2   ),
     .irq_n  ( opm_irqn ),
-    .sample (          ),
-    .left   (          ),
-    .right  (          ),
-    .xleft  ( opm_l    ),
-    .xright ( opm_r    )
+    .left   ( opm_l    ),
+    .right  ( opm_r    )
 );
 
 // ---- OKI #1 (256kB) ----

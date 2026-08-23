@@ -39,5 +39,5 @@ HUC6280:
 # Sound chips
 jt12:
   - get: [ jt03.yaml ]   # YM2203 (OPN + PSG)
-jt51:                     # YM2151 (OPM)
+ikaopm:                   # YM2151 (OPM), gate-accurate
 jt6295:                   # MSM6295 x2
