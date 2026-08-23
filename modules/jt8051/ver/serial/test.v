@@ -24,18 +24,24 @@ begin
 end
 endtask
 
-// With SMOD clear, the fixed mode-2 generator produces one 16x baud-clock
-// edge for every six machine-cycle ticks.
+// Mode 2's fixed 16x baud clock is fosc/4 (or fosc/2 with SMOD), independent
+// of the 12-oscillator machine-cycle tick.
 task mode2_ticks;
     input integer count;
     integer n, m;
 begin
     for (n=0; n<count; n=n+1) begin
-        for (m=0; m<6; m=m+1) begin
-            @(negedge clk); tick12 = 1;
-            @(negedge clk); tick12 = 0;
-        end
+        for (m=0; m<(pcon[7] ? 2 : 4); m=m+1) @(posedge clk);
     end
+end
+endtask
+
+task mode0_tick;
+    input value;
+begin
+    @(negedge clk); rxd=value; tick12=1;
+    @(posedge clk); #1 check_ok(!txd, "mode 0 receive emits a TxD shift-clock pulse");
+    @(negedge clk); tick12=0;
 end
 endtask
 
@@ -105,6 +111,12 @@ initial begin
     mode2_ticks(16); check_ok(!txd, "mode 2 emits start bit from fixed baud clock");
     mode2_ticks(16); check_ok(txd, "mode 2 emits data bit 0");
 
+    // SMOD doubles the fixed mode-2 rate, from fosc/64 to fosc/32.
+    @(negedge clk); pcon=8'h80; scon=8'h88; sbuf_din=8'h01; sbuf_we=1;
+    @(negedge clk); sbuf_we=0;
+    mode2_ticks(16); check_ok(!txd, "mode 2 SMOD emits its start bit at fosc/32 baud");
+    mode2_ticks(16); check_ok(txd, "mode 2 SMOD emits data bit 0");
+
     // Mode 0 shifts data on P3.0/RxD and clocks it on P3.1/TxD.  It has
     // neither a UART start bit nor a stop bit, and completes in eight
     // machine cycles without Timer-1 overflow events.
@@ -117,6 +129,29 @@ initial begin
         @(negedge clk); tick12=0;
     end
     check_ok(rxd_o && ti_set, "mode 0 releases RxD and raises TI after eight bits");
+
+    // A receive-only mode-0 transfer supplies its own eight shift clocks.
+    // Reception requires REN=1 and RI=0, and then stops until software clears RI.
+    @(negedge clk); rst=1;
+    repeat (2) @(posedge clk);
+    rst=0;
+    @(negedge clk); scon=8'h10;
+    mode0_tick(1); // start receive engine; first data bit is sampled next
+    mode0_tick(1); mode0_tick(0); mode0_tick(1); mode0_tick(0);
+    mode0_tick(0); mode0_tick(1); mode0_tick(0); mode0_tick(1);
+    check_ok(rx_valid && ri_set && rx_data==8'ha5 && !rx_rb8,
+             "mode 0 receive clocks and captures data without a transmitter");
+
+    // SM2 rejects frames whose RB8/stop bit is clear without updating SBUF.
+    @(negedge clk); rst=1;
+    repeat (2) @(posedge clk);
+    rst=0;
+    @(negedge clk); pcon=8'h80; scon=8'h70; rxd=0;
+    ticks(8);
+    rxd=1; ticks(16); rxd=0; ticks(16); rxd=1; ticks(16); rxd=0; ticks(16);
+    rxd=0; ticks(16); rxd=1; ticks(16); rxd=0; ticks(16); rxd=1; ticks(16);
+    rxd=0; ticks(16);
+    check_ok(!rx_valid && !ri_set, "SM2 discards a frame with RB8 clear");
 
     $display("PASS");
     $finish;
