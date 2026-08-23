@@ -29,16 +29,17 @@ download:
 audio:
   rsum: 20k
   channels:
-    # MAME's add_route ratios (YM2203 0.60, YM2151 0.45, OKI1 0.75, OKI2 0.60)
-    # put the music chips well under the OKI effects - opm came out at 0.36
-    # against pcm1's 1.00. The three music channels are deliberately lifted
-    # +3 dB (x1.4125) from those ratios; the OKIs are left alone.
+    # Music chips keep MAME's add_route ratios (YM2203 0.60, YM2151 0.45).
+    # The two OKIs are lifted +3 dB (x1.4125) from theirs, because ikaopm's
+    # DAC-modelled output sits hotter than jt51's and buried the effects.
+    # The mixer normalises to the loudest channel, so raising the OKIs is what
+    # pushes the music down - the OKIs were already pinned at gain 1.00.
     # rsum is inversely proportional to level.
-    - { name: opn,  module: jt03_fm,  rsum: 13.2k }                       # YM2203 FM
-    - { name: psg,  module: jt03_psg, rsum: 17.2k, vpp: 0.45 }            # YM2203 PSG
-    - { name: opm,  module: jtikaopm, rsum: 18.9k }                       # YM2151
-    - { name: pcm1, module: jt6295,   rsum: 20k, fir: fir_192k_4k.csv }   # MSM6295 #1
-    - { name: pcm2, module: jt6295,   rsum: 25k, fir: fir_192k_4k.csv }   # MSM6295 #2
+    - { name: opn,  module: jt03_fm,  rsum: 25k }                         # YM2203 FM
+    - { name: psg,  module: jt03_psg, rsum: 30k, vpp: 0.45 }              # YM2203 PSG
+    - { name: opm,  module: jtikaopm, rsum: 33k }                         # YM2151
+    - { name: pcm1, module: jt6295,   rsum: 9.9k,  fir: fir_192k_4k.csv } # MSM6295 #1
+    - { name: pcm2, module: jt6295,   rsum: 12.3k, fir: fir_192k_4k.csv } # MSM6295 #2
 sdram:
   banks:
     # ---- BA0 : sprite gfx + sound program ----
