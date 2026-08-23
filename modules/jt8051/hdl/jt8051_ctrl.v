@@ -36,6 +36,11 @@ reg          irq_pending;
 
 `include "jt8051.vh"
 
+// irq_pending records that the interrupt controller observed a request before
+// this instruction boundary.  If the request is no longer active on a later
+// cen pulse, discard the observation.  This prevents a released level-mode
+// INT0/INT1 request from being retained as an edge.  Edge, timer, and serial
+// requests remain active through their architectural flags until cleared.
 assign irq_take = ni && irq_pending;
 assign instruction_end = ni;
 
@@ -48,6 +53,7 @@ always @(posedge clk) begin
     end else if (cen) begin
         next_instruction <= 0;
         if (irq) irq_pending <= 1;
+        if (irq_pending && !irq) irq_pending <= 0;
         if (irq_take) irq_pending <= 0;
         if (ni) begin
             next_instruction <= 1;
