@@ -73,6 +73,62 @@ very likely settle cbuster's priority bands, which are the longest-standing
 - Using them means un-skipping the region: blob layout, MRA and a BRAM to hold
   the table.
 
+## Protection LUT — does not scale to a second table
+
+`jtcninja_deco104` holds its 1024-entry port table in a `jtframe_prom` with
+`SYNHEX`, i.e. Quartus bakes the contents into the bitstream's BRAM init. There
+is no runtime selection: **whatever tables exist are all in the RBF, always.**
+
+### Size
+
+1024 entries x 36 bits = 36,864 bits (36 kbit).
+
+| device | block | widest mode | blocks |
+|---|---|---|---|
+| M9K (Cyclone III, MiST/SiDi) | 9216 bit | 256x36 | 4 |
+| M10K (Cyclone V, MiSTer) | 10240 bit | 256x40 | 4 (4 bits/word wasted) |
+
+Arithmetic, not a fitter report — it assumes Quartus infers the widest mode for
+what is a single-port ROM here (`we` is tied low). If it settles on x18 instead
+it is 8 blocks. Confirm against a real fit log.
+
+### What happens when a second protection table arrives
+
+edrandy needs the DECO 146 table, which is a *different* 1024-entry table in the
+*same* 36-bit packing (`gen_deco146_table.py` produces the identical format; only
+the contents and the xor/nand/magic constants differ).
+
+The `cninja2` branch solved it by parametrizing `jtcninja_deco104` and
+instantiating it **twice**, muxed by game. That duplicates not just the 4 blocks
+of table but the whole chip: nibble unpack, reorder, xor/nand datapath, rambank.
+
+Three options, increasing work:
+
+1. **One instance, double-depth table.** The packings are identical, so
+   concatenate both into 2048x36 and make the game boolean the top address bit
+   (`AW(11)`, `tidx = {is146, ra_xor[10:1]}`); the constants become muxed wires
+   instead of parameters. Same total memory as two instances (8 blocks) but ONE
+   copy of the chip logic and one BRAM primitive. Strictly better than
+   duplicating the instance, and local to the core.
+2. **Load the table from the ROM blob** — the only option that loads just what
+   the running game needs: one BRAM, filled at download time from whichever MRA
+   is loaded, scaling to any number of variants at zero extra BRAM. Blocked in
+   the framework: the table is generated, not a MAME ROM, and `mame2mra` cannot
+   emit literal region data (`Parts`/`Files` resolve against real files; literal
+   bytes exist only for the header and NVRAM defaults). Needs a jtframe change -
+   an inline-data region, or a `Custom{Dev}`-style hook that runs a generator.
+   ~5 kB per MRA against a 5.4 MB blob. Worth raising upstream: any core with
+   per-game LUTs hits this.
+3. **Derive one table from the other.** Unexamined. If the 104 and 146 differ by
+   a permutation rather than arbitrarily, one table plus a transform serves both.
+   Could equally be that they are unrelated dumps.
+
+Related: the same "generated table with nowhere good to live" problem is why
+`jtcninja_deco104_table.hex` is a tracked build artifact rather than blob
+content, and it is why the `LOADROM`-suppresses-`SIMHEX` bug (fixed in
+`jtframe_prom`) was able to leave this table reading all zeros in every real-ROM
+sim without any warning.
+
 ## Smaller items
 
 - **vaportra `tiles1`** is the only gfx region still rotated by `post_addr` in
