@@ -153,7 +153,7 @@ always @(posedge clk, posedge rst) begin
         case( st )
         IDLE: if( hs_neg ) begin
             colcnt <= 0;
-            st     <= en ? XRD : IDLE;     // disabled playfield emits pen 0
+            st     <= en ? XRD : IDLE;     // disabled: nothing is rendered
         end
         XRD:  st <= XW1;                   // rsram=rs_a issued
         XW1:  st <= XW2;
@@ -203,6 +203,14 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+// A disabled playfield must contribute nothing - MAME just does not draw the
+// tilemap. jtframe_linebuf is a double buffer with NO clear, and the FSM above
+// stops writing when `en` is low, so the buffer would otherwise keep replaying
+// the last two lines it drew for as long as the layer stays off. Gate the output
+// instead of relying on the buffer being empty.
+wire [PXLW-1:0] buf_pxl;
+assign pxl = en ? buf_pxl : {PXLW{1'b0}};
+
 jtframe_linebuf #(.DW(PXLW), .AW(9)) u_buf(
     .clk     ( clk       ),
     .LHBL    ( ~hs       ),
@@ -211,7 +219,7 @@ jtframe_linebuf #(.DW(PXLW), .AW(9)) u_buf(
     .we      ( buf_we    ),
     .rd_addr ( hdump     ),
     .rd_data (           ),
-    .rd_gated( pxl       )
+    .rd_gated( buf_pxl   )
 );
 
 endmodule
