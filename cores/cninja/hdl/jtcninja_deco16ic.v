@@ -43,7 +43,7 @@ module jtcninja_deco16ic #(
     input      [ 1:0] pf1_we,
     input      [ 1:0] pf2_we,
     input      [ 2:0] ctrl_addr,
-    input             ctrl_we,
+    input      [ 1:0] ctrl_we,   // byte lanes, like the playfield RAM
     output     [15:0] pf1_dout,
     output     [15:0] pf2_dout,
     output     [15:0] bank_ctl,       // control[7] -> board bank callback
@@ -84,7 +84,13 @@ initial begin
     for( ci=0; ci<8; ci=ci+1 ) ctrl[ci]=0;
     if( CTRLHEX != "" ) $readmemh( CTRLHEX, ctrl );
 end
-always @(posedge clk) if( ctrl_we ) ctrl[ctrl_addr] <= cpu_dout;
+// Per byte lane, matching COMBINE_DATA in deco16ic::pf_control_w. Writing the
+// whole word on LDS alone drops every upper-byte-only write - and the upper
+// bytes carry pf2's scroll and, in control[7], its tile bank.
+always @(posedge clk) begin
+    if( ctrl_we[0] ) ctrl[ctrl_addr][ 7:0] <= cpu_dout[ 7:0];
+    if( ctrl_we[1] ) ctrl[ctrl_addr][15:8] <= cpu_dout[15:8];
+end
 
 assign bank_ctl = ctrl[7];
 
