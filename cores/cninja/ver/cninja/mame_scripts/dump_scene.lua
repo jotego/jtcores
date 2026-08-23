@@ -116,15 +116,22 @@ local vprio0, vprio1, cbpri = 0, 0, 0
 -- silently removed and every register then dumps as zero. Names must be unique.
 local taps = {}
 
+-- Merge by mem_mask, like deco16ic::pf_control_w's COMBINE_DATA. edrandy writes
+-- these registers one byte at a time; overwriting the whole word on every write
+-- clobbers the other half and the scene replays with the wrong tile size.
+local function combine(t, i, d, m)
+  t[i] = ((t[i] & ~m) | (d & m)) & 0xffff
+end
 taps[#taps+1] = prog:install_write_tap(board.ctl0, board.ctl0 + 0xf, "cnj_ctl0",
-  function(o, d) c0[((o - board.ctl0) >> 1) & 7] = d; return d end)
+  function(o, d, m) combine(c0, ((o - board.ctl0) >> 1) & 7, d, m); return d end)
 taps[#taps+1] = prog:install_write_tap(board.ctl1, board.ctl1 + 0xf, "cnj_ctl1",
-  function(o, d) c1[((o - board.ctl1) >> 1) & 7] = d; return d end)
+  function(o, d, m) combine(c1, ((o - board.ctl1) >> 1) & 7, d, m); return d end)
 _G.__taps = taps
 
 if board == BOARDS.vaportra then
-  taps[#taps+1] = prog:install_write_tap(0x100000, 0x100003, "cnj_vprio", function(o, d)
-    if (o & 2) == 0 then vprio0 = d else vprio1 = d end
+  taps[#taps+1] = prog:install_write_tap(0x100000, 0x100003, "cnj_vprio", function(o, d, m)
+    if (o & 2) == 0 then vprio0 = ((vprio0 & ~m) | (d & m)) & 0xffff
+    else                 vprio1 = ((vprio1 & ~m) | (d & m)) & 0xffff end
     return d
   end)
 end

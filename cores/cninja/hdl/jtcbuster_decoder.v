@@ -40,8 +40,9 @@ assign snd_dout  = cpu_dout[7:0];
 assign vprio0    = 0;
 assign vprio1    = 0;
 
+assign vbl_warmup = en;
 assign vbl_ack   = irqack;
-always @* IPLn = (en & vbl_irq) ? ~3'd4 : ~3'd0;
+assign IPLn = (en & vbl_irq) ? ~3'd4 : ~3'd0;
 
 // P1_P2: per player byte = {START,B3,B2,B1,R,L,D,U} = {cab_1p, joystick[6:0]}.
 // COINS: [2:0]=COIN1/2/3, [3]=vblank (ACTIVE HIGH).

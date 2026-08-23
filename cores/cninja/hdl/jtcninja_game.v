@@ -52,13 +52,24 @@ wire [ 1:0] dsn;
 wire        pal_cs;
 
 // Protection (DECO 104) -- the critical-path block
+// Protection: DECO 104 (cninja) or DECO 146 (edrandy). One parametrized engine,
+// instantiated twice and muxed by board. The 146 owns region 6 (0x198xxx,
+// A[17]=0); region 8 (0x1a0xxx, A[17]=1) is configuration - the writes are
+// ignorable and the reads come back 0, which is what region_selects[0]=6 means.
 wire        prot_cs;
-wire [15:0] prot_dout;
+wire [15:0] prot_dout, dout104, dout146;
+wire [ 7:0] latch104, latch146;
+wire        irq104, irq146;
+wire        cs104 = edrndy ? 1'b0 : prot_cs;
+wire        cs146 = edrndy ? (prot_cs & ~main_addr[17]) : 1'b0;
 
 // Sound. cninja routes the soundlatch through the DECO 104 (prot_*); darkseal
 // writes 0x180008 directly (main.v snd_wr/snd_dout). Muxed on the board booleans below.
-wire [ 7:0] snd_latch, prot_snd_latch, ds_snd_latch;
-wire        snd_irq,   prot_snd_irq;
+wire [ 7:0] snd_latch, ds_snd_latch;
+wire [ 7:0] prot_snd_latch = edrndy ? latch146 : latch104;
+wire        snd_irq;
+wire        prot_snd_irq   = edrndy ? irq146 : irq104;
+assign      prot_dout      = edrndy ? (main_addr[17] ? 16'd0 : dout146) : dout104;
 wire        snd_wr;
 wire [ 7:0] snd_dout;
 reg  [ 7:0] ds_snd_latch_r;
@@ -250,6 +261,7 @@ jtcninja_main u_main(
     .cb         ( cbust     ),
     .vp         ( vapor     ),
     .cn         ( cninja    ),
+    .er         ( edrndy    ),
     .prot_pri   ( cb_pri    ),
     .vprio0     ( vprio0    ),
     .vprio1     ( vprio1    ),
@@ -266,14 +278,14 @@ jtcninja_main u_main(
 );
 
 /* verilator tracing_off */
-jtcninja_deco104 u_prot(
+jtcninja_deco104 u_prot(          // DECO 104 - cninja / joemac
     .rst        ( rst       ),
     .clk        ( clk       ),
     .LVBL       ( LVBL      ),
-    .cs         ( prot_cs   ),
+    .cs         ( cs104     ),
     .addr       ( main_addr[13:1] ),   // offset within the 0x4000 prot region
     .din        ( main_dout ),
-    .dout       ( prot_dout ),
+    .dout       ( dout104   ),
     .rnw        ( main_rnw  ),
     .dsn        ( dsn       ),
     // Cabinet inputs (muxed/scrambled by the chip)
@@ -285,8 +297,34 @@ jtcninja_deco104 u_prot(
     .dip_test   ( dip_test  ),
     .dipsw      ( dipsw[15:0] ),
     // Sound (cninja path; muxed against the darkseal direct latch above)
-    .snd_latch  ( prot_snd_latch ),
-    .snd_irq    ( prot_snd_irq   )
+    .snd_latch  ( latch104  ),
+    .snd_irq    ( irq104    )
+);
+
+jtcninja_deco104 #(                // DECO 146 - edrandy. No magic read-address
+    .TABLE    ("jtcninja_deco146_table.hex"),   // xor (deco146.cpp disables it)
+    .USE_MAGIC(0),
+    .XOR_PORT (8'h2c), .NAND_PORT(8'h36),
+    .SND_PORT (8'h64), .BANK_PORT(8'h78)
+) u_prot146(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .LVBL       ( LVBL      ),
+    .cs         ( cs146     ),
+    .addr       ( main_addr[13:1] ),
+    .din        ( main_dout ),
+    .dout       ( dout146   ),
+    .rnw        ( main_rnw  ),
+    .dsn        ( dsn       ),
+    .joystick1  ( joystick1 ),
+    .joystick2  ( joystick2 ),
+    .cab_1p     ( cab_1p    ),
+    .coin       ( coin      ),
+    .service    ( service   ),
+    .dip_test   ( dip_test  ),
+    .dipsw      ( dipsw[15:0] ),
+    .snd_latch  ( latch146  ),
+    .snd_irq    ( irq146    )
 );
 
 /* verilator tracing_on */

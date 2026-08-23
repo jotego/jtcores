@@ -42,8 +42,9 @@ assign snd_wr    = snd_cs;
 assign snd_dout  = cpu_dout[7:0];
 assign prot_pri  = 0;
 
+assign vbl_warmup = en;
 assign vbl_ack   = irqack & ~(UDSn & LDSn);
-always @* IPLn = (en & vbl_irq) ? ~3'd6 : ~3'd0;
+assign IPLn = (en & vbl_irq) ? ~3'd6 : ~3'd0;
 
 // m_priority[0] = playfield draw order, [1] = sprite-behind-fg threshold
 reg [15:0] prio0, prio1;

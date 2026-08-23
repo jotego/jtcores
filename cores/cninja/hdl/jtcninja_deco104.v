@@ -29,7 +29,19 @@
     nibble p -> output nibble sel[p] rotated by rot[p], or blank) plus the
     source select / offset / xor / nand flags. See that file for the layout.
 */
-module jtcninja_deco104(
+// DECO 104 (cninja) by default. The 146 (edrandy) is the SAME engine with its
+// own port table and constants and NO magic read-address xor (deco146.cpp:
+// m_magic_read_address_xor_enabled = false), so it is a second instantiation
+// with the parameters below rather than a second copy of the chip.
+module jtcninja_deco104 #(
+    parameter        TABLE     = "jtcninja_deco104_table.hex",
+    parameter        USE_MAGIC = 1,          // 104 xors the read address, 146 does not
+    parameter [10:0] MAGIC     = 11'h2a4,
+    parameter [ 7:0] XOR_PORT  = 8'h42,      // 146: 0x2c
+    parameter [ 7:0] NAND_PORT = 8'hee,      // 146: 0x36
+    parameter [ 7:0] SND_PORT  = 8'ha8,      // 146: 0x64
+    parameter [ 7:0] BANK_PORT = 8'h66       // 146: 0x78
+)(
     input             rst,
     input             clk,
     input             LVBL,
@@ -70,7 +82,7 @@ reg         latchflag;
 // real_address = (addr*2) & 0x7ff  (bits above 10 are masked off for cninja)
 wire [10:0] ra      = { addr[10:1], 1'b0 };
 wire [ 7:0] ra_off  = ra[7:0];               // address & 0xff
-wire [10:0] ra_xor  = ra ^ 11'h2a4;          // post magic-xor address
+wire [10:0] ra_xor  = USE_MAGIC ? (ra ^ MAGIC) : ra;  // 104 magic-xor; 146 none
 wire [ 9:0] tidx    = ra_xor[10:1];          // table index (>>1)
 
 // ---- I/O ports (MAME cninja PORT_START) ----
@@ -95,8 +107,8 @@ wire [15:0] port_c = dipsw;
 jtframe_prom #(
     .DW    ( 36                            ),
     .AW    ( 10                            ),
-    .SIMHEX( "jtcninja_deco104_table.hex"  ),
-    .SYNHEX( "jtcninja_deco104_table.hex"  )
+    .SIMHEX( TABLE ),
+    .SYNHEX( TABLE )
 ) u_tbl(
     .clk    ( clk    ),
     .cen    ( 1'b1   ),
@@ -196,7 +208,7 @@ always @(posedge clk, posedge rst) begin
         // (e_port/e_off) matches the current access (MAME: off==0x66 on a
         // non-latch read toggles the rambank). The address is stable for the
         // whole access, so curbank still toggles once, before the next access.
-        if( bw_check && !e_port && e_off==8'h66 ) curbank <= ~curbank;
+        if( bw_check && !e_port && e_off==BANK_PORT ) curbank <= ~curbank;
 
         if( acc_start && is_wr ) begin
             // WRITE
@@ -205,9 +217,9 @@ always @(posedge clk, posedge rst) begin
             latchflag <= 1;
             // rambank write handled by u_rambank port0 (we0 = acc_start & is_wr)
             case( ra_off )
-                8'h42: m_xor  <= din;
-                8'hee: m_nand <= din;
-                8'ha8: begin snd_latch <= din[7:0]; snd_irq <= 1; end
+                XOR_PORT:  m_xor  <= din;
+                NAND_PORT: m_nand <= din;
+                SND_PORT:  begin snd_latch <= din[7:0]; snd_irq <= 1; end
                 default:;
             endcase
         end
@@ -222,5 +234,19 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
+
+
+`ifdef SIMULATION
+`ifdef PCTRACE
+// Log every completed protection READ so the values can be diffed against MAME.
+// dout settles a cycle after acc_start (latch/nand path), hence the delay.
+reg rd_l; reg [12:0] rd_addr;
+always @(posedge clk) begin
+    rd_l <= acc_start & ~is_wr;
+    if( acc_start & ~is_wr ) rd_addr <= addr;
+    if( rd_l ) $display("PROT %m r %04X = %04X", {rd_addr,1'b0}, dout);
+end
+`endif
+`endif
 
 endmodule

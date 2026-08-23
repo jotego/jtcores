@@ -38,6 +38,7 @@ volume = [
 [buttons]
 Names = [
     { machine="cninja", names="Attack,Jump"},
+    { machine="edrandy", names="Attack,Jump"},
     { setnames=["cbuster","cbusterw","cbusterj","twocrude","twocrudea"], names="Attack,Jump,Special"},
 ]
 

@@ -33,7 +33,11 @@
     // level and says when the CPU acknowledged it.
     input             vbl_irq,
     output            vbl_ack,
-    output reg [ 2:0] IPLn,
+    // 1 = let main swallow the first few vblanks after reset. edrandy must not:
+    // its init masks IRQs at level 7 and only lowers to 3 where it expects a
+    // pending vblank, so eating those makes it miss the IRQ and diverge.
+    output            vbl_warmup,
+    output     [ 2:0] IPLn,
 
     // Address decode
     output            rom_cs,

@@ -38,8 +38,9 @@ assign prot_pri  = 0;
 assign vprio0    = 0;
 assign vprio1    = 0;
 
+assign vbl_warmup = en;
 assign vbl_ack   = irqack;
-always @* IPLn = (en & vbl_irq) ? ~3'd6 : ~3'd0;
+assign IPLn = (en & vbl_irq) ? ~3'd6 : ~3'd0;
 
 // P1_P2 byte = {START, 1, B2, B1, dir[3:0]} per player.
 // SYSTEM: [2:0]=COIN1/2/3, [3]=vblank (ACTIVE HIGH).
