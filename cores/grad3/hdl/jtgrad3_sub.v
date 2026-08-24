@@ -64,9 +64,9 @@ reg  [ 2:0] irq_mask;
 
 assign rst_cpu   = rst | sub_rst;
 assign lvbln     = ~LVBL;
-assign irq1_clr  = ~irq_mask[0] | ~VPAn;
-assign irq2_clr  = ~irq_mask[1] | ~VPAn;
-assign irq4_clr  = ~irq_mask[2] | ~VPAn;
+assign irq1_clr  = ~irq_mask[0];
+assign irq2_clr  = ~irq_mask[1];
+assign irq4_clr  = ~irq_mask[2];
 assign cpu_addr  = A[19:1];
 assign rom_addr  = A[19:1];
 assign bus_dsn   = { UDSn, LDSn };
