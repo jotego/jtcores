@@ -174,7 +174,12 @@ always @(posedge clk, posedge rst) begin
         RAMW: st <= DEC;                   // wait 1cyc for tile RAM data
         DEC: begin                         // tile word ready -> decode + issue gfx
             code   <= ram_data[11:0];
-            colour <= ram_data[15:12];
+            // deco16ic get_pfN_tile_info: a tile that opts into per-tile flip
+            // (bit 15) also drops to the low half of the palette - colour &= 7.
+            // Only bites when control1[1:0] is non-zero, which cninja never sets
+            // but edrandy's rowscrolled layers do.
+            colour <= (ram_data[15] & (tfx_en|tfy_en)) ? {1'b0,ram_data[14:12]}
+                                                       :      ram_data[15:12];
             tfx    <= ram_data[15] & tfx_en;
             tfy    <= ram_data[15] & tfy_en;
             rom_cs   <= 1;
@@ -217,5 +222,29 @@ jtframe_linebuf #(.DW(PXLW), .AW(9)) u_buf(
     .rd_data (           ),
     .rd_gated( buf_pxl   )
 );
+
+
+
+`ifdef SIMULATION
+`ifdef PFDBG
+// Per-playfield activity: how many lines rendered, how long the gfx fetch
+// stalled, and how many of the written pixels are non-transparent. A layer
+// that should be sparse but reports nearly 100% non-zero is fetching the
+// wrong gfx, not failing to run.
+integer dbg_wr=0, dbg_nz=0, dbg_line=0, dbg_gfxw=0, dbg_t=0;
+always @(posedge clk) begin
+    if( st==IDLE && hs_neg && en ) dbg_line = dbg_line+1;
+    if( st==GFXW ) dbg_gfxw = dbg_gfxw+1;
+    if( st==WR ) begin
+        dbg_wr = dbg_wr+1;
+        if( draw_pxl!=4'd0 ) dbg_nz = dbg_nz+1;
+    end
+    dbg_t = dbg_t+1;
+    if( dbg_t[21:0]==0 )
+        $display("PFDBG %m en=%0d lines=%0d gfxw=%0d wr=%0d nonzero=%0d",
+                 en, dbg_line, dbg_gfxw, dbg_wr, dbg_nz);
+end
+`endif
+`endif
 
 endmodule
