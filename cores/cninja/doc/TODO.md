@@ -162,8 +162,36 @@ fetches to `pxl_cen` and shift pixels out of a register - but neither supports
 per-column colscroll, which is what forces our hand: a column's Y is not known
 until its scroll-table entry comes back, and that table is one BRAM shared with
 the other playfield through the 2-phase arbiter in `jtcninja_deco16ic` (the
-`XW*`/`CW*` wait states). Going JIT means prefetching that lookup a column ahead
-through the arbiter. Real work, not a tidy-up.
+`XW*`/`CW*` wait states).
+
+### First step: prefetch the colscroll Y into registers
+
+The scroll tables live in `u_rs`, one `jtframe_dual_ram16 #(.AW(11))` per
+deco16ic - 2048x16 = 32 kbit, about 4 M9K per chip, **8 blocks for the two**,
+so twice what the line buffers cost. Each playfield owns a 1024-word half:
+
+```
+[0x000 .. 0x200)   X table  rowscroll, indexed by src_y   (read once per line)
+[0x200 .. 0x400)   Y table  colscroll, indexed by src_x   (read once per column)
+```
+
+The **table** cannot leave BRAM - it is CPU-written RAM (`m_pf_rowscroll[]`,
+0x14c000/0x14e000 and friends), 512 entries per axis per playfield, written at
+arbitrary addresses by the 68000. But only **34 of its entries are read per
+line**, one per 8px column, and which 34 is fully determined the moment the
+line's `xstart` is known - that is the first thing the FSM computes, in `XSET`.
+
+So all 34 lookups can be issued up front into a register file, and the inner
+loop never touches the scroll BRAM again. `mapy` uses `rsram_data[9:0]`, so the
+cost is 34 x 10 bits = ~340 FFs per renderer, ~1360 across the four.
+
+This saves no memory on its own. What it buys is the inner loop: `CRD -> CW1 ->
+CW2 -> CSET` disappears (~15 clocks per column down to ~11), and - the point -
+the shared-BRAM **arbiter leaves the inner loop entirely**, since the `CW*` wait
+states exist only because the chip's two playfields contend for one port. That
+is the obstacle to going just-in-time, so this is the enabling step for deleting
+the four line-buffer blocks. It leaves the gfx SDRAM fetch as the only
+variable-latency thing left in the loop.
 
 ### Priority
 
