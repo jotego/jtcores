@@ -16,6 +16,7 @@ wire        m_tile_cs,  s_tile_cs, s_obj_cs,  pal_cs;
 wire        m_tile_dtack, s_tile_dtack;
 wire        tile_irqn, tile_nmin, sub_irq2;
 wire        rmrd, prio;
+wire        m_video_req_n, s_video_req_n, m_video_gnt_n, s_video_gnt_n;
 
 assign debug_view = st_snd;
 assign dip_flip   = 1'b0;
@@ -48,6 +49,8 @@ jtgrad3_main u_main(
     .tile_cs    ( m_tile_cs    ),
     .tile_dout  ( tile_dout    ),
     .tile_dtack ( m_tile_dtack ),
+    .video_req_n( m_video_req_n),
+    .video_grant_n(m_video_gnt_n),
 
     .gchar_cs   ( m_gchar_cs   ),
     .gchar_we   ( m_gchar_we   ),
@@ -100,6 +103,8 @@ jtgrad3_sub u_sub(
     .tile_cs    ( s_tile_cs    ),
     .tile_dout  ( tile_dout    ),
     .tile_dtack ( s_tile_dtack ),
+    .video_req_n( s_video_req_n),
+    .video_grant_n(s_video_gnt_n),
 
     .obj_cs     ( s_obj_cs     ),
     .obj_dout   ( obj_dout     ),
@@ -124,6 +129,7 @@ jtgrad3_video u_video(
     .clk          ( clk             ),
     .pxl_cen      ( pxl_cen         ),
     .pxl2_cen     ( pxl2_cen        ),
+    .cen24        ( cen24           ),
     .prio         ( prio            ),
 
     .lhbl         ( LHBL            ),
@@ -143,6 +149,10 @@ jtgrad3_video u_video(
     .s_cpu_dout   ( s_dout          ),
     .s_cpu_we     ( s_cpu_we        ),
     .m_tilesys_cs ( m_tile_cs       ),
+    .m_video_req_n( m_video_req_n   ),
+    .s_video_req_n( s_video_req_n   ),
+    .m_video_grant_n(m_video_gnt_n  ),
+    .s_video_grant_n(s_video_gnt_n  ),
     .s_tilesys_cs ( s_tile_cs       ),
     .objsys_cs    ( s_obj_cs        ),
     .m_vdtack     ( m_tile_dtack    ),
