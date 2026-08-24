@@ -40,8 +40,12 @@ assign vbl_ack = cs && !RnW && addr==3'd2;
 always @* begin
     if( !en                      ) IPLn = ~3'd0;
     else if( vbl_irq             ) IPLn = ~3'd5;
-    else if( ras_irq & rs_target ) IPLn = ~3'd4;
-    else if( ras_irq             ) IPLn = ~3'd3;
+    // deco_irq.h has RASTER1_IRQ=1 and RASTER2_IRQ=0, so control[4]=0 selects
+    // raster2 (CPU level 4) and =1 selects raster1 (level 3) - the enum values
+    // are inverted from the names. edrandy writes 0xc8, i.e. bit4=0, and its
+    // raster handler is on IRQ4 (vector 0xB920); IRQ3 vectors to the STOP stub.
+    else if( ras_irq & ~rs_target ) IPLn = ~3'd4;   // raster2
+    else if( ras_irq              ) IPLn = ~3'd3;   // raster1
     else                           IPLn = ~3'd0;
 end
 
@@ -72,5 +76,6 @@ always @* begin
         default: dout = 16'hffff;
     endcase
 end
+
 
 endmodule
