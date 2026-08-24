@@ -69,7 +69,7 @@ jtgng_timer u_timer(
     .Vinit     (          )
 );
 
-jtbiocom_main #(.SAME_CLK(1)) u_main(
+jtbiocom_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cpu_cen    ( cpu_cen       ),
@@ -140,7 +140,7 @@ jtbiocom_main #(.SAME_CLK(1)) u_main(
     .dipsw_b    ( dipsw[15:8]   )
 );
 
-jtbiocom_mcu #(.SAME_CLK(1)) u_mcu(
+jtbiocom_mcu u_mcu(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .rst_cpu    ( rst           ),

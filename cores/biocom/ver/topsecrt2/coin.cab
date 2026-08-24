@@ -1,7 +1,10 @@
-100
+35
 loop
 2 coin
 4
 repeat 5
-10
-
+20
+loop
+2 1p
+4
+repeat 5
