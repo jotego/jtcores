@@ -14,7 +14,6 @@ module jtgrad3_video(
     output            vs,
     output            tile_irqn,
     output            tile_nmin,
-    output reg        sub_irq2,
 
     input      [16:1] m_cpu_addr,
     input      [ 1:0] m_cpu_dsn,
@@ -144,14 +143,6 @@ always @* begin
     lyrb_addr = { lyrb_col[4:2], lyrb_col[0], pre_b[10:0] };
     ocode_eff = { opal[0], ocode };
     opal_eff  = { opal[7:1],1'b0 };
-end
-
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        sub_irq2 <= 0;
-    end else begin
-        sub_irq2 <= pxl_cen && hdump == 9'h020 && vdump == 9'h120;
-    end
 end
 
 always @(*) begin

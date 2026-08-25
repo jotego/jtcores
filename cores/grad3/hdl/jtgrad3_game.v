@@ -8,10 +8,10 @@ module jtgrad3_game(
 wire [19:1] s_addr;
 wire [ 7:0] tile_dout, obj_dout, snd_latch;
 wire [ 7:0] video_din, st_snd;
-wire        m_cpu_we,   s_cpu_we,  snd_irq,   sub_rst, sub_irq;
+wire        m_cpu_we,   s_cpu_we,  snd_irq,   sub_rst, sub_irq, main_irq;
 wire        m_tile_cs,  s_tile_cs, s_obj_cs,  pal_cs;
 wire        m_tile_dtack, s_tile_dtack;
-wire        tile_irqn, tile_nmin, sub_irq2;
+wire        tile_irqn, tile_nmin;
 wire        rmrd, prio;
 
 assign debug_view = st_snd;
@@ -28,6 +28,7 @@ jtgrad3_main u_main(
     .rst        ( rst          ),
     .clk        ( clk          ),
     .LVBL       ( LVBL         ),
+    .irq_trig   ( main_irq     ),
 
     .main_addr  ( main_addr    ),
     .cpu_dout   ( m_dout       ),
@@ -78,7 +79,7 @@ jtgrad3_sub u_sub(
     .sub_rst    ( sub_rst      ),
     .clk        ( clk          ),
     .LVBL       ( LVBL         ),
-    .irq2       ( sub_irq2     ),
+    .cpu_trig   ( sub_irq      ),
 
     .cpu_addr   ( s_addr       ),
     .cpu_dout   ( s_dout       ),
@@ -111,7 +112,7 @@ jtgrad3_sub u_sub(
     .gfx_data   ( gfx_data     ),
     .gfx_ok     ( gfx_ok       ),
 
-    .irq_trig   ( sub_irq      ),
+    .irq_trig   ( main_irq     ),
     .dip_pause  ( dip_pause    ),
     .st_dout    (              )
 );
@@ -129,7 +130,6 @@ jtgrad3_video u_video(
     .vs           ( VS              ),
     .tile_irqn    (                 ),
     .tile_nmin    (                 ),
-    .sub_irq2     ( sub_irq2        ),
 
     .m_cpu_addr   ( main_addr[16:1] ),
     .m_cpu_dsn    ( m_dsn           ),
