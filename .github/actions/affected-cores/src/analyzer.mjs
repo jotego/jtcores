@@ -5,6 +5,10 @@ import { execFileSync } from 'node:child_process';
 
 export const PULL_REQUEST_COMMENT_MARKER = '<!-- jtcores-affected-cores -->';
 
+export function actionInput(name, env = process.env, fallback = '') {
+  return env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`] ?? fallback;
+}
+
 function filesystemPath(root, relativePath) {
   return path.join(root, ...relativePath.split('/'));
 }

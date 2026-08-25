@@ -2,15 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   analyzeRepository,
+  actionInput,
   changedFilesFromGit,
   markdownReport,
   normalizeChangedFiles,
   pullRequestComment,
 } from './analyzer.mjs';
-
-function input(name, fallback = '') {
-  return process.env[`INPUT_${name.toUpperCase().replaceAll('-', '_')}`] ?? fallback;
-}
 
 function setOutput(name, value) {
   const serialized = String(value);
@@ -21,11 +18,15 @@ function setOutput(name, value) {
 }
 
 try {
-  const repositoryPath = path.resolve(input('repository-path', '.'));
-  const suppliedFiles = input('changed-files');
+  const repositoryPath = path.resolve(actionInput('repository-path', process.env, '.'));
+  const suppliedFiles = actionInput('changed-files');
   const changedFiles = suppliedFiles.trim()
     ? normalizeChangedFiles(suppliedFiles)
-    : changedFilesFromGit(repositoryPath, input('base-sha'), input('head-sha', 'HEAD'));
+    : changedFilesFromGit(
+      repositoryPath,
+      actionInput('base-sha'),
+      actionInput('head-sha', process.env, 'HEAD'),
+    );
   const result = analyzeRepository({ repositoryPath, changedFiles });
   const report = markdownReport(result);
 

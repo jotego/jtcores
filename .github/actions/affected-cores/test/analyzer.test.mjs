@@ -5,6 +5,7 @@ import path from 'node:path';
 import test from 'node:test';
 import {
   affectFromFileLists,
+  actionInput,
   analyzeRepository,
   filesForCore,
   markdownReport,
@@ -144,6 +145,17 @@ test('a submodule gitlink change affects every core using a file below it', () =
 test('changed-file input accepts either newline text or a JSON array', () => {
   assert.deepEqual(normalizeChangedFiles('b.v\na.v\nb.v\n'), ['a.v', 'b.v']);
   assert.deepEqual(normalizeChangedFiles('["b.v", "a.v"]'), ['a.v', 'b.v']);
+});
+
+test('reads hyphenated GitHub Action inputs from their standard environment key', () => {
+  const env = {
+    'INPUT_BASE-SHA': 'base',
+    'INPUT_CHANGED-FILES': 'first.v\nsecond.v',
+  };
+
+  assert.equal(actionInput('base-sha', env), 'base');
+  assert.equal(actionInput('changed-files', env), 'first.v\nsecond.v');
+  assert.equal(actionInput('head-sha', env, 'HEAD'), 'HEAD');
 });
 
 test('reports unresolved cores even when no changed input matched', () => {
