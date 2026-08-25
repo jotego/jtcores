@@ -6,7 +6,6 @@ import {
   markdownReport,
   normalizeChangedFiles,
   pullRequestComment,
-  syncPullRequestComment,
 } from './analyzer.mjs';
 
 function input(name, fallback = '') {
@@ -35,29 +34,13 @@ try {
   setOutput('unmatched-files', JSON.stringify(result.unmatchedFiles));
   setOutput('unresolved-cores', JSON.stringify(result.unresolvedCores));
   setOutput('report', report);
+  setOutput('pull-request-comment', pullRequestComment(result));
 
   process.stdout.write(report);
   for (const { core, error } of result.unresolvedCores) {
     process.stdout.write(`::warning title=JTFRAME file list unavailable::${core}: ${error}\n`);
   }
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, report);
-
-  const token = input('github-token');
-  const repository = input('repository', process.env.GITHUB_REPOSITORY ?? '');
-  const pullRequestNumber = input('pull-request-number');
-  if (token && repository && pullRequestNumber) {
-    const comment = await syncPullRequestComment({
-      token,
-      repository,
-      pullRequestNumber,
-      body: pullRequestComment(result),
-      hasAffectedCores: result.affectedCoreNames.length > 0,
-      apiUrl: input('github-api-url', process.env.GITHUB_API_URL ?? 'https://api.github.com'),
-    });
-    setOutput('pull-request-comment-id', comment.id);
-    setOutput('pull-request-comment-status', comment.status);
-    process.stdout.write(`Pull-request comment: ${comment.status}${comment.id ? ` (${comment.id})` : ''}.\n`);
-  }
 } catch (error) {
   console.error(`::error::${error.message}`);
   process.exitCode = 1;

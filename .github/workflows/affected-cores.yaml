@@ -32,7 +32,13 @@ jobs:
           repository-path: .
           base-sha: ${{ github.event.pull_request.base.sha }}
           head-sha: ${{ github.event.pull_request.head.sha }}
-          github-token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          pull-request-number: ${{ github.event.pull_request.number }}
-          github-api-url: ${{ github.api_url }}
+
+      - name: Update affected-cores comment
+        id: comment
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: ${{ steps.analyze.outputs.pull-request-comment }}
+          pr-number: ${{ github.event.pull_request.number }}
+          comment-tag: jtcores-affected-cores
+          mode: upsert
+          create-if-not-exists: ${{ steps.analyze.outputs.affected-core-names != '[]' }}

@@ -15,19 +15,6 @@ inputs:
     description: Head commit for the pull-request diff.
     required: false
     default: HEAD
-  github-token:
-    description: GitHub token with pull-requests write permission, used to create or update the report comment.
-    required: false
-  repository:
-    description: Repository owner and name for the pull-request comment (for example, jotego/jtcores).
-    required: false
-  pull-request-number:
-    description: Pull request number on which to create or update the report comment.
-    required: false
-  github-api-url:
-    description: GitHub REST API base URL.
-    required: false
-    default: https://api.github.com
 outputs:
   affected-cores:
     description: JSON object mapping each affected core to its changed dependency paths.
@@ -39,10 +26,8 @@ outputs:
     description: JSON array of cores whose JTFRAME file list could not be generated.
   report:
     description: Markdown report with one row per affected core.
-  pull-request-comment-id:
-    description: ID of the marker-tagged pull-request comment, when one was created or updated.
-  pull-request-comment-status:
-    description: Whether the pull-request comment was created, updated, unchanged, or skipped.
+  pull-request-comment:
+    description: Markdown body for a tagged pull-request comment.
 runs:
   using: node24
   main: src/index.mjs

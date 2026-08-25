@@ -10,8 +10,6 @@ import {
   markdownReport,
   normalizeChangedFiles,
   pullRequestComment,
-  PULL_REQUEST_COMMENT_MARKER,
-  syncPullRequestComment,
 } from '../src/analyzer.mjs';
 
 test('uses generated MMR and header placeholders only to resolve the JTFRAME list', () => {
@@ -167,59 +165,8 @@ test('formats the pull-request comment with bold core names and basename-only in
     unresolvedCores: [],
   });
 
-  assert.match(comment, new RegExp(PULL_REQUEST_COMMENT_MARKER.replace(/[<>!-]/g, '\\$&')));
+  assert.match(comment, /^## Cores possibly affected/);
   assert.match(comment, /- \*\*rastan\*\*\n  - `jtrastan_obj\.v`/);
   assert.match(comment, /- \*\*vlfied\*\*\n  - `jtrastan_obj\.v`/);
   assert.doesNotMatch(comment, /cores\/rastan\/hdl/);
-});
-
-function response(status, payload) {
-  return {
-    ok: status >= 200 && status < 300,
-    status,
-    json: async () => payload,
-    text: async () => typeof payload === 'string' ? payload : JSON.stringify(payload),
-  };
-}
-
-test('creates one marker-tagged pull-request comment, then updates that same ID', async () => {
-  const body = `${PULL_REQUEST_COMMENT_MARKER}\n- **rastan**\n  - \`jtrastan_obj.v\`\n`;
-  const createCalls = [];
-  const created = await syncPullRequestComment({
-    token: 'token',
-    repository: 'jotego/jtcores',
-    pullRequestNumber: 123,
-    body,
-    hasAffectedCores: true,
-    apiUrl: 'https://github.example/api/v3',
-    fetchImpl: async (url, options = {}) => {
-      createCalls.push({ url, options });
-      if (options.method === 'POST') return response(201, { id: 77 });
-      return response(200, []);
-    },
-  });
-
-  assert.deepEqual(created, { id: 77, status: 'created' });
-  assert.equal(createCalls.length, 2);
-  assert.equal(createCalls[1].options.method, 'POST');
-  assert.deepEqual(JSON.parse(createCalls[1].options.body), { body });
-
-  const updateCalls = [];
-  const updated = await syncPullRequestComment({
-    token: 'token',
-    repository: 'jotego/jtcores',
-    pullRequestNumber: 123,
-    body: `${body}new input\n`,
-    hasAffectedCores: true,
-    fetchImpl: async (url, options = {}) => {
-      updateCalls.push({ url, options });
-      if (options.method === 'PATCH') return response(200, { id: 77 });
-      return response(200, [{ id: 77, body }]);
-    },
-  });
-
-  assert.deepEqual(updated, { id: 77, status: 'updated' });
-  assert.equal(updateCalls.length, 2);
-  assert.equal(updateCalls[1].options.method, 'PATCH');
-  assert.match(updateCalls[1].url, /issues\/comments\/77$/);
 });

@@ -3,8 +3,6 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-export const PULL_REQUEST_COMMENT_MARKER = '<!-- jtcores-affected-cores -->';
-
 function filesystemPath(root, relativePath) {
   return path.join(root, ...relativePath.split('/'));
 }
@@ -254,7 +252,7 @@ function filenameOnly(filename) {
 }
 
 export function pullRequestComment(result) {
-  const rows = [PULL_REQUEST_COMMENT_MARKER, '## Cores possibly affected', ''];
+  const rows = ['## Cores possibly affected', ''];
   if (result.affectedCoreNames.length === 0) {
     rows.push('No cores are affected by the changed files.');
   } else {
@@ -269,65 +267,4 @@ export function pullRequestComment(result) {
     rows.push('', `> Warning: JTFRAME could not resolve ${result.unresolvedCores.map(({ core }) => `\`${core}\``).join(', ')}.`);
   }
   return `${rows.join('\n')}\n`;
-}
-
-async function apiRequest(fetchImpl, url, token, options = {}) {
-  const response = await fetchImpl(url, {
-    ...options,
-    headers: {
-      Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${token}`,
-      'X-GitHub-Api-Version': '2022-11-28',
-      ...options.headers,
-    },
-  });
-  if (response.ok) return response;
-  const detail = await response.text();
-  throw new Error(`GitHub pull-request comment request failed (${response.status}): ${detail}`);
-}
-
-/**
- * Create or update the one marker-tagged comment owned by this action.
- * A comment is not created for an empty result, but an existing one is updated
- * so it never becomes stale when a later push removes all affected inputs.
- */
-export async function syncPullRequestComment({
-  token,
-  repository,
-  pullRequestNumber,
-  body,
-  hasAffectedCores,
-  apiUrl = 'https://api.github.com',
-  fetchImpl = fetch,
-}) {
-  const apiBase = apiUrl.replace(/\/$/, '');
-  const endpoint = `${apiBase}/repos/${repository}/issues/${pullRequestNumber}/comments`;
-  const comments = [];
-  for (let page = 1; ; page += 1) {
-    const response = await apiRequest(fetchImpl, `${endpoint}?per_page=100&page=${page}`, token);
-    const entries = await response.json();
-    comments.push(...entries);
-    if (entries.length < 100) break;
-  }
-
-  const existing = comments.find((comment) => comment.body?.includes(PULL_REQUEST_COMMENT_MARKER));
-  if (existing) {
-    if (existing.body === body) return { id: existing.id, status: 'unchanged' };
-    const response = await apiRequest(fetchImpl, `${apiBase}/repos/${repository}/issues/comments/${existing.id}`, token, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ body }),
-    });
-    const comment = await response.json();
-    return { id: comment.id, status: 'updated' };
-  }
-
-  if (!hasAffectedCores) return { id: '', status: 'skipped' };
-  const response = await apiRequest(fetchImpl, endpoint, token, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ body }),
-  });
-  const comment = await response.json();
-  return { id: comment.id, status: 'created' };
 }

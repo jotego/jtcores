@@ -16,9 +16,6 @@ JTFRAME. The supplied JTCORES workflow uses `actions/setup-go` and
   useful for local invocation and is preferred when supplied.
 - `base-sha`, `head-sha`: git revisions used to collect changed files when
   `changed-files` is absent.
-- `github-token`, `repository`, `pull-request-number`, `github-api-url`:
-  optional GitHub API values. When all are supplied, the action creates or
-  updates its one marker-tagged pull-request comment.
 
 ## Outputs
 
@@ -27,8 +24,8 @@ JTFRAME. The supplied JTCORES workflow uses `actions/setup-go` and
 - `unmatched-files`: changed paths with no resolved core dependency.
 - `unresolved-cores`: cores JTFRAME could not resolve, including the error.
 - `report`: Markdown table used in the GitHub job summary.
-- `pull-request-comment-id`, `pull-request-comment-status`: the comment ID and
-  whether it was created, updated, unchanged, or skipped.
+- `pull-request-comment`: Markdown body for the workflow's tagged
+  pull-request comment.
 
 ## Local use
 
@@ -52,8 +49,8 @@ action treats all files beneath that submodule as potentially changed.
 
 ## Pull-request comment
 
-The workflow supplies GitHub's token and the pull-request number. When at
-least one core matches, the action creates a comment marked with
-`<!-- jtcores-affected-cores -->`. On later pushes it finds that marker and
-updates the same comment instead of posting another one. Each core is bold and
-its affected inputs are listed by filename only.
+The workflow uses
+[`thollander/actions-comment-pull-request`](https://github.com/marketplace/actions/comment-pull-request)
+with `comment-tag: jtcores-affected-cores` and `mode: upsert`. This stable tag
+updates one existing comment instead of posting duplicates. Each core is bold
+and its affected inputs are listed by filename only.
