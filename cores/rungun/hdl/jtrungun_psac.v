@@ -24,7 +24,7 @@ module jtrungun_psac(
     output             rom_cs,
     input              rom_ok,
 
-    output reg  [ 7:0] pxl,
+    output      [ 7:0] pxl,
 
     input      [3:0] gfx_en,
     // IOCTL dump
@@ -53,15 +53,13 @@ assign pre_pxl   = gfx_en[1] ? {pal,dmux} : 8'b0;
 
 assign rom_cs    = ~ob & blankn;
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
+// The line-buffer writer samples this value at the same virtual-pixel edge
+// that advances the PSAC coordinate.  Keep the accepted ROM nibble
+// combinational so the write is associated with the current coordinate.
+assign pxl       = rom_ok & ~ob ? pre_pxl : 8'd0;
 
 always @(posedge clk) begin
     rom_addr <= {code,vf,hf[3:1]}; // 13+4+4=21
-end
-
-always @(posedge clk) if(pxl_cen) begin
-    pxl <= 0;
-    if(rom_ok) pxl <= pre_pxl;
-    if(  ob  ) pxl <= 0;
 end
 
 jt053936 u_xy(
