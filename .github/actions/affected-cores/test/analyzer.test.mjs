@@ -183,3 +183,14 @@ test('formats the pull-request comment with bold core names and basename-only in
   assert.match(comment, /- \*\*vlfied\*\*\n  - `jtrastan_obj\.v`/);
   assert.doesNotMatch(comment, /cores\/rastan\/hdl/);
 });
+
+test('formats an identifiable pull-request comment when no core matches', () => {
+  const comment = pullRequestComment({
+    affectedCoreNames: [],
+    affected: {},
+    unresolvedCores: [],
+  });
+
+  assert.ok(comment.startsWith(PULL_REQUEST_COMMENT_MARKER));
+  assert.match(comment, /No cores are affected by the changed files\./);
+});

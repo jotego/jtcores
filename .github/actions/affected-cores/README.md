@@ -5,8 +5,8 @@ changed files. For every core it runs the authoritative command
 `jtframe files plain <core>` and compares the resulting list to the pull
 request's changed paths. It has no npm dependencies or build step.
 
-The checkout must include recursive submodules, and the runner needs Go to run
-JTFRAME. The supplied JTCORES workflow uses `actions/setup-go` and
+The checkout must include recursive submodules, and the runner needs Go 1.23.4
+to run JTFRAME. The supplied JTCORES workflow uses `actions/setup-go` and
 `actions/checkout` with `submodules: recursive`.
 
 ## Inputs
@@ -53,4 +53,4 @@ The workflow uses its local `find-create-or-update-comment` composite action,
 following the FabricJS pattern: a marker (`<!-- jtcores-affected-cores -->`)
 finds the existing comment, then the pinned Peter Evans actions create or
 replace it. Each core is bold and its affected inputs are listed by filename
-only.
+only. A comment is also created or updated when no core matches.
