@@ -49,8 +49,8 @@ action treats all files beneath that submodule as potentially changed.
 
 ## Pull-request comment
 
-The workflow uses
-[`thollander/actions-comment-pull-request`](https://github.com/marketplace/actions/comment-pull-request)
-with `comment-tag: jtcores-affected-cores` and `mode: upsert`. This stable tag
-updates one existing comment instead of posting duplicates. Each core is bold
-and its affected inputs are listed by filename only.
+The workflow uses its local `find-create-or-update-comment` composite action,
+following the FabricJS pattern: a marker (`<!-- jtcores-affected-cores -->`)
+finds the existing comment, then the pinned Peter Evans actions create or
+replace it. Each core is bold and its affected inputs are listed by filename
+only.

@@ -3,6 +3,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
+export const PULL_REQUEST_COMMENT_MARKER = '<!-- jtcores-affected-cores -->';
+
 function filesystemPath(root, relativePath) {
   return path.join(root, ...relativePath.split('/'));
 }
@@ -252,7 +254,7 @@ function filenameOnly(filename) {
 }
 
 export function pullRequestComment(result) {
-  const rows = ['## Cores possibly affected', ''];
+  const rows = [PULL_REQUEST_COMMENT_MARKER, '## Cores possibly affected', ''];
   if (result.affectedCoreNames.length === 0) {
     rows.push('No cores are affected by the changed files.');
   } else {

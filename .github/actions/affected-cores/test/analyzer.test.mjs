@@ -10,6 +10,7 @@ import {
   markdownReport,
   normalizeChangedFiles,
   pullRequestComment,
+  PULL_REQUEST_COMMENT_MARKER,
 } from '../src/analyzer.mjs';
 
 test('uses generated MMR and header placeholders only to resolve the JTFRAME list', () => {
@@ -165,7 +166,7 @@ test('formats the pull-request comment with bold core names and basename-only in
     unresolvedCores: [],
   });
 
-  assert.match(comment, /^## Cores possibly affected/);
+  assert.ok(comment.startsWith(PULL_REQUEST_COMMENT_MARKER));
   assert.match(comment, /- \*\*rastan\*\*\n  - `jtrastan_obj\.v`/);
   assert.match(comment, /- \*\*vlfied\*\*\n  - `jtrastan_obj\.v`/);
   assert.doesNotMatch(comment, /cores\/rastan\/hdl/);
