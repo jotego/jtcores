@@ -50,10 +50,8 @@ order=[ "maincpu", "soundcpu", "adpcmcpu",
 ]
 
 patches=[
-    # fixes wrong MCU data
+    # The av.13k dump has a confirmed bad opcode.
     { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC8B84, data="02" },
-    { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC8481, data="00" },
-    { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC84E0, data="00" },
-    { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC8483, data="a0" },
-    { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0xC84C3, data="30" },
+    # Keep the first RAM-test pass for initialization, then continue booting.
+    { setnames=["avengers","avengersb","avengersc","buraiken"], offset=0x1023d, data="01" },
 ]

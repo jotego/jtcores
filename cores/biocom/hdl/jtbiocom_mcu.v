@@ -45,8 +45,6 @@ module jtbiocom_mcu(
     input                prom_we
 );
 
-parameter SINC_XDATA=1;
-parameter SAME_CLK=0;
 parameter ROMBIN="../../../../rom/biocom/ts.2f";
 `ifndef NOMCU
 wire [15:0] ext_addr;
@@ -55,14 +53,11 @@ wire [ 7:0] p0_o, p1_o, p2_o, p3_o;
 reg         int0n, int1n;
 
 // interface with main CPU
-wire [7:0] p3_os;
 assign mcu_addr[13:9] = ~5'b0;
 assign { mcu_addr[16:14], mcu_addr[8:1] } = ext_addr[10:0];
 assign mcu_brn  = int0n;
-assign DMAn     = p3_os[5];
+assign DMAn     = p3_o[5];
 reg    last_DMAONn;
-
-wire int0n_mcu;
 
 always @(posedge clk_cpu, posedge rst_cpu) begin
     if( rst_cpu ) begin
@@ -70,9 +65,9 @@ always @(posedge clk_cpu, posedge rst_cpu) begin
         last_DMAONn <= 1;
     end else begin
         last_DMAONn <= DMAONn;
-        if(!p3_os[0]) // CLR
+        if(!p3_o[0]) // CLR
             int0n <= 1;
-        else if(!p3_os[1])
+        else if(!p3_o[1])
             int0n <= 0; // PR
         else if( DMAONn && !last_DMAONn )
             int0n <= 0;
@@ -81,12 +76,17 @@ end
 
 // interface with sound CPU
 wire      int1_clrn = p3_o[4];
+wire [7:0] x_dout;
+wire       x_wr;
 
 reg [7:0] snd_dout_latch;
 reg       last_snd_mcu_wr, last_p3_6, last_snd_mcu_rd;
 wire      posedge_snd    = snd_mcu_wr && !last_snd_mcu_wr;
 wire      posedge_snd_rd = snd_mcu_rd && !last_snd_mcu_rd;
-wire      posedge_p3_6 = p3_o[6] && !last_p3_6;
+// P3.6 is the physical /WR pin during MOVX, otherwise it is GPIO.  Current
+// MAME models the MCU-to-sound transfer on the 1-to-0 transition of P3.6.
+wire      p3_6_pin = p3_o[6] & ~x_wr;
+wire      negedge_p3_6 = last_p3_6 && !p3_6_pin;
 wire      snd_blank = p1_o == 8'hff;
 reg       snd_done;
 
@@ -95,11 +95,13 @@ always @(posedge clk, posedge rst) begin
         snd_dout_latch  <= 8'd0;
         int1n           <= 1;
         last_snd_mcu_wr <= 1'b0;
+        last_p3_6        <= 1'b1;
+        last_snd_mcu_rd <= 1'b0;
         snd_done        <= 1'b1;
     end else begin
         last_snd_mcu_wr <= snd_mcu_wr;
         last_snd_mcu_rd <= snd_mcu_rd;
-        last_p3_6       <= p3_o[6];
+        last_p3_6        <= p3_6_pin;
         if( posedge_snd )
             snd_dout_latch <= snd_dout;
         // interrupt line
@@ -108,65 +110,35 @@ always @(posedge clk, posedge rst) begin
         else if( posedge_snd ) int1n <= 0;
         // latch sound data
         if( posedge_snd_rd ) snd_done <= 1'b1;
-        if( posedge_p3_6 && (snd_done || !snd_blank) ) begin
+        if( negedge_p3_6 && (snd_done || !snd_blank) ) begin
             snd_done <= snd_blank;
             snd_din  <= p1_o;
         end
     end
 end
 
-wire [7:0] mcu_din_s, x_dout;
-wire       x_wr;
-
-// P3.6 is the Bionic board's sound-write strobe.  It does not access the
-// shared main-CPU RAM; only an 8051 MOVX write owns that bus write enable.
-assign mcu_wr = x_wr;
-assign mcu_dout = x_wr ? x_dout : p0_o;
-
-generate
-    if( SAME_CLK ) begin : g_same_clk
-        assign p3_os    = p3_o;
-        assign int0n_mcu = int0n;
-        assign mcu_din_s = mcu_din;
-    end else begin : g_cross_clk
-        jtframe_sync #(.W(8)) u_p3sync(
-            .clk_in ( 1'b0      ),
-            .clk_out( clk_cpu   ),
-            .raw    ( p3_o      ),
-            .sync   ( p3_os     )
-        );
-
-        jtframe_sync #(.W(1)) u_intsync(
-            .clk_in ( 1'b0      ),
-            .clk_out( clk       ),
-            .raw    ( int0n     ),
-            .sync   ( int0n_mcu )
-        );
-
-        jtframe_sync #(.W(8)) u_sync(
-            .clk_in ( clk_cpu   ),
-            .clk_out( clk       ),
-            .raw    ( mcu_din   ),
-            .sync   ( mcu_din_s )
-        );
-    end
-endgenerate
+// The shared main bus is accessed through MOVX.  P3.5 is the DMA ownership
+// output; reads float high and writes are ignored while the MCU does not own
+// the bus.
+wire [7:0] x_din = p3_o[5] ? 8'hff : mcu_din;
+assign mcu_wr   = x_wr & ~p3_o[5];
+assign mcu_dout = x_dout;
 
 jtframe_8751mcu #(
-    .ROMBIN(ROMBIN),
-    .SYNC_XDATA(SINC_XDATA)
+    .ROMBIN     ( ROMBIN ),
+    .SYNC_XDATA ( 1      ) // used to hold the data, rather than synchronization
 ) u_mcu(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen6a     ),
     // external memory: connected to main CPU
-    .x_din      ( mcu_din_s ),
+    .x_din      ( x_din     ),
     .x_dout     ( x_dout    ),
     .x_addr     ( ext_addr  ),
     .x_wr       ( x_wr      ),
     .x_acc      (           ),
     // interrupts
-    .int0n      ( int0n_mcu ),
+    .int0n      ( int0n     ),
     .int1n      ( int1n     ),
     // Ports
     .p0_i       ( 8'hff     ),
@@ -186,14 +158,6 @@ jtframe_8751mcu #(
     .prom_din   ( prom_din  ),
     .prom_we    ( prom_we   )
 );
-
-`ifdef SIMULATION
-always @(negedge int0n)
-    $display ("MCU: int0n edge - main CPU");
-
-always @(negedge int1n)
-    $display ("MCU: int1n edge - sound CPU");
-`endif
 `else // NOMCU
     assign mcu_dout=0;
     assign mcu_wr=0;

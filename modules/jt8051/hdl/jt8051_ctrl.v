@@ -48,6 +48,7 @@ always @(posedge clk) begin
     end else if (cen) begin
         next_instruction <= 0;
         if (irq) irq_pending <= 1;
+        if (irq_pending && !irq) irq_pending <= 0;
         if (irq_take) irq_pending <= 0;
         if (ni) begin
             next_instruction <= 1;

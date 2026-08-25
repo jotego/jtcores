@@ -25,35 +25,35 @@ module jt8051_serial(
 );
 
 reg        smod_div;
-reg [ 4:0] mode2_phase;
+reg [ 1:0] mode2_div;
 reg [ 3:0] tx_sub, tx_bit, rx_sub, rx_bit;
 reg [ 7:0] tx_data, rx_shift;
 reg        tx_busy, rx_busy, rx8;
 wire [1:0] mode = scon[7:6];
-wire [4:0] mode2_sum = mode2_phase + (pcon[7] ? 5'd6 : 5'd3);
-wire       mode2_tick = mode==2 && tick12 && mode2_sum>=16;
+// Mode 2 has a fixed fosc/64 baud rate (fosc/32 with SMOD).  Its 16x
+// sampling clock is consequently fosc/4 (or fosc/2), independent of timers.
+wire       mode2_tick = mode==2 && mode2_div==(pcon[7] ? 2'd1 : 2'd3);
 // Timer-1 overflow is a 2x baud source with SMOD clear and a 1x source
 // with SMOD set.  Each accepted event is one sixteenth of a serial bit.
 wire       mode13_tick = (mode==1 || mode==3) && t1_ovf && (pcon[7] || !smod_div);
 wire       baud16_tick = mode2_tick || mode13_tick;
+wire       mode0_clock = tx_busy || rx_busy || (scon[4] && !scon[0]);
 
 always @(posedge clk) begin
     if (rst) begin
-        smod_div<=0; mode2_phase<=0; tx_sub<=0; tx_bit<=0; rx_sub<=0; rx_bit<=0;
+        smod_div<=0; mode2_div<=0; tx_sub<=0; tx_bit<=0; rx_sub<=0; rx_bit<=0;
         tx_data<=0; rx_shift<=0; tx_busy<=0; rx_busy<=0; rx8<=0; rxd_o<=1; txd<=1;
         ti_set<=0; rx_valid<=0; ri_set<=0; rx_data<=0; rx_rb8<=0;
     end else if (cen) begin
         ti_set   <= 0;
         rx_valid <= 0;
         ri_set   <= 0;
-        if (mode==2 && tick12)
-            mode2_phase <= mode2_tick ? mode2_sum-5'd16 : mode2_sum;
+        if (mode==2) mode2_div <= mode2_tick ? 0 : mode2_div+1'd1;
         if ((mode==1 || mode==3) && t1_ovf)
             smod_div <= pcon[7] ? 1'b0 : !smod_div;
 
-        // A SBUF write starts/restarts the transmitter.  SBUF itself stays
-        // in jt8051_periph so a received byte and the CPU-visible SFR share
-        // the normal generic SFR write path.
+        // A SBUF write starts/restarts only the transmitter.  The CPU reads
+        // the independent receive SBUF held in jt8051_periph.
         if (sbuf_we) begin
             tx_data <= sbuf_din;
             tx_busy <= 1;
@@ -68,8 +68,8 @@ always @(posedge clk) begin
             // one shift-clock pulse per machine cycle.  There are no UART
             // start or stop bits in this mode.
             txd <= 1;
+            if (tick12 && mode0_clock) txd <= 0;
             if (tick12 && tx_busy) begin
-                txd <= 0;
                 if (tx_bit==7) begin
                     tx_busy <= 0;
                     rxd_o   <= 1;
@@ -81,9 +81,14 @@ always @(posedge clk) begin
             end
             if (!tx_busy && !sbuf_we) rxd_o <= 1;
             // Mode 0 receives one bit per synchronous shift-clock pulse.
-            if (tick12 && scon[4]) begin
+            if (tick12 && !rx_busy && scon[4] && !scon[0]) begin
+                rx_busy <= 1;
+                rx_bit  <= 0;
+            end
+            if (tick12 && rx_busy) begin
                 rx_shift <= {rxd,rx_shift[7:1]};
                 if (rx_bit==7) begin
+                    rx_busy <= 0;
                     rx_bit <= 0;
                     if (!scon[0]) begin
                         rx_data  <= {rxd,rx_shift[7:1]};
@@ -130,20 +135,20 @@ always @(posedge clk) begin
                                 rx_bit <= rx_bit+1'd1;
                             end
                             9: if (mode==1) begin
-                                if (!scon[0]) begin
+                                if (!scon[0] && (!scon[5] || rxd)) begin
                                     rx_data  <= rx_shift;
                                     rx_rb8   <= rxd;
                                     rx_valid <= 1;
-                                    ri_set   <= !scon[5] || rxd;
+                                    ri_set   <= 1;
                                 end
                                 rx_busy <= 0;
                             end else begin rx8<=rxd; rx_bit<=10; end
                             default: begin
-                                if (!scon[0]) begin
+                                if (!scon[0] && (!scon[5] || rx8)) begin
                                     rx_data  <= rx_shift;
                                     rx_rb8   <= rx8;
                                     rx_valid <= 1;
-                                    ri_set   <= !scon[5] || rx8;
+                                    ri_set   <= 1;
                                 end
                                 rx_busy <= 0;
                             end

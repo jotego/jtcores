@@ -18,35 +18,13 @@ wire        char_cs, blue_cs, redgreen_cs,
             eres_n, wrerr_n,
             flip, star_hscan, star_vscan, rd, cpu_cen,
             char_wait, star_fix_n, is_obj, is_scr,
-            CHON, SCRON, STARON, OBJON,
-            cen16, cen12, cen8, cen6, cen4, cen3;
+            CHON, SCRON, STARON, OBJON;
 
 assign dip_flip           = flip;
-assign pxl2_cen           = cen16;
-assign pxl_cen            = cen8;
 assign star_fix_n         = status[13];
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign dipsw_c = 8'hff; // Only the freeze is contained here, and users often get
     // confused with it, so I'd rather leave it fixed and hidden
-/* verilator lint_off PINMISSING */
-jtframe_cen48 u_cen(
-    .clk    ( clk       ),
-    .cen16  ( cen16     ),
-    .cen12  ( cen12     ),
-    .cen6   ( cen6      ),
-    .cen3   ( cen3      ),
-    .cen8   ( cen8      ),
-    .cen4   ( cen4      ),
-    // unused:
-    .cen1p5 (           ),
-    .cen4_12(           ),
-    .cen3q  (           ),
-    .cen12b (           ),
-    .cen6b  (           ),
-    .cen3b  (           ),
-    .cen3qb (           ),
-    .cen1p5b(           )
-); /* verilator lint_on PINMISSING */
 
 wire rd_n, wr_n;
 // sound
@@ -60,7 +38,6 @@ wire [ 7:0] main_ram;
 wire        scr_cs;
 wire [15:0] scr_hpos, scr_vpos;
 
-assign cpu_cen = cen8;
 assign is_obj  = prog_ba==3 && ioctl_addr<MAP_START;
 assign is_scr  = prog_ba==2 && ioctl_addr>SCR_START;
 
@@ -73,7 +50,7 @@ end
 jt1943_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cpu_cen    ( cpu_cen       ),
+    .cpu_cen    ( pxl_cen       ),
     // Timing
     .flip       ( flip          ),
     .V          ( V             ),
@@ -81,6 +58,11 @@ jt1943_main #(.GAME(1)) u_main(
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
+    // Side Arms has no MCU
+    .mcu_din    ( 8'd0          ),
+    .mcu_dout   (               ),
+    .mcu_rd     (               ),
+    .mcu_wr     (               ),
     // Palette
     .redgreen_cs( redgreen_cs   ),
     .blue_cs    ( blue_cs       ),
@@ -163,8 +145,7 @@ jtsarms_video u_video(
     .clk        ( clk           ),
     .pxl2_cen   ( pxl2_cen      ),
     .pxl_cen    ( pxl_cen       ),
-    .cen12      ( cen12         ),
-    .cpu_cen    ( cpu_cen       ),
+    .cpu_cen    ( pxl_cen       ),
     .cpu_AB     ( cpu_AB[11:0]  ),
     .V          ( V             ),
     .H          ( H             ),
@@ -214,10 +195,6 @@ jtsarms_video u_video(
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
     .OBJON      ( OBJON         ),
-    // PROMs
-    // .prog_addr    ( prog_addr[7:0] ),
-    // .prom_prio_we ( prom_we        ),
-    // .prom_din     ( prog_data[3:0] ),
     // Color Mix
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
