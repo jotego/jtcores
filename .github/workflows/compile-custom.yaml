@@ -115,3 +115,24 @@ jobs:
           name: release-${{ matrix.target }}-${{ matrix.core }}
           path: release
           retention-days: 7
+
+      # The jtframe-generated build sources. xjtcore.sh stashes them into
+      # ./gen/<core>/<target> (= /jtcores/gen/... inside the container) right
+      # before it deletes the seed build dir to recover disk. This is the full
+      # set of files `jtframe parse/mem/mmr/files` produced and that were handed
+      # to Quartus — the parsed .qsf/.qpf, the *_game_sdram.v + mem_ports.inc,
+      # the MMR register modules, the .qip filelists and the linked .hex files —
+      # plus, under sources/, a copy of every HDL file those filelists reference,
+      # so the artifact is self-contained. The heavy Quartus working dirs (db/,
+      # incremental_db/, output_files/) are excluded at stash time, so this stays
+      # small. always() + continue-on-error so it also runs when timing fails or
+      # the run is cancelled, and a missing dir doesn't fail the job.
+      - id: upload-gen
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v6
+        with:
+          name: generated-${{ matrix.target }}-${{ matrix.core }}
+          path: gen
+          retention-days: 7
+          if-no-files-found: warn
