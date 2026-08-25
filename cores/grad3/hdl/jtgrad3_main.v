@@ -25,6 +25,8 @@ module jtgrad3_main(
     output reg           tile_cs,
     input         [ 7:0] tile_dout,
     input                tile_dtack,
+    output               video_req_n,
+    input                video_grant_n,
 
     output reg           gchar_cs,
     output               gchar_we,
@@ -62,6 +64,8 @@ wire        cab_cs, BUSn;
 reg         snd_latch_cs, snd_irq_cs, wdog_cs,
             ctrl_cs, io_cs, dsw_cs, dec_cs;
 wire        bus_cs, bus_busy, vdtackn;
+reg         gchar_sel;
+wire        video_req;
 wire [ 7:0] ctrl;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
@@ -86,13 +90,16 @@ assign snd_irq    = |snd_cnt;
 assign sub_irq    = A[20:15]=={3'd3,3'd3} && !A[23];
 
 assign cab_cs   = io_cs  | dsw_cs;
-assign bus_cs   = rom_cs | ram_cs | pal_cs | tile_cs | gchar_cs | sh_cs |
+assign bus_cs   = rom_cs | ram_cs | pal_cs | tile_cs | gchar_sel | sh_cs |
                   ctrl_cs | io_cs | dsw_cs | snd_latch_cs | snd_irq_cs | wdog_cs;
 wire [1:0] ok_cs, ok_in;
 assign ok_cs = { rom_cs, gchar_cs };
 assign ok_in = { rom_ok, gchar_ok };
+assign video_req = (tile_cs | gchar_sel) & ~BUSn;
+assign video_req_n = ~video_req;
 assign bus_busy = (rom_cs   & ~ok_dly)   |
                   (gchar_cs & ~ok_dly)   |
+                  (video_req & video_grant_n) |
                   (tile_cs  & ~tile_dtack);
 assign vdtackn  = DTACKn | (tile_cs & ~tile_dtack);
 assign VPAn     = ~( A[23] & ~ASn );
@@ -114,6 +121,7 @@ always @* begin
     sh_cs        = 0;
     tile_cs      = 0;
     gchar_cs     = 0;
+    gchar_sel    = 0;
     ctrl_cs      = 0;
     io_cs        = 0;
     dsw_cs       = 0;
@@ -133,7 +141,7 @@ always @* begin
             3'd3: io_dec_cs = 1;
             3'd4: sh_cs     = 1;
             3'd5: tile_cs   = 1;
-            3'd6: gchar_cs  = !BUSn;
+            3'd6: begin gchar_sel = !BUSn; gchar_cs = !BUSn & ~video_grant_n; end
             default:;
         endcase
     end
