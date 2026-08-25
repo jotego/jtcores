@@ -1,0 +1,21 @@
+CORENAME=JTBLKPAN
+
+JTFRAME_BUTTONS=2
+JTFRAME_COLORW=5
+JTFRAME_WIDTH=256
+JTFRAME_HEIGHT=224
+
+# Same GX400 video timing as Nemesis: 18.432MHz/3 -> 6.144MHz pixel clock,
+# 384x264 total, 60.606Hz (nemesis.cpp gx400_base_state::set_screen_raw_params,
+# shared by gx400_state and salamand_state).
+JTFRAME_PLL=jtframe_pll6144
+
+JTFRAME_DIPBASE=16
+
+# ---- ROM map, byte offsets ----
+SND_START          =0x080000
+PCM_START          =0x088000
+
+[mister]
+JTFRAME_ARX=5
+JTFRAME_ARY=4
