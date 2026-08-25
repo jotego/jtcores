@@ -19,6 +19,15 @@
     Because col_type (=8<<style) is always >=8 the colscroll value is constant
     across any 8px span, so this reproduces custom_tilemap_draw exactly.
 
+    LIVE OUTPUT - there is no line buffer. The producer fetches columns into a
+    4-entry FIFO and the consumer shifts one pixel per pxl_cen, locked to hdump,
+    so a pixel is rendered as the raster reaches it and the playfield registers
+    are read where the raster actually is. The FIFO is the only lead: at most
+    4 columns = 32 px, against the 376-px line a buffered renderer runs ahead.
+    That elasticity is what absorbs a slow gfx fetch; a column is 8 px = 64 clk
+    of consume time against ~7 clk of fixed producer work plus one SDRAM read.
+    vdump (not vrender) is the line being drawn, since nothing is held over.
+
     Tile word: [11:0]=code, [15:12]=colour, [15]=per-tile-flip-enable -> when set
     control1[0]=FLIPX, control1[1]=FLIPY. rsram: X table [0,0x200), Y table
     [0x200,0x400); the single read port is time-shared (X at line top, Y per col).
@@ -28,11 +37,11 @@ module jtcninja_deco16 #(
 )(
     input             rst,
     input             clk,
-    input             pxl_cen,        // unused (kept for interface symmetry)
+    input             pxl_cen,
     input             hs,
-    input      [ 8:0] vrender,
+    input      [ 8:0] vdump,          // line being scanned out right now
     input      [ 8:0] hdump,
-    input             flip,           // screen flip
+    input             flip,           // screen flip (vertical only, see note below)
 
     input             fullheight,     // 1 = 64 rows (else 32); cols always 64
     input      [15:0] scrollx,
@@ -69,26 +78,26 @@ wire [ 9:0] hmask = tile16 ? (fullheight ? 10'h3ff : 10'h1ff)
                            : (fullheight ? 10'h1ff : 10'h0ff);
 wire [ 9:0] wmask = tile16 ? 10'h3ff : 10'h1ff;
 
-wire [ 8:0] vr    = flip ? 9'd255 - vrender : vrender;
+// Screen flip is vertical only here. The buffered renderer mirrored the write
+// address; with live output the source walk itself would have to run backwards.
+// flip is tied low in jtcninja_video (TODO: from the deco16ic control register).
+wire [ 8:0] vr    = flip ? 9'd255 - vdump : vdump;
 wire [ 9:0] src_y = (scrolly[9:0] + {1'b0,vr}) & hmask;
 
-// ---- FSM ----
+// ---- producer FSM ----
 // XW*/CW* are wait states: the row/colscroll table is shared with the other
 // playfield of the chip through a single BRAM port (see jtcninja_deco16ic), so
 // rsram_addr must be held long enough for either arbiter phase to be served
 // and captured. Four cycles per read covers the worst case.
-localparam IDLE=0, XRD=1, XSET=2, CRD=3, CSET=4, RAMW=5, DEC=6, GFXW=7, WR=8,
+localparam IDLE=0, XRD=1, XSET=2, CRD=3, CSET=4, RAMW=5, DEC=6, GFXW=7, PUSH=8,
            XW1=9, XW2=10, CW1=11, CW2=12;
 reg  [ 3:0] st;
 reg  [ 9:0] xstart, src_x;
-reg  [ 8:0] scrx_pos;          // screen X of the current column's first pixel
 reg  [ 5:0] colcnt;
 reg  [ 9:0] mapy;
-reg  [11:0] code;
 reg  [ 3:0] colour;
 reg         tfx, tfy;
 reg  [31:0] gfx;
-reg  [ 2:0] pcnt;
 reg         HSl;
 reg         fresh, rom_good;   // guard against sampling stale rom_ok
 
@@ -96,13 +105,12 @@ wire        hs_neg = HSl & ~hs;
 wire [ 5:0] tcol = tile16 ? src_x[9:4] : src_x[8:3];
 wire [ 5:0] trow = tile16 ? mapy[9:4]  : mapy[8:3];
 wire [ 3:0] subrw_raw = tile16 ? mapy[3:0] : {1'b0,mapy[2:0]};
-// rom_addr is built from the JUST-READ tile word (ram_data), NOT the `code` reg:
-// `code <= ram_data` is latched this cycle, so the reg still holds the PREVIOUS
-// column's tile -> using it shifts every column one 8px-column right (and the
-// 16x16 half/code misalign makes even/odd columns alternate wrong). Flip also
-// comes from the current tile word.
+// rom_addr is built from the JUST-READ tile word (ram_data), NOT a `code` reg:
+// a reg latched this cycle still holds the PREVIOUS column's tile -> every
+// column would shift one 8px column right (and the 16x16 half/code misalign
+// makes even/odd columns alternate wrong). Flip comes from the same tile word.
 // half-bit picks the 8px column: left (src_x[3]=0) lives in the upper 16 words
-// (old engine drew half=1 first, on the left) -> half = ~src_x[3].
+// -> half = ~src_x[3].
 wire        cur_tfx = ram_data[15] & tfx_en;
 wire        cur_tfy = ram_data[15] & tfy_en;
 wire [ 3:0] rsubrw  = cur_tfy ? ~subrw_raw : subrw_raw;
@@ -119,49 +127,42 @@ always @* begin
     ram_addr   = tile16 ? idx16 : idx8;
 end
 
-// 16x16 word layout is half-major: word-in-tile = half*16 + subrow. Built from
-// ram_data (current tile), not the `code` reg (which lags one column).
+// 16x16 word layout is half-major: word-in-tile = half*16 + subrow.
 wire [17:0] roma16 = rowmajor ? { bank[0], ram_data[11:0], rsubrw, rhalf }   // row-major: L/R halves adjacent
                               : { bank[0], ram_data[11:0], rhalf, rsubrw };  // half-major (default)
 wire [17:0] roma8  = { 3'd0, ram_data[11:0], rsubrw[2:0] };
 
-// 4bpp unpack: plane p lives in byte p, bit bsel (MSB-first; per-tile X flip
-// reverses the bit order within the 8). pswap exchanges the two plane pairs.
-wire [2:0] bsel = tfx ? pcnt : ~pcnt;
-wire [4:0] b5   = {2'b0, bsel};
-wire p0 = gfx[       b5];
-wire p1 = gfx[5'd8 + b5];
-wire p2 = gfx[5'd16+ b5];
-wire p3 = gfx[5'd24+ b5];
-wire [3:0] draw_pxl = pswap ? { p1, p0, p3, p2 } : { p3, p2, p1, p0 };
-
-// line-buffer writes are driven combinationally from the pixel counter
-wire        buf_we    = (st==WR);
-wire [ 8:0] buf_waddr = scrx_pos + {6'd0,pcnt};
-wire [ 8:0] waflip    = flip ? 9'h100 - buf_waddr : buf_waddr;
-wire [PXLW-1:0] buf_wdata = { colour, draw_pxl };
+// ---- column FIFO ----
+// The producer's whole lead over the raster. Each entry is one fetched 8px
+// column; the consumer drains one entry per 8 pxl_cen.
+localparam FW = 2;                  // 4 columns = 32 px
+reg  [36:0] fifo[0:(1<<FW)-1];      // {gfx[31:0], colour[3:0], tfx}
+reg  [FW:0] wptr, rptr;
+wire        fifo_full  = wptr[FW-1:0]==rptr[FW-1:0] && wptr[FW]!=rptr[FW];
+wire        fifo_empty = wptr==rptr;
+wire [36:0] fifo_out   = fifo[rptr[FW-1:0]];
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        st<=IDLE; HSl<=0; colcnt<=0; src_x<=0; xstart<=0; scrx_pos<=0; mapy<=0;
-        code<=0; colour<=0; tfx<=0; tfy<=0; gfx<=0; pcnt<=0; rom_cs<=0; rom_addr<=0;
-        fresh<=0; rom_good<=0;
+        st<=IDLE; HSl<=0; colcnt<=0; src_x<=0; xstart<=0; mapy<=0;
+        colour<=0; tfx<=0; tfy<=0; rom_cs<=0; rom_addr<=0;
+        fresh<=0; rom_good<=0; wptr<=0;
     end else begin
         HSl      <= hs;
         rom_good <= rom_ok;
         if( rom_cs && !rom_ok ) fresh <= 1;   // new read confirmed in flight
-        case( st )
-        IDLE: if( hs_neg ) begin
+        if( hs_neg ) begin
             colcnt <= 0;
+            wptr   <= 0;
             st     <= en ? XRD : IDLE;
-        end
+        end else case( st )
+        IDLE: ;
         XRD:  st <= XW1;                   // rsram=rs_a issued
         XW1:  st <= XW2;
         XW2:  st <= XSET;
         XSET: begin                        // rowscroll X ready
             xstart   <= xnew;
             src_x    <= xnew & ~10'd7;
-            scrx_pos <= 9'd0 - {6'd0, xnew[2:0]};
             st       <= CRD;
         end
         CRD:  st <= CW1;                   // rsram=cs_a(src_x) issued
@@ -173,15 +174,14 @@ always @(posedge clk, posedge rst) begin
         end
         RAMW: st <= DEC;                   // wait 1cyc for tile RAM data
         DEC: begin                         // tile word ready -> decode + issue gfx
-            code   <= ram_data[11:0];
             // deco16ic get_pfN_tile_info: a tile that opts into per-tile flip
             // (bit 15) also drops to the low half of the palette - colour &= 7.
             // Only bites when control1[1:0] is non-zero, which cninja never sets
             // but edrandy's rowscrolled layers do.
             colour <= (ram_data[15] & (tfx_en|tfy_en)) ? {1'b0,ram_data[14:12]}
                                                        :      ram_data[15:12];
-            tfx    <= ram_data[15] & tfx_en;
-            tfy    <= ram_data[15] & tfy_en;
+            tfx    <= cur_tfx;
+            tfy    <= cur_tfy;
             rom_cs   <= 1;
             rom_addr <= tile16 ? roma16 : roma8;
             fresh    <= 0;
@@ -191,60 +191,64 @@ always @(posedge clk, posedge rst) begin
             gfx    <= rom_data;
             rom_cs <= 0;
             fresh  <= 0;
-            pcnt   <= 0;
-            st     <= WR;
+            st     <= PUSH;
         end
-        WR: begin                          // 8 pixels, one per cycle (combinational write)
-            pcnt <= pcnt + 3'd1;
-            if( pcnt==3'd7 ) begin
-                colcnt   <= colcnt + 6'd1;
-                src_x    <= (src_x + 10'd8) & wmask;
-                scrx_pos <= scrx_pos + 9'd8;
-                st       <= (colcnt>=6'd33) ? IDLE : CRD;
-            end
+        PUSH: if( !fifo_full ) begin       // the only place the producer waits
+            fifo[wptr[FW-1:0]] <= { gfx, colour, tfx };
+            wptr     <= wptr + 1'd1;
+            colcnt   <= colcnt + 6'd1;
+            src_x    <= (src_x + 10'd8) & wmask;
+            st       <= (colcnt>=6'd33) ? IDLE : CRD;
         end
         default: st <= IDLE;
         endcase
     end
 end
 
-// jtframe_linebuf has no clear, so a disabled layer would replay its last lines
-wire [PXLW-1:0] buf_pxl;
-assign pxl = en ? buf_pxl : {PXLW{1'b0}};
+// ---- consumer: one pixel per pxl_cen, locked to hdump ----
+// Column 0 covers screen X = -xstart[2:0] .. 7-xstart[2:0], so the first
+// visible pixel is that column's pixel xstart[2:0].
+reg  [31:0] cgfx;
+reg  [ 3:0] ccolour;
+reg         ctfx, cur_vld, cactive;
+reg  [ 2:0] pcnt;
 
-jtframe_linebuf #(.DW(PXLW), .AW(9)) u_buf(
-    .clk     ( clk       ),
-    .LHBL    ( ~hs       ),
-    .wr_addr ( waflip    ),
-    .wr_data ( buf_wdata ),
-    .we      ( buf_we    ),
-    .rd_addr ( hdump     ),
-    .rd_data (           ),
-    .rd_gated( buf_pxl   )
-);
+wire        pop  = ~fifo_empty & ( !cur_vld | (pxl_cen & cactive & pcnt==3'd7) );
+// hdump updates on pxl_cen, so latch on the edge where it WRAPS to 0: pcnt and
+// hdump must reach their first-visible-pixel values at the same edge.
+wire        line_top = pxl_cen & hdump==9'd375;
 
+// 4bpp unpack: plane p lives in byte p, bit bsel (MSB-first; per-tile X flip
+// reverses the bit order within the 8). pswap exchanges the two plane pairs.
+wire [2:0] bsel = ctfx ? pcnt : ~pcnt;
+wire [4:0] b5   = {2'b0, bsel};
+wire p0 = cgfx[       b5];
+wire p1 = cgfx[5'd8 + b5];
+wire p2 = cgfx[5'd16+ b5];
+wire p3 = cgfx[5'd24+ b5];
+wire [3:0] draw_pxl = pswap ? { p1, p0, p3, p2 } : { p3, p2, p1, p0 };
 
+// No buffer to hold a disabled layer's last line: en gates the live pixel.
+assign pxl = (en & cur_vld) ? { ccolour, draw_pxl } : {PXLW{1'b0}};
 
-`ifdef SIMULATION
-`ifdef PFDBG
-// Per-playfield activity: how many lines rendered, how long the gfx fetch
-// stalled, and how many of the written pixels are non-transparent. A layer
-// that should be sparse but reports nearly 100% non-zero is fetching the
-// wrong gfx, not failing to run.
-integer dbg_wr=0, dbg_nz=0, dbg_line=0, dbg_gfxw=0, dbg_t=0;
-always @(posedge clk) begin
-    if( st==IDLE && hs_neg && en ) dbg_line = dbg_line+1;
-    if( st==GFXW ) dbg_gfxw = dbg_gfxw+1;
-    if( st==WR ) begin
-        dbg_wr = dbg_wr+1;
-        if( draw_pxl!=4'd0 ) dbg_nz = dbg_nz+1;
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        rptr<=0; cur_vld<=0; cactive<=0; pcnt<=0; cgfx<=0; ccolour<=0; ctfx<=0;
+    end else begin
+        if( hs_neg ) begin
+            rptr <= 0; cur_vld <= 0; cactive <= 0;
+        end else begin
+            if( line_top ) begin
+                pcnt    <= xstart[2:0];    // skip the pixels left of screen X=0
+                cactive <= 1;
+            end else if( pxl_cen && cactive ) pcnt <= pcnt + 3'd1;
+            if( pop ) begin
+                { cgfx, ccolour, ctfx } <= fifo_out;
+                rptr    <= rptr + 1'd1;
+                cur_vld <= 1;
+            end
+        end
     end
-    dbg_t = dbg_t+1;
-    if( dbg_t[21:0]==0 )
-        $display("PFDBG %m en=%0d lines=%0d gfxw=%0d wr=%0d nonzero=%0d",
-                 en, dbg_line, dbg_gfxw, dbg_wr, dbg_nz);
 end
-`endif
-`endif
 
 endmodule

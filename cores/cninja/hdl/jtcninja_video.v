@@ -262,7 +262,7 @@ assign st_dout   = debug_bus[4]  ? tg1_st    : tg0_st;
 jtcninja_deco16ic #(.SIMFILE1(SF_T0P1), .SIMFILE2(SF_T0P2), .SIMFILRS(SF_RS0),
                    .MMRSEEK(MMR_TG0)) u_tg0(
     .rst(rst), .clk(clk), .pxl_cen(pxl_cen), .hs(HS),
-    .vrender(vrender), .hdump(hdump_rd), .flip(flip),
+    .vdump(vdump), .hdump(hdump_rd), .flip(flip),
     .fullheight ( dseal      ),          // darkseal tg0 = DECO_64x64
     .cpu_addr   ( tile_wa    ),
     .cpu_dout   ( cpu_dout   ),
@@ -305,7 +305,7 @@ jtcninja_deco16ic #(.SIMFILE1(SF_T0P1), .SIMFILE2(SF_T0P2), .SIMFILRS(SF_RS0),
 jtcninja_deco16ic #(.SIMFILE1(SF_T1P1), .SIMFILE2(SF_T1P2), .SIMFILRS(SF_RS1),
                    .MMRSEEK(MMR_TG1)) u_tg1(
     .rst(rst), .clk(clk), .pxl_cen(pxl_cen), .hs(HS),
-    .vrender(vrender), .hdump(hdump_rd), .flip(flip),
+    .vdump(vdump), .hdump(hdump_rd), .flip(flip),
     .fullheight ( 1'b0       ),
     .cpu_addr   ( tile_wa    ),
     .cpu_dout   ( cpu_dout   ),
