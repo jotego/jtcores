@@ -1,0 +1,38 @@
+name: Cores affected by pull request
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  affected_cores:
+    runs-on: ubuntu-24.04
+    outputs:
+      affected-cores: ${{ steps.analyze.outputs.affected-cores }}
+      affected-core-names: ${{ steps.analyze.outputs.affected-core-names }}
+      unresolved-cores: ${{ steps.analyze.outputs.unresolved-cores }}
+    steps:
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.21.3'
+
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          token: ${{ secrets.PAT }}
+          fetch-depth: 0
+
+      - id: analyze
+        uses: ./.github/actions/affected-cores
+        with:
+          repository-path: .
+          base-sha: ${{ github.event.pull_request.base.sha }}
+          head-sha: ${{ github.event.pull_request.head.sha }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          github-api-url: ${{ github.api_url }}
