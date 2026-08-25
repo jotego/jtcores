@@ -7,7 +7,8 @@ request's changed paths. It has no npm dependencies or build step.
 
 The checkout must include recursive submodules, and the runner needs Go 1.23.4
 to run JTFRAME. The supplied JTCORES workflow uses `actions/setup-go` and
-`actions/checkout` with `submodules: recursive`.
+`actions/checkout` with `submodules: recursive`, then builds the JTFRAME CLI
+once before analysing the cores.
 
 ## Inputs
 

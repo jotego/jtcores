@@ -26,6 +26,17 @@ jobs:
           token: ${{ secrets.PAT }}
           fetch-depth: 0
 
+      - name: Build JTFRAME CLI
+        env:
+          JTROOT: ${{ github.workspace }}
+          JTFRAME: ${{ github.workspace }}/modules/jtframe
+          CORES: ${{ github.workspace }}/cores
+          MODULES: ${{ github.workspace }}/modules
+          JTBIN: ${{ runner.temp }}/jtbin
+        run: |
+          mkdir -p "$JTBIN"
+          "$JTFRAME/bin/jtframe" --help > /dev/null
+
       - id: analyze
         uses: ./.github/actions/affected-cores
         with:
