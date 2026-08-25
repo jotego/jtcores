@@ -28,10 +28,12 @@ sdram:
         - name: main
           addr_width: 18
           data_width: 16
+          cache_size: 1kB
     - buses:
         - name: sub
           addr_width: 20
           data_width: 16
+          cache_size: 1kB
         - name: gfx
           addr_width: 21
           data_width: 16

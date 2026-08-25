@@ -31,6 +31,12 @@ file and DIP switch defaults.
 .PP
 The script must be sourced into a JTFRAME environment first, usually by running
 \fBsource setprj.sh\fR.
+.PP
+Scene simulations also require the \fBJOTEGO\fR environment variable. It names
+the private JTCORES support-files directory, where scene data is stored as
+\fB$JOTEGO/scenes/<core-name>/<set-name>\fR. When \fB-s\fR is used from a
+core verification folder, \fBjtsim\fR creates the local \fBscenes\fR symbolic
+link to that directory.
 .SH OPTIONS
 .TP
 .B \-args
@@ -228,6 +234,8 @@ Simulate a saved scene dump.
 This mode uses the dump file and
 \fBdump2bin.sh\fR
 to prepare a short replay-oriented simulation.
+The local \fBscenes\fR path is linked to
+\fB$JOTEGO/scenes/<core-name>/<set-name>\fR.
 If the scene has a
 \fBsnapshot.png\fR
 reference and the rendered frame does not match it,
