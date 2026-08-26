@@ -6,9 +6,10 @@ changed files. For every core it runs the authoritative command
 request's changed paths. It has no npm dependencies or build step.
 
 The checkout must include recursive submodules, and the runner needs Go 1.23.4
-to run JTFRAME. The supplied JTCORES workflow uses `actions/setup-go` and
-`actions/checkout` with `submodules: recursive`, then builds the JTFRAME CLI
-once before analysing the cores.
+to run JTFRAME. The supplied JTCORES workflow runs on `pull_request_target`,
+checks out the trusted base SHA (never fork code), reads the changed paths via
+the GitHub pull-request-files API, and then builds JTFRAME once before
+analysing the cores.
 
 ## Inputs
 
@@ -55,3 +56,12 @@ following the FabricJS pattern: a marker (`<!-- jtcores-affected-cores -->`)
 finds the existing comment, then the pinned Peter Evans actions create or
 replace it. Each core is bold and its affected inputs are listed by filename
 only. A comment is also created or updated when no core matches.
+
+## Fork safety
+
+`pull_request_target` has permission to write the pull-request comment, so the
+workflow deliberately runs only trusted code from the base SHA. It does not
+check out, build, or execute the pull request's head commit; changed filenames
+are data returned by GitHub's API. Keep the job permissions limited to
+`contents: read` and `pull-requests: write`, and use a read-only submodule
+token if `secrets.PAT` is required for private submodules.

@@ -194,3 +194,14 @@ test('formats an identifiable pull-request comment when no core matches', () => 
   assert.ok(comment.startsWith(PULL_REQUEST_COMMENT_MARKER));
   assert.match(comment, /No cores are affected by the changed files\./);
 });
+
+test('does not allow a changed filename to escape its Markdown code span', () => {
+  const comment = pullRequestComment({
+    affectedCoreNames: ['demo'],
+    affected: { demo: ['cores/demo/hdl/a`\n@maintainers.v'] },
+    unresolvedCores: [],
+  });
+
+  assert.match(comment, /`a\\`@maintainers\.v`/);
+  assert.doesNotMatch(comment, /\n@maintainers/);
+});

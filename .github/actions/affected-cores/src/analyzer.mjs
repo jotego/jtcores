@@ -244,7 +244,7 @@ export function markdownReport(result) {
       '| --- | --- |',
     );
     for (const core of result.affectedCoreNames) {
-      rows.push(`| \`${core}\` | ${result.affected[core].map((file) => `\`${file}\``).join('<br>')} |`);
+      rows.push(`| \`${markdownCode(core)}\` | ${result.affected[core].map((file) => `\`${markdownCode(file)}\``).join('<br>')} |`);
     }
   }
   if (result.unresolvedCores?.length > 0) {
@@ -257,15 +257,22 @@ function filenameOnly(filename) {
   return filename.replaceAll('\\', '/').split('/').at(-1);
 }
 
+function markdownCode(value) {
+  return String(value)
+    .replaceAll('\\', '\\\\')
+    .replaceAll('`', '\\`')
+    .replace(/[\r\n]/g, '');
+}
+
 export function pullRequestComment(result) {
   const rows = [PULL_REQUEST_COMMENT_MARKER, '## Cores possibly affected', ''];
   if (result.affectedCoreNames.length === 0) {
     rows.push('No cores are affected by the changed files.');
   } else {
     for (const core of result.affectedCoreNames) {
-      rows.push(`- **${core}**`);
+      rows.push(`- **${markdownCode(core)}**`);
       for (const filename of [...new Set(result.affected[core].map(filenameOnly))]) {
-        rows.push(`  - \`${filename}\``);
+        rows.push(`  - \`${markdownCode(filename)}\``);
       }
     }
   }
