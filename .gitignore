@@ -145,4 +145,11 @@ cores/s16/ver/*
 !cores/s16/ver/mcu_romresp/README.md
 !cores/s16/ver/mcu_romresp/gather.f
 !cores/s16/ver/mcu_romresp/test.v
+!cores/rungun/ver/
+cores/rungun/ver/*
+!cores/rungun/ver/psac_counter/
+!cores/rungun/ver/psac_counter/.simunit
+!cores/rungun/ver/psac_counter/README.md
+!cores/rungun/ver/psac_counter/gather.f
+!cores/rungun/ver/psac_counter/test.v
 !modules/jt8051/ver/vectors/tests.yaml
