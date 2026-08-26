@@ -658,6 +658,37 @@ rename_scene_file() {
     rename_ext_file "$folder" RAM
 }
 
+link_scene_folder() {
+    local corename="$1"
+    local setname="$2"
+    local scene_root="${JOTEGO:-}/scenes/$corename/$setname"
+    local scene_target
+    local current_target
+
+    if [ -z "${JOTEGO:-}" ]; then
+        echo "jtsim -s requires JOTEGO to be defined as the support-files directory" >&2
+        return 1
+    fi
+    if [ ! -d "$scene_root" ]; then
+        echo "Scene folder not found: $scene_root" >&2
+        return 1
+    fi
+    scene_target=$(realpath "$scene_root") || return 1
+
+    if [ -e scenes ] && [ ! -L scenes ]; then
+        echo "Cannot create scene link: scenes is an existing directory" >&2
+        return 1
+    fi
+    if [ -L scenes ]; then
+        current_target=$(readlink -f scenes)
+        if [ "$current_target" = "$scene_target" ]; then
+            return 0
+        fi
+        unlink scenes || return 1
+    fi
+    ln -s "$scene_target" scenes
+}
+
 rename_ext_file() {
     local folder="$1"
     local ext=$2

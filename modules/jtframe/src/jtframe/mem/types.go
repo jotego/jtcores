@@ -277,7 +277,8 @@ type SDRAMBus struct {
 	Addr       string          `yaml:"addr"`
 	Addr_width int             `yaml:"addr_width"` // Width for counting all *bytes*
 	Data_width int             `yaml:"data_width"`
-	Cache_size int             `yaml:"cache_size"`
+	Cache_size interface{}     `yaml:"cache_size"`
+	Cache_large bool
 	Rw         bool            `yaml:"rw"`
 	Dont_erase bool            `yaml:"do_not_erase"`
 	Dsn        string          `yaml:"dsn"` // optional name for dsn signal
@@ -481,7 +482,7 @@ func (bus *SDRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error
 		Addr       string          `yaml:"addr"`
 		Addr_width int             `yaml:"addr_width"`
 		Data_width int             `yaml:"data_width"`
-		Cache_size int             `yaml:"cache_size"`
+		Cache_size interface{}     `yaml:"cache_size"`
 		Rw         bool            `yaml:"rw"`
 		Dont_erase bool            `yaml:"do_not_erase"`
 		Dsn        string          `yaml:"dsn"`

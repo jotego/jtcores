@@ -1943,6 +1943,84 @@ func Test_game_sdram_template_emits_sdram_bus_latch_parameters(t *testing.T) {
 	}
 }
 
+func Test_check_banks_large_cache(t *testing.T) {
+	sample := `sdram:
+  banks:
+    - buses:
+        - { name: main, addr_width: 20, data_width: 16, cache_size: 128kB }
+        - { name: tiles, addr_width: 20, data_width: 16, cache_size: 4 }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e != nil {
+		t.Fatal(e)
+	}
+	if !cfg.SDRAM.Banks[0].Buses[0].Cache_large {
+		t.Fatal("string cache_size did not select the large cache path")
+	}
+	if cfg.SDRAM.Banks[0].Buses[0].Cache_size != 128*1024 {
+		t.Fatalf("large cache size was not converted to bytes: %#v", cfg.SDRAM.Banks[0].Buses[0].Cache_size)
+	}
+	if cfg.SDRAM.Banks[0].Buses[1].Cache_large {
+		t.Fatal("numeric cache_size must preserve the existing cache path")
+	}
+	tpl := get_game_sdram_template(t)
+	var verilog strings.Builder
+	if e := tpl.Execute(&verilog, cfg); e != nil {
+		t.Fatal(e)
+	}
+	out := verilog.String()
+	checks := []string{
+		".CACHE0_SIZE(131072)",
+		".CACHE0_LARGE(1)",
+		".SLOT0_BURSTLEN(`JTFRAME_BA0_LEN)",
+		".SLOT0_BURSTLEN(32)",
+	}
+	for _, each := range checks {
+		if !strings.Contains(out, each) {
+			t.Fatalf("generated template is missing %q\n%s", each, out)
+		}
+	}
+}
+
+func Test_check_banks_rejects_invalid_large_cache(t *testing.T) {
+	cases := []string{
+		`cache_size: 512B`,
+		`cache_size: 3kB`,
+		`cache_size: 256kB`,
+		`cache_size: 1kB
+          rw: true`,
+		`cache_size: true`,
+	}
+	for _, item := range cases {
+		sample := "sdram:\n  banks:\n    - buses:\n        - name: main\n          addr_width: 20\n          data_width: 16\n          " + item + "\n"
+		var cfg MemConfig
+		if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
+			t.Fatal(e)
+		}
+		macros.MakeFromMap(nil)
+		if e := cfg.check_sdram(); e == nil {
+			t.Fatalf("invalid cache configuration was accepted: %s", item)
+		}
+	}
+	limited_bus := `sdram:
+  banks:
+    - buses:
+        - { name: main, addr_width: 13, data_width: 16, cache_size: 2kB }
+`
+	var cfg MemConfig
+	if e := yaml.Unmarshal([]byte(limited_bus), &cfg); e != nil {
+		t.Fatal(e)
+	}
+	macros.MakeFromMap(nil)
+	if e := cfg.check_sdram(); e == nil {
+		t.Fatal("cache larger than one eighth of the address space was accepted")
+	}
+}
+
 func Test_mem_ports_template_emits_cache_write_ports(t *testing.T) {
 	sample := `sdram:
   cache-lanes:

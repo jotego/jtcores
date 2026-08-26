@@ -8,7 +8,6 @@ gng:
   - get:
     - jtgng_video.v
     - jtgng_video.yaml
-    - jtgng_sound.yaml
     - jtgng_dual_ram.v
 jtframe:
   - from: clocking
@@ -27,4 +26,5 @@ jtframe:
 jt12:
   - get:
     - jt89.yaml
+    - jt49.yaml
     - jt12_rst.v

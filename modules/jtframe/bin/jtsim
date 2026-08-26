@@ -28,6 +28,8 @@ SIM_MS=1
 SIMARGS="-f core.def -f filtered.f"
 SIMULATOR=verilator
 SETNAME=
+SCENE=
+SCENE_ARG=
 SKIPROM=
 ROMLESS=
 DUMMYROM=
@@ -199,20 +201,11 @@ case "$1" in
         SETNAME=$1;;
     -s|-scene)
         shift
-        rename_scene_file "$1"
-        SCENE="$1/dump.bin"
-        if [ ! -e "$SCENE" ]; then
-            SCENE="scenes/$SCENE"
-        fi
-        if [[ -e "$SCENE" && -x ../game/dump2bin.sh ]]; then
-            ../game/dump2bin.sh "$SCENE" 2> /dev/null || exit 1
-            add_macro NOMAIN NOSOUND DUMP DUMP_VIDEO MAXFRAME=3 SIMSCENE
-            rm -rf video.bin frame_*.jpg frame_*.png frame.raw frames
-            VIDEO_DUMP=TRUE
-        else
-            echo "Scene file $SCENE or dump2bin.sh were not found"
+        if [ -z "${JOTEGO:-}" ]; then
+            echo "jtsim -s requires JOTEGO to be defined as the support-files directory" >&2
             exit 1
         fi
+        SCENE_ARG="$1"
         ;;
     -shaup) SHAUP=1;;
     -time)
@@ -308,6 +301,24 @@ if [ "$SETNAME" = game ]; then
     else
         unset SETNAME
         echo "Specify a valid ROM set name or run jtsim from a folder in ver/setname"
+        exit 1
+    fi
+fi
+
+if [ -n "$SCENE_ARG" ]; then
+    link_scene_folder "$SYSNAME" "$SETNAME" || exit $?
+    rename_scene_file "$SCENE_ARG"
+    SCENE="$SCENE_ARG/dump.bin"
+    if [ ! -e "$SCENE" ]; then
+        SCENE="scenes/$SCENE"
+    fi
+    if [[ -e "$SCENE" && -x ../game/dump2bin.sh ]]; then
+        ../game/dump2bin.sh "$SCENE" 2> /dev/null || exit 1
+        add_macro NOMAIN NOSOUND DUMP DUMP_VIDEO MAXFRAME=3 SIMSCENE
+        rm -rf video.bin frame_*.jpg frame_*.png frame.raw frames
+        VIDEO_DUMP=TRUE
+    else
+        echo "Scene file $SCENE or dump2bin.sh were not found"
         exit 1
     fi
 fi

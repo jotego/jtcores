@@ -28,7 +28,7 @@ module jt8051_periph(
 );
 
 reg [ 7:0] p0, p1, p2, p3;
-reg [ 7:0] pcon, tcon, tmod, tl0, tl1, th0, th1, scon, sbuf, ie, ip;
+reg [ 7:0] pcon, tcon, tmod, tl0, tl1, th0, th1, scon, sbuf_rx, ie, ip;
 reg [ 3:0] osc;
 reg [ 1:0] service;
 reg [ 1:0] irq_delay;
@@ -37,7 +37,7 @@ reg        irq_vec_hold;
 reg [15:0] irq_vec_l;
 reg [ 2:0] irq_sel_l;
 reg        irq_high_l;
-reg        int0_l, int1_l, p3_4_l, p3_5_l, t0_fall, t1_fall, t1_ovf;
+reg        int0_l, int1_l, p3_4_l, p3_5_l, t1_ovf;
 wire       int0_req, t0_req, int1_req, t1_req, ser_req;
 wire       high_req, low_req, select_high;
 wire       t0_edge, t1_edge;
@@ -64,24 +64,19 @@ assign p3_o = {p3[7:2],p3[1]&txd,p3[0]&rxd_o};
 // them back through p3_i must still observe a low external interrupt pin
 // when firmware polls P3.
 assign p3_pin_i = p3_i & {4'hf,int1n,int0n,2'b11};
-assign int0_req = ie[7] && ie[0] && (tcon[0] ? tcon[1] : !int0n);
+assign int0_req = ie[7] && ie[0] && (tcon[0] ? tcon[1] : !int0_l);
 assign t0_req   = ie[7] && ie[1] && tcon[5];
-assign int1_req = ie[7] && ie[2] && (tcon[2] ? tcon[3] : !int1n);
+assign int1_req = ie[7] && ie[2] && (tcon[2] ? tcon[3] : !int1_l);
 assign t1_req   = ie[7] && ie[3] && tcon[7];
 assign ser_req  = ie[7] && ie[4] && (scon[0] || scon[1]);
 assign high_req = (int0_req&&ip[0]) || (t0_req&&ip[1]) ||
                   (int1_req&&ip[2]) || (t1_req&&ip[3]) || (ser_req&&ip[4]);
 assign low_req  = (int0_req&&!ip[0]) || (t0_req&&!ip[1]) ||
                   (int1_req&&!ip[2]) || (t1_req&&!ip[3]) || (ser_req&&!ip[4]);
-// The original MCS-51 executes one complete instruction after RETI or a
-// write to IE/IP before it samples another interrupt request.
 assign irq      = irq_delay==0 && (service==0 ? (high_req || low_req) : service==1 && high_req);
 assign select_high = high_req && service!=2;
-assign t0_edge  = t0_fall | (p3_4_l && !p3_i[4]);
-assign t1_edge  = t1_fall | (p3_5_l && !p3_i[5]);
-// An edge-triggered request is cleared when the CPU acknowledges it.  Keep
-// the selected vector through the following ISR micro-operations instead of
-// recomputing it from that now-cleared request.
+assign t0_edge  = p3_4_l && !p3_i[4];
+assign t1_edge  = p3_5_l && !p3_i[5];
 assign irq_vec = irq ? irq_vec_now : (irq_vec_hold ? irq_vec_l : irq_vec_now);
 
 always @* begin
@@ -115,7 +110,7 @@ always @* begin
         8'h8d: sfr_dout = th1;
         8'h90: sfr_dout = latch_read ? p1 : p1 & p1_i;
         8'h98: sfr_dout = scon;
-        8'h99: sfr_dout = sbuf;
+        8'h99: sfr_dout = sbuf_rx;
         8'ha0: sfr_dout = latch_read ? p2 : p2 & p2_i;
         8'ha8: sfr_dout = ie;
         8'hb0: sfr_dout = latch_read ? p3 : p3 & p3_pin_i;
@@ -172,24 +167,20 @@ always @(posedge clk) begin
     if (rst) begin
         p0<=8'hff; p1<=8'hff; p2<=8'hff; p3<=8'hff;
         pcon<=0; tcon<=0; tmod<=0; tl0<=0; tl1<=0; th0<=0; th1<=0;
-        scon<=0; sbuf<=0; ie<=0; ip<=0; osc<=0; service<=0; service_low<=0; irq_delay<=0;
+        scon<=0; sbuf_rx<=0; ie<=0; ip<=0; osc<=0; service<=0; service_low<=0; irq_delay<=0;
         irq_vec_hold<=0; irq_vec_l<=16'h0023; irq_sel_l<=SER_IRQ; irq_high_l<=0;
-        int0_l<=1; int1_l<=1; p3_4_l<=1; p3_5_l<=1; t0_fall<=0; t1_fall<=0; t1_ovf<=0;
+        int0_l<=1; int1_l<=1; p3_4_l<=1; p3_5_l<=1; t1_ovf<=0;
     end else if (cen) begin
         // Timers advance once per 12 oscillator periods.  Do not let this
         // become a natural 4-bit (16-period) rollover: firmware relies on
         // the original 8051 machine-cycle cadence.
         osc     <= osc==4'd11 ? 4'd0 : osc+1'd1;
-        int0_l  <= int0n;
-        int1_l  <= int1n;
-        p3_4_l  <= p3_i[4];
-        p3_5_l  <= p3_i[5];
         t1_ovf  <= 1'b0;
-        if (p3_4_l && !p3_i[4]) t0_fall <= 1'b1;
-        if (p3_5_l && !p3_i[5]) t1_fall <= 1'b1;
-        if (tcon[0] && int0_l && !int0n) tcon[1] <= 1'b1;
-        if (tcon[2] && int1_l && !int1n) tcon[3] <= 1'b1;
         if (osc==11) begin
+            if (tcon[0] && int0_l && !int0n) tcon[1] <= 1'b1;
+            if (tcon[2] && int1_l && !int1n) tcon[3] <= 1'b1;
+            int0_l <= int0n;
+            int1_l <= int1n;
             if (tmod[1:0]==2'b11) begin
                 tick_split0;
                 tick1(1'b1,1'b1);
@@ -197,12 +188,9 @@ always @(posedge clk) begin
                 tick0;
                 tick1(1'b0,1'b0);
             end
-            t0_fall <= 1'b0;
-            t1_fall <= 1'b0;
+            p3_4_l <= p3_i[4];
+            p3_5_l <= p3_i[5];
         end
-        // The controller consumes a request one cen after observing it.
-        // Preserve the selected source during that interval: a short edge
-        // may disappear, or a higher-priority request may arrive, before NI.
         if (irq) begin
             irq_vec_l  <= irq_vec_now;
             irq_sel_l  <= irq_sel_now;
@@ -230,16 +218,16 @@ always @(posedge clk) begin
         if (reti || (sfr_we && (sfr_addr==8'ha8 || sfr_addr==8'hb8))) irq_delay <= 2'd2;
         if (ti_set) scon[1] <= 1'b1;
         if (rx_valid) begin
-            sbuf    <= rx_data;
+            sbuf_rx <= rx_data;
             scon[2] <= rx_rb8;
             if (ri_set) scon[0] <= 1'b1;
         end
         if (sfr_we) case (sfr_addr)
-            8'h80: p0<=sfr_din; 8'h87: pcon<=sfr_din; 8'h88: tcon<=sfr_din;
+            8'h80: p0<=sfr_din; 8'h87: pcon<={sfr_din[7],3'b000,sfr_din[3:2],2'b00}; 8'h88: tcon<=sfr_din;
             8'h89: tmod<=sfr_din; 8'h8a: tl0<=sfr_din; 8'h8b: tl1<=sfr_din;
             8'h8c: th0<=sfr_din; 8'h8d: th1<=sfr_din; 8'h90: p1<=sfr_din;
-            8'h98: scon<=sfr_din; 8'h99: sbuf<=sfr_din; 8'ha0: p2<=sfr_din;
-            8'ha8: ie<=sfr_din; 8'hb0: p3<=sfr_din; 8'hb8: ip<=sfr_din;
+            8'h98: scon<=sfr_din; 8'h99: ; 8'ha0: p2<=sfr_din;
+            8'ha8: ie<={sfr_din[7],2'b00,sfr_din[4:0]}; 8'hb0: p3<=sfr_din; 8'hb8: ip<={3'b000,sfr_din[4:0]};
             default: ;
         endcase
     end

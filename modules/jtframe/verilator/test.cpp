@@ -44,6 +44,10 @@
     #define _JTFRAME_HEADER 0
 #endif
 
+#ifndef _JTFRAME_PROM_START
+    #define _JTFRAME_PROM_START -1
+#endif
+
 using namespace std;
 
 #ifndef _JTFRAME_SIM_DIPS
@@ -338,8 +342,11 @@ class Download {
     int iodump_ticks = 0;
     int zeroat = 0;
     int len = 0;
+    int rom_len = 0;
     int cart_start = 0;
     int nvram_start = 0;
+    int quick_first_len = 0;
+    int quick_tail_start = -1;
     char *buf = nullptr;
     char *iodin = nullptr;
     bool done = false;
@@ -362,7 +369,7 @@ public:
         }
         fin.seekg( 0, ios_base::end );
         len = (int)fin.tellg();
-        int rom_len = len;
+        rom_len = len;
         if( len <= 0 || !fin ) {
             fputs("Verilator test.cpp: cannot open file rom.bin\n",stderr);
         } else {
@@ -421,12 +428,23 @@ public:
         full_download = download;
         if( !full_download ) {
             const int header_len = _JTFRAME_HEADER > 32 ? _JTFRAME_HEADER : 32;
-            if ( len > header_len ) {
-                fprintf(stderr, "ROM download shortened to %d bytes.\n", header_len);
+            quick_first_len = rom_len < header_len ? rom_len : header_len;
+            quick_tail_start = -1;
+            if ( rom_len > header_len ) {
+                const int prom_raw_start = _JTFRAME_HEADER + _JTFRAME_PROM_START;
+                if( _JTFRAME_PROM_START >= 0 && prom_raw_start < rom_len ) {
+                    len = rom_len;
+                    if( prom_raw_start > quick_first_len ) quick_tail_start = prom_raw_start;
+                    fprintf(stderr, "ROM download shortened to %d header bytes plus PROM tail from %x.\n",
+                        quick_first_len, prom_raw_start);
+                } else {
+                    len = quick_first_len;
+                    fprintf(stderr, "ROM download shortened to %d bytes.\n", quick_first_len);
+                }
                 if( nvram ) fputs("Warning: skipping transfer of nvram.bin.\n",stderr);
-                len=header_len;
             } else {
                 fputs("Short ROM download\n",stderr);
+                len = quick_first_len;
             }
         }
         ticks = 0; zeroat = 0;
@@ -457,6 +475,9 @@ public:
             switch( ticks & STEP ) {
                 case 0:
                     addr++;
+                    if( !full_download && quick_tail_start >= 0 && addr == quick_first_len ) {
+                        addr = quick_tail_start;
+                    }
                     dut.ioctl_addr = addr;
 #ifdef _JTFRAME_CART_OFFSET
                     if( cart && addr>=cart_start ) {
@@ -584,6 +605,8 @@ class JTSim {
     bool dump_ok = false;
     bool download = false;
     bool explicit_video_limit = false;
+    bool release_reset_pending = false;
+    int  release_reset_wait = 0;
     vluint64_t last_frame_time = 0;
     HarnessOptions options;
     VerilatedVcdC* tracer = nullptr;
@@ -641,6 +664,7 @@ class JTSim {
         }
     }
     void reset(int r);
+    void release_reset_after_download();
     void report_flip_changes() {
         if( !game.rst ) {
             if( last_flip != game.dip_flip ) fputs("\ndip_flip toggled\n", stderr);
@@ -672,6 +696,18 @@ void JTSim::reset( int v ) {
     game.rst96 = v;
 #endif
     game.rst24 = v;
+}
+
+void JTSim::release_reset_after_download() {
+    if( !release_reset_pending ) return;
+    if( release_reset_wait > 0 ) {
+        release_reset_wait--;
+        return;
+    }
+    if( !game.ioctl_rom && !game.ioctl_ram && !game.dwnld_busy ) {
+        release_reset_pending = false;
+        reset(0);
+    }
 }
 
 JTSim::JTSim( UUT& g, int argc, char *argv[]) :
@@ -814,8 +850,10 @@ void JTSim::clock(int n) {
                 sdram2.dump();
 #endif
             }
-            reset(0);
+            release_reset_pending = true;
+            release_reset_wait = 1;
         }
+        release_reset_after_download();
 #ifdef _RST_DLY
         reset( simtime < RST_DLY*1000'000L ? 1 : 0);
 #endif
