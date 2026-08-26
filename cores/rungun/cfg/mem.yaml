@@ -48,6 +48,7 @@ sdram:
         - name: scr
           addr_width: 21
           data_width:  8
+          cache_size: 1kB
         - name: fix
           addr_width: 17
           data_width: 32

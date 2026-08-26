@@ -43,10 +43,12 @@ wire [SDRAMW-CACHE_AW:0] tag;
 wire               hit, cache_data_match;
 wire               fill_write;
 wire               fill_done;
-reg                hit_l, fill_ok, filling, receiving;
+reg                hit_l, fill_ok, filling, receiving, req_pending;
 reg [ 1:0]         fill_beat;
 reg [LINE_INDEX_AW-1:0] read_line_l;
 reg [SDRAMW-CACHE_AW:0] read_tag_l;
+reg [LINE_INDEX_AW-1:0] req_line;
+reg [SDRAMW-CACHE_AW:0] req_tag;
 reg [LINE_INDEX_AW-1:0] fill_line;
 reg [SDRAMW-CACHE_AW:0] fill_tag;
 reg [CACHE_LINES-1:0] valid;
@@ -130,9 +132,12 @@ always @(posedge clk) begin
         fill_ok   <= 0;
         filling   <= 0;
         receiving <= 0;
+        req_pending <= 0;
         fill_beat <= 0;
         read_line_l <= 0;
         read_tag_l  <= 0;
+        req_line  <= 0;
+        req_tag   <= 0;
         fill_line <= 0;
         fill_tag  <= 0;
         fill_data <= 0;
@@ -142,12 +147,19 @@ always @(posedge clk) begin
         fill_ok <= fill_done;
         read_line_l <= line_index;
         read_tag_l  <= tag;
+        // A slot may select this request after the client changes address.
+        if( req && !req_pending ) begin
+            req_pending <= 1;
+            req_line    <= line_index;
+            req_tag     <= tag;
+        end
         if( clr ) valid <= 0;
         if( we && !filling ) begin
             filling   <= 1;
             fill_beat <= 0;
-            fill_line <= line_index;
-            fill_tag  <= tag;
+            fill_line <= req_line;
+            fill_tag  <= req_tag;
+            req_pending <= 0;
         end
         if( fill_write ) begin
             fill_data <= nx_fill_data;
