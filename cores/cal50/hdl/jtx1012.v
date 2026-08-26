@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 21-2-2026 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 21-2-2026 */
 
 // X1-012, tilemap currently based on MAME information
 // 64 columns, 32 rows, 16x16 tiles
@@ -71,7 +57,7 @@ assign rom_addr = {pre_addr[20:7],pre_addr[5],~flip^pre_addr[6],
 };
 
 always @(posedge clk) begin
-    hpos <= pre_hpos+hoffs;
+    hpos <= flip ? pre_hpos + 16'h20 : 16'h1e1 - pre_hpos;
 end
 
 
@@ -125,7 +111,9 @@ jtframe_scroll #(
     .MAP_HW ( 10    ),
     .MAP_VW (  9    ),
     .HJUMP  (  0    ),
-    .HLOOP  ( 9'h180)
+    .HLOOP  ( 9'h180),
+    .FLIP_HW(  9    ),
+    .FLIP_VW(  9    )
 )u_scroll(
     .rst        ( rst           ),
     .clk        ( clk           ),

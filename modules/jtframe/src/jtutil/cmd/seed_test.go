@@ -240,6 +240,50 @@ func Test_worst_sta_slack(t *testing.T) {
 	}
 }
 
+func Test_read_seed_stats_parses_legacy_and_alm_reports(t *testing.T) {
+	builddir := t.TempDir()
+	legacy := "; Total logic elements ; 20,382 / 119,088 ( 17 % )\n; M9Ks ; 81 / 432 ( 19 % )\n"
+	e := os.WriteFile(filepath.Join(builddir, "legacy.fit.rpt"), []byte(legacy), 0644)
+	if e != nil {
+		t.Fatal(e)
+	}
+	e = os.WriteFile(filepath.Join(builddir, "legacy.sta.rpt"), []byte("Info: Worst-case setup slack is 1.845\n"), 0644)
+	if e != nil {
+		t.Fatal(e)
+	}
+	stats, e := read_seed_stats(builddir)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if stats.le != "17%" || stats.bram != "19%" || stats.free_bram != 351 {
+		t.Fatalf("unexpected legacy stats: %#v", stats)
+	}
+	e = os.Remove(filepath.Join(builddir, "legacy.fit.rpt"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	e = os.Remove(filepath.Join(builddir, "legacy.sta.rpt"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	modern := "; Logic utilization (in ALMs) ; 17,277 / 41,910 ( 41 % )\n; Total RAM Blocks ; 458 / 553 ( 83 % )\n"
+	e = os.WriteFile(filepath.Join(builddir, "modern.fit.rpt"), []byte(modern), 0644)
+	if e != nil {
+		t.Fatal(e)
+	}
+	e = os.WriteFile(filepath.Join(builddir, "modern.sta.rpt"), []byte("Info: Worst-case setup slack is -0.362\n"), 0644)
+	if e != nil {
+		t.Fatal(e)
+	}
+	stats, e = read_seed_stats(builddir)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if stats.sta != "-0.362ns" || stats.le != "41%" || stats.bram != "83%" || stats.free_bram != 95 {
+		t.Fatalf("unexpected modern stats: %#v", stats)
+	}
+}
+
 func Test_seed_release_info_paths(t *testing.T) {
 	root := t.TempDir()
 	t.Setenv("JTROOT", root)
@@ -560,13 +604,17 @@ func Test_copy_if_best_updates_release(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
+	write_seed_fit_report(t, filepath.Join(builddir, "output_files", "jtgng.fit.rpt"))
 	release_cfg := &seed_config{jtcore_args: []string{"gng", "--target", "mister"}}
 	info, e := release_cfg.release_info()
 	if e != nil {
 		t.Fatal(e)
 	}
 	cfg := &seed_config{jtcore_args: []string{"gng", "--target", "mister"}, release: info}
-	msg := cfg.copy_if_best(seed_job{output: output, builddir: builddir}, "-0.5")
+	msg, e := cfg.copy_if_best(seed_job{output: output, builddir: builddir}, "-0.5")
+	if e != nil {
+		t.Fatal(e)
+	}
 	if !strings.Contains(msg, "copied") {
 		t.Fatalf("expected copy message, got %q", msg)
 	}
@@ -578,11 +626,22 @@ func Test_copy_if_best_updates_release(t *testing.T) {
 	if string(data) != "first" {
 		t.Fatalf("unexpected copied data: %q", data)
 	}
+	stats, e := os.ReadFile(filepath.Join(root, "release", "mister", "jtgng.yml"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	expected_stats := "- core: jtgng\n  target: mister\n  sta: -0.500ns\n  LE: 41%\n  BRAM: 83%\n  Free-BRAM: 95\n"
+	if string(stats) != expected_stats {
+		t.Fatalf("unexpected stats:\n%s", stats)
+	}
 	e = os.WriteFile(src, []byte("worse"), 0644)
 	if e != nil {
 		t.Fatal(e)
 	}
-	msg = cfg.copy_if_best(seed_job{output: output, builddir: builddir}, "-1.0")
+	msg, e = cfg.copy_if_best(seed_job{output: output, builddir: builddir}, "-1.0")
+	if e != nil {
+		t.Fatal(e)
+	}
 	if msg != "" {
 		t.Fatalf("worse slack should not copy, got %q", msg)
 	}
@@ -597,7 +656,14 @@ func Test_copy_if_best_updates_release(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	msg = cfg.copy_if_best(seed_job{output: output, builddir: builddir}, "0.1")
+	e = os.WriteFile(filepath.Join(builddir, "output_files", "jtgng.sta.rpt"), []byte("Info: Worst-case setup slack is 0.100\n"), 0644)
+	if e != nil {
+		t.Fatal(e)
+	}
+	msg, e = cfg.copy_if_best(seed_job{output: output, builddir: builddir}, "0.1")
+	if e != nil {
+		t.Fatal(e)
+	}
 	if !strings.Contains(msg, "copied") {
 		t.Fatalf("better slack should copy, got %q", msg)
 	}
@@ -607,6 +673,13 @@ func Test_copy_if_best_updates_release(t *testing.T) {
 	}
 	if string(data) != "better" {
 		t.Fatalf("better result was not copied: %q", data)
+	}
+	stats, e = os.ReadFile(filepath.Join(root, "release", "mister", "jtgng.yml"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	if !strings.Contains(string(stats), "  sta: 0.100ns\n") {
+		t.Fatalf("better result did not update stats:\n%s", stats)
 	}
 }
 
@@ -723,6 +796,9 @@ done
 echo $((count+1)) > "$count_file"
 mkdir -p "$out"
 echo fake-rbf > "$out/jtgng.rbf"
+echo '; Total logic elements ; 10,000 / 20,000 ( 50 % )' > "$out/jtgng.fit.rpt"
+echo '; M9Ks ; 20 / 40 ( 50 % )' >> "$out/jtgng.fit.rpt"
+echo "Worst-case setup slack is ` + slack + `" > "$out/jtgng.sta.rpt"
 echo "Worst-case setup slack is ` + slack + `"
 if [ "$code" = 0 ]; then
     echo PASS
@@ -736,6 +812,20 @@ exit $code
 		t.Fatal(e)
 	}
 	t.Setenv("PATH", tmp+":"+os.Getenv("PATH"))
+}
+
+func write_seed_fit_report(t *testing.T, fname string) {
+	t.Helper()
+	text := "; Logic utilization (in ALMs) ; 17,277 / 41,910 ( 41 % )\n; Total RAM Blocks ; 458 / 553 ( 83 % )\n"
+	e := os.WriteFile(fname, []byte(text), 0644)
+	if e != nil {
+		t.Fatal(e)
+	}
+	sta := strings.TrimSuffix(fname, ".fit.rpt") + ".sta.rpt"
+	e = os.WriteFile(sta, []byte("Info: Worst-case setup slack is -0.500\n"), 0644)
+	if e != nil {
+		t.Fatal(e)
+	}
 }
 
 func install_fake_jtcore_error(t *testing.T, line string) {

@@ -1,29 +1,9 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 02-5-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 02-5-2020 */
 
 // Produces the right signals for jtframe_sdram to get the ROM data
 // A prom_we signal is used for the second half of the ROM byte stream
-
-// For system simulation, it is useful sometimes to be able to load the
-// PROM data quickly at the beginning of the simulation. If the PROM
-// modules are isolated, this can be done manually typing the path to
-// each rom file in the jtframe_prom instantiation. However, sometimes
-// the hierarchy will not allow it or the code may get messy.
 
 /* verilator lint_off WIDTH */
 module jtframe_dwnld #(
@@ -113,11 +93,6 @@ always @(*) begin
     if( gfx16c_en ) part_addr[GFX16B0+:5] = { nohdr_addr[GFX16B0+:4], nohdr_addr[GFX16B0+4+:1] }; //  HVVVV -> VVVVH
 end
 
-`ifdef SIMULATION `ifdef JTFRAME_PROM_START `ifndef LOADROM
-    `define SIM_LOAD_PROM
-`endif `endif `endif
-
-`ifndef SIM_LOAD_PROM
 /////////////////////////////////////////////////
 // Normal operation
 reg  [ 2:0] bank;
@@ -279,64 +254,5 @@ always @(posedge clk) begin
         end
     end
 end
-
-`else
-////////////////////////////////////////////////////////
-// Load only PROMs directly from file in simulation
-/* verilator lint_off WIDTH */
-
-parameter [31:0] GAME_ROM_LEN = `GAME_ROM_LEN;
-
-integer          f, readcnt, dumpcnt;
-reg       [ 7:0] mem[0:`GAME_ROM_LEN];
-
-initial prog_ba=0;
-
-// This is only executed if JTFRAME_PROM_START was defined
-initial begin
-    dumpcnt = PROM_START+HEADER;
-    if( SIMFILE != "" && (PROM_EN||BALUT==1) ) begin
-        f=$fopen(SIMFILE,"rb");
-        if( f != 0 ) begin
-            readcnt=$fread( mem, f );
-            $display("INFO: PROM download: %6X bytes loaded from file (%s)", readcnt, SIMFILE);
-            $fclose(f);
-            if( BALUT==1 ) begin
-                dumpcnt=header_offset({mem[9],mem[8]});
-            end
-            if( dumpcnt >= readcnt ) begin
-                $display("WARNING: PROM_START (%X) is set beyond the end of the file (%X)", PROM_START, dumpcnt);
-                $display("         GAME_ROM_LEN=%X",GAME_ROM_LEN);
-            end else begin
-                $display("INFO: fast PROM download from %X to %X", dumpcnt, GAME_ROM_LEN);
-            end
-        end else begin
-            $display("WARNING: %m cannot open %s", SIMFILE);
-            dumpcnt = GAME_ROM_LEN; // stop the download process
-        end
-    end else begin
-        $display("INFO: PROM download skipped because PROM_START was not defined.");
-    end
-end
-
-// The PROM starts ioctl_rom after the header section is over
-reg start_ok=0;
-initial prog_we=0;
-
-always @(posedge clk) begin
-    if( ioctl_rom ) start_ok<=1;
-    if( dumpcnt < GAME_ROM_LEN && start_ok && !header) begin
-        prom_we   <= 1;
-        prog_we   <= 0;
-        prog_mask <= 2'b11;
-        data_out  <= mem[dumpcnt];
-        prog_addr <= dumpcnt[SDRAMW-2:0]-HEADER;
-        dumpcnt   <= dumpcnt+1;
-    end else begin
-        prom_we <= 0;
-    end
-end
-/* verilator lint_on WIDTH */
-`endif
 
 endmodule

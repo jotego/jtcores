@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 15-12-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-12-2022 */
 
 
 // Generic tile map generator with scroll
@@ -39,7 +25,9 @@ module jtframe_scroll #( parameter
     HJUMP     = 1, // set to 0 for linear hdump starting at zero after HB
     HLOOP      = 0, // see jtframe_scroll_offset
     COL_SCROLL = 0, // set to 1 to enable 8-pixel column scroll
-    LATCH_SCRX = 0  // set to 1 to latch scrx while hs is high
+    LATCH_SCRX = 0, // set to 1 to latch scrx while hs is high
+    FLIP_HW    = 8, // hdump bits inverted by flip
+    FLIP_VW    = 8  // vdump bits inverted by flip
 )(
     input              rst,
     input              clk,
@@ -83,7 +71,9 @@ jtframe_scroll_offset #(
     .VDUMPW     ( VDUMPW    ),
     .HLOOP      ( HLOOP      ),
     .COL_SCROLL ( COL_SCROLL ),
-    .LATCH_SCRX ( LATCH_SCRX )
+    .LATCH_SCRX ( LATCH_SCRX ),
+    .FLIP_HW    ( FLIP_HW    ),
+    .FLIP_VW    ( FLIP_VW    )
 ) u_offset(
     .clk        ( clk       ),
     .flip       ( flip      ),

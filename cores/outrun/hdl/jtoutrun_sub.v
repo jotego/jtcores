@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 9-7-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 9-7-2022 */
 
 module jtoutrun_sub(
     input              rst,
@@ -32,6 +18,7 @@ module jtoutrun_sub(
     input      [15:0]  road_dout,
     output reg [15:0]  sub_din,     // bus output to sub CPU
     output             sub_ok,
+    output             sub_bsy,
 
     // sub CPU bus
     output     [15:0]  cpu_dout,
@@ -88,6 +75,7 @@ assign VPAn     = ~(~ASn & ~inta_n); // autovector
 assign sub_ok   = ~BGACKnl & ~bus_busy; // for
 assign BUSn     = LDSn & UDSn;
 assign sub_addr = A[18:1];
+assign sub_bsy  = sub_br & BGn & BGACKn;
 
 // memory map
 always @(posedge clk, posedge rst) begin

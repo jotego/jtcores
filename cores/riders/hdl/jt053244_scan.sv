@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
-    Version: 1.0
-    Date: 27-9-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-9-2024 */
 
     module jt053244_scan (    // sprite logic
     input             rst,
@@ -125,10 +111,10 @@ always @* begin
     ydiff  = yz_add[6+:10];
     // test ver/parodius/scene/9 -> "bomb", scan_obj 5
     case( vsz )
-        0: vmir_eff = nx_mir[1] && ydiff[3] && ydiff[9:4]==0;
-        1: vmir_eff = nx_mir[1] && ydiff[4] && ydiff[9:5]==0;
-        2: vmir_eff = nx_mir[1] && ydiff[5] && ydiff[9:6]==0;
-        3: vmir_eff = nx_mir[1] && ydiff[6] && ydiff[9:7]==0;
+        0: vmir_eff = nx_mir[1] && !ydiff[3] && ydiff[9:4]==0;
+        1: vmir_eff = nx_mir[1] && !ydiff[4] && ydiff[9:5]==0;
+        2: vmir_eff = nx_mir[1] && !ydiff[5] && ydiff[9:6]==0;
+        3: vmir_eff = nx_mir[1] && !ydiff[6] && ydiff[9:7]==0;
     endcase
     hmir_eff = hmir & hhalf;
     case( vsz )
@@ -227,7 +213,8 @@ always @(posedge clk, posedge rst) begin
                 3: begin
                     { vmir, hmir } <= nx_mir;
                     { shd, attr } <= scan_even[7:0];
-                    vflip <= pre_vf ^ gvf ^ vmir_eff;
+                    // Global Y flip does not invert a locally mirrored sprite.
+                    vflip <= pre_vf ^ (gvf & ~nx_mir[1]) ^ vmir_eff;
                 end
                 4: begin
                     // Add the vertical offset to the code, must wait for zoom

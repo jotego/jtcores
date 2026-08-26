@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 16-7-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 16-7-2022 */
 
 // This module represents the 315-5218
 // Clock input 16.000MHz on pin 80
@@ -55,12 +41,14 @@ wire        we = cpu_cs & ~cpu_rnw;
 reg  [ 3:0] st;
 wire [ 2:0] bank;
 wire [ 7:0] cfg_data;
+wire [ 8:0] cfg_ram_addr;
 reg  [ 3:0] cur_ch;
 reg  [ 4:0] cfg_addr;
 reg  [15:0] active;     // high for active channels, debug only
 reg  [ 7:0] cfg_en;
 reg  [ 7:0] delta, cfg_din;
 reg         cfg_we, was_enb;
+wire        cfg_cpu_collision, cfg_ram_we;
 
 reg  [23: 0] cur_addr;
 reg  [23: 8] loop_addr;
@@ -75,6 +63,9 @@ reg  signed [WD-1:0] mul_clip, buf_r;
 
 assign bank     = cfg_en[6:4];
 assign pcm_data = rom_data - 8'h80;
+assign cfg_ram_addr       = { cfg_addr[4:3], cur_ch, cfg_addr[2:0] };
+assign cfg_cpu_collision  = we && !cfg_ram_addr[8] && cpu_addr == cfg_ram_addr[7:0];
+assign cfg_ram_we         = cfg_we & ~cfg_cpu_collision;
 
 // only AW=8 is needed for the CPU. Using AW=9
 // to store the scratch value for lower
@@ -93,8 +84,8 @@ jtframe_dual_ram #(.AW(9),.SIMHEXFILE(SIMHEXFILE)) u_ram(
     // Port 1
     .clk1   ( clk       ),
     .data1  ( cfg_din   ),
-    .addr1  ( { cfg_addr[4:3], cur_ch, cfg_addr[2:0] } ),
-    .we1    ( cfg_we    ),
+    .addr1  ( cfg_ram_addr ),
+    .we1    ( cfg_ram_we   ),
     .q1     ( cfg_data  )
 );
 

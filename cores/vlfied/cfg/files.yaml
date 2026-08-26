@@ -1,0 +1,41 @@
+vlfied:
+  - get:
+    - jtvlfied_game.v
+    - jtvlfied_main.v
+    - jtvlfied_snd.v
+    - jtvlfied_video.v
+    - jtvlfied_fb.v
+    - jtvlfied_colmix.v
+    - jtvlfied_cchip.v
+rastan:
+  - get:
+    - jtrastan_pc060.v   # PC060HA main<->sound comm
+    - jtrastan_obj.v     # PC090OJ sprites
+jttc0030cmd:
+jtframe:
+  - get:
+    - jtframe_8bit_reg.v
+    - jtframe_edge.v
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+      - jtframe_dual_nvram.v
+      - jtframe_dual_ram16.v
+      - jtframe_dual_nvram16.v
+      - jtframe_rpwp_ram.v
+  - from: clocking
+    get:
+      - jtframe_sync.v
+  - from: video
+    get:
+      - jtframe_obj.yaml
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_linebuf.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_m68k.yaml
+jt12:
+  - get:
+    - jt03.yaml

@@ -2,6 +2,25 @@ params:
   - { name: SCR_OFFSET,  value: "(`SCR_START-`JTFRAME_BA1_START)>>1" }
   - { name: SND2_OFFSET, value: "(`SND2_START-`JTFRAME_BA2_START)>>1" }
   - { name: OBJ_OFFSET,  value: "(`OBJ_START-`JTFRAME_BA3_START)>>1" }
+clocks:
+  clk:
+    - name: sprites
+      freq: 8MHz
+      outputs:
+        - video_cen8
+    - name: other
+      freq: 3MHz
+      outputs:
+        - cen3
+        - mcu_cen
+    - name: fm
+      freq: 3579545
+      outputs:
+        - cenfm
+    - name: pcm
+      freq: 384k
+      outputs:
+        - cenp384
 audio:
   missing_info: true
   channels:
@@ -19,6 +38,7 @@ sdram:
       - name: main
         addr_width: 18
         data_width: 16
+        cache_size: 1kB
     - buses:
       - name: map
         addr_width: 15

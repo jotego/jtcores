@@ -15,7 +15,6 @@ rastan:
     - jtopwolf_mix.v
     - jtrastan_pc060.v
     - jt060dca.v
-    - timing.sdc
 jtframe:
   - get:
       - jtframe_8bit_reg.v

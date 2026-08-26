@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-7-2026 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-7-2026 */
 
 module jtgae1_main (
     input              clk,
@@ -111,6 +97,8 @@ assign scroll_dsn       = cpu_dsn;
 assign BUSn             = ASn | &cpu_dsn;
 assign VPAn             = !(!ASn && FC == 3'd7 && RnW);
 assign bus_cs           = main_cs | ram_cs;
+// ST M27C2001-15XF1/M27C4001-15F1 program EPROMs use the 150 ns -15 grade.
+// Two KM62256BLS-10 SRAMs form the 16-bit work RAM; -10 is the 100 ns grade.
 wire [1:0] ok_cs, ok_in;
 assign ok_cs = { main_cs, ram_cs };
 assign ok_in = { main_data_ok, ram_ok };

@@ -1,33 +1,14 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-2-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-2-2019 */
 
 module jt1943_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
-// These signals are used by games which need
-// to read back from SDRAM during the ROM download process
-
-parameter CLK_SPEED=48;
+localparam [25:0] MCU_PROM_ADDR = `JTFRAME_PROM_START;
 
 wire [8:0] V;
-wire [8:0] H;
-wire HINIT;
 
 wire [12:0] cpu_AB;
 wire flip, char_cs;
@@ -35,34 +16,16 @@ wire [7:0] cpu_dout, chram_dout;
 wire rd;
 wire [7:0] dipsw_a, dipsw_b;
 
-wire LHBL_obj, LVBL_obj;
-wire preLHBL, preLVBL;
-
 assign {dipsw_b, dipsw_a} = dipsw[15:0];
 assign debug_view = {6'd0, dip_flip, flip};
-
-jtgng_timer u_timer(
-    .clk       ( clk      ),
-    .cen6      ( cen6     ),
-    .V         ( V        ),
-    .H         ( H        ),
-    .Hinit     ( HINIT    ),
-    .LHBL      ( preLHBL  ),
-    .LVBL      ( preLVBL  ),
-    .LHBL_obj  ( LHBL_obj ),
-    .LVBL_obj  ( LVBL_obj ),
-    .HS        ( HS       ),
-    .VS        ( VS       ),
-    .Vinit     (          )
-);
 
 wire wr_n, rd_n;
 // sound
 wire sres_b;
-wire [7:0] snd_latch;
+wire [7:0] snd_latch, mcu_mdin, mcu_mdout, mcu_sdin;
 wire [7:0] scrposv, main_ram;
 
-wire char_wait;
+wire char_wait, mcu_mrd, mcu_mwr, mcu_srd, mcu_cen;
 
 wire [15:0] scr1posh, scr2posh;
 
@@ -84,26 +47,16 @@ wire prom_7f_we  = prom_we && ioctl_addr[11:8]== 7;
 wire prom_7c_we  = prom_we && ioctl_addr[11:8]== 9;
 wire prom_8c_we  = prom_we && ioctl_addr[11:8]==10;
 wire prom_6l_we  = prom_we && ioctl_addr[11:8]==11;
-
-reg video_flip;
-
-always @(posedge clk)
-    video_flip <= dip_flip ^ flip; // Original 1943 did not have this DIP bit.
-
-// 1943 board supports three buttons, but the software only uses two
-// to perform a loop with the plane, you have to press buttons 1 and 2
-// this is hard to do.
-// The assignment below forces buttons 1 and 2 whenever button 3 is pressed
-// so the loop can be done with the 3rd button
-reg [2:0] joy1_btn;
-reg [2:0] joy2_btn;
-
-always @(posedge clk) begin
-    joy1_btn <= { {3{joystick1[6]}} & joystick1[6:4] };
-    joy2_btn <= { {3{joystick2[6]}} & joystick2[6:4] };
-end
+wire mcu_prom_we = prom_we && ioctl_addr[25:12]==MCU_PROM_ADDR[25:12];
 
 assign cpu_cen = cen6;
+
+jtframe_crossclk_cen u_mcu_cen(
+    .clk_in     ( clk       ),
+    .cen_in     ( cen6      ),
+    .clk_out    ( clk24     ),
+    .cen_out    ( mcu_cen   )
+);
 
 jt1943_main u_main(
     .rst        ( rst           ),
@@ -116,6 +69,11 @@ jt1943_main u_main(
     // sound
     .sres_b     ( sres_b        ),
     .snd_latch  ( snd_latch     ),
+    // MCU
+    .mcu_din    ( mcu_mdin      ),
+    .mcu_dout   ( mcu_mdout     ),
+    .mcu_rd     ( mcu_mrd       ),
+    .mcu_wr     ( mcu_mwr       ),
     // CHAR
     .char_dout  ( chram_dout    ),
     .cpu_dout   ( cpu_dout      ),
@@ -148,8 +106,8 @@ jt1943_main u_main(
     .cab_1p      ( cab_1p[1:0]  ),
     .coin        ( coin[1:0]    ),
     .service     ( service      ),
-    .joystick1   ( { joy1_btn, joystick1[3:0]}    ),
-    .joystick2   ( { joy2_btn, joystick2[3:0]}    ),
+    .joystick1   ( joystick1     ),
+    .joystick2   ( joystick2     ),
     // DIP switches
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       ),
@@ -186,9 +144,41 @@ jtgng_sound u_sound (
     .debug_bus      ( debug_bus  ),
     .debug_view     (            ),
     // unused
-    .mcu_sdin       ( 8'd0       ),
-    .mcu_srd        (            )
+    .mcu_sdin       ( mcu_sdin   ),
+    .mcu_srd        ( mcu_srd    )
 );
+
+`ifdef JT1943_MCU_HLE
+    assign mcu_sdin = 8'd0;
+    jt1943_security u_security(
+        .clk    ( clk       ),
+        .cen    ( cpu_cen   ),
+        .wr_n   ( 1'b0      ),
+        .cs     ( mcu_mwr   ),
+        .din    ( cpu_dout  ),
+        .dout   ( mcu_mdin  )
+    );
+`else
+    jttrojan_mcu u_mcu(
+        .rst        ( rst             ),
+        .clk_rom    ( clk             ),
+        .clk        ( clk24           ),
+        .cen        ( mcu_cen         ),
+        .LVBL       ( LVBL            ),
+        .vdump      ( V               ),
+        .mrd        ( mcu_mrd         ),
+        .mwr        ( mcu_mwr         ),
+        .to_main    ( mcu_mdin        ),
+        .from_main  ( mcu_mdout       ),
+        .srd        ( mcu_srd         ),
+        .swr        ( 1'b0            ),
+        .to_snd     ( mcu_sdin        ),
+        .from_snd   ( 8'd0            ),
+        .prog_addr  ( prog_addr[11:0] ),
+        .prom_din   ( prog_data       ),
+        .prom_we    ( mcu_prom_we     )
+    );
+`endif
 
 jt1943_video u_video(
     .rst        ( rst           ),
@@ -197,14 +187,16 @@ jt1943_video u_video(
     .pxl2_cen   ( pxl2_cen      ),
     .cen8       ( cen8          ),
     .cen3       ( cen3          ),
-    .cpu_cen    ( cpu_cen       ),
+    .cen6       ( cen6          ),
     .cpu_AB     ( cpu_AB[10:0]  ),
     .V          ( V             ),
-    .H          ( H             ),
+    .HS         ( HS            ),
+    .VS         ( VS            ),
     .rd_n       ( rd_n          ),
     .wr_n       ( wr_n          ),
     .cpu_dout   ( cpu_dout      ),
-    .flip       ( video_flip    ),
+    .flip       ( flip          ),
+    .dip_flip   ( dip_flip      ),
     // CHAR
     .char_cs    ( char_cs       ),
     .chram_dout ( chram_dout    ),
@@ -234,7 +226,6 @@ jt1943_video u_video(
     .map2_cs    ( map2_cs       ),
     // OBJ
     .OBJON      ( OBJON         ),
-    .HINIT      ( HINIT         ),
     .obj_AB     ( obj_AB        ),
     .obj_DB     ( main_ram      ),
     .obj_addr   ( obj_addr      ),
@@ -244,11 +235,6 @@ jt1943_video u_video(
     .bus_req    ( bus_req       ), // Request bus
     .bus_ack    ( bus_ack       ), // bus acknowledge
     .blcnten    ( blcnten       ), // bus line counter enable
-    // Color Mix
-    .preLHBL    ( preLHBL       ),
-    .preLVBL    ( preLVBL       ),
-    .LHBL_obj   ( LHBL_obj      ),
-    .LVBL_obj   ( LVBL_obj      ),
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),
     // PROM access

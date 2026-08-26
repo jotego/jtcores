@@ -26,6 +26,28 @@ initial begin
     #10_000_000 $finish;
 end
 
+// A CPU control write can coincide with the scanner's periodic writeback
+// of the same voice. The CPU command must take precedence so a one-shot
+// sample start is not lost.
+initial begin
+    @(negedge rst);
+    @(negedge clk);
+    force uut.st     = 4'd8;
+    force uut.cur_ch = 4'd8;
+    force uut.cfg_en = 8'h01;
+    uut.u_ram.u_ram.mem[9'h0c6] = 8'h01;
+    cpu_addr = 8'hc6;
+    cpu_dout = 8'h00;
+    cpu_cs   = 1'b1;
+    @(posedge clk);
+    #1;
+    if (uut.u_ram.u_ram.mem[9'h0c6] !== 8'h00) begin
+        $fatal(1, "PCM writeback overwrote the Z80 channel-8 start command");
+    end
+    $display("PASS: Z80 channel-8 start command wins the PCM RAM collision");
+    $finish;
+end
+
 
 always @(posedge clk) clk24 <= ~clk24;
 

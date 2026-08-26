@@ -88,6 +88,36 @@ func Test_check_macros_lf_buffer_ddrload_mister(t *testing.T) {
 	}
 }
 
+func Test_check_macros_rejects_pll_tune_and_core_osd(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"TARGET":           "mister",
+		"JTFRAME_PLL_TUNE": "1",
+		"CORE_OSD":         "ODF,Extra,Off,On;",
+		"JTFRAME_WIDTH":    "320",
+		"JTFRAME_HEIGHT":   "224",
+	})
+	if err := CheckMacros(); err == nil {
+		t.Fatal("Expected JTFRAME_PLL_TUNE with CORE_OSD to be rejected")
+	}
+}
+
+func Test_check_macros_accepts_pll_tune_with_empty_core_osd(t *testing.T) {
+	MakeFromMap(map[string]string{
+		"TARGET":             "mister",
+		"JTFRAME_LF_BUFFER":  "1",
+		"JTFRAME_LF_HW":      "9",
+		"JTFRAME_LF_VW":      "8",
+		"JTFRAME_MR_DDRLOAD": "1",
+		"JTFRAME_PLL_TUNE":   "1",
+		"CORE_OSD":           "",
+		"JTFRAME_WIDTH":      "320",
+		"JTFRAME_HEIGHT":     "224",
+	})
+	if err := CheckMacros(); err != nil {
+		t.Fatalf("Expected an empty CORE_OSD with PLL tuning to be accepted: %v", err)
+	}
+}
+
 func Test_check_macros_lf_buffer_vertical(t *testing.T) {
 	MakeFromMap(map[string]string{
 		"TARGET":            "mister",

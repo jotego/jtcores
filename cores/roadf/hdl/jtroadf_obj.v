@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 12-3-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 12-3-2022 */
 
 // This module captures the logic in
 // custom chips 083 and 502
@@ -60,6 +46,7 @@ module jtroadf_obj(
     input               obj_cs,
     input               obj_frame, // called INTST in the schematics
     input               cpu_rnw,
+    input               is_hyper,
     output        [7:0] obj_dout,
 
     // video inputs
@@ -91,7 +78,7 @@ module jtroadf_obj(
     input        [15:0] ioctl_addr
 );
 
-parameter [7:0] HOFFSET = 8'd6; // smaller numbers shift objects to the left
+parameter [7:0] HOFFSET = 8'd5; // smaller numbers shift objects to the left
 //localparam [5:0] MAXOBJ = 6'd23;
 
 wire [ 7:0] obj1_dout, obj2_dout,
@@ -103,12 +90,19 @@ reg  [ 7:0] scan_addr;  // although the DMA bus in the schematics has 8 bits
     // to zero at the beginning of each raster line
 reg  [ 9:0] eff_scan;
 wire [ 3:0] pal_data;
+reg  [ 3:0] pxl_l;
+wire [ 3:0] pre_pxl;
 
 assign obj_dout = obj_frame ? obj1_dout : obj2_dout;
 assign obj1_we  = obj_cs &  obj_frame & ~cpu_rnw;
 assign obj2_we  = obj_cs & ~obj_frame & ~cpu_rnw;
 assign scan_dout= obj_frame ? rd2_dout : rd1_dout;
 assign ioctl_din= ioctl_addr[10] ? rd2_dout : rd1_dout;
+assign pxl      = is_hyper ? pxl_l : pre_pxl;
+
+always @(posedge clk) begin
+    if(pxl_cen) pxl_l <= pre_pxl;
+end
 
 // two sprite tables
 jtframe_dual_ram #(.SIMFILE("obj_lo.bin")) u_hi(
@@ -277,7 +271,7 @@ jtkicker_objdraw #(
     .rom_data   ( rom_data  ),
     .rom_ok     ( rom_ok    ),
 
-    .pxl        ( pxl       ),
+    .pxl        ( pre_pxl   ),
     .debug_bus  ( 8'd0      )
 );
 

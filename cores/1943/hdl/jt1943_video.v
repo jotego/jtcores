@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 19-2-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 19-2-2019 */
 
 module jt1943_video #( parameter
     // Characters
@@ -50,13 +36,15 @@ module jt1943_video #( parameter
     input               pxl2_cen,
     input               cen8,
     input               cen3,
-    input               cpu_cen,
+    input               cen6,
     input       [10:0]  cpu_AB,
-    input       [ 8:0]  V,
-    input       [ 8:0]  H,
+    output      [ 8:0]  V,
+    output              HS,
+    output              VS,
     input               rd_n,
     input               wr_n,
     input               flip,
+    input               dip_flip,
     input       [ 7:0]  cpu_dout,
     // CHAR
     input               char_cs,
@@ -87,7 +75,6 @@ module jt1943_video #( parameter
     output              map2_cs,
     // OBJ
     input               OBJON,
-    input               HINIT,
     output      [OBJ_ROM_AW-1:0]  obj_addr,
     input       [15:0]  obj_data,
     input               obj_ok,
@@ -98,11 +85,6 @@ module jt1943_video #( parameter
     output              bus_req,   // Request bus
     input               bus_ack,   // bus acknowledge
     output              blcnten,   // bus line counter enable
-    // Color Mix
-    input               preLHBL,
-    input               preLVBL,
-    input               LHBL_obj,
-    input               LVBL_obj,
     output              LHBL,
     output              LVBL,
     output      [3:0]   red,
@@ -133,18 +115,41 @@ module jt1943_video #( parameter
 
 localparam SCR_OFFSET=4;
 
+wire [8:0] H;
+wire HINIT;
+wire LHBL_obj, LVBL_obj;
+wire preLHBL, preLVBL;
 wire [3:0] char_pxl;
 wire [5:0] scr1_pxl, scr2_pxl;
 wire [7:0] obj_pxl;
 reg  [8:0] hadj;
+reg        video_flip;
+
+always @(posedge clk)
+    video_flip <= dip_flip ^ flip;
 
 always @* begin
     hadj = H;
-    if( flip ) begin
+    if( video_flip ) begin
         hadj = H + 9'h8;
         if (hadj < 9'h80 ) hadj[7] = 1;
     end
 end
+
+jtgng_timer u_timer(
+    .clk       ( clk      ),
+    .cen6      ( cen6     ),
+    .V         ( V        ),
+    .H         ( H        ),
+    .Hinit     ( HINIT    ),
+    .LHBL      ( preLHBL  ),
+    .LVBL      ( preLVBL  ),
+    .LHBL_obj  ( LHBL_obj ),
+    .LVBL_obj  ( LVBL_obj ),
+    .HS        ( HS       ),
+    .VS        ( VS       ),
+    .Vinit     (          )
+);
 
 jtgng_char #(
     .HOFFSET   ( 0),
@@ -164,7 +169,7 @@ jtgng_char #(
     .AB         ( cpu_AB[10:0]  ),
     .V          ( V[7:0]        ),
     .H          ( H[7:0]        ),
-    .flip       ( flip          ),
+    .flip       ( video_flip    ),
     .din        ( cpu_dout      ),
     .dout       ( chram_dout    ),
     // Bus arbitrion
@@ -201,7 +206,7 @@ u_scroll1 (
     .hpos         ( scr1posh      ),
     .SCxON        ( SC1ON         ),
     .vpos         ( scrposv       ),
-    .flip         ( flip          ),
+    .flip         ( video_flip    ),
     // Palette PROMs
     .prog_addr    ( prog_addr      ),
     .prom_hi_we   ( prom_scr1hi_we ),
@@ -238,7 +243,7 @@ generate
             .hpos         ( scr2posh      ),
             .SCxON        ( SC2ON         ),
             .vpos         ( scrposv       ),
-            .flip         ( flip          ),
+            .flip         ( video_flip    ),
             // Palette PROMs
             .prog_addr    ( prog_addr      ),
             .prom_hi_we   ( prom_scr2hi_we ),
@@ -297,7 +302,7 @@ u_obj(
     .LVBL_obj       ( LVBL_obj      ),
     .V              ( V[7:0]        ),
     .H              ( H             ),
-    .flip           ( flip          ),
+    .flip           ( video_flip    ),
     .alt            ( 1'b0          ),
     // CPU bus
     .AB             ( {obj_AB[11:5], obj_AB[1:0]} ),

@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 10-7-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 10-7-2022 */
 
 module jtoutrun_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -61,7 +47,7 @@ reg         dec_en, dec_type,
 wire [ 7:0] key_data;
 wire [12:0] key_addr;
 
-wire        flip, video_en, sound_en, line_intn;
+wire        flip, video_en, sound_en, line_intn, sub_bsy;
 
 // Cabinet inputs
 wire [ 7:0] dipsw_a, dipsw_b;
@@ -190,6 +176,7 @@ jtoutrun_main u_main(
     .sub_cs      ( sub_br     ),
     .sub_ok      ( sub_ok     ),
     .sub_din     ( sub_din    ),
+    .sub_bsy     ( sub_bsy    ),
     .creset      ( creset     ),
     // cabinet I/O
     .ctrl_type   ( ctrl_type  ),
@@ -249,6 +236,7 @@ jtoutrun_sub u_sub(
     .sub_din    ( sub_din   ),
     .main_dout  ( main_dout ),
     .sub_ok     ( sub_ok    ),
+    .sub_bsy    ( sub_bsy   ),
     .road_dout  ( road_dout ),
 
     // sub CPU bus

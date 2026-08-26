@@ -80,7 +80,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
           token: ${{ secrets.PAT }}
@@ -102,7 +102,7 @@ jobs:
       # bind mount.
       - id: upload-log
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: log-${{ matrix.target }}-${{ matrix.core }}
           path: log
@@ -110,7 +110,7 @@ jobs:
           if-no-files-found: warn
 
       - id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-${{ matrix.target }}-${{ matrix.core }}
           path: release
