@@ -1,0 +1,7 @@
+# Regression script: boot to the title, insert a coin, start a 1P game.
+# Superman reaches the title around frame 530 with a warm SDRAM cache.
+=560
+4 coin
+40
+4 1p
+200
