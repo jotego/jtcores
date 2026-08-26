@@ -147,6 +147,7 @@ wire [16:0] ss_pxl, scene_pxl;
 wire [14:0] scene_rgb;
 wire [15:0] sprdma;
 wire        cps1_hb, cps1_vb;
+wire        cps1_lhbl_mix;
 wire        sprdma_enable,
             sprdma_go,
             sprdma_go_dma,
@@ -195,6 +196,9 @@ assign pxl_cen       = std_cen;
 assign pxl2_cen      = std2_cen;
 assign lhbl          = ~cps1_hb;
 assign lvbl          = ~cps1_vb;
+// temporary work around for colmix to prevent the first pixel after lhbl
+// from being lost
+assign cps1_lhbl_mix = cps1_hdump >= 9'd64 && cps1_hdump < 9'd448;
 assign hdump         = { 1'b0, cps1_hdump };
 assign vdump         = { 1'b0, cps1_vdump };
 
@@ -653,7 +657,7 @@ jtcps3_colmix u_colmix(
     .rst         ( rst          ),
     .clk         ( clk          ),
     .pxl_cen     ( pxl_cen      ),
-    .lhbl        ( lhbl         ),
+    .lhbl        ( cps1_lhbl_mix ),
     .lvbl        ( lvbl         ),
 
     .ss_pxl      ( ss_pxl       ),
