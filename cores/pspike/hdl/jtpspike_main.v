@@ -72,11 +72,9 @@ wire        two;   // turbofrc family: two layers, two sprite chips
 assign      two = turbofrc | aerofgt | karatblz;
 
 `ifndef NOMAIN
-// 10 MHz (XTAL 20/2) out of clk48. With JTFRAME_SDRAM96 the PLL doubles, so
-// clk is 85.909088MHz and clk48 is 42.954544MHz. 44/189 hits 10 MHz to within
-// 0.34 Hz; num2={num,1'b0}=88 still fits the W=8 field
-localparam [6:0] CEN_NUM = 7'd44;
-localparam [7:0] CEN_DEN = 8'd189;   // 42.954544 * 44/189 = 10.000000MHz
+// 10 MHz (XTAL 20/2) out of clk48 = 57.272720MHz (pll7159)
+localparam [6:0] CEN_NUM = 7'd11;
+localparam [7:0] CEN_DEN = 8'd63;    // 57.272720 * 11/63 = 9.999999MHz
 
 wire [23:1] A;
 reg  [15:0] cpu_din;
@@ -158,7 +156,6 @@ assign af_oram   = A[23:16]==8'h0f & A[15:11]==5'b11000;     // 0fc000-0fc7ff
 assign af_pal    = A[23:16]==8'h0f & A[15:11]==5'b11010;     // 0fd000-0fd7ff
 assign af_io     = A[23:16]==8'h0f & A[15:12]==4'he;         // 0fe000-0fe00f
 assign af_rascr  = A[23:16]==8'h0f & A[15:12]==4'hf;         // 0ff000-0fffff
-
 
 assign rom_cs    = cpu_bus & (karatblz ? kb_rom : aerofgt ? af_rom : turbofrc ? tf_rom   : ps_rom  );
 assign ram_cs   = cpu_bus & (karatblz ? kb_ram : aerofgt ? af_ram : turbofrc ? tf_ram : ps_ram);
@@ -392,33 +389,6 @@ jtframe_68kdtack_cen #(.W(8),.MFREQ(`JTFRAME_MCLK/2000)) u_dtack(
     .fave       (           ),
     .fworst     (           )
 );
-
-`ifdef SIMULATION
-// Program-space fetch stream, to be diffed against the MAME boot trace.
-// Prefetch makes this a superset of MAME's PC list.
-integer main_tr;
-reg         asn_l, prog_cyc;
-reg  [23:1] pc_l;
-reg  [15:0] op_l;
-wire        prog_rd = cpu_fc[1] & ~cpu_fc[0] & cpu_rnw;
-
-initial main_tr = $fopen("pspike_main_fpga.tr","w");
-
-always @(posedge clk) begin
-    asn_l <= cpu_as_n;
-    if( !cpu_as_n && prog_rd ) begin
-        prog_cyc <= 1;
-        pc_l     <= A;
-        op_l     <= cpu_din;
-    end
-    if( !asn_l && cpu_as_n ) begin
-        if( prog_cyc && main_tr!=0 ) $fwrite(main_tr,"%06X: %04X\n",{pc_l,1'b0},op_l);
-        prog_cyc <= 0;
-    end
-end
-
-final if( main_tr!=0 ) $fclose(main_tr);
-`endif
 
 `else
 // Scene replay. The CPU is out of the picture, so hold the bus idle with
