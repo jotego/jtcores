@@ -37,6 +37,16 @@
 //
 // Zoom is shrink only: the effective factor is 32-nibble, so 32 is 1:1 and 17
 // is about half size. One tile is 16*zoom/32 = zoom/2 pixels on screen.
+//
+// Timing. A line is 456 px x 8 clk = 3648 clocks. The walk issues one sprite
+// RAM word per clock - a flat 4 clocks per slot, on line or not - so both
+// priority passes over the whole list take ~1020 clocks, and it runs
+// CONCURRENTLY with the gfx fetch: slots that are on this line queue in a
+// FIFO. The drawer pops a slot and expands it into tile columns, reading the
+// lookup RAM for column N+1 while column N is still drawing. Walk time and
+// draw time overlap instead of adding up, so the list is not truncated by the
+// end of the line - which used to drop the pri==0 pass, i.e. the sprites that
+// belong in FRONT.
 
 module jtpspike_objscan(
     input             rst,
@@ -60,7 +70,7 @@ module jtpspike_objscan(
     // jtframe_objdraw
     output reg        draw,
     input             busy,
-    output     [14:0] code,
+    output reg [14:0] code,
     output reg [ 8:0] xpos,
     output reg [ 3:0] ysub,
     output reg [ 7:0] hzoom,
@@ -70,15 +80,18 @@ module jtpspike_objscan(
 );
 
 localparam [8:0] LAST = 9'h1f8, PTR = 9'h1fe;
+// candidate record: ox9 map16 xsize3 ysize3 src8 zxnib4 fx1 fy1 pri1 colour4
+localparam       RECW = 50, FW = 3;     // FIFO depth = 8 slots
 
-reg  [ 4:0] st;
-reg  [ 8:0] first, slot;
-reg         pass, hs_l;
-reg  [15:0] w0, w1, w2, w3;
-reg  [ 2:0] col;
-reg  [ 7:0] src;
-reg  [ 8:0] rd_addr;
+reg  [ 2:0] st;
+reg  [ 8:0] first, scan_addr, rd_addr;
+reg         pass, pass1, pass2, issuing, hs_l;
+reg  [ 1:0] wsel1, wsel2;
+reg         iss1, iss2;
+reg  [15:0] w0, w1, w2;
 
+wire        hs_pos  = hs & ~hs_l;
+wire [15:0] w3      = objr_dout;        // live on the bus when wsel2==3
 wire [ 8:0] oy      = w0[8:0];
 wire [ 8:0] ox      = w1[8:0];
 wire [ 2:0] xsize   = w2[10:8];
@@ -88,49 +101,13 @@ wire        pri     = w2[4];
 wire        fx      = w2[11];
 wire        fy      = w2[15];
 wire [ 5:0] zy      = 6'd32 - {2'd0,w0[15:12]};
-wire [ 5:0] zx      = 6'd32 - {2'd0,w1[15:12]};
 
 // how many lines the whole block covers, and where this line falls in it
 wire [ 9:0] blk_h   = (({6'd0,ysize}+10'd1)*{4'd0,zy}) >> 1;
 wire [ 8:0] dy      = vrender + 9'd16 - (oy + yoffs + 9'd16);
 wire        on_line = dy < blk_h[8:0];
-wire [ 3:0] row     = src[7:4];
-// the map advances with the unflipped index, the position uses the flipped one
-wire [ 2:0] maprow  = fy ? ysize - row[2:0] : row[2:0];
-wire [ 2:0] mapcol  = fx ? xsize - col      : col;
-// the map row stride is the next power of two of xsize+1
-wire [ 3:0] stride  = xsize<3'd1 ? 4'd1 : xsize<3'd2 ? 4'd2 :
-                      xsize<3'd4 ? 4'd4 : 4'd8;
-wire [15:0] mapidx  = w3 + {12'd0,maprow}*{12'd0,stride} + {13'd0,mapcol};
 
 assign objr_addr = rd_addr;
-assign objl_addr = wide_lut ? mapidx[14:0] : { 2'd0, mapidx[12:0] };
-
-`ifdef SIMULATION
-reg [3:0] zxmin=4'hf, zxmax=0, zymin=4'hf, zymax=0;
-always @(posedge clk) if( draw ) begin
-    if( w1[15:12] < zxmin ) zxmin <= w1[15:12];
-    if( w1[15:12] > zxmax ) zxmax <= w1[15:12];
-    if( w0[15:12] < zymin ) zymin <= w0[15:12];
-    if( w0[15:12] > zymax ) zymax <= w0[15:12];
-end
-always @(negedge hs) if( $time > 200000000 )
-    $display("%m zoom nibble x=%0h..%0h y=%0h..%0h -> zx=%0d..%0d hzoom=%0d",
-        zxmin, zxmax, zymin, zymax, 6'd32-{2'd0,zxmax}, 6'd32-{2'd0,zxmin}, hzoom);
-`endif
-// MAME reduces the lookup value with code % gfx->elements(), where elements is
-// the DECLARED ROM_REGION size / 128, not the bytes actually loaded. Every
-// region here is a power of two, so the remainder is a plain mask - but the
-// width is per chip and per game, and 13 bits truncates turbofrc and karatblz:
-//   chip 0  pspikes gfx2 0x100000 /128 = 8192   -> 13
-//           turbofrc spritegfx 0x200000  = 16384 -> 14  (only 0x180000 loaded)
-//           aerofgt  spritegfx 0x100000  = 8192  -> 13
-//           karatblz spritegfx 0x400000  = 32768 -> 15  (only 0x240000 loaded)
-//   chip 1  turbofrc/aerofgt gfx4 0x80000 = 4096 -> 12
-//           karatblz gfx4 0x100000        = 8192 -> 13
-assign code      = objl_dout[14:0] & cmask;
-// the pri bit rides along with the pixel so the mixer can use it
-assign pal       = { pri, objbank, w2[3:0] };
 
 // dy * 32 / zy, as dy * (8192/zy) >> 8
 reg [8:0] recip;
@@ -147,10 +124,129 @@ always @* begin
     endcase
 end
 
+wire [16:0] prod = {8'd0,dy} * {8'd0,recip};
+wire [ 7:0] src  = prod[15:8];
+
+// ---------------- candidate FIFO ----------------
+reg  [RECW-1:0] fifo[0:(1<<FW)-1];
+reg  [FW:0]     wptr, rptr;
+wire            fifo_empty = wptr==rptr;
+wire            fifo_full  = wptr[FW-1:0]==rptr[FW-1:0] && wptr[FW]!=rptr[FW];
+wire [RECW-1:0] fifo_out   = fifo[rptr[FW-1:0]];
+wire [RECW-1:0] rec_in     = { ox, w3, xsize, ysize, src, w1[15:12],
+                               fx, fy, pri, w2[3:0] };
+wire            push = iss2 && wsel2==2'd3 && en && pri==pass2 && on_line;
+// a full FIFO holds the address and puts a bubble in the delay pipe, so the
+// words already in flight still land in step
+wire            stall = fifo_full;
+
+// ---------------- scan: one word per clock ----------------
+always @(posedge clk) begin
+    if( rst ) begin
+        st      <= 0;      issuing <= 0;    pass  <= 0;
+        scan_addr <= 0;    rd_addr <= 0;    first <= 0;
+        wsel1   <= 0;      wsel2   <= 0;
+        iss1    <= 0;      iss2    <= 0;
+        pass1   <= 0;      pass2   <= 0;
+        w0      <= 0;      w1      <= 0;    w2    <= 0;
+        wptr    <= 0;      hs_l    <= 0;
+    end else begin
+        hs_l <= hs;
+        // Restart on every HS from whatever state we were in
+        if( hs_pos ) begin
+            rd_addr <= PTR;
+            st      <= scan_en ? 3'd1 : 3'd0;
+            issuing <= 0;
+            pass    <= 0;
+            wptr    <= 0;
+            iss1    <= 0;
+            iss2    <= 0;
+        end else begin
+            case( st )
+                0: ;                        // idle until the next HS
+                1: st <= 2;                 // BRAM latency
+                2: st <= 3;
+                // MAME clamps the list pointer to 0x1FC and then loops while
+                // start != first-4, so a pointer above LAST means an EMPTY
+                // list. Clamping to LAST instead would draw slot 0x1F8 once -
+                // one stale sprite left over from the previous scene.
+                3: begin
+                    first     <= {objr_dout[6:0],2'd0};
+                    scan_addr <= {objr_dout[6:0],2'd0};
+                    if( {objr_dout[6:0],2'd0} > LAST ) st <= 0;
+                    else begin issuing <= 1; st <= 4; end
+                end
+                default:;                   // 4 = walking
+            endcase
+
+            if( issuing && !stall ) begin
+                rd_addr <= scan_addr;
+                if( scan_addr=={LAST[8:2],2'd3} ) begin   // last word, last slot
+                    if( pass ) issuing   <= 0;            // both passes done
+                    else begin pass <= 1; scan_addr <= first; end
+                end else scan_addr <= scan_addr + 9'd1;
+            end
+            wsel1 <= scan_addr[1:0]; iss1 <= issuing & ~stall; pass1 <= pass;
+            wsel2 <= wsel1;          iss2 <= iss1;             pass2 <= pass1;
+
+            // the word issued two edges ago is on objr_dout now
+            if( iss2 ) case( wsel2 )
+                2'd0: w0 <= objr_dout;
+                2'd1: w1 <= objr_dout;
+                2'd2: w2 <= objr_dout;
+                default:;                   // w3 is used straight off the bus
+            endcase
+
+            if( push ) begin
+                fifo[wptr[FW-1:0]] <= rec_in;
+                wptr <= wptr + 1'd1;
+            end
+        end
+    end
+end
+
+// ---------------- draw: expand one slot into tile columns ----------------
+localparam [2:0] D_IDLE=0, D_ISSUE=1, D_UP=2, D_DOWN=3;
+
+reg  [ 2:0] dst, dcol, lcol;
+reg  [ 8:0] d_ox;
+reg  [15:0] d_map;
+reg  [ 2:0] d_xsize, d_ysize;
+reg  [ 7:0] d_src;
+reg  [ 3:0] d_zx, d_col;
+reg         d_fx, d_fy, d_pri;
+reg  [14:0] code_nx;
+reg  [ 1:0] lutcnt;
+reg         nx_ok;
+
+// the map advances with the unflipped index, the position uses the flipped one
+wire [ 2:0] maprow = d_fy ? d_ysize - d_src[6:4] : d_src[6:4];
+wire [ 2:0] mapcol = d_fx ? d_xsize - lcol       : lcol;
+// the map row stride is the next power of two of xsize+1
+wire [ 3:0] stride = d_xsize<3'd1 ? 4'd1 : d_xsize<3'd2 ? 4'd2 :
+                     d_xsize<3'd4 ? 4'd4 : 4'd8;
+wire [15:0] mapidx = d_map + {12'd0,maprow}*{12'd0,stride} + {13'd0,mapcol};
+
+assign objl_addr = wide_lut ? mapidx[14:0] : { 2'd0, mapidx[12:0] };
+// the pri bit rides along with the pixel so the mixer can use it
+assign pal       = { d_pri, objbank, d_col };
+
+// MAME reduces the lookup value with code % gfx->elements(), where elements is
+// the DECLARED ROM_REGION size / 128, not the bytes actually loaded. Every
+// region here is a power of two, so the remainder is a plain mask - but the
+// width is per chip and per game, and 13 bits truncates turbofrc and karatblz:
+//   chip 0  pspikes gfx2 0x100000 /128 = 8192   -> 13
+//           turbofrc spritegfx 0x200000  = 16384 -> 14  (only 0x180000 loaded)
+//           aerofgt  spritegfx 0x100000  = 8192  -> 13
+//           karatblz spritegfx 0x400000  = 32768 -> 15  (only 0x240000 loaded)
+//   chip 1  turbofrc/aerofgt gfx4 0x80000 = 4096 -> 12
+//           karatblz gfx4 0x100000        = 8192 -> 13
+wire [14:0] lut_code = objl_dout[14:0] & cmask;
+
 // 2048/zx, the source step jtframe_draw subtracts per output pixel
 reg [7:0] hz_lut;
 always @* begin
-    case( zx )
+    case( 6'd32 - {2'd0,d_zx} )
         6'd17: hz_lut = 8'd120; 6'd18: hz_lut = 8'd114;
         6'd19: hz_lut = 8'd108; 6'd20: hz_lut = 8'd102;
         6'd21: hz_lut = 8'd98;  6'd22: hz_lut = 8'd93;
@@ -162,124 +258,60 @@ always @* begin
     endcase
 end
 
-wire [16:0] prod = {8'd0,dy} * {8'd0,recip};
-
 always @(posedge clk) begin
     if( rst ) begin
-        st      <= 0;
-        draw    <= 0;
-        slot    <= LAST;
-        first   <= 0;
-        pass    <= 0;
-        col     <= 0;
-        rd_addr <= 0;
-        hz_keep <= 0;
-        xpos    <= 0;
-        ysub    <= 0;
-        hzoom   <= 0;
-        hflip   <= 0;
-        vflip   <= 0;
-        src     <= 0;
+        dst  <= D_IDLE; dcol <= 0; lcol <= 0; rptr <= 0;
+        draw <= 0; hz_keep <= 0; xpos <= 0; ysub <= 0; hzoom <= 0;
+        hflip<= 0; vflip <= 0; code <= 0; code_nx <= 0;
+        lutcnt <= 0; nx_ok <= 0;
+        d_ox <= 0; d_map <= 0; d_xsize <= 0; d_ysize <= 0; d_src <= 0;
+        d_zx <= 0; d_col <= 0; d_fx <= 0; d_fy <= 0; d_pri <= 0;
     end else begin
-        hs_l <= hs;
         draw <= 0;
-        // Restart on every HS from whatever state we were in. A line that runs
-        // out of time simply drops the sprites it did not reach, like the real
-        // chip, instead of losing sync for every following line
-        if( hs & ~hs_l ) begin
-            rd_addr <= PTR;
-            st      <= scan_en ? 5'd1 : 5'd0;
-        end else case( st )
-            0: ;                            // idle until the next HS
-            1: st <= 2;                     // BRAM latency
-            2: st <= 3;
-            // MAME clamps the list pointer to 0x1FC and then loops while
-            // start != first-4, so a pointer above LAST (0x1F8) means an EMPTY
-            // list and nothing is drawn. Clamping to LAST instead draws slot
-            // 0x1F8 once - one stale sprite left over from the previous scene.
-            3: begin
-                first <= {objr_dout[6:0],2'd0};
-                pass  <= 0;
-                slot  <= {objr_dout[6:0],2'd0};
-                st    <= {objr_dout[6:0],2'd0} > LAST ? 5'd0 : 5'd4;
+        // lookup RAM is registered: the code for the address set two edges ago
+        if( !nx_ok ) begin
+            lutcnt <= lutcnt + 2'd1;
+            if( lutcnt==2'd1 ) begin code_nx <= lut_code; nx_ok <= 1; end
+        end
+        if( hs_pos ) begin
+            dst <= D_IDLE; rptr <= 0;
+        end else case( dst )
+            D_IDLE: if( !fifo_empty ) begin
+                { d_ox, d_map, d_xsize, d_ysize,
+                  d_src, d_zx, d_fx, d_fy, d_pri, d_col } <= fifo_out;
+                rptr   <= rptr + 1'd1;
+                dcol   <= 0;    lcol  <= 0;
+                lutcnt <= 0;    nx_ok <= 0;     // fetch column 0
+                dst    <= D_ISSUE;
             end
-            // Read the four attribute words. The RAM registers its output, so
-            // the word for the address issued in state N lands in state N+2
-            4: begin rd_addr <= slot;      st <= 5; end
-            5: begin rd_addr <= slot|9'd1; st <= 6; end
-            6: begin rd_addr <= slot|9'd2; st <= 7; w0 <= objr_dout; end
-            7: begin rd_addr <= slot|9'd3; st <= 8; w1 <= objr_dout; end
-            8: begin st <= 9;  w2 <= objr_dout; end
-            9: begin st <= 10; w3 <= objr_dout; end
-            10: begin
-                src <= prod[15:8];
-                col <= 0;
-                st  <= (en && pri==pass && on_line) ? 11 : 15;
-            end
-            // One draw per tile column, left to right so the zoom accumulator
-            // runs across the whole block. States 11-12 wait for the lookup
-            // RAM to answer with the tile code for this column
-            11: st <= 12;
-            12: st <= 13;
-            13: if( !busy && !draw ) begin
+            D_ISSUE: if( nx_ok && !busy && !draw ) begin
                 draw    <= 1;
-                hz_keep <= col!=0;
-                xpos    <= ox;
-                ysub    <= src[3:0];    // jtframe_draw applies vflip itself
+                code    <= code_nx;
+                hz_keep <= dcol!=0;
+                xpos    <= d_ox;
+                ysub    <= d_src[3:0];  // jtframe_draw applies vflip itself
                 hzoom   <= hz_lut;
-                hflip   <= fx;
-                vflip   <= fy;
-                st      <= 14;
+                hflip   <= d_fx;
+                vflip   <= d_fy;
+                // start the lookup for the next column while this one draws
+                if( dcol!=d_xsize ) begin
+                    lcol   <= dcol + 3'd1;
+                    lutcnt <= 0;
+                    nx_ok  <= 0;
+                end
+                dst <= D_UP;
             end
-            14: if( busy ) st <= 16;
-            16: if( !busy ) begin
-                if( col==xsize ) st <= 15;
+            D_UP:   if( busy  ) dst <= D_DOWN;
+            D_DOWN: if( !busy ) begin
+                if( dcol==d_xsize ) dst <= D_IDLE;
                 else begin
-                    col <= col + 3'd1;
-                    st  <= 11;
+                    dcol <= dcol + 3'd1;
+                    dst  <= D_ISSUE;
                 end
             end
-            15: begin
-                if( slot==LAST ) begin
-                    if( pass==1 ) st <= 0;  // both passes done
-                    else begin
-                        pass <= 1;
-                        slot <= first;
-                        st   <= 4;
-                    end
-                end else begin
-                    slot <= slot + 9'd4;
-                    st   <= 4;
-                end
-            end
-            default: st <= 0;
+            default: dst <= D_IDLE;
         endcase
     end
 end
-
-`ifdef SIMULATION
-// Is the scan finishing inside the line? If HS arrives while st!=0 the list
-// was truncated, and the sprites lost are the ones drawn last - the pri==0
-// pass, i.e. exactly those that should be on top.
-integer trunc_lines, total_lines, draws, max_draws;
-always @(posedge clk) begin
-    if( rst ) begin
-        trunc_lines <= 0; total_lines <= 0; draws <= 0; max_draws <= 0;
-    end else begin
-        if( draw ) draws <= draws+1;
-        if( hs & ~hs_l ) begin
-            total_lines <= total_lines+1;
-            if( st != 0 ) trunc_lines <= trunc_lines+1;
-            if( draws > max_draws ) max_draws <= draws;
-            draws <= 0;
-        end
-        if( total_lines==262 ) begin
-            $display("%m objscan: %0d of %0d lines truncated, peak %0d draws/line",
-                     trunc_lines, total_lines, max_draws);
-            trunc_lines <= 0; total_lines <= 0; max_draws <= 0;
-        end
-    end
-end
-`endif
 
 endmodule
