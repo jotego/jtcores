@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-8-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-8-2020 */
 
 module jttrojan_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -31,7 +17,7 @@ wire [ 7:0] cpu_dout, char_dout, scr_dout,
 wire        blue_cs, redgreen_cs, flip, HINIT, scr0,
             rd, base_cen, char_busy, scr_busy, char_cs, scr_cs,
             sres_b, snd_int, RnW, OKOUT, blcnten, bus_req, bus_ack,
-            mcu_mrd, mcu_mwr, mcu_srd, mcu_swr, mcu_cen, cpu_cen;
+            mcu_mrd, mcu_mwr, mcu_srd, mcu_swr, cpu_cen;
 reg         trojan, avengers, mcu_en, rst_mcu;
 
 assign pxl2_cen = cen12;
@@ -39,22 +25,15 @@ assign pxl_cen  = cen6;
 assign dip_flip = flip^avengers;
 assign scr_part = scr0 ? { scr_data[27:24], scr_data[19:16], scr_data[11: 8], scr_data[ 3: 0] } :
                          { scr_data[31:28], scr_data[23:20], scr_data[15:12], scr_data[ 7: 4] };
-assign base_cen  = trojan ? cen3 : cen6;
+assign base_cen  = trojan ? cpu_cen3 : cpu_cen6;
 assign debug_view = debug_bus[0] ? scr2_hpos[15:8] : scr2_hpos[7:0];
 
 always @(posedge clk) begin
-    if( header && ioctl_addr[3:0]==8 ) {mcu_en,avengers,trojan} <= prog_data[2:0];
+    if( header && prog_we && ioctl_addr[3:0]==8 ) {mcu_en,avengers,trojan} <= prog_data[2:0];
     dipsw_a <= avengers ? dipsw[15:8] : dipsw[ 7:0];
     dipsw_b <= avengers ? dipsw[ 7:0] : dipsw[15:8];
     rst_mcu <= rst24 | ~mcu_en;
 end
-
-jtframe_crossclk_cen u_crosscen(
-    .clk_in     ( clk       ),
-    .cen_in     ( base_cen  ),
-    .clk_out    ( clk24     ),
-    .cen_out    ( mcu_cen   )
-);
 
 jttrojan_main u_main(
     .rst        ( rst           ),
@@ -127,9 +106,9 @@ jttrojan_main u_main(
 
 jttrojan_mcu u_mcu(
     .rst        ( rst_mcu         ),
-    .clk        ( clk24           ),
+    .clk        ( clk             ),
     .clk_rom    ( clk             ),
-    .cen        ( mcu_cen         ), // 6 MHz
+    .cen        ( cpu_cen6        ), // 6 MHz
     .LVBL       ( LVBL            ),
     .vdump      ( V               ),
     // Main CPU interface
@@ -151,8 +130,8 @@ jttrojan_mcu u_mcu(
 jttrojan_sound u_sound (
     .rst            ( rst            ),
     .clk            ( clk            ),
-    .cen3           ( cen3           ),
-    .cen1p5         ( cen1p5         ),
+    .cen3           ( cpu_cen3       ),
+    .cen1p5         ( cpu_cen1p5     ),
     .cenp384        ( cenp384        ),
     .avengers       ( avengers       ),
     // Interface with main CPU

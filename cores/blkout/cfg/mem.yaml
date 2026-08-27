@@ -28,6 +28,7 @@ sdram:
       - name: main
         addr_width: 18
         data_width: 16
+        cache_size: 1kB
 
     # ── Bank 1 ── Z80 audio ROM (32 KB) + OKI samples (128 KB / 256 KB region) ─
     - buses:

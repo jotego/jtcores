@@ -1,21 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 12-10-2019 */
-
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 12-10-2019 */
 
 module jttora_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -27,8 +12,11 @@ wire [13:1] cpu_AB;
 wire        char_cs, col_uw, col_lw;
 wire        flip;
 wire [15:0] char_dout, cpu_dout;
-wire        rd, cpu_cen, video_cen8;
+wire        rd, cpu_cen;
 wire        char_busy;
+// F1 Dream's 8751 runs at 6 MHz while the main 68000 runs at 10 MHz.
+reg         mcu_cen_cpu;
+reg [2:0]   mcu_cen_phase;
 
 // MCU interface
 wire [ 7:0] snd_din, snd_dout;
@@ -80,64 +68,6 @@ always @* begin
         default: debug_mux = 0;
     endcase
 end
-
-/////////////////////////////////////
-// 48 MHz based clock enable signals
-jtframe_cen48 u_cen48(
-    .clk    ( clk           ),
-    .cen16  (               ),
-    .cen16b (               ),
-    .cen12  ( pxl2_cen      ),
-    .cen12b (               ),
-    .cen8   ( video_cen8    ),
-    .cen6   ( pxl_cen       ),
-    .cen6b  (               ),
-    .cen4   (               ),
-    .cen4_12(               ),
-    .cen3   (               ),
-    .cen3q  (               ),
-    .cen3qb (               ),
-    .cen3b  (               ),
-    .cen1p5 (               ),
-    .cen1p5b(               )
-);
-
-/////////////////////////////////////
-// 24 MHz based clock enable signals
-wire        cen3, mcu_cen, clk_mcu;
-wire        cenfm, cenp384;
-wire        cen10b;
-reg         rst_mcu;
-
-jtframe_cen24 u_cen(
-    .clk    ( clk24     ),
-    .cen12  (           ),
-    .cen12b (           ),
-    .cen8   (           ),
-    .cen4   (           ),
-    .cen6   (           ),
-    .cen6b  (           ),
-    .cen3   ( cen3      ),
-    .cen3q  (           ),
-    .cen3b  (           ),
-    .cen3qb (           ),
-    .cen1p5 ( mcu_cen   ),
-    .cen1p5b(           )
-);
-
-assign clk_mcu = clk24;
-always @(posedge clk) rst_mcu <= rst24 | ~f1dream;
-
-jtframe_cen3p57 #(.CLK24(1)) u_cen3p57(
-    .clk      ( clk24     ),
-    .cen_3p57 ( cenfm     ),
-    .cen_1p78 (           )     // unused
-);
-
-jtframe_cenp384 #(.CLK24(1)) u_cenp384(
-    .clk      ( clk24     ),
-    .cen_p384 ( cenp384   )
-);
 
 jtbiocom_main #(.GAME(1)) u_main(
     .rst        ( rst           ),
@@ -210,13 +140,33 @@ jtbiocom_main #(.GAME(1)) u_main(
     .dipsw_b    ( dipsw_b       )
 );
 
+reg         rst_mcu;
+always @(posedge clk) begin
+    rst_mcu     <= rst | ~f1dream;
+    mcu_cen_cpu <= 1'b0;
+    // Restart the fractional divider with the MCU itself.  F1 Dream is
+    // selected from the downloaded header, so the global reset may already
+    // be inactive when its 8751 is released.
+    if( rst || !f1dream ) begin
+        mcu_cen_phase <= 3'd0;
+    end else if( cpu_cen ) begin
+        // Repeat CPU-enable phases 0, 1 and 3 of each five-phase interval:
+        // 3/5 of 10 MHz gives the measured 6 MHz 8751 oscillator rate.
+        mcu_cen_cpu   <= mcu_cen_phase == 3'd0 ||
+                         mcu_cen_phase == 3'd1 ||
+                         mcu_cen_phase == 3'd3;
+        mcu_cen_phase <= mcu_cen_phase == 3'd4 ? 3'd0 :
+                         mcu_cen_phase + 3'd1;
+    end
+end
+
 jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
     .rst        ( rst_mcu         ),
-    .clk        ( clk_mcu         ),
+    .clk        ( clk             ),
     .rst_cpu    ( rst             ),
     .clk_rom    ( clk             ),
     .clk_cpu    ( clk             ),
-    .cen6a      ( mcu_cen         ), // 6 MHz
+    .cen6a      ( mcu_cen_cpu     ), // 6 MHz, derived from the 10 MHz CPU
     // Main CPU interface
     .DMAONn     ( mcu_DMAONn      ),
     .mcu_din    ( mcu_din         ),
@@ -238,8 +188,8 @@ jtbiocom_mcu #(.ROMBIN("../../../../rom/f1dream/8751.mcu")) u_mcu(
 );
 
 jttora_sound u_sound (
-    .rst            ( rst24          ),
-    .clk            ( clk24          ),
+    .rst            ( rst            ),
+    .clk            ( clk            ),
     .cen3           ( cen3           ),
     .cenfm          ( cenfm          ),
     .cenp384        ( cenp384        ),

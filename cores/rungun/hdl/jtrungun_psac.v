@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 13-7-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 13-7-2025 */
 
 module jtrungun_psac(
     input              rst, clk, pxl_cen, hs, vs, dtackn,
@@ -38,7 +24,7 @@ module jtrungun_psac(
     output             rom_cs,
     input              rom_ok,
 
-    output reg  [ 7:0] pxl,
+    output      [ 7:0] pxl,
 
     input      [3:0] gfx_en,
     // IOCTL dump
@@ -67,15 +53,10 @@ assign pre_pxl   = gfx_en[1] ? {pal,dmux} : 8'b0;
 
 assign rom_cs    = ~ob & blankn;
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
+assign pxl       = ob ? 8'd0 : pre_pxl;
 
 always @(posedge clk) begin
     rom_addr <= {code,vf,hf[3:1]}; // 13+4+4=21
-end
-
-always @(posedge clk) if(pxl_cen) begin
-    pxl <= 0;
-    if(rom_ok) pxl <= pre_pxl;
-    if(  ob  ) pxl <= 0;
 end
 
 jt053936 u_xy(

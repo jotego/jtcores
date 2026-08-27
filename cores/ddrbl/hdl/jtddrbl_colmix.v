@@ -1,9 +1,7 @@
-/*  jtddrbl_colmix.v — colour mixer for Double Dribble (Konami GX690)
-    007327 palette LUT/RGB DAC + LS157 layer-priority mux + LS32/LS08 PRI/BLK gates.
-    Author: Andrea Bogazzi <andreabogazzi79@gmail.com> - Jose Tejada
-    GPL3 — see jtcores LICENSE
-*/
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi and Jose Tejada
+ * SPDX-License-Identifier: GPL-3.0-or-later */
 
+// 007327 palette LUT/RGB DAC + LS157 layer-priority mux + LS32/LS08 PRI/BLK gates.
 module jtddrbl_colmix(
     input               rst,
     input               clk,

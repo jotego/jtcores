@@ -85,7 +85,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: 'recursive'
           token: ${{ secrets.PAT }}
@@ -111,8 +111,8 @@ jobs:
       # /jtcores bind mount. The .rpt files live under the seed build dirs,
       # which xjtcore.sh does not delete (it only removes cores/<core>/<target>).
       - id: upload-log
-        if: always()
-        uses: actions/upload-artifact@v4
+        if: failure()
+        uses: actions/upload-artifact@v6
         with:
           name: log-${{ matrix.target }}-${{ matrix.core }}
           path: |
@@ -123,7 +123,7 @@ jobs:
           if-no-files-found: warn
 
       - id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-${{ matrix.target }}-${{ matrix.core }}
           path: release

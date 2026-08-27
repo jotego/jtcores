@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 5-4-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-4-2021 */
 
 module jtrumble_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -39,7 +25,7 @@ wire        pal_cs, char_cs, scr_cs;
 wire [ 1:0] prom_bank;
 wire        prom_prio;
 
-wire        vmid, cen24_8, cen24_4, cen24_2;
+wire        vmid, cen24_8, cen4, cen2;
 wire        sres_b, flip;
 wire        bus_ack, bus_req, blcnten;
 
@@ -63,7 +49,7 @@ jtframe_cen48 u_cen48(
     .cen8   ( pxl_cen  ),
     .cen6   (          ),
     .cen6b  (          ),
-    .cen4   (          ),
+    .cen4   ( cen4     ),
     .cen4_12(          ),
     .cen3   (          ),
     .cen3q  (          ),
@@ -78,7 +64,7 @@ jtframe_cen24 u_cen24(
     .cen12  (           ),
     .cen8   ( cen24_8   ),
     .cen6   (           ),
-    .cen4   ( cen24_4   ),
+    .cen4   (           ),
     .cen3   (           ),
     .cen3q  (           ),
     .cen1p5 (           ),
@@ -90,10 +76,10 @@ jtframe_cen24 u_cen24(
 );
 
 jtframe_cendiv u_cendiv(
-    .clk    ( clk24     ),
-    .cen_in ( cen24_4   ),
+    .clk    ( clk       ),
+    .cen_in ( cen4      ),
     .cen_div(           ), // Divided but not alligned with the original
-    .cen_da ( cen24_2   )
+    .cen_da ( cen2      )
 );
 
 jtrumble_main u_main(
@@ -210,10 +196,10 @@ assign fm0         = { pre_fm0[15], pre_fm0[14:0]<<loud};
 assign fm1         = { pre_fm1[15], pre_fm1[14:0]<<loud};
 
 jtgng_sound #(.LAYOUT (10 )) u_fmcpu(
-    .rst        (  rst24        ),
-    .clk        (  clk24        ),
-    .cen3       (  cen24_4      ),
-    .cen1p5     (  cen24_2      ), // unused
+    .rst        (  rst          ),
+    .clk        (  clk          ),
+    .cen3       (  cen4         ),
+    .cen1p5     (  cen2         ), // unused
     .sres_b     (  sres_b       ),
     .snd_latch  (  snd_latch    ),
     .snd2_latch (               ),
