@@ -33,7 +33,7 @@ module jtpspike_gga(
     input             rst,
     input             clk,
     input             pxl_cen,
-    input             aerofgt,    // picks the reset default table
+    input             aerofgt,    // scene replay only: picks the default table
 
     // CPU write port. Data is the low byte of the 68000 word (umask 00ff)
     input             cs,
@@ -53,6 +53,16 @@ module jtpspike_gga(
     output reg        HS,
     output reg        VS
 );
+
+// Power-on state is always the pspikes 352x240 table: one known-good grid
+// for every game, never an invalid timing. The CPU reprograms the GGA right
+// after boot. Scene replay has no CPU, so only there the per-game table is
+// compiled in instead.
+`ifdef SIMSCENE
+wire dflt = aerofgt;
+`else
+wire dflt = 1'b0;
+`endif
 
 reg  [7:0] regs[0:15];
 reg  [3:0] alatch;
@@ -105,14 +115,14 @@ end
 always @(posedge clk) begin
     if( rst ) begin
         // regs[] are loaded this same cycle, so take the defaults directly
-        hb_start <= aerofgt ? 9'd319 : 9'd351;
-        hs_start <= aerofgt ? 9'd376 : 9'd400;
-        hs_end   <= aerofgt ? 9'd400 : 9'd424;
+        hb_start <= dflt ? 9'd319 : 9'd351;
+        hs_start <= dflt ? 9'd376 : 9'd400;
+        hs_end   <= dflt ? 9'd400 : 9'd424;
         h_lastr  <= 9'd455;
-        vb_start <= aerofgt ? 9'd223 : 9'd239;
-        vs_start <= aerofgt ? 9'd226 : 9'd244;
-        vs_end   <= aerofgt ? 9'd230 : 9'd248;
-        v_last   <= aerofgt ? 9'd249 : 9'd255;
+        vb_start <= dflt ? 9'd223 : 9'd239;
+        vs_start <= dflt ? 9'd226 : 9'd244;
+        vs_end   <= dflt ? 9'd230 : 9'd248;
+        v_last   <= dflt ? 9'd249 : 9'd255;
     end else if( pxl_cen && do_latch && tbl_ok ) begin
         hb_start <= nhb;
         hs_start <= nhs;
@@ -128,17 +138,17 @@ end
 // Reset defaults are also the scene-replay configuration: NOMAIN never writes
 always @(posedge clk) begin
     if( rst ) begin
-        regs[ 0] <= aerofgt ? 8'h4f : 8'h57;
-        regs[ 1] <= aerofgt ? 8'h5d : 8'h63;
-        regs[ 2] <= aerofgt ? 8'h63 : 8'h69;
+        regs[ 0] <= dflt ? 8'h4f : 8'h57;
+        regs[ 1] <= dflt ? 8'h5d : 8'h63;
+        regs[ 2] <= dflt ? 8'h63 : 8'h69;
         regs[ 3] <= 8'h71;
         regs[ 4] <= 8'h1f; regs[ 5] <= 8'h00; regs[ 6] <= 8'h00; regs[ 7] <= 8'h00;
-        regs[ 8] <= aerofgt ? 8'h6f : 8'h77;
-        regs[ 9] <= aerofgt ? 8'h70 : 8'h79;
-        regs[10] <= aerofgt ? 8'h72 : 8'h7b;
-        regs[11] <= aerofgt ? 8'h7c : 8'h7f;
+        regs[ 8] <= dflt ? 8'h6f : 8'h77;
+        regs[ 9] <= dflt ? 8'h70 : 8'h79;
+        regs[10] <= dflt ? 8'h72 : 8'h7b;
+        regs[11] <= dflt ? 8'h7c : 8'h7f;
         regs[12] <= 8'h1f;
-        regs[13] <= aerofgt ? 8'h02 : 8'h00;
+        regs[13] <= dflt ? 8'h02 : 8'h00;
         regs[14] <= 8'h00; regs[15] <= 8'h00;
         alatch   <= 0;
     end else if( cs & we ) begin
@@ -197,24 +207,5 @@ always @(posedge clk) begin
         end
     end
 end
-
-`ifdef SIMULATION
-// the reset defaults are the pspikes table, so for that game the grid never
-// changes and only the write probe proves the decode is alive
-always @(posedge clk) if( cs & we )
-    $display("GGA write %s = %02x", addr ? "addr" : "data", din);
-
-// report the programmed grid once the game has written its table
-reg [8:0] last_h=0, last_v=0;
-always @(posedge clk) if( !rst ) begin
-    if( h_last != last_h || v_last != last_v ) begin
-        last_h <= h_last;
-        last_v <= v_last;
-        $display("GGA: %0dx%0d visible, %0dx%0d total, HS %0d-%0d, VS %0d-%0d",
-            hb_start+9'd1, vb_start+9'd1, h_last+9'd1, v_last+9'd1,
-            hs_start, hs_end, vs_start, vs_end);
-    end
-end
-`endif
 
 endmodule
