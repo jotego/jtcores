@@ -19,6 +19,12 @@ The compiled versions for some FPGA platforms are in [JTBIN](https://github.com/
 
 Refer to [JTFRAME](modules/jtframe/README.md) for compilation instructions and general information about how the cores are organized.
 
+## Private Support Files
+
+Set the `JOTEGO` environment variable to the directory used for private JTCORES support files, including core-regression and scene-regression data used by privately run GitHub Actions. Scene data is stored below `$JOTEGO/scenes/<core-name>/<set-name>`.
+
+When `jtsim -s <scene>` is run from a core verification folder such as `cores/rastan/ver/rbisland`, it requires `JOTEGO` and creates `scenes` as a symbolic link to `$JOTEGO/scenes/rastan/rbisland`. Define `JOTEGO` before running scene simulations.
+
 Master branch health:
 [![Compile all MiSTer cores](https://github.com/jotego/jtcores/actions/workflows/compile_mister.yaml/badge.svg)](https://github.com/jotego/jtcores/actions/workflows/compile_mister.yaml)
 [![Verilator linter](https://github.com/jotego/jtcores/actions/workflows/linter.yaml/badge.svg)](https://github.com/jotego/jtcores/actions/workflows/linter.yaml)

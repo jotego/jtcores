@@ -42,6 +42,18 @@ module jtframe_rom_6slots #(parameter
     CACHE3_SIZE = 0,
     CACHE4_SIZE = 0,
     CACHE5_SIZE = 0,
+    CACHE0_LARGE = 0,
+    CACHE1_LARGE = 0,
+    CACHE2_LARGE = 0,
+    CACHE3_LARGE = 0,
+    CACHE4_LARGE = 0,
+    CACHE5_LARGE = 0,
+    SLOT0_BURSTLEN = 32,
+    SLOT1_BURSTLEN = 32,
+    SLOT2_BURSTLEN = 32,
+    SLOT3_BURSTLEN = 32,
+    SLOT4_BURSTLEN = 32,
+    SLOT5_BURSTLEN = 32,
 /* verilator lint_off WIDTH */
     parameter [SDRAMW-1:0] SLOT0_OFFSET = 0,
     parameter [SDRAMW-1:0] SLOT1_OFFSET = 0,
@@ -116,7 +128,7 @@ wire [SDRAMW-1:0] offset0 = SLOT0_OFFSET,
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT0_AW),.DW(SLOT0_DW),
     .LATCH(SLOT0_LATCH),.DOUBLE(SLOT0_DOUBLE),.OKLATCH(SLOT0_OKLATCH),
-    .CACHE_SIZE(CACHE0_SIZE))
+    .CACHE_SIZE ( CACHE0_SIZE     ), .CACHE_LARGE( CACHE0_LARGE ), .BURSTLEN( SLOT0_BURSTLEN ))
 u_slot0(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -136,7 +148,7 @@ u_slot0(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT1_AW),.DW(SLOT1_DW),
     .LATCH(SLOT1_LATCH),.DOUBLE(SLOT1_DOUBLE),.OKLATCH(SLOT1_OKLATCH),
-    .CACHE_SIZE(CACHE1_SIZE))
+    .CACHE_SIZE ( CACHE1_SIZE     ), .CACHE_LARGE( CACHE1_LARGE ), .BURSTLEN( SLOT1_BURSTLEN ))
 u_slot1(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -156,7 +168,7 @@ u_slot1(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT2_AW),.DW(SLOT2_DW),
     .LATCH(SLOT2_LATCH),.DOUBLE(SLOT2_DOUBLE),.OKLATCH(SLOT2_OKLATCH),
-    .CACHE_SIZE(CACHE2_SIZE))
+    .CACHE_SIZE ( CACHE2_SIZE     ), .CACHE_LARGE( CACHE2_LARGE ), .BURSTLEN( SLOT2_BURSTLEN ))
 u_slot2(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -176,7 +188,7 @@ u_slot2(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT3_AW),.DW(SLOT3_DW),
     .LATCH(SLOT3_LATCH),.DOUBLE(SLOT3_DOUBLE),.OKLATCH(SLOT3_OKLATCH),
-    .CACHE_SIZE(CACHE3_SIZE))
+    .CACHE_SIZE ( CACHE3_SIZE     ), .CACHE_LARGE( CACHE3_LARGE ), .BURSTLEN( SLOT3_BURSTLEN ))
 u_slot3(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -196,7 +208,7 @@ u_slot3(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT4_AW),.DW(SLOT4_DW),
     .LATCH(SLOT4_LATCH),.DOUBLE(SLOT4_DOUBLE),.OKLATCH(SLOT4_OKLATCH),
-    .CACHE_SIZE(CACHE4_SIZE))
+    .CACHE_SIZE ( CACHE4_SIZE     ), .CACHE_LARGE( CACHE4_LARGE ), .BURSTLEN( SLOT4_BURSTLEN ))
 u_slot4(
     .rst       ( rst                    ),
     .clk       ( clk                    ),
@@ -216,7 +228,7 @@ u_slot4(
 
 jtframe_romrq #(.SDRAMW(SDRAMW),.AW(SLOT5_AW),.DW(SLOT5_DW),
     .LATCH(SLOT5_LATCH),.DOUBLE(SLOT5_DOUBLE),.OKLATCH(SLOT5_OKLATCH),
-    .CACHE_SIZE(CACHE5_SIZE))
+    .CACHE_SIZE ( CACHE5_SIZE     ), .CACHE_LARGE( CACHE5_LARGE ), .BURSTLEN( SLOT5_BURSTLEN ))
 u_slot5(
     .rst       ( rst                    ),
     .clk       ( clk                    ),

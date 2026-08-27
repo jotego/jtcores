@@ -11,7 +11,6 @@
 //    0     1    medium
 //    1     2    easy
 
-`timescale 1ns/1ps
 /* verilator coverage_off */
 module jtframe_romrq #(parameter
     SDRAMW  = 22,  // SDRAM width
@@ -19,6 +18,8 @@ module jtframe_romrq #(parameter
     DW      =  8,
     CACHE_SIZE=0,  // Set to !=0 to use jtframe_romrq_xscache, where only served data is cached
                    // Set to ==0 to use jtframe_romrq_bcache, where all data coming from SDRAM is cached
+    CACHE_LARGE=0, // Set to 1 for the direct-mapped short-burst cache
+    BURSTLEN  =32, // 16, 32, or 64 bits; only used by CACHE_LARGE
 
     // parameters only for jtframe_romrq_bcache:
     OKLATCH =  1,  // Set to 1 to latch the data_ok signal. This implies that
@@ -52,7 +53,30 @@ module jtframe_romrq #(parameter
 );
 
 generate
-    if( CACHE_SIZE==0) begin
+    if( CACHE_LARGE ) begin
+        jtframe_romrq_lcache #(
+            .SDRAMW  ( SDRAMW   ),
+            .AW      ( AW       ),
+            .DW      ( DW       ),
+            .CACHE_SIZE( CACHE_SIZE ),
+            .BURSTLEN( BURSTLEN )
+        ) u_large_cache(
+            .rst        ( rst        ),
+            .clk        ( clk        ),
+            .clr        ( clr        ),
+            .offset     ( offset     ),
+            .din        ( din        ),
+            .din_ok     ( din_ok     ),
+            .dst        ( dst        ),
+            .we         ( we         ),
+            .req        ( req        ),
+            .sdram_addr ( sdram_addr ),
+            .addr       ( addr       ),
+            .addr_ok    ( addr_ok    ),
+            .data_ok    ( data_ok    ),
+            .dout       ( dout       )
+        );
+    end else if( CACHE_SIZE==0) begin
         jtframe_romrq_bcache #(
             .SDRAMW ( SDRAMW    ),
             .AW     ( AW        ),

@@ -11,8 +11,6 @@
 //    0     1    medium
 //    1     2    easy
 
-`timescale 1ns/1ps
-
 module jtframe_romrq_bcache #(parameter
     SDRAMW  = 22,  // SDRAM width
     AW      = 18,

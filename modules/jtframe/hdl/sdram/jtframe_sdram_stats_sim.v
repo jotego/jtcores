@@ -2,8 +2,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 22-12-2020 */
 
-`timescale 1ns/1ps
-
 module jtframe_sdram_stats_sim #(
     parameter AW=22)(
     input               rst,

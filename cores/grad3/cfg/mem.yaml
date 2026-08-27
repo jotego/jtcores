@@ -20,18 +20,20 @@ audio:
   rsum: 12k
   rsum_feedback_res: true
   channels:
-    - { name: fm,  module: jt51,     rsum: 3.3k, rc: [ { r: 470,  c: 22n  } ] }
-    - { name: pcm, module: jt007232, rsum: 4.7k, rc: [ { r: 4.7k, c: 4.7n } ], pre: 0.45 }
+    - { name: fm,  module: jt51,     rsum: 5.3k, rc: [ { r: 811,  c: 33n  } ] }
+    - { name: pcm, module: jt007232, rsum: 4.7k, rc: [ { r: 33k,  c: 470p } ], pre: 0.13 }
 sdram:
   banks:
     - buses:
         - name: main
           addr_width: 18
           data_width: 16
+          cache_size: 1kB
     - buses:
         - name: sub
           addr_width: 20
           data_width: 16
+          cache_size: 1kB
         - name: gfx
           addr_width: 21
           data_width: 16

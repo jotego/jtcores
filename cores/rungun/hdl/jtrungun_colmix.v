@@ -31,6 +31,6 @@ assign pxl[10: 0] =  fix_op ? {FIX, fix_pxl, 1'b0} :
                    obj_wins ? {OBJ, obj_pxl, 1'b0} :
                      psc_op ? {PSC, psc_pxl, shad} : BACK;
 
-assign shad = |shadow;
+assign shad = |shadow & gfx_en[3];
 
 endmodule

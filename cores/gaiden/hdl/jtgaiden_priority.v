@@ -38,18 +38,29 @@ always @* begin
              3'b1??: sel = SEL_TXT;
              3'b01?: begin sel = SEL_SCR1; sel2 = sblend ? SEL_OBJ  : SEL_NONE; end
              3'b001: begin sel = SEL_OBJ;  sel2 = oblend ? SEL_SCR2 : SEL_NONE; end
-            default: sel = SEL_OBJ;
+            default: begin sel = SEL_OBJ;  sel2 = oblend ? SEL_BGPEN: SEL_NONE; end
         endcase
         3'b1_10: casez(bgopac)
              3'b1??: sel = SEL_TXT;
              3'b01?: begin sel = SEL_OBJ; sel2 = oblend ? SEL_SCR1 : SEL_NONE; end
              3'b001: begin sel = SEL_OBJ; sel2 = oblend ? SEL_SCR2 : SEL_NONE; end
-            default: sel = SEL_OBJ;
+            default: begin sel = SEL_OBJ; sel2 = oblend ? SEL_BGPEN: SEL_NONE; end
         endcase
-        3'b1_11: sel = SEL_OBJ;
+        3'b1_11: begin
+            sel = SEL_OBJ;
+            if( oblend ) casez(bgopac)
+                 3'b1??: sel2 = SEL_TXT;
+                 3'b01?: sel2 = SEL_SCR1;
+                 3'b001: sel2 = SEL_SCR2;
+                default: sel2 = SEL_BGPEN;
+            endcase
+        end
         3'b0_??: casez(bgopac)
              3'b1??: sel = SEL_TXT;
-             3'b01?: sel = SEL_SCR1;
+             3'b01?: begin
+                sel  = SEL_SCR1;
+                sel2 = !sblend ? SEL_NONE : scr2_bn ? SEL_SCR2 : SEL_BGPEN;
+             end
              3'b001: sel = SEL_SCR2;
             default: sel = SEL_NONE;
         endcase

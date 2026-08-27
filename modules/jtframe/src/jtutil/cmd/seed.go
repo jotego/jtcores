@@ -59,6 +59,15 @@ type seed_job struct {
 	wait_e   error
 }
 
+type seed_stats struct {
+	core      string
+	target    string
+	sta       string
+	le        string
+	bram      string
+	free_bram int
+}
+
 const seed_easy_sta_limit = -0.5
 
 var seed_parallel, seed_max_trials int
@@ -270,7 +279,10 @@ func (cfg *seed_config) wait_batch(jobs []seed_job, pass *bool) (bool, error) {
 		}
 		slack := job.worst_slack()
 		cfg.record_sta_slack(slack)
-		copy_msg := cfg.copy_if_best(job, slack)
+		copy_msg, e := cfg.copy_if_best(job, slack)
+		if e != nil {
+			return false, e
+		}
 		if job.pass {
 			fmt.Printf("Seed %5d passed in %s, worst slack %s%s\n", job.seed, job.walltime, slack, copy_msg)
 			*pass = true
@@ -320,23 +332,134 @@ func (cfg *seed_config) record_sta_slack(slack string) {
 	}
 }
 
-func (cfg *seed_config) copy_if_best(job seed_job, slack string) string {
+func (cfg *seed_config) copy_if_best(job seed_job, slack string) (string, error) {
 	value, ok := parse_slack_value(slack)
 	if !ok || (cfg.best_valid && value <= cfg.best_slack) {
-		return ""
+		return "", nil
 	}
 	src := cfg.release.source_rbf(job.builddir)
 	if _, e := os.Stat(src); e != nil {
-		return fmt.Sprintf(", release copy skipped: %v", e)
+		return fmt.Sprintf(", release copy skipped: %v", e), nil
 	}
 	dst := cfg.release.release_rbf()
 	e := copy_file(src, dst)
 	if e != nil {
-		return fmt.Sprintf(", release copy failed: %v", e)
+		return fmt.Sprintf(", release copy failed: %v", e), nil
+	}
+	e = cfg.write_stats(job)
+	if e != nil {
+		return "", e
 	}
 	cfg.best_slack = value
 	cfg.best_valid = true
-	return fmt.Sprintf(", RBF copied to release")
+	return fmt.Sprintf(", RBF and stats copied to release"), nil
+}
+
+func (cfg *seed_config) write_stats(job seed_job) error {
+	stats, e := read_seed_stats(job.builddir)
+	if e != nil {
+		return e
+	}
+	stats.core = cfg.release.rbf_name()
+	stats.target = cfg.release.target
+	return write_seed_stats(cfg.release.stats_file(), stats)
+}
+
+func read_seed_stats(builddir string) (seed_stats, error) {
+	fit, e := find_seed_report(builddir, ".fit.rpt")
+	if e != nil {
+		return seed_stats{}, e
+	}
+	data, e := os.ReadFile(fit)
+	if e != nil {
+		return seed_stats{}, e
+	}
+	_, _, le_percent, ok := parse_seed_usage(string(data), seed_le_re)
+	if !ok {
+		return seed_stats{}, fmt.Errorf("cannot find logic-element usage in %s", fit)
+	}
+	bram_used, bram_total, bram_percent, ok := parse_seed_usage(string(data), seed_bram_re)
+	if !ok {
+		return seed_stats{}, fmt.Errorf("cannot find BRAM-block usage in %s", fit)
+	}
+	sta, e := find_seed_report(builddir, ".sta.rpt")
+	if e != nil {
+		return seed_stats{}, e
+	}
+	data, e = os.ReadFile(sta)
+	if e != nil {
+		return seed_stats{}, e
+	}
+	value, ok := parse_seed_sta(string(data))
+	if !ok {
+		return seed_stats{}, fmt.Errorf("cannot find setup slack in %s", sta)
+	}
+	return seed_stats{
+		sta:       fmt.Sprintf("%.3fns", value),
+		le:        fmt.Sprintf("%d%%", le_percent),
+		bram:      fmt.Sprintf("%d%%", bram_percent),
+		free_bram: bram_total - bram_used,
+	}, nil
+}
+
+func parse_seed_sta(text string) (float64, bool) {
+	match := seed_sta_re.FindStringSubmatch(text)
+	if match == nil {
+		return 0, false
+	}
+	return parse_slack_value(match[1])
+}
+
+func find_seed_report(builddir, extension string) (string, error) {
+	var report string
+	e := filepath.WalkDir(builddir, func(fname string, d os.DirEntry, e error) error {
+		if e != nil {
+			return e
+		}
+		if !d.IsDir() && strings.HasSuffix(fname, extension) {
+			if report != "" {
+				return fmt.Errorf("multiple %s reports under %s", extension, builddir)
+			}
+			report = fname
+		}
+		return nil
+	})
+	if e != nil {
+		return "", e
+	}
+	if report == "" {
+		return "", fmt.Errorf("missing %s report under %s", extension, builddir)
+	}
+	return report, nil
+}
+
+func parse_seed_usage(text string, re *regexp.Regexp) (int, int, int, bool) {
+	match := re.FindStringSubmatch(text)
+	if match == nil {
+		return 0, 0, 0, false
+	}
+	used, e := strconv.Atoi(strings.ReplaceAll(match[1], ",", ""))
+	if e != nil {
+		return 0, 0, 0, false
+	}
+	total, e := strconv.Atoi(strings.ReplaceAll(match[2], ",", ""))
+	if e != nil || total == 0 {
+		return 0, 0, 0, false
+	}
+	percent, e := strconv.Atoi(match[3])
+	if e != nil {
+		return 0, 0, 0, false
+	}
+	return used, total, percent, true
+}
+
+func write_seed_stats(fname string, stats seed_stats) error {
+	e := os.MkdirAll(filepath.Dir(fname), 0775)
+	if e != nil {
+		return e
+	}
+	text := fmt.Sprintf("- core: %s\n  target: %s\n  sta: %s\n  LE: %s\n  BRAM: %s\n  Free-BRAM: %d\n", stats.core, stats.target, stats.sta, stats.le, stats.bram, stats.free_bram)
+	return os.WriteFile(fname, []byte(text), 0664)
 }
 
 func (cfg *seed_config) core_has_nosta() bool {
@@ -468,6 +591,14 @@ func (info seed_release) release_rbf() string {
 	return filepath.Join(root, "release", info.target, info.rbf_name()+".rbf")
 }
 
+func (info seed_release) stats_file() string {
+	root, e := get_jtroot()
+	if e != nil {
+		return ""
+	}
+	return filepath.Join(root, "release", info.target, info.rbf_name()+".yml")
+}
+
 func (info seed_release) rbf_name() string {
 	if info.rbf != "" {
 		return info.rbf
@@ -570,6 +701,9 @@ func (job *seed_job) wait() bool {
 }
 
 func (job seed_job) worst_slack() string {
+	if slack := worst_setup_slack(job.builddir); slack != "" {
+		return slack
+	}
 	if slack := worst_sta_slack(job.builddir); slack != "" {
 		return slack
 	}
@@ -579,11 +713,32 @@ func (job seed_job) worst_slack() string {
 	return "n/a"
 }
 
+func worst_setup_slack(output string) string {
+	slack := ""
+	walk := func(fname string, d os.DirEntry, e error) error {
+		if e != nil || d.IsDir() || !strings.HasSuffix(fname, ".sta.rpt") {
+			return e
+		}
+		data, e := os.ReadFile(fname)
+		if e != nil {
+			return e
+		}
+		match := seed_sta_re.FindStringSubmatch(string(data))
+		if match != nil {
+			slack = match[1]
+		}
+		return nil
+	}
+	filepath.WalkDir(output, walk)
+	return slack
+}
+
 type jtcore_log_report struct {
 	error_msg  string
 	error_seen bool
 	done       bool
 	last_line  string
+	quartus_log string
 	context    []string
 }
 
@@ -600,6 +755,9 @@ func (job seed_job) log_report() jtcore_log_report {
 		if strings.TrimSpace(line) != "" {
 			report.last_line = strings.TrimSpace(line)
 		}
+		if match := jtcore_quartus_log_re.FindStringSubmatch(line); match != nil {
+			report.quartus_log = match[1]
+		}
 		report.add_context_line(line)
 		if strings.Contains(line, "ERROR") {
 			report.error_seen = true
@@ -614,7 +772,33 @@ func (job seed_job) log_report() jtcore_log_report {
 	if report.error_msg == "" && report.error_seen {
 		report.error_msg = report.error_context()
 	}
+	if report.error_msg != "" {
+		if detail := quartus_error_context(report.quartus_log); detail != "" {
+			report.error_msg = "Quartus: " + detail + " | " + report.error_msg
+		}
+	}
 	return report
+}
+
+func quartus_error_context(logname string) string {
+	f, e := os.Open(logname)
+	if e != nil {
+		return ""
+	}
+	defer f.Close()
+	var errors []string
+	scan := bufio.NewScanner(f)
+	for scan.Scan() {
+		line := strings.TrimSpace(scan.Text())
+		if !strings.HasPrefix(line, "Error (") {
+			continue
+		}
+		errors = append(errors, line)
+		if len(errors) == 3 {
+			break
+		}
+	}
+	return strings.Join(errors, " | ")
 }
 
 func (report *jtcore_log_report) add_context_line(line string) {
@@ -731,6 +915,10 @@ func parse_jtcore_done(line string) bool {
 
 var sta_slack_re = regexp.MustCompile(`(?i)^\s*Slack\s*:\s*([-+]?[0-9]+(?:\.[0-9]+)?)`)
 var worst_slack_re = regexp.MustCompile(`(?i)worst-case.*slack[^-+0-9]*([-+]?[0-9]+(?:\.[0-9]+)?)`)
+var seed_sta_re = regexp.MustCompile(`(?i)worst-case\s+setup\s+slack\s+is\s+([-+]?[0-9]+(?:\.[0-9]+)?)`)
+var seed_le_re = regexp.MustCompile(`(?mi)^;\s*(?:Total logic elements|Logic utilization \(in ALMs\))\s*;\s*([0-9,]+)\s*/\s*([0-9,]+)\s*\(\s*([0-9]+)\s*%\s*\)`)
+var seed_bram_re = regexp.MustCompile(`(?mi)^;\s*(?:M[0-9]+Ks|Total RAM Blocks)\s*;\s*([0-9,]+)\s*/\s*([0-9,]+)\s*\(\s*([0-9]+)\s*%\s*\)`)
+var jtcore_quartus_log_re = regexp.MustCompile(`^Log file:\s*(.+)$`)
 
 func stop_requested() bool {
 	_, e := os.Stat("jtseed.last")

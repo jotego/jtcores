@@ -1,13 +1,11 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version. */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later */
 
 module jtgrad3_main(
     input                rst,
     input                clk,
     input                LVBL,
+    input                irq_trig,
 
     output        [17:1] main_addr,
     output        [15:0] cpu_dout,
@@ -27,6 +25,8 @@ module jtgrad3_main(
     output reg           tile_cs,
     input         [ 7:0] tile_dout,
     input                tile_dtack,
+    output               video_req_n,
+    input                video_grant_n,
 
     output reg           gchar_cs,
     output               gchar_we,
@@ -38,7 +38,7 @@ module jtgrad3_main(
     output               rmrd,
     output               prio,
     output               sub_rst,
-    output reg           sub_irq,
+    output               sub_irq,
 
     output        [ 7:0] snd_latch,
     output               snd_irq,
@@ -61,9 +61,11 @@ wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn, cpu_cen, cpu_cenb;
 wire [ 2:0] FC, IPLn;
 wire [ 1:0] dws;
 wire        cab_cs, BUSn;
-reg         snd_latch_cs, snd_irq_cs, wdog_cs, sub_irq_cs,
+reg         snd_latch_cs, snd_irq_cs, wdog_cs,
             ctrl_cs, io_cs, dsw_cs, dec_cs;
-wire        bus_cs, bus_busy, vdtackn, vbl_irqn, lvbln, vbl_clr, irq_en;
+wire        bus_cs, bus_busy, vdtackn;
+reg         gchar_sel;
+wire        video_req;
 wire [ 7:0] ctrl;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
@@ -77,9 +79,6 @@ wire [23:0] A_full = {A,1'b0};
 assign rmrd       = 1'b0;
 assign prio       = ctrl[2];
 assign sub_rst    = ~ctrl[3];
-assign irq_en     = ctrl[5];
-assign lvbln      = ~LVBL;
-assign vbl_clr    = ~irq_en | ~VPAn;
 assign main_addr  = A[17:1];
 assign bus_dsn    = { UDSn, LDSn };
 assign dws        = ~({2{RnW}} | { UDSn, LDSn });
@@ -88,21 +87,24 @@ assign sh_we      = dws & {2{sh_cs}};
 assign gchar_we   = ~RnW;
 assign cpu_we     = ~RnW;
 assign snd_irq    = |snd_cnt;
+assign sub_irq    = A[20:15]=={3'd3,3'd3} && !A[23];
 
 assign cab_cs   = io_cs  | dsw_cs;
-assign bus_cs   = rom_cs | ram_cs | pal_cs | tile_cs | gchar_cs | sh_cs |
+assign bus_cs   = rom_cs | ram_cs | pal_cs | tile_cs | gchar_sel | sh_cs |
                   ctrl_cs | io_cs | dsw_cs | snd_latch_cs | snd_irq_cs | wdog_cs;
 wire [1:0] ok_cs, ok_in;
 assign ok_cs = { rom_cs, gchar_cs };
 assign ok_in = { rom_ok, gchar_ok };
+assign video_req = (tile_cs | gchar_sel) & ~BUSn;
+assign video_req_n = ~video_req;
 assign bus_busy = (rom_cs   & ~ok_dly)   |
                   (gchar_cs & ~ok_dly)   |
+                  (video_req & video_grant_n) |
                   (tile_cs  & ~tile_dtack);
 assign vdtackn  = DTACKn | (tile_cs & ~tile_dtack);
 assign VPAn     = ~( A[23] & ~ASn );
-assign IPLn     = !vbl_irqn ? ~3'd2 : 3'b111;
 assign BUSn      = &bus_dsn;
-assign st_dout  = { sub_rst, irq_en, rmrd, prio, 2'b0, snd_irq, sub_irq };
+assign st_dout  = { sub_rst, ctrl[5], rmrd, prio, 2'b0, snd_irq, sub_irq };
 
 function [6:0] joy_order( input [6:0] joystick );
     begin
@@ -119,10 +121,10 @@ always @* begin
     sh_cs        = 0;
     tile_cs      = 0;
     gchar_cs     = 0;
+    gchar_sel    = 0;
     ctrl_cs      = 0;
     io_cs        = 0;
     dsw_cs       = 0;
-    sub_irq_cs   = 0;
     wdog_cs      = 0;
     snd_latch_cs = 0;
     snd_irq_cs   = 0;
@@ -139,7 +141,7 @@ always @* begin
             3'd3: io_dec_cs = 1;
             3'd4: sh_cs     = 1;
             3'd5: tile_cs   = 1;
-            3'd6: gchar_cs  = !BUSn;
+            3'd6: begin gchar_sel = !BUSn; gchar_cs = !BUSn & ~video_grant_n; end
             default:;
         endcase
     end
@@ -149,7 +151,6 @@ always @* begin
             3'd0: ctrl_cs      = 1;
             3'd1: io_cs        = 1;
             3'd2: dsw_cs       = 1;
-            3'd3: sub_irq_cs   = 1;
             3'd4: wdog_cs      = 1;
             3'd5: snd_latch_cs = 1;
             3'd6: snd_irq_cs   = 1;
@@ -193,14 +194,11 @@ end
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        sub_irq   <= 0;
         snd_cnt   <= 0;
     end else begin
-        sub_irq <= 0;
         if( snd_cnt != 0 ) snd_cnt <= snd_cnt - 1'd1;
 
         if( snd_irq_cs && cpu_we ) snd_cnt <= 5'h1f;
-        if( sub_irq_cs && cpu_we ) sub_irq <= 1;
     end
 end
 
@@ -222,12 +220,14 @@ jtframe_8bit_reg u_snd_latch(
     .dout       ( snd_latch      )
 );
 
-jtframe_edge #(.QSET(0)) u_vbl(
-    .rst    ( rst       ),
-    .clk    ( clk       ),
-    .edgeof ( lvbln     ),
-    .clr    ( vbl_clr   ),
-    .q      ( vbl_irqn  )
+jtgrad3_int u_int(
+    .rst      ( rst              ),
+    .clk      ( clk              ),
+    .LVBL     ( LVBL             ),
+    .cpu_trig ( irq_trig         ),
+    .din      ( cpu_dout[14:12]  ),
+    .wr       ( ctrl_cs          ),
+    .IPLn     ( IPLn             )
 );
 
 jtframe_68kdtack_cen #(.W(6), .RECOVERY(1)) u_dtack(
@@ -277,10 +277,9 @@ jtframe_m68k u_cpu(
 `else
 assign main_addr=0, cpu_dout=0, cpu_we=0, bus_dsn=3,
        sh_we=0, gchar_we=0, ram_we=0,
-       rmrd=0, prio=0, sub_rst=1, snd_latch=0, snd_irq=0, st_dout=0;
+       rmrd=0, prio=0, sub_rst=1, sub_irq=0, snd_latch=0, snd_irq=0, st_dout=0;
 initial begin
     rom_cs=0; tile_cs=0; gchar_cs=0; pal_cs=0;
-    sub_irq=0;
 end
 `endif
 
