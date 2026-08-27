@@ -52,11 +52,20 @@ function [4:0] dim;
     dim = a - (a>>2);
 endfunction
 
+// /KILL sampled once per frame, at the start of active video. The board gates
+// per pixel and un-blanks mid-scanline; this is a deliberate simplification,
+// taken because our CPU reaches the write ~50 lines earlier in the frame.
+reg lvbl_l, kill_l;
+always @(posedge clk) if( pxl_cen ) begin
+    lvbl_l <= preLVBL;
+    if( preLVBL & ~lvbl_l ) kill_l <= video_en;
+end
+
 // SHADE from 315-5171, sheet 6/7.
 always @(*) begin
     gated = (shadow & ~pal_data[15]) ? { dim(rpal), dim(gpal), dim(bpal) } :
                                        {     rpal,      gpal,      bpal  };
-    if( !video_en ) gated = 0;
+    if( !kill_l ) gated = 0;
 end
 
 jtframe_blank #(.DLY(2),.DW(15)) u_blank(

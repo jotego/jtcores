@@ -1,10 +1,10 @@
 CORENAME=JTSHARRIER
 GAMETOP=jtsharrier_game_sdram
 
-# jtframe_pll6293 derives 6293700 / (400*262) = 60.05 Hz. 60.02 is shipped
-# deliberately, to match s16/outrun. An "out of range" on hardware is NOT this
-# number -- that was once traced to an incomplete -mrq build with no timing
-# closure. Do not re-derive the rate to fix a sync problem.
+# A jtsim check only, never reaching HDL: it states the SIM clock's 60.02 Hz.
+# Hardware is pll6293's 6293402/(400*262) = 60.0515; the board is 60.0544.
+# An "out of range" on hardware is NOT this number -- that was once traced to an
+# incomplete -mrq build with no timing closure. Do not re-derive it for sync.
 JTFRAME_RATE=60.02
 
 JTFRAME_PXLCLK=6

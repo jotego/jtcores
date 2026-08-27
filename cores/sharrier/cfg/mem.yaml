@@ -79,7 +79,11 @@ sdram:
     # Bank 0 - main CPU
     - buses:
         - { name: xram,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, rw: true }
-        - { name: main,   addr_width: 18, data_width: 16 }
+        # cache_size: our SDRAM program-ROM latency is an artifact the PCB never
+        # paid -- its 27256s answer in one cycle. RECOVERY=1 refunds the stall
+        # afterwards, which restores the average rate but not the phase. A cache
+        # removes the latency at source instead. 1kB as every upstream user picks.
+        - { name: main,   addr_width: 18, data_width: 16, cache_size: 1kB }
         - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
         - { name: map2,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
 

@@ -105,6 +105,7 @@ wire [11:0] obj_pxl;
 // fix/sa/sb/obj report which layer the tilemap selected as opaque; none selected
 // means it is transparent there and a lower layer shows.
 wire [10:0] road_pxl;
+wire        road_op;
 wire [ 1:0] road_plycont;
 wire        tm_fix, tm_sa, tm_sb, tm_obj;
 // Layer order, segahang.cpp screen_update, bottom to top: ROAD_BACKGROUND,
@@ -113,7 +114,8 @@ wire        tm_fix, tm_sa, tm_sb, tm_obj;
 // tiles, non-zero over them. The road writes every pixel, so on a foreground line
 // it replaces sa/sb, while sprites and text cover it.
 wire        road_fg  = road_plycont != 2'd0;
-wire        road_win = ~(tm_fix | tm_obj) & (road_fg | ~(tm_sa | tm_sb));
+// road_op drops the warm-up pixels; without it a held pxl paints over the tiles.
+wire        road_win = road_op & ~(tm_fix | tm_obj) & (road_fg | ~(tm_sa | tm_sb));
 
 // Tilemap SDRAM addresses into the 128 kB gfx1 region. S16A has no tile bank
 // register, so char (the fix layer) has zero top bits, scr's 12-bit code never
@@ -217,6 +219,7 @@ jtsharrier_road u_road(
     .rdrom_data ( rdrom_data   ),
 
     .pxl        ( road_pxl     ),
+    .pxl_op     ( road_op      ),
     .plycont    ( road_plycont ),
 
     .st_addr    ( st_addr      ),

@@ -96,9 +96,11 @@ module jtsharrier_main(
 `ifndef NOMAIN
 
 // XTAL1 on CPU sheet 1/6; the cen ratio follows JTFRAME_PLL.
+// FDEN is 146, not 156: against pll6293's 50.347 MHz the latter rounds to
+// 31/156 = 10.0049 MHz, 0.049% above the crystal. 29/146 lands on 10.0005.
 localparam        CPU_KHZ  = 10_000,
                   MCLK_KHZ = `JTFRAME_MCLK/1000;
-localparam [ 7:0] FDEN     = 8'd156;
+localparam [ 7:0] FDEN     = 8'd146;
 localparam [31:0] FNUM     = (CPU_KHZ*FDEN + MCLK_KHZ/2)/MCLK_KHZ;
 
 wire [23:1] A, cpu_A;

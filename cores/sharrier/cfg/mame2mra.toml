@@ -102,22 +102,6 @@ order = [
 # ---------------------------------------------------------------------------
 # Absolute output level. MRA-ONLY -- `jtframe mra sharrier`, seconds, no Quartus.
 # ---------------------------------------------------------------------------
-# NOTHING in mem.yaml can raise the overall level: normalize_gains divides every
-# channel by the LOUDEST, so vpp / pre / rsum only ever set the RATIO between
-# channels. Absolute level lives here.
-#
-# jtframe_board.v feeds game_vol to jtframe_volume from the MRA's coreMOD word
-# (bits 15:8); COREMOD_UNITY_VOLUME = 0x80. vol16 = knob*game_vol with the runtime
-# knob at 0x80, so 0x80 -> 1.00x, 0xA0 -> 1.25x (+1.9 dB), 0xFF -> 1.99x (+6.0 dB,
-# the format ceiling).
-#
-# 160 = 0xA0 is what the PREVIOUS core shipped after Chris balanced it against the
-# cabinet -- inherited deliberately as a starting point, not guessed. Our mix is not
-# identical to that core's (PSG sits 1.56 dB lower), so this may want revisiting once
-# Chris judges the level; raise it here, never with per-channel dips, which is what
-# caused the doubling/clipping mess on the previous core.
-#
-# If it ever clips, jtframe_volume latches `peaked` on snd_peak and refuses to go
-# higher on the OSD knob. That is the detector working, not a fault.
+
 [[audio.volume]]
 value = 160

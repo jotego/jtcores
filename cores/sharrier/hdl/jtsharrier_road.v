@@ -61,6 +61,7 @@ module jtsharrier_road(
 
     // Pixel output
     output reg [10:0] pxl,        // palette index, colour base already applied
+    output reg        pxl_op,     // pixel is valid: low through the PREROLL warm-up
     output reg [ 1:0] plycont,    // road layering vs tilemaps/sprites
 
     input      [ 7:0] st_addr,
@@ -72,7 +73,9 @@ module jtsharrier_road(
 localparam [10:0] COLORBASE1 = 11'h038,  // road ROM data
                   COLORBASE2 = 11'h7c0;  // background solid fill (the top band)
 
-// MAME starts 24 pixels before active video; PREROLL suppresses those.
+// The pipeline runs from x=-24 to warm ss8j and the counters but must not be
+// drawn (segaic16_road.cpp:199). PREROLL counts those out; pxl_op keeps them
+// off screen, since pxl holds the previous line's last value until then.
 localparam [4:0] PREROLL = 5'd24;
 
 // HROAD_HOFF delays the engine start after the hblank fetch, shifting the road
@@ -164,11 +167,11 @@ always @(posedge clk, posedge rst) begin
         st       <= 3'd0; hs_l <= 0; running <= 0; waiting <= 0; hoff_cnt <= 0;
         control  <= 0; hpos <= 0; color0 <= 0; color1 <= 0; idx_l <= 0;
         ctr9m    <= 0; ctr9n9p <= 0; ff9j1 <= 0; ff9j2 <= 1; ss8j <= 0;
-        prewind  <= 0; pxl <= 0; plycont <= 0;
+        prewind  <= 0; pxl <= 0; pxl_op <= 0; plycont <= 0;
     end else if( pxl_cen ) begin
         hs_l <= hs;
         if( hs & ~hs_l ) begin
-            st <= 3'd0; running <= 1'b0; waiting <= 1'b0;
+            st <= 3'd0; running <= 1'b0; waiting <= 1'b0; pxl_op <= 1'b0;
         end else if( hs & ~running & ~waiting ) begin
             if( st<3'd5 ) st <= st + 3'd1;
             case( st )
@@ -199,7 +202,8 @@ always @(posedge clk, posedge rst) begin
         end else if( running ) begin
             ff9j1 <= ff9j1_f;
 
-            if( prewind!=0 ) prewind <= prewind - 5'd1; else pxl <= pxl_nx;
+            if( prewind!=0 ) prewind <= prewind - 5'd1;
+            else begin pxl <= pxl_nx; pxl_op <= 1'b1; end
 
             // 6M-clocked state update, all using the forced ff9j1
             ctr9m <= (ctr9m + 3'd1);           // 9M wraps mod 8 naturally (3-bit)
