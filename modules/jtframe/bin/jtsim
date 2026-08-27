@@ -200,11 +200,10 @@ case "$1" in
         shift
         SETNAME=$1;;
     -s|-scene)
+        # JOTEGO is only needed for a bare scene name; a path to a scene kept
+        # inside the core works without it. Checked after the cd to ver/game,
+        # as the path is relative to it
         shift
-        if [ -z "${JOTEGO:-}" ]; then
-            echo "jtsim -s requires JOTEGO to be defined as the support-files directory" >&2
-            exit 1
-        fi
         SCENE_ARG="$1"
         ;;
     -shaup) SHAUP=1;;
@@ -306,11 +305,16 @@ if [ "$SETNAME" = game ]; then
 fi
 
 if [ -n "$SCENE_ARG" ]; then
-    link_scene_folder "$SYSNAME" "$SETNAME" || exit $?
-    rename_scene_file "$SCENE_ARG"
-    SCENE="$SCENE_ARG/dump.bin"
-    if [ ! -e "$SCENE" ]; then
-        SCENE="scenes/$SCENE"
+    # A scene given as a path that exists is used as is - that covers the
+    # scenes kept inside the core, cores/<core>/ver/<set>/scenes. Only a bare
+    # scene name needs the JOTEGO support repo linked in as ./scenes
+    if [ -d "$SCENE_ARG" ]; then
+        rename_scene_file "$SCENE_ARG"
+        SCENE="$SCENE_ARG/dump.bin"
+    else
+        link_scene_folder "$SYSNAME" "$SETNAME" || exit $?
+        rename_scene_file "scenes/$SCENE_ARG"
+        SCENE="scenes/$SCENE_ARG/dump.bin"
     fi
     if [[ -e "$SCENE" && -x ../game/dump2bin.sh ]]; then
         ../game/dump2bin.sh "$SCENE" 2> /dev/null || exit 1
