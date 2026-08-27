@@ -1,0 +1,14 @@
+# Enter service mode the way MAME's F2 does: turn SW1 on AFTER the game has
+# booted. namcos1.cpp:182 - the ROM/RAM test only runs if the test switch is
+# on at POWER-UP, and that test is the one blastoff is documented to fail
+# with IO ERROR 64 (namcos1.cpp:226). Toggling it later skips the test and
+# goes straight to the settings menu.
+#
+# Cab frames only advance once the download reset is released (~sim frame 136),
+# and blastoff reaches attract around sim frame 611.
+
+# 1. boot to attract with SW1 off
+500
+
+# 2. SW1 on -> settings menu, no ROM/RAM test
+300 dipsw=fffe
