@@ -738,6 +738,7 @@ type jtcore_log_report struct {
 	error_seen bool
 	done       bool
 	last_line  string
+	quartus_log string
 	context    []string
 }
 
@@ -754,6 +755,9 @@ func (job seed_job) log_report() jtcore_log_report {
 		if strings.TrimSpace(line) != "" {
 			report.last_line = strings.TrimSpace(line)
 		}
+		if match := jtcore_quartus_log_re.FindStringSubmatch(line); match != nil {
+			report.quartus_log = match[1]
+		}
 		report.add_context_line(line)
 		if strings.Contains(line, "ERROR") {
 			report.error_seen = true
@@ -768,7 +772,33 @@ func (job seed_job) log_report() jtcore_log_report {
 	if report.error_msg == "" && report.error_seen {
 		report.error_msg = report.error_context()
 	}
+	if report.error_msg != "" {
+		if detail := quartus_error_context(report.quartus_log); detail != "" {
+			report.error_msg = "Quartus: " + detail + " | " + report.error_msg
+		}
+	}
 	return report
+}
+
+func quartus_error_context(logname string) string {
+	f, e := os.Open(logname)
+	if e != nil {
+		return ""
+	}
+	defer f.Close()
+	var errors []string
+	scan := bufio.NewScanner(f)
+	for scan.Scan() {
+		line := strings.TrimSpace(scan.Text())
+		if !strings.HasPrefix(line, "Error (") {
+			continue
+		}
+		errors = append(errors, line)
+		if len(errors) == 3 {
+			break
+		}
+	}
+	return strings.Join(errors, " | ")
 }
 
 func (report *jtcore_log_report) add_context_line(line string) {
@@ -888,6 +918,7 @@ var worst_slack_re = regexp.MustCompile(`(?i)worst-case.*slack[^-+0-9]*([-+]?[0-
 var seed_sta_re = regexp.MustCompile(`(?i)worst-case\s+setup\s+slack\s+is\s+([-+]?[0-9]+(?:\.[0-9]+)?)`)
 var seed_le_re = regexp.MustCompile(`(?mi)^;\s*(?:Total logic elements|Logic utilization \(in ALMs\))\s*;\s*([0-9,]+)\s*/\s*([0-9,]+)\s*\(\s*([0-9]+)\s*%\s*\)`)
 var seed_bram_re = regexp.MustCompile(`(?mi)^;\s*(?:M[0-9]+Ks|Total RAM Blocks)\s*;\s*([0-9,]+)\s*/\s*([0-9,]+)\s*\(\s*([0-9]+)\s*%\s*\)`)
+var jtcore_quartus_log_re = regexp.MustCompile(`^Log file:\s*(.+)$`)
 
 func stop_requested() bool {
 	_, e := os.Stat("jtseed.last")
