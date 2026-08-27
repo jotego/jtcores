@@ -60,38 +60,6 @@ assign vram1_addr = main_addr[12:1];
 assign oram1_addr = main_addr[10:1];
 assign lut1_addr  = karatblz ? main_addr[15:1] : { 2'd0, main_addr[13:1] };
 
-
-`ifdef SIMULATION
-integer pal_n=0, vram_n=0, vram1_n=0, oram_n=0, io_n=0, pal_nzw=0;
-reg [11:1] pal_maxw=0; reg [11:0] mix_max=0;
-always @(posedge clk) begin
-    if( |pal_we   ) pal_n   <= pal_n  +1;
-    if( |pal_we && |main_dout ) pal_nzw <= pal_nzw+1;
-    if( |pal_we && pal_addr>pal_maxw ) pal_maxw <= pal_addr;
-    if( |vram_we  ) vram_n  <= vram_n +1;
-    if( |vram1_we ) vram1_n <= vram1_n+1;
-    if( |oram_we  ) oram_n  <= oram_n +1;
-    if( gga_we    ) io_n    <= io_n   +1;
-end
-// renderer probes: pixels with a non-zero palette index, non-zero palette
-// data, and non-zero RGB. Splits "no pixels drawn" from "palette is black".
-integer idx_nz=0, pal_nz=0, rgb_nz=0, pxl_n=0;
-always @(posedge clk) if( pxl_cen ) begin
-    pxl_n <= pxl_n+1;
-    if( |mix_addr ) idx_nz <= idx_nz+1;
-    if( mix_addr>mix_max ) mix_max <= mix_addr;
-    if( |mix_pal  ) pal_nz <= pal_nz+1;
-    if( |{red,green,blue} ) rgb_nz <= rgb_nz+1;
-end
-always @(negedge LVBL) begin
-    $display("writes pal=%0d vram0=%0d vram1=%0d oram=%0d gga=%0d",
-        pal_n, vram_n, vram1_n, oram_n, io_n);
-    $display("render pxl=%0d idx_nz=%0d pal_nz=%0d rgb_nz=%0d | pal writes nonzero=%0d maxwaddr=%0h | mix_addr max=%0h",
-        pxl_n, idx_nz, pal_nz, rgb_nz, pal_nzw, pal_maxw, mix_max);
-    pxl_n=0; idx_nz=0; pal_nz=0; rgb_nz=0;
-end
-`endif
-
 jtpspike_header u_header(
     .clk        ( clk           ),
     .header     ( header        ),
