@@ -117,7 +117,11 @@ rename=[
 extra=[
     # Halt the sound CPU while YM2151 is busy. Not present in the original
     # Fixes issues in some games due to the poorly designed sound driver
-    { name="*Sound fix", options="On,Off", bits="8" }
+    { name="*Sound fix", options="On,Off", bits="8" },
+    # Drives the same register the service menu's flip setting ends up in
+    # (sprite control 0x0FF6 bit 0). Not present in the original: it exists so
+    # tate mode can be flipped without reaching the service menu.
+    { name="*Flip screen", options="Off,On", bits="9" }
 ]
 
 defaults=[
