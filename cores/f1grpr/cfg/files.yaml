@@ -1,0 +1,38 @@
+f1grpr:
+  - get:
+    # glob: jtf1grpr_header.v is generated and gitignored
+    - jtf1grpr_*.v
+# Same Video System chipset as pspikes.cpp, so the GGA is shared rather than
+# copied. A core name resolves ahead of a module name in get_base_path, so
+# these come from cores/pspike/hdl
+pspike:
+  - get:
+    - jtpspike_gga.v
+    - jtpspike_snd.v
+    - jtpspike_obj.v
+    - jtpspike_objscan.v
+# the Konami 053936 ROZ generator, imported not copied
+rungun:
+  - get:
+    - jt053936.v
+jtframe:
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+      - jtframe_obj_buffer.v
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+  - from: cpu
+    get:
+      - jtframe_virq.v
+      - jtframe_m68k.yaml
+      - jtframe_z80.yaml
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_obj.yaml
+jt12:

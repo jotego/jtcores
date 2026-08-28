@@ -1,0 +1,45 @@
+[global]
+author=["jotego","andreabogazzi"]
+platform="jtf1grpr"
+
+[parse]
+sourcefile=[ "f1gp.cpp" ]
+# f1gpb and f1gpbl are MACHINE_NOT_WORKING in MAME; f1gp2 is a different
+# board (VS920A + mb60553 instead of the GGA + K053936)
+skip.bootlegs=true
+mustbe.machines=[ "f1gp" ]
+skip.setnames=[ "f1gpb", "f1gp2" ]
+
+[header]
+info="""byte 1 bit 0 = f1gp hardware"""
+# byte 0 is coremod
+registers = [
+    { name="f1gp", pos="1[0]", values=[{ setnames=["f1gp","f1gpa"], value=1 }], desc="F-1 Grand Prix hardware" },
+]
+
+[dipsw]
+bitcnt = 32
+delete=[{names=["Unused","Unknown"]}]
+
+[ROM]
+regions = [
+    # 68000: maincpu at 0, user1 kept at its own 68000 offset so the address
+    # decode stays a plain wire
+    { name="maincpu", no_offset=true },
+    { name="user1", width=16, reverse=true, start="USER1_START" },
+    { name="fgtiles", rename="fg", start="FG_START", width=32 },
+    { name="sprites1", rename="obj0", start="JTFRAME_BA1_START", width=32 },
+    { name="user2", start="USER2_START" },
+    { name="sprites2", rename="obj1", start="JTFRAME_BA2_START", width=32 },
+    { name="sub", start="SUB_START" },
+    { name="audiocpu", rename="snd", start="SND_START" },
+    { name="ymsnd:adpcma", rename="pcma", start="JTFRAME_BA3_START" },
+    { name="ymsnd:adpcmb", rename="pcmb", start="PCMB_START" },
+]
+
+order = [
+    "maincpu", "user1", "fg",
+    "obj0", "user2",
+    "obj1", "sub", "snd",
+    "pcma", "pcmb"
+]

@@ -1,0 +1,5 @@
+' Per-instruction trace of the sub 68000 from reset.
+trace /private/tmp/claude-502/-Users-andrea-develop-jtcores/ffc7cd81-5538-4486-8c2f-4470836991b4/scratchpad/f1gp_sub.tr,sub,noloop
+focus sub
+go
+quit

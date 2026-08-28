@@ -1,0 +1,152 @@
+params:
+  # offsets are relative to each SDRAM bank start and divided by two
+  - { name: FG_OFFSET,    value: "`FG_START>>1" }
+  - { name: USER2_OFFSET, value: "(`USER2_START-`JTFRAME_BA1_START)>>1" }
+  - { name: SUB_OFFSET,   value: "(`SUB_START  -`JTFRAME_BA2_START)>>1" }
+  - { name: SND_OFFSET,   value: "(`SND_START  -`JTFRAME_BA2_START)>>1" }
+  - { name: PCMB_OFFSET,  value: "(`PCMB_START -`JTFRAME_BA3_START)>>1" }
+
+clocks:
+  clk48:
+    - freq: 8 MHz
+      gate: [ pcma, pcmb ]
+      outputs:
+        - fm_cen
+    - freq: 5 MHz
+      gate: [ snd ]
+      outputs:
+        - snd_cen
+
+audio:
+  channels:
+    - { name: fm, data_width: 16, stereo: true, rsum: 10k }
+
+sdram:
+  banks:
+    - buses:
+      # 8bpp fg tiles, gfx_8x8x8_raw: one 32-bit read is four pixels
+      - name: fg
+        addr_width: 21
+        data_width: 32
+        offset: FG_OFFSET
+      # maincpu 000000-03ffff plus user1 100000-2fffff, at their 68000 offsets
+      - name: main
+        addr_width: 22
+        data_width: 16
+    - buses:
+      - name: obj0
+        addr_width: 20
+        data_width: 32
+      # user2, a00000-bfffff: the source the CPU copies into rozgfxram
+      - name: user2
+        addr_width: 21
+        data_width: 16
+        offset: USER2_OFFSET
+    - buses:
+      - name: obj1
+        addr_width: 19
+        data_width: 32
+      - name: sub
+        addr_width: 17
+        data_width: 16
+        offset: SUB_OFFSET
+      - name: snd
+        addr_width: 17
+        data_width: 8
+        offset: SND_OFFSET
+    - buses:
+      - name: pcma
+        addr_width: 20
+        data_width: 8
+      - name: pcmb
+        addr_width: 20
+        data_width: 8
+        offset: PCMB_OFFSET
+
+bram:
+  # main work RAM, ff8000-ffbfff
+  - name: ram
+    addr_width: 14
+    data_width: 16
+    rw: true
+    din: main_dout
+  # sub work RAM, ff8000-ffbfff on the sub bus
+  - name: subram
+    addr_width: 14
+    data_width: 16
+    rw: true
+    din: sub_dout
+  # ffc000-ffcfff on both CPUs: the only channel between them
+  - name: shared
+    addr_width: 12
+    data_width: 16
+    rw: true
+    din: main_dout
+    dual_port:
+      name: shsub
+      din: sub_dout
+      dout: shsub_dout
+      rw: true
+  # 8bpp character layer, ffd000-ffdfff
+  - name: fgvram
+    addr_width: 12
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: fgv, dout: fgv_dout }
+  - name: pal
+    addr_width: 12
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: mix, dout: mix_pal }
+  # ROZ tile graphics, c00000-c3ffff. GFXDECODE_RAM in MAME: the CPU uploads
+  # 2048 16x16x4 tiles here from user2. A rotating layer can need a new tile
+  # every pixel, so this cannot go to SDRAM
+  - name: rozgfx
+    addr_width: 18
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: rozg, dout: rozg_dout }
+  # ROZ tilemap, d00000-d01fff, 64x64 of 16x16
+  - name: rozvram
+    addr_width: 13
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: rozv, dout: rozv_dout }
+  # SPR-1 / SPR-2 CG RAM: the sprite tile-code lookup, e00000 and e04000
+  - name: lut0
+    addr_width: 14
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objl0, dout: objl0_dout }
+  - name: lut1
+    addr_width: 14
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objl1, dout: objl1_dout }
+  # SPR-1 / SPR-2 VRAM: the 512-word sprite lists, f00000 and f10000
+  - name: oram0
+    addr_width: 10
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objr0, dout: objr0_dout }
+  - name: oram1
+    addr_width: 10
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objr1, dout: objr1_dout }
