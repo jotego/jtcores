@@ -1,30 +1,57 @@
 #!/bin/bash
-# simulate all scenes in the folders below
+# Simulate all scenes below the current verification folder.
 
-set -e
-RUN_FOLDER=`mktemp`
+main() {
+    local run_folder
+    run_folder=$(mktemp)
+    trap 'rm -f "$run_folder"' EXIT
 
-cat > $RUN_FOLDER <<EOF
+    make_runner "$run_folder"
+    run_all_games "$run_folder"
+    collect_images
+}
+
+make_runner() {
+    local run_folder=$1
+
+    cat > "$run_folder" <<'EOF'
 #!/bin/bash
-cd \$1
+cd "$1" || exit 1
 pwd
 SIM=jtsim
 if [ -e sim.sh ]; then
-	SIM=sim.sh
+    SIM=sim.sh
 fi
-for SCN in \`find scenes -maxdepth 1 -mindepth 1 -type d | xargs -l1 basename\`; do
-	\$SIM -batch -s \$SCN
-done
+
+while IFS= read -r -d '' scene; do
+    "$SIM" -batch -s "${scene##*/}"
+done < <(find -L scenes -maxdepth 1 -mindepth 1 -type d -print0)
 EOF
-chmod +x $RUN_FOLDER
+    chmod +x "$run_folder"
+}
 
-for EACH in `find -type d -name scenes`; do
-	if [ ! -z "$GAME" ]; then GAME="$GAME "; fi
-	GAME="${GAME}`realpath $EACH/..`"
-done
+# note that this is designed to work when "scenes" is a symbolic link to
+# a folder
+run_all_games() {
+    local run_folder=$1
+    local scene_dir game_dir
+    local -a game_dirs=()
 
-parallel $RUN_FOLDER ::: $GAME
-rm -f $RUN_FOLDER
-rm -rf allscenes
-mkdir -p allscenes
-find scenes \( -name "*png" -o -name "*jpg" \) | xargs -I_ mv _ allscenes
+    while IFS= read -r -d '' scene_dir; do
+        [ -d "$scene_dir" ] || continue
+        game_dir=$(realpath -s "$(dirname "$scene_dir")")
+        game_dirs+=("$game_dir")
+    done < <(find . \( -type d -o -type l \) -name scenes -print0)
+
+    [ ${#game_dirs[@]} -eq 0 ] && return
+    parallel "$run_folder" ::: "${game_dirs[@]}"
+}
+
+collect_images() {
+    rm -rf allscenes
+    mkdir -p allscenes
+    [ -d scenes ] || return
+    find -L scenes -type f \( -name '*.png' -o -name '*.jpg' \) -exec mv -t allscenes {} +
+}
+
+main "$@"
