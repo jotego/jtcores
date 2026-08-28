@@ -28,7 +28,9 @@ wire [10:1] vram_prea;
 wire [ 8:0] code, hadj, vadj;
 wire [ 6:0] pal;
 wire [ 2:0] code_msb;
-wire        blankn = hdump>=9'o60 && hdump<9'o550, border;
+wire        border;
+// split declaration: iverilog rejects `wire a = expr, b;`
+wire        blankn = hdump>=9'o60 && hdump<9'o550;
 
 assign pal    = vram_dout[14:8];
 assign code   = {vram_dout[15],vram_dout[7:0]};
