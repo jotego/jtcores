@@ -6,6 +6,10 @@ JTFRAME_SKIP_RATE_TEST
 
 JTFRAME_CLK48
 
+JTFRAME_NOHQ2X
+JTFRAME_MR_DDRLOAD
+JTFRAME_180SHIFT
+
 # the GGA powers up on the shared 352x240 grid, so the sim's frame-size
 # check would abort before the CPU reprograms it
 JTFRAME_SIM_SKIP_VSIZE
