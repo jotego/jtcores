@@ -54,7 +54,8 @@ reg [SDRAMW-CACHE_AW:0] fill_tag;
 reg [CACHE_LINES-1:0] valid;
 reg [SDRAMW-CACHE_AW:0] tags[0:CACHE_LINES-1];
 reg [63:0]        fill_data, nx_fill_data;
-wire [BURSTLEN-1:0] cache_data, pre_dout;
+wire [BURSTLEN-1:0] cache_data;
+wire [63:0]         pre_dout;
 
 assign addr_word  = offset + (DW == 8 ? {{(SDRAMW-AW){1'b0}},addr}>>1 : {{(SDRAMW-AW){1'b0}},addr});
 assign line_addr  = LINE_AW == 0 ? addr_word :
@@ -65,12 +66,15 @@ assign tag        = addr_word[SDRAMW-1:CACHE_AW-1];
 assign hit        = valid[line_index] && tags[line_index] == tag;
 assign cache_data_match = line_index == read_line_l && tag == read_tag_l;
 assign req        = addr_ok && !hit && !filling;
-assign sdram_addr = line_addr;
+// A lower-priority slot can remain pending while the client advances to its
+// next address. Keep the SDRAM address paired with the tag and line captured
+// when req was first asserted, until that request starts filling.
+assign sdram_addr = req_pending ? { req_tag, req_line, {LINE_AW{1'b0}} } : line_addr;
 assign data_ok    = addr_ok && hit && !filling &&
                     (fill_ok || (hit_l && cache_data_match));
 assign fill_write = we && (dst || receiving);
 assign fill_done  = fill_write && din_ok;
-assign pre_dout   = fill_ok ? fill_data[BURSTLEN-1:0] : cache_data;
+assign pre_dout   = fill_ok ? fill_data : {{(64-BURSTLEN){1'b0}},cache_data};
 
 jtframe_rpwp_ram #(.DW(BURSTLEN),.AW(LINE_INDEX_AW)) u_ram(
     .clk     ( clk        ),
