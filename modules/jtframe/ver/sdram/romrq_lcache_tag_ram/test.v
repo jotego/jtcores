@@ -84,11 +84,23 @@ initial begin
     @(posedge clk); #1;
     assert_msg(ok && !req && dout==16'h7856, "tag/data RAM hit is not aligned");
 
+    // A client glitching its address while the controller delays accepting a
+    // miss may see an invalid dout, but it must not redirect the cache fill.
+    // The pending request owns the line and tag until the fill completes.
+    @(negedge clk); cs=0;
+    @(posedge clk);
     request_line(16'h0440, 22'h440);
+    @(negedge clk); addr=16'h0002;
+    @(negedge clk); addr=16'h0204;
+    @(negedge clk); addr=16'h0a06;
     finish_fill(16'habcd, 16'hef01);
+    cs=0; addr=16'h0440;
+    @(posedge clk);
+    @(negedge clk); cs=1;
     @(posedge clk); #1;
     @(posedge clk); #1;
-    assert_msg(ok && dout==16'habcd, "replacement line data is wrong");
+    assert_msg(ok && !req && dout==16'habcd,
+               "address glitch corrupted the filled cache line");
 
     @(negedge clk); clr=1;
     @(negedge clk); clr=0;

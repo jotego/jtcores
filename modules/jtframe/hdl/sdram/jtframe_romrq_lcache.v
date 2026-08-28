@@ -75,7 +75,8 @@ assign req        = TAG_RAM ? addr_ok_l && !hit && !(fill_ok && fill_data_match)
 // A lower-priority slot can remain pending while the client advances to its
 // next address. Keep the SDRAM address paired with the tag and line captured
 // when req was first asserted, until that request starts filling.
-assign sdram_addr = req_pending ? { req_tag, req_line, {LINE_AW{1'b0}} } : line_addr;
+assign sdram_addr = req_pending ? { req_tag, req_line, {LINE_AW{1'b0}} } :
+                    TAG_RAM ? { read_tag_l, read_line_l, {LINE_AW{1'b0}} } : line_addr;
 assign data_ok    = TAG_RAM ? addr_ok_l && !filling &&
                               ((hit && hit_l && cache_data_match) ||
                                (fill_ok && fill_data_match)) :
@@ -201,8 +202,8 @@ always @(posedge clk) begin
         // A slot may select this request after the client changes address.
         if( req && !req_pending ) begin
             req_pending <= 1;
-            req_line    <= line_index;
-            req_tag     <= tag;
+            req_line    <= TAG_RAM ? read_line_l : line_index;
+            req_tag     <= TAG_RAM ? read_tag_l  : tag;
         end
         if( clr ) valid <= 0;
         if( we && !filling ) begin
