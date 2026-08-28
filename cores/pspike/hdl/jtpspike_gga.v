@@ -24,8 +24,11 @@
 // one unit: the programmed edge is (reg+1)*4 or (reg+1)*2.
 //
 //        reg  00   01   02   03   08   09   0a   0b
-//   pspikes   352  400  424  456  240  244  248  256   also turbofrc
-//   aerofgtb  320  376  400  456  224  226  230  250
+//   pspikes   352  400  424  456  240  244  248  256
+//
+// That table is the only default in this module. Every game programs its own
+// grid at boot, and scene replay - which has no CPU - restores the register
+// file from gga.bin, the way jt053936 restores itself from psac.bin.
 //
 // Regs 04/05/0c/0d have no known effect. H total must stay under 512.
 
@@ -33,7 +36,6 @@ module jtpspike_gga(
     input             rst,
     input             clk,
     input             pxl_cen,
-    input             aerofgt,    // picks the reset default table
 
     // CPU write port. Data is the low byte of the 68000 word (umask 00ff)
     input             cs,
@@ -55,6 +57,32 @@ module jtpspike_gga(
 );
 
 reg  [7:0] regs[0:15];
+
+// Scene replay has no CPU to program the grid, so the registers are restored
+// from the dump - the same way jt053936 loads psac.bin. Absent the file the
+// power-on table below is used, so a normal boot sim is unaffected.
+`ifdef SIMULATION
+reg  [7:0] gga_init[0:15];
+reg        gga_ok=0;
+integer    ggaf, ggacnt, gi;
+initial begin
+    for( gi=0; gi<16; gi=gi+1 ) gga_init[gi] = 8'd0;
+    ggaf = $fopen("gga.bin","rb");
+    if( ggaf!=0 ) begin
+        ggacnt = $fread(gga_init,ggaf);
+        $fclose(ggaf);
+        if( ggacnt==16 ) begin
+            gga_ok = 1;
+            $display("GGA %m - restored %0d registers from gga.bin",ggacnt);
+        end else begin
+            $display("GGA %m - gga.bin is %0d bytes, expected 16",ggacnt);
+        end
+    end
+end
+`define GGA_R(k,dflt) (gga_ok ? gga_init[k] : dflt)
+`else
+`define GGA_R(k,dflt) dflt
+`endif
 reg  [3:0] alatch;
 reg        LVBL2, LVBL1;
 
@@ -105,14 +133,14 @@ end
 always @(posedge clk) begin
     if( rst ) begin
         // regs[] are loaded this same cycle, so take the defaults directly
-        hb_start <= aerofgt ? 9'd319 : 9'd351;
-        hs_start <= aerofgt ? 9'd376 : 9'd400;
-        hs_end   <= aerofgt ? 9'd400 : 9'd424;
-        h_lastr  <= 9'd455;
-        vb_start <= aerofgt ? 9'd223 : 9'd239;
-        vs_start <= aerofgt ? 9'd226 : 9'd244;
-        vs_end   <= aerofgt ? 9'd230 : 9'd248;
-        v_last   <= aerofgt ? 9'd249 : 9'd255;
+        hb_start <= hval(`GGA_R( 0,8'h57)) - 9'd1;
+        hs_start <= hval(`GGA_R( 1,8'h63));
+        hs_end   <= hval(`GGA_R( 2,8'h69));
+        h_lastr  <= hval(`GGA_R( 3,8'h71)) - 9'd1;
+        vb_start <= vval(`GGA_R( 8,8'h77)) - 9'd1;
+        vs_start <= vval(`GGA_R( 9,8'h79));
+        vs_end   <= vval(`GGA_R(10,8'h7b));
+        v_last   <= vval(`GGA_R(11,8'h7f)) - 9'd1;
     end else if( pxl_cen && do_latch && tbl_ok ) begin
         hb_start <= nhb;
         hs_start <= nhs;
@@ -128,17 +156,18 @@ end
 // Reset defaults are also the scene-replay configuration: NOMAIN never writes
 always @(posedge clk) begin
     if( rst ) begin
-        regs[ 0] <= aerofgt ? 8'h4f : 8'h57;
-        regs[ 1] <= aerofgt ? 8'h5d : 8'h63;
-        regs[ 2] <= aerofgt ? 8'h63 : 8'h69;
-        regs[ 3] <= 8'h71;
-        regs[ 4] <= 8'h1f; regs[ 5] <= 8'h00; regs[ 6] <= 8'h00; regs[ 7] <= 8'h00;
-        regs[ 8] <= aerofgt ? 8'h6f : 8'h77;
-        regs[ 9] <= aerofgt ? 8'h70 : 8'h79;
-        regs[10] <= aerofgt ? 8'h72 : 8'h7b;
-        regs[11] <= aerofgt ? 8'h7c : 8'h7f;
-        regs[12] <= 8'h1f;
-        regs[13] <= aerofgt ? 8'h02 : 8'h00;
+        regs[ 0] <= `GGA_R( 0,8'h57);
+        regs[ 1] <= `GGA_R( 1,8'h63);
+        regs[ 2] <= `GGA_R( 2,8'h69);
+        regs[ 3] <= `GGA_R( 3,8'h71);
+        regs[ 4] <= `GGA_R( 4,8'h1f); regs[ 5] <= `GGA_R( 5,8'h00);
+        regs[ 6] <= `GGA_R( 6,8'h00); regs[ 7] <= `GGA_R( 7,8'h00);
+        regs[ 8] <= `GGA_R( 8,8'h77);
+        regs[ 9] <= `GGA_R( 9,8'h79);
+        regs[10] <= `GGA_R(10,8'h7b);
+        regs[11] <= `GGA_R(11,8'h7f);
+        regs[12] <= `GGA_R(12,8'h1f);
+        regs[13] <= `GGA_R(13,8'h00);
         regs[14] <= 8'h00; regs[15] <= 8'h00;
         alatch   <= 0;
     end else if( cs & we ) begin

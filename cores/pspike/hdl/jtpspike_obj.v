@@ -20,7 +20,9 @@
 // vertical zoom live in jtpspike_objscan; the drawing is the generic
 // jtframe_objdraw, which does the horizontal zoom by itself.
 
-module jtpspike_obj(
+// PASSES reaches jtpspike_objscan: 2 for the vsystem_spr2 pritype 0/1 cores,
+// 1 for pritype 2 (f1gp), where the chip makes a single pass
+module jtpspike_obj #(parameter PASSES=2)(
     input               rst,
     input               clk,
     input               pxl_cen,
@@ -28,7 +30,7 @@ module jtpspike_obj(
     input               en,
     input               flip,
     input      [ 8:0]   hdump, vrender,
-    input      [ 8:0]   yoffs,
+    input      [ 8:0]   xoffs, yoffs,
 
     input      [ 1:0]   objbank,
 
@@ -64,12 +66,13 @@ assign objl_addr = lut_addr;
 // Without this the tile comes out in scrambled quarters
 assign rom_addr  = { draw_addr[21:7], draw_addr[5:2], draw_addr[6] };
 
-jtpspike_objscan u_scan(
+jtpspike_objscan #(.PASSES(PASSES)) u_scan(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .hs         ( hs        ),
     .scan_en    ( en        ),
     .vrender    ( vrender   ),
+    .xoffs      ( xoffs     ),
     .yoffs      ( yoffs     ),
     .flip       ( flip      ),
     .objbank    ( objbank   ),

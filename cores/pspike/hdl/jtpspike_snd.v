@@ -34,7 +34,11 @@
 // The latch is two way: a write from the 68000 raises the Z80 NMI and sets a
 // pending flag the 68000 can poll; the Z80 clears both by writing to port 14.
 
-module jtpspike_snd(
+// BANK_OFF shifts the bank window: pspikes/turbofrc bank from 0, f1gp banks
+// two 32kB entries starting at 0x8000
+module jtpspike_snd #(parameter [1:0] BANK_OFF=2'd0,
+                      parameter       PCMBW   =19      // f1gp has 1MB
+)(
     input                rst,
     input                clk,
     input                snd_cen,        // 5 MHz
@@ -54,7 +58,7 @@ module jtpspike_snd(
     output               pcma_cs,
     input      [ 7:0]    pcma_data,
 
-    output     [18:0]    pcmb_addr,
+    output [PCMBW-1:0]   pcmb_addr,
     output               pcmb_cs,
     input      [ 7:0]    pcmb_data,
 
@@ -93,7 +97,7 @@ assign latch_rd = io_acc & (aerofgt ? A[7:0]==8'h0c : A[7:0]==8'h14);
 assign latch_ack= io_acc & (aerofgt ? A[7:0]==8'h08 : A[7:0]==8'h14);
 assign fm_cs    = io_acc & (aerofgt ? A[7:2]==6'b0000_00     // 00-03
                                     : A[7:2]==6'b0001_10);   // 18-1b
-assign rom_addr = { A[15] ? bank : 2'd0, A[14:0] };
+assign rom_addr = { A[15] ? bank+BANK_OFF : 2'd0, A[14:0] };
 
 always @* begin
     cpu_din = 8'hff;
@@ -183,7 +187,7 @@ jtframe_ram #(.AW(11)) u_ram(
 assign pcma_cs   = ~adpcma_roe_n;
 assign pcma_addr = adpcma_addr;         // 1 MB region, adpcma_bank stays 0
 assign pcmb_cs   = ~adpcmb_roe_n;
-assign pcmb_addr = adpcmb_addr[18:0];   // 256 kB region
+assign pcmb_addr = adpcmb_addr[PCMBW-1:0];
 
 jt10 u_jt10(
     .rst        ( rst       ),

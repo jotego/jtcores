@@ -48,12 +48,16 @@
 // end of the line - which used to drop the pri==0 pass, i.e. the sprites that
 // belong in FRONT.
 
-module jtpspike_objscan(
+// PASSES=2 walks the list twice, pri==1 then pri==0 (vsystem_spr2 pritype 0
+// and 1). PASSES=1 is the pritype 2 case - f1gp - where the chip makes a
+// single pass and the priority value comes from the mixer instead
+module jtpspike_objscan #(parameter PASSES=2)(
     input             rst,
     input             clk,
     input             hs,
     input             scan_en,     // held low when the second chip is unused
     input      [ 8:0] vrender,
+    input      [ 8:0] xoffs,       // vsystem_spr2 set_offsets x, signed
     input      [ 8:0] yoffs,       // vsystem_spr2 set_offsets y, signed
     input             flip,
     input      [ 1:0] objbank,
@@ -135,7 +139,8 @@ wire            fifo_full  = wptr[FW-1:0]==rptr[FW-1:0] && wptr[FW]!=rptr[FW];
 wire [RECW-1:0] fifo_out   = fifo[rptr[FW-1:0]];
 wire [RECW-1:0] rec_in     = { ox, w3, xsize, ysize, src, w1[15:12],
                                fx, fy, pri, w2[3:0] };
-wire            push = iss2 && wsel2==2'd3 && en && pri==pass2 && on_line;
+wire            push = iss2 && wsel2==2'd3 && en && on_line &&
+                       (PASSES==1 || pri==pass2);
 // a full FIFO holds the address and puts a bubble in the delay pipe, so the
 // words already in flight still land in step
 wire            stall = fifo_full;
@@ -182,7 +187,7 @@ always @(posedge clk) begin
             if( issuing && !stall ) begin
                 rd_addr <= scan_addr;
                 if( scan_addr=={LAST[8:2],2'd3} ) begin   // last word, last slot
-                    if( pass ) issuing   <= 0;            // both passes done
+                    if( pass || PASSES==1 ) issuing <= 0;
                     else begin pass <= 1; scan_addr <= first; end
                 end else scan_addr <= scan_addr + 9'd1;
             end
@@ -288,7 +293,7 @@ always @(posedge clk) begin
                 draw    <= 1;
                 code    <= code_nx;
                 hz_keep <= dcol!=0;
-                xpos    <= d_ox;
+                xpos    <= d_ox + xoffs;
                 ysub    <= d_src[3:0];  // jtframe_draw applies vflip itself
                 hzoom   <= hz_lut;
                 hflip   <= d_fx;
