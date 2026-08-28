@@ -76,6 +76,7 @@ wire [ 7:0] mmr0, mmr1, st0, st1,  obj_mmr, obj_st;
 wire [ 3:0] th_red, th_green, th_blue,
             mx_red, mx_green, mx_blue;
 wire [ 2:0] obj_prio, scr0_prio, scr1_prio, pre1_prio;
+wire        scr0_front;
 
 reg         rst_scr1, rst_mx, dec_en;
 reg signed [7:0] scr0_vos;
@@ -138,6 +139,7 @@ jtcus42 #(.ID(0)) u_scroll0(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .metrocrs   ( metrocrs      ),
     .hs         ( hs            ),
     .flip       ( flip          ),
     .scrhflip   ( scrhflip      ),
@@ -172,6 +174,7 @@ jtcus42 #(.ID(0)) u_scroll0(
     .ioctl_din  ( mmr0          ),
 
     .prio       ( scr0_prio     ),
+    .frontop    ( scr0_front    ),
     .pxl        ( scr0_pxl      ),
     // debug
     .debug_bus  ( debug_bus     ),
@@ -182,6 +185,7 @@ jtcus42 #(.ID(1),.HBASE(9'd4)) u_scroll1(
     .rst        ( rst_scr1      ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .metrocrs   ( 1'b0          ), // held in reset on the baraduke.cpp board
     .hs         ( hs            ),
     .flip       ( flip          ),
     .scrhflip   ( scrhflip      ),
@@ -216,6 +220,7 @@ jtcus42 #(.ID(1),.HBASE(9'd4)) u_scroll1(
     .ioctl_din  ( mmr1          ),
 
     .prio       ( pre1_prio     ),
+    .frontop    (               ),
     .pxl        ( pre1_pxl      ),
     // debug
     .debug_bus  ( debug_bus     ),
@@ -230,6 +235,7 @@ jtthundr_obj u_obj(
     .lvbl       ( lvbl      ),
     .hs         ( hs        ),
     .flip       ( flip      ),
+    .metrocrs   ( metrocrs  ),
     .hos        ( objhos    ),
     .vos        ( objvos    ),
     .hdump      ( hdump     ),
@@ -320,7 +326,7 @@ jtmetrox_colmix u_metrox_colmix(
 
     .txt_pxl    ( txt_pxl       ),
     .scr0_pxl   ( scr0_pxl      ),
-    .scr0_prio  ( scr0_prio     ),
+    .scr0_front ( scr0_front    ),
     .obj_pxl    ( obj_pxl       ),
     .obj_prio   ( obj_prio      ),
 

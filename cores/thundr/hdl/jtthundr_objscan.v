@@ -4,7 +4,7 @@
 
 module jtthundr_objscan(
     input             clk, hs, blankn,
-    input             flip,
+    input             flip, metrocrs,
     input      [ 8:0] vrender, xoffset,
     input      [ 7:0] yoffset,
 
@@ -37,7 +37,7 @@ wire [8:0] vlatch, raw_addr;
 wire [1:0] st;
 reg  [1:0] hos, vos, hmsb_nx;
 reg  [4:0] nx_ysub;
-reg        inzone, wide=0;
+reg        inzone, wide=0, bara_prio=0;
 wire       draw_step, hsub, cen, hcnt_nx;
 
 assign draw_step = st==3;
@@ -80,11 +80,18 @@ end
 
 always @(posedge clk) if(cen) begin
     case(st)
-        0: { code[7:0], hsize, hflip, hos, code[10:8] } <= ram_dout;
+        0: begin
+            { code[7:0], hsize, hflip, hos, code[10:8] } <= ram_dout;
+            // baraduke.cpp: priority = source[10] & 1. That bit doubles as
+            // code[8] but the sprite ROM is mirrored, so code[10:7] are moot
+            bara_prio <= ram_dout[0];
+        end
         1: { hpos[7:0], pal, hpos[8] } <= ram_dout;
         2: begin
             wide  <= hsize==HLARGE;
-            { prio, vos, vsize, vflip } <= ram_dout[7:0];
+            { vos, vsize, vflip } <= ram_dout[4:0];
+            // namcos86 keeps a 3-bit priority in source[14], baraduke.cpp does not
+            prio  <= metrocrs ? {2'd0,bara_prio} : ram_dout[7:5];
             y    <= ram_dout[15:8] + yoffset + YOS + vos_dr;
             hpos <= hpos + xoffset + XOS;
         end

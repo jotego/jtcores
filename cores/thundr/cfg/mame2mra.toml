@@ -14,6 +14,7 @@ names=[
 	{ machine="roishtar",names="Cast Spell,Select Spell,Swap" },
 	{ machine="genpeitd",names="Attack,Jump" },
 	{ machine="metrocrs",names="Jump" },
+	{ machine="aliensec",names="Blaster" },
 ]
 
 [dipsw]
@@ -116,20 +117,44 @@ regions = [
 		{name="mc1-6.4n", crc="9686dc3c",map="2100"},
 	], mirror=true },
 	# aliensec tiles
+	# The third bit plane lives in bd2_6.4m: its first half feeds tile layer A
+	# (MAME gfx0), its second half feeds layer B (gfx1). Only the high
+	# nibble of each byte is used, so each half is streamed twice: tiles 0-511
+	# take the high nibble, tiles 512-1023 the low one, selected by code[9] in
+	# jtthundr_scroll. See init_baraduke() in baraduke.cpp.
 	{ name="tiles_0", start="JTFRAME_BA2_START", setname="aliensec", parts=[
-		{name="bd2_8.4p", crc="432bd7d9",map="0021"},
-		{name="bd2_6.4m", crc="f4c1df60",map="2100"},
-
-		{name="bd1_7.4n", crc="0d7ebec9",map="0021"},
-		{name="bd2_6.4m", crc="f4c1df60",map="2100"},
+		# layer A - tiles 0-511
+		{name="bd2_8.4p", crc="432bd7d9",map="0021", offset=0x0000, length=0x2000},
+		{name="bd2_6.4m", crc="f4c1df60",map="2100", offset=0x0000, length=0x2000},
+		# layer A - tiles 512-1023
+		{name="bd2_8.4p", crc="432bd7d9",map="0021", offset=0x2000, length=0x2000},
+		{name="bd2_6.4m", crc="f4c1df60",map="2100", offset=0x0000, length=0x2000},
+		# layer B - tiles 0-511
+		{name="bd1_7.4n", crc="0d7ebec9",map="0021", offset=0x0000, length=0x2000},
+		{name="bd2_6.4m", crc="f4c1df60",map="2100", offset=0x2000, length=0x2000},
+		# layer B - tiles 512-1023
+		{name="bd1_7.4n", crc="0d7ebec9",map="0021", offset=0x2000, length=0x2000},
+		{name="bd2_6.4m", crc="f4c1df60",map="2100", offset=0x2000, length=0x2000},
 	], mirror=true },
 	# baraduke tiles
+	# The third bit plane lives in bd1_6.4m: its first half feeds tile layer A
+	# (MAME gfx0), its second half feeds layer B (gfx1). Only the high
+	# nibble of each byte is used, so each half is streamed twice: tiles 0-511
+	# take the high nibble, tiles 512-1023 the low one, selected by code[9] in
+	# jtthundr_scroll. See init_baraduke() in baraduke.cpp.
 	{ name="tiles_0", start="JTFRAME_BA2_START", setname="baraduke", parts=[
-		{name="bd1_8.4p", crc="b0bb0710",map="0021"},
-		{name="bd1_6.4m", crc="e5da0896",map="2100"},
-
-		{name="bd1_7.4n", crc="0d7ebec9",map="0021"},
-		{name="bd1_6.4m", crc="e5da0896",map="2100"},
+		# layer A - tiles 0-511
+		{name="bd1_8.4p", crc="b0bb0710",map="0021", offset=0x0000, length=0x2000},
+		{name="bd1_6.4m", crc="e5da0896",map="2100", offset=0x0000, length=0x2000},
+		# layer A - tiles 512-1023
+		{name="bd1_8.4p", crc="b0bb0710",map="0021", offset=0x2000, length=0x2000},
+		{name="bd1_6.4m", crc="e5da0896",map="2100", offset=0x0000, length=0x2000},
+		# layer B - tiles 0-511
+		{name="bd1_7.4n", crc="0d7ebec9",map="0021", offset=0x0000, length=0x2000},
+		{name="bd1_6.4m", crc="e5da0896",map="2100", offset=0x2000, length=0x2000},
+		# layer B - tiles 512-1023
+		{name="bd1_7.4n", crc="0d7ebec9",map="0021", offset=0x2000, length=0x2000},
+		{name="bd1_6.4m", crc="e5da0896",map="2100", offset=0x2000, length=0x2000},
 	], mirror=true },
 	{ name="mcu2",    skip=true }, # new region added in MAME
 	{ name="sprites", start="JTFRAME_BA3_START", rom_len=0x20000, no_offset=true, mirror=true },
