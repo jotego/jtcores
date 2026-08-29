@@ -125,6 +125,8 @@ initial begin
     @(negedge clk); addr8=8'h30; cs8=1;
     #1 assert_msg(req8, "delayed byte request missing");
     @(negedge clk); addr8=8'h34;
+    #1 assert_msg(sdram_addr8==22'h18,
+        "delayed request address changed before the fill started");
     finish_byte();
     @(posedge clk); #1 assert_msg(req8 && !ok8,
         "delayed fill was tagged with the changed address");

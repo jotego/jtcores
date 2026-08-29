@@ -1,0 +1,58 @@
+[global]
+author=["jotego","Andrea Bogazzi"]
+zip.alt="cchip.zip"
+
+[parse]
+sourcefile=[ "taito_x.cpp" ]
+
+[parse.skip]
+setnames=[ ]
+
+[buttons]
+names=[
+    # Superman: schematic-verified on the PCB — PA4 = Punch, PA5 = Kick
+    { machines=["superman","supermanu","supermanj"], names="Punch,Kick" },
+    { machines=["gigandes","gigandesa"],             names="Shot,Bomb" },
+    { machines=["ballbros"],                         names="Action,-" },
+    { machines=["kyustrkr"],                         names="Short Pass,Long Pass,Shoot" },
+]
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+rename=[
+    {name="Price to Continue", to="Continue" },
+]
+# kyustrkr is rendered rotated by 180, so we set flip on by default to make it correct.
+defaults=[
+    { setname="kyustrkr", value="df,ba" },
+]
+
+# Board type, one bit each.
+#   cchip     Taito Corp.       superman x3            C-chip, VBL level 6
+#   hawk      Taito Corp.       daisenpu, twinhawk x2  PC060HA + YM2151
+# Both bits clear selects the East Technology P0-057A games.
+# Derived in HDL rather than stored:
+#   direct_in = ~cchip                        taitox_state reads IN0/1/2 at 900000
+#   irq2      = ~cchip                        only the C-chip class installs the L6 ISR
+[header]
+registers=[
+    { name="cchip", pos="0[0]", desc="Taito P0-039A (C-chip)", values=[{ setnames=["superman","supermanu","supermanj"], value=1 }] },
+    { name="hawk",  pos="0[1]", desc="Taito P0-051A (PC060HA + YM2151)", values=[{ setnames=["daisenpu","twinhawk","twinhawku"], value=1 }] },
+]
+
+[ROM]
+regions = [
+    { name="maincpu",      width=16, reverse=true, no_offset=true },
+    { name="audiocpu",     start="JTFRAME_BA1_START" },
+    { name="ymsnd:adpcma", rename="adpcma", start="PCM_START" },
+    { setnames=["ballbros","kyustrkr"], name="gfx1", start="JTFRAME_BA2_START", width=32, no_offset=true, sequence=[1,3,0,2] },
+    { name="gfx1",         start="JTFRAME_BA2_START", width=16, no_offset=true },
+    { name="ymsnd:adpcmb", rename="adpcmb", start="JTFRAME_BA3_START" },
+    { name="cchip_bios", setnames=["superman","supermanu","supermanj"], start="JTFRAME_PROM_START", rom_len=0x1000, files=[ { name="cchip_upd78c11.bin", crc="43021521", size=0x1000 } ] },
+    { name="cchip:cchip_eprom", rename="cchip_eprom", rom_len=0x2000 },
+]
+
+order = [
+    "maincpu", "audiocpu", "adpcma", "gfx1", "adpcmb",
+    "cchip_bios", "cchip_eprom"
+]

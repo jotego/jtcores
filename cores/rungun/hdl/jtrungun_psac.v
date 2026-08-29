@@ -19,7 +19,7 @@ module jtrungun_psac(
     input       [23:0] vram_dout,
 
     // Tiles
-    output reg  [20:0] rom_addr,
+    output      [20:0] rom_addr,
     input       [ 7:0] rom_data,
     output             rom_cs,
     input              rom_ok,
@@ -52,12 +52,9 @@ assign hf        = {4{hflip}} ^ {x[3:0]};
 assign pre_pxl   = gfx_en[1] ? {pal,dmux} : 8'b0;
 
 assign rom_cs    = ~ob & blankn;
+assign rom_addr  = {code,vf,hf[3:1]}; // 13+4+4=21
 assign dmux      = hf[0] ? rom_data[3:0] : rom_data[7:4];
 assign pxl       = ob ? 8'd0 : pre_pxl;
-
-always @(posedge clk) begin
-    rom_addr <= {code,vf,hf[3:1]}; // 13+4+4=21
-end
 
 jt053936 u_xy(
     .rst        ( rst       ),

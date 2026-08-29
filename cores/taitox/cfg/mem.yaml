@@ -1,0 +1,126 @@
+params:
+  - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START)>>1"   }
+  - { name: RAM_OFFSET,   value: "(`RAM_START-`JTFRAME_BA3_START)>>1"   }
+  - { name: CCROM_OFFSET, value: "(`CCHIP_START-`JTFRAME_BA3_START)>>1" }
+clocks:
+  clk:
+    - freq: 8 MHz
+      gate: [ adpcma, adpcmb ]
+      outputs:
+        - cen8
+    - freq: 4 MHz
+      gate: [ snd ]
+      outputs:
+        - snd_cen
+    # YM2151 on P0-051A: 16/4, plus the half-rate enable jt51 wants
+    - freq: 4 MHz
+      outputs:
+        - fm_cen
+        - fm_cenp1
+audio:
+  rsum: 33k
+  rsum_feedback_res: true
+  channels:
+    # Todo: unsure of what the output impedance of the PSG is for YM2610
+    # and also the vpp given the 470 Ohm in the schematics
+    # so the FM/PSG sound balance is not accurate.
+    # sup's vpp matches that of jt51
+    - { name: sup,  data_width: 16, rsum: 33k, vpp: 0.5, stereo: true, fir:"fir_192k_6k.csv" }
+    # gigandes and kyustrkr use PSG sound too
+    - { name: psg, data_width: 10, rsum: 150k, vpp: 1.0, dcrm: true }
+    # daisenpu uses fm while keeping sup/psg silent, so gain is unity
+    - { name: fm, module: jt51, rsum: 33k  }
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 19
+        data_width: 16
+        cache_size: 1kB
+    - buses:
+      - name: snd
+        addr_width: 16
+        data_width: 8
+      - name: adpcma
+        addr_width: 19
+        data_width: 8
+        offset: PCM_OFFSET
+    - buses:
+      - name: scr
+        addr_width: 21
+        data_width: 32
+      - name: obj
+        addr_width: 21
+        data_width: 32
+    - buses:
+      # 68000 work RAM on the devices short of block RAM.
+      # It has to be the first bus of the bank.
+      - name: ram
+        when: [ RAM_IN_SDRAM ]
+        addr_width: 14
+        data_width: 16
+        offset: RAM_OFFSET
+        addr: main_addr[13:1]
+        din: cpu_dout
+        rw: true
+      - name: adpcmb
+        addr_width: 19
+        data_width: 8
+      # C-chip mask ROM + game EPROM, one 12 kB region. Same macro as the
+      # work RAM: BRAM PROMs where there is room, SDRAM where there is not.
+      - name: ccrom
+        when: [ RAM_IN_SDRAM ]
+        addr_width: 14
+        data_width: 8
+        offset: CCROM_OFFSET
+bram:
+  - name: ram
+    unless: [ RAM_IN_SDRAM ]
+    addr_width: 14
+    data_width: 16
+    addr: main_addr[13:1]
+    din: cpu_dout
+    dout: ram_data
+    rw: true
+  - name: pal
+    addr_width: 10
+    data_width: 16
+    addr: main_addr[9:1]
+    din: cpu_dout
+    rw: true
+    ioctl:
+      save: true
+      order: 0
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: palrd
+      dout: pal_data
+  # X1-001 internal RAM
+  - name: yram
+    addr_width: 10
+    data_width: 8
+    addr: main_addr[10:1]
+    din: cpu_dout[7:0]
+    rw: true
+    ioctl:
+      save: true
+      order: 1
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: col
+      dout: col_data
+  # X1-001 external OBJ RAM: the two 4364 SRAMs on schematic sheet 3,
+  # 8K x 16 = 16 kB at e00000-e03fff.
+  - name: dma
+    addr_width: 14
+    data_width: 16
+    rw: true
+    ioctl:
+      save: true
+      order: 2
+      unless: [ JTFRAME_RELEASE ]
+    dual_port:
+      name: code
+      dout: code_dout
+  - { name: cchip_mask,  addr_width: 12, data_width: 8, prom: true, unless: [ RAM_IN_SDRAM ] }
+  - { name: cchip_eprom, addr_width: 13, data_width: 8, prom: true, unless: [ RAM_IN_SDRAM ] }
