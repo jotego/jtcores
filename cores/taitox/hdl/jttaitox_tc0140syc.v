@@ -6,10 +6,10 @@
 
     JTCORES program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR addr PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
+    You should have received addr copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
@@ -40,7 +40,7 @@ module jttaitox_tc0140syc(
     input             main_rnw,
 
     // Z80 side
-    input      [15:0] a,
+    input      [15:0] addr,
     input      [ 7:0] din,
     output     [ 3:0] dout,
     input             mreq_n,
@@ -57,22 +57,26 @@ module jttaitox_tc0140syc(
     output            syt_cs       // this chip's own select
 );
 
-wire       mem;
-reg  [1:0] bank;
+wire       mem_acc, bank_cs;
+wire [1:0] bank;
+wire [7:2] nc;
 
-assign mem      = ~mreq_n & rfsh_n;
-assign rom_cs   = mem & ~a[15];
-assign ram_cs   = mem & a[15:13]==3'b110;
-assign opx_n    = ~(mem & a[15:8]==8'hE0);
-assign syt_cs   = mem & a[15:8]==8'hE2;
-assign rom_addr = { a[14] ? bank : 2'd0, a[13:0] };
+assign mem_acc  = ~mreq_n & rfsh_n;
+assign rom_cs   = mem_acc & ~addr[15];
+assign ram_cs   = mem_acc && addr[15:13]==3'b110;
+assign opx_n    = ~(mem_acc && addr[15:8]==8'hE0);
+assign syt_cs   = mem_acc && addr[15:8]==8'hE2;
+assign rom_addr = { addr[14] ? bank : 2'd0, addr[13:0] };
+assign bank_cs  = mem_acc && addr[15:8]==8'hf2;
 
-always @(posedge clk) begin
-    if( rst )
-        bank <= 0;
-    else if( mem && a[15:8]==8'hF2 && !wr_n )
-        bank <= din[1:0];
-end
+jtframe_8bit_reg u_bank(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .din        ( din           ),
+    .dout       ( {nc,bank}     ),
+    .wr_n       ( wr_n          ),
+    .cs         ( bank_cs       )
+);
 
 jtrastan_pc060 u_mailbox(
     .rst        ( rst           ),
@@ -88,7 +92,7 @@ jtrastan_pc060 u_mailbox(
 
     .snd_dout   ( din[3:0]      ),
     .snd_din    ( dout          ),
-    .snd_addr   ( a[0]          ),
+    .snd_addr   ( addr[0]       ),
     .snd_rnw    ( wr_n          ),
     .snd_cs     ( syt_cs        ),
     .snd_nmin   ( nmi_n         ),

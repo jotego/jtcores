@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
+    You should have received A copy of the GNU General Public License
     along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
 
     Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
@@ -38,7 +38,7 @@ module jttaitox_sup_snd(
     input             main_rnw,
 
     // Z80 bus
-    input      [15:0] a,
+    input      [15:0] A,
     input      [ 7:0] din,
     input             mreq_n,
     input             rfsh_n,
@@ -61,7 +61,8 @@ module jttaitox_sup_snd(
     output            adpcmb_cs,
     input      [ 7:0] adpcmb_data,
 
-    output signed [15:0] snd_left, snd_right
+    output signed [15:0] fm_left, fm_right,
+    output        [ 9:0] psg
 );
 
 wire [ 7:0] ym_dout;
@@ -97,7 +98,7 @@ jttaitox_tc0140syc u_syt(
     .main_din   ( main_din      ),
     .main_rnw   ( main_rnw      ),
 
-    .a          ( a             ),
+    .addr       ( A             ),
     .din        ( din           ),
     .dout       ( syt_dout      ),
     .mreq_n     ( mreq_n        ),
@@ -114,11 +115,11 @@ jttaitox_tc0140syc u_syt(
 );
 
 jt10 u_jt10(
-    .rst            ( rst | z80_rst     ),
+    .rst            ( z80_rst           ),
     .clk            ( clk               ),
     .cen            ( cen8              ),
     .din            ( din               ),
-    .addr           ( a[1:0]            ),
+    .addr           ( A[1:0]            ),
     .cs_n           ( ~ym_cs            ),
     .wr_n           ( wr_n              ),
 
@@ -136,10 +137,11 @@ jt10 u_jt10(
     .psg_A          (                   ),
     .psg_B          (                   ),
     .psg_C          (                   ),
-    .fm_snd         (                   ),
-    .psg_snd        (                   ),
-    .snd_right      ( snd_right         ),
-    .snd_left       ( snd_left          ),
+    .fm_left        ( fm_left           ),
+    .fm_right       ( fm_right          ),
+    .psg_snd        ( psg               ),
+    .snd_right      (                   ),
+    .snd_left       (                   ),
     .snd_sample     (                   ),
     .ch_enable      ( 6'b111111         )
 );

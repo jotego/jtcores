@@ -24,13 +24,10 @@ JTFRAME_HEADER=16
 
 JTFRAME_STEREO
 
-# ---------------------------------------------------------------------------
-# Debug
-# ---------------------------------------------------------------------------
-JTFRAME_STATUS
 debug JTFRAME_IOCTL_RD+=4096
 debug JTFRAME_IOCTL_RD+=16384
 debug JTFRAME_IOCTL_RD+=1024
+JTFRAME_DEBUG_VPOS=6
 
 [mister]
 JTFRAME_ARX=4

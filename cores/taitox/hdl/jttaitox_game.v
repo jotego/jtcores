@@ -27,15 +27,14 @@ wire [ 1:0] cpu_dsn;
 wire [ 7:0] cchip_dout, st_video;
 wire [ 3:0] syt_dout;
 wire        cpu_rnw, cpu_cen, flip,
-            oram_cs, vdcm_cs, syt_cs, cchip_cs;
+            oram_cs, vdcm_cs, syt_cs, cchip_cs, syt_rst, cchip_rst;
 
-wire        p039a, p051a, p057a, lvbl_raw;
+wire        cchip, hawk, lvbl_raw;
 `ifndef RAM_IN_SDRAM
 wire        ram_cs, ram_ok = 1'b1;   // work RAM is in BRAM: never busy
 `endif
 
 assign debug_view = st_video;
-assign st_dout    = st_video;
 assign dip_flip   = ~flip;
 
 jttaitox_header u_header(
@@ -45,9 +44,8 @@ jttaitox_header u_header(
     .prog_data  ( prog_data     ),
     .prog_we    ( prog_we       ),
 
-    .p039a      ( p039a         ),
-    .p051a      ( p051a         ),
-    .p057a      ( p057a         )
+    .cchip      ( cchip         ),
+    .hawk       ( hawk          )
 );
 
 jttaitox_main u_main(
@@ -55,7 +53,7 @@ jttaitox_main u_main(
     .clk        ( clk           ),
     .LVBL       ( lvbl_raw      ),
 
-    .p039a      ( p039a         ),
+    .cchip      ( cchip         ),
 
     .cpu_cen    ( cpu_cen       ),
     .cpu_addr   ( cpu_addr      ),
@@ -84,9 +82,11 @@ jttaitox_main u_main(
 
     .syt_cs     ( syt_cs        ),
     .syt_dout   ( syt_dout      ),
+    .syt_rst    ( syt_rst       ),
 
     .cchip_cs   ( cchip_cs      ),
     .cchip_dout ( cchip_dout    ),
+    .cchip_rst  ( cchip_rst     ),
 
     .joystick1  ( joystick1[6:0]),
     .joystick2  ( joystick2[6:0]),
@@ -100,7 +100,7 @@ jttaitox_main u_main(
 );
 
 jttaitox_cchip u_cchip(
-    .rst        ( rst           ),
+    .rst        ( cchip_rst     ),
     .clk        ( clk           ),
     .cen        ( cen8          ),
     .cs         ( cchip_cs      ),
@@ -132,12 +132,12 @@ jttaitox_cchip u_cchip(
 );
 
 jttaitox_snd u_snd(
-    .rst        ( rst           ),
+    .rst        ( syt_rst       ),
     .clk        ( clk           ),
     .cen8       ( cen8          ),
     .fm_cen     ( fm_cen        ),
     .fm_cenp1   ( fm_cenp1      ),
-    .p051a      ( p051a         ),
+    .hawk       ( hawk          ),
     .snd_cen    ( snd_cen       ),
 
     .main_cen   ( cpu_cen       ),
@@ -160,7 +160,10 @@ jttaitox_snd u_snd(
     .adpcmb_data( adpcmb_data   ),
 
     .fm_l       ( fm_l          ),
-    .fm_r       ( fm_r          )
+    .fm_r       ( fm_r          ),
+    .sup_l      ( sup_l         ),
+    .sup_r      ( sup_r         ),
+    .psg        ( psg           )
 );
 
 jttaitox_video u_video(
@@ -168,7 +171,7 @@ jttaitox_video u_video(
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
     .pxl2_cen   ( pxl2_cen      ),
-    .p051a      ( p051a         ),
+    .hawk       ( hawk          ),
 
     .LHBL       ( LHBL          ),
     .LVBL       ( LVBL          ),

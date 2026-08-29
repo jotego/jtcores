@@ -92,17 +92,17 @@ These numbers are due a scope check on real hardware.
 
 ## MRA header
 
-One byte, three bits, carrying the board type only:
+One byte, two bits, carrying the board type only:
 
 | bit | name | sets |
 |---|---|---|
-| 0[0] | `p039a` | superman ×3 |
-| 0[1] | `p051a` | daisenpu, twinhawk ×2 |
-| 0[2] | `p057a` | gigandes ×2, ballbros, kyustrkr |
+| 0[0] | `cchip` | superman ×3 |
+| 0[1] | `hawk` | daisenpu, twinhawk ×2 |
 
-Everything else is derived in HDL, because it all follows the board split:
-the C-chip, the direct input port (`~p039a`), the interrupt level (`~p039a`)
-and the sprite Y offset (`p057a ? -0x0a : -0x12`).
+Both bits clear selects the East Technology P0-057A games: gigandes ×2,
+ballbros and kyustrkr. Everything else is derived in HDL because it follows
+the board split, including the C-chip, direct input port (`~cchip`) and
+interrupt level (`~cchip`).
 
 ## Documentation
 
