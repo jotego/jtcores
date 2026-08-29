@@ -1,0 +1,61 @@
+params:
+  - { name: PCM_OFFSET,  value: "(`PCM_START -`JTFRAME_BA1_START)>>1"}
+clocks:
+  clk:
+    - freq: 3579545
+      outputs:
+        - cpu_cen
+        - fm_cen
+audio:
+  rsum: 47k
+  gain: 0.4
+  channels:
+    - { name: pcm, data_width: 8, rsum: 22k, rc: [{r: 4.7k, c: 10n }, {r: 22k, c: 4.7n}], pre: 0.9 } # eq. filter
+    - { name: fm,   module: jt51, rsum: 22k, rc: [{r: 4.7k, c: 2.2n}, {r: 25k, c: 1n  }]} # eq. filter
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 18
+        data_width: 8
+    - buses:
+      - name: snd
+        addr_width: 16
+        data_width: 8
+      - name: pcm
+        addr_width: 16
+        data_width: 8
+        offset: PCM_OFFSET
+    - buses:
+      - name: scr1
+        addr_width: 18
+        data_width: 32
+        gfx_sort: hvvvx
+    - buses:
+      - name: obj
+        addr_width: 19
+        data_width: 32
+        gfx_sort: hhvvvvx
+bram:
+  - name: vram
+    addr_width: 12
+    data_width: 8
+    rw: false
+    ioctl: { save: true, order: 0 }
+    dual_port:
+      name: scr1
+      addr: "main_addr[11:0]"
+      din:  main_dout
+      dout: scr1_dout
+      rw: true
+  - name: pal
+    addr_width: 11
+    data_width: 8
+    rw: false
+    ioctl: { save: true, order: 1 }
+    dual_port:
+      name: pal1
+      addr: "main_addr[10:0]"
+      din:  main_dout
+      dout: pal1_dout
+      rw: true
