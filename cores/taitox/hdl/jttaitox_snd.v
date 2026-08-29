@@ -24,7 +24,7 @@ module jttaitox_snd(
     input                fm_cen,     // YM2151, P0-051A
     input                fm_cenp1,
     input                snd_cen,    // Z80, gated on the sound-ROM wait
-    input                p051a,      // PC060HA + YM2151 instead of SYT + YM2610
+    input                hawk,       // PC060HA + YM2151 instead of SYT + YM2610
 
     // 68k side of the comm chip
     input                main_cen,
@@ -46,33 +46,37 @@ module jttaitox_snd(
     output               adpcmb_cs,
     input         [ 7:0] adpcmb_data,
 
-    output signed [15:0] fm_l, fm_r
+    output signed [15:0] sup_l, sup_r, fm_l, fm_r,
+    output        [ 9:0] psg
 );
-
 `ifndef NOSOUND
-// One Z80, two sound boards. Each board owns its own decode, data mux and
-// chips; only the CPU and the board select live here.
 wire [15:0] A, sup_rom_addr, hawk_rom_addr;
 wire [ 7:0] z80_dout, ram_dout, sup_din, hawk_din;
 wire [ 3:0] sup_main_din, hawk_main_din;
 wire        mreq_n, rd_n, wr_n, iorq_n, m1_n, rfsh_n, cpu_cen;
-wire        sup_nmi_n, sup_int_n, sup_rst, sup_rom_cs, sup_ram_cs;
-wire        hawk_nmi_n, hawk_int_n, hawk_rst, hawk_rom_cs, hawk_ram_cs;
-wire signed [15:0] sup_l, sup_r, hawk_l, hawk_r;
-wire        rst_n, snd_rst, nmi_n, int_n, ram_cs;
+wire        sup_cs, sup_nmi_n, sup_int_n, sup_rst, sup_rom_cs, sup_ram_cs;
+wire        hawk_cs, hawk_nmi_n, hawk_int_n, hawk_rst, hawk_rom_cs, hawk_ram_cs;
+wire signed [15:0] supfm_l, supfm_r, hawk_l, hawk_r;
+wire        rst_mux, nmi_n, int_n, ram_cs;
 wire [ 7:0] din;
+reg         rst_n, rst_sup, rst_hawk;
 
-assign nmi_n    = p051a ? hawk_nmi_n    : sup_nmi_n;
-assign int_n    = p051a ? hawk_int_n    : sup_int_n;
-assign snd_rst  = p051a ? hawk_rst      : sup_rst;
-assign main_din = p051a ? hawk_main_din : sup_main_din;
-assign din      = p051a ? hawk_din      : sup_din;
-assign rom_cs   = p051a ? hawk_rom_cs   : sup_rom_cs;
-assign rom_addr = p051a ? hawk_rom_addr : sup_rom_addr;
-assign ram_cs   = p051a ? hawk_ram_cs   : sup_ram_cs;
-assign fm_l     = p051a ? hawk_l        : sup_l;
-assign fm_r     = p051a ? hawk_r        : sup_r;
-assign rst_n    = ~(rst | snd_rst);
+assign nmi_n    = hawk ? hawk_nmi_n    : sup_nmi_n;
+assign int_n    = hawk ? hawk_int_n    : sup_int_n;
+assign rst_mux  = hawk ? hawk_rst      : sup_rst;
+assign main_din = hawk ? hawk_main_din : sup_main_din;
+assign din      = hawk ? hawk_din      : sup_din;
+assign rom_cs   = hawk ? hawk_rom_cs   : sup_rom_cs;
+assign rom_addr = hawk ? hawk_rom_addr : sup_rom_addr;
+assign ram_cs   = hawk ? hawk_ram_cs   : sup_ram_cs;
+assign sup_cs   = syt_cs & ~hawk;
+assign hawk_cs  = syt_cs &  hawk;
+
+always @(posedge clk) begin
+    rst_sup  <= rst |  hawk;
+    rst_hawk <= rst | ~hawk;
+    rst_n    <= ~(rst | rst_mux);
+end
 
 jtframe_sysz80 #(.RECOVERY(0), .RAM_AW(13)) u_z80(
     .rst_n      ( rst_n         ),
@@ -101,19 +105,19 @@ jtframe_sysz80 #(.RECOVERY(0), .RAM_AW(13)) u_z80(
 
 // P0-039A / P0-057A: TC0140SYT + YM2610
 jttaitox_sup_snd u_sup(
-    .rst        ( rst           ),
+    .rst        ( rst_sup       ),
     .clk        ( clk           ),
     .cen8       ( cen8          ),
     .main_cen   ( main_cen      ),
     .snd_cen    ( snd_cen       ),
 
-    .main_cs    ( syt_cs & ~p051a ),
+    .main_cs    ( sup_cs        ),
     .main_addr  ( main_addr     ),
     .main_dout  ( main_dout     ),
     .main_din   ( sup_main_din  ),
     .main_rnw   ( main_rnw      ),
 
-    .a          ( A             ),
+    .A          ( A             ),
     .din        ( z80_dout      ),
     .mreq_n     ( mreq_n        ),
     .rfsh_n     ( rfsh_n        ),
@@ -136,20 +140,21 @@ jttaitox_sup_snd u_sup(
     .adpcmb_cs  ( adpcmb_cs     ),
     .adpcmb_data( adpcmb_data   ),
 
-    .snd_left   ( sup_l         ),
-    .snd_right  ( sup_r         )
+    .fm_left    ( sup_l         ),
+    .fm_right   ( sup_r         ),
+    .psg        ( psg           )
 );
 
 // P0-051A: PC060HA + YM2151
 jttaitox_hawk_snd u_hawk(
-    .rst        ( rst           ),
+    .rst        ( rst_hawk      ),
     .clk        ( clk           ),
     .fm_cen     ( fm_cen        ),
     .fm_cenp1   ( fm_cenp1      ),
     .main_cen   ( main_cen      ),
     .snd_cen    ( snd_cen       ),
 
-    .main_cs    ( syt_cs &  p051a ),
+    .main_cs    ( hawk_cs       ),
     .main_addr  ( main_addr     ),
     .main_dout  ( main_dout     ),
     .main_din   ( hawk_main_din ),
@@ -171,14 +176,14 @@ jttaitox_hawk_snd u_hawk(
     .ram_cs     ( hawk_ram_cs   ),
     .rom_data   ( rom_data      ),
 
-    .snd_left   ( hawk_l        ),
-    .snd_right  ( hawk_r        )
+    .snd_left   ( fm_l          ),
+    .snd_right  ( fm_r          )
 );
 
 `else
 assign rom_addr=0, rom_cs=0, main_din=0,
        adpcma_addr=0, adpcma_cs=0, adpcmb_addr=0, adpcmb_cs=0,
-       fm_l=0, fm_r=0;
+       fm_l=0, fm_r=0, sup_l=0, sup_r=0, psg=0;
 `endif
 
 endmodule

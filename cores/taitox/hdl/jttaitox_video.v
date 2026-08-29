@@ -22,7 +22,7 @@ module jttaitox_video(
     input             clk,
     input             pxl_cen,
     input             pxl2_cen,
-    input             p051a,
+    input             hawk,
 
     output            LHBL,
     output            LVBL,     // cropped, for the framework and the colmix
@@ -84,7 +84,7 @@ wire [8:0] vdump_adj = vdump + OBJ_VOFF;
 // boards. Crop 8 lines at each end of the visible window (vdump 7..246).
 localparam [8:0] VCROP_START = 9'd16, VCROP_END = 9'd239;
 
-assign LVBL = lvbl_raw & (~p051a | (vdump>=VCROP_START && vdump<=VCROP_END));
+assign LVBL = lvbl_raw & (~hawk | (vdump>=VCROP_START && vdump<=VCROP_END));
 wire [8:0] scr_pxl, obj_pxl;
 
 // Verified on an original P0-039A with a scope (Aug 2026): 8 MHz dot clock,

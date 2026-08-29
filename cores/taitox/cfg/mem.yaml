@@ -1,8 +1,7 @@
 params:
-  - { name: PCM_OFFSET, value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
-  - { name: RAM_OFFSET,   value: "(`RAM_START-`JTFRAME_BA3_START)>>1" }
+  - { name: PCM_OFFSET,   value: "(`PCM_START-`JTFRAME_BA1_START)>>1"   }
+  - { name: RAM_OFFSET,   value: "(`RAM_START-`JTFRAME_BA3_START)>>1"   }
   - { name: CCROM_OFFSET, value: "(`CCHIP_START-`JTFRAME_BA3_START)>>1" }
-
 clocks:
   clk:
     - freq: 8 MHz
@@ -18,18 +17,26 @@ clocks:
       outputs:
         - fm_cen
         - fm_cenp1
-
 audio:
-  rsum: 10k
+  rsum: 33k
+  rsum_feedback_res: true
   channels:
-    - { name: fm, module: jt12, rsum: 10k }
-
+    # Todo: unsure of what the output impedance of the PSG is for YM2610
+    # and also the vpp given the 470 Ohm in the schematics
+    # so the FM/PSG sound balance is not accurate.
+    # sup's vpp matches that of jt51
+    - { name: sup,  data_width: 16, rsum: 33k, vpp: 0.5, stereo: true, fir:"fir_192k_6k.csv" }
+    # gigandes and kyustrkr use PSG sound too
+    - { name: psg, data_width: 10, rsum: 150k, vpp: 1.0, dcrm: true }
+    # daisenpu uses fm while keeping sup/psg silent, so gain is unity
+    - { name: fm, module: jt51, rsum: 33k  }
 sdram:
   banks:
     - buses:
       - name: main
         addr_width: 19
         data_width: 16
+        cache_size: 1kB
     - buses:
       - name: snd
         addr_width: 16
@@ -66,7 +73,6 @@ sdram:
         addr_width: 14
         data_width: 8
         offset: CCROM_OFFSET
-
 bram:
   - name: ram
     unless: [ RAM_IN_SDRAM ]
@@ -76,9 +82,6 @@ bram:
     din: cpu_dout
     dout: ram_data
     rw: true
-
-  # Palette RAM behind the X1-006. The chip only receives 68k A9..A1
-  # (sheet 4, block 55 pins 35-43)
   - name: pal
     addr_width: 10
     data_width: 16
@@ -92,7 +95,6 @@ bram:
     dual_port:
       name: palrd
       dout: pal_data
-
   # X1-001 internal RAM
   - name: yram
     addr_width: 10
@@ -107,7 +109,6 @@ bram:
     dual_port:
       name: col
       dout: col_data
-
   # X1-001 external OBJ RAM: the two 4364 SRAMs on schematic sheet 3,
   # 8K x 16 = 16 kB at e00000-e03fff.
   - name: dma
@@ -121,6 +122,5 @@ bram:
     dual_port:
       name: code
       dout: code_dout
-
   - { name: cchip_mask,  addr_width: 12, data_width: 8, prom: true, unless: [ RAM_IN_SDRAM ] }
   - { name: cchip_eprom, addr_width: 13, data_width: 8, prom: true, unless: [ RAM_IN_SDRAM ] }

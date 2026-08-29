@@ -22,7 +22,7 @@ module jttaitox_main(
     input                clk,        // 48 MHz
     input                LVBL,
 
-    input                p039a,
+    input                cchip,
 
     output               cpu_cen,
     output        [23:1] cpu_addr,
@@ -55,11 +55,13 @@ module jttaitox_main(
     output reg           vdcm_cs,    // d00000 VDCM CS
     input         [15:0] vid_dout,
 
-    // TC0140SYT
+    // SOUND - TC0140SYT
+    output               syt_rst,
     output reg           syt_cs,
     input         [ 3:0] syt_dout,
 
     // TC0030CMD
+    output               cchip_rst,
     output reg           cchip_cs,
     input         [ 7:0] cchip_dout,
 
@@ -74,26 +76,21 @@ module jttaitox_main(
     input         [ 7:0] dipsw_a,
     input         [ 7:0] dipsw_b
 );
-
-reg         pal_cs, dsw_cs, in_cs;
-
 `ifndef NOMAIN
 wire [23:1] A;
-wire        cpu_cenb;
-wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn;
+wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn,
+            cpu_cenb, intn, bus_cs, bus_busy, LWRn;
 wire [ 2:0] FC, IPLn;
-wire [15:0] cpu_din_w;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
-wire        intn;
-wire        bus_cs, bus_busy;
+reg         pal_cs, dip_cs, in_cs, out_cs;
 
 assign cpu_addr = A;
 assign rom_addr = A[18:1];
 assign cpu_dsn  = { UDSn, LDSn };
 assign cpu_rnw  = RnW;
-// Two F138s take A22,A21,A20 on C/B/A; A23 picks which one (schematic
-// sheet 2). Partial decode: each region mirrors through its 1 MB slot.
+assign LWRn     = RnW | LDSn;
+
 always @* begin
     syt_cs   = 0;
     cchip_cs = 0;
@@ -103,19 +100,21 @@ always @* begin
     oram_cs  = 0;
     ram_cs   = 0;
     rom_cs   = 0;
-    dsw_cs   = 0;
+    dip_cs   = 0;
+    out_cs   = 0;
     if( !ASn && {UDSn,LDSn}!=2'b11 && ~&FC ) begin
         // F138 #17 - A23 high
         syt_cs   =  A[23] && A[22:20]==0;
-        cchip_cs =  A[23] && A[22:20]==1 &&  p039a;
-        in_cs    =  A[23] && A[22:20]==1 && !p039a;  // no C-chip: direct input port
+        cchip_cs =  A[23] && A[22:20]==1 &&  cchip;
+        in_cs    =  A[23] && A[22:20]==1 && !cchip;  // no C-chip: direct input port
         pal_cs   =  A[23] && A[22:20]==3;
         vdcm_cs  =  A[23] && A[22:20]==5;
         oram_cs  =  A[23] && A[22:20]==6;
         ram_cs   =  A[23] && A[22:20]==7;
         // F138 #18 - A23 low
         rom_cs   = !A[23] && A[22:19]==0;
-        dsw_cs   = !A[23] && A[22:20]==5;
+        dip_cs   = !A[23] && A[22:20]==5;
+        out_cs   = !A[23] && A[22:20]==7;
     end
 end
 
@@ -128,11 +127,10 @@ assign ram_we   = {2{ram_cs & ~RnW}} & ~{UDSn,LDSn};
 assign pal_we   = {2{pal_cs & ~RnW}} & ~{UDSn,LDSn};
 
 // The C-chip games take the VBL interrupt on level 6, the rest on level 2
-assign IPLn     = intn ? 3'b111 : (p039a ? 3'b001 : 3'b101);
-assign VPAn     = !(!ASn && FC==7 && A[3:1]==(p039a ? 3'd6 : 3'd2) && RnW);
+// The schematics actually shown a connection from the C-chip to pin IPL2
+assign IPLn     = intn ? 3'b111 : (cchip ? 3'b001 : 3'b101);
+assign VPAn     = !(!ASn && FC==7);
 
-// Both SDRAM buses stall the CPU through DTACK. jtframe_okdly holds the
-// busy flag until the slot has answered for the current address.
 `ifdef RAM_IN_SDRAM
 assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~rom_ok) | (ram_cs & ~ram_ok);
@@ -141,27 +139,24 @@ assign bus_cs   = rom_cs;
 assign bus_busy = rom_cs & ~rom_ok;
 `endif
 
-assign cpu_din_w= rom_cs   ? rom_data  :
-                  ram_cs   ? ram_data  :
-                  pal_cs   ? pal_dout  :
-                  (oram_cs | vdcm_cs) ? vid_dout :
-                  cchip_cs ? { 8'hff, cchip_dout } :
-                  // dsw_input_r splits each DIP byte into two nibbles,
-                  // selected by A[2:1]: 0/1 = DSWA lo/hi, 2/3 = DSWB lo/hi
-                  dsw_cs   ? { 12'hfff, A[2] ? (A[1] ? dipsw_b[7:4] : dipsw_b[3:0])
-                                             : (A[1] ? dipsw_a[7:4] : dipsw_a[3:0]) } :
-                  in_cs    ? { 8'hff, cab_dout } :
-                  syt_cs   ? { 12'hfff, syt_dout } :
-                  16'hffff;
+always @(posedge clk) begin
+    cpu_din <= rom_cs   ? rom_data  :
+               ram_cs   ? ram_data  :
+               pal_cs   ? pal_dout  :
+               (oram_cs | vdcm_cs) ? vid_dout :
+               cchip_cs ? { 8'hff, cchip_dout } :
+               dip_cs   ? { 12'hfff, A[2] ? (A[1] ? dipsw_b[7:4] : dipsw_b[3:0])
+                                          : (A[1] ? dipsw_a[7:4] : dipsw_a[3:0]) } :
+               in_cs    ? { 8'hff, cab_dout } :
+               syt_cs   ? { 12'hfff, syt_dout } :
+               16'hffff;
+end
 
-always @(posedge clk) cpu_din <= cpu_din_w;
-
-// input_r on the cousins: three ports selected by A[2:1]
 always @(posedge clk) begin
     case( A[2:1] )
-        0: cab_dout <= { start_button[0], joystick1[6:4], joystick1[3:0] };
-        1: cab_dout <= { start_button[1], joystick2[6:4], joystick2[3:0] };
-        2: cab_dout <= { tilt, 4'hf, service, coin[1], coin[0] };
+        0: cab_dout <= { start_button[0], joystick1[6:0] };
+        1: cab_dout <= { start_button[1], joystick2[6:0] };
+        2: cab_dout <= { tilt, 4'hf, service, coin[1:0] };
         default: cab_dout <= 8'hff;
     endcase
 end
@@ -174,25 +169,18 @@ jtframe_edge #(.QSET(0)) u_int(
     .q      ( intn              )
 );
 
-`ifdef SIMULATION
-// 68000 program-fetch dumper. The stream is a superset of MAME's PC list
-// because the prefetch also fetches extension words.
-integer main_tr; reg asn_q, prog_cyc; reg [23:1] pc_l; reg [15:0] op_l;
-wire prog_rd = FC[1] & ~FC[0] & RnW;
-initial main_tr = $fopen("taitox_main_fpga.tr","w");
-always @(posedge clk) begin
-    asn_q <= ASn;
-    if(!ASn && prog_rd) begin prog_cyc<=1; pc_l<=A; op_l<=cpu_din_w; end
-    if(!asn_q && ASn) begin
-        if(prog_cyc && main_tr!=0) $fwrite(main_tr,"%06X: %04X\n",{pc_l,1'b0},op_l);
-        prog_cyc<=0;
-    end
-end
-final if(main_tr!=0) $fclose(main_tr);
-`endif
+wire [7:2] nc;
 
+jtframe_8bit_reg #(.XOR(8'b11)) u_out(
+    .rst    ( rst                    ),
+    .clk    ( clk                    ),
+    .wr_n   ( LWRn                   ),
+    .cs     ( out_cs                 ),
+    .din    ( cpu_dout[7:0]          ),
+    .dout   ( {nc,cchip_rst,syt_rst} )
+);
 
-jtframe_68kdtack_cen #(.W(8)) u_dtack(
+jtframe_68kdtack_cen #(.W(6)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
@@ -203,9 +191,8 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
-    // 16 MHz XTAL / 2 = 8 MHz, exactly 48/6
-    .num        ( 7'd1      ),
-    .den        ( 8'd6      ),
+    .num        ( 5'd1      ), // 16 MHz XTAL / 2 = 8 MHz, exactly 48/6
+    .den        ( 6'd6      ),
     .DTACKn     ( DTACKn    ),
     .wait2      ( 1'b0      ),
     .wait3      ( 1'b0      ),
@@ -248,8 +235,7 @@ assign ram_dsn=3;
 `endif
 initial begin
     rom_cs=0; oram_cs=0; vdcm_cs=0; syt_cs=0; cchip_cs=0;
-    ram_cs=0; pal_cs=0; dsw_cs=0; in_cs=0;
+    ram_cs=0; pal_cs=0; dip_cs=0; in_cs=0;
 end
 `endif
-
 endmodule

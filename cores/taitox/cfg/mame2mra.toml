@@ -28,18 +28,16 @@ defaults=[
 ]
 
 # Board type, one bit each.
-#   p039a  Taito Corp.       superman x3            C-chip, VBL level 6
-#   p051a  Taito Corp.       daisenpu, twinhawk x2  PC060HA + YM2151
-#   p057a  East Technology   gigandes x2, ballbros, kyustrkr
+#   cchip     Taito Corp.       superman x3            C-chip, VBL level 6
+#   hawk      Taito Corp.       daisenpu, twinhawk x2  PC060HA + YM2151
+# Both bits clear selects the East Technology P0-057A games.
 # Derived in HDL rather than stored:
-#   direct_in = ~p039a                        taitox_state reads IN0/1/2 at 900000
-#   irq2      = ~p039a                        only the C-chip class installs the L6 ISR
-#   fg_yoff   = p057a ? -0x0a : -0x12         East Tech vs Taito, hardcoded in _video.v
+#   direct_in = ~cchip                        taitox_state reads IN0/1/2 at 900000
+#   irq2      = ~cchip                        only the C-chip class installs the L6 ISR
 [header]
 registers=[
-    { name="p039a", pos="0[0]", desc="Taito P0-039A (C-chip)", values=[{ setnames=["superman","supermanu","supermanj"], value=1 }] },
-    { name="p051a", pos="0[1]", desc="Taito P0-051A (PC060HA + YM2151)", values=[{ setnames=["daisenpu","twinhawk","twinhawku"], value=1 }] },
-    { name="p057a", pos="0[2]", desc="East Technology P0-057A", values=[{ setnames=["gigandes","gigandesa","ballbros","kyustrkr"], value=1 }] },
+    { name="cchip", pos="0[0]", desc="Taito P0-039A (C-chip)", values=[{ setnames=["superman","supermanu","supermanj"], value=1 }] },
+    { name="hawk",  pos="0[1]", desc="Taito P0-051A (PC060HA + YM2151)", values=[{ setnames=["daisenpu","twinhawk","twinhawku"], value=1 }] },
 ]
 
 [ROM]
