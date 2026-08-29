@@ -22,11 +22,9 @@ module jttaitox_video(
     input             clk,
     input             pxl_cen,
     input             pxl2_cen,
-    input             hawk,
 
     output            LHBL,
-    output            LVBL,     // cropped, for the framework and the colmix
-    output            lvbl_raw, // uncropped, for the CPU interrupt
+    output            LVBL,
     output            HS,
     output            VS,
     output            flip,
@@ -74,18 +72,12 @@ module jttaitox_video(
     output     [ 7:0] st_dout
 );
 
-wire [8:0] vdump, vrender, hdump;
-
-
 localparam [8:0] OBJ_VOFF = 9'd0;
-wire [8:0] vdump_adj = vdump + OBJ_VOFF;
 
-// P0-051A shows 224 lines against 240 on the other
-// boards. Crop 8 lines at each end of the visible window (vdump 7..246).
-localparam [8:0] VCROP_START = 9'd16, VCROP_END = 9'd239;
+wire [8:0] vdump, vrender, hdump,
+           scr_pxl, obj_pxl, vdump_adj;
 
-assign LVBL = lvbl_raw & (~hawk | (vdump>=VCROP_START && vdump<=VCROP_END));
-wire [8:0] scr_pxl, obj_pxl;
+assign vdump_adj = vdump + OBJ_VOFF;
 
 // Verified on an original P0-039A with a scope (Aug 2026): 8 MHz dot clock,
 // 64.00 us/line = 512 dots, 17.40 ms/frame = 272 lines (57.45 Hz),
@@ -112,7 +104,7 @@ jtframe_vtimer #(
     .Hinit      (            ),
     .Vinit      (            ),
     .LHBL       ( LHBL       ),
-    .LVBL       ( lvbl_raw   ),
+    .LVBL       ( LVBL       ),
     .HS         ( HS         ),
     .VS         ( VS         )
 );
@@ -130,7 +122,7 @@ jtkiwi_gfx #(
     .pxl_cen    ( pxl_cen   ),
 
     .LHBL       ( LHBL      ),
-    .LVBL       ( lvbl_raw  ),
+    .LVBL       ( LVBL      ),
     .hs         ( HS        ),
     .vs         ( VS        ),
     .flip       ( flip      ),
