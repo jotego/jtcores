@@ -1,5 +1,7 @@
 #!/bin/bash
 # Simulate all scenes below the current verification folder.
+# arguments are passed directly to jtsim. Set simulation macros
+# with -d MACRO, as in jtsim
 
 main() {
     local run_folder
@@ -7,7 +9,7 @@ main() {
     trap 'rm -f "$run_folder"' EXIT
 
     make_runner "$run_folder"
-    run_all_games "$run_folder"
+    run_all_games "$run_folder" "$@"
     collect_images
 }
 
@@ -16,7 +18,14 @@ make_runner() {
 
     cat > "$run_folder" <<'EOF'
 #!/bin/bash
-cd "$1" || exit 1
+game_dir="${!#}"
+if [ "$#" -gt 1 ]; then
+    set -- "${@:1:$#-1}"
+else
+    set --
+fi
+
+cd "$game_dir" || exit 1
 pwd
 SIM=jtsim
 if [ -e sim.sh ]; then
@@ -24,7 +33,7 @@ if [ -e sim.sh ]; then
 fi
 
 while IFS= read -r -d '' scene; do
-    "$SIM" -batch -s "${scene##*/}"
+    "$SIM" -batch -s "${scene##*/}" "$@"
 done < <(find -L scenes -maxdepth 1 -mindepth 1 -type d -print0)
 EOF
     chmod +x "$run_folder"
@@ -36,6 +45,7 @@ run_all_games() {
     local run_folder=$1
     local scene_dir game_dir
     local -a game_dirs=()
+    shift
 
     while IFS= read -r -d '' scene_dir; do
         [ -d "$scene_dir" ] || continue
@@ -44,7 +54,7 @@ run_all_games() {
     done < <(find . \( -type d -o -type l \) -name scenes -print0)
 
     [ ${#game_dirs[@]} -eq 0 ] && return
-    parallel "$run_folder" ::: "${game_dirs[@]}"
+    parallel -j1 "$run_folder" "$@" ::: "${game_dirs[@]}"
 }
 
 collect_images() {
