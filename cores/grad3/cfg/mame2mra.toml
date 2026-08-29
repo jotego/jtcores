@@ -13,7 +13,7 @@ names = [
 bitcnt=20
 delete=[{names=["Unused","Unknown"]}]
 extra=[
-    { name="No Wait", options="On,Off", bits="20" },
+    { name="Turbo", options="On,Off", bits="20" },
 ]
 
 [ROM]
