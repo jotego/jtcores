@@ -189,7 +189,7 @@ assign pcma_addr = adpcma_addr;         // 1 MB region, adpcma_bank stays 0
 assign pcmb_cs   = ~adpcmb_roe_n;
 assign pcmb_addr = adpcmb_addr[PCMBW-1:0];
 
-jt10 u_jt10(
+jt10 u_jt10b(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( fm_cen    ),
@@ -212,13 +212,13 @@ jt10 u_jt10(
     .psg_A      (           ),
     .psg_B      (           ),
     .psg_C      (           ),
-    .fm_snd     (           ),
+    .fm_left    (           ),
+    .fm_right   (           ),
     .psg_snd    (           ),
     .snd_right  ( fm_r      ),
     .snd_left   ( fm_l      ),
     .snd_sample (           ),
-    // debug_bus[5:0] mutes individual ADPCM-A channels, 0 = all playing
-    .ch_enable  ( ~debug_bus[5:0] )
+    .ch_enable  ( 6'h3f     )
 );
 
 endmodule

@@ -19,6 +19,13 @@ registers = [
 
 [dipsw]
 bitcnt = 32
+# dipsw is 32 bits: DSW2 uses MAME bits 8-15 and DSW3 bits 0-4, so packing
+# each port on a 16-bit boundary would push DSW3 past bit 31 and the region
+# jumper would never reach the core
+offset=[
+    { name="DSW2", value=8  },
+    { name="DSW3", value=24 },
+]
 delete=[{names=["Unused","Unknown"]}]
 
 [ROM]

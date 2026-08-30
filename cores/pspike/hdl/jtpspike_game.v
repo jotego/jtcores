@@ -36,17 +36,7 @@ wire        gga_cs, gga_we, gga_addr;
 wire [ 1:0] main_dsn;
 
 assign dip_flip   = flip;
-// debug_bus[1:0] selects the view:
-//   0 game flags   1 ROM-fetch heartbeat   2 VRAM-write heartbeat   3 main_addr
-reg [7:0] rom_beat=0, vram_beat=0;
-always @(posedge clk) begin
-    if( main_cs   ) rom_beat  <= rom_beat +8'd1;
-    if( |vram_we  ) vram_beat <= vram_beat+8'd1;
-end
-assign debug_view = debug_bus[1:0]==2'd0 ? { 4'd0, karatblz, aerofgt, turbofrc, pspikes } :
-                    debug_bus[1:0]==2'd1 ? rom_beat  :
-                    debug_bus[1:0]==2'd2 ? vram_beat :
-                                           main_addr[16:9] ;
+assign debug_view = { 4'd0, karatblz, aerofgt, turbofrc, pspikes };
 assign st_dout    = 0;
 
 assign ram_addr   = main_addr[15:1];

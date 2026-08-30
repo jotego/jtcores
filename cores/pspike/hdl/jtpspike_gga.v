@@ -227,23 +227,4 @@ always @(posedge clk) begin
     end
 end
 
-`ifdef SIMULATION
-// the reset defaults are the pspikes table, so for that game the grid never
-// changes and only the write probe proves the decode is alive
-always @(posedge clk) if( cs & we )
-    $display("GGA write %s = %02x", addr ? "addr" : "data", din);
-
-// report the programmed grid once the game has written its table
-reg [8:0] last_h=0, last_v=0;
-always @(posedge clk) if( !rst ) begin
-    if( h_last != last_h || v_last != last_v ) begin
-        last_h <= h_last;
-        last_v <= v_last;
-        $display("GGA: %0dx%0d visible, %0dx%0d total, HS %0d-%0d, VS %0d-%0d",
-            hb_start+9'd1, vb_start+9'd1, h_last+9'd1, v_last+9'd1,
-            hs_start, hs_end, vs_start, vs_end);
-    end
-end
-`endif
-
 endmodule

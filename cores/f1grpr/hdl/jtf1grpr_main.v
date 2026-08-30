@@ -160,14 +160,16 @@ always @* begin
                             2'b11, joystick1[4], joystick1[5],
                             joystick1[0], joystick1[1],
                             joystick1[2], joystick1[3] };
-        7'h01: cab_dout = { 8'hff, wheel };
+        7'h01: cab_dout = { 8'h0, wheel };
         // DSW1 is a full 16-bit port; DSW2 uses its high byte only and
-        // DSW3 the low 5 bits
+        // DSW3 the low 5 bits. Bits with no switch behind them read as 0:
+        // the boot code compares the whole DSW3 byte against the region
+        // list and resets on every vblank if it does not match
         7'h02: cab_dout = dipsw[15:0];
-        7'h03: cab_dout = { dipsw[23:16], 8'hff };
+        7'h03: cab_dout = { dipsw[23:16], 8'h0 };
         // fff009: the sound latch pending flag, 0xff or 0x00
         7'h04: cab_dout = { 8'hff, {8{snd_pending}} };
-        7'h28: cab_dout = { 11'h7ff, dipsw[28:24] }; // DSW3 at fff050
+        7'h28: cab_dout = { 11'h0, dipsw[28:24] }; // DSW3 at fff050
         default:;
     endcase
 end
