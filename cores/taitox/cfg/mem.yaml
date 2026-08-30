@@ -45,6 +45,7 @@ sdram:
         addr_width: 19
         data_width: 8
         offset: PCM_OFFSET
+        cache_size: 1kB
     - buses:
       - name: scr
         addr_width: 21
@@ -66,6 +67,7 @@ sdram:
       - name: adpcmb
         addr_width: 19
         data_width: 8
+        cache_size: 1kB
       # C-chip mask ROM + game EPROM, one 12 kB region. Same macro as the
       # work RAM: BRAM PROMs where there is room, SDRAM where there is not.
       - name: ccrom
