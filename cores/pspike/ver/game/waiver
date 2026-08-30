@@ -1,0 +1,19 @@
+// DESCRIPTION: Verilator output: Waivers generated with --waiver-output
+
+`verilator_config
+
+// Below are suggested waivers. You have three options:
+//   1. Fix the reason for the linter warning in the Verilog sources
+//   2. Keep the waiver permanently if you are sure it is okay
+//   3. Keep the waiver temporarily to suppress the output
+
+// lint_off -rule WIDTHEXPAND -file "*/jtcores/modules/jtframe/hdl/inc/../../../../modules/jt12/hdl/jt10.v" -match "Output port connection 'adpcma_bank' expects 5 bits on the pin connection, but pin connection's VARREF 'adpcma_bank' generates 4 bits.*"
+
+// lint_off -rule WIDTHEXPAND -file "*../../hdl/jtpspike_scr.v" -match "Output port connection 'rom_addr' expects 18 bits on the pin connection, but pin connection's VARREF 'tile_addr' generates 17 bits.*"
+
+// lint_off -rule WIDTHEXPAND -file "*../../hdl/jtpspike_game.v" -match "Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's VARREF 'mix_addr' generates 11 bits.*"
+
+// lint_off -rule WIDTHEXPAND -file "*../../hdl/jtpspike_game.v" -match "Operator GT expects 12 bits on the LHS, but LHS's VARREF 'mix_addr' generates 11 bits.*"
+
+// lint_off -rule UNDRIVEN -file "*../../hdl/jtpspike_main.v" -match "Signal is not driven: 'scrx0'*"
+

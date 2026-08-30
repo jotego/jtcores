@@ -1,0 +1,9 @@
+Simulating core=pspike setname=karatblz frames=1
+Consider executing:
+    git config --global url.ssh://git@github.com/.insteadOf https://github.com/
+
+in order to avoid the need for GitHub tokens when pushing submodules
+find: 'scenes/../karatblz/scenes/m02100': No such file or directory
+find: 'scenes/../karatblz/scenes/m02100': No such file or directory
+/jtcores/cores/pspike/ver/game/./rest2bin.sh
+rest.bin is 151562 bytes, no matching scene layout

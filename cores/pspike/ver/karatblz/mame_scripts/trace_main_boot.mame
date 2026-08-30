@@ -1,0 +1,5 @@
+' Per-instruction trace of the 68000 from reset. Output /tmp/kb_main.tr
+trace /tmp/kb_main.tr,maincpu,noloop
+focus maincpu
+go
+quit
