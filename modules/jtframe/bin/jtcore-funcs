@@ -159,7 +159,11 @@ escape_bars() {
 macros2def() {
     local MM=""
     for i in $MACROS; do
-        MM="$i,$MM"
+        if [ -n "$MM" ]; then
+            MM="$MM,$i"
+        else
+            MM="$i"
+        fi
     done
     if [ ! -z "$MM" ]; then
         MM="--def $MM"
@@ -195,8 +199,8 @@ parse_macros() {
 # qsf line to disable SOUND synthesis
 # set_global_assignment -name VERILOG_MACRO "NOSOUND=<None>"
 copy_templates() {
-    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf `macros2def` --output $BUILDDIR/$corename.qpf || exit $?
-    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf `macros2def` --output $BUILDDIR/$corename.qsf || exit $?
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qpf --target=$TARGET `macros2def` --output $BUILDDIR/$corename.qpf || exit $?
+    jtframe parse $PRJ $JTFRAME/target/$TARGET/$TARGET.qsf --target=$TARGET `macros2def` --output $BUILDDIR/$corename.qsf || exit $?
     MACROS_FILE=$PRJPATH/cfg/macros.def
     QSF=$BUILDDIR/$corename.qsf
     # Add definitions in "macros" files

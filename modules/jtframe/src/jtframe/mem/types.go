@@ -258,6 +258,7 @@ type SDRAMCfg struct {
 	Big_endian  bool             `yaml:"big_endian"`
 	Cache_lanes []SDRAMCacheLine `yaml:"cache-lanes"`
 	Burst_len   int
+	Tag_ram     bool
 }
 
 type SDRAMBank struct {
