@@ -114,7 +114,7 @@ jttaitox_tc0140syc u_syt(
     .syt_cs     ( syt_cs        )
 );
 
-jt10 u_jt10(
+jt10b u_jt10b(
     .rst            ( z80_rst           ),
     .clk            ( clk               ),
     .cen            ( cen8              ),

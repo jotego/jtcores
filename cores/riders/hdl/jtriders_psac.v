@@ -139,6 +139,8 @@ jt053936 #(
     .xh         ( xh        ),
     .y          ( y         ),
     .yh         ( yh        ),
+    .nx         (           ),
+    .ny         (           ),
     .ob         ( ob        ), // out of bonds, original pin: NOB
 
     .ioctl_addr ( ioctl_addr),
