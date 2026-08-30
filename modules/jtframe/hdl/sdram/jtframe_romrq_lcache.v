@@ -44,7 +44,7 @@ wire [SDRAMW-CACHE_AW:0] tag;
 wire               hit, cache_data_match, fill_data_match;
 wire               fill_write;
 wire               fill_done;
-wire               tag_hit;
+wire               tag_hit, tag_data_ok;
 reg                hit_l, fill_ok, filling, receiving, req_pending;
 reg                addr_ok_l, valid_l;
 reg [ 1:0]         fill_beat;
@@ -78,7 +78,7 @@ assign req        = TAG_RAM ? addr_ok_l && !hit && !(fill_ok && fill_data_match)
 assign sdram_addr = req_pending ? { req_tag, req_line, {LINE_AW{1'b0}} } :
                     TAG_RAM ? { read_tag_l, read_line_l, {LINE_AW{1'b0}} } : line_addr;
 assign data_ok    = TAG_RAM ? addr_ok_l && !filling &&
-                              ((hit && hit_l && cache_data_match) ||
+                              (tag_data_ok ||
                                (fill_ok && fill_data_match)) :
                             addr_ok && hit && !filling &&
                               (fill_ok || (hit_l && cache_data_match));
@@ -102,6 +102,12 @@ generate
         wire [SDRAMW-CACHE_AW:0] tag_q;
 
         assign tag_hit = valid_l && tag_q == read_tag_l;
+        // Fuse the stable-address hit checks into one mismatch tree. This is
+        // equivalent to hit && hit_l && cache_data_match without duplicating
+        // the read-tag comparison on the response path.
+        assign tag_data_ok = ~|{~valid_l, ~hit_l,
+                               line_index ^ read_line_l,
+                               (tag_q ^ read_tag_l) | (tag ^ read_tag_l)};
 
         jtframe_dual_ram #(
             .DW( SDRAMW-CACHE_AW+1 ),
@@ -122,6 +128,7 @@ generate
         reg [SDRAMW-CACHE_AW:0] tags[0:CACHE_LINES-1];
 
         assign tag_hit = valid[line_index] && tags[line_index] == tag;
+        assign tag_data_ok = 1'b0;
 
         always @(posedge clk) if( fill_done ) tags[fill_line] <= fill_tag;
     end

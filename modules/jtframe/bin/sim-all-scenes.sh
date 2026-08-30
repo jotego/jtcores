@@ -61,7 +61,16 @@ collect_images() {
     rm -rf allscenes
     mkdir -p allscenes
     [ -d scenes ] || return
-    find -L scenes -type f \( -name '*.png' -o -name '*.jpg' \) -exec mv -t allscenes {} +
+
+    # Keep only the frame rendered by jtsim for each scene.  Scene directories
+    # also contain snapshot.png and diff images, whose repeated names would
+    # otherwise make mv leave an incomplete allscenes directory.
+    while IFS= read -r -d '' scene; do
+        local name=${scene##*/}
+        for ext in png jpg; do
+            [ -f "$scene/$name.$ext" ] && cp "$scene/$name.$ext" "allscenes/$name.$ext"
+        done
+    done < <(find -L scenes -maxdepth 1 -mindepth 1 -type d -print0)
 }
 
 main "$@"
