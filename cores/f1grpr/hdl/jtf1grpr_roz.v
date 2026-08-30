@@ -80,6 +80,8 @@ jt053936 #(.XOFFSET(-14),.YOFFSET(-8)) u_xy(
     .xh         ( xh        ),
     .y          ( y         ),
     .yh         ( yh        ),
+    .nx         (           ),
+    .ny         (           ),
     .ob         ( ob        ),
 
     .ioctl_addr ( 5'd0      ),

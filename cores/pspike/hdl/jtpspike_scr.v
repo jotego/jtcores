@@ -61,7 +61,7 @@ module jtpspike_scr(
     output     [ 9:0]   pxl
 );
 
-wire [16:0] tile_addr;
+wire [17:0] tile_addr;
 wire [11:0] va;
 wire [14:0] code;
 wire [ 3:0] bank;
@@ -116,7 +116,7 @@ assign scrx_eff = noraster ? scrx - xbias          :  // karatblz, registers onl
                   layer    ? scrx - xbias             // turbofrc layer 1
                            : ras_dout[8:0] - xbias;   // turbofrc layer 0, word 7
 assign scry_eff = (two & ~noraster) ? scry + 9'd2 : scry;
-assign rom_addr = { 2'd0, tile_addr };
+assign rom_addr = { 1'd0, tile_addr };
 
 jtframe_scroll #(
     .SIZE       ( 8         ),

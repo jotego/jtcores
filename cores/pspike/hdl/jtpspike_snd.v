@@ -81,10 +81,8 @@ wire        fm_wr, fm_busy;
 wire [ 7:0] ram_dout;
 wire [19:0] adpcma_addr;
 wire [23:0] adpcmb_addr;
-// jt10.v declares adpcma_bank as 4 bits but its own jt12_top drives 5, so
-// one width warning inside the submodule is unavoidable. Match the port and
-// leave it unused: the 1MB region is covered by adpcma_addr alone
-wire [ 3:0] adpcma_bank;
+// unused: the 1MB region is covered by adpcma_addr alone
+wire [ 4:0] adpcma_bank;
 wire        adpcma_roe_n, adpcmb_roe_n;
 
 assign mem_acc  = ~mreq_n & rfsh_n;
@@ -189,7 +187,7 @@ assign pcma_addr = adpcma_addr;         // 1 MB region, adpcma_bank stays 0
 assign pcmb_cs   = ~adpcmb_roe_n;
 assign pcmb_addr = adpcmb_addr[PCMBW-1:0];
 
-jt10 u_jt10b(
+jt10b u_jt10b(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( fm_cen    ),
