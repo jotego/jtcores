@@ -65,9 +65,9 @@ audio:
     # trim: jt49 SUMS its three channels while equal series resistors into a
     # common node give the AVERAGE, so the model runs 3x hot without it.
     - { name: psg, module: jt03_psg, rsum: 47k, pre: 0.333333 } # R7/R8, RA 1k x 5
-    # The MF6-50 anti-imaging filter is NOT expressed here: it is 6th order
-    # Butterworth and `rc:` caps at two poles, and cascaded RC poles have the wrong
-    # Q anyway. It is a 95-tap FIR in jtsharrier_snd.v (u_mf6) instead.
+    # No extra PCM filter here. jotego 2026-08-30: the board's filtering is the
+    # first-order 15.4 kHz pole above (R=47k, C=220p) and nothing further. The
+    # earlier 95-tap MF6 FIR was removed on his instruction.
     #
     # vpp 0.63 is empirical, from the cabinet. It would otherwise default to 1.0 =
     # rail to rail, which is unreachable: sheet D-2/3 has the MF6-50 on a single

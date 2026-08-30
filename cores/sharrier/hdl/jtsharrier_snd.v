@@ -196,25 +196,11 @@ jtoutrun_pcm u_pcm(
     .st_dout    (             )
 );
 
-// MF6-50 anti-imaging filter, IC 12M and 12K, one per channel after the HC4066
-// demux (sheets D-2/3, D-3/3). Switched-capacitor 6th order Butterworth, self
-// clocked at 1/(1.69*R*C) and divided by 50, giving an 11.83 kHz corner.
-// A FIR rather than an `rc:` pole in mem.yaml because that caps at two poles and
-// cascaded RC has the wrong Q -- it rolls off too gently and sounds dull.
-// 95 taps, DC gain 0.9999. jtframe_fir uses 2 clocks per tap, so 190 of the 768
-// clocks per sample.
-jtframe_fir #(
-    .KMAX   ( 8'd95                  ),   // FULL tap count: coefficients sit in
-    .COEFFS ( "jtsharrier_mf6.hex"   )    // ram[0..KMAX-1], there is no symmetry folding
-) u_mf6 (
-    .rst        ( rst         ),
-    .clk        ( clk         ),
-    .sample     ( pcm_sample  ),
-    .l_in       ( pcm_raw_l   ),
-    .r_in       ( pcm_raw_r   ),
-    .l_out      ( pcm_l       ),
-    .r_out      ( pcm_r       )
-);
+// PCM output goes straight to the summing stage. The board's first-order
+// 15.4 kHz pole (R29||C37, R30||C4 across the TL084 summing amps, sheet D-2/3)
+// is modelled in cfg/mem.yaml's `rc:` line, not here.
+assign pcm_l = pcm_raw_l;
+assign pcm_r = pcm_raw_r;
 
 `else
 // Scene-simulation stub: drops the Z80, YM2203 and PCM engine. Every output is
