@@ -1,0 +1,123 @@
+[global]
+author=["jotego","niknak"]
+
+[parse]
+sourcefile=[ "segahang.cpp" ]
+main_setnames=["sharrier"]
+skip.bootlegs=true
+# Hang-On's sprite ROMs do not group into 32-bit words, so its sprite format is
+# not implemented. Enduro Racer needs jts16_fd1089 and the YM2151 path, neither
+# wired yet. Both are skipped until the HDL can run them; matching is by
+# substring, so "Enduro Racer" covers all eight sets.
+skip.descriptions=["Hang-On","Enduro Racer"]
+
+[buttons]
+# Three game buttons, all fire, plus Test and Service as mappable pad buttons --
+# they are momentary on the cabinet. The generator takes the button count from
+# the number of names, so all five must be listed. Needs JTFRAME_BUTTONS=5.
+Names = [
+    { machine="sharrier", names="Fire,Fire 2,Fire 3,Test,Service" },
+]
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+
+# Bonus Life renamed core-locally: dip_clean turns "7000000" into "700k0",
+# because its Replace("00000","00k") strands the sixth zero. Any jtcores game
+# with million-point values hits this; the upstream fix would be a
+# Replace("000000","M") ahead of the existing two.
+#
+# The list is indexed in BIT-VALUE order, not XML order: bit value 0 is 7M and
+# must come first. Reversing it swaps the labels and still looks plausible.
+[[dipsw.rename]]
+name   = "Bonus Life"
+values = ["7M", "5M"]
+# 31 so the option bits 28-30 are inside the emitted window. A bit above bitcnt
+# powers up to 0 on hardware while sim forces all-ones and hides it. Real SWA/SWB
+# are bits 0-15.
+bitcnt = 31
+
+# Every extra dip needs machine = "sharrier": without it Selectable.Match returns
+# 1 and these are emitted into the Enduro Racer MRA too, where the V Glyph Fix is
+# harmful because the HDL keys on tile 0x056 whatever the game is.
+#
+# Extra dips default to ALL ONES, so the faithful cabinet behaviour must sit on
+# value 1 -- hence "Arcade" is the value-1 option throughout.
+#
+# Stick Direction: the cabinet stick is an aircraft stick, push forward and
+# Harrier goes DOWN. Arcade (=1) is that inversion.
+[[dipsw.extra]]
+machine = "sharrier"
+name    = "Stick Direction"
+bits    = "28"
+options = "Normal,Arcade"
+
+# D-Pad Control, for d-pad users only. Arcade (=1) is the sprung cabinet stick,
+# springing back to centre; Console (=0) holds where released.
+[[dipsw.extra]]
+machine = "sharrier"
+name    = "D-Pad Control"
+bits    = "29"
+options = "Console,Arcade"
+
+# V Glyph Fix: 'V' in EPR-7196/7197/7198 has its rows rotated down by one and the
+# fix reads row (n+1)%8 for tile 0x56. It is an original-game bug, so correcting
+# it DEVIATES from the PCB and must default off -- hence the "On,Off" order, which
+# puts Off on the 1 the extra dips default to. Reversing it ships the deviation.
+[[dipsw.extra]]
+machine = "sharrier"
+name    = "V Glyph Fix"
+bits    = "30"
+options = "On,Off"
+
+[header]
+fill=0
+data = [
+    { machine="hangon",   offset=1, data="10" },
+    { machine="enduror",  offset=1, data="20" },
+]
+
+[ROM]
+regions = [
+    { name="maincpu",      width=16, reverse=true },
+    { name="subcpu",       start="JTFRAME_BA1_START", width=16, reverse=true },
+    { name="soundcpu",     start="SND_START" },
+    { name="pcm",          start="PCM_START", no_offset=true },
+    { name="gfx1",         start="JTFRAME_BA2_START", width=32, sequence=[0,1,2,2] },
+    { name="sprites",      start="JTFRAME_BA3_START", width=32, no_offset=true },
+    { name="segaic16road", start="ROAD_START", width=16, no_offset=true, singleton=true },
+    { name="sprites:zoom", start="ZOOM_START", len=0x2000 },
+    { name="mcu",          start="MCU_START", len=0x1000 },
+    { name="maincpu:key",  start="MAINKEY_START", len=0x2000 },
+    { name="plds",           skip=true },
+    { name="soundboard_plds", skip=true },
+    { name="romboard_plds",   skip=true },
+]
+
+order = [
+    "maincpu", "subcpu", "soundcpu", "pcm", "gfx1",
+    "sprites", "segaic16road", "sprites:zoom", "mcu", "maincpu:key"
+]
+
+# ---------------------------------------------------------------------------
+# Absolute output level. MRA-ONLY -- `jtframe mra sharrier`, seconds, no Quartus.
+# ---------------------------------------------------------------------------
+# NOTHING in mem.yaml can raise the overall level: normalize_gains divides every
+# channel by the LOUDEST, so vpp / pre / rsum only ever set the RATIO between
+# channels. Absolute level lives here.
+#
+# jtframe_board.v feeds game_vol to jtframe_volume from the MRA's coreMOD word
+# (bits 15:8); COREMOD_UNITY_VOLUME = 0x80. vol16 = knob*game_vol with the runtime
+# knob at 0x80, so 0x80 -> 1.00x, 0xA0 -> 1.25x (+1.9 dB), 0xFF -> 1.99x (+6.0 dB,
+# the format ceiling).
+#
+# 160 = 0xA0 is what the PREVIOUS core shipped after Chris balanced it against the
+# cabinet -- inherited deliberately as a starting point, not guessed. Our mix is not
+# identical to that core's (PSG sits 1.56 dB lower), so this may want revisiting once
+# Chris judges the level; raise it here, never with per-channel dips, which is what
+# caused the doubling/clipping mess on the previous core.
+#
+# If it ever clips, jtframe_volume latches `peaked` on snd_peak and refuses to go
+# higher on the OSD knob. That is the detector working, not a fault.
+[[audio.volume]]
+value = 160

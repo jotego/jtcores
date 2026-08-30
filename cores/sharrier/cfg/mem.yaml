@@ -1,0 +1,175 @@
+params:
+  - { name: SND_OFFSET,  value: "(`SND_START-`JTFRAME_BA1_START)>>1" }
+  - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: ROAD_OFFSET, value: "3<<22 | (`ROAD_START-`JTFRAME_BA3_START)>>1" }
+  - { name: ZOOM_OFFSET, value: "3<<22 | (`ZOOM_START-`JTFRAME_BA3_START)>>1" }
+  - { name: VRAM_OFFSET, value: 22'h10_0000 }
+clocks:
+  clk48:
+    # PCM: 16 MHz, NOT 8. jtoutrun_pcm takes 256 cen ticks per sample, and this
+    # eight-voice part runs at 4 MHz/64 = 62.5 kHz, so 62.5k x 256 = 16 MHz.
+    # cores/outrun feeds 8M because its 315-5218 has sixteen voices.
+    # The gate is MANDATORY: jtoutrun_pcm declares rom_ok and never reads it, so
+    # it assumes the read has landed by st==14. `gate: [ pcm ]` stalls cen until
+    # the byte arrives; without it a slow read latches the previous byte. Needed
+    # more here than in Out Run -- our cen is twice as fast, so the window is half
+    # as long, and bank 1 is shared with subrom and snd.
+    - freq: 16M
+      gate: [ pcm ]
+      outputs:
+        - cen_pcm
+    # Z80A and YM2203 both take the board's 4M rail (schematic sheets D-1/3, D-2/3;
+    # MAME reaches the same 4 MHz as 8_MHz_XTAL/2). Board clock is a 16.000 MHz
+    # oscillator module -- ISSUES.md 3.
+    # NOTE THE ORDER. jtframe_frac_cen emits `cen <= { toggle[W-2:0], 1'b1 }`, so
+    # within one group output 0 is the full rate and each later output is HALF the
+    # one before. cen_fm must be first to get the YM2203's 4 MHz; putting cen_snd
+    # first here silently halved it to 2 MHz on 2026-08-18.
+    - freq: 4M
+      outputs:
+        - cen_fm      # 4 MHz, YM2203 pin 38 OM (sheet D-2/3)
+        - cen_fm2     # 2 MHz
+    # Z80A, also 4M, but it needs its own generator: a second output in the group
+    # above would be a divided copy, not another 4 MHz.
+    - freq: 4M
+      outputs:
+        - cen_snd
+    - freq: 8M
+      outputs:
+        - mcu_cen
+        - mcu_cen_nc
+# Mix taken off schematic sheet D-2/3 (page 17) at 300 dpi and then confirmed part
+# by part against PCB photo PLS91034 -- two independent readings, so none of this is
+# inference and none is carried over from the previous core. doc/ISSUES.md section 27
+# holds the full table and the signal path.
+#
+# The output stage is a TL084 inverting summer: 47k feedback (R29/R30) with each
+# source entering through its own resistor, so `rsum_feedback_res: true` and gain is
+# Rf/Rin. PCM lands 47k/22k = 2.14 (+6.6 dB) above FM and PSG, which is the board's
+# balance, not a preference -- Chris's ear comes at stage 4 and is judged ONCE.
+audio:
+  mute: true                        # = ~ppi0_c[0]; MAME segahang.cpp confirms
+                                    # "D0 : MUTE (1= audio on, 0= audio off)"
+  rsum: 47k                         # R29/R30, the op-amp feedback resistor
+  rsum_feedback_res: true           # gain = rsum/channel rsum (inverting summer)
+  rc: { r: 47k, c: 220p }           # R29||C3, R30||C37 -> 15.4 kHz pole
+  channels:
+    # No per-channel `rc` on FM or PSG: C17 and C18 are series coupling caps, not
+    # low-pass poles. pre 0.891251 (-1 dB) is an ear trim on the cabinet, and it
+    # deliberately overrides the derivation -- 47k/47k x vpp 0.5 normalises to
+    # 0.371, which both MAME and the previous core agree on. Do not "correct" it
+    # back to the derived figure.
+    - { name: fm,  module: jt03_fm,  rsum: 47k, pre: 0.891251 }   # R11/R12
+    # PSG is unbuffered, three channels through an RA 1k x 5 array into a common
+    # node, so YM2203_LUMPED stays 0. `pre: 1/3` is physics rather than an ear
+    # trim: jt49 SUMS its three channels while equal series resistors into a
+    # common node give the AVERAGE, so the model runs 3x hot without it.
+    - { name: psg, module: jt03_psg, rsum: 47k, pre: 0.333333 } # R7/R8, RA 1k x 5
+    # No extra PCM filter here. jotego 2026-08-30: the board's filtering is the
+    # first-order 15.4 kHz pole above (R=47k, C=220p) and nothing further. The
+    # earlier 95-tap MF6 FIR was removed on his instruction.
+    #
+    # vpp 0.63 is empirical, from the cabinet. It would otherwise default to 1.0 =
+    # rail to rail, which is unreachable: sheet D-2/3 has the MF6-50 on a single
+    # +5V supply and the datasheet bounds the swing near 0.7-0.8. Correct PCM level
+    # HERE if it is ever wrong, never with mame2mra volume dips.
+    - { name: pcm, data_width: 16, rsum: 22k, stereo: true, vpp: 0.63 } # R5/R6
+sdram:
+  banks:
+    # Bank 0 - main CPU
+    - buses:
+        - { name: xram,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, rw: true }
+        # cache_size: our SDRAM program-ROM latency is an artifact the PCB never
+        # paid -- its 27256s answer in one cycle. RECOVERY=1 refunds the stall
+        # afterwards, which restores the average rate but not the phase. A cache
+        # removes the latency at source instead. 1kB as every upstream user picks.
+        - { name: main,   addr_width: 18, data_width: 16, cache_size: 1kB }
+        - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
+        - { name: map2,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
+
+    # Bank 1 - sub CPU and sound
+    - buses:
+        - { name: subrom, addr_width: 16, data_width: 16 }
+        - { name: snd,    addr_width: 15, data_width:  8, offset: SND_OFFSET }
+        - { name: pcm,    addr_width: 16, data_width:  8, offset: PCM_OFFSET }
+
+    # Bank 2 - tile graphics
+    - buses:
+        - { name: char, addr_width: 17, data_width: 32, cs: gfx_cs }
+        - { name: scr1, addr_width: 17, data_width: 32, cs: gfx_cs }
+        - { name: scr2, addr_width: 17, data_width: 32, cs: gfx_cs }
+
+    # Bank 3 - sprites
+    - buses:
+        - { name: obj, addr_width: 20, data_width: 32 }
+bram:
+  # Work RAM, IC96/IC83 on CPU sheet 1/6
+  # Every saved region needs its own ioctl order: the generator indexes the
+  # dump slots by it (jtframe mem.go make_ioctl), so regions left at the
+  # default 0 silently overwrite each other and only the last one survives.
+  - name: wram
+    addr_width: 14
+    data_width: 16
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }
+  # Shared RAM, IC78/IC79 on CPU sheet 3/6, muxed by LS157 IC80-IC83
+  - name: subram
+    addr_width: 14
+    data_width: 16
+    rw: true
+    ioctl: { save: true, restore: true, order: 1 }
+    dual_port:
+      name: subsh
+      rw: true
+      addr: sub_addr[13:1]
+      din: sub_dout
+      dout: subsh_dout
+  # Road RAM. Port 0 is the CPU side and belongs to the SUB: road RAM IC50/IC63
+  # hangs off the sub bus, ROAD decoded by IC42 (LS138) on sheet 3/6, and the main
+  # decoder IC11 emits no ROAD select. The main's writes are merged onto the same
+  # port on free cycles -- see the arbiter in jtsharrier_game.v.
+  #
+  # Port 1 is the road engine, read only. A true dual-port BRAM is the right
+  # rendering of the board's LS157 address mux (IC38/30/39, /G grounded, so a
+  # permanent mux): neither agent can corrupt the other.
+  - name: roadram
+    addr_width: 12
+    data_width: 16
+    rw: true
+    ioctl: { save: true, restore: true, order: 2 }
+    dual_port:
+      name: roaden
+      addr: road_rdaddr
+      din: 16'd0
+      we: 2'd0
+      dout: roadram_engine_dout
+  # epr-6844, shrink-only scale factors
+  - { name: zoom, addr_width: 13, data_width: 8, rom: { offset: ZOOM_OFFSET } }
+  # epr-7181 is downloaded as two interleaved halves, so it reads 16 bits wide
+  - { name: road, addr_width: 15, data_width: 16, rom: { offset: ROAD_OFFSET } }
+  # Sprite RAM is CPU-visible, so a scene that cannot restore it cannot
+  # reproduce the sprites. This is jotego's PR #1506 point about objram.
+  - name: objram
+    addr_width: 12
+    data_width: 16
+    rw: true
+    ioctl: { save: true, restore: true, order: 3 }
+    dual_port:
+      name: obj
+      addr: objdma_addr
+      dout: objdma_dout
+  # Palette RAM, IC103/IC110 (2016 x2) on CPU sheet 5/6: 110000-110fff, 4 kB.
+  # CPU-visible, so it is a scene-restorable BRAM like the RAMs above rather
+  # than the RAM held privately inside jts16_colmix -- the Hang-On family gives
+  # each game its own colmix (jtshanon_colmix, jtoutrun_colmix), so the palette
+  # belongs in mem.yaml where a scene can reach it. The colour-mux read port is
+  # added with jtsharrier_colmix at the video stage.
+  - name: pal
+    addr_width: 12
+    data_width: 16
+    rw: true
+    ioctl: { save: true, restore: true, order: 4 }
+    dual_port:
+      name: palrd
+      addr: pal_vaddr
+      dout: pal_vdata
