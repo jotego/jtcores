@@ -123,7 +123,9 @@ assign rom_cs    = cpu_bus & (A[23:20]==4'h0 || A[23:21]==3'b000 && A[20] ||
                               A[23:20]==4'h2);
 assign user2_cs  = cpu_bus & (A[23:21]==3'b101);            // a00000-bfffff
 assign rozgfx_cs = cpu_bus & A[23:20]==4'hc;
-assign rozvram_cs= cpu_bus & A[23:20]==4'hd & ~A[13];       // mirror at +6000
+// mirror(0x6000) is a bit mask: A13 and A14 are both don't care, so the
+// 8kB map repeats at d00000/d02000/d04000/d06000
+assign rozvram_cs= cpu_bus & A[23:16]==8'hd0 & ~A[15];      // d00000-d07fff
 assign lut0_cs   = cpu_bus & A[23:20]==4'he & ~A[14];
 assign lut1_cs   = cpu_bus & A[23:20]==4'he &  A[14];
 assign oram0_cs  = cpu_bus & A[23:16]==8'hf0;
