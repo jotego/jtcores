@@ -89,6 +89,14 @@ reg        LVBL2, LVBL1;
 // (reg+1)*4 for H, (reg+1)*2 for V
 function [8:0] hval(input [7:0] r); hval = { r[6:0], 2'd0 } + 9'd4; endfunction
 function [8:0] vval(input [7:0] r); vval = { r[7:0], 1'd0 } + 9'd2; endfunction
+// reg 08 = 7a decodes to 246 but only 240 lines reach the screen, on every
+// game that programs it: f1gp, sformula, tail2nos, welltris, pipedrm, hatris
+// and the fromance family. Every other value is displayed in full. See
+// doc/GGA.md. The six lines are cut, not blanked - hardware footage is
+// centred with no dead lines at either edge
+function [8:0] vheight(input [7:0] r);
+    vheight = vval(r)==9'd246 ? 9'd240 : vval(r);
+endfunction
 
 // The CPU programs the table one byte at a time, so the raw registers pass
 // through nonsense combinations mid-sequence. Latch them once per frame: the
@@ -103,7 +111,7 @@ wire [8:0] nhb = hval(regs[ 0]) - 9'd1,   // last visible pixel
            nhs = hval(regs[ 1]),
            nhe = hval(regs[ 2]),
            nhl = hval(regs[ 3]) - 9'd1,
-           nvb = vval(regs[ 8]) - 9'd1,   // last visible line
+           nvb = vheight(regs[ 8]) - 9'd1,   // last visible line
            nvs = vval(regs[ 9]),
            nve = vval(regs[10]),
            nvl = vval(regs[11]) - 9'd1;
@@ -137,7 +145,7 @@ always @(posedge clk) begin
         hs_start <= hval(`GGA_R( 1,8'h63));
         hs_end   <= hval(`GGA_R( 2,8'h69));
         h_lastr  <= hval(`GGA_R( 3,8'h71)) - 9'd1;
-        vb_start <= vval(`GGA_R( 8,8'h77)) - 9'd1;
+        vb_start <= vheight(`GGA_R( 8,8'h77)) - 9'd1;
         vs_start <= vval(`GGA_R( 9,8'h79));
         vs_end   <= vval(`GGA_R(10,8'h7b));
         v_last   <= vval(`GGA_R(11,8'h7f)) - 9'd1;
