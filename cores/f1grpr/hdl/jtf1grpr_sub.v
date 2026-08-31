@@ -73,7 +73,7 @@ assign ffblk    = &A[23:16];
 assign rom_cs   = cpu_bus & ~|A[23:17];
 assign ram_cs   = cpu_bus & ffblk & A[15:14]==2'b10;    // ff8000-ffbfff
 assign shared_cs= cpu_bus & ffblk & A[15:12]==4'hc;
-assign acia_cs  = cpu_bus & ffblk & A[15:12]==4'hf & A[7:5]==3'b001; // fff030
+assign acia_cs  = cpu_bus & ffblk & A[15:8]==8'hf0 & A[7:2]==6'b0011_00; // fff030-fff033
 
 assign ram_we   = { ram_cs    & hi_we, ram_cs    & lo_we };
 assign shared_we= { shared_cs & hi_we, shared_cs & lo_we };

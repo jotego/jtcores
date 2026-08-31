@@ -119,17 +119,18 @@ assign lo_we   = ~cpu_rnw & ~cpu_lds_n;
 // ROM ranges are one SDRAM region kept at the 68000 offsets, so the address
 // is a plain wire and the 768kB hole between them just goes unused
 assign ffblk     = &A[23:16];
-assign rom_cs    = cpu_bus & (A[23:20]==4'h0 || A[23:21]==3'b000 && A[20] ||
-                              A[23:20]==4'h2);
-assign user2_cs  = cpu_bus & (A[23:21]==3'b101);            // a00000-bfffff
-assign rozgfx_cs = cpu_bus & A[23:20]==4'hc;
+assign rom_cs    = cpu_bus & (A[23:18]==6'd0 ||              // 000000-03ffff
+                              A[23:21]==3'b000 && A[20] ||  // 100000-1fffff
+                              A[23:20]==4'h2);              // 200000-2fffff
+assign user2_cs  = cpu_bus & A[23:21]==3'b101;              // a00000-bfffff
+assign rozgfx_cs = cpu_bus & A[23:20]==4'hc & A[19:18]==2'd0;   // c00000-c3ffff
 // mirror(0x6000) is a bit mask: A13 and A14 are both don't care, so the
 // 8kB map repeats at d00000/d02000/d04000/d06000
 assign rozvram_cs= cpu_bus & A[23:16]==8'hd0 & ~A[15];      // d00000-d07fff
-assign lut0_cs   = cpu_bus & A[23:20]==4'he & ~A[14];
-assign lut1_cs   = cpu_bus & A[23:20]==4'he &  A[14];
-assign oram0_cs  = cpu_bus & A[23:16]==8'hf0;
-assign oram1_cs  = cpu_bus & A[23:16]==8'hf1;
+assign lut0_cs   = cpu_bus & A[23:16]==8'he0 & A[15:14]==2'b00; // e00000-e03fff
+assign lut1_cs   = cpu_bus & A[23:16]==8'he0 & A[15:14]==2'b01; // e04000-e07fff
+assign oram0_cs  = cpu_bus & A[23:16]==8'hf0 & A[15:10]==6'd0;  // f00000-f003ff
+assign oram1_cs  = cpu_bus & A[23:16]==8'hf1 & A[15:10]==6'd0;  // f10000-f103ff
 assign ram_cs    = cpu_bus & ffblk & A[15:14]==2'b10;       // ff8000-ffbfff
 assign shared_cs = cpu_bus & ffblk & A[15:12]==4'hc;
 assign fgvram_cs = cpu_bus & ffblk & A[15:12]==4'hd;
