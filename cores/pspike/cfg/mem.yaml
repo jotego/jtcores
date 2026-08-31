@@ -21,8 +21,15 @@ clocks:
         - snd4_cen
 
 audio:
+  rsum: 33k
+  rsum_feedback_res: true
   channels:
-    - { name: fm, data_width: 16, stereo: true, rsum: 10k }
+    # fm carries FM+ADPCM (jt10b fm_left/fm_right). psg is mixed separately:
+    # jt10b's snd_* adds psg<<5 into a signed 16-bit sum with no saturation.
+    # MAME routes psg at 0.75 and fm at 1.0, so psg gets pre 0.75 on an equal
+    # summing resistor. psg is unsigned, hence dcrm
+    - { name: fm,  data_width: 16, rsum: 33k, stereo: true }
+    - { name: psg, data_width: 10, rsum: 33k, pre: 0.75, dcrm: true }
 
 sdram:
   banks:

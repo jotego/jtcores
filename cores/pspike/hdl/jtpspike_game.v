@@ -222,7 +222,8 @@ jtpspike_snd u_snd(
     .pcmb_data  ( pcmb_data     ),
 
     .fm_l       ( fm_l          ),
-    .fm_r       ( fm_r          )
+    .fm_r       ( fm_r          ),
+    .psg        ( psg           )
 );
 
 endmodule

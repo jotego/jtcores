@@ -65,7 +65,8 @@ module jtpspike_snd #(parameter [1:0] BANK_OFF=2'd0,
     input                aerofgt,
     input      [ 7:0]    debug_bus,
 
-    output signed [15:0] fm_l, fm_r
+    output signed [15:0] fm_l, fm_r,
+    output        [ 9:0] psg
 );
 
 wire [15:0] A;
@@ -206,15 +207,16 @@ jt10b u_jt10b(
     .adpcmb_roe_n(adpcmb_roe_n ),
     .adpcmb_data( pcmb_data    ),
 
-    // separated outputs unused, the mixed ones carry everything
+    // fm and psg are mixed outside: jt10b's snd_* adds psg<<5 into a signed
+    // 16-bit sum with no saturation, so it wraps
     .psg_A      (           ),
     .psg_B      (           ),
     .psg_C      (           ),
-    .fm_left    (           ),
-    .fm_right   (           ),
-    .psg_snd    (           ),
-    .snd_right  ( fm_r      ),
-    .snd_left   ( fm_l      ),
+    .fm_left    ( fm_l      ),
+    .fm_right   ( fm_r      ),
+    .psg_snd    ( psg       ),
+    .snd_right  (           ),
+    .snd_left   (           ),
     .snd_sample (           ),
     .ch_enable  ( 6'h3f     )
 );

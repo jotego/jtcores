@@ -232,7 +232,8 @@ jtpspike_snd #(.BANK_OFF(2'd1),.PCMBW(20)) u_snd(
     .pcmb_data  ( pcmb_data     ),
 
     .fm_l       ( fm_l          ),
-    .fm_r       ( fm_r          )
+    .fm_r       ( fm_r          ),
+    .psg        ( psg           )
 );
 
 endmodule
