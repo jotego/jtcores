@@ -24,7 +24,7 @@ module jttaitox_snd(
     input                fm_cen,     // YM2151, P0-051A
     input                fm_cenp1,
     input                snd_cen,    // Z80, gated on the sound-ROM wait
-    input                hawk,       // PC060HA + YM2151 instead of SYT + YM2610
+    input                ym2151,     // PC060HA + YM2151 instead of SYT + YM2610
 
     // 68k side of the comm chip
     input                main_cen,
@@ -50,31 +50,31 @@ module jttaitox_snd(
     output        [ 9:0] psg
 );
 `ifndef NOSOUND
-wire [15:0] A, sup_rom_addr, hawk_rom_addr;
-wire [ 7:0] z80_dout, ram_dout, sup_din, hawk_din;
-wire [ 3:0] sup_main_din, hawk_main_din;
+wire [15:0] A, sup_rom_addr, ym2151_rom_addr;
+wire [ 7:0] z80_dout, ram_dout, sup_din, ym2151_din;
+wire [ 3:0] sup_main_din, ym2151_main_din;
 wire        mreq_n, rd_n, wr_n, iorq_n, m1_n, rfsh_n, cpu_cen;
 wire        sup_cs, sup_nmi_n, sup_int_n, sup_rst, sup_rom_cs, sup_ram_cs;
-wire        hawk_cs, hawk_nmi_n, hawk_int_n, hawk_rst, hawk_rom_cs, hawk_ram_cs;
-wire signed [15:0] supfm_l, supfm_r, hawk_l, hawk_r;
+wire        ym2151_cs, ym2151_nmi_n, ym2151_int_n, ym2151_rst, ym2151_rom_cs, ym2151_ram_cs;
+wire signed [15:0] supfm_l, supfm_r, ym2151_l, ym2151_r;
 wire        rst_mux, nmi_n, int_n, ram_cs;
 wire [ 7:0] din;
-reg         rst_n, rst_sup, rst_hawk;
+reg         rst_n, rst_sup, rst_ym2151;
 
-assign nmi_n    = hawk ? hawk_nmi_n    : sup_nmi_n;
-assign int_n    = hawk ? hawk_int_n    : sup_int_n;
-assign rst_mux  = hawk ? hawk_rst      : sup_rst;
-assign main_din = hawk ? hawk_main_din : sup_main_din;
-assign din      = hawk ? hawk_din      : sup_din;
-assign rom_cs   = hawk ? hawk_rom_cs   : sup_rom_cs;
-assign rom_addr = hawk ? hawk_rom_addr : sup_rom_addr;
-assign ram_cs   = hawk ? hawk_ram_cs   : sup_ram_cs;
-assign sup_cs   = syt_cs & ~hawk;
-assign hawk_cs  = syt_cs &  hawk;
+assign nmi_n    = ym2151 ? ym2151_nmi_n    : sup_nmi_n;
+assign int_n    = ym2151 ? ym2151_int_n    : sup_int_n;
+assign rst_mux  = ym2151 ? ym2151_rst      : sup_rst;
+assign main_din = ym2151 ? ym2151_main_din : sup_main_din;
+assign din      = ym2151 ? ym2151_din      : sup_din;
+assign rom_cs   = ym2151 ? ym2151_rom_cs   : sup_rom_cs;
+assign rom_addr = ym2151 ? ym2151_rom_addr : sup_rom_addr;
+assign ram_cs   = ym2151 ? ym2151_ram_cs   : sup_ram_cs;
+assign sup_cs   = syt_cs & ~ym2151;
+assign ym2151_cs = syt_cs & ym2151;
 
 always @(posedge clk) begin
-    rst_sup  <= rst |  hawk;
-    rst_hawk <= rst | ~hawk;
+    rst_sup    <= rst |  ym2151;
+    rst_ym2151 <= rst | ~ym2151;
     rst_n    <= ~(rst | rst_mux);
 end
 
@@ -147,17 +147,17 @@ jttaitox_sup_snd u_sup(
 
 // P0-051A: PC060HA + YM2151
 jttaitox_hawk_snd u_hawk(
-    .rst        ( rst_hawk      ),
+    .rst        ( rst_ym2151    ),
     .clk        ( clk           ),
     .fm_cen     ( fm_cen        ),
     .fm_cenp1   ( fm_cenp1      ),
     .main_cen   ( main_cen      ),
     .snd_cen    ( snd_cen       ),
 
-    .main_cs    ( hawk_cs       ),
+    .main_cs    ( ym2151_cs     ),
     .main_addr  ( main_addr     ),
     .main_dout  ( main_dout     ),
-    .main_din   ( hawk_main_din ),
+    .main_din   ( ym2151_main_din ),
     .main_rnw   ( main_rnw      ),
 
     .a          ( A             ),
@@ -166,14 +166,14 @@ jttaitox_hawk_snd u_hawk(
     .rfsh_n     ( rfsh_n        ),
     .wr_n       ( wr_n          ),
     .ram_dout   ( ram_dout      ),
-    .cpu_din    ( hawk_din      ),
-    .nmi_n      ( hawk_nmi_n    ),
-    .int_n      ( hawk_int_n    ),
-    .z80_rst    ( hawk_rst      ),
+    .cpu_din    ( ym2151_din    ),
+    .nmi_n      ( ym2151_nmi_n  ),
+    .int_n      ( ym2151_int_n  ),
+    .z80_rst    ( ym2151_rst    ),
 
-    .rom_cs     ( hawk_rom_cs   ),
-    .rom_addr   ( hawk_rom_addr ),
-    .ram_cs     ( hawk_ram_cs   ),
+    .rom_cs     ( ym2151_rom_cs   ),
+    .rom_addr   ( ym2151_rom_addr ),
+    .ram_cs     ( ym2151_ram_cs   ),
     .rom_data   ( rom_data      ),
 
     .snd_left   ( fm_l          ),
