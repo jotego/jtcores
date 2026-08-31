@@ -5,6 +5,8 @@ sharrier:
     - jtsharrier_sub.v
     - jtsharrier_video.v
     - jtsharrier_colmix.v
+    - jtsharrier_cab.v
+    - jtsharrier_roadarb.v
     - jtsharrier_road.v
     - jtsharrier_obj.v
     - jtsharrier_obj_scan.v

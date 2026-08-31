@@ -88,21 +88,11 @@ wire [ 8:0] vdump;
 wire [10:0] pal_addr;
 wire [11:0] obj_pxl;
 
-// fix/sa/sb/obj report which layer the tilemap selected as opaque; none selected
-// means it is transparent there and a lower layer shows.
+// Layer outputs, all mixed in jtsharrier_colmix.
 wire [10:0] road_pxl;
 wire        road_op;
 wire [ 1:0] road_plycont;
 wire        tm_fix, tm_sa, tm_sb, tm_obj;
-// Layer order, segahang.cpp screen_update, bottom to top: ROAD_BACKGROUND,
-// tilemap bg (sa/sb), tilemap fg, ROAD_FOREGROUND, sprites, text (fix). plycont
-// picks the pass PER SCANLINE (segaic16_road.cpp:100): 0 draws under the scroll
-// tiles, non-zero over them. The road writes every pixel, so on a foreground line
-// it replaces sa/sb, while sprites and text cover it.
-wire        road_fg  = road_plycont != 2'd0;
-// road_op drops the warm-up pixels; without it a held pxl paints over the tiles.
-wire        road_win = road_op & ~(tm_fix | tm_obj) & (road_fg | ~(tm_sa | tm_sb));
-
 // Tilemap SDRAM addresses into the 128 kB gfx1 region. S16A has no tile bank
 // register, so char (the fix layer) has zero top bits, scr's 12-bit code never
 // sets tilemap bit 17 and it is dropped, and map is 1:1.
@@ -122,7 +112,6 @@ wire [ 2:0] vfix_row = (vfix_en && tmg_char_addr[13:5]==9'h056) ?
 assign char_addr = { 3'd0, tmg_char_addr[13:5], vfix_row };
 assign scr1_addr = tmg_scr1_addr[16:2];
 assign scr2_addr = tmg_scr2_addr[16:2];
-assign pal_vaddr = road_win ? road_pxl : pal_addr;
 
 jts16_tilemap #(.MODEL(0)) u_tilemap(
     .rst        ( rst       ),
@@ -243,8 +232,20 @@ jtsharrier_colmix u_colmix(
     .video_en   ( video_en  ),
     .preLHBL    ( preLHBL   ),
     .preLVBL    ( preLVBL   ),
+
+    .tm_addr    ( pal_addr  ),
+    .tm_fix     ( tm_fix    ),
+    .tm_sa      ( tm_sa     ),
+    .tm_sb      ( tm_sb     ),
+    .tm_obj     ( tm_obj    ),
+    .road_pxl   ( road_pxl  ),
+    .road_op    ( road_op   ),
+    .road_plycont( road_plycont ),
+
+    .pal_vaddr  ( pal_vaddr ),
     .pal_data   ( pal_vdata ),
     .shadow     ( shadow    ),
+    .gfx_en     ( gfx_en    ),
     .red        ( red       ),
     .green      ( green     ),
     .blue       ( blue      ),

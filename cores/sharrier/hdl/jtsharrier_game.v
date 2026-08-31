@@ -32,6 +32,10 @@ wire        scr_bad;
 reg  [ 7:0] st_mux;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
+// 'V' glyph fix (dipsw[30]): the MRA lists "On,Off" so the all-ones default
+// ships faithful to the PCB.
+wire vfix_en = ~dipsw[30];
+wire [ 7:0] an_x, an_y;
 assign vint       = ~LVBL;
 assign mcu_we     = prom_we && prog_addr[21:12]==MCU_PROM[21:12];
 
@@ -78,46 +82,26 @@ assign wram_we    = ram_cs & ~main_rnw ? ~main_dsn : 2'b00;
 assign subram_addr = main_addr_cpu[13:1];
 assign subram_din  = main_dout;
 assign subram_we   = subram_cs_main & ~main_rnw ? ~main_dsn : 2'b00;
-// Road RAM CPU port. The board puts road RAM on the sub bus (sheet 3/6) and
-// decodes no ROAD select for the main, so the sub owns this port and the engine
-// reads the other. The main's writes are merged in on free cycles anyway: the
-// firmware does write 256 words per title/attract transition. The arbiter cannot
-// back up -- a 68000 write is ~19 clk against a sub access holding road_cs for
-// at most one.
-reg  [10:0] mainwr_addr;
-reg  [15:0] mainwr_din;
-reg  [ 1:0] mainwr_we;
-reg         mainwr_pend, main_road_wr_l;
+jtsharrier_roadarb u_roadarb(
+    .rst        ( rst               ),
+    .clk        ( clk               ),
 
-// Qualify on the STROBES, not the chip select: latching on the select's edge
-// catches main_dsn inactive and the byte enables latch as 00.
-wire [ 1:0] main_road_we = roadram_cs_main & ~main_rnw ? ~main_dsn : 2'b00;
-wire        main_road_wr = |main_road_we;
+    .main_cs    ( roadram_cs_main   ),
+    .main_rnw   ( main_rnw          ),
+    .main_dsn   ( main_dsn          ),
+    .main_addr  ( main_addr_cpu[11:1] ),
+    .main_dout  ( main_dout         ),
 
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        mainwr_addr    <= 0;
-        mainwr_din     <= 0;
-        mainwr_we      <= 0;
-        mainwr_pend    <= 0;
-        main_road_wr_l <= 0;
-    end else begin
-        main_road_wr_l <= main_road_wr;
-        if( main_road_wr & ~main_road_wr_l ) begin
-            mainwr_addr <= main_addr_cpu[11:1];
-            mainwr_din  <= main_dout;
-            mainwr_we   <= main_road_we;
-            mainwr_pend <= 1;
-        end else if( mainwr_pend & ~sub_road_cs ) begin
-            mainwr_pend <= 0;      // served on this cycle by the mux below
-        end
-    end
-end
+    .sub_cs     ( sub_road_cs       ),
+    .sub_rnw    ( sub_rnw           ),
+    .sub_dsn    ( sub_dsn           ),
+    .sub_addr   ( sub_addr_cpu[11:1] ),
+    .sub_dout   ( sub_cpu_dout      ),
 
-assign roadram_addr= sub_road_cs ? sub_addr_cpu[11:1] : mainwr_addr;
-assign roadram_din = sub_road_cs ? sub_cpu_dout       : mainwr_din;
-assign roadram_we  = sub_road_cs ? (~sub_rnw ? ~sub_dsn : 2'b00) :
-                     mainwr_pend ? mainwr_we : 2'b00;
+    .ram_addr   ( roadram_addr      ),
+    .ram_din    ( roadram_din       ),
+    .ram_we     ( roadram_we        )
+);
 
 assign sub_addr    = sub_addr_cpu[13:1];
 assign sub_dout    = sub_cpu_dout;
@@ -202,81 +186,20 @@ jtsharrier_video u_video(
     .scr_bad    ( scr_bad       )
 );
 
-// Flight-stick conditioning to ADC0/ADC1 (sheet 2/6, IC126/IC125). Each byte must
-// be pre-shaped to the window the ROM decodes (68000 dasm 0x5AD0); the raw swing
-// pins the stick to a corner. X window 0x20..0xE0, reversed. Y is asymmetric
-// about the 0x80 rest -- 0xC0 down, 0x60 up -- hence separate gains. Both axes
-// latch once per frame: the MCU scans each twice into different slots.
-localparam signed [9:0] AN_LIMIT = 10'sd96;   // 0x80 +/- 0x60 = the 0x20..0xE0 window
-localparam signed [9:0] AN_STEP  = 10'sd4;    // matches MAME PORT_KEYDELTA(4)
+jtsharrier_cab u_cab(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .vint       ( vint          ),
 
-// The digital d-pad becomes a sprung analog offset summed into the stick, so a
-// pad and an analog stick both work. Hold to ramp toward full deflection at
-// AN_STEP per frame, springing back on release as the cabinet's stick does --
-// the game treats stick position as an ABSOLUTE screen position. Ticked on
-// vblank, so the ramp is 60 Hz regardless of clock.
-wire sprung   = dipsw[29];
-// 'V' glyph fix (dipsw[30]): the MRA lists "On,Off" so the all-ones default
-// ships faithful to the PCB.
-wire vfix_en  = ~dipsw[30];
-wire dp_up    = ~joystick1[3];
-wire dp_down  = ~joystick1[2];
-wire dp_left  = ~joystick1[1];
-wire dp_right = ~joystick1[0];
-reg  signed [9:0] dig_x, dig_y;
+    .joystick1  ( joystick1[3:0]),
+    .joyana_l1  ( joyana_l1     ),
 
-wire signed [ 9:0] ana_x = { {2{joyana_l1[ 7]}}, joyana_l1[ 7:0] };
-wire signed [ 9:0] ana_y = { {2{joyana_l1[15]}}, joyana_l1[15:8] };
-wire signed [ 9:0] sum_x = ana_x + dig_x;    // analog stick + digital d-pad offset
-wire signed [ 9:0] sum_y = ana_y + dig_y;
-wire signed [ 9:0] clp_x = sum_x >  AN_LIMIT ?  AN_LIMIT : (sum_x < -AN_LIMIT ? -AN_LIMIT : sum_x);
-wire signed [ 9:0] clp_y = sum_y >  AN_LIMIT ?  AN_LIMIT : (sum_y < -AN_LIMIT ? -AN_LIMIT : sum_y);
-// Y invert: the cabinet is an aircraft stick, so Arcade = inverted is faithful.
-wire               invert_y = dipsw[28];
-wire signed [ 9:0] clp_yf   = invert_y ? -clp_y : clp_y;
+    .sprung     ( dipsw[29]     ),
+    .invert_y   ( dipsw[28]     ),
 
-// The 171/86 gains are COUPLED to AN_LIMIT(96): 96*171>>8 = 64 (0x80->0xC0) and
-// 96*86>>8 = 32 (0x80->0x60). Change AN_LIMIT and both must be recomputed as
-// endpoint*256/AN_LIMIT, or full travel stops reaching the window endpoints.
-wire        [ 9:0] mag_y    = clp_yf[9] ? -clp_yf : clp_yf;            // 0..96
-wire        [17:0] scl_y    = mag_y * (clp_yf[9] ? 18'd171 : 18'd86); // down x171 / up x86
-wire        [ 7:0] off_y    = scl_y[15:8];                            // 0..64 / 0..32
-wire        [ 7:0] an_x_raw = 8'h80 - clp_x[7:0];                     // PORT_REVERSE
-wire        [ 7:0] an_y_raw = clp_yf[9] ? 8'h80 + off_y : 8'h80 - off_y;
-
-reg  [7:0] an_x, an_y;
-reg        anl_vbl;
-always @(posedge clk) begin
-    anl_vbl <= vint;
-    if( rst ) begin
-        an_x  <= 8'h80;
-        an_y  <= 8'h80;                    // neutral is 0x80 on both axes
-        dig_x <= 0;
-        dig_y <= 0;
-    end else if( vint & ~anl_vbl ) begin   // once per frame at vblank (60 Hz tick)
-        // X: right = positive. Springs back in Arcade; holds in Console.
-        if( dp_right ^ dp_left )
-            dig_x <= dp_right ? (dig_x + AN_STEP >  AN_LIMIT ?  AN_LIMIT : dig_x + AN_STEP)
-                              : (dig_x - AN_STEP < -AN_LIMIT ? -AN_LIMIT : dig_x - AN_STEP);
-        else if( sprung ) begin
-            if( dig_x >  AN_STEP ) dig_x <= dig_x - AN_STEP;   // spring back to centre
-            else if( dig_x < -AN_STEP ) dig_x <= dig_x + AN_STEP;
-            else                        dig_x <= 0;
-        end
-        // Y: down = positive offset
-        if( dp_down ^ dp_up )
-            dig_y <= dp_down ? (dig_y + AN_STEP >  AN_LIMIT ?  AN_LIMIT : dig_y + AN_STEP)
-                             : (dig_y - AN_STEP < -AN_LIMIT ? -AN_LIMIT : dig_y - AN_STEP);
-        else if( sprung ) begin
-            if( dig_y >  AN_STEP ) dig_y <= dig_y - AN_STEP;
-            else if( dig_y < -AN_STEP ) dig_y <= dig_y + AN_STEP;
-            else                        dig_y <= 0;
-        end
-        // sample-and-hold the shaped axes
-        an_x  <= an_x_raw;
-        an_y  <= an_y_raw;
-    end
-end
+    .an_x       ( an_x          ),
+    .an_y       ( an_y          )
+);
 
 jtsharrier_main u_main(
     .rst        ( rst           ),

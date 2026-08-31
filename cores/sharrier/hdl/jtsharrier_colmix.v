@@ -2,9 +2,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 8-8-2026 */
 
-// Palette and colour output, CPU sheet 5/6. The palette RAM is external, so
-// pal_data lands one pxl_cen after pal_addr -- what the jtframe_blank delay is
-// sized for.
+// Layer mixing, palette and colour output, CPU sheet 5/6. The palette RAM is
+// external, so pal_data lands one pxl_cen after pal_vaddr -- what the
+// jtframe_blank delay is sized for.
 
 module jtsharrier_colmix(
     input              rst,
@@ -15,8 +15,22 @@ module jtsharrier_colmix(
     input              preLHBL,
     input              preLVBL,
 
+    // Layers. fix/sa/sb/obj report which layer the tilemap selected as opaque;
+    // none selected means it is transparent there and a lower layer shows.
+    input      [10:0]  tm_addr,
+    input              tm_fix,
+    input              tm_sa,
+    input              tm_sb,
+    input              tm_obj,
+    input      [10:0]  road_pxl,
+    input              road_op,
+    input      [ 1:0]  road_plycont,
+
+    output     [10:0]  pal_vaddr,
     input      [15:0]  pal_data,
     input              shadow,
+
+    input      [ 3:0]  gfx_en,
 
     output     [ 4:0]  red,
     output     [ 4:0]  green,
@@ -24,6 +38,21 @@ module jtsharrier_colmix(
     output             LVBL,
     output             LHBL
 );
+
+// Layer order, segahang.cpp screen_update, bottom to top: ROAD_BACKGROUND,
+// tilemap bg (sa/sb), tilemap fg, ROAD_FOREGROUND, sprites, text (fix). plycont
+// picks the pass PER SCANLINE (segaic16_road.cpp:100): 0 draws under the scroll
+// tiles, non-zero over them. The road writes every pixel, so on a foreground line
+// it replaces sa/sb, while sprites and text cover it.
+wire        road_fg  = road_plycont != 2'd0;
+// road_op drops the warm-up pixels; without it a held pxl paints over the tiles.
+// gfx_en[1] is the background-scroll toggle: four OSD bits for five planes, and
+// the road shares the scroll tiles' plane -- under them on a background line,
+// over them on a foreground one -- so it shares their switch. jotego's to pick.
+wire        road_win = gfx_en[1] & road_op & ~(tm_fix | tm_obj) &
+                       (road_fg | ~(tm_sa | tm_sb));
+
+assign pal_vaddr = road_win ? road_pxl : tm_addr;
 
 wire [ 4:0] rpal, gpal, bpal;
 wire [14:0] rgb;
