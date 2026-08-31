@@ -8,12 +8,11 @@ JTFRAME_CLK48
 
 JTFRAME_NOHQ2X
 JTFRAME_MR_DDRLOAD
-
+JTFRAME_180SHIFT
 # the GGA powers up on the shared 352x240 grid, so the sim's frame-size
 # check would abort before the CPU reprograms it
 JTFRAME_SIM_SKIP_VSIZE
 
-# visarea (0,319,8,247) rotated 90 degrees
 JTFRAME_WIDTH=320
 JTFRAME_HEIGHT=240
 JTFRAME_COLORW=5
@@ -23,22 +22,10 @@ JTFRAME_VERTICAL
 # joystick from that stick
 JTFRAME_NOMULTIWAY
 
-# brake and accelerator. The INPUTS bit order is mapped by hand in _main.v,
-# so no JTFRAME_JOY_* remap here
 JTFRAME_BUTTONS=2
 
 JTFRAME_HEADER=8
 
-# One heavy gfx client per bank. The ROZ layer reads its tiles from BRAM
-# (the CPU uploads them), so the SDRAM gfx clients are only fg and the two
-# sprite chips.
-#   bank0  main 000000 (maincpu + user1)   fg      300000
-#   bank1  obj0 500000                     user2   600000
-#   bank2  obj1 800000   sub 880000        snd     8a0000
-#   bank3  pcma 8c0000                     pcmb    9c0000
-# main spans 000000-2fffff: maincpu, the 768kB hole, then user1 at 100000
-# user1 sits at its 68000 address (100000) inside the main region so the
-# address decode is a plain wire; the 768kB hole costs nothing at 32MB
 USER1_START=0x100000
 FG_START=0x300000
 JTFRAME_BA1_START=0x500000
