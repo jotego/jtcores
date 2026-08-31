@@ -153,6 +153,20 @@ assign lut1_we   = { lut1_cs   & hi_we, lut1_cs   & lo_we };
 assign oram0_we  = { oram0_cs  & hi_we, oram0_cs  & lo_we };
 assign oram1_we  = { oram1_cs  & hi_we, oram1_cs  & lo_we };
 
+// The region jumper only has six legal codes and the vblank IRQ soft-resets
+// the game on anything else, so the MRA carries a 3-bit index instead
+reg [4:0] region;
+always @* begin
+    case( dipsw[26:24] )
+        3'd0: region = 5'h00;   // Japan
+        3'd1: region = 5'h01;   // USA & Canada
+        3'd2: region = 5'h02;   // Korea
+        3'd3: region = 5'h04;   // Hong Kong
+        3'd4: region = 5'h08;   // Taiwan
+        default: region = 5'h10;// World
+    endcase
+end
+
 // Cabinet reads. jtframe delivers the joystick as 0=right 1=left 2=down
 // 3=up 4+=buttons, active low; the INPUTS port wants UDLR then brake,
 // accelerator, so the bottom nibble is reversed by hand
@@ -172,7 +186,7 @@ always @* begin
         7'h03: cab_dout = { dipsw[23:16], 8'h0 };
         // fff009: the sound latch pending flag, 0xff or 0x00
         7'h04: cab_dout = { 8'hff, {8{snd_pending}} };
-        7'h28: cab_dout = { 11'h0, dipsw[28:24] }; // DSW3 at fff050
+        7'h28: cab_dout = { 11'h0, region };       // DSW3 at fff050
         default:;
     endcase
 end

@@ -26,7 +26,21 @@ offset=[
     { name="DSW2", value=8  },
     { name="DSW3", value=24 },
 ]
-delete=[{names=["Unused","Unknown"]}]
+# Coinage is MAME's conditional variant of Coin A/Coin B over the same bits:
+# 6 bits, 64 entries, one valid. Coin A/B already cover the normal case.
+# Region is a 5-bit jumper with only 6 legal codes (0,1,2,4,8,10); the other
+# 26 make the vblank IRQ soft-reset the game, so it is replaced by a 3-bit
+# index decoded back to the jumper value in _main.v
+delete=[{names=["Unused","Unknown","Coinage","Region"]}]
+rename=[
+    { name="Multi Player Mode", to="Multi Play" },
+    { name="Continue Coin",     to="Cont. Coin" },
+    { name="Input Method",      to="Input" },
+]
+extra=[
+    { name="Region", bits="24,26", options="Japan,USA,Korea,Hong Kong,Taiwan,World" },
+]
+defaults=[{ value="ff,ff,fb,f5" }]   # region index 5 = World
 
 [ROM]
 regions = [
