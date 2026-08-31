@@ -1,0 +1,99 @@
+moomsa:
+  - get:
+    - jtmoomsa_game.v
+    - jtmoomsa_main.v
+    - jtmoomsa_fx68k.v
+    - jtmoomsa_main_rom_map.v
+    - jtmoomsa_main_decode.v
+    - jtmoomsa_control2.v
+    - jtmoomsa_053246_regs.v
+    - jtmoomsa_obj.v
+    - jtmoomsa_obj_meta_latch.v
+    - jtmoomsa_053990_regs.v
+    - jtmoomsa_k056832_windows.v
+    - jtmoomsa_k056832.v
+    - jtmoomsa_k056832_renderer.v
+    - jtmoomsa_k056832_tile_decode.v
+    - jtmoomsa_k056832_romrd.v
+    - jtmoomsa_p6_gates.v
+    - jtmoomsa_p6_decode.v
+    - jtmoomsa_objrom_lanes.v
+    - jtmoomsa_objrom_latches.v
+    - jtmoomsa_objbus_data.v
+    - jtmoomsa_obj_addr_buf.v
+    - jtmoomsa_objram_addr_map.v
+    - jtmoomsa_objram_cpu.v
+    - jtmoomsa_oram_cpu.v
+    - jtmoomsa_objram_lanes.v
+    - jtmoomsa_scroll_vram_lanes.v
+    - jtmoomsa_054157_palette_bits.v
+    - jtmoomsa_tilemap.v
+    - jtmoomsa_tile_rom_sel.v
+    - jtmoomsa_palette_lanes.v
+    - jtmoomsa_palette_rgb.v
+    - jtmoomsa_color_bridge.v
+    - jtmoomsa_sound_bank_mux.v
+    - jtmoomsa_gfxrom_lanes.v
+    - jtmoomsa_mainrom_lanes.v
+    - jtmoomsa_workram_lanes.v
+    - jtmoomsa_workram_bus.v
+    - jtmoomsa_irq.v
+    - jtmoomsa_irq_latch.v
+    - jtmoomsa_k053251_map.v
+    - jtmoomsa_video.v
+    - jtmoomsa_colmix.v
+    - jtmoomsa_054539.v
+    - jtmoomsa_k054539_full.v
+    - jtmoomsa_054539_endm.v
+    - jtmoomsa_054539_extaddr.v
+    - jtmoomsa_054156_ctrl.v
+    - jtmoomsa_054156_decode.v
+    - jtmoomsa_054156_vram_addr.v
+    - jtmoomsa_054156_vram_data.v
+    - jtmoomsa_054338.v
+    - jtmoomsa_053252.v
+    - jtmoomsa_colmix_n6.v
+    - jtmoomsa_inputs.v
+    - jtmoomsa_cabinet.v
+    - jtmoomsa_cabinet_mux.v
+    - jtmoomsa_ci_latch.v
+    - jtmoomsa_ocol_latch.v
+    - jtmoomsa_pr_latch.v
+    - jtmoomsa_color_latches.v
+    - jtmoomsa_dac_lanes.v
+    - jtmoomsa_mcol_mux.v
+    - jtmoomsa_mcolb_mux.v
+    - jtmoomsa_cramcs.v
+    - jtmoomsa_oram_gates.v
+    - jtmoomsa_eeprom_io.v
+    - jtmoomsa_palette.v
+    - jtmoomsa_dips.v
+    - jtmoomsa_sound_pal.v
+    - jtmoomsa_sound.v
+    - jtmoomsa_pair_mux.v
+
+simson:
+  - get:
+    - jtsimson_obj.v
+    - jt053246.sv
+    - jt053246_scan.sv
+
+xmen:
+  - get:
+    - jtxmen_video.v
+    - jtxmen_colmix.v
+
+riders:
+  - get:
+    - common.yaml
+
+jtframe:
+  - from: video
+    get:
+      - jtframe_blank.v
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v

@@ -1,0 +1,21 @@
+CORENAME=JTMOOMSA
+
+# The K053252 startup vector is 512 raster clocks x 264 lines with a 384 x 224
+# active area. The direct 32 MHz clock is divided by four to an 8 MHz raster
+# cadence, so this is the derived native refresh rate.
+JTFRAME_RATE=59.1856060606
+JTFRAME_CLK24
+JTFRAME_PXLCLK=8
+JTFRAME_COLORW=8
+JTFRAME_WIDTH=384
+JTFRAME_HEIGHT=224
+JTFRAME_BUTTONS=3
+JTFRAME_HEADER=16
+JTFRAME_STEREO
+JTFRAME_SAVEGAME
+JTFRAME_IOCTL_RD=128
+JTFRAME_OSD_TEST
+JTFRAME_CREDITS_HSTART=32
+
+# Bank starts are supplied by the four-entry header offset table in
+# mame2mra.toml. Fixed JTFRAME_BA*_START macros must not coexist with BALUT.
