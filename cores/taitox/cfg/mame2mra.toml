@@ -29,7 +29,7 @@ defaults=[
 
 # Board type, one bit each.
 #   cchip     Taito Corp.       superman x3            C-chip, VBL level 6
-#   hawk      Taito Corp.       daisenpu, twinhawk x2  PC060HA + YM2151
+#   ym2151    Taito Corp.       daisenpu, twinhawk x2  PC060HA + YM2151
 # Both bits clear selects the East Technology P0-057A games.
 # Derived in HDL rather than stored:
 #   direct_in = ~cchip                        taitox_state reads IN0/1/2 at 900000
@@ -37,7 +37,7 @@ defaults=[
 [header]
 registers=[
     { name="cchip", pos="0[0]", desc="Taito P0-039A (C-chip)", values=[{ setnames=["superman","supermanu","supermanj"], value=1 }] },
-    { name="hawk",  pos="0[1]", desc="Taito P0-051A (PC060HA + YM2151)", values=[{ setnames=["daisenpu","twinhawk","twinhawku"], value=1 }] },
+    { name="ym2151", pos="0[1]", desc="Taito P0-051A (PC060HA + YM2151)", values=[{ setnames=["daisenpu","twinhawk","twinhawku"], value=1 }] },
 ]
 
 [ROM]

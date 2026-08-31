@@ -97,7 +97,7 @@ One byte, two bits, carrying the board type only:
 | bit | name | sets |
 |---|---|---|
 | 0[0] | `cchip` | superman ×3 |
-| 0[1] | `hawk` | daisenpu, twinhawk ×2 |
+| 0[1] | `ym2151` | daisenpu, twinhawk ×2 |
 
 Both bits clear selects the East Technology P0-057A games: gigandes ×2,
 ballbros and kyustrkr. Everything else is derived in HDL because it follows
