@@ -188,7 +188,7 @@ assign pcma_addr = adpcma_addr;         // 1 MB region, adpcma_bank stays 0
 assign pcmb_cs   = ~adpcmb_roe_n;
 assign pcmb_addr = adpcmb_addr[PCMBW-1:0];
 
-jt10b u_jt10b(
+jt10 u_jt10(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( fm_cen    ),
