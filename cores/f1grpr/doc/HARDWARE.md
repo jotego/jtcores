@@ -22,6 +22,9 @@ Sets in scope: `f1gp`, `f1gpa`. `f1gpb` and `f1gpbl` are MACHINE_NOT_WORKING;
 Same custom set as `pspikes.cpp` (GGA + VS8904/VS8905), so the clocking, the
 GGA, the sound CPU and the sprite scanner all come straight from `pspike`.
 
+
+video: https://www.youtube.com/watch?v=6fACy69_-qU
+
 ## Main CPU map
 
 ```

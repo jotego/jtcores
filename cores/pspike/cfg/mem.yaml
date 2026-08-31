@@ -53,7 +53,6 @@ sdram:
       - name: pcma
         addr_width: 20
         data_width: 8
-        cache_size: 1kB
       - name: obj0
         addr_width: 22
         data_width: 32
@@ -63,7 +62,6 @@ sdram:
         addr_width: 19
         data_width: 8
         offset: PCMB_OFFSET
-        cache_size: 1kB
       - name: scr1
         addr_width: 21
         data_width: 32
