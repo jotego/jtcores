@@ -9,7 +9,7 @@ sharrier:
     - jtsharrier_obj.v
     - jtsharrier_obj_scan.v
     - jtsharrier_obj_draw.v
-    - jtsharrier_snd.v
+    - jtsharrier_sound.v
 # Sound board 834-5799's PCM is Sega's discrete implementation, which MAME models
 # as SEGAPCM_DISCRETE = segapcm_device<8> -- the same device class as Out Run's
 # sixteen-voice 315-5218, differing only in voice count. The register map is the
@@ -20,7 +20,6 @@ outrun:
 s16:
   - get:
     - tilemap.yaml
-    - jts16_fd1089.v
 jtframe:
   - from: ram
     get:

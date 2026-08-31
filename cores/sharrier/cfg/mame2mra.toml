@@ -70,12 +70,10 @@ name    = "V Glyph Fix"
 bits    = "30"
 options = "On,Off"
 
+# Header byte 1 is the game code. Both Space Harrier sets take the default 0, so
+# there is nothing to override; the hangon/enduror rows went with their macros.
 [header]
 fill=0
-data = [
-    { machine="hangon",   offset=1, data="10" },
-    { machine="enduror",  offset=1, data="20" },
-]
 
 [ROM]
 regions = [

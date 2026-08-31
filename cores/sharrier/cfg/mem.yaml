@@ -108,13 +108,13 @@ bram:
   # dump slots by it (jtframe mem.go make_ioctl), so regions left at the
   # default 0 silently overwrite each other and only the last one survives.
   - name: wram
-    addr_width: 14
+    size: 16kB
     data_width: 16
     rw: true
     ioctl: { save: true, restore: true, order: 0 }
   # Shared RAM, IC78/IC79 on CPU sheet 3/6, muxed by LS157 IC80-IC83
   - name: subram
-    addr_width: 14
+    size: 16kB
     data_width: 16
     rw: true
     ioctl: { save: true, restore: true, order: 1 }
@@ -133,7 +133,7 @@ bram:
   # rendering of the board's LS157 address mux (IC38/30/39, /G grounded, so a
   # permanent mux): neither agent can corrupt the other.
   - name: roadram
-    addr_width: 12
+    size: 4kB
     data_width: 16
     rw: true
     ioctl: { save: true, restore: true, order: 2 }
@@ -144,13 +144,13 @@ bram:
       we: 2'd0
       dout: roadram_engine_dout
   # epr-6844, shrink-only scale factors
-  - { name: zoom, addr_width: 13, data_width: 8, rom: { offset: ZOOM_OFFSET } }
+  - { name: zoom, size: 8kB, data_width: 8, rom: { offset: ZOOM_OFFSET } }
   # epr-7181 is downloaded as two interleaved halves, so it reads 16 bits wide
-  - { name: road, addr_width: 15, data_width: 16, rom: { offset: ROAD_OFFSET } }
+  - { name: road, size: 32kB, data_width: 16, rom: { offset: ROAD_OFFSET } }
   # Sprite RAM is CPU-visible, so a scene that cannot restore it cannot
   # reproduce the sprites. This is jotego's PR #1506 point about objram.
   - name: objram
-    addr_width: 12
+    size: 4kB
     data_width: 16
     rw: true
     ioctl: { save: true, restore: true, order: 3 }
@@ -165,7 +165,7 @@ bram:
   # belongs in mem.yaml where a scene can reach it. The colour-mux read port is
   # added with jtsharrier_colmix at the video stage.
   - name: pal
-    addr_width: 12
+    size: 4kB
     data_width: 16
     rw: true
     ioctl: { save: true, restore: true, order: 4 }

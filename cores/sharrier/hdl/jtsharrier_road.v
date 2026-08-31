@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Chris Watson (niknak)
-    Version: 1.0
-    Date: 9-8-2026 */
+/* SPDX-FileCopyrightText: 2026 Chris Watson
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 9-8-2026 */
 
 // Space Harrier road generator: the 315-5025 custom (sheet 4/6), road control RAM
 // 2016 x2 (IC50/IC63), road data ROM EPR-7181 (IC2), LS669 x3 counters

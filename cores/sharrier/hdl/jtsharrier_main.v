@@ -1,22 +1,12 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+/* SPDX-FileCopyrightText: 2026 Chris Watson
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 7-8-2026 */
 
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Chris Watson (niknak)
-    Version: 1.0
-    Date: 7-8-2026 */
-
-module jtsharrier_main(
+module jtsharrier_main #(
+    // Master clock in kHz: JTFRAME_PLL=jtframe_pll6293 on MiSTer, the only target
+    // built. A parameter, not a JTFRAME_MCLK read -- as s16 and outrun do MFREQ.
+    parameter MCLK_KHZ = 50_347
+)(
     input              rst,
     input              clk,
     output             cpu_cen,
@@ -98,8 +88,7 @@ module jtsharrier_main(
 // XTAL1 on CPU sheet 1/6; the cen ratio follows JTFRAME_PLL.
 // FDEN is 146, not 156: against pll6293's 50.347 MHz the latter rounds to
 // 31/156 = 10.0049 MHz, 0.049% above the crystal. 29/146 lands on 10.0005.
-localparam        CPU_KHZ  = 10_000,
-                  MCLK_KHZ = `JTFRAME_MCLK/1000;
+localparam        CPU_KHZ  = 10_000;
 localparam [ 7:0] FDEN     = 8'd146;
 localparam [31:0] FNUM     = (CPU_KHZ*FDEN + MCLK_KHZ/2)/MCLK_KHZ;
 
@@ -584,6 +573,9 @@ assign RnW      = 1;
 assign dsn      = 3;
 assign cpu_cen  = 0;
 assign cpu_cenb = 0;
+assign video_en = 1;   // unblanked: x here reaches colmix's /KILL latch
+assign colscr_en= 0;
+assign rowscr_en= 0;
 
 `endif
 

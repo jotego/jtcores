@@ -1,26 +1,13 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Chris Watson (niknak)
-    Version: 1.0
-    Date: 8-8-2026 */
+/* SPDX-FileCopyrightText: 2026 Chris Watson
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 8-8-2026 */
 
 // Palette and colour output, CPU sheet 5/6. The palette RAM is external, so
 // pal_data lands one pxl_cen after pal_addr -- what the jtframe_blank delay is
 // sized for.
 
 module jtsharrier_colmix(
+    input              rst,
     input              clk,
     input              pxl_cen,
 
@@ -55,10 +42,17 @@ endfunction
 // /KILL sampled once per frame, at the start of active video. The board gates
 // per pixel and un-blanks mid-scanline; this is a deliberate simplification,
 // taken because our CPU reaches the write ~50 lines earlier in the frame.
+// Reset to 0, the value Quartus powers these up at: hardware is unchanged and
+// simulation stops driving x onto RGB before the first vertical edge.
 reg lvbl_l, kill_l;
-always @(posedge clk) if( pxl_cen ) begin
-    lvbl_l <= preLVBL;
-    if( preLVBL & ~lvbl_l ) kill_l <= video_en;
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        lvbl_l <= 0;
+        kill_l <= 0;
+    end else if( pxl_cen ) begin
+        lvbl_l <= preLVBL;
+        if( preLVBL & ~lvbl_l ) kill_l <= video_en;
+    end
 end
 
 // SHADE from 315-5171, sheet 6/7.

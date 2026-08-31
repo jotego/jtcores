@@ -1,22 +1,10 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+/* SPDX-FileCopyrightText: 2026 Chris Watson
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 7-8-2026 */
 
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Chris Watson (niknak)
-    Version: 1.0
-    Date: 7-8-2026 */
-
-module jtsharrier_sub(
+module jtsharrier_sub #(
+    parameter MCLK_KHZ = 50_347 // see jtsharrier_main
+)(
     input              rst,
     input              clk,
 
@@ -48,8 +36,7 @@ module jtsharrier_sub(
 `ifndef NOSUB
 
 // S.CLK is buffered from the same 10 MHz XTAL1 as the main CPU, sheet 1/6.
-localparam        CPU_KHZ  = 10_000,
-                  MCLK_KHZ = `JTFRAME_MCLK/1000;
+localparam        CPU_KHZ  = 10_000;
 localparam [ 7:0] FDEN     = 8'd156;
 localparam [31:0] FNUM     = (CPU_KHZ*FDEN + MCLK_KHZ/2)/MCLK_KHZ;
 

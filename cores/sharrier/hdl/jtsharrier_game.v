@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Chris Watson (niknak)
-    Version: 1.0
-    Date: 7-8-2026 */
+/* SPDX-FileCopyrightText: 2026 Chris Watson
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 7-8-2026 */
 
 module jtsharrier_game(
     `include "jtframe_game_ports.inc"
@@ -360,35 +346,6 @@ jtsharrier_main u_main(
     .st_dout    ( st_main       )
 );
 
-// Sound board 834-5799. cen_pcm is 16 MHz, not 8 -- see the module header.
-jtsharrier_snd u_snd(
-    .rst        ( rst | ~snd_rstn ),
-    .clk        ( clk           ),
-
-    .cen_snd    ( cen_snd       ),
-    .cen_fm     ( cen_fm        ),
-    .cen_pcm    ( cen_pcm       ),
-
-    .latch      ( snd_latch     ),
-    .nmi_n      ( snd_nmin      ),
-    .latch_rd   ( snd_ack       ),
-
-    .rom_addr   ( snd_addr      ),
-    .rom_cs     ( snd_cs        ),
-    .rom_data   ( snd_data      ),
-    .rom_ok     ( snd_ok        ),
-
-    .pcm_addr   ( pcm_addr      ),
-    .pcm_cs     ( pcm_cs        ),
-    .pcm_data   ( pcm_data      ),
-    .pcm_ok     ( pcm_ok        ),
-
-    .fm_snd     ( fm            ),
-    .psg_snd    ( psg           ),
-    .pcm_l      ( pcm_l         ),
-    .pcm_r      ( pcm_r         )
-);
-
 jtsharrier_sub u_sub(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -412,6 +369,37 @@ jtsharrier_sub u_sub(
 
     .st_addr    ( st_addr       ),
     .st_dout    ( st_sub        )
+);
+
+// Sound board 834-5799. cen_pcm is 16 MHz, not 8 -- see the module header.
+jtsharrier_sound u_snd(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+
+    .rstn       ( snd_rstn      ),
+
+    .cen_snd    ( cen_snd       ),
+    .cen_fm     ( cen_fm        ),
+    .cen_pcm    ( cen_pcm       ),
+
+    .latch      ( snd_latch     ),
+    .nmi_n      ( snd_nmin      ),
+    .latch_rd   ( snd_ack       ),
+
+    .rom_addr   ( snd_addr      ),
+    .rom_cs     ( snd_cs        ),
+    .rom_data   ( snd_data      ),
+    .rom_ok     ( snd_ok        ),
+
+    .pcm_addr   ( pcm_addr      ),
+    .pcm_cs     ( pcm_cs        ),
+    .pcm_data   ( pcm_data      ),
+    .pcm_ok     ( pcm_ok        ),
+
+    .fm_snd     ( fm            ),
+    .psg_snd    ( psg           ),
+    .pcm_l      ( pcm_l         ),
+    .pcm_r      ( pcm_r         )
 );
 
 endmodule
