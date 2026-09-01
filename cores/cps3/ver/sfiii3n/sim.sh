@@ -1,1 +1,0 @@
-../sfiiin/sim.sh
