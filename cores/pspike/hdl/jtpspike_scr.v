@@ -45,6 +45,8 @@ module jtpspike_scr(
     input      [31:0]   gfxbank,    // eight 4-bit banks
     input      [ 2:0]   charbank,
     input      [ 8:0]   scrx, scry,
+    input      [ 8:0]   hsize, vsize,   // visible width/height from the GGA
+    input      [ 8:0]   visx,           // visible window origin, MAME set_visarea
 
     // tilemap VRAM
     output     [12:1]   scr_addr,
@@ -110,12 +112,21 @@ assign code     = two ? { bank[3:0], scr_vram[10:0] }   :
 // the +scrolly there cancels set_scrolly - so screen row r reads rasterram[r].
 // Do NOT subtract scrolly here. turbofrc/aerofgt use rasterram[7] for every
 // row; karatblz has no raster RAM.
-assign ras_addr = { 3'd0, two ? 8'd7 : vdump[7:0] };
-assign scrx_eff = noraster ? scrx - xbias          :  // karatblz, registers only
+wire [8:0] vras = flip ? vsize - 9'd1 - vdump : vdump;
+assign ras_addr = { 3'd0, two ? 8'd7 : vras[7:0] };
+wire [8:0] scrx_base, scry_base;
+assign scrx_base= noraster ? scrx - xbias          :  // karatblz, registers only
                   !two     ? ras_dout[8:0]         :  // pspikes, one word per line
                   layer    ? scrx - xbias             // turbofrc layer 1
                            : ras_dout[8:0] - xbias;   // turbofrc layer 0, word 7
-assign scry_eff = (two & ~noraster) ? scry + 9'd2 : scry;
+assign scry_base= (two & ~noraster) ? scry + 9'd2 : scry;
+// jtframe_scroll_offset mirrors within the 512-wide map (FLIP_HW/VW=9), so the
+// picture lands W-1-x instead of x. -512 is a no-op on 9 bits, hence + hsize.
+// The correction is twice the layer's horizontal origin: mirroring turns a
+// +origin into a -origin. The pipeline lead is NOT part of it - it is a fixed
+// delay applied after the mirror, so it cancels either way
+assign scrx_eff = flip ? scrx_base + hsize + {visx[7:0],1'b0} : scrx_base;
+assign scry_eff = flip ? scry_base + vsize : scry_base;
 assign rom_addr = { 1'd0, tile_addr };
 
 jtframe_scroll #(
@@ -125,6 +136,10 @@ jtframe_scroll #(
     .PW         ( 10        ),
     .MAP_HW     ( 9         ),  // 64 tiles across
     .MAP_VW     ( 9         ),  // 64 down, masked to 32 for pspikes
+    .XOR_HFLIP  ( 1         ),  // screen flip mirrors each tile too
+    .XOR_VFLIP  ( 0         ),  // veff already picks the mirrored row; the sub-row is a direct index
+    .FLIP_HW    ( 9         ),  // mirror in the map's own 512-wide space
+    .FLIP_VW    ( 9         ),
     .HLOOP      ( 0         ),  // folds blanking into
                                  // hdfix[8:7]=11 so the end-of-blanking fetch fires
     .LATCH_SCRX ( 1         )

@@ -33,55 +33,56 @@ parameter PCMB_OFFSET = (`PCMB_START-`JTFRAME_BA3_START)>>1;
 
 // Audio channels 
 wire signed [15:0] fm_l, fm_r;
+wire signed [ 9:0] psg;
 wire mute;
 // Additional ports
-wire [15:0] lut1_dout;
-wire [15:0] mix_pal;
-wire [1:0] ram_we;
-wire [15:0] scr_vram;
-wire [1:0] oram_we;
-wire [1:0] oram1_we;
-wire [13:1] ram2_addr;
-wire [12:1] vram1_addr;
-wire [1:0] lut1_we;
-wire [15:1] lut1_addr;
-wire [15:0] pal_dout;
-wire [11:1] rascr_addr;
-wire [11:1] ras_addr;
-wire [15:1] lut_addr;
-wire [15:0] objl_dout;
-wire [15:0] objr_dout;
-wire [15:0] oram1_dout;
-wire [15:0] objr1_dout;
-wire [15:0] objl1_dout;
 wire [15:1] ram_addr;
+wire [1:0] vram_we;
+wire [1:0] vram1_we;
+wire [15:0] ras_dout;
+wire [1:0] oram_we;
+wire [15:0] objr_dout;
+wire [15:0] lut_dout;
+wire [15:0] lut1_dout;
+wire [12:1] vram_addr;
 wire [12:1] scr_addr;
-wire [15:0] scr1_vram;
+wire [15:0] rascr_dout;
+wire [15:0] objr1_dout;
+wire [1:0] lut_we;
+wire [15:0] objl_dout;
+wire [15:1] objl1_addr;
+wire [11:1] pal_addr;
 wire [10:1] oram_addr;
-wire [11:1] mix_addr;
+wire [10:1] oram1_addr;
+wire [15:0] ram2_dout;
 wire [15:0] vram_dout;
 wire [10:1] objr_addr;
-wire [11:1] pal_addr;
-wire [15:0] oram_dout;
-wire [15:0] lut_dout;
+wire [1:0] oram1_we;
+wire [15:1] objl_addr;
+wire [1:0] lut1_we;
+wire [11:1] mix_addr;
+wire [15:0] mix_pal;
+wire [15:0] oram1_dout;
+wire [10:1] objr1_addr;
+wire [15:1] lut_addr;
+wire [15:1] lut1_addr;
 wire [1:0] pal_we;
-wire [12:1] vram_addr;
-wire [12:1] scr1v_addr;
-wire [15:0] rascr_dout;
+wire [15:0] ram_dout;
+wire [1:0] ram_we;
+wire [1:0] ram2_we;
+wire [15:0] scr_vram;
 wire [1:0] rascr_we;
 wire [15:0] main_dout;
-wire [15:0] ras_dout;
-wire [15:1] objl1_addr;
+wire [13:1] ram2_addr;
+wire [12:1] vram1_addr;
 wire [15:0] vram1_dout;
-wire [1:0] vram1_we;
-wire [10:1] oram1_addr;
-wire [10:1] objr1_addr;
-wire [15:0] ram_dout;
-wire [15:0] ram2_dout;
-wire [1:0] ram2_we;
-wire [1:0] vram_we;
-wire [1:0] lut_we;
-wire [15:1] objl_addr;
+wire [11:1] ras_addr;
+wire [15:0] oram_dout;
+wire [15:0] objl1_dout;
+wire [12:1] scr1v_addr;
+wire [15:0] scr1_vram;
+wire [11:1] rascr_addr;
+wire [15:0] pal_dout;
 
 // BRAM buses
 
@@ -183,7 +184,7 @@ jtpspike_game u_game(
     .clk96      ( clk96     ),
     // Audio channels
     .fm_l   ( fm_l    ),
-    .fm_r   ( fm_r    ),
+    .fm_r   ( fm_r    ),.psg     ( psg      ),
     
     .snd_en         ( snd_en        ),
     .snd_vol        ( snd_vol       ),
@@ -224,53 +225,53 @@ jtpspike_game u_game(
     .dip_test       ( dip_test      ),
     .dip_fxlevel    ( dip_fxlevel   ),
     // Ports declared in mem.yaml
-    .lut1_dout   ( lut1_dout ),
-    .mix_pal   ( mix_pal ),
-    .ram_we   ( ram_we ),
-    .scr_vram   ( scr_vram ),
-    .oram_we   ( oram_we ),
-    .oram1_we   ( oram1_we ),
-    .ram2_addr   ( ram2_addr ),
-    .vram1_addr   ( vram1_addr ),
-    .lut1_we   ( lut1_we ),
-    .lut1_addr   ( lut1_addr ),
-    .pal_dout   ( pal_dout ),
-    .rascr_addr   ( rascr_addr ),
-    .ras_addr   ( ras_addr ),
-    .lut_addr   ( lut_addr ),
-    .objl_dout   ( objl_dout ),
-    .objr_dout   ( objr_dout ),
-    .oram1_dout   ( oram1_dout ),
-    .objr1_dout   ( objr1_dout ),
-    .objl1_dout   ( objl1_dout ),
     .ram_addr   ( ram_addr ),
+    .vram_we   ( vram_we ),
+    .vram1_we   ( vram1_we ),
+    .ras_dout   ( ras_dout ),
+    .oram_we   ( oram_we ),
+    .objr_dout   ( objr_dout ),
+    .lut_dout   ( lut_dout ),
+    .lut1_dout   ( lut1_dout ),
+    .vram_addr   ( vram_addr ),
     .scr_addr   ( scr_addr ),
-    .scr1_vram   ( scr1_vram ),
+    .rascr_dout   ( rascr_dout ),
+    .objr1_dout   ( objr1_dout ),
+    .lut_we   ( lut_we ),
+    .objl_dout   ( objl_dout ),
+    .objl1_addr   ( objl1_addr ),
+    .pal_addr   ( pal_addr ),
     .oram_addr   ( oram_addr ),
-    .mix_addr   ( mix_addr ),
+    .oram1_addr   ( oram1_addr ),
+    .ram2_dout   ( ram2_dout ),
     .vram_dout   ( vram_dout ),
     .objr_addr   ( objr_addr ),
-    .pal_addr   ( pal_addr ),
-    .oram_dout   ( oram_dout ),
-    .lut_dout   ( lut_dout ),
+    .oram1_we   ( oram1_we ),
+    .objl_addr   ( objl_addr ),
+    .lut1_we   ( lut1_we ),
+    .mix_addr   ( mix_addr ),
+    .mix_pal   ( mix_pal ),
+    .oram1_dout   ( oram1_dout ),
+    .objr1_addr   ( objr1_addr ),
+    .lut_addr   ( lut_addr ),
+    .lut1_addr   ( lut1_addr ),
     .pal_we   ( pal_we ),
-    .vram_addr   ( vram_addr ),
-    .scr1v_addr   ( scr1v_addr ),
-    .rascr_dout   ( rascr_dout ),
+    .ram_dout   ( ram_dout ),
+    .ram_we   ( ram_we ),
+    .ram2_we   ( ram2_we ),
+    .scr_vram   ( scr_vram ),
     .rascr_we   ( rascr_we ),
     .main_dout   ( main_dout ),
-    .ras_dout   ( ras_dout ),
-    .objl1_addr   ( objl1_addr ),
+    .ram2_addr   ( ram2_addr ),
+    .vram1_addr   ( vram1_addr ),
     .vram1_dout   ( vram1_dout ),
-    .vram1_we   ( vram1_we ),
-    .oram1_addr   ( oram1_addr ),
-    .objr1_addr   ( objr1_addr ),
-    .ram_dout   ( ram_dout ),
-    .ram2_dout   ( ram2_dout ),
-    .ram2_we   ( ram2_we ),
-    .vram_we   ( vram_we ),
-    .lut_we   ( lut_we ),
-    .objl_addr   ( objl_addr ),
+    .ras_addr   ( ras_addr ),
+    .oram_dout   ( oram_dout ),
+    .objl1_dout   ( objl1_dout ),
+    .scr1v_addr   ( scr1v_addr ),
+    .scr1_vram   ( scr1_vram ),
+    .rascr_addr   ( rascr_addr ),
+    .pal_dout   ( pal_dout ),
     // Memory interface - SDRAM
     .scr0_addr ( scr0_addr ),
     .scr0_cs   ( scr0_cs   ),
@@ -477,6 +478,7 @@ jtframe_headerbyte #(.AW(6)) u_pcbid(
 
 jtframe_rom_2slots #(
     .SDRAMW(SDRAMW-1),
+    .TAG_RAM(0),
     // scr0
     .SLOT0_OFFSET(SCR0_OFFSET[SDRAMW-2:0]),
     .SLOT0_AW(19),
@@ -525,6 +527,7 @@ assign ba0_din  = 0;
 assign ba0_dsn  = 3;
 jtframe_rom_2slots #(
     .SDRAMW(SDRAMW-1),
+    .TAG_RAM(0),
     // snd
     .SLOT0_OFFSET(SND_OFFSET[SDRAMW-2:0]),
     .SLOT0_AW(17),
@@ -573,6 +576,7 @@ assign ba1_din  = 0;
 assign ba1_dsn  = 3;
 jtframe_rom_2slots #(
     .SDRAMW(SDRAMW-1),
+    .TAG_RAM(0),
     // pcma
     .SLOT0_AW(20),
     .SLOT0_DW( 8), 
@@ -621,6 +625,7 @@ assign ba2_din  = 0;
 assign ba2_dsn  = 3;
 jtframe_rom_2slots #(
     .SDRAMW(SDRAMW-1),
+    .TAG_RAM(0),
     // pcmb
     .SLOT0_OFFSET(PCMB_OFFSET[SDRAMW-2:0]),
     .SLOT0_AW(19),
@@ -926,6 +931,7 @@ assign mute=0;
 
 jtframe_rcmix #(
     .W0(16),
+    .W1(10),
     .STEREO0( 1),
     .STEREO1( 0),
     .STEREO2( 0),
@@ -933,7 +939,7 @@ jtframe_rcmix #(
     .STEREO4( 0),
     .STEREO5( 0),
     .DCRM0  ( 0),
-    .DCRM1  ( 0),
+    .DCRM1  ( 1),
     .DCRM2  ( 0),
     .DCRM3  ( 0),
     .DCRM4  ( 0),
@@ -954,19 +960,20 @@ jtframe_rcmix #(
     .ch_en  ( snd_en    ),
     .gpole  ( 15'h3F66 ),  // 19894 Hz 
     .ch0    ( { fm_l,fm_r } ),
-    .ch1    ( 16'd0 ),
+    .ch1    ( psg ),
     .ch2    ( 16'd0 ),
     .ch3    ( 16'd0 ),
     .ch4    ( 16'd0 ),
     .ch5    ( 16'd0 ),
     .p0     ( 30'h0), // 0 Hz, 0 Hz 
-    .p1     ( 30'h0), 
+    .p1     ( 30'h0), // 0 Hz, 0 Hz 
     .p2     ( 30'h0), 
     .p3     ( 30'h0), 
     .p4     ( 30'h0), 
     .p5     ( 30'h0), 
+    // Active summing network. Opamp feedback resistor 33k 
     .g0     ( 8'h80 ), // 1.00  fm
-    .g1     ( 8'h00 ), // 0.00 
+    .g1     ( 8'h60 ), // 0.75  psg
     .g2     ( 8'h00 ), // 0.00 
     .g3     ( 8'h00 ), // 0.00 
     .g4     ( 8'h00 ), // 0.00 

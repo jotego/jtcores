@@ -30,6 +30,8 @@ module jtpspike_obj #(parameter PASSES=2)(
     input               en,
     input               flip,
     input      [ 8:0]   hdump, vrender,
+    input      [ 8:0]   hsize, vsize,   // visible width/height from the GGA
+    input      [ 8:0]   xorg,           // this chip's horizontal origin
     input      [ 8:0]   xoffs, yoffs,
 
     input      [ 1:0]   objbank,
@@ -59,6 +61,11 @@ wire [ 6:0] pal;
 wire [ 3:0] ysub;
 wire        draw, busy, hz_keep, hflip, vflip;
 
+// jtframe_objdraw's own mirror uses a compile time FLIP_OFFSET, which cannot
+// follow a runtime width, so the mirror is done here instead
+wire [ 8:0] hdump_eff = flip ? ~hdump   + hsize + {xorg[7:0],1'b0} : hdump;
+wire [ 8:0] vrend_eff = flip ? ~vrender + vsize : vrender;
+
 assign objl_addr = lut_addr;
 // jtframe_draw emits {code, H, Y}, i.e. the two halves of a 16x16 tile stored
 // 16 rows apart. gfx_16x16x4_packed_lsb is row major - one row is 8 bytes, so
@@ -71,7 +78,7 @@ jtpspike_objscan #(.PASSES(PASSES)) u_scan(
     .clk        ( clk       ),
     .hs         ( hs        ),
     .scan_en    ( en        ),
-    .vrender    ( vrender   ),
+    .vrender    ( vrend_eff ),
     .xoffs      ( xoffs     ),
     .yoffs      ( yoffs     ),
     .flip       ( flip      ),
@@ -119,8 +126,8 @@ jtframe_objdraw #(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .hs         ( hs        ),
-    .flip       ( flip      ),
-    .hdump      ( hdump     ),
+    .flip       ( 1'b0      ),  // mirrored above
+    .hdump      ( hdump_eff ),
 
     .draw       ( draw      ),
     .busy       ( busy      ),

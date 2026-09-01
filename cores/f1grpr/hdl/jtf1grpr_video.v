@@ -82,7 +82,7 @@ module jtf1grpr_video(
     output     [ 4:0]   red, green, blue
 );
 
-wire [ 8:0] hdump, vdump, vrender, vrender1, h_last, H;
+wire [ 8:0] hdump, vdump, vrender, vrender1, h_last, H, hsize, vsize;
 wire        Hinit, Vinit;
 wire [10:0] pxl;
 wire [ 7:0] fg_pxl;
@@ -108,6 +108,8 @@ jtpspike_gga u_gga(
     .din        ( gga_din   ),
 
     .h_last     ( h_last    ),
+    .hsize      ( hsize     ),
+    .vsize      ( vsize     ),
     .vdump      ( vdump     ),
     .vrender    ( vrender   ),
     .vrender1   ( vrender1  ),
@@ -168,7 +170,10 @@ jtf1grpr_fg u_fg(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
+    .flip       ( flip      ),
     .hdump      ( hdump     ),
+    .hsize      ( hsize     ),
+    .vsize      ( vsize     ),
     .vdump      ( vdump     ),
     .scrx       ( fg_scrx   ),
     .scry       ( fg_scry   ),
@@ -198,6 +203,9 @@ jtpspike_obj #(.PASSES(1)) u_obj0(
     .flip       ( flip      ),
     .hdump      ( hdump     ),
     .vrender    ( vrender   ),
+    .hsize      ( hsize     ),
+    .vsize      ( vsize     ),
+    .xorg       ( 9'd1      ),   // -xoffs: the 1 px sits before the mirror
     .xoffs      ( 9'h1ff    ),   // 1 px left
     .yoffs      ( 9'h1f8    ),   // 8 lines up
     .objbank    ( 2'd0      ),
@@ -226,6 +234,9 @@ jtpspike_obj #(.PASSES(1)) u_obj1(
     .flip       ( flip      ),
     .hdump      ( hdump     ),
     .vrender    ( vrender   ),
+    .hsize      ( hsize     ),
+    .vsize      ( vsize     ),
+    .xorg       ( 9'd1      ),   // -xoffs: the 1 px sits before the mirror
     .xoffs      ( 9'h1ff    ),   // 1 px left
     .yoffs      ( 9'h1f8    ),   // 8 lines up
     .objbank    ( 2'd0      ),

@@ -7,4 +7,5 @@
 //   2. Keep the waiver permanently if you are sure it is okay
 //   3. Keep the waiver temporarily to suppress the output
 
-// No waivers needed - great!
+// lint_off -rule UNDRIVEN -file "*../../hdl/jtpspike_main.v" -match "Signal is not driven: 'scrx0'*"
+

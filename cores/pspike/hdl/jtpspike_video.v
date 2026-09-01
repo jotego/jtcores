@@ -133,7 +133,7 @@ wire [8:0] xb1      = karatblz ? 9'd4 : aerofgt ? 9'd8  : 9'd7;
 wire [8:0] obj_yoffs= aerofgt ? 9'h1ff : 9'd0;        // MAME set_offsets y = -1
 wire [8:0] hoff_obj = visx + P_OBJ - xoffs;
 
-wire [ 8:0] vdump, vrender, H, hdump_scr, hdump_obj;
+wire [ 8:0] vdump, vrender, H, hdump_scr, hdump_obj, hsize, vsize;
 wire [ 9:0] scr_pxl, scr1_pxl;
 wire [10:0] obj_pxl, obj1_pxl;
 wire [10:0] pxl;
@@ -210,6 +210,8 @@ jtpspike_gga u_gga(
     .addr       ( gga_addr  ),
     .din        ( gga_din   ),
     .h_last     ( h_last    ),
+    .hsize      ( hsize     ),
+    .vsize      ( vsize     ),
     .vdump      ( vdump     ),
     .vrender    ( vrender   ),
     .vrender1   (           ),
@@ -241,6 +243,9 @@ jtpspike_scr u_scr(
     .charbank   ( charbank  ),
     .scrx       ( scrx0     ),   // raster RAM elsewhere, register on karatblz
     .scry       ( scry      ),
+    .hsize      ( hsize     ),
+    .vsize      ( vsize     ),
+    .visx       ( visx      ),
     .scr_addr   ( scr_addr  ),
     .scr_vram   ( scr_vram  ),
     .ras_addr   ( ras_addr  ),
@@ -271,6 +276,9 @@ jtpspike_scr u_scr1(
     .charbank   ( 3'd0      ),
     .scrx       ( scrx1     ),
     .scry       ( scry1     ),
+    .hsize      ( hsize     ),
+    .vsize      ( vsize     ),
+    .visx       ( visx      ),
     .scr_addr   ( scr1v_addr),
     .scr_vram   ( scr1_vram ),
     .ras_addr   (           ),
@@ -290,6 +298,9 @@ jtpspike_obj u_obj(
     .flip       ( flip      ),
     .hdump      ( hdump_obj ),
     .vrender    ( vrender   ),
+    .hsize      ( hsize     ),
+    .vsize      ( vsize     ),
+    .xorg       ( visx-xoffs),
     .xoffs      ( 9'd0      ),
     .yoffs      ( obj_yoffs ),
     .en         ( gfx_en[2] ),
@@ -318,6 +329,9 @@ jtpspike_obj u_obj1(
     .flip       ( flip      ),
     .hdump      ( hdump_obj ),
     .vrender    ( vrender   ),
+    .hsize      ( hsize     ),
+    .vsize      ( vsize     ),
+    .xorg       ( visx-xoffs),
     .xoffs      ( 9'd0      ),
     .yoffs      ( obj_yoffs ),
     .objbank    ( objbank   ),

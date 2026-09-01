@@ -44,6 +44,8 @@ module jtpspike_gga(
     input      [ 7:0] din,
 
     output     [ 8:0] h_last,     // last H count, for the layer hdump lead
+    output     [ 8:0] hsize,      // visible width  in pixels
+    output     [ 8:0] vsize,      // visible height in lines
     output reg [ 8:0] vdump,
     output reg [ 8:0] vrender,    // 1 line ahead of vdump
     output reg [ 8:0] vrender1,   // 2 lines ahead
@@ -105,6 +107,8 @@ endfunction
 // scaler can lock onto until a reset.
 reg [8:0] hb_start, hs_start, hs_end, h_lastr, vb_start, vs_start, vs_end, v_last;
 assign    h_last = h_lastr;
+assign    hsize  = hb_start + 9'd1;
+assign    vsize  = vb_start + 9'd1;
 
 // Candidate table, straight off the raw registers
 wire [8:0] nhb = hval(regs[ 0]) - 9'd1,   // last visible pixel

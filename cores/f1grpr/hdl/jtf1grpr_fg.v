@@ -31,7 +31,9 @@ module jtf1grpr_fg(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             flip,
     input      [ 8:0] hdump, vdump,
+    input      [ 8:0] hsize, vsize,   // visible size, from the GGA
     input      [ 8:0] scrx, scry,
 
     output     [11:1] fgv_addr,
@@ -51,11 +53,19 @@ module jtf1grpr_fg(
 // into the video timing later
 localparam [8:0] HOFFSET = 9'd1, VOFFSET = 9'd8;
 
-wire [ 8:0] heff = hdump + scrx + HOFFSET;
-wire [ 8:0] veff = vdump + scry + VOFFSET;
+// Screen flip mirrors the raster. HOFFSET is a raster origin so it goes INSIDE
+// the mirror, otherwise it lands on the wrong side and shows up doubled.
+// The pixel select below is a direct index, so no per-tile flip is needed -
+// mirroring heff already picks the right pixel
+wire [ 8:0] hraw = hdump + HOFFSET;
+wire [ 8:0] hdm  = flip ? ~hraw  + hsize : hraw;
+wire [ 8:0] vdm  = flip ? ~vdump + vsize : vdump;
+wire [ 8:0] heff = hdm + scrx;
+wire [ 8:0] veff = vdm + scry + VOFFSET;
 // address the tile that owns the NEXT group of four pixels, so the VRAM and
-// the ROM both have a full group of pxl_cen to answer
-wire [ 8:0] hnx  = heff + 9'd4;
+// the ROM both have a full group of pxl_cen to answer. Flipped, heff runs
+// backwards, so the next group is four LOWER
+wire [ 8:0] hnx  = flip ? heff - 9'd4 : heff + 9'd4;
 wire [14:0] code = fgv_dout[14:0];
 wire        vflip= fgv_dout[15];
 wire [ 2:0] row  = vflip ? ~veff[2:0] : veff[2:0];

@@ -43,6 +43,18 @@ vregs_tap = mem:install_write_tap(0x0fe000, 0x0fe00f, "vregs",
     if offset == 0x0fe00a then bank1 = data & 0xffff end
   end)
 
+-- The GGA holds the raster geometry, which aerofgtb reprograms to 320x224.
+-- Scene replay is NOMAIN so the register file would otherwise sit at its
+-- 352x240 reset defaults - jtpspike_gga restores it from gga.bin
+local gga, gga_a = {}, 0
+for i = 0, 15 do gga[i] = 0 end
+gga_tap = mem:install_write_tap(0x0fe400, 0x0fe403, "gga",
+  function(offset, data, mask)
+    if (mask & 0x00ff) == 0 then return end
+    if (offset & 2) ~= 0 then gga_a = data & 0x0f
+    else                      gga[gga_a] = data & 0xff end
+  end)
+
 local idx = 1
 
 local function capture(frame)
@@ -59,10 +71,14 @@ local function capture(frame)
                       (scry1 >> 8) & 0xff, scry1 & 0xff, 0))
   f:write(string.char((bank0 >> 8) & 0xff, bank0 & 0xff,
                       (bank1 >> 8) & 0xff, bank1 & 0xff))
+  for i = 0, 15 do f:write(string.char(gga[i])) end
   f:close()
   manager.machine.video:snapshot()
   print(string.format("scene m%05d  flip=%02x scry0=%03x scrx1=%03x scry1=%03x banks=%04x/%04x",
         frame, flip, scry0, scrx1, scry1, bank0, bank1))
+  local g = {}
+  for i = 0, 15 do g[#g+1] = string.format("%02x", gga[i]) end
+  print("   gga "..table.concat(g, " "))
 end
 
 emu.register_frame_done(function()

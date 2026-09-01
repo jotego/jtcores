@@ -23,7 +23,7 @@ case "$SIZE" in
     : > lut1.bin
     cp oram.bin oram1.bin
     ;;
-57356)
+57356|57372)
     split vram      0  8192
     split vram1  8192  8192
     split rascr 16384  4096
@@ -32,6 +32,10 @@ case "$SIZE" in
     split lut1  38912 16384
     split pal   55296  2048
     split regs  57344    12
+    # 57372 carries the 16 GGA registers after the video ones. Without them
+    # the module keeps its 352x240 reset defaults, which is wrong for aerofgtb
+    rm -f gga.bin
+    if [ "$SIZE" = 57372 ]; then split gga 57356 16; fi
     # both sprite chips read the same RAM, the second one the upper half
     cp oram.bin oram1.bin
     ;;

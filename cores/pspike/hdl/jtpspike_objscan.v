@@ -225,6 +225,9 @@ reg  [ 1:0] lutcnt;
 reg         nx_ok;
 
 // the map advances with the unflipped index, the position uses the flipped one
+// Screen flip is NOT applied here: jtpspike_obj mirrors hdump and vrender,
+// which reverses the whole line readout and picks the mirrored source row.
+// XORing flip in again would cancel that and leave the sprite unmirrored
 wire [ 2:0] maprow = d_fy ? d_ysize - d_src[6:4] : d_src[6:4];
 wire [ 2:0] mapcol = d_fx ? d_xsize - lcol       : lcol;
 // the map row stride is the next power of two of xsize+1
