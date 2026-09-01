@@ -48,7 +48,7 @@ reg  [15:0] active;     // high for active channels, debug only
 reg  [ 7:0] cfg_en;
 reg  [ 7:0] delta, cfg_din;
 reg         cfg_we, was_enb;
-reg         en_upd;     // st==7 actually changed cfg_en, so st==8 must write it back
+reg         wr_en; // st==7 actually changed cfg_en, so st==8 must write it back
 wire        cfg_cpu_collision, cfg_ram_we;
 
 reg  [23: 0] cur_addr;
@@ -128,21 +128,7 @@ always @* begin
 
     vol_mux = st[0] ? vol_left : vol_right;
     case( st )
-        // Only write the enable register back when st==7 CHANGED it. Writing it
-        // unconditionally is a read-modify-write spanning st==0 (read) to st==8
-        // (write): a CPU write landing anywhere in those 8 states is overwritten by
-        // the stale byte, silently discarding a voice start. cfg_cpu_collision below
-        // only covers the single cycle of the write itself -- about 1 of the ~24 clk
-        // cycles in that window at cen 16 MHz / clk 48 MHz. Skipping the write is a
-        // no-op when nothing changed (the value is already in RAM), so this can only
-        // ever preserve a CPU write, never lose one.
-        // RESIDUAL, not closed by this: if the CPU writes the enable register inside
-        // the same window AND st==7 then auto-stops the sample, the write-back still
-        // carries the stale byte with bit 0 forced. Closing that needs a re-read at
-        // st==8 rather than reusing the st==0 value. It requires the sample to end in
-        // the very window the CPU restarts it, so it is far rarer than the general
-        // case fixed here.
-         8: begin cfg_we = en_upd;   cfg_din = cfg_en; end
+         8: begin cfg_we = wr_en;    cfg_din = cfg_en; end
          9: begin cfg_we = 1;        cfg_din = cur_addr[ 7: 0]; end
         10: begin cfg_we = !was_enb; cfg_din = cur_addr[15: 8]; end
         11: begin cfg_we = !was_enb; cfg_din = cur_addr[23:16]; end
@@ -177,7 +163,7 @@ always @(posedge clk) begin
         delta     <= 0;
         loop_addr <= 0;
         cfg_en    <= 0;
-        en_upd    <= 0;
+        wr_en     <= 0;
         vol_left  <= 0;
         vol_right <= 0;
         was_enb   <= 0;
@@ -201,12 +187,12 @@ always @(posedge clk) begin
             5: loop_addr[15: 8] <= cfg_data;
             6: loop_addr[23:16] <= cfg_data;
             7: begin
-                en_upd <= 0;    // default: nothing to write back at st==8
+                wr_en <= 0;
                 if( cur_addr[23:16] == (cfg_data + 8'b1) ) begin
                     if( cfg_en[1] ) begin
                         cfg_en[0]     <= 1; // no loop
                         cur_addr[7:0] <= 0;
-                        en_upd        <= 1; // cfg_en changed -- persist it
+                        wr_en         <= 1; // update cfg_en
                     end else
                         cur_addr <= {loop_addr,8'd0}; // loop around
                 end
