@@ -14,6 +14,8 @@ wire        m_tile_dtack, s_tile_dtack;
 wire        tile_irqn, tile_nmin;
 wire        rmrd, prio;
 wire        m_video_req_n, s_video_req_n, m_video_gnt_n, s_video_gnt_n;
+wire        turbo;
+assign turbo      = ~dipsw[20];
 
 assign debug_view = st_snd;
 assign dip_flip   = 1'b0;
@@ -30,6 +32,7 @@ jtgrad3_main u_main(
     .clk        ( clk          ),
     .LVBL       ( LVBL         ),
     .irq_trig   ( main_irq     ),
+    .turbo      ( turbo        ),
 
     .main_addr  ( main_addr    ),
     .cpu_dout   ( m_dout       ),
@@ -83,6 +86,7 @@ jtgrad3_sub u_sub(
     .clk        ( clk          ),
     .LVBL       ( LVBL         ),
     .cpu_trig   ( sub_irq      ),
+    .turbo      ( turbo        ),
 
     .cpu_addr   ( s_addr       ),
     .cpu_dout   ( s_dout       ),
