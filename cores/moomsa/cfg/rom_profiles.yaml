@@ -1,0 +1,24 @@
+# Original Moo Mesa profiles from the supplied socket manifest.
+# This file records membership only; stream packing remains open.
+base: moo
+profiles:
+  moo:
+    config:
+      - 151b01.q5
+      - 151eab02.q6
+  moomesaaab:
+    base: moo
+    config:
+      - moomesaaab/151aab02.q6
+  moomesauab:
+    base: moo
+    config:
+      - moomesauab/151uab02.q6
+      - moomesauab/moomesauab.nv
+  moomesauac:
+    base: moo
+    config:
+      - moomesauac/151c01.q5
+      - moomesauac/151uac02.q6
+excluded:
+  - moomesabl

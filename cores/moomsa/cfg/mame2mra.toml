@@ -1,0 +1,34 @@
+# The project-owned stdlib generator in tools/generate_mra.py is authoritative.
+# This file records the equivalent pinned MAME region/control contract for
+# review; it does not import MAME behavior into synthesizable RTL.
+[global]
+author=["Moo Mesa clean-room implementation"]
+
+[parse]
+sourcefile=["moo.cpp"]
+skip={bootlegs=true}
+mustbe.machines=["moomesa", "moomesaaab", "moomesauab", "moomesauac"]
+
+[buttons]
+names=[{machine="moomesa",names="Shoot,Jump"}]
+
+[header]
+info="Offsets for the four physical JTFRAME SDRAM banks."
+offset={bits=12,reverse=true,regions=["maincpu","soundcpu","tiles","sprites"]}
+
+[ROM]
+regions=[
+    {name="maincpu",width=16,reverse=true},
+    {name="soundcpu"},
+    {name="k054539",rename="pcm"},
+    {name="k056832",width=32,rename="tiles"},
+    {name="k053246",width=64,rename="sprites"},
+    {name="eeprom",skip=true},
+]
+order=["maincpu","soundcpu","pcm","tiles","sprites"]
+
+# JTFRAME save/NVRAM storage is now exposed by the live ER5911 owner. The
+# default MAME EEPROM files remain omitted until a direct per-profile seed and
+# its download/load contract are verified; a zero/guessed seed must not replace
+# a missing hardware image. Stream offsets are consumed by JTFRAME's four-entry
+# BALUT.

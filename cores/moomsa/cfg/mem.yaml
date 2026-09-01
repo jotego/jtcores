@@ -1,0 +1,37 @@
+# Initial memory contract.  Address widths describe physical buses, not CPU
+# Main ROM packs the Q and T 512 KiB windows; P6 OE phase remains open.
+params:
+  - { name: PCM_OFFSET, value: "23'h040000>>1" }
+clocks:
+  clk48:
+    - freq: 16M
+      outputs:
+        - cen_16
+        - cen_8
+        - cen_4
+        - cen_2
+    - freq: 6M
+      outputs:
+        - cen_6
+    - freq: 18432k
+      gate: [pcm]
+      outputs:
+        - cen_pcm
+sdram:
+  banks:
+    - buses:
+        - { name: main, addr_width: 20, data_width: 16 }
+    - buses:
+        - { name: snd,  addr_width: 18, data_width: 8 }
+        - { name: pcm,  addr_width: 21, data_width: 8, offset: PCM_OFFSET }
+    - buses:
+        - { name: lyrf, addr_width: 21, data_width: 32, cache_size: 4 }
+        - { name: lyra, addr_width: 21, data_width: 32, cache_size: 4 }
+        - { name: lyrb, addr_width: 21, data_width: 32, cache_size: 4 }
+    - buses:
+        - { name: lyro, addr_width: 23, data_width: 32 }
+bram:
+  - name: work
+    addr_width: 16
+    data_width: 16
+    rw: true
