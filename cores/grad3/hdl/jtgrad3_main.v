@@ -6,7 +6,7 @@ module jtgrad3_main(
     input                clk,
     input                LVBL,
     input                irq_trig,
-    input                turbo,
+    input         [ 4:0] cen_num,
 
     output        [17:1] main_addr,
     output        [15:0] cpu_dout,
@@ -230,10 +230,6 @@ jtgrad3_int u_int(
     .wr       ( ctrl_cs          ),
     .IPLn     ( IPLn             )
 );
-
-reg [4:0] cen_num=5'd5;
-
-always @(posedge clk) cen_num <= turbo ? 5'd12 : 5'd5;
 
 jtframe_68kdtack_cen #(.W(6), .RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
