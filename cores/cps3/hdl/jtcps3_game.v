@@ -241,6 +241,13 @@ jtcps3_main u_main(
 `endif
 );
 
+`ifdef NOSOUND
+assign snd_data = 32'd0;
+assign pcm_rd   = 1'b0;
+assign pcm_addr = 24'd0;
+assign snd_l    = 16'sd0;
+assign snd_r    = 16'sd0;
+`else
 /* verilator tracing_off */
 jtcps3_sound u_sound(
     .rst        ( rst48         ),
@@ -259,8 +266,13 @@ jtcps3_sound u_sound(
     .snd_left   ( snd_l         ),
     .snd_right  ( snd_r         )
 );
+`endif
 
+`ifdef SIMSCENE
+/* verilator tracing_on */
+`else
 /* verilator tracing_off */
+`endif
 jtcps3_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),

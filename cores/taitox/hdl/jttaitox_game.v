@@ -29,7 +29,7 @@ wire [ 3:0] syt_dout;
 wire        cpu_rnw, cpu_cen, flip,
             oram_cs, vdcm_cs, syt_cs, cchip_cs, syt_rst, cchip_rst;
 
-wire        cchip, hawk;
+wire        cchip, ym2151;
 `ifndef RAM_IN_SDRAM
 wire        ram_cs, ram_ok = 1'b1;   // work RAM is in BRAM: never busy
 `endif
@@ -45,7 +45,7 @@ jttaitox_header u_header(
     .prog_we    ( prog_we       ),
 
     .cchip      ( cchip         ),
-    .hawk       ( hawk          )
+    .ym2151     ( ym2151        )
 );
 
 jttaitox_main u_main(
@@ -137,7 +137,7 @@ jttaitox_snd u_snd(
     .cen8       ( cen8          ),
     .fm_cen     ( fm_cen        ),
     .fm_cenp1   ( fm_cenp1      ),
-    .hawk       ( hawk          ),
+    .ym2151     ( ym2151        ),
     .snd_cen    ( snd_cen       ),
 
     .main_cen   ( cpu_cen       ),
