@@ -1,0 +1,31 @@
+diff --git a/hdl/adpcm/jt10_adpcm_drvB.v b/hdl/adpcm/jt10_adpcm_drvB.v
+index 8561f53..c5abee5 100644
+--- a/hdl/adpcm/jt10_adpcm_drvB.v
++++ b/hdl/adpcm/jt10_adpcm_drvB.v
+@@ -60,7 +60,16 @@ wire chon;
+ // end
+ // `endif
+ 
+-always @(posedge clk) roe_n <= ~(adv & cen55);
++reg [7:0] rom_byte;
++
++always @(posedge clk or negedge rst_n)
++    if( !rst_n ) begin
++        roe_n    <= 1'b1;
++        rom_byte <= 8'd0;
++    end else if( cen ) begin
++        if( !roe_n ) rom_byte <= data;
++        roe_n <= ~(adv & cen55);
++    end
+ 
+ jt10_adpcmb_cnt u_cnt(
+     .rst_n       ( rst_n           ),
+@@ -85,7 +94,7 @@ jt10_adpcmb_cnt u_cnt(
+ 
+ reg [3:0] din;
+ 
+-always @(posedge clk) din <= !nibble_sel ? data[7:4] : data[3:0];
++always @(posedge clk) if(cen) din <= !nibble_sel ? rom_byte[7:4] : rom_byte[3:0];
+ 
+ wire signed [15:0] pcmdec, pcminter, pcmgain;
+ 

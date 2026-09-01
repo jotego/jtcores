@@ -133,3 +133,4 @@ scenes/
 !/cores/*/ver/**/
 !*.cab
 !sim.sh
+.claude
