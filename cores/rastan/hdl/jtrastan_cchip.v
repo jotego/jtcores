@@ -63,6 +63,8 @@ jttc0030cmd u_cchip(
     .mrom_data  ( cchip_mask_data  ),
     .eprom_addr ( cchip_eprom_addr ),
     .eprom_data ( cchip_eprom_data ),
+    .rom_addr   (                  ),
+    .rom_cs     (                  ),
     // debug (unused)
     .dbg_pc     (                  ),
     .dbg_fetch  (                  )
