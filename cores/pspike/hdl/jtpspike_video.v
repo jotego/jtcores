@@ -122,28 +122,19 @@ wire [14:0] cmask1 = karatblz ? 15'h1fff : 15'h0fff;
 // vsystem_spr2 set_offsets, which ONLY aerofgtb sets, to (3,-1).
 // 11, not 10: at 10 the first pixel of each scanline has no fetched tile data
 // and layer 1 shows a dead column there. Costs a 1 px shift of the scrolling
-// content, which is preferred to the dead column
-`ifndef PSCR
- `define PSCR 11
-`endif
-localparam [8:0] P_SCR = `PSCR,   // tilemap fetch pipeline (sweepable)
+// content, which is preferred to the dead column.
+// Revert to 10 to shift the picture back one line to the RIGHT
+localparam [8:0] P_SCR = 9'd11,   // tilemap fetch pipeline
                  P_OBJ = 9'd1;    // sprite line-buffer readout
 wire [8:0] visx     = karatblz ? 9'd8 : aerofgt ? 9'd12 : turbofrc ? 9'd0 : 9'd4;
 wire [8:0] xoffs    = aerofgt ? 9'd3 : 9'd0;          // MAME set_offsets x
 wire [8:0] hoff_scr = visx + P_SCR;
-// Raising P_SCR to fetch the first pixel also shifts the layer, so both bias
-// constants move with it. -d PSCR=11 -d PSPIKE_XB_ADJ=1 keeps the position
-`ifndef PSPIKE_XB_ADJ
- `define PSPIKE_XB_ADJ 0
-`endif
-wire [8:0] xb0      = (karatblz ? 9'd8 : aerofgt ? 9'd12 : 9'd11) + `PSPIKE_XB_ADJ;
-// MAME's per-layer scroll biases are hand tuned (screen_update_turbofrc uses
-// -11 / -7 / +2, next to the 188/185 flip fudges). Overridable so they can be
-// swept without editing: -d PSPIKE_XB1=6
-`ifndef PSPIKE_XB1
- `define PSPIKE_XB1 7
-`endif
-wire [8:0] xb1      = (karatblz ? 9'd4 : aerofgt ? 9'd8  : `PSPIKE_XB1) + `PSPIKE_XB_ADJ;
+wire [8:0] xb0      = karatblz ? 9'd8 : aerofgt ? 9'd12 : 9'd11;
+wire [8:0] xb1      = karatblz ? 9'd4 : aerofgt ? 9'd8  : 9'd7;
+// MAME adds 2 to both layers' scroll Y for the turbofrc-class games. On
+// turbofrc that leaves layer 1 at -1, which pulls the map's unmaintained
+// bottom row into the first visible line. 3 lands it on row 0
+wire [8:0] yb       = turbofrc ? 9'd3 : 9'd2;
 wire [8:0] obj_yoffs= aerofgt ? 9'h1ff : 9'd0;        // MAME set_offsets y = -1
 wire [8:0] hoff_obj = visx + P_OBJ - xoffs;
 
@@ -270,6 +261,7 @@ jtpspike_scr u_scr(
     .charbank   ( charbank  ),
     .scrx       ( scrx0     ),   // raster RAM elsewhere, register on karatblz
     .scry       ( scry      ),
+    .ybias      ( yb        ),
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
     .visx       ( visx      ),
@@ -303,6 +295,7 @@ jtpspike_scr u_scr1(
     .charbank   ( 3'd0      ),
     .scrx       ( scrx1     ),
     .scry       ( scry1     ),
+    .ybias      ( yb        ),
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
     .visx       ( visx      ),

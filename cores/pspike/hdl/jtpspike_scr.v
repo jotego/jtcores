@@ -41,6 +41,7 @@ module jtpspike_scr(
     input               kb,         // karatblz tile format
     input               noraster,   // karatblz: both layers scroll from registers
     input      [ 8:0]   xbias,      // per game, per layer constant
+    input      [ 8:0]   ybias,      // per game scroll Y bias
     input               layer,      // 0 or 1, selects the gfx bank group
     input      [31:0]   gfxbank,    // eight 4-bit banks
     input      [ 2:0]   charbank,
@@ -119,12 +120,7 @@ assign scrx_base= noraster ? scrx - xbias          :  // karatblz, registers onl
                   !two     ? ras_dout[8:0]         :  // pspikes, one word per line
                   layer    ? scrx - xbias             // turbofrc layer 1
                            : ras_dout[8:0] - xbias;   // turbofrc layer 0, word 7
-// MAME: m_tilemap[1]->set_scrolly(0, m_scrolly[1] + 2). Sweepable with
-// -d PSPIKE_SCRY_BIAS=3
-`ifndef PSPIKE_SCRY_BIAS
- `define PSPIKE_SCRY_BIAS 2
-`endif
-assign scry_base= (two & ~noraster) ? scry + `PSPIKE_SCRY_BIAS : scry;
+assign scry_base= (two & ~noraster) ? scry + ybias : scry;
 // jtframe_scroll_offset mirrors within the 512-wide map (FLIP_HW/VW=9), so the
 // picture lands W-1-x instead of x. -512 is a no-op on 9 bits, hence + hsize.
 // The correction is twice the layer's horizontal origin: mirroring turns a
