@@ -120,16 +120,30 @@ wire [14:0] cmask1 = karatblz ? 15'h1fff : 15'h0fff;
 // its VIDEO_START adds set_scrolldx(1,1). MAME folds that in as
 // effective = m_dx - rowscroll, so the dx ADDS to the bias: 12 / 8, not 10 / 6. The sprite chip's own x offset comes from
 // vsystem_spr2 set_offsets, which ONLY aerofgtb sets, to (3,-1).
+// 11, not 10: at 10 the first pixel of each scanline has no fetched tile data
+// and layer 1 shows a dead column there. Costs a 1 px shift of the scrolling
+// content, which is preferred to the dead column
 `ifndef PSCR
- `define PSCR 10
+ `define PSCR 11
 `endif
 localparam [8:0] P_SCR = `PSCR,   // tilemap fetch pipeline (sweepable)
                  P_OBJ = 9'd1;    // sprite line-buffer readout
 wire [8:0] visx     = karatblz ? 9'd8 : aerofgt ? 9'd12 : turbofrc ? 9'd0 : 9'd4;
 wire [8:0] xoffs    = aerofgt ? 9'd3 : 9'd0;          // MAME set_offsets x
 wire [8:0] hoff_scr = visx + P_SCR;
-wire [8:0] xb0      = karatblz ? 9'd8 : aerofgt ? 9'd12 : 9'd11;
-wire [8:0] xb1      = karatblz ? 9'd4 : aerofgt ? 9'd8  : 9'd7;
+// Raising P_SCR to fetch the first pixel also shifts the layer, so both bias
+// constants move with it. -d PSCR=11 -d PSPIKE_XB_ADJ=1 keeps the position
+`ifndef PSPIKE_XB_ADJ
+ `define PSPIKE_XB_ADJ 0
+`endif
+wire [8:0] xb0      = (karatblz ? 9'd8 : aerofgt ? 9'd12 : 9'd11) + `PSPIKE_XB_ADJ;
+// MAME's per-layer scroll biases are hand tuned (screen_update_turbofrc uses
+// -11 / -7 / +2, next to the 188/185 flip fudges). Overridable so they can be
+// swept without editing: -d PSPIKE_XB1=6
+`ifndef PSPIKE_XB1
+ `define PSPIKE_XB1 7
+`endif
+wire [8:0] xb1      = (karatblz ? 9'd4 : aerofgt ? 9'd8  : `PSPIKE_XB1) + `PSPIKE_XB_ADJ;
 wire [8:0] obj_yoffs= aerofgt ? 9'h1ff : 9'd0;        // MAME set_offsets y = -1
 wire [8:0] hoff_obj = visx + P_OBJ - xoffs;
 
@@ -184,13 +198,26 @@ wire [10:0] kb_pxl = o1_op ? o1_idx :
                      o0_op ? o0_idx :
                      s1_op ? { 1'b0, 2'b01, scr1_pxl[7:0] } :
                              { 1'b0, 2'b00, scr_pxl[7:0] };
+// Layer isolation for debugging. The transparent pen is painted cyan so the
+// tile and sprite edges are visible instead of blending into the backdrop
+wire transp;
 `ifdef SIM_ONLY_SCR0
-assign pxl = { 1'b0, 2'b00, scr_pxl[7:0] };
+assign pxl    = { 1'b0, 2'b00, scr_pxl[7:0] };
+assign transp = &scr_pxl[3:0];
 `elsif SIM_ONLY_SCR1
-assign pxl = s1_op ? { 1'b0, 2'b01, scr1_pxl[7:0] } : 11'd0;
+assign pxl    = { 1'b0, 2'b01, scr1_pxl[7:0] };
+assign transp = ~s1_op;
+`elsif SIM_ONLY_OBJ0
+assign pxl    = o0_idx;
+assign transp = ~o0_op;
+`elsif SIM_ONLY_OBJ1
+assign pxl    = o1_idx;
+assign transp = ~o1_op;
 `elsif SIM_ONLY_OBJ
-assign pxl = o1_op ? o1_idx : o0_op ? o0_idx : 11'd0;
+assign pxl    = o1_op ? o1_idx : o0_op ? o0_idx : 11'd0;
+assign transp = ~(o0_op | o1_op);
 `else
+assign transp = 1'b0;
 assign pxl = karatblz ? kb_pxl :
              !two ? ( o0_op ? { 1'b1, obj_pxl[9:0] } : { 1'b0, scr_pxl } ) :
              ( o1_op & obj1_pxl[10] ) ? o1_idx :
@@ -361,6 +388,7 @@ jtpspike_colmix u_colmix(
     .LHBL       ( lhbl_gate ),
     .LVBL       ( LVBL      ),
     .pxl        ( pxl       ),
+    .transp     ( transp    ),
     .mix_addr   ( mix_addr  ),
     .mix_pal    ( mix_pal   ),
     .red        ( red       ),

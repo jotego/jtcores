@@ -94,6 +94,12 @@ wire [ 7:0] roz_pxl;
 wire        roz_on;
 
 assign hdump = H;
+// The sprite line buffer registers rd_data, so the readout address must lead by
+// one pixel or every pixel shows the previous address - and at x=0 that is
+// h_last, where a sprite leaving on the left has just written. Wrapped on the
+// GGA grid so the sequence stays continuous. jtpspike_video calls this P_OBJ.
+// The chips' xoffs drops to 0: the -1 was compensating for the missing lead
+wire [8:0] hdump_obj = H==h_last ? 9'd0 : H + 9'd1;
 
 // C7-01 GGA, shared with pspike. 320x240 out of a 456x256 grid; the CPU
 // reprograms it right after boot, these only have to be a legal grid
@@ -172,6 +178,7 @@ jtf1grpr_fg u_fg(
     .pxl_cen    ( pxl_cen   ),
     .flip       ( flip      ),
     .hdump      ( hdump     ),
+    .h_last     ( h_last    ),
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
     .vdump      ( vdump     ),
@@ -201,12 +208,12 @@ jtpspike_obj #(.PASSES(1)) u_obj0(
     .hs         ( HS        ),
     .en         ( 1'b1      ),
     .flip       ( flip      ),
-    .hdump      ( hdump     ),
+    .hdump      ( hdump_obj ),
     .vrender    ( vrender   ),
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
-    .xorg       ( 9'd1      ),   // -xoffs: the 1 px sits before the mirror
-    .xoffs      ( 9'h1ff    ),   // 1 px left
+    .xorg       ( 9'd1      ),   // the readout lead sits before the mirror
+    .xoffs      ( 9'd0      ),   // the readout lead replaces the -1
     .yoffs      ( 9'h1f8    ),   // 8 lines up
     .objbank    ( 2'd0      ),
 
@@ -232,12 +239,12 @@ jtpspike_obj #(.PASSES(1)) u_obj1(
     .hs         ( HS        ),
     .en         ( 1'b1      ),
     .flip       ( flip      ),
-    .hdump      ( hdump     ),
+    .hdump      ( hdump_obj ),
     .vrender    ( vrender   ),
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
-    .xorg       ( 9'd1      ),   // -xoffs: the 1 px sits before the mirror
-    .xoffs      ( 9'h1ff    ),   // 1 px left
+    .xorg       ( 9'd1      ),   // the readout lead sits before the mirror
+    .xoffs      ( 9'd0      ),   // the readout lead replaces the -1
     .yoffs      ( 9'h1f8    ),   // 8 lines up
     .objbank    ( 2'd0      ),
 

@@ -119,7 +119,12 @@ assign scrx_base= noraster ? scrx - xbias          :  // karatblz, registers onl
                   !two     ? ras_dout[8:0]         :  // pspikes, one word per line
                   layer    ? scrx - xbias             // turbofrc layer 1
                            : ras_dout[8:0] - xbias;   // turbofrc layer 0, word 7
-assign scry_base= (two & ~noraster) ? scry + 9'd2 : scry;
+// MAME: m_tilemap[1]->set_scrolly(0, m_scrolly[1] + 2). Sweepable with
+// -d PSPIKE_SCRY_BIAS=3
+`ifndef PSPIKE_SCRY_BIAS
+ `define PSPIKE_SCRY_BIAS 2
+`endif
+assign scry_base= (two & ~noraster) ? scry + `PSPIKE_SCRY_BIAS : scry;
 // jtframe_scroll_offset mirrors within the 512-wide map (FLIP_HW/VW=9), so the
 // picture lands W-1-x instead of x. -512 is a no-op on 9 bits, hence + hsize.
 // The correction is twice the layer's horizontal origin: mirroring turns a

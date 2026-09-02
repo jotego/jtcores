@@ -29,6 +29,7 @@ module jtpspike_colmix(
 
     output     [11:1]   mix_addr,
     input      [15:0]   mix_pal,
+    input               transp,   // sim only: paint transparent pens cyan
 
     output reg [ 4:0]   red, green, blue
 );
@@ -39,7 +40,8 @@ always @(posedge clk) begin
     if( rst ) begin
         { red, green, blue } <= 0;
     end else if( pxl_cen ) begin
-        { red, green, blue } <= LHBL & LVBL ? mix_pal[14:0] : 15'd0;
+        { red, green, blue } <= !(LHBL & LVBL) ? 15'd0 :
+                                transp ? 15'b00000_11111_11111 : mix_pal[14:0];
     end
 end
 

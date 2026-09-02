@@ -33,6 +33,7 @@ module jtf1grpr_fg(
     input             pxl_cen,
     input             flip,
     input      [ 8:0] hdump, vdump,
+    input      [ 8:0] h_last,        // last H count, for the fetch wrap
     input      [ 8:0] hsize, vsize,   // visible size, from the GGA
     input      [ 8:0] scrx, scry,
 
@@ -57,7 +58,13 @@ localparam [8:0] HOFFSET = 9'd1, VOFFSET = 9'd8;
 // the mirror, otherwise it lands on the wrong side and shows up doubled.
 // The pixel select below is a direct index, so no per-tile flip is needed -
 // mirroring heff already picks the right pixel
-wire [ 8:0] hraw = hdump + HOFFSET;
+// The prefetch reads the group four pixels ahead. At the end of the line that
+// points past it, so the first visible group is fetched from the wrong address
+// and the line opens with four dead pixels. Move the discontinuity into
+// blanking - vdump has already advanced by then, so the prefetch naturally
+// targets the next line. Same trick as hdump_scr in jtpspike_video
+wire [ 8:0] hwrap= hdump >= 9'd400 ? hdump - (h_last + 9'd1) : hdump;
+wire [ 8:0] hraw = hwrap + HOFFSET;
 wire [ 8:0] hdm  = flip ? ~hraw  + hsize : hraw;
 wire [ 8:0] vdm  = flip ? ~vdump + vsize : vdump;
 wire [ 8:0] heff = hdm + scrx;
