@@ -132,9 +132,10 @@ wire [8:0] xb1      = karatblz ? 9'd4 : aerofgt ? 9'd8  : 9'd7;
 // MAME adds 2 to both layers' scroll Y for the turbofrc-class games. Flipped,
 // the game writes the compensation itself (scry0 0 instead of -2), so adding 2
 // again walks two lines past the end of the map, which stops at row 29
-wire [8:0] yb       = flip ? 9'd0 : 9'd2;
-// Flipped, the game writes its own compensated scroll values, so each layer
-// needs its own extra X term on top of the mirror. Layer 1 still unmeasured
+wire [8:0] yb0      = flip ? 9'd0 : 9'd2;
+// aerofgt layer 1 goes one line further so it covers the dirty column on the
+// screen's left edge. The extra line has to appear on both sides of the flip
+wire [8:0] yb1      = aerofgt ? (flip ? 9'd1 : 9'd3) : yb0;
 // Flipped, the game writes its own scroll compensation, and our mirror works in
 // the map's 512 space - these cancel the game's term. Measured from the 68000's
 // registers with the flip DIP on: turbofrc +185/+193, aerofgt +168/+177
@@ -255,7 +256,7 @@ jtpspike_scr u_scr(
     .charbank   ( charbank  ),
     .scrx       ( scrx0     ),   // raster RAM elsewhere, register on karatblz
     .scry       ( scry      ),
-    .ybias      ( yb        ),
+    .ybias      ( yb0       ),
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
     .visx       ( visx      ),
@@ -290,7 +291,7 @@ jtpspike_scr u_scr1(
     .charbank   ( 3'd0      ),
     .scrx       ( scrx1     ),
     .scry       ( scry1     ),
-    .ybias      ( yb        ),
+    .ybias      ( yb1       ),
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
     .visx       ( visx      ),
