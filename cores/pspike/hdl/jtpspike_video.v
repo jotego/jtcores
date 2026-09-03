@@ -126,16 +126,17 @@ localparam [8:0] P_SCR = 9'd10,   // tilemap fetch pipeline
                  P_OBJ = 9'd1;    // sprite line-buffer readout
 wire [8:0] visx     = karatblz ? 9'd8 : aerofgt ? 9'd12 : turbofrc ? 9'd0 : 9'd4;
 wire [8:0] xoffs    = aerofgt ? 9'd3 : 9'd0;          // MAME set_offsets x
-wire [8:0] hoff_scr = visx + P_SCR;
+// aerofgt only: nudge the whole raster a pixel to bury the dead column at the
+// end of the line. The mirror negates it, so flipped it carries the opposite
+// sign to land on the same screen edge
+wire [8:0] xnudge   = !aerofgt ? 9'd0 : flip ? -9'd1 : 9'd1;
+wire [8:0] hoff_scr = visx + P_SCR + xnudge;
 wire [8:0] xb0      = karatblz ? 9'd8 : aerofgt ? 9'd12 : 9'd11;
 wire [8:0] xb1      = karatblz ? 9'd4 : aerofgt ? 9'd8  : 9'd7;
 // MAME adds 2 to both layers' scroll Y for the turbofrc-class games. Flipped,
 // the game writes the compensation itself (scry0 0 instead of -2), so adding 2
 // again walks two lines past the end of the map, which stops at row 29
-wire [8:0] yb0      = flip ? 9'd0 : 9'd2;
-// aerofgt layer 1 goes one line further so it covers the dirty column on the
-// screen's left edge. The extra line has to appear on both sides of the flip
-wire [8:0] yb1      = aerofgt ? (flip ? 9'd1 : 9'd3) : yb0;
+wire [8:0] yb       = flip ? 9'd0 : 9'd2;
 // Flipped, the game writes its own scroll compensation, and our mirror works in
 // the map's 512 space - these cancel the game's term. Measured from the 68000's
 // registers with the flip DIP on: turbofrc +185/+193, aerofgt +168/+177
@@ -143,7 +144,7 @@ wire [8:0] xf0      = aerofgt ? -9'd168 : -9'd185,
            xf1      = aerofgt ? -9'd177 : -9'd193,
            xfo      = -9'd17;   // sprites, same for both
 wire [8:0] obj_yoffs= aerofgt ? 9'h1ff : 9'd0;        // MAME set_offsets y = -1
-wire [8:0] hoff_obj = visx + P_OBJ - xoffs;
+wire [8:0] hoff_obj = visx + P_OBJ - xoffs + xnudge;
 
 wire [ 8:0] vdump, vrender, H, hdump_scr, hdump_obj, hsize, vsize;
 wire [ 9:0] scr_pxl, scr1_pxl;
@@ -256,7 +257,7 @@ jtpspike_scr u_scr(
     .charbank   ( charbank  ),
     .scrx       ( scrx0     ),   // raster RAM elsewhere, register on karatblz
     .scry       ( scry      ),
-    .ybias      ( yb0       ),
+    .ybias      ( yb        ),
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
     .visx       ( visx      ),
@@ -291,7 +292,7 @@ jtpspike_scr u_scr1(
     .charbank   ( 3'd0      ),
     .scrx       ( scrx1     ),
     .scry       ( scry1     ),
-    .ybias      ( yb1       ),
+    .ybias      ( yb        ),
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
     .visx       ( visx      ),
