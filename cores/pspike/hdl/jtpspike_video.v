@@ -135,8 +135,12 @@ wire [8:0] xb1      = karatblz ? 9'd4 : aerofgt ? 9'd8  : 9'd7;
 wire [8:0] yb       = flip ? 9'd0 : 9'd2;
 // Flipped, the game writes its own compensated scroll values, so each layer
 // needs its own extra X term on top of the mirror. Layer 1 still unmeasured
-wire [8:0] xf0      = -9'd185, xf1 = -9'd193;
-wire [8:0] xfo      = -9'd17;  // sprites, flipped only
+// Flipped, the game writes its own scroll compensation, and our mirror works in
+// the map's 512 space - these cancel the game's term. Measured from the 68000's
+// registers with the flip DIP on: turbofrc +185/+193, aerofgt +168/+177
+wire [8:0] xf0      = aerofgt ? -9'd168 : -9'd185,
+           xf1      = aerofgt ? -9'd177 : -9'd193,
+           xfo      = -9'd17;   // sprites, same for both
 wire [8:0] obj_yoffs= aerofgt ? 9'h1ff : 9'd0;        // MAME set_offsets y = -1
 wire [8:0] hoff_obj = visx + P_OBJ - xoffs;
 

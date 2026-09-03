@@ -12,6 +12,11 @@ local shares = manager.machine.memory.shares
 local screen; for _,s in pairs(manager.machine.screens) do screen=s; break end
 
 local SCENES, STEP = 20, 300
+-- AF_FRAMES="300,1200,2406" captures exactly those frames instead of the
+-- regular burst, for scenes that were originally grabbed by hand
+local LIST = {}
+for f in (os.getenv("AF_FRAMES") or ""):gmatch("%d+") do LIST[#LIST+1] = tonumber(f) end
+table.sort(LIST)
 local OUT = os.getenv("AF_SCENES") or "cores/pspike/ver/aerofgtb/scenes"
 
 -- Order must match ver/game/rest2bin.sh
@@ -81,10 +86,11 @@ local function capture(frame)
   print("   gga "..table.concat(g, " "))
 end
 
-emu.register_frame_done(function()
-  local target = idx*STEP
-  if idx <= SCENES and screen:frame_number() >= target then
+burst_cb = emu.register_frame_done(function()
+  local target = (#LIST > 0) and LIST[idx] or (idx*STEP)
+  local last   = (#LIST > 0) and #LIST or SCENES
+  if idx <= last and screen:frame_number() >= target then
     capture(target); idx = idx + 1
-    if idx > SCENES then manager.machine:exit() end
+    if idx > last then manager.machine:exit() end
   end
 end)
