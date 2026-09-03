@@ -32,7 +32,7 @@ module jtpspike_obj #(parameter PASSES=2)(
     input      [ 8:0]   hdump, vrender,
     input      [ 8:0]   hsize, vsize,   // visible width/height from the GGA
     input      [ 8:0]   xorg,           // this chip's horizontal origin
-    input      [ 8:0]   xflip,          // extra shift applied only when flipped
+    input      [ 8:0]   xflip, yflip,   // extra shift applied only when flipped
     input      [ 8:0]   xoffs, yoffs,
 
     input      [ 1:0]   objbank,
@@ -65,7 +65,7 @@ wire        draw, busy, hz_keep, hflip, vflip;
 // jtframe_objdraw's own mirror uses a compile time FLIP_OFFSET, which cannot
 // follow a runtime width, so the mirror is done here instead
 wire [ 8:0] hdump_eff = flip ? ~hdump   + hsize + {xorg[7:0],1'b0} + xflip : hdump;
-wire [ 8:0] vrend_eff = flip ? ~vrender + vsize : vrender;
+wire [ 8:0] vrend_eff = flip ? ~vrender + vsize + yflip : vrender;
 
 assign objl_addr = lut_addr;
 // jtframe_draw emits {code, H, Y}, i.e. the two halves of a 16x16 tile stored

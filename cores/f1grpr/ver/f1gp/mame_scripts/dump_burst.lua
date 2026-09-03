@@ -8,6 +8,12 @@ local OUT   = os.getenv("F1GP_SCENES") or "cores/f1grpr/ver/f1gp/scenes"
 local FIRST = tonumber(os.getenv("F1GP_FIRST") or "300")
 local STEP  = tonumber(os.getenv("F1GP_STEP")  or "300")
 local COUNT = tonumber(os.getenv("F1GP_COUNT") or "20")
+-- appended to the scene name, "o"/"f" for a straight/flipped register pair
+local SUF   = os.getenv("F1GP_SUFFIX") or ""
+-- explicit frame list, overrides FIRST/STEP/COUNT
+local LIST  = {}
+for f in (os.getenv("F1GP_FRAMES") or ""):gmatch("%d+") do LIST[#LIST+1] = tonumber(f) end
+if #LIST > 0 then COUNT = #LIST end
 
 -- Order must match the sim-side splitter when scene replay is built
 local regions = {
@@ -56,7 +62,7 @@ rozregs_tap = mem:install_write_tap(0xfff040, 0xfff05f, "rozregs",
   end)
 
 local function capture(frame)
-  local dir = string.format("%s/m%05d", OUT, frame)
+  local dir = string.format("%s/m%05d%s", OUT, frame, SUF)
   os.execute("mkdir -p '"..dir.."'")
   local f = io.open(dir.."/dump.bin","wb")
   for _,r in ipairs(regions) do
@@ -85,8 +91,9 @@ end
 local n = 0
 emu.register_frame_done(function()
   local fr = screen:frame_number()
-  if n < COUNT and fr >= FIRST + n*STEP then
-    capture(FIRST + n*STEP)
+  local want = LIST[n+1] or (FIRST + n*STEP)
+  if n < COUNT and fr >= want then
+    capture(want)
     n = n + 1
     if n >= COUNT then manager.machine:exit() end
   end

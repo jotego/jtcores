@@ -32,6 +32,7 @@ module jtf1grpr_roz(
     input             clk,
     input             pxl_cen,
     input             hs, vs,
+    input             flip,
 
     // CPU write port, fff040-fff05f
     input             cs,
@@ -51,13 +52,23 @@ module jtf1grpr_roz(
 );
 
 wire [12:0] x, y;
+// flipped, the layer sits one line off: hold vs back by a line on the
+// straight side instead, with YOFFSET putting that line back
+reg  vs_dly, hs_l;
+wire vs_eff = flip ? vs : vs_dly;
+
+always @(posedge clk) begin
+    hs_l <= hs;
+    if( hs & ~hs_l ) vs_dly <= vs;
+end
+
 wire        xh, yh, ob;
 
 // TEST: MAME's set_offsets is (-58,-2). The chip biases the map start by
 // hstep*-XOFFSET and vstep*-YOFFSET, so raising XOFFSET moves the picture
 // right and lowering YOFFSET moves it up.
 //   X: -58 + 44 = -14   Y: -2 - 6 = -8
-jt053936 #(.XOFFSET(-14),.YOFFSET(-8)) u_xy(
+jt053936 #(.XOFFSET(-14),.YOFFSET(-9)) u_xy(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( pxl_cen   ),
@@ -66,7 +77,7 @@ jt053936 #(.XOFFSET(-14),.YOFFSET(-8)) u_xy(
     .addr       ( addr      ),
 
     .hs         ( hs        ),
-    .vs         ( vs        ),
+    .vs         ( vs_eff    ),
     .cs         ( cs        ),
     .dtackn     ( 1'b0      ),
     .dsn        ( dsn       ),

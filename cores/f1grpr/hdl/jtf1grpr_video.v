@@ -213,7 +213,8 @@ jtpspike_obj #(.PASSES(1)) u_obj0(
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
     .xorg       ( 9'd1      ),   // the readout lead sits before the mirror
-    .xflip      ( 9'd0      ),
+    .xflip      ( -9'd1     ),
+    .yflip      ( -9'd8     ),
     .xoffs      ( 9'd0      ),   // the readout lead replaces the -1
     .yoffs      ( 9'h1f8    ),   // 8 lines up
     .objbank    ( 2'd0      ),
@@ -245,7 +246,8 @@ jtpspike_obj #(.PASSES(1)) u_obj1(
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
     .xorg       ( 9'd1      ),   // the readout lead sits before the mirror
-    .xflip      ( 9'd0      ),
+    .xflip      ( -9'd1     ),
+    .yflip      ( -9'd8     ),
     .xoffs      ( 9'd0      ),   // the readout lead replaces the -1
     .yoffs      ( 9'h1f8    ),   // 8 lines up
     .objbank    ( 2'd0      ),
@@ -267,6 +269,7 @@ jtpspike_obj #(.PASSES(1)) u_obj1(
 
 jtf1grpr_roz u_roz(
     .rst        ( rst       ),
+    .flip       ( flip      ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .hs         ( HS        ),

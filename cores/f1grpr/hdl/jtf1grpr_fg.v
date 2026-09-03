@@ -67,8 +67,9 @@ wire [ 8:0] hwrap= hdump >= 9'd400 ? hdump - (h_last + 9'd1) : hdump;
 wire [ 8:0] hraw = hwrap + HOFFSET;
 wire [ 8:0] hdm  = flip ? ~hraw  + hsize : hraw;
 wire [ 8:0] vdm  = flip ? ~vdump + vsize : vdump;
-wire [ 8:0] heff = hdm + scrx;
-wire [ 8:0] veff = vdm + scry + VOFFSET;
+// the game writes its own compensation when flipped, +160/+10; cancel it
+wire [ 8:0] heff = hdm + scrx - (flip ? 9'd160 : 9'd0);
+wire [ 8:0] veff = vdm + scry + VOFFSET - (flip ? 9'd10 : 9'd0);
 // address the tile that owns the NEXT group of four pixels, so the VRAM and
 // the ROM both have a full group of pxl_cen to answer. Flipped, heff runs
 // backwards, so the next group is four LOWER
@@ -91,7 +92,7 @@ always @(posedge clk) begin
     end else if( pxl_cen ) begin
         if( rom_ok ) nxt <= rom_data;
         // swap in the group that was fetched over the previous four pixels
-        if( heff[1:0]==2'd3 ) cur <= nxt;
+        if( heff[1:0]==(flip ? 2'd0 : 2'd3) ) cur <= nxt;
     end
 end
 
