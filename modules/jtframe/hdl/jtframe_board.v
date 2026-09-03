@@ -195,12 +195,14 @@ wire [ 1:0] bax_dsn;
 wire [ 3:0] bax_rdy, bax_dst;
 wire [SDRAMW-1:0] bax_addr;
 
-wire LHBLs;
+wire LHBLs, LVBLs, hshort_en, vshort_en;
 reg  prog_en;
 
-assign sensty    = status[33:32]; // MiST should drive these pins
-assign joy1_pos  = status[19:18];
+assign sensty         = status[33:32]; // MiST should drive these pins
+assign joy1_pos       = status[19:18];
 assign gun_crossh_en = `ifdef JTFRAME_LIGHTGUN_ON 1'b1; `else status[9]; `endif
+assign hshort_en      = black_frame[0] & ~vertical;
+assign vshort_en      = black_frame[0] &  vertical;
 
 always @(posedge clk_rom) begin
     prog_en <= dwnld_busy | ioctl_cart;
@@ -297,7 +299,7 @@ reg  show_credits;
 
         // input image
         .HB         ( LHBLs          ),
-        .VB         ( LVBL           ),
+        .VB         ( LVBLs          ),
         .HS         ( hs             ),
         .VS         ( vs             ),
         .rgb_in     ( {game_r, game_g, game_b} ),
@@ -339,7 +341,7 @@ reg  show_credits;
     );
 `else
     assign { crdts_r, crdts_g, crdts_b } = { game_r, game_g, game_b };
-    assign { crdts_lhbl, crdts_lvbl    } = { LHBLs, LVBL };
+    assign { crdts_lhbl, crdts_lvbl    } = { LHBLs, LVBLs };
     assign { base_hs,    base_vs       } = { hs,    vs   };
     initial show_credits=0;
 `endif
@@ -502,12 +504,12 @@ jtframe_short_blank #(
     .pxl_cen    ( pxl_cen         ),
     .LHBL       ( LHBL            ),
     .LVBL       ( LVBL            ),
-    .v_en       ( 1'b0            ),
-    .h_en       ( black_frame[0]  ),
+    .v_en       ( vshort_en       ),
+    .h_en       ( hshort_en       ),
     .wide       ( black_frame[1]  ),
     .HS         ( hs              ),
     .hb_out     ( LHBLs           ),
-    .vb_out     (                 )
+    .vb_out     ( LVBLs           )
 );
 
 jtframe_inputs #(
@@ -519,7 +521,7 @@ jtframe_inputs #(
     .clk            ( clk_sys         ),
     .vs             ( vs              ),
     .lhbl           ( LHBLs           ),
-    .lvbl           ( LVBL            ),
+    .lvbl           ( LVBLs           ),
     .ioctl_rom      ( dwnld_busy      ),
     .joy1_pos       ( joy1_pos        ),
     .rot            ( rot_control     ),

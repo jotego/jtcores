@@ -20,6 +20,7 @@ module jtframe_romrq #(parameter
                    // Set to ==0 to use jtframe_romrq_bcache, where all data coming from SDRAM is cached
     CACHE_LARGE=0, // Set to 1 for the direct-mapped short-burst cache
     BURSTLEN  =32, // 16, 32, or 64 bits; only used by CACHE_LARGE
+    TAG_RAM   = 0, // Set to 1 to register large-cache tag reads in block RAM
 
     // parameters only for jtframe_romrq_bcache:
     OKLATCH =  1,  // Set to 1 to latch the data_ok signal. This implies that
@@ -59,7 +60,8 @@ generate
             .AW      ( AW       ),
             .DW      ( DW       ),
             .CACHE_SIZE( CACHE_SIZE ),
-            .BURSTLEN( BURSTLEN )
+            .BURSTLEN( BURSTLEN ),
+            .TAG_RAM ( TAG_RAM  )
         ) u_large_cache(
             .rst        ( rst        ),
             .clk        ( clk        ),

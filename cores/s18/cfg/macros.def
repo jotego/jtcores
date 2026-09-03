@@ -44,7 +44,3 @@ GAME_WWALLY  =0x40
 [sidi|mist|neptuno|mc*]
 # won't fit
 JTFRAME_SKIP
-
-[mister]
-JTFRAME_PLL_TUNE
-JTFRAME_180SHIFT

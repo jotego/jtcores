@@ -471,6 +471,7 @@ jtframe_cache_mux #(
 {{- if gt (len .Buses) 0 }}
 jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .SDRAMW(SDRAMW-1),
+    .TAG_RAM({{if $.SDRAM.Tag_ram}}1{{else}}0{{end}}),
 {{- $first := true}}
 {{- range $index, $each:=.Buses}}
     {{- if $first}}{{$first = false}}{{else}}, {{end}}

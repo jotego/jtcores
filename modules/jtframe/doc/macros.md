@@ -95,6 +95,7 @@ JTFRAME_ROTATE           |         | Enables more rotate options in the OSD
 JTFRAME_SAVEGAME         |         | Enables game saving options in the OSD
 JTFRAME_SCAN2X_NOBLEND   | MiST    | Disables pixel blending
 JTFRAME_SRAM             | Pocket  | Enables SRAM ports at the game module
+JTFRAME_SDRAM_XL         | MiSTer  | Enables 128MB SDRAM
 JTFRAME_SDRAM96          |         | SDRAM is clocked at 96MHz and the clk input of game is 96MHz
 JTFRAME_SHADOW           | MiSTer  | Start address for SDRAM shadowing and dump as NVRAM
 JTFRAME_SHADOW_LEN       | MiSTer  | Length in bits of the shadowing. See [sdram.md](sdram.md)

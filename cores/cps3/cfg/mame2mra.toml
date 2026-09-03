@@ -14,11 +14,7 @@ skip.setnames=[
 	"jojobar1", "jojobajr1", "jojobar2", "jojobajr2",
 	"jojobaj", "jojoba",
 ]
-debug={ setnames=[
-	# Untested - no valid ROMs ?
-	"jojoban", "jojobaner1", "jojobaner2",
-	"jojobanr1", "jojobanr2"
-]}
+
 skip.machines=[
 	# Bios
 	"cps3boot", "cps3booto", "cps3booto2", "cps3bs32",
@@ -33,6 +29,13 @@ names=[
     { names="Light,Middle,Heavy,Stand On", machines=["jojo","jojoba"] }
 ]
 
+[dipsw]
+extra=[
+	# CPS3 has no hardware DIP switches. The generated ff,ff default makes
+	# bits 2:0 equal 7, which preserves the downloaded BIOS region.
+	{ name="BIOS region", options="Japan,Asia,Europe,USA,Hispanic,Brazil,Oceania,Original", bits="0,2" },
+]
+
 [header]
 fill=0
 offset={start=0,bits=16,regions=["simm1.0","simm3.0","simm4.0","simm5.0","simm2.0","simm6.0"]}
@@ -41,8 +44,11 @@ data=[
 	# key1[31:0], key2[31:0] in big-endian byte order.
 	# Byte 0x18 stores the CPS3 encryption mode as one-hot bits:
 	# bit 0 = SFIII2 dead-cart mode, bit 1 = no decryption, bit 2 = normal.
+	# Byte 0x19 selects the BIOS region field: 0 = 0x1fec8, 1 = Red Earth
+	# at 0x1fed8. The user selection itself is the generated DIP at bits 2:0.
 	{ setname="redearthn",  offset=0x10, data="9e 30 0a b1 a1 75 b8 2c" },
 	{ setname="redearthn",  offset=0x18, data="04" },
+	{ setnames=["redearthn","redearthnr1"], offset=0x19, data="01" },
 	{ setname="redearthnr1",offset=0x10, data="9e 30 0a b1 a1 75 b8 2c" },
 	{ setname="redearthnr1",offset=0x18, data="04" },
 	{ setname="sfiiin",     offset=0x10, data="b5 fe 05 3e fc 03 92 5a" },

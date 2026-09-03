@@ -55,7 +55,7 @@ localparam [ 9:0] HDUMP_MIN = 10'h020,
 
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
-reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, x2;
+reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, x2, xstart;
 reg  [ 8:0] vlatch, ymove, vscl, hscl;
 reg  [ 7:0] scan_obj/*, zcode*/; // max 256 objects
 reg  [ 3:0] size;
@@ -117,7 +117,7 @@ always @* begin : B
     y2        = y + {1'b0,ymove};
     ydiff     = yz_add[6+:10];
     x2        = x - zmove( hsz, hscl );
-    left_wrap = x2 < HDUMP_MIN;
+    left_wrap = xstart < HDUMP_MIN;
     // test ver/game/scene/1 -> shadow, scan_obj 9
     case( vsz )
         0: vmir_eff = nx_mir[1] && !ydiff[3];
@@ -230,6 +230,7 @@ always @(posedge clk) begin : A
                     // Add the vertical offset to the code, must wait for zoom
                     // calculations, so it cannot be done at step 3
                     {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + vsum;
+                    xstart <= x2;
                     if( ~inzone ) begin
                         { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
@@ -246,7 +247,7 @@ always @(posedge clk) begin : A
                     if( (!dr_start && !dr_busy) || !inzone ) begin
                         {code[4],code[2],code[0]} <= hcode + hsum;
                         if( hstep==0 ) begin
-                            hpos    <= x2 + (left_wrap ? HADJ : 10'b0 );
+                            hpos    <= xstart + (left_wrap ? HADJ : 10'b0 );
                         end else begin
                             hpos    <= hpos + 10'h10;
                             hz_keep <= 1;

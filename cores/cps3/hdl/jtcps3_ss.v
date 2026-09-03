@@ -30,7 +30,7 @@ module jtcps3_ss(
 
 `ifndef NOVIDEO
 localparam [8:0] SS_H_OFFSET = 9'd61,
-                 SS_V_OFFSET = 9'd3;
+                 SS_V_OFFSET = 9'd2;
 
 wire [ 8:0] scrolly;
 wire [ 8:0] hdump_raw, vdump_raw, ss_vdump;

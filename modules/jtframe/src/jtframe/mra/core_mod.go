@@ -14,14 +14,14 @@ import(
 
 const (
 	COREMOD_LIGHTGUN_BIT = 1
-	COREMOD_HFRAME_BIT   = 5
+	COREMOD_FRAME_BIT    = 5
 	COREMOD_VOLUME_BIT   = 8
 
 	COREMOD_VERTICAL     = 1
 	COREMOD_XORFLIP      = 4
 	COREMOD_DIAL_ENABLE  = 1<<3
 	COREMOD_DIAL_REVERSE = 1<<4
-	COREMOD_HFRAME_MASK  = uint(3)<<COREMOD_HFRAME_BIT
+	COREMOD_FRAME_MASK   = uint(3)<<COREMOD_FRAME_BIT
 	COREMOD_LIGHTGUN     = 1<<COREMOD_LIGHTGUN_BIT
 	COREMOD_UNITY_VOLUME = 0x80
 	COREMOD_8PXL_FRAME   = 1
@@ -66,7 +66,7 @@ func (mod coreMOD) describe_encoding() string {
 	is_dial		:= (mod.coremod&COREMOD_DIAL_ENABLE) !=0
 	is_dial_rev := (mod.coremod&COREMOD_DIAL_REVERSE)!=0
 	is_gun      := (mod.coremod&COREMOD_LIGHTGUN)    !=0
-	has_frame   := (mod.coremod&COREMOD_HFRAME_MASK) !=0
+	has_frame   := (mod.coremod&COREMOD_FRAME_MASK) !=0
 	if is_vertical {
 		sb.WriteString("Vertical screen. ")
 	}
@@ -84,9 +84,13 @@ func (mod coreMOD) describe_encoding() string {
 		sb.WriteString(". ")
 	}
 	if has_frame {
-		switch mod.get_hframe() {
-			case COREMOD_8PXL_FRAME:  sb.WriteString(" 8-pxl black frame on sides. ")
-			case COREMOD_16PXL_FRAME: sb.WriteString("16-pxl black frame on sides. ")
+		switch mod.get_frame() {
+			case COREMOD_8PXL_FRAME:
+				if is_vertical { sb.WriteString("8-line black frame on top/bottom. ")
+				} else { sb.WriteString("8-pxl black frame on sides. ") }
+			case COREMOD_16PXL_FRAME:
+				if is_vertical { sb.WriteString("16-line black frame on top/bottom. ")
+				} else { sb.WriteString("16-pxl black frame on sides. ") }
 		}
 	}
 	desc := sb.String()
@@ -138,30 +142,28 @@ func (mod *coreMOD)screenSize(machine *MachineXML, cfg Mame2MRA) {
 	ch := macros.GetInt("JTFRAME_HEIGHT")
 	mod.wdiff = (int(cw)-machine.Display.Width)/2
 	mod.hdiff = (int(ch)-machine.Display.Height)/2
-	if mod.wdiff<0 || mod.hdiff<0 {
-		mod.wdiff=0
-		mod.hdiff=0
+	is_vertical := (mod.coremod&COREMOD_VERTICAL)!=0
+	frame := mod.wdiff
+	axis := "horizontal"
+	if is_vertical {
+		frame = mod.hdiff
+		axis = "vertical"
 	}
-	explicit := false
 	if frame_idx := bestMatch(len(cfg.Header.Frames), func(k int) int {
 		return cfg.Header.Frames[k].Match(machine)
 	}); frame_idx >= 0 {
-		mod.wdiff = cfg.Header.Frames[frame_idx].Width
-		explicit = true
+		frame = cfg.Header.Frames[frame_idx].Width
+		if is_vertical { mod.hdiff = frame
+		} else { mod.wdiff = frame }
 	}
-	if mod.hdiff != 0 && !explicit {
-		fmt.Printf("%s: core and MAME screen sizes differ. Remove top/bottom black frame (%d pixels total)\n",
-			machine.Name, mod.hdiff)
-	}
-	switch mod.wdiff {
+	switch frame {
 		case 0: break
-		case 8:  mod.coremod |= 1<<COREMOD_HFRAME_BIT
-		case 16: mod.coremod |= 3<<COREMOD_HFRAME_BIT
-		default: if mod.wdiff>0 {
-			fmt.Printf("%s: unsupported black frame of %d pixels around the image\nDefine one explicitly in the TOML file.\n",
-				machine.Name,mod.wdiff)
+		case 8:  mod.coremod |= 1<<COREMOD_FRAME_BIT
+		case 16: mod.coremod |= 3<<COREMOD_FRAME_BIT
+		default:
+			fmt.Printf("%s: unsupported %s black frame of %d pixels/lines per side\nDefine one explicitly in the TOML file.\n",
+				machine.Name,axis,frame)
 		}
-	}
 }
 
 func (mod *coreMOD)encode_volume_cfg(machine *MachineXML, cfg Mame2MRA) {
@@ -191,8 +193,8 @@ func (mod *coreMOD)get_volume() int {
 	return int(masked)
 }
 
-func (mod *coreMOD)get_hframe() int {
-	frame  := mod.coremod>>COREMOD_HFRAME_BIT
+func (mod *coreMOD)get_frame() int {
+	frame  := mod.coremod>>COREMOD_FRAME_BIT
 	masked := frame & 3
 	return int(masked)
 }

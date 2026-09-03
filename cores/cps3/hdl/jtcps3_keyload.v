@@ -13,7 +13,8 @@ module jtcps3_keyload(
 `endif
     output reg  [31:0]  cps3_key1,
     output reg  [31:0]  cps3_key2,
-    output reg  [ 2:0]  cps3_crypt_mode
+    output reg  [ 2:0]  cps3_crypt_mode,
+    output reg          cps3_region_redearth
 );
 
 localparam [2:0] CPS3_CRYPT_ALT    = 3'b001,
@@ -50,9 +51,10 @@ reg [3:0] addr_l;
 reg [7:0] data_l;
 
 initial begin
-    cps3_key1       = 32'd0;
-    cps3_key2       = 32'd0;
-    cps3_crypt_mode = CPS3_CRYPT_NONE;
+    cps3_key1             = 32'd0;
+    cps3_key2             = 32'd0;
+    cps3_crypt_mode       = CPS3_CRYPT_NONE;
+    cps3_region_redearth = 1'b0;
 end
 
 always @(posedge clk) begin
@@ -78,6 +80,7 @@ always @(posedge clk) begin
             4'h6: cps3_key2[15: 8] <= data_l;
             4'h7: cps3_key2[ 7: 0] <= data_l;
             4'h8: cps3_crypt_mode  <= data_l[2:0];
+            4'h9: cps3_region_redearth <= data_l[0];
             default:;
         endcase
     end
