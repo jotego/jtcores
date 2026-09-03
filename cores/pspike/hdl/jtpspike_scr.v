@@ -42,6 +42,7 @@ module jtpspike_scr(
     input               noraster,   // karatblz: both layers scroll from registers
     input      [ 8:0]   xbias,      // per game, per layer constant
     input      [ 8:0]   ybias,      // per game scroll Y bias
+    input      [ 8:0]   xflip,      // extra scroll X applied only when flipped
     input               layer,      // 0 or 1, selects the gfx bank group
     input      [31:0]   gfxbank,    // eight 4-bit banks
     input      [ 2:0]   charbank,
@@ -126,7 +127,7 @@ assign scry_base= (two & ~noraster) ? scry + ybias : scry;
 // The correction is twice the layer's horizontal origin: mirroring turns a
 // +origin into a -origin. The pipeline lead is NOT part of it - it is a fixed
 // delay applied after the mirror, so it cancels either way
-assign scrx_eff = flip ? scrx_base + hsize + {visx[7:0],1'b0} : scrx_base;
+assign scrx_eff = flip ? scrx_base + hsize + {visx[7:0],1'b0} + xflip : scrx_base;
 assign scry_eff = flip ? scry_base + vsize : scry_base;
 assign rom_addr = { 1'd0, tile_addr };
 

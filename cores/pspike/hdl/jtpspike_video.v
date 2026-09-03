@@ -120,21 +120,23 @@ wire [14:0] cmask1 = karatblz ? 15'h1fff : 15'h0fff;
 // its VIDEO_START adds set_scrolldx(1,1). MAME folds that in as
 // effective = m_dx - rowscroll, so the dx ADDS to the bias: 12 / 8, not 10 / 6. The sprite chip's own x offset comes from
 // vsystem_spr2 set_offsets, which ONLY aerofgtb sets, to (3,-1).
-// 11, not 10: at 10 the first pixel of each scanline has no fetched tile data
-// and layer 1 shows a dead column there. Costs a 1 px shift of the scrolling
-// content, which is preferred to the dead column.
-// Revert to 10 to shift the picture back one line to the RIGHT
-localparam [8:0] P_SCR = 9'd11,   // tilemap fetch pipeline
+// At 11 the first pixel of each scanline gets fetched tile data, but the whole
+// picture moves one line. 10 keeps the original alignment
+localparam [8:0] P_SCR = 9'd10,   // tilemap fetch pipeline
                  P_OBJ = 9'd1;    // sprite line-buffer readout
 wire [8:0] visx     = karatblz ? 9'd8 : aerofgt ? 9'd12 : turbofrc ? 9'd0 : 9'd4;
 wire [8:0] xoffs    = aerofgt ? 9'd3 : 9'd0;          // MAME set_offsets x
 wire [8:0] hoff_scr = visx + P_SCR;
 wire [8:0] xb0      = karatblz ? 9'd8 : aerofgt ? 9'd12 : 9'd11;
 wire [8:0] xb1      = karatblz ? 9'd4 : aerofgt ? 9'd8  : 9'd7;
-// MAME adds 2 to both layers' scroll Y for the turbofrc-class games. On
-// turbofrc that leaves layer 1 at -1, which pulls the map's unmaintained
-// bottom row into the first visible line. 3 lands it on row 0
-wire [8:0] yb       = turbofrc ? 9'd3 : 9'd2;
+// MAME adds 2 to both layers' scroll Y for the turbofrc-class games. Flipped,
+// the game writes the compensation itself (scry0 0 instead of -2), so adding 2
+// again walks two lines past the end of the map, which stops at row 29
+wire [8:0] yb       = flip ? 9'd0 : 9'd2;
+// Flipped, the game writes its own compensated scroll values, so each layer
+// needs its own extra X term on top of the mirror. Layer 1 still unmeasured
+wire [8:0] xf0      = -9'd185, xf1 = -9'd193;
+wire [8:0] xfo      = -9'd17;  // sprites, flipped only
 wire [8:0] obj_yoffs= aerofgt ? 9'h1ff : 9'd0;        // MAME set_offsets y = -1
 wire [8:0] hoff_obj = visx + P_OBJ - xoffs;
 
@@ -189,26 +191,13 @@ wire [10:0] kb_pxl = o1_op ? o1_idx :
                      o0_op ? o0_idx :
                      s1_op ? { 1'b0, 2'b01, scr1_pxl[7:0] } :
                              { 1'b0, 2'b00, scr_pxl[7:0] };
-// Layer isolation for debugging. The transparent pen is painted cyan so the
-// tile and sprite edges are visible instead of blending into the backdrop
-wire transp;
 `ifdef SIM_ONLY_SCR0
-assign pxl    = { 1'b0, 2'b00, scr_pxl[7:0] };
-assign transp = &scr_pxl[3:0];
+assign pxl = { 1'b0, 2'b00, scr_pxl[7:0] };
 `elsif SIM_ONLY_SCR1
-assign pxl    = { 1'b0, 2'b01, scr1_pxl[7:0] };
-assign transp = ~s1_op;
-`elsif SIM_ONLY_OBJ0
-assign pxl    = o0_idx;
-assign transp = ~o0_op;
-`elsif SIM_ONLY_OBJ1
-assign pxl    = o1_idx;
-assign transp = ~o1_op;
+assign pxl = s1_op ? { 1'b0, 2'b01, scr1_pxl[7:0] } : 11'd0;
 `elsif SIM_ONLY_OBJ
-assign pxl    = o1_op ? o1_idx : o0_op ? o0_idx : 11'd0;
-assign transp = ~(o0_op | o1_op);
+assign pxl = o1_op ? o1_idx : o0_op ? o0_idx : 11'd0;
 `else
-assign transp = 1'b0;
 assign pxl = karatblz ? kb_pxl :
              !two ? ( o0_op ? { 1'b1, obj_pxl[9:0] } : { 1'b0, scr_pxl } ) :
              ( o1_op & obj1_pxl[10] ) ? o1_idx :
@@ -256,6 +245,7 @@ jtpspike_scr u_scr(
     .kb         ( karatblz  ),
     .noraster   ( karatblz  ),
     .xbias      ( xb0       ),
+    .xflip      ( xf0       ),
     .layer      ( 1'b0      ),
     .gfxbank    ( gfxbank   ),
     .charbank   ( charbank  ),
@@ -290,6 +280,7 @@ jtpspike_scr u_scr1(
     .kb         ( karatblz  ),
     .noraster   ( karatblz  ),
     .xbias      ( xb1       ),
+    .xflip      ( xf1       ),
     .layer      ( 1'b1      ),
     .gfxbank    ( gfxbank   ),
     .charbank   ( 3'd0      ),
@@ -321,6 +312,7 @@ jtpspike_obj u_obj(
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
     .xorg       ( visx-xoffs),
+    .xflip      ( xfo       ),
     .xoffs      ( 9'd0      ),
     .yoffs      ( obj_yoffs ),
     .en         ( gfx_en[2] ),
@@ -352,6 +344,7 @@ jtpspike_obj u_obj1(
     .hsize      ( hsize     ),
     .vsize      ( vsize     ),
     .xorg       ( visx-xoffs),
+    .xflip      ( xfo       ),
     .xoffs      ( 9'd0      ),
     .yoffs      ( obj_yoffs ),
     .objbank    ( objbank   ),
@@ -381,7 +374,6 @@ jtpspike_colmix u_colmix(
     .LHBL       ( lhbl_gate ),
     .LVBL       ( LVBL      ),
     .pxl        ( pxl       ),
-    .transp     ( transp    ),
     .mix_addr   ( mix_addr  ),
     .mix_pal    ( mix_pal   ),
     .red        ( red       ),
