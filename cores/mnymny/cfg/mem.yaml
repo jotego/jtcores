@@ -1,0 +1,89 @@
+params:
+  - { name: SPEECH_OFFSET, value: "(`SPEECH_START-`JTFRAME_BA1_START) >> 1" }
+clocks:
+  clk48:
+    - mul: 1
+      div: 16
+      gate: [ main ]
+      outputs:
+        - cpu        # 3.072 MHz = 18.432/6 (Z80)
+    - freq: 3579545
+      gate: [ melody, speech ]
+      outputs:
+        - mcpu       # 3.5795 MHz (jt680x cen = 4x the 6802 E clock)
+        - psg        # 1.7898 MHz (2x AY-3-8910)
+    - freq: 649200
+      outputs:
+        - tms        # TMS5200 RC oscillator
+sdram:
+  banks:
+    - buses:
+        - name: main
+          addr_width: 16
+          data_width: 8
+
+    - buses:
+        - name: melody
+          addr_width: 14
+          data_width: 8
+        - name: speech
+          addr_width: 14
+          data_width: 8
+          offset: SPEECH_OFFSET
+
+    - buses:
+        - name: scr          # 8x8x3 tiles, 3 planes interleaved in a 32-bit word
+          addr_width: 15
+          data_width: 32
+        - name: objgfx       # 16x16x3 sprites from the same ROM region
+          addr_width: 15
+          data_width: 32
+
+bram:
+  # I/O board work RAM: 2A/2B + 2C/2D (battery-backed half)
+  - name: wram
+    addr_width: 11
+    data_width: 8
+    rw: true
+    ioctl: { save: true, order: 0 }
+
+  # video board tile RAM (2A/2B/2C 2114)
+  - name: vram
+    addr_width: 11
+    data_width: 8
+    rw: true
+    dual_port:
+      name: vram_v
+      dout: vram_v_dout
+      rw:   false
+
+  # attribute RAM 6800-683F (column scroll + column colour)
+  - name: attr
+    addr_width: 6
+    data_width: 8
+    rw: true
+    dual_port:
+      name: attr_v
+      dout: attr_v_dout
+      rw:   false
+
+  # object RAM page 6800-68FF (1L/1M 2114)
+  - name: objram
+    addr_width: 8
+    data_width: 8
+    rw: true
+    dual_port:
+      name: objram_v
+      dout: objram_v_dout
+      rw:   false
+
+  # palette PROMs (82S131). 9G loads first in the MAME region
+  - name: pal9g
+    addr_width: 9
+    data_width: 4
+    prom: true
+
+  - name: pal9f
+    addr_width: 9
+    data_width: 4
+    prom: true

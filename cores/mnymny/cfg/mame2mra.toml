@@ -1,0 +1,32 @@
+[parse]
+sourcefile=[ "zaccaria.cpp" ]
+
+[buttons]
+names=[ { names="Shoot,-" } ]
+
+[dipsw]
+# three 8-bit banks; force base bits so DSW.2 does not fall past bit 31
+offset=[
+    { name="DSW.0", value=0  },
+    { name="DSW.1", value=8  },
+    { name="DSW.2", value=16 },
+]
+delete=[ { names=["Unused","Unknown"] } ]
+rename=[ { name="Table Title", to="Title", values=["Todays","All time"] } ]
+
+[ROM]
+regions = [
+    # 6x8KB, file-linear; the core maps Z80 A15 to ROM A12 (see jtmnymny_main)
+    { name="maincpu", no_offset=true },
+    # audio board ROMs live on the module; region offsets (8000/C000, 2000/3000)
+    # are socket decode, the core uses packed files
+    { name="audiopcb:melodycpu", rename="melody", start="JTFRAME_BA1_START", no_offset=true },
+    { name="audiopcb:audiocpu",  rename="speech", start="SPEECH_START",      no_offset=true },
+    # 3 bitplanes into 32-bit words; 4th lane = duplicated last file, unused
+    { name="gfx1", rename="gfx", start="JTFRAME_BA2_START", frac={ bytes=1, parts=4 } },
+    # 9g (R + G lsb) then 9f (G msbs + B), matching the pal9g/pal9f BRAM order
+    { name="proms", start="JTFRAME_PROM_START" },
+    { name="proms2", skip=true },   # 82S100 object PLAs, undumped
+    { name="plds",   skip=true },   # protection PAL is jtmnymny_prot.v
+]
+order = [ "maincpu", "melody", "speech", "gfx", "proms" ]

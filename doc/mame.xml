@@ -251796,4 +251796,1293 @@
 		<description>Gaelco CG1V</description>
 		<sound channels="0"/>
 	</machine>
+	<machine name="jackrabt" sourcefile="zaccaria/zaccaria.cpp">
+		<description>Jack Rabbit (set 1)</description>
+		<year>1984</year>
+		<manufacturer>Zaccaria</manufacturer>
+		<rom name="cpu-01.1a" size="8192" crc="499efe97" sha1="f0efc910a5343001b27637779e1d4de218d44a4e" region="maincpu" offset="0"/>
+		<rom name="cpu-01.2l" size="4096" crc="4772e557" sha1="71c1eb49c978799294e732e65a77eba330d8da9b" region="maincpu" offset="1000"/>
+		<rom name="cpu-01.3l" size="4096" crc="1e844228" sha1="0525fe95a0f90c50b54c0bf618eb083ccf20e6c4" region="maincpu" offset="2000"/>
+		<rom name="cpu-01.4l" size="4096" crc="ebffcc38" sha1="abaf0e96d92f9c828a95446af6d5301053416f3d" region="maincpu" offset="3000"/>
+		<rom name="cpu-01.5l" size="4096" crc="275e0ed6" sha1="c0789007a4de1aa848b7e5d26cf9fe847cc5d8a4" region="maincpu" offset="4000"/>
+		<rom name="cpu-01.6l" size="4096" crc="8a20977a" sha1="ba15f4c62f600372390e56c2067b4a8ab1f2dba9" region="maincpu" offset="5000"/>
+		<rom name="cpu-01.2h" size="4096" crc="21f2be2a" sha1="7d10489ca7325eebfa309ae4ffd4962a4310c403" region="maincpu" offset="9000"/>
+		<rom name="cpu-01.3h" size="4096" crc="59077027" sha1="d6c2e68b4b2f1dce8a2141ec259812e732c1c69c" region="maincpu" offset="a000"/>
+		<rom name="cpu-01.4h" size="4096" crc="0b9db007" sha1="836f8cacf2a097fd80d5c045bdc49b3a3174b89e" region="maincpu" offset="b000"/>
+		<rom name="cpu-01.5h" size="4096" crc="785e1a01" sha1="a748d300be9455cad4f912e01c2279bb8465edfe" region="maincpu" offset="c000"/>
+		<rom name="cpu-01.6h" size="4096" crc="dd5979cf" sha1="e9afe7002b2258a1c3132bdd951c6e20d473fb6a" region="maincpu" offset="d000"/>
+		<rom name="13snd.2g" size="8192" crc="fc05654e" sha1="ed9c66672fe89c41e320e1d27b53f5efa92dce9c" region="audiopcb:melodycpu" offset="8000"/>
+		<rom name="9snd.1i" size="8192" crc="3dab977f" sha1="3e79c06d2e70b050f01b7ac58be5127ba87904b0" region="audiopcb:melodycpu" offset="c000"/>
+		<rom name="8snd.1h" size="8192" crc="f4507111" sha1="0513f0831b94aeda84aa4f3b4a7c60dfc5113b2d" region="audiopcb:audiocpu" offset="2000"/>
+		<rom name="7snd.1g" size="8192" crc="c722eff8" sha1="d8d1c091ab80ea2d6616e4dc030adc9905c0a496" region="audiopcb:audiocpu" offset="3000"/>
+		<rom name="1bg.2d" size="8192" crc="9f880ef5" sha1="0ee20fb7c794f6dafdaf2c9ee8456221c9d668c5" region="gfx1" offset="0"/>
+		<rom name="2bg.1f" size="8192" crc="afc04cd7" sha1="f4349e86b9caee71c9bf9faf68b86603417d9a2b" region="gfx1" offset="2000"/>
+		<rom name="3bg.1e" size="8192" crc="14f23cdd" sha1="e5f3dac52288c56f2fd2940b397bb6c896131a26" region="gfx1" offset="4000"/>
+		<rom name="jr-ic9g" size="512" crc="85577107" sha1="76575fa68b66130b18dfe7374d1a03740963cc73" region="proms" offset="0"/>
+		<rom name="jr-ic9f" size="512" crc="085914d1" sha1="3d6f9318f5a9f08ce89e4184e3efb9881f671fa7" region="proms" offset="200"/>
+		<rom name="jr-pal16l8.6j" size="260" status="nodump" region="plds" offset="0"/>
+		<rom name="jr-pal16l8.6k" size="260" status="nodump" region="plds" offset="200"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":mainlatch" name="ls259"/>
+		<device_ref tag=":ppi8255" name="i8255"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":audiopcb" name="zac1b11142"/>
+		<device_ref tag=":audiopcb:melodycpu" name="m6802"/>
+		<device_ref tag=":audiopcb:timebase" name="clock"/>
+		<device_ref tag=":audiopcb:melodypia" name="pia6821"/>
+		<device_ref tag=":audiopcb:melodypsg1" name="ay8910"/>
+		<device_ref tag=":audiopcb:melodypsg2" name="ay8910"/>
+		<device_ref tag=":audiopcb:audiocpu" name="m6802"/>
+		<device_ref tag=":audiopcb:pia_1i" name="pia6821"/>
+		<device_ref tag=":audiopcb:dac" name="mc1408"/>
+		<device_ref tag=":audiopcb:speech" name="tms5200"/>
+		<device_ref tag=":audiopcb:sound_nl" name="netlist_sound"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa0" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa1" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa2" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa3" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa4" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:level" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:levelt" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:sw1" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin0" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin1" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin2" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin3" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin4" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin5" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin6" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin7" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cout0" name="nl_stream_out"/>
+		<device_ref tag=":audiopcb:sound_nl:pot1" name="nl_analog_in"/>
+		<device_ref tag=":audiopcb:sound_nl:pot2" name="nl_analog_in"/>
+		<device_ref tag=":audiopcb:sound_nl:pot3" name="nl_analog_in"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="audiopcb:melodycpu" name="Motorola MC6802" clock="3579545"/>
+		<chip type="cpu" tag="audiopcb:audiocpu" name="Motorola MC6802" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="audiopcb" name="Zaccaria 1B11142 Sound Board"/>
+		<chip type="audio" tag="audiopcb:melodypsg1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="audiopcb:melodypsg2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="audiopcb:dac" name="MC1408 DAC"/>
+		<chip type="audio" tag="audiopcb:speech" name="TMS5200" clock="649200"/>
+		<chip type="audio" tag="audiopcb:sound_nl" name="Netlist Sound Device"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="3" service="yes" tilt="yes">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW.0" mask="3">
+			<diplocation name="SW 5I" number="1"/>
+			<diplocation name="SW 5I" number="2"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="3"/>
+		</dipswitch>
+		<dipswitch name="Infinite Lives (Cheat)" tag="DSW.0" mask="4">
+			<diplocation name="SW 5I" number="3"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="4"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.0" mask="8">
+			<diplocation name="SW 5I" number="4"/>
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW.0" mask="16">
+			<diplocation name="SW 5I" number="5"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="16"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSW.0" mask="32">
+			<diplocation name="SW 5I" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="32"/>
+		</dipswitch>
+		<dipswitch name="Cross Hatch Pattern" tag="DSW.0" mask="64">
+			<diplocation name="SW 5I" number="7"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.0" mask="128">
+			<diplocation name="SW 5I" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="1">
+			<diplocation name="SW 4I" number="1"/>
+			<dipvalue name="Off" value="1"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="2">
+			<diplocation name="SW 4I" number="2"/>
+			<dipvalue name="Off" value="2"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Table Title" tag="DSW.1" mask="4">
+			<diplocation name="SW 4I" number="3"/>
+			<dipvalue name="Todays High Scores" value="0" default="yes"/>
+			<dipvalue name="High Scores" value="4"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="8">
+			<diplocation name="SW 4I" number="4"/>
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="16">
+			<diplocation name="SW 4I" number="5"/>
+			<dipvalue name="Off" value="16"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="32">
+			<diplocation name="SW 4I" number="6"/>
+			<dipvalue name="Off" value="32"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="64">
+			<diplocation name="SW 4I" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW.1" mask="128">
+			<diplocation name="SW 4I" number="8"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW.2" mask="3">
+			<diplocation name="SW 3I" number="1"/>
+			<diplocation name="SW 3I" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="3"/>
+			<dipvalue name="1 Coin/1 Credit" value="2" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="1 Coin/3 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW.2" mask="140">
+			<diplocation name="SW 3I" number="3"/>
+			<diplocation name="SW 3I" number="4"/>
+			<diplocation name="SW 3I" number="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="140"/>
+			<dipvalue name="2 Coins/1 Credit" value="136"/>
+			<dipvalue name="1 Coin/1 Credit" value="132" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+			<dipvalue name="1 Coin/3 Credits" value="12"/>
+			<dipvalue name="1 Coin/4 Credits" value="8"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin C" tag="DSW.2" mask="112">
+			<diplocation name="SW 3I" number="6"/>
+			<diplocation name="SW 3I" number="7"/>
+			<diplocation name="SW 3I" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="112"/>
+			<dipvalue name="2 Coins/1 Credit" value="96"/>
+			<dipvalue name="1 Coin/1 Credit" value="80" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="64"/>
+			<dipvalue name="1 Coin/3 Credits" value="48"/>
+			<dipvalue name="1 Coin/4 Credits" value="32"/>
+			<dipvalue name="1 Coin/5 Credits" value="16"/>
+			<dipvalue name="1 Coin/7 Credits" value="0"/>
+		</dipswitch>
+		<port tag=":COINS">
+		</port>
+		<port tag=":DSW.0">
+		</port>
+		<port tag=":DSW.1">
+		</port>
+		<port tag=":DSW.2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<port tag=":audiopcb:1B11142">
+		</port>
+		<port tag=":audiopcb:VP1">
+		</port>
+		<port tag=":audiopcb:VP2">
+		</port>
+		<port tag=":audiopcb:VP3">
+		</port>
+		<adjuster name="VP1 - Music volume" default="50"/>
+		<adjuster name="VP2 - Speech volume" default="50"/>
+		<adjuster name="VP3 - DAC volume" default="50"/>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
+	<machine name="jackrabt2" sourcefile="zaccaria/zaccaria.cpp" cloneof="jackrabt" romof="jackrabt">
+		<description>Jack Rabbit (set 2)</description>
+		<year>1984</year>
+		<manufacturer>Zaccaria</manufacturer>
+		<rom name="1cpu2.1a" size="8192" crc="f9374113" sha1="521f293f1894bcaf21e44bc7841a20ae29232da3" region="maincpu" offset="0"/>
+		<rom name="2cpu2.1b" size="8192" crc="0a0eea4a" sha1="4dfd9b2511d480bb5cc918f7d91013205911d377" region="maincpu" offset="1000"/>
+		<rom name="3cpu2.1c" size="8192" crc="291f5772" sha1="958c2601d43de3c95ed5e3d79737199703263a6a" region="maincpu" offset="2000"/>
+		<rom name="4cpu2.1d" size="8192" crc="10972cfb" sha1="30dd473b3416ee37f887d930ba0017b5b694398e" region="maincpu" offset="3000"/>
+		<rom name="5cpu2.2a" size="8192" crc="aa95d06d" sha1="2216effe6cacd02a5320e71a85842087dda5f85a" region="maincpu" offset="4000"/>
+		<rom name="6cpu2.2c" size="8192" crc="404496eb" sha1="44381e27e540fe9d8cacab4c3b1fe9a4f20d26a8" region="maincpu" offset="5000"/>
+		<rom name="13snd.2g" merge="13snd.2g" size="8192" crc="fc05654e" sha1="ed9c66672fe89c41e320e1d27b53f5efa92dce9c" region="audiopcb:melodycpu" offset="8000"/>
+		<rom name="9snd.1i" merge="9snd.1i" size="8192" crc="3dab977f" sha1="3e79c06d2e70b050f01b7ac58be5127ba87904b0" region="audiopcb:melodycpu" offset="c000"/>
+		<rom name="8snd.1h" merge="8snd.1h" size="8192" crc="f4507111" sha1="0513f0831b94aeda84aa4f3b4a7c60dfc5113b2d" region="audiopcb:audiocpu" offset="2000"/>
+		<rom name="7snd.1g" merge="7snd.1g" size="8192" crc="c722eff8" sha1="d8d1c091ab80ea2d6616e4dc030adc9905c0a496" region="audiopcb:audiocpu" offset="3000"/>
+		<rom name="1bg.2d" merge="1bg.2d" size="8192" crc="9f880ef5" sha1="0ee20fb7c794f6dafdaf2c9ee8456221c9d668c5" region="gfx1" offset="0"/>
+		<rom name="2bg.1f" merge="2bg.1f" size="8192" crc="afc04cd7" sha1="f4349e86b9caee71c9bf9faf68b86603417d9a2b" region="gfx1" offset="2000"/>
+		<rom name="3bg.1e" merge="3bg.1e" size="8192" crc="14f23cdd" sha1="e5f3dac52288c56f2fd2940b397bb6c896131a26" region="gfx1" offset="4000"/>
+		<rom name="jr-ic9g" merge="jr-ic9g" size="512" crc="85577107" sha1="76575fa68b66130b18dfe7374d1a03740963cc73" region="proms" offset="0"/>
+		<rom name="jr-ic9f" merge="jr-ic9f" size="512" crc="085914d1" sha1="3d6f9318f5a9f08ce89e4184e3efb9881f671fa7" region="proms" offset="200"/>
+		<rom name="pal16l8.6j" size="260" crc="a88e52d6" sha1="32efecb91843d5d1bdace86cbcc94ebacf1b9389" region="plds" offset="0"/>
+		<rom name="pal16l8.6k" size="260" status="nodump" region="plds" offset="200"/>
+		<rom name="82s100.8c" size="245" crc="70ddfa6d" sha1="904347cc63e88413c393f14b5f1260a57ab72677" region="plds" offset="400"/>
+		<rom name="82s100.8n" size="245" crc="e00625ee" sha1="88bbd020be67355dc0eb58b79f7deb77cbe505bb" region="plds" offset="500"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":mainlatch" name="ls259"/>
+		<device_ref tag=":ppi8255" name="i8255"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":audiopcb" name="zac1b11142"/>
+		<device_ref tag=":audiopcb:melodycpu" name="m6802"/>
+		<device_ref tag=":audiopcb:timebase" name="clock"/>
+		<device_ref tag=":audiopcb:melodypia" name="pia6821"/>
+		<device_ref tag=":audiopcb:melodypsg1" name="ay8910"/>
+		<device_ref tag=":audiopcb:melodypsg2" name="ay8910"/>
+		<device_ref tag=":audiopcb:audiocpu" name="m6802"/>
+		<device_ref tag=":audiopcb:pia_1i" name="pia6821"/>
+		<device_ref tag=":audiopcb:dac" name="mc1408"/>
+		<device_ref tag=":audiopcb:speech" name="tms5200"/>
+		<device_ref tag=":audiopcb:sound_nl" name="netlist_sound"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa0" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa1" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa2" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa3" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa4" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:level" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:levelt" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:sw1" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin0" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin1" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin2" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin3" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin4" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin5" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin6" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin7" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cout0" name="nl_stream_out"/>
+		<device_ref tag=":audiopcb:sound_nl:pot1" name="nl_analog_in"/>
+		<device_ref tag=":audiopcb:sound_nl:pot2" name="nl_analog_in"/>
+		<device_ref tag=":audiopcb:sound_nl:pot3" name="nl_analog_in"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="audiopcb:melodycpu" name="Motorola MC6802" clock="3579545"/>
+		<chip type="cpu" tag="audiopcb:audiocpu" name="Motorola MC6802" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="audiopcb" name="Zaccaria 1B11142 Sound Board"/>
+		<chip type="audio" tag="audiopcb:melodypsg1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="audiopcb:melodypsg2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="audiopcb:dac" name="MC1408 DAC"/>
+		<chip type="audio" tag="audiopcb:speech" name="TMS5200" clock="649200"/>
+		<chip type="audio" tag="audiopcb:sound_nl" name="Netlist Sound Device"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="3" service="yes" tilt="yes">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW.0" mask="3">
+			<diplocation name="SW 5I" number="1"/>
+			<diplocation name="SW 5I" number="2"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="3"/>
+		</dipswitch>
+		<dipswitch name="Infinite Lives (Cheat)" tag="DSW.0" mask="4">
+			<diplocation name="SW 5I" number="3"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="4"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.0" mask="8">
+			<diplocation name="SW 5I" number="4"/>
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW.0" mask="16">
+			<diplocation name="SW 5I" number="5"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="16"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSW.0" mask="32">
+			<diplocation name="SW 5I" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="32"/>
+		</dipswitch>
+		<dipswitch name="Cross Hatch Pattern" tag="DSW.0" mask="64">
+			<diplocation name="SW 5I" number="7"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.0" mask="128">
+			<diplocation name="SW 5I" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="1">
+			<diplocation name="SW 4I" number="1"/>
+			<dipvalue name="Off" value="1"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="2">
+			<diplocation name="SW 4I" number="2"/>
+			<dipvalue name="Off" value="2"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Table Title" tag="DSW.1" mask="4">
+			<diplocation name="SW 4I" number="3"/>
+			<dipvalue name="Todays High Scores" value="0" default="yes"/>
+			<dipvalue name="High Scores" value="4"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="8">
+			<diplocation name="SW 4I" number="4"/>
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="16">
+			<diplocation name="SW 4I" number="5"/>
+			<dipvalue name="Off" value="16"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="32">
+			<diplocation name="SW 4I" number="6"/>
+			<dipvalue name="Off" value="32"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="64">
+			<diplocation name="SW 4I" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW.1" mask="128">
+			<diplocation name="SW 4I" number="8"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW.2" mask="3">
+			<diplocation name="SW 3I" number="1"/>
+			<diplocation name="SW 3I" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="3"/>
+			<dipvalue name="1 Coin/1 Credit" value="2" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="1 Coin/3 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW.2" mask="140">
+			<diplocation name="SW 3I" number="3"/>
+			<diplocation name="SW 3I" number="4"/>
+			<diplocation name="SW 3I" number="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="140"/>
+			<dipvalue name="2 Coins/1 Credit" value="136"/>
+			<dipvalue name="1 Coin/1 Credit" value="132" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+			<dipvalue name="1 Coin/3 Credits" value="12"/>
+			<dipvalue name="1 Coin/4 Credits" value="8"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin C" tag="DSW.2" mask="112">
+			<diplocation name="SW 3I" number="6"/>
+			<diplocation name="SW 3I" number="7"/>
+			<diplocation name="SW 3I" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="112"/>
+			<dipvalue name="2 Coins/1 Credit" value="96"/>
+			<dipvalue name="1 Coin/1 Credit" value="80" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="64"/>
+			<dipvalue name="1 Coin/3 Credits" value="48"/>
+			<dipvalue name="1 Coin/4 Credits" value="32"/>
+			<dipvalue name="1 Coin/5 Credits" value="16"/>
+			<dipvalue name="1 Coin/7 Credits" value="0"/>
+		</dipswitch>
+		<port tag=":COINS">
+		</port>
+		<port tag=":DSW.0">
+		</port>
+		<port tag=":DSW.1">
+		</port>
+		<port tag=":DSW.2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<port tag=":audiopcb:1B11142">
+		</port>
+		<port tag=":audiopcb:VP1">
+		</port>
+		<port tag=":audiopcb:VP2">
+		</port>
+		<port tag=":audiopcb:VP3">
+		</port>
+		<adjuster name="VP1 - Music volume" default="50"/>
+		<adjuster name="VP2 - Speech volume" default="50"/>
+		<adjuster name="VP3 - DAC volume" default="50"/>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
+	<machine name="jackrabts" sourcefile="zaccaria/zaccaria.cpp" cloneof="jackrabt" romof="jackrabt">
+		<description>Jack Rabbit (special)</description>
+		<year>1984</year>
+		<manufacturer>Zaccaria</manufacturer>
+		<rom name="1cpu.1a" size="8192" crc="6698dc65" sha1="33e3518846e88dc34f4b6c4e9ca9f8999c0460c8" region="maincpu" offset="0"/>
+		<rom name="2cpu.1b" size="8192" crc="42b32929" sha1="5b400d434ce903c74f58780a422a8c2594af90be" region="maincpu" offset="1000"/>
+		<rom name="3cpu.1c" size="8192" crc="89b50c9a" sha1="5ab56247de013b5196c1c5765ead4361a5df53e0" region="maincpu" offset="2000"/>
+		<rom name="4cpu.1d" size="8192" crc="d5520665" sha1="69b34d87d50e6d6e8d365ba0479405380ba3cf11" region="maincpu" offset="3000"/>
+		<rom name="5cpu.2a" size="8192" crc="0f9a093c" sha1="7fba0d2b8d5d4d1597decec96ed93b997c721d99" region="maincpu" offset="4000"/>
+		<rom name="6cpu.2c" size="8192" crc="f53d6356" sha1="9b167edca59cf81a2468368a372bab132f15e2ea" region="maincpu" offset="5000"/>
+		<rom name="13snd.2g" merge="13snd.2g" size="8192" crc="fc05654e" sha1="ed9c66672fe89c41e320e1d27b53f5efa92dce9c" region="audiopcb:melodycpu" offset="8000"/>
+		<rom name="9snd.1i" merge="9snd.1i" size="8192" crc="3dab977f" sha1="3e79c06d2e70b050f01b7ac58be5127ba87904b0" region="audiopcb:melodycpu" offset="c000"/>
+		<rom name="8snd.1h" merge="8snd.1h" size="8192" crc="f4507111" sha1="0513f0831b94aeda84aa4f3b4a7c60dfc5113b2d" region="audiopcb:audiocpu" offset="2000"/>
+		<rom name="7snd.1g" merge="7snd.1g" size="8192" crc="c722eff8" sha1="d8d1c091ab80ea2d6616e4dc030adc9905c0a496" region="audiopcb:audiocpu" offset="3000"/>
+		<rom name="1bg.2d" merge="1bg.2d" size="8192" crc="9f880ef5" sha1="0ee20fb7c794f6dafdaf2c9ee8456221c9d668c5" region="gfx1" offset="0"/>
+		<rom name="2bg.1f" merge="2bg.1f" size="8192" crc="afc04cd7" sha1="f4349e86b9caee71c9bf9faf68b86603417d9a2b" region="gfx1" offset="2000"/>
+		<rom name="3bg.1e" merge="3bg.1e" size="8192" crc="14f23cdd" sha1="e5f3dac52288c56f2fd2940b397bb6c896131a26" region="gfx1" offset="4000"/>
+		<rom name="jr-ic9g" merge="jr-ic9g" size="512" crc="85577107" sha1="76575fa68b66130b18dfe7374d1a03740963cc73" region="proms" offset="0"/>
+		<rom name="jr-ic9f" merge="jr-ic9f" size="512" crc="085914d1" sha1="3d6f9318f5a9f08ce89e4184e3efb9881f671fa7" region="proms" offset="200"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":mainlatch" name="ls259"/>
+		<device_ref tag=":ppi8255" name="i8255"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":audiopcb" name="zac1b11142"/>
+		<device_ref tag=":audiopcb:melodycpu" name="m6802"/>
+		<device_ref tag=":audiopcb:timebase" name="clock"/>
+		<device_ref tag=":audiopcb:melodypia" name="pia6821"/>
+		<device_ref tag=":audiopcb:melodypsg1" name="ay8910"/>
+		<device_ref tag=":audiopcb:melodypsg2" name="ay8910"/>
+		<device_ref tag=":audiopcb:audiocpu" name="m6802"/>
+		<device_ref tag=":audiopcb:pia_1i" name="pia6821"/>
+		<device_ref tag=":audiopcb:dac" name="mc1408"/>
+		<device_ref tag=":audiopcb:speech" name="tms5200"/>
+		<device_ref tag=":audiopcb:sound_nl" name="netlist_sound"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa0" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa1" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa2" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa3" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa4" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:level" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:levelt" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:sw1" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin0" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin1" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin2" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin3" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin4" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin5" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin6" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin7" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cout0" name="nl_stream_out"/>
+		<device_ref tag=":audiopcb:sound_nl:pot1" name="nl_analog_in"/>
+		<device_ref tag=":audiopcb:sound_nl:pot2" name="nl_analog_in"/>
+		<device_ref tag=":audiopcb:sound_nl:pot3" name="nl_analog_in"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="audiopcb:melodycpu" name="Motorola MC6802" clock="3579545"/>
+		<chip type="cpu" tag="audiopcb:audiocpu" name="Motorola MC6802" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="audiopcb" name="Zaccaria 1B11142 Sound Board"/>
+		<chip type="audio" tag="audiopcb:melodypsg1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="audiopcb:melodypsg2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="audiopcb:dac" name="MC1408 DAC"/>
+		<chip type="audio" tag="audiopcb:speech" name="TMS5200" clock="649200"/>
+		<chip type="audio" tag="audiopcb:sound_nl" name="Netlist Sound Device"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="3" service="yes" tilt="yes">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW.0" mask="3">
+			<diplocation name="SW 5I" number="1"/>
+			<diplocation name="SW 5I" number="2"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="3"/>
+		</dipswitch>
+		<dipswitch name="Infinite Lives (Cheat)" tag="DSW.0" mask="4">
+			<diplocation name="SW 5I" number="3"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="4"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.0" mask="8">
+			<diplocation name="SW 5I" number="4"/>
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW.0" mask="16">
+			<diplocation name="SW 5I" number="5"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="16"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSW.0" mask="32">
+			<diplocation name="SW 5I" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="32"/>
+		</dipswitch>
+		<dipswitch name="Cross Hatch Pattern" tag="DSW.0" mask="64">
+			<diplocation name="SW 5I" number="7"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.0" mask="128">
+			<diplocation name="SW 5I" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="1">
+			<diplocation name="SW 4I" number="1"/>
+			<dipvalue name="Off" value="1"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="2">
+			<diplocation name="SW 4I" number="2"/>
+			<dipvalue name="Off" value="2"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Table Title" tag="DSW.1" mask="4">
+			<diplocation name="SW 4I" number="3"/>
+			<dipvalue name="Todays High Scores" value="0" default="yes"/>
+			<dipvalue name="High Scores" value="4"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="8">
+			<diplocation name="SW 4I" number="4"/>
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="16">
+			<diplocation name="SW 4I" number="5"/>
+			<dipvalue name="Off" value="16"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="32">
+			<diplocation name="SW 4I" number="6"/>
+			<dipvalue name="Off" value="32"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.1" mask="64">
+			<diplocation name="SW 4I" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW.1" mask="128">
+			<diplocation name="SW 4I" number="8"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW.2" mask="3">
+			<diplocation name="SW 3I" number="1"/>
+			<diplocation name="SW 3I" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="3"/>
+			<dipvalue name="1 Coin/1 Credit" value="2" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="1 Coin/3 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW.2" mask="140">
+			<diplocation name="SW 3I" number="3"/>
+			<diplocation name="SW 3I" number="4"/>
+			<diplocation name="SW 3I" number="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="140"/>
+			<dipvalue name="2 Coins/1 Credit" value="136"/>
+			<dipvalue name="1 Coin/1 Credit" value="132" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+			<dipvalue name="1 Coin/3 Credits" value="12"/>
+			<dipvalue name="1 Coin/4 Credits" value="8"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin C" tag="DSW.2" mask="112">
+			<diplocation name="SW 3I" number="6"/>
+			<diplocation name="SW 3I" number="7"/>
+			<diplocation name="SW 3I" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="112"/>
+			<dipvalue name="2 Coins/1 Credit" value="96"/>
+			<dipvalue name="1 Coin/1 Credit" value="80" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="64"/>
+			<dipvalue name="1 Coin/3 Credits" value="48"/>
+			<dipvalue name="1 Coin/4 Credits" value="32"/>
+			<dipvalue name="1 Coin/5 Credits" value="16"/>
+			<dipvalue name="1 Coin/7 Credits" value="0"/>
+		</dipswitch>
+		<port tag=":COINS">
+		</port>
+		<port tag=":DSW.0">
+		</port>
+		<port tag=":DSW.1">
+		</port>
+		<port tag=":DSW.2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<port tag=":audiopcb:1B11142">
+		</port>
+		<port tag=":audiopcb:VP1">
+		</port>
+		<port tag=":audiopcb:VP2">
+		</port>
+		<port tag=":audiopcb:VP3">
+		</port>
+		<adjuster name="VP1 - Music volume" default="50"/>
+		<adjuster name="VP2 - Speech volume" default="50"/>
+		<adjuster name="VP3 - DAC volume" default="50"/>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
+	<machine name="monymony" sourcefile="zaccaria/zaccaria.cpp">
+		<description>Money Money (set 1)</description>
+		<year>1983</year>
+		<manufacturer>Zaccaria</manufacturer>
+		<rom name="cpu1.1a" size="8192" crc="13c227ca" sha1="be305d112917904dd130b08f6b5186e3fbcb858a" region="maincpu" offset="0"/>
+		<rom name="cpu2.1b" size="8192" crc="87372545" sha1="04618d007a93b3f6706f56b10bdf39727d7d748d" region="maincpu" offset="1000"/>
+		<rom name="cpu3.1c" size="8192" crc="6aea9c01" sha1="36a57f4dfae52d674dcf55d2b93dbacf734866b1" region="maincpu" offset="2000"/>
+		<rom name="cpu4.1d" size="8192" crc="5fdec451" sha1="0f955c907e0a61a725a951018fdf5cc321139863" region="maincpu" offset="3000"/>
+		<rom name="cpu5.2a" size="8192" crc="af830e3c" sha1="bed57c341ae3500f147efe31bcf01f81466ec1c0" region="maincpu" offset="4000"/>
+		<rom name="cpu6.2c" size="8192" crc="31da62b1" sha1="486f07087244f8537510afacb64ddd59eb512a4d" region="maincpu" offset="5000"/>
+		<rom name="snd13.2g" size="8192" crc="78b01b98" sha1="2aabed56cdae9463deb513c0c5021f6c8dfd271e" region="audiopcb:melodycpu" offset="8000"/>
+		<rom name="snd9.1i" size="8192" crc="94e3858b" sha1="04961f67b95798b530bd83355dec612389f22255" region="audiopcb:melodycpu" offset="c000"/>
+		<rom name="snd8.1h" size="8192" crc="aad76193" sha1="e08fc184efced392ee902c4cc9daaaf3310cdfe2" region="audiopcb:audiocpu" offset="2000"/>
+		<rom name="snd7.1g" size="8192" crc="1e8ffe3e" sha1="858ee7abe88d5801237e519cae2b50ae4bf33a58" region="audiopcb:audiocpu" offset="3000"/>
+		<rom name="bg1.2d" size="8192" crc="82ab4d1a" sha1="5aaf42a508df236f2e7c844d377132d73053907b" region="gfx1" offset="0"/>
+		<rom name="bg2.1f" size="8192" crc="40d4e4d1" sha1="79cbade30f1c9269e70ddb9c4332cfe1e8dc50a9" region="gfx1" offset="2000"/>
+		<rom name="bg3.1e" size="8192" crc="36980455" sha1="4140b0cd4137c8f209124b12d9c0eb3b04f91991" region="gfx1" offset="4000"/>
+		<rom name="9g" size="512" crc="fc9a0f21" sha1="2a93d684645ee1b70315386127223151582ab370" region="proms" offset="0"/>
+		<rom name="9f" size="512" crc="93106704" sha1="d3b8281c87d253a2ed40ff400438e879ca40c2b7" region="proms" offset="200"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":mainlatch" name="ls259"/>
+		<device_ref tag=":ppi8255" name="i8255"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":audiopcb" name="zac1b11142"/>
+		<device_ref tag=":audiopcb:melodycpu" name="m6802"/>
+		<device_ref tag=":audiopcb:timebase" name="clock"/>
+		<device_ref tag=":audiopcb:melodypia" name="pia6821"/>
+		<device_ref tag=":audiopcb:melodypsg1" name="ay8910"/>
+		<device_ref tag=":audiopcb:melodypsg2" name="ay8910"/>
+		<device_ref tag=":audiopcb:audiocpu" name="m6802"/>
+		<device_ref tag=":audiopcb:pia_1i" name="pia6821"/>
+		<device_ref tag=":audiopcb:dac" name="mc1408"/>
+		<device_ref tag=":audiopcb:speech" name="tms5200"/>
+		<device_ref tag=":audiopcb:sound_nl" name="netlist_sound"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa0" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa1" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa2" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa3" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa4" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:level" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:levelt" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:sw1" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin0" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin1" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin2" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin3" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin4" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin5" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin6" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin7" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cout0" name="nl_stream_out"/>
+		<device_ref tag=":audiopcb:sound_nl:pot1" name="nl_analog_in"/>
+		<device_ref tag=":audiopcb:sound_nl:pot2" name="nl_analog_in"/>
+		<device_ref tag=":audiopcb:sound_nl:pot3" name="nl_analog_in"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="audiopcb:melodycpu" name="Motorola MC6802" clock="3579545"/>
+		<chip type="cpu" tag="audiopcb:audiocpu" name="Motorola MC6802" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="audiopcb" name="Zaccaria 1B11142 Sound Board"/>
+		<chip type="audio" tag="audiopcb:melodypsg1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="audiopcb:melodypsg2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="audiopcb:dac" name="MC1408 DAC"/>
+		<chip type="audio" tag="audiopcb:speech" name="TMS5200" clock="649200"/>
+		<chip type="audio" tag="audiopcb:sound_nl" name="Netlist Sound Device"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="3" service="yes" tilt="yes">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW.0" mask="3">
+			<diplocation name="SW 5I" number="1"/>
+			<diplocation name="SW 5I" number="2"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="3"/>
+		</dipswitch>
+		<dipswitch name="Infinite Lives (Cheat)" tag="DSW.0" mask="4">
+			<diplocation name="SW 5I" number="3"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="4"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW.0" mask="8">
+			<diplocation name="SW 5I" number="4"/>
+			<dipvalue name="Easy" value="0" default="yes"/>
+			<dipvalue name="Hard" value="8"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW.0" mask="16">
+			<diplocation name="SW 5I" number="5"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="16"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSW.0" mask="32">
+			<diplocation name="SW 5I" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="32"/>
+		</dipswitch>
+		<dipswitch name="Cross Hatch Pattern" tag="DSW.0" mask="64">
+			<diplocation name="SW 5I" number="7"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.0" mask="128">
+			<diplocation name="SW 5I" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW.1" mask="3">
+			<diplocation name="SW 4I" number="1"/>
+			<diplocation name="SW 4I" number="2"/>
+			<dipvalue name="200000" value="1" default="yes"/>
+			<dipvalue name="300000" value="2"/>
+			<dipvalue name="400000" value="3"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Table Title" tag="DSW.1" mask="4">
+			<diplocation name="SW 4I" number="3"/>
+			<dipvalue name="Todays High Scores" value="0" default="yes"/>
+			<dipvalue name="High Scores" value="4"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW.1" mask="8">
+			<diplocation name="SW 4I" number="4"/>
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW.1" mask="16">
+			<diplocation name="SW 4I" number="5"/>
+			<dipvalue name="Off" value="16"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW.1" mask="32">
+			<diplocation name="SW 4I" number="6"/>
+			<dipvalue name="Off" value="32"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW.1" mask="64">
+			<diplocation name="SW 4I" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW.1" mask="128">
+			<diplocation name="SW 4I" number="8"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW.2" mask="3">
+			<diplocation name="SW 3I" number="1"/>
+			<diplocation name="SW 3I" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="3"/>
+			<dipvalue name="1 Coin/1 Credit" value="2" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="1 Coin/3 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW.2" mask="140">
+			<diplocation name="SW 3I" number="3"/>
+			<diplocation name="SW 3I" number="4"/>
+			<diplocation name="SW 3I" number="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="140"/>
+			<dipvalue name="2 Coins/1 Credit" value="136"/>
+			<dipvalue name="1 Coin/1 Credit" value="132" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+			<dipvalue name="1 Coin/3 Credits" value="12"/>
+			<dipvalue name="1 Coin/4 Credits" value="8"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin C" tag="DSW.2" mask="112">
+			<diplocation name="SW 3I" number="6"/>
+			<diplocation name="SW 3I" number="7"/>
+			<diplocation name="SW 3I" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="112"/>
+			<dipvalue name="2 Coins/1 Credit" value="96"/>
+			<dipvalue name="1 Coin/1 Credit" value="80" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="64"/>
+			<dipvalue name="1 Coin/3 Credits" value="48"/>
+			<dipvalue name="1 Coin/4 Credits" value="32"/>
+			<dipvalue name="1 Coin/5 Credits" value="16"/>
+			<dipvalue name="1 Coin/7 Credits" value="0"/>
+		</dipswitch>
+		<port tag=":COINS">
+		</port>
+		<port tag=":DSW.0">
+		</port>
+		<port tag=":DSW.1">
+		</port>
+		<port tag=":DSW.2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<port tag=":audiopcb:1B11142">
+		</port>
+		<port tag=":audiopcb:VP1">
+		</port>
+		<port tag=":audiopcb:VP2">
+		</port>
+		<port tag=":audiopcb:VP3">
+		</port>
+		<adjuster name="VP1 - Music volume" default="50"/>
+		<adjuster name="VP2 - Speech volume" default="50"/>
+		<adjuster name="VP3 - DAC volume" default="50"/>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
+	<machine name="monymony2" sourcefile="zaccaria/zaccaria.cpp" cloneof="monymony" romof="monymony">
+		<description>Money Money (set 2)</description>
+		<year>1983</year>
+		<manufacturer>Zaccaria</manufacturer>
+		<rom name="cpu1.1a" size="8192" crc="907225b2" sha1="88955d21deee8364e391413c8e59361ca5f7e534" region="maincpu" offset="0"/>
+		<rom name="cpu2.1b" merge="cpu2.1b" size="8192" crc="87372545" sha1="04618d007a93b3f6706f56b10bdf39727d7d748d" region="maincpu" offset="1000"/>
+		<rom name="cpu3.1c" size="8192" crc="3c874c16" sha1="5607475638c3c313a8150aaa0e3b653226c2442a" region="maincpu" offset="2000"/>
+		<rom name="cpu4.1d" merge="cpu4.1d" size="8192" crc="5fdec451" sha1="0f955c907e0a61a725a951018fdf5cc321139863" region="maincpu" offset="3000"/>
+		<rom name="cpu5.2a" merge="cpu5.2a" size="8192" crc="af830e3c" sha1="bed57c341ae3500f147efe31bcf01f81466ec1c0" region="maincpu" offset="4000"/>
+		<rom name="cpu6.2c" merge="cpu6.2c" size="8192" crc="31da62b1" sha1="486f07087244f8537510afacb64ddd59eb512a4d" region="maincpu" offset="5000"/>
+		<rom name="snd13.2g" merge="snd13.2g" size="8192" crc="78b01b98" sha1="2aabed56cdae9463deb513c0c5021f6c8dfd271e" region="audiopcb:melodycpu" offset="8000"/>
+		<rom name="snd9.1i" merge="snd9.1i" size="8192" crc="94e3858b" sha1="04961f67b95798b530bd83355dec612389f22255" region="audiopcb:melodycpu" offset="c000"/>
+		<rom name="snd8.1h" merge="snd8.1h" size="8192" crc="aad76193" sha1="e08fc184efced392ee902c4cc9daaaf3310cdfe2" region="audiopcb:audiocpu" offset="2000"/>
+		<rom name="snd7.1g" merge="snd7.1g" size="8192" crc="1e8ffe3e" sha1="858ee7abe88d5801237e519cae2b50ae4bf33a58" region="audiopcb:audiocpu" offset="3000"/>
+		<rom name="bg1.2d" merge="bg1.2d" size="8192" crc="82ab4d1a" sha1="5aaf42a508df236f2e7c844d377132d73053907b" region="gfx1" offset="0"/>
+		<rom name="bg2.1f" merge="bg2.1f" size="8192" crc="40d4e4d1" sha1="79cbade30f1c9269e70ddb9c4332cfe1e8dc50a9" region="gfx1" offset="2000"/>
+		<rom name="bg3.1e" merge="bg3.1e" size="8192" crc="36980455" sha1="4140b0cd4137c8f209124b12d9c0eb3b04f91991" region="gfx1" offset="4000"/>
+		<rom name="9g" merge="9g" size="512" crc="fc9a0f21" sha1="2a93d684645ee1b70315386127223151582ab370" region="proms" offset="0"/>
+		<rom name="9f" merge="9f" size="512" crc="93106704" sha1="d3b8281c87d253a2ed40ff400438e879ca40c2b7" region="proms" offset="200"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":mainlatch" name="ls259"/>
+		<device_ref tag=":ppi8255" name="i8255"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":audiopcb" name="zac1b11142"/>
+		<device_ref tag=":audiopcb:melodycpu" name="m6802"/>
+		<device_ref tag=":audiopcb:timebase" name="clock"/>
+		<device_ref tag=":audiopcb:melodypia" name="pia6821"/>
+		<device_ref tag=":audiopcb:melodypsg1" name="ay8910"/>
+		<device_ref tag=":audiopcb:melodypsg2" name="ay8910"/>
+		<device_ref tag=":audiopcb:audiocpu" name="m6802"/>
+		<device_ref tag=":audiopcb:pia_1i" name="pia6821"/>
+		<device_ref tag=":audiopcb:dac" name="mc1408"/>
+		<device_ref tag=":audiopcb:speech" name="tms5200"/>
+		<device_ref tag=":audiopcb:sound_nl" name="netlist_sound"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa0" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa1" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa2" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa3" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa4" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:level" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:levelt" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:sw1" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin0" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin1" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin2" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin3" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin4" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin5" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin6" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin7" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cout0" name="nl_stream_out"/>
+		<device_ref tag=":audiopcb:sound_nl:pot1" name="nl_analog_in"/>
+		<device_ref tag=":audiopcb:sound_nl:pot2" name="nl_analog_in"/>
+		<device_ref tag=":audiopcb:sound_nl:pot3" name="nl_analog_in"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="audiopcb:melodycpu" name="Motorola MC6802" clock="3579545"/>
+		<chip type="cpu" tag="audiopcb:audiocpu" name="Motorola MC6802" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="audiopcb" name="Zaccaria 1B11142 Sound Board"/>
+		<chip type="audio" tag="audiopcb:melodypsg1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="audiopcb:melodypsg2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="audiopcb:dac" name="MC1408 DAC"/>
+		<chip type="audio" tag="audiopcb:speech" name="TMS5200" clock="649200"/>
+		<chip type="audio" tag="audiopcb:sound_nl" name="Netlist Sound Device"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="3" service="yes" tilt="yes">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW.0" mask="3">
+			<diplocation name="SW 5I" number="1"/>
+			<diplocation name="SW 5I" number="2"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="3"/>
+		</dipswitch>
+		<dipswitch name="Infinite Lives (Cheat)" tag="DSW.0" mask="4">
+			<diplocation name="SW 5I" number="3"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="4"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW.0" mask="8">
+			<diplocation name="SW 5I" number="4"/>
+			<dipvalue name="Easy" value="0" default="yes"/>
+			<dipvalue name="Hard" value="8"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW.0" mask="16">
+			<diplocation name="SW 5I" number="5"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="16"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSW.0" mask="32">
+			<diplocation name="SW 5I" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="32"/>
+		</dipswitch>
+		<dipswitch name="Cross Hatch Pattern" tag="DSW.0" mask="64">
+			<diplocation name="SW 5I" number="7"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.0" mask="128">
+			<diplocation name="SW 5I" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW.1" mask="3">
+			<diplocation name="SW 4I" number="1"/>
+			<diplocation name="SW 4I" number="2"/>
+			<dipvalue name="200000" value="1" default="yes"/>
+			<dipvalue name="300000" value="2"/>
+			<dipvalue name="400000" value="3"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Table Title" tag="DSW.1" mask="4">
+			<diplocation name="SW 4I" number="3"/>
+			<dipvalue name="Todays High Scores" value="0" default="yes"/>
+			<dipvalue name="High Scores" value="4"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW.1" mask="8">
+			<diplocation name="SW 4I" number="4"/>
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW.1" mask="16">
+			<diplocation name="SW 4I" number="5"/>
+			<dipvalue name="Off" value="16"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW.1" mask="32">
+			<diplocation name="SW 4I" number="6"/>
+			<dipvalue name="Off" value="32"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW.1" mask="64">
+			<diplocation name="SW 4I" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW.1" mask="128">
+			<diplocation name="SW 4I" number="8"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW.2" mask="3">
+			<diplocation name="SW 3I" number="1"/>
+			<diplocation name="SW 3I" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="3"/>
+			<dipvalue name="1 Coin/1 Credit" value="2" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="1 Coin/3 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW.2" mask="140">
+			<diplocation name="SW 3I" number="3"/>
+			<diplocation name="SW 3I" number="4"/>
+			<diplocation name="SW 3I" number="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="140"/>
+			<dipvalue name="2 Coins/1 Credit" value="136"/>
+			<dipvalue name="1 Coin/1 Credit" value="132" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+			<dipvalue name="1 Coin/3 Credits" value="12"/>
+			<dipvalue name="1 Coin/4 Credits" value="8"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin C" tag="DSW.2" mask="112">
+			<diplocation name="SW 3I" number="6"/>
+			<diplocation name="SW 3I" number="7"/>
+			<diplocation name="SW 3I" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="112"/>
+			<dipvalue name="2 Coins/1 Credit" value="96"/>
+			<dipvalue name="1 Coin/1 Credit" value="80" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="64"/>
+			<dipvalue name="1 Coin/3 Credits" value="48"/>
+			<dipvalue name="1 Coin/4 Credits" value="32"/>
+			<dipvalue name="1 Coin/5 Credits" value="16"/>
+			<dipvalue name="1 Coin/7 Credits" value="0"/>
+		</dipswitch>
+		<port tag=":COINS">
+		</port>
+		<port tag=":DSW.0">
+		</port>
+		<port tag=":DSW.1">
+		</port>
+		<port tag=":DSW.2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<port tag=":audiopcb:1B11142">
+		</port>
+		<port tag=":audiopcb:VP1">
+		</port>
+		<port tag=":audiopcb:VP2">
+		</port>
+		<port tag=":audiopcb:VP3">
+		</port>
+		<adjuster name="VP1 - Music volume" default="50"/>
+		<adjuster name="VP2 - Speech volume" default="50"/>
+		<adjuster name="VP3 - DAC volume" default="50"/>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
+	<machine name="monymony3" sourcefile="zaccaria/zaccaria.cpp" cloneof="monymony" romof="monymony">
+		<description>Money Money (set 3)</description>
+		<year>1983</year>
+		<manufacturer>Zaccaria</manufacturer>
+		<rom name="cpu1.1a" size="8192" crc="932006cd" sha1="93cac6ad55af9f051f82abd18b5ff6ac2161b27f" region="maincpu" offset="0"/>
+		<rom name="a-00281_assa_m5.1b" merge="cpu2.1b" size="8192" crc="87372545" sha1="04618d007a93b3f6706f56b10bdf39727d7d748d" region="maincpu" offset="1000"/>
+		<rom name="a-00281_assa_m5.1c" size="8192" crc="3c874c16" sha1="5607475638c3c313a8150aaa0e3b653226c2442a" region="maincpu" offset="2000"/>
+		<rom name="a-00281_assa_m5.1d" merge="cpu4.1d" size="8192" crc="5fdec451" sha1="0f955c907e0a61a725a951018fdf5cc321139863" region="maincpu" offset="3000"/>
+		<rom name="a-00281_assa_m5.2a" merge="cpu5.2a" size="8192" crc="af830e3c" sha1="bed57c341ae3500f147efe31bcf01f81466ec1c0" region="maincpu" offset="4000"/>
+		<rom name="a-00281_assa_m5.2c" merge="cpu6.2c" size="8192" crc="31da62b1" sha1="486f07087244f8537510afacb64ddd59eb512a4d" region="maincpu" offset="5000"/>
+		<rom name="a-00281_assa_m5.2g" merge="snd13.2g" size="8192" crc="78b01b98" sha1="2aabed56cdae9463deb513c0c5021f6c8dfd271e" region="audiopcb:melodycpu" offset="8000"/>
+		<rom name="a-00281_assa_m5.1i" merge="snd9.1i" size="8192" crc="94e3858b" sha1="04961f67b95798b530bd83355dec612389f22255" region="audiopcb:melodycpu" offset="c000"/>
+		<rom name="a-00281_assa_m5.1h" merge="snd8.1h" size="8192" crc="aad76193" sha1="e08fc184efced392ee902c4cc9daaaf3310cdfe2" region="audiopcb:audiocpu" offset="2000"/>
+		<rom name="a-00281_assa_m5.1g" merge="snd7.1g" size="8192" crc="1e8ffe3e" sha1="858ee7abe88d5801237e519cae2b50ae4bf33a58" region="audiopcb:audiocpu" offset="3000"/>
+		<rom name="a-00281_assa_m5.2d" merge="bg1.2d" size="8192" crc="82ab4d1a" sha1="5aaf42a508df236f2e7c844d377132d73053907b" region="gfx1" offset="0"/>
+		<rom name="a-00281_assa_m5.1f" merge="bg2.1f" size="8192" crc="40d4e4d1" sha1="79cbade30f1c9269e70ddb9c4332cfe1e8dc50a9" region="gfx1" offset="2000"/>
+		<rom name="a-00281_assa_m5.1e" merge="bg3.1e" size="8192" crc="36980455" sha1="4140b0cd4137c8f209124b12d9c0eb3b04f91991" region="gfx1" offset="4000"/>
+		<rom name="82s123.ic9g" merge="9g" size="512" crc="fc9a0f21" sha1="2a93d684645ee1b70315386127223151582ab370" region="proms" offset="0"/>
+		<rom name="82s123.ic9f" merge="9f" size="512" crc="93106704" sha1="d3b8281c87d253a2ed40ff400438e879ca40c2b7" region="proms" offset="200"/>
+		<device_ref tag=":maincpu" name="z80"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":mainlatch" name="ls259"/>
+		<device_ref tag=":ppi8255" name="i8255"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":speaker" name="speaker"/>
+		<device_ref tag=":audiopcb" name="zac1b11142"/>
+		<device_ref tag=":audiopcb:melodycpu" name="m6802"/>
+		<device_ref tag=":audiopcb:timebase" name="clock"/>
+		<device_ref tag=":audiopcb:melodypia" name="pia6821"/>
+		<device_ref tag=":audiopcb:melodypsg1" name="ay8910"/>
+		<device_ref tag=":audiopcb:melodypsg2" name="ay8910"/>
+		<device_ref tag=":audiopcb:audiocpu" name="m6802"/>
+		<device_ref tag=":audiopcb:pia_1i" name="pia6821"/>
+		<device_ref tag=":audiopcb:dac" name="mc1408"/>
+		<device_ref tag=":audiopcb:speech" name="tms5200"/>
+		<device_ref tag=":audiopcb:sound_nl" name="netlist_sound"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa0" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa1" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa2" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa3" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:ioa4" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:level" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:levelt" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:sw1" name="nl_logic_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin0" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin1" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin2" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin3" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin4" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin5" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin6" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cin7" name="nl_stream_in"/>
+		<device_ref tag=":audiopcb:sound_nl:cout0" name="nl_stream_out"/>
+		<device_ref tag=":audiopcb:sound_nl:pot1" name="nl_analog_in"/>
+		<device_ref tag=":audiopcb:sound_nl:pot2" name="nl_analog_in"/>
+		<device_ref tag=":audiopcb:sound_nl:pot3" name="nl_analog_in"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="3072000"/>
+		<chip type="cpu" tag="audiopcb:melodycpu" name="Motorola MC6802" clock="3579545"/>
+		<chip type="cpu" tag="audiopcb:audiocpu" name="Motorola MC6802" clock="3579545"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="audiopcb" name="Zaccaria 1B11142 Sound Board"/>
+		<chip type="audio" tag="audiopcb:melodypsg1" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="audiopcb:melodypsg2" name="AY-3-8910A PSG" clock="1789772"/>
+		<chip type="audio" tag="audiopcb:dac" name="MC1408 DAC"/>
+		<chip type="audio" tag="audiopcb:speech" name="TMS5200" clock="649200"/>
+		<chip type="audio" tag="audiopcb:sound_nl" name="Netlist Sound Device"/>
+		<display tag="screen" type="raster" rotate="90" width="256" height="224" refresh="60.606061" pixclock="6144000" htotal="384" hbend="0" hbstart="256" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="3" service="yes" tilt="yes">
+			<control type="joy" player="1" buttons="1" ways="8"/>
+			<control type="joy" player="2" buttons="1" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW.0" mask="3">
+			<diplocation name="SW 5I" number="1"/>
+			<diplocation name="SW 5I" number="2"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="1" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="3"/>
+		</dipswitch>
+		<dipswitch name="Infinite Lives (Cheat)" tag="DSW.0" mask="4">
+			<diplocation name="SW 5I" number="3"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="4"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW.0" mask="8">
+			<diplocation name="SW 5I" number="4"/>
+			<dipvalue name="Easy" value="0" default="yes"/>
+			<dipvalue name="Hard" value="8"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW.0" mask="16">
+			<diplocation name="SW 5I" number="5"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="16"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSW.0" mask="32">
+			<diplocation name="SW 5I" number="6"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="32"/>
+		</dipswitch>
+		<dipswitch name="Cross Hatch Pattern" tag="DSW.0" mask="64">
+			<diplocation name="SW 5I" number="7"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="64"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW.0" mask="128">
+			<diplocation name="SW 5I" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW.1" mask="3">
+			<diplocation name="SW 4I" number="1"/>
+			<diplocation name="SW 4I" number="2"/>
+			<dipvalue name="200000" value="1" default="yes"/>
+			<dipvalue name="300000" value="2"/>
+			<dipvalue name="400000" value="3"/>
+			<dipvalue name="None" value="0"/>
+		</dipswitch>
+		<dipswitch name="Table Title" tag="DSW.1" mask="4">
+			<diplocation name="SW 4I" number="3"/>
+			<dipvalue name="Todays High Scores" value="0" default="yes"/>
+			<dipvalue name="High Scores" value="4"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW.1" mask="8">
+			<diplocation name="SW 4I" number="4"/>
+			<dipvalue name="Off" value="8"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW.1" mask="16">
+			<diplocation name="SW 4I" number="5"/>
+			<dipvalue name="Off" value="16"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW.1" mask="32">
+			<diplocation name="SW 4I" number="6"/>
+			<dipvalue name="Off" value="32"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW.1" mask="64">
+			<diplocation name="SW 4I" number="7"/>
+			<dipvalue name="Off" value="64"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSW.1" mask="128">
+			<diplocation name="SW 4I" number="8"/>
+			<dipvalue name="Off" value="0" default="yes"/>
+			<dipvalue name="On" value="128"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW.2" mask="3">
+			<diplocation name="SW 3I" number="1"/>
+			<diplocation name="SW 3I" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="3"/>
+			<dipvalue name="1 Coin/1 Credit" value="2" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="1"/>
+			<dipvalue name="1 Coin/3 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW.2" mask="140">
+			<diplocation name="SW 3I" number="3"/>
+			<diplocation name="SW 3I" number="4"/>
+			<diplocation name="SW 3I" number="5"/>
+			<dipvalue name="4 Coins/1 Credit" value="140"/>
+			<dipvalue name="2 Coins/1 Credit" value="136"/>
+			<dipvalue name="1 Coin/1 Credit" value="132" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+			<dipvalue name="1 Coin/3 Credits" value="12"/>
+			<dipvalue name="1 Coin/4 Credits" value="8"/>
+			<dipvalue name="1 Coin/5 Credits" value="4"/>
+			<dipvalue name="1 Coin/6 Credits" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin C" tag="DSW.2" mask="112">
+			<diplocation name="SW 3I" number="6"/>
+			<diplocation name="SW 3I" number="7"/>
+			<diplocation name="SW 3I" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="112"/>
+			<dipvalue name="2 Coins/1 Credit" value="96"/>
+			<dipvalue name="1 Coin/1 Credit" value="80" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="64"/>
+			<dipvalue name="1 Coin/3 Credits" value="48"/>
+			<dipvalue name="1 Coin/4 Credits" value="32"/>
+			<dipvalue name="1 Coin/5 Credits" value="16"/>
+			<dipvalue name="1 Coin/7 Credits" value="0"/>
+		</dipswitch>
+		<port tag=":COINS">
+		</port>
+		<port tag=":DSW.0">
+		</port>
+		<port tag=":DSW.1">
+		</port>
+		<port tag=":DSW.2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<port tag=":audiopcb:1B11142">
+		</port>
+		<port tag=":audiopcb:VP1">
+		</port>
+		<port tag=":audiopcb:VP2">
+		</port>
+		<port tag=":audiopcb:VP3">
+		</port>
+		<adjuster name="VP1 - Music volume" default="50"/>
+		<adjuster name="VP2 - Speech volume" default="50"/>
+		<adjuster name="VP3 - DAC volume" default="50"/>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="sound" status="imperfect"/>
+	</machine>
 </mame>
