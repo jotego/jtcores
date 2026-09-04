@@ -58,6 +58,9 @@ Handoff prompt:
 >   LS153 + 5F LS00, /YA//YB from dumped 6J). Every 6J /YA//YB term requires
 >   1H&2H, so shifter loads land only on the /LD phases (3 or 7), alternating
 >   the two 8-pixel halves by SELECT: 16-bit-per-plane double buffer.
+> - Fetch is pipelined over TWO groups (2114 reads in group g, 2732 access in
+>   g+1, shift in g+2): the display lags the fetch counter by 16 pixels
+>   (scrx=16 in the shim, confirmed against original hardware video).
 > - 1E/1D/1C tile RAM address muxes: select = /SABBKG (CPU steals the address
 >   during its accesses only; /WAIT confines those to H 506..257 and the
 >   8-clock slot at H 378..385 from the 5M-2 bus-grant flop).
