@@ -30,7 +30,6 @@ JTFRAME_FORCED_DIPSW     | Pocket  | Forces a fixed value for the DIP switches
 JTFRAME_FEEDTHRU         | MiST    | Bypasses video blending hardware. Saves some logic elements
 JTFRAME_HEADER           |         | Set to the length of the ROM file header (derived from TOML)
 JTFRAME_HEIGHT           |         | Sets the video height
-JTFRAME_HSIZE            | MiSTer  | Analogue h-size by re-timing the DAC pixel clock. Replaces the resampling CRT scaler. See [video.md](video.md)
 JTFRAME_HSIZE_STEP       | MiSTer  | Size change per OSD step, as 1/STEP. Power of two, 64 (1.6%) by default
 JTFRAME_HSIZE_DIV        | MiSTer  | Automatic. clk to pixel-clock ratio used by jtframe_hretime
 JTFRAME_HSIZE_DEPTH      | MiSTer  | Automatic. Elastic FIFO depth used by jtframe_hretime
@@ -78,6 +77,7 @@ JTFRAME_NOSTA            |         | jtcore will not check STA and will produce 
 JTFRAME_EASY_STA         |         | jtcore accepts small negative STA slack down to -0.333 ns
 JTFRAME_NOHOLDBUS        |         | Reduces bus noise (non-interleaved SDRAM controller)
 JTFRAME_NOHQ2X           | MiSTer  | Disables HQ2X filter in MiSTer
+JTFRAME_NORETIME         | MiSTer  | Use legacy resampling CRT scaler (jtframe_hsize) instead of jtframe_hretime
 JTFRAME_OSD_FLIP         |         | flip option on OSD
 JTFRAME_OSD_LOAD         | MiST(er)| load option shown on OSD (off by default on MiSTer)
 JTFRAME_OSD_NOCREDITS    |         | No credits option on OSD
