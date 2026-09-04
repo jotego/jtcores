@@ -1,23 +1,26 @@
 module test;
 
 wire [31:0] framecnt;
-wire [15:0] fave, fworst;
+wire [15:0] fave, fworst, rec_fave;
 wire        rst, clk, hs, DTACKn, pxl_cen,
             cpu_cen, cpu_cenb, eff_cen, eff_cenb,
-            ref_cen, ref_cenb, bus_cs, rec_DTACKn, rec_bus_cs;
+            ref_cen, ref_cenb, bus_cs, rec_DTACKn, rec_bus_cs,
+            wait2_DTACKn, wait3_DTACKn;
 reg  [31:0] cpu_cen_count, cpu_cenb_count,
             eff_cen_count, eff_cenb_count,
-            ref_cen_count, ref_cenb_count, missing_peak;
+            ref_cen_count, ref_cenb_count, missing_peak,
+            scheduled_debt_count, replay_count;
 reg  [ 4:0] den;
 reg  [ 3:0] num;
 reg         asn, bus_busy, rec_asn, rec_bus_busy, stats_clr,
-            recovery_done;
+            recovery_done, wait_asn, wait_test_done;
 integer     errors;
+integer     wait2_ticks, wait3_ticks;
 
 `include "test_tasks.vh"
 
-assign eff_cen  = cpu_cen  && !uut_recovery.delayed;
-assign eff_cenb = cpu_cenb && !uut_recovery.delayed;
+assign eff_cen  = uut_recovery.eff_cen;
+assign eff_cenb = uut_recovery.eff_phase && !uut_recovery.eff_risefall;
 assign bus_cs   = !asn;
 assign rec_bus_cs = !rec_asn;
 
@@ -30,6 +33,8 @@ always @(posedge clk) begin
         ref_cen_count  <= 0;
         ref_cenb_count <= 0;
         missing_peak   <= 0;
+        scheduled_debt_count <= 0;
+        replay_count         <= 0;
     end else begin
         if( cpu_cen  ) cpu_cen_count  <= cpu_cen_count  + 1'd1;
         if( cpu_cenb ) cpu_cenb_count <= cpu_cenb_count + 1'd1;
@@ -37,6 +42,9 @@ always @(posedge clk) begin
         if( eff_cenb ) eff_cenb_count <= eff_cenb_count + 1'd1;
         if( ref_cen  ) ref_cen_count  <= ref_cen_count  + 1'd1;
         if( ref_cenb ) ref_cenb_count <= ref_cenb_count + 1'd1;
+        if( uut_recovery.delayed && uut_recovery.over )
+            scheduled_debt_count <= scheduled_debt_count + 1'd1;
+        if( uut_recovery.recover ) replay_count <= replay_count + 1'd1;
         if( uut_recovery.genblk1.missing > missing_peak )
             missing_peak <= uut_recovery.genblk1.missing;
     end
@@ -105,7 +113,8 @@ initial begin
     num=1;
     den=5'd6;
     repeat (20) @(posedge hs);
-    assert_msg(uut.fave==16'h800,"frequency must be 8MHz sharp");
+    assert_msg(uut.fave>=16'h0799 && uut.fave<=16'h0800,
+        "frequency must be 8MHz within counter resolution");
     repeat (120) begin
         random_asn_pulses();
         assert_msg(uut.fave<16'h804,"frequency is over  8.04MHz");
@@ -116,7 +125,8 @@ initial begin
     num=4'd3;
     den=5'd16;
     repeat (40) @(posedge hs);
-    assert_msg(uut.fave==16'h0900,"frequency must be 9.00MHz sharp");
+    assert_msg(uut.fave>=16'h0899 && uut.fave<=16'h0900,
+        "frequency must be 9MHz within counter resolution");
     repeat (120) begin
         random_asn_pulses();
         assert_msg(uut.fave<16'h0905,"frequency is over 100.5%%");
@@ -127,7 +137,8 @@ initial begin
     num=4'd5;
     den=5'd24;
     repeat (40) @(posedge hs);
-    assert_msg(uut.fave==16'h1000,"frequency must be 10MHz sharp");
+    assert_msg(uut.fave>=16'h0999 && uut.fave<=16'h1000,
+        "frequency must be 10MHz within counter resolution");
     repeat (120) begin
         random_asn_pulses();
         assert_msg(uut.fave<16'h1006,"frequency is over  10.06MHz");
@@ -137,7 +148,8 @@ initial begin
     num=4'd1;
     den=5'd4;
     repeat (40) @(posedge hs);
-    assert_msg(uut.fave==16'h1200,"frequency must be 12MHz sharp");
+    assert_msg(uut.fave>=16'h1199 && uut.fave<=16'h1200,
+        "frequency must be 12MHz within counter resolution");
     repeat (120) begin
         random_asn_pulses();
         assert_msg(uut.fave<16'h1208,"frequency is over  12.08MHz");
@@ -156,7 +168,40 @@ initial begin
     end
 
     wait( recovery_done );
+    wait( wait_test_done );
     pass();
+end
+
+initial begin
+    wait_asn       = 1;
+    wait_test_done = 0;
+
+    @(negedge rst);
+    repeat (8) @(posedge clk);
+    @(negedge clk);
+    wait_asn = 0;
+
+    fork
+        begin
+            wait2_ticks = 0;
+            while( wait2_DTACKn ) begin
+                @(posedge clk);
+                wait2_ticks = wait2_ticks + 1;
+            end
+        end
+        begin
+            wait3_ticks = 0;
+            while( wait3_DTACKn ) begin
+                @(posedge clk);
+                wait3_ticks = wait3_ticks + 1;
+            end
+        end
+    join
+
+    $display("wait-state latency: wait2=%0d clocks wait3=%0d clocks",
+        wait2_ticks, wait3_ticks);
+    assert_msg(wait3_ticks>wait2_ticks,"wait3 must assert DTACKn later than wait2");
+    wait_test_done = 1;
 end
 
 initial begin
@@ -174,18 +219,42 @@ initial begin
     repeat (10000) @(posedge clk);
     @(negedge clk);
 
-    $display("recovery test: raw=%0d/%0d effective=%0d/%0d reference=%0d/%0d peak=%0d",
+    $display("recovery test: raw=%0d/%0d effective=%0d/%0d reference=%0d/%0d debt/replay=%0d/%0d peak=%0d fave=%h",
         cpu_cen_count, cpu_cenb_count,
         eff_cen_count, eff_cenb_count,
-        ref_cen_count, ref_cenb_count, missing_peak);
+        ref_cen_count, ref_cenb_count,
+        scheduled_debt_count, replay_count, missing_peak, rec_fave);
 
     if( cpu_cen_count>cpu_cenb_count+1 || cpu_cenb_count>cpu_cen_count+1 ) begin
         $display("Raw cpu_cen/cpu_cenb phase counts differ by more than one");
         errors = errors+1;
     end
-    if( eff_cen_count+eff_cenb_count>ref_cen_count+ref_cenb_count+1 ||
-        ref_cen_count+ref_cenb_count>eff_cen_count+eff_cenb_count+1 ) begin
-        $display("Elapsed CPU time was not recovered after bus_busy returned low");
+    if( scheduled_debt_count != replay_count ||
+        uut_recovery.genblk1.missing != 0 ) begin
+        $display("Scheduled recovery debt was not replayed exactly");
+        errors = errors+1;
+    end
+    if( eff_cen_count>eff_cenb_count+1 ||
+        eff_cenb_count>eff_cen_count+1 ) begin
+        $display("Effective cpu_cen/cpu_cenb phase counts differ by more than one");
+        errors = errors+1;
+    end
+    if( eff_cen_count+eff_cenb_count >
+            ref_cen_count+ref_cenb_count+1 ||
+        ref_cen_count+ref_cenb_count >
+            eff_cen_count+eff_cenb_count+1 ) begin
+        $display("Aligned effective phases do not match the no-wait schedule");
+        errors = errors+1;
+    end
+    if( rec_fave<16'h0995 || rec_fave>16'h1005 ) begin
+        $display("Aligned recovery frequency is not 10 MHz");
+        errors = errors+1;
+    end
+    if( cpu_cen_count+cpu_cenb_count >
+            ref_cen_count+ref_cenb_count+replay_count+1 ||
+        ref_cen_count+ref_cenb_count+replay_count >
+            cpu_cen_count+cpu_cenb_count+1 ) begin
+        $display("Delivered phases do not equal scheduled plus replayed phases");
         errors = errors+1;
     end
     if( errors!=0 ) fail();
@@ -235,7 +304,7 @@ jtframe_68kdtack_cen #(
     .wait2      ( 1'b0         ),
     .wait3      ( 1'b0         ),
     .DTACKn     ( rec_DTACKn   ),
-    .fave       (              ),
+    .fave       ( rec_fave     ),
     .fworst     (              )
 );
 
@@ -260,6 +329,46 @@ jtframe_68kdtack_cen #(
     .wait3      ( 1'b0      ),
     .fave       (           ),
     .fworst     (           )
+);
+
+jtframe_68kdtack_cen #(.RECOVERY(0)) uut_wait2(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cpu_cen    (               ),
+    .cpu_cenb   (               ),
+    .bus_cs     ( 1'b0          ),
+    .bus_busy   ( 1'b0          ),
+    .bus_legit  ( 1'b0          ),
+    .bus_ack    ( 1'b0          ),
+    .ASn        ( wait_asn      ),
+    .DSn        ( {2{wait_asn}} ),
+    .num        ( 4'd1          ),
+    .den        ( 5'd4          ),
+    .wait2      ( 1'b1          ),
+    .wait3      ( 1'b0          ),
+    .DTACKn     ( wait2_DTACKn  ),
+    .fave       (               ),
+    .fworst     (               )
+);
+
+jtframe_68kdtack_cen #(.RECOVERY(0)) uut_wait3(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cpu_cen    (               ),
+    .cpu_cenb   (               ),
+    .bus_cs     ( 1'b0          ),
+    .bus_busy   ( 1'b0          ),
+    .bus_legit  ( 1'b0          ),
+    .bus_ack    ( 1'b0          ),
+    .ASn        ( wait_asn      ),
+    .DSn        ( {2{wait_asn}} ),
+    .num        ( 4'd1          ),
+    .den        ( 5'd4          ),
+    .wait2      ( 1'b0          ),
+    .wait3      ( 1'b1          ),
+    .DTACKn     ( wait3_DTACKn  ),
+    .fave       (               ),
+    .fworst     (               )
 );
 
 jtframe_test_clocks #(

@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 2-7-2026 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 2-7-2026 */
 
 module jtgae1_main (
     input              clk,
@@ -91,7 +77,7 @@ wire        vdec_is2nd;
 wire [15:0] vdec_prev_enc, vdec_prev_dec;
 
 reg  [15:0] cpu_din;
-reg         ok_dly;
+wire        ok_dly;
 reg  [15:0] vdec_last_enc, vdec_last_dec;
 reg  [15:0] pend_enc, pend_dec;
 reg  [12:0] vdec_prev_woff, pend_woff;
@@ -111,6 +97,11 @@ assign scroll_dsn       = cpu_dsn;
 assign BUSn             = ASn | &cpu_dsn;
 assign VPAn             = !(!ASn && FC == 3'd7 && RnW);
 assign bus_cs           = main_cs | ram_cs;
+// ST M27C2001-15XF1/M27C4001-15F1 program EPROMs use the 150 ns -15 grade.
+// Two KM62256BLS-10 SRAMs form the 16-bit work RAM; -10 is the 100 ns grade.
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { main_cs, ram_cs };
+assign ok_in = { main_data_ok, ram_ok };
 assign bus_busy         = (main_cs | ram_cs) & ~ok_dly;
 assign IPLn             = { IPL_n, IPL_n, 1'b1 };
 assign LDSWn            = RnW | LDSn;
@@ -190,7 +181,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= main_data_ok | ram_ok;
     cpu_din <= main_cs  ? main_data        :
                ram_cs   ? ram_data         :
                vram_cs   ? vmem_vram_rdata  :
@@ -202,9 +192,17 @@ always @(posedge clk) begin
                dsw1_cs   ? in_dsw1          :
                p1_cs     ? in_p1            :
                p2_cs     ? in_p2            :
-               service_cs ? in_service       :
-               oki_cs    ? { 8'hff, oki_dout } : 16'hffff;
+	               service_cs ? in_service       :
+	               oki_cs    ? { 8'hff, oki_dout } : 16'hffff;
 end
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 always @(posedge clk or posedge rst) begin
     if (rst) begin

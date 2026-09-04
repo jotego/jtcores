@@ -214,6 +214,12 @@ wire rst96, rst48, rst24;
 wire pll_locked;
 reg  pll_rst = 1'b0;
 wire sys_rst;
+`ifdef JTFRAME_PLL_TUNE
+wire [63:0] pll_reconfig_to, pll_reconfig_from;
+wire        pll_cfg_waitrequest, pll_cfg_write, pll_tune_hold;
+wire [ 5:0] pll_cfg_address;
+wire [31:0] pll_cfg_writedata;
+`endif
 
 // Resets the PLL if it looses lock
 jtframe_sync u_sync(
@@ -223,6 +229,7 @@ jtframe_sync u_sync(
     .sync       ( sys_rst   )
 );
 
+`ifndef JTFRAME_PLL_TUNE
 always @(posedge clk_sys or posedge sys_rst) begin : pll_controller
     reg last_locked;
     reg [7:0] rst_cnt;
@@ -243,6 +250,7 @@ always @(posedge clk_sys or posedge sys_rst) begin : pll_controller
         end
     end
 end
+`endif
 
 // There are many false paths defined in the
 // SDC file between this PLL and the ones
@@ -257,6 +265,10 @@ pll pll(
     .outclk_3   (            ),
     .outclk_4   ( clk96      ),
     .outclk_5   ( clk96sh    )
+`ifdef JTFRAME_PLL_TUNE
+   ,.reconfig_to_pll   ( pll_reconfig_to   ),
+    .reconfig_from_pll ( pll_reconfig_from )
+`endif
 );
 
 jtframe_rst_sync u_reset96(
@@ -327,6 +339,31 @@ endgenerate
 wire [63:0] status;
 wire [ 1:0] buttons;
 
+`ifdef JTFRAME_PLL_TUNE
+pll_cfg_hdmi pll_game_cfg(
+    .mgmt_clk        ( CLK_50M            ),
+    .mgmt_reset      ( RESET              ),
+    .mgmt_waitrequest( pll_cfg_waitrequest ),
+    .mgmt_write      ( pll_cfg_write       ),
+    .mgmt_address    ( pll_cfg_address     ),
+    .mgmt_writedata  ( pll_cfg_writedata   ),
+    .reconfig_to_pll ( pll_reconfig_to     ),
+    .reconfig_from_pll(pll_reconfig_from   )
+);
+
+jtframe_pll_tune pll_tune(
+    .clk            ( CLK_50M            ),
+    .rst            ( RESET              ),
+    .speed          ( status[15:13]      ),
+    .pll_locked     ( pll_locked          ),
+    .cfg_waitrequest( pll_cfg_waitrequest ),
+    .cfg_write      ( pll_cfg_write       ),
+    .cfg_address    ( pll_cfg_address     ),
+    .cfg_writedata  ( pll_cfg_writedata   ),
+    .hold_reset     ( pll_tune_hold       )
+);
+`endif
+
 wire [ 1:0] dip_fxlevel;
 wire        dip_pause, dip_flip, dip_test;
 wire [31:0] dipsw;
@@ -342,7 +379,11 @@ wire [ 7:0] debug_bus, debug_view;
 wire [15:0] joyana_l1, joyana_l2, joyana_l3, joyana_l4,
             joyana_r1, joyana_r2, joyana_r3, joyana_r4;
 
-wire        rst_req   = sys_rst | status[0] | buttons[1];
+wire        rst_req   = sys_rst | status[0] | buttons[1]
+`ifdef JTFRAME_PLL_TUNE
+                        | pll_tune_hold
+`endif
+                        ;
 wire [15:0] snd_left, snd_right;
 wire [ 5:0] snd_en, snd_vu;
 wire [ 7:0] snd_vol;

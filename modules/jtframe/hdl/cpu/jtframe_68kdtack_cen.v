@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 20-5-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 20-5-2021 */
 
 /*
 
@@ -81,10 +67,10 @@ localparam CW=W+WD;
 reg [CW-1:0] cencnt=0;
 reg  [1:0]   waitsh;
 wire [W-1:0] num2 = { num, 1'b0 }; // num x 2
-wire         recover, delayed;
+wire         recover, delayed, eff_phase, eff_cen;
 wire         over = cencnt>den-num2;
 reg  [CW:0] cencnt_nx=0;
-reg         risefall=0, wait1;
+reg         risefall=0, eff_risefall=0, wait1, ASn_l;
 
 `ifdef SIMULATION
     // This is needed to prevent X's at the start of simulation
@@ -94,6 +80,10 @@ reg         risefall=0, wait1;
     // Not needed in synthesis
     wire rstl=0;
 `endif
+
+always @(posedge clk) begin
+    ASn_l <= ASn;
+end
 
 always @(posedge clk) begin : dtack_gen
     if( rst ) begin
@@ -106,12 +96,14 @@ always @(posedge clk) begin : dtack_gen
                // is not enough on Rastan
             DTACKn <= 1;
             wait1  <= 1; // gives a clock cycle to bus_busy to toggle
-            waitsh <= {wait3,wait2};
-        end else if( !ASn && (cpu_cen || WAIT1==0) ) begin
-            wait1 <= 0;
-            if( cpu_cen ) waitsh <= waitsh>>1;
-            if( waitsh==0 && !wait1 ) begin
-                DTACKn <= DTACKn && bus_cs && bus_busy;
+        end else if( !ASn ) begin
+            if(ASn_l) waitsh <= {wait3,wait2};
+            if( cpu_cen || WAIT1==0 ) begin
+                wait1 <= 0;
+                if( cpu_cen ) waitsh <= waitsh>>1;
+                if( waitsh==0 && !wait1 ) begin
+                    DTACKn <= DTACKn && bus_cs && bus_busy;
+                end
             end
         end
     end
@@ -130,7 +122,10 @@ generate if (RECOVERY==1) begin
         if( rst ) begin
             missing <= 0;
         end else begin
-            if( delayed && (cpu_cen|cpu_cenb) ) begin
+            // Charge the phase scheduled on this edge. cpu_cen/cpu_cenb are
+            // registered outputs, so sampling them here would charge the
+            // previous edge after delayed may already have changed.
+            if( delayed && over ) begin
 `ifdef SIMULATION
                 if( &missing && !recover ) begin
                     $display("FAIL: %m recovery counter overflow (CW=%0d)",CW);
@@ -168,7 +163,16 @@ end
 
 // Frequency reporting
 wire [3:0] nc1, nc2;
-wire       eff_cen = cpu_cen && !delayed;
+assign eff_phase = (over && !delayed) || recover;
+assign eff_cen   = eff_phase && eff_risefall;
+
+always @(posedge clk) begin
+    if( rst ) begin
+        eff_risefall <= 0;
+    end else if( eff_phase ) begin
+        eff_risefall <= ~eff_risefall;
+    end
+end
 
 jtframe_freqinfo #(.DIGITS(5),.MFREQ(MFREQ)) u_freq(
     .rst    ( rst               ),

@@ -56,7 +56,7 @@ JTFRAME_LF_FULLV         |         | Render blanking lines for line-based frame 
 JTFRAME_LF_HW            |         | Horizontal address width for the line-based frame buffer (default=9)
 JTFRAME_LF_VW            |         | Vertical address width for the line-based frame buffer (default=8)
 JTFRAME_LF_ZOOM          |         | Frame buffer scaling support directly by the game module
-JTFRAME_LF_SDRAM_BUFFER  | sidi128 | The line-based frame buffer (JTFRAME_LF_BUFFER) is implemented in the second SDRAM
+JTFRAME_LF_SDRAM_BUFFER  | sidi128 | The line-based frame buffer (JTFRAME_LF_BUFFER) is implemented in the second SDRAM. This disables SDRAM rotation, so enable it only in cores that need it
 JTFRAME_LITE_KEYBOARD    |         | Disables automatic MAME keys mapping
 JTFRAME_LOGO_NOHEX       | Pocket  | Do not display the chip ID on the logo screen
 JTFRAME_DIPBASE          | MiST    | Starting base in status word for MiST dip switches. Do not set in [mist] section of macros.def or the MRA will not be correct
@@ -88,6 +88,7 @@ JTFRAME_OSDCOLOR         |         | Sets the OSD colour. Use 0x30 for red.
 JTFRAME_PADDLE           |         | Enables paddle inputs to the game module
 JTFRAME_PADDLE_MAX       |         | Maximum paddle value used by jtframe_paddle (mouse-to-paddle emulation)
 JTFRAME_PLL              |         | PLL module name to be used. PLL names must end in the pixel clock frequency in kHz
+JTFRAME_PLL_TUNE         | MiSTer  | Enables live game-PLL speed tuning. Adds the CRT clock OSD option on status bits 13:15; the target must provide a reconfigurable PLL implementation.
 JTFRAME_PXLCLK           |         | 6 or 8. Defines the pixel clock. See [clocks](clocks.md)
 JTFRAME_RATE             |         | Expected video refresh rate in Hz. Verilator `jtsim` checks this when the core produces frames.
 JTFRAME_RELEASE          |         | Disables debug control via keyboard
@@ -98,6 +99,7 @@ JTFRAME_ROTATE           |         | Enables more rotate options in the OSD
 JTFRAME_SAVEGAME         |         | Enables game saving options in the OSD
 JTFRAME_SCAN2X_NOBLEND   | MiST    | Disables pixel blending
 JTFRAME_SRAM             | Pocket  | Enables SRAM ports at the game module
+JTFRAME_SDRAM_XL         | MiSTer  | Enables 128MB SDRAM
 JTFRAME_SDRAM96          |         | SDRAM is clocked at 96MHz and the clk input of game is 96MHz
 JTFRAME_SHADOW           | MiSTer  | Start address for SDRAM shadowing and dump as NVRAM
 JTFRAME_SHADOW_LEN       | MiSTer  | Length in bits of the shadowing. See [sdram.md](sdram.md)

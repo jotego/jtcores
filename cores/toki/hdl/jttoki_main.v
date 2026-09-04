@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 1-7-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 1-7-2025 */
 
 module jttoki_main(
     input             rst,
@@ -99,7 +85,7 @@ localparam [4:0] CEN_DEN = 5'd24;
 
 wire [23:0] cpu_a;
 reg  [15:0] cpu_din;
-reg         cpu_rom_ok_dly, ram_ok_dly;
+wire        cpu_rom_ok_dly, ram_ok_dly;
 wire [ 2:0] cpu_fc;
 wire        cpu_wrn, cpu_as_n, cpu_lds_n, cpu_uds_n,
             cen10, cen10b, dtack_n, int1;
@@ -217,6 +203,22 @@ jtframe_virq u_virq(
 assign bus_cs   = rom_cs | ram_cs;
 assign bus_busy = (rom_cs & ~cpu_rom_ok_dly) | (ram_cs & ~ram_ok_dly);
 
+jtframe_okdly u_rom_okdly(
+    .rst    ( rst            ),
+    .clk    ( clk            ),
+    .cs     ( rom_cs         ),
+    .ok     ( rom_ok         ),
+    .ok_dly ( cpu_rom_ok_dly )
+);
+
+jtframe_okdly u_ram_okdly(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cs     ( ram_cs     ),
+    .ok     ( ram_ok     ),
+    .ok_dly ( ram_ok_dly )
+);
+
 jtframe_68kdtack_cen  u_dtack(
         .rst        ( rst       ),
         .clk        ( clk       ),
@@ -332,8 +334,6 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    cpu_rom_ok_dly <= rom_ok;
-    ram_ok_dly     <= ram_ok;
     cpu_din <= rom_cs ? rom_data :
                             ram_cs     ? ram_data :
                             palette_cs ? pal_dout :

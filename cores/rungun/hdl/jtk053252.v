@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 5-7-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-7-2025 */
 
 // sel[1:0]      clk divider
 //   00          /4
@@ -142,14 +128,14 @@ jtframe_count_ld #(7) u_hscnt(
 
 // CNTA - VB
 jtframe_count_ld #(.W(8),.ONE_SHOT(1)) u_vbcnt(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen        ( pxl_cen   ),
-    .en         ( hbk0_eff  ), // L38B
-    .ld         ( vsov      ), // G51
-    .cnt0       (~vbcnt0    ),
-    .cnt        (           ),
-    .tc         ( vbtc      )
+    .rst        ( rst            ),
+    .clk        ( clk            ),
+    .cen        ( pxl_cen        ),
+    .en         ( hbk0_eff       ), // L38B
+    .ld         ( vsov           ), // G51
+    .cnt0       ( (~vbcnt0)-1'b1 ), // LVBL ends after the programmed final line
+    .cnt        (                ),
+    .tc         ( vbtc           )
 );
 
 // CNTB - HB
@@ -194,7 +180,7 @@ jtframe_ff_jk u_vs(rst,clk,pxl_cen, vld_mx, vstc,  vs, vsn );
 jtframe_ff_jk u_hb(rst,clk,pxl_cen, hbk0,   hbtc,  hb, lhbl);
 jtframe_ff_jk u_vb(rst,clk,pxl_cen, vbk0,   vbtc,  vb, lvbl);
 
-jtk053252_mmr #(.SIMFILE("ccu.bin")) u_mmr(
+jtk053252_mmr #(.SIMFILE("ccu.bin"),.INIT(INIT)) u_mmr(
     .rst        ( rst       ),
     .clk        ( clk       ),
 

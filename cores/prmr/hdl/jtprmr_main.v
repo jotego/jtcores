@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 20-12-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 20-12-2025 */
 
 module jtprmr_main(
     input                rst,
@@ -46,7 +32,6 @@ module jtprmr_main(
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
     input         [15:0] rom_data,
-    input                ram_ok,
     input                rom_ok,
     input                vdtac,
     input                tile_irqn,
@@ -82,7 +67,7 @@ reg         cab_cs, HALTn, pair_cs,
             eep_di, eep_clk, eep_cs, omsb_cs, pslrm_cs,
             psvrm_cs, eep_wr, cfg_wr;
 reg  [15:0] cpu_din, cab_dout;
-reg         ok_dly;
+wire        ok_dly;
 
 `ifdef SIMULATION
 wire [23:0] A_full = {A,1'b0};
@@ -90,8 +75,8 @@ wire [23:0] A_full = {A,1'b0};
 
 assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
-assign bus_cs   = rom_cs | ram_cs;
-assign bus_busy = (rom_cs | ram_cs) & ~ok_dly;
+assign bus_cs   = rom_cs;
+assign bus_busy = rom_cs & ~ok_dly;
 assign BUSn     = ASn | &ram_dsn;
 assign UDWn     = UDSn   | RnW;
 assign LDWn     = LDSn   | RnW;
@@ -152,7 +137,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= rom_ok | ram_ok;
     IPLn    <= {tile_irqn,1'b1,tile_irqn};
     HALTn   <= dip_pause & ~rst;
     case( A[1] )
@@ -165,9 +149,17 @@ always @(posedge clk) begin
                vram_cs  ? {2{vram_dout}}   :
                pal_cs   ? pal_dout         :
                pslrm_cs ? lmem_dout        :
-               pair_cs  ? {8'd0,pair_dout} :
-               cab_cs   ? cab_dout         : 16'h0;
+	               pair_cs  ? {8'd0,pair_dout} :
+	               cab_cs   ? cab_dout         : 16'h0;
 end
+
+jtframe_okdly u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( rom_cs ),
+    .ok     ( rom_ok ),
+    .ok_dly ( ok_dly )
+);
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -203,6 +195,7 @@ jt5911 #(.SIMFILE("nvram.bin")) u_eeprom(
     .dump_flag  (           )
 );
 
+wire slow_mem = rom_cs | ram_cs;
 jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -217,7 +210,7 @@ jtframe_68kdtack_cen #(.W(6),.RECOVERY(1)) u_dtack(
     .num        ( 5'd1      ),  // numerator
     .den        ( 6'd3      ),  // denominator, 3 (16MHz)
     .DTACKn     ( DTACKn    ),
-    .wait2      ( 1'b0      ),
+    .wait2      ( slow_mem  ),
     .wait3      ( 1'b0      ),
     // Frequency report
     .fave       (           ),

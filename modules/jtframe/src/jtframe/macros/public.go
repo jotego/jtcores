@@ -1,19 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Date: 4-1-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
 
 package macros
 
@@ -121,6 +108,9 @@ func (item *MacroEnabled) Enabled() bool {
 
 // check incompatible macro settings
 func CheckMacros() error {
+	if IsSet("JTFRAME_PLL_TUNE") && Get("CORE_OSD") != "" {
+		return fmt.Errorf("jtframe: JTFRAME_PLL_TUNE and CORE_OSD are incompatible because both use status bits 13:15")
+	}
 	// Check that MiST DIPs are defined after the
 	// last used status bit
 	dipbase, _ := strconv.Atoi(Get("JTFRAME_DIPBASE"))

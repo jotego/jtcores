@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 28-2-2019 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 28-2-2019 */
 
 // The best use case is with addr_ok going down and up for each addr change
 // but it works too with addr_ok permanently high as long as addr input is
@@ -25,7 +11,6 @@
 //    0     1    medium
 //    1     2    easy
 
-`timescale 1ns/1ps
 /* verilator coverage_off */
 module jtframe_romrq #(parameter
     SDRAMW  = 22,  // SDRAM width
@@ -33,6 +18,9 @@ module jtframe_romrq #(parameter
     DW      =  8,
     CACHE_SIZE=0,  // Set to !=0 to use jtframe_romrq_xscache, where only served data is cached
                    // Set to ==0 to use jtframe_romrq_bcache, where all data coming from SDRAM is cached
+    CACHE_LARGE=0, // Set to 1 for the direct-mapped short-burst cache
+    BURSTLEN  =32, // 16, 32, or 64 bits; only used by CACHE_LARGE
+    TAG_RAM   = 0, // Set to 1 to register large-cache tag reads in block RAM
 
     // parameters only for jtframe_romrq_bcache:
     OKLATCH =  1,  // Set to 1 to latch the data_ok signal. This implies that
@@ -66,7 +54,31 @@ module jtframe_romrq #(parameter
 );
 
 generate
-    if( CACHE_SIZE==0) begin
+    if( CACHE_LARGE ) begin
+        jtframe_romrq_lcache #(
+            .SDRAMW  ( SDRAMW   ),
+            .AW      ( AW       ),
+            .DW      ( DW       ),
+            .CACHE_SIZE( CACHE_SIZE ),
+            .BURSTLEN( BURSTLEN ),
+            .TAG_RAM ( TAG_RAM  )
+        ) u_large_cache(
+            .rst        ( rst        ),
+            .clk        ( clk        ),
+            .clr        ( clr        ),
+            .offset     ( offset     ),
+            .din        ( din        ),
+            .din_ok     ( din_ok     ),
+            .dst        ( dst        ),
+            .we         ( we         ),
+            .req        ( req        ),
+            .sdram_addr ( sdram_addr ),
+            .addr       ( addr       ),
+            .addr_ok    ( addr_ok    ),
+            .data_ok    ( data_ok    ),
+            .dout       ( dout       )
+        );
+    end else if( CACHE_SIZE==0) begin
         jtframe_romrq_bcache #(
             .SDRAMW ( SDRAMW    ),
             .AW     ( AW        ),

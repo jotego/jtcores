@@ -1,19 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Date: 4-1-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 4-1-2025 */
 
 package mra
 
@@ -511,6 +498,23 @@ func get_reverse_width(reg_cfg *RegCfg, name string, width int) bool {
 		}
 	}
 	return reg_cfg.Reverse && rev_w
+}
+
+func get_reverse_group(reg_cfg *RegCfg, roms []MameROM) bool {
+	reverse := get_reverse(reg_cfg, roms[0].Name)
+	if roms[0].group == 0 {
+		reverse = get_reverse_width(reg_cfg, roms[0].Name, 16)
+	}
+	for _, each := range roms[1:] {
+		cur_reverse := get_reverse(reg_cfg, each.Name)
+		if each.group == 0 {
+			cur_reverse = get_reverse_width(reg_cfg, each.Name, 16)
+		}
+		if cur_reverse != reverse {
+			return reg_cfg.Reverse
+		}
+	}
+	return reverse
 }
 
 // if the region is marked for a blank at this point returns its length
@@ -1057,7 +1061,7 @@ func make_interleave_groups(reg string,
 				reg_roms[sel[j]].clen = group_size * reg_roms[sel[j]].wlen
 				new_group = append(new_group, reg_roms[sel[j]])
 			}
-			if reg_cfg.Reverse {
+			if get_reverse_group(reg_cfg, new_group) {
 				rev_str := func(s string) string {
 					runes := []rune(s)
 					for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
@@ -1179,7 +1183,7 @@ func interleave_group(reg string,
 				p.AddComment(fmt.Sprintf("Blank ends at 0x%X", *pos))
 			}
 		}
-		if reg_cfg.Reverse {
+		if get_reverse_group(reg_cfg, reg_roms[k:k+rom_cnt]) {
 			if Verbose {
 				fmt.Printf("Got %d ROMs, with rom_cnt=%d, k=%d\n", len(reg_roms), rom_cnt, k)
 			}

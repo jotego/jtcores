@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 8-7-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 8-7-2025 */
 
 module jtrungun_sound(
     input           rst,
@@ -67,11 +53,6 @@ assign nmi_clr  =~ctl[4];
 assign bank     = ctl[3:0];
 assign st_dout  = debug_bus[7] ? stb_dout : sta_dout;
 assign latch_we = k21_cs & ~wr_n;
-assign cpu_din  = rom_cs  ? rom_data   :
-                  ram_cs  ? ram_dout   :
-                  k39a_cs ? k39a_dout  :
-                  k39b_cs ? k39b_dout  :
-                  k21_cs  ? latch_dout : 8'h0;
 
 always @(*) begin
     mem_acc =!mreq_n  && rfsh_n;
@@ -111,9 +92,15 @@ jt054321 u_54321(
     .siorq_n    ( iorq_n    ),
     .int_n      ( int_n     )
 );
-`ifndef NOSOUND
 
+`ifndef NOSOUND
 wire eff_nmin = PRMR==1 ? tima : nmi_n;
+
+assign cpu_din  = rom_cs  ? rom_data   :
+                  ram_cs  ? ram_dout   :
+                  k39a_cs ? k39a_dout  :
+                  k39b_cs ? k39b_dout  :
+                  k21_cs  ? latch_dout : 8'h0;
 
 jtframe_sysz80 #(.RAM_AW(13)) u_cpu(
     .rst_n      ( ~rst      ),
@@ -218,7 +205,7 @@ end else begin // 2nd jt539 not present in prmrsocr
 end endgenerate
 
 `else
-assign k539a_l=0, k539a_r=0, k539b_l=0, k539b_r=0,
+assign k539_l=0, k539_r=0,
        m1_n=1, mreq_n=1, rfsh_n=1, wr_n=1, A=0, cpu_dout=0, iorq_n=1, tima=0,
        pcma_cs=0, pcmb_cs=0, pcma_addr=0, pcmb_addr=0, ram_dout=0,
        k39a_dout=0, k39b_dout=0, sta_dout=0, stb_dout=0;

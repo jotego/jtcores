@@ -50,7 +50,7 @@ sdram:
     - buses:
         # XRAM does not include the first 16kB of work RAM
         - { name: xram,   addr_width: 19, data_width: 16, offset: VRAM_OFFSET, rw: true }
-        - { name: main,   addr_width: 19, data_width: 16 } # ok latch 0
+        - { name: main,   addr_width: 19, data_width: 16, cache_size: 1kB } # ok latch 0
         - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
         - { name: map2,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
 

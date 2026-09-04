@@ -1,29 +1,9 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 02-5-2020 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 02-5-2020 */
 
 // Produces the right signals for jtframe_sdram to get the ROM data
 // A prom_we signal is used for the second half of the ROM byte stream
-
-// For system simulation, it is useful sometimes to be able to load the
-// PROM data quickly at the beginning of the simulation. If the PROM
-// modules are isolated, this can be done manually typing the path to
-// each rom file in the jtframe_prom instantiation. However, sometimes
-// the hierarchy will not allow it or the code may get messy.
 
 /* verilator lint_off WIDTH */
 module jtframe_dwnld #(
@@ -113,11 +93,6 @@ always @(*) begin
     if( gfx16c_en ) part_addr[GFX16B0+:5] = { nohdr_addr[GFX16B0+:4], nohdr_addr[GFX16B0+4+:1] }; //  HVVVV -> VVVVH
 end
 
-`ifdef SIMULATION `ifdef JTFRAME_PROM_START `ifndef LOADROM
-    `define SIM_LOAD_PROM
-`endif `endif `endif
-
-`ifndef SIM_LOAD_PROM
 /////////////////////////////////////////////////
 // Normal operation
 reg  [ 2:0] bank;
@@ -128,13 +103,48 @@ reg [SDRAMW-1:1] pend_addr;
 reg [ 7:0] pend_data;
 reg [ 1:0] pend_mask, pend_ba;
 reg        pend_we;
+reg        ioctl_wr1=0, ioctl_rom1=0, header1=0;
+reg [ 7:0] ioctl_dout1=0;
+reg [26:0] part_addr1=0;
+wire       use_ioctl_wr, use_ioctl_rom, use_header;
+wire [7:0] use_ioctl_dout;
+wire [26:0] use_part_addr;
 wire [ 7:0] balut_bit_addr = { ioctl_addr[4:0], 3'b000 };
 wire [SDRAMW-1:1] nx_prog_addr = XL ? { bank[2], eff_addr[SDRAMW-2:1] } : eff_addr[SDRAMW-1:1];
 wire [ 1:0] nx_prog_mask = (eff_addr[0]^SWAB[0]) ? 2'b10 : 2'b01;
 wire [ 1:0] nx_prog_ba   = bank[1:0];
 wire        sdram_pending = prog_we && !sdram_ack;
 
-initial prog_ba = 0;
+initial begin
+    prog_addr = 0;
+    prog_ba   = 0;
+    prog_mask = 2'b11;
+    prog_we   = 0;
+    prom_we   = 0;
+    bank      = 0;
+    offset    = 0;
+    eff_addr  = 0;
+    pend_we   = 0;
+    pend_addr = 0;
+    pend_data = 0;
+    pend_mask = 2'b11;
+    pend_ba   = 0;
+    data_out  = 0;
+end
+
+assign use_ioctl_wr   = ioctl_wr1;
+assign use_ioctl_rom  = ioctl_rom1;
+assign use_ioctl_dout = ioctl_dout1;
+assign use_header     = header1;
+assign use_part_addr  = part_addr1;
+
+always @(posedge clk) begin
+    ioctl_wr1   <= ioctl_wr;
+    ioctl_rom1  <= ioctl_rom;
+    ioctl_dout1 <= ioctl_dout;
+    header1     <= header;
+    part_addr1  <= part_addr;
+end
 
 always @(*) begin
     case( bank )
@@ -148,18 +158,18 @@ always @(*) begin
         3'd7: offset = XL && BALUT!=0 ? header_offset(ba_start[112+:16]) : 27'd0;
         default: offset = 0;
     endcase // bank
-    eff_addr = part_addr-offset;
+    eff_addr = use_part_addr-offset;
 end
 
 generate
     if( BALUT==0 || !BA_EN ) begin
-        always @(part_addr) begin
+        always @(use_part_addr) begin
             bank = !BA_EN ? 3'd0 : ( /* verilator lint_off UNSIGNED */
-                    part_addr >= BA3_START ? 3'd3 : (
-                    part_addr >= BA2_START ? 3'd2 : (
-                    part_addr >= BA1_START ? 3'd1 : 3'd0 ))); /* verilator lint_on UNSIGNED */
+                    use_part_addr >= BA3_START ? 3'd3 : (
+                    use_part_addr >= BA2_START ? 3'd2 : (
+                    use_part_addr >= BA1_START ? 3'd1 : 3'd0 ))); /* verilator lint_on UNSIGNED */
         end
-        assign is_prom = PROM_EN && part_addr>=PROM_START;
+        assign is_prom = PROM_EN && use_part_addr>=PROM_START;
     end else begin
         // header table containing each bank start offset shifted by LUTSH bits
         always @(posedge clk) begin
@@ -170,31 +180,31 @@ generate
         /* verilator lint_off WIDTHEXPAND */
         always @* begin
             bank = 0;
-            if( part_addr >= header_offset(ba_start[16+:16]) ) bank = 1;
-            if( part_addr >= header_offset(ba_start[32+:16]) ) bank = 2;
-            if( part_addr >= header_offset(ba_start[48+:16]) ) bank = 3;
-            if( XL && BALUT_LEN>4 && part_addr >= header_offset(ba_start[64+:16]) ) bank = 4;
-            if( XL && BALUT_LEN>5 && part_addr >= header_offset(ba_start[80+:16]) ) bank = 5;
-            if( XL && BALUT_LEN>6 && part_addr >= header_offset(ba_start[96+:16]) ) bank = 6;
-            if( XL && BALUT_LEN>7 && part_addr >= header_offset(ba_start[112+:16]) ) bank = 7;
+            if( use_part_addr >= header_offset(ba_start[16+:16]) ) bank = 1;
+            if( use_part_addr >= header_offset(ba_start[32+:16]) ) bank = 2;
+            if( use_part_addr >= header_offset(ba_start[48+:16]) ) bank = 3;
+            if( XL && BALUT_LEN>4 && use_part_addr >= header_offset(ba_start[64+:16]) ) bank = 4;
+            if( XL && BALUT_LEN>5 && use_part_addr >= header_offset(ba_start[80+:16]) ) bank = 5;
+            if( XL && BALUT_LEN>6 && use_part_addr >= header_offset(ba_start[96+:16]) ) bank = 6;
+            if( XL && BALUT_LEN>7 && use_part_addr >= header_offset(ba_start[112+:16]) ) bank = 7;
         end
-        assign is_prom = (!XL && BALUT_LEN>4 && part_addr >= header_offset(ba_start[64+:16])) ||
-                         ( XL && BALUT_LEN>8 && part_addr >= header_offset(ba_start[128+:16]));
+        assign is_prom = (!XL && BALUT_LEN>4 && use_part_addr >= header_offset(ba_start[64+:16])) ||
+                         ( XL && BALUT_LEN>8 && use_part_addr >= header_offset(ba_start[128+:16]));
         /* verilator lint_on WIDTHEXPAND */
     end
 endgenerate
 
 always @(posedge clk) begin
-    if( ioctl_wr && ioctl_rom && !header ) begin
+    if( use_ioctl_wr && use_ioctl_rom && !use_header ) begin
         if( is_prom ) begin
-            prog_addr <= part_addr[SDRAMW-2:0];
+            prog_addr <= use_part_addr[SDRAMW-2:0];
             prom_we   <= 1;
             prog_we   <= 0;
-            data_out  <= ioctl_dout;
+            data_out  <= use_ioctl_dout;
             prog_mask <= nx_prog_mask;
         end else if( sdram_pending ) begin
             pend_addr <= nx_prog_addr;
-            pend_data <= ioctl_dout;
+            pend_data <= use_ioctl_dout;
             pend_mask <= nx_prog_mask;
             pend_ba   <= nx_prog_ba;
             pend_we   <= 1;
@@ -207,95 +217,42 @@ always @(posedge clk) begin
             prog_we   <= 1;
             prom_we   <= 0;
             pend_addr <= nx_prog_addr;
-            pend_data <= ioctl_dout;
+            pend_data <= use_ioctl_dout;
             pend_mask <= nx_prog_mask;
             pend_ba   <= nx_prog_ba;
             pend_we   <= 1;
         end else begin
             prog_addr <= nx_prog_addr;
-            data_out  <= ioctl_dout;
+            data_out  <= use_ioctl_dout;
             prog_mask <= nx_prog_mask;
             prog_ba   <= nx_prog_ba;
             prom_we   <= 0;
             prog_we   <= 1;
         end
     end else begin
-        if( !ioctl_rom ) begin
-            prog_we <= 0;
-            prom_we <= 0;
-            pend_we <= 0;
-        end else if( sdram_ack ) begin
+        if( sdram_ack ) begin
             if( pend_we ) begin
                 prog_addr <= pend_addr;
                 data_out  <= pend_data;
                 prog_mask <= pend_mask;
                 prog_ba   <= pend_ba;
                 prog_we   <= 1;
+                prom_we   <= 0;
                 pend_we   <= 0;
             end else begin
                 prog_we <= 0;
+                prom_we <= 0;
             end
-        end
-    end
-end
-
-`else
-////////////////////////////////////////////////////////
-// Load only PROMs directly from file in simulation
-/* verilator lint_off WIDTH */
-
-parameter [31:0] GAME_ROM_LEN = `GAME_ROM_LEN;
-
-integer          f, readcnt, dumpcnt;
-reg       [ 7:0] mem[0:`GAME_ROM_LEN];
-
-initial prog_ba=0;
-
-// This is only executed if JTFRAME_PROM_START was defined
-initial begin
-    dumpcnt = PROM_START+HEADER;
-    if( SIMFILE != "" && (PROM_EN||BALUT==1) ) begin
-        f=$fopen(SIMFILE,"rb");
-        if( f != 0 ) begin
-            readcnt=$fread( mem, f );
-            $display("INFO: PROM download: %6X bytes loaded from file (%s)", readcnt, SIMFILE);
-            $fclose(f);
-            if( BALUT==1 ) begin
-                dumpcnt=header_offset({mem[9],mem[8]});
-            end
-            if( dumpcnt >= readcnt ) begin
-                $display("WARNING: PROM_START (%X) is set beyond the end of the file (%X)", PROM_START, dumpcnt);
-                $display("         GAME_ROM_LEN=%X",GAME_ROM_LEN);
+        end else if( !use_ioctl_rom ) begin
+            if( prog_we ) begin
+                prom_we <= 0;
             end else begin
-                $display("INFO: fast PROM download from %X to %X", dumpcnt, GAME_ROM_LEN);
+                prog_we <= 0;
+                prom_we <= 0;
+                pend_we <= 0;
             end
-        end else begin
-            $display("WARNING: %m cannot open %s", SIMFILE);
-            dumpcnt = GAME_ROM_LEN; // stop the download process
         end
-    end else begin
-        $display("INFO: PROM download skipped because PROM_START was not defined.");
     end
 end
-
-// The PROM starts ioctl_rom after the header section is over
-reg start_ok=0;
-initial prog_we=0;
-
-always @(posedge clk) begin
-    if( ioctl_rom ) start_ok<=1;
-    if( dumpcnt < GAME_ROM_LEN && start_ok && !header) begin
-        prom_we   <= 1;
-        prog_we   <= 0;
-        prog_mask <= 2'b11;
-        data_out  <= mem[dumpcnt];
-        prog_addr <= dumpcnt[SDRAMW-2:0]-HEADER;
-        dumpcnt   <= dumpcnt+1;
-    end else begin
-        prom_we <= 0;
-    end
-end
-/* verilator lint_on WIDTH */
-`endif
 
 endmodule

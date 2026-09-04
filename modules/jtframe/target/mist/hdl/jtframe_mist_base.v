@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME. If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-10-2017 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-10-2017 */
 
 module jtframe_mist_base #(parameter
     SIGNED_SND      = 1'b0,
@@ -29,7 +15,7 @@ module jtframe_mist_base #(parameter
     input           clk_rom,
     input           sdram_init,
     output          osd_shown,
-    output  [6:0]   core_mod,
+    output  [17:0]  core_mod,
     // Base video
     input   [1:0]   osd_rotate,
     input   [1:0]   rotation, // 0 - no rotation, 1 - clockwise, 2 - anticlockwise
@@ -142,11 +128,11 @@ localparam [7:0] IDX_ROM   = 8'h00,
 wire        ypbpr, no_csync;
 wire [7:0]  ioctl_index;
 wire        ioctl_download, ioctl_upload;
-
 // Scan-doubler video
 wire [7:0]   scan2x_r, scan2x_g, scan2x_b;
 wire         scan2x_hs, scan2x_vs, scan2x_de, scan2x_enb;
 
+assign core_mod[17:7] = 0;
 assign ioctl_rom   =  ioctl_index == IDX_ROM   && ioctl_download;
 assign ioctl_ram   = (ioctl_index == IDX_NVRAM && ioctl_download) || ioctl_upload;
 assign ioctl_cheat =  ioctl_index == IDX_CHEAT && ioctl_download;
@@ -320,7 +306,7 @@ wire        i2c_end;
         .ps2_kbd_clk    ( ps2_kbd_clk  ),
         .ps2_kbd_data   ( ps2_kbd_data ),
         // Core variant
-        .core_mod       ( core_mod  ),
+        .core_mod       ( core_mod[6:0] ),
         // i2c bridge
         .i2c_start      (i2c_start  ),
         .i2c_read       (i2c_read   ),
@@ -484,7 +470,7 @@ always @(*) begin
         2'd0: { scanlines, bw_en, blend_en } = { 2'd0, 2'd0 }; // pass thru
         2'd1: { scanlines, bw_en, blend_en } = { 2'd0, 2'd1 }; // no scanlines, linear interpolation
         2'd2: { scanlines, bw_en, blend_en } = { 2'd0, 2'd3 }; // analogue
-        2'd3: { scanlines, bw_en, blend_en } = { 2'd1, 2'd3 }; // analogue + scan lines
+        2'd3: { scanlines, bw_en, blend_en } = { 2'd1, 2'd0 }; // scan lines only
     endcase // status[4:3]
     `ifdef JTFRAME_FEEDTHRU
     { scanlines, bw_en, blend_en } = { 3'd0, 2'd0 }; `endif

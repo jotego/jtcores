@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 7-11-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 7-11-2022 */
 
 // This is object processor section of the SETA chip
 
@@ -22,7 +8,10 @@ module jtkiwi_obj #(
     parameter [8:0] XOFF=0,
     parameter [7:0] YOFF=0,
     parameter       YWRAP=0,
-    parameter [8:0] LIMIT=9'h1ff
+    parameter [8:0] LIMIT=9'h1ff,
+    // 12 = 8kB sprite RAM, page selects the 0x800 half (tnzs/calibr50)
+    // 13 = 16kB, page selects the 0x1000 buffer (metafox/arbalest, MAME seta001 setac)
+    parameter       OBJAW=12
 )(
     input               rst,
     input               clk,
@@ -33,7 +22,7 @@ module jtkiwi_obj #(
     input               flip,
     input               page,
 
-    output     [12:1]   lut_addr,
+    output     [OBJAW:1] lut_addr,
     input      [15:0]   lut_data,
 
     output     [ 8:0]   y_addr,
@@ -68,7 +57,10 @@ wire        dr_busy;
 wire [ 8:0] buf_din, buf_addr;
 wire        buf_we;
 
-assign lut_addr = { page, 1'b0, ~st[1], objcnt }; // 1 + 1 + 1 + 9 = 12
+generate
+    if( OBJAW==13 ) assign lut_addr = { page, 2'b00, ~st[1], objcnt }; // 1 + 2 + 1 + 9 = 13
+    else            assign lut_addr = { page, 1'b0,  ~st[1], objcnt }; // 1 + 1 + 1 + 9 = 12
+endgenerate
 assign y_addr   = objcnt;
 assign vf       = {9{flip}} ^ (vdump-9'd1);
 assign ypos     = y_data + YOFF;

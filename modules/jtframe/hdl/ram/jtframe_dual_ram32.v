@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 29-3-2026 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 29-3-2026 */
 
 // Generic 32-bit dual port RAM with clock enable
 // parameters:
@@ -89,7 +75,7 @@ jtframe_dual_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_0  ),
     .SIMFILE_BYTE( BYTE0_SEL   ),
-    .FULL_DW   ( 32            ),
+    .SIMFILE_DW( 32            ),
     .LATCH0_IN ( LATCH0_IN     ),
     .LATCH0_OUT( LATCH0_OUT    ),
     .LATCH1_IN ( LATCH1_IN     ),
@@ -113,7 +99,7 @@ jtframe_dual_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_1  ),
     .SIMFILE_BYTE( BYTE1_SEL   ),
-    .FULL_DW   ( 32            ),
+    .SIMFILE_DW( 32            ),
     .LATCH0_IN ( LATCH0_IN     ),
     .LATCH0_OUT( LATCH0_OUT    ),
     .LATCH1_IN ( LATCH1_IN     ),
@@ -137,7 +123,7 @@ jtframe_dual_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_2  ),
     .SIMFILE_BYTE( BYTE2_SEL   ),
-    .FULL_DW   ( 32            ),
+    .SIMFILE_DW( 32            ),
     .LATCH0_IN ( LATCH0_IN     ),
     .LATCH0_OUT( LATCH0_OUT    ),
     .LATCH1_IN ( LATCH1_IN     ),
@@ -161,7 +147,7 @@ jtframe_dual_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_3  ),
     .SIMFILE_BYTE( BYTE3_SEL   ),
-    .FULL_DW   ( 32            ),
+    .SIMFILE_DW( 32            ),
     .LATCH0_IN ( LATCH0_IN     ),
     .LATCH0_OUT( LATCH0_OUT    ),
     .LATCH1_IN ( LATCH1_IN     ),

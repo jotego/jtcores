@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 6-7-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 6-7-2025 */
 
 module jtrungun_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
@@ -169,7 +155,8 @@ jtrungun_sound u_sound(
     .debug_bus      ( debug_bus     ),
     .st_dout        ( st_snd        )
 );
-/* verilator tracing_off */
+
+/* verilator tracing_on */
 jtrungun_video u_video(
     .rst            ( rst_video     ),
     .clk            ( clk           ),
@@ -187,7 +174,8 @@ jtrungun_video u_video(
     .hs             ( HS            ),
     .vs             ( VS            ),
     .hdump          ( game_hdump    ),
-    .vdump          ( game_vrender  ),
+    .vdump          (               ),
+    .vrender        ( game_vrender  ),
     // CPU interface
     .ccu_cs         ( ccu_cs        ),   // timer
     .psac_cs        ( psac_cs       ),
@@ -253,5 +241,6 @@ jtrungun_video u_video(
     .ioctl_addr     (ioctl_addr[14:0]),
     .ioctl_din      ( ioctl_din     )
 );
+/* verilator tracing_off */
 
 endmodule

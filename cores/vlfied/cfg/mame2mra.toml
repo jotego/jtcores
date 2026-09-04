@@ -1,0 +1,27 @@
+[global]
+author=["jotego"]
+
+zip.alt="cchip.zip"
+
+[parse]
+main="volfied"
+sourcefile=[ "volfied.cpp" ]
+skip.bootlegs=true
+
+[dipsw]
+rename = [ { name="Bonus Life", to="Bonus" } ]
+
+[ROM]
+regions = [
+    { name="maincpu",          width=16, reverse=true },
+    { name="audiocpu",         start="JTFRAME_BA1_START" },
+    { name="pc090oj",          start="JTFRAME_BA2_START", width=16, no_offset=true, sequence=[0,1,2,3,4,5,4,5] },
+    { name="cchip_bios",       start="JTFRAME_PROM_START", rom_len=0x1000, files=[ { name="cchip_upd78c11.bin", crc="43021521", size=0x1000 } ] },
+    { name="cchip:cchip_eprom", rename="cchip_eprom", rom_len=0x2000 },
+    { name="proms",            skip=true },
+]
+
+order = [
+    "maincpu", "audiocpu", "pc090oj",
+    "cchip_bios", "cchip_eprom"
+]

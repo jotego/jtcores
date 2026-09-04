@@ -1,15 +1,13 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version. */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later */
 
 module jtgrad3_sub(
     input                rst,
     input                sub_rst,
     input                clk,
     input                LVBL,
-    input                irq2,
+    input                cpu_trig,
+    input         [ 4:0] cen_num,
 
     output        [19:1] cpu_addr,
     output        [15:0] cpu_dout,
@@ -30,6 +28,8 @@ module jtgrad3_sub(
     output reg           tile_cs,
     input         [ 7:0] tile_dout,
     input                tile_dtack,
+    output               video_req_n,
+    input                video_grant_n,
 
     output reg           obj_cs,
     input         [ 7:0] obj_dout,
@@ -44,7 +44,7 @@ module jtgrad3_sub(
     input         [15:0] gfx_data,
     input                gfx_ok,
 
-    input                irq_trig,
+    output               irq_trig,
     input                dip_pause,
     output        [ 7:0] st_dout
 );
@@ -55,18 +55,14 @@ wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn, cpu_cen, cpu_cenb;
 wire [ 2:0] FC, IPLn;
 wire [ 1:0] dws;
 wire        bus_cs, bus_busy, vdtackn;
-wire        irq1n, irq2n, irq4n, rst_cpu, lvbln;
-wire        irq1_clr, irq2_clr, irq4_clr, BUSn;
+wire        rst_cpu, BUSn;
 reg  [15:0] cpu_din;
-reg         ok_dly;
-reg         irqmask_cs, ram_cs, prog_dec_cs, vid_dec_cs, sh_cs;
-reg  [ 2:0] irq_mask;
+wire        ok_dly;
+reg         irq_mask_cs, ram_cs, prog_dec_cs, vid_dec_cs, sh_cs;
+reg         gchar_sel;
+wire        video_req;
 
 assign rst_cpu   = rst | sub_rst;
-assign lvbln     = ~LVBL;
-assign irq1_clr  = ~irq_mask[0] | ~VPAn;
-assign irq2_clr  = ~irq_mask[1] | ~VPAn;
-assign irq4_clr  = ~irq_mask[2] | ~VPAn;
 assign cpu_addr  = A[19:1];
 assign rom_addr  = A[19:1];
 assign bus_dsn   = { UDSn, LDSn };
@@ -76,17 +72,23 @@ assign ram_we    = dws & {2{ram_cs}};
 assign sh_we     = dws & {2{sh_cs}};
 assign gchar_we  = ~RnW;
 assign cpu_we    = ~RnW;
+assign irq_trig  = A[22:18]=={2'd0,3'd6};
 
-assign bus_cs    = rom_cs | ram_cs | tile_cs | obj_cs | gchar_cs | gfx_cs | sh_cs | irqmask_cs;
+assign bus_cs    = rom_cs | ram_cs | tile_cs | obj_cs | gchar_sel | gfx_cs | sh_cs | irq_mask_cs;
+wire [2:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, gchar_cs, gfx_cs };
+assign ok_in = { rom_ok, gchar_ok, gfx_ok };
+assign video_req = (tile_cs | gchar_sel) & ~BUSn;
+assign video_req_n = ~video_req;
 assign bus_busy  = (rom_cs   & ~ok_dly)   |
                    (gchar_cs & ~ok_dly)   |
                    (gfx_cs   & ~ok_dly)   |
+                   (video_req & video_grant_n) |
                    (tile_cs  & ~tile_dtack);
 assign vdtackn   = DTACKn | (tile_cs & ~tile_dtack);
 assign VPAn      = ~( A[23] & ~ASn );
-assign IPLn      = !irq4n ? ~3'd4 : !irq2n ? ~3'd2 : !irq1n ? ~3'd1 : 3'b111;
 assign BUSn      = &bus_dsn;
-assign st_dout   = { irq_mask, irq1n, irq2n, irq4n, tile_cs, obj_cs };
+assign st_dout   = { 6'd0, tile_cs, obj_cs };
 
 always @* begin
     rom_cs      = 0;
@@ -94,9 +96,10 @@ always @* begin
     tile_cs     = 0;
     obj_cs      = 0;
     gchar_cs    = 0;
+    gchar_sel   = 0;
     gfx_cs      = 0;
     sh_cs       = 0;
-    irqmask_cs  = 0;
+    irq_mask_cs = 0;
     prog_dec_cs = 0;
     vid_dec_cs  = 0;
 
@@ -112,7 +115,7 @@ always @* begin
         case( A[20:18] )
             3'd0, 3'd1, 3'd2, 3'd3: rom_cs = 1;
             3'd4: ram_cs     = 1;
-            3'd5: irqmask_cs = 1;
+            3'd5: irq_mask_cs = 1;
             default:;
         endcase
     end
@@ -120,7 +123,7 @@ always @* begin
         case( A[19:18] )
             2'd0: sh_cs    = 1;
             2'd1: tile_cs  = 1;
-            2'd2: gchar_cs = !BUSn;
+            2'd2: begin gchar_sel = !BUSn; gchar_cs = !BUSn & ~video_grant_n; end
             2'd3: obj_cs   = 1;
             default:;
         endcase
@@ -128,7 +131,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= rom_ok | gchar_ok | gfx_ok;
     cpu_din <= rom_cs   ? rom_dout            :
                ram_cs   ? ram_dout            :
                sh_cs    ? sh_dout             :
@@ -139,37 +141,22 @@ always @(posedge clk) begin
                16'hffff;
 end
 
-always @(posedge clk, posedge rst_cpu) begin
-    if( rst_cpu ) begin
-        irq_mask <= 0;
-    end else begin
-        if( irqmask_cs && cpu_we && !UDSn )
-            irq_mask <= cpu_dout[10:8];
-    end
-end
-
-jtframe_edge #(.QSET(0)) u_irq1(
-    .rst    ( rst_cpu   ),
-    .clk    ( clk       ),
-    .edgeof ( lvbln     ),
-    .clr    ( irq1_clr  ),
-    .q      ( irq1n     )
+jtframe_okdly #(.W(3)) u_okdly(
+    .rst    ( rst_cpu ),
+    .clk    ( clk     ),
+    .cs     ( ok_cs   ),
+    .ok     ( ok_in   ),
+    .ok_dly ( ok_dly  )
 );
 
-jtframe_edge #(.QSET(0)) u_irq2(
-    .rst    ( rst_cpu   ),
-    .clk    ( clk       ),
-    .edgeof ( irq2      ),
-    .clr    ( irq2_clr  ),
-    .q      ( irq2n     )
-);
-
-jtframe_edge #(.QSET(0)) u_irq4(
-    .rst    ( rst_cpu   ),
-    .clk    ( clk       ),
-    .edgeof ( irq_trig  ),
-    .clr    ( irq4_clr  ),
-    .q      ( irq4n     )
+jtgrad3_int u_int(
+    .rst      ( rst_cpu          ),
+    .clk      ( clk              ),
+    .LVBL     ( LVBL             ),
+    .cpu_trig ( cpu_trig         ),
+    .din      ( cpu_dout[10:8]   ),
+    .wr       ( irq_mask_cs      ),
+    .IPLn     ( IPLn             )
 );
 
 jtframe_68kdtack_cen #(.W(6), .RECOVERY(1)) u_dtack(
@@ -183,7 +170,7 @@ jtframe_68kdtack_cen #(.W(6), .RECOVERY(1)) u_dtack(
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ( bus_dsn   ),
-    .num        ( 5'd5      ),
+    .num        ( cen_num   ),
     .den        ( 6'd24     ),
     .DTACKn     ( DTACKn    ),
     .wait2      ( 1'b0      ),
@@ -219,7 +206,7 @@ jtframe_m68k u_cpu(
 `else
 assign cpu_addr=0, cpu_dout=0, cpu_we=0, bus_dsn=3,
        rom_addr=0, sh_we=0,
-       gchar_we=0, gfx_addr=0, st_dout=0, ram_we=0;
+       gchar_we=0, gfx_addr=0, irq_trig=0, st_dout=0, ram_we=0;
 initial begin
     rom_cs=0; tile_cs=0; obj_cs=0; gchar_cs=0; gfx_cs=0;
 end

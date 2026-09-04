@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Rafael Eduardo Paiva Feener. Copyright: Miki Saito
-    Version: 1.0
-    Date: 23-9-2024 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 23-9-2024 */
 
 // See JTSIMSON's README.md
 
@@ -69,7 +55,7 @@ localparam [ 9:0] HDUMP_MIN = 10'h020,
 
 reg  [18:0] yz_add;
 reg  [11:0] vzoom;
-reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, x2;
+reg  [ 9:0] y, y2, x, ydiff, ydiff_b, xadj, yadj, x2, xstart;
 reg  [ 8:0] vlatch, ymove, vscl, hscl;
 reg  [ 7:0] scan_obj/*, zcode*/; // max 256 objects
 reg  [ 3:0] size;
@@ -131,7 +117,7 @@ always @* begin : B
     y2        = y + {1'b0,ymove};
     ydiff     = yz_add[6+:10];
     x2        = x - zmove( hsz, hscl );
-    left_wrap = x2 < HDUMP_MIN;
+    left_wrap = xstart < HDUMP_MIN;
     // test ver/game/scene/1 -> shadow, scan_obj 9
     case( vsz )
         0: vmir_eff = nx_mir[1] && !ydiff[3];
@@ -244,6 +230,7 @@ always @(posedge clk) begin : A
                     // Add the vertical offset to the code, must wait for zoom
                     // calculations, so it cannot be done at step 3
                     {code[5],code[3],code[1]} <= {code[5],code[3],code[1]} + vsum;
+                    xstart <= x2;
                     if( ~inzone ) begin
                         { indr, scan_sub } <= 0;
                         scan_obj <= scan_obj + 1'd1;
@@ -260,7 +247,7 @@ always @(posedge clk) begin : A
                     if( (!dr_start && !dr_busy) || !inzone ) begin
                         {code[4],code[2],code[0]} <= hcode + hsum;
                         if( hstep==0 ) begin
-                            hpos    <= x2 + (left_wrap ? HADJ : 10'b0 );
+                            hpos    <= xstart + (left_wrap ? HADJ : 10'b0 );
                         end else begin
                             hpos    <= hpos + 10'h10;
                             hz_keep <= 1;

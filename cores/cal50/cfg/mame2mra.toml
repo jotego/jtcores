@@ -19,11 +19,8 @@ skip.Machines=[
 
 [buttons]
 names = [
-    { machine="calibr50", names="Shoot,Grenade,Turn Left,Turn Right" },
+    { machine="calibr50", names="Shoot,Grenade,Turn Right,Turn Left" },
 ]
-
-[header]
-frames = [ { width=8 }, ]
 
 [dipsw]
 delete= [

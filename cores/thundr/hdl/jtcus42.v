@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 19-3-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 19-3-2025 */
 
 // dual tilemap with independent scroll
 module jtcus42(
@@ -80,8 +66,12 @@ jtframe_ram_rdmux #(.AW(12),.DW(16)) u_vram_mux(
     .data       ( vram_dout     ),
     .addr_a     ( {1'b0,a_addr} ),
     .addr_b     ( {1'b1,b_addr} ),
+    .cs_a       ( 1'b1          ),
+    .cs_b       ( 1'b1          ),
     .douta      ( a_dout        ),
-    .doutb      ( b_dout        )
+    .doutb      ( b_dout        ),
+    .ok_a       (               ),
+    .ok_b       (               )
 );
 
 jtframe_ram_rdmux #(.AW(5),.DW(8)) u_dec_mux(
@@ -90,8 +80,12 @@ jtframe_ram_rdmux #(.AW(5),.DW(8)) u_dec_mux(
     .data       ( dec_data      ),
     .addr_a     ( adec_addr     ),
     .addr_b     ( bdec_addr     ),
+    .cs_a       ( 1'b1          ),
+    .cs_b       ( 1'b1          ),
     .douta      ( adec_data     ),
-    .doutb      ( bdec_data     )
+    .doutb      ( bdec_data     ),
+    .ok_a       (               ),
+    .ok_b       (               )
 );
 
 jtcus42_mmr #(.SIMFILE(ID==0?"mmr0.bin":"mmr1.bin")) u_mmr(

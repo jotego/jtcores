@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 15-11-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 15-11-2025 */
 
 module jtcal50_main(
     input                rst, clk, pxl_cen,
@@ -73,7 +59,8 @@ reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
 reg  [ 9:0] cab2_dout;
 reg  [ 2:0] IPLn;
-reg         ram_cs, ok_dly;
+reg         ram_cs;
+wire        ok_dly;
 wire        int4ms, int16ms,
             cpu_cen, cpu_cenb, dtackn, VPAn, vgfx_cs,
             UDSn, LDSn, RnW, ASn, BUSn, bus_busy, bus_cs;
@@ -98,6 +85,14 @@ assign nvram_we = ~cpu_dsn & {2{nvram_cs&~RnW}};
 assign pal_we   = ~cpu_dsn & {2{  pal_cs&~RnW}};
 assign tlv_we   = ~cpu_dsn & {2{  tlv_cs&~RnW}};
 assign set_cmd  =  snd_cs & ~(RnW | LDSn);
+
+jtframe_okdly u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( rom_cs ),
+    .ok     ( rom_ok ),
+    .ok_dly ( ok_dly )
+);
 assign st_dout  = 0;
 assign vgfx_cs  = vram_cs | vflag_cs | vctrl_cs;
 
@@ -148,7 +143,6 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    ok_dly   <= rom_ok;
     HALTn    <= dip_pause & ~rst;
     dial_rst <= 0;
     snd_rst  <= ~coin_coil[4];

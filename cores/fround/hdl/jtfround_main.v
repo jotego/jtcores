@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 27-8-2023 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 27-8-2023 */
 
 module jtfround_main(
     input                rst,
@@ -92,7 +78,8 @@ reg         fix_cs, snd_cs, syswr_cs, vbank_cs, io_cs, vram_cs, oram_cs,
             pal_cs, dma_cs, crom_cs, orom_cs, int16en;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout;
-reg         intn, LVBLl, ok_dly;
+reg         intn, LVBLl;
+wire        ok_dly;
 wire        bus_cs, bus_busy, bus_legit, BUSn;
 
 `ifdef SIMULATION
@@ -103,6 +90,9 @@ assign main_addr= A[19:1];
 assign ram_dsn  = {UDSn, LDSn};
 assign IPLn     = { intn, 1'b1, intn };
 assign bus_cs   = rom_cs | ram_cs | crom_cs | orom_cs | oram_cs;
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, ram_cs };
+assign ok_in = { rom_ok, ram_ok };
 assign bus_busy = (rom_cs  & ~ok_dly) | (ram_cs  & ~ok_dly) |
                   (crom_cs & ~scr_ok) | (orom_cs & ~obj_ok) |
                                         (oram_cs & dma_bsy);
@@ -175,7 +165,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= rom_ok | ram_ok;
     cpu_din <= rom_cs  ? rom_data  :
                ram_cs  ? ram_dout  :
                oram_cs ? mo_dout   :
@@ -185,9 +174,17 @@ always @(posedge clk) begin
                io_cs   ? { 8'd0, cab_dout } :
                dma_cs  ? { 15'd0, dma_bsy } :
                crom_cs ? ( A[1] ? scr_data[31:16] : scr_data[15:0] ) :
-               orom_cs ? ( A[1] ? obj_data[31:16] : obj_data[15:0] ) :
-               16'h0;
+	               orom_cs ? ( A[1] ? obj_data[31:16] : obj_data[15:0] ) :
+	               16'h0;
 end
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin

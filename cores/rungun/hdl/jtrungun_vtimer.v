@@ -1,33 +1,19 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 5-7-2025 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 5-7-2025 */
 
 module jtrungun_vtimer(
     input            rst, clk, pxl_cen, vld, hld,
                      hflip, vflip,
     output     [8:0] hdump, hdumpf,
-    output     [7:0] vdump, vdumpf
+    output     [7:0] vdump, vdumpf, vrender
 );
 
 wire [8:0] hinit;
 wire [7:0] vinit;
 
 reg  [8:0] hcnt;
-reg  [7:0] vcnt;
+reg  [7:0] vcnt, vnext;
 reg        hld_l, vld_l;
 
 assign hinit = { {3{hflip}}, 1'b0, hflip, 4'd0 };
@@ -36,7 +22,8 @@ assign vinit = { {4{vflip}}, 4'd0 };
 assign hdump  = hcnt,
        hdumpf = {9{hflip}}^hdump,
        vdump  = vcnt,
-       vdumpf = {8{vflip}}^vdump;
+       vdumpf = {8{vflip}}^vdump,
+       vrender = vnext;
 
 // external counters
 always @(posedge clk) if(pxl_cen) begin
@@ -48,13 +35,18 @@ always @(posedge clk) begin
     if(rst) begin
         hcnt <= 0;
         vcnt <= 0;
+        vnext <= 1;
     end else if(pxl_cen) begin
         hcnt <= hcnt+9'd1;
         if( hld & ~hld_l ) begin
             hcnt <= hinit;
-            vcnt <= vcnt+8'd1;
+            vcnt <= vnext;
+            vnext <= vnext+8'd1;
         end
-        if( vld & ~vld_l ) vcnt <= vinit;
+        if( vld & ~vld_l ) begin
+            vcnt <= vinit;
+            vnext <= vinit+8'd1;
+        end
     end
 end
 

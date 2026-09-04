@@ -1,10 +1,6 @@
 #!/bin/bash
 set -eu
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-JTROOT="${JTROOT:-$(cd "$SCRIPT_DIR/../../.." && pwd)}"
-export JTROOT
-
 JOBS=""
 SIMUNIT_ARGS=()
 SIMUNIT_FILES=""
@@ -14,6 +10,7 @@ ONLY_GATHER_PATTERNS=()
 LIST_ONLY=0
 
 main() {
+    find_project
     parse_args "$@"
     validate_environment
     setup_cleanup
@@ -37,6 +34,35 @@ main() {
 
     create_runner
     run_all
+}
+
+find_project() {
+    local folder
+    local setup
+
+    if [ -n "${JTROOT:-}" ]; then
+        return
+    fi
+
+    folder="$PWD"
+    while :; do
+        setup="$folder/setprj.sh"
+        if [ -f "$setup" ]; then
+            set +u
+            source "$setup"
+            set -u
+            if [ -z "${JTROOT:-}" ]; then
+                echo "ERROR: $setup did not define JTROOT." >&2
+                exit 1
+            fi
+            return
+        fi
+        if [ "$folder" = / ]; then
+            echo "ERROR: cannot find setprj.sh from $PWD up to /. Source setprj.sh first or run from inside a JTCORES worktree." >&2
+            exit 1
+        fi
+        folder="$(dirname "$folder")"
+    done
 }
 
 parse_args() {

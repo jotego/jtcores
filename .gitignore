@@ -129,4 +129,7 @@ AGENTS.md
 .jtsandbox
 seed/
 scenes/
-ver/
+/cores/*/ver/**
+!/cores/*/ver/**/
+!*.cab
+!sim.sh

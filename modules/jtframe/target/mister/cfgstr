@@ -2,6 +2,7 @@
 {{.CORENAME}};;
 {{ if .JTFRAME_OSD_LOAD }}          F,rom;                    {{ end }}
 {{ if .JTFRAME_CART_OFFSET }}       FS4,ngpngc;               {{ end }}
+{{ if .JTFRAME_PLL_TUNE }}          ODF,System clock,100%,101%,102%,104.16%,105%,99%,97%,95%; {{ end }}
 {{ if not (.JTFRAME_NOMRA_DIP) }}   DIP;                      {{ end }}
 {{ if .JTFRAME_CHEAT }}             CHEAT;                    {{ end }}
     P1,Video;

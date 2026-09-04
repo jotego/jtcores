@@ -1,0 +1,14 @@
+180
+2 b1
+10
+# coin
+2 coin
+10
+2 1p
+20
+# press buttons forever
+loop
+2 b1
+6
+repeat 100
+

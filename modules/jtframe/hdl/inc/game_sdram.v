@@ -317,7 +317,7 @@ jt{{if .Game}}{{.Game}}{{else}}{{.Core}}{{end}}_game u_game(
     .gfx_en      ( gfx_en        )
 );
 /* verilator tracing_off */
-assign dwnld_busy = ioctl_rom | prom_we; // prom_we is really just for sims
+assign dwnld_busy = ioctl_rom | prom_we | prog_we; // prom_we is really just for sims
 assign dwnld_addr = {{if .Download.Pre_addr }}pre_addr{{else}}ioctl_addr{{end}};
 `ifdef JTFRAME_SDRAM_XL
 wire [26:0] dwnld_addr_wide = dwnld_addr;
@@ -471,6 +471,7 @@ jtframe_cache_mux #(
 {{- if gt (len .Buses) 0 }}
 jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .SDRAMW(SDRAMW-1),
+    .TAG_RAM({{if $.SDRAM.Tag_ram}}1{{else}}0{{end}}),
 {{- $first := true}}
 {{- range $index, $each:=.Buses}}
     {{- if $first}}{{$first = false}}{{else}}, {{end}}
@@ -483,6 +484,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .SLOT{{$index}}_LATCH({{.}}),{{end}}{{end}}
     {{- with .Cache_size }}
     .CACHE{{$index}}_SIZE({{.}}),{{end}}
+    {{- if .Cache_large }}
+    .CACHE{{$index}}_LARGE(1),{{end}}
     .SLOT{{$index}}_AW({{ slot_addr_width . }}),
     .SLOT{{$index}}_DW({{ printf "%2d" .Data_width}})
 {{- end}}
@@ -492,6 +495,15 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     ,.SLOT{{$index}}_DOUBLE(1){{ end }}
 {{- end}}
 `endif
+{{- range $index, $each:=.Buses}}
+{{- if not .Rw}}
+`ifdef JTFRAME_BA{{$bank}}_LEN
+    ,.SLOT{{$index}}_BURSTLEN(`JTFRAME_BA{{$bank}}_LEN)
+`else
+    ,.SLOT{{$index}}_BURSTLEN(32)
+`endif
+{{- end}}
+{{- end}}
 {{- $is_rom := eq .MemType "rom" }}
 ) u_bank{{$bank}}(
 {{- $holdrst_placed := false }}

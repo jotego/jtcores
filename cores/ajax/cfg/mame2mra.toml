@@ -15,6 +15,13 @@ rename=[
     {name="Control in 3D Stages", to="3D Control"},
 ]
 
+[header]
+frames = [
+    # MAME reports a single 8-pixel black column before active video.
+    # The MOD crop magnitude is symmetric, so select the smallest LHBL crop.
+    { width=8 },
+]
+
 [ROM]
 regions = [
     { name="maincpu" }, # First 32kB go to $8000, the rest are banked at $6000

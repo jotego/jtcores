@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 3-4-2022 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 3-4-2022 */
 
 /* PAL equations
 
@@ -104,7 +90,7 @@ module jtrastan_main(
     output reg           pal_cs,
     output reg           obj_cs,
 
-    output reg    [ 2:0] obj_pal,
+    output        [ 2:0] obj_pal,
     input         [15:0] oram_dout,
     input         [15:0] pal_dout,
     input         [15:0] ram_dout,
@@ -139,15 +125,16 @@ module jtrastan_main(
     input         [ 7:0] dipsw_a,
     input         [ 7:0] dipsw_b
 );
+reg out_cs;
 `ifndef NOMAIN
 wire [23:1] A;
 wire        cpu_cenb;
 wire        UDSn, LDSn, RnW, allFC, ASn, VPAn, DTACKn;
 wire [ 2:0] FC, IPLn;
-reg         io_cs, out_cs, otport1_cs, inport_cs, dip_cs, gun_cs;
+reg         io_cs, otport1_cs, inport_cs, dip_cs, gun_cs;
 reg  [ 7:0] cab_dout;
 reg  [15:0] cpu_din;
-reg         ok_dly;
+wire        ok_dly;
 reg  [ 8:0] opwolf_gun_x, opwolf_gun_y;
 wire [15:0] cpu_dout;
 reg         intn, LVBLl;
@@ -164,6 +151,9 @@ assign IPLn     = { intn, 1'b1, rbisland ? 1'b1 : intn };
 // level 4 for Rainbow Islands (A[3:1] carries the acknowledged level).
 assign VPAn     = !(!ASn && FC==7 && A[3:1]==(rbisland ? 3'd4 : 3'd5) && RnW);
 assign bus_cs   = rom_cs | vram_cs | ram_cs;
+wire [1:0] ok_cs, ok_in;
+assign ok_cs = { rom_cs, vram_cs | ram_cs };
+assign ok_in = { rom_ok, ram_ok };
 assign bus_busy = (rom_cs | vram_cs | ram_cs) & ~ok_dly;
 assign bus_legit= vram_cs & ~sdakn;
 // Light-gun offsets come from the header (gun_xoffs/gun_yoffs inputs), derived
@@ -228,7 +218,6 @@ always @* begin
 end
 
 always @(posedge clk) begin
-    ok_dly  <= rom_ok | ram_ok;
     cpu_din <= rom_cs    ? rom_data :
                ( ram_cs | vram_cs ) ? ram_dout :
                obj_cs    ? oram_dout :
@@ -241,9 +230,17 @@ always @(posedge clk) begin
                                       {2'd0, cab_1p[0], tilt, service,
                                        joystick1[5], joystick1[4], opwolf_gun_x})) :
                inport_cs ? { 8'hff, cab_dout }  :
-               sn_rd     ? (opwolf ? {4'hf, sn_dout, 8'hff} : {12'hfff, sn_dout}) :
-               16'hffff;
+	               sn_rd     ? (opwolf ? {4'hf, sn_dout, 8'hff} : {12'hfff, sn_dout}) :
+	               16'hffff;
 end
+
+jtframe_okdly #(.W(2)) u_okdly(
+    .rst    ( rst    ),
+    .clk    ( clk    ),
+    .cs     ( ok_cs  ),
+    .ok     ( ok_in  ),
+    .ok_dly ( ok_dly )
+);
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -265,12 +262,10 @@ endfunction
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
-        obj_pal  <= 0;
         mintn    <= 0;
         snd_rstn <= 0;
         cab_dout <= 0;
     end else begin
-        if( out_cs ) obj_pal <= cpu_dout[7:5];
         if( otport1_cs ) { mintn, snd_rstn } <= cpu_dout[1:0];
         case( A[3:1] )
             0: cab_dout <= { 2'b11, mapjoy(joystick1) };
@@ -341,23 +336,6 @@ jtframe_m68k u_cpu(
 );
 `else
 assign main_addr=0, main_dsn=0, main_dout=0, main_rnw=0, cpu_cen=0;
-`ifdef SIMSCENE
-integer scene_file, scene_count;
-reg [7:0] scene_objctrl[0:1];
-
-initial begin
-    scene_file = $fopen("objctrl.bin", "rb");
-    if( scene_file == 0 ) begin
-        $display("WARNING: %m cannot open objctrl.bin");
-    end else begin
-        scene_count = $fread(scene_objctrl, scene_file);
-        $fclose(scene_file);
-        if( scene_count != 2 )
-            $display("WARNING: %m objctrl.bin is short (%0d bytes)", scene_count);
-        obj_pal = scene_objctrl[0][7:5];
-    end
-end
-`endif
 initial begin
     rom_cs   = 0;
     ram_cs   = 0;
@@ -365,9 +343,7 @@ initial begin
     scr_cs   = 0;
     pal_cs   = 0;
     obj_cs   = 0;
-`ifndef SIMSCENE
-    obj_pal  = 0;
-`endif
+    out_cs   = 0;
     sn_we    = 0;
     sn_rd    = 0;
     sub_cs   = 0;
@@ -376,4 +352,21 @@ initial begin
     mintn    = 0;
 end
 `endif
+
+wire [4:0] nc;
+wire [7:0] out_cfg;
+assign obj_pal = out_cfg[7:5];
+
+jtframe_8bit_reg #(
+    .SIMFILE( "rest.bin" ),
+    .OFFSET ( 32         )
+) u_obj_pal(
+    .rst    ( rst            ),
+    .clk    ( clk            ),
+    .wr_n   ( main_rnw       ),
+    .din    ( main_dout[7:0] ),
+    .cs     ( out_cs         ),
+    .dout   ( out_cfg        )
+);
+
 endmodule

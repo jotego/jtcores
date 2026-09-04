@@ -14,7 +14,8 @@ Resource utilization based on MiST
 Processor   | Logic Cells  |  BRAM |  Remarks
 ------------|--------------|-------|-----------------
 M68000      |  5171        |    6  |  fx68k
-i8751       |  4019        |    5  |  jtframe_8751mcu
+i8751       |  4019        |    5  |  jtframe_8751mcu (Oregano version)
+i8751       |  2631        |    5  |  jtframe_8751mcu (jt8051 version)
 M6809       |  2992        |    0  |  mc6809i
 Konami CPU  |  2521        |    2  |  JTKCPU
 Z80         |  2476        |    2  |  jtframe_sysz80 (T80s)

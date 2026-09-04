@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 18-1-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 18-1-2021 */
 
 module jtcps2_main(
     input              rst,
@@ -115,7 +101,8 @@ reg         io_cs, eeprom_cs,
             sys_cs, paddle_en;
 reg         pre_ram_cs, pre_vram_cs, pre_oram_cs,
             reg_ram_cs, reg_vram_cs, reg_oram_cs;
-reg         dsn_dly, one_wait, ram_ok_dly;
+reg         dsn_dly, one_wait;
+wire        ram_ok_dly;
 wire [11:0] spin1p, spin2p;
 wire        dir1p,  dir2p;
 
@@ -324,7 +311,6 @@ end
 reg  [15:0] cpu_din;
 
 always @(posedge clk) begin
-    ram_ok_dly <= ram_ok;
     if(rst) begin
         cpu_din <= 16'hffff;
     end else begin
@@ -347,7 +333,16 @@ wire       bus_busy = |{ rom_cs & ~(rom_ok&rom_ok2),
                     main2qs_cs & ~main2qs_waitn };
 
 wire       DTACKn;
+wire       ram_acc = pre_ram_cs | pre_vram_cs | pre_oram_cs;
 reg        last_LVBL;
+
+jtframe_okdly u_ram_okdly(
+    .rst    ( rst        ),
+    .clk    ( clk        ),
+    .cs     ( ram_acc    ),
+    .ok     ( ram_ok     ),
+    .ok_dly ( ram_ok_dly )
+);
 
 reg qs_busakn_s;
 

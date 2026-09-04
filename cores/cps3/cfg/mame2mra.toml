@@ -1,0 +1,164 @@
+[parse]
+sourcefile=["cps3.cpp"]
+
+skip.setnames=[
+	# CD games are not supported
+	"redearth","warzard",
+	"redearthr1", "warzardr1",
+	"sfiii", "sfiiiu", "sfiiia", "sfiiij", "sfiiih",
+	"sfiii2", "sfiii2j", "sfiii2h",
+	"jojo",	"jojou", "jojoa", "jojoj",
+	"jojor1", "jojour1", "jojoar1", "jojojr1",
+	"jojor2", "jojour2", "jojoar2", "jojojr2",
+	"sfiii3", "sfiii3u", "sfiii3j", "sfiii3r1", "sfiii3ur1", "sfiii3jr1",
+	"jojobar1", "jojobajr1", "jojobar2", "jojobajr2",
+	"jojobaj", "jojoba",
+]
+
+skip.machines=[
+	# Bios
+	"cps3boot", "cps3booto", "cps3booto2", "cps3bs32",
+	"cps3bs32a", "cps3boota", "cps3bootao", "cps3bootao2",
+]
+
+main_setnames=["jojon","jojoban","redearthn","sfiiin","sfiii2n","sfiii3n"]
+
+[buttons]
+names=[
+    { names="Light Punch,Middle Punch,Heavy Punch,Light Kick,Middle Kick,Heavy Kick" },
+    { names="Light,Middle,Heavy,Stand On", machines=["jojo","jojoba"] }
+]
+
+[dipsw]
+extra=[
+	# CPS3 has no hardware DIP switches. The generated ff,ff default makes
+	# bits 2:0 equal 7, which preserves the downloaded BIOS region.
+	{ name="BIOS region", options="Japan,Asia,Europe,USA,Hispanic,Brazil,Oceania,Original", bits="0,2" },
+]
+
+[header]
+fill=0
+offset={start=0,bits=16,regions=["simm1.0","simm3.0","simm4.0","simm5.0","simm2.0","simm6.0"]}
+data=[
+	# Bytes 0x10-0x17 store the per-game CPS3 decrypt key as
+	# key1[31:0], key2[31:0] in big-endian byte order.
+	# Byte 0x18 stores the CPS3 encryption mode as one-hot bits:
+	# bit 0 = SFIII2 dead-cart mode, bit 1 = no decryption, bit 2 = normal.
+	# Byte 0x19 selects the BIOS region field: 0 = 0x1fec8, 1 = Red Earth
+	# at 0x1fed8. The user selection itself is the generated DIP at bits 2:0.
+	{ setname="redearthn",  offset=0x10, data="9e 30 0a b1 a1 75 b8 2c" },
+	{ setname="redearthn",  offset=0x18, data="04" },
+	{ setnames=["redearthn","redearthnr1"], offset=0x19, data="01" },
+	{ setname="redearthnr1",offset=0x10, data="9e 30 0a b1 a1 75 b8 2c" },
+	{ setname="redearthnr1",offset=0x18, data="04" },
+	{ setname="sfiiin",     offset=0x10, data="b5 fe 05 3e fc 03 92 5a" },
+	{ setname="sfiiin",     offset=0x18, data="04" },
+	{ setname="sfiiina",    offset=0x10, data="b5 fe 05 3e fc 03 92 5a" },
+	{ setname="sfiiina",    offset=0x18, data="04" },
+	{ setname="sfiii2n",    offset=0x10, data="00 00 00 00 00 00 00 00" },
+	{ setname="sfiii2n",    offset=0x18, data="01" },
+	{ setname="jojon",      offset=0x10, data="02 20 3e e3 01 30 19 72" },
+	{ setname="jojon",      offset=0x18, data="04" },
+	{ setname="jojonr1",    offset=0x10, data="02 20 3e e3 01 30 19 72" },
+	{ setname="jojonr1",    offset=0x18, data="04" },
+	{ setname="jojonr2",    offset=0x10, data="02 20 3e e3 01 30 19 72" },
+	{ setname="jojonr2",    offset=0x18, data="04" },
+	{ setname="sfiii3n",    offset=0x10, data="a5 54 32 b4 0c 12 99 81" },
+	{ setname="sfiii3n",    offset=0x18, data="04" },
+	{ setname="sfiii3na",   offset=0x10, data="a5 54 32 b4 0c 12 99 81" },
+	{ setname="sfiii3na",   offset=0x18, data="04" },
+	{ setname="sfiii3nr1",  offset=0x10, data="a5 54 32 b4 0c 12 99 81" },
+	{ setname="sfiii3nr1",  offset=0x18, data="04" },
+	{ setname="sfiii3nar1", offset=0x10, data="a5 54 32 b4 0c 12 99 81" },
+	{ setname="sfiii3nar1", offset=0x18, data="04" },
+	{ setname="jojoba",     offset=0x10, data="23 32 3e e3 03 02 19 72" },
+	{ setname="jojoba",     offset=0x18, data="04" },
+	{ setname="jojoban",    offset=0x10, data="23 32 3e e3 03 02 19 72" },
+	{ setname="jojoban",    offset=0x18, data="04" },
+	{ setname="jojobanr1",  offset=0x10, data="23 32 3e e3 03 02 19 72" },
+	{ setname="jojobanr1",  offset=0x18, data="04" },
+	{ setname="jojobaner1", offset=0x10, data="23 32 3e e3 03 02 19 72" },
+	{ setname="jojobaner1", offset=0x18, data="04" },
+	{ setname="jojobanr2",  offset=0x10, data="23 32 3e e3 03 02 19 72" },
+	{ setname="jojobanr2",  offset=0x18, data="04" },
+	{ setname="jojobaner2", offset=0x10, data="23 32 3e e3 03 02 19 72" },
+	{ setname="jojobaner2", offset=0x18, data="04" },
+]
+
+[rom]
+regions=[
+	{ name="bios" },
+	{ name="simm1.?", width=32, no_offset=true, sequence=[1,0,3,2] },
+	{ name="simm2.?", width=32, no_offset=true, sequence=[1,0,3,2], setnames=[
+		"jojon","jojonr1","jojonr2",
+		"jojoban","jojobanr1","jojobanr2",
+		"jojobaner1","jojobaner2",
+		"sfiii2n", "sfiii3n", "sfiii3na", "sfiii3nar1", "sfiii3nr1"
+	] },
+	{ name="simm3.?", width=16, reverse=true, no_offset=true },
+	{ name="simm4.?", width=16, reverse=true, no_offset=true },
+	{ name="simm5.?", width=16, reverse=true, no_offset=true },
+	{ name="simm6.?", width=16, reverse=true, no_offset=true, setnames=[
+		"sfiii3n", "sfiii3na", "sfiii3nar1", "sfiii3nr1"
+	] },
+]
+
+order=[
+	"bios",
+	"simm1.0",
+	"simm1.1",
+	"simm1.2",
+	"simm1.3",
+	"simm3.0",
+	"simm3.1",
+	"simm3.2",
+	"simm3.3",
+	"simm3.4",
+	"simm3.5",
+	"simm3.6",
+	"simm3.7",
+	"simm4.0",
+	"simm4.1",
+	"simm4.2",
+	"simm4.3",
+	"simm4.4",
+	"simm4.5",
+	"simm4.6",
+	"simm4.7",
+	"simm5.0",
+	"simm5.1",
+	"simm5.2",
+	"simm5.3",
+	"simm5.4",
+	"simm5.5",
+	"simm5.6",
+	"simm5.7",
+	"simm2.0",
+	"simm2.1",
+	"simm2.2",
+	"simm2.3",
+	"simm6.0",
+	"simm6.1",
+	"simm6.2",
+	"simm6.3",
+	"simm6.4",
+	"simm6.5",
+	"simm6.6",
+	"simm6.7",
+]
+
+nvram = { defaults=[
+	{ setname="redearthn",   data="01 01 00 00 00 00 01 00 02 00 00 01 00 00 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01 07 00 01 01 00 08 23 05 95 20 44 32 53 01 01 00 00 00 00 01 00 02 00 00 01 00 00 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01 07 00 01 01 00 08 23 05 95 20 44 32 53 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" },
+	{ setname="redearthnr1", data="01 01 00 00 00 00 01 00 02 00 00 01 00 00 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01 07 00 01 01 00 08 23 05 95 20 44 32 53 01 01 00 00 00 00 01 00 02 00 00 01 00 00 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 01 07 00 01 01 00 08 23 05 95 20 44 32 53 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" },
+	{ setname="sfiiin",      data="01 01 00 00 00 00 01 00 02 00 00 01 00 00 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 02 00 00 00 00 01 01 23 05 95 20 44 32 53 01 01 00 00 00 00 01 00 02 00 00 01 00 00 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 02 00 00 00 00 01 01 23 05 95 20 44 32 53 18 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" },
+	{ setname="sfiiina",     data="01 01 00 00 00 00 01 00 02 00 00 01 00 00 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 02 00 00 00 00 01 01 23 05 95 20 44 32 53 01 01 00 00 00 00 01 00 02 00 00 01 00 00 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 02 00 00 00 00 01 01 23 05 95 20 44 32 53 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" },
+	{ setname="sfiii2n",     data="01 01 00 00 00 00 01 00 02 00 00 01 00 00 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 02 00 01 00 00 01 01 25 09 97 20 41 47 33 01 01 00 00 00 00 01 00 02 00 00 01 00 00 01 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 02 00 01 00 00 01 01 25 09 97 20 41 47 33 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" },
+	{ setnames=["jojon","jojonr1","jojonr2"],        data="00 00 01 00 01 01 00 00 00 00 01 01 00 00 00 00 00 00 00 00 01 07 00 00 01 00 01 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 02 4b 4a 4a 00 00 01 00 01 01 00 00 00 00 01 01 00 00 00 00 00 00 00 00 01 07 00 00 01 00 01 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 02 4b 4a 4a 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" },
+	# sfiii3na inferred from sfiii3n
+	{ setnames=["sfiii3n","sfiii3na"],               data="01 01 00 00 00 00 01 01 02 00 00 01 00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 02 00 01 00 00 11 00 15 04 99 20 53 33 33 01 01 00 00 00 00 01 01 02 00 00 01 00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 02 00 01 00 00 11 00 15 04 99 20 53 33 33 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" },
+	# sfiii3nar1 inferred from sfiii3nr1
+	{ setnames=["sfiii3nr1","sfiii3nar1"],           data="01 01 00 00 00 00 01 01 02 00 00 01 00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 02 00 01 00 00 11 00 15 04 99 20 53 33 33 01 01 00 00 00 00 01 01 02 00 00 01 00 00 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 01 02 00 01 00 00 11 00 15 04 99 20 53 33 33 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" },
+	{ setnames=["jojoba","jojobaner1","jojobaner2"], data="00 00 01 09 01 01 00 00 00 01 01 01 00 00 00 00 00 00 00 00 01 01 00 00 01 00 01 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 03 4d 4a 4a 00 00 01 09 01 01 00 00 00 01 01 01 00 00 00 00 00 00 00 00 01 01 00 00 01 00 01 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 03 4d 4a 4a 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" },
+	{ setname="jojoban",                             data="00 00 01 00 01 01 00 00 00 01 01 01 00 00 00 00 00 00 00 00 01 01 00 00 00 00 01 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 01 4d 4a 4a 00 00 01 00 01 01 00 00 00 01 01 01 00 00 00 00 00 00 00 00 01 01 00 00 00 00 01 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 01 4d 4a 4a 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" },
+	{ setnames=["jojobanr1","jojobanr2"],            data="00 00 01 00 01 01 00 00 00 01 01 01 00 00 00 00 00 00 00 00 01 01 00 00 00 00 01 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 01 4d 4a 4a 00 00 01 00 01 01 00 00 00 01 01 01 00 00 00 00 00 00 00 00 01 01 00 00 00 00 01 01 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 01 4d 4a 4a 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" },
+] }

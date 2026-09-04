@@ -1,20 +1,6 @@
-/*  This file is part of JTFRAME.
-    JTFRAME program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTFRAME program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTFRAME.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jose Tejada Gomez. Twitter: @topapate
-    Version: 1.0
-    Date: 25-1-2021 */
+/* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 25-1-2021 */
 
 // Generic 16-bit dual port RAM with clock enable
 // parameters:
@@ -79,7 +65,7 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_LO ),
     .SIMFILE_BYTE( LO_BYTE     ),
-    .FULL_DW   ( 16            ),
+    .SIMFILE_DW( 16            ),
     .LATCH_IN  ( LATCH_IN      ),
     .LATCH_OUT ( LATCH_OUT     )  )
 u_lo(
@@ -98,7 +84,7 @@ jtframe_ram #(
     .SIMFILE   ( SIMFILE       ),
     .SIMHEXFILE( SIMHEXFILE_HI ),
     .SIMFILE_BYTE( HI_BYTE     ),
-    .FULL_DW   ( 16            ),
+    .SIMFILE_DW( 16            ),
     .LATCH_IN  ( LATCH_IN      ),
     .LATCH_OUT ( LATCH_OUT     )  )
 u_hi(
