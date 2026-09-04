@@ -49,13 +49,15 @@ Note that the blanking period also gets scaled by the same factor. H/V sync adju
 
 The monitor may completely lose sync for some settings. Note that this is a secondary feature, which I cannot fully test, and receives less development attention.
 
-## Analogue H size (JTFRAME_HSIZE)
+## Analogue H size (jtframe_hretime)
 
-**JTFRAME_HSIZE** replaces jtframe_hsize with jtframe_hretime, which resizes the picture by re-timing the DAC pixel clock instead of resampling the pixels. Every source pixel is still emitted once and only once, just held for longer or shorter, so there is no shimmering on moving graphics and no blending. The line period is unchanged; the active window grows into the porches and a fixed-sweep CRT draws it wider.
+On MiSTer the analogue h-size uses jtframe_hretime by default. It resizes the picture by re-timing the DAC pixel clock instead of resampling the pixels. Every source pixel is still emitted once and only once, just held for longer or shorter, so there is no shimmering on moving graphics and no blending. The line period is unchanged; the active window grows into the porches and a fixed-sweep CRT draws it wider.
 
 The re-timer is instantiated in `sys_top.v` on the VGA branch, downstream of the point where the HDMI scaler taps the stream, so **HDMI output is unaffected**. It is bypassed when the scandoubler is forced, as h-size only makes sense on a 15 kHz monitor.
 
-The OSD keeps the same two options, now labelled *CRT H size* and *CRT H size adjust*, with a signed range of -8..+7 steps. Each step is `1/JTFRAME_HSIZE_STEP` of the picture width, 1/64 (1.6%) by default, so the range is roughly -12.5%..+11%. **JTFRAME_HSIZE_STEP** must be a power of two.
+To fall back to the legacy resampling scaler (jtframe_hsize), set **JTFRAME_NORETIME** in the core's `macros.def`.
+
+The OSD shows *CRT H size* and *CRT H size adjust*, with a signed range of -8..+7 steps. Each step is `1/JTFRAME_HSIZE_STEP` of the picture width, 1/64 (1.6%) by default, so the range is roughly -12.5%..+11%. **JTFRAME_HSIZE_STEP** must be a power of two.
 
 How far the picture can actually stretch is set by the core's blanking budget, not by the module: if the resized active region would run past hs it is truncated there, so the right edge clips but sync is never corrupted. A 256-pixel game inside a 384-pixel line has room for the whole range; a 384-pixel active region runs out at around +6.
 
