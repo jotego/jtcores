@@ -228,7 +228,7 @@ wire        force_scan2x, direct_video;
 wire        video_rotated;
 wire        lightgun_en;
 
-wire [ 6:0] core_mod;
+wire [17:0] core_mod;
 wire [ 7:0] st_lpbuf, game_vol;
 wire [ 7:0] paddle_1, paddle_2, paddle_3, paddle_4;
 // Mouse support

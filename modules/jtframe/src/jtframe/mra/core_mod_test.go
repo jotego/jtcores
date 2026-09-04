@@ -17,10 +17,11 @@ func Test_screen_size_frame_encoding(t *testing.T) {
 		rotate, width, height int
 		want uint
 	}{
-		{"horizontal 8 pixels",  0, 368, 256, COREMOD_8PXL_FRAME<<COREMOD_FRAME_BIT},
-		{"horizontal 16 pixels", 0, 352, 256, COREMOD_16PXL_FRAME<<COREMOD_FRAME_BIT},
-		{"vertical 8 lines",     90, 384, 240, COREMOD_VERTICAL | COREMOD_8PXL_FRAME<<COREMOD_FRAME_BIT},
-		{"vertical 16 lines",    270, 384, 224, COREMOD_VERTICAL | COREMOD_XORFLIP | COREMOD_16PXL_FRAME<<COREMOD_FRAME_BIT},
+		{"horizontal 8 pixels",  0, 368, 256, COREMOD_8PXL_FRAME<<COREMOD_HFRAME_BIT},
+		{"horizontal 16 pixels", 0, 352, 256, COREMOD_16PXL_FRAME<<COREMOD_HFRAME_BIT},
+		{"vertical 8 lines",     90, 384, 240, COREMOD_VERTICAL | COREMOD_8PXL_FRAME<<COREMOD_VFRAME_BIT},
+		{"vertical 16 lines",    270, 384, 224, COREMOD_VERTICAL | COREMOD_XORFLIP | COREMOD_16PXL_FRAME<<COREMOD_VFRAME_BIT},
+		{"both axes",            0, 368, 240, COREMOD_8PXL_FRAME<<COREMOD_HFRAME_BIT | COREMOD_8PXL_FRAME<<COREMOD_VFRAME_BIT},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -36,7 +37,7 @@ func Test_screen_size_frame_encoding(t *testing.T) {
 	}
 }
 
-func Test_explicit_frame_uses_selected_axis(t *testing.T) {
+func Test_explicit_frame_uses_horizontal_axis(t *testing.T) {
 	macros.MakeFromMap(map[string]string{
 		"JTFRAME_WIDTH": "384",
 		"JTFRAME_HEIGHT": "256",
@@ -50,9 +51,9 @@ func Test_explicit_frame_uses_selected_axis(t *testing.T) {
 		want uint
 	}{
 		{"horizontal", MachineXML{Display: MameDisplay{Width: 384, Height: 256}}, 8, 0,
-			COREMOD_8PXL_FRAME<<COREMOD_FRAME_BIT},
-		{"vertical", MachineXML{Display: MameDisplay{Rotate: 90, Width: 384, Height: 256}}, 0, 8,
-			COREMOD_VERTICAL | COREMOD_8PXL_FRAME<<COREMOD_FRAME_BIT},
+			COREMOD_8PXL_FRAME<<COREMOD_HFRAME_BIT},
+		{"vertical", MachineXML{Display: MameDisplay{Rotate: 90, Width: 384, Height: 256}}, 8, 0,
+			COREMOD_VERTICAL | COREMOD_8PXL_FRAME<<COREMOD_HFRAME_BIT},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -65,6 +66,23 @@ func Test_explicit_frame_uses_selected_axis(t *testing.T) {
 				t.Errorf("wrong core MOD value. Got %02X",got)
 			}
 		})
+	}
+}
+
+func Test_dial_bits_are_above_volume(t *testing.T) {
+	machine := &MachineXML{Name: "dial_game"}
+	cfg := Mame2MRA{}
+	cfg.Buttons.Dial = []struct {
+		Selectable
+		Raw, Reverse bool
+	}{{Selectable: Selectable{Machine: "dial_game"}, Raw: true, Reverse: true}}
+	var mod coreMOD
+	mod.encode_settings(machine,cfg)
+	if got := mod.coremod&(COREMOD_DIAL_ENABLE|COREMOD_DIAL_REVERSE); got!=(COREMOD_DIAL_ENABLE|COREMOD_DIAL_REVERSE) {
+		t.Errorf("wrong dial encoding. Got %06X",got)
+	}
+	if got := mod.coremod&0xff; got!=0 {
+		t.Errorf("dial encoding leaked into low core_mod bits: %02X",got)
 	}
 }
 
@@ -118,6 +136,26 @@ func Test_coremod_XML(t *testing.T) {
 		t.FailNow()
 	}
 	if text := part.GetText(); text!="01 00" {
+		t.Errorf("wrong part content. Got %s",text)
+	}
+}
+
+func Test_coremod_XML_with_dial(t *testing.T) {
+	var mod coreMOD
+	mod.coremod = COREMOD_VERTICAL | COREMOD_DIAL_ENABLE | COREMOD_DIAL_REVERSE
+	root := MakeNode("mra")
+	mod.makeXML(&root)
+	rom := root.GetNode("rom")
+	if rom==nil {
+		t.Error("Missing rom node")
+		t.FailNow()
+	}
+	part := rom.GetNode("part")
+	if part==nil {
+		t.Error("Missing part node")
+		t.FailNow()
+	}
+	if text := part.GetText(); text!="01 00 03" {
 		t.Errorf("wrong part content. Got %s",text)
 	}
 }
