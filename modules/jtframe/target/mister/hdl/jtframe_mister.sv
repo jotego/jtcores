@@ -222,7 +222,7 @@ wire [ 7:0] ioctl_index;
 wire [3*COLORW-1:0] base_rgb;
 wire        base_lhbl, base_lvbl, base_hs, base_vs;
 
-wire [ 3:0] hoffset, voffset;
+wire [ 4:0] hoffset, voffset;
 wire [31:0] cheat;
 wire        ioctl_cheat, ioctl_lock;
 

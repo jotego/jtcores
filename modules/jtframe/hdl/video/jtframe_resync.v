@@ -9,8 +9,8 @@ module jtframe_resync(
     input         vs_in,
     input         LVBL,
     input         LHBL,
-    input  [3:0]  hoffset,
-    input  [3:0]  voffset,
+    input  [4:0]  hoffset,
+    input  [4:0]  voffset,
     output reg    hs_out,
     output reg    vs_out
 );
@@ -27,11 +27,11 @@ reg              last_LHBL, last_LVBL, last_hsin, last_vsin;
 wire             hb_edge, hs_edge, hs_n_edge, vb_edge, vs_edge, vs_n_edge;
 reg              field;
 
-wire [CNTW-1:0]  hpos_off = WIDE==1 ? { {CNTW-5{hoffset[3]}}, hoffset[3:0], 1'b0 }:
-                                      { {CNTW-4{hoffset[3]}}, hoffset[3:0]  };
+wire [CNTW-1:0]  hpos_off = WIDE==1 ? { {CNTW-6{hoffset[4]}}, hoffset[4:0], 1'b0 }:
+                                      { {CNTW-5{hoffset[4]}}, hoffset[4:0]  };
 wire [CNTW-1:0]  htrip = hs_pos[field] + hpos_off;
 wire [CNTW-1:0]  vs_htrip = vs_hpos[field] + hpos_off;
-wire [CNTW-1:0]  vs_vtrip = vs_vpos[field] + { {CNTW-4{voffset[3]}}, voffset[3:0]  };
+wire [CNTW-1:0]  vs_vtrip = vs_vpos[field] + { {CNTW-5{voffset[4]}}, voffset[4:0]  };
 
 assign hb_edge = LHBL && !last_LHBL;
 assign hs_edge = hs_in && !last_hsin;
