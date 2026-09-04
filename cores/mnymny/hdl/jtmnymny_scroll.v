@@ -63,8 +63,8 @@ jtframe_scroll #(
     .MAP_HW     (  8 ),
     .MAP_VW     (  8 ),
     .HJUMP      (  0 ),
-    // hw prefetches during the last blank clocks (H 240-255 = hdump 368-383)
-    .HLOOP      ( 368 ),
+    // hw prefetches during the last blank clocks; covers the col 0/1 fetches
+    .HLOOP      ( 360 ),
     .COL_SCROLL (  1 )
 ) u_scroll(
     .rst        ( rst       ),
@@ -75,8 +75,8 @@ jtframe_scroll #(
     .hdump      ( hdump     ),
     .blankn     ( blankn    ),
     .flip       ( flip      ),
-    // fetch leads the display by one 8-pixel group (cab shows col0 first, col31 last)
-    .scrx       ( 8'd8      ),
+    // two-group fetch pipeline: RAM reads in group g, ROM access in g+1, shift in g+2
+    .scrx       ( 8'd16     ),
     .scry       ( scry      ),
     .vram_addr  ( va        ),
     .code       ( code      ),
