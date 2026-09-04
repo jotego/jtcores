@@ -6,8 +6,8 @@ module jtframe_mister_status (
     output        crop_en,
     output [ 3:0] vcopt,
     output [ 2:0] crop_scale,
-    output [ 3:0] voffset,
-    output [ 3:0] hoffset,
+    output [ 4:0] voffset,
+    output [ 4:0] hoffset,
     output        hsize_enable,
     output [ 3:0] hsize_scale,
     output [ 1:0] ram_save,
@@ -22,7 +22,7 @@ assign vcopt      = status[45:42];
 assign crop_scale = {1'b0, status[47:46]};
 
 // H-Pos & V-Pos for CRT
-assign { voffset, hoffset } = status[60:53];
+assign { voffset, hoffset } = status[62:53];
 
 // Horizontal scaling for CRT
 assign hsize_enable = status[48];
