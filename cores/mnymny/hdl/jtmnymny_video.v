@@ -86,7 +86,6 @@ jtmnymny_scroll u_scroll(
     .rst       ( rst          ),
     .clk       ( clk          ),
     .pxl_cen   ( pxl_cen      ),
-    .hs        ( HS           ),
     .hdump     ( hdump        ),
     .vdump     ( vdump        ),
     .blankn    ( LVBL         ),
