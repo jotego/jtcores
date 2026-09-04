@@ -1378,7 +1378,7 @@ scanlines #(0) VGA_scanlines
 // JTFRAME: analogue h-size. Inserted after the HDMI branch has already tapped
 // the stream, so stretching only moves the DAC pixel clock. See
 // $JTFRAME/hdl/video/jtframe_hretime.v
-`ifdef JTFRAME_HSIZE
+`ifndef JTFRAME_NORETIME
 wire [23:0] vga_data_hz;
 wire        vga_hs_hz, vga_vs_hz, vga_de_hz;
 wire [ 4:0] VGA_HSIZE;
@@ -1804,7 +1804,7 @@ emu emu
 	.VGA_DISABLE(VGA_DISABLE),
 `endif
 
-`ifdef JTFRAME_HSIZE
+`ifndef JTFRAME_NORETIME
 	.VGA_HSIZE(VGA_HSIZE),
 `endif
 
