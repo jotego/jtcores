@@ -47,6 +47,29 @@ Handoff prompt:
 >   "pixel group non-zero" back to 6K. Validate against the behavioural
 >   renderer frame-by-frame (jtframe sim + frame dumps, compare PNGs).
 >
+> **Confirmed pin traces (2026-09 session, use these directly):**
+> - /LD1 (5N pin 12) = /(1H&2H&4H): fires at phase 7 of each 8-pixel group.
+>   /LD2 (5N pin 6) = /(1H&2H&/4H): fires at phase 3. /LD1 clocks the 9B BK
+>   latch (sheet 5); /LD2 clocks the 6N SELECT flops (sheet 4).
+> - 2J LS374 (HPLA attribute latch) CK = /OBDLOUT = 6K pin 16 (dumped:
+>   pulses at phases 14-15 of each 16-clock span during display, /ABT gated).
+> - 4H LS175 (PAP latch) CK = /LPFMSW = 6K pin 14 (dumped: phases 10-11).
+> - Background LS194 shifters: CLK = 6MHz, S1 = S0T1, S0 = S1T1 (from 9C
+>   LS153 + 5F LS00, /YA//YB from dumped 6J). Every 6J /YA//YB term requires
+>   1H&2H, so shifter loads land only on the /LD phases (3 or 7), alternating
+>   the two 8-pixel halves by SELECT: 16-bit-per-plane double buffer.
+> - 1E/1D/1C tile RAM address muxes: select = /SABBKG (CPU steals the address
+>   during its accesses only; /WAIT confines those to H 506..257 and the
+>   8-clock slot at H 378..385 from the 5M-2 bus-grant flop).
+> - 9E/9D palette address muxes: always enabled, switched by SELECT.
+> - 9J palette latch: CK=6MHz, /OE=/VIDOUT (+1 clock). Output blanking must
+>   lag the counters by 2 clocks total (PROM + latch): jtframe_blank DLY=2.
+> - /VIDOUT = 6P LS74 (CK=6MHz) resampling ABVIDOUT = 8C 82S100 pin 10:
+>   the visible-window enable comes from the UNDUMPED PLA - keep it as one
+>   labeled calibration constant until 8C is dumped.
+> - 9M CF border-colour buffers: /OE1 = 6L LS00(/VIDOUT, 3-pad strap: VCC or
+>   6G) - strap undetermined, harmless here (CF attribute bits always 0).
+>
 > Wire the new engine behind a macro (e.g. MNYMNY_OBJSCH) so both paths
 > build until the schematic one matches.
 
