@@ -47,6 +47,19 @@ wire        inzone   = !ydiff[8] && ydiff[7:4]==0;
 // ROM layout is {code, y[3], half, y[2:0]}; objdraw emits {code, half, y[3:0]}
 assign rom_addr = { dr_addr[14:7], dr_addr[5], dr_addr[6], dr_addr[4:2] };
 
+// SDRAM words pack the leftmost pixel in the MSB (jtframe_tilemap convention);
+// jtframe_draw wants it in the LSB, so reverse each plane byte
+wire [31:0] dr_data;
+generate
+    genvar i;
+    for( i=0; i<8; i=i+1 ) begin : u_rev
+        assign dr_data[   i] = rom_data[ 7-i];
+        assign dr_data[ 8+i] = rom_data[15-i];
+        assign dr_data[16+i] = rom_data[23-i];
+        assign dr_data[24+i] = rom_data[31-i];
+    end
+endgenerate
+
 always @(posedge clk) begin
     if( rst ) begin
         st    <= 0;
@@ -123,7 +136,8 @@ end
 jtframe_objdraw #(
     .CW     (  8 ),
     .PW     (  9 ),
-    .LATCH  (  1 )
+    .LATCH  (  1 ),
+    .HFIX   (  0 )
 ) u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -144,7 +158,7 @@ jtframe_objdraw #(
     .rom_addr   ( dr_addr   ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
-    .rom_data   ( rom_data  ),
+    .rom_data   ( dr_data   ),
     .pxl        ( pxl       )
 );
 
