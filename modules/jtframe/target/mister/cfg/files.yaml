@@ -46,11 +46,11 @@ jtframe:
     get:
     - jtframe_shadow.v
   - from: video
-    unless: [ JTFRAME_HSIZE ]
+    when: [ JTFRAME_NORETIME ]
     get:
     - jtframe_hsize.v
   - from: video
-    when: [ JTFRAME_HSIZE ]
+    unless: [ JTFRAME_NORETIME ]
     get:
     - jtframe_hretime.v
   - from: video

@@ -460,12 +460,13 @@ func clean_osd_macro() {
 	Set("CORE_OSD", core_osd)
 }
 
-// JTFRAME_HSIZE regenerates the analogue pixel clock with a phase accumulator,
+// jtframe_hretime regenerates the analogue pixel clock with a phase accumulator,
 // so the re-timer needs the clk-to-pixel-clock ratio. It also needs a FIFO able
 // to hold the peak lead between writer and reader, which is at most
 // JTFRAME_WIDTH*8/JTFRAME_HSIZE_STEP samples (8 = the largest scale step).
+// Skipped when JTFRAME_NORETIME selects the legacy resampling scaler.
 func set_hsize_params(mclk int) {
-	if !IsSet("JTFRAME_HSIZE") {
+	if IsSet("JTFRAME_NORETIME") {
 		return
 	}
 	if !IsSet("JTFRAME_HSIZE_STEP") {
@@ -484,7 +485,7 @@ func set_hsize_params(mclk int) {
 	if IsSet("JTFRAME_PXLCLK") {
 		mhz, e := strconv.Atoi(Get("JTFRAME_PXLCLK"))
 		if e != nil || mhz <= 0 || mclk%(mhz*1000000) != 0 {
-			log.Fatal("JTFRAME: JTFRAME_HSIZE needs an integer ratio between JTFRAME_MCLK (",
+			log.Fatal("JTFRAME: jtframe_hretime needs an integer ratio between JTFRAME_MCLK (",
 				mclk, ") and JTFRAME_PXLCLK (", Get("JTFRAME_PXLCLK"), " MHz)")
 		}
 		div = mclk / (mhz * 1000000)
