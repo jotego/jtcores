@@ -7,8 +7,6 @@
 module jtmnymny_colmix(
     input               clk,
     input               pxl_cen,
-    input               LHBL,
-    input               LVBL,
     input       [ 8:0]  scr_pxl,     // { pal[4:0], pix[3:0] }, pix[3]=0
     input       [ 8:0]  obj_pxl,
     output      [ 8:0]  pal_addr,
@@ -37,7 +35,7 @@ wire [7:0] g8 = rgw( pal9g_data[0], pal9f_data[3], pal9f_data[2] );
 wire [7:0] b8 = ( pal9f_data[1] ? 8'd115 : 8'd0 ) + ( pal9f_data[0] ? 8'd140 : 8'd0 );
 
 always @(posedge clk) if(pxl_cen) begin
-    if( ~(LHBL & LVBL) || mix_pix==0 ) begin
+    if( mix_pix==0 ) begin
         { rl, gl, bl } <= 0;   // pen 0 is always black (see MAME note on Jack Rabbit)
     end else begin
         rl <= r8[7:4];

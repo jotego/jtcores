@@ -36,8 +36,9 @@ module jtmnymny_video(
 );
 
 wire [ 8:0] vdump, vrender, hdump;
-wire        hinit;
+wire        hinit, preLHBL, preLVBL;
 wire [ 8:0] obj_pxl, scr_pxl;
+wire [ 3:0] pre_r, pre_g, pre_b;
 
 jtframe_vtimer #(
     .VCNT_END   (  9'd263   ),
@@ -62,10 +63,23 @@ jtframe_vtimer #(
     .H          ( hdump     ),
     .Hinit      ( hinit     ),
     .Vinit      (           ),
-    .LHBL       ( LHBL      ),
-    .LVBL       ( LVBL      ),
+    .LHBL       ( preLHBL   ),
+    .LVBL       ( preLVBL   ),
     .HS         ( HS        ),
     .VS         ( VS        )
+);
+
+// data path lags the counters by 2 pxl (PROM read + output register)
+jtframe_blank #(.DLY(2),.DW(12)) u_blank(
+    .clk        ( clk       ),
+    .pxl_cen    ( pxl_cen   ),
+    .preLHBL    ( preLHBL   ),
+    .preLVBL    ( preLVBL   ),
+    .LHBL       ( LHBL      ),
+    .LVBL       ( LVBL      ),
+    .preLBL     (           ),
+    .rgb_in     ( {pre_r, pre_g, pre_b} ),
+    .rgb_out    ( {red, green, blue}    )
 );
 
 jtmnymny_scroll u_scroll(
@@ -108,8 +122,6 @@ jtmnymny_obj u_obj(
 jtmnymny_colmix u_colmix(
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .LHBL       ( LHBL          ),
-    .LVBL       ( LVBL          ),
     .scr_pxl    ( scr_pxl       ),
 `ifdef NOOBJ
     .obj_pxl    ( 9'd0          ),
@@ -119,9 +131,9 @@ jtmnymny_colmix u_colmix(
     .pal_addr   ( pal_addr      ),
     .pal9f_data ( pal9f_data    ),
     .pal9g_data ( pal9g_data    ),
-    .red        ( red           ),
-    .green      ( green         ),
-    .blue       ( blue          )
+    .red        ( pre_r         ),
+    .green      ( pre_g         ),
+    .blue       ( pre_b         )
 );
 
 endmodule
