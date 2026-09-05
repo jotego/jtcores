@@ -13,11 +13,6 @@
 //  porches absorb the extra time), keeping the line within the tolerance of
 //  vintage 15 kHz CRT and PVM monitors.
 //
-//  The HDMI path is left untouched: this module is inserted
-//  only on the analog VGA branch, after the core's video composition and
-//  before the analog DAC pins (typical insertion point in MiSTer is
-//  inside sys_top.v, before the OSD overlay).
-//
 //  ─── License ───────────────────────────────────────────────────────────────
 //  Author: Umberto Parisi (rmonic79), 2026.
 //  Distributed under GNU GPL v3 or later.
@@ -84,16 +79,32 @@ reg  [ MW-1:0] acc=0;
 reg  [DLW-1:0] sync_wp=0;
 reg  hs_l=0, ce_slow=0, started=0, fifo_de=0, de_l=0, hs_dly=0, vs_dly=0;
 
-wire [    3:0] absc  = scale[3] ? -scale : scale;
-wire [  MW-1:0] m    = DIV[MW-1:0]*(STEP[MW-1:0]+{{MW-4{scale[3]}},scale}),
-                nxt  = acc + STEP[MW-1:0];
-wire [  PW-1:0] prod = nactive*absc;
-wire [  HW-1:0] grow = prod[PW-1:SL];           // size change, in pixels
-wire [  HW+4:0] dly_f= grow*DIV;                // .. as master clocks
-wire [  HW+3:0] dly_h= dly_f[HW+4:1];           // half of it centres the image
-// one clock is the minimum, as the delay line output is registered
-wire [ DLW-1:0] dly  = dly_h>=DLD ? {DLW{1'b1}} :
-                       dly_h==0   ? {{DLW-1{1'b0}},1'b1} : dly_h[DLW-1:0];
+wire [MW-1:0] nxt = acc + STEP[MW-1:0];
+
+// Pipeline: scale (OSD) and nactive (once/line) are quasi-static, so
+// registering the derived values costs no visible latency and breaks
+// the multiply→multiply→MLAB chain that hurts timing closure.
+reg  [  MW-1:0] m_r;
+reg  [  HW-1:0] grow_r;
+reg  [ DLW-1:0] dly_r;
+
+always @(posedge clk) begin : dly_pipe
+    reg [    3:0] absc;
+    reg [ PW-1:0] prod;
+    reg [HW+4:0]  dly_f;
+    reg [HW+3:0]  dly_h;
+    // stage 1: from scale (static)
+    absc = scale[3] ? -scale : scale;
+    m_r <= DIV[MW-1:0] * (STEP[MW-1:0] + {{MW-4{scale[3]}}, scale});
+    // stage 2: nactive × |scale| → grow (one multiply)
+    prod = nactive * absc;
+    grow_r <= prod[PW-1:SL];
+    // stage 3: grow_r (registered) × DIV → centring delay (one multiply)
+    dly_f = grow_r * DIV;
+    dly_h = dly_f[HW+4:1];
+    dly_r <= dly_h >= DLD  ? {DLW{1'b1}} :
+             dly_h == 0    ? {{DLW-1{1'b0}}, 1'b1} : dly_h[DLW-1:0];
+end
 
 wire bypass = ~enable | scale==0,
      hs_pos = hs_in & ~hs_l,                    // one per line, sets the phase
@@ -112,8 +123,8 @@ always @(posedge clk) begin
     ce_slow <= 0;
     if( hs_pos ) begin
         acc <= 0;
-    end else if( nxt>=m ) begin
-        acc     <= nxt-m;
+    end else if( nxt>=m_r ) begin
+        acc     <= nxt-m_r;
         ce_slow <= 1;
     end else begin
         acc <= nxt;
@@ -144,7 +155,7 @@ always @(posedge clk) begin
         fifo_de   <= 0;
         fifo_dout <= 0;
     end else begin
-        if( !started && wcnt>(scale[3] ? grow : {HW{1'b0}}) ) started <= 1;
+        if( !started && wcnt>(scale[3] ? grow_r : {HW{1'b0}}) ) started <= 1;
         if( ce_slow ) begin
             fifo_de <= pop;
             if( pop ) begin
@@ -163,7 +174,7 @@ end
 always @(posedge clk) begin
     sync_mem[sync_wp] <= { hs_in, vs_in };
     sync_wp           <= sync_wp+1'd1;
-    { hs_dly, vs_dly} <= sync_mem[sync_wp-dly];
+    { hs_dly, vs_dly} <= sync_mem[sync_wp-dly_r];
 end
 
 // Bypass path, kept aligned with the input pixel rate
