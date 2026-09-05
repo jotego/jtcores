@@ -476,18 +476,20 @@ func set_hsize_params(mclk int) {
 	if e != nil || step < 16 || step&(step-1) != 0 {
 		log.Fatal("JTFRAME: JTFRAME_HSIZE_STEP must be a power of two of 16 or more, got ", Get("JTFRAME_HSIZE_STEP"))
 	}
-	// JTFRAME derives the pixel clock as mclk/8, doubled by JTFRAME_SDRAM96,
-	// unless the core sets the divider explicitly with JTFRAME_PXLCLK
-	div := 8
+	// JTFRAME_PXLCLK is the pixel frequency in MHz. The master clock is set
+	// by the PLL so that mclk / div = PXLCLK MHz exactly, with div computed
+	// against the nominal 48 MHz base (or 96 MHz with JTFRAME_SDRAM96).
+	// Non-standard PLLs change mclk but keep the same divisor.
+	base := 48
 	if IsSet("JTFRAME_SDRAM96") {
-		div = 16
+		base = 96
 	}
+	div := base / 6 // default PXLCLK=6
 	if IsSet("JTFRAME_PXLCLK") {
 		mhz, e := strconv.Atoi(Get("JTFRAME_PXLCLK"))
-		if e == nil && mhz > 0 && mclk%(mhz*1000000) == 0 {
-			div = mclk / (mhz * 1000000)
+		if e == nil && mhz > 0 && base%mhz == 0 {
+			div = base / mhz
 		}
-		// else: non-standard PLL where the pixel clock is still mclk/8, keep default DIV
 	}
 	Set("JTFRAME_HSIZE_DIV", fmt.Sprintf("%d", div))
 
