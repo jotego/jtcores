@@ -484,11 +484,10 @@ func set_hsize_params(mclk int) {
 	}
 	if IsSet("JTFRAME_PXLCLK") {
 		mhz, e := strconv.Atoi(Get("JTFRAME_PXLCLK"))
-		if e != nil || mhz <= 0 || mclk%(mhz*1000000) != 0 {
-			log.Fatal("JTFRAME: jtframe_hretime needs an integer ratio between JTFRAME_MCLK (",
-				mclk, ") and JTFRAME_PXLCLK (", Get("JTFRAME_PXLCLK"), " MHz)")
+		if e == nil && mhz > 0 && mclk%(mhz*1000000) == 0 {
+			div = mclk / (mhz * 1000000)
 		}
-		div = mclk / (mhz * 1000000)
+		// else: non-standard PLL where the pixel clock is still mclk/8, keep default DIV
 	}
 	Set("JTFRAME_HSIZE_DIV", fmt.Sprintf("%d", div))
 
