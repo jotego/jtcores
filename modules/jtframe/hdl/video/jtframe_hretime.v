@@ -69,7 +69,7 @@ localparam SL  = $clog2(STEP),                  // division by STEP is a shift
            DLD = 1<<$clog2((DEPTH*DIV)/2+1),    // sync delay line depth
            DLW = $clog2(DLD);
 
-(* ramstyle = "M10K, no_rw_check" *) reg [DW-1:0] mem[0:DEPTH-1];
+(* ramstyle = "no_rw_check" *) reg [DW-1:0] mem[0:DEPTH-1];
 reg [DW-1:0] mem_rd;                    // registered M10K read output
 reg  [ 1:0] sync_mem[0:DLD-1];
 
