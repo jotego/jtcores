@@ -54,8 +54,9 @@ always @* begin
             m_ram_cs  ? m_ram_dout  : 8'hff;
 end
 
-always @(posedge clk) if( mcpu_cen ) begin
-    timebase <= timebase + 1'd1;
+always @(posedge clk) if( mcpu_cen ) timebase <= timebase + 1'd1;
+
+always @(posedge clk) begin
     if( m_ram_cs && m_wr ) m_ram[mA[6:0]] <= m_dout;
     m_ram_dout <= m_ram[mA[6:0]];
 end
@@ -188,13 +189,13 @@ always @(posedge clk, posedge srst) begin
     if( srst ) begin
         dac        <= 0;
         melody_cmd <= 0;
-    end else if( mcpu_cen ) begin
+    end else begin
         if( s_wr && dac_wr  ) dac        <= s_dout;
         if( s_wr && mcmd_wr ) melody_cmd <= s_dout;
     end
 end
 
-always @(posedge clk) if( mcpu_cen ) begin
+always @(posedge clk) begin
     if( s_ram_cs && s_wr ) s_ram[sA[6:0]] <= s_dout;
     s_ram_dout <= s_ram[sA[6:0]];
 end
