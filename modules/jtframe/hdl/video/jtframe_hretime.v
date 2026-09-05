@@ -82,9 +82,7 @@ reg  hs_l=0, ce_slow=0, started=0, fifo_de=0, de_l=0, hs_dly=0, vs_dly=0;
 
 wire [MW-1:0] nxt = acc + STEP[MW-1:0];
 
-// Pipeline: scale (OSD) and nactive (once/line) are quasi-static, so
-// registering the derived values costs no visible latency and breaks
-// the multiply→multiply→MLAB chain that hurts timing closure.
+// Registered pipeline — one multiply per stage, breaks timing chains
 reg  [  MW-1:0] m_r;
 reg  [  HW-1:0] grow_r;
 reg  [ DLW-1:0] dly_r;
@@ -94,13 +92,10 @@ always @(posedge clk) begin : dly_pipe
     reg [ PW-1:0] prod;
     reg [HW+4:0]  dly_f;
     reg [HW+3:0]  dly_h;
-    // stage 1: from scale (static)
     absc = scale[3] ? -scale : scale;
     m_r <= DIV[MW-1:0] * (STEP[MW-1:0] + {{MW-4{scale[3]}}, scale});
-    // stage 2: nactive × |scale| → grow (one multiply)
     prod = nactive * absc;
     grow_r <= prod[PW-1:SL];
-    // stage 3: grow_r (registered) × DIV → centring delay (one multiply)
     dly_f = grow_r * DIV;
     dly_h = dly_f[HW+4:1];
     dly_r <= dly_h >= DLD  ? {DLW{1'b1}} :
@@ -108,7 +103,7 @@ always @(posedge clk) begin : dly_pipe
 end
 
 wire bypass = ~enable | scale==0,
-     hs_pos = hs_in & ~hs_l,                    // one per line, sets the phase
+     hs_pos = hs_in & ~hs_l,
      push   = ce_in & de_in & ~bypass,
      pop    = ce_slow & started & rcnt<wcnt;
 
@@ -118,10 +113,11 @@ assign ce_out = bypass ? ce_in : ce_slow,
        de_out = bypass ? de_l  : fifo_de,
        dout   = bypass ? din_l : fifo_dout;
 
-// Rate generator. The phase restarts at hs so every line is identical
+// Write side: rate generator, FIFO write, bypass latch
 always @(posedge clk) begin
     hs_l    <= hs_in;
     ce_slow <= 0;
+    // rate generator — phase restarts at hs
     if( hs_pos ) begin
         acc <= 0;
     end else if( nxt>=m_r ) begin
@@ -130,10 +126,7 @@ always @(posedge clk) begin
     end else begin
         acc <= nxt;
     end
-end
-
-// Write side. hs empties the FIFO, so it cannot drift from line to line
-always @(posedge clk) begin
+    // FIFO write — hs empties the FIFO
     if( hs_pos ) begin
         wptr <= 0;
         wcnt <= 0;
@@ -143,16 +136,17 @@ always @(posedge clk) begin
         wptr <= wptr+1'd1;
         wcnt <= wcnt+1'd1;
     end
+    // bypass path
+    if( ce_in ) begin
+        din_l <= din;
+        de_l  <= de_in;
+    end
 end
 
-// Continuous M10K read — data is ready one cycle after rptr changes.
-// ce_slow fires at most every 7 cycles, so mem_rd always settles in time.
-always @(posedge clk) mem_rd <= mem[rptr];
-
-// Read side. `started` releases the shrink pre-buffer: once the writer is
-// `grow` samples ahead the reader can run to the end of the line without
-// underrunning, so the tail is not lost when the writer stops
+// Read side: FIFO read, sync delay for auto-centring
 always @(posedge clk) begin
+    mem_rd <= mem[rptr];
+    // FIFO read — started gates shrink pre-buffer
     if( hs_pos ) begin
         rptr      <= 0;
         rcnt      <= 0;
@@ -172,20 +166,10 @@ always @(posedge clk) begin
             end
         end
     end
-end
-
-// The active window grows to the right by `grow` pixels, so hs/vs are pushed
-// back by half of that to keep the picture centred
-always @(posedge clk) begin
+    // sync delay — centres the picture
     sync_mem[sync_wp] <= { hs_in, vs_in };
     sync_wp           <= sync_wp+1'd1;
     { hs_dly, vs_dly} <= sync_mem[sync_wp-dly_r];
-end
-
-// Bypass path, kept aligned with the input pixel rate
-always @(posedge clk) if( ce_in ) begin
-    din_l <= din;
-    de_l  <= de_in;
 end
 
 endmodule
