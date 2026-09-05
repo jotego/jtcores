@@ -61,19 +61,19 @@ always @(posedge clk, posedge rst) begin
         if( cb1 != cb1_l && cb1 == crb[1] ) irqb1 <= 1;
         if( !cra[5] && ca2_in != ca2_l && ca2_in == cra[4] ) irqa2 <= 1;
         if( !crb[5] && cb2_in != cb2_l && cb2_in == crb[4] ) irqb2 <= 1;
-        if( cen && cs ) begin
-            if( !rnw ) case( rs )
-                2'd0: if( cra[2] ) ora  <= din; else ddra <= din;
-                2'd1: cra <= din[5:0];
-                2'd2: if( crb[2] ) orb  <= din; else ddrb <= din;
-                2'd3: crb <= din[5:0];
-            endcase
-            else case( rs )
-                2'd0: if( cra[2] ) { irqa1, irqa2 } <= 0;
-                2'd2: if( crb[2] ) { irqb1, irqb2 } <= 0;
-                default:;
-            endcase
-        end
+        // writes follow the bus (multi-clock cycles), read side effects only
+        // when the CPU actually completes the read (cen)
+        if( cs && !rnw ) case( rs )
+            2'd0: if( cra[2] ) ora  <= din; else ddra <= din;
+            2'd1: cra <= din[5:0];
+            2'd2: if( crb[2] ) orb  <= din; else ddrb <= din;
+            2'd3: crb <= din[5:0];
+        endcase
+        if( cen && cs && rnw ) case( rs )
+            2'd0: if( cra[2] ) { irqa1, irqa2 } <= 0;
+            2'd2: if( crb[2] ) { irqb1, irqb2 } <= 0;
+            default:;
+        endcase
     end
 end
 
