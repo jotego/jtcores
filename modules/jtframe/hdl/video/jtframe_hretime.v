@@ -69,7 +69,8 @@ localparam SL  = $clog2(STEP),                  // division by STEP is a shift
            DLD = 1<<$clog2((DEPTH*DIV)/2+1),    // sync delay line depth
            DLW = $clog2(DLD);
 
-(* ramstyle = "MLAB, no_rw_check" *) reg [DW-1:0] mem[0:DEPTH-1];
+reg [DW-1:0] mem[0:DEPTH-1];            // inferred as M10K block RAM
+reg [DW-1:0] mem_rd;                    // registered M10K read output
 reg  [ 1:0] sync_mem[0:DLD-1];
 
 reg  [DW-1:0] fifo_dout=0, din_l=0;
@@ -144,6 +145,10 @@ always @(posedge clk) begin
     end
 end
 
+// Continuous M10K read — data is ready one cycle after rptr changes.
+// ce_slow fires at most every 7 cycles, so mem_rd always settles in time.
+always @(posedge clk) mem_rd <= mem[rptr];
+
 // Read side. `started` releases the shrink pre-buffer: once the writer is
 // `grow` samples ahead the reader can run to the end of the line without
 // underrunning, so the tail is not lost when the writer stops
@@ -159,7 +164,7 @@ always @(posedge clk) begin
         if( ce_slow ) begin
             fifo_de <= pop;
             if( pop ) begin
-                fifo_dout <= mem[rptr];
+                fifo_dout <= mem_rd;
                 rptr      <= rptr+1'd1;
                 rcnt      <= rcnt+1'd1;
             end else begin
