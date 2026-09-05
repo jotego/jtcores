@@ -196,6 +196,10 @@ module jtframe_mister #(parameter
     output          scan2x_cen,
     output          scan2x_de,
     output    [1:0] scan2x_sl,
+`ifndef JTFRAME_NORETIME
+    // analogue h-size, applied by sys_top on the VGA branch only
+    output    [4:0] hsize_ctl,
+`endif
     // non standard:
     output            dip_pause,
     inout             dip_flip,
@@ -218,7 +222,7 @@ wire [ 7:0] ioctl_index;
 wire [3*COLORW-1:0] base_rgb;
 wire        base_lhbl, base_lvbl, base_hs, base_vs;
 
-wire [ 3:0] hoffset, voffset;
+wire [ 4:0] hoffset, voffset;
 wire [31:0] cheat;
 wire        ioctl_cheat, ioctl_lock;
 
@@ -610,8 +614,19 @@ jtframe_mister_cartsave u_save(
 assign {sav_addr, sav_dout, sav_wr, sav_ack, sd_wait} = 0;
 `endif
 
-`ifndef DEBUG_NOHDMI
-    // scales base video horizontally
+`ifndef JTFRAME_NORETIME
+    // hretime lives in sys_top — pass signals through
+    assign hsize_ctl = { hsize_enable, hsize_scale };
+    assign hsize_hs  = hs_resync;
+    assign hsize_vs  = vs_resync;
+    assign hsize_hb  = ~LHBL;
+    assign hsize_vb  = ~LVBL;
+    assign hsize_r   = game_r;
+    assign hsize_g   = game_g;
+    assign hsize_b   = game_b;
+`else
+    `ifndef DEBUG_NOHDMI
+    // scales base video horizontally (legacy resampling scaler)
     jtframe_hsize #(.COLORW(COLORW)) u_hsize(
         .clk        ( clk_sys   ),
         .pxl_cen    ( pxl1_cen  ),
@@ -637,7 +652,7 @@ assign {sav_addr, sav_dout, sav_wr, sav_ack, sd_wait} = 0;
         .g_out      ( hsize_g   ),
         .b_out      ( hsize_b   )
     );
-`else
+    `else
     assign hsize_hs = hs_resync;
     assign hsize_vs = vs_resync;
     assign hsize_hb = ~LHBL;
@@ -645,6 +660,7 @@ assign {sav_addr, sav_dout, sav_wr, sav_ack, sd_wait} = 0;
     assign hsize_r  = game_r;
     assign hsize_g  = game_g;
     assign hsize_b  = game_b;
+    `endif
 `endif
 
 localparam VIDEO_DW = COLORW!=5 ? 3*COLORW : 24;
