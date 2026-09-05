@@ -15,10 +15,13 @@ module jtmnymny_prot(
 // read strobes per the dumped OE terms (AB11 low = 6400, high = 6C00)
 wire rdp  = !A[9] && A[10] && !A[12] && A[13] && A[14] && !rd_n;
 
+// at 6C00 only offset 4 drives the high bits (board-traced; the brute-forced
+// 22V10 dump over-drives D6/D7 there and breaks coin acceptance)
+wire off4 = A[2] & ~A[1];
 wire d4oe = rdp & ~A[11] & rfsh_n;
 wire d5oe = rdp & ~A[11] & rfsh_n;
-wire d6oe = rdp &           rfsh_n;
-wire d7oe = rdp &  A[11];
+wire d6oe = rdp & (~A[11] | off4) & rfsh_n;
+wire d7oe = rdp &  A[11] & off4;
 
 wire d4 = ~(A[1]^A[2]);              // o21 = AB1 xnor AB2
 wire d5 = A[2];                      // o22
