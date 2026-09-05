@@ -65,31 +65,30 @@ The module has a single clock (`clk` = master clock) and generates its own outpu
 
 The target period is **m = DIV × (STEP + scale)**. Each master-clock cycle the accumulator adds STEP. When the accumulator reaches or exceeds m, it fires `ce_slow` (one output pixel) and wraps by subtracting m. The accumulator resets at every horizontal sync, so every line starts with the same phase.
 
-At **scale = 0**: m = 8 × 64 = 512. The accumulator adds 64 each cycle and fires every 512 / 64 = **8 clocks** — exactly the input pixel rate. 1:1, no change.
-
-At **scale = +1** (stretch by 1/64 = 1.5625%): m = 8 × 65 = 520. The accumulator fires every 520 / 64 = 8.125 clocks on average. Since clocks are integers, some pixels are held for 8 clocks and some for 9, with the extra clock distributed evenly across the line:
+Every pixel normally takes DIV = 8 master clocks. The scale controls how many pixels in each group of 8 shift to the adjacent divisor (7 or 9 clocks). The shifted pixels are distributed evenly across the line by the accumulator — never two adjacent.
 
 ```
-Pixel | Held for | acc after
-------+----------+----------
-    0 | 9 clocks |    56
-    1 | 8 clocks |    48
-    2 | 8 clocks |    40
-    3 | 8 clocks |    32
-    4 | 8 clocks |    24
-    5 | 8 clocks |    16
-    6 | 8 clocks |     8
-    7 | 8 clocks |     0
-    8 | 9 clocks |    56      ← pattern repeats
-    9 | 8 clocks |    48
-   ...
+scale | per group of 8 pixels              | total clocks | % change
+------+--------------------------------------+--------------+---------
+  -8  | 8 at 7 clocks                       |  56          | -12.5%
+  -7  | 7 at 7, 1 at 8                      |  57          | -10.9%
+  -6  | 6 at 7, 2 at 8                      |  58          |  -9.4%
+  -5  | 5 at 7, 3 at 8                      |  59          |  -7.8%
+  -4  | 4 at 7, 4 at 8                      |  60          |  -6.25%
+  -3  | 3 at 7, 5 at 8                      |  61          |  -4.7%
+  -2  | 2 at 7, 6 at 8                      |  62          |  -3.1%
+  -1  | 1 at 7, 7 at 8                      |  63          |  -1.6%
+   0  | 8 at 8                    (bypass)   |  64          |   0%
+  +1  | 7 at 8, 1 at 9                      |  65          |  +1.6%
+  +2  | 6 at 8, 2 at 9                      |  66          |  +3.1%
+  +3  | 5 at 8, 3 at 9                      |  67          |  +4.7%
+  +4  | 4 at 8, 4 at 9                      |  68          |  +6.25%
+  +5  | 3 at 8, 5 at 9                      |  69          |  +7.8%
+  +6  | 2 at 8, 6 at 9                      |  70          |  +9.4%
+  +7  | 1 at 8, 7 at 9                      |  71          | +10.9%
 ```
 
-The pattern repeats every 8 pixels: 7 pixels × 8 clocks + 1 pixel × 9 clocks = **65 clocks for 8 pixels**. At scale = 0 the same 8 pixels take 64 clocks. The extra clock per group is the 1/64 stretch.
-
-The residual accumulator value decreases by 8 each pixel (= m mod STEP = 520 mod 64 = 8). When it hits 0, the next pixel gets the extra clock and the residual resets to 56. This distributes the fractional remainder uniformly — no two consecutive pixels get the extra clock, and the pattern is the same on every line.
-
-Shrink works symmetrically: at scale = -1, m = 8 × 63 = 504, and the output fires every 7.875 clocks on average — most pixels get 8 clocks, one in eight gets 7.
+At scale = -8, all 8 pixels move from 8→7 clocks — a full divisor shift. At scale = +7, 7 out of 8 move from 8→9. The pattern is identical on every line (the accumulator resets at hs).
 
 ### Pixel edge placement
 
