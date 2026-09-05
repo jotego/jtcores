@@ -51,22 +51,80 @@ The monitor may completely lose sync for some settings. Note that this is a seco
 
 ## Analogue H size (jtframe_hretime)
 
-On MiSTer the analogue h-size uses jtframe_hretime by default. It resizes the picture by re-timing the DAC pixel clock instead of resampling the pixels. Every source pixel is still emitted once and only once, just held for longer or shorter, so there is no shimmering on moving graphics and no blending. The line period is unchanged; the active window grows into the porches and a fixed-sweep CRT draws it wider.
-
-The re-timer is instantiated in `sys_top.v` on the VGA branch, downstream of the point where the HDMI scaler taps the stream, so **HDMI output is unaffected**. It is bypassed when the scandoubler is forced, as h-size only makes sense on a 15 kHz monitor.
+On MiSTer the analogue h-size uses jtframe_hretime by default. It resizes the picture by re-timing the DAC pixel clock instead of resampling the pixels. Every source pixel is still emitted once and only once, just held for a longer or shorter number of master-clock cycles, so there is no shimmering on moving graphics and no blending. The line period is unchanged; the active window grows into the porches and a fixed-sweep CRT draws it wider.
 
 To fall back to the legacy resampling scaler (jtframe_hsize), set **JTFRAME_NORETIME** in the core's `macros.def`.
 
-The OSD shows *CRT H size* and *CRT H size adjust*, with a signed range of -8..+7 steps. Each step is `1/JTFRAME_HSIZE_STEP` of the picture width, 1/64 (1.6%) by default, so the range is roughly -12.5%..+11%. **JTFRAME_HSIZE_STEP** must be a power of two.
+### How the phase accumulator works
 
-How far the picture can actually stretch is set by the core's blanking budget, not by the module: if the resized active region would run past hs it is truncated there, so the right edge clips but sync is never corrupted. A 256-pixel game inside a 384-pixel line has room for the whole range; a 384-pixel active region runs out at around +6.
+The module has a single clock (`clk` = master clock) and generates its own output pixel enable (`ce_slow`) using a phase accumulator. The key values:
 
-`jtframe cfgstr` derives two more macros from the core's clocks, and neither should be set by hand:
+* **DIV** — master-clock cycles per source pixel (8 for a 6 MHz pixel clock at 48 MHz)
+* **STEP** — accumulator denominator, 64 by default
+* **scale** — the OSD setting, signed -8..+7
 
-* **JTFRAME_HSIZE_DIV**: master clock cycles per pixel, from JTFRAME_MCLK, JTFRAME_PXLCLK and JTFRAME_SDRAM96
-* **JTFRAME_HSIZE_DEPTH**: elastic FIFO depth, from JTFRAME_WIDTH and the step size
+The target period is **m = DIV × (STEP + scale)**. Each master-clock cycle the accumulator adds STEP. When the accumulator reaches or exceeds m, it fires `ce_slow` (one output pixel) and wraps by subtracting m. The accumulator resets at every horizontal sync, so every line starts with the same phase.
 
-The unit test is at `$JTFRAME/ver/video/hretime`, and it sweeps every step at each of the three usual clock ratios.
+At **scale = 0**: m = 8 × 64 = 512. The accumulator adds 64 each cycle and fires every 512 / 64 = **8 clocks** — exactly the input pixel rate. 1:1, no change.
+
+At **scale = +1** (stretch by 1/64 = 1.5625%): m = 8 × 65 = 520. The accumulator fires every 520 / 64 = 8.125 clocks on average. Since clocks are integers, some pixels are held for 8 clocks and some for 9, with the extra clock distributed evenly across the line:
+
+```
+Pixel | Held for | acc after
+------+----------+----------
+    0 | 9 clocks |    56
+    1 | 8 clocks |    48
+    2 | 8 clocks |    40
+    3 | 8 clocks |    32
+    4 | 8 clocks |    24
+    5 | 8 clocks |    16
+    6 | 8 clocks |     8
+    7 | 8 clocks |     0
+    8 | 9 clocks |    56      ← pattern repeats
+    9 | 8 clocks |    48
+   ...
+```
+
+The pattern repeats every 8 pixels: 7 pixels × 8 clocks + 1 pixel × 9 clocks = **65 clocks for 8 pixels**. At scale = 0 the same 8 pixels take 64 clocks. The extra clock per group is the 1/64 stretch.
+
+The residual accumulator value decreases by 8 each pixel (= m mod STEP = 520 mod 64 = 8). When it hits 0, the next pixel gets the extra clock and the residual resets to 56. This distributes the fractional remainder uniformly — no two consecutive pixels get the extra clock, and the pattern is the same on every line.
+
+Shrink works symmetrically: at scale = -1, m = 8 × 63 = 504, and the output fires every 7.875 clocks on average — most pixels get 8 clocks, one in eight gets 7.
+
+### Pixel edge placement
+
+Because both "clocks" are really enables off the same master clock, the output pixel edges are quantized to the master-clock period. The worst-case placement error is ±½ master clock, which is ±10 ns at 48 MHz (about ±1/16 of a pixel period). This is a fixed spatial error — the same on every line and frame — and it is invisible on a CRT.
+
+### The elastic FIFO
+
+Source pixels are written into a small FIFO (~32–64 deep, MLAB-based) at the input pixel rate. The reader pops them at the `ce_slow` rate. The FIFO resets at every horizontal sync so it cannot drift across lines.
+
+For stretch the reader is slower, so the writer stays ahead and the FIFO fills gradually. For shrink the reader is faster, so it waits until the writer is far enough ahead (the `started` flag) before beginning — this prevents underrun and ensures the tail of the line is not lost.
+
+The FIFO depth is derived at build time from `JTFRAME_WIDTH` and STEP, sized to the worst-case occupancy at max stretch.
+
+### Where it sits
+
+The re-timer is instantiated in `sys_top.v` on the VGA branch, between the scanlines filter and the analog OSD — **downstream of the point where the HDMI scaler taps the stream**, so HDMI output is unaffected by construction. It is bypassed when the scandoubler is forced, as h-size only makes sense on a 15 kHz monitor.
+
+### Auto-centring
+
+Without centring, stretch grows the picture to the right and shrink pulls it left. The module delays hs/vs through a small delay line by half the growth amount, so the picture grows or shrinks about its own centre.
+
+### OSD
+
+The OSD shows *CRT H size* (enable, Off/On) and *CRT H size adjust* (signed -8..+7). The adjust entry is hidden until enable is On. Each step is `1/JTFRAME_HSIZE_STEP` of the picture width, 1/64 (1.6%) by default, so the range is roughly -12.5%..+11%. **JTFRAME_HSIZE_STEP** must be a power of two. Off is a true bypass (`ce_out = ce_in`), and scale 0 is the same bypass.
+
+How far the picture can actually stretch is set by the core's blanking budget, not by the module: if the resized active region would run past hs it is truncated there — the right edge clips but sync is never corrupted. A 256-pixel game inside a 384-pixel line has room for the whole range; a 384-pixel active region runs out at around +6.
+
+### Build-time macros
+
+`jtframe cfgstr` derives two macros from the core's clocks, and neither should be set by hand:
+
+* **JTFRAME_HSIZE_DIV**: master-clock cycles per pixel. Computed as `base / PXLCLK` where base is 48 (or 96 with SDRAM96). Default PXLCLK = 6 → DIV = 8.
+* **JTFRAME_HSIZE_DEPTH**: elastic FIFO depth, from JTFRAME_WIDTH and the step size.
+
+The unit test is at `$JTFRAME/ver/video/hretime`, and it sweeps every step at each of the three usual clock ratios (DIV 6, 8, 12).
 
 # Frame Buffer
 
