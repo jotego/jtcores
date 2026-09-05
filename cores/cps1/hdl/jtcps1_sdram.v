@@ -271,6 +271,17 @@ jtframe_ram1_5slots #(
     .SLOT4_AW    ( Z80_AW        ), // Sound CPU
     .SLOT4_DW    (  8            ),
     .SLOT4_OFFSET(  SND_OFFSET   )
+`ifdef ROMCACHE
+   ,.TAG_RAM     (  1            )
+   ,.CACHE3_SIZE ( 2048          )
+   ,.CACHE3_LARGE(  1            )
+   ,.CACHE4_SIZE ( 1024          )
+   ,.CACHE4_LARGE(  1            )
+`ifdef JTFRAME_BA0_LEN
+   ,.SLOT3_BURSTLEN( `JTFRAME_BA0_LEN )
+   ,.SLOT4_BURSTLEN( `JTFRAME_BA0_LEN )
+`endif
+`endif
 ) u_bank0 (
     .rst         ( rst           ),
     .clk         ( clk           ),
