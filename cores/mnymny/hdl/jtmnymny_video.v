@@ -44,12 +44,14 @@ jtframe_vtimer #(
     .VCNT_END   (  9'd263   ),
     .VB_START   (  9'd239   ),
     .VB_END     (  9'd015   ),
-    // V counters reload at 248 (3N/4N presets); VSYNC = 256V low, vdump 8-15.
-    // The board only outputs /CSYNC, so the VS trailing edge never reaches the
-    // monitor; ending VS at 16 overlaps the first active line and breaks the
-    // scaler geometry (HDMI 0x0). Keep the schematic leading edge, close at 12.
-    .VS_START   (  9'd8     ),
-    .VS_END     (  9'd12    ),
+    // V counters reload at 248 (3N/4N presets); VSYNC = 256V low, vdump 8-15,
+    // i.e. the schematic puts sync right before active video with no back
+    // porch (the board only outputs /CSYNC). That is unusable on consumer
+    // CRTs (picture sits ~10 lines too high) and broke the HDMI scaler
+    // geometry, so VS is moved 10 lines earlier: 4-line sync, 14-line back
+    // porch. Same 264-line cadence, only the pulse placement changes.
+    .VS_START   (  9'd262   ),
+    .VS_END     (  9'd2     ),
     .HCNT_END   (  9'd383   ),
     .HB_START   (  9'd255   ),
     .HB_END     (  9'd383   ),
