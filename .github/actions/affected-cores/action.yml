@@ -1,0 +1,33 @@
+name: JTCORES affected cores
+description: Report the JTCORES cores that may use files changed by a pull request.
+inputs:
+  repository-path:
+    description: Root of the checked-out JTCORES repository.
+    required: false
+    default: .
+  changed-files:
+    description: Newline-delimited repository-relative changed paths. If omitted, base-sha and head-sha are diffed with git.
+    required: false
+  base-sha:
+    description: Base commit for the pull-request diff.
+    required: false
+  head-sha:
+    description: Head commit for the pull-request diff.
+    required: false
+    default: HEAD
+outputs:
+  affected-cores:
+    description: JSON object mapping each affected core to its changed dependency paths.
+  affected-core-names:
+    description: JSON array of affected core names.
+  unmatched-files:
+    description: JSON array of changed paths that do not currently affect a core.
+  unresolved-cores:
+    description: JSON array of cores whose JTFRAME file list could not be generated.
+  report:
+    description: Markdown report with one row per affected core.
+  pull-request-comment:
+    description: Markdown body for a tagged pull-request comment.
+runs:
+  using: node24
+  main: src/index.mjs

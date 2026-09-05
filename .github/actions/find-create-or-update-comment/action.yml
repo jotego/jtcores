@@ -1,0 +1,55 @@
+name: Find, create or update comment
+description: Find a matching PR comment and replace it, or create it when absent.
+
+inputs:
+  token:
+    description: GITHUB_TOKEN or a repository-scoped PAT.
+    required: true
+    default: ${{ github.token }}
+  repository:
+    description: Full name of the repository containing the pull request.
+    required: true
+    default: ${{ github.repository }}
+  issue-number:
+    description: Pull request number.
+    required: true
+  comment-author:
+    description: GitHub user name of the comment author.
+    required: false
+    default: ''
+  body-includes:
+    description: Text used to find the existing comment.
+    required: true
+  body:
+    description: Replacement comment body.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - id: find-comment
+      uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3.1.0
+      with:
+        token: ${{ inputs.token }}
+        repository: ${{ inputs.repository }}
+        issue-number: ${{ inputs.issue-number }}
+        comment-author: ${{ inputs.comment-author }}
+        body-includes: ${{ inputs.body-includes }}
+        direction: first
+    - name: Create comment
+      if: steps.find-comment.outputs.comment-id == 0
+      uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
+      with:
+        token: ${{ inputs.token }}
+        repository: ${{ inputs.repository }}
+        issue-number: ${{ inputs.issue-number }}
+        body: ${{ inputs.body }}
+    - name: Update comment
+      if: steps.find-comment.outputs.comment-id != 0
+      uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
+      with:
+        token: ${{ inputs.token }}
+        repository: ${{ inputs.repository }}
+        comment-id: ${{ steps.find-comment.outputs.comment-id }}
+        edit-mode: replace
+        body: ${{ inputs.body }}

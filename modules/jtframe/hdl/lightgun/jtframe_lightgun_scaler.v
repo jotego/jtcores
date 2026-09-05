@@ -1,6 +1,6 @@
 /* SPDX-FileCopyrightText: 2026 Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
- * Date: 14-03-2025 */
+ * Date: 14-03-2026 */
 
 module jtframe_lightgun_scaler(
     input             clk,

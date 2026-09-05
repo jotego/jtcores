@@ -1,0 +1,70 @@
+name: Cores affected by pull request
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  affected_cores:
+    runs-on: ubuntu-24.04
+    outputs:
+      affected-cores: ${{ steps.analyze.outputs.affected-cores }}
+      affected-core-names: ${{ steps.analyze.outputs.affected-core-names }}
+      unresolved-cores: ${{ steps.analyze.outputs.unresolved-cores }}
+    steps:
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.23.4'
+
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          submodules: recursive
+          token: ${{ secrets.PAT }}
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Build JTFRAME CLI
+        env:
+          JTROOT: ${{ github.workspace }}
+          JTFRAME: ${{ github.workspace }}/modules/jtframe
+          CORES: ${{ github.workspace }}/cores
+          MODULES: ${{ github.workspace }}/modules
+          JTBIN: ${{ runner.temp }}/jtbin
+        run: |
+          mkdir -p "$JTBIN"
+          "$JTFRAME/bin/jtframe" --help > /dev/null
+
+      - name: List changed pull-request files
+        id: changed-files
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          result-encoding: string
+          script: |
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+            return JSON.stringify(files.map(({ filename }) => filename));
+
+      - id: analyze
+        uses: ./.github/actions/affected-cores
+        with:
+          repository-path: .
+          changed-files: ${{ steps.changed-files.outputs.result }}
+
+      - name: Update affected-cores comment
+        id: comment
+        uses: ./.github/actions/find-create-or-update-comment
+        with:
+          token: ${{ github.token }}
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: '<!-- jtcores-affected-cores -->'
+          body: ${{ steps.analyze.outputs.pull-request-comment }}
