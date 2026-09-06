@@ -22,12 +22,13 @@ rename=[ {name   = "Bonus Life", values = ["7M", "5M"] } ]
 
 [header]
 registers=[
-    { name="i8751",  pos="0[0]", desc="i8751 MCU", values=[{ machine="sharrier", value=1 }] },
-    { name="fd1089", pos="0[1]", desc="FC1089B",   values=[{ machine="enduror",  value=1 }] },
-    { name="blank4", pos="0[2]", desc="IPL2 set at blank", values=[{machines=["enduror","hangon"], value=1}] },
-    { name="ym2151", pos="1[0]", desc="YM2151",      values=[{setname="enduror1", value=0},{machine="enduror", value=1}]},
-    { name="cab1p",  pos="2[0]", desc="1P at bit 6", values=[{machine="enduror",  value=1}]},
-    { name="hicol",  pos="3[0]", desc="6144 colors", values=[{machine="hangon",   value=1}]}
+    { name="i8751",  pos="0[0]",  desc="i8751 MCU", values=[{ machine="sharrier", value=1 }] },
+    { name="fd1089", pos="0[1]",  desc="FC1089B",   values=[{ machine="enduror",  value=1 }] },
+    { name="blank4", pos="0[2]",  desc="IPL2 set at blank", values=[{machines=["enduror","hangon"], value=1}] },
+    { name="ym2151", pos="1[0]",  desc="YM2151",      values=[{setname="enduror1", value=0},{machine="enduror", value=1}]},
+    { name="cab1p",  pos="2[0]",  desc="1P at bit 6", values=[{machine="enduror",  value=1}]},
+    { name="hicol",  pos="3[0]",  desc="6144 colors", values=[{machine="hangon",   value=1}]},
+    { name="adc",    pos="4[2:0]",desc="ADC channels", values=[{machine="sharrier", value=2}, {machine="enduror", value=4}, {machine="hangon",value=3}]}
 ]
 
 # 31 so the option bits 28-30 are inside the emitted window. A bit above bitcnt

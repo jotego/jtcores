@@ -23,10 +23,10 @@ audio:
   rsum: 47k
   rsum_feedback_res: true
   channels:
-    - { name: fm,  module: jt03_fm,  rsum: 47k, pre: 0.89 } # R11/R12
+    - { name: fm,  module: jt03_fm,  rsum: 47k, pre: 0.89 }
     - { name: opn, module: jt51,     rsum: 47k, pre: 0.89 }
-    - { name: psg, module: jt03_psg, rsum: 47k, pre: 0.33 } # R7/R8, RA 1k x 5
-    - { name: pcm, data_width: 16,   rsum: 22k, stereo: true, vpp: 0.63, rc: [{ r: 47k, c: 220p }]  } # R5/R6
+    - { name: psg, module: jt03_psg, rsum: 47k, pre: 0.33 }
+    - { name: pcm, data_width: 16,   rsum: 22k, stereo: true, vpp: 0.63, rc: [{ r: 47k, c: 220p }]  }
 sdram:
   banks:
     - buses:

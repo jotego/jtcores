@@ -9,6 +9,7 @@ module jtharier_main(
     input              fd1089,
     input              blank4,
     input              cab1p,
+    input       [ 2:0] adc,
     output      [12:0] key_addr,
     input       [ 7:0] key_data,
     input              fd1089_we,
@@ -55,6 +56,8 @@ module jtharier_main(
     input       [ 6:0] joystick1,
     input       [ 7:0] an_x,       // flight stick, conditioned in game.v: ADC0 = X
     input       [ 7:0] an_y,       //                                      ADC1 = Y
+    input       [ 7:0] an_gas,
+    input       [ 7:0] an_brake,
 
     output             flip,
     output reg         mute,
@@ -83,7 +86,7 @@ module jtharier_main(
 `ifndef NOMAIN
 wire [23:1] A, cpu_A;
 wire [ 2:0] FC, IPLn;
-wire        ASn, UDSn, LDSn, BUSn, VPAn, DTACKn;
+wire        ASn, UDSn, LDSn, VPAn, DTACKn;
 wire        cpu_RnW, cpu_UDSn, cpu_LDSn;
 wire        BRn, BGn, BGACKn;
 wire [15:0] cpu_dout_raw;
@@ -150,7 +153,6 @@ wire mcu_syncw  = mcu_bus & mcu_wr & A[23:16]==8'h04 & mcu_addr==16'h0384;
 // write enable from these alone, so raw strobes make every CPU READ of char RAM
 // write over the location being read. jts16_main qualifies at the source too.
 assign dsn      = { RnW | UDSn | mcu_syncw, RnW | LDSn | mcu_syncw };
-assign BUSn     = (BGACKn & ASn) | (LDSn & UDSn);
 assign IPLn     = { blank4 ? lvbl_g : mcu_ctrl[2], mcu_ctrl[1:0] };
 assign VPAn     = inta_n;
 
@@ -225,14 +227,11 @@ always @(posedge clk, posedge rst) begin
         if( mcu_bus ? mcu_acc : (!ASn && FC!=3'b111 && {UDSn,LDSn}!=2'b11) ) begin
             rom_cs    <= A[23:18]==6'd0;             // 000000-03ffff
             ram_cs    <= A[23:14]==10'h010;          // 040000-043fff
-            // Tile map RAM, read back from SDRAM xram by the TMG. The one
-            // select that keeps !BUSn.
             vram_cs   <= A[23:15]==9'h020;           // 100000-107fff, tileram
             // Text RAM plus the tile-map registers, a BRAM inside jts16_char
             char_cs   <= A[23:12]==12'h108;          // 108000-108fff, textram
             // 109000-10ffff is left undecoded: sharrier_map maps nothing there.
             objram_cs <= A[23:12]==12'h130;          // 130000-130fff
-            // Palette RAM, a BRAM, so no !BUSn
             pal_cs    <= A[23:12]==12'h110;          // 110000-110fff
             io_cs     <= A[23:16]==8'h14;            // 140000-14ffff, mirrored
             subram_cs <= A[23:16]==8'h12 && A[15:14]==2'b01; // 124000-127fff
@@ -273,9 +272,22 @@ end
 // value here is a real divergence rather than just a dead stick. The axes arrive
 // already conditioned in jtharier_game.v; a working board reads 0x80,0x80 at rest.
 wire [1:0] adc_ch  = ppi1_a[3:2];
-wire [7:0] adc_val = adc_ch[1] ? 8'h00 :    // channels 2,3: unpopulated
-                     adc_ch[0] ? an_y :     // channel 1 = Y
-                                 an_x;      // channel 0 = X
+reg  [7:0] adc_val;
+always @(*) begin
+    if( adc==3'd4 )
+        case( adc_ch )
+            2'd0: adc_val = an_gas;
+            2'd1: adc_val = an_brake;
+            2'd2: adc_val = an_y;     // bank up/down
+            2'd3: adc_val = an_x;     // steering, reversed in jtharier_cab
+        endcase
+    else
+        case( adc_ch )
+            2'd0: adc_val = an_x;
+            2'd1: adc_val = an_y;
+            default: adc_val = 8'h00;
+        endcase
+end
 always @(*) begin
     case( A[5:4] )
         2'd0:    io_dout = ppi0_dout;

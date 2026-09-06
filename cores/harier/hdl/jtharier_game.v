@@ -27,12 +27,13 @@ wire [ 7:0] dipsw_a, dipsw_b, st_main, st_sub, st_video, st_road;
 wire        scr_bad, i8751, fd1089, blank4, ym2151, cab1p, hicol;
 wire [12:0] key_addr;
 wire [ 7:0] key_data;
+wire [ 2:0] adc;        // number of ADC channels
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 // 'V' glyph fix (dipsw[30]): the MRA lists "On,Off" so the all-ones default
 // ships faithful to the PCB.
 wire vfix_en = ~dipsw[30];
-wire [ 7:0] an_x, an_y;
+wire [ 7:0] an_x, an_y, an_gas, an_brake;
 assign mcu_we     = prom_we && prog_addr[21:12]==MCU_PROM[21:12];
 // The 8 KiB FD1089 key follows the 4 KiB MCU image. A high-bit comparison
 // would also select the MCU range and overwrite the first half of the key.
@@ -63,6 +64,7 @@ jtharier_header u_header(
     .ym2151     ( ym2151        ),
     .cab1p      ( cab1p         ),
     .hicol      ( hicol         ),
+    .adc        ( adc           ),
     .prog_addr  ( prog_addr[2:0]),
     .prog_data  ( prog_data     )
 );
@@ -106,12 +108,16 @@ jtharier_cab u_cab(
 
     .joystick1  ( joystick1[3:0]),
     .joyana_l1  ( joyana_l1     ),
+    .joyana_r1  ( joyana_r1     ),
+    .adc        ( adc           ),
 
     .sprung     ( dipsw[29]     ),
     .invert_y   ( dipsw[28]     ),
 
     .an_x       ( an_x          ),
-    .an_y       ( an_y          )
+    .an_y       ( an_y          ),
+    .an_gas     ( an_gas        ),
+    .an_brake   ( an_brake      )
 );
 
 jtharier_main u_main(
@@ -121,6 +127,7 @@ jtharier_main u_main(
     .fd1089     ( fd1089        ),
     .blank4     ( blank4        ),
     .cab1p      ( cab1p         ),
+    .adc        ( adc           ),
     .LVBL       ( LVBL          ),
     .key_addr   ( key_addr      ),
     .key_data   ( key_data      ),
@@ -164,6 +171,8 @@ jtharier_main u_main(
     .joystick1  ( joystick1[6:0]),
     .an_x       ( an_x          ),
     .an_y       ( an_y          ),
+    .an_gas     ( an_gas        ),
+    .an_brake   ( an_brake      ),
 
     .flip       ( flip          ),
     .mute       ( mute          ),
