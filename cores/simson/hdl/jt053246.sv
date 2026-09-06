@@ -62,7 +62,10 @@ module jt053246(    // sprite logic
     output     [ 7:0] st_dout
 );
 parameter       K55673=0, K55673_DESC_SORT=0, EDGE_TRIGGER=0;
+parameter       ESTRIDE_LOG2=3, ENTRY_LOG2=9;
 parameter [9:0] HOFFSET   = 10'd62;
+// Boards with both ~UDS and ~LDS wired are always 16 bit, so cfg[2] is ignored
+parameter       FORCE16=0;
 
 localparam [2:0] REG_XOFF  = 0, // X offset
                  REG_YOFF  = 1, // Y offset
@@ -81,7 +84,7 @@ wire        dma_wel, dma_weh, cpu_bsy,
 
 assign ghf       = cfg[0]; // global flip
 assign gvf       = cfg[1];
-assign mode8     = cfg[2]; // guess, use it for 8-bit access on 46/47 pair
+assign mode8     = FORCE16 ? 1'b0 : cfg[2]; // guess, use it for 8-bit access on 46/47 pair
 assign cpu_bsy   = cfg[3];
 assign dma_en    = cfg[4];
 
@@ -118,7 +121,9 @@ jt053246_scan #(.HOFFSET(HOFFSET),.SCAN_START(SCAN_START)) u_scan(
 jt053246_dma #(
     .K55673          ( K55673           ),
     .K55673_DESC_SORT( K55673_DESC_SORT ),
-    .EDGE_TRIGGER    ( EDGE_TRIGGER     )
+    .EDGE_TRIGGER    ( EDGE_TRIGGER     ),
+    .ESTRIDE_LOG2    ( ESTRIDE_LOG2     ),
+    .ENTRY_LOG2      ( ENTRY_LOG2       )
 )u_dma(
     .rst        ( rst       ),
     .clk        ( clk       ),

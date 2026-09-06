@@ -3,8 +3,15 @@ jtframe:
     get:
       - jtframe_dual_ram.v
       - jtframe_dual_nvram.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
+  - from: video/layouts
+    get:
+      - jtframe_8x8x4_packed_msb.v
 jt05415x:
   - get:
     - jt05415x.v
+    - jt054157.v
     - jt054156_mmr.v
     - jt054157_mmr.v
