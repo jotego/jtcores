@@ -196,6 +196,8 @@ case "$1" in
         add_macro NOSOUND
         add_macro NOFM
         add_macro NOSSG;;
+    -norotate)
+        RUNTIME_ARGS+=(--no-rotate);;
     -setname)
         shift
         SETNAME=$1;;

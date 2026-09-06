@@ -559,6 +559,7 @@ const int VIDEO_BUFLEN = _JTFRAME_WIDTH*_JTFRAME_HEIGHT;
 struct HarnessOptions {
     const char *cabinet_input = nullptr;
     bool explicit_video_limit = false;
+    bool no_rotate = false;
     bool trace = false;
     bool trace_from_command_line = false;
     int finish_time = 10;
@@ -574,6 +575,8 @@ static HarnessOptions parse_harness_options(int argc, char *argv[]) {
             options.cabinet_input = argv[k];
         } else if( strcmp(argv[k], "--video-limit") == 0 ) {
             options.explicit_video_limit = true;
+        } else if( strcmp(argv[k], "--no-rotate") == 0 ) {
+            options.no_rotate = true;
         } else if( strcmp(argv[k], "--trace") == 0 ) {
             options.trace = true;
         } else if( strcmp(argv[k], "--trace-command-line") == 0 ) {
@@ -941,6 +944,8 @@ void JTSim::video_dump() {
                 if( dump.diff() ) {
                     if( fork()==0 ) {
                         int len = (activew*activeh)<<2;
+                        const char *rotate_options =
+                            (!options.no_rotate && (coremod&1)) ? (CCW ? "-rotate -90" : "-rotate 90") : "";
                         storeCRC(dump.prev_buffer(),len);
                         dump.fout.open("frame.raw",ios_base::binary);
                         if( dump.fout.good() ) {
@@ -950,7 +955,7 @@ void JTSim::video_dump() {
                             snprintf(exes,512,"convert -filter Point "
                                 "-size %dx%d %s -depth 8 RGBA:frame.raw %s frames/frame_%05d.png",
                                 activew, activeh,
-                                (coremod&1) ? (CCW ? "-rotate -90" : "-rotate 90") : "",
+                                rotate_options,
                                 convert_options.c_str(), frame_cnt);
                             if( system(exes) ) {
                                 fputs("WARNING: (test.cpp) convert tool did not succeed\n", stderr);
