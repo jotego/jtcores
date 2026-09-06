@@ -46,7 +46,7 @@ module jtframe_mister_dwnld(
     output reg [ 7:0] ioctl_dout,
 
     // Configuration
-    output reg [ 6:0] core_mod,
+    output reg [17:0] core_mod,
     output reg [ 7:0] game_vol=8'h80,
     input      [31:0] status,
     output     [31:0] dipsw,
@@ -81,8 +81,9 @@ always @(posedge clk) begin
         // The hps_addr[0]==1'b0 condition is needed in case JTFRAME_MR_FASTIO is enabled
         // as it always creates two write events and the second would delete the data of the first
         if (hps_wr && hps_index==IDX_MOD) case (hps_addr[1:0])
-            0: core_mod <= hps_dout[6:0];
-            1: game_vol <= hps_dout;
+            0: core_mod       <= {11'd0,hps_dout[6:0]};
+            1: game_vol       <= hps_dout;
+            2: core_mod[17:16]<= hps_dout[1:0];
         endcase
     end
 end
