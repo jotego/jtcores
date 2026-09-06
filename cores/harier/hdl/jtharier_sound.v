@@ -2,17 +2,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 18-8-2026 */
 
-// Sound board 834-5799 (bare PCB 171-5268), schematic sheets D-1/3 .. D-3/3.
-//
-// Z80A + YM2203/discrete SegaPCM, or Z80A + YM2151/315-5218 SegaPCM. A 16.000
-// MHz oscillator feeds ALS109
-// dividers giving the 8M and 4M rails (sheet D-1/3); the Z80 and YM2203 run
-// from 4M. The PCM is discrete -- a 315-5103 sequencer, DAC7022/AD7520, HC4066
-// demux and two MF6-50 filters (sheets D-2/3, D-3/3) -- and is segapcm_device<8>,
-// the same class as Out Run's sixteen-voice part, so jtoutrun_pcm is reused.
-
 module jtharier_sound(
-    input                snd_rstn,      // PPI0 port B bit 5, held low by the 68000
+    input                snd_rstn, // PPI0 port B bit 5, held low by the 68000
     input                clk,
     input                ym2151,   // Enduro Racer sound-board selection
 
@@ -86,10 +77,6 @@ always @(*) begin
               latch_cs  ? latch    : 8'hff;
 end
 
-// PPI0 port A is a MODE 1 strobed-output port: the 68000 writing a command
-// asserts /OBF (port C bit 7), which is the Z80's NMI, and /OBF releases only on
-// /ACK (port C bit 6) -- here the Z80 reading the latch, exported as latch_rd.
-// Without that path the 8255 sends exactly ONE NMI and stops forever.
 jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .rst_n      ( snd_rstn    ),
     .clk        ( clk         ),
@@ -164,16 +151,10 @@ jt51 u_jt51(
     .xright     ( opn_r       )
 );
 
-
-// Stock jtoutrun_pcm, WD at its default 12, and the PCM audibly distorts as a
-// result: clipDAC() saturates each voice before accumulating, but WD is the FINAL
-// DAC width and that DAC converts the sum. The product (rom_data-0x80) * vol spans
-// +/-16256 and needs 15 bits, so 12 saturates eight times too early -- this driver
-// writes volumes up to 0x3F, so everything above a quarter amplitude distorts.
-// segapcm.cpp accumulates unclipped. Left as-is at jotego's request: he asked to
-// hear the PCM with the problem present rather than the WD(16) parameter that
-// removes it.
-jtoutrun_pcm u_pcm(
+// sharrier's PCM is not exactly OutRun's. It is a discrete IC implementation
+// Expanding the internal bit width of the channels in jtoutrun_pcm makes it
+// compatible. Otherwise, it would clip the sound.
+jtoutrun_pcm #(.WD(16)) u_pcm(
     .rst        ( snd_rst     ),
     .clk        ( clk         ),
     .cen        ( ym2151 ? cen_fm : cen_pcm ),

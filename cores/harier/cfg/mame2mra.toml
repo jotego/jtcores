@@ -19,6 +19,17 @@ Names = [
 [dipsw]
 delete=[{names=["Unused","Unknown"]}]
 rename=[ {name   = "Bonus Life", values = ["7M", "5M"] } ]
+bitcnt = 19
+
+extra=[
+{ machine = "sharrier", name    = "Stick Direction", bits    = "16", options = "Normal,Arcade" },
+# D-Pad Control, for d-pad users only. Arcade (=1) is the sprung cabinet stick,
+# springing back to centre; Console (=0) holds where released.
+{ machine = "sharrier", name    = "D-Pad Control", bits    = "17", options = "Console,Arcade" },
+# V Glyph Fix: 'V' in EPR-7196/7197/7198 has its rows rotated down by one and the
+# fix reads row (n+1)%8 for tile 0x56. It is an original-game bug
+{ machine = "sharrier", name    = "V Glyph Fix", bits    = "18", options = "On,Off" }
+]
 
 [header]
 registers=[
@@ -29,25 +40,6 @@ registers=[
     { name="cab1p",  pos="2[0]",  desc="1P at bit 6", values=[{machine="enduror",  value=1}]},
     { name="hicol",  pos="3[0]",  desc="6144 colors", values=[{machine="hangon",   value=1}]},
     { name="adc",    pos="4[2:0]",desc="ADC channels", values=[{machine="sharrier", value=2}, {machine="enduror", value=4}, {machine="hangon",value=3}]}
-]
-
-# 31 so the option bits 28-30 are inside the emitted window. A bit above bitcnt
-# powers up to 0 on hardware while sim forces all-ones and hides it. Real SWA/SWB
-# are bits 0-15.
-bitcnt = 31
-
-extra=[
-# Stick Direction: the cabinet stick is an aircraft stick, push forward and
-# Harrier goes DOWN. Arcade (=1) is that inversion.
-{ machine = "sharrier", name    = "Stick Direction", bits    = "28", options = "Normal,Arcade" },
-# D-Pad Control, for d-pad users only. Arcade (=1) is the sprung cabinet stick,
-# springing back to centre; Console (=0) holds where released.
-{ machine = "sharrier", name    = "D-Pad Control", bits    = "29", options = "Console,Arcade" },
-# V Glyph Fix: 'V' in EPR-7196/7197/7198 has its rows rotated down by one and the
-# fix reads row (n+1)%8 for tile 0x56. It is an original-game bug, so correcting
-# it DEVIATES from the PCB and must default off -- hence the "On,Off" order, which
-# puts Off on the 1 the extra dips default to. Reversing it ships the deviation.
-{ machine = "sharrier", name    = "V Glyph Fix", bits    = "30", options = "On,Off" }
 ]
 
 [ROM]
