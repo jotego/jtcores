@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 2-4-2022 */
 
-// PC090OJ sprite generator
+// This module implements the pc090oj logic
 
 module jtrastan_obj(
     input           rst,
