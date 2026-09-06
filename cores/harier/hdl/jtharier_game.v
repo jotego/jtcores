@@ -239,8 +239,10 @@ jtharier_sound u_snd(
     .pcm_data   ( pcm_data      ),
     .pcm_ok     ( pcm_ok        ),
 
-    .fm_snd     ( fm            ),
-    .psg_snd    ( psg           ),
+    .fm         ( fm            ),
+    .opn_l      ( opn_l         ),
+    .opn_r      ( opn_r         ),
+    .psg        ( psg           ),
     .pcm_l      ( pcm_l         ),
     .pcm_r      ( pcm_r         )
 );

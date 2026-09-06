@@ -94,7 +94,7 @@ wire [15:0] fd1089_dec;
 wire [15:0] rom_dec = fd1089 ? fd1089_dec : rom_data;
 wire [ 7:0] ppi0_dout, ppi1_dout, ppi0_b, ppi0_c, ppi1_a;
 wire [15:0] fave, fworst;
-wire        lvbl_g;
+wire        lvbl_g, op_n;
 wire        inta_n = ~&{ FC, ~ASn };  // interrupt acknowledge
 
 wire        mcu_bus, mcu_wr, mcu_acc;
@@ -105,6 +105,7 @@ reg         mcu_acc_l;
 reg         mcu_ok, BGACKnl;
 wire        mcu_gated;
 reg         mcu_rst, fd1089_rst;
+
 
 // Header bits originate in the download clock domain. Register the combined
 // resets locally so neither optional device receives a combinational reset.
@@ -131,6 +132,7 @@ assign UDSn     = mcu_bus ? ~mcu_addr[0] : cpu_UDSn;
 assign LDSn     = mcu_bus ?  mcu_addr[0] : cpu_LDSn;
 assign cpu_dout = mcu_bus ? {2{mcu_dout}} : cpu_dout_raw;
 assign addr     = A[17:1];
+assign op_n     = FC[1:0] != 2'b10; // low for CPU instruction fetches
 assign flip     = ppi0_b[7];
 assign sound_en = ppi0_c[0];
 assign snd_nmin = ppi0_c[7];
@@ -249,32 +251,14 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// I/O sub-decode: A[5:4] picks the device, A[2:1] the register; A3 and above A5
-// are mirrored (sharrier_map). Every register is on an odd byte address, so the
-// devices see the low half of the bus. 140010 is the input mux, 140030 the ADC.
 wire ppi0_cs = io_cs & (A[5:4]==2'd0);  // 140000, video_lamps_w, tilemap_sound_w
 wire ppi1_cs = io_cs & (A[5:4]==2'd2);  // 140020, sub_control_adc_w
 wire LDSWn   = RnW | LDSn;
 
-// Input multiplexer at 140010-140017: LS253 x4 (IC115-IC118) on sheet 2/6, a
-// 4-select byte-wide mux driven by A[2:1]. Selection 0 reads the opto-isolated
-// control inputs, 2/3 read DIP SW A/B, 1 reads back 0xff.
-//
-// Control inputs are active low, and so are jtframe's cabinet signals: feed them
-// straight through. Inverting reads every input as held from boot.
-//
-// Bit order from MAME segahang.cpp INPUT_PORTS(sharrier), which sheet 2/6 does
-// not legibly give. All active low:
-//   0x01 COIN1  0x02 COIN2  0x04 SERVICE-MODE  0x08 SERVICE1
-//   0x10 START1  0x20 BUTTON1  0x40 BUTTON2  0x80 BUTTON3
-// Test and Service are also mappable to pad buttons; the AND lets either source
-// pull the line low.
 always @(*) begin
     case( A[2:1] )
-        2'd0: cab_dout = cab1p ? { 1'b1, cab_1p[0], 2'b11,
-                                    service, dip_test, coin[1:0] } :
-                                  { joystick1[6:4], cab_1p[0],
-                                    service, dip_test, coin[1:0] };
+        2'd0: cab_dout = { cab1p ? { 1'b1, cab_1p[0], 2'b11 } : { joystick1[6:4], cab_1p[0] },
+                           service, dip_test, coin[1:0] };
         2'd1: cab_dout = 8'hff;
         2'd2: cab_dout = dipsw_a;
         2'd3: cab_dout = dipsw_b;
@@ -314,11 +298,6 @@ jt8255 u_ppi0(
 
     .porta_din ( 8'hff         ),
     .portb_din ( 8'hff         ),
-    // Port C bit 6 is /ACK for the mode 1 port A handshake, active low, driven
-    // by the sound Z80's read of the command latch. jt8255 releases /OBF (bit 7,
-    // the Z80's NMI) on the RISING edge of this, i.e. when the read completes.
-    // Tying it high -- as this did until 2026-08-18 -- leaves /OBF stuck low
-    // after the first command, so the Z80 receives one NMI and never another.
     .portc_din ( { 1'b1, ~snd_ack, 6'h3f } ),
 
     .porta_dout( snd_latch     ),
@@ -337,9 +316,6 @@ jt8255 u_ppi1(
     .wrn       ( LDSWn         ),
     .csn       ( ~ppi1_cs      ),
 
-    // Port C reads back the ADC0804's /INTR on bit 6. The converter is not
-    // implemented yet, so this reports a conversion that is always complete;
-    // it is a stub and it is recorded as such in ISSUES.md.
     .porta_din ( 8'hff         ),
     .portb_din ( 8'hff         ),
     .portc_din ( 8'h00         ),
@@ -442,12 +418,8 @@ jtframe_8751mcu #(
     .prom_we    ( mcu_we    )
 );
 
-wire op_n = FC[1:0] != 2'b10; // low for CPU instruction fetches
-
-// Enduro Racer uses an FD1089B. Space Harrier bypasses it and holds its state
-// in reset, while still sharing the same CPU-ROM interface.
 jts16_fd1089 u_fd1089(
-    .rst        ( fd1089_rst ),
+    .rst        ( fd1089_rst    ),
     .clk        ( clk           ),
 
     .key_addr   ( key_addr      ),

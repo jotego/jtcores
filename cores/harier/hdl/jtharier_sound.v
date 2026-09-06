@@ -37,28 +37,28 @@ module jtharier_sound(
     input        [ 7:0]  pcm_data,
     input                pcm_ok,
 
-    output reg signed [15:0] fm_snd,
-    output        [ 9:0] psg_snd,
+    output signed [15:0] fm, opn_l, opn_r,
+    output        [ 9:0] psg,
     output signed [15:0] pcm_l,
     output signed [15:0] pcm_r
 );
 `ifndef NOSOUND
 wire [15:0] A;
 wire [ 7:0] cpu_dout, ram_dout, fm_dout, pcm_dout, jt03_dout, jt51_dout;
-wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, int_n, jt03_irq_n, jt51_irq_n;
-wire [ 9:0] jt03_psg;
-wire signed [15:0] jt03_fm, jt51_l, jt51_r;
+wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, jt03_irq_n, jt51_irq_n,
+            jt51_csn, jt03_csn;
 reg  [ 7:0] cpu_din;
-reg         ram_cs, fm_cs, pcm_cs_l, latch_cs, snd_rst, jt03_rst, jt51_rst;
+reg         ram_cs, fm_cs, pcmcmd_cs, latch_cs,
+            snd_rst, jt03_rst, jt51_rst, int_n;
 
-assign fm_dout = ym2151 ? jt51_dout : jt03_dout;
-assign int_n   = ym2151 ? jt51_irq_n : jt03_irq_n;
-assign psg_snd = ym2151 ? 10'd0 : jt03_psg;
+assign jt51_csn =~(fm_cs &  ym2151);
+assign jt03_csn =~(fm_cs & ~ym2151);
+assign fm_dout  = ym2151 ? jt51_dout : jt03_dout;
 assign rom_addr = A[14:0];
 assign latch_rd = latch_cs;
 
 always @(posedge clk) begin
-    fm_snd   <= ym2151 ? (jt51_l >>> 1) + (jt51_r >>> 1) : jt03_fm;
+    int_n    <= ym2151 ? jt51_irq_n : jt03_irq_n;
     snd_rst  <= ~snd_rstn;
     jt03_rst <= ~snd_rstn |  ym2151;
     jt51_rst <= ~snd_rstn | ~ym2151;
@@ -66,19 +66,24 @@ end
 
 always @(*) begin
     rom_cs   = !mreq_n && rfsh_n && !A[15];
-    ram_cs   = !mreq_n && rfsh_n && (ym2151 ? A[15:11]==5'b11111 : A[15:12]==4'hc);
-    fm_cs    = ym2151 ? !iorq_n && m1_n && A[7:6]==2'b00
-                       : !mreq_n && rfsh_n && A[15:12]==4'hd;
-    pcm_cs_l = !mreq_n && rfsh_n && (ym2151 ? A[15:11]==5'b11110 : A[15:12]==4'he);
     latch_cs = !iorq_n &&  !rd_n &&  A[ 7: 6]==2'h1;
+    if(ym2151) begin
+        ram_cs   = !mreq_n && rfsh_n && A[15:11]==5'b11111;
+        pcmcmd_cs = !mreq_n && rfsh_n && A[15:11]==5'b11110;
+        fm_cs    = !iorq_n && m1_n && A[7:6]==2'b00;
+    end else begin
+        ram_cs   = !mreq_n && rfsh_n && A[15:12]==4'hc;
+        pcmcmd_cs = !mreq_n && rfsh_n && A[15:12]==4'he;
+        fm_cs    = !mreq_n && rfsh_n && A[15:12]==4'hd;
+    end
 end
 
 always @(*) begin
-    cpu_din = rom_cs   ? rom_data :
-              ram_cs   ? ram_dout :
-              fm_cs    ? fm_dout  :
-              pcm_cs_l ? pcm_dout :
-              latch_cs ? latch    : 8'hff;
+    cpu_din = rom_cs    ? rom_data :
+              ram_cs    ? ram_dout :
+              fm_cs     ? fm_dout  :
+              pcmcmd_cs ? pcm_dout :
+              latch_cs  ? latch    : 8'hff;
 end
 
 // PPI0 port A is a MODE 1 strobed-output port: the 68000 writing a command
@@ -116,13 +121,13 @@ jt03 u_jt03(
     .cen        ( cen_fm      ),
     .din        ( cpu_dout    ),
     .addr       ( A[0]        ),
-    .cs_n       ( ~(fm_cs & ~ym2151) ),
+    .cs_n       ( jt03_csn    ),
     .wr_n       ( wr_n        ),
     .dout       ( jt03_dout   ),
     .irq_n      ( jt03_irq_n  ),
 
-    .psg_snd    ( jt03_psg    ),
-    .fm_snd     ( jt03_fm     ),
+    .psg_snd    ( psg         ),
+    .fm_snd     ( fm          ),
     .snd_sample (             ),
 
     // Unused:
@@ -144,7 +149,7 @@ jt51 u_jt51(
     .clk        ( clk         ),
     .cen        ( cen_fm      ),
     .cen_p1     ( cen_fm2     ),
-    .cs_n       ( ~(fm_cs & ym2151) ),
+    .cs_n       ( jt51_csn    ),
     .wr_n       ( wr_n        ),
     .a0         ( A[0]        ),
     .din        ( cpu_dout    ),
@@ -155,8 +160,8 @@ jt51 u_jt51(
     .sample     (             ),
     .left       (             ),
     .right      (             ),
-    .xleft      ( jt51_l      ),
-    .xright     ( jt51_r      )
+    .xleft      ( opn_l       ),
+    .xright     ( opn_r       )
 );
 
 
@@ -177,7 +182,7 @@ jtoutrun_pcm u_pcm(
     .cpu_dout   ( cpu_dout    ),
     .cpu_din    ( pcm_dout    ),
     .cpu_rnw    ( wr_n        ),
-    .cpu_cs     ( pcm_cs_l    ),
+    .cpu_cs     ( pcmcmd_cs   ),
 
     .rom_addr   ( pcm_addr    ),
     .rom_data   ( pcm_data    ),
@@ -196,8 +201,10 @@ assign latch_rd = 0;
 assign rom_addr = 0;
 assign pcm_addr = 0;
 assign pcm_cs   = 0;
-assign fm_snd   = 0;
-assign psg_snd  = 0;
+assign fm       = 0;
+assign psg      = 0;
+assign opn_l    = 0;
+assign opn_r    = 0;
 assign pcm_l    = 0;
 assign pcm_r    = 0;
 initial rom_cs  = 0;
