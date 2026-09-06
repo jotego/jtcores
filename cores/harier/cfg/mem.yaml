@@ -12,8 +12,12 @@ clocks:
         - cen_pcm
     - freq: 8M
       outputs:
-        - cen_mcu     # 8 MHz
+        - cen_mcu
+        - cen_nc
+    - freq: 4M
+      outputs:
         - cen_fm      # 4 MHz
+        - cen_fm2     # 2 MHz
 # The output stage is a TL084 inverting summer: 47k feedback (R29/R30) with each
 # source entering through its own resistor, so `rsum_feedback_res: true` and gain is
 # Rf/Rin. PCM lands 47k/22k = 2.14 (+6.6 dB) above FM and PSG, which is the board's
@@ -63,7 +67,7 @@ sdram:
     - buses:
         - { name: subrom, addr_width: 16, data_width: 16, cache_size: 1kB }
         - { name: snd,    addr_width: 15, data_width:  8, offset: SND_OFFSET, cache_size: 1kB }
-        - { name: pcm,    addr_width: 16, data_width:  8, offset: PCM_OFFSET }
+        - { name: pcm,    addr_width: 19, data_width:  8, offset: PCM_OFFSET }
     - buses:
         - { name: char, addr_width: 17, data_width: 32, cs: gfx_cs }
         - { name: scr1, addr_width: 17, data_width: 32, cs: gfx_cs }

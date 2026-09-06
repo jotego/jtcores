@@ -4,7 +4,8 @@
 
 // Sound board 834-5799 (bare PCB 171-5268), schematic sheets D-1/3 .. D-3/3.
 //
-// Z80A + YM2203 + discrete SegaPCM. A 16.000 MHz oscillator feeds ALS109
+// Z80A + YM2203/discrete SegaPCM, or Z80A + YM2151/315-5218 SegaPCM. A 16.000
+// MHz oscillator feeds ALS109
 // dividers giving the 8M and 4M rails (sheet D-1/3); the Z80 and YM2203 run
 // from 4M. The PCM is discrete -- a 315-5103 sequencer, DAC7022/AD7520, HC4066
 // demux and two MF6-50 filters (sheets D-2/3, D-3/3) -- and is segapcm_device<8>,
@@ -13,8 +14,10 @@
 module jtharier_sound(
     input                snd_rstn,      // PPI0 port B bit 5, held low by the 68000
     input                clk,
+    input                ym2151,   // Enduro Racer sound-board selection
 
     input                cen_fm,    // 4 MHz, YM2203 (sheet D-2/3, pin 38 OM from 4M)
+    input                cen_fm2,   // 2 MHz, YM2151 internal timing
     input                cen_pcm,   // 16 MHz -- NOT 8. See the PCM section below.
 
     // Main CPU interface via PPI0, CPU sheet 2/6
@@ -29,35 +32,44 @@ module jtharier_sound(
     input                rom_ok,
 
     // PCM sample ROM EPR-7231 IC5 + EPR-7232 IC6
-    output       [15:0]  pcm_addr,
+    output       [18:0]  pcm_addr,
     output               pcm_cs,
     input        [ 7:0]  pcm_data,
     input                pcm_ok,
 
-    output signed [15:0] fm_snd,
+    output reg signed [15:0] fm_snd,
     output        [ 9:0] psg_snd,
     output signed [15:0] pcm_l,
     output signed [15:0] pcm_r
 );
 `ifndef NOSOUND
 wire [15:0] A;
-wire [ 7:0] cpu_dout, ram_dout, fm_dout, pcm_dout;
-wire        mreq_n, iorq_n, rd_n, wr_n, rfsh_n, int_n;
+wire [ 7:0] cpu_dout, ram_dout, fm_dout, pcm_dout, jt03_dout, jt51_dout;
+wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, int_n, jt03_irq_n, jt51_irq_n;
+wire [ 9:0] jt03_psg;
+wire signed [15:0] jt03_fm, jt51_l, jt51_r;
 reg  [ 7:0] cpu_din;
-reg         ram_cs, fm_cs, pcm_cs_l, latch_cs, snd_rst;
+reg         ram_cs, fm_cs, pcm_cs_l, latch_cs, snd_rst, jt03_rst, jt51_rst;
 
+assign fm_dout = ym2151 ? jt51_dout : jt03_dout;
+assign int_n   = ym2151 ? jt51_irq_n : jt03_irq_n;
+assign psg_snd = ym2151 ? 10'd0 : jt03_psg;
 assign rom_addr = A[14:0];
 assign latch_rd = latch_cs;
 
 always @(posedge clk) begin
-    snd_rst <= ~snd_rstn;
+    fm_snd   <= ym2151 ? (jt51_l >>> 1) + (jt51_r >>> 1) : jt03_fm;
+    snd_rst  <= ~snd_rstn;
+    jt03_rst <= ~snd_rstn |  ym2151;
+    jt51_rst <= ~snd_rstn | ~ym2151;
 end
 
 always @(*) begin
     rom_cs   = !mreq_n && rfsh_n && !A[15];
-    ram_cs   = !mreq_n && rfsh_n &&  A[15:12]==4'hc;
-    fm_cs    = !mreq_n && rfsh_n &&  A[15:12]==4'hd;
-    pcm_cs_l = !mreq_n && rfsh_n &&  A[15:12]==4'he;
+    ram_cs   = !mreq_n && rfsh_n && (ym2151 ? A[15:11]==5'b11111 : A[15:12]==4'hc);
+    fm_cs    = ym2151 ? !iorq_n && m1_n && A[7:6]==2'b00
+                       : !mreq_n && rfsh_n && A[15:12]==4'hd;
+    pcm_cs_l = !mreq_n && rfsh_n && (ym2151 ? A[15:11]==5'b11110 : A[15:12]==4'he);
     latch_cs = !iorq_n &&  !rd_n &&  A[ 7: 6]==2'h1;
 end
 
@@ -81,7 +93,7 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .int_n      ( int_n       ),
     .nmi_n      ( nmi_n       ),
     .busrq_n    ( 1'b1        ),
-    .m1_n       (             ),
+    .m1_n       ( m1_n        ),
     .mreq_n     ( mreq_n      ),
     .iorq_n     ( iorq_n      ),
     .rd_n       ( rd_n        ),
@@ -98,19 +110,19 @@ jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .rom_ok     ( rom_ok      )
 );
 
-jt03 u_fm(
-    .rst        ( snd_rst     ),
+jt03 u_jt03(
+    .rst        ( jt03_rst    ),
     .clk        ( clk         ),
     .cen        ( cen_fm      ),
     .din        ( cpu_dout    ),
     .addr       ( A[0]        ),
-    .cs_n       ( ~fm_cs      ),
+    .cs_n       ( ~(fm_cs & ~ym2151) ),
     .wr_n       ( wr_n        ),
-    .dout       ( fm_dout     ),
-    .irq_n      ( int_n       ),
+    .dout       ( jt03_dout   ),
+    .irq_n      ( jt03_irq_n  ),
 
-    .psg_snd    ( psg_snd     ),
-    .fm_snd     ( fm_snd      ),
+    .psg_snd    ( jt03_psg    ),
+    .fm_snd     ( jt03_fm     ),
     .snd_sample (             ),
 
     // Unused:
@@ -127,6 +139,26 @@ jt03 u_fm(
     .debug_view (             )
 );
 
+jt51 u_jt51(
+    .rst        ( jt51_rst    ),
+    .clk        ( clk         ),
+    .cen        ( cen_fm      ),
+    .cen_p1     ( cen_fm2     ),
+    .cs_n       ( ~(fm_cs & ym2151) ),
+    .wr_n       ( wr_n        ),
+    .a0         ( A[0]        ),
+    .din        ( cpu_dout    ),
+    .dout       ( jt51_dout   ),
+    .ct1        (             ),
+    .ct2        (             ),
+    .irq_n      ( jt51_irq_n  ),
+    .sample     (             ),
+    .left       (             ),
+    .right      (             ),
+    .xleft      ( jt51_l      ),
+    .xright     ( jt51_r      )
+);
+
 
 // Stock jtoutrun_pcm, WD at its default 12, and the PCM audibly distorts as a
 // result: clipDAC() saturates each voice before accumulating, but WD is the FINAL
@@ -136,12 +168,10 @@ jt03 u_fm(
 // segapcm.cpp accumulates unclipped. Left as-is at jotego's request: he asked to
 // hear the PCM with the problem present rather than the WD(16) parameter that
 // removes it.
-wire [ 2:0] nc;
-
 jtoutrun_pcm u_pcm(
     .rst        ( snd_rst     ),
     .clk        ( clk         ),
-    .cen        ( cen_pcm     ),
+    .cen        ( ym2151 ? cen_fm : cen_pcm ),
 
     .cpu_addr   ( A[7:0]      ),
     .cpu_dout   ( cpu_dout    ),
@@ -149,7 +179,7 @@ jtoutrun_pcm u_pcm(
     .cpu_rnw    ( wr_n        ),
     .cpu_cs     ( pcm_cs_l    ),
 
-    .rom_addr   ({nc,pcm_addr}),
+    .rom_addr   ( pcm_addr    ),
     .rom_data   ( pcm_data    ),
     .rom_ok     ( pcm_ok      ),
     .rom_cs     ( pcm_cs      ),

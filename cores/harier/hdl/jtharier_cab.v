@@ -13,7 +13,7 @@
 module jtharier_cab(
     input             rst,
     input             clk,
-    input             vint,      // frame tick, so the ramp is 60 Hz whatever the clock
+    input             LVBL,
 
     input      [ 3:0] joystick1, // d-pad, active low
     input      [15:0] joyana_l1, // { Y, X }, signed bytes
@@ -55,19 +55,16 @@ wire        [ 7:0] off_y    = scl_y[15:8];                           // 0..64 / 
 wire        [ 7:0] an_x_raw = 8'h80 - clp_x[7:0];                    // PORT_REVERSE
 wire        [ 7:0] an_y_raw = clp_yf[9] ? 8'h80 + off_y : 8'h80 - off_y;
 
-// anl_vbl tracks vint even during reset, deliberately: reset it instead and a
-// reset released while vint is high manufactures a rising edge, ticking the ramp
-// an extra frame. It settles one cycle into reset, long before rst is released.
 reg anl_vbl;
 always @(posedge clk) begin
-    anl_vbl <= vint;
+    anl_vbl <= ~LVBL;
     if( rst ) begin
         an_x    <= 8'h80;
         an_y    <= 8'h80;                  // neutral is 0x80 on both axes
         dig_x   <= 0;
         dig_y   <= 0;
     end else begin
-        if( vint & ~anl_vbl ) begin        // once per frame at vblank (60 Hz tick)
+        if( ~LVBL & ~anl_vbl ) begin        // once per frame at vblank (60 Hz tick)
             // X: right = positive. Springs back in Arcade; holds in Console.
             if( dp_right ^ dp_left )
                 dig_x <= dp_right ? (dig_x + AN_STEP >  AN_LIMIT ?  AN_LIMIT : dig_x + AN_STEP)

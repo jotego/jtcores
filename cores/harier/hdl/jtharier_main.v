@@ -5,10 +5,17 @@
 module jtharier_main(
     input              rst,
     input              clk,
+    input              i8751,
+    input              fd1089,
+    input              blank4,
+    input              cab1p,
+    output      [12:0] key_addr,
+    input       [ 7:0] key_data,
+    input              fd1089_we,
     output             cpu_cen,
     output             cpu_cenb,
 
-    input              vint, cen_mcu,
+    input              LVBL, cen_mcu,
 
     // Address decode, CK-2605 315-5166 on CPU sheet 1/6
     output reg         vram_cs,
@@ -41,7 +48,7 @@ module jtharier_main(
 
     input       [ 7:0] dipsw_a,
     input       [ 7:0] dipsw_b,
-    input              dip_test,
+    input              dip_test, dip_pause,
     input       [ 1:0] cab_1p,
     input       [ 1:0] coin,
     input              service,
@@ -82,10 +89,12 @@ wire        BRn, BGn, BGACKn;
 wire [15:0] cpu_dout_raw;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout, io_dout;
-wire        rom_ok_dly, vram_ok_dly, sound_en;
+wire        rom_ok_dly, vram_ok_dly, sound_en, fd1089_ok;
+wire [15:0] fd1089_dec;
+wire [15:0] rom_dec = fd1089 ? fd1089_dec : rom_data;
 wire [ 7:0] ppi0_dout, ppi1_dout, ppi0_b, ppi0_c, ppi1_a;
 wire [15:0] fave, fworst;
-
+wire        lvbl_g;
 wire        inta_n = ~&{ FC, ~ASn };  // interrupt acknowledge
 
 wire        mcu_bus, mcu_wr, mcu_acc;
@@ -95,10 +104,16 @@ reg  [ 7:0] mcu_din;
 reg         mcu_acc_l;
 reg         mcu_ok, BGACKnl;
 wire        mcu_gated;
+reg         mcu_rst, fd1089_rst;
 
-// video_en is /KILL, active high for a live screen. SCONT0/1 are the tilemap
-// scroll enables (sheet 2/6 to 2/7); PPI0 port C drives them active low, so they
-// invert to the tilemap's active-high enables, matching jts16_main.
+// Header bits originate in the download clock domain. Register the combined
+// resets locally so neither optional device receives a combinational reset.
+always @(posedge clk) begin
+    mcu_rst    <= rst | ~i8751;
+    fd1089_rst <= rst | ~fd1089;
+end
+
+assign      lvbl_g   = dip_pause ? LVBL : 1'b1;
 assign      video_en = ppi0_b[4];
 wire [ 1:0] scont    = ppi0_c[2:1];   // {SCONT1, SCONT0}, active low
 assign      colscr_en = ~scont[1];    // = ~ppi0_c[2]
@@ -134,7 +149,7 @@ wire mcu_syncw  = mcu_bus & mcu_wr & A[23:16]==8'h04 & mcu_addr==16'h0384;
 // write over the location being read. jts16_main qualifies at the source too.
 assign dsn      = { RnW | UDSn | mcu_syncw, RnW | LDSn | mcu_syncw };
 assign BUSn     = (BGACKn & ASn) | (LDSn & UDSn);
-assign IPLn     = mcu_ctrl[2:0];
+assign IPLn     = { blank4 ? lvbl_g : mcu_ctrl[2], mcu_ctrl[1:0] };
 assign VPAn     = inta_n;
 
 wire        bus_cs   = rom_cs | ram_cs | vram_cs | char_cs | objram_cs | pal_cs |
@@ -174,7 +189,8 @@ always @(posedge clk) begin
 end
 
 wire        vwait    = vram_acc & ~vw_grant;
-wire        bus_busy = (rom_cs & ~rom_ok_dly) | (vram_cs & ~vram_ok_dly) | vwait;
+wire        bus_busy = (rom_cs & ~(fd1089 ? fd1089_ok : rom_ok_dly)) |
+                       (vram_cs & ~vram_ok_dly) | vwait;
 
 jtframe_okdly u_rom_okdly(
     .rst    ( rst        ),
@@ -255,9 +271,10 @@ wire LDSWn   = RnW | LDSn;
 // pull the line low.
 always @(*) begin
     case( A[2:1] )
-        2'd0: cab_dout = { joystick1[6:4], cab_1p[0],
-                           service, dip_test,
-                           coin[1:0] };
+        2'd0: cab_dout = cab1p ? { 1'b1, cab_1p[0], 2'b11,
+                                    service, dip_test, coin[1:0] } :
+                                  { joystick1[6:4], cab_1p[0],
+                                    service, dip_test, coin[1:0] };
         2'd1: cab_dout = 8'hff;
         2'd2: cab_dout = dipsw_a;
         2'd3: cab_dout = dipsw_b;
@@ -343,7 +360,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    cpu_din <= rom_cs    ? rom_data              :
+    cpu_din <= rom_cs    ? rom_dec               :
                ram_cs    ? ram_dout              :
                vram_cs   ? vram_data             :
                char_cs   ? char_dout             :
@@ -396,11 +413,11 @@ jtframe_8751mcu #(
     .SYNC_INT   ( 1         ),
     .ROMBIN     ( "mcu.bin" )
 ) u_mcu(
-    .rst        ( rst       ),
+    .rst        ( mcu_rst   ),
     .clk        ( clk       ),
     .cen        ( mcu_gated ),
 
-    .int0n      ( ~vint     ),
+    .int0n      ( lvbl_g    ),
     .int1n      ( 1'b1      ),
 
     .p0_i       ( mcu_din   ),
@@ -425,16 +442,36 @@ jtframe_8751mcu #(
     .prom_we    ( mcu_we    )
 );
 
+wire op_n = FC[1:0] != 2'b10; // low for CPU instruction fetches
+
+// Enduro Racer uses an FD1089B. Space Harrier bypasses it and holds its state
+// in reset, while still sharing the same CPU-ROM interface.
+jts16_fd1089 u_fd1089(
+    .rst        ( fd1089_rst ),
+    .clk        ( clk           ),
+
+    .key_addr   ( key_addr      ),
+    .key_data   ( key_data      ),
+
+    .prog_addr  ( prog_addr     ),
+    .fd1089_we  ( fd1089_we     ),
+    .prog_data  ( prog_data     ),
+
+    .dec_type   ( 1'b1          ),
+    .dec_en     ( fd1089        ),
+    .op_n       ( op_n          ),
+    .addr       ( A             ),
+    .enc        ( rom_data      ),
+    .dec        ( fd1089_dec    ),
+
+    .rom_ok     ( rom_ok        ),
+    .ok_dly     ( fd1089_ok     )
+);
+
 always @(posedge clk) begin
-    case( st_addr[2:0] )
-        3'd0: st_dout <= { 3'd0, io_cs, objram_cs, vram_cs, ram_cs, rom_cs };
-        3'd1: st_dout <= { 2'd0, vint, mcu_bus, scont, sound_en, video_en };
-        3'd2: st_dout <= A[8:1];
-        3'd3: st_dout <= A[16:9];
-        3'd4: st_dout <= fave[ 7:0];
-        3'd5: st_dout <= fave[15:8];
-        3'd6: st_dout <= fworst[ 7:0];
-        3'd7: st_dout <= fworst[15:8];
+    case( st_addr[1:0] )
+        2'b10: st_dout <= fave[ 7:0];
+        2'b11: st_dout <= fave[15:8];
         default: st_dout <= 0;
     endcase
 end

@@ -33,7 +33,7 @@ fi
 ln -sf "$ROM/$GAME.rom" rom.bin
 
 rm -f sdram_bank?.*
-jtutil sdram $SYSNAME --sim
+jtutil sdram "$GAME" --sim
 
 # jtframe_8751mcu keeps its own program ROM, so the MCU image is not an SDRAM
 # bank and jtutil does not emit it. Carve it out of the same .rom the core
@@ -42,19 +42,23 @@ jtutil sdram $SYSNAME --sim
 #
 # Without this the MCU executes zeros, which looks exactly like a boot failure
 # and sends you hunting in the wrong place.
-dd if=rom.bin of=mcu.bin bs=4096 count=1 status=none \
-   iflag=skip_bytes skip=$(( JTFRAME_HEADER + MCU_START ))
-
-if [ ! -s mcu.bin ]; then
-    echo "mcu.bin is empty -- check MCU_START against the generated MRA"
-    exit 1
+if (( 0x$(xxd -p -l1 rom.bin) & 1 )); then
+    dd if=rom.bin of=mcu.bin bs=4096 count=1 status=none \
+       iflag=skip_bytes skip=$(( JTFRAME_HEADER + MCU_START ))
+    if [ "$(xxd -p -l2 mcu.bin)" != "0201" ]; then
+        echo "mcu.bin does not start with an 8051 reset vector -- wrong offset?"
+        exit 1
+    fi
+else
+    # The MCU instance still loads ROMBIN in simulation although it is held in
+    # reset for Enduro Racer, so give it a benign image.
+    truncate -s 4096 mcu.bin
 fi
 
-# 0201 is LJMP, the 8051 reset vector. Anything else means the offset is wrong.
-if [ "$(xxd -p -l2 mcu.bin)" != "0201" ]; then
-    echo "mcu.bin does not start with an 8051 reset vector -- wrong offset?"
-    exit 1
-fi
+# Enduro Racer's FD1089B uses the MAME key region through a jtframe_prom.
+# It is separate from SDRAM and therefore also needs a simulation image.
+dd if=rom.bin of=317-0013a.key bs=$(( 0x2000 )) count=1 status=none \
+   iflag=skip_bytes skip=$(( JTFRAME_HEADER + MAINKEY_START ))
 
 # The road (315-5025) and sprite-zoom ROMs are on-chip BROMs in the FPGA, filled
 # from the download stream, not SDRAM banks -- so jtutil does not emit them. In
@@ -94,8 +98,16 @@ check_crc() { # $1 file  $2 expected-hex
         exit 1
     fi
 }
-check_crc road_lo.bin 456a289d
-check_crc road_hi.bin b80108ab
+case "$GAME" in
+    sharrier*)
+        check_crc road_lo.bin 456a289d
+        check_crc road_hi.bin b80108ab
+        ;;
+    enduror*)
+        check_crc road_lo.bin 5f93760f
+        check_crc road_hi.bin bfc248f6
+        ;;
+esac
 check_crc zoom.bin    e3ec7bd6
 
 jtsim "$@"
