@@ -1,9 +1,11 @@
-/*  jtmnymny_scroll.v — 1B11140 background layer
-    Schematic-exact column scroll around jtframe_tilemap: the row sum
-    (V + column scroll, 1G/1H LS283) is latched once per 8-pixel group
-    (1F LS374, /VPL from dumped 6K) and addresses both the tile RAM row
-    and the ROM line. GPL3 — see jtcores LICENSE
-*/
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later */
+
+// jtmnymny_scroll.v — 1B11140 background layer
+// Schematic-exact column scroll around jtframe_tilemap: the row sum
+// (V + column scroll, 1G/1H LS283) is latched once per 8-pixel group
+// (1F LS374, /VPL from dumped 6K) and addresses both the tile RAM row
+// and the ROM line.
 
 module jtmnymny_scroll(
     input               rst,

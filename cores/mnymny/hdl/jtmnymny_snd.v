@@ -1,8 +1,9 @@
-/*  jtmnymny_snd.v — Zaccaria 1B11142 sound board
-    Melody 6802 + PIA + 2x AY-3-8910, speech/effects 6802 + PIA + MC1408 DAC.
-    TMS5200 not modelled yet: PIA port A reads 0, READY high, /INT high.
-    GPL3 — see jtcores LICENSE
-*/
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later */
+
+// jtmnymny_snd.v — Zaccaria 1B11142 sound board
+// Melody 6802 + PIA + 2x AY-3-8910, speech/effects 6802 + PIA + MC1408 DAC.
+// TMS5200 not modelled yet: PIA port A reads 0, READY high, /INT high.
 
 module jtmnymny_snd(
     input               rst,
@@ -203,6 +204,16 @@ end
 assign acs = ~spia_pb_out[3];
 
 // TMS5200 stub on port A / CB1 / CA2
+`ifdef SIMULATION
+wire [7:0] spia_pa_out;
+reg  [7:0] spo_l; reg [1:0] rsws_l;
+always @(posedge clk) begin
+    rsws_l <= spia_pb_out[1:0];
+    spo_l  <= spia_pa_out;
+    if( spia_pb_out[1:0] != rsws_l )
+        $display("TMS: /WS,/RS=%b%b pa=%02x", spia_pb_out[1], spia_pb_out[0], spia_pa_out);
+end
+`endif
 jtmnymny_6821 u_spia(
     .rst    ( srst          ),
     .clk    ( clk           ),
@@ -213,7 +224,11 @@ jtmnymny_6821 u_spia(
     .din    ( s_dout        ),
     .dout   ( spia_dout     ),
     .pa_in  ( 8'h00         ),
+`ifdef SIMULATION
+    .pa_out ( spia_pa_out   ),
+`else
     .pa_out (               ),
+`endif
     .pa_oe  (               ),
     .pb_in  ( 8'hff         ),
     .pb_out ( spia_pb_out   ),

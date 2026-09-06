@@ -1,7 +1,8 @@
-/*  jtmnymny_main.v — Zaccaria 1B11141 Z80uP I/O board
-    Decode follows the 3C LS138 / 4C LS139 / 4D LS155 / 4F LS32 structure.
-    GPL3 — see jtcores LICENSE
-*/
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later */
+
+// jtmnymny_main.v — Zaccaria 1B11141 Z80uP I/O board
+// Decode follows the 3C LS138 / 4C LS139 / 4D LS155 / 4F LS32 structure.
 
 module jtmnymny_main(
     input               rst,

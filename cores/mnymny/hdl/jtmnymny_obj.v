@@ -1,9 +1,10 @@
-/*  jtmnymny_obj.v — 1B11140 object engine
-    Table scanner (behavioural, the 6J/6K customs and 82S100 PLAs are
-    undumped) + jtframe_objdraw. 24 sprites, 16x16x3, MAME draw order:
-    spriteram1[0x00] (colour 2), spriteram0 (colour 1), spriteram1[0x20] (colour 0).
-    GPL3 — see jtcores LICENSE
-*/
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later */
+
+// jtmnymny_obj.v — 1B11140 object engine
+// Table scanner (behavioural, the 6J/6K customs and 82S100 PLAs are
+// undumped) + jtframe_objdraw. 24 sprites, 16x16x3, MAME draw order:
+// spriteram1[0x00] (colour 2), spriteram0 (colour 1), spriteram1[0x20] (colour 0).
 
 module jtmnymny_obj(
     input               rst,

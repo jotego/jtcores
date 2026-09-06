@@ -1,8 +1,9 @@
-/*  jtmnymny_colmix.v — 1B11140 colour mixer
-    Pen scramble into the 9F/9G PROMs + LS374/resistor DAC.
-    PROM address = { pal[4:2], pix[2:0], pal[1:0], obj/bg }.
-    GPL3 — see jtcores LICENSE
-*/
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later */
+
+// jtmnymny_colmix.v — 1B11140 colour mixer
+// Pen scramble into the 9F/9G PROMs + LS374/resistor DAC.
+// PROM address = { pal[4:2], pix[2:0], pal[1:0], obj/bg }.
 
 module jtmnymny_colmix(
     input               clk,

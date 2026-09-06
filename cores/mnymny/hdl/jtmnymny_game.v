@@ -1,6 +1,7 @@
-/*  jtmnymny_game.v — Money Money (Zaccaria Z80uP) top level
-    GPL3 — see jtcores LICENSE
-*/
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later */
+
+// jtmnymny_game.v — Money Money (Zaccaria Z80uP) top level
 
 module jtmnymny_game(
     `include "jtframe_game_ports.inc"

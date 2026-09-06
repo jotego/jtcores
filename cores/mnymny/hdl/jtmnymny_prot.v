@@ -1,9 +1,10 @@
-/*  jtmnymny_prot.v — protection PAL16L8 at 1A on the ROM board (1B11147)
-    Direct transcription of the dumped equations: see doc/pld/equations.md.
-    Drives DBB4-7 on reads of 6400-65FF / 6C00-6DFF; undriven bits return 0
-    (open bus, matching MAME's traced constants).
-    GPL3 — see jtcores LICENSE
-*/
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later */
+
+// jtmnymny_prot.v — protection PAL16L8 at 1A on the ROM board (1B11147)
+// Direct transcription of the dumped equations: see doc/pld/equations.md.
+// Drives DBB4-7 on reads of 6400-65FF / 6C00-6DFF; undriven bits return 0
+// (open bus, matching MAME's traced constants).
 
 module jtmnymny_prot(
     input      [14:0]   A,

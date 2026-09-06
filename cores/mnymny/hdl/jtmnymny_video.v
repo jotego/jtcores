@@ -1,7 +1,8 @@
-/*  jtmnymny_video.v — 1B11140 video board top
-    vtimer + scroll/obj + palette PROM mixing. RAMs/PROMs live in mem.yaml.
-    GPL3 — see jtcores LICENSE
-*/
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi
+ * SPDX-License-Identifier: GPL-3.0-or-later */
+
+// jtmnymny_video.v — 1B11140 video board top
+// vtimer + scroll/obj + palette PROM mixing. RAMs/PROMs live in mem.yaml.
 
 module jtmnymny_video(
     input               rst,
