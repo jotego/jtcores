@@ -255,16 +255,6 @@ jtmnymny_tms5200 u_tms(
     .snd    ( speech        ),
     .sample (               )
 );
-`ifdef SIMULATION
-reg [7:0] hs_l2; reg [13:0] sp_l2;
-always @(posedge clk) begin
-    hs_l2<=snd_latch;
-    if( snd_latch!=hs_l2 ) $display("CMD: host=%02x", snd_latch);
-    sp_l2<=speech;
-    if( speech!=0 && sp_l2==0 ) $display("SPEECH: nonzero out");
-end
-`endif
-
 jt680x u_scpu(
     .rst      ( srst        ),
     .clk      ( clk         ),
