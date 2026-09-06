@@ -45,7 +45,7 @@ bram:
     addr_width: 11
     data_width: 8
     rw: true
-    ioctl: { save: true, order: 0 }
+    ioctl: { save: true, restore: true, order: 0 }
 
   # video board tile RAM (2A/2B/2C 2114)
   - name: vram
