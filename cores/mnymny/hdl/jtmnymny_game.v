@@ -13,6 +13,7 @@ wire [ 8:0] pal_addr;
 wire        cpu_wrn, vram_cs, attr_cs, objram_cs;
 wire        flip_x, flip_y, ressound, coin_cnt, nmi_mask, acs;
 wire [ 7:0] ay4g_a, ay4g_b, ay4g_c, ay4h_a, ay4h_b, ay4h_c, dac;
+wire signed [13:0] speech;
 
 wire [ 7:0] p1_in, p2_in, coins_in;
 wire [ 3:0] sys_in;
@@ -48,7 +49,7 @@ assign ioctl_din  = 0;   // wram dump is handled by the mem.yaml wrapper
 // crude mix until the RC network goes into mem.yaml's audio section
 wire [10:0] aysum = {3'd0,ay4g_a} + {3'd0,ay4g_b} + {3'd0,ay4g_c} +
                     {3'd0,ay4h_a} + {3'd0,ay4h_b} + {3'd0,ay4h_c};
-assign snd = { 1'b0, aysum, 4'd0 } + { 3'd0, dac, 5'd0 };
+assign snd = { 1'b0, aysum, 4'd0 } + { 3'd0, dac, 5'd0 } + { {2{speech[13]}}, speech };
 
 jtmnymny_main u_main(
     .rst        ( rst           ),
@@ -91,6 +92,7 @@ jtmnymny_snd u_snd(
     .clk        ( clk           ),
     .mcpu_cen   ( mcpu_cen      ),
     .psg_cen    ( psg_cen       ),
+    .tms_cen    ( tms_cen       ),
     .ressound   ( ressound      ),
     .snd_latch  ( snd_latch     ),
     .acs        ( acs           ),
@@ -108,6 +110,7 @@ jtmnymny_snd u_snd(
     .ay4h_a     ( ay4h_a        ),
     .ay4h_b     ( ay4h_b        ),
     .ay4h_c     ( ay4h_c        ),
+    .speech     ( speech        ),
     .dac        ( dac           ),
     .ioa        (               ),
     .level      (               ),

@@ -3,13 +3,14 @@
 
 // jtmnymny_snd.v — Zaccaria 1B11142 sound board
 // Melody 6802 + PIA + 2x AY-3-8910, speech/effects 6802 + PIA + MC1408 DAC.
-// TMS5200 not modelled yet: PIA port A reads 0, READY high, /INT high.
+// TMS5200 = jtmnymny_tms5200 (parameter ROMs pending a die dump).
 
 module jtmnymny_snd(
     input               rst,
     input               clk,
     input               mcpu_cen,     // 3.5795 MHz (jt680x cen = 4x E)
     input               psg_cen,      // 1.7898 MHz
+    input               tms_cen,      // 649.2 kHz (RC osc)
     input               ressound,     // from main LS259 (active high = reset)
     input       [ 7:0]  snd_latch,    // S0..S7 from the I/O board
     output              acs,
@@ -26,6 +27,7 @@ module jtmnymny_snd(
     // sound channels (filtering done at the top level)
     output      [ 7:0]  ay4g_a, ay4g_b, ay4g_c,
     output      [ 7:0]  ay4h_a, ay4h_b, ay4h_c,
+    output signed [13:0] speech,
     output reg  [ 7:0]  dac,
     output      [ 4:0]  ioa,          // tromba vol 2:0, cassa gate 3, rullante gate 4
     output              level, levelt, sw1
@@ -84,9 +86,11 @@ jtmnymny_6821 u_mpia(
     .ca1    ( melody_cmd[7] ),
     .ca2_in ( 1'b1          ),
     .ca2_out(               ),
+    .ca2_oe (               ),
     .cb1    ( timebase[12]  ),
     .cb2_in ( 1'b1          ),
     .cb2_out(               ),
+    .cb2_oe (               ),
     .irqa_n ( mpia_irqa_n   ),
     .irqb_n ( mpia_irqb_n   )
 );
@@ -204,16 +208,12 @@ end
 assign acs = ~spia_pb_out[3];
 
 // TMS5200 stub on port A / CB1 / CA2
-`ifdef SIMULATION
-wire [7:0] spia_pa_out;
-reg  [7:0] spo_l; reg [1:0] rsws_l;
-always @(posedge clk) begin
-    rsws_l <= spia_pb_out[1:0];
-    spo_l  <= spia_pa_out;
-    if( spia_pb_out[1:0] != rsws_l )
-        $display("TMS: /WS,/RS=%b%b pa=%02x", spia_pb_out[1], spia_pb_out[0], spia_pa_out);
-end
-`endif
+// TMS5200: PA<->data bus, PB0=/RS, PB1=/WS, CA2<=/READY, CB1<=/INT
+wire [ 7:0] spia_pa_out, tms_dout;
+wire        tms_dout_oe, tms_ready_n, tms_int_n;
+wire        tms_rs_n = spia_pb_out[0];
+wire        tms_ws_n = spia_pb_out[1];
+
 jtmnymny_6821 u_spia(
     .rst    ( srst          ),
     .clk    ( clk           ),
@@ -223,25 +223,47 @@ jtmnymny_6821 u_spia(
     .rnw    ( ~s_wr         ),
     .din    ( s_dout        ),
     .dout   ( spia_dout     ),
-    .pa_in  ( 8'h00         ),
-`ifdef SIMULATION
+    .pa_in  ( tms_dout_oe ? tms_dout : 8'hff ),
     .pa_out ( spia_pa_out   ),
-`else
-    .pa_out (               ),
-`endif
     .pa_oe  (               ),
     .pb_in  ( 8'hff         ),
     .pb_out ( spia_pb_out   ),
     .pb_oe  (               ),
     .ca1    ( 1'b0          ),
-    .ca2_in ( 1'b1          ),
+    .ca2_in ( ~tms_ready_n  ),
     .ca2_out(               ),
-    .cb1    ( 1'b1          ),
+    .ca2_oe (               ),
+    .cb1    ( tms_int_n     ),
     .cb2_in ( 1'b1          ),
     .cb2_out(               ),
+    .cb2_oe (               ),
     .irqa_n ( spia_irqa_n   ),
     .irqb_n ( spia_irqb_n   )
 );
+
+jtmnymny_tms5200 u_tms(
+    .rst    ( srst          ),
+    .clk    ( clk           ),
+    .cen    ( tms_cen       ),
+    .rs_n   ( tms_rs_n      ),
+    .ws_n   ( tms_ws_n      ),
+    .din    ( spia_pa_out   ),
+    .dout   ( tms_dout      ),
+    .dout_oe( tms_dout_oe   ),
+    .ready_n( tms_ready_n   ),
+    .int_n  ( tms_int_n     ),
+    .snd    ( speech        ),
+    .sample (               )
+);
+`ifdef SIMULATION
+reg [7:0] hs_l2; reg [13:0] sp_l2;
+always @(posedge clk) begin
+    hs_l2<=snd_latch;
+    if( snd_latch!=hs_l2 ) $display("CMD: host=%02x", snd_latch);
+    sp_l2<=speech;
+    if( speech!=0 && sp_l2==0 ) $display("SPEECH: nonzero out");
+end
+`endif
 
 jt680x u_scpu(
     .rst      ( srst        ),

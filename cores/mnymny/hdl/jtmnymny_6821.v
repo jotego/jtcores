@@ -2,16 +2,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later */
 
 // jtmnymny_6821.v — MC6821 PIA
-// Full implementation from the Motorola datasheet (DS9435R5): DDR/OR per
-// port, CA1/CB1/CA2/CB2 flags with edge-sense conditioning (one E at the
-// inactive level arms the detector) and deselect conditioning after a
-// flag-clearing read; CA2/CB2 output modes including read/write strobes
-// with CA1/CB1 or E restore; port A pin readback vs port B latch readback;
-// flag masking in output mode. Register writes follow the bus (6802
-// multi-clock cycles); flag clears and strobe edges fire at access
-// completion (the E fall that ends the cycle = chip-select release).
-// EDIV = cen ticks per E cycle. The only approximation left is sub-E
-// phase: jt680x does not export the E pin, so strobe edges align to the
+// Full implementation from the Motorola datasheet (DS9435R5).
+// One approximation left is sub-E phase: jt680x does not export the E pin, so strobe edges align to the
 // bus cycle instead of the exact E transition inside it.
 
 module jtmnymny_6821 #(parameter EDIV=4)(
