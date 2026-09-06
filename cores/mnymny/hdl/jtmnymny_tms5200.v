@@ -32,8 +32,40 @@ module jtmnymny_tms5200(
     output reg          sample
 );
 
-// coefficient tables: energytbl, pitchtbl, ktbl (K1-K10), chirptbl
-`include "jtmnymny_tms5200_tables.vh"
+// parameter ROMs from the TMS5200NL die decap (see the hex files)
+reg [9:0] lpc_rom  [0:255];
+reg [7:0] chirp_rom[0:63];
+initial begin
+    $readmemh("jtmnymny_tms5200_lpc.hex",   lpc_rom);
+    $readmemh("jtmnymny_tms5200_chirp.hex", chirp_rom);
+end
+// registered read ports
+reg  [ 7:0] lpc_a;
+reg  [ 9:0] lpc_q;
+reg  [ 5:0] chirp_a;
+reg  [ 7:0] chirp_q;
+always @(posedge clk) begin
+    lpc_q   <= lpc_rom[lpc_a];
+    chirp_q <= chirp_rom[chirp_a];
+end
+// LPC ROM layout offsets
+localparam [7:0] A_ENERGY=8'h00, A_PITCH=8'h10, A_K1=8'h50, A_K2=8'h70,
+                 A_K3=8'h90; // K3..K7 16 apart, K8..K10 8 apart from E0
+// K base address per index 0..9
+function [7:0] kbase(input [3:0] n);
+    kbase = n==0 ? A_K1 : n==1 ? A_K2 :
+            n<7  ? A_K3 + ({4'd0,n[3:0]}-8'd2)*8'h10 :
+                   8'hE0 + ({4'd0,n[3:0]}-8'd7)*8'h08;
+endfunction
+// interpolation shifts per interpolation period IC0..IC7 (decap-verified)
+function [2:0] interp_shift(input [2:0] icp);
+    case( icp )
+        3'd0: interp_shift = 3'd0;  // IC0 snaps to the target
+        3'd1,3'd2,3'd3: interp_shift = 3'd3;
+        3'd4,3'd5: interp_shift = 3'd2;
+        default: interp_shift = 3'd1;
+    endcase
+endfunction
 
 // ------------------------------------------------------------- timing
 // cen/4 = bit time (6.25us), 20 bit times = sample (125us),
@@ -71,11 +103,13 @@ reg  signed [ 9:0] c_k[0:9], t_k[0:9];
 reg         stop_pend, rpt;
 // parser FSM
 localparam [3:0] P_IDLE=0, P_ENERGY=1, P_REPEAT=2, P_PITCH=3, P_K=4,
-                 P_APPLY=5;
+                 P_APPLY=5, P_LOOKUP=6;
 reg  [ 3:0] pst;
 reg  [ 5:0] pacc;       // bit accumulator, LSB-first fill then reverse
 reg  [ 2:0] pgot, plen;
 reg  [ 3:0] kidx;
+reg  [ 3:0] lukidx;
+reg         lukwait;
 // field widths per figure 5: K1,K2=5; K3..K7=4; K8..K10=3
 function [2:0] kwidth(input [3:0] n);
     kwidth = n<2 ? 3'd5 : n<7 ? 3'd4 : 3'd3;
@@ -104,7 +138,8 @@ reg  [ 3:0] lat;                // lattice stage sequencer
 integer     lf;
 wire        voiced = t_pitch != 0;
 // unvoiced level is half the chirp peak (patent/decap): +/-0x40
-wire signed [ 7:0] excite = voiced ? chirp(pitch_cnt) :
+// chirp_q lags chirp_a by 1 clk: addressed continuously from pitch_cnt
+wire signed [ 7:0] excite = voiced ? $signed(chirp_q) :
                             lfsr[12] ? -8'sd64 : 8'sd64;
 
 always @(posedge clk, posedge rst) begin
@@ -131,6 +166,8 @@ always @(posedge clk, posedge rst) begin
         {stop_pend, rpt} <= 0;
         pst  <= P_IDLE;
         {pacc, pgot, plen, kidx} <= 0;
+        {lukidx, lukwait} <= 0;
+        {lpc_a, chirp_a} <= 0;
         pitch_cnt <= 0;
         lfsr <= 13'h1fff;
         lat  <= 4'd15;
@@ -304,17 +341,41 @@ always @(posedge clk, posedge rst) begin
                 default:;
             endcase
         end
+        // decode indices through the LPC ROM into targets, one value
+        // per two clks (registered ROM read). lukidx: 0=energy, 1=pitch,
+        // 2..11=K1..K10
         if( pst==P_APPLY ) begin
-            // decode indices through the mask ROMs into targets
-            t_energy <= stop_pend ? 10'sd0 : energytbl(i_energy);
-            t_pitch  <= pitchtbl(i_pitch);
-            if( !rpt && i_energy!=0 && !stop_pend ) begin
-                for(i=0;i<10;i=i+1)
-                    t_k[i] <= (i>=4 && i_pitch==0) ? 10'sd0
-                                                   : ktbl(i[3:0], i_k[i]);
+            lukidx  <= 0;
+            lpc_a   <= A_ENERGY + {4'd0,i_energy};
+            lukwait <= 1;
+            pst     <= P_LOOKUP;
+        end
+        if( pst==P_LOOKUP ) begin
+            if( lukwait ) lukwait <= 0;  // ROM data settles
+            else begin
+                lukwait <= 1;
+                case( lukidx )
+                    4'd0: begin
+                        t_energy <= stop_pend ? 10'sd0 : $signed(lpc_q);
+                        lpc_a    <= A_PITCH + {2'd0,i_pitch};
+                    end
+                    4'd1: begin
+                        t_pitch <= $signed(lpc_q);
+                        lpc_a   <= kbase(0) + {3'd0,i_k[0]};
+                    end
+                    default: begin
+                        if( !rpt && i_energy!=0 && !stop_pend )
+                            t_k[lukidx-2] <=
+                                (lukidx>=6 && i_pitch==0) ? 10'sd0
+                                                          : $signed(lpc_q);
+                        lpc_a <= kbase(lukidx-1) + {3'd0,i_k[lukidx>9?4'd9:lukidx-1]};
+                    end
+                endcase
+                if( lukidx==4'd11 ) begin
+                    rpt <= 0;
+                    pst <= P_IDLE;
+                end else lukidx <= lukidx+4'd1;
             end
-            rpt <= 0;
-            pst <= P_IDLE;
         end
 
         // --------------------------------------------- lattice, 1 stage
@@ -323,11 +384,16 @@ always @(posedge clk, posedge rst) begin
             // Y(11) = energy * (excitation<<6) >> 9 (patent table I)
             u[10] <= (c_energy * (excite <<< 6)) >>> 9;
             lat   <= 4'd9;
-            // pitch period counter
+            // pitch period counter; chirp ROM addressed one sample ahead
             if( voiced ) begin
                 pitch_cnt <= pitch_cnt >= c_pitch[6:0] ? 7'd0
                                                        : pitch_cnt+7'd1;
-            end else pitch_cnt <= 0;
+                chirp_a   <= pitch_cnt >= c_pitch[6:0] ? 6'd0 :
+                             pitch_cnt >= 7'd62 ? 6'd63 : pitch_cnt[5:0]+6'd1;
+            end else begin
+                pitch_cnt <= 0;
+                chirp_a   <= 0;
+            end
             // 13-bit LFSR, taps 12,3,2,0, clocked 20x per sample (per T)
             begin : lfsr_upd
                 reg [12:0] r;
