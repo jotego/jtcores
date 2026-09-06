@@ -110,28 +110,14 @@ reg         vbl_irqn, lvbl_l;
 wire        mcu_gated;
 reg         mcu_rst, fd1089_rst;
 
-
-// Header bits originate in the download clock domain. Register the combined
-// resets locally so neither optional device receives a combinational reset.
-always @(posedge clk) begin
-    mcu_rst    <= rst | ~i8751;
-    fd1089_rst <= rst | ~fd1089;
-end
-
 assign      lvbl_g   = dip_pause ? LVBL : 1'b1;
 assign      video_en = ppi0_b[4];
 wire [ 1:0] scont    = ppi0_c[2:1];   // {SCONT1, SCONT0}, active low
 assign      colscr_en = ~scont[1];    // = ~ppi0_c[2]
 assign      rowscr_en = ~scont[0];    // = ~ppi0_c[1]
-
-// The MCU reaches the bus through the LS374 latches and the LS157 at IC23,
-// sheet 1/6. P1 supplies the address bits above A15 and the interrupt level
-// (MAME i8751_p1_w).
 assign A        = mcu_bus ? { 3'd0, mcu_ctrl[6], 1'b0, mcu_ctrl[5:3],
                               mcu_addr[15:1] } : cpu_A;
 assign RnW      = mcu_bus ? ~mcu_wr  : cpu_RnW;
-// i8751_r/w reach the 68000 at (i8751_addr<<16)|(offset^1), so MCU offset 0 is
-// an odd byte address and takes the lower lane.
 assign UDSn     = mcu_bus ? ~mcu_addr[0] : cpu_UDSn;
 assign LDSn     = mcu_bus ?  mcu_addr[0] : cpu_LDSn;
 assign cpu_dout = mcu_bus ? {2{mcu_dout}} : cpu_dout_raw;
@@ -144,7 +130,12 @@ assign snd_rstn = ppi0_b[5];
 assign sub_rstn =~ppi1_a[5];
 assign sub_intn = ppi1_a[6];
 
-always @(posedge clk, posedge rst) begin
+always @(posedge clk) begin
+    mcu_rst    <= rst | ~i8751;
+    fd1089_rst <= rst | ~fd1089;
+end
+
+always @(posedge clk) begin
     if( rst ) begin
         vbl_irqn <= 1;
         lvbl_l   <= 1;
