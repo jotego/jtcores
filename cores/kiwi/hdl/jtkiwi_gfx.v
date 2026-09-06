@@ -14,7 +14,10 @@ module jtkiwi_gfx #(
     parameter [8:0] OBJ_XOFF=0,
     parameter [7:0] OBJ_YOFF=0,
     parameter       OBJ_YWRAP=0,
-    parameter [8:0] OBJ_LIMIT=9'h1ff
+    parameter [8:0] OBJ_LIMIT=9'h1ff,
+    // 12 = 8kB sprite RAM, page selects the 0x800 half (tnzs/calibr50)
+    // 13 = 16kB, page selects the 0x1000 buffer (metafox/arbalest, MAME seta001 setac)
+    parameter       OBJAW=12
 )(
     input               rst,
     input               clk,
@@ -51,11 +54,11 @@ module jtkiwi_gfx #(
     input      [ 7:0]   col_data, yram_dout,
     output              yram_we,
     // External VRAM (defined in mem.yaml)
-    output     [12:1]   dma_addr,
+    output     [OBJAW:1] dma_addr,
     output     [15:0]   dma_din,
     output     [ 1:0]   dma_we,
     input      [15:0]   dma_dout, code_dout,
-    output reg [12:1]   code_addr,
+    output reg [OBJAW:1] code_addr,
     // SDRAM interface
     output     [20:2]   scr_addr,
     input      [31:0]   scr_data,
@@ -73,10 +76,15 @@ module jtkiwi_gfx #(
     output reg  [ 7:0]  st_dout
 );
 
+localparam  SETAC = OBJAW==13;
+
 wire        video_en;
 wire [ 1:0] vram_we;
 wire [11:0] tm_addr;
-wire [12:1] lut_addr, dma_txa;
+wire [OBJAW:1] lut_addr;
+wire [12:1] dma_txa;
+wire [13:1] dma_txa_pad, tm_addr_pad;
+wire        setac_bank;
 wire [ 7:0] scol_addr;
 reg  [ 7:0] attr, xpos, ypos;
 reg  [ 7:0] cfg[0:3], flag;
@@ -111,8 +119,12 @@ assign obj_page = obj_pg_en ? tm_page ^ ~obj_bufb : 1'b1;
 assign dma_src  = obj_pg_en ? tm_page ^  dma_tm   : 1'b0;
 assign col_cfg  = cfg[1][3:0];
 assign col_xmsb = { cfg[3], cfg[2] };
-assign dma_addr = dma_bsy ? dma_txa : cpu_addr[11:0];
+assign dma_addr = dma_bsy ? dma_txa_pad[OBJAW:1] : cpu_addr[OBJAW-1:0];
 assign dma_txa  ={dma_src ^ dma_st, dma_tm, dma_cnt};
+assign dma_txa_pad = { 1'b0, dma_txa };
+// 16kB sprite RAM: cfg[1] carries the buffer bank (MAME seta001 setac_eof)
+assign setac_bank  = ((cfg[1] ^ (~cfg[1]<<1)) & 8'h40)!=0;
+assign tm_addr_pad = { setac_bank, tm_addr };
 assign dma_din  = dma_bsy ? dma_data   : vram_d16;
 assign dma_we   = dma_bsy ? dma_bsy_we : vram_we;
 
@@ -197,7 +209,7 @@ always @* begin
     case( cen_cnt )
         0,1: begin
             col_addr  = { 2'b10, scol_addr };
-            code_addr = tm_addr;
+            code_addr = tm_addr_pad[OBJAW:1];
         end
         2,3: begin // objects
             col_addr  = { 1'b0, y_addr };
@@ -214,7 +226,8 @@ jtkiwi_tilemap u_tilemap(
 
     .hs         ( hs        ),
     .flip       ( flip      ),
-    .page       ( tm_page   ),
+    // SETAC: no 0x800 page split, the bank is the code_addr MSB
+    .page       ( SETAC ? 1'b0 : tm_page ),
     .drtoppel   ( drtoppel  ),
 
     .col_xmsb   ( col_xmsb  ),
@@ -243,7 +256,8 @@ jtkiwi_obj #(
     .XOFF( OBJ_XOFF ),
     .YOFF( OBJ_YOFF ),
     .YWRAP( OBJ_YWRAP ),
-    .LIMIT( OBJ_LIMIT )
+    .LIMIT( OBJ_LIMIT ),
+    .OBJAW( OBJAW     )
 ) u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -252,7 +266,7 @@ jtkiwi_obj #(
 
     .hs         ( hs        ),
     .flip       ( flip      ),
-    .page       ( obj_page  ),
+    .page       ( SETAC ? setac_bank : obj_page ),
 
     .lut_addr   ( lut_addr  ),
     .lut_data   ( code_dout ),

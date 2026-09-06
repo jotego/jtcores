@@ -88,6 +88,8 @@ jt053936 u_xy(
     .xh         (           ),
     .y          ( y         ),
     .yh         (           ),
+    .nx         (           ),
+    .ny         (           ),
     .ob         ( ob        ), // out of bonds, original pin: NOB
 
     .ioctl_addr ( ioctl_addr),

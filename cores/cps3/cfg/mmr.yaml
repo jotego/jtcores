@@ -89,10 +89,10 @@
 
 # SS (Score Screen) registers at 0x05050000
 # Accessed via umask32(0x00ff00ff), odd bytes only
-# Byte offsets are the ssregs_w handler offsets (0x00-0x14)
+# Byte offsets are the ssregs_w handler offsets (0x00-0x15)
 # Multi-byte: L at lower offset, H at higher offset (little-endian order)
 - name: ss
-  size: 24
+  size: 22
   regs:
     - { name: ss_hsync,    desc: "H sync end",     dw: 8,  at: "0x00" }
     - { name: ss_hstart,   desc: "H start",        dw: 16, at: "0x02, 0x01" }

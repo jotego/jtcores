@@ -1,0 +1,272 @@
+`timescale 1ns/1ps
+
+module test(
+    input               rst,
+    input               clk,
+    input               snd_cs,
+    input       [ 8:0]  cpu_addr,
+    input       [31:0]  cpu_dout,
+    input               cpu_rnw,
+    input       [ 3:0]  cpu_wr_mask,
+    output      [31:0]  cpu_din,
+    output signed [15:0] snd_left,
+    output signed [15:0] snd_right,
+    output              dbg_rom_cs,
+    output              dbg_rom_ok,
+    output      [23:0]  dbg_rom_addr,
+
+    output              SDRAM_CLK,
+    output              SDRAM_CKE,
+    output              SDRAM_nCS,
+    output              SDRAM_nRAS,
+    output              SDRAM_nCAS,
+    output              SDRAM_nWE,
+    output      [ 1:0]  SDRAM_BA,
+    output      [ 1:0]  SDRAM_DQM,
+    output      [12:0]  SDRAM_A,
+    output      [15:0]  SDRAM_DIN,
+    inout       [15:0]  SDRAM_DQ
+);
+
+localparam SDRAM_AW = 24;
+localparam BURST_AW = 23;
+localparam [22:0] TILES = 23'h100000;
+localparam [22:0] SPRRAM = 23'h380000;
+
+wire        rom_rd;
+wire        rom_ok;
+wire [23:0] rom_addr;
+wire [ 7:0] rom_data;
+wire [SDRAM_AW-1:1] ext_addr;
+wire [ 1:0] ext_ba;
+wire        ext_rd;
+wire [15:0] ext_din;
+wire        ext_ack, ext_dst, ext_dok, ext_rdy;
+wire        init;
+wire [ 3:0] cpu_we_n = ~cpu_wr_mask;
+wire [1:0]  cen_vec;
+wire        pcm_cen = cen_vec[0];
+
+assign SDRAM_CLK = clk;
+assign dbg_rom_cs = rom_rd;
+assign dbg_rom_ok = rom_ok;
+assign dbg_rom_addr = rom_addr;
+
+// Generate 14.31818 MHz cen from 50 MHz clock (63/220 ratio)
+jtframe_frac_cen #(.W(2)) u_frac_cen(
+    .clk        ( clk       ),
+    .n          ( 10'd63    ),
+    .m          ( 10'd220   ),
+    .cen        ( cen_vec   ),
+    .cenb       (           )
+);
+
+jtcps3_sound u_sound(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( pcm_cen   ),
+    .snd_cs     ( snd_cs    ),
+    .cpu_addr   ( cpu_addr  ),
+    .cpu_dout   ( cpu_dout  ),
+    .cpu_rnw    ( cpu_rnw   ),
+    .cpu_we_n   ( cpu_we_n  ),
+    .cpu_din    ( cpu_din   ),
+    .rom_cs     ( rom_rd    ),
+    .rom_addr   ( rom_addr  ),
+    .rom_data   ( rom_data  ),
+    .rom_ok     ( rom_ok    ),
+    .snd_left   ( snd_left  ),
+    .snd_right  ( snd_right )
+);
+
+jtframe_cache_mux #(
+    .SDRAM_AW ( SDRAM_AW ),
+    .ENDIAN   ( 0        ),
+    .ENDIAN0  ( 1        ),
+    .FULL0    ( 1        ),
+    .AW0      ( 26       ),
+    .BLOCKS0  ( 1        ),
+    .BLKSIZE0 ( 1024     ),
+    .DW0      ( 32       ),
+    .BA0      ( 0        ),
+    .OFFSET0  ( 0        ),
+    .ENDIAN1  ( 1        ),
+    .FULL1    ( 0        ),
+    .AW1      ( 23       ),
+    .BLOCKS1  ( 1        ),
+    .BLKSIZE1 ( 1024     ),
+    .DW1      ( 32       ),
+    .BA1      ( 3        ),
+    .OFFSET1  ( TILES    ),
+    .ENDIAN2  ( 0        ),
+    .FULL2    ( 0        ),
+    .AW2      ( 23       ),
+    .BLOCKS2  ( 1024     ),
+    .BLKSIZE2 ( 128      ),
+    .DW2      ( 128      ),
+    .BA2      ( 3        ),
+    .OFFSET2  ( TILES    ),
+    .ENDIAN3  ( 1        ),
+    .FULL3    ( 0        ),
+    .AW3      ( 19       ),
+    .BLOCKS3  ( 1        ),
+    .BLKSIZE3 ( 1024     ),
+    .DW3      ( 32       ),
+    .BA3      ( 0        ),
+    .OFFSET3  ( SPRRAM   ),
+    .ENDIAN4  ( 1        ),
+    .FULL4    ( 0        ),
+    .AW4      ( 19       ),
+    .BLOCKS4  ( 8        ),
+    .BLKSIZE4 ( 1024     ),
+    .DW4      ( 32       ),
+    .BA4      ( 0        ),
+    .OFFSET4  ( SPRRAM   ),
+    .ENDIAN5  ( 0        ),
+    .FULL5    ( 0        ),
+    .AW5      ( 24       ),
+    .BLOCKS5  ( 256      ),
+    .BLKSIZE5 ( 32       ),
+    .DW5      ( 8        ),
+    .BA5      ( 1        ),
+    .OFFSET5  ( 0        ),
+    .AW6      ( 23       ),
+    .BLOCKS6  ( 1        ),
+    .BLKSIZE6 ( 1024     ),
+    .DW6      ( 16       ),
+    .BA6      ( 0        ),
+    .OFFSET6  ( 0        ),
+    .AW7      ( 23       ),
+    .BLOCKS7  ( 1        ),
+    .BLKSIZE7 ( 1024     ),
+    .DW7      ( 16       ),
+    .BA7      ( 0        ),
+    .OFFSET7  ( 0        )
+) u_cache(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .addr0      ( 24'd0     ),
+    .dout0      (           ),
+    .rd0        ( 1'b0      ),
+    .wr0        ( 1'b0      ),
+    .din0       ( 32'd0     ),
+    .wdsn0      ( 4'd0      ),
+    .ok0        (           ),
+    .addr1      ( 21'd0     ),
+    .dout1      (           ),
+    .rd1        ( 1'b0      ),
+    .wr1        ( 1'b0      ),
+    .din1       ( 32'd0     ),
+    .wdsn1      ( 4'd0      ),
+    .ok1        (           ),
+    .addr2      ( 19'd0     ),
+    .dout2      (           ),
+    .rd2        ( 1'b0      ),
+    .wr2        ( 1'b0      ),
+    .din2       ( 128'd0    ),
+    .wdsn2      ( 16'd0     ),
+    .ok2        (           ),
+    .addr3      ( 17'd0     ),
+    .dout3      (           ),
+    .rd3        ( 1'b0      ),
+    .wr3        ( 1'b0      ),
+    .din3       ( 32'd0     ),
+    .wdsn3      ( 4'd0      ),
+    .ok3        (           ),
+    .addr4      ( 17'd0     ),
+    .dout4      (           ),
+    .rd4        ( 1'b0      ),
+    .ok4        (           ),
+    .addr5      ( rom_addr  ),
+    .dout5      ( rom_data  ),
+    .rd5        ( rom_rd    ),
+    .ok5        ( rom_ok    ),
+    .addr6      ( 22'd0     ),
+    .dout6      (           ),
+    .rd6        ( 1'b0      ),
+    .ok6        (           ),
+    .addr7      ( 22'd0     ),
+    .dout7      (           ),
+    .rd7        ( 1'b0      ),
+    .ok7        (           ),
+    .flush0     ( 1'b0      ),
+    .flush1     ( 1'b0      ),
+    .flush2     ( 1'b0      ),
+    .flush3     ( 1'b0      ),
+    .flush4     ( 1'b0      ),
+    .flush5     ( 1'b0      ),
+    .flush6     ( 1'b0      ),
+    .flush7     ( 1'b0      ),
+    .flushing0  (           ),
+    .flush_done0(           ),
+    .flushing1  (           ),
+    .flush_done1(           ),
+    .flushing2  (           ),
+    .flush_done2(           ),
+    .flushing3  (           ),
+    .flush_done3(           ),
+    .flushing4  (           ),
+    .flush_done4(           ),
+    .flushing5  (           ),
+    .flush_done5(           ),
+    .flushing6  (           ),
+    .flush_done6(           ),
+    .flushing7  (           ),
+    .flush_done7(           ),
+    .addr       ( ext_addr  ),
+    .ba         ( ext_ba    ),
+    .rd         ( ext_rd    ),
+    .wr         (           ),
+    .din        ( ext_din   ),
+    .dout       (           ),
+    .ack        ( ext_ack   ),
+    .dst        ( ext_dst   ),
+    .dok        ( ext_dok   ),
+    .rdy        ( ext_rdy   )
+);
+
+jtframe_burst_sdram #(
+    .AW       ( BURST_AW ),
+    .HF       ( 1        ),
+    .MISTER   ( 0        ),
+    .PROG_LEN ( 64       )
+) u_sdram(
+    .rst        ( rst         ),
+    .clk        ( clk         ),
+    .init       ( init        ),
+    .addr       ( ext_addr    ),
+    .ba         ( ext_ba      ),
+    .rd         ( ext_rd      ),
+    .wr         ( 1'b0        ),
+    .din        ( 16'd0       ),
+    .dout       ( ext_din     ),
+    .ack        ( ext_ack     ),
+    .dst        ( ext_dst     ),
+    .dok        ( ext_dok     ),
+    .rdy        ( ext_rdy     ),
+    .prog_en    ( 1'b0        ),
+    .prog_addr  ( 23'd0       ),
+    .prog_rd    ( 1'b0        ),
+    .prog_wr    ( 1'b0        ),
+    .prog_din   ( 16'd0       ),
+    .prog_dsn   ( 2'd0        ),
+    .prog_ba    ( 2'd0        ),
+    .prog_dst   (             ),
+    .prog_dok   (             ),
+    .prog_rdy   (             ),
+    .prog_ack   (             ),
+    .rfsh       ( 1'b0        ),
+    .sdram_dq   ( SDRAM_DQ    ),
+    .sdram_a    ( SDRAM_A     ),
+    .sdram_dqml ( SDRAM_DQM[0]),
+    .sdram_dqmh ( SDRAM_DQM[1]),
+    .sdram_ba   ( SDRAM_BA    ),
+    .sdram_din  ( SDRAM_DIN   ),
+    .sdram_nwe  ( SDRAM_nWE   ),
+    .sdram_ncas ( SDRAM_nCAS  ),
+    .sdram_nras ( SDRAM_nRAS  ),
+    .sdram_ncs  ( SDRAM_nCS   ),
+    .sdram_cke  ( SDRAM_CKE   )
+);
+
+endmodule

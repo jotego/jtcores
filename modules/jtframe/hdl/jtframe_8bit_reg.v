@@ -4,7 +4,8 @@
 /* verilator tracing_off */
 module jtframe_8bit_reg #(
     parameter SIMFILE="", // use to apply a different reset value during sims
-    parameter OFFSET=0    // applied to the simulation file
+    parameter OFFSET=0,   // applied to the simulation file
+    parameter [7:0] XOR=0 // XOR din before storing it
 )(
     // do not change port order
     // as this module is intended for direct instantiation
@@ -55,7 +56,7 @@ always @(posedge clk) begin
     `endif
     end else begin
         if( cs && !wr_n ) begin
-            dout[ 7:0] <= din[ 7:0];
+            dout[7:0] <= din[7:0]^XOR[7:0];
         end
     end
 end

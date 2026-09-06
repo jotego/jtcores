@@ -36,6 +36,8 @@ module jtsh7604 #(
     input      [31:0]  cps3_key1,
     input      [31:0]  cps3_key2,
     input      [ 2:0]  cps3_crypt_mode,
+    input      [ 2:0]  cps3_region,
+    input              cps3_region_redearth,
 
     input              cache_ok,
 
@@ -99,11 +101,12 @@ module jtsh7604 #(
                                   bus_a[26:25] == 2'b11 && !bus_a[24] && bus_a[23] &&
                                   !bus_rd_n && !bus_dbus_rd;
     wire        cps3_simm_rd  = cps3_simm1_rd | cps3_simm2_rd;
-    wire [31:0] cpu_din_sh = cps3_bios_rd ?
+    wire [31:0] cpu_din_dec = cps3_bios_rd ?
         (cps3_swap16_dword(cpu_din) ^ cps3_mask({5'd0, bus_a[26:2], 2'b00}, cps3_key1, cps3_key2)) :
         cps3_simm_rd ?
         (cpu_din ^ cps3_mask({5'd0, bus_a[26:2], 2'b00}, cps3_key1, cps3_key2)) :
         cpu_din;
+    wire [31:0] cpu_din_sh;
     wire [31:0] cpu_din_hold = req_rd_l ? cpu_din_l : cpu_din_sh;
 
     reg         req_active;
@@ -148,6 +151,15 @@ module jtsh7604 #(
             cps3_mask = {val, val};
         end
     endfunction
+
+    jtsh7604_cps3_region u_region(
+        .en       ( cps3_bios_rd         ),
+        .redearth ( cps3_region_redearth ),
+        .addr     ( bus_a[18:2]          ),
+        .region   ( cps3_region          ),
+        .din      ( cpu_din_dec          ),
+        .dout     ( cpu_din_sh           )
+    );
 
     assign bus_stb_rise = cpu_bus_stb & ~bus_stb_l;
 

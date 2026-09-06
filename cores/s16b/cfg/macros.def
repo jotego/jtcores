@@ -1,16 +1,5 @@
 include ../../s16/cfg/macros.def
 
-[mist|sidi]
-#JTFRAME_INPUT_RECORD
--JTFRAME_CREDITS
-
-[sidi]
-# does not fit anymore
-JTFRAME_SKIP
-
-[mist|sidi]
-JTFRAME_NOSTA
-
 [*]
 S16B
 

@@ -1954,7 +1954,9 @@ func Test_check_banks_large_cache(t *testing.T) {
 	if e := yaml.Unmarshal([]byte(sample), &cfg); e != nil {
 		t.Fatal(e)
 	}
-	macros.MakeFromMap(nil)
+	old_macros := macros.CopyToMap()
+	defer macros.MakeFromMap(old_macros)
+	macros.MakeFromMap(map[string]string{"JTFRAME_SDRAM96": ""})
 	if e := cfg.check_sdram(); e != nil {
 		t.Fatal(e)
 	}
@@ -1976,6 +1978,7 @@ func Test_check_banks_large_cache(t *testing.T) {
 	checks := []string{
 		".CACHE0_SIZE(131072)",
 		".CACHE0_LARGE(1)",
+		".TAG_RAM(1)",
 		".SLOT0_BURSTLEN(`JTFRAME_BA0_LEN)",
 		".SLOT0_BURSTLEN(32)",
 	}
