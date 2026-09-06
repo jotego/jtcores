@@ -198,7 +198,7 @@ jtharier_main u_main(
     .st_addr    ( debug_bus     ),
     .st_dout    ( st_main       )
 );
-
+/* verilator tracing_off */
 jtharier_sub u_sub(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -223,7 +223,7 @@ jtharier_sub u_sub(
     .st_addr    ( debug_bus     ),
     .st_dout    ( st_sub        )
 );
-
+/* verilator tracing_on */
 // Sound board 834-5799. cen_pcm is 16 MHz, not 8 -- see the module header.
 jtharier_sound u_snd(
     .snd_rstn   ( snd_rstn      ),
@@ -255,7 +255,7 @@ jtharier_sound u_snd(
     .pcm_l      ( pcm_l         ),
     .pcm_r      ( pcm_r         )
 );
-
+/* verilator tracing_off */
 jtharier_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),

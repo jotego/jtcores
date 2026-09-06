@@ -106,6 +106,7 @@ wire [15:0] mcu_addr;
 reg  [ 7:0] mcu_din;
 reg         mcu_acc_l;
 reg         mcu_ok, BGACKnl;
+reg         vbl_irqn, lvbl_l;
 wire        mcu_gated;
 reg         mcu_rst, fd1089_rst;
 
@@ -143,6 +144,19 @@ assign snd_rstn = ppi0_b[5];
 assign sub_rstn =~ppi1_a[5];
 assign sub_intn = ppi1_a[6];
 
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        vbl_irqn <= 1;
+        lvbl_l   <= 1;
+    end else begin
+        lvbl_l <= lvbl_g;
+        if( !inta_n )
+            vbl_irqn <= 1;
+        else if( !lvbl_g && lvbl_l )
+            vbl_irqn <= 0;
+    end
+end
+
 // Block the MCU's write to the main/MCU sync byte at 0x040385, as MAME does
 // unconditionally (segahang.cpp i8751_w: "the cpu is too fast or the mcu too
 // slow ... the mcu clears this value after the cpu sets it"). If the clear lands,
@@ -153,7 +167,7 @@ wire mcu_syncw  = mcu_bus & mcu_wr & A[23:16]==8'h04 & mcu_addr==16'h0384;
 // write enable from these alone, so raw strobes make every CPU READ of char RAM
 // write over the location being read. jts16_main qualifies at the source too.
 assign dsn      = { RnW | UDSn | mcu_syncw, RnW | LDSn | mcu_syncw };
-assign IPLn     = { blank4 ? lvbl_g : mcu_ctrl[2], mcu_ctrl[1:0] };
+assign IPLn     = { blank4 ? vbl_irqn : mcu_ctrl[2], mcu_ctrl[1:0] };
 assign VPAn     = inta_n;
 
 wire        bus_cs   = rom_cs | ram_cs | vram_cs | char_cs | objram_cs | pal_cs |

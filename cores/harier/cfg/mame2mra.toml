@@ -7,6 +7,8 @@ main_setnames=["sharrier"]
 # Hang-On's sprite ROMs do not group into 32-bit words, so its sprite format is
 # not implemented.
 skip={ bootlegs=true, machines=["hangon","shangon"] }
+# Needs connection to D-pad
+debug={ machine="enduror" }
 
 [audio]
 volume = [ { machine="sharrier", value = 160 } ]
