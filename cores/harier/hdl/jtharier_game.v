@@ -30,9 +30,9 @@ wire [ 7:0] key_data;
 wire [ 2:0] adc;        // number of ADC channels
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
-// 'V' glyph fix (dipsw[30]): the MRA lists "On,Off" so the all-ones default
+// 'V' glyph fix (dipsw[18]): the MRA lists "On,Off" so the all-ones default
 // ships faithful to the PCB.
-wire vfix_en = ~dipsw[30];
+wire vfix_en = ~dipsw[18];
 wire [ 7:0] an_x, an_y, an_gas, an_brake;
 assign mcu_we     = prom_we && prog_addr[21:12]==MCU_PROM[21:12];
 // The 8 KiB FD1089 key follows the 4 KiB MCU image. A high-bit comparison
@@ -111,8 +111,8 @@ jtharier_cab u_cab(
     .joyana_r1  ( joyana_r1     ),
     .adc        ( adc           ),
 
-    .sprung     ( dipsw[29]     ),
-    .invert_y   ( dipsw[28]     ),
+    .sprung     ( dipsw[17]     ),
+    .invert_y   ( dipsw[16]     ),
 
     .an_x       ( an_x          ),
     .an_y       ( an_y          ),

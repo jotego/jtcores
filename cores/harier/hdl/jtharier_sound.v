@@ -173,7 +173,7 @@ jt51 u_jt51(
 // segapcm.cpp accumulates unclipped. Left as-is at jotego's request: he asked to
 // hear the PCM with the problem present rather than the WD(16) parameter that
 // removes it.
-jtoutrun_pcm u_pcm(
+jtoutrun_pcm #(.WD(16)) u_pcm(
     .rst        ( snd_rst     ),
     .clk        ( clk         ),
     .cen        ( ym2151 ? cen_fm : cen_pcm ),
