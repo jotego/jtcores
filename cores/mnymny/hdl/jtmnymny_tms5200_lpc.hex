@@ -1,7 +1,6 @@
 // TMS5200/TMC0285 (CD2501E) LPC parameter ROM, 256 x 10 bit
 // Transcribed from the TMS5200NL die decap (digshadow, March 2013,
-// siliconpr0n.org). Energy and pitch also match US patent 4,335,277;
-// the patent's K tables are scrambled, the decap is authoritative.
+// siliconpr0n.org).
 // Layout: 00-0F energy(16, idx15=stop), 10-4F pitch(64),
 // 50-6F K1(32), 70-8F K2(32), 90-9F K3, A0-AF K4, B0-BF K5, C0-CF K6,
 // D0-DF K7 (16 each), E0-E7 K8, E8-EF K9, F0-F7 K10 (8 each), F8-FF unused.

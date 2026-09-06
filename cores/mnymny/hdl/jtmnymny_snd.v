@@ -3,7 +3,7 @@
 
 // jtmnymny_snd.v — Zaccaria 1B11142 sound board
 // Melody 6802 + PIA + 2x AY-3-8910, speech/effects 6802 + PIA + MC1408 DAC.
-// TMS5200 = jtmnymny_tms5200 (parameter ROMs pending a die dump).
+// TMS5200 = jtmnymny_tms5200 (parameter ROMs from the die decap).
 
 module jtmnymny_snd(
     input               rst,
@@ -230,7 +230,7 @@ jtmnymny_6821 u_spia(
     .pb_out ( spia_pb_out   ),
     .pb_oe  (               ),
     .ca1    ( 1'b0          ),
-    .ca2_in ( ~tms_ready_n  ),
+    .ca2_in ( tms_ready_n   ),
     .ca2_out(               ),
     .ca2_oe (               ),
     .cb1    ( tms_int_n     ),
