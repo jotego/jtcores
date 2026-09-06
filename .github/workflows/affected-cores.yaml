@@ -54,17 +54,34 @@ jobs:
             return JSON.stringify(files.map(({ filename }) => filename));
 
       - id: analyze
-        uses: ./.github/actions/affected-cores
+        uses: jotego/jtcheck@v0
         with:
           repository-path: .
           changed-files: ${{ steps.changed-files.outputs.result }}
 
-      - name: Update affected-cores comment
-        id: comment
-        uses: ./.github/actions/find-create-or-update-comment
+      - name: Find existing comment
+        id: find-comment
+        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3.1.0
         with:
           token: ${{ github.token }}
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: github-actions[bot]
           body-includes: '<!-- jtcores-affected-cores -->'
+          direction: first
+
+      - name: Create affected-cores comment
+        if: steps.find-comment.outputs.comment-id == 0
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
+        with:
+          token: ${{ github.token }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: ${{ steps.analyze.outputs.pull-request-comment }}
+
+      - name: Update affected-cores comment
+        if: steps.find-comment.outputs.comment-id != 0
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
+        with:
+          token: ${{ github.token }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          edit-mode: replace
           body: ${{ steps.analyze.outputs.pull-request-comment }}
