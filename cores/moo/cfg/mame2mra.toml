@@ -1,23 +1,13 @@
+[global]
+author=["jotego"]
+
 [parse]
 sourcefile=[ "moo.cpp" ]
-skip = { bootlegs=true }
-# skip = { bootlegs=true, setnames=[
-    # "xmen6p", "xmen6pu",
-# ]}
-
-# [buttons]
-# names = [
-#     { machine="xmen",     names="Attack,Jump,Mutant Power" },
-# ]
+skip = { bootlegs=true, machines=[ "bucky" ] }
 
 [header]
-info="Offsets for each ROM region. Byte 15 = game selection."
-data = [
-	{ machine="moomesa", offset=15, data="01" },
-    { machine="bucky",   offset=15, data="02" },
-]
-# offset = { bits=12, reverse=true, regions=["maincpu","audiocpu","k052109", "obj"] }
-# frames = [ { width=8 }, ]
+info="Offsets for each ROM region"
+offset = { bits=12, reverse=true, regions=["maincpu","soundcpu","tiles","obj"] }
 
 [ROM]
 regions = [
@@ -33,3 +23,39 @@ regions = [
 ]
 
 order=["maincpu","soundcpu","pcm","tiles","obj"]
+
+# default configuration to prevent from boot-up error
+nvram={	Defaults=[
+	{ machine="moomesa", data="""	00 00 03 00 03 01 00 00 00 1E 01 01 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 27"""},
+	{ setname="moomesaaab", data="""	00 00 03 00 03 01 00 00 00 1E 01 01 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 27"""},
+	{ setname="moomesauab", data="""	00 00 02 00 03 01 00 00 00 1E 02 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26"""},
+	{ setname="moomesauac", data="""	00 00 02 00 03 01 00 00 00 1E 02 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 26"""},
+]}
