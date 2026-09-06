@@ -9,6 +9,7 @@ module jtmnymny_main(
     input               clk,
     input               cpu_cen,
     input               LVBL,
+    input               jackrabt,
     // main program ROM (SDRAM)
     output reg          rom_cs,
     output      [15:0]  rom_addr,
@@ -90,6 +91,7 @@ end
 
 // PAL16L8 at 1A on the ROM board, dumped equations (doc/pld/equations.md)
 jtmnymny_prot u_prot(
+    .jackrabt( jackrabt ),
     .A      ( A[14:0]   ),
     .rd_n   ( rd_n      ),
     .rfsh_n ( rfsh_n    ),

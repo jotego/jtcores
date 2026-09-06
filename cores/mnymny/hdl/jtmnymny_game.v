@@ -40,6 +40,13 @@ assign pal9f_addr  = pal_addr;
 assign pal9g_addr  = pal_addr;
 
 assign dip_flip   = flip_x;
+
+// MRA header byte 0, bit 0: game select for the protection PAL
+reg jackrabt=0;
+always @(posedge clk) begin
+    if( header && prog_we && prog_addr[2:0]==0 ) jackrabt <= prog_data[0];
+end
+
 assign debug_view = 0;
 assign sample     = 0;
 `ifdef JTFRAME_IOCTL_RD
@@ -53,6 +60,7 @@ assign snd = { 1'b0, aysum, 4'd0 } + { 3'd0, dac, 5'd0 } + { {2{speech[13]}}, sp
 
 jtmnymny_main u_main(
     .rst        ( rst           ),
+    .jackrabt   ( jackrabt      ),
     .clk        ( clk           ),
     .cpu_cen    ( cpu_cen       ),
     .LVBL       ( LVBL          ),

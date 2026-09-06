@@ -7,6 +7,7 @@
 // (open bus, matching MAME's traced constants).
 
 module jtmnymny_prot(
+    input               jackrabt,
     input      [14:0]   A,
     input               rd_n,
     input               rfsh_n,
@@ -29,6 +30,22 @@ wire d5 = A[2];                      // o22
 wire d6 = ~(~A[1] & A[2] & A[11]);   // o23
 wire d7 = 1'b1;                      // o16, constant when enabled
 
-assign dout = { d7oe & d7, d6oe & d6, d5oe & d5, d4oe & d4 };
+wire [7:4] mm_dout = { d7oe & d7, d6oe & d6, d5oe & d5, d4oe & d4 };
+
+// Jack Rabbit PAL is undumped (read protected); constants traced in MAME
+reg  [7:4] jr_dout;
+always @* begin
+    jr_dout = 0;
+    if( rdp ) case( {A[11], A[2:0]} )
+        4'b0_000: jr_dout = 4'h5;   // 6400 -> 50
+        4'b0_100: jr_dout = 4'h4;   // 6404 -> 40
+        4'b0_110: jr_dout = 4'ha;   // 6406 -> A0
+        4'b1_010: jr_dout = 4'h1;   // 6C02 -> 10
+        4'b1_100: jr_dout = 4'h8;   // 6C04 -> 80
+        default:  jr_dout = 0;
+    endcase
+end
+
+assign dout = jackrabt ? jr_dout : mm_dout;
 
 endmodule

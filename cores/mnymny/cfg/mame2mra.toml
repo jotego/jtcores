@@ -14,10 +14,18 @@ offset=[
 delete=[ { names=["Unused","Unknown"] } ]
 rename=[ { name="Table Title", to="Title", values=["Todays","All time"] } ]
 
+[header]
+registers=[
+    { name="jackrabt", pos="0[0]", desc="Jack Rabbit protection PAL", values=[{ machine="jackrabt", value=1 }] },
+]
+
 [ROM]
 regions = [
     # 6x8KB, file-linear; the core maps Z80 A15 to ROM A12 (see jtmnymny_main)
     { name="maincpu", no_offset=true },
+    # jackrabt set 1: 1a is split lo/hi, then 2l-6l and 2h-6h as plain 4KB
+    # files; reorder into the lo/hi pairs the file-linear layout expects
+    { name="maincpu", setname="jackrabt", no_offset=true, sequence=[0,1,6,2,7,3,8,4,9,5,10] },
     # audio board ROMs live on the module; region offsets (8000/C000, 2000/3000)
     # are socket decode, the core uses packed files
     { name="audiopcb:melodycpu", rename="melody", start="JTFRAME_BA1_START", no_offset=true },
