@@ -8,10 +8,9 @@
 // Speak External only: the 1B11142 board has no VSM, so VSM commands
 // (Read Byte, Read&Branch, Load Address, Speak) complete with correct
 // READY handshake but do nothing.
-// The coefficient/chirp ROMs are chip mask data, absent from the manual:
-// they live in jtmnymny_tms5200_tables.vh. Frame timing, coding and the
-// lattice come from the manual; the tables must come from a dump or the
-// TI patent (US 4,209,836).
+// Parameter ROMs in jtmnymny_tms5200_tables.vh, from the TMS5200NL die
+// decap (digshadow, March 2013, siliconpr0n.org). Lattice/LFSR/interp
+// behaviour per the data manual and US patent 4,335,277, decap-verified.
 // Bus convention: TI numbers D0 as MSB; on the 1B11142 the PIA is wired
 // pin-matched so conventional bit order applies throughout (commands in
 // din[6:4], FIFO bits consumed LSB-first, status on dout[7:5]=TS,BL,BE).
@@ -102,9 +101,11 @@ reg  signed [13:0] b [0:9];     // backward path
 reg  [ 6:0] pitch_cnt;
 reg  [12:0] lfsr;
 reg  [ 3:0] lat;                // lattice stage sequencer
+integer     lf;
 wire        voiced = t_pitch != 0;
-wire signed [13:0] excite = voiced ? chirp(pitch_cnt) :
-                            lfsr[0] ? 14'sd64 : -14'sd64;
+// unvoiced level is half the chirp peak (patent/decap): +/-0x40
+wire signed [ 7:0] excite = voiced ? chirp(pitch_cnt) :
+                            lfsr[12] ? -8'sd64 : 8'sd64;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -245,13 +246,13 @@ always @(posedge clk, posedge rst) begin
             end
         end
 
-        // parameter interpolation once per interpolation period:
-        // approach the target by 1/8 of the remaining distance
+        // parameter interpolation once per interpolation period, with the
+        // decap-verified shift sequence (IC0 snaps to the target)
         if( ts && ic_tick ) begin
-            c_energy <= c_energy + ((t_energy-c_energy)>>>3);
-            c_pitch  <= c_pitch  + ((t_pitch -c_pitch )>>>3);
+            c_energy <= c_energy + ((t_energy-c_energy)>>>interp_shift(ic));
+            c_pitch  <= c_pitch  + ((t_pitch -c_pitch )>>>interp_shift(ic));
             for(i=0;i<10;i=i+1)
-                c_k[i] <= c_k[i] + ((t_k[i]-c_k[i])>>>3);
+                c_k[i] <= c_k[i] + ((t_k[i]-c_k[i])>>>interp_shift(ic));
         end
 
         // ------------------------------------------------- frame parser
@@ -319,17 +320,24 @@ always @(posedge clk, posedge rst) begin
         // --------------------------------------------- lattice, 1 stage
         // per clk right after each sample tick (11 clks per 125us sample)
         if( ts && sample_tick ) begin
-            // excitation scaled by energy
-            u[10] <= (excite * c_energy) >>> 6;
+            // Y(11) = energy * (excitation<<6) >> 9 (patent table I)
+            u[10] <= (c_energy * (excite <<< 6)) >>> 9;
             lat   <= 4'd9;
-            // pitch period counter and noise generator
+            // pitch period counter
             if( voiced ) begin
                 pitch_cnt <= pitch_cnt >= c_pitch[6:0] ? 7'd0
                                                        : pitch_cnt+7'd1;
             end else pitch_cnt <= 0;
-            lfsr <= {lfsr[11:0], lfsr[12]^lfsr[2]^lfsr[0]};
+            // 13-bit LFSR, taps 12,3,2,0, clocked 20x per sample (per T)
+            begin : lfsr_upd
+                reg [12:0] r;
+                r = lfsr;
+                for(lf=0;lf<20;lf=lf+1)
+                    r = {r[11:0], r[12]^r[3]^r[2]^r[0]};
+                lfsr <= r;
+            end
         end else if( lat != 4'd15 ) begin
-            // ui-1 = ui - ki*bi-1 ; bi = bi-1 + ki*ui-1
+            // ui-1 = ui - ki*bi-1 ; bi = bi-1 + ki*ui-1  (>>9 multiplies)
             u[lat] <= u[lat+1] - ((c_k[lat]*b[lat]) >>> 9);
             if( lat != 4'd9 )
                 b[lat+1] <= b[lat] + ((c_k[lat]*(u[lat+1]
