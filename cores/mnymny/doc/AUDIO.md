@@ -1,173 +1,193 @@
 # 1B11142 analog audio network — sheet 2/3 (PDF page 12)
 
-Everything below was read directly off `money_money.pdf` page 12 (local copy:
-`~/develop/zaccaria-sch/money_money.pdf`; the doc/sch/ folder is untracked and
-ignored on purpose). Cross-references: sheet 1/3 (melody CPU + AYs, page 11),
-sheet 3/3 (speech CPU + TMS5200 + MC1408, page 13), digest in
-`~/develop/zaccaria-sch/1b11142-audio.md`.
+Traced from `money_money.pdf` page 12 (local copy: `~/develop/zaccaria-sch/`;
+untracked on purpose) and cross-checked against MAME's netlist model
+`src/mame/zaccaria/nl_zac1b11142.cpp` (local tree `~/develop/mame`), which is a
+complete machine-readable transcription of this sheet plus the speech/DAC
+output stages of sheet 3. Where the two disagreed, the netlist won (it encodes
+board-level fixes noted below). Both earlier TODOs are resolved by the netlist.
 
-Status: connectivity fully traced. TODO markers note the two spots to
-re-verify at higher zoom before coding. Nothing of this is modelled in the
-core yet — the mixer is still the crude `aysum` in jtmnymny_game.v.
+Status: connectivity settled. Analysis tooling in `ver/audio/` computes the
+transfer functions and the digital-model coefficients from this data.
 
 ## Signal sources (left edge, all from sheet 1)
 
 Each ANAL input has a 1K load to ground at entry.
 
-| Net   | Source        | Load | Branch |
-|-------|---------------|------|--------|
-| ANAL1 | AY 4G ch. A   | R133 | rullante + cassa (both taps off the same node) |
-| ANAL2 | AY 4G ch. B   | R46  | basso |
-| ANAL3 | AY 4G ch. C   | R71  | straight path 1 (jumper) |
-| ANAL6 | AY 4H ch. C   | R47  | straight path 2 (jumper) |
-| ANAL4 | AY 4H ch. A   | R78  | piano |
-| ANAL5 | AY 4H ch. B   | R66  | tromba (squarer + octave divider) |
+| Net   | Source        | MAME device | Load | Branch |
+|-------|---------------|-------------|------|--------|
+| ANAL1 | AY 4G ch. A   | melodypsg1  | R133 | rullante + cassa (both taps off the same node) |
+| ANAL2 | AY 4G ch. B   | melodypsg1  | R46  | basso |
+| ANAL3 | AY 4G ch. C   | melodypsg1  | R71  | straight path, CONNECTED, SW1-switchable filter |
+| ANAL4 | AY 4H ch. A   | melodypsg2  | R78  | piano |
+| ANAL5 | AY 4H ch. B   | melodypsg2  | R66  | tromba (squarer + octave divider) |
+| ANAL6 | AY 4H ch. C   | melodypsg2  | R47  | open jumper — never heard |
 
-NOTE: sheet-1 digest says AY 4H (melodypsg1 in MAME) outputs are ANAL4/5/6 and
-AY 4G (melodypsg2) are ANAL1/2/3. In the core, `ay4g_*`/`ay4h_*` port names
-follow the schematic refdes: 4G = melodypsg2 = ANAL1/2/3, 4H = melodypsg1 =
-ANAL4/5/6. Keep this straight when wiring filters: the *drums/basso* come from
-the PSG whose port A carries IOA0-4 (4G per core naming). Double-check against
-jtmnymny_snd.v port A/B assignments when coding.
+RESOLVED: MAME `zaccaria_a.cpp` routes melodypsg1 ch 0-2 to ANAL1/2/3 and
+melodypsg1 port A to IOA0-4, i.e. 4G = melodypsg1. `jtmnymny_snd.v` matches
+(u_ay4g outputs ay4g_a/b/c and drives `ioa`; u_ay4h drives
+`level/levelt/sw1`). No wiring change needed.
 
-## Control lines (from the AY I/O ports, sheet 1)
+## Control lines
 
-| Net    | Core signal | Used by |
-|--------|-------------|---------|
-| IOA0-2 | `ioa[2:0]`  | LS156 4B volume ladder select (8 steps) |
-| IOA3   | `ioa[3]`    | 4016 5D section pins 8/9: gates ANAL1 into the cassa branch |
-| IOA4   | `ioa[4]`    | 4016 5D section pins 10/11: gates ANAL1 into the rullante branch |
-| LEVEL  | `level`     | T7 BC548 base (via R45 10K): shunts/ducks the master node at P1 |
-| LEVELT | `levelt`    | Tromba stage input network bias (R108/R111 8K2 node) |
+| Net    | Core signal | Source          | Used by |
+|--------|-------------|-----------------|---------|
+| IOA0-2 | `ioa[2:0]`  | AY 4G port A    | LS156 4B ladder: TROMBA mix volume, 8 steps (NOT a master volume) |
+| IOA3   | `ioa[3]`    | AY 4G port A    | 4016 5D pins 8/9: gates ANAL1 into the cassa branch |
+| IOA4   | `ioa[4]`    | AY 4G port A    | 4016 5D pins 10/11: gates ANAL1 into the rullante branch |
+| LEVEL  | `level`     | AY 4H port A b0 | T7 BC548 base via R68 10K: ducks the P1 node through R45 10K |
+| LEVELT | `levelt`    | AY 4H port A b1 | tromba 5B1 bias (R109 10K into the R94/R108/R95 node): 2-level amplitude |
+| SW1    | `sw1`       | AY 4H port B b0 | 4016 5D pins 3/4/5: switches C56 0.01u to ground in the ANAL3 path (netlist: "connection not shown on the schematic") |
 
-Two more 4016 5D sections exist on this sheet (it is a quad switch):
-- pins 3/4/5: switches C56 0.01u to ground in the ANAL3 straight path
-  (tone filter on/off). TODO: control net label needs re-check at zoom —
-  candidates are IOA of the second AY port or a strap.
-- pins 1/2: shorts R113 1M in the tromba 5B feedback (level/timbre switch).
-  TODO: same — the wire runs toward the LEVELT/IOA region; verify which.
+Remaining 4016 5D section, pins 1/2/13: shorts R113 1M in the tromba 5B1
+feedback, control pin 13 driven by U3A.5 — the LS74 divider's own Q. The
+feedback is chopped at the note rate; see TROMBA below.
 
-Node "2 (SH3)": the speech/DAC audio arrives from sheet 3 into the master
-summing node through R3 10K + C7 0.1u.
+Component-value fixes encoded in the netlist (board vs schematic):
+- R121 680R — schematic mislabels it "R128" (the cassa branch has both)
+- R88 15K — schematic prints "15"
+- C52, C53 22n — schematic prints "0,02u", not an E-series value
+- BC548C for T6/T7
 
-## The five instrument branches
+## The instrument branches
 
-All amps are LM3900 Norton (current-differencing) amplifiers, NOT voltage
-op-amps: every "+" input is biased with a resistor to VCC and the transfer
-functions must be derived current-mode. Sections named 5B/5C are the two
-LM3900 quad packages.
+All amps are LM3900 Norton (current-differencing), NOT voltage op-amps:
+"+" inputs are current-mirror diodes biased from VCC; derive transfer
+functions current-mode. 5B/5C are the two LM3900 quad packages.
 
 ### RULLANTE (snare) — ANAL1
-ANAL1 -> C63 0.01u + R133 1K -> 4016 (IOA4) -> R131 150K ->
-LM3900 5C inverting stage: fb R130 33K, input leg R132 1K, bias R120 47K
--> out via R124 39K to mix bus.
-Character: gated wideband/high-pass-ish path; the gate IS the instrument
-trigger (AY noise plays through it while IOA4 is on).
+ANAL1 -> C63 0.01u -> 4016 (IOA4) -> R132 1K to gnd, R131 150K ->
+LM3900 5C1 inverting: fb R130 33K, bias R120 47K (+)
+-> out via R124 39K to node A.
+Gated wideband path; the gate IS the trigger (AY noise plays through
+while IOA4 is on). C63 into ~151K gives a ~105 Hz high-pass.
 
 ### CASSA (bass drum) — ANAL1 (same node, second tap)
-ANAL1 -> 4016 (IOA3) -> LM3900 5C stage A: fb R125 560K + C62 1000p,
-network R126 470K / R128 56K / R127 100K / R129 1K / 680R — a resonant
-low-pass (this is the "missing cassa" MAME's netlist struggled with)
--> coupling R123 1K + C68 0.1u + C61 10u ->
-LM3900 5C stage B: fb R104 120K, in R122 33K, R102/R103 10K, R84 1K5
--> out via R105 56K to mix bus.
+ANAL1 -> 4016 (IOA3) -> R129 1K to gnd, R128 56K ->
+LM3900 5C2: fb R125 560K + C62 1000p, input node also sees R126 470K
+from VCC and R127 100K to gnd, bias R121 680R (+) — resonant low-pass
+(the branch MAME's team fought to get right)
+-> R123 1K -> C61 10u to gnd + C68 0.1u series -> R122 33K ->
+LM3900 5C3: fb R104 120K, bias R102/R103 10K from VCC, R84 1K5
+-> out via R105 56K to node A.
 
 ### BASSO — ANAL2
-ANAL2 -> C29 0.1u + R69 2K2 ->
-5B stage: fb R98 180K + C52 0.02u, R99 47K, bias R101 4K7 / R100 1K
--> C53 0.02u + R118 33K + C54 2.2u (series RC coupling with big cap) ->
-R83 2K2 -> 5C stage: fb R85 120K + C45 1000p, R86 100K, R87 33K / R88 15
--> out via R106 68K to mix bus.
-Two cascaded low-pass stages: bass reinforcement.
+ANAL2 -> C29 0.1u -> R69 2K2 ->
+5B4: fb R98 180K + C52 22n, bias R99 47K/R101 4K7/R100 1K
+-> C53 22n -> R118 33K + C54 2.2u to gnd -> R83 2K2 ->
+5C4: fb R85 120K + C45 1000p, bias R86 100K/R87 33K/R88 15K
+-> out via R106 68K to node A.
+Two cascaded low-passes with interstage RC shaping.
 
 ### PIANO — ANAL4
-ANAL4 -> C41 0.1u + R79 47K ->
-5B stage: fb C49 0.01u + R107 100K, R93 100K, bias R92 33K / R91 12K
--> out via R90 68K to mix bus.
-Single gentle low-pass / tone shaping.
+ANAL4 -> C41 0.1u -> R79 47K ->
+5B2: fb C49 0.01u + R107 100K, bias R93 100K/R92 33K/R91 12K
+-> out via R90 68K to node A.
+Single low-pass.
 
-### TROMBA (trumpet) — ANAL5
-ANAL5 -> R67 1K -> T6 BC548 squarer (C28 1000p, R40 100K)
--> 3A LS74 divide-by-2 (clocked by the squared AY tone: OCTAVE DIVIDER)
--> 4A LS14 buffer ->
-resistor network R94/R110 10K, R112/R95 100K, R108 10K x2, R111 8K2 with
-LEVELT biasing the node (2-level volume for the trumpet)
--> 5B stage: fb R113 1M + C50 1000p, with a 4016 section shorting R113
-(see TODO above) -> R96 4K7 -> R97 150K + C40 0.1u -> TROMBA net -> mix bus.
-The digital half (squarer + LS74) is exact to implement; only the output
-stage is analog.
+### ANAL3 straight path — CONNECTED
+ANAL3 -> R72 10K -> node with R70 10K and 4016 (SW1) switching C56 0.01u
+to gnd -> C44 0.1u -> R82 10K -> node A.
+Passive; SW1 adds the extra pole (tone control). This is a real sixth
+voice, the exact `rc_en` pattern.
 
-### Straight paths — ANAL3, ANAL6
-ANAL3 -> R72 10K -> R70 10K + C44 0.1 (+ C56 0.01 switchable to gnd via
-4016) -> R82 10K -> jumper pad 1/2.
-ANAL6 -> R48 10K + C42 0.1u -> R81 10K -> R80 10K -> same pads.
-Jumper open on monymony/jackrabt per MAME ("#1 ch C disabled, open
-jumper") — confirm which pad state the board uses; likely both paths
-unused, i.e. these two AY channels are never heard directly.
+### ANAL6 — open jumper, not connected (netlist comments at least one
+board has no link). Ignore.
 
-## Mix bus, master volume, power amp (right side)
+### TROMBA (trumpet) — ANAL5, digital + switched-gain stage
+Digital half:
+ANAL5 -> R67 1K -> T6 BC548C squarer (C28 1000p, R40 100K, R64 4K7 pull) ->
+U3A LS74 CLK; D/PRE pulled up via R65; Q (U3A.5) -> R39 220R -> C37 1u +
+LS14 U4A1 in; U4A1 out -> /CLR. Q also drives 4016 pin 13.
+The R39/C37/LS14//CLR loop makes Q a ~81 us pulse per T6 tone edge
+(ver/audio numbers): D=1 always, so there is NO /2 division — pulses at
+the tone rate. Q's pulse closes the 4016 across R113, resetting the 5B1
+ramp: the tromba is a sawtooth-ish wave, tau = R113*C50 = 1 ms.
 
-1. All branch outputs (R124 rullante, R105 cassa, R106 basso, R90 piano,
-   tromba via R96/R97) plus speech (R3 from SH3) sum into one node.
-2. LS156 4B + ladder R41 8K2, R42 5K6, R43 3K3, R44 1K5, R73 820R,
-   R74 390R, R75 150R, R76 47R: one of eight resistors switched to ground
-   on the bus node by IOA0-2 = 8-step master attenuator (log-ish steps).
-3. Master LM3900 5B stage: fb R115 82K, in R116 47K + R77 10K,
-   bias R117 1K / R119 4K7.
-4. R114 4K7 -> P1 10K trimmer; T7 BC548 collector across the wiper node,
-   base driven by LEVEL through R45 10K: AY-controlled duck/mute.
-5. P1 wiper -> TDA1510 2B bridge amp (pins 1/2 in; 4/3 +12V; C9 47u,
-   C6 0.22u), outputs pins 6/9 -> SPK0/SPK1 with C10/C11 100u series,
-   C12/C13 0.1 + R5/R6 4.7R zobels, R8/R10 100K, R9 2K2 + C14 4.7u fb.
-6. Supplies: +12 via D1 1N4004, +5/-5, C1 2200u reservoir.
+Analog half — NO signal input at all:
+5B1 has DC bias only: "+" via R95 100K from the R94 10K(VCC)/R108 10K(gnd)
+/R109 10K(LEVELT) node; "-" via R112 100K from R110 10K(VCC)/R111 8K2(gnd).
+Feedback = R113 1M + C50 1000p, with the 4016 section (pins 1/2) across
+it, chopped by Q. Output toggles between two DC levels:
+  - switch on:  fb ~ Ron(4016), out ~ low level, tau = Ron*C50 (~us)
+  - switch off: fb = 1M, out = high level, tau = R113*C50 ~ 1 ms
+i.e. an asymmetric shark-fin square at half the T6 rate; LEVELT moves the
+"+" bias current = two amplitudes. Exactly synthesizable: two-level
+waveform + per-state one-pole slew.
+-> out via R96 4K7 to node B.
 
-## What we need to model (plan)
+## Mix topology (two nodes, then output sum — NOT one bus)
 
-Target: replace `aysum` in jtmnymny_game.v with a filter section fed by the
-existing per-channel outputs of jtmnymny_snd.v (ay4g_a/b/c, ay4h_a/b/c,
-speech, dac) and the existing controls (ioa[4:0], level, levelt).
+Node A: RULLANTE (R124 39K) + CASSA (R105 56K) + BASSO (R106 68K) +
+PIANO (R90 68K) + ANAL3 path (R82 10K) + C40 0.1u (to node B via R97)
++ R77 10K -> 5B3 "+" (current mirror = AC ground).
 
-1. Derive each branch's transfer function with LM3900 current-mode math
-   (NOT ideal-op-amp): rullante (1 stage), cassa (2 stages, resonant),
-   basso (2 stages), piano (1 stage), tromba output stage (1 stage +
-   the R113-short switch). Get pole/zero or biquad coefficients.
-2. Bilinear-transform each to the audio sample rate and implement as
-   fixed-point IIR sections (jtframe has jtframe_fir for FIR; for IIR
-   check jtframe_pole / existing RC filter helpers first — several cores
-   model RC low-passes already; reuse whatever exists).
-3. Tromba digital half exactly: comparator on ay4h_b (schematic 4G/4H
-   naming caveat above), LS74 toggle, LS14 — a square wave at half the
-   channel frequency, amplitude set by levelt (2 levels).
-4. Gates: ioa[3]/ioa[4] multiply rullante/cassa inputs (4016 = clean
-   analog switch, model as on/off with maybe a 1-pole click filter).
-5. Mix with the branch output resistor weights (R124 39K, R105 56K,
-   R106 68K, R90 68K, tromba R96+R97 divider, speech R3 10K) into the
-   summing node conductance-weighted.
-6. LS156 attenuator: 8 gain values from the ladder + node impedance
-   (compute the actual voltage division per step), indexed by ioa[2:0].
-7. LEVEL duck (T7): a gain switch on the master (compute ratio from
-   P1/R114/T7 saturation; on hardware it is a hard duck).
-8. Straight paths ANAL3/ANAL6: leave disconnected (open jumper) unless
-   hardware listening says otherwise.
-9. mem.yaml audio: section: jtframe supports declaring audio channels
-   with gains/filters — check jtframe/doc/audio.md for the current
-   syntax and whether custom IIR modules can be referenced per channel;
-   otherwise instantiate the filters in jtmnymny_game.v and feed jtframe
-   one pre-mixed signal per rail as today.
+Node B: TROMBA (via R96 4K7 from 5B1 out) + R97 150K (to C40/node A) +
+LS156 4B ladder: one of R41 8K2 / R42 5K6 / R43 3K3 / R44 1K5 / R73 820R /
+R74 390R / R75 150R / R76 47R switched to gnd by IOA0-2.
+The ladder divides against R96 => 8 tromba volume steps, measured -35.3
+to -67.6 dB end-to-end (ver/audio). Step index = {IOA0,IOA1,IOA2} read
+MSB-first (bit-reversed ioa[2:0]), monotonic in that order. It barely
+loads node A (through 150K). It is the TROMBA volume.
+
+Master 5B3: gain = R115 82K / R77 10K from node A ("-" bias R116 47K from
+R119 4K7/R117 1K divider) -> R114 4K7 -> P1 10K trimmer. T7 collector via
+R45 10K across the P1 top node, base from LEVEL via R68 10K. Measured
+(ver/audio): LEVEL=1 lowers the music mix by only 2.3 dB — a subtle duck,
+not a mute; speech/DAC unaffected.
+
+Output node (drives TDA1510, R1 100K to ~6V rail):
+  - music:  P1 wiper -> R3 10K + C7 0.1u
+  - speech: 5D4 out  -> R11 2K2 -> P2 10K pot -> R4 10K + C8 0.1u
+  - DAC:    T4 stage -> R16 2K2 -> P3 10K pot -> R18 10K + C21 0.1u
+Three symmetric 10K + 0.1u summing paths; P2/P3 are operator pots.
+
+Speech stage (sheet 3, netlist `zac1b11142_schematics_speech`):
+TMS5200 current out into C31 0.22u / R63 2K2 -> R62 220K -> C33 470p ->
+R61 860K -> 5D4: fb R49 820K + C30 47p, bias R50 820K. Band-pass-ish:
+~390 Hz high-pass, ~4.1 kHz low-pass.
+
+DAC stage (sheet 3, netlist `zac1b11142_schematics_dac`): MC1408 current
+out -> T4 2N4401 common-base (R13 3M3 to -5V, R15 3K3 load, R17 3K3,
+C20 0.01u) -> R16 2K2 -> P3.
+
+## What we model (plan)
+
+Settled by the ver/audio analysis (all branch responses are smooth
+real-pole shelving; no complex resonances anywhere):
+
+1. `jtmnymny_mixer.v` implements each branch as a parallel bank of
+   1st-order sections (y = a*y + b0*x + b1*x'), coefficients from
+   analyze.py, 24-bit (18-bit shows up to 4 dB error on cassa/tromba;
+   24-bit is <0.14 dB everywhere that matters). One time-multiplexed MAC
+   serves all ~50 sections at 192 kHz. Branch inputs: ioa[3]/ioa[4]
+   gated ANAL1, plus the tromba generator (pulse-reset ramp, LEVELT
+   levels 0.6-3.9 V / 0.6-0.1 V, ladder gain by bit-reversed ioa[2:0]).
+   LEVEL applies the measured -2.3 dB duck to the music sum.
+2. mem.yaml `audio:` gets three pre-shaped channels - music, speech,
+   dac - rsum 10k each (the three real 10K summing paths into R1);
+   jtframe provides the 192 kHz cen, global pole, volume, peak/vu.
+   Balance between the three comes from the analysis table (P2/P3 pot
+   positions are free parameters, default 0.5 like MAME).
+3. Sim-only per-branch mutes in the mixer for verification against
+   MAME netlist WAV captures.
 
 ## Open items / verification
 
-- [ ] Re-check at high zoom the control nets of 4016 sections pins 3/4/5
-      (ANAL3 C56) and pins 1/2 (tromba R113 short). PDF page 12, centre
-      bottom and top-left area.
-- [ ] Confirm 4G/4H vs melodypsg1/2 vs ANAL mapping against
-      jtmnymny_snd.v before wiring (see NOTE above).
-- [ ] Jumper pads 1/2 state on the real board (photo or listening test).
-- [ ] LM3900 bias currents set output DC points; for AC modelling we can
-      ignore DC but the 3900's single-supply clipping is asymmetric — if
-      hardware recordings show clipping character, model saturation.
-- [ ] Speech path level: R3 10K into the bus + P2/P3 pots on sheet 3
-      (speech/DAC levels) — pots mean the "correct" balance is whatever
-      the operator set; pick MAME-free defaults by listening to hw video.
-- [ ] TDA1510 + speaker: decide whether to model the output coupling
-      high-pass (C10/C11 into speaker impedance) — cheap and audible.
+- [ ] Run `ver/audio/` analysis; review Bode plots per branch; freeze the
+      digital approximation (which poles, where the biquad is, per-step
+      gains).
+- [ ] LM3900 single-supply clipping is asymmetric; if hardware recordings
+      show clipping character, add saturation to the branch models.
+- [ ] Speech/DAC balance: P2/P3 are operator pots; pick defaults by
+      listening to hardware videos (MAME defaults both to 50%).
+- [ ] Decide whether to model the TDA1510/speaker coupling high-pass
+      (C10/C11 100u into speaker) — cheap and audible.
+- [ ] Reference audio: MAME netlist WAV captures (attract + .inp scenes),
+      then sim-core.sh audio compare.
+- [ ] Speech cut short vs MAME: intro sentence truncated when the music
+      starts ("you can go and ll…" instead of "…look for the money") and
+      the capture cry says "help" once instead of "help help". Suspect
+      TMS5200 /READY-INT timing or talk-status seen by the speech CPU
+      (we stop or let it stop earlier than real hw). Investigate against
+      MAME tms5220.cpp state machine.
