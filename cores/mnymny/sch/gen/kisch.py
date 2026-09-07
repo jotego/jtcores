@@ -296,3 +296,17 @@ def add_to_locallib(blocks, lib='cores/mnymny/sch/mnymny.kicad_sym'):
             continue
         body += '\t' + b.replace('\n', '\n\t') + '\n'
     open(lib, 'w').write(body + ')\n')
+
+def _sheet_stubx(self, ref, pin, name, ln=5.08):
+    """stub on whichever placed unit of ref owns this pin"""
+    for (r,u) in self.placed:
+        if r==ref and pin in self.pins(r,u):
+            return self.stub(r,u,pin,name,ln=ln)
+    raise SystemExit(f'{ref}: no placed unit owns pin {pin}')
+def _sheet_powerx(self, ref, pin, kind='VCC', down=False):
+    for (r,u) in self.placed:
+        if r==ref and pin in self.pins(r,u):
+            return self.power(r,u,pin,kind,down=down)
+    raise SystemExit(f'{ref}: no placed unit owns pin {pin}')
+Sheet.stubx = _sheet_stubx
+Sheet.powerx = _sheet_powerx
