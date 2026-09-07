@@ -1,0 +1,17 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "a9346d2c-ee94-454d-b1b6-3b796310b814")
+	(paper "A3")
+	(title_block
+		(title "1B11140 VIDEO 5/5 - CN1, muxes, BK latch")
+		(date "2026-09-07")
+		(rev "P82-003/A/M3")
+		(company "JOTEGO")
+		(comment 1 "Money Money / Jack Rabbit")
+		(comment 2 "For repair and maintenance - TO DO")
+	)
+	(lib_symbols
+	)
+)

@@ -1,0 +1,17 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "69e5ebcd-5461-4fa1-a69c-5170fe8b2745")
+	(paper "A3")
+	(title_block
+		(title "1B11147 ROM MODULE 2/2 - audio ROMs via CN3")
+		(date "2026-09-07")
+		(rev "P82-003/A/M3")
+		(company "JOTEGO")
+		(comment 1 "Money Money / Jack Rabbit")
+		(comment 2 "For repair and maintenance - TO DO")
+	)
+	(lib_symbols
+	)
+)

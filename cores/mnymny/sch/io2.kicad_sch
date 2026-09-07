@@ -1,0 +1,17 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "b0379e82-0f4e-4907-9d53-349f28a8d37d")
+	(paper "A3")
+	(title_block
+		(title "1B11141 IO 2/3 - 8255, controls, DIP matrix, sound latch")
+		(date "2026-09-07")
+		(rev "P82-003/A/M3")
+		(company "JOTEGO")
+		(comment 1 "Money Money / Jack Rabbit")
+		(comment 2 "For repair and maintenance - TO DO")
+	)
+	(lib_symbols
+	)
+)

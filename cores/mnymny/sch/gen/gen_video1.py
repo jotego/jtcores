@@ -3,6 +3,7 @@
 Placement only. Coordinates mapped from the scan; refine in KiCad as needed."""
 import sys
 sys.path.insert(0,'cores/mnymny/sch/gen')
+from hier import ROOT, SHEETS
 from kisch import lib_symbol, power_symbol, pins_of, pins_of_unit, uid, extract, _cache, LIBS, load
 
 # extra: pull Device:R_US / Device:C blocks from kunio (KiCad stock symbols)
@@ -28,20 +29,20 @@ def MM(px,py):
 # (lib_id, ref, unit, px, py, rot)
 C = [
  # --- sync / blank (top-left) ---
- ('jt74:74LS10','5N',1, 205,155,0),
- ('jt74:74LS74','5P',1, 360,165,0),
- ('jt74:74LS02','5H',1, 575,300,0),
- ('jt74:74LS08','5G',1, 575,370,0),
- ('jt74:74LS04','5K',1, 185,395,0),
- ('jt74:74LS04','5K',2, 185,475,0),
- ('jt74:74LS00','5J',1, 320,455,0),
+ ('jt74:74LS10','5N',3, 205,155,0),
+ ('jt74:74LS74','5P',2, 360,165,0),
+ ('jt74:74LS02','5H',2, 575,300,0),
+ ('jt74:74LS08','5G',3, 575,370,0),
+ ('jt74:74LS04','5K',5, 185,395,0),
+ ('jt74:74LS04','5K',4, 185,475,0),
+ ('jt74:74LS00','5J',2, 320,455,0),
  ('jt74:74LS74','5M',1, 440,475,0),
  ('jt74:74LS08','5G',2, 575,445,0),
  # --- V counter (mid-left) ---
  ('jt74:74LS74','2L',1, 145,615,0),
  ('jt74:74LS161','3N',1, 360,640,0),
  ('jt74:74LS161','4N',1, 535,640,0),
- ('jt74:74LS02','5H',2, 695,625,0),
+ ('jt74:74LS02','5H',1, 695,625,0),
  # --- H counter (lower-mid-left) ---
  ('jt74:74LS74','2L',2, 145,880,0),
  ('jt74:74LS161','3L',1, 360,900,0),
@@ -73,19 +74,19 @@ C = [
  # --- center bottom ---
  ('jt74:74LS20','5L',1, 965,925,0),
  ('jt74:74LS74','5M',2, 975,1015,0),
- ('jt74:74LS10','5N',2, 1235,1075,0),
- ('jt74:74LS10','5N',3, 1290,1155,0),
- ('jt74:74LS04','5K',4, 1140,1155,0),
+ ('jt74:74LS10','5N',1, 1235,1075,0),
+ ('jt74:74LS10','5N',2, 1290,1155,0),
+ ('jt74:74LS04','5K',2, 1140,1155,0),
  # --- palette (right) ---
- ('jt74:74LS02','8L',1, 1120,145,0),
- ('jt74:74LS02','8L',2, 1215,145,0),
+ ('jt74:74LS02','8L',4, 1120,145,0),
+ ('jt74:74LS02','8L',1, 1215,145,0),
  ('mnymny:82S131','9F',1, 1325,205,0),
  ('mnymny:82S131','9G',1, 1325,475,0),
  ('jt74:74LS374','9J',1, 1500,310,0),
  ('jt74:74LS157','9E',1, 1610,710,0),
  ('jt74:74LS157','9D',1, 1610,890,0),
- ('jt74:74LS02','6G',1, 1350,985,0),
- ('jt74:74LS00','6L',1, 1480,985,0),
+ ('jt74:74LS02','6G',2, 1350,985,0),
+ ('jt74:74LS00','6L',3, 1480,985,0),
  ('jt74:74LS367','9M',1, 1650,1120,0),  # hex 3-state buffer (whole chip)
  # --- DAC resistors (right) ---
  ('Device:R_US','R8',1, 1660,150,90),
@@ -126,7 +127,8 @@ def prop(name,val,x,y,hide=False):
             f'\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t){h}\n\t\t\t)\n\t\t)\n')
 
 out=['(kicad_sch\n\t(version 20231120)\n\t(generator "eeschema")\n\t(generator_version "8.0")\n']
-RU=uid()
+RU=SHEETS['video1']['filuuid']
+IP=f"/{ROOT}/{SHEETS['video1']['symuuid']}"
 out.append(f'\t(uuid "{RU}")\n\t(paper "A3")\n')
 out.append('\t(title_block\n\t\t(title "MONEY MONEY - 1B11140 VIDEO 1/5")\n\t\t(date "2026-09-07")\n\t\t(rev "P82-003/A/M3")\n\t\t(company "JOTEGO")\n'
            '\t\t(comment 1 "Money Money / Jack Rabbit")\n\t\t(comment 2 "For repair and maintenance")\n\t)\n')
@@ -147,7 +149,7 @@ for lib_id,ref,unit,px,py,rot in C:
     s+=prop("Footprint","",X,Y,hide=True)
     for num in sorted(pmap): s+=f'\t\t(pin "{num}"\n\t\t\t(uuid "{uid()}")\n\t\t)\n'
     s+=('\t\t(instances\n\t\t\t(project "mnymny"\n'
-        f'\t\t\t\t(path "/{RU}"\n\t\t\t\t\t(reference "{ref}")\n\t\t\t\t\t(unit {unit})\n\t\t\t\t)\n\t\t\t)\n\t\t)\n')
+        f'\t\t\t\t(path "{IP}"\n\t\t\t\t\t(reference "{ref}")\n\t\t\t\t\t(unit {unit})\n\t\t\t\t)\n\t\t\t)\n\t\t)\n')
     out.append(s+'\t)\n')
 
 
@@ -162,7 +164,7 @@ _wires=[]; _labels=[]
 def _xy(ref,unit):
     for lib_id,r,u,px,py,rot in C:
         if r==ref and u==unit: return MM(px,py)+(rot,lib_id)
-    return None
+    raise SystemExit(f'NOT PLACED: {ref} unit {unit}')
 # gate -> (A_in bit, out primed); B_in is the common flip control
 LADDERS=[
  ('VCMA',[('4P',1,'128V'),('4P',2,'64V'),('4P',3,'32V'),('4P',4,'16V'),
@@ -212,7 +214,7 @@ def _pwr(ref,unit,pin,kind,down=False):
         + prop("Value",("VCC" if kind=="VCC" else "GND"),pp[0]+3,pp[1])
         + f'\t\t(pin "1"\n\t\t\t(uuid "{uid()}")\n\t\t)\n'
         + '\t\t(instances\n\t\t\t(project "mnymny"\n'
-          f'\t\t\t\t(path "/{RU}"\n\t\t\t\t\t(reference "#PWR")\n\t\t\t\t\t(unit 1)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t)\n')
+          f'\t\t\t\t(path "{IP}"\n\t\t\t\t\t(reference "#PWR")\n\t\t\t\t\t(unit 1)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t)\n')
 
 N2=lambda pin:_pins('2N',1)[pin]
 M1=lambda pin:_pins('2M',1)[pin]
@@ -281,11 +283,187 @@ for r,u,pin in [('2M',1,'4'),('2M',1,'13'),('2M',2,'11'),('2M',2,'10')]:
 for pin in ('1','15'):
     _pwr('2N',1,pin,'VSS',down=True)
 
+
+# ---------- WIRING: sync / blank / V+H counters ----------
+def _pwrx(ref,unit,pin,kind='VCC'):
+    _pwr(ref,unit,pin,kind,down=(kind=='VSS'))
+# VBLANK chain: 5N u3 NAND(32V,64V,128V) -> 5P u2 latch
+for pn,nm in (('11','128V'),('10','64V'),('9','32V')): _stub_label('5N',3,pn,nm,'L')
+p5n=_pins('5N',3); p5p=_pins('5P',2)
+_seg(p5n['8'],(SN(p5n['8'][0]+2.54),p5n['8'][1]))
+_seg((SN(p5n['8'][0]+2.54),p5n['8'][1]),(SN(p5p['12'][0]-2.54),p5p['12'][1]),p5p['12'])
+_stub_label('5P',2,'11','16V','L')
+_stub_label('5P',2,'9','/VBLANK','R')
+_stub_label('5P',2,'8','VBLANK','R')
+_pwrx('5P',2,'10'); _pwrx('5P',2,'13')
+# CBLANK* : 5H u2 NOR(VBLANK,256H)
+_stub_label('5H',2,'6','VBLANK','L'); _stub_label('5H',2,'5','256H','L')
+_stub_label('5H',2,'4','CBLANK*','R')
+# 256H inverter 5K u5, HCMP1* 5G u3
+_stub_label('5K',5,'11','/256H','L'); _stub_label('5K',5,'10','256H','R')
+_stub_label('5G',3,'10','256H','L');  _stub_label('5G',3,'9','HCMA','L')
+_stub_label('5G',3,'8','HCMP1*','R')
+# sync flop 5M u1: D=NAND(32H,/64H), CK=16H, /PRE=256H
+_stub_label('5K',4,'9','64H','L'); 
+p5k4=_pins('5K',4); p5j=_pins('5J',2)
+_seg(p5k4['8'],(SN(p5k4['8'][0]+2.54),p5k4['8'][1]),(SN(p5j['5'][0]-2.54),p5j['5'][1]),p5j['5'])
+_stub_label('5J',2,'4','32H','L')
+p5m=_pins('5M',1)
+_seg(p5j['6'],(SN(p5j['6'][0]+2.54),p5j['6'][1]),(SN(p5m['2'][0]-2.54),p5m['2'][1]),p5m['2'])
+_stub_label('5M',1,'3','16H','L')
+_stub_label('5M',1,'4','256H','L')
+_pwrx('5M',1,'1')
+_stub_label('5M',1,'5','SYNCV','R')
+_stub_label('5M',1,'6','VCK','R')
+# CSYNC 5G u2
+_stub_label('5G',2,'4','/VSYNC','L'); _stub_label('5G',2,'5','SYNCV','L')
+_stub_label('5G',2,'6','/CSYNC','R')
+# V counter: 2L u1 toggle + 3N/4N
+pv=_pins('2L',1)
+_seg(pv['6'],(SN(pv['6'][0]+2.54),pv['6'][1]),(SN(pv['6'][0]+2.54),SN(pv['6'][1]+6.35)),
+     (SN(pv['2'][0]-3.81),SN(pv['6'][1]+6.35)),(SN(pv['2'][0]-3.81),pv['2'][1]),pv['2'])
+_stub_label('2L',1,'3','VCK','L'); _stub_label('2L',1,'5','1V','R')
+_pwrx('2L',1,'4'); _pwrx('2L',1,'1')
+for ref in ('3N','4N'):
+    _stub_label(ref,1,'2','VCK','L')
+    _stub_label(ref,1,'9','/VLD','L')
+    _pwrx(ref,1,'1')
+for pn,nm in (('10','1V'),('7','1V')): _stub_label('3N',1,pn,nm,'L')
+for pn,nm in (('10','VTC1'),('7','VTC1')): _stub_label('4N',1,pn,nm,'L')
+_stub_label('3N',1,'15','VTC1','R'); _stub_label('4N',1,'15','VTC2','R')
+for pn,nm in (('14','2V'),('13','4V'),('12','8V'),('11','16V')): _stub_label('3N',1,pn,nm,'R')
+for pn,nm in (('14','32V'),('13','64V'),('12','128V'),('11','/VSYNC')): _stub_label('4N',1,pn,nm,'R')
+for pn,k in (('3','VSS'),('4','VSS'),('5','VCC'),('6','VCC')): _pwrx('3N',1,pn,k)
+for pn,k in (('3','VCC'),('4','VCC'),('5','VCC'),('6','VSS')): _pwrx('4N',1,pn,k)
+# V reload inverter 5H u1
+for pn in ('2','3'): _stub_label('5H',1,pn,'VTC2','L')
+_stub_label('5H',1,'1','/VLD','R')
+# H counter: 2L u2 + 3L/4L (2L u2 toggle already implied by osc? no - wire it)
+ph=_pins('2L',2)
+_seg(ph['8'],(SN(ph['8'][0]+2.54),ph['8'][1]),(SN(ph['8'][0]+2.54),SN(ph['8'][1]+6.35)),
+     (SN(ph['12'][0]-3.81),SN(ph['8'][1]+6.35)),(SN(ph['12'][0]-3.81),ph['12'][1]),ph['12'])
+_stub_label('2L',2,'11','6MHz','L'); _stub_label('2L',2,'9','1H','R')
+_pwrx('2L',2,'10'); _pwrx('2L',2,'13')
+for ref in ('3L','4L'):
+    _stub_label(ref,1,'2','6MHz','L')
+    _pwrx(ref,1,'1')
+for pn,nm in (('10','1H'),('7','1H')): _stub_label('3L',1,pn,nm,'L')
+for pn,nm in (('10','HTC1'),('7','HTC1')): _stub_label('4L',1,pn,nm,'L')
+_pwrx('3L',1,'9')   # /PE=VCC free run
+_stub_label('4L',1,'9','/HLD','L')
+_stub_label('3L',1,'15','HTC1','R'); _stub_label('4L',1,'15','HTC2','R')
+for pn,nm in (('14','2H'),('13','4H'),('12','8H'),('11','16H')): _stub_label('3L',1,pn,nm,'R')
+for pn,nm in (('14','32H'),('13','64H'),('12','128H'),('11','/256H')): _stub_label('4L',1,pn,nm,'R')
+for pn in ('3','4','5','6'): _pwrx('3L',1,pn,'VSS')
+for pn,k in (('3','VSS'),('4','VSS'),('5','VCC'),('6','VSS')): _pwrx('4L',1,pn,k)
+# H reload inverter 5K u3
+_stub_label('5K',3,'5','HTC2','L'); _stub_label('5K',3,'6','/HLD','R')
+# HBLANK flop 5M u2 + 5L NAND
+for pn,nm in (('1','8H'),('2','16H'),('4','32H'),('5','64H')): _stub_label('5L',1,pn,nm,'L')
+p5l=_pins('5L',1); p5m2=_pins('5M',2)
+_seg(p5l['6'],(SN(p5l['6'][0]+2.54),p5l['6'][1]),(SN(p5m2['12'][0]-2.54),p5m2['12'][1]),p5m2['12'])
+_stub_label('5M',2,'11','2H','L')
+_stub_label('5M',2,'13','256H','L')
+_pwrx('5M',2,'10')
+_stub_label('5M',2,'9','HBLANK','R')
+# LD strobes: 5N u1 -> /LD1 ; 5K u2 + 5N u2 -> /LD2
+for pn,nm in (('1','1H'),('2','2H'),('13','4H')): _stub_label('5N',1,pn,nm,'L')
+_stub_label('5N',1,'12','/LD1','R')
+_stub_label('5K',2,'3','4H','L')
+p5k2=_pins('5K',2); p5n2=_pins('5N',2)
+_seg(p5k2['4'],(SN(p5k2['4'][0]+2.54),p5k2['4'][1]),(SN(p5n2['4'][0]-2.54),p5n2['4'][1]),p5n2['4'])
+_stub_label('5N',2,'3','1H','L'); _stub_label('5N',2,'5','2H','L')
+_stub_label('5N',2,'6','/LD2','R')
+# ---------- WIRING: palette ----------
+# 8L double inverter: SELOBJ -> PA0 (A0 of both PROMs)
+for pn in ('11','12'): _stub_label('8L',4,pn,'SELOBJ','L')
+p84=_pins('8L',4); p81=_pins('8L',1)
+_seg(p84['13'],(SN(p84['13'][0]+2.54),p84['13'][1]))
+for pn in ('2','3'):
+    _seg((SN(p84['13'][0]+2.54),p84['13'][1]),(SN(p81[pn][0]-2.54),p81[pn][1]),p81[pn])
+_junc(SN(p84['13'][0]+2.54),p84['13'][1])
+_stub_label('8L',1,'1','PA0','R')
+# 9F/9G PROMs
+for ref,dnames in (('9F',('PD0','PD1','PD2','PD3')),('9G',('PD4','PD5','PD6','PD7'))):
+    for pn,nm in (('5','PA0'),('6','BK1'),('7','BK2'),('4','PA3'),('3','PA4'),
+                  ('2','PA5'),('1','PA6'),('15','PA7'),('14','PA8')):
+        _stub_label(ref,1,pn,nm,'L')
+    for pn,nm in zip(('12','11','10','9'),dnames):
+        _stub_label(ref,1,pn,nm,'R')
+    _pwrx(ref,1,'13','VSS')
+    _pwrx(ref,1,'16','VCC'); _pwrx(ref,1,'8','VSS')
+# 9J latch
+for pn,nm in (('3','PD0'),('4','PD1'),('7','PD2'),('8','PD3'),
+              ('13','PD4'),('14','PD5'),('17','PD6'),('18','PD7'),
+              ('11','6MHz'),('1','/VIDOUT')):
+    _stub_label('9J',1,pn,nm,'L')
+# DAC ladder: 9J Q -> series R -> gun node with pulldown
+p9j=_pins('9J',1)
+GUNS=[('B',('2','R8'),('5','R9'),None,'R7'),
+      ('G',('6','R10'),('9','R11'),('12','R12'),'R13'),
+      ('R',('15','R5'),('16','R4'),('19','R6'),'R3')]
+xnode=SN(363)
+for gi,(gun,*taps) in enumerate(GUNS):
+    pull=taps[-1]; taps=[t for t in taps[:-1] if t]
+    rows=[]
+    for qi,(qpin,rref) in enumerate(taps):
+        rp=_pins(rref,1)
+        lft=rp['2'] if rp['2'][0]<rp['1'][0] else rp['1']
+        rgt=rp['1'] if rp['2'][0]<rp['1'][0] else rp['2']
+        q=p9j[qpin]
+        xb=SN(q[0]+2.54+qi*1.27)
+        _seg(q,(xb,q[1]),(xb,lft[1]),lft)
+        _seg(rgt,(xnode,rgt[1]))
+        rows.append(rgt[1])
+    pp=_pins(pull,1)
+    ptop=pp['1'] if pp['1'][1]<pp['2'][1] else pp['2']
+    pbot=pp['2'] if pp['1'][1]<pp['2'][1] else pp['1']
+    _seg(ptop,(ptop[0],SN(min(rows)-2.54)),(xnode,SN(min(rows)-2.54)))
+    _pwr(pull,1,('2' if pbot==pp['2'] else '1'),'VSS',down=True)
+    _seg((xnode,SN(min(rows)-2.54)),(xnode,max(rows)))
+    for r in rows[:-1]: _junc(xnode,r)
+    _lab(gun,xnode,SN(min(rows)-2.54),'R')
+# 9E/9D muxes
+for pn,nm in (('3','X1OUT'),('6','X2OUT'),('13','X3OUT'),('10','COLOUT1'),
+              ('2','X4OUT'),('5','X5OUT'),('14','X6OUT'),('11','COLOUT4'),('1','SELECT')):
+    _stub_label('9E',1,pn,nm,'L')
+for pn,nm in (('4','PA3'),('7','PA4'),('9','PA5'),('12','PA6')):
+    _stub_label('9E',1,pn,nm,'R')
+_pwrx('9E',1,'15','VSS')
+for pn,nm in (('3','COLOUT2'),('6','COLOUT3'),('2','COLOUT5'),('5','COLOUT6'),('1','SELECT')):
+    _stub_label('9D',1,pn,nm,'L')
+for pn,nm in (('4','PA7'),('7','PA8')):
+    _stub_label('9D',1,pn,nm,'R')
+_pwrx('9D',1,'15','VSS')
+# VIDOUT gating 6G/6L (inputs uncertain - flagged in PROGRESS)
+_stub_label('6G',2,'5','HBLANK','L'); _stub_label('6G',2,'6','VBLANK','L')
+p6g=_pins('6G',2); p6l=_pins('6L',3)
+_seg(p6g['4'],(SN(p6g['4'][0]+2.54),p6g['4'][1]),(SN(p6l['9'][0]-2.54),p6l['9'][1]),p6l['9'])
+_stub_label('6L',3,'10','CBLANK*','L')
+_stub_label('6L',3,'8','/VIDOUT','R')
+# 9M buffers: CF1-4 + CSYNC -> SYNC out
+for pn,nm in (('2','CF1'),('4','CF2'),('6','CF3'),('10','CF4'),('12','/CSYNC')):
+    _stub_label('9M',1,pn,nm,'L')
+for pn,nm in (('3','CF1O'),('5','CF2O'),('7','CF3O'),('9','CF4O')):
+    _stub_label('9M',1,pn,nm,'R')
+p9m=_pins('9M',1); r18=_pins('R18',1); r19=_pins('R19',1)
+r18l=r18['2'] if r18['2'][0]<r18['1'][0] else r18['1']
+r18r=r18['1'] if r18l==r18['2'] else r18['2']
+_seg(p9m['11'],(SN(p9m['11'][0]+2.54),p9m['11'][1]),(SN(p9m['11'][0]+2.54),r18l[1]),r18l)
+r19t=r19['1'] if r19['1'][1]<r19['2'][1] else r19['2']
+r19b=r19['2'] if r19t==r19['1'] else r19['1']
+_pwr('R19',1,('1' if r19t==r19['1'] else '2'),'VCC')
+_seg(r19b,(r19b[0],r18l[1]))
+_junc(r19b[0],r18l[1]) if False else None
+_seg(r18r,(SN(r18r[0]+3.81),r18r[1]))
+_lab('/SYNC',SN(r18r[0]+3.81),r18r[1],'R')
+_pwrx('9M',1,'1','VSS'); _pwrx('9M',1,'15','VSS')
+
 out += _wires + _labels
 
-out.append(f'\t(sheet_instances\n\t\t(path "/"\n\t\t\t(page "1")\n\t\t)\n\t)\n)\n')
+out.append(')\n')
 txt=''.join(out)
-open('cores/mnymny/sch/mnymny.kicad_sch','w').write(txt)
+open('cores/mnymny/sch/video1.kicad_sch','w').write(txt)
 print("placements:",len(C),"paren balance:",txt.count('(')-txt.count(')'),"bytes:",len(txt))
 # sanity: unique refs
 import collections

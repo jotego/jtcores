@@ -1,0 +1,17 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "cd5a4bff-2ce1-4e08-827b-b1a2cc1db876")
+	(paper "A3")
+	(title_block
+		(title "1B11141 IO 3/3 - CN1 / CN3 pinouts")
+		(date "2026-09-07")
+		(rev "P82-003/A/M3")
+		(company "JOTEGO")
+		(comment 1 "Money Money / Jack Rabbit")
+		(comment 2 "For repair and maintenance - TO DO")
+	)
+	(lib_symbols
+	)
+)

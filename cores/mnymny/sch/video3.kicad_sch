@@ -1,0 +1,17 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "5331f236-ef77-4267-9262-fa746502707b")
+	(paper "A3")
+	(title_block
+		(title "1B11140 VIDEO 3/5 - objects: line buffers, PLAs")
+		(date "2026-09-07")
+		(rev "P82-003/A/M3")
+		(company "JOTEGO")
+		(comment 1 "Money Money / Jack Rabbit")
+		(comment 2 "For repair and maintenance - TO DO")
+	)
+	(lib_symbols
+	)
+)

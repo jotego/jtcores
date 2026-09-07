@@ -72,3 +72,207 @@ def pins_of_unit(sym_block, unit):
         for m in _re.finditer(r'\(pin\s+\w+\s+\w+\s*\(at ([-\d.]+) ([-\d.]+) (\d+)\)[\s\S]*?\(number "([^"]*)"', sub):
             out[m.group(4)]=(float(m.group(1)), float(m.group(2)), int(m.group(3)))
     return out
+
+# ---------------- sheet emission helpers (shared by all gen_*.py) ----------------
+KUNIO = 'cores/kunio/sch/colmix.kicad_sch'
+CLI = '/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli'
+
+def SN(v):
+    return round(round(v/1.27)*1.27, 2)
+
+def stock_symbol(lib_id):
+    """Device:* / Connector:* etc. blocks lifted from kunio sheets (KiCad stock)."""
+    for src in (KUNIO, 'cores/kunio/sch/io.kicad_sch', 'cores/kunio/sch/sound.kicad_sch',
+                'cores/kunio/sch/main.kicad_sch'):
+        b = extract(load(src), lib_id)
+        if b: return b
+    return None
+
+def get_sym(lib_id):
+    if lib_id.startswith('power:'):
+        return power_symbol(lib_id.split(':')[1])
+    if ':' in lib_id and lib_id.split(':')[0] in LIBS:
+        return lib_symbol(lib_id)
+    b = stock_symbol(lib_id)
+    if b is None: raise SystemExit(f'symbol not found anywhere: {lib_id}')
+    return b
+
+class Sheet:
+    def __init__(self, title, rev='P82-003/A/M3', paper='A3'):
+        self.uuid = uid()
+        self.head = ('(kicad_sch\n\t(version 20231120)\n\t(generator "eeschema")\n'
+            '\t(generator_version "8.0")\n'
+            f'\t(uuid "{self.uuid}")\n\t(paper "{paper}")\n'
+            '\t(title_block\n\t\t(title "'+title+'")\n\t\t(date "2026-09-07")\n'
+            '\t\t(rev "'+rev+'")\n\t\t(company "JOTEGO")\n'
+            '\t\t(comment 1 "Money Money / Jack Rabbit")\n'
+            '\t\t(comment 2 "For repair and maintenance")\n\t)\n')
+        self.libs = {}          # lib_id -> block
+        self.body = []          # symbol instances, wires, labels, junctions
+        self.placed = {}        # (ref,unit) -> (X,Y,rot,lib_id)
+        self.lanes = set()      # used rail coordinates for uniqueness checks
+
+    def _use(self, lib_id):
+        if lib_id not in self.libs:
+            self.libs[lib_id] = get_sym(lib_id)
+
+    def prop(self, name, val, x, y, hide=False):
+        h = '\n\t\t\t\t(hide yes)' if hide else ''
+        return (f'\t\t(property "{name}" "{val}"\n\t\t\t(at {x} {y} 0)\n'
+                f'\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t){h}\n\t\t\t)\n\t\t)\n')
+
+    def place(self, lib_id, ref, unit, X, Y, rot=0, value=None, dp=None):
+        self._use(lib_id)
+        X, Y = SN(X), SN(Y)
+        pmap = pins_of(self.libs[lib_id])
+        if dp is None:
+            dp = 5.08 if lib_id.startswith(('Device:', 'mnymny:Crystal', 'Connector')) else 12
+        if value is None:
+            value = lib_id.split(':')[1]
+        su = uid()
+        s = (f'\t(symbol\n\t\t(lib_id "{lib_id}")\n\t\t(at {X} {Y} {rot})\n\t\t(unit {unit})\n'
+             '\t\t(exclude_from_sim no)\n\t\t(in_bom yes)\n\t\t(on_board yes)\n\t\t(dnp no)\n'
+             f'\t\t(uuid "{su}")\n')
+        s += self.prop("Reference", ref, X, Y-dp)
+        s += self.prop("Value", value, X, Y+dp)
+        s += self.prop("Footprint", "", X, Y, hide=True)
+        for num in sorted(pmap):
+            s += f'\t\t(pin "{num}"\n\t\t\t(uuid "{uid()}")\n\t\t)\n'
+        s += ('\t\t(instances\n\t\t\t(project "mnymny"\n'
+              f'\t\t\t\t(path "{self.instpath}"\n\t\t\t\t\t(reference "{ref}")\n\t\t\t\t\t(unit {unit})\n\t\t\t\t)\n\t\t\t)\n\t\t)\n')
+        self.body.append(s + '\t)\n')
+        self.placed[(ref, unit)] = (X, Y, rot, lib_id)
+
+    instpath = None   # set by save(): "/<root>" or "/<root>/<sheetsym>"
+
+    def pins(self, ref, unit=1):
+        X, Y, rot, lib_id = self.placed[(ref, unit)]
+        pu = pins_of_unit(self.libs[lib_id] if ':' in lib_id else self.libs[lib_id], unit)
+        if not pu:
+            pu = pins_of(self.libs[lib_id])
+        return {n: pin_abs(X, Y, rot, px, py) for n, (px, py, a) in pu.items()}
+
+    def wire(self, x1, y1, x2, y2):
+        self.body.append(f'\t(wire\n\t\t(pts\n\t\t\t(xy {x1} {y1}) (xy {x2} {y2})\n\t\t)\n'
+                         f'\t\t(stroke\n\t\t\t(width 0)\n\t\t\t(type default)\n\t\t)\n\t\t(uuid "{uid()}")\n\t)\n')
+
+    def seg(self, *pts):
+        for a, b in zip(pts, pts[1:]):
+            if a != b: self.wire(a[0], a[1], b[0], b[1])
+
+    def junc(self, x, y):
+        self.body.append(f'\t(junction\n\t\t(at {x} {y})\n\t\t(diameter 0)\n\t\t(color 0 0 0 0)\n\t\t(uuid "{uid()}")\n\t)\n')
+
+    def label(self, name, x, y, side='L', ang=0):
+        just = 'right' if side == 'L' else 'left'
+        self.body.append(f'\t(label "{name}"\n\t\t(at {x} {y} {ang})\n\t\t(effects\n\t\t\t(font\n'
+                         f'\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n\t\t\t(justify {just})\n\t\t)\n\t\t(uuid "{uid()}")\n\t)\n')
+
+    def stub(self, ref, unit, pin, name, side='L', ln=5.08):
+        pp = self.pins(ref, unit)[pin]
+        dx = -ln if side == 'L' else ln
+        e = (round(pp[0]+dx, 2), pp[1])
+        self.wire(pp[0], pp[1], e[0], e[1])
+        self.label(name, e[0], e[1], side)
+
+    def vstub(self, ref, unit, pin, name, up=True, ln=5.08):
+        pp = self.pins(ref, unit)[pin]
+        e = (pp[0], round(pp[1]+(-ln if up else ln), 2))
+        self.wire(pp[0], pp[1], e[0], e[1])
+        self.label(name, e[0], e[1], 'L', 90)
+
+    def power(self, ref, unit, pin, kind='VCC', down=False):
+        self._use('power:'+kind)
+        pp = self.pins(ref, unit)[pin]
+        pr = uid()
+        s = (f'\t(symbol\n\t\t(lib_id "power:{kind}")\n\t\t(at {pp[0]} {pp[1]} {180 if down else 0})\n\t\t(unit 1)\n'
+             '\t\t(exclude_from_sim no)\n\t\t(in_bom no)\n\t\t(on_board yes)\n\t\t(dnp no)\n'
+             f'\t\t(uuid "{pr}")\n')
+        s += self.prop("Reference", "#PWR", pp[0], pp[1], hide=True)
+        s += self.prop("Value", 'VCC' if kind == 'VCC' else 'GND', pp[0]+3.81, pp[1])
+        s += f'\t\t(pin "1"\n\t\t\t(uuid "{uid()}")\n\t\t)\n'
+        s += ('\t\t(instances\n\t\t\t(project "mnymny"\n'
+              f'\t\t\t\t(path "{self.instpath}"\n\t\t\t\t\t(reference "#PWR")\n\t\t\t\t\t(unit 1)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n')
+        self.body.append(s + '\t)\n')
+
+    def save(self, path):
+        txt = self.head
+        txt += '\t(lib_symbols\n'
+        for b in self.libs.values():
+            txt += '\t\t' + b.replace('\n', '\n\t\t') + '\n'
+        txt += '\t)\n'
+        txt += ''.join(self.body)
+        txt += '\t(sheet_instances\n\t\t(path "/"\n\t\t\t(page "1")\n\t\t)\n\t)\n)\n'
+        bal = txt.count('(') - txt.count(')')
+        assert bal == 0, f'paren imbalance {bal}'
+        open(path, 'w').write(txt)
+        return path
+
+import subprocess, os
+def validate(path, render_to=None, width=3000):
+    r = subprocess.run([CLI, 'sch', 'erc', path], capture_output=True, text=True)
+    found = [l for l in r.stdout.splitlines() if 'Found' in l]
+    ok = r.returncode == 0 or found
+    out = {'erc': found[0] if found else r.stderr.strip()[-200:], 'load_ok': bool(found)}
+    if render_to:
+        os.makedirs(render_to, exist_ok=True)
+        r2 = subprocess.run([CLI, 'sch', 'export', 'svg', path, '-o', render_to],
+                            capture_output=True, text=True)
+        out['export'] = 'ok' if r2.returncode == 0 else ('FAIL: '+r2.stderr[-200:])
+        if r2.returncode == 0:
+            svg = os.path.join(render_to, os.path.basename(path).replace('.kicad_sch', '.svg'))
+            png = svg.replace('.svg', '.png')
+            subprocess.run(['rsvg-convert', '-w', str(width), svg, '-o', png])
+            out['png'] = png
+    return out
+
+# ---------------- programmatic symbol builder ----------------
+def boxsym(name, left, right, vcc=None, gnd=None, ref='U', width=25.4, desc=''):
+    """Rectangular symbol. left/right = [(number,name,ptype),...] top->bottom.
+    vcc/gnd = pin numbers (drawn top/bottom center). Returns the symbol block."""
+    n = max(len(left), len(right))
+    h2 = SN((n+1)*2.54/2 + 2.54)          # half-height
+    w2 = SN(width/2)
+    def pin(num, nm, ptype, x, y, ang):
+        inv = 'inverted' if nm.startswith('~') else 'line'
+        nmk = re.sub(r'~([A-Za-z0-9]+)', r'~{\1}', nm)
+        return (f'\t\t\t(pin {ptype} {inv}\n\t\t\t\t(at {x} {y} {ang})\n\t\t\t\t(length 5.08)\n'
+                f'\t\t\t\t(name "{nmk}"\n'
+                f'\t\t\t\t\t(effects\n\t\t\t\t\t\t(font\n\t\t\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t\t\t)\n\t\t\t\t\t)\n\t\t\t\t)\n'
+                f'\t\t\t\t(number "{num}"\n'
+                f'\t\t\t\t\t(effects\n\t\t\t\t\t\t(font\n\t\t\t\t\t\t\t(size 1.27 1.27)\n\t\t\t\t\t\t)\n\t\t\t\t\t)\n\t\t\t\t)\n\t\t\t)\n')
+    pins = ''
+    for i, (num, nm, pt) in enumerate(left):
+        y = SN(h2 - 5.08 - i*2.54)
+        pins += pin(num, nm, pt, -w2-5.08, y, 0)
+    for i, (num, nm, pt) in enumerate(right):
+        y = SN(h2 - 5.08 - i*2.54)
+        pins += pin(num, nm, pt, w2+5.08, y, 180)
+    if vcc: pins += pin(vcc, 'VCC', 'power_in', 0, h2+5.08, 270)
+    if gnd: pins += pin(gnd, 'GND', 'power_in', 0, -h2-5.08, 90)
+    return (f'(symbol "{name}"\n'
+        '\t(exclude_from_sim no)\n\t(in_bom yes)\n\t(on_board yes)\n'
+        f'\t(property "Reference" "{ref}"\n\t\t(at {-w2} {h2+2.54} 0)\n'
+        '\t\t(effects\n\t\t\t(font\n\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n\t\t\t(justify left)\n\t\t)\n\t)\n'
+        f'\t(property "Value" "{name}"\n\t\t(at {-w2} {-h2-2.54} 0)\n'
+        '\t\t(effects\n\t\t\t(font\n\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n\t\t\t(justify left)\n\t\t)\n\t)\n'
+        '\t(property "Footprint" ""\n\t\t(at 0 0 0)\n'
+        '\t\t(effects\n\t\t\t(font\n\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n\t\t\t(hide yes)\n\t\t)\n\t)\n'
+        f'\t(property "Description" "{desc}"\n\t\t(at 0 0 0)\n'
+        '\t\t(effects\n\t\t\t(font\n\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n\t\t\t(hide yes)\n\t\t)\n\t)\n'
+        f'\t(symbol "{name}_0_1"\n'
+        f'\t\t(rectangle\n\t\t\t(start {-w2} {h2})\n\t\t\t(end {w2} {-h2})\n'
+        '\t\t\t(stroke\n\t\t\t\t(width 0.254)\n\t\t\t\t(type default)\n\t\t\t)\n'
+        '\t\t\t(fill\n\t\t\t\t(type background)\n\t\t\t)\n\t\t)\n\t)\n'
+        f'\t(symbol "{name}_1_1"\n{pins}\t)\n)')
+
+def add_to_locallib(blocks, lib='cores/mnymny/sch/mnymny.kicad_sym'):
+    s = open(lib).read().rstrip()
+    assert s.endswith(')')
+    body = s[:-1]
+    for b in blocks:
+        nm = b.split('"')[1]
+        if f'(symbol "{nm}"' in body:
+            continue
+        body += '\t' + b.replace('\n', '\n\t') + '\n'
+    open(lib, 'w').write(body + ')\n')
