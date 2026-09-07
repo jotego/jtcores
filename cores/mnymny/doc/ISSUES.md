@@ -131,9 +131,64 @@ rotated view; text reads along it).
 - Sound fixes (verified): jtmnymny_snd.v bus sampling (6802 multi-clock bus
   cycles vs cen-gated models - melody CPU used to crash at boot),
   jtmnymny_6821.v read-clear race (command IRQs were eaten; delivery now 1:1).
-- jtmnymny_prot.v 6C00 high-bit drive restricted to offset 4 (board-traced
-  values vs the over-driving brute-forced 22V10 dump) - intended to fix coin
-  acceptance, NOT yet verified (coin credit still unconfirmed in sim).
 - Attract mode appears genuinely silent (both PSGs initialised, melody CPU
-  idles polling for commands; no demo-sound DIP exists). Gameplay sound
-  unverified until a coin credits.
+  idles polling for commands; no demo-sound DIP exists).
+
+## Sound / speech issues
+
+### S1. Coins never credited in sim - FIXED (2026-09-07)
+
+- Symptom: game stuck on title/attract, credit counter (7269) never
+  incremented; every coin insert ignored, so gameplay + gameplay sound
+  could never be reached in sim (and reportedly on hardware too).
+- ROOT CAUSE (diagnosed by Andrea): the jtframe Z80 wait wrapper's cycle-recovery
+  (`jtframe_z80wait`, RECOVERY=1 default) corrupts DEVICE reads on this
+  core's 48 MHz / 8 MHz clock config - exactly the combination the module
+  header comment warns about (jtbubl issue #27). The recovered cen pulses
+  make the tv80 latch stale data on the 6C00 coin-port reads, so the ROM's
+  10-read debounce loop (5761) never sees the coin low on all ten reads ->
+  no rising edge (700F stays 0) -> coin-accept (57B3) never fires -> no
+  credit. Port decode itself is correct: coins_in[0] reads low and stable
+  on every 6C00 read.
+- FIX: `jtframe_z80_romwait #(.RECOVERY(0)) u_cpu` in jtmnymny_main.v.
+  Precedent: bubl, dd, kiwi, comsc etc. already use RECOVERY(0).
+- VERIFIED in sim (coin+start cab): credit 7269<=01 at the same frame as
+  MAME (F262), game leaves the title screen, scores points (PL1 500).
+  Do NOT let this revert to the default - see the header warning.
+- Trade-off: recovery reclaims cycles lost to SDRAM ROM waits; disabling
+  it is negligible for this 3 MHz Z80 but note it if timing looks off.
+
+### S2. Speech cut short vs MAME - ACTIVE (resume here)
+
+- Symptom: intro sentence is cut when the music starts ("you can go and
+  ll..." instead of "...look for the money"); the capture cry says "help"
+  once instead of "help help".
+- Established (do NOT re-derive):
+  - Clocks verified end-to-end: TMS5200 cen = 649200 Hz (RC osc, matches
+    MAME `TMS5200(config,...,649200)`), 6802 + AY cens all correct.
+  - Sound-board RTL matches MAME in isolation: on the sound-only bench
+    (ver/snd/: tb_snd.v + sim.sh) the intro phrase 0x2C lasts 2.046 s vs
+    MAME WAV 2.05 s. Feed loop, status bytes, INT/READY handshake trace
+    correctly - the TMS model timing itself is close.
+  - FIRMWARE FACT (6802 disasm): any host command ABORTS speech by design
+    - the sound-CPU IRQ handler resets its stack, forwards music cmds to
+    the melody CPU, and never resumes talking. No resume path. On real hw
+    the sentence survives only because the game sends the music command
+    ~2.28 s after speech start while the phrase is ~2.05 s (0.23 s margin).
+  - Command timeline identical across monymony/monymony2 (MAME tap): boot
+    init ~F221, coin sound 0x12, intro speech 0x2C ~F802, music 0x0b ~F940
+    (~2.28 s after speech).
+  - The coin blocker (S1) is now fixed, so a FULL-GAME sim can be driven
+    with the real command timing - better than the isolated bench.
+- Leading hypothesis: on the FPGA the speech runs SLOWER or STARTS LATER
+  than MAME, so the phrase is still going when the 2.28 s music command
+  arrives and the firmware aborts it. Discriminate (a) TMS synthesis rate
+  too slow, (b) speech CPU starts late, (c) music command arrives early.
+- Tools ready: ver/snd/ bench (tb_snd.v, sim.sh, melody.hex, speech.hex);
+  MAME ref `~/Emus/mame0276-arm64/mnymny_ref.wav` + sndtap/creditfind Lua;
+  6802 disasm in /tmp/spc_*.asm; set monymony (top MRA "Money Money (set 1)").
+- Next step: full-game sim, coin+start via .cab, capture the speech
+  envelope and the frame the music command is sent; compare phrase length
+  and start offset against the MAME WAV.
+- Analog-network detail for the speech path is in AUDIO.md (speech stage,
+  ~390 Hz-4.1 kHz band-pass); this issue is about TIMING, not filtering.

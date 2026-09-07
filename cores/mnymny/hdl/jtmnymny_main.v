@@ -162,7 +162,7 @@ jt8255 u_ppi(
     .portc_dout ( portc_dout    )
 );
 
-jtframe_z80_romwait u_cpu(
+jtframe_z80_romwait #(.RECOVERY(0)) u_cpu(
     .rst_n      ( ~rst          ),
     .clk        ( clk           ),
     .cen        ( cpu_cen       ),
