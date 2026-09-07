@@ -47,6 +47,14 @@ def lib_symbol(lib_id):
     lib, name = lib_id.split(':', 1)
     blk = extract(_cache[LIBS[lib]], name)
     if blk is None: raise SystemExit(f"symbol not found: {lib_id}")
+    # resolve derived symbols: (extends "PARENT") carries no pins of its own
+    m = re.search(r'\(extends "([^"]+)"\)', blk)
+    if m:
+        parent = m.group(1)
+        pblk = extract(_cache[LIBS[lib]], parent)
+        if pblk is None: raise SystemExit(f"extends parent not found: {parent}")
+        blk = pblk.replace(f'(symbol "{parent}"', f'(symbol "{name}"', 1)
+        blk = blk.replace(f'"{parent}_', f'"{name}_')
     # KiCad embeds the PARENT symbol as "lib:name" but keeps the unit
     # sub-symbols as the bare "name_<unit>_<style>" (no lib nick).
     blk = blk.replace(f'(symbol "{name}"', f'(symbol "{lib_id}"', 1)
