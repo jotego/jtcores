@@ -19,10 +19,11 @@ def get_sym(lib_id):
     return lib_symbol(lib_id)
 
 # scan->mm mapping (image ~2000x1390; drawing border px x:80..1960 y:55..1320)
+def SN(v): return round(round(v/1.27)*1.27,2)
 def MM(px,py):
     x = 15 + (px-80)/1880.0*395
     y = 12 + (py-55)/1265.0*278
-    return (round(x,2), round(y,2))
+    return (SN(x), SN(y))
 
 # (lib_id, ref, unit, px, py, rot)
 C = [
@@ -47,10 +48,10 @@ C = [
  ('jt74:74LS161','4L',1, 535,900,0),
  ('jt74:74LS04','5K',3, 660,800,0),
  # --- oscillator (bottom-left) ---   # 6MHz buffer  # 1Hu buffer  # 6MHz buffer 2  # osc inv 1  # osc inv 2  # osc inv 3
- ('jt74:74LS368','2N',1, 430,1060,0),   # hex 3-state buffer/inverter (whole chip)
+ ('jt74:74LS368','2N',1, 470,1075,0),   # hex 3-state buffer/inverter (whole chip)
  ('mnymny:Crystal','QZ',1, 300,1210,0),
- ('Device:C','C2',1, 300,1075,0),
- ('Device:R_US','R1',1, 405,1100,90),
+ ('Device:C','C2',1, 300,1060,0),
+ ('Device:R_US','R1',1, 470,1005,90),
  ('Device:R_US','R2',1, 205,1100,90),
  ('jt74:74LS107','2M',1, 640,1120,0),
  ('jt74:74LS107','2M',2, 750,1120,0),
@@ -106,7 +107,7 @@ C = [
  ('Device:R_US','R18',1, 1840,1250,90),
 ]
 
-VAL = {'82S131':'82S131','Crystal':'18.432MHz','C2':'100pF','R1':'330','R2':'330',
+VAL = {'82S131':'82S131','QZ':'18.432MHz','C2':'100pF','R1':'330','R2':'330',
        'R8':'680','R9':'1K','R10':'820','R11':'1K','R12':'1K2','R5':'820','R4':'1K',
        'R6':'1K2','R7':'470','R13':'390','R3':'390','R15':'','R14':'','R16':'','R17':'',
        'R19':'470','R18':'100'}
@@ -140,8 +141,9 @@ for lib_id,ref,unit,px,py,rot in C:
     s=f'\t(symbol\n\t\t(lib_id "{lib_id}")\n\t\t(at {X} {Y} {rot})\n\t\t(unit {unit})\n'
     s+='\t\t(exclude_from_sim no)\n\t\t(in_bom yes)\n\t\t(on_board yes)\n\t\t(dnp no)\n'
     s+=f'\t\t(uuid "{su}")\n'
-    s+=prop("Reference",ref,X,Y-12)
-    s+=prop("Value",value_for(lib_id,ref),X,Y+12)
+    dp = 5.08 if lib_id.startswith(('Device:','mnymny:Crystal')) else 12
+    s+=prop("Reference",ref,X,Y-dp)
+    s+=prop("Value",value_for(lib_id,ref),X,Y+dp)
     s+=prop("Footprint","",X,Y,hide=True)
     for num in sorted(pmap): s+=f'\t\t(pin "{num}"\n\t\t\t(uuid "{uid()}")\n\t\t)\n'
     s+=('\t\t(instances\n\t\t\t(project "mnymny"\n'
@@ -216,19 +218,55 @@ N2=lambda pin:_pins('2N',1)[pin]
 M1=lambda pin:_pins('2M',1)[pin]
 M2=lambda pin:_pins('2M',2)[pin]
 R_1=_pins('R1',1); R_2=_pins('R2',1); C_2=_pins('C2',1); QZp=_pins('QZ',1)
-# XT1: 2N.2 (in1) - R2.a - C2.a
-_chain(N2('2'), R_2['1']); _wire_L(R_2['1'], C_2['1'])
-# XT2: 2N.3 (out1) - R2.b - QZ.1
-_chain(N2('3'), R_2['2']); _wire_L(R_2['2'], QZp['1'])
-# XT3: QZ.2 - 2N.4 - R1.a
-_chain(QZp['2'], N2('4')); _wire_L(N2('4'), R_1['1'])
-# XT4: 2N.5 - R1.b - 2N.6 - C2.b
-_chain(N2('5'), R_1['2']); _wire_L(R_1['2'], N2('6')); _wire_L(N2('6'), C_2['2'])
-# 18.432MHz: 2N.7 -> 2M1.CK(12) and 2M2.CK(9)
-_wire_L(N2('7'), M1('12')); _wire_L(M1('12'), M2('9'))
+def _junc(x,y):
+    out.append(f'\t(junction\n\t\t(at {x} {y})\n\t\t(diameter 0)\n\t\t(color 0 0 0 0)\n\t\t(uuid "{uid()}")\n\t)\n'.replace('{uid()}',uid()))
+def _seg(*pts):
+    for a,b in zip(pts,pts[1:]):
+        if a!=b: _wire(a[0],a[1],b[0],b[1])
+R2p=_pins('R2',1); R1p=_pins('R1',1); C2p=_pins('C2',1); QZq=_pins('QZ',1)
+p2,p3,p4,p5,p6,p7 = (N2(k) for k in ('2','3','4','5','6','7'))
+m112=M1('12'); m29=M2('9')
+# NOTE: Device:R_US at rot 90: pin 1 = RIGHT pin, pin 2 = LEFT pin
+R2L,R2R = R2p['2'],R2p['1']
+R1L,R1R = R1p['2'],R1p['1']
+# XT1: R2.left <- left rail -> top run -> C2.top drop -> 2N.2
+ytop=SN(min(p2[1],C2p['1'][1])-5.08); xrail=SN(R2L[0]-5.08); xmid=SN(p2[0]-5.08)
+_seg(R2L,(xrail,R2L[1]),(xrail,ytop),(C2p['1'][0],ytop))
+_seg((C2p['1'][0],ytop),C2p['1'])
+_seg((C2p['1'][0],ytop),(xmid,ytop),(xmid,p2[1]),p2)
+_junc(C2p['1'][0],ytop)
+# XT2: 2N.3 -> over the top -> far-left outer rail -> low bus -> R2.right (up) ; branch QZ.1
+ybus2=SN(QZq['1'][1]-6.35); xouter=SN(R2L[0]-10.16); ytop2=SN(min(p2[1],C2p['1'][1])-10.16)
+_seg(p3,(SN(p3[0]+2.54),p3[1]),(SN(p3[0]+2.54),ytop2),(xouter,ytop2),(xouter,ybus2),(R2R[0],ybus2))
+_seg((R2R[0],ybus2),R2R)
+_junc(R2R[0],ybus2)
+_seg((R2R[0],ybus2),(QZq['1'][0],ybus2),QZq['1'])
+# XT3: QZ.2 -> up rail -> 2N.4 ; rail continues up to R1.left (R1 sits above the chip)
+xv=SN(QZq['2'][0]+5.08)
+_seg(QZq['2'],(xv,QZq['2'][1]),(xv,p4[1]))
+_seg((xv,p4[1]),p4)
+_junc(xv,p4[1])
+_seg((xv,p4[1]),(xv,R1L[1]),(R1L[0],R1L[1]))
+# XT4: 2N.5 -> right rail: up to R1.right, down to bus under the chip -> 2N.6 ; branch C2.bot
+xr5=SN(p5[0]+5.08); ybus4=SN(N2('15')[1]+2.54); xl6=SN(p6[0]-7.62); xC=C2p['2'][0]
+_seg(p5,(xr5,p5[1]))
+_seg((xr5,p5[1]),(xr5,R1R[1]),(R1R[0],R1R[1]))
+_junc(xr5,p5[1])
+_seg((xr5,p5[1]),(xr5,ybus4),(xl6,ybus4))
+_seg((xl6,ybus4),(xl6,p6[1]),p6)
+_junc(xl6,ybus4)
+_seg((xl6,ybus4),(xC,ybus4))
+_seg((xC,ybus4),C2p['2'])
+# OSC18: 2N.7 -> one straight run along the CK row (hits 2M1.12 and 2M2.9)
+xs7=SN(p7[0]+3.81)
+_seg(p7,(xs7,p7[1]),(xs7,m112[1]),(m29[0],m29[1]))
+_junc(m112[0],m112[1])
+# 2MJ1: J1 <- /Q2 as a top loop (PDF style), no labels
+j1=M1('1'); q2b=M2('6')
+ytl=SN(j1[1]-7.62); xj=SN(j1[0]-3.81); xq=SN(q2b[0]+5.08)
+_seg(j1,(xj,j1[1]),(xj,ytl),(xq,ytl),(xq,q2b[1]),q2b)
 # /3 cross-coupling via labels (CLK = Q1)
 for r,u,pin,name,side in [('2M',1,'3','CLK','R'),('2M',2,'8','CLK','L'),
-                          ('2M',1,'1','2MJ1','L'),('2M',2,'6','2MJ1','R'),
                           ('2N',1,'12','CLK','L')]:
     _stub_label(r,u,pin,name,side)
 # clock buffer outputs + 1H buffer
