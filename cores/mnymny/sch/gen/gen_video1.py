@@ -172,7 +172,7 @@ LADDERS=[
  ('HCMP1*',[('4M',1,'128H'),('3M',1,'64H'),('3M',2,'32H'),('3M',3,'16H'),('3M',4,'8H')]),
 ]
 def _lab(name,x,y,side):
-    ang=0; just='right' if side=='L' else 'left'
+    ang=0; just='right bottom' if side=='L' else 'left bottom'
     _labels.append(f'\t(label "{name}"\n\t\t(at {x} {y} {ang})\n\t\t(effects\n\t\t\t(font\n\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n\t\t\t(justify {just})\n\t\t)\n\t\t(uuid "{uid()}")\n\t)\n')
 def _wire(x1,y1,x2,y2):
     _wires.append(f'\t(wire\n\t\t(pts\n\t\t\t(xy {x1} {y1}) (xy {x2} {y2})\n\t\t)\n\t\t(stroke\n\t\t\t(width 0)\n\t\t\t(type default)\n\t\t)\n\t\t(uuid "{uid()}")\n\t)\n')

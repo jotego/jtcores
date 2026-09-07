@@ -182,7 +182,8 @@ class Sheet:
         self.body.append(f'\t(junction\n\t\t(at {x} {y})\n\t\t(diameter 0)\n\t\t(color 0 0 0 0)\n\t\t(uuid "{uid()}")\n\t)\n')
 
     def label(self, name, x, y, side='L', ang=0):
-        just = 'right' if side == 'L' else 'left'
+        # 'bottom' keeps the text above the wire; anchor stays ON the wire
+        just = 'right bottom' if side == 'L' else 'left bottom'
         self.body.append(f'\t(label "{name}"\n\t\t(at {x} {y} {ang})\n\t\t(effects\n\t\t\t(font\n'
                          f'\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n\t\t\t(justify {just})\n\t\t)\n\t\t(uuid "{uid()}")\n\t)\n')
 
@@ -322,7 +323,7 @@ def _sheet_bus_seg(self, *pts):
 def _sheet_buslabel(self, name, x, y, ang=90):
     self.body.append(
         f'\t(label "{name}"\n\t\t(at {x} {y} {ang})\n\t\t(effects\n\t\t\t(font\n'
-        f'\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n\t\t\t(justify left)\n\t\t)\n\t\t(uuid "{uid()}")\n\t)\n')
+        f'\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n\t\t\t(justify left bottom)\n\t\t)\n\t\t(uuid "{uid()}")\n\t)\n')
 def _sheet_bus_entry(self, x, y, dx, dy):
     """entry whose wire side is at (x,y), landing on the bus at (x+dx,y+dy)"""
     self.body.append(
