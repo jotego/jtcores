@@ -134,6 +134,79 @@ rotated view; text reads along it).
 - Attract mode appears genuinely silent (both PSGs initialised, melody CPU
   idles polling for commands; no demo-sound DIP exists).
 
+## 4. Cocktail mode / screen flip broken - ACTIVE
+
+- Symptom: setting the Cabinet DIP to Cocktail (SW 5I:5) and starting a
+  2P game makes the flipped screen entirely broken, not just mirrored
+  wrong. The flip bit clearly has effect, so the LS259 write path works.
+- Wiring today: 3G LS259 bit0 = flip_x (VCMA), bit1 = flip_y (HCMA), per
+  MAME mainlatch. jtmnymny_game.v: dip_flip = flip_x. jtmnymny_video.v
+  passes ONLY flip_x to both u_scroll and u_obj; flip_y is an input but
+  is CONNECTED TO NOTHING inside video.v - vertical flip is entirely
+  unimplemented. On this rotated game the MAME "x" axis is our scan
+  (hdump) axis; both axes need handling.
+- MAME reference behaviour (zaccaria.cpp, checked 0.276):
+  - bit0 -> flip_screen_x_w: flip_screen_x_set(state) AND
+    update_colscroll() - re-applies all 32 column scrolls because
+  - attribute reads are ADDRESS-MIRRORED under x-flip:
+    read_attr does `if (flip_screen_x()) offset ^= 0x1f;` - the per-column
+    scroll AND colour attributes come from the mirrored column entry.
+    Our scroll shim does NOT mirror: col/col_nx use va[4:0] directly
+    (only col_nx switches +1 -> +31... via `flip ? 5'd31 : 5'd1`).
+  - bit1 -> flip_screen_y_set directly (plain tilemap y flip).
+  - sprites: sx = 240-sx with flipx inverted under x-flip; sy = 240-sy
+    with flipy inverted under y-flip. Our jtmnymny_obj.v does NEITHER:
+    sy/ydiff math ignores flip entirely, and xpos passes raw; only
+    jtframe_objdraw's internal `flip` input is fed (semantics may not
+    match this 240-sx convention - check XOFFSET/flip in jtframe_draw).
+- Suspected breakdown (to verify in sim before changing anything):
+  1) tilemap: heff ^ {8{flip}} flips the fetch axis but the column
+     attribute index is not mirrored (missing offset^0x1f equivalent),
+     so scroll/colour pair with the wrong columns when flipped -> screen
+     "breaks" rather than mirrors. col_nx flip term is paper-derived,
+     never verified against hw/MAME.
+  2) vsum uses vdump^{8{flip}}: mixes the flip into the row sum, but
+     bit1 (flip_y) should drive this, not flip_x - the two axes are
+     currently tied together through the single `flip` input.
+  3) objects: no coordinate mirroring at all; jtframe_objdraw flip
+     semantics unverified for this board's separate VCMA/HCMA flips.
+- The generic jtframe_tilemap/objdraw flip inputs may be usable, but the
+  Zaccaria attribute-mirroring (colscroll under flip) has no jtframe
+  equivalent - that part must live in the shim either way.
+- How to reproduce in sim: cocktail DIP on, coin + 1p + 2p start via cab
+  (2P game reaches the flipped rounds), or force the LS259 bits early.
+  MAME same-state screenshots are the grading reference (stock mame:
+  DIP overrides silently do nothing - use the service menu or a .cfg
+  known to work; see memory note on scene capture).
+- Related: schematic path for flips is the LS86 XOR banks 7F/8F/8J/7J
+  (line-buffer addresses) + sigma adders for object rows - the same
+  banks as issue 1; doc/pld/equations.md has the dumped 6J/6K terms.
+
+## 5. High scores not saved - ACTIVE
+
+- Symptom: "Todays high scores" reset every power cycle; the Table Title
+  DIP (Todays / All time, SW 3I) suggests the board kept an all-time
+  table in battery-backed RAM.
+- Hardware: 7000-77FF work RAM; the 2C/2D half (upper 1KB? confirm on
+  sheet 1) is the battery-backed section on the real board. The game
+  keeps the all-time table there.
+- Current plumbing: mem.yaml wram has ioctl save+restore (order 0), MRA
+  carries <nvram index="2" size="2048"/> - so the FULL 2KB work RAM is
+  dumped/restored via the NVRAM mechanism, commit 6a86cc3c0.
+- Unknowns / next steps:
+  1) Verify on MiSTer that the NVRAM file is actually written on exit
+     and reloaded (needs OSD save enabled? jtframe NVRAM doc) - scores
+     "not saved right now" may be a platform behaviour, not core logic.
+  2) Restoring the whole 2KB (not just the battery-backed half) also
+     restores volatile game state - check whether the game re-inits the
+     volatile half at boot (likely, given the checksummed NVRAM restore
+     code at boot) or whether we corrupt startup state.
+  3) The boot code validates the NVRAM (S1 notes: restore-from-SD added
+     precisely for this); if validation fails it wipes the table -
+     an all-FF or zeroed file must still boot clean.
+  4) MAME parity: mame monymony saves .nv len 0x800 - compare its file
+     layout with our ioctl dump to confirm addressing matches.
+
 ## Sound / speech issues
 
 ### S1. Coins never credited in sim - FIXED (2026-09-07)
