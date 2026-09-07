@@ -14,7 +14,8 @@ module jtmnymny_scroll(
     input       [ 8:0]  hdump,
     input       [ 8:0]  vdump,
     input               blankn,
-    input               flip,
+    input               flipx,
+    input               flipy,
     // attribute RAM (col scroll + col colour)
     output reg  [ 5:0]  attr_addr,
     input       [ 7:0]  attr_data,
@@ -36,14 +37,16 @@ localparam [7:0] SCRX  = 8'd16;  // fetch leads display: LS194 load + window
 reg  [ 7:0] code_lo, vattr, colattr, vsum;
 wire [ 9:0] code = { vattr[1:0], code_lo };
 wire [ 4:0] pal  = { colattr[2:0], vattr[3:2] };
-wire [ 7:0] hdfix, heff;
+wire [ 7:0] hdfix, hcnt, heff;
 wire [ 9:0] va;
 // visible window is V[7:0]=16..239 (5P VBLANK latch), so vdump maps directly
-wire [ 4:0] col     = va[4:0];
-wire [ 4:0] col_nx  = va[4:0] + ( flip ? 5'd31 : 5'd1 );
+// attr RAM follows the raw column counter on both flips (MAME offset^0x1f)
+wire [ 4:0] col     = hcnt[7:3];
+wire [ 4:0] col_nx  = hcnt[7:3] + 5'd1;
 
 assign hdfix = hdump>HLOOP ? {1'b1, hdump[6:0]} : hdump[7:0];
-assign heff  = (hdfix ^ {8{flip}}) + SCRX;
+assign hcnt  = hdfix + SCRX;
+assign heff  = hcnt ^ {8{flipx}};
 assign va    = { vsum[7:3], heff[7:3] };
 
 // fetch sequence within the 8-pixel window. vsum latches at phase 0, the
@@ -51,7 +54,7 @@ assign va    = { vsum[7:3], heff[7:3] };
 // group's tile: it reads the old value, as the 1F latch does
 always @(posedge clk) if(pxl_cen) begin
     case( hdump[2:0] )
-        3'd0: vsum      <= (vdump[7:0]^{8{flip}}) + attr_data;
+        3'd0: vsum      <= (vdump[7:0]^{8{flipy}}) + attr_data;
         3'd1: vram_addr <= { 1'b0, va };
         3'd2: begin
             code_lo   <= vram_data;
@@ -87,11 +90,11 @@ jtframe_tilemap #(
     .vdump      ( vsum      ),
     .hdump      ( heff      ),
     .blankn     ( blankn    ),
-    .flip       ( flip      ),
+    .flip       ( 1'b0      ),
     .vram_addr  (           ),
     .code       ( code      ),
     .pal        ( pal       ),
-    .hflip      ( 1'b0      ),
+    .hflip      ( flipx     ),
     .vflip      ( 1'b0      ),
     .rom_addr   ( rom_addr  ),
     .rom_data   ( rom_data  ),

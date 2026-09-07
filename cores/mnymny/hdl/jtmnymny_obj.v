@@ -13,7 +13,8 @@ module jtmnymny_obj(
     input               hs,
     input       [ 8:0]  hdump,
     input       [ 8:0]  vrender,
-    input               flip,
+    input               flipx,
+    input               flipy,
     // object RAM (0x6800-0x68FF page)
     output reg  [ 7:0]  objram_addr,
     input       [ 7:0]  objram_data,
@@ -83,7 +84,7 @@ always @(posedge clk) begin
             end
             4'd2: st <= 3;                        // BRAM latency
             4'd3: begin
-                b0 <= sy;                         // screen top line of the sprite
+                b0 <= flipy ? 8'd240-sy : sy;     // screen top line of the sprite
                 objram_addr <= base + {3'd0,entry,2'd0} + (sec1 ? 8'd2 : 8'd1);
                 st <= 4;
             end
@@ -106,10 +107,11 @@ always @(posedge clk) begin
                 end else begin
                     code  <= { bo2[7:6], bo1[5:0] };
                     pal   <= { bo2[2:0], pass_pal };
-                    hflip <= bo1[6];
-                    vflip <= bo1[7];
+                    hflip <= bo1[6]^flipx;
+                    vflip <= bo1[7]^flipy;
                     ysub  <= ydiff[3:0];
-                    xpos  <= {1'b0, objram_data} + 9'd1;
+                    xpos  <= flipx ? 9'd239 - {1'b0, objram_data}
+                                   : 9'd1   + {1'b0, objram_data};
                     st    <= 10;
                 end
             end
@@ -144,7 +146,7 @@ jtframe_objdraw #(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .hs         ( hs        ),
-    .flip       ( flip      ),
+    .flip       ( 1'b0      ),
     .hdump      ( hdump     ),
     .draw       ( draw      ),
     .busy       ( dr_busy   ),
