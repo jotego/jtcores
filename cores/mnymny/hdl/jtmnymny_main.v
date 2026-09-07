@@ -60,7 +60,15 @@ assign cpu_addr = A[11:0];
 assign cpu_wrn  = wr_n;
 // 2764 A12 pin strapped to Z80 A15 on the ROM module
 assign rom_addr = { A[14:12], A[15], A[11:0] };
-assign nmi_n    = ~(nmi_mask & ~LVBL);
+// NMI set at vblank start, cleared while INTST low, no mid-vblank retrigger
+jtframe_edge #(.QSET(0)) u_nmi(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( ~LVBL     ),
+    .clr    ( ~nmi_mask ),
+    .q      ( nmi_n     )
+);
+
 assign ram_we   = ram_cs & ~wr_n;
 
 wire blk_rom = A[14:12]<3'd6;          // LS138: /CS1../CS6, A15 not decoded

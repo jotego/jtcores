@@ -158,7 +158,27 @@ rotated view; text reads along it).
 - Trade-off: recovery reclaims cycles lost to SDRAM ROM waits; disabling
   it is negligible for this 3 MHz Z80 but note it if timing looks off.
 
-### S2. Speech cut short vs MAME - ACTIVE (resume here)
+### S2. Speech cut short vs MAME - FIXED (2026-09-07)
+
+- ROOT CAUSE: nmi_n was the level term ~(nmi_mask & ~LVBL). The NMI handler
+  toggles INTST 0->1 to ack; re-enabling INTST while still inside vblank
+  re-asserted NMI -> 2 NMIs per frame. The game's music delay (counter 74E0,
+  decremented in the NMI handler's and-$07 slow tick at C452/C456, queued at
+  C0D6 via 5063) then expired in half the time: music cmd 0x0b arrived 74
+  frames after speech cmd 0x2C instead of MAME's 142 (2.37 s), and any host
+  command aborts speech by design (see below) -> phrase cut mid-word.
+- FIX: jtframe_edge #(QSET=0) in jtmnymny_main.v - NMI set on LVBL falling
+  edge, cleared while INTST=0, no retrigger (same pattern as jt051960/
+  jt052109 u_nmi). MAME equivalent: vblank_irq ASSERT_LINE + nmi_mask_w
+  CLEAR_LINE.
+- VERIFIED in sim (coinplay.cab, full-game): exactly 1 NMI/frame, 74E0 steps
+  every 8 frames, speech 2c at F304 plays to natural end F428 (2.06 s),
+  music 0b at F447 vs MAME F444 with the same coin/start cadence (MAME tap
+  s2timeline.lua). Capture cry 0x37 also plays full length (F779-F863).
+- Sim cab for gameplay: coinplay.cab (256 / 4 coin / 40 / 12 1p) - short
+  presses; the long-press coin_start.cab predates the debounce findings.
+
+### S2-old notes (kept for reference)
 
 - Symptom: intro sentence is cut when the music starts ("you can go and
   ll..." instead of "...look for the money"); the capture cry says "help"
