@@ -176,17 +176,4 @@ jtmnymny_video u_video(
     .VS         ( VS            )
 );
 
-`ifdef SIMULATION
-integer frame_cnt=0;
-reg vs_l, fx_l, fy_l;
-always @(posedge clk) begin
-    vs_l <= VS;
-    if( VS & ~vs_l ) frame_cnt <= frame_cnt+1;
-    fx_l <= flip_x;
-    fy_l <= flip_y;
-    if( fx_l!=flip_x || fy_l!=flip_y )
-        $display("FLIPTRACE: frame %0d flip_x=%b flip_y=%b", frame_cnt, flip_x, flip_y);
-end
-`endif
-
 endmodule

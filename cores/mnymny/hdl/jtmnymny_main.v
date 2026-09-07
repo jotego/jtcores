@@ -122,20 +122,6 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-`ifdef SIMULATION
-reg [15:0] dbg_m1;
-reg        dbg_wrl, dbg_lvbl;
-integer    dbg_f=0;
-always @(posedge clk) begin
-    dbg_lvbl <= LVBL;
-    if( !LVBL && dbg_lvbl ) dbg_f <= dbg_f+1;
-    if( !m1_n && !mreq_n ) dbg_m1 <= A;
-    dbg_wrl <= wr_n;
-    if( misc_cs && !wr_n && dbg_wrl && dbg_f>=920 && dbg_f<940 )
-        $display("LATCHW: frame %0d A=%h D=%h PC~%h", dbg_f, A, cpu_dout, dbg_m1);
-end
-`endif
-
 // 2H LS374 sound latch, /WRSOUND
 always @(posedge clk, posedge rst) begin
     if( rst )

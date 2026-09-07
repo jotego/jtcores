@@ -36,12 +36,6 @@ module jtmnymny_video(
     output              LHBL, LVBL, HS, VS
 );
 
-`ifdef SIM_FORCE_FLIP
-wire fx = 1'b1, fy = 1'b1;
-`else
-wire fx = flip_x, fy = flip_y;
-`endif
-
 wire [ 8:0] vdump, vrender, hdump;
 wire        hinit, preLHBL, preLVBL;
 wire [ 8:0] obj_pxl, scr_pxl;
@@ -100,8 +94,8 @@ jtmnymny_scroll u_scroll(
     .hdump     ( hdump        ),
     .vdump     ( vdump        ),
     .blankn    ( LVBL         ),
-    .flipx     ( fx           ),
-    .flipy     ( fy           ),
+    .flipx     ( flip_x       ),
+    .flipy     ( flip_y       ),
     .attr_addr ( attr_v_addr  ),
     .attr_data ( attr_v_dout  ),
     .vram_addr ( vram_v_addr  ),
@@ -120,8 +114,8 @@ jtmnymny_obj u_obj(
     .hs         ( HS            ),
     .hdump      ( hdump         ),
     .vrender    ( vrender       ),
-    .flipx      ( fx            ),
-    .flipy      ( fy            ),
+    .flipx      ( flip_x        ),
+    .flipy      ( flip_y        ),
     .objram_addr( objram_v_addr ),
     .objram_data( objram_v_dout ),
     .rom_addr   ( objgfx_addr   ),
