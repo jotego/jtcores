@@ -440,15 +440,4 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-`ifdef SIMULATION
-reg wsl2, rsl2;
-always @(posedge clk) begin
-    wsl2<=ws_n; rsl2<=rs_n;
-    if( wsl2 && !ws_n ) $display("TMS wr %02x (spkext=%b cnt=%0d)", din, spk_ext, count);
-    if( rsl2 && !rs_n ) $display("TMS rd status %02x (cnt=%0d pst=%0d)", {ts,bl,be,5'd0}, count, pst);
-    if( ts && !old_ts ) $display("TMS TALK START");
-    if( !ts && old_ts ) $display("TMS TALK END (be=%b)", be);
-end
-`endif
-
 endmodule
