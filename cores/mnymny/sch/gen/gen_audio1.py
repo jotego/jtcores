@@ -12,8 +12,10 @@ S=sh.stub; P=sh.power
 
 # 6802 melody CPU 4L
 sh.place('mnymny:6802','4L',1, 60,120, value='6802')
-for i,pin in enumerate([str(n) for n in list(range(9,21))+list(range(22,26))]): S('4L',1,pin,'A%d'%i)
-for i,pin in enumerate(('33','32','31','30','29','28','27','26')): S('4L',1,pin,'DB%d'%i)
+for i,pin in enumerate([str(n) for n in list(range(9,21))+list(range(22,26))]): sh.stub_bus('4L',pin,'A%d'%i,102)
+for i,pin in enumerate(('33','32','31','30','29','28','27','26')): sh.stub_bus('4L',pin,'DB%d'%i,108)
+sh.bus_close(102,'A[0..15]')
+sh.bus_close(108,'DB[0..7]')
 for pin,net in (('37','E'),('34','R/W'),('5','VMA'),('4','/IRQB'),('2','/HALT'),('3','MR'),
                 ('6','/NMI'),('36','DBE'),('40','/RST'),('39','XTAL1'),('38','EXTAL1'),('35','VCC_ST')):
     S('4L',1,pin,net)
@@ -23,16 +25,18 @@ CNA={}
 for i,pin in enumerate(('27','29','31','33','35','37','39','41')): CNA[pin]='DB%d'%i
 for i,pin in enumerate(('28','30','32','34','36','38','40','43','48','46','44','42','47','45')): CNA[pin]='A%d'%i
 CNA.update({'50':'/CS4A','49':'/CS5A'})
-for pin,net in CNA.items(): S('CNA',1,pin,net)
+for pin,net in CNA.items():
+    (sh.stub_bus('CNA',pin,net,138) if net.startswith(('A','DB')) else S('CNA',1,pin,net))
+sh.bus_close(138,'A[0..15] DB[0..7]'.split()[0])
 # decode 6I LS156 + 6H LS14 inverters
-sh.place('jt74:74LS156','6I',1, 215,90, value='74LS156')
+sh.place('jt74:74LS156','6I',1, 195,95, value='74LS156')
 for pin,net in (('13','A13'),('3','A14'),('15','A15N'),('2','VMA'),('14','VMA')):
     S('6I',1,pin,net)
 for pin,net in (('7','/CS2'),('9','/CS4A'),('12','/CS5A'),('5','/CS1A'),('4','/CS0A')):
     S('6I',1,pin,net)
-sh.place('jt74:74LS14','6H',1, 195,60, value='74LS14')
+sh.place('jt74:74LS14','6H',1, 168,60, value='74LS14')
 S('6H',1,'1','A15'); S('6H',1,'2','A15N')
-sh.place('jt74:74LS14','6H',2, 195,75, value='74LS14')
+sh.place('jt74:74LS14','6H',2, 168,75, value='74LS14')
 S('6H',2,'3','A12'); S('6H',2,'4','A12N')
 # 4040 divider + 4F LS74 -> CKGI / CB1
 sh.place('mnymny:4040','5F',1, 200,180, value='4040')
@@ -72,11 +76,13 @@ for rr,net in (('R37','/IRQB'),('R35','/HALT'),('R36','MR'),('R38','/NMI')):
     S(rr,1,'2',net); P(rr,1,'1','VCC')
 # PIA 6821 4I
 sh.place('mnymny:6821','4I',1, 250,120, value='6821')
-for i,pin in enumerate(('33','32','31','30','29','28','27','26')): S('4I',1,pin,'DB%d'%i)
+for i,pin in enumerate(('33','32','31','30','29','28','27','26')): sh.stub_bus('4I',pin,'DB%d'%i,222)
+sh.bus_close(222,'DB[0..7]')
 for pin,net in (('34','/RST'),('21','R/W'),('25','E'),('23','/CS2'),('24','A2'),('22','A3'),
                 ('36','A0'),('35','A1'),('18','CB1'),('38','/IRQA'),('37','/IRQB'),('40','CA1')):
     S('4I',1,pin,net)
-for i in range(8): S('4I',1,str(2+i),'PA%d'%i)
+for i in range(8): sh.stub_bus('4I',str(2+i),'PA%d'%i,285)
+sh.bus_close(285,'PA[0..7]')
 for pin,net in (('10','PB0'),('11','PB1'),('12','PB2'),('13','PB3')):
     S('4I',1,pin,net)
 # AY-3-8910 4H (effects) & 4G (melody)
@@ -90,8 +96,28 @@ for ref,x,extra in (('4H',330,(('21','LEVEL'),('20','LEVELT'),('13','SW1'),
                                ('29','PB0'),('27','PB1')))):
     y = 70 if ref=='4H' else 190
     sh.place('arcade:AY-3-8910',ref,1,x,y, value='AY-3-8910')
-    for i,pin in enumerate(('37','36','35','34','33','32','31','30')): S(ref,1,pin,'PA%d'%i)
+    for i,pin in enumerate(('37','36','35','34','33','32','31','30')): sh.stub_bus(ref,pin,'PA%d'%i,302)
+    sh.bus_close(302,'PA[0..7]' if ref=='4H' else None)
     S(ref,1,'22','CKGI'); S(ref,1,'23','/RST')
     for pin,net in extra: S(ref,1,pin,net)
+# ---- same-page wires (PDF-drawn connections) ----
+CONN=[
+ ('4L','37','4I','25','E'),        # 6802 E -> PIA E
+ ('4L','34','4I','21','R/W'),      # R/W
+ ('6I','7','4I','23','/CS2'),      # decode -> PIA CS
+ ('5F','9','4H','22',None),        # 4040 CKGI -> AY 4H clock
+ ('5F','9','4G','22',None),        # -> AY 4G clock
+ ('5F','1','4F','3',None),         # 4040 Q12 -> 4F CK? (flagged)
+ ('4F','5','4I','18','CB1'),       # CB1 -> PIA
+ ('4I','10','4G','29',None),       # PB0 -> 4G BC1
+ ('4I','11','4G','27',None),       # PB1 -> 4G BDIR
+ ('4I','12','4H','29',None),       # PB2 -> 4H BC1
+ ('4I','13','4H','27',None),       # PB3 -> 4H BDIR
+ ('6H','2','6I','15',None),        # A15N into decode
+ ('4L','5','6I','2','VMA'),        # VMA -> decode E
+]
+for i,(ra,pa,rb,pb,net) in enumerate(CONN):
+    try: sh.connect(ra,pa,rb,pb,net,ch=None if net else None)
+    except SystemExit as e: print('skip:',e)
 sh.save('cores/mnymny/sch/audio1.kicad_sch')
 print(validate('cores/mnymny/sch/audio1.kicad_sch'))

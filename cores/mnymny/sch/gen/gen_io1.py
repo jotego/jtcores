@@ -19,9 +19,11 @@ ZNETS={'27':'/M1','19':'/MREQ','28':'/RFSH','24':'/WAIT','17':'/NMI','16':'/INT'
 for pin,net in ZNETS.items():
     if pin in zp: S('4A',1,pin,net,'L')
 for i,pin in enumerate(('30','31','32','33','34','35','36','37','38','39','40','1','2','3','4','5')):
-    if pin in zp: S('4A',1,pin,'A%d'%i,'R')
+    if pin in zp: sh.stub_bus('4A',pin,'A%d'%i,118)
 for i,pin in enumerate(('14','15','12','8','7','9','10','13')):
-    if pin in zp: S('4A',1,pin,'D%d'%i,'R')
+    if pin in zp: sh.stub_bus('4A',pin,'D%d'%i,124)
+sh.bus_close(118,'A[0..15]')
+sh.bus_close(124,'D[0..7]')
 P('4A',1,'11','VCC'); P('4A',1,'29','VSS',down=True)
 
 # --- address buffers 4B/3B LS244 -> ABx ---
@@ -33,17 +35,19 @@ sh.place('jt74:74LS244','4B',1, 160,70, value='74LS244')
 sh.place('jt74:74LS244','3B',1, 160,130, value='74LS244')
 B244=[('2','18'),('4','16'),('6','14'),('8','12'),('11','9'),('13','7'),('15','5'),('17','3')]
 for i,(a,b) in enumerate(B244):
-    S('4B',1,a,'A%d'%i,'L'); S('4B',1,b,'AB%d'%i,'R')
+    sh.stub_bus('4B',a,'A%d'%i,132); sh.stub_bus('4B',b,'AB%d'%i,188)
 for i,(a,b) in enumerate(B244):
-    nm=('A%d'%(i+8)) if i<6 else ('A%d'%(i+8))
-    S('3B',1,a,nm,'L'); S('3B',1,b,'AB%d'%(i+8) if i<6 else 'AB%d'%(i+8),'R')
+    sh.stub_bus('3B',a,'A%d'%(i+8),132); sh.stub_bus('3B',b,'AB%d'%(i+8),188)
+sh.bus_close(132,None)
+sh.bus_close(188,'AB[0..15]')
 for ref in ('4B','3B'):
     P(ref,1,'1','VSS',down=True); P(ref,1,'19','VSS',down=True)
 
 # --- data buffer 2G LS245 -> DBB ---
 sh.place('jt74:74LS245','2G',1, 160,190, value='74LS245')
 for i,(a,b) in enumerate((('2','18'),('3','17'),('4','16'),('5','15'),('6','14'),('7','13'),('8','12'),('9','11'))):
-    S('2G',1,a,'D%d'%i,'L'); S('2G',1,b,'DBB%d'%i,'R')
+    sh.stub_bus('2G',a,'D%d'%i,134); sh.stub_bus('2G',b,'DBB%d'%i,187)
+sh.bus_close(134,None); sh.bus_close(187,'DBB[0..7]')
 S('2G',1,'1','/RDB','L'); S('2G',1,'19','/CSBB','L')
 
 # --- decode 3C LS138 (CS1..CS6), 4C LS139, 4D LS155 ---
@@ -98,16 +102,20 @@ for ref,x,val in (('1A',295,'2732/2764'),('1B',350,'2764')):
     sh.place('mnymny:2764',ref,1,x,70,value=val)
     amap={'10':'AB0','9':'AB1','8':'AB2','7':'AB3','6':'AB4','5':'AB5','4':'AB6','3':'AB7',
           '25':'AB8','24':'AB9','21':'AB10','23':'AB11','2':'A15'}
-    for pin,net in amap.items(): S(ref,1,pin,net,'L')
-    for i,pin in enumerate(('11','12','13','15','16','17','18','19')): S(ref,1,pin,'D%d'%i,'R')
+    for pin,net in amap.items(): sh.stub_bus(ref,pin,net,x-26)
+    for i,pin in enumerate(('11','12','13','15','16','17','18','19')): sh.stub_bus(ref,pin,'D%d'%i,x+26)
+    sh.bus_close(x-26,'AB[0..15]' if ref=='1A' else None)
+    sh.bus_close(x+26,'D[0..7]' if ref=='1B' else None)
     S(ref,1,'20','/CE_'+ref,'L'); S(ref,1,'22','/OE_'+ref,'L')
     P(ref,1,'28','VCC'); P(ref,1,'27','VCC'); P(ref,1,'1','VCC'); P(ref,1,'14','VSS',down=True)
 RAMP={'5':'AB0','6':'AB1','7':'AB2','4':'AB3','3':'AB4','2':'AB5','1':'AB6','17':'AB7','16':'AB8','15':'AB9'}
 for ref,x,val,dn in (('2A',268,'2114',('D0','D1','D2','D3')),('2B',296,'2114',('D4','D5','D6','D7')),
                      ('2C',326,'2114/6514',('D0','D1','D2','D3')),('2D',354,'2114/6514',('D4','D5','D6','D7'))):
     sh.place('arcade:MN2114',ref,1,x,180,value=val)
-    for pin,net in RAMP.items(): S(ref,1,pin,net,'L')
-    for pin,net in zip(('14','13','12','11'),dn): S(ref,1,pin,net,'R')
+    for pin,net in RAMP.items(): sh.stub_bus(ref,pin,net,x-24)
+    for pin,net in zip(('14','13','12','11'),dn): sh.stub_bus(ref,pin,net,x+24)
+    sh.bus_close(x-24,'AB[0..15]' if ref=='2A' else None)
+    sh.bus_close(x+24,'D[0..7]' if ref=='2D' else None)
     cs='/CSURAM1' if ref in ('2A','2B') else '/CSRAMNV'
     S(ref,1,'8',cs,'L'); S(ref,1,'10','/WD_W','L')
 # --- reset / watchdog analog corner ---

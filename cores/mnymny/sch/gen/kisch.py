@@ -310,3 +310,87 @@ def _sheet_powerx(self, ref, pin, kind='VCC', down=False):
     raise SystemExit(f'{ref}: no placed unit owns pin {pin}')
 Sheet.stubx = _sheet_stubx
 Sheet.powerx = _sheet_powerx
+
+# ---------------- bus support (risle style) ----------------
+def _sheet_bus_seg(self, *pts):
+    """polyline bus trunk through the given points"""
+    for a, b in zip(pts, pts[1:]):
+        if a != b:
+            self.body.append(
+                f'\t(bus\n\t\t(pts\n\t\t\t(xy {a[0]} {a[1]}) (xy {b[0]} {b[1]})\n\t\t)\n'
+                f'\t\t(stroke\n\t\t\t(width 0)\n\t\t\t(type default)\n\t\t)\n\t\t(uuid "{uid()}")\n\t)\n')
+def _sheet_buslabel(self, name, x, y, ang=90):
+    self.body.append(
+        f'\t(label "{name}"\n\t\t(at {x} {y} {ang})\n\t\t(effects\n\t\t\t(font\n'
+        f'\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n\t\t\t(justify left)\n\t\t)\n\t\t(uuid "{uid()}")\n\t)\n')
+def _sheet_bus_entry(self, x, y, dx, dy):
+    """entry whose wire side is at (x,y), landing on the bus at (x+dx,y+dy)"""
+    self.body.append(
+        f'\t(bus_entry\n\t\t(at {x} {y})\n\t\t(size {dx} {dy})\n'
+        f'\t\t(stroke\n\t\t\t(width 0)\n\t\t\t(type default)\n\t\t)\n\t\t(uuid "{uid()}")\n\t)\n')
+def _sheet_stub_bus(self, ref, pin, net, trunk_x):
+    """label stub from pin, extended into a vertical bus trunk at trunk_x"""
+    for (r, u) in self.placed:
+        if r == ref and pin in self.pins(r, u):
+            pp = self.pins(r, u)[pin]
+            X = self.placed[(r, u)][0]
+            side = 'L' if pp[0] < X else 'R'
+            if trunk_x < pp[0]:
+                ex = round(trunk_x + 2.54, 2); dx = -2.54
+            else:
+                ex = round(trunk_x - 2.54, 2); dx = 2.54
+            self.wire(pp[0], pp[1], ex, pp[1])
+            lx = round(pp[0] + (-2.54 if side == 'L' else 2.54), 2)
+            self.label(net, lx, pp[1], side)
+            self._bus_taps.setdefault(round(trunk_x, 2), []).append(pp[1])
+            self.bus_entry(ex, pp[1], dx, -2.54)
+            return
+    raise SystemExit(f'{ref}: no placed unit owns pin {pin}')
+def _sheet_bus_close(self, trunk_x, name=None, ytop=None, ybot=None):
+    """draw the vertical trunk covering all taps registered at trunk_x"""
+    taps = self._bus_taps.get(round(trunk_x, 2), [])
+    if not taps: return
+    y1 = min(taps) - 2.54 - 5.08 if ytop is None else ytop
+    y2 = max(taps) - 2.54 + 5.08 if ybot is None else ybot
+    self.bus_seg((trunk_x, round(y1, 2)), (trunk_x, round(y2, 2)))
+    if name:
+        self.buslabel(name, trunk_x, round(y1 + 1.27, 2), 90)
+Sheet.bus_seg = _sheet_bus_seg
+Sheet.buslabel = _sheet_buslabel
+Sheet.bus_entry = _sheet_bus_entry
+Sheet.stub_bus = _sheet_stub_bus
+Sheet.bus_close = _sheet_bus_close
+Sheet._bus_taps = None
+_old_sheet_init = Sheet.__init__
+def _new_sheet_init(self, *a, **k):
+    _old_sheet_init(self, *a, **k)
+    self._bus_taps = {}
+Sheet.__init__ = _new_sheet_init
+
+# ---------------- channel router: real wires between same-page pins ----------------
+def _sheet_pinabs(self, ref, pin):
+    for (r, u) in self.placed:
+        if r == ref and pin in self.pins(r, u):
+            pp = self.pins(r, u)[pin]
+            X = self.placed[(r, u)][0]
+            return pp, ('L' if pp[0] < X else 'R')
+    raise SystemExit(f'{ref}: no placed unit owns pin {pin}')
+def _sheet_connect(self, refA, pinA, refB, pinB, net=None, ch=None, stub=2.54):
+    """Manhattan route A->B: stubs outward, vertical channel between them.
+    Optional net label placed mid-run. ch = channel x override."""
+    a, sa = self._pinabs(refA, pinA)
+    b, sb = self._pinabs(refB, pinB)
+    ea = (round(a[0] + (stub if sa == 'R' else -stub), 2), a[1])
+    eb = (round(b[0] + (stub if sb == 'R' else -stub), 2), b[1])
+    if ch is None:
+        ch = SN((ea[0] + eb[0]) / 2)
+    self.wire(a[0], a[1], ea[0], ea[1])
+    self.wire(b[0], b[1], eb[0], eb[1])
+    if ea[1] == eb[1]:
+        self.wire(ea[0], ea[1], eb[0], eb[1])
+    else:
+        self.seg(ea, (ch, ea[1]), (ch, eb[1]), eb)
+    if net:
+        self.label(net, ch, round(min(ea[1], eb[1]) - 1.27, 2), 'R', 0)
+Sheet._pinabs = _sheet_pinabs
+Sheet.connect = _sheet_connect

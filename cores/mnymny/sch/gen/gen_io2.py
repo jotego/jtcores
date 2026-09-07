@@ -19,13 +19,16 @@ PB=(('18','2J_LEFT'),('19','2J_RIGHT'),('20','2P_SHOOT1'),('21','2P_SHOOT3'),
 PC=(('14','1PLAYER'),('15','2PLAYER'),('16','SERVICE1'),('17','SERVICE2'),
     ('13','PC4'),('12','PC5'),('11','PC6'),('10','PC7'))
 for pin,net in PA+PB+PC: S('4H',1,pin,net)
-for i,pin in enumerate(('34','33','32','31','30','29','28','27')): S('4H',1,pin,'D%d'%i)
+for i,pin in enumerate(('34','33','32','31','30','29','28','27')): sh.stub_bus('4H',pin,'D%d'%i,128)
+sh.bus_close(128,'D[0..7]')
 for pin,net in (('9','AB0'),('8','AB1'),('36','/WRB'),('5','/RDB'),('6','/CS8255'),('35','RESET')):
     S('4H',1,pin,net)
 # sound latch 2H
 sh.place('jt74:74LS374','2H',1, 210,60, value='74LS374')
-for i,pin in enumerate(('3','4','7','8','13','14','17','18')): S('2H',1,pin,'DBB%d'%i)
-for i,pin in enumerate(('2','5','6','9','12','15','16','19')): S('2H',1,pin,'S%d'%i)
+for i,pin in enumerate(('3','4','7','8','13','14','17','18')): sh.stub_bus('2H',pin,'DBB%d'%i,182)
+for i,pin in enumerate(('2','5','6','9','12','15','16','19')): sh.stub_bus('2H',pin,'S%d'%i,238)
+sh.bus_close(182,'DBB[0..7]')
+sh.bus_close(238,'S[0..7]')
 S('2H',1,'11','/WRSOUND'); P('2H',1,'1','VSS',down=True)
 # coin GET buffers 3H/2I (top pair)
 sh.place('mnymny:40097','3H',1, 200,120, value='40097')

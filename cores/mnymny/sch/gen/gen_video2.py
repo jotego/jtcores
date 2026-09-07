@@ -107,9 +107,12 @@ for ref,x in (('4A',290,),('4C',322,),('4E',354,)):
         S(ref,1,pin,net)
     base={'4A':16,'4C':8,'4E':0}[ref]
     for i,pin in enumerate(('11','12','13','15','16','17','18','19')):
-        S(ref,1,pin,'D%d'%(base+i))
+        sh.stub_bus(ref,pin,'D%d'%(base+i),x+24)
+    sh.bus_close(x+24,None,ybot=96)
     P(ref,1,'14','VSS',down=True); P(ref,1,'28','VCC'); P(ref,1,'27','VCC'); P(ref,1,'1','VCC')
     S(ref,1,'20','/OEF'); S(ref,1,'22','/OEF')
+sh.bus_seg((290+24,96),(354+24,96))
+sh.buslabel('D[0..23]',290+24+2,96,0)
 # 12x LS194 shifter grid
 GRID=[(('3D','X1L'),('3E','X1R'),('4F','X4L'),('4G','X4R'),0),
       (('5A','X2L'),('5B','X2R'),('5C','X5L'),('5D','X5R'),8),
@@ -120,7 +123,8 @@ for row,(c0,c1,c2,c3,dbase) in enumerate(GRID):
         sh.place('jt74:74LS194',ref,1,x,y, value='74LS194')
         half = dbase + (4 if col%2==0 else 0)
         for i,pin in enumerate(('3','4','5','6')):
-            S(ref,1,pin,'D%d'%(half+3-i))
+            sh.stub_bus(ref,pin,'D%d'%(half+3-i),x-16)
+        sh.bus_close(x-16,None)
         S(ref,1,'9','S0T1' if col<2 else 'S0T2')
         S(ref,1,'10','S1T1' if col<2 else 'S1T2')
         S(ref,1,'11','6MHz')

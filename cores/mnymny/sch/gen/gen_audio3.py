@@ -12,8 +12,10 @@ S=sh.stub; P=sh.power
 
 # speech 6802
 sh.place('mnymny:6802','3L',1, 55,120, value='6802')
-for i,pin in enumerate([str(n) for n in list(range(9,21))+list(range(22,26))]): S('3L',1,pin,'AD%d'%i)
-for i,pin in enumerate(('33','32','31','30','29','28','27','26')): S('3L',1,pin,'D%d'%i)
+for i,pin in enumerate([str(n) for n in list(range(9,21))+list(range(22,26))]): sh.stub_bus('3L',pin,'AD%d'%i,97)
+for i,pin in enumerate(('33','32','31','30','29','28','27','26')): sh.stub_bus('3L',pin,'D%d'%i,103)
+sh.bus_close(97,'AD[0..15]')
+sh.bus_close(103,'D[0..7]')
 for pin,net in (('37','E1'),('34','R/W1'),('5','VMA1'),('4','/INT2'),('2','/HALT2'),('3','MR2'),
                 ('6','/NMI2'),('36','/RST_SH1'),('40','RST2'),('39','XTAL1B'),('38','CKu')):
     S('3L',1,pin,net)
@@ -22,15 +24,19 @@ sh.place('mnymny:CONN50','CNA',1, 140,140, value='CNA')
 CNA={'3':'/CS0A','4':'/CS1A'}
 for i,pin in enumerate(('6','8','10','12','14','16','18','20')): CNA[pin]='D%d'%i
 for i,pin in enumerate(('5','7','9','11','13','15','17','19','23','25','21','26','24','22')): CNA[pin]='AD%d'%i
-for pin,net in CNA.items(): S('CNA',1,pin,net)
+for pin,net in CNA.items():
+    (sh.stub_bus('CNA',pin,net,118) if net.startswith(('AD','D')) else S('CNA',1,pin,net))
+sh.bus_close(118,None)
 # PIA 1I
 sh.place('mnymny:6821','1I',1, 215,110, value='6821')
-for i,pin in enumerate(('33','32','31','30','29','28','27','26')): S('1I',1,pin,'D%d'%i)
+for i,pin in enumerate(('33','32','31','30','29','28','27','26')): sh.stub_bus('1I',pin,'D%d'%i,187)
+sh.bus_close(187,'D[0..7]')
 for pin,net in (('25','E1'),('21','R/W1'),('23','/CSP'),('34','/RST_SH1'),
                 ('36','AD0'),('35','AD1'),('24','AD4'),('22','AD7'),
                 ('39','CA2S'),('18','CB1S'),('13','ACSN')):
     S('1I',1,pin,net)
-for i in range(8): S('1I',1,str(2+i),'SPA%d'%i)
+for i in range(8): sh.stub_bus('1I',str(2+i),'SPA%d'%i,252)
+sh.bus_close(252,'SPA[0..7]')
 S('1I',1,'10','/WSPB0'); S('1I',1,'11','/RSPB1')
 sh.place('jt74:74LS14','4A',6, 275,60, value='74LS14')
 S('4A',6,'13','ACSN'); S('4A',6,'12','ACS')

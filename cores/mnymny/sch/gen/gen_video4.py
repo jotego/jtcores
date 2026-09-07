@@ -94,9 +94,11 @@ for pin,net in (('10','32H'),('13','16H'),('6','A1DES'),('3','A0DES'),
 for ref,y,dn in (('1L',175,('B0','B1','B2','B3')),('1M',235,('B4','B5','B6','B7'))):
     sh.place('arcade:MN2114',ref,1, 245,y, value='2114')
     for i,pin in enumerate(('5','6','7','4','3','2','1','17','16','15')):
-        SX(ref,pin,'AO%d'%i)
-    for pin,net in zip(('14','13','12','11'),dn): SX(ref,pin,net)
+        sh.stub_bus(ref,pin,'AO%d'%i,222)
+    for pin,net in zip(('14','13','12','11'),dn): sh.stub_bus(ref,pin,net,268)
     SX(ref,'8','/CSOBJ'); SX(ref,'10','/WROBJW')
+sh.bus_close(222,'AO[0..9]')
+sh.bus_close(268,'B[0..7]')
 sh.place('jt74:74LS245','1K',1, 300,195, value='74LS245')
 for i,(a,b) in enumerate((('2','18'),('3','17'),('4','16'),('5','15'),('6','14'),('7','13'),('8','12'),('9','11'))):
     SX('1K',a,'B%d'%(7-i)); SX('1K',b,'DBB%d'%(7-i))

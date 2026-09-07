@@ -32,13 +32,19 @@ ROMS = [('2','/CS2',95),('3','/CS3',150),('4','/CS4',205),('10','/CS5',260),('11
 for ref,cs,x in ROMS:
     sh.place('mnymny:2764',ref,1,x,60,value='2732/2764')
     p={'10':'AB0','9':'AB1','8':'AB2','7':'AB3','6':'AB4','5':'AB5','4':'AB6','3':'AB7',
-       '25':'AB8','24':'AB9','21':'AB10','2':'A15','23':'ABx',
-       '20':cs,'22':'AB11'}
-    for pin,net in p.items(): sh.stub(ref,1,pin,net,'L')
+       '25':'AB8','24':'AB9','21':'AB10','2':'A15','23':'ABx'}
+    for pin,net in p.items(): sh.stub_bus(ref,pin,net,x-27)
+    sh.stub(ref,1,'20',cs,'L'); sh.stub(ref,1,'22','AB11','L')
     for i,pin in enumerate(('11','12','13','15','16','17','18','19')):
-        sh.stub(ref,1,pin,'D%d'%i,'R')
+        sh.stub_bus(ref,pin,'D%d'%i,x+27)
+    sh.bus_close(x-27, None, ytop=27)
+    sh.bus_close(x+27, None, ybot=112)
     for pin in ('28','27','1'): sh.power(ref,1,pin,'VCC')
     sh.power(ref,1,'14','VSS',down=True)
+sh.bus_seg((95-27,27),(315-27,27))
+sh.buslabel('AB[0..11]',95-27+2,27,0)
+sh.bus_seg((95+27,112),(315+27,112))
+sh.buslabel('D[0..7]',95+27+2,112,0)
 # 27K pullups on the /CS strap pads
 for rr,cs,x in (('R3','/CS2',95),('R4','/CS3',150),('R6','/CS4',205),('R10','/CS5',260),('R11','/CS6',315)):
     sh.place('Device:R_US',rr,1,x+18,95,rot=0,value='27K')
@@ -66,13 +72,19 @@ AFP={'2':'AF12','23':'AF11','21':'AF10','24':'AF9','25':'AF8','3':'AF7','4':'AF6
      '5':'AF5','6':'AF4','7':'AF3','8':'SIG2','9':'SIG1','10':'SIG0'}
 for ref,val,dnets,x in BS:
     sh.place('mnymny:2764',ref,1,x,225,value=val+' 2764')
-    for pin,net in AFP.items(): sh.stub(ref,1,pin,net,'L')
-    for pin,net in dnets: sh.stub(ref,1,pin,net,'R')
+    for pin,net in AFP.items(): sh.stub_bus(ref,pin,net,x-27)
+    for pin,net in dnets: sh.stub_bus(ref,pin,net,x+27)
+    sh.bus_close(x-27, None, ytop=192)
+    sh.bus_close(x+27, None, ybot=258)
     for pin in ('28','27','1'): sh.power(ref,1,pin,'VCC')
     sh.power(ref,1,'14','VSS',down=True)
     sh.power(ref,1,'20','VSS',down=True)
     sh.stub(ref,1,'22','/OEB','L')
 
+sh.bus_seg((150-27,192),(280-27,192))
+sh.buslabel('AF[3..12]',150-27+2,192,0)
+sh.bus_seg((150+27,258),(280+27,258))
+sh.buslabel('DF[0..23]',150+27+2,258,0)
 # ---- CN2 (right edge) ----
 sh.place('mnymny:CONN40','CN2',1, 378,150, value='CN2')
 CN2={'6':'AF12','11':'AF11','16':'AF10','9':'AF9','7':'AF8','5':'AF7','8':'AF6',
