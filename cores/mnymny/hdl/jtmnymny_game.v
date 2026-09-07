@@ -41,7 +41,10 @@ assign objram_we   = objram_cs & ~cpu_wrn;
 assign pal9f_addr  = pal_addr;
 assign pal9g_addr  = pal_addr;
 
-assign dip_flip   = flip_x;
+// QOL flip: dipsw[24] forces a 180 rotation (both axes) for wrongly-mounted screens
+wire flip_xe = flip_x ^ dipsw[24];
+wire flip_ye = flip_y ^ dipsw[24];
+assign dip_flip   = flip_xe;
 
 // MRA header byte 0, bit 0: game select for the protection PAL
 reg jackrabt=0;
@@ -148,8 +151,8 @@ jtmnymny_video u_video(
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
     .pxl2_cen   ( pxl2_cen      ),
-    .flip_x     ( flip_x        ),
-    .flip_y     ( flip_y        ),
+    .flip_x     ( flip_xe       ),
+    .flip_y     ( flip_ye       ),
     .vram_v_addr( vram_v_addr   ),
     .vram_v_dout( vram_v_dout   ),
     .attr_v_addr( attr_v_addr   ),

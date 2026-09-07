@@ -13,6 +13,7 @@ offset=[
 ]
 delete=[ { names=["Unused","Unknown"] } ]
 rename=[ { name="Table Title", to="Title", values=["Todays","All time"] } ]
+extra=[ { name="QOL - flip", options="Off,On", bits="24" } ]
 
 [header]
 registers=[
