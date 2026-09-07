@@ -22,8 +22,8 @@ def get_sym(lib_id):
 # scan->mm mapping (image ~2000x1390; drawing border px x:80..1960 y:55..1320)
 def SN(v): return round(round(v/1.27)*1.27,2)
 def MM(px,py):
-    x = 15 + (px-80)/1880.0*395
-    y = 12 + (py-55)/1265.0*278
+    x = 20 + (px-80)/1880.0*368
+    y = 20 + (py-55)/1265.0*243
     return (SN(x), SN(y))
 
 # (lib_id, ref, unit, px, py, rot)

@@ -80,12 +80,22 @@ CLI = '/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli'
 def SN(v):
     return round(round(v/1.27)*1.27, 2)
 
+_stock_cache = {}
 def stock_symbol(lib_id):
-    """Device:* / Connector:* etc. blocks lifted from kunio sheets (KiCad stock)."""
-    for src in (KUNIO, 'cores/kunio/sch/io.kicad_sch', 'cores/kunio/sch/sound.kicad_sch',
-                'cores/kunio/sch/main.kicad_sch'):
-        b = extract(load(src), lib_id)
-        if b: return b
+    """Device:* / Connector:* etc. blocks lifted from any existing core sheet."""
+    if lib_id in _stock_cache: return _stock_cache[lib_id]
+    import glob
+    srcs = [KUNIO, 'cores/kunio/sch/io.kicad_sch', 'cores/kunio/sch/sound.kicad_sch',
+            'cores/kunio/sch/main.kicad_sch']
+    srcs += sorted(glob.glob('cores/wwfss/sch/*.kicad_sch'))
+    srcs += sorted(glob.glob('cores/moo/sch/moomesa/*.kicad_sch'))
+    srcs += sorted(glob.glob('cores/*/sch/*.kicad_sch')) + sorted(glob.glob('cores/*/sch/*/*.kicad_sch'))
+    for src in srcs:
+        try: b = extract(load(src), lib_id)
+        except FileNotFoundError: continue
+        if b:
+            _stock_cache[lib_id] = b
+            return b
     return None
 
 def get_sym(lib_id):
@@ -168,8 +178,10 @@ class Sheet:
         self.body.append(f'\t(label "{name}"\n\t\t(at {x} {y} {ang})\n\t\t(effects\n\t\t\t(font\n'
                          f'\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n\t\t\t(justify {just})\n\t\t)\n\t\t(uuid "{uid()}")\n\t)\n')
 
-    def stub(self, ref, unit, pin, name, side='L', ln=5.08):
+    def stub(self, ref, unit, pin, name, side=None, ln=5.08):
         pp = self.pins(ref, unit)[pin]
+        X = self.placed[(ref, unit)][0]
+        side = 'L' if pp[0] < X else 'R'   # auto: stub points away from the body
         dx = -ln if side == 'L' else ln
         e = (round(pp[0]+dx, 2), pp[1])
         self.wire(pp[0], pp[1], e[0], e[1])
