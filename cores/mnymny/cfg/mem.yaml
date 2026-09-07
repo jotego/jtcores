@@ -23,7 +23,7 @@ audio:
     # three real 10K+0.1u summing paths into R1; all shaping is done in
     # jtmnymny_mixer (see ver/audio)
     - { name: music, data_width: 16, rsum: 10k }
-    - { name: voice, data_width: 16, rsum: 10k }
+    - { name: voice, data_width: 16, rsum: 5k }
     - { name: pcm,   data_width: 16, rsum: 10k }
 sdram:
   banks:
