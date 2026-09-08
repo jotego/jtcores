@@ -110,7 +110,7 @@ always @(posedge clk) begin
                     hflip <= bo1[6]^flipx;
                     vflip <= bo1[7]^flipy;
                     ysub  <= ydiff[3:0];
-                    xpos  <= flipx ? 9'd239 - {1'b0, objram_data}
+                    xpos  <= flipx ? 9'd240 - {1'b0, objram_data}
                                    : 9'd1   + {1'b0, objram_data};
                     st    <= 10;
                 end
