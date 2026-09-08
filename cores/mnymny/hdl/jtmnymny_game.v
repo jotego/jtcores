@@ -84,6 +84,7 @@ jtmnymny_main u_main(
     .clk        ( clk           ),
     .cpu_cen    ( cpu_cen       ),
     .LVBL       ( LVBL          ),
+    .dip_pause  ( dip_pause     ),
     .rom_cs     ( main_cs       ),
     .rom_addr   ( main_addr     ),
     .rom_data   ( main_data     ),

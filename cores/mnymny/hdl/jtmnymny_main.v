@@ -9,6 +9,7 @@ module jtmnymny_main(
     input               clk,
     input               cpu_cen,
     input               LVBL,
+    input               dip_pause,
     input               jackrabt,
     // main program ROM (SDRAM)
     output reg          rom_cs,
@@ -64,7 +65,7 @@ assign rom_addr = { A[14:12], A[15], A[11:0] };
 jtframe_edge #(.QSET(0)) u_nmi(
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .edgeof ( ~LVBL     ),
+    .edgeof ( ~LVBL & dip_pause ),
     .clr    ( ~nmi_mask ),
     .q      ( nmi_n     )
 );
