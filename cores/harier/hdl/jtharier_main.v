@@ -5,10 +5,18 @@
 module jtharier_main(
     input              rst,
     input              clk,
+    input              i8751,
+    input              fd1089,
+    input              blank4,
+    input              cab1p,
+    input       [ 2:0] adc,
+    output      [12:0] key_addr,
+    input       [ 7:0] key_data,
+    input              fd1089_we,
     output             cpu_cen,
     output             cpu_cenb,
 
-    input              vint, cen_mcu,
+    input              LVBL, cen_mcu,
 
     // Address decode, CK-2605 315-5166 on CPU sheet 1/6
     output reg         vram_cs,
@@ -41,13 +49,15 @@ module jtharier_main(
 
     input       [ 7:0] dipsw_a,
     input       [ 7:0] dipsw_b,
-    input              dip_test,
+    input              dip_test, dip_pause,
     input       [ 1:0] cab_1p,
     input       [ 1:0] coin,
     input              service,
     input       [ 6:0] joystick1,
     input       [ 7:0] an_x,       // flight stick, conditioned in game.v: ADC0 = X
     input       [ 7:0] an_y,       //                                      ADC1 = Y
+    input       [ 7:0] an_gas,
+    input       [ 7:0] an_brake,
 
     output             flip,
     output reg         mute,
@@ -76,16 +86,18 @@ module jtharier_main(
 `ifndef NOMAIN
 wire [23:1] A, cpu_A;
 wire [ 2:0] FC, IPLn;
-wire        ASn, UDSn, LDSn, BUSn, VPAn, DTACKn;
+wire        ASn, UDSn, LDSn, VPAn, DTACKn;
 wire        cpu_RnW, cpu_UDSn, cpu_LDSn;
 wire        BRn, BGn, BGACKn;
 wire [15:0] cpu_dout_raw;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout, io_dout;
-wire        rom_ok_dly, vram_ok_dly, sound_en;
+wire        rom_ok_dly, vram_ok_dly, sound_en, fd1089_ok;
+wire [15:0] fd1089_dec;
+wire [15:0] rom_dec = fd1089 ? fd1089_dec : rom_data;
 wire [ 7:0] ppi0_dout, ppi1_dout, ppi0_b, ppi0_c, ppi1_a;
 wire [15:0] fave, fworst;
-
+wire        lvbl_g, op_n;
 wire        inta_n = ~&{ FC, ~ASn };  // interrupt acknowledge
 
 wire        mcu_bus, mcu_wr, mcu_acc;
@@ -94,34 +106,47 @@ wire [15:0] mcu_addr;
 reg  [ 7:0] mcu_din;
 reg         mcu_acc_l;
 reg         mcu_ok, BGACKnl;
+reg         vbl_irqn, lvbl_l;
 wire        mcu_gated;
+reg         mcu_rst, fd1089_rst;
 
-// video_en is /KILL, active high for a live screen. SCONT0/1 are the tilemap
-// scroll enables (sheet 2/6 to 2/7); PPI0 port C drives them active low, so they
-// invert to the tilemap's active-high enables, matching jts16_main.
+assign      lvbl_g   = dip_pause ? LVBL : 1'b1;
 assign      video_en = ppi0_b[4];
 wire [ 1:0] scont    = ppi0_c[2:1];   // {SCONT1, SCONT0}, active low
 assign      colscr_en = ~scont[1];    // = ~ppi0_c[2]
 assign      rowscr_en = ~scont[0];    // = ~ppi0_c[1]
-
-// The MCU reaches the bus through the LS374 latches and the LS157 at IC23,
-// sheet 1/6. P1 supplies the address bits above A15 and the interrupt level
-// (MAME i8751_p1_w).
 assign A        = mcu_bus ? { 3'd0, mcu_ctrl[6], 1'b0, mcu_ctrl[5:3],
                               mcu_addr[15:1] } : cpu_A;
 assign RnW      = mcu_bus ? ~mcu_wr  : cpu_RnW;
-// i8751_r/w reach the 68000 at (i8751_addr<<16)|(offset^1), so MCU offset 0 is
-// an odd byte address and takes the lower lane.
 assign UDSn     = mcu_bus ? ~mcu_addr[0] : cpu_UDSn;
 assign LDSn     = mcu_bus ?  mcu_addr[0] : cpu_LDSn;
 assign cpu_dout = mcu_bus ? {2{mcu_dout}} : cpu_dout_raw;
 assign addr     = A[17:1];
+assign op_n     = FC[1:0] != 2'b10; // low for CPU instruction fetches
 assign flip     = ppi0_b[7];
 assign sound_en = ppi0_c[0];
 assign snd_nmin = ppi0_c[7];
 assign snd_rstn = ppi0_b[5];
 assign sub_rstn =~ppi1_a[5];
 assign sub_intn = ppi1_a[6];
+
+always @(posedge clk) begin
+    mcu_rst    <= rst | ~i8751;
+    fd1089_rst <= rst | ~fd1089;
+end
+
+always @(posedge clk) begin
+    if( rst ) begin
+        vbl_irqn <= 1;
+        lvbl_l   <= 1;
+    end else begin
+        lvbl_l <= lvbl_g;
+        if( !inta_n )
+            vbl_irqn <= 1;
+        else if( !lvbl_g && lvbl_l )
+            vbl_irqn <= 0;
+    end
+end
 
 // Block the MCU's write to the main/MCU sync byte at 0x040385, as MAME does
 // unconditionally (segahang.cpp i8751_w: "the cpu is too fast or the mcu too
@@ -133,8 +158,7 @@ wire mcu_syncw  = mcu_bus & mcu_wr & A[23:16]==8'h04 & mcu_addr==16'h0384;
 // write enable from these alone, so raw strobes make every CPU READ of char RAM
 // write over the location being read. jts16_main qualifies at the source too.
 assign dsn      = { RnW | UDSn | mcu_syncw, RnW | LDSn | mcu_syncw };
-assign BUSn     = (BGACKn & ASn) | (LDSn & UDSn);
-assign IPLn     = mcu_ctrl[2:0];
+assign IPLn     = { blank4 ? vbl_irqn : mcu_ctrl[2], mcu_ctrl[1:0] };
 assign VPAn     = inta_n;
 
 wire        bus_cs   = rom_cs | ram_cs | vram_cs | char_cs | objram_cs | pal_cs |
@@ -174,7 +198,8 @@ always @(posedge clk) begin
 end
 
 wire        vwait    = vram_acc & ~vw_grant;
-wire        bus_busy = (rom_cs & ~rom_ok_dly) | (vram_cs & ~vram_ok_dly) | vwait;
+wire        bus_busy = (rom_cs & ~(fd1089 ? fd1089_ok : rom_ok_dly)) |
+                       (vram_cs & ~vram_ok_dly) | vwait;
 
 jtframe_okdly u_rom_okdly(
     .rst    ( rst        ),
@@ -207,14 +232,11 @@ always @(posedge clk, posedge rst) begin
         if( mcu_bus ? mcu_acc : (!ASn && FC!=3'b111 && {UDSn,LDSn}!=2'b11) ) begin
             rom_cs    <= A[23:18]==6'd0;             // 000000-03ffff
             ram_cs    <= A[23:14]==10'h010;          // 040000-043fff
-            // Tile map RAM, read back from SDRAM xram by the TMG. The one
-            // select that keeps !BUSn.
             vram_cs   <= A[23:15]==9'h020;           // 100000-107fff, tileram
             // Text RAM plus the tile-map registers, a BRAM inside jts16_char
             char_cs   <= A[23:12]==12'h108;          // 108000-108fff, textram
             // 109000-10ffff is left undecoded: sharrier_map maps nothing there.
             objram_cs <= A[23:12]==12'h130;          // 130000-130fff
-            // Palette RAM, a BRAM, so no !BUSn
             pal_cs    <= A[23:12]==12'h110;          // 110000-110fff
             io_cs     <= A[23:16]==8'h14;            // 140000-14ffff, mirrored
             subram_cs <= A[23:16]==8'h12 && A[15:14]==2'b01; // 124000-127fff
@@ -233,31 +255,14 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// I/O sub-decode: A[5:4] picks the device, A[2:1] the register; A3 and above A5
-// are mirrored (sharrier_map). Every register is on an odd byte address, so the
-// devices see the low half of the bus. 140010 is the input mux, 140030 the ADC.
 wire ppi0_cs = io_cs & (A[5:4]==2'd0);  // 140000, video_lamps_w, tilemap_sound_w
 wire ppi1_cs = io_cs & (A[5:4]==2'd2);  // 140020, sub_control_adc_w
 wire LDSWn   = RnW | LDSn;
 
-// Input multiplexer at 140010-140017: LS253 x4 (IC115-IC118) on sheet 2/6, a
-// 4-select byte-wide mux driven by A[2:1]. Selection 0 reads the opto-isolated
-// control inputs, 2/3 read DIP SW A/B, 1 reads back 0xff.
-//
-// Control inputs are active low, and so are jtframe's cabinet signals: feed them
-// straight through. Inverting reads every input as held from boot.
-//
-// Bit order from MAME segahang.cpp INPUT_PORTS(sharrier), which sheet 2/6 does
-// not legibly give. All active low:
-//   0x01 COIN1  0x02 COIN2  0x04 SERVICE-MODE  0x08 SERVICE1
-//   0x10 START1  0x20 BUTTON1  0x40 BUTTON2  0x80 BUTTON3
-// Test and Service are also mappable to pad buttons; the AND lets either source
-// pull the line low.
 always @(*) begin
     case( A[2:1] )
-        2'd0: cab_dout = { joystick1[6:4], cab_1p[0],
-                           service, dip_test,
-                           coin[1:0] };
+        2'd0: cab_dout = { cab1p ? { 1'b1, cab_1p[0], 2'b11 } : { joystick1[6:4], cab_1p[0] },
+                           service, dip_test, coin[1:0] };
         2'd1: cab_dout = 8'hff;
         2'd2: cab_dout = dipsw_a;
         2'd3: cab_dout = dipsw_b;
@@ -272,9 +277,22 @@ end
 // value here is a real divergence rather than just a dead stick. The axes arrive
 // already conditioned in jtharier_game.v; a working board reads 0x80,0x80 at rest.
 wire [1:0] adc_ch  = ppi1_a[3:2];
-wire [7:0] adc_val = adc_ch[1] ? 8'h00 :    // channels 2,3: unpopulated
-                     adc_ch[0] ? an_y :     // channel 1 = Y
-                                 an_x;      // channel 0 = X
+reg  [7:0] adc_val;
+always @(*) begin
+    if( adc==3'd4 )
+        case( adc_ch )
+            2'd0: adc_val = an_gas;
+            2'd1: adc_val = an_brake;
+            2'd2: adc_val = an_y;     // bank up/down
+            2'd3: adc_val = an_x;     // steering, reversed in jtharier_cab
+        endcase
+    else
+        case( adc_ch )
+            2'd0: adc_val = an_x;
+            2'd1: adc_val = an_y;
+            default: adc_val = 8'h00;
+        endcase
+end
 always @(*) begin
     case( A[5:4] )
         2'd0:    io_dout = ppi0_dout;
@@ -297,11 +315,6 @@ jt8255 u_ppi0(
 
     .porta_din ( 8'hff         ),
     .portb_din ( 8'hff         ),
-    // Port C bit 6 is /ACK for the mode 1 port A handshake, active low, driven
-    // by the sound Z80's read of the command latch. jt8255 releases /OBF (bit 7,
-    // the Z80's NMI) on the RISING edge of this, i.e. when the read completes.
-    // Tying it high -- as this did until 2026-08-18 -- leaves /OBF stuck low
-    // after the first command, so the Z80 receives one NMI and never another.
     .portc_din ( { 1'b1, ~snd_ack, 6'h3f } ),
 
     .porta_dout( snd_latch     ),
@@ -320,9 +333,6 @@ jt8255 u_ppi1(
     .wrn       ( LDSWn         ),
     .csn       ( ~ppi1_cs      ),
 
-    // Port C reads back the ADC0804's /INTR on bit 6. The converter is not
-    // implemented yet, so this reports a conversion that is always complete;
-    // it is a stub and it is recorded as such in ISSUES.md.
     .porta_din ( 8'hff         ),
     .portb_din ( 8'hff         ),
     .portc_din ( 8'h00         ),
@@ -343,7 +353,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
-    cpu_din <= rom_cs    ? rom_data              :
+    cpu_din <= rom_cs    ? rom_dec               :
                ram_cs    ? ram_dout              :
                vram_cs   ? vram_data             :
                char_cs   ? char_dout             :
@@ -396,11 +406,11 @@ jtframe_8751mcu #(
     .SYNC_INT   ( 1         ),
     .ROMBIN     ( "mcu.bin" )
 ) u_mcu(
-    .rst        ( rst       ),
+    .rst        ( mcu_rst   ),
     .clk        ( clk       ),
     .cen        ( mcu_gated ),
 
-    .int0n      ( ~vint     ),
+    .int0n      ( lvbl_g    ),
     .int1n      ( 1'b1      ),
 
     .p0_i       ( mcu_din   ),
@@ -425,16 +435,32 @@ jtframe_8751mcu #(
     .prom_we    ( mcu_we    )
 );
 
+jts16_fd1089 u_fd1089(
+    .rst        ( fd1089_rst    ),
+    .clk        ( clk           ),
+
+    .key_addr   ( key_addr      ),
+    .key_data   ( key_data      ),
+
+    .prog_addr  ( prog_addr     ),
+    .fd1089_we  ( fd1089_we     ),
+    .prog_data  ( prog_data     ),
+
+    .dec_type   ( 1'b1          ),
+    .dec_en     ( fd1089        ),
+    .op_n       ( op_n          ),
+    .addr       ( A             ),
+    .enc        ( rom_data      ),
+    .dec        ( fd1089_dec    ),
+
+    .rom_ok     ( rom_ok        ),
+    .ok_dly     ( fd1089_ok     )
+);
+
 always @(posedge clk) begin
-    case( st_addr[2:0] )
-        3'd0: st_dout <= { 3'd0, io_cs, objram_cs, vram_cs, ram_cs, rom_cs };
-        3'd1: st_dout <= { 2'd0, vint, mcu_bus, scont, sound_en, video_en };
-        3'd2: st_dout <= A[8:1];
-        3'd3: st_dout <= A[16:9];
-        3'd4: st_dout <= fave[ 7:0];
-        3'd5: st_dout <= fave[15:8];
-        3'd6: st_dout <= fworst[ 7:0];
-        3'd7: st_dout <= fworst[15:8];
+    case( st_addr[1:0] )
+        2'b10: st_dout <= fave[ 7:0];
+        2'b11: st_dout <= fave[15:8];
         default: st_dout <= 0;
     endcase
 end

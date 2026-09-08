@@ -6,9 +6,11 @@ module jtharier_game(
     `include "jtframe_game_ports.inc"
 );
 
-wire vint, mcu_we;
+wire vint, mcu_we, key_we, fd1089_we;
 
-localparam [24:0] MCU_PROM = `MCU_START;
+localparam [21:0] MCU_PROM     = `MCU_START,
+                  MAINKEY_PROM = `MAINKEY_START,
+                  FD1089_PROM  = `FD1089_START;
 
 wire        main_rnw, ram_cs, char_cs_main, objram_cs_main,
             pal_cs_main, io_cs, subram_cs_main, roadram_cs_main;
@@ -22,15 +24,21 @@ wire        snd_ack;
 wire        snd_nmin;
 wire [ 8:0] vrender, hdump;
 wire [ 7:0] dipsw_a, dipsw_b, st_main, st_sub, st_video, st_road;
-wire        scr_bad;
+wire        scr_bad, i8751, fd1089, blank4, ym2151, cab1p, hicol;
+wire [12:0] key_addr;
+wire [ 7:0] key_data;
+wire [ 2:0] adc;        // number of ADC channels
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
-// 'V' glyph fix (dipsw[30]): the MRA lists "On,Off" so the all-ones default
+// 'V' glyph fix (dipsw[18]): the MRA lists "On,Off" so the all-ones default
 // ships faithful to the PCB.
-wire vfix_en = ~dipsw[30];
-wire [ 7:0] an_x, an_y;
-assign vint       = ~LVBL;
+wire vfix_en = ~dipsw[18];
+wire [ 7:0] an_x, an_y, an_gas, an_brake;
 assign mcu_we     = prom_we && prog_addr[21:12]==MCU_PROM[21:12];
+// The 8 KiB FD1089 key follows the 4 KiB MCU image. A high-bit comparison
+// would also select the MCU range and overwrite the first half of the key.
+assign key_we     = prom_we && prog_addr>=MAINKEY_PROM && prog_addr<FD1089_PROM;
+assign fd1089_we  = prom_we && prog_addr[21: 8]==FD1089_PROM [21: 8];
 
 assign dip_flip   = flip;
 assign debug_view = 0;
@@ -40,6 +48,37 @@ assign objram_we  = objram_cs_main & ~main_rnw ? ~main_dsn : 2'b00;
 assign pal_we     = pal_cs_main & ~main_rnw ? ~main_dsn : 2'b00;
 assign wram_we    = ram_cs & ~main_rnw ? ~main_dsn : 2'b00;
 assign subram_we   = subram_cs_main & ~main_rnw ? ~main_dsn : 2'b00;
+assign subsh_we    = sub_ram_cs & ~sub_rnw ? ~sub_dsn : 2'b00;
+assign ioctl_din  = 0;
+// gfx_cs gates the tile-graphics reads to the visible field
+assign gfx_cs     = LVBL || vrender==0 || vrender[8];
+
+jtharier_header u_header(
+    .clk        ( clk           ),
+    .header     ( header        ),
+    .prog_we    ( prog_we       ),
+
+    .i8751      ( i8751         ),
+    .fd1089     ( fd1089        ),
+    .blank4     ( blank4        ),
+    .ym2151     ( ym2151        ),
+    .cab1p      ( cab1p         ),
+    .hicol      ( hicol         ),
+    .adc        ( adc           ),
+    .prog_addr  ( prog_addr[2:0]),
+    .prog_data  ( prog_data     )
+);
+
+// Enduro Racer's FD1089B key PROM. Space Harrier does not use it.
+jtframe_prom #(.AW(13),.SIMFILE("317-0013a.key")) u_fd1089_key(
+    .clk    ( clk              ),
+    .cen    ( 1'b1             ),
+    .data   ( prog_data        ),
+    .rd_addr( key_addr         ),
+    .wr_addr( prog_addr[12:0] - MAINKEY_PROM[12:0] ),
+    .we     ( key_we           ),
+    .q      ( key_data         )
+);
 
 jtharier_roadarb u_roadarb(
     .rst        ( rst               ),
@@ -62,35 +101,41 @@ jtharier_roadarb u_roadarb(
     .ram_we     ( roadram_we        )
 );
 
-assign subsh_we    = sub_ram_cs & ~sub_rnw ? ~sub_dsn : 2'b00;
-
-assign ioctl_din  = 0;
-// gfx_cs gates the tile-graphics reads to the visible field
-assign gfx_cs     = LVBL || vrender==0 || vrender[8];
-
 jtharier_cab u_cab(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .vint       ( vint          ),
+    .LVBL       ( LVBL          ),
 
     .joystick1  ( joystick1[3:0]),
     .joyana_l1  ( joyana_l1     ),
+    .joyana_r1  ( joyana_r1     ),
+    .adc        ( adc           ),
 
-    .sprung     ( dipsw[29]     ),
-    .invert_y   ( dipsw[28]     ),
+    .sprung     ( dipsw[17]     ),
+    .invert_y   ( dipsw[16]     ),
 
     .an_x       ( an_x          ),
-    .an_y       ( an_y          )
+    .an_y       ( an_y          ),
+    .an_gas     ( an_gas        ),
+    .an_brake   ( an_brake      )
 );
 
 jtharier_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
+    .i8751      ( i8751         ),
+    .fd1089     ( fd1089        ),
+    .blank4     ( blank4        ),
+    .cab1p      ( cab1p         ),
+    .adc        ( adc           ),
+    .LVBL       ( LVBL          ),
+    .key_addr   ( key_addr      ),
+    .key_data   ( key_data      ),
+    .fd1089_we  ( fd1089_we     ),
     .hdump      ( hdump         ),   // VWAIT slot phase
     .cpu_cen    (               ),
     .cpu_cenb   (               ),
 
-    .vint       ( vint          ),
     .cen_mcu    ( cen_mcu       ),
 
     .vram_cs    ( vram_cs_main  ),
@@ -119,12 +164,15 @@ jtharier_main u_main(
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       ),
     .dip_test   ( dip_test      ),
+    .dip_pause  ( dip_pause     ),
     .cab_1p     ( cab_1p[1:0]   ),
     .coin       ( coin[1:0]     ),
     .service    ( service       ),
     .joystick1  ( joystick1[6:0]),
     .an_x       ( an_x          ),
     .an_y       ( an_y          ),
+    .an_gas     ( an_gas        ),
+    .an_brake   ( an_brake      ),
 
     .flip       ( flip          ),
     .mute       ( mute          ),
@@ -150,7 +198,7 @@ jtharier_main u_main(
     .st_addr    ( debug_bus     ),
     .st_dout    ( st_main       )
 );
-
+/* verilator tracing_off */
 jtharier_sub u_sub(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -175,13 +223,15 @@ jtharier_sub u_sub(
     .st_addr    ( debug_bus     ),
     .st_dout    ( st_sub        )
 );
-
+/* verilator tracing_on */
 // Sound board 834-5799. cen_pcm is 16 MHz, not 8 -- see the module header.
 jtharier_sound u_snd(
     .snd_rstn   ( snd_rstn      ),
     .clk        ( clk           ),
+    .ym2151     ( ym2151        ),
 
     .cen_fm     ( cen_fm        ),  // 4 MHz
+    .cen_fm2    ( cen_fm2       ),  // 2 MHz
     .cen_pcm    ( cen_pcm       ),
 
     .latch      ( snd_latch     ),
@@ -198,12 +248,14 @@ jtharier_sound u_snd(
     .pcm_data   ( pcm_data      ),
     .pcm_ok     ( pcm_ok        ),
 
-    .fm_snd     ( fm            ),
-    .psg_snd    ( psg           ),
+    .fm         ( fm            ),
+    .opn_l      ( opn_l         ),
+    .opn_r      ( opn_r         ),
+    .psg        ( psg           ),
     .pcm_l      ( pcm_l         ),
     .pcm_r      ( pcm_r         )
 );
-
+/* verilator tracing_off */
 jtharier_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),

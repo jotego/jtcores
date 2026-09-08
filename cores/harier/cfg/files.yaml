@@ -11,6 +11,7 @@ outrun:
 s16:
   - get:
     - tilemap.yaml
+    - jts16_fd1089.v
 jtframe:
   - from: ram
     get:
@@ -30,4 +31,5 @@ jtframe:
 jt12:
   - get:
     - jt03.yaml
+jt51:
 jt8255:

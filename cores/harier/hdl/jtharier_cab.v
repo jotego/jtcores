@@ -13,16 +13,20 @@
 module jtharier_cab(
     input             rst,
     input             clk,
-    input             vint,      // frame tick, so the ramp is 60 Hz whatever the clock
+    input             LVBL,
 
     input      [ 3:0] joystick1, // d-pad, active low
     input      [15:0] joyana_l1, // { Y, X }, signed bytes
+    input      [15:0] joyana_r1, // { Y, X }, signed bytes
+    input      [ 2:0] adc,       // header: number of populated ADC channels
 
     input             sprung,    // d-pad offset springs back to centre
     input             invert_y,  // aircraft stick: Arcade = inverted
 
     output reg [ 7:0] an_x,
-    output reg [ 7:0] an_y
+    output reg [ 7:0] an_y,
+    output reg [ 7:0] an_gas,
+    output reg [ 7:0] an_brake
 );
 
 localparam signed [9:0] AN_LIMIT = 10'sd96;   // 0x80 +/- 0x60 = the 0x20..0xE0 window
@@ -40,6 +44,7 @@ reg  signed [9:0] dig_x, dig_y;
 
 wire signed [ 9:0] ana_x = { {2{joyana_l1[ 7]}}, joyana_l1[ 7:0] };
 wire signed [ 9:0] ana_y = { {2{joyana_l1[15]}}, joyana_l1[15:8] };
+wire signed [ 9:0] ana_ry= { {2{joyana_r1[15]}}, joyana_r1[15:8] };
 wire signed [ 9:0] sum_x = ana_x + dig_x;    // analog stick + digital d-pad offset
 wire signed [ 9:0] sum_y = ana_y + dig_y;
 wire signed [ 9:0] clp_x = sum_x >  AN_LIMIT ?  AN_LIMIT : (sum_x < -AN_LIMIT ? -AN_LIMIT : sum_x);
@@ -54,20 +59,26 @@ wire        [17:0] scl_y    = mag_y * (clp_yf[9] ? 18'd171 : 18'd86); // down x1
 wire        [ 7:0] off_y    = scl_y[15:8];                           // 0..64 / 0..32
 wire        [ 7:0] an_x_raw = 8'h80 - clp_x[7:0];                    // PORT_REVERSE
 wire        [ 7:0] an_y_raw = clp_yf[9] ? 8'h80 + off_y : 8'h80 - off_y;
+// Enduro Racer's two pedal inputs are the opposite halves of the right-stick
+// vertical axis: up accelerates and down brakes. ADC2 is the left-stick bank
+// axis (0x20 at rest), while ADC3 is the reversed steering axis.
+wire [ 7:0] enduro_gas   = ana_ry[9] ? -ana_ry[7:0] : 8'd0;
+wire [ 7:0] enduro_brake = ana_ry[9] ? 8'd0 : ana_ry[7:0];
+wire [ 7:0] enduro_bank  = 8'h20 + ana_y[7:0];
+wire [ 7:0] enduro_steer = 8'h80 - ana_x[7:0];
 
-// anl_vbl tracks vint even during reset, deliberately: reset it instead and a
-// reset released while vint is high manufactures a rising edge, ticking the ramp
-// an extra frame. It settles one cycle into reset, long before rst is released.
 reg anl_vbl;
 always @(posedge clk) begin
-    anl_vbl <= vint;
+    anl_vbl <= ~LVBL;
     if( rst ) begin
         an_x    <= 8'h80;
         an_y    <= 8'h80;                  // neutral is 0x80 on both axes
+        an_gas  <= 8'h00;
+        an_brake<= 8'h00;
         dig_x   <= 0;
         dig_y   <= 0;
     end else begin
-        if( vint & ~anl_vbl ) begin        // once per frame at vblank (60 Hz tick)
+        if( ~LVBL & ~anl_vbl ) begin        // once per frame at vblank (60 Hz tick)
             // X: right = positive. Springs back in Arcade; holds in Console.
             if( dp_right ^ dp_left )
                 dig_x <= dp_right ? (dig_x + AN_STEP >  AN_LIMIT ?  AN_LIMIT : dig_x + AN_STEP)
@@ -87,8 +98,15 @@ always @(posedge clk) begin
                 else                        dig_y <= 0;
             end
             // sample-and-hold the shaped axes
-            an_x <= an_x_raw;
-            an_y <= an_y_raw;
+            if( adc==3'd4 ) begin
+                an_x     <= enduro_steer;
+                an_y     <= enduro_bank;
+                an_gas   <= enduro_gas;
+                an_brake <= enduro_brake;
+            end else begin
+                an_x <= an_x_raw;
+                an_y <= an_y_raw;
+            end
         end
     end
 end
