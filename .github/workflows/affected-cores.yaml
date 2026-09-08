@@ -33,8 +33,11 @@ jobs:
               url."https://x-access-token:${PAT}@github.com/".insteadOf \
               "git@github.com:"
           fi
-          git submodule update --init --recursive 2>&1 || \
-            echo "::warning::Some submodules could not be cloned (private repos need PAT)"
+          git submodule init
+          for sm in $(git config --file .gitmodules --get-regexp path | awk '{print $2}'); do
+            git submodule update --init --recursive -- "$sm" 2>&1 || \
+              echo "::warning::Skipped submodule $sm"
+          done
         env:
           PAT: ${{ secrets.PAT }}
           GIT_TERMINAL_PROMPT: '0'
