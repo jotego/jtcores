@@ -39,6 +39,7 @@ module jtframe_68kdtack_cen
             RECOVERY=1,
             WD=6,
             WAIT1=0,    // set to 1 to always wait for 1 cpu_cen
+            FREE=3,     // cen phases the bus gets before a stall is charged
             MFREQ=`JTFRAME_MCLK/1000  // clk input frequency in kHz
 )(
     input         rst,
@@ -85,6 +86,15 @@ always @(posedge clk) begin
     ASn_l <= ASn;
 end
 
+reg [1:0] as_ph;
+
+always @(posedge clk) begin
+    if( rst || ASn || &DSn )
+        as_ph <= 0;
+    else if( (over || recover) && as_ph<FREE[1:0] )
+        as_ph <= as_ph + 2'd1;
+end
+
 always @(posedge clk) begin : dtack_gen
     if( rst ) begin
         DTACKn <= 1;
@@ -116,7 +126,8 @@ end
 generate if (RECOVERY==1) begin
     reg [CW-1:0] missing;
     assign recover =  (ASn || !DTACKn) && missing>0 && !over && !bus_ack;
-    assign delayed = !ASn && !rstl && {waitsh,wait1}==0 && (bus_cs && bus_busy && !bus_legit);
+    assign delayed = !ASn && !rstl && {waitsh,wait1}==0 && as_ph>=FREE[1:0] &&
+                     (bus_cs && bus_busy && !bus_legit);
 
     always @(posedge clk) begin
         if( rst ) begin
