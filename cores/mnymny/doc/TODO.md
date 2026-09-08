@@ -80,11 +80,6 @@ Handoff prompt:
 
 ## Other pending items
 
-- TMS5200 speech: stubbed in jtmnymny_snd.v (no model in repo).
-- Analog filters (rullante/cassa/basso/piano/tromba) + LS156 attenuator:
-  move the crude mixer in jtmnymny_game.v to a mem.yaml audio: section
-  with the RC values from audio sheet 2/3.
-- flip_y row math in the scroll shim is unverified.
 - MRA header byte for the Jack Rabbit sets (different protection PAL —
   current jtmnymny_prot.v equations are from the Money Money dump).
 - NVRAM: only 7400-77FF is battery backed on the PCB (6514s); the core
@@ -93,3 +88,40 @@ Handoff prompt:
 ## compare original videos
 
 https://www.youtube.com/watch?v=DPv9WxUmAOs
+## KiCad schematics (sch/)
+
+Full board set reconstructed from doc/sch/money_money.pdf as a KiCad 8
+hierarchical project: `sch/mnymny.kicad_pro`, root landing sheet + 13 child
+pages (video1-5, io1-3, audio1-3, rom1-2). Each page is emitted by
+`sch/gen/gen_<name>.py` on top of the `sch/gen/kisch.py` engine — edit the
+generator and re-run it, don't hand-edit the .kicad_sch. Validate/render with
+kicad-cli (see the schematics-from-pdf skill). Per-page review flags live in
+`sch/gen/PROGRESS.md`.
+
+Have:
+- All 13 pages placed mirroring the manual layout, net-labelled, KiCad-8
+  clean (load + ERC + SVG export).
+- risle-style buses (trunks + bus entries) on rom1/rom2, io1/io2, audio1,
+  audio3, video2 (LS194 grid), video4.
+- Real point-to-point wiring: video1 complete (counters, sync, clock,
+  palette+DAC); audio1 wired as the exemplar via the Sheet.connect()
+  channel router.
+- 20+ custom symbols in sch/mnymny.kicad_sym (82S131, 82S100, TMS5200,
+  6802, 6821, 8255, CTRL6J/6K customs, TDA1510, MC1408, 4016, 40097,
+  connectors...).
+
+To do (page-by-page review vs the PDF, then convert label-pairs to wires
+with connect()):
+- video2-4, io1-2, audio2-3, rom1-2: same-page connections still label-only;
+  each page needs its connect() list read off the scan.
+- Verify flagged items in PROGRESS.md (LS194 D-taps/X-outs, 82S100 and
+  CTRL6J/6K pin-net pairs, TMS5200/TDA1510 power pins, 4L CEP, /LD2 gate,
+  9E/9D mux order, CN2-rom1 right column numbering).
+- io2: draw the 24x 1N4148 DIP diode matrix and the per-input RC filters.
+- io1: identify and place the "2F 333" part and the 5F gate from p8.
+- Decide cross-sheet net style: local labels (current) vs global labels vs
+  kunio-style hierarchical sheet pins; then wire the root sheet accordingly.
+- Decide whether to add a power/decoupling page (kunio "capacitors" style)
+  and place the multi-gate power units.
+- Cosmetic: VCC/GND flag collisions on socket corner pins, value text
+  offsets on rotated resistors.
