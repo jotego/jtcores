@@ -86,13 +86,13 @@ always @(posedge clk) begin
     ASn_l <= ASn;
 end
 
-reg [1:0] as_ph;
+reg [2:0] as_ph;
 
 always @(posedge clk) begin
     if( rst || ASn || &DSn )
         as_ph <= 0;
-    else if( (over || recover) && as_ph<FREE[1:0] )
-        as_ph <= as_ph + 2'd1;
+    else if( (over || recover) && as_ph<FREE[2:0] )
+        as_ph <= as_ph + 3'd1;
 end
 
 always @(posedge clk) begin : dtack_gen
@@ -126,7 +126,7 @@ end
 generate if (RECOVERY==1) begin
     reg [CW-1:0] missing;
     assign recover =  (ASn || !DTACKn) && missing>0 && !over && !bus_ack;
-    assign delayed = !ASn && !rstl && {waitsh,wait1}==0 && as_ph>=FREE[1:0] &&
+    assign delayed = !ASn && !rstl && {waitsh,wait1}==0 && as_ph>=FREE[2:0] &&
                      (bus_cs && bus_busy && !bus_legit);
 
     always @(posedge clk) begin
