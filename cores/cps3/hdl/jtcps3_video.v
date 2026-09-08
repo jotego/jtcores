@@ -558,6 +558,7 @@ jtcps3_scene u_scene(
     .vb_end      ( eff_vb_end     ),
     .vcnt_end    ( eff_vcnt_end   ),
     .objlim      ( objlim_scan    ),
+    .h_step      ( h_step         ),
     .v_step      ( v_step         ),
     .scn_vaddr   ( scn_vaddr      ),
     .scn_vdata   ( scn_vdata      ),

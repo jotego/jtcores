@@ -1,0 +1,111 @@
+params:
+  - { name: SND_OFFSET,  value: "(`SND_START-`JTFRAME_BA1_START)>>1" }
+  - { name: PCM_OFFSET,  value: "(`PCM_START-`JTFRAME_BA1_START)>>1" }
+  - { name: ROAD_OFFSET, value: "3<<22 | (`ROAD_START-`JTFRAME_BA3_START)>>1" }
+  - { name: ZOOM_OFFSET, value: "3<<22 | (`ZOOM_START-`JTFRAME_BA3_START)>>1" }
+  - { name: VRAM_OFFSET, value: 22'h10_0000 }
+clocks:
+  clk48:
+    - freq: 16M
+      gate: [ pcm ]
+      outputs:
+        - cen_pcm
+    - freq: 8M
+      outputs:
+        - cen_mcu
+        - cen_nc
+    - freq: 4M
+      outputs:
+        - cen_fm      # 4 MHz
+        - cen_fm2     # 2 MHz
+audio:
+  mute: true
+  rsum: 47k
+  rsum_feedback_res: true
+  channels:
+    - { name: fm,  module: jt03_fm,  rsum: 47k, pre: 0.89 }
+    - { name: opn, module: jt51,     rsum: 47k, pre: 0.89 }
+    - { name: psg, module: jt03_psg, rsum: 47k, pre: 0.33 }
+    - { name: pcm, data_width: 16,   rsum: 22k, stereo: true, vpp: 0.63, rc: [{ r: 47k, c: 220p }]  }
+sdram:
+  banks:
+    - buses:
+        - name: xram
+          addr_width: 16
+          data_width: 16
+          offset: VRAM_OFFSET
+          rw: true
+          cs: vram_cs_main
+          addr: main_addr[15:1]
+          din: main_dout
+          dsn: main_dsn
+        - { name: main,   addr_width: 18, data_width: 16, cache_size: 1kB }
+        - { name: map1,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
+        - { name: map2,   addr_width: 16, data_width: 16, offset: VRAM_OFFSET, cs: gfx_cs }
+    - buses:
+        - { name: subrom, addr_width: 16, data_width: 16, cache_size: 1kB }
+        - { name: snd,    addr_width: 15, data_width:  8, offset: SND_OFFSET, cache_size: 1kB }
+        - { name: pcm,    addr_width: 19, data_width:  8, offset: PCM_OFFSET }
+    - buses:
+        - { name: char, addr_width: 17, data_width: 32, cs: gfx_cs }
+        - { name: scr1, addr_width: 17, data_width: 32, cs: gfx_cs }
+        - { name: scr2, addr_width: 17, data_width: 32, cs: gfx_cs }
+    - buses:
+        - { name: obj, addr_width: 20, data_width: 32 }
+bram:
+  - name: wram
+    size: 16kB
+    data_width: 16
+    addr: main_addr[13:1]
+    din: main_dout
+    rw: true
+  # Shared RAM, IC78/IC79 on CPU sheet 3/6, muxed by LS157 IC80-IC83
+  - name: subram
+    size: 16kB
+    data_width: 16
+    addr: main_addr[13:1]
+    din: main_dout
+    rw: true
+    dual_port:
+      name: subsh
+      rw: true
+      addr: subrom_addr[13:1]
+      din: sub_cpu_dout
+      dout: subsh_dout
+  - name: roadram
+    size: 4kB
+    data_width: 16
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }
+    dual_port:
+      name: roaden
+      addr: rdram_addr
+      din: 16'd0
+      we: 2'd0
+      dout: rdram_dout
+  - name: objram
+    size: 4kB
+    data_width: 16
+    addr: main_addr[11:1]
+    din: main_dout
+    rw: true
+    ioctl: { save: true, restore: true, order: 1 }
+    dual_port:
+      name: obj
+      addr: objdma_addr
+      dout: objdma_dout
+  - name: pal
+    size: 4kB
+    data_width: 16
+    addr: main_addr[11:1]
+    din: main_dout
+    rw: true
+    ioctl: { save: true, restore: true, order: 2 }
+    dual_port:
+      name: palrd
+      addr: pal_vaddr
+      dout: pal_vdata
+  # epr-6844, shrink-only scale factors
+  - { name: zoom, size: 8kB, data_width: 8, rom: { offset: ZOOM_OFFSET } }
+  # epr-7181 is downloaded as two interleaved halves, so it reads 16 bits wide
+  - { name: road, size: 32kB, data_width: 16, rom: { offset: ROAD_OFFSET } }

@@ -101,7 +101,7 @@ reg         io_cs, eeprom_cs,
             sys_cs, paddle_en;
 reg         pre_ram_cs, pre_vram_cs, pre_oram_cs,
             reg_ram_cs, reg_vram_cs, reg_oram_cs;
-reg         dsn_dly, one_wait;
+reg         dsn_dly;
 wire        ram_ok_dly;
 wire [11:0] spin1p, spin2p;
 wire        dir1p,  dir2p;
@@ -150,10 +150,6 @@ always @(posedge clk) begin
         reg_oram_cs <= pre_oram_cs;
         dsn_dly     <= &{UDSWn,LDSWn}; // low if any DSWn was low
     end
-end
-
-always @(*) begin // below 5MB and above 8MB
-    one_wait = !ASn && BGACKn && (A[23:20]<4'h5 || A[23:20]>=4'h8);
 end
 
 always @(posedge clk, posedge rst) begin
@@ -328,9 +324,11 @@ end
 // DTACKn generation
 wire       inta_n;
 wire       bus_cs =   |{ rom_cs, pre_ram_cs, pre_vram_cs, pre_oram_cs, main2qs_cs };
+wire       dtack_clr;
 wire       bus_busy = |{ rom_cs & ~(rom_ok&rom_ok2),
                     (pre_ram_cs|pre_vram_cs|pre_oram_cs) & ~ram_ok_dly,
-                    main2qs_cs & ~main2qs_waitn };
+                    main2qs_cs & ~main2qs_waitn,
+                    dtack_clr };
 
 wire       DTACKn;
 wire       ram_acc = pre_ram_cs | pre_vram_cs | pre_oram_cs;
@@ -353,26 +351,26 @@ always @(posedge clk, posedge rst) begin
         qs_busakn_s <= main2qs_busakn;
 end
 
-reg fail_cnt_ok;
+assign dtack_clr = main2qs_cs & qs_busakn_s; // do not count until the bus is granted
 
-jtcps2_dtack u_dtack(
+jtframe_68kdtack_cen #(.MFREQ(48_000)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .cen16      ( cen16     ),
-    .cen16b     ( cen16b    ),
-
-    .ASn        ( ASn       ),
-    .UDSn       ( UDSn      ),
-    .LDSn       ( LDSn      ),
-    .one_wait   ( one_wait  ),
+    .cpu_cen    ( cen16     ),
+    .cpu_cenb   ( cen16b    ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .busack     ( busack    ),
-
-    .main2qs_cs ( main2qs_cs  ),
-    .qs_busakn_s( qs_busakn_s ),
-
-    .DTACKn     ( DTACKn    )
+    .bus_legit  ( dtack_clr ),
+    .bus_ack    ( busack    ),
+    .ASn        ( ASn       ),
+    .DSn        ({UDSn,LDSn}),
+    .num        ( 4'd1      ),
+    .den        ( 5'd3      ),
+    .DTACKn     ( DTACKn    ),
+    .wait2      ( 1'b0      ),
+    .wait3      ( 1'b0      ),
+    .fave       (           ),
+    .fworst     (           )
 );
 
 jtcps2_decrypt u_decrypt(

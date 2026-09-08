@@ -186,7 +186,7 @@ wire          ps2_kbd_clk, ps2_kbd_data;
 wire          osd_shown;
 
 wire [7:0]    game_vol=0; // per-game volume settings not available on ARC files
-wire [6:0]    core_mod;
+wire [17:0]   core_mod;
 wire [3:0]    but_start, but_coin;
 
 wire  [ 1:0]  rotate;
