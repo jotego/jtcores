@@ -243,7 +243,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
     # ensure SEARCH_PATH starts from core hdl folder and not from build output.
     # Avoid a silent failure in recovering include files that ends up picking up
     # files with the same name in other folders
-    echo "\nset_global_assignment -name SEARCH_PATH \"$PRJPATH/hdl\"" >> $corename.qsf
+    echo -e "\nset_global_assignment -name SEARCH_PATH \"$PRJPATH/hdl\"" >> $corename.qsf
     append_signaltap_qsf
     if [ $SIM = FALSE ]; then
         # Create the QIP file
