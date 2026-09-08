@@ -22,6 +22,8 @@ module jtmnymny_mixer(
 
 `include "jtmnymny_params.vh"
 
+localparam OSH = BSH-GSH;   // accumulator to 16-bit output shift
+
 reg  [79:0] rom[0:79];
 reg  [47:0] ysta[0:79];
 initial $readmemh("jtmnymny_coeffs.hex", rom);
@@ -85,7 +87,7 @@ function signed [15:0] sat16(input signed [55:0] v);
             v < -56'sd32768 ? -16'sd32768 : v[15:0];
 endfunction
 
-wire signed [55:0] msh  = accm >>> BSH;
+wire signed [55:0] msh  = accm >>> OSH;
 wire signed [16:0] msat = msh > 56'sd65535 ?  17'sd65535 :
                           msh < -56'sd65536 ? -17'sd65536 : msh[16:0];
 wire signed [33:0] mduck = msat * $signed({1'b0, DUCK_G});
@@ -141,8 +143,8 @@ always @(posedge clk) begin
                     ( mdk >  19'sd32767 ?  16'sd32767 :
                       mdk < -19'sd32768 ? -16'sd32768 : mdk[15:0] ) :
                     sat16({{39{msat[16]}}, msat});
-                voice <= sat16(accv >>> BSH);
-                pcm   <= sat16(accp >>> BSH);
+                voice <= sat16(accv >>> OSH);
+                pcm   <= sat16(accp >>> OSH);
                 for( i=0; i<9; i=i+1 ) x1[i] <= x[i];
                 run <= 0;
             end

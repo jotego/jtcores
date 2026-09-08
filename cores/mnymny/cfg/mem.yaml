@@ -20,10 +20,10 @@ clocks:
         - mix        # jtmnymny_mixer sample rate
 audio:
   channels:
-    # three real 10K+0.1u summing paths into R1; all shaping is done in
-    # jtmnymny_mixer (see ver/audio)
+    # summing resistors are inside the ver/audio MNA: the three outputs are
+    # already weighted at the R1 node, so they mix 1:1 here
     - { name: music, data_width: 16, rsum: 10k }
-    - { name: voice, data_width: 16, rsum: 5k }
+    - { name: voice, data_width: 16, rsum: 10k }
     - { name: pcm,   data_width: 16, rsum: 10k }
 sdram:
   banks:
