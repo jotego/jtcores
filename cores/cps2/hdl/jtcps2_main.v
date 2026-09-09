@@ -353,7 +353,7 @@ end
 
 assign dtack_clr = main2qs_cs & qs_busakn_s; // do not count until the bus is granted
 
-jtframe_68kdtack_cen #(.MFREQ(48_000),.FREE(4)) u_dtack(
+jtframe_68kdtack_cen #(.MFREQ(48_000),.RECOVERY(0)) u_dtack(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cpu_cen    ( cen16     ),
