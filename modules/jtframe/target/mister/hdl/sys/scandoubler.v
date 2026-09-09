@@ -100,6 +100,41 @@ always @(posedge clk_vid) begin
 	end
 end
 
+`ifdef JTFRAME_NOHQ2X
+// Line buffer scandoubler — same ping-pong scheme as jtframe_scan2x.
+// Write active pixels at 1× rate (ce_x1i), read at 1× output pixel
+// rate (ce_x2o). Each input line is replayed for both output lines.
+// Uses req_line_reset (registered hb_in) as the line boundary — same
+// signal the original Hq2x path used via its reset_line port.
+localparam DW3 = 3*(DWIDTH+1)-1;   // full RGB pixel width
+localparam LBA = $clog2(LENGTH)-1;
+
+(* ramstyle = "no_rw_check" *) reg [DW3:0] lnram[0:LENGTH*2-1];
+reg [DW3:0] lnq;
+reg [LBA:0] ln_wa, ln_ra;
+reg         ln_sel, ln_rl_l;
+
+always @(posedge clk_vid) begin
+	if(ce_x1i) begin
+		ln_rl_l <= req_line_reset;
+		if(ln_rl_l & ~req_line_reset) begin
+			ln_wa  <= 0;
+			ln_sel <= ~ln_sel;
+		end else if(~req_line_reset) begin
+			lnram[{~ln_sel, ln_wa}] <= {b_d, g_d, r_d};
+			ln_wa <= ln_wa + 1'd1;
+		end
+	end
+	if(vb_in & ce_x1i) ln_sel <= 0;
+	lnq <= lnram[{ln_sel, ln_ra}];
+	if(hbo[0])
+		ln_ra <= {(LBA+1){1'b1}};
+	else if(ce_x2o)
+		ln_ra <= ln_ra + 1'd1;
+end
+
+assign {b_out, g_out, r_out} = lnq;
+`else
 Hq2x #(.LENGTH(LENGTH), .HALF_DEPTH(HALF_DEPTH)) Hq2x
 (
 	.clk(clk_vid),
@@ -115,6 +150,7 @@ Hq2x #(.LENGTH(LENGTH), .HALF_DEPTH(HALF_DEPTH)) Hq2x
 	.hblank(hbo[0]&hbo[8]),
 	.outpixel({b_out,g_out,r_out})
 );
+`endif
 
 reg  [7:0] pix_out_cnt = 0;
 wire [7:0] pc_out = pix_out_cnt + 1'b1;
