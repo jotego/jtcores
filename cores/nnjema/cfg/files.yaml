@@ -1,0 +1,37 @@
+nnjema:
+  - get:
+    - jtnnjema_game.v
+    - jtnnjema_header.v
+    - jtnnjema_main.v
+    - jtnnjema_snd.v
+    - jtnnjema_video.v
+    - jtnnjema_char.v
+    - jtnnjema_scr.v
+    - jtnnjema_obj.v
+    - jtnnjema_colmix.v
+    - jtnnjema_1414.v
+jtframe:
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+      - jtframe_ram.v
+      - jtframe_obj_buffer.v
+      - jtframe_prom.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_draw.v
+      - jtframe_objdraw.v
+      - jtframe_objdraw_gate.v
+  - from: video/tilemap
+    get:
+      - jtframe_tilemap.v
+  - get:
+      - jtframe_sh.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+jtopl:
+  - get:
+    - jt26.yaml

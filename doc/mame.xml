@@ -254894,4 +254894,1972 @@
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
 	</machine>
+	<machine name="dangar" sourcefile="nichibutsu/galivan.cpp">
+		<description>Ufo Robo Dangar (4/09/1987)</description>
+		<year>1986</year>
+		<manufacturer>Nichibutsu</manufacturer>
+		<rom name="8.1b" size="32768" crc="fe4a3fd6" sha1="b471b2b1dea23bd1444880ceb8112d7998950dd4" region="maincpu" offset="0"/>
+		<rom name="9.3b" size="16384" crc="809d280f" sha1="931f811f1fe3c71ba82fc44f69ef461bdd9cd2d8" region="maincpu" offset="8000"/>
+		<rom name="10.4b" size="16384" crc="99a3591b" sha1="45011043ff5620524d79076542bd8c602fe90cf4" region="maincpu" offset="10000"/>
+		<rom name="13.b14" size="16384" crc="3e041873" sha1="8f9e1ec64509c8a7e9e45add9efc95f98f35fcfc" region="audiocpu" offset="0"/>
+		<rom name="14.b15" size="32768" crc="488e3463" sha1="73ff7ab061be54162f3a548f6bd9ef55b9dec5d9" region="audiocpu" offset="4000"/>
+		<rom name="5.13d" size="16384" crc="40cb378a" sha1="764596f6845fc0b787b653a87a1778a56ce4f3f8" region="chars" offset="0"/>
+		<rom name="1.14f" size="32768" crc="d59ed1f1" sha1="e55314b5a078145ad7a5e95cb792b4fd32cfb05d" region="tiles" offset="0"/>
+		<rom name="2.15f" size="32768" crc="dfdb931c" sha1="33563160239f221f24ca0cb652d14550e9941afe" region="tiles" offset="8000"/>
+		<rom name="3.17f" size="32768" crc="6954e8c3" sha1="077bcbe9f80df011c9110d8cf6e08b53d035d1c8" region="tiles" offset="10000"/>
+		<rom name="4.19f" size="32768" crc="4af6a8bf" sha1="d004b10b9b8559d1d6d26af35999df2857d87c53" region="tiles" offset="18000"/>
+		<rom name="12.f4" size="32768" crc="55711884" sha1="2682ebc8d88d0d6c430b7df34ed362bc81047072" region="sprites" offset="0"/>
+		<rom name="11.f1" size="32768" crc="8cf11419" sha1="79e7a3046878724fde248100ad55a305a427cd46" region="sprites" offset="8000"/>
+		<rom name="7.19d" size="16384" crc="6dba32cf" sha1="e6433f291364202c1291b137d6ee1840ecf7d72d" region="bgtiles" offset="0"/>
+		<rom name="6.17d" size="16384" crc="6c899071" sha1="9a776aae897d57e66ebdbcf79f3c673da8b78b05" region="bgtiles" offset="4000"/>
+		<rom name="82s129.9f" size="256" crc="b29f6a07" sha1="17c82f439f314c212470bafd917b3f7e12462d16" region="proms" offset="0"/>
+		<rom name="82s129.10f" size="256" crc="c6de5ecb" sha1="d5b6cb784b5df16332c5e2b19b763c8858a0b6a7" region="proms" offset="100"/>
+		<rom name="82s129.11f" size="256" crc="a5bbd6dc" sha1="5587844900a24d833500d204f049c05493c4a25a" region="proms" offset="200"/>
+		<rom name="82s129.2d" size="256" crc="a4ac95a5" sha1="3b31cd3fd6caedd89d1bedc606a978081fc5431f" region="proms" offset="300"/>
+		<rom name="82s129.7f" size="256" crc="29bc6216" sha1="1d7864ad06ad0cd5e3d1905fc6066bee1cd90995" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="32"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Alternate Enemies" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Easy" value="16" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="192">
+			<diplocation name="SW2" number="7"/>
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="No" value="192"/>
+			<dipvalue name="3 Times" value="128"/>
+			<dipvalue name="5 Times" value="64" default="yes"/>
+			<dipvalue name="99 Times" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SYSTEM" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="dangara" sourcefile="nichibutsu/galivan.cpp" cloneof="dangar" romof="dangar">
+		<description>Ufo Robo Dangar (12/1/1986)</description>
+		<year>1986</year>
+		<manufacturer>Nichibutsu</manufacturer>
+		<rom name="8.1b" size="32768" crc="e52638f2" sha1="6dd3ccb4574a410abf1ac35b4f9518ee21ecac91" region="maincpu" offset="0"/>
+		<rom name="9.3b" merge="9.3b" size="16384" crc="809d280f" sha1="931f811f1fe3c71ba82fc44f69ef461bdd9cd2d8" region="maincpu" offset="8000"/>
+		<rom name="10.4b" merge="10.4b" size="16384" crc="99a3591b" sha1="45011043ff5620524d79076542bd8c602fe90cf4" region="maincpu" offset="10000"/>
+		<rom name="13.14b" merge="13.b14" size="16384" crc="3e041873" sha1="8f9e1ec64509c8a7e9e45add9efc95f98f35fcfc" region="audiocpu" offset="0"/>
+		<rom name="14.15b" merge="14.b15" size="32768" crc="488e3463" sha1="73ff7ab061be54162f3a548f6bd9ef55b9dec5d9" region="audiocpu" offset="4000"/>
+		<rom name="5.13d" merge="5.13d" size="16384" crc="40cb378a" sha1="764596f6845fc0b787b653a87a1778a56ce4f3f8" region="chars" offset="0"/>
+		<rom name="1.14f" merge="1.14f" size="32768" crc="d59ed1f1" sha1="e55314b5a078145ad7a5e95cb792b4fd32cfb05d" region="tiles" offset="0"/>
+		<rom name="2.15f" merge="2.15f" size="32768" crc="dfdb931c" sha1="33563160239f221f24ca0cb652d14550e9941afe" region="tiles" offset="8000"/>
+		<rom name="3.17f" merge="3.17f" size="32768" crc="6954e8c3" sha1="077bcbe9f80df011c9110d8cf6e08b53d035d1c8" region="tiles" offset="10000"/>
+		<rom name="4.19f" merge="4.19f" size="32768" crc="4af6a8bf" sha1="d004b10b9b8559d1d6d26af35999df2857d87c53" region="tiles" offset="18000"/>
+		<rom name="12.4f" merge="12.f4" size="32768" crc="55711884" sha1="2682ebc8d88d0d6c430b7df34ed362bc81047072" region="sprites" offset="0"/>
+		<rom name="11.1f" merge="11.f1" size="32768" crc="8cf11419" sha1="79e7a3046878724fde248100ad55a305a427cd46" region="sprites" offset="8000"/>
+		<rom name="7.19d" merge="7.19d" size="16384" crc="6dba32cf" sha1="e6433f291364202c1291b137d6ee1840ecf7d72d" region="bgtiles" offset="0"/>
+		<rom name="6.17d" merge="6.17d" size="16384" crc="6c899071" sha1="9a776aae897d57e66ebdbcf79f3c673da8b78b05" region="bgtiles" offset="4000"/>
+		<rom name="82s129.9f" merge="82s129.9f" size="256" crc="b29f6a07" sha1="17c82f439f314c212470bafd917b3f7e12462d16" region="proms" offset="0"/>
+		<rom name="82s129.10f" merge="82s129.10f" size="256" crc="c6de5ecb" sha1="d5b6cb784b5df16332c5e2b19b763c8858a0b6a7" region="proms" offset="100"/>
+		<rom name="82s129.11f" merge="82s129.11f" size="256" crc="a5bbd6dc" sha1="5587844900a24d833500d204f049c05493c4a25a" region="proms" offset="200"/>
+		<rom name="82s129.2d" merge="82s129.2d" size="256" crc="a4ac95a5" sha1="3b31cd3fd6caedd89d1bedc606a978081fc5431f" region="proms" offset="300"/>
+		<rom name="82s129.7f" merge="82s129.7f" size="256" crc="29bc6216" sha1="1d7864ad06ad0cd5e3d1905fc6066bee1cd90995" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="32"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Alternate Enemies" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Easy" value="16" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Complete Invulnerability (Cheat)" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Base Ship Invulnerability (Cheat)" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SYSTEM" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="dangarb" sourcefile="nichibutsu/galivan.cpp" cloneof="dangar" romof="dangar">
+		<description>Ufo Robo Dangar (9/26/1986, bootleg set 1)</description>
+		<year>1986</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="16.1b" size="32768" crc="743fa2d4" sha1="55539796967532b57279801374b2f0cf82cfe1ae" region="maincpu" offset="0"/>
+		<rom name="17.3b" size="16384" crc="1cdc60a5" sha1="65f776d14c9461f1a6939ad512eacf6a1a9da2c6" region="maincpu" offset="8000"/>
+		<rom name="18.4b" size="16384" crc="db7f6613" sha1="c55d1f2fdb86e2b9fbdfad0b156d4d084677b750" region="maincpu" offset="10000"/>
+		<rom name="13.14b" merge="13.b14" size="16384" crc="3e041873" sha1="8f9e1ec64509c8a7e9e45add9efc95f98f35fcfc" region="audiocpu" offset="0"/>
+		<rom name="14.15b" merge="14.b15" size="32768" crc="488e3463" sha1="73ff7ab061be54162f3a548f6bd9ef55b9dec5d9" region="audiocpu" offset="4000"/>
+		<rom name="11.13d" size="16384" crc="e804ffe1" sha1="22f16c23b9a82f104dda24bc8fccc08f3f69cf97" region="chars" offset="0"/>
+		<rom name="1.14f" merge="1.14f" size="32768" crc="d59ed1f1" sha1="e55314b5a078145ad7a5e95cb792b4fd32cfb05d" region="tiles" offset="0"/>
+		<rom name="2.15f" merge="2.15f" size="32768" crc="dfdb931c" sha1="33563160239f221f24ca0cb652d14550e9941afe" region="tiles" offset="8000"/>
+		<rom name="3.17f" merge="3.17f" size="32768" crc="6954e8c3" sha1="077bcbe9f80df011c9110d8cf6e08b53d035d1c8" region="tiles" offset="10000"/>
+		<rom name="4.19f" merge="4.19f" size="32768" crc="4af6a8bf" sha1="d004b10b9b8559d1d6d26af35999df2857d87c53" region="tiles" offset="18000"/>
+		<rom name="12.4f" merge="12.f4" size="32768" crc="55711884" sha1="2682ebc8d88d0d6c430b7df34ed362bc81047072" region="sprites" offset="0"/>
+		<rom name="11.1f" merge="11.f1" size="32768" crc="8cf11419" sha1="79e7a3046878724fde248100ad55a305a427cd46" region="sprites" offset="8000"/>
+		<rom name="7.19d" merge="7.19d" size="16384" crc="6dba32cf" sha1="e6433f291364202c1291b137d6ee1840ecf7d72d" region="bgtiles" offset="0"/>
+		<rom name="6.17d" merge="6.17d" size="16384" crc="6c899071" sha1="9a776aae897d57e66ebdbcf79f3c673da8b78b05" region="bgtiles" offset="4000"/>
+		<rom name="82s129.9f" merge="82s129.9f" size="256" crc="b29f6a07" sha1="17c82f439f314c212470bafd917b3f7e12462d16" region="proms" offset="0"/>
+		<rom name="82s129.10f" merge="82s129.10f" size="256" crc="c6de5ecb" sha1="d5b6cb784b5df16332c5e2b19b763c8858a0b6a7" region="proms" offset="100"/>
+		<rom name="82s129.11f" merge="82s129.11f" size="256" crc="a5bbd6dc" sha1="5587844900a24d833500d204f049c05493c4a25a" region="proms" offset="200"/>
+		<rom name="82s129.2d" merge="82s129.2d" size="256" crc="a4ac95a5" sha1="3b31cd3fd6caedd89d1bedc606a978081fc5431f" region="proms" offset="300"/>
+		<rom name="82s129.7f" merge="82s129.7f" size="256" crc="29bc6216" sha1="1d7864ad06ad0cd5e3d1905fc6066bee1cd90995" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="32"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Alternate Enemies" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Easy" value="16" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Complete Invulnerability (Cheat)" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Base Ship Invulnerability (Cheat)" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SYSTEM" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="dangarbt" sourcefile="nichibutsu/galivan.cpp" cloneof="dangar" romof="dangar">
+		<description>Ufo Robo Dangar (9/26/1986, bootleg set 2)</description>
+		<year>1986</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="8" size="32768" crc="8136fd10" sha1="5f2ca08fab0d9431af38ef66922fdb6bd9a132e2" region="maincpu" offset="0"/>
+		<rom name="9" size="16384" crc="3ce5ec11" sha1="bcc0df6167d0b84b9f260435c1999b9d3605fcd4" region="maincpu" offset="8000"/>
+		<rom name="dangar2.018" size="16384" crc="db7f6613" sha1="c55d1f2fdb86e2b9fbdfad0b156d4d084677b750" region="maincpu" offset="10000"/>
+		<rom name="dangar13.b14" merge="13.b14" size="16384" crc="3e041873" sha1="8f9e1ec64509c8a7e9e45add9efc95f98f35fcfc" region="audiocpu" offset="0"/>
+		<rom name="dangar14.b15" merge="14.b15" size="32768" crc="488e3463" sha1="73ff7ab061be54162f3a548f6bd9ef55b9dec5d9" region="audiocpu" offset="4000"/>
+		<rom name="dangar2.011" size="16384" crc="e804ffe1" sha1="22f16c23b9a82f104dda24bc8fccc08f3f69cf97" region="chars" offset="0"/>
+		<rom name="dangar01.14f" merge="1.14f" size="32768" crc="d59ed1f1" sha1="e55314b5a078145ad7a5e95cb792b4fd32cfb05d" region="tiles" offset="0"/>
+		<rom name="dangar02.15f" merge="2.15f" size="32768" crc="dfdb931c" sha1="33563160239f221f24ca0cb652d14550e9941afe" region="tiles" offset="8000"/>
+		<rom name="dangar03.17f" merge="3.17f" size="32768" crc="6954e8c3" sha1="077bcbe9f80df011c9110d8cf6e08b53d035d1c8" region="tiles" offset="10000"/>
+		<rom name="dangar04.19f" merge="4.19f" size="32768" crc="4af6a8bf" sha1="d004b10b9b8559d1d6d26af35999df2857d87c53" region="tiles" offset="18000"/>
+		<rom name="dangarxx.f4" merge="12.f4" size="32768" crc="55711884" sha1="2682ebc8d88d0d6c430b7df34ed362bc81047072" region="sprites" offset="0"/>
+		<rom name="dangarxx.f1" merge="11.f1" size="32768" crc="8cf11419" sha1="79e7a3046878724fde248100ad55a305a427cd46" region="sprites" offset="8000"/>
+		<rom name="dangar07.19d" merge="7.19d" size="16384" crc="6dba32cf" sha1="e6433f291364202c1291b137d6ee1840ecf7d72d" region="bgtiles" offset="0"/>
+		<rom name="dangar06.17d" merge="6.17d" size="16384" crc="6c899071" sha1="9a776aae897d57e66ebdbcf79f3c673da8b78b05" region="bgtiles" offset="4000"/>
+		<rom name="82s129.9f" merge="82s129.9f" size="256" crc="b29f6a07" sha1="17c82f439f314c212470bafd917b3f7e12462d16" region="proms" offset="0"/>
+		<rom name="82s129.10f" merge="82s129.10f" size="256" crc="c6de5ecb" sha1="d5b6cb784b5df16332c5e2b19b763c8858a0b6a7" region="proms" offset="100"/>
+		<rom name="82s129.11f" merge="82s129.11f" size="256" crc="a5bbd6dc" sha1="5587844900a24d833500d204f049c05493c4a25a" region="proms" offset="200"/>
+		<rom name="82s129.2d" merge="82s129.2d" size="256" crc="a4ac95a5" sha1="3b31cd3fd6caedd89d1bedc606a978081fc5431f" region="proms" offset="300"/>
+		<rom name="82s129.7f" merge="82s129.7f" size="256" crc="29bc6216" sha1="1d7864ad06ad0cd5e3d1905fc6066bee1cd90995" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="32"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Alternate Enemies" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Easy" value="16" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Complete Invulnerability (Cheat)" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Base Ship Invulnerability (Cheat)" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SYSTEM" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="dangarj" sourcefile="nichibutsu/galivan.cpp" cloneof="dangar" romof="dangar">
+		<description>Ufo Robo Dangar (9/26/1986, Japan)</description>
+		<year>1986</year>
+		<manufacturer>Nichibutsu</manufacturer>
+		<rom name="16.1b" size="32768" crc="1e14b0b4" sha1="dcb7fe79ca17afe51ba3c1554183c773af13142f" region="maincpu" offset="0"/>
+		<rom name="17.3b" size="16384" crc="9ba92111" sha1="0050cd83f4e7a17601493d7d44af4501e52aad20" region="maincpu" offset="8000"/>
+		<rom name="18.4b" size="16384" crc="db7f6613" sha1="c55d1f2fdb86e2b9fbdfad0b156d4d084677b750" region="maincpu" offset="10000"/>
+		<rom name="21.14b" merge="13.b14" size="16384" crc="3e041873" sha1="8f9e1ec64509c8a7e9e45add9efc95f98f35fcfc" region="audiocpu" offset="0"/>
+		<rom name="22.15b" merge="14.b15" size="32768" crc="488e3463" sha1="73ff7ab061be54162f3a548f6bd9ef55b9dec5d9" region="audiocpu" offset="4000"/>
+		<rom name="11.13d" size="16384" crc="e804ffe1" sha1="22f16c23b9a82f104dda24bc8fccc08f3f69cf97" region="chars" offset="0"/>
+		<rom name="7.14f" merge="1.14f" size="32768" crc="d59ed1f1" sha1="e55314b5a078145ad7a5e95cb792b4fd32cfb05d" region="tiles" offset="0"/>
+		<rom name="8.15f" merge="2.15f" size="32768" crc="dfdb931c" sha1="33563160239f221f24ca0cb652d14550e9941afe" region="tiles" offset="8000"/>
+		<rom name="9.17f" merge="3.17f" size="32768" crc="6954e8c3" sha1="077bcbe9f80df011c9110d8cf6e08b53d035d1c8" region="tiles" offset="10000"/>
+		<rom name="10.19f" merge="4.19f" size="32768" crc="4af6a8bf" sha1="d004b10b9b8559d1d6d26af35999df2857d87c53" region="tiles" offset="18000"/>
+		<rom name="20.4f" merge="12.f4" size="32768" crc="55711884" sha1="2682ebc8d88d0d6c430b7df34ed362bc81047072" region="sprites" offset="0"/>
+		<rom name="19.1f" merge="11.f1" size="32768" crc="8cf11419" sha1="79e7a3046878724fde248100ad55a305a427cd46" region="sprites" offset="8000"/>
+		<rom name="15.19d" merge="7.19d" size="16384" crc="6dba32cf" sha1="e6433f291364202c1291b137d6ee1840ecf7d72d" region="bgtiles" offset="0"/>
+		<rom name="12.17d" merge="6.17d" size="16384" crc="6c899071" sha1="9a776aae897d57e66ebdbcf79f3c673da8b78b05" region="bgtiles" offset="4000"/>
+		<rom name="82s129.9f" merge="82s129.9f" size="256" crc="b29f6a07" sha1="17c82f439f314c212470bafd917b3f7e12462d16" region="proms" offset="0"/>
+		<rom name="82s129.10f" merge="82s129.10f" size="256" crc="c6de5ecb" sha1="d5b6cb784b5df16332c5e2b19b763c8858a0b6a7" region="proms" offset="100"/>
+		<rom name="82s129.11f" merge="82s129.11f" size="256" crc="a5bbd6dc" sha1="5587844900a24d833500d204f049c05493c4a25a" region="proms" offset="200"/>
+		<rom name="82s129.2d" merge="82s129.2d" size="256" crc="a4ac95a5" sha1="3b31cd3fd6caedd89d1bedc606a978081fc5431f" region="proms" offset="300"/>
+		<rom name="82s129.7f" merge="82s129.7f" size="256" crc="29bc6216" sha1="1d7864ad06ad0cd5e3d1905fc6066bee1cd90995" region="sprpalbank_prom" offset="0"/>
+		<rom name="dg-3.ic7.2764" size="8192" crc="84a56d26" sha1="6a1cdac7b9e04ccbcc29491f37f7554d09ea6d34" region="prot_chip" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="nb1412m2"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="2" value="0"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="32"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Alternate Enemies" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="2 Coins/1 Credit" value="4"/>
+			<dipvalue name="1 Coin/1 Credit" value="12" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Easy" value="16" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Complete Invulnerability (Cheat)" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Base Ship Invulnerability (Cheat)" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SYSTEM" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="galivan" sourcefile="nichibutsu/galivan.cpp">
+		<description>Cosmo Police Galivan (12/26/1985)</description>
+		<year>1985</year>
+		<manufacturer>Nichibutsu</manufacturer>
+		<rom name="1.1b" size="32768" crc="1e66b3f8" sha1="f9d2ac8076aefd85ce6d2ed2d21941f1160767f5" region="maincpu" offset="0"/>
+		<rom name="2.3b" size="16384" crc="a45964f1" sha1="4c4554ff484fbf70a38e1d89d3ae4d2eb4e93ed8" region="maincpu" offset="8000"/>
+		<rom name="gv3.4b" size="16384" crc="82f0c5e6" sha1="77dd3927c2161e4fce9e0adba81dc0c875d7e2f4" region="maincpu" offset="10000"/>
+		<rom name="gv11.14b" size="16384" crc="05f1a0e3" sha1="c0f579130d64123c889c77d8f2f474ebcc3ba649" region="audiocpu" offset="0"/>
+		<rom name="gv12.15b" size="32768" crc="5b7a0d6d" sha1="0c15def9be8014aeb4e14b6967efe8f5abac51f2" region="audiocpu" offset="4000"/>
+		<rom name="gv4.13d" size="16384" crc="162490b4" sha1="55592865f208bf1b8f49c8eedc22a3d91ca3578d" region="chars" offset="0"/>
+		<rom name="gv7.14f" size="32768" crc="eaa1a0db" sha1="ed3b125a7472c0c0a458b28df6476cb4c64b4aa3" region="tiles" offset="0"/>
+		<rom name="gv8.15f" size="32768" crc="f174a41e" sha1="38aa7aa3d6ba026478d30b5e404614a0cc7aed52" region="tiles" offset="8000"/>
+		<rom name="gv9.17f" size="32768" crc="edc60f5d" sha1="c743f4af0e0e2c60f59fd01ce0a153108e9f5414" region="tiles" offset="10000"/>
+		<rom name="gv10.19f" size="32768" crc="41f27fca" sha1="3674dbecc2eb1c837159a8dfbb0086088631b2a5" region="tiles" offset="18000"/>
+		<rom name="gv14.4f" size="32768" crc="03e2229f" sha1="9dace9e04867d1140eb3c794bd4ae54ec3bb4a83" region="sprites" offset="0"/>
+		<rom name="gv13.1f" size="32768" crc="bca9e66b" sha1="d84840943748a7b9fd6e141be9971431f69ce1f9" region="sprites" offset="8000"/>
+		<rom name="gv6.19d" size="16384" crc="da38168b" sha1="a12decd55fd1cf32fd192f13bd33d2f1f4129d2c" region="bgtiles" offset="0"/>
+		<rom name="gv5.17d" size="16384" crc="22492d2a" sha1="c8d36949abc2fcc8f2b12276eb82b330a940bc38" region="bgtiles" offset="4000"/>
+		<rom name="mb7114e.9f" size="256" crc="de782b3e" sha1="c76da7d5cbd9170be93c9591e525646a4360203c" region="proms" offset="0"/>
+		<rom name="mb7114e.10f" size="256" crc="0ae2a857" sha1="cdf84c0c75d483a81013dbc050e7aa8c8503c74c" region="proms" offset="100"/>
+		<rom name="mb7114e.11f" size="256" crc="7ba8b9d1" sha1="5942b403eda046e2f2584062443472cbf559db5c" region="proms" offset="200"/>
+		<rom name="mb7114e.2d" size="256" crc="75466109" sha1="6196d12ab7103f6ef991b826d8b93303a61d4c48" region="proms" offset="300"/>
+		<rom name="mb7114e.7f" size="256" crc="06538736" sha1="a2fb2ecb768686839f3087e691102e2dc2eb65b5" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="32"/>
+		</dipswitch>
+		<dipswitch name="Power Invulnerability (Cheat)" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Life Invulnerability (Cheat)" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/3 Credits" value="4"/>
+			<dipvalue name="1 Coin/3 Credits" value="12" default="yes"/>
+			<dipvalue name="1 Coin/6 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Easy" value="16" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="galivan2" sourcefile="nichibutsu/galivan.cpp" cloneof="galivan" romof="galivan">
+		<description>Cosmo Police Galivan (12/16/1985)</description>
+		<year>1985</year>
+		<manufacturer>Nichibutsu</manufacturer>
+		<rom name="gv1.1b" size="32768" crc="5e480bfc" sha1="f444de27d3d8aff579cf196a25b7f0c906617172" region="maincpu" offset="0"/>
+		<rom name="gv2.3b" size="16384" crc="0d1b3538" sha1="aa1ee04ff3516e0121db0cf50cee849ba5058fd5" region="maincpu" offset="8000"/>
+		<rom name="gv3.4b" merge="gv3.4b" size="16384" crc="82f0c5e6" sha1="77dd3927c2161e4fce9e0adba81dc0c875d7e2f4" region="maincpu" offset="10000"/>
+		<rom name="gv11.14b" merge="gv11.14b" size="16384" crc="05f1a0e3" sha1="c0f579130d64123c889c77d8f2f474ebcc3ba649" region="audiocpu" offset="0"/>
+		<rom name="gv12.15b" merge="gv12.15b" size="32768" crc="5b7a0d6d" sha1="0c15def9be8014aeb4e14b6967efe8f5abac51f2" region="audiocpu" offset="4000"/>
+		<rom name="gv4.13d" merge="gv4.13d" size="16384" crc="162490b4" sha1="55592865f208bf1b8f49c8eedc22a3d91ca3578d" region="chars" offset="0"/>
+		<rom name="gv7.14f" merge="gv7.14f" size="32768" crc="eaa1a0db" sha1="ed3b125a7472c0c0a458b28df6476cb4c64b4aa3" region="tiles" offset="0"/>
+		<rom name="gv8.15f" merge="gv8.15f" size="32768" crc="f174a41e" sha1="38aa7aa3d6ba026478d30b5e404614a0cc7aed52" region="tiles" offset="8000"/>
+		<rom name="gv9.17f" merge="gv9.17f" size="32768" crc="edc60f5d" sha1="c743f4af0e0e2c60f59fd01ce0a153108e9f5414" region="tiles" offset="10000"/>
+		<rom name="gv10.19f" merge="gv10.19f" size="32768" crc="41f27fca" sha1="3674dbecc2eb1c837159a8dfbb0086088631b2a5" region="tiles" offset="18000"/>
+		<rom name="gv14.4f" merge="gv14.4f" size="32768" crc="03e2229f" sha1="9dace9e04867d1140eb3c794bd4ae54ec3bb4a83" region="sprites" offset="0"/>
+		<rom name="gv13.1f" merge="gv13.1f" size="32768" crc="bca9e66b" sha1="d84840943748a7b9fd6e141be9971431f69ce1f9" region="sprites" offset="8000"/>
+		<rom name="gv6.19d" merge="gv6.19d" size="16384" crc="da38168b" sha1="a12decd55fd1cf32fd192f13bd33d2f1f4129d2c" region="bgtiles" offset="0"/>
+		<rom name="gv5.17d" merge="gv5.17d" size="16384" crc="22492d2a" sha1="c8d36949abc2fcc8f2b12276eb82b330a940bc38" region="bgtiles" offset="4000"/>
+		<rom name="mb7114e.9f" merge="mb7114e.9f" size="256" crc="de782b3e" sha1="c76da7d5cbd9170be93c9591e525646a4360203c" region="proms" offset="0"/>
+		<rom name="mb7114e.10f" merge="mb7114e.10f" size="256" crc="0ae2a857" sha1="cdf84c0c75d483a81013dbc050e7aa8c8503c74c" region="proms" offset="100"/>
+		<rom name="mb7114e.11f" merge="mb7114e.11f" size="256" crc="7ba8b9d1" sha1="5942b403eda046e2f2584062443472cbf559db5c" region="proms" offset="200"/>
+		<rom name="mb7114e.2d" merge="mb7114e.2d" size="256" crc="75466109" sha1="6196d12ab7103f6ef991b826d8b93303a61d4c48" region="proms" offset="300"/>
+		<rom name="mb7114e.7f" merge="mb7114e.7f" size="256" crc="06538736" sha1="a2fb2ecb768686839f3087e691102e2dc2eb65b5" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="32"/>
+		</dipswitch>
+		<dipswitch name="Power Invulnerability (Cheat)" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Life Invulnerability (Cheat)" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/3 Credits" value="4"/>
+			<dipvalue name="1 Coin/3 Credits" value="12" default="yes"/>
+			<dipvalue name="1 Coin/6 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Easy" value="16" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="galivan3" sourcefile="nichibutsu/galivan.cpp" cloneof="galivan" romof="galivan">
+		<description>Cosmo Police Galivan (12/11/1985)</description>
+		<year>1985</year>
+		<manufacturer>Nichibutsu</manufacturer>
+		<rom name="e-1.1b" size="32768" crc="d8cc72b8" sha1="73a46cd7dda3a912b14075b9b4ebc81a175a1461" region="maincpu" offset="0"/>
+		<rom name="e-2.3b" size="16384" crc="9e5b3157" sha1="1aa5f7f382468af815c929c63866bd39e7a9ac18" region="maincpu" offset="8000"/>
+		<rom name="gv3.4b" merge="gv3.4b" size="16384" crc="82f0c5e6" sha1="77dd3927c2161e4fce9e0adba81dc0c875d7e2f4" region="maincpu" offset="10000"/>
+		<rom name="gv11.14b" merge="gv11.14b" size="16384" crc="05f1a0e3" sha1="c0f579130d64123c889c77d8f2f474ebcc3ba649" region="audiocpu" offset="0"/>
+		<rom name="gv12.15b" merge="gv12.15b" size="32768" crc="5b7a0d6d" sha1="0c15def9be8014aeb4e14b6967efe8f5abac51f2" region="audiocpu" offset="4000"/>
+		<rom name="gv4.13d" merge="gv4.13d" size="16384" crc="162490b4" sha1="55592865f208bf1b8f49c8eedc22a3d91ca3578d" region="chars" offset="0"/>
+		<rom name="gv7.14f" merge="gv7.14f" size="32768" crc="eaa1a0db" sha1="ed3b125a7472c0c0a458b28df6476cb4c64b4aa3" region="tiles" offset="0"/>
+		<rom name="gv8.15f" merge="gv8.15f" size="32768" crc="f174a41e" sha1="38aa7aa3d6ba026478d30b5e404614a0cc7aed52" region="tiles" offset="8000"/>
+		<rom name="gv9.17f" merge="gv9.17f" size="32768" crc="edc60f5d" sha1="c743f4af0e0e2c60f59fd01ce0a153108e9f5414" region="tiles" offset="10000"/>
+		<rom name="gv10.19f" merge="gv10.19f" size="32768" crc="41f27fca" sha1="3674dbecc2eb1c837159a8dfbb0086088631b2a5" region="tiles" offset="18000"/>
+		<rom name="gv14.4f" merge="gv14.4f" size="32768" crc="03e2229f" sha1="9dace9e04867d1140eb3c794bd4ae54ec3bb4a83" region="sprites" offset="0"/>
+		<rom name="gv13.1f" merge="gv13.1f" size="32768" crc="bca9e66b" sha1="d84840943748a7b9fd6e141be9971431f69ce1f9" region="sprites" offset="8000"/>
+		<rom name="gv6.19d" merge="gv6.19d" size="16384" crc="da38168b" sha1="a12decd55fd1cf32fd192f13bd33d2f1f4129d2c" region="bgtiles" offset="0"/>
+		<rom name="gv5.17d" merge="gv5.17d" size="16384" crc="22492d2a" sha1="c8d36949abc2fcc8f2b12276eb82b330a940bc38" region="bgtiles" offset="4000"/>
+		<rom name="mb7114e.9f" merge="mb7114e.9f" size="256" crc="de782b3e" sha1="c76da7d5cbd9170be93c9591e525646a4360203c" region="proms" offset="0"/>
+		<rom name="mb7114e.10f" merge="mb7114e.10f" size="256" crc="0ae2a857" sha1="cdf84c0c75d483a81013dbc050e7aa8c8503c74c" region="proms" offset="100"/>
+		<rom name="mb7114e.11f" merge="mb7114e.11f" size="256" crc="7ba8b9d1" sha1="5942b403eda046e2f2584062443472cbf559db5c" region="proms" offset="200"/>
+		<rom name="mb7114e.2d" merge="mb7114e.2d" size="256" crc="75466109" sha1="6196d12ab7103f6ef991b826d8b93303a61d4c48" region="proms" offset="300"/>
+		<rom name="mb7114e.7f" merge="mb7114e.7f" size="256" crc="06538736" sha1="a2fb2ecb768686839f3087e691102e2dc2eb65b5" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="32"/>
+		</dipswitch>
+		<dipswitch name="Power Invulnerability (Cheat)" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Life Invulnerability (Cheat)" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/3 Credits" value="4"/>
+			<dipvalue name="1 Coin/3 Credits" value="12" default="yes"/>
+			<dipvalue name="1 Coin/6 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Easy" value="16" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="ninjemak" sourcefile="nichibutsu/galivan.cpp">
+		<description>Ninja Emaki (US)</description>
+		<year>1986</year>
+		<manufacturer>Nichibutsu</manufacturer>
+		<rom name="ninjemak.1" size="32768" crc="12b0a619" sha1="7b42097be6423931256d5b7fdafb98bee1b42e64" region="maincpu" offset="0"/>
+		<rom name="ninjemak.2" size="16384" crc="d5b505d1" sha1="53935549754e8a71f0620630c2e59c21d52edcba" region="maincpu" offset="8000"/>
+		<rom name="ninjemak.3" size="32768" crc="68c92bf6" sha1="90633622dab0e450a29230b600e0d60a42f407f4" region="maincpu" offset="10000"/>
+		<rom name="ninjemak.12" size="16384" crc="3d1cd329" sha1="6abd8e0dbecddfd67c4d358b958c850136fd3c29" region="audiocpu" offset="0"/>
+		<rom name="ninjemak.13" size="32768" crc="ac3a0b81" sha1="39f2c305706e313d5256c357a3c8b57bbe45d3d7" region="audiocpu" offset="4000"/>
+		<rom name="ninjemak.4" size="32768" crc="83702c37" sha1="c063288cf74dee74005c6d0dea57e9ec3adebc83" region="chars" offset="0"/>
+		<rom name="ninjemak.8" size="32768" crc="655f0a58" sha1="8ffe73cec68d52c7b09651b546289613d6d4dde4" region="tiles" offset="0"/>
+		<rom name="ninjemak.9" size="32768" crc="934e1703" sha1="451f8d01d9035d91c969cdc3fb582a00007da7df" region="tiles" offset="8000"/>
+		<rom name="ninjemak.10" size="32768" crc="955b5c45" sha1="936bfe2599228dd0861bbcfe15152ac5e9b906d1" region="tiles" offset="10000"/>
+		<rom name="ninjemak.11" size="32768" crc="bbd2e51c" sha1="51bc266cf8161610204e5d98e56346b1d8d3c009" region="tiles" offset="18000"/>
+		<rom name="ninjemak.16" size="32768" crc="8df93fed" sha1="ef37c78d4abbdbe9f427e3d9345f52464261116d" region="sprites" offset="0"/>
+		<rom name="ninjemak.17" size="32768" crc="a3efd0fc" sha1="69d40707b0570c2f1be6247f0209ba9e60a83ed0" region="sprites" offset="8000"/>
+		<rom name="ninjemak.14" size="32768" crc="bff332d3" sha1="d277ba18034b083eaafa969d90685563994416fa" region="sprites" offset="10000"/>
+		<rom name="ninjemak.15" size="32768" crc="56430ed4" sha1="68356a0f68404ef70d8dc17d5cbdf5e1f28badcf" region="sprites" offset="18000"/>
+		<rom name="ninjemak.7" size="16384" crc="80c20d36" sha1="f20724754824030d62059388f3ea2224f5b7a60e" region="bgtiles" offset="0"/>
+		<rom name="ninjemak.6" size="16384" crc="1da7a651" sha1="5307452058164a0bc39d144dd204627a9ead7543" region="bgtiles" offset="4000"/>
+		<rom name="ninjemak.5" size="16384" crc="5f91dd30" sha1="3513c0a2e4ca83f602cacad6af9c07fe9e4b16a1" region="nb1414m4" offset="0"/>
+		<rom name="ninjemak.pr1" size="256" crc="8a62d4e4" sha1="99ca4da01ea1b5585f6e3ebf162c3f988ab317e5" region="proms" offset="0"/>
+		<rom name="ninjemak.pr2" size="256" crc="2ccf976f" sha1="b804ee761793697087fbe3372352f301a22feeab" region="proms" offset="100"/>
+		<rom name="ninjemak.pr3" size="256" crc="16b2a7a4" sha1="53c410b439c8a835447f15f2ab250b363b3f7888" region="proms" offset="200"/>
+		<rom name="yncp-2d.bin" size="256" crc="23bade78" sha1="7e2de5eb08d888f97830807b6dbe85d09bb3b7f8" region="proms" offset="300"/>
+		<rom name="yncp-7f.bin" size="256" crc="262d0809" sha1="a67281af02cef082023c0d7d57e3824aeef67450" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="nb1414m4"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Easy" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="192">
+			<diplocation name="SW2" number="7"/>
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="No" value="192"/>
+			<dipvalue name="3 Times" value="128"/>
+			<dipvalue name="5 Times" value="64" default="yes"/>
+			<dipvalue name="99 Times" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SERVICE" mask="2">
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SERVICE">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="preliminary" emulation="good" savestate="supported"/>
+		<feature type="protection" status="imperfect"/>
+	</machine>
+	<machine name="ninjemat" sourcefile="nichibutsu/galivan.cpp" cloneof="ninjemak" romof="ninjemak">
+		<description>Ninja Emaki (Tecfri license)</description>
+		<year>1986</year>
+		<manufacturer>Nichibutsu (Tecfri license)</manufacturer>
+		<rom name="10.e19" size="32768" crc="804e7e4c" sha1="d10edc6b2e283a8b0c8621645949ad70196a0dd6" region="maincpu" offset="0"/>
+		<rom name="9.e17" size="16384" crc="55d8f1a1" sha1="886ed255007faf67908e8af3e52d7447c9eb260b" region="maincpu" offset="8000"/>
+		<rom name="8.e16" size="16384" crc="8c5782da" sha1="2673eae866e9c1e1832f2525c167972b147d2147" region="maincpu" offset="10000"/>
+		<rom name="16.e13" size="16384" crc="dd7e0be2" sha1="32c63f1dde9561b7fce7e9dba7d34511fdd7d0b0" region="audiocpu" offset="0"/>
+		<rom name="15.e15" size="32768" crc="236c9824" sha1="498b8cdcae74c24421408ca7795d2787a7553e17" region="audiocpu" offset="4000"/>
+		<rom name="7.c7" size="32768" crc="d13c22db" sha1="38e992f2c5f425b20d20fec64d6ab979e72e0e3c" region="chars" offset="0"/>
+		<rom name="4.a6" merge="ninjemak.8" size="32768" crc="655f0a58" sha1="8ffe73cec68d52c7b09651b546289613d6d4dde4" region="tiles" offset="0"/>
+		<rom name="3.a4" size="32768" crc="b4416f53" sha1="c2253518318aac2710aac5e83f8df84945ada2ce" region="tiles" offset="8000"/>
+		<rom name="2.a3" merge="ninjemak.10" size="32768" crc="955b5c45" sha1="936bfe2599228dd0861bbcfe15152ac5e9b906d1" region="tiles" offset="10000"/>
+		<rom name="1.a1" merge="ninjemak.11" size="32768" crc="bbd2e51c" sha1="51bc266cf8161610204e5d98e56346b1d8d3c009" region="tiles" offset="18000"/>
+		<rom name="12.a4" size="32768" crc="3cb41a2d" sha1="7535bd5fa6b6ee71617e06ee690da29ccce7560e" region="sprites" offset="0"/>
+		<rom name="11.a6" size="32768" crc="e487754c" sha1="3d6ef9a995a72856f24ca7384f55028d53b909c4" region="sprites" offset="8000"/>
+		<rom name="14.a1" size="32768" crc="a354129b" sha1="4b36e6fcd0782898d687f6927c76c8ec7a2f5315" region="sprites" offset="10000"/>
+		<rom name="13.a3" size="32768" crc="7e52abd4" sha1="476449c57dc2d5803c604acc8a45bfefd3327b06" region="sprites" offset="18000"/>
+		<rom name="5.c1" size="16384" crc="e8469d44" sha1="a015e4f67597fca438ed4c714b9854615e5d59b7" region="bgtiles" offset="0"/>
+		<rom name="6.c3" size="16384" crc="163a024e" sha1="bb4c78f5e231e8e9c9556790d94972b963b1480e" region="bgtiles" offset="4000"/>
+		<rom name="7114.a9" size="256" crc="001a762e" sha1="5d3783162bd23b09291ee380e2968d1c6ff0267e" region="proms" offset="0"/>
+		<rom name="7114.a10" size="256" crc="30556466" sha1="caa1a941d3a2651504acc1ea3ae14de921e1975a" region="proms" offset="100"/>
+		<rom name="7114.a11" size="256" crc="1fe3d4fd" sha1="6f1f432667ec1d7286149ccde6790b74499aa50a" region="proms" offset="200"/>
+		<rom name="7114.c2" merge="yncp-2d.bin" size="256" crc="23bade78" sha1="7e2de5eb08d888f97830807b6dbe85d09bb3b7f8" region="proms" offset="300"/>
+		<rom name="7114.a7" size="256" crc="6d17bab4" sha1="55dc38ef2dd9a76398abdc7a5171850530c20023" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW1" mask="16">
+			<diplocation name="SW1" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW1" mask="32">
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="32"/>
+		</dipswitch>
+		<dipswitch name="Power Invulnerability (Cheat)" tag="DSW1" mask="64">
+			<diplocation name="SW1" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Life Invulnerability (Cheat)" tag="DSW1" mask="128">
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW2" mask="3">
+			<diplocation name="SW2" number="1"/>
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW2" mask="12">
+			<diplocation name="SW2" number="3"/>
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/3 Credits" value="4"/>
+			<dipvalue name="1 Coin/3 Credits" value="12" default="yes"/>
+			<dipvalue name="1 Coin/6 Credits" value="8"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Easy" value="16" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="64">
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="preliminary" emulation="preliminary" savestate="supported"/>
+		<feature type="protection" status="imperfect"/>
+	</machine>
+	<machine name="youma" sourcefile="nichibutsu/galivan.cpp" cloneof="ninjemak" romof="ninjemak">
+		<description>Youma Ninpou Chou (Japan)</description>
+		<year>1986</year>
+		<manufacturer>Nichibutsu</manufacturer>
+		<rom name="ync-1.bin" size="32768" crc="0552adab" sha1="183cf88d288875fbb2b60e2712e5a1671511351d" region="maincpu" offset="0"/>
+		<rom name="ync-2.bin" size="16384" crc="f961e5e6" sha1="cbf9d3a256937da9e17734f89652e049242910b8" region="maincpu" offset="8000"/>
+		<rom name="ync-3.bin" size="32768" crc="9ad50a5e" sha1="2532b10e2468b1c74440fd8090489142e5fc240b" region="maincpu" offset="10000"/>
+		<rom name="ninjemak.12" merge="ninjemak.12" size="16384" crc="3d1cd329" sha1="6abd8e0dbecddfd67c4d358b958c850136fd3c29" region="audiocpu" offset="0"/>
+		<rom name="ninjemak.13" merge="ninjemak.13" size="32768" crc="ac3a0b81" sha1="39f2c305706e313d5256c357a3c8b57bbe45d3d7" region="audiocpu" offset="4000"/>
+		<rom name="ync-4.bin" size="32768" crc="a1954f44" sha1="b10a22b51bd1a02c0d7b116b4d7390003c41decf" region="chars" offset="0"/>
+		<rom name="ninjemak.8" merge="ninjemak.8" size="32768" crc="655f0a58" sha1="8ffe73cec68d52c7b09651b546289613d6d4dde4" region="tiles" offset="0"/>
+		<rom name="ninjemak.9" merge="ninjemak.9" size="32768" crc="934e1703" sha1="451f8d01d9035d91c969cdc3fb582a00007da7df" region="tiles" offset="8000"/>
+		<rom name="ninjemak.10" merge="ninjemak.10" size="32768" crc="955b5c45" sha1="936bfe2599228dd0861bbcfe15152ac5e9b906d1" region="tiles" offset="10000"/>
+		<rom name="ninjemak.11" merge="ninjemak.11" size="32768" crc="bbd2e51c" sha1="51bc266cf8161610204e5d98e56346b1d8d3c009" region="tiles" offset="18000"/>
+		<rom name="ninjemak.16" merge="ninjemak.16" size="32768" crc="8df93fed" sha1="ef37c78d4abbdbe9f427e3d9345f52464261116d" region="sprites" offset="0"/>
+		<rom name="ninjemak.17" merge="ninjemak.17" size="32768" crc="a3efd0fc" sha1="69d40707b0570c2f1be6247f0209ba9e60a83ed0" region="sprites" offset="8000"/>
+		<rom name="ninjemak.14" merge="ninjemak.14" size="32768" crc="bff332d3" sha1="d277ba18034b083eaafa969d90685563994416fa" region="sprites" offset="10000"/>
+		<rom name="ninjemak.15" merge="ninjemak.15" size="32768" crc="56430ed4" sha1="68356a0f68404ef70d8dc17d5cbdf5e1f28badcf" region="sprites" offset="18000"/>
+		<rom name="ninjemak.7" merge="ninjemak.7" size="16384" crc="80c20d36" sha1="f20724754824030d62059388f3ea2224f5b7a60e" region="bgtiles" offset="0"/>
+		<rom name="ninjemak.6" merge="ninjemak.6" size="16384" crc="1da7a651" sha1="5307452058164a0bc39d144dd204627a9ead7543" region="bgtiles" offset="4000"/>
+		<rom name="ync-5.bin" size="16384" crc="993e4ab2" sha1="aceafc83b36db4db923d27f77ad045e626678bae" region="nb1414m4" offset="0"/>
+		<rom name="yncp-6e.bin" size="256" crc="ea47b91a" sha1="9921aa1ef882fb664d85d3e065223610262ca112" region="proms" offset="0"/>
+		<rom name="yncp-7e.bin" size="256" crc="e94c0fed" sha1="68581c91e9aa485f78af6b6a5c98612372cd5b17" region="proms" offset="100"/>
+		<rom name="yncp-8e.bin" size="256" crc="ffb4b287" sha1="c3c7018e6d5e18cc2db135812d0dc3824710ab4c" region="proms" offset="200"/>
+		<rom name="yncp-2d.bin" merge="yncp-2d.bin" size="256" crc="23bade78" sha1="7e2de5eb08d888f97830807b6dbe85d09bb3b7f8" region="proms" offset="300"/>
+		<rom name="yncp-7f.bin" merge="yncp-7f.bin" size="256" crc="262d0809" sha1="a67281af02cef082023c0d7d57e3824aeef67450" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="nb1414m4"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Easy" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="192">
+			<diplocation name="SW2" number="7"/>
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="No" value="192"/>
+			<dipvalue name="3 Times" value="128"/>
+			<dipvalue name="5 Times" value="64" default="yes"/>
+			<dipvalue name="99 Times" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SERVICE" mask="2">
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SERVICE">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="preliminary" emulation="good" savestate="supported"/>
+		<feature type="protection" status="imperfect"/>
+	</machine>
+	<machine name="youma2" sourcefile="nichibutsu/galivan.cpp" cloneof="ninjemak" romof="ninjemak">
+		<description>Youma Ninpou Chou (Japan, alt)</description>
+		<year>1986</year>
+		<manufacturer>Nichibutsu</manufacturer>
+		<rom name="1.1d" size="32768" crc="171dbe99" sha1="c9fdca3849e20ab702415984b4039cf2cfa34cb8" region="maincpu" offset="0"/>
+		<rom name="2.3d" size="16384" crc="e502d62a" sha1="fdfb44c17557a513fe855b14140fe48921d6802b" region="maincpu" offset="8000"/>
+		<rom name="3.4d" size="32768" crc="cb84745c" sha1="a961c329be26c423212078d04d5f783c796136b4" region="maincpu" offset="10000"/>
+		<rom name="12.14b" merge="ninjemak.12" size="16384" crc="3d1cd329" sha1="6abd8e0dbecddfd67c4d358b958c850136fd3c29" region="audiocpu" offset="0"/>
+		<rom name="13.15b" merge="ninjemak.13" size="32768" crc="ac3a0b81" sha1="39f2c305706e313d5256c357a3c8b57bbe45d3d7" region="audiocpu" offset="4000"/>
+		<rom name="4.7d" size="32768" crc="40aeffd8" sha1="f31e723323a0cdb8efa8b320f1c4efd646401ca4" region="chars" offset="0"/>
+		<rom name="ninjemak.8" merge="ninjemak.8" size="32768" crc="655f0a58" sha1="8ffe73cec68d52c7b09651b546289613d6d4dde4" region="tiles" offset="0"/>
+		<rom name="ninjemak.9" merge="ninjemak.9" size="32768" crc="934e1703" sha1="451f8d01d9035d91c969cdc3fb582a00007da7df" region="tiles" offset="8000"/>
+		<rom name="ninjemak.10" merge="ninjemak.10" size="32768" crc="955b5c45" sha1="936bfe2599228dd0861bbcfe15152ac5e9b906d1" region="tiles" offset="10000"/>
+		<rom name="ninjemak.11" merge="ninjemak.11" size="32768" crc="bbd2e51c" sha1="51bc266cf8161610204e5d98e56346b1d8d3c009" region="tiles" offset="18000"/>
+		<rom name="ninjemak.16" merge="ninjemak.16" size="32768" crc="8df93fed" sha1="ef37c78d4abbdbe9f427e3d9345f52464261116d" region="sprites" offset="0"/>
+		<rom name="ninjemak.17" merge="ninjemak.17" size="32768" crc="a3efd0fc" sha1="69d40707b0570c2f1be6247f0209ba9e60a83ed0" region="sprites" offset="8000"/>
+		<rom name="ninjemak.14" merge="ninjemak.14" size="32768" crc="bff332d3" sha1="d277ba18034b083eaafa969d90685563994416fa" region="sprites" offset="10000"/>
+		<rom name="ninjemak.15" merge="ninjemak.15" size="32768" crc="56430ed4" sha1="68356a0f68404ef70d8dc17d5cbdf5e1f28badcf" region="sprites" offset="18000"/>
+		<rom name="ninjemak.7" merge="ninjemak.7" size="16384" crc="80c20d36" sha1="f20724754824030d62059388f3ea2224f5b7a60e" region="bgtiles" offset="0"/>
+		<rom name="ninjemak.6" merge="ninjemak.6" size="16384" crc="1da7a651" sha1="5307452058164a0bc39d144dd204627a9ead7543" region="bgtiles" offset="4000"/>
+		<rom name="5.15d" size="16384" crc="1b4f64aa" sha1="2cb2db946bf93e0928d6aa2e2dd29acb92981567" region="nb1414m4" offset="0"/>
+		<rom name="bpr.6e" merge="ninjemak.pr1" size="256" crc="8a62d4e4" sha1="99ca4da01ea1b5585f6e3ebf162c3f988ab317e5" region="proms" offset="0"/>
+		<rom name="bpr.7e" merge="ninjemak.pr2" size="256" crc="2ccf976f" sha1="b804ee761793697087fbe3372352f301a22feeab" region="proms" offset="100"/>
+		<rom name="bpr.8e" merge="ninjemak.pr3" size="256" crc="16b2a7a4" sha1="53c410b439c8a835447f15f2ab250b363b3f7888" region="proms" offset="200"/>
+		<rom name="bpr.2d" merge="yncp-2d.bin" size="256" crc="23bade78" sha1="7e2de5eb08d888f97830807b6dbe85d09bb3b7f8" region="proms" offset="300"/>
+		<rom name="bpr.7f" merge="yncp-7f.bin" size="256" crc="262d0809" sha1="a67281af02cef082023c0d7d57e3824aeef67450" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="nb1414m4"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Easy" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="192">
+			<diplocation name="SW2" number="7"/>
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="No" value="192"/>
+			<dipvalue name="3 Times" value="128"/>
+			<dipvalue name="5 Times" value="64" default="yes"/>
+			<dipvalue name="99 Times" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SERVICE" mask="2">
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SERVICE">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="preliminary" emulation="good" savestate="supported"/>
+		<feature type="protection" status="imperfect"/>
+	</machine>
+	<machine name="youmab" sourcefile="nichibutsu/galivan.cpp" cloneof="ninjemak" romof="ninjemak">
+		<description>Youma Ninpou Chou (Game Electronics bootleg, set 1)</description>
+		<year>1986</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="electric1.3u" size="32768" crc="cc4fdb92" sha1="9ce963db23f91f91e775a0b9a819f00db869120f" region="maincpu" offset="0"/>
+		<rom name="electric3.3r" size="32768" crc="c1bc7387" sha1="ad05bff02ece515465a9506e09c252c446c8f81d" region="maincpu" offset="10000"/>
+		<rom name="electric2.3t" size="32768" crc="99aee3bc" sha1="5ffd60b959dda3fd41609c89a3486a989b1e2530" region="extra_banked_rom" offset="0"/>
+		<rom name="electric12.5e" merge="ninjemak.12" size="16384" crc="3d1cd329" sha1="6abd8e0dbecddfd67c4d358b958c850136fd3c29" region="audiocpu" offset="0"/>
+		<rom name="electric13.5d" merge="ninjemak.13" size="32768" crc="ac3a0b81" sha1="39f2c305706e313d5256c357a3c8b57bbe45d3d7" region="audiocpu" offset="4000"/>
+		<rom name="electric4.3m" size="32768" crc="a1954f44" sha1="b10a22b51bd1a02c0d7b116b4d7390003c41decf" region="chars" offset="0"/>
+		<rom name="electric8.1f" merge="ninjemak.8" size="32768" crc="655f0a58" sha1="8ffe73cec68d52c7b09651b546289613d6d4dde4" region="tiles" offset="0"/>
+		<rom name="electric9.1d" size="32768" crc="77a964c1" sha1="47eb2d4df240e5493951b0a170cd07b2d5ecc18a" region="tiles" offset="8000"/>
+		<rom name="electric10.1b" merge="ninjemak.10" size="32768" crc="955b5c45" sha1="936bfe2599228dd0861bbcfe15152ac5e9b906d1" region="tiles" offset="10000"/>
+		<rom name="electric11.1a" merge="ninjemak.11" size="32768" crc="bbd2e51c" sha1="51bc266cf8161610204e5d98e56346b1d8d3c009" region="tiles" offset="18000"/>
+		<rom name="electric16.1p" merge="ninjemak.16" size="32768" crc="8df93fed" sha1="ef37c78d4abbdbe9f427e3d9345f52464261116d" region="sprites" offset="0"/>
+		<rom name="electric17.1m" merge="ninjemak.17" size="32768" crc="a3efd0fc" sha1="69d40707b0570c2f1be6247f0209ba9e60a83ed0" region="sprites" offset="8000"/>
+		<rom name="electric14.1t" merge="ninjemak.14" size="32768" crc="bff332d3" sha1="d277ba18034b083eaafa969d90685563994416fa" region="sprites" offset="10000"/>
+		<rom name="electric15.1r" merge="ninjemak.15" size="32768" crc="56430ed4" sha1="68356a0f68404ef70d8dc17d5cbdf5e1f28badcf" region="sprites" offset="18000"/>
+		<rom name="electric7.3a" merge="ninjemak.7" size="16384" crc="80c20d36" sha1="f20724754824030d62059388f3ea2224f5b7a60e" region="bgtiles" offset="0"/>
+		<rom name="electric6.3b" merge="ninjemak.6" size="16384" crc="1da7a651" sha1="5307452058164a0bc39d144dd204627a9ead7543" region="bgtiles" offset="4000"/>
+		<rom name="prom82s129.2n" size="256" crc="ea47b91a" sha1="9921aa1ef882fb664d85d3e065223610262ca112" region="proms" offset="0"/>
+		<rom name="prom82s129.2m" size="256" crc="e94c0fed" sha1="68581c91e9aa485f78af6b6a5c98612372cd5b17" region="proms" offset="100"/>
+		<rom name="prom82s129.2l" size="256" crc="ffb4b287" sha1="c3c7018e6d5e18cc2db135812d0dc3824710ab4c" region="proms" offset="200"/>
+		<rom name="prom82s129.3s" merge="yncp-2d.bin" size="256" crc="23bade78" sha1="7e2de5eb08d888f97830807b6dbe85d09bb3b7f8" region="proms" offset="300"/>
+		<rom name="prom82s129.1l" merge="yncp-7f.bin" size="256" crc="262d0809" sha1="a67281af02cef082023c0d7d57e3824aeef67450" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Easy" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="192">
+			<diplocation name="SW2" number="7"/>
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="No" value="192"/>
+			<dipvalue name="3 Times" value="128"/>
+			<dipvalue name="5 Times" value="64" default="yes"/>
+			<dipvalue name="99 Times" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SERVICE" mask="2">
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SERVICE">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="preliminary" emulation="preliminary" savestate="supported"/>
+		<feature type="protection" status="imperfect"/>
+	</machine>
+	<machine name="youmab2" sourcefile="nichibutsu/galivan.cpp" cloneof="ninjemak" romof="ninjemak">
+		<description>Youma Ninpou Chou (Game Electronics bootleg, set 2)</description>
+		<year>1986</year>
+		<manufacturer>bootleg</manufacturer>
+		<rom name="1.1d" size="32768" crc="692ae497" sha1="572e5a1eae9b0bb48f65dce5de2df5c5ae95a3bd" region="maincpu" offset="0"/>
+		<rom name="3.4d" size="32768" crc="ebf61afc" sha1="30235a90e8316f5033d44d31f02cca97c64f2d5e" region="maincpu" offset="10000"/>
+		<rom name="2.2d" size="32768" crc="99aee3bc" sha1="5ffd60b959dda3fd41609c89a3486a989b1e2530" region="extra_banked_rom" offset="0"/>
+		<rom name="11.13b" merge="ninjemak.12" size="16384" crc="3d1cd329" sha1="6abd8e0dbecddfd67c4d358b958c850136fd3c29" region="audiocpu" offset="0"/>
+		<rom name="12.15b" merge="ninjemak.13" size="32768" crc="ac3a0b81" sha1="39f2c305706e313d5256c357a3c8b57bbe45d3d7" region="audiocpu" offset="4000"/>
+		<rom name="4.7d" size="32768" crc="a1954f44" sha1="b10a22b51bd1a02c0d7b116b4d7390003c41decf" region="chars" offset="0"/>
+		<rom name="7.13f" merge="ninjemak.8" size="32768" crc="655f0a58" sha1="8ffe73cec68d52c7b09651b546289613d6d4dde4" region="tiles" offset="0"/>
+		<rom name="8.15f" merge="ninjemak.9" size="32768" crc="934e1703" sha1="451f8d01d9035d91c969cdc3fb582a00007da7df" region="tiles" offset="8000"/>
+		<rom name="9.16f" merge="ninjemak.10" size="32768" crc="955b5c45" sha1="936bfe2599228dd0861bbcfe15152ac5e9b906d1" region="tiles" offset="10000"/>
+		<rom name="10.18f" merge="ninjemak.11" size="32768" crc="bbd2e51c" sha1="51bc266cf8161610204e5d98e56346b1d8d3c009" region="tiles" offset="18000"/>
+		<rom name="15.4h" merge="ninjemak.16" size="32768" crc="8df93fed" sha1="ef37c78d4abbdbe9f427e3d9345f52464261116d" region="sprites" offset="0"/>
+		<rom name="16.6h" merge="ninjemak.17" size="32768" crc="a3efd0fc" sha1="69d40707b0570c2f1be6247f0209ba9e60a83ed0" region="sprites" offset="8000"/>
+		<rom name="13.1h" merge="ninjemak.14" size="32768" crc="bff332d3" sha1="d277ba18034b083eaafa969d90685563994416fa" region="sprites" offset="10000"/>
+		<rom name="14.3h" merge="ninjemak.15" size="32768" crc="56430ed4" sha1="68356a0f68404ef70d8dc17d5cbdf5e1f28badcf" region="sprites" offset="18000"/>
+		<rom name="6.18d" merge="ninjemak.7" size="16384" crc="80c20d36" sha1="f20724754824030d62059388f3ea2224f5b7a60e" region="bgtiles" offset="0"/>
+		<rom name="5.17d" merge="ninjemak.6" size="16384" crc="1da7a651" sha1="5307452058164a0bc39d144dd204627a9ead7543" region="bgtiles" offset="4000"/>
+		<rom name="pr.6e" size="256" crc="ea47b91a" sha1="9921aa1ef882fb664d85d3e065223610262ca112" region="proms" offset="0"/>
+		<rom name="pr.7e" size="256" crc="6d66da81" sha1="ffdd1778ce5b7614b90b5da85589c5871405d3fe" region="proms" offset="100"/>
+		<rom name="pr.8e" size="256" crc="ffb4b287" sha1="c3c7018e6d5e18cc2db135812d0dc3824710ab4c" region="proms" offset="200"/>
+		<rom name="pr.2e" merge="yncp-2d.bin" size="256" crc="23bade78" sha1="7e2de5eb08d888f97830807b6dbe85d09bb3b7f8" region="proms" offset="300"/>
+		<rom name="pr.7h" merge="yncp-7f.bin" size="256" crc="262d0809" sha1="a67281af02cef082023c0d7d57e3824aeef67450" region="sprpalbank_prom" offset="0"/>
+		<device_ref name="z80"/>
+		<device_ref name="z80"/>
+		<device_ref name="buffered_spriteram8"/>
+		<device_ref name="screen"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="filter_biquad"/>
+		<device_ref name="ym3526"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="dac_8bit_r2r"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<chip type="cpu" tag="maincpu" name="Zilog Z80" clock="6000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="4000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymfilter" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter1" name="Biquad Filter"/>
+		<chip type="audio" tag="dacfilter2" name="Biquad Filter"/>
+		<chip type="audio" tag="ymsnd" name="YM3526 OPL" clock="4000000"/>
+		<chip type="audio" tag="dac1" name="8-Bit R-2R DAC"/>
+		<chip type="audio" tag="dac2" name="8-Bit R-2R DAC"/>
+		<display tag="screen" type="raster" rotate="270" width="256" height="224" refresh="59.949642" pixclock="6000000" htotal="382" hbend="0" hbstart="256" vtotal="262" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<dipswitch name="Lives" tag="DSW1" mask="3">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<dipvalue name="3" value="3" default="yes"/>
+			<dipvalue name="4" value="2"/>
+			<dipvalue name="5" value="1"/>
+			<dipvalue name="6" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSW1" mask="12">
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="20k and every 60k" value="12" default="yes"/>
+			<dipvalue name="50k and every 60k" value="8"/>
+			<dipvalue name="20k and every 90k" value="4"/>
+			<dipvalue name="50k and every 90k" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSW1" mask="48">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<dipvalue name="2 Coins/1 Credit" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="48" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="32"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="192">
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="2 Coins/1 Credit" value="64"/>
+			<dipvalue name="1 Coin/1 Credit" value="192" default="yes"/>
+			<dipvalue name="2 Coins/3 Credits" value="0"/>
+			<dipvalue name="1 Coin/2 Credits" value="128"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="2">
+			<diplocation name="SW2" number="2"/>
+			<dipvalue name="Upright" value="0" default="yes"/>
+			<dipvalue name="Cocktail" value="2"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="4">
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Easy" value="4" default="yes"/>
+			<dipvalue name="Hard" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSW2" mask="32">
+			<diplocation name="SW2" number="6"/>
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSW2" mask="192">
+			<diplocation name="SW2" number="7"/>
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="No" value="192"/>
+			<dipvalue name="3 Times" value="128"/>
+			<dipvalue name="5 Times" value="64" default="yes"/>
+			<dipvalue name="99 Times" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="SERVICE" mask="2">
+			<dipvalue name="Off" value="2" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SERVICE">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="preliminary" emulation="preliminary" savestate="supported"/>
+		<feature type="protection" status="imperfect"/>
+	</machine>
 </mame>
