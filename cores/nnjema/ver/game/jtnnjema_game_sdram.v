@@ -49,36 +49,36 @@ wire [ 7:0] dac1;
 wire [ 7:0] dac2;
 wire mute;
 // Additional ports
-wire [7:0] ocpu_dout;
-wire [7:0] objbank_addr;
-wire [3:0] objbank_data;
-wire [3:0] blue_data;
+wire [7:0] objlut_addr;
 wire [3:0] objlut_data;
 wire  vcwr_we;
-wire [7:0] vattr_dout;
 wire  vawr_we;
-wire [7:0] vawr_dout;
-wire [8:0] ocpu_addr;
-wire [13:0] m4rom_addr;
 wire  ocpu_we;
-wire [3:0] red_data;
+wire [7:0] vattr_dout;
+wire [8:0] ocpu_addr;
+wire [7:0] vawr_dout;
 wire [7:0] vcode_dout;
+wire [7:0] vawr_din;
+wire [7:0] ocpu_dout;
+wire [13:0] m4rom_addr;
+wire [3:0] green_data;
 wire [9:0] vcwr_addr;
-wire [9:0] vattr_scan;
-wire [8:0] odma_addr;
 wire [7:0] oram_dout;
-wire [7:0] red_addr;
 wire [7:0] green_addr;
 wire [7:0] blue_addr;
-wire [7:0] vcwr_din;
-wire [7:0] m4rom_data;
-wire [7:0] vcwr_dout;
-wire [7:0] ocpu_din;
-wire [3:0] green_data;
-wire [7:0] objlut_addr;
+wire [3:0] red_data;
 wire [9:0] vcode_scan;
+wire [7:0] vcwr_din;
+wire [7:0] vcwr_dout;
 wire [9:0] vawr_addr;
-wire [7:0] vawr_din;
+wire [7:0] red_addr;
+wire [8:0] odma_addr;
+wire [7:0] m4rom_data;
+wire [3:0] blue_data;
+wire [7:0] ocpu_din;
+wire [7:0] objbank_addr;
+wire [3:0] objbank_data;
+wire [9:0] vattr_scan;
 
 // BRAM buses
 
@@ -210,36 +210,36 @@ jtnnjema_game u_game(
     .dip_test       ( dip_test      ),
     .dip_fxlevel    ( dip_fxlevel   ),
     // Ports declared in mem.yaml
-    .ocpu_dout   ( ocpu_dout ),
-    .objbank_addr   ( objbank_addr ),
-    .objbank_data   ( objbank_data ),
-    .blue_data   ( blue_data ),
+    .objlut_addr   ( objlut_addr ),
     .objlut_data   ( objlut_data ),
     .vcwr_we   ( vcwr_we ),
-    .vattr_dout   ( vattr_dout ),
     .vawr_we   ( vawr_we ),
-    .vawr_dout   ( vawr_dout ),
-    .ocpu_addr   ( ocpu_addr ),
-    .m4rom_addr   ( m4rom_addr ),
     .ocpu_we   ( ocpu_we ),
-    .red_data   ( red_data ),
+    .vattr_dout   ( vattr_dout ),
+    .ocpu_addr   ( ocpu_addr ),
+    .vawr_dout   ( vawr_dout ),
     .vcode_dout   ( vcode_dout ),
+    .vawr_din   ( vawr_din ),
+    .ocpu_dout   ( ocpu_dout ),
+    .m4rom_addr   ( m4rom_addr ),
+    .green_data   ( green_data ),
     .vcwr_addr   ( vcwr_addr ),
-    .vattr_scan   ( vattr_scan ),
-    .odma_addr   ( odma_addr ),
     .oram_dout   ( oram_dout ),
-    .red_addr   ( red_addr ),
     .green_addr   ( green_addr ),
     .blue_addr   ( blue_addr ),
-    .vcwr_din   ( vcwr_din ),
-    .m4rom_data   ( m4rom_data ),
-    .vcwr_dout   ( vcwr_dout ),
-    .ocpu_din   ( ocpu_din ),
-    .green_data   ( green_data ),
-    .objlut_addr   ( objlut_addr ),
+    .red_data   ( red_data ),
     .vcode_scan   ( vcode_scan ),
+    .vcwr_din   ( vcwr_din ),
+    .vcwr_dout   ( vcwr_dout ),
     .vawr_addr   ( vawr_addr ),
-    .vawr_din   ( vawr_din ),
+    .red_addr   ( red_addr ),
+    .odma_addr   ( odma_addr ),
+    .m4rom_data   ( m4rom_data ),
+    .blue_data   ( blue_data ),
+    .ocpu_din   ( ocpu_din ),
+    .objbank_addr   ( objbank_addr ),
+    .objbank_data   ( objbank_data ),
+    .vattr_scan   ( vattr_scan ),
     // Memory interface - SDRAM
     .main_addr ( main_addr ),
     .main_cs   ( main_cs   ),

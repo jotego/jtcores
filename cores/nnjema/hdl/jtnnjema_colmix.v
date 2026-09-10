@@ -59,7 +59,7 @@ always @(posedge clk) begin
         {2'b00, char_l[3] ? char_l[7:6] : char_l[5:4], char_l[3:0]};
     scr_pen  <= !bg_en ? 8'd0 :
         {2'b11, scr_l[3] ? scr_l[7:6] : scr_l[5:4], scr_l[3:0]};
-    obj_pen  <= {2'b10, obj_l[3] ? obj_l[9:8] : obj_l[11:10], objlut_data};
+    obj_pen  <= {2'b10, obj_l[3] ? obj_l[11:10] : obj_l[9:8], objlut_data};
     char_op  <= tx_en && char_l[3:0]!=15;
     obj_op   <= obj_l[3:0]!=15;
     blank    <= ~(LHBL & LVBL);

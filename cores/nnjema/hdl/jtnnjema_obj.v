@@ -33,8 +33,8 @@ module jtnnjema_obj(
     output     [11:0] pxl        // {bank[3:0],color[3:0],px[3:0]}
 );
 
-reg  [ 8:0] dma_addr;
-reg         dma_bsy, LVBLl, hsl;
+reg  [ 8:0] dma_addr, dma_addr_l;
+reg         dma_bsy, dma_we, LVBLl, hsl;
 reg  [ 7:0] shadow[0:511];
 reg  [ 7:0] dram;   // shadow read
 reg  [ 8:0] scan_addr;
@@ -54,7 +54,8 @@ wire [16:2] pre_addr;
 wire [31:0] swapped;
 
 wire last_idx = idx == (m4_en ? 7'd127 : 7'd63);
-assign code = {attr[2:1], code_lo};
+// galivan only has 512 sprites: MAME wraps the code modulo the gfx count
+assign code = m4_en ? {attr[2:1], code_lo} : {1'b0, attr[1], code_lo};
 assign objbank_addr = code[9:2];
 // gfx rows packed by V first: {code, v[3:0], h[3]}
 assign rom_addr = {pre_addr[16:7],pre_addr[5:2],pre_addr[6]};
@@ -62,9 +63,12 @@ assign rom_addr = {pre_addr[16:7],pre_addr[5:2],pre_addr[6]};
 assign swapped  = {rom_data[27:24],rom_data[31:28],rom_data[19:16],rom_data[23:20],
                    rom_data[11:8], rom_data[15:12],rom_data[ 3:0], rom_data[ 7:4]};
 
-// vblank DMA into the shadow buffer
+// vblank DMA into the shadow buffer; oram dout lags the address by one clock
 always @(posedge clk) begin
-    LVBLl <= LVBL;
+    LVBLl      <= LVBL;
+    dma_addr_l <= dma_addr;
+    dma_we     <= dma_bsy;
+    if( dma_we ) shadow[dma_addr_l] <= oram_data;
     if( rst ) begin
         dma_bsy  <= 0;
         dma_addr <= 0;
@@ -73,7 +77,6 @@ always @(posedge clk) begin
             dma_bsy  <= 1;
             dma_addr <= 0;
         end else if( dma_bsy ) begin
-            shadow[dma_addr] <= oram_data;
             {dma_bsy, dma_addr} <= {1'b1, dma_addr} + 10'd1;
         end
     end
@@ -148,6 +151,7 @@ jtframe_objdraw #(
     .CW     ( 10 ),
     .PW     ( 12 ),
     .ALPHA  ( 15 ),
+    .HFIX   (  0 ),
     .PACKED (  1 )
 ) u_draw(
     .rst        ( rst       ),

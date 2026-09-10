@@ -35,8 +35,9 @@ wire [31:0] sorted;
 
 // column scan
 assign scan_addr = {vram_addr[4:0],vram_addr[9:5]};
-// NB1414M4 parameter bytes are not drawn
-assign code = m4_en && scan_addr<10'h12 ? 10'd0 : {attr_dout[1:0],code_dout};
+// NB1414M4 parameter bytes are not drawn; galivan only has 512 chars
+assign code = m4_en && scan_addr<10'h12 ? 10'd0 :
+              m4_en ? {attr_dout[1:0],code_dout} : {1'b0,attr_dout[0],code_dout};
 assign pal  = m4_en ? {1'b0,attr_dout[4:2]} : attr_dout[6:3];
 assign rom_addr = pre_addr;
 
