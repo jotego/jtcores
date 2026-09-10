@@ -59,7 +59,7 @@ jtframe_tilemap #(
     .PW     (  8 ),
     .MAP_HW (  8 ),
     .MAP_VW (  8 ),
-    .HJUMP  (  0 ),
+    .HJUMP  (  1 ),
     .HDUMP_OFFSET ( -9 )
 ) u_tilemap(
     .rst        ( rst       ),

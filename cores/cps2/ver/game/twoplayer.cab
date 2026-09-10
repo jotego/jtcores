@@ -1,0 +1,21 @@
+# 2 coins, both players start, a few punches, then UP held for ~60 s.
+500
+8 coin
+12
+8 coin
+12
+8 2coin
+12
+8 2coin
+12
+loop
+8 1p
+12
+8 2p
+12
+repeat 20
+loop
+8 b1 2b1
+22
+repeat 6
+3600 up 2up

@@ -10,6 +10,7 @@ nnjema:
     - jtnnjema_obj.v
     - jtnnjema_colmix.v
     - jtnnjema_1414.v
+    - jtnnjema_video_mmr.v
 jtframe:
   - from: ram
     get:
@@ -27,6 +28,8 @@ jtframe:
   - from: video/tilemap
     get:
       - jtframe_tilemap.v
+      - jtframe_scroll.v
+      - jtframe_scroll_offset.v
   - get:
       - jtframe_sh.v
   - from: cpu

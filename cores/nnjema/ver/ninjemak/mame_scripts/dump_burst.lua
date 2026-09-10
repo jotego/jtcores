@@ -6,6 +6,7 @@
 --   text code  0xd800  0x400   -> vcode
 --   text attr  0xdc00  0x400   -> vattr
 --   sprites    0xe000  0x200   -> oram
+--   + 4 bytes scroll state -> rest.bin (xlo,xhi,ylo,yhi)
 -- Writes /tmp/nnjema_burst_<frame>_dump.bin + _screen.png;
 -- burst_capture.sh collates into ver/ninjemak/scenes/burst_<frame>/.
 
@@ -29,19 +30,29 @@ local function capture(frame)
     for i = 0, 0x1ff do
         f:write(string.char(oram:read_u8(i)))
     end
+    -- scroll state: same vram params the NB1414M4 latches on blit
+    f:write(string.char(vram:read_u8(0x0d), vram:read_u8(0x0e),
+                        vram:read_u8(0x0b), vram:read_u8(0x0c)))
     f:close()
-    if screen ~= nil then screen:snapshot(prefix .. "_screen.png") end
+    pending_shot = prefix .. "_screen.png"
     print(string.format("[burst] frame=%05d captured", frame))
 end
 
+pending_shot = nil
+
 local function on_frame_done()
+    if pending_shot ~= nil then
+        -- sprites are drawn from the buffered RAM: shoot one frame after the dump
+        if screen ~= nil then screen:snapshot(pending_shot) end
+        pending_shot = nil
+    end
     if idx > #targets then return end
     local cur = screen ~= nil and screen:frame_number() or 0
     while idx <= #targets and cur >= targets[idx] do
         capture(targets[idx])
         idx = idx + 1
     end
-    if idx > #targets then
+    if idx > #targets and pending_shot == nil then
         print("[burst] all targets captured, exiting")
         local ok = pcall(function() manager.machine:exit() end)
         if not ok then pcall(function() emu.exit() end) end

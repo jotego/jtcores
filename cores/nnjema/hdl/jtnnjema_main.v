@@ -32,9 +32,9 @@ module jtnnjema_main(
     // video control
     output reg        flip,
     output reg        dispen_n,   // gfxbank bit 4 (ninjemak)
-    output reg [ 2:0] layers,     // galivan scrollx[1] bits 7:5
-    output reg [12:0] scrx,
-    output reg [10:0] scry,
+    output     [ 2:0] layers,     // galivan scrollx[1] bits 7:5
+    output     [12:0] scrx,
+    output     [10:0] scry,
 
     // NB1414M4
     output reg        blit_stb,
@@ -50,6 +50,12 @@ module jtnnjema_main(
     input      [ 7:0] rom_data,
     input             rom_ok
 );
+
+wire        mmr_cs;
+wire [ 1:0] mmr_addr;
+wire [10:0] gal_scrx;
+
+assign scrx = {2'd0, gal_scrx};
 
 `ifndef NOMAIN
 wire [15:0] A;
@@ -96,25 +102,9 @@ always @(posedge clk) begin
     end
 end
 
-// galivan scroll registers, layer bits ride on scrollx MSB write
-always @(posedge clk) begin
-    if( rst ) begin
-        scrx   <= 0;
-        scry   <= 0;
-        layers <= 0;
-    end else if( iowr && !m4_en ) begin
-        case( A[7:0] )
-            8'h41: scrx[ 7:0] <= cpu_dout;
-            8'h42: begin
-                scrx[12:8] <= {2'd0,cpu_dout[2:0]};
-                layers     <= cpu_dout[7:5];
-            end
-            8'h43: scry[ 7:0] <= cpu_dout;
-            8'h44: scry[10:8] <= cpu_dout[2:0];
-            default:;
-        endcase
-    end
-end
+// galivan scroll registers in the video MMR, ports 0x41-0x44
+assign mmr_cs   = iowr && !m4_en && A[7:0]>=8'h41 && A[7:0]<=8'h44;
+assign mmr_addr = A[1:0]-2'd1;
 
 // sound latch, cleared by the sound CPU
 always @(posedge clk) begin
@@ -218,7 +208,7 @@ jtframe_ram #(.AW(13)) u_wram(
 
 `else
 initial begin
-    flip=0; dispen_n=0; layers=0; scrx=0; scry=0;
+    flip=0; dispen_n=0;
     blit_stb=0; vb_ack=0; snd_latch=0; rom_cs=0;
 end
 assign vram_we   = 0;
@@ -227,5 +217,23 @@ assign ocpu_addr = 0;
 assign ocpu_we   = 0;
 assign cpu_dout  = 0;
 assign rom_addr  = 0;
+assign mmr_cs    = 0;
+assign mmr_addr  = 0;
 `endif
+
+jtnnjema_video_mmr u_video_mmr(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cs         ( mmr_cs    ),
+    .addr       ( mmr_addr  ),
+    .rnw        ( 1'b0      ),
+    .din        ( cpu_dout  ),
+    .scrx       ( gal_scrx  ),
+    .scry       ( scry      ),
+    .layers     ( layers    ),
+    .ioctl_addr ( 2'd0      ),
+    .ioctl_din  (           ),
+    .debug_bus  ( 8'd0      ),
+    .st_dout    (           )
+);
 endmodule

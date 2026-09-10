@@ -98,7 +98,9 @@ wire        m4_we, m4_busy;
 wire [10:0] wr_addr;
 wire [ 7:0] wr_din;
 wire        wr_we;
-wire        blankn = LHBL & LVBL;
+wire        blankn = LVBL;   // fetch through HB so the line start is prefetched
+// blanking counts as -128..-1 so the tilemaps prefetch the next line's start
+wire [ 8:0] hjmp   = hdump[8] ? {2'b11,hdump[6:0]} : hdump;
 
 // the NB1414M4 owns the text RAM while blitting
 assign wr_addr = m4_busy ? m4_addr : cpu_vram_addr;
@@ -166,7 +168,7 @@ jtnnjema_char u_char(
     .pxl_cen  ( pxl_cen   ),
     .m4_en    ( m4_en     ),
     .flip     ( flip      ),
-    .hdump    ( hdump     ),
+    .hdump    ( hjmp      ),
     .vdump    ( vdump     ),
     .blankn   ( blankn    ),
     .scan_addr( scan_addr ),
@@ -186,7 +188,7 @@ jtnnjema_scr u_scr(
     .m4_en    ( m4_en     ),
     .flip     ( flip      ),
     .hs       ( HS        ),
-    .hdump    ( hdump     ),
+    .hdump    ( hjmp      ),
     .vdump    ( vdump     ),
     .blankn   ( blankn    ),
     .scrx     ( scrx      ),

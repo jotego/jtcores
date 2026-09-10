@@ -7,4 +7,5 @@
 //   2. Keep the waiver permanently if you are sure it is okay
 //   3. Keep the waiver temporarily to suppress the output
 
-// No waivers needed - great!
+// lint_off -rule WIDTHEXPAND -file "*/jtcores/modules/jtframe/hdl/inc/../../../../modules/jtframe/hdl/video/tilemap/jtframe_scroll_offset.v" -match "Operator ADD expects 12 bits on the LHS, but LHS's VARREF 'vdf' generates 9 bits.*"
+

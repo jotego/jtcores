@@ -60,6 +60,32 @@ reg  [ 3:0] loop_i;
 reg  [ 7:0] sco_code;
 reg         sco_base, sco_first;
 reg  [ 2:0] sco_i;
+reg  [12:0] scrx_init;
+reg  [10:0] scry_init;
+
+// scene replay restores the latched scroll through rest.bin, like jtframe_mmr
+`ifdef SIMULATION
+reg [7:0] rest[0:3];
+integer   f, fcnt;
+initial begin
+    scrx_init = 0;
+    scry_init = 0;
+    f = $fopen("rest.bin","rb");
+    if( f!=0 ) begin
+        fcnt = $fread(rest, f);
+        if( fcnt==4 ) begin
+            scrx_init = {rest[1][4:0],rest[0]};
+            scry_init = {rest[3][2:0],rest[2]};
+        end
+        $fclose(f);
+    end
+end
+`else
+initial begin
+    scrx_init = 0;
+    scry_init = 0;
+end
+`endif
 
 wire [ 7:0] credits = params[15];
 wire [ 3:0] sco_res = sco_i[0] ? params[{2'd0,sco_i[2:1]}+5+(sco_base?3:0)][3:0]
@@ -77,8 +103,8 @@ always @(posedge clk) begin
         st      <= IDLE;
         busy    <= 0;
         vram_we <= 0;
-        scrx    <= 0;
-        scry    <= 0;
+        scrx    <= scrx_init;
+        scry    <= scry_init;
         in_game <= 0;
         frcnt   <= 0;
         prev02  <= 8'hff;

@@ -146,6 +146,11 @@ always @(posedge clk) begin
     end
 end
 
+`ifdef SIMULATION
+always @(posedge clk) if( rom_cs && rom_ok && dr_code==10'h028 )
+    $display("OBJF code=%x addr=%x data=%x ysub=%0d", dr_code, {rom_addr,2'b0}, rom_data, dr_ysub);
+`endif
+
 jtframe_objdraw #(
     .AW     (  9 ),
     .CW     ( 10 ),

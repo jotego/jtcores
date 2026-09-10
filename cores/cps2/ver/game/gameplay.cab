@@ -1,0 +1,12 @@
+# CPS2 gameplay driver: coin, start, then button 1 once per second.
+# Inputs are repeated rather than precisely timed so the run does not
+# depend on knowing the exact boot duration.
+500
+loop
+8 coin
+7
+8 1p
+7
+8 b1
+30
+repeat 60

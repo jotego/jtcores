@@ -27,8 +27,10 @@ module jtframe_scroll_offset #(parameter
 );
 
 localparam VDW=9, HDW=10,
-           HEW = HDUMPW>HDW ? HDUMPW : HDW,
-           VEW = VDUMPW>VDW ? VDUMPW : VDW;
+           MHW = MAP_HW>HDW ? MAP_HW : HDW,
+           MVW = MAP_VW>VDW ? MAP_VW : VDW,
+           HEW = (HDUMPW>MHW ? HDUMPW : MHW)+1,
+           VEW = (VDUMPW>MVW ? VDUMPW : MVW)+1;
 
 reg  [VDW-1:0] vdf;
 reg  [HDW-1:0] hdf;
@@ -51,7 +53,7 @@ always @* begin
     // hdf should make a perfect subtraction during blanking
     // HLOOP can be used to help achieve that
     hdf   = {blank,hdfix} ^ { {HDW-FLIP_HW{1'b0}}, {FLIP_HW{flip}} };
-    hfull = hdf + {{HDW-MAP_HW{1'b0}},scrx_eff};
+    hfull = {{HEW-HDW{hdf[HDW-1]}},hdf} + scrx_eff;
     heff  = hfull[HDUMPW-1:0];
 
     vdf   = vdump ^ { {VDW-FLIP_VW{1'b0}}, {FLIP_VW{flip}} };
