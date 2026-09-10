@@ -6,6 +6,7 @@ module jtgals_video(
     input              rst,
     input              clk,
     input              pxl_cen,
+    input              flip,
     input       [ 3:0] gfx_en,
     output      [ 7:0] game_vrender,
     output      [ 8:0] game_hdump,
@@ -58,8 +59,9 @@ assign game_vrender     = vrender[7:0];
 assign h1_prefetch       = hdump == HB_END - 9'd1;
 assign h0_prefetch       = hdump == HB_END;
 assign h_addr            = h0_prefetch ? 9'd0 : hdump + 9'd1;
-assign bmp_h_addr        = 8'hff - h_addr[7:0];
-assign bmp_v_addr        = 8'd223 - vdump[7:0];
+// the bitmap scan is inverted on both axes; flip removes the inversion
+assign bmp_h_addr        = flip ? h_addr[7:0] : 8'hff - h_addr[7:0];
+assign bmp_v_addr        = flip ? vdump[7:0]  : 8'd223 - vdump[7:0];
 assign fg_video_addr     = { bmp_v_addr, bmp_h_addr };
 assign bg_video_addr     = { bmp_v_addr, bmp_h_addr };
 assign pxl_blank         = ~((LHBL | h0_prefetch) & LVBL);
@@ -94,6 +96,7 @@ jtgals_obj u_obj(
     .rst          ( rst               ),
     .clk          ( clk               ),
     .pxl_cen      ( pxl_cen           ),
+    .flip         ( flip              ),
     .lvbl         ( LVBL              ),
     .ln_addr      ( ln_addr           ),
     .ln_data      ( ln_data           ),
