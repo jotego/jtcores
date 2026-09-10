@@ -31,29 +31,37 @@ local targets = { 300, 600, 900, 1200, 1500, 1800, 2100, 2400,
 local idx = 1
 
 local function capture(frame)
-    local prefix = string.format("/tmp/nnjema_gburst_%05d", frame)
+    -- sprites are buffered: grab the live RAM now, everything else next frame
+    pending_oram = {}
+    for i = 0, 0xff do pending_oram[i] = oram:read_u8(i) end
+    pending_frame = frame
+    print(string.format("[burst] frame=%05d oram latched", frame))
+end
+
+local function finish_capture()
+    local prefix = string.format("/tmp/nnjema_gburst_%05d", pending_frame)
     local f = io.open(prefix .. "_dump.bin", "wb")
     for i = 0, 0x7ff do
         f:write(string.char(vram:read_u8(i)))
     end
     for i = 0, 0xff do
-        f:write(string.char(oram:read_u8(i)))
+        f:write(string.char(pending_oram[i]))
     end
     f:write(string.rep("\0", 0x100))
     f:write(string.char(scroll_regs[0x41], scroll_regs[0x42],
                         scroll_regs[0x43], scroll_regs[0x44]))
     f:close()
-    pending_shot = prefix .. "_screen.png"
-    print(string.format("[burst] frame=%05d captured", frame))
+    if screen ~= nil then screen:snapshot(prefix .. "_screen.png") end
+    print(string.format("[burst] frame=%05d captured", pending_frame))
 end
 
-pending_shot = nil
+pending_oram = nil
+pending_frame = nil
 
 local function on_frame_done()
-    if pending_shot ~= nil then
-        -- sprites are drawn from the buffered RAM: shoot one frame after the dump
-        if screen ~= nil then screen:snapshot(pending_shot) end
-        pending_shot = nil
+    if pending_oram ~= nil then
+        finish_capture()
+        pending_oram = nil
     end
     if idx > #targets then return end
     local cur = screen ~= nil and screen:frame_number() or 0
@@ -61,7 +69,7 @@ local function on_frame_done()
         capture(targets[idx])
         idx = idx + 1
     end
-    if idx > #targets and pending_shot == nil then
+    if idx > #targets and pending_oram == nil then
         print("[burst] all targets captured, exiting")
         local ok = pcall(function() manager.machine:exit() end)
         if not ok then pcall(function() emu.exit() end) end

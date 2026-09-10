@@ -59,9 +59,7 @@ assign code = m4_en ? {attr[2:1], code_lo} : {1'b0, attr[1], code_lo};
 assign objbank_addr = code[9:2];
 // gfx rows packed by V first: {code, v[3:0], h[3]}
 assign rom_addr = {pre_addr[16:7],pre_addr[5:2],pre_addr[6]};
-// pixels come high nibble first within each byte
-assign swapped  = {rom_data[27:24],rom_data[31:28],rom_data[19:16],rom_data[23:20],
-                   rom_data[11:8], rom_data[15:12],rom_data[ 3:0], rom_data[ 7:4]};
+assign swapped  = rom_data;
 
 // vblank DMA into the shadow buffer; oram dout lags the address by one clock
 always @(posedge clk) begin

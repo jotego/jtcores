@@ -207,9 +207,17 @@ jtframe_ram #(.AW(13)) u_wram(
 );
 
 `else
+integer fr, frcnt;
+reg [7:0] rest6[0:5];
 initial begin
     flip=0; dispen_n=0;
     blit_stb=0; vb_ack=0; snd_latch=0; rom_cs=0;
+    fr = $fopen("rest.bin","rb");
+    if( fr!=0 ) begin
+        frcnt = $fread(rest6, fr);
+        if( frcnt>=5 ) dispen_n = rest6[4][0];
+        $fclose(fr);
+    end
 end
 assign vram_we   = 0;
 assign vram_addr = 0;
