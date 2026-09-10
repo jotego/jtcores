@@ -102,10 +102,8 @@ end
 
 `ifdef JTFRAME_NOHQ2X
 // Line buffer scandoubler — same ping-pong scheme as jtframe_scan2x.
-// Write active pixels at 1× rate (ce_x1i), read at 1× output pixel
-// rate (ce_x2o). Each input line is replayed for both output lines.
-// Uses req_line_reset (registered hb_in) as the line boundary — same
-// signal the original Hq2x path used via its reset_line port.
+// Provide a line buffer necessary for doubling that would be provided
+// by the deactivated hq2x module
 localparam DW3 = 3*(DWIDTH+1)-1;   // full RGB pixel width
 localparam LBA = $clog2(LENGTH)-1;
 
