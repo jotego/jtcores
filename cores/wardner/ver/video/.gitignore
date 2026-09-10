@@ -1,0 +1,6 @@
+gfx_*
+fuzz/
+obj_dir/
+*.ppm
+*.png
+*.log
