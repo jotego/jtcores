@@ -1,0 +1,16 @@
+\BWardner\W on FPGA
+
+  Toaplan TP-009 / Taito B25
+          1987
+
+Z80 main and sound CPUs, a
+TMS320C10 co-processor, YM3812
+and the Toaplan sprite unit.
+
+The DSP is not protection: it
+runs enemy fire, collisions and
+sprite placement, writing them
+into the main CPU's own RAM.
+
+   Report issues to:
+  github.com/jotego/jtcores
