@@ -1,0 +1,23 @@
+wardner:
+  - get:
+    - jtwardner_game.v
+    - jtwardner_main.v
+    - jtwardner_sound.v
+    - jtwardner_video.v
+    - jttoaplan1_dsp.v
+jt32010:
+  - get:
+    - jt32010.v
+jtframe:
+  - from: ram
+    get:
+      - jtframe_dual_ram.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+jtopl:
+  - get:
+    - jtopl2.yaml
