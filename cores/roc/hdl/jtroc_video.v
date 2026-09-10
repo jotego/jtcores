@@ -11,7 +11,8 @@ module jtroc_video(
     input               pxl2_cen,
 
     // configuration
-    input               flip,
+    input               flip,       // software flip, written by the CPU (cocktail mode)
+    input               osd_flip,   // user flip from the OSD, unknown to the game code
 
     // CPU interface
     input        [10:0] cpu_addr,
@@ -62,7 +63,7 @@ module jtroc_video(
 parameter LAYOUT=5;
 
 wire       preLHBL, preLVBL, hinit;
-wire [8:0] vdump, vrender, hdump;
+wire [8:0] vdump, vrender, hdump, obj_hdump;
 wire [3:0] obj_pxl, scr_pxl;
 reg  [2:0] prom_we;
 wire       obj1_cs, obj2_cs, prio, obj_en;
@@ -71,6 +72,8 @@ reg  [1:0] fix_addr;
 assign obj1_cs = objram_cs &  cpu_addr[10];
 assign obj2_cs = objram_cs & ~cpu_addr[10];
 assign obj_en  = gfx_en[3] & ~prio;
+// mirrors the object line-buffer read to flip sprites horizontally
+assign obj_hdump = { hdump[8], hdump[7:0]^{8{osd_flip}} };
 
 always @* begin
     prom_we = 0;
@@ -123,7 +126,7 @@ jtkicker_scroll #(.LAYOUT(LAYOUT),.NOSCROLL(1)) u_scroll(
     .LVBL       ( LVBL      ),
     .vdump      ( vdump[7:0] ),
     .hdump      ( hdump     ),
-    .flip       ( flip      ),
+    .flip       ( flip ^ osd_flip ),
 
     // PROMs
     .prog_data  ( prog_data[3:0] ),
@@ -160,8 +163,8 @@ jtkicker_obj #(.LAYOUT(LAYOUT)) u_obj(
     .LHBL       ( LHBL      ),
     .LVBL       ( LVBL      ),
     .vrender    (vrender[7:0]),
-    .hdump      ( hdump     ),
-    .flip       ( 1'd0      ),      // unconnected in the original
+    .hdump      ( obj_hdump ),
+    .flip       ( osd_flip  ),      // unconnected in the original: OSD flip only
 
     // PROMs
     .prog_data  ( prog_data[3:0] ),

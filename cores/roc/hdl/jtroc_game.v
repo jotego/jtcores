@@ -19,7 +19,7 @@ reg  [ 7:0] view_mux;
 
 wire        cpu_cen;
 wire        cpu_rnw, cpu_irqn, cpu_nmin;
-wire        vram_cs, objram_cs, flip;
+wire        vram_cs, objram_cs, flip, osd_flip;
 wire [ 7:0] vcpu_din, obj_dout, cpu_dout;
 
 // Sound
@@ -29,8 +29,8 @@ wire        mute, snd_on;
 wire        m2s_on;
 reg  [24:0] dwn_addr;
 
-assign dip_flip   = ~flip;
 assign vramrw_din = {2{cpu_dout}};
+assign osd_flip   = ~dip_flip;   // OSD "Flip screen" (JTFRAME_OSD_FLIP)
 assign debug_view = view_mux;
 assign ioctl_din  = 0;
 
@@ -135,6 +135,7 @@ jtroc_video u_video(
 
     // configuration
     .flip       ( flip      ),
+    .osd_flip   ( osd_flip  ),
 
     // CPU interface
     .cpu_addr   ( cpu_addr[10:0]  ),
