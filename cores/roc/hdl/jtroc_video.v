@@ -72,7 +72,6 @@ reg  [1:0] fix_addr;
 assign obj1_cs = objram_cs &  cpu_addr[10];
 assign obj2_cs = objram_cs & ~cpu_addr[10];
 assign obj_en  = gfx_en[3] & ~prio;
-// mirrors the object line-buffer read to flip sprites horizontally
 assign obj_hdump = { hdump[8], hdump[7:0]^{8{osd_flip}} };
 
 always @* begin

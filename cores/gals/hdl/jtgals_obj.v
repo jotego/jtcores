@@ -70,7 +70,6 @@ wire        scan_rel, scan_used, scan_inzone, dr_busy, draw_we, line_start;
 wire        scan_last;
 
 assign pxl              = ln_pxl[7:0];
-// mirroring the line-buffer writes flips sprites horizontally
 assign ln_addr          = flip ? 9'd255 - draw_addr : draw_addr;
 assign ln_data          = { 8'd0, draw_pxl };
 assign ln_we            = draw_we && draw_pxl[3:0] != 4'd0;

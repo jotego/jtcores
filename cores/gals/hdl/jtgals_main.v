@@ -217,7 +217,7 @@ always @(posedge clk) begin
         if (oki_bank_we && !uds_n) begin
             oki_bank <= cpu_dout[11:8];
             fb_keep  <=~cpu_dout[15];
-            flip     <= cpu_dout[14]; // written by the game from the Reverse DIP (SW1:2), unemulated in MAME
+            flip     <= cpu_dout[14];
         end
     end
 end
