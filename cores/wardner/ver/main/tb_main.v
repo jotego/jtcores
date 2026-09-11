@@ -178,9 +178,35 @@ wire [10:0] sh_addr;
 wire [15:0] sh_din, work_dout;
 wire [ 1:0] work_bwe;
 
+wire [ 1:0] obj_bwe, pal_bwe, tx_bwe, bg_bwe, fg_bwe;
+wire [15:0] objram_dout, pal_dout, txram_dout, bgram_dout, fgram_dout, cpu16;
+wire [ 7:0] main_dout, shared_dout;
+wire [10:0] mshr_addr, tx_a;
+wire [12:0] bg_a;
+wire [11:0] fg_a;
+wire        mshr_we;
+
 jtframe_dual_ram16 #(.AW(11)) u_work(
     .clk0(clk), .addr0(sh_addr), .data0(sh_din), .we0(work_bwe), .q0(work_dout),
     .clk1(clk), .addr1(11'd0  ), .data1(16'd0 ), .we1(2'd0    ), .q1()         );
+jtframe_dual_ram16 #(.AW(11)) u_objram(
+    .clk0(clk), .addr0(sh_addr),   .data0(sh_din), .we0(obj_bwe), .q0(objram_dout),
+    .clk1(clk), .addr1(obj_vaddr), .data1(16'd0 ), .we1(2'd0   ), .q1(obj_vq)     );
+jtframe_dual_ram16 #(.AW(11)) u_pal(
+    .clk0(clk), .addr0(sh_addr),   .data0(sh_din), .we0(pal_bwe), .q0(pal_dout),
+    .clk1(clk), .addr1(pal_vaddr), .data1(16'd0 ), .we1(2'd0   ), .q1(pal_vq)  );
+jtframe_dual_ram #(.AW(11),.DW(8)) u_shared(
+    .clk0(clk), .addr0(mshr_addr), .data0(main_dout), .we0(mshr_we), .q0(shared_dout),
+    .clk1(clk), .addr1(shr_addr),  .data1(shr_dout),  .we1(shr_we),  .q1(shr_din)    );
+jtframe_dual_ram16 #(.AW(11)) u_txram(
+    .clk0(clk), .addr0(tx_a),     .data0(cpu16), .we0(tx_bwe), .q0(txram_dout),
+    .clk1(clk), .addr1(tx_vaddr), .data1(16'd0), .we1(2'd0  ), .q1(tx_vq)      );
+jtframe_dual_ram16 #(.AW(13)) u_bgram(
+    .clk0(clk), .addr0(bg_a),     .data0(cpu16), .we0(bg_bwe), .q0(bgram_dout),
+    .clk1(clk), .addr1(bg_vaddr), .data1(16'd0), .we1(2'd0  ), .q1(bg_vq)      );
+jtframe_dual_ram16 #(.AW(12)) u_fgram(
+    .clk0(clk), .addr0(fg_a),     .data0(cpu16), .we0(fg_bwe), .q0(fgram_dout),
+    .clk1(clk), .addr1(fg_vaddr), .data1(16'd0), .we1(2'd0  ), .q1(fg_vq)      );
 
 jtwardner_main u_main(
     .rst(rst), .clk(clk), .cen6(cen6), .LVBL(LVBL),
@@ -188,13 +214,16 @@ jtwardner_main u_main(
     .dsp_on(dsp_on), .dsp_halt(dsp_halt | freeze), .dsp_addr(dsp_addr),
     .dsp_sel(dsp_sel), .dsp_dout(dsp_dout), .dsp_din(dsp_din), .dsp_we(dsp_we),
     .sh_addr(sh_addr), .sh_din(sh_din), .work_bwe(work_bwe), .work_dout(work_dout),
-    .snd_addr(shr_addr), .snd_dout(shr_dout), .snd_din(shr_din), .snd_we(shr_we),
+    .obj_bwe(obj_bwe), .pal_bwe(pal_bwe),
+    .objram_dout(objram_dout), .pal_dout(pal_dout),
+    .mshr_addr(mshr_addr), .mshr_we(mshr_we), .shared_dout(shared_dout),
+    .cpu16(cpu16), .cpu_dout(main_dout),
+    .tx_a(tx_a), .bg_a(bg_a), .fg_a(fg_a),
+    .tx_bwe(tx_bwe), .bg_bwe(bg_bwe), .fg_bwe(fg_bwe),
+    .txram_dout(txram_dout), .bgram_dout(bgram_dout), .fgram_dout(fgram_dout),
     .tx_scrx(tx_scrx), .tx_scry(tx_scry), .bg_scrx(bg_scrx), .bg_scry(bg_scry),
     .fg_scrx(fg_scrx), .fg_scry(fg_scry),
     .flip(flip), .bg_bank(bg_bank), .fg_bank(fg_bank), .video_on(video_on),
-    .tx_vaddr(tx_vaddr), .tx_vq(tx_vq), .bg_vaddr(bg_vaddr), .bg_vq(bg_vq),
-    .fg_vaddr(fg_vaddr), .fg_vq(fg_vq), .pal_vaddr(pal_vaddr), .pal_vq(pal_vq),
-    .obj_vaddr(obj_vaddr), .obj_vq(obj_vq),
     .dipsw_a(dswav[7:0]), .dipsw_b(dswbv[7:0]), .joy1(joy1v[7:0]), .joy2(8'h00),
     .cab_sys(sysv[7:0]),
     .dbg_iowr(dbg_iowr), .dbg_iord(dbg_iord), .dbg_port(dbg_port),

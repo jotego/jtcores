@@ -65,22 +65,30 @@ module jtwardner_main(
     output     [ 1:0] work_bwe,
     input      [15:0] work_dout,
 
-    // shared RAM with the sound CPU
-    input      [10:0] snd_addr,
-    input      [ 7:0] snd_dout,
-    output     [ 7:0] snd_din,
-    input             snd_we,
+    // sprite and palette RAM, on the same DSP-shared bus as the work RAM
+    output     [ 1:0] obj_bwe, pal_bwe,
+    input      [15:0] objram_dout, pal_dout,
+
+    // shared RAM with the sound CPU, this CPU's side of it
+    output     [10:0] mshr_addr,
+    output            mshr_we,
+    input      [ 7:0] shared_dout,
 
     // video control registers
     output reg [15:0] tx_scrx, tx_scry, bg_scrx, bg_scry, fg_scrx, fg_scry,
     output reg        flip, bg_bank, fg_bank, video_on,
 
-    // video read ports
-    input      [10:0] tx_vaddr,  output [15:0] tx_vq,
-    input      [12:0] bg_vaddr,  output [15:0] bg_vq,
-    input      [11:0] fg_vaddr,  output [15:0] fg_vq,
-    input      [10:0] pal_vaddr, output [15:0] pal_vq,
-    input      [10:0] obj_vaddr, output [15:0] obj_vq,
+    // tile maps, declared in mem.yaml. The address is latched through the I/O
+    // ports and the data moves a byte at a time, so cpu16 carries the byte on
+    // both halves and the byte enables pick one.
+    output     [15:0] cpu16,
+    output     [10:0] tx_a,
+    output     [12:0] bg_a,
+    output     [11:0] fg_a,
+    output     [ 1:0] tx_bwe, bg_bwe, fg_bwe,
+    input      [15:0] txram_dout, bgram_dout, fgram_dout,
+
+    output     [ 7:0] cpu_dout,
 
     // cabinet
     input      [ 7:0] dipsw_a, dipsw_b, joy1, joy2, cab_sys,
@@ -95,7 +103,7 @@ module jtwardner_main(
 // ------------------------------------------------------------------ the CPU
 wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, halt_n, busak_n;
 wire [15:0] A;
-wire [ 7:0] cpu_dout;
+
 reg  [ 7:0] cpu_din;
 wire        irq_n;
 
@@ -140,76 +148,38 @@ end
 // ------------------------------------------------- work / sprite / palette
 // Port 0 of each block is shared between the Z80 and the DSP; only one of them
 // is ever running. Port 1 is the video engine's read port.
-wire [15:0] obj_q, pal_q;
+
 wire        dsp_work = dsp_sel == 2'd0;
 wire        dsp_obj  = dsp_sel == 2'd1;
 wire        dsp_pal  = dsp_sel == 2'd2;
 
 assign     sh_addr   = dsp_halt ? dsp_addr[10:0] : A[11:1];
 assign     sh_din    = dsp_halt ? dsp_dout : {cpu_dout, cpu_dout};
-wire [ 7:0] sh_dlo   = dsp_halt ? dsp_dout[ 7:0] : cpu_dout;
-wire [ 7:0] sh_dhi   = dsp_halt ? dsp_dout[15:8] : cpu_dout;
 
 assign work_bwe = dsp_halt ? {2{dsp_we & dsp_work}} : {work_we & A[0], work_we & ~A[0]};
-wire obj_lo_we  = dsp_halt ? (dsp_we & dsp_obj ) : (obj_we  & ~A[0]);
-wire obj_hi_we  = dsp_halt ? (dsp_we & dsp_obj ) : (obj_we  &  A[0]);
-wire pal_lo_we  = dsp_halt ? (dsp_we & dsp_pal ) : (pal_we  & ~A[0]);
-wire pal_hi_we  = dsp_halt ? (dsp_we & dsp_pal ) : (pal_we  &  A[0]);
+assign obj_bwe = dsp_halt ? {2{dsp_we & dsp_obj}} : {obj_we & A[0], obj_we & ~A[0]};
+assign pal_bwe = dsp_halt ? {2{dsp_we & dsp_pal}} : {pal_we & A[0], pal_we & ~A[0]};
 
-jtframe_dual_ram #(.AW(11),.DW(8)) u_obj_lo(
-    .clk0(clk),.data0(sh_dlo),.addr0(sh_addr),.we0(obj_lo_we),.q0(obj_q[ 7:0]),
-    .clk1(clk),.data1(8'd0  ),.addr1(obj_vaddr),.we1(1'b0    ),.q1(obj_vq[ 7:0]) );
-jtframe_dual_ram #(.AW(11),.DW(8)) u_obj_hi(
-    .clk0(clk),.data0(sh_dhi),.addr0(sh_addr),.we0(obj_hi_we),.q0(obj_q[15:8]),
-    .clk1(clk),.data1(8'd0  ),.addr1(obj_vaddr),.we1(1'b0    ),.q1(obj_vq[15:8]) );
+assign dsp_din = dsp_work ? work_dout : dsp_obj ? objram_dout : dsp_pal ? pal_dout : 16'd0;
 
-jtframe_dual_ram #(.AW(11),.DW(8)) u_pal_lo(
-    .clk0(clk),.data0(sh_dlo),.addr0(sh_addr),.we0(pal_lo_we),.q0(pal_q[ 7:0]),
-    .clk1(clk),.data1(8'd0  ),.addr1(pal_vaddr),.we1(1'b0    ),.q1(pal_vq[ 7:0]) );
-jtframe_dual_ram #(.AW(11),.DW(8)) u_pal_hi(
-    .clk0(clk),.data0(sh_dhi),.addr0(sh_addr),.we0(pal_hi_we),.q0(pal_q[15:8]),
-    .clk1(clk),.data1(8'd0  ),.addr1(pal_vaddr),.we1(1'b0    ),.q1(pal_vq[15:8]) );
-
-assign dsp_din = dsp_work ? work_dout : dsp_obj ? obj_q : dsp_pal ? pal_q : 16'd0;
-
-// shared RAM with the sound CPU, byte wide on both sides
-wire [7:0] shr_q;
-jtframe_dual_ram #(.AW(11),.DW(8)) u_shared(
-    .clk0(clk),.data0(cpu_dout),.addr0(A[10:0]),.we0(shr_we),.q0(shr_q),
-    .clk1(clk),.data1(snd_dout),.addr1(snd_addr),.we1(snd_we),.q1(snd_din) );
+// this CPU's side of the RAM shared with the sound CPU
+assign mshr_addr = A[10:0];
+assign mshr_we   = shr_we;
 
 // ---------------------------------------------------------------- video RAM
 // A word address is latched through ports 14/15, 24/25 and 34/35, then the
 // data moves a byte at a time through ports 60-65. Each map is a pair of
 // byte-wide blocks so the Z80 can write either half on its own.
 reg [15:0] txoffs, bgoffs, fgoffs;
-wire [10:0] tx_a = txoffs[10:0];
-wire [12:0] bg_a = {bg_bank, bgoffs[11:0]};     // 0x2000 words: two banks of 0x1000
-wire [11:0] fg_a = fgoffs[11:0];
+assign tx_a = txoffs[10:0];
+assign bg_a = {bg_bank, bgoffs[11:0]};     // 0x2000 words: two banks of 0x1000
+assign fg_a = fgoffs[11:0];
 
-wire [15:0] tx_q, bg_q, fg_q;
 reg  tx_lo_we, tx_hi_we, bg_lo_we, bg_hi_we, fg_lo_we, fg_hi_we;
-
-jtframe_dual_ram #(.AW(11),.DW(8)) u_tx_lo(
-    .clk0(clk),.data0(cpu_dout),.addr0(tx_a),.we0(tx_lo_we),.q0(tx_q[ 7:0]),
-    .clk1(clk),.data1(8'd0),.addr1(tx_vaddr),.we1(1'b0),.q1(tx_vq[ 7:0]) );
-jtframe_dual_ram #(.AW(11),.DW(8)) u_tx_hi(
-    .clk0(clk),.data0(cpu_dout),.addr0(tx_a),.we0(tx_hi_we),.q0(tx_q[15:8]),
-    .clk1(clk),.data1(8'd0),.addr1(tx_vaddr),.we1(1'b0),.q1(tx_vq[15:8]) );
-
-jtframe_dual_ram #(.AW(13),.DW(8)) u_bg_lo(
-    .clk0(clk),.data0(cpu_dout),.addr0(bg_a),.we0(bg_lo_we),.q0(bg_q[ 7:0]),
-    .clk1(clk),.data1(8'd0),.addr1(bg_vaddr),.we1(1'b0),.q1(bg_vq[ 7:0]) );
-jtframe_dual_ram #(.AW(13),.DW(8)) u_bg_hi(
-    .clk0(clk),.data0(cpu_dout),.addr0(bg_a),.we0(bg_hi_we),.q0(bg_q[15:8]),
-    .clk1(clk),.data1(8'd0),.addr1(bg_vaddr),.we1(1'b0),.q1(bg_vq[15:8]) );
-
-jtframe_dual_ram #(.AW(12),.DW(8)) u_fg_lo(
-    .clk0(clk),.data0(cpu_dout),.addr0(fg_a),.we0(fg_lo_we),.q0(fg_q[ 7:0]),
-    .clk1(clk),.data1(8'd0),.addr1(fg_vaddr),.we1(1'b0),.q1(fg_vq[ 7:0]) );
-jtframe_dual_ram #(.AW(12),.DW(8)) u_fg_hi(
-    .clk0(clk),.data0(cpu_dout),.addr0(fg_a),.we0(fg_hi_we),.q0(fg_q[15:8]),
-    .clk1(clk),.data1(8'd0),.addr1(fg_vaddr),.we1(1'b0),.q1(fg_vq[15:8]) );
+assign cpu16  = {cpu_dout, cpu_dout};
+assign tx_bwe = {tx_hi_we, tx_lo_we};
+assign bg_bwe = {bg_hi_we, bg_lo_we};
+assign fg_bwe = {fg_hi_we, fg_lo_we};
 
 // ------------------------------------------------------------ I/O registers
 wire io_wr = iorq & wr;
@@ -300,21 +270,21 @@ always @* begin
     cpu_din = 8'hff;
     if( rom_cs )      cpu_din = rom_data;
     else if( in_work )               cpu_din = A[0] ? work_dout[15:8] : work_dout[7:0];
-    else if( in_obj && ram_view )    cpu_din = A[0] ? obj_q[15:8]  : obj_q[7:0];
-    else if( in_pal && ram_view )    cpu_din = A[0] ? pal_q[15:8]  : pal_q[7:0];
-    else if( in_snd && ram_view )    cpu_din = shr_q;
+    else if( in_obj && ram_view )    cpu_din = A[0] ? objram_dout[15:8]  : objram_dout[7:0];
+    else if( in_pal && ram_view )    cpu_din = A[0] ? pal_dout[15:8]  : pal_dout[7:0];
+    else if( in_snd && ram_view )    cpu_din = shared_dout;
     else if( io_rd ) case( port )
         8'h50: cpu_din = dipsw_a;
         8'h52: cpu_din = dipsw_b;
         8'h54: cpu_din = joy1;
         8'h56: cpu_din = joy2;
         8'h58: cpu_din = { ~LVBL, cab_sys[6:0] };
-        8'h60: cpu_din = tx_q[ 7:0];
-        8'h61: cpu_din = tx_q[15:8];
-        8'h62: cpu_din = bg_q[ 7:0];
-        8'h63: cpu_din = bg_q[15:8];
-        8'h64: cpu_din = fg_q[ 7:0];
-        8'h65: cpu_din = fg_q[15:8];
+        8'h60: cpu_din = txram_dout[ 7:0];
+        8'h61: cpu_din = txram_dout[15:8];
+        8'h62: cpu_din = bgram_dout[ 7:0];
+        8'h63: cpu_din = bgram_dout[15:8];
+        8'h64: cpu_din = fgram_dout[ 7:0];
+        8'h65: cpu_din = fgram_dout[15:8];
         default: cpu_din = 8'hff;
     endcase
 end
