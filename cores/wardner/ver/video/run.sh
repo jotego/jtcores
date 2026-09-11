@@ -19,7 +19,7 @@ for l in open('$SNAP/snap_regs.txt'):
 
 RTL="../../hdl/jtwardner_video.v ../../hdl/jtwardner_obj.v ../../hdl/jtwardner_colmix.v"
 JTF=../../../../modules/jtframe/hdl
-RTL="$RTL $JTF/video/tilemap/jtframe_scroll.v $JTF/video/tilemap/jtframe_scroll_offset.v $JTF/video/tilemap/jtframe_tilemap.v"
+RTL="$RTL $JTF/ram/jtframe_obj_buffer.v $JTF/ram/jtframe_dual_ram.v $JTF/video/tilemap/jtframe_scroll.v $JTF/video/tilemap/jtframe_scroll_offset.v $JTF/video/tilemap/jtframe_tilemap.v"
 NEWER=
 for f in $RTL tb_video.v; do [ "$f" -nt obj_dir/vvid ] && NEWER=1; done
 if [ ! -x obj_dir/vvid ] || [ -n "$NEWER" ]; then
