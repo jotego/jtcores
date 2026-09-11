@@ -4,7 +4,6 @@ wardner:
     - jtwardner_main.v
     - jtwardner_sound.v
     - jtwardner_video.v
-    - jtwardner_tile.v
     - jtwardner_obj.v
     - jtwardner_colmix.v
     - jttoaplan1_dsp.v
@@ -18,6 +17,7 @@ jtframe:
   - from: video
     get:
       - jtframe_vtimer.v
+      - jtframe_scroll.yaml
   - from: cpu
     get:
       - jtframe_z80.yaml
