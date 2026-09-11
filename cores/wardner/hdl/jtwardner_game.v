@@ -51,7 +51,7 @@ wire [12:0] bg_vaddr;
 wire [11:0] fg_vaddr;
 wire [15:0] tx_vq, bg_vq, fg_vq, pal_vq, obj_vq;
 
-wire [ 7:0] dipsw_a, dipsw_b, cab_sys;
+wire [ 7:0] dipsw_a, dipsw_b, cab_sys, cab_joy1, cab_joy2;
 // the DSP addresses 4096 words; the mask ROM region holds 2048
 wire [11:0] dsp_rom_addr;
 wire        obj_ovf, sample;
@@ -83,25 +83,14 @@ assign pxl2_cen = cen14;
 assign cab_sys = { 1'b0, ~cab_1p[1], ~cab_1p[0], ~coin[1], ~coin[0],
                    ~dip_test, ~tilt, ~service };
 
-// Player ports, active high, read from MAME 0.289's own machine rather than
-// guessed from the name of the TOAPLAN_JOY_UDLR_2_BUTTONS macro:
-//
-//   0 up  1 down  2 left  3 right  4 button 1  5 button 2
-//   6 "Skip Video RAM Tests", P1 only, left inactive here so the tests run
-//
-// jtframe numbers its bits the other way up. jtframe_joysticks.v's comment
-// "default order up, down, left, right" lists them MSB first, which its own
-// permutations prove: JTFRAME_JOY_LRUD is {joy_in[1:0], joy_in[3:2]}, and for
-// that to read left, right, up, down from bit 3 down, joy_in[3] must be up and
-// joy_in[0] right. So jtframe gives up, down, left, right in bits 3 to 0 while
-// the board wants them in bits 0 to 3, and the direction nibble is reversed.
-// Buttons are in the same place in both.
-//
-//   j[3] up    -> bit 0        j[1] left  -> bit 2
-//   j[2] down  -> bit 1        j[0] right -> bit 3
-function [7:0] toaplan_joy(input [5:0] j);
-    toaplan_joy = { 2'b00, ~j[5], ~j[4], ~j[0], ~j[1], ~j[2], ~j[3] };
-endfunction
+// Toaplan player ports read active high: 0 up, 1 down, 2 left, 3 right,
+// 4 button 1, 5 button 2, 6 skip video RAM tests - left inactive so they run.
+// jtframe supplies up, down, left, right in bits 3 down to 0, so the direction
+// nibble is reversed. The buttons line up as they are.
+assign cab_joy1 = { 2'b00, ~joystick1[5], ~joystick1[4],
+                    ~joystick1[0], ~joystick1[1], ~joystick1[2], ~joystick1[3] };
+assign cab_joy2 = { 2'b00, ~joystick2[5], ~joystick2[4],
+                    ~joystick2[0], ~joystick2[1], ~joystick2[2], ~joystick2[3] };
 
 // The foreground bank bit selects tiles 4096-8191. Wardner's foreground ROM
 // holds exactly 4096 tiles, and MAME wraps the code with code % total, so
@@ -153,8 +142,8 @@ jtwardner_main u_main(
 
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       ),
-    .joy1       ( toaplan_joy(joystick1[5:0]) ),
-    .joy2       ( toaplan_joy(joystick2[5:0]) ),
+    .joy1       ( cab_joy1      ),
+    .joy2       ( cab_joy2      ),
     .cab_sys    ( cab_sys       ),
 
     .dbg_iowr   (               ),
