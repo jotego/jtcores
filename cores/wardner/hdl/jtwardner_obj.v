@@ -62,34 +62,36 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// ---- line buffer: two lines of 512 x 13 bits. `line` is the one shown;
-//      swapped at the last count of the line, when the renderer starts too.
-//      TODO: map on to jtframe_dual_ram for synthesis (two write ports here)
-reg  [12:0] lbuf[0:1023];
-reg  [12:0] lbuf_q;
-reg         line, rd_stb, rd_clr;
+// ---- line buffer. jtframe_obj_buffer is the same two-line arrangement, but
+//      built on jtframe_dual_ram: one port writes the line being drawn and
+//      reads back what is already there, the other reads the line being shown
+//      and blanks it behind the read. Written by hand it needed two write
+//      ports on one array, which Quartus could only build out of logic.
+//
+//      The module swaps the two lines on the falling edge of its LHBL input.
+//      This core swaps at the last count of the line, where the renderer also
+//      starts, so it is handed a signal that falls there rather than the real
+//      LHBL, which falls at 319.
 reg  [ 8:0] wr_x;
 reg  [12:0] wr_d;
 reg         wr_en;
 wire        start = pxl_cen && hdump == 9'd445;   // next count is pixel 0
+wire [12:0] lbuf_q;
 
-always @(posedge clk) begin
-    lbuf_q <= lbuf[{line, hdump}];
-    if( rd_clr ) lbuf[{ line, hdump}] <= 13'd0;
-    if( wr_en  ) lbuf[{~line, wr_x }] <= wr_d;
-end
+jtframe_obj_buffer #(.DW(13),.AW(9),.ALPHAW(4),.ALPHA(13'd0)) u_lbuf(
+    .clk     ( clk               ),
+    .LHBL    ( hdump != 9'd445   ),
+    .flip    ( 1'b0              ),
+    .wr_data ( wr_d              ),
+    .wr_addr ( wr_x              ),
+    .we      ( wr_en             ),
+    .rd_addr ( hdump             ),
+    .rd      ( pxl_cen           ),
+    .rd_data ( lbuf_q            )
+);
 
-// read one clock after the enable (hdump has settled), clear one later, and
-// hold the pixel for the mixer
 always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        line <= 0; rd_stb <= 0; rd_clr <= 0; pxl <= 0;
-    end else begin
-        if( start ) line <= ~line;
-        rd_stb <= pxl_cen;
-        rd_clr <= rd_stb;
-        if( rd_clr ) pxl <= lbuf_q;
-    end
+    if( rst ) pxl <= 0; else pxl <= lbuf_q;
 end
 
 // ---- renderer. Scans entry 511 down to 0 reading the y word, one entry a
