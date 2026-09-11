@@ -45,6 +45,7 @@ verilator --binary --timing -Wno-fatal -Wno-WIDTH -Wno-UNOPTFLAT \
     ../../hdl/jttoaplan1_dsp.v \
     ../../../../modules/jt32010/hdl/jt32010.v \
     ../../../../modules/jtframe/hdl/ram/jtframe_dual_ram.v \
+    ../../../../modules/jtframe/hdl/ram/jtframe_dual_ram16.v \
     ../../../../modules/jtframe/hdl/jtframe_edge.v \
     ../../../../modules/jtframe/hdl/cpu/t80/T80s.v > verilator.log 2>&1 \
     || { echo "verilator build failed, see verilator.log" >&2; exit 1; }
