@@ -90,7 +90,7 @@ wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, halt_n, busak_n;
 wire [15:0] A;
 wire [ 7:0] cpu_dout;
 reg  [ 7:0] cpu_din;
-reg         irq_n;
+wire        irq_n;
 
 wire cpu_cen = cen6 & ~dsp_halt;    // the DSP freezes this CPU here
 wire wait_n  = ~(rom_cs & ~rom_ok);
@@ -284,20 +284,16 @@ always @(posedge clk, posedge rst) begin
 end
 
 // --------------------------------------------------------------- interrupts
-// The vertical blanking edge raises the interrupt when it is enabled, and
+// The start of vertical blanking asserts the interrupt when it is enabled, and
 // nothing clears it except the enable bit going away again - acknowledging
 // the interrupt does not.
-reg lvbl_l;
-always @(posedge clk, posedge rst) begin
-    if( rst ) begin
-        irq_n  <= 1'b1;
-        lvbl_l <= 1'b1;
-    end else begin
-        lvbl_l <= LVBL;
-        if( !int_en ) irq_n <= 1'b1;
-        else if( lvbl_l && !LVBL ) irq_n <= 1'b0;   // blanking has just begun
-    end
-end
+jtframe_edge #(.QSET(0)) u_irq(
+    .rst    ( rst       ),
+    .clk    ( clk       ),
+    .edgeof ( ~LVBL     ),
+    .clr    ( ~int_en   ),
+    .q      ( irq_n     )
+);
 
 // ------------------------------------------------------------- read multiplex
 always @* begin
