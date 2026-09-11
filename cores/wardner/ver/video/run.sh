@@ -17,10 +17,13 @@ import sys
 for l in open('$SNAP/snap_regs.txt'):
     v=l.split('=')[1].strip(); print('%04x' % int(v,0))" > "$SNAP/snap_regs.hex"
 
-if [ ! -x obj_dir/vvid ] || [ tb_video.v -nt obj_dir/vvid ] || [ ../../hdl/jtwardner_video.v -nt obj_dir/vvid ]; then
+RTL="../../hdl/jtwardner_video.v ../../hdl/jtwardner_tile.v ../../hdl/jtwardner_obj.v ../../hdl/jtwardner_colmix.v"
+NEWER=
+for f in $RTL tb_video.v; do [ "$f" -nt obj_dir/vvid ] && NEWER=1; done
+if [ ! -x obj_dir/vvid ] || [ -n "$NEWER" ]; then
     verilator --binary --timing -Wno-fatal -Wno-WIDTH -Wno-UNOPTFLAT -Wno-CASEINCOMPLETE \
         -Wno-BLKSEQ -Wno-MULTIDRIVEN --top-module tb_video -o vvid -j 4 \
-        tb_video.v ../../hdl/jtwardner_video.v \
+        tb_video.v $RTL \
         ../../../../modules/jtframe/hdl/video/jtframe_vtimer.v > verilator.log 2>&1 \
         || { echo "verilator build failed, see verilator.log" >&2; exit 1; }
 fi

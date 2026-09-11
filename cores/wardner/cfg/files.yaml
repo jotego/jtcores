@@ -4,6 +4,9 @@ wardner:
     - jtwardner_main.v
     - jtwardner_sound.v
     - jtwardner_video.v
+    - jtwardner_tile.v
+    - jtwardner_obj.v
+    - jtwardner_colmix.v
     - jttoaplan1_dsp.v
 jt32010:
   - get:
