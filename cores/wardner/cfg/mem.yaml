@@ -1,26 +1,26 @@
 params:
-  # >>1, not >>2: jtframe_romrq_bcache adds `offset` to an address it has
-  # already reduced to 16-bit words, so a slot offset is in 16-bit words too
-  # however wide the slot's data is. The DSP's BRAM offset below shifts by one
-  # for the same reason. With >>2 the background read 0x8000 bytes into bank 2
-  # instead of 0x10000 and drew character graphics, and the foreground drew the
-  # background's.
+  # >>1 because jtframe_romrq_bcache adds the offset to an address it has
+  # already reduced to 16-bit words, whatever the slot's data width
   - { name: BG_OFFSET,  value: "(`BG_START-`JTFRAME_BA2_START)>>1" }
   - { name: FG_OFFSET,  value: "(`FG_START-`JTFRAME_BA2_START)>>1" }
 clocks:
   clk48:
-    # main Z80: 24 MHz crystal / 4, an exact divide of 48 MHz
+    # main Z80: 24 MHz crystal / 4
     - freq: 6M
       outputs:
         - cen6
-    # the 14 MHz crystal, as a fractional chain: 48 * 7/24. The board derives
-    # the pixel clock and the audio/CRTC clock from it by the same halving.
+    # the 14 MHz crystal as a fraction of 48 MHz, halved twice by the board
     - mul: 7
       div: 24
       outputs:
         - cen14           # TMS320C10
         - cen7            # pixel clock
         - cen3p5          # audio Z80, YM3812, HD6845S
+audio:
+  rsum: 10k
+  rc: { r: 1.3k, c: 10n }
+  channels:
+    - { name: fm, module: jtopl, rsum: 6.2k, rc: [{ r: 1rout, c: 1n }] }
 sdram:
   banks:
     # main Z80: 28 kB fixed plus eight 32 kB banks, sparse
@@ -49,15 +49,8 @@ sdram:
         - name: obj
           addr_width: 18        # 65536 rows, 16x16 sprites are two per row
           data_width: 32
-audio:
-  rsum: 10k
-  rc: { r: 1.3k, c: 10n }
-  channels:
-    - { name: fm, module: jtopl, rsum: 6.2k, rc: [{ r: 1rout, c: 1n }] }
 bram:
-  # TMS320C10 mask ROM: 0x1000 bytes in the MAME region, big endian, of which
-  # the game uses 0x600 words. Loaded straight out of the download stream, so
-  # the DSP never competes for SDRAM - it fetches every machine cycle.
+  # TMS320C10 mask ROM
   - name: dsprom
     addr_width: 12          # 0x1000 bytes = 2048 words
     data_width: 16
