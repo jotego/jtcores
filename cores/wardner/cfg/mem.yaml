@@ -50,6 +50,17 @@ sdram:
           addr_width: 18        # 65536 rows, 16x16 sprites are two per row
           data_width: 32
 bram:
+  # The Z80 reaches this a byte at a time through A[0], the DSP a whole word at
+  # a time while it holds the Z80 halted, so it is one 16-bit memory with byte
+  # write enables rather than a pair of byte-wide blocks.
+  - name: work
+    addr_width: 12
+    data_width: 16
+    rw: true
+    addr: sh_addr
+    din: sh_din
+    dout: work_dout
+    we: work_bwe
   # TMS320C10 mask ROM
   - name: dsprom
     addr_width: 12          # 0x1000 bytes = 2048 words
