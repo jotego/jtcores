@@ -40,6 +40,21 @@ transcription of MAME 0.289's `tms320c1x.cpp` into C. Random programs are run
 through both the C model and the RTL, and the two instruction traces are
 compared word for word.
 
+`ver/cpu` is a jtframe unit test, so GitHub Actions picks it up through its
+`.simunit` file and runs it on every pull request. `init.go` builds the C model
+and generates one program and one reference trace per case; `test.v` replays
+each program through the RTL and compares machine state instruction by
+instruction. Six cases cover the same shape as the full suite below: three
+interrupt rates, and two of them repeated with the core held for part of every
+clock, which must not change the trace at all.
+
+```
+source modules/jtframe/bin/setprj.sh
+simunit.sh --run modules/jt32010/ver/cpu   # the six cases CI runs
+```
+
+The shell harness is the deeper local fuzz, too long to run on every push:
+
 ```
 cd ver/cpu && ./regress.sh          # full suite
 ./run.sh <seeds> <steps> <irq>      # one configuration
