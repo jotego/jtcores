@@ -1,6 +1,8 @@
 ref32010
 tb.out
-prog.hex
-ref.trace
+prog*.hex
+ref*.trace
 rtl.trace
 all.trace
+sim
+test.lxt
