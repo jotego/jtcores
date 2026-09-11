@@ -115,21 +115,42 @@ flipped, which jtframe otherwise leaves to the tile's own attribute bit and
 Toaplan has no bit for; `XOR_VFLIP` stays off because the vertical position
 already counts backwards.
 
-### Two flip behaviours matched to MAME but unverified on hardware
+### Two flip behaviours that were doubted, and are now settled
+
+Both of these used to be listed here as "matched to MAME but unlikely to be what
+the board does". Both turned out to be right, and MAME with them.
 
 1. **Sprites do not flip.** The sprite generator never reads the screen flip;
-   `flipscreen_w` touches the tilemaps alone. So in MAME a flipped Wardner
-   shows mirrored tilemaps over unmirrored sprites. That is reproduced here so
-   the diff stays meaningful, but it is unlikely to be what the board does.
-2. **The flipped view is not a 180 degree mirror of the unflipped one.** It is
-   displaced by a constant 79 pixels horizontally and 213 vertically, which is
-   what the `-134` / `-243` offsets give against `-55` / `-30`. Wardner and the
-   Twin Cobra family share the same 446x286 raster, so this is not a geometry
-   artefact. The flipped title screen visibly runs off the right edge.
+   `flipscreen_w` touches the tilemaps alone, so a flipped cabinet shows
+   mirrored tilemaps over unmirrored sprites. Confirmed against the Kyuukyouku
+   Tiger schematics jotego keeps in `cores/ktiger/sch`: the top sheet routes
+   `FLIP` to `gfxa`, `memorias` and `misc` only. `object` has nineteen sheet
+   pins and `FLIP` is not among them.
+2. **The flipped view *is* a clean 180 degree mirror.** It looked displaced by 79
+   pixels horizontally and 213 vertically, but that was an artefact of how it was
+   measured - forcing `flip=1` on a frame captured unflipped, which leaves scroll
+   values the software would never write in that state.
 
-Both should be checked against a real board, or with jotego, before cocktail
-mode is offered to players. Changing either means changing `render_ref.py` and
-the RTL together, and the harness will confirm they still agree.
+   Run the boot bench with the Flip Screen DIP on (`+dswa=2`; it is DSWA bit 1,
+   and `flipscreen` is mainlatch bit 3, so the software reads the DIP and acts)
+   and the game writes **scroll 79 lower horizontally and 213 lower vertically**,
+   cancelling MAME's second offsets exactly:
+
+   ```
+   clean mirror = 55 + scrollx + (319 - screen_x)  = 374 + scrollx - screen_x
+   MAME flipped = 453 + (scrollx - 79) - screen_x  = 374 + scrollx - screen_x
+   ```
+
+   At 16000 ms both runs have byte-identical text, background, foreground,
+   palette and sprite RAM - only the scroll registers and the flip bit differ -
+   so the two frames are the same screen. Rendering both without sprites and
+   comparing the flipped one against the control rotated 180 degrees gives
+   **0 of 76800 pixels different**.
+
+So `set_scrolldx(-55, -134)` and `set_scrolldy(-30, -243)` are correct, and so is
+this core. Note that `snapflip` below is displaced by construction for the same
+reason: it is a valid test of the flip *path*, since the RTL and the reference
+agree on it pixel for pixel, but it is not a picture of the flipped game.
 
 ### A fixed flipped snapshot
 
@@ -153,12 +174,9 @@ layers in isolation before reading anything into a composed frame diff.
 
 ## Not yet
 
-- A **flipped** frame the game itself produced. Nothing in the game turns flip
-  on by itself - it is the cabinet DIP - so this needs the boot bench run with
-  that switch set. Until then the flip path is covered by the flipped random
-  snapshots and by forcing `flip=1` in a captured frame's registers, as above;
-  the latter is a real frame with the flip applied at render time rather than a
-  frame the game drew while flipped.
+- Nothing outstanding on screen flip. A frame the game itself drew while flipped
+  is obtained with `MAXIO=2000000 ./run.sh <rom dir> 20100 +dswa=2 +snap=16000`
+  in `../main`, which takes about fifty minutes.
 - Sprite time per line is 512 clocks of scan plus ~30 a sprite, out of 2676;
   more than ~70 sprites on one line sets `obj_ovf` and drops the rest. MAME
   has no such limit; the real board's is unknown.
