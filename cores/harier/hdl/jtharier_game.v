@@ -233,6 +233,7 @@ jtharier_sound u_snd(
     .cen_fm     ( cen_fm        ),  // 4 MHz
     .cen_fm2    ( cen_fm2       ),  // 2 MHz
     .cen_pcm    ( cen_pcm       ),
+    .cen_pcm8   ( cen_pcm8      ),
 
     .latch      ( snd_latch     ),
     .nmi_n      ( snd_nmin      ),
