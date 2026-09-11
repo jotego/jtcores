@@ -104,8 +104,16 @@ flipped     px = (453 + scrollx - screen_x) mod W
             py = (482 + scrolly - screen_y) mod H
 ```
 
-so the RTL only reverses the direction it walks the map: `col_nxt` counts down,
-and the first and last pixel of a tile swap. Pixel sampling is untouched.
+The three layers are `jtframe_scroll`, which adds the scroll to the screen
+position and mirrors by inverting that position rather than subtracting it from
+a constant, so both formulas above fold into the value handed to `scrx`/`scry`:
+`+64`/`+30` unflipped and `-67`/`-29` flipped. The horizontal constants carry a
+further 9 over MAME's 55 because the module holds each tile eight pixels and
+registers its output once more, and that correction lands the other way round
+under mirroring. `XOR_HFLIP` mirrors each tile within itself when the screen is
+flipped, which jtframe otherwise leaves to the tile's own attribute bit and
+Toaplan has no bit for; `XOR_VFLIP` stays off because the vertical position
+already counts backwards.
 
 ### Two flip behaviours matched to MAME but unverified on hardware
 
@@ -123,18 +131,46 @@ Both should be checked against a real board, or with jotego, before cocktail
 mode is offered to players. Changing either means changing `render_ref.py` and
 the RTL together, and the harness will confirm they still agree.
 
+### A fixed flipped snapshot
+
+`fuzz.sh` covers both flip states at random, which is the stronger test, but a
+named flipped frame of real gameplay is useful when bisecting. Make one from
+any boot snapshot:
+
+```
+cp -r ../main/snap20000 ../main/snapflip
+sed -i 's/^flip=0/flip=1/' ../main/snapflip/snap_regs.txt
+rm -f ../main/snapflip/snap_regs.hex          # run.sh rebuilds it
+./run.sh ../main/snapflip
+```
+
+Both the RTL and `render_ref.py` read `flip` from `snap_regs.txt`, so the
+comparison stays honest. This is what caught `XOR_HFLIP` being missing when the
+tile layers moved to `jtframe_scroll`: the fault was invisible in the composed
+frame at 97 pixels, and isolating the layer with `+gfxen=2` showed it was really
+1951, confined to rows 189-239 with the rest hidden behind other layers. Compare
+layers in isolation before reading anything into a composed frame diff.
+
 ## Not yet
 
-- A **flipped** frame of real gameplay. Every snapshot from the running game so
-  far has `flip=0`; the flip path is covered only by the 39 flipped random
-  snapshots. Nothing in the game turns flip on by itself - it is the cabinet
-  DIP - so this needs the boot bench run with that switch set.
+- A **flipped** frame the game itself produced. Nothing in the game turns flip
+  on by itself - it is the cabinet DIP - so this needs the boot bench run with
+  that switch set. Until then the flip path is covered by the flipped random
+  snapshots and by forcing `flip=1` in a captured frame's registers, as above;
+  the latter is a real frame with the flip applied at render time rather than a
+  frame the game drew while flipped.
 - Sprite time per line is 512 clocks of scan plus ~30 a sprite, out of 2676;
   more than ~70 sprites on one line sets `obj_ovf` and drops the rest. MAME
   has no such limit; the real board's is unknown.
-- Synthesis mapping: the line buffer has two write ports as written and the
-  touched-pixel vector is 512 flip-flops; both to be moved on to jtframe
-  memories when the core is assembled.
+- The touched-pixel vector is still 512 flip-flops, of which Quartus optimises
+  away the 192 above x=319. The line buffer that used to sit beside it is now
+  `jtframe_obj_buffer`; written by hand it needed two write ports on one array,
+  which Quartus built out of logic to the tune of 11103 ALMs.
+- Whether the touched-pixel rule belongs here at all. The Kyuukyouku Tiger
+  schematics jotego keeps in `cores/ktiger/sch` show layer priority resolved by
+  a 32x8 PROM whose five address lines are the three layer-opaque flags and the
+  sprite's two priority bits, with no input for it, and a sprite line buffer
+  twelve bits wide with no room to store it. See the note in the core's PR.
 
 ## Note for the core build
 
