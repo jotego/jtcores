@@ -122,6 +122,11 @@ jtwardner_main u_main(
     .dsp_din    ( dsp_din       ),
     .dsp_we     ( dsp_we        ),
 
+    .sh_addr    ( sh_addr       ),
+    .sh_din     ( sh_din        ),
+    .work_bwe   ( work_bwe      ),
+    .work_dout  ( work_dout     ),
+
     .snd_addr   ( shr_addr      ),
     .snd_dout   ( shr_dout      ),
     .snd_din    ( shr_din       ),

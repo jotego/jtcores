@@ -58,6 +58,13 @@ module jtwardner_main(
     output     [15:0] dsp_din,
     input             dsp_we,
 
+    // work RAM, declared in mem.yaml. sh_addr and sh_din are the bus the DSP
+    // takes over while it holds this CPU halted.
+    output     [10:0] sh_addr,
+    output     [15:0] sh_din,
+    output     [ 1:0] work_bwe,
+    input      [15:0] work_dout,
+
     // shared RAM with the sound CPU
     input      [10:0] snd_addr,
     input      [ 7:0] snd_dout,
@@ -133,28 +140,21 @@ end
 // ------------------------------------------------- work / sprite / palette
 // Port 0 of each block is shared between the Z80 and the DSP; only one of them
 // is ever running. Port 1 is the video engine's read port.
-wire [15:0] work_q, obj_q, pal_q;
+wire [15:0] obj_q, pal_q;
 wire        dsp_work = dsp_sel == 2'd0;
 wire        dsp_obj  = dsp_sel == 2'd1;
 wire        dsp_pal  = dsp_sel == 2'd2;
 
-wire [10:0] sh_addr  = dsp_halt ? dsp_addr[10:0] : A[11:1];
+assign     sh_addr   = dsp_halt ? dsp_addr[10:0] : A[11:1];
+assign     sh_din    = dsp_halt ? dsp_dout : {cpu_dout, cpu_dout};
 wire [ 7:0] sh_dlo   = dsp_halt ? dsp_dout[ 7:0] : cpu_dout;
 wire [ 7:0] sh_dhi   = dsp_halt ? dsp_dout[15:8] : cpu_dout;
 
-wire work_lo_we = dsp_halt ? (dsp_we & dsp_work) : (work_we & ~A[0]);
-wire work_hi_we = dsp_halt ? (dsp_we & dsp_work) : (work_we &  A[0]);
+assign work_bwe = dsp_halt ? {2{dsp_we & dsp_work}} : {work_we & A[0], work_we & ~A[0]};
 wire obj_lo_we  = dsp_halt ? (dsp_we & dsp_obj ) : (obj_we  & ~A[0]);
 wire obj_hi_we  = dsp_halt ? (dsp_we & dsp_obj ) : (obj_we  &  A[0]);
 wire pal_lo_we  = dsp_halt ? (dsp_we & dsp_pal ) : (pal_we  & ~A[0]);
 wire pal_hi_we  = dsp_halt ? (dsp_we & dsp_pal ) : (pal_we  &  A[0]);
-
-jtframe_dual_ram #(.AW(11),.DW(8)) u_work_lo(
-    .clk0(clk),.data0(sh_dlo),.addr0(sh_addr),.we0(work_lo_we),.q0(work_q[ 7:0]),
-    .clk1(clk),.data1(8'd0  ),.addr1(11'd0  ),.we1(1'b0      ),.q1() );
-jtframe_dual_ram #(.AW(11),.DW(8)) u_work_hi(
-    .clk0(clk),.data0(sh_dhi),.addr0(sh_addr),.we0(work_hi_we),.q0(work_q[15:8]),
-    .clk1(clk),.data1(8'd0  ),.addr1(11'd0  ),.we1(1'b0      ),.q1() );
 
 jtframe_dual_ram #(.AW(11),.DW(8)) u_obj_lo(
     .clk0(clk),.data0(sh_dlo),.addr0(sh_addr),.we0(obj_lo_we),.q0(obj_q[ 7:0]),
@@ -170,7 +170,7 @@ jtframe_dual_ram #(.AW(11),.DW(8)) u_pal_hi(
     .clk0(clk),.data0(sh_dhi),.addr0(sh_addr),.we0(pal_hi_we),.q0(pal_q[15:8]),
     .clk1(clk),.data1(8'd0  ),.addr1(pal_vaddr),.we1(1'b0    ),.q1(pal_vq[15:8]) );
 
-assign dsp_din = dsp_work ? work_q : dsp_obj ? obj_q : dsp_pal ? pal_q : 16'd0;
+assign dsp_din = dsp_work ? work_dout : dsp_obj ? obj_q : dsp_pal ? pal_q : 16'd0;
 
 // shared RAM with the sound CPU, byte wide on both sides
 wire [7:0] shr_q;
@@ -299,7 +299,7 @@ jtframe_edge #(.QSET(0)) u_irq(
 always @* begin
     cpu_din = 8'hff;
     if( rom_cs )      cpu_din = rom_data;
-    else if( in_work )               cpu_din = A[0] ? work_q[15:8] : work_q[7:0];
+    else if( in_work )               cpu_din = A[0] ? work_dout[15:8] : work_dout[7:0];
     else if( in_obj && ram_view )    cpu_din = A[0] ? obj_q[15:8]  : obj_q[7:0];
     else if( in_pal && ram_view )    cpu_din = A[0] ? pal_q[15:8]  : pal_q[7:0];
     else if( in_snd && ram_view )    cpu_din = shr_q;

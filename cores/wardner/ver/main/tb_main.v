@@ -173,11 +173,21 @@ always @(posedge clk) begin
     if( nio > maxio ) finish_run("port write limit");
 end
 
+// work RAM now lives in mem.yaml, so the bench supplies it
+wire [10:0] sh_addr;
+wire [15:0] sh_din, work_dout;
+wire [ 1:0] work_bwe;
+
+jtframe_dual_ram16 #(.AW(11)) u_work(
+    .clk0(clk), .addr0(sh_addr), .data0(sh_din), .we0(work_bwe), .q0(work_dout),
+    .clk1(clk), .addr1(11'd0  ), .data1(16'd0 ), .we1(2'd0    ), .q1()         );
+
 jtwardner_main u_main(
     .rst(rst), .clk(clk), .cen6(cen6), .LVBL(LVBL),
     .rom_addr(rom_addr), .rom_data(rom_data), .rom_cs(rom_cs), .rom_ok(1'b1),
     .dsp_on(dsp_on), .dsp_halt(dsp_halt | freeze), .dsp_addr(dsp_addr),
     .dsp_sel(dsp_sel), .dsp_dout(dsp_dout), .dsp_din(dsp_din), .dsp_we(dsp_we),
+    .sh_addr(sh_addr), .sh_din(sh_din), .work_bwe(work_bwe), .work_dout(work_dout),
     .snd_addr(shr_addr), .snd_dout(shr_dout), .snd_din(shr_din), .snd_we(shr_we),
     .tx_scrx(tx_scrx), .tx_scry(tx_scry), .bg_scrx(bg_scrx), .bg_scry(bg_scry),
     .fg_scrx(fg_scrx), .fg_scry(fg_scry),
