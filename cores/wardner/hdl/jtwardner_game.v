@@ -32,24 +32,16 @@ wire [12:0] dsp_addr;
 wire [ 1:0] dsp_sel;
 wire [15:0] dsp_dout, dsp_din;
 
-// ---- main CPU to sound CPU
-wire [10:0] shr_addr;
-wire [ 7:0] shr_dout, shr_din;
-wire        shr_we;
-
 // ---- main CPU to video
 wire [15:0] tx_scrx, tx_scry, bg_scrx, bg_scry, fg_scrx, fg_scry;
 wire        flip, bg_bank, fg_bank, video_on;
-wire [10:0] tx_vaddr, pal_vaddr, obj_vaddr;
+
 // Palette readback. With JTFRAME_IOCTL_RD set, the OSD's save writes
 // JTFRAME_IOCTL_RD bytes to the SD card; pointing that at the palette gives the
 // exact contents the hardware is using, which a photograph cannot. While the
 // dump runs the video is not being displayed, so borrowing its read port costs
 // nothing.
-wire [10:0] pal_rdaddr;
-wire [12:0] bg_vaddr;
-wire [11:0] fg_vaddr;
-wire [15:0] tx_vq, bg_vq, fg_vq, pal_vq, obj_vq;
+wire [10:0] pal_vaddr_vid;
 
 wire [ 7:0] dipsw_a, dipsw_b, cab_sys, cab_joy1, cab_joy2;
 // the DSP addresses 4096 words; the mask ROM region holds 2048
@@ -62,10 +54,10 @@ wire [15:0] fg_full_addr;
 
 assign { dipsw_b, dipsw_a } = dipsw[15:0];
 `ifdef JTFRAME_IOCTL_RD
-    assign pal_rdaddr = ioctl_ram ? ioctl_addr[11:1] : pal_vaddr;
-    assign ioctl_din  = ioctl_addr[0] ? pal_vq[15:8] : pal_vq[7:0];
+    assign pal_vaddr = ioctl_ram ? ioctl_addr[11:1] : pal_vaddr_vid;
+    assign ioctl_din = ioctl_addr[0] ? pal_vq[15:8] : pal_vq[7:0];
 `else
-    assign pal_rdaddr = pal_vaddr;
+    assign pal_vaddr = pal_vaddr_vid;
 `endif
 assign dip_flip = flip;
 assign pxl_cen  = cen7;
@@ -126,11 +118,25 @@ jtwardner_main u_main(
     .sh_din     ( sh_din        ),
     .work_bwe   ( work_bwe      ),
     .work_dout  ( work_dout     ),
+    .obj_bwe    ( obj_bwe       ),
+    .pal_bwe    ( pal_bwe       ),
+    .objram_dout( objram_dout   ),
+    .pal_dout   ( pal_dout      ),
+    .mshr_addr  ( mshr_addr     ),
+    .mshr_we    ( mshr_we       ),
+    .shared_dout( shared_dout   ),
+    .cpu16      ( cpu16         ),
+    .cpu_dout   ( cpu_dout      ),
+    .tx_a       ( tx_a          ),
+    .bg_a       ( bg_a          ),
+    .fg_a       ( fg_a          ),
+    .tx_bwe     ( tx_bwe        ),
+    .bg_bwe     ( bg_bwe        ),
+    .fg_bwe     ( fg_bwe        ),
+    .txram_dout ( txram_dout    ),
+    .bgram_dout ( bgram_dout    ),
+    .fgram_dout ( fgram_dout    ),
 
-    .snd_addr   ( shr_addr      ),
-    .snd_dout   ( shr_dout      ),
-    .snd_din    ( shr_din       ),
-    .snd_we     ( shr_we        ),
 
     .tx_scrx    ( tx_scrx       ),  .tx_scry ( tx_scry ),
     .bg_scrx    ( bg_scrx       ),  .bg_scry ( bg_scry ),
@@ -140,11 +146,6 @@ jtwardner_main u_main(
     .fg_bank    ( fg_bank       ),
     .video_on   ( video_on      ),
 
-    .tx_vaddr   ( tx_vaddr      ),  .tx_vq  ( tx_vq  ),
-    .bg_vaddr   ( bg_vaddr      ),  .bg_vq  ( bg_vq  ),
-    .fg_vaddr   ( fg_vaddr      ),  .fg_vq  ( fg_vq  ),
-    .pal_vaddr  ( pal_rdaddr    ),  .pal_vq ( pal_vq ),
-    .obj_vaddr  ( obj_vaddr     ),  .obj_vq ( obj_vq ),
 
     .dipsw_a    ( dipsw_a       ),
     .dipsw_b    ( dipsw_b       ),
@@ -236,7 +237,7 @@ jtwardner_video u_video(
     .tx_vaddr   ( tx_vaddr      ),  .tx_vq  ( tx_vq  ),
     .bg_vaddr   ( bg_vaddr      ),  .bg_vq  ( bg_vq  ),
     .fg_vaddr   ( fg_vaddr      ),  .fg_vq  ( fg_vq  ),
-    .pal_vaddr  ( pal_vaddr     ),  .pal_vq ( pal_vq ),
+    .pal_vaddr  ( pal_vaddr_vid ),  .pal_vq ( pal_vq ),
     .obj_vaddr  ( obj_vaddr     ),  .obj_vq ( obj_vq ),
 
     .char_addr  ( char_addr     ),

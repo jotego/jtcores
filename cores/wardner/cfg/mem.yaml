@@ -61,6 +61,63 @@ bram:
     din: sh_din
     dout: work_dout
     we: work_bwe
+  - name: objram
+    addr_width: 12
+    data_width: 16
+    rw: true
+    addr: sh_addr
+    din: sh_din
+    dout: objram_dout
+    we: obj_bwe
+    dual_port: { name: objvid, addr: obj_vaddr, dout: obj_vq }
+  - name: pal
+    addr_width: 12
+    data_width: 16
+    rw: true
+    addr: sh_addr
+    din: sh_din
+    dout: pal_dout
+    we: pal_bwe
+    dual_port: { name: palvid, addr: pal_vaddr, dout: pal_vq }
+  # byte wide on both sides: the sound CPU sees the bytes the main Z80 writes
+  - name: shared
+    addr_width: 11
+    data_width: 8
+    rw: true
+    addr: mshr_addr
+    din: cpu_dout
+    dout: shared_dout
+    we: mshr_we
+    dual_port: { name: sndshr, addr: shr_addr, din: shr_dout, dout: shr_din, we: shr_we, rw: true }
+  # tile maps. A word address is latched through ports 14/15, 24/25 and 34/35,
+  # then the data moves a byte at a time through ports 60-65.
+  - name: txram
+    addr_width: 12
+    data_width: 16
+    rw: true
+    addr: tx_a
+    din: cpu16
+    dout: txram_dout
+    we: tx_bwe
+    dual_port: { name: txvid, addr: tx_vaddr, dout: tx_vq }
+  - name: bgram
+    addr_width: 14
+    data_width: 16
+    rw: true
+    addr: bg_a
+    din: cpu16
+    dout: bgram_dout
+    we: bg_bwe
+    dual_port: { name: bgvid, addr: bg_vaddr, dout: bg_vq }
+  - name: fgram
+    addr_width: 13
+    data_width: 16
+    rw: true
+    addr: fg_a
+    din: cpu16
+    dout: fgram_dout
+    we: fg_bwe
+    dual_port: { name: fgvid, addr: fg_vaddr, dout: fg_vq }
   # TMS320C10 mask ROM
   - name: dsprom
     addr_width: 12          # 0x1000 bytes = 2048 words
