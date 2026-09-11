@@ -121,7 +121,8 @@ wire [ 3:0] pix_i = flipx ? ~pcnt[3:0] : pcnt[3:0];
 wire [31:0] half  = pix_i[3] ? half1 : half0;
 wire [ 2:0] psh   = ~pix_i[2:0];
 wire [ 7:0] hf3 = half[31:24], hf2 = half[23:16], hf1 = half[15:8], hf0 = half[7:0];
-// same MSB-first plane order as the tilemaps, see jtwardner_tile
+// MAME lists planeoffset from the most significant pen bit down, so the pen is
+// assembled from the low byte of the ROM word upwards, not the other way round
 wire [ 3:0] pen   = { hf0[psh], hf1[psh], hf2[psh], hf3[psh] };
 wire [ 8:0] px    = x0 + {5'd0, pcnt[3:0]};
 
