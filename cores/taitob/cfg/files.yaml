@@ -1,0 +1,49 @@
+taitob:
+  - get:
+    - jttaitob_game.v
+    - jttaitob_main.v
+    - jttaitob_snd.v
+    # TC0140SYT — main↔Z80 sound communication chip.
+    # Same silicon as Taito X System; ported verbatim from
+    # cores/superman/hdl/jtsuperman_syt.v (GPLv3).
+    - jttaitob_syt.v
+    # TC0220IOC — I/O / dipswitch / coin chip. Stub for now.
+    - jttaitob_ioc.v
+    # TC0180VCU — fused video chip (2× 64×64 tile planes + zooming
+    # sprites + text plane). Currently a stub that exposes VRAM /
+    # sprite RAM / scroll RAM / ctrl registers as BRAM the 68k can
+    # read & write, but produces black video. Real pipeline TBD.
+    - jttaitob_video.v
+    # Tile-row ring buffer + fine-scroll read tap (TC0100SCN-style technique,
+    # used by the BG/FG/TX planes for correct sub-tile horizontal scroll).
+    - jttaitob_shifter.v
+    # TC0180VCU sprite engine (Phase 3d). Scans the 408-slot sprite list each
+    # line into a jtframe_obj_buffer line buffer; reuses the gfx_sort'd gfx.
+    - jttaitob_obj.v
+    - jttaitob_colmix.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: clocking
+    get:
+      - jtframe_cen48.v
+      - jtframe_cen24.v
+      - jtframe_sync.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+      - jtframe_obj_buffer.v
+      - jtframe_prom.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+      - jtframe_m68k.yaml
+jt12:
+  - get:
+    - jt12.yaml      # pulls the entire jt12 module incl. jt10 (YM2610) wrapper
