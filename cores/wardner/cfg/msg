@@ -1,16 +1,81 @@
-\BWardner\W on FPGA
+   \BWARDNER\W FPGA core
+  Toaplan (1987) to MiSTer
 
-  Toaplan TP-009 / Taito B25
-          1987
+   Based on MAME driver
 
-Z80 main and sound CPUs, a
-TMS320C10 co-processor, YM3812
-and the Toaplan sprite unit.
+      by Marc Emmerson
+   with Claude (Anthropic)
+   on the \RJTCORES\W framework
+       by JOTEGO + community
 
-The DSP is not protection: it
-runs enemy fire, collisions and
-sprite placement, writing them
-into the main CPU's own RAM.
+\B______ \RDIRECTORS\B _______\W
+Andrea Bogazzi  f3bandit
+Fabio Michelin  Filip Kindt
+Frederic Mahe   kccheng
+    Fulvio Venturelli
+Georgi Rakidov  Luis Massot
+Martin          Martin Donlon
+Max Kupriianov  M. Fornasini
+musicisfun15    Skutis
+Tulio Adriano   Gu Youqiang
 
-   Report issues to:
-  github.com/jotego/jtcores
+
+       \BThanks to\W
+\R    Alexander Facchini
+\RAlon Faifer     BigRedPimp
+\Rblktiger        Blue Abs
+\RBob Gallardo    brad
+\RBrian Sallee    Daithi
+\RDan Avedikian   Daniel Bauza
+\RDanny Garfield  LaNaveRETRO
+\RDrewtoriousFGC  ER
+\RHalla           Harper Reed
+\R    Henrik Nordstrom
+\RJacob Jewell    Jim Sprigler
+\RJoe Castle      Matt Hayden
+\RNick Chapman    oldmanoftheSEA
+\RPD Lee          Pelayo Marinas
+\RPeter Vessenes  poppunmori
+\Rqwupz           Rautz
+\RRenaissance 2K  RetroWilly
+\RRobert Moran    Sayit BELET
+\RStrong Badam    Tej Bilkhu
+\RTheJesusFish
+
+
+ \B_________ AND __________\W
+Adam Davis      Adrian Nabarro
+albertprime     Anders Rensberg
+Andrew Moore    Andy Palmer
+Andyways        ARCADEAGES
+Bryan Adams     Carrboroman
+Christian       Chris Doyle
+Chris Harvey    Dan Bayley
+Daniel Cortes   Darren Chell
+Dave Sasser     David Moylan
+Dean Winger     DMG
+Don Gafford     Ed Balan
+Eduardo Javier  Fred Jorge
+    Gus Douboulidis
+    Hendrik Osterholz
+hyp36rmax       Ian Court
+    INAKI ECHEVARRIA
+James Stroup    Jo le Zef
+Joe Tassone     Joeri van
+John Casey      John Silva
+    JPS (RetroFPGA)
+Juan Sandoval   JuanRa
+Keith F. Kelly  Leslie Law
+    Lukas Hinterleitner
+Matt_Rant       Matthew Young
+    Michael Ferguson
+    Michael Fleisher
+    Michael Johnson
+Mike Phan       Nunzio Mannino
+Oliver Wndmth   Oscar Laguna
+Retro_Brewz     RetroLarry
+Richard MS      Rob Jenkins
+Robert MacLean  Steven Wilson
+The Collector   Theodore Huber
+Thompson Orcino Torren Beitler
+ultimatekd      Vitor Duarte
