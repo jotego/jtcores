@@ -92,11 +92,12 @@ assign cab_joy1 = { 2'b00, ~joystick1[5], ~joystick1[4],
 assign cab_joy2 = { 2'b00, ~joystick2[5], ~joystick2[4],
                     ~joystick2[0], ~joystick2[1], ~joystick2[2], ~joystick2[3] };
 
-// The foreground bank bit selects tiles 4096-8191. Wardner's foreground ROM
-// holds exactly 4096 tiles, and MAME wraps the code with code % total, so
-// dropping the bit is what the reference does. Twin Cobra has twice the ROM
-// and would use it, which is why the video module keeps the bit.
-assign fg_addr = fg_full_addr[14:0];
+// Both memory ports are one bit narrower than what drives them. dsprom_addr is
+// [11:1] because the DSP addresses 4096 words and the mask ROM holds 2048.
+// fg_addr is [16:2] because the tile engine prepends a bank bit selecting tiles
+// 4096-8191, which Wardner's foreground ROM does not have; dropping it is what
+// MAME's code % total does. Twin Cobra has twice the ROM and would use it.
+assign fg_addr     = fg_full_addr[14:0];
 assign dsprom_addr = dsp_rom_addr[10:0];
 
 assign debug_view = { 3'd0, obj_ovf, dsp_halt, dsp_on, flip, video_on };
