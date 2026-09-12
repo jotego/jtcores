@@ -20358,7 +20358,7 @@ module t80_0_1_0_1_2_3_4_5_6_7
   /* T80.vhd:1224:51  */
   assign n1815_o = tstate == 3'b010;
   /* T80.vhd:1225:49  */
-  assign n1817_o = setei ? 1'b1 : inte_ff1;
+  assign n1817_o = (setei & ~nmicycle) ? 1'b1 : inte_ff1;
   /* T80.vhd:1224:41  */
   assign n1819_o = n1822_o ? 1'b1 : inte_ff2;
   /* T80.vhd:1229:49  */
