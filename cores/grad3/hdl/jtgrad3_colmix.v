@@ -72,7 +72,7 @@ always @(posedge clk) begin
         rgb <= 0;
     end else if(pxl_cen) begin
         pal_rd_addr <= pal_addr;
-        shl <= shd;
+        shl <= shd | en_b;
         rgb <= shl ? palrd_dout[14:0] : dim(palrd_dout[14:0]);
     end
 end
