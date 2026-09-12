@@ -106,6 +106,10 @@ always @(posedge clk) begin
             end else begin
                 an_x <= an_x_raw;
                 an_y <= an_y_raw;
+                if( adc==3'd3 ) begin      // Hang-On pedals swing 00-FF
+                    an_gas   <= enduro_gas[7]   ? 8'hff : { enduro_gas[6:0],   1'b0 };
+                    an_brake <= enduro_brake[7] ? 8'hff : { enduro_brake[6:0], 1'b0 };
+                end
             end
         end
     end

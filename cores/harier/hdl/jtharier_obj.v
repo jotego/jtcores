@@ -6,7 +6,7 @@
     family shape (jtoutrun_obj):
 
       jtharier_obj_scan  walks the object table, per-line address stepping
-      jtharier_obj_draw  fetches the 32-bit sprite ROM, 8 px/word, h-shrink
+      jtharier_obj_draw  fetches the sprite ROM, 8 px/word (Hang-On 4), h-shrink
       jtframe_obj_buffer   double line buffer, scanned out as obj_pxl
 
     Output pxl feeds jts16_tilemap.obj_pxl (contract in jts16_prio.v):
@@ -22,6 +22,7 @@ module jtharier_obj(
     input              rst,
     input              clk,
     input              pxl_cen,
+    input              hangon,
 
     output     [11:1]  tbl_addr,
     input      [15:0]  tbl_dout,
@@ -49,7 +50,7 @@ wire        dr_start, dr_busy;
 wire [ 8:0] dr_xpos;
 wire [15:0] dr_offset;   // [15] = hflip
 wire [ 2:0] dr_bank;
-wire        dr_prio;
+wire [ 1:0] dr_prio;
 wire [ 5:0] dr_pal;
 wire        dr_shadow;
 wire [ 6:0] dr_hzoom;
@@ -61,6 +62,7 @@ wire        bf_we;
 jtharier_obj_scan u_scan(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .hangon     ( hangon    ),
     .vrender    ( vrender   ),
     .hstart     ( hstart    ),
 
@@ -84,13 +86,14 @@ jtharier_obj_draw u_draw(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .hstart     ( hstart    ),
+    .hangon     ( hangon    ),
 
     .start      ( dr_start  ),
     .busy       ( dr_busy   ),
     .xpos       ( dr_xpos   ),
     .offset     ( dr_offset ),
     .bank       ( dr_bank   ),
-    .sh_prio    ( dr_prio   ),
+    .prio       ( dr_prio   ),
     .pal        ( dr_pal    ),
     .shadow     ( dr_shadow ),
     .hzoom      ( dr_hzoom  ),

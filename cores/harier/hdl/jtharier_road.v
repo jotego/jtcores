@@ -30,6 +30,7 @@ module jtharier_road(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             hangon,
 
     input             hs,
     input      [ 8:0] vdump,      // line being displayed. NOT vrender: this module was
@@ -111,7 +112,9 @@ assign rdrom_addr = { idx_l, ctr9n9p[5:0] };
 // ss8j bit 0 swaps the bit order: normal reads bit (7-ctr9m), swapped ctr9m.
 wire [2:0] bitpos = ss8j[0] ? (3'd7 - ctr9m) : ctr9m;
 wire       oe     = (ctr9n9p[7:6]==2'b11);              // /OE = AND of 9N bits 2,3
-wire       ce     = ~control[9];                        // Space Harrier: ctrl[9] -> /CE
+// ctrl[9] is the road ROM /CE on Space Harrier; on Hang-On it forces ff9j2 set
+wire       ce     = hangon | ~control[9];
+wire       ff9j2_f = ff9j2 | (hangon & ~control[9]);
 reg  [1:0] md;
 reg  [1:0] mdc;         // md clamped for colour select
 reg        cbit;
@@ -134,7 +137,7 @@ end
 reg  [10:0] pxl_nx;
 always @(*) begin
     mdc = 2'd0; cbit = 1'b0;
-    if( ff9j2 && md==2'd3 ) begin
+    if( ff9j2_f && md==2'd3 ) begin
         // background solid fill: color0 holds two 6-bit selections
         pxl_nx = COLORBASE2 | { 5'd0, (select ? color0[5:0] : color0[13:8]) };
     end else begin

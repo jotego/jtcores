@@ -20,6 +20,8 @@
       +6  -ooooooo oooooooo   base offset within the bank
       +8  --zzzzzz --------   hzoom
       +8  -------- --zzzzzz   vzoom
+    Hang-On (hangon, sega16sp.cpp:109): +4 is a signed 16-bit pitch; +8 holds
+    colour [13:8], zoom [7:2] (hzoom = vzoom) and priority [1:0]; no shadow bit.
     bottom > 0xF0 ends the list; skip if top >= bottom. Device origin is
     (189,-1), so device y = vrender-1.
 
@@ -36,6 +38,7 @@
 module jtharier_obj_scan(
     input              rst,
     input              clk,
+    input              hangon,
 
     input      [ 8:0]  vrender,
     input              hstart,
@@ -53,7 +56,7 @@ module jtharier_obj_scan(
     output reg [ 8:0]  dr_xpos,
     output reg [15:0]  dr_offset,   // [15] = hflip
     output reg [ 2:0]  dr_bank,
-    output reg         dr_prio,
+    output reg [ 1:0]  dr_prio,
     output reg [ 5:0]  dr_pal,
     output reg         dr_shadow,   // shadow ENABLED for this sprite
     output reg [ 6:0]  dr_hzoom
@@ -72,7 +75,8 @@ reg  [ 8:0] xpos;
 reg signed [15:0] pitch;
 reg  [15:0] addr;
 reg  [ 5:0] vzoom, hzoom6, pal;
-reg         prio, shadow_dis;
+reg  [ 1:0] prio;
+reg         shadow_dis;
 reg  [15:0] scr;            // running address latched from the private scratch RAM
 
 // Private scratch RAM: the +E running address, one word per sprite
@@ -152,10 +156,9 @@ always @(posedge clk, posedge rst) begin
             end
             3: begin                   // tbl_dout = +4 : shadow / prio / colour / pitch
                 shadow_dis  <= tbl_dout[15];
-                prio        <= tbl_dout[14];
+                prio        <= { tbl_dout[14], 1'b1 };
                 pal         <= tbl_dout[13:8];
-                pitch[6:0]  <= tbl_dout[6:0];
-                pitch[15:7] <= {9{tbl_dout[6]}};        // sext 7-bit
+                pitch       <= hangon ? tbl_dout : { {9{tbl_dout[6]}}, tbl_dout[6:0] };
             end
             4: begin                   // tbl_dout = +6 : flip + base offset
                 addr <= tbl_dout;
@@ -168,8 +171,12 @@ always @(posedge clk, posedge rst) begin
                 end
             end
             5: begin                   // tbl_dout = +8 : hzoom / vzoom
-                hzoom6 <= tbl_dout[13:8];
-                vzoom  <= tbl_dout[ 5:0];
+                hzoom6 <= hangon ? tbl_dout[7:2] : tbl_dout[13:8];
+                vzoom  <= hangon ? tbl_dout[7:2] : tbl_dout[ 5:0];
+                if( hangon ) begin     // colour / zoom / priority
+                    pal  <= tbl_dout[13:8];
+                    prio <= tbl_dout[ 1:0];
+                end
             end
             6: begin                   // zoom_data valid next cycle
                 scr <= scr_dout;
@@ -186,7 +193,7 @@ always @(posedge clk, posedge rst) begin
                     dr_bank   <= bank;
                     dr_prio   <= prio;
                     dr_pal    <= pal;
-                    dr_shadow <= ~shadow_dis;
+                    dr_shadow <= ~shadow_dis & ~hangon;
                     dr_hzoom  <= { hzoom6, 1'b0 };      // MAME: (field & 0x3f) << 1
                     dr_start  <= 1;
                     cur_obj   <= cur_obj + 1'd1;
