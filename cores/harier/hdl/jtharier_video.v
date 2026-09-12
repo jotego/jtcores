@@ -110,24 +110,24 @@ assign scr1_addr = tmg_scr1_addr[16:2];
 assign scr2_addr = tmg_scr2_addr[16:2];
 
 jts16_tilemap #(.MODEL(0)) u_tilemap(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl2_cen   ( pxl2_cen  ),
-    .pxl_cen    ( pxl_cen   ),
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl2_cen   ( pxl2_cen      ),
+    .pxl_cen    ( pxl_cen       ),
 
-    .dip_pause  ( dip_pause ),
-    .char_cs    ( char_cs   ),
-    .cpu_addr   ( cpu_addr  ),
-    .cpu_dout   ( cpu_dout  ),
-    .dswn       ( dsn       ),
-    .char_dout  ( char_dout ),
-    .vint       (           ),  // the game uses ~LVBL
+    .dip_pause  ( dip_pause     ),
+    .char_cs    ( char_cs       ),
+    .cpu_addr   ( cpu_addr      ),
+    .cpu_dout   ( cpu_dout      ),
+    .dswn       ( dsn           ),
+    .char_dout  ( char_dout     ),
+    .vint       (               ),  // the game uses ~LVBL
 
-    .flip       ( flip      ),
-    .ext_flip   (           ),  // inout, driven by flip inside the module
-    .colscr_en  ( colscr_en ),  // SCONT1 (PPI0 port C) -- high-score/attract scroll
-    .rowscr_en  ( rowscr_en ),
-    .alt_en     ( 1'b0      ),
+    .flip       ( flip          ),
+    .ext_flip   (               ),  // inout, driven by flip inside the module
+    .colscr_en  ( colscr_en     ),  // SCONT1 (PPI0 port C) -- high-score/attract scroll
+    .rowscr_en  ( rowscr_en     ),
+    .alt_en     ( 1'b0          ),
 
     .char_ok    ( char_ok       ),
     .char_addr  ( tmg_char_addr ),
@@ -145,36 +145,36 @@ jts16_tilemap #(.MODEL(0)) u_tilemap(
     .scr2_addr  ( tmg_scr2_addr ),
     .scr2_data  ( scr2_data     ),
 
-    .HS         ( HS        ),
-    .VS         ( VS        ),
-    .preLHBL    ( preLHBL   ),
-    .preLVBL    ( preLVBL   ),
-    .hstart     ( hstart    ),
-    .flipx      ( flipx     ),
-    .vdump      ( vdump     ),
-    .vrender    ( vrender   ),
-    .hdump      ( hdump     ),
+    .HS         ( HS            ),
+    .VS         ( VS            ),
+    .preLHBL    ( preLHBL       ),
+    .preLVBL    ( preLVBL       ),
+    .hstart     ( hstart        ),
+    .flipx      ( flipx         ),
+    .vdump      ( vdump         ),
+    .vrender    ( vrender       ),
+    .hdump      ( hdump         ),
 
-    .obj_pxl    ( obj_pxl   ),  // sprite engine below
-    .pal_addr   ( tm_addr   ),
-    .shadow     ( shadow    ),
+    .obj_pxl    ( obj_pxl       ),  // sprite engine below
+    .pal_addr   ( tm_addr       ),
+    .shadow     ( shadow        ),
     // Text/HUD is at the very front: segahang.cpp inflates the text priority so
     // sprites never cover the high scores.
-    .set_fix    ( 1'b1      ),
+    .set_fix    ( 1'b1          ),
 
-    .obj        ( tm_obj    ),
-    .sa         ( tm_sa     ),
-    .sb         ( tm_sb     ),
-    .fix        ( tm_fix    ),
-    .tprio      (           ),
-    .s1_pri     (           ),
-    .s2_pri     (           ),
+    .obj        ( tm_obj        ),
+    .sa         ( tm_sa         ),
+    .sb         ( tm_sb         ),
+    .fix        ( tm_fix        ),
+    .tprio      (               ),
+    .s1_pri     (               ),
+    .s2_pri     (               ),
 
-    .gfx_en     ( gfx_en    ),
-    .debug_bus  ( debug_bus ),
-    .st_addr    ( st_addr   ),
-    .st_dout    ( st_dout   ),
-    .scr_bad    ( scr_bad   )
+    .gfx_en     ( gfx_en        ),
+    .debug_bus  ( debug_bus     ),
+    .st_addr    ( st_addr       ),
+    .st_dout    ( st_dout       ),
+    .scr_bad    ( scr_bad       )
 );
 
 jtharier_road u_road(
@@ -198,55 +198,55 @@ jtharier_road u_road(
 );
 
 jtharier_obj u_obj(
-    .rst        ( rst          ),
-    .clk        ( clk          ),
-    .pxl_cen    ( pxl_cen      ),
+    .rst        ( rst         ),
+    .clk        ( clk         ),
+    .pxl_cen    ( pxl_cen     ),
 
-    .tbl_addr   ( objdma_addr  ),
-    .tbl_dout   ( objdma_dout  ),
-    .zoom_addr  ( zoom_addr    ),
-    .zoom_data  ( zoom_data    ),
+    .tbl_addr   ( objdma_addr ),
+    .tbl_dout   ( objdma_dout ),
+    .zoom_addr  ( zoom_addr   ),
+    .zoom_data  ( zoom_data   ),
 
-    .obj_ok     ( obj_ok       ),
-    .obj_cs     ( obj_cs       ),
-    .obj_addr   ( obj_addr     ),
-    .obj_data   ( obj_data     ),
+    .obj_ok     ( obj_ok      ),
+    .obj_cs     ( obj_cs      ),
+    .obj_addr   ( obj_addr    ),
+    .obj_data   ( obj_data    ),
 
-    .flip       ( flipx        ),
-    .hstart     ( hstart       ),
-    .LHBL       ( ~HS          ),
-    .vrender    ( vrender      ),
-    .hdump      ( hdump        ),
+    .flip       ( flipx       ),
+    .hstart     ( hstart      ),
+    .LHBL       ( ~HS         ),
+    .vrender    ( vrender     ),
+    .hdump      ( hdump       ),
 
-    .pxl        ( obj_pxl      )
+    .pxl        ( obj_pxl     )
 );
 
 jtharier_colmix u_colmix(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .pxl_cen    ( pxl_cen   ),
-    .video_en   ( video_en  ),
-    .preLHBL    ( preLHBL   ),
-    .preLVBL    ( preLVBL   ),
+    .rst          ( rst          ),
+    .clk          ( clk          ),
+    .pxl_cen      ( pxl_cen      ),
+    .video_en     ( video_en     ),
+    .preLHBL      ( preLHBL      ),
+    .preLVBL      ( preLVBL      ),
 
-    .tm_addr    ( tm_addr   ),
-    .tm_fix     ( tm_fix    ),
-    .tm_sa      ( tm_sa     ),
-    .tm_sb      ( tm_sb     ),
-    .tm_obj     ( tm_obj    ),
-    .road_pxl   ( road_pxl  ),
-    .road_op    ( road_op   ),
-    .road_plycont( road_plycont ),
+    .tm_addr      ( tm_addr      ),
+    .tm_fix       ( tm_fix       ),
+    .tm_sa        ( tm_sa        ),
+    .tm_sb        ( tm_sb        ),
+    .tm_obj       ( tm_obj       ),
+    .road_pxl     ( road_pxl     ),
+    .road_op      ( road_op      ),
+    .road_plycont ( road_plycont ),
 
-    .pal_addr   ( pal_vaddr ),
-    .pal_data   ( pal_vdata ),
-    .shadow     ( shadow    ),
-    .gfx_en     ( gfx_en    ),
-    .red        ( red       ),
-    .green      ( green     ),
-    .blue       ( blue      ),
-    .LVBL       ( LVBL      ),
-    .LHBL       ( LHBL      )
+    .pal_addr     ( pal_vaddr    ),
+    .pal_data     ( pal_vdata    ),
+    .shadow       ( shadow       ),
+    .gfx_en       ( gfx_en       ),
+    .red          ( red          ),
+    .green        ( green        ),
+    .blue         ( blue         ),
+    .LVBL         ( LVBL         ),
+    .LHBL         ( LHBL         )
 );
 
 endmodule
