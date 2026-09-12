@@ -9,10 +9,3 @@ Yes, you always wanted to have an arcade board at home. First you couldn't get i
 
 I hope you will have as much fun with this project as I had while working on it!
 
-# KNOWN ISSUES
-
-## SiDi128
-
-Screen rotation is not available for this core when the line-frame buffer is
-enabled. Gals Panic uses the target SDRAM for the sprite frame buffer, and
-screen rotation needs that same SDRAM path.

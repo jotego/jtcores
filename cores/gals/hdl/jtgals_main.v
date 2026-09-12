@@ -54,6 +54,7 @@ module jtgals_main(
     output             irq3_n,
     output             irq5_n,
     output reg         fb_keep,
+    output reg         flip,
 
     output      [22:1] rom_addr,
     output reg         rom_cs,
@@ -211,10 +212,12 @@ always @(posedge clk) begin
     if (main_rst) begin
         oki_bank <= 4'd0;
         fb_keep  <= 1'b0;
+        flip     <= 1'b0;
     end else begin
         if (oki_bank_we && !uds_n) begin
             oki_bank <= cpu_dout[11:8];
             fb_keep  <=~cpu_dout[15];
+            flip     <= cpu_dout[14];
         end
     end
 end
@@ -319,6 +322,7 @@ initial begin
     oki_cs   = 1'b0;
     oki_bank = 4'd0;
     fb_keep  = 1'b0;
+    flip     = 1'b0;
     rom_addr = 22'd0;
     rom_cs   = 1'b0;
 end

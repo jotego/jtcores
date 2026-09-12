@@ -28,7 +28,7 @@ rename=[
 	{ name="Reset Damage", values=["Every 4 spots","Every spot"] },
 ]
 extra=[
-	{ machine="rumba", name="Flip", options="Off,On", bits="24" }
+	{ machines=["rumba"], name="Flip", options="Off,On", bits="24" },
 ]
 
 [header]
