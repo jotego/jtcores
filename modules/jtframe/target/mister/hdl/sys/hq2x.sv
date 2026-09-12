@@ -29,14 +29,6 @@ module Hq2x #(parameter LENGTH, parameter HALF_DEPTH)
 localparam AWIDTH = $clog2(LENGTH)-1;
 localparam DWIDTH = HALF_DEPTH ? 11 : 23;
 localparam DWIDTH1 = DWIDTH+1;
-`ifdef JTFRAME_NOHQ2X
-	reg [DWIDTH:0] pxlin_l, pre_out;
-	assign outpixel = pre_out;
-	always @(posedge clk) begin
-		if(ce_in ) pxlin_l <= inputpixel;
-		if(ce_out) pre_out <= pxlin_l;
-	end
-`else
 
 (* romstyle = "MLAB" *) reg [5:0] hqTable[256];
 initial begin
@@ -373,5 +365,5 @@ module Blend
 	wire [35:0] res = {mul24x3(i1, op[6:4]), 1'b0} + mul24x3(i2, {op[3:2], !op[3:2]}) + mul24x3(i3, {op[1:0], !op[3:2]});
 
 	always @(posedge clk) if (clk_en) Result <= {res[35:28],res[23:16],res[11:4]};
-`endif
+
 endmodule
