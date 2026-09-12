@@ -10,7 +10,7 @@ module jtharier_sound(
     input                cen_fm,    // 4 MHz, YM2203 (sheet D-2/3, pin 38 OM from 4M)
     input                cen_fm2,   // 2 MHz, YM2151 internal timing
     input                cen_pcm,   // 16 MHz -- NOT 8. See the PCM section below.
-    input                cen_pcm8,  //  8 MHz, 315-5218 on the YM2151 board
+    input                cen_pcm8,  // 315-5218 step rate on the YM2151 board, as in Out Ru
 
     // Main CPU interface via PPI0, CPU sheet 2/6
     input        [ 7:0]  latch,     // PPI0 port A, written by the 68000
