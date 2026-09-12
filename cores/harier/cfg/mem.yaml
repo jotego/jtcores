@@ -10,6 +10,7 @@ clocks:
       gate: [ pcm ]
       outputs:
         - cen_pcm
+        - cen_pcm8    # 315-5218 step rate on the YM2151 board, as in Out Run
     - freq: 8M
       outputs:
         - cen_mcu
