@@ -4,9 +4,7 @@ author=["jotego","niknak"]
 [parse]
 sourcefile=[ "segahang.cpp" ]
 main_setnames=["sharrier"]
-# Hang-On's sprite ROMs do not group into 32-bit words, so its sprite format is
-# not implemented.
-skip={ bootlegs=true, machines=["hangon","shangon"] }
+skip={ bootlegs=true, machines=["shangon"] }
 
 [audio]
 volume = [ { machine="sharrier", value = 160 } ]
@@ -36,6 +34,7 @@ registers=[
     { name="i8751",  pos="0[0]",  desc="i8751 MCU", values=[{ machine="sharrier", value=1 }] },
     { name="fd1089", pos="0[1]",  desc="FC1089B",   values=[{ machine="enduror",  value=1 }] },
     { name="blank4", pos="0[2]",  desc="IPL2 set at blank", values=[{machines=["enduror","hangon"], value=1}] },
+    { name="hangon", pos="0[3]",  desc="Hang-On board", values=[{ machine="hangon", value=1 }] },
     { name="ym2151", pos="1[0]",  desc="YM2151",      values=[{setname="enduror1", value=0},{machine="enduror", value=1}]},
     { name="cab1p",  pos="2[0]",  desc="1P at bit 6", values=[{machine="enduror",  value=1}]},
     { name="hicol",  pos="3[0]",  desc="6144 colors", values=[{machine="hangon",   value=1}]},
@@ -50,6 +49,7 @@ regions = [
     { name="pcm",          start="PCM_START" },
     { name="gfx1",         start="JTFRAME_BA2_START", width=32, sequence=[0,1,2,2] },
     { name="sprites",      start="JTFRAME_BA3_START", width=32, no_offset=true },
+    { name="sprites",      start="JTFRAME_BA3_START", width=16, no_offset=true, machine="hangon" },
     { name="segaic16road", start="ROAD_START", width=16, no_offset=true, singleton=true },
     { name="sprites:zoom", start="ZOOM_START", len=0x2000 },
     { name="mcu",          start="MCU_START", len=0x1000 },

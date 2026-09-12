@@ -21,4 +21,7 @@ Enduro Racer uses both analog sticks. The left stick horizontal axis steers,
 and its vertical axis controls the motorcycle bank. The right stick vertical
 axis is split into pedals: up accelerates and down brakes.
 
-The current version only supports a dual-stick analog controller for Enduro Racer. That will be improved soon.
+Hang-On uses the left stick horizontal axis to steer. The right stick vertical
+axis is split into pedals: up accelerates and down brakes.
+
+The current version only supports a dual-stick analog controller for Enduro Racer and Hang-On. That will be improved soon.

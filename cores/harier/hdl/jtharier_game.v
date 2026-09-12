@@ -17,14 +17,14 @@ wire        main_rnw, ram_cs, char_cs_main, objram_cs_main,
 wire [15:0] char_dout;
 wire [ 1:0] sub_dsn;
 wire        sub_rnw, sub_ram_cs, sub_road_cs, sub_rstn, sub_intn;
-wire        flip, video_en, colscr_en, rowscr_en;
+wire        flip, video_en, shade0, colscr_en, rowscr_en;
 wire        snd_rstn;   // PPI0 port B bit 5, Z80 /RESET (active low)
 wire [ 7:0] snd_latch;
 wire        snd_ack;
 wire        snd_nmin;
 wire [ 8:0] vrender, hdump;
 wire [ 7:0] dipsw_a, dipsw_b, st_main, st_sub, st_video, st_road;
-wire        scr_bad, i8751, fd1089, blank4, ym2151, cab1p, hicol;
+wire        scr_bad, i8751, fd1089, blank4, hangon, ym2151, cab1p, hicol;
 wire [12:0] key_addr;
 wire [ 7:0] key_data;
 wire [ 2:0] adc;        // number of ADC channels
@@ -61,6 +61,7 @@ jtharier_header u_header(
     .i8751      ( i8751          ),
     .fd1089     ( fd1089         ),
     .blank4     ( blank4         ),
+    .hangon     ( hangon         ),
     .ym2151     ( ym2151         ),
     .cab1p      ( cab1p          ),
     .hicol      ( hicol          ),
@@ -126,6 +127,7 @@ jtharier_main u_main(
     .i8751       ( i8751           ),
     .fd1089      ( fd1089          ),
     .blank4      ( blank4          ),
+    .hangon      ( hangon          ),
     .cab1p       ( cab1p           ),
     .adc         ( adc             ),
     .LVBL        ( LVBL            ),
@@ -160,6 +162,9 @@ jtharier_main u_main(
     .rom_cs      ( main_cs         ),
     .rom_data    ( main_data       ),
     .rom_ok      ( main_ok         ),
+    .subrom_cs   ( subrom_cs_main  ),
+    .subrom_data ( subrom2_data    ),
+    .subrom_ok   ( subrom2_ok      ),
 
     .dipsw_a     ( dipsw_a         ),
     .dipsw_b     ( dipsw_b         ),
@@ -181,12 +186,14 @@ jtharier_main u_main(
     .snd_rstn    ( snd_rstn        ),
     .snd_ack     ( snd_ack         ),
     .video_en    ( video_en        ),
+    .shade0      ( shade0          ),
     .colscr_en   ( colscr_en       ),
     .rowscr_en   ( rowscr_en       ),
 
     .subram_cs   ( subram_cs_main  ),
     .roadram_cs  ( roadram_cs_main ),
     .subram_dout ( subram_dout     ),
+    .road_dout   ( roadram_dout    ),
 
     .sub_rstn    ( sub_rstn        ),
     .sub_intn    ( sub_intn        ),
@@ -202,6 +209,7 @@ jtharier_main u_main(
 jtharier_sub u_sub(
     .rst        ( rst          ),
     .clk        ( clk          ),
+    .hangon     ( hangon       ),
 
     .rstn       ( sub_rstn     ),
     .intn       ( sub_intn     ),
@@ -266,6 +274,9 @@ jtharier_video u_video(
     .colscr_en   ( colscr_en       ),
     .rowscr_en   ( rowscr_en       ),
     .vfix_en     ( vfix_en         ),
+    .hangon      ( hangon          ),
+    .hicol       ( hicol           ),
+    .shade0      ( shade0          ),
 
     .dip_pause   ( dip_pause       ),
     .char_cs     ( char_cs_main    ),

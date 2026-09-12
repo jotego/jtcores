@@ -8,6 +8,7 @@ module jtharier_main(
     input              i8751,
     input              fd1089,
     input              blank4,
+    input              hangon,
     input              cab1p,
     input       [ 2:0] adc,
     output      [12:0] key_addr,
@@ -32,6 +33,7 @@ module jtharier_main(
     input       [15:0] objram_dout,
     input       [15:0] pal_dout,
     input       [15:0] subram_dout,
+    input       [15:0] road_dout,
 
     // Work RAM, IC96/IC83 on CPU sheet 1/6
     output reg         ram_cs,
@@ -46,6 +48,10 @@ module jtharier_main(
     output reg         rom_cs,
     input       [15:0] rom_data,
     input              rom_ok,
+    // Hang-On: sub CPU ROM at c00000
+    output reg         subrom_cs,
+    input       [15:0] subrom_data,
+    input              subrom_ok,
 
     input       [ 7:0] dipsw_a,
     input       [ 7:0] dipsw_b,
@@ -62,6 +68,7 @@ module jtharier_main(
     output             flip,
     output reg         mute,
     output             video_en,
+    output             shade0,
     output             colscr_en,   // SCONT1: column-scroll enable to the tilemap
     output             rowscr_en,   // SCONT0: row-scroll enable to the tilemap
     // sound
@@ -92,7 +99,7 @@ wire        BRn, BGn, BGACKn;
 wire [15:0] cpu_dout_raw;
 reg  [15:0] cpu_din;
 reg  [ 7:0] cab_dout, io_dout;
-wire        rom_ok_dly, vram_ok_dly, sound_en, fd1089_ok;
+wire        rom_ok_dly, vram_ok_dly, subrom_ok_dly, sound_en, fd1089_ok;
 wire [15:0] fd1089_dec;
 wire [15:0] rom_dec = fd1089 ? fd1089_dec : rom_data;
 wire [ 7:0] ppi0_dout, ppi1_dout, ppi0_b, ppi0_c, ppi1_a;
@@ -112,6 +119,7 @@ reg         mcu_rst, fd1089_rst;
 
 assign      lvbl_g   = dip_pause ? LVBL : 1'b1;
 assign      video_en = ppi0_b[4];
+assign      shade0   = ppi0_b[6];     // SHADER: 0 shadow, 1 hilight
 wire [ 1:0] scont    = ppi0_c[2:1];   // {SCONT1, SCONT0}, active low
 assign      colscr_en = ~scont[1];    // = ~ppi0_c[2]
 assign      rowscr_en = ~scont[0];    // = ~ppi0_c[1]
@@ -162,7 +170,7 @@ assign IPLn     = { blank4 ? vbl_irqn : mcu_ctrl[2], mcu_ctrl[1:0] };
 assign VPAn     = inta_n;
 
 wire        bus_cs   = rom_cs | ram_cs | vram_cs | char_cs | objram_cs | pal_cs |
-                       subram_cs | roadram_cs | io_cs;
+                       subram_cs | roadram_cs | io_cs | subrom_cs;
 // VWAIT: the board stalls the main CPU off video RAM until the video's fetch
 // phase for the layer it is addressing reaches the CPU's slot. IC106 (CK-2605
 // 315-5168, control sheet 1/7) decides it from /VRAM, AD1, AD15, H3, HA3, HB3 and
@@ -199,7 +207,7 @@ end
 
 wire        vwait    = vram_acc & ~vw_grant;
 wire        bus_busy = (rom_cs & ~(fd1089 ? fd1089_ok : rom_ok_dly)) |
-                       (vram_cs & ~vram_ok_dly) | vwait;
+                       (vram_cs & ~vram_ok_dly) | (subrom_cs & ~subrom_ok_dly) | vwait;
 
 jtframe_okdly u_rom_okdly(
     .rst    ( rst        ),
@@ -217,6 +225,14 @@ jtframe_okdly u_vram_okdly(
     .ok_dly ( vram_ok_dly )
 );
 
+jtframe_okdly u_subrom_okdly(
+    .rst    ( rst           ),
+    .clk    ( clk           ),
+    .cs     ( subrom_cs     ),
+    .ok     ( subrom_ok     ),
+    .ok_dly ( subrom_ok_dly )
+);
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         rom_cs     <= 0;
@@ -228,19 +244,23 @@ always @(posedge clk, posedge rst) begin
         subram_cs  <= 0;
         roadram_cs <= 0;
         io_cs      <= 0;
+        subrom_cs  <= 0;
     end else begin
         if( mcu_bus ? mcu_acc : (!ASn && FC!=3'b111 && {UDSn,LDSn}!=2'b11) ) begin
+            // sharrier_map / hangon_map
             rom_cs    <= A[23:18]==6'd0;             // 000000-03ffff
-            ram_cs    <= A[23:14]==10'h010;          // 040000-043fff
-            vram_cs   <= A[23:15]==9'h020;           // 100000-107fff, tileram
+            ram_cs    <= hangon ? A[23:14]==10'h083 : A[23:14]==10'h010; // 20c000 / 040000
+            vram_cs   <= hangon ? A[23:14]==10'h100 : A[23:15]==9'h020;  // 400000 / 100000, tileram
             // Text RAM plus the tile-map registers, a BRAM inside jts16_char
-            char_cs   <= A[23:12]==12'h108;          // 108000-108fff, textram
+            char_cs   <= A[23:12]==(hangon ? 12'h410 : 12'h108);         // 410000 / 108000, textram
             // 109000-10ffff is left undecoded: sharrier_map maps nothing there.
-            objram_cs <= A[23:12]==12'h130;          // 130000-130fff
-            pal_cs    <= A[23:12]==12'h110;          // 110000-110fff
-            io_cs     <= A[23:16]==8'h14;            // 140000-14ffff, mirrored
-            subram_cs <= A[23:16]==8'h12 && A[15:14]==2'b01; // 124000-127fff
+            objram_cs <= hangon ? A[23:11]==13'hc00 : A[23:12]==12'h130; // 600000 / 130000
+            pal_cs    <= A[23:12]==(hangon ? 12'ha00 : 12'h110);         // a00000 / 110000
+            io_cs     <= hangon ? A[23:21]==3'd7 : A[23:16]==8'h14;      // e00000 / 140000, mirrored
+            subram_cs <= hangon ? A[23:14]==10'h31f :                    // c7c000 / 124000
+                                  A[23:16]==8'h12 && A[15:14]==2'b01;
             roadram_cs<= A[23:12]==12'hc68;          // c68000-c68fff
+            subrom_cs <= hangon && A[23:18]==6'h30;  // c00000-c3ffff
         end else begin
             rom_cs     <= 0;
             ram_cs     <= 0;
@@ -251,21 +271,25 @@ always @(posedge clk, posedge rst) begin
             subram_cs  <= 0;
             roadram_cs <= 0;
             io_cs      <= 0;
+            subrom_cs  <= 0;
         end
     end
 end
 
-wire ppi0_cs = io_cs & (A[5:4]==2'd0);  // 140000, video_lamps_w, tilemap_sound_w
-wire ppi1_cs = io_cs & (A[5:4]==2'd2);  // 140020, sub_control_adc_w
+// 0 PPI0, 1 inputs, 2 PPI1, 3 ADC. Hang-On: e00000, e01000, e03000, e03021
+wire [1:0] io_sel  = hangon ? { A[13], A[13] ? A[5] : A[12] } : A[5:4];
+wire ppi0_cs = io_cs & (io_sel==2'd0);  // video_lamps_w, tilemap_sound_w
+wire ppi1_cs = io_cs & (io_sel==2'd2);  // sub_control_adc_w
 wire LDSWn   = RnW | LDSn;
 
 always @(*) begin
     case( A[2:1] )
-        2'd0: cab_dout = { cab1p ? { 1'b1, cab_1p[0], 2'b11 } : { joystick1[6:4], cab_1p[0] },
+        2'd0: cab_dout = { cab1p  ? { 1'b1, cab_1p[0], 2'b11 } :
+                           hangon ? { 3'b111, cab_1p[0] } : { joystick1[6:4], cab_1p[0] },
                            service, dip_test, coin[1:0] };
-        2'd1: cab_dout = 8'hff;
-        2'd2: cab_dout = dipsw_a;
-        2'd3: cab_dout = dipsw_b;
+        2'd1: cab_dout = hangon ? dipsw_a : 8'hff;
+        2'd2: cab_dout = hangon ? dipsw_b : dipsw_a;
+        2'd3: cab_dout = hangon ? 8'hff   : dipsw_b;
     endcase
 end
 
@@ -286,6 +310,13 @@ always @(*) begin
             2'd2: adc_val = an_y;     // bank up/down
             2'd3: adc_val = an_x;     // steering, reversed in jtharier_cab
         endcase
+    else if( adc==3'd3 )
+        case( adc_ch )
+            2'd0: adc_val = an_x;     // steering
+            2'd1: adc_val = an_gas;
+            2'd2: adc_val = an_brake;
+            default: adc_val = 8'h00;
+        endcase
     else
         case( adc_ch )
             2'd0: adc_val = an_x;
@@ -294,11 +325,11 @@ always @(*) begin
         endcase
 end
 always @(*) begin
-    case( A[5:4] )
+    case( io_sel )
         2'd0:    io_dout = ppi0_dout;
         2'd1:    io_dout = cab_dout;
         2'd2:    io_dout = ppi1_dout;
-        default: io_dout = adc_val;         // 140030, ADC0804
+        default: io_dout = adc_val;         // ADC0804
     endcase
 end
 
@@ -360,6 +391,8 @@ always @(posedge clk) begin
                objram_cs ? objram_dout           :
                pal_cs    ? pal_dout              :
                subram_cs ? subram_dout           :
+               subrom_cs ? subrom_data           :
+               roadram_cs? road_dout             :
                io_cs     ? { 8'hff, io_dout }    : 16'hffff;
 end
 
@@ -468,6 +501,7 @@ end
 jtharier_dtack_cen u_dtack(
     .rst        ( rst         ),
     .clk        ( clk         ),
+    .hangon     ( hangon      ),
     .cpu_cen    ( cpu_cen     ),
     .cpu_cenb   ( cpu_cenb    ),
     .UDSn       ( UDSn        ),
@@ -523,6 +557,7 @@ initial begin
     subram_cs  = 0;
     roadram_cs = 0;
     io_cs      = 0;
+    subrom_cs  = 0;
     st_dout   = 0;
 end
 
@@ -540,6 +575,7 @@ assign dsn      = 3;
 assign cpu_cen  = 0;
 assign cpu_cenb = 0;
 assign video_en = 1;   // unblanked: x here reaches colmix's /KILL latch
+assign shade0   = 0;
 assign colscr_en= 0;
 assign rowscr_en= 0;
 

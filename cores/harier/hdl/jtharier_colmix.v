@@ -25,6 +25,8 @@ module jtharier_colmix(
     output     [10:0]  pal_addr,
     input      [15:0]  pal_data,
     input              shadow,
+    input              hicol,     // Hang-On: shadow/hilight set by SHADER, not pal_data[15]
+    input              shade0,
 
     output     [ 4:0]  red,
     output     [ 4:0]  green,
@@ -55,10 +57,22 @@ function [4:0] dim;
     dim = a - (a>>2);
 endfunction
 
+// hilight: SHADER high through 470 ohm
+function [4:0] lit;
+    input [4:0] a;
+    lit = dim(a) + 5'd7;
+endfunction
+
 // SHADE from 315-5171, sheet 6/7.
+// Hang-On: SHADER low shadows, high hilights
 always @(*) begin
-    rgb_shade = (shadow & ~pal_data[15]) ? { dim(rpal), dim(gpal), dim(bpal) } :
-                                           {     rpal,      gpal,      bpal  };
+    if( hicol )
+        rgb_shade = !shadow ? { rpal, gpal, bpal } :
+                    shade0  ? { lit(rpal), lit(gpal), lit(bpal) } :
+                              { dim(rpal), dim(gpal), dim(bpal) };
+    else
+        rgb_shade = (shadow & ~pal_data[15]) ? { dim(rpal), dim(gpal), dim(bpal) } :
+                                               {     rpal,      gpal,      bpal  };
     if( !video_en ) rgb_shade = 0;
 end
 
