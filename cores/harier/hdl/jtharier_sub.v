@@ -101,49 +101,49 @@ always @(posedge clk) begin
 end
 
 jtharier_dtack_cen u_dtack(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cpu_cen    ( cpu_cen   ),
-    .cpu_cenb   ( cpu_cenb  ),
-    .UDSn       ( UDSn      ),
-    .LDSn       ( LDSn      ),
-    .bus_cs     ( bus_cs    ),
-    .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
-    .bus_ack    ( 1'b0      ),
-    .ASn        ( ASn       ),
-    .DSn        ({UDSn,LDSn}),
-    .DTACKn     ( DTACKn    ),
-    .fave       ( fave      ),
-    .fworst     ( fworst    )
+    .rst        ( rst         ),
+    .clk        ( clk         ),
+    .cpu_cen    ( cpu_cen     ),
+    .cpu_cenb   ( cpu_cenb    ),
+    .UDSn       ( UDSn        ),
+    .LDSn       ( LDSn        ),
+    .bus_cs     ( bus_cs      ),
+    .bus_busy   ( bus_busy    ),
+    .bus_legit  ( 1'b0        ),
+    .bus_ack    ( 1'b0        ),
+    .ASn        ( ASn         ),
+    .DSn        ( {UDSn,LDSn} ),
+    .DTACKn     ( DTACKn      ),
+    .fave       ( fave        ),
+    .fworst     ( fworst      )
 );
 
 jtframe_m68k u_cpu(
-    .clk        ( clk         ),
-    .rst        ( rst | ~rstn ),
-    .RESETn     (             ),
-    .cpu_cen    ( cpu_cen     ),
-    .cpu_cenb   ( cpu_cenb    ),
+    .clk        ( clk          ),
+    .rst        ( rst | ~rstn  ),
+    .RESETn     (              ),
+    .cpu_cen    ( cpu_cen      ),
+    .cpu_cenb   ( cpu_cenb     ),
 
-    .eab        ( A           ),
-    .iEdb       ( cpu_din     ),
-    .oEdb       ( cpu_dout_raw),
+    .eab        ( A            ),
+    .iEdb       ( cpu_din      ),
+    .oEdb       ( cpu_dout_raw ),
 
-    .eRWn       ( RnW         ),
-    .LDSn       ( LDSn        ),
-    .UDSn       ( UDSn        ),
-    .ASn        ( ASn         ),
-    .VPAn       ( VPAn        ),
-    .FC         ( FC          ),
+    .eRWn       ( RnW          ),
+    .LDSn       ( LDSn         ),
+    .UDSn       ( UDSn         ),
+    .ASn        ( ASn          ),
+    .VPAn       ( VPAn         ),
+    .FC         ( FC           ),
 
-    .BERRn      ( 1'b1        ),
-    .HALTn      ( 1'b1        ),
-    .BRn        ( 1'b1        ),
-    .BGACKn     ( 1'b1        ),
-    .BGn        (             ),
+    .BERRn      ( 1'b1         ),
+    .HALTn      ( 1'b1         ),
+    .BRn        ( 1'b1         ),
+    .BGACKn     ( 1'b1         ),
+    .BGn        (              ),
 
-    .DTACKn     ( DTACKn      ),
-    .IPLn       ( IPLn        )
+    .DTACKn     ( DTACKn       ),
+    .IPLn       ( IPLn         )
 );
 
 `else

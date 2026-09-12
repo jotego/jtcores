@@ -133,17 +133,17 @@ jtframe_obj_buffer #(
     .ALPHAW (  4    ),
     .ALPHA  ( 32'd0 )
 ) u_buffer(
-    .clk     ( clk      ),
-    .LHBL    ( LHBL     ),
-    .flip    ( 1'b0     ),   // handled by the hobj direction above
+    .clk     ( clk     ),
+    .LHBL    ( LHBL    ),
+    .flip    ( 1'b0    ),   // handled by the hobj direction above
 
-    .wr_data ( bf_data  ),
-    .wr_addr ( bf_addr  ),
-    .we      ( bf_we    ),
+    .wr_data ( bf_data ),
+    .wr_addr ( bf_addr ),
+    .we      ( bf_we   ),
 
-    .rd_addr ( hobj     ),
-    .rd      ( pxl_cen  ),
-    .rd_data ( pxl      )
+    .rd_addr ( hobj    ),
+    .rd      ( pxl_cen ),
+    .rd_data ( pxl     )
 );
 
 endmodule

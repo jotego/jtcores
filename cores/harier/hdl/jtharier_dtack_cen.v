@@ -21,23 +21,23 @@ module jtharier_dtack_cen(
 );
 
 jtframe_68kdtack_cen #(.W(10)) u_dtack(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cpu_cen    ( cpu_cen   ),
-    .cpu_cenb   ( cpu_cenb  ),
-    .bus_cs     ( bus_cs    ),
-    .bus_busy   ( bus_busy  ),
-    .bus_legit  ( bus_legit ),
-    .bus_ack    ( 1'b0      ),
-    .ASn        ( ASn       ),
-    .DSn        ({UDSn,LDSn}),
-    .num        (  9'd173   ),
-    .den        ( 10'd871   ),
-    .wait2      ( 1'b0      ),
-    .wait3      ( 1'b0      ),
-    .DTACKn     ( DTACKn    ),
-    .fave       ( fave      ),
-    .fworst     ( fworst    )
+    .rst        ( rst         ),
+    .clk        ( clk         ),
+    .cpu_cen    ( cpu_cen     ),
+    .cpu_cenb   ( cpu_cenb    ),
+    .bus_cs     ( bus_cs      ),
+    .bus_busy   ( bus_busy    ),
+    .bus_legit  ( bus_legit   ),
+    .bus_ack    ( 1'b0        ),
+    .ASn        ( ASn         ),
+    .DSn        ( {UDSn,LDSn} ),
+    .num        ( 9'd173      ),
+    .den        ( 10'd871     ),
+    .wait2      ( 1'b0        ),
+    .wait3      ( 1'b0        ),
+    .DTACKn     ( DTACKn      ),
+    .fave       ( fave        ),
+    .fworst     ( fworst      )
 );
 
 endmodule
