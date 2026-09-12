@@ -7,6 +7,7 @@ module jtcus42(
     input               rst,
     input               clk, pxl_cen, dec_en, plane3inv,
     input               flip, scrhflip, hs,
+    input               metrocrs,       // baraduke.cpp board mixing rules
     input        [ 8:0] hdump, vdump,
     input        [ 3:0] scrhos,         // per game adjustment
     input signed [ 7:0] scrvos,         // per game adjustment
@@ -30,6 +31,7 @@ module jtcus42(
 
     output       [10:0] pxl,
     output       [ 2:0] prio,
+    output              frontop,        // baraduke.cpp: front tilemap opaque here
     // debug
     input        [ 7:0] debug_bus,
     output       [ 7:0] st_dout
@@ -37,7 +39,7 @@ module jtcus42(
 
 parameter ID=0,HBASE=9'd0;
 
-localparam [2:0] ALPHA=7;
+localparam [2:0] ALPHA=7, BACKB=6;
 
 wire [10:0] scra_pxl, scrb_pxl;
 wire [11:1] a_addr, b_addr;
@@ -47,11 +49,16 @@ reg  [ 8:0] effxa, effxb;
 wire [ 2:0] prioa, priob;
 wire [ 7:0] scrya, scryb, adec_data, bdec_data;
 wire [ 4:0] adec_addr, bdec_addr;
-wire        scra_op, scrb_op, selb;
+wire        scra_op, scrb_op, selb, backb;
 
 assign scra_op = scra_pxl[2:0]!=ALPHA;
 assign scrb_op = scrb_pxl[2:0]!=ALPHA;
-assign selb    = scrb_op && (!scra_op || priob > prioa);
+// baraduke.cpp draws one layer opaque and the other one over it. The background
+// is layer B only when layer A's priority field reads 6, see screen_update()
+assign backb   = prioa==BACKB;
+assign frontop = backb ? scra_op : scrb_op;
+assign selb    = metrocrs ? (backb ? ~scra_op : scrb_op)
+                          : scrb_op && (!scra_op || priob > prioa);
 assign pxl     = selb ? scrb_pxl  : scra_pxl;
 assign prio    = selb ? priob : prioa;
 
