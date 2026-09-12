@@ -1,0 +1,38 @@
+[*]
+CORENAME=JTWARDNER
+JTFRAME_RATE=54.878
+JTFRAME_BUTTONS=2
+JTFRAME_WIDTH=320
+JTFRAME_HEIGHT=240
+# palette RAM holds xBGR555
+JTFRAME_COLORW=5
+
+# The board has two crystals. 24 MHz / 4 drives the main Z80, so 6 MHz is an
+# exact divide of the default 48 MHz clock. Everything else hangs off the
+# 14 MHz crystal and is generated as one fractional chain in mem.yaml
+# (14 -> 7 pixel -> 3.5 audio), the same relationship the board has.
+
+# SDRAM
+JTFRAME_BA1_START=0x040000
+DSP_START=0x048000
+JTFRAME_BA2_START=0x049000
+BG_START=0x059000
+FG_START=0x079000
+JTFRAME_BA3_START=0x099000
+JTFRAME_PROM_START=0x0D9000
+
+# Palette readback for debugging. IOCTL_RD supplies the data - 4096 bytes, the
+# whole palette RAM - and jtsim's -dump reads it out to dump.bin, which is how
+# the core's palette was shown to be byte-identical to MAME's. Reaching it from
+# the OSD on real hardware additionally needs JTFRAME_SAVEGAME, whose port
+# interface (sav_change, sav_wait, sav_done, sav_ack and the address and data
+# buses) is a full handshake this core does not implement.
+JTFRAME_IOCTL_RD=4096
+
+[mister]
+JTFRAME_ARX=4
+JTFRAME_ARY=3
+
+[mist|sidi]
+# the tile, sprite, palette and DSP memories do not fit in an EP3C25
+JTFRAME_SKIP
