@@ -112,8 +112,7 @@ assign rdrom_addr = { idx_l, ctr9n9p[5:0] };
 // ss8j bit 0 swaps the bit order: normal reads bit (7-ctr9m), swapped ctr9m.
 wire [2:0] bitpos = ss8j[0] ? (3'd7 - ctr9m) : ctr9m;
 wire       oe     = (ctr9n9p[7:6]==2'b11);              // /OE = AND of 9N bits 2,3
-// ctrl[9] is the road ROM /CE on Space Harrier; on Hang-On it forces ff9j2 set
-wire       ce     = hangon | ~control[9];
+wire       ce     = hangon | ~control[9];               // Space Harrier: ctrl[9] -> /CE
 wire       ff9j2_f = ff9j2 | (hangon & ~control[9]);
 reg  [1:0] md;
 reg  [1:0] mdc;         // md clamped for colour select

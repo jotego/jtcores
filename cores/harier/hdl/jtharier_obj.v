@@ -6,7 +6,7 @@
     family shape (jtoutrun_obj):
 
       jtharier_obj_scan  walks the object table, per-line address stepping
-      jtharier_obj_draw  fetches the sprite ROM, 8 px/word (Hang-On 4), h-shrink
+      jtharier_obj_draw  fetches the 32-bit sprite ROM, 8 px/word, h-shrink
       jtframe_obj_buffer   double line buffer, scanned out as obj_pxl
 
     Output pxl feeds jts16_tilemap.obj_pxl (contract in jts16_prio.v):

@@ -20,9 +20,6 @@
     obj_pxl = { prio[1:0], pal[5:0], pix[3:0] }; Space Harrier prio = { bit14, 1'b1 }.
     pal==6'h3f is shadow (segahang.cpp:282). obj_data[31:28] is the first
     non-flipped pixel -- the endianness jtframe's 32-bit obj read gives.
-
-    Hang-On: 4-pixel 16-bit words; each 32-bit read holds two, byte-swapped:
-    even {[7:0],[15:8]}, odd {[23:16],[31:24]}.
 */
 
 module jtharier_obj_draw(
@@ -41,7 +38,7 @@ module jtharier_obj_draw(
     input              shadow,
     input      [ 6:0]  hzoom,     // MAME value: (field & 0x3f) << 1
 
-    // Sprite ROM (1 MB, 32-bit reads; Hang-On takes 16-bit words from them)
+    // Sprite ROM (1 MB, 32-bit reads)
     input              obj_ok,
     output reg         obj_cs,
     output     [19:2]  obj_addr,
@@ -55,7 +52,7 @@ module jtharier_obj_draw(
 localparam [1:0] IDLE=2'd0, FETCH=2'd1, DRAW=2'd2;
 
 reg  [ 1:0] st;
-reg  [ 2:0] k;             // nibble index within the current word
+reg  [ 2:0] k;             // nibble index within the current 32-bit word
 reg  [31:0] pxl_data;
 reg  [14:0] cur;           // 15-bit word address within the bank (wraps at 0x7fff)
 reg  [ 7:0] xacc;
@@ -64,11 +61,9 @@ reg         hflip, last_word, fetch_dly;
 wire [ 3:0] cur_pxl;
 wire [ 8:0] xsum;
 wire        emit, line_end, word_end;
-wire [15:0] w16 = cur[0] ? { obj_data[23:16], obj_data[31:24] } :
-                           { obj_data[ 7: 0], obj_data[15: 8] };
 
 assign cur_pxl  = hflip ? pxl_data[3:0] : pxl_data[31-:4];
-assign obj_addr = hangon ? { 1'b0, bank, cur[14:1] } : { bank, cur };
+assign obj_addr = { bank, cur };
 assign word_end = hangon ? k[1:0]==2'd3 : &k;
 assign xsum     = { 1'b0, xacc } + { 2'b0, hzoom };
 assign emit     = ~xsum[8];
@@ -111,10 +106,8 @@ always @(posedge clk, posedge rst) begin
             FETCH: begin
                 fetch_dly <= 0;
                 if( !fetch_dly && obj_ok ) begin
-                    pxl_data  <= !hangon ? obj_data :
-                                 hflip   ? { 16'd0, w16 } : { w16, 16'd0 };
-                    last_word <= hangon ? &(hflip ? w16[15:12]      : w16[3:0]) :
-                                          &(hflip ? obj_data[31-:4] : obj_data[3:0]);
+                    pxl_data  <= obj_data;
+                    last_word <= &(hflip ? obj_data[31-:4] : obj_data[3:0]);
                     obj_cs    <= 0;
                     k         <= 0;
                     st        <= DRAW;

@@ -48,7 +48,6 @@ module jtharier_main(
     output reg         rom_cs,
     input       [15:0] rom_data,
     input              rom_ok,
-    // Hang-On: sub CPU ROM at c00000
     output reg         subrom_cs,
     input       [15:0] subrom_data,
     input              subrom_ok,
@@ -119,7 +118,7 @@ reg         mcu_rst, fd1089_rst;
 
 assign      lvbl_g   = dip_pause ? LVBL : 1'b1;
 assign      video_en = ppi0_b[4];
-assign      shade0   = ppi0_b[6];     // SHADER: 0 shadow, 1 hilight
+assign      shade0   = ppi0_b[6];
 wire [ 1:0] scont    = ppi0_c[2:1];   // {SCONT1, SCONT0}, active low
 assign      colscr_en = ~scont[1];    // = ~ppi0_c[2]
 assign      rowscr_en = ~scont[0];    // = ~ppi0_c[1]
@@ -247,7 +246,6 @@ always @(posedge clk, posedge rst) begin
         subrom_cs  <= 0;
     end else begin
         if( mcu_bus ? mcu_acc : (!ASn && FC!=3'b111 && {UDSn,LDSn}!=2'b11) ) begin
-            // sharrier_map / hangon_map
             rom_cs    <= A[23:18]==6'd0;             // 000000-03ffff
             ram_cs    <= hangon ? A[23:14]==10'h083 : A[23:14]==10'h010; // 20c000 / 040000
             vram_cs   <= hangon ? A[23:14]==10'h100 : A[23:15]==9'h020;  // 400000 / 100000, tileram
@@ -276,7 +274,6 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-// 0 PPI0, 1 inputs, 2 PPI1, 3 ADC. Hang-On: e00000, e01000, e03000, e03021
 wire [1:0] io_sel  = hangon ? { A[13], A[13] ? A[5] : A[12] } : A[5:4];
 wire ppi0_cs = io_cs & (io_sel==2'd0);  // video_lamps_w, tilemap_sound_w
 wire ppi1_cs = io_cs & (io_sel==2'd2);  // sub_control_adc_w

@@ -49,7 +49,7 @@ regions = [
     { name="pcm",          start="PCM_START" },
     { name="gfx1",         start="JTFRAME_BA2_START", width=32, sequence=[0,1,2,2] },
     { name="sprites",      start="JTFRAME_BA3_START", width=32, no_offset=true },
-    { name="sprites",      start="JTFRAME_BA3_START", width=16, no_offset=true, machine="hangon" },
+    { name="sprites",      start="JTFRAME_BA3_START", width=32, no_offset=true, machine="hangon", sequence=[1,0,1,0, 3,2,3,2, 5,4,5,4, 7,6,7,6, 9,8,9,8, 11,10,11,10, 13,12,13,12] },
     { name="segaic16road", start="ROAD_START", width=16, no_offset=true, singleton=true },
     { name="sprites:zoom", start="ZOOM_START", len=0x2000 },
     { name="mcu",          start="MCU_START", len=0x1000 },

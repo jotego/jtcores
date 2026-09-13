@@ -20,8 +20,6 @@
       +6  -ooooooo oooooooo   base offset within the bank
       +8  --zzzzzz --------   hzoom
       +8  -------- --zzzzzz   vzoom
-    Hang-On (hangon, sega16sp.cpp:109): +4 is a signed 16-bit pitch; +8 holds
-    colour [13:8], zoom [7:2] (hzoom = vzoom) and priority [1:0]; no shadow bit.
     bottom > 0xF0 ends the list; skip if top >= bottom. Device origin is
     (189,-1), so device y = vrender-1.
 
@@ -173,7 +171,7 @@ always @(posedge clk, posedge rst) begin
             5: begin                   // tbl_dout = +8 : hzoom / vzoom
                 hzoom6 <= hangon ? tbl_dout[7:2] : tbl_dout[13:8];
                 vzoom  <= hangon ? tbl_dout[7:2] : tbl_dout[ 5:0];
-                if( hangon ) begin     // colour / zoom / priority
+                if( hangon ) begin
                     pal  <= tbl_dout[13:8];
                     prio <= tbl_dout[ 1:0];
                 end
