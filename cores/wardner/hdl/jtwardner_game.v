@@ -183,14 +183,7 @@ jttoaplan1_dsp #(.TWINCOBR(0)) u_dsp(
     .dbg_rd     (               ),  .dbg_wr     (   ),
     .dbg_p0     (               ),  .dbg_p3     (   ),
     .dbg_pdout  (               ),  .dbg_pwr    (   ),
-    .dbg_sel_new(               ),  .dbg_addr_new(  ),
-    .dbg_fetch  (               ),  .dbg_pc     (   ),
-    .dbg_str    (               ),  .dbg_acc    (   ),
-    .dbg_preg   (               ),  .dbg_treg   (   ),
-    .dbg_ar0    (               ),  .dbg_ar1    (   ),
-    .dbg_stk0   (               ),  .dbg_stk1   (   ),
-    .dbg_stk2   (               ),  .dbg_stk3   (   ),
-    .dbg_romdata(               )
+    .dbg_sel_new(               ),  .dbg_addr_new(  )
 );
 
 /* verilator tracing_off */

@@ -288,10 +288,7 @@ jttoaplan1_dsp u_dsp(
     .host_din(dsp_din), .host_we(dsp_we),
     .rom_addr(drom_addr), .rom_data(drom_data),
     .dbg_bio(), .dbg_exec(), .dbg_rd(), .dbg_wr(), .dbg_p0(), .dbg_p3(),
-    .dbg_pdout(), .dbg_pwr(), .dbg_sel_new(), .dbg_addr_new(),
-    .dbg_fetch(), .dbg_pc(), .dbg_str(), .dbg_acc(), .dbg_preg(), .dbg_treg(),
-    .dbg_ar0(), .dbg_ar1(), .dbg_stk0(), .dbg_stk1(), .dbg_stk2(), .dbg_stk3(),
-    .dbg_romdata()
+    .dbg_pdout(), .dbg_pwr(), .dbg_sel_new(), .dbg_addr_new()
 );
 
 task finish_run(input [255:0] why);

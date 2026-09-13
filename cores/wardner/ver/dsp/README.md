@@ -1,17 +1,17 @@
 # Toaplan DSP subsystem — verification
 
 Phase 2 of the Wardner bring-up: `cores/wardner/hdl/jttoaplan1_dsp.v`, the glue
-the arcade board puts around the TMS320C10.
+the arcade board puts around the TMS320C10, and the IKA32010 core
+(`modules/ika32010`) it is connected to.
 
 ## What is verified
 
 **Transaction conformance** (`./run.sh [activations]`). A model of the host CPU
 raises the run bit, waits to be released, then drops it. Every host-visible
 event — window re-points, reads, writes, port 3 control words, the release — is
-logged and diffed against the same subsystem modelled in C
-(`modules/jt32010/ver/cpu/ref32010.c`, `toaplan` mode), which is transcribed
-from `toaplan/toaplan_dsp.cpp` plus the `wardner_state::dsp_host_*_cb`
-overrides.
+logged and diffed against the same subsystem modelled in C (`ref32010.c`,
+`toaplan` mode), which is transcribed from MAME's `tms32010.cpp`,
+`toaplan/toaplan_dsp.cpp` and the `wardner_state::dsp_host_*_cb` overrides.
 
 Two DSP programs drive it, written in `asm32010.py`, a small assembler:
 
@@ -30,6 +30,8 @@ Two DSP programs drive it, written in `asm32010.py`, a small assembler:
 
 Each program runs at three different host idle times, because the handshake is a
 strict sequence and how long the host waits must not change the log at all.
+Every run makes six activations, so the interrupt that starts each one is
+checked after the DSP has been halted, not only after reset.
 
 **Properties**, checked continuously rather than inferred from the log:
 
@@ -40,22 +42,22 @@ strict sequence and how long the host waits must not change the log at all.
    bit is low.
 
 `+abortwr=1` drops the run bit on the exact clock a port strobe is live — the
-core raises its strobe on one clock enable and clears it on the next, so that
-window is the only moment a strobe can be stranded. The host cannot really do
-this, since it is halted for the whole transaction, but the wrapper must not
-leak anything if it does.
+core holds WE_n low between two clock enables, so that window is the only
+moment a strobe can be stranded. The host cannot really do this, since it is
+halted for the whole transaction, but the wrapper must not leak anything if it
+does.
 
 ## Proving the suite can fail
 
-`./mutate.sh` breaks the wrapper nine ways and requires the suite to notice each
-one. Current result: **9 caught, 0 missed.**
+`./mutate.sh` breaks the wrapper ten ways and requires the suite to notice each
+one. Current result: **10 caught, 0 missed.**
 
 ```
 release arm ignores the word address        release arm ignores the value written
 port 3 zero releases without the arm        sprite RAM decoded as work RAM
 invalid window treated as work RAM          window offset one bit too narrow
 port strobes not gated by the run bit       interrupt held as a level not a pulse
-BIO not set on the closing port 3 write
+BIO presented with the wrong polarity       BIO not set on the closing port 3 write
 ```
 
 Two of these earned their place by finding gaps rather than confirming health.
@@ -64,6 +66,12 @@ needed both a new property and an abort timed to the one clock where a strobe is
 live. "Window offset one bit too narrow" was also missed, because neither test
 program used an offset with bit 10 set — the program was extended rather than
 the harness.
+
+"Interrupt held as a level" matters more with IKA32010 than it looks. MAME holds
+INT asserted for the whole run, but IKA32010 latches a falling edge of INT_n
+through a sampler that stops with the DSP's clock, so a level would be seen on
+the first activation and missed on every one after it. The wrapper pulses
+INT_n instead, and the mutation is caught by the second activation hanging.
 
 ## Against the real ROM
 
@@ -74,16 +82,52 @@ registers) and every host-visible transaction. The host RAM contents are varied
 by seed, because the real code dispatches on a command block the Z80 would
 normally have left there.
 
-Latest result: **480,000 instructions and 580 transaction events compared
-across 16 host RAM seeds, exact match.** 99.5% of those instructions were inside
+Latest result, with IKA32010 and its `CALL` fix: **480,000 instructions and 580
+transaction events compared across 16 host RAM seeds, PASS.** 80 instruction
+lines differ, exactly five per seed, and all of them in the two status bits
+described below. 99.5% of those instructions were inside
 the real program; two seeds ran off the end of the code into unmapped space
 after ~144 instructions, which is what a DSP given command data no Z80 would
 ever write is entitled to do. 749 distinct addresses of the 1,536-word ROM were
 reached, the rest being data tables and functions these command values do not
 select.
 
-The real program exercises 34 of the 60 instruction forms. The synthetic fuzz in
-`modules/jt32010/ver/cpu` covers all 60, which is why both suites exist.
+### Where IKA32010 and MAME differ
+
+IKA32010 has no trace outputs, so `tb_dsp.v` reads its registers by
+hierarchical reference. MAME keeps the top of the stack in `STACK[3]` and
+IKA32010 in `stack[0]`, so the stack is printed in reverse.
+
+Two differences remain, and `itrace_cmp.awk` tolerates exactly these, each only
+where it can show; any other difference fails the run:
+
+- **OVM at reset.** MAME's reset sets OVM; IKA32010 leaves it clear. The Wardner
+  program runs `ROVM` as its third instruction, so the status word differs on
+  the first three trace lines only.
+- **INTM when an interrupt is taken.** MAME sets INTM as it vectors; IKA32010
+  only changes INTM on `DINT` and `EINT`. The Wardner vector at `002` is
+  `B 30b`, and `30b` is `DINT`, so INTM differs on those two lines of each
+  activation and nowhere else.
+
+A third IKA32010 issue, the data page pointer being held at 0, cannot show here
+at all: the Wardner ROM contains no `LDPK 1`, `LDP` or `LST`. See
+`modules/ika32010/README.md`.
+
+A fourth was a real fault on this ROM, and is fixed in the copy under
+`modules/ika32010`: upstream's `CALL` pushed the address of its own operand, so
+every `RET` came back one word early and ran that operand as an `ADD`. Seed 7
+found it, at instruction 145: a `CALA` into the dispatch table at `0x539`, whose
+`CALL 0510` pushed `0x53a` where MAME pushes `0x53b`. Of the 23 `CALL`s in the
+program's code, 15 reload ACC straight after returning, which hides the fault;
+the other 8 do not. None of the other seeds reach a `CALL` at all, which is why
+the rest of the suite could not see it.
+
+The comparison is by instruction, not by clock, so it does not see how long an
+instruction takes. The main CPU boot bench does: its port log is the same with
+either core, but a DSP activation during boot that lasts 391 bench ms finishes
+179 µs later on IKA32010 than on the earlier core, which followed MAME's cycle
+table. Presumably IKA32010 counts some instructions' machine cycles
+differently; which ones has not been measured.
 
 ### A note on the ROM
 
@@ -146,3 +190,7 @@ matters for the MRA, which can only assemble the parent's.
   protocol deliberately, including cases the real code may never hit; conversely
   the real code may do something these do not cover. The genuine dump remains
   the input that would settle it.
+- **Only 34 of the 60 instruction forms are exercised.** That is what the real
+  program uses; the synthetic fuzz suite that covered all 60 belonged to the
+  earlier jt32010 core and went with it. Instruction coverage of IKA32010 itself
+  is upstream's.

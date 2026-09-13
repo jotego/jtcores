@@ -18,7 +18,7 @@ cd "$(dirname "$0")"
 ROMDIR=${1:-}
 SEEDS=${2:-16}
 INSNS=${3:-30000}
-REF=../../../../modules/jt32010/ver/cpu
+IKA=../../../../modules/ika32010/hdl
 
 if [ -z "$ROMDIR" ] || [ ! -f "$ROMDIR/82s137.1d" ]; then
     echo "usage: $0 <dir with the wardnerb PROMs> [seeds] [instructions]" >&2
@@ -27,23 +27,26 @@ if [ -z "$ROMDIR" ] || [ ! -f "$ROMDIR/82s137.1d" ]; then
 fi
 
 python3 dsp_from_proms.py "$ROMDIR" dsp_real.hex dsp_real.bin || exit 1
-gcc -O2 -o "$REF/ref32010" "$REF/ref32010.c" || exit 1
-iverilog -g2005 -o tb.out tb_dsp.v ../../hdl/jttoaplan1_dsp.v \
-         ../../../../modules/jt32010/hdl/jt32010.v || exit 1
+gcc -O2 -o ref32010 ref32010.c || exit 1
+iverilog -g2012 -I"$IKA" -o tb.out tb_dsp.v ../../hdl/jttoaplan1_dsp.v \
+         "$IKA/IKA32010.sv" || exit 1
 
-fail=0; itot=0; ttot=0
+fail=0; itot=0; ttot=0; tol=0
 for s in $(seq 0 $((SEEDS-1))); do
     # --- instruction level
-    "$REF/ref32010" dsp_real.hex 0 toaplantrace "$INSNS" "$s" > ref_it.trace 2>/dev/null
+    ./ref32010 dsp_real.hex 0 toaplantrace "$INSNS" "$s" > ref_it.trace 2>/dev/null
     ./tb.out +prog=dsp_real.hex +free=900000 +hseed="$s" +itrace=1 >/dev/null 2>&1
     n=$(wc -l < ref_it.trace); m=$(wc -l < rtl.tlog)
     c=$(( n < m ? n : m ))
     head -n "$c" ref_it.trace > a.t; head -n "$c" rtl.tlog > b.t
-    if diff -q a.t b.t >/dev/null; then itot=$((itot+c));
-    else echo "seed $s: instruction trace diverges"; diff a.t b.t | head -6; fail=1; fi
+    # itrace_cmp.awk tolerates the two IKA32010 differences Wardner cannot see
+    if res=$(paste -d'|' a.t b.t | awk -f itrace_cmp.awk); then
+        itot=$((itot+c)); tol=$((tol+$(echo "$res" | grep -oE '[0-9]+ OVM' | cut -d' ' -f1)
+                                 +$(echo "$res" | grep -oE '[0-9]+ INTM' | cut -d' ' -f1)))
+    else echo "seed $s: instruction trace diverges"; echo "$res"; fail=1; fi
 
     # --- transaction level
-    "$REF/ref32010" dsp_real.hex 0 toaplanfree "$INSNS" "$s" > ref_tx.tlog 2>/dev/null
+    ./ref32010 dsp_real.hex 0 toaplanfree "$INSNS" "$s" > ref_tx.tlog 2>/dev/null
     ./tb.out +prog=dsp_real.hex +free=900000 +hseed="$s" >/dev/null 2>&1
     n=$(wc -l < ref_tx.tlog); m=$(wc -l < rtl.tlog)
     if [ "$n" -gt "$m" ]; then echo "seed $s: RTL transaction budget too small"; fail=1; continue; fi
@@ -55,6 +58,7 @@ rm -f a.t b.t
 if [ $fail -eq 0 ]; then
     echo "real Wardner DSP program: PASS"
     echo "  $itot instructions and $ttot transaction events compared across $SEEDS host RAM seeds"
+    echo "  $tol instruction lines differed only in a tolerated status bit (see itrace_cmp.awk)"
 else
     echo "real Wardner DSP program: FAIL"
 fi
