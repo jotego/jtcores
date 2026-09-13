@@ -505,7 +505,7 @@ iverilog)
         $SIMULATOR_EXTRA \
         -s $TOP -o $SIMEXE \
         -DIVERILOG $EXTRA -I$CORES/$SYSNAME/hdl -I$JTFRAME/hdl/inc \
-        -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl \
+        -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl -I$MODULES/ika32010/hdl \
         -DDUMP_VIDEO_FNAME=\"video.pipe\" $FILES \
     || exit 1
     clear_frames
@@ -519,7 +519,7 @@ modelsim|questasim)
     $SHOWCMD vlog -svfilesuffix=sv -svinputport=net -suppress vlog-7061 \
         +initwireX $SIMULATOR_EXTRA \
         +incdir+$CORES/$SYSNAME/hdl +incdir+$JTFRAME/hdl/inc \
-        +incdir+$MODULES/jtkcpu/hdl +incdir+$MODULES/jt900h/hdl \
+        +incdir+$MODULES/jtkcpu/hdl +incdir+$MODULES/jt900h/hdl +incdir+$MODULES/ika32010/hdl \
         $SIMARGS $SIMULATOR_EXTRA\
         $EXTRA +define+DUMP_VIDEO_FNAME=\"video.pipe\" \
         $FILES || exit $?
@@ -540,7 +540,7 @@ xcelium)
         -f filtered.f $FILES -nowarn RECOME \
         -top $TOP \
         -incdir $CORES/$SYSNAME/hdl -incdir $JTFRAME/hdl/inc \
-        -incdir $MODULES/jtkcpu/hdl -incdir $MODULES/jt900h/hdl \
+        -incdir $MODULES/jtkcpu/hdl -incdir $MODULES/jt900h/hdl -incdir $MODULES/ika32010/hdl \
         $SIMARGS $SIMULATOR_EXTRA\
         -define DUMP_VIDEO_FNAME=\"video.pipe\" \
         $EXTRA -l /dev/null || exit $?;;
@@ -551,7 +551,7 @@ synapticad)
         -f filtered.f $FILES \
         +scd_top+$TOP \
         +incdir+$CORES/$SYSNAME/hdl +incdir+$JTFRAME/hdl/inc \
-        +incdir+$MODULES/jtkcpu/hdl +incdir+$MODULES/jt900h/hdl \
+        +incdir+$MODULES/jtkcpu/hdl +incdir+$MODULES/jt900h/hdl +incdir+$MODULES/ika32010/hdl \
         $SIMARGS $SIMULATOR_EXTRA\
         +define+DUMP_VIDEO_FNAME=\"video.pipe\" \
         $EXTRA -l /dev/null || exit $?;;
@@ -564,7 +564,7 @@ ncverilog)
         -disable_sem2009 $FILES \
         +nctop+$TOP \
         +incdir+$CORES/$SYSNAME/hdl +incdir+$JTFRAME/hdl/inc \
-        +incdir+$MODULES/jtkcpu/hdl +incdir+$MODULES/jt900h/hdl \
+        +incdir+$MODULES/jtkcpu/hdl +incdir+$MODULES/jt900h/hdl +incdir+$MODULES/ika32010/hdl \
         -ncvhdl_args,-V93 \
         $SIMARGS $SIMULATOR_EXTRA\
         +define+DUMP_VIDEO_FNAME=\"video.pipe\" \

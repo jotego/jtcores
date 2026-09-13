@@ -301,7 +301,7 @@ build_core_firmware() {
 make_verilator_command() {
 	echo "${VERILATOR_PATH}verilator -I$CORES/$SYSNAME/hdl"\
 "       -I$JTFRAME/hdl/inc "\
-"       -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl "\
+"       -I$MODULES/jtkcpu/hdl -I$MODULES/jt900h/hdl -I$MODULES/ika32010/hdl "\
 "       --timescale 1ps/1ps "\
 "       $JTFRAME/hdl/ver/game_test.v $JTFRAME/hdl/video/jtframe_lfbuf*.v $JTFRAME/hdl/ver/psram128.v $SIMARGS "\
 "       -Wno-TIMESCALEMOD --timescale-override 1ns/1ps -Wno-fatal "\

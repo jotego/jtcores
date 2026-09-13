@@ -1,0 +1,5 @@
+ika32010:
+  - get:
+    # IKA32010_mnemonics.sv and IKA32010_disasm.sv are `include'd by IKA32010.sv
+    # rather than compiled on their own, so they are not listed here
+    - IKA32010.sv
