@@ -152,7 +152,7 @@ jtframe_okdly #(.W(3)) u_okdly(
 jtgrad3_int u_int(
     .rst      ( rst_cpu          ),
     .clk      ( clk              ),
-    .LVBL     ( LVBL             ),
+    .LVBL     ( ~LVBL            ),
     .cpu_trig ( cpu_trig         ),
     .din      ( cpu_dout[10:8]   ),
     .wr       ( irq_mask_cs      ),
