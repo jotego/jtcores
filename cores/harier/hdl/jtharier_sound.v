@@ -10,6 +10,7 @@ module jtharier_sound(
     input                cen_fm,    // 4 MHz, YM2203 (sheet D-2/3, pin 38 OM from 4M)
     input                cen_fm2,   // 2 MHz, YM2151 internal timing
     input                cen_pcm,   // 16 MHz -- NOT 8. See the PCM section below.
+    input                cen_pcm8,  // 315-5218 step rate on the YM2151 board, as in Out Ru
 
     // Main CPU interface via PPI0, CPU sheet 2/6
     input        [ 7:0]  latch,     // PPI0 port A, written by the 68000
@@ -78,104 +79,105 @@ always @(*) begin
 end
 
 jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
-    .rst_n      ( snd_rstn    ),
-    .clk        ( clk         ),
-    .cen        ( cen_fm      ),
-    .cpu_cen    (             ),
-    .int_n      ( int_n       ),
-    .nmi_n      ( nmi_n       ),
-    .busrq_n    ( 1'b1        ),
-    .m1_n       ( m1_n        ),
-    .mreq_n     ( mreq_n      ),
-    .iorq_n     ( iorq_n      ),
-    .rd_n       ( rd_n        ),
-    .wr_n       ( wr_n        ),
-    .rfsh_n     ( rfsh_n      ),
-    .halt_n     (             ),
-    .busak_n    (             ),
-    .A          ( A           ),
-    .cpu_din    ( cpu_din     ),
-    .cpu_dout   ( cpu_dout    ),
-    .ram_dout   ( ram_dout    ),
-    .ram_cs     ( ram_cs      ),
-    .rom_cs     ( rom_cs      ),
-    .rom_ok     ( rom_ok      )
+    .rst_n      ( snd_rstn ),
+    .clk        ( clk      ),
+    .cen        ( cen_fm   ),
+    .cpu_cen    (          ),
+    .int_n      ( int_n    ),
+    .nmi_n      ( nmi_n    ),
+    .busrq_n    ( 1'b1     ),
+    .m1_n       ( m1_n     ),
+    .mreq_n     ( mreq_n   ),
+    .iorq_n     ( iorq_n   ),
+    .rd_n       ( rd_n     ),
+    .wr_n       ( wr_n     ),
+    .rfsh_n     ( rfsh_n   ),
+    .halt_n     (          ),
+    .busak_n    (          ),
+    .A          ( A        ),
+    .cpu_din    ( cpu_din  ),
+    .cpu_dout   ( cpu_dout ),
+    .ram_dout   ( ram_dout ),
+    .ram_cs     ( ram_cs   ),
+    .rom_cs     ( rom_cs   ),
+    .rom_ok     ( rom_ok   )
 );
 
 jt03 u_jt03(
-    .rst        ( jt03_rst    ),
-    .clk        ( clk         ),
-    .cen        ( cen_fm      ),
-    .din        ( cpu_dout    ),
-    .addr       ( A[0]        ),
-    .cs_n       ( jt03_csn    ),
-    .wr_n       ( wr_n        ),
-    .dout       ( jt03_dout   ),
-    .irq_n      ( jt03_irq_n  ),
+    .rst        ( jt03_rst   ),
+    .clk        ( clk        ),
+    .cen        ( cen_fm     ),
+    .din        ( cpu_dout   ),
+    .addr       ( A[0]       ),
+    .cs_n       ( jt03_csn   ),
+    .wr_n       ( wr_n       ),
+    .dout       ( jt03_dout  ),
+    .irq_n      ( jt03_irq_n ),
 
-    .psg_snd    ( psg         ),
-    .fm_snd     ( fm          ),
-    .snd_sample (             ),
+    .psg_snd    ( psg        ),
+    .fm_snd     ( fm         ),
+    .snd_sample (            ),
 
     // Unused:
-    .IOA_in     ( 8'd0        ),
-    .IOB_in     ( 8'd0        ),
-    .IOA_out    (             ),
-    .IOB_out    (             ),
-    .IOA_oe     (             ),
-    .IOB_oe     (             ),
-    .psg_A      (             ),
-    .psg_B      (             ),
-    .psg_C      (             ),
-    .snd        (             ),
-    .debug_view (             )
+    .IOA_in     ( 8'd0       ),
+    .IOB_in     ( 8'd0       ),
+    .IOA_out    (            ),
+    .IOB_out    (            ),
+    .IOA_oe     (            ),
+    .IOB_oe     (            ),
+    .psg_A      (            ),
+    .psg_B      (            ),
+    .psg_C      (            ),
+    .snd        (            ),
+    .debug_view (            )
 );
 
 jt51 u_jt51(
-    .rst        ( jt51_rst    ),
-    .clk        ( clk         ),
-    .cen        ( cen_fm      ),
-    .cen_p1     ( cen_fm2     ),
-    .cs_n       ( jt51_csn    ),
-    .wr_n       ( wr_n        ),
-    .a0         ( A[0]        ),
-    .din        ( cpu_dout    ),
-    .dout       ( jt51_dout   ),
-    .ct1        (             ),
-    .ct2        (             ),
-    .irq_n      ( jt51_irq_n  ),
-    .sample     (             ),
-    .left       (             ),
-    .right      (             ),
-    .xleft      ( opn_l       ),
-    .xright     ( opn_r       )
+    .rst        ( jt51_rst   ),
+    .clk        ( clk        ),
+    .cen        ( cen_fm     ),
+    .cen_p1     ( cen_fm2    ),
+    .cs_n       ( jt51_csn   ),
+    .wr_n       ( wr_n       ),
+    .a0         ( A[0]       ),
+    .din        ( cpu_dout   ),
+    .dout       ( jt51_dout  ),
+    .ct1        (            ),
+    .ct2        (            ),
+    .irq_n      ( jt51_irq_n ),
+    .sample     (            ),
+    .left       (            ),
+    .right      (            ),
+    .xleft      ( opn_l      ),
+    .xright     ( opn_r      )
 );
 
 // sharrier's PCM is not exactly OutRun's. It is a discrete IC implementation
 // Expanding the internal bit width of the channels in jtoutrun_pcm makes it
 // compatible. Otherwise, it would clip the sound.
+// 256 cen per sample: 16M -> 62.5 kHz (discrete), 8M -> 31.25 kHz (315-5218)
 jtoutrun_pcm #(.WD(16)) u_pcm(
-    .rst        ( snd_rst     ),
-    .clk        ( clk         ),
-    .cen        ( ym2151 ? cen_fm : cen_pcm ),
+    .rst        ( snd_rst                     ),
+    .clk        ( clk                         ),
+    .cen        ( ym2151 ? cen_pcm8 : cen_pcm ),
 
-    .cpu_addr   ( A[7:0]      ),
-    .cpu_dout   ( cpu_dout    ),
-    .cpu_din    ( pcm_dout    ),
-    .cpu_rnw    ( wr_n        ),
-    .cpu_cs     ( pcmcmd_cs   ),
+    .cpu_addr   ( A[7:0]                      ),
+    .cpu_dout   ( cpu_dout                    ),
+    .cpu_din    ( pcm_dout                    ),
+    .cpu_rnw    ( wr_n                        ),
+    .cpu_cs     ( pcmcmd_cs                   ),
 
-    .rom_addr   ( pcm_addr    ),
-    .rom_data   ( pcm_data    ),
-    .rom_ok     ( pcm_ok      ),
-    .rom_cs     ( pcm_cs      ),
+    .rom_addr   ( pcm_addr                    ),
+    .rom_data   ( pcm_data                    ),
+    .rom_ok     ( pcm_ok                      ),
+    .rom_cs     ( pcm_cs                      ),
 
-    .snd_left   ( pcm_l       ),
-    .snd_right  ( pcm_r       ),
-    .sample     (             ),
+    .snd_left   ( pcm_l                       ),
+    .snd_right  ( pcm_r                       ),
+    .sample     (                             ),
 
-    .debug_bus  ( 8'd0        ),
-    .st_dout    (             )
+    .debug_bus  ( 8'd0                        ),
+    .st_dout    (                             )
 );
 `else
 assign latch_rd = 0;

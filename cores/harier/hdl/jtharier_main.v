@@ -303,43 +303,43 @@ always @(*) begin
 end
 
 jt8255 u_ppi0(
-    .rst       ( rst           ),
-    .clk       ( clk           ),
+    .rst        ( rst                       ),
+    .clk        ( clk                       ),
 
-    .addr      ( A[2:1]        ),
-    .din       ( cpu_dout[7:0] ),
-    .dout      ( ppi0_dout     ),
-    .rdn       ( ~RnW          ),
-    .wrn       ( LDSWn         ),
-    .csn       ( ~ppi0_cs      ),
+    .addr       ( A[2:1]                    ),
+    .din        ( cpu_dout[7:0]             ),
+    .dout       ( ppi0_dout                 ),
+    .rdn        ( ~RnW                      ),
+    .wrn        ( LDSWn                     ),
+    .csn        ( ~ppi0_cs                  ),
 
-    .porta_din ( 8'hff         ),
-    .portb_din ( 8'hff         ),
-    .portc_din ( { 1'b1, ~snd_ack, 6'h3f } ),
+    .porta_din  ( 8'hff                     ),
+    .portb_din  ( 8'hff                     ),
+    .portc_din  ( { 1'b1, ~snd_ack, 6'h3f } ),
 
-    .porta_dout( snd_latch     ),
-    .portb_dout( ppi0_b        ),
-    .portc_dout( ppi0_c        )
+    .porta_dout ( snd_latch                 ),
+    .portb_dout ( ppi0_b                    ),
+    .portc_dout ( ppi0_c                    )
 );
 
 jt8255 u_ppi1(
-    .rst       ( rst           ),
-    .clk       ( clk           ),
+    .rst        ( rst           ),
+    .clk        ( clk           ),
 
-    .addr      ( A[2:1]        ),
-    .din       ( cpu_dout[7:0] ),
-    .dout      ( ppi1_dout     ),
-    .rdn       ( ~RnW          ),
-    .wrn       ( LDSWn         ),
-    .csn       ( ~ppi1_cs      ),
+    .addr       ( A[2:1]        ),
+    .din        ( cpu_dout[7:0] ),
+    .dout       ( ppi1_dout     ),
+    .rdn        ( ~RnW          ),
+    .wrn        ( LDSWn         ),
+    .csn        ( ~ppi1_cs      ),
 
-    .porta_din ( 8'hff         ),
-    .portb_din ( 8'hff         ),
-    .portc_din ( 8'h00         ),
+    .porta_din  ( 8'hff         ),
+    .portb_din  ( 8'hff         ),
+    .portc_din  ( 8'h00         ),
 
-    .porta_dout( ppi1_a        ),
-    .portb_dout(               ),
-    .portc_dout(               )
+    .porta_dout ( ppi1_a        ),
+    .portb_dout (               ),
+    .portc_dout (               )
 );
 
 // Hold the MOVX byte until the next MCU bus cycle: jtframe_8751mcu samples x_din
@@ -389,15 +389,15 @@ end
 assign mcu_gated = cen_mcu & mcu_ok;
 
 jtframe_68kdma u_dma(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cen        ( cpu_cen   ),
-    .cpu_BRn    ( BRn       ),
-    .cpu_BGACKn ( BGACKn    ),
-    .cpu_BGn    ( BGn       ),
-    .cpu_ASn    ( ASn       ),
-    .cpu_DTACKn ( DTACKn    ),
-    .dev_br     ( mcu_acc   )
+    .rst        ( rst     ),
+    .clk        ( clk     ),
+    .cen        ( cpu_cen ),
+    .cpu_BRn    ( BRn     ),
+    .cpu_BGACKn ( BGACKn  ),
+    .cpu_BGn    ( BGn     ),
+    .cpu_ASn    ( ASn     ),
+    .cpu_DTACKn ( DTACKn  ),
+    .dev_br     ( mcu_acc )
 );
 
 jtframe_8751mcu #(
@@ -406,55 +406,55 @@ jtframe_8751mcu #(
     .SYNC_INT   ( 1         ),
     .ROMBIN     ( "mcu.bin" )
 ) u_mcu(
-    .rst        ( mcu_rst   ),
-    .clk        ( clk       ),
-    .cen        ( mcu_gated ),
+    .rst        ( mcu_rst         ),
+    .clk        ( clk             ),
+    .cen        ( mcu_gated       ),
 
-    .int0n      ( lvbl_g    ),
-    .int1n      ( 1'b1      ),
+    .int0n      ( lvbl_g          ),
+    .int1n      ( 1'b1            ),
 
-    .p0_i       ( mcu_din   ),
-    .p1_i       ( mcu_ctrl  ),   // read back so PUSH p1 behaves
-    .p2_i       ( 8'hff     ),
-    .p3_i       ( 8'hff     ),
+    .p0_i       ( mcu_din         ),
+    .p1_i       ( mcu_ctrl        ),   // read back so PUSH p1 behaves
+    .p2_i       ( 8'hff           ),
+    .p3_i       ( 8'hff           ),
 
-    .p0_o       (           ),
-    .p1_o       ( mcu_ctrl  ),
-    .p2_o       (           ),
-    .p3_o       (           ),
+    .p0_o       (                 ),
+    .p1_o       ( mcu_ctrl        ),
+    .p2_o       (                 ),
+    .p3_o       (                 ),
 
-    .x_din      ( mcu_din   ),
-    .x_dout     ( mcu_dout  ),
-    .x_addr     ( mcu_addr  ),
-    .x_wr       ( mcu_wr    ),
-    .x_acc      ( mcu_acc   ),
+    .x_din      ( mcu_din         ),
+    .x_dout     ( mcu_dout        ),
+    .x_addr     ( mcu_addr        ),
+    .x_wr       ( mcu_wr          ),
+    .x_acc      ( mcu_acc         ),
 
-    .clk_rom    ( clk       ),
+    .clk_rom    ( clk             ),
     .prog_addr  ( prog_addr[11:0] ),
-    .prom_din   ( prog_data ),
-    .prom_we    ( mcu_we    )
+    .prom_din   ( prog_data       ),
+    .prom_we    ( mcu_we          )
 );
 
 jts16_fd1089 u_fd1089(
-    .rst        ( fd1089_rst    ),
-    .clk        ( clk           ),
+    .rst        ( fd1089_rst ),
+    .clk        ( clk        ),
 
-    .key_addr   ( key_addr      ),
-    .key_data   ( key_data      ),
+    .key_addr   ( key_addr   ),
+    .key_data   ( key_data   ),
 
-    .prog_addr  ( prog_addr     ),
-    .fd1089_we  ( fd1089_we     ),
-    .prog_data  ( prog_data     ),
+    .prog_addr  ( prog_addr  ),
+    .fd1089_we  ( fd1089_we  ),
+    .prog_data  ( prog_data  ),
 
-    .dec_type   ( 1'b1          ),
-    .dec_en     ( fd1089        ),
-    .op_n       ( op_n          ),
-    .addr       ( A             ),
-    .enc        ( rom_data      ),
-    .dec        ( fd1089_dec    ),
+    .dec_type   ( 1'b1       ),
+    .dec_en     ( fd1089     ),
+    .op_n       ( op_n       ),
+    .addr       ( A          ),
+    .enc        ( rom_data   ),
+    .dec        ( fd1089_dec ),
 
-    .rom_ok     ( rom_ok        ),
-    .ok_dly     ( fd1089_ok     )
+    .rom_ok     ( rom_ok     ),
+    .ok_dly     ( fd1089_ok  )
 );
 
 always @(posedge clk) begin
@@ -466,49 +466,49 @@ always @(posedge clk) begin
 end
 
 jtharier_dtack_cen u_dtack(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cpu_cen    ( cpu_cen   ),
-    .cpu_cenb   ( cpu_cenb  ),
-    .UDSn       ( UDSn      ),
-    .LDSn       ( LDSn      ),
-    .bus_cs     ( bus_cs    ),
-    .bus_busy   ( bus_busy  ),
-    .bus_legit  ( vwait     ),
-    .bus_ack    (~BGACKn    ),
-    .ASn        ( ASn       ),
-    .DSn        ({UDSn,LDSn}),
-    .DTACKn     ( DTACKn    ),
-    .fave       ( fave      ),
-    .fworst     ( fworst    )
+    .rst        ( rst         ),
+    .clk        ( clk         ),
+    .cpu_cen    ( cpu_cen     ),
+    .cpu_cenb   ( cpu_cenb    ),
+    .UDSn       ( UDSn        ),
+    .LDSn       ( LDSn        ),
+    .bus_cs     ( bus_cs      ),
+    .bus_busy   ( bus_busy    ),
+    .bus_legit  ( vwait       ),
+    .bus_ack    ( ~BGACKn     ),
+    .ASn        ( ASn         ),
+    .DSn        ( {UDSn,LDSn} ),
+    .DTACKn     ( DTACKn      ),
+    .fave       ( fave        ),
+    .fworst     ( fworst      )
 );
 
 jtframe_m68k u_cpu(
-    .clk        ( clk         ),
-    .rst        ( rst         ),
-    .RESETn     (             ),
-    .cpu_cen    ( cpu_cen     ),
-    .cpu_cenb   ( cpu_cenb    ),
+    .clk        ( clk          ),
+    .rst        ( rst          ),
+    .RESETn     (              ),
+    .cpu_cen    ( cpu_cen      ),
+    .cpu_cenb   ( cpu_cenb     ),
 
-    .eab        ( cpu_A       ),
-    .iEdb       ( cpu_din     ),
-    .oEdb       ( cpu_dout_raw),
+    .eab        ( cpu_A        ),
+    .iEdb       ( cpu_din      ),
+    .oEdb       ( cpu_dout_raw ),
 
-    .eRWn       ( cpu_RnW     ),
-    .LDSn       ( cpu_LDSn    ),
-    .UDSn       ( cpu_UDSn    ),
-    .ASn        ( ASn         ),
-    .VPAn       ( VPAn        ),
-    .FC         ( FC          ),
+    .eRWn       ( cpu_RnW      ),
+    .LDSn       ( cpu_LDSn     ),
+    .UDSn       ( cpu_UDSn     ),
+    .ASn        ( ASn          ),
+    .VPAn       ( VPAn         ),
+    .FC         ( FC           ),
 
-    .BERRn      ( 1'b1        ),
-    .HALTn      ( 1'b1        ),
-    .BRn        ( BRn         ),
-    .BGACKn     ( BGACKn      ),
-    .BGn        ( BGn         ),
+    .BERRn      ( 1'b1         ),
+    .HALTn      ( 1'b1         ),
+    .BRn        ( BRn          ),
+    .BGACKn     ( BGACKn       ),
+    .BGn        ( BGn          ),
 
-    .DTACKn     ( DTACKn      ),
-    .IPLn       ( IPLn        )
+    .DTACKn     ( DTACKn       ),
+    .IPLn       ( IPLn         )
 );
 
 `else
