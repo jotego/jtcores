@@ -14,6 +14,7 @@ module jtgrad3_arbiter(
     input       cen24,
     input       a_req_n,
     input       b_req_n,
+    input       a_rst_n,
     output reg  a_grant_n,
     output reg  b_grant_n
 );
@@ -27,7 +28,7 @@ always @(posedge clk) begin
         a_grant_n <= 1;
         b_grant_n <= 1;
     end else begin
-        if( !b_grant_n ) a_grant_n <= 1; else if( cen24  ) a_grant_n <= a_req_n;
+        if( !b_grant_n ) a_grant_n <= 1; else if( cen24  ) a_grant_n <= a_req_n & a_rst_n;
         if( !a_grant_n ) b_grant_n <= 1; else if( cen24b ) b_grant_n <= b_req_n;
     end
 end

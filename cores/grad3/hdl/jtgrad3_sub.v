@@ -24,6 +24,8 @@ module jtgrad3_sub(
 
     output        [ 1:0] sh_we,
     input         [15:0] sh_dout,
+    output               sh_req_n,
+    input                sh_grant_n,
 
     output reg           tile_cs,
     input         [ 7:0] tile_dout,
@@ -33,6 +35,7 @@ module jtgrad3_sub(
 
     output reg           obj_cs,
     input         [ 7:0] obj_dout,
+    input                obj_dtack,
 
     output reg           gchar_cs,
     output               gchar_we,
@@ -54,7 +57,7 @@ wire [23:1] A;
 wire        UDSn, LDSn, RnW, ASn, VPAn, DTACKn, cpu_cen, cpu_cenb;
 wire [ 2:0] FC, IPLn;
 wire [ 1:0] dws;
-wire        bus_cs, bus_busy, vdtackn;
+wire        bus_cs, bus_busy, vdtackn, bus_legit;
 wire        rst_cpu, BUSn;
 reg  [15:0] cpu_din;
 wire        ok_dly;
@@ -69,7 +72,8 @@ assign bus_dsn   = { UDSn, LDSn };
 assign gfx_addr  = A[20:1];
 assign dws       = ~({2{RnW}} | { UDSn, LDSn });
 assign ram_we    = dws & {2{ram_cs}};
-assign sh_we     = dws & {2{sh_cs}};
+assign sh_we     = dws & {2{sh_cs & ~sh_grant_n}};
+assign sh_req_n  = ~sh_cs;
 assign gchar_we  = ~RnW;
 assign cpu_we    = ~RnW;
 assign irq_trig  = A[22:18]=={2'd0,3'd6};
@@ -78,14 +82,18 @@ assign bus_cs    = rom_cs | ram_cs | tile_cs | obj_cs | gchar_sel | gfx_cs | sh_
 wire [2:0] ok_cs, ok_in;
 assign ok_cs = { rom_cs, gchar_cs, gfx_cs };
 assign ok_in = { rom_ok, gchar_ok, gfx_ok };
-assign video_req = (tile_cs | gchar_sel) & ~BUSn;
+assign video_req = tile_cs | (vid_dec_cs && A[19:18]==2'd2);
 assign video_req_n = ~video_req;
 assign bus_busy  = (rom_cs   & ~ok_dly)   |
                    (gchar_cs & ~ok_dly)   |
                    (gfx_cs   & ~ok_dly)   |
                    (video_req & video_grant_n) |
-                   (tile_cs  & ~tile_dtack);
+                   (sh_cs & sh_grant_n) |
+                   (tile_cs  & ~tile_dtack) |
+                   (obj_cs   & ~obj_dtack);
 assign vdtackn   = DTACKn | (tile_cs & ~tile_dtack);
+assign bus_legit = (video_req & video_grant_n) | (tile_cs & ~tile_dtack) | (sh_cs & sh_grant_n) |
+                   (obj_cs & ~obj_dtack);
 assign VPAn      = ~( A[23] & ~ASn );
 assign BUSn      = &bus_dsn;
 assign st_dout   = { 6'd0, tile_cs, obj_cs };
@@ -166,7 +174,7 @@ jtframe_68kdtack_cen #(.W(6), .RECOVERY(1)) u_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( bus_legit ),
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ( bus_dsn   ),
@@ -205,7 +213,7 @@ jtframe_m68k u_cpu(
 
 `else
 assign cpu_addr=0, cpu_dout=0, cpu_we=0, bus_dsn=3,
-       rom_addr=0, sh_we=0,
+       rom_addr=0, sh_we=0, sh_req_n=1,
        gchar_we=0, gfx_addr=0, irq_trig=0, st_dout=0, ram_we=0;
 initial begin
     rom_cs=0; tile_cs=0; obj_cs=0; gchar_cs=0; gfx_cs=0;

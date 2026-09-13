@@ -28,6 +28,7 @@ module jtgrad3_sound(
     output signed [15:0] fm_l,
     output signed [15:0] fm_r,
     output signed [10:0] pcm,
+    output          iorq_n,
 
     input    [ 7:0] debug_bus,
     output   [ 7:0] st_dout
@@ -36,7 +37,7 @@ module jtgrad3_sound(
 `ifndef NOSOUND
 wire [15:0] A;
 wire [ 7:0] cpu_dout, ram_dout, fm_dout, st_pcm, bank;
-wire        m1_n, mreq_n, rd_n, wr_n, iorq_n, rfsh_n, cpu_cen,
+wire        m1_n, mreq_n, rd_n, wr_n, rfsh_n, cpu_cen,
             mem_acc, fm_sample, rst_n, int_n, fm_csn;
 reg  [ 7:0] cpu_din;
 reg         ram_cs, bank_cs, latch_cs, pcm_cs, fm_cs;
@@ -159,7 +160,7 @@ jt007232 u_k7232(
 
 `else
 assign rom_addr=0, pcma_addr=0, pcmb_addr=0, pcma_cs=0, pcmb_cs=0,
-       fm_l=0, fm_r=0, pcm=0, st_dout=0;
+       fm_l=0, fm_r=0, pcm=0, st_dout=0, iorq_n=1;
 initial rom_cs=0;
 `endif
 

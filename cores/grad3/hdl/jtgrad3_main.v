@@ -22,6 +22,8 @@ module jtgrad3_main(
 
     output        [ 1:0] sh_we,
     input         [15:0] sh_dout,
+    output               sh_req_n,
+    input                sh_grant_n,
 
     output reg           tile_cs,
     input         [ 7:0] tile_dout,
@@ -64,7 +66,7 @@ wire [ 1:0] dws;
 wire        cab_cs, BUSn;
 reg         snd_latch_cs, snd_irq_cs, wdog_cs,
             ctrl_cs, io_cs, dsw_cs, dec_cs;
-wire        bus_cs, bus_busy, vdtackn;
+wire        bus_cs, bus_busy, vdtackn, bus_legit;
 reg         gchar_sel;
 wire        video_req;
 wire [ 7:0] ctrl;
@@ -84,7 +86,8 @@ assign main_addr  = A[17:1];
 assign bus_dsn    = { UDSn, LDSn };
 assign dws        = ~({2{RnW}} | { UDSn, LDSn });
 assign ram_we     = dws & {2{ram_cs}};
-assign sh_we      = dws & {2{sh_cs}};
+assign sh_we      = dws & {2{sh_cs & ~sh_grant_n}};
+assign sh_req_n   = ~sh_cs;
 assign gchar_we   = ~RnW;
 assign cpu_we     = ~RnW;
 assign snd_irq    = |snd_cnt;
@@ -96,13 +99,15 @@ assign bus_cs   = rom_cs | ram_cs | pal_cs | tile_cs | gchar_sel | sh_cs |
 wire [1:0] ok_cs, ok_in;
 assign ok_cs = { rom_cs, gchar_cs };
 assign ok_in = { rom_ok, gchar_ok };
-assign video_req = (tile_cs | gchar_sel) & ~BUSn;
+assign video_req = tile_cs | (dec_cs && A[20:18]==3'd6);
 assign video_req_n = ~video_req;
 assign bus_busy = (rom_cs   & ~ok_dly)   |
                   (gchar_cs & ~ok_dly)   |
                   (video_req & video_grant_n) |
+                  (sh_cs & sh_grant_n) |
                   (tile_cs  & ~tile_dtack);
 assign vdtackn  = DTACKn | (tile_cs & ~tile_dtack);
+assign bus_legit = (video_req & video_grant_n) | (tile_cs & ~tile_dtack) | (sh_cs & sh_grant_n);
 assign VPAn     = ~( A[23] & ~ASn );
 assign BUSn      = &bus_dsn;
 assign st_dout  = { sub_rst, ctrl[5], rmrd, prio, 2'b0, snd_irq, sub_irq };
@@ -238,7 +243,7 @@ jtframe_68kdtack_cen #(.W(6), .RECOVERY(1)) u_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( bus_legit ),
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ( bus_dsn   ),
@@ -277,7 +282,7 @@ jtframe_m68k u_cpu(
 
 `else
 assign main_addr=0, cpu_dout=0, cpu_we=0, bus_dsn=3,
-       sh_we=0, gchar_we=0, ram_we=0,
+       sh_we=0, sh_req_n=1, gchar_we=0, ram_we=0,
        rmrd=0, prio=0, sub_rst=1, sub_irq=0, snd_latch=0, snd_irq=0, st_dout=0;
 initial begin
     rom_cs=0; tile_cs=0; gchar_cs=0; pal_cs=0;

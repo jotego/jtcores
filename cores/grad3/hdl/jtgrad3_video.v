@@ -7,6 +7,7 @@ module jtgrad3_video(
     input             pxl_cen,
     input             pxl2_cen,
     input             cen24,
+    input             snd_iorq_n,
     input             prio,
 
     output            lhbl,
@@ -31,6 +32,7 @@ module jtgrad3_video(
     output            m_video_grant_n,
     output            s_video_grant_n,
     input             objsys_cs,
+    output            s_obj_dtack,
     output            m_vdtack,
     output            s_vdtack,
     output     [ 7:0] tilesys_dout,
@@ -88,6 +90,7 @@ wire        lyrf_blnk_n, lyra_blnk_n, lyrb_blnk_n, lyro_blnk_n;
 wire        cpu_weg, obj_cpu_weg, tilesys_cs, vdtack;
 wire        m_tile_req, s_tile_req, m_tile_grant, s_tile_grant;
 wire        m_tile_gnt_n, s_tile_gnt_n;
+reg         p1h, m_sync1, s_sync1, m_sync2, s_sync2, obj_sync;
 wire [ 1:0] tile_cpu_dsn;
 wire [15:0] tile_cpu_dout;
 wire        tile_cpu_we;
@@ -96,17 +99,18 @@ reg  [ 7:0] opal_eff;
 
 assign m_tile_req    = ~m_video_req_n;
 assign s_tile_req    = ~s_video_req_n;
-assign m_video_grant_n = m_tile_gnt_n;
-assign s_video_grant_n = s_tile_gnt_n;
+assign m_video_grant_n = ~m_sync2;
+assign s_video_grant_n = ~s_sync2;
 assign m_tile_grant  = ~m_tile_gnt_n;
 assign s_tile_grant  = ~s_tile_gnt_n;
 assign tile_cpu_addr = s_tile_grant ? s_cpu_addr : m_cpu_addr;
 assign tile_cpu_dsn  = s_tile_grant ? s_cpu_dsn  : m_cpu_dsn;
 assign tile_cpu_dout = s_tile_grant ? s_cpu_dout : m_cpu_dout;
 assign tile_cpu_we   = s_tile_grant ? s_cpu_we   : m_cpu_we;
-assign tilesys_cs    = (m_tile_grant & m_tilesys_cs) | (s_tile_grant & s_tilesys_cs);
-assign m_vdtack      = vdtack & m_tile_grant;
-assign s_vdtack      = vdtack & s_tile_grant;
+assign tilesys_cs    = (m_sync1 & m_tilesys_cs) | (s_sync1 & s_tilesys_cs);
+assign m_vdtack      = vdtack & m_sync2;
+assign s_vdtack      = vdtack & s_sync2;
+assign s_obj_dtack   = obj_sync;
 assign cpu_saddr     = tile_cpu_addr;
 assign cpu_oaddr     = s_cpu_addr[11:1];
 assign cpu_d8        = tile_cpu_dout[7:0];
@@ -166,12 +170,42 @@ always @(*) begin
         ioctl_din = 8'hff;
 end
 
+always @(posedge clk) begin
+    if( rst ) begin
+        p1h      <= 0;
+        m_sync1  <= 0;
+        s_sync1  <= 0;
+        m_sync2  <= 0;
+        s_sync2  <= 0;
+        obj_sync <= 0;
+    end else begin
+        if( pxl_cen ) p1h <= ~p1h;
+        if( m_video_req_n ) begin
+            m_sync1 <= 0;
+            m_sync2 <= 0;
+        end else if( pxl_cen ) begin
+            if( p1h ) m_sync1 <= m_tile_grant;
+            m_sync2 <= m_sync1;
+        end
+        if( s_video_req_n ) begin
+            s_sync1 <= 0;
+            s_sync2 <= 0;
+        end else if( pxl_cen ) begin
+            if( p1h ) s_sync1 <= s_tile_grant;
+            s_sync2 <= s_sync1;
+        end
+        if( !objsys_cs ) obj_sync <= 0;
+        else if( pxl_cen && p1h ) obj_sync <= 1;
+    end
+end
+
 jtgrad3_arbiter u_tile_arb(
     .rst        ( rst          ),
     .clk        ( clk          ),
     .cen24      ( cen24        ),
     .a_req_n    ( ~m_tile_req  ),
     .b_req_n    ( ~s_tile_req  ),
+    .a_rst_n    ( snd_iorq_n   ),
     .a_grant_n  ( m_tile_gnt_n ),
     .b_grant_n  ( s_tile_gnt_n )
 );
@@ -256,7 +290,7 @@ jtaliens_obj u_obj(
     .hdump      ( hdump            ),
     .vdump      ( vrender          ),
 
-    .cs         ( objsys_cs        ),
+    .cs         ( obj_sync         ),
     .cpu_addr   ( cpu_oaddr        ),
     .cpu_dout   ( obj_cpu_d8       ),
     .cpu_we     ( obj_cpu_weg      ),
