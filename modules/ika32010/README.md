@@ -15,7 +15,8 @@ on their include path, which `jtsim` provides.
 ## Local changes
 
 `IKA32010_mnemonics.sv` and `IKA32010_disasm.sv` are unmodified. `IKA32010.sv`
-differs from upstream in two places:
+differs from upstream in three places, each marked `jtcores:` where it is not
+at the top of the file:
 
 - Three `verilator lint_off` pragmas (`WIDTHEXPAND`, `COMBDLY`, `MULTIDRIVEN`)
   are prepended, so the file passes the lint gates of the jtframe unit tests
@@ -27,8 +28,17 @@ differs from upstream in two places:
   variables declared outside a function), and so does Icarus Verilog. Define
   `IKA32010_DISASSEMBLY` on the command line of a Verilator simulation to get
   the disassembly log back.
+- `CALL` pushes the address after its operand. Upstream pushes `if_pc` in the
+  instruction's first cycle, when the fetch has already moved PC onto the
+  operand word, so every `RET` came back one word early and ran the operand as
+  an instruction (an `ADD`, for any address in a 12-bit program space). A
+  `stk_pc_next` control now selects `if_pc_next` for that one push; `CALA` and
+  the interrupt still push `if_pc`, which is right for them. Found on the
+  Wardner DSP program, where a `CALA` into the dispatch table at 0x539 returned
+  to 0x53a instead of 0x53b, and confirmed with a directed test of a
+  sequential `CALL` and one reached through `CALA`.
 
-## Known issue
+## Known issues
 
 The data memory page pointer is cleared while the core is *out* of reset:
 `IKA32010.sv` reads `if(i_RS_n) reg_dp <= 1'b0;` where `!i_RS_n` is meant, so
@@ -37,6 +47,13 @@ by direct addressing. A program that stores 0x55 on page 1 and reads it back
 ends with ACC = 0 here and ACC = 0x55 in MAME. The Wardner DSP program never
 selects page 1 - no `LDPK 1`, `LDP` or `LST` word appears anywhere in its ROM -
 so the line is left as upstream has it.
+
+IKA32010 does not set INTM when it takes an interrupt; only `DINT` and `EINT`
+change it, so interrupts stay enabled inside a handler until it runs `DINT`.
+MAME sets INTM as it vectors. The Wardner vector is `B 30b` and `30b` is
+`DINT`, with one INT edge per activation, so this is left as upstream has it
+too. MAME also sets OVM at reset, which IKA32010 does not; Wardner runs `ROVM`
+as its third instruction.
 
 ## Tests
 

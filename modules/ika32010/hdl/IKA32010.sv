@@ -411,11 +411,12 @@ IKA32010_multiplier u_multiplier (
 
 reg             stk_data_sel; //0 = ACC, 1 = PC
 reg             stk_pop, stk_push;
+reg             stk_pc_next; //jtcores: push PC+1, for CALL
 
 IKA32010_stack u_stack (
     .i_EMUCLK(i_EMUCLK), .i_RST_n(i_RS_n), .i_CEN(cyc_ncen),
     .i_PUSH(stk_push), .i_POP(stk_pop),
-    .i_DIN(stk_data_sel ? if_pc : reg_wrbus[11:0]), .o_DOUT(stk_output)
+    .i_DIN(stk_data_sel ? (stk_pc_next ? if_pc_next : if_pc) : reg_wrbus[11:0]), .o_DOUT(stk_output)
 );
 
 
@@ -582,6 +583,7 @@ always @(*) begin
     //stack
     stk_data_sel = STACK_DATA_PC;
     stk_pop = NO; stk_push = NO;
+    stk_pc_next = NO;
 
     //shifter enable
     sha_amt = 5'd0;
@@ -1431,7 +1433,9 @@ always @(*) begin
 
                     //deny interrupt request
                     if_opcodereg_force_iack = NO; 
-                    stk_push = YES; stk_data_sel = STACK_DATA_PC;
+                    //jtcores: PC already points at the operand here, so the
+                    //return address is the word after it
+                    stk_push = YES; stk_data_sel = STACK_DATA_PC; stk_pc_next = YES;
                 end
                 else if(ex_inst_cycle == 2'd1) begin
                     busctrl_req = OPCODE_READ; busctrl_addr_muxsel = BUSCTRL_ADDR_PC;
