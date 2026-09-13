@@ -213,16 +213,16 @@ always @(posedge clk, posedge rst) begin
 end
 
 jtframe_dual_ram16 #(.AW(8)) u_scratch(
-    .clk0   ( clk       ),
-    .clk1   ( clk       ),
-    .addr0  ( cur_obj   ),
-    .data0  ( scr_din   ),
+    .clk0   ( clk         ),
+    .clk1   ( clk         ),
+    .addr0  ( cur_obj     ),
+    .data0  ( scr_din     ),
     .we0    ( {2{scr_we}} ),
-    .q0     (           ),
-    .addr1  ( cur_obj   ),
-    .data1  ( 16'd0     ),
-    .we1    ( 2'd0      ),
-    .q1     ( scr_dout  )
+    .q0     (             ),
+    .addr1  ( cur_obj     ),
+    .data1  ( 16'd0       ),
+    .we1    ( 2'd0        ),
+    .q1     ( scr_dout    )
 );
 
 endmodule

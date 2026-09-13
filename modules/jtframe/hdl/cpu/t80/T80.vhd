@@ -1223,7 +1223,11 @@ begin
 							(I_BTR and (not IR(4) or F(Flag_Z)));
 					if TState = 2 then
 						if SetEI = '1' then
-							IntE_FF1 <= '1';
+							-- EI lands here, at T2 of the next M1. If that M1 is an NMI
+							-- taken right after EI, IFF1 must stay clear until RETN.
+							if NMICycle = '0' then
+								IntE_FF1 <= '1';
+							end if;
 							IntE_FF2 <= '1';
 						end if;
 						if I_RETN = '1' then
