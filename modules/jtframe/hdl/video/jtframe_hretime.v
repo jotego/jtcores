@@ -62,50 +62,55 @@ module jtframe_hretime #(parameter
     output              de_out
 );
 
-localparam SL  = $clog2(STEP),                  // division by STEP is a shift
-           AW  = $clog2(DEPTH),
-           MW  = $clog2(DIV*(STEP+8))+1,        // rate accumulator width
-           PW  = SL+HW,                         // nactive * |scale|
-           DLD = 1<<$clog2((DEPTH*DIV)/2+1),    // sync delay line depth
-           DLW = $clog2(DLD);
+localparam SLOG = $clog2(STEP),                  // log2(STEP), shift replaces divide
+           AW   = $clog2(DEPTH),
+           ACCW = $clog2(DIV*(STEP+8))+1,        // rate accumulator width
+           PW   = SLOG+HW,                       // nactive * |scale| product width
+           SDEP = 1<<$clog2((DEPTH*DIV)/2+1),    // sync delay line depth
+           SAW  = $clog2(SDEP);
 
 (* ramstyle = "no_rw_check" *) reg [DW-1:0] mem[0:DEPTH-1];
 reg [DW-1:0] mem_rd;                    // registered M10K read output
-reg  [ 1:0] sync_mem[0:DLD-1];
+(* ramstyle = "no_rw_check" *) reg [ 1:0] sync_mem[0:SDEP-1];
 
 reg  [DW-1:0] fifo_dout=0, din_l=0;
 reg  [ AW-1:0] wptr=0, rptr=0;
 reg  [ HW-1:0] wcnt=0, rcnt=0, nactive=0;
-reg  [ MW-1:0] acc=0;
-reg  [DLW-1:0] sync_wp=0;
+reg  [ACCW-1:0] acc=0;
+reg  [SAW-1:0] sync_wp=0;
 reg  hs_l=0, ce_slow=0, started=0, fifo_de=0, de_l=0, hs_dly=0, vs_dly=0;
+// OSD parameters latched at hsync, aligned with FIFO/accumulator reset
+reg               enable_l=0;
+reg  signed [3:0] scale_l=0;
 
-wire [MW-1:0] nxt = acc + STEP[MW-1:0];
+wire [ACCW-1:0] nxt = acc + STEP[ACCW-1:0];
 
-// Registered pipeline — one multiply per stage, breaks timing chains
-reg  [  MW-1:0] m_r;
-reg  [  HW-1:0] grow_r;
-reg  [ DLW-1:0] dly_r;
+// 3-stage registered pipeline: scale→extra_px→sync_dly
+reg  [ ACCW-1:0] period;
+reg  [  HW-1:0] extra_px;
+reg  [ SAW-1:0] sync_dly;
 
 always @(posedge clk) begin : dly_pipe
     reg [    3:0] absc;
     reg [ PW-1:0] prod;
     reg [HW+4:0]  dly_f;
     reg [HW+3:0]  dly_h;
-    absc = scale[3] ? -scale : scale;
-    m_r <= DIV[MW-1:0] * (STEP[MW-1:0] + {{MW-4{scale[3]}}, scale});
+    absc = scale_l[3] ? -scale_l : scale_l;
+    period <= DIV[ACCW-1:0] * (STEP[ACCW-1:0] + {{ACCW-4{scale_l[3]}}, scale_l});
     prod = nactive * absc;
-    grow_r <= prod[PW-1:SL];
-    dly_f = grow_r * DIV;
+    extra_px <= prod[PW-1:SLOG];
+    // uses registered extra_px, so sync_dly settles one clock after extra_px
+    dly_f = extra_px * DIV;
     dly_h = dly_f[HW+4:1];
-    dly_r <= dly_h >= DLD  ? {DLW{1'b1}} :
-             dly_h == 0    ? {{DLW-1{1'b0}}, 1'b1} : dly_h[DLW-1:0];
+    sync_dly <= dly_h >= SDEP ? {SAW{1'b1}} :
+                dly_h == 0    ? {{SAW-1{1'b0}}, 1'b1} : dly_h[SAW-1:0];
 end
 
-wire bypass = ~enable | scale==0,
+wire bypass = ~enable_l | scale_l==0,
      hs_pos = hs_in & ~hs_l,
      push   = ce_in & de_in & ~bypass,
      pop    = ce_slow & started & rcnt<wcnt;
+// ce_slow never fires on consecutive clocks (period >= 2*STEP)
 
 assign ce_out = bypass ? ce_in : ce_slow,
        hs_out = bypass ? hs_in : hs_dly,
@@ -120,16 +125,18 @@ always @(posedge clk) begin
     // rate generator — phase restarts at hs
     if( hs_pos ) begin
         acc <= 0;
-    end else if( nxt>=m_r ) begin
-        acc     <= nxt-m_r;
+    end else if( nxt>=period ) begin
+        acc     <= nxt-period;
         ce_slow <= 1;
     end else begin
         acc <= nxt;
     end
-    // FIFO write — hs empties the FIFO
+    // FIFO write — hs empties the FIFO and latches OSD parameters
     if( hs_pos ) begin
-        wptr <= 0;
-        wcnt <= 0;
+        wptr     <= 0;
+        wcnt     <= 0;
+        enable_l <= enable;
+        scale_l  <= scale;
         if( wcnt!=0 ) nactive <= wcnt;
     end else if( push ) begin
         mem[wptr] <= din;
@@ -154,7 +161,7 @@ always @(posedge clk) begin
         fifo_de   <= 0;
         fifo_dout <= 0;
     end else begin
-        if( !started && wcnt>(scale[3] ? grow_r : {HW{1'b0}}) ) started <= 1;
+        if( !started && wcnt>(scale_l[3] ? extra_px : {HW{1'b0}}) ) started <= 1;
         if( ce_slow ) begin
             fifo_de <= pop;
             if( pop ) begin
@@ -169,7 +176,7 @@ always @(posedge clk) begin
     // sync delay — centres the picture
     sync_mem[sync_wp] <= { hs_in, vs_in };
     sync_wp           <= sync_wp+1'd1;
-    { hs_dly, vs_dly} <= sync_mem[sync_wp-dly_r];
+    { hs_dly, vs_dly} <= sync_mem[sync_wp-sync_dly];
 end
 
 endmodule
