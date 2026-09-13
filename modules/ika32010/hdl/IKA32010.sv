@@ -1,5 +1,6 @@
 /* verilator lint_off WIDTHEXPAND */
 /* verilator lint_off COMBDLY */
+/* verilator lint_off MULTIDRIVEN */
 module IKA32010 (
     //chip clock
     input   wire            i_EMUCLK, //emulator master clock

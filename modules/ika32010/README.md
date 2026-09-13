@@ -17,8 +17,10 @@ on their include path, which `jtsim` provides.
 `IKA32010_mnemonics.sv` and `IKA32010_disasm.sv` are unmodified. `IKA32010.sv`
 differs from upstream in two places:
 
-- Two `verilator lint_off` pragmas (`WIDTHEXPAND`, `COMBDLY`) are prepended, so
-  the file passes the lint gate of the jtframe unit tests.
+- Three `verilator lint_off` pragmas (`WIDTHEXPAND`, `COMBDLY`, `MULTIDRIVEN`)
+  are prepended, so the file passes the lint gates of the jtframe unit tests
+  and of `jtcore`. `MULTIDRIVEN` is raised by `IKA32010_ram`, whose `initial`
+  block zeroes the RAM with non-blocking assignments beside its clocked write.
 - `` `define IKA32010_DISASSEMBLY `` is commented out. Upstream defines it
   unconditionally, which makes every build include the disassembler. Quartus
   25.1 rejects that file (a bit-select of a concatenation, and `string`
