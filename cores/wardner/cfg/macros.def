@@ -7,10 +7,12 @@ JTFRAME_HEIGHT=240
 # palette RAM holds xBGR555
 JTFRAME_COLORW=5
 
-# The board has two crystals. 24 MHz / 4 drives the main Z80, so 6 MHz is an
-# exact divide of the default 48 MHz clock. Everything else hangs off the
-# 14 MHz crystal and is generated as one fractional chain in mem.yaml
-# (14 -> 7 pixel -> 3.5 audio), the same relationship the board has.
+# The board has two crystals: 24 MHz, divided by four for the main Z80, and
+# 14 MHz, halved twice for the 7 MHz pixel clock and the 3.5 MHz audio clock.
+# 24 and 14 have no common integer divisor that jtframe offers, so one of the
+# two families has to be fractional. On MiSTer the base clock follows the
+# 14 MHz crystal (see [mister] below), which keeps the pixel clock regular;
+# elsewhere the default 48 MHz base keeps the Z80 regular instead.
 
 # SDRAM
 JTFRAME_BA1_START=0x040000
@@ -32,6 +34,16 @@ JTFRAME_IOCTL_RD=4096
 [mister]
 JTFRAME_ARX=4
 JTFRAME_ARY=3
+# 56 MHz base, eight times the pixel clock, so 14, 7 and 3.5 MHz are exact
+# divides and their clock enables are evenly spaced. The Z80's 6 MHz becomes
+# 3/28 of the base: exact on average, unevenly spaced, which a CPU does not
+# notice. This PLL only exists on MiSTer.
+JTFRAME_PLL=jtframe_pll7000
+# jtframe_pll7000 drives its SDRAM clock output at 45 degrees, where the SDRAM
+# controller otherwise assumes the default PLL's 0. JTFRAME_180SHIFT drives the
+# pin from a DDIO cell at 180 degrees instead and tells the controller so,
+# which is a consistent pairing - the one cps3 uses with the same PLL.
+JTFRAME_180SHIFT
 
 [mist|sidi]
 # the tile, sprite, palette and DSP memories do not fit in an EP3C25

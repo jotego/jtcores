@@ -9,9 +9,10 @@ clocks:
     - freq: 6M
       outputs:
         - cen6
-    # the 14 MHz crystal as a fraction of 48 MHz, halved twice by the board
-    - mul: 7
-      div: 24
+    # the 14 MHz crystal, halved twice by the board. Given as a frequency so it
+    # is exact on whichever base the target's PLL provides: 1/4 of 56 MHz on
+    # MiSTer, 7/24 of 48 MHz elsewhere
+    - freq: 14M
       outputs:
         - cen14           # TMS320C10
         - cen7            # pixel clock
