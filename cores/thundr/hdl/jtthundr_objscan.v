@@ -82,15 +82,12 @@ always @(posedge clk) if(cen) begin
     case(st)
         0: begin
             { code[7:0], hsize, hflip, hos, code[10:8] } <= ram_dout;
-            // baraduke.cpp: priority = source[10] & 1. That bit doubles as
-            // code[8] but the sprite ROM is mirrored, so code[10:7] are moot
             bara_prio <= ram_dout[0];
         end
         1: { hpos[7:0], pal, hpos[8] } <= ram_dout;
         2: begin
             wide  <= hsize==HLARGE;
             { vos, vsize, vflip } <= ram_dout[4:0];
-            // namcos86 keeps a 3-bit priority in source[14], baraduke.cpp does not
             prio  <= metrocrs ? {2'd0,bara_prio} : ram_dout[7:5];
             y    <= ram_dout[15:8] + yoffset + YOS + vos_dr;
             hpos <= hpos + xoffset + XOS;

@@ -185,7 +185,7 @@ jtcus42 #(.ID(1),.HBASE(9'd4)) u_scroll1(
     .rst        ( rst_scr1      ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
-    .metrocrs   ( 1'b0          ), // held in reset on the baraduke.cpp board
+    .metrocrs   ( 1'b0          ),
     .hs         ( hs            ),
     .flip       ( flip          ),
     .scrhflip   ( scrhflip      ),

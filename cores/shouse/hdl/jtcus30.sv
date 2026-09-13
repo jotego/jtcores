@@ -48,9 +48,9 @@ wire        xwe   = xcs & ~(bsel ? brnw : srnw);
 wire        mmr_cs= (bsel ? bcs  : scs) && xaddr[9:6]==4'b0100;
 wire        mmr_wn= ~mmr_cs | (bsel ? brnw : srnw);
 
-wire [ 7:0] ram_q0;
-reg         cntrd_l;
-reg  [ 2:0] cntch_l;
+wire [ 7:0] xwave;
+reg         cntpos_cs;
+reg  [ 2:0] chsel;
 wire        cen120, zero;
 // channel configuration data
 wire [7:0][ 3:0] lvol;
@@ -168,7 +168,7 @@ jtframe_dual_ram u_wave(
     .data0  ( xdout      ),
     .addr0  ( xaddr[9:0] ),
     .we0    ( xwe        ),
-    .q0     ( ram_q0     ),
+    .q0     ( xwave      ),
     // Port 1 - Waveform reading
     .clk1   ( clk        ),
     .data1  (  8'd0      ),
@@ -177,14 +177,11 @@ jtframe_dual_ram u_wave(
     .q1     ( wdata8     )
 );
 
-// Voice byte 5 reads back that channel's live waveform position. Baraduke's
-// speech routine polls it as a timing reference and hangs without it.
-// NB the packed arrays are indexed in reverse: channel 0 is element 7.
 always @(posedge clk) begin
-    cntrd_l <= xaddr[9:6]==4'b0100 && xaddr[2:0]==3'd5;
-    cntch_l <= 3'd7 - xaddr[5:3];
+    cntpos_cs <= xaddr[9:6]==4'b0100 && xaddr[2:0]==3'd5;
+    chsel     <= 3'd7 - xaddr[5:3];
 end
-assign xdin = cntrd_l ? { 3'd0, cnt[cntch_l][CW-1:A0] } : ram_q0;
+assign xdin = cntpos_cs ? { 3'd0, cnt[chsel][CW-1:A0] } : xwave;
 
 jtcus30_mmr u_mmr(
     .rst    ( rst       ),
