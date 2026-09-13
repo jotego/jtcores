@@ -13,9 +13,9 @@ wire [ 7:0] oki_dout;
 wire        oki_cs, oki_wr, oki_bank_we, irq3_n, irq5_n;
 wire        cpu_rnw;
 wire [ 3:0] oki_bank;
-reg         prot_wdog = 1'b0;
+wire        flip;
 
-wire flip;  // Reverse DIP latch at 0x900000 bit 14
+reg         prot_wdog = 1'b0;
 
 assign ram_we   = ram_cs & ~cpu_rnw;
 assign dip_flip = ~flip;

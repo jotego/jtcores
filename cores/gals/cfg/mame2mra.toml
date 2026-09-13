@@ -12,9 +12,11 @@ names=[
 [dipsw]
 bitcnt=16
 delete=[{names=["Unused","Unknown"]}]
-# SW1:2, "Unknown" in MAME: the game latches it at 0x900000 bit 14 (screen flip)
+# SW1:2, "Unknown" in MAME, but present in game manual.
+# There is an open PR in mame to make this an official Flip switch.
+# The game latches it at 0x900000 bit 14 (screen flip)
 extra=[
-    { name="Reverse", options="Off,On", bits="1" },
+    { name="Flip", options="Off,On", bits="1" },
 ]
 
 [header]

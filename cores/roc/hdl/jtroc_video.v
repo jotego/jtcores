@@ -68,6 +68,7 @@ wire [3:0] obj_pxl, scr_pxl;
 reg  [2:0] prom_we;
 wire       obj1_cs, obj2_cs, prio, obj_en;
 reg  [1:0] fix_addr;
+reg        scr_flip;
 
 assign obj1_cs = objram_cs &  cpu_addr[10];
 assign obj2_cs = objram_cs & ~cpu_addr[10];
@@ -78,6 +79,8 @@ always @* begin
     prom_we = 0;
     prom_we[ prog_addr[9:8] ] = prom_en;
 end
+
+always @(posedge clk) scr_flip <= flip ^ osd_flip;
 
 // reg [10:0] vram_addr, objram_addr;
 
@@ -125,7 +128,7 @@ jtkicker_scroll #(.LAYOUT(LAYOUT),.NOSCROLL(1)) u_scroll(
     .LVBL       ( LVBL      ),
     .vdump      ( vdump[7:0] ),
     .hdump      ( hdump     ),
-    .flip       ( flip ^ osd_flip ),
+    .flip       ( scr_flip  ),
 
     // PROMs
     .prog_data  ( prog_data[3:0] ),

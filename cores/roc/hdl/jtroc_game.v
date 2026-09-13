@@ -30,7 +30,7 @@ wire        m2s_on;
 reg  [24:0] dwn_addr;
 
 assign vramrw_din = {2{cpu_dout}};
-assign osd_flip   = ~dip_flip;   // OSD "Flip screen" (JTFRAME_OSD_FLIP)
+assign osd_flip   = ~dip_flip;
 assign debug_view = view_mux;
 assign ioctl_din  = 0;
 
