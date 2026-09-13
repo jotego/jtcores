@@ -11,8 +11,8 @@ SRC=../../hdl/jttoaplan1_dsp.v
 GOOD=$(mktemp); cp "$SRC" "$GOOD"
 trap 'cp "$GOOD" "$SRC"; rm -f "$GOOD"' EXIT
 
-build(){ iverilog -g2005 -o tb.out tb_dsp.v "$SRC" \
-         ../../../../modules/jt32010/hdl/jt32010.v; }
+IKA=../../../../modules/ika32010/hdl
+build(){ iverilog -g2012 -I"$IKA" -o tb.out tb_dsp.v "$SRC" "$IKA/IKA32010.sv"; }
 
 apply(){ python3 -c "
 import sys
@@ -66,11 +66,9 @@ check "window offset one bit too narrow" \
 check "port strobes not gated by the run bit" \
       "wire dsp_step = cen & dsp_on;" "wire dsp_step = cen;"
 check "interrupt held as a level instead of a pulse" \
-      "            irq_pulse <= 1'b1;" \
-      "            irq_pulse <= 1'b1;
-        end
-        if( dsp_on ) begin
-            irq_pulse <= 1'b1;"
+      "wire int_n   = int_cnt == 4'd0;" "wire int_n   = ~dsp_on;"
+check "BIO presented to the DSP with the wrong polarity" \
+      "( ~bio                  )" "( bio                   )"
 check "BIO not set on the closing port 3 write" \
       "                        bio <= 1'b1;" "                        bio <= bio;"
 

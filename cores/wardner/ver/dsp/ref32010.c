@@ -3,8 +3,9 @@
  *
  * Reference model for the TMS320C10, ported line-for-line from MAME 0.289
  * src/devices/cpu/tms320c1x/tms320c1x.cpp so that it can act as an oracle for
- * the jt32010 RTL. It is deliberately a transcription, not a tidy-up: where
- * MAME does something surprising, this does the same surprising thing.
+ * the Wardner DSP benches, which run IKA32010 against it. It was written for
+ * the earlier jt32010 core. It is deliberately a transcription, not a tidy-up:
+ * where MAME does something surprising, this does the same surprising thing.
  *
  * Reads a program image (one 16-bit word per line, hex) and prints one trace
  * line per instruction, showing the machine state *before* that instruction

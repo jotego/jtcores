@@ -24,10 +24,6 @@ wire [11:0] rom_addr;
 reg  [15:0] rom_data;
 
 wire        dbg_bio, dbg_exec, dbg_rd, dbg_wr, dbg_p0, dbg_p3, dbg_pwr;
-wire        dbg_fetch;
-wire [11:0] dbg_pc, dbg_stk0, dbg_stk1, dbg_stk2, dbg_stk3;
-wire [15:0] dbg_str, dbg_treg, dbg_ar0, dbg_ar1, dbg_romdata;
-wire [31:0] dbg_acc, dbg_preg;
 reg  [31:0] itrace;
 wire [15:0] dbg_pdout;
 wire [ 1:0] dbg_sel_new;
@@ -189,12 +185,29 @@ end
 reg p0_d, p3_d;
 reg [15:0] p3_val;
 
-// instruction-level trace, in the same format ref32010 prints
+// instruction-level trace, in the same format ref32010 prints. IKA32010 has no
+// trace outputs, so its registers are read by hierarchical reference. An
+// instruction word is latched on the CLKOUT falling edge of an instruction
+// read, which is also the edge that completes the previous instruction, so the
+// address is taken on that edge and the registers are printed a clock later.
+// The word forced in place of a fetch when an interrupt is taken is skipped.
+// MAME keeps the top of the stack in STACK[3] and IKA32010 in stack[0], so the
+// stack is printed in reverse to match.
+wire       ika_fetch = u_dsp.u_ika.o_CLKOUT_NCEN && u_dsp.u_ika.busctrl_mode[2:0] == 3'd1
+                    && !u_dsp.u_ika.if_opcodereg_force_iack;
+reg        fetch_d;
+reg [11:0] fetch_pc;
+
 always @(posedge clk) begin
-    if( itrace != 0 && dbg_fetch )
+    fetch_d  <= itrace != 0 && ika_fetch;
+    fetch_pc <= rom_addr;
+    if( fetch_d )
         $fdisplay(fh, "%03x %04x %08x %08x %04x %04x %04x %04x %03x %03x %03x %03x",
-            dbg_pc, dbg_romdata, dbg_acc, dbg_preg, dbg_treg, dbg_ar0, dbg_ar1,
-            dbg_str, dbg_stk0, dbg_stk1, dbg_stk2, dbg_stk3);
+            fetch_pc, rom[fetch_pc], u_dsp.u_ika.alu_acc_output, u_dsp.u_ika.reg_p,
+            u_dsp.u_ika.reg_t, u_dsp.u_ika.reg_ar[0], u_dsp.u_ika.reg_ar[1],
+            u_dsp.u_ika.flag_output,
+            u_dsp.u_ika.u_stack.stack[3], u_dsp.u_ika.u_stack.stack[2],
+            u_dsp.u_ika.u_stack.stack[1], u_dsp.u_ika.u_stack.stack[0]);
 end
 
 always @(posedge clk) begin
@@ -279,20 +292,7 @@ jttoaplan1_dsp u_dsp(
     .dbg_pdout  ( dbg_pdout    ),
     .dbg_pwr    ( dbg_pwr      ),
     .dbg_sel_new( dbg_sel_new  ),
-    .dbg_addr_new(dbg_addr_new ),
-    .dbg_fetch  ( dbg_fetch    ),
-    .dbg_pc     ( dbg_pc       ),
-    .dbg_str    ( dbg_str      ),
-    .dbg_acc    ( dbg_acc      ),
-    .dbg_preg   ( dbg_preg     ),
-    .dbg_treg   ( dbg_treg     ),
-    .dbg_ar0    ( dbg_ar0      ),
-    .dbg_ar1    ( dbg_ar1      ),
-    .dbg_stk0   ( dbg_stk0     ),
-    .dbg_stk1   ( dbg_stk1     ),
-    .dbg_stk2   ( dbg_stk2     ),
-    .dbg_stk3   ( dbg_stk3     ),
-    .dbg_romdata( dbg_romdata  )
+    .dbg_addr_new(dbg_addr_new )
 );
 
 initial begin

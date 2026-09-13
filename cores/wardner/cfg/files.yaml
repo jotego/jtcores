@@ -7,9 +7,9 @@ wardner:
     - jtwardner_obj.v
     - jtwardner_colmix.v
     - jttoaplan1_dsp.v
-jt32010:
+ika32010:
   - get:
-    - jt32010.v
+    - IKA32010.sv
 jtframe:
   - from: ram
     get:

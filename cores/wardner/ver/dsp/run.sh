@@ -4,18 +4,18 @@
 # each test program and across several host idle times.
 set -u
 cd "$(dirname "$0")"
-REF=../../../../modules/jt32010/ver/cpu
+IKA=../../../../modules/ika32010/hdl
 ACTS=${1:-6}
 
 python3 prog_protocol.py dsp.hex  > /dev/null || exit 1
 python3 prog_edge.py     edge.hex > /dev/null || exit 1
-gcc -O2 -o "$REF/ref32010" "$REF/ref32010.c" || exit 1
-iverilog -g2005 -o tb.out tb_dsp.v ../../hdl/jttoaplan1_dsp.v \
-         ../../../../modules/jt32010/hdl/jt32010.v || exit 1
+gcc -O2 -o ref32010 ref32010.c || exit 1
+iverilog -g2012 -I"$IKA" -o tb.out tb_dsp.v ../../hdl/jttoaplan1_dsp.v \
+         "$IKA/IKA32010.sv" || exit 1
 
 fail=0
 for prog in dsp edge; do
-    "$REF/ref32010" "$prog.hex" 4000 toaplan "$ACTS" > ref.tlog || exit 1
+    ./ref32010 "$prog.hex" 4000 toaplan "$ACTS" > ref.tlog || exit 1
     # The handshake is a strict sequence, so how long the host idles between
     # activations must not change the transaction log at all.
     for tail in 300 900 2500; do

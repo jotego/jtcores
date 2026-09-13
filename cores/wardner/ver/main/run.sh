@@ -43,7 +43,7 @@ verilator --binary --timing -Wno-fatal -Wno-WIDTH -Wno-UNOPTFLAT \
     -y ../../../../modules/jtopl/hdl +libext+.v \
     tb_main.v probe.v ../../hdl/jtwardner_main.v ../../hdl/jtwardner_sound.v \
     ../../hdl/jttoaplan1_dsp.v \
-    ../../../../modules/jt32010/hdl/jt32010.v \
+    +incdir+../../../../modules/ika32010/hdl ../../../../modules/ika32010/hdl/IKA32010.sv \
     ../../../../modules/jtframe/hdl/ram/jtframe_dual_ram.v \
     ../../../../modules/jtframe/hdl/ram/jtframe_dual_ram16.v \
     ../../../../modules/jtframe/hdl/jtframe_edge.v \

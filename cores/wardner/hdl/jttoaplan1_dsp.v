@@ -6,6 +6,7 @@
  * Wraps the TMS320C10 with the glue the arcade board puts around it: the
  * window through which the DSP reaches the host CPU's memory, the polled BIO
  * handshake, and the interlock that stops the host CPU while the DSP works.
+ * The DSP itself is IKA32010 (modules/ika32010), connected by its pins.
  *
  * How the two processors share the bus
  * ------------------------------------
@@ -56,24 +57,8 @@ module jttoaplan1_dsp #(parameter TWINCOBR=0) (
     output     [15:0] dbg_pdout,
     output            dbg_pwr,      // the core's raw port-write strobe
     output      [1:0] dbg_sel_new,  // decode of the word being written to port 0
-    output     [12:0] dbg_addr_new,
-    // the DSP core's own trace taps, passed through for instruction-level
-    // comparison against the reference model
-    output            dbg_fetch,
-    output     [11:0] dbg_pc,
-    output     [15:0] dbg_str,
-    output     [31:0] dbg_acc,
-    output     [31:0] dbg_preg,
-    output     [15:0] dbg_treg,
-    output     [15:0] dbg_ar0,
-    output     [15:0] dbg_ar1,
-    output     [11:0] dbg_stk0,
-    output     [11:0] dbg_stk1,
-    output     [11:0] dbg_stk2,
-    output     [11:0] dbg_stk3,
-    output     [15:0] dbg_romdata
+    output     [12:0] dbg_addr_new
 );
-assign dbg_romdata = rom_data;
 
 // host_sel encoding
 localparam [1:0] SEL_WORK = 2'd0,   // Z80 work RAM      (0x7000 on Wardner)
@@ -84,10 +69,19 @@ localparam [1:0] SEL_WORK = 2'd0,   // Z80 work RAM      (0x7000 on Wardner)
 reg  [12:0] addr_l;                 // latched word index
 reg         bio, execute;
 reg         on_l;
+reg  [ 3:0] int_cnt;
 
-wire [ 2:0] pa;
+wire [11:0] aout;
 wire [15:0] pdout, pdin;
-wire        pwr, prd;
+wire        den_n, we_n, clkout_ncen;
+
+// The C10's port address is on the low three address lines during IN and OUT.
+// WE_n is low for exactly one CLKIN enable of an OUT cycle, the one on which
+// DOUT is valid, and IN data is latched on the CLKOUT falling edge while DEN_n
+// is low, so both strobes come straight from the pins.
+wire [ 2:0] pa  = aout[2:0];
+wire        pwr = ~we_n;
+wire        prd = ~den_n & clkout_ncen;
 
 // ---------------------------------------------------------- address decode
 // Wardner: seg = data & 0xe000, with 0x6000 folded onto 0x7000; because
@@ -139,11 +133,15 @@ assign dbg_sel_new  = sel_new;
 assign dbg_addr_new = off_new;
 
 // ------------------------------------------------------------- the handshake
-// Raising the run bit interrupts the DSP and stops the host. MAME sets the
-// pending flag on the transition, so a single-cen pulse is generated here
-// rather than holding the line.
+// Raising the run bit interrupts the DSP and stops the host. MAME holds INT
+// asserted while the run bit is set, and the C10 latches it as pending once.
+// IKA32010 latches a falling edge of INT_n, sampled on the DSP's own clock
+// enable, which stops while the run bit is low: held low for the whole run,
+// the sampler would stay frozen low across the halt and the next activation
+// would present no edge. INT_n is therefore pulsed low for two CLKOUT periods
+// after each rise of the run bit, which sets the same pending flag.
 wire on_rise = dsp_on & ~on_l;
-reg  irq_pulse;
+wire int_n   = int_cnt == 4'd0;
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -153,14 +151,15 @@ always @(posedge clk) begin
         execute   <= 1'b0;
         halt_main <= 1'b0;
         on_l      <= 1'b0;
-        irq_pulse <= 1'b0;
+        int_cnt   <= 4'd0;
     end else begin
         on_l      <= dsp_on;
-        irq_pulse <= 1'b0;
 
         if( on_rise ) begin
-            irq_pulse <= 1'b1;
+            int_cnt   <= 4'd8;
             halt_main <= 1'b1;      // the host stops here
+        end else if( dsp_step && int_cnt != 4'd0 ) begin
+            int_cnt   <= int_cnt - 4'd1;
         end
 
         if( dsp_step ) begin
@@ -191,33 +190,26 @@ always @(posedge clk) begin
     end
 end
 
-jt32010 u_dsp(
-    .rst      ( rst        ),
-    .clk      ( clk        ),
-    .cen      ( cen        ),
-    .hold     ( ~dsp_on    ),       // the run bit gates the DSP's clock
-    .irq      ( irq_pulse  ),
-    .bio      ( bio        ),
-    .rom_addr ( rom_addr   ),
-    .rom_data ( rom_data   ),
-    .pa       ( pa         ),
-    .pdout    ( pdout      ),
-    .pdin     ( pdin       ),
-    .pwr      ( pwr        ),
-    .prd      ( prd        ),
-    .dbg_fetch( dbg_fetch  ),
-    .dbg_pc   ( dbg_pc     ),
-    .dbg_ir   (            ),
-    .dbg_str  ( dbg_str    ),
-    .dbg_acc  ( dbg_acc    ),
-    .dbg_preg ( dbg_preg   ),
-    .dbg_treg ( dbg_treg   ),
-    .dbg_ar0  ( dbg_ar0    ),
-    .dbg_ar1  ( dbg_ar1    ),
-    .dbg_stk0 ( dbg_stk0   ),
-    .dbg_stk1 ( dbg_stk1   ),
-    .dbg_stk2 ( dbg_stk2   ),
-    .dbg_stk3 ( dbg_stk3   )
+// IKA32010 clears its clock divider only on a clock enable, so the enable is
+// kept running during reset; afterwards the run bit gates the DSP's clock.
+IKA32010 u_ika(
+    .i_EMUCLK       ( clk                   ),
+    .i_CLKIN_PCEN   ( cen & (dsp_on | rst)  ),
+    .o_CLKOUT       (                       ),
+    .o_CLKOUT_PCEN  (                       ),
+    .o_CLKOUT_NCEN  ( clkout_ncen           ),
+    .i_RS_n         ( ~rst                  ),
+    .o_MEN_n        (                       ),
+    .o_DEN_n        ( den_n                 ),
+    .o_WE_n         ( we_n                  ),
+    .o_AOUT         ( aout                  ),
+    .i_DIN          ( den_n ? rom_data : pdin ),
+    .o_DOUT         ( pdout                 ),
+    .o_DOUT_OE      (                       ),
+    .i_BIO_n        ( ~bio                  ),  // BIOZ branches while bio is set
+    .i_INT_n        ( int_n                 )
 );
+
+assign rom_addr = aout;
 
 endmodule
