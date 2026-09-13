@@ -101,7 +101,7 @@ always @(posedge clk) begin
         got <= got+1;
     end
     if( hs_out & ~hs_out_l ) begin
-        if( check_en && vcnt<VACTIVE ) begin
+        if( check_en && vcnt<VACTIVE && got>0 ) begin
             span     = t_last-t_first;
             ctr      = tick-((t_first+t_last)/2);
             exp_span = ((HACTIVE-1)*DIV*(STEP+sc))/STEP;
@@ -120,12 +120,20 @@ always @(posedge clk) begin
             end
         end
         got <= 0;
+        t_first <= 0;
+        t_last  <= 0;
     end
 end
 
 // the FIFO must never wrap onto unread data
 always @(posedge clk) if( uut.push && ((uut.wptr+1'd1)==uut.rptr) ) begin
     $display("scale %0d: FIFO overflow, DEPTH=%0d is too small",sc,DEPTH);
+    errs = errs+1;
+end
+
+// reader must never consume more pixels than writer produced
+always @(posedge clk) if( uut.ce_slow && uut.started && uut.rcnt>uut.wcnt ) begin
+    $display("scale %0d: FIFO underrun rcnt=%0d wcnt=%0d",sc,uut.rcnt,uut.wcnt);
     errs = errs+1;
 end
 
@@ -145,16 +153,58 @@ initial begin
         check_en = 0;
         sc       = sweep;
         scale    = sweep[3:0];
-        repeat(3) wait_line;    // nactive needs one line to settle
+        repeat(5) wait_line;    // scale_l latches at hsync + pipeline settle
         check_en = 1;
         repeat(4) wait_line;
     end
+    // ---- mid-line enable toggle: latched at hsync, current line unaffected ----
+    check_en = 0;
+    sc    = 4;
+    scale = 4;
+    repeat(6) wait_line;
+    check_en = 1;
+    repeat(2) wait_line;
+    // toggle enable off mid-active then back on
+    @(posedge clk) while( hcnt!=HACTIVE/2 ) @(posedge clk);
+    enable = 0;
+    repeat(DIV*4) @(posedge clk);
+    enable = 1;
+    // enable_l doesn't change until next hsync, so remaining lines are fine
+    repeat(3) wait_line;
+    check_en = 0;
+
+    // ---- mid-line scale change: latched at hsync, current line keeps old scale ----
+    sc    = 3;
+    scale = 3;
+    repeat(6) wait_line;
+    check_en = 1;
+    repeat(2) wait_line;
+    @(posedge clk) while( hcnt!=HACTIVE/2 ) @(posedge clk);
+    scale = -3;
+    // scale_l stays 3 until next hsync
+    repeat(2) wait_line;
+    check_en = 0;
+    // now let scale_l=-3 settle and verify
+    sc    = -3;
+    repeat(6) wait_line;
+    check_en = 1;
+    repeat(3) wait_line;
+    check_en = 0;
+
+    // ---- disable: bypass must be transparent ----
+    enable   = 0;
+    scale    = 0;
+    sc       = 0;
+    repeat(6) wait_line;
+    check_en = 1;
+    repeat(3) wait_line;
+
     check_en = 0;
     if( errs==0 ) pass(); else fail();
 end
 
 initial begin
-    #20_000_000;
+    #40_000_000;
     $display("timeout");
     fail();
 end
