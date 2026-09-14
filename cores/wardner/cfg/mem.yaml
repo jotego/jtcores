@@ -71,6 +71,16 @@ bram:
     dout: objram_dout
     we: obj_bwe
     dual_port: { name: objvid, addr: obj_vaddr, dout: obj_vq }
+  # sprite RAM copied during vertical blanking, read by the sprite scan
+  - name: objbuf
+    addr_width: 12
+    data_width: 16
+    rw: true
+    addr: objcpy_addr
+    din: obj_vq
+    dout: objbuf_dout
+    we: objcpy_we
+    dual_port: { name: objscan, addr: objscan_addr, dout: objscan_q }
   - name: pal
     addr_width: 12
     data_width: 16
