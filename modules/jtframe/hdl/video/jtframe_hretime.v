@@ -82,6 +82,8 @@ reg  hs_l=0, ce_slow=0, started=0, fifo_de=0, de_l=0, hs_dly=0, vs_dly=0;
 // OSD parameters latched at hsync, aligned with FIFO/accumulator reset
 reg               enable_l=0;
 reg  signed [3:0] scale_l=0;
+// effective scale: non-negative inputs get +1 so range is -8..+8 (skip 0)
+wire signed [4:0] escale = {scale_l[3], scale_l} + {4'd0, ~scale_l[3]};
 
 wire [ACCW-1:0] nxt = acc + STEP[ACCW-1:0];
 
@@ -91,12 +93,12 @@ reg  [  HW-1:0] extra_px;
 reg  [ SAW-1:0] sync_dly;
 
 always @(posedge clk) begin : dly_pipe
-    reg [    3:0] absc;
+    reg [    4:0] absc;
     reg [ PW-1:0] prod;
     reg [HW+4:0]  dly_f;
     reg [HW+3:0]  dly_h;
-    absc = scale_l[3] ? -scale_l : scale_l;
-    period <= DIV[ACCW-1:0] * (STEP[ACCW-1:0] + {{ACCW-4{scale_l[3]}}, scale_l});
+    absc = escale[4] ? -escale : escale;
+    period <= DIV[ACCW-1:0] * (STEP[ACCW-1:0] + {{ACCW-5{escale[4]}}, escale});
     prod = nactive * absc;
     extra_px <= prod[PW-1:SLOG];
     // uses registered extra_px, so sync_dly settles one clock after extra_px
@@ -106,7 +108,7 @@ always @(posedge clk) begin : dly_pipe
                 dly_h == 0    ? {{SAW-1{1'b0}}, 1'b1} : dly_h[SAW-1:0];
 end
 
-wire bypass = ~enable_l | scale_l==0,
+wire bypass = ~enable_l,
      hs_pos = hs_in & ~hs_l,
      push   = ce_in & de_in & ~bypass,
      pop    = ce_slow & started & rcnt<wcnt;
@@ -161,7 +163,7 @@ always @(posedge clk) begin
         fifo_de   <= 0;
         fifo_dout <= 0;
     end else begin
-        if( !started && wcnt>(scale_l[3] ? extra_px : {HW{1'b0}}) ) started <= 1;
+        if( !started && wcnt>(escale[4] ? extra_px : {HW{1'b0}}) ) started <= 1;
         if( ce_slow ) begin
             fifo_de <= pop;
             if( pop ) begin

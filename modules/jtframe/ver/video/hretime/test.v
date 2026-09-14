@@ -144,14 +144,18 @@ end endtask
 initial begin
     enable = 0;
     scale  = 0;
+    sc     = 0;
     repeat(3) wait_line;
-    // bypass must be transparent
-    enable   = 1;
+    // bypass (enable off) must be transparent
     check_en = 1;
     repeat(3) wait_line;
+    check_en = 0;
+    enable   = 1;
+    repeat(5) wait_line;
+    // sweep -8..+8 effective: input -8..+7 maps to effective -8..-1,+1..+8
     for( sweep=-8; sweep<8; sweep=sweep+1 ) begin
         check_en = 0;
-        sc       = sweep;
+        sc       = sweep < 0 ? sweep : sweep+1;  // effective scale for checks
         scale    = sweep[3:0];
         repeat(5) wait_line;    // scale_l latches at hsync + pipeline settle
         check_en = 1;
@@ -159,7 +163,7 @@ initial begin
     end
     // ---- mid-line enable toggle: latched at hsync, current line unaffected ----
     check_en = 0;
-    sc    = 4;
+    sc    = 5;       // input 4 → effective +5
     scale = 4;
     repeat(6) wait_line;
     check_en = 1;
@@ -174,18 +178,18 @@ initial begin
     check_en = 0;
 
     // ---- mid-line scale change: latched at hsync, current line keeps old scale ----
-    sc    = 3;
+    sc    = 4;       // input 3 → effective +4
     scale = 3;
     repeat(6) wait_line;
     check_en = 1;
     repeat(2) wait_line;
     @(posedge clk) while( hcnt!=HACTIVE/2 ) @(posedge clk);
     scale = -3;
-    // scale_l stays 3 until next hsync
-    repeat(2) wait_line;
+    // scale_l stays 3 until next hsync, so this line completes at old scale
+    repeat(1) wait_line;
     check_en = 0;
     // now let scale_l=-3 settle and verify
-    sc    = -3;
+    sc    = -3;      // input -3 → effective -3
     repeat(6) wait_line;
     check_en = 1;
     repeat(3) wait_line;
