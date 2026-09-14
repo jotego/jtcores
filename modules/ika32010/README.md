@@ -58,5 +58,4 @@ as its third instruction.
 ## Tests
 
 `ver/lint` elaborates the core, resets it and checks that it fetches a ROM of
-zeros sequentially. The core is exercised in circuit by the Wardner DSP benches
-in `cores/wardner/ver/dsp`, which compare it against a C transcription of MAME.
+zeros sequentially.

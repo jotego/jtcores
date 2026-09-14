@@ -110,8 +110,7 @@ wire [8:0] tx_pxl;
 //
 // The ROM byte order is the last difference: jtframe_tilemap builds the pen from
 // plane 0 upwards, the Toaplan ROMs the other way round, so the word is
-// reversed here rather than in the MRA - which keeps render_ref.py, and the
-// frame diff against it, an independent check of this code.
+// reversed here rather than in the MRA.
 wire [8:0] bg_scrx_eff = flip ? bg_scrx[8:0] - 9'd67 : bg_scrx[8:0] + 9'd64;
 wire [8:0] bg_scry_eff = flip ? bg_scry[8:0] - 9'd29 : bg_scry[8:0] + 9'd30;
 wire [11:0] bg_vaddr_lo;
