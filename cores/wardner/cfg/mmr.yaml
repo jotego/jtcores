@@ -1,0 +1,15 @@
+# Scroll position and tile map pointer of one tile layer. The main CPU writes
+# them a byte at a time at ports 10-15 (text), 20-25 (background) and 30-35
+# (foreground).
+- name: scroll
+  size: 6
+  regs:
+    - name: scrx
+      dw: 16
+      at: "1,0"
+    - name: scry
+      dw: 16
+      at: "3,2"
+    - name: offs
+      dw: 16
+      at: "5,4"

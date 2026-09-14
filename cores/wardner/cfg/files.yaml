@@ -2,6 +2,7 @@ wardner:
   - get:
     - jtwardner_game.v
     - jtwardner_main.v
+    - jtwardner_scroll_mmr.v
     - jtwardner_sound.v
     - jtwardner_video.v
     - jtwardner_obj.v

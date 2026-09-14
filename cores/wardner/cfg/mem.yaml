@@ -90,6 +90,23 @@ bram:
     dout: shared_dout
     we: mshr_we
     dual_port: { name: sndshr, addr: shr_addr, din: shr_dout, dout: shr_din, we: shr_we, rw: true }
+  # sound CPU RAM at 8000-807F and C800-CFFF
+  - name: sndram
+    addr_width: 7
+    data_width: 8
+    rw: true
+    addr: sndram_addr
+    din: shr_dout
+    dout: sndram_dout
+    we: sndram_we
+  - name: sndwram
+    addr_width: 11
+    data_width: 8
+    rw: true
+    addr: sndwram_addr
+    din: shr_dout
+    dout: sndwram_dout
+    we: sndwram_we
   # tile maps. A word address is latched through ports 14/15, 24/25 and 34/35,
   # then the data moves a byte at a time through ports 60-65.
   - name: txram

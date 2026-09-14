@@ -37,7 +37,7 @@ module jttoaplan1_dsp #(parameter TWINCOBR=0) (
 
     // window into host memory. host_sel names which of the host's RAMs the
     // DSP is pointing at; the address is a 16-bit word index into it.
-    output     [12:0] host_addr,
+    output     [13:1] host_addr,
     output reg [ 1:0] host_sel,
     output     [15:0] host_dout,
     input      [15:0] host_din,
@@ -45,19 +45,7 @@ module jttoaplan1_dsp #(parameter TWINCOBR=0) (
 
     // DSP program ROM
     output     [11:0] rom_addr,
-    input      [15:0] rom_data,
-
-    // observation points for the transaction bench
-    output            dbg_bio,
-    output            dbg_exec,
-    output            dbg_rd,       // a host read completed this cen
-    output            dbg_wr,       // a host write completed this cen
-    output            dbg_p0,       // the window was re-pointed
-    output            dbg_p3,       // a control word went to port 3
-    output     [15:0] dbg_pdout,
-    output            dbg_pwr,      // the core's raw port-write strobe
-    output      [1:0] dbg_sel_new,  // decode of the word being written to port 0
-    output     [12:0] dbg_addr_new
+    input      [15:0] rom_data
 );
 
 // host_sel encoding
@@ -112,17 +100,6 @@ assign host_addr = addr_l;
 assign host_dout = pdout;
 assign host_we   = dsp_step & pwr & (pa == 3'd1) & (host_sel != SEL_NONE);
 assign pdin      = (pa == 3'd1 && host_sel != SEL_NONE) ? host_din : 16'd0;
-
-assign dbg_bio  = bio;
-assign dbg_exec = execute;
-assign dbg_rd   = dsp_step & prd & (pa == 3'd1);
-assign dbg_wr   = host_we;
-assign dbg_p0   = dsp_step & pwr & (pa == 3'd0);
-assign dbg_p3   = dsp_step & pwr & (pa == 3'd3);
-assign dbg_pdout    = pdout;
-assign dbg_pwr      = pwr;
-assign dbg_sel_new  = sel_new;
-assign dbg_addr_new = off_new;
 
 // ------------------------------------------------------------- the handshake
 // Raising the run bit interrupts the DSP and stops the host. MAME holds INT

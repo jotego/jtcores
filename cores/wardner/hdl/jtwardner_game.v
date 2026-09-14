@@ -28,7 +28,7 @@ module jtwardner_game(
 
 // ---- main CPU to DSP
 wire        dsp_on, dsp_halt, dsp_we;
-wire [12:0] dsp_addr;
+wire [13:1] dsp_addr;
 wire [ 1:0] dsp_sel;
 wire [15:0] dsp_dout, dsp_din;
 
@@ -43,7 +43,6 @@ wire        flip, bg_bank, fg_bank, video_on;
 // nothing.
 wire [10:0] pal_vaddr_vid;
 
-wire [ 7:0] dipsw_a, dipsw_b, cab_sys, cab_joy1, cab_joy2;
 // the DSP addresses 4096 words; the mask ROM region holds 2048
 wire [11:0] dsp_rom_addr;
 wire        obj_ovf, sample;
@@ -52,7 +51,6 @@ wire        obj_ovf, sample;
 // bus address is {sprite, row, half}; the tile maps ask for {tile, row}
 wire [15:0] fg_full_addr;
 
-assign { dipsw_b, dipsw_a } = dipsw[15:0];
 `ifdef JTFRAME_IOCTL_RD
     assign pal_vaddr = ioctl_ram ? ioctl_addr[11:1] : pal_vaddr_vid;
     assign ioctl_din = ioctl_addr[0] ? pal_vq[15:8] : pal_vq[7:0];
@@ -62,27 +60,6 @@ assign { dipsw_b, dipsw_a } = dipsw[15:0];
 assign dip_flip = flip;
 assign pxl_cen  = cen7;
 assign pxl2_cen = cen14;
-
-// The Toaplan cabinet ports read active high, JTFRAME's inputs are active low.
-// SYSTEM (wardner.cpp): 0 service, 1 tilt, 2 test, 3 coin1, 4 coin2,
-// 5 start1, 6 start2, 7 vertical blanking - and the main CPU substitutes
-// blanking for bit 7 itself, so it is left at zero here.
-//
-// dip_test and tilt are active low like the rest: jtframe_dip.v says of
-// dip_test "assumes it is always active low" and drives it to zero to assert
-// test in simulation, and the CPS cores tie an unused tilt to 1'b1. Passing
-// either through uninverted asserts TEST and TILT on the board permanently.
-assign cab_sys = { 1'b0, ~cab_1p[1], ~cab_1p[0], ~coin[1], ~coin[0],
-                   ~dip_test, ~tilt, ~service };
-
-// Toaplan player ports read active high: 0 up, 1 down, 2 left, 3 right,
-// 4 button 1, 5 button 2, 6 skip video RAM tests - left inactive so they run.
-// jtframe supplies up, down, left, right in bits 3 down to 0, so the direction
-// nibble is reversed. The buttons line up as they are.
-assign cab_joy1 = { 2'b00, ~joystick1[5], ~joystick1[4],
-                    ~joystick1[0], ~joystick1[1], ~joystick1[2], ~joystick1[3] };
-assign cab_joy2 = { 2'b00, ~joystick2[5], ~joystick2[4],
-                    ~joystick2[0], ~joystick2[1], ~joystick2[2], ~joystick2[3] };
 
 // Both memory ports are one bit narrower than what drives them. dsprom_addr is
 // [11:1] because the DSP addresses 4096 words and the mask ROM holds 2048.
@@ -147,18 +124,14 @@ jtwardner_main u_main(
     .video_on   ( video_on      ),
 
 
-    .dipsw_a    ( dipsw_a       ),
-    .dipsw_b    ( dipsw_b       ),
-    .joy1       ( cab_joy1      ),
-    .joy2       ( cab_joy2      ),
-    .cab_sys    ( cab_sys       ),
-
-    .dbg_iowr   (               ),
-    .dbg_iord   (               ),
-    .dbg_port   (               ),
-    .dbg_data   (               ),
-    .dbg_pc_addr(               ),
-    .dbg_m1     (               )
+    .dipsw      ( dipsw[15:0]   ),
+    .joystick1  ( joystick1[5:0]),
+    .joystick2  ( joystick2[5:0]),
+    .cab_1p     ( cab_1p[1:0]   ),
+    .coin       ( coin[1:0]     ),
+    .service    ( service       ),
+    .tilt       ( tilt          ),
+    .dip_test   ( dip_test      )
 );
 
 /* verilator tracing_off */
@@ -177,13 +150,7 @@ jttoaplan1_dsp #(.TWINCOBR(0)) u_dsp(
     .host_we    ( dsp_we        ),
 
     .rom_addr   ( dsp_rom_addr  ),
-    .rom_data   ( dsprom_data   ),
-
-    .dbg_bio    (               ),  .dbg_exec   (   ),
-    .dbg_rd     (               ),  .dbg_wr     (   ),
-    .dbg_p0     (               ),  .dbg_p3     (   ),
-    .dbg_pdout  (               ),  .dbg_pwr    (   ),
-    .dbg_sel_new(               ),  .dbg_addr_new(  )
+    .rom_data   ( dsprom_data   )
 );
 
 /* verilator tracing_off */
@@ -202,14 +169,16 @@ jtwardner_sound u_sound(
     .shr_din    ( shr_din       ),
     .shr_we     ( shr_we        ),
 
-    .snd        ( fm            ),
-    .sample     ( sample        ),
+    .ram_addr   ( sndram_addr   ),
+    .ram_we     ( sndram_we     ),
+    .ram_dout   ( sndram_dout   ),
 
-    .dbg_fmwr   (               ),
-    .dbg_fmdata (               ),
-    .dbg_fmaddr (               ),
-    .dbg_pc_addr(               ),
-    .dbg_m1     (               )
+    .wram_addr  ( sndwram_addr  ),
+    .wram_we    ( sndwram_we    ),
+    .wram_dout  ( sndwram_dout  ),
+
+    .snd        ( fm            ),
+    .sample     ( sample        )
 );
 
 /* verilator tracing_on */
