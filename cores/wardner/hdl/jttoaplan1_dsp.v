@@ -6,7 +6,7 @@
  * Wraps the TMS320C10 with the glue the arcade board puts around it: the
  * window through which the DSP reaches the host CPU's memory, the polled BIO
  * handshake, and the interlock that stops the host CPU while the DSP works.
- * The DSP itself is IKA32010 (modules/ika32010), connected by its pins.
+ * The DSP is jtframe_tms32010.
  *
  * How the two processors share the bus
  * ------------------------------------
@@ -71,17 +71,9 @@ reg         bio, execute;
 reg         on_l;
 reg  [ 3:0] int_cnt;
 
-wire [11:0] aout;
 wire [15:0] pdout, pdin;
-wire        den_n, we_n, clkout_ncen;
-
-// The C10's port address is on the low three address lines during IN and OUT.
-// WE_n is low for exactly one CLKIN enable of an OUT cycle, the one on which
-// DOUT is valid, and IN data is latched on the CLKOUT falling edge while DEN_n
-// is low, so both strobes come straight from the pins.
-wire [ 2:0] pa  = aout[2:0];
-wire        pwr = ~we_n;
-wire        prd = ~den_n & clkout_ncen;
+wire [ 2:0] pa;
+wire        pwr, prd;
 
 // ---------------------------------------------------------- address decode
 // Wardner: seg = data & 0xe000, with 0x6000 folded onto 0x7000; because
@@ -190,26 +182,20 @@ always @(posedge clk) begin
     end
 end
 
-// IKA32010 clears its clock divider only on a clock enable, so the enable is
-// kept running during reset; afterwards the run bit gates the DSP's clock.
-IKA32010 u_ika(
-    .i_EMUCLK       ( clk                   ),
-    .i_CLKIN_PCEN   ( cen & (dsp_on | rst)  ),
-    .o_CLKOUT       (                       ),
-    .o_CLKOUT_PCEN  (                       ),
-    .o_CLKOUT_NCEN  ( clkout_ncen           ),
-    .i_RS_n         ( ~rst                  ),
-    .o_MEN_n        (                       ),
-    .o_DEN_n        ( den_n                 ),
-    .o_WE_n         ( we_n                  ),
-    .o_AOUT         ( aout                  ),
-    .i_DIN          ( den_n ? rom_data : pdin ),
-    .o_DOUT         ( pdout                 ),
-    .o_DOUT_OE      (                       ),
-    .i_BIO_n        ( ~bio                  ),  // BIOZ branches while bio is set
-    .i_INT_n        ( int_n                 )
+jtframe_tms32010 u_cpu(
+    .rst        ( rst       ),
+    .clk        ( clk       ),
+    .cen        ( cen       ),
+    .hold       ( ~dsp_on   ),
+    .int_n      ( int_n     ),
+    .bio_n      ( ~bio      ),  // BIOZ branches while bio is set
+    .rom_addr   ( rom_addr  ),
+    .rom_data   ( rom_data  ),
+    .port       ( pa        ),
+    .din        ( pdin      ),
+    .dout       ( pdout     ),
+    .wr         ( pwr       ),
+    .rd         ( prd       )
 );
-
-assign rom_addr = aout;
 
 endmodule

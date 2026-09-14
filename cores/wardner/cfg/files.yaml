@@ -7,9 +7,6 @@ wardner:
     - jtwardner_obj.v
     - jtwardner_colmix.v
     - jttoaplan1_dsp.v
-ika32010:
-  - get:
-    - IKA32010.sv
 jtframe:
   - from: ram
     get:
@@ -22,6 +19,7 @@ jtframe:
   - from: cpu
     get:
       - jtframe_z80.yaml
+      - jtframe_tms32010.yaml
 jtopl:
   - get:
     - jtopl2.yaml
