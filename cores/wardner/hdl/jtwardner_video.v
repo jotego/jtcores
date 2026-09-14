@@ -12,15 +12,12 @@
  *   - a tilemap pixel at screen (x,y) comes from pixmap column x+55+scrollx
  *     and row y+30+scrolly, wrapping at the map size;
  *   - the background is opaque, foreground and text are transparent on pen 0;
- *   - sprites are ordered so that entry 0 ends on top. A sprite pixel is
+ *   - sprites are ordered so that entry 0 ends on top, and a sprite pixel is
  *     hidden by the foreground and text layers according to its 2-bit
- *     priority, but only where it is the first sprite to touch that pixel:
- *     MAME marks every touched pixel as priority 31 whether it drew or not,
- *     after which nothing blocks later sprites there. The line buffer keeps a
- *     "multi" bit per pixel to reproduce that.
+ *     priority.
  *
- * Sprites are taken from a copy of the object RAM made when vertical
- * blanking starts, like the buffered sprite RAM on the board.
+ * Sprites are taken from a copy of the object RAM made during vertical
+ * blanking, like the buffered sprite RAM on the board.
  *
  * Pipeline: a pixel's layer data is valid while hdump holds its position;
  * the mixer registers the palette address on the next pixel enable and the
@@ -49,7 +46,11 @@ module jtwardner_video(
     output     [12:0] bg_vaddr,  input [15:0] bg_vq,
     output     [11:0] fg_vaddr,  input [15:0] fg_vq,
     output     [10:0] pal_vaddr, input [15:0] pal_vq,
-    output     [10:0] obj_vaddr, input [15:0] obj_vq,
+    output     [11:1] obj_vaddr, input [15:0] obj_vq,
+    output     [11:1] objcpy_addr,
+    output     [ 1:0] objcpy_we,
+    output     [11:1] objscan_addr,
+    input      [15:0] objscan_q,
 
     // graphics ROMs: one tile row per 32-bit word, a byte per plane (byte 0 is
     // plane 0), MSB is the leftmost pixel. Address is {tile, row} for 8x8
@@ -62,8 +63,7 @@ module jtwardner_video(
 
     output            LVBL, LHBL, HS, VS,
     output     [ 8:0] hdump, vdump,
-    output     [ 4:0] red, green, blue,
-    output            obj_ovf           // a line ran out of sprite time (sticky)
+    output     [ 4:0] red, green, blue
 );
 
 wire [8:0] vrender, vrender1;
@@ -175,14 +175,27 @@ jtframe_scroll #(
 );
 
 // ---- sprites
-wire [12:0] obj_pxl;                    // {multi, prio[1:0], colour[5:0], pen[3:0]}
+wire [11:0] obj_pxl;
 
 jtwardner_obj u_obj(
-    .rst(rst), .clk(clk), .pxl_cen(pxl_cen),
-    .LVBL(LVBL), .hdump(hdump), .vrender(vrender),
-    .ram_addr(obj_vaddr), .ram_q(obj_vq),
-    .rom_addr(obj_addr), .rom_data(obj_data), .rom_cs(obj_cs), .rom_ok(obj_ok),
-    .pxl(obj_pxl), .ovf(obj_ovf)
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .pxl_cen    ( pxl_cen       ),
+    .hs         ( HS            ),
+    .LVBL       ( LVBL          ),
+    .hdump      ( hdump         ),
+    .vrender    ( vrender       ),
+    .ram_addr   ( obj_vaddr     ),
+    .ram_dout   ( obj_vq        ),
+    .cpy_addr   ( objcpy_addr   ),
+    .cpy_we     ( objcpy_we     ),
+    .scan_addr  ( objscan_addr  ),
+    .scan_dout  ( objscan_q     ),
+    .rom_addr   ( obj_addr      ),
+    .rom_data   ( obj_data      ),
+    .rom_cs     ( obj_cs        ),
+    .rom_ok     ( obj_ok        ),
+    .pxl        ( obj_pxl       )
 );
 
 // ---- mixer, then palette

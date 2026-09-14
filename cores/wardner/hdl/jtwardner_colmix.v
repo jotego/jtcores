@@ -14,7 +14,7 @@ module jtwardner_colmix(
 
     input      [ 7:0] bg_pxl, fg_pxl,
     input      [ 8:0] tx_pxl,
-    input      [12:0] obj_pxl,          // {multi, prio[1:0], colour[5:0], pen[3:0]}
+    input      [11:0] obj_pxl,          // {prio[1:0], colour[5:0], pen[3:0]}
 
     output reg [10:0] pal_vaddr, input [15:0] pal_vq,
     output reg [ 4:0] red, green, blue
@@ -31,12 +31,10 @@ wire fg_hit  = fg_pxl[3:0]  != 4'd0 && gfx_en[2];
 wire tx_hit  = tx_pxl[2:0]  != 3'd0 && gfx_en[0];   // characters have three planes
 wire obj_hit = obj_pxl[3:0] != 4'd0 && gfx_en[3];
 wire [1:0] obj_prio  = obj_pxl[11:10];
-wire       obj_multi = obj_pxl[12];
 
-// MAME pmasks: prio 1 hidden by fg or text, 2 by text, 3 never; a pixel a
-// previous sprite touched is never hidden
+// prio 1 hidden by fg or text, 2 by text, 3 never
 wire obj_show = obj_hit && (
-        obj_multi || obj_prio == 2'd3 ||
+        obj_prio == 2'd3 ||
         (obj_prio == 2'd2 && !tx_hit) ||
         (obj_prio == 2'd1 && !tx_hit && !fg_hit) );
 

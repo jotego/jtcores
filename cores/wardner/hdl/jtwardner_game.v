@@ -45,7 +45,7 @@ wire [10:0] pal_vaddr_vid;
 
 // the DSP addresses 4096 words; the mask ROM region holds 2048
 wire [11:0] dsp_rom_addr;
-wire        obj_ovf, sample;
+wire        sample;
 
 // the sprite generator asks for a 16-pixel row as two 32-bit halves, so the
 // bus address is {sprite, row, half}; the tile maps ask for {tile, row}
@@ -69,7 +69,7 @@ assign pxl2_cen = cen14;
 assign fg_addr     = fg_full_addr[14:0];
 assign dsprom_addr = dsp_rom_addr[10:0];
 
-assign debug_view = { 3'd0, obj_ovf, dsp_halt, dsp_on, flip, video_on };
+assign debug_view = { 4'd0, dsp_halt, dsp_on, flip, video_on };
 
 /* verilator tracing_off */
 jtwardner_main u_main(
@@ -201,6 +201,10 @@ jtwardner_video u_video(
     .fg_vaddr   ( fg_vaddr      ),  .fg_vq  ( fg_vq  ),
     .pal_vaddr  ( pal_vaddr_vid ),  .pal_vq ( pal_vq ),
     .obj_vaddr  ( obj_vaddr     ),  .obj_vq ( obj_vq ),
+    .objcpy_addr( objcpy_addr   ),
+    .objcpy_we  ( objcpy_we     ),
+    .objscan_addr( objscan_addr ),
+    .objscan_q  ( objscan_q     ),
 
     .char_addr  ( char_addr     ),
     .char_data  ( char_data     ),
@@ -230,8 +234,7 @@ jtwardner_video u_video(
     .vdump      (               ),
     .red        ( red           ),
     .green      ( green         ),
-    .blue       ( blue          ),
-    .obj_ovf    ( obj_ovf       )
+    .blue       ( blue          )
 );
 
 endmodule

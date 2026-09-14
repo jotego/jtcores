@@ -12,11 +12,11 @@ jtframe:
   - from: ram
     get:
       - jtframe_dual_ram.v
-      - jtframe_obj_buffer.v
   - from: video
     get:
       - jtframe_vtimer.v
       - jtframe_scroll.yaml
+      - jtframe_obj.yaml
   - from: cpu
     get:
       - jtframe_z80.yaml
