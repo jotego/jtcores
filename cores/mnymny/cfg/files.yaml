@@ -1,0 +1,36 @@
+mnymny:
+  - get:
+    - jtmnymny_*.v
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_nvram.v
+      - jtframe_obj_buffer.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_scroll.yaml
+      - jtframe_objdraw.v
+      - jtframe_objdraw_gate.v
+      - jtframe_draw.v
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+jt8255:
+jt680x:
+  - get:
+    - jt6801.yaml
+jt12:
+  - get:
+    - jt49.yaml
