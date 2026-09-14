@@ -9,10 +9,9 @@ JTFRAME_COLORW=5
 
 # The board has two crystals: 24 MHz, divided by four for the main Z80, and
 # 14 MHz, halved twice for the 7 MHz pixel clock and the 3.5 MHz audio clock.
-# 24 and 14 have no common integer divisor that jtframe offers, so one of the
-# two families has to be fractional. On MiSTer the base clock follows the
-# 14 MHz crystal (see [mister] below), which keeps the pixel clock regular;
-# elsewhere the default 48 MHz base keeps the Z80 regular instead.
+# The base clock is a multiple of 7 MHz so the pixel clock enable is regular
+# and the Z80's 6 MHz is the fractional one: 56 MHz on MiSTer, 49 MHz on
+# SiDi128, whose game PLL does not lock above 54 MHz. Pocket keeps 48 MHz.
 
 # SDRAM
 JTFRAME_BA1_START=0x040000
@@ -34,16 +33,15 @@ JTFRAME_IOCTL_RD=4096
 [mister]
 JTFRAME_ARX=4
 JTFRAME_ARY=3
-# 56 MHz base, eight times the pixel clock, so 14, 7 and 3.5 MHz are exact
-# divides and their clock enables are evenly spaced. The Z80's 6 MHz becomes
-# 3/28 of the base: exact on average, unevenly spaced, which a CPU does not
-# notice. This PLL only exists on MiSTer.
 JTFRAME_PLL=jtframe_pll7000
 # jtframe_pll7000 drives its SDRAM clock output at 45 degrees, where the SDRAM
 # controller otherwise assumes the default PLL's 0. JTFRAME_180SHIFT drives the
 # pin from a DDIO cell at 180 degrees instead and tells the controller so,
 # which is a consistent pairing - the one cps3 uses with the same PLL.
 JTFRAME_180SHIFT
+
+[sidi128]
+JTFRAME_PLL=jtframe_pll6125
 
 [mist|sidi]
 # the tile, sprite, palette and DSP memories do not fit in an EP3C25
