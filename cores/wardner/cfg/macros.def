@@ -4,16 +4,11 @@ JTFRAME_RATE=54.878
 JTFRAME_BUTTONS=2
 JTFRAME_WIDTH=320
 JTFRAME_HEIGHT=240
-# palette RAM holds xBGR555
 JTFRAME_COLORW=5
 
-# The board has two crystals: 24 MHz, divided by four for the main Z80, and
-# 14 MHz, halved twice for the 7 MHz pixel clock and the 3.5 MHz audio clock.
-# The base clock is a multiple of 7 MHz so the pixel clock enable is regular
-# and the Z80's 6 MHz is the fractional one: 56 MHz on MiSTer, 49 MHz on
-# SiDi128, whose game PLL does not lock above 54 MHz. Pocket keeps 48 MHz.
+# Base clock: 56 MHz on MiSTer, 49 MHz on SiDi128, so the 7 MHz pixel clock is
+# an integer division. SiDi128's game PLL does not lock above 54 MHz.
 
-# SDRAM
 JTFRAME_BA1_START=0x040000
 DSP_START=0x048000
 JTFRAME_BA2_START=0x049000
@@ -22,27 +17,18 @@ FG_START=0x079000
 JTFRAME_BA3_START=0x099000
 JTFRAME_PROM_START=0x0D9000
 
-# Palette readback for debugging. IOCTL_RD supplies the data - 4096 bytes, the
-# whole palette RAM - and jtsim's -dump reads it out to dump.bin, which is how
-# the core's palette was shown to be byte-identical to MAME's. Reaching it from
-# the OSD on real hardware additionally needs JTFRAME_SAVEGAME, whose port
-# interface (sav_change, sav_wait, sav_done, sav_ack and the address and data
-# buses) is a full handshake this core does not implement.
+# palette readback, for jtsim -dump
 JTFRAME_IOCTL_RD=4096
 
 [mister]
 JTFRAME_ARX=4
 JTFRAME_ARY=3
 JTFRAME_PLL=jtframe_pll7000
-# jtframe_pll7000 drives its SDRAM clock output at 45 degrees, where the SDRAM
-# controller otherwise assumes the default PLL's 0. JTFRAME_180SHIFT drives the
-# pin from a DDIO cell at 180 degrees instead and tells the controller so,
-# which is a consistent pairing - the one cps3 uses with the same PLL.
+# jtframe_pll7000's SDRAM clock output is at 45 degrees, as in cps3
 JTFRAME_180SHIFT
 
 [sidi128]
 JTFRAME_PLL=jtframe_pll6125
 
 [mist|sidi]
-# the tile, sprite, palette and DSP memories do not fit in an EP3C25
 JTFRAME_SKIP
