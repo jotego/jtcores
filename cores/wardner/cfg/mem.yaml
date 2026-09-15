@@ -1,17 +1,11 @@
 params:
-  # >>1 because jtframe_romrq_bcache adds the offset to an address it has
-  # already reduced to 16-bit words, whatever the slot's data width
   - { name: BG_OFFSET,  value: "(`BG_START-`JTFRAME_BA2_START)>>1" }
   - { name: FG_OFFSET,  value: "(`FG_START-`JTFRAME_BA2_START)>>1" }
 clocks:
   clk48:
-    # main Z80: 24 MHz crystal / 4
     - freq: 6M
       outputs:
         - cen6
-    # the 14 MHz crystal, halved twice by the board. Given as a frequency so it
-    # is exact on whichever base the target's PLL provides: 1/4 of 56 MHz on
-    # MiSTer, 7/24 of 48 MHz elsewhere
     - freq: 14M
       outputs:
         - cen14           # TMS320C10
@@ -24,7 +18,6 @@ audio:
     - { name: fm, module: jtopl, rsum: 6.2k, rc: [{ r: 1rout, c: 1n }] }
 sdram:
   banks:
-    # main Z80: 28 kB fixed plus eight 32 kB banks, sparse
     - buses:
         - name: main
           addr_width: 18
@@ -33,7 +26,6 @@ sdram:
         - name: snd
           addr_width: 15
           data_width: 8
-    # tile ROMs, planes interleaved so one 32-bit read is one 8-pixel row
     - buses:
         - name: char
           addr_width: 16        # 16384 rows of 32 bits
@@ -51,9 +43,6 @@ sdram:
           addr_width: 18        # 65536 rows, 16x16 sprites are two per row
           data_width: 32
 bram:
-  # The Z80 reaches this a byte at a time through A[0], the DSP a whole word at
-  # a time while it holds the Z80 halted, so it is one 16-bit memory with byte
-  # write enables rather than a pair of byte-wide blocks.
   - name: work
     addr_width: 12
     data_width: 16
@@ -71,7 +60,6 @@ bram:
     dout: objram_dout
     we: obj_bwe
     dual_port: { name: objvid, addr: obj_vaddr, dout: obj_vq }
-  # sprite RAM copied during vertical blanking, read by the sprite scan
   - name: objbuf
     addr_width: 12
     data_width: 16
@@ -90,7 +78,6 @@ bram:
     dout: pal_dout
     we: pal_bwe
     dual_port: { name: palvid, addr: pal_vaddr, dout: pal_vq }
-  # byte wide on both sides: the sound CPU sees the bytes the main Z80 writes
   - name: shared
     addr_width: 11
     data_width: 8
@@ -100,7 +87,6 @@ bram:
     dout: shared_dout
     we: mshr_we
     dual_port: { name: sndshr, addr: shr_addr, din: shr_dout, dout: shr_din, we: shr_we, rw: true }
-  # sound CPU RAM at 8000-807F and C800-CFFF
   - name: sndram
     addr_width: 7
     data_width: 8
@@ -117,8 +103,6 @@ bram:
     din: shr_dout
     dout: sndwram_dout
     we: sndwram_we
-  # tile maps. A word address is latched through ports 14/15, 24/25 and 34/35,
-  # then the data moves a byte at a time through ports 60-65.
   - name: txram
     addr_width: 12
     data_width: 16
@@ -146,7 +130,6 @@ bram:
     dout: fgram_dout
     we: fg_bwe
     dual_port: { name: fgvid, addr: fg_vaddr, dout: fg_vq }
-  # TMS320C10 mask ROM
   - name: dsprom
     addr_width: 12          # 0x1000 bytes = 2048 words
     data_width: 16

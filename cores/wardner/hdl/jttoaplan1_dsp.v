@@ -1,60 +1,39 @@
 /* SPDX-FileCopyrightText: 2026 Marc Emmerson
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * Toaplan TP-009 / Twin Cobra DSP subsystem.
+ * Toaplan TP-009 / Twin Cobra DSP subsystem: the TMS320C10 and the glue that
+ * lets it reach the host CPU's RAM while the host is halted.
  *
- * Wraps the TMS320C10 with the glue the arcade board puts around it: the
- * window through which the DSP reaches the host CPU's memory, the polled BIO
- * handshake, and the interlock that stops the host CPU while the DSP works.
- * The DSP is jtframe_tms32010.
- *
- * How the two processors share the bus
- * ------------------------------------
- * They never run together. Writing a 1 to the run bit does three things at
- * once: it lets the DSP out of reset, raises its interrupt, and asserts the
- * host CPU's HALT line. The DSP then walks the host's address space as the
- * only master. When its routine is done it writes a zero into the first few
- * words of host work RAM, which arms an "execute" flag, and then writes zero
- * to its port 3 - and *that* is what drops the host's HALT line again.
- *
- * Because of that interlock there is no bus arbitration to build: while
- * halt_main is high the host is stopped, so the DSP's accesses cannot collide
- * with it.
- *
- * The address decode is the only part that differs between boards. Wardner
- * drives a Z80 whose RAM is byte-wide, so it uses an 11-bit word index inside
- * a 4 KB window; Twin Cobra drives a 68000 and uses a 13-bit index inside a
- * 16 KB window. Set TWINCOBR to pick. Only the Wardner decode has been
- * exercised in simulation so far.
+ * Setting the run bit interrupts the DSP and halts the host. The DSP points a
+ * window at host RAM through port 0 and reads or writes it through port 1.
+ * A zero written to work RAM word 0 or 1 arms the release, and a zero written
+ * to port 3 then lets the host run again. TWINCOBR selects the 68000 decode;
+ * only the Wardner decode has been tested.
  */
 module jttoaplan1_dsp #(parameter TWINCOBR=0) (
     input             rst,
     input             clk,
-    input             cen,          // 14 MHz, the DSP's CLKIN
+    input             cen,
 
-    input             dsp_on,       // run bit from the board's LS259
-    output reg        halt_main,    // hold the host CPU
+    input             dsp_on,
+    output reg        halt_main,
 
-    // window into host memory. host_sel names which of the host's RAMs the
-    // DSP is pointing at; the address is a 16-bit word index into it.
     output     [13:1] host_addr,
     output reg [ 1:0] host_sel,
     output     [15:0] host_dout,
     input      [15:0] host_din,
     output            host_we,
 
-    // DSP program ROM
     output     [11:0] rom_addr,
     input      [15:0] rom_data
 );
 
-// host_sel encoding
-localparam [1:0] SEL_WORK = 2'd0,   // Z80 work RAM      (0x7000 on Wardner)
-                 SEL_OBJ  = 2'd1,   // sprite RAM        (0x8000)
-                 SEL_PAL  = 2'd2,   // palette RAM       (0xa000)
+localparam [1:0] SEL_WORK = 2'd0,
+                 SEL_OBJ  = 2'd1,
+                 SEL_PAL  = 2'd2,
                  SEL_NONE = 2'd3;
 
-reg  [12:0] addr_l;                 // latched word index
+reg  [12:0] addr_l;
 reg         bio, execute;
 reg         on_l;
 reg  [ 3:0] int_cnt;
@@ -63,37 +42,23 @@ wire [15:0] pdout, pdin;
 wire [ 2:0] pa;
 wire        pwr, prd;
 
-// ---------------------------------------------------------- address decode
-// Wardner: seg = data & 0xe000, with 0x6000 folded onto 0x7000; because
-// 0x7000 & 0xe000 is itself 0x6000, both land on the same three top bits.
-// The offset is (data & 0x07ff) shifted up one to reach an even byte, which
-// is simply the word index.
-//
-// Twin Cobra: seg = (data & 0xe000) << 3 and offset = (data & 0x1fff) << 1,
-// i.e. the same three select bits over a 13-bit word index.
+// the top three bits of the port 0 word select the RAM, the rest is a word
+// index into it: 11 bits on Wardner, 13 on Twin Cobra
 wire [ 2:0] seg_sel = pdout[15:13];
 wire [12:0] off_new = TWINCOBR ? pdout[12:0] : {2'd0, pdout[10:0]};
 
 reg  [1:0] sel_new;
 always @* begin
     case( seg_sel )
-        3'b011:  sel_new = SEL_WORK;    // 0x6000 and 0x7000
-        3'b100:  sel_new = SEL_OBJ;     // 0x8000
-        3'b101:  sel_new = SEL_PAL;     // 0xa000
-        default: sel_new = SEL_NONE;    // MAME logs these and returns zero
+        3'b011:  sel_new = SEL_WORK;
+        3'b100:  sel_new = SEL_OBJ;
+        3'b101:  sel_new = SEL_PAL;
+        default: sel_new = SEL_NONE;
     endcase
 end
 
-// While the run bit is low the DSP is frozen, and its port strobes hold their
-// last value because the core is not stepping. The wrapper must therefore be
-// gated by exactly the same condition as the core, or a stale strobe would be
-// re-executed on every cen.
+// the port strobes hold while the DSP is frozen, so they are gated the same way
 wire dsp_step = cen & dsp_on;
-
-// The host is released when the DSP writes a zero into word 0 or 1 of work
-// RAM. MAME tests the byte offset for "< 3", and the offset is always even,
-// so that is word index 0 or 1. The window used is the latched one, set by an
-// earlier write to port 0.
 wire exec_hit = (host_sel == SEL_WORK) && (addr_l[12:1] == 12'd0) && (pdout == 16'd0);
 
 assign host_addr = addr_l;
@@ -101,14 +66,9 @@ assign host_dout = pdout;
 assign host_we   = dsp_step & pwr & (pa == 3'd1) & (host_sel != SEL_NONE);
 assign pdin      = (pa == 3'd1 && host_sel != SEL_NONE) ? host_din : 16'd0;
 
-// ------------------------------------------------------------- the handshake
-// Raising the run bit interrupts the DSP and stops the host. MAME holds INT
-// asserted while the run bit is set, and the C10 latches it as pending once.
-// IKA32010 latches a falling edge of INT_n, sampled on the DSP's own clock
-// enable, which stops while the run bit is low: held low for the whole run,
-// the sampler would stay frozen low across the halt and the next activation
-// would present no edge. INT_n is therefore pulsed low for two CLKOUT periods
-// after each rise of the run bit, which sets the same pending flag.
+// INT_n is a short pulse on each rise of the run bit: IKA32010 samples it on
+// the DSP's clock enable, so a level would still be low when the next
+// activation starts and give no edge
 wire on_rise = dsp_on & ~on_l;
 wire int_n   = int_cnt == 4'd0;
 
@@ -126,7 +86,7 @@ always @(posedge clk) begin
 
         if( on_rise ) begin
             int_cnt   <= 4'd8;
-            halt_main <= 1'b1;      // the host stops here
+            halt_main <= 1'b1;
         end else if( dsp_step && int_cnt != 4'd0 ) begin
             int_cnt   <= int_cnt - 4'd1;
         end
@@ -134,19 +94,18 @@ always @(posedge clk) begin
         if( dsp_step ) begin
             if( pwr ) begin
                 case( pa )
-                3'd0: begin         // port 0: point the window
+                3'd0: begin
                     addr_l   <= off_new;
                     host_sel <= sel_new;
                 end
-                3'd1: begin         // port 1: write through to host memory
-                    // the write itself is host_we, driven combinationally
+                3'd1: begin
                     if( exec_hit ) execute <= 1'b1;
                 end
-                3'd3: begin         // port 3: BIO, and the host release
+                3'd3: begin
                     if( pdout[15] ) bio <= 1'b0;
                     if( pdout == 16'd0 ) begin
                         if( execute ) begin
-                            halt_main <= 1'b0;   // the host runs again
+                            halt_main <= 1'b0;
                             execute   <= 1'b0;
                         end
                         bio <= 1'b1;
@@ -165,7 +124,7 @@ jtframe_tms32010 u_cpu(
     .cen        ( cen       ),
     .hold       ( ~dsp_on   ),
     .int_n      ( int_n     ),
-    .bio_n      ( ~bio      ),  // BIOZ branches while bio is set
+    .bio_n      ( ~bio      ),
     .rom_addr   ( rom_addr  ),
     .rom_data   ( rom_data  ),
     .port       ( pa        ),
