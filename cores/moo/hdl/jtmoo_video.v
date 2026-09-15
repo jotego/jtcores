@@ -16,11 +16,7 @@ module jtmoo_video(
     output            hs,
     output            vs,
 
-    output            tile_irqn,
-    output            tile_nmin,
-
     // Object DMA
-    input      [13:1] oram_addr,
     input      [ 1:0] oram_we,
     // CPU interface
     input      [16:1] cpu_addr,
@@ -29,10 +25,18 @@ module jtmoo_video(
     input             cpu_we,
 
     input             pcu_cs,
-    input             col_cs,
+    input             k338_cs,
     input             pal_cs,
-    output     [15:0] pal_dout,
+    output     [15:0] palsys_dout,
     output     [15:0] tilesys_dout,
+
+    // Palette RAM, generated from cfg/mem.yaml
+    output     [ 3:0] pal_we,
+    output     [12:2] pal_addr,
+    output     [31:0] pal_din,
+    input      [31:0] pal_dout,
+    output     [12:2] palrd_addr,
+    input      [31:0] pal_data,
 
     input             cco_cs,
     input             rw,
@@ -47,39 +51,38 @@ module jtmoo_video(
 
     input             scrreg_cs,
     input             scr_cs,
-    input             blnk_sel,
 
-    output reg        vdtac,
+    output            vdtac,
     input             tilesys_cs,
-    output            rst8,     // reset signal at 8th frame
+    input             rmrd_cs,  // graphics ROM read-back window
 
     // control
-    input             rmrd,     // Tile ROM read mode
     output            flip,
     output            int1,
     // Tile ROMs
-    output reg [20:2] lyrf_addr,
-    output reg [20:2] lyra_addr,
-    output reg [20:2] lyrb_addr,
+    output     [20:2] lyrf_addr,
+    output     [20:2] lyra_addr,
+    output     [20:2] lyrb_addr,
+    output     [20:2] lyrc_addr,
     output     [22:2] lyro_addr,
 
     output            lyrf_cs,
     output            lyra_cs,
     output            lyrb_cs,
+    output            lyrc_cs,
     output            lyro_cs,
 
+    input             lyrf_ok,
     input             lyra_ok,
+    input             lyrb_ok,
+    input             lyrc_ok,
     input             lyro_ok,
 
     input      [31:0] lyrf_data,
     input      [31:0] lyra_data,
     input      [31:0] lyrb_data,
+    input      [31:0] lyrc_data,
     input      [31:0] lyro_data,
-
-    // Color
-    input      [ 2:0] dim,
-    input             dimmod,
-    input             dimpol,
 
     output     [ 7:0] red,
     output     [ 7:0] green,
@@ -95,27 +98,20 @@ module jtmoo_video(
     output     [ 7:0] st_dout
 );
 
-wire [15:0] cpu_saddr;
-wire [12:0] pre_f, pre_a, pre_b, ocode;
-wire [11:0] lyra_pxl, lyrb_pxl;
-wire [ 8:0] hdump, vdump, vrender, vrender1, lyro_pxl;
-wire [ 7:0] lyrf_extra, lyrf_col, dump_scr, lyrf_pxl, st_scr,
-            lyra_extra, lyra_col, dump_obj, scr_mmr,  obj_mmr, dump_other,
-            lyrb_extra, lyrb_col, dump_pal, opal,     cpu_d8, pal_mmr;
-wire [ 4:0] obj_prio;
+wire [11:0] lyrf_pxl, lyra_pxl, lyrb_pxl, lyrc_pxl;
+wire [ 8:0] hdump, vdump, lyro_pxl;
+wire [ 7:0] dump_scr, st_scr, dump_obj, scr_mmr, obj_mmr, dump_pal, pal_mmr, ccu_mmr;
+wire [ 4:0] lyro_pri;
 wire [ 1:0] shadow;
-wire [ 3:0] obj_amsb;
-wire        lyrf_blnk_n, nc,
-            lyra_blnk_n, obj_nmin,
-            lyrb_blnk_n,
-            lyro_blnk_n, ormrd,    pre_vdtac,   cpu_weg;
+wire [ 3:0] ommra;
+wire [13:1] orama;
+wire        cpu_weg;
 
-assign cpu_weg    = cpu_we && cpu_dsn!=3;
-assign cpu_saddr  = cpu_addr;
-assign cpu_d8     = cpu_dout[7:0];
-assign dump_other = {2'd0,dimpol, dimmod, 1'b0, dim};
+assign cpu_weg = cpu_we && cpu_dsn!=2'b11;
+// The read-back steals the first tile ROM port, so the CPU waits for it
+assign vdtac   = lyrf_ok;
 
-jtriders_dump #(.FULLRAM(1)) u_dump(
+jtmoo_dump u_dump(
     .clk            ( clk             ),
     .dump_scr       ( dump_scr        ),
     .dump_obj       ( dump_obj        ),
@@ -123,37 +119,24 @@ jtriders_dump #(.FULLRAM(1)) u_dump(
     .pal_mmr        ( pal_mmr         ),
     .scr_mmr        ( scr_mmr         ),
     .obj_mmr        ( obj_mmr         ),
-    .psac_mmr       ( 8'b0            ),
-    .other          ( dump_other      ),
+    .ccu_mmr        ( ccu_mmr         ),
 
     .ioctl_addr     ( ioctl_addr      ),
     .ioctl_din      ( ioctl_din       ),
-    .obj_amsb       ( obj_amsb        ),
-    .part_addr      (                 ),
 
     .debug_bus      ( debug_bus       ),
     .st_scr         ( st_scr          ),
     .st_dout        ( st_dout         )
 );
 
-always @(posedge clk) vdtac <= pre_vdtac; // delay, since cpu_din also delayed
-
-always @* begin
-        lyrf_addr = { lyrf_extra, pre_f[10:0] };
-        lyra_addr = { lyra_extra, pre_a[10:0] };
-        lyrb_addr = { lyrb_extra, pre_b[10:0] };
-end
-
-// video timer
 jtk053252 u_k053252(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
 
-
-    .cs         ( cco_cs        ), // CCO
+    .cs         ( cco_cs        ), // /CC0
     .addr       ( vtimer_addr   ),
-    .rnw        ( rw            ), // R/W (CPU + prot)
+    .rnw        ( rw            ),
     .din        ( cpu_dout[7:0] ),
     .dout       ( vtimer_mmr    ),
 
@@ -172,7 +155,7 @@ jtk053252 u_k053252(
     .int2       (               ),
     // IOCTL dump
     .ioctl_addr ( ioctl_addr[3:0]),
-    .ioctl_din  ( /*ccu_mmr*/       )
+    .ioctl_din  ( ccu_mmr       )
 );
 
 /* verilator tracing_on */
@@ -180,74 +163,48 @@ jtmoo_scroll u_scroll(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
-    .pxl2_cen   ( pxl2_cen  ),
 
-    // Base Video
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
     .hs         ( hs        ),
     .vs         ( vs        ),
+    .hdump      ( hdump     ),
+    .vdump      ( vdump     ),
 
     // CPU interface
-    .cpu_addr   ( cpu_saddr ),
+    .cpu_addr   (cpu_addr[12:1]),
     .cpu_dout   ( cpu_dout  ),
     .cpu_dsn    ( cpu_dsn   ),
     .cpu_we     ( cpu_weg   ),
     .reg_cs     ( scrreg_cs ),
     .gfx_cs     ( tilesys_cs),
     .vram_cs    ( scr_cs    ),
-    .rst8       ( rst8      ),
+    .rmrd_cs    ( rmrd_cs   ),
     .tile_dout  ( tilesys_dout ),
-    .cpu_rom_dtack( pre_vdtac ),
-    // control
-    .rmrd       ( rmrd      ),
-    .hdump      ( hdump     ),
-    .vdump      ( vdump     ),
-    .vrender    ( vrender   ),
-    .vrender1   ( vrender1  ),
-
-    .irq_n      ( tile_irqn ),
-    .firq_n     (           ),
-    .nmi_n      ( tile_nmin ),
     .flip       ( flip      ),
-    .q          (           ),
-    .e          (           ),
-
-    // color byte connection
-    .lyrf_extra ( lyrf_extra),
-    .lyra_extra ( lyra_extra),
-    .lyrb_extra ( lyrb_extra),
-
-    .lyrf_col   ( lyrf_col  ),
-    .lyra_col   ( lyra_col  ),
-    .lyrb_col   ( lyrb_col  ),
-
-    .lyrf_cg    ( lyrf_col  ),
-    .lyra_cg    ( lyra_col  ),
-    .lyrb_cg    ( lyrb_col  ),
 
     // Tile ROMs
-    .lyrf_addr  ( pre_f     ),
-    .lyra_addr  ( pre_a     ),
-    .lyrb_addr  ( pre_b     ),
-
+    .lyrf_addr  ( lyrf_addr ),
+    .lyra_addr  ( lyra_addr ),
+    .lyrb_addr  ( lyrb_addr ),
+    .lyrc_addr  ( lyrc_addr ),
     .lyrf_cs    ( lyrf_cs   ),
     .lyra_cs    ( lyra_cs   ),
     .lyrb_cs    ( lyrb_cs   ),
-
+    .lyrc_cs    ( lyrc_cs   ),
     .lyrf_data  ( lyrf_data ),
     .lyra_data  ( lyra_data ),
     .lyrb_data  ( lyrb_data ),
+    .lyrc_data  ( lyrc_data ),
+    .lyrf_ok    ( lyrf_ok   ),
+    .lyra_ok    ( lyra_ok   ),
+    .lyrb_ok    ( lyrb_ok   ),
+    .lyrc_ok    ( lyrc_ok   ),
 
-    .lyra_ok    ( lyra_ok ),
-
-    // Final pixels
-    .lyrf_blnk_n(lyrf_blnk_n),
-    .lyra_blnk_n(lyra_blnk_n),
-    .lyrb_blnk_n(lyrb_blnk_n),
     .lyrf_pxl   ( lyrf_pxl  ),
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
+    .lyrc_pxl   ( lyrc_pxl  ),
 
     // Debug
     .ioctl_addr ( ioctl_addr[14:0]),
@@ -260,18 +217,13 @@ jtmoo_scroll u_scroll(
     .st_dout    ( st_scr    )
 );
 
-/* verilator tracing_on */
-wire [ 4:0] lyro_pri;
-wire [ 3:0] ommra;
-wire [13:1] orama;
-
 assign ommra = {cpu_addr[3:1],cpu_dsn[1]};
-// xmen never exercises cpu_addr[13], although it is connected to the RAM
-assign orama = cpu_addr[13:1];
+assign orama = {cpu_addr[15:8], cpu_addr[5:1]}; // A6/A7 not connected
 
-localparam [9:0] OVOFFSET=0;// 10'hff;
-
-jtsimson_obj #(.RAMW(13),.SHADOW(1)) u_obj(    // sprite logic
+/* verilator tracing_on */
+jtsimson_obj #(.RAMW(13),.SHADOW(1),.ESTRIDE_LOG2(5),.ENTRY_LOG2(8),
+    .HOFFSET(10'h3e1),                 // MAME dx=-47 at bitmap x 40, hdump base 56
+    .FORCE16(1)) u_obj(     // F10 has both ~UDS/~LDS: board is 16-bit only
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -279,7 +231,7 @@ jtsimson_obj #(.RAMW(13),.SHADOW(1)) u_obj(    // sprite logic
     .simson     ( 1'b0      ),
     .ln_done    (           ),
 
-    .voffset    ( OVOFFSET  ),
+    .voffset    ( 10'h117   ),        // MAME dy=23 at bitmap y 16, vdump base 0x110
     // Base Video (inputs)
     .hs         ( hs        ),
     .lvbl       ( lvbl      ),
@@ -295,7 +247,7 @@ jtsimson_obj #(.RAMW(13),.SHADOW(1)) u_obj(    // sprite logic
     .reg_cs     ( objreg_cs ),
     .mmr_addr   ( ommra     ),
     .mmr_din    ( cpu_dout  ),
-    .mmr_we     ( cpu_we    ), // active on ~dsn[1] but ignores cpu_dout[15:8]
+    .mmr_we     ( cpu_we    ),
     .mmr_dsn    ( cpu_dsn   ),
 
     .dma_bsy    ( dma_bsy   ),
@@ -311,7 +263,7 @@ jtsimson_obj #(.RAMW(13),.SHADOW(1)) u_obj(    // sprite logic
     .prio       ( lyro_pri  ),
     // Debug
     .ioctl_ram  ( ioctl_ram ),
-    .ioctl_addr ( {obj_amsb[1:0],ioctl_addr[11:0]} ),
+    .ioctl_addr ( ioctl_addr[13:0] ),
     .dump_ram   ( dump_obj  ),
     .dump_reg   ( obj_mmr   ),
     .gfx_en     ( gfx_en    ),
@@ -324,33 +276,35 @@ jtmoo_colmix u_colmix(
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
 
-    // Base Video
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
 
     // CPU interface
     .cpu_addr   (cpu_addr[12:1]),
     .cpu_we     ( cpu_weg   ),
-    .cpu_din    ( pal_dout  ),
-    .cpu_d8     ( cpu_d8    ),
+    .cpu_din    ( palsys_dout ),
     .cpu_dout   ( cpu_dout  ),
     .cpu_dsn    ( cpu_dsn   ),
     .pal_cs     ( pal_cs    ),
     .pcu_cs     ( pcu_cs    ),
-    .reg_cs     ( col_cs    ),
+    .reg_cs     ( k338_cs   ),
+
+    // Palette RAM pass-through
+    .pal_we     ( pal_we      ),
+    .pal_addr   ( pal_addr    ),
+    .pal_din    ( pal_din     ),
+    .pal_dout   ( pal_dout    ),
+    .palrd_addr ( palrd_addr  ),
+    .pal_data   ( pal_data    ),
 
     // Final pixels
     .lyrf_pxl   ( lyrf_pxl  ),
     .lyra_pxl   ( lyra_pxl  ),
     .lyrb_pxl   ( lyrb_pxl  ),
+    .lyrc_pxl   ( lyrc_pxl  ),
     .lyro_pxl   ( lyro_pxl  ),
     .lyro_pri   ( lyro_pri  ),
-    .blnk_sel   ( blnk_sel  ),
 
-    // shadow
-    .dimmod     ( dimmod    ),
-    .dimpol     ( dimpol    ),
-    .dim        ( dim       ),
     .shadow     ( shadow    ),
 
     .red        ( red       ),
@@ -358,10 +312,10 @@ jtmoo_colmix u_colmix(
     .blue       ( blue      ),
 
     // Debug
-    .ioctl_addr ( ioctl_addr[11:0]),
+    .ioctl_addr ( ioctl_addr[12:0]),
     .ioctl_ram  ( ioctl_ram ),
     .ioctl_din  ( dump_pal  ),
-    .dump_mmr   ( pal_mmr   ),
+    .mmr_dump   ( pal_mmr   ),
 
     .debug_bus  ( debug_bus )
 );
