@@ -5,6 +5,7 @@
 module jtharier_sub(
     input              rst,
     input              clk,
+    input              hangon,
 
     // Held by the main CPU through the sub 8255 port A
     input              rstn,
@@ -103,6 +104,7 @@ end
 jtharier_dtack_cen u_dtack(
     .rst        ( rst         ),
     .clk        ( clk         ),
+    .hangon     ( hangon      ),
     .cpu_cen    ( cpu_cen     ),
     .cpu_cenb   ( cpu_cenb    ),
     .UDSn       ( UDSn        ),
