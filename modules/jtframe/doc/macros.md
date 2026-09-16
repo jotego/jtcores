@@ -50,6 +50,7 @@ JTFRAME_LIGHTGUN_YOFFSET |         | Used with JTFRAME_LIGHTGUN, adds a 9 bit co
 JTFRAME_LF_BUFFER        |         | Enables the line-based frame buffer. In MiSTer it can share DDR with JTFRAME_MR_DDRLOAD
 JTFRAME_LF_FULLV         |         | Render blanking lines for line-based frame buffer (makes frame longer to process)
 JTFRAME_LF_HW            |         | Horizontal address width for the line-based frame buffer (default=9)
+JTFRAME_LF_PIPELINE      | MiSTer  | DDR frame buffer swaps line buffers as soon as ln_done arrives and copies the finished line while the next one is drawn. ln_done must mean all pixels of the line are written
 JTFRAME_LF_VW            |         | Vertical address width for the line-based frame buffer (default=8)
 JTFRAME_LF_ZOOM          |         | Frame buffer scaling support directly by the game module
 JTFRAME_LF_SDRAM_BUFFER  | sidi128 | The line-based frame buffer (JTFRAME_LF_BUFFER) is implemented in the second SDRAM. This disables SDRAM rotation, so enable it only in cores that need it

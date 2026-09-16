@@ -60,6 +60,24 @@ wire [ 1:0] dr_prio;
 wire [ 6:0] dr_pal;
 wire [ 9:0] dr_hzoom;
 wire        dr_hflip, dr_backwd, dr_shadow;
+wire        scan_done;
+
+`ifdef JTFRAME_LF_PIPELINE
+// JTFRAME_LF_PIPELINE requires ln_done to mean that every pixel of the line
+// has been written, so hold it back until the drawer is idle
+reg         done_pend=0, done_r=0;
+assign      ln_done = done_r;
+always @(posedge clk) begin
+    done_r <= 0;
+    if( scan_done ) done_pend <= 1;
+    if( (done_pend || scan_done) && !dr_busy && !dr_start ) begin
+        done_r    <= 1;
+        done_pend <= 0;
+    end
+end
+`else
+assign      ln_done = scan_done;
+`endif
 
 jtoutrun_obj_ram u_ram(
     .rst       ( rst            ),
@@ -84,7 +102,7 @@ jtoutrun_obj_ram u_ram(
 jtoutrun_obj_scan #(.PXL_DLY(0)) u_scan(
     .rst       ( rst            ),
     .clk       ( clk            ),
-    .ln_done   ( ln_done        ),
+    .ln_done   ( scan_done      ),
 
     // Obj table
     .tbl_addr  ( tbl_addr       ),

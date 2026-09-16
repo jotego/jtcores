@@ -242,7 +242,11 @@ jtframe_dual_ram #(.DW(16),.AW(HW+1)) u_linein(
     // Write to big RAM and delete
     .clk0   ( clk_ctrl      ),
     .data0  ( LFBUF_CLR     ),
+`ifdef JTFRAME_LF_PIPELINE
+    .addr0  ( { ~line, fb_addr } ),
+`else
     .addr0  ( { line^fb_clr, fb_addr } ),
+`endif
     .we0    ( fb_clr        ),
     .q0     ( fb_din        ),
     // Get new pixels from core

@@ -59,6 +59,7 @@ wire [HW-1:0] nx_rd_addr;
 reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
 wire          fb_over, wr_over, fb_rd_bank, fb_wr_bank, ddram_keep_blank;
 reg  [VW-1:0] wr_v;
+reg           swap_pend, wr_bank;
 
 assign fb_over    = &fb_addr;
 assign wr_over    = &wr_addr;
@@ -126,14 +127,30 @@ always @( posedge clk ) begin
         ln_done_l<= 0;
         wr_v     <= 0;
         do_wr    <= 0;
+        swap_pend<= 0;
+        wr_bank  <= 0;
         st       <= IDLE;
     end else begin
         fb_done <= 0;
         ln_done_l <= ln_done;
+`ifdef JTFRAME_LF_PIPELINE
+        // swap line buffers as soon as the core finishes a line, and copy
+        // the finished one to DDR while the next line is being drawn
+        if (ln_done && !ln_done_l) swap_pend <= 1;
+        if ((swap_pend || (ln_done && !ln_done_l)) && !do_wr && st!=WRITE && !fb_clr) begin
+            swap_pend <= 0;
+            line      <= ~line;
+            wr_v      <= ln_v;
+            wr_bank   <= fb_wr_bank;
+            do_wr     <= 1;
+            fb_done   <= 1;
+        end
+`else
         if (ln_done && !ln_done_l) begin
             do_wr <= 1;
             wr_v  <= ln_v;
         end
+`endif
         if( fb_clr ) begin
             // the line is cleared outside the state machine so a
             // read operation can happen independently
@@ -160,7 +177,11 @@ always @( posedge clk ) begin
                     hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
                     fb_addr  <= 1;
                     wr_addr  <= 0;
+`ifdef JTFRAME_LF_PIPELINE
+                    act_addr <= { wr_bank, wr_v, {HW{1'd0}}  };
+`else
                     act_addr <= { fb_wr_bank, wr_v, {HW{1'd0}}  };
+`endif
                     ddram_we <= 1;
                     do_wr    <= 0;
                     st       <= WRITE;
@@ -192,8 +213,10 @@ always @( posedge clk ) begin
                 if( wr_over ) begin
                     ddram_we <= 0;
                     fb_addr  <= 0;
+`ifndef JTFRAME_LF_PIPELINE
                     line     <= ~line;
                     fb_done  <= 1;
+`endif
                     fb_clr   <= 1;
                     st       <= IDLE;
                 end
