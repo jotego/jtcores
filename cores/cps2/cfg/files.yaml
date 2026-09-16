@@ -2,6 +2,7 @@ cps2:
   - get:
     - jtcps2_game.v
     - jtcps2_main.v
+    - jtcps2_dtack.v
     - jtcps2_obj.v
     - jtcps2_objram.v
     - jtcps2_obj_frame.v

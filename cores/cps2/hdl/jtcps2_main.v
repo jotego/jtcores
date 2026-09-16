@@ -323,12 +323,13 @@ end
 
 // DTACKn generation
 wire       inta_n;
-wire       bus_cs =   |{ rom_cs, pre_ram_cs, pre_vram_cs, pre_oram_cs, main2qs_cs };
+wire       board_wait, bus_legit;
+wire       bus_cs =   |{ rom_cs, pre_ram_cs, pre_vram_cs, pre_oram_cs, main2qs_cs, board_wait };
 wire       dtack_clr;
 wire       bus_busy = |{ rom_cs & ~(rom_ok&rom_ok2),
                     (pre_ram_cs|pre_vram_cs|pre_oram_cs) & ~ram_ok_dly,
                     main2qs_cs & ~main2qs_waitn,
-                    dtack_clr };
+                    dtack_clr, board_wait };
 
 wire       DTACKn;
 wire       ram_acc = pre_ram_cs | pre_vram_cs | pre_oram_cs;
@@ -352,6 +353,18 @@ always @(posedge clk, posedge rst) begin
 end
 
 assign dtack_clr = main2qs_cs & qs_busakn_s; // do not count until the bus is granted
+assign bus_legit = dtack_clr | board_wait;
+
+jtcps2_dtack u_board_dtack(
+    .rst        ( rst        ),
+    .clk        ( clk        ),
+    .cpu_cen    ( cen16      ),
+    .cpu_cenb   ( cen16b     ),
+    .ASn        ( ASn        ),
+    .BGACKn     ( BGACKn     ),
+    .A          ( A[23:20]   ),
+    .board_wait ( board_wait )
+);
 
 jtframe_68kdtack_cen #(.MFREQ(48_000)) u_dtack(
     .rst        ( rst       ),
@@ -360,7 +373,7 @@ jtframe_68kdtack_cen #(.MFREQ(48_000)) u_dtack(
     .cpu_cenb   ( cen16b    ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( dtack_clr ),
+    .bus_legit  ( bus_legit ),
     .bus_ack    ( busack    ),
     .ASn        ( ASn       ),
     .DSn        ({UDSn,LDSn}),
