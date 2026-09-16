@@ -21,7 +21,12 @@ volume = [
 
 [dipsw]
 delete=[{names=["Unused","Unknown","Credits"]}]
-bitcnt = 16
+bitcnt = 18
+
+extra=[
+{ name="Gear Button",    bits="16", options="Toggle,Hold for Low" },
+{ name="Gear Indicator", bits="17", options="On,Off" },
+]
 
 [header]
 fill=0
