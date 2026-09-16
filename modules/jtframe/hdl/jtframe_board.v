@@ -26,7 +26,7 @@ module jtframe_board #(parameter
     input               clk_rom,
     input               clk_pico,
 
-    input        [ 6:0] core_mod,
+    input        [17:0] core_mod,
     output              vertical,
     output       [ 1:0] black_frame,
     // LED
@@ -195,14 +195,18 @@ wire [ 1:0] bax_dsn;
 wire [ 3:0] bax_rdy, bax_dst;
 wire [SDRAMW-1:0] bax_addr;
 
-wire LHBLs, LVBLs, hshort_en, vshort_en;
+wire LHBLs, LVBLs, hshort_en, vshort_en, hshort_wide, vshort_wide;
+wire [ 1:0] hblack_frame, vblack_frame;
 reg  prog_en;
 
 assign sensty         = status[33:32]; // MiST should drive these pins
 assign joy1_pos       = status[19:18];
 assign gun_crossh_en = `ifdef JTFRAME_LIGHTGUN_ON 1'b1; `else status[9]; `endif
-assign hshort_en      = black_frame[0] & ~vertical;
-assign vshort_en      = black_frame[0] &  vertical;
+assign black_frame    = hblack_frame | vblack_frame;
+assign hshort_en      = hblack_frame[0];
+assign vshort_en      = vblack_frame[0];
+assign hshort_wide    = hblack_frame[1];
+assign vshort_wide    = vblack_frame[1];
 
 always @(posedge clk_rom) begin
     prog_en <= dwnld_busy | ioctl_cart;
@@ -215,7 +219,8 @@ jtframe_coremod u_coremod(
     .dipflip_xor    ( dipflip_xor   ),
     .dial_raw_en    ( dial_raw_en   ),
     .dial_reverse   ( dial_reverse  ),
-    .black_frame    ( black_frame   )
+    .hblack_frame   ( hblack_frame  ),
+    .vblack_frame   ( vblack_frame  )
 );
 
 assign base_rgb  = { cross_r, cross_g, cross_b };
@@ -435,7 +440,7 @@ jtframe_filter_keyboard u_filter_keyboard(
         .show_credits( show_credits ),
         .game_led   ( led_peak[0]   ),
         .LVBL       ( LVBL          ),
-        .core_mod   ( core_mod      ),
+        .core_mod   ( core_mod[6:0] ),
         .gfx_en     ( gfx_en        ),
         // sound
         .sample     ( snd_sample    ),
@@ -504,9 +509,10 @@ jtframe_short_blank #(
     .pxl_cen    ( pxl_cen         ),
     .LHBL       ( LHBL            ),
     .LVBL       ( LVBL            ),
-    .v_en       ( vshort_en       ),
     .h_en       ( hshort_en       ),
-    .wide       ( black_frame[1]  ),
+    .v_en       ( vshort_en       ),
+    .h_wide     ( hshort_wide     ),
+    .v_wide     ( vshort_wide     ),
     .HS         ( hs              ),
     .hb_out     ( LHBLs           ),
     .vb_out     ( LVBLs           )

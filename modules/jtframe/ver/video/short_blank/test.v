@@ -5,15 +5,15 @@ wire      rst, clk, pxl_cen, lhbl, lvbl;
 
 localparam HEIGHT = 240, WIDTH=280, CLIP=8;
 
-reg  [1:0] black_frame;
-reg        vertical, wd, h_rise, v_rise, start, sign=0;
+reg  [1:0] hblack_frame, vblack_frame;
+reg        wd, h_rise, v_rise, start, sign=0;
 wire       lhbs, lvbs, hs, hs_edge, vs, h_en, v_en;
 string hstring, vstring;
 
 integer hcnt=0, vcnt=0, framecnt, hclip, vclip;
 
-assign h_en = black_frame[0] & ~vertical;
-assign v_en = black_frame[0] &  vertical;
+assign h_en = hblack_frame[0];
+assign v_en = vblack_frame[0];
 
 always @(posedge clk) begin
     if(rst) {hcnt, vcnt, h_rise, v_rise} <= 0;
@@ -80,28 +80,31 @@ initial begin
 end
 
 task crop_disabled();
-    black_frame[0] = 0;
+    hblack_frame[0] = 0;
+    vblack_frame[0] = 0;
 endtask
 
 task select_vertical();
-    vertical       = 1;
-    black_frame[0] = 1;
+    hblack_frame[0] = 0;
+    vblack_frame[0] = 1;
 endtask
 
 task select_horizontal();
-    vertical       = 0;
-    black_frame[0] = 1;
+    hblack_frame[0] = 1;
+    vblack_frame[0] = 0;
 endtask
 
 task crop_8_pxl();
-    wd             = 0;
-    black_frame[1] = 0;
+    wd              = 0;
+    hblack_frame[1] = 0;
+    vblack_frame[1] = 0;
     set_new_clip();
 endtask
 
 task crop_16_pxl();
-    wd             = 1;
-    black_frame[1] = 1;
+    wd              = 1;
+    hblack_frame[1] = 1;
+    vblack_frame[1] = 1;
     set_new_clip();
 endtask
 
@@ -171,9 +174,10 @@ jtframe_short_blank #(
     .pxl_cen    ( pxl_cen ),
     .LHBL       ( lhbl    ),
     .LVBL       ( lvbl    ),
-    .h_en       ( h_en    ),
-    .v_en       ( v_en    ),
-    .wide       ( wd      ),
+    .h_en       ( h_en             ),
+    .v_en       ( v_en             ),
+    .h_wide     ( hblack_frame[1] ),
+    .v_wide     ( vblack_frame[1] ),
     .HS         ( hs      ),
     .hb_out     ( lhbs    ),
     .vb_out     ( lvbs    )

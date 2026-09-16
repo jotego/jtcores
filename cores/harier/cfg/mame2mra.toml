@@ -1,0 +1,66 @@
+[global]
+author=["jotego","niknak"]
+
+[parse]
+sourcefile=[ "segahang.cpp" ]
+main_setnames=["sharrier"]
+# Hang-On's sprite ROMs do not group into 32-bit words, so its sprite format is
+# not implemented.
+skip={ bootlegs=true, machines=["hangon","shangon"] }
+
+[audio]
+volume = [ { machine="sharrier", value = 160 } ]
+
+[buttons]
+Names = [
+    { machine="sharrier", names="Fire,Fire 2,Fire 3" },
+]
+
+[dipsw]
+delete=[{names=["Unused","Unknown"]}]
+rename=[ {name   = "Bonus Life", values = ["7M", "5M"] } ]
+bitcnt = 19
+
+extra=[
+{ machine = "sharrier", name    = "Stick Direction", bits    = "16", options = "Normal,Arcade" },
+# D-Pad Control, for d-pad users only. Arcade (=1) is the sprung cabinet stick,
+# springing back to centre; Console (=0) holds where released.
+{ machine = "sharrier", name    = "D-Pad Control", bits    = "17", options = "Console,Arcade" },
+# V Glyph Fix: 'V' in EPR-7196/7197/7198 has its rows rotated down by one and the
+# fix reads row (n+1)%8 for tile 0x56. It is an original-game bug
+{ machine = "sharrier", name    = "V Glyph Fix", bits    = "18", options = "On,Off" }
+]
+
+[header]
+registers=[
+    { name="i8751",  pos="0[0]",  desc="i8751 MCU", values=[{ machine="sharrier", value=1 }] },
+    { name="fd1089", pos="0[1]",  desc="FC1089B",   values=[{ machine="enduror",  value=1 }] },
+    { name="blank4", pos="0[2]",  desc="IPL2 set at blank", values=[{machines=["enduror","hangon"], value=1}] },
+    { name="ym2151", pos="1[0]",  desc="YM2151",      values=[{setname="enduror1", value=0},{machine="enduror", value=1}]},
+    { name="cab1p",  pos="2[0]",  desc="1P at bit 6", values=[{machine="enduror",  value=1}]},
+    { name="hicol",  pos="3[0]",  desc="6144 colors", values=[{machine="hangon",   value=1}]},
+    { name="adc",    pos="4[2:0]",desc="ADC channels", values=[{machine="sharrier", value=2}, {machine="enduror", value=4}, {machine="hangon",value=3}]}
+]
+
+[ROM]
+regions = [
+    { name="maincpu",      width=16, reverse=true },
+    { name="subcpu",       start="JTFRAME_BA1_START", width=16, reverse=true },
+    { name="soundcpu",     start="SND_START" },
+    { name="pcm",          start="PCM_START" },
+    { name="gfx1",         start="JTFRAME_BA2_START", width=32, sequence=[0,1,2,2] },
+    { name="sprites",      start="JTFRAME_BA3_START", width=32, no_offset=true },
+    { name="segaic16road", start="ROAD_START", width=16, no_offset=true, singleton=true },
+    { name="sprites:zoom", start="ZOOM_START", len=0x2000 },
+    { name="mcu",          start="MCU_START", len=0x1000 },
+    { name="maincpu:key",  start="MAINKEY_START", len=0x2000 },
+    { name="fd1089",       start="FD1089_START" },
+    { name="plds",           skip=true },
+    { name="soundboard_plds", skip=true },
+    { name="romboard_plds",   skip=true },
+]
+
+order = [
+    "maincpu", "subcpu", "soundcpu", "pcm", "gfx1",
+    "sprites", "segaic16road", "sprites:zoom", "mcu", "maincpu:key"
+]

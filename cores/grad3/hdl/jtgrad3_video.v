@@ -244,7 +244,7 @@ jtaliens_scroll u_scroll(
     .st_dout    ( st_scr           )
 );
 
-jtaliens_obj u_obj(
+jtaliens_obj #(.DMA_CEN(1)) u_obj(
     .rst        ( rst              ),
     .clk        ( clk              ),
     .pxl_cen    ( pxl_cen          ),

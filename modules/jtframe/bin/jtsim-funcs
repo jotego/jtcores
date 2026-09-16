@@ -9,6 +9,7 @@ Common options:
     -u | -undef <macro>                  Undefine a simulation macro
     -time <ms>                           Simulate for a fixed number of milliseconds
     -video [frames]                      Dump video output
+    -norotate                            Keep Verilator dumped frames unrotated
     -dummyROM                            Use a local dummy rom.bin without set-name lookup
     -w [frame] | -deep [frame]           Dump waveform data (overrides .cab tracing_on)
     file.cab                             Feed a cabinet-input script (Verilator)

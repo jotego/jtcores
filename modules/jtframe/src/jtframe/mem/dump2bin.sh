@@ -34,6 +34,7 @@ require_input_file() {
 split_into_parts() {
 	{{ range .Ioctl.Buses }}{{ if .Name -}}
 	# {{ .Name }} {{ .Size }} bytes ({{.SizekB}} kB)
+	rm -f {{.Name}}.bin
 	dd if="$DUMP" of={{.Name}}.bin bs=64 count={{.Blocks}} skip={{.SkipBlocks}}
 	{{ if eq .DW 16 -}}
 	jtutil drop1    < {{.Name}}.bin > {{.Name}}_hi.bin
@@ -51,6 +52,7 @@ delete_parts() {
 	{{end }}
 	{{ end }}{{ end  }}
 	rm -f rest.bin
+	run_core_specific_script --delete
 }
 
 make_rest() {
@@ -62,7 +64,7 @@ run_core_specific_script() {
 	for path in $script_path/. $script_path/..; do
 		if [ -x $path/rest2bin.sh ]; then
 			echo $path/rest2bin.sh
-			$path/rest2bin.sh
+			$path/rest2bin.sh "$@"
 			return
 		fi
 	done
