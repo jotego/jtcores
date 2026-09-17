@@ -16,7 +16,8 @@ module jtframe_lfbuf_line #(parameter
     DW      =  16,
     VW      =   8,
     HW      =   9,
-    FW      =   8
+    FW      =   8,
+    PIPELINED = 0 // DDR acknowledges before copying; other backends after copying
 )(
     input               rst,
     input               clk,
@@ -51,6 +52,7 @@ module jtframe_lfbuf_line #(parameter
     output     [  15:0] fb_din,
     input               fb_clr,
     input               fb_done,
+    input               fb_busy, // outstanding DDR copy/clear; unused by other backends
     output              fb_blank,
 
     // data read from external memory to screen buffer
@@ -64,6 +66,7 @@ reg           vsl, vsl2, lvbl_l, hs_l, lhbl_l, vend_good;
 reg  [   5:0] porch;
 reg  [VW-1:0] vstart=0, vend=0;
 wire [  15:0] linein_pxl, scr_pxl;
+wire [HW:0]   copy_addr;
 wire          info_rdy;
 // dh/dv apply to the bank being read out. The write-side extent uses dv_wr
 // because the newly written bank will be displayed on the following frame.
@@ -100,7 +103,7 @@ always @(posedge clk) begin
         vsl2   <= vsl;
         vend_good <= |vend;
         if( !lvbl &&  lvbl_l ) begin
-            vend    <= vrender;
+            vend    <= vrender - 1'd1; // first blank line follows the last visible line
         end
         if( lvbl && !lvbl_l ) begin
             vstart  <= vrender;
@@ -125,7 +128,8 @@ reg  [VW+FW-1:0] v_acc;
 reg  [VW-1:0]    vread_acc;
 wire [VWIDTH-1:0] vlen       = { 1'b0, vend } - { 1'b0, vstart } + 1'd1;
 wire [VPRODW-1:0] vlen_scale = vlen * dv_wr;
-wire [  VW+1:0]   vlen_zoom  = vlen_scale[VPRODW-1:FW];
+wire [VPRODW-1:0] vlen_round = vlen_scale + { {(VPRODW-FW){1'b0}}, {FW{1'b1}} };
+wire [  VW+1:0]   vlen_zoom  = vlen_round[VPRODW-1:FW];
 wire [VWIDTH-1:0] vmax_len   = { 1'b1, {VW{1'b0}} } - { 1'b0, vstart };
 wire              vlen_over  = vlen_zoom[VW+1] || vlen_zoom[VW:0] > vmax_len;
 wire [VWIDTH-1:0] vlen_eff   = dv_wr > STEP_ONE ? ( vlen_over ? vmax_len : vlen_zoom[VW:0] ) : vlen;
@@ -163,10 +167,10 @@ wire [VW-1:0]     vend_eff   = dv_wr > STEP_ONE ? vend_scaled[VW-1:0] : vend;
     );
 `else
     assign fb_blank = 0, info_rdy = 1;
-    always @* begin
-        ln_vs   = vs;
-        ln_lvbl = lvbl;
-    end
+    always @* ln_lvbl = lvbl;
+    generate if( !PIPELINED ) begin : direct_vs
+        always @* ln_vs = vs;
+    end endgenerate
 `endif
 
 // count lines so objects get drawn in the line buffer
@@ -181,18 +185,25 @@ always @(posedge clk) begin
         dv_wr    <= STEP_ONE;
         h_step_l <= STEP_ONE;
         v_step_l <= STEP_ONE;
-        done     <= 0;
+        done     <= PIPELINED != 0;
         fbd_l    <= 0;
     `ifdef JTFRAME_LF_FULLV
         ln_vs    <= 0;
         ln_lvbl  <= 0;
         porch    <= 0;
         st       <= 0;
+    `else
+        if( PIPELINED ) ln_vs <= 0;
     `endif
     end else if(info_rdy) begin
         ln_hs <= 0;
         fbd_l <= fb_done;
-        if( vs_start ) begin // object parsing starts during VB
+    `ifndef JTFRAME_LF_FULLV
+        if( PIPELINED && !vs ) ln_vs <= 0;
+    `endif
+        // On overrun, repeat the displayed frame until the whole render and
+        // its final DDR copy finish. Never restart a producer in an owned buffer.
+        if( vs_start && (!PIPELINED || (done && !fb_busy && vend_good)) ) begin
             frame <= ~frame;
             ln_v  <= vstart;
             ln_hs <= 1;
@@ -206,6 +217,10 @@ always @(posedge clk) begin
                 ln_lvbl <= 0;
                 porch   <= vbs_len;
                 st      <= VBTOSY;
+            `else
+                // Producers which start on ln_vs must follow accepted frames,
+                // rather than restarting while an overrun is still draining.
+                if( PIPELINED ) ln_vs <= 1;
             `endif
         end
         if( fb_done && !fbd_l && !done )
@@ -228,8 +243,10 @@ always @(posedge clk) begin
             end
     `else begin
             ln_v <= ln_v + 1'd1;
-            ln_hs <= 1;
-            if( ln_v == vend_eff && vend_good ) done <= 1;
+            if( ln_v == vend_eff && vend_good )
+                done <= 1;
+            else
+                ln_hs <= 1;
         end
     `endif
     end
@@ -237,16 +254,14 @@ end
 
 localparam [15:0] LFBUF_CLR = `ifndef JTFRAME_LFBUF_CLR 0 `else `JTFRAME_LFBUF_CLR `endif ;
 
+assign copy_addr = { PIPELINED ? ~line : line^fb_clr, fb_addr };
+
 // collect input data
 jtframe_dual_ram #(.DW(16),.AW(HW+1)) u_linein(
     // Write to big RAM and delete
     .clk0   ( clk_ctrl      ),
     .data0  ( LFBUF_CLR     ),
-`ifdef JTFRAME_LF_PIPELINE
-    .addr0  ( { ~line, fb_addr } ),
-`else
-    .addr0  ( { line^fb_clr, fb_addr } ),
-`endif
+    .addr0  ( copy_addr     ),
     .we0    ( fb_clr        ),
     .q0     ( fb_din        ),
     // Get new pixels from core

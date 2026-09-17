@@ -53,7 +53,7 @@ module jtframe_lfbuf_ddr #(parameter
     output      [7:0]   st_dout
 );
 
-wire          frame, fb_clr, fb_done, line, scr_we, fb_blank;
+wire          frame, fb_clr, fb_done, fb_busy, line, scr_we, fb_blank;
 wire [HW-1:0] fb_addr, rd_addr;
 wire [  15:0] fb_din, fb_dout;
 wire [VW-1:0] vread;
@@ -78,6 +78,7 @@ jtframe_lfbuf_ddr_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .fb_dout    ( fb_dout   ),
     .fb_clr     ( fb_clr    ),
     .fb_done    ( fb_done   ),
+    .fb_busy    ( fb_busy   ),
 
     // data read from external memory to screen buffer
     // during h blank
@@ -98,7 +99,7 @@ jtframe_lfbuf_ddr_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .st_dout    ( st_dout       )
 );
 
-jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
+jtframe_lfbuf_line #(.PIPELINED(1),.DW(DW),.HW(HW),.VW(VW)) u_line(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .clk_ctrl   ( clk       ),
@@ -136,6 +137,7 @@ jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
     .fb_dout    ( fb_dout   ),
     .fb_clr     ( fb_clr    ),
     .fb_done    ( fb_done   ),
+    .fb_busy    ( fb_busy   ),
     .fb_blank   ( fb_blank  ),
 
     // data read from external memory to screen buffer

@@ -55,6 +55,12 @@ There is a line-based frame buffer available in the MiSTer and Pocket targets. I
 
 To enable it use **JTFRAME_LF_BUFFER**. Refer to the standard include files to see which ports are required on the game side to access it. In MiSTer the DDR-backed line buffer can be combined with **JTFRAME_MR_DDRLOAD**: while the ROM download is active the DDR bus is assigned to the loader and the frame-buffer path is held idle, then normal frame-buffer traffic resumes after the download finishes.
 
+The DDR backend always overlaps drawing the next line with copying the completed line. The core must assert `ln_done` only after its last pixel write and wait for `ln_hs` before drawing again. `JTFRAME_LF_FULLV` is supported: completed blank lines are acknowledged once, discarded, and cleared without writing to DDR.
+
+If rendering or a DDR transfer overruns vertical sync, the DDR backend keeps the previous displayed frame and finishes the pending work. It swaps frame banks and starts a new render at a later VS, after the final copy and clear complete. In minimal vertical mode, `ln_vs` follows that accepted render start too. This can repeat a displayed frame under sustained load, but prevents a new render from overwriting an occupied line buffer or exposing a partially written frame. This frame-bank isolation applies to normal double buffering; `fb_keep` deliberately reads and writes the same persistent bank.
+
+Scaling uses the same pipeline: horizontal sampling and vertical source-line selection happen on readout, while vertical downscaling also extends the number of source lines rendered. Scale settings stay with their frame when an overrun causes that frame to repeat. Other memory backends retain their own scheduling.
+
 The buffer was developed for the Out Run core but it is easier to test it with _Pirate ship Higemaru_ because the compilation time is much shorter. _Higemaru_ itself does not require it and it shouldn't be distributed with it enabled but it has been adapted so it is compatible with it by using the macros:
 
 `jtcore hige -pocket -d JTFRAME_LF_BUFFER -d JTFRAME_LFBUF_CLR=15`

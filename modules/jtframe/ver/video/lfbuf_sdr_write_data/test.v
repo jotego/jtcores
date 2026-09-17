@@ -140,6 +140,7 @@ jtframe_lfbuf_line #(
     .fb_din     ( fb_din    ),
     .fb_clr     ( fb_clr    ),
     .fb_done    ( fb_done   ),
+    .fb_busy    ( 1'b0      ),
     .fb_blank   ( fb_blank  ),
     .fb_dout    ( fb_dout   ),
     .line       ( line      ),
