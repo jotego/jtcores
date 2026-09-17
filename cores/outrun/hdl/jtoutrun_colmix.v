@@ -11,10 +11,6 @@ module jtoutrun_colmix(
     input              pxl_cen,   // pixel clock enable
 
     input              video_en,
-    input      [ 1:0]  game_id,
-    input              gear,
-    input              gear_en,
-    input              ingame,
 
     input              preLHBL,
     input              preLVBL,
@@ -50,8 +46,7 @@ module jtoutrun_colmix(
     // Get some random data during start-up for the palette
     input      [21:0]  prog_addr,
     input      [ 7:0]  prog_data,
-    input              prog_we,
-    input      [ 1:0]  prog_ba
+    input              prog_we
 );
 
 wire [ 1:0] we;
@@ -64,103 +59,7 @@ reg  [14:0] gated;
 // reg  [ 1:0] blink;
 
 assign we = ~dswn & {2{pal_cs}};
-reg  [ 8:0] ovl_x, ovl_y;
-reg         ovl_hbl;
-localparam [21:0] GLYPH_WORD = 22'd1024;
-localparam [ 4:0] CH_H = 5'd8,  CH_I = 5'd9,  CH_L = 5'd12,
-                  CH_O = 5'd15, CH_W = 5'd23;
-
-wire        turbo = game_id==2;
-
-reg  [21:0] pa_l;
-reg  [ 7:0] pd_l, plane0;
-reg         pv_l;
-reg  [ 7:0] gl_addr;
-reg  [23:0] gl_data;
-reg         gl_we;
-wire [23:0] gl_dout;
-wire [21:0] gl_word = prog_addr - GLYPH_WORD;
-wire        gl_hit  = prog_we && prog_ba==2'd2 && gl_word[21:9]==0;
-wire        gl_new  = prog_we && prog_ba==2'd2 && (!pv_l || prog_addr!=pa_l);
-
-function [23:0] unpack( input [7:0] b0, b1, b2 );
-    integer x;
-    for( x=0; x<8; x=x+1 ) unpack[x*3 +: 3] = { b2[7-x], b1[7-x], b0[7-x] };
-endfunction
-
-always @(posedge clk) begin
-    gl_we <= 0;
-    if( gl_new && gl_hit ) begin
-        if( !prog_addr[0] ) begin
-            plane0  <= prog_data;
-        end else begin
-            gl_we   <= 1;
-            gl_addr <= gl_word[8:1];
-            gl_data <= unpack( plane0, pd_l, prog_data );
-        end
-    end
-    if( prog_we && prog_ba==2'd2 ) begin
-        pa_l <= prog_addr;
-        pd_l <= prog_data;
-        pv_l <= 1;
-    end
-end
-
-wire [ 8:0] gear_x = turbo ? 9'd197 : 9'd79;
-wire [ 8:0] gear_y = turbo ? 9'd209 : 9'd208;
-wire [ 8:0] dx = ovl_x - gear_x, dy = ovl_y - gear_y;
-wire [ 4:0] gear_w = gear ? 5'd16 : 5'd24;
-wire        gear_box = dy < 9'd8 && dx < {4'd0, gear_w};
-
-reg  [ 4:0] ch;
-always @(*) begin
-    if( gear )
-        ch = dx[3] ? CH_I : CH_H;
-    else case( dx[4:3] )
-        2'd0:    ch = CH_L;
-        2'd1:    ch = CH_O;
-        default: ch = CH_W;
-    endcase
-end
-
-jtframe_dual_ram #(.DW(24),.AW(8)) u_glyph(
-    .clk0   ( clk       ),
-    .data0  ( gl_data   ),
-    .addr0  ( gl_addr   ),
-    .we0    ( gl_we     ),
-    .q0     (           ),
-
-    .clk1   ( clk       ),
-    .data1  ( 24'd0     ),
-    .addr1  ( {ch, dy[2:0]} ),
-    .we1    ( 1'b0      ),
-    .q1     ( gl_dout   )
-);
-
-wire [ 2:0] gl_pxl  = gl_dout[ dx[2:0]*3 +: 3 ];
-wire        gl_edge = gl_pxl == (turbo ? 3'd1 : 3'd7);
-wire        gear_on = gear_en && ingame && video_en && gear_box && gl_pxl!=0;
-
-reg [14:0] gear_rgb;
-always @(*) begin
-    if( gl_edge || turbo ) begin
-        gear_rgb = gl_edge ? 15'd0 : 15'h7fff;
-    end else case( gl_pxl )
-        3'd1:    gear_rgb = gear ? {5'd29,5'd22,5'd25} : {5'd18,5'd29,5'd22};
-        3'd2:    gear_rgb = gear ? {5'd27,5'd20,5'd22} : {5'd16,5'd27,5'd20};
-        3'd3:    gear_rgb = gear ? {5'd25,5'd18,5'd20} : {5'd12,5'd25,5'd18};
-        3'd4:    gear_rgb = gear ? {5'd22,5'd16,5'd18} : {5'd10,5'd22,5'd16};
-        default: gear_rgb = gear ? {5'd20,5'd14,5'd16} : {5'd08,5'd20,5'd14};
-    endcase
-end
-
-assign { red, green, blue } = gear_on ? gear_rgb : rgb;
-
-always @(posedge clk) if(pxl_cen) begin
-    ovl_hbl <= LHBL;
-    ovl_x   <= LHBL ? ovl_x+9'd1 : 9'd0;
-    if( !LHBL && ovl_hbl ) ovl_y <= LVBL ? ovl_y+9'd1 : 9'h1ff;
-end
+assign { red, green, blue } = rgb;
 
 wire [4:0] rpal, gpal, bpal;
 

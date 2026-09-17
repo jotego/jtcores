@@ -12,11 +12,7 @@ module jtoutrun_video #(
 
     input              video_en,
     input              obj_swap,
-    input      [ 1:0]  game_id,
-    input              gear,
-    input              gear_en,
-    input              ingame,
-    input      [ 1:0]  prog_ba,
+    // input [1:0]        game_id,
 
     // CPU interface
     input              dip_pause,
@@ -387,12 +383,6 @@ jtoutrun_colmix u_colmix(
     .pxl2_cen  ( pxl2_cen       ),
 
     .video_en  ( video_en       ),
-`ifndef SHANON
-    .game_id   ( game_id        ),
-    .gear      ( gear           ),
-    .gear_en   ( gear_en        ),
-    .ingame    ( ingame         ),
-`endif
     .tmap_addr ( tmap_addr      ),
     .shadow    ( shadow         ),
     // CPU interface
@@ -422,7 +412,6 @@ jtoutrun_colmix u_colmix(
     .prog_addr ( prog_addr      ),
     .prog_data ( prog_data      ),
     .prog_we   ( prog_we        ),
-    .prog_ba   ( prog_ba        ),
 `endif
 
     .ioctl_ram ( ioctl_ram      ),
