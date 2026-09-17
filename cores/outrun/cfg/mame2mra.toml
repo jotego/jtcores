@@ -25,7 +25,9 @@ bitcnt = 18
 
 extra=[
 { name="Gear Button",    bits="16", options="Toggle,Hold for Low" },
-{ name="Gear Indicator", bits="17", options="On,Off" },
+{ name="Gear Indicator", bits="17", options="On,Off", setnames=[
+    "outrun","outrunra","outrundx","outrundxa","outrundxj","outruneh","outruneha","outrundxeh","outrundxeha",
+    "toutrun","toutrunj","toutrun1","toutrun2","toutrun3","toutrunj1" ] },
 ]
 
 [header]
@@ -60,4 +62,52 @@ regions = [
 order = [
     "maincpu", "subcpu", "soundcpu", "pcm", "gfx1",
     "sprites", "segaic16road", "maincpu:key"
+]
+
+patches = [
+    { setname="outrun", offset=0xBA38, data="B9 4E 03 00 00 DA 71 4E 71 4E" },
+    { setname="outrun", offset=0x3DA00, data="F9 41 00 00 7E BC B9 4E 00 00 26 C5 39 08 00 00 26 00 74 00 00 67 3A 00 39 0C 09 00 06 00 0D 08 00 6D 2E 00 39 0C 0C 00 06 00 0D 08 00 6E 22 00 79 4A 26 00 8C 07 00 67 0C 00 F9 41 03 00 52 DA 00 60 08 00 F9 41 03 00 5E DA B9 4E 00 00 26 C5 75 4E" },
+    { setname="outrun", offset=0x3DA52, data="11 00 44 0D 02 00 00 86 49 48 00 20 11 00 44 0D 02 00 00 82 4F 4C 00 57" },
+    { setname="outrunra", offset=0xB99A, data="B9 4E 03 00 00 DA 71 4E 71 4E" },
+    { setname="outrunra", offset=0x3DA00, data="F9 41 00 00 E0 BB B9 4E 00 00 88 C4 39 08 00 00 26 00 74 00 00 67 3A 00 39 0C 09 00 06 00 0D 08 00 6D 2E 00 39 0C 0C 00 06 00 0D 08 00 6E 22 00 79 4A 26 00 8C 07 00 67 0C 00 F9 41 03 00 52 DA 00 60 08 00 F9 41 03 00 5E DA B9 4E 00 00 88 C4 75 4E" },
+    { setname="outrunra", offset=0x3DA52, data="11 00 44 0D 02 00 00 86 49 48 00 20 11 00 44 0D 02 00 00 82 4F 4C 00 57" },
+    { setname="outrundx", offset=0xB834, data="B9 4E 03 00 00 DA 71 4E 71 4E" },
+    { setname="outrundx", offset=0x3DA00, data="F9 41 00 00 7A BA B9 4E 00 00 06 C3 39 08 00 00 26 00 74 00 00 67 3A 00 39 0C 09 00 06 00 0D 08 00 6D 2E 00 39 0C 0C 00 06 00 0D 08 00 6E 22 00 79 4A 26 00 8C 07 00 67 0C 00 F9 41 03 00 52 DA 00 60 08 00 F9 41 03 00 5E DA B9 4E 00 00 06 C3 75 4E" },
+    { setname="outrundx", offset=0x3DA52, data="11 00 44 0D 02 00 00 86 49 48 00 20 11 00 44 0D 02 00 00 82 4F 4C 00 57" },
+    { setname="outrundxa", offset=0xB834, data="B9 4E 03 00 00 DA 71 4E 71 4E" },
+    { setname="outrundxa", offset=0x3DA00, data="F9 41 00 00 7A BA B9 4E 00 00 06 C3 39 08 00 00 26 00 74 00 00 67 3A 00 39 0C 09 00 06 00 0D 08 00 6D 2E 00 39 0C 0C 00 06 00 0D 08 00 6E 22 00 79 4A 26 00 8C 07 00 67 0C 00 F9 41 03 00 52 DA 00 60 08 00 F9 41 03 00 5E DA B9 4E 00 00 06 C3 75 4E" },
+    { setname="outrundxa", offset=0x3DA52, data="11 00 44 0D 02 00 00 86 49 48 00 20 11 00 44 0D 02 00 00 82 4F 4C 00 57" },
+    { setname="outruneh", offset=0xBA38, data="B9 4E 03 00 00 F0 71 4E 71 4E" },
+    { setname="outruneh", offset=0x3F000, data="B9 4E 03 00 38 E0 B9 4E 00 00 26 C5 39 08 00 00 26 00 74 00 00 67 3A 00 39 0C 09 00 06 00 0D 08 00 6D 2E 00 39 0C 0C 00 06 00 0D 08 00 6E 22 00 79 4A 26 00 8C 07 00 67 0C 00 F9 41 03 00 52 F0 00 60 08 00 F9 41 03 00 5E F0 B9 4E 00 00 26 C5 75 4E" },
+    { setname="outruneh", offset=0x3F052, data="11 00 46 0D 02 00 00 86 49 48 00 20 11 00 46 0D 02 00 00 82 4F 4C 00 57" },
+    { setname="outruneha", offset=0xBA38, data="B9 4E 03 00 00 F0 71 4E 71 4E" },
+    { setname="outruneha", offset=0x3F000, data="B9 4E 03 00 38 E0 B9 4E 00 00 26 C5 39 08 00 00 26 00 74 00 00 67 3A 00 39 0C 09 00 06 00 0D 08 00 6D 2E 00 39 0C 0C 00 06 00 0D 08 00 6E 22 00 79 4A 26 00 8C 07 00 67 0C 00 F9 41 03 00 52 F0 00 60 08 00 F9 41 03 00 5E F0 B9 4E 00 00 26 C5 75 4E" },
+    { setname="outruneha", offset=0x3F052, data="11 00 46 0D 02 00 00 86 49 48 00 20 11 00 46 0D 02 00 00 82 4F 4C 00 57" },
+    { setname="outrundxeh", offset=0xB834, data="B9 4E 03 00 00 F0 71 4E 71 4E" },
+    { setname="outrundxeh", offset=0x3F000, data="B9 4E 03 00 38 E0 B9 4E 00 00 06 C3 39 08 00 00 26 00 74 00 00 67 3A 00 39 0C 09 00 06 00 0D 08 00 6D 2E 00 39 0C 0C 00 06 00 0D 08 00 6E 22 00 79 4A 26 00 8C 07 00 67 0C 00 F9 41 03 00 52 F0 00 60 08 00 F9 41 03 00 5E F0 B9 4E 00 00 06 C3 75 4E" },
+    { setname="outrundxeh", offset=0x3F052, data="11 00 46 0D 02 00 00 86 49 48 00 20 11 00 46 0D 02 00 00 82 4F 4C 00 57" },
+    { setname="outrundxeha", offset=0xB834, data="B9 4E 03 00 00 F0 71 4E 71 4E" },
+    { setname="outrundxeha", offset=0x3F000, data="B9 4E 03 00 38 E0 B9 4E 00 00 06 C3 39 08 00 00 26 00 74 00 00 67 3A 00 39 0C 09 00 06 00 0D 08 00 6D 2E 00 39 0C 0C 00 06 00 0D 08 00 6E 22 00 79 4A 26 00 8C 07 00 67 0C 00 F9 41 03 00 52 F0 00 60 08 00 F9 41 03 00 5E F0 B9 4E 00 00 06 C3 75 4E" },
+    { setname="outrundxeha", offset=0x3F052, data="11 00 46 0D 02 00 00 86 49 48 00 20 11 00 46 0D 02 00 00 82 4F 4C 00 57" },
+    { setname="outrundxj", offset=0xB834, data="F9 22 4B 94 08 2E 39 3E 79 62" },
+    { setname="outrundxj", offset=0x3DA00, data="B1 19 00 80 7A 5E F9 5E 00 14 4E 9F 71 E0 00 38 66 F4 74 E8 40 0F 7A 18 39 5C 09 54 06 14 05 58 00 71 6E 08 71 78 4C 08 46 30 05 7C 48 1A 6A C0 71 86 2E FC C4 D7 00 9B 44 F0 F1 7D 43 30 5A DA 48 24 48 18 B1 19 03 80 56 8A B9 7E 00 14 4E 9F 3D B6" },
+    { setname="outrundxj", offset=0x3DA52, data="19 C8 4C 45 0A C8 40 CA 41 94 08 14 59 A8 4C 05 4A 98 08 66 47 A8 40 DF" },
+    { setname="toutrun", offset=0x14174, data="B9 0E CC B9 12 C8 71 0E 71 0E" },
+    { setname="toutrun", offset=0x3EB00, data="E7 08 40 10 B8 95 DC 99 EA B9 EA D1 2F F1 CC B1 51 A2 20 EA E7 39 75 65 73 76 19 CA D9 DD 75 72 CC B9 4E 9D 9A 6C 17 3B 79 0A CC B9 80 40 89 D1 6C 2A 79 0A 6C 28 8C 07 89 F1 68 E0 B4 31 AD 28 A7 36 71 0E DC 89 DE 99 A7 72 4E D3 2D 26 B9 0E A7 3B 25 2E DF 0C 03 03 C0 BC 6D 22 20 6B 6F D3 1A 7B 75 0E" },
+    { setname="toutrun", offset=0x3EB64, data="11 00 62 0D 02 00 00 86 49 48 00 20 11 00 62 0D 02 00 00 86 4F 4C 00 57" },
+    { setname="toutrunj", offset=0x14174, data="B9 0E CC B9 36 76 71 0E 71 0E" },
+    { setname="toutrunj", offset=0x3EB00, data="E7 08 40 10 1A FF DC 99 59 9E DB 9F 13 92 39 61 CB D5 19 FC 5C B9 18 DD 27 F9 75 62 0A FF 37 63 CC B9 1B DD 3D BA 59 D4 79 0A CC B9 9B 40 3D B2 7C 99 79 0A 93 61 8C 07 99 90 5E B9 DD 70 19 BC 6D D3 71 0E 2F D1 CF 99 DD 70 19 BC 8F E1 B9 0E CC 99 5A 68 DF 0C 03 03 D7 B9 58 BD FC 53 59 9D 4F 96 75 0E" },
+    { setname="toutrunj", offset=0x3EB64, data="11 00 62 0D 02 00 00 86 49 48 00 20 11 00 62 0D 02 00 00 86 4F 4C 00 57" },
+    { setname="toutrun3", offset=0x14174, data="B9 0E 32 61 D2 4F 71 0E 71 0E" },
+    { setname="toutrun3", offset=0x3EB00, data="E7 08 40 10 1B 8B 1A 78 90 61 EA D1 7B A0 06 D3 D9 DD 5E B9 CC B9 9F A0 B5 85 86 61 92 7B 68 E2 6E D3 4E 9D 89 D0 95 63 79 0A 32 61 06 9A 32 A8 8D 2A 79 0A 7A B9 8C 07 2F F1 4F B9 A7 72 CC B9 52 6E 71 0E DC 89 CF 99 A7 72 6D 28 9B AD B9 0E 6F D3 94 C1 DF 0C 03 03 D1 F8 92 71 0C 31 32 71 C2 AA 75 0E" },
+    { setname="toutrun3", offset=0x3EB64, data="11 00 62 0D 02 00 00 86 49 48 00 20 11 00 62 0D 02 00 00 86 4F 4C 00 57" },
+    { setname="toutrun2", offset=0x140A8, data="B9 0E 96 7B 1B DB" },
+    { setname="toutrun2", offset=0x3EA00, data="E7 08 40 10 01 A6 59 AF 11 8E 03 69 78 3A 80 59 B1 E7 95 79 93 69 79 CE 2F F1 11 AE EB CF 19 8E 19 AE 81 82 71 0E 71 0E 71 0E 71 0E 55 44 83 71 79 0A 93 69 82 86 71 0E 2F 2F 51 AE 79 0A B3 69 8C 07 71 0E 3C 3E 31 61 E4 70 97 79 A3 20 8B D3 59 8F 00 F7 97 79 31 32 71 0E B9 0E 11 E7 4D 9C DF 0C 03 03 B9 0E 59 EF 8F ED 75 0E" },
+    { setname="toutrun2", offset=0x3EA6C, data="11 00 62 0D 02 00 00 86 49 48 00 20 11 00 62 0D 02 00 00 86 4F 4C 00 57" },
+    { setname="toutrun1", offset=0x14174, data="B9 0E 36 71 92 6C 71 0E 71 0E" },
+    { setname="toutrun1", offset=0x3EB00, data="E7 08 40 10 03 E6 85 E6 B3 2D 8A C2 AD 9A 24 73 2D C7 01 D9 35 71 D3 CF 7A 80 86 51 75 EB 94 71 34 73 E3 3F DA 7C B4 71 79 0A 00 C9 ED 4B DC AD CD 8B 79 0A 17 E6 8C 07 FC AD 94 71 E5 EF 37 73 75 D7 71 0E 23 3B 48 58 E0 53 A5 F9 A2 4C B9 0E FB CA 2A C4 DF 0C 03 03 18 37 8A A2 BD E3 8B C3 A9 DC 75 0E" },
+    { setname="toutrun1", offset=0x3EB64, data="11 00 62 0D 02 00 00 86 49 48 00 20 11 00 62 0D 02 00 00 86 4F 4C 00 57" },
+    { setname="toutrunj1", offset=0x140A8, data="B9 0E 19 AE 6C B1" },
+    { setname="toutrunj1", offset=0x3EA00, data="E7 08 40 10 53 C7 94 85 04 A5 01 A7 2D F3 5C ED 10 8F 11 C6 59 8E 18 CF AF E2 84 E5 47 53 51 E6 FA AD 18 CF 71 0E 71 0E 71 0E 71 0E 67 C3 92 44 79 0A 59 8E 62 EF 71 0E E9 C3 09 AE 79 0A 12 45 8C 07 71 0E 67 EB E9 8D B6 50 FA AD C2 BB C1 CB CF 8D 88 CF 31 45 53 6C 71 0E B9 0E 11 87 31 66 DF 0C 03 03 B9 0E CC 8D C6 F1 75 0E" },
+    { setname="toutrunj1", offset=0x3EA6C, data="11 00 62 0D 02 00 00 86 49 48 00 20 11 00 62 0D 02 00 00 86 4F 4C 00 57" },
 ]

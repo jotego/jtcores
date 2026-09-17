@@ -53,16 +53,6 @@ wire        flip, video_en, sound_en, line_intn, sub_bsy;
 wire [ 7:0] dipsw_a, dipsw_b;
 reg  [ 1:0] game_id;
 wire [ 2:0] ctrl_type = status[22:20];
-wire        gear;
-wire        ingame;
-reg  [15:0] game_st=0;
-
-localparam [14:1] STATE_ADDR    = 14'h0406;
-localparam [ 7:0] START_OUTRUN  = 8'h09, RACING_OUTRUN  = 8'h0C,
-                  START_TOUTRUN = 8'h0B, RACING_TOUTRUN = 8'h0E;
-
-localparam [14:1] AUTOTRANS_TOUTRUN = 14'h046B;
-reg         autotrans=0;
 wire        gear_toggle = ~dipsw[16];
 wire        gear_show   = ~dipsw[17];
 
@@ -88,27 +78,6 @@ assign nvram_addr = 0;
 assign nvram_we   = 0;
 assign nvram_din  = 0;
 assign wram_we    = {2{ram_cs&~main_rnw}} & ~main_dsn;
-
-always @(posedge clk) begin
-    if( rst ) begin
-        game_st <= 0;
-    end else if( main_addr[14:1]==STATE_ADDR ) begin
-        if( wram_we[1] ) game_st[15:8] <= main_dout[15:8];
-        if( wram_we[0] ) game_st[ 7:0] <= main_dout[ 7:0];
-    end
-end
-
-assign ingame = game_id==2 ?
-        ( game_st>={8'd0,START_TOUTRUN} && game_st<={8'd0,RACING_TOUTRUN} ) :
-        ( game_st>={8'd0,START_OUTRUN } && game_st<={8'd0,RACING_OUTRUN } );
-
-always @(posedge clk) begin
-    if( rst )
-        autotrans <= 0;
-    else if( wram_we[1] && main_addr[14:1]==AUTOTRANS_TOUTRUN )
-        autotrans <= |main_dout[15:8];
-end
-
 // Sub-CPU Work RAM
 assign subram_addr = sub_addr[14:1];
 assign subram_dsn  = sub_dsn;
@@ -221,7 +190,7 @@ jtoutrun_main u_main(
     .coin        ( coin[1:0]  ),
     .service     ( service    ),
     .gear_toggle ( gear_toggle),
-    .gear        ( gear       ),
+    .gear_show   ( gear_show  ),
     // ROM access
     .addr        ( full_addr  ),
     .rom_cs      ( main_cs    ),
@@ -364,11 +333,6 @@ jtoutrun_video u_video(
     .vint       ( vint      ),
     .line_intn  ( line_intn ),
     .dip_pause  ( dip_pause ),
-    .game_id    ( game_id   ),
-    .gear       ( gear      ),
-    .gear_en    ( gear_show ),
-    .ingame     ( ingame & ~(game_id==2 && autotrans) ),
-    .prog_ba    ( prog_ba   ),
 
     .cpu_dout   ( main_dout ),
     .main_dswn  ( main_dswn ),
