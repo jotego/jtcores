@@ -25,7 +25,7 @@ module jtoutrun_obj(
     output     [ 8:0]  buf_addr,
     output     [13:0]  buf_data,
     output             buf_we,
-    output             ln_done,
+    output reg         ln_done,
 
     // Video signal
     input              flip,
@@ -62,22 +62,21 @@ wire [ 9:0] dr_hzoom;
 wire        dr_hflip, dr_backwd, dr_shadow;
 wire        scan_done;
 
-`ifdef JTFRAME_LF_PIPELINE
-// JTFRAME_LF_PIPELINE requires ln_done to mean that every pixel of the line
-// has been written, so hold it back until the drawer is idle
-reg         done_pend=0, done_r=0;
-assign      ln_done = done_r;
+reg         done_pend;
+
 always @(posedge clk) begin
-    done_r <= 0;
-    if( scan_done ) done_pend <= 1;
-    if( (done_pend || scan_done) && !dr_busy && !dr_start ) begin
-        done_r    <= 1;
+    if( rst ) begin
+        ln_done   <= 0;
         done_pend <= 0;
+    end else begin
+        ln_done <= 0;
+        if( scan_done ) done_pend <= 1;
+        if( (done_pend || scan_done) && !dr_busy && !dr_start ) begin
+            ln_done   <= 1;
+            done_pend <= 0;
+        end
     end
 end
-`else
-assign      ln_done = scan_done;
-`endif
 
 jtoutrun_obj_ram u_ram(
     .rst       ( rst            ),
