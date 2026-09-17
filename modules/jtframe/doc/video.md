@@ -53,6 +53,14 @@ The monitor may completely lose sync for some settings. Note that this is a seco
 
 There is a line-based frame buffer available in the MiSTer and Pocket targets. It is line based because the frame buffer is drawn line by line and read line by line. This is enough for games that do not rotate the screen, and thus sprites can be drawn line by line.
 
+The Pocket Cell RAM backend runs its controller and memory-side line-buffer
+ports on `clk96`, independently of the core clock. These are related PLL
+clocks: with `pll6293`, the core remains near 50.3 MHz while the LF backend runs
+near 100.6 MHz. Completion events are transferred back with a toggle so the
+core cannot miss a one-cycle memory acknowledgement. Configuration writes
+retain their slower pulse lengths. Pocket keeps its copy-then-acknowledge
+scheduling; the higher clock shortens transfers and buffer clearing.
+
 To enable it use **JTFRAME_LF_BUFFER**. Refer to the standard include files to see which ports are required on the game side to access it. In MiSTer the DDR-backed line buffer can be combined with **JTFRAME_MR_DDRLOAD**: while the ROM download is active the DDR bus is assigned to the loader and the frame-buffer path is held idle, then normal frame-buffer traffic resumes after the download finishes.
 
 The DDR backend always overlaps drawing the next line with copying the completed line. The core must assert `ln_done` only after its last pixel write and wait for `ln_hs` before drawing again. `JTFRAME_LF_FULLV` is supported: completed blank lines are acknowledged once, discarded, and cleared without writing to DDR.

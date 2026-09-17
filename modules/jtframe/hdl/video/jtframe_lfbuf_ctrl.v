@@ -145,6 +145,7 @@ always @( posedge clk ) begin
     if( rst ) begin
         do_wr <= 0;
         wr_v  <= 0;
+        ln_done_l <= 0;
     end else begin
         ln_done_l <= ln_done;
         if( ln_done & ~ln_done_l ) begin
@@ -158,6 +159,13 @@ end
 
 reg [4:0] init_seq[0:15];
 reg [4:0] init_cnt;
+reg       init_div;
+
+// Configuration writes are asynchronous: retain the 48 MHz pulse lengths.
+always @(posedge clk) begin
+    if( rst ) init_div <= 0;
+    else      init_div <= ~init_div;
+end
 
 initial begin
     //                cen,  cre, advn,  oen,  wen
@@ -187,6 +195,7 @@ always @( posedge clk ) begin
         cr_advn  <= 0;
         cr_oen   <= 0;
         cr_cre   <= 0;
+        cr_wen   <= 1;
         csn      <= 0;
         fb_addr  <= 0;
         fb_clr   <= 0;
@@ -201,8 +210,10 @@ always @( posedge clk ) begin
     end else begin
         fb_done <= 0;
         wait1   <= 0;
-        cr_advn <= 1;
-        if(!wait1) adq_en <= 0;
+        if( st!=INIT ) begin
+            cr_advn <= 1;
+            if(!wait1) adq_en <= 0;
+        end
         if( fb_clr ) begin
             // the line is cleared outside the state machine so a
             // read operation can happen independently
@@ -214,8 +225,8 @@ always @( posedge clk ) begin
         if( !startup ) begin
             csn <= 1;
         end else case( st )
-            INIT: begin
-                case(init_cnt)
+            INIT: if( !CLK96 || init_div ) begin
+                case(init_cnt[3:0])
                     1,2,7,8: adq_en <= 1;
                     default: adq_en <= 0;
                 endcase
