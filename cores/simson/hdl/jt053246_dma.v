@@ -17,7 +17,7 @@ module jt053246_dma(
     input             lvbl,
 
     // External RAM
-    output reg [13:1] dma_addr, // up to 16 kB
+    output     [13:1] dma_addr, // up to 16 kB
     input      [15:0] dma_data,
     output reg        dma_bsy,    
 
@@ -29,6 +29,12 @@ module jt053246_dma(
 );
 
 parameter K55673=0, K55673_DESC_SORT=0, EDGE_TRIGGER=0;
+// ESTRIDE_LOG2: log2 of external words per entry, ENTRY_LOG2: log2 of entries
+// Default 8 words/512 entries. Moo Mesa: 32 words (A6/A7 not connected), 256 entries
+parameter ESTRIDE_LOG2 = 3, ENTRY_LOG2 = 9;
+localparam GAPBITS   = ESTRIDE_LOG2>3 ? ESTRIDE_LOG2-3 : 0;
+localparam ENTRY_TOP = 3+ENTRY_LOG2; // top bit of the entry field inside cnt
+localparam PADBITS   = 13-ENTRY_LOG2-GAPBITS-3;
 
 wire        dma_we, hs_pos;
 reg  [ 1:0] lvbl_sh;
@@ -36,14 +42,18 @@ reg  [11:1] dma_bufa;
 reg  [15:0] dma_bufd;
 wire [ 7:0] sort_24x, sort_673;
 reg         dma_clr, dma_wait, dma_ok, dma_44, hsl;
+reg  [13:1] cnt;
 
 assign dma_wel = dma_we & ~dma_wr_addr[1];
 assign dma_weh = dma_we &  dma_wr_addr[1];
 
 assign dma_din     = dma_clr ? 16'h0 : dma_bufd;
 assign dma_we      = dma_clr | dma_ok;
-assign dma_wr_addr = dma_clr ? dma_addr[11:1] : dma_bufa;
+assign dma_wr_addr = dma_clr ? cnt[11:1] : dma_bufa;
 assign hs_pos  = hs & ~hsl;
+
+assign dma_addr = GAPBITS==0 ? cnt[13:1] :
+    { {PADBITS{1'b0}}, cnt[ENTRY_TOP:4], {GAPBITS{1'b0}}, cnt[3:1] };
 
 assign sort_673 = dma_data[7:0]^{8{K55673_DESC_SORT[0]}};
 assign sort_24x ={ ~k44_en & dma_data[7], k44_en ? dma_data[6:0] : ~dma_data[6:0]};
@@ -75,7 +85,7 @@ always @(posedge clk) begin
         dma_bsy  <= 0;
         dma_clr  <= 0;
         dma_wait <= 0;
-        dma_addr <= 0;
+        cnt      <= 0;
         dma_bufa <= 0;
         dma_bufd <= 0;
         dma_bsy  <= 0;
@@ -93,23 +103,23 @@ always @(posedge clk) begin
             dma_clr  <= 1;
             dma_wait <= !k44_en && mode8; // 8-bit speed: 595us, 16-bit: 297.5us
             flicker  <= ~flicker;
-            dma_addr <= 0;
+            cnt      <= 0;
         end
         if( !dma_bsy ) begin
-            dma_addr <= 0;
+            cnt      <= 0;
             dma_bufa <= 0;
             dma_ok   <= 0;
         end else if( dma_clr ) begin // copy by priority order
-            dma_addr[11:1] <= dma_addr[11:1] + 1'd1;
-            dma_clr <= ~&{ dma_addr[11]|k44_en, dma_addr[10:1] };
-            if( k44_en ) dma_addr[11]<=0;
-            if( &dma_addr[11:1] && dma_wait ) dma_addr[11:1] <= 'h218; // extra 126us wait
+            cnt[11:1] <= cnt[11:1] + 1'd1;
+            dma_clr <= ~&{ cnt[11]|k44_en, cnt[10:1] };
+            if( k44_en ) cnt[11]<=0;
+            if( &cnt[11:1] && dma_wait ) cnt[11:1] <= 'h218; // extra 126us wait
         end else if(dma_wait) begin // extra time to match the original speed
-            { dma_wait, dma_addr[11:1] } <= { 1'b1, dma_addr[11:1] } + 1'd1;
+            { dma_wait, cnt[11:1] } <= { 1'b1, cnt[11:1] } + 1'd1;
         end else begin
             dma_bufd <= dma_data;
-            if( k44_en ) dma_addr[13:11] <= 0;
-            if( dma_addr[3:1]==0 ) begin
+            if( k44_en ) cnt[13:11] <= 0;
+            if( cnt[3:1]==0 ) begin
                 // the sprite at priority 0 in the Simpsons creates a problem in scene simson/4
                 // I was skipping it before, but priority 0 is used in Vendetta and it must take priority
                 // over the rest (see scene vendetta/3)
@@ -117,11 +127,11 @@ always @(posedge clk) begin
                 dma_bufa <= { K55673==1 ? sort_673 : sort_24x, 3'd0 };
                 dma_ok   <= dma_data[15] && (dma_data[7:0]!=0 || !simson);
             end
-            dma_addr[12:1] <= dma_addr[12:1] + 1'd1;
-            dma_bufa[ 3:1] <= dma_addr[3:1];
-            if( dma_addr[3:1]==6 ) begin
-                dma_addr[12:1] <= dma_addr[12:1] + 12'd2; // skip 7
-                dma_bsy <= !(&dma_addr[10:2] && (k44_en || &dma_addr[12:11]));
+            cnt[ENTRY_TOP:1] <= cnt[ENTRY_TOP:1] + 1'd1;
+            dma_bufa[ 3:1] <= cnt[3:1];
+            if( cnt[3:1]==6 ) begin
+                cnt[ENTRY_TOP:1] <= cnt[ENTRY_TOP:1] + 2; // skip 7
+                dma_bsy <= !(&cnt[10:2] && (k44_en || &cnt[ENTRY_TOP:4]));
             end
         end
     end
