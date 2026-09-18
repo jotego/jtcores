@@ -17,7 +17,7 @@
     The row ends when the last pixel DRAWN in a word is 0xF. pix 0 and 0xF are
     both transparent; 0xF also stops the row.
 
-    obj_pxl = { prio[1:0], pal[5:0], pix[3:0] }, prio = { sh_prio, 1'b1 };
+    obj_pxl = { prio[1:0], pal[5:0], pix[3:0] }; Space Harrier prio = { bit14, 1'b1 }.
     pal==6'h3f is shadow (segahang.cpp:282). obj_data[31:28] is the first
     non-flipped pixel -- the endianness jtframe's 32-bit obj read gives.
 */
@@ -26,13 +26,14 @@ module jtharier_obj_draw(
     input              rst,
     input              clk,
     input              hstart,
+    input              hangon,
 
     input              start,
     output reg         busy,
     input      [ 8:0]  xpos,
     input      [15:0]  offset,    // [15] = hflip, [14:0] = word offset within bank
     input      [ 2:0]  bank,
-    input              sh_prio,
+    input      [ 1:0]  prio,
     input      [ 5:0]  pal,
     input              shadow,
     input      [ 6:0]  hzoom,     // MAME value: (field & 0x3f) << 1
@@ -59,10 +60,11 @@ reg         hflip, last_word, fetch_dly;
 
 wire [ 3:0] cur_pxl;
 wire [ 8:0] xsum;
-wire        emit, line_end;
+wire        emit, line_end, word_end;
 
 assign cur_pxl  = hflip ? pxl_data[3:0] : pxl_data[31-:4];
 assign obj_addr = { bank, cur };
+assign word_end = hangon ? k[1:0]==2'd3 : &k;
 assign xsum     = { 1'b0, xacc } + { 2'b0, hzoom };
 assign emit     = ~xsum[8];
 // Must stop at the buffer end: bf_addr wraps otherwise and corrupts the line.
@@ -70,7 +72,7 @@ assign line_end = st==DRAW && emit && bf_addr==9'h1ff;
 
 assign bf_we   = st==DRAW && emit && cur_pxl!=4'h0 && cur_pxl!=4'hf;
 // per-pixel shadow: shadow-enabled AND pix==0xA (segahang.cpp:282, (pix&0x80f)==0x00a)
-assign bf_data = { sh_prio, 1'b1, (shadow && cur_pxl==4'ha) ? 6'h3f : pal, cur_pxl };
+assign bf_data = { prio, (shadow && cur_pxl==4'ha) ? 6'h3f : pal, cur_pxl };
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -120,7 +122,7 @@ always @(posedge clk, posedge rst) begin
                     busy   <= 0;
                     obj_cs <= 0;
                     st     <= IDLE;
-                end else if( &k ) begin
+                end else if( word_end ) begin
                     if( last_word ) begin
                         busy <= 0;
                         st   <= IDLE;

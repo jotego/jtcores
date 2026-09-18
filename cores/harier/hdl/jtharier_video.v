@@ -12,6 +12,9 @@ module jtharier_video(
     input              rowscr_en,   // SCONT0 from PPI0 port C (main.v)
     input              vfix_en,     // optional 'V' glyph fix, see below
     input              flip,
+    input              hangon,
+    input              hicol,
+    input              shade0,
 
     // Main CPU interface
     input              dip_pause,
@@ -181,6 +184,7 @@ jtharier_road u_road(
     .rst        ( rst          ),
     .clk        ( clk          ),
     .pxl_cen    ( pxl_cen      ),
+    .hangon     ( hangon       ),
     .hs         ( HS           ),
     .vdump      ( vdump        ),
 
@@ -201,6 +205,7 @@ jtharier_obj u_obj(
     .rst        ( rst         ),
     .clk        ( clk         ),
     .pxl_cen    ( pxl_cen     ),
+    .hangon     ( hangon      ),
 
     .tbl_addr   ( objdma_addr ),
     .tbl_dout   ( objdma_dout ),
@@ -241,6 +246,8 @@ jtharier_colmix u_colmix(
     .pal_addr     ( pal_vaddr    ),
     .pal_data     ( pal_vdata    ),
     .shadow       ( shadow       ),
+    .hicol        ( hicol        ),
+    .shade0       ( shade0       ),
     .gfx_en       ( gfx_en       ),
     .red          ( red          ),
     .green        ( green        ),

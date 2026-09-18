@@ -64,7 +64,7 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-assign ram_addr = sub_cs ? sub_addr : pend_addr;
+assign ram_addr = sub_cs ? sub_addr : pend ? pend_addr : main_addr;
 assign ram_din  = sub_cs ? sub_dout : pend_din;
 assign ram_we   = sub_cs ? (~sub_rnw ? ~sub_dsn : 2'b00) :
                   pend   ? pend_we : 2'b00;
