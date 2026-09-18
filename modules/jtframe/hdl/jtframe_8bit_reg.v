@@ -40,8 +40,7 @@ initial begin
                 $display("WARNING: SIMFILE %s is empty for %m", SIMFILE);
             end
         end else begin
-            $display("ERROR: cannot load file %s for %m", SIMFILE);
-            $finish;
+            $display("WARNING: cannot load file %s for %m", SIMFILE);
         end
     end
 end
