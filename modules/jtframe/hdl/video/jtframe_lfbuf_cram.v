@@ -5,7 +5,7 @@
 // Frame buffer built on top of two line buffers
 // the frame is stored in two PSRAM chips
 
-// This module is not fully tested yet
+// clk and clk96 must be related PLL clocks; clk is clk48 or clk96.
 module jtframe_lfbuf_cram #(parameter
     DW      =  16,
     VW      =   8,
@@ -14,7 +14,7 @@ module jtframe_lfbuf_cram #(parameter
 )(
     input               rst,     // hold in reset for >150 us
     input               clk,
-    input               clk48,
+    input               clk96,
     input               pxl_cen,
 
     // video status
@@ -53,22 +53,43 @@ module jtframe_lfbuf_cram #(parameter
     output              cr_wen
 );
 
-wire          frame, fb_clr, fb_done, line, scr_we, fb_blank, pxl48_cen;
+wire          frame, fb_clr, fb_done, line, scr_we, fb_blank, pxl96_cen;
+wire          fb_done96;
+reg           pxl_toggle, pxl_l, done_toggle, done_l;
 wire [HW-1:0] fb_addr, rd_addr;
 wire [  15:0] fb_din, fb_dout;
 wire [VW-1:0] vread;
 
-jtframe_crossclk_cen u_crosscen(
-    .clk_in     ( clk       ),    // fast clock
-    .cen_in     ( pxl_cen   ),
-    .clk_out    ( clk48     ),    // slow clock
-    .cen_out    ( pxl48_cen )
-);
+// Preserve events across both supported PLL ratios. In particular, a single
+// clk96 completion pulse may fall entirely between two clk48 rising edges.
+// These related-clock paths remain timed by STA.
+assign pxl96_cen = pxl_toggle ^ pxl_l;
+assign fb_done   = done_toggle ^ done_l;
 
-jtframe_lfbuf_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
+always @(posedge clk) begin
+    if( rst ) begin
+        pxl_toggle <= 0;
+        done_l     <= 0;
+    end else begin
+        if( pxl_cen ) pxl_toggle <= ~pxl_toggle;
+        done_l <= done_toggle;
+    end
+end
+
+always @(posedge clk96) begin
+    if( rst ) begin
+        pxl_l       <= 0;
+        done_toggle <= 0;
+    end else begin
+        pxl_l <= pxl_toggle;
+        if( fb_done96 ) done_toggle <= ~done_toggle;
+    end
+end
+
+jtframe_lfbuf_ctrl #(.CLK96(1),.HW(HW),.VW(VW)) u_ctrl (
     .rst        ( rst       ),
-    .clk        ( clk48     ),
-    .pxl_cen    ( pxl48_cen ),
+    .clk        ( clk96     ),
+    .pxl_cen    ( pxl96_cen ),
 
     .lhbl       ( lhbl      ),
     .vs         ( vs        ),
@@ -84,7 +105,7 @@ jtframe_lfbuf_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
     .fb_din     ( fb_din    ),
     .fb_dout    ( fb_dout   ),
     .fb_clr     ( fb_clr    ),
-    .fb_done    ( fb_done   ),
+    .fb_done    ( fb_done96 ),
 
     // data read from external memory to screen buffer
     // during h blank
@@ -107,7 +128,7 @@ jtframe_lfbuf_ctrl #(.HW(HW),.VW(VW)) u_ctrl (
 jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .clk_ctrl   ( clk48     ),
+    .clk_ctrl   ( clk96     ),
     .pxl_cen    ( pxl_cen   ),
     // video status
     .vrender    ( vrender   ),
@@ -142,6 +163,7 @@ jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
     .fb_dout    ( fb_dout   ),
     .fb_clr     ( fb_clr    ),
     .fb_done    ( fb_done   ),
+    .fb_busy    ( 1'b0      ),
 
     // data read from external memory to screen buffer
     // during h blank

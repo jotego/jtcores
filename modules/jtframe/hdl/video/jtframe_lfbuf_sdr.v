@@ -143,6 +143,7 @@ jtframe_lfbuf_line #(.DW(DW),.HW(HW),.VW(VW)) u_line(
     .fb_dout    ( fb_dout   ),
     .fb_clr     ( fb_clr    ),
     .fb_done    ( fb_done   ),
+    .fb_busy    ( 1'b0      ),
 
     // data read from external memory to screen buffer
     // during h blank

@@ -24,6 +24,7 @@ module jtframe_lfbuf_ddr_ctrl #(parameter
     input      [  15:0] fb_din,
     output reg          fb_clr,
     output reg          fb_done,
+    output              fb_busy,
 
     // data read from external memory to screen buffer
     // during h blank
@@ -59,6 +60,10 @@ wire [HW-1:0] nx_rd_addr;
 reg  [HW-1:0] hblen, hlim, hcnt, wr_addr;
 wire          fb_over, wr_over, fb_rd_bank, fb_wr_bank, ddram_keep_blank;
 reg  [VW-1:0] wr_v;
+reg           swap_pend, wr_bank, wr_blank;
+reg           data_held;
+reg  [15:0]   held_data;
+wire [15:0]   write_data;
 
 assign fb_over    = &fb_addr;
 assign wr_over    = &wr_addr;
@@ -66,13 +71,28 @@ assign scr_we     = st == READ && !ddram_busy && ddram_dout_ready && !rd_wait;
 assign ddram_clk  = clk;
 assign ddram_burstcnt = 8'h80;
 assign ddram_addr = { 4'd3, {29-4-AW{1'd0}}, act_addr };
-assign ddram_din  = { 48'd0, fb_din };
+assign write_data = data_held ? held_data : fb_din;
+assign ddram_din  = { 48'd0, write_data };
 assign ddram_be   = ddram_keep_blank ? 8'h00 : 8'h03;
 assign nx_rd_addr = rd_addr + 1'd1;
 assign fb_dout    = ddram_dout[15:0];
 assign fb_rd_bank = fb_keep ? 1'b0 : ~frame;
 assign fb_wr_bank = fb_keep ? 1'b0 :  frame;
-assign ddram_keep_blank = fb_keep && fb_din == LFBUF_CLR;
+assign ddram_keep_blank = fb_keep && write_data == LFBUF_CLR;
+
+// The line RAM prefetches one word ahead. Preserve the unaccepted word
+// when DDR stalls, otherwise the synchronous RAM output advances past it.
+always @(posedge clk) begin
+    if( rst ) begin
+        data_held <= 0;
+        held_data <= 0;
+    end else if( st!=WRITE || !ddram_busy ) begin
+        data_held <= 0;
+    end else if( !data_held ) begin
+        data_held <= 1;
+        held_data <= fb_din;
+    end
+end
 
 always @(posedge clk) begin
     case( st_addr[3:0] )
@@ -109,7 +129,8 @@ always @( posedge clk ) begin
     end
 end
 
-wire skip_blank_lines = do_wr && fb_blank;
+// A frame bank must not become visible until all writes and clearing finish.
+assign fb_busy = swap_pend || do_wr || st==WRITE || fb_clr;
 
 always @( posedge clk ) begin
     if( rst ) begin
@@ -126,13 +147,24 @@ always @( posedge clk ) begin
         ln_done_l<= 0;
         wr_v     <= 0;
         do_wr    <= 0;
+        swap_pend<= 0;
+        wr_bank  <= 0;
+        wr_blank <= 0;
         st       <= IDLE;
     end else begin
         fb_done <= 0;
         ln_done_l <= ln_done;
-        if (ln_done && !ln_done_l) begin
-            do_wr <= 1;
-            wr_v  <= ln_v;
+        // swap line buffers as soon as the core finishes a line, and copy
+        // the finished one to DDR while the next line is being drawn
+        if (ln_done && !ln_done_l) swap_pend <= 1;
+        if ((swap_pend || (ln_done && !ln_done_l)) && !do_wr && st!=WRITE && !fb_clr) begin
+            swap_pend <= 0;
+            line      <= ~line;
+            wr_v      <= ln_v;
+            wr_bank   <= fb_wr_bank;
+            wr_blank  <= fb_blank;
+            do_wr     <= 1;
+            fb_done   <= 1;
         end
         if( fb_clr ) begin
             // the line is cleared outside the state machine so a
@@ -153,14 +185,17 @@ always @( posedge clk ) begin
                     rd_addr  <= 0;
                     rd_wait  <= 1;
                     st       <= READ;
-                end else if( skip_blank_lines ) begin
-                    fb_done  <= 1;
+                end else if( do_wr && wr_blank ) begin
+                    // Already acknowledged at the swap. Discard blank-line
+                    // pixels and clear this buffer before it is reused.
                     do_wr    <= 0;
+                    fb_addr  <= 0;
+                    fb_clr   <= 1;
                 end else if( do_wr && !fb_clr &&
                     hcnt<hlim && lhbl ) begin // do not start too late so it doesn't run over H blanking
                     fb_addr  <= 1;
                     wr_addr  <= 0;
-                    act_addr <= { fb_wr_bank, wr_v, {HW{1'd0}}  };
+                    act_addr <= { wr_bank, wr_v, {HW{1'd0}}  };
                     ddram_we <= 1;
                     do_wr    <= 0;
                     st       <= WRITE;
@@ -192,8 +227,6 @@ always @( posedge clk ) begin
                 if( wr_over ) begin
                     ddram_we <= 0;
                     fb_addr  <= 0;
-                    line     <= ~line;
-                    fb_done  <= 1;
                     fb_clr   <= 1;
                     st       <= IDLE;
                 end

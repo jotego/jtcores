@@ -28,11 +28,12 @@ reg  [7:0]       st_addr = 8'd0;
 wire             ln_hs, ln_vs, ln_lvbl;
 wire [VW-1:0]    line_ln_v;
 wire [15:0]      ln_dout, ln_pxl;
-wire             frame;
+reg              frame = 0;
 wire [HW-1:0]    fb_addr;
 wire [15:0]      fb_din;
 wire             fb_clr;
 wire             fb_done;
+wire             fb_busy;
 wire             fb_blank;
 wire [15:0]      fb_dout;
 wire [63:0]      ddram_dout;
@@ -117,6 +118,7 @@ jtframe_lfbuf_ddr_ctrl #(
     .fb_din             ( fb_din             ),
     .fb_clr             ( fb_clr             ),
     .fb_done            ( fb_done            ),
+    .fb_busy            ( fb_busy            ),
     .fb_dout            ( fb_dout            ),
     .rd_addr            ( rd_addr            ),
     .line               ( line               ),
@@ -136,6 +138,7 @@ jtframe_lfbuf_ddr_ctrl #(
 );
 
 jtframe_lfbuf_line #(
+    .PIPELINED(1),
     .DW(16),
     .VW(VW),
     .HW(HW),
@@ -163,12 +166,13 @@ jtframe_lfbuf_line #(
     .ln_we      ( ln_we     ),
     .ln_dout    ( ln_dout   ),
     .ln_pxl     ( ln_pxl    ),
-    .frame      ( frame     ),
+    .frame      (           ),
     .fb_addr    ( fb_addr   ),
     .rd_addr    ( rd_addr   ),
     .fb_din     ( fb_din    ),
     .fb_clr     ( fb_clr    ),
     .fb_done    ( fb_done   ),
+    .fb_busy    ( fb_busy   ),
     .fb_blank   ( fb_blank  ),
     .fb_dout    ( fb_dout   ),
     .line       ( line      ),
@@ -289,6 +293,7 @@ endtask
 task pulse_vs;
 begin
     @(negedge clk);
+    frame = ~frame; // This controller test supplies frame boundaries directly.
     vs = 1'b1;
     @(posedge clk);
     @(negedge clk);

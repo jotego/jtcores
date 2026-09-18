@@ -24,6 +24,7 @@ reg  [7:0]       st_addr = 8'd0;
 wire [HW-1:0]    fb_addr;
 wire             fb_clr;
 wire             fb_done;
+wire             fb_busy;
 wire [15:0]      fb_dout;
 wire [HW-1:0]    rd_addr;
 wire             line;
@@ -69,6 +70,7 @@ jtframe_lfbuf_ddr_ctrl #(
     .fb_din             ( fb_din             ),
     .fb_clr             ( fb_clr             ),
     .fb_done            ( fb_done            ),
+    .fb_busy            ( fb_busy            ),
     .fb_dout            ( fb_dout            ),
     .rd_addr            ( rd_addr            ),
     .line               ( line               ),
