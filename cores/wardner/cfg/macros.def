@@ -1,0 +1,34 @@
+[*]
+CORENAME=JTWARDNER
+JTFRAME_RATE=54.878
+JTFRAME_BUTTONS=2
+JTFRAME_WIDTH=320
+JTFRAME_HEIGHT=240
+JTFRAME_COLORW=5
+
+# Base clock: 56 MHz on MiSTer, 49 MHz on SiDi128, so the 7 MHz pixel clock is
+# an integer division. SiDi128's game PLL does not lock above 54 MHz.
+
+JTFRAME_BA1_START=0x040000
+DSP_START=0x048000
+JTFRAME_BA2_START=0x049000
+BG_START=0x059000
+FG_START=0x079000
+JTFRAME_BA3_START=0x099000
+JTFRAME_PROM_START=0x0D9000
+
+# palette readback, for jtsim -dump
+JTFRAME_IOCTL_RD=4096
+
+[mister]
+JTFRAME_ARX=4
+JTFRAME_ARY=3
+JTFRAME_PLL=jtframe_pll7000
+# jtframe_pll7000's SDRAM clock output is at 45 degrees, as in cps3
+JTFRAME_180SHIFT
+
+[sidi128]
+JTFRAME_PLL=jtframe_pll6125
+
+[mist|sidi]
+JTFRAME_SKIP

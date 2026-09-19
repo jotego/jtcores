@@ -1,0 +1,65 @@
+[global]
+author=["jotego"]
+# The DSP mask ROM has never been dumped from a Wardner board. MAME
+# substitutes the Flying Shark MCU, d70012u_gxc-02_mcu_71001, and lists it in
+# the Wardner sets, but the only copy it does not flag as a bad dump lives in
+# fshark, so that is where most collections keep it. Naming fshark.zip as the
+# alternative lets the MRA take the file from either, the same way cps15 and
+# cps2 reach qsound.zip and rastan reaches cchip.zip.
+zip.alt="fshark.zip"
+
+[parse]
+sourcefile=[ "wardner.cpp" ]
+skip.setnames=[
+    # The bootlegs replace the TMS320C10 mask ROM with eight nibble-wide
+    # PROMs. Assembling those needs a nibble interleave the MRA format does
+    # not offer, so only the sets carrying the single DSP dump are built.
+    "wardnerb", "wardnerjb",
+]
+
+[buttons]
+names=[
+    { names="Fire,Jump" },
+]
+
+[dipsw]
+bitcnt = 16
+delete = [{ names=[ "Unused", "Unknown" ] }]
+# No `defaults` override here. Many cores force "ff,ff" because their DIP
+# inputs are active low and the core inverts them; Wardner's are active high
+# and jtwardner_main hands dipsw_a straight to port 50, so all-ones would mean
+# Service Mode on, Demo Sounds off, Flip Screen on and 4 coins per credit.
+# The value computed from MAME's own defaults is 01,00 - cabinet upright,
+# everything else off - which is what the board ships with.
+
+[ROM]
+# The SDRAM map is set in cfg/macros.def and cfg/mem.yaml:
+#   BA0  main   0x40000, sparse - the bank gaps must stay 0xFF
+#   BA1  snd    0x08000, then the DSP mask ROM at DSP_START
+#   BA2  char   0x10000, bg 0x20000, fg 0x20000
+#   BA3  obj    0x40000
+#
+# Every tile and sprite region is stored plane-separated by MAME (RGN_FRAC),
+# one byte per 8-pixel row per plane. Interleaving the planes into 32-bit
+# words makes one SDRAM read a whole 8-pixel row, which is what the tile and
+# sprite engines expect: byte 0 is plane 0.
+regions = [
+    { name="maincpu" },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    # MAME holds the DSP mask ROM in a ROM_REGION16_BE, but jtframe's download
+    # fills each 16-bit word low byte first (jtframe_bram_rom drives we_lower
+    # from prog_mask[0]), so the region has to be byte swapped on the way in.
+    # Without this the DSP executes every instruction byte-reversed.
+    { name="dsp:dsp",  rename="dsp", start="DSP_START", width=16, reverse=true },
+    # the text layer is 3bpp; the fourth byte is never read by the video
+    # module, so the last plane is repeated rather than padded
+    { name="chars",    width=32, start="JTFRAME_BA2_START", sequence=[0,1,2,2] },
+    { name="bg_tiles", width=32, start="BG_START",  sequence=[0,1,2,3] },
+    { name="fg_tiles", width=32, start="FG_START",  sequence=[0,1,2,3] },
+    { name="scu",      rename="obj", width=32, start="JTFRAME_BA3_START", sequence=[0,1,2,3] },
+    { name="proms",    start="JTFRAME_PROM_START" },
+]
+
+order = [
+    "maincpu", "audiocpu", "dsp", "chars", "bg_tiles", "fg_tiles", "obj", "proms"
+]
