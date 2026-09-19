@@ -12,6 +12,8 @@ volume = [ { machine="sharrier", value = 160 } ]
 [buttons]
 Names = [
     { machine="sharrier", names="Fire,Fire 2,Fire 3" },
+    { machine="enduror",  names="Accelerate,Brake" },
+    { machine="hangon",   names="Accelerate,Brake" },
 ]
 
 [dipsw]

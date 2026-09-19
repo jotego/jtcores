@@ -107,7 +107,7 @@ jtharier_cab u_cab(
     .clk        ( clk            ),
     .LVBL       ( LVBL           ),
 
-    .joystick1  ( joystick1[3:0] ),
+    .joystick1  ( joystick1[5:0] ),
     .joyana_l1  ( joyana_l1      ),
     .joyana_r1  ( joyana_r1      ),
     .adc        ( adc            ),
