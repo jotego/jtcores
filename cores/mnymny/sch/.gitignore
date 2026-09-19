@@ -1,0 +1,7 @@
+*.kicad_prl
+*.lck
+~*.lck
+*.rpt
+*-backups/
+.DS_Store
+gen/__pycache__/
