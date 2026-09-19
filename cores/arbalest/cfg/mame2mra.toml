@@ -1,0 +1,46 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "downtown.cpp" ]
+# This core ships the metafox-class members of downtown.cpp (sub = I/O CPU,
+# X1-010 on the main 68000 bus). calibr50 is the cal50 core; the others differ.
+skip.Machines=[
+    "tndrcade","tndrcadej",
+    "twineagl","twineagl1",
+    "downtown","downtown2","downtownj","downtownp",
+    "usclssic",
+    "calibr50",
+]
+
+[header]
+info="""Seta downtown.cpp (metafox-class) family header, decoded in jtarbalest_game.v.
+        byte 0 = game_id (0=metafox, 1=arbalest). Bytes 1..15 reserved."""
+data=[
+    { setnames=["metafox"],  data="00" },
+    { setnames=["arbalest"], data="01" },
+]
+
+[buttons]
+names = [
+    { names="Shot,Bomb" },
+]
+
+[dipsw]
+delete= [
+    { names=["Copyright / License", "Licensed To", "Licensor Option", "Coinage Type"] },
+]
+
+[ROM]
+regions = [
+    { name="maincpu", width=16, reverse=true, no_offset=true  },
+
+    { name="sub",   start="JTFRAME_BA1_START", no_offset=true },
+    { name="x1snd", start="PCM_START"         },
+
+    { name="tiles",   width=16, start="JTFRAME_BA2_START", no_offset=true },
+    { name="sprites", width=32, start="JTFRAME_BA3_START", no_offset=true },
+    { name="proms", skip=true }
+]
+
+order=["maincpu","sub","x1snd","tiles","sprites"]

@@ -2,7 +2,18 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Date: 15-11-2025 */
 
-module jtcal50_video(
+module jtcal50_video #(
+    // 12 = 8kB sprite RAM (calibr50), 13 = 16kB + setac bank (metafox/arbalest)
+    parameter OBJAW  = 12,
+    // 1: blend the X1-001 background layer (metafox/arbalest)
+    parameter SCR_EN = 0,
+    // Caliber 50 only populates object entries 0-200; a shorter scan leaves
+    // line time for the sprites that wrap through Y=0
+    parameter [ 8:0] OBJ_LIMIT = 9'd200,
+    parameter [ 8:0] VB_END   = 9'd0,
+    parameter [ 8:0] VB_START = 9'd240,
+    parameter [ 8:0] OBJ_XOFF = 9'h1fe
+)(
     input               rst,
     input               clk,
     input               clk_cpu,
@@ -16,6 +27,10 @@ module jtcal50_video(
     output              VS,
     output              flip,
     output     [ 8:0]   hdump,
+    // X1-012 tilemap scroll origin. Per game, so it cannot be a parameter on a
+    // shared bitstream. MAME x1_012 update_scroll: x += 0x10-xoffsets[0], and our
+    // origin sits 0x0d above MAME's -> calibr50 0x20, metafox 0x0d, arbalest 0x1f
+    input      [15:0]   thoffs,
     // Palette
     output     [ 9:1]   pal_addr,
     input      [15:0]   pal_data,
@@ -42,11 +57,11 @@ module jtcal50_video(
     input      [ 7:0]   col_data, yram_dout,
     output              yram_we,
     // X1-001 External VRAM (defined in mem.yaml)
-    output     [12:1]   dma_addr,
+    output     [OBJAW:1]   dma_addr,
     output     [15:0]   dma_din,
     output     [ 1:0]   dma_we,
     input      [15:0]   dma_dout, code_dout,
-    output     [11:0]   code_addr,
+    output     [OBJAW-1:0] code_addr,
     // SDRAM interface
     output     [20:2]   scr_addr,
     input      [31:0]   scr_data,
@@ -81,7 +96,9 @@ localparam [8:0] OBJ_VOFF =  9'd18, OBJ_VOFF_F = -9'd4,
                  OBJ_HOFF = -9'd4,  OBJ_HOFF_F = -9'd7;
 
 wire [8:0] hdump_gfx = hdump - 9'd7;
-wire [8:0] vdump_gfx = vdump - 9'd1;
+wire [8:0] vdump_gfx = vdump - 9'd1,
+           vrender_gfx = vrender - 9'd1;
+wire [8:0] vdump_tile = vdump_gfx - VB_END;
 
 assign ioctl_din = ioctl_addr[3] ? x1001_ioctl_din : x1012_ioctl_din;
 
@@ -107,8 +124,8 @@ jtframe_vtimer #(
     .V_START ( 9'd000 ),
     .VS_START( 9'd253 ),
     .VS_END  ( 9'd261 ),
-    .VB_START( 9'd240 ),
-    .VB_END  ( 9'd000 ),
+    .VB_START( VB_START ),
+    .VB_END  ( VB_END   ),
     .VCNT_END( 9'd271 )
 ) u_timer(
     .clk        ( clk        ),
@@ -127,6 +144,7 @@ jtframe_vtimer #(
 /* verilator tracing_off */
 jtx1012 u_tiles(
     .rst        ( rst           ),
+    .hoffs      ( thoffs        ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
 
@@ -138,7 +156,7 @@ jtx1012 u_tiles(
 
     .hs         ( HS            ),
     .flip       ( flip          ),
-    .vdump      ( vdump_gfx     ),
+    .vdump      ( vdump_tile    ),
     .hdump      ( hdump_gfx     ),
     // Video RAM
     .vram_addr  ( tvram_addr    ),
@@ -166,10 +184,11 @@ wire [8:0] vdump_adj   = vdump   + (flip ? OBJ_VOFF : OBJ_VOFF_F),
 /* verilator tracing_on */
 jtkiwi_gfx #(
     .CPUW    ( 16      ),
-    .OBJ_XOFF( 9'h1fe  ),
+    .OBJ_XOFF( OBJ_XOFF ),
     .OBJ_YOFF( 8'hf5   ),
     .OBJ_YWRAP( 1'b1   ),
-    .OBJ_LIMIT( 9'h1ff )
+    .OBJ_LIMIT( OBJ_LIMIT ),
+    .OBJAW    ( OBJAW  )
 ) u_gfx(
     .rst        ( rst            ),
     .clk        ( clk            ),
@@ -228,7 +247,7 @@ jtkiwi_gfx #(
     .st_dout    ( st_kiwi        )
 );
 /* verilator tracing_on */
-jtcal50_colmix u_colmix(
+jtcal50_colmix #(.SCR_EN(SCR_EN)) u_colmix(
     .clk        ( clk            ),
     .clk_cpu    ( clk_cpu        ),
     .pxl_cen    ( pxl_cen        ),
