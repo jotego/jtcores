@@ -123,7 +123,9 @@ open(os.path.join(outdir,"sdram_bank0.bin"),"wb").write(swab(bank0))
 open(os.path.join(outdir,"sdram_bank2.bin"),"wb").write(swab(bank2))
 open(os.path.join(outdir,"sdram_bank3.bin"),"wb").write(swab(bank3))
 open(os.path.join(outdir,"sdram_bank1.bin"),"wb").write(swab(bank1))
-open(os.path.join(outdir,"c75bios.bin"),"wb").write(c75)
+# the BIOS BRAM is a 16-bit jtframe_bram_rom, simfiles are split by byte lane
+open(os.path.join(outdir,"c75bios_lo.bin"),"wb").write(c75[0::2])
+open(os.path.join(outdir,"c75bios_hi.bin"),"wb").write(c75[1::2])
 # prefer a once-booted NVRAM image (MAME first-boot initialized): the game
 # then loads valid settings/calibration and boots straight to attract.
 # Fresh 0xFF NVRAM also works in MAME; our fresh-init path has a remaining

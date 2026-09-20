@@ -165,7 +165,7 @@ bram:
     addr_width: 14
     data_width: 16
     rw: true
-  - name: c75bios   # C75 internal 16kB mask ROM (c75.bin)
-    addr_width: 14  # TODO: move into the MRA/rom.bin flow, simfile-only now
+  - name: c75bios   # C75 internal 16kB mask ROM (c75.bin, namcoc75.zip device set)
+    addr_width: 14
     data_width: 16
-    simfile: {}
+    rom: { offset: "((`C75BIOS_START-`JTFRAME_BA2_START)>>1)|24'h800000" }
