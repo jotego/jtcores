@@ -529,6 +529,7 @@ reg         rom_okr;
 wire [ 7:0] p6o;
 reg  [ 7:0] p7mux;
 wire [ 7:0] accel, wheel, brake;
+wire        gear;
 
 // port 7 input mux, selected by p6[7:4] (MAME port7_r)
 // MISC: bit4 COIN2, bit5 COIN1, bit6 TEST(service sw), bit7 SERVICE1
@@ -536,7 +537,7 @@ always @* begin
     case( p6o[7:4] )
         4'h0: p7mux = 8'hff;                    // IN0
         4'h2: p7mux = {cab_misc, 4'hf};         // MISC
-        4'h4: p7mux = 8'hff;                    // IN1 (freeze dip off)
+        4'h4: p7mux = {3'b111, flr ? ~gear : 1'b1, 4'hf}; // IN1: bit5 freeze dip off, bit4 shifter
         4'h6: p7mux = { start, joystick[6:5], joystick[7], 4'hf }; // IN2
         default: p7mux = 8'hff;
     endcase
@@ -651,7 +652,8 @@ jtsysfl_ctrl u_ctrl(
     .joystick ( joystick  ),
     .accel    ( accel     ),
     .brake    ( brake     ),
-    .wheel    ( wheel     )
+    .wheel    ( wheel     ),
+    .gear     ( gear      )
 );
 
 jt352 u_pcm(

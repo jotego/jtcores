@@ -26,15 +26,18 @@ module jtsysfl_ctrl(
     input      [ 7:0] joystick,     // active low {b4,b3,b2,b1,up,down,left,right}
     output reg [ 7:0] accel,
     output reg [ 7:0] brake,
-    output reg [ 7:0] wheel
+    output reg [ 7:0] wheel,
+    output reg        gear      // shifter toggle (MAME PORT_TOGGLE)
 );
 
-wire frame, gas, stop, left, right;
+wire frame, gas, stop, left, right, shift;
+reg  shift_l;
 
 assign gas   = ~joystick[4];
 assign stop  = ~joystick[5];
 assign left  = ~joystick[1];
 assign right = ~joystick[0];
+assign shift = ~joystick[7];
 
 jtframe_edge_pulse #(.NEGEDGE(1)) u_frame(
     .rst    ( rst   ),
@@ -49,7 +52,13 @@ always @(posedge clk) begin
         accel <= 0;
         brake <= 0;
         wheel <= 8'h80;
-    end else if( frame ) begin
+        gear  <= 0;
+        shift_l <= 0;
+    end else begin
+        shift_l <= shift;
+        if( shift && !shift_l ) gear <= ~gear;
+    end
+    if( !rst && frame ) begin
         if( gas )
             accel <= accel > 8'd235 ? 8'hff : accel + 8'd20;
         else
