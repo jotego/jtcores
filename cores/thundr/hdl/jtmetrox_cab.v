@@ -23,7 +23,6 @@ reg [2:0] sel;
 
 always @(posedge clk) begin
     if(&p1_dout[7:5]) sel=p1_dout[2:0];
-    // dipsw follows the MAME port layout: [7:0]=DSWA, [15:8]=DSWB, [19:16]=EDGE
     case(sel)
         0: cab <= {UNUSED,dipsw[ 7:3]};              // (DSWA & 0xf8)>>3
         1: cab <= {UNUSED,dipsw[ 2:0],dipsw[15:14]}; // (DSWA & 7)<<2 | (DSWB & 0xc0)>>6
