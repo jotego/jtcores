@@ -1,9 +1,5 @@
 [parse]
 sourcefile=[ "namcos86.cpp", "baraduke.cpp" ]
-debug={machines=[
-	# bad third bit plane of scroll layer
-	"aliensec",
-]}
 
 [buttons]
 names=[
