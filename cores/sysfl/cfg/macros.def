@@ -35,6 +35,10 @@ JTFRAME_BA1_WEN
 # scene dumps: 6 BRAMs + video MMRs
 JTFRAME_IOCTL_RD=352372
 
+[mister]
+# LAB budget is tight: no composite/S-Video encoder, RGB and HDMI unaffected
+MISTER_DISABLE_YC
+
 [mist|sidi]
 # not enough resources
 JTFRAME_SKIP
