@@ -77,8 +77,8 @@ u_game(
     .cab_1p ( game_start[STARTW-1:0]      ), .coin ( game_coin[STARTW-1:0]       ),
     .joystick1    ( game_joy1[`JTFRAME_BUTTONS+3:0] ), .joystick2  ( game_joy2[`JTFRAME_BUTTONS+3:0] ),
     .joystick3    ( game_joy3[`JTFRAME_BUTTONS+3:0] ), .joystick4  ( game_joy4[`JTFRAME_BUTTONS+3:0] ), `ifdef JTFRAME_PADDLE
-    .paddle_1     ( paddle_1         ), .paddle_2     ( paddle_2         ),
-    .paddle_3     ( paddle_3         ), .paddle_4     ( paddle_4         ), `endif `ifdef JTFRAME_MOUSE
+    .paddle_0     ( paddle_1         ), .paddle_1     ( paddle_2         ),
+    .paddle_2     ( paddle_3         ), .paddle_3     ( paddle_4         ), `endif `ifdef JTFRAME_MOUSE
     .mouse_1p     ( mouse_1p         ), .mouse_2p     ( mouse_2p         ), .mouse_strobe ( mouse_strobe ), `endif `ifdef JTFRAME_LIGHTGUN
     .gun_1p_x     ( gun_1p_x         ), .gun_1p_y     ( gun_1p_y         ),
     .gun_2p_x     ( gun_2p_x         ), .gun_2p_y     ( gun_2p_y         ), `endif `ifdef JTFRAME_SPINNER
