@@ -43,6 +43,7 @@ JTFRAME_JOY_RLUD         |         | Joystick lower 4 bits are:  right, left,  u
 JTFRAME_JOY_UDLR         |         | Joystick lower 4 bits are:  up,    down,  left,  right (default)
 JTFRAME_JOY_UDRL         |         | Joystick lower 4 bits are:  up,    down,  right, left
 JTFRAME_JOY_B1B0         |         | Swaps the first two buttons
+JTFRAME_JOY_B2B1B0       |         | Swaps the first three buttons
 JTFRAME_LIGHTGUN         |         | Enables the crosshair overlay
 JTFRAME_LIGHTGUN_ON      |         | Used with JTFRAME_LIGHTGUN, forces crosshair overlay onscreen
 JTFRAME_LIGHTGUN_XOFFSET |         | Used with JTFRAME_LIGHTGUN, adds a 9 bit correction value to lightgun X coordinate sent to core

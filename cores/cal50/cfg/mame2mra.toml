@@ -19,7 +19,7 @@ skip.Machines=[
 
 [buttons]
 names = [
-    { machine="calibr50", names="Shoot,Grenade,Turn Right,Turn Left" },
+    { machine="calibr50", names="Shoot,Grenade,Turn Right,Turn Left", map="YBRL" },
 ]
 
 [dipsw]

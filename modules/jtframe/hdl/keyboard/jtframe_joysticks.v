@@ -250,6 +250,7 @@ module jtframe_joy_reorder(
     `ifdef JTFRAME_JOY_DURL reorder[3:0]={joy_in[2], joy_in[3], joy_in[0], joy_in[1]}; `endif
     `ifdef JTFRAME_JOY_DULR reorder[3:0]={joy_in[2], joy_in[3], joy_in[1], joy_in[0]}; `endif
     `ifdef JTFRAME_JOY_B1B0 reorder[5:4]={joy_in[4], joy_in[5]}; `endif
+    `ifdef JTFRAME_JOY_B2B1B0 reorder[6:4]={joy_in[4], joy_in[5],joy_in[6]}; `endif
         end
     endfunction
 

@@ -15,7 +15,7 @@ module jtharier_cab(
     input             clk,
     input             LVBL,
 
-    input      [ 3:0] joystick1, // d-pad, active low
+    input      [ 5:0] joystick1, // d-pad + buttons 1-2, active low
     input      [15:0] joyana_l1, // { Y, X }, signed bytes
     input      [15:0] joyana_r1, // { Y, X }, signed bytes
     input      [ 2:0] adc,       // header: number of populated ADC channels
@@ -40,6 +40,8 @@ wire dp_up    = ~joystick1[3];
 wire dp_down  = ~joystick1[2];
 wire dp_left  = ~joystick1[1];
 wire dp_right = ~joystick1[0];
+wire bt_gas   = ~joystick1[4];
+wire bt_brake = ~joystick1[5];
 reg  signed [9:0] dig_x, dig_y;
 
 wire signed [ 9:0] ana_x = { {2{joyana_l1[ 7]}}, joyana_l1[ 7:0] };
@@ -65,7 +67,7 @@ wire        [ 7:0] an_y_raw = clp_yf[9] ? 8'h80 + off_y : 8'h80 - off_y;
 wire [ 7:0] enduro_gas   = ana_ry[9] ? -ana_ry[7:0] : 8'd0;
 wire [ 7:0] enduro_brake = ana_ry[9] ? 8'd0 : ana_ry[7:0];
 wire [ 7:0] enduro_bank  = 8'h20 + ana_y[7:0];
-wire [ 7:0] enduro_steer = 8'h80 - ana_x[7:0];
+wire [ 7:0] enduro_steer = 8'h80 - (dig_x!=0 ? dig_x[7:0] : ana_x[7:0]);
 
 reg anl_vbl;
 always @(posedge clk) begin
@@ -101,14 +103,14 @@ always @(posedge clk) begin
             if( adc==3'd4 ) begin
                 an_x     <= enduro_steer;
                 an_y     <= enduro_bank;
-                an_gas   <= enduro_gas;
-                an_brake <= enduro_brake;
+                an_gas   <= bt_gas   | enduro_gas[7]   ? 8'hff : { enduro_gas[6:0],   1'b0 };
+                an_brake <= bt_brake | enduro_brake[7] ? 8'hff : { enduro_brake[6:0], 1'b0 };
             end else begin
                 an_x <= an_x_raw;
                 an_y <= an_y_raw;
                 if( adc==3'd3 ) begin
-                    an_gas   <= enduro_gas[7]   ? 8'hff : { enduro_gas[6:0],   1'b0 };
-                    an_brake <= enduro_brake[7] ? 8'hff : { enduro_brake[6:0], 1'b0 };
+                    an_gas   <= bt_gas   | enduro_gas[7]   ? 8'hff : { enduro_gas[6:0],   1'b0 };
+                    an_brake <= bt_brake | enduro_brake[7] ? 8'hff : { enduro_brake[6:0], 1'b0 };
                 end
             end
         end

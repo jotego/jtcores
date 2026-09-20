@@ -12,7 +12,7 @@ volume = [
 
 [buttons]
 Names = [
-    { names="Hit Left,Jump,Hit Right"},
+    { names="Hit Left,Jump,Hit Right", map="YXA"},
 ]
 
 [dipsw]

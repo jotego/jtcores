@@ -85,7 +85,7 @@ names = [
     { machine="altbeast", names="Punch,Kick,Jump" },
     { machine="aurail",   names="Rapid Shot,Kite/Turn,Shield" },
     { machine="bayroute", names="Shot,Jump,Select" },
-    { machine="bullet",   names="Shot (Up),Shot (Right),Shot (Behind),Shot (Left)" },
+    { machine="bullet",   names="Shot (Up),Shot (Right),Shot (Behind),Shot (Left)", map="XABY" },
     { machine="cotton",   names="Shoot/Magic,Bomb/Nymphs" },
     { machine="ddux",     names="Shot,Jump" },
     { machine="dunkshot", names="Shot,Pass" },
@@ -112,7 +112,7 @@ names = [
     { machine="wrestwar", names="Punch,Kick" },
     { machine="fantzn2x", names="Shot,Bomb" },
     { machine="atomicp",  names="Rotate" },
-    { machine="snapper",  names="Left,Right,Shot" },
+    { machine="snapper",  names="Left,Right,Shot", map="YAB" },
     { machine="lockonph", names="Shot,Bomb" },
     { machine="dfjail",   names="Assault Rifle,Jump,R.P.G" }
 ]

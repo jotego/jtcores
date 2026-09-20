@@ -18,6 +18,9 @@ depending on the --git argument.
 
 Macros in macros.def are parsed by the MRA flow before conversion.
 
+From `$JTROOT/cores`, run `jtframe mra --skipROM *` to audit all cores after
+updating MAME XML. The command validates ROM region names and builds and checks each set's MRA ROM layout, without opening ROM ZIP files or writing `.rom` files. It continues after TOML, region-name and ROM-layout errors and exits nonzero if any core or set fails. Errors identify the core and, for layout errors, the set.
+
 ROM-less cores may provide a `cfg/mame2mra.toml` with no `[parse].sourcefile`,
 no explicit `[parse].machine`, and no `[ROM].regions`. In that case `jtframe
 mra` emits a dull MRA containing only the core metadata and RBF link, without a
@@ -124,6 +127,16 @@ frames = [
 ]
 
 [buttons]
+# Names stay in core input-bit order. Optional map assigns one physical
+# gamepad button per name, using A/B/X/Y/L/R (default order: ABXYLR).
+# A is the right face button, B bottom, X top, Y left; L/R are shoulders.
+# Example: { names="Shoot left,Shoot centre,Shoot right", map="YXA" }
+# This produces MRA defaults Y,X,A and Pocket keys pad_btn_y/x/a.
+# Use - for an unused input, e.g. names="Left,-,Right", map="Y-A".
+# Map length must equal the number of names (maximum six); keys cannot repeat.
+# Name and map are selected together by machine/setname, including clones.
+# Omitting map keeps the existing defaults. --buttons overrides names and
+# resets the MRA mapping to the default order.
 names=[
 	{ setname="...", machine="...", names="shot,jump" }
 ]
