@@ -109,5 +109,6 @@ if os.path.exists(mamenv):
 else:
     open(os.path.join(outdir,"nvram.bin"),"wb").write(bytes([0xff]*0x2000))
 # jtsim downloads rom.bin over bank 0 before releasing reset; raw prog head
-# makes the overwrite a no-op (see ver/speedrcr)
-open(os.path.join(outdir,"rom.bin"),"wb").write(bytes(prog[:1024]))
+# makes the overwrite a no-op (see ver/speedrcr). First 8 bytes = MRA header,
+# byte 0 flr=1 selects the Final Lap R cabinet inputs
+open(os.path.join(outdir,"rom.bin"),"wb").write(bytes([1,0,0,0,0,0,0,0])+bytes(prog[:1024]))

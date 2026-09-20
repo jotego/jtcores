@@ -484,7 +484,7 @@ endmodule
 // MCU map (namcofl.cpp namcoc75_am): 002000-002fff C352, 004000-00bfff shared
 // RAM, 00c000-00ffff internal ROM, 200000-27ffff external data ROM
 // IRQ0/IRQ2 ticked at 60Hz (vblank), per the MAME timer configuration
-// Inputs: an5 wheel, an6 brake 0xff (absent), an7 accel, IN2 start/weapons
+// Inputs: an5 wheel, an6 brake (flr only, 0xff on speedrcr), an7 accel
 module jtsysfl_c75(
     input             rst,
     input             clk,
@@ -492,8 +492,9 @@ module jtsysfl_c75(
     input             lvbl,
     // cabinet, active low: {SERVICE1, TEST, COIN1, COIN2} on MISC[7:4]
     input      [ 3:0] cab_misc,
-    input      [ 7:0] joystick,     // active low, b1 gas, b2-b4 weapons 1-3
+    input      [ 7:0] joystick,     // active low, b1 gas, b2 brake (flr), b2-b4 weapons 1-3
     input             start,        // active low, Start / Jump
+    input             flr,          // header: Final Lap R cabinet
     // shared RAM, MCU side of the dual port
     output     [14:1] mcu_addr,
     output     [15:0] mcu_din,
@@ -527,7 +528,7 @@ wire        rom_cs;
 reg         rom_okr;
 wire [ 7:0] p6o;
 reg  [ 7:0] p7mux;
-wire [ 7:0] accel, wheel;
+wire [ 7:0] accel, wheel, brake;
 
 // port 7 input mux, selected by p6[7:4] (MAME port7_r)
 // MISC: bit4 COIN2, bit5 COIN1, bit6 TEST(service sw), bit7 SERVICE1
@@ -633,8 +634,8 @@ jt37702 u_mcu(
     .p6_diro  (           ),
     .p7_diro  (           ),
     .p8_diro  (           ),
-    // an0-4 = 0xff constants, an5 wheel, an6 brake (absent), an7 accel
-    .an       ( {accel, 8'hff, wheel, 8'hff, 8'hff, 8'hff, 8'hff, 8'hff} ),
+    // an0-4 = 0xff constants, an5 wheel, an6 brake (flr) or 0xff, an7 accel
+    .an       ( {accel, flr ? brake : 8'hff, wheel, 8'hff, 8'hff, 8'hff, 8'hff, 8'hff} ),
     .irq0     ( lvbl_pulse ),  // rises at vblank start
     .irq1     ( 1'b0      ),
     .irq2     ( lvbl_pulse ), // same phase as INT0, like the MAME 60Hz timers
@@ -649,6 +650,7 @@ jtsysfl_ctrl u_ctrl(
     .lvbl     ( lvbl      ),
     .joystick ( joystick  ),
     .accel    ( accel     ),
+    .brake    ( brake     ),
     .wheel    ( wheel     )
 );
 

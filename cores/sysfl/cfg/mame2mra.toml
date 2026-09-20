@@ -5,6 +5,11 @@ zip.alt="namcoc75.zip"
 [parse]
 sourcefile=[ "namcofl.cpp" ]
 
+[header]
+registers=[
+    { name="flr", pos="0[0]", values=[{ machine="finalapr", value=1 }], desc="Final Lap R cabinet: brake pedal on ADC an6" },
+]
+
 [ROM]
 regions = [
     { name="maincpu",      width=32 },

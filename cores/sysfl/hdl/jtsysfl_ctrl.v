@@ -25,12 +25,14 @@ module jtsysfl_ctrl(
     input             lvbl,
     input      [ 7:0] joystick,     // active low {b4,b3,b2,b1,up,down,left,right}
     output reg [ 7:0] accel,
+    output reg [ 7:0] brake,
     output reg [ 7:0] wheel
 );
 
-wire frame, gas, left, right;
+wire frame, gas, stop, left, right;
 
 assign gas   = ~joystick[4];
+assign stop  = ~joystick[5];
 assign left  = ~joystick[1];
 assign right = ~joystick[0];
 
@@ -45,12 +47,17 @@ jtframe_edge_pulse #(.NEGEDGE(1)) u_frame(
 always @(posedge clk) begin
     if( rst ) begin
         accel <= 0;
+        brake <= 0;
         wheel <= 8'h80;
     end else if( frame ) begin
         if( gas )
             accel <= accel > 8'd235 ? 8'hff : accel + 8'd20;
         else
             accel <= accel < 8'd20  ? 8'h00 : accel - 8'd20;
+        if( stop )
+            brake <= brake > 8'd235 ? 8'hff : brake + 8'd20;
+        else
+            brake <= brake < 8'd20  ? 8'h00 : brake - 8'd20;
         if( right && !left )
             wheel <= wheel > 8'd251 ? 8'hff : wheel + 8'd4;
         else if( left && !right )

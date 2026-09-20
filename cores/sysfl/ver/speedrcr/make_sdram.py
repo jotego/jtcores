@@ -138,6 +138,6 @@ else:
     open(os.path.join(outdir,"nvram.bin"),"wb").write(bytes([0xff]*0x2000))
 # jtsim downloads rom.bin over bank 0 before releasing reset. The download path
 # is byte-exact while the bank preload swaps 16-bit bytes, hence raw prog here
-# so the overwrite is a no-op (MRA flow comes later)
-open(os.path.join(outdir,"rom.bin"),"wb").write(bytes(prog[:1024]))
+# so the overwrite is a no-op. First 8 bytes = MRA header, byte 0 flr=0
+open(os.path.join(outdir,"rom.bin"),"wb").write(bytes(8)+bytes(prog[:1024]))
 print("sdram banks + nvram written")

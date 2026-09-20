@@ -141,6 +141,18 @@ jtsysfl_main u_main(
     .halted     ( cpu_halted    )
 );
 
+wire flr;
+
+// game id from the MRA header, byte 0
+jtsysfl_header u_header(
+    .clk        ( clk           ),
+    .header     ( header        ),
+    .prog_we    ( prog_we       ),
+    .flr        ( flr           ),
+    .prog_addr  ( prog_addr[2:0]),
+    .prog_data  ( prog_data     )
+);
+
 `ifdef C75_STUB
 // TEMPORARY C75 stub, kept for A/B debugging, see jtsysfl_main.v
 jtsysfl_c75stub u_c75stub(
@@ -171,6 +183,7 @@ jtsysfl_c75 u_c75(
     .cab_misc   ( {service, dip_test, coin[0], coin[1]} ),
     .joystick   ( joystick1[7:0]),
     .start      ( cab_1p[0]     ),
+    .flr        ( flr           ),
     .mcu_addr   ( mcu_addr      ),
     .mcu_din    ( mcu_din       ),
     .mcu_we     ( mcu_we        ),
