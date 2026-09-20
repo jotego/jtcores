@@ -1,5 +1,3 @@
-//go:build pocket
-
 package mra
 
 import (
