@@ -31,8 +31,8 @@ module jt960_rcache(
     output     [ 31:0] fa_dout
 );
 
-reg [511:0] mem[0:3];
-reg [ 31:0] fa [0:3];
+(* ramstyle = "MLAB, no_rw_check" *) reg [511:0] mem[0:3];
+(* ramstyle = "MLAB, no_rw_check" *) reg [ 31:0] fa [0:3];
 
 assign dout    = mem[frame];
 assign fa_dout = fa[frame];

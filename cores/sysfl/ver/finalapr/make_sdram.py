@@ -12,7 +12,8 @@
 # patches calibrated for this program yet). SIM ONLY.
 import sys, os, tempfile, zipfile
 
-rompath  = os.path.expanduser("~/develop/mame/roms/finalapr.zip")
+rompath  = next(p for p in (os.path.expanduser("~/develop/mame/roms/finalapr"+e)
+                for e in (".7z",".zip")) if os.path.exists(p))
 c75path  = os.path.expanduser("~/develop/mame/roms/namcoc75.zip")
 fastboot = "--fastboot" in sys.argv
 args     = [a for a in sys.argv[1:] if not a.startswith("--")]

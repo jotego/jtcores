@@ -63,7 +63,8 @@ module jtframe_lfbuf_line #(parameter
 reg           vsl, vsl2, lvbl_l, hs_l, lhbl_l, vend_good;
 reg  [   5:0] porch;
 reg  [VW-1:0] vstart=0, vend=0;
-wire [  15:0] linein_pxl, scr_pxl;
+wire [  15:0] linein_pxl;
+reg  [  15:0] scr_pxl;
 wire          info_rdy;
 // dh/dv apply to the bank being read out. The write-side extent uses dv_wr
 // because the newly written bank will be displayed on the following frame.
@@ -299,19 +300,10 @@ always @(posedge clk) begin
     end
 end
 
-jtframe_dual_ram #(.DW(16),.AW(HW)) u_lineout(
-    // Read from big RAM, write to line buffer
-    .clk0   ( clk_ctrl      ),
-    .data0  ( fb_dout       ),
-    .addr0  ( rd_addr       ),
-    .we0    ( scr_we        ),
-    .q0     (               ),
-    // Read from line buffer to screen
-    .clk1   ( clk           ),
-    .data1  ( 16'b0         ),
-    .addr1  ( h_rd          ),
-    .we1    ( 1'b0          ),
-    .q1     ( scr_pxl       )
-);
+// Written from big RAM, read out to screen
+(* ramstyle = "no_rw_check, M10K" *) reg [15:0] lineout[0:(2**HW)-1];
+
+always @(posedge clk_ctrl) if( scr_we ) lineout[rd_addr] <= fb_dout;
+always @(posedge clk) scr_pxl <= lineout[h_rd];
 
 endmodule
