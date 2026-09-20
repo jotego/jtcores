@@ -26,8 +26,8 @@ localparam [1:0] OBJ=2'b01;
 
 wire       txt_op, obj_op, obj_win;
 
-assign txt_op = txt_pxl[1:0]!= ALPHA[1:0] && gfx_en[0];
-assign obj_op = obj_pxl[3:0]!=OALPHA      && gfx_en[3];
+assign txt_op  = txt_pxl[1:0]!= ALPHA[1:0] && gfx_en[0];
+assign obj_op  = obj_pxl[3:0]!=OALPHA      && gfx_en[3];
 assign obj_win = obj_op && (obj_prio[0] || !scr0_front);
 
 always @(posedge clk) if(pxl_cen) begin
