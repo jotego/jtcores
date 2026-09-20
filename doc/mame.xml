@@ -196865,6 +196865,86 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="speedrcr" sourcefile="namco/namcofl.cpp">
+		<description>Speed Racer</description>
+		<year>1995</year>
+		<manufacturer>Namco</manufacturer>
+		<rom name="se2_mp_ea4.19a" size="524288" crc="95ab3fd7" sha1="273a536f8512f3c55260ac1b78533bc35b8390ed" region="maincpu" offset="0"/>
+		<rom name="se2_mp_oa4.18a" size="524288" crc="5b5ef1eb" sha1="3e9e4abb1a32269baef772079de825dfe1ea230c" region="maincpu" offset="2"/>
+		<rom name="se1_dat0.13a" size="524288" crc="cc5d6ff5" sha1="6fad40a1fac75bc64d3b7a7562cf7ce2a3abd36a" region="data" offset="0"/>
+		<rom name="se1_dat1.14a" size="524288" crc="ddc8b306" sha1="f169d521b800c108deffdef9fc6b0058621ee909" region="data" offset="1"/>
+		<rom name="se1_dat2.15a" size="524288" crc="2a29abbb" sha1="945419ed61e9a656a340214a63a01818396fbe98" region="data" offset="2"/>
+		<rom name="se1_dat3.16a" size="524288" crc="49849aff" sha1="b7c7eea1d56304e40e996ee998c971313ff03614" region="data" offset="3"/>
+		<rom name="se1_spr.21l" size="524288" crc="850a27ac" sha1="7d5db840ec67659a1f2e69a62cdb03ce6ee0b47b" region="c75data" offset="0"/>
+		<rom name="se1_rch0.19j" size="1048576" crc="a0827288" sha1="13691ef4d402a6dc91851de4f82cfbdf96d417cb" region="c169roz" offset="0"/>
+		<rom name="se1_rch1.18j" size="1048576" crc="af7609ad" sha1="b16041f0eb47d7566011d9d762a3083411dc422e" region="c169roz" offset="100000"/>
+		<rom name="se1_sch0.21p" size="1048576" crc="7b5cfad0" sha1="5a0355e37eb191bc0cf8b6b7c3d0274560b9bbd5" region="c123tmap" offset="0"/>
+		<rom name="se1_sch1.20p" size="1048576" crc="5086e0d3" sha1="0aa7d11f4f9a75117e69cc77f1b73a68d9007aef" region="c123tmap" offset="100000"/>
+		<rom name="se1_sch2.19p" size="1048576" crc="e59a731e" sha1="3fed72e9bb485d4d689ab51490360c4c6f1dc5cb" region="c123tmap" offset="200000"/>
+		<rom name="se1_sch3.18p" size="1048576" crc="f817027a" sha1="71745476f496c60d89c8563b3e46bc85eebc79ce" region="c123tmap" offset="300000"/>
+		<rom name="se1obj0l.ic1" size="2097152" crc="17585218" sha1="3332afa9bd194ac37b8d6f352507c523a0f2e2b3" region="c355spr" offset="0"/>
+		<rom name="se1obj0u.ic2" size="2097152" crc="d14b1236" sha1="e5447732ef3acec88fb7a00e0deca3e71a40ae65" region="c355spr" offset="2"/>
+		<rom name="se1obj1l.ic3" size="2097152" crc="c4809fd5" sha1="e0b80fccc17c83fb9d08f7f1cf2cd2f0f3a510b4" region="c355spr" offset="400000"/>
+		<rom name="se1obj1u.ic4" size="2097152" crc="0beefa56" sha1="012fb7b330dbf851ab2217da0a0e7136ddc3d23f" region="c355spr" offset="400002"/>
+		<rom name="se1_rsh.14k" size="524288" crc="f6408a1f" sha1="3a299719090de3915331fc1ddbe0f41834da063a" region="c169roz:mask" offset="0"/>
+		<rom name="se1_ssh.18u" size="524288" crc="cb534142" sha1="935a377c72b3a815ed46dfdb6ea6734d312da373" region="c123tmap:mask" offset="0"/>
+		<rom name="se1_voi.23s" size="4194304" crc="0cfa2d8a" sha1="e029b39432cf35071eec8da27df8beeccd458eba" region="c352" offset="0"/>
+		<rom name="sysfl-1.bin" size="1" status="nodump" region="pals" offset="0"/>
+		<rom name="sysfl-2.bin" size="1" status="nodump" region="pals" offset="0"/>
+		<rom name="sysfl-3.bin" size="1" status="nodump" region="pals" offset="0"/>
+		<rom name="sysfl-4.bin" size="1" status="nodump" region="pals" offset="0"/>
+		<rom name="sysfl-5.bin" size="1" status="nodump" region="pals" offset="0"/>
+		<rom name="speedrcr.nv" size="8192" crc="58b41c70" sha1="c30ea7f4951ce208781deafef8d99bdb4902e5b8" region="nvram" offset="0"/>
+		<device_ref name="i80960ka"/>
+		<device_ref name="namcoc75"/>
+		<device_ref name="timer"/>
+		<device_ref name="timer"/>
+		<device_ref name="nvram"/>
+		<device_ref name="screen"/>
+		<device_ref name="namco_c169roz"/>
+		<device_ref name="namco_c355spr"/>
+		<device_ref name="namco_c123tmap"/>
+		<device_ref name="namco_c116"/>
+		<device_ref name="speaker"/>
+		<device_ref name="c352"/>
+		<chip type="cpu" tag="maincpu" name="Intel 80960KA" clock="20000000"/>
+		<chip type="cpu" tag="mcu" name="Namco C75 (M37702)" clock="16128000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="c352" name="Namco C352" clock="24192000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="59.659091" pixclock="6048000" htotal="384" hbend="0" hbstart="288" vtotal="264" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="1" coins="2">
+			<control type="paddle" buttons="4" minimum="0" maximum="255" sensitivity="100" keydelta="4"/>
+			<control type="pedal" minimum="0" maximum="255" sensitivity="100" keydelta="20"/>
+		</input>
+		<dipswitch name="Freeze Screen" tag="IN1" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="MISC" mask="64">
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":ACCEL">
+			<analog mask="255"/>
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":MISC">
+		</port>
+		<port tag=":WHEEL">
+			<analog mask="255"/>
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="lan" status="unemulated"/>
+	</machine>
 	<machine name="spf2t" sourcefile="capcom/cps2.cpp">
 		<description>Super Puzzle Fighter II Turbo (Europe 960529)</description>
 		<year>1996</year>

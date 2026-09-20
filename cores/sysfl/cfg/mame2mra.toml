@@ -1,0 +1,17 @@
+# Only speedrcr is verified; skip the rest of namcofl.cpp until tested
+[parse]
+sourcefile=[ "namcofl.cpp" ]
+
+[ROM]
+regions = [
+    { name="maincpu",      width=32 },
+    { name="data",         width=32 },
+    { name="c169roz",      start="ROZ_START" },
+    { name="c352",         start="JTFRAME_BA1_START" },
+    { name="c123tmap",     start="JTFRAME_BA2_START" },
+    { name="c75data",      start="MCUROM_START" },
+    { name="c355spr",      width=32, start="JTFRAME_BA3_START" },
+    { name="pals",         skip=true },
+]
+order = [ "maincpu", "data", "c169roz", "c169roz:mask", "c352",
+          "c123tmap", "c123tmap:mask", "c75data", "c355spr" ]
