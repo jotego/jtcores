@@ -94,7 +94,7 @@ reg         [ 8:0] vlat;
 reg         [ 6:0] hitcnt;
 // per-frame visibility cache, rebuilt while drawing the first line
 reg        [255:0] viscache;
-reg  signed [12:0] span0[0:255], span1[0:255]; // adjusted vertical span per entry
+(* ramstyle = "MLAB, no_rw_check" *) reg signed [12:0] span0[0:255], span1[0:255]; // adjusted vertical span per entry
 reg         [ 7:0] list_len;
 reg                bld, cache_ok;
 // shared serial divider

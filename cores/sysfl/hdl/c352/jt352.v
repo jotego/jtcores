@@ -60,7 +60,7 @@ reg [15:0] cnt_a  [0:31], smp_a [0:31], lst_a [0:31],
            bank_a [0:31], strt_a[0:31], wend_a[0:31], loop_a[0:31];
 reg [ 7:0] cv0_a  [0:31], cv1_a [0:31], cv2_a [0:31], cv3_a [0:31];
 
-reg  [15:0] mulaw_t[0:255];
+(* ramstyle = "MLAB, no_rw_check" *) reg [15:0] mulaw_t[0:255];
 reg  [15:0] lfsr, ctrl, nc;
 reg  [ 8:0] div_cnt;
 reg  [ 4:0] vch;

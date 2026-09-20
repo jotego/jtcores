@@ -53,30 +53,22 @@ wire         free1 = !rdy[1] && !(rnd &&  rb) && !(cpy &&  cb);
 wire         hit0  = rdy[0] && bl0==qv, hit1 = rdy[1] && bl1==qv;
 wire         held  = hit0 || hit1 || (rnd && rline==qv);
 
-jtframe_dual_ram #(.DW(16),.AW(9)) u_bank0(
-    .clk0   ( clk               ),
-    .data0  ( c_data            ),
-    .addr0  ( c_addr            ),
-    .we0    ( c_we && rnd && !rb ),
-    .q0     (                   ),
-    .clk1   ( clk               ),
-    .data1  ( 16'd0             ),
-    .addr1  ( ca                ),
-    .we1    ( 1'b0              ),
-    .q1     ( q0                )
+jtframe_rpwp_ram #(.DW(16),.AW(9)) u_bank0(
+    .clk    ( clk               ),
+    .rd_addr( ca                ),
+    .dout   ( q0                ),
+    .wr_addr( c_addr            ),
+    .din    ( c_data            ),
+    .we     ( c_we && rnd && !rb )
 );
 
-jtframe_dual_ram #(.DW(16),.AW(9)) u_bank1(
-    .clk0   ( clk               ),
-    .data0  ( c_data            ),
-    .addr0  ( c_addr            ),
-    .we0    ( c_we && rnd && rb ),
-    .q0     (                   ),
-    .clk1   ( clk               ),
-    .data1  ( 16'd0             ),
-    .addr1  ( ca                ),
-    .we1    ( 1'b0              ),
-    .q1     ( q1                )
+jtframe_rpwp_ram #(.DW(16),.AW(9)) u_bank1(
+    .clk    ( clk               ),
+    .rd_addr( ca                ),
+    .dout   ( q1                ),
+    .wr_addr( c_addr            ),
+    .din    ( c_data            ),
+    .we     ( c_we && rnd && rb )
 );
 
 always @(posedge clk) begin

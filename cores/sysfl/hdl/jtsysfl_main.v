@@ -421,7 +421,7 @@ always @(posedge clk) begin
     end
 end
 
-jt960 u_cpu(
+jt960 #(.ICACHE_BLK(64)) u_cpu(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( cpu_cen   ),

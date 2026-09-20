@@ -125,7 +125,7 @@ generate
             .q1   ( tag_q1_unused )
         );
     end else begin : gen_direct_tags
-        reg [SDRAMW-CACHE_AW:0] tags[0:CACHE_LINES-1];
+        (* ramstyle = "MLAB, no_rw_check" *) reg [SDRAMW-CACHE_AW:0] tags[0:CACHE_LINES-1];
 
         assign tag_hit = valid[line_index] && tags[line_index] == tag;
         assign tag_data_ok = 1'b0;
