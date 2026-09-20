@@ -1,0 +1,36 @@
+CORENAME=JTSYSFL
+JTFRAME_RATE=59.19
+
+JTFRAME_STEREO
+JTFRAME_BUTTONS=4
+JTFRAME_PADDLE
+JTFRAME_ANALOG
+
+# Video configuration
+JTFRAME_COLORW=8
+# line frame buffer for the C355 sprites (cleared to transparent pen 0xff)
+JTFRAME_LF_BUFFER
+JTFRAME_LF_HW=9
+JTFRAME_LF_VW=8
+JTFRAME_LFBUF_CLR=255
+JTFRAME_PXLCLK=6
+JTFRAME_WIDTH=288
+JTFRAME_HEIGHT=224
+JTFRAME_ARX=4
+JTFRAME_ARY=3
+
+# ROM configuration (draft, refine at integration)
+JTFRAME_BA1_START=0x400000
+JTFRAME_BA2_START=0x800000
+JTFRAME_BA3_START=0xF00000
+# 64-bit bursts for the sprite ROM, 8 pixels per fetch
+JTFRAME_BA3_LEN=64
+# bank 1 holds the i960 work RAM
+JTFRAME_BA1_WEN
+
+# scene dumps: 6 BRAMs + video MMRs
+JTFRAME_IOCTL_RD=352372
+
+[mist|sidi]
+# not enough resources
+JTFRAME_SKIP

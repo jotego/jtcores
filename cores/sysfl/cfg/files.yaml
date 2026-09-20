@@ -1,0 +1,37 @@
+sysfl:
+  - get:
+    - "*.v"
+  - from: c123
+    get:
+      - jtc123.sv
+  - from: c169
+    get:
+      - jtc169.sv
+  - from: c355
+    get:
+      - jtc355.sv
+  - from: c116
+    get:
+      - jtc116.sv
+  - from: c352
+    get:
+      - jt352.v
+  - from: c75
+    get:
+      - jt37702.sv
+      - jt37702_cpu.sv
+      - jt37702_per.sv
+  - from: i960
+    get:
+      - jt960.sv
+      - jt960_dec.sv
+      - jt960_alu.sv
+      - jt960_muldiv.sv
+      - jt960_rcache.sv
+jtframe:
+  - get:
+      - jtframe_edge.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_linebuf.v

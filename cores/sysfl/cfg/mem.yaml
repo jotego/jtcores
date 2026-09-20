@@ -1,0 +1,171 @@
+# System FL memory map
+# bank 0: i960 program (1MB @0) + data (2MB @0x100000) + ROZ gfx
+# bank 1: C352 PCM (4MB @0) + i960 work RAM (1MB @0x400000)
+# bank 2: scroll gfx, bank 3: obj gfx
+params:
+  - { name: SMASK_OFFSET, value: "22'h20_0000" }  # byte 0x400000
+  - { name: ROZ_OFFSET,   value: "22'h20_0000" }  # byte 0x400000, bank 0
+  - { name: RMASK_OFFSET, value: "22'h30_0000" }  # byte 0x600000, bank 0
+  - { name: WRAM_OFFSET,  value: "22'h20_0000" }  # byte 0x400000, bank 1
+  - { name: C75DATA_OFFSET, value: "22'h28_0000" } # byte 0x500000, bank 2
+clocks:
+  clk:
+    # i960KA-20, real clock. The C75 handshake needs the main loop to iterate
+    # several times per frame: check CPUSTAT idle time if this ever changes
+    - freq: 20 MHz
+      outputs:
+        - cpu_cen
+    # PCB clocks are 48.384MHz divisions, the pixel clock is clk/8 here, so the
+    # same divisions keep audio and C75 timers locked to the video rate
+    - mul: 1
+      div: 3               # C75 XIN (timers, ADC)
+      outputs:
+        - xin_cen
+    - mul: 1
+      div: 2               # C352
+      outputs:
+        - c352_cen
+sdram:
+  banks:
+    - buses:
+        - name: main
+          addr_width: 22
+          data_width: 32
+          cache_size: 1kB
+        - name: roz
+          addr_width: 21
+          data_width: 32
+          cache_size: 4kB
+          offset: ROZ_OFFSET
+        - name: rmask
+          addr_width: 19
+          data_width: 8
+          cache_size: 1kB
+          offset: RMASK_OFFSET
+    - buses:
+        - name: wram    # rw buses must come first in the bank
+          addr_width: 21
+          data_width: 16
+          rw: true
+          do_not_erase: true  # the game tests+inits it, erasing stalls reset ~12 frames
+          offset: WRAM_OFFSET
+        - name: pcm
+          addr_width: 22
+          data_width: 8
+        - name: wram32  # code fetches and loads from work RAM, one burst per word
+          addr_width: 21
+          data_width: 32
+          offset: WRAM_OFFSET
+    - buses:
+        - name: scr
+          addr_width: 22
+          data_width: 8
+          cache_size: 1kB
+        - name: smask
+          addr_width: 19
+          data_width: 8
+          cache_size: 1kB
+          offset: SMASK_OFFSET
+        - name: mcurom  # C75 external data ROM (se1_spr), 512kB
+          addr_width: 19
+          data_width: 16
+          cache_size: 1kB
+          offset: C75DATA_OFFSET
+    - buses:
+        - name: objrom
+          addr_width: 23
+          data_width: 32
+          cache_size: 1kB
+bram:
+  - name: vram      # 123 tilemaps, 64kB. Primary port: video read
+    addr_width: 16
+    data_width: 16
+    simfile: {}
+    ioctl: { save: true, order: 0 }
+    dual_port:
+      name: cvram   # CPU side
+      rw: true
+      din:  cvram_din
+      dout: cvram_dout
+      we:   cvram_we
+  - name: rozram    # C169 tilemap + scanline records, 128kB
+    addr_width: 17
+    data_width: 16
+    simfile: {}
+    ioctl: { save: true, order: 1 }
+    dual_port:
+      name: crozram
+      rw: true
+      din:  crozram_din
+      dout: crozram_dout
+      we:   crozram_we
+  - name: oram      # C355 sprite tables, 128kB
+    addr_width: 17
+    data_width: 16
+    simfile: {}
+    ioctl: { save: true, order: 2 }
+    dual_port:
+      name: coram
+      rw: true
+      din:  coram_din
+      dout: coram_dout
+      we:   coram_we
+  - name: rpal      # C116 palette RAMs, 8kB each. Primary port: video read
+    addr_width: 13
+    data_width: 8
+    simfile: {}
+    ioctl: { save: true, order: 3 }
+    dual_port:
+      name: cr_pal  # written by the C116 CPU interface
+      rw: true
+      addr: pal_waddr
+      din:  pal_wdin
+      we:   rpal_we
+      dout: rpal_cdout
+  - name: gpal
+    addr_width: 13
+    data_width: 8
+    simfile: {}
+    ioctl: { save: true, order: 4 }
+    dual_port:
+      name: cg_pal
+      rw: true
+      addr: pal_waddr
+      din:  pal_wdin
+      we:   gpal_we
+      dout: gpal_cdout
+  - name: bpal
+    addr_width: 13
+    data_width: 8
+    simfile: {}
+    ioctl: { save: true, order: 5 }
+    dual_port:
+      name: cb_pal
+      rw: true
+      addr: pal_waddr
+      din:  pal_wdin
+      we:   bpal_we
+      dout: bpal_cdout
+  - name: nvram     # 8kB battery-backed RAM at 0x30000000
+    addr_width: 13
+    data_width: 16
+    rw: true
+    simfile: {}
+  - name: share     # 32kB CPU-C75 shared RAM at 0x30284000
+    addr_width: 15
+    data_width: 16
+    rw: true
+    dual_port:
+      name: mcu     # C75 (stub) side
+      rw: true
+      din:  mcu_din
+      dout: mcu_dout
+      we:   mcu_we
+  - name: comram    # 16kB network COMRAM at 0x30300000
+    addr_width: 14
+    data_width: 16
+    rw: true
+  - name: c75bios   # C75 internal 16kB mask ROM (c75.bin)
+    addr_width: 14  # TODO: move into the MRA/rom.bin flow, simfile-only now
+    data_width: 16
+    simfile: {}
