@@ -28,6 +28,7 @@ module jtframe_pocket_cfg(
     output reg [31:0] dipsw,
     output reg        dipsw_rst,
     output reg [17:0] core_mod,
+    output reg [23:0] button_map,
     output reg [ 7:0] game_vol=0,
     output reg [63:0] status
 );
@@ -37,6 +38,7 @@ localparam [7:0] MMR_CMD     = 8'hF8, // Reserved by Analogue for host/target co
                  MMR_MOD     = 8'hF9, // MODe byte, see JTFRAME docs
                  MMR_DIPSW   = 8'hFA, // DIP switches
                  MMR_STATUS  = 8'hFB, // status word, see doc/osd.md
+                 MMR_BUTTONS = 8'hFC, // Six action-button selectors
                  MMR_VERSION = 8'hFF; // Git commit
 
 wire [31:2] addr;
@@ -53,6 +55,7 @@ jtframe_sync #(.W(30+32+1)) u_sync(
 always @(posedge clk_rom) begin
     if( rst_rom ) begin
         core_mod <= 0;
+        button_map <= 24'h543210;
         status   <= 0;
         dipsw_rst<= 0;
 `ifndef JTFRAME_FORCED_DIPSW
@@ -78,6 +81,7 @@ always @(posedge clk_rom) begin
                     else
                         status[31: 0] <= dout;
                 end
+                MMR_BUTTONS: button_map <= dout[23:0];
                 default:;
             endcase
         end

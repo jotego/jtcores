@@ -15,7 +15,7 @@ volume = [
 
 [buttons]
 Names = [
-    { machine="midres", names="Shot,Jump,Turn left,Turn right"},
+    { machine="midres", names="Shot,Jump,Turn left,Turn right", map="YBLR"},
 ]
 
 [dipsw]

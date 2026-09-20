@@ -9,6 +9,19 @@
 - 1 x SRAM chip, 256 kByte, 16-bit access, 3.3V [datasheet](https://www.alliancememory.com/wp-content/uploads/pdf/lp_sram/AllianceMemory_2M_LPSRAM_AS6C2016%20May%202021_v1.1_May2021.pdf)
 - 1 x SDRAM chip, 64 Mbyte, 16-bit access, 1.8V [datasheet](https://www.alliancememory.com/wp-content/uploads/pdf/mobile_sdram/20180115_AllianceMemory_512M_LPSDRAM_AS4C32M16MSA-6BIN(TR)_rev1.0_Dec2017.pdf)
 
+## Default button maps
+
+`jtframe mra` uses each game's optional `buttons.names[].map` in
+`mame2mra.toml` for both the controls description and the gameplay inputs.
+The instance JSON writes six four-bit action-button selectors at `0xfc000000`.
+The lowest nibble selects core button 1, followed by buttons 2 through 6.
+Selectors 0–5 read physical A, B, X, Y, L, R; other values disable that input.
+The reset/default value is `0x543210`. Every generated instance writes its map,
+including the identity map for games without an override, so switching games
+does not retain the previous game's settings. All four players use the map;
+directions, Start, Coin, and analogue inputs keep their existing routing.
+Updated Pocket bitstreams are required to apply the new register writes.
+
 ## NVRAM Support
 
 NVRAM will be automatically handled when **JTFRAME_IOCTL_RD** is declared with the size in bytes of the file. The core will receive **ioctl_ram** high and should drive **ioctl_din**. From the core point of view, nothing changes with respect to MiST(er) targets.

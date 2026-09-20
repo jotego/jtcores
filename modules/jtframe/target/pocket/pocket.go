@@ -572,6 +572,7 @@ func pocket_add(machine *MachineXML, cfg Mame2MRA, args Args, def_dipsw string, 
 					Address: "0xf9000000",
 					Data:    fmt.Sprintf("0x%X", coremod),
 				},
+				pocket_button_map(machine, cfg),
 				// Default DIP switches cannot go in here, as they get
 				// overwritten by the JSON instance file
 			},
@@ -743,20 +744,26 @@ func pocket_parse_dips(machine *MachineXML, cfg Mame2MRA, def_dipsw string, clon
 	return i
 }
 
-func pocket_parse_inputs(machine *MachineXML, cfg Mame2MRA) (i InputMap) {
-	buttons := ""
-	for _, each := range cfg.Buttons.Names {
-		if each.Machine == "" && each.Setname == "" && buttons == "" {
-			buttons = each.Names
-		}
-		if each.Machine == machine.Name || each.Machine == machine.Cloneof {
-			buttons = each.Names
-		}
-		if each.Setname == machine.Name {
-			buttons = each.Names
-			break
+func pocket_button_map(machine *MachineXML, cfg Mame2MRA) MemWrite {
+	value := 0x543210 // Identity mapping, also clears the previous game's map.
+	selected := cfg.select_buttons(machine)
+	if selected != nil && selected.Map != "" {
+		value = 0xffffff
+		names := strings.Split(selected.Names, ",")
+		for k, key := range selected.Map {
+			if k >= cfg.Buttons.Core { break }
+			if strings.TrimSpace(names[k]) == "-" { continue }
+			index := strings.IndexRune("ABXYLR", key)
+			value = (value & ^(15 << (4*k))) | (index << (4*k))
 		}
 	}
+	return MemWrite{Address: "0xfc000000", Data: fmt.Sprintf("0x%06X", value)}
+}
+
+func pocket_parse_inputs(machine *MachineXML, cfg Mame2MRA) (i InputMap) {
+	selected := cfg.select_buttons(machine)
+	buttons, button_map := "", ""
+	if selected != nil { buttons, button_map = selected.Names, selected.Map }
 	if buttons == "" && len(machine.Input.Control) > 0 {
 		// No button information in the toml file, get it from MAME
 		for k := 0; k < machine.Input.Control[0].Buttons; k++ {
@@ -776,10 +783,16 @@ func pocket_parse_inputs(machine *MachineXML, cfg Mame2MRA) (i InputMap) {
 		"pad_trig_r",
 	}
 	for k, each := range strings.Split(buttons, ",") {
+		key := keys[k]
+		if button_map != "" {
+			if k >= cfg.Buttons.Core { break }
+			if strings.TrimSpace(each) == "-" { continue }
+			key = keys[strings.IndexByte("ABXYLR", button_map[k])]
+		}
 		mappers = append(mappers, ContMapping{
 			Id:   k,
 			Name: each,
-			Key:  keys[k],
+			Key:  key,
 		})
 		if k == len(keys)-1 {
 			break

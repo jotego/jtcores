@@ -181,6 +181,7 @@ wire [15:0] cont1_key,  cont2_key,  cont3_key,  cont4_key,
             cont1_trig, cont2_trig, cont3_trig, cont4_trig,
             cont1,      cont2,      cont3,      cont4;
 wire [31:0] cont1_joy,  cont2_joy,  cont3_joy,  cont4_joy;
+wire [23:0] button_map_rom, button_map;
 wire [ 3:0] analog_en;
 
 // bridge host commands
@@ -223,6 +224,7 @@ jtframe_pocket_cfg u_cfg(
     .dipsw      ( dipsw     ),
     .dipsw_rst  ( dipsw_rst ),
     .core_mod   ( core_mod  ),
+    .button_map ( button_map_rom ),
     .game_vol   ( game_vol  ),
     .status     ( status    )
 );
@@ -296,8 +298,16 @@ pocket_id u_id(
 assign chipid = 64'h0123_4567_89ab_cdef;
 `endif
 
+jtframe_sync #(.W(24)) u_button_map(
+    .clk_in     ( clk_rom        ),
+    .clk_out    ( clk_sys        ),
+    .raw        ( button_map_rom ),
+    .sync       ( button_map     )
+);
+
 jtframe_pocket_joystick u_joystick(
     .clk_sys    ( clk_sys   ),
+    .button_map ( button_map ),
     .cont1      ( cont1     ),
     .cont2      ( cont2     ),
     .cont3      ( cont3     ),

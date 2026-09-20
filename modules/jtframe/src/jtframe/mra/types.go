@@ -273,10 +273,7 @@ type Mame2MRA struct {
 			Selectable
 			Raw, Reverse bool
 		}
-		Names []struct {
-			Selectable
-			Names string
-		}
+		Names []ButtonCfg
 	}
 
 	Dipsw DipswCfg

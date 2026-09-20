@@ -18,6 +18,7 @@
 
 module jtframe_pocket_joystick(
     input             clk_sys,
+    input      [23:0] button_map,
     input      [15:0] cont1,     cont2,     cont3,     cont4,
     input      [31:0] cont1_joy, cont2_joy, cont3_joy, cont4_joy,
     input      [ 3:0] analog_en,
@@ -27,9 +28,17 @@ module jtframe_pocket_joystick(
 );
 
 // Convert Pocket inputs to JTFRAME standard
-function [15:0] joyconv( input [15:0] joy_in );
+function [15:0] joyconv( input [15:0] joy_in, input [23:0] mapping );
+    integer k;
+    reg [3:0] key;
+begin
     joyconv = { 2'd0,
         joy_in[13:4],  joy_in[0],  joy_in[1],  joy_in[2],  joy_in[3]  };
+    for( k=0; k<6; k=k+1 ) begin
+        key = mapping[(k<<2)+:4];
+        joyconv[k+4] = key<4'd6 ? joy_in[4'd4+key] : 1'b0;
+    end
+end
 endfunction
 
 function [31:0] joyanaconv( input [31:0] cont_joy, input en );
@@ -41,10 +50,10 @@ function [31:0] joyanaconv( input [31:0] cont_joy, input en );
 endfunction
 
 always @(posedge clk_sys) begin
-    joystick1 <= joyconv(cont1);
-    joystick2 <= joyconv(cont2);
-    joystick3 <= joyconv(cont3);
-    joystick4 <= joyconv(cont4);
+    joystick1 <= joyconv(cont1,button_map);
+    joystick2 <= joyconv(cont2,button_map);
+    joystick3 <= joyconv(cont3,button_map);
+    joystick4 <= joyconv(cont4,button_map);
     { joyana_r1, joyana_l1 } <= joyanaconv(cont1_joy, analog_en[0]);
     { joyana_r2, joyana_l2 } <= joyanaconv(cont2_joy, analog_en[1]);
     { joyana_r3, joyana_l3 } <= joyanaconv(cont3_joy, analog_en[2]);

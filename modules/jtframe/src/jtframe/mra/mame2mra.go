@@ -794,26 +794,16 @@ func hexdump(data []byte, cols int) string {
 }
 
 func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
-	button_def := "button 1,button 2"
-	button_set := false
-	for _, b := range cfg.Buttons.Names {
-		m := b.Match(machine)
-		if (m == 1 && !button_set) || m == 2 {
-			button_def = b.Names
-			if Verbose {
-				fmt.Printf("Buttons set to %s for %s\n", b.Names, machine.Name)
-			}
-			button_set = true
-		}
-		if m == 3 {
-			//fmt.Printf("Explicit assignment for %s to %s\n", b.Setname, b.Names)
-			button_def = b.Names
-			break
-		}
+	selected := cfg.select_buttons(machine)
+	button_def, button_map := "button 1,button 2", ""
+	if selected != nil {
+		button_def, button_map = selected.Names, selected.Map
+		if Verbose { fmt.Printf("Buttons set to %s for %s\n", button_def, machine.Name) }
 	}
 	// an explicit command line argument will override the values in TOML
 	if args.Buttons != "" {
 		button_def = args.Buttons
+		button_map = ""
 	}
 	// Generic default value
 	if button_def == "" {
@@ -838,6 +828,14 @@ func make_buttons(root *XMLNode, machine *MachineXML, cfg Mame2MRA, args Args) {
 		buttons_str += "-,"
 	}
 	pad = pad[0 : len(buttons)*2]
+	if button_map != "" {
+		// MiSTer skips unnamed core inputs; '-' terminates the default list.
+		pad = ""
+		for k := 0; k < len(button_map) && k < cfg.Buttons.Core && k < 6; k++ {
+			if strings.TrimSpace(buttons[k]) == "-" { continue }
+			pad += string(button_map[k]) + ","
+		}
+	}
 	buttons_str += "Start,Coin,Core credits"
 	n.AddAttr("names", buttons_str)
 	n.AddAttr("default", pad+"Start,Select,-")

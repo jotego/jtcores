@@ -127,6 +127,16 @@ frames = [
 ]
 
 [buttons]
+# Names stay in core input-bit order. Optional map assigns one physical
+# gamepad button per name, using A/B/X/Y/L/R (default order: ABXYLR).
+# A is the right face button, B bottom, X top, Y left; L/R are shoulders.
+# Example: { names="Shoot left,Shoot centre,Shoot right", map="YXA" }
+# This produces MRA defaults Y,X,A and Pocket keys pad_btn_y/x/a.
+# Use - for an unused input, e.g. names="Left,-,Right", map="Y-A".
+# Map length must equal the number of names (maximum six); keys cannot repeat.
+# Name and map are selected together by machine/setname, including clones.
+# Omitting map keeps the existing defaults. --buttons overrides names and
+# resets the MRA mapping to the default order.
 names=[
 	{ setname="...", machine="...", names="shot,jump" }
 ]
