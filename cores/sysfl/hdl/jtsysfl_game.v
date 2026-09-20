@@ -109,18 +109,10 @@ jtsysfl_main u_main(
     .coram_din  ( coram_din     ),
     .coram_we   ( coram_we      ),
     .coram_dout ( coram_dout    ),
-    .nvram_addr ( nvram_addr    ),
-    .nvram_din  ( nvram_din     ),
-    .nvram_we   ( nvram_we      ),
-    .nvram_dout ( nvram_dout    ),
     .share_addr ( share_addr    ),
     .share_din  ( share_din     ),
     .share_we   ( share_we      ),
     .share_dout ( share_dout    ),
-    .comram_addr( comram_addr   ),
-    .comram_din ( comram_din    ),
-    .comram_we  ( comram_we     ),
-    .comram_dout( comram_dout   ),
     // video registers
     .scfg_cs    ( scfg_cs       ),
     .rozcfg_cs  ( rozcfg_cs     ),
@@ -223,15 +215,9 @@ assign crozram_we   = 0;
 assign coram_addr = 0;
 assign coram_din  = 0;
 assign coram_we   = 0;
-assign nvram_addr = 0;
-assign nvram_din  = 0;
-assign nvram_we   = 0;
 assign share_addr = 0;
 assign share_din  = 0;
 assign share_we   = 0;
-assign comram_addr= 0;
-assign comram_din = 0;
-assign comram_we  = 0;
 assign mcu_addr   = 0;
 assign mcu_din    = 0;
 assign mcu_we     = 0;

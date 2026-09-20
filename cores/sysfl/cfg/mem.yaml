@@ -146,11 +146,6 @@ bram:
       din:  pal_wdin
       we:   bpal_we
       dout: bpal_cdout
-  - name: nvram     # 8kB battery-backed RAM at 0x30000000
-    addr_width: 13
-    data_width: 16
-    rw: true
-    simfile: {}
   - name: share     # 32kB CPU-C75 shared RAM at 0x30284000
     addr_width: 15
     data_width: 16
@@ -161,10 +156,6 @@ bram:
       din:  mcu_din
       dout: mcu_dout
       we:   mcu_we
-  - name: comram    # 16kB network COMRAM at 0x30300000
-    addr_width: 14
-    data_width: 16
-    rw: true
   - name: c75bios   # C75 internal 16kB mask ROM (c75.bin, namcoc75.zip device set)
     addr_width: 14
     data_width: 16

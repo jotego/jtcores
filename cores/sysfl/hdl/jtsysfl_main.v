@@ -63,18 +63,10 @@ module jtsysfl_main(
     output     [15:0] coram_din,
     output     [ 1:0] coram_we,
     input      [15:0] coram_dout,
-    output     [12:1] nvram_addr,
-    output     [15:0] nvram_din,
-    output     [ 1:0] nvram_we,
-    input      [15:0] nvram_dout,
     output     [14:1] share_addr,
     output     [15:0] share_din,
     output     [ 1:0] share_we,
     input      [15:0] share_dout,
-    output     [13:1] comram_addr,
-    output     [15:0] comram_din,
-    output     [ 1:0] comram_we,
-    input      [15:0] comram_dout,
     // video registers
     output            scfg_cs, rozcfg_cs,
     output     [ 5:1] cfg_addr,
@@ -120,6 +112,9 @@ wire        is_rom32= (is_prog || is_data) && !cwr;
 wire        is_code = is_wram && !cwr && cfetch;
 wire        is_wdat, is_w32;
 wire        is_sys  = a[31:28]==4'h4;
+// nvram/comram live in the upper half of the wram SDRAM window
+wire        is_nv   = ccs && a[31:28]==4'h3 && a[23:20]==4'h0;
+wire        is_cm   = ccs && a[31:28]==4'h3 && a[23:20]==4'h3 && !a[19];
 wire        post    = cwr && !is_sys;               // posted write
 
 assign main_cs = ccs && is_rom32;
@@ -204,21 +199,15 @@ wire        olist1  = ha[16:10]==7'b1010_000;           // 14000-143ff
 wire        omir_we = tgt==T_ORAM && st==WAIT && cnt==1 && fwr && (oattr1 || olist1);
 assign coram_addr   = !omir_we ? ha[16:1] :
                       oattr1   ? ha[16:1] - 16'h8000 : ha[16:1] - 16'h9000;
-assign nvram_addr   = ha[12:1];
-assign comram_addr  = ha[13:1];
 assign share_addr   = sbyte[14:1];
 assign cvram_din    = h_wdat;
 assign crozram_din  = h_wdat;
 assign coram_din    = h_wdat;
-assign nvram_din    = h_wdat;
 assign share_din    = h_wdat;
-assign comram_din   = h_wdat;
 assign cvram_we     = tgt==T_VRAM  && bwr ? blanes : 2'd0;
 assign crozram_we   = tgt==T_ROZR  && bwr ? blanes : 2'd0;
 assign coram_we     = (tgt==T_ORAM && bwr) || omir_we ? blanes : 2'd0;
-assign nvram_we     = tgt==T_NVRAM && bwr ? blanes : 2'd0;
 assign share_we     = tgt==T_SHARE && bwr ? blanes : 2'd0;
-assign comram_we    = tgt==T_COM   && bwr ? blanes : 2'd0;
 // video registers, held through WAIT
 assign scfg_cs   = tgt==T_SCFG && st==WAIT;
 assign rozcfg_cs = tgt==T_ROZC && st==WAIT;
@@ -241,10 +230,8 @@ assign net_b1 = 8'h00;
 // read data mux
 always @* begin
     case( tgt )
-    T_WRAM:  rd16 = wram_data;
-    T_NVRAM: rd16 = nvram_dout;
+    T_WRAM, T_NVRAM, T_COM: rd16 = wram_data;
     T_SHARE: rd16 = share_dout;
-    T_COM:   rd16 = comram_dout;
     T_VRAM:  rd16 = cvram_dout;
     T_ROZR:  rd16 = crozram_dout;
     T_ORAM:  rd16 = coram_dout;
@@ -268,7 +255,7 @@ begin
         if( !fwr || tgt==T_SYS ) fok <= 1;
     end else begin
         half <= 1;
-        st   <= tgt==T_WRAM ? SETUP : WAIT;
+        st   <= tgt==T_WRAM || tgt==T_NVRAM || tgt==T_COM ? SETUP : WAIT;
     end
 end
 endtask
@@ -306,10 +293,12 @@ always @(posedge clk) begin
             cnt     <= 0;
             st      <= WAIT;
             if( post ) fok <= 1;
-            if( is_wram ) begin
+            if( is_wram || is_nv || is_cm ) begin
                 wram_cs   <= 1;
                 wram_we   <= cwr;
-                wram_addr <= {1'b0, a[19:2], cwr && &cdsn[1:0]};  // 1MB region
+                wram_addr <= is_nv ? {2'b10, 6'd0, a[12:2], cwr && &cdsn[1:0]} :
+                             is_cm ? {2'b11, 5'd0, a[13:2], cwr && &cdsn[1:0]} :
+                                     {1'b0,  a[19:2],       cwr && &cdsn[1:0]};
                 wram_din  <= cwr && &cdsn[1:0] ? cdout[31:16] : cdout[15:0];
                 wram_dsn  <= cwr && &cdsn[1:0] ? cdsn[3:2] : cdsn[1:0];
             end
@@ -317,7 +306,9 @@ always @(posedge clk) begin
         SETUP: begin    // one clock with wram_cs low between halves
             wram_cs   <= 1;
             wram_we   <= fwr;
-            wram_addr <= {1'b0, la[19:2], half};
+            wram_addr <= tgt==T_NVRAM ? {2'b10, 6'd0, la[12:2], half} :
+                         tgt==T_COM   ? {2'b11, 5'd0, la[13:2], half} :
+                                        {1'b0,  la[19:2],       half};
             wram_din  <= h_wdat;
             wram_dsn  <= h_dsn;
             st        <= WAIT;
@@ -325,7 +316,7 @@ always @(posedge clk) begin
         WAIT: begin
             cnt <= cnt + 2'd1;
             case( tgt )
-            T_WRAM: if( wram_ok ) begin
+            T_WRAM, T_NVRAM, T_COM: if( wram_ok ) begin
                 wram_cs <= 0;
                 wram_we <= 0;
                 hdone;

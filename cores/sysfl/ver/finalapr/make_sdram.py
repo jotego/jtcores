@@ -77,10 +77,15 @@ bank2[0x400000:0x480000] = get("flr1_ssh.18u")
 spr = get("flr1_spr.21l")
 bank2[0x500000:0x500000+len(spr)] = spr
 
-# C352 sample ROM, 2MB set in a 4MB bank
-bank1 = bytearray(b'\xff'*0x400000)
+# C352 sample ROM, 2MB set in a 4MB bank; nvram/comram in the upper wram
+# window (bank bytes 0x500000 / 0x580000), 0xFF = fresh
+bank1 = bytearray(b'\xff'*0x584000)
 voi = get("flr1_voi.23s")
 bank1[0:len(voi)] = voi
+mamenv = os.path.expanduser("~/develop/mame/nvram/finalapr/nvram")
+if os.path.exists(mamenv):
+    bank1[0x500000:0x502000] = open(mamenv,"rb").read()
+    print("nvram preloaded from MAME first-boot image")
 
 # C75 internal BIOS, from the MAME namcoc75 device set
 with zipfile.ZipFile(c75path) as z:
@@ -101,13 +106,6 @@ open(os.path.join(outdir,"sdram_bank3.bin"),"wb").write(swab(bank3))
 open(os.path.join(outdir,"sdram_bank1.bin"),"wb").write(swab(bank1))
 open(os.path.join(outdir,"c75bios_lo.bin"),"wb").write(c75[0::2])
 open(os.path.join(outdir,"c75bios_hi.bin"),"wb").write(c75[1::2])
-# prefer a once-booted NVRAM image if available; fresh 0xFF otherwise
-mamenv = os.path.expanduser("~/develop/mame/nvram/finalapr/nvram")
-if os.path.exists(mamenv):
-    open(os.path.join(outdir,"nvram.bin"),"wb").write(open(mamenv,"rb").read())
-    print("nvram.bin taken from MAME first-boot image")
-else:
-    open(os.path.join(outdir,"nvram.bin"),"wb").write(bytes([0xff]*0x2000))
 # jtsim downloads rom.bin over bank 0 before releasing reset; raw prog head
 # makes the overwrite a no-op (see ver/speedrcr). First 8 bytes = MRA header,
 # byte 0 flr=1 selects the Final Lap R cabinet inputs

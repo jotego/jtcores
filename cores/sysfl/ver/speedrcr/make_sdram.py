@@ -102,8 +102,9 @@ for f in ["se1_sch0.21p","se1_sch1.20p","se1_sch2.19p","se1_sch3.18p"]:
 bank2[0x400000:0x480000] = get("se1_ssh.18u")
 bank2[0x500000:0x580000] = get("se1_spr.21l")   # C75 external data ROM
 
-# C352 sample ROM fills bank 1 (pcm bus at offset 0)
-bank1 = bytearray(0x400000)
+# C352 sample ROM fills bank 1 (pcm bus at offset 0); nvram and comram live
+# in the upper wram window (bank bytes 0x500000 / 0x580000)
+bank1 = bytearray(0x584000)
 bank1[0:0x400000] = get("se1_voi.23s")
 
 # C75 internal BIOS, from the MAME namcoc75 device set
@@ -119,6 +120,17 @@ for base, lf, uf in [(0, "se1obj0l.ic1", "se1obj0u.ic2"), (0x400000, "se1obj1l.i
         bank3[o:o+2]   = lo[i:i+2]
         bank3[o+2:o+4] = up[i:i+2]
 
+# prefer a once-booted NVRAM image (MAME first-boot initialized): the game
+# then loads valid settings/calibration and boots straight to attract.
+# Fresh 0xFF NVRAM also works in MAME; our fresh-init path has a remaining
+# divergence in the wheel-calibration defaults (see boot notes) - TODO
+mamenv = os.path.expanduser("~/develop/mame/nvram/speedrcr/nvram")
+if os.path.exists(mamenv):
+    bank1[0x500000:0x502000] = open(mamenv,"rb").read()
+    print("nvram preloaded from MAME first-boot image")
+else:
+    bank1[0x500000:0x502000] = bytes([0xff]*0x2000)
+
 open(os.path.join(outdir,"sdram_bank0.bin"),"wb").write(swab(bank0))
 open(os.path.join(outdir,"sdram_bank2.bin"),"wb").write(swab(bank2))
 open(os.path.join(outdir,"sdram_bank3.bin"),"wb").write(swab(bank3))
@@ -126,16 +138,6 @@ open(os.path.join(outdir,"sdram_bank1.bin"),"wb").write(swab(bank1))
 # the BIOS BRAM is a 16-bit jtframe_bram_rom, simfiles are split by byte lane
 open(os.path.join(outdir,"c75bios_lo.bin"),"wb").write(c75[0::2])
 open(os.path.join(outdir,"c75bios_hi.bin"),"wb").write(c75[1::2])
-# prefer a once-booted NVRAM image (MAME first-boot initialized): the game
-# then loads valid settings/calibration and boots straight to attract.
-# Fresh 0xFF NVRAM also works in MAME; our fresh-init path has a remaining
-# divergence in the wheel-calibration defaults (see boot notes) - TODO
-mamenv = os.path.expanduser("~/develop/mame/nvram/speedrcr/nvram")
-if os.path.exists(mamenv):
-    open(os.path.join(outdir,"nvram.bin"),"wb").write(open(mamenv,"rb").read())
-    print("nvram.bin taken from MAME first-boot image")
-else:
-    open(os.path.join(outdir,"nvram.bin"),"wb").write(bytes([0xff]*0x2000))
 # jtsim downloads rom.bin over bank 0 before releasing reset. The download path
 # is byte-exact while the bank preload swaps 16-bit bytes, hence raw prog here
 # so the overwrite is a no-op. First 8 bytes = MRA header, byte 0 flr=0
