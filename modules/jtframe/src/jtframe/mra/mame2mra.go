@@ -33,7 +33,7 @@ func (args *Args) Convert() error {
 		args.SkipPocket = true
 	}
 	args.mra_cfg, e = ParseTomlFile(args.Core)
-	common.MustContext(e, "while parsing TOML file")
+	if e != nil { return fmt.Errorf("while parsing TOML file: %w", e) }
 	args.mra_cfg.rbf = "jt" + args.Core
 	// Set the platform name if blank
 	if args.mra_cfg.Global.Platform == "" {
@@ -73,6 +73,7 @@ func (args *Args) Convert() error {
 	} else {
 		all_errors = args.dump_setnames(parsed_machines, parent_names)
 	}
+	all_errors = common.JoinErrors(all_errors, validate_rom_regions(parsed_machines, args.mra_cfg))
 	bad_header := dump_verilog_header(args.Core, args.mra_cfg.Header)
 	all_errors = common.JoinErrors(all_errors, bad_header)
 	if !args.main_copied {
@@ -137,6 +138,10 @@ func (args *Args) dump_setnames(parsed_machines []ParsedMachine, parent_names ma
 		}
 		if good || len(d.machine.Cloneof) == 0 {
 			count++
+			if d.err != nil {
+				all_errors = common.JoinErrors(all_errors, fmt.Errorf("%s: %w", d.machine.Name, d.err))
+				continue
+			}
 			bad_macros := d.validate_core_macros()
 			all_errors = common.JoinErrors(all_errors, bad_macros)
 			if args.PrintNames {
@@ -173,10 +178,18 @@ func (args *Args) dump_alt_setnames(parsed_machines []ParsedMachine, parent_name
 				d.machine.Name, d.machine.Cloneof)
 			continue
 		}
+		if d.err != nil {
+			all_errors = common.JoinErrors(all_errors, fmt.Errorf("%s: %w", d.machine.Name, d.err))
+			continue
+		}
 		for _, altversion := range collect_alt_versions(d.machine, args.mra_cfg) {
 			alt_args := *args
 			alt_args.cur_alt_version = altversion
-			alt_xml, _, _ := make_mra(d.machine, args.mra_cfg, alt_args)
+			alt_xml, _, _, e := make_mra(d.machine, args.mra_cfg, alt_args)
+			if e != nil {
+				all_errors = common.JoinErrors(all_errors, fmt.Errorf("%s (%s): %w", d.machine.Name, altversion, e))
+				continue
+			}
 			dump_mra(alt_args, d.machine, args.mra_cfg, alt_xml, parent_names)
 			count++
 		}
@@ -242,9 +255,10 @@ func collect_machines_from_extractor(ex *Extractor, mra_cfg Mame2MRA, args Args,
 			continue
 		}
 		overrule_mame_definitions(machine, mra_cfg.Global.Overrule)
+		rom_regions := add_unlisted_regions(machine.Rom, nil)
 		rename_rom_regions(mra_cfg.ROM.Regions, machine.Rom, machine)
-		mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, args)
-		pm := ParsedMachine{machine, mra_xml, cloneof, def_dipsw, coremod}
+		mra_xml, def_dipsw, coremod, e := make_mra(machine, mra_cfg, args)
+		pm := ParsedMachine{machine, mra_xml, cloneof, def_dipsw, coremod, e, rom_regions}
 		if pos, exists := machine_pos[machine.Name]; exists {
 			(*machines)[pos] = pm
 		} else {
@@ -289,15 +303,16 @@ func rename_rom_regions(all_cfgs []RegCfg, all_mameroms []MameROM, machine Match
 
 func (args *Args) make_from_name(machine *MachineXML, mra_cfg Mame2MRA) ParsedMachine {
 	if machine.Name == "" {
-		fmt.Println("Neither sourcefile nor explicit machine definitions in the [parse] section. Aborting.")
-		os.Exit(1)
+		return ParsedMachine{machine: machine, err: fmt.Errorf("neither sourcefile nor explicit machine definitions in the [parse] section")}
 	}
-	mra_xml, def_dipsw, coremod := make_mra(machine, mra_cfg, *args)
+	mra_xml, def_dipsw, coremod, e := make_mra(machine, mra_cfg, *args)
 	return ParsedMachine{
 		machine:   machine,
 		mra_xml:   mra_xml,
 		def_dipsw: def_dipsw,
 		coremod:   coremod,
+		err:       e,
+		rom_regions: add_unlisted_regions(machine.Rom, nil),
 	}
 }
 
@@ -320,6 +335,7 @@ func (parsed *ParsedMachine) validate_vertical(context string) error {
 }
 
 func (parsed *ParsedMachine) validate_buttons(context string) error {
+	if len(parsed.machine.Input.Control) == 0 { return nil }
 	if macros.GetInt("JTFRAME_BUTTONS") < parsed.machine.Input.Control[0].Buttons {
 		msg := fmt.Sprintf("%s uses %d buttons but JTFRAME_BUTTONS is set to %d",
 			context,
@@ -644,7 +660,7 @@ func slice2csv(ss []string) string {
 
 // Do not pass the macros to make_mra, but instead modifiy the configuration
 // based on the macros in parse_toml
-func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, int) {
+func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, int, error) {
 	root := make_root_node(machine, cfg, args)
 	corename := set_rbfname(root, machine, cfg, args).GetText()[2:] // corename = RBF, skipping the JT part
 	if len(machine.Input.Control) > 0 {
@@ -661,9 +677,9 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 	}
 	// ROM load
 	e := make_ROM(root, machine, cfg, args)
-	must(e)
+	if e != nil { return nil, "", 0, e }
 	e = MakeMRAChecker(root, machine).Check()
-	must(e)
+	if e != nil { return nil, "", 0, e }
 	// Beta
 	if betas.IsBetaFor(corename, "mister") {
 		add_beta_keyload(root)
@@ -678,7 +694,7 @@ func make_mra(machine *MachineXML, cfg Mame2MRA, args Args) (*XMLNode, string, i
 	def_dipsw := make_switches(root, machine, cfg, args)
 	// Buttons
 	make_buttons(root, machine, cfg, args)
-	return root, def_dipsw, coremod
+	return root, def_dipsw, coremod, nil
 }
 
 func make_root_node(machine *MachineXML, cfg Mame2MRA, args Args) *XMLNode {

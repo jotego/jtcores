@@ -169,20 +169,9 @@ func Test_check_parts_consistency(t *testing.T) {
 			{ Name: "narrow1", Map: "1000", Length: 0x1000 },
 		},
 	}
-	should_panic := false
-    defer func(){
-        r:= recover()
-        if !should_panic && r!=nil {
-            t.Errorf("The region should not be deemed invalid")
-            return
-        }
-        if  should_panic && r==nil {
-            t.Errorf("The region should be deemed invalid")
-            return
-        }
-    }()
-    reg.check_parts_consistency()
+	if e := reg.check_parts_consistency(); e != nil { t.Fatal(e) }
     reg.Parts[0].Length=0x1000
-    should_panic=true
-    reg.check_parts_consistency()
+	if e := reg.check_parts_consistency(); e == nil {
+		t.Error("The region should be deemed invalid")
+	}
 }

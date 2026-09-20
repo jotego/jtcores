@@ -366,6 +366,8 @@ type ParsedMachine struct {
 	cloneof   bool
 	def_dipsw string
 	coremod   int
+	err       error
+	rom_regions []string // Original MAME region names, before TOML renaming.
 }
 
 // Configure whether to parse or not a machine

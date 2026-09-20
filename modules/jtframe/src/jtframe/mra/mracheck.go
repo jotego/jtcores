@@ -28,6 +28,7 @@ func (ck *MRAChecker)Check() error {
 }
 
 func (ck *MRAChecker)check_all_interleave_files() {
+	ck.bad_interleave_sizes = nil
 	all_interleaves := ck.root.FindAll("interleave")
 	for _, interleave := range all_interleaves {
 		ck.check_interleave_files(interleave)
@@ -35,12 +36,16 @@ func (ck *MRAChecker)check_all_interleave_files() {
 }
 
 func (ck *MRAChecker)check_interleave_files(interleave *XMLNode) {
-	ck.bad_interleave_sizes = make([]string,0,8)
 	all_parts := interleave.FindAll("part")
 	ref := 0
 	for k, part := range all_parts {
 		cur_size := ck.get_part_size(part)
-		cur_size /= ck.get_map_bytes(part)
+		map_bytes := ck.get_map_bytes(part)
+		if map_bytes == 0 {
+			ck.bad_interleave_sizes = append(ck.bad_interleave_sizes, part.GetAttr("name"))
+			continue
+		}
+		cur_size /= map_bytes
 		if k==0 {
 			ref = cur_size
 			continue

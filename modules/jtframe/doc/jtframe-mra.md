@@ -18,6 +18,9 @@ depending on the --git argument.
 
 Macros in macros.def are parsed by the MRA flow before conversion.
 
+From `$JTROOT/cores`, run `jtframe mra --skipROM *` to audit all cores after
+updating MAME XML. The command validates ROM region names and builds and checks each set's MRA ROM layout, without opening ROM ZIP files or writing `.rom` files. It continues after TOML, region-name and ROM-layout errors and exits nonzero if any core or set fails. Errors identify the core and, for layout errors, the set.
+
 ROM-less cores may provide a `cfg/mame2mra.toml` with no `[parse].sourcefile`,
 no explicit `[parse].machine`, and no `[ROM].regions`. In that case `jtframe
 mra` emits a dull MRA containing only the core metadata and RBF link, without a
