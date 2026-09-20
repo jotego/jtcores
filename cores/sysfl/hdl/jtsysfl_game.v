@@ -461,6 +461,43 @@ end
 `endif
 
 `ifdef SYSFL_VSTAT
+// which layer is opaque per displayed row, mirror rows of one frame
+integer ly_frame=0, ly_scr=0, ly_roz=0, ly_obj=0;
+reg     lyvs_l=0, lyhs_l=0;
+always @(posedge clk) begin
+    lyvs_l <= VS;
+    lyhs_l <= HS;
+    if( pxl_cen && LHBL ) begin
+        if( u_video.scr_blankn ) ly_scr <= ly_scr+1;
+        if( u_video.roz_blankn ) ly_roz <= ly_roz+1;
+        if( u_video.obj_blankn ) ly_obj <= ly_obj+1;
+    end
+    if( HS && !lyhs_l ) begin
+        if( ly_frame==1508 && u_video.vdump>=9'h118 && u_video.vdump<=9'h140 )
+            $display("LAYER row vdump=%h scr=%0d roz=%0d obj=%0d", u_video.vdump, ly_scr, ly_roz, ly_obj);
+        ly_scr <= 0; ly_roz <= 0; ly_obj <= 0;
+    end
+    if( VS && !lyvs_l ) ly_frame <= ly_frame+1;
+end
+`endif
+
+`ifdef SYSFL_VSTAT
+// sprite pixels written per line, for a window of frames
+integer sp_cnt=0, sp_frame=0;
+reg     spvs_l=0;
+always @(posedge clk) begin
+    spvs_l <= VS;
+    if( u_video.u_obj.ln_we ) sp_cnt <= sp_cnt+1;
+    if( u_video.u_obj.ln_hs ) begin
+        if( sp_frame>=1500 && sp_frame<=1512 )
+            $display("SPRL %0d line %0d pixels %0d", sp_frame, u_video.u_obj.vlat, sp_cnt);
+        sp_cnt <= 0;
+    end
+    if( VS && !spvs_l ) sp_frame <= sp_frame+1;
+end
+`endif
+
+`ifdef SYSFL_VSTAT
 // C355 time per frame by state, sprite ROM waits, sprites hit per line
 integer o_frame=0, o_busy=0, o_romw=0, o_hits=0, o_hmax=0, o_div=0;
 integer o_st[0:19];
