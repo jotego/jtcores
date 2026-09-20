@@ -77522,6 +77522,302 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="finalapr" sourcefile="namco/namcofl.cpp">
+		<description>Final Lap R (Rev. B)</description>
+		<year>1994</year>
+		<manufacturer>Namco</manufacturer>
+		<rom name="flr2_mp_eb.19a" size="524288" crc="8bfe615f" sha1="7b867eb261268a83177f1f873689f77d1b6c47ca" region="maincpu" offset="0"/>
+		<rom name="flr2_mp_ob.18a" size="524288" crc="91c14e4f" sha1="934a86daaef0e3e2c2b3066f4677ccb3aaab6eaf" region="maincpu" offset="2"/>
+		<rom name="flr1_spr.21l" size="131072" crc="69bb0f5e" sha1="6831d618de42a165e508ad37db594d3aa290c530" region="c75data" offset="0"/>
+		<rom name="flr1_rch0.19j" size="1048576" crc="f413f50d" sha1="cdd8073dda4feaea78e3b94520cf20a9799fd04d" region="c169roz" offset="0"/>
+		<rom name="flr1_rch1.18j" size="1048576" crc="4654d519" sha1="f8bb473013cdca48dd98df0de2f78c300c156e91" region="c169roz" offset="100000"/>
+		<rom name="flr1_sch0.21p" size="1048576" crc="7169efca" sha1="66c7aa1b50b236b4700b07be0dca7aebdabedb8c" region="c123tmap" offset="0"/>
+		<rom name="flr1_sch1.20p" size="1048576" crc="aa233a02" sha1="0011329f585658d90f820daf0ba08ce2735bddfc" region="c123tmap" offset="100000"/>
+		<rom name="flr1_sch2.19p" size="1048576" crc="9b6b7abd" sha1="5cdec70db1b46bc5d0866ca155b520157fef3adf" region="c123tmap" offset="200000"/>
+		<rom name="flr1_sch3.18p" size="1048576" crc="50a14f54" sha1="ab9c2f2e11f006a9dc7e5aedd5788d7d67166d36" region="c123tmap" offset="300000"/>
+		<rom name="flr1_obj0l.ic1" size="2097152" crc="364a902c" sha1="4a1ea48eee86d410e36096cc100b4c9a5a645034" region="c355spr" offset="0"/>
+		<rom name="flr1_obj0u.ic2" size="2097152" crc="a5c7b80e" sha1="4e0e863cfdd8c051c3c4594bb21e11fb93c28f0c" region="c355spr" offset="2"/>
+		<rom name="flr1_obj1l.ic3" size="2097152" crc="51fd8de7" sha1="b1571c45e8c33d746716fd790c704a3361d02bdc" region="c355spr" offset="400000"/>
+		<rom name="flr1_obj1u.ic4" size="2097152" crc="1737aa3c" sha1="8eaf0dc5d60a270d2c1626f54f5edbddbb0a59c8" region="c355spr" offset="400002"/>
+		<rom name="flr1_rsh.14k" size="524288" crc="037c0983" sha1="c48574a8ad125cedfaf2538c5ff824e121204629" region="c169roz:mask" offset="0"/>
+		<rom name="flr1_ssh.18u" size="524288" crc="f70cb2bf" sha1="dbddda822287783a43415172b81d0382a8ac43d8" region="c123tmap:mask" offset="0"/>
+		<rom name="flr1_voi.23s" size="2097152" crc="ff6077cd" sha1="73c289125ddeae3e43153e4c570549ca04501262" region="c352" offset="0"/>
+		<rom name="finalapr.nv" size="8192" crc="d51d65fe" sha1="8a0a523cb6ba2880951e41ca04db23584f0a108c" region="nvram" offset="0"/>
+		<device_ref name="i80960ka"/>
+		<device_ref name="namcoc75"/>
+		<device_ref name="timer"/>
+		<device_ref name="timer"/>
+		<device_ref name="nvram"/>
+		<device_ref name="screen"/>
+		<device_ref name="namco_c169roz"/>
+		<device_ref name="namco_c355spr"/>
+		<device_ref name="namco_c123tmap"/>
+		<device_ref name="namco_c116"/>
+		<device_ref name="speaker"/>
+		<device_ref name="c352"/>
+		<chip type="cpu" tag="maincpu" name="Intel 80960KA" clock="20000000"/>
+		<chip type="cpu" tag="mcu" name="Namco C75 (M37702)" clock="16128000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="c352" name="Namco C352" clock="24192000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="59.659091" pixclock="6048000" htotal="384" hbend="0" hbstart="288" vtotal="264" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="1" coins="2">
+			<control type="paddle" buttons="1" minimum="0" maximum="255" sensitivity="100" keydelta="6"/>
+			<control type="pedal" minimum="0" maximum="255" sensitivity="100" keydelta="6"/>
+		</input>
+		<dipswitch name="Freeze Screen" tag="IN1" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="MISC" mask="64">
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":ACCEL">
+			<analog mask="255"/>
+		</port>
+		<port tag=":BRAKE">
+			<analog mask="255"/>
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":MISC">
+		</port>
+		<port tag=":WHEEL">
+			<analog mask="255"/>
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="lan" status="unemulated"/>
+	</machine>
+	<machine name="finalapr1" sourcefile="namco/namcofl.cpp" cloneof="finalapr" romof="finalapr">
+		<description>Final Lap R</description>
+		<year>1994</year>
+		<manufacturer>Namco</manufacturer>
+		<rom name="flr2_mp_e.19a" size="524288" crc="cc8961ae" sha1="08ce4d27a723101370d1c536b26256ce0d8a1b6c" region="maincpu" offset="0"/>
+		<rom name="flr2_mp_o.18a" size="524288" crc="8118f465" sha1="c4b79878a82fd36b5707e92aa893f69c2b942d57" region="maincpu" offset="2"/>
+		<rom name="flr1_spr.21l" merge="flr1_spr.21l" size="131072" crc="69bb0f5e" sha1="6831d618de42a165e508ad37db594d3aa290c530" region="c75data" offset="0"/>
+		<rom name="flr1_rch0.19j" merge="flr1_rch0.19j" size="1048576" crc="f413f50d" sha1="cdd8073dda4feaea78e3b94520cf20a9799fd04d" region="c169roz" offset="0"/>
+		<rom name="flr1_rch1.18j" merge="flr1_rch1.18j" size="1048576" crc="4654d519" sha1="f8bb473013cdca48dd98df0de2f78c300c156e91" region="c169roz" offset="100000"/>
+		<rom name="flr1_sch0.21p" merge="flr1_sch0.21p" size="1048576" crc="7169efca" sha1="66c7aa1b50b236b4700b07be0dca7aebdabedb8c" region="c123tmap" offset="0"/>
+		<rom name="flr1_sch1.20p" merge="flr1_sch1.20p" size="1048576" crc="aa233a02" sha1="0011329f585658d90f820daf0ba08ce2735bddfc" region="c123tmap" offset="100000"/>
+		<rom name="flr1_sch2.19p" merge="flr1_sch2.19p" size="1048576" crc="9b6b7abd" sha1="5cdec70db1b46bc5d0866ca155b520157fef3adf" region="c123tmap" offset="200000"/>
+		<rom name="flr1_sch3.18p" merge="flr1_sch3.18p" size="1048576" crc="50a14f54" sha1="ab9c2f2e11f006a9dc7e5aedd5788d7d67166d36" region="c123tmap" offset="300000"/>
+		<rom name="flr1_obj0l.ic1" merge="flr1_obj0l.ic1" size="2097152" crc="364a902c" sha1="4a1ea48eee86d410e36096cc100b4c9a5a645034" region="c355spr" offset="0"/>
+		<rom name="flr1_obj0u.ic2" merge="flr1_obj0u.ic2" size="2097152" crc="a5c7b80e" sha1="4e0e863cfdd8c051c3c4594bb21e11fb93c28f0c" region="c355spr" offset="2"/>
+		<rom name="flr1_obj1l.ic3" merge="flr1_obj1l.ic3" size="2097152" crc="51fd8de7" sha1="b1571c45e8c33d746716fd790c704a3361d02bdc" region="c355spr" offset="400000"/>
+		<rom name="flr1_obj1u.ic4" merge="flr1_obj1u.ic4" size="2097152" crc="1737aa3c" sha1="8eaf0dc5d60a270d2c1626f54f5edbddbb0a59c8" region="c355spr" offset="400002"/>
+		<rom name="flr1_rsh.14k" merge="flr1_rsh.14k" size="524288" crc="037c0983" sha1="c48574a8ad125cedfaf2538c5ff824e121204629" region="c169roz:mask" offset="0"/>
+		<rom name="flr1_ssh.18u" merge="flr1_ssh.18u" size="524288" crc="f70cb2bf" sha1="dbddda822287783a43415172b81d0382a8ac43d8" region="c123tmap:mask" offset="0"/>
+		<rom name="flr1_voi.23s" merge="flr1_voi.23s" size="2097152" crc="ff6077cd" sha1="73c289125ddeae3e43153e4c570549ca04501262" region="c352" offset="0"/>
+		<rom name="finalapr.nv" merge="finalapr.nv" size="8192" crc="d51d65fe" sha1="8a0a523cb6ba2880951e41ca04db23584f0a108c" region="nvram" offset="0"/>
+		<device_ref name="i80960ka"/>
+		<device_ref name="namcoc75"/>
+		<device_ref name="timer"/>
+		<device_ref name="timer"/>
+		<device_ref name="nvram"/>
+		<device_ref name="screen"/>
+		<device_ref name="namco_c169roz"/>
+		<device_ref name="namco_c355spr"/>
+		<device_ref name="namco_c123tmap"/>
+		<device_ref name="namco_c116"/>
+		<device_ref name="speaker"/>
+		<device_ref name="c352"/>
+		<chip type="cpu" tag="maincpu" name="Intel 80960KA" clock="20000000"/>
+		<chip type="cpu" tag="mcu" name="Namco C75 (M37702)" clock="16128000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="c352" name="Namco C352" clock="24192000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="59.659091" pixclock="6048000" htotal="384" hbend="0" hbstart="288" vtotal="264" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="1" coins="2">
+			<control type="paddle" buttons="1" minimum="0" maximum="255" sensitivity="100" keydelta="6"/>
+			<control type="pedal" minimum="0" maximum="255" sensitivity="100" keydelta="6"/>
+		</input>
+		<dipswitch name="Freeze Screen" tag="IN1" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="MISC" mask="64">
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":ACCEL">
+			<analog mask="255"/>
+		</port>
+		<port tag=":BRAKE">
+			<analog mask="255"/>
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":MISC">
+		</port>
+		<port tag=":WHEEL">
+			<analog mask="255"/>
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="lan" status="unemulated"/>
+	</machine>
+	<machine name="finalaprj" sourcefile="namco/namcofl.cpp" cloneof="finalapr" romof="finalapr">
+		<description>Final Lap R (Japan Rev. C)</description>
+		<year>1994</year>
+		<manufacturer>Namco</manufacturer>
+		<rom name="flr1_mp_ec.19a" size="524288" crc="52735494" sha1="db9873cb39bcfdd3dbe2e5079249fecac2c46df9" region="maincpu" offset="0"/>
+		<rom name="flr1_mp_oc.18a" size="524288" crc="b11fe577" sha1="70b51a1e66a3bb92f027aad7ba0f358c0e139b3c" region="maincpu" offset="2"/>
+		<rom name="flr1_spr.21l" merge="flr1_spr.21l" size="131072" crc="69bb0f5e" sha1="6831d618de42a165e508ad37db594d3aa290c530" region="c75data" offset="0"/>
+		<rom name="flr1_rch0.19j" merge="flr1_rch0.19j" size="1048576" crc="f413f50d" sha1="cdd8073dda4feaea78e3b94520cf20a9799fd04d" region="c169roz" offset="0"/>
+		<rom name="flr1_rch1.18j" merge="flr1_rch1.18j" size="1048576" crc="4654d519" sha1="f8bb473013cdca48dd98df0de2f78c300c156e91" region="c169roz" offset="100000"/>
+		<rom name="flr1_sch0.21p" merge="flr1_sch0.21p" size="1048576" crc="7169efca" sha1="66c7aa1b50b236b4700b07be0dca7aebdabedb8c" region="c123tmap" offset="0"/>
+		<rom name="flr1_sch1.20p" merge="flr1_sch1.20p" size="1048576" crc="aa233a02" sha1="0011329f585658d90f820daf0ba08ce2735bddfc" region="c123tmap" offset="100000"/>
+		<rom name="flr1_sch2.19p" merge="flr1_sch2.19p" size="1048576" crc="9b6b7abd" sha1="5cdec70db1b46bc5d0866ca155b520157fef3adf" region="c123tmap" offset="200000"/>
+		<rom name="flr1_sch3.18p" merge="flr1_sch3.18p" size="1048576" crc="50a14f54" sha1="ab9c2f2e11f006a9dc7e5aedd5788d7d67166d36" region="c123tmap" offset="300000"/>
+		<rom name="flr1_obj0l.ic1" merge="flr1_obj0l.ic1" size="2097152" crc="364a902c" sha1="4a1ea48eee86d410e36096cc100b4c9a5a645034" region="c355spr" offset="0"/>
+		<rom name="flr1_obj0u.ic2" merge="flr1_obj0u.ic2" size="2097152" crc="a5c7b80e" sha1="4e0e863cfdd8c051c3c4594bb21e11fb93c28f0c" region="c355spr" offset="2"/>
+		<rom name="flr1_obj1l.ic3" merge="flr1_obj1l.ic3" size="2097152" crc="51fd8de7" sha1="b1571c45e8c33d746716fd790c704a3361d02bdc" region="c355spr" offset="400000"/>
+		<rom name="flr1_obj1u.ic4" merge="flr1_obj1u.ic4" size="2097152" crc="1737aa3c" sha1="8eaf0dc5d60a270d2c1626f54f5edbddbb0a59c8" region="c355spr" offset="400002"/>
+		<rom name="flr1_rsh.14k" merge="flr1_rsh.14k" size="524288" crc="037c0983" sha1="c48574a8ad125cedfaf2538c5ff824e121204629" region="c169roz:mask" offset="0"/>
+		<rom name="flr1_ssh.18u" merge="flr1_ssh.18u" size="524288" crc="f70cb2bf" sha1="dbddda822287783a43415172b81d0382a8ac43d8" region="c123tmap:mask" offset="0"/>
+		<rom name="flr1_voi.23s" merge="flr1_voi.23s" size="2097152" crc="ff6077cd" sha1="73c289125ddeae3e43153e4c570549ca04501262" region="c352" offset="0"/>
+		<rom name="finalapr.nv" merge="finalapr.nv" size="8192" crc="d51d65fe" sha1="8a0a523cb6ba2880951e41ca04db23584f0a108c" region="nvram" offset="0"/>
+		<device_ref name="i80960ka"/>
+		<device_ref name="namcoc75"/>
+		<device_ref name="timer"/>
+		<device_ref name="timer"/>
+		<device_ref name="nvram"/>
+		<device_ref name="screen"/>
+		<device_ref name="namco_c169roz"/>
+		<device_ref name="namco_c355spr"/>
+		<device_ref name="namco_c123tmap"/>
+		<device_ref name="namco_c116"/>
+		<device_ref name="speaker"/>
+		<device_ref name="c352"/>
+		<chip type="cpu" tag="maincpu" name="Intel 80960KA" clock="20000000"/>
+		<chip type="cpu" tag="mcu" name="Namco C75 (M37702)" clock="16128000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="c352" name="Namco C352" clock="24192000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="59.659091" pixclock="6048000" htotal="384" hbend="0" hbstart="288" vtotal="264" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="1" coins="2">
+			<control type="paddle" buttons="1" minimum="0" maximum="255" sensitivity="100" keydelta="6"/>
+			<control type="pedal" minimum="0" maximum="255" sensitivity="100" keydelta="6"/>
+		</input>
+		<dipswitch name="Freeze Screen" tag="IN1" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="MISC" mask="64">
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":ACCEL">
+			<analog mask="255"/>
+		</port>
+		<port tag=":BRAKE">
+			<analog mask="255"/>
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":MISC">
+		</port>
+		<port tag=":WHEEL">
+			<analog mask="255"/>
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="lan" status="unemulated"/>
+	</machine>
+	<machine name="finalaprj1" sourcefile="namco/namcofl.cpp" cloneof="finalapr" romof="finalapr">
+		<description>Final Lap R (Japan Rev. B)</description>
+		<year>1994</year>
+		<manufacturer>Namco</manufacturer>
+		<rom name="flr1_mp_eb.19a" size="524288" crc="1a77bcc0" sha1="4090917afcd0346ea78e6e307879a980cf196204" region="maincpu" offset="0"/>
+		<rom name="flr1_mp_ob.18a" size="524288" crc="5f64eb2b" sha1="0011ceeedefcf16c333c7ab28f334dd228eac4cf" region="maincpu" offset="2"/>
+		<rom name="flr1_spr.21l" merge="flr1_spr.21l" size="131072" crc="69bb0f5e" sha1="6831d618de42a165e508ad37db594d3aa290c530" region="c75data" offset="0"/>
+		<rom name="flr1_rch0.19j" merge="flr1_rch0.19j" size="1048576" crc="f413f50d" sha1="cdd8073dda4feaea78e3b94520cf20a9799fd04d" region="c169roz" offset="0"/>
+		<rom name="flr1_rch1.18j" merge="flr1_rch1.18j" size="1048576" crc="4654d519" sha1="f8bb473013cdca48dd98df0de2f78c300c156e91" region="c169roz" offset="100000"/>
+		<rom name="flr1_sch0.21p" merge="flr1_sch0.21p" size="1048576" crc="7169efca" sha1="66c7aa1b50b236b4700b07be0dca7aebdabedb8c" region="c123tmap" offset="0"/>
+		<rom name="flr1_sch1.20p" merge="flr1_sch1.20p" size="1048576" crc="aa233a02" sha1="0011329f585658d90f820daf0ba08ce2735bddfc" region="c123tmap" offset="100000"/>
+		<rom name="flr1_sch2.19p" merge="flr1_sch2.19p" size="1048576" crc="9b6b7abd" sha1="5cdec70db1b46bc5d0866ca155b520157fef3adf" region="c123tmap" offset="200000"/>
+		<rom name="flr1_sch3.18p" merge="flr1_sch3.18p" size="1048576" crc="50a14f54" sha1="ab9c2f2e11f006a9dc7e5aedd5788d7d67166d36" region="c123tmap" offset="300000"/>
+		<rom name="flr1_obj0l.ic1" merge="flr1_obj0l.ic1" size="2097152" crc="364a902c" sha1="4a1ea48eee86d410e36096cc100b4c9a5a645034" region="c355spr" offset="0"/>
+		<rom name="flr1_obj0u.ic2" merge="flr1_obj0u.ic2" size="2097152" crc="a5c7b80e" sha1="4e0e863cfdd8c051c3c4594bb21e11fb93c28f0c" region="c355spr" offset="2"/>
+		<rom name="flr1_obj1l.ic3" merge="flr1_obj1l.ic3" size="2097152" crc="51fd8de7" sha1="b1571c45e8c33d746716fd790c704a3361d02bdc" region="c355spr" offset="400000"/>
+		<rom name="flr1_obj1u.ic4" merge="flr1_obj1u.ic4" size="2097152" crc="1737aa3c" sha1="8eaf0dc5d60a270d2c1626f54f5edbddbb0a59c8" region="c355spr" offset="400002"/>
+		<rom name="flr1_rsh.14k" merge="flr1_rsh.14k" size="524288" crc="037c0983" sha1="c48574a8ad125cedfaf2538c5ff824e121204629" region="c169roz:mask" offset="0"/>
+		<rom name="flr1_ssh.18u" merge="flr1_ssh.18u" size="524288" crc="f70cb2bf" sha1="dbddda822287783a43415172b81d0382a8ac43d8" region="c123tmap:mask" offset="0"/>
+		<rom name="flr1_voi.23s" merge="flr1_voi.23s" size="2097152" crc="ff6077cd" sha1="73c289125ddeae3e43153e4c570549ca04501262" region="c352" offset="0"/>
+		<rom name="finalapr.nv" merge="finalapr.nv" size="8192" crc="d51d65fe" sha1="8a0a523cb6ba2880951e41ca04db23584f0a108c" region="nvram" offset="0"/>
+		<device_ref name="i80960ka"/>
+		<device_ref name="namcoc75"/>
+		<device_ref name="timer"/>
+		<device_ref name="timer"/>
+		<device_ref name="nvram"/>
+		<device_ref name="screen"/>
+		<device_ref name="namco_c169roz"/>
+		<device_ref name="namco_c355spr"/>
+		<device_ref name="namco_c123tmap"/>
+		<device_ref name="namco_c116"/>
+		<device_ref name="speaker"/>
+		<device_ref name="c352"/>
+		<chip type="cpu" tag="maincpu" name="Intel 80960KA" clock="20000000"/>
+		<chip type="cpu" tag="mcu" name="Namco C75 (M37702)" clock="16128000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="c352" name="Namco C352" clock="24192000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="59.659091" pixclock="6048000" htotal="384" hbend="0" hbstart="288" vtotal="264" vbend="0" vbstart="224" />
+		<sound channels="1"/>
+		<input players="1" coins="2">
+			<control type="paddle" buttons="1" minimum="0" maximum="255" sensitivity="100" keydelta="6"/>
+			<control type="pedal" minimum="0" maximum="255" sensitivity="100" keydelta="6"/>
+		</input>
+		<dipswitch name="Freeze Screen" tag="IN1" mask="32">
+			<dipvalue name="Off" value="32" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="MISC" mask="64">
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":ACCEL">
+			<analog mask="255"/>
+		</port>
+		<port tag=":BRAKE">
+			<analog mask="255"/>
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<port tag=":IN3">
+		</port>
+		<port tag=":MISC">
+		</port>
+		<port tag=":WHEEL">
+			<analog mask="255"/>
+		</port>
+		<driver status="imperfect" emulation="good" savestate="supported"/>
+		<feature type="graphics" status="imperfect"/>
+		<feature type="lan" status="unemulated"/>
+	</machine>
 	<machine name="flkatck" sourcefile="konami/flkatck.cpp" cloneof="mx5000" romof="mx5000">
 		<description>Flak Attack (Japan)</description>
 		<year>1987</year>

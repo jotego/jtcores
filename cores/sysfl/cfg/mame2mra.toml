@@ -8,6 +8,9 @@ sourcefile=[ "namcofl.cpp" ]
 [ROM]
 regions = [
     { name="maincpu",      width=32 },
+    # Final Lap R has no data ROMs (ROMREGION_ERASEFF); the FF filler up to
+    # ROZ_START reproduces the erased region
+    { name="data",         machine="finalapr", skip=true },
     { name="data",         width=32 },
     { name="c169roz",      start="ROZ_START" },
     { name="c352",         start="JTFRAME_BA1_START" },
