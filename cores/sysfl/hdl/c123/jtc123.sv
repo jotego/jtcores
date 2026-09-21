@@ -119,8 +119,16 @@ assign smask_cs   = plyr!=7 && mst>=3; // tmap_data valid from mst 3
 assign hsub       = hcnt[2:0];
 assign buf_we     = alt_cen & ~done;
 // a layer entering its next tile needs that tile's mask ready
+`ifdef SIMULATION
+// optional per-layer render mask for layer-by-layer debugging
+reg [7:0] simlyr [0:0];
+initial begin simlyr[0]=8'hff; $readmemh("lyrmask.hex", simlyr); end
+wire [5:0] cfg_enb_eff = cfg_enb | ~simlyr[0][5:0];
+`else
+wire [5:0] cfg_enb_eff = cfg_enb;
+`endif
 assign xing      = { hcnt[2:0]==7, hcnt[2:0]==7, hcnt3==7, hcnt2==7, hcnt1==7, hcnt0==7 };
-assign block      = xing & ~nrdy & ~cfg_enb;
+assign block      = xing & ~nrdy & ~cfg_enb_eff;
 assign rom_ok     = scr_ok & ~|block;
 assign smask_addr = { tmap_data, mask_asub };
 assign dflip      = flip ^ cfg_flip;
@@ -214,13 +222,13 @@ always @* begin
     cprio  = 0;
     opaque = 0;
     for( j=5; j>=0; j=j-1 )
-        if( !opaque || (cfg_prio[j]>cprio && mask[j][7] && !cfg_enb[j]))
-            { opaque, win, cprio } = { mask[j][7] & ~cfg_enb[j], j[2:0], cfg_prio[j] };
+        if( !opaque || (cfg_prio[j]>cprio && mask[j][7] && !cfg_enb_eff[j]))
+            { opaque, win, cprio } = { mask[j][7] & ~cfg_enb_eff[j], j[2:0], cfg_prio[j] };
 end
 
 always @* begin // next layer to prefetch - keep in its own always block
     mlyr = 7;
-    for( j=5; j>=0; j=j-1 ) if( !nrdy[j] && !cfg_enb[j] ) mlyr = j[2:0];
+    for( j=5; j>=0; j=j-1 ) if( !nrdy[j] && !cfg_enb_eff[j] ) mlyr = j[2:0];
 end
 
 // Pixel drawing. Masks and tile codes of the next tile of each layer are
