@@ -1,6 +1,5 @@
-# area-directed fitting: the core is LAB-bound on the 5CSEBA6
-set_global_assignment -name ALM_REGISTER_PACKING_EFFORT HIGH
-set_global_assignment -name QII_AUTO_PACKED_REGISTERS "MINIMIZE AREA WITH CHAINS"
+# LAB demand fits since 375992dfa; the binder is routing congestion
+# (peak 94% interconnect in one region), so trade packing for routability
+set_global_assignment -name FITTER_AGGRESSIVE_ROUTABILITY_OPTIMIZATION ALWAYS
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION OFF
-set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA ON
 set_global_assignment -name OPTIMIZATION_TECHNIQUE AREA
