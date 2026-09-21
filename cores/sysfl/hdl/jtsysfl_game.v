@@ -346,4 +346,82 @@ jtsysfl_video u_video(
     .st_dout    ( st_video      )
 );
 
+
+`ifdef SYSFL_OBJDBG
+// per-line C355 render-time audit over the whole sim: line cycle histogram,
+// cuts (line not finished when the next starts) and the worst line
+integer ob_cyc=0, ob_max=0, ob_cut=0, ob_lines=0, ob_over=0, ob_maxf=0, ob_frame=0;
+reg obhs_l=0, obvs_l=0;
+always @(posedge clk) begin
+    obvs_l <= VS;
+    if( VS && !obvs_l ) ob_frame <= ob_frame+1;
+    if( u_video.u_obj.st != 0 ) ob_cyc <= ob_cyc+1;
+    obhs_l <= u_video.u_obj.ln_hs;
+    if( u_video.u_obj.ln_hs && !obhs_l ) begin
+        ob_lines <= ob_lines+1;
+        if( u_video.u_obj.st != 0 ) begin
+            ob_cut <= ob_cut+1;
+            $display("OBJCUT f=%0d line=%0d busy=%0d", ob_frame, u_video.u_obj.ln_v, ob_cyc);
+        end
+        if( ob_cyc > ob_max ) begin ob_max <= ob_cyc; ob_maxf <= ob_frame; end
+        if( ob_cyc > 3072 ) ob_over <= ob_over+1;   // one 48MHz line time
+        ob_cyc <= 0;
+    end
+    if( VS && !obvs_l && ob_frame % 500 == 0 )
+        $display("OBJAUD f=%0d lines=%0d cut=%0d over1line=%0d max=%0d (f=%0d)",
+            ob_frame, ob_lines, ob_cut, ob_over, ob_max, ob_maxf);
+end
+// state/stall breakdown per frame in the rock-section window
+// st: 1 LIST 15 TILR 16 DPIX 17 DSKP 18 CNXT 19 ENXT 20 ROWW 21 COLW
+integer w_st[0:21], w_romw=0, w_div=0, w_hits=0, w_hmax=0, wi;
+// objrom cache audit: requests, 1-cycle hits, reuse of the last 4 lines
+integer w_req=0, w_hit=0, w_reuse=0;
+reg [19:0] w_lines[0:3];   // 64-bit line ids = objrom_addr[22:3]
+reg [22:2] w_lastaddr=0;
+reg w_cs_l=0, w_newreq=0;
+reg wvs_l=0, whs2_l=0;
+initial for( wi=0; wi<22; wi=wi+1 ) w_st[wi]=0;
+always @(posedge clk) begin
+    wvs_l <= VS;
+    if( ob_frame>=2450 && ob_frame<=2700 ) begin
+        if( u_video.u_obj.st!=0 ) w_st[u_video.u_obj.st] <= w_st[u_video.u_obj.st]+1;
+        if( objrom_cs && !objrom_ok ) w_romw <= w_romw+1;
+        w_cs_l <= objrom_cs;
+        if( ob_frame>=2555 && ob_frame<=2557 && objrom_cs && (!w_cs_l || objrom_addr!=w_lastaddr) )
+            $display("OTRC %0d %h", ob_frame, {objrom_addr,2'b00});
+        // new request = cs rising or address change while cs
+        if( objrom_cs && (!w_cs_l || objrom_addr!=w_lastaddr) ) begin
+            w_req      <= w_req+1;
+            w_newreq   <= 1;
+            w_lastaddr <= objrom_addr;
+            if( objrom_addr[22:3]==w_lines[0] || objrom_addr[22:3]==w_lines[1] ||
+                objrom_addr[22:3]==w_lines[2] || objrom_addr[22:3]==w_lines[3] )
+                w_reuse <= w_reuse+1;
+            w_lines[3] <= w_lines[2]; w_lines[2] <= w_lines[1];
+            w_lines[1] <= w_lines[0]; w_lines[0] <= objrom_addr[22:3];
+        end else if( w_newreq ) begin
+            w_newreq <= 0;
+            if( objrom_ok ) w_hit <= w_hit+1;   // served the cycle after the request
+        end
+        if( u_video.u_obj.div_working ) w_div <= w_div+1;
+        whs2_l <= u_video.u_obj.ln_hs;
+        if( u_video.u_obj.ln_hs && !whs2_l ) begin
+            w_hits <= w_hits + u_video.u_obj.hitcnt;
+            if( u_video.u_obj.hitcnt > w_hmax ) w_hmax <= u_video.u_obj.hitcnt;
+        end
+        if( VS && !wvs_l ) begin
+            $display("OBJC f=%0d req=%0d hit=%0d reuse4=%0d", ob_frame, w_req, w_hit, w_reuse);
+            w_req<=0; w_hit<=0; w_reuse<=0;
+            $display("OBJW f=%0d romw=%0d div=%0d hits=%0d hmax=%0d LIST=%0d ATR=%0d ROWS=%0d COLS=%0d TILR=%0d DPIX=%0d DSKP=%0d NXT=%0d",
+                ob_frame, w_romw, w_div, w_hits, w_hmax,
+                w_st[1], w_st[2]+w_st[3]+w_st[4]+w_st[5]+w_st[6]+w_st[11]+w_st[12]+w_st[13],
+                w_st[7]+w_st[8]+w_st[9]+w_st[10]+w_st[20],
+                w_st[14]+w_st[21], w_st[15], w_st[16], w_st[17], w_st[18]+w_st[19]);
+            w_romw<=0; w_div<=0; w_hits<=0; w_hmax<=0;
+            for( wi=0; wi<22; wi=wi+1 ) w_st[wi]<=0;
+        end
+    end
+end
+`endif
+
 endmodule
