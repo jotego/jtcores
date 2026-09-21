@@ -50,7 +50,8 @@ localparam [5:0]
     RST_SAT  = 6'd0,  RST_PRCB = 6'd1,  RST_IP   = 6'd2,  RST_FP   = 6'd3,
     FETCH    = 6'd4,  XWORD    = 6'd5,  EXE      = 6'd6,
     MRD1     = 6'd8,  MRD2     = 6'd9,  MWR1     = 6'd10, MWR2     = 6'd11,
-    MDWAIT   = 6'd12,
+    MOVM     = 6'd7,
+    MDWAIT   = 6'd12, MD_RDH   = 6'd14,
     CALL_RIP = 6'd13, CALL_FIN = 6'd15,
     RET_RPC  = 6'd16, RET_RAC  = 6'd17, RET_POP  = 6'd18,
     RET_FIN  = 6'd20, FLUSH_NX = 6'd21,
@@ -74,7 +75,7 @@ reg  [ 7:0] int_vec;
 reg  [ 5:0] st;
 reg  [ 4:0] mcnt, mreg, cnt;
 integer     i3;
-reg  [ 2:0] ctype, rtype, flush_f;
+reg  [ 2:0] ctype, rtype, flush_f, mvcnt;
 reg  [ 1:0] msz, seq, int_line;
 reg         msig, wsrc_rc, in_int, iac_mode;
 reg  signed [15:0] rpos;    // frame-cache depth, per MAME rcache_pos
@@ -161,7 +162,6 @@ jt960_dec u_dec(
 wire [ 4:0] dstf = IRe[23:19];
 wire [31:0] t1   = IRe[11] ? {27'd0, IRe[ 4: 0]} : r[IRe[ 4: 0]];
 wire [31:0] t2   = IRe[12] ? {27'd0, IRe[18:14]} : r[IRe[18:14]];
-wire [31:0] t2h  = IRe[12] ? 32'd0 : r[IRe[18:14]+5'd1];
 wire [31:0] t3   = r[dstf];
 // COBR operands: src1 in the dst field, src2 always a register
 wire [31:0] c1   = IRe[13] ? {27'd0, IRe[23:19]} : r[IRe[23:19]];
@@ -217,7 +217,7 @@ end
 // the first beat is issued in the dispatch cycle
 wire [ 7:0] lanes  = (msz==2'd0 ? 8'h01 : msz==2'd1 ? 8'h03 : 8'h0f) << mad[1:0];
 wire [ 7:0] lanes_d= (dec_msz==2'd0 ? 8'h01 : dec_msz==2'd1 ? 8'h03 : 8'h0f) << ea[1:0];
-wire [63:0] wr64_d = {32'd0, r[dec_mreg]} << {ea[1:0], 3'd0};
+wire [63:0] wr64_d = {32'd0, t3} << {ea[1:0], 3'd0};
 wire        mcross = |lanes[7:4];
 wire [63:0] rd64   = {din, mlo}   >> {mad[1:0], 3'd0};
 wire [63:0] rd64a  = {32'd0, din} >> {mad[1:0], 3'd0};
@@ -262,7 +262,9 @@ wire [63:0] wr64  = {32'd0, wdata} << {mad[1:0], 3'd0};
 // multiply/divide
 wire [31:0] md_r0, md_r1;
 wire        md_busy, md_done;
-wire        md_start = (st==EXE || fuse) && dec_cls==OC_MD;
+// ediv reads src2+1 through the wdata port in MD_RDH, one cen after dispatch
+wire        md_start = ((st==EXE || fuse) && dec_cls==OC_MD && dec_mdop!=MD_EDIV)
+                       || st==MD_RDH;
 
 jt960_muldiv u_md(
     .rst    ( rst      ),
@@ -272,7 +274,7 @@ jt960_muldiv u_md(
     .op     ( dec_mdop ),
     .s1     ( t1       ),
     .s2     ( t2       ),
-    .s2h    ( t2h      ),
+    .s2h    ( wdata    ),
     .r0     ( md_r0    ),
     .r1     ( md_r1    ),
     .busy   ( md_busy  ),
@@ -359,9 +361,18 @@ begin
         if( IRe[13] ) st <= HALT;
         else r[dstf] <= PCS;
     end
-    OC_MOVM: for( i3=0; i3<4; i3=i3+1 ) if( i3<dec_mcnt )
-        r[dec_mreg+i3[4:0]] <= IRe[11] ? {27'd0, IRe[4:0]} : r[IRe[4:0]+i3[4:0]];
-    OC_MD:  st <= MDWAIT;   // started through md_start
+    OC_MOVM: begin // one register per cen, like the KA
+        r[dec_mreg] <= t1;
+        if( dec_mcnt > 3'd1 ) begin
+            mreg  <= IRe[4:0] + 5'd1;
+            mvcnt <= 3'd1;
+            st    <= MOVM;
+        end
+    end
+    OC_MD:  if( dec_mdop==MD_EDIV ) begin
+        mreg <= IRe[18:14]+5'd1;    // odd register via the wdata port
+        st   <= MD_RDH;
+    end else st <= MDWAIT;  // started through md_start
     OC_LDA: r[dstf] <= ea;
     OC_BX:  IP <= ea;
     OC_BALX: begin r[dstf] <= IPn; IP <= ea; end
@@ -525,6 +536,13 @@ always @(posedge clk) begin
             end
         // single dispatch cycle
         EXE: do_exe;
+        MOVM: begin
+            r[dec_mreg + {2'd0, mvcnt}] <= IRe[11] ? {27'd0, IRe[4:0]} : wdata;
+            mreg  <= mreg + 5'd1;
+            mvcnt <= mvcnt + 3'd1;
+            if( mvcnt == dec_mcnt-3'd1 ) st <= FETCH;
+        end
+        MD_RDH: st <= MDWAIT;
         MDWAIT: if( md_done ) begin
             r[dstf] <= md_r0;
             if( dec_pair ) r[dstf+5'd1] <= md_r1;
