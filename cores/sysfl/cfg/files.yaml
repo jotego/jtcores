@@ -1,6 +1,7 @@
 sysfl:
   - get:
     - "*.v"
+    - timing.sdc
   - from: c123
     get:
       - jtc123.sv
