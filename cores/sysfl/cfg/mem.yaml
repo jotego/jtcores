@@ -1,7 +1,7 @@
 # System FL memory map
 # bank 0: i960 program (1MB @0) + data (2MB @0x100000) + ROZ gfx
-# bank 1: C352 PCM (4MB @0) + i960 work RAM (1MB @0x400000)
-# bank 2: scroll gfx, bank 3: obj gfx
+# bank 1: obj gfx (SDRAM priority: bank0 first, so obj outranks all but roz/main)
+# bank 2: scroll gfx, bank 3: C352 PCM (4MB @0) + i960 work RAM (1MB @0x400000)
 params:
   - { name: SMASK_OFFSET, value: "22'h20_0000" }  # byte 0x400000
   - { name: ROZ_OFFSET,   value: "22'h20_0000" }  # byte 0x400000, bank 0
@@ -43,19 +43,10 @@ sdram:
           cache_size: 1kB
           offset: RMASK_OFFSET
     - buses:
-        - name: wram    # rw buses must come first in the bank
-          addr_width: 21
-          data_width: 16
-          rw: true
-          do_not_erase: true  # the game tests+inits it, erasing stalls reset ~12 frames
-          offset: WRAM_OFFSET
-        - name: pcm
-          addr_width: 22
-          data_width: 8
-        - name: wram32  # code fetches and loads from work RAM, one burst per word
-          addr_width: 21
+        - name: objrom
+          addr_width: 23
           data_width: 32
-          offset: WRAM_OFFSET
+          cache_size: 1kB
     - buses:
         - name: scr
           addr_width: 22
@@ -72,10 +63,19 @@ sdram:
           cache_size: 1kB
           offset: C75DATA_OFFSET
     - buses:
-        - name: objrom
-          addr_width: 23
+        - name: wram    # rw buses must come first in the bank
+          addr_width: 21
+          data_width: 16
+          rw: true
+          do_not_erase: true  # the game tests+inits it, erasing stalls reset ~12 frames
+          offset: WRAM_OFFSET
+        - name: pcm
+          addr_width: 22
+          data_width: 8
+        - name: wram32  # code fetches and loads from work RAM, one burst per word
+          addr_width: 21
           data_width: 32
-          cache_size: 1kB
+          offset: WRAM_OFFSET
 bram:
   - name: vram      # 123 tilemaps, 64kB. Primary port: video read
     addr_width: 16

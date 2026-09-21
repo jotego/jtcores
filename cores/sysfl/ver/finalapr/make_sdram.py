@@ -102,8 +102,8 @@ for base, lf, uf in [(0, "flr1_obj0l.ic1", "flr1_obj0u.ic2"), (0x400000, "flr1_o
 
 open(os.path.join(outdir,"sdram_bank0.bin"),"wb").write(swab(bank0))
 open(os.path.join(outdir,"sdram_bank2.bin"),"wb").write(swab(bank2))
-open(os.path.join(outdir,"sdram_bank3.bin"),"wb").write(swab(bank3))
-open(os.path.join(outdir,"sdram_bank1.bin"),"wb").write(swab(bank1))
+open(os.path.join(outdir,"sdram_bank1.bin"),"wb").write(swab(bank3))
+open(os.path.join(outdir,"sdram_bank3.bin"),"wb").write(swab(bank1))
 open(os.path.join(outdir,"c75bios_lo.bin"),"wb").write(c75[0::2])
 open(os.path.join(outdir,"c75bios_hi.bin"),"wb").write(c75[1::2])
 # jtsim downloads rom.bin over bank 0 before releasing reset; raw prog head

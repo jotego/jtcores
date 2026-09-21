@@ -24,16 +24,17 @@ JTFRAME_ARX=4
 JTFRAME_ARY=3
 
 # ROM configuration, byte offsets in download order (see mame2mra.toml)
+# bank1 = obj (high SDRAM priority), bank3 = pcm + work RAM
 ROZ_START=0x400000
 JTFRAME_BA1_START=0x680000
-JTFRAME_BA2_START=0xA80000
-C75BIOS_START=0xF00000
-MCUROM_START=0xF80000
-JTFRAME_BA3_START=0x1000000
+JTFRAME_BA2_START=0xE80000
+C75BIOS_START=0x1300000
+MCUROM_START=0x1380000
+JTFRAME_BA3_START=0x1400000
 # 64-bit bursts for the sprite ROM, 8 pixels per fetch
-JTFRAME_BA3_LEN=64
-# bank 1 holds the i960 work RAM
-JTFRAME_BA1_WEN
+JTFRAME_BA1_LEN=64
+# bank 3 holds the i960 work RAM
+JTFRAME_BA3_WEN
 
 # scene dumps: 6 BRAMs + video MMRs
 JTFRAME_IOCTL_RD=352372
