@@ -9,7 +9,7 @@ params:
   - { name: WRAM_OFFSET,  value: "22'h20_0000" }  # byte 0x400000, bank 1
   - { name: C75DATA_OFFSET, value: "22'h28_0000" } # byte 0x500000, bank 2
 clocks:
-  clk48:
+  clk:
     # i960KA-20, real clock. The C75 handshake needs the main loop to iterate
     # several times per frame: check CPUSTAT idle time if this ever changes
     - freq: 20 MHz

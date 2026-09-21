@@ -73,8 +73,8 @@ assign ioctl_din = &ioctl_addr[6:4] ? ioctl_misc : ioctl_video;
 
 `ifndef NOMAIN
 jtsysfl_main u_main(
-    .rst        ( rst48         ),
-    .clk        ( clk48         ),
+    .rst        ( rst           ),
+    .clk        ( clk           ),
     .cpu_cen    ( cpu_cen       ),
     .lvbl       ( LVBL          ),
     .hs         ( HS            ),
@@ -148,8 +148,8 @@ jtsysfl_header u_header(
 `ifdef C75_STUB
 // TEMPORARY C75 stub, kept for A/B debugging, see jtsysfl_main.v
 jtsysfl_c75stub u_c75stub(
-    .rst        ( rst48         ),
-    .clk        ( clk48         ),
+    .rst        ( rst           ),
+    .clk        ( clk           ),
     .lvbl       ( LVBL          ),
     .mcu_addr   ( mcu_addr      ),
     .mcu_din    ( mcu_din       ),
@@ -166,8 +166,8 @@ assign sample       = 0;
 `else
 // real C75 (M37702 + BIOS) + C352
 jtsysfl_c75 u_c75(
-    .rst        ( rst48         ),
-    .clk        ( clk48         ),
+    .rst        ( rst           ),
+    .clk        ( clk           ),
     .xin_cen    ( xin_cen       ),
     .c352_cen   ( c352_cen      ),
     .lvbl       ( LVBL          ),

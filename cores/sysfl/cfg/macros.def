@@ -1,11 +1,6 @@
 CORENAME=JTSYSFL
 JTFRAME_RATE=59.19
 
-# SDRAM at 96 MHz: doubles bandwidth and moves the cache tags to BRAM
-# (TAG_RAM). CPU and sound stay on clk48, video runs on clk (96 MHz)
-JTFRAME_SDRAM96
-JTFRAME_CLK48
-
 JTFRAME_STEREO
 JTFRAME_BUTTONS=4
 JTFRAME_ANALOG
