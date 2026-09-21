@@ -34,21 +34,34 @@ wire [ 7:0] mj   = ir[31:24];
 wire [ 3:0] sb   = ir[10: 7];
 wire [ 4:0] sh1  = t1[ 4: 0];
 wire        shof = |t1[31:5];              // shift count >= 32
-wire [31:0] bitm = 32'd1 << sh1;
 wire        cin  = ac[1];
 // add/sub with carry
 wire [32:0] addcs = {1'b0,t2} + {1'b0,t1} + {32'd0,cin};
 wire        addcv = (addcs[31]^t1[31]) & (addcs[31]^t2[31]);
 wire [32:0] subcs = {1'b0,t2} + {1'b0,~t1} + {32'd0,cin};
 wire        subcv = (t2[31]^t1[31]) & (t2[31]^subcs[31]);
-// shifts
-wire [31:0] shr   = t2 >> sh1;
-wire [31:0] shl   = t2 << sh1;
-wire [31:0] sra32 = $signed(t2) >>> sh1;
-wire [31:0] shmsk = ~(32'hffff_ffff << sh1);
-wire [63:0] rotd  = {t2,t2} << sh1;
-// extract length mask
-wire [31:0] exmsk = |t2[31:5] ? 32'hffff_ffff : ~(32'hffff_ffff << t2[4:0]);
+// one 64-bit left funnel serves every shift: the result is fun[63:32] and
+// right shifts feed the amount complement, leaving the shifted-out bits
+// in fun[31:0] (the shrdi rounding sticky comes for free)
+wire is59  = mj==8'h59;
+wire f_sr  = is59 && (sb==4'h8 || sb==4'ha || sb==4'hb);
+wire f_sra = is59 && (sb==4'ha || sb==4'hb);
+wire f_shl = is59 && (sb==4'hc || sb==4'he);
+wire f_rot = is59 && sb==4'hd;
+wire f_ext = mj==8'h65 && sb==4'h1;
+wire f_bit = mj==8'h58;
+wire [31:0] fhi  = f_bit ? 32'd1 : f_sra ? {32{t2[31]}} : (f_shl||f_rot) ? t2 : 32'd0;
+wire [31:0] flo  = (f_sr||f_rot) ? t2 : f_ext ? t3 : 32'd0;
+wire [ 5:0] famt = (f_sr||f_ext) ? 6'd32 - {1'b0,sh1} : {1'b0,sh1};
+wire [63:0] fun  = {fhi,flo} << famt;
+wire [31:0] fsh  = fun[63:32];
+wire        fstk = |fun[31:0];
+// extract length mask, thermometer decode
+wire [31:0] exmsk;
+genvar gi;
+generate for( gi=0; gi<32; gi=gi+1 ) begin : g_exmsk
+    assign exmsk[gi] = |t2[31:5] || gi[4:0] < t2[4:0];
+end endgenerate
 
 function [2:0] cmpu(input [31:0] a, input [31:0] b);
     cmpu = a<b ? 3'b100 : a==b ? 3'b010 : 3'b001;
@@ -79,10 +92,10 @@ always @* begin
     8'h58: begin
         res_we = 1;
         case( sb )
-        4'h0: res = t2 ^  bitm;                     // notbit
+        4'h0: res = t2 ^  fsh;                      // notbit
         4'h1: res = t2 &  t1;                       // and
         4'h2: res = t2 & ~t1;                       // andnot
-        4'h3: res = t2 |  bitm;                     // setbit
+        4'h3: res = t2 |  fsh;                      // setbit
         4'h4: res = ~t2 &  t1;                      // notand
         4'h6: res = t2 ^  t1;                       // xor
         4'h7: res = t2 |  t1;                       // or
@@ -90,10 +103,10 @@ always @* begin
         4'h9: res = ~(t2 ^ t1);                     // xnor
         4'ha: res = ~t1;                            // not
         4'hb: res = t2 | ~t1;                       // ornot
-        4'hc: res = t2 & ~bitm;                     // clrbit
+        4'hc: res = t2 & ~fsh;                      // clrbit
         4'hd: res = ~t2 | t1;                       // notor
         4'he: res = ~t2 | ~t1;                      // nand
-        4'hf: res = ac[1] ? t2|bitm : t2&~bitm;     // alterbit
+        4'hf: res = ac[1] ? t2|fsh : t2&~fsh;       // alterbit
         default: begin bad=1; res_we=0; end
         endcase
     end
@@ -102,12 +115,12 @@ always @* begin
         case( sb )
         4'h0,4'h1: res = t2 + t1;                   // addo, addi
         4'h2,4'h3: res = t2 - t1;                   // subo, subi
-        4'h8: res = shof ? 32'd0 : shr;             // shro
+        4'h8: res = shof ? 32'd0 : fsh;             // shro
         4'ha: res = shof ? 32'd0 :                  // shrdi, rounds towards zero
-                    ( t2[31] && |(t2 & shmsk) ) ? sra32+32'd1 : sra32;
-        4'hb: res = shof ? {32{t2[31]}} : sra32;    // shri
-        4'hc,4'he: res = shof ? 32'd0 : shl;        // shlo, shli
-        4'hd: res = rotd[63:32];                    // rotate
+                    ( t2[31] && fstk ) ? fsh+32'd1 : fsh;
+        4'hb: res = shof ? {32{t2[31]}} : fsh;      // shri
+        4'hc,4'he: res = shof ? 32'd0 : fsh;        // shlo, shli
+        4'hd: res = fsh;                            // rotate
         default: begin bad=1; res_we=0; end
         endcase
     end
@@ -176,7 +189,7 @@ always @* begin
         res_we = 1;
         case( sb )
         4'h0: res = (t2 & t1) | (t3 & ~t1);             // modify
-        4'h1: res = (shof ? 32'd0 : t3 >> sh1) & exmsk; // extract
+        4'h1: res = (shof ? 32'd0 : fsh) & exmsk;       // extract
         default: begin bad=1; res_we=0; end
         endcase
     end
