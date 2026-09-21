@@ -1,5 +1,0 @@
-# LAB demand fits since 375992dfa; the binder is routing congestion
-# (peak 94% interconnect in one region), so trade packing for routability
-set_global_assignment -name FITTER_AGGRESSIVE_ROUTABILITY_OPTIMIZATION ALWAYS
-set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION OFF
-set_global_assignment -name OPTIMIZATION_TECHNIQUE AREA
