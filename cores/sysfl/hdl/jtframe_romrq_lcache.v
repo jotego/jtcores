@@ -3,7 +3,7 @@
  * Date: 24-8-2026 */
 
 // Direct-mapped ROM cache for the short-burst SDRAM controller.
-// Cache lines are exactly one controller burst: 16, 32, or 64 bits.
+// Cache lines are exactly one controller burst: 16, 32, 64, or 128 bits.
 // Latency: 1 clock, or 2 with TAG_RAM, plus SDRAM service time on a miss.
 module jtframe_romrq_lcache #(parameter
     SDRAMW   = 22,
@@ -36,11 +36,12 @@ localparam CACHE_AW      = $clog2(CACHE_SIZE);
 // sysfl: the sprite ROM slot (32-bit, 64-bit bursts) uses 16-byte lines so
 // one miss brings a whole 16x16x8bpp tile row in two chained bursts
 localparam LINE2X        = (DW==32 && BURSTLEN==64) ? 1 : 0;
-localparam BURST_AW      = BURSTLEN == 64 ? 2 : (BURSTLEN == 32 ? 1 : 0);
+localparam BURST_AW      = BURSTLEN == 128 ? 3 : BURSTLEN == 64 ? 2 : (BURSTLEN == 32 ? 1 : 0);
 localparam LINE_AW       = BURST_AW + LINE2X;
 localparam LINE_INDEX_AW = CACHE_AW-1-LINE_AW;
 localparam CACHE_LINES   = 1<<LINE_INDEX_AW;
 localparam LINEW         = BURSTLEN << LINE2X;
+localparam BEATW         = BURSTLEN == 128 ? 3 : 2;
 
 wire [SDRAMW-1:0] addr_word;
 wire [SDRAMW-1:0] line_addr;
@@ -52,7 +53,7 @@ wire               fill_done;
 wire               tag_hit, tag_data_ok;
 reg                hit_l, fill_ok, filling, receiving, req_pending;
 reg                addr_ok_l, valid_l;
-reg [ 1:0]         fill_beat;
+reg [BEATW-1:0]    fill_beat;
 reg [LINE_INDEX_AW-1:0] read_line_l;
 reg [SDRAMW-CACHE_AW:0] read_tag_l;
 reg [AW-1:0]       read_addr_l;
@@ -61,12 +62,13 @@ reg [SDRAMW-CACHE_AW:0] req_tag;
 reg [LINE_INDEX_AW-1:0] fill_line;
 reg [SDRAMW-CACHE_AW:0] fill_tag;
 reg [CACHE_LINES-1:0] valid;
-localparam FDW = LINE2X==1 ? 128 : 64;   // staging width, range-safe for all slots
+localparam FDW = (LINE2X==1 || BURSTLEN==128) ? 128 : 64; // staging width, range-safe for all slots
 localparam FHI = LINE2X==1 ? 64 : 0;     // high-half base (dead when LINE2X==0)
+localparam BAW = BURSTLEN==128 ? 128 : 64; // single-burst assembler width
 reg [FDW-1:0]     fill_data;
-reg [63:0]        nx_fill_data;
+reg [BAW-1:0]     nx_fill_data;
 reg               fill_half;   // LINE2X: second burst of the line in flight
-reg  [63:0]       burst_acc;   // current-burst word assembler (feeds nx_fill_data)
+reg  [BAW-1:0]    burst_acc;   // current-burst word assembler (feeds nx_fill_data)
 wire [LINEW-1:0]  cache_data;
 wire [LINEW-1:0]  pre_dout;
 wire [AW-1:0]       read_addr;
@@ -117,7 +119,7 @@ generate
     if( LINE2X==1 ) begin : g_wdata2x
         assign fill_wdata = { nx_fill_data, fill_data[63:0] };
     end else begin : g_wdata1x
-        assign fill_wdata = nx_fill_data[LINEW-1:0]; // LINEW<=64 here
+        assign fill_wdata = nx_fill_data[LINEW-1:0]; // LINEW<=BAW here
     end
 endgenerate
 
@@ -159,17 +161,37 @@ generate
     end
 endgenerate
 
-always @(*) begin
-    nx_fill_data = burst_acc;
-    if( fill_write ) begin
-        case( filling ? fill_beat : 0 )
-            0: nx_fill_data[15: 0] = din;
-            1: nx_fill_data[31:16] = din;
-            2: nx_fill_data[47:32] = din;
-            3: nx_fill_data[63:48] = din;
-        endcase
+generate
+    if( BURSTLEN == 128 ) begin : gen_asm128
+        always @(*) begin
+            nx_fill_data = burst_acc;
+            if( fill_write ) begin
+                case( filling ? fill_beat : 0 )
+                    0: nx_fill_data[ 15:  0] = din;
+                    1: nx_fill_data[ 31: 16] = din;
+                    2: nx_fill_data[ 47: 32] = din;
+                    3: nx_fill_data[ 63: 48] = din;
+                    4: nx_fill_data[ 79: 64] = din;
+                    5: nx_fill_data[ 95: 80] = din;
+                    6: nx_fill_data[111: 96] = din;
+                    7: nx_fill_data[127:112] = din;
+                endcase
+            end
+        end
+    end else begin : gen_asm64
+        always @(*) begin
+            nx_fill_data = burst_acc;
+            if( fill_write ) begin
+                case( filling ? fill_beat : 0 )
+                    0: nx_fill_data[15: 0] = din;
+                    1: nx_fill_data[31:16] = din;
+                    2: nx_fill_data[47:32] = din;
+                    3: nx_fill_data[63:48] = din;
+                endcase
+            end
+        end
     end
-end
+endgenerate
 
 generate
     if( DW == 8 ) begin : gen_byte
@@ -194,7 +216,7 @@ generate
                                          (read_addr[0] ? pre_dout[31:16] : pre_dout[15: 0]);
         end
     end else begin : gen_long
-        if( LINE2X == 1 ) begin : gen_line128
+        if( LINE2X == 1 || BURSTLEN == 128 ) begin : gen_line128
             assign dout = read_addr[2] ? (read_addr[1] ? pre_dout[127:96] : pre_dout[95:64])
                                        : (read_addr[1] ? pre_dout[ 63:32] : pre_dout[31: 0]);
         end else if( BURSTLEN == 32 ) begin : gen_burst32
@@ -252,11 +274,11 @@ always @(posedge clk) begin
             req_pending <= 0;
         end
         if( fill_write ) begin
-            burst_acc <= fill_done ? 64'd0 : nx_fill_data;
+            burst_acc <= fill_done ? {BAW{1'b0}} : nx_fill_data;
             if( LINE2X==1 && fill_half )
                 fill_data[FHI +: 64] <= nx_fill_data;
             else
-                fill_data[63:0] <= nx_fill_data;
+                fill_data[BAW-1:0] <= nx_fill_data;
             fill_beat <= filling ? fill_beat + 1'd1 : 1;
             receiving <= !din_ok;
             if( fill_done ) begin
@@ -276,8 +298,10 @@ end
 
 `ifdef SIMULATION
 initial begin
-    if( BURSTLEN != 16 && BURSTLEN != 32 && BURSTLEN != 64 )
-        $error("%m BURSTLEN must be 16, 32, or 64 bits");
+    if( BURSTLEN != 16 && BURSTLEN != 32 && BURSTLEN != 64 && BURSTLEN != 128 )
+        $error("%m BURSTLEN must be 16, 32, 64, or 128 bits");
+    if( BURSTLEN == 128 && DW != 32 )
+        $error("%m BURSTLEN 128 requires DW 32");
     if( BURSTLEN < DW )
         $error("%m BURSTLEN must be at least the client data width");
     if( CACHE_SIZE < 1024 || (CACHE_SIZE & (CACHE_SIZE-1)) != 0 )
