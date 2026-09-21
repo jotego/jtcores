@@ -9,7 +9,7 @@ module jtframe_sdram64 #(
               HF=1,     // 1 for HF operation (idle cycles), 0 for LF operation
                         // HF operation starts at 66.6MHz (1/15ns)
               SHIFTED =0,
-              BA0_LEN =64, // 1=16 bits, 2=32 bits, 4=64 bits
+              BA0_LEN =64, // 16, 32, 64 or 128 bits
               BA1_LEN =64,
               BA2_LEN =64,
               BA3_LEN =64,
@@ -96,8 +96,9 @@ module jtframe_sdram64 #(
     output              sdram_cke       // SDRAM Chip Select
 );
 /* verilator coverage_off */
-localparam BURSTLEN=(BA0_LEN>32 || BA1_LEN>32 ||BA2_LEN>32 ||BA3_LEN>32) ? 64 :(
-                    (BA0_LEN>16 || BA1_LEN>16 ||BA2_LEN>16 ||BA3_LEN>16) ? 32 : 16);
+localparam BURSTLEN=(BA0_LEN>64 || BA1_LEN>64 ||BA2_LEN>64 ||BA3_LEN>64) ? 128 :(
+                    (BA0_LEN>32 || BA1_LEN>32 ||BA2_LEN>32 ||BA3_LEN>32) ? 64 :(
+                    (BA0_LEN>16 || BA1_LEN>16 ||BA2_LEN>16 ||BA3_LEN>16) ? 32 : 16));
 
 localparam LATCH = HF==1;
 
