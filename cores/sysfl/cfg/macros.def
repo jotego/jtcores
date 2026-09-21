@@ -7,6 +7,8 @@ JTFRAME_ANALOG
 JTFRAME_NOMULTIWAY
 JTFRAME_HEADER=8
 JTFRAME_OSD_NOLOGO
+# core-local sprite ROM cache (see hdl/jtframe_romrq_lcache.v)
+JTFRAME_CORE_LCACHE
 
 # Video configuration
 JTFRAME_COLORW=8
