@@ -18,26 +18,26 @@
 */
 
 // on-chip local register cache: 4 frames x 16 registers + frame address
-// asynchronous read (LUT RAM sized), a whole frame moves in one clock
+// block RAM, registered read; a whole frame moves in one clock. The read
+// lags frame by one clk, absorbed by the >=2 clk cpu_cen spacing
 
 module jt960_rcache(
     input              clk,
     input      [  1:0] frame,
     input              we,
     input      [511:0] din,
-    output     [511:0] dout,
+    output reg [511:0] dout,
     input              fa_we,
     input      [ 31:0] fa_din,
-    output     [ 31:0] fa_dout
+    output reg [ 31:0] fa_dout
 );
 
-(* ramstyle = "MLAB, no_rw_check" *) reg [511:0] mem[0:3];
-(* ramstyle = "MLAB, no_rw_check" *) reg [ 31:0] fa [0:3];
-
-assign dout    = mem[frame];
-assign fa_dout = fa[frame];
+(* ramstyle = "no_rw_check, M10K" *) reg [511:0] mem[0:3];
+(* ramstyle = "no_rw_check, M10K" *) reg [ 31:0] fa [0:3];
 
 always @(posedge clk) begin
+    dout    <= mem[frame];
+    fa_dout <= fa[frame];
     if( we    ) mem[frame] <= din;
     if( fa_we ) fa[frame]  <= fa_din;
 end
