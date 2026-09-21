@@ -60,8 +60,7 @@ module jtc116(
 parameter SIMFILE="rest.bin", SEEK=96;
 
 
-localparam [8:0] HOFFSET = 9'h00a, VOFFSET = 9'h100,
-                 VIRQADJ = 9'd33; // 32+1, see namcofl.cpp
+localparam [8:0] HOFFSET = 9'h00a, VOFFSET = 9'h100;
 
 reg         mmr_cs, r_cs, g_cs, b_cs,
             vwin, // in vertical   window
@@ -78,14 +77,25 @@ assign left    = mmr_left[8:0];
 assign right   = mmr_right[8:0];
 assign top     = mmr_top[8:0];
 assign bottom  = mmr_bottom[8:0];
-assign vtrig   = mmr_vtrig[8:0]-VIRQADJ-VOFFSET;
+// raster IRQ at screen line reg5-33 (namcofl.cpp:400): in vdump space that
+// is reg5-33+0x121 = reg5-VOFFSET (mod 512); MAME's -33 must not be applied
+// on top of the vdump base or the IRQ fires 33 lines early (mirror band)
+assign vtrig   = mmr_vtrig[8:0]-VOFFSET;
 assign hadj    = hdump+HOFFSET;
 assign vadj    = vdump<9'h100 ? 9'h100 : vdump+VOFFSET; // counter wrap row = bottom line
 
 // C156 priority mix
+`ifdef SIMULATION
+reg [7:0] simlyr [0:0];
+initial begin simlyr[0]=8'hff; $readmemh("lyrmask.hex", simlyr); end
+assign scr_g   = scr_blankn & gfx_en[0];
+assign roz_g   = roz_blankn & gfx_en[1] & simlyr[0][6];
+assign obj_g   = obj_blankn & gfx_en[3] & simlyr[0][7];
+`else
 assign scr_g   = scr_blankn & gfx_en[0];
 assign roz_g   = roz_blankn & gfx_en[1];
 assign obj_g   = obj_blankn & gfx_en[3];
+`endif
 assign scr_eff = {scr_prio,1'b0};
 assign scr_win = scr_g && (!roz_g || scr_eff>=roz_prio); // tilemap drawn after ROZ
 assign bg_opq  = scr_g | roz_g;
