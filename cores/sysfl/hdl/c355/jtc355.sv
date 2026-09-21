@@ -84,7 +84,7 @@ reg         [14:0] codef;
 reg         [10:0] acc;
 reg         [ 4:0] sq;          // 16 = sq*tsw + sr, source step per screen pixel
 reg         [ 9:0] sr;
-reg        [127:0] rowb[0:1];   // 16 source pens per column, ping-pong
+(* ramstyle = "MLAB, no_rw_check" *) reg [31:0] rowb[0:7]; // 16 source pens per column, {buf, word}, ping-pong
 reg         [ 1:0] fw;          // word being fetched
 reg                fetch_bsy, row_ok, rsel, fbuf;
 // next column prefetched while the current one draws
@@ -94,7 +94,7 @@ reg                pf_skip;
 reg         [ 8:0] vlat;
 reg         [ 6:0] hitcnt;
 // per-frame visibility cache, rebuilt while drawing the first line
-reg        [255:0] viscache;
+(* ramstyle = "MLAB, no_rw_check" *) reg viscache[0:255];
 (* ramstyle = "MLAB, no_rw_check" *) reg signed [12:0] span0[0:255], span1[0:255]; // adjusted vertical span per entry
 reg         [ 7:0] list_len;
 reg                bld, cache_ok;
@@ -124,7 +124,8 @@ wire signed [12:0] wx0    = debug_bus[0] ? 13'sd0   : clx0 < 13'sd0   ? 13'sd0  
 wire signed [12:0] wx1    = debug_bus[0] ? 13'sd287 : clx1 > 13'sd287 ? 13'sd287 : clx1;
 wire               colvis = xcur <= wx1 && xcur + tsw_s > wx0;
 wire        [ 3:0] srcx_e = hflip ? 4'd15 - srcx : srcx;
-wire        [ 7:0] pen    = rowb[rsel][{srcx_e,3'd0}+:8];
+wire        [31:0] rowb_w = rowb[{rsel, srcx_e[3:2]}];
+wire        [ 7:0] pen    = rowb_w[{srcx_e[1:0],3'd0}+:8];
 wire        [ 4:0] ccnt_n = ccnt + 5'd1;
 wire        [13:0] tadr_n = rowbase[13:0] + {9'd0, ccnt_n};
 wire               xok    = xdr >= wx0 && xdr <= wx1;
@@ -193,7 +194,7 @@ always @(posedge clk, posedge rst) begin
         div_start <= 0;
         // whole tile row fetched up front, 4 words, then drawn without stalls
         if( fetch_bsy && objrom_ok ) begin
-            rowb[fbuf][{fw,5'd0}+:32] <= objrom_data;
+            rowb[{fbuf,fw}] <= objrom_data;
             fw <= fw + 2'd1;
             objrom_addr <= {fbuf==rsel ? codef : pf_code, vsub, fw + 2'd1};
             if( &fw ) begin
