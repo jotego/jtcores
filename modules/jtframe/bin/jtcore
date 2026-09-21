@@ -244,6 +244,9 @@ if [ $SKIP_COMPILE = FALSE ]; then
     # Avoid a silent failure in recovering include files that ends up picking up
     # files with the same name in other folders
     echo -e "\nset_global_assignment -name SEARCH_PATH \"$PRJPATH/hdl\"" >> $corename.qsf
+    if [ -e "$PRJPATH/syn/$TARGET.qsf" ]; then
+        cat "$PRJPATH/syn/$TARGET.qsf" >> $corename.qsf
+    fi
     append_signaltap_qsf
     if [ $SIM = FALSE ]; then
         # Create the QIP file
