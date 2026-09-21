@@ -85,29 +85,49 @@ integer     j2;
 localparam ILW = $clog2(ICACHE_BLK*16),     // line index bits
            ITW = 28-ILW;                    // tag bits
 reg  [31:0]    icd[0:ICACHE_BLK*64-1];
-reg  [ITW+3:0] ict[0:ICACHE_BLK*16-1];
-reg  [ICACHE_BLK*16-1:0] icl;
+reg  [ITW+4:0] ict[0:ICACHE_BLK*16-1];  // {valid, word valid, tag}
 reg  [31:0]    icd_q, icw_d;
-reg  [ITW+3:0] ict_q, itw_d;
+reg  [ITW+4:0] ict_q, itw_d;
 reg  [31:2]    ic_ra, icw_a;
-reg            icw;
+reg            icw, icinv, sweeping, ic_clr;
+reg  [ILW-1:0] icinv_a, swa;
 wire [ILW-1:0] icx    = IP[ILW+3:4];
 wire [ILW-1:0] wcx    = addr[ILW+3:4];
 wire           ic_rdy = ic_ra == IP[31:2];  // RAM outputs belong to IP
-wire           ic_tag = icl[icx] && ict_q[ITW-1:0]==IP[31:ILW+4];
+wire           ic_tag = !sweeping && ict_q[ITW+4] && ict_q[ITW-1:0]==IP[31:ILW+4];
 wire           ic_hit = ic_rdy && ic_tag && ict_q[ITW+IP[3:2]];
 wire [3:0]     ic_wv  = (ic_tag ? ict_q[ITW+:4] : 4'd0) | (4'd1<<IP[3:2]);
 
 // on a hit the next word is read ahead, so sequential code never waits
 wire [31:0]    ic_nx  = cen && st==FETCH && !bus_cs && ic_hit ? IP+32'd4 : IP;
 
+// line valid lives in ict; ic_clr starts a background sweep (IAC 89/93, rst)
+// and completed bus writes invalidate their line one clock later
 always @(posedge clk) begin
     icd_q <= icd[ic_nx[ILW+3:2]];
     ict_q <= ict[ic_nx[ILW+3:4]];
     ic_ra <= ic_nx[31:2];
-    if( icw ) begin
-        icd[icw_a[ILW+3:2]] <= icw_d;
-        ict[icw_a[ILW+3:4]] <= itw_d;
+    if( rst ) begin
+        sweeping <= 1;
+        swa      <= 0;
+        icinv    <= 0;
+    end else begin
+        icinv <= cen && bus_cs && bus_ok && bus_wr;
+        if( cen && bus_cs && bus_ok && bus_wr ) icinv_a <= wcx;
+        if( ic_clr ) begin
+            sweeping <= 1;
+            swa      <= 0;
+        end
+        if( icw ) begin
+            icd[icw_a[ILW+3:2]] <= icw_d;
+            ict[icw_a[ILW+3:4]] <= itw_d;
+        end else if( icinv )
+            ict[icinv_a] <= 0;
+        else if( sweeping && !ic_clr ) begin
+            ict[swa] <= 0;
+            swa      <= swa + 1'd1;
+            if( &swa ) sweeping <= 0;
+        end
     end
 end
 
@@ -442,12 +462,12 @@ always @(posedge clk) begin
         int_tab<=0; int_stk<=0; ctgt<=0; syn_src<=0; syn_dst<=0;
         iac0<=0; iac1<=0; iac2<=0; iac3<=0;
         for( j2=0; j2<32; j2=j2+1 ) r[j2] <= 32'd0;
-        icl <= 0;
-        icw <= 0;
+        icw    <= 0;
+        ic_clr <= 0;
     end else begin
-      icw <= 0;
+      icw    <= 0;
+      ic_clr <= 0;
       if( cen ) begin
-        if( bus_cs && bus_ok && bus_wr ) icl[wcx] <= 0;
         case( st )
         // reset sequence, per MAME device_reset
         RST_SAT: if( !bus_cs ) rd32(32'd0);
@@ -484,8 +504,7 @@ always @(posedge clk) begin
                 icw      <= 1;
                 icw_a    <= IP[31:2];
                 icw_d    <= din;
-                itw_d    <= { ic_wv, IP[31:ILW+4] };
-                icl[icx] <= 1;
+                itw_d    <= { 1'b1, ic_wv, IP[31:ILW+4] };
                 st       <= dec_ndisp ? XWORD : EXE;
             end
         XWORD: if( !bus_cs ) begin
@@ -501,8 +520,7 @@ always @(posedge clk) begin
                 icw      <= 1;
                 icw_a    <= IP[31:2];
                 icw_d    <= din;
-                itw_d    <= { ic_wv, IP[31:ILW+4] };
-                icl[icx] <= 1;
+                itw_d    <= { 1'b1, ic_wv, IP[31:ILW+4] };
                 st       <= EXE;
             end
         // single dispatch cycle
@@ -696,8 +714,8 @@ always @(posedge clk) begin
             AC[2:0] <= 3'b010;
             st      <= FETCH;
             case( iac0[31:24] )
-            8'h93: begin SAT<=iac1; PRCB<=iac2; IP<=iac3; icl<=0; end // reinit
-            8'h89: icl <= 0;       // invalidate instruction cache
+            8'h93: begin SAT<=iac1; PRCB<=iac2; IP<=iac3; ic_clr<=1; end // reinit
+            8'h89: ic_clr <= 1;    // invalidate instruction cache
             8'h80: st <= IAC_W0;   // store SAT & PRCB to memory
             default: ;             // 40/41/8f/91/92 ignored
             endcase
