@@ -75,6 +75,7 @@ sdram:
         - name: wram32  # code fetches and loads from work RAM, one burst per word
           addr_width: 21
           data_width: 32
+          latch: "1"
           offset: WRAM_OFFSET
 bram:
   - name: vram      # 123 tilemaps, 64kB. Primary port: video read
