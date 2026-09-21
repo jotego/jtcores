@@ -100,15 +100,16 @@ assign data_ok    = TAG_RAM ? addr_ok_l && !filling &&
                               (tag_data_ok ||
                                (fill_ok && fill_data_match)) :
                             (addr_ok && hit && !filling &&
-                              (fill_ok || (hit_l && cache_data_match))) ||
+                              (fill_cur || (hit_l && cache_data_match))) ||
                             (addr_ok && early_ok);
 assign fill_write = we && (dst || receiving);
 assign fill_done  = fill_write && din_ok;
 wire [2:0] cwf_arr  = {addr_word[2:1],1'b1} - fill_start;
-wire       early_ok = CWF==1 && filling &&
+wire       early_ok = CWF==1 && filling && cwf_arr != 3'd0 &&
                       line_index==fill_line && tag==fill_tag &&
                       {1'b0,cwf_arr} < {1'b0,fill_beat};
-assign pre_dout   = (fill_ok || early_ok) ? fill_data[LINEW-1:0] : cache_data;
+wire       fill_cur = fill_ok && line_index==fill_line && tag==fill_tag;
+assign pre_dout   = (fill_cur || early_ok) ? fill_data[LINEW-1:0] : cache_data;
 assign read_addr  = TAG_RAM ? read_addr_l : addr;
 
 jtframe_rpwp_ram #(.DW(LINEW),.AW(LINE_INDEX_AW)) u_ram(
