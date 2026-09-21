@@ -1,0 +1,411 @@
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Andrea Bogazzi. email: andreabogazzi79@gmail.com
+    Version: 1.0
+    Date: 21-9-2026
+*/
+
+// C355 sprite list scanner. Walks the list/attribute/format/tile tables and
+// the zoom dividers, emitting one descriptor per visible tile column into
+// the drawer FIFO. An eol descriptor closes each line.
+
+module jtc355_scan(
+    input             rst,
+    input             clk,
+
+    input             flip,
+    input      [ 1:0] sprbank,
+
+    input             ln_hs,
+    input      [ 7:0] ln_v,
+
+    // sprite table RAM (read only)
+    output reg [16:1] objtab_addr,
+    input      [15:0] objtab_data,
+
+    // column descriptors
+    output reg [92:0] desc_data,
+    output reg        desc_we,
+    input             desc_full,
+
+    input      [ 7:0] debug_bus,
+    output reg [ 7:0] st_dout
+);
+
+// word offsets in the 128kB sprite RAM
+localparam [15:0] ATTR0=16'h0000, LIST0=16'h1000, CLIPT=16'h1200,
+                  FMTT =16'h2000, TILET=16'h4000,
+                  ATTR1=16'h8000, LIST1=16'hA000;
+
+localparam [4:0] IDLE=0, LIST=1, VATR=2, RAT0=3, DYZS=4, DYZW=5,
+                 VSPN=6, ROWD=7, ROWC=8, VSBD=9, VSBW=10,
+                 RAT1=11, DXZS=12, DXZW=13, COLD=14,
+                 TILR=15, CNXT=18, ENXT=19, PEOL=20;
+
+reg         [ 4:0] st;
+reg         [ 3:0] t;
+reg         [ 8:0] entry;
+reg         [ 7:0] which;
+reg                stop, page;
+reg         [10:0] link;
+reg         [15:0] offset, tidx, rowbase;
+reg  signed [12:0] hpos, vpos, xcur, ycur,
+                   clx0, clx1, cly0, cly1;
+reg         [ 9:0] hsize, vsize, shr, swr, tsh, tsw, liry;
+reg                hflip, vflip;
+reg         [11:0] pal;         // {window sel, prio, color}
+reg         [ 4:0] rows, cols, rcnt, ccnt;
+reg         [ 8:0] dxf, dyf;
+reg         [ 3:0] vsub;
+reg         [ 8:0] vlat;
+reg         [ 6:0] hitcnt;
+// per-frame visibility cache, rebuilt while scanning the first line
+(* ramstyle = "MLAB, no_rw_check" *) reg viscache[0:255];
+(* ramstyle = "MLAB, no_rw_check" *) reg signed [12:0] span0[0:255], span1[0:255]; // adjusted vertical span per entry
+reg         [ 7:0] list_len;
+reg                bld, cache_ok;
+// shared serial divider
+reg                div_start, div_bsy;
+reg         [17:0] div_shf, div_q;
+reg         [10:0] div_rem;
+reg         [ 9:0] div_den;
+reg         [17:0] div_num;
+reg         [ 4:0] div_cnt, div_n;
+
+wire signed [12:0] vlat_s = {4'd0, vlat};
+wire        [15:0] abase  = page ? ATTR1 : ATTR0;
+wire        [15:0] lbase  = page ? LIST1 : LIST0;
+wire signed [12:0] tsh_s  = {3'd0, tsh};
+wire signed [12:0] tsw_s  = {3'd0, tsw};
+wire signed [12:0] vsz_s  = {3'd0, vsize};
+// coarse-reject margin: 2x size covers the dx/dy pivot for pivots within the sprite
+wire signed [12:0] vszm   = $signed({2'd0, objtab_data[9:0], 1'b0}) + 13'sd64;
+wire signed [12:0] q13    = $signed({1'b0, div_q[11:0]});
+wire signed [12:0] ycn    = vflip ? ycur - tsh_s : ycur;
+wire        [ 9:0] rmul   = rcnt * cols;
+wire        [13:0] tadr   = rowbase[13:0] + {9'd0, ccnt};
+wire        [14:0] c2t    = objtab_data[13] ? {sprbank, objtab_data[12:0]}
+                                            : objtab_data[14:0];
+wire signed [12:0] wx0    = debug_bus[0] ? 13'sd0   : clx0 < 13'sd0   ? 13'sd0   : clx0;
+wire signed [12:0] wx1    = debug_bus[0] ? 13'sd287 : clx1 > 13'sd287 ? 13'sd287 : clx1;
+wire               colvis = xcur <= wx1 && xcur + tsw_s > wx0;
+wire        [10:0] rem_a  = {div_rem[9:0], div_shf[17]};
+wire               qbit_a = rem_a >= {1'b0, div_den};
+wire        [10:0] rem_a1 = qbit_a ? rem_a - {1'b0, div_den} : rem_a;
+wire        [10:0] rem_b  = {rem_a1[9:0], div_shf[16]};
+wire               qbit_b = rem_b >= {1'b0, div_den};
+wire        [ 4:0] rleft  = rows - rcnt;
+wire        [ 4:0] cleft  = cols - ccnt;
+wire        [ 9:0] rowq   = shr / {5'd0, rleft};
+wire        [ 9:0] colq   = swr / {5'd0, cleft};
+wire               dy_id  = vsize == {1'b0, rows, 4'd0};
+wire               dx_id  = hsize == {1'b0, cols, 4'd0};
+wire signed [12:0] dyq    = dy_id ? {5'd0, dyf[7:0]} : q13;
+wire signed [12:0] dxq    = dx_id ? {5'd0, dxf[7:0]} : q13;
+wire               div_working = div_start | div_bsy;
+wire               visany = objtab_data[9:0] != 0 &&
+                            vpos + vszm > 13'sd0 && vpos - vszm < 13'sd224;
+wire signed [12:0] sp0    = span0[entry[7:0]];
+wire signed [12:0] sp1    = span1[entry[7:0]];
+wire               online = viscache[entry[7:0]] && vlat_s >= sp0 && vlat_s < sp1;
+wire signed [12:0] vtop   = vflip ? vpos - vsz_s : vpos;
+wire signed [12:0] vbot   = vflip ? vpos : vpos + vsz_s;
+wire        [ 9:0] sq_q   = tsw==0 ? 10'd0 : 10'd16 / tsw;
+wire        [ 4:0] sq_c   = sq_q[4:0];
+wire        [ 9:0] sr_c   = tsw==0 ? 10'd0 : 10'd16 % tsw;
+wire               unused = &{debug_bus[6:1], div_rem, div_q[17:12], sq_q[9:5]};
+
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        st        <= IDLE;
+        t         <= 0;
+        entry     <= 0;
+        div_start <= 0;
+        page      <= 0;
+        hitcnt    <= 0;
+        st_dout   <= 0;
+        vlat      <= 0;
+        stop      <= 0;
+        bld       <= 0;
+        cache_ok  <= 0;
+        desc_we   <= 0;
+    end else begin
+        div_start <= 0;
+        desc_we   <= 0;
+        case( st )
+            IDLE:;
+            LIST: begin
+                if( t==0 && cache_ok && !online ) begin
+                    // cached as not crossing this line, skip in one cycle
+                    if( entry[7:0]==list_len || entry[7:0]==8'hff ) begin
+                        st <= PEOL;
+                    end else begin
+                        entry <= entry + 9'd1;
+                    end
+                end else begin
+                    t <= t + 4'd1;
+                    case( t )
+                        0: objtab_addr <= lbase | {8'd0, entry[7:0]};
+                        2: begin
+                            {stop, which} <= objtab_data[8:0];
+                            if( objtab_data[8] ) list_len <= entry[7:0];
+                            objtab_addr <= abase | {5'd0, objtab_data[7:0], 3'd3};
+                            st <= VATR; t <= 0;
+                        end
+                        default:;
+                    endcase
+                end
+            end
+            VATR: begin // vpos/vsize for early reject
+                t <= t + 4'd1;
+                case( t )
+                    0: objtab_addr <= abase | {5'd0, which, 3'd5};
+                    1: vpos <= {{2{objtab_data[10]}}, objtab_data[10:0]};
+                    2: begin
+                        {vflip, vsize} <= {objtab_data[15], objtab_data[9:0]};
+                        if( bld ) viscache[entry[7:0]] <= visany;
+                        st <= ( bld ? visany :
+                              ( objtab_data[9:0] != 0 &&
+                                vlat_s >= vpos - vszm &&
+                                vlat_s <  vpos + vszm ) ) ? RAT0 : ENXT;
+                        t  <= 0;
+                    end
+                    default:;
+                endcase
+            end
+            RAT0: begin // link + format size/dy, enough for the exact reject
+                t <= t + 4'd1;
+                case( t )
+                    0: objtab_addr <= abase | {5'd0, which, 3'd0};
+                    2: begin
+                        link <= objtab_data[10:0];
+                        objtab_addr <= FMTT | {3'd0, objtab_data[10:0], 2'd1};
+                    end
+                    3: objtab_addr <= FMTT | {3'd0, link, 2'd3};
+                    4: begin
+                        rows <= objtab_data[3:0]==0 ? 5'd16 : {1'b0, objtab_data[3:0]};
+                        cols <= objtab_data[7:4]==0 ? 5'd16 : {1'b0, objtab_data[7:4]};
+                    end
+                    5: begin
+                        dyf <= objtab_data[8:0];
+                        st  <= DYZS; t <= 0;
+                    end
+                    default:;
+                endcase
+            end
+            DYZS: if( dy_id ) begin // dy pivot, scaled by the vertical zoom
+                vpos <= (vflip ^ dyf[8]) ? vpos + dyq : vpos - dyq;
+                st   <= VSPN;
+            end else begin
+                div_num   <= dyf[7:0]*vsize + {10'd0, rows, 3'd0};
+                div_den   <= {1'b0, rows, 4'd0};
+                div_n     <= 5'd18;
+                div_start <= 1;
+                st        <= DYZW;
+            end
+            DYZW: if( !div_working ) begin
+                vpos <= (vflip ^ dyf[8]) ? vpos + dyq : vpos - dyq;
+                st   <= VSPN;
+            end
+            VSPN: begin // exact vertical span
+                shr  <= vsize;
+                rcnt <= 0;
+                ycur <= vpos;
+                if( bld ) begin
+                    span0[entry[7:0]] <= vtop;
+                    span1[entry[7:0]] <= vbot;
+                end
+                st   <= ( vlat_s >= vtop && vlat_s < vbot ) ? ROWD : ENXT;
+            end
+            ROWD: begin // tile row screen height = remaining/(rows left)
+                tsh <= rowq;
+                st  <= ROWC;
+            end
+            ROWC: begin
+                if( vlat_s >= ycn && vlat_s < ycn + tsh_s ) begin
+                    liry <= vlat_s[9:0] - ycn[9:0];
+                    st   <= VSBD;
+                end else if( rcnt == rows-5'd1 ) begin
+                    st <= ENXT;
+                end else begin
+                    ycur <= vflip ? ycn : ycur + tsh_s;
+                    shr  <= shr - tsh;
+                    rcnt <= rcnt + 5'd1;
+                    st   <= ROWD;
+                end
+            end
+            VSBD: begin // source row within the 16x16 tile
+                if( tsh == 10'd16 ) begin
+                    vsub <= vflip ? 4'd15 - liry[3:0] : liry[3:0];
+                    st   <= RAT1; t <= 0;
+                end else begin
+                    div_num   <= {liry, 8'd0};
+                    div_den   <= tsh;
+                    div_n     <= 5'd14;
+                    div_start <= 1;
+                    st        <= VSBW;
+                end
+            end
+            VSBW: if( !div_working ) begin
+                vsub <= vflip ? 4'd15 - div_q[3:0] : div_q[3:0];
+                st   <= RAT1; t <= 0;
+            end
+            RAT1: begin // remaining attributes, only for sprites on this line
+                t <= t + 4'd1;
+                case( t )
+                    0: objtab_addr <= abase | {5'd0, which, 3'd6};
+                    1: objtab_addr <= abase | {5'd0, which, 3'd1};
+                    2: begin objtab_addr <= abase | {5'd0, which, 3'd2}; pal    <= objtab_data[11:0]; end
+                    3: begin objtab_addr <= abase | {5'd0, which, 3'd4}; offset <= objtab_data;       end
+                    4: begin
+                        objtab_addr <= FMTT | {3'd0, link, 2'd0};
+                        hpos <= {{2{objtab_data[10]}}, objtab_data[10:0]};
+                    end
+                    5: begin
+                        objtab_addr <= FMTT | {3'd0, link, 2'd2};
+                        {hflip, hsize} <= {objtab_data[15], objtab_data[9:0]};
+                        if( objtab_data[9:0]==0 ) begin st <= ENXT; t <= 0; end
+                    end
+                    6: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd0}; tidx <= objtab_data;     end
+                    7: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd1}; dxf  <= objtab_data[8:0];end
+                    8: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd2}; clx0 <= $signed(objtab_data[12:0]); end
+                    9: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd3}; clx1 <= $signed(objtab_data[12:0]); end
+                    10: cly0 <= $signed(objtab_data[12:0]);
+                    11: begin
+                        cly1 <= $signed(objtab_data[12:0]);
+                        st <= ( debug_bus[0] || (vlat_s >= cly0 &&
+                                vlat_s <= $signed(objtab_data[12:0])) ) ? DXZS : ENXT;
+                        t  <= 0;
+                    end
+                    default:;
+                endcase
+            end
+            DXZS: begin // dx pivot, scaled by the horizontal zoom
+                swr     <= hsize;
+                ccnt    <= 0;
+                rowbase <= tidx + {6'd0, rmul};
+                hitcnt  <= hitcnt + 7'd1;
+                if( dx_id ) begin
+                    xcur <= (hflip ^ dxf[8]) ? hpos + dxq : hpos - dxq;
+                    st   <= COLD;
+                end else begin
+                    div_num   <= dxf[7:0]*hsize + {10'd0, cols, 3'd0};
+                    div_den   <= {1'b0, cols, 4'd0};
+                    div_n     <= 5'd18;
+                    div_start <= 1;
+                    st        <= DXZW;
+                end
+            end
+            DXZW: if( !div_working ) begin
+                xcur <= (hflip ^ dxf[8]) ? hpos + dxq : hpos - dxq;
+                st   <= COLD;
+            end
+            COLD: begin // tile column screen width = remaining/(cols left)
+                tsw <= colq;
+                if( hflip ) xcur <= xcur - $signed({3'd0, colq});
+                objtab_addr <= TILET | {2'd0, tadr};
+                st <= TILR; t <= 1;
+            end
+            TILR: begin // tile table indirection + bank remap
+                if( t < 4'd2 ) t <= t + 4'd1;
+                case( t )
+                    2: if( objtab_data[15] || tsw==0 || !colvis ) begin
+`ifdef SYSFL_SCANDBG
+                        $display("SKIP c=%04x cc=%0d/%0d msk=%b tsw=%0d xcur=%0d wx0=%0d wx1=%0d",
+                            c2t+offset[14:0], ccnt, cols, objtab_data[15], tsw, xcur, wx0, wx1);
+`endif
+                        t  <= 0;
+                        st <= CNXT;
+                    end else if( !desc_full ) begin
+`ifdef SYSFL_SCANDBG
+                        $display("PUSH c=%04x cc=%0d/%0d tsw=%0d xcur=%0d", c2t+offset[14:0], ccnt, cols, tsw, xcur);
+`endif
+                        desc_data <= { 1'b0, sq_c, sr_c, wx1, wx0, hflip,
+                                       pal[7:0], xcur, tsw, vsub,
+                                       c2t + offset[14:0] };
+                        desc_we   <= 1;
+                        t  <= 0;
+                        st <= CNXT;
+                    end
+                    default:;
+                endcase
+            end
+            CNXT: begin
+                if( !hflip ) xcur <= xcur + tsw_s;
+                swr  <= swr - tsw;
+                ccnt <= ccnt + 5'd1;
+                st   <= ccnt == cols-5'd1 ? ENXT : COLD;
+            end
+            ENXT: begin
+                entry <= entry + 9'd1;
+                t     <= 0;
+                if( stop || entry[7:0]==8'hff ) begin
+                    st <= PEOL;
+                    if( bld ) begin
+                        bld      <= 0;
+                        cache_ok <= 1;
+                    end
+                end else begin
+                    st <= LIST;
+                end
+            end
+            PEOL: if( !desc_full ) begin // close the line for the drawer
+                desc_data <= {1'b1, 92'd0};
+                desc_we   <= 1;
+                st        <= IDLE;
+            end
+            default: st <= IDLE;
+        endcase
+        if( ln_hs ) begin // line start
+            vlat    <= flip ? 9'd223 - {1'b0, ln_v} : {1'b0, ln_v};
+            entry   <= 0;
+            t       <= 0;
+            desc_we <= 0;
+            page    <= debug_bus[7];
+            st_dout <= {st != IDLE, hitcnt};
+            hitcnt  <= 0;
+            if( ln_v == 0 ) begin // frame start, rebuild the visibility cache
+                bld      <= 1;
+                cache_ok <= 0;
+                list_len <= 8'hff;
+            end
+            st <= ln_v < 8'd224 ? LIST : IDLE;
+        end
+    end
+end
+
+// serial divider, two bits per cycle over the left-aligned numerator
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        div_bsy <= 0;
+        div_cnt <= 0;
+    end else begin
+        if( div_start ) begin
+            div_rem <= 0;
+            div_shf <= div_num;
+            div_q   <= 0;
+            div_cnt <= {1'b0, div_n[4:1]}; // div_n is always even
+            div_bsy <= 1;
+        end else if( div_bsy ) begin
+            div_shf <= div_shf << 2;
+            div_rem <= qbit_b ? rem_b - {1'b0, div_den} : rem_b;
+            div_q   <= {div_q[15:0], qbit_a, qbit_b};
+            div_cnt <= div_cnt - 5'd1;
+            if( div_cnt == 5'd1 ) div_bsy <= 0;
+        end
+    end
+end
+
+endmodule

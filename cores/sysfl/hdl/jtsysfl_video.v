@@ -316,6 +316,21 @@ jtc116 u_colmix(
 );
 
 
+`ifdef SYSFL_LNDUMP
+// C355 line-write stream dump for old-vs-new drawer diffing
+integer lnf, lnfr=0;
+reg lnvs=0;
+initial lnf = $fopen("lndump.txt","w");
+always @(posedge clk) begin
+    lnvs <= vs;
+    if( vs && !lnvs ) lnfr <= lnfr+1;
+    if( c_hs  ) $fdisplay(lnf,"H %0d %0d", lnfr, c_v);
+    if( c_we  ) $fdisplay(lnf,"W %0d %04x", c_addr, c_data);
+    if( objrom_cs && objrom_ok ) $fdisplay(lnf,"F %06x %08x", objrom_addr, objrom_data);
+    if( c_done) $fdisplay(lnf,"D");
+end
+`endif
+
 `ifdef SIMSCENE
 // bring-up probe: per-frame layer activity counters
 integer cnt_scr, cnt_roz, cnt_obj, cnt_scs, cnt_sok, cnt_rcs, cnt_ocs, cnt_msk, cnt_vis, cnt_rgb, cnt_lin, cnt_bsy, cnt_wai;
@@ -331,7 +346,7 @@ always @(posedge clk) begin
     if( smask_cs    ) cnt_msk <= cnt_msk+1;
     lndone_l <= ln_done;
     if( ln_done && !lndone_l ) cnt_lin <= cnt_lin+1;
-    if( u_obj.st != 0 ) cnt_bsy <= cnt_bsy+1;
+    if( !c_done ) cnt_bsy <= cnt_bsy+1;
     if( ln_done ) cnt_wai <= cnt_wai+1;
     if( pxl_cen && lvbl && lhbl ) begin
         if( u_colmix.blank==0 ) cnt_vis <= cnt_vis+1;

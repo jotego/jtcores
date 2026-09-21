@@ -355,11 +355,11 @@ reg obhs_l=0, obvs_l=0;
 always @(posedge clk) begin
     obvs_l <= VS;
     if( VS && !obvs_l ) ob_frame <= ob_frame+1;
-    if( u_video.u_obj.st != 0 ) ob_cyc <= ob_cyc+1;
+    if( u_video.u_obj.u_scan.st != 0 ) ob_cyc <= ob_cyc+1;
     obhs_l <= u_video.u_obj.ln_hs;
     if( u_video.u_obj.ln_hs && !obhs_l ) begin
         ob_lines <= ob_lines+1;
-        if( u_video.u_obj.st != 0 ) begin
+        if( u_video.u_obj.u_scan.st != 0 ) begin
             ob_cut <= ob_cut+1;
             $display("OBJCUT f=%0d line=%0d busy=%0d", ob_frame, u_video.u_obj.ln_v, ob_cyc);
         end
@@ -384,7 +384,7 @@ initial for( wi=0; wi<22; wi=wi+1 ) w_st[wi]=0;
 always @(posedge clk) begin
     wvs_l <= VS;
     if( ob_frame>=2450 && ob_frame<=2700 ) begin
-        if( u_video.u_obj.st!=0 ) w_st[u_video.u_obj.st] <= w_st[u_video.u_obj.st]+1;
+        if( u_video.u_obj.u_scan.st!=0 ) w_st[u_video.u_obj.u_scan.st] <= w_st[u_video.u_obj.u_scan.st]+1;
         if( objrom_cs && !objrom_ok ) w_romw <= w_romw+1;
         w_cs_l <= objrom_cs;
         if( ob_frame>=2555 && ob_frame<=2557 && objrom_cs && (!w_cs_l || objrom_addr!=w_lastaddr) )
@@ -403,11 +403,11 @@ always @(posedge clk) begin
             w_newreq <= 0;
             if( objrom_ok ) w_hit <= w_hit+1;   // served the cycle after the request
         end
-        if( u_video.u_obj.div_working ) w_div <= w_div+1;
+        if( u_video.u_obj.u_scan.div_working ) w_div <= w_div+1;
         whs2_l <= u_video.u_obj.ln_hs;
         if( u_video.u_obj.ln_hs && !whs2_l ) begin
-            w_hits <= w_hits + u_video.u_obj.hitcnt;
-            if( u_video.u_obj.hitcnt > w_hmax ) w_hmax <= u_video.u_obj.hitcnt;
+            w_hits <= w_hits + u_video.u_obj.u_scan.hitcnt;
+            if( u_video.u_obj.u_scan.hitcnt > w_hmax ) w_hmax <= u_video.u_obj.u_scan.hitcnt;
         end
         if( VS && !wvs_l ) begin
             $display("OBJC f=%0d req=%0d hit=%0d reuse4=%0d", ob_frame, w_req, w_hit, w_reuse);
@@ -421,6 +421,52 @@ always @(posedge clk) begin
             for( wi=0; wi<22; wi=wi+1 ) w_st[wi]<=0;
         end
     end
+end
+`endif
+
+
+
+
+`ifdef SYSFL_OBJDBG
+// objrom request->ack latency histogram on the fixed scene (deterministic)
+integer og=0, oreq=0, owcyc=0, ob_lat[0:7], obi;
+reg ocs_l=0; reg [22:2] oaddr_l=0;
+initial for(obi=0;obi<8;obi=obi+1) ob_lat[obi]=0;
+reg olvbl=0;
+always @(posedge clk) begin
+    olvbl <= LVBL;
+    if( objrom_cs ) begin
+        if( !ocs_l || objrom_addr!=oaddr_l ) begin // new request
+            oreq <= oreq+1; og <= 0;               // start timing
+            owcyc <= owcyc+og;
+            if( og>0 ) begin // classify the just-finished one
+                ob_lat[ og<4?0 : og<8?1 : og<12?2 : og<20?3 : og<32?4 : og<48?5 : og<64?6:7 ]
+                    <= ob_lat[ og<4?0 : og<8?1 : og<12?2 : og<20?3 : og<32?4 : og<48?5 : og<64?6:7 ]+1;
+            end
+        end else if( !objrom_ok ) og <= og+1;      // waiting
+        ocs_l   <= 1;
+        oaddr_l <= objrom_addr;
+    end else ocs_l <= 0;
+    if( LVBL && !olvbl )
+        $display("OLAT req=%0d owcyc=%0d buckets[<4 <8 <12 <20 <32 <48 <64 64+]= %0d %0d %0d %0d %0d %0d %0d %0d",
+            oreq, owcyc, ob_lat[0],ob_lat[1],ob_lat[2],ob_lat[3],ob_lat[4],ob_lat[5],ob_lat[6],ob_lat[7]);
+end
+// roz slot: request vs waited-request tally (cache hit-rate proxy)
+integer rreq=0, rwait=0, rwcyc=0;
+reg rcs_l=0; reg [20:2] raddr_l=0; reg rwaited=0;
+always @(posedge clk) begin
+    if( roz_cs ) begin
+        if( !rcs_l || roz_addr!=raddr_l ) begin
+            rreq <= rreq+1;
+            if( rwaited ) rwait <= rwait+1;
+            rwaited <= 0;
+        end else if( !roz_ok ) begin
+            rwcyc <= rwcyc+1; rwaited <= 1;
+        end
+        rcs_l <= 1; raddr_l <= roz_addr;
+    end else rcs_l <= 0;
+    if( LVBL && !olvbl )
+        $display("RLAT req=%0d waited=%0d wcyc=%0d", rreq, rwait, rwcyc);
 end
 `endif
 

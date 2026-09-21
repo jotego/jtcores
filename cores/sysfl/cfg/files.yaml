@@ -11,6 +11,7 @@ sysfl:
   - from: c355
     get:
       - jtc355.sv
+      - jtc355_scan.sv
   - from: c116
     get:
       - jtc116.sv
