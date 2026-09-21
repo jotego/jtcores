@@ -62,8 +62,7 @@ localparam [15:0] ATTR0=16'h0000, LIST0=16'h1000, CLIPT=16'h1200,
 localparam [4:0] IDLE=0, LIST=1, VATR=2, RAT0=3, DYZS=4, DYZW=5,
                  VSPN=6, ROWD=7, ROWC=8, VSBD=9, VSBW=10,
                  RAT1=11, DXZS=12, DXZW=13, COLD=14,
-                 TILR=15, DPIX=16, DSKP=17, CNXT=18, ENXT=19,
-                 ROWW=20, COLW=21;
+                 TILR=15, DPIX=16, DSKP=17, CNXT=18, ENXT=19;
 
 reg         [ 4:0] st;
 reg         [ 3:0] t;
@@ -139,20 +138,8 @@ wire        [10:0] rem_b  = {rem_a1[9:0], div_shf[16]};
 wire               qbit_b = rem_b >= {1'b0, div_den};
 wire        [ 4:0] rleft  = rows - rcnt;
 wire        [ 4:0] cleft  = cols - ccnt;
-// 16-pixel tile quotient: nonzero only for tsw<=16, and 16%tsw derives from it
-reg         [ 4:0] q16;
-always @* begin
-    q16 = 5'd0;
-    if( tsw <= 10'd16 ) case( tsw[4:0] )
-        5'd1: q16 = 5'd16;
-        5'd2: q16 = 5'd8;
-        5'd3: q16 = 5'd5;
-        5'd4: q16 = 5'd4;
-        5'd5: q16 = 5'd3;
-        5'd6, 5'd7, 5'd8: q16 = 5'd2;
-        default: q16 = 5'd1;
-    endcase
-end
+wire        [ 9:0] rowq   = shr / {5'd0, rleft};
+wire        [ 9:0] colq   = swr / {5'd0, cleft};
 wire               dy_id  = vsize == {1'b0, rows, 4'd0};
 wire               dx_id  = hsize == {1'b0, cols, 4'd0};
 wire signed [12:0] dyq    = dy_id ? {5'd0, dyf[7:0]} : q13;
@@ -312,14 +299,7 @@ always @(posedge clk, posedge rst) begin
                 st   <= ( vlat_s >= vtop && vlat_s < vbot ) ? ROWD : ENXT;
             end
             ROWD: begin // tile row screen height = remaining/(rows left)
-                div_num   <= {shr, 8'd0};
-                div_den   <= {5'd0, rleft};
-                div_n     <= 5'd10;
-                div_start <= 1;
-                st        <= ROWW;
-            end
-            ROWW: if( !div_working ) begin
-                tsh <= div_q[9:0];
+                tsh <= rowq;
                 st  <= ROWC;
             end
             ROWC: begin
@@ -402,23 +382,16 @@ always @(posedge clk, posedge rst) begin
                 st   <= COLD;
             end
             COLD: begin // tile column screen width = remaining/(cols left)
-                div_num   <= {swr, 8'd0};
-                div_den   <= {5'd0, cleft};
-                div_n     <= 5'd10;
-                div_start <= 1;
-                st        <= COLW;
-            end
-            COLW: if( !div_working ) begin
-                tsw <= div_q[9:0];
-                if( hflip ) xcur <= xcur - $signed({3'd0, div_q[9:0]});
+                tsw <= colq;
+                if( hflip ) xcur <= xcur - $signed({3'd0, colq});
                 objtab_addr <= TILET | {2'd0, tadr};
                 st <= TILR; t <= 1;
             end
             TILR: begin // tile table indirection + bank remap
                 if( t < 4'd2 ) t <= t + 4'd1;
                 if( tsw!=0 ) begin
-                    sq <= q16;
-                    sr <= 10'd16 - q16*tsw[4:0];
+                    sq <= 5'd16 / tsw;
+                    sr <= 10'd16 % tsw;
                 end
                 case( t )
                     2: if( !fetch_bsy || pf_st==3'd4 ) begin
