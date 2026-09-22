@@ -71,7 +71,8 @@ localparam IDLE    = 0,
            READ    = PRE_RD+1,
            DST     = READ + (SHIFTED==1 ? 1 : 2) ,
            DTICKS  = BURSTLEN==128 ? 8 : BURSTLEN==64 ? 4 : (BURSTLEN==32?2:1),
-           BUSY    = DST+(DTICKS-1),
+           WTICKS  = (BURSTLEN==128 && BALEN<128 && AUTOPRECH==0) ? 4 : DTICKS,
+           BUSY    = DST+(WTICKS-1),
            RDY     = DST + (BALEN==16 ? 0 : (BALEN==32? 1 : BALEN==64 ? 3 : 7)),
            STW     = BUSY + 1 + {2'd0,AUTOPRECH[0]};
 
@@ -115,6 +116,22 @@ assign ack      = st[READ],
        rd_wr    = rd | wr,
        idle     = st[0];
 
+wire busy64_end;
+generate
+    if( WTICKS < DTICKS ) begin : g_dqtail
+        localparam [3:0] TAILV = DST-READ+DTICKS-1;
+        reg [3:0] tail_cnt;
+        always @(posedge clk) begin
+            if( rst ) tail_cnt <= 0;
+            else if( next_st[READ] ) tail_cnt <= TAILV;
+            else if( tail_cnt!=0 ) tail_cnt <= tail_cnt-1'd1;
+        end
+        assign busy64_end = tail_cnt==0;
+    end else begin : g_nodqtail
+        assign busy64_end = st[BUSY];
+    end
+endgenerate
+
 always @(posedge clk) begin
     if( rst ) begin
         in_busy   <= 0; // |st[ (BALEN==16? READ+1 : RDY-2):READ]
@@ -126,7 +143,7 @@ always @(posedge clk) begin
         else if( st[(BALEN==16? READ+1 : RDY-2)] || next_st[READ-1:0]!=0 ) in_busy<=0;
 
         if(next_st[READ]) in_busy64 <= 1;
-        else if( st[BUSY] || next_st[READ-1:0]!=0 ) in_busy64<=0;
+        else if( busy64_end || next_st[READ-1:0]!=0 ) in_busy64<=0;
 
         if(next_st[DST]) dok<=1;
         else if( st[RDY] || next_st[DST-1:0]!=0 ) dok <= 0;
