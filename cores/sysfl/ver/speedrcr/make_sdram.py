@@ -95,11 +95,15 @@ for f in ["se1_rch0.19j","se1_rch1.18j"]:
     d = get(f); bank0[pos:pos+len(d)] = d; pos += 0x100000
 # rsh moved to bank 3 @0x520000 (RMASK on its own bank for roz overlap)
 
+with zipfile.ZipFile(c75path) as _z:
+    c75 = _z.read("c75.bin")
+assert len(c75)==0x4000, "c75.bin must be 16kB"
 bank2 = bytearray(0x580000)
 pos = 0
 for f in ["se1_sch0.21p","se1_sch1.20p","se1_sch2.19p","se1_sch3.18p"]:
     d = get(f); bank2[pos:pos+len(d)] = d; pos += 0x100000
 bank2[0x400000:0x480000] = get("se1_ssh.18u")
+bank2[0x480000:0x484000] = c75                  # C75 internal BIOS (now SDRAM)
 bank2[0x500000:0x580000] = get("se1_spr.21l")   # C75 external data ROM
 
 # C352 sample ROM fills bank 1 (pcm bus at offset 0); nvram and comram live
@@ -107,11 +111,6 @@ bank2[0x500000:0x580000] = get("se1_spr.21l")   # C75 external data ROM
 bank1 = bytearray(0x620000)
 bank1[0:0x400000] = get("se1_voi.23s")
 bank1[0x5a0000:0x620000] = get("se1_rsh.14k")
-
-# C75 internal BIOS, from the MAME namcoc75 device set
-with zipfile.ZipFile(c75path) as z:
-    c75 = z.read("c75.bin")
-assert len(c75)==0x4000, "c75.bin must be 16kB"
 
 bank3 = bytearray(0x800000)
 for base, lf, uf in [(0, "se1obj0l.ic1", "se1obj0u.ic2"), (0x400000, "se1obj1l.ic3", "se1obj1u.ic4")]:

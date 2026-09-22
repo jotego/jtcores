@@ -514,8 +514,10 @@ module jtsysfl_c75(
     output     [ 1:0] mcu_we,
     input      [15:0] mcu_dout,
     // internal BIOS ROM (BRAM)
+    output            bios_cs,
     output     [13:1] bios_addr,
     input      [15:0] bios_data,
+    input             bios_ok,
     // external data ROM (SDRAM)
     output     [18:1] mcurom_addr,
     output            mcurom_cs,
@@ -537,7 +539,7 @@ wire [15:0] mdout;
 reg  [15:0] mdin;
 wire [ 1:0] mdsn;
 wire        mcs, mrnw, mok;
-wire        rom_cs;
+wire        rom_cs; assign bios_cs = rom_cs;
 reg         rom_okr;
 wire [ 7:0] p6o;
 reg  [ 7:0] p7mux;
@@ -608,7 +610,7 @@ always @(posedge clk) begin
         bus_l <= {ma, mrnw, mdsn};
         if( !mcs || !bsame )    okcnt <= 0;
         else if( okcnt!=2'd3 )  okcnt <= okcnt + 2'd1;
-        rom_okr <= rom_cs;    // BRAM data ready next cen
+rom_okr <= bios_ok;   // cache/SDRAM data ready
     end
 end
 
