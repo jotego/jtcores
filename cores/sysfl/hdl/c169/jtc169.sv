@@ -78,10 +78,14 @@ localparam [3:0] IDLE=0, LDREG=1, RECA=2, RECW=3, RECL=4,
 reg  [15:0] rec[0:7];
 reg  [ 3:0] fsm;
 reg  [ 2:0] st, rcnt;
-reg  [ 1:0] blind;
-reg         fetching;
 reg  [ 8:0] lline;
-reg         lyr1, scl, hs_l, mhit, thit;
+reg         lyr1, scl, hs_l;
+reg  [ 1:0] fv, to, mo, tbl, mbl;
+reg  [ 8:0] fx0, fx1;
+reg  [ 1:0] flane0, flane1;
+reg  [ 2:0] fmb0, fmb1;
+reg         fmok0, fmok1, fbit0, fbit1, ftok0, ftok1;
+reg  [ 7:0] ftex0, ftex1;
 // unpacked parameters, 12.12 fixed point
 reg         p_en, p_wrap, p_wrapy;
 reg  [ 2:0] p_color;
@@ -116,7 +120,17 @@ wire [ 7:0] h_tex  = c_tword[ {h_til[1:0],3'd0} +: 8 ];
 wire        h_mbit = c_mbyte[ ~h_xp[2:0] ];
 wire [ 2:0] inflight = {2'd0,s1_v} + {2'd0,s2_v};
 wire        issue  = fsm==RUN && xi!=LINE_W && (f_cnt + inflight) < 3'd4;
-wire        pop    = f_cnt!=0 && !fetching && (!h_draw || (h_mhit && h_thit));
+wire        t0ok   = ftok0 || (roz_ok && tbl==0);
+wire        ret    = fv[0] && fmok0 && t0ok;
+wire [ 7:0] t_byt0 = ftok0 ? ftex0 : roz_data[{flane0,3'd0} +: 8];
+wire        m_done = mo[1] && mbl==0 && rmask_ok;
+wire        t_dup  = !h_thit && to[1] && roz_addr ==h_til[20:2];
+wire        m_dup  = !h_mhit && mo[1] && rmask_addr==h_msk;
+wire        pophit = f_cnt!=0 && !ret && (!h_draw || (h_mhit && h_thit));
+wire        popst  = f_cnt!=0 && h_draw && !(h_mhit && h_thit) && !ret && !fv[1]
+                     && !t_dup && !m_dup
+                     && (h_thit || !to[1]) && (h_mhit || !mo[1]);
+wire        pop    = pophit || popst;
 // line buffer write
 reg  [15:0] bdata;
 reg  [ 8:0] baddr;
@@ -135,8 +149,8 @@ wire [15:0] rec_a;
 wire [ 8:0] hd, rda, nline;
 wire        scl_mode, hs_edge, in_x, in_y, b0, b1, sel0;
 
-assign rmask_cs = fetching & ~mhit;
-assign roz_cs   = fetching & ~thit;
+assign rmask_cs = mo[1];
+assign roz_cs   = to[1];
 
 assign scl_mode = ctl0[15:0]==16'h8000;
 assign hs_edge  = hs & ~hs_l;
@@ -213,6 +227,18 @@ always @(posedge clk) begin
         rz_lines<=0; rz_cut<=0; rz_wait<=0; rz_maxc<=0;
     end
 end
+integer rz_mw=0, rz_tw=0, rz_ov=0;
+always @(posedge clk) begin
+    if( fsm != IDLE ) begin
+        if( fv[0] && !fmok0 ) rz_mw <= rz_mw+1;
+        if( fv[0] && fmok0 && !t0ok ) rz_tw <= rz_tw+1;
+        if( fv[1] ) rz_ov <= rz_ov+1;
+    end
+    if( vs && !rz_vsl ) begin
+        $display("ROZB mw=%0d tw=%0d ov=%0d", rz_mw, rz_tw, rz_ov);
+        rz_mw<=0; rz_tw<=0; rz_ov<=0;
+    end
+end
 `endif
 // line render
 always @(posedge clk) begin
@@ -223,7 +249,9 @@ always @(posedge clk) begin
         c_mok <= 0;
         c_tok <= 0;
         hs_l  <= 0;
-        fetching <= 0;
+        fv    <= 0;
+        to    <= 0;
+        mo    <= 0;
         s1_v  <= 0;
         s2_v  <= 0;
         f_cnt <= 0;
@@ -244,7 +272,9 @@ always @(posedge clk) begin
             f_cnt <= 0;
             f_rd  <= 0;
             f_wr  <= 0;
-            fetching <= 0;
+            fv    <= 0;
+            to    <= 0;
+            mo    <= 0;
             fsm   <= nline < VLINES ? LDREG : IDLE;
         end else case( fsm )
             LDREG: begin
@@ -329,39 +359,64 @@ always @(posedge clk) begin
                 end
                 f_cnt <= f_cnt + {2'd0,s2_v} - {2'd0,pop};
                 // back end: caches hit -> one pixel per clock, else fetch
-                if( pop ) begin
+                if( tbl!=0 ) tbl <= tbl-2'd1;
+                if( mbl!=0 ) mbl <= mbl-2'd1;
+                if( m_done && !ret ) begin
+                    c_mbyte <= rmask_data;
+                    c_maddr <= rmask_addr;
+                    c_mok   <= 1;
+                    if( mo[0] ) begin fbit1 <= rmask_data[~fmb1]; fmok1 <= 1; end
+                    else        begin fbit0 <= rmask_data[~fmb0]; fmok0 <= 1; end
+                    mo <= 0;
+                end
+                if( pophit ) begin
                     bdata <= h_draw ? { h_mbit, p_prio, p_color, h_tex } : 16'd0;
                     baddr <= h_x;
                     bwl   <= lyr1;
                     bwe   <= 1;
                     f_rd  <= f_rd + 2'd1;
-                    if( h_x == LINE_W-1 ) begin
-                        lyr1 <= 1;
-                        fsm  <= lyr1 ? IDLE : LDREG;
+                end else if( popst ) begin
+                    f_rd <= f_rd + 2'd1;
+                    if( fv[0] ) begin
+                        fx1<=h_x; flane1<=h_til[1:0]; fmb1<=h_xp[2:0];
+                        ftok1<=h_thit; ftex1<=h_tex; fmok1<=h_mhit; fbit1<=h_mbit;
+                        fv[1]<=1;
+                    end else begin
+                        fx0<=h_x; flane0<=h_til[1:0]; fmb0<=h_xp[2:0];
+                        ftok0<=h_thit; ftex0<=h_tex; fmok0<=h_mhit; fbit0<=h_mbit;
+                        fv[0]<=1;
                     end
-                end else if( f_cnt!=0 && h_draw && !fetching ) begin
-                    mhit <= h_mhit;
-                    thit <= h_thit;
-                    if( !h_mhit ) rmask_addr <= h_msk;
-                    if( !h_thit ) roz_addr   <= h_til[20:2];
-                    blind    <= 2'd2;
-                    fetching <= 1;
+                    if( !h_thit ) begin
+                        roz_addr <= h_til[20:2];
+                        tbl <= 2'd2;
+                        to  <= {1'b1, fv[0]};
+                    end
+                    if( !h_mhit ) begin
+                        rmask_addr <= h_msk;
+                        mbl <= 2'd2;
+                        mo  <= {1'b1, fv[0]};
+                    end
+                end else if( ret ) begin
+                    bdata <= { fbit0, p_prio, p_color, t_byt0 };
+                    baddr <= fx0;
+                    bwl   <= lyr1;
+                    bwe   <= 1;
+                    if( !ftok0 ) begin
+                        c_tword <= roz_data;
+                        c_taddr <= roz_addr;
+                        c_tok   <= 1;
+                        to      <= 0;
+                    end
+                    fv[0] <= fv[1];
+                    fv[1] <= 0;
+                    fx0<=fx1; flane0<=flane1; fmb0<=fmb1;
+                    ftok0<=ftok1; ftex0<=ftex1; fmok0<=fmok1; fbit0<=fbit1;
+                    if( to==2'b11 ) to <= 2'b10;
+                    if( mo==2'b11 ) mo <= 2'b10;
                 end
-                if( fetching ) begin
-                    if( blind!=0 ) blind <= blind-2'd1;
-                    else if( (mhit || rmask_ok) && (thit || roz_ok) ) begin
-                        if( !mhit ) begin
-                            c_mbyte <= rmask_data;
-                            c_maddr <= rmask_addr;
-                            c_mok   <= 1;
-                        end
-                        if( !thit ) begin
-                            c_tword <= roz_data;
-                            c_taddr <= roz_addr;
-                            c_tok   <= 1;
-                        end
-                        fetching <= 0;
-                    end
+                if( xi==LINE_W && f_cnt==0 && inflight==0 && fv==0 ) begin
+                    lyr1 <= 1;
+                    fsm  <= lyr1 ? IDLE : LDREG;
                 end
             end
             default: fsm <= IDLE;
