@@ -58,7 +58,7 @@ module jtc355 #( parameter [8:0] H0=9'd0 )(
     output     [ 7:0] st_dout
 );
 
-wire [92:0] desc_data;
+wire [104:0] desc_data;
 wire        desc_we, fwd_pass;
 // vblank DMA: attr/list/clip (0000-13ff) and format (2000-3fff) tables are
 // copied to +c800, so the scan reads a frame-coherent snapshot while the CPU
@@ -127,14 +127,14 @@ reg          clr_bsy;
 wire         line_full;
 
 // column descriptor FIFO, scan runs ahead of the drawer
-(* ramstyle = "MLAB, no_rw_check" *) reg [92:0] fifo[0:7];
+(* ramstyle = "MLAB, no_rw_check" *) reg [104:0] fifo[0:7];
 reg  [ 3:0] fwp, frp;
 wire        fifo_empty = fwp == frp;
 wire        desc_full  = fwp[2:0]==frp[2:0] && fwp[3]!=frp[3];
-wire [92:0] fifo_rd    = fifo[frp[2:0]];
+wire [104:0] fifo_rd    = fifo[frp[2:0]];
 
 // staged descriptor: row fetched (or eol) while the previous column draws
-reg  [92:0] nxt;
+reg  [104:0] nxt;
 reg         nxt_vld, nxt_rdy;
 // descriptor being drawn
 reg  [ 9:0] cur_tsw, cur_sr;
@@ -146,7 +146,7 @@ reg         cur_vld;
 
 wire [14:0] nxt_code  = nxt[14:0];
 wire [ 3:0] nxt_vsub  = nxt[18:15];
-wire        nxt_eol   = nxt[92];
+wire        nxt_eol   = nxt[104];
 (* ramstyle = "MLAB, no_rw_check" *) reg [31:0] rowb[0:7]; // 16 source pens per column, {buf, word}, ping-pong
 reg         [ 1:0] fw;          // word being fetched
 reg                fetch_bsy, cbuf, nbuf;
@@ -165,17 +165,15 @@ wire        [ 7:0] wm_word = wmaskg[wa[8:3]];
 wire        [ 7:0] wm_new  = wm_word | (8'h1 << wa[2:0]);
 wire        [10:0] acc_r  = acc + {1'b0, cur_sr};
 wire               acc_c  = acc_r >= {1'b0, cur_tsw};
-// clipped span endpoints of the queued column, in line buffer addresses
-wire signed [12:0] q_x0  = $signed(fifo_rd[41:29]) < $signed(fifo_rd[63:51]) ?
-                           $signed(fifo_rd[63:51]) : $signed(fifo_rd[41:29]);
-wire signed [12:0] q_x1a = $signed(fifo_rd[41:29]) + $signed({3'd0,fifo_rd[28:19]}) - 13'sd1;
-wire signed [12:0] q_x1  = q_x1a > $signed(fifo_rd[76:64]) ? $signed(fifo_rd[76:64]) : q_x1a;
-wire        [ 8:0] q_a0  = (flip ? 9'd287 - q_x0[8:0] : q_x0[8:0]) + H0;
-wire        [ 8:0] q_a1  = (flip ? 9'd287 - q_x1[8:0] : q_x1[8:0]) + H0;
-wire        [ 5:0] q_gl  = (flip ? q_a1[8:3] : q_a0[8:3]);
-wire        [ 5:0] q_gh  = (flip ? q_a0[8:3] : q_a1[8:3]);
-wire        [63:0] q_rng = (64'h2 << q_gh) - (64'h1 << q_gl);
-wire               q_cov = !fwd_pass && !fifo_rd[92] && &(gfull | ~q_rng);
+// clipped span groups of the queued column, precomputed by the scanner
+wire        [ 5:0] q_gl  = fifo_rd[97:92];
+wire        [ 5:0] q_gh  = fifo_rd[103:98];
+wire        [63:0] q_rng;
+wire               q_cov = !fwd_pass && !fifo_rd[104] && &(gfull | ~q_rng);
+genvar qi;
+generate for( qi=0; qi<64; qi=qi+1 ) begin : qrng_gen
+    assign q_rng[qi] = qi >= q_gl && qi <= q_gh;
+end endgenerate
 // promote the staged column into the drawer as soon as its row is in
 wire               pro    = !cur_vld && nxt_vld && nxt_rdy && !ln_done && !clr_bsy;
 wire               pop    = (!nxt_vld || pro || q_cov) && !fifo_empty && !fetch_bsy;
@@ -247,8 +245,8 @@ always @(posedge clk, posedge rst) begin
                 nxt     <= fifo_rd;
                 frp     <= frp + 4'd1;
                 nxt_vld <= 1;
-                nxt_rdy <= fifo_rd[92]; // eol carries no row
-                if( !fifo_rd[92] ) begin
+                nxt_rdy <= fifo_rd[104]; // eol carries no row
+                if( !fifo_rd[104] ) begin
                     objrom_addr <= {fifo_rd[14:0], fifo_rd[18:15], 2'd0};
                     objrom_cs   <= 1;
                     fw          <= 0;

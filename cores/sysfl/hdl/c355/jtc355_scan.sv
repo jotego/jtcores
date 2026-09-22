@@ -36,7 +36,7 @@ module jtc355_scan #( parameter [8:0] H0=9'd0 )(
     input      [15:0] objtab_data,
 
     // column descriptors
-    output reg [92:0] desc_data,
+    output reg [104:0] desc_data,
     output reg        desc_we,
     input             desc_full,
     input             line_full,  // drawer: every visible pixel written
@@ -167,7 +167,11 @@ wire        [ 8:0] sc_a0  = (flip ? 9'd287 - sc_x0[8:0] : sc_x0[8:0]) + H0;
 wire        [ 8:0] sc_a1  = (flip ? 9'd287 - sc_x1[8:0] : sc_x1[8:0]) + H0;
 wire        [ 5:0] sc_gl  = flip ? sc_a1[8:3] : sc_a0[8:3];
 wire        [ 5:0] sc_gh  = flip ? sc_a0[8:3] : sc_a1[8:3];
-wire        [63:0] sc_rng = (64'h2 << sc_gh) - (64'h1 << sc_gl);
+wire        [63:0] sc_rng;
+genvar si;
+generate for( si=0; si<64; si=si+1 ) begin : srng_gen
+    assign sc_rng[si] = si >= sc_gl && si <= sc_gh;
+end endgenerate
 wire               sc_cov = !bld && &(cov_grp | ~sc_rng);
 wire               unused = &{debug_bus[6:1], div_rem, div_q[17:12], sq_q[9:5]};
 assign fwd_pass = bld;
@@ -402,7 +406,8 @@ always @(posedge clk, posedge rst) begin
                     end
                     2: if( objtab_data[15] || !desc_full ) begin
                         if( !objtab_data[15] ) begin
-                            desc_data <= { 1'b0, sq_c, sr_c, wx1, wx0, hflip,
+                            desc_data <= { 1'b0, sc_gh, sc_gl, sq_c, sr_c,
+                                           wx1, wx0, hflip,
                                            pal[7:0], xcur, tsw, vsub,
                                            c2t + offset[14:0] };
                             desc_we   <= 1;
@@ -440,7 +445,7 @@ always @(posedge clk, posedge rst) begin
                 end
             end
             PEOL: if( !desc_full ) begin // close the line for the drawer
-                desc_data <= {1'b1, 92'd0};
+                desc_data <= {1'b1, 104'd0};
                 desc_we   <= 1;
                 st        <= IDLE;
             end
