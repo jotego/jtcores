@@ -118,8 +118,12 @@ always @(posedge clk, posedge rst) begin
     end
 end
 // first-write-wins support: pixels already written and 8-pixel groups full
-reg  [511:0] wmask;
+// F1: written-pixel mask as 64 group-words in an MLAB (async read, RMW),
+// not 512 discrete FFs. gfull stays FFs (needed combinationally by q_cov).
+(* ramstyle = "MLAB, no_rw_check" *) reg [7:0] wmaskg[0:63];
 reg  [ 63:0] gfull;
+reg  [  6:0] clr_cnt;   // 0..64 line-start clear sweep
+reg          clr_bsy;
 wire         line_full;
 
 // column descriptor FIFO, scan runs ahead of the drawer
@@ -157,6 +161,8 @@ wire        [ 7:0] pen    = rowb_w[{srcx_e[1:0],3'd0}+:8];
 wire               xok    = xdr >= cur_wx0 && xdr <= cur_wx1;
 wire        [ 8:0] xw     = flip ? 9'd287 - xdr[8:0] : xdr[8:0];
 wire        [ 8:0] wa     = xw + H0;
+wire        [ 7:0] wm_word = wmaskg[wa[8:3]];
+wire        [ 7:0] wm_new  = wm_word | (8'h1 << wa[2:0]);
 wire        [10:0] acc_r  = acc + {1'b0, cur_sr};
 wire               acc_c  = acc_r >= {1'b0, cur_tsw};
 // clipped span endpoints of the queued column, in line buffer addresses
@@ -171,7 +177,7 @@ wire        [ 5:0] q_gh  = (flip ? q_a0[8:3] : q_a1[8:3]);
 wire        [63:0] q_rng = (64'h2 << q_gh) - (64'h1 << q_gl);
 wire               q_cov = !fwd_pass && !fifo_rd[92] && &(gfull | ~q_rng);
 // promote the staged column into the drawer as soon as its row is in
-wire               pro    = !cur_vld && nxt_vld && nxt_rdy && !ln_done;
+wire               pro    = !cur_vld && nxt_vld && nxt_rdy && !ln_done && !clr_bsy;
 wire               pop    = (!nxt_vld || pro || q_cov) && !fifo_empty && !fetch_bsy;
 
 always @(posedge clk, posedge rst) begin
@@ -187,9 +193,16 @@ always @(posedge clk, posedge rst) begin
         nbuf      <= 0;
         ln_we     <= 0;
         ln_done   <= 0;
-        wmask     <= 0;
         gfull     <= 0;
+        clr_bsy   <= 0;
+        clr_cnt   <= 0;
     end else begin
+        // line-start clear sweep of the mask MLAB (gfull cleared in one cycle)
+        if( clr_bsy ) begin
+            wmaskg[clr_cnt[5:0]] <= 8'd0;
+            clr_cnt <= clr_cnt + 7'd1;
+            if( clr_cnt[6] || clr_cnt==7'd63 ) clr_bsy <= 0;
+        end
         ln_we <= 0;
         if( desc_we ) begin
             fifo[fwp[2:0]] <= desc_data;
@@ -247,13 +260,12 @@ always @(posedge clk, posedge rst) begin
             if( xdr > cur_wx1 ) begin
                 cur_vld <= 0; // rest of the tile falls right of the window
             end else begin
-                if( xok && pen != 8'hff && (fwd_pass || !wmask[wa]) ) begin
+                if( xok && pen != 8'hff && (fwd_pass || !wm_word[wa[2:0]]) ) begin
                     ln_we   <= 1;
                     ln_addr <= wa;
                     ln_data <= {cur_pal, pen};
-                    wmask[wa] <= 1'b1;
-                    if( &(wmask[{wa[8:3],3'd0} +: 8] | (8'h1 << wa[2:0])) )
-                        gfull[wa[8:3]] <= 1'b1;
+                    wmaskg[wa[8:3]] <= wm_new;
+                    if( &wm_new ) gfull[wa[8:3]] <= 1'b1;
                 end
                 xdr    <= xdr + 13'sd1;
                 pxleft <= pxleft - 10'd1;
@@ -266,7 +278,8 @@ always @(posedge clk, posedge rst) begin
             end
         end
         if( ln_hs ) begin // line start
-            wmask     <= 0;
+            clr_bsy   <= 1;
+            clr_cnt   <= 0;
             gfull     <= 0;
             fwp       <= 0;
             frp       <= 0;
