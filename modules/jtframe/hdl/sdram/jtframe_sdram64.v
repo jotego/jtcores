@@ -9,7 +9,7 @@ module jtframe_sdram64 #(
               HF=1,     // 1 for HF operation (idle cycles), 0 for LF operation
                         // HF operation starts at 66.6MHz (1/15ns)
               SHIFTED =0,
-              BA0_LEN =64, // 16, 32, 64 or 128 bits
+              BA0_LEN =64, // 1=16 bits, 2=32 bits, 4=64 bits
               BA1_LEN =64,
               BA2_LEN =64,
               BA3_LEN =64,
@@ -96,9 +96,8 @@ module jtframe_sdram64 #(
     output              sdram_cke       // SDRAM Chip Select
 );
 /* verilator coverage_off */
-localparam BURSTLEN=(BA0_LEN>64 || BA1_LEN>64 ||BA2_LEN>64 ||BA3_LEN>64) ? 128 :(
-                    (BA0_LEN>32 || BA1_LEN>32 ||BA2_LEN>32 ||BA3_LEN>32) ? 64 :(
-                    (BA0_LEN>16 || BA1_LEN>16 ||BA2_LEN>16 ||BA3_LEN>16) ? 32 : 16));
+localparam BURSTLEN=(BA0_LEN>32 || BA1_LEN>32 ||BA2_LEN>32 ||BA3_LEN>32) ? 64 :(
+                    (BA0_LEN>16 || BA1_LEN>16 ||BA2_LEN>16 ||BA3_LEN>16) ? 32 : 16);
 
 localparam LATCH = HF==1;
 
@@ -187,34 +186,6 @@ assign din = (bg[3] && BA3_WEN) ? ba3_din :
              (bg[2] && BA2_WEN) ? ba2_din :
              (bg[1] && BA1_WEN) ? ba1_din : ba0_din;
 
-wire stop_inj;
-generate
-    if( BURSTLEN==128 ) begin : g_stop
-        localparam [3:0] B0=BA0_LEN/16, B1=BA1_LEN/16, B2=BA2_LEN/16, B3=BA3_LEN/16, FULLB=BURSTLEN/16;
-        reg  [3:0] stop_cnt;
-        reg        stop_pend;
-        wire [3:0] rd_beats = next_ba[1] ? (next_ba[0] ? B3 : B2) : (next_ba[0] ? B1 : B0);
-        wire       grant_ok = !init && !rfshing && !prog_en;
-        always @(posedge clk) begin
-            if( rst ) begin
-                stop_pend <= 0;
-                stop_cnt  <= 0;
-            end else begin
-                if( stop_cnt!=0 ) stop_cnt <= stop_cnt-1'd1;
-                if( grant_ok && next_cmd==CMD_READ ) begin
-                    stop_pend <= rd_beats < FULLB && !next_a[10];
-                    stop_cnt  <= rd_beats;
-                end else if( !grant_ok || next_cmd!=CMD_NOP || stop_inj ) begin
-                    stop_pend <= 0;
-                end
-            end
-        end
-        assign stop_inj = stop_pend && stop_cnt==0 && grant_ok && next_cmd==CMD_NOP;
-    end else begin : g_nostop
-        assign stop_inj = 1'b0;
-    end
-endgenerate
-
 always @(posedge clk) begin
     dst      <= ba_dst;
     rdy      <= ba_rdy;
@@ -222,7 +193,7 @@ always @(posedge clk) begin
     all_dbusy64  <= |ba_dbusy64;
     dok      <= ba_dok;
     dout     <= sdram_dq;
-    cmd      <= stop_inj ? CMD_STOP : next_cmd;
+    cmd      <= next_cmd;
 
     // prog signals
     prog_dst <= pre_dst;
