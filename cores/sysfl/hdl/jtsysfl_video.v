@@ -224,7 +224,7 @@ always @(posedge clk) begin
 end
 
 jtframe_obj_buffer #(
-    .DW(16), .AW(9), .ALPHAW(8), .ALPHA(8'hff), .BLANK(8'hff)
+    .DW(16), .AW(9), .ALPHAW(8), .ALPHA(16'h00ff), .BLANK(16'h00ff)
 ) u_lnbuf(
     .clk    ( clk       ),
     .LHBL   ( lhbl      ),
