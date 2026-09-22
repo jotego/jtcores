@@ -13,7 +13,8 @@
 --   oram    0x30e00000  0x20000  (C355 sprite tables)
 --   regs    4 bytes: spritebank (write-only reg, captured via write tap)
 --
--- Note: C355 buffers one frame, so screen.png sprites lag oram by a frame.
+-- Note: C355 buffers one frame, so screen.png is taken at F+1 to match the
+-- oram dumped at F (the frame that oram is actually displayed).
 
 local mem    = manager.machine.devices[":maincpu"].spaces["program"]
 local screen = nil
@@ -46,6 +47,9 @@ local function dump_one(path, start, len)
     f:close()
 end
 
+-- the C355 buffers one frame: oram dumped at frame F is DISPLAYED at F+1,
+-- so the RAM dumps at F and the reference screenshot at F+1.
+local pending_shot = nil
 local function capture(frame)
     local prefix = string.format("/tmp/speedrcr_burst_%05d", frame)
     for _, r in ipairs(regions) do
@@ -57,11 +61,15 @@ local function capture(frame)
                         (sprbank_val >> 16) & 0xff,
                         (sprbank_val >> 24) & 0xff))
     f:close()
-    if screen ~= nil then screen:snapshot(prefix .. "_screen.png") end
-    print(string.format("[burst] frame=%05d captured, sprbank=%x", frame, sprbank_val))
+    pending_shot = prefix .. "_screen.png"
+    print(string.format("[burst] frame=%05d RAM captured, sprbank=%x", frame, sprbank_val))
 end
 
 local function on_frame_done()
+    if pending_shot ~= nil then
+        if screen ~= nil then screen:snapshot(pending_shot) end
+        pending_shot = nil
+    end
     if idx > #targets then return end
     local cur = screen ~= nil and screen:frame_number() or 0
     while idx <= #targets and cur >= targets[idx] do
