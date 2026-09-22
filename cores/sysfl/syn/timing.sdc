@@ -22,13 +22,9 @@ set fun_regs [get_registers {emu|u_game|u_game|u_main|fa* emu|u_game|u_game|u_ma
 set_multicycle_path -from $cpu_regs -to $fun_regs -setup -end 2
 set_multicycle_path -from $cpu_regs -to $fun_regs -hold  -end 1
 
-# The read-return data the CPU decodes (main ROM via md_r, the 16-bit funnel
-# halves f_hi/f_lo) launches from u_main but feeds the very same decoder,
-# ALU and writeback as the instruction-cache output, at the same cen phase.
-# That internal fetch->execute path is already given the two-cycle budget
-# above; these registers are the same path with its source one level up, so
-# they get the same exception. Without it the md_r -> dec -> alu -> IP sweep
-# reports about -0.78 ns while the equivalent icache path closes.
-set rdret_regs [get_registers {emu|u_game|u_game|u_main|md_r* emu|u_game|u_game|u_main|f_hi* emu|u_game|u_game|u_main|f_lo*}]
-set_multicycle_path -from $rdret_regs -to $cpu_regs -setup -end 2
-set_multicycle_path -from $rdret_regs -to $cpu_regs -hold  -end 1
+# Clock-rate sources inside the CPU: the icache sweep/invalidate counters and
+# the rcache read ports update every clk, so they get only one cycle to any
+# CPU register despite the blanket two-cycle budget above.
+set cpu_1clk [get_registers {emu|u_game|u_game|u_main|u_cpu|swa* emu|u_game|u_game|u_main|u_cpu|sweeping emu|u_game|u_game|u_main|u_cpu|icinv* emu|u_game|u_game|u_main|u_cpu|u_rcache|dout* emu|u_game|u_game|u_main|u_cpu|u_rcache|fa_dout*}]
+set_multicycle_path -from $cpu_1clk -to $cpu_regs -setup -end 1
+set_multicycle_path -from $cpu_1clk -to $cpu_regs -hold  -end 0

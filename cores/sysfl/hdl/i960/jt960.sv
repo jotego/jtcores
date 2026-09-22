@@ -139,7 +139,9 @@ wire [ 1:0] dec_msz;
 wire [ 2:0] dec_mcnt, dec_mdop;
 wire [ 4:0] dec_mreg;
 wire        ic_use = st==FETCH && !bus_cs && ic_hit;
-wire [31:0] dec_in = st==FETCH ? (ic_use ? icd_q : din) : IR;
+wire [31:0] dec_in = ic_use ? icd_q : IR;
+// MEMB long-displacement predecode for the bus-return word: din never enters u_dec
+wire        din_ndisp = din[31] && din[12] && (din[13] || din[13:10]==4'b0101);
 // single-word instructions hitting the cache execute in the FETCH cycle
 wire        fuse;
 wire [31:0] IRe    = fuse ? icd_q : IR;
@@ -516,7 +518,7 @@ always @(posedge clk) begin
                 icw_a    <= IP[31:2];
                 icw_d    <= din;
                 itw_d    <= { 1'b1, ic_wv, IP[31:ILW+4] };
-                st       <= dec_ndisp ? XWORD : EXE;
+                st       <= din_ndisp ? XWORD : EXE;
             end
         XWORD: if( !bus_cs ) begin
                 if( ic_hit ) begin
