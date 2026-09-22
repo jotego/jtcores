@@ -5,7 +5,7 @@
 params:
   - { name: SMASK_OFFSET, value: "22'h20_0000" }  # byte 0x400000
   - { name: ROZ_OFFSET,   value: "22'h20_0000" }  # byte 0x400000, bank 0
-  - { name: RMASK_OFFSET, value: "22'h30_0000" }  # byte 0x600000, bank 0
+  - { name: RMASK_OFFSET, value: "22'h2d_0000" }  # byte 0x5a0000, bank 3
   - { name: WRAM_OFFSET,  value: "22'h20_0000" }  # byte 0x400000, bank 1
   - { name: C75DATA_OFFSET, value: "22'h28_0000" } # byte 0x500000, bank 2
 clocks:
@@ -37,11 +37,6 @@ sdram:
           data_width: 32
           cache_size: 4kB
           offset: ROZ_OFFSET
-        - name: rmask
-          addr_width: 19
-          data_width: 8
-          cache_size: 1kB
-          offset: RMASK_OFFSET
     - buses:
         - name: objrom
           addr_width: 23
@@ -72,6 +67,11 @@ sdram:
         - name: pcm
           addr_width: 22
           data_width: 8
+        - name: rmask
+          addr_width: 19
+          data_width: 8
+          cache_size: 1kB
+          offset: RMASK_OFFSET
         - name: wram32  # code fetches and loads from work RAM, one burst per word
           addr_width: 21
           data_width: 32

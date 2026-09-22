@@ -93,7 +93,7 @@ bank0[0x100000:0x300000] = data
 pos = 0x400000
 for f in ["se1_rch0.19j","se1_rch1.18j"]:
     d = get(f); bank0[pos:pos+len(d)] = d; pos += 0x100000
-bank0[0x600000:0x680000] = get("se1_rsh.14k")
+# rsh moved to bank 3 @0x520000 (RMASK on its own bank for roz overlap)
 
 bank2 = bytearray(0x580000)
 pos = 0
@@ -104,8 +104,9 @@ bank2[0x500000:0x580000] = get("se1_spr.21l")   # C75 external data ROM
 
 # C352 sample ROM fills bank 1 (pcm bus at offset 0); nvram and comram live
 # in the upper wram window (bank bytes 0x500000 / 0x580000)
-bank1 = bytearray(0x584000)
+bank1 = bytearray(0x620000)
 bank1[0:0x400000] = get("se1_voi.23s")
+bank1[0x5a0000:0x620000] = get("se1_rsh.14k")
 
 # C75 internal BIOS, from the MAME namcoc75 device set
 with zipfile.ZipFile(c75path) as z:
