@@ -21,7 +21,7 @@
 // the zoom dividers, emitting one descriptor per visible tile column into
 // the drawer FIFO. An eol descriptor closes each line.
 
-module jtc355_scan(
+module jtc355_scan #( parameter [8:0] H0=9'd0 )(
     input             rst,
     input             clk,
 
@@ -40,6 +40,7 @@ module jtc355_scan(
     output reg        desc_we,
     input             desc_full,
     input             line_full,  // drawer: every visible pixel written
+    input      [63:0] cov_grp,    // drawer: 8-pixel groups fully written
     output            fwd_pass,   // build line, drawn back to front
 
     input      [ 7:0] debug_bus,
@@ -130,6 +131,16 @@ wire signed [12:0] vbot   = vflip ? vpos : vpos + vsz_s;
 wire        [ 9:0] sq_q   = tsw==0 ? 10'd0 : 10'd16 / tsw;
 wire        [ 4:0] sq_c   = sq_q[4:0];
 wire        [ 9:0] sr_c   = tsw==0 ? 10'd0 : 10'd16 % tsw;
+// column span already covered: skip it before the tile table read
+wire signed [12:0] sc_x1a = xcur + $signed({3'd0,tsw}) - 13'sd1;
+wire signed [12:0] sc_x0  = xcur > wx0 ? xcur : wx0;
+wire signed [12:0] sc_x1  = sc_x1a < wx1 ? sc_x1a : wx1;
+wire        [ 8:0] sc_a0  = (flip ? 9'd287 - sc_x0[8:0] : sc_x0[8:0]) + H0 + 9'd1;
+wire        [ 8:0] sc_a1  = (flip ? 9'd287 - sc_x1[8:0] : sc_x1[8:0]) + H0 + 9'd1;
+wire        [ 5:0] sc_gl  = flip ? sc_a1[8:3] : sc_a0[8:3];
+wire        [ 5:0] sc_gh  = flip ? sc_a0[8:3] : sc_a1[8:3];
+wire        [63:0] sc_rng = (64'h2 << sc_gh) - (64'h1 << sc_gl);
+wire               sc_cov = !bld && &(cov_grp | ~sc_rng);
 wire               unused = &{debug_bus[6:1], div_rem, div_q[17:12], sq_q[9:5]};
 assign fwd_pass = bld;
 
@@ -348,6 +359,10 @@ always @(posedge clk, posedge rst) begin
             TILR: begin // tile table indirection + bank remap
                 if( t < 4'd2 ) t <= t + 4'd1;
                 case( t )
+                    1: if( sc_cov && tsw!=0 && colvis ) begin // hidden column
+                        t  <= 0;
+                        st <= CNXT;
+                    end
                     2: if( objtab_data[15] || tsw==0 || !colvis ) begin
 `ifdef SYSFL_SCANDBG
                         $display("SKIP c=%04x cc=%0d/%0d msk=%b tsw=%0d xcur=%0d wx0=%0d wx1=%0d",

@@ -224,7 +224,7 @@ end
 assign line_full = !fwd_pass && &gfull[43:9] &&
                    &wmask[9'h47:9'h41] && wmask[9'h160] && wmask[9'h161];
 
-jtc355_scan u_scan(
+jtc355_scan #(.H0(H0)) u_scan(
     .rst        ( rst         ),
     .clk        ( clk         ),
     .flip       ( flip        ),
@@ -237,6 +237,7 @@ jtc355_scan u_scan(
     .desc_we    ( desc_we     ),
     .desc_full  ( desc_full   ),
     .line_full  ( line_full   ),
+    .cov_grp    ( gfull       ),
     .fwd_pass   ( fwd_pass    ),
     .debug_bus  ( debug_bus   ),
     .st_dout    ( st_dout     )
