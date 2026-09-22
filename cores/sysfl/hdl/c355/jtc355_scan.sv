@@ -50,7 +50,7 @@ localparam [15:0] ATTR0=16'h0000, LIST0=16'h1000, CLIPT=16'h1200,
                   ATTR1=16'h8000, LIST1=16'hA000;
 
 localparam [4:0] IDLE=0, LIST=1, VATR=2, RAT0=3, DYZS=4, DYZW=5,
-                 VSPN=6, ROWD=7, ROWC=8, VSBD=9, VSBW=10,
+                 VSPN=6, ROWC=8, VSBD=9,
                  RAT1=11, DXZS=12, DXZW=13, COLD=14,
                  TILR=15, CNXT=18, ENXT=19, PEOL=20;
 
@@ -76,6 +76,7 @@ reg         [ 6:0] hitcnt;
 (* ramstyle = "MLAB, no_rw_check" *) reg signed [12:0] span0[0:255], span1[0:255]; // adjusted vertical span per entry
 reg         [ 7:0] list_len;
 reg                bld, cache_ok;
+reg                vs_pend, dx_run; // divider results collected while RAT1 reads run
 // shared serial divider
 reg                div_start, div_bsy;
 reg         [17:0] div_shf, div_q;
@@ -87,13 +88,11 @@ reg         [ 4:0] div_cnt, div_n;
 wire signed [12:0] vlat_s = {4'd0, vlat};
 wire        [15:0] abase  = page ? ATTR1 : ATTR0;
 wire        [15:0] lbase  = page ? LIST1 : LIST0;
-wire signed [12:0] tsh_s  = {3'd0, tsh};
 wire signed [12:0] tsw_s  = {3'd0, tsw};
 wire signed [12:0] vsz_s  = {3'd0, vsize};
 // coarse-reject margin: 2x size covers the dx/dy pivot for pivots within the sprite
 wire signed [12:0] vszm   = $signed({2'd0, objtab_data[9:0], 1'b0}) + 13'sd64;
 wire signed [12:0] q13    = $signed({1'b0, div_q[11:0]});
-wire signed [12:0] ycn    = vflip ? ycur - tsh_s : ycur;
 wire        [ 9:0] rmul   = rcnt * cols;
 wire        [13:0] tadr   = rowbase[13:0] + {9'd0, ccnt};
 wire        [14:0] c2t    = objtab_data[13] ? {sprbank, objtab_data[12:0]}
@@ -108,7 +107,11 @@ wire        [10:0] rem_b  = {rem_a1[9:0], div_shf[16]};
 wire               qbit_b = rem_b >= {1'b0, div_den};
 wire        [ 4:0] rleft  = rows - rcnt;
 wire        [ 4:0] cleft  = cols - ccnt;
-wire        [ 9:0] rowq   = shr / {5'd0, rleft};
+wire        [ 9:0] tsh_w  = shr / {5'd0, rleft};
+wire signed [12:0] tsh_c  = {3'd0, tsh_w};
+wire signed [12:0] ycn_c  = vflip ? ycur - tsh_c : ycur;
+wire signed [12:0] idd_s  = vflip ? vpos - 13'sd1 - vlat_s : vlat_s - vpos;
+wire        [ 7:0] idd    = idd_s[7:0];
 wire        [ 9:0] colq   = swr / {5'd0, cleft};
 wire               dy_id  = vsize == {1'b0, rows, 4'd0};
 wire               dx_id  = hsize == {1'b0, cols, 4'd0};
@@ -138,6 +141,8 @@ always @(posedge clk, posedge rst) begin
         st_dout   <= 0;
         vlat      <= 0;
         stop      <= 0;
+        vs_pend   <= 0;
+        dx_run    <= 0;
         bld       <= 0;
         cache_ok  <= 0;
         desc_we   <= 0;
@@ -227,43 +232,57 @@ always @(posedge clk, posedge rst) begin
                     span0[entry[7:0]] <= vtop;
                     span1[entry[7:0]] <= vbot;
                 end
-                st   <= ( vlat_s >= vtop && vlat_s < vbot ) ? ROWD : ENXT;
+                if( vlat_s >= vtop && vlat_s < vbot ) begin
+                    if( dy_id ) begin // identity zoom, row known at once
+                        rcnt <= {1'b0, idd[7:4]};
+                        tsh  <= 10'd16;
+                        vsub <= idd[3:0];
+                        st   <= RAT1; t <= 0;
+                    end else begin
+                        st <= ROWC;
+                    end
+                end else begin
+                    st <= ENXT;
+                end
             end
-            ROWD: begin // tile row screen height = remaining/(rows left)
-                tsh <= rowq;
-                st  <= ROWC;
-            end
-            ROWC: begin
-                if( vlat_s >= ycn && vlat_s < ycn + tsh_s ) begin
-                    liry <= vlat_s[9:0] - ycn[9:0];
+            ROWC: begin // one row per clock, screen height = remaining/(rows left)
+                if( vlat_s >= ycn_c && vlat_s < ycn_c + tsh_c ) begin
+                    liry <= vlat_s[9:0] - ycn_c[9:0];
+                    tsh  <= tsh_w;
                     st   <= VSBD;
                 end else if( rcnt == rows-5'd1 ) begin
                     st <= ENXT;
                 end else begin
-                    ycur <= vflip ? ycn : ycur + tsh_s;
-                    shr  <= shr - tsh;
+                    ycur <= vflip ? ycn_c : ycur + tsh_c;
+                    shr  <= shr - tsh_w;
                     rcnt <= rcnt + 5'd1;
-                    st   <= ROWD;
                 end
             end
             VSBD: begin // source row within the 16x16 tile
                 if( tsh == 10'd16 ) begin
                     vsub <= vflip ? 4'd15 - liry[3:0] : liry[3:0];
-                    st   <= RAT1; t <= 0;
-                end else begin
+                end else begin // collected during RAT1
                     div_num   <= {liry, 8'd0};
                     div_den   <= tsh;
                     div_n     <= 5'd14;
                     div_start <= 1;
-                    st        <= VSBW;
+                    vs_pend   <= 1;
                 end
-            end
-            VSBW: if( !div_working ) begin
-                vsub <= vflip ? 4'd15 - div_q[3:0] : div_q[3:0];
-                st   <= RAT1; t <= 0;
+                st <= RAT1; t <= 0;
             end
             RAT1: begin // remaining attributes, only for sprites on this line
                 t <= t + 4'd1;
+                if( vs_pend && !div_working ) begin
+                    vsub    <= vflip ? 4'd15 - div_q[3:0] : div_q[3:0];
+                    vs_pend <= 0;
+                end
+                if( t >= 4'd8 && !dx_run && !dx_id && !vs_pend && !div_working ) begin
+                    div_num   <= dxf[7:0]*hsize + {10'd0, cols, 3'd0};
+                    div_den   <= {1'b0, cols, 4'd0};
+                    div_n     <= 5'd18;
+                    div_start <= 1;
+                    dx_run    <= 1;
+                end
                 case( t )
                     0: objtab_addr <= abase | {5'd0, which, 3'd6};
                     1: objtab_addr <= abase | {5'd0, which, 3'd1};
@@ -301,15 +320,18 @@ always @(posedge clk, posedge rst) begin
                     xcur <= (hflip ^ dxf[8]) ? hpos + dxq : hpos - dxq;
                     st   <= COLD;
                 end else begin
-                    div_num   <= dxf[7:0]*hsize + {10'd0, cols, 3'd0};
-                    div_den   <= {1'b0, cols, 4'd0};
-                    div_n     <= 5'd18;
-                    div_start <= 1;
-                    st        <= DXZW;
+                    if( !dx_run ) begin
+                        div_num   <= dxf[7:0]*hsize + {10'd0, cols, 3'd0};
+                        div_den   <= {1'b0, cols, 4'd0};
+                        div_n     <= 5'd18;
+                        div_start <= 1;
+                    end
+                    st <= DXZW;
                 end
             end
             DXZW: if( !div_working ) begin
                 xcur <= (hflip ^ dxf[8]) ? hpos + dxq : hpos - dxq;
+                dx_run <= 0;
                 st   <= COLD;
             end
             COLD: begin // tile column screen width = remaining/(cols left)
@@ -349,6 +371,8 @@ always @(posedge clk, posedge rst) begin
                 st   <= ccnt == cols-5'd1 ? ENXT : COLD;
             end
             ENXT: begin
+                vs_pend <= 0;
+                dx_run  <= 0;
                 entry <= entry + 9'd1;
                 t     <= 0;
                 if( stop || entry[7:0]==8'hff ) begin
@@ -369,6 +393,8 @@ always @(posedge clk, posedge rst) begin
             default: st <= IDLE;
         endcase
         if( ln_hs ) begin // line start
+            vs_pend <= 0;
+            dx_run  <= 0;
             vlat    <= flip ? 9'd223 - {1'b0, ln_v} : {1'b0, ln_v};
             entry   <= 0;
             t       <= 0;
