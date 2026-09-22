@@ -50,7 +50,6 @@ sdram:
         - name: smask
           addr_width: 19
           data_width: 8
-          cache_size: 1kB
           offset: SMASK_OFFSET
         - name: mcurom  # C75 external data ROM (se1_spr), 512kB
           addr_width: 19
@@ -70,7 +69,6 @@ sdram:
         - name: rmask
           addr_width: 19
           data_width: 8
-          cache_size: 1kB
           offset: RMASK_OFFSET
         - name: wram32  # code fetches and loads from work RAM, one burst per word
           addr_width: 21
