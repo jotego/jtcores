@@ -181,6 +181,39 @@ always @* begin
     end
 end
 
+`ifdef SYSFL_ROZDBG
+// per-frame roz deadline audit: lines whose walk missed the next hs
+integer rz_lines=0, rz_cut=0, rz_wait=0, rz_cyc=0, rz_maxc=0;
+integer rz_fill=0, rz_req=0, rz_hit=0;
+reg rz_vsl=0, rz_csl=0, rz_okl=0;
+wire rz_okl_w = !rz_okl;
+always @(posedge clk) begin
+    rz_vsl <= vs;
+    if( fsm != IDLE ) begin
+        rz_cyc <= rz_cyc + 1;
+        if( roz_cs && !roz_ok ) rz_wait <= rz_wait + 1;
+        rz_csl <= roz_cs;
+        rz_okl <= roz_cs && roz_ok;
+        if( roz_cs && !rz_csl ) rz_req <= rz_req + 1;         // new requests
+        if( roz_cs && roz_ok && !rz_okl ) rz_hit <= rz_hit+1; // served
+        if( roz_cs && !roz_ok && rz_okl_w ) rz_fill <= rz_fill + 1;
+    end
+    if( hs_edge ) begin
+        if( fsm != IDLE ) begin
+            rz_cut <= rz_cut + 1;
+            $display("RZCUT line=%0d xi=%0d fsm=%0d cyc=%0d fills=%0d freq=%0d", lline, xi, fsm, rz_cyc, rz_fill, rz_req);
+        end
+        rz_fill <= 0; rz_req <= 0;
+        if( rz_cyc > rz_maxc ) rz_maxc <= rz_cyc;
+        rz_cyc <= 0;
+        if( nline < VLINES ) rz_lines <= rz_lines + 1;
+    end
+    if( vs && !rz_vsl ) begin
+        $display("ROZA lines=%0d cut=%0d wait=%0d maxc=%0d", rz_lines, rz_cut, rz_wait, rz_maxc);
+        rz_lines<=0; rz_cut<=0; rz_wait<=0; rz_maxc<=0;
+    end
+end
+`endif
 // line render
 always @(posedge clk) begin
     if( rst ) begin
