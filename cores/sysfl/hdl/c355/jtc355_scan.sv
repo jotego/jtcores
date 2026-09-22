@@ -76,7 +76,12 @@ reg         [ 8:0] vlat;
 reg         [ 6:0] hitcnt;
 // per-frame visibility cache, rebuilt while scanning the first line
 (* ramstyle = "MLAB, no_rw_check" *) reg viscache[0:255];
-(* ramstyle = "MLAB, no_rw_check" *) reg signed [12:0] span0[0:255], span1[0:255]; // adjusted vertical span per entry
+// margined window per entry, not the exact span: the CPU rewrites the tables
+// mid frame, so the cache only excludes lines the sprite cannot reach
+(* ramstyle = "MLAB, no_rw_check" *) reg signed [12:0] span0[0:255], span1[0:255];
+// dy quotient per entry: a zoom ratio, stable within a frame, so the
+// per-line walk skips the serial division and uses the live vpos
+(* ramstyle = "MLAB, no_rw_check" *) reg [11:0] dyq_c[0:255];
 reg         [ 7:0] list_len;
 reg                bld, cache_ok;
 reg                vs_pend, dx_run; // divider results collected while RAT1 reads run
@@ -118,7 +123,8 @@ wire        [ 7:0] idd    = idd_s[7:0];
 wire        [ 9:0] colq   = swr / {5'd0, cleft};
 wire               dy_id  = vsize == {1'b0, rows, 4'd0};
 wire               dx_id  = hsize == {1'b0, cols, 4'd0};
-wire signed [12:0] dyq    = dy_id ? {5'd0, dyf[7:0]} : q13;
+wire signed [12:0] dyq    = dy_id ? {5'd0, dyf[7:0]} :
+                            bld   ? q13 : {1'b0, dyq_c[entry[7:0]]};
 wire signed [12:0] dxq    = dx_id ? {5'd0, dxf[7:0]} : q13;
 wire               div_working = div_start | div_bsy;
 wire               visany = objtab_data[9:0] != 0 &&
@@ -131,6 +137,14 @@ wire signed [12:0] vbot   = vflip ? vpos : vpos + vsz_s;
 wire        [ 9:0] sq_q   = tsw==0 ? 10'd0 : 10'd16 / tsw;
 wire        [ 4:0] sq_c   = sq_q[4:0];
 wire        [ 9:0] sr_c   = tsw==0 ? 10'd0 : 10'd16 % tsw;
+// next-column recurrence for the pipelined loop
+wire        [ 4:0] ccnt_n = ccnt + 5'd1;
+wire        [13:0] tadr_n = rowbase[13:0] + {9'd0, ccnt_n};
+wire        [ 9:0] swr_n  = swr - tsw;
+wire        [ 9:0] colq_n = swr_n / {5'd0, cols - ccnt_n};
+wire signed [12:0] xc_n   = hflip ? xcur - $signed({3'd0,colq_n})
+                                  : xcur + $signed({3'd0,tsw});
+wire               col_last = ccnt == cols-5'd1;
 // column span already covered: skip it before the tile table read
 wire signed [12:0] sc_x1a = xcur + $signed({3'd0,tsw}) - 13'sd1;
 wire signed [12:0] sc_x0  = xcur > wx0 ? xcur : wx0;
@@ -196,7 +210,11 @@ always @(posedge clk, posedge rst) begin
                     1: vpos <= {{2{objtab_data[10]}}, objtab_data[10:0]};
                     2: begin
                         {vflip, vsize} <= {objtab_data[15], objtab_data[9:0]};
-                        if( bld ) viscache[entry[7:0]] <= visany;
+                        if( bld ) begin
+                            viscache[entry[7:0]] <= visany;
+                            span0[entry[7:0]] <= vpos - vszm;
+                            span1[entry[7:0]] <= vpos + vszm;
+                        end
                         st <= ( bld ? visany :
                               ( objtab_data[9:0] != 0 &&
                                 vlat_s >= vpos - vszm &&
@@ -226,10 +244,10 @@ always @(posedge clk, posedge rst) begin
                     default:;
                 endcase
             end
-            DYZS: if( dy_id ) begin // dy pivot, scaled by the vertical zoom
+            DYZS: if( dy_id || !bld ) begin // dy pivot, scaled by the vertical zoom
                 vpos <= (vflip ^ dyf[8]) ? vpos + dyq : vpos - dyq;
                 st   <= VSPN;
-            end else begin
+            end else begin // build pass derives the frame's quotient
                 div_num   <= dyf[7:0]*vsize + {10'd0, rows, 3'd0};
                 div_den   <= {1'b0, rows, 4'd0};
                 div_n     <= 5'd18;
@@ -238,16 +256,13 @@ always @(posedge clk, posedge rst) begin
             end
             DYZW: if( !div_working ) begin
                 vpos <= (vflip ^ dyf[8]) ? vpos + dyq : vpos - dyq;
+                dyq_c[entry[7:0]] <= div_q[11:0];
                 st   <= VSPN;
             end
             VSPN: begin // exact vertical span
                 shr  <= vsize;
                 rcnt <= 0;
                 ycur <= vpos;
-                if( bld ) begin
-                    span0[entry[7:0]] <= vtop;
-                    span1[entry[7:0]] <= vbot;
-                end
                 if( vlat_s >= vtop && vlat_s < vbot ) begin
                     if( dy_id ) begin // identity zoom, row known at once
                         rcnt <= {1'b0, idd[7:4]};
@@ -311,7 +326,8 @@ always @(posedge clk, posedge rst) begin
                     5: begin
                         objtab_addr <= FMTT | {3'd0, link, 2'd2};
                         {hflip, hsize} <= {objtab_data[15], objtab_data[9:0]};
-                        if( objtab_data[9:0]==0 ) begin st <= ENXT; t <= 0; end
+                        if( objtab_data[9:0]==0 ) begin st <= ENXT; t <= 0;
+                        end
                     end
                     6: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd0}; tidx <= objtab_data;     end
                     7: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd1}; dxf  <= objtab_data[8:0];end
@@ -356,41 +372,41 @@ always @(posedge clk, posedge rst) begin
                 objtab_addr <= TILET | {2'd0, tadr};
                 st <= TILR; t <= 1;
             end
-            TILR: begin // tile table indirection + bank remap
+            TILR: begin // pipelined column loop: skip in one cycle, push in two
                 if( t < 4'd2 ) t <= t + 4'd1;
                 case( t )
-                    1: if( sc_cov && tsw!=0 && colvis ) begin // hidden column
-                        t  <= 0;
-                        st <= CNXT;
+                    1: if( tsw==0 || !colvis || sc_cov ) begin // no tile data needed
+                        if( col_last ) begin
+                            st <= ENXT; t <= 0;
+                        end else begin
+                            tsw  <= colq_n;
+                            xcur <= xc_n;
+                            swr  <= swr_n;
+                            ccnt <= ccnt_n;
+                            objtab_addr <= TILET | {2'd0, tadr_n};
+                            t <= 1;
+                        end
                     end
-                    2: if( objtab_data[15] || tsw==0 || !colvis ) begin
-`ifdef SYSFL_SCANDBG
-                        $display("SKIP c=%04x cc=%0d/%0d msk=%b tsw=%0d xcur=%0d wx0=%0d wx1=%0d",
-                            c2t+offset[14:0], ccnt, cols, objtab_data[15], tsw, xcur, wx0, wx1);
-`endif
-                        t  <= 0;
-                        st <= CNXT;
-                    end else if( !desc_full ) begin
-`ifdef SYSFL_SCANDBG
-                        if( vlat==9'd62 )
-                        $display("PUSH e=%0d c=%04x cc=%0d/%0d tsw=%0d xcur=%0d pal=%03x sq=%0d sr=%0d vsub=%0d hf=%b",
-                            entry, c2t+offset[14:0], ccnt, cols, tsw, xcur, pal, sq_c, sr_c, vsub, hflip);
-`endif
-                        desc_data <= { 1'b0, sq_c, sr_c, wx1, wx0, hflip,
-                                       pal[7:0], xcur, tsw, vsub,
-                                       c2t + offset[14:0] };
-                        desc_we   <= 1;
-                        t  <= 0;
-                        st <= CNXT;
+                    2: if( objtab_data[15] || !desc_full ) begin
+                        if( !objtab_data[15] ) begin
+                            desc_data <= { 1'b0, sq_c, sr_c, wx1, wx0, hflip,
+                                           pal[7:0], xcur, tsw, vsub,
+                                           c2t + offset[14:0] };
+                            desc_we   <= 1;
+                        end
+                        if( col_last ) begin
+                            st <= ENXT; t <= 0;
+                        end else begin
+                            tsw  <= colq_n;
+                            xcur <= xc_n;
+                            swr  <= swr_n;
+                            ccnt <= ccnt_n;
+                            objtab_addr <= TILET | {2'd0, tadr_n};
+                            t <= 1;
+                        end
                     end
                     default:;
                 endcase
-            end
-            CNXT: begin
-                if( !hflip ) xcur <= xcur + tsw_s;
-                swr  <= swr - tsw;
-                ccnt <= ccnt + 5'd1;
-                st   <= ccnt == cols-5'd1 ? ENXT : COLD;
             end
             ENXT: begin
                 vs_pend <= 0;
