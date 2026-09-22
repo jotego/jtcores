@@ -56,7 +56,11 @@ module jtc355 #( parameter [8:0] H0=9'd0 )(
 );
 
 wire [92:0] desc_data;
-wire        desc_we;
+wire        desc_we, fwd_pass;
+// first-write-wins support: pixels already written and 8-pixel groups full
+reg  [511:0] wmask;
+reg  [ 63:0] gfull;
+wire         line_full;
 
 // column descriptor FIFO, scan runs ahead of the drawer
 (* ramstyle = "MLAB, no_rw_check" *) reg [92:0] fifo[0:7];
@@ -92,11 +96,23 @@ wire        [31:0] rowb_w = rowb[{cbuf, srcx_e[3:2]}];
 wire        [ 7:0] pen    = rowb_w[{srcx_e[1:0],3'd0}+:8];
 wire               xok    = xdr >= cur_wx0 && xdr <= cur_wx1;
 wire        [ 8:0] xw     = flip ? 9'd287 - xdr[8:0] : xdr[8:0];
+wire        [ 8:0] wa     = xw + H0 + 9'd1;
 wire        [10:0] acc_r  = acc + {1'b0, cur_sr};
 wire               acc_c  = acc_r >= {1'b0, cur_tsw};
+// clipped span endpoints of the queued column, in line buffer addresses
+wire signed [12:0] q_x0  = $signed(fifo_rd[41:29]) < $signed(fifo_rd[63:51]) ?
+                           $signed(fifo_rd[63:51]) : $signed(fifo_rd[41:29]);
+wire signed [12:0] q_x1a = $signed(fifo_rd[41:29]) + $signed({3'd0,fifo_rd[28:19]}) - 13'sd1;
+wire signed [12:0] q_x1  = q_x1a > $signed(fifo_rd[76:64]) ? $signed(fifo_rd[76:64]) : q_x1a;
+wire        [ 8:0] q_a0  = (flip ? 9'd287 - q_x0[8:0] : q_x0[8:0]) + H0 + 9'd1;
+wire        [ 8:0] q_a1  = (flip ? 9'd287 - q_x1[8:0] : q_x1[8:0]) + H0 + 9'd1;
+wire        [ 5:0] q_gl  = (flip ? q_a1[8:3] : q_a0[8:3]);
+wire        [ 5:0] q_gh  = (flip ? q_a0[8:3] : q_a1[8:3]);
+wire        [63:0] q_rng = (64'h2 << q_gh) - (64'h1 << q_gl);
+wire               q_cov = !fwd_pass && !fifo_rd[92] && &(gfull | ~q_rng);
 // promote the staged column into the drawer as soon as its row is in
 wire               pro    = !cur_vld && nxt_vld && nxt_rdy && !ln_done;
-wire               pop    = (!nxt_vld || pro) && !fifo_empty && !fetch_bsy;
+wire               pop    = (!nxt_vld || pro || q_cov) && !fifo_empty && !fetch_bsy;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -111,6 +127,8 @@ always @(posedge clk, posedge rst) begin
         nbuf      <= 0;
         ln_we     <= 0;
         ln_done   <= 0;
+        wmask     <= 0;
+        gfull     <= 0;
     end else begin
         ln_we <= 0;
         if( desc_we ) begin
@@ -150,27 +168,32 @@ always @(posedge clk, posedge rst) begin
             end
         end
         if( pop ) begin
-            nxt     <= fifo_rd;
-            frp     <= frp + 4'd1;
-            nxt_vld <= 1;
-            nxt_rdy <= fifo_rd[92]; // eol carries no row
-            if( !fifo_rd[92] ) begin
-                objrom_addr <= {fifo_rd[14:0], fifo_rd[18:15], 2'd0};
-                objrom_cs   <= 1;
-                fw          <= 0;
-                fetch_bsy   <= 1;
+            if( q_cov ) begin // column fully hidden, drop it unfetched
+                frp <= frp + 4'd1;
+            end else begin
+                nxt     <= fifo_rd;
+                frp     <= frp + 4'd1;
+                nxt_vld <= 1;
+                nxt_rdy <= fifo_rd[92]; // eol carries no row
+                if( !fifo_rd[92] ) begin
+                    objrom_addr <= {fifo_rd[14:0], fifo_rd[18:15], 2'd0};
+                    objrom_cs   <= 1;
+                    fw          <= 0;
+                    fetch_bsy   <= 1;
+                end
             end
         end
         if( cur_vld ) begin // one screen pixel per clock, x-zoom accumulator
             if( xdr > cur_wx1 ) begin
                 cur_vld <= 0; // rest of the tile falls right of the window
             end else begin
-                if( xok ) begin
-                    if( pen != 8'hff ) begin
-                        ln_we   <= 1;
-                        ln_addr <= xw + H0 + 9'd1;
-                        ln_data <= {cur_pal, pen};
-                    end
+                if( xok && pen != 8'hff && (fwd_pass || !wmask[wa]) ) begin
+                    ln_we   <= 1;
+                    ln_addr <= wa;
+                    ln_data <= {cur_pal, pen};
+                    wmask[wa] <= 1'b1;
+                    if( &(wmask[{wa[8:3],3'd0} +: 8] | (8'h1 << wa[2:0])) )
+                        gfull[wa[8:3]] <= 1'b1;
                 end
                 xdr    <= xdr + 13'sd1;
                 pxleft <= pxleft - 10'd1;
@@ -183,6 +206,8 @@ always @(posedge clk, posedge rst) begin
             end
         end
         if( ln_hs ) begin // line start
+            wmask     <= 0;
+            gfull     <= 0;
             fwp       <= 0;
             frp       <= 0;
             nxt_vld   <= 0;
@@ -196,6 +221,9 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+assign line_full = !fwd_pass && &gfull[43:9] &&
+                   &wmask[9'h47:9'h41] && wmask[9'h160] && wmask[9'h161];
+
 jtc355_scan u_scan(
     .rst        ( rst         ),
     .clk        ( clk         ),
@@ -208,10 +236,31 @@ jtc355_scan u_scan(
     .desc_data  ( desc_data   ),
     .desc_we    ( desc_we     ),
     .desc_full  ( desc_full   ),
+    .line_full  ( line_full   ),
+    .fwd_pass   ( fwd_pass    ),
     .debug_bus  ( debug_bus   ),
     .st_dout    ( st_dout     )
 );
 
+`ifdef SYSFL_OBJDBG
+// overdraw probe: writes hitting an already-written pixel this line
+reg [511:0] ovr_mask;
+integer ovr_wr=0, ovr_hit=0;
+always @(posedge clk) begin
+    if( ln_we ) begin
+        ovr_wr <= ovr_wr+1;
+        if( ovr_mask[ln_addr] ) ovr_hit <= ovr_hit+1;
+        ovr_mask[ln_addr] <= 1'b1;
+    end
+    if( ln_hs ) begin
+        ovr_mask <= 0;
+        if( ln_v == 8'd0 ) begin
+            $display("OVR wr=%0d hit=%0d", ovr_wr, ovr_hit);
+            ovr_wr <= 0; ovr_hit <= 0;
+        end
+    end
+end
+`endif
 `ifdef SYSFL_OBJDBG
 // drawer-visible stalls only: the staged fetch is supposed to miss
 integer fstall=0, sstall=0, lcyc=0, over=0, cut=0, maxl=0, lines=0, donel=0;

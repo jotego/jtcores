@@ -39,6 +39,8 @@ module jtc355_scan(
     output reg [92:0] desc_data,
     output reg        desc_we,
     input             desc_full,
+    input             line_full,  // drawer: every visible pixel written
+    output            fwd_pass,   // build line, drawn back to front
 
     input      [ 7:0] debug_bus,
     output reg [ 7:0] st_dout
@@ -129,6 +131,7 @@ wire        [ 9:0] sq_q   = tsw==0 ? 10'd0 : 10'd16 / tsw;
 wire        [ 4:0] sq_c   = sq_q[4:0];
 wire        [ 9:0] sr_c   = tsw==0 ? 10'd0 : 10'd16 % tsw;
 wire               unused = &{debug_bus[6:1], div_rem, div_q[17:12], sq_q[9:5]};
+assign fwd_pass = bld;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -152,12 +155,14 @@ always @(posedge clk, posedge rst) begin
         case( st )
             IDLE:;
             LIST: begin
-                if( t==0 && cache_ok && !online ) begin
+                if( line_full && !bld ) begin
+                    st <= PEOL; t <= 0;
+                end else if( t==0 && cache_ok && !online ) begin
                     // cached as not crossing this line, skip in one cycle
-                    if( entry[7:0]==list_len || entry[7:0]==8'hff ) begin
+                    if( entry[7:0]==8'd0 ) begin
                         st <= PEOL;
                     end else begin
-                        entry <= entry + 9'd1;
+                        entry <= entry - 9'd1;
                     end
                 end else begin
                     t <= t + 4'd1;
@@ -352,7 +357,9 @@ always @(posedge clk, posedge rst) begin
                         st <= CNXT;
                     end else if( !desc_full ) begin
 `ifdef SYSFL_SCANDBG
-                        $display("PUSH c=%04x cc=%0d/%0d tsw=%0d xcur=%0d", c2t+offset[14:0], ccnt, cols, tsw, xcur);
+                        if( vlat==9'd62 )
+                        $display("PUSH e=%0d c=%04x cc=%0d/%0d tsw=%0d xcur=%0d pal=%03x sq=%0d sr=%0d vsub=%0d hf=%b",
+                            entry, c2t+offset[14:0], ccnt, cols, tsw, xcur, pal, sq_c, sr_c, vsub, hflip);
 `endif
                         desc_data <= { 1'b0, sq_c, sr_c, wx1, wx0, hflip,
                                        pal[7:0], xcur, tsw, vsub,
@@ -373,16 +380,19 @@ always @(posedge clk, posedge rst) begin
             ENXT: begin
                 vs_pend <= 0;
                 dx_run  <= 0;
-                entry <= entry + 9'd1;
                 t     <= 0;
-                if( stop || entry[7:0]==8'hff ) begin
-                    st <= PEOL;
-                    if( bld ) begin
+                if( bld ) begin // forward build pass, line 0
+                    entry <= entry + 9'd1;
+                    if( stop || entry[7:0]==8'hff ) begin
+                        st       <= PEOL;
                         bld      <= 0;
                         cache_ok <= 1;
+                    end else begin
+                        st <= LIST;
                     end
-                end else begin
-                    st <= LIST;
+                end else begin  // reverse pass, front to back
+                    entry <= entry - 9'd1;
+                    st    <= entry[7:0]==8'd0 ? PEOL : LIST;
                 end
             end
             PEOL: if( !desc_full ) begin // close the line for the drawer
@@ -396,7 +406,6 @@ always @(posedge clk, posedge rst) begin
             vs_pend <= 0;
             dx_run  <= 0;
             vlat    <= flip ? 9'd223 - {1'b0, ln_v} : {1'b0, ln_v};
-            entry   <= 0;
             t       <= 0;
             desc_we <= 0;
             page    <= debug_bus[7];
@@ -406,6 +415,10 @@ always @(posedge clk, posedge rst) begin
                 bld      <= 1;
                 cache_ok <= 0;
                 list_len <= 8'hff;
+                entry    <= 0;    // build pass walks forward
+            end else begin
+                // an unfinished build restarts forward; else front to back
+                entry    <= bld ? 9'd0 : {1'b0, list_len};
             end
             st <= ln_v < 8'd224 ? LIST : IDLE;
         end

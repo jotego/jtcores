@@ -213,7 +213,7 @@ wire        c_we, c_done;
 wire [ 8:0] c_addr;
 wire [15:0] c_data, ln_pxl;
 // double line buffer: draw the next row while the mixer reads the current one
-wire [ 8:0] vmap = vrender >= 9'h121 ? vrender - 9'h121 : vrender - 9'd25;
+wire [ 8:0] vmap = vrender >= 9'h120 ? vrender - 9'h120 : vrender - 9'd24;
 reg         lhbl_l, c_hs;
 reg  [ 7:0] c_v;
 
