@@ -276,10 +276,11 @@ if [ $SKIP_COMPILE = FALSE ]; then
         if grep "inferring latch" $RPTPATH/jt$PRJ.map.rpt; then
             echo "Warning: latch inferred"
         fi
-        # Report FPGA usage
+        # Report FPGA usage and keep the summary with the log artifacts
         if [ $(find $RPTPATH -name "*.fit.summary"|wc -l) -gt 0 ]; then
             grep "Total logic\|Logic utilization" $RPTPATH/*.fit.summary
             grep "Total memory\|Total RAM" $RPTPATH/*.fit.summary
+            cp $RPTPATH/*.fit.summary $JTROOT/log/$TARGET/ 2> /dev/null || true
         fi
         # Report connectivity problems
         AUX=`mktemp`
