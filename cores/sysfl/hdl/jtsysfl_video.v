@@ -30,15 +30,6 @@ module jtsysfl_video(
     input             flip,
     input      [ 1:0] sprbank,
 
-    // line frame buffer (sprites)
-    input             ln_hs,
-    input      [ 7:0] ln_v,
-    input      [15:0] ln_pxl,
-    output     [ 8:0] ln_addr,
-    output     [15:0] ln_data,
-    output            ln_we,
-    output            ln_done,
-
     // CPU access, 16-bit for scroll/roz registers
     input             scfg_cs, rozcfg_cs,
     input      [ 5:1] cfg_addr,
@@ -218,26 +209,32 @@ jtc169 #(.V0(9'h121)) u_roz(
     .st_dout    ( st_roz    )
 );
 
-wire        c_hs, c_we, c_done;
-wire [ 7:0] c_v;
+wire        c_we, c_done;
 wire [ 8:0] c_addr;
-wire [15:0] c_data;
+wire [15:0] c_data, ln_pxl;
+// double line buffer: draw the next row while the mixer reads the current one
+wire [ 8:0] vmap = vrender >= 9'h121 ? vrender - 9'h121 : vrender - 9'd25;
+reg         lhbl_l, c_hs;
+reg  [ 7:0] c_v;
 
-jtsysfl_lnbuf u_lnbuf(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .ln_hs      ( ln_hs     ),
-    .ln_v       ( ln_v      ),
-    .ln_addr    ( ln_addr   ),
-    .ln_data    ( ln_data   ),
-    .ln_we      ( ln_we     ),
-    .ln_done    ( ln_done   ),
-    .c_hs       ( c_hs      ),
-    .c_v        ( c_v       ),
-    .c_addr     ( c_addr    ),
-    .c_data     ( c_data    ),
-    .c_we       ( c_we      ),
-    .c_done     ( c_done    )
+always @(posedge clk) begin
+    lhbl_l <= lhbl;
+    c_hs   <= !lhbl && lhbl_l;
+    if( !lhbl && lhbl_l ) c_v <= vmap < 9'd224 ? vmap[7:0] : 8'hff;
+end
+
+jtframe_obj_buffer #(
+    .DW(16), .AW(9), .ALPHAW(8), .ALPHA(8'hff), .BLANK(8'hff)
+) u_lnbuf(
+    .clk    ( clk       ),
+    .LHBL   ( lhbl      ),
+    .flip   ( 1'b0      ),
+    .wr_data( c_data    ),
+    .wr_addr( c_addr    ),
+    .we     ( c_we      ),
+    .rd_addr( hdump     ),
+    .rd     ( pxl_cen & lhbl ),
+    .rd_data( ln_pxl    )
 );
 
 jtc355 #(.H0(9'h040)) u_obj(
@@ -344,10 +341,10 @@ always @(posedge clk) begin
     if( roz_cs      ) cnt_rcs <= cnt_rcs+1;
     if( objrom_cs   ) cnt_ocs <= cnt_ocs+1;
     if( smask_cs    ) cnt_msk <= cnt_msk+1;
-    lndone_l <= ln_done;
-    if( ln_done && !lndone_l ) cnt_lin <= cnt_lin+1;
+    lndone_l <= c_done;
+    if( c_done && !lndone_l ) cnt_lin <= cnt_lin+1;
     if( !c_done ) cnt_bsy <= cnt_bsy+1;
-    if( ln_done ) cnt_wai <= cnt_wai+1;
+    if( c_done ) cnt_wai <= cnt_wai+1;
     if( pxl_cen && lvbl && lhbl ) begin
         if( u_colmix.blank==0 ) cnt_vis <= cnt_vis+1;
         if( red!=0 || green!=0 || blue!=0 ) cnt_rgb <= cnt_rgb+1;

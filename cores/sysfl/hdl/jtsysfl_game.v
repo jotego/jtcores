@@ -42,22 +42,6 @@ wire        cpu_halted;
 
 assign flip       = dip_flip;
 
-`ifdef JTFRAME_LF_BUFFER
-// screen row (0-223, 224+ during blanking) for the line frame buffer.
-// Visible rows are 0x121-0x1FF plus the counter-wrap row 0xF8
-wire [ 8:0] vmap  = vrender >= 9'h121 ? vrender - 9'h121 : vrender - 9'd25;
-assign game_hdump   = hdump;
-assign game_vrender = vmap[7:0];
-assign fb_keep      = 0;
-`else
-// video still compiles without the frame buffer, sprites blanked
-wire        ln_hs  = 0;
-wire [ 7:0] ln_v   = 0;
-wire [15:0] ln_pxl = 16'h00ff;
-wire [ 8:0] ln_addr;
-wire [15:0] ln_data;
-wire        ln_we, ln_done;
-`endif
 assign debug_view = st_video;
 assign game_led   = 0;
 assign vram_addr  = tmap_addr;
@@ -274,14 +258,6 @@ jtsysfl_video u_video(
     .raster_irqn( raster_irqn   ),
     .flip       ( flip          ),
     .sprbank    ( sprbank       ),
-
-    .ln_hs      ( ln_hs         ),
-    .ln_v       ( ln_v          ),
-    .ln_pxl     ( ln_pxl        ),
-    .ln_addr    ( ln_addr       ),
-    .ln_data    ( ln_data       ),
-    .ln_we      ( ln_we         ),
-    .ln_done    ( ln_done       ),
 
     .scfg_cs    ( scfg_cs       ),
     .rozcfg_cs  ( rozcfg_cs     ),

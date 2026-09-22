@@ -31,6 +31,9 @@ sysfl:
       - jt960_muldiv.sv
       - jt960_rcache.sv
 jtframe:
+  - from: ram
+    get:
+      - jtframe_obj_buffer.v
   - get:
       - jtframe_edge.v
   - from: video
