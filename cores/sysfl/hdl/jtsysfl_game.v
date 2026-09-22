@@ -41,6 +41,14 @@ wire [15:0] vcpu_dout, scfg_dout, rozcfg_dout;
 wire [14:0] pal_amux;
 wire [ 7:0] pal_din8, pal_dout8, misc_din;
 wire        cpu_halted;
+wire [13:0] opq_addr;
+wire        opq_bit;
+wire [21:0] opq_rel;
+wire        opq_prog;
+reg  [15:0] opq_tout;
+reg  [13:0] opq_tile, opq_wa;
+reg  [ 7:0] opq_acc;
+reg         opq_on, opq_we, opq_wd;
 
 assign flip       = dip_flip;
 
@@ -58,6 +66,55 @@ assign pal_wdin   = pal_din8;
 
 // MMR sections dumped after the BRAMs; 0x56000 is 128B-aligned
 assign ioctl_din = &ioctl_addr[6:4] ? ioctl_misc : ioctl_video;
+
+// opaque-tile table for the roz mask ROM, built from the download stream
+assign opq_rel  = prog_addr[21:0] - 22'h2d_0000;
+assign opq_prog = prog_we && prog_ba==2'd3 &&
+                  prog_addr[21:0]>=22'h2d_0000 && prog_addr[21:0]<22'h31_0000;
+
+always @(posedge clk) begin
+    if( rst ) begin
+        opq_on   <= 0;
+        opq_we   <= 0;
+        opq_tout <= 0;
+    end else begin
+        opq_we <= 0;
+        if( opq_prog ) begin
+            opq_tout <= 0;
+            opq_on   <= 1;
+            if( opq_on && opq_rel[17:4]!=opq_tile ) begin
+                opq_we  <= 1;
+                opq_wa  <= opq_tile;
+                opq_wd  <= &opq_acc;
+                opq_acc <= prog_data;
+            end else begin
+                opq_acc <= (opq_on ? opq_acc : 8'hff) & prog_data;
+            end
+            opq_tile <= opq_rel[17:4];
+        end else if( opq_on ) begin
+            opq_tout <= opq_tout + 16'd1;
+            if( &opq_tout ) begin
+                opq_we <= 1;
+                opq_wa <= opq_tile;
+                opq_wd <= &opq_acc;
+                opq_on <= 0;
+            end
+        end
+    end
+end
+
+jtframe_dual_ram #(.DW(1),.AW(14),.SIMHEXFILE("opq.hex")) u_opq(
+    .clk0   ( clk       ),
+    .data0  ( opq_wd    ),
+    .addr0  ( opq_wa    ),
+    .we0    ( opq_we    ),
+    .q0     (           ),
+    .clk1   ( clk       ),
+    .data1  ( 1'b0      ),
+    .addr1  ( opq_addr  ),
+    .we1    ( 1'b0      ),
+    .q1     ( opq_bit   )
+);
 
 `ifndef NOMAIN
 jtsysfl_main u_main(
@@ -309,6 +366,8 @@ jtsysfl_video u_video(
     .rmask_addr ( rmask_addr    ),
     .rmask_ok   ( rmask_ok      ),
     .rmask_data ( rmask_data    ),
+    .opq_addr   ( opq_addr      ),
+    .opq_bit    ( opq_bit       ),
     .roz_cs     ( roz_cs        ),
     .roz_addr   ( roz_addr      ),
     .roz_ok     ( roz_ok        ),

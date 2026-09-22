@@ -77,6 +77,8 @@ module jtsysfl_video(
     output     [18:0] rmask_addr,
     input             rmask_ok,
     input      [ 7:0] rmask_data,
+    output     [13:0] opq_addr,
+    input             opq_bit,
 
     output            roz_cs,
     output     [20:2] roz_addr,
@@ -197,6 +199,8 @@ jtc169 #(.V0(9'h121)) u_roz(
     .rmask_addr ( rmask_addr),
     .rmask_ok   ( rmask_ok  ),
     .rmask_data ( rmask_data),
+    .opq_addr   ( opq_addr  ),
+    .opq_bit    ( opq_bit   ),
     .roz_cs     ( roz_cs    ),
     .roz_addr   ( roz_addr  ),
     .roz_ok     ( roz_ok    ),

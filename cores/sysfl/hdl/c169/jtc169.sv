@@ -47,6 +47,8 @@ module jtc169(
     output reg [18:0] rmask_addr,
     input             rmask_ok,
     input      [ 7:0] rmask_data,
+    output     [13:0] opq_addr,   // opaque-tile table lookup, skips mask fetches
+    input             opq_bit,
     // tile ROM (RCHAR)
     output            roz_cs,
     output reg [20:2] roz_addr,     // 32-bit words, texel xpos[1:0] = byte lane
@@ -114,10 +116,16 @@ wire [11:0] h_xp   = f_head[38:27], h_yp = f_head[26:15];
 wire [13:0] h_code = f_head[13:0];
 wire [18:0] h_msk  = { h_code, h_yp[3:0], h_xp[3] };
 wire [20:0] h_til  = { h_code[12:0], h_yp[3:0], h_xp[3:0] };
-wire        h_mhit = c_mok && c_maddr==h_msk;
+reg  [13:0] opq_cl;
+wire        opq_cur = opq_cl == h_code;
+wire        h_opq   = opq_cur && opq_bit;
+wire        h_mhit  = c_mok && c_maddr==h_msk;
 wire        h_thit = c_tok && c_taddr==h_til[20:2];
 wire [ 7:0] h_tex  = c_tword[ {h_til[1:0],3'd0} +: 8 ];
 wire        h_mbit = c_mbyte[ ~h_xp[2:0] ];
+wire        h_mhit2 = h_mhit || h_opq;
+wire        h_mbit2 = h_mhit ? h_mbit : 1'b1;
+assign      opq_addr = h_code;
 wire [ 2:0] inflight = {2'd0,s1_v} + {2'd0,s2_v};
 wire        issue  = fsm==RUN && xi!=LINE_W && (f_cnt + inflight) < 3'd4;
 wire        t0ok   = ftok0 || (roz_ok && tbl==0);
@@ -125,11 +133,11 @@ wire        ret    = fv[0] && fmok0 && t0ok;
 wire [ 7:0] t_byt0 = ftok0 ? ftex0 : roz_data[{flane0,3'd0} +: 8];
 wire        m_done = mo[1] && mbl==0 && rmask_ok;
 wire        t_dup  = !h_thit && to[1] && roz_addr ==h_til[20:2];
-wire        m_dup  = !h_mhit && mo[1] && rmask_addr==h_msk;
-wire        pophit = f_cnt!=0 && !ret && (!h_draw || (h_mhit && h_thit));
-wire        popst  = f_cnt!=0 && h_draw && !(h_mhit && h_thit) && !ret && !fv[1]
-                     && !t_dup && !m_dup
-                     && (h_thit || !to[1]) && (h_mhit || !mo[1]);
+wire        m_dup  = !h_mhit2 && mo[1] && rmask_addr==h_msk;
+wire        pophit = f_cnt!=0 && !ret && (!h_draw || (h_mhit2 && h_thit));
+wire        popst  = f_cnt!=0 && h_draw && !(h_mhit2 && h_thit) && !ret && !fv[1]
+                     && !t_dup && (h_thit || !to[1])
+                     && (h_mhit2 || (opq_cur && !m_dup && !mo[1]));
 wire        pop    = pophit || popst;
 // line buffer write
 reg  [15:0] bdata;
@@ -263,6 +271,7 @@ always @(posedge clk) begin
     end else begin
         hs_l <= hs;
         bwe  <= 0;
+        opq_cl <= h_code;
         if( hs_edge ) begin
             lline <= nline;
             lyr1  <= 0;
@@ -370,7 +379,7 @@ always @(posedge clk) begin
                     mo <= 0;
                 end
                 if( pophit ) begin
-                    bdata <= h_draw ? { h_mbit, p_prio, p_color, h_tex } : 16'd0;
+                    bdata <= h_draw ? { h_mbit2, p_prio, p_color, h_tex } : 16'd0;
                     baddr <= h_x;
                     bwl   <= lyr1;
                     bwe   <= 1;
@@ -379,11 +388,11 @@ always @(posedge clk) begin
                     f_rd <= f_rd + 2'd1;
                     if( fv[0] ) begin
                         fx1<=h_x; flane1<=h_til[1:0]; fmb1<=h_xp[2:0];
-                        ftok1<=h_thit; ftex1<=h_tex; fmok1<=h_mhit; fbit1<=h_mbit;
+                        ftok1<=h_thit; ftex1<=h_tex; fmok1<=h_mhit2; fbit1<=h_mbit2;
                         fv[1]<=1;
                     end else begin
                         fx0<=h_x; flane0<=h_til[1:0]; fmb0<=h_xp[2:0];
-                        ftok0<=h_thit; ftex0<=h_tex; fmok0<=h_mhit; fbit0<=h_mbit;
+                        ftok0<=h_thit; ftex0<=h_tex; fmok0<=h_mhit2; fbit0<=h_mbit2;
                         fv[0]<=1;
                     end
                     if( !h_thit ) begin
@@ -391,7 +400,7 @@ always @(posedge clk) begin
                         tbl <= 2'd2;
                         to  <= {1'b1, fv[0]};
                     end
-                    if( !h_mhit ) begin
+                    if( !h_mhit2 ) begin
                         rmask_addr <= h_msk;
                         mbl <= 2'd2;
                         mo  <= {1'b1, fv[0]};
