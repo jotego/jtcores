@@ -240,11 +240,11 @@ jtframe_obj_buffer #(
     .wr_addr( c_addr    ),
     .we     ( c_we      ),
     .rd_addr( hdump     ),
-    .rd     ( pxl_cen & lhbl ),
+    .rd     ( pxl_cen   ),  // free-running: primes the read pipe before lhbl
     .rd_data( ln_pxl    )
 );
 
-jtc355 #(.H0(9'h040)) u_obj(
+jtc355 #(.H0(9'h041)) u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .ioctl_ram  ( ioctl_ram ),
