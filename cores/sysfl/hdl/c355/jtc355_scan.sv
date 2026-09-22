@@ -47,10 +47,10 @@ module jtc355_scan #( parameter [8:0] H0=9'd0 )(
     output reg [ 7:0] st_dout
 );
 
-// word offsets in the 128kB sprite RAM
-localparam [15:0] ATTR0=16'h0000, LIST0=16'h1000, CLIPT=16'h1200,
-                  FMTT =16'h2000, TILET=16'h4000,
-                  ATTR1=16'h8000, LIST1=16'hA000;
+// word offsets in the 128kB sprite RAM; placement tables read from the
+// vblank snapshot at +c800, tile indices from the live table
+localparam [15:0] ATTR0=16'hC800, LIST0=16'hD000, CLIPT=16'hD200,
+                  FMTT =16'hE000, TILET=16'h4000;
 
 localparam [4:0] IDLE=0, LIST=1, VATR=2, RAT0=3, DYZS=4, DYZW=5,
                  VSPN=6, ROWC=8, VSBD=9,
@@ -61,7 +61,7 @@ reg         [ 4:0] st;
 reg         [ 3:0] t;
 reg         [ 8:0] entry;
 reg         [ 7:0] which;
-reg                stop, page;
+reg                stop;
 reg         [10:0] link;
 reg         [15:0] offset, tidx, rowbase;
 reg  signed [12:0] hpos, vpos, xcur, ycur,
@@ -94,8 +94,8 @@ reg         [17:0] div_num;
 reg         [ 4:0] div_cnt, div_n;
 
 wire signed [12:0] vlat_s = {4'd0, vlat};
-wire        [15:0] abase  = page ? ATTR1 : ATTR0;
-wire        [15:0] lbase  = page ? LIST1 : LIST0;
+wire        [15:0] abase  = ATTR0;
+wire        [15:0] lbase  = LIST0;
 wire signed [12:0] tsw_s  = {3'd0, tsw};
 wire signed [12:0] vsz_s  = {3'd0, vsize};
 // coarse-reject margin: 2x size covers the dx/dy pivot for pivots within the sprite
@@ -115,12 +115,25 @@ wire        [10:0] rem_b  = {rem_a1[9:0], div_shf[16]};
 wire               qbit_b = rem_b >= {1'b0, div_den};
 wire        [ 4:0] rleft  = rows - rcnt;
 wire        [ 4:0] cleft  = cols - ccnt;
-wire        [ 9:0] tsh_w  = shr / {5'd0, rleft};
+// division by 1-16 as a reciprocal multiply, exact for 10-bit numerators
+function automatic [18:0] recip(input [4:0] d);
+    case( d )
+        5'd1: recip=19'd262144; 5'd2: recip=19'd131072; 5'd3: recip=19'd87382;
+        5'd4: recip=19'd65536;  5'd5: recip=19'd52429;  5'd6: recip=19'd43691;
+        5'd7: recip=19'd37450;  5'd8: recip=19'd32768;  5'd9: recip=19'd29128;
+        5'd10: recip=19'd26215; 5'd11: recip=19'd23832; 5'd12: recip=19'd21846;
+        5'd13: recip=19'd20165; 5'd14: recip=19'd18725; 5'd15: recip=19'd17477;
+        default: recip=19'd16384;
+    endcase
+endfunction
+wire [28:0] tshm   = shr * recip(rleft);
+wire        [ 9:0] tsh_w  = tshm[27:18];
 wire signed [12:0] tsh_c  = {3'd0, tsh_w};
 wire signed [12:0] ycn_c  = vflip ? ycur - tsh_c : ycur;
 wire signed [12:0] idd_s  = vflip ? vpos - 13'sd1 - vlat_s : vlat_s - vpos;
 wire        [ 7:0] idd    = idd_s[7:0];
-wire        [ 9:0] colq   = swr / {5'd0, cleft};
+wire [28:0] colq0m = swr * recip(cleft);
+wire        [ 9:0] colq   = colq0m[27:18];
 wire               dy_id  = vsize == {1'b0, rows, 4'd0};
 wire               dx_id  = hsize == {1'b0, cols, 4'd0};
 wire signed [12:0] dyq    = dy_id ? {5'd0, dyf[7:0]} :
@@ -141,7 +154,8 @@ wire        [ 9:0] sr_c   = tsw==0 ? 10'd0 : 10'd16 % tsw;
 wire        [ 4:0] ccnt_n = ccnt + 5'd1;
 wire        [13:0] tadr_n = rowbase[13:0] + {9'd0, ccnt_n};
 wire        [ 9:0] swr_n  = swr - tsw;
-wire        [ 9:0] colq_n = swr_n / {5'd0, cols - ccnt_n};
+wire [28:0] colqm  = swr_n * recip(cols - ccnt_n);
+wire        [ 9:0] colq_n = colqm[27:18];
 wire signed [12:0] xc_n   = hflip ? xcur - $signed({3'd0,colq_n})
                                   : xcur + $signed({3'd0,tsw});
 wire               col_last = ccnt == cols-5'd1;
@@ -149,8 +163,8 @@ wire               col_last = ccnt == cols-5'd1;
 wire signed [12:0] sc_x1a = xcur + $signed({3'd0,tsw}) - 13'sd1;
 wire signed [12:0] sc_x0  = xcur > wx0 ? xcur : wx0;
 wire signed [12:0] sc_x1  = sc_x1a < wx1 ? sc_x1a : wx1;
-wire        [ 8:0] sc_a0  = (flip ? 9'd287 - sc_x0[8:0] : sc_x0[8:0]) + H0 + 9'd1;
-wire        [ 8:0] sc_a1  = (flip ? 9'd287 - sc_x1[8:0] : sc_x1[8:0]) + H0 + 9'd1;
+wire        [ 8:0] sc_a0  = (flip ? 9'd287 - sc_x0[8:0] : sc_x0[8:0]) + H0;
+wire        [ 8:0] sc_a1  = (flip ? 9'd287 - sc_x1[8:0] : sc_x1[8:0]) + H0;
 wire        [ 5:0] sc_gl  = flip ? sc_a1[8:3] : sc_a0[8:3];
 wire        [ 5:0] sc_gh  = flip ? sc_a0[8:3] : sc_a1[8:3];
 wire        [63:0] sc_rng = (64'h2 << sc_gh) - (64'h1 << sc_gl);
@@ -164,7 +178,6 @@ always @(posedge clk, posedge rst) begin
         t         <= 0;
         entry     <= 0;
         div_start <= 0;
-        page      <= 0;
         hitcnt    <= 0;
         st_dout   <= 0;
         vlat      <= 0;
@@ -439,7 +452,6 @@ always @(posedge clk, posedge rst) begin
             vlat    <= flip ? 9'd223 - {1'b0, ln_v} : {1'b0, ln_v};
             t       <= 0;
             desc_we <= 0;
-            page    <= debug_bus[7];
             st_dout <= {st != IDLE, hitcnt};
             hitcnt  <= 0;
             if( ln_v == 0 ) begin // frame start, rebuild the visibility cache

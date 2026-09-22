@@ -25,6 +25,8 @@ module jtsysfl_game(
 
 wire [15:1] tmap_addr;
 wire [16:1] rozmap_addr, objtab_addr;
+wire [15:0] objtab_din;
+wire [ 1:0] objtab_we;
 wire [12:0] rgb_addr;
 wire [ 8:0] hdump, vdump, vrender;
 wire [ 7:0] st_video, ioctl_video, ioctl_misc;
@@ -47,6 +49,8 @@ assign game_led   = 0;
 assign vram_addr  = tmap_addr;
 assign rozram_addr= rozmap_addr;
 assign oram_addr  = objtab_addr;
+assign oram_din   = objtab_din;
+assign oram_we    = objtab_we;
 assign rpal_addr  = rgb_addr;
 assign gpal_addr  = rgb_addr;
 assign bpal_addr  = rgb_addr;
@@ -247,6 +251,7 @@ jtsysfl_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .ioctl_ram  ( ioctl_ram     ),
 
     .lhbl       ( LHBL          ),
     .lvbl       ( LVBL          ),
@@ -277,6 +282,8 @@ jtsysfl_video u_video(
     .rozmap_addr( rozmap_addr   ),
     .rozmap_data( rozram_dout   ),
     .objtab_addr( objtab_addr   ),
+    .objtab_din ( objtab_din    ),
+    .objtab_we  ( objtab_we     ),
     .objtab_data( oram_dout     ),
     .rgb_addr   ( rgb_addr      ),
     .pal_addr   ( pal_waddr     ),

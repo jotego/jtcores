@@ -103,6 +103,9 @@ bram:
   - name: oram      # C355 sprite tables, 128kB
     addr_width: 17
     data_width: 16
+    rw: true        # vblank DMA snapshots the placement tables into page 1
+    din:  oram_din
+    we:   oram_we
     simfile: {}
     ioctl: { save: true, order: 2 }
     dual_port:

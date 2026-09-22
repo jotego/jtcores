@@ -23,6 +23,7 @@ module jtsysfl_video(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             ioctl_ram,
 
     output            lhbl, lvbl, hs, vs,
     output     [ 8:0] hdump, vdump, vrender,
@@ -51,6 +52,8 @@ module jtsysfl_video(
     input      [15:0] rozmap_data,
     // Sprite table RAM (BRAM)
     output     [16:1] objtab_addr,
+    output     [15:0] objtab_din,
+    output     [ 1:0] objtab_we,
     input      [15:0] objtab_data,
     // Palette RAMs (BRAM)
     output     [12:0] rgb_addr, pal_addr,
@@ -240,6 +243,7 @@ jtframe_obj_buffer #(
 jtc355 #(.H0(9'h040)) u_obj(
     .rst        ( rst       ),
     .clk        ( clk       ),
+    .ioctl_ram  ( ioctl_ram ),
     .flip       ( flip      ),
     .sprbank    ( sprbank   ),
 
@@ -251,6 +255,8 @@ jtc355 #(.H0(9'h040)) u_obj(
     .ln_done    ( c_done    ),
 
     .objtab_addr( objtab_addr),
+    .objtab_din ( objtab_din ),
+    .objtab_we  ( objtab_we  ),
     .objtab_data( objtab_data),
     .objrom_cs  ( objrom_cs ),
     .objrom_addr( objrom_addr),

@@ -29,6 +29,7 @@
 module jtc355 #( parameter [8:0] H0=9'd0 )(
     input             rst,
     input             clk,
+    input             ioctl_ram,  // dump machinery owns the table port
 
     input             flip,
     input      [ 1:0] sprbank,
@@ -41,8 +42,10 @@ module jtc355 #( parameter [8:0] H0=9'd0 )(
     output reg        ln_we,
     output reg        ln_done,
 
-    // sprite table RAM (read only)
+    // sprite table RAM; the DMA snapshots the placement tables at vblank
     output     [16:1] objtab_addr,
+    output     [15:0] objtab_din,
+    output     [ 1:0] objtab_we,
     input      [15:0] objtab_data,
 
     // OBJ ROM, 16x16x8bpp tiles
@@ -57,6 +60,63 @@ module jtc355 #( parameter [8:0] H0=9'd0 )(
 
 wire [92:0] desc_data;
 wire        desc_we, fwd_pass;
+// vblank DMA: attr/list/clip (0000-13ff) and format (2000-3fff) tables are
+// copied to +c800, so the scan reads a frame-coherent snapshot while the CPU
+// keeps writing the live tables
+localparam [15:0] OFS1 = 16'hc800, OFS2 = 16'hc000; // dst = src + segment offset
+reg  [13:0] dma_src;
+reg         dma_bsy, dma_phase, snapped, dma_pend;
+reg  [ 7:0] lnv_l;
+wire [16:1] scan_addr;
+wire        scan_hs;
+assign objtab_addr = dma_bsy ? (dma_phase ? {2'd0,dma_src} + (dma_src<14'h800 ? OFS1 : OFS2)
+                                          : {2'd0,dma_src})
+                             : scan_addr;
+assign objtab_din  = objtab_data;
+assign objtab_we   = {2{dma_bsy && dma_phase}};
+assign scan_hs     = ln_hs && !dma_bsy;
+
+`ifdef SYSFL_DMADBG
+integer dmacnt=0;
+always @(posedge clk) begin
+    if( dma_bsy && dma_phase && dma_src<14'h6 )
+        $display("DMA%0d w src=%x din=%x", dmacnt, dma_src, objtab_din);
+    if( dma_bsy && dma_phase && dma_src==14'h3fff ) dmacnt <= dmacnt+1;
+end
+`endif
+always @(posedge clk, posedge rst) begin
+    if( rst ) begin
+        dma_bsy   <= 0;
+        dma_phase <= 0;
+        dma_src   <= 0;
+        snapped   <= 0;
+        dma_pend  <= 0;
+    end else begin
+        if( ln_hs ) lnv_l <= ln_v;
+        if( ln_hs && ((ln_v==8'hff && lnv_l!=8'hff) || !snapped) ) dma_pend <= 1;
+        if( dma_bsy ) begin
+            if( ioctl_ram ) begin // dump hijacked the port, restart the copy
+                dma_bsy  <= 0;
+                dma_pend <= 1;
+            end else begin
+                dma_phase <= ~dma_phase;
+                if( dma_phase ) begin
+                    dma_src <= dma_src==14'h07ff ? 14'h1000 :
+                               dma_src==14'h12ff ? 14'h2000 : dma_src + 14'd1;
+                    if( dma_src==14'h3fff ) begin
+                        dma_bsy <= 0;
+                        snapped <= 1;
+                    end
+                end
+            end
+        end else if( dma_pend && !ioctl_ram ) begin
+            dma_pend  <= 0;
+            dma_bsy   <= 1;
+            dma_phase <= 0;
+            dma_src   <= 0;
+        end
+    end
+end
 // first-write-wins support: pixels already written and 8-pixel groups full
 reg  [511:0] wmask;
 reg  [ 63:0] gfull;
@@ -96,7 +156,7 @@ wire        [31:0] rowb_w = rowb[{cbuf, srcx_e[3:2]}];
 wire        [ 7:0] pen    = rowb_w[{srcx_e[1:0],3'd0}+:8];
 wire               xok    = xdr >= cur_wx0 && xdr <= cur_wx1;
 wire        [ 8:0] xw     = flip ? 9'd287 - xdr[8:0] : xdr[8:0];
-wire        [ 8:0] wa     = xw + H0 + 9'd1;
+wire        [ 8:0] wa     = xw + H0;
 wire        [10:0] acc_r  = acc + {1'b0, cur_sr};
 wire               acc_c  = acc_r >= {1'b0, cur_tsw};
 // clipped span endpoints of the queued column, in line buffer addresses
@@ -104,8 +164,8 @@ wire signed [12:0] q_x0  = $signed(fifo_rd[41:29]) < $signed(fifo_rd[63:51]) ?
                            $signed(fifo_rd[63:51]) : $signed(fifo_rd[41:29]);
 wire signed [12:0] q_x1a = $signed(fifo_rd[41:29]) + $signed({3'd0,fifo_rd[28:19]}) - 13'sd1;
 wire signed [12:0] q_x1  = q_x1a > $signed(fifo_rd[76:64]) ? $signed(fifo_rd[76:64]) : q_x1a;
-wire        [ 8:0] q_a0  = (flip ? 9'd287 - q_x0[8:0] : q_x0[8:0]) + H0 + 9'd1;
-wire        [ 8:0] q_a1  = (flip ? 9'd287 - q_x1[8:0] : q_x1[8:0]) + H0 + 9'd1;
+wire        [ 8:0] q_a0  = (flip ? 9'd287 - q_x0[8:0] : q_x0[8:0]) + H0;
+wire        [ 8:0] q_a1  = (flip ? 9'd287 - q_x1[8:0] : q_x1[8:0]) + H0;
 wire        [ 5:0] q_gl  = (flip ? q_a1[8:3] : q_a0[8:3]);
 wire        [ 5:0] q_gh  = (flip ? q_a0[8:3] : q_a1[8:3]);
 wire        [63:0] q_rng = (64'h2 << q_gh) - (64'h1 << q_gl);
@@ -221,17 +281,16 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-assign line_full = !fwd_pass && &gfull[43:9] &&
-                   &wmask[9'h47:9'h41] && wmask[9'h160] && wmask[9'h161];
+assign line_full = !fwd_pass && &gfull[43:8]; // window 0x40-0x15f is group aligned
 
 jtc355_scan #(.H0(H0)) u_scan(
     .rst        ( rst         ),
     .clk        ( clk         ),
     .flip       ( flip        ),
     .sprbank    ( sprbank     ),
-    .ln_hs      ( ln_hs       ),
+    .ln_hs      ( scan_hs     ),
     .ln_v       ( ln_v        ),
-    .objtab_addr( objtab_addr ),
+    .objtab_addr( scan_addr   ),
     .objtab_data( objtab_data ),
     .desc_data  ( desc_data   ),
     .desc_we    ( desc_we     ),
