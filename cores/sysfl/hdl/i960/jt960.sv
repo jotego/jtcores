@@ -99,8 +99,20 @@ wire           ic_tag = !sweeping && ict_q[ITW+4] && ict_q[ITW-1:0]==IP[31:ILW+4
 wire           ic_hit = ic_rdy && ic_tag && ict_q[ITW+IP[3:2]];
 wire [3:0]     ic_wv  = (ic_tag ? ict_q[ITW+:4] : 4'd0) | (4'd1<<IP[3:2]);
 
-// on a hit the next word is read ahead, so sequential code never waits
-wire [31:0]    ic_nx  = cen && st==FETCH && !bus_cs && ic_hit ? IP+32'd4 : IP;
+// mid-cen pipeline stage: sampled every clk, consumed at the next cen edge.
+// cpu_cen has a minimum two-clock spacing, so the sample settles one clock
+// early; s1_ok covers the icache turn-around clock where it would be stale
+reg  [31:0] s1_ir, s1_pip, s1_ipn, s1_a, s1_b, s1_c;
+reg  [ 7:0] s1_vec;
+reg  [ 4:0] s1_cls, s1_mreg;
+reg  [ 2:0] s1_mcnt, s1_mdop;
+reg  [ 1:0] s1_msz, s1_line;
+reg         s1_fuse, s1_irqt, s1_msig, s1_pair, s1_ok;
+
+// the FETCH-hit path is taken at this cen edge (stage sample is fresh)
+wire hit_go = st==FETCH && !bus_cs && !s1_irqt && ic_hit && s1_ok;
+// on a taken hit the next word is read ahead, so sequential code never waits
+wire [31:0]    ic_nx  = cen && hit_go ? IP+32'd4 : IP;
 
 // line valid lives in ict; ic_clr starts a background sweep (IAC 89/93, rst)
 // and completed bus writes invalidate their line one clock later
@@ -160,22 +172,22 @@ jt960_dec u_dec(
     .mdpair    ( dec_pair  )
 );
 
-// operand extraction
-wire [ 4:0] dstf = IRe[23:19];
-wire [31:0] t1   = IRe[11] ? {27'd0, IRe[ 4: 0]} : r[IRe[ 4: 0]];
-wire [31:0] t2   = IRe[12] ? {27'd0, IRe[18:14]} : r[IRe[18:14]];
-wire [31:0] t3   = r[dstf];
+// operand extraction, from the stage registers
+wire [ 4:0] dstf = s1_ir[23:19];
+wire [31:0] t1   = s1_ir[11] ? {27'd0, s1_ir[ 4: 0]} : s1_a;
+wire [31:0] t2   = s1_ir[12] ? {27'd0, s1_ir[18:14]} : s1_b;
+wire [31:0] t3   = s1_c;
 // COBR operands: src1 in the dst field, src2 always a register
-wire [31:0] c1   = IRe[13] ? {27'd0, IRe[23:19]} : r[IRe[23:19]];
-wire [31:0] c2   = r[IRe[18:14]];
-wire        cobr = dec_cls==OC_COBR;
+wire [31:0] c1   = s1_ir[13] ? {27'd0, s1_ir[23:19]} : s1_c;
+wire [31:0] c2   = s1_b;
+wire        cobr = s1_cls==OC_COBR;
 
 // ALU
 wire [31:0] alu_res, alu_ac;
 wire        alu_we, alu_bad;
 
 jt960_alu u_alu(
-    .ir     ( IRe            ),
+    .ir     ( s1_ir          ),
     .t1     ( cobr ? c1 : t1),
     .t2     ( cobr ? c2 : t2),
     .t3     ( t3            ),
@@ -187,25 +199,25 @@ jt960_alu u_alu(
 );
 
 // branch targets, disp includes bits 1:0 as in MAME, bcc/cmpXbcc mask the target
-wire [31:0] sx24  = {{8{IRe[23]}}, IRe[23:0]};
-wire [31:0] sx13  = {{19{IRe[12]}}, IRe[12:0]};
-wire [31:0] tgt24 = PIPe + sx24;
-wire [31:0] tgt13 = PIPe + sx13;
-wire [ 2:0] ccmsk = IRe[26:24];
+wire [31:0] sx24  = {{8{s1_ir[23]}}, s1_ir[23:0]};
+wire [31:0] sx13  = {{19{s1_ir[12]}}, s1_ir[12:0]};
+wire [31:0] tgt24 = s1_pip + sx24;
+wire [31:0] tgt13 = s1_pip + sx13;
+wire [ 2:0] ccmsk = s1_ir[26:24];
 wire        cctru = ccmsk==3'd0 ? AC[2:0]==3'd0 : |(AC[2:0]&ccmsk);
-wire        isbb  = IRe[31:24]==8'h30 || IRe[31:24]==8'h37;
+wire        isbb  = s1_ir[31:24]==8'h30 || s1_ir[31:24]==8'h37;
 wire        cbtak = isbb ? alu_ac[1] : |(alu_ac[2:0]&ccmsk);
 
 // effective address
-wire [31:0] rabase = r[IRe[18:14]];
-wire [31:0] rindex = r[IRe[4:0]] << IRe[9:7];
+wire [31:0] rabase = s1_b;
+wire [31:0] rindex = s1_a << s1_ir[9:7];
 reg  [31:0] ea;
 
 always @* begin
-    if( !IRe[12] ) begin // MEMA
-        ea = IRe[13] ? rabase + {20'd0, IRe[11:0]} : {20'd0, IRe[11:0]};
-    end else case( IRe[13:10] ) // MEMB
-        4'h5:    ea = PIPe + 32'd8 + xdisp;
+    if( !s1_ir[12] ) begin // MEMA
+        ea = s1_ir[13] ? rabase + {20'd0, s1_ir[11:0]} : {20'd0, s1_ir[11:0]};
+    end else case( s1_ir[13:10] ) // MEMB
+        4'h5:    ea = s1_pip + 32'd8 + xdisp;
         4'h7:    ea = rabase + rindex;
         4'hc:    ea = xdisp;
         4'hd:    ea = xdisp + rabase;
@@ -218,7 +230,7 @@ end
 // memory engine: one 32-bit word per 1-2 bus beats, unaligned supported
 // the first beat is issued in the dispatch cycle
 wire [ 7:0] lanes  = (msz==2'd0 ? 8'h01 : msz==2'd1 ? 8'h03 : 8'h0f) << mad[1:0];
-wire [ 7:0] lanes_d= (dec_msz==2'd0 ? 8'h01 : dec_msz==2'd1 ? 8'h03 : 8'h0f) << ea[1:0];
+wire [ 7:0] lanes_d= (s1_msz==2'd0 ? 8'h01 : s1_msz==2'd1 ? 8'h03 : 8'h0f) << ea[1:0];
 wire [63:0] wr64_d = {32'd0, t3} << {ea[1:0], 3'd0};
 wire        mcross = |lanes[7:4];
 wire [63:0] rd64   = {din, mlo}   >> {mad[1:0], 3'd0};
@@ -264,8 +276,10 @@ wire [63:0] wr64  = {32'd0, wdata} << {mad[1:0], 3'd0};
 // multiply/divide
 wire [31:0] md_r0, md_r1;
 wire        md_busy, md_done;
+// dispatch happening at this cen edge: plain EXE, or fused into a FETCH hit
+wire        exe_go   = st==EXE || (hit_go && s1_fuse);
 // ediv reads src2+1 through the wdata port in MD_RDH, one cen after dispatch
-wire        md_start = ((st==EXE || fuse) && dec_cls==OC_MD && dec_mdop!=MD_EDIV)
+wire        md_start = (exe_go && s1_cls==OC_MD && s1_mdop!=MD_EDIV)
                        || st==MD_RDH;
 
 jt960_muldiv u_md(
@@ -273,7 +287,7 @@ jt960_muldiv u_md(
     .clk    ( clk      ),
     .cen    ( cen      ),
     .start  ( md_start ),
-    .op     ( dec_mdop ),
+    .op     ( s1_mdop  ),
     .s1     ( t1       ),
     .s2     ( t2       ),
     .s2h    ( wdata    ),
@@ -326,6 +340,27 @@ always @* begin
 end
 
 assign fuse  = st==FETCH && !bus_cs && !irq_take && ic_hit && !dec_ndisp;
+
+always @(posedge clk) begin
+    s1_ir   <= IRe;
+    s1_pip  <= PIPe;
+    s1_ipn  <= IPn;
+    s1_a    <= r[IRe[ 4: 0]];
+    s1_b    <= r[IRe[18:14]];
+    s1_c    <= r[IRe[23:19]];
+    s1_cls  <= dec_cls;
+    s1_mreg <= dec_mreg;
+    s1_mcnt <= dec_mcnt;
+    s1_mdop <= dec_mdop;
+    s1_msz  <= dec_msz;
+    s1_msig <= dec_msig;
+    s1_pair <= dec_pair;
+    s1_fuse <= fuse;
+    s1_irqt <= irq_take;
+    s1_vec  <= sel_vec;
+    s1_line <= sel_line;
+    s1_ok   <= ic_nx[31:2]==ic_ra && !icw && !icinv;
+end
 assign fetch = st==FETCH || st==XWORD;
 
 // call helpers
@@ -338,11 +373,11 @@ wire        unused = &{md_busy, rd64[63:32], rd64a[63:32], 1'b0};
 task do_exe;
 begin
     st <= FETCH;
-    case( dec_cls )
+    case( s1_cls )
     OC_NOP:  ;
     OC_B:    IP <= tgt24;
     OC_BCC:  if( cctru ) IP <= tgt24 & 32'hffff_fffc;
-    OC_BAL:  begin r[30] <= IPn; IP <= tgt24; end
+    OC_BAL:  begin r[30] <= s1_ipn; IP <= tgt24; end
     OC_FAULT: if( cctru ) begin
             // faultno branches like bno in MAME; a taken faultcc halts
             if( ccmsk==3'd0 ) IP <= tgt24;
@@ -355,39 +390,39 @@ begin
     end
     OC_ALU: begin
         AC <= alu_ac;
-        if( alu_bad || (alu_we && IRe[13]) ) st <= HALT; // literal dst
+        if( alu_bad || (alu_we && s1_ir[13]) ) st <= HALT; // literal dst
         else if( alu_we ) r[dstf] <= alu_res;
     end
     OC_MODPC: begin
         PCS <= (PCS & ~t2) | (t3 & t2);
-        if( IRe[13] ) st <= HALT;
+        if( s1_ir[13] ) st <= HALT;
         else r[dstf] <= PCS;
     end
     OC_MOVM: begin // one register per cen, like the KA
-        r[dec_mreg] <= t1;
-        if( dec_mcnt > 3'd1 ) begin
-            mreg  <= IRe[4:0] + 5'd1;
+        r[s1_mreg] <= t1;
+        if( s1_mcnt > 3'd1 ) begin
+            mreg  <= s1_ir[4:0] + 5'd1;
             mvcnt <= 3'd1;
             st    <= MOVM;
         end
     end
-    OC_MD:  if( dec_mdop==MD_EDIV ) begin
-        mreg <= IRe[18:14]+5'd1;    // odd register via the wdata port
+    OC_MD:  if( s1_mdop==MD_EDIV ) begin
+        mreg <= s1_ir[18:14]+5'd1;  // odd register via the wdata port
         st   <= MD_RDH;
     end else st <= MDWAIT;  // started through md_start
     OC_LDA: r[dstf] <= ea;
     OC_BX:  IP <= ea;
-    OC_BALX: begin r[dstf] <= IPn; IP <= ea; end
+    OC_BALX: begin r[dstf] <= s1_ipn; IP <= ea; end
     OC_LD, OC_ST: begin
         mad     <= ea;
-        mreg    <= dec_mreg;
-        mcnt    <= {2'd0, dec_mcnt};
-        msz     <= dec_msz;
-        msig    <= dec_msig;
+        mreg    <= s1_mreg;
+        mcnt    <= {2'd0, s1_mcnt};
+        msz     <= s1_msz;
+        msig    <= s1_msig;
         wsrc_rc <= 0;
         seq     <= SEQ_MEM;
-        st      <= dec_cls==OC_LD ? MRD1 : MWR1;
-        if( dec_cls==OC_LD ) rd32(ea); else wr32(ea, wr64_d[31:0]);
+        st      <= s1_cls==OC_LD ? MRD1 : MWR1;
+        if( s1_cls==OC_LD ) rd32(ea); else wr32(ea, wr64_d[31:0]);
         dsn     <= ~lanes_d[3:0];
         whi     <= wr64_d[63:32];
     end
@@ -407,8 +442,8 @@ begin
         syn_dst  <= t1;
         syn_src  <= t2;
         cnt      <= 0;
-        iac_mode <= dec_cls==OC_SYNMOVQ && t1==32'hff00_0010;
-        st       <= dec_cls==OC_SYNMOV ? SYN_RD : SYNQ_RD;
+        iac_mode <= s1_cls==OC_SYNMOVQ && t1==32'hff00_0010;
+        st       <= s1_cls==OC_SYNMOV ? SYN_RD : SYNQ_RD;
     end
     OC_ATADD, OC_ATMOD: begin
         mad <= {t1[31:2], 2'd0};
@@ -498,17 +533,17 @@ always @(posedge clk) begin
             end
         // fetch: interrupts checked at instruction boundaries
         FETCH: if( !bus_cs ) begin
-                if( irq_take ) begin
-                    int_vec  <= sel_vec;
-                    int_line <= sel_line;
+                if( s1_irqt ) begin
+                    int_vec  <= s1_vec;
+                    int_line <= s1_line;
                     in_int   <= 1;
                     st       <= INT_TAB;
-                end else if( ic_hit ) begin
+                end else if( ic_hit && s1_ok ) begin
                     IR  <= icd_q;
                     PIP <= IP;
                     IP  <= IP + 32'd4;
-                    if( fuse ) do_exe; else st <= XWORD;
-                end else if( ic_rdy ) rd32(IP);   // real miss, else wait for the RAM
+                    if( s1_fuse ) do_exe; else st <= XWORD;
+                end else if( ic_rdy && !ic_hit ) rd32(IP); // real miss, else wait
             end else if( bus_ok ) begin
                 bus_cs   <= 0;
                 IR       <= din;
@@ -539,15 +574,15 @@ always @(posedge clk) begin
         // single dispatch cycle
         EXE: do_exe;
         MOVM: begin
-            r[dec_mreg + {2'd0, mvcnt}] <= IRe[11] ? {27'd0, IRe[4:0]} : wdata;
+            r[s1_mreg + {2'd0, mvcnt}] <= s1_ir[11] ? {27'd0, s1_ir[4:0]} : wdata;
             mreg  <= mreg + 5'd1;
             mvcnt <= mvcnt + 3'd1;
-            if( mvcnt == dec_mcnt-3'd1 ) st <= FETCH;
+            if( mvcnt == s1_mcnt-3'd1 ) st <= FETCH;
         end
         MD_RDH: st <= MDWAIT;
         MDWAIT: if( md_done ) begin
             r[dstf] <= md_r0;
-            if( dec_pair ) r[dstf+5'd1] <= md_r1;
+            if( s1_pair ) r[dstf+5'd1] <= md_r1;
             st <= FETCH;
         end
         // memory engine, low then optional high beat per word
@@ -748,7 +783,7 @@ always @(posedge clk) begin
         AT_RD: if( !bus_cs ) rd32(mad);
             else if( bus_ok ) begin bus_cs<=0; tmp<=din; st<=AT_WR; end
         AT_WR: if( !bus_cs )
-                wr32(mad, dec_cls==OC_ATADD ? tmp+t2 : (t3 & t2)|(tmp & ~t2));
+                wr32(mad, s1_cls==OC_ATADD ? tmp+t2 : (t3 & t2)|(tmp & ~t2));
             else if( bus_ok ) begin
                 bus_cs  <= 0;
                 r[dstf] <= tmp;

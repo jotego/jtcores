@@ -22,9 +22,17 @@ set fun_regs [get_registers {emu|u_game|u_game|u_main|fa* emu|u_game|u_game|u_ma
 set_multicycle_path -from $cpu_regs -to $fun_regs -setup -end 2
 set_multicycle_path -from $cpu_regs -to $fun_regs -hold  -end 1
 
-# Clock-rate sources inside the CPU: the icache sweep/invalidate counters and
-# the rcache read ports update every clk, so they get only one cycle to any
-# CPU register despite the blanket two-cycle budget above.
-set cpu_1clk [get_registers {emu|u_game|u_game|u_main|u_cpu|swa* emu|u_game|u_game|u_main|u_cpu|sweeping emu|u_game|u_game|u_main|u_cpu|icinv* emu|u_game|u_game|u_main|u_cpu|u_rcache|dout* emu|u_game|u_game|u_main|u_cpu|u_rcache|fa_dout*}]
+# Clock-rate sources inside the CPU: the icache output/sweep/invalidate
+# registers and the rcache read ports update every clk, so they get only one
+# cycle to any CPU register despite the blanket two-cycle budget above.
+set cpu_1clk [get_registers {emu|u_game|u_game|u_main|u_cpu|icd_q* emu|u_game|u_game|u_main|u_cpu|ict_q* emu|u_game|u_game|u_main|u_cpu|ic_ra* emu|u_game|u_game|u_main|u_cpu|swa* emu|u_game|u_game|u_main|u_cpu|sweeping emu|u_game|u_game|u_main|u_cpu|icinv* emu|u_game|u_game|u_main|u_cpu|u_rcache|dout* emu|u_game|u_game|u_main|u_cpu|u_rcache|fa_dout*}]
 set_multicycle_path -from $cpu_1clk -to $cpu_regs -setup -end 1
 set_multicycle_path -from $cpu_1clk -to $cpu_regs -hold  -end 0
+
+# The mid-cen pipeline stage samples every clk and is consumed at the next cen
+# edge, one clock later in the worst case: single-cycle both ways.
+set s1_regs [get_registers {emu|u_game|u_game|u_main|u_cpu|s1_*}]
+set_multicycle_path -from $cpu_regs -to $s1_regs -setup -end 1
+set_multicycle_path -from $cpu_regs -to $s1_regs -hold  -end 0
+set_multicycle_path -from $s1_regs -to $cpu_regs -setup -end 1
+set_multicycle_path -from $s1_regs -to $cpu_regs -hold  -end 0
