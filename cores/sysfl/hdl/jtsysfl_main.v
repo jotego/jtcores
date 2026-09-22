@@ -124,7 +124,9 @@ end
 assign wram32_cs   = ccs && is_w32;
 assign wram32_addr = a[20:2];
 reg sel_rom32, sel_w32;
-assign cok = sel_rom32 ? main_ok : sel_w32 ? wram32_ok : fok;
+reg  [31:0] md_r;
+reg         mok_r;
+assign cok = sel_rom32 ? mok_r : sel_w32 ? wram32_ok : fok;
 
 // the wram32 slot serves its last fetched words without reading the SDRAM
 // (jtframe_romrq_bcache keeps two): shadow its recent misses, flag the ones
@@ -363,7 +365,13 @@ always @(posedge clk) begin
     end
 end
 
-always @* cdin = sel_rom32 ? main_data : sel_w32 ? wram32_data : {f_hi, f_lo};
+always @* cdin = sel_rom32 ? md_r : sel_w32 ? wram32_data : {f_hi, f_lo};
+
+// the ROM cache data RAM output settles into a register before the CPU mux
+always @(posedge clk) begin
+    md_r  <= main_data;
+    mok_r <= main_cs && main_ok;
+end
 
 always @(posedge clk) begin
     if( rst ) begin
