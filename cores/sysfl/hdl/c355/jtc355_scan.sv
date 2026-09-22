@@ -74,14 +74,15 @@ reg         [ 8:0] dxf, dyf;
 reg         [ 3:0] vsub;
 reg         [ 8:0] vlat;
 reg         [ 6:0] hitcnt;
-// per-frame visibility cache, rebuilt while scanning the first line
-(* ramstyle = "MLAB, no_rw_check" *) reg viscache[0:255];
-// margined window per entry, not the exact span: the CPU rewrites the tables
-// mid frame, so the cache only excludes lines the sprite cannot reach
-(* ramstyle = "MLAB, no_rw_check" *) reg signed [12:0] span0[0:255], span1[0:255];
-// dy quotient per entry: a zoom ratio, stable within a frame, so the
-// per-line walk skips the serial division and uses the live vpos
-(* ramstyle = "MLAB, no_rw_check" *) reg [11:0] dyq_c[0:255];
+// per-frame scan cache, one packed M10K word per entry rebuilt on line 0:
+// {vis, span0, span1, dyq}. The margined window, not the exact span (the CPU
+// rewrites the tables mid frame); dyq is the frame-stable dy zoom quotient
+(* ramstyle = "M10K, no_rw_check" *) reg [38:0] scache[0:255];
+reg         [38:0] scq;
+reg         [ 7:0] cra;
+reg         [11:0] c_dyq;
+reg  signed [12:0] c_sp0, c_sp1;
+reg                c_vis, cwait;
 reg         [ 7:0] list_len;
 reg                bld, cache_ok;
 reg                vs_pend, dx_run; // divider results collected while RAT1 reads run
@@ -137,14 +138,14 @@ wire        [ 9:0] colq   = colq0m[27:18];
 wire               dy_id  = vsize == {1'b0, rows, 4'd0};
 wire               dx_id  = hsize == {1'b0, cols, 4'd0};
 wire signed [12:0] dyq    = dy_id ? {5'd0, dyf[7:0]} :
-                            bld   ? q13 : {1'b0, dyq_c[entry[7:0]]};
+                            bld   ? q13 : {1'b0, scq[11:0]};
 wire signed [12:0] dxq    = dx_id ? {5'd0, dxf[7:0]} : q13;
 wire               div_working = div_start | div_bsy;
 wire               visany = objtab_data[9:0] != 0 &&
                             vpos + vszm > 13'sd0 && vpos - vszm < 13'sd224;
-wire signed [12:0] sp0    = span0[entry[7:0]];
-wire signed [12:0] sp1    = span1[entry[7:0]];
-wire               online = viscache[entry[7:0]] && vlat_s >= sp0 && vlat_s < sp1;
+wire signed [12:0] sp0    = scq[37:25];
+wire signed [12:0] sp1    = scq[24:12];
+wire               online = scq[38] && vlat_s >= sp0 && vlat_s < sp1;
 wire signed [12:0] vtop   = vflip ? vpos - vsz_s : vpos;
 wire signed [12:0] vbot   = vflip ? vpos : vpos + vsz_s;
 wire        [ 9:0] sq_q   = tsw==0 ? 10'd0 : 10'd16 / tsw;
@@ -176,6 +177,11 @@ wire               sc_cov = !bld && &(cov_grp | ~sc_rng);
 wire               unused = &{debug_bus[6:1], div_rem, div_q[17:12], sq_q[9:5]};
 assign fwd_pass = bld;
 
+always @(posedge clk) begin
+    scq <= scache[cra];
+    if( bld && st==ENXT ) scache[entry[7:0]] <= {c_vis, c_sp0, c_sp1, c_dyq};
+end
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         st        <= IDLE;
@@ -199,12 +205,16 @@ always @(posedge clk, posedge rst) begin
             LIST: begin
                 if( line_full && !bld ) begin
                     st <= PEOL; t <= 0;
+                end else if( t==0 && cache_ok && cwait ) begin
+                    cwait <= 0; // cache read turn-around
                 end else if( t==0 && cache_ok && !online ) begin
-                    // cached as not crossing this line, skip in one cycle
+                    // cached as not crossing this line, skip the entry
                     if( entry[7:0]==8'd0 ) begin
                         st <= PEOL;
                     end else begin
                         entry <= entry - 9'd1;
+                        cra   <= entry[7:0] - 8'd1;
+                        cwait <= 1;
                     end
                 end else begin
                     t <= t + 4'd1;
@@ -228,9 +238,9 @@ always @(posedge clk, posedge rst) begin
                     2: begin
                         {vflip, vsize} <= {objtab_data[15], objtab_data[9:0]};
                         if( bld ) begin
-                            viscache[entry[7:0]] <= visany;
-                            span0[entry[7:0]] <= vpos - vszm;
-                            span1[entry[7:0]] <= vpos + vszm;
+                            c_vis <= visany;
+                            c_sp0 <= vpos - vszm;
+                            c_sp1 <= vpos + vszm;
                         end
                         st <= ( bld ? visany :
                               ( objtab_data[9:0] != 0 &&
@@ -273,7 +283,7 @@ always @(posedge clk, posedge rst) begin
             end
             DYZW: if( !div_working ) begin
                 vpos <= (vflip ^ dyf[8]) ? vpos + dyq : vpos - dyq;
-                dyq_c[entry[7:0]] <= div_q[11:0];
+                c_dyq <= div_q[11:0];
                 st   <= VSPN;
             end
             VSPN: begin // exact vertical span
@@ -432,6 +442,7 @@ always @(posedge clk, posedge rst) begin
                 t     <= 0;
                 if( bld ) begin // forward build pass, line 0
                     entry <= entry + 9'd1;
+                    cra   <= entry[7:0] + 8'd1;
                     if( stop || entry[7:0]==8'hff ) begin
                         st       <= PEOL;
                         bld      <= 0;
@@ -441,6 +452,8 @@ always @(posedge clk, posedge rst) begin
                     end
                 end else begin  // reverse pass, front to back
                     entry <= entry - 9'd1;
+                    cra   <= entry[7:0] - 8'd1;
+                    cwait <= 1;
                     st    <= entry[7:0]==8'd0 ? PEOL : LIST;
                 end
             end
@@ -464,9 +477,12 @@ always @(posedge clk, posedge rst) begin
                 cache_ok <= 0;
                 list_len <= 8'hff;
                 entry    <= 0;    // build pass walks forward
+                cra      <= 0;
             end else begin
                 // an unfinished build restarts forward; else front to back
                 entry    <= bld ? 9'd0 : {1'b0, list_len};
+                cra      <= bld ? 8'd0 : list_len;
+                cwait    <= 1;
             end
             st <= ln_v < 8'd224 ? LIST : IDLE;
         end
