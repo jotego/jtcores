@@ -200,7 +200,7 @@ jtsysfl_c75stub u_c75stub(
     .mcu_din    ( mcu_din       ),
     .mcu_we     ( mcu_we        )
 );
-assign c75bios_addr = 0; assign c75bios_cs = 0;
+assign c75bios_addr = 0;
 assign mcurom_addr  = 0;
 assign mcurom_cs    = 0;
 assign pcm_addr     = 0;
@@ -225,10 +225,8 @@ jtsysfl_c75 u_c75(
     .mcu_din    ( mcu_din       ),
     .mcu_we     ( mcu_we        ),
     .mcu_dout   ( mcu_dout      ),
-    .bios_cs    ( c75bios_cs    ),
     .bios_addr  ( c75bios_addr  ),
     .bios_data  ( c75bios_data  ),
-    .bios_ok    ( c75bios_ok    ),
     .mcurom_addr( mcurom_addr   ),
     .mcurom_cs  ( mcurom_cs     ),
     .mcurom_data( mcurom_data   ),
@@ -268,7 +266,7 @@ assign share_we   = 0;
 assign mcu_addr   = 0;
 assign mcu_din    = 0;
 assign mcu_we     = 0;
-assign c75bios_addr = 0; assign c75bios_cs = 0;
+assign c75bios_addr = 0;
 assign mcurom_addr  = 0;
 assign mcurom_cs    = 0;
 assign pcm_addr     = 0;

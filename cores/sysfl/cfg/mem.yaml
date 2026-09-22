@@ -8,7 +8,6 @@ params:
   - { name: RMASK_OFFSET, value: "22'h2d_0000" }  # byte 0x5a0000, bank 3
   - { name: WRAM_OFFSET,  value: "22'h20_0000" }  # byte 0x400000, bank 1
   - { name: C75DATA_OFFSET, value: "22'h28_0000" } # byte 0x500000, bank 2
-  - { name: C75BIOS_OFFSET, value: "22'h24_0000" } # byte 0x480000, bank 2
 clocks:
   clk:
     # i960KA-20, real clock. The C75 handshake needs the main loop to iterate
@@ -58,11 +57,6 @@ sdram:
           data_width: 16
           cache_size: 1kB
           offset: C75DATA_OFFSET
-        - name: c75bios  # C75 internal 16kB program ROM, now cached SDRAM
-          addr_width: 13
-          data_width: 16
-          cache_size: 1kB
-          offset: C75BIOS_OFFSET
     - buses:
         - name: wram    # rw buses must come first in the bank
           addr_width: 21
@@ -166,3 +160,7 @@ bram:
       din:  mcu_din
       dout: mcu_dout
       we:   mcu_we
+  - name: c75bios   # C75 internal 16kB mask ROM (c75.bin, namcoc75.zip device set)
+    addr_width: 14
+    data_width: 16
+    rom: { offset: "((`C75BIOS_START-`JTFRAME_BA2_START)>>1)|24'h800000" }

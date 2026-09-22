@@ -103,7 +103,7 @@ wire [ 7:0] cur_b;
 // internal ROM is self-timed: the BRAM output is valid one cen after a1
 // settles, so a1-addressed data can be consumed on the second BRUN cycle
 reg         romrdy;
-wire        sub_ok = sel_ext ? bus_ok : sel_rom ? (romrdy && rom_ok) : 1'b1;
+wire        sub_ok = sel_ext ? bus_ok : sel_rom ? romrdy : 1'b1;
 
 assign rom_addr = bst==BIDLE ? baddr[13:1] : a1[13:1]; // early address for 2-cen fetch
 assign addr     = {a1[23:1], bw16&&!two ? 1'b0 : a1[0]};
