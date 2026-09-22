@@ -35,7 +35,9 @@ module jtframe_romrq_lcache #(parameter
 localparam CACHE_AW      = $clog2(CACHE_SIZE);
 // sysfl: the sprite ROM slot (32-bit, 64-bit bursts) uses 16-byte lines so
 // one miss brings a whole 16x16x8bpp tile row in two chained bursts
-localparam LINE2X        = (DW==32 && BURSTLEN==64) ? 1 : 0;
+// the 4kB caches serve scattered minified sampling (roz): short single-burst
+// lines halve the miss round trip there; 16-byte lines stay for the 1kB slots
+localparam LINE2X        = (DW==32 && BURSTLEN==64 && CACHE_SIZE<4096) ? 1 : 0;
 localparam BURST_AW      = BURSTLEN == 128 ? 3 : BURSTLEN == 64 ? 2 : (BURSTLEN == 32 ? 1 : 0);
 localparam LINE_AW       = BURST_AW + LINE2X;
 localparam LINE_INDEX_AW = CACHE_AW-1-LINE_AW;
@@ -200,11 +202,13 @@ generate
         end else if( BURSTLEN == 32 ) begin : gen_burst32
             assign dout = read_addr[1] ? (read_addr[0] ? pre_dout[31:24] : pre_dout[23:16]) :
                                          (read_addr[0] ? pre_dout[15: 8] : pre_dout[ 7: 0]);
-        end else begin : gen_burst64
+        end else if( BURSTLEN == 64 ) begin : gen_burst64
             assign dout = read_addr[2] ? (read_addr[1] ? (read_addr[0] ? pre_dout[63:56] : pre_dout[55:48]) :
                                                         (read_addr[0] ? pre_dout[47:40] : pre_dout[39:32])) :
                                          (read_addr[1] ? (read_addr[0] ? pre_dout[31:24] : pre_dout[23:16]) :
                                                         (read_addr[0] ? pre_dout[15: 8] : pre_dout[ 7: 0]));
+        end else begin : gen_burst128
+            assign dout = pre_dout[ {read_addr[3:0],3'd0} +: 8 ];
         end
     end else if( DW == 16 ) begin : gen_word
         if( BURSTLEN == 16 ) begin : gen_burst16
@@ -300,7 +304,7 @@ end
 initial begin
     if( BURSTLEN != 16 && BURSTLEN != 32 && BURSTLEN != 64 && BURSTLEN != 128 )
         $error("%m BURSTLEN must be 16, 32, 64, or 128 bits");
-    if( BURSTLEN == 128 && DW != 32 )
+    if( BURSTLEN == 128 && DW == 16 )
         $error("%m BURSTLEN 128 requires DW 32");
     if( BURSTLEN < DW )
         $error("%m BURSTLEN must be at least the client data width");
