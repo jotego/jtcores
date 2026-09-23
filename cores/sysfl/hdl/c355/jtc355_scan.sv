@@ -94,6 +94,8 @@ reg         [ 9:0] div_den;
 reg         [17:0] div_num;
 reg         [ 4:0] div_cnt, div_n;
 
+(* multstyle = "dsp" *) wire [17:0] dyv_m = dyf[7:0]*vsize;
+(* multstyle = "dsp" *) wire [17:0] dxh_m = dxf[7:0]*hsize;
 wire signed [12:0] vlat_s = {4'd0, vlat};
 wire        [15:0] abase  = ATTR0;
 wire        [15:0] lbase  = LIST0;
@@ -127,13 +129,13 @@ function automatic [18:0] recip(input [4:0] d);
         default: recip=19'd16384;
     endcase
 endfunction
-wire [28:0] tshm   = shr * recip(rleft);
+(* multstyle = "dsp" *) wire [28:0] tshm   = shr * recip(rleft);
 wire        [ 9:0] tsh_w  = tshm[27:18];
 wire signed [12:0] tsh_c  = {3'd0, tsh_w};
 wire signed [12:0] ycn_c  = vflip ? ycur - tsh_c : ycur;
 wire signed [12:0] idd_s  = vflip ? vpos - 13'sd1 - vlat_s : vlat_s - vpos;
 wire        [ 7:0] idd    = idd_s[7:0];
-wire [28:0] colq0m = swr * recip(cleft);
+(* multstyle = "dsp" *) wire [28:0] colq0m = swr * recip(cleft);
 wire        [ 9:0] colq   = colq0m[27:18];
 wire               dy_id  = vsize == {1'b0, rows, 4'd0};
 wire               dx_id  = hsize == {1'b0, cols, 4'd0};
@@ -155,7 +157,7 @@ wire        [ 9:0] sr_c   = tsw==0 ? 10'd0 : 10'd16 % tsw;
 wire        [ 4:0] ccnt_n = ccnt + 5'd1;
 wire        [13:0] tadr_n = rowbase[13:0] + {9'd0, ccnt_n};
 wire        [ 9:0] swr_n  = swr - tsw;
-wire [28:0] colqm  = swr_n * recip(cols - ccnt_n);
+(* multstyle = "dsp" *) wire [28:0] colqm  = swr_n * recip(cols - ccnt_n);
 wire        [ 9:0] colq_n = colqm[27:18];
 wire signed [12:0] xc_n   = hflip ? xcur - $signed({3'd0,colq_n})
                                   : xcur + $signed({3'd0,tsw});
@@ -275,7 +277,7 @@ always @(posedge clk, posedge rst) begin
                 vpos <= (vflip ^ dyf[8]) ? vpos + dyq : vpos - dyq;
                 st   <= VSPN;
             end else begin // build pass derives the frame's quotient
-                div_num   <= dyf[7:0]*vsize + {10'd0, rows, 3'd0};
+                div_num   <= dyv_m + {10'd0, rows, 3'd0};
                 div_den   <= {1'b0, rows, 4'd0};
                 div_n     <= 5'd18;
                 div_start <= 1;
@@ -335,7 +337,7 @@ always @(posedge clk, posedge rst) begin
                     vs_pend <= 0;
                 end
                 if( t >= 4'd8 && !dx_run && !dx_id && !vs_pend && !div_working ) begin
-                    div_num   <= dxf[7:0]*hsize + {10'd0, cols, 3'd0};
+                    div_num   <= dxh_m + {10'd0, cols, 3'd0};
                     div_den   <= {1'b0, cols, 4'd0};
                     div_n     <= 5'd18;
                     div_start <= 1;
@@ -380,7 +382,7 @@ always @(posedge clk, posedge rst) begin
                     st   <= COLD;
                 end else begin
                     if( !dx_run ) begin
-                        div_num   <= dxf[7:0]*hsize + {10'd0, cols, 3'd0};
+                        div_num   <= dxh_m + {10'd0, cols, 3'd0};
                         div_den   <= {1'b0, cols, 4'd0};
                         div_n     <= 5'd18;
                         div_start <= 1;

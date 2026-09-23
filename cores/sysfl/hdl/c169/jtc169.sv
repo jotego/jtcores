@@ -92,6 +92,10 @@ reg  [ 7:0] ftex0, ftex1;
 reg         p_en, p_wrap, p_wrapy;
 reg  [ 2:0] p_color;
 reg  [ 3:0] p_prio;
+(* multstyle = "dsp" *) wire [23:0] lxt_m = p_incyx * {15'd0, lline};
+(* multstyle = "dsp" *) wire [23:0] lyt_m = p_incyy * {15'd0, lline};
+(* multstyle = "dsp" *) wire [23:0] pax_m = p_incxx*24'd36 + p_incyx*24'd3;
+(* multstyle = "dsp" *) wire [23:0] pay_m = p_incxy*24'd36 + p_incyy*24'd3;
 reg  [11:0] p_left, p_top, p_smask;
 reg  [12:0] p_size, p_x1, p_y1;
 reg  [23:0] p_incxx, p_incxy, p_incyx, p_incyy, p_ax, p_ay,
@@ -332,10 +336,10 @@ always @(posedge clk) begin
                 fsm <= CALCB;
             end
             CALCB: begin // (36,3) analog porch and line terms
-                p_ax <= (p_incxx<<5)+(p_incxx<<2)+(p_incyx<<1)+p_incyx;
-                p_ay <= (p_incxy<<5)+(p_incxy<<2)+(p_incyy<<1)+p_incyy;
-                lxt  <= p_incyx * lline;
-                lyt  <= p_incyy * lline;
+                p_ax <= pax_m;
+                p_ay <= pay_m;
+                lxt  <= lxt_m;
+                lyt  <= lyt_m;
                 p_x1 <= {1'b0,p_left} + p_size;
                 p_y1 <= {1'b0,p_top}  + p_size;
                 fsm  <= CALCC;
