@@ -37,7 +37,7 @@ module jtsysfl_ctrl(
 reg  [7:0] accel_d, brake_d, wheel_d;   // digital ramp
 reg  [7:0] accel_a, brake_a;
 wire [7:0] wheel_a = joyana_l[7:0] ^ 8'h80;
-wire       wl_act  = joyana_l[7:3]!=5'h00 && joyana_l[7:3]!=5'h1f;
+wire       wl_act  = joyana_l[7:4]!=4'h0 && joyana_l[7:4]!=4'hf; // +-16 deadzone
 
 always @* begin
     case( ctrl_type )
@@ -56,8 +56,8 @@ always @* begin
     endcase
 end
 
-assign accel = accel_a > 8'd8 ? accel_a : accel_d;
-assign brake = brake_a > 8'd8 ? brake_a : brake_d;
+assign accel = accel_a > 8'd16 ? accel_a : accel_d;
+assign brake = brake_a > 8'd16 ? brake_a : brake_d;
 assign wheel = wl_act ? wheel_a : wheel_d;
 
 wire frame, gas, stop, left, right, shift;

@@ -31,3 +31,7 @@ regions = [
 order = [ "maincpu", "data", "c169roz", "c355spr",
           "c123tmap", "c123tmap:mask", "c75", "c75data", "c352",
           "c169roz:mask" ]
+
+[buttons]
+# jtframe b1-b4 = joystick[7:4]; names follow the MAME PORT_NAMEs
+names=[ { names="Gas,Weapon 1,Weapon 2,Weapon 3 / Shifter" } ]
