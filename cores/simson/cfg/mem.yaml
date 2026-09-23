@@ -60,7 +60,7 @@ sdram:
           addr_width: 22
           data_width: 32
           # the cache fixes the sprite issue at stage 7. See #1623 and #841
-          cache_size: 1kB
+          cache_size: 4kB
 bram:
   - name: ram
     addr_width: 13
