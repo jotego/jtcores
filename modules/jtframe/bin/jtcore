@@ -253,6 +253,11 @@ if [ $SKIP_COMPILE = FALSE ]; then
         if [ -e $CORES/$PRJ/cfg/mem.yaml ]; then jtframe mem $PRJ --target=$TARGET $LOCAL_GEN $NODBG || exit $?; fi
         jtframe mmr $PRJ
         jtframe files syn $PRJ --target=$TARGET $LOCAL_GEN || exit $?
+        # Full source tree of the project, for framework-independent use
+        jtframe files plain $PRJ --target=$TARGET $LOCAL_GEN && \
+            $JTFRAME/devops/export_tree.sh files $corename.qsf \
+            $JTROOT/log/$TARGET/${corename}_sources.tar.gz || \
+            echo "WARNING: source tree export failed"
         # Compilation
         quartus_sh -v
         quartus_sh --flow compile $corename > "$LOG"
