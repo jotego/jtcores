@@ -38,6 +38,8 @@ JTFRAME_BA3_WEN
 
 # scene dumps: 6 BRAMs + video MMRs
 JTFRAME_IOCTL_RD=352372
+# the game asks for the test switch to initialize its backup memory
+JTFRAME_OSD_TEST
 
 [mister]
 # LAB budget is tight: no composite/S-Video encoder, RGB and HDMI unaffected
