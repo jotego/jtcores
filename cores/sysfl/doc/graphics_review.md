@@ -26,7 +26,7 @@ Three true 48 MHz single-cycle loops are the Fmax risks:
 Already per-line/per-sprite (not re-proposed): zoom reciprocal mults, ROZ DDA,
 viscache/span/dyq caches, opq skip table, DMA snapshot, coverage skip.
 
-## F1 — C355 `wmask`: 512-bit flat register with per-pixel dynamic index  (biggest ALM)
+## F1 — DONE (0f3c43da1) — C355 `wmask`: 512-bit flat register with per-pixel dynamic index  (biggest ALM)
 
 `jtc355.sv:121,250-256`. 512 FFs each with an individual load-enable, a
 **512:1 read mux**, an 8-bit dynamic part-select (8× 64:1 muxes), and a 576-FF
@@ -42,7 +42,7 @@ watch OBJDBG `maxl`). MLAB async read keeps the RMW single-cycle.
 **Benefit:** largest single ALM item, routing, Fmax. Cost ~2–3 MLABs.
 **Proof:** LNDUMP byte-diff → burst_07200 CRC; OBJDBG maxl/cut for sweep cost.
 
-## F4 — C355 drawer `q_cov` cone duplicates scan math; put gl/gh in the descriptor
+## F4 — DONE (9106ce553) — C355 drawer `q_cov` cone duplicates scan math; put gl/gh in the descriptor
 
 `jtc355.sv:163-175` + `jtc355_scan.sv:163-171`. The drawer recomputes
 clip/clamp/flip/group-span from raw FIFO bits (~6×13-bit signed add/compare +
@@ -59,7 +59,7 @@ Optionally register the pop decision one stage (FIFO has slack).
 at push, only gfull evolves and is still sampled at pop. **Proof:** LNDUMP
 diff → CRC. **Do F1+F4 together.**
 
-## F2 — C355 scan: three 256-deep MLAB arrays → one M10K
+## F2 — DONE (2800bc3ef) — C355 scan: three 256-deep MLAB arrays → one M10K
 
 `jtc355_scan.sv:78-84`. `span0`/`span1` (256×13), `dyq_c` (256×12), `viscache`
 (256×1) as MLABs need 8-bank depth stitching + output muxes ≈ 20–30 LABs
@@ -71,7 +71,7 @@ skip — fix by issuing the read for `entry±1` speculatively in `ENXT`/skip
 (+256 clk, well inside 3053). **Benefit:** ALM (second-biggest), +1 M10K.
 **Proof:** CRC; SOBJ scan-time; boot.
 
-## F5 — DSP migration (DSP 39% used)
+## F5 — DONE (6a6cc6d35, tags only; DSPs abundant so no operand-mux sharing) — DSP migration (DSP 39% used)
 
 Each a free-running combinational multiply (verify per-entity in the CI fit
 DSP section):
@@ -87,7 +87,7 @@ DSP section):
 **Benefit:** ALM (the 8×10s likely in logic today), Fmax on the ROWC loop.
 **Proof:** CI fit DSP count per entity; CRC.
 
-## F3 — C123 per-pixel 6-deep serial priority chain
+## F3 — DONE (dbdff7feb; registered 12-CE sort of unique {prio,idx} keys + flat encoder, diffs exact) — C123 per-pixel 6-deep serial priority chain
 
 `jtc123.sv:220-227`. The `for(j=5..0)` loop is a *sequential* dependency
 (`cprio` from j+1 feeds the compare at j): 6-stage compare+7-bit-mux cascade
@@ -100,7 +100,7 @@ levels. (Alt: a 64×7 LUT indexed by the opacity vector, rebuilt per line.) Keep
 none-opaque→win=0 so the fetch pattern is unchanged.
 **Benefit:** Fmax, some ALM. **Proof:** CRC; boot (attract mixes all 6+ROZ).
 
-## F6 — C169 FIFO no ramstyle; back-end cone unregistered
+## F6 — DONE (8376ddb55; skid + empty-queue push bypass, cycle-exact; naive skid without the bypass doubled road-scene ROZ cuts) — C169 FIFO no ramstyle; back-end cone unregistered
 
 `jtc169.sv:109-141`. `reg [48:0] fifo[0:3]` sync-write/async-read with **no
 attribute** → often 196 FFs + 49×4:1 mux instead of MLAB; then `h_msk/h_til/
@@ -111,7 +111,7 @@ skid reg (reloaded on pop) so comparators work on FFs. Folds with the existing
 `opq_cl` one-cycle-delayed compare. **Benefit:** ALM, Fmax (needed for 60 MHz).
 **Proof:** CRC + ROZDBG `cut=` must not increase on road scenes.
 
-## F8 — C116 mixer: not a giant priority mux, but unpipelined across 3 BRAMs
+## F8 — DONE (b56032972; rgb_addr/opq/h-v windows registered, diffs exact) — C116 mixer: not a giant priority mux, but unpipelined across 3 BRAMs
 
 `jtc116.sv:99-125`. The mixer is small (two 4-bit compares + a 13-bit 3:1 mux)
 — no giant mux. But line-buffer-dout → mixer → palette-BRAM address in **one

@@ -21,7 +21,7 @@ and cost the 60 fps the cache size was chosen to hold.
 
 ---
 
-## SAFETY FLAG: the committed read-return SDC exception (`e6584380b`) is unsafe
+## SAFETY FLAG — RESOLVED (d23424756 deleted the stanza): the committed read-return SDC exception (`e6584380b`) was unsafe
 
 `timing.sdc` grants `md_r`/`f_hi`/`f_lo` → `cpu_regs` a **setup -end 2**
 (2-clk) budget, but the real window is **one clk**: `md_r`/`mok_r` latch at
@@ -38,7 +38,7 @@ which fall inside the blanket `u_cpu|*` MC2. **This exception must be removed**
 
 ---
 
-## F1 — remove the `din → decode → ALU → IP` cone in RTL, delete the SDC hack  (RANK #1)
+## F1 — DONE (d23424756) — remove the `din → decode → ALU → IP` cone in RTL, delete the SDC hack  (RANK #1)
 
 **Hardware today.** `jt960.sv:142`: `dec_in = st==FETCH ? (ic_use ? icd_q :
 din) : IR`. `din` (= `cdin` = `md_r`/`{f_hi,f_lo}`/`wram32_data`) fans into
@@ -77,7 +77,7 @@ next failing path once `md_r` is quiet).
 mode fetch one extra word before `HALT`. No implemented instruction changes.
 Cycle-transparent. **Validate:** `ver/i960` tb + speed1_fast.cab boot.
 
-## F2 — real mid-cen pipeline register for decode + operand read  (RANK #2)
+## F2 — DONE (e9f46c2e1; +1.9% worst-case cen from the s1_ok branch wait; icd_q/ict_q/ic_ra now honest 1clk SDC sources) — real mid-cen pipeline register for decode + operand read  (RANK #2)
 
 Even after F1 the fused hit path (`icd_q → u_dec → fuse → IRe mux → 4× 32:1
 regfile mux → ea add / 64-bit funnel / branch adders → do_exe writeback → IP/
@@ -103,7 +103,7 @@ clk (2-clk budget there = 33 ns < today's 42 ns sweep). Cycle-transparent by
 the ≥2-clk spacing. 2–3 days; audit that no stage-2 net reads an unregistered
 stage-1 net. **Validate:** i960 tb → boot → burst_07200 CRC.
 
-## F3 — merge the `wdata` regfile read port into port A  (~150 ALMs, RANK #3)
+## F3 — DONE (9cfcdd2d9; eng_rd = the four wdata states only — CALLS_EN needs live t1; md_s1 holds ediv src1) — merge the `wdata` regfile read port into port A  (~150 ALMs, RANK #3)
 
 `r[0:31]` is flip-flops with four dynamic 32:1×32 read muxes (`t1`, `t2/c2`,
 `t3/c1`, and `wdata=r[mreg]`). Each ≈170–180 ALMs. The `mreg` port is live only
@@ -118,7 +118,7 @@ wire [31:0] wdata  = wsrc_rc ? rc_dout : pa_q;
 ```
 Audited: no `wdata` consumer coexists with a live `t1`. Provably transparent.
 
-## F4 — ALU funnel shifter into DSP  (~150–200 ALMs → idle DSP, RANK #4)
+## F4 — DONE (81162a09c) — ALU funnel shifter into DSP  (~150–200 ALMs → idle DSP, RANK #4)
 
 `jt960_alu.sv:53-57`: a 64-bit left funnel shifted by 6 bits ≈ 6 levels of 64
 2:1 muxes ≈ ~190 ALMs, plus a `32 - sh1` subtract in front. Shift-as-multiply,
