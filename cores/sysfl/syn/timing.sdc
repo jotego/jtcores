@@ -27,10 +27,13 @@ set cpu_1clk [get_registers {emu|u_game|u_game|u_main|u_cpu|icd_q* emu|u_game|u_
 set_multicycle_path -from $cpu_1clk -to $cpu_regs -setup -end 1
 set_multicycle_path -from $cpu_1clk -to $cpu_regs -hold  -end 0
 
-# The mid-cen pipeline stage samples every clk and is consumed at the next cen
-# edge, one clock later in the worst case: single-cycle both ways.
+# The mid-cen pipeline stage samples every clk, but its inputs only change on
+# cen edges (strict three-clock spacing): the sample one clock after a cen is
+# the only one that matters and it is held for two more clocks before the
+# consuming cen. The icache turn-around, the one unstable input, is gated by
+# s1_ok. Two cycles are therefore safe on both halves.
 set s1_regs [get_registers {emu|u_game|u_game|u_main|u_cpu|s1_*}]
-set_multicycle_path -from $cpu_regs -to $s1_regs -setup -end 1
-set_multicycle_path -from $cpu_regs -to $s1_regs -hold  -end 0
-set_multicycle_path -from $s1_regs -to $cpu_regs -setup -end 1
-set_multicycle_path -from $s1_regs -to $cpu_regs -hold  -end 0
+set_multicycle_path -from $cpu_regs -to $s1_regs -setup -end 2
+set_multicycle_path -from $cpu_regs -to $s1_regs -hold  -end 1
+set_multicycle_path -from $s1_regs -to $cpu_regs -setup -end 2
+set_multicycle_path -from $s1_regs -to $cpu_regs -hold  -end 1
