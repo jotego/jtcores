@@ -21,11 +21,12 @@ sdram:
         - name: main
           addr_width: 20
           data_width: 16
+          cache_size: 1kB
     - buses:
-        - name: snd        # 65C02 I/O sub-CPU program ROM (region "sub")
+        - name: snd
           addr_width: 18
           data_width: 8
-        - name: pcm        # X1-010 samples (region "x1snd")
+        - name: pcm
           addr_width: 20
           data_width: 8
           offset: PCM_OFFSET
