@@ -48,6 +48,8 @@ JTFRAME_BASE_MUL=10
 # DDIO SDRAM clock instead of the PLL phase shift (fixes the black screen);
 # hardware only, the sim SDRAM model must keep the normal capture phase
 JTFRAME_180SHIFT
+# 32MB ROM set: load through the DDR proxy
+JTFRAME_MR_DDRLOAD
 # LAB budget is tight: no composite/S-Video encoder, RGB and HDMI unaffected
 MISTER_DISABLE_YC
 
