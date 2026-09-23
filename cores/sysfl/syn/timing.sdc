@@ -1,11 +1,9 @@
-# The i960 advances on cpu_cen (20 MHz from clk48, 5/12 fractional enable,
-# minimum spacing 2 clock cycles), so CPU-internal register-to-register
-# paths have a two-cycle budget. Without this, the single-cycle fuse loop
-# (IP -> icache hit compare -> decoder -> operand muxes -> branch adder ->
-# IP) reports about -7.3 ns at the 48 MHz period.
+# The i960 advances on cpu_cen (20.16 MHz = clk/3, a strict three-cycle
+# spacing), so CPU-internal register-to-register paths have a three-cycle
+# budget at the 60.48 MHz base period.
 set cpu_regs [get_registers {emu|u_game|u_game|u_main|u_cpu|*}]
-set_multicycle_path -from $cpu_regs -to $cpu_regs -setup -end 2
-set_multicycle_path -from $cpu_regs -to $cpu_regs -hold  -end 1
+set_multicycle_path -from $cpu_regs -to $cpu_regs -setup -end 3
+set_multicycle_path -from $cpu_regs -to $cpu_regs -hold  -end 2
 
 # The instruction cache and register cache RAMs sample their address/data
 # ports every clock (no cen): restore single-cycle timing into them. These

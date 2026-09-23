@@ -362,7 +362,8 @@ always @(posedge clk) begin
         if( ln_v < 8'd224 ) begin
             lines <= lines + 1;
             if( lact ) cut <= cut + 1;          // previous line never finished
-            else if( donel > 3053 ) over <= over + 1;
+            else if( donel > 384*(`ifdef JTFRAME_BASE_MUL `JTFRAME_BASE_MUL `else 8 `endif)-19 )
+                over <= over + 1; // finished within the line, but barely
             lact <= 1;
             lcyc <= 0;
             donel<= 0;

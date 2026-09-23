@@ -10,19 +10,21 @@ params:
   - { name: C75DATA_OFFSET, value: "22'h28_0000" } # byte 0x500000, bank 2
 clocks:
   clk:
-    # i960KA-20, real clock. The C75 handshake needs the main loop to iterate
-    # several times per frame: check CPUSTAT idle time if this ever changes
-    - freq: 20 MHz
+    # i960KA at clk/3 = 20.16 MHz, a strict 3-clock cen spacing. The C75
+    # handshake needs the main loop to iterate several times per frame:
+    # check CPUSTAT idle time if this ever changes
+    - mul: 1
+      div: 3
       outputs:
         - cpu_cen
-    # PCB clocks are 48.384MHz divisions, the pixel clock is clk/8 here, so the
-    # same divisions keep audio and C75 timers locked to the video rate
-    - mul: 1
-      div: 3               # C75 XIN (timers, ADC)
+    # PCB clocks are 48.384MHz divisions; the base clock is 60.48 (x10 pixel),
+    # so the PCB ratios are scaled by 4/5 to stay locked to the video rate
+    - mul: 4
+      div: 15              # C75 XIN 16.128 MHz (timers, ADC)
       outputs:
         - xin_cen
-    - mul: 1
-      div: 2               # C352
+    - mul: 2
+      div: 5               # C352 24.192 MHz
       outputs:
         - c352_cen
 sdram:
