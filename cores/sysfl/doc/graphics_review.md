@@ -141,7 +141,7 @@ mod-0xc00 fold. **Benefit:** ALM, Fmax on the map-address cone. **Risk:** the
   10-bit-significant results; narrow to 10–11 bits.
 **Benefit:** ALM/reg (small, several sites). **Proof:** CRC + boot.
 
-## F10 — bandwidth map (state; no mass replication proposed)
+## F10 — MEASURED AND REJECTED (2026-09-23): rmask on bank 2 raised flr roz cuts (2->12 on burst_02400); the C123 scr stream makes bank 2 busier than bank 3's wram/pcm — bandwidth map (state; no mass replication proposed)
 
 C123: 1 tile-ROM byte/pixel (winning layer only), 1 mask + 1 BRAM word/tile/
 layer; per-pixel SDRAM hidden by `alt_cen` (2 clk/px) + 1 kB cache; scales to
