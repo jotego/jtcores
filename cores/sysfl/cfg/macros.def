@@ -13,9 +13,6 @@ JTFRAME_CORE_LCACHE
 
 # Video configuration
 JTFRAME_COLORW=8
-# line frame buffer for the C355 sprites (cleared to transparent pen 0xff)
-JTFRAME_LF_HW=9
-JTFRAME_LF_VW=8
 JTFRAME_PXLCLK=6
 JTFRAME_WIDTH=288
 JTFRAME_HEIGHT=224
@@ -52,6 +49,6 @@ MISTER_DISABLE_YC
 # 32MB ROM set: load through the DDR proxy
 JTFRAME_MR_DDRLOAD
 
-[mist|sidi]
+[mist|sidi|sidi128]
 # not enough resources
 JTFRAME_SKIP
