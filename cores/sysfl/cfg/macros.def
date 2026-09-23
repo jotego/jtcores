@@ -10,7 +10,6 @@ JTFRAME_HEADER=8
 JTFRAME_OSD_NOLOGO
 # core-local sprite ROM cache (see hdl/jtframe_romrq_lcache.v)
 JTFRAME_CORE_LCACHE
-JTFRAME_180SHIFT
 JTFRAME_NOHQ2X
 
 # Video configuration
@@ -46,6 +45,9 @@ JTFRAME_PLL=jtframe_pllb6048
 JTFRAME_BASE_MUL=10
 
 [mister]
+# DDIO SDRAM clock instead of the PLL phase shift (fixes the black screen);
+# hardware only, the sim SDRAM model must keep the normal capture phase
+JTFRAME_180SHIFT
 # LAB budget is tight: no composite/S-Video encoder, RGB and HDMI unaffected
 MISTER_DISABLE_YC
 
