@@ -60,20 +60,25 @@ module jtc355 #( parameter [8:0] H0=9'd0 )(
 
 wire [104:0] desc_data;
 wire        desc_we, fwd_pass;
-// vblank DMA: attr/list/clip (0000-13ff) and format (2000-3fff) tables are
-// copied to +c800, so the scan reads a frame-coherent snapshot while the CPU
-// keeps writing the live tables
-localparam [15:0] OFS1 = 16'hc800, OFS2 = 16'hc000; // dst = src + segment offset
+// vblank DMA: the attr/list/clip tables (0000-12ff) are copied into a private
+// BRAM, so the scan reads a frame-coherent snapshot while the CPU keeps
+// writing the live tables. The format/tile tables are static and read live;
+// the games own the whole oram address space, nothing may be parked there
+(* ramstyle = "M10K, no_rw_check" *) reg [15:0] snap[0:12'hAFF];
+reg  [15:0] snap_q;
+reg         snap_sel;
 reg  [13:0] dma_src;
+wire [11:0] snap_wa = dma_src<14'h800 ? dma_src[11:0] : {2'd2,dma_src[9:0]};
+reg  [ 1:0] sprbank_l;  // frame-coherent with the snapshot, like MAME's
+                        // render-at-vblank (flr toggles the bank per frame)
 reg         dma_bsy, dma_phase, snapped, dma_pend;
 reg  [ 7:0] lnv_l;
 wire [16:1] scan_addr;
 wire        scan_hs;
-assign objtab_addr = dma_bsy ? (dma_phase ? {2'd0,dma_src} + (dma_src<14'h800 ? OFS1 : OFS2)
-                                          : {2'd0,dma_src})
-                             : scan_addr;
-assign objtab_din  = objtab_data;
-assign objtab_we   = {2{dma_bsy && dma_phase}};
+assign objtab_addr = dma_bsy ? {2'd0,dma_src} : scan_addr;
+assign objtab_din  = 16'd0;
+assign objtab_we   = 2'd0;
+wire [15:0] scan_data = snap_sel ? snap_q : objtab_data;
 assign scan_hs     = ln_hs && !dma_bsy;
 
 `ifdef SYSFL_DMADBG
@@ -84,6 +89,12 @@ always @(posedge clk) begin
     if( dma_bsy && dma_phase && dma_src==14'h3fff ) dmacnt <= dmacnt+1;
 end
 `endif
+always @(posedge clk) begin
+    if( dma_bsy && dma_phase ) snap[snap_wa] <= objtab_data;
+    snap_q   <= snap[scan_addr[12:1]];
+    snap_sel <= scan_addr[16:13]==0;
+end
+
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
         dma_bsy   <= 0;
@@ -101,9 +112,8 @@ always @(posedge clk, posedge rst) begin
             end else begin
                 dma_phase <= ~dma_phase;
                 if( dma_phase ) begin
-                    dma_src <= dma_src==14'h07ff ? 14'h1000 :
-                               dma_src==14'h12ff ? 14'h2000 : dma_src + 14'd1;
-                    if( dma_src==14'h3fff ) begin
+                    dma_src <= dma_src==14'h07ff ? 14'h1000 : dma_src + 14'd1;
+                    if( dma_src==14'h12ff ) begin
                         dma_bsy <= 0;
                         snapped <= 1;
                     end
@@ -114,6 +124,7 @@ always @(posedge clk, posedge rst) begin
             dma_bsy   <= 1;
             dma_phase <= 0;
             dma_src   <= 0;
+            sprbank_l <= sprbank;
         end
     end
 end
@@ -298,11 +309,11 @@ jtc355_scan #(.H0(H0)) u_scan(
     .rst        ( rst         ),
     .clk        ( clk         ),
     .flip       ( flip        ),
-    .sprbank    ( sprbank     ),
+    .sprbank    ( sprbank_l   ),
     .ln_hs      ( scan_hs     ),
     .ln_v       ( ln_v        ),
     .objtab_addr( scan_addr   ),
-    .objtab_data( objtab_data ),
+    .objtab_data( scan_data   ),
     .desc_data  ( desc_data   ),
     .desc_we    ( desc_we     ),
     .desc_full  ( desc_full   ),

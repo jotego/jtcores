@@ -49,8 +49,10 @@ module jtc355_scan #( parameter [8:0] H0=9'd0 )(
 
 // word offsets in the 128kB sprite RAM; placement tables read from the
 // vblank snapshot at +c800, tile indices from the live table
-localparam [15:0] ATTR0=16'hC800, LIST0=16'hD000, CLIPT=16'hD200,
-                  FMTT =16'hE000, TILET=16'h4000;
+// attr/list/clip live in the snapshot BRAM (addresses under 1000); the
+// static format and tile tables are read live at their real oram addresses
+localparam [15:0] ATTR0=16'h0000, LIST0=16'h0800, CLIPT=16'h0A00,
+                  FMTT =16'h2000, TILET=16'h4000;
 
 localparam [4:0] IDLE=0, LIST=1, VATR=2, RAT0=3, DYZS=4, DYZW=5,
                  VSPN=6, ROWC=8, VSBD=9,
@@ -512,5 +514,38 @@ always @(posedge clk, posedge rst) begin
         end
     end
 end
+
+`ifdef SYSFL_SCANDBG
+// probes for the flr attract car bug, frames DBG0..DBG1 only:
+// DYQMIS = cached dy quotient differs from a live division of the current
+// table values (stale zoom -> wrong tile rows). SCNF = per-frame totals.
+localparam DBG0=1395, DBG1=1435;
+integer dbg_frame=0, exp_q, skipcnt=0, viscnt=0, dyqmis=0;
+always @(posedge clk) begin
+    if( ln_hs && ln_v==0 ) begin
+        if( dbg_frame>=DBG0 && dbg_frame<=DBG1 )
+            $display("SCNF f=%0d skips=%0d vis=%0d dyqmis=%0d",
+                     dbg_frame, skipcnt, viscnt, dyqmis);
+        dbg_frame = dbg_frame+1;
+        skipcnt = 0; viscnt = 0; dyqmis = 0;
+    end
+    if( dbg_frame>=DBG0 && dbg_frame<=DBG1 ) begin
+        if( st==LIST && t==0 && cache_ok && !cwait && !online && !line_full )
+            skipcnt = skipcnt+1;
+        if( st==VATR && t==2 && !bld &&
+            objtab_data[9:0]!=0 && vlat_s >= vpos-vszm && vlat_s < vpos+vszm )
+            viscnt = viscnt+1;
+        if( st==DYZS && !dy_id && !bld ) begin
+            exp_q = (dyf[7:0]*vsize + {rows,3'd0}) / {rows,4'd0};
+            if( exp_q[11:0] != scq[11:0] ) begin
+                dyqmis = dyqmis+1;
+                $display("DYQMIS f=%0d ln=%0d e=%0d w=%0d dyf=%0d vsz=%0d rows=%0d cache=%0d live=%0d",
+                    dbg_frame, ln_v, entry[7:0], which, dyf[7:0], vsize, rows,
+                    scq[11:0], exp_q[11:0]);
+            end
+        end
+    end
+end
+`endif
 
 endmodule
