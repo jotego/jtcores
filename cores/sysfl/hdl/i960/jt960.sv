@@ -69,7 +69,7 @@ localparam [1:0] SEQ_MEM=2'd0, SEQ_FILL=2'd1, SEQ_SPILL=2'd2, SEQ_FLUSH=2'd3;
 reg  [31:0] r[0:31];
 reg  [31:0] AC, PCS, SAT, PRCB, IP, PIP, ICR, IR, xdisp;
 reg  [31:0] tmp, tmp_pc, tmp_ac, int_tab, int_stk, ctgt, syn_src, syn_dst;
-reg  [31:0] mad, mlo, whi;
+reg  [31:0] mad, mlo, whi, md_s1;
 reg  [31:0] iac0, iac1, iac2, iac3;
 reg  [ 7:0] int_vec;
 reg  [ 5:0] st;
@@ -108,6 +108,11 @@ reg  [ 4:0] s1_cls, s1_mreg;
 reg  [ 2:0] s1_mcnt, s1_mdop;
 reg  [ 1:0] s1_msz, s1_line;
 reg         s1_fuse, s1_irqt, s1_msig, s1_pair, s1_ok;
+
+// register-file port A: the engine states that consume wdata own it, the
+// dispatch operands own it everywhere else (t1 is dead in those states)
+wire        eng_rd = st==MOVM || st==MWR1 || st==MWR2 || st==MD_RDH;
+wire [ 4:0] pa_a;
 
 // the FETCH-hit path is taken at this cen edge (stage sample is fresh)
 wire hit_go = st==FETCH && !bus_cs && !s1_irqt && ic_hit && s1_ok;
@@ -159,6 +164,7 @@ wire        fuse;
 wire [31:0] IRe    = fuse ? icd_q : IR;
 wire [31:0] PIPe   = fuse ? IP    : PIP;
 wire [31:0] IPn    = fuse ? IP+32'd4 : IP;
+assign pa_a = eng_rd ? mreg : IRe[4:0];
 
 jt960_dec u_dec(
     .ir        ( dec_in    ),
@@ -270,7 +276,7 @@ jt960_rcache u_rcache(
     .fa_dout( rc_fa     )
 );
 
-wire [31:0] wdata = wsrc_rc ? rc_dout : r[mreg];
+wire [31:0] wdata = wsrc_rc ? rc_dout : s1_a;
 wire [63:0] wr64  = {32'd0, wdata} << {mad[1:0], 3'd0};
 
 // multiply/divide
@@ -288,7 +294,7 @@ jt960_muldiv u_md(
     .cen    ( cen      ),
     .start  ( md_start ),
     .op     ( s1_mdop  ),
-    .s1     ( t1       ),
+    .s1     ( st==MD_RDH ? md_s1 : t1 ),
     .s2     ( t2       ),
     .s2h    ( wdata    ),
     .r0     ( md_r0    ),
@@ -345,7 +351,7 @@ always @(posedge clk) begin
     s1_ir   <= IRe;
     s1_pip  <= PIPe;
     s1_ipn  <= IPn;
-    s1_a    <= r[IRe[ 4: 0]];
+    s1_a    <= r[pa_a];
     s1_b    <= r[IRe[18:14]];
     s1_c    <= r[IRe[23:19]];
     s1_cls  <= dec_cls;
@@ -407,6 +413,7 @@ begin
         end
     end
     OC_MD:  if( s1_mdop==MD_EDIV ) begin
+        md_s1 <= t1;                // src1 held over the MD_RDH cen
         mreg <= s1_ir[18:14]+5'd1;  // odd register via the wdata port
         st   <= MD_RDH;
     end else st <= MDWAIT;  // started through md_start
