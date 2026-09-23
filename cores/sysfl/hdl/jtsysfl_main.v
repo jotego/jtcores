@@ -236,6 +236,8 @@ always @* begin
     T_WRAM, T_NVRAM, T_COM: rd16 = wram_data;
     T_SHARE: rd16 = share_dout;
     T_VRAM:  rd16 = cvram_dout;
+    // byte devices assemble the low byte a pass earlier; hdone must not wipe it
+    T_PAL:   rd16 = {bdat, half ? f_hi[7:0] : f_lo[7:0]};
     T_ROZR:  rd16 = crozram_dout;
     T_ORAM:  rd16 = coram_dout;
     T_SCFG:  rd16 = scfg_dout;
@@ -812,5 +814,7 @@ always @(posedge clk) begin
         end
     end
 end
+
+
 
 endmodule
