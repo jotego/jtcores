@@ -62,9 +62,7 @@ parameter SIMFILE="rest.bin", SEEK=96;
 
 localparam [8:0] HOFFSET = 9'h00a, VOFFSET = 9'h100;
 
-reg         mmr_cs, r_cs, g_cs, b_cs,
-            vwin, // in vertical   window
-            hwin; // in horizontal window
+reg         mmr_cs, r_cs, g_cs, b_cs;
 wire        blank, scr_g, roz_g, obj_g, scr_win,
             bg_opq, obj_win, sh_en, lyr_obj;
 wire [ 3:0] scr_eff, bg_prio;
@@ -104,8 +102,19 @@ assign bg_rgb  = scr_win ? {1'b1,scr_pxl} : 13'h1800+{1'b0,roz_pxl};
 assign obj_win = obj_g && obj_prio>=bg_prio;
 assign sh_en   = obj_win &&  obj_shd;
 assign lyr_obj = obj_win && !obj_shd;
-assign rgb_addr= lyr_obj ? {1'b0,obj_pxl} :
-                 {bg_rgb[12],bg_rgb[11]|sh_en,bg_rgb[10:0]};
+// one register stage cuts the linebuf -> mixer -> palette address cone;
+// 8 clk/pixel hides the latency long before the pxl_cen sample
+reg  [12:0] rgb_addr_r;
+reg         mix_opq, hwin_r, vwin_r;
+assign rgb_addr = rgb_addr_r;
+
+always @(posedge clk) begin
+    rgb_addr_r <= lyr_obj ? {1'b0,obj_pxl} :
+                  {bg_rgb[12],bg_rgb[11]|sh_en,bg_rgb[10:0]};
+    mix_opq    <= bg_opq | lyr_obj;
+    hwin_r     <= hadj>=left && hadj<right;
+    vwin_r     <= vadj>=top  && vadj<bottom;
+end
 
 // CPU access: A13/A14 pass through the C156 as pen bank
 assign pal_addr= {cpu_addr[14:13], cpu_addr[10:0]};
@@ -122,7 +131,7 @@ assign red   = blank ? 8'd0 : red_dout;
 assign green = blank ? 8'd0 : green_dout;
 assign blue  = blank ? 8'd0 : blue_dout;
 `endif
-assign blank = ~(lhbl & lvbl) | ~vwin | ~hwin | ~(bg_opq|lyr_obj);
+assign blank = ~(lhbl & lvbl) | ~vwin_r | ~hwin_r | ~mix_opq;
 
 always @(posedge clk, posedge rst) begin
     if( rst ) begin
@@ -136,10 +145,6 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
-always @* begin
-    vwin = vadj>=top  && vadj<bottom;
-    hwin = hadj>=left && hadj<right;
-end
 
 jtsysfl_c116_mmr #(.SIMFILE(SIMFILE),.SEEK(SEEK)) u_mmr(
     .rst        ( rst       ),
