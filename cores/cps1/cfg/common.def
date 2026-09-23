@@ -54,5 +54,9 @@ JTFRAME_180SHIFT
 JTFRAME_LOGO_NOHEX
 KABUKI_LATCH
 
+[mister|sidi128|pocket]
+# 192 KiB shared CPU/video RAM in the larger FPGAs
+CPS_VRAM
+
 [mist|sidi|sidi128]
 JTFRAME_NOSTA

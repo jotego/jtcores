@@ -191,10 +191,38 @@ reg  [20:1] main_addr_x; // main addr modified for object bank access
 reg         ocache_clr, obank_last;
 wire        dump_we;
 
+`ifdef CPS_VRAM
+wire [15:0] sdram_ram_data, vram_cpu_data;
+wire        sdram_ram_ok, sdram_hold_rst, vram_cpu_ok, vram_hold_rst;
+
+assign ram_vram_cs   = main_ram_cs | main_oram_cs;
+assign main_ram_data = main_vram_cs ? vram_cpu_data : sdram_ram_data;
+assign main_ram_ok   = main_vram_cs ? vram_cpu_ok   : sdram_ram_ok;
+assign hold_rst      = sdram_hold_rst | vram_hold_rst;
+
+jtcps1_vram u_vram(
+    .rst        ( rst           ),
+    .clk_cpu    ( clk_cpu       ),
+    .clk_gfx    ( clk_gfx       ),
+    .hold_rst   ( vram_hold_rst ),
+    .cpu_cs     ( main_vram_cs  ),
+    .cpu_rnw    ( main_rnw      ),
+    .cpu_addr   ( main_ram_addr ),
+    .cpu_din    ( main_dout     ),
+    .cpu_dsn    ( dsn           ),
+    .cpu_dout   ( vram_cpu_data ),
+    .cpu_ok     ( vram_cpu_ok   ),
+    .gfx_cs     ( vram_dma_cs   ),
+    .gfx_addr   ( vram_dma_addr ),
+    .gfx_dout   ( vram_dma_data ),
+    .gfx_ok     ( vram_dma_ok   )
+);
+`else
+assign ram_vram_cs = main_ram_cs | main_vram_cs | main_oram_cs;
+`endif
 
 assign gfx0_addr   = {rom0_addr, rom0_half, 1'b0 }; // OBJ
 assign gfx1_addr   = {rom1_addr, rom1_half, 1'b0 };
-assign ram_vram_cs = main_ram_cs | main_vram_cs | main_oram_cs;
 // VRAM_OFFSET is selected during reset
 assign main_offset = main_oram_cs ? ORAM_OFFSET :
                     (main_ram_cs  ? WRAM_OFFSET : VRAM_OFFSET );
@@ -286,10 +314,25 @@ jtframe_ram1_5slots #(
     .rst         ( rst           ),
     .clk         ( clk           ),
 
+`ifdef CPS_VRAM
+    .slot1_cs    ( 1'b0         ),
+    .slot0_ok    ( sdram_ram_ok  ),
+    .slot1_ok    (               ),
+    .hold_rst    ( sdram_hold_rst),
+    .slot0_dout  ( sdram_ram_data),
+    .slot1_dout  (               ),
+`else
+    .slot1_cs    ( vram_dma_cs   ),
+    .slot0_ok    ( main_ram_ok   ),
+    .slot1_ok    ( vram_dma_ok   ),
+    .hold_rst    ( hold_rst      ),
+    .slot0_dout  ( main_ram_data ),
+    .slot1_dout  ( vram_dma_data ),
+`endif
+
     .slot0_offset( main_offset   ),
     .slot0_cs    ( ram_vram_cs   ),
     .slot0_wen   ( !main_rnw     ),
-    .slot1_cs    ( vram_dma_cs   ),
     .slot1_clr   ( vram_clr      ),
     .slot2_cs    ( gfx_oram_cs   ),
     .slot2_clr   ( gfx_oram_clr  ),
@@ -298,15 +341,12 @@ jtframe_ram1_5slots #(
     .slot4_cs    ( snd_cs        ),
     .slot4_clr   ( 1'b0          ),
 
-    .slot0_ok    ( main_ram_ok   ),
-    .slot1_ok    ( vram_dma_ok   ),
     .slot2_ok    ( gfx_oram_ok   ),
     .slot3_ok    ( main_rom_ok   ),
     .slot4_ok    ( snd_ok        ),
 
     .slot0_din   ( main_dout     ),
     .slot0_wrmask( dsn           ),
-    .hold_rst    ( hold_rst      ),
 
     .slot0_addr  ( main_addr_x   ),
     .slot1_addr  ( vram_dma_addr ),
@@ -314,8 +354,6 @@ jtframe_ram1_5slots #(
     .slot3_addr  ( main_rom_addr ),
     .slot4_addr  ( snd_addr      ),
 
-    .slot0_dout  ( main_ram_data ),
-    .slot1_dout  ( vram_dma_data ),
     .slot2_dout  ( gfx_oram_data ),
     .slot3_dout  ( main_rom_data ),
     .slot4_dout  ( snd_data      ),
