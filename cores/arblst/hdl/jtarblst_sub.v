@@ -1,20 +1,6 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Andrea Bogazzi. andreabogazzi79@gmail.com
-    Version: 1.0
-    Date: 17-06-2026 */
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi <andreabogazzi79@gmail.com>
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 17-06-2026 */
 
 // metafox / arbalest I/O - protection sub-CPU (65C02 @ 2 MHz).
 // It reads the cabinet inputs and exchanges them with the main 68000 through
@@ -25,7 +11,7 @@
 //   0x1000 COINS r / bank+lockout w 0x1002 P1   0x1006 P2
 //   0x5000-0x57ff shared RAM        0x7000-0x7fff ROM
 //   0x8000-0xbfff banked ROM        0xc000-0xffff ROM
-module jtarbalest_sub(
+module jtarblst_sub(
     input               rst, clk,
     input               cen,          // 2 MHz enable
 
@@ -144,8 +130,10 @@ jt65c02 u_cpu(
     .cen    ( cen       ),
     .irq    ( irq       ),
     .nmi    ( nmi       ),
+    .opdec  ( 1'b0      ),
     .rd     (           ),
     .wr     ( cpu_wr    ),
+    .fetch  (           ),
     .addr   ( A         ),
     .din    ( cpu_din   ),
     .dout   ( cpu_dout  )
