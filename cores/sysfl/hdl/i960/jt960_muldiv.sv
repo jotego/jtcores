@@ -35,17 +35,15 @@ module jt960_muldiv(
 
 `include "i960/jt960.vh"
 
-reg  [63:0] p;     // mul accumulator / dividend & quotient
+reg  [63:0] p;     // mul product / dividend & quotient
 reg  [32:0] rem;
-reg  [31:0] v, s1l;
-reg  [33:0] v3;
+reg  [31:0] v, s1l, s2l;
 reg  [ 6:0] cntr;
 reg  [ 2:0] opl;
 reg         sgnq, sgnr, ismul, fin;
 
-wire [33:0] mulp = p[1:0]==2'd0 ? 34'd0 : p[1:0]==2'd1 ? {2'd0, v} :
-                   p[1:0]==2'd2 ? {1'b0, v, 1'b0} : v3;
-wire [33:0] muls = {2'b0, p[63:32]} + mulp;
+// the product comes from a DSP block; the iteration count keeps the KA cadence
+(* multstyle = "dsp" *) wire [63:0] prod = s1l * s2l;
 wire [32:0] shft = {rem[31:0], p[63]};
 wire [32:0] rsub = shft - {1'b0, v};
 wire        isgn = op==MD_DIVI || op==MD_REMI || op==MD_MODI;
@@ -59,7 +57,7 @@ always @(posedge clk) begin
     if( rst ) begin
         busy<=0; done<=0; r0<=0; r1<=0; fin<=0;
         p<=64'd0; v<=0; rem<=0; cntr<=0; opl<=0;
-        sgnq<=0; sgnr<=0; ismul<=0; s1l<=0; v3<=0;
+        sgnq<=0; sgnr<=0; ismul<=0; s1l<=0; s2l<=0;
     end else if( cen ) begin
         done <= 0;
         if( start ) begin
@@ -73,8 +71,7 @@ always @(posedge clk) begin
             ismul <= op==MD_MUL || op==MD_EMUL;
             case( op )
             MD_MUL, MD_EMUL: begin
-                p <= {32'd0, s2}; v <= s1;   busy <= 1;
-                v3 <= {2'd0, s1} + {1'b0, s1, 1'b0};
+                s2l <= s2;        v <= s1;   busy <= 1;
             end
             MD_EDIV: begin
                 p <= {s2h, s2};   v <= s1;   busy <= s1!=0;
@@ -106,7 +103,7 @@ always @(posedge clk) begin
                 default: r0 <= 0;
                 endcase
             end else if( ismul ) begin
-                p    <= {muls, p[31:2]};
+                if( cntr==7'd0 ) p <= prod;
                 cntr <= cntr + 7'd1;
                 if( cntr==7'd15 ) fin <= 1;
             end else begin
