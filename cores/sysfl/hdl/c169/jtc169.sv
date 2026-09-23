@@ -99,7 +99,7 @@ reg  [ 3:0] p_prio;
 reg  [11:0] p_left, p_top, p_smask;
 reg  [12:0] p_size, p_x1, p_y1;
 reg  [23:0] p_incxx, p_incxy, p_incyx, p_incyy, p_ax, p_ay,
-            sx24, sy24, lxt, lyt, cx, cy;
+            sx24, sy24, lxt, lyt, cx, cy, cyf;
 // single-entry caches: one mask byte, one 4-texel word
 reg  [18:0] c_maddr;
 reg  [20:2] c_taddr;
@@ -174,7 +174,7 @@ assign nline    = vdump + 9'd1 - V0;
 
 assign xw   = cx[23:12];
 assign yw   = cy[23:12];
-assign cyfw = cy - p_ay;                 // Y wrap in firmware space
+assign cyfw = cyf;                       // Y wrap in firmware space
 assign pyr  = cyfw[23:12];
 assign pym  = pyr>=12'hc00 ? pyr-12'hc00 : pyr;
 assign ysl  = pym + p_ay[23:12];
@@ -358,6 +358,7 @@ always @(posedge clk) begin
             CALCC: begin // scanline records already hold this line's start
                 cx  <= sx24 + p_ax + (scl ? 24'd0 : lxt);
                 cy  <= sy24 + p_ay + (scl ? 24'd0 : lyt);
+                cyf <= sy24 + (scl ? 24'd0 : lyt);
                 fsm <= RUN;
             end
             RUN: begin
@@ -373,8 +374,9 @@ always @(posedge clk) begin
                     s1_yp <= ypos;
                     xi    <= xi + 9'd1;
                     if( p_en ) begin
-                        cx <= cx + p_incxx;
-                        cy <= cy + p_incxy;
+                        cx  <= cx + p_incxx;
+                        cy  <= cy + p_incxy;
+                        cyf <= cyf + p_incxy;
                     end
                 end
                 if( s2_v ) begin // BRAM data belongs to the s2 token now
