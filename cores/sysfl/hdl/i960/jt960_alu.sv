@@ -52,8 +52,18 @@ wire f_ext = mj==8'h65 && sb==4'h1;
 wire f_bit = mj==8'h58;
 wire [31:0] fhi  = f_bit ? 32'd1 : f_sra ? {32{t2[31]}} : (f_shl||f_rot) ? t2 : 32'd0;
 wire [31:0] flo  = (f_sr||f_rot) ? t2 : f_ext ? t3 : 32'd0;
-wire [ 5:0] famt = (f_sr||f_ext) ? 6'd32 - {1'b0,sh1} : {1'b0,sh1};
-wire [63:0] fun  = {fhi,flo} << famt;
+// shift as a one-hot multiply; the bit-reversed one-hot is the 32-sh1
+// amount complement for right shifts, so the subtractor disappears
+wire [32:0] oh_l = 33'd1 << sh1;
+wire [32:0] oh_r;
+genvar gk;
+generate for( gk=0; gk<=32; gk=gk+1 ) begin : g_ohr
+    assign oh_r[gk] = oh_l[32-gk];
+end endgenerate
+wire [32:0] oh   = (f_sr||f_ext) ? oh_r : oh_l;
+(* multstyle = "dsp" *) wire [64:0] ph = fhi * oh;
+(* multstyle = "dsp" *) wire [64:0] pl = flo * oh;
+wire [63:0] fun  = { ph[31:0] | pl[63:32], pl[31:0] };
 wire [31:0] fsh  = fun[63:32];
 wire        fstk = |fun[31:0];
 // extract length mask, thermometer decode
