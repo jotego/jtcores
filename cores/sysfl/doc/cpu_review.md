@@ -135,7 +135,7 @@ wire [63:0] fun  = { ph[31:0] | pl[63:32], pl[31:0] };  // == {fhi,flo} << famt
 `fsh=fun[63:32]`, `fstk=|fun[31:0]`, `f_bit`, `extract` unchanged. ~4–6 DSP +
 ~35 ALUTs. Transparent; verify shift ops in the i960 tb.
 
-## F5 — fold four 64-bit byte rotators into two  (~60–100 ALMs)
+## F5 — DONE (728492ac1) — fold four 64-bit byte rotators into two  (~60–100 ALMs)
 
 `wr64_d`, `wr64`, `rd64`, `rd64a` are state-disjoint:
 ```systemverilog
@@ -145,21 +145,21 @@ wire [63:0] rd64s = (st==MRD2 ? {din, mlo} : {32'd0, din}) >> {mad[1:0], 3'd0};
 ```
 Transparent.
 
-## F6 — muldiv multiplier → DSP, keep the `done` cadence  (~100 ALMs)
+## F6 — DONE (4d5f82619) — muldiv multiplier → DSP, keep the `done` cadence  (~100 ALMs)
 
 Replace the radix-4 shift-add mul datapath with `(* multstyle="dsp" *) wire
 [63:0] prod = s1l * s2l;` (latch `s2` at start, register `prod` once — 16 cens
 of slack), keep `cntr==15 → fin → done` so mul still takes 18 cen (README
 timing preserved bit-for-bit). Divider untouched. ~3 DSPs. Transparent.
 
-## F7 — scanbit/spanbit as binary-search encoders
+## F7 — DONE (eff65a69b) — scanbit/spanbit as binary-search encoders
 
 `jt960_alu.sv:160-172`: `for(i=0;i<32;i++) if(t1[i]) res=i;` synthesizes a
 32-deep priority chain inside the ALU output cone. Replace with a 5-level
 `msb32` binary-search encoder; `scanbit: res = |t1 ? msb32(t1) : -1`, `spanbit`
 on `~t1`. Transparent (MAME semantics = highest set bit).
 
-## F8 — one shared address adder for cold FSM states  (~100–150 ALMs)
+## F8 — SKIPPED (2026-09-23): cold-state ALMs not worth the ~25-call-site typo risk at 83% utilization — one shared address adder for cold FSM states  (~100–150 ALMs)
 
 `rd32/wr32` are called with ~12 distinct constant-offset addresses, each its
 own 30-bit carry chain into a wide `addr` D-mux (≈250 ALMs). Restructure as

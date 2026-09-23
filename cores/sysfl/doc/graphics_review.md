@@ -122,7 +122,7 @@ Insert one register on `rgb_addr`/`lyr_obj`/`bg_opq` (align `blank`); compute
 60 MHz enabler more than an ALM saver). **Proof:** CRC (any misalignment shifts
 the whole image).
 
-## F7 — C169 per-pixel Y-wrap recomputes from scratch
+## F7 — DONE (6cd4b388b) — C169 per-pixel Y-wrap recomputes from scratch
 
 `jtc169.sv:169-172`. `cyfw = cy - p_ay` is a free-running 24-bit subtractor per
 pixel, then a 12-bit mod-0xc00 fold — a "start+offset" recomputation where an
@@ -132,7 +132,7 @@ lyt`, step `cyf += p_incxy`); the 24-bit subtractor disappears; keep the
 mod-0xc00 fold. **Benefit:** ALM, Fmax on the map-address cone. **Risk:** the
 3072-px Y-ring wrap (Speed Racer road) — exactly what burst_07200 exercises.
 
-## F9 — width diet
+## F9 — SKIPPED (2026-09-23): small win against re-plumbing the descriptor fields F1/F4 just stabilized — width diet
 
 - `wx0/wx1` pushed post-clamp to [0,287] but carried 2×13-bit signed and
   compared 13-bit per pixel — carry 9-bit unsigned; `xdr/xcur` fit 11-bit
