@@ -16,7 +16,6 @@ wire        flip, cpu_rnw, sub_rst,
             shram_cs;
 
 reg game_id = 1'b0;
-reg [15:0] thoffs;
 
 always @(posedge clk) if( prog_we && header ) case( prog_addr[3:0] )
     4'd0: game_id <= prog_data[0];
@@ -26,10 +25,6 @@ endcase
 assign debug_view = st_video;
 assign dip_flip   = ~flip;
 assign mute       = 0;
-
-always @(posedge clk) begin
-    thoffs <= game_id ? 16'h1f : 16'h0d;
-end
 
 /* verilator tracing_on */
 jtarblst_main u_main(
@@ -127,8 +122,6 @@ jtcal50_video #(
     .OBJ_XOFF( 9'h1ff  )
 ) u_video(
     .rst        ( rst           ),
-    // MAME x1_012 set_xoffsets noflip: metafox 16 -> 0x00, arbalest -2 -> 0x12
-    .thoffs     ( thoffs        ),
     .clk        ( clk           ),
     .clk_cpu    ( clk           ),
     .cen244     (               ),
