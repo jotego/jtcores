@@ -201,6 +201,36 @@ always @(posedge clk, posedge rst) begin
     end
 end
 
+// priority-sorted layer order, registered off the pixel path. sn keys are
+// {cfg_prio, index}, unique, so the 12-CE network needs no stability:
+// ord[0] ends up as the highest {prio, index} and ties go to the higher layer
+reg  [5:0] sn[0:5], snt;
+reg  [2:0] ord[0:5];
+integer k2;
+`define JTC123_CE(a,b) if( sn[a] < sn[b] ) begin snt=sn[a]; sn[a]=sn[b]; sn[b]=snt; end
+always @(posedge clk) begin
+    for( k2=0; k2<6; k2=k2+1 ) sn[k2] = {cfg_prio[5-k2], 3'd5-k2[2:0]};
+    `JTC123_CE(0,1) `JTC123_CE(2,3) `JTC123_CE(4,5)
+    `JTC123_CE(0,2) `JTC123_CE(3,5) `JTC123_CE(1,4)
+    `JTC123_CE(0,1) `JTC123_CE(2,3) `JTC123_CE(4,5)
+    `JTC123_CE(1,2) `JTC123_CE(3,4)
+    `JTC123_CE(2,3)
+    for( k2=0; k2<6; k2=k2+1 ) ord[k2] <= sn[k2][2:0];
+end
+`undef JTC123_CE
+
+// per-pixel winner: opacity bits reordered by priority, flat encoder
+wire [5:0] op6;
+genvar gp;
+generate for( gp=0; gp<6; gp=gp+1 ) begin : g_op6
+    assign op6[gp] = mask[gp][7] & ~cfg_enb_eff[gp];
+end endgenerate
+wire [5:0] opb = { op6[ord[5]], op6[ord[4]], op6[ord[3]],
+                   op6[ord[2]], op6[ord[1]], op6[ord[0]] };
+wire [2:0] enc  = opb[0] ? 3'd0 : opb[1] ? 3'd1 : opb[2] ? 3'd2 :
+                  opb[3] ? 3'd3 : opb[4] ? 3'd4 : 3'd5;
+wire [2:0] wsel = ord[enc];
+
 always @* begin
     case( plyr[1:0] )
         0: begin hoff = hoff0; pcnt = hcnt0; end
@@ -218,12 +248,9 @@ always @* begin
     if( dflip ) vpos = ~vpos;
 
     // Determines the active layer
-    win    = 5;
-    cprio  = 0;
-    opaque = 0;
-    for( j=5; j>=0; j=j-1 )
-        if( !opaque || (cfg_prio[j]>cprio && mask[j][7] && !cfg_enb_eff[j]))
-            { opaque, win, cprio } = { mask[j][7] & ~cfg_enb_eff[j], j[2:0], cfg_prio[j] };
+    opaque = |opb;
+    win    = opaque ? wsel : 3'd0;
+    cprio  = cfg_prio[win];
 end
 
 always @* begin // next layer to prefetch - keep in its own always block
