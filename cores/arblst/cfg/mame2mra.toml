@@ -3,8 +3,6 @@ author=["jotego"]
 
 [parse]
 sourcefile=[ "downtown.cpp" ]
-# This core ships the metafox-class members of downtown.cpp (sub = I/O CPU,
-# X1-010 on the main 68000 bus). calibr50 is the cal50 core; the others differ.
 skip.Machines=[
     "tndrcade","tndrcadej",
     "twineagl","twineagl1",
