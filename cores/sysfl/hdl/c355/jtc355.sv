@@ -90,6 +90,11 @@ always @(posedge clk) begin
 end
 `endif
 always @(posedge clk) begin
+    if( clr_bsy || wm_pixwr )
+        wmaskg[clr_bsy ? clr_cnt[5:0] : wa[8:3]] <= clr_bsy ? 8'd0 : wm_new;
+end
+
+always @(posedge clk) begin
     if( dma_bsy && dma_phase ) snap[snap_wa] <= objtab_data;
     snap_q   <= snap[scan_addr[12:1]];
     snap_sel <= scan_addr[16:13]==0;
@@ -173,6 +178,10 @@ wire               xok    = xdr >= cur_wx0 && xdr <= cur_wx1;
 wire        [ 8:0] xw     = flip ? 9'd287 - xdr[8:0] : xdr[8:0];
 wire        [ 8:0] wa     = xw + H0;
 wire        [ 7:0] wm_word = wmaskg[wa[8:3]];
+// single write port, or the MLAB does not infer: the clear sweep and the
+// pixel writes never overlap (pro waits for clr_bsy, ln_hs drops cur_vld)
+wire               wm_pixwr = cur_vld && xok && pen != 8'hff &&
+                              (fwd_pass || !wm_word[wa[2:0]]);
 wire        [ 7:0] wm_new  = wm_word | (8'h1 << wa[2:0]);
 wire        [10:0] acc_r  = acc + {1'b0, cur_sr};
 wire               acc_c  = acc_r >= {1'b0, cur_tsw};
@@ -207,8 +216,7 @@ always @(posedge clk, posedge rst) begin
         clr_cnt   <= 0;
     end else begin
         // line-start clear sweep of the mask MLAB (gfull cleared in one cycle)
-        if( clr_bsy ) begin
-            wmaskg[clr_cnt[5:0]] <= 8'd0;
+        if( clr_bsy ) begin // the mask MLAB is swept by its own write port
             clr_cnt <= clr_cnt + 7'd1;
             if( clr_cnt[6] || clr_cnt==7'd63 ) clr_bsy <= 0;
         end
@@ -269,11 +277,10 @@ always @(posedge clk, posedge rst) begin
             if( xdr > cur_wx1 ) begin
                 cur_vld <= 0; // rest of the tile falls right of the window
             end else begin
-                if( xok && pen != 8'hff && (fwd_pass || !wm_word[wa[2:0]]) ) begin
+                if( wm_pixwr ) begin
                     ln_we   <= 1;
                     ln_addr <= wa;
                     ln_data <= {cur_pal, pen};
-                    wmaskg[wa[8:3]] <= wm_new;
                     if( &wm_new ) gfull[wa[8:3]] <= 1'b1;
                 end
                 xdr    <= xdr + 13'sd1;
