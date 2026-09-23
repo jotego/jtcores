@@ -403,11 +403,14 @@ func read_seed_stats(builddir string) (seed_stats, error) {
 }
 
 func parse_seed_sta(text string) (float64, bool) {
-	match := seed_sta_re.FindStringSubmatch(text)
-	if match == nil {
-		return 0, false
+	worst, valid := 0.0, false
+	for _, match := range seed_sta_re.FindAllStringSubmatch(text, -1) {
+		value, ok := parse_slack_value(match[1])
+		if ok && (!valid || value < worst) {
+			worst, valid = value, true
+		}
 	}
-	return parse_slack_value(match[1])
+	return worst, valid
 }
 
 func find_seed_report(builddir, extension string) (string, error) {
@@ -723,9 +726,10 @@ func worst_setup_slack(output string) string {
 		if e != nil {
 			return e
 		}
-		match := seed_sta_re.FindStringSubmatch(string(data))
-		if match != nil {
-			slack = match[1]
+		value, ok := parse_seed_sta(string(data))
+		previous, valid := parse_slack_value(slack)
+		if ok && (!valid || value < previous) {
+			slack = fmt.Sprintf("%.3f", value)
 		}
 		return nil
 	}
