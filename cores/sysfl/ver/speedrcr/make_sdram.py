@@ -9,16 +9,21 @@
 #
 # --fastboot patches the POST delay/RAM-test lengths in the prog copy so RTL
 # boot sims reach the main loop in a few frames instead of >600. SIM ONLY.
-import py7zr, io, sys, os, tempfile, zipfile
+import py7zr, zipfile, io, sys, os, tempfile, zipfile
 
-rompath  = os.path.expanduser("~/develop/mame/roms/speedrcr.7z")
+rompath  = next(p for p in (os.path.expanduser("~/develop/mame/roms/speedrcr"+e)
+                for e in (".7z",".zip")) if os.path.exists(p))
 c75path  = os.path.expanduser("~/develop/mame/roms/namcoc75.zip")
 fastboot = "--fastboot" in sys.argv
 args     = [a for a in sys.argv[1:] if not a.startswith("--")]
 outdir   = args[0] if args else "."
 tmpd = tempfile.mkdtemp()
-with py7zr.SevenZipFile(rompath) as z:
-    z.extractall(tmpd)
+if rompath.endswith(".7z"):
+    with py7zr.SevenZipFile(rompath) as z:
+        z.extractall(tmpd)
+else:
+    with zipfile.ZipFile(rompath) as z:
+        z.extractall(tmpd)
 files = {}
 for root,_,names in os.walk(tmpd):
     for n in names:
