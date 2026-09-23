@@ -87,8 +87,10 @@ localparam ILW = $clog2(ICACHE_BLK*16),     // line index bits
            ITW = 28-ILW;                    // tag bits
 reg  [31:0]    icd[0:ICACHE_BLK*64-1];
 reg  [ITW+4:0] ict[0:ICACHE_BLK*16-1];  // {valid, word valid, tag}
-reg  [31:0]    icd_q, icw_d;
-reg  [ITW+4:0] ict_q, itw_d;
+(* preserve *) reg [31:0]    icd_q;  // fabric regs: the 1-clk SDC set
+(* preserve *) reg [ITW+4:0] ict_q;  // must match them by name
+reg  [31:0]    icw_d;
+reg  [ITW+4:0] itw_d;
 reg  [31:2]    ic_ra, icw_a;
 reg            icw, icinv, sweeping, ic_clr;
 reg  [ILW-1:0] icinv_a, swa;
