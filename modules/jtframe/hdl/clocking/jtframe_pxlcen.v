@@ -11,7 +11,10 @@ module jtframe_pxlcen(
 
     localparam PXLCLK = `JTFRAME_PXLCLK,
                CLK    = `ifdef JTFRAME_SDRAM96 96 `else 48 `endif,
-               M      = (PXLCLK==12 ? 2 : PXLCLK==8 ? 3 : 4) << (CLK==96 ? 1:0);
+               // base clock = JTFRAME_BASE_MUL x pixel clock (8 by default)
+               M      = `ifdef JTFRAME_BASE_MUL (`JTFRAME_BASE_MUL/2)
+                        `else (PXLCLK==12 ? 2 : PXLCLK==8 ? 3 : 4) `endif
+                        << (CLK==96 ? 1:0);
 
     initial begin
         if( PXLCLK!=8 && PXLCLK!=6 ) begin
