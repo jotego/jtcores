@@ -152,9 +152,32 @@ wire signed [12:0] sp1    = scq[24:12];
 wire               online = scq[38] && vlat_s >= sp0 && vlat_s < sp1;
 wire signed [12:0] vtop   = vflip ? vpos - vsz_s : vpos;
 wire signed [12:0] vbot   = vflip ? vpos : vpos + vsz_s;
-wire        [ 9:0] sq_q   = tsw==0 ? 10'd0 : 10'd16 / tsw;
-wire        [ 4:0] sq_c   = sq_q[4:0];
-wire        [ 9:0] sr_c   = tsw==0 ? 10'd0 : 10'd16 % tsw;
+// 16/tsw and 16%tsw as a lookup: a real divider is 15 logic levels deep
+reg         [ 4:0] sq_c;
+reg         [ 9:0] sr_c;
+always @* begin
+    if( tsw[9:5]!=0 || tsw[4:0]>5'd16 ) begin
+        {sq_c, sr_c} = {5'd0, 10'd16};      // tsw > 16
+    end else case( tsw[4:0] )
+        5'd0:    {sq_c, sr_c} = {5'd0,  10'd0};
+        5'd1:    {sq_c, sr_c} = {5'd16, 10'd0};
+        5'd2:    {sq_c, sr_c} = {5'd8,  10'd0};
+        5'd3:    {sq_c, sr_c} = {5'd5,  10'd1};
+        5'd4:    {sq_c, sr_c} = {5'd4,  10'd0};
+        5'd5:    {sq_c, sr_c} = {5'd3,  10'd1};
+        5'd6:    {sq_c, sr_c} = {5'd2,  10'd4};
+        5'd7:    {sq_c, sr_c} = {5'd2,  10'd2};
+        5'd8:    {sq_c, sr_c} = {5'd2,  10'd0};
+        5'd9:    {sq_c, sr_c} = {5'd1,  10'd7};
+        5'd10:   {sq_c, sr_c} = {5'd1,  10'd6};
+        5'd11:   {sq_c, sr_c} = {5'd1,  10'd5};
+        5'd12:   {sq_c, sr_c} = {5'd1,  10'd4};
+        5'd13:   {sq_c, sr_c} = {5'd1,  10'd3};
+        5'd14:   {sq_c, sr_c} = {5'd1,  10'd2};
+        5'd15:   {sq_c, sr_c} = {5'd1,  10'd1};
+        default: {sq_c, sr_c} = {5'd1,  10'd0};  // 16
+    endcase
+end
 // next-column recurrence for the pipelined loop
 wire        [ 4:0] ccnt_n = ccnt + 5'd1;
 wire        [13:0] tadr_n = rowbase[13:0] + {9'd0, ccnt_n};
@@ -178,7 +201,7 @@ generate for( si=0; si<64; si=si+1 ) begin : srng_gen
     assign sc_rng[si] = si >= sc_gl && si <= sc_gh;
 end endgenerate
 wire               sc_cov = !bld && &(cov_grp | ~sc_rng);
-wire               unused = &{debug_bus[6:1], div_rem, div_q[17:12], sq_q[9:5]};
+wire               unused = &{debug_bus[6:1], div_rem, div_q[17:12]};
 assign fwd_pass = bld;
 
 always @(posedge clk) begin
