@@ -237,10 +237,9 @@ end
 // the first beat is issued in the dispatch cycle
 wire [ 7:0] lanes  = (msz==2'd0 ? 8'h01 : msz==2'd1 ? 8'h03 : 8'h0f) << mad[1:0];
 wire [ 7:0] lanes_d= (s1_msz==2'd0 ? 8'h01 : s1_msz==2'd1 ? 8'h03 : 8'h0f) << ea[1:0];
-wire [63:0] wr64_d = {32'd0, t3} << {ea[1:0], 3'd0};
 wire        mcross = |lanes[7:4];
-wire [63:0] rd64   = {din, mlo}   >> {mad[1:0], 3'd0};
-wire [63:0] rd64a  = {32'd0, din} >> {mad[1:0], 3'd0};
+// one shared rotator per direction: dispatch and engine are state-disjoint
+wire [63:0] rd64s  = (st==MRD2 ? {din, mlo} : {32'd0, din}) >> {mad[1:0], 3'd0};
 
 function [31:0] mext(input [31:0] w);
     case( msz )
@@ -277,7 +276,6 @@ jt960_rcache u_rcache(
 );
 
 wire [31:0] wdata = wsrc_rc ? rc_dout : s1_a;
-wire [63:0] wr64  = {32'd0, wdata} << {mad[1:0], 3'd0};
 
 // multiply/divide
 wire [31:0] md_r0, md_r1;
@@ -287,6 +285,8 @@ wire        exe_go   = st==EXE || (hit_go && s1_fuse);
 // ediv reads src2+1 through the wdata port in MD_RDH, one cen after dispatch
 wire        md_start = (exe_go && s1_cls==OC_MD && s1_mdop!=MD_EDIV)
                        || st==MD_RDH;
+wire [63:0] wr64     = {32'd0, exe_go ? t3 : wdata} <<
+                       {(exe_go ? ea[1:0] : mad[1:0]), 3'd0};
 
 jt960_muldiv u_md(
     .rst    ( rst      ),
@@ -373,7 +373,7 @@ assign fetch = st==FETCH || st==XWORD;
 wire [31:0] newsp  = ctype==3'd7 ? int_stk : r[1];
 wire [31:0] newfp  = (newsp + 32'd63) & 32'hffff_ffc0;
 wire [ 2:0] flush_lim = rpos>=16'sd4 ? 3'd4 : rpos<=16'sd0 ? 3'd0 : {1'b0,rpos[1:0]};
-wire        unused = &{md_busy, rd64[63:32], rd64a[63:32], 1'b0};
+wire        unused = &{md_busy, rd64s[63:32], 1'b0};
 
 // instruction dispatch, from EXE or fused into an icache-hit FETCH
 task do_exe;
@@ -429,9 +429,9 @@ begin
         wsrc_rc <= 0;
         seq     <= SEQ_MEM;
         st      <= s1_cls==OC_LD ? MRD1 : MWR1;
-        if( s1_cls==OC_LD ) rd32(ea); else wr32(ea, wr64_d[31:0]);
+        if( s1_cls==OC_LD ) rd32(ea); else wr32(ea, wr64[31:0]);
         dsn     <= ~lanes_d[3:0];
-        whi     <= wr64_d[63:32];
+        whi     <= wr64[63:32];
     end
     OC_CALL:  begin ctgt <= tgt24; ctype <= 3'd0; st <= CALL_RIP; end
     OC_CALLX: begin ctgt <= ea;    ctype <= 3'd0; st <= CALL_RIP; end
@@ -600,14 +600,14 @@ always @(posedge clk) begin
                     mlo <= din;
                     st  <= MRD2;
                 end else begin
-                    r[mreg] <= mext(rd64a[31:0]);
+                    r[mreg] <= mext(rd64s[31:0]);
                     mnext(MRD1);
                 end
             end
         MRD2: if( !bus_cs ) begin rd32(mad+32'd4); dsn <= ~lanes[7:4]; end
             else if( bus_ok ) begin
                 bus_cs  <= 0;
-                r[mreg] <= mext(rd64[31:0]);
+                r[mreg] <= mext(rd64s[31:0]);
                 mnext(MRD1);
             end
         MWR1: if( !bus_cs ) begin
