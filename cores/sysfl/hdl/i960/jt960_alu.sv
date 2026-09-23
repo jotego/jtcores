@@ -77,11 +77,25 @@ function [2:0] cmpu(input [31:0] a, input [31:0] b);
     cmpu = a<b ? 3'b100 : a==b ? 3'b010 : 3'b001;
 endfunction
 
+function [4:0] msb32(input [31:0] a); // highest set bit, binary search
+    reg [15:0] h16; reg [7:0] h8; reg [3:0] h4; reg [1:0] h2;
+    begin
+        msb32[4] = |a[31:16];
+        h16      = msb32[4] ? a[31:16] : a[15:0];
+        msb32[3] = |h16[15:8];
+        h8       = msb32[3] ? h16[15:8] : h16[7:0];
+        msb32[2] = |h8[7:4];
+        h4       = msb32[2] ? h8[7:4] : h8[3:0];
+        msb32[1] = |h4[3:2];
+        h2       = msb32[1] ? h4[3:2] : h4[1:0];
+        msb32[0] = h2[1];
+    end
+endfunction
+
 function [2:0] cmps(input [31:0] a, input [31:0] b);
     cmps = $signed(a)<$signed(b) ? 3'b100 : a==b ? 3'b010 : 3'b001;
 endfunction
 
-integer   i;
 reg [2:0] cc;
 
 always @* begin
@@ -171,13 +185,13 @@ always @* begin
         case( sb )
         4'h0: begin // spanbit
             res = 32'hffff_ffff;
-            for( i=0; i<32; i=i+1 ) if( !t1[i] ) begin res=i; cc=3'b010; end
+            if( ~&t1 ) begin res = {27'd0, msb32(~t1)}; cc = 3'b010; end
             ac_nx  = {ac[31:3], cc};
             res_we = 1;
         end
         4'h1: begin // scanbit
             res = 32'hffff_ffff;
-            for( i=0; i<32; i=i+1 ) if(  t1[i] ) begin res=i; cc=3'b010; end
+            if( |t1 ) begin res = {27'd0, msb32(t1)}; cc = 3'b010; end
             ac_nx  = {ac[31:3], cc};
             res_we = 1;
         end
