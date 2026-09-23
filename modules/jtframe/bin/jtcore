@@ -237,6 +237,9 @@ if [ $SKIP_COMPILE = FALSE ]; then
     rm -rf db incremental_db output_files
     mkdir -p $JTROOT/log/$TARGET
     LOG="$JTROOT/log/$TARGET/$corename.log"
+    if [ -n "$LOCAL_GEN" ]; then
+        LOG="$JTROOT/log/$TARGET/$corename-$SEED.log"
+    fi
     echo Log file: $LOG
     copy_templates
     echo -e "\nset_global_assignment -name seed $SEED" >> $corename.qsf
@@ -304,7 +307,7 @@ if [ $SKIP_COMPILE = FALSE ]; then
             # the CI log artifact alone. Runs only when slack is negative, so it
             # adds no time to cores that already close. Lands next to $LOG, which
             # the compile workflow uploads on failure.
-            TIMING_RPT="$JTROOT/log/$TARGET/$corename.timing.rpt"
+            TIMING_RPT="${LOG%.log}.timing.rpt"
             if quartus_sta -t $JTFRAME/bin/jtreport_timing.tcl $corename > "$TIMING_RPT" 2>&1; then
                 echo "Detailed timing report written to $TIMING_RPT"
             else
