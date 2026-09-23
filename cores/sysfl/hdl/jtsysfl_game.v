@@ -512,47 +512,4 @@ always @(posedge clk) begin
 end
 `endif
 
-`ifdef SYSFL_ORAMDBG
-// per-frame aggregate of CPU sprite-table writes: region counts, raster line
-// span and address range, to see when and where the game builds its list
-integer od_f=0, od_a=0, od_fm=0, od_o=0, od_l0=-1, od_l1=-1;
-reg [16:1] od_min=~17'd0>>1, od_max=0;
-reg od_lvbl=1;
-integer od_h[0:15], od_k;
-initial for(od_k=0;od_k<16;od_k=od_k+1) od_h[od_k]=0;
-always @(posedge clk) begin
-    od_lvbl <= LVBL;
-    if( od_lvbl && !LVBL ) begin // vblank start = frame boundary
-        if( od_f>=1395 && od_f<=1440 ) begin
-            $display("ORAMW f=%0d A=%0d(l%0d..%0d) F=%0d O=%0d amin=%x amax=%x",
-                     od_f, od_a, od_l0, od_l1, od_fm, od_o, {od_min,1'b0}, {od_max,1'b0});
-            $write("ORAMH f=%0d", od_f);
-            for(od_k=0;od_k<16;od_k=od_k+1) begin
-                $write(" %0d:%0d", od_k, od_h[od_k]);
-                od_h[od_k]=0;
-            end
-            $write("\n");
-        end
-        od_f=od_f+1; od_a=0; od_fm=0; od_o=0; od_l0=-1; od_l1=-1;
-        od_min=~17'd0>>1; od_max=0;
-    end
-    if( coram_we!=0 ) begin
-        if( coram_addr < 16'h1400 ) begin
-            od_a = od_a+1;
-            if( od_l0<0 ) od_l0 = {23'd0,vdump};
-            od_l1 = {23'd0,vdump};
-        end else if( coram_addr >= 16'h2000 && coram_addr < 16'h4000 )
-            od_fm = od_fm+1;
-        else begin
-            od_o = od_o+1;
-            if( od_f>=1400 && od_f<=1410 && coram_addr >= 16'h4000 )
-                $display("ORAMO f=%0d ln=%0d a=%x d=%x", od_f, vdump, {coram_addr,1'b0}, coram_din);
-        end
-        od_h[coram_addr[16:13]] = od_h[coram_addr[16:13]] + 1;
-        if( coram_addr < od_min ) od_min = coram_addr;
-        if( coram_addr > od_max ) od_max = coram_addr;
-    end
-end
-`endif
-
 endmodule
