@@ -23,7 +23,7 @@ set_multicycle_path -from $cpu_regs -to $fun_regs -hold  -end 1
 # Clock-rate sources inside the CPU: the icache output/sweep/invalidate
 # registers and the rcache read ports update every clk, so they get only one
 # cycle to any CPU register despite the blanket two-cycle budget above.
-set cpu_1clk [get_registers {emu|u_game|u_game|u_main|u_cpu|icd_q* emu|u_game|u_game|u_main|u_cpu|ict_q* emu|u_game|u_game|u_main|u_cpu|ic_ra* emu|u_game|u_game|u_main|u_cpu|swa* emu|u_game|u_game|u_main|u_cpu|sweeping emu|u_game|u_game|u_main|u_cpu|icinv* emu|u_game|u_game|u_main|u_cpu|u_rcache|dout* emu|u_game|u_game|u_main|u_cpu|u_rcache|fa_dout*}]
+set cpu_1clk [get_registers {emu|u_game|u_game|u_main|u_cpu|icd* emu|u_game|u_game|u_main|u_cpu|ict* emu|u_game|u_game|u_main|u_cpu|ic_ra* emu|u_game|u_game|u_main|u_cpu|swa* emu|u_game|u_game|u_main|u_cpu|sweeping emu|u_game|u_game|u_main|u_cpu|icinv* emu|u_game|u_game|u_main|u_cpu|u_rcache|*}]
 set_multicycle_path -from $cpu_1clk -to $cpu_regs -setup -end 1
 set_multicycle_path -from $cpu_1clk -to $cpu_regs -hold  -end 0
 

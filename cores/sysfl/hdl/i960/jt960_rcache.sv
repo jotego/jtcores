@@ -26,10 +26,10 @@ module jt960_rcache(
     input      [  1:0] frame,
     input              we,
     input      [511:0] din,
-    (* preserve *) output reg [511:0] dout,
+    output reg [511:0] dout,
     input              fa_we,
     input      [ 31:0] fa_din,
-    (* preserve *) output reg [ 31:0] fa_dout
+    output reg [ 31:0] fa_dout
 );
 
 (* ramstyle = "no_rw_check, M10K" *) reg [511:0] mem[0:3];
