@@ -110,10 +110,14 @@ reg         c_mok, c_tok;
 reg  [ 8:0] xi, s1_x, s2_x;
 reg         s1_v, s2_v, s1_d, s2_d;
 reg  [11:0] s1_xp, s1_yp, s2_xp, s2_yp;
-reg  [48:0] fifo[0:3];              // {draw, x, xpos, ypos, code}
+(* ramstyle = "MLAB, no_rw_check" *) reg [48:0] fifo[0:3]; // {draw, x, xpos, ypos, code}
 reg  [ 1:0] f_rd, f_wr;
 reg  [ 2:0] f_cnt;
-wire [48:0] f_head = fifo[f_rd];
+// skid register on the FIFO head: the back-end comparators work on FFs.
+// One idle cycle when the queue refills from empty
+reg  [48:0] hreg;
+reg         h_vld;
+wire [48:0] f_head = hreg;
 wire        h_draw = f_head[48];
 wire [ 8:0] h_x    = f_head[47:39];
 wire [11:0] h_xp   = f_head[38:27], h_yp = f_head[26:15];
@@ -138,8 +142,8 @@ wire [ 7:0] t_byt0 = ftok0 ? ftex0 : roz_data[{flane0,3'd0} +: 8];
 wire        m_done = mo[1] && mbl==0 && rmask_ok;
 wire        t_dup  = !h_thit && to[1] && roz_addr ==h_til[20:2];
 wire        m_dup  = !h_mhit2 && mo[1] && rmask_addr==h_msk;
-wire        pophit = f_cnt!=0 && !ret && (!h_draw || (h_mhit2 && h_thit));
-wire        popst  = f_cnt!=0 && h_draw && !(h_mhit2 && h_thit) && !ret && !fv[1]
+wire        pophit = h_vld && !ret && (!h_draw || (h_mhit2 && h_thit));
+wire        popst  = h_vld && h_draw && !(h_mhit2 && h_thit) && !ret && !fv[1]
                      && !t_dup && (h_thit || !to[1])
                      && (h_mhit2 || (opq_cur && !m_dup && !mo[1]));
 wire        pop    = pophit || popst;
@@ -269,6 +273,7 @@ always @(posedge clk) begin
         f_cnt <= 0;
         f_rd  <= 0;
         f_wr  <= 0;
+        h_vld <= 0;
         rozmap_addr <= 0;
         rmask_addr  <= 0;
         roz_addr    <= 0;
@@ -276,6 +281,12 @@ always @(posedge clk) begin
         hs_l <= hs;
         bwe  <= 0;
         opq_cl <= h_code;
+        // an empty (or emptying) queue takes the push directly, so the skid
+        // adds no cycle anywhere
+        hreg  <= s2_v && f_cnt == {2'd0,pop} ?
+                 { s2_d, s2_x, s2_xp, s2_yp, 1'b0, rozmap_data[13:0] } :
+                 fifo[pop ? f_rd + 2'd1 : f_rd];
+        h_vld <= f_cnt != {2'd0, pop} || s2_v;
         if( hs_edge ) begin
             lline <= nline;
             lyr1  <= 0;
