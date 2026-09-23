@@ -1,4 +1,4 @@
-arbalest:
+arblst:
   - get: [ "*.v" ]
 cal50:
   - get:
@@ -31,5 +31,5 @@ jtframe:
       - jtframe_m68k.yaml
 jt680x:
   - get:
-    - jt65c02.yaml             # I/O / protection sub-CPU (not sound, unlike cal50)
-jtx1010:                       # X1-010 PCM — driven by the main 68000 here
+    - jt65c02.yaml
+jtx1010:

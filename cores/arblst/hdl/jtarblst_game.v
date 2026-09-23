@@ -1,46 +1,25 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi <andreabogazzi79@gmail.com>
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 17-06-2026 */
 
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Andrea Bogazzi. andreabogazzi79@gmail.com
-    Version: 1.0
-    Date: 17-06-2026 */
-
-// Seta downtown.cpp (metafox-class) top.
-// Reuses the cal50 video pipeline (jtcal50_video = single X1-012 layer + X1-001
-// sprites + direct xRGB-555 colmix) IMPORTED via cfg/files.yaml. Only the bus
-// topology differs, so main/sub/sound are local to this core.
-module jtarbalest_game(
+module jtarblst_game(
     `include "jtframe_game_ports.inc" // see $JTFRAME/hdl/inc/jtframe_game_ports.inc
 );
 
 wire [13:1] cpu_addr;
 wire [ 1:0] cpu_dsn;
 wire [ 8:0] hdump;
-wire [ 7:0] st_main, st_sub, st_video, x1_dout, slatch0, slatch1;
+wire [ 7:0] st_main, st_sub, st_video, slatch0, slatch1;
 wire [15:0] vram_dout;
 wire        flip, cpu_rnw, sub_rst,
             vram_cs, vctrl_cs, vflag_cs, tctrl_cs,
-            x1_cs, shram_cs;
+            shram_cs;
 
-// MRA header byte 0 = game_id (0=metafox, 1=arbalest)
-`ifdef JTFRAME_SIM_GAMEID
-reg [3:0] game_id = `JTFRAME_SIM_GAMEID;
-`else
-reg [3:0] game_id = 4'd0;
-`endif
+reg game_id = 1'b0;
+reg [15:0] thoffs;
+
 always @(posedge clk) if( prog_we && header ) case( prog_addr[3:0] )
-    4'd0: game_id <= prog_data[3:0];
+    4'd0: game_id <= prog_data[0];
     default:;
 endcase
 
@@ -48,8 +27,12 @@ assign debug_view = st_video;
 assign dip_flip   = ~flip;
 assign mute       = 0;
 
+always @(posedge clk) begin
+    thoffs <= game_id ? 16'h1f : 16'h0d;
+end
+
 /* verilator tracing_on */
-jtarbalest_main u_main(
+jtarblst_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
     .cen8       ( cen8          ),
@@ -69,8 +52,12 @@ jtarbalest_main u_main(
     .ram_dout   ( ram_dout      ),
 
     // X1-010 sound (main bus)
-    .x1_cs      ( x1_cs         ),
-    .x1_dout    ( x1_dout       ),
+    .cen_pcm    ( cen_pcm       ),
+    .pcm_addr   ( pcm_addr      ),
+    .pcm_data   ( pcm_data      ),
+    .pcm_cs     ( pcm_cs        ),
+    .snd_left   ( pcm_8k        ),
+    .snd_right  ( pcm_4k        ),
 
     // I/O sub-CPU (sub_ctrl_w decoded in main)
     .slatch0    ( slatch0       ),
@@ -100,7 +87,7 @@ jtarbalest_main u_main(
 );
 
 /* verilator tracing_on */
-jtarbalest_sub u_sub(
+jtarblst_sub u_sub(
     .rst        ( sub_rst       ),
     .clk        ( clk           ),
     .cen        ( cen8          ),   // 8 MHz crystal cen -> ~2 MHz E (jt65c02 /4)
@@ -129,26 +116,6 @@ jtarbalest_sub u_sub(
 );
 
 /* verilator tracing_on */
-jtarbalest_sound u_sound(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .cen_pcm    ( cen_pcm       ),
-
-    .cs         ( x1_cs         ),
-    .addr       ( cpu_addr      ),
-    .din        ( cpu_dout[7:0] ),
-    .dout       ( x1_dout       ),
-    .we         (~cpu_rnw       ),
-
-    .pcm_addr   ( pcm_addr      ),
-    .pcm_data   ( pcm_data      ),
-    .pcm_cs     ( pcm_cs        ),
-
-    .snd_left   ( pcm_8k        ),
-    .snd_right  ( pcm_4k        )
-);
-
-/* verilator tracing_on */
 jtcal50_video #(
     .OBJAW ( 13     ), // 16kB sprite RAM + setac bank
     .SCR_EN( 1      ), // X1-001 background layer (draw_background) draws the attract scenery
@@ -161,7 +128,7 @@ jtcal50_video #(
 ) u_video(
     .rst        ( rst           ),
     // MAME x1_012 set_xoffsets noflip: metafox 16 -> 0x00, arbalest -2 -> 0x12
-    .thoffs     ( game_id==4'd1 ? 16'h1f : 16'h0d ),
+    .thoffs     ( thoffs        ),
     .clk        ( clk           ),
     .clk_cpu    ( clk           ),
     .cen244     (               ),

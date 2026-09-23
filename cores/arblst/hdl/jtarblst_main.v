@@ -1,31 +1,8 @@
-/*  This file is part of JTCORES.
-    JTCORES program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+/* SPDX-FileCopyrightText: 2026 Andrea Bogazzi <andreabogazzi79@gmail.com>
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Date: 17-06-2026 */
 
-    JTCORES program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Andrea Bogazzi. andreabogazzi79@gmail.com
-    Version: 1.0
-    Date: 17-06-2026 */
-
-// Seta downtown.cpp (metafox-class) main 68000.
-// Unlike calibr50 (cal50): the X1-010 lives on THIS bus (0x100000) and the
-// 65C02 is an I/O / protection coprocessor reached through shared RAM (0xb00000).
-//
-// downtown_map nibble decode (A[23:20]):
-//   0 ROM   1 X1-010 sound   2 protection   3 ipl1-ack   4 (unused: twineagl-only)
-//   5 ctrl/coin   6 DSW   7 palette   8 X1-012 ctrl   9 X1-012 VRAM
-//   A sub-ctrl   B shared RAM   C X1-001 bg-flag   D X1-001 spr-ctrl
-//   E X1-001 spr-code   F work RAM
-module jtarbalest_main(
+module jtarblst_main(
     input                rst, clk, cen8,
     input                lvbl,
 
@@ -43,8 +20,11 @@ module jtarbalest_main(
     input         [15:0] ram_dout,
 
     // X1-010 sound (on the main bus)
-    output reg           x1_cs,
-    input         [ 7:0] x1_dout,
+    input                cen_pcm,
+    output        [19:0] pcm_addr,
+    input         [ 7:0] pcm_data,
+    output               pcm_cs,
+    output signed [15:0] snd_left, snd_right,
 
     // I/O / protection sub-CPU (65C02). sub_ctrl_w (0xa00000) is decoded here:
     output reg    [ 7:0] slatch0, slatch1, // soundlatches, read by the sub @0x0800/1
@@ -65,13 +45,19 @@ module jtarbalest_main(
     input         [15:0] vram_dout,
 
     // Game select (0=metafox, 1=arbalest)
-    input         [ 3:0] game_id,
+    input                game_id,
     // Cabinet (DSW read by main; joysticks/coins are read by the sub)
     input         [15:0] dipsw,
     input                dip_pause,
     output        [ 7:0] st_dout,
     input         [ 7:0] debug_bus
 );
+wire [ 7:0] x1_dout;
+wire        x1_we;
+reg         x1_cs;
+
+assign x1_we = ~cpu_rnw & x1_cs;
+
 `ifndef NOMAIN
 wire [23:1] A;
 reg  [15:0] cpu_din;
@@ -131,7 +117,7 @@ always @* dipsw_mx = A[1] ? dipsw[7:0] : dipsw[15:8];
 // metafox X1-017 protection (game_id==0). MAME metafox_protection_r returns
 // offset*0x1f (word offset within 0x21c000-0x21ffff) with three special words.
 // The boot self-tests this readback sequence; arbalest has no 0x21c000 protection.
-wire        prot_meta = prot_cs && game_id==4'd0 && A[19:14]==6'd7;
+wire        prot_meta = prot_cs && !game_id && A[19:14]==6'd7;
 wire [12:0] prot_off  = A[13:1];
 reg  [15:0] prot_dout;
 always @* begin
@@ -191,8 +177,8 @@ end
 jtframe_edge u_16ms(
     .rst    ( rst       ),
     .clk    ( clk       ),
-    .edgeof (~lvbl      ),     // vblank (LVBL falling) -> level-3 IRQ
-    .clr    ( ipl1_cs   ),     // acked by the 0x300000 write
+    .edgeof (~lvbl      ),
+    .clr    ( ipl1_cs   ),
     .q      ( int16ms   )
 );
 
@@ -250,8 +236,32 @@ jtframe_m68k u_cpu(
            pal_we    = 0, tlv_we = 0, shram_we = 0, sub_rst = rst,
            st_dout   = 0;
     initial begin
-        x1_cs=0; subctrl_cs=0; shram_cs=0; tctrl_cs=0;
+        x1_cs=0; shram_cs=0; tctrl_cs=0;
         vram_cs=0; vflag_cs=0; vctrl_cs=0; slatch0=0; slatch1=0;
     end
+`endif
+
+`ifndef NOSOUND
+jtx1010 u_pcm(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .cen        ( cen_pcm       ),
+
+    .addr       ( cpu_addr      ),
+    .din        ( cpu_dout[7:0] ),
+    .dout       ( x1_dout       ),
+    .we         ( x1_we         ),
+    .cs         ( x1_cs         ),
+
+    .rom_addr   ( pcm_addr      ),
+    .rom_data   ( pcm_data      ),
+    .rom_cs     ( pcm_cs        ),
+
+    .left       ( snd_left      ),
+    .right      ( snd_right     ),
+    .sample     (               )
+);
+`else
+    assign x1_dout=0, pcm_addr=0, pcm_cs=0, snd_left=0, snd_right=0;
 `endif
 endmodule
