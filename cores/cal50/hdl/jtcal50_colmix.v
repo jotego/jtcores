@@ -11,7 +11,7 @@ module jtcal50_colmix #(
     input             LHBL,
     input             LVBL,
 
-    input      [ 8:0] scr_pxl,      // X1-001 draw_background (column-scrolled sprite BG)
+    input      [ 8:0] scr_pxl,
     input      [ 8:0] obj_pxl, tiles_pxl,
 
     output reg [ 9:1] pal_addr,
@@ -32,12 +32,8 @@ reg         obj_sel;
 
 assign blank    = ~(LVBL & LHBL);
 assign {red,green,blue} = blank ? 15'd0 : rgb;
-// X1-001 pen-bit order (same for foreground sprites and the background layer)
 assign obj_srt = {obj_pxl[8:4],obj_pxl[1],obj_pxl[3],obj_pxl[0],obj_pxl[2]};
 assign scr_srt = {scr_pxl[8:4],scr_pxl[1],scr_pxl[3],scr_pxl[0],scr_pxl[2]};
-// X1-001 background (draw_background) masks the X1-012 tiles where opaque. Only
-// for SCR_EN cores; calibr50 (SCR_EN=0) keeps bg==tiles_pxl, so the mux below is
-// byte-identical to before.
 assign scr_sel = SCR_EN & gfx_en[1] & (scr_srt[3:0]!=4'h0);
 assign bg      = scr_sel ? scr_srt : tiles_pxl;
 
