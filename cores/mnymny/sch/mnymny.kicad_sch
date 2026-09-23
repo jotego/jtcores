@@ -1,0 +1,515 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "6210712f-0077-4064-949c-7f68f37aff62")
+	(paper "A3")
+	(title_block
+		(title "MONEY MONEY / JACK RABBIT - Zaccaria 1B11140/41/42/47")
+		(date "2026-09-07")
+		(rev "17.5.1983 manual")
+		(company "JOTEGO")
+		(comment 1 "For repair and maintenance")
+	)
+	(lib_symbols
+	)
+	(sheet
+		(at 30.48 30.48)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "aff74927-2dd0-42ea-8a16-bd7b23f29ede")
+		(property "Sheetname" "video1"
+			(at 30.48 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "video1.kicad_sch"
+			(at 30.48 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 119.38 30.48)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "76d22f15-2e3b-4cc7-ac7f-7212b741a7a4")
+		(property "Sheetname" "video2"
+			(at 119.38 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "video2.kicad_sch"
+			(at 119.38 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 208.28 30.48)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "753706a7-ed04-47c7-8704-5d839557d8fd")
+		(property "Sheetname" "video3"
+			(at 208.28 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "video3.kicad_sch"
+			(at 208.28 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 30.48 76.2)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "75a77af8-7487-4639-be28-58fa7724a2c1")
+		(property "Sheetname" "video4"
+			(at 30.48 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "video4.kicad_sch"
+			(at 30.48 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "5")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 119.38 76.2)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "d70bddb0-d1aa-44fd-ba03-9135edbbcce7")
+		(property "Sheetname" "video5"
+			(at 119.38 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "video5.kicad_sch"
+			(at 119.38 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "6")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 208.28 76.2)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "7b8962df-34c4-4629-a26f-96711eb41900")
+		(property "Sheetname" "io1"
+			(at 208.28 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io1.kicad_sch"
+			(at 208.28 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "7")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 30.48 121.92)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "58cb4c2b-a50f-446f-80c9-5f77ebca9e61")
+		(property "Sheetname" "io2"
+			(at 30.48 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io2.kicad_sch"
+			(at 30.48 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "8")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 119.38 121.92)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "099dfc3d-7252-40b6-9c93-fe88eb9c44f2")
+		(property "Sheetname" "io3"
+			(at 119.38 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "io3.kicad_sch"
+			(at 119.38 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "9")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 208.28 121.92)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "41342747-2a46-44ae-aa6f-0e4f74cb9044")
+		(property "Sheetname" "audio1"
+			(at 208.28 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "audio1.kicad_sch"
+			(at 208.28 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "10")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 30.48 167.64)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "4c5fc2e2-d99d-441c-a174-65e7200a056c")
+		(property "Sheetname" "audio2"
+			(at 30.48 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "audio2.kicad_sch"
+			(at 30.48 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "11")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 119.38 167.64)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "c29eb374-4f13-486c-8050-d0364234bf91")
+		(property "Sheetname" "audio3"
+			(at 119.38 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "audio3.kicad_sch"
+			(at 119.38 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "12")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 208.28 167.64)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "54c39716-28e5-4741-9302-cbeb0ea54b28")
+		(property "Sheetname" "rom1"
+			(at 208.28 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "rom1.kicad_sch"
+			(at 208.28 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "13")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 30.48 213.36)
+		(size 63.5 25.4)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "8e0d208b-d3bc-4ce0-8e80-8efe55c74e11")
+		(property "Sheetname" "rom2"
+			(at 30.48 212.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "rom2.kicad_sch"
+			(at 30.48 240.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "mnymny"
+				(path "/6210712f-0077-4064-949c-7f68f37aff62"
+					(page "14")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)
