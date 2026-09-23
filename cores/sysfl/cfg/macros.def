@@ -4,6 +4,7 @@ JTFRAME_RATE=59.66
 JTFRAME_STEREO
 JTFRAME_BUTTONS=4
 JTFRAME_ANALOG
+CORE_OSD=OKM,Control Type,A.Stick,A.Triggers,A.Wheel;
 JTFRAME_NOMULTIWAY
 JTFRAME_HEADER=8
 JTFRAME_OSD_NOLOGO
@@ -47,6 +48,8 @@ JTFRAME_PLL=jtframe_pll6048
 [mister]
 # LAB budget is tight: no composite/S-Video encoder, RGB and HDMI unaffected
 MISTER_DISABLE_YC
+# 32MB ROM set: load through the DDR proxy
+JTFRAME_MR_DDRLOAD
 
 [mist|sidi]
 # not enough resources

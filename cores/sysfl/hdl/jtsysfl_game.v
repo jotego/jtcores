@@ -219,6 +219,9 @@ jtsysfl_c75 u_c75(
     // MISC[7:4] = {SERVICE1, TEST, COIN1, COIN2}, active low
     .cab_misc   ( {service, dip_test, coin[0], coin[1]} ),
     .joystick   ( joystick1[7:0]),
+    .joyana_l   ( joyana_l1     ),
+    .joyana_r   ( joyana_r1     ),
+    .ctrl_type  ( status[22:20] ),
     .start      ( cab_1p[0]     ),
     .flr        ( flr           ),
     .mcu_addr   ( mcu_addr      ),

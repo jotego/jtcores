@@ -506,6 +506,8 @@ module jtsysfl_c75(
     // cabinet, active low: {SERVICE1, TEST, COIN1, COIN2} on MISC[7:4]
     input      [ 3:0] cab_misc,
     input      [ 7:0] joystick,     // active low, b1 gas, b2 brake (flr), b2-b4 weapons 1-3
+    input      [15:0] joyana_l, joyana_r,
+    input      [ 2:0] ctrl_type,
     input             start,        // active low, Start / Jump
     input             flr,          // header: Final Lap R cabinet
     // shared RAM, MCU side of the dual port
@@ -663,6 +665,9 @@ jtsysfl_ctrl u_ctrl(
     .clk      ( clk       ),
     .lvbl     ( lvbl      ),
     .joystick ( joystick  ),
+    .joyana_l ( joyana_l  ),
+    .joyana_r ( joyana_r  ),
+    .ctrl_type( ctrl_type ),
     .accel    ( accel     ),
     .brake    ( brake     ),
     .wheel    ( wheel     ),

@@ -17,18 +17,48 @@
     Date: 19-9-2026
 */
 
-// digital controls -> pedal/wheel ADC values, stepped once per frame like
-// MAME keyboard analog (ACCEL keydelta 20, WHEEL keydelta 4, both autocenter)
+// pedal/wheel ADC values. Analog sticks/triggers/wheel take over per control
+// (mappings as in jtoutrun); with the sticks idle, the digital buttons step
+// the values once per frame like MAME keyboard analog (ACCEL keydelta 20,
+// WHEEL keydelta 4, both autocenter)
 module jtsysfl_ctrl(
     input             rst,
     input             clk,
     input             lvbl,
     input      [ 7:0] joystick,     // active low {b4,b3,b2,b1,up,down,left,right}
-    output reg [ 7:0] accel,
-    output reg [ 7:0] brake,
-    output reg [ 7:0] wheel,
+    input      [15:0] joyana_l, joyana_r,
+    input      [ 2:0] ctrl_type,    // 0 stick, 1 triggers, 2 wheel
+    output     [ 7:0] accel,
+    output     [ 7:0] brake,
+    output     [ 7:0] wheel,
     output reg        gear      // shifter toggle (MAME PORT_TOGGLE)
 );
+
+reg  [7:0] accel_d, brake_d, wheel_d;   // digital ramp
+reg  [7:0] accel_a, brake_a;
+wire [7:0] wheel_a = joyana_l[7:0] ^ 8'h80;
+wire       wl_act  = joyana_l[7:3]!=5'h00 && joyana_l[7:3]!=5'h1f;
+
+always @* begin
+    case( ctrl_type )
+        3'd1: begin // analog triggers
+            accel_a = joyana_r[ 7] ? 8'd0 : {joyana_r[ 6:0], joyana_r[ 6]};
+            brake_a = joyana_l[15] ? 8'd0 : {joyana_l[14:8], joyana_l[14]};
+        end
+        3'd2: begin // wheel pedals
+            accel_a = joyana_l[15] ? ~{joyana_l[14:8], joyana_l[14]} : 8'd0;
+            brake_a = joyana_r[15] ? ~{joyana_r[14:8], joyana_r[14]} : 8'd0;
+        end
+        default: begin // right stick Y: up = gas, down = brake
+            accel_a = joyana_r[15] ? ~{joyana_r[14:8], joyana_r[14]} : 8'd0;
+            brake_a = joyana_r[15] ? 8'd0 : {joyana_r[14:8], joyana_r[14]};
+        end
+    endcase
+end
+
+assign accel = accel_a > 8'd8 ? accel_a : accel_d;
+assign brake = brake_a > 8'd8 ? brake_a : brake_d;
+assign wheel = wl_act ? wheel_a : wheel_d;
 
 wire frame, gas, stop, left, right, shift;
 reg  shift_l;
@@ -49,9 +79,9 @@ jtframe_edge_pulse #(.NEGEDGE(1)) u_frame(
 
 always @(posedge clk) begin
     if( rst ) begin
-        accel <= 0;
-        brake <= 0;
-        wheel <= 8'h80;
+        accel_d <= 0;
+        brake_d <= 0;
+        wheel_d <= 8'h80;
         gear  <= 0;
         shift_l <= 0;
     end else begin
@@ -60,23 +90,23 @@ always @(posedge clk) begin
     end
     if( !rst && frame ) begin
         if( gas )
-            accel <= accel > 8'd235 ? 8'hff : accel + 8'd20;
+            accel_d <= accel_d > 8'd235 ? 8'hff : accel_d + 8'd20;
         else
-            accel <= accel < 8'd20  ? 8'h00 : accel - 8'd20;
+            accel_d <= accel_d < 8'd20  ? 8'h00 : accel_d - 8'd20;
         if( stop )
-            brake <= brake > 8'd235 ? 8'hff : brake + 8'd20;
+            brake_d <= brake_d > 8'd235 ? 8'hff : brake_d + 8'd20;
         else
-            brake <= brake < 8'd20  ? 8'h00 : brake - 8'd20;
+            brake_d <= brake_d < 8'd20  ? 8'h00 : brake_d - 8'd20;
         if( right && !left )
-            wheel <= wheel > 8'd251 ? 8'hff : wheel + 8'd4;
+            wheel_d <= wheel_d > 8'd251 ? 8'hff : wheel_d + 8'd4;
         else if( left && !right )
-            wheel <= wheel < 8'd4   ? 8'h00 : wheel - 8'd4;
-        else if( wheel > 8'h84 )
-            wheel <= wheel - 8'd4;
-        else if( wheel < 8'h7c )
-            wheel <= wheel + 8'd4;
+            wheel_d <= wheel_d < 8'd4   ? 8'h00 : wheel_d - 8'd4;
+        else if( wheel_d > 8'h84 )
+            wheel_d <= wheel_d - 8'd4;
+        else if( wheel_d < 8'h7c )
+            wheel_d <= wheel_d + 8'd4;
         else
-            wheel <= 8'h80;
+            wheel_d <= 8'h80;
     end
 end
 
