@@ -434,7 +434,12 @@ always @(posedge clk) begin
     end
 end
 
-jt960 #(.ICACHE_BLK(32)) u_cpu(
+// 2kB holds full game pace at the 60.48 MHz base on both games; the real
+// KA has 512B but its zero-wait DRAM cannot be matched by the SDRAM
+`ifndef SYSFL_ICACHE_BLK
+`define SYSFL_ICACHE_BLK 8
+`endif
+jt960 #(.ICACHE_BLK(`SYSFL_ICACHE_BLK)) u_cpu(
     .rst    ( rst       ),
     .clk    ( clk       ),
     .cen    ( cpu_cen   ),

@@ -24,7 +24,8 @@
 
 module jt960 #(parameter
     // instruction cache size in 256B blocks, power of 2 up to 64. The KA has
-    // 512B (2); System FL runs its code from RAM, 4kB keeps speedrcr at 60Hz
+    // 512B (2); System FL runs its code from RAM and needs 2kB at a 60.48 MHz
+    // base to keep full game pace on the SDRAM bus
     ICACHE_BLK = 16
 )(
     input             rst,

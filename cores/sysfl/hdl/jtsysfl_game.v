@@ -515,4 +515,23 @@ always @(posedge clk) begin
 end
 `endif
 
+`ifdef SYSFL_PACE
+// game-logic rate: at full speed the game rebuilds the sprite tables every
+// frame; the active-frame ratio reads the effective logic fps
+integer pc_f=0, pc_act=0, pc_wr=0;
+reg pc_lvbl=1;
+always @(posedge clk) begin
+    pc_lvbl <= LVBL;
+    if( coram_we!=0 && coram_addr<16'h1400 ) pc_wr = pc_wr+1;
+    if( pc_lvbl && !LVBL ) begin
+        if( pc_wr>0 ) pc_act = pc_act+1;
+        pc_wr = 0;
+        pc_f  = pc_f+1;
+        if( pc_f%64==0 )
+            $display("PACE f=%0d act=%0d/64", pc_f, pc_act) ;
+        if( pc_f%64==0 ) pc_act = 0;
+    end
+end
+`endif
+
 endmodule
