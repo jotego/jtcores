@@ -96,8 +96,9 @@ module jtframe_sdram64 #(
     output              sdram_cke       // SDRAM Chip Select
 );
 /* verilator coverage_off */
-localparam BURSTLEN=(BA0_LEN>32 || BA1_LEN>32 ||BA2_LEN>32 ||BA3_LEN>32) ? 64 :(
-                    (BA0_LEN>16 || BA1_LEN>16 ||BA2_LEN>16 ||BA3_LEN>16) ? 32 : 16);
+localparam BURSTLEN=(BA0_LEN>64 || BA1_LEN>64 ||BA2_LEN>64 ||BA3_LEN>64) ? 128 :(
+                    (BA0_LEN>32 || BA1_LEN>32 ||BA2_LEN>32 ||BA3_LEN>32) ? 64 :(
+                    (BA0_LEN>16 || BA1_LEN>16 ||BA2_LEN>16 ||BA3_LEN>16) ? 32 : 16));
 
 localparam LATCH = HF==1;
 
@@ -148,14 +149,40 @@ assign all_act     = |post_act;
 assign all_dqm     = |dqm_busy;
 assign wr_cycle    = |wr_busy;
 
+// Burst truncation: the mode register bursts BURSTLEN, banks with a shorter
+// BALEN get a CMD_STOP right after their last wanted beat. Data phases never
+// overlap (all_dbusy), so one countdown covers the whole chip. A read or
+// write issued in the meantime truncates implicitly and reloads the count.
+localparam TRUNC = BURSTLEN==128;
+wire [3:0] gr_beats = bg[1] ? BA1_LEN/16 : bg[2] ? BA2_LEN/16 :
+                      bg[3] ? BA3_LEN/16 : BA0_LEN/16;
+reg  [3:0] stop_cnt;
+reg        stop_pend;
+wire       stop_now = TRUNC && stop_pend && stop_cnt==4'd1;
+wire       cmd_rw   = next_cmd==CMD_READ || next_cmd==CMD_WRITE;
+
+always @(posedge clk) begin
+    if( rst | init ) begin
+        stop_cnt  <= 0;
+        stop_pend <= 0;
+    end else if( cmd_rw && !prog_en && !rfshing ) begin
+        stop_cnt  <= gr_beats;
+        stop_pend <= gr_beats != 4'd8;
+    end else if( stop_cnt != 0 ) begin
+        stop_cnt <= stop_cnt - 4'd1;
+        if( stop_cnt==4'd1 ) stop_pend <= 0;
+    end
+end
+
 assign {next_ba, next_cmd, next_a } =
                         init ? { 2'd0, init_cmd, init_a } : (
                       rfshing? { 2'd0, rfsh_cmd, rfsh_a } : (
                       prog_en? { prog_ba, pre_cmd, pre_a} : (
+                     stop_now? { 2'd0, CMD_STOP, 13'd0  } : (
                        bg[3] ? { 2'd3, bx3_cmd, bx3_a } : (
                        bg[2] ? { 2'd2, bx2_cmd, bx2_a } : (
                        bg[1] ? { 2'd1, bx1_cmd, bx1_a } :
-                               { 2'd0, bx0_cmd, bx0_a } )))));
+                               { 2'd0, bx0_cmd, bx0_a } ))))));
 
 assign prio     = prio_lfsr[1:0];
 assign mask_mux = prog_en ? prog_dsn :
@@ -523,9 +550,9 @@ jtframe_sdram64_bank #(
 );
 
 always @(*) begin
-    rfsh_bg = &idle && (noreq | help) && rfsh_br;
+    rfsh_bg = &idle && (noreq | help) && rfsh_br && !stop_now;
     prog_bg = pre_br & !rfshing;
-    if( rfshing ) begin
+    if( rfshing || stop_now ) begin
         bg=0;
     end else begin
         if( BAPRIO ) begin

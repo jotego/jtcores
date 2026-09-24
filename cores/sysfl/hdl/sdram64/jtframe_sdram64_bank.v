@@ -70,9 +70,10 @@ localparam IDLE    = 0,
            PRE_RD  = PRE_ACT + (HF ? 2:1),
            READ    = PRE_RD+1,
            DST     = READ + (SHIFTED==1 ? 1 : 2) ,
-           DTICKS  = BURSTLEN==64 ? 4 : (BURSTLEN==32?2:1),
+           // beats follow this bank's own length; the controller truncates
+           DTICKS  = BALEN==128 ? 8 : BALEN==64 ? 4 : (BALEN==32?2:1),
            BUSY    = DST+(DTICKS-1),
-           RDY     = DST + (BALEN==16 ? 0 : (BALEN==32? 1 : 3)),
+           RDY     = DST + (BALEN==16 ? 0 : (BALEN==32? 1 : BALEN==64 ? 3 : 7)),
            STW     = BUSY + 1 + {2'd0,AUTOPRECH[0]};
 
 //                             /CS /RAS /CAS /WE
