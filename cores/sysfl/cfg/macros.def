@@ -10,6 +10,8 @@ JTFRAME_HEADER=8
 JTFRAME_OSD_NOLOGO
 # core-local sprite ROM cache (see hdl/jtframe_romrq_lcache.v)
 JTFRAME_CORE_LCACHE
+# core-local SDRAM controller for the BL8 sprite bursts (hdl/sdram64/)
+JTFRAME_CORE_SDRAM64
 JTFRAME_NOHQ2X
 
 # Video configuration

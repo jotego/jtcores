@@ -2,6 +2,11 @@ sysfl:
   - get:
     - "*.v"
     - timing.sdc
+  - from: sdram64
+    get:
+      - jtframe_sdram64.v
+      - jtframe_sdram64_bank.v
+      - jtframe_sdram64_init.v
   - from: c123
     get:
       - jtc123.sv
