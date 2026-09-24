@@ -10,7 +10,6 @@ module jtcus42(
     input               metrocrs,
     input        [ 8:0] hdump, vdump,
     input        [ 3:0] scrhos,         // per game adjustment
-    input signed [ 7:0] scrvos,         // per game adjustment
 
     input               cs, cpu_rnw,
     input        [ 2:0] cpu_addr,
@@ -132,7 +131,6 @@ jtthundr_scroll #(.LYR(0),.HBASE(HBASE)) u_scra(
     .vdump      ( vdump         ),
     .scrx       ( effxa         ),
     .scry       ( scrya         ),
-    .scrvos     ( scrvos        ),
 
     .vram_addr  ( a_addr        ),
     .vram_dout  ( a_dout        ),
@@ -161,7 +159,6 @@ jtthundr_scroll #(.LYR(1),.HBASE(HBASE)) u_scrb(
     .vdump      ( vdump         ),
     .scrx       ( effxb         ),
     .scry       ( scryb         ),
-    .scrvos     ( scrvos        ),
 
     .vram_addr  ( b_addr        ),
     .vram_dout  ( b_dout        ),
