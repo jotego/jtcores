@@ -35,6 +35,9 @@ jtframe/target/mister:
   - when: [ JTFRAME_PLLC6000 ]
     get:
       - pllc6000.qip
+  - when: [ JTFRAME_PLLD6048 ]
+    get:
+      - plld6048.qip
   - when: [ JTFRAME_PLL6144 ]
     get:
       - pll6144.qip

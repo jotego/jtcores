@@ -49,6 +49,10 @@ always @* begin
             accel_a = joyana_l[15] ? ~{joyana_l[14:8], joyana_l[14]} : 8'd0;
             brake_a = joyana_r[15] ? ~{joyana_r[14:8], joyana_r[14]} : 8'd0;
         end
+        3'd3: begin // analog wheel only, gas and brake on the buttons
+            accel_a = 8'd0;
+            brake_a = 8'd0;
+        end
         default: begin // right stick Y: up = gas, down = brake
             accel_a = joyana_r[15] ? ~{joyana_r[14:8], joyana_r[14]} : 8'd0;
             brake_a = joyana_r[15] ? 8'd0 : {joyana_r[14:8], joyana_r[14]};
