@@ -45,8 +45,6 @@ JTFRAME_PLL=jtframe_pllb6048
 JTFRAME_BASE_MUL=10
 
 [mister]
-# SDRAM data capture one cycle early, as the reliable 180SHIFT cores do
-JTFRAME_SHIFT
 # DDIO SDRAM clock instead of the PLL phase shift (fixes the black screen);
 # hardware only, the sim SDRAM model must keep the normal capture phase
 # 32MB ROM set: load through the DDR proxy
