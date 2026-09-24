@@ -68,6 +68,13 @@ SDC and QIP files are searched under
 YAML files used to generate more files are searched under
 \fBcfg/\fR.
 .SS Conditional Parsing
+For each enabled shared module dependency, JTFRAME generates its
+\fBcfg/mmr.yaml\fR, when present, into the module's
+\fBhdl/\fR folder before expanding HDL filenames.
+This includes dependencies reached through nested file lists and regenerates
+the MMR RTL on each invocation. Modules referenced only by disabled entries
+are skipped.
+.PP
 Entries may be gated with the usual JTFRAME macro conditions:
 .TP
 .B when

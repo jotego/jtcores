@@ -16,6 +16,7 @@ import (
 
 	"jotego/jtframe/common"
 	"jotego/jtframe/macros"
+	"jotego/jtframe/mmr"
 	"jotego/jtframe/ucode"
 
 	"gopkg.in/yaml.v2"
@@ -24,9 +25,12 @@ import (
 var parsed []string
 var CWD string
 var args Args
+var generated_mmr = make(map[string]bool)
 
 func Run(set_args Args) {
 	args = set_args
+	parsed = nil
+	generated_mmr = make(map[string]bool)
 	CWD, _ = os.Getwd()
 	prepare_macros()
 
@@ -204,6 +208,7 @@ func get_content_files(basepath string, all_entries []FileList) (filepaths []str
 	}
 	for _, entry := range all_entries {
 		if !entry.Enabled() { continue }
+		if e := make_module_mmr(basepath); e!=nil { return nil,e }
 		entry = fill_defaults(entry)
 		if e:=validate(entry); e!=nil { return nil, e }
 		entry.Get, e = expand_glob(basepath,entry)
@@ -214,6 +219,19 @@ func get_content_files(basepath string, all_entries []FileList) (filepaths []str
 		filepaths=append(filepaths,different_files...)
 	}
 	return filepaths,nil
+}
+
+func make_module_mmr(basepath string) error {
+	name := filepath.Base(basepath)
+	module_path, found := is_module(name)
+	if !found || filepath.Clean(basepath)!=filepath.Clean(module_path) { return nil }
+	if generated_mmr[basepath] { return nil }
+	if common.FileExists(mmr.GetMMRPath(name,true)) {
+		e := mmr.Generate(name,false,true)
+		if e!=nil { return fmt.Errorf("generating MMR for module %s: %w",name,e) }
+	}
+	generated_mmr[basepath] = true
+	return nil
 }
 
 func fill_defaults(entry FileList) FileList {

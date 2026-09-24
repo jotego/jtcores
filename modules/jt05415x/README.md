@@ -233,8 +233,6 @@ Implemented in source HDL:
 - `hdl/jt054157_mmr.v`: generated from `cfg/mmr.yaml`.
 - `cfg/files.yaml`: module file list and jtframe RAM dependencies.
 
-Generate the ignored MMR RTL with `jtframe mmr --module jt05415x` before
-linting or building a core that uses this module.
 
 Documentation/reference HDL:
 
