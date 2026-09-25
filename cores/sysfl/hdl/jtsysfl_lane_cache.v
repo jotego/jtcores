@@ -4,9 +4,7 @@
 // direct-mapped read cache in front of a cache-lane port: one-clock hits
 // (the romrq slot contract the video fetchers were built against), lane
 // round trips on misses only
-module jtsysfl_lane_cache #(parameter AW=20, DW=64, IDXW=9,
-    localparam TAGW = AW-IDXW
-)(
+module jtsysfl_lane_cache #(parameter AW=20, DW=64, IDXW=9)(
     input             rst,
     input             clk,
     // client, classic slot contract
@@ -20,6 +18,8 @@ module jtsysfl_lane_cache #(parameter AW=20, DW=64, IDXW=9,
     input    [DW-1:0] ln_data,
     input             ln_ok
 );
+
+localparam TAGW = AW-IDXW;
 
 reg [DW+TAGW-1:0] mem[0:(1<<IDXW)-1];
 reg [(1<<IDXW)-1:0] valid;
