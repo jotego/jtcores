@@ -37,7 +37,7 @@ module jtsysfl_main(
     output            main_cs,
     input             main_ok,
     input      [31:0] main_data,
-    // work RAM, SDRAM bank 1
+    // work RAM, SDRAM bank 2
     output reg [20:1] wram_addr,
     output reg        wram_cs,
     output reg        wram_we,
@@ -113,8 +113,7 @@ wire        is_prog = lowmem && (a[28] != bank_sel);
 wire        is_wram = lowmem && (a[28] == bank_sel);
 wire        is_data = a[31:28]==4'h2;
 wire        is_rom32= (is_prog || is_data) && !cwr;
-wire        is_code = is_wram && !cwr && cfetch;
-wire        is_wdat, is_w32;
+wire        is_code, is_wdat, is_w32;
 wire        is_sys  = a[31:28]==4'h4;
 // nvram is a BRAM (SD-card save/restore); comram lives in the wram window
 wire        is_cm   = ccs && a[31:28]==4'h3 && a[23:20]==4'h3 && !a[19];
@@ -159,6 +158,8 @@ reg  [31:0] intram[0:3];
 reg  [ 3:0] tgt;
 wire [31:0] la     = {fa, 2'd0};
 assign is_wdat = is_wram && !cwr && !cfetch && st==IDLE && !sh_dirty;
+// code fetches obey the same dirty/posted-write rules as data loads
+assign is_code = is_wram && !cwr &&  cfetch && st==IDLE && !sh_dirty;
 assign is_w32  = is_code || is_wdat;
 wire        l_wram = la[31:29]==3'd0 && la[28]==bank_sel;
 wire [15:0] h_wdat = half ? fd[31:16] : fd[15:0];
@@ -513,7 +514,7 @@ module jtsysfl_c75(
     output            mcurom_cs,
     input      [15:0] mcurom_data,
     input             mcurom_ok,
-    // C352 sample ROM (SDRAM bank 1)
+    // C352 sample ROM (SDRAM bank 2)
     output     [21:0] pcm_addr,
     output            pcm_cs,
     input      [ 7:0] pcm_data,
