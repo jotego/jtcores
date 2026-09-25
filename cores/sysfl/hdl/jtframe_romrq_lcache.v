@@ -96,14 +96,19 @@ wire [LINE_AW-1:0] line_lo = fill_half ? {1'b1,{BURST_AW{1'b0}}} : {LINE_AW{1'b0
 assign sdram_addr = (LINE2X==1 && filling) ? { fill_tag, fill_line, line_lo } :
                     req_pending ? { req_tag, req_line, {LINE_AW{1'b0}} } :
                     TAG_RAM ? { read_tag_l, read_line_l, {LINE_AW{1'b0}} } : line_addr;
+// the fill fast path must be address-exact: a client may move to another
+// line while a fill completes (e.g. the shared scr tile+mask port)
+wire fill_addr_match = line_index == fill_line && tag == fill_tag;
 assign data_ok    = TAG_RAM ? addr_ok_l && !filling &&
                               (tag_data_ok ||
                                (fill_ok && fill_data_match)) :
                             addr_ok && hit && !filling &&
-                              (fill_ok || (hit_l && cache_data_match));
+                              ((fill_ok && fill_addr_match) ||
+                               (hit_l && cache_data_match));
 assign fill_write = we && (dst || receiving);
 assign fill_done  = fill_write && din_ok;
-assign pre_dout   = fill_ok ? fill_data[LINEW-1:0] : cache_data;
+assign pre_dout   = fill_ok && (TAG_RAM ? fill_data_match : fill_addr_match)
+                    ? fill_data[LINEW-1:0] : cache_data;
 assign read_addr  = TAG_RAM ? read_addr_l : addr;
 
 jtframe_rpwp_ram #(.DW(LINEW),.AW(LINE_INDEX_AW)) u_ram(

@@ -320,10 +320,6 @@ jtsysfl_video u_video(
     .blue_dout  ( bpal_dout     ),
     .bpal_dout  ( bpal_cdout    ),
 
-    .smask_cs   ( smask_cs      ),
-    .smask_addr ( smask_addr    ),
-    .smask_ok   ( smask_ok      ),
-    .smask_data ( smask_data    ),
     .scr_cs     ( scr_cs        ),
     .scr_addr   ( scr_addr      ),
     .scr_ok     ( scr_ok        ),

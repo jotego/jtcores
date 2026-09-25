@@ -1,12 +1,13 @@
 # System FL memory map
-# bank 0: i960 program (1MB @0) + data (2MB @0x100000) + ROZ gfx
-# bank 1: obj gfx (SDRAM priority: bank0 first, so obj outranks all but roz/main)
-# bank 2: scroll gfx, bank 3: C352 PCM (4MB @0) + i960 work RAM (1MB @0x400000)
+# bank 0: i960 program (1MB @0) + data (2MB @0x100000) + C75 data (@0x300000)
+#         + woven ROZ gfx (@0x400000)
+# bank 1: obj gfx (SDRAM priority: bank0 first, so obj outranks all but bank0)
+# bank 2: C352 PCM (4MB @0) + i960 work RAM (@0x400000)
+# bank 3: woven scroll gfx (8MB)
 params:
-  - { name: SMASK_OFFSET, value: "22'h20_0000" }  # byte 0x400000
   - { name: ROZ_OFFSET,   value: "22'h20_0000" }  # byte 0x400000, bank 0
-  - { name: WRAM_OFFSET,  value: "22'h20_0000" }  # byte 0x400000, bank 1
-  - { name: C75DATA_OFFSET, value: "22'h28_0000" } # byte 0x500000, bank 2
+  - { name: WRAM_OFFSET,  value: "22'h20_0000" }  # byte 0x400000, bank 2
+  - { name: C75DATA_OFFSET, value: "22'h18_0000" } # byte 0x300000, bank 0
 download:
   pre_addr: true   # weaves the raw ROZ texel+mask stream into 8-byte units
 clocks:
@@ -40,25 +41,16 @@ sdram:
           data_width: 64
           cache_size: 4kB
           offset: ROZ_OFFSET
-    - buses:
-        - name: objrom
-          addr_width: 23
-          data_width: 32
-          cache_size: 1kB
-    - buses:
-        - name: scr
-          addr_width: 22
-          data_width: 8
-          cache_size: 1kB
-        - name: smask
-          addr_width: 19
-          data_width: 8
-          offset: SMASK_OFFSET
         - name: mcurom  # C75 external data ROM (se1_spr), 512kB
           addr_width: 19
           data_width: 16
           cache_size: 1kB
           offset: C75DATA_OFFSET
+    - buses:
+        - name: objrom
+          addr_width: 23
+          data_width: 32
+          cache_size: 1kB
     - buses:
         - name: wram    # rw buses must come first in the bank
           addr_width: 21
@@ -74,6 +66,11 @@ sdram:
           data_width: 32
           latch: "1"
           offset: WRAM_OFFSET
+    - buses:
+        - name: scr   # 8-byte woven units: 4 texels + row mask byte + pad
+          addr_width: 23
+          data_width: 64
+          cache_size: 1kB
 bram:
   - name: vram      # 123 tilemaps, 64kB. Primary port: video read
     addr_width: 16
