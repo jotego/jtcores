@@ -47,9 +47,9 @@ sdram:
       data_width: 64
       blocks: { count: 16, size: 16 }
       at: { chip: 1, bank: 0, length: 4MB }
-    - name: scr   # 8-byte woven units: 4 texels + row mask byte + pad
-      data_width: 64
-      blocks: { count: 16, size: 16 }
+    - name: scr   # 16-byte woven tile row: both col[2] half-units
+      data_width: 128
+      blocks: { count: 256, size: 64 } # 4 tile rows/block, a full line survives
       at: { chip: 1, bank: 1, length: 8MB }
     - name: pcm
       data_width: 8
