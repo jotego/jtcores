@@ -12,14 +12,6 @@ set cpu_rams [get_registers {emu|u_game|u_game|u_main|u_cpu|icd* emu|u_game|u_ga
 set_multicycle_path -from $cpu_regs -to $cpu_rams -setup -end 1
 set_multicycle_path -from $cpu_regs -to $cpu_rams -hold  -end 0
 
-# The bus funnel captures the CPU outputs in the CAPT state, two clocks
-# after the cen edge that launched them, and the CPU holds them until the
-# transaction is acknowledged. The wram32/main data return is muxed by the
-# registered sel_* flags, so the CPU only consumes it on the following cen.
-set fun_regs [get_registers {emu|u_game|u_game|u_main|fa* emu|u_game|u_game|u_main|fd* emu|u_game|u_game|u_main|fdsn* emu|u_game|u_game|u_main|fwr emu|u_game|u_game|u_main|half emu|u_game|u_game|u_main|wram_addr* emu|u_game|u_game|u_main|wram_din* emu|u_game|u_game|u_main|wram_dsn*}]
-set_multicycle_path -from $cpu_regs -to $fun_regs -setup -end 2
-set_multicycle_path -from $cpu_regs -to $fun_regs -hold  -end 1
-
 # Clock-rate sources inside the CPU: the icache outputs follow the read-ahead
 # every clk, so they get a single cycle to any CPU register despite the
 # blanket budget above.

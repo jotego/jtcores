@@ -90,7 +90,7 @@ localparam [3:0] T_NONE=4'd0, T_WRAM=4'd1, T_NVRAM=4'd2, T_SHARE=4'd3,
                  T_COM =4'd4, T_VRAM=4'd5, T_ROZR =4'd6, T_ORAM =4'd7,
                  T_SCFG=4'd8, T_ROZC=4'd9, T_PAL  =4'd10,T_MISC =4'd11,
                  T_INT =4'd12,T_SYS =4'd13,T_NET  =4'd14,T_UNK  =4'd15;
-localparam [1:0] IDLE=2'd0, SETUP=2'd1, WAIT=2'd2, CAPT=2'd3;
+localparam [1:0] IDLE=2'd0, SETUP=2'd1, WAIT=2'd2;
 
 // CPU bus
 wire [31:2] ca;
@@ -123,10 +123,7 @@ always @* begin
 end
 assign wram32_cs   = ccs && is_w32;
 assign wram32_addr = a[20:2];
-reg sel_rom32, sel_w32;
-reg  [31:0] md_r;
-reg         mok_r;
-assign cok = sel_rom32 ? mok_r : sel_w32 ? wram32_ok : fok;
+assign cok = is_rom32 ? main_ok : is_w32 ? wram32_ok : fok;
 
 // the wram32 slot serves its last fetched words without reading the SDRAM
 // (jtframe_romrq_bcache keeps two): shadow its recent misses, flag the ones
@@ -289,10 +286,6 @@ always @(posedge clk) begin
         if( fok && !ccs ) fok <= 0;
         case( st )
         IDLE: if( ccs && !fok && !is_rom32 && !is_w32 ) begin
-            st <= CAPT;
-            if( post ) fok <= 1;
-        end
-        CAPT: begin // CPU outputs settle a full cen period before this capture
             fa      <= ca;
             fd      <= cdout;
             fdsn    <= cdsn;
@@ -301,6 +294,7 @@ always @(posedge clk) begin
             bytesel <= 0;
             cnt     <= 0;
             st      <= WAIT;
+            if( post ) fok <= 1;
             if( is_wram || is_nv || is_cm ) begin
                 wram_cs   <= 1;
                 wram_we   <= cwr;
@@ -367,23 +361,7 @@ always @(posedge clk) begin
     end
 end
 
-always @* cdin = sel_rom32 ? md_r : sel_w32 ? wram32_data : {f_hi, f_lo};
-
-// the ROM cache data RAM output settles into a register before the CPU mux
-always @(posedge clk) begin
-    md_r  <= main_data;
-    mok_r <= main_cs && main_ok;
-end
-
-always @(posedge clk) begin
-    if( rst ) begin
-        sel_rom32 <= 0;
-        sel_w32   <= 0;
-    end else begin
-        sel_rom32 <= ccs && is_rom32;
-        sel_w32   <= ccs && is_w32;
-    end
-end
+always @* cdin = is_rom32 ? main_data : is_w32 ? wram32_data : {f_hi, f_lo};
 
 always @(posedge clk) begin
     if( rst ) begin
