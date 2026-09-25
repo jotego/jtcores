@@ -47,9 +47,9 @@ module jtc123(
     // Tile + mask readout (SDRAM), 8-byte woven units:
     // [4 texels][row mask byte][3 pad], keyed {code,row,col[2]}
     output            scr_cs,
-    output     [22:3] scr_addr,
+    output     [22:4] scr_addr,
     input             scr_ok,
-    input      [63:0] scr_data,
+    input      [127:0] scr_data,
     // Pixel output
     output     [11:0] scr_pxl,
     output     [ 2:0] scr_prio,
@@ -63,6 +63,7 @@ module jtc123(
 );
 
 parameter SIMFILE="rest.bin", SEEK=0;
+parameter [15:0] BLANK=16'h0020; // both games' pervasive fully-transparent tile
 
 
 localparam [ 8:0] HMARGIN=9'h8,
@@ -98,12 +99,12 @@ reg  [ 2:0] bprio, cprio, win, hcnt0, hcnt1, hcnt2, hcnt3;
 reg         done, alt_cen, opaque, bblankn;
 wire [10:0] pxl;
 wire [ 2:0] prio;
-wire        blankn, buf_we, rom_ok, hs_edge, mfetch, mgrant, pix_hit;
-reg  [22:3] pix_unit;              // pixel fetch unit {code, row, col[2]}
-reg  [ 1:0] pix_lane;              // texel byte lane, col[1:0]
-reg  [63:0] c_word;                // single-entry unit latch
-reg  [22:3] c_addr;
-reg         c_ok;
+wire        blankn, buf_we, rom_ok, hs_edge, mfetch, mgrant;
+reg  [63:0] u0[0:5], u1[0:5];      // per-layer texel units, both col[2] halves
+reg  [63:0] nu0[0:5], nu1[0:5];    // prefetched next-tile units
+reg  [ 7:0] px_b;                  // selected texel byte
+reg  [ 8:0] clr_a;                 // line-start clear sweep, outruns the writer
+reg         clearing;
 
 // MAME dx = 44 + {4,2,1,0} per layer, calibrate hoff0 in sim
 wire [15:0] hoff0 = dflip ? 16'h71 : -16'h0f;
@@ -116,15 +117,16 @@ integer     i, j;
     reg     miss;
 `endif
 
-// pixels are served from the unit latch; the port is free for the mask
-// prefetch whenever the latch holds the current unit (pixel miss wins)
-assign mfetch     = plyr!=7 && mst>=3; // tmap_data valid from mst 3
-assign pix_hit    = c_ok && c_addr==pix_unit;
-assign mgrant     = mfetch && (pix_hit || done);
-assign scr_cs     = ~done | mfetch;
-assign scr_addr   = mgrant ? {tmap_data, mask_asub, 1'b0} : pix_unit;
+// pixels are served from per-layer unit latches filled by the prefetch:
+// the pixel path never touches the port. BLANK units skip the port too.
+wire pre_blank    = tmap_data==BLANK;
+assign mfetch     = plyr!=7 && mst>=3 && !pre_blank; // tmap_data valid from mst 3
+assign mgrant     = mfetch;
+assign scr_cs     = mfetch;
+assign scr_addr   = {tmap_data, mask_asub}; // one fetch covers the whole tile row
 assign hsub       = hcnt[2:0];
-assign buf_we     = alt_cen & ~done;
+wire [2:0] pxs    = info[win][2:0] + hsub; // texel select within the tile row
+assign buf_we     = (alt_cen & ~done) | clearing;
 // a layer entering its next tile needs that tile's mask ready
 `ifdef SIMULATION
 // optional per-layer render mask for layer-by-layer debugging
@@ -136,7 +138,7 @@ wire [5:0] cfg_enb_eff = cfg_enb;
 `endif
 assign xing      = { hcnt[2:0]==7, hcnt[2:0]==7, hcnt3==7, hcnt2==7, hcnt1==7, hcnt0==7 };
 assign block      = xing & ~nrdy & ~cfg_enb_eff;
-assign rom_ok     = pix_hit & ~|block;
+assign rom_ok     = ~|block;
 assign dflip      = flip ^ cfg_flip;
 assign scr_pxl    = { 1'b0, pxl };
 assign scr_prio   = prio;
@@ -276,7 +278,7 @@ always @(posedge clk, posedge rst) begin
         nrdy      <= 0;
         plyr      <= 7;
         mst       <= 0;
-        c_ok      <= 0;
+        clearing  <= 0;
     end else begin
         case( mst )
             0: if( mlyr!=7 ) begin
@@ -296,8 +298,20 @@ always @(posedge clk, posedge rst) begin
                 poff <= plyr>3 ? 3'd0 : pcnt - hcnt[2:0];
                 mst <= 2;
             end
-            2,3: mst <= mst + 3'd1;
-            4: if( mgrant && scr_ok ) begin
+            2: mst <= 3;
+            3: begin
+                mst <= 4;
+                if( pre_blank ) begin // no RAM request for the blank tile
+                    nmask[plyr] <= 0;
+                    ninfo[plyr] <= {cfg_pal[plyr], tmap_data, mask_asub, poff};
+                    nrdy[plyr]  <= 1;
+                    plyr        <= 7;
+                    mst         <= 0;
+                end
+            end
+            4: if( scr_ok ) begin
+                nu0[plyr]   <= scr_data[63:0];
+                nu1[plyr]   <= scr_data[127:64];
                 nmask[plyr] <= scr_data[39:32];
                 ninfo[plyr] <= {cfg_pal[plyr], tmap_data, mask_asub, poff};
                 nrdy[plyr]  <= 1;
@@ -308,11 +322,15 @@ always @(posedge clk, posedge rst) begin
         endcase
         if( alt_cen ) begin
             // next pixel information
-            { attr, pix_unit, pix_lane } <= { opaque, cprio, info[win][3+:22], info[win][2:0]+hsub };
+            attr <= { opaque, cprio, info[win][24:22] };
+            px_b <= pxs[2] ? u1[win][{pxs[1:0],3'd0}+:8]
+                           : u0[win][{pxs[1:0],3'd0}+:8];
             for( i=0; i<6; i=i+1 ) begin
                 if( xing[i] && nrdy[i] ) begin
                     mask[i] <= nmask[i];
                     info[i] <= ninfo[i];
+                    u0[i]   <= nu0[i];
+                    u1[i]   <= nu1[i];
                     nrdy[i] <= 0;
                 end else begin
                     mask[i] <= mask[i] << 1;
@@ -320,26 +338,30 @@ always @(posedge clk, posedge rst) begin
             end
             buf_a <= hcnt;
             // current pixel
-            { bblankn, bprio, bpxl } <= { attr, c_word[{pix_lane,3'd0}+:8] };
-        end
-        if( !mgrant && scr_ok && !pix_hit ) begin
-            c_word <= scr_data;
-            c_addr <= pix_unit;
-            c_ok   <= 1;
+            { bblankn, bprio, bpxl } <= { attr, px_b };
         end
         if( hs_edge ) begin
             nrdy <= 0;
             plyr <= 7;
             mst  <= 0;
+            clr_a    <= HSTART;
+            clearing <= 1;
+        end else if( clearing && !(alt_cen && !done) ) begin
+            clr_a <= clr_a + 9'd1;
+            if( clr_a == HEND ) clearing <= 0;
         end
     end
 end
 
+wire        pix_we  = alt_cen & ~done;
+wire [ 8:0] wr_a    = pix_we ? buf_a : clr_a;
+wire [14:0] wr_d    = pix_we ? {bpxl,bprio,bblankn} : 15'd0;
+
 jtframe_linebuf #(.DW(15)) u_buffer(
     .clk        ( clk       ),
     .LHBL       ( ~hs       ),
-    .wr_addr    ( buf_a     ),
-    .wr_data    ({bpxl,bprio,bblankn}),
+    .wr_addr    ( wr_a      ),
+    .wr_data    ( wr_d      ),
     .we         ( buf_we    ),
     .rd_addr    ( dflip ? ~hdump - FLIP_DX : hdump ),
     .rd_data    ({pxl,prio,blankn}),
@@ -367,7 +389,6 @@ always @(posedge clk) begin
         sc_mrsp <= sc_mrsp+1;
         if( scr_data[39:32]==0 ) sc_mzero <= sc_mzero+1;
     end
-    if( !mgrant && scr_ok && !pix_hit ) sc_ufill <= sc_ufill+1;
     if( hs_edge ) begin
         sc_lines <= sc_lines+1;
         if( !done ) sc_cut <= sc_cut+1;

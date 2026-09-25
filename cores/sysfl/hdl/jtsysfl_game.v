@@ -70,7 +70,7 @@ wire [20:2] g_wram32_addr; wire [31:0] g_wram32_data; wire g_wram32_cs, g_wram32
 wire [18:1] g_mcurom_addr; wire [15:0] g_mcurom_data; wire g_mcurom_cs, g_mcurom_ok;
 wire [22:2] g_objrom_addr; wire [31:0] g_objrom_data; wire g_objrom_cs, g_objrom_ok;
 wire [21:3] g_roz_addr;    wire [63:0] g_roz_data;    wire g_roz_cs, g_roz_ok;
-wire [22:3] g_scr_addr;    wire [63:0] g_scr_data;    wire g_scr_cs, g_scr_ok;
+wire [22:4] g_scr_addr;    wire [127:0] g_scr_data;   wire g_scr_cs, g_scr_ok;
 wire [21:0] g_pcm_addr;    wire [ 7:0] g_pcm_data;    wire g_pcm_cs, g_pcm_ok;
 
 // both work-RAM views share the single coherent rw lane; they are mutually
@@ -123,7 +123,7 @@ jtsysfl_lane_cache #(.AW(19),.DW(64),.IDXW(9)) u_shroz(
     .ln_rd(roz_rd), .ln_addr(roz_addr),
     .ln_data(roz_data), .ln_ok(roz_ok)
 );
-jtsysfl_lane_cache #(.AW(20),.DW(64),.IDXW(9)) u_shscr(
+jtsysfl_lane_cache #(.AW(19),.DW(128),.IDXW(9)) u_shscr(
     .rst(rst), .clk(clk),
     .cs(g_scr_cs), .addr(g_scr_addr),
     .dout(g_scr_data), .ok(g_scr_ok),
