@@ -513,6 +513,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .slot{{$index2}}_addr  ( {{.Addr}} ),{{else}}
     {{- if eq .Data_width 32 }}
     .slot{{$index2}}_addr  ( { {{.Name}}_addr, 1'b0 } ),
+    {{- else if eq .Data_width 64 }}
+    .slot{{$index2}}_addr  ( { {{.Name}}_addr, 2'b0 } ),
     {{- else }}
     .slot{{$index2}}_addr  ( {{.Name}}_addr  ),
     {{- end }}{{end}}
