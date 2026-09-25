@@ -60,15 +60,17 @@ module jtc355 #( parameter [8:0] H0=9'd0 )(
 
 wire [104:0] desc_data;
 wire        desc_we, fwd_pass;
-// vblank DMA: the attr/list/clip tables (0000-12ff) are copied into a private
-// BRAM, so the scan reads a frame-coherent snapshot while the CPU keeps
-// writing the live tables. The format/tile tables are static and read live;
+// vblank DMA: the attr/list/clip (0000-12ff) and format (2000-3fff) tables
+// are copied into a private BRAM, so the scan reads a frame-coherent snapshot
+// while the CPU keeps writing the live tables. The tile table is read live;
 // the games own the whole oram address space, nothing may be parked there
-(* ramstyle = "M10K, no_rw_check" *) reg [15:0] snap[0:12'hAFF];
+(* ramstyle = "M10K, no_rw_check" *) reg [15:0] snap[0:14'h2FFF];
 reg  [15:0] snap_q;
 reg         snap_sel;
 reg  [13:0] dma_src;
-wire [11:0] snap_wa = dma_src<14'h800 ? dma_src[11:0] : {2'd2,dma_src[9:0]};
+wire [13:0] snap_wa = dma_src<14'h800  ? {3'd0,dma_src[10:0]}  :
+                      dma_src<14'h2000 ? {4'd2,dma_src[9:0]}   :
+                                         dma_src - 14'h1000;
 reg  [ 1:0] sprbank_l;  // frame-coherent with the snapshot, like MAME's
                         // render-at-vblank (flr toggles the bank per frame)
 reg         dma_bsy, dma_phase, snapped, dma_pend;
@@ -96,8 +98,9 @@ end
 
 always @(posedge clk) begin
     if( dma_bsy && dma_phase ) snap[snap_wa] <= objtab_data;
-    snap_q   <= snap[scan_addr[12:1]];
-    snap_sel <= scan_addr[16:13]==0;
+    snap_q   <= snap[scan_addr[16:14]==3'd1 ? 14'h1000+{1'b0,scan_addr[13:1]}
+                                            : {2'd0,scan_addr[12:1]}];
+    snap_sel <= scan_addr[16:13]==0 || scan_addr[16:14]==3'd1;
 end
 
 always @(posedge clk, posedge rst) begin
@@ -117,8 +120,9 @@ always @(posedge clk, posedge rst) begin
             end else begin
                 dma_phase <= ~dma_phase;
                 if( dma_phase ) begin
-                    dma_src <= dma_src==14'h07ff ? 14'h1000 : dma_src + 14'd1;
-                    if( dma_src==14'h12ff ) begin
+                    dma_src <= dma_src==14'h07ff ? 14'h1000 :
+                               dma_src==14'h12ff ? 14'h2000 : dma_src + 14'd1;
+                    if( dma_src==14'h3fff ) begin
                         dma_bsy <= 0;
                         snapped <= 1;
                     end
