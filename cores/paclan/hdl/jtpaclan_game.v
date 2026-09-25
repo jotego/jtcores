@@ -10,14 +10,18 @@ wire [15:0] fave, maddr;
 wire [ 1:0] busy;
 reg  [ 7:0] dbg_mux;
 wire [ 7:0] st_main, mdout, c30_dout, st_video;
-wire [ 8:0] scr0_pos, scr1_pos;
+wire [ 8:0] scr0_pos, scr1_pos, scrx;
+wire [ 7:0] scry, pri;
 wire [ 1:0] palbank;
 wire        cen_E, cen_Q, cen_mcu, flip, mmr0_cs, mmr1_cs,
             mrnw, srst, mc30_cs, mcu_seln, cpu_rnw;
+// Configuration through MRA header
+wire        skykid, rot180;
 reg         lvbl_ps;
 
 assign debug_view   = dbg_mux;
 assign dip_flip     = flip;
+assign not_skykid   = ~skykid;
 
 always @(posedge clk) lvbl_ps <= LVBL & dip_pause;
 
@@ -29,6 +33,16 @@ always @* begin
         default: dbg_mux = 0;
     endcase
 end
+
+jtpaclan_header u_header(
+    .clk        ( clk       ),
+    .header     ( header    ),
+    .prog_we    ( prog_we   ),
+    .prog_addr  ( prog_addr[2:0] ),
+    .prog_data  ( prog_data[7:0] ),
+    .skykid     ( skykid    ),
+    .rot180     ( rot180    )
+);
 
 jtthundr_cenloop u_cen(
     .rst        ( rst       ),
@@ -52,8 +66,12 @@ jtpaclan_main u_main(
     .srst       ( srst      ),
 
     .lvbl       ( lvbl_ps   ),
+    .skykid     ( skykid    ),
     .scr0_pos   ( scr0_pos  ),
     .scr1_pos   ( scr1_pos  ),
+    .scrx       ( scrx      ),
+    .scry       ( scry      ),
+    .pri        ( pri       ),
     .palbank    ( palbank   ),
     .flip       ( flip      ),
 
@@ -94,8 +112,9 @@ jtpaclan_sound u_sound(
 
     .vs         ( VS        ),
     .lvbl       ( lvbl_ps   ),
+    .skykid     ( skykid    ),
 
-    .dipsw      (dipsw[15:0]),
+    .dipsw      (dipsw[19:0]),
     .joystick1  (joystick1[6:0]),
     .joystick2  (joystick2[6:0]),
     .cab_1p     (cab_1p[1:0]),
@@ -135,8 +154,13 @@ jtpaclan_video u_video(
     .pxl_cen    ( pxl_cen   ),
     .pxl2_cen   ( pxl2_cen  ),
     .flip       ( flip      ),
+    .skykid     ( skykid    ),
+    .rot        ( rot180    ),
     .scr0_pos   ( scr0_pos  ),
     .scr1_pos   ( scr1_pos  ),
+    .scrx       ( scrx      ),
+    .scry       ( scry      ),
+    .pri        ( pri       ),
     .palbank    ( palbank   ),
 
     .lvbl       ( LVBL      ),

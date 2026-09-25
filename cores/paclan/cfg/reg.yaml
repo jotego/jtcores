@@ -1,2 +1,8 @@
 pacland:
   inputs: reg.cab
+drgnbstr:
+  video: 1600
+  inputs: reg.cab
+skykid:
+  video: 1000
+  inputs: reg.cab

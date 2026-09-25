@@ -5,9 +5,9 @@
 module jtpaclan_sound(
     input               rst, clk,
                         cen_mcu, pxl_cen, cen_c30,
-                        vs, lvbl, mcu_seln,
+                        vs, lvbl, mcu_seln, skykid,
 
-    input        [15:0] dipsw,
+    input        [19:0] dipsw,
     input        [ 6:0] joystick1, joystick2,
     input        [ 1:0] cab_1p,
     input        [ 1:0] coin,
@@ -37,7 +37,7 @@ module jtpaclan_sound(
 );
 `ifndef NOMAIN // sound always needed if main is compiled
 wire [15:0] A;
-wire [ 7:0] mcu_dout, cab_other, fm_dout, p1_dout, cab_dout;
+wire [ 7:0] mcu_dout, cab_other, fm_dout, p1_dout, cab_dout, sk_cab;
 wire [ 4:0] p2_dout;
 reg  [ 7:0] mcu_din;
 reg         uc30_cs, cab_cs, ram_cs, irq_ctl, irq_ack;
@@ -56,7 +56,7 @@ always @(*) begin
     irq_ctl = vma && A[15:12]>=4'h4 && A[15:12]<=4'h7 && wr; // 4000~7FFF
     rom_cs  = vma && A[15:12]>=4'h8 && A[15:12]<=4'h9;       // 8000~9FFF
     ram_cs  = vma && A[15:12]==4'hc;                         // C000~C7FF
-    cab_cs  = vma && A[15:12]==4'hd && !wr;                  // Dxxx
+    cab_cs  = vma && A[15:12]==4'hd && !wr && !skykid;       // Dxxx
 end
 
 always @* begin
@@ -80,7 +80,7 @@ jtpaclan_cab u_cab(
 
     .addr       ( A[1:0]        ),
 
-    .dipsw      ( dipsw         ),
+    .dipsw      ( dipsw[15:0]   ),
     .joystick1  ( joystick1     ),
     .joystick2  ( joystick2     ),
     .cab_1p     ( cab_1p        ),
@@ -90,6 +90,18 @@ jtpaclan_cab u_cab(
 
     .cab_dout   ( cab_dout      ),
     .other      ( cab_other     )
+);
+
+jtskykid_cab u_skcab(
+    .clk        ( clk           ),
+    .p1_dout    ( p1_dout       ),
+    .dipsw      ( dipsw         ),
+    .joystick1  ( joystick1[5:0]),
+    .joystick2  ( joystick2[5:0]),
+    .cab_1p     ( cab_1p        ),
+    .coin       ( coin          ),
+    .service    ( service       ),
+    .cab        ( sk_cab        )
 );
 
 /* verilator tracing_on */
@@ -111,7 +123,7 @@ jtframe_6801mcu #(.ROMW(12),.SLOW_FRC(2),.MODEL("HD63701V")) u_63701(
     .irq        ( irq           ),
     .nmi        ( 1'b0          ),
     // ports
-    .p1_din     ( cab_other     ),
+    .p1_din     ( skykid ? sk_cab : cab_other ),
     .p2_din     ( 5'h1f         ),
     .p3_din     ( 8'd0          ),
     .p4_din     ( 8'd0          ),
