@@ -41,9 +41,8 @@ JTFRAME_BA3_WEN
 JTFRAME_IOCTL_RD=352372
 # the game asks for the test switch to initialize its backup memory
 JTFRAME_OSD_TEST
-# integer PLL 63ppm under the PCB 60.48 (VCO 1270 = 50 x 127/5, /21).
-# N<=10 keeps the PFD at or above the 5 MHz Cyclone V minimum; the unused
-# 2x outputs park at 127 MHz since 1270 has no half-step divider
+# wizard-generated fractional PLL at the exact PCB 60.48 MHz family.
+# jtframe_pllc6000 is the proven integer fallback if SDRAM margins suffer
 JTFRAME_PLL=jtframe_plld6048
 JTFRAME_BASE_MUL=10
 
