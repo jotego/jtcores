@@ -29,6 +29,21 @@ acceptable for now.
   both. (Code width differs: texel uses code[12:0], mask code[13:0] - key the
   combined region on the full 14-bit code; texel side sees a sparser map.)
 
+## RESOLVED: weave by mask key, texel duplicated across code[13]
+
+MAME roz_cb sets tile=code and mask=code (full width, no masking). ROM sizes:
+rch texels = 2 MB = 8192 tiles (code[12:0]); rsh mask = 512 kB = 16384 masks
+(code[13:0]). So two codes differing only in bit 13 share ONE texel tile but
+have DIFFERENT masks - the hardware ships 2x mask space on purpose, so bit 13
+is real. Therefore:
+
+- The woven region is indexed by the full mask key h_msk =
+  {code[13:0], yp[3:0], xp[3]} (this IS the 8-texel group index).
+- The texel group for code and code+8192 is DUPLICATED (stored twice).
+- Region size at the padded 16-byte unit: 16384 tiles x 32 groups/tile
+  (16 rows x 2 xp[3]) x 16 bytes = 8 MB. (Texels duplicated + mask + pad.)
+  Fits SDRAM; the cps3 full-page path later drops the 7-byte pad to ~4.5 MB.
+
 ## The layout problem: power-of-2 bursts vs the 9-byte unit
 
 The natural unit is 8 texel bytes + 1 mask byte = 9 bytes. But the current
