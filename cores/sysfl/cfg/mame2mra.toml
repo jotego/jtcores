@@ -17,21 +17,23 @@ regions = [
     # ROZ_START reproduces the erased region
     { name="data",         machine="finalapr", skip=true },
     { name="data",         width=32 },
-    # rch + rsh stream raw (rsh twice); the core's pre_addr remap weaves them
-    # into 8-byte units at 0x400000 (see doc/roz-mask-interleave.md)
+    # gfx + their masks stream raw (masks twice); the core's pre_addr remap
+    # weaves them into 8-byte units (see doc/roz-mask-interleave.md)
     { name="c169roz",      start="ROZ_START" },
     { name="c169roz:mask", start="RSH_START", sequence=[0,0] },
-    { name="c352",         start="JTFRAME_BA3_START" },
-    { name="c123tmap",     start="JTFRAME_BA2_START" },
+    { name="c352",         start="JTFRAME_BA2_START" },
+    # C75 data rom streams here and is remapped into the bank0 gap
+    { name="c75data",      start="MCUROM_START" },
     # C75 internal BIOS, from the namcoc75.zip device set
     { name="c75",          start="C75BIOS_START", files=[
         { name="c75.bin", crc="42f539a5", size=0x4000 } ] },
-    { name="c75data",      start="MCUROM_START" },
+    { name="c123tmap",     start="JTFRAME_BA3_START" },
+    { name="c123tmap:mask", start="SSH_START", sequence=[0,0] },
     { name="c355spr",      width=32, start="JTFRAME_BA1_START" },
     { name="pals",         skip=true },
 ]
 order = [ "maincpu", "data", "c169roz", "c169roz:mask", "c355spr",
-          "c123tmap", "c123tmap:mask", "c75", "c75data", "c352" ]
+          "c352", "c75data", "c75", "c123tmap", "c123tmap:mask" ]
 
 [buttons]
 # jtframe b1-b4 = joystick[7:4]; names follow the MAME PORT_NAMEs

@@ -21,16 +21,18 @@ JTFRAME_ARX=4
 JTFRAME_ARY=3
 
 # ROM configuration, byte offsets in download order (see mame2mra.toml)
-# bank1 = obj (high SDRAM priority), bank3 = pcm + work RAM
-# rch+rsh stream raw at ROZ_START/RSH_START; the pre_addr remap weaves them
-# into the 4MB unit region at 0x400000-0x800000 of bank 0
+# bank1 = obj, bank2 = pcm + work RAM, bank3 = woven scroll gfx
+# rch+rsh and sch+ssh stream raw (masks twice); the pre_addr remap weaves
+# them into 8-byte units at bank0 0x400000 and bank3 0x000000, and moves
+# the C75 data rom into the bank0 gap at 0x300000
 ROZ_START=0x300000
 RSH_START=0x500000
 JTFRAME_BA1_START=0x800000
 JTFRAME_BA2_START=0x1000000
+MCUROM_START=0x1400000
 C75BIOS_START=0x1480000
-MCUROM_START=0x1500000
-JTFRAME_BA3_START=0x1580000
+JTFRAME_BA3_START=0x1600000
+SSH_START=0x1A00000
 # 64-bit bursts for the sprite ROM, 8 pixels per fetch
 
 JTFRAME_BA1_LEN=64

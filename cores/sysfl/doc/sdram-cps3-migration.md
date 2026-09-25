@@ -20,11 +20,11 @@ change.
 - Integer vs exact-crystal PLL is orthogonal to this work; keep whatever the
   bench blessed (pllc6000 integer 60, or plld6048 if it holds).
 
-## Phase 1 — transition only, hack UNCHANGED (this task)
+## Phase 1 — controller transition (both mask folds are DONE on BL4)
 
-Port the bus layout verbatim in behavior; no interleave, no hack removal.
-The RMASK post-download relocation and the separate c169 mask path stay
-exactly as today. Only the controller and cache layer change.
+DONE before the switch: the ROZ interleave (2342d77e8/d258763fe) and the
+C123 scr+smask interleave (both masks ride their texel units, the rmask
+and smask buses are gone). The core is at 8 SDRAM buses = 8 lanes, 1:1.
 
 ### mem.yaml: banks -> cache-lanes
 
@@ -36,11 +36,14 @@ Suggested placement (CPU on chip 0, GFX on chip 1, so they never contend):
 | 0    | 0    | main+data | 32  | rw, flush; CPU program/data            |
 | 0    | 1    | wram/wram32 | 16/32 | rw; nvram/comram in the upper window |
 | 0    | 2    | pcm       | 8   | C352 streaming                         |
-| 0    | 3    | mcurom    | 16  | C75 external data (latency-critical)   |
+| 0    | 3    | mcurom    | 16  | C75 external data (latency-critical; on
+|      |      |           |     | BL4 it sits in bank0, its own lane here)|
 | 1    | 0    | objrom    | 32  | sprite tiles, large-block cache        |
-| 1    | 1    | roz       | 32  | texels; keep small line for capacity   |
-| 1    | 2    | rmask     | 8   | STAYS SEPARATE in phase 1 (hack intact)|
-| 1    | 3    | scr+smask | 8   | scroll tiles + shape mask (classic)    |
+| 1    | 1    | roz       | 64  | woven 8-byte units; drop to 6-byte lines
+|      |      |           |     | (full-page terminate) to shed the pad  |
+| 1    | 2    | scr       | 64  | woven 8-byte units, 5-byte lines later;
+|      |      |           |     | keep >=4kB capacity (full line set)    |
+| 1    | 3    | (free)    |     |                                        |
 
 Line sizes: keep them small (texel-run sized), NOT tile sized. ROZ is
 affine; big lines thrash under rotation. Bigger *capacity* (more sets) is
@@ -58,11 +61,11 @@ read in horizontal runs) - this replaces the BL8 win the STOP engine gave.
 
 ### What is KEPT untouched in phase 1
 
-- RMASK_START + the make_sdram RMASK splice + mame2mra RMASK region
-- c169 mask path: rmask_addr/rmask_cs/rmask_ok, the 2-station miss queue,
-  c_maddr/c_mbyte, opq interplay
+- both woven download paths (the pre_addr remap and the doubled mask streams)
 - every core bus handshake contract (especially: C75 mcurom latency, the
   wram32 shadow/first-write-wins, the vblank oram DMA snapshot)
+- the c123 single-entry unit latch: pixels draw from it so the port is free
+  for the mask prefetch; the cache behind it must keep a full line's set
 
 ### Validation gate (both must pass, both games)
 
@@ -74,21 +77,17 @@ read in horizontal runs) - this replaces the BL8 win the STOP engine gave.
 
 Only after all four: commit, then bench.
 
-## Phase 2 — ROZ mask interleave, hack removal (LATER, separate task)
+## Phase 2 — DONE EARLY on BL4 (both interleaves landed pre-migration)
 
-Once phase 1 is proven on hardware:
-
-- One combined roz lane, line = 8 texel bytes + 1 mask byte = 9 bytes.
-  The 8-texel run and its mask share the address key
-  `{code, yp[3:0], xp[3]}`, so one tag/one slot/one terminated burst
-  returns both. Mask overhead is the exact covering byte, zero rotation
-  waste.
-- Download interleaver writes 8 texels then 1 mask byte, repeating.
-  Note the code-width difference: texel uses code[12:0], mask code[13:0];
-  key the combined region on the full 14-bit code.
-- Delete: RMASK region + splice, the separate c169 mask path and its miss
-  queue. Frees the mask BRAM and the queue logic.
-- Same 4-gate validation. scr+smask can follow with the identical pattern.
+- ROZ: 8-byte units [4 texels][mask c13=0][mask c13=1][2 pad] keyed
+  {code[12:0], yp, xp[3:2]} - 2342d77e8 (RTL+sim), d258763fe (download).
+- C123: 8-byte units [4 texels][row mask][3 pad] keyed {code, row, col[2]},
+  mask byte duplicated across the col[2] pair; smask bus deleted; C75 data
+  moved to bank0; pcm+wram to bank2; the 8MB woven scroll fills bank3.
+  Pixels draw from a single-entry unit latch so the shared port serves the
+  mask prefetch in the gaps; scr cache 4kB to hold a full line's units.
+- Under cps3 full-page terminate the pads drop: roz lines 6 bytes (both
+  mask bytes kept), scr lines 5 bytes.
 
 ## Rollback
 

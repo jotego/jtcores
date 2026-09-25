@@ -124,10 +124,13 @@ jtsysfl_main u_main(
 
 wire flr;
 
-// download remap: weave the raw ROZ texel (0x300000) and mask (0x500000, sent
-// twice) streams into the 8-byte units at 0x400000 (see doc/roz-mask-interleave.md)
+// download remap: weave the raw ROZ (0x300000/0x500000) and scroll
+// (0x1600000/0x1A00000) texel+mask streams into their 8-byte unit regions
+// (masks stream twice), and move the C75 data rom into the bank0 gap.
+// Fillers park at a byte in the gap tail. See doc/roz-mask-interleave.md.
 // ioctl_addr comes in header-stripped; jtframe_dwnld strips pre_addr again, +8
 wire [25:0] dl_i = ioctl_addr - 26'h30_0000;
+wire [25:0] dl_s = ioctl_addr - 26'h160_0000;
 always @* begin
     pre_addr = ioctl_addr;
     if( !header ) begin
@@ -138,7 +141,17 @@ always @* begin
             else if( ioctl_addr < 26'h60_0000 ) // masks: bytes 4/5 of the unit pair
                 pre_addr = 26'h40_0008 + { dl_i[17:0], dl_i[19], 2'b10, dl_i[18] };
             else                                // FF filler: park it in the gap
-                pre_addr = 26'h30_0008;
+                pre_addr = 26'h3F_FFF8;
+        end
+        if( ioctl_addr>=26'h140_0000 && ioctl_addr<26'h148_0000 ) // C75 data
+            pre_addr = 26'h30_0008 + { 7'd0, ioctl_addr[18:0] };
+        if( ioctl_addr>=26'h148_4000 && ioctl_addr<26'h160_0000 ) // FF filler
+            pre_addr = 26'h3F_FFF8;
+        if( ioctl_addr>=26'h160_0000 ) begin
+            if( ioctl_addr < 26'h1A0_0000 )     // scroll texels
+                pre_addr = 26'h160_0008 + { 2'd0, dl_s[21:2], 1'b0, dl_s[1:0] };
+            else if( ioctl_addr < 26'h1B0_0000 ) // scroll row masks, unit pair
+                pre_addr = 26'h160_0008 + { 2'd0, dl_s[18:0], dl_s[19], 3'b100 };
         end
     end
 end
