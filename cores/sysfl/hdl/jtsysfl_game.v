@@ -123,7 +123,7 @@ jtsysfl_lane_cache #(.AW(19),.DW(64),.IDXW(9)) u_shroz(
     .ln_rd(roz_rd), .ln_addr(roz_addr),
     .ln_data(roz_data), .ln_ok(roz_ok)
 );
-jtsysfl_lane_cache #(.AW(20),.DW(64),.IDXW(8),.LINE2X(1)) u_shscr(
+jtsysfl_lane_cache #(.AW(20),.DW(64),.IDXW(9)) u_shscr(
     .rst(rst), .clk(clk),
     .cs(g_scr_cs), .addr(g_scr_addr),
     .dout(g_scr_data), .ok(g_scr_ok),

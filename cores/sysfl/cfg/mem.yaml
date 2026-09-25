@@ -48,7 +48,7 @@ sdram:
       blocks: { count: 16, size: 16 }
       at: { chip: 1, bank: 0, length: 4MB }
     - name: scr   # 8-byte woven units: 4 texels + row mask byte + pad
-      data_width: 128
+      data_width: 64
       blocks: { count: 16, size: 16 }
       at: { chip: 1, bank: 1, length: 8MB }
     - name: pcm

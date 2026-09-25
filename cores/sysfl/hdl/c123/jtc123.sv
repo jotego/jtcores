@@ -357,18 +357,26 @@ end
 
 // per-frame deadline audit, same shape as ROZA/SOBJ
 integer sc_lines=0, sc_cut=0, sc_wait=0, sc_mf=0;
+integer sc_mrsp=0, sc_mzero=0, sc_ufill=0;
 reg sc_vsl=0;
 always @(posedge clk) begin
     sc_vsl <= vs;
     if( !done && !rom_ok ) sc_wait <= sc_wait+1;
     if( mfetch            ) sc_mf   <= sc_mf+1;
+    if( mgrant && scr_ok ) begin
+        sc_mrsp <= sc_mrsp+1;
+        if( scr_data[39:32]==0 ) sc_mzero <= sc_mzero+1;
+    end
+    if( !mgrant && scr_ok && !pix_hit ) sc_ufill <= sc_ufill+1;
     if( hs_edge ) begin
         sc_lines <= sc_lines+1;
         if( !done ) sc_cut <= sc_cut+1;
     end
     if( vs && !sc_vsl ) begin
         $display("SCRA lines=%0d cut=%0d wait=%0d mask=%0d", sc_lines, sc_cut, sc_wait, sc_mf);
+        $display("SCRB mrsp=%0d mzero=%0d ufill=%0d", sc_mrsp, sc_mzero, sc_ufill);
         sc_lines<=0; sc_cut<=0; sc_wait<=0; sc_mf<=0;
+        sc_mrsp<=0; sc_mzero<=0; sc_ufill<=0;
     end
 end
 `endif
