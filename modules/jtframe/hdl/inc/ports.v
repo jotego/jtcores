@@ -51,7 +51,11 @@
 `endif
 {{end}}
 {{- if .Download.Pre_addr }}
+`ifdef JTFRAME_SDRAM_XL
+    output reg [26:0] pre_addr,
+`else
     output reg [25:0] pre_addr,
+`endif
 {{end}}
 {{- if .Download.Post_data }}
     output reg [ 7:0] post_data,
