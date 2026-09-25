@@ -48,7 +48,7 @@ module jt352(
     output reg [ 7:0] st_dout
 );
 
-localparam [2:0] IDLE=0, LOAD=1, FETCH=2, MIX=3, PUT=4;
+localparam [2:0] IDLE=0, LOAD=1, FETCH=2, MIX=3, PUT=4, INTP=5;
 // flag bits
 localparam BUSY=15, KON=14, KOFF=13, LHIST=11, PH_RL=9, PH_FL=8,
            PH_FR=7, LDIR=6, LINK=5, NOISE=4, MULAW=3, FILT=2, LOOP=1, REV=0;
@@ -138,7 +138,8 @@ wire signed [16:0] sdiff = $signed({w_smp[15],w_smp}) - $signed({w_lst[15],w_lst
 wire signed [33:0] iprod = $signed({1'b0,nc}) * sdiff;
 wire        [15:0] s_int = w_lst + iprod[31:16];
 wire        [15:0] s_mix = w_flg[FILT] ? w_smp : s_int;
-wire signed [16:0] s_p   = $signed({s_mix[15],s_mix});
+reg         [15:0] s_mixr;   // pipeline stage between the two multiplies
+wire signed [16:0] s_p   = $signed({s_mixr[15],s_mixr});
 wire signed [16:0] s_n   = -s_p;
 // RR takes the FR phase flag, as in MAME
 wire signed [16:0] m0 = w_flg[PH_FL]? s_n:s_p,
@@ -229,7 +230,7 @@ always @(posedge clk) begin
                 if( flag_a[vch][NOISE] ) begin
                     lfsr  <= lfsr_nx;
                     w_smp <= lfsr_nx;
-                    st    <= MIX;
+                    st    <= INTP;
                 end else begin
                     rom_cs   <= 1;
                     rom_addr <= pos_a[vch];
@@ -237,7 +238,7 @@ always @(posedge clk) begin
                     st       <= FETCH;
                 end
             end else
-                st <= MIX;
+                st <= INTP;
         end
         FETCH: begin // voice walk stalls until the ROM byte arrives
             fwait <= 1;
@@ -246,8 +247,12 @@ always @(posedge clk) begin
                 w_smp  <= fs;
                 w_pos  <= np;
                 w_flg  <= nf;
-                st     <= MIX;
+                st     <= INTP;
             end
+        end
+        INTP: begin
+            s_mixr <= s_mix;
+            st     <= MIX;
         end
         MIX: begin
             acc0 <= acc0 + $signed({{6{t0[25]}},t0[25:8]});
