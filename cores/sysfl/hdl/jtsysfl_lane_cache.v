@@ -58,11 +58,26 @@ always @(posedge clk) begin
             busy  <= 0;
             mem[req_a[IDXW-1:0]]   <= { req_a[AW-1:IDXW], ln_data };
             valid[req_a[IDXW-1:0]] <= 1;
+            // forward the fill so the held address matches next clock,
+            // closing the stale-q re-miss window (ghost double fills)
+            if( addr==req_a ) begin
+                q  <= { req_a[AW-1:IDXW], ln_data };
+                vq <= 1;
+            end
         end
     end
 end
 
 `ifdef SIMULATION
+integer lc_lat=0, lc_latsum=0, lc_latmax=0, lc_n=0;
+always @(posedge clk) begin
+    if( busy ) lc_lat <= lc_lat+1;
+    if( busy && ln_ok ) begin
+        lc_latsum <= lc_latsum+lc_lat+1;
+        if( lc_lat+1 > lc_latmax ) lc_latmax <= lc_lat+1;
+        lc_n <= lc_n+1; lc_lat <= 0;
+    end
+end
 integer lc_hit=0, lc_miss=0, lc_clk=0;
 reg lc_okl=0;
 always @(posedge clk) begin
@@ -71,7 +86,7 @@ always @(posedge clk) begin
     if( miss          ) lc_miss <= lc_miss+1;
     lc_clk <= lc_clk+1;
     if( lc_clk==32'd800_000 ) begin  // ~once per frame at 48 MHz
-        $display("LANECACHE %m hits=%0d misses=%0d", lc_hit, lc_miss);
+        $display("LANECACHE %m hits=%0d misses=%0d fills=%0d avglat=%0d maxlat=%0d", lc_hit, lc_miss, lc_n, lc_n>0 ? lc_latsum/lc_n : 0, lc_latmax);
         lc_hit<=0; lc_miss<=0; lc_clk<=0;
     end
 end
