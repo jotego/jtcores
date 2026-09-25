@@ -1,5 +1,5 @@
 CORENAME=JTSYSFL
-JTFRAME_RATE=59.66
+JTFRAME_RATE=59.19
 
 JTFRAME_STEREO
 JTFRAME_BUTTONS=4
@@ -47,9 +47,10 @@ JTFRAME_BA2_WEN
 JTFRAME_IOCTL_RD=352372
 # the game asks for the test switch to initialize its backup memory
 JTFRAME_OSD_TEST
-# wizard-generated fractional PLL at the exact PCB 60.48 MHz family.
+# integer 60 MHz base (proven stable SDRAM): the wizard 60.48 fractional PLL
+# crashes/corrupts on hardware after minutes; jitter eats the capture eye.
 # jtframe_pllc6000 is the proven integer fallback if SDRAM margins suffer
-JTFRAME_PLL=jtframe_plld6048
+JTFRAME_PLL=jtframe_pllc6000
 JTFRAME_BASE_MUL=10
 
 [mister]
