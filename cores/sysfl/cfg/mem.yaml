@@ -72,11 +72,16 @@ sdram:
           data_width: 64
           cache_size: 4kB  # a full line of all 6 layers ~444 units
 bram:
+  - name: backup    # 8kB backup memory (game nvram), saved/restored on the SD card
+    addr_width: 13
+    data_width: 16
+    rw: true
+    ioctl: { save: true, restore: true, order: 0 }
   - name: vram      # 123 tilemaps, 64kB. Primary port: video read
     addr_width: 16
     data_width: 16
     simfile: {}
-    ioctl: { save: true, order: 0 }
+    ioctl: { save: true, order: 1 }
     dual_port:
       name: cvram   # CPU side
       rw: true
@@ -87,7 +92,7 @@ bram:
     addr_width: 17
     data_width: 16
     simfile: {}
-    ioctl: { save: true, order: 1 }
+    ioctl: { save: true, order: 2 }
     dual_port:
       name: crozram
       rw: true
@@ -101,7 +106,7 @@ bram:
     din:  oram_din
     we:   oram_we
     simfile: {}
-    ioctl: { save: true, order: 2 }
+    ioctl: { save: true, order: 3 }
     dual_port:
       name: coram
       rw: true
@@ -112,7 +117,7 @@ bram:
     addr_width: 13
     data_width: 8
     simfile: {}
-    ioctl: { save: true, order: 3 }
+    ioctl: { save: true, order: 4 }
     dual_port:
       name: cr_pal  # written by the C116 CPU interface
       rw: true
@@ -124,7 +129,7 @@ bram:
     addr_width: 13
     data_width: 8
     simfile: {}
-    ioctl: { save: true, order: 4 }
+    ioctl: { save: true, order: 5 }
     dual_port:
       name: cg_pal
       rw: true
@@ -136,7 +141,7 @@ bram:
     addr_width: 13
     data_width: 8
     simfile: {}
-    ioctl: { save: true, order: 5 }
+    ioctl: { save: true, order: 6 }
     dual_port:
       name: cb_pal
       rw: true

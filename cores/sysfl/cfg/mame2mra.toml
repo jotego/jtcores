@@ -35,6 +35,9 @@ regions = [
 order = [ "maincpu", "data", "c169roz", "c169roz:mask", "c355spr",
           "c352", "c75data", "c75", "c123tmap", "c123tmap:mask" ]
 
+[ROM.nvram]
+machines = [ "speedrcr", "finalapr" ]
+
 [buttons]
 # jtframe b1-b4 = joystick[7:4]; names follow the MAME PORT_NAMEs
 names=[ { names="Gas,Weapon 1,Weapon 2,Weapon 3 / Shifter" } ]

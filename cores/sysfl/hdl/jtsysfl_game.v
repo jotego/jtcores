@@ -102,6 +102,10 @@ jtsysfl_main u_main(
     .share_din  ( share_din     ),
     .share_we   ( share_we      ),
     .share_dout ( share_dout    ),
+    .backup_addr ( backup_addr    ),
+    .backup_din  ( backup_din     ),
+    .backup_we   ( backup_we      ),
+    .backup_dout ( backup_dout    ),
     // video registers
     .scfg_cs    ( scfg_cs       ),
     .rozcfg_cs  ( rozcfg_cs     ),
