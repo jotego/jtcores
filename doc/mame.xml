@@ -254894,4 +254894,618 @@
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
 	</machine>
+	<machine name="drgnbstr" sourcefile="namco/skykid.cpp">
+		<description>Dragon Buster</description>
+		<year>1984</year>
+		<manufacturer>Namco</manufacturer>
+		<rom name="db1_2b.6c" size="16384" crc="0f11cd17" sha1="691d853f4f08898ecf4bccfb70a568de309329f1" region="maincpu" offset="8000"/>
+		<rom name="db1_1.6b" size="16384" crc="1c7c1821" sha1="8b6111afc42e2996bdc2fc276be0c40556cd431e" region="maincpu" offset="c000"/>
+		<rom name="db1_3.6d" size="16384" crc="6da169ae" sha1="235211c26562fef0660e3fde1e87f2e52626d119" region="maincpu" offset="10000"/>
+		<rom name="cus60-60a1.mcu" size="4096" crc="076ea82a" sha1="22b5e62e26390d7d5cacc0503c7aa5ed524204df" region="mcu" offset="0"/>
+		<rom name="db1_4.3c" size="8192" crc="8a0b1fc1" sha1="c2861d0da63e2d17f2d1ad46dccf753ecd902ce3" region="mcusub" offset="0"/>
+		<rom name="db1_6.6l" size="8192" crc="c080b66c" sha1="05dcd45274d0bd12ef8ae7fd10c8719e679b3e7b" region="chars" offset="0"/>
+		<rom name="db1_5.7e" size="8192" crc="28129aed" sha1="d7f52e871d97179ec88c142a1c70eb6ad09e534a" region="tiles" offset="0"/>
+		<rom name="db1_8.10n" size="16384" crc="11942c61" sha1="0f065cb82cf83967e90b3c7326b36956f4fa9a52" region="sprites" offset="0"/>
+		<rom name="db1_7.10m" size="16384" crc="cc130fe2" sha1="4f5d4f21152b3b4e523a6d17dd5ff5cef52447f2" region="sprites" offset="4000"/>
+		<rom name="db1-1.2n" size="256" crc="3f8cce97" sha1="027b3fb0f322a9d68b434b207a40b31799a8a8d6" region="proms" offset="0"/>
+		<rom name="db1-2.2p" size="256" crc="afe32436" sha1="e405787f7f2aa992edd63078e3944334d8acddb1" region="proms" offset="100"/>
+		<rom name="db1-3.2r" size="256" crc="c95ff576" sha1="861a7340d29e6a6a0d5ead93abd3f73cc3df0cc7" region="proms" offset="200"/>
+		<rom name="db1-4.5n" size="512" crc="b2180c21" sha1="a5d14c31d54f04494ea99c3d94bd1b5e072b612e" region="proms" offset="300"/>
+		<rom name="db1-5.6n" size="512" crc="5e2b3f74" sha1="ef58661fa12a52bc358e81179254d37de7551b38" region="proms" offset="500"/>
+		<device_ref tag=":maincpu" name="mc6809e"/>
+		<device_ref tag=":mcu" name="hd63701v0"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":mono" name="speaker"/>
+		<device_ref tag=":namco" name="namco_cus30"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC6809E" clock="1536000"/>
+		<chip type="cpu" tag="mcu" name="Hitachi HD63701V0" clock="6144000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="namco" name="Namco CUS30" clock="24000"/>
+		<display tag="screen" type="raster" rotate="0" width="288" height="224" refresh="60.606060" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="4"/>
+			<control type="joy" player="2" buttons="2" ways="4"/>
+		</input>
+		<dipswitch name="Cabinet" tag="BUTTON2" mask="2">
+			<dipvalue name="Upright" value="2" default="yes"/>
+			<dipvalue name="Cocktail" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSWA" mask="3">
+			<diplocation name="SWA" number="8"/>
+			<diplocation name="SWA" number="7"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSWA" mask="4">
+			<diplocation name="SWA" number="6"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Round Skip" tag="DSWA" mask="8">
+			<diplocation name="SWA" number="5"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="16">
+			<diplocation name="SWA" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="96">
+			<diplocation name="SWA" number="3"/>
+			<diplocation name="SWA" number="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="96" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="64"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="128">
+			<diplocation name="SWA" number="1"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Continue" tag="DSWB" mask="1">
+			<diplocation name="SWB" number="8"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="1" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Bonus Level" tag="DSWB" mask="2">
+			<diplocation name="SWB" number="7"/>
+			<dipvalue name="Partial" value="0"/>
+			<dipvalue name="Full" value="2" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Bonus Vitality" tag="DSWB" mask="12">
+			<diplocation name="SWB" number="6"/>
+			<diplocation name="SWB" number="5"/>
+			<dipvalue name="32/64" value="4"/>
+			<dipvalue name="48/64" value="8"/>
+			<dipvalue name="64" value="0"/>
+			<dipvalue name="None" value="12" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Starting Vitality" tag="DSWB" mask="48">
+			<diplocation name="SWB" number="4"/>
+			<diplocation name="SWB" number="3"/>
+			<dipvalue name="64" value="32"/>
+			<dipvalue name="96" value="16"/>
+			<dipvalue name="128" value="48" default="yes"/>
+			<dipvalue name="160" value="0"/>
+		</dipswitch>
+		<dipswitch name="Level of Monster" tag="DSWB" mask="64">
+			<diplocation name="SWB" number="2"/>
+			<dipvalue name="Normal" value="64" default="yes"/>
+			<dipvalue name="Difficult" value="0"/>
+		</dipswitch>
+		<dipswitch name="Spurt Time" tag="DSWB" mask="128">
+			<diplocation name="SWB" number="1"/>
+			<dipvalue name="Normal" value="128" default="yes"/>
+			<dipvalue name="Difficult" value="0"/>
+		</dipswitch>
+		<port tag=":BUTTON2">
+		</port>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="skykid" sourcefile="namco/skykid.cpp">
+		<description>Sky Kid (new version)</description>
+		<year>1985</year>
+		<manufacturer>Namco</manufacturer>
+		<rom name="sk2_2.6c" size="16384" crc="ea8a5822" sha1="5b13133410bcb7d647e662b476dbfd2edab8aac0" region="maincpu" offset="8000"/>
+		<rom name="sk1-1c.6b" size="16384" crc="7abe6c6c" sha1="7d2631cc6149fa3e02b1355cb899de5474ff5d0a" region="maincpu" offset="c000"/>
+		<rom name="sk1_3.6d" size="16384" crc="314b8765" sha1="d90a8a853ce672fe5ee190f07bcb33262c73df3b" region="maincpu" offset="10000"/>
+		<rom name="cus63-63a1.mcu" size="4096" crc="6ef08fb3" sha1="4842590d60035a0059b0899eb2d5f58ae72c2529" region="mcu" offset="0"/>
+		<rom name="sk2_4.3c" size="8192" crc="a460d0e0" sha1="7124ffeb3b84b282940dcbf9421ae4934bcce1c8" region="mcusub" offset="0"/>
+		<rom name="sk1_6.6l" size="8192" crc="58b731b9" sha1="40f7be85914833ce02a734c20d68c0db8b77911d" region="chars" offset="0"/>
+		<rom name="sk1_5.7e" size="8192" crc="c33a498e" sha1="9f89a514888418a9bebbca341a8cc66e41b58acb" region="tiles" offset="0"/>
+		<rom name="sk1_8.10n" size="16384" crc="44bb7375" sha1="5b2fa6782671150bab5f3c3ac46b47bc23f3d7e0" region="sprites" offset="0"/>
+		<rom name="sk1_7.10m" size="16384" crc="3454671d" sha1="723b26a0f208addc2a22736457cb4be6ab6c69cc" region="sprites" offset="4000"/>
+		<rom name="sk1-1.2n" size="256" crc="0218e726" sha1="8b766162a4783c058d9a1ecf8741673d7ef955fb" region="proms" offset="0"/>
+		<rom name="sk1-2.2p" size="256" crc="fc0d5b85" sha1="d1b13e42e735b24594cf0b840dee8110de23369e" region="proms" offset="100"/>
+		<rom name="sk1-3.2r" size="256" crc="d06b620b" sha1="968a2d62c65e201d521e9efa8fcf6ad15898e4b3" region="proms" offset="200"/>
+		<rom name="sk1-4.5n" size="512" crc="c697ac72" sha1="3b79755e6cbb22c14fc4affdbd3f4521da1d90e8" region="proms" offset="300"/>
+		<rom name="sk1-5.6n" size="512" crc="161514a4" sha1="4488ce60d12be6586e4a1ddbbfd06bf4e7dfaceb" region="proms" offset="500"/>
+		<device_ref tag=":maincpu" name="mc6809e"/>
+		<device_ref tag=":mcu" name="hd63701v0"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":mono" name="speaker"/>
+		<device_ref tag=":namco" name="namco_cus30"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC6809E" clock="1536000"/>
+		<chip type="cpu" tag="mcu" name="Hitachi HD63701V0" clock="6144000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="namco" name="Namco CUS30" clock="24000"/>
+		<display tag="screen" type="raster" rotate="180" width="288" height="224" refresh="60.606060" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSWA" mask="3">
+			<diplocation name="SWA" number="8"/>
+			<diplocation name="SWA" number="7"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSWA" mask="4">
+			<diplocation name="SWA" number="6"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Round Skip" tag="DSWA" mask="8">
+			<diplocation name="SWA" number="5"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="16">
+			<diplocation name="SWA" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="96">
+			<diplocation name="SWA" number="3"/>
+			<diplocation name="SWA" number="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="96" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="64"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="128">
+			<diplocation name="SWA" number="1"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWB" mask="1">
+			<diplocation name="SWB" number="8"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Buy In" tag="DSWB" mask="2">
+			<diplocation name="SWB" number="7"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="2" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSWB" mask="4">
+			<diplocation name="SWB" number="6"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSWB" mask="8">
+			<diplocation name="SWB" number="5"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="48">
+			<diplocation name="SWB" number="4"/>
+			<diplocation name="SWB" number="3"/>
+			<dipvalue name="20k every 80k" value="0"/>
+			<dipvalue name="20k and 80k" value="16"/>
+			<dipvalue name="30k every 90k" value="32"/>
+			<dipvalue name="30k and 90k" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="192">
+			<diplocation name="SWB" number="2"/>
+			<diplocation name="SWB" number="1"/>
+			<dipvalue name="1" value="128"/>
+			<dipvalue name="2" value="64"/>
+			<dipvalue name="3" value="192" default="yes"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<port tag=":BUTTON2">
+		</port>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="skykidd" sourcefile="namco/skykid.cpp" cloneof="skykid" romof="skykid">
+		<description>Sky Kid (CUS60 version)</description>
+		<year>1985</year>
+		<manufacturer>Namco</manufacturer>
+		<rom name="sk1_2.6c" size="16384" crc="8370671a" sha1="7038f952ebfc4482440b73ee4027fa908561d122" region="maincpu" offset="8000"/>
+		<rom name="sk1_1.6b" size="16384" crc="070a49d4" sha1="4b994bde3e34b574bd927843804d2fb1a08d1bdf" region="maincpu" offset="c000"/>
+		<rom name="sk1_3.6d" merge="sk1_3.6d" size="16384" crc="314b8765" sha1="d90a8a853ce672fe5ee190f07bcb33262c73df3b" region="maincpu" offset="10000"/>
+		<rom name="cus60-60a1.mcu" size="4096" crc="076ea82a" sha1="22b5e62e26390d7d5cacc0503c7aa5ed524204df" region="mcu" offset="0"/>
+		<rom name="sk1_4.3c" size="8192" crc="887137cc" sha1="dd0f66afb78833c4da73539b692854346f448c0d" region="mcusub" offset="0"/>
+		<rom name="sk1_6.6l" merge="sk1_6.6l" size="8192" crc="58b731b9" sha1="40f7be85914833ce02a734c20d68c0db8b77911d" region="chars" offset="0"/>
+		<rom name="sk1_5.7e" merge="sk1_5.7e" size="8192" crc="c33a498e" sha1="9f89a514888418a9bebbca341a8cc66e41b58acb" region="tiles" offset="0"/>
+		<rom name="sk1_8.10n" merge="sk1_8.10n" size="16384" crc="44bb7375" sha1="5b2fa6782671150bab5f3c3ac46b47bc23f3d7e0" region="sprites" offset="0"/>
+		<rom name="sk1_7.10m" merge="sk1_7.10m" size="16384" crc="3454671d" sha1="723b26a0f208addc2a22736457cb4be6ab6c69cc" region="sprites" offset="4000"/>
+		<rom name="sk1-1.2n" merge="sk1-1.2n" size="256" crc="0218e726" sha1="8b766162a4783c058d9a1ecf8741673d7ef955fb" region="proms" offset="0"/>
+		<rom name="sk1-2.2p" merge="sk1-2.2p" size="256" crc="fc0d5b85" sha1="d1b13e42e735b24594cf0b840dee8110de23369e" region="proms" offset="100"/>
+		<rom name="sk1-3.2r" merge="sk1-3.2r" size="256" crc="d06b620b" sha1="968a2d62c65e201d521e9efa8fcf6ad15898e4b3" region="proms" offset="200"/>
+		<rom name="sk1-4.5n" merge="sk1-4.5n" size="512" crc="c697ac72" sha1="3b79755e6cbb22c14fc4affdbd3f4521da1d90e8" region="proms" offset="300"/>
+		<rom name="sk1-5.6n" merge="sk1-5.6n" size="512" crc="161514a4" sha1="4488ce60d12be6586e4a1ddbbfd06bf4e7dfaceb" region="proms" offset="500"/>
+		<device_ref tag=":maincpu" name="mc6809e"/>
+		<device_ref tag=":mcu" name="hd63701v0"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":mono" name="speaker"/>
+		<device_ref tag=":namco" name="namco_cus30"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC6809E" clock="1536000"/>
+		<chip type="cpu" tag="mcu" name="Hitachi HD63701V0" clock="6144000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="namco" name="Namco CUS30" clock="24000"/>
+		<display tag="screen" type="raster" rotate="180" width="288" height="224" refresh="60.606060" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSWA" mask="3">
+			<diplocation name="SWA" number="8"/>
+			<diplocation name="SWA" number="7"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSWA" mask="4">
+			<diplocation name="SWA" number="6"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Round Skip" tag="DSWA" mask="8">
+			<diplocation name="SWA" number="5"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="16">
+			<diplocation name="SWA" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="96">
+			<diplocation name="SWA" number="3"/>
+			<diplocation name="SWA" number="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="96" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="64"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="128">
+			<diplocation name="SWA" number="1"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWB" mask="1">
+			<diplocation name="SWB" number="8"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Buy In" tag="DSWB" mask="2">
+			<diplocation name="SWB" number="7"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="2" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSWB" mask="4">
+			<diplocation name="SWB" number="6"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSWB" mask="8">
+			<diplocation name="SWB" number="5"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="48">
+			<diplocation name="SWB" number="4"/>
+			<diplocation name="SWB" number="3"/>
+			<dipvalue name="20k every 80k" value="0"/>
+			<dipvalue name="20k and 80k" value="16"/>
+			<dipvalue name="30k every 90k" value="32"/>
+			<dipvalue name="30k and 90k" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="192">
+			<diplocation name="SWB" number="2"/>
+			<diplocation name="SWB" number="1"/>
+			<dipvalue name="1" value="128"/>
+			<dipvalue name="2" value="64"/>
+			<dipvalue name="3" value="192" default="yes"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<port tag=":BUTTON2">
+		</port>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="skykido" sourcefile="namco/skykid.cpp" cloneof="skykid" romof="skykid">
+		<description>Sky Kid (old version)</description>
+		<year>1985</year>
+		<manufacturer>Namco</manufacturer>
+		<rom name="sk2_2.6c" merge="sk2_2.6c" size="16384" crc="ea8a5822" sha1="5b13133410bcb7d647e662b476dbfd2edab8aac0" region="maincpu" offset="8000"/>
+		<rom name="sk1_1.6b" size="16384" crc="070a49d4" sha1="4b994bde3e34b574bd927843804d2fb1a08d1bdf" region="maincpu" offset="c000"/>
+		<rom name="sk1_3.6d" merge="sk1_3.6d" size="16384" crc="314b8765" sha1="d90a8a853ce672fe5ee190f07bcb33262c73df3b" region="maincpu" offset="10000"/>
+		<rom name="cus63-63a1.mcu" merge="cus63-63a1.mcu" size="4096" crc="6ef08fb3" sha1="4842590d60035a0059b0899eb2d5f58ae72c2529" region="mcu" offset="0"/>
+		<rom name="sk2_4.3c" merge="sk2_4.3c" size="8192" crc="a460d0e0" sha1="7124ffeb3b84b282940dcbf9421ae4934bcce1c8" region="mcusub" offset="0"/>
+		<rom name="sk1_6.6l" merge="sk1_6.6l" size="8192" crc="58b731b9" sha1="40f7be85914833ce02a734c20d68c0db8b77911d" region="chars" offset="0"/>
+		<rom name="sk1_5.7e" merge="sk1_5.7e" size="8192" crc="c33a498e" sha1="9f89a514888418a9bebbca341a8cc66e41b58acb" region="tiles" offset="0"/>
+		<rom name="sk1_8.10n" merge="sk1_8.10n" size="16384" crc="44bb7375" sha1="5b2fa6782671150bab5f3c3ac46b47bc23f3d7e0" region="sprites" offset="0"/>
+		<rom name="sk1_7.10m" merge="sk1_7.10m" size="16384" crc="3454671d" sha1="723b26a0f208addc2a22736457cb4be6ab6c69cc" region="sprites" offset="4000"/>
+		<rom name="sk1-1.2n" merge="sk1-1.2n" size="256" crc="0218e726" sha1="8b766162a4783c058d9a1ecf8741673d7ef955fb" region="proms" offset="0"/>
+		<rom name="sk1-2.2p" merge="sk1-2.2p" size="256" crc="fc0d5b85" sha1="d1b13e42e735b24594cf0b840dee8110de23369e" region="proms" offset="100"/>
+		<rom name="sk1-3.2r" merge="sk1-3.2r" size="256" crc="d06b620b" sha1="968a2d62c65e201d521e9efa8fcf6ad15898e4b3" region="proms" offset="200"/>
+		<rom name="sk1-4.5n" merge="sk1-4.5n" size="512" crc="c697ac72" sha1="3b79755e6cbb22c14fc4affdbd3f4521da1d90e8" region="proms" offset="300"/>
+		<rom name="sk1-5.6n" merge="sk1-5.6n" size="512" crc="161514a4" sha1="4488ce60d12be6586e4a1ddbbfd06bf4e7dfaceb" region="proms" offset="500"/>
+		<device_ref tag=":maincpu" name="mc6809e"/>
+		<device_ref tag=":mcu" name="hd63701v0"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":mono" name="speaker"/>
+		<device_ref tag=":namco" name="namco_cus30"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC6809E" clock="1536000"/>
+		<chip type="cpu" tag="mcu" name="Hitachi HD63701V0" clock="6144000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="namco" name="Namco CUS30" clock="24000"/>
+		<display tag="screen" type="raster" rotate="180" width="288" height="224" refresh="60.606060" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSWA" mask="3">
+			<diplocation name="SWA" number="8"/>
+			<diplocation name="SWA" number="7"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSWA" mask="4">
+			<diplocation name="SWA" number="6"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Round Skip" tag="DSWA" mask="8">
+			<diplocation name="SWA" number="5"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="16">
+			<diplocation name="SWA" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="96">
+			<diplocation name="SWA" number="3"/>
+			<diplocation name="SWA" number="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="96" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="64"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="128">
+			<diplocation name="SWA" number="1"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWB" mask="1">
+			<diplocation name="SWB" number="8"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Buy In" tag="DSWB" mask="2">
+			<diplocation name="SWB" number="7"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="2" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSWB" mask="4">
+			<diplocation name="SWB" number="6"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSWB" mask="8">
+			<diplocation name="SWB" number="5"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="48">
+			<diplocation name="SWB" number="4"/>
+			<diplocation name="SWB" number="3"/>
+			<dipvalue name="20k every 80k" value="0"/>
+			<dipvalue name="20k and 80k" value="16"/>
+			<dipvalue name="30k every 90k" value="32"/>
+			<dipvalue name="30k and 90k" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="192">
+			<diplocation name="SWB" number="2"/>
+			<diplocation name="SWB" number="1"/>
+			<dipvalue name="1" value="128"/>
+			<dipvalue name="2" value="64"/>
+			<dipvalue name="3" value="192" default="yes"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<port tag=":BUTTON2">
+		</port>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="skykids" sourcefile="namco/skykid.cpp" cloneof="skykid" romof="skykid">
+		<description>Sky Kid (Sipem)</description>
+		<year>1985</year>
+		<manufacturer>Namco (Sipem license)</manufacturer>
+		<rom name="sk2a.6c" size="16384" crc="68492672" sha1="3dbe5ec930de5c526d3ef65513993c10f2153a36" region="maincpu" offset="8000"/>
+		<rom name="sk1a.6b" size="16384" crc="e16abe25" sha1="78e0d30b15fb62c4399d847784ddc61f6819feba" region="maincpu" offset="c000"/>
+		<rom name="sk1_3.6d" merge="sk1_3.6d" size="16384" crc="314b8765" sha1="d90a8a853ce672fe5ee190f07bcb33262c73df3b" region="maincpu" offset="10000"/>
+		<rom name="cus63-63a1.mcu" merge="cus63-63a1.mcu" size="4096" crc="6ef08fb3" sha1="4842590d60035a0059b0899eb2d5f58ae72c2529" region="mcu" offset="0"/>
+		<rom name="sk2_4.3c" merge="sk2_4.3c" size="8192" crc="a460d0e0" sha1="7124ffeb3b84b282940dcbf9421ae4934bcce1c8" region="mcusub" offset="0"/>
+		<rom name="sk1_6.6l" merge="sk1_6.6l" size="8192" crc="58b731b9" sha1="40f7be85914833ce02a734c20d68c0db8b77911d" region="chars" offset="0"/>
+		<rom name="sk1_5.7e" merge="sk1_5.7e" size="8192" crc="c33a498e" sha1="9f89a514888418a9bebbca341a8cc66e41b58acb" region="tiles" offset="0"/>
+		<rom name="sk1_8.10n" merge="sk1_8.10n" size="16384" crc="44bb7375" sha1="5b2fa6782671150bab5f3c3ac46b47bc23f3d7e0" region="sprites" offset="0"/>
+		<rom name="sk1_7.10m" merge="sk1_7.10m" size="16384" crc="3454671d" sha1="723b26a0f208addc2a22736457cb4be6ab6c69cc" region="sprites" offset="4000"/>
+		<rom name="sk1-1.2n" merge="sk1-1.2n" size="256" crc="0218e726" sha1="8b766162a4783c058d9a1ecf8741673d7ef955fb" region="proms" offset="0"/>
+		<rom name="sk1-2.2p" merge="sk1-2.2p" size="256" crc="fc0d5b85" sha1="d1b13e42e735b24594cf0b840dee8110de23369e" region="proms" offset="100"/>
+		<rom name="sk1-3.2r" merge="sk1-3.2r" size="256" crc="d06b620b" sha1="968a2d62c65e201d521e9efa8fcf6ad15898e4b3" region="proms" offset="200"/>
+		<rom name="sk1-4.5n" merge="sk1-4.5n" size="512" crc="c697ac72" sha1="3b79755e6cbb22c14fc4affdbd3f4521da1d90e8" region="proms" offset="300"/>
+		<rom name="sk1-5.6n" merge="sk1-5.6n" size="512" crc="161514a4" sha1="4488ce60d12be6586e4a1ddbbfd06bf4e7dfaceb" region="proms" offset="500"/>
+		<device_ref tag=":maincpu" name="mc6809e"/>
+		<device_ref tag=":mcu" name="hd63701v0"/>
+		<device_ref tag=":watchdog" name="watchdog"/>
+		<device_ref tag=":screen" name="screen"/>
+		<device_ref tag=":gfxdecode" name="gfxdecode"/>
+		<device_ref tag=":palette" name="palette"/>
+		<device_ref tag=":mono" name="speaker"/>
+		<device_ref tag=":namco" name="namco_cus30"/>
+		<chip type="cpu" tag="maincpu" name="Motorola MC6809E" clock="1536000"/>
+		<chip type="cpu" tag="mcu" name="Hitachi HD63701V0" clock="6144000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="namco" name="Namco CUS30" clock="24000"/>
+		<display tag="screen" type="raster" rotate="180" width="288" height="224" refresh="60.606060" />
+		<sound channels="1"/>
+		<input players="2" coins="2">
+			<control type="joy" player="1" buttons="2" ways="8"/>
+			<control type="joy" player="2" buttons="2" ways="8"/>
+		</input>
+		<dipswitch name="Coin B" tag="DSWA" mask="3">
+			<diplocation name="SWA" number="8"/>
+			<diplocation name="SWA" number="7"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="3" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="2"/>
+		</dipswitch>
+		<dipswitch name="Freeze" tag="DSWA" mask="4">
+			<diplocation name="SWA" number="6"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Round Select" tag="DSWA" mask="8">
+			<diplocation name="SWA" number="5"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="8" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSWA" mask="16">
+			<diplocation name="SWA" number="4"/>
+			<dipvalue name="Off" value="0"/>
+			<dipvalue name="On" value="16" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Coin A" tag="DSWA" mask="96">
+			<diplocation name="SWA" number="3"/>
+			<diplocation name="SWA" number="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="0"/>
+			<dipvalue name="2 Coins/1 Credit" value="32"/>
+			<dipvalue name="1 Coin/1 Credit" value="96" default="yes"/>
+			<dipvalue name="1 Coin/2 Credits" value="64"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="DSWA" mask="128">
+			<diplocation name="SWA" number="1"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="DSWB" mask="1">
+			<diplocation name="SWB" number="8"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Allow Buy In" tag="DSWB" mask="2">
+			<diplocation name="SWB" number="7"/>
+			<dipvalue name="No" value="0"/>
+			<dipvalue name="Yes" value="2" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSWB" mask="4">
+			<diplocation name="SWB" number="6"/>
+			<dipvalue name="Off" value="4" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="DSWB" mask="8">
+			<diplocation name="SWB" number="5"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Bonus Life" tag="DSWB" mask="48">
+			<diplocation name="SWB" number="4"/>
+			<diplocation name="SWB" number="3"/>
+			<dipvalue name="30k every 80k" value="0"/>
+			<dipvalue name="30k and 80k" value="16"/>
+			<dipvalue name="40k every 90k" value="32"/>
+			<dipvalue name="40k and 90k" value="48" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Lives" tag="DSWB" mask="192">
+			<diplocation name="SWB" number="2"/>
+			<diplocation name="SWB" number="1"/>
+			<dipvalue name="1" value="128"/>
+			<dipvalue name="2" value="64"/>
+			<dipvalue name="3" value="192" default="yes"/>
+			<dipvalue name="5" value="0"/>
+		</dipswitch>
+		<port tag=":BUTTON2">
+		</port>
+		<port tag=":DSWA">
+		</port>
+		<port tag=":DSWB">
+		</port>
+		<port tag=":P1">
+		</port>
+		<port tag=":P2">
+		</port>
+		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 </mame>

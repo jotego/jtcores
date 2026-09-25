@@ -14,6 +14,7 @@ audio:
     - { name: cus30, module: jtcus30, rsum: 1k }
 ports:
   - { name: cpu_dout, msb:  7, lsb: 0 }
+  - { name: not_skykid }
 sdram:
   banks:
     - buses:
@@ -34,6 +35,7 @@ sdram:
         data_width: 16
         offset: SCR1_OFFSET
         gfx_sort: hvvv
+        gfx_sort_en: not_skykid
     - buses:
       - name: obj
         addr_width: 16
