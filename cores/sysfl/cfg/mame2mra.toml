@@ -6,6 +6,8 @@ zip.alt="namcoc75.zip"
 sourcefile=[ "namcofl.cpp" ]
 
 [header]
+# bytes 2-11: download bank 1-5 base offsets (>>16) for the XL BALUT
+offset={ start=2, bits=16, regions=["c75data","c352","c355spr","c169roz","c123tmap"] }
 registers=[
     { name="flr", pos="0[0]", values=[{ machine="finalapr", value=1 }], desc="Final Lap R cabinet: brake pedal on ADC an6" },
 ]
@@ -21,19 +23,19 @@ regions = [
     # weaves them into 8-byte units (see doc/roz-mask-interleave.md)
     { name="c169roz",      start="ROZ_START" },
     { name="c169roz:mask", start="RSH_START", sequence=[0,0] },
-    { name="c352",         start="JTFRAME_BA2_START" },
+    { name="c352",         start="PCM_START" },
     # C75 data rom streams here and is remapped into the bank0 gap
     { name="c75data",      start="MCUROM_START" },
     # C75 internal BIOS, from the namcoc75.zip device set
     { name="c75",          start="C75BIOS_START", files=[
         { name="c75.bin", crc="42f539a5", size=0x4000 } ] },
-    { name="c123tmap",     start="JTFRAME_BA3_START" },
+    { name="c123tmap",     start="SCH_START" },
     { name="c123tmap:mask", start="SSH_START", sequence=[0,0] },
-    { name="c355spr",      width=32, start="JTFRAME_BA1_START" },
+    { name="c355spr",      width=32, start="OBJ_START" },
     { name="pals",         skip=true },
 ]
-order = [ "maincpu", "data", "c169roz", "c169roz:mask", "c355spr",
-          "c352", "c75data", "c75", "c123tmap", "c123tmap:mask" ]
+order = [ "maincpu", "data", "c75", "c75data", "c352", "c355spr",
+          "c169roz", "c169roz:mask", "c123tmap", "c123tmap:mask" ]
 
 [ROM.nvram]
 machines = [ "speedrcr", "finalapr" ]

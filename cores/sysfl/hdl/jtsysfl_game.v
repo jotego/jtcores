@@ -60,6 +60,84 @@ assign pal_wdin   = pal_din8;
 assign ioctl_din = &ioctl_addr[6:4] ? ioctl_misc : ioctl_video;
 
 
+
+// cache-lane clients keep the classic slot contract; jtsysfl_lane_shim
+// re-edges each request and stretches the ok pulse into a level
+wire [21:2] g_main_addr;   wire [31:0] g_main_data;   wire g_main_cs, g_main_ok;
+wire [20:1] g_wram_addr;   wire [15:0] g_wram_data, g_wram_din;
+wire [ 1:0] g_wram_dsn;    wire        g_wram_cs, g_wram_we, g_wram_ok;
+wire [20:2] g_wram32_addr; wire [31:0] g_wram32_data; wire g_wram32_cs, g_wram32_ok;
+wire [18:1] g_mcurom_addr; wire [15:0] g_mcurom_data; wire g_mcurom_cs, g_mcurom_ok;
+wire [22:2] g_objrom_addr; wire [31:0] g_objrom_data; wire g_objrom_cs, g_objrom_ok;
+wire [21:3] g_roz_addr;    wire [63:0] g_roz_data;    wire g_roz_cs, g_roz_ok;
+wire [22:3] g_scr_addr;    wire [63:0] g_scr_data;    wire g_scr_cs, g_scr_ok;
+wire [21:0] g_pcm_addr;    wire [ 7:0] g_pcm_data;    wire g_pcm_cs, g_pcm_ok;
+
+// both work-RAM views share the single coherent rw lane; they are mutually
+// exclusive by the funnel's st==IDLE gating
+wire        gw_cs   = g_wram_cs | g_wram32_cs;
+wire        gw_we   = g_wram_cs & g_wram_we;
+wire [20:2] gw_addr = g_wram_cs ? g_wram_addr[20:2] : g_wram32_addr;
+wire [ 3:0] gw_dsn  = !gw_we ? 4'h0 :
+                      g_wram_addr[1] ? {g_wram_dsn,2'b11} : {2'b11,g_wram_dsn};
+wire [31:0] gw_din  = {g_wram_din, g_wram_din};
+wire [31:0] gw_dout;
+wire        gw_ok;
+assign g_wram_data   = g_wram_addr[1] ? gw_dout[31:16] : gw_dout[15:0];
+assign g_wram32_data = gw_dout;
+assign g_wram_ok     = g_wram_cs   & gw_ok;
+assign g_wram32_ok   = g_wram32_cs & gw_ok;
+
+jtsysfl_lane_shim #(.AW(19),.DW(32),.WR(1)) u_shwram(
+    .rst(rst), .clk(clk),
+    .cs(gw_cs), .addr(gw_addr), .we(gw_we), .din(gw_din), .dsn(gw_dsn),
+    .dout(gw_dout), .ok(gw_ok),
+    .ln_rd(wram_rd), .ln_we(wram_we), .ln_addr(wram_addr),
+    .ln_din(wram_din), .ln_dsn(wram_dsn), .ln_data(wram_data), .ln_ok(wram_ok)
+);
+jtsysfl_lane_shim #(.AW(20),.DW(32)) u_shmain(
+    .rst(rst), .clk(clk),
+    .cs(g_main_cs), .addr(g_main_addr), .we(1'b0), .din(32'd0), .dsn(4'd0),
+    .dout(g_main_data), .ok(g_main_ok),
+    .ln_rd(main_rd), .ln_we(), .ln_addr(main_addr),
+    .ln_din(), .ln_dsn(), .ln_data(main_data), .ln_ok(main_ok)
+);
+jtsysfl_lane_shim #(.AW(18),.DW(16)) u_shmcu(
+    .rst(rst), .clk(clk),
+    .cs(g_mcurom_cs), .addr(g_mcurom_addr), .we(1'b0), .din(16'd0), .dsn(2'd0),
+    .dout(g_mcurom_data), .ok(g_mcurom_ok),
+    .ln_rd(mcurom_rd), .ln_we(), .ln_addr(mcurom_addr),
+    .ln_din(), .ln_dsn(), .ln_data(mcurom_data), .ln_ok(mcurom_ok)
+);
+jtsysfl_lane_shim #(.AW(21),.DW(32)) u_shobj(
+    .rst(rst), .clk(clk),
+    .cs(g_objrom_cs), .addr(g_objrom_addr), .we(1'b0), .din(32'd0), .dsn(4'd0),
+    .dout(g_objrom_data), .ok(g_objrom_ok),
+    .ln_rd(objrom_rd), .ln_we(), .ln_addr(objrom_addr),
+    .ln_din(), .ln_dsn(), .ln_data(objrom_data), .ln_ok(objrom_ok)
+);
+jtsysfl_lane_cache #(.AW(19),.DW(64),.IDXW(9)) u_shroz(
+    .rst(rst), .clk(clk),
+    .cs(g_roz_cs), .addr(g_roz_addr),
+    .dout(g_roz_data), .ok(g_roz_ok),
+    .ln_rd(roz_rd), .ln_addr(roz_addr),
+    .ln_data(roz_data), .ln_ok(roz_ok)
+);
+jtsysfl_lane_cache #(.AW(20),.DW(64),.IDXW(8),.LINE2X(1)) u_shscr(
+    .rst(rst), .clk(clk),
+    .cs(g_scr_cs), .addr(g_scr_addr),
+    .dout(g_scr_data), .ok(g_scr_ok),
+    .ln_rd(scr_rd), .ln_addr(scr_addr),
+    .ln_data(scr_data), .ln_ok(scr_ok)
+);
+jtsysfl_lane_shim #(.AW(22),.DW(8)) u_shpcm(
+    .rst(rst), .clk(clk),
+    .cs(g_pcm_cs), .addr(g_pcm_addr), .we(1'b0), .din(8'd0), .dsn(1'd0),
+    .dout(g_pcm_data), .ok(g_pcm_ok),
+    .ln_rd(pcm_rd), .ln_we(), .ln_addr(pcm_addr),
+    .ln_din(), .ln_dsn(), .ln_data(pcm_data), .ln_ok(pcm_ok)
+);
+
 `ifndef NOMAIN
 jtsysfl_main u_main(
     .rst        ( rst           ),
@@ -69,22 +147,22 @@ jtsysfl_main u_main(
     .hs         ( HS            ),
     .raster_irqn( raster_irqn   ),
     // program + data ROM
-    .main_addr  ( main_addr     ),
-    .main_cs    ( main_cs       ),
-    .main_ok    ( main_ok       ),
-    .main_data  ( main_data     ),
+    .main_addr  ( g_main_addr     ),
+    .main_cs    ( g_main_cs       ),
+    .main_ok    ( g_main_ok       ),
+    .main_data  ( g_main_data     ),
     // work RAM
-    .wram_addr  ( wram_addr     ),
-    .wram_cs    ( wram_cs       ),
-    .wram_we    ( wram_we       ),
-    .wram_din   ( wram_din      ),
-    .wram_dsn   ( wram_dsn      ),
-    .wram_ok    ( wram_ok       ),
-    .wram_data  ( wram_data     ),
-    .wram32_addr( wram32_addr   ),
-    .wram32_cs  ( wram32_cs     ),
-    .wram32_ok  ( wram32_ok     ),
-    .wram32_data( wram32_data   ),
+    .wram_addr  ( g_wram_addr     ),
+    .wram_cs    ( g_wram_cs       ),
+    .wram_we    ( g_wram_we       ),
+    .wram_din   ( g_wram_din      ),
+    .wram_dsn   ( g_wram_dsn      ),
+    .wram_ok    ( g_wram_ok       ),
+    .wram_data  ( g_wram_data     ),
+    .wram32_addr( g_wram32_addr   ),
+    .wram32_cs  ( g_wram32_cs     ),
+    .wram32_ok  ( g_wram32_ok     ),
+    .wram32_data( g_wram32_data   ),
     // BRAMs
     .cvram_addr ( cvram_addr    ),
     .cvram_din  ( cvram_din     ),
@@ -132,30 +210,30 @@ wire flr;
 // (0x1600000/0x1A00000) texel+mask streams into their 8-byte unit regions
 // (masks stream twice), and move the C75 data rom into the bank0 gap.
 // Fillers park at a byte in the gap tail. See doc/roz-mask-interleave.md.
-// ioctl_addr comes in header-stripped; jtframe_dwnld strips pre_addr again, +8
-wire [25:0] dl_i = ioctl_addr - 26'h30_0000;
-wire [25:0] dl_s = ioctl_addr - 26'h160_0000;
+// ioctl_addr comes in header-stripped; jtframe_dwnld strips pre_addr again, +16
+// each raw gfx byte is written only at its woven address, in the same bank;
+// filler over a window parks at a dead byte of bank 0
+wire [26:0] dl_r = ioctl_addr - 27'h400_0000;
+wire [26:0] dl_s = ioctl_addr - 27'h500_0000;
 always @* begin
     pre_addr = ioctl_addr;
     if( !header ) begin
-        pre_addr = ioctl_addr + 26'd8;
-        if( ioctl_addr>=26'h30_0000 && ioctl_addr<26'h80_0000 ) begin
-            if( ioctl_addr < 26'h50_0000 )      // texels: one zero bit at [2]
-                pre_addr = 26'h40_0008 + { dl_i[20:2], 1'b0, dl_i[1:0] };
-            else if( ioctl_addr < 26'h60_0000 ) // masks: bytes 4/5 of the unit pair
-                pre_addr = 26'h40_0008 + { dl_i[17:0], dl_i[19], 2'b10, dl_i[18] };
-            else                                // FF filler: park it in the gap
-                pre_addr = 26'h3F_FFF8;
+        pre_addr = ioctl_addr + 27'd16;
+        if( ioctl_addr>=27'h400_0000 && ioctl_addr<27'h500_0000 ) begin
+            if( ioctl_addr < 27'h420_0000 )      // roz texels: one zero bit at [2]
+                pre_addr = 27'h400_0010 + { dl_r[20:2], 1'b0, dl_r[1:0] };
+            else if( ioctl_addr < 27'h430_0000 ) // roz masks: bytes 4/5 of the unit pair
+                pre_addr = 27'h400_0010 + { dl_r[17:0], dl_r[19], 2'b10, dl_r[18] };
+            else                                 // FF filler: park it
+                pre_addr = 27'h03F_FFF0;
         end
-        if( ioctl_addr>=26'h140_0000 && ioctl_addr<26'h148_0000 ) // C75 data
-            pre_addr = 26'h30_0008 + { 7'd0, ioctl_addr[18:0] };
-        if( ioctl_addr>=26'h148_4000 && ioctl_addr<26'h160_0000 ) // FF filler
-            pre_addr = 26'h3F_FFF8;
-        if( ioctl_addr>=26'h160_0000 ) begin
-            if( ioctl_addr < 26'h1A0_0000 )     // scroll texels
-                pre_addr = 26'h160_0008 + { 2'd0, dl_s[21:2], 1'b0, dl_s[1:0] };
-            else if( ioctl_addr < 26'h1B0_0000 ) // scroll row masks, unit pair
-                pre_addr = 26'h160_0008 + { 2'd0, dl_s[18:0], dl_s[19], 3'b100 };
+        if( ioctl_addr>=27'h500_0000 ) begin
+            if( ioctl_addr < 27'h540_0000 )      // scroll texels
+                pre_addr = 27'h500_0010 + { dl_s[21:2], 1'b0, dl_s[1:0] };
+            else if( ioctl_addr < 27'h550_0000 ) // scroll row masks, unit pair
+                pre_addr = 27'h500_0010 + { dl_s[18:0], dl_s[19], 3'b100 };
+            else
+                pre_addr = 27'h03F_FFF0;
         end
     end
 end
@@ -166,7 +244,7 @@ jtsysfl_header u_header(
     .header     ( header        ),
     .prog_we    ( prog_we       ),
     .flr        ( flr           ),
-    .prog_addr  ( prog_addr[2:0]),
+    .prog_addr  ( prog_addr[3:0]),
     .prog_data  ( prog_data     )
 );
 
@@ -181,10 +259,10 @@ jtsysfl_c75stub u_c75stub(
     .mcu_we     ( mcu_we        )
 );
 assign c75bios_addr = 0;
-assign mcurom_addr  = 0;
-assign mcurom_cs    = 0;
-assign pcm_addr     = 0;
-assign pcm_cs       = 0;
+assign g_mcurom_addr  = 0;
+assign g_mcurom_cs    = 0;
+assign g_pcm_addr     = 0;
+assign g_pcm_cs       = 0;
 assign snd_left     = 0;
 assign snd_right    = 0;
 assign sample       = 0;
@@ -210,14 +288,14 @@ jtsysfl_c75 u_c75(
     .mcu_dout   ( mcu_dout      ),
     .bios_addr  ( c75bios_addr  ),
     .bios_data  ( c75bios_data  ),
-    .mcurom_addr( mcurom_addr   ),
-    .mcurom_cs  ( mcurom_cs     ),
-    .mcurom_data( mcurom_data   ),
-    .mcurom_ok  ( mcurom_ok     ),
-    .pcm_addr   ( pcm_addr      ),
-    .pcm_cs     ( pcm_cs        ),
-    .pcm_data   ( pcm_data      ),
-    .pcm_ok     ( pcm_ok        ),
+    .mcurom_addr( g_mcurom_addr   ),
+    .mcurom_cs  ( g_mcurom_cs     ),
+    .mcurom_data( g_mcurom_data   ),
+    .mcurom_ok  ( g_mcurom_ok     ),
+    .pcm_addr   ( g_pcm_addr      ),
+    .pcm_cs     ( g_pcm_cs        ),
+    .pcm_data   ( g_pcm_data      ),
+    .pcm_ok     ( g_pcm_ok        ),
     .snd_l      ( snd_left      ),
     .snd_r      ( snd_right     ),
     .sample     ( sample        ),
@@ -225,15 +303,15 @@ jtsysfl_c75 u_c75(
 );
 `endif
 `else
-assign main_addr  = 0;
-assign main_cs    = 0;
-assign wram_addr  = 0;
-assign wram_cs    = 0;
-assign wram_we    = 0;
-assign wram_din   = 0;
-assign wram_dsn   = 3;
-assign wram32_addr= 0;
-assign wram32_cs  = 0;
+assign g_main_addr  = 0;
+assign g_main_cs    = 0;
+assign g_wram_addr  = 0;
+assign g_wram_cs    = 0;
+assign g_wram_we    = 0;
+assign g_wram_din   = 0;
+assign g_wram_dsn   = 3;
+assign g_wram32_addr= 0;
+assign g_wram32_cs  = 0;
 assign cvram_addr = 0;
 assign cvram_din  = 0;
 assign cvram_we   = 0;
@@ -250,10 +328,10 @@ assign mcu_addr   = 0;
 assign mcu_din    = 0;
 assign mcu_we     = 0;
 assign c75bios_addr = 0;
-assign mcurom_addr  = 0;
-assign mcurom_cs    = 0;
-assign pcm_addr     = 0;
-assign pcm_cs       = 0;
+assign g_mcurom_addr  = 0;
+assign g_mcurom_cs    = 0;
+assign g_pcm_addr     = 0;
+assign g_pcm_cs       = 0;
 assign snd_left     = 0;
 assign snd_right    = 0;
 assign sample       = 0;
@@ -337,18 +415,18 @@ jtsysfl_video u_video(
     .blue_dout  ( bpal_dout     ),
     .bpal_dout  ( bpal_cdout    ),
 
-    .scr_cs     ( scr_cs        ),
-    .scr_addr   ( scr_addr      ),
-    .scr_ok     ( scr_ok        ),
-    .scr_data   ( scr_data      ),
-    .roz_cs     ( roz_cs        ),
-    .roz_addr   ( roz_addr      ),
-    .roz_ok     ( roz_ok        ),
-    .roz_data   ( roz_data      ),
-    .objrom_cs  ( objrom_cs     ),
-    .objrom_addr( objrom_addr   ),
-    .objrom_ok  ( objrom_ok     ),
-    .objrom_data( objrom_data   ),
+    .scr_cs     ( g_scr_cs        ),
+    .scr_addr   ( g_scr_addr      ),
+    .scr_ok     ( g_scr_ok        ),
+    .scr_data   ( g_scr_data      ),
+    .roz_cs     ( g_roz_cs        ),
+    .roz_addr   ( g_roz_addr      ),
+    .roz_ok     ( g_roz_ok        ),
+    .roz_data   ( g_roz_data      ),
+    .objrom_cs  ( g_objrom_cs     ),
+    .objrom_addr( g_objrom_addr   ),
+    .objrom_ok  ( g_objrom_ok     ),
+    .objrom_data( g_objrom_data   ),
 
     .red        ( red           ),
     .green      ( green         ),
@@ -391,7 +469,7 @@ end
 integer w_st[0:21], w_romw=0, w_div=0, w_hits=0, w_hmax=0, wi;
 // objrom cache audit: requests, 1-cycle hits, reuse of the last 4 lines
 integer w_req=0, w_hit=0, w_reuse=0;
-reg [19:0] w_lines[0:3];   // 64-bit line ids = objrom_addr[22:3]
+reg [19:0] w_lines[0:3];   // 64-bit line ids = g_objrom_addr[22:3]
 reg [22:2] w_lastaddr=0;
 reg w_cs_l=0, w_newreq=0;
 reg wvs_l=0, whs2_l=0;
@@ -400,23 +478,23 @@ always @(posedge clk) begin
     wvs_l <= VS;
     if( ob_frame>=2450 && ob_frame<=2700 ) begin
         if( u_video.u_obj.u_scan.st!=0 ) w_st[u_video.u_obj.u_scan.st] <= w_st[u_video.u_obj.u_scan.st]+1;
-        if( objrom_cs && !objrom_ok ) w_romw <= w_romw+1;
-        w_cs_l <= objrom_cs;
-        if( ob_frame>=2555 && ob_frame<=2557 && objrom_cs && (!w_cs_l || objrom_addr!=w_lastaddr) )
-            $display("OTRC %0d %h", ob_frame, {objrom_addr,2'b00});
+        if( g_objrom_cs && !g_objrom_ok ) w_romw <= w_romw+1;
+        w_cs_l <= g_objrom_cs;
+        if( ob_frame>=2555 && ob_frame<=2557 && g_objrom_cs && (!w_cs_l || g_objrom_addr!=w_lastaddr) )
+            $display("OTRC %0d %h", ob_frame, {g_objrom_addr,2'b00});
         // new request = cs rising or address change while cs
-        if( objrom_cs && (!w_cs_l || objrom_addr!=w_lastaddr) ) begin
+        if( g_objrom_cs && (!w_cs_l || g_objrom_addr!=w_lastaddr) ) begin
             w_req      <= w_req+1;
             w_newreq   <= 1;
-            w_lastaddr <= objrom_addr;
-            if( objrom_addr[22:3]==w_lines[0] || objrom_addr[22:3]==w_lines[1] ||
-                objrom_addr[22:3]==w_lines[2] || objrom_addr[22:3]==w_lines[3] )
+            w_lastaddr <= g_objrom_addr;
+            if( g_objrom_addr[22:3]==w_lines[0] || g_objrom_addr[22:3]==w_lines[1] ||
+                g_objrom_addr[22:3]==w_lines[2] || g_objrom_addr[22:3]==w_lines[3] )
                 w_reuse <= w_reuse+1;
             w_lines[3] <= w_lines[2]; w_lines[2] <= w_lines[1];
-            w_lines[1] <= w_lines[0]; w_lines[0] <= objrom_addr[22:3];
+            w_lines[1] <= w_lines[0]; w_lines[0] <= g_objrom_addr[22:3];
         end else if( w_newreq ) begin
             w_newreq <= 0;
-            if( objrom_ok ) w_hit <= w_hit+1;   // served the cycle after the request
+            if( g_objrom_ok ) w_hit <= w_hit+1;   // served the cycle after the request
         end
         if( u_video.u_obj.u_scan.div_working ) w_div <= w_div+1;
         whs2_l <= u_video.u_obj.ln_hs;
@@ -450,17 +528,17 @@ initial for(obi=0;obi<8;obi=obi+1) ob_lat[obi]=0;
 reg olvbl=0;
 always @(posedge clk) begin
     olvbl <= LVBL;
-    if( objrom_cs ) begin
-        if( !ocs_l || objrom_addr!=oaddr_l ) begin // new request
+    if( g_objrom_cs ) begin
+        if( !ocs_l || g_objrom_addr!=oaddr_l ) begin // new request
             oreq <= oreq+1; og <= 0;               // start timing
             owcyc <= owcyc+og;
             if( og>0 ) begin // classify the just-finished one
                 ob_lat[ og<4?0 : og<8?1 : og<12?2 : og<20?3 : og<32?4 : og<48?5 : og<64?6:7 ]
                     <= ob_lat[ og<4?0 : og<8?1 : og<12?2 : og<20?3 : og<32?4 : og<48?5 : og<64?6:7 ]+1;
             end
-        end else if( !objrom_ok ) og <= og+1;      // waiting
+        end else if( !g_objrom_ok ) og <= og+1;      // waiting
         ocs_l   <= 1;
-        oaddr_l <= objrom_addr;
+        oaddr_l <= g_objrom_addr;
     end else ocs_l <= 0;
     if( LVBL && !olvbl )
         $display("OLAT req=%0d owcyc=%0d buckets[<4 <8 <12 <20 <32 <48 <64 64+]= %0d %0d %0d %0d %0d %0d %0d %0d",
@@ -470,15 +548,15 @@ end
 integer rreq=0, rwait=0, rwcyc=0;
 reg rcs_l=0; reg [21:3] raddr_l=0; reg rwaited=0;
 always @(posedge clk) begin
-    if( roz_cs ) begin
-        if( !rcs_l || roz_addr!=raddr_l ) begin
+    if( g_roz_cs ) begin
+        if( !rcs_l || g_roz_addr!=raddr_l ) begin
             rreq <= rreq+1;
             if( rwaited ) rwait <= rwait+1;
             rwaited <= 0;
-        end else if( !roz_ok ) begin
+        end else if( !g_roz_ok ) begin
             rwcyc <= rwcyc+1; rwaited <= 1;
         end
-        rcs_l <= 1; raddr_l <= roz_addr;
+        rcs_l <= 1; raddr_l <= g_roz_addr;
     end else rcs_l <= 0;
     if( LVBL && !olvbl )
         $display("RLAT req=%0d waited=%0d wcyc=%0d", rreq, rwait, rwcyc);

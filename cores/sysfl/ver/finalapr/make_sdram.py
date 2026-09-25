@@ -74,10 +74,13 @@ def roz_weave(rch, rsh):
         w[5+h::16] = rsh[0x40000:0x80000]
     return w
 
-bank0 = bytearray(b'\xff'*0x800000)
+# dual-chip layout: chip0 b0 prog+erased data, b1 C75 data, b2 PCM, b3 obj;
+# chip1 b0 raw+woven ROZ, b1 raw+woven scroll, b2 work RAM (no preload)
+bank0 = bytearray(b'\xff'*0x300000)
 bank0[0:0x100000] = prog
-bank0[0x400000:0x800000] = roz_weave(get("flr1_rch0.19j")+get("flr1_rch1.18j"),
-                                     get("flr1_rsh.14k"))
+rch = get("flr1_rch0.19j")+get("flr1_rch1.18j")
+rsh = get("flr1_rsh.14k")
+c1b0 = roz_weave(rch, rsh)   # woven at bank base; raws never land
 
 # C123 tile+mask weave: 8-byte units keyed by {code[15:0],row[2:0],col[2]}
 # [4 texels][mask byte][3 pad] -> 8MB; one 64-bit burst returns a 4-texel
@@ -94,13 +97,15 @@ sch = bytearray(b'\xff'*0x400000)
 pos = 0
 for f in ["flr1_sch0.21p","flr1_sch1.20p","flr1_sch2.19p","flr1_sch3.18p"]:
     d = get(f); sch[pos:pos+len(d)] = d; pos += 0x100000
-bank3 = scr_weave(sch, get("flr1_ssh.18u"))
+ssh = get("flr1_ssh.18u")
+c1b1 = scr_weave(sch, ssh)
 spr = get("flr1_spr.21l")
-bank0[0x300000:0x300000+len(spr)] = spr
+bank1 = bytearray(b'\xff'*0x80000)
+bank1[0:len(spr)] = spr
 
 # C352 sample ROM, 2MB set in a 4MB bank; nvram/comram in the upper wram
 # window (bank bytes 0x500000 / 0x580000), 0xFF = fresh
-bank2 = bytearray(b'\xff'*0x600000)
+bank2 = bytearray(b'\xff'*0x400000)
 voi = get("flr1_voi.23s")
 bank2[0:len(voi)] = voi
 mamenv = os.path.expanduser("~/develop/mame/nvram/finalapr/nvram")
@@ -113,21 +118,23 @@ with zipfile.ZipFile(c75path) as z:
     c75 = z.read("c75.bin")
 assert len(c75)==0x4000, "c75.bin must be 16kB"
 
-bank1 = bytearray(0x800000)
+bank3 = bytearray(0x800000)
 for base, lf, uf in [(0, "flr1_obj0l.ic1", "flr1_obj0u.ic2"), (0x400000, "flr1_obj1l.ic3", "flr1_obj1u.ic4")]:
     lo, up = get(lf), get(uf)
     for i in range(0, len(lo), 2):
         o = base + i*2
-        bank1[o:o+2]   = lo[i:i+2]
-        bank1[o+2:o+4] = up[i:i+2]
+        bank3[o:o+2]   = lo[i:i+2]
+        bank3[o+2:o+4] = up[i:i+2]
 
 open(os.path.join(outdir,"sdram_bank0.bin"),"wb").write(swab(bank0))
-open(os.path.join(outdir,"sdram_bank3.bin"),"wb").write(swab(bank3))
 open(os.path.join(outdir,"sdram_bank1.bin"),"wb").write(swab(bank1))
 open(os.path.join(outdir,"sdram_bank2.bin"),"wb").write(swab(bank2))
+open(os.path.join(outdir,"sdram_bank3.bin"),"wb").write(swab(bank3))
+open(os.path.join(outdir,"sdram2_bank0.bin"),"wb").write(swab(c1b0))
+open(os.path.join(outdir,"sdram2_bank1.bin"),"wb").write(swab(c1b1))
 open(os.path.join(outdir,"c75bios_lo.bin"),"wb").write(c75[0::2])
 open(os.path.join(outdir,"c75bios_hi.bin"),"wb").write(c75[1::2])
 # jtsim downloads rom.bin over bank 0 before releasing reset; raw prog head
-# makes the overwrite a no-op (see ver/speedrcr). First 8 bytes = MRA header,
+# makes the overwrite a no-op (see ver/speedrcr). First 16 bytes = MRA header,
 # byte 0 flr=1 selects the Final Lap R cabinet inputs
-open(os.path.join(outdir,"rom.bin"),"wb").write(bytes([1,0,0,0,0,0,0,0])+bytes(prog[:1024]))
+open(os.path.join(outdir,"rom.bin"),"wb").write(bytes([1]+[0]*15)+bytes(prog[:1024]))

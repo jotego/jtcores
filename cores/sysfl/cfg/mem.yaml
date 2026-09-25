@@ -1,15 +1,9 @@
-# System FL memory map
-# bank 0: i960 program (1MB @0) + data (2MB @0x100000) + C75 data (@0x300000)
-#         + woven ROZ gfx (@0x400000)
-# bank 1: obj gfx (SDRAM priority: bank0 first, so obj outranks all but bank0)
-# bank 2: C352 PCM (4MB @0) + i960 work RAM (@0x400000)
-# bank 3: woven scroll gfx (8MB)
-params:
-  - { name: ROZ_OFFSET,   value: "22'h20_0000" }  # byte 0x400000, bank 0
-  - { name: WRAM_OFFSET,  value: "22'h20_0000" }  # byte 0x400000, bank 2
-  - { name: C75DATA_OFFSET, value: "22'h18_0000" } # byte 0x300000, bank 0
+# System FL memory map, cps3-style cache lanes on a dual-chip SDRAM
+# chip 0: main+data (b0) | C75 data (b1) | C352 PCM (b2) | obj gfx (b3)
+# chip 1: woven ROZ (b0, raw streams below the window) | woven scroll (b1)
+#         | work RAM (b2, no download)
 download:
-  pre_addr: true   # weaves the raw ROZ texel+mask stream into 8-byte units
+  pre_addr: true   # weaves the raw ROZ/scroll texel+mask streams into 8-byte units
 clocks:
   clk:
     # i960KA-20 at 48*5/12 = 20 MHz, minimum 2-clock cen spacing. The C75
@@ -29,47 +23,38 @@ clocks:
       outputs:
         - c352_cen
 sdram:
-  banks:
-    - buses:
-        - name: main
-          addr_width: 22
-          data_width: 32
-          cache_size: 1kB
-        - name: roz   # 8-byte woven units: 4 texels + 2 mask bytes + pad
-          addr_width: 22
-          data_width: 64
-          cache_size: 4kB
-          offset: ROZ_OFFSET
-        - name: mcurom  # C75 external data ROM (se1_spr), 512kB
-          addr_width: 19
-          data_width: 16
-          cache_size: 1kB
-          offset: C75DATA_OFFSET
-    - buses:
-        - name: objrom
-          addr_width: 23
-          data_width: 32
-          cache_size: 1kB
-    - buses:
-        - name: wram    # rw buses must come first in the bank
-          addr_width: 21
-          data_width: 16
-          rw: true
-          do_not_erase: true  # the game tests+inits it, erasing stalls reset ~12 frames
-          offset: WRAM_OFFSET
-        - name: pcm
-          addr_width: 22
-          data_width: 8
-        - name: wram32  # code fetches and loads from work RAM, one burst per word
-          addr_width: 21
-          data_width: 32
-          latch: "1"
-          offset: WRAM_OFFSET
-    - buses:
-        - name: scr   # 8-byte woven units: 4 texels + row mask byte + pad
-          addr_width: 23
-          data_width: 64
-          cache_size: 4kB  # a full line of all 6 layers ~444 units
+  cache-lanes:
+    # one coherent rw lane serves both work-RAM views (16-bit funnel and
+    # 32-bit code fetches); write-back caching makes split lanes unsafe
+    - name: wram
+      data_width: 32
+      rw: true
+      blocks: { count: 128, size: 32 }
+      at: { chip: 1, bank: 2, length: 2MB }
+    - name: main
+      data_width: 32
+      blocks: { count: 64, size: 32 }
+      at: { chip: 0, bank: 0, length: 4MB }
+    - name: mcurom  # C75 external data ROM (se1_spr), own bank for latency
+      data_width: 16
+      blocks: { count: 64, size: 16 }
+      at: { chip: 0, bank: 1, length: 512kB }
+    - name: objrom
+      data_width: 32
+      blocks: { count: 128, size: 32 }
+      at: { chip: 0, bank: 3, length: 8MB }
+    - name: roz   # 8-byte woven units: 4 texels + 2 mask bytes + pad
+      data_width: 64
+      blocks: { count: 16, size: 16 }
+      at: { chip: 1, bank: 0, length: 4MB }
+    - name: scr   # 8-byte woven units: 4 texels + row mask byte + pad
+      data_width: 128
+      blocks: { count: 16, size: 16 }
+      at: { chip: 1, bank: 1, length: 8MB }
+    - name: pcm
+      data_width: 8
+      blocks: { count: 128, size: 16 }
+      at: { chip: 0, bank: 2, length: 4MB }
 bram:
   - name: backup    # 8kB backup memory (game nvram), saved/restored on the SD card
     addr_width: 13
@@ -161,4 +146,4 @@ bram:
   - name: c75bios   # C75 internal 16kB mask ROM (c75.bin, namcoc75.zip device set)
     addr_width: 14
     data_width: 16
-    rom: { offset: "((`C75BIOS_START-`JTFRAME_BA2_START)>>1)|24'h800000" }
+    rom: { offset: "(`C75BIOS_START)>>1" }

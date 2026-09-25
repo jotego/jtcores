@@ -115,34 +115,35 @@ def scr_weave(sch, ssh):
         w[4+h::16] = ssh
     return w
 
-bank0 = bytearray(0x800000)
+# dual-chip layout: chip0 b0 prog+data, b1 C75 data, b2 PCM, b3 obj;
+# chip1 b0 raw+woven ROZ, b1 raw+woven scroll, b2 work RAM (no preload)
+bank0 = bytearray(0x300000)
 bank0[0:0x100000] = prog
 bank0[0x100000:0x300000] = data
-bank0[0x300000:0x380000] = get("se1_spr.21l")   # C75 external data ROM
-bank0[0x400000:0x800000] = roz_weave(get("se1_rch0.19j")+get("se1_rch1.18j"),
-                                     get("se1_rsh.14k"))
+bank1 = get("se1_spr.21l")                      # C75 external data ROM
+bank2 = get("se1_voi.23s")                      # C352 samples
 
-bank3 = scr_weave(b"".join(get(f) for f in
-            ["se1_sch0.21p","se1_sch1.20p","se1_sch2.19p","se1_sch3.18p"]),
-        get("se1_ssh.18u"))
+bank3 = bytearray(0x800000)
+for base, lf, uf in [(0, "se1obj0l.ic1", "se1obj0u.ic2"), (0x400000, "se1obj1l.ic3", "se1obj1u.ic4")]:
+    lo, up = get(lf), get(uf)
+    for i in range(0, len(lo), 2):
+        o = base + i*2
+        bank3[o:o+2]   = lo[i:i+2]
+        bank3[o+2:o+4] = up[i:i+2]
 
-# C352 sample ROM fills bank 2 (pcm bus at offset 0); nvram and comram live
-# in the upper wram window (bank bytes 0x500000 / 0x580000)
-bank2 = bytearray(0x600000)
-bank2[0:0x400000] = get("se1_voi.23s")
+rch = get("se1_rch0.19j")+get("se1_rch1.18j")
+rsh = get("se1_rsh.14k")
+c1b0 = roz_weave(rch, rsh)   # woven at bank base; raws never land
+
+sch = b"".join(get(f) for f in
+            ["se1_sch0.21p","se1_sch1.20p","se1_sch2.19p","se1_sch3.18p"])
+ssh = get("se1_ssh.18u")
+c1b1 = scr_weave(sch, ssh)
 
 # C75 internal BIOS, from the MAME namcoc75 device set
 with zipfile.ZipFile(c75path) as z:
     c75 = z.read("c75.bin")
 assert len(c75)==0x4000, "c75.bin must be 16kB"
-
-bank1 = bytearray(0x800000)
-for base, lf, uf in [(0, "se1obj0l.ic1", "se1obj0u.ic2"), (0x400000, "se1obj1l.ic3", "se1obj1u.ic4")]:
-    lo, up = get(lf), get(uf)
-    for i in range(0, len(lo), 2):
-        o = base + i*2
-        bank1[o:o+2]   = lo[i:i+2]
-        bank1[o+2:o+4] = up[i:i+2]
 
 # prefer a once-booted NVRAM image (MAME first-boot initialized): the game
 # then loads valid settings/calibration and boots straight to attract.
@@ -157,11 +158,13 @@ open(os.path.join(outdir,"sdram_bank0.bin"),"wb").write(swab(bank0))
 open(os.path.join(outdir,"sdram_bank1.bin"),"wb").write(swab(bank1))
 open(os.path.join(outdir,"sdram_bank2.bin"),"wb").write(swab(bank2))
 open(os.path.join(outdir,"sdram_bank3.bin"),"wb").write(swab(bank3))
+open(os.path.join(outdir,"sdram2_bank0.bin"),"wb").write(swab(c1b0))
+open(os.path.join(outdir,"sdram2_bank1.bin"),"wb").write(swab(c1b1))
 # the BIOS BRAM is a 16-bit jtframe_bram_rom, simfiles are split by byte lane
 open(os.path.join(outdir,"c75bios_lo.bin"),"wb").write(c75[0::2])
 open(os.path.join(outdir,"c75bios_hi.bin"),"wb").write(c75[1::2])
 # jtsim downloads rom.bin over bank 0 before releasing reset. The download path
 # is byte-exact while the bank preload swaps 16-bit bytes, hence raw prog here
 # so the overwrite is a no-op. First 8 bytes = MRA header, byte 0 flr=0
-open(os.path.join(outdir,"rom.bin"),"wb").write(bytes(8)+bytes(prog[:1024]))
+open(os.path.join(outdir,"rom.bin"),"wb").write(bytes(16)+bytes(prog[:1024]))
 print("sdram banks + nvram written")

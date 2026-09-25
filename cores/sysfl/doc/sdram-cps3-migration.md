@@ -9,16 +9,28 @@ placement, give per-lane caches with full-page terminated bursts (arbitrary
 line length), and let the ROZ mask hack be deleted later without a controller
 change.
 
-## Hard constraints
+## Phase-1 outcome (2026-09-25, branch cps3-migration): STOPPED, measured
 
-- **No SDRAM96.** The 2x clock would be 121 MHz, beyond the module budget.
-  Run the SDRAM single-rate at the 60.48 base. This forces `HF=0`, which is
-  the correct capture mode below 64 MHz (see jtframe_board_sdram.v:218).
-  Risk: cps3 only ever runs cache-lanes with SDRAM96, so single-rate
-  cache-lanes is unexercised. Watch data capture on the first boot.
-- **DDIO SDRAM clock** stays (JTFRAME_180SHIFT), the proven pad-clock path.
-- Integer vs exact-crystal PLL is orthogonal to this work; keep whatever the
-  bench blessed (pllc6000 integer 60, or plld6048 if it holds).
+The full migration was implemented and runs (7 lanes, dual-chip XL, BALUT
+header, woven windows at their banks' bases, single coherent rw wram lane,
+romrq shims + direct-mapped front caches). It is a measured REGRESSION at
+the 48 MHz single-rate the retreat imposed: burst_07200 obj/roz/scr cuts
+38/31/131 vs the sdram64 baseline 26/61/0. Root cause is structural: the
+lane subsystem costs ~22 clocks per miss at 48 single-rate (edge-triggered
+requests, no pipelining, >=16-byte line fills) against romrq's ~11-clock
+pipelined BL4, and the C123 walk makes ~100 compulsory misses per line.
+Front caches recover hits (1 clock) but not the compulsory-miss latency;
+splitting the mask stream onto the spare 8th lane made it worse (the masks
+ride the pixel stream's front cache for free).
+
+The subsystem pays only with the lanes in a 96 MHz domain. jtframe's
+pattern for that (rungun, cps3): JTFRAME_SDRAM96 + JTFRAME_CLK48 keep the
+CPU and sound on a phase-aligned 48 MHz clock (same-edge, not a true CDC),
+but the VIDEO and pxl_cen live on the 96 MHz clock - i.e. the video chain
+re-bases to 96 (double line budget in clocks, but every single-cycle video
+path must close at 10.4 ns). That is the future task; check rungun/cps3
+for the exact wiring. The work is preserved on this branch; nsr keeps the
+sdram64 model.
 
 ## Phase 1 — controller transition (both mask folds are DONE on BL4)
 

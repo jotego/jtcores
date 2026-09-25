@@ -6,10 +6,8 @@ JTFRAME_BUTTONS=4
 JTFRAME_ANALOG
 CORE_OSD=OKM,Control Type,A.Stick,A.Triggers,A.Wheel,Stick+BtnGas;
 JTFRAME_NOMULTIWAY
-JTFRAME_HEADER=8
+JTFRAME_HEADER=16
 JTFRAME_OSD_NOLOGO
-# core-local sprite ROM cache (see hdl/jtframe_romrq_lcache.v)
-JTFRAME_CORE_LCACHE
 JTFRAME_NOHQ2X
 
 # Video configuration
@@ -20,30 +18,20 @@ JTFRAME_HEIGHT=224
 JTFRAME_ARX=4
 JTFRAME_ARY=3
 
-# ROM configuration, byte offsets in download order (see mame2mra.toml)
-# bank1 = obj, bank2 = pcm + work RAM, bank3 = woven scroll gfx
-# rch+rsh and sch+ssh stream raw (masks twice); the pre_addr remap weaves
-# them into 8-byte units at bank0 0x400000 and bank3 0x000000, and moves
-# the C75 data rom into the bank0 gap at 0x300000
-ROZ_START=0x300000
-RSH_START=0x500000
-JTFRAME_BA1_START=0x800000
-JTFRAME_BA2_START=0x1000000
-MCUROM_START=0x1400000
-C75BIOS_START=0x1480000
-JTFRAME_BA3_START=0x1600000
-SSH_START=0x1A00000
-# 64-bit bursts for the sprite ROM, 8 pixels per fetch
-
-# slow-grade (-75) SDRAM: 20ns tRP/tRCD command spacing above 50 MHz
-JTFRAME_SDRAM_TRP20
-JTFRAME_BA1_LEN=64
-# 64-bit bursts on bank 0 so one burst fills an 8-byte woven roz unit
-JTFRAME_BA0_LEN=64
-# same for the woven scroll units on bank 3
-JTFRAME_BA3_LEN=64
-# bank 2 holds the i960 work RAM
-JTFRAME_BA2_WEN
+# dual-chip SDRAM (128 MB space), cache lanes. Single-rate 48 MHz: SDRAM96
+# doubles the game clock domain in jtframe, out of scope for this migration
+JTFRAME_SDRAM_XL
+# ROM configuration, byte offsets in the 128 MB download space (16 MB banks,
+# chip 1 starts at 0x4000000). rch+rsh and sch+ssh stream raw after their
+# woven windows; the pre_addr remap weaves them into 8-byte units
+C75BIOS_START=0x300000
+MCUROM_START=0x1000000
+PCM_START=0x2000000
+OBJ_START=0x3000000
+ROZ_START=0x4000000
+RSH_START=0x4200000
+SCH_START=0x5000000
+SSH_START=0x5400000
 
 # scene dumps: 6 BRAMs + video MMRs
 # NVRAM: the 8kB backup memory BRAM, first in the ioctl order.
