@@ -70,7 +70,7 @@ sdram:
         - name: scr   # 8-byte woven units: 4 texels + row mask byte + pad
           addr_width: 23
           data_width: 64
-          cache_size: 1kB
+          cache_size: 4kB  # a full line of all 6 layers ~444 units
 bram:
   - name: vram      # 123 tilemaps, 64kB. Primary port: video read
     addr_width: 16

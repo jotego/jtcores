@@ -98,9 +98,12 @@ reg  [ 2:0] bprio, cprio, win, hcnt0, hcnt1, hcnt2, hcnt3;
 reg         done, alt_cen, opaque, bblankn;
 wire [10:0] pxl;
 wire [ 2:0] prio;
-wire        blankn, buf_we, rom_ok, hs_edge, mfetch;
+wire        blankn, buf_we, rom_ok, hs_edge, mfetch, mgrant, pix_hit;
 reg  [22:3] pix_unit;              // pixel fetch unit {code, row, col[2]}
 reg  [ 1:0] pix_lane;              // texel byte lane, col[1:0]
+reg  [63:0] c_word;                // single-entry unit latch
+reg  [22:3] c_addr;
+reg         c_ok;
 
 // MAME dx = 44 + {4,2,1,0} per layer, calibrate hoff0 in sim
 wire [15:0] hoff0 = dflip ? 16'h71 : -16'h0f;
@@ -113,11 +116,13 @@ integer     i, j;
     reg     miss;
 `endif
 
-// the mask prefetch steals the scr port; data_ok is address-qualified in the
-// slot, so the pixel side just waits while the mask unit is on the bus
+// pixels are served from the unit latch; the port is free for the mask
+// prefetch whenever the latch holds the current unit (pixel miss wins)
 assign mfetch     = plyr!=7 && mst>=3; // tmap_data valid from mst 3
+assign pix_hit    = c_ok && c_addr==pix_unit;
+assign mgrant     = mfetch && (pix_hit || done);
 assign scr_cs     = ~done | mfetch;
-assign scr_addr   = mfetch ? {tmap_data, mask_asub, 1'b0} : pix_unit;
+assign scr_addr   = mgrant ? {tmap_data, mask_asub, 1'b0} : pix_unit;
 assign hsub       = hcnt[2:0];
 assign buf_we     = alt_cen & ~done;
 // a layer entering its next tile needs that tile's mask ready
@@ -131,7 +136,7 @@ wire [5:0] cfg_enb_eff = cfg_enb;
 `endif
 assign xing      = { hcnt[2:0]==7, hcnt[2:0]==7, hcnt3==7, hcnt2==7, hcnt1==7, hcnt0==7 };
 assign block      = xing & ~nrdy & ~cfg_enb_eff;
-assign rom_ok     = scr_ok & ~mfetch & ~|block;
+assign rom_ok     = pix_hit & ~|block;
 assign dflip      = flip ^ cfg_flip;
 assign scr_pxl    = { 1'b0, pxl };
 assign scr_prio   = prio;
@@ -271,6 +276,7 @@ always @(posedge clk, posedge rst) begin
         nrdy      <= 0;
         plyr      <= 7;
         mst       <= 0;
+        c_ok      <= 0;
     end else begin
         case( mst )
             0: if( mlyr!=7 ) begin
@@ -291,7 +297,7 @@ always @(posedge clk, posedge rst) begin
                 mst <= 2;
             end
             2,3: mst <= mst + 3'd1;
-            4: if( scr_ok ) begin
+            4: if( mgrant && scr_ok ) begin
                 nmask[plyr] <= scr_data[39:32];
                 ninfo[plyr] <= {cfg_pal[plyr], tmap_data, mask_asub, poff};
                 nrdy[plyr]  <= 1;
@@ -314,7 +320,12 @@ always @(posedge clk, posedge rst) begin
             end
             buf_a <= hcnt;
             // current pixel
-            { bblankn, bprio, bpxl } <= { attr, scr_data[{pix_lane,3'd0}+:8] };
+            { bblankn, bprio, bpxl } <= { attr, c_word[{pix_lane,3'd0}+:8] };
+        end
+        if( !mgrant && scr_ok && !pix_hit ) begin
+            c_word <= scr_data;
+            c_addr <= pix_unit;
+            c_ok   <= 1;
         end
         if( hs_edge ) begin
             nrdy <= 0;
