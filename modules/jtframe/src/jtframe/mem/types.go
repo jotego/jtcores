@@ -162,7 +162,7 @@ type Ioctl struct {
 	Dump    bool
 	DinName string
 	SkipAll int
-	Buses   [6]IoctlBus
+	Buses   [8]IoctlBus
 }
 
 type AudioRC struct {
