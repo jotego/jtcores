@@ -32,6 +32,9 @@ while [ $# -gt 0 ]; do
             EXTRA="$EXTRA ${MACRO}WRITE_ENABLE=0";;
         -norefresh)
             EXTRA="$EXTRA ${MACRO}NOREFRESH";;
+        -trp20)
+            shift
+            EXTRA="$EXTRA ${MACRO}JTFRAME_SDRAM_TRP20 ${MACRO}JTFRAME_MCLK=$1 ${MACRO}MINSPC=2";;
         -repack)
             EXTRA="$EXTRA ${MACRO}JTFRAME_SDRAM_REPACK";;
         -write)

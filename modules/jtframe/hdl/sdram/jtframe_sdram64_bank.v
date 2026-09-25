@@ -13,8 +13,9 @@ module jtframe_sdram64_bank #(
               PRECHARGE_ALL=0,
               BALEN        =64, // 16, 32 or 64 bits
               BURSTLEN     =64,
-              READONLY     =0   // set to 1 if ALL BANKS can only read
+              READONLY     =0,  // set to 1 if ALL BANKS can only read
                                 // this will make dbusy64 match dbusy
+              LF_WAIT      =0   // extra tRP/tRCD cycles at LF for slow-grade SDRAM
 )(
     input               rst,
     input               clk,
@@ -65,9 +66,10 @@ localparam ROW=13,
 // states
 localparam IDLE    = 0,
            // AUTOPRECH 1+2(1)
-           PRE_ACT = HF ? 2:1,
+           LFW     = HF==1 ? 2 : 1+LF_WAIT,
+           PRE_ACT = LFW,
            ACT     = PRE_ACT+1,
-           PRE_RD  = PRE_ACT + (HF ? 2:1),
+           PRE_RD  = PRE_ACT + LFW,
            READ    = PRE_RD+1,
            DST     = READ + (SHIFTED==1 ? 1 : 2) ,
            DTICKS  = BURSTLEN==64 ? 4 : (BURSTLEN==32?2:1),
