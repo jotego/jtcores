@@ -12,21 +12,20 @@ download:
   pre_addr: true   # weaves the raw ROZ texel+mask stream into 8-byte units
 clocks:
   clk:
-    # i960KA at clk/3 = 20.16 MHz, a strict 3-clock cen spacing. The C75
+    # i960KA-20 at 48*5/12 = 20 MHz, minimum 2-clock cen spacing. The C75
     # handshake needs the main loop to iterate several times per frame:
     # check CPUSTAT idle time if this ever changes
-    - mul: 1
-      div: 3
+    - mul: 5
+      div: 12
       outputs:
         - cpu_cen
-    # PCB clocks are 48.384MHz divisions; the base clock is 60.48 (x10 pixel),
-    # so the PCB ratios are scaled by 4/5 to stay locked to the video rate
-    - mul: 4
-      div: 15              # C75 XIN 16.128 MHz (timers, ADC)
+    # PCB clocks are 48.384 MHz divisions, applied to the stock 48 MHz base
+    - mul: 1
+      div: 3               # C75 XIN (timers, ADC)
       outputs:
         - xin_cen
-    - mul: 2
-      div: 5               # C352 24.192 MHz
+    - mul: 1
+      div: 2               # C352
       outputs:
         - c352_cen
 sdram:

@@ -49,17 +49,9 @@ JTFRAME_BA2_WEN
 JTFRAME_IOCTL_RD=8192
 # the game asks for the test switch to initialize its backup memory
 JTFRAME_OSD_TEST
-# integer 60 MHz base (proven stable SDRAM): the wizard 60.48 fractional PLL
-# crashes/corrupts on hardware after minutes; jitter eats the capture eye.
-# jtframe_pllc6000 is the proven integer fallback if SDRAM margins suffer
-JTFRAME_PLL=jtframe_pllc6000
-JTFRAME_BASE_MUL=10
+# stock 48 MHz base clock: every 60 MHz variant hung on real hardware
 
 [mister]
-# SDRAM clock from the DDIO cell, verbatim the reliable 60 MHz cores
-JTFRAME_180SHIFT
-# DDIO SDRAM clock instead of the PLL phase shift (fixes the black screen);
-# hardware only, the sim SDRAM model must keep the normal capture phase
 # 32MB ROM set: load through the DDR proxy
 JTFRAME_MR_DDRLOAD
 # LAB budget is tight: no composite/S-Video encoder, RGB and HDMI unaffected
