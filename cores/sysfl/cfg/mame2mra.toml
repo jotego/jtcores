@@ -17,8 +17,10 @@ regions = [
     # ROZ_START reproduces the erased region
     { name="data",         machine="finalapr", skip=true },
     { name="data",         width=32 },
+    # rch + rsh stream raw (rsh twice); the core's pre_addr remap weaves them
+    # into 8-byte units at 0x400000 (see doc/roz-mask-interleave.md)
     { name="c169roz",      start="ROZ_START" },
-    { name="c169roz:mask", start="RMASK_START" },
+    { name="c169roz:mask", start="RSH_START", sequence=[0,0] },
     { name="c352",         start="JTFRAME_BA3_START" },
     { name="c123tmap",     start="JTFRAME_BA2_START" },
     # C75 internal BIOS, from the namcoc75.zip device set
@@ -28,9 +30,8 @@ regions = [
     { name="c355spr",      width=32, start="JTFRAME_BA1_START" },
     { name="pals",         skip=true },
 ]
-order = [ "maincpu", "data", "c169roz", "c355spr",
-          "c123tmap", "c123tmap:mask", "c75", "c75data", "c352",
-          "c169roz:mask" ]
+order = [ "maincpu", "data", "c169roz", "c169roz:mask", "c355spr",
+          "c123tmap", "c123tmap:mask", "c75", "c75data", "c352" ]
 
 [buttons]
 # jtframe b1-b4 = joystick[7:4]; names follow the MAME PORT_NAMEs

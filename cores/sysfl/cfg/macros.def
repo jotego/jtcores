@@ -22,13 +22,15 @@ JTFRAME_ARY=3
 
 # ROM configuration, byte offsets in download order (see mame2mra.toml)
 # bank1 = obj (high SDRAM priority), bank3 = pcm + work RAM
-ROZ_START=0x400000
-JTFRAME_BA1_START=0x680000
-JTFRAME_BA2_START=0xE80000
-C75BIOS_START=0x1300000
-MCUROM_START=0x1380000
-JTFRAME_BA3_START=0x1400000
-RMASK_START=0x19A0000
+# rch+rsh stream raw at ROZ_START/RSH_START; the pre_addr remap weaves them
+# into the 4MB unit region at 0x400000-0x800000 of bank 0
+ROZ_START=0x300000
+RSH_START=0x500000
+JTFRAME_BA1_START=0x800000
+JTFRAME_BA2_START=0x1000000
+C75BIOS_START=0x1480000
+MCUROM_START=0x1500000
+JTFRAME_BA3_START=0x1580000
 # 64-bit bursts for the sprite ROM, 8 pixels per fetch
 
 JTFRAME_BA1_LEN=64

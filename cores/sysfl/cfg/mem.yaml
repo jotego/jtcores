@@ -7,6 +7,8 @@ params:
   - { name: ROZ_OFFSET,   value: "22'h20_0000" }  # byte 0x400000, bank 0
   - { name: WRAM_OFFSET,  value: "22'h20_0000" }  # byte 0x400000, bank 1
   - { name: C75DATA_OFFSET, value: "22'h28_0000" } # byte 0x500000, bank 2
+download:
+  pre_addr: true   # weaves the raw ROZ texel+mask stream into 8-byte units
 clocks:
   clk:
     # i960KA at clk/3 = 20.16 MHz, a strict 3-clock cen spacing. The C75

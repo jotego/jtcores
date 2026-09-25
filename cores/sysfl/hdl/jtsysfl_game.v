@@ -124,6 +124,25 @@ jtsysfl_main u_main(
 
 wire flr;
 
+// download remap: weave the raw ROZ texel (0x300000) and mask (0x500000, sent
+// twice) streams into the 8-byte units at 0x400000 (see doc/roz-mask-interleave.md)
+// ioctl_addr comes in header-stripped; jtframe_dwnld strips pre_addr again, +8
+wire [25:0] dl_i = ioctl_addr - 26'h30_0000;
+always @* begin
+    pre_addr = ioctl_addr;
+    if( !header ) begin
+        pre_addr = ioctl_addr + 26'd8;
+        if( ioctl_addr>=26'h30_0000 && ioctl_addr<26'h80_0000 ) begin
+            if( ioctl_addr < 26'h50_0000 )      // texels: one zero bit at [2]
+                pre_addr = 26'h40_0008 + { dl_i[20:2], 1'b0, dl_i[1:0] };
+            else if( ioctl_addr < 26'h60_0000 ) // masks: bytes 4/5 of the unit pair
+                pre_addr = 26'h40_0008 + { dl_i[17:0], dl_i[19], 2'b10, dl_i[18] };
+            else                                // FF filler: park it in the gap
+                pre_addr = 26'h30_0008;
+        end
+    end
+end
+
 // game id from the MRA header, byte 0
 jtsysfl_header u_header(
     .clk        ( clk           ),

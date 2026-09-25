@@ -126,7 +126,10 @@ Both must produce byte-identical layouts.
 1. make_sdram.py weaves the padded roz+mask image (sim only). DONE
 2. Rewire c169 to read mask from the roz unit, delete the mask port. DONE
 3. 64-bit roz port on the current controller (BA0_LEN=64, dw64 lcache). DONE
-4. Validate (gate above). Iterate until in-time pixels are bit-exact.
-5. Design the MRA/download weave for hardware (mame2mra + the game.v opq
-   builder must move to the woven region; RMASK_START download becomes dead).
+4. Validate (gate above). Iterate until in-time pixels are bit-exact. DONE
+5. Design the MRA/download weave for hardware. DONE: rch+rsh stream raw at
+   0x300000/0x500000 (rsh sent twice via MRA sequence), a pre_addr remap in
+   jtsysfl_game.v scatters them into the 8-byte units at 0x400000; bank 1
+   moves to 0x800000. Verified byte-identical to roz_weave() for both games
+   and end-to-end with a jtsim -load SDRAM dump compare.
 6. Later: controller switch to cps3; drop the padding via full-page bursts.
