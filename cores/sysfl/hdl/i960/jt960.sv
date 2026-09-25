@@ -307,7 +307,13 @@ jt960_muldiv u_md(
 // interrupts: rising edge on a line latches it pending, cleared when taken
 // vector per line comes from ICR (set via synmov to ff000004)
 wire [3:0] pend;
+reg  [3:0] pend_g;  // cen-aligned view of the pending latches
 reg  [3:0] irq_clr;
+
+always @(posedge clk) begin
+    if( rst ) pend_g <= 0;
+    else if( cen ) pend_g <= pend;
+end
 
 genvar k;
 generate
@@ -335,7 +341,7 @@ always @* begin
     vk       = 8'd0;
     for( j=0; j<4; j=j+1 ) begin
         vk = ICR[8*j +: 8];
-        if( pend[j] && vk!=8'd0 && vk>sel_vec &&
+        if( pend_g[j] && vk!=8'd0 && vk>sel_vec &&
             (cpu_pri < vk[7:3] || vk[7:3]==5'd31) ) begin
             irq_take = 1;
             sel_vec  = vk;
@@ -522,8 +528,8 @@ always @(posedge clk) begin
         ic_clr <= 0;
     end else begin
       icw    <= 0;
-      ic_clr <= 0;
       if( cen ) begin
+        ic_clr <= 0;
         case( st )
         // reset sequence, per MAME device_reset
         RST_SAT: if( !bus_cs ) rd32(32'd0);
