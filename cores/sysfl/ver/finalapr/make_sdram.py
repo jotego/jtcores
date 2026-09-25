@@ -3,7 +3,7 @@
 # Same System FL layout as ver/speedrcr, banks are 0xFF-initialized to match
 # the MRA fillers (the data region is ROMREGION_ERASEFF, no ROMs).
 # bank0: i960 prog @0 (LOAD32_WORD eb/ob) | data erased @0x100000
-#        | rch0-1 @0x400000 (rsh moved to the bank3 image @0x5a0000)
+#        | roz weave (rch0-1 + rsh interleaved) @0x400000
 # bank1: pcm 2MB @0 (work RAM lives at 0x400000, no preload)
 # bank2: sch0-3 @0 | ssh @0x400000 | spr (128kB) @0x500000
 # bank3: obj0l/0u, obj1l/1u interleaved as ROM_LOAD32_WORD
@@ -62,11 +62,22 @@ def swab(b):
     o[0::2], o[1::2] = b[1::2], b[0::2]
     return o
 
-bank0 = bytearray(b'\xff'*0x600000)
+# ROZ texel+mask weave: 8-byte units keyed by {code[12:0],yp[3:0],xp[3:2]}
+# [4 texels][mask byte code13=0][mask byte code13=1][2 pad] -> 4MB @0x400000
+# one 64-bit burst returns the texel run and both mask bytes
+def roz_weave(rch, rsh):
+    w = bytearray(0x400000)
+    for j in range(4):
+        w[j::8] = rch[j::4]
+    for h in (0, 8):  # the two xp[2] units of a group share the mask byte
+        w[4+h::16] = rsh[0:0x40000]
+        w[5+h::16] = rsh[0x40000:0x80000]
+    return w
+
+bank0 = bytearray(b'\xff'*0x800000)
 bank0[0:0x100000] = prog
-pos = 0x400000
-for f in ["flr1_rch0.19j","flr1_rch1.18j"]:
-    d = get(f); bank0[pos:pos+len(d)] = d; pos += 0x100000
+bank0[0x400000:0x800000] = roz_weave(get("flr1_rch0.19j")+get("flr1_rch1.18j"),
+                                     get("flr1_rsh.14k"))
 
 bank2 = bytearray(b'\xff'*0x580000)
 pos = 0
@@ -78,10 +89,9 @@ bank2[0x500000:0x500000+len(spr)] = spr
 
 # C352 sample ROM, 2MB set in a 4MB bank; nvram/comram in the upper wram
 # window (bank bytes 0x500000 / 0x580000), 0xFF = fresh
-bank1 = bytearray(b'\xff'*0x620000)
+bank1 = bytearray(b'\xff'*0x600000)
 voi = get("flr1_voi.23s")
 bank1[0:len(voi)] = voi
-bank1[0x5a0000:0x620000] = get("flr1_rsh.14k")
 mamenv = os.path.expanduser("~/develop/mame/nvram/finalapr/nvram")
 if os.path.exists(mamenv):
     bank1[0x500000:0x502000] = open(mamenv,"rb").read()

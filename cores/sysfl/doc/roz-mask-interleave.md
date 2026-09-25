@@ -29,20 +29,37 @@ acceptable for now.
   both. (Code width differs: texel uses code[12:0], mask code[13:0] - key the
   combined region on the full 14-bit code; texel side sees a sparser map.)
 
-## RESOLVED: weave by mask key, texel duplicated across code[13]
+## RESOLVED: weave by texel key, BOTH code[13] mask bytes in the unit
 
 MAME roz_cb sets tile=code and mask=code (full width, no masking). ROM sizes:
 rch texels = 2 MB = 8192 tiles (code[12:0]); rsh mask = 512 kB = 16384 masks
 (code[13:0]). So two codes differing only in bit 13 share ONE texel tile but
 have DIFFERENT masks - the hardware ships 2x mask space on purpose, so bit 13
-is real. Therefore:
+is real.
 
-- The woven region is indexed by the full mask key h_msk =
-  {code[13:0], yp[3:0], xp[3]} (this IS the 8-texel group index).
-- The texel group for code and code+8192 is DUPLICATED (stored twice).
-- Region size at the padded 16-byte unit: 16384 tiles x 32 groups/tile
-  (16 rows x 2 xp[3]) x 16 bytes = 8 MB. (Texels duplicated + mask + pad.)
-  Fits SDRAM; the cps3 full-page path later drops the 7-byte pad to ~4.5 MB.
+IMPLEMENTED layout (better than duplicating texels): the unit carries both
+mask bytes and code[13] selects one at read time.
+
+- unit = [4 texels][mask byte code13=0][mask byte code13=1][2 pad] = 8 bytes
+- keyed by the 19-bit {code[12:0], yp[3:0], xp[3:2]}; each 8-texel mask byte
+  is stored twice (once per xp[2] half), so both mask bytes ride along with
+  every texel run.
+- region = 2^19 x 8 = 4 MB at bank0 byte 0x400000 - exactly fills the 8 MB
+  bank next to prog(1MB)+data(2MB). (Texel duplication would need 8 MB and
+  not fit.) Cross-bit13 accesses share the same cache line for free.
+- realized on the current controller as a 64-bit client port
+  (JTFRAME_BA0_LEN=64): ONE single-burst fetch returns the texel run and
+  both mask bytes. No second phase, no chained bursts, no separate mask
+  path. The rmask port, the two-station miss queue, the single-entry mask
+  cache, the opq opaque-tile table (fetch avoidance now buys nothing: the
+  fetch always carries the mask) and the mask relocation hack are deleted.
+- jtframe mem needed dw64 support in the banks model: addr_range LSB was
+  dw>>4 (wrong above 32 bits) and the slot template lacked the 2'b0 pad.
+
+A 16-byte [8 texels][2 masks][6 pad] variant with a 32-bit port and a
+serialized two-phase fetch was tried first: bit-exact, but ROZ cut lines
+regressed badly on minified road scenes (spd 03900: 0 -> 89). The 8-byte
+single-fetch unit removes the serialization and the line thrash.
 
 ## The layout problem: power-of-2 bursts vs the 9-byte unit
 
@@ -61,10 +78,9 @@ controller bursts power-of-2 only (BL8 = 16 bytes max). 9 does not tile into
   correct in a testable place before the controller switch removes the
   padding tax.
 
-Decision: develop with the padded 16-byte unit on the current controller
-(sim-provable, no in-time regression), knowing the cps3 switch later drops
-the pad. Sim measures whether the 2x ROZ fetch volume costs cut lines - the
-budget we said we can spend.
+Decision (superseded by the RESOLVED section): the shipped unit is 8 bytes
+with 2 pad bytes on a 64-bit burst, so the padding tax is 25%, not 2x; the
+cps3 full-page path can later drop even that.
 
 ## Download setup (MRA + make_sdram must match)
 
@@ -107,9 +123,10 @@ Both must produce byte-identical layouts.
 
 ## Sequence
 
-1. make_sdram.py weaves the padded roz+mask image (sim only).
-2. Rewire c169 to read mask from the roz line, delete the mask port.
-3. roz lane -> 128-bit on the current controller.
+1. make_sdram.py weaves the padded roz+mask image (sim only). DONE
+2. Rewire c169 to read mask from the roz unit, delete the mask port. DONE
+3. 64-bit roz port on the current controller (BA0_LEN=64, dw64 lcache). DONE
 4. Validate (gate above). Iterate until in-time pixels are bit-exact.
-5. Design the MRA/download weave for hardware.
+5. Design the MRA/download weave for hardware (mame2mra + the game.v opq
+   builder must move to the woven region; RMASK_START download becomes dead).
 6. Later: controller switch to cps3; drop the padding via full-page bursts.

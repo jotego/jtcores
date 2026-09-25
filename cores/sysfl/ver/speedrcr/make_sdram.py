@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Builds sdram_bank*.bin + nvram.bin for sims from the MAME speedrcr set.
 # bank0: i960 prog @0 (LOAD32_WORD ea4/oa4) | data @0x100000 (LOAD32_BYTE dat0-3)
-#        | rch0-1 @0x400000 | rsh @0x600000
+#        | roz weave (rch0-1 + rsh interleaved) @0x400000
 # bank1: pcm (empty until C352 lands; work RAM lives at 0x400000, no preload)
 # bank2: sch0-3 @0 | ssh @0x400000
 # bank3: obj0l/0u, obj1l/1u interleaved as ROM_LOAD32_WORD
@@ -92,13 +92,23 @@ def swab(b):
     o[0::2], o[1::2] = b[1::2], b[0::2]
     return o
 
-bank0 = bytearray(0x680000)
+# ROZ texel+mask weave: 8-byte units keyed by {code[12:0],yp[3:0],xp[3:2]}
+# [4 texels][mask byte code13=0][mask byte code13=1][2 pad] -> 4MB @0x400000
+# one 64-bit burst returns the texel run and both mask bytes
+def roz_weave(rch, rsh):
+    w = bytearray(0x400000)
+    for j in range(4):
+        w[j::8] = rch[j::4]
+    for h in (0, 8):  # the two xp[2] units of a group share the mask byte
+        w[4+h::16] = rsh[0:0x40000]
+        w[5+h::16] = rsh[0x40000:0x80000]
+    return w
+
+bank0 = bytearray(0x800000)
 bank0[0:0x100000] = prog
 bank0[0x100000:0x300000] = data
-pos = 0x400000
-for f in ["se1_rch0.19j","se1_rch1.18j"]:
-    d = get(f); bank0[pos:pos+len(d)] = d; pos += 0x100000
-# rsh moved to bank 3 @0x520000 (RMASK on its own bank for roz overlap)
+bank0[0x400000:0x800000] = roz_weave(get("se1_rch0.19j")+get("se1_rch1.18j"),
+                                     get("se1_rsh.14k"))
 
 bank2 = bytearray(0x580000)
 pos = 0
@@ -109,9 +119,8 @@ bank2[0x500000:0x580000] = get("se1_spr.21l")   # C75 external data ROM
 
 # C352 sample ROM fills bank 1 (pcm bus at offset 0); nvram and comram live
 # in the upper wram window (bank bytes 0x500000 / 0x580000)
-bank1 = bytearray(0x620000)
+bank1 = bytearray(0x600000)
 bank1[0:0x400000] = get("se1_voi.23s")
-bank1[0x5a0000:0x620000] = get("se1_rsh.14k")
 
 # C75 internal BIOS, from the MAME namcoc75 device set
 with zipfile.ZipFile(c75path) as z:

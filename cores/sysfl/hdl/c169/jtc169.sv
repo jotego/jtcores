@@ -42,18 +42,12 @@ module jtc169(
     // ROZ VRAM (BRAM, read only)
     output reg [16:1] rozmap_addr,
     input      [15:0] rozmap_data,
-    // mask ROM (RSHAPE)
-    output            rmask_cs,
-    output reg [18:0] rmask_addr,
-    input             rmask_ok,
-    input      [ 7:0] rmask_data,
-    output     [13:0] opq_addr,   // opaque-tile table lookup, skips mask fetches
-    input             opq_bit,
-    // tile ROM (RCHAR)
+    // woven texel+mask ROM: 8-byte units keyed by {code[12:0],yp[3:0],xp[3:2]}
+    // bytes 0-3 = 4 texels, bytes 4-5 = mask bytes (code[13] selects)
     output            roz_cs,
-    output reg [20:2] roz_addr,     // 32-bit words, texel xpos[1:0] = byte lane
+    output reg [21:3] roz_addr,     // 64-bit units, texel xpos[1:0] = byte lane
     input             roz_ok,
-    input      [31:0] roz_data,
+    input      [63:0] roz_data,
     // pixel output
     output reg [11:0] roz_pxl,
     output reg [ 3:0] roz_prio,
@@ -82,12 +76,13 @@ reg  [ 3:0] fsm;
 reg  [ 2:0] st, rcnt;
 reg  [ 8:0] lline;
 reg         lyr1, scl, hs_l;
-reg  [ 1:0] fv, to, mo, tbl, mbl;
-reg  [ 8:0] fx0, fx1;
-reg  [ 1:0] flane0, flane1;
-reg  [ 2:0] fmb0, fmb1;
-reg         fmok0, fmok1, fbit0, fbit1, ftok0, ftok1;
-reg  [ 7:0] ftex0, ftex1;
+// one miss slot, one fetch: the woven unit returns texels and masks together
+reg  [ 1:0] tbl;
+reg         fv, fbusy;
+reg  [ 8:0] fx0;
+reg  [ 1:0] flane0;
+reg  [ 2:0] fmb0;
+reg         fc13;
 // unpacked parameters, 12.12 fixed point
 reg         p_en, p_wrap, p_wrapy;
 reg  [ 2:0] p_color;
@@ -100,12 +95,10 @@ reg  [11:0] p_left, p_top, p_smask;
 reg  [12:0] p_size, p_x1, p_y1;
 reg  [23:0] p_incxx, p_incxy, p_incyx, p_incyy, p_ax, p_ay,
             sx24, sy24, lxt, lyt, cx, cy, cyf;
-// single-entry caches: one mask byte, one 4-texel word
-reg  [18:0] c_maddr;
-reg  [20:2] c_taddr;
-reg  [ 7:0] c_mbyte;
-reg  [31:0] c_tword;
-reg         c_mok, c_tok;
+// single-entry cache: one woven unit (4 texels + both code[13] mask bytes)
+reg  [21:3] c_taddr;
+reg  [63:0] c_tword;
+reg         c_tok;
 // render pipeline: map read issue -> 2 BRAM stages -> 4-entry FIFO -> fetch/write
 reg  [ 8:0] xi, s1_x, s2_x;
 reg         s1_v, s2_v, s1_d, s2_d;
@@ -122,30 +115,19 @@ wire        h_draw = f_head[48];
 wire [ 8:0] h_x    = f_head[47:39];
 wire [11:0] h_xp   = f_head[38:27], h_yp = f_head[26:15];
 wire [13:0] h_code = f_head[13:0];
-wire [18:0] h_msk  = { h_code, h_yp[3:0], h_xp[3] };
-wire [20:0] h_til  = { h_code[12:0], h_yp[3:0], h_xp[3:0] };
-reg  [13:0] opq_cl;
-wire        opq_cur = opq_cl == h_code;
-wire        h_opq   = opq_cur && opq_bit;
-wire        h_mhit  = c_mok && c_maddr==h_msk;
-wire        h_thit = c_tok && c_taddr==h_til[20:2];
-wire [ 7:0] h_tex  = c_tword[ {h_til[1:0],3'd0} +: 8 ];
-wire        h_mbit = c_mbyte[ ~h_xp[2:0] ];
-wire        h_mhit2 = h_mhit || h_opq;
-wire        h_mbit2 = h_mhit ? h_mbit : 1'b1;
-assign      opq_addr = h_code;
+wire [21:3] h_key  = { h_code[12:0], h_yp[3:0], h_xp[3:2] };
+wire        h_thit = c_tok && c_taddr==h_key;
+wire [ 7:0] h_tex  = c_tword[ {h_xp[1:0],3'd0} +: 8 ];
+wire [ 7:0] h_mbyte = h_code[13] ? c_tword[47:40] : c_tword[39:32];
+wire        h_mbit = h_mbyte[ ~h_xp[2:0] ];
 wire [ 2:0] inflight = {2'd0,s1_v} + {2'd0,s2_v};
 wire        issue  = fsm==RUN && xi!=LINE_W && (f_cnt + inflight) < 3'd4;
-wire        t0ok   = ftok0 || (roz_ok && tbl==0);
-wire        ret    = fv[0] && fmok0 && t0ok;
-wire [ 7:0] t_byt0 = ftok0 ? ftex0 : roz_data[{flane0,3'd0} +: 8];
-wire        m_done = mo[1] && mbl==0 && rmask_ok;
-wire        t_dup  = !h_thit && to[1] && roz_addr ==h_til[20:2];
-wire        m_dup  = !h_mhit2 && mo[1] && rmask_addr==h_msk;
-wire        pophit = h_vld && !ret && (!h_draw || (h_mhit2 && h_thit));
-wire        popst  = h_vld && h_draw && !(h_mhit2 && h_thit) && !ret && !fv[1]
-                     && !t_dup && (h_thit || !to[1])
-                     && (h_mhit2 || (opq_cur && !m_dup && !mo[1]));
+wire        ret    = fv && fbusy && tbl==0 && roz_ok;
+wire [ 7:0] t_byt0 = roz_data[{flane0,3'd0} +: 8];
+wire [ 7:0] m_byt0 = fc13 ? roz_data[47:40] : roz_data[39:32];
+wire        f_mbit = m_byt0[ ~fmb0 ];
+wire        pophit = h_vld && !ret && (!h_draw || h_thit);
+wire        popst  = h_vld && h_draw && !h_thit && !ret && !fv;
 wire        pop    = pophit || popst;
 // line buffer write
 reg  [15:0] bdata;
@@ -165,8 +147,7 @@ wire [15:0] rec_a;
 wire [ 8:0] hd, rda, nline;
 wire        scl_mode, hs_edge, in_x, in_y, b0, b1, sel0;
 
-assign rmask_cs = mo[1];
-assign roz_cs   = to[1];
+assign roz_cs   = fbusy;
 
 assign scl_mode = ctl0[15:0]==16'h8000;
 assign hs_edge  = hs & ~hs_l;
@@ -243,16 +224,14 @@ always @(posedge clk) begin
         rz_lines<=0; rz_cut<=0; rz_wait<=0; rz_maxc<=0;
     end
 end
-integer rz_mw=0, rz_tw=0, rz_ov=0;
+integer rz_tw=0;
 always @(posedge clk) begin
     if( fsm != IDLE ) begin
-        if( fv[0] && !fmok0 ) rz_mw <= rz_mw+1;
-        if( fv[0] && fmok0 && !t0ok ) rz_tw <= rz_tw+1;
-        if( fv[1] ) rz_ov <= rz_ov+1;
+        if( fv && !ret ) rz_tw <= rz_tw+1;
     end
     if( vs && !rz_vsl ) begin
-        $display("ROZB mw=%0d tw=%0d ov=%0d", rz_mw, rz_tw, rz_ov);
-        rz_mw<=0; rz_tw<=0; rz_ov<=0;
+        $display("ROZB tw=%0d", rz_tw);
+        rz_tw<=0;
     end
 end
 `endif
@@ -262,12 +241,10 @@ always @(posedge clk) begin
         fsm   <= IDLE;
         st    <= 0;
         bwe   <= 0;
-        c_mok <= 0;
         c_tok <= 0;
         hs_l  <= 0;
         fv    <= 0;
-        to    <= 0;
-        mo    <= 0;
+        fbusy <= 0;
         s1_v  <= 0;
         s2_v  <= 0;
         f_cnt <= 0;
@@ -275,12 +252,10 @@ always @(posedge clk) begin
         f_wr  <= 0;
         h_vld <= 0;
         rozmap_addr <= 0;
-        rmask_addr  <= 0;
         roz_addr    <= 0;
     end else begin
         hs_l <= hs;
         bwe  <= 0;
-        opq_cl <= h_code;
         // an empty (or emptying) queue takes the push directly, so the skid
         // adds no cycle anywhere
         hreg  <= s2_v && f_cnt == {2'd0,pop} ?
@@ -297,8 +272,7 @@ always @(posedge clk) begin
             f_rd  <= 0;
             f_wr  <= 0;
             fv    <= 0;
-            to    <= 0;
-            mo    <= 0;
+            fbusy <= 0;
             fsm   <= nline < VLINES ? LDREG : IDLE;
         end else case( fsm )
             LDREG: begin
@@ -384,63 +358,34 @@ always @(posedge clk) begin
                     f_wr <= f_wr + 2'd1;
                 end
                 f_cnt <= f_cnt + {2'd0,s2_v} - {2'd0,pop};
-                // back end: caches hit -> one pixel per clock, else fetch
+                // back end: cache hit -> one pixel per clock, else one fetch
                 if( tbl!=0 ) tbl <= tbl-2'd1;
-                if( mbl!=0 ) mbl <= mbl-2'd1;
-                if( m_done && !ret ) begin
-                    c_mbyte <= rmask_data;
-                    c_maddr <= rmask_addr;
-                    c_mok   <= 1;
-                    if( mo[0] ) begin fbit1 <= rmask_data[~fmb1]; fmok1 <= 1; end
-                    else        begin fbit0 <= rmask_data[~fmb0]; fmok0 <= 1; end
-                    mo <= 0;
-                end
                 if( pophit ) begin
-                    bdata <= h_draw ? { h_mbit2, p_prio, p_color, h_tex } : 16'd0;
+                    bdata <= h_draw ? { h_mbit, p_prio, p_color, h_tex } : 16'd0;
                     baddr <= h_x;
                     bwl   <= lyr1;
                     bwe   <= 1;
                     f_rd  <= f_rd + 2'd1;
                 end else if( popst ) begin
                     f_rd <= f_rd + 2'd1;
-                    if( fv[0] ) begin
-                        fx1<=h_x; flane1<=h_til[1:0]; fmb1<=h_xp[2:0];
-                        ftok1<=h_thit; ftex1<=h_tex; fmok1<=h_mhit2; fbit1<=h_mbit2;
-                        fv[1]<=1;
-                    end else begin
-                        fx0<=h_x; flane0<=h_til[1:0]; fmb0<=h_xp[2:0];
-                        ftok0<=h_thit; ftex0<=h_tex; fmok0<=h_mhit2; fbit0<=h_mbit2;
-                        fv[0]<=1;
-                    end
-                    if( !h_thit ) begin
-                        roz_addr <= h_til[20:2];
-                        tbl <= 2'd2;
-                        to  <= {1'b1, fv[0]};
-                    end
-                    if( !h_mhit2 ) begin
-                        rmask_addr <= h_msk;
-                        mbl <= 2'd2;
-                        mo  <= {1'b1, fv[0]};
-                    end
+                    fx0<=h_x; flane0<=h_xp[1:0]; fmb0<=h_xp[2:0];
+                    fc13<=h_code[13];
+                    fv    <= 1;
+                    fbusy <= 1;
+                    tbl   <= 2'd2;
+                    roz_addr <= h_key;
                 end else if( ret ) begin
-                    bdata <= { fbit0, p_prio, p_color, t_byt0 };
+                    bdata <= { f_mbit, p_prio, p_color, t_byt0 };
                     baddr <= fx0;
                     bwl   <= lyr1;
                     bwe   <= 1;
-                    if( !ftok0 ) begin
-                        c_tword <= roz_data;
-                        c_taddr <= roz_addr;
-                        c_tok   <= 1;
-                        to      <= 0;
-                    end
-                    fv[0] <= fv[1];
-                    fv[1] <= 0;
-                    fx0<=fx1; flane0<=flane1; fmb0<=fmb1;
-                    ftok0<=ftok1; ftex0<=ftex1; fmok0<=fmok1; fbit0<=fbit1;
-                    if( to==2'b11 ) to <= 2'b10;
-                    if( mo==2'b11 ) mo <= 2'b10;
+                    c_tword <= roz_data;
+                    c_taddr <= roz_addr;
+                    c_tok   <= 1;
+                    fbusy   <= 0;
+                    fv      <= 0;
                 end
-                if( xi==LINE_W && f_cnt==0 && inflight==0 && fv==0 ) begin
+                if( xi==LINE_W && f_cnt==0 && inflight==0 && !fv ) begin
                     lyr1 <= 1;
                     fsm  <= lyr1 ? IDLE : LDREG;
                 end

@@ -210,6 +210,8 @@ generate
         end else begin : gen_burst128
             assign dout = pre_dout[ {read_addr[3:0],3'd0} +: 8 ];
         end
+    end else if( DW == 64 ) begin : gen_wide // whole 64-bit burst line (roz woven units)
+        assign dout = pre_dout[63:0];
     end else if( DW == 16 ) begin : gen_word
         if( BURSTLEN == 16 ) begin : gen_burst16
             assign dout = pre_dout[15:0];
