@@ -14,10 +14,6 @@ jtframe:
       - jtframe_burst_ctrl.v
       - jtframe_burst_mux.v
       - jtframe_burst_io.v
-      - jtframe_sdram64_rfsh.v
-  # shared with the classic controller; a core can override them
-  - from: sdram
-    unless: [ JTFRAME_CORE_SDRAM64 ]
-    get:
       - jtframe_sdram64_bank.v
       - jtframe_sdram64_init.v
+      - jtframe_sdram64_rfsh.v
