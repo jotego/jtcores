@@ -13,9 +13,6 @@ JTFRAME_CORE_LCACHE
 # core-local SDRAM controller for the BL8 sprite bursts (hdl/sdram64/)
 JTFRAME_CORE_SDRAM64
 JTFRAME_NOHQ2X
-# drop the hq2x filter and its line buffers entirely: scandoubled outputs
-# stop working, HDMI and 15 kHz RGB keep working. Buys timing margin
-JTFRAME_HQ2X_DUMMY
 
 # Video configuration
 JTFRAME_COLORW=8

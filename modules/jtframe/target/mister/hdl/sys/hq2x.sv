@@ -26,15 +26,6 @@ module Hq2x #(parameter LENGTH, parameter HALF_DEPTH)
 	input             hblank,
 	output [DWIDTH:0] outpixel
 );
-`ifdef JTFRAME_HQ2X_DUMMY
-// Pass-through: saves the filter logic and the line buffers when the core
-// cannot afford them. The scandoubler loses its line storage, so scandoubled
-// outputs (31 kHz VGA, fx modes) are not usable; HDMI (ascal) and 15 kHz
-// RGB are unaffected.
-assign outpixel = inputpixel;
-wire unused = &{ce_in, mono, disable_hq2x, reset_frame, reset_line, ce_out,
-                read_y, hblank, clk};
-`else
 
 
 localparam AWIDTH = $clog2(LENGTH)-1;
@@ -228,7 +219,6 @@ always @(posedge clk) begin
 	end
 end
 
-`endif
 endmodule
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
