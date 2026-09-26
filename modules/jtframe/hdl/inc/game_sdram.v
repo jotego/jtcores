@@ -85,6 +85,9 @@ assign {{.Name}}_flush_done = {{.Name}}_flush;
 {{- end}}
 {{- end}}
 wire        prom_we, header;
+`ifdef JTFRAME_DWNLD_REG
+wire        dwnld_header_nc; // u_dwnld's comb header replaced by the registered one
+`endif
 wire [SDRAMW-2:0] raw_addr, post_addr;
 wire [SDRAMW-2:0] ioctl_prog_addr   = ioctl_addr[SDRAMW-2:0];
 wire [IOCTL_AW-1:0] pre_addr, dwnld_addr, ioctl_addr_noheader;
@@ -100,7 +103,31 @@ wire {{ . }}; {{ end }}{{ end }}{{ end }}
 wire gfx4_en, gfx8_en, gfx16_en, gfx16b_en, gfx16c_en, ioctl_dwn;
 
 assign pass_io = header | ioctl_ram;
-assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? ioctl_addr : ioctl_addr - HEADER_LEN `else ioctl_addr `endif ;
+`ifdef JTFRAME_DWNLD_REG
+// one registered stage over the whole download subtree (header strip,
+// pre_addr remap, jtframe_dwnld): splits a deep remap cone while keeping
+// every addr/wr/data/header relationship in a single time base
+reg  [IOCTL_AW-1:0] io_addr_d;
+reg  [ 7:0] io_dout_d;
+reg         io_wr_d, io_dwn_d;
+always @(posedge clk) begin
+    io_addr_d <= ioctl_addr[IOCTL_AW-1:0];
+    io_dout_d <= ioctl_dout;
+    io_wr_d   <= ioctl_wr;
+    io_dwn_d  <= ioctl_dwn;
+end
+`else
+wire [IOCTL_AW-1:0] io_addr_d = ioctl_addr[IOCTL_AW-1:0];
+wire [ 7:0] io_dout_d = ioctl_dout;
+wire        io_wr_d   = ioctl_wr;
+wire        io_dwn_d  = ioctl_dwn;
+`endif
+assign ioctl_addr_noheader = `ifdef JTFRAME_HEADER header ? io_addr_d : io_addr_d - HEADER_LEN `else io_addr_d `endif ;
+`ifdef JTFRAME_DWNLD_REG
+// header from the registered bundle: breaks the comb cycle through
+// pass_io -> game pre_addr -> jtframe_dwnld's combinational header
+assign header = `ifdef JTFRAME_HEADER io_dwn_d && io_addr_d < HEADER_LEN `else 1'b0 `endif ;
+`endif
 `ifdef JTFRAME_SDRAM_CACHE
 {{- if eq (len .SDRAM.Cache_lanes) 0 }}
 assign burst_addr = { (SDRAMW-1){1'b0} };
@@ -363,10 +390,10 @@ jtframe_dwnld #(
     .GFX16B0   ( {{ .Gfx16b0 }})
 ) u_dwnld(
     .clk          ( clk            ),
-    .ioctl_rom    ( ioctl_dwn      ),
+    .ioctl_rom    ( io_dwn_d       ),
     .ioctl_addr   ( dwnld_addr_wide),
-    .ioctl_dout   ( ioctl_dout     ),
-    .ioctl_wr     ( ioctl_wr       ),
+    .ioctl_dout   ( io_dout_d      ),
+    .ioctl_wr     ( io_wr_d        ),
     .gfx4_en      ( gfx4_en        ),
     .gfx8_en      ( gfx8_en        ),
     .gfx16_en     ( gfx16_en       ),
@@ -379,7 +406,11 @@ jtframe_dwnld #(
     .prog_rd      ( prog_rd        ),
     .prog_ba      ( prog_ba        ),
     .prom_we      ( prom_we        ),
+`ifdef JTFRAME_DWNLD_REG
+    .header       ( dwnld_header_nc),
+`else
     .header       ( header         ),
+`endif
     .sdram_ack    ( prog_ack       )
 );
 
