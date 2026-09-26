@@ -78,6 +78,7 @@ bram:
     ioctl: { save: true, restore: true, order: 0 }
   - name: vram      # 123 tilemaps, 64kB. Primary port: video read
     addr_width: 16
+    clk48: true
     data_width: 16
     simfile: {}
     ioctl: { save: true, order: 1 }
@@ -89,6 +90,7 @@ bram:
       we:   cvram_we
   - name: rozram    # C169 tilemap + scanline records, 128kB
     addr_width: 17
+    clk48: true
     data_width: 16
     simfile: {}
     ioctl: { save: true, order: 2 }
@@ -100,6 +102,7 @@ bram:
       we:   crozram_we
   - name: oram      # C355 sprite tables, 128kB
     addr_width: 17
+    clk48: true
     data_width: 16
     rw: true        # vblank DMA snapshots the placement tables into page 1
     din:  oram_din
@@ -114,6 +117,7 @@ bram:
       we:   coram_we
   - name: rpal      # C116 palette RAMs, 8kB each. Primary port: video read
     addr_width: 13
+    clk48: true
     data_width: 8
     simfile: {}
     ioctl: { save: true, order: 4 }
@@ -126,6 +130,7 @@ bram:
       dout: rpal_cdout
   - name: gpal
     addr_width: 13
+    clk48: true
     data_width: 8
     simfile: {}
     ioctl: { save: true, order: 5 }
@@ -138,6 +143,7 @@ bram:
       dout: gpal_cdout
   - name: bpal
     addr_width: 13
+    clk48: true
     data_width: 8
     simfile: {}
     ioctl: { save: true, order: 6 }
@@ -150,6 +156,7 @@ bram:
       dout: bpal_cdout
   - name: share     # 32kB CPU-C75 shared RAM at 0x30284000
     addr_width: 15
+    clk48: true
     data_width: 16
     rw: true
     dual_port:
