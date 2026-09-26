@@ -4,7 +4,16 @@ This branch (nsr-inflection-point) bookmarks the last sdram64-based sysfl
 before the cps3 cache-lanes migration. The upstream PR to jotego extracts
 the controller work below; doc/REVIEW.MD (7746d5726) has the full analysis.
 
-## Already implemented here
+## Constraint (user, 2026-09-26)
+
+The TRP20 implementation was fully reverted (4fa6a1a1e, aabe11ed3): its
+FAST_OUTPUT_REGISTER attribute on dq_pad is the prime suspect for the
+whole-image corruption seen at 96 MHz (fleet cores close writes with
+freely placed DQ registers). Any future version may be AT MOST a plain
+module parameter tweaking the tRP/tRCD wait cycles - no macros, no
+placement attributes, no other side effects.
+
+## Previously implemented (now reverted, see history)
 
 - F1 `3260debe3`: LF_WAIT bank parameter, 20ns tRP/tRCD command spacing
   derived from JTFRAME_MCLK, opt-in via JTFRAME_SDRAM_TRP20 (zero change
