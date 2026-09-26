@@ -135,14 +135,12 @@ always @* begin
     fgscr_cs = cpu_cen && io_wr && port[7:3] == 5'b00110 && port[2:0] < 3'd6;
 end
 
-// the cabinet ports read active high; jtframe supplies up, down, left, right
-// in bits 3 down to 0
 always @(posedge clk) begin
     dipsw_a <= dipsw[ 7:0];
     dipsw_b <= dipsw[15:8];
-    joy1    <= { 2'b00, ~joystick1[5:4], ~joystick1[0], ~joystick1[1], ~joystick1[2], ~joystick1[3] };
-    joy2    <= { 2'b00, ~joystick2[5:4], ~joystick2[0], ~joystick2[1], ~joystick2[2], ~joystick2[3] };
-    cab_sys <= { 1'b0, ~cab_1p[1], ~cab_1p[0], ~coin[1], ~coin[0], ~dip_test, ~tilt, ~service };
+    joy1    <= ~{ 2'b11, joystick1[5:0] };
+    joy2    <= ~{ 2'b11, joystick2[5:0] };
+    cab_sys <= ~{ 1'b1, cab_1p[1], cab_1p[0], coin[1], coin[0], dip_test, tilt, service };
 end
 
 always @* begin
