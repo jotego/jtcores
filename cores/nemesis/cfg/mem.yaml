@@ -1,0 +1,31 @@
+# GX400 ROM map (byte offsets, single SDRAM bank -- 272kB total)
+#
+#   0x00000  68000 program   256kB   main
+#   0x40000  Z80 program      16kB   snd
+#   0x44000  K005289 wave PROM A  256B  ] loaded to BRAM by the
+#   0x44100  K005289 wave PROM B  256B  ] jtframe_prom instances in
+#   0x44200  volume table         256B  ] jtnemesis_game.v
+#
+# The wave/volume PROMs stay as explicit jtframe_prom instances rather than
+# mem.yaml `prom:` entries: the volume table feeds TWO readers from one image,
+# which the ordered prom_we scheme cannot express.
+params:
+  - { name: SND_OFFSET, value: "(`SND_START)>>1" }
+
+audio:
+  rsum: 1k
+  channels:
+    # nemesis_sound does its own mixing (2x AY-3-8910 + K005289), tuned by the
+    # original authors against a real PCB. One channel keeps that intact.
+    - { name: sound, data_width: 16, unsigned: true, rsum: 1k }
+
+sdram:
+  banks:
+    - buses:
+      - name: main            # 68000 program
+        addr_width: 18        # 256kB
+        data_width: 16
+      - name: snd             # Z80 program
+        addr_width: 14        # 16kB
+        data_width: 8
+        offset: SND_OFFSET

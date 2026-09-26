@@ -1,0 +1,62 @@
+# Black Panther (Konami GX604) ROM map, byte offsets. 640kB total, one bank.
+#
+#   0x00000  68000 program   512kB   main
+#   0x80000  Z80 program      32kB   snd
+#   0x88000  K007232 samples 128kB   pcm
+#
+# There are no gfx ROMs: tiles and sprites are drawn from 64kB of CPU-written
+# charram, which lives inside GX400A_VIDEO.
+params:
+  - { name: SND_OFFSET, value: "(`SND_START)>>1" }
+  - { name: PCM_OFFSET, value: "(`PCM_START)>>1" }
+
+# main_dout is referenced from an expression in the palette dual port, so it
+# has to be declared explicitly to keep its width.
+ports:
+  - { name: main_dout, msb: 15, lsb: 0 }
+
+audio:
+  rsum: 1k
+  channels:
+    - { name: fm,  module: jt51,     rsum: 1k }
+    - { name: pcm, module: jt007232, rsum: 1k, pre: 0.10 }
+
+sdram:
+  banks:
+    - buses:
+      - name: main            # 68000 program
+        addr_width: 19        # 512kB
+        data_width: 16
+      - name: snd             # Z80 program
+        addr_width: 15        # 32kB
+        data_width: 8
+        offset: SND_OFFSET
+      # jt007232 drives two independent ROM buses; both point at the single
+      # 128kB sample region (same idiom as cores/aliens).
+      - name: pcma            # K007232 samples
+        addr_width: 17        # 128kB
+        data_width: 8
+        offset: PCM_OFFSET
+      - name: pcmb
+        addr_width: 17
+        data_width: 8
+        offset: PCM_OFFSET
+
+bram:
+  # Palette: 2048 entries x 16 bits, xBGR_555. The 68000 sees it byte-wide on
+  # the low lane at 0x080000-0x081fff (MAME: palette membits 8, umask 0x00ff).
+  - name: pal
+    addr_width: 12           # bytes -> 2048 16-bit entries
+    data_width: 16
+    # Scene replay: MAME's palette dump (odd bytes, high-then-low per entry).
+    simfile: { big_endian: true }
+    dual_port:
+      name: palcpu
+      addr: palcpu_addr
+      # The 68000 writes palette BYTES on the low lane (MAME umask 0x00ff), so
+      # the byte is in main_dout[7:0] for BOTH halves of the 16-bit entry.
+      # Duplicating it lets palcpu_we pick the half without moving the data.
+      din:  "{2{main_dout[7:0]}}"
+      dout: palcpu_dout
+      we:   palcpu_we
+      rw:   true

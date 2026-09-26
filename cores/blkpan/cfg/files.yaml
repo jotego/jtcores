@@ -1,0 +1,48 @@
+blkpan:
+  - get:
+      - jtblkpan_game.v
+      - jtblkpan_main.v
+      - jtblkpan_addr_dec.v
+      - jtblkpan_snd.v
+
+# The GX400 GFX board and its Konami custom ICs are shared with the Nemesis
+# core, unmodified (LMN-san / OScherler / Raki, GPLv3).
+nemesis:
+  - get:
+      - gx400a_video.v
+      - gx400_cen.v
+      - gx400_priority_handler.v
+      - k5290.v
+      - k5291.v
+      - k5292.v
+      - k5293.v
+      - k5294.v
+      - k5295.v
+      - bus_ff.v
+      - lmn74194_nbit.v
+      - os_pulse_gen.v
+
+jtframe:
+  - get:
+      - jtframe_ff.v
+  - from: clocking
+    get:
+      - jtframe_frac_cen.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+  - from: video
+    get:
+      - jtframe_blank.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: cpu
+    unless: [NOMAIN]
+    get:
+      - jtframe_m68k.yaml
+
+jt51:        # YM2151
+jt007232:    # K007232 PCM
