@@ -17,7 +17,7 @@ module jtwardnr_colmix(
     input      [11:0] obj_pxl,
 
     output reg [11:1] pal_vaddr,
-    input      [15:0] pal_vq,
+    input      [15:0] pal_dout,
 
     output reg [ 4:0] red,
     output reg [ 4:0] green,
@@ -42,7 +42,7 @@ always @(posedge clk) if( pxl_cen ) begin
                  fg_hit   ? {3'b101, fg_pxl} :
                             {3'b100, gfx_en[1] ? bg_pxl : 8'd0};
     blank_l  <= ~(LVBL & LHBL) | ~video_on;
-    {blue, green, red} <= blank_l ? 15'd0 : pal_vq[14:0];
+    {blue, green, red} <= blank_l ? 15'd0 : pal_dout[14:0];
 end
 
 endmodule

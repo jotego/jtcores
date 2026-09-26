@@ -39,7 +39,7 @@ module jtwardnr_main(
     output     [ 1:0] pal_bwe,
     input      [15:0] work_dout,
     input      [15:0] objram_dout,
-    input      [15:0] pal_dout,
+    input      [15:0] palram_dout,
 
     output     [10:0] mshr_addr,
     output            mshr_we,
@@ -107,7 +107,7 @@ assign obj_bwe   = dsp_halt ? {2{dsp_we && dsp_sel==2'd1}} : {2{obj_cs  & wr}} &
 assign pal_bwe   = dsp_halt ? {2{dsp_we && dsp_sel==2'd2}} : {2{pal_cs  & wr}} & {A[0], ~A[0]};
 assign dsp_din   = dsp_sel==2'd0 ? work_dout   :
                    dsp_sel==2'd1 ? objram_dout :
-                   dsp_sel==2'd2 ? pal_dout    : 16'd0;
+                   dsp_sel==2'd2 ? palram_dout : 16'd0;
 
 assign mshr_addr = A[10:0];
 assign mshr_we   = shr_cs & wr;
@@ -150,7 +150,7 @@ always @* begin
         rom_cs:             cpu_din = rom_data;
         work_cs:            cpu_din = A[0] ? work_dout[15:8]   : work_dout[7:0];
         obj_cs && ram_view: cpu_din = A[0] ? objram_dout[15:8] : objram_dout[7:0];
-        pal_cs && ram_view: cpu_din = A[0] ? pal_dout[15:8]    : pal_dout[7:0];
+        pal_cs && ram_view: cpu_din = A[0] ? palram_dout[15:8] : palram_dout[7:0];
         shr_cs && ram_view: cpu_din = shared_dout;
         io_rd: case( port )
             8'h50:   cpu_din = dipsw_a;
