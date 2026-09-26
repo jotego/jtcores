@@ -42,6 +42,7 @@ module jtpaclan_video(
 
 wire [ 9:0] scr0_pxl, scr1_pxl;
 wire [ 7:0] obj_pxl;
+wire        obj_msk;
 wire [ 8:0] hdump, vdump, vrender, vrender1;
 wire        scr0_prio, fixed;
 
@@ -118,6 +119,7 @@ jtpaclan_obj u_obj(
     .rom_ok     ( obj_ok        ),
 
     .pxl        ( obj_pxl       ),
+    .msk        ( obj_msk       ),
 
     .debug_bus  ( debug_bus     )
 );
@@ -137,6 +139,7 @@ jtpaclan_colmix u_colmix(
     .scr0_pxl     ( scr0_pxl        ),
     .scr1_pxl     ( scr1_pxl        ),
     .obj_pxl      ( obj_pxl         ),
+    .obj_msk      ( obj_msk         ),
     .scr0_prio    ( scr0_prio       ),
 
     .rgb_addr     ( rgb_addr        ),

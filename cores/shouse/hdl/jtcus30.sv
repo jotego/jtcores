@@ -51,7 +51,7 @@ wire        mmr_wn= ~mmr_cs | (bsel ? brnw : srnw);
 wire [ 7:0] xwave;
 reg         cntpos_cs;
 reg  [ 2:0] chsel;
-wire        cen120, zero;
+wire        cen120;
 // channel configuration data
 wire [7:0][ 3:0] lvol;
 wire [7:0][ 3:0] rvol;
@@ -69,13 +69,14 @@ wire [ 9:0] rd_addr = {2'b0, wsel[ch_l], cnt[ch_l][(A0+1)+:4] };
 wire signed [ 3:0] wdata;
 
 // LFSR polynomial
-reg  [17:0] lfsr;
-reg         noise;
-reg  [ 7:0] zero_l;
+reg  [7:0][16:0] lfsr;  // one per channel
+reg  [7:0][ 7:0] nacc;  // noise clock, only freq[7:0] is used
+reg  [7:0]  nbit;
+wire [16:0] lfsr_l = lfsr[ch_l];
+wire [ 8:0] nsum   = {1'b0,nacc[ch_l]}+{1'b0,freq[ch_l][7:0]};
 
 assign sample = ch==0 && cen120;
 assign wdata  = cnt[ch][A0] ? wdata8[3:0] : wdata8[7:4];
-assign zero   = cnt[ch_l][CW-1:A0]==0;
 
 `ifdef DUMP
 reg [7:0][3:0] wav;
@@ -104,22 +105,24 @@ always @(posedge clk, posedge rst ) begin
         racc  <= 0;
         raw_l <= 0;
         raw_r <= 0;
-        lfsr  <= 18'h1;
-        noise <= 0;
-        zero_l<= 0;
+        lfsr  <= {8{17'h1}};
+        nbit  <= 0;
     end else if(cen120) begin
         ch   <= ch+3'd1;
         ch_l <= ch;
         cnt[ch] <= cnt[ch]+{1'd0,freq[ch]};
-        zero_l[ch_l] <= zero;
+        nacc[ch_l] <= nsum[7:0];
+        if( nsum[8] ) begin
+            nbit[ch_l] <= nbit[ch_l]^(^lfsr_l[1:0]);
+            lfsr[ch_l] <= { lfsr_l[0], lfsr_l[16], lfsr_l[15]^lfsr_l[0], lfsr_l[14:1] };
+        end
 
         if( !no_en[ch_l] ) begin
             lamp <= { 1'b0, wdata } * { 1'b0, lvol[ch_l] };
             ramp <= { 1'b0, wdata } * { 1'b0, rvol[ch_l] };
-        end else if( zero && !zero_l[ch_l]) begin
-            lamp <= 5'd7*({1'b0,lvol[ch_l]});
-            ramp <= 5'd7*({1'b0,rvol[ch_l]});
-            if(!noise) {lamp,ramp} <= 0;
+        end else begin
+            lamp <= nbit[ch_l] ? 5'd7*({1'b0,lvol[ch_l]}) : 10'd0;
+            ramp <= nbit[ch_l] ? 5'd7*({1'b0,rvol[ch_l]}) : 10'd0;
         end
 
         // accumulator and output
@@ -129,9 +132,6 @@ always @(posedge clk, posedge rst ) begin
             raw_l <= lacc;
             raw_r <= racc;
         end
-        // LFSR
-        noise <= noise^(^lfsr[1:0]);
-        lfsr <= { lfsr[0], lfsr[17]^lfsr[0], lfsr[16], lfsr[15]^{lfsr[0]}, lfsr[14:1] }; // MAME's polynomial, is it verified?
     end
 end
 

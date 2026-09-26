@@ -23,6 +23,7 @@ module jtpaclan_obj(
     input             rom_ok,
 
     output     [ 7:0] pxl,
+    output            msk,      // lantern mask
 
     // Debug
     input      [7:0] debug_bus
@@ -36,7 +37,7 @@ wire        hflip, vflip, draw, dr_busy, dr_draw;
 wire [ 8:0] code, hpos;
 wire [ 5:0] pal;
 wire [ 4:0] ysub;
-wire [ 1:0] nc;
+wire        nc;
 wire        vsize, hsize;
 reg         blankn;
 
@@ -88,6 +89,10 @@ jtframe_objdraw_gate #(.CW(9),.PW(6+4),.LATCH(1),
     // the full palette data is used as alpha
     .ALPHA(255),
     .ALPHAW(8),
+    // lantern pixels (7F) are not drawn but mark the pixel
+    // any sprite drawn later on it keeps the mark
+    .SHADOW(1),
+    .SHADOW_PEN(8'h7f),
     .BUFDLY(1)
 ) u_draw(
     .rst        ( rst       ),
@@ -112,14 +117,14 @@ jtframe_objdraw_gate #(.CW(9),.PW(6+4),.LATCH(1),
     .pal        ( pal       ),
 
     .buf_pred   ( pal_addr  ),
-    .buf_din    ({2'd0,pal_data}),
+    .buf_din    ({2'b10,pal_data}),
 
     .rom_addr   ( {addr_hi,addr_h,addr_v}  ),
     .rom_cs     ( rom_cs    ),
     .rom_ok     ( rom_ok    ),
     .rom_data   ( sorted    ),
 
-    .pxl        ( {nc,pxl}  )
+    .pxl        ( {msk,nc,pxl} )
 );
 
 endmodule
