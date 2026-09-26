@@ -281,7 +281,7 @@ jtsysfl_misc_mmr #(.SEEK('h70)) u_misc(
     .din        ( misc_din      ),
     .dout       (               ),
     .sprbank    ( sprbank       ),
-    .ioctl_addr ( ioctl_addr[1:0] ),
+    .ioctl_addr ( ioctl_a48[1:0] ),
     .ioctl_din  ( ioctl_misc    ),
     .debug_bus  ( debug_bus     ),
     .st_dout    (               )
@@ -312,6 +312,8 @@ end
 
 // jtframe generates pxl_cen on the 96 MHz clock; cross it for the 48 side
 wire pxl_cen48;
+reg [6:0] ioctl_a48; // MMR readback address, resampled for the 48 side
+always @(posedge clk48) ioctl_a48 <= ioctl_addr[6:0];
 jtframe_crossclk_cen u_cenx(
     .clk_in     ( clk           ),
     .cen_in     ( pxl_cen       ),
@@ -386,7 +388,7 @@ jtsysfl_video u_video(
     .green      ( green         ),
     .blue       ( blue          ),
 
-    .ioctl_addr ( ioctl_addr[6:0] ),
+    .ioctl_addr ( ioctl_a48 ),
     .ioctl_din  ( ioctl_video   ),
     .gfx_en     ( gfx_en        ),
     .debug_bus  ( debug_bus     ),
