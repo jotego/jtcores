@@ -7,9 +7,9 @@ module jtcus42(
     input               rst,
     input               clk, pxl_cen, dec_en, plane3inv,
     input               flip, scrhflip, hs,
+    input               metrocrs,
     input        [ 8:0] hdump, vdump,
     input        [ 3:0] scrhos,         // per game adjustment
-    input signed [ 7:0] scrvos,         // per game adjustment
 
     input               cs, cpu_rnw,
     input        [ 2:0] cpu_addr,
@@ -30,6 +30,7 @@ module jtcus42(
 
     output       [10:0] pxl,
     output       [ 2:0] prio,
+    output              frontop,
     // debug
     input        [ 7:0] debug_bus,
     output       [ 7:0] st_dout
@@ -37,7 +38,7 @@ module jtcus42(
 
 parameter ID=0,HBASE=9'd0;
 
-localparam [2:0] ALPHA=7;
+localparam [2:0] ALPHA=7, BACKB=6;
 
 wire [10:0] scra_pxl, scrb_pxl;
 wire [11:1] a_addr, b_addr;
@@ -47,11 +48,14 @@ reg  [ 8:0] effxa, effxb;
 wire [ 2:0] prioa, priob;
 wire [ 7:0] scrya, scryb, adec_data, bdec_data;
 wire [ 4:0] adec_addr, bdec_addr;
-wire        scra_op, scrb_op, selb;
+wire        scra_op, scrb_op, selb, backb;
 
 assign scra_op = scra_pxl[2:0]!=ALPHA;
 assign scrb_op = scrb_pxl[2:0]!=ALPHA;
-assign selb    = scrb_op && (!scra_op || priob > prioa);
+assign backb   = prioa==BACKB;
+assign frontop = backb ? scra_op : scrb_op;
+assign selb    = metrocrs ? (backb ? ~scra_op : scrb_op)
+                          : scrb_op && (!scra_op || priob > prioa);
 assign pxl     = selb ? scrb_pxl  : scra_pxl;
 assign prio    = selb ? priob : prioa;
 
@@ -127,7 +131,6 @@ jtthundr_scroll #(.LYR(0),.HBASE(HBASE)) u_scra(
     .vdump      ( vdump         ),
     .scrx       ( effxa         ),
     .scry       ( scrya         ),
-    .scrvos     ( scrvos        ),
 
     .vram_addr  ( a_addr        ),
     .vram_dout  ( a_dout        ),
@@ -156,7 +159,6 @@ jtthundr_scroll #(.LYR(1),.HBASE(HBASE)) u_scrb(
     .vdump      ( vdump         ),
     .scrx       ( effxb         ),
     .scry       ( scryb         ),
-    .scrvos     ( scrvos        ),
 
     .vram_addr  ( b_addr        ),
     .vram_dout  ( b_dout        ),

@@ -53,6 +53,8 @@ module jtoutrun_main(
     input       [ 1:0] cab_1p,
     input       [ 1:0] coin,
     input              service,
+    input              gear_toggle,
+    input              gear_show,
     output      [19:1] addr,
     // ROM access
     output reg         rom_cs,
@@ -116,6 +118,18 @@ wire        cpu_RnW, dec_ok;
 wire        vram_ok_dly;
 
 reg  [ 7:0] cab_dout, cab_ctrl;
+reg         gear_hi, gear_l;
+wire        gear;
+
+assign gear = gear_toggle ? gear_hi : joystick1[6];
+
+always @(posedge clk) begin
+    gear_l <= joystick1[6];
+    if( rst || !gear_toggle )
+        gear_hi <= 0;
+    else if( gear_l && !joystick1[6] )
+        gear_hi <= ~gear_hi;
+end
 wire [ 7:0] active, sys_inputs, st_mapper,
             ppi_dout, ppia_dout, ppib_dout, ppic_dout;
 wire [ 2:0] cpu_ipln, mix_ipln;
@@ -339,7 +353,7 @@ always @(*) begin
                 cab_dout = ppi_dout;
             end
             1: case( A[2:1] )
-                0: cab_dout = { coin, ~joystick1[7], joystick1[6], cab_1p[0], service, dip_test, 1'b1 };
+                0: cab_dout = { coin, ~joystick1[7], gear, cab_1p[0], service, dip_test, ~gear_show };
                 1: cab_dout = 8'hff;
                 2: cab_dout = dipsw_a;
                 3: cab_dout = dipsw_b;

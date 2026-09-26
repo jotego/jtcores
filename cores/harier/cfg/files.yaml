@@ -1,0 +1,35 @@
+harier:
+  - get:
+    - "*.v"
+# Sound board 834-5799's PCM is Sega's discrete implementation, which MAME models
+# as SEGAPCM_DISCRETE = segapcm_device<8> -- the same device class as Out Run's
+# sixteen-voice 315-5218, differing only in voice count. The register map is the
+# same; only the sample rate differs, 16 MHz cen here against Out Run's 8 MHz.
+outrun:
+  - get:
+    - jtoutrun_pcm.v
+s16:
+  - get:
+    - tilemap.yaml
+    - jts16_fd1089.v
+jtframe:
+  - from: ram
+    get:
+      - jtframe_dual_ram16.v
+      - jtframe_ram.v
+      - jtframe_obj_buffer.v
+  - from: cpu
+    get:
+      - jtframe_m68k.yaml
+      - jtframe_z80.yaml
+      - jtframe_8751.yaml
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_linebuf.v
+jt12:
+  - get:
+    - jt03.yaml
+jt51:
+jt8255:

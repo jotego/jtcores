@@ -12,6 +12,9 @@ names = [
 [dipsw]
 bitcnt=20
 delete=[{names=["Unused","Unknown"]}]
+extra=[
+    { name="Turbo", options="On,Off", bits="20" },
+]
 
 [ROM]
 regions = [

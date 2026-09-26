@@ -6,6 +6,7 @@ module jtgrad3_main(
     input                clk,
     input                LVBL,
     input                irq_trig,
+    input         [ 4:0] cen_num,
 
     output        [17:1] main_addr,
     output        [15:0] cpu_dout,
@@ -241,7 +242,7 @@ jtframe_68kdtack_cen #(.W(6), .RECOVERY(1)) u_dtack(
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ( bus_dsn   ),
-    .num        ( 5'd5      ),
+    .num        ( cen_num   ),
     .den        ( 6'd24     ),
     .DTACKn     ( DTACKn    ),
     .wait2      ( 1'b0      ),

@@ -55,6 +55,12 @@ module jttc0030cmd (
     input      [ 7:0] mrom_data,
     output     [12:0] eprom_addr,  // 8 KB game EPROM
     input      [ 7:0] eprom_data,
+    // Alternative to the two ports above for hosts that keep both ROMs in one
+    // contiguous 12 KB region (mask at 0x0000, EPROM at 0x1000) instead of two
+    // BRAMs. Drive mrom_data and eprom_data from the same bus and hold cen low
+    // while rom_cs is high and the data is not ready.
+    output     [13:0] rom_addr,
+    output            rom_cs,
 
     // ---- debug taps (sim) ----
     output     [15:0] dbg_pc,     // MCU bus address (= PC during opcode fetch)
@@ -110,6 +116,8 @@ module jttc0030cmd (
 
     assign mrom_addr  = mcu_addr[11:0];
     assign eprom_addr = mcu_addr[12:0];
+    assign rom_addr   = mcu_epr ? 14'h1000 + { 1'b0, eprom_addr } : { 2'b0, mrom_addr };
+    assign rom_cs     = mcu_mask | mcu_epr;
 
     jtframe_dual_ram #(.DW(8),.AW(13)) u_sram(
         .clk0   ( clk                         ),

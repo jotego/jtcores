@@ -1,0 +1,12 @@
+set_global_assignment -entity "pocket_id" -library "pocket_id" -name IP_TOOL_NAME "altchip_id"
+set_global_assignment -entity "pocket_id" -library "pocket_id" -name IP_TOOL_VERSION "13.1"
+set_global_assignment -entity "pocket_id" -library "pocket_id" -name IP_TOOL_ENV "mwpim"
+set_global_assignment -library "pocket_id" -name MISC_FILE [file join $::quartus(qip_path) "../hdl/pocket_id.cmp"]
+set_global_assignment -name SYNTHESIS_ONLY_QIP ON
+
+set_global_assignment -library "pocket_id" -name VERILOG_FILE [file join $::quartus(qip_path) "../hdl/pocket_id.v"]
+set_global_assignment -library "pocket_id" -name VERILOG_FILE [file join $::quartus(qip_path) "../hdl/pocket_id/altchip_id.v"]
+
+set_global_assignment -entity "altchip_id" -library "pocket_id" -name IP_TOOL_NAME "altchip_id"
+set_global_assignment -entity "altchip_id" -library "pocket_id" -name IP_TOOL_VERSION "13.1"
+set_global_assignment -entity "altchip_id" -library "pocket_id" -name IP_TOOL_ENV "mwpim"

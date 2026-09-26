@@ -1,0 +1,44 @@
+[global]
+author=["jotego"]
+# uses fshark's DSP ROM
+zip.alt="fshark.zip"
+
+[parse]
+sourcefile=[ "wardner.cpp" ]
+skip.setnames=[
+    # The bootlegs replace the TMS320C10 mask ROM with eight nibble-wide
+    # PROMs. Assembling those needs a nibble interleave the MRA format does
+    # not offer, so only the sets carrying the single DSP dump are built.
+    "wardnerb", "wardnerjb",
+]
+
+[buttons]
+names=[
+    { names="Fire,Jump" },
+]
+
+[dipsw]
+bitcnt = 16
+delete = [{ names=[ "Unused", "Unknown" ] }]
+
+[ROM]
+regions = [
+    { name="maincpu" },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    # MAME holds the DSP mask ROM in a ROM_REGION16_BE, but jtframe's download
+    # fills each 16-bit word low byte first (jtframe_bram_rom drives we_lower
+    # from prog_mask[0]), so the region has to be byte swapped on the way in.
+    # Without this the DSP executes every instruction byte-reversed.
+    { name="dsp",      start="DSP_START", width=16, reverse=true },
+    # the text layer is 3bpp; the fourth byte is never read by the video
+    # module, so the last plane is repeated rather than padded
+    { name="chars",    width=32, start="JTFRAME_BA2_START", sequence=[0,1,2,2] },
+    { name="bg_tiles", width=32, start="BG_START",  sequence=[0,1,2,3] },
+    { name="fg_tiles", width=32, start="FG_START",  sequence=[0,1,2,3] },
+    { name="scu",      rename="obj", width=32, start="JTFRAME_BA3_START", sequence=[0,1,2,3] },
+    { name="proms",    start="JTFRAME_PROM_START" },
+]
+
+order = [
+    "maincpu", "audiocpu", "dsp", "chars", "bg_tiles", "fg_tiles", "obj", "proms"
+]

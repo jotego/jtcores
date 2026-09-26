@@ -8,12 +8,14 @@ module jtgrad3_game(
 wire [19:1] s_addr;
 wire [ 7:0] tile_dout, obj_dout, snd_latch;
 wire [ 7:0] video_din, st_snd;
+reg  [ 4:0] cen_num=5'd5;
 wire        m_cpu_we,   s_cpu_we,  snd_irq,   sub_rst, sub_irq, main_irq;
 wire        m_tile_cs,  s_tile_cs, s_obj_cs,  pal_cs;
 wire        m_tile_dtack, s_tile_dtack;
 wire        tile_irqn, tile_nmin;
 wire        rmrd, prio;
 wire        m_video_req_n, s_video_req_n, m_video_gnt_n, s_video_gnt_n;
+wire        turbo;
 
 assign debug_view = st_snd;
 assign dip_flip   = 1'b0;
@@ -24,12 +26,18 @@ assign s_shram_addr = s_addr[13:1];
 assign sram_addr    = s_addr[13:1];
 assign s_gchar_addr = s_addr[16:1];
 assign pal_we       = {2{m_cpu_we & pal_cs}} & ~m_dsn;
+assign turbo        = ~dipsw[20];
+
+always @(posedge clk) begin
+    cen_num <= turbo ? 5'd8 : 5'd5;
+end
 
 jtgrad3_main u_main(
     .rst        ( rst          ),
     .clk        ( clk          ),
     .LVBL       ( LVBL         ),
     .irq_trig   ( main_irq     ),
+    .cen_num    ( cen_num      ),
 
     .main_addr  ( main_addr    ),
     .cpu_dout   ( m_dout       ),
@@ -83,6 +91,7 @@ jtgrad3_sub u_sub(
     .clk        ( clk          ),
     .LVBL       ( LVBL         ),
     .cpu_trig   ( sub_irq      ),
+    .cen_num    ( cen_num      ),
 
     .cpu_addr   ( s_addr       ),
     .cpu_dout   ( s_dout       ),

@@ -11,7 +11,6 @@ JTFRAME_HEIGHT=224
 JTFRAME_PLL=jtframe_pll6144
 
 JTFRAME_CLK48
-JTFRAME_SDRAM96
 
 # ROM configuration
 JTFRAME_HEADER=8
@@ -39,12 +38,5 @@ JTFRAME_NOSTA
 JTFRAME_EASY_STA
 
 [mist|sidi]
-# Not enough BRAM to implement the LUT frame buffer
-# it would be possible to do it using the last 2kB
-# of the object RAM (see mem.yaml) but maybe some games
-# could use it? I'm not doing it for now, which means
-# that these FPGA systems will see the sprites one frame
-# in advance
-NOLUTFB
-JTFRAME_NOSTA
--JTFRAME_CREDITS
+# Does not fit anymore
+JTFRAME_SKIP

@@ -12,6 +12,7 @@ wire [31:0] cram_data;
 wire [31:0] snd_data;
 wire [31:0] cps3_key1, cps3_key2;
 wire [ 2:0] cps3_crypt_mode;
+wire        cps3_region_redearth;
 `ifdef CPS3_CPU_TEST
 wire [ 2:0] cputest_crypt_mode;
 `endif
@@ -143,9 +144,10 @@ jtcps3_keyload u_keyload(
 `ifdef CPS3_CPU_TEST
     .cputest_crypt_mode ( cputest_crypt_mode ),
 `endif
-    .cps3_key1      ( cps3_key1         ),
-    .cps3_key2      ( cps3_key2         ),
-    .cps3_crypt_mode ( cps3_crypt_mode )
+    .cps3_key1             ( cps3_key1             ),
+    .cps3_key2             ( cps3_key2             ),
+    .cps3_crypt_mode       ( cps3_crypt_mode       ),
+    .cps3_region_redearth  ( cps3_region_redearth  )
 );
 
 /* verilator tracing_on */
@@ -155,9 +157,11 @@ jtcps3_main u_main(
     .rst            ( rst               ),
     .rst48          ( rst48             ),
     .cen_r          ( cen_r             ),
-    .cps3_key1      ( cps3_key1         ),
-    .cps3_key2      ( cps3_key2         ),
-    .cps3_crypt_mode ( cps3_crypt_mode ),
+    .cps3_key1            ( cps3_key1             ),
+    .cps3_key2            ( cps3_key2             ),
+    .cps3_crypt_mode      ( cps3_crypt_mode       ),
+    .cps3_region          ( dipsw[2:0]            ),
+    .cps3_region_redearth ( cps3_region_redearth  ),
     .A              ( main_addr         ),
     .cpu_dout       ( cpu_dout          ),
     .wr_n           ( rd_wr_n           ),
@@ -237,6 +241,13 @@ jtcps3_main u_main(
 `endif
 );
 
+`ifdef NOSOUND
+assign snd_data = 32'd0;
+assign pcm_rd   = 1'b0;
+assign pcm_addr = 24'd0;
+assign snd_l    = 16'sd0;
+assign snd_r    = 16'sd0;
+`else
 /* verilator tracing_off */
 jtcps3_sound u_sound(
     .rst        ( rst48         ),
@@ -255,8 +266,13 @@ jtcps3_sound u_sound(
     .snd_left   ( snd_l         ),
     .snd_right  ( snd_r         )
 );
+`endif
 
+`ifdef SIMSCENE
+/* verilator tracing_on */
+`else
 /* verilator tracing_off */
+`endif
 jtcps3_video u_video(
     .rst            ( rst           ),
     .clk            ( clk           ),

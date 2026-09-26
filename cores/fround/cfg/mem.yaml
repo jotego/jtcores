@@ -65,6 +65,7 @@ sdram:
         - name: lyro
           addr_width: 20
           data_width: 32
+          cache_size: 1kB
 bram:
   # 2 (Fix) + 8 (SCR-A) + 8 (SCR-B) + 16 (OBJ) + 4 (PAL) = 38 kB
   - name: fram

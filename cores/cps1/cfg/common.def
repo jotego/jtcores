@@ -34,10 +34,12 @@ JTFRAME_IOCTL_RD=128
 JTFRAME_DIPBASE=16
 
 CORE_OSD=O5,Turbo,Off,On;
+ROMCACHE
 
 [mist|sidi]
 NOCREDITS
 JTFRAME_OSD_NOCREDITS
+-ROMCACHE
 
 [mister]
 CORE_OSD=OD,Turbo,Off,On;
@@ -51,6 +53,10 @@ JTFRAME_180SHIFT
 [pocket]
 JTFRAME_LOGO_NOHEX
 KABUKI_LATCH
+
+[mister|sidi128|pocket]
+# 192 KiB shared CPU/video RAM in the larger FPGAs
+CPS_VRAM
 
 [mist|sidi|sidi128]
 JTFRAME_NOSTA

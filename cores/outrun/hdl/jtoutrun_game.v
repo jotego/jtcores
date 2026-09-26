@@ -53,6 +53,8 @@ wire        flip, video_en, sound_en, line_intn, sub_bsy;
 wire [ 7:0] dipsw_a, dipsw_b;
 reg  [ 1:0] game_id;
 wire [ 2:0] ctrl_type = status[22:20];
+wire        gear_toggle = ~dipsw[16];
+wire        gear_show   = ~dipsw[17];
 
 // Status report
 wire [7:0] st_video, st_main, st_sub, st_snd;
@@ -187,6 +189,8 @@ jtoutrun_main u_main(
     .cab_1p      ( cab_1p[1:0]),
     .coin        ( coin[1:0]  ),
     .service     ( service    ),
+    .gear_toggle ( gear_toggle),
+    .gear_show   ( gear_show  ),
     // ROM access
     .addr        ( full_addr  ),
     .rom_cs      ( main_cs    ),

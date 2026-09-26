@@ -37,14 +37,6 @@ module jtrastan_snd(
     output reg           peak,
     input         [ 7:0] debug_bus
 );
-reg  snd_cen_tog;
-wire snd_cen = main_cen & snd_cen_tog;
-always @(posedge clk, posedge rst) begin
-    if( rst )
-        snd_cen_tog <= 0;
-    else if( main_cen )
-        snd_cen_tog <= ~snd_cen_tog;
-end
 `ifndef NOSOUND
 wire               int_n;
 wire        [15:0] A;
@@ -201,7 +193,7 @@ jtrastan_pc060 u_pc060(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .main_cen   ( main_cen  ),
-    .snd_cen    ( snd_cen   ),
+    .snd_cen    ( fm_cen    ),
     .main_dout  ( main_dout ),
     .main_din   ( main_din  ),
     .main_addr  ( main_addr ),
@@ -217,13 +209,10 @@ jtrastan_pc060 u_pc060(
     .snd_rst    ( pc6_rst   )
 );
 
-// RECOVERY cannot be set because snd_cen comes from fx68k and it
-// may not have enough idle clock cycles for RECOVERY to work.
-// See https://github.com/jotego/jtcores/issues/1502
-jtframe_sysz80 #(.RECOVERY(0)) u_cpu(
+jtframe_sysz80 u_cpu(
     .rst_n      ( snd_rstn  ),
     .clk        ( clk       ),
-    .cen        ( snd_cen   ),
+    .cen        ( fm_cen    ),
     .cpu_cen    (           ),
     .int_n      ( int_n     ),
     .nmi_n      ( nmi_n     ),

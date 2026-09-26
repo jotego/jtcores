@@ -6,6 +6,7 @@
 
 module jtframe_ram1_1slot #(parameter
     SDRAMW      = 22,
+    TAG_RAM = 0,
     SLOT0_ERASE = 1,
     SLOT0_DW    = 16,
     SLOT0_AW    =  8,

@@ -41,6 +41,7 @@ print_summary() {
 		echo PASS;
 		return;
 	fi
+	echo "Cores with MRA related errors"
 	for core in ${BROKEN[@]}; do
 		echo $core
 	done

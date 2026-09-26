@@ -1,0 +1,23 @@
+# Trigger New York Background
+# By selecting SEAN for both players
+170
+# coin
+2 coin
+5
+2 coin
+30
+2 1p 2p
+50
+2 2p
+=300
+#10
+2 up right 2up 2left
+5
+2 right 2left
+10
+# press buttons forever
+loop
+2 b1 b2 2b1 2b2
+6
+repeat 100
+

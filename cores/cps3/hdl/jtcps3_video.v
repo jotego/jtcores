@@ -147,6 +147,7 @@ wire [16:0] ss_pxl, scene_pxl;
 wire [14:0] scene_rgb;
 wire [15:0] sprdma;
 wire        cps1_hb, cps1_vb;
+wire        cps1_lhbl_mix;
 wire        sprdma_enable,
             sprdma_go,
             sprdma_go_dma,
@@ -195,6 +196,9 @@ assign pxl_cen       = std_cen;
 assign pxl2_cen      = std2_cen;
 assign lhbl          = ~cps1_hb;
 assign lvbl          = ~cps1_vb;
+// temporary work around for colmix to prevent the first pixel after lhbl
+// from being lost
+assign cps1_lhbl_mix = cps1_hdump >= 9'd64 && cps1_hdump < 9'd448;
 assign hdump         = { 1'b0, cps1_hdump };
 assign vdump         = { 1'b0, cps1_vdump };
 
@@ -303,14 +307,14 @@ jtcps3_sprdma u_dma(
     .scene_din  ( scene_din  ),
     .scene_we   ( scene_we   ),
     .dma_busy   ( sprdma_dma_busy ),
-`ifdef SCENE
+`ifdef SIMSCENE
     .objlim     (             )
 `else
     .objlim     ( objlim_scan )
 `endif
 );
 
-`ifdef SCENE
+`ifdef SIMSCENE
 wire [5:0] nc;
 jtframe_16bit_reg #(.SIMFILE("dmast.bin")) u_16reg(
     .rst    ( rst            ),
@@ -323,34 +327,6 @@ jtframe_16bit_reg #(.SIMFILE("dmast.bin")) u_16reg(
 );
 `endif
 
-`ifdef SPRDMA
-assign sprdma = {12'b0, sdmae_init, 2'b0, sdmas_init};
-assign sprdma_go = sdmago_init;
-reg sdmae_init, sdmas_init, sdmago_init,
-    trig_l, start_l, busy_l;
-wire trig=scan_busy;
-always @(posedge clk) begin
-    trig_l  <= trig;
-    busy_l  <= sprdma_busy;
-    start_l <= sprdma[0];
-end
-always @(posedge clk) begin
-    if(rst) begin
-        sdmae_init  <= 0;
-        sdmas_init  <= 0;
-        sdmago_init <= 0;
-    end else if(trig_l & !trig) begin
-        sdmae_init  <= 1;
-        sdmas_init  <= 1;
-        sdmago_init <= 1;
-    end else begin
-        sdmas_init  <= 0;
-        if(start_l) sdmago_init <= 0;
-        if(!sprdma_busy & busy_l)
-            sdmae_init  <= 0;
-    end
-end
-`endif
 /* verilator tracing_on */
 jtcps3_paldma u_paldma(
     .rst        ( rst             ),
@@ -465,13 +441,8 @@ jtcps3_ppu_mmr #(.SIMFILE("ppureg.bin")) u_ppu_mmr(
     .v_zoom_scl  ( v_zoom_scl      ),
     .pxl_div     ( pxl_div         ),
     .flip        ( ppu_flip        ),
-    `ifndef SPRDMA
     .sprdma      ( sprdma          ),
     .sprdma_go   ( sprdma_go       ),
-    `else
-    .sprdma      (                 ),
-    .sprdma_go   (                 ),
-    `endif
     .cram_bank   ( cram_bank       ),
     .gfxflash_bank( gfxflash_bank  ),
     .chardma_src_lo( chardma_src_lo ),
@@ -587,6 +558,7 @@ jtcps3_scene u_scene(
     .vb_end      ( eff_vb_end     ),
     .vcnt_end    ( eff_vcnt_end   ),
     .objlim      ( objlim_scan    ),
+    .h_step      ( h_step         ),
     .v_step      ( v_step         ),
     .scn_vaddr   ( scn_vaddr      ),
     .scn_vdata   ( scn_vdata      ),
@@ -653,7 +625,7 @@ jtcps3_colmix u_colmix(
     .rst         ( rst          ),
     .clk         ( clk          ),
     .pxl_cen     ( pxl_cen      ),
-    .lhbl        ( lhbl         ),
+    .lhbl        ( cps1_lhbl_mix ),
     .lvbl        ( lvbl         ),
 
     .ss_pxl      ( ss_pxl       ),

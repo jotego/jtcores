@@ -10,7 +10,7 @@ aliens:
     - jt052109.v
     - jt051962.v
     - jt051960.v
-    - jt052591.v    # collision detector for Thunder Force
+    - jt052591.v
 jtframe:
   - get:
     - jtframe_edge.v

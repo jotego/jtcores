@@ -609,6 +609,7 @@ func bankOffset(cfg *MemConfig, corename string) (e error) {
 }
 
 func (cfg *MemConfig) check_sdram() error {
+	cfg.SDRAM.Tag_ram = macros.IsSet("JTFRAME_SDRAM96")
 	if len(cfg.SDRAM.Banks) > 0 && len(cfg.SDRAM.Cache_lanes) > 0 {
 		return fmt.Errorf("jtframe mem: sdram.banks and sdram.cache-lanes cannot be defined at the same time")
 	}
