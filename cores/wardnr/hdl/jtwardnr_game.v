@@ -1,4 +1,4 @@
-/* SPDX-FileCopyrightText: 2026 Marc Emmerson
+/* SPDX-FileCopyrightText: 2026 Marc Emmerson / Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * Wardner (Toaplan TP-009 / Taito B25, 1987): main Z80, TMS320C10, sound Z80
@@ -9,12 +9,13 @@ module jtwardnr_game(
     `include "jtframe_game_ports.inc"
 );
 
-wire [15:0] tx_scrx, tx_scry, bg_scrx, bg_scry, fg_scrx, fg_scry;
+wire [15:0] txoffs, bgoffs, fgoffs;
 wire [15:0] dsp_dout, dsp_din, fg_full_addr;
 wire [13:1] dsp_addr;
 wire [11:0] dsp_rom_addr;
 wire [ 7:0] pal_ioctl_din;
 wire [ 1:0] dsp_sel;
+wire [ 2:0] scr_cs, scr_addr;
 wire        dsp_on, dsp_halt, dsp_we, sample;
 wire        flip, bg_bank, fg_bank, video_on;
 
@@ -62,12 +63,11 @@ jtwardnr_main u_main(
     .mshr_we    ( mshr_we           ),
     .shared_dout( shared_dout       ),
 
-    .tx_scrx    ( tx_scrx           ),
-    .tx_scry    ( tx_scry           ),
-    .bg_scrx    ( bg_scrx           ),
-    .bg_scry    ( bg_scry           ),
-    .fg_scrx    ( fg_scrx           ),
-    .fg_scry    ( fg_scry           ),
+    .scr_cs     ( scr_cs            ),
+    .scr_addr   ( scr_addr          ),
+    .txoffs     ( txoffs            ),
+    .bgoffs     ( bgoffs            ),
+    .fgoffs     ( fgoffs            ),
     .flip       ( flip              ),
     .bg_bank    ( bg_bank           ),
     .fg_bank    ( fg_bank           ),
@@ -147,12 +147,12 @@ jtwardnr_video u_video(
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
 
-    .tx_scrx    ( tx_scrx           ),
-    .tx_scry    ( tx_scry           ),
-    .bg_scrx    ( bg_scrx           ),
-    .bg_scry    ( bg_scry           ),
-    .fg_scrx    ( fg_scrx           ),
-    .fg_scry    ( fg_scry           ),
+    .scr_cs     ( scr_cs            ),
+    .scr_addr   ( scr_addr          ),
+    .scr_din    ( cpu_dout          ),
+    .txoffs     ( txoffs            ),
+    .bgoffs     ( bgoffs            ),
+    .fgoffs     ( fgoffs            ),
     .flip       ( flip              ),
     .bg_bank    ( bg_bank           ),
     .fg_bank    ( fg_bank           ),

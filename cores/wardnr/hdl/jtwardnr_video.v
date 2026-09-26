@@ -9,12 +9,12 @@ module jtwardnr_video(
     input             clk,
     input             pxl_cen,
 
-    input      [15:0] tx_scrx,
-    input      [15:0] tx_scry,
-    input      [15:0] bg_scrx,
-    input      [15:0] bg_scry,
-    input      [15:0] fg_scrx,
-    input      [15:0] fg_scry,
+    input      [ 2:0] scr_cs,
+    input      [ 2:0] scr_addr,
+    input      [ 7:0] scr_din,
+    output     [15:0] txoffs,
+    output     [15:0] bgoffs,
+    output     [15:0] fgoffs,
     input             flip,
     input             bg_bank,
     input             fg_bank,
@@ -70,29 +70,13 @@ module jtwardnr_video(
 );
 
 wire [ 8:0] vrender, vrender1, heff, tx_pxl;
-wire [ 8:0] bg_scrx_eff, bg_scry_eff, fg_scrx_eff, fg_scry_eff, tx_scrx_eff;
-wire [ 7:0] tx_scry_eff, bg_pxl, fg_pxl;
+wire [ 7:0] bg_pxl, fg_pxl;
 wire [11:0] bg_vaddr_lo, obj_pxl;
 wire [14:0] fg_rom_addr;
-wire [31:0] bg_data_rev, fg_data_rev, tx_data_3p;
 wire        Hinit, Vinit;
 
 // the tile engines start 16 counts before the visible line
 assign heff = hdump >= 9'd430 ? hdump - 9'd446 : hdump;
-
-// MAME's tile map offsets (55,30, or 453,482 flipped) fold into the scroll
-// values, plus 9 horizontally for the tile engine's latency
-assign bg_scrx_eff = flip ? bg_scrx[8:0] - 9'd67 : bg_scrx[8:0] + 9'd64;
-assign bg_scry_eff = flip ? bg_scry[8:0] - 9'd29 : bg_scry[8:0] + 9'd30;
-assign fg_scrx_eff = flip ? fg_scrx[8:0] - 9'd67 : fg_scrx[8:0] + 9'd64;
-assign fg_scry_eff = flip ? fg_scry[8:0] - 9'd29 : fg_scry[8:0] + 9'd30;
-assign tx_scrx_eff = flip ? tx_scrx[8:0] - 9'd67 : tx_scrx[8:0] + 9'd64;
-assign tx_scry_eff = flip ? tx_scry[7:0] - 8'd29 : tx_scry[7:0] + 8'd30;
-
-// the ROMs hold plane 0 in the top byte; the text layer has three planes
-assign bg_data_rev = { bg_data[7:0], bg_data[15:8], bg_data[23:16], bg_data[31:24] };
-assign fg_data_rev = { fg_data[7:0], fg_data[15:8], fg_data[23:16], fg_data[31:24] };
-assign tx_data_3p  = { 8'd0, char_data[7:0], char_data[15:8], char_data[23:16] };
 
 assign bg_vaddr = { bg_bank, bg_vaddr_lo };
 // Wardner's foreground ROM has no second bank
@@ -124,18 +108,7 @@ jtframe_vtimer #(
     .VS         ( VS                )
 );
 
-jtframe_scroll #(
-    .SIZE       ( 8                 ),
-    .CW         ( 12                ),
-    .VA         ( 12                ),
-    .PW         ( 8                 ),
-    .MAP_HW     ( 9                 ),
-    .MAP_VW     ( 9                 ),
-    .FLIP_HW    ( 9                 ),
-    .FLIP_VW    ( 9                 ),
-    .HJUMP      ( 1                 ),
-    .XOR_HFLIP  ( 1                 )
-) u_bg(
+jtwardnr_scroll u_bg(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
@@ -143,33 +116,20 @@ jtframe_scroll #(
     .hdump      ( heff              ),
     .vdump      ( vdump             ),
     .flip       ( flip              ),
-    .blankn     ( 1'b1              ),
-    .scrx       ( bg_scrx_eff       ),
-    .scry       ( bg_scry_eff       ),
+    .cs         ( scr_cs[1]         ),
+    .addr       ( scr_addr          ),
+    .din        ( scr_din           ),
+    .offs       ( bgoffs            ),
     .vram_addr  ( bg_vaddr_lo       ),
-    .code       ( bg_vq[11:0]       ),
-    .pal        ( bg_vq[15:12]      ),
-    .hflip      ( 1'b0              ),
-    .vflip      ( 1'b0              ),
+    .vram_data  ( bg_vq             ),
     .rom_addr   ( bg_addr           ),
-    .rom_data   ( bg_data_rev       ),
+    .rom_data   ( bg_data           ),
     .rom_cs     ( bg_cs             ),
     .rom_ok     ( bg_ok             ),
     .pxl        ( bg_pxl            )
 );
 
-jtframe_scroll #(
-    .SIZE       ( 8                 ),
-    .CW         ( 12                ),
-    .VA         ( 12                ),
-    .PW         ( 8                 ),
-    .MAP_HW     ( 9                 ),
-    .MAP_VW     ( 9                 ),
-    .FLIP_HW    ( 9                 ),
-    .FLIP_VW    ( 9                 ),
-    .HJUMP      ( 1                 ),
-    .XOR_HFLIP  ( 1                 )
-) u_fg(
+jtwardnr_scroll u_fg(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
@@ -177,33 +137,20 @@ jtframe_scroll #(
     .hdump      ( heff              ),
     .vdump      ( vdump             ),
     .flip       ( flip              ),
-    .blankn     ( 1'b1              ),
-    .scrx       ( fg_scrx_eff       ),
-    .scry       ( fg_scry_eff       ),
+    .cs         ( scr_cs[2]         ),
+    .addr       ( scr_addr          ),
+    .din        ( scr_din           ),
+    .offs       ( fgoffs            ),
     .vram_addr  ( fg_vaddr          ),
-    .code       ( fg_vq[11:0]       ),
-    .pal        ( fg_vq[15:12]      ),
-    .hflip      ( 1'b0              ),
-    .vflip      ( 1'b0              ),
+    .vram_data  ( fg_vq             ),
     .rom_addr   ( fg_rom_addr       ),
-    .rom_data   ( fg_data_rev       ),
+    .rom_data   ( fg_data           ),
     .rom_cs     ( fg_cs             ),
     .rom_ok     ( fg_ok             ),
     .pxl        ( fg_pxl            )
 );
 
-jtframe_scroll #(
-    .SIZE       ( 8                 ),
-    .CW         ( 11                ),
-    .VA         ( 11                ),
-    .PW         ( 9                 ),
-    .MAP_HW     ( 9                 ),
-    .MAP_VW     ( 8                 ),
-    .FLIP_HW    ( 9                 ),
-    .FLIP_VW    ( 9                 ),
-    .HJUMP      ( 1                 ),
-    .XOR_HFLIP  ( 1                 )
-) u_tx(
+jtwardnr_scroll #(.TEXT(1)) u_tx(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
@@ -211,16 +158,14 @@ jtframe_scroll #(
     .hdump      ( heff              ),
     .vdump      ( vdump             ),
     .flip       ( flip              ),
-    .blankn     ( 1'b1              ),
-    .scrx       ( tx_scrx_eff       ),
-    .scry       ( tx_scry_eff       ),
+    .cs         ( scr_cs[0]         ),
+    .addr       ( scr_addr          ),
+    .din        ( scr_din           ),
+    .offs       ( txoffs            ),
     .vram_addr  ( tx_vaddr          ),
-    .code       ( tx_vq[10:0]       ),
-    .pal        ( tx_vq[15:11]      ),
-    .hflip      ( 1'b0              ),
-    .vflip      ( 1'b0              ),
+    .vram_data  ( tx_vq             ),
     .rom_addr   ( char_addr         ),
-    .rom_data   ( tx_data_3p        ),
+    .rom_data   ( char_data         ),
     .rom_cs     ( char_cs           ),
     .rom_ok     ( char_ok           ),
     .pxl        ( tx_pxl            )

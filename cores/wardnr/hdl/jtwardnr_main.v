@@ -1,4 +1,4 @@
-/* SPDX-FileCopyrightText: 2026 Marc Emmerson
+/* SPDX-FileCopyrightText: 2026 Marc Emmerson / Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * Wardner main CPU: Z80 at 6 MHz.
@@ -45,12 +45,11 @@ module jtwardnr_main(
     output            mshr_we,
     input      [ 7:0] shared_dout,
 
-    output     [15:0] tx_scrx,
-    output     [15:0] tx_scry,
-    output     [15:0] bg_scrx,
-    output     [15:0] bg_scry,
-    output     [15:0] fg_scrx,
-    output     [15:0] fg_scry,
+    output     [ 2:0] scr_cs,
+    output     [ 2:0] scr_addr,
+    input      [15:0] txoffs,
+    input      [15:0] bgoffs,
+    input      [15:0] fgoffs,
     output reg        flip,
     output reg        bg_bank,
     output reg        fg_bank,
@@ -81,7 +80,7 @@ module jtwardnr_main(
 
 wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, irq_n;
 wire        cpu_cen, mreq, iorq, rd, wr, io_wr, io_rd;
-wire [15:0] A, txoffs, bgoffs, fgoffs;
+wire [15:0] A;
 wire [ 7:0] port;
 reg  [ 7:0] cpu_din, dipsw_a, dipsw_b, joy1, joy2, cab_sys, coin_ctl;
 reg  [ 2:0] bank;
@@ -98,6 +97,8 @@ assign io_wr     = iorq & wr;
 assign io_rd     = iorq & rd;
 assign port      = A[7:0];
 assign dsp_on    = coin_ctl[0];
+assign scr_cs    = {fgscr_cs, bgscr_cs, txscr_cs};
+assign scr_addr  = port[2:0];
 
 assign sh_addr   = dsp_halt ? dsp_addr[11:1] : A[11:1];
 assign sh_din    = dsp_halt ? dsp_dout : {cpu_dout, cpu_dout};
@@ -208,57 +209,6 @@ always @(posedge clk) begin
         endcase
     end
 end
-
-jtwardnr_scroll_mmr u_txscr(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cs         ( txscr_cs  ),
-    .addr       ( port[2:0] ),
-    .rnw        ( 1'b0      ),
-    .din        ( cpu_dout  ),
-    .dout       (           ),
-    .scrx       ( tx_scrx   ),
-    .scry       ( tx_scry   ),
-    .offs       ( txoffs    ),
-    .ioctl_addr ( 3'd0      ),
-    .ioctl_din  (           ),
-    .debug_bus  ( 8'd0      ),
-    .st_dout    (           )
-);
-
-jtwardnr_scroll_mmr u_bgscr(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cs         ( bgscr_cs  ),
-    .addr       ( port[2:0] ),
-    .rnw        ( 1'b0      ),
-    .din        ( cpu_dout  ),
-    .dout       (           ),
-    .scrx       ( bg_scrx   ),
-    .scry       ( bg_scry   ),
-    .offs       ( bgoffs    ),
-    .ioctl_addr ( 3'd0      ),
-    .ioctl_din  (           ),
-    .debug_bus  ( 8'd0      ),
-    .st_dout    (           )
-);
-
-jtwardnr_scroll_mmr u_fgscr(
-    .rst        ( rst       ),
-    .clk        ( clk       ),
-    .cs         ( fgscr_cs  ),
-    .addr       ( port[2:0] ),
-    .rnw        ( 1'b0      ),
-    .din        ( cpu_dout  ),
-    .dout       (           ),
-    .scrx       ( fg_scrx   ),
-    .scry       ( fg_scry   ),
-    .offs       ( fgoffs    ),
-    .ioctl_addr ( 3'd0      ),
-    .ioctl_din  (           ),
-    .debug_bus  ( 8'd0      ),
-    .st_dout    (           )
-);
 
 wire vbl_g = ~LVBL & dip_pause;
 

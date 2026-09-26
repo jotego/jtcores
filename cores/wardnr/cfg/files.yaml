@@ -3,6 +3,7 @@ wardnr:
     - jtwardnr_game.v
     - jtwardnr_main.v
     - jtwardnr_scroll_mmr.v
+    - jtwardnr_scroll.v
     - jtwardnr_sound.v
     - jtwardnr_video.v
     - jtwardnr_obj.v
