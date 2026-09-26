@@ -44,9 +44,7 @@ JTFRAME_BA3_LEN=64
 JTFRAME_BA2_WEN
 
 # scene dumps: 6 BRAMs + video MMRs
-# NVRAM: the 8kB backup memory BRAM, first in the ioctl order.
-# MiSTer autoloads <setname>.RAM from saves/ and writes it on OSD save settings
-JTFRAME_IOCTL_RD=8192
+JTFRAME_IOCTL_RD=352372
 # the game asks for the test switch to initialize its backup memory
 JTFRAME_OSD_TEST
 # stock 48 MHz base clock: every 60 MHz variant hung on real hardware
