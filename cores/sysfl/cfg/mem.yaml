@@ -29,11 +29,11 @@ sdram:
     - name: wram
       data_width: 32
       rw: true
-      blocks: { count: 128, size: 32 }
+      blocks: { count: 8, size: 32 }
       at: { chip: 1, bank: 2, length: 2MB }
     - name: main
       data_width: 32
-      blocks: { count: 64, size: 32 }
+      blocks: { count: 32, size: 32 }
       at: { chip: 0, bank: 0, length: 4MB }
     - name: mcurom  # C75 external data ROM (se1_spr), own bank for latency
       data_width: 16
@@ -41,7 +41,7 @@ sdram:
       at: { chip: 0, bank: 1, length: 512kB }
     - name: objrom
       data_width: 32
-      blocks: { count: 128, size: 32 }
+      blocks: { count: 32, size: 32 }
       at: { chip: 0, bank: 3, length: 8MB }
     - name: roz   # 8-byte woven units: 4 texels + 2 mask bytes + pad
       data_width: 64
@@ -49,11 +49,11 @@ sdram:
       at: { chip: 1, bank: 0, length: 4MB }
     - name: scr   # 16-byte woven tile row: both col[2] half-units
       data_width: 128
-      blocks: { count: 256, size: 64 } # 4 tile rows/block, a full line survives
+      blocks: { count: 256, size: 16 } # 4kB cap: sets beat row-blocks at this size
       at: { chip: 1, bank: 1, length: 8MB }
     - name: pcm
       data_width: 8
-      blocks: { count: 128, size: 16 }
+      blocks: { count: 8, size: 16 }
       at: { chip: 0, bank: 2, length: 4MB }
 bram:
   - name: backup    # 8kB backup memory (game nvram), saved/restored on the SD card
