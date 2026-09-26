@@ -14,7 +14,6 @@ module jtskykid_cab(
     output reg   [ 7:0] cab=8'hff
 );
 
-localparam UP=3,DOWN=2,LEFT=1,RIGHT=0,B0=4,B1=5;
 localparam [2:0] UNUSED=3'b111;
 
 reg [2:0] sel=0;
@@ -25,10 +24,10 @@ always @(posedge clk) begin
         0: cab <= {UNUSED,dipsw[15:11]};
         1: cab <= {UNUSED,dipsw[10:8],dipsw[7:6]};
         2: cab <= {UNUSED,dipsw[ 5:1]};
-        3: cab <= {UNUSED,dipsw[0],joystick1[B1],joystick2[B1],dipsw[17:16]};
+        3: cab <= {UNUSED,dipsw[0],joystick1[5],joystick2[5],dipsw[17:16]};
         4: cab <= {UNUSED,cab_1p,coin,service};
-        5: cab <= {UNUSED,joystick2[B0],joystick2[UP],joystick2[DOWN],joystick2[RIGHT],joystick2[LEFT]};
-        6: cab <= {UNUSED,joystick1[B0],joystick1[UP],joystick1[DOWN],joystick1[RIGHT],joystick1[LEFT]};
+        5: cab <= {UNUSED,joystick2[4:0]};
+        6: cab <= {UNUSED,joystick1[4:0]};
         default: cab <= 8'hff;
     endcase
 end
