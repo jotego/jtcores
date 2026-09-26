@@ -27,7 +27,7 @@ bitcnt = 16
 delete = [{ names=[ "Unused", "Unknown" ] }]
 # No `defaults` override here. Many cores force "ff,ff" because their DIP
 # inputs are active low and the core inverts them; Wardner's are active high
-# and jtwardner_main hands dipsw_a straight to port 50, so all-ones would mean
+# and jtwardnr_main hands dipsw_a straight to port 50, so all-ones would mean
 # Service Mode on, Demo Sounds off, Flip Screen on and 4 coins per credit.
 # The value computed from MAME's own defaults is 01,00 - cabinet upright,
 # everything else off - which is what the board ships with.

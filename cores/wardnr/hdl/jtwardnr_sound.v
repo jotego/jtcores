@@ -10,7 +10,7 @@
  *   C800-CFFF  RAM
  *   ports 00-01 YM3812
  */
-module jtwardner_sound(
+module jtwardnr_sound(
     input             rst,
     input             clk,
     input             cen3p5,

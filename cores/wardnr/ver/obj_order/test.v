@@ -1,4 +1,4 @@
-// Draws two sprite scenes through jtwardner_obj and compares every visible
+// Draws two sprite scenes through jtwardnr_obj and compares every visible
 // pixel with a reference drawn the way MAME does: screen x = (x>>7)-32,
 // screen y = (y>>7)-16, entry 0 on top. The scenes cover
 //  - 62 overlapping sprites on the same lines, in both x directions
@@ -216,7 +216,7 @@ jtframe_vtimer #(
     .VS         ( VS                )
 );
 
-jtwardner_obj uut(
+jtwardnr_obj uut(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),

@@ -1,4 +1,4 @@
-# Wardner
+# JTWARDNR
 
 Toaplan TP-009 / Taito B25 (1987): Wardner, Wardner no Mori, Pyros.
 

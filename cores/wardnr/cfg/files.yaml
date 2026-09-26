@@ -1,12 +1,12 @@
-wardner:
+wardnr:
   - get:
-    - jtwardner_game.v
-    - jtwardner_main.v
-    - jtwardner_scroll_mmr.v
-    - jtwardner_sound.v
-    - jtwardner_video.v
-    - jtwardner_obj.v
-    - jtwardner_colmix.v
+    - jtwardnr_game.v
+    - jtwardnr_main.v
+    - jtwardnr_scroll_mmr.v
+    - jtwardnr_sound.v
+    - jtwardnr_video.v
+    - jtwardnr_obj.v
+    - jtwardnr_colmix.v
     - jttoaplan1_dsp.v
 jtframe:
   - from: ram

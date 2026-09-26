@@ -3,7 +3,7 @@
  *
  * Layer priority and palette lookup. The colour lags hdump by two pixels.
  */
-module jtwardner_colmix(
+module jtwardnr_colmix(
     input             clk,
     input             pxl_cen,
     input             LVBL,

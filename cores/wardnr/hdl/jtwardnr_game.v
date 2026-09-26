@@ -4,7 +4,7 @@
  * Wardner (Toaplan TP-009 / Taito B25, 1987): main Z80, TMS320C10, sound Z80
  * with YM3812, and the video. See cfg/macros.def for the clocking.
  */
-module jtwardner_game(
+module jtwardnr_game(
     `include "jtframe_game_ports.inc"
 );
 
@@ -29,7 +29,7 @@ assign ioctl_din   = pal_ioctl_din;
 `endif
 
 /* verilator tracing_off */
-jtwardner_main u_main(
+jtwardnr_main u_main(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .cen6       ( cen6              ),
@@ -112,7 +112,7 @@ jttoaplan1_dsp #(.TWINCOBR(0)) u_dsp(
 );
 
 /* verilator tracing_off */
-jtwardner_sound u_sound(
+jtwardnr_sound u_sound(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .cen3p5     ( cen3p5            ),
@@ -140,7 +140,7 @@ jtwardner_sound u_sound(
 );
 
 /* verilator tracing_on */
-jtwardner_video u_video(
+jtwardnr_video u_video(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),

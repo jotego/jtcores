@@ -4,7 +4,7 @@
  * Wardner video: three tile maps, sprites and the priority mixer. The raster
  * is 446x286 with 320x240 visible. Screen flip mirrors the tile maps only.
  */
-module jtwardner_video(
+module jtwardnr_video(
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -226,7 +226,7 @@ jtframe_scroll #(
     .pxl        ( tx_pxl            )
 );
 
-jtwardner_obj u_obj(
+jtwardnr_obj u_obj(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
@@ -247,7 +247,7 @@ jtwardner_obj u_obj(
     .pxl        ( obj_pxl           )
 );
 
-jtwardner_colmix u_colmix(
+jtwardnr_colmix u_colmix(
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
     .LVBL       ( LVBL              ),

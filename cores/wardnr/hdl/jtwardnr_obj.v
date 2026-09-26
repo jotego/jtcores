@@ -9,7 +9,7 @@
  * Entry words: 0 code; 1 attr = colour[5:0], flipx bit 8, flipy bit 9,
  * prio[11:10]; 2 x<<7; 3 y<<7. y == 0x100 hides a sprite, prio 0 skips it.
  */
-module jtwardner_obj(
+module jtwardnr_obj(
     input             rst,
     input             clk,
     input             pxl_cen,

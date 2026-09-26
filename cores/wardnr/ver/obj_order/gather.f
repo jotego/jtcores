@@ -1,4 +1,4 @@
-../../hdl/jtwardner_obj.v
+../../hdl/jtwardnr_obj.v
 $JTFRAME/hdl/video/jtframe_objdraw.v
 $JTFRAME/hdl/video/jtframe_objdraw_gate.v
 $JTFRAME/hdl/video/jtframe_draw.v

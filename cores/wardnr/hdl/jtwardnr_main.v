@@ -13,7 +13,7 @@
  * The tile maps are only reached through I/O ports. While the DSP runs it
  * holds this CPU and takes over the bus of the RAMs it shares.
  */
-module jtwardner_main(
+module jtwardnr_main(
     input             rst,
     input             clk,
     input             cen6,
@@ -209,7 +209,7 @@ always @(posedge clk) begin
     end
 end
 
-jtwardner_scroll_mmr u_txscr(
+jtwardnr_scroll_mmr u_txscr(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cs         ( txscr_cs  ),
@@ -226,7 +226,7 @@ jtwardner_scroll_mmr u_txscr(
     .st_dout    (           )
 );
 
-jtwardner_scroll_mmr u_bgscr(
+jtwardnr_scroll_mmr u_bgscr(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cs         ( bgscr_cs  ),
@@ -243,7 +243,7 @@ jtwardner_scroll_mmr u_bgscr(
     .st_dout    (           )
 );
 
-jtwardner_scroll_mmr u_fgscr(
+jtwardnr_scroll_mmr u_fgscr(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cs         ( fgscr_cs  ),
