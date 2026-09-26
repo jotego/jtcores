@@ -20,7 +20,6 @@
 // Namco 123+145 tilemap pair, System FL configuration
 // 4 scrolling 64x64 + 2 fixed 36x28 layers, 8x8 tiles, 8bpp
 // 16-bit tile codes, per-tile mask ROM byte row gives pixel opacity
-// tiles and masks are fetched as 8-byte woven units on a single bus
 
 module jtc123(
     input             rst,
@@ -44,12 +43,16 @@ module jtc123(
     // Tile map readout (BRAM)
     output reg [15:1] tmap_addr,
     input      [15:0] tmap_data,
-    // Tile + mask readout (SDRAM), 8-byte woven units:
-    // [4 texels][row mask byte][3 pad], keyed {code,row,col[2]}
+    // Mask readout (SDRAM)
+    output            smask_cs,
+    output     [18:0] smask_addr,
+    input             smask_ok,
+    input      [ 7:0] smask_data,
+    // Tile readout (SDRAM)
     output            scr_cs,
-    output     [22:3] scr_addr,
+    output reg [21:0] scr_addr,
     input             scr_ok,
-    input      [63:0] scr_data,
+    input      [ 7:0] scr_data,
     // Pixel output
     output     [11:0] scr_pxl,
     output     [ 2:0] scr_prio,
@@ -98,12 +101,7 @@ reg  [ 2:0] bprio, cprio, win, hcnt0, hcnt1, hcnt2, hcnt3;
 reg         done, alt_cen, opaque, bblankn;
 wire [10:0] pxl;
 wire [ 2:0] prio;
-wire        blankn, buf_we, rom_ok, hs_edge, mfetch, mgrant, pix_hit;
-reg  [22:3] pix_unit;              // pixel fetch unit {code, row, col[2]}
-reg  [ 1:0] pix_lane;              // texel byte lane, col[1:0]
-reg  [63:0] c_word;                // single-entry unit latch
-reg  [22:3] c_addr;
-reg         c_ok;
+wire        blankn, buf_we, rom_ok, hs_edge;
 
 // MAME dx = 44 + {4,2,1,0} per layer, calibrate hoff0 in sim
 wire [15:0] hoff0 = dflip ? 16'h71 : -16'h0f;
@@ -116,13 +114,8 @@ integer     i, j;
     reg     miss;
 `endif
 
-// pixels are served from the unit latch; the port is free for the mask
-// prefetch whenever the latch holds the current unit (pixel miss wins)
-assign mfetch     = plyr!=7 && mst>=3; // tmap_data valid from mst 3
-assign pix_hit    = c_ok && c_addr==pix_unit;
-assign mgrant     = mfetch && (pix_hit || done);
-assign scr_cs     = ~done | mfetch;
-assign scr_addr   = mgrant ? {tmap_data, mask_asub, 1'b0} : pix_unit;
+assign scr_cs     = ~done;
+assign smask_cs   = plyr!=7 && mst>=3; // tmap_data valid from mst 3
 assign hsub       = hcnt[2:0];
 assign buf_we     = alt_cen & ~done;
 // a layer entering its next tile needs that tile's mask ready
@@ -136,7 +129,8 @@ wire [5:0] cfg_enb_eff = cfg_enb;
 `endif
 assign xing      = { hcnt[2:0]==7, hcnt[2:0]==7, hcnt3==7, hcnt2==7, hcnt1==7, hcnt0==7 };
 assign block      = xing & ~nrdy & ~cfg_enb_eff;
-assign rom_ok     = pix_hit & ~|block;
+assign rom_ok     = scr_ok & ~|block;
+assign smask_addr = { tmap_data, mask_asub };
 assign dflip      = flip ^ cfg_flip;
 assign scr_pxl    = { 1'b0, pxl };
 assign scr_prio   = prio;
@@ -276,7 +270,6 @@ always @(posedge clk, posedge rst) begin
         nrdy      <= 0;
         plyr      <= 7;
         mst       <= 0;
-        c_ok      <= 0;
     end else begin
         case( mst )
             0: if( mlyr!=7 ) begin
@@ -297,8 +290,8 @@ always @(posedge clk, posedge rst) begin
                 mst <= 2;
             end
             2,3: mst <= mst + 3'd1;
-            4: if( mgrant && scr_ok ) begin
-                nmask[plyr] <= scr_data[39:32];
+            4: if( smask_ok ) begin
+                nmask[plyr] <= smask_data;
                 ninfo[plyr] <= {cfg_pal[plyr], tmap_data, mask_asub, poff};
                 nrdy[plyr]  <= 1;
                 plyr        <= 7;
@@ -308,7 +301,7 @@ always @(posedge clk, posedge rst) begin
         endcase
         if( alt_cen ) begin
             // next pixel information
-            { attr, pix_unit, pix_lane } <= { opaque, cprio, info[win][3+:22], info[win][2:0]+hsub };
+            { attr, scr_addr } <= { opaque, cprio, info[win][3+:22], info[win][2:0]+hsub };
             for( i=0; i<6; i=i+1 ) begin
                 if( xing[i] && nrdy[i] ) begin
                     mask[i] <= nmask[i];
@@ -320,12 +313,7 @@ always @(posedge clk, posedge rst) begin
             end
             buf_a <= hcnt;
             // current pixel
-            { bblankn, bprio, bpxl } <= { attr, c_word[{pix_lane,3'd0}+:8] };
-        end
-        if( !mgrant && scr_ok && !pix_hit ) begin
-            c_word <= scr_data;
-            c_addr <= pix_unit;
-            c_ok   <= 1;
+            { bblankn, bprio, bpxl } <= { attr, scr_data };
         end
         if( hs_edge ) begin
             nrdy <= 0;
@@ -353,23 +341,6 @@ int reported=0;
 always @(posedge miss) begin
     if( reported==1 ) $display("C123 line missed");
     reported <= reported+1;
-end
-
-// per-frame deadline audit, same shape as ROZA/SOBJ
-integer sc_lines=0, sc_cut=0, sc_wait=0, sc_mf=0;
-reg sc_vsl=0;
-always @(posedge clk) begin
-    sc_vsl <= vs;
-    if( !done && !rom_ok ) sc_wait <= sc_wait+1;
-    if( mfetch            ) sc_mf   <= sc_mf+1;
-    if( hs_edge ) begin
-        sc_lines <= sc_lines+1;
-        if( !done ) sc_cut <= sc_cut+1;
-    end
-    if( vs && !sc_vsl ) begin
-        $display("SCRA lines=%0d cut=%0d wait=%0d mask=%0d", sc_lines, sc_cut, sc_wait, sc_mf);
-        sc_lines<=0; sc_cut<=0; sc_wait<=0; sc_mf<=0;
-    end
 end
 `endif
 

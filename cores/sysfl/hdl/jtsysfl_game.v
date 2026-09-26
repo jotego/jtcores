@@ -41,6 +41,14 @@ wire [15:0] vcpu_dout, scfg_dout, rozcfg_dout;
 wire [14:0] pal_amux;
 wire [ 7:0] pal_din8, pal_dout8, misc_din;
 wire        cpu_halted;
+wire [13:0] opq_addr;
+wire        opq_bit;
+wire [21:0] opq_rel;
+wire        opq_prog;
+reg  [15:0] opq_tout;
+reg  [13:0] opq_tile, opq_wa;
+reg  [ 7:0] opq_acc;
+reg         opq_on, opq_we, opq_wd;
 
 assign flip       = dip_flip;
 
@@ -59,6 +67,54 @@ assign pal_wdin   = pal_din8;
 // MMR sections dumped after the BRAMs; 0x56000 is 128B-aligned
 assign ioctl_din = &ioctl_addr[6:4] ? ioctl_misc : ioctl_video;
 
+// opaque-tile table for the roz mask ROM, built from the download stream
+assign opq_rel  = prog_addr[21:0] - 22'h2d_0000;
+assign opq_prog = prog_we && prog_ba==2'd3 &&
+                  prog_addr[21:0]>=22'h2d_0000 && prog_addr[21:0]<22'h31_0000;
+
+always @(posedge clk) begin
+    if( rst ) begin
+        opq_on   <= 0;
+        opq_we   <= 0;
+        opq_tout <= 0;
+    end else begin
+        opq_we <= 0;
+        if( opq_prog ) begin
+            opq_tout <= 0;
+            opq_on   <= 1;
+            if( opq_on && opq_rel[17:4]!=opq_tile ) begin
+                opq_we  <= 1;
+                opq_wa  <= opq_tile;
+                opq_wd  <= &opq_acc;
+                opq_acc <= prog_data;
+            end else begin
+                opq_acc <= (opq_on ? opq_acc : 8'hff) & prog_data;
+            end
+            opq_tile <= opq_rel[17:4];
+        end else if( opq_on ) begin
+            opq_tout <= opq_tout + 16'd1;
+            if( &opq_tout ) begin
+                opq_we <= 1;
+                opq_wa <= opq_tile;
+                opq_wd <= &opq_acc;
+                opq_on <= 0;
+            end
+        end
+    end
+end
+
+jtframe_dual_ram #(.DW(1),.AW(14),.SIMHEXFILE("opq.hex")) u_opq(
+    .clk0   ( clk       ),
+    .data0  ( opq_wd    ),
+    .addr0  ( opq_wa    ),
+    .we0    ( opq_we    ),
+    .q0     (           ),
+    .clk1   ( clk       ),
+    .data1  ( 1'b0      ),
+    .addr1  ( opq_addr  ),
+    .we1    ( 1'b0      ),
+    .q1     ( opq_bit   )
+);
 
 `ifndef NOMAIN
 jtsysfl_main u_main(
@@ -123,38 +179,6 @@ jtsysfl_main u_main(
 );
 
 wire flr;
-
-// download remap: weave the raw ROZ (0x300000/0x500000) and scroll
-// (0x1600000/0x1A00000) texel+mask streams into their 8-byte unit regions
-// (masks stream twice), and move the C75 data rom into the bank0 gap.
-// Fillers park at a byte in the gap tail. See doc/roz-mask-interleave.md.
-// ioctl_addr comes in header-stripped; jtframe_dwnld strips pre_addr again, +8
-wire [25:0] dl_i = ioctl_addr - 26'h30_0000;
-wire [25:0] dl_s = ioctl_addr - 26'h160_0000;
-always @* begin
-    pre_addr = ioctl_addr;
-    if( !header ) begin
-        pre_addr = ioctl_addr + 26'd8;
-        if( ioctl_addr>=26'h30_0000 && ioctl_addr<26'h80_0000 ) begin
-            if( ioctl_addr < 26'h50_0000 )      // texels: one zero bit at [2]
-                pre_addr = 26'h40_0008 + { dl_i[20:2], 1'b0, dl_i[1:0] };
-            else if( ioctl_addr < 26'h60_0000 ) // masks: bytes 4/5 of the unit pair
-                pre_addr = 26'h40_0008 + { dl_i[17:0], dl_i[19], 2'b10, dl_i[18] };
-            else                                // FF filler: park it in the gap
-                pre_addr = 26'h3F_FFF8;
-        end
-        if( ioctl_addr>=26'h140_0000 && ioctl_addr<26'h148_0000 ) // C75 data
-            pre_addr = 26'h30_0008 + { 7'd0, ioctl_addr[18:0] };
-        if( ioctl_addr>=26'h148_4000 && ioctl_addr<26'h160_0000 ) // FF filler
-            pre_addr = 26'h3F_FFF8;
-        if( ioctl_addr>=26'h160_0000 ) begin
-            if( ioctl_addr < 26'h1A0_0000 )     // scroll texels
-                pre_addr = 26'h160_0008 + { 2'd0, dl_s[21:2], 1'b0, dl_s[1:0] };
-            else if( ioctl_addr < 26'h1B0_0000 ) // scroll row masks, unit pair
-                pre_addr = 26'h160_0008 + { 2'd0, dl_s[18:0], dl_s[19], 3'b100 };
-        end
-    end
-end
 
 // game id from the MRA header, byte 0
 jtsysfl_header u_header(
@@ -333,10 +357,20 @@ jtsysfl_video u_video(
     .blue_dout  ( bpal_dout     ),
     .bpal_dout  ( bpal_cdout    ),
 
+    .smask_cs   ( smask_cs      ),
+    .smask_addr ( smask_addr    ),
+    .smask_ok   ( smask_ok      ),
+    .smask_data ( smask_data    ),
     .scr_cs     ( scr_cs        ),
     .scr_addr   ( scr_addr      ),
     .scr_ok     ( scr_ok        ),
     .scr_data   ( scr_data      ),
+    .rmask_cs   ( rmask_cs      ),
+    .rmask_addr ( rmask_addr    ),
+    .rmask_ok   ( rmask_ok      ),
+    .rmask_data ( rmask_data    ),
+    .opq_addr   ( opq_addr      ),
+    .opq_bit    ( opq_bit       ),
     .roz_cs     ( roz_cs        ),
     .roz_addr   ( roz_addr      ),
     .roz_ok     ( roz_ok        ),
@@ -464,7 +498,7 @@ always @(posedge clk) begin
 end
 // roz slot: request vs waited-request tally (cache hit-rate proxy)
 integer rreq=0, rwait=0, rwcyc=0;
-reg rcs_l=0; reg [21:3] raddr_l=0; reg rwaited=0;
+reg rcs_l=0; reg [20:2] raddr_l=0; reg rwaited=0;
 always @(posedge clk) begin
     if( roz_cs ) begin
         if( !rcs_l || roz_addr!=raddr_l ) begin

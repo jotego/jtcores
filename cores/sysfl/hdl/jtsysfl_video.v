@@ -63,16 +63,27 @@ module jtsysfl_video(
                       blue_dout,  bpal_dout,
 
     // SDRAM
-    output            scr_cs,
-    output     [22:3] scr_addr,
-    input             scr_ok,
-    input      [63:0] scr_data,
+    output            smask_cs,
+    output     [18:0] smask_addr,
+    input             smask_ok,
+    input      [ 7:0] smask_data,
 
+    output            scr_cs,
+    output     [21:0] scr_addr,
+    input             scr_ok,
+    input      [ 7:0] scr_data,
+
+    output            rmask_cs,
+    output     [18:0] rmask_addr,
+    input             rmask_ok,
+    input      [ 7:0] rmask_data,
+    output     [13:0] opq_addr,
+    input             opq_bit,
 
     output            roz_cs,
-    output     [21:3] roz_addr,
+    output     [20:2] roz_addr,
     input             roz_ok,
-    input      [63:0] roz_data,
+    input      [31:0] roz_data,
 
     output            objrom_cs,
     output     [22:2] objrom_addr,
@@ -146,6 +157,10 @@ jtc123 u_scr(
 
     .tmap_addr  ( tmap_addr ),
     .tmap_data  ( tmap_data ),
+    .smask_cs   ( smask_cs  ),
+    .smask_addr ( smask_addr),
+    .smask_ok   ( smask_ok  ),
+    .smask_data ( smask_data),
     .scr_cs     ( scr_cs    ),
     .scr_addr   ( scr_addr  ),
     .scr_ok     ( scr_ok    ),
@@ -180,6 +195,12 @@ jtc169 #(.V0(9'h121)) u_roz(
 
     .rozmap_addr(rozmap_addr),
     .rozmap_data(rozmap_data),
+    .rmask_cs   ( rmask_cs  ),
+    .rmask_addr ( rmask_addr),
+    .rmask_ok   ( rmask_ok  ),
+    .rmask_data ( rmask_data),
+    .opq_addr   ( opq_addr  ),
+    .opq_bit    ( opq_bit   ),
     .roz_cs     ( roz_cs    ),
     .roz_addr   ( roz_addr  ),
     .roz_ok     ( roz_ok    ),
@@ -319,7 +340,7 @@ end
 
 `ifdef SIMSCENE
 // bring-up probe: per-frame layer activity counters
-integer cnt_scr, cnt_roz, cnt_obj, cnt_scs, cnt_sok, cnt_rcs, cnt_ocs, cnt_vis, cnt_rgb, cnt_lin, cnt_bsy, cnt_wai;
+integer cnt_scr, cnt_roz, cnt_obj, cnt_scs, cnt_sok, cnt_rcs, cnt_ocs, cnt_msk, cnt_vis, cnt_rgb, cnt_lin, cnt_bsy, cnt_wai;
 reg vsl, lndone_l;
 always @(posedge clk) begin
     if( scr_blankn  ) cnt_scr <= cnt_scr+1;
@@ -329,6 +350,7 @@ always @(posedge clk) begin
     if( scr_cs && scr_ok ) cnt_sok <= cnt_sok+1;
     if( roz_cs      ) cnt_rcs <= cnt_rcs+1;
     if( objrom_cs   ) cnt_ocs <= cnt_ocs+1;
+    if( smask_cs    ) cnt_msk <= cnt_msk+1;
     lndone_l <= c_done;
     if( c_done && !lndone_l ) cnt_lin <= cnt_lin+1;
     if( !c_done ) cnt_bsy <= cnt_bsy+1;
@@ -339,10 +361,10 @@ always @(posedge clk) begin
     end
     vsl <= vs;
     if( vs && !vsl ) begin
-        $display("VIDEO: scr=%0d roz=%0d obj=%0d | scr_cs=%0d ok=%0d roz_cs=%0d obj_cs=%0d | vis=%0d rgb=%0d lines=%0d bsy=%0d wai=%0d",
-            cnt_scr, cnt_roz, cnt_obj, cnt_scs, cnt_sok, cnt_rcs, cnt_ocs,
+        $display("VIDEO: scr=%0d roz=%0d obj=%0d | scr_cs=%0d ok=%0d smask_cs=%0d roz_cs=%0d obj_cs=%0d | vis=%0d rgb=%0d lines=%0d bsy=%0d wai=%0d",
+            cnt_scr, cnt_roz, cnt_obj, cnt_scs, cnt_sok, cnt_msk, cnt_rcs, cnt_ocs,
             cnt_vis, cnt_rgb, cnt_lin, cnt_bsy, cnt_wai);
-        cnt_scr<=0; cnt_roz<=0; cnt_obj<=0; cnt_scs<=0; cnt_sok<=0; cnt_rcs<=0; cnt_ocs<=0;
+        cnt_scr<=0; cnt_roz<=0; cnt_obj<=0; cnt_scs<=0; cnt_sok<=0; cnt_rcs<=0; cnt_ocs<=0; cnt_msk<=0;
         cnt_vis<=0; cnt_rgb<=0; cnt_lin<=0; cnt_bsy<=0; cnt_wai<=0;
     end
 end

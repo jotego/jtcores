@@ -3,10 +3,10 @@
 # Same System FL layout as ver/speedrcr, banks are 0xFF-initialized to match
 # the MRA fillers (the data region is ROMREGION_ERASEFF, no ROMs).
 # bank0: i960 prog @0 (LOAD32_WORD eb/ob) | data erased @0x100000
-#        | C75 data rom (spr, 128kB) @0x300000 | roz weave (rch0-1 + rsh) @0x400000
-# bank2: obj0l/0u, obj1l/1u interleaved as ROM_LOAD32_WORD
-# bank3: pcm 2MB @0 (work RAM lives at 0x400000, no preload)
-# bank1: scr weave (sch0-3 + ssh interleaved) @0
+#        | rch0-1 @0x400000 (rsh moved to the bank3 image @0x5a0000)
+# bank1: pcm 2MB @0 (work RAM lives at 0x400000, no preload)
+# bank2: sch0-3 @0 | ssh @0x400000 | spr (128kB) @0x500000
+# bank3: obj0l/0u, obj1l/1u interleaved as ROM_LOAD32_WORD
 #
 # --fastboot only runs the generic delay-loop shortener (no per-offset POST
 # patches calibrated for this program yet). SIM ONLY.
@@ -62,50 +62,29 @@ def swab(b):
     o[0::2], o[1::2] = b[1::2], b[0::2]
     return o
 
-# ROZ texel+mask weave: 8-byte units keyed by {code[12:0],yp[3:0],xp[3:2]}
-# [4 texels][mask byte code13=0][mask byte code13=1][2 pad] -> 4MB @0x400000
-# one 64-bit burst returns the texel run and both mask bytes
-def roz_weave(rch, rsh):
-    w = bytearray(0x400000)
-    for j in range(4):
-        w[j::8] = rch[j::4]
-    for h in (0, 8):  # the two xp[2] units of a group share the mask byte
-        w[4+h::16] = rsh[0:0x40000]
-        w[5+h::16] = rsh[0x40000:0x80000]
-    return w
-
-bank0 = bytearray(b'\xff'*0x800000)
+bank0 = bytearray(b'\xff'*0x600000)
 bank0[0:0x100000] = prog
-bank0[0x400000:0x800000] = roz_weave(get("flr1_rch0.19j")+get("flr1_rch1.18j"),
-                                     get("flr1_rsh.14k"))
+pos = 0x400000
+for f in ["flr1_rch0.19j","flr1_rch1.18j"]:
+    d = get(f); bank0[pos:pos+len(d)] = d; pos += 0x100000
 
-# C123 tile+mask weave: 8-byte units keyed by {code[15:0],row[2:0],col[2]}
-# [4 texels][mask byte][3 pad] -> 8MB; one 64-bit burst returns a 4-texel
-# run and the full row mask
-def scr_weave(sch, ssh):
-    w = bytearray(0x800000)
-    for j in range(4):
-        w[j::8] = sch[j::4]
-    for h in (0, 8):  # the two col[2] units of a row share the mask byte
-        w[4+h::16] = ssh
-    return w
-
-sch = bytearray(b'\xff'*0x400000)
+bank2 = bytearray(b'\xff'*0x580000)
 pos = 0
 for f in ["flr1_sch0.21p","flr1_sch1.20p","flr1_sch2.19p","flr1_sch3.18p"]:
-    d = get(f); sch[pos:pos+len(d)] = d; pos += 0x100000
-bank3 = scr_weave(sch, get("flr1_ssh.18u"))
+    d = get(f); bank2[pos:pos+len(d)] = d; pos += 0x100000
+bank2[0x400000:0x480000] = get("flr1_ssh.18u")
 spr = get("flr1_spr.21l")
-bank0[0x300000:0x300000+len(spr)] = spr
+bank2[0x500000:0x500000+len(spr)] = spr
 
 # C352 sample ROM, 2MB set in a 4MB bank; nvram/comram in the upper wram
 # window (bank bytes 0x500000 / 0x580000), 0xFF = fresh
-bank2 = bytearray(b'\xff'*0x600000)
+bank1 = bytearray(b'\xff'*0x620000)
 voi = get("flr1_voi.23s")
-bank2[0:len(voi)] = voi
+bank1[0:len(voi)] = voi
+bank1[0x5a0000:0x620000] = get("flr1_rsh.14k")
 mamenv = os.path.expanduser("~/develop/mame/nvram/finalapr/nvram")
 if os.path.exists(mamenv):
-    bank2[0x500000:0x502000] = open(mamenv,"rb").read()
+    bank1[0x500000:0x502000] = open(mamenv,"rb").read()
     print("nvram preloaded from MAME first-boot image")
 
 # C75 internal BIOS, from the MAME namcoc75 device set
@@ -113,18 +92,18 @@ with zipfile.ZipFile(c75path) as z:
     c75 = z.read("c75.bin")
 assert len(c75)==0x4000, "c75.bin must be 16kB"
 
-bank1 = bytearray(0x800000)
+bank3 = bytearray(0x800000)
 for base, lf, uf in [(0, "flr1_obj0l.ic1", "flr1_obj0u.ic2"), (0x400000, "flr1_obj1l.ic3", "flr1_obj1u.ic4")]:
     lo, up = get(lf), get(uf)
     for i in range(0, len(lo), 2):
         o = base + i*2
-        bank1[o:o+2]   = lo[i:i+2]
-        bank1[o+2:o+4] = up[i:i+2]
+        bank3[o:o+2]   = lo[i:i+2]
+        bank3[o+2:o+4] = up[i:i+2]
 
 open(os.path.join(outdir,"sdram_bank0.bin"),"wb").write(swab(bank0))
-open(os.path.join(outdir,"sdram_bank3.bin"),"wb").write(swab(bank3))
-open(os.path.join(outdir,"sdram_bank1.bin"),"wb").write(swab(bank1))
 open(os.path.join(outdir,"sdram_bank2.bin"),"wb").write(swab(bank2))
+open(os.path.join(outdir,"sdram_bank1.bin"),"wb").write(swab(bank3))
+open(os.path.join(outdir,"sdram_bank3.bin"),"wb").write(swab(bank1))
 open(os.path.join(outdir,"c75bios_lo.bin"),"wb").write(c75[0::2])
 open(os.path.join(outdir,"c75bios_hi.bin"),"wb").write(c75[1::2])
 # jtsim downloads rom.bin over bank 0 before releasing reset; raw prog head
