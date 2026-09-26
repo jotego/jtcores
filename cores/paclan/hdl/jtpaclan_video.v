@@ -103,6 +103,7 @@ jtpaclan_obj u_obj(
     .lvbl       ( lvbl          ),
     .hs         ( hs            ),
     .flip       ( flip          ),
+    .rot        ( 1'b0          ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
 

@@ -7,7 +7,7 @@
 module jtpaclan_obj(
     input             rst,
     input             clk, pxl_cen, hs, lvbl,
-                      flip,
+                      flip, rot,
     input      [ 8:0] hdump, vdump,
 
     // Look-up table
@@ -28,7 +28,11 @@ module jtpaclan_obj(
     input      [7:0] debug_bus
 );
 
-wire [31:0] sorted;
+parameter SKYKID=0;
+
+wire [31:0] sorted, pl_sorted, sk_sorted;
+wire [ 9:0] buf_pred;
+wire [ 7:0] sk_msb;
 wire [ 8:0] addr_hi;
 wire [ 3:0] addr_v;
 wire        addr_h, hmsb;
@@ -47,20 +51,26 @@ assign rom_addr = { addr_hi[8:2],
     addr_h
 };
 
-assign sorted   = {
+assign pl_sorted = {
     rom_data[ 7], rom_data[ 6], rom_data[ 5], rom_data[ 4], rom_data[23], rom_data[22], rom_data[21], rom_data[20],
     rom_data[ 3], rom_data[ 2], rom_data[ 1], rom_data[ 0], rom_data[19], rom_data[18], rom_data[17], rom_data[16],
     rom_data[15], rom_data[14], rom_data[13], rom_data[12], rom_data[31], rom_data[30], rom_data[29], rom_data[28],
     rom_data[11], rom_data[10], rom_data[ 9], rom_data[ 8], rom_data[27], rom_data[26], rom_data[25], rom_data[24]
 };
 
+assign sk_msb    = addr_hi[8] ? 8'd0 : addr_hi[7] ? pl_sorted[15:8] : pl_sorted[7:0];
+assign sk_sorted = { 8'd0, sk_msb, pl_sorted[31:16] };
+assign sorted    = SKYKID==1 ? sk_sorted : pl_sorted;
+assign pal_addr  = SKYKID==1 ? {1'b0,buf_pred[9:4],buf_pred[2:0]} : buf_pred;
+
 always @(posedge clk) blankn <= !(vdump>9'hf8 && vdump<9'h11d);
 
-jtpaclan_objscan u_scan(
+jtpaclan_objscan #(.SKYKID(SKYKID)) u_scan(
     .clk        ( clk       ),
     .hs         ( hs        ),
     .blankn     ( blankn    ),
     .flip       ( flip      ),
+    .rot        ( rot       ),
     .vrender    ( vdump     ),
 
     .code       ( code      ),
@@ -94,7 +104,7 @@ jtframe_objdraw_gate #(.CW(9),.PW(6+4),.LATCH(1),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
     .hs         ( hs        ),
-    .flip       ( flip      ),
+    .flip       ( flip && SKYKID==0 ),
     .hdump      ( hdump     ),
 
     .draw       ( dr_draw   ),
@@ -111,7 +121,7 @@ jtframe_objdraw_gate #(.CW(9),.PW(6+4),.LATCH(1),
     .vflip      ( vflip     ),
     .pal        ( pal       ),
 
-    .buf_pred   ( pal_addr  ),
+    .buf_pred   ( buf_pred  ),
     .buf_din    ({2'd0,pal_data}),
 
     .rom_addr   ( {addr_hi,addr_h,addr_v}  ),

@@ -1,0 +1,104 @@
+params:
+  - { name: BG_OFFSET,   value: "(`BG_START-`JTFRAME_BA2_START)>>1" }
+clocks:
+  clk48:
+    - freq: 3072k
+      outputs:
+        - cen_c30
+audio:
+  rsum: 1k
+  channels:
+    - { name: cus30, module: jtcus30, rsum: 1k }
+ports:
+  - { name: cpu_dout, msb:  7, lsb: 0 }
+  - { name: cpu_addr, msb: 15, lsb: 0 }
+sdram:
+  banks:
+    - buses:
+      - name: main
+        addr_width: 16
+        data_width: 8
+    - buses:
+      - name: mcusub
+        addr_width: 13
+        data_width: 8
+    - buses:
+      - name: scr0
+        addr_width: 13
+        data_width: 16
+        gfx_sort: hvvv
+      - name: scr1
+        addr_width: 13
+        data_width: 16
+        offset: BG_OFFSET
+    - buses:
+      - name: obj
+        addr_width: 16
+        data_width: 32
+        gfx_sort: vhhvvvx
+bram:
+  # PROM order here must match the MRA order
+  - name: mcu
+    addr_width: 12
+    data_width: 8
+    prom: true
+  - name: rpal
+    addr_width: 8
+    data_width: 8
+    addr: rgb_addr
+    prom: true
+  - name: gpal
+    addr_width: 8
+    data_width: 8
+    addr: rgb_addr
+    prom: true
+  - name: bpal
+    addr_width: 8
+    data_width: 8
+    addr: rgb_addr
+    prom: true
+  - name: scrpal
+    addr_width: 9
+    data_width: 8
+    prom: true
+  - name: objpal
+    addr_width: 9
+    data_width: 8
+    prom: true
+  - name: vram1
+    addr_width: 12
+    data_width: 16
+    simfile: {}
+    dual_port:
+      name: bg
+      addr: cpu_addr[11:1]
+      din:  "{2{cpu_dout}}"
+      dout: bg_dout
+      rw:   true
+    ioctl: { save: true, order: 0 }
+  - name: vram0
+    addr_width: 11
+    data_width: 16
+    simfile: {}
+    dual_port:
+      name: tx
+      addr: cpu_addr[10:1]
+      din:  "{2{cpu_dout}}"
+      dout: tx_dout
+      rw:   true
+    ioctl: { save: true, order: 1 }
+  - name: oram
+    addr_width: 13
+    data_width: 16
+    dual_port:
+      name: osh
+      addr: cpu_addr[12:1]
+      din:  "{2{cpu_dout}}"
+      dout: osh_dout
+      rw:   true
+    ioctl: { save: true, order: 2 }
+  # sound RAM connected to cus30
+  - name: sndram
+    rw: true
+    addr_width: 12
+    data_width: 8
