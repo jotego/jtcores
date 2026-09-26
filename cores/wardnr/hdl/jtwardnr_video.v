@@ -74,6 +74,9 @@ assign heff = hdump >= 9'd430 ? hdump - 9'd446 : hdump;
 assign bg_vaddr = { bg_bank, bg_vaddr_lo };
 assign fg_addr  = {    1'b0, fg_rom_addr };
 
+// The real PCB uses a programmable CRT controller: HD6845S
+// This configuration matches the programmed values with a slight
+// shift in the sync position
 jtframe_vtimer #(
     .HB_START   ( 9'd319            ),
     .HB_END     ( 9'd445            ),
