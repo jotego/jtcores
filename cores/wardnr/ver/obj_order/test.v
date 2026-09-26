@@ -1,6 +1,6 @@
 // Draws two sprite scenes through jtwardnr_obj and compares every visible
 // pixel with a reference drawn the way MAME does: screen x = (x>>7)-32,
-// screen y = (y>>7)-16, entry 0 on top. The scenes cover
+// screen y = (y>>7)-16, entry 511 on top. The scenes cover
 //  - 62 overlapping sprites on the same lines, in both x directions
 //  - sprites cut by each edge of the screen
 //  - a sprite with priority 0 and one with y = 0x100, which are not drawn
@@ -97,7 +97,7 @@ task render;
     reg [3:0] p;
     begin
         for( r=0; r<76800; r=r+1 ) exp[r] = 0;
-        for( e=511; e>=0; e=e-1 ) begin
+        for( e=0; e<512; e=e+1 ) begin
             if( e_attr[e][11:10] != 0 && e_y[e][15:7] != 'h100 ) begin
                 for( r=0; r<16; r=r+1 ) for( c=0; c<16; c=c+1 ) begin
                     row = (e_y[e][15:7] + 512 - 16 + r) % 512;

@@ -1,10 +1,10 @@
-/* SPDX-FileCopyrightText: 2026 Marc Emmerson
+/* SPDX-FileCopyrightText: 2026 Marc Emmerson / Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * Sprite scan. The object RAM is copied into objbuf during vertical blanking,
- * one word every fourth pixel. Each line, the copy is scanned from entry 511
- * down to 0 reading only the y word, and the sprites on the line are handed
- * to jtframe_objdraw, so entry 0 is drawn last and ends on top.
+ * one word every fourth pixel. Each line, the copy is scanned from entry 0
+ * up to 511 reading only the y word, and the sprites on the line are handed
+ * to jtframe_objdraw, so entry 511 is drawn last and ends on top.
  *
  * Entry words: 0 code; 1 attr = colour[5:0], flipx bit 8, flipy bit 9,
  * prio[11:10]; 2 x<<7; 3 y<<7. y == 0x100 hides a sprite, prio 0 skips it.
@@ -118,7 +118,7 @@ always @(posedge clk) begin
         v2       <= 0;
     end else if( hs && !hs_l ) begin
         ly    <= vrender;
-        entry <= 10'd511;
+        entry <= 0;
         v1    <= 0;
         v2    <= 0;
         busy  <= vrender < 9'd240;
@@ -131,8 +131,8 @@ always @(posedge clk) begin
                 scan_cnt <= { entry[8:0], 2'd3 };
                 v1       <= 1;
                 e1       <= entry[8:0];
-                entry    <= entry - 10'd1;
-                if( entry == 10'd0 ) st <= DRAIN;
+                entry    <= entry + 10'd1;
+                if( entry == 10'd511 ) st <= DRAIN;
                 if( v2 && yhit ) begin
                     w_y   <= scan_dout;
                     hit_e <= e2;
@@ -178,8 +178,8 @@ always @(posedge clk) begin
                 st   <= NEXT;
             end
             NEXT: begin
-                if( hit_e == 9'd0 ) busy <= 0;
-                entry <= { 1'b0, hit_e } - 10'd1;
+                if( hit_e == 9'd511 ) busy <= 0;
+                entry <= { 1'b0, hit_e } + 10'd1;
                 st    <= SCAN;
             end
             default: st <= SCAN;

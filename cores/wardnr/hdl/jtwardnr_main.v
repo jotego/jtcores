@@ -82,7 +82,7 @@ wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, irq_n;
 wire        cpu_cen, mreq, iorq, rd, wr, io_wr, io_rd;
 wire [15:0] A;
 wire [ 7:0] port;
-reg  [ 7:0] cpu_din, dipsw_a, dipsw_b, joy1, joy2, cab_sys, coin_ctl;
+reg  [ 7:0] cpu_din, dipsw_a, dipsw_b, joy1, joy2, cab_sys, cab_dout, coin_ctl;
 reg  [ 2:0] bank;
 reg         ram_view, int_en;
 reg         work_cs, obj_cs, pal_cs, shr_cs, bank_cs, txscr_cs, bgscr_cs, fgscr_cs;
@@ -141,6 +141,20 @@ always @(posedge clk) begin
     joy1    <= ~{ 2'b11, joystick1[5:0] };
     joy2    <= ~{ 2'b11, joystick2[5:0] };
     cab_sys <= ~{ 1'b1, cab_1p[1], cab_1p[0], coin[1], coin[0], dip_test, tilt, service };
+    case( port )
+        8'h50:   cab_dout <= dipsw_a;
+        8'h52:   cab_dout <= dipsw_b;
+        8'h54:   cab_dout <= joy1;
+        8'h56:   cab_dout <= joy2;
+        8'h58:   cab_dout <= { ~LVBL, cab_sys[6:0] };
+        8'h60:   cab_dout <= txram_dout[ 7:0];
+        8'h61:   cab_dout <= txram_dout[15:8];
+        8'h62:   cab_dout <= bgram_dout[ 7:0];
+        8'h63:   cab_dout <= bgram_dout[15:8];
+        8'h64:   cab_dout <= fgram_dout[ 7:0];
+        8'h65:   cab_dout <= fgram_dout[15:8];
+        default: cab_dout <= 8'hff;
+    endcase
 end
 
 always @* begin
@@ -150,20 +164,7 @@ always @* begin
         obj_cs && ram_view: cpu_din = A[0] ? objram_dout[15:8] : objram_dout[7:0];
         pal_cs && ram_view: cpu_din = A[0] ? palram_dout[15:8] : palram_dout[7:0];
         shr_cs && ram_view: cpu_din = shared_dout;
-        io_rd: case( port )
-            8'h50:   cpu_din = dipsw_a;
-            8'h52:   cpu_din = dipsw_b;
-            8'h54:   cpu_din = joy1;
-            8'h56:   cpu_din = joy2;
-            8'h58:   cpu_din = { ~LVBL, cab_sys[6:0] };
-            8'h60:   cpu_din = txram_dout[ 7:0];
-            8'h61:   cpu_din = txram_dout[15:8];
-            8'h62:   cpu_din = bgram_dout[ 7:0];
-            8'h63:   cpu_din = bgram_dout[15:8];
-            8'h64:   cpu_din = fgram_dout[ 7:0];
-            8'h65:   cpu_din = fgram_dout[15:8];
-            default: cpu_din = 8'hff;
-        endcase
+        io_rd:              cpu_din = cab_dout;
         default:            cpu_din = 8'hff;
     endcase
 end
