@@ -62,8 +62,8 @@ assign ioctl_din = &ioctl_addr[6:4] ? ioctl_misc : ioctl_video;
 
 `ifndef NOMAIN
 jtsysfl_main u_main(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
+    .rst        ( rst48         ),
+    .clk        ( clk48         ),
     .cpu_cen    ( cpu_cen       ),
     .lvbl       ( LVBL          ),
     .hs         ( HS            ),
@@ -173,8 +173,8 @@ jtsysfl_header u_header(
 `ifdef C75_STUB
 // TEMPORARY C75 stub, kept for A/B debugging, see jtsysfl_main.v
 jtsysfl_c75stub u_c75stub(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
+    .rst        ( rst48         ),
+    .clk        ( clk48         ),
     .lvbl       ( LVBL          ),
     .mcu_addr   ( mcu_addr      ),
     .mcu_din    ( mcu_din       ),
@@ -191,8 +191,8 @@ assign sample       = 0;
 `else
 // real C75 (M37702 + BIOS) + C352
 jtsysfl_c75 u_c75(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
+    .rst        ( rst48         ),
+    .clk        ( clk48         ),
     .xin_cen    ( xin_cen       ),
     .c352_cen   ( c352_cen      ),
     .lvbl       ( LVBL          ),
@@ -273,8 +273,8 @@ assign cpu_halted = 0;
 `endif
 
 jtsysfl_misc_mmr #(.SEEK('h70)) u_misc(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
+    .rst        ( rst48         ),
+    .clk        ( clk48         ),
     .cs         ( misc_cs       ),
     .addr       ( misc_a        ),
     .rnw        ( 1'b0          ), // write-only from the CPU
@@ -287,10 +287,19 @@ jtsysfl_misc_mmr #(.SEEK('h70)) u_misc(
     .st_dout    (               )
 );
 
+// jtframe generates pxl_cen on the 96 MHz clock; cross it for the 48 side
+wire pxl_cen48;
+jtframe_crossclk_cen u_cenx(
+    .clk_in     ( clk           ),
+    .cen_in     ( pxl_cen       ),
+    .clk_out    ( clk48         ),
+    .cen_out    ( pxl_cen48    )
+);
+
 jtsysfl_video u_video(
-    .rst        ( rst           ),
-    .clk        ( clk           ),
-    .pxl_cen    ( pxl_cen       ),
+    .rst        ( rst48         ),
+    .clk        ( clk48         ),
+    .pxl_cen    ( pxl_cen48     ),
     .ioctl_ram  ( ioctl_ram     ),
 
     .lhbl       ( LHBL          ),

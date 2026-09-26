@@ -11,7 +11,7 @@ params:
 download:
   pre_addr: true   # weaves the raw ROZ texel+mask stream into 8-byte units
 clocks:
-  clk:
+  clk48:
     # i960KA-20 at 48*5/12 = 20 MHz, minimum 2-clock cen spacing. The C75
     # handshake needs the main loop to iterate several times per frame:
     # check CPUSTAT idle time if this ever changes

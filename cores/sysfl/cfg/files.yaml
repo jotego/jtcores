@@ -31,6 +31,9 @@ sysfl:
       - jt960_muldiv.sv
       - jt960_rcache.sv
 jtframe:
+  - from: clocking
+    get:
+      - jtframe_crossclk_cen.v
   - from: ram
     get:
       - jtframe_obj_buffer.v

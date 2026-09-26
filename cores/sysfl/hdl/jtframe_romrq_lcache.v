@@ -38,6 +38,8 @@ localparam CACHE_AW      = $clog2(CACHE_SIZE);
 // the 4kB caches serve scattered minified sampling (roz): short single-burst
 // lines halve the miss round trip there; 16-byte lines stay for the 1kB slots
 localparam LINE2X        = (DW==32 && BURSTLEN==64 && CACHE_SIZE<4096) ? 1 : 0;
+// LINE2X keeps combinational tags; the tag cone is short enough at 96 MHz
+localparam TAG_EFF       = LINE2X==1 ? 0 : TAG_RAM;
 localparam BURST_AW      = BURSTLEN == 128 ? 3 : BURSTLEN == 64 ? 2 : (BURSTLEN == 32 ? 1 : 0);
 localparam LINE_AW       = BURST_AW + LINE2X;
 localparam LINE_INDEX_AW = CACHE_AW-1-LINE_AW;
@@ -87,7 +89,7 @@ assign cache_data_match = line_index == read_line_l && tag == read_tag_l;
 assign fill_data_match = read_line_l == fill_line && read_tag_l == fill_tag;
 wire fill2_req    = LINE2X==1 && filling && fill_half && !receiving && fill_beat==0;
 assign req        = fill2_req ||
-                    (TAG_RAM ? addr_ok_l && !hit && !(fill_ok && fill_data_match) && !filling :
+                    (TAG_EFF ? addr_ok_l && !hit && !(fill_ok && fill_data_match) && !filling :
                                addr_ok && !hit && !filling);
 // A lower-priority slot can remain pending while the client advances to its
 // next address. Keep the SDRAM address paired with the tag and line captured
@@ -95,11 +97,11 @@ assign req        = fill2_req ||
 wire [LINE_AW-1:0] line_lo = fill_half ? {1'b1,{BURST_AW{1'b0}}} : {LINE_AW{1'b0}};
 assign sdram_addr = (LINE2X==1 && filling) ? { fill_tag, fill_line, line_lo } :
                     req_pending ? { req_tag, req_line, {LINE_AW{1'b0}} } :
-                    TAG_RAM ? { read_tag_l, read_line_l, {LINE_AW{1'b0}} } : line_addr;
+                    TAG_EFF ? { read_tag_l, read_line_l, {LINE_AW{1'b0}} } : line_addr;
 // the fill fast path must be address-exact: a client may move to another
 // line while a fill completes (e.g. the shared scr tile+mask port)
 wire fill_addr_match = line_index == fill_line && tag == fill_tag;
-assign data_ok    = TAG_RAM ? addr_ok_l && !filling &&
+assign data_ok    = TAG_EFF ? addr_ok_l && !filling &&
                               (tag_data_ok ||
                                (fill_ok && fill_data_match)) :
                             addr_ok && hit && !filling &&
@@ -107,9 +109,9 @@ assign data_ok    = TAG_RAM ? addr_ok_l && !filling &&
                                (hit_l && cache_data_match));
 assign fill_write = we && (dst || receiving);
 assign fill_done  = fill_write && din_ok;
-assign pre_dout   = fill_ok && (TAG_RAM ? fill_data_match : fill_addr_match)
+assign pre_dout   = fill_ok && (TAG_EFF ? fill_data_match : fill_addr_match)
                     ? fill_data[LINEW-1:0] : cache_data;
-assign read_addr  = TAG_RAM ? read_addr_l : addr;
+assign read_addr  = TAG_EFF ? read_addr_l : addr;
 
 jtframe_rpwp_ram #(.DW(LINEW),.AW(LINE_INDEX_AW)) u_ram(
     .clk     ( clk        ),
@@ -131,7 +133,7 @@ generate
 endgenerate
 
 generate
-    if( TAG_RAM ) begin : gen_tag_ram
+    if( TAG_EFF ) begin : gen_tag_ram
         wire [SDRAMW-CACHE_AW:0] tag_q1_unused;
         wire [SDRAMW-CACHE_AW:0] tag_q;
 
@@ -262,7 +264,7 @@ always @(posedge clk) begin
         burst_acc <= 0;
         valid     <= 0;
     end else begin
-        hit_l <= hit && (TAG_RAM ? addr_ok_l : addr_ok) && !filling;
+        hit_l <= hit && (TAG_EFF ? addr_ok_l : addr_ok) && !filling;
         fill_ok <= line_done;
         read_line_l <= line_index;
         read_tag_l  <= tag;
@@ -272,8 +274,8 @@ always @(posedge clk) begin
         // A slot may select this request after the client changes address.
         if( req && !req_pending && !filling ) begin
             req_pending <= 1;
-            req_line    <= TAG_RAM ? read_line_l : line_index;
-            req_tag     <= TAG_RAM ? read_tag_l  : tag;
+            req_line    <= TAG_EFF ? read_line_l : line_index;
+            req_tag     <= TAG_EFF ? read_tag_l  : tag;
         end
         if( clr ) valid <= 0;
         if( we && !filling ) begin
@@ -317,8 +319,8 @@ initial begin
         $error("%m BURSTLEN must be at least the client data width");
     if( CACHE_SIZE < 1024 || (CACHE_SIZE & (CACHE_SIZE-1)) != 0 )
         $error("%m CACHE_SIZE must be a power of two and at least 1kB");
-    if( LINE2X == 1 && TAG_RAM == 1 )
-        $error("%m LINE2X does not support TAG_RAM");
+    if( LINE2X == 1 && TAG_EFF == 1 ) // unreachable: TAG_EFF demotes
+        $error("%m LINE2X does not support TAG_EFF");
 end
 `endif
 
