@@ -186,8 +186,6 @@ jtwardnr_video u_video(
     .LHBL       ( LHBL              ),
     .HS         ( HS                ),
     .VS         ( VS                ),
-    .hdump      (                   ),
-    .vdump      (                   ),
     .red        ( red               ),
     .green      ( green             ),
     .blue       ( blue              )

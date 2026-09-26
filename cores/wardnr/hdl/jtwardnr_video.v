@@ -37,19 +37,19 @@ module jtwardnr_video(
     input      [15:0] objscan_dout,
 
     // graphics ROMs: one 8-pixel row per 32-bit word, a byte per plane
-    output     [13:0] char_addr,
+    output     [15:2] char_addr,
     input      [31:0] char_data,
     output            char_cs,
     input             char_ok,
-    output     [15:0] fg_addr,
+    output     [17:2] fg_addr,
     input      [31:0] fg_data,
     output            fg_cs,
     input             fg_ok,
-    output     [14:0] bg_addr,
+    output     [16:2] bg_addr,
     input      [31:0] bg_data,
     output            bg_cs,
     input             bg_ok,
-    output     [15:0] obj_addr,
+    output     [17:2] obj_addr,
     input      [31:0] obj_data,
     output            obj_cs,
     input             obj_ok,
@@ -58,25 +58,21 @@ module jtwardnr_video(
     output            LHBL,
     output            HS,
     output            VS,
-    output     [ 8:0] hdump,
-    output     [ 8:0] vdump,
     output     [ 4:0] red,
     output     [ 4:0] green,
     output     [ 4:0] blue
 );
 
-wire [ 8:0] vrender, vrender1, heff, tx_pxl;
+wire [ 8:0] vrender, vrender1, heff, tx_pxl, hdump, vdump;
 wire [ 7:0] bg_pxl, fg_pxl;
 wire [11:0] bg_vaddr_lo, obj_pxl;
 wire [14:0] fg_rom_addr;
-wire        Hinit, Vinit;
 
 // the tile engines start 16 counts before the visible line
 assign heff = hdump >= 9'd430 ? hdump - 9'd446 : hdump;
 
 assign bg_vaddr = { bg_bank, bg_vaddr_lo };
-// Wardner's foreground ROM has no second bank
-assign fg_addr  = { 1'b0, fg_rom_addr };
+assign fg_addr  = {    1'b0, fg_rom_addr };
 
 jtframe_vtimer #(
     .HB_START   ( 9'd319            ),
@@ -96,8 +92,8 @@ jtframe_vtimer #(
     .vrender    ( vrender           ),
     .vrender1   ( vrender1          ),
     .H          ( hdump             ),
-    .Hinit      ( Hinit             ),
-    .Vinit      ( Vinit             ),
+    .Hinit      (                   ),
+    .Vinit      (                   ),
     .LHBL       ( LHBL              ),
     .LVBL       ( LVBL              ),
     .HS         ( HS                ),
