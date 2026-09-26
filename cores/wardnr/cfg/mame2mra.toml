@@ -29,7 +29,7 @@ regions = [
     # fills each 16-bit word low byte first (jtframe_bram_rom drives we_lower
     # from prog_mask[0]), so the region has to be byte swapped on the way in.
     # Without this the DSP executes every instruction byte-reversed.
-    { name="dsp:dsp",  rename="dsp", start="DSP_START", width=16, reverse=true },
+    { name="dsp",      start="DSP_START", width=16, reverse=true },
     # the text layer is 3bpp; the fourth byte is never read by the video
     # module, so the last plane is repeated rather than padded
     { name="chars",    width=32, start="JTFRAME_BA2_START", sequence=[0,1,2,2] },
