@@ -101,20 +101,6 @@ localparam BURSTLEN=(BA0_LEN>32 || BA1_LEN>32 ||BA2_LEN>32 ||BA3_LEN>32) ? 64 :(
 
 localparam LATCH = HF==1;
 
-// slow-grade SDRAM (tRP=tRCD=20ns) needs two-cycle command spacing when the
-// LF clock period is under 20ns; derived from the base clock, opt-in per core
-`ifdef JTFRAME_SDRAM_TRP20
-    `ifdef JTFRAME_MCLK
-localparam MCLK_MHZ = `JTFRAME_MCLK/1_000_000;
-    `else
-localparam MCLK_MHZ = 48;
-    `endif
-localparam TRP_CYC = (20*MCLK_MHZ+999)/1000;
-localparam LF_WAIT = (HF==0 && TRP_CYC>1) ? TRP_CYC-1 : 0;
-`else
-localparam LF_WAIT = 0;
-`endif
-
 //                             /CS /RAS /CAS /WE
 localparam CMD_LOAD_MODE   = 4'b0___0____0____0, // 0
            CMD_REFRESH     = 4'b0___0____0____1, // 1
@@ -186,12 +172,7 @@ assign mask_mux = prog_en ? prog_dsn :
 `endif
 
 `ifndef VERILATOR
-`ifdef JTFRAME_SDRAM_TRP20
-(* altera_attribute="-name FAST_OUTPUT_REGISTER ON; -name FAST_OUTPUT_ENABLE_REGISTER ON" *)
 reg  [15:0] dq_pad;
-`else
-reg  [15:0] dq_pad;
-`endif
 assign sdram_dq = dq_pad;
 `endif
 
@@ -310,8 +291,7 @@ jtframe_sdram64_bank #(
     // The programmer always precharges all banks
     // at the beginning of the operation
     .AUTOPRECH    ( 1   ),
-    .PRECHARGE_ALL( 1   ),
-    .LF_WAIT      ( LF_WAIT )
+    .PRECHARGE_ALL( 1   )
 ) u_prog(
     .rst        ( prog_rst   ),
     .clk        ( clk        ),
@@ -359,8 +339,7 @@ jtframe_sdram64_bank #(
     .SHIFTED  ( SHIFTED       ),
     .BURSTLEN ( BURSTLEN      ),
     .BALEN    ( BA0_LEN       ),
-    .AUTOPRECH( BA0_AUTOPRECH ),
-    .LF_WAIT  ( LF_WAIT       )
+    .AUTOPRECH( BA0_AUTOPRECH )
 ) u_bank0(
     .rst        ( other_rst  ),
     .clk        ( clk        ),
@@ -408,8 +387,7 @@ jtframe_sdram64_bank #(
     .SHIFTED  ( SHIFTED       ),
     .BURSTLEN ( BURSTLEN      ),
     .BALEN    ( BA1_LEN       ),
-    .AUTOPRECH( BA1_AUTOPRECH ),
-    .LF_WAIT  ( LF_WAIT       )
+    .AUTOPRECH( BA1_AUTOPRECH )
 ) u_bank1(
     .rst        ( other_rst  ),
     .clk        ( clk        ),
@@ -456,8 +434,7 @@ jtframe_sdram64_bank #(
     .SHIFTED  ( SHIFTED       ),
     .BURSTLEN ( BURSTLEN      ),
     .BALEN    ( BA2_LEN       ),
-    .AUTOPRECH( BA2_AUTOPRECH ),
-    .LF_WAIT  ( LF_WAIT       )
+    .AUTOPRECH( BA2_AUTOPRECH )
 ) u_bank2(
     .rst        ( other_rst  ),
     .clk        ( clk        ),
@@ -504,8 +481,7 @@ jtframe_sdram64_bank #(
     .SHIFTED  ( SHIFTED       ),
     .BURSTLEN ( BURSTLEN      ),
     .BALEN    ( BA3_LEN       ),
-    .AUTOPRECH( BA3_AUTOPRECH ),
-    .LF_WAIT  ( LF_WAIT       )
+    .AUTOPRECH( BA3_AUTOPRECH )
 ) u_bank3(
     .rst        ( other_rst  ),
     .clk        ( clk        ),

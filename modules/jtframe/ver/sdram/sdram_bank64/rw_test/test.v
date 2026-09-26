@@ -245,35 +245,6 @@ jtframe_sdram64 #(
     .dout       ( dout          )
 );
 
-// command-spacing check: PRECHARGE->ACTIVE (tRP) and ACTIVE->READ/WRITE (tRCD)
-// per bank, in clock cycles. MINSPC=2 exercises the JTFRAME_SDRAM_TRP20 mode.
-`ifndef MINSPC
-`define MINSPC 1
-`endif
-wire [3:0] chk_cmd = {sdram_ncs, sdram_nras, sdram_ncas, sdram_nwe};
-integer    pre_t[0:3], act_t[0:3], now_t;
-initial begin now_t=0; for(now_t=0;now_t<4;now_t=now_t+1) begin pre_t[now_t]=-100; act_t[now_t]=-100; end now_t=0; end
-always @(posedge clk) if(!init) begin
-    now_t = now_t+1;
-    case( chk_cmd )
-        4'b0010: if( sdram_a[10] ) begin // precharge all
-            pre_t[0]=now_t; pre_t[1]=now_t; pre_t[2]=now_t; pre_t[3]=now_t;
-        end else pre_t[sdram_ba] = now_t;
-        4'b0011: begin
-            if( now_t-pre_t[sdram_ba] < `MINSPC ) begin
-                $display("FAIL: tRP %0d cycles on bank %0d", now_t-pre_t[sdram_ba], sdram_ba);
-                $finish;
-            end
-            act_t[sdram_ba] = now_t;
-        end
-        4'b0101, 4'b0100: if( now_t-act_t[sdram_ba] < `MINSPC ) begin
-            $display("FAIL: tRCD %0d cycles on bank %0d (cmd %b)", now_t-act_t[sdram_ba], sdram_ba, chk_cmd);
-            $finish;
-        end
-        default:;
-    endcase
-end
-
 reg clk_sdram;
 
 initial begin
