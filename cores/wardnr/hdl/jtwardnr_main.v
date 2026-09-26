@@ -76,7 +76,7 @@ module jtwardnr_main(
     input      [ 1:0] coin,
     input             service,
     input             tilt,
-    input             dip_test
+    input             dip_test, dip_pause
 );
 
 wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n, irq_n;
@@ -260,12 +260,12 @@ jtwardnr_scroll_mmr u_fgscr(
     .st_dout    (           )
 );
 
-// vertical blanking raises the interrupt while it is enabled; only clearing
-// the enable drops it
+wire vbl_g = ~LVBL & dip_pause;
+
 jtframe_edge #(.QSET(0)) u_irq(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .edgeof     ( ~LVBL     ),
+    .edgeof     ( vbl_g     ),
     .clr        ( ~int_en   ),
     .q          ( irq_n     )
 );

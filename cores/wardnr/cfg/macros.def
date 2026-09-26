@@ -21,14 +21,10 @@ JTFRAME_PROM_START=0x0D9000
 JTFRAME_IOCTL_RD=4096
 
 [mister]
-JTFRAME_ARX=4
-JTFRAME_ARY=3
 JTFRAME_PLL=jtframe_pll7000
-# jtframe_pll7000's SDRAM clock output is at 45 degrees, as in cps3
 JTFRAME_180SHIFT
 
 [sidi128]
 JTFRAME_PLL=jtframe_pll6125
 
-[mist|sidi]
-JTFRAME_SKIP
+

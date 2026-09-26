@@ -98,7 +98,6 @@ always @(posedge clk) begin
     end
 end
 
-// the y word read two clocks earlier is tested while the scan moves on
 always @(posedge clk) begin
     hs_l <= hs;
     draw <= 0;
@@ -188,7 +187,6 @@ always @(posedge clk) begin
     end
 end
 
-// HFIX off: hdump wraps at the end of blanking, not near HS
 jtframe_objdraw #(
     .CW         ( 11                    ),
     .PW         ( 12                    ),
