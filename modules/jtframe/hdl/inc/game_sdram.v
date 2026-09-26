@@ -580,7 +580,7 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}
     .SIMFILE("{{$bus.Name}}.bin"){{else}}{{end}}
 ) u_bram_{{$bus.Name}}(
     // Port 0 - {{$bus.Name}}
-    .clk0   ( clk ),
+    .clk0   ( {{if $bus.Clk48}}clk48{{else}}clk{{end}} ),
     .addr0  ( {{$bus.Addr}} ),{{ if $bus.Rw }}
     .data0  ( {{$bus.Din}}  ),
     .we0    ( {{ if $bus.We }} {{$bus.We}}{{else}}{{$bus.Name}}_we{{end}} ), {{ else }}
@@ -588,7 +588,7 @@ jtframe_dual_ram{{ if eq $bus.Data_width 16 }}16{{else if eq $bus.Data_width 32}
     .we0    ( {{ printf "%d'd0" (div $bus.Data_width 8) }} ),{{end}}
     .q0     ( {{$bus.Name}}_dout ),
     // Port 1 - {{$bus.Dual_port.Name}}
-    .clk1   ( clk ),
+    .clk1   ( {{if $bus.Clk48}}clk48{{else}}clk{{end}} ),
     .data1  ( {{if $bus.Dual_port.Din}}{{$bus.Dual_port.Din}}{{else}}{{$bus.Dual_port.Name}}_dout{{end}} ),
     .addr1  ( {{$bus.Dual_port.AddrFull}} ),
     .we1    ( {{if $bus.Dual_port.We}}{{$bus.Dual_port.We}}{{else}}{{$bus.Dual_port.Name}}_we{{end}}  ),

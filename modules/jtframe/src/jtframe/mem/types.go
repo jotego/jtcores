@@ -49,6 +49,7 @@ type BRAMBus struct {
 	Rw         bool          `yaml:"rw"`
 	We         string        `yaml:"we"`
 	Latch      string        `yaml:"latch"`
+	Clk48      bool          `yaml:"clk48"` // clock both ports from clk48 (JTFRAME_CLK48 designs)
 	Addr       string        `yaml:"addr"`
 	Din        string        `yaml:"din"`  // optional name for din signal
 	Dout       string        `yaml:"dout"` // optional name for dout signal
@@ -421,6 +422,7 @@ func (bus *BRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error)
 		Rw         bool          `yaml:"rw"`
 		We         string        `yaml:"we"`
 		Latch      string        `yaml:"latch"`
+		Clk48      bool          `yaml:"clk48"`
 		Addr       string        `yaml:"addr"`
 		Din        string        `yaml:"din"`
 		Dout       string        `yaml:"dout"`
@@ -444,7 +446,7 @@ func (bus *BRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error)
 	err = common.Validator{
 		Context: "BRAM bus",
 		Valid: []string{"when", "unless", "name", "size", "addr_width", "data_width", "rw", "we", "latch",
-			"addr", "din", "dout", "simfile", "prom", "ioctl", "dual_port", "rom"},
+			"addr", "din", "dout", "simfile", "prom", "ioctl", "dual_port", "rom", "clk48"},
 	}.Validate(unmarshal)
 	if err != nil {
 		return err
@@ -462,6 +464,7 @@ func (bus *BRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error)
 	bus.Rw = aux.Rw
 	bus.We = aux.We
 	bus.Latch = aux.Latch
+	bus.Clk48 = aux.Clk48
 	bus.Addr = aux.Addr
 	bus.Din = aux.Din
 	bus.Dout = aux.Dout
