@@ -36,10 +36,6 @@ module jtwardnr_video(
     output     [11:1] objscan_addr,
     input      [15:0] objscan_q,
 
-    input             ioctl_ram,
-    input      [11:0] ioctl_addr,
-    output     [ 7:0] ioctl_din,
-
     // graphics ROMs: one 8-pixel row per 32-bit word, a byte per plane
     output     [13:0] char_addr,
     input      [31:0] char_data,
@@ -205,9 +201,6 @@ jtwardnr_colmix u_colmix(
     .obj_pxl    ( obj_pxl           ),
     .pal_vaddr  ( pal_vaddr         ),
     .pal_vq     ( pal_vq            ),
-    .ioctl_ram  ( ioctl_ram         ),
-    .ioctl_addr ( ioctl_addr        ),
-    .ioctl_din  ( ioctl_din         ),
     .red        ( red               ),
     .green      ( green             ),
     .blue       ( blue              )

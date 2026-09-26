@@ -13,7 +13,6 @@ wire [15:0] txoffs, bgoffs, fgoffs;
 wire [15:0] dsp_dout, dsp_din, fg_full_addr;
 wire [13:1] dsp_addr;
 wire [11:0] dsp_rom_addr;
-wire [ 7:0] pal_ioctl_din;
 wire [ 1:0] dsp_sel;
 wire [ 2:0] scr_cs, scr_addr;
 wire        dsp_on, dsp_halt, dsp_we, sample;
@@ -26,9 +25,6 @@ assign pxl2_cen    = cen14;
 assign dsprom_addr = dsp_rom_addr[10:0];
 assign fg_addr     = fg_full_addr[14:0];
 assign debug_view  = { 4'd0, dsp_halt, dsp_on, flip, video_on };
-`ifdef JTFRAME_IOCTL_RD
-assign ioctl_din   = pal_ioctl_din;
-`endif
 
 /* verilator tracing_off */
 jtwardnr_main u_main(
@@ -173,10 +169,6 @@ jtwardnr_video u_video(
     .objcpy_we  ( objcpy_we         ),
     .objscan_addr( objscan_addr     ),
     .objscan_q  ( objscan_q         ),
-
-    .ioctl_ram  ( ioctl_ram         ),
-    .ioctl_addr ( ioctl_addr[11:0]  ),
-    .ioctl_din  ( pal_ioctl_din     ),
 
     .char_addr  ( char_addr         ),
     .char_data  ( char_data         ),
