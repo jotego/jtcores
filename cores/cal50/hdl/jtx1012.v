@@ -58,6 +58,7 @@ always @(posedge clk) begin
     hpos <= flip ? pre_hpos + 16'h20 : 16'h1e1 - pre_hpos;
 end
 
+
 always @(posedge clk) begin
     attr <= ~attr;
     if(attr) begin
