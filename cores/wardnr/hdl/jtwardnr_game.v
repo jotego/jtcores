@@ -15,7 +15,7 @@ wire [13:1] dsp_addr;
 wire [11:0] dsp_rom_addr;
 wire [ 1:0] dsp_sel;
 wire [ 2:0] scr_cs, scr_addr;
-wire        dsp_on, dsp_halt, dsp_we, sample;
+wire        dsp_on, dsp_halt, dsp_we;
 wire        flip, bg_bank, fg_bank, video_on;
 
 assign dip_flip    = flip;
@@ -129,12 +129,7 @@ jtwardnr_sound u_sound(
     .ram_we     ( sndram_we         ),
     .ram_dout   ( sndram_dout       ),
 
-    .wram_addr  ( sndwram_addr      ),
-    .wram_we    ( sndwram_we        ),
-    .wram_dout  ( sndwram_dout      ),
-
-    .snd        ( fm                ),
-    .sample     ( sample            )
+    .snd        ( fm                )
 );
 
 /* verilator tracing_on */

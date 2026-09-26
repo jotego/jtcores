@@ -94,14 +94,6 @@ bram:
     din: shr_dout
     dout: sndram_dout
     we: sndram_we
-  - name: sndwram
-    addr_width: 11
-    data_width: 8
-    rw: true
-    addr: sndwram_addr
-    din: shr_dout
-    dout: sndwram_dout
-    we: sndwram_we
   - name: txram
     addr_width: 12
     data_width: 16

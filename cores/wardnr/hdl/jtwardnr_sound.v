@@ -30,17 +30,12 @@ module jtwardnr_sound(
     output            ram_we,
     input      [ 7:0] ram_dout,
 
-    output     [10:0] wram_addr,
-    output            wram_we,
-    input      [ 7:0] wram_dout,
-
-    output signed [15:0] snd,
-    output               sample
+    output signed [15:0] snd
 );
 
 wire        m1_n, mreq_n, iorq_n, rd_n, wr_n, rfsh_n;
 wire [15:0] A;
-wire [ 7:0] fm_dout;
+wire [ 7:0] fm_dout, wram_dout;
 wire        fm_irq_n, mreq, iorq, rd, wr;
 reg  [ 7:0] cpu_din;
 reg         ram_cs, shr_cs, wram_cs, fm_cs;
@@ -52,10 +47,8 @@ assign iorq      = ~iorq_n & m1_n;
 assign rom_addr  = A[14:0];
 assign shr_addr  = A[10:0];
 assign ram_addr  = A[6:0];
-assign wram_addr = A[10:0];
 assign shr_we    = shr_cs  & wr;
 assign ram_we    = ram_cs  & wr;
-assign wram_we   = wram_cs & wr;
 
 always @* begin
     rom_cs  = mreq && !A[15] && rd;
@@ -87,14 +80,14 @@ jtopl2 u_opl(
     .dout   ( fm_dout   ),
     .irq_n  ( fm_irq_n  ),
     .snd    ( snd       ),
-    .sample ( sample    )
+    .sample (           )
 );
 
-jtframe_z80 u_cpu(
+jtframe_sysz80 #(.RAM_AW(11)) u_cpu(
     .rst_n      ( ~rst                  ),
     .clk        ( clk                   ),
     .cen        ( cen3p5                ),
-    .wait_n     ( ~(rom_cs & ~rom_ok)   ),
+    .cpu_cen    (                       ),
     .int_n      ( fm_irq_n              ),
     .nmi_n      ( 1'b1                  ),
     .busrq_n    ( 1'b1                  ),
@@ -107,8 +100,12 @@ jtframe_z80 u_cpu(
     .halt_n     (                       ),
     .busak_n    (                       ),
     .A          ( A                     ),
-    .din        ( cpu_din               ),
-    .dout       ( shr_dout              )
+    .cpu_din    ( cpu_din               ),
+    .cpu_dout   ( shr_dout              ),
+    .ram_dout   ( wram_dout             ),
+    .ram_cs     ( wram_cs              ),
+    .rom_cs     ( rom_cs               ),
+    .rom_ok     ( rom_ok               )
 );
 
 endmodule
