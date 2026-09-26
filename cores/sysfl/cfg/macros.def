@@ -41,8 +41,6 @@ JTFRAME_BA3_START=0x1600000
 SSH_START=0x1A00000
 # 64-bit bursts for the sprite ROM, 8 pixels per fetch
 
-# slow-grade (-75) SDRAM: 20ns tRP/tRCD command spacing above 50 MHz
-JTFRAME_SDRAM_TRP20
 JTFRAME_BA1_LEN=64
 # 64-bit bursts on bank 0 so one burst fills an 8-byte woven roz unit
 JTFRAME_BA0_LEN=64
