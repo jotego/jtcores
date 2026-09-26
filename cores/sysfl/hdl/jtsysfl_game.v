@@ -71,20 +71,20 @@ jtsysfl_main u_main(
     // program + data ROM
     .main_addr  ( main_addr     ),
     .main_cs    ( main_cs       ),
-    .main_ok    ( main_ok       ),
-    .main_data  ( main_data     ),
+    .main_ok    ( main_ok48     ),
+    .main_data  ( main_d48      ),
     // work RAM
     .wram_addr  ( wram_addr     ),
     .wram_cs    ( wram_cs       ),
     .wram_we    ( wram_we       ),
     .wram_din   ( wram_din      ),
     .wram_dsn   ( wram_dsn      ),
-    .wram_ok    ( wram_ok       ),
-    .wram_data  ( wram_data     ),
+    .wram_ok    ( wram_ok48     ),
+    .wram_data  ( wram_d48      ),
     .wram32_addr( wram32_addr   ),
     .wram32_cs  ( wram32_cs     ),
-    .wram32_ok  ( wram32_ok     ),
-    .wram32_data( wram32_data   ),
+    .wram32_ok  ( wram32_ok48   ),
+    .wram32_data( wram32_d48    ),
     // BRAMs
     .cvram_addr ( cvram_addr    ),
     .cvram_din  ( cvram_din     ),
@@ -212,12 +212,12 @@ jtsysfl_c75 u_c75(
     .bios_data  ( c75bios_data  ),
     .mcurom_addr( mcurom_addr   ),
     .mcurom_cs  ( mcurom_cs     ),
-    .mcurom_data( mcurom_data   ),
-    .mcurom_ok  ( mcurom_ok     ),
+    .mcurom_data( mcurom_d48    ),
+    .mcurom_ok  ( mcurom_ok48   ),
     .pcm_addr   ( pcm_addr      ),
     .pcm_cs     ( pcm_cs        ),
-    .pcm_data   ( pcm_data      ),
-    .pcm_ok     ( pcm_ok        ),
+    .pcm_data   ( pcm_d48       ),
+    .pcm_ok     ( pcm_ok48      ),
     .snd_l      ( snd_left      ),
     .snd_r      ( snd_right     ),
     .sample     ( sample        ),
@@ -287,6 +287,29 @@ jtsysfl_misc_mmr #(.SEEK('h70)) u_misc(
     .st_dout    (               )
 );
 
+
+// SDRAM slots run at 96 MHz; re-register every dout/ok pair on clk48 so the
+// 96->48 paths end in a short boundary cone (the rungun ram_ok pattern)
+reg [31:0] main_d48;   reg main_ok48;
+reg [15:0] wram_d48;   reg wram_ok48;
+reg [31:0] wram32_d48; reg wram32_ok48;
+reg [15:0] mcurom_d48; reg mcurom_ok48;
+reg [ 7:0] pcm_d48;    reg pcm_ok48;
+reg [63:0] scr_d48;    reg scr_ok48;
+reg [63:0] roz_d48;    reg roz_ok48;
+reg [31:0] objrom_d48; reg objrom_ok48;
+
+always @(posedge clk48) begin
+    main_d48   <= main_data;   main_ok48   <= main_ok;
+    wram_d48   <= wram_data;   wram_ok48   <= wram_ok;
+    wram32_d48 <= wram32_data; wram32_ok48 <= wram32_ok;
+    mcurom_d48 <= mcurom_data; mcurom_ok48 <= mcurom_ok;
+    pcm_d48    <= pcm_data;    pcm_ok48    <= pcm_ok;
+    scr_d48    <= scr_data;    scr_ok48    <= scr_ok;
+    roz_d48    <= roz_data;    roz_ok48    <= roz_ok;
+    objrom_d48 <= objrom_data; objrom_ok48 <= objrom_ok;
+end
+
 // jtframe generates pxl_cen on the 96 MHz clock; cross it for the 48 side
 wire pxl_cen48;
 jtframe_crossclk_cen u_cenx(
@@ -348,16 +371,16 @@ jtsysfl_video u_video(
 
     .scr_cs     ( scr_cs        ),
     .scr_addr   ( scr_addr      ),
-    .scr_ok     ( scr_ok        ),
-    .scr_data   ( scr_data      ),
+    .scr_ok     ( scr_ok48      ),
+    .scr_data   ( scr_d48       ),
     .roz_cs     ( roz_cs        ),
     .roz_addr   ( roz_addr      ),
-    .roz_ok     ( roz_ok        ),
-    .roz_data   ( roz_data      ),
+    .roz_ok     ( roz_ok48      ),
+    .roz_data   ( roz_d48       ),
     .objrom_cs  ( objrom_cs     ),
     .objrom_addr( objrom_addr   ),
-    .objrom_ok  ( objrom_ok     ),
-    .objrom_data( objrom_data   ),
+    .objrom_ok  ( objrom_ok48   ),
+    .objrom_data( objrom_d48    ),
 
     .red        ( red           ),
     .green      ( green         ),
