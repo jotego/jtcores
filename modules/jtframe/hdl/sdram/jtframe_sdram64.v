@@ -171,16 +171,6 @@ assign {next_ba, next_cmd, next_a } =
                        bg[1] ? { 2'd1, bx1_cmd, bx1_a } :
                                { 2'd0, bx0_cmd, bx0_a } )))));
 
-// same select chain as next_cmd with the ACTIVE compare factored to the
-// sources, so it resolves in parallel with the grant tree
-wire nx_act =           init ? init_cmd==CMD_ACTIVE : (
-                      rfshing? rfsh_cmd==CMD_ACTIVE : (
-                      prog_en? pre_cmd ==CMD_ACTIVE : (
-                       bg[3] ? bx3_cmd ==CMD_ACTIVE : (
-                       bg[2] ? bx2_cmd ==CMD_ACTIVE : (
-                       bg[1] ? bx1_cmd ==CMD_ACTIVE :
-                               bx0_cmd ==CMD_ACTIVE )))));
-
 assign prio     = prio_lfsr[1:0];
 assign mask_mux = prog_en ? prog_dsn :
                   (bg[3] && BA3_WEN) ? ba3_dsn :
@@ -241,7 +231,7 @@ always @(posedge clk) begin
     sdram_din <= prog_en ? prog_din : din;
 `endif
     if( MISTER ) begin
-        if( nx_act )
+        if( next_cmd==CMD_ACTIVE )
             sdram_a[12:11] <= next_a[12:11];
         else
             sdram_a[12:11] <= wr_cycle ? mask_mux : 2'd0;
