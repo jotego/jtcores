@@ -15,9 +15,10 @@ JTFRAME_NOHQ2X
 # Video configuration
 JTFRAME_COLORW=8
 JTFRAME_PXLCLK=6
-# stock 48/96 integer clock tree (no PLL macro); core logic on clk48
-JTFRAME_SDRAM96
-JTFRAME_CLK48
+# integer 60.000 MHz single domain: +25% line budget (3840 clk/line covers
+# every measured cut line); CMDW gives legal SDRAM command spacing
+JTFRAME_PLL=jtframe_pllc6000
+JTFRAME_BASE_MUL=10
 JTFRAME_WIDTH=288
 JTFRAME_HEIGHT=224
 JTFRAME_ARX=4

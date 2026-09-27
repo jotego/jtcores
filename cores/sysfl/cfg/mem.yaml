@@ -9,21 +9,21 @@ params:
   - { name: WRAM_OFFSET,  value: "22'h20_0000" }  # byte 0x400000, bank 1
   - { name: C75DATA_OFFSET, value: "22'h28_0000" } # byte 0x500000, bank 2
 clocks:
-  clk48:
-    # i960KA-20 at 48*5/12 = 20 MHz, minimum 2-clock cen spacing. The C75
+  clk:
+    # i960KA-20 at 60/3 = 20 MHz, strict 3-clock cen spacing. The C75
     # handshake needs the main loop to iterate several times per frame:
     # check CPUSTAT idle time if this ever changes
-    - mul: 5
-      div: 12
+    - mul: 1
+      div: 3
       outputs:
         - cpu_cen
-    # PCB clocks are 48.384 MHz divisions, applied to the stock 48 MHz base
-    - mul: 1
-      div: 3               # C75 XIN (timers, ADC)
+    # PCB clocks are 48.384 MHz divisions, scaled onto the 60 MHz base
+    - mul: 4
+      div: 15              # C75 XIN 16.0 MHz (timers, ADC)
       outputs:
         - xin_cen
-    - mul: 1
-      div: 2               # C352
+    - mul: 2
+      div: 5               # C352 24.0 MHz
       outputs:
         - c352_cen
 sdram:
@@ -81,7 +81,6 @@ sdram:
 bram:
   - name: vram      # 123 tilemaps, 64kB. Primary port: video read
     addr_width: 16
-    clk48: true
     data_width: 16
     simfile: {}
     ioctl: { save: true, order: 0 }
@@ -93,7 +92,6 @@ bram:
       we:   cvram_we
   - name: rozram    # C169 tilemap + scanline records, 128kB
     addr_width: 17
-    clk48: true
     data_width: 16
     simfile: {}
     ioctl: { save: true, order: 1 }
@@ -105,7 +103,6 @@ bram:
       we:   crozram_we
   - name: oram      # C355 sprite tables, 128kB
     addr_width: 17
-    clk48: true
     data_width: 16
     rw: true        # vblank DMA snapshots the placement tables into page 1
     din:  oram_din
@@ -120,7 +117,6 @@ bram:
       we:   coram_we
   - name: rpal      # C116 palette RAMs, 8kB each. Primary port: video read
     addr_width: 13
-    clk48: true
     data_width: 8
     simfile: {}
     ioctl: { save: true, order: 3 }
@@ -133,7 +129,6 @@ bram:
       dout: rpal_cdout
   - name: gpal
     addr_width: 13
-    clk48: true
     data_width: 8
     simfile: {}
     ioctl: { save: true, order: 4 }
@@ -146,7 +141,6 @@ bram:
       dout: gpal_cdout
   - name: bpal
     addr_width: 13
-    clk48: true
     data_width: 8
     simfile: {}
     ioctl: { save: true, order: 5 }
@@ -159,7 +153,6 @@ bram:
       dout: bpal_cdout
   - name: share     # 32kB CPU-C75 shared RAM at 0x30284000
     addr_width: 15
-    clk48: true
     data_width: 16
     rw: true
     dual_port:

@@ -417,7 +417,7 @@ end
 // 8kB at the 48 MHz base; the real KA has 512B but its zero-wait DRAM
 // cannot be matched by the SDRAM
 `ifndef SYSFL_ICACHE_BLK
-`define SYSFL_ICACHE_BLK 32
+`define SYSFL_ICACHE_BLK 8
 `endif
 jt960 #(.ICACHE_BLK(`SYSFL_ICACHE_BLK)) u_cpu(
     .rst    ( rst       ),
