@@ -10,20 +10,21 @@ params:
   - { name: C75DATA_OFFSET, value: "22'h28_0000" } # byte 0x500000, bank 2
 clocks:
   clk:
-    # i960KA-20 at 60/3 = 20 MHz, strict 3-clock cen spacing. The C75
-    # handshake needs the main loop to iterate several times per frame:
-    # check CPUSTAT idle time if this ever changes
+    # i960KA-20 at 54/3 = 18 MHz, strict 3-clock cen spacing (the CPU
+    # SDC multicycles assume it). The C75 handshake needs the main loop
+    # to iterate several times per frame: check CPUSTAT idle time if
+    # this ever changes
     - mul: 1
       div: 3
       outputs:
         - cpu_cen
-    # PCB clocks are 48.384 MHz divisions, scaled onto the 60 MHz base
-    - mul: 4
-      div: 15              # C75 XIN 16.0 MHz (timers, ADC)
+    # PCB clocks are 48.384 MHz divisions, exact on the 54 MHz base
+    - mul: 8
+      div: 27              # C75 XIN 16.0 MHz (timers, ADC)
       outputs:
         - xin_cen
-    - mul: 2
-      div: 5               # C352 24.0 MHz
+    - mul: 4
+      div: 9               # C352 24.0 MHz
       outputs:
         - c352_cen
 sdram:
