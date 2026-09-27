@@ -66,6 +66,7 @@ module jtc123(
 );
 
 parameter SIMFILE="rest.bin", SEEK=0;
+parameter [15:0] BLANK=16'h0020; // both games' pervasive fully-transparent tile
 
 
 localparam [ 8:0] HMARGIN=9'h8,
@@ -115,7 +116,8 @@ integer     i, j;
 `endif
 
 assign scr_cs     = ~done;
-assign smask_cs   = plyr!=7 && mst>=3; // tmap_data valid from mst 3
+wire pre_blank    = tmap_data==BLANK;
+assign smask_cs   = plyr!=7 && mst>=3 && !pre_blank; // tmap_data valid from mst 3
 assign hsub       = hcnt[2:0];
 assign buf_we     = alt_cen & ~done;
 // a layer entering its next tile needs that tile's mask ready
@@ -289,7 +291,17 @@ always @(posedge clk, posedge rst) begin
                 poff <= plyr>3 ? 3'd0 : pcnt - hcnt[2:0];
                 mst <= 2;
             end
-            2,3: mst <= mst + 3'd1;
+            2: mst <= 3;
+            3: begin
+                mst <= 4;
+                if( pre_blank ) begin // blank tile: mask 0, no fetches
+                    nmask[plyr] <= 0;
+                    ninfo[plyr] <= {cfg_pal[plyr], tmap_data, mask_asub, poff};
+                    nrdy[plyr]  <= 1;
+                    plyr        <= 7;
+                    mst         <= 0;
+                end
+            end
             4: if( smask_ok ) begin
                 nmask[plyr] <= smask_data;
                 ninfo[plyr] <= {cfg_pal[plyr], tmap_data, mask_asub, poff};
