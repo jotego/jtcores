@@ -50,5 +50,5 @@ MISTER_DISABLE_YC
 # the core is MiSTer-only; this section exists because jtsim runs under
 # the sidi128 target and the Verilator SDRAM model needs the normal phase
 [mist|sidi|sidi128]
-
+-JTFRAME_180SHIFT
 JTFRAME_SKIP
