@@ -54,10 +54,12 @@ module jtc355_scan #( parameter [8:0] H0=9'd0 )(
 localparam [15:0] ATTR0=16'h0000, LIST0=16'h0800, CLIPT=16'h0A00,
                   FMTT =16'h2000, TILET=16'h4000;
 
-localparam [4:0] IDLE=0, LIST=1, VATR=2, RAT0=3, DYZS=4, DYZW=5,
+localparam [4:0] IDLE=0, RLOD=1, RTST=2,
                  VSPN=6, ROWC=8, VSBD=9,
-                 RAT1=11, DXZS=12, DXZW=13, COLD=14,
-                 TILR=15, CNXT=18, ENXT=19, PEOL=20;
+                 COLD=14,
+                 TILR=15, ENXT=19, PEOL=20,
+                 // vblank decode pass
+                 DLST=21, DATR=22, DDYZ=24, DDXZ=25, DWRT=27;
 
 reg         [ 4:0] st;
 reg         [ 3:0] t;
@@ -66,8 +68,7 @@ reg         [ 7:0] which;
 reg                stop;
 reg         [10:0] link;
 reg         [15:0] offset, tidx, rowbase;
-reg  signed [12:0] hpos, vpos, xcur, ycur,
-                   clx0, clx1, cly0, cly1;
+reg  signed [12:0] hpos, vpos, xcur, ycur, clx0, clx1;
 reg         [ 9:0] hsize, vsize, shr, swr, tsh, tsw, liry;
 reg                hflip, vflip;
 reg         [11:0] pal;         // {window sel, prio, color}
@@ -76,18 +77,25 @@ reg         [ 8:0] dxf, dyf;
 reg         [ 3:0] vsub;
 reg         [ 8:0] vlat;
 reg         [ 6:0] hitcnt;
-// per-frame scan cache, one packed M10K word per entry rebuilt on line 0:
-// {vis, span0, span1, dyq}. The margined window, not the exact span (the CPU
-// rewrites the tables mid frame); dyq is the frame-stable dy zoom quotient
-(* ramstyle = "M10K, no_rw_check" *) reg [38:0] scache[0:255];
-reg         [38:0] scq;
-reg         [ 7:0] cra;
-reg         [11:0] c_dyq;
-reg  signed [12:0] c_sp0, c_sp1;
-reg                c_vis, cwait;
-reg         [ 7:0] list_len;
-reg                bld, cache_ok;
-reg                vs_pend, dx_run; // divider results collected while RAT1 reads run
+// decoded sprite records, rebuilt from the tables once per vblank: only
+// frame-visible sprites, list order (drawn back to front by walking the
+// records in reverse). Everything the per-line walk needs except the tile
+// indices, which stay live.
+// [149:137] ylo | [136:124] yhi | [123:111] vpos' | [110] vflip
+// [109:100] vsize | [99:95] rows | [94] dy_id | [93:81] xstart | [80] hflip
+// [79:70] hsize | [69:65] cols | [64:57] pal | [56:44] clx0 | [43:31] clx1
+// [30:15] tidx | [14:0] offset
+localparam RECW = 150;
+(* ramstyle = "M10K, no_rw_check" *) reg [RECW-1:0] rec[0:255];
+reg  [RECW-1:0] rq;
+reg         [ 7:0] cra, reccnt, dslot;
+reg                rec_ok, dy_id_r;
+// decode-pass temporaries
+reg         [ 5:0] bcnt;        // blank lines seen; decode starts after the DMA
+reg                dec_pend, dec_done;
+reg  signed [12:0] cly0d;
+wire signed [12:0] ylo_w, yhi_w, yhi_c;
+reg                vs_pend; // vsub divider result pending
 // shared serial divider
 reg                div_start, div_bsy;
 reg         [17:0] div_shf, div_q;
@@ -104,9 +112,9 @@ wire        [15:0] lbase  = LIST0;
 wire signed [12:0] tsw_s  = {3'd0, tsw};
 wire signed [12:0] vsz_s  = {3'd0, vsize};
 // coarse-reject margin: 2x size covers the dx/dy pivot for pivots within the sprite
-wire signed [12:0] vszm   = $signed({2'd0, objtab_data[9:0], 1'b0}) + 13'sd64;
 wire signed [12:0] q13    = $signed({1'b0, div_q[11:0]});
 wire        [ 9:0] rmul   = rcnt * cols;
+wire        [ 9:0] fmul   = {1'b0, idd[7:4]} * cols; // fast-path row*cols
 wire        [13:0] tadr   = rowbase[13:0] + {9'd0, ccnt};
 wire        [14:0] c2t    = objtab_data[13] ? {sprbank, objtab_data[12:0]}
                                             : objtab_data[14:0];
@@ -141,17 +149,19 @@ wire        [ 7:0] idd    = idd_s[7:0];
 wire        [ 9:0] colq   = colq0m[27:18];
 wire               dy_id  = vsize == {1'b0, rows, 4'd0};
 wire               dx_id  = hsize == {1'b0, cols, 4'd0};
-wire signed [12:0] dyq    = dy_id ? {5'd0, dyf[7:0]} :
-                            bld   ? q13 : {1'b0, scq[11:0]};
+wire signed [12:0] dyq    = dy_id ? {5'd0, dyf[7:0]} : q13;
 wire signed [12:0] dxq    = dx_id ? {5'd0, dxf[7:0]} : q13;
 wire               div_working = div_start | div_bsy;
-wire               visany = objtab_data[9:0] != 0 &&
-                            vpos + vszm > 13'sd0 && vpos - vszm < 13'sd224;
-wire signed [12:0] sp0    = scq[37:25];
-wire signed [12:0] sp1    = scq[24:12];
-wire               online = scq[38] && vlat_s >= sp0 && vlat_s < sp1;
 wire signed [12:0] vtop   = vflip ? vpos - vsz_s : vpos;
 wire signed [12:0] vbot   = vflip ? vpos : vpos + vsz_s;
+// record unpack (valid the cycle after cra settles)
+wire signed [12:0] r_ylo  = rq[149:137];
+wire signed [12:0] r_yhi  = rq[136:124];
+wire               online = vlat_s >= r_ylo && vlat_s <= r_yhi;
+// decode window: sprite span intersected with the clip-window y range
+assign ylo_w = vtop > cly0d ? vtop : cly0d;
+assign yhi_c = vbot - 13'sd1;
+assign yhi_w = yhi_c < $signed(objtab_data[12:0]) ? yhi_c : $signed(objtab_data[12:0]);
 // 16/tsw and 16%tsw as a lookup: a real divider is 15 logic levels deep
 reg         [ 4:0] sq_c;
 reg         [ 9:0] sr_c;
@@ -200,13 +210,31 @@ genvar si;
 generate for( si=0; si<64; si=si+1 ) begin : srng_gen
     assign sc_rng[si] = si >= sc_gl && si <= sc_gh;
 end endgenerate
-wire               sc_cov = !bld && &(cov_grp | ~sc_rng);
-wire               unused = &{debug_bus[6:1], div_rem, div_q[17:12]};
-assign fwd_pass = bld;
+wire               sc_cov = &(cov_grp | ~sc_rng);
+wire               unused = &{debug_bus[6:1], div_rem, div_q[17:12], offset[15]};
+assign fwd_pass = 1'b0;
+
+// cly1 sits held on objtab_data in DWRT: no reads are issued after DATR t=13
+wire vis_w  = ylo_w <= yhi_w && yhi_w >= 13'sd0 && ylo_w < 13'sd224;
+wire rec_we = st==DWRT && t==4'd0 && vis_w;
+
+`ifdef SYSFL_SCANDBG
+always @(posedge clk) begin
+    if( st==DWRT && t==4'd0 )
+        $display("REC %s slot=%0d e=%0d ylo=%0d yhi=%0d vpos=%0d vsz=%0d rows=%0d hpos=%0d hsz=%0d cols=%0d tidx=%x pal=%x clx=%0d..%0d %s%s",
+            vis_w?"W":"-", dslot, entry, ylo_w, yhi_w, vpos, vsize, rows, hpos, hsize, cols, tidx, pal, clx0, clx1,
+            vflip?"vf":"", hflip?"hf":"");
+    if( st==DWRT && (stop || entry[7:0]==8'hff) )
+        $display("DECODE END reccnt=%0d", rec_we ? dslot+8'd1 : dslot);
+end
+`endif
 
 always @(posedge clk) begin
-    scq <= scache[cra];
-    if( bld && st==ENXT ) scache[entry[7:0]] <= {c_vis, c_sp0, c_sp1, c_dyq};
+    rq <= rec[cra];
+    if( rec_we )
+        rec[dslot] <= { ylo_w, yhi_w, vpos, vflip, vsize, rows,
+                        dy_id, hpos, hflip, hsize, cols,
+                        pal[7:0], clx0, clx1, tidx[15:0], offset[14:0] };
 end
 
 always @(posedge clk, posedge rst) begin
@@ -220,114 +248,74 @@ always @(posedge clk, posedge rst) begin
         vlat      <= 0;
         stop      <= 0;
         vs_pend   <= 0;
-        dx_run    <= 0;
-        bld       <= 0;
-        cache_ok  <= 0;
         desc_we   <= 0;
+        rec_ok    <= 0;
+        reccnt    <= 0;
+        dslot     <= 0;
+        bcnt      <= 0;
+        dec_pend  <= 0;
+        dec_done  <= 0;
     end else begin
         div_start <= 0;
         desc_we   <= 0;
         case( st )
-            IDLE:;
-            LIST: begin
-                if( line_full && !bld ) begin
+            IDLE: if( dec_pend ) begin // vblank decode pass
+                dec_pend <= 0;
+                dslot    <= 0;
+                entry    <= 0;
+                stop     <= 0;
+                st       <= DLST; t <= 0;
+            end
+            // ---------- display: walk the decoded records ----------
+            RLOD: begin // cra was set one cycle earlier; rq valid in RTST
+                if( line_full ) begin
                     st <= PEOL; t <= 0;
-                end else if( t==0 && cache_ok && cwait ) begin
-                    cwait <= 0; // cache read turn-around
-                end else if( t==0 && cache_ok && !online ) begin
-                    // cached as not crossing this line, skip the entry
-                    if( entry[7:0]==8'd0 ) begin
-                        st <= PEOL;
-                    end else begin
-                        entry <= entry - 9'd1;
-                        cra   <= entry[7:0] - 8'd1;
-                        cwait <= 1;
-                    end
                 end else begin
-                    t <= t + 4'd1;
-                    case( t )
-                        0: objtab_addr <= lbase | {8'd0, entry[7:0]};
-                        2: begin
-                            {stop, which} <= objtab_data[8:0];
-                            if( objtab_data[8] ) list_len <= entry[7:0];
-                            objtab_addr <= abase | {5'd0, objtab_data[7:0], 3'd3};
-                            st <= VATR; t <= 0;
-                        end
-                        default:;
-                    endcase
+                    st <= RTST;
                 end
             end
-            VATR: begin // vpos/vsize for early reject
-                t <= t + 4'd1;
-                case( t )
-                    0: objtab_addr <= abase | {5'd0, which, 3'd5};
-                    1: vpos <= {{2{objtab_data[10]}}, objtab_data[10:0]};
-                    2: begin
-                        {vflip, vsize} <= {objtab_data[15], objtab_data[9:0]};
-                        if( bld ) begin
-                            c_vis <= visany;
-                            c_sp0 <= vpos - vszm;
-                            c_sp1 <= vpos + vszm;
-                        end
-                        st <= ( bld ? visany :
-                              ( objtab_data[9:0] != 0 &&
-                                vlat_s >= vpos - vszm &&
-                                vlat_s <  vpos + vszm ) ) ? RAT0 : ENXT;
-                        t  <= 0;
+            RTST: begin
+                if( !online ) begin
+                    if( entry[7:0]==8'd0 ) st <= PEOL;
+                    else begin
+                        entry <= entry - 9'd1;
+                        cra   <= entry[7:0] - 8'd1;
+                        st    <= RLOD;
                     end
-                    default:;
-                endcase
+                end else begin
+                    // unpack the record and resolve the row
+                    vpos    <= rq[123:111];
+                    vflip   <= rq[110];
+                    vsize   <= rq[109:100];
+                    rows    <= rq[99:95];
+                    dy_id_r <= rq[94];
+                    xcur    <= rq[93:81];
+                    hflip   <= rq[80];
+                    hsize   <= rq[79:70];
+                    cols    <= rq[69:65];
+                    pal     <= {4'd0, rq[64:57]};
+                    clx0    <= rq[56:44];
+                    clx1    <= rq[43:31];
+                    tidx    <= rq[30:15];
+                    offset  <= {1'b0, rq[14:0]};
+                    st      <= VSPN;
+                end
             end
-            RAT0: begin // link + format size/dy, enough for the exact reject
-                t <= t + 4'd1;
-                case( t )
-                    0: objtab_addr <= abase | {5'd0, which, 3'd0};
-                    2: begin
-                        link <= objtab_data[10:0];
-                        objtab_addr <= FMTT | {3'd0, objtab_data[10:0], 2'd1};
-                    end
-                    3: objtab_addr <= FMTT | {3'd0, link, 2'd3};
-                    4: begin
-                        rows <= objtab_data[3:0]==0 ? 5'd16 : {1'b0, objtab_data[3:0]};
-                        cols <= objtab_data[7:4]==0 ? 5'd16 : {1'b0, objtab_data[7:4]};
-                    end
-                    5: begin
-                        dyf <= objtab_data[8:0];
-                        st  <= DYZS; t <= 0;
-                    end
-                    default:;
-                endcase
-            end
-            DYZS: if( dy_id || !bld ) begin // dy pivot, scaled by the vertical zoom
-                vpos <= (vflip ^ dyf[8]) ? vpos + dyq : vpos - dyq;
-                st   <= VSPN;
-            end else begin // build pass derives the frame's quotient
-                div_num   <= dyv_m + {10'd0, rows, 3'd0};
-                div_den   <= {1'b0, rows, 4'd0};
-                div_n     <= 5'd18;
-                div_start <= 1;
-                st        <= DYZW;
-            end
-            DYZW: if( !div_working ) begin
-                vpos <= (vflip ^ dyf[8]) ? vpos + dyq : vpos - dyq;
-                c_dyq <= div_q[11:0];
-                st   <= VSPN;
-            end
-            VSPN: begin // exact vertical span
+            VSPN: begin // row search setup; the y window already passed
                 shr  <= vsize;
                 rcnt <= 0;
                 ycur <= vpos;
-                if( vlat_s >= vtop && vlat_s < vbot ) begin
-                    if( dy_id ) begin // identity zoom, row known at once
-                        rcnt <= {1'b0, idd[7:4]};
-                        tsh  <= 10'd16;
-                        vsub <= idd[3:0];
-                        st   <= RAT1; t <= 0;
-                    end else begin
-                        st <= ROWC;
-                    end
+                if( dy_id_r ) begin // identity zoom, row known at once
+                    rcnt <= {1'b0, idd[7:4]};
+                    tsh  <= 10'd16;
+                    vsub <= idd[3:0];
+                    st   <= COLD; t <= 0;
+                    swr     <= hsize;
+                    ccnt    <= 0;
+                    rowbase <= tidx + {6'd0, fmul};
+                    hitcnt  <= hitcnt + 7'd1;
                 end else begin
-                    st <= ENXT;
+                    st <= ROWC;
                 end
             end
             ROWC: begin // one row per clock, screen height = remaining/(rows left)
@@ -346,87 +334,36 @@ always @(posedge clk, posedge rst) begin
             VSBD: begin // source row within the 16x16 tile
                 if( tsh == 10'd16 ) begin
                     vsub <= vflip ? 4'd15 - liry[3:0] : liry[3:0];
-                end else begin // collected during RAT1
+                end else begin // collected while the column loop starts
                     div_num   <= {liry, 8'd0};
                     div_den   <= tsh;
                     div_n     <= 5'd14;
                     div_start <= 1;
                     vs_pend   <= 1;
                 end
-                st <= RAT1; t <= 0;
-            end
-            RAT1: begin // remaining attributes, only for sprites on this line
-                t <= t + 4'd1;
-                if( vs_pend && !div_working ) begin
-                    vsub    <= vflip ? 4'd15 - div_q[3:0] : div_q[3:0];
-                    vs_pend <= 0;
-                end
-                if( t >= 4'd8 && !dx_run && !dx_id && !vs_pend && !div_working ) begin
-                    div_num   <= dxh_m + {10'd0, cols, 3'd0};
-                    div_den   <= {1'b0, cols, 4'd0};
-                    div_n     <= 5'd18;
-                    div_start <= 1;
-                    dx_run    <= 1;
-                end
-                case( t )
-                    0: objtab_addr <= abase | {5'd0, which, 3'd6};
-                    1: objtab_addr <= abase | {5'd0, which, 3'd1};
-                    2: begin objtab_addr <= abase | {5'd0, which, 3'd2}; pal    <= objtab_data[11:0]; end
-                    3: begin objtab_addr <= abase | {5'd0, which, 3'd4}; offset <= objtab_data;       end
-                    4: begin
-                        objtab_addr <= FMTT | {3'd0, link, 2'd0};
-                        hpos <= {{2{objtab_data[10]}}, objtab_data[10:0]};
-                    end
-                    5: begin
-                        objtab_addr <= FMTT | {3'd0, link, 2'd2};
-                        {hflip, hsize} <= {objtab_data[15], objtab_data[9:0]};
-                        if( objtab_data[9:0]==0 ) begin st <= ENXT; t <= 0;
-                        end
-                    end
-                    6: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd0}; tidx <= objtab_data;     end
-                    7: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd1}; dxf  <= objtab_data[8:0];end
-                    8: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd2}; clx0 <= $signed(objtab_data[12:0]); end
-                    9: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd3}; clx1 <= $signed(objtab_data[12:0]); end
-                    10: cly0 <= $signed(objtab_data[12:0]);
-                    11: begin
-                        cly1 <= $signed(objtab_data[12:0]);
-                        st <= ( debug_bus[0] || (vlat_s >= cly0 &&
-                                vlat_s <= $signed(objtab_data[12:0])) ) ? DXZS : ENXT;
-                        t  <= 0;
-                    end
-                    default:;
-                endcase
-            end
-            DXZS: begin // dx pivot, scaled by the horizontal zoom
                 swr     <= hsize;
                 ccnt    <= 0;
                 rowbase <= tidx + {6'd0, rmul};
                 hitcnt  <= hitcnt + 7'd1;
-                if( dx_id ) begin
-                    xcur <= (hflip ^ dxf[8]) ? hpos + dxq : hpos - dxq;
-                    st   <= COLD;
-                end else begin
-                    if( !dx_run ) begin
-                        div_num   <= dxh_m + {10'd0, cols, 3'd0};
-                        div_den   <= {1'b0, cols, 4'd0};
-                        div_n     <= 5'd18;
-                        div_start <= 1;
-                    end
-                    st <= DXZW;
-                end
-            end
-            DXZW: if( !div_working ) begin
-                xcur <= (hflip ^ dxf[8]) ? hpos + dxq : hpos - dxq;
-                dx_run <= 0;
-                st   <= COLD;
+                st <= COLD; t <= 0;
             end
             COLD: begin // tile column screen width = remaining/(cols left)
-                tsw <= colq;
-                if( hflip ) xcur <= xcur - $signed({3'd0, colq});
-                objtab_addr <= TILET | {2'd0, tadr};
-                st <= TILR; t <= 1;
+                if( vs_pend && !div_working ) begin
+                    vsub    <= vflip ? 4'd15 - div_q[3:0] : div_q[3:0];
+                    vs_pend <= 0;
+                end
+                if( !vs_pend || !div_working ) begin
+                    tsw <= colq;
+                    if( hflip ) xcur <= xcur - $signed({3'd0, colq});
+                    objtab_addr <= TILET | {2'd0, tadr};
+                    st <= TILR; t <= 1;
+                end
             end
             TILR: begin // pipelined column loop: skip in one cycle, push in two
+                if( vs_pend && !div_working ) begin
+                    vsub    <= vflip ? 4'd15 - div_q[3:0] : div_q[3:0];
+                    vs_pend <= 0;
+                end
                 if( t < 4'd2 ) t <= t + 4'd1;
                 case( t )
                     1: if( tsw==0 || !colvis || sc_cov ) begin // no tile data needed
@@ -465,53 +402,137 @@ always @(posedge clk, posedge rst) begin
             end
             ENXT: begin
                 vs_pend <= 0;
-                dx_run  <= 0;
-                t     <= 0;
-                if( bld ) begin // forward build pass, line 0
-                    entry <= entry + 9'd1;
-                    cra   <= entry[7:0] + 8'd1;
-                    if( stop || entry[7:0]==8'hff ) begin
-                        st       <= PEOL;
-                        bld      <= 0;
-                        cache_ok <= 1;
-                    end else begin
-                        st <= LIST;
-                    end
-                end else begin  // reverse pass, front to back
-                    entry <= entry - 9'd1;
-                    cra   <= entry[7:0] - 8'd1;
-                    cwait <= 1;
-                    st    <= entry[7:0]==8'd0 ? PEOL : LIST;
-                end
+                t       <= 0;
+                entry   <= entry - 9'd1;
+                cra     <= entry[7:0] - 8'd1;
+                st      <= entry[7:0]==8'd0 ? PEOL : RLOD;
             end
             PEOL: if( !desc_full ) begin // close the line for the drawer
                 desc_data <= {1'b1, 104'd0};
                 desc_we   <= 1;
                 st        <= IDLE;
             end
+            // ---------- vblank decode: tables -> records ----------
+            DLST: begin // list entry -> attribute set
+                t <= t + 4'd1;
+                case( t )
+                    0: objtab_addr <= lbase | {8'd0, entry[7:0]};
+                    2: begin
+                        which <= objtab_data[7:0];
+                        stop  <= objtab_data[8];
+                        objtab_addr <= abase | {5'd0, objtab_data[7:0], 3'd3};
+                        st <= DATR; t <= 0;
+                    end
+                    default:;
+                endcase
+            end
+            DATR: begin // placement words, exactly the display read program
+                t <= t + 4'd1;
+                case( t )
+                    0: objtab_addr <= abase | {5'd0, which, 3'd5};
+                    1: begin objtab_addr <= abase | {5'd0, which, 3'd0};
+                             vpos <= {{2{objtab_data[10]}}, objtab_data[10:0]}; end
+                    2: begin objtab_addr <= abase | {5'd0, which, 3'd6};
+                             {vflip, vsize} <= {objtab_data[15], objtab_data[9:0]}; end
+                    3: begin objtab_addr <= abase | {5'd0, which, 3'd1};
+                             link <= objtab_data[10:0]; end
+                    4: begin objtab_addr <= FMTT | {3'd0, link, 2'd1};
+                             pal <= objtab_data[11:0]; end
+                    5: begin objtab_addr <= FMTT | {3'd0, link, 2'd3};
+                             offset <= objtab_data; end
+                    6: begin objtab_addr <= abase | {5'd0, which, 3'd2};
+                             rows <= objtab_data[3:0]==0 ? 5'd16 : {1'b0, objtab_data[3:0]};
+                             cols <= objtab_data[7:4]==0 ? 5'd16 : {1'b0, objtab_data[7:4]}; end
+                    7: begin objtab_addr <= abase | {5'd0, which, 3'd4};
+                             dyf <= objtab_data[8:0]; end
+                    8: begin objtab_addr <= FMTT | {3'd0, link, 2'd0};
+                             hpos <= {{2{objtab_data[10]}}, objtab_data[10:0]}; end
+                    9: begin objtab_addr <= FMTT | {3'd0, link, 2'd2};
+                             {hflip, hsize} <= {objtab_data[15], objtab_data[9:0]}; end
+                    10: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd0};
+                              tidx <= objtab_data; end
+                    11: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd1};
+                              dxf <= objtab_data[8:0]; end
+                    12: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd2};
+                              clx0 <= $signed(objtab_data[12:0]); end
+                    13: begin objtab_addr <= CLIPT | {10'd0, pal[11:8], 2'd3};
+                              clx1 <= $signed(objtab_data[12:0]); end
+                    14: begin
+                        cly0d <= $signed(objtab_data[12:0]);
+                        // skip clearly dead sprites before the divides
+                        if( vsize==0 || hsize==0 ) begin
+                            st <= DWRT; t <= 1; // t=1: skip the write
+                        end else begin
+                            st <= DDYZ; t <= 0;
+                        end
+                    end
+                    default:;
+                endcase
+            end
+            DDYZ: begin // dy pivot quotient (cly1 arrives while it runs)
+                if( t==0 ) begin
+                    t <= 4'd1;
+                    if( !dy_id ) begin
+                        div_num   <= dyv_m + {10'd0, rows, 3'd0};
+                        div_den   <= {1'b0, rows, 4'd0};
+                        div_n     <= 5'd18;
+                        div_start <= 1;
+                    end
+                end else if( !div_working && !div_start ) begin
+                    vpos <= (vflip ^ dyf[8]) ? vpos + dyq : vpos - dyq;
+                    st   <= DDXZ; t <= 0;
+                end
+            end
+            DDXZ: begin // dx pivot quotient
+                if( t==0 ) begin
+                    t <= 4'd1;
+                    if( !dx_id ) begin
+                        div_num   <= dxh_m + {10'd0, cols, 3'd0};
+                        div_den   <= {1'b0, cols, 4'd0};
+                        div_n     <= 5'd18;
+                        div_start <= 1;
+                    end
+                end else if( !div_working && !div_start ) begin
+                    hpos <= (hflip ^ dxf[8]) ? hpos + dxq : hpos - dxq;
+                    st   <= DWRT; t <= 0;
+                end
+            end
+            DWRT: begin // rec_we writes the record in the sync block above
+                if( rec_we ) dslot <= dslot + 8'd1;
+                if( stop || entry[7:0]==8'hff ) begin
+                    reccnt   <= rec_we ? dslot + 8'd1 : dslot;
+                    rec_ok   <= 1;
+                    dec_done <= 1;
+                    st       <= IDLE;
+                end else begin
+                    entry <= entry + 9'd1;
+                    st    <= DLST; t <= 0;
+                end
+            end
             default: st <= IDLE;
         endcase
         if( ln_hs ) begin // line start
-            vs_pend <= 0;
-            dx_run  <= 0;
             vlat    <= flip ? 9'd223 - {1'b0, ln_v} : {1'b0, ln_v};
-            t       <= 0;
-            desc_we <= 0;
             st_dout <= {st != IDLE, hitcnt};
             hitcnt  <= 0;
-            if( ln_v == 0 ) begin // frame start, rebuild the visibility cache
-                bld      <= 1;
-                cache_ok <= 0;
-                list_len <= 8'hff;
-                entry    <= 0;    // build pass walks forward
-                cra      <= 0;
+            if( ln_v == 8'hff ) begin
+                // blank: the decode pass owns st/t, do not disturb it here.
+                // It starts once the snapshot DMA has settled
+                bcnt <= bcnt + 6'd1;
+                if( bcnt == 6'd7 && !dec_done ) dec_pend <= 1;
             end else begin
-                // an unfinished build restarts forward; else front to back
-                entry    <= bld ? 9'd0 : {1'b0, list_len};
-                cra      <= bld ? 8'd0 : list_len;
-                cwait    <= 1;
+                vs_pend  <= 0;
+                t        <= 0;
+                desc_we  <= 0;
+                bcnt     <= 0;
+                dec_done <= 0;
+                entry    <= {1'b0, reccnt - 8'd1};
+                cra      <= reccnt - 8'd1;
+                if( ln_v < 8'd224 )
+                    st <= (rec_ok && reccnt != 0) ? RLOD : PEOL;
+                else
+                    st <= IDLE;
             end
-            st <= ln_v < 8'd224 ? LIST : IDLE;
         end
     end
 end
