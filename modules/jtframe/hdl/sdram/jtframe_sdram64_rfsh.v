@@ -22,8 +22,12 @@ module jtframe_sdram64_rfsh #(parameter HF=1, RFSHCNT=9, XL=0)
 // HF=0 -> 60MHz  (16.67ns)
 // HF=1 -> 100MHz (10ns)
 
-localparam STW  = 3+7-(HF==1? 0 : 4),
-           RFRSH= HF?2:1;
+`ifdef JTFRAME_MCLK
+localparam RFRSH = (HF==1 || `JTFRAME_MCLK > 58_000_000) ? 2 : 1;
+`else
+localparam RFRSH = HF==1 ? 2 : 1;
+`endif
+localparam STW  = HF==1 ? 10 : 5+RFRSH;
 
 localparam CW=6;
 localparam [STW-1:0] ONE=1;

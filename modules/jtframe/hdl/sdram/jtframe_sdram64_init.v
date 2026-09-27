@@ -16,7 +16,12 @@ module jtframe_sdram64_init #(parameter
     output   reg [12:0] sdram_a
 );
 
+`ifdef JTFRAME_MCLK
+localparam [13:0] INIT_WAIT = HF ? 14'd10_000 :
+    (`JTFRAME_MCLK > 58_000_000 ? 14'd13_000 : 14'd5_000); // >=200us for slow parts
+`else
 localparam [13:0] INIT_WAIT = HF ? 14'd10_000 : 14'd5_000; // 100us for 96MHz/48MHz
+`endif
 
 //                             /CS /RAS /CAS /WE
 localparam CMD_LOAD_MODE   = 4'b0___0____0____0, // 0
