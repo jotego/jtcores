@@ -112,7 +112,7 @@ always @(posedge clk, negedge srst_n) begin
     end
 end
 
-jtcus30 u_wav(
+jtcus30 #(.NOISE_HOLD(4'd8)) u_wav(
     .rst    ( rst       ),  // original does not have a reset pin
     .clk    ( clk       ),
     .bsel   ( bsel      ),

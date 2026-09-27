@@ -38,8 +38,11 @@ module jtcus30(
     input         [ 7:0] debug_bus
 );
 
+parameter [3:0] NOISE_HOLD=4'd4;
+
 localparam CW=21,
            A0=CW-5;
+localparam [11:0] NOISE_MOD={NOISE_HOLD+4'd1,8'd0};
 
 wire [ 7:0] xdout = bsel ? bdout : sdout;
 wire [15:0] xaddr = bsel ? {6'd0, baddr } : saddr;
@@ -70,12 +73,18 @@ wire signed [ 3:0] wdata;
 
 // LFSR polynomial
 reg  [7:0][16:0] lfsr;  // one per channel
-reg  [7:0][ 7:0] nacc;  // noise clock, only freq[7:0] is used
+reg  [7:0][11:0] nacc;  // noise clock, only freq[7:0] is used
 reg  [7:0]  nbit;
 wire [16:0] lfsr_l = lfsr[ch_l];
-wire [ 8:0] nsum   = {1'b0,nacc[ch_l]}+{1'b0,freq[ch_l][7:0]};
+wire [12:0] nsum   = {1'b0,nacc[ch_l]}+freq[ch_l][7:0]*NOISE_HOLD;
+wire        nstep  = no_en[ch_l] && (lvol[ch_l]!=0 || rvol[ch_l]!=0) && nsum>={1'b0,NOISE_MOD};
 
 assign sample = ch==0 && cen120;
+
+function [9:0] nlevel(input [3:0] v, input st);
+    nlevel = st ? {3'd0,v,3'd0} + {7'd0,v[3:1]}*10'd7 :
+                  {3'd0,v,3'd0} - {7'd0,v[3:1]}*10'd7;
+endfunction
 assign wdata  = cnt[ch][A0] ? wdata8[3:0] : wdata8[7:4];
 
 `ifdef DUMP
@@ -111,8 +120,9 @@ always @(posedge clk, posedge rst ) begin
         ch   <= ch+3'd1;
         ch_l <= ch;
         cnt[ch] <= cnt[ch]+{1'd0,freq[ch]};
-        nacc[ch_l] <= nsum[7:0];
-        if( nsum[8] ) begin
+        if( no_en[ch_l] && (lvol[ch_l]!=0 || rvol[ch_l]!=0) )
+            nacc[ch_l] <= nstep ? nsum[11:0]-NOISE_MOD : nsum[11:0];
+        if( nstep ) begin
             nbit[ch_l] <= nbit[ch_l]^(^lfsr_l[1:0]);
             lfsr[ch_l] <= { lfsr_l[0], lfsr_l[16], lfsr_l[15]^lfsr_l[0], lfsr_l[14:1] };
         end
@@ -121,8 +131,8 @@ always @(posedge clk, posedge rst ) begin
             lamp <= { 1'b0, wdata } * { 1'b0, lvol[ch_l] };
             ramp <= { 1'b0, wdata } * { 1'b0, rvol[ch_l] };
         end else begin
-            lamp <= nbit[ch_l] ? 5'd7*({1'b0,lvol[ch_l]}) : 10'd0;
-            ramp <= nbit[ch_l] ? 5'd7*({1'b0,rvol[ch_l]}) : 10'd0;
+            lamp <= nlevel(lvol[ch_l], nbit[ch_l]);
+            ramp <= nlevel(rvol[ch_l], nbit[ch_l]);
         end
 
         // accumulator and output
