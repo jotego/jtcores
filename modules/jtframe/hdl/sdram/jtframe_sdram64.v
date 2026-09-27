@@ -101,17 +101,6 @@ localparam BURSTLEN=(BA0_LEN>32 || BA1_LEN>32 ||BA2_LEN>32 ||BA3_LEN>32) ? 64 :(
 
 localparam LATCH = HF==1;
 
-// slow-grade SDRAM needs tRP=tRCD=20ns: pad the LF command spacing when one
-// clock period is under 20ns. Plain parameter math from the clock frequency,
-// identical to the legacy single-cycle spacing at 48 MHz and below.
-`ifdef JTFRAME_MCLK
-localparam MCLK_MHZ = `JTFRAME_MCLK/1_000_000;
-`else
-localparam MCLK_MHZ = 48;
-`endif
-localparam TRP_CYC = (20*MCLK_MHZ+999)/1000;
-localparam LF_WAIT = (HF==0 && TRP_CYC>1) ? TRP_CYC-1 : 0;
-
 //                             /CS /RAS /CAS /WE
 localparam CMD_LOAD_MODE   = 4'b0___0____0____0, // 0
            CMD_REFRESH     = 4'b0___0____0____1, // 1
@@ -350,8 +339,7 @@ jtframe_sdram64_bank #(
     .SHIFTED  ( SHIFTED       ),
     .BURSTLEN ( BURSTLEN      ),
     .BALEN    ( BA0_LEN       ),
-    .AUTOPRECH( BA0_AUTOPRECH ),
-    .LF_WAIT  ( LF_WAIT       )
+    .AUTOPRECH( BA0_AUTOPRECH )
 ) u_bank0(
     .rst        ( other_rst  ),
     .clk        ( clk        ),
@@ -399,8 +387,7 @@ jtframe_sdram64_bank #(
     .SHIFTED  ( SHIFTED       ),
     .BURSTLEN ( BURSTLEN      ),
     .BALEN    ( BA1_LEN       ),
-    .AUTOPRECH( BA1_AUTOPRECH ),
-    .LF_WAIT  ( LF_WAIT       )
+    .AUTOPRECH( BA1_AUTOPRECH )
 ) u_bank1(
     .rst        ( other_rst  ),
     .clk        ( clk        ),
@@ -447,8 +434,7 @@ jtframe_sdram64_bank #(
     .SHIFTED  ( SHIFTED       ),
     .BURSTLEN ( BURSTLEN      ),
     .BALEN    ( BA2_LEN       ),
-    .AUTOPRECH( BA2_AUTOPRECH ),
-    .LF_WAIT  ( LF_WAIT       )
+    .AUTOPRECH( BA2_AUTOPRECH )
 ) u_bank2(
     .rst        ( other_rst  ),
     .clk        ( clk        ),
@@ -495,8 +481,7 @@ jtframe_sdram64_bank #(
     .SHIFTED  ( SHIFTED       ),
     .BURSTLEN ( BURSTLEN      ),
     .BALEN    ( BA3_LEN       ),
-    .AUTOPRECH( BA3_AUTOPRECH ),
-    .LF_WAIT  ( LF_WAIT       )
+    .AUTOPRECH( BA3_AUTOPRECH )
 ) u_bank3(
     .rst        ( other_rst  ),
     .clk        ( clk        ),
