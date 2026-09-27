@@ -37,23 +37,29 @@ module jtskykid_main(
 );
 `ifndef NOMAIN
 wire [ 7:0] cpu_din;
-reg         bank;
+reg  [ 7:0] din_l;
+reg         bank, c30_csl, ok_dly;
 wire        int_n, avma, rst_n,
             vram0_cs, vram1_cs, oram_cs, banked_cs,
             scrx_cs, scry_cs, bank_cs, pri_cs, wdog_cs;
 
 assign st_dout  = {flip,bank,pri[5:0]};
 assign rom_addr = banked_cs ? {2'b10, bank, cpu_addr[12:0]} : {1'b0, cpu_addr[14:0]};
-assign bus_busy = rom_cs & ~rom_ok;
+assign bus_busy = rom_cs & ~ok_dly;
 assign vram0_we = {2{vram0_cs & ~rnw}} & {cpu_addr[10],~cpu_addr[10]};
 assign vram1_we = {2{vram1_cs & ~rnw}} & {cpu_addr[11],~cpu_addr[11]};
 assign oram_we  = {2{oram_cs  & ~rnw}} & {cpu_addr[0],~cpu_addr[0]};
 
-assign cpu_din  = rom_cs   ? rom_data  :
-                  vram0_cs ? (cpu_addr[10] ? vram0_dout[15:8] : vram0_dout[7:0]) :
-                  vram1_cs ? (cpu_addr[11] ? vram1_dout[15:8] : vram1_dout[7:0]) :
-                  oram_cs  ? (cpu_addr[0] ?  oram_dout[15:8] :  oram_dout[7:0]) :
-                  c30_cs   ? c30_dout  : 8'd0;
+assign cpu_din  = c30_csl ? c30_dout : din_l;
+
+always @(posedge clk) begin
+    ok_dly  <= rom_ok;
+    c30_csl <= c30_cs;
+    din_l   <= rom_cs   ? rom_data :
+               vram0_cs ? (cpu_addr[10] ? vram0_dout[15:8] : vram0_dout[7:0]) :
+               vram1_cs ? (cpu_addr[11] ? vram1_dout[15:8] : vram1_dout[7:0]) :
+               oram_cs  ? (cpu_addr[0]  ?  oram_dout[15:8] :  oram_dout[7:0]) : 8'd0;
+end
 
 always @(posedge clk) begin
     if( rst ) begin
