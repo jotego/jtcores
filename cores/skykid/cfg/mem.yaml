@@ -71,7 +71,7 @@ bram:
     simfile: {}
     dual_port:
       name: bg
-      addr: cpu_addr[11:1]
+      addr: cpu_addr[10:0]
       din:  "{2{cpu_dout}}"
       dout: bg_dout
       rw:   true
@@ -82,7 +82,7 @@ bram:
     simfile: {}
     dual_port:
       name: tx
-      addr: cpu_addr[10:1]
+      addr: cpu_addr[9:0]
       din:  "{2{cpu_dout}}"
       dout: tx_dout
       rw:   true

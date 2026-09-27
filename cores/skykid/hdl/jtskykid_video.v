@@ -65,7 +65,9 @@ always @(posedge clk) if(pxl_cen) begin
                 obj_op  ? obj_pxl           :
                 txt_low ? {txt_pal,txt_pxl} :
                 (gfx_en[1] ? scrpal_data : 8'd0);
-    {red,green,blue} <= {r_data[3:0],g_data[3:0],b_data[3:0]};
+    red      <= r_data[3:0];
+    green    <= g_data[3:0];
+    blue     <= b_data[3:0];
 end
 
 assign objpal_addr = obj_pal[8:0];
@@ -111,8 +113,10 @@ jtshouse_vtimer u_vtimer(
 );
 
 jtskykid_scroll u_scroll(
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .hs         ( hs            ),
     .flip       ( flip          ),
     .rot        ( rot           ),
     .hdump      ( hdump         ),
@@ -133,8 +137,10 @@ jtskykid_scroll u_scroll(
 );
 
 jtskykid_text u_text(
+    .rst        ( rst           ),
     .clk        ( clk           ),
     .pxl_cen    ( pxl_cen       ),
+    .hs         ( hs            ),
     .flip       ( flip ^ rot    ),
     .hdump      ( hdump         ),
     .vdump      ( vdump         ),
