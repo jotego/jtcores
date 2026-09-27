@@ -63,11 +63,21 @@ localparam ROW=13,
            COW= AW==22 ? 9 : 10; // 9 for 32MB SDRAM, 10 for 64MB
 
 // states
+// command spacing (tRP/tRCD): HF always ran two cycles; LF keeps its legacy
+// single cycle up to 55 MHz and adopts the proven HF spacing above it, where
+// one clock period no longer covers the 20ns of the slowest SDRAM grades.
+// Derived from the base clock the PLL selection already defines.
+`ifdef JTFRAME_MCLK
+localparam CMDW = (HF==1 || `JTFRAME_MCLK > 55_000_000) ? 2 : 1;
+`else
+localparam CMDW = HF==1 ? 2 : 1;
+`endif
+
 localparam IDLE    = 0,
            // AUTOPRECH 1+2(1)
-           PRE_ACT = HF ? 2:1,
+           PRE_ACT = CMDW,
            ACT     = PRE_ACT+1,
-           PRE_RD  = PRE_ACT + (HF ? 2:1),
+           PRE_RD  = PRE_ACT + CMDW,
            READ    = PRE_RD+1,
            DST     = READ + (SHIFTED==1 ? 1 : 2) ,
            DTICKS  = BURSTLEN==64 ? 4 : (BURSTLEN==32?2:1),
