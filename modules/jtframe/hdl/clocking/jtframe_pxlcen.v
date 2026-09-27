@@ -12,9 +12,12 @@ module jtframe_pxlcen(
     localparam PXLCLK = `JTFRAME_PXLCLK,
                CLK    = `ifdef JTFRAME_SDRAM96 96 `else 48 `endif,
                // base clock = JTFRAME_BASE_MUL x pixel clock (8 by default)
-               M      = `ifdef JTFRAME_BASE_MUL (`JTFRAME_BASE_MUL/2)
-                        `else (PXLCLK==12 ? 2 : PXLCLK==8 ? 3 : 4) `endif
-                        << (CLK==96 ? 1:0);
+               MUL    = (`ifdef JTFRAME_BASE_MUL `JTFRAME_BASE_MUL
+                        `else (PXLCLK==12 ? 4 : PXLCLK==8 ? 6 : 8) `endif)
+                        << (CLK==96 ? 1:0),
+               // an odd multiplier needs the fractional pair
+               N      = MUL[0] ? 2 : 1,
+               M      = MUL[0] ? MUL : MUL/2;
 
     initial begin
         if( PXLCLK!=8 && PXLCLK!=6 ) begin
@@ -27,8 +30,8 @@ module jtframe_pxlcen(
 
     jtframe_frac_cen #(.WC(4),.W(2)) u_cen(
         .clk    ( clk       ),    // 48 or 96 MHz
-        .n      ( 4'd1      ),
-        .m      (M[3:0]),
+        .n      ( N[3:0]    ),
+        .m      ( M[3:0]    ),
         .cen    ( { pxl_cen, pxl2_cen } ),
         .cenb   (           )
     );
