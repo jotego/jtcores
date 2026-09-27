@@ -32,3 +32,4 @@ jtframe:
     get:
       - jtframe_obj.yaml
       - jtframe_vtimer.v
+      - jtframe_scroll.yaml

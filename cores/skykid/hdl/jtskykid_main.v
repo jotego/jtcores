@@ -45,13 +45,13 @@ wire        int_n, avma, rst_n,
 assign st_dout  = {flip,bank,pri[5:0]};
 assign rom_addr = banked_cs ? {2'b10, bank, cpu_addr[12:0]} : {1'b0, cpu_addr[14:0]};
 assign bus_busy = rom_cs & ~rom_ok;
-assign vram0_we = {2{vram0_cs & ~rnw}} & {cpu_addr[0],~cpu_addr[0]};
-assign vram1_we = {2{vram1_cs & ~rnw}} & {cpu_addr[0],~cpu_addr[0]};
+assign vram0_we = {2{vram0_cs & ~rnw}} & {cpu_addr[10],~cpu_addr[10]};
+assign vram1_we = {2{vram1_cs & ~rnw}} & {cpu_addr[11],~cpu_addr[11]};
 assign oram_we  = {2{oram_cs  & ~rnw}} & {cpu_addr[0],~cpu_addr[0]};
 
 assign cpu_din  = rom_cs   ? rom_data  :
-                  vram0_cs ? (cpu_addr[0] ? vram0_dout[15:8] : vram0_dout[7:0]) :
-                  vram1_cs ? (cpu_addr[0] ? vram1_dout[15:8] : vram1_dout[7:0]) :
+                  vram0_cs ? (cpu_addr[10] ? vram0_dout[15:8] : vram0_dout[7:0]) :
+                  vram1_cs ? (cpu_addr[11] ? vram1_dout[15:8] : vram1_dout[7:0]) :
                   oram_cs  ? (cpu_addr[0] ?  oram_dout[15:8] :  oram_dout[7:0]) :
                   c30_cs   ? c30_dout  : 8'd0;
 
