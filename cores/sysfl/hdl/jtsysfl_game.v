@@ -127,7 +127,7 @@ jtsysfl_main u_main(
     // program + data ROM
     .main_addr  ( main_addr     ),
     .main_cs    ( main_cs       ),
-    .main_ok    ( main_ok48     ),
+    .main_ok    ( main_okm      ),
     .main_data  ( main_d48      ),
     // work RAM
     .wram_addr  ( wram_addr     ),
@@ -135,11 +135,11 @@ jtsysfl_main u_main(
     .wram_we    ( wram_we       ),
     .wram_din   ( wram_din      ),
     .wram_dsn   ( wram_dsn      ),
-    .wram_ok    ( wram_ok48     ),
+    .wram_ok    ( wram_okm      ),
     .wram_data  ( wram_d48      ),
     .wram32_addr( wram32_addr   ),
     .wram32_cs  ( wram32_cs     ),
-    .wram32_ok  ( wram32_ok48   ),
+    .wram32_ok  ( wram32_okm    ),
     .wram32_data( wram32_d48    ),
     // BRAMs
     .cvram_addr ( cvram_addr    ),
@@ -233,11 +233,11 @@ jtsysfl_c75 u_c75(
     .mcurom_addr( mcurom_addr   ),
     .mcurom_cs  ( mcurom_cs     ),
     .mcurom_data( mcurom_d48    ),
-    .mcurom_ok  ( mcurom_ok48   ),
+    .mcurom_ok  ( mcurom_okm    ),
     .pcm_addr   ( pcm_addr      ),
     .pcm_cs     ( pcm_cs        ),
     .pcm_data   ( pcm_d48       ),
-    .pcm_ok     ( pcm_ok48      ),
+    .pcm_ok     ( pcm_okm       ),
     .snd_l      ( snd_left      ),
     .snd_r      ( snd_right     ),
     .sample     ( sample        ),
@@ -309,30 +309,45 @@ jtsysfl_misc_mmr #(.SEEK('h70)) u_misc(
 
 
 // SDRAM slots run at 96 MHz; re-register every dout/ok pair on clk48 so the
-// 96->48 paths end in a short boundary cone (the rungun ram_ok pattern)
-reg [ 7:0] rmask_d48;  reg rmask_ok48;
-reg [ 7:0] smask_d48;  reg smask_ok48;
-reg [31:0] main_d48;   reg main_ok48;
-reg [15:0] wram_d48;   reg wram_ok48;
-reg [31:0] wram32_d48; reg wram32_ok48;
-reg [15:0] mcurom_d48; reg mcurom_ok48;
-reg [ 7:0] pcm_d48;    reg pcm_ok48;
-reg [ 7:0] scr_d48;    reg scr_ok48;
-reg [31:0] roz_d48;    reg roz_ok48;
-reg [31:0] objrom_d48; reg objrom_ok48;
+// 96->48 paths end in a short boundary cone (the rungun ram_ok pattern).
+// The slot ok tracks the address combinationally, so the registered copy
+// is stale for one cycle after an address change: qualify each served ok
+// with the address the data was captured for, or fast clients (the c123
+// per-pixel byte fetch) latch the previous address's data.
+reg [ 7:0] rmask_d48;  reg rmask_ok48;  reg [18:0] rmask_a48;
+reg [ 7:0] smask_d48;  reg smask_ok48;  reg [18:0] smask_a48;
+reg [31:0] main_d48;   reg main_ok48;   reg [19:0] main_a48;
+reg [15:0] wram_d48;   reg wram_ok48;   reg [19:0] wram_a48;
+reg [31:0] wram32_d48; reg wram32_ok48; reg [18:0] wram32_a48;
+reg [15:0] mcurom_d48; reg mcurom_ok48; reg [17:0] mcurom_a48;
+reg [ 7:0] pcm_d48;    reg pcm_ok48;    reg [21:0] pcm_a48;
+reg [ 7:0] scr_d48;    reg scr_ok48;    reg [21:0] scr_a48;
+reg [31:0] roz_d48;    reg roz_ok48;    reg [18:0] roz_a48;
+reg [31:0] objrom_d48; reg objrom_ok48; reg [20:0] objrom_a48;
 
 always @(posedge clk48) begin
-    rmask_d48  <= rmask_data;  rmask_ok48  <= rmask_ok;
-    smask_d48  <= smask_data;  smask_ok48  <= smask_ok;
-    main_d48   <= main_data;   main_ok48   <= main_ok;
-    wram_d48   <= wram_data;   wram_ok48   <= wram_ok;
-    wram32_d48 <= wram32_data; wram32_ok48 <= wram32_ok;
-    mcurom_d48 <= mcurom_data; mcurom_ok48 <= mcurom_ok;
-    pcm_d48    <= pcm_data;    pcm_ok48    <= pcm_ok;
-    scr_d48    <= scr_data;    scr_ok48    <= scr_ok;
-    roz_d48    <= roz_data;    roz_ok48    <= roz_ok;
-    objrom_d48 <= objrom_data; objrom_ok48 <= objrom_ok;
+    rmask_d48  <= rmask_data;  rmask_ok48  <= rmask_ok;   rmask_a48  <= rmask_addr;
+    smask_d48  <= smask_data;  smask_ok48  <= smask_ok;   smask_a48  <= smask_addr;
+    main_d48   <= main_data;   main_ok48   <= main_ok;    main_a48   <= main_addr;
+    wram_d48   <= wram_data;   wram_ok48   <= wram_ok;    wram_a48   <= wram_addr;
+    wram32_d48 <= wram32_data; wram32_ok48 <= wram32_ok;  wram32_a48 <= wram32_addr;
+    mcurom_d48 <= mcurom_data; mcurom_ok48 <= mcurom_ok;  mcurom_a48 <= mcurom_addr;
+    pcm_d48    <= pcm_data;    pcm_ok48    <= pcm_ok;     pcm_a48    <= pcm_addr;
+    scr_d48    <= scr_data;    scr_ok48    <= scr_ok;     scr_a48    <= scr_addr;
+    roz_d48    <= roz_data;    roz_ok48    <= roz_ok;     roz_a48    <= roz_addr;
+    objrom_d48 <= objrom_data; objrom_ok48 <= objrom_ok;  objrom_a48 <= objrom_addr;
 end
+
+wire rmask_okm  = rmask_ok48  && rmask_a48  == rmask_addr;
+wire smask_okm  = smask_ok48  && smask_a48  == smask_addr;
+wire main_okm   = main_ok48   && main_a48   == main_addr;
+wire wram_okm   = wram_ok48   && wram_a48   == wram_addr;
+wire wram32_okm = wram32_ok48 && wram32_a48 == wram32_addr;
+wire mcurom_okm = mcurom_ok48 && mcurom_a48 == mcurom_addr;
+wire pcm_okm    = pcm_ok48    && pcm_a48    == pcm_addr;
+wire scr_okm    = scr_ok48    && scr_a48    == scr_addr;
+wire roz_okm    = roz_ok48    && roz_a48    == roz_addr;
+wire objrom_okm = objrom_ok48 && objrom_a48 == objrom_addr;
 
 // jtframe generates pxl_cen on the 96 MHz clock; cross it for the 48 side
 wire pxl_cen48;
@@ -395,25 +410,25 @@ jtsysfl_video u_video(
 
     .smask_cs   ( smask_cs      ),
     .smask_addr ( smask_addr    ),
-    .smask_ok   ( smask_ok48    ),
+    .smask_ok   ( smask_okm     ),
     .smask_data ( smask_d48     ),
     .scr_cs     ( scr_cs        ),
     .scr_addr   ( scr_addr      ),
-    .scr_ok     ( scr_ok48      ),
+    .scr_ok     ( scr_okm       ),
     .scr_data   ( scr_d48       ),
     .rmask_cs   ( rmask_cs      ),
     .rmask_addr ( rmask_addr    ),
-    .rmask_ok   ( rmask_ok48    ),
+    .rmask_ok   ( rmask_okm     ),
     .rmask_data ( rmask_d48     ),
     .opq_addr   ( opq_addr      ),
     .opq_bit    ( opq_bit       ),
     .roz_cs     ( roz_cs        ),
     .roz_addr   ( roz_addr      ),
-    .roz_ok     ( roz_ok48      ),
+    .roz_ok     ( roz_okm       ),
     .roz_data   ( roz_d48       ),
     .objrom_cs  ( objrom_cs     ),
     .objrom_addr( objrom_addr   ),
-    .objrom_ok  ( objrom_ok48   ),
+    .objrom_ok  ( objrom_okm    ),
     .objrom_data( objrom_d48    ),
 
     .red        ( red           ),
