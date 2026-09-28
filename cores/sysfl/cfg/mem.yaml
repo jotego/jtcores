@@ -45,6 +45,10 @@ sdram:
           data_width: 32
           cache_size: 2kB
     - buses:
+        - name: smask  # tiny traffic, first so roz cannot starve the tilemaps
+          addr_width: 19
+          data_width: 8
+          offset: SMASK_OFFSET
         - name: roz
           addr_width: 21
           data_width: 32
@@ -53,10 +57,6 @@ sdram:
           addr_width: 21
           data_width: 32
           cache_size: 2kB
-        - name: smask
-          addr_width: 19
-          data_width: 8
-          offset: SMASK_OFFSET
         - name: mcurom  # C75 external data ROM (se1_spr), 512kB
           addr_width: 19
           data_width: 16

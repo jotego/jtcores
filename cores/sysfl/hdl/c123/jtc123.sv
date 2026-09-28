@@ -128,7 +128,7 @@ assign hsub       = hcnt[2:0];
 assign buf_we     = (alt_cen & ~done) | clr_we;
 // tail sweep: descends from HEND on the idle write phase and stops at the
 // renderer, so a cut line never shows the previous line's tail
-wire        clr_we  = clr_on & ~(alt_cen & ~done);
+wire        clr_we  = clr_on & ~(alt_cen & ~done) & clr_a > hcnt;
 wire [ 8:0] buf_wa  = clr_we ? clr_a : buf_a;
 wire [14:0] buf_wd  = clr_we ? 15'd0 : {bpxl,bprio,bblankn};
 // a layer entering its next tile needs that tile's mask ready
@@ -209,10 +209,7 @@ always @(posedge clk, posedge rst) begin
         end
         `ifdef SIMULATION miss <= 0; `endif
 
-        if( clr_we ) begin
-            clr_a <= clr_a - 9'd1;
-            if( clr_a <= hcnt ) clr_on <= 0;
-        end
+        if( clr_we ) clr_a <= clr_a - 9'd1;
         if( hs_edge ) begin
             // road coverage: whole losing layers drop on covered rows, the
             // covered span silences losing pixels elsewhere (Stage 0 then

@@ -86,7 +86,8 @@ localparam [8:0] LINE_W = 9'd288,
                  VLINES = 9'd224;
 
 localparam [3:0] IDLE=0, LDREG=1, RECA=2, RECW=3, RECL=4,
-                 CALCA=5, CALCB=6, CALCC=7, RUN=8;
+                 CALCA=5, CALCB=6, CALCC=7, RUN=8, WAITL=9;
+localparam [8:0] AHEAD=9'd2; // render-ahead depth over the classic 1 line
 
 reg  [15:0] rec[0:7];
 reg  [ 3:0] fsm;
@@ -258,9 +259,10 @@ integer rz_lines=0, rz_cut=0, rz_wait=0, rz_cyc=0, rz_maxc=0;
 integer rz_fill=0, rz_req=0, rz_hit=0;
 reg rz_vsl=0, rz_csl=0, rz_okl=0;
 wire rz_okl_w = !rz_okl;
+wire rz_ladv = fsm==RUN && xi==LINE_W && f_cnt==0 && inflight==0 && fv==0 && lyr1;
 always @(posedge clk) begin
     rz_vsl <= vs;
-    if( fsm != IDLE ) begin
+    if( fsm != IDLE && fsm != WAITL ) begin
         rz_cyc <= rz_cyc + 1;
         rz_wait <= rz_wait + (roz_cs && !roz_ok ? 1:0) + (rozb_cs && !rozb_ok ? 1:0);
         rz_csl <= roz_cs;
@@ -269,14 +271,15 @@ always @(posedge clk) begin
         if( roz_cs && roz_ok && !rz_okl ) rz_hit <= rz_hit+1; // served
         if( roz_cs && !roz_ok && rz_okl_w ) rz_fill <= rz_fill + 1;
     end
+    if( rz_ladv ) begin // per rendered line, the drawer free-runs over hs
+        if( rz_cyc > rz_maxc ) rz_maxc <= rz_cyc;
+        rz_cyc <= 0; rz_fill <= 0; rz_req <= 0;
+    end
     if( hs_edge ) begin
-        if( fsm != IDLE ) begin
+        if( nline < VLINES && lline < nline ) begin // display caught the drawer
             rz_cut <= rz_cut + 1;
             $display("RZCUT line=%0d xi=%0d fsm=%0d cyc=%0d fills=%0d freq=%0d", lline, xi, fsm, rz_cyc, rz_fill, rz_req);
         end
-        rz_fill <= 0; rz_req <= 0;
-        if( rz_cyc > rz_maxc ) rz_maxc <= rz_cyc;
-        rz_cyc <= 0;
         if( nline < VLINES ) rz_lines <= rz_lines + 1;
     end
     if( vs && !rz_vsl ) begin
@@ -320,6 +323,7 @@ always @(posedge clk) begin
         opq2_addr   <= 0;
         roz_addr    <= 0;
         rozb_addr   <= 0;
+        lline       <= VLINES; // out of range: first visible hs resyncs
         sum_vld     <= 0;
         sum_full    <= 0;
         sum_x0      <= 0;
@@ -410,7 +414,9 @@ always @(posedge clk) begin
             q_st   <= 1;
         end
         // ---------- line render ----------
-        if( hs_edge ) begin
+        // free-running drawer: lline advances on its own up to AHEAD lines
+        // past the display; hs only resyncs at frame start or when behind
+        if( hs_edge && nline < VLINES && (lline < nline || lline >= VLINES) ) begin
             lline <= nline;
             lyr1  <= 0;
             st    <= 0;
@@ -423,8 +429,10 @@ always @(posedge clk) begin
             to    <= 0;
             tob   <= 0;
             mo    <= 0;
-            fsm   <= nline < VLINES ? LDREG : IDLE;
+            fsm   <= LDREG;
         end else case( fsm )
+            WAITL: if( nline < VLINES && {1'b0,lline} <= {1'b0,nline}+{1'b0,AHEAD} )
+                fsm <= LDREG;
             LDREG: begin
                 xi  <= 0;
                 st  <= 0;
@@ -575,8 +583,14 @@ always @(posedge clk) begin
                     if( mo ==2'b11 ) mo  <= 2'b10;
                 end
                 if( xi==LINE_W && f_cnt==0 && inflight==0 && fv==0 ) begin
-                    lyr1 <= 1;
-                    fsm  <= lyr1 ? IDLE : LDREG;
+                    if( !lyr1 ) begin
+                        lyr1 <= 1;
+                        fsm  <= LDREG;
+                    end else begin
+                        lyr1  <= 0;
+                        lline <= lline + 9'd1;
+                        fsm   <= lline+9'd1 >= VLINES ? IDLE : WAITL;
+                    end
                 end
             end
             default: fsm <= IDLE;
@@ -586,27 +600,34 @@ end
 
 assign hd  = hdump - H0;
 assign rda = flip ? LINE_W-9'd1-hd : hd;
+wire [8:0] rdline = nline - 9'd1; // displayed row, V0 folded via nline
 
-jtframe_linebuf #(.DW(16)) u_buf0(
-    .clk        ( clk       ),
-    .LHBL       ( ~hs       ),
-    .wr_addr    ( baddr     ),
-    .wr_data    ( bdata     ),
-    .we         ( bwe & ~bwl),
-    .rd_addr    ( rda       ),
-    .rd_data    ( q0        ),
-    .rd_gated   (           )
+// 4-line buffers: the drawer runs up to AHEAD+1 lines past the display,
+// banking cheap (sky) lines' time for the heavy horizon band
+jtframe_dual_ram #(.AW(11),.DW(16)) u_buf0(
+    .clk0       ( clk       ),
+    .data0      ( bdata     ),
+    .addr0      ( {lline[1:0], baddr} ),
+    .we0        ( bwe & ~bwl),
+    .q0         (           ),
+    .clk1       ( clk       ),
+    .data1      ( 16'd0     ),
+    .addr1      ( {rdline[1:0], rda}  ),
+    .we1        ( 1'b0      ),
+    .q1         ( q0        )
 );
 
-jtframe_linebuf #(.DW(16)) u_buf1(
-    .clk        ( clk       ),
-    .LHBL       ( ~hs       ),
-    .wr_addr    ( baddr     ),
-    .wr_data    ( bdata     ),
-    .we         ( bwe &  bwl),
-    .rd_addr    ( rda       ),
-    .rd_data    ( q1        ),
-    .rd_gated   (           )
+jtframe_dual_ram #(.AW(11),.DW(16)) u_buf1(
+    .clk0       ( clk       ),
+    .data0      ( bdata     ),
+    .addr0      ( {lline[1:0], baddr} ),
+    .we0        ( bwe &  bwl),
+    .q0         (           ),
+    .clk1       ( clk       ),
+    .data1      ( 16'd0     ),
+    .addr1      ( {rdline[1:0], rda}  ),
+    .we1        ( 1'b0      ),
+    .q1         ( q1        )
 );
 
 // layer mixing: same priority resolves to layer 0
