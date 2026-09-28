@@ -28,7 +28,10 @@ module jtktiger_main(
     input             rom_ok,
 
     output            dsp_on,
-    input             dsp_halt,
+    output            dsp_rstn,
+    output            snd_rstn,
+    input             dsp_br,
+    output            dsp_ack,
     input      [13:1] dsp_addr,
     input      [ 1:0] dsp_sel,
     input      [15:0] dsp_dout,
@@ -88,7 +91,8 @@ localparam integer MHZ = `JTFRAME_MCLK/1000000;
 
 wire [23:1] A;
 wire [ 2:0] FC;
-wire        cpu_cen, cpu_cenb, UDSn, LDSn, RnW, ASn, VPAn, DTACKn, BUSn, irq_n;
+wire        cpu_cen, cpu_cenb, UDSn, LDSn, RnW, ASn, VPAn, DTACKn, BUSn, irq_n,
+            BRn, BGn, BGACKn;
 wire        rom_ok_dly, bus_busy, cab_we, scr_wr;
 wire [ 1:0] dsn, cpu_bwe, lyr;
 wire [ 6:0] cab_sys;
@@ -109,16 +113,19 @@ assign cab_sys   = ~{ cab_1p[1], cab_1p[0], coin[1], coin[0], dip_test, tilt, se
 assign sys       = tcobr ? {1'b0, cab_sys} : 8'd0;
 
 assign dsp_on    = tcobr ? mlatch[6] : coin_ctl[0];
+assign dsp_rstn  = mlatch[0];
+assign snd_rstn  = mlatch[1];
+assign dsp_ack   = ~BGACKn;
 assign flip      = mlatch[3];
 assign bg_bank   = mlatch[4];
 assign fg_bank   = mlatch[5] & tcobr;
 assign video_on  = mlatch[7];
 
-assign sh_addr   = dsp_halt ? dsp_addr : A[13:1];
-assign sh_din    = dsp_halt ? dsp_dout : cpu_dout;
-assign work_bwe  = dsp_halt ? {2{dsp_we && dsp_sel==2'd0}} : {2{work_cs}} & cpu_bwe;
-assign obj_bwe   = dsp_halt ? {2{dsp_we && dsp_sel==2'd1}} : {2{obj_cs }} & cpu_bwe;
-assign pal_bwe   = dsp_halt ? {2{dsp_we && dsp_sel==2'd2}} : {2{pal_cs }} & cpu_bwe;
+assign sh_addr   = dsp_ack ? dsp_addr : A[13:1];
+assign sh_din    = dsp_ack ? dsp_dout : cpu_dout;
+assign work_bwe  = dsp_ack ? {2{dsp_we && dsp_sel==2'd0}} : {2{work_cs}} & cpu_bwe;
+assign obj_bwe   = dsp_ack ? {2{dsp_we && dsp_sel==2'd1}} : {2{obj_cs }} & cpu_bwe;
+assign pal_bwe   = dsp_ack ? {2{dsp_we && dsp_sel==2'd2}} : {2{pal_cs }} & cpu_bwe;
 assign dsp_din   = dsp_sel==2'd0 ? work_dout   :
                    dsp_sel==2'd1 ? objram_dout :
                    dsp_sel==2'd2 ? palram_dout : 16'd0;
@@ -221,7 +228,7 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .bus_cs     ( rom_cs    ),
     .bus_busy   ( bus_busy  ),
     .bus_legit  ( 1'b0      ),
-    .bus_ack    ( 1'b0      ),
+    .bus_ack    ( dsp_ack   ),
     .ASn        ( ASn       ),
     .DSn        ( dsn       ),
     .num        ( fast ? 7'd10 : 7'd7 ),
@@ -231,6 +238,18 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .DTACKn     ( DTACKn    ),
     .fave       (           ),
     .fworst     (           )
+);
+
+jtframe_68kdma u_dma(
+    .clk        ( clk       ),
+    .rst        ( rst       ),
+    .cen        ( cpu_cen   ),
+    .cpu_BRn    ( BRn       ),
+    .cpu_BGACKn ( BGACKn    ),
+    .cpu_BGn    ( BGn       ),
+    .cpu_ASn    ( ASn       ),
+    .cpu_DTACKn ( DTACKn    ),
+    .dev_br     ( dsp_br    )
 );
 
 jtframe_m68k u_cpu(
@@ -249,10 +268,10 @@ jtframe_m68k u_cpu(
     .VPAn       ( VPAn      ),
     .FC         ( FC        ),
     .BERRn      ( 1'b1      ),
-    .HALTn      ( dip_pause & ~dsp_halt ),
-    .BRn        ( 1'b1      ),
-    .BGACKn     ( 1'b1      ),
-    .BGn        (           ),
+    .HALTn      ( dip_pause ),
+    .BRn        ( BRn       ),
+    .BGACKn     ( BGACKn    ),
+    .BGn        ( BGn       ),
     .DTACKn     ( DTACKn    ),
     .IPLn       ( {irq_n, 2'b11} )
 );

@@ -16,14 +16,14 @@ wire [11:0] dsp_rom_addr;
 wire [ 7:0] scr_din, sys;
 wire [ 1:0] dsp_sel;
 wire [ 2:0] scr_cs, scr_addr;
-wire        dsp_on, dsp_halt, dsp_we, tcobr, fast;
+wire        dsp_on, dsp_rstn, snd_rstn, dsp_br, dsp_ack, dsp_we, tcobr, fast;
 wire        flip, bg_bank, fg_bank, video_on;
 
 assign dip_flip    = flip;
 assign pxl_cen     = cen7;
 assign pxl2_cen    = cen14;
 assign dsprom_addr = dsp_rom_addr[10:0];
-assign debug_view  = { 4'd0, dsp_halt, dsp_on, flip, video_on };
+assign debug_view  = { 3'd0, dsp_br, dsp_ack, dsp_on, flip, video_on };
 
 jtktiger_header u_header(
     .clk        ( clk               ),
@@ -49,7 +49,10 @@ jtktiger_main u_main(
     .rom_ok     ( main_ok           ),
 
     .dsp_on     ( dsp_on            ),
-    .dsp_halt   ( dsp_halt          ),
+    .dsp_rstn   ( dsp_rstn          ),
+    .snd_rstn   ( snd_rstn          ),
+    .dsp_br     ( dsp_br            ),
+    .dsp_ack    ( dsp_ack           ),
     .dsp_addr   ( dsp_addr          ),
     .dsp_sel    ( dsp_sel           ),
     .dsp_dout   ( dsp_dout          ),
@@ -107,11 +110,13 @@ jtktiger_main u_main(
 
 /* verilator tracing_off */
 jttoaplan1_dsp #(.TWINCOBR(1)) u_dsp(
-    .rst        ( rst               ),
+    .rst        ( rst | ~dsp_rstn   ),
     .clk        ( clk               ),
     .cen        ( cen14             ),
     .dsp_on     ( dsp_on            ),
-    .halt_main  ( dsp_halt          ),
+    .halt_main  (                   ),
+    .bus_req    ( dsp_br            ),
+    .bus_ack    ( dsp_ack           ),
     .host_addr  ( dsp_addr          ),
     .host_sel   ( dsp_sel           ),
     .host_dout  ( dsp_dout          ),
@@ -123,7 +128,7 @@ jttoaplan1_dsp #(.TWINCOBR(1)) u_dsp(
 
 /* verilator tracing_off */
 jtwardnr_sound #(.TWINCOBR(1)) u_sound(
-    .rst        ( rst               ),
+    .rst        ( rst | ~snd_rstn   ),
     .clk        ( clk               ),
     .cen3p5     ( cen3p5            ),
 
