@@ -231,6 +231,8 @@ generate
                                        : (read_addr[1] ? pre_dout[ 63:32] : pre_dout[31: 0]);
         end else if( BURSTLEN == 32 ) begin : gen_burst32
             assign dout = pre_dout[31:0];
+        end else if( BURSTLEN == 64 && DW == 64 ) begin : gen_dw64
+            assign dout = pre_dout[63:0];
         end else if( BURSTLEN == 64 ) begin : gen_burst64
             assign dout = read_addr[1] ? pre_dout[63:32] : pre_dout[31:0];
         end else begin : gen_invalid
