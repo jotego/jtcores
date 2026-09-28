@@ -94,7 +94,9 @@ assign req        = fill2_req ||
 // A lower-priority slot can remain pending while the client advances to its
 // next address. Keep the SDRAM address paired with the tag and line captured
 // when req was first asserted, until that request starts filling.
-wire [LINE_AW-1:0] line_lo = fill_half ? {1'b1,{BURST_AW{1'b0}}} : {LINE_AW{1'b0}};
+// LINE_AW can be 0 (single-beat bursts); line_lo is then unused (LINE2X=0)
+localparam LAW = LINE_AW==0 ? 1 : LINE_AW;
+wire [LAW-1:0] line_lo = fill_half ? {1'b1,{BURST_AW{1'b0}}} : {LAW{1'b0}};
 assign sdram_addr = (LINE2X==1 && filling) ? { fill_tag, fill_line, line_lo } :
                     req_pending ? { req_tag, req_line, {LINE_AW{1'b0}} } :
                     TAG_EFF ? { read_tag_l, read_line_l, {LINE_AW{1'b0}} } : line_addr;
