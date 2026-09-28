@@ -56,11 +56,15 @@ module jtc169(
     output reg        sum_full,   // every visible pixel covered
     output reg [ 8:0] sum_x0, sum_x1,
     output reg [ 3:0] sum_prio,
-    // tile ROM (RCHAR)
+    // tile ROM (RCHAR), two buses so two misses stay in flight
     output            roz_cs,
     output reg [20:2] roz_addr,     // 32-bit words, texel xpos[1:0] = byte lane
     input             roz_ok,
     input      [31:0] roz_data,
+    output            rozb_cs,
+    output reg [20:2] rozb_addr,
+    input             rozb_ok,
+    input      [31:0] rozb_data,
     // pixel output
     output reg [11:0] roz_pxl,
     output reg [ 3:0] roz_prio,
@@ -89,11 +93,11 @@ reg  [ 3:0] fsm;
 reg  [ 2:0] st, rcnt;
 reg  [ 8:0] lline;
 reg         lyr1, scl, hs_l;
-reg  [ 1:0] fv, to, mo, tbl, mbl;
+reg  [ 1:0] fv, to, mo, tbl, mbl, tob, tbb;
 reg  [ 8:0] fx0, fx1;
 reg  [ 1:0] flane0, flane1;
 reg  [ 2:0] fmb0, fmb1;
-reg         fmok0, fmok1, fbit0, fbit1, ftok0, ftok1;
+reg         fmok0, fmok1, fbit0, fbit1, ftok0, ftok1, fbus0, fbus1;
 reg  [ 7:0] ftex0, ftex1;
 // unpacked parameters, 12.12 fixed point
 reg         p_en, p_wrap, p_wrapy;
@@ -143,15 +147,17 @@ wire        h_mbit2 = h_mhit ? h_mbit : 1'b1;
 assign      opq_addr = h_code;
 wire [ 2:0] inflight = {2'd0,s1_v} + {2'd0,s2_v};
 wire        issue  = fsm==RUN && xi!=LINE_W && (f_cnt + inflight) < 3'd4;
-wire        t0ok   = ftok0 || (roz_ok && tbl==0);
+wire        t0ok   = ftok0 || (fbus0 ? (rozb_ok && tbb==0) : (roz_ok && tbl==0));
 wire        ret    = fv[0] && fmok0 && t0ok;
-wire [ 7:0] t_byt0 = ftok0 ? ftex0 : roz_data[{flane0,3'd0} +: 8];
+wire [31:0] t_wrd0 = fbus0 ? rozb_data : roz_data;
+wire [ 7:0] t_byt0 = ftok0 ? ftex0 : t_wrd0[{flane0,3'd0} +: 8];
 wire        m_done = mo[1] && mbl==0 && rmask_ok;
-wire        t_dup  = !h_thit && to[1] && roz_addr ==h_til[20:2];
+wire        t_dup  = !h_thit && ((to[1]  && roz_addr ==h_til[20:2]) ||
+                                 (tob[1] && rozb_addr==h_til[20:2]));
 wire        m_dup  = !h_mhit2 && mo[1] && rmask_addr==h_msk;
 wire        pophit = h_vld && !ret && (!h_draw || (h_mhit2 && h_thit));
 wire        popst  = h_vld && h_draw && !(h_mhit2 && h_thit) && !ret && !fv[1]
-                     && !t_dup && (h_thit || !to[1])
+                     && !t_dup && (h_thit || !to[1] || !tob[1])
                      && (h_mhit2 || (opq_cur && !m_dup && !mo[1]));
 wire        pop    = pophit || popst;
 // line buffer write
@@ -199,6 +205,7 @@ wire        scl_mode, hs_edge, in_x, in_y, b0, b1, sel0;
 
 assign rmask_cs = mo[1];
 assign roz_cs   = to[1];
+assign rozb_cs  = tob[1];
 
 assign scl_mode = ctl0[15:0]==16'h8000;
 assign hs_edge  = hs & ~hs_l;
@@ -255,7 +262,7 @@ always @(posedge clk) begin
     rz_vsl <= vs;
     if( fsm != IDLE ) begin
         rz_cyc <= rz_cyc + 1;
-        if( roz_cs && !roz_ok ) rz_wait <= rz_wait + 1;
+        rz_wait <= rz_wait + (roz_cs && !roz_ok ? 1:0) + (rozb_cs && !rozb_ok ? 1:0);
         rz_csl <= roz_cs;
         rz_okl <= roz_cs && roz_ok;
         if( roz_cs && !rz_csl ) rz_req <= rz_req + 1;         // new requests
@@ -302,6 +309,7 @@ always @(posedge clk) begin
         fv    <= 0;
         to    <= 0;
         mo    <= 0;
+        tob   <= 0;
         s1_v  <= 0;
         s2_v  <= 0;
         f_cnt <= 0;
@@ -311,6 +319,7 @@ always @(posedge clk) begin
         rozmap_addr <= 0;
         opq2_addr   <= 0;
         roz_addr    <= 0;
+        rozb_addr   <= 0;
         sum_vld     <= 0;
         sum_full    <= 0;
         sum_x0      <= 0;
@@ -412,6 +421,7 @@ always @(posedge clk) begin
             f_wr  <= 0;
             fv    <= 0;
             to    <= 0;
+            tob   <= 0;
             mo    <= 0;
             fsm   <= nline < VLINES ? LDREG : IDLE;
         end else case( fsm )
@@ -500,6 +510,7 @@ always @(posedge clk) begin
                 f_cnt <= f_cnt + {2'd0,s2_v} - {2'd0,pop};
                 // back end: caches hit -> one pixel per clock, else fetch
                 if( tbl!=0 ) tbl <= tbl-2'd1;
+                if( tbb!=0 ) tbb <= tbb-2'd1;
                 if( mbl!=0 ) mbl <= mbl-2'd1;
                 if( m_done && !ret ) begin
                     c_mbyte <= rmask_data;
@@ -527,9 +538,17 @@ always @(posedge clk) begin
                         fv[0]<=1;
                     end
                     if( !h_thit ) begin
-                        roz_addr <= h_til[20:2];
-                        tbl <= 2'd2;
-                        to  <= {1'b1, fv[0]};
+                        if( !to[1] ) begin
+                            roz_addr <= h_til[20:2];
+                            tbl <= 2'd2;
+                            to  <= {1'b1, fv[0]};
+                            if( fv[0] ) fbus1 <= 0; else fbus0 <= 0;
+                        end else begin
+                            rozb_addr <= h_til[20:2];
+                            tbb <= 2'd2;
+                            tob <= {1'b1, fv[0]};
+                            if( fv[0] ) fbus1 <= 1; else fbus0 <= 1;
+                        end
                     end
                     if( !h_mhit2 ) begin
                         rmask_addr <= h_msk;
@@ -542,17 +561,18 @@ always @(posedge clk) begin
                     bwl   <= lyr1;
                     bwe   <= 1;
                     if( !ftok0 ) begin
-                        c_tword <= roz_data;
-                        c_taddr <= roz_addr;
+                        c_tword <= t_wrd0;
+                        c_taddr <= fbus0 ? rozb_addr : roz_addr;
                         c_tok   <= 1;
-                        to      <= 0;
+                        if( fbus0 ) tob <= 0; else to <= 0;
                     end
                     fv[0] <= fv[1];
                     fv[1] <= 0;
-                    fx0<=fx1; flane0<=flane1; fmb0<=fmb1;
+                    fx0<=fx1; flane0<=flane1; fmb0<=fmb1; fbus0<=fbus1;
                     ftok0<=ftok1; ftex0<=ftex1; fmok0<=fmok1; fbit0<=fbit1;
-                    if( to==2'b11 ) to <= 2'b10;
-                    if( mo==2'b11 ) mo <= 2'b10;
+                    if( to ==2'b11 ) to  <= 2'b10;
+                    if( tob==2'b11 ) tob <= 2'b10;
+                    if( mo ==2'b11 ) mo  <= 2'b10;
                 end
                 if( xi==LINE_W && f_cnt==0 && inflight==0 && fv==0 ) begin
                     lyr1 <= 1;

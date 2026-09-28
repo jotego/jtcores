@@ -48,7 +48,11 @@ sdram:
         - name: roz
           addr_width: 21
           data_width: 32
-          cache_size: 4kB
+          cache_size: 2kB
+        - name: rozb   # second texel bus: two roz misses in flight
+          addr_width: 21
+          data_width: 32
+          cache_size: 2kB
         - name: smask
           addr_width: 19
           data_width: 8
