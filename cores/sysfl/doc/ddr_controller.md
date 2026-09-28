@@ -186,3 +186,31 @@ coin canary.
   that uses the DDR lfbuf adopts ddr: buses (sysfl's C355 uses the BRAM
   lfbuf variant today, so the pilot core does not hit this, but the PR
   should solve it anyway).
+
+## Addendum 2026-09-28: objrom first, and what freeing bank 1 buys
+
+Premises that changed since the plan was written:
+
+- The slow-download root cause above is FIXED (macros moved global,
+  e950ce386): the staged copy at 0x3000_0000 is live on every download,
+  so phase 1 has its data source already on the board.
+- The C355 walker rewrite (4b4ecf403) made the sprite side more latency
+  tolerant: the per-line record walk leaves headroom (maxl 3406 of 3456
+  at 54 MHz on the worst scene) and the vblank decode is SDRAM-free, so
+  objrom fits the "line-buffered renderer" class even better than when
+  the plan was drafted. objrom becomes the first migrated bus, with pcm
+  optionally riding along for free.
+- The Verilator SDRAM model now handles 10-bit-column (LARGE/XL) preloads
+  (82b77bc5e), and JTFRAME_SDRAM_LARGE is verified end to end in scene
+  sims: the SDRAM side of any relayout can be simulated honestly.
+- Measured ROZ facts (see sysfl notes): masks are a non-issue on hardware
+  (the download-built opq table skips ~98% of mask fetches in road
+  scenes); ROZ starvation is texel bandwidth, and small cache lines
+  (short bursts) win under minification.
+
+The strategic payoff of moving objrom to DDR is therefore not just obj
+bandwidth: it empties SDRAM bank 1 (8/16 MB, sole tenant today), giving a
+bank whose burst length is freely settable. A ROZ texel copy there at
+BA1_LEN=16 or 32, alone on the bank, is the ideal bad-angle fetch target
+(2 or 4-byte cache lines, no wram32 constraint, no mask traffic), pairing
+with the 64-bit bank-0 copy for the aligned case.

@@ -49,16 +49,11 @@ module jtc169(
     input      [ 7:0] rmask_data,
     output     [13:0] opq_addr,   // opaque-tile table lookup, skips mask fetches
     input             opq_bit,
-    // tile ROM (RCHAR), aligned-walk copy
+    // tile ROM (RCHAR)
     output            roz_cs,
     output reg [20:2] roz_addr,     // 32-bit words, texel xpos[1:0] = byte lane
     input             roz_ok,
     input      [31:0] roz_data,
-    // steep-walk copy on its own short-burst bank: single texels
-    output            roz2_cs,
-    output reg [20:0] roz2_addr,
-    input             roz2_ok,
-    input      [ 7:0] roz2_data,
     // pixel output
     output reg [11:0] roz_pxl,
     output reg [ 3:0] roz_prio,
@@ -87,9 +82,7 @@ reg  [ 3:0] fsm;
 reg  [ 2:0] st, rcnt;
 reg  [ 8:0] lline;
 reg         lyr1, scl, hs_l;
-reg  [ 1:0] fv, to, tob, mo, tbl, tbbl, mbl;
-reg         steep;          // this line walks rows nearly every pixel
-reg         fbus0, fbus1;   // which copy the slot's fetch went to
+reg  [ 1:0] fv, to, mo, tbl, mbl;
 reg  [ 8:0] fx0, fx1;
 reg  [ 1:0] flane0, flane1;
 reg  [ 2:0] fmb0, fmb1;
@@ -107,7 +100,7 @@ reg  [11:0] p_left, p_top, p_smask;
 reg  [12:0] p_size, p_x1, p_y1;
 reg  [23:0] p_incxx, p_incxy, p_incyx, p_incyy, p_ax, p_ay,
             sx24, sy24, lxt, lyt, cx, cy, cyf;
-// single-entry caches: one mask byte, one 4-texel word (copy A)
+// single-entry caches: one mask byte, one 4-texel word
 reg  [18:0] c_maddr;
 reg  [20:2] c_taddr;
 reg  [ 7:0] c_mbyte;
@@ -136,7 +129,6 @@ wire        opq_cur = opq_cl == h_code;
 wire        h_opq   = opq_cur && opq_bit;
 wire        h_mhit  = c_mok && c_maddr==h_msk;
 wire        h_thit = c_tok && c_taddr==h_til[20:2];
-wire        h_tht  = h_thit && !steep; // the held word belongs to copy A
 wire [ 7:0] h_tex  = c_tword[ {h_til[1:0],3'd0} +: 8 ];
 wire        h_mbit = c_mbyte[ ~h_xp[2:0] ];
 wire        h_mhit2 = h_mhit || h_opq;
@@ -144,16 +136,15 @@ wire        h_mbit2 = h_mhit ? h_mbit : 1'b1;
 assign      opq_addr = h_code;
 wire [ 2:0] inflight = {2'd0,s1_v} + {2'd0,s2_v};
 wire        issue  = fsm==RUN && xi!=LINE_W && (f_cnt + inflight) < 3'd4;
-wire        t0ok   = ftok0 || (fbus0 ? (roz2_ok && tbbl==0) : (roz_ok && tbl==0));
+wire        t0ok   = ftok0 || (roz_ok && tbl==0);
 wire        ret    = fv[0] && fmok0 && t0ok;
-wire [ 7:0] t_byt0 = ftok0 ? ftex0 : fbus0 ? roz2_data : roz_data[{flane0,3'd0} +: 8];
+wire [ 7:0] t_byt0 = ftok0 ? ftex0 : roz_data[{flane0,3'd0} +: 8];
 wire        m_done = mo[1] && mbl==0 && rmask_ok;
-wire        t_dup  = !h_tht && (steep ? (tob[1] && roz2_addr==h_til[20:0])
-                                      : (to[1]  && roz_addr ==h_til[20:2]));
+wire        t_dup  = !h_thit && to[1] && roz_addr ==h_til[20:2];
 wire        m_dup  = !h_mhit2 && mo[1] && rmask_addr==h_msk;
-wire        pophit = h_vld && !ret && (!h_draw || (h_mhit2 && h_tht));
-wire        popst  = h_vld && h_draw && !(h_mhit2 && h_tht) && !ret && !fv[1]
-                     && !t_dup && (h_tht || !(steep ? tob[1] : to[1]))
+wire        pophit = h_vld && !ret && (!h_draw || (h_mhit2 && h_thit));
+wire        popst  = h_vld && h_draw && !(h_mhit2 && h_thit) && !ret && !fv[1]
+                     && !t_dup && (h_thit || !to[1])
                      && (h_mhit2 || (opq_cur && !m_dup && !mo[1]));
 wire        pop    = pophit || popst;
 // line buffer write
@@ -176,7 +167,6 @@ wire        scl_mode, hs_edge, in_x, in_y, b0, b1, sel0;
 
 assign rmask_cs = mo[1];
 assign roz_cs   = to[1];
-assign roz2_cs  = tob[1];
 
 assign scl_mode = ctl0[15:0]==16'h8000;
 assign hs_edge  = hs & ~hs_l;
@@ -231,7 +221,7 @@ always @(posedge clk) begin
     rz_vsl <= vs;
     if( fsm != IDLE ) begin
         rz_cyc <= rz_cyc + 1;
-        if( (roz_cs && !roz_ok) || (roz2_cs && !roz2_ok) ) rz_wait <= rz_wait + 1;
+        if( roz_cs && !roz_ok ) rz_wait <= rz_wait + 1;
         rz_csl <= roz_cs;
         rz_okl <= roz_cs && roz_ok;
         if( roz_cs && !rz_csl ) rz_req <= rz_req + 1;         // new requests
@@ -277,7 +267,6 @@ always @(posedge clk) begin
         hs_l  <= 0;
         fv    <= 0;
         to    <= 0;
-        tob   <= 0;
         mo    <= 0;
         s1_v  <= 0;
         s2_v  <= 0;
@@ -288,8 +277,6 @@ always @(posedge clk) begin
         rozmap_addr <= 0;
         rmask_addr  <= 0;
         roz_addr    <= 0;
-        roz2_addr   <= 0;
-        steep       <= 0;
     end else begin
         hs_l <= hs;
         bwe  <= 0;
@@ -311,7 +298,6 @@ always @(posedge clk) begin
             f_wr  <= 0;
             fv    <= 0;
             to    <= 0;
-            tob   <= 0;
             mo    <= 0;
             fsm   <= nline < VLINES ? LDREG : IDLE;
         end else case( fsm )
@@ -367,9 +353,6 @@ always @(posedge clk) begin
                 lyt  <= lyt_m;
                 p_x1 <= {1'b0,p_left} + p_size;
                 p_y1 <= {1'b0,p_top}  + p_size;
-                // any real row motion goes to the private copy; bus A keeps
-                // the near-horizontal lines that ride the scr bank cheaply
-                steep <= (p_incxy[23] ? -p_incxy : p_incxy) >= 24'h000800;
                 fsm  <= CALCC;
             end
             CALCC: begin // scanline records already hold this line's start
@@ -402,9 +385,8 @@ always @(posedge clk) begin
                 end
                 f_cnt <= f_cnt + {2'd0,s2_v} - {2'd0,pop};
                 // back end: caches hit -> one pixel per clock, else fetch
-                if( tbl !=0 ) tbl  <= tbl -2'd1;
-                if( tbbl!=0 ) tbbl <= tbbl-2'd1;
-                if( mbl !=0 ) mbl  <= mbl -2'd1;
+                if( tbl!=0 ) tbl <= tbl-2'd1;
+                if( mbl!=0 ) mbl <= mbl-2'd1;
                 if( m_done && !ret ) begin
                     c_mbyte <= rmask_data;
                     c_maddr <= rmask_addr;
@@ -422,24 +404,18 @@ always @(posedge clk) begin
                 end else if( popst ) begin
                     f_rd <= f_rd + 2'd1;
                     if( fv[0] ) begin
-                        fx1<=h_x; flane1<=h_til[1:0]; fmb1<=h_xp[2:0]; fbus1<=steep;
-                        ftok1<=h_tht; ftex1<=h_tex; fmok1<=h_mhit2; fbit1<=h_mbit2;
+                        fx1<=h_x; flane1<=h_til[1:0]; fmb1<=h_xp[2:0];
+                        ftok1<=h_thit; ftex1<=h_tex; fmok1<=h_mhit2; fbit1<=h_mbit2;
                         fv[1]<=1;
                     end else begin
-                        fx0<=h_x; flane0<=h_til[1:0]; fmb0<=h_xp[2:0]; fbus0<=steep;
-                        ftok0<=h_tht; ftex0<=h_tex; fmok0<=h_mhit2; fbit0<=h_mbit2;
+                        fx0<=h_x; flane0<=h_til[1:0]; fmb0<=h_xp[2:0];
+                        ftok0<=h_thit; ftex0<=h_tex; fmok0<=h_mhit2; fbit0<=h_mbit2;
                         fv[0]<=1;
                     end
-                    if( !h_tht ) begin
-                        if( steep ) begin
-                            roz2_addr <= h_til[20:0];
-                            tbbl <= 2'd2;
-                            tob  <= {1'b1, fv[0]};
-                        end else begin
-                            roz_addr <= h_til[20:2];
-                            tbl <= 2'd2;
-                            to  <= {1'b1, fv[0]};
-                        end
+                    if( !h_thit ) begin
+                        roz_addr <= h_til[20:2];
+                        tbl <= 2'd2;
+                        to  <= {1'b1, fv[0]};
                     end
                     if( !h_mhit2 ) begin
                         rmask_addr <= h_msk;
@@ -452,22 +428,17 @@ always @(posedge clk) begin
                     bwl   <= lyr1;
                     bwe   <= 1;
                     if( !ftok0 ) begin
-                        if( fbus0 ) begin
-                            tob <= 0;
-                        end else begin
-                            c_tword <= roz_data;
-                            c_taddr <= roz_addr;
-                            c_tok   <= 1;
-                            to      <= 0;
-                        end
+                        c_tword <= roz_data;
+                        c_taddr <= roz_addr;
+                        c_tok   <= 1;
+                        to      <= 0;
                     end
                     fv[0] <= fv[1];
                     fv[1] <= 0;
-                    fx0<=fx1; flane0<=flane1; fmb0<=fmb1; fbus0<=fbus1;
+                    fx0<=fx1; flane0<=flane1; fmb0<=fmb1;
                     ftok0<=ftok1; ftex0<=ftex1; fmok0<=fmok1; fbit0<=fbit1;
-                    if( to ==2'b11 ) to  <= 2'b10;
-                    if( tob==2'b11 ) tob <= 2'b10;
-                    if( mo ==2'b11 ) mo  <= 2'b10;
+                    if( to==2'b11 ) to <= 2'b10;
+                    if( mo==2'b11 ) mo <= 2'b10;
                 end
                 if( xi==LINE_W && f_cnt==0 && inflight==0 && fv==0 ) begin
                     lyr1 <= 1;

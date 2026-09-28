@@ -1,13 +1,13 @@
-# SDRAM layout, 8MB banks, burst per tenant grain:
-# bank 0 (32): CPU cluster + byte-nibbler masks; bank 1 (64): sprites;
-# bank 2 (64): scroll + aligned roz; bank 3 (16): steep-roz copy + pcm
+# System FL memory map
+# bank 0: i960 program (1MB @0) + data (2MB @0x100000) + ROZ gfx
+# bank 1: obj gfx (SDRAM priority: bank0 first, so obj outranks all but roz/main)
+# bank 2: scroll gfx, bank 3: C352 PCM (4MB @0) + i960 work RAM (1MB @0x400000)
 params:
-  - { name: WRAM_OFFSET,  value: "23'h20_0000" }  # byte 0x400000, bank 0
-  - { name: SMASK_OFFSET, value: "23'h2d_0000" }  # byte 0x5a0000, bank 0
-  - { name: RMASK_OFFSET, value: "23'h31_0000" }  # byte 0x620000, bank 0
-  - { name: C75DATA_OFFSET, value: "23'h34_0000" } # byte 0x680000, bank 2
-  - { name: ROZ_OFFSET,   value: "23'h20_0000" }  # byte 0x400000, bank 2
-  - { name: PCM_OFFSET,   value: "23'h10_0000" }  # byte 0x200000, bank 3
+  - { name: SMASK_OFFSET, value: "22'h20_0000" }  # byte 0x400000
+  - { name: ROZ_OFFSET,   value: "22'h20_0000" }  # byte 0x400000, bank 0
+  - { name: RMASK_OFFSET, value: "22'h2d_0000" }  # byte 0x5a0000, bank 3
+  - { name: WRAM_OFFSET,  value: "22'h20_0000" }  # byte 0x400000, bank 1
+  - { name: C75DATA_OFFSET, value: "22'h28_0000" } # byte 0x500000, bank 2
 clocks:
   clk:
     # i960KA-20 at 54/3 = 18 MHz, strict 3-clock cen spacing (the CPU
@@ -30,29 +30,15 @@ clocks:
 sdram:
   banks:
     - buses:
-        - name: wram    # rw buses must come first in the bank
-          addr_width: 21
-          data_width: 16
-          rw: true
-          do_not_erase: true  # the game tests+inits it, erasing stalls reset ~12 frames
-          offset: WRAM_OFFSET
         - name: main
           addr_width: 22
           data_width: 32
           cache_size: 1kB
-        - name: wram32  # code fetches and loads from work RAM, one burst per word
+        - name: roz
           addr_width: 21
           data_width: 32
-          latch: "1"
-          offset: WRAM_OFFSET
-        - name: smask
-          addr_width: 19
-          data_width: 8
-          offset: SMASK_OFFSET
-        - name: rmask
-          addr_width: 19
-          data_width: 8
-          offset: RMASK_OFFSET
+          cache_size: 4kB
+          offset: ROZ_OFFSET
     - buses:
         - name: objrom
           addr_width: 23
@@ -63,25 +49,34 @@ sdram:
           addr_width: 22
           data_width: 8
           cache_size: 2kB
-        - name: roz     # aligned walks: one 8-byte line per tile row half
-          addr_width: 21
-          data_width: 32
-          cache_size: 4kB
-          offset: ROZ_OFFSET
+        - name: smask
+          addr_width: 19
+          data_width: 8
+          offset: SMASK_OFFSET
         - name: mcurom  # C75 external data ROM (se1_spr), 512kB
           addr_width: 19
           data_width: 16
           cache_size: 1kB
           offset: C75DATA_OFFSET
     - buses:
-        - name: roz2    # steep walks: single texels, 2-byte lines, private bank
+        - name: wram    # rw buses must come first in the bank
           addr_width: 21
-          data_width: 8
-          cache_size: 4kB
+          data_width: 16
+          rw: true
+          do_not_erase: true  # the game tests+inits it, erasing stalls reset ~12 frames
+          offset: WRAM_OFFSET
         - name: pcm
           addr_width: 22
           data_width: 8
-          offset: PCM_OFFSET
+        - name: rmask
+          addr_width: 19
+          data_width: 8
+          offset: RMASK_OFFSET
+        - name: wram32  # code fetches and loads from work RAM, one burst per word
+          addr_width: 21
+          data_width: 32
+          latch: "1"
+          offset: WRAM_OFFSET
 bram:
   - name: vram      # 123 tilemaps, 64kB. Primary port: video read
     addr_width: 16
