@@ -1,4 +1,4 @@
-# SDRAM layout, 16MB banks (JTFRAME_SDRAM_LARGE), burst per tenant grain:
+# SDRAM layout, 8MB banks, burst per tenant grain:
 # bank 0 (32): CPU cluster + byte-nibbler masks; bank 1 (64): sprites;
 # bank 2 (64): scroll + aligned roz; bank 3 (16): steep-roz copy + pcm
 params:
