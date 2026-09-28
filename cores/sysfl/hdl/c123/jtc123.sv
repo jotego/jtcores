@@ -53,6 +53,11 @@ module jtc123(
     output reg [21:0] scr_addr,
     input             scr_ok,
     input      [ 7:0] scr_data,
+    // road coverage summary from the C169 prescan
+    input             sum_vld,
+    input             sum_full,
+    input      [ 8:0] sum_x0, sum_x1,
+    input      [ 3:0] sum_prio,
     // Pixel output
     output     [11:0] scr_pxl,
     output     [ 2:0] scr_prio,
@@ -111,7 +116,7 @@ wire [15:0] hoff1 = dflip ? hoff0 + 16'h2 : hoff0 - 16'h2;
 wire [15:0] hoff2 = dflip ? hoff0 + 16'h3 : hoff0 - 16'h3;
 wire [15:0] hoff3 = dflip ? hoff0 + 16'h4 : hoff0 - 16'h4;
 
-integer     i, j;
+integer     i, j, j2;
 `ifdef SIMULATION
     reg     miss;
 `endif
@@ -131,10 +136,16 @@ wire [14:0] buf_wd  = clr_we ? 15'd0 : {bpxl,bprio,bblankn};
 // optional per-layer render mask for layer-by-layer debugging
 reg [7:0] simlyr [0:0];
 initial begin simlyr[0]=8'hff; $readmemh("lyrmask.hex", simlyr); end
-wire [5:0] cfg_enb_eff = cfg_enb | ~simlyr[0][5:0];
+wire [5:0] cfg_enb_eff = cfg_enb | ~simlyr[0][5:0] | skip_l;
 `else
-wire [5:0] cfg_enb_eff = cfg_enb;
+wire [5:0] cfg_enb_eff = cfg_enb | skip_l;
 `endif
+// layers that provably lose to the covered road span this line
+reg  [5:0] lose_l, skip_l;
+reg  [8:0] spx0, spx1;
+reg        span_v;
+wire [8:0] hvis = hcnt - 9'h40; // buffer x -> screen x (roz space), no flip
+wire       in_span = span_v && hvis>=spx0 && hvis<=spx1;
 assign xing      = { hcnt[2:0]==7, hcnt[2:0]==7, hcnt3==7, hcnt2==7, hcnt1==7, hcnt0==7 };
 assign block      = xing & ~nrdy & ~cfg_enb_eff;
 assign rom_ok     = (scr_ok | ~attr[6]) & ~|block;
@@ -198,6 +209,17 @@ always @(posedge clk, posedge rst) begin
             if( clr_a <= hcnt ) clr_on <= 0;
         end
         if( hs_edge ) begin
+            // road coverage: whole losing layers drop on covered rows, the
+            // covered span silences losing pixels elsewhere (Stage 0 then
+            // skips their fetches). Strict compare: tilemap wins ties.
+            for( j2=0; j2<6; j2=j2+1 ) begin
+                lose_l[j2] <= sum_vld && {1'b0,cfg_prio[j2],1'b0} < {1'b0,sum_prio};
+                skip_l[j2] <= sum_vld && sum_full &&
+                              {1'b0,cfg_prio[j2],1'b0} < {1'b0,sum_prio};
+            end
+            span_v <= sum_vld && !dflip; // flip changes the x mapping: v1 skips it
+            spx0   <= sum_x0;
+            spx1   <= sum_x1;
             `ifdef SIMULATION miss <= !done; `endif
             clr_a <= HEND;
             clr_on<= 1;
@@ -239,7 +261,7 @@ end
 wire [5:0] op6;
 genvar gp;
 generate for( gp=0; gp<6; gp=gp+1 ) begin : g_op6
-    assign op6[gp] = mask[gp][7] & ~cfg_enb_eff[gp];
+    assign op6[gp] = mask[gp][7] & ~cfg_enb_eff[gp] & ~(lose_l[gp] & in_span);
 end endgenerate
 wire [5:0] opb = { op6[ord[5]], op6[ord[4]], op6[ord[3]],
                    op6[ord[2]], op6[ord[1]], op6[ord[0]] };

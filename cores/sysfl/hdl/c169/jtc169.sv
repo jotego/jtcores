@@ -49,6 +49,13 @@ module jtc169(
     input      [ 7:0] rmask_data,
     output     [13:0] opq_addr,   // opaque-tile table lookup, skips mask fetches
     input             opq_bit,
+    output reg [13:0] opq2_addr,  // prescan lookups on the table's idle port
+    input             opq2_bit,
+    // road coverage summary for the tilemaps: line vdump+2, latched at hs
+    output reg        sum_vld,    // covered span is valid (scl line, contiguous)
+    output reg        sum_full,   // every visible pixel covered
+    output reg [ 8:0] sum_x0, sum_x1,
+    output reg [ 3:0] sum_prio,
     // tile ROM (RCHAR), aligned-walk copy
     output            roz_cs,
     output reg [20:2] roz_addr,     // 32-bit words, texel xpos[1:0] = byte lane
@@ -165,6 +172,31 @@ reg  [11:0] xpos, ypos;
 reg         in_win;
 integer     i;
 
+// records-only coverage prescan: walks line vdump+2 of the road (scl mode)
+// through the map and the opq table on idle cycles, no texel traffic.
+// Replicates the render DDA bit for bit; anything unexpected drops valid.
+reg  [ 2:0] q_st, q_rcnt;
+reg  [ 8:0] q_x;
+reg  [15:0] q_rec[0:7];
+reg  [23:0] q_cx, q_cy, q_cyf, q_dxx, q_dxy, q_ay;
+reg  [ 8:0] q_x0, q_x1;
+reg         q_run, q_gap, q_vld, q_wrapy, q_pend, q_mapw;
+reg  [ 9:0] q_tgt;
+wire [11:0] q_xw  = q_cx[23:12];
+wire [11:0] q_pyr = q_cyf[23:12];
+wire [11:0] q_pym = q_pyr>=12'hc00 ? q_pyr-12'hc00 : q_pyr;
+wire [11:0] q_ysl = q_pym + q_ay[23:12];
+wire [11:0] q_yw  = q_cy[23:12];
+wire [11:0] q_yp  = q_wrapy ? q_ysl : q_yw;
+wire [16:1] q_map = { q_xw[11], q_yp[11:4], q_xw[10:4] };
+// 36*inc + 3*inc porch terms as shift-adds, no DSP
+function [23:0] q_pax( input [23:0] a, input [23:0] b );
+    q_pax = (a<<5)+(a<<2)+(b<<1)+b;
+endfunction
+wire [ 9:0] q_lin = {1'b0,vdump}+10'd2-{1'b0,V0};
+wire [15:0] q_rca = 16'h7040 + {3'd0,q_lin[8:3],7'd0} + {10'd0,q_lin[2:0],3'd0}
+                  + {13'd0,q_rcnt};
+
 wire [15:0] q0, q1;
 wire [127:0] ctl0, ctl1;
 wire [11:0] xw, yw, pyr, pym, ysl;
@@ -194,6 +226,8 @@ assign in_y = p_y1<=13'h1000 ? (yw>=p_top  && {1'b0,yw}<p_y1)
                              : (yw>=p_top  || {1'b0,yw}<p_y1-13'h1000);
 
 assign map_a = { xpos[11], ypos[11:4], xpos[10:4] };
+// the prescan borrows the map port on cycles the front end leaves idle
+wire q_take = q_pend && !issue && fsm!=RECA && fsm!=RECW && fsm!=RECL;
 assign rec_a = 16'h7040 + {3'd0,lline[8:3],7'd0} + {10'd0,lline[2:0],3'd0}
              + {13'd0,rcnt};
 
@@ -286,6 +320,17 @@ always @(posedge clk) begin
         f_wr  <= 0;
         h_vld <= 0;
         rozmap_addr <= 0;
+        opq2_addr   <= 0;
+        sum_vld     <= 0;
+        sum_full    <= 0;
+        sum_x0      <= 0;
+        sum_x1      <= 0;
+        sum_prio    <= 0;
+        q_st        <= 0;
+        q_pend      <= 0;
+        q_vld       <= 0;
+        q_mapw      <= 0;
+        q_rcnt      <= 0;
         rmask_addr  <= 0;
         roz_addr    <= 0;
         roz2_addr   <= 0;
@@ -300,6 +345,75 @@ always @(posedge clk) begin
                  { s2_d, s2_x, s2_xp, s2_yp, 1'b0, rozmap_data[13:0] } :
                  fifo[pop ? f_rd + 2'd1 : f_rd];
         h_vld <= f_cnt != {2'd0, pop} || s2_v;
+        // ---------- records-only coverage prescan (line vdump+2) ----------
+        q_mapw <= 1'b0;
+        if( q_take ) begin
+            case( q_st )
+                1: begin rozmap_addr <= q_rca[15:0]; q_mapw <= 1; q_st <= 2; end
+                5: begin rozmap_addr <= q_map;       q_mapw <= 1; q_st <= 6; end
+                default:;
+            endcase
+        end
+        if( q_st==2 || q_st==6 ) begin
+            // the read is valid only if the port stayed ours for both cycles
+            if( issue || fsm==RECA ) q_st <= q_st-3'd1; // stolen: retry
+            else q_st <= q_st+3'd1;
+        end else if( q_st==3 ) begin
+            if( issue || fsm==RECA ) q_st <= 1; // last cycle stolen: retry
+            else begin
+                q_rec[q_rcnt] <= rozmap_data;
+                q_rcnt <= q_rcnt+3'd1;
+                q_st   <= q_rcnt==3'd7 ? 3'd4 : 3'd1;
+            end
+        end else if( q_st==4 ) begin // line setup from the records
+            q_wrapy <= q_rec[0][15:3]==13'h0c00;
+            q_dxx   <= inc24(q_rec[2],1'b1);
+            q_dxy   <= inc24(q_rec[3],1'b1);
+            q_cx    <= {q_rec[6],8'd0} + q_pax(inc24(q_rec[2],1'b1),inc24(q_rec[4],1'b1));
+            q_cy    <= {q_rec[7],8'd0} + q_pax(inc24(q_rec[3],1'b1),inc24(q_rec[5],1'b1));
+            q_cyf   <= {q_rec[7],8'd0};
+            q_ay    <= q_pax(inc24(q_rec[3],1'b1),inc24(q_rec[5],1'b1));
+            q_x     <= 0;
+            q_run   <= 0;
+            q_gap   <= 0;
+            q_x0    <= 0;
+            q_x1    <= 0;
+            // road layer must be enabled and layer 1 off for a usable summary
+            if( q_rec[1][15] || ctl0[31] || !ctl1[31] ) begin
+                q_vld <= 0; q_pend <= 0; q_st <= 0;
+            end else q_st <= 5;
+        end else if( q_st==7 ) begin // map word in: tile -> opq port
+            opq2_addr <= rozmap_data[13:0];
+            q_st <= 3'd0; // reuse 0 as the opq-latency slot via q_x flag
+            q_mapw <= 1;  // mark: opq read pending
+        end
+        if( q_mapw && q_st==0 && q_pend ) begin // opq2_bit valid now
+            if( opq2_bit ) begin
+                if( q_gap ) q_vld <= 0;       // second run: not contiguous
+                if( !q_run ) begin q_run <= 1; q_x0 <= q_x; end
+                q_x1 <= q_x;
+            end else if( q_run ) q_gap <= 1;
+            q_cx  <= q_cx + q_dxx;
+            q_cy  <= q_cy + q_dxy;
+            q_cyf <= q_cyf+ q_dxy;
+            if( q_x==9'd287 ) begin q_pend <= 0; q_st <= 0; end
+            else begin q_x <= q_x+9'd1; q_st <= 5; end
+        end
+        if( hs_edge ) begin
+            // publish last line's walk, then restart for vdump+2
+            sum_vld  <= q_vld && !q_pend && q_run && q_tgt=={1'b0,nline};
+            sum_full <= q_vld && !q_pend && q_run && !q_gap
+                        && q_x0==9'd0 && q_x1==9'd287 && q_tgt=={1'b0,nline};
+            sum_x0   <= q_x0;
+            sum_x1   <= q_x1;
+            sum_prio <= q_rec[1][7:4];
+            q_pend <= scl_mode && q_lin<10'd224;
+            q_tgt  <= q_lin;
+            q_vld  <= 1;
+            q_rcnt <= 0;
+            q_st   <= 1;
+        end
+        // ---------- line render ----------
         if( hs_edge ) begin
             lline <= nline;
             lyr1  <= 0;

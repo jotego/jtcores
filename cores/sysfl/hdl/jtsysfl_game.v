@@ -42,7 +42,8 @@ wire [14:0] pal_amux;
 wire [ 7:0] pal_din8, pal_dout8, misc_din;
 wire        cpu_halted;
 wire [13:0] opq_addr;
-wire        opq_bit;
+wire        opq_bit, opq2_bit;
+wire [13:0] opq2_addr;
 wire [21:0] opq_rel;
 wire        opq_prog;
 reg  [15:0] opq_tout;
@@ -106,9 +107,9 @@ end
 jtframe_dual_ram #(.DW(1),.AW(14),.SIMHEXFILE("opq.hex")) u_opq(
     .clk0   ( clk       ),
     .data0  ( opq_wd    ),
-    .addr0  ( opq_wa    ),
+    .addr0  ( opq_on|opq_we ? opq_wa : opq2_addr ),
     .we0    ( opq_we    ),
-    .q0     (           ),
+    .q0     ( opq2_bit  ),
     .clk1   ( clk       ),
     .data1  ( 1'b0      ),
     .addr1  ( opq_addr  ),
@@ -371,6 +372,8 @@ jtsysfl_video u_video(
     .rmask_data ( rmask_data    ),
     .opq_addr   ( opq_addr      ),
     .opq_bit    ( opq_bit       ),
+    .opq2_addr  ( opq2_addr     ),
+    .opq2_bit   ( opq2_bit      ),
     .roz_cs     ( roz_cs        ),
     .roz_addr   ( roz_addr      ),
     .roz_ok     ( roz_ok        ),

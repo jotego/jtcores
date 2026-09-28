@@ -79,6 +79,8 @@ module jtsysfl_video(
     input      [ 7:0] rmask_data,
     output     [13:0] opq_addr,
     input             opq_bit,
+    output     [13:0] opq2_addr,
+    input             opq2_bit,
 
     output            roz_cs,
     output     [20:2] roz_addr,
@@ -107,6 +109,9 @@ module jtsysfl_video(
 
 wire [ 8:0] vrender1;
 wire [11:0] scr_pxl, roz_pxl, obj_pxl;
+wire        sum_vld, sum_full;
+wire [ 8:0] sum_x0, sum_x1;
+wire [ 3:0] sum_prio;
 wire [ 2:0] scr_prio;
 wire [ 3:0] roz_prio, obj_prio;
 wire        scr_blankn, roz_blankn, obj_blankn, obj_shd;
@@ -159,6 +164,11 @@ jtc123 u_scr(
     .din        ( cpu_dout  ),
     .dout       ( scfg_dout ),
 
+    .sum_vld    ( sum_vld   ),
+    .sum_full   ( sum_full  ),
+    .sum_x0     ( sum_x0    ),
+    .sum_x1     ( sum_x1    ),
+    .sum_prio   ( sum_prio  ),
     .tmap_addr  ( tmap_addr ),
     .tmap_data  ( tmap_data ),
     .smask_cs   ( smask_cs  ),
@@ -205,6 +215,13 @@ jtc169 #(.V0(9'h121)) u_roz(
     .rmask_data ( rmask_data),
     .opq_addr   ( opq_addr  ),
     .opq_bit    ( opq_bit   ),
+    .opq2_addr  ( opq2_addr ),
+    .opq2_bit   ( opq2_bit  ),
+    .sum_vld    ( sum_vld   ),
+    .sum_full   ( sum_full  ),
+    .sum_x0     ( sum_x0    ),
+    .sum_x1     ( sum_x1    ),
+    .sum_prio   ( sum_prio  ),
     .roz_cs     ( roz_cs    ),
     .roz_addr   ( roz_addr  ),
     .roz_ok     ( roz_ok    ),
