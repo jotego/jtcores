@@ -7,8 +7,7 @@
  * Setting the run bit interrupts the DSP and halts the host. The DSP points a
  * window at host RAM through port 0 and reads or writes it through port 1.
  * A zero written to work RAM word 0 or 1 arms the release, and a zero written
- * to port 3 then lets the host run again. TWINCOBR selects the 68000 decode;
- * only the Wardner decode has been tested.
+ * to port 3 then lets the host run again. TWINCOBR selects the 68000 decode.
  */
 module jttoaplan1_dsp #(parameter TWINCOBR=0) (
     input             rst,

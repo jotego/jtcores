@@ -10,10 +10,13 @@
  *   C800-CFFF  RAM
  *   ports 00-01 YM3812
  */
-module jtwardnr_sound(
+module jtwardnr_sound #(parameter TWINCOBR=0)(
     input             rst,
     input             clk,
     input             cen3p5,
+
+    input      [ 7:0] sys,
+    input      [15:0] dipsw,
 
     output     [14:0] rom_addr,
     input      [ 7:0] rom_data,
@@ -38,7 +41,8 @@ wire [15:0] A;
 wire [ 7:0] fm_dout, wram_dout;
 wire        fm_irq_n, mreq, iorq, rd, wr;
 reg  [ 7:0] cpu_din;
-reg         ram_cs, shr_cs, wram_cs, fm_cs;
+reg         ram_cs, shr_cs, wram_cs, fm_cs, io_cs;
+reg  [ 7:0] io_dout;
 
 assign rd        = ~rd_n;
 assign wr        = ~wr_n;
@@ -52,10 +56,27 @@ assign ram_we    = ram_cs  & wr;
 
 always @* begin
     rom_cs  = mreq && !A[15] && rd;
-    ram_cs  = mreq && A[15:7]  == 9'b1000_0000_0;
-    shr_cs  = mreq && A[15:11] == 5'b11000;
-    wram_cs = mreq && A[15:11] == 5'b11001;
     fm_cs   = iorq && A[7:1]   == 7'd0;
+    if( TWINCOBR ) begin
+        ram_cs  = 0;
+        shr_cs  = mreq && A[15:11] == 5'b10000;
+        wram_cs = 0;
+        io_cs   = iorq && rd && A[7:4] != 4'd0;
+    end else begin
+        ram_cs  = mreq && A[15:7]  == 9'b1000_0000_0;
+        shr_cs  = mreq && A[15:11] == 5'b11000;
+        wram_cs = mreq && A[15:11] == 5'b11001;
+        io_cs   = 0;
+    end
+end
+
+always @(posedge clk) begin
+    case( A[7:4] )
+        4'h1:    io_dout <= sys;
+        4'h4:    io_dout <= dipsw[ 7:0];
+        4'h5:    io_dout <= dipsw[15:8];
+        default: io_dout <= 8'h00;
+    endcase
 end
 
 always @* begin
@@ -65,6 +86,7 @@ always @* begin
         wram_cs: cpu_din = wram_dout;
         shr_cs:  cpu_din = shr_din;
         fm_cs:   cpu_din = fm_dout;
+        io_cs:   cpu_din = io_dout;
         default: cpu_din = 8'hff;
     endcase
 end
