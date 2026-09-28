@@ -86,10 +86,6 @@ module jtsysfl_video(
     output     [20:2] roz_addr,
     input             roz_ok,
     input      [31:0] roz_data,
-    output            roz2_cs,
-    output     [20:0] roz2_addr,
-    input             roz2_ok,
-    input      [ 7:0] roz2_data,
 
     output            objrom_cs,
     output     [22:2] objrom_addr,
@@ -226,10 +222,6 @@ jtc169 #(.V0(9'h121)) u_roz(
     .roz_addr   ( roz_addr  ),
     .roz_ok     ( roz_ok    ),
     .roz_data   ( roz_data  ),
-    .roz2_cs    ( roz2_cs   ),
-    .roz2_addr  ( roz2_addr ),
-    .roz2_ok    ( roz2_ok   ),
-    .roz2_data  ( roz2_data ),
 
     .roz_pxl    ( roz_pxl   ),
     .roz_prio   ( roz_prio  ),

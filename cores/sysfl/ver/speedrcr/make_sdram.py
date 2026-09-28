@@ -92,25 +92,26 @@ def swab(b):
     o[0::2], o[1::2] = b[1::2], b[0::2]
     return o
 
-bank0 = bytearray(0x580000)
+bank0 = bytearray(0x680000)
 bank0[0:0x100000] = prog
-bank0[0x100000:0x400000] = data
-bank0[0x400000:0x480000] = get("se1_ssh.18u")   # sprite masks
-bank0[0x480000:0x500000] = get("se1_rsh.14k")   # roz masks
-bank0[0x500000:0x580000] = get("se1_spr.21l")   # C75 external data ROM
+bank0[0x100000:0x300000] = data
+pos = 0x400000
+for f in ["se1_rch0.19j","se1_rch1.18j"]:
+    d = get(f); bank0[pos:pos+len(d)] = d; pos += 0x100000
+# rsh moved to bank 3 @0x520000 (RMASK on its own bank for roz overlap)
 
-bank2 = bytearray(0x600000)
+bank2 = bytearray(0x580000)
 pos = 0
 for f in ["se1_sch0.21p","se1_sch1.20p","se1_sch2.19p","se1_sch3.18p"]:
     d = get(f); bank2[pos:pos+len(d)] = d; pos += 0x100000
-bank2[0x400000:0x500000] = get("se1_rch0.19j")  # roz A
-bank2[0x500000:0x600000] = get("se1_rch1.18j")
+bank2[0x400000:0x480000] = get("se1_ssh.18u")
+bank2[0x500000:0x580000] = get("se1_spr.21l")   # C75 external data ROM
 
-# bank 3: roz copy B + C352 samples + i960 work RAM window
-bank1 = bytearray(0x7a0000)
-bank1[0x000000:0x100000] = get("se1_rch0.19j")
-bank1[0x100000:0x200000] = get("se1_rch1.18j")
-bank1[0x200000:0x600000] = get("se1_voi.23s")
+# C352 sample ROM fills bank 1 (pcm bus at offset 0); nvram and comram live
+# in the upper wram window (bank bytes 0x500000 / 0x580000)
+bank1 = bytearray(0x620000)
+bank1[0:0x400000] = get("se1_voi.23s")
+bank1[0x5a0000:0x620000] = get("se1_rsh.14k")
 
 # C75 internal BIOS, from the MAME namcoc75 device set
 with zipfile.ZipFile(c75path) as z:
@@ -131,14 +132,14 @@ for base, lf, uf in [(0, "se1obj0l.ic1", "se1obj0u.ic2"), (0x400000, "se1obj1l.i
 # divergence in the wheel-calibration defaults (see boot notes) - TODO
 mamenv = os.path.expanduser("~/develop/mame/nvram/speedrcr/nvram")
 if os.path.exists(mamenv):
-    bank1[0x700000:0x702000] = open(mamenv,"rb").read()
+    bank1[0x500000:0x502000] = open(mamenv,"rb").read()
     print("nvram preloaded from MAME first-boot image")
 else:
-    bank1[0x700000:0x702000] = bytes([0xff]*0x2000)
+    bank1[0x500000:0x502000] = bytes([0xff]*0x2000)
 
 open(os.path.join(outdir,"sdram_bank0.bin"),"wb").write(swab(bank0))
-open(os.path.join(outdir,"sdram_bank1.bin"),"wb").write(swab(bank3))
 open(os.path.join(outdir,"sdram_bank2.bin"),"wb").write(swab(bank2))
+open(os.path.join(outdir,"sdram_bank1.bin"),"wb").write(swab(bank3))
 open(os.path.join(outdir,"sdram_bank3.bin"),"wb").write(swab(bank1))
 # the BIOS BRAM is a 16-bit jtframe_bram_rom, simfiles are split by byte lane
 open(os.path.join(outdir,"c75bios_lo.bin"),"wb").write(c75[0::2])
