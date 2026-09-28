@@ -69,9 +69,9 @@ assign pal_wdin   = pal_din8;
 assign ioctl_din = &ioctl_addr[6:4] ? ioctl_misc : ioctl_video;
 
 // opaque-tile table for the roz mask ROM, built from the download stream
-assign opq_rel  = prog_addr[21:0] - 22'h31_0000;
+assign opq_rel  = prog_addr[21:0] - 22'h24_0000;
 assign opq_prog = prog_we && prog_ba==2'd0 &&
-                  prog_addr[21:0]>=22'h31_0000 && prog_addr[21:0]<22'h35_0000;
+                  prog_addr[21:0]>=22'h24_0000 && prog_addr[21:0]<22'h28_0000;
 
 always @(posedge clk) begin
     if( rst ) begin
