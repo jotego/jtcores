@@ -43,7 +43,7 @@ wire [ 7:0] pal_din8, pal_dout8, misc_din;
 wire        cpu_halted;
 wire [13:0] opq_addr;
 wire        opq_bit;
-wire [21:0] opq_rel;
+wire [22:0] opq_rel;
 wire        opq_prog;
 reg  [15:0] opq_tout;
 reg  [13:0] opq_tile, opq_wa;
@@ -68,9 +68,9 @@ assign pal_wdin   = pal_din8;
 assign ioctl_din = &ioctl_addr[6:4] ? ioctl_misc : ioctl_video;
 
 // opaque-tile table for the roz mask ROM, built from the download stream
-assign opq_rel  = prog_addr[21:0] - 22'h2d_0000;
-assign opq_prog = prog_we && prog_ba==2'd3 &&
-                  prog_addr[21:0]>=22'h2d_0000 && prog_addr[21:0]<22'h31_0000;
+assign opq_rel  = prog_addr[22:0] - 23'h31_0000;
+assign opq_prog = prog_we && prog_ba==2'd0 &&
+                  prog_addr[22:0]>=23'h31_0000 && prog_addr[22:0]<23'h35_0000;
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -375,6 +375,10 @@ jtsysfl_video u_video(
     .roz_addr   ( roz_addr      ),
     .roz_ok     ( roz_ok        ),
     .roz_data   ( roz_data      ),
+    .roz2_cs    ( roz2_cs       ),
+    .roz2_addr  ( roz2_addr     ),
+    .roz2_ok    ( roz2_ok       ),
+    .roz2_data  ( roz2_data     ),
     .objrom_cs  ( objrom_cs     ),
     .objrom_addr( objrom_addr   ),
     .objrom_ok  ( objrom_ok     ),
