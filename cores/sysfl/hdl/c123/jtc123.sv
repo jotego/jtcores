@@ -95,7 +95,8 @@ reg  [ 2:0] poff;                  // column base of the prefetched tile
 reg  [ 2:0] pcnt;                  // sub-tile counter of the prefetched layer
 wire [ 5:0] xing, block;
 wire [ 9:0] lin_next = lin_row + {4'd0,hcnt[3+:6]} - 10'd8;
-reg  [ 8:0] hcnt, buf_a;
+reg  [ 8:0] hcnt, buf_a, clr_a;
+reg         clr_on;
 reg  [10:0] bpxl;
 reg  [ 9:0] lin_row;               // linear row base for the fixed layers
 reg  [ 2:0] bprio, cprio, win, hcnt0, hcnt1, hcnt2, hcnt3;
@@ -115,11 +116,16 @@ integer     i, j;
     reg     miss;
 `endif
 
-assign scr_cs     = ~done;
+assign scr_cs     = ~done & attr[6]; // transparent pixels fetch nothing
 wire pre_blank    = tmap_data==BLANK;
 assign smask_cs   = plyr!=7 && mst>=3 && !pre_blank; // tmap_data valid from mst 3
 assign hsub       = hcnt[2:0];
-assign buf_we     = alt_cen & ~done;
+assign buf_we     = (alt_cen & ~done) | clr_we;
+// tail sweep: descends from HEND on the idle write phase and stops at the
+// renderer, so a cut line never shows the previous line's tail
+wire        clr_we  = clr_on & ~(alt_cen & ~done);
+wire [ 8:0] buf_wa  = clr_we ? clr_a : buf_a;
+wire [14:0] buf_wd  = clr_we ? 15'd0 : {bpxl,bprio,bblankn};
 // a layer entering its next tile needs that tile's mask ready
 `ifdef SIMULATION
 // optional per-layer render mask for layer-by-layer debugging
@@ -131,7 +137,7 @@ wire [5:0] cfg_enb_eff = cfg_enb;
 `endif
 assign xing      = { hcnt[2:0]==7, hcnt[2:0]==7, hcnt3==7, hcnt2==7, hcnt1==7, hcnt0==7 };
 assign block      = xing & ~nrdy & ~cfg_enb_eff;
-assign rom_ok     = scr_ok & ~|block;
+assign rom_ok     = (scr_ok | ~attr[6]) & ~|block;
 assign smask_addr = { tmap_data, mask_asub };
 assign dflip      = flip ^ cfg_flip;
 assign scr_pxl    = { 1'b0, pxl };
@@ -174,6 +180,8 @@ always @(posedge clk, posedge rst) begin
         done    <= 0;
         lin_row <= 0;
         alt_cen <= 1;
+        clr_a   <= 0;
+        clr_on  <= 0;
     end else begin
         alt_cen <= ~alt_cen & rom_ok;
         if( hcnt < HEND && alt_cen ) begin
@@ -185,8 +193,14 @@ always @(posedge clk, posedge rst) begin
         end
         `ifdef SIMULATION miss <= 0; `endif
 
+        if( clr_we ) begin
+            clr_a <= clr_a - 9'd1;
+            if( clr_a <= hcnt ) clr_on <= 0;
+        end
         if( hs_edge ) begin
             `ifdef SIMULATION miss <= !done; `endif
+            clr_a <= HEND;
+            clr_on<= 1;
             hcnt  <= HSTART;
             hcnt0 <= (-hscr[0][2:0] ^ {3{~dflip}})+hoff0[2:0];
             hcnt1 <= (-hscr[1][2:0] ^ {3{~dflip}})+hoff1[2:0];
@@ -338,13 +352,30 @@ end
 jtframe_linebuf #(.DW(15)) u_buffer(
     .clk        ( clk       ),
     .LHBL       ( ~hs       ),
-    .wr_addr    ( buf_a     ),
-    .wr_data    ({bpxl,bprio,bblankn}),
+    .wr_addr    ( buf_wa    ),
+    .wr_data    ( buf_wd    ),
     .we         ( buf_we    ),
     .rd_addr    ( dflip ? ~hdump - FLIP_DX : hdump ),
     .rd_data    ({pxl,prio,blankn}),
     .rd_gated   (           )
 );
+
+`ifdef SYSFL_SCRDBG
+// per-frame tilemap bus audit
+integer sc_req=0, sc_wait=0, sc_skip=0;
+reg sc_vsl=0;
+always @(posedge clk) begin
+    sc_vsl <= vs;
+    if( scr_cs && !scr_ok ) sc_wait <= sc_wait+1;
+    if( alt_cen && !done ) begin
+        if( attr[6] ) sc_req <= sc_req+1; else sc_skip <= sc_skip+1;
+    end
+    if( vs && !sc_vsl ) begin
+        $display("SCRA req=%0d skip=%0d wait=%0d", sc_req, sc_skip, sc_wait);
+        sc_req<=0; sc_skip<=0; sc_wait<=0;
+    end
+end
+`endif
 
 `ifdef SIMULATION
 /* verilator tracing_off */
