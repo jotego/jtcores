@@ -304,23 +304,23 @@ jt960_muldiv u_md(
     .done   ( md_done  )
 );
 
-// interrupts: rising edge on a line latches it pending, cleared when taken
+// interrupts: rising edge on a line latches it pending, cleared when taken.
+// Sampled on cen so pending holds through the enable period: the lines stay
+// asserted until acknowledged, and the CPU multicycle constraints assume no
+// register on these paths moves between enables
 // vector per line comes from ICR (set via synmov to ff000004)
-wire [3:0] pend;
+reg  [3:0] pend, irqn_l;
 reg  [3:0] irq_clr;
 
-genvar k;
-generate
-    for( k=0; k<4; k=k+1 ) begin : u_irqlatch
-        jtframe_edge u_edge(
-            .rst    ( rst        ),
-            .clk    ( clk        ),
-            .edgeof ( ~irq_n[k]  ),
-            .clr    ( irq_clr[k] ),
-            .q      ( pend[k]    )
-        );
+always @(posedge clk) begin
+    if( rst ) begin
+        pend   <= 0;
+        irqn_l <= 4'hf;
+    end else if( cen ) begin
+        irqn_l <= irq_n;
+        pend   <= (pend | (~irq_n & irqn_l)) & ~irq_clr;
     end
-endgenerate
+end
 
 wire [4:0] cpu_pri = PCS[20:16];
 reg        irq_take;
@@ -522,7 +522,9 @@ always @(posedge clk) begin
         ic_clr <= 0;
     end else begin
       icw    <= 0;
-      ic_clr <= 0;
+      // ic_clr holds through the enable period: the ungated sweep receiver
+      // then sees a cen-stable request, as the multicycle constraints assume
+      if( cen ) ic_clr <= 0;
       if( cen ) begin
         case( st )
         // reset sequence, per MAME device_reset
