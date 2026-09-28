@@ -123,7 +123,7 @@ integer     i, j, j2;
 
 assign scr_cs     = ~done & attr[6]; // transparent pixels fetch nothing
 wire pre_blank    = tmap_data==BLANK;
-assign smask_cs   = plyr!=7 && mst>=3 && !pre_blank; // tmap_data valid from mst 3
+assign smask_cs   = plyr!=7 && mst>=3 && !pre_blank && !skip_cov; // tmap_data valid from mst 3
 assign hsub       = hcnt[2:0];
 assign buf_we     = (alt_cen & ~done) | clr_we;
 // tail sweep: descends from HEND on the idle write phase and stops at the
@@ -143,9 +143,14 @@ wire [5:0] cfg_enb_eff = cfg_enb | skip_l;
 // layers that provably lose to the covered road span this line
 reg  [5:0] lose_l, skip_l;
 reg  [8:0] spx0, spx1;
-reg        span_v;
+reg        span_v, skip_cov;
 wire [8:0] hvis = hcnt - 9'h40; // buffer x -> screen x (roz space), no flip
 wire       in_span = span_v && hvis>=spx0 && hvis<=spx1;
+// next tile of the prefetched layer, in buffer coordinates
+wire [2:0] eff_pcnt = plyr>3 ? hcnt[2:0] : pcnt;
+wire [9:0] wxb0     = {1'b0,hcnt} + 10'd8 - {7'd0,eff_pcnt};
+wire       cov_tile = span_v && wxb0          >= ({1'b0,spx0}+10'h40) &&
+                                (wxb0+10'd7)  <= ({1'b0,spx1}+10'h40);
 assign xing      = { hcnt[2:0]==7, hcnt[2:0]==7, hcnt3==7, hcnt2==7, hcnt1==7, hcnt0==7 };
 assign block      = xing & ~nrdy & ~cfg_enb_eff;
 assign rom_ok     = (scr_ok | ~attr[6]) & ~|block;
@@ -308,6 +313,7 @@ always @(posedge clk, posedge rst) begin
         nrdy      <= 0;
         plyr      <= 7;
         mst       <= 0;
+        skip_cov  <= 0;
     end else begin
         case( mst )
             0: if( mlyr!=7 ) begin
@@ -315,6 +321,7 @@ always @(posedge clk, posedge rst) begin
                 mst  <= 1;
             end
             1: begin // Tile map RAM address, one tile ahead
+                skip_cov <= cov_tile && lose_l[plyr];
                 case( plyr )
                     0,1,2,3: tmap_addr <= { 1'b0, plyr[1:0], vpos[3+:6], hpos[3+:6] };
                     // fixed tile maps are packed in memory and do not fit into a H-V binary split
@@ -330,7 +337,7 @@ always @(posedge clk, posedge rst) begin
             2: mst <= 3;
             3: begin
                 mst <= 4;
-                if( pre_blank ) begin // blank tile: mask 0, no fetches
+                if( pre_blank || skip_cov ) begin // blank or road-covered tile: mask 0, no fetches
                     nmask[plyr] <= 0;
                     ninfo[plyr] <= {cfg_pal[plyr], tmap_data, mask_asub, poff};
                     nrdy[plyr]  <= 1;
@@ -384,17 +391,23 @@ jtframe_linebuf #(.DW(15)) u_buffer(
 
 `ifdef SYSFL_SCRDBG
 // per-frame tilemap bus audit
-integer sc_req=0, sc_wait=0, sc_skip=0;
+integer sc_req=0, sc_wait=0, sc_skip=0, sc_cov=0, sp_vld=0, sp_full=0, sp_w=0;
 reg sc_vsl=0;
 always @(posedge clk) begin
     sc_vsl <= vs;
+    if( hs_edge && sum_vld ) begin
+        sp_vld <= sp_vld+1;
+        if( sum_full ) sp_full <= sp_full+1;
+        else sp_w <= sp_w + {23'd0,sum_x1} - {23'd0,sum_x0};
+    end
     if( scr_cs && !scr_ok ) sc_wait <= sc_wait+1;
     if( alt_cen && !done ) begin
         if( attr[6] ) sc_req <= sc_req+1; else sc_skip <= sc_skip+1;
     end
+    if( mst==3 && skip_cov && !pre_blank ) sc_cov <= sc_cov+1;
     if( vs && !sc_vsl ) begin
-        $display("SCRA req=%0d skip=%0d wait=%0d", sc_req, sc_skip, sc_wait);
-        sc_req<=0; sc_skip<=0; sc_wait<=0;
+        $display("SCRA req=%0d skip=%0d cov=%0d wait=%0d | span vld=%0d full=%0d partw=%0d", sc_req, sc_skip, sc_cov, sc_wait, sp_vld, sp_full, sp_w);
+        sc_req<=0; sc_skip<=0; sc_cov<=0; sc_wait<=0; sp_vld<=0; sp_full<=0; sp_w<=0;
     end
 end
 `endif
