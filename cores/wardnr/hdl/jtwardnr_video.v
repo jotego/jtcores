@@ -19,6 +19,7 @@ module jtwardnr_video(
     input             bg_bank,
     input             fg_bank,
     input             video_on,
+    input             tcobr,
     input      [ 3:0] gfx_en,
 
     output     [11:1] tx_vaddr,
@@ -72,7 +73,7 @@ wire [14:0] fg_rom_addr;
 assign heff = hdump >= 9'd430 ? hdump - 9'd446 : hdump;
 
 assign bg_vaddr = { bg_bank, bg_vaddr_lo };
-assign fg_addr  = {    1'b0, fg_rom_addr };
+assign fg_addr  = { fg_bank, fg_rom_addr };
 
 // The real PCB uses a programmable CRT controller: HD6845S
 // This configuration matches the programmed values with a slight
@@ -174,6 +175,7 @@ jtwardnr_obj u_obj(
     .LVBL       ( LVBL              ),
     .hdump      ( hdump             ),
     .vrender    ( vrender           ),
+    .tcobr      ( tcobr             ),
     .ram_addr   ( obj_vaddr         ),
     .ram_dout   ( obj_dout          ),
     .cpy_addr   ( objcpy_addr       ),
