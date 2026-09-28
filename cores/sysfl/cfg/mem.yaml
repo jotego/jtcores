@@ -5,7 +5,7 @@ params:
   - { name: WRAM_OFFSET,  value: "23'h20_0000" }  # byte 0x400000, bank 0
   - { name: SMASK_OFFSET, value: "23'h2d_0000" }  # byte 0x5a0000, bank 0
   - { name: RMASK_OFFSET, value: "23'h31_0000" }  # byte 0x620000, bank 0
-  - { name: C75DATA_OFFSET, value: "23'h34_0000" } # byte 0x680000, bank 2
+  - { name: C75DATA_OFFSET, value: "23'h30_0000" } # byte 0x600000, bank 3
   - { name: ROZ_OFFSET,   value: "23'h20_0000" }  # byte 0x400000, bank 2
   - { name: PCM_OFFSET,   value: "23'h10_0000" }  # byte 0x200000, bank 3
 clocks:
@@ -68,11 +68,6 @@ sdram:
           data_width: 32
           cache_size: 4kB
           offset: ROZ_OFFSET
-        - name: mcurom  # C75 external data ROM (se1_spr), 512kB
-          addr_width: 19
-          data_width: 16
-          cache_size: 1kB
-          offset: C75DATA_OFFSET
     - buses:
         - name: roz2    # steep walks: single texels, 2-byte lines, private bank
           addr_width: 21
@@ -82,6 +77,11 @@ sdram:
           addr_width: 22
           data_width: 8
           offset: PCM_OFFSET
+        - name: mcurom  # C75 external data ROM: proven 16-bit/32-burst shape
+          addr_width: 19
+          data_width: 16
+          cache_size: 1kB
+          offset: C75DATA_OFFSET
 bram:
   - name: vram      # 123 tilemaps, 64kB. Primary port: video read
     addr_width: 16

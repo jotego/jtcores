@@ -99,19 +99,19 @@ bank0[0x100000:0x400000] = data
 bank0[0x5a0000:0x620000] = get("se1_ssh.18u")   # sprite masks
 bank0[0x620000:0x6a0000] = get("se1_rsh.14k")   # roz masks
 
-bank2 = bytearray(0x700000)
+bank2 = bytearray(0x600000)
 pos = 0
 for f in ["se1_sch0.21p","se1_sch1.20p","se1_sch2.19p","se1_sch3.18p"]:
     d = get(f); bank2[pos:pos+len(d)] = d; pos += 0x100000
 bank2[0x400000:0x500000] = get("se1_rch0.19j")  # roz A
 bank2[0x500000:0x600000] = get("se1_rch1.18j")
-bank2[0x680000:0x700000] = get("se1_spr.21l")   # C75 external data ROM
 
 # bank 3: roz copy B (2-byte-line bank) + C352 samples
-bank1 = bytearray(0x600000)
+bank1 = bytearray(0x680000)
 bank1[0x000000:0x100000] = get("se1_rch0.19j")
 bank1[0x100000:0x200000] = get("se1_rch1.18j")
 bank1[0x200000:0x600000] = get("se1_voi.23s")
+bank1[0x600000:0x680000] = get("se1_spr.21l")   # C75 external data ROM
 
 # C75 internal BIOS, from the MAME namcoc75 device set
 with zipfile.ZipFile(c75path) as z:
