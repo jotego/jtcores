@@ -17,6 +17,7 @@ module jtwardnr_obj(
     input             LVBL,
     input      [ 8:0] hdump,
     input      [ 8:0] vrender,
+    input             tcobr,
 
     output     [11:1] ram_addr,
     input      [15:0] ram_dout,
@@ -65,7 +66,7 @@ assign ydiff     = ly - (sy - 9'd16);
 assign q_sy      = scan_dout[15:7];
 assign q_diff    = ly - (q_sy - 9'd16);
 assign yhit      = q_sy != 9'h100 && q_diff < 9'd16;
-assign xpos      = sx - 9'd32 - (flipx ? 9'd14 : 9'd0);
+assign xpos      = flipx ? sx - 9'd46 : sx - 9'd32 + {8'd0, tcobr};
 // jtframe_objdraw addresses {code, H, VVVV}; the ROM is {code, VVVV, H}
 assign rom_addr  = { dr_rom[17:7], dr_rom[5:2], dr_rom[6] };
 
