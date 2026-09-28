@@ -3,9 +3,9 @@
 # Same System FL layout as ver/speedrcr, banks are 0xFF-initialized to match
 # the MRA fillers (the data region is ROMREGION_ERASEFF, no ROMs).
 # bank0: i960 prog @0 (LOAD32_WORD eb/ob) | data erased @0x100000
-#        | rch0-1 @0x400000 (rsh moved to the bank3 image @0x5a0000)
+#        | sch0-3 @0x400000 (rsh in the bank3 image @0x5a0000)
 # bank1: pcm 2MB @0 (work RAM lives at 0x400000, no preload)
-# bank2: sch0-3 @0 | ssh @0x400000 | spr (128kB) @0x500000
+# bank2: rch0-1 @0 | ssh @0x400000 | spr (128kB) @0x500000
 # bank3: obj0l/0u, obj1l/1u interleaved as ROM_LOAD32_WORD
 #
 # --fastboot only runs the generic delay-loop shortener (no per-offset POST
@@ -62,15 +62,15 @@ def swab(b):
     o[0::2], o[1::2] = b[1::2], b[0::2]
     return o
 
-bank0 = bytearray(b'\xff'*0x600000)
+bank0 = bytearray(b'\xff'*0x800000)
 bank0[0:0x100000] = prog
 pos = 0x400000
-for f in ["flr1_rch0.19j","flr1_rch1.18j"]:
+for f in ["flr1_sch0.21p","flr1_sch1.20p","flr1_sch2.19p","flr1_sch3.18p"]:
     d = get(f); bank0[pos:pos+len(d)] = d; pos += 0x100000
 
 bank2 = bytearray(b'\xff'*0x580000)
 pos = 0
-for f in ["flr1_sch0.21p","flr1_sch1.20p","flr1_sch2.19p","flr1_sch3.18p"]:
+for f in ["flr1_rch0.19j","flr1_rch1.18j"]:
     d = get(f); bank2[pos:pos+len(d)] = d; pos += 0x100000
 bank2[0x400000:0x480000] = get("flr1_ssh.18u")
 spr = get("flr1_spr.21l")

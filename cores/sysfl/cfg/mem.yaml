@@ -1,10 +1,10 @@
 # System FL memory map
-# bank 0: i960 program (1MB @0) + data (2MB @0x100000) + ROZ gfx
-# bank 1: obj gfx (SDRAM priority: bank0 first, so obj outranks all but roz/main)
-# bank 2: scroll gfx, bank 3: C352 PCM (4MB @0) + i960 work RAM (1MB @0x400000)
+# bank 0: i960 program (1MB @0) + data (2MB @0x100000) + scroll gfx
+# bank 1: obj gfx (SDRAM priority: bank0 first, so obj outranks all but scr/main)
+# bank 2: ROZ gfx, bank 3: C352 PCM (4MB @0) + i960 work RAM (1MB @0x400000)
 params:
   - { name: SMASK_OFFSET, value: "22'h20_0000" }  # byte 0x400000
-  - { name: ROZ_OFFSET,   value: "22'h20_0000" }  # byte 0x400000, bank 0
+  - { name: SCR_OFFSET,   value: "22'h20_0000" }  # byte 0x400000, bank 0
   - { name: RMASK_OFFSET, value: "22'h2d_0000" }  # byte 0x5a0000, bank 3
   - { name: WRAM_OFFSET,  value: "22'h20_0000" }  # byte 0x400000, bank 1
   - { name: C75DATA_OFFSET, value: "22'h28_0000" } # byte 0x500000, bank 2
@@ -34,21 +34,21 @@ sdram:
           addr_width: 22
           data_width: 32
           cache_size: 1kB
-        - name: roz
-          addr_width: 21
-          data_width: 32
-          cache_size: 4kB
-          offset: ROZ_OFFSET
+        - name: scr
+          addr_width: 22
+          data_width: 8
+          cache_size: 2kB
+          offset: SCR_OFFSET
     - buses:
         - name: objrom
           addr_width: 23
           data_width: 32
           cache_size: 2kB
     - buses:
-        - name: scr
-          addr_width: 22
-          data_width: 8
-          cache_size: 2kB
+        - name: roz
+          addr_width: 21
+          data_width: 32
+          cache_size: 4kB
         - name: smask
           addr_width: 19
           data_width: 8

@@ -14,13 +14,14 @@ registers=[
 regions = [
     { name="maincpu",      width=32 },
     # Final Lap R has no data ROMs (ROMREGION_ERASEFF); the FF filler up to
-    # ROZ_START reproduces the erased region
+    # SCR_START reproduces the erased region
     { name="data",         machine="finalapr", skip=true },
     { name="data",         width=32 },
-    { name="c169roz",      start="ROZ_START" },
+    { name="c169roz",      start="JTFRAME_BA2_START" },
     { name="c169roz:mask", start="RMASK_START" },
     { name="c352",         start="JTFRAME_BA3_START" },
-    { name="c123tmap",     start="JTFRAME_BA2_START" },
+    { name="c123tmap",     start="SCR_START" },
+    { name="c123tmap:mask", start="SMASK_START" },
     # C75 internal BIOS, from the namcoc75.zip device set
     { name="c75",          start="C75BIOS_START", files=[
         { name="c75.bin", crc="42f539a5", size=0x4000 } ] },
@@ -28,8 +29,8 @@ regions = [
     { name="c355spr",      width=32, start="JTFRAME_BA1_START" },
     { name="pals",         skip=true },
 ]
-order = [ "maincpu", "data", "c169roz", "c355spr",
-          "c123tmap", "c123tmap:mask", "c75", "c75data", "c352",
+order = [ "maincpu", "data", "c123tmap", "c355spr",
+          "c169roz", "c123tmap:mask", "c75", "c75data", "c352",
           "c169roz:mask" ]
 
 [buttons]

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # Builds sdram_bank*.bin + nvram.bin for sims from the MAME speedrcr set.
 # bank0: i960 prog @0 (LOAD32_WORD ea4/oa4) | data @0x100000 (LOAD32_BYTE dat0-3)
-#        | rch0-1 @0x400000 | rsh @0x600000
+#        | sch0-3 @0x400000
 # bank1: pcm (empty until C352 lands; work RAM lives at 0x400000, no preload)
-# bank2: sch0-3 @0 | ssh @0x400000
+# bank2: rch0-1 @0 | ssh @0x400000
 # bank3: obj0l/0u, obj1l/1u interleaved as ROM_LOAD32_WORD
 # nvram.bin: 8kB of 0xFF (MAME NVRAM DEFAULT_ALL_1; the game inits it on first boot)
 #
@@ -92,17 +92,17 @@ def swab(b):
     o[0::2], o[1::2] = b[1::2], b[0::2]
     return o
 
-bank0 = bytearray(0x680000)
+bank0 = bytearray(0x800000)
 bank0[0:0x100000] = prog
 bank0[0x100000:0x300000] = data
 pos = 0x400000
-for f in ["se1_rch0.19j","se1_rch1.18j"]:
+for f in ["se1_sch0.21p","se1_sch1.20p","se1_sch2.19p","se1_sch3.18p"]:
     d = get(f); bank0[pos:pos+len(d)] = d; pos += 0x100000
 # rsh moved to bank 3 @0x520000 (RMASK on its own bank for roz overlap)
 
 bank2 = bytearray(0x580000)
 pos = 0
-for f in ["se1_sch0.21p","se1_sch1.20p","se1_sch2.19p","se1_sch3.18p"]:
+for f in ["se1_rch0.19j","se1_rch1.18j"]:
     d = get(f); bank2[pos:pos+len(d)] = d; pos += 0x100000
 bank2[0x400000:0x480000] = get("se1_ssh.18u")
 bank2[0x500000:0x580000] = get("se1_spr.21l")   # C75 external data ROM
