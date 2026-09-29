@@ -182,11 +182,11 @@ wire [ 8:0] l0_ra = issue ? xi+9'd1 : xi; // read one ahead of the walk
 reg         l0_live;   // this line's L0 pass really ran
 wire        l0_skip = lyr1 && l0_live && l0_q[4] && l0_q[3:0] >= p_prio;
 // a disabled pass leaves its plane alone when it is already blank
-reg  [ 3:0] cln0, cln1;
+reg  [ 3:0] cln0;
 reg  [ 8:0] clr_x, swp;
 // tail blanker: sweeps the pass's plane down toward the walk on idle write
 // cycles, so an aborted line shows a hole instead of stale texels
-wire        swp_we = fsm==RUN && !bwe && swp >= xi && swp != 9'h1ff;
+wire        swp_we = fsm==RUN && !lyr1 && !bwe && swp >= xi && swp != 9'h1ff;
 // column of the pixel being issued; coverage words align to 8px screen columns
 wire [5:0]  cov_col = xi[8:3];
 reg         cov_hit;
@@ -222,14 +222,14 @@ wire [ 9:0] q_lin = {1'b0,vdump}+10'd2-{1'b0,V0};
 wire [15:0] q_rca = 16'h7040 + {3'd0,q_lin[8:3],7'd0} + {10'd0,q_lin[2:0],3'd0}
                   + {13'd0,q_rcnt};
 
-wire [15:0] q0, q1;
+wire [15:0] q0;
 wire [127:0] ctl0, ctl1;
 wire [11:0] xw, yw, pyr, pym, ysl;
 wire [23:0] cyfw;
 wire [16:1] map_a;
 wire [15:0] rec_a;
 wire [ 8:0] hd, rda, nline;
-wire        scl_mode, hs_edge, in_x, in_y, b0, b1, sel0;
+wire        scl_mode, hs_edge, in_x, in_y, b0;
 
 assign rmask_cs = mo[1];
 assign roz_cs   = to[1];
@@ -366,7 +366,6 @@ always @(posedge clk) begin
         roz_addr    <= 0;
         rozb_addr   <= 0;
         cln0        <= 0;
-        cln1        <= 0;
         lline       <= VLINES; // out of range: first visible hs resyncs
         sum_vld     <= 0;
         sum_full    <= 0;
@@ -543,26 +542,24 @@ always @(posedge clk) begin
                 cyf <= sy24 + (scl ? 24'd0 : lyt);
                 if( !lyr1 ) l0_live <= p_en;
                 if( p_en ) begin
-                    if( lyr1 ) cln1[lline[1:0]] <= 0;
-                    else       cln0[lline[1:0]] <= 0;
+                    cln0[lline[1:0]] <= 0; // any real pass dirties the plane
                     swp <= LINE_W-9'd1;
                     fsm <= RUN;
-                end else if( lyr1 ? cln1[lline[1:0]] : cln0[lline[1:0]] )
-                    fsm <= ADV;       // plane already blank: free pass
+                end else if( lyr1 || cln0[lline[1:0]] )
+                    fsm <= ADV;       // L1 leaves L0's plane; blank plane is free
                 else begin
                     clr_x <= 0;       // blank sweep, 1 px/clk, no fetches
                     fsm   <= CLRB;
                 end
             end
-            CLRB: begin
+            CLRB: begin // only the L0 pass blanks; L1 shares the plane
                 bwe   <= 1;
-                bwl   <= lyr1;
+                bwl   <= 0;
                 bdata <= 16'd0;
                 baddr <= clr_x;
                 clr_x <= clr_x + 9'd1;
                 if( clr_x == LINE_W-9'd1 ) begin
-                    if( lyr1 ) cln1[lline[1:0]] <= 1;
-                    else       cln0[lline[1:0]] <= 1;
+                    cln0[lline[1:0]] <= 1;
                     fsm <= ADV;
                 end
             end
@@ -615,7 +612,7 @@ always @(posedge clk) begin
                     bdata <= h_draw ? { h_mbit2, p_prio, p_color, h_tex } : 16'd0;
                     baddr <= h_x;
                     bwl   <= lyr1;
-                    bwe   <= 1;
+                    bwe   <= !lyr1 || (h_draw && h_mbit2);
                     f_rd  <= f_rd + 2'd1;
                 end else if( popst ) begin
                     f_rd <= f_rd + 2'd1;
@@ -650,7 +647,7 @@ always @(posedge clk) begin
                     bdata <= { fbit0, p_prio, p_color, t_byt0 };
                     baddr <= fx0;
                     bwl   <= lyr1;
-                    bwe   <= 1;
+                    bwe   <= !lyr1 || fbit0;
                     if( !ftok0 ) begin
                         c_tword <= t_wrd0;
                         c_taddr <= fbus0 ? rozb_addr : roz_addr;
@@ -697,14 +694,15 @@ jtframe_dual_ram #(.DW(5),.AW(9)) u_l0win(
 // banking cheap (sky) lines' time for the heavy horizon band
 wire [10:0] bwa_mux = swp_we ? {lline[1:0], swp} : {lline[1:0], baddr};
 wire [15:0] bwd_mux = swp_we ? 16'd0 : bdata;
-wire        bwl_mux = swp_we ? lyr1  : bwl;
 wire        bww     = bwe | swp_we;
 
+// single merged plane: the L1 pass only writes pixels that win the mixer
+// compare (the L0-winner skip removes the rest), so both layers share it
 jtframe_dual_ram #(.AW(11),.DW(16)) u_buf0(
     .clk0       ( clk       ),
     .data0      ( bwd_mux   ),
     .addr0      ( bwa_mux   ),
-    .we0        ( bww & ~bwl_mux),
+    .we0        ( bww       ),
     .q0         (           ),
     .clk1       ( clk       ),
     .data1      ( 16'd0     ),
@@ -713,33 +711,12 @@ jtframe_dual_ram #(.AW(11),.DW(16)) u_buf0(
     .q1         ( q0        )
 );
 
-jtframe_dual_ram #(.AW(11),.DW(16)) u_buf1(
-    .clk0       ( clk       ),
-    .data0      ( bwd_mux   ),
-    .addr0      ( bwa_mux   ),
-    .we0        ( bww &  bwl_mux),
-    .q0         (           ),
-    .clk1       ( clk       ),
-    .data1      ( 16'd0     ),
-    .addr1      ( {rdline[1:0], rda}  ),
-    .we1        ( 1'b0      ),
-    .q1         ( q1        )
-);
-
-// layer mixing: same priority resolves to layer 0
-assign b0   = q0[15];
-assign b1   = q1[15];
-assign sel0 = b0 && (!b1 || q0[14:11] >= q1[14:11]);
+assign b0 = q0[15];
 
 always @(posedge clk) if( pxl_cen ) begin
-    roz_blankn <= b0 | b1;
-    if( sel0 ) begin
-        roz_prio <= q0[14:11];
-        roz_pxl  <= {1'b0, q0[10:0]};
-    end else begin
-        roz_prio <= q1[14:11];
-        roz_pxl  <= {1'b0, q1[10:0]};
-    end
+    roz_blankn <= b0;
+    roz_prio   <= q0[14:11];
+    roz_pxl    <= {1'b0, q0[10:0]};
 end
 
 // control registers
