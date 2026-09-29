@@ -5,20 +5,20 @@
  * Twin Cobra boards).
  *
  *   000000-02FFFF  ROM
- *   030000-033FFF  work RAM, shared with the DSP
- *   040000-040FFF  sprite RAM, shared with the DSP
- *   050000-050DFF  palette RAM, shared with the DSP
+ *   030000-03FFFF  work RAM, shared with the DSP
+ *   040000-04FFFF  sprite RAM, shared with the DSP
+ *   050000-05FFFF  palette RAM, shared with the DSP
+ *   060000-06FFFF  CRTC, 6800 bus cycle
  *   070000-076005  scroll and tile map pointer registers
- *   078000-078009  inputs
- *   07800B         coin latch
- *   07800D         main latch
- *   07A000-07AFFF  RAM shared with the sound CPU, low byte
- *   07E000-07E005  tile map data at the pointers
+ *   078000-079FFF  inputs, coin latch 07800B, main latch 07800D
+ *   07A000-07BFFF  sound CPU RAM, low byte, through the Z80 bus request
+ *   07E000-07FFFF  tile map data at the pointers
  */
 module jtktiger_main(
     input             rst,
     input             clk,
     input             LVBL,
+    input             VS,
     input             tcobr,
     input             fast,
 
@@ -51,6 +51,8 @@ module jtktiger_main(
     output     [ 7:0] mshr_din,
     output            mshr_we,
     input      [ 7:0] shared_dout,
+    output            snd_busrq_n,
+    input             snd_busak_n,
 
     output reg [ 2:0] scr_cs,
     output reg [ 2:0] scr_addr,
@@ -103,8 +105,9 @@ reg         work_cs, obj_cs, pal_cs, shr_cs, cab_cs, vram_cs, scr_l, hi_pend;
 assign rom_addr  = A[17:1];
 assign dsn       = {UDSn, LDSn};
 assign BUSn      = ASn | (&dsn);
-assign VPAn      = ~(~ASn & (&FC));
-assign bus_busy  = rom_cs & ~rom_ok_dly;
+assign VPAn      = ~(~ASn & ((&FC) | A[18:16]==3'd6));
+assign bus_busy  = (rom_cs & ~rom_ok_dly) | (shr_cs & snd_busak_n);
+assign snd_busrq_n = ~shr_cs;
 assign cpu_bwe   = {2{~RnW}} & ~dsn;
 assign cab_we    = cab_cs & ~RnW & ~LDSn;
 assign scr_wr    = ~BUSn & ~RnW & A[18:15]==4'b1110 & A[12:3]==0 & A[2:1]!=2'd3 & A[14:13]!=2'd3;
@@ -132,7 +135,7 @@ assign dsp_din   = dsp_sel==2'd0 ? work_dout   :
 
 assign mshr_addr = A[11:1];
 assign mshr_din  = cpu_dout[7:0];
-assign mshr_we   = shr_cs & ~RnW & ~LDSn;
+assign mshr_we   = shr_cs & ~RnW & ~LDSn & ~snd_busak_n;
 
 assign tx_a      = txoffs[10:0];
 assign bg_a      = {bg_bank, bgoffs[11:0]};
@@ -143,12 +146,12 @@ assign fg_bwe    = {2{vram_cs && A[2:1]==2'd2}} & cpu_bwe;
 
 always @* begin
     rom_cs  = !ASn  && A[18:16] < 3'd3;
-    work_cs = !BUSn && A[18:14] == 5'b01100;
-    obj_cs  = !BUSn && A[18:12] == 7'h40;
-    pal_cs  = !BUSn && A[18:12] == 7'h50;
-    cab_cs  = !BUSn && A[18:12] == 7'h78;
-    shr_cs  = !BUSn && A[18:12] == 7'h7a;
-    vram_cs = !BUSn && A[18:12] == 7'h7e;
+    work_cs = !BUSn && A[18:16] == 3'd3;
+    obj_cs  = !BUSn && A[18:16] == 3'd4;
+    pal_cs  = !BUSn && A[18:16] == 3'd5;
+    cab_cs  = !BUSn && A[18:13] == 6'h3c;
+    shr_cs  = !BUSn && A[18:13] == 6'h3d;
+    vram_cs = !BUSn && A[18:13] == 6'h3f;
 end
 
 always @(posedge clk) begin
@@ -157,7 +160,7 @@ always @(posedge clk) begin
         3'd1:    cab_dout <= {8'd0, dipsw[15:8]};
         3'd2:    cab_dout <= {8'd0, ~{2'b11, joystick1}};
         3'd3:    cab_dout <= {8'd0, ~{2'b11, joystick2}};
-        3'd4:    cab_dout <= {8'd0, ~LVBL, tcobr ? 7'd0 : cab_sys};
+        3'd4:    cab_dout <= {8'd0, ~LVBL, cab_sys};
         default: cab_dout <= 16'd0;
     endcase
     cpu_din <= rom_cs  ? rom_data    :
@@ -207,7 +210,7 @@ end
 jtframe_edge #(.QSET(0)) u_irq(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .edgeof     ( ~LVBL     ),
+    .edgeof     ( VS        ),
     .clr        ( ~mlatch[2]),
     .q          ( irq_n     )
 );
@@ -225,9 +228,9 @@ jtframe_68kdtack_cen #(.W(8)) u_dtack(
     .clk        ( clk       ),
     .cpu_cen    ( cpu_cen   ),
     .cpu_cenb   ( cpu_cenb  ),
-    .bus_cs     ( rom_cs    ),
+    .bus_cs     ( rom_cs | shr_cs ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( shr_cs    ),
     .bus_ack    ( dsp_ack   ),
     .ASn        ( ASn       ),
     .DSn        ( dsn       ),

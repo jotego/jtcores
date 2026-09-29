@@ -17,7 +17,7 @@ wire [ 7:0] scr_din, sys;
 wire [ 1:0] dsp_sel;
 wire [ 2:0] scr_cs, scr_addr;
 wire        dsp_on, dsp_rstn, snd_rstn, dsp_br, dsp_ack, dsp_we, tcobr, fast;
-wire        flip, bg_bank, fg_bank, video_on;
+wire        flip, bg_bank, fg_bank, video_on, snd_busrq_n, snd_busak_n;
 
 assign dip_flip    = flip;
 assign pxl_cen     = cen7;
@@ -40,6 +40,7 @@ jtktiger_main u_main(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .LVBL       ( LVBL              ),
+    .VS         ( VS                ),
     .tcobr      ( tcobr             ),
     .fast       ( fast              ),
 
@@ -72,6 +73,8 @@ jtktiger_main u_main(
     .mshr_din   ( mshr_din          ),
     .mshr_we    ( mshr_we           ),
     .shared_dout( shared_dout       ),
+    .snd_busrq_n( snd_busrq_n       ),
+    .snd_busak_n( snd_busak_n       ),
 
     .scr_cs     ( scr_cs            ),
     .scr_addr   ( scr_addr          ),
@@ -134,6 +137,8 @@ jtwardnr_sound #(.TWINCOBR(1)) u_sound(
 
     .sys        ( sys               ),
     .dipsw      ( dipsw[15:0]       ),
+    .busrq_n    ( snd_busrq_n       ),
+    .busak_n    ( snd_busak_n       ),
 
     .rom_addr   ( snd_addr          ),
     .rom_data   ( snd_data          ),
