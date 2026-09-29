@@ -41,7 +41,7 @@ module jtc123(
     output     [15:0] dout,
 
     // Tile map readout (BRAM)
-    output reg [15:1] tmap_addr,
+    output     [15:1] tmap_addr,
     input      [15:0] tmap_data,
     // Mask readout (SDRAM)
     output            smask_cs,
@@ -316,6 +316,8 @@ reg [ 2:0] sc_st;
 reg [35:0] sc_word;
 reg        sc_we, sc_wlyr;
 reg [ 4:0] sc_wrow;
+reg [15:1] sc_ta, tmap_a;
+assign tmap_addr = sc_on ? sc_ta : tmap_a;
 assign cov_prio4 = cfg_prio[4];
 assign cov_prio5 = cfg_prio[5];
 
@@ -329,7 +331,7 @@ always @(posedge clk) begin
         sc_on <= 1;
     end else if( sc_on ) case( sc_st )
         0: if( mst==0 && plyr==7 ) begin
-            tmap_addr <= (sc_lyr ? 15'h4408 : 15'h4008) + {5'd0,sc_lin};
+            sc_ta <= (sc_lyr ? 15'h4408 : 15'h4008) + {5'd0,sc_lin};
             sc_st <= 1;
         end
         1: sc_st <= 2;
@@ -389,10 +391,10 @@ always @(posedge clk, posedge rst) begin
             1: begin // Tile map RAM address, one tile ahead
                 skip_cov <= cov_tile && lose_l[plyr];
                 case( plyr )
-                    0,1,2,3: tmap_addr <= { 1'b0, plyr[1:0], vpos[3+:6], hpos[3+:6] };
+                    0,1,2,3: tmap_a <= { 1'b0, plyr[1:0], vpos[3+:6], hpos[3+:6] };
                     // fixed tile maps are packed in memory and do not fit into a H-V binary split
-                    4: tmap_addr <= 15'h4008 + {5'd0, lin_next};
-                    5: tmap_addr <= 15'h4408 + {5'd0, lin_next};
+                    4: tmap_a <= 15'h4008 + {5'd0, lin_next};
+                    5: tmap_a <= 15'h4408 + {5'd0, lin_next};
                     default:;
                 endcase
                 mask_asub <= vpos[2:0];
