@@ -308,6 +308,32 @@ jtsysfl_misc_mmr #(.SEEK('h70)) u_misc(
     .st_dout    (               )
 );
 
+// shared texel pool: both roz buses hit one 4kB cache
+wire        vroz_cs, vrozb_cs, vroz_ok, vrozb_ok;
+wire [20:2] vroz_addr, vrozb_addr;
+wire [31:0] vroz_data, vrozb_data;
+
+jtsysfl_rozcache u_rozcache(
+    .rst        ( rst           ),
+    .clk        ( clk           ),
+    .a_cs       ( vroz_cs       ),
+    .a_addr     ( vroz_addr     ),
+    .a_ok       ( vroz_ok       ),
+    .a_dout     ( vroz_data     ),
+    .b_cs       ( vrozb_cs      ),
+    .b_addr     ( vrozb_addr    ),
+    .b_ok       ( vrozb_ok      ),
+    .b_dout     ( vrozb_data    ),
+    .sa_cs      ( roz_cs        ),
+    .sa_addr    ( roz_addr      ),
+    .sa_ok      ( roz_ok        ),
+    .sa_data    ( roz_data      ),
+    .sb_cs      ( rozb_cs       ),
+    .sb_addr    ( rozb_addr     ),
+    .sb_ok      ( rozb_ok       ),
+    .sb_data    ( rozb_data     )
+);
+
 jtsysfl_video u_video(
     .rst        ( rst           ),
     .clk        ( clk           ),
@@ -374,14 +400,14 @@ jtsysfl_video u_video(
     .opq_bit    ( opq_bit       ),
     .opq2_addr  ( opq2_addr     ),
     .opq2_bit   ( opq2_bit      ),
-    .roz_cs     ( roz_cs        ),
-    .roz_addr   ( roz_addr      ),
-    .roz_ok     ( roz_ok        ),
-    .roz_data   ( roz_data      ),
-    .rozb_cs    ( rozb_cs       ),
-    .rozb_addr  ( rozb_addr     ),
-    .rozb_ok    ( rozb_ok       ),
-    .rozb_data  ( rozb_data     ),
+    .roz_cs     ( vroz_cs       ),
+    .roz_addr   ( vroz_addr     ),
+    .roz_ok     ( vroz_ok       ),
+    .roz_data   ( vroz_data     ),
+    .rozb_cs    ( vrozb_cs      ),
+    .rozb_addr  ( vrozb_addr    ),
+    .rozb_ok    ( vrozb_ok      ),
+    .rozb_data  ( vrozb_data    ),
     .objrom_cs  ( objrom_cs     ),
     .objrom_addr( objrom_addr   ),
     .objrom_ok  ( objrom_ok     ),

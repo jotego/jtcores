@@ -49,14 +49,12 @@ sdram:
           addr_width: 19
           data_width: 8
           offset: SMASK_OFFSET
-        - name: roz
+        - name: roz    # raw slots: jtsysfl_rozcache pools them into 4kB
           addr_width: 21
           data_width: 32
-          cache_size: 2kB
         - name: rozb   # second texel bus: two roz misses in flight
           addr_width: 21
           data_width: 32
-          cache_size: 2kB
         - name: mcurom  # C75 external data ROM (se1_spr), 512kB
           addr_width: 19
           data_width: 16
