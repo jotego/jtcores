@@ -4,10 +4,11 @@
  * Wardner video: three tile maps, sprites and the priority mixer. The raster
  * is 446x286 with 320x240 visible. Screen flip mirrors the tile maps only.
  */
-module jtwardnr_video #(parameter VSCAN=0)(
+module jtwardnr_video #(parameter HWSCAN=0, LATCH=0)(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             pxl2_cen,
 
     input      [ 2:0] scr_cs,
     input      [ 2:0] scr_addr,
@@ -113,11 +114,12 @@ always @(posedge clk) if( pxl_cen ) begin
     lvbl_sh <= { lvbl_sh[0], lvbl };
 end
 
-jtwardnr_scroll u_bg(
+jtwardnr_scroll #(.LATCH(LATCH)) u_bg(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
     .hs         ( HS                ),
+    .vs         ( VS                ),
     .hdump      ( heff              ),
     .vdump      ( vdump             ),
     .flip       ( flip              ),
@@ -134,11 +136,12 @@ jtwardnr_scroll u_bg(
     .pxl        ( bg_pxl            )
 );
 
-jtwardnr_scroll u_fg(
+jtwardnr_scroll #(.LATCH(LATCH)) u_fg(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
     .hs         ( HS                ),
+    .vs         ( VS                ),
     .hdump      ( heff              ),
     .vdump      ( vdump             ),
     .flip       ( flip              ),
@@ -155,11 +158,12 @@ jtwardnr_scroll u_fg(
     .pxl        ( fg_pxl            )
 );
 
-jtwardnr_scroll #(.TEXT(1)) u_tx(
+jtwardnr_scroll #(.TEXT(1),.LATCH(LATCH)) u_tx(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
     .hs         ( HS                ),
+    .vs         ( VS                ),
     .hdump      ( heff              ),
     .vdump      ( vdump             ),
     .flip       ( flip              ),
@@ -176,13 +180,13 @@ jtwardnr_scroll #(.TEXT(1)) u_tx(
     .pxl        ( tx_pxl            )
 );
 
-jtwardnr_obj #(.VSCAN(VSCAN)) u_obj(
+jtwardnr_obj #(.HWSCAN(HWSCAN)) u_obj(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
+    .cen14      ( pxl2_cen          ),
     .hs         ( HS                ),
     .LVBL       ( lvbl              ),
-    .vs         ( VS                ),
     .hdump      ( hdump             ),
     .vrender    ( vrender           ),
     .tcobr      ( tcobr             ),
