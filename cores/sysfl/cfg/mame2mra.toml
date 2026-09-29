@@ -27,11 +27,19 @@ regions = [
         { name="c75.bin", crc="42f539a5", size=0x4000 } ] },
     { name="c75data",      start="MCUROM_START" },
     { name="c355spr",      width=32, start="JTFRAME_BA1_START" },
+    # ROZ texel copy B: same chips again on bank 3, one bank machine per
+    # fetch channel of the shared pool
+    { name="rozb", machine="speedrcr", start="ROZB_START", files=[
+        { name="se1_rch0.19j", crc="a0827288", size=0x100000 },
+        { name="se1_rch1.18j", crc="af7609ad", size=0x100000 } ] },
+    { name="rozb", machine="finalapr", start="ROZB_START", files=[
+        { name="flr1_rch0.19j", crc="f413f50d", size=0x100000 },
+        { name="flr1_rch1.18j", crc="4654d519", size=0x100000 } ] },
     { name="pals",         skip=true },
 ]
 order = [ "maincpu", "data", "c123tmap", "c355spr",
-          "c169roz", "c123tmap:mask", "c75", "c75data", "c352",
-          "c169roz:mask" ]
+          "c169roz", "c123tmap:mask", "c75", "c75data",
+          "c169roz:mask", "c352", "rozb" ]
 
 [buttons]
 # jtframe b1-b4 = joystick[7:4]; names follow the MAME PORT_NAMEs

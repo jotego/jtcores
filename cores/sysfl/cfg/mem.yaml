@@ -5,7 +5,8 @@
 params:
   - { name: SMASK_OFFSET, value: "22'h20_0000" }  # byte 0x400000
   - { name: SCR_OFFSET,   value: "22'h20_0000" }  # byte 0x400000, bank 0
-  - { name: RMASK_OFFSET, value: "22'h2d_0000" }  # byte 0x5a0000, bank 3
+  - { name: RMASK_OFFSET, value: "22'h30_0000" }  # byte 0x600000, bank 2
+  - { name: ROZB_OFFSET,  value: "22'h2d_0000" }  # byte 0x5a0000, bank 3
   - { name: WRAM_OFFSET,  value: "22'h20_0000" }  # byte 0x400000, bank 1
   - { name: C75DATA_OFFSET, value: "22'h28_0000" } # byte 0x500000, bank 2
 clocks:
@@ -52,14 +53,15 @@ sdram:
         - name: roz    # raw slots: jtsysfl_rozcache pools them into 4kB
           addr_width: 21
           data_width: 32
-        - name: rozb   # second texel bus: two roz misses in flight
-          addr_width: 21
-          data_width: 32
         - name: mcurom  # C75 external data ROM (se1_spr), 512kB
           addr_width: 19
           data_width: 16
           cache_size: 1kB
           offset: C75DATA_OFFSET
+        - name: rmask
+          addr_width: 19
+          data_width: 8
+          offset: RMASK_OFFSET
     - buses:
         - name: wram    # rw buses must come first in the bank
           addr_width: 21
@@ -67,13 +69,13 @@ sdram:
           rw: true
           do_not_erase: true  # the game tests+inits it, erasing stalls reset ~12 frames
           offset: WRAM_OFFSET
+        - name: rozb   # texel copy B: bank 3's machine serves pool port B
+          addr_width: 21
+          data_width: 32
+          offset: ROZB_OFFSET
         - name: pcm
           addr_width: 22
           data_width: 8
-        - name: rmask
-          addr_width: 19
-          data_width: 8
-          offset: RMASK_OFFSET
         - name: wram32  # code fetches and loads from work RAM, one burst per word
           addr_width: 21
           data_width: 32

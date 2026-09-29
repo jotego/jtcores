@@ -78,9 +78,9 @@ assign pal_wdin   = pal_din8;
 assign ioctl_din = &ioctl_addr[6:4] ? ioctl_misc : ioctl_video;
 
 // opaque-tile table for the roz mask ROM, built from the download stream
-assign opq_rel  = prog_addr[21:0] - 22'h2d_0000;
-assign opq_prog = prog_we && prog_ba==2'd3 &&
-                  prog_addr[21:0]>=22'h2d_0000 && prog_addr[21:0]<22'h31_0000;
+assign opq_rel  = prog_addr[21:0] - 22'h30_0000;
+assign opq_prog = prog_we && prog_ba==2'd2 &&
+                  prog_addr[21:0]>=22'h30_0000 && prog_addr[21:0]<22'h34_0000;
 // same accumulator for the scr mask ROM (smask, bank 2)
 assign sopq_rel  = prog_addr[21:0] - 22'h20_0000;
 assign sopq_prog = prog_we && prog_ba==2'd2 &&

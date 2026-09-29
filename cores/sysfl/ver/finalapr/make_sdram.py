@@ -3,7 +3,7 @@
 # Same System FL layout as ver/speedrcr, banks are 0xFF-initialized to match
 # the MRA fillers (the data region is ROMREGION_ERASEFF, no ROMs).
 # bank0: i960 prog @0 (LOAD32_WORD eb/ob) | data erased @0x100000
-#        | sch0-3 @0x400000 (rsh in the bank3 image @0x5a0000)
+#        | sch0-3 @0x400000
 # bank1: pcm 2MB @0 (work RAM lives at 0x400000, no preload)
 # bank2: rch0-1 @0 | ssh @0x400000 | spr (128kB) @0x500000
 # bank3: obj0l/0u, obj1l/1u interleaved as ROM_LOAD32_WORD
@@ -68,7 +68,7 @@ pos = 0x400000
 for f in ["flr1_sch0.21p","flr1_sch1.20p","flr1_sch2.19p","flr1_sch3.18p"]:
     d = get(f); bank0[pos:pos+len(d)] = d; pos += 0x100000
 
-bank2 = bytearray(b'\xff'*0x580000)
+bank2 = bytearray(b'\xff'*0x680000)
 pos = 0
 for f in ["flr1_rch0.19j","flr1_rch1.18j"]:
     d = get(f); bank2[pos:pos+len(d)] = d; pos += 0x100000
@@ -78,10 +78,13 @@ bank2[0x500000:0x500000+len(spr)] = spr
 
 # C352 sample ROM, 2MB set in a 4MB bank; nvram/comram in the upper wram
 # window (bank bytes 0x500000 / 0x580000), 0xFF = fresh
-bank1 = bytearray(b'\xff'*0x620000)
+bank1 = bytearray(b'\xff'*0x7a0000)
 voi = get("flr1_voi.23s")
 bank1[0:len(voi)] = voi
-bank1[0x5a0000:0x620000] = get("flr1_rsh.14k")
+pos = 0x5a0000
+for f in ["flr1_rch0.19j","flr1_rch1.18j"]:
+    d = get(f); bank1[pos:pos+len(d)] = d; pos += 0x100000
+bank2[0x600000:0x680000] = get("flr1_rsh.14k")
 mamenv = os.path.expanduser("~/develop/mame/nvram/finalapr/nvram")
 if os.path.exists(mamenv):
     bank1[0x500000:0x502000] = open(mamenv,"rb").read()

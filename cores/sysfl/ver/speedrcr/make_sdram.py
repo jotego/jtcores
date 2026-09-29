@@ -98,9 +98,9 @@ bank0[0x100000:0x300000] = data
 pos = 0x400000
 for f in ["se1_sch0.21p","se1_sch1.20p","se1_sch2.19p","se1_sch3.18p"]:
     d = get(f); bank0[pos:pos+len(d)] = d; pos += 0x100000
-# rsh moved to bank 3 @0x520000 (RMASK on its own bank for roz overlap)
+# rsh now in bank 2 @0x600000; texel copy B in bank 3 @0x5a0000
 
-bank2 = bytearray(0x580000)
+bank2 = bytearray(0x680000)
 pos = 0
 for f in ["se1_rch0.19j","se1_rch1.18j"]:
     d = get(f); bank2[pos:pos+len(d)] = d; pos += 0x100000
@@ -109,9 +109,12 @@ bank2[0x500000:0x580000] = get("se1_spr.21l")   # C75 external data ROM
 
 # C352 sample ROM fills bank 1 (pcm bus at offset 0); nvram and comram live
 # in the upper wram window (bank bytes 0x500000 / 0x580000)
-bank1 = bytearray(0x620000)
+bank1 = bytearray(0x7a0000)
 bank1[0:0x400000] = get("se1_voi.23s")
-bank1[0x5a0000:0x620000] = get("se1_rsh.14k")
+pos = 0x5a0000
+for f in ["se1_rch0.19j","se1_rch1.18j"]:
+    d = get(f); bank1[pos:pos+len(d)] = d; pos += 0x100000
+bank2[0x600000:0x680000] = get("se1_rsh.14k")
 
 # C75 internal BIOS, from the MAME namcoc75 device set
 with zipfile.ZipFile(c75path) as z:
