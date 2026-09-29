@@ -582,11 +582,15 @@ end
 
 `ifdef SIMULATION
 /* verilator tracing_off */
-int reported=0;
-
+int reported=0, ms_frm=0;
+reg ms_vsl=0;
+always @(posedge clk) begin
+    ms_vsl <= vs;
+    if( vs && !ms_vsl ) ms_frm <= ms_frm+1;
+end
 always @(posedge miss) begin
     if( reported>0 ) $display("C123 line missed F=%0d line=%0d hcnt=%0d",
-        sc_frm, vdump-9'h120, hcnt);
+        ms_frm, vdump-9'h120, hcnt);
     reported <= reported+1;
 end
 `endif

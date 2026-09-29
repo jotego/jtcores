@@ -175,6 +175,10 @@ reg  [11:0] xpos, ypos;
 reg         in_win;
 reg  [215:0] cw;
 integer     i;
+// layer-0 winner companion: the L1 pass skips pixels L0 already won
+wire [ 4:0] l0_q;
+wire [ 8:0] l0_ra = issue ? xi+9'd1 : xi; // read one ahead of the walk
+wire        l0_skip = lyr1 && l0_q[4] && l0_q[3:0] >= p_prio;
 // column of the pixel being issued; coverage words align to 8px screen columns
 wire [5:0]  cov_col = xi[8:3];
 reg         cov_hit;
@@ -270,7 +274,7 @@ end
 
 `ifdef SYSFL_ROZDBG
 // per-frame roz deadline audit: lines whose walk missed the next hs
-integer rz_lines=0, rz_cut=0, rz_wait=0, rz_cyc=0, rz_maxc=0, rz_cov=0, rz_frm=0;
+integer rz_lines=0, rz_cut=0, rz_wait=0, rz_cyc=0, rz_maxc=0, rz_cov=0, rz_frm=0, rz_l1s=0;
 integer rz_fill=0, rz_req=0, rz_hit=0;
 reg rz_vsl=0, rz_csl=0, rz_okl=0;
 wire rz_okl_w = !rz_okl;
@@ -287,6 +291,7 @@ always @(posedge clk) begin
         if( roz_cs && !roz_ok && rz_okl_w ) rz_fill <= rz_fill + 1;
     end
     if( issue && cov_hit ) rz_cov <= rz_cov+1;
+    if( issue && l0_skip && p_en && in_win && !cov_hit ) rz_l1s <= rz_l1s+1;
     if( rz_ladv ) begin // per rendered line, the drawer free-runs over hs
         if( rz_cyc > rz_maxc ) rz_maxc <= rz_cyc;
         rz_cyc <= 0; rz_fill <= 0; rz_req <= 0;
@@ -299,11 +304,23 @@ always @(posedge clk) begin
         if( nline < VLINES ) rz_lines <= rz_lines + 1;
     end
     if( vs && !rz_vsl ) begin
-        $display("ROZA F=%0d lines=%0d cut=%0d wait=%0d maxc=%0d cov=%0d", rz_frm, rz_lines, rz_cut, rz_wait, rz_maxc, rz_cov);
-        rz_lines<=0; rz_cut<=0; rz_wait<=0; rz_maxc<=0; rz_cov<=0;
+        $display("ROZA F=%0d lines=%0d cut=%0d wait=%0d maxc=%0d cov=%0d l1s=%0d", rz_frm, rz_lines, rz_cut, rz_wait, rz_maxc, rz_cov, rz_l1s);
+        rz_lines<=0; rz_cut<=0; rz_wait<=0; rz_maxc<=0; rz_cov<=0; rz_l1s<=0;
         rz_frm <= rz_frm+1;
     end
 end
+`ifdef SYSFL_PXTRACE
+wire trc_w = rz_frm==3638 && lline>=9'd157 && lline<=9'd166;
+always @(posedge clk) if( trc_w && fsm==RUN ) begin
+    if( pophit && h_x>=9'd165 && h_x<=9'd210 )
+        $display("TRC l=%0d ly=%0d x=%0d dr=%0d code=%h xp=%h yp=%h opq=%0d mhit=%0d mbit=%0d thit=%0d",
+            lline, lyr1, h_x, h_draw, h_code, h_xp, h_yp, h_opq, h_mhit, h_mbit2, h_thit);
+    if( ret && fx0>=9'd165 && fx0<=9'd210 )
+        $display("TRR l=%0d ly=%0d x=%0d bit=%0d tex=%h", lline, lyr1, fx0, fbit0, t_byt0);
+    if( issue && xi>=9'd165 && xi<=9'd210 && (!p_en || !in_win) )
+        $display("TRW l=%0d ly=%0d x=%0d pen=%0d inwin=%0d xw=%h yw=%h", lline, lyr1, xi, p_en, in_win, xw, yw);
+end
+`endif
 integer rz_mw=0, rz_tw=0, rz_ov=0;
 always @(posedge clk) begin
     if( fsm != IDLE ) begin
@@ -506,7 +523,11 @@ always @(posedge clk) begin
                 fsm  <= CALCC;
             end
             CALCC: begin // scanline records already hold this line's start
+`ifdef SYSFL_NOCOV
+                cw <= 216'd0;
+`else
                 cw <= cov_ok ? cov_word : 216'd0;
+`endif
                 cx  <= sx24 + p_ax + (scl ? 24'd0 : lxt);
                 cy  <= sy24 + p_ay + (scl ? 24'd0 : lyt);
                 cyf <= sy24 + (scl ? 24'd0 : lyt);
@@ -520,7 +541,7 @@ always @(posedge clk) begin
                 if( issue ) begin
                     rozmap_addr <= map_a;
                     s1_x  <= xi;
-                    s1_d  <= p_en && in_win && !cov_hit;
+                    s1_d  <= p_en && in_win && !cov_hit && !l0_skip;
                     s1_xp <= xpos;
                     s1_yp <= ypos;
                     xi    <= xi + 9'd1;
@@ -620,6 +641,21 @@ end
 assign hd  = hdump - H0;
 assign rda = flip ? LINE_W-9'd1-hd : hd;
 wire [8:0] rdline = nline - 9'd1; // displayed row, V0 folded via nline
+
+// L0 winner per x of the line in progress; written by the L0 pass,
+// read one pixel ahead by the L1 pass of the same line
+jtframe_dual_ram #(.DW(5),.AW(9)) u_l0win(
+    .clk0   ( clk       ),
+    .data0  ( {bdata[15], bdata[14:11]} ),
+    .addr0  ( baddr     ),
+    .we0    ( bwe & ~bwl),
+    .q0     (           ),
+    .clk1   ( clk       ),
+    .data1  ( 5'd0      ),
+    .addr1  ( l0_ra     ),
+    .we1    ( 1'b0      ),
+    .q1     ( l0_q      )
+);
 
 // 4-line buffers: the drawer runs up to AHEAD+1 lines past the display,
 // banking cheap (sky) lines' time for the heavy horizon band
