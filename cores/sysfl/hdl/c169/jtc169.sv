@@ -183,7 +183,10 @@ reg         l0_live;   // this line's L0 pass really ran
 wire        l0_skip = lyr1 && l0_live && l0_q[4] && l0_q[3:0] >= p_prio;
 // a disabled pass leaves its plane alone when it is already blank
 reg  [ 3:0] cln0, cln1;
-reg  [ 8:0] clr_x;
+reg  [ 8:0] clr_x, swp;
+// tail blanker: sweeps the pass's plane down toward the walk on idle write
+// cycles, so an aborted line shows a hole instead of stale texels
+wire        swp_we = fsm==RUN && !bwe && swp >= xi && swp != 9'h1ff;
 // column of the pixel being issued; coverage words align to 8px screen columns
 wire [5:0]  cov_col = xi[8:3];
 reg         cov_hit;
@@ -542,6 +545,7 @@ always @(posedge clk) begin
                 if( p_en ) begin
                     if( lyr1 ) cln1[lline[1:0]] <= 0;
                     else       cln0[lline[1:0]] <= 0;
+                    swp <= LINE_W-9'd1;
                     fsm <= RUN;
                 end else if( lyr1 ? cln1[lline[1:0]] : cln0[lline[1:0]] )
                     fsm <= ADV;       // plane already blank: free pass
@@ -661,6 +665,7 @@ always @(posedge clk) begin
                     if( tob==2'b11 ) tob <= 2'b10;
                     if( mo ==2'b11 ) mo  <= 2'b10;
                 end
+                if( swp_we ) swp <= swp==9'd0 ? 9'h1ff : swp-9'd1;
                 if( xi==LINE_W && f_cnt==0 && inflight==0 && fv==0 )
                     fsm <= ADV;
             end
@@ -690,11 +695,16 @@ jtframe_dual_ram #(.DW(5),.AW(9)) u_l0win(
 
 // 4-line buffers: the drawer runs up to AHEAD+1 lines past the display,
 // banking cheap (sky) lines' time for the heavy horizon band
+wire [10:0] bwa_mux = swp_we ? {lline[1:0], swp} : {lline[1:0], baddr};
+wire [15:0] bwd_mux = swp_we ? 16'd0 : bdata;
+wire        bwl_mux = swp_we ? lyr1  : bwl;
+wire        bww     = bwe | swp_we;
+
 jtframe_dual_ram #(.AW(11),.DW(16)) u_buf0(
     .clk0       ( clk       ),
-    .data0      ( bdata     ),
-    .addr0      ( {lline[1:0], baddr} ),
-    .we0        ( bwe & ~bwl),
+    .data0      ( bwd_mux   ),
+    .addr0      ( bwa_mux   ),
+    .we0        ( bww & ~bwl_mux),
     .q0         (           ),
     .clk1       ( clk       ),
     .data1      ( 16'd0     ),
@@ -705,9 +715,9 @@ jtframe_dual_ram #(.AW(11),.DW(16)) u_buf0(
 
 jtframe_dual_ram #(.AW(11),.DW(16)) u_buf1(
     .clk0       ( clk       ),
-    .data0      ( bdata     ),
-    .addr0      ( {lline[1:0], baddr} ),
-    .we0        ( bwe &  bwl),
+    .data0      ( bwd_mux   ),
+    .addr0      ( bwa_mux   ),
+    .we0        ( bww &  bwl_mux),
     .q0         (           ),
     .clk1       ( clk       ),
     .data1      ( 16'd0     ),

@@ -62,6 +62,11 @@ reg         sopq_on, sopq_we, sopq_wd;
 
 assign flip       = dip_flip;
 
+// OSD pause: freeze both CPUs and the sample clock, video keeps redrawing
+wire cpu_cenp  = cpu_cen  & dip_pause;
+wire xin_cenp  = xin_cen  & dip_pause;
+wire c352_cenp = c352_cen & dip_pause;
+
 assign debug_view = st_video;
 assign game_led   = 0;
 assign vram_addr  = tmap_addr;
@@ -205,7 +210,7 @@ end
 jtsysfl_main u_main(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .cpu_cen    ( cpu_cen       ),
+    .cpu_cen    ( cpu_cenp      ),
     .lvbl       ( LVBL          ),
     .hs         ( HS            ),
     .raster_irqn( raster_irqn   ),
@@ -298,8 +303,8 @@ assign sample       = 0;
 jtsysfl_c75 u_c75(
     .rst        ( rst           ),
     .clk        ( clk           ),
-    .xin_cen    ( xin_cen       ),
-    .c352_cen   ( c352_cen      ),
+    .xin_cen    ( xin_cenp      ),
+    .c352_cen   ( c352_cenp     ),
     .lvbl       ( LVBL          ),
     // MISC[7:4] = {SERVICE1, TEST, COIN1, COIN2}, active low
     .cab_misc   ( {service, dip_test, coin[0], coin[1]} ),
