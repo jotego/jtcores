@@ -82,6 +82,8 @@ module jtsysfl_video(
     output     [13:0] opq2_addr,
     input             opq2_bit,
 
+    output     [15:0] sopq_addr,
+    input             sopq_bit,
     output            roz_cs,
     output     [20:2] roz_addr,
     input             roz_ok,
@@ -147,6 +149,10 @@ jtsysfl_vtimer u_vtimer(
     .vs         ( vs        )
 );
 
+wire [ 4:0] cov_row;
+wire [71:0] cov_word;
+wire [ 2:0] cov_prio4, cov_prio5;
+
 jtc123 u_scr(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -169,6 +175,12 @@ jtc123 u_scr(
     .sum_x0     ( sum_x0    ),
     .sum_x1     ( sum_x1    ),
     .sum_prio   ( sum_prio  ),
+    .sopq_addr  ( sopq_addr ),
+    .sopq_bit   ( sopq_bit  ),
+    .cov_row    ( cov_row   ),
+    .cov_word   ( cov_word  ),
+    .cov_prio4  ( cov_prio4 ),
+    .cov_prio5  ( cov_prio5 ),
     .tmap_addr  ( tmap_addr ),
     .tmap_data  ( tmap_data ),
     .smask_cs   ( smask_cs  ),
@@ -191,6 +203,10 @@ jtc123 u_scr(
 );
 
 jtc169 #(.V0(9'h121)) u_roz(
+    .cov_row    ( cov_row   ),
+    .cov_word   ( cov_word  ),
+    .cov_prio4  ( cov_prio4 ),
+    .cov_prio5  ( cov_prio5 ),
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

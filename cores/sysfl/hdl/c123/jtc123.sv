@@ -53,6 +53,13 @@ module jtc123(
     output reg [21:0] scr_addr,
     input             scr_ok,
     input      [ 7:0] scr_data,
+    // scr opaque-class table (game level)
+    output reg [15:0] sopq_addr,
+    input             sopq_bit,
+    // per-tile-row HUD coverage of the fixed layers, for the roz drawer
+    input      [ 4:0] cov_row,
+    output     [71:0] cov_word,
+    output     [ 2:0] cov_prio4, cov_prio5,
     // road coverage summary from the C169 prescan
     input             sum_vld,
     input             sum_full,
@@ -222,7 +229,7 @@ always @(posedge clk, posedge rst) begin
             span_v <= sum_vld && !dflip; // flip changes the x mapping: v1 skips it
             spx0   <= sum_x0;
             spx1   <= sum_x1;
-            `ifdef SIMULATION miss <= !done; `endif
+            `ifdef SIMULATION miss <= !done && vdump>=9'h120 && vdump<=9'h1ff; `endif
             clr_a <= HEND;
             clr_on<= 1;
             hcnt  <= HSTART;
@@ -296,7 +303,69 @@ end
 always @* begin // next layer to prefetch - keep in its own always block
     mlyr = 7;
     for( j=5; j>=0; j=j-1 ) if( !nrdy[j] && !cfg_enb_eff[j] ) mlyr = j[2:0];
+    if( sc_on ) mlyr = 7; // vblank coverage scan owns the tilemap port
 end
+
+// HUD coverage scan: at vs, walk the two fixed layers' tilemaps through
+// the opaque-class table into one 36-bit word per tile row and layer
+reg        sc_on, sc_lyr, vs_l;
+reg [ 4:0] sc_row;
+reg [ 5:0] sc_col;
+reg [ 9:0] sc_lin;
+reg [ 2:0] sc_st;
+reg [35:0] sc_word;
+reg        sc_we, sc_wlyr;
+reg [ 4:0] sc_wrow;
+assign cov_prio4 = cfg_prio[4];
+assign cov_prio5 = cfg_prio[5];
+
+always @(posedge clk) begin
+    vs_l  <= vs;
+    sc_we <= 0;
+    if( rst ) begin
+        sc_on <= 0;
+    end else if( vs && !vs_l ) begin
+        { sc_lyr, sc_row, sc_col, sc_lin, sc_st } <= 0;
+        sc_on <= 1;
+    end else if( sc_on ) case( sc_st )
+        0: if( mst==0 && plyr==7 ) begin
+            tmap_addr <= (sc_lyr ? 15'h4408 : 15'h4008) + {5'd0,sc_lin};
+            sc_st <= 1;
+        end
+        1: sc_st <= 2;
+        2: begin
+            sopq_addr <= tmap_data;
+            sc_st <= 3;
+        end
+        3: sc_st <= 4; // sopq sync-read latency
+        4: begin
+            sc_word[sc_col[5:0]] <= sopq_bit && tmap_data!=BLANK && !cfg_enb[sc_lyr?5:4];
+            sc_st  <= 0;
+            sc_lin <= sc_lin + 10'd1;
+            if( sc_col==6'd35 ) begin
+                sc_we  <= 1;
+                sc_wrow<= sc_row;
+                sc_wlyr<= sc_lyr;
+                sc_col <= 0;
+                if( sc_row==5'd27 ) begin
+                    sc_row <= 0;
+                    sc_lin <= 0;
+                    sc_lyr <= 1;
+                    if( sc_lyr ) sc_on <= 0;
+                end else sc_row <= sc_row + 5'd1;
+            end else sc_col <= sc_col + 6'd1;
+        end
+    endcase
+end
+
+jtframe_dual_ram #(.DW(36),.AW(5)) u_cov4(
+    .clk0(clk), .data0(sc_word), .addr0(sc_wrow), .we0(sc_we && !sc_wlyr), .q0(),
+    .clk1(clk), .data1(36'd0), .addr1(cov_row), .we1(1'b0), .q1(cov_word[35:0])
+);
+jtframe_dual_ram #(.DW(36),.AW(5)) u_cov5(
+    .clk0(clk), .data0(sc_word), .addr0(sc_wrow), .we0(sc_we &&  sc_wlyr), .q0(),
+    .clk1(clk), .data1(36'd0), .addr1(cov_row), .we1(1'b0), .q1(cov_word[71:36])
+);
 
 // Pixel drawing. Masks and tile codes of the next tile of each layer are
 // prefetched while the current one is drawn, and swapped in at the crossing

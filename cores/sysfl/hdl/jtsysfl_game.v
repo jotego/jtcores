@@ -50,6 +50,15 @@ reg  [15:0] opq_tout;
 reg  [13:0] opq_tile, opq_wa;
 reg  [ 7:0] opq_acc;
 reg         opq_on, opq_we, opq_wd;
+// scr opaque-tile table (smask stream), read by the c123 HUD-coverage scan
+wire [15:0] sopq_addr;
+wire        sopq_bit;
+wire [21:0] sopq_rel;
+wire        sopq_prog;
+reg  [15:0] sopq_tout;
+reg  [15:0] sopq_tile, sopq_wa;
+reg  [ 7:0] sopq_acc;
+reg         sopq_on, sopq_we, sopq_wd;
 
 assign flip       = dip_flip;
 
@@ -72,6 +81,10 @@ assign ioctl_din = &ioctl_addr[6:4] ? ioctl_misc : ioctl_video;
 assign opq_rel  = prog_addr[21:0] - 22'h2d_0000;
 assign opq_prog = prog_we && prog_ba==2'd3 &&
                   prog_addr[21:0]>=22'h2d_0000 && prog_addr[21:0]<22'h31_0000;
+// same accumulator for the scr mask ROM (smask, bank 2)
+assign sopq_rel  = prog_addr[21:0] - 22'h20_0000;
+assign sopq_prog = prog_we && prog_ba==2'd2 &&
+                   prog_addr[21:0]>=22'h20_0000 && prog_addr[21:0]<22'h24_0000;
 
 always @(posedge clk) begin
     if( rst ) begin
@@ -103,6 +116,50 @@ always @(posedge clk) begin
         end
     end
 end
+
+always @(posedge clk) begin
+    if( rst ) begin
+        sopq_on   <= 0;
+        sopq_we   <= 0;
+        sopq_tout <= 0;
+    end else begin
+        sopq_we <= 0;
+        if( sopq_prog ) begin
+            sopq_tout <= 0;
+            sopq_on   <= 1;
+            if( sopq_on && sopq_rel[17:2]!=sopq_tile ) begin
+                sopq_we  <= 1;
+                sopq_wa  <= sopq_tile;
+                sopq_wd  <= &sopq_acc;
+                sopq_acc <= prog_data;
+            end else begin
+                sopq_acc <= (sopq_on ? sopq_acc : 8'hff) & prog_data;
+            end
+            sopq_tile <= sopq_rel[17:2];
+        end else if( sopq_on ) begin
+            sopq_tout <= sopq_tout + 16'd1;
+            if( &sopq_tout ) begin
+                sopq_we <= 1;
+                sopq_wa <= sopq_tile;
+                sopq_wd <= &sopq_acc;
+                sopq_on <= 0;
+            end
+        end
+    end
+end
+
+jtframe_dual_ram #(.DW(1),.AW(16),.SIMHEXFILE("sopq.hex")) u_sopq(
+    .clk0   ( clk       ),
+    .data0  ( sopq_wd   ),
+    .addr0  ( sopq_on|sopq_we ? sopq_wa : sopq_addr ),
+    .we0    ( sopq_we   ),
+    .q0     ( sopq_bit  ),
+    .clk1   ( clk       ),
+    .data1  ( 1'b0      ),
+    .addr1  ( 16'd0     ),
+    .we1    ( 1'b0      ),
+    .q1     (           )
+);
 
 jtframe_dual_ram #(.DW(1),.AW(14),.SIMHEXFILE("opq.hex")) u_opq(
     .clk0   ( clk       ),
@@ -400,6 +457,8 @@ jtsysfl_video u_video(
     .opq_bit    ( opq_bit       ),
     .opq2_addr  ( opq2_addr     ),
     .opq2_bit   ( opq2_bit      ),
+    .sopq_addr  ( sopq_addr     ),
+    .sopq_bit   ( sopq_bit      ),
     .roz_cs     ( vroz_cs       ),
     .roz_addr   ( vroz_addr     ),
     .roz_ok     ( vroz_ok       ),

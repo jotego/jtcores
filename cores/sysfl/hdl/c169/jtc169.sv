@@ -51,6 +51,10 @@ module jtc169(
     input             opq_bit,
     output reg [13:0] opq2_addr,  // prescan lookups on the table's idle port
     input             opq2_bit,
+    // HUD coverage from the c123 fixed layers: opaque columns above us skip
+    output reg [ 4:0] cov_row,
+    input      [71:0] cov_word,
+    input      [ 2:0] cov_prio4, cov_prio5,
     // road coverage summary for the tilemaps: line vdump+2, latched at hs
     output reg        sum_vld,    // covered span is valid (scl line, contiguous)
     output reg        sum_full,   // every visible pixel covered
@@ -168,7 +172,12 @@ reg         bwe, bwl;
 
 reg  [11:0] xpos, ypos;
 reg         in_win;
+reg  [35:0] c4w, c5w;
 integer     i;
+// column of the pixel being issued; HUD tiles align to 8px screen columns
+wire [5:0]  cov_col = xi[8:3];
+wire        cov_hit = (c4w[cov_col] && {1'b0,cov_prio4,1'b0} >= p_prio) ||
+                      (c5w[cov_col] && {1'b0,cov_prio5,1'b0} >= p_prio);
 
 // records-only coverage prescan: walks line vdump+2 of the road (scl mode)
 // through the map and the opq table on idle cycles, no texel traffic.
@@ -436,6 +445,7 @@ always @(posedge clk) begin
             LDREG: begin
                 xi  <= 0;
                 st  <= 0;
+                cov_row <= lline[7:3];
                 scl <= ~lyr1 & scl_mode;
                 if( ~lyr1 & scl_mode ) begin
                     rcnt <= 0;
@@ -488,6 +498,7 @@ always @(posedge clk) begin
                 fsm  <= CALCC;
             end
             CALCC: begin // scanline records already hold this line's start
+                { c5w, c4w } <= cov_word;
                 cx  <= sx24 + p_ax + (scl ? 24'd0 : lxt);
                 cy  <= sy24 + p_ay + (scl ? 24'd0 : lyt);
                 cyf <= sy24 + (scl ? 24'd0 : lyt);
@@ -501,7 +512,7 @@ always @(posedge clk) begin
                 if( issue ) begin
                     rozmap_addr <= map_a;
                     s1_x  <= xi;
-                    s1_d  <= p_en && in_win;
+                    s1_d  <= p_en && in_win && !cov_hit;
                     s1_xp <= xpos;
                     s1_yp <= ypos;
                     xi    <= xi + 9'd1;
