@@ -1,7 +1,8 @@
 /* SPDX-FileCopyrightText: 2026 Marc Emmerson / Jose Tejada Gomez
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * Sprite scan. The object RAM is copied into objbuf during vertical blanking,
+ * Sprite scan. The object RAM is copied into objbuf during vertical blanking
+ * (from VS with VSCAN, as the scan on the Kyukyoku Tiger board starts there),
  * one word every fourth pixel. Each line, the copy is scanned from entry 0
  * up to 511 reading only the y word, and the sprites on the line are handed
  * to jtframe_objdraw, so entry 511 is drawn last and ends on top.
@@ -9,12 +10,13 @@
  * Entry words: 0 code; 1 attr = colour[5:0], flipx bit 8, flipy bit 9,
  * prio[11:10]; 2 x<<7; 3 y<<7. y == 0x100 hides a sprite, prio 0 skips it.
  */
-module jtwardnr_obj(
+module jtwardnr_obj #(parameter VSCAN=0)(
     input             rst,
     input             clk,
     input             pxl_cen,
     input             hs,
     input             LVBL,
+    input             vs,
     input      [ 8:0] hdump,
     input      [ 8:0] vrender,
     input             tcobr,
@@ -41,7 +43,7 @@ localparam SCAN=0, DRAIN=1, FETCH0=2, FETCH1=3, FETCH2=4, FETCH3=5,
 
 reg  [10:0] rd_cnt, wr_cnt, scan_cnt;
 reg  [ 1:0] cdiv;
-reg         copying, LVBL_l, hs_l, busy, draw, v1, v2, we;
+reg         copying, LVBL_l, vs_l, hs_l, busy, draw, v1, v2, we;
 reg  [ 3:0] st;
 reg  [ 9:0] entry;
 reg  [ 8:0] hit_e, e1, e2, ly;
@@ -79,12 +81,13 @@ end endgenerate
 
 always @(posedge clk) begin
     LVBL_l <= LVBL;
+    vs_l   <= vs;
     we     <= 0;
     if( rst ) begin
         copying <= 0;
         rd_cnt  <= 0;
         cdiv    <= 0;
-    end else if( LVBL_l && !LVBL ) begin
+    end else if( VSCAN ? vs && !vs_l : LVBL_l && !LVBL ) begin
         copying <= 1;
         rd_cnt  <= 0;
         cdiv    <= 0;
