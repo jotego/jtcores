@@ -61,6 +61,7 @@ module jtc123(
     output    [215:0] cov_word,
     output     [17:0] cov_prio,
     output reg        cov_ok,
+    output reg [15:0] cnt_ss,
     // road coverage summary from the C169 prescan
     input             sum_vld,
     input             sum_full,
@@ -188,6 +189,16 @@ jtsysfl_scr_mmr #(.SIMFILE(SIMFILE),.SEEK(SEEK)) u_mmr(
     .debug_bus  ( debug_bus ),
     .st_dout    ( st_dout   )
 );
+
+// per-frame tally of layer-lines the road summary dropped, for the OSD
+reg dvs_l2;
+always @(posedge clk) begin
+    dvs_l2 <= vs;
+    if( vs && !dvs_l2 ) cnt_ss <= 0;
+    else if( hs_edge )  cnt_ss <= cnt_ss +
+        {12'd0, {3'd0,skip_l[0]} + {3'd0,skip_l[1]} + {3'd0,skip_l[2]} +
+                {3'd0,skip_l[3]} + {3'd0,skip_l[4]} + {3'd0,skip_l[5]}};
+end
 
 jtframe_edge_pulse u_hsedge(
     .rst        ( rst       ),

@@ -67,7 +67,11 @@ wire cpu_cenp  = cpu_cen  & dip_pause;
 wire xin_cenp  = xin_cen  & dip_pause;
 wire c352_cenp = c352_cen & dip_pause;
 
-assign debug_view = st_video;
+// download-built table populations, readable from the debug OSD:
+// 0011xxxx = scr opaque tiles/256, 1011xxxx = roz opaque tiles/64
+assign debug_view = debug_bus[7:4]==4'b0011 ? spop[15:8] :
+                    debug_bus[7:4]==4'b1011 ? rpop[13:6] : st_video;
+reg [15:0] spop, rpop;
 assign game_led   = 0;
 assign vram_addr  = tmap_addr;
 assign rozram_addr= rozmap_addr;
@@ -98,6 +102,8 @@ always @(posedge clk) begin
         opq_tout <= 0;
     end else begin
         opq_we <= 0;
+        if( opq_we && opq_wd ) rpop <= rpop + 16'd1;
+        if( opq_prog && !opq_on ) rpop <= 0;
         if( opq_prog ) begin
             opq_tout <= 0;
             opq_on   <= 1;
@@ -129,6 +135,8 @@ always @(posedge clk) begin
         sopq_tout <= 0;
     end else begin
         sopq_we <= 0;
+        if( sopq_we && sopq_wd ) spop <= spop + 16'd1;
+        if( sopq_prog && !sopq_on ) spop <= 0;
         if( sopq_prog ) begin
             sopq_tout <= 0;
             sopq_on   <= 1;
