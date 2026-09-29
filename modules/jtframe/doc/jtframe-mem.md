@@ -35,8 +35,31 @@ The RC resistance is the parallel equivalent of 1k and 1+1.2.
   - `game`: include another core’s `cfg/mem.yaml`.
   - `file`: include any other file path (resolved with the same search base as `mem.yaml`).
 - `params`: macro `name/value` pairs available in `sdram.cache-lanes.at.offset`/`sdram.cache-lanes.at.length` and other expressions.
-- `download`: controls optional download path transforms.
-  - `pre_addr`, `post_addr`, `post_data`: booleans.
+- `download`: controls optional download path transforms. Each boolean adds
+  ports to the game module and routes the download stream through it, which
+  is the supported way for a game to observe or transform ROM data at load
+  time (address descrambling, data descrambling, or building lookup tables
+  from the stream). The game always receives `ioctl_addr`, `prog_addr`,
+  `prog_data`, `prog_we`, `prog_ba` and `prom_we` as inputs; the keys below
+  additionally place the game's outputs in the path:
+  - `pre_addr`: the game drives `output reg [25:0] pre_addr` and
+    `jtframe_dwnld` consumes it instead of `ioctl_addr`: the transform is
+    applied in download space, before region and bank mapping. Use
+    `ioctl_addr` as the reference input.
+  - `post_addr`: the game drives `output reg [21:0] post_addr` (one bit
+    wider with JTFRAME_SDRAM_LARGE, two with JTFRAME_SDRAM_XL) and the SDRAM
+    slots receive it instead of the raw address: the transform is applied to
+    the bank-relative word address, after mapping. `prog_addr` is the
+    reference input.
+  - `post_data`: the game drives `output reg [7:0] post_data` and the SDRAM
+    programming data becomes `{2{post_data}}`: the transform is applied to
+    the byte about to be written. `prog_data` is the reference input.
+  - The transforms are combinational (`always @*` from the reference
+    inputs); a pure pass-through (`post_addr = prog_addr`) is valid and
+    guarantees the game genuinely sits in the stream — if the wiring
+    regresses, the ROM stops loading instead of a side table failing
+    silently.
+  - There is no `pre_data` key.
   - `noswab`: disable byte swapping in the download path.
 - `ports`: additional explicit ports for the game module.
 - `game`: override the default game module name.

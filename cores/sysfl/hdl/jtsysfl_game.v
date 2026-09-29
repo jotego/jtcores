@@ -46,21 +46,29 @@ wire        opq_bit, opq2_bit;
 wire [13:0] opq2_addr;
 wire [21:0] opq_rel;
 wire        opq_prog;
-reg  [15:0] opq_tout;
+reg  [15:0] opq_tout=0;
 reg  [13:0] opq_tile, opq_wa;
 reg  [ 7:0] opq_acc;
-reg         opq_on, opq_we, opq_wd;
+reg         opq_on=0, opq_we=0, opq_wd;
 // scr opaque-tile table (smask stream), read by the c123 HUD-coverage scan
 wire [15:0] sopq_addr;
 wire        sopq_bit;
 wire [21:0] sopq_rel;
 wire        sopq_prog;
-reg  [15:0] sopq_tout;
+reg  [15:0] sopq_tout=0;
 reg  [15:0] sopq_tile, sopq_wa;
 reg  [ 7:0] sopq_acc;
-reg         sopq_on, sopq_we, sopq_wd;
+reg         sopq_on=0, sopq_we=0, sopq_wd;
 
 assign flip       = dip_flip;
+
+// the game sits in the download path (mem.yaml download keys): pure
+// pass-through, but the ROM only loads if this wiring is alive, so the
+// opq builders below can never silently miss the stream again
+always @* begin
+    post_addr = prog_addr;
+    post_data = prog_data;
+end
 
 // OSD pause: freeze both CPUs and the sample clock, video keeps redrawing
 wire cpu_cenp  = cpu_cen  & dip_pause;
@@ -95,12 +103,9 @@ assign sopq_rel  = prog_addr[21:0] - 22'h20_0000;
 assign sopq_prog = prog_we && prog_ba==2'd2 &&
                    prog_addr[21:0]>=22'h20_0000 && prog_addr[21:0]<22'h24_0000;
 
+// free of rst, as above
 always @(posedge clk) begin
-    if( rst ) begin
-        opq_on   <= 0;
-        opq_we   <= 0;
-        opq_tout <= 0;
-    end else begin
+    begin
         opq_we <= 0;
         if( opq_we && opq_wd ) rpop <= rpop + 16'd1;
         if( opq_prog && !opq_on ) rpop <= 0;
@@ -128,12 +133,15 @@ always @(posedge clk) begin
     end
 end
 
+`ifdef SIMULATION
+// verify with: jtsim -load and a full rom.bin (see doc/download-check.md)
+always @(negedge sopq_on) $display("SOPQ built pop=%0d", spop);
+always @(negedge opq_on)  $display("ROPQ built pop=%0d", rpop);
+`endif
+
+// free of rst: the download happens while the game is held in reset
 always @(posedge clk) begin
-    if( rst ) begin
-        sopq_on   <= 0;
-        sopq_we   <= 0;
-        sopq_tout <= 0;
-    end else begin
+    begin
         sopq_we <= 0;
         if( sopq_we && sopq_wd ) spop <= spop + 16'd1;
         if( sopq_prog && !sopq_on ) spop <= 0;
