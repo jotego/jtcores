@@ -21,6 +21,12 @@ This FPGA core is compatible with the following arcade PCBs:
 - The Simpsons
 - Parodius da!
 - Vendetta (Crime Fighters 2)
+- Escape Kids
+
+## Escape Kids tile mapper startup
+
+The Escape Kids board decoder equations are especulative because its PLD
+equations or circuit schematic are not available. But, this implementation follows the program's startup writes and the K052109 mapper behavior and it is closer to actual hardware than using a straight address decoder.
 
 # Game Configuration
 

@@ -1,6 +1,5 @@
 [parse]
 sourcefile=[ "simpsons.cpp", "vendetta.cpp" ]
-debug={ machine="esckids" }
 
 [Audio]
 volume = [
@@ -12,6 +11,7 @@ volume = [
 names = [
     { names="Attack,Jump", machine="simpsons" },
     { names="Punch,Kick",  machine="vendetta" },
+    { names="Jump,Dash",   machine="esckids" },
 ]
 
 [dipsw]
@@ -21,10 +21,12 @@ delete=[{names=["Unused","Unknown"]}]
 info = """ Header to identify the PCB type
         Byte 0 = 0 - The Simpsons
                  1 - Reserved (Parodius)
-                 2 - Vendetta"""
+                 2 - Vendetta
+                 3 - Escape Kids"""
 data = [
     { machine="simpsons", offset=0, data="00" },
     { machine="vendetta", offset=0, data="02" },
+    { machine="esckids",  offset=0, data="03" },
 ]
 
 [ROM]
@@ -66,5 +68,25 @@ nvram={ Defaults=[ { machine="simpsons", data="""\
 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00
 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 02
 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+"""},
+{ machine="esckids", data="""\
+57 41 44 30 00 49 53 48 30 00 49 55 43 30 00 42
+41 44 30 00 4b 4f 59 30 00 4f 4f 55 30 00 41 44
+43 30 00 57 41 44 30 00 49 53 48 30 00 49 55 43
+30 00 42 41 44 30 00 4b 4f 59 30 00 4f 4f 55 30
+00 41 44 43 30 00 57 41 44 30 00 49 53 48 30 00
+49 55 43 30 00 42 41 44 30 00 4b 4f 59 30 00 4f
+4f 55 30 00 41 44 43 30 00 00 00 00 02 01 01 00
+00 01 ff ff ff ff ff ff ff ff ff ff ff ff 22 2b
+"""},
+{ setname="esckidsj", data="""\
+57 41 44 30 00 49 53 48 30 00 49 55 43 30 00 42
+41 44 30 00 4b 4f 59 30 00 4f 4f 55 30 00 41 44
+43 30 00 57 41 44 30 00 49 53 48 30 00 49 55 43
+30 00 42 41 44 30 00 4b 4f 59 30 00 4f 4f 55 30
+00 41 44 43 30 00 57 41 44 30 00 49 53 48 30 00
+49 55 43 30 00 42 41 44 30 00 4b 4f 59 30 00 4f
+4f 55 30 00 41 44 43 30 00 00 00 00 02 01 01 00
+01 01 ff ff ff ff ff ff ff ff ff ff ff ff 22 2c
 """}
 ]}

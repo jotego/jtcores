@@ -6,7 +6,7 @@ module jtsimson_video(
     input             rst,
     output            rst8,     // reset signal at 8th frame
     input             clk,
-    input             simson, paroda, suratk,
+    input             simson, paroda, suratk, esckids,
 
     // Base Video
     input             pxl_cen,
@@ -127,6 +127,7 @@ jtsimson_scroll #(.HB_OFFSET(2)) u_scroll(
     .paroda     ( paroda    ),
     .simson     ( simson    ),
     .suratk     ( suratk    ),
+    .esckids    ( esckids   ),
     // Base Video
     .lhbl       ( lhbl      ),
     .lvbl       ( lvbl      ),
@@ -260,7 +261,7 @@ jtriders_obj #(
 );
 
 function [6:0] lyrcol( input [7:0] pxl );
-    lyrcol = parsur ? {       pxl[7:5], pxl[3:0] } :
+    lyrcol = (parsur | esckids) ? { pxl[7:5], pxl[3:0] } :
                       { 1'b0, pxl[7:6], pxl[3:0] };
 endfunction
 

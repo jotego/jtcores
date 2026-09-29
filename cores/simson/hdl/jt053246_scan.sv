@@ -32,7 +32,7 @@ module jt053246_scan (    // sprite logic
     input      [15:0] scan_odd,
     input      [ 9:0] xoffset,
     input      [ 9:0] yoffset,
-    input             ghf, gvf,
+    input             ghf, gvf, half_width,
     output     [11:2] scan_addr,
 
     // shadow
@@ -67,6 +67,7 @@ reg         inzone, hs_l, hdone,
 
 wire [ 1:0] nx_mir, hsz, vsz;
 wire        last_obj;
+wire [ 9:0] xhalf_raw;
 reg  [ 8:0] zoffset [0:255];
 reg  [ 3:0] pzoffset[0:15 ];
 integer     missing;
@@ -77,12 +78,14 @@ assign ysub      = ydiff[3:0];
 assign last_obj  = &scan_obj[7:0];
 assign nx_mir    = scan_even[15:14];
 assign {vsz,hsz} = size;
+assign xhalf_raw = {1'b0,scan_odd[9:1]} + 10'd1;
 
 (* direct_enable *) reg cen2=0;
 always @(negedge clk) cen2 <= ~cen2;
 
 always @(posedge clk) begin
-    xadj <= xoffset - HOFFSET;
+    // GX975's half-width mode uses an X origin 48 pixels beyond GX081.
+    xadj <= xoffset - HOFFSET - (half_width ? 10'd48 : 10'd0);
     yadj <= yoffset + voffset;
     vscl <= rd_pzoffset(vzoom[9:0]);
     hscl <= rd_pzoffset(hzoom[9:0]);
@@ -206,7 +209,8 @@ always @(posedge clk) begin : A
                 end
                 1: begin
                     y <= gvf ? -scan_even[9:0] : scan_even[9:0];
-                    x <= ghf ? -scan_odd[ 9:0] : scan_odd[ 9:0];
+                    x <= ghf ? -(half_width ? xhalf_raw : scan_odd[9:0]) :
+                                (half_width ? xhalf_raw : scan_odd[9:0]);
                     hcode <= {code[4],code[2],code[0]};
                     hstep <= 0;
                 end
@@ -214,7 +218,9 @@ always @(posedge clk) begin : A
                     x <= x-xadj;
                     y <= y+yadj;
                     vzoom <= {2'b0, scan_even[9:0]};
-                    hzoom <= sq ? {2'b0, scan_even[9:0]} : {2'b0, scan_odd[9:0]};
+                    hzoom <= half_width ?
+                             (sq ? {1'b0, scan_even[9:0], 1'b0} : {1'b0, scan_odd[9:0], 1'b0}) :
+                             (sq ? {2'b0, scan_even[9:0]}       : {2'b0, scan_odd[9:0]});
                 end
                 3: begin
                     { vmir, hmir } <= nx_mir;
@@ -249,7 +255,7 @@ always @(posedge clk) begin : A
                         if( hstep==0 ) begin
                             hpos    <= xstart + (left_wrap ? HADJ : 10'b0 );
                         end else begin
-                            hpos    <= hpos + 10'h10;
+                            hpos    <= hpos + (half_width ? 10'h08 : 10'h10);
                             hz_keep <= 1;
                         end
                         hstep <= hstep + 1'd1;
