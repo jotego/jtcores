@@ -150,8 +150,9 @@ jtsysfl_vtimer u_vtimer(
 );
 
 wire [ 4:0] cov_row;
-wire [71:0] cov_word;
-wire [ 2:0] cov_prio4, cov_prio5;
+wire [215:0] cov_word;
+wire [17:0] cov_prio;
+wire        cov_ok;
 
 jtc123 u_scr(
     .rst        ( rst       ),
@@ -179,8 +180,8 @@ jtc123 u_scr(
     .sopq_bit   ( sopq_bit  ),
     .cov_row    ( cov_row   ),
     .cov_word   ( cov_word  ),
-    .cov_prio4  ( cov_prio4 ),
-    .cov_prio5  ( cov_prio5 ),
+    .cov_prio   ( cov_prio  ),
+    .cov_ok     ( cov_ok    ),
     .tmap_addr  ( tmap_addr ),
     .tmap_data  ( tmap_data ),
     .smask_cs   ( smask_cs  ),
@@ -205,8 +206,8 @@ jtc123 u_scr(
 jtc169 #(.V0(9'h121)) u_roz(
     .cov_row    ( cov_row   ),
     .cov_word   ( cov_word  ),
-    .cov_prio4  ( cov_prio4 ),
-    .cov_prio5  ( cov_prio5 ),
+    .cov_prio   ( cov_prio  ),
+    .cov_ok     ( cov_ok    ),
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),

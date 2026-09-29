@@ -51,10 +51,11 @@ module jtc169(
     input             opq_bit,
     output reg [13:0] opq2_addr,  // prescan lookups on the table's idle port
     input             opq2_bit,
-    // HUD coverage from the c123 fixed layers: opaque columns above us skip
+    // opaque scr coverage from the c123 layers: covered columns skip
     output reg [ 4:0] cov_row,
-    input      [71:0] cov_word,
-    input      [ 2:0] cov_prio4, cov_prio5,
+    input     [215:0] cov_word,
+    input      [17:0] cov_prio,
+    input             cov_ok,
     // road coverage summary for the tilemaps: line vdump+2, latched at hs
     output reg        sum_vld,    // covered span is valid (scl line, contiguous)
     output reg        sum_full,   // every visible pixel covered
@@ -172,12 +173,17 @@ reg         bwe, bwl;
 
 reg  [11:0] xpos, ypos;
 reg         in_win;
-reg  [35:0] c4w, c5w;
+reg  [215:0] cw;
 integer     i;
-// column of the pixel being issued; HUD tiles align to 8px screen columns
+// column of the pixel being issued; coverage words align to 8px screen columns
 wire [5:0]  cov_col = xi[8:3];
-wire        cov_hit = (c4w[cov_col] && {1'b0,cov_prio4,1'b0} >= p_prio) ||
-                      (c5w[cov_col] && {1'b0,cov_prio5,1'b0} >= p_prio);
+reg         cov_hit;
+always @* begin
+    cov_hit = 0;
+    for( i=0; i<6; i=i+1 )
+        if( cw[i*36+{26'd0,cov_col}] &&
+            {1'b0,cov_prio[i*3 +: 3],1'b0} >= p_prio ) cov_hit = 1;
+end
 
 // records-only coverage prescan: walks line vdump+2 of the road (scl mode)
 // through the map and the opq table on idle cycles, no texel traffic.
@@ -264,7 +270,7 @@ end
 
 `ifdef SYSFL_ROZDBG
 // per-frame roz deadline audit: lines whose walk missed the next hs
-integer rz_lines=0, rz_cut=0, rz_wait=0, rz_cyc=0, rz_maxc=0;
+integer rz_lines=0, rz_cut=0, rz_wait=0, rz_cyc=0, rz_maxc=0, rz_cov=0;
 integer rz_fill=0, rz_req=0, rz_hit=0;
 reg rz_vsl=0, rz_csl=0, rz_okl=0;
 wire rz_okl_w = !rz_okl;
@@ -280,6 +286,7 @@ always @(posedge clk) begin
         if( roz_cs && roz_ok && !rz_okl ) rz_hit <= rz_hit+1; // served
         if( roz_cs && !roz_ok && rz_okl_w ) rz_fill <= rz_fill + 1;
     end
+    if( issue && cov_hit ) rz_cov <= rz_cov+1;
     if( rz_ladv ) begin // per rendered line, the drawer free-runs over hs
         if( rz_cyc > rz_maxc ) rz_maxc <= rz_cyc;
         rz_cyc <= 0; rz_fill <= 0; rz_req <= 0;
@@ -292,8 +299,8 @@ always @(posedge clk) begin
         if( nline < VLINES ) rz_lines <= rz_lines + 1;
     end
     if( vs && !rz_vsl ) begin
-        $display("ROZA lines=%0d cut=%0d wait=%0d maxc=%0d", rz_lines, rz_cut, rz_wait, rz_maxc);
-        rz_lines<=0; rz_cut<=0; rz_wait<=0; rz_maxc<=0;
+        $display("ROZA lines=%0d cut=%0d wait=%0d maxc=%0d cov=%0d", rz_lines, rz_cut, rz_wait, rz_maxc, rz_cov);
+        rz_lines<=0; rz_cut<=0; rz_wait<=0; rz_maxc<=0; rz_cov<=0;
     end
 end
 integer rz_mw=0, rz_tw=0, rz_ov=0;
@@ -498,7 +505,7 @@ always @(posedge clk) begin
                 fsm  <= CALCC;
             end
             CALCC: begin // scanline records already hold this line's start
-                { c5w, c4w } <= cov_word;
+                cw <= cov_ok ? cov_word : 216'd0;
                 cx  <= sx24 + p_ax + (scl ? 24'd0 : lxt);
                 cy  <= sy24 + p_ay + (scl ? 24'd0 : lyt);
                 cyf <= sy24 + (scl ? 24'd0 : lyt);

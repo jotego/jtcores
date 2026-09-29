@@ -56,10 +56,11 @@ module jtc123(
     // scr opaque-class table (game level)
     output reg [15:0] sopq_addr,
     input             sopq_bit,
-    // per-tile-row HUD coverage of the fixed layers, for the roz drawer
+    // per-tile-row HUD coverage of all six layers, for the roz drawer
     input      [ 4:0] cov_row,
-    output     [71:0] cov_word,
-    output     [ 2:0] cov_prio4, cov_prio5,
+    output    [215:0] cov_word,
+    output     [17:0] cov_prio,
+    output reg        cov_ok,
     // road coverage summary from the C169 prescan
     input             sum_vld,
     input             sum_full,
@@ -306,68 +307,155 @@ always @* begin // next layer to prefetch - keep in its own always block
     if( sc_on ) mlyr = 7; // vblank coverage scan owns the tilemap port
 end
 
-// HUD coverage scan: at vs, walk the two fixed layers' tilemaps through
-// the opaque-class table into one 36-bit word per tile row and layer
-reg        sc_on, sc_lyr, vs_l;
-reg [ 4:0] sc_row;
-reg [ 5:0] sc_col;
-reg [ 9:0] sc_lin;
+// HUD coverage scan: after the CPU's vblank updates, walk all six layers'
+// tilemaps through the opaque-class table into one 36-bit word per tile row
+// and layer. Scroll layers AND the 2x2 straddled tiles, so fine scroll only
+// costs coverage at block edges. Any cfg write after the scan drops cov_ok.
+reg        sc_on, vs_l;
 reg [ 2:0] sc_st;
+reg [ 3:0] sc_dly;
 reg [35:0] sc_word;
-reg        sc_we, sc_wlyr;
-reg [ 4:0] sc_wrow;
+reg        sc_we, sc_qac;
+reg [15:0] sc_it, sc_i1, sc_i2; // {lyr[2:0], row[4:0], col[5:0], quad[1:0]}
 reg [15:1] sc_ta, tmap_a;
+reg        sc_bl1, sc_bl2;
 assign tmap_addr = sc_on ? sc_ta : tmap_a;
-assign cov_prio4 = cfg_prio[4];
-assign cov_prio5 = cfg_prio[5];
+assign cov_prio  = { cfg_prio[5], cfg_prio[4], cfg_prio[3],
+                     cfg_prio[2], cfg_prio[1], cfg_prio[0] };
+
+wire [ 2:0] it_lyr  = sc_it[15:13];
+wire [ 1:0] it_quad = sc_it[1:0];
+wire [ 2:0] i1_lyr  = sc_i1[15:13];
+wire [ 4:0] i1_row  = sc_i1[12:8];
+wire [ 5:0] i1_col  = sc_i1[7:2];
+wire [ 1:0] i1_quad = sc_i1[1:0];
+wire        it_last = it_lyr==3'd5 && sc_it[12:2]=={5'd27,6'd35};
+wire [ 1:0] it_qtop = it_lyr<3'd4 ? 2'd3 : 2'd0;
+
+function [15:1] sc_addr( input [15:0] it );
+    reg [ 2:0] l;
+    reg [ 4:0] r;
+    reg [ 5:0] c;
+    reg [ 1:0] q;
+    reg [15:0] hv, vv;
+    reg [ 9:0] lin;
+begin
+    {l, r, c, q} = it;
+    if( l<4 ) begin
+        vv = 16'h121 + {8'd0,r,3'b0} + (q[1]?16'd7:16'd0)
+             + {7'd0,vscr[l[1:0]]} + VOFF;
+        hv = 16'h40 + {7'd0,c,3'b0} + (q[0]?16'd7:16'd0)
+             - ({7'd0,hscr[l[1:0]]} ^ {16{~dflip}})
+             + (l[1] ? (l[0]?hoff3:hoff2) : (l[0]?hoff1:hoff0));
+        sc_addr = {1'b0, l[1:0], vv[3+:6], hv[3+:6]};
+    end else begin
+        lin = {r,5'd0} + {2'd0,r,2'd0} + {4'd0,c}; // r*36+c
+        sc_addr = (l[0] ? 15'h4408 : 15'h4008) + {5'd0,lin};
+    end
+end
+endfunction
+
+// iterator advance: quad within col within row within layer
+function [15:0] sc_next( input [15:0] it );
+    reg [ 2:0] l;
+    reg [ 4:0] r;
+    reg [ 5:0] c;
+    reg [ 1:0] q;
+begin
+    {l, r, c, q} = it;
+    if( q != (l<4 ? 2'd3 : 2'd0) ) q = q + 2'd1;
+    else begin
+        q = 0;
+        if( c != 6'd35 ) c = c + 6'd1;
+        else begin
+            c = 0;
+            if( r != 5'd27 ) r = r + 5'd1;
+            else begin r = 0; l = l + 3'd1; end
+        end
+    end
+    sc_next = {l, r, c, q};
+end
+endfunction
 
 always @(posedge clk) begin
     vs_l  <= vs;
     sc_we <= 0;
     if( rst ) begin
-        sc_on <= 0;
-    end else if( vs && !vs_l ) begin
-        { sc_lyr, sc_row, sc_col, sc_lin, sc_st } <= 0;
-        sc_on <= 1;
-    end else if( sc_on ) case( sc_st )
-        0: if( mst==0 && plyr==7 ) begin
-            sc_ta <= (sc_lyr ? 15'h4408 : 15'h4008) + {5'd0,sc_lin};
-            sc_st <= 1;
+        sc_on  <= 0;
+        cov_ok <= 0;
+        sc_dly <= 15;
+    end else begin
+        if( vs && !vs_l ) begin
+            cov_ok <= 0;
+            sc_dly <= 0;
         end
-        1: sc_st <= 2;
-        2: begin
-            sopq_addr <= tmap_data;
-            sc_st <= 3;
+        if( hs_edge && sc_dly != 4'd15 ) sc_dly <= sc_dly + 4'd1;
+        if( sc_dly == 4'd8 && !sc_on && !dflip ) begin
+            sc_on <= 1;
+            sc_it <= 0;
+            sc_st <= 0;
+            sc_dly<= 15;
         end
-        3: sc_st <= 4; // sopq sync-read latency
-        4: begin
-            sc_word[sc_col[5:0]] <= sopq_bit && tmap_data!=BLANK && !cfg_enb[sc_lyr?5:4];
-            sc_st  <= 0;
-            sc_lin <= sc_lin + 10'd1;
-            if( sc_col==6'd35 ) begin
-                sc_we  <= 1;
-                sc_wrow<= sc_row;
-                sc_wlyr<= sc_lyr;
-                sc_col <= 0;
-                if( sc_row==5'd27 ) begin
-                    sc_row <= 0;
-                    sc_lin <= 0;
-                    sc_lyr <= 1;
-                    if( sc_lyr ) sc_on <= 0;
-                end else sc_row <= sc_row + 5'd1;
-            end else sc_col <= sc_col + 6'd1;
-        end
-    endcase
+        // a cfg write after the scan means stale scroll/prio: stand down
+        if( cs && !rnw ) cov_ok <= 0;
+        if( sc_on ) case( sc_st )
+            0: if( mst==0 && plyr==7 ) begin // renderer drained, port is ours
+                sc_ta <= sc_addr(sc_it);
+                sc_i2 <= sc_it;
+                sc_it <= sc_next(sc_it);
+                sc_st <= 1;
+            end
+            1: sc_st <= 2;
+            2: begin // tmap in: to the table, next tmap out
+                sopq_addr <= tmap_data;
+                sc_bl2    <= tmap_data==BLANK;
+                sc_i1     <= sc_i2;
+                sc_bl1    <= sc_bl2;
+                sc_ta     <= sc_addr(sc_it);
+                sc_i2     <= sc_it;
+                sc_it     <= sc_next(sc_it);
+                sc_st     <= 3;
+            end
+            3: sc_st <= 4;
+            4: begin // sopq_bit for sc_i1's PREVIOUS issue... sample and loop
+                sc_qac <= (i1_quad==0 ? 1'b1 : sc_qac) && sopq_bit && !sc_bl1
+                          && !cfg_enb[i1_lyr];
+                if( i1_quad == (i1_lyr<4 ? 2'd3 : 2'd0) )
+                    sc_word[i1_col] <= (i1_quad==0 ? 1'b1 : sc_qac)
+                          && sopq_bit && !sc_bl1 && !cfg_enb[i1_lyr];
+                if( i1_col==6'd35 && i1_quad == (i1_lyr<4 ? 2'd3 : 2'd0) ) begin
+                    sc_we <= 1;
+                end
+                if( sc_i1[15:13]==3'd5 && sc_i1[12:0]=={5'd27,6'd35,2'd0} ) begin
+                    sc_on  <= 0;
+                    cov_ok <= 1;
+                end else sc_st <= 2;
+            end
+        endcase
+    end
 end
 
-jtframe_dual_ram #(.DW(36),.AW(5)) u_cov4(
-    .clk0(clk), .data0(sc_word), .addr0(sc_wrow), .we0(sc_we && !sc_wlyr), .q0(),
-    .clk1(clk), .data1(36'd0), .addr1(cov_row), .we1(1'b0), .q1(cov_word[35:0])
-);
-jtframe_dual_ram #(.DW(36),.AW(5)) u_cov5(
-    .clk0(clk), .data0(sc_word), .addr0(sc_wrow), .we0(sc_we &&  sc_wlyr), .q0(),
-    .clk1(clk), .data1(36'd0), .addr1(cov_row), .we1(1'b0), .q1(cov_word[71:36])
-);
+// one RAM per layer, written at each row's last column
+reg  [ 2:0] sc_wl;
+reg  [ 4:0] sc_wr;
+always @(posedge clk) if( sc_on && sc_st==4 ) begin
+    sc_wl <= i1_lyr;
+    sc_wr <= i1_row;
+end
+wire [5:0] cov_wsel;
+assign cov_wsel = { sc_we && sc_wl==3'd5, sc_we && sc_wl==3'd4,
+                    sc_we && sc_wl==3'd3, sc_we && sc_wl==3'd2,
+                    sc_we && sc_wl==3'd1, sc_we && sc_wl==3'd0 };
+generate
+    genvar gl;
+    for( gl=0; gl<6; gl=gl+1 ) begin : gen_cov
+        jtframe_dual_ram #(.DW(36),.AW(5)) u_cov(
+            .clk0(clk), .data0(sc_word), .addr0(sc_wr), .we0(cov_wsel[gl]), .q0(),
+            .clk1(clk), .data1(36'd0), .addr1(cov_row), .we1(1'b0),
+            .q1(cov_word[gl*36 +: 36])
+        );
+    end
+endgenerate
 
 // Pixel drawing. Masks and tile codes of the next tile of each layer are
 // prefetched while the current one is drawn, and swapped in at the crossing
