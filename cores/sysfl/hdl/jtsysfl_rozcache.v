@@ -30,8 +30,6 @@ module jtsysfl_rozcache(
 
 localparam AW=10, TW=19-AW; // 1024 lines, 9-bit tag
 
-(* ramstyle = "M10K" *) reg [TW:0]  tags [0:(1<<AW)-1]; // {valid, tag}
-(* ramstyle = "M10K" *) reg [31:0]  data [0:(1<<AW)-1];
 reg  [AW-1:0] flush;
 reg           init;
 
@@ -39,8 +37,8 @@ reg           init;
 reg         a_vld, b_vld, a_mis, b_mis;
 reg  [20:2] a_cap, b_cap;
 reg  [31:0] a_q,   b_q;
-reg  [TW:0] t_rd;
-reg  [31:0] d_rd;
+wire [TW:0] t_rd;
+wire [31:0] d_rd;
 reg  [ 1:0] lu;    // lookup pipeline owner: 0=none, 1=A, 2=B
 reg         rr;    // round robin
 
@@ -58,6 +56,22 @@ wire [AW-1:0] lu_a = a_go ? a_addr[2+:AW] : b_addr[2+:AW];
 wire a_fill = a_mis && sa_ok;
 wire b_fill = b_mis && sb_ok && !a_fill; // one fill per cycle
 
+// pool RAMs: port0 = fills + the reset flush, port1 = lookups
+wire [20:2]   w_cap = a_fill ? a_cap : b_cap;
+wire          t_we  = init || a_fill || b_fill;
+wire [AW-1:0] w_a   = init ? flush : w_cap[2+:AW];
+wire [TW:0]   t_wd  = init ? {TW+1{1'b0}} : {1'b1, w_cap[20-:TW]};
+wire [31:0]   d_wd  = a_fill ? sa_data : sb_data;
+
+jtframe_dual_ram #(.DW(TW+1),.AW(AW)) u_tags(
+    .clk0(clk), .data0(t_wd), .addr0(w_a),  .we0(t_we),           .q0(),
+    .clk1(clk), .data1({TW+1{1'b0}}), .addr1(lu_a), .we1(1'b0),   .q1(t_rd)
+);
+jtframe_dual_ram #(.DW(32),.AW(AW)) u_data(
+    .clk0(clk), .data0(d_wd), .addr0(w_a),  .we0(a_fill||b_fill), .q0(),
+    .clk1(clk), .data1(32'd0), .addr1(lu_a), .we1(1'b0),          .q1(d_rd)
+);
+
 always @(posedge clk) begin
     if( rst ) begin
         init  <= 1;
@@ -68,14 +82,11 @@ always @(posedge clk) begin
         sa_cs <= 0; sb_cs <= 0;
         rr    <= 0;
     end else if( init ) begin
-        tags[flush] <= 0;
         flush <= flush + 1'd1;
         if( &flush ) init <= 0;
     end else begin
         // lookup: one port per cycle, result checked the next
         if( a_go || b_go ) begin
-            t_rd <= tags[lu_a];
-            d_rd <= data[lu_a];
             lu   <= a_go ? 2'd1 : 2'd2;
             if( a_go ) begin a_cap <= a_addr; a_vld <= 0; end
             else       begin b_cap <= b_addr; b_vld <= 0; end
@@ -95,15 +106,11 @@ always @(posedge clk) begin
                 sb_addr <= b_cap; sb_cs <= 1; b_mis <= 1;
             end
         end
-        // fills: write the pool and serve
+        // fills land in the RAMs above; serve the port
         if( a_fill ) begin
-            tags[a_cap[2+:AW]] <= {1'b1, a_cap[20-:TW]};
-            data[a_cap[2+:AW]] <= sa_data;
             a_q <= sa_data; a_vld <= 1; a_mis <= 0; sa_cs <= 0;
         end
         if( b_fill ) begin
-            tags[b_cap[2+:AW]] <= {1'b1, b_cap[20-:TW]};
-            data[b_cap[2+:AW]] <= sb_data;
             b_q <= sb_data; b_vld <= 1; b_mis <= 0; sb_cs <= 0;
         end
     end
