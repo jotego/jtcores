@@ -91,7 +91,8 @@ localparam [8:0] LINE_W = 9'd288,
                  VLINES = 9'd224;
 
 localparam [3:0] IDLE=0, LDREG=1, RECA=2, RECW=3, RECL=4,
-                 CALCA=5, CALCB=6, CALCC=7, RUN=8, WAITL=9;
+                 CALCA=5, CALCB=6, CALCC=7, RUN=8, WAITL=9,
+                 CLRB=10, ADV=11;
 localparam [8:0] AHEAD=9'd2; // render-ahead depth over the classic 1 line
 
 reg  [15:0] rec[0:7];
@@ -178,7 +179,11 @@ integer     i;
 // layer-0 winner companion: the L1 pass skips pixels L0 already won
 wire [ 4:0] l0_q;
 wire [ 8:0] l0_ra = issue ? xi+9'd1 : xi; // read one ahead of the walk
-wire        l0_skip = lyr1 && l0_q[4] && l0_q[3:0] >= p_prio;
+reg         l0_live;   // this line's L0 pass really ran
+wire        l0_skip = lyr1 && l0_live && l0_q[4] && l0_q[3:0] >= p_prio;
+// a disabled pass leaves its plane alone when it is already blank
+reg  [ 3:0] cln0, cln1;
+reg  [ 8:0] clr_x;
 // column of the pixel being issued; coverage words align to 8px screen columns
 wire [5:0]  cov_col = xi[8:3];
 reg         cov_hit;
@@ -278,7 +283,7 @@ integer rz_lines=0, rz_cut=0, rz_wait=0, rz_cyc=0, rz_maxc=0, rz_cov=0, rz_frm=0
 integer rz_fill=0, rz_req=0, rz_hit=0;
 reg rz_vsl=0, rz_csl=0, rz_okl=0;
 wire rz_okl_w = !rz_okl;
-wire rz_ladv = fsm==RUN && xi==LINE_W && f_cnt==0 && inflight==0 && fv==0 && lyr1;
+wire rz_ladv = fsm==ADV && lyr1;
 always @(posedge clk) begin
     rz_vsl <= vs;
     if( fsm != IDLE && fsm != WAITL ) begin
@@ -357,6 +362,8 @@ always @(posedge clk) begin
         opq2_addr   <= 0;
         roz_addr    <= 0;
         rozb_addr   <= 0;
+        cln0        <= 0;
+        cln1        <= 0;
         lline       <= VLINES; // out of range: first visible hs resyncs
         sum_vld     <= 0;
         sum_full    <= 0;
@@ -531,7 +538,39 @@ always @(posedge clk) begin
                 cx  <= sx24 + p_ax + (scl ? 24'd0 : lxt);
                 cy  <= sy24 + p_ay + (scl ? 24'd0 : lyt);
                 cyf <= sy24 + (scl ? 24'd0 : lyt);
-                fsm <= RUN;
+                if( !lyr1 ) l0_live <= p_en;
+                if( p_en ) begin
+                    if( lyr1 ) cln1[lline[1:0]] <= 0;
+                    else       cln0[lline[1:0]] <= 0;
+                    fsm <= RUN;
+                end else if( lyr1 ? cln1[lline[1:0]] : cln0[lline[1:0]] )
+                    fsm <= ADV;       // plane already blank: free pass
+                else begin
+                    clr_x <= 0;       // blank sweep, 1 px/clk, no fetches
+                    fsm   <= CLRB;
+                end
+            end
+            CLRB: begin
+                bwe   <= 1;
+                bwl   <= lyr1;
+                bdata <= 16'd0;
+                baddr <= clr_x;
+                clr_x <= clr_x + 9'd1;
+                if( clr_x == LINE_W-9'd1 ) begin
+                    if( lyr1 ) cln1[lline[1:0]] <= 1;
+                    else       cln0[lline[1:0]] <= 1;
+                    fsm <= ADV;
+                end
+            end
+            ADV: begin
+                if( !lyr1 ) begin
+                    lyr1 <= 1;
+                    fsm  <= LDREG;
+                end else begin
+                    lyr1  <= 0;
+                    lline <= lline + 9'd1;
+                    fsm   <= lline+9'd1 >= VLINES ? IDLE : WAITL;
+                end
             end
             RUN: begin
                 // front end: one map read per clock, positions walk on issue
@@ -622,16 +661,8 @@ always @(posedge clk) begin
                     if( tob==2'b11 ) tob <= 2'b10;
                     if( mo ==2'b11 ) mo  <= 2'b10;
                 end
-                if( xi==LINE_W && f_cnt==0 && inflight==0 && fv==0 ) begin
-                    if( !lyr1 ) begin
-                        lyr1 <= 1;
-                        fsm  <= LDREG;
-                    end else begin
-                        lyr1  <= 0;
-                        lline <= lline + 9'd1;
-                        fsm   <= lline+9'd1 >= VLINES ? IDLE : WAITL;
-                    end
-                end
+                if( xi==LINE_W && f_cnt==0 && inflight==0 && fv==0 )
+                    fsm <= ADV;
             end
             default: fsm <= IDLE;
         endcase
