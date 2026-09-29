@@ -158,10 +158,11 @@ jtwardnr_sound #(.TWINCOBR(1)) u_sound(
 );
 
 /* verilator tracing_on */
-jtwardnr_video #(.VSCAN(1)) u_video(
+jtwardnr_video #(.HWSCAN(1),.LATCH(1)) u_video(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
+    .pxl2_cen   ( pxl2_cen          ),
 
     .scr_cs     ( scr_cs            ),
     .scr_addr   ( scr_addr          ),
