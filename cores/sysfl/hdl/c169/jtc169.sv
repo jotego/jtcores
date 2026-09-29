@@ -270,7 +270,7 @@ end
 
 `ifdef SYSFL_ROZDBG
 // per-frame roz deadline audit: lines whose walk missed the next hs
-integer rz_lines=0, rz_cut=0, rz_wait=0, rz_cyc=0, rz_maxc=0, rz_cov=0;
+integer rz_lines=0, rz_cut=0, rz_wait=0, rz_cyc=0, rz_maxc=0, rz_cov=0, rz_frm=0;
 integer rz_fill=0, rz_req=0, rz_hit=0;
 reg rz_vsl=0, rz_csl=0, rz_okl=0;
 wire rz_okl_w = !rz_okl;
@@ -294,13 +294,14 @@ always @(posedge clk) begin
     if( hs_edge ) begin
         if( nline < VLINES && lline < nline ) begin // display caught the drawer
             rz_cut <= rz_cut + 1;
-            $display("RZCUT line=%0d xi=%0d fsm=%0d cyc=%0d fills=%0d freq=%0d", lline, xi, fsm, rz_cyc, rz_fill, rz_req);
+            $display("RZCUT F=%0d line=%0d xi=%0d fsm=%0d cyc=%0d fills=%0d freq=%0d", rz_frm, lline, xi, fsm, rz_cyc, rz_fill, rz_req);
         end
         if( nline < VLINES ) rz_lines <= rz_lines + 1;
     end
     if( vs && !rz_vsl ) begin
-        $display("ROZA lines=%0d cut=%0d wait=%0d maxc=%0d cov=%0d", rz_lines, rz_cut, rz_wait, rz_maxc, rz_cov);
+        $display("ROZA F=%0d lines=%0d cut=%0d wait=%0d maxc=%0d cov=%0d", rz_frm, rz_lines, rz_cut, rz_wait, rz_maxc, rz_cov);
         rz_lines<=0; rz_cut<=0; rz_wait<=0; rz_maxc<=0; rz_cov<=0;
+        rz_frm <= rz_frm+1;
     end
 end
 integer rz_mw=0, rz_tw=0, rz_ov=0;

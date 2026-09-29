@@ -174,6 +174,33 @@ jtframe_dual_ram #(.DW(1),.AW(14),.SIMHEXFILE("opq.hex")) u_opq(
     .q1     ( opq_bit   )
 );
 
+`ifdef SYSFL_RECDBG
+// how close do the CPU's scanline-record writes run to the beam?
+integer rec_wr=0, rec_vbl=0, rec_min=1000, rec_neg=0, rec_frm=0;
+reg rec_vsl=0;
+wire [8:0] recdbg_vd   = u_video.vdump;
+wire [15:0] recdbg_w   = crozram_addr;
+wire [8:0]  recdbg_line = {recdbg_w[12:7], recdbg_w[5:3]};
+always @(posedge clk) begin
+    if( |crozram_we && crozram_addr >= 16'h7040 && crozram_addr < 16'h7740 ) begin
+        rec_wr <= rec_wr+1;
+        if( recdbg_vd < 9'h121 || recdbg_vd > 9'h200 ) rec_vbl <= rec_vbl+1;
+        else begin
+            // distance from the beam to the written line, in lines
+            if( {1'b0,recdbg_line} + 10'h121 < {1'b0,recdbg_vd} ) rec_neg <= rec_neg+1;
+            else if( ({1'b0,recdbg_line} + 10'h121 - {1'b0,recdbg_vd}) < rec_min )
+                rec_min <= {22'd0,recdbg_line} + 32'h121 - {23'd0,recdbg_vd};
+        end
+    end
+    rec_vsl <= u_video.vs;
+    if( u_video.vs && !rec_vsl ) begin
+        if( rec_wr!=0 )
+            $display("RECW F=%0d total=%0d vblank=%0d min_ahead=%0d behind=%0d", rec_frm, rec_wr, rec_vbl, rec_min, rec_neg);
+        rec_wr<=0; rec_vbl<=0; rec_min<=1000; rec_neg<=0;
+        rec_frm <= rec_frm+1;
+    end
+end
+`endif
 `ifndef NOMAIN
 jtsysfl_main u_main(
     .rst        ( rst           ),

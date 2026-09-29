@@ -429,11 +429,22 @@ always @(posedge clk) begin
                 if( sc_i1[15:13]==3'd5 && sc_i1[12:0]=={5'd27,6'd35,2'd0} ) begin
                     sc_on  <= 0;
                     cov_ok <= 1;
+`ifdef SYSFL_SCRDBG
+                    $display("COVS F=%0d done cols=%0d", sc_frm, cv_tot);
+`endif
                 end else sc_st <= 2;
             end
         endcase
     end
 end
+
+`ifdef SYSFL_SCRDBG
+integer cv_tot=0;
+always @(posedge clk) begin
+    if( sc_on && sc_we ) cv_tot <= cv_tot + $countones(sc_word);
+    if( vs && sc_dly==0 ) cv_tot <= 0;
+end
+`endif
 
 // one RAM per layer, written at each row's last column
 reg  [ 2:0] sc_wl;
@@ -547,7 +558,7 @@ jtframe_linebuf #(.DW(15)) u_buffer(
 
 `ifdef SYSFL_SCRDBG
 // per-frame tilemap bus audit
-integer sc_req=0, sc_wait=0, sc_skip=0, sc_cov=0, sp_vld=0, sp_full=0, sp_w=0;
+integer sc_req=0, sc_wait=0, sc_skip=0, sc_cov=0, sp_vld=0, sp_full=0, sp_w=0, sc_frm=0;
 reg sc_vsl=0;
 always @(posedge clk) begin
     sc_vsl <= vs;
@@ -562,8 +573,9 @@ always @(posedge clk) begin
     end
     if( mst==3 && skip_cov && !pre_blank ) sc_cov <= sc_cov+1;
     if( vs && !sc_vsl ) begin
-        $display("SCRA req=%0d skip=%0d cov=%0d wait=%0d | span vld=%0d full=%0d partw=%0d", sc_req, sc_skip, sc_cov, sc_wait, sp_vld, sp_full, sp_w);
+        $display("SCRA F=%0d req=%0d skip=%0d cov=%0d wait=%0d | span vld=%0d full=%0d partw=%0d", sc_frm, sc_req, sc_skip, sc_cov, sc_wait, sp_vld, sp_full, sp_w);
         sc_req<=0; sc_skip<=0; sc_cov<=0; sc_wait<=0; sp_vld<=0; sp_full<=0; sp_w<=0;
+        sc_frm <= sc_frm+1;
     end
 end
 `endif
@@ -573,7 +585,8 @@ end
 int reported=0;
 
 always @(posedge miss) begin
-    if( reported==1 ) $display("C123 line missed");
+    if( reported>0 ) $display("C123 line missed F=%0d line=%0d hcnt=%0d",
+        sc_frm, vdump-9'h120, hcnt);
     reported <= reported+1;
 end
 `endif
