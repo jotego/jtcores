@@ -128,7 +128,7 @@ wire [ 7:0] scr_ioctl, roz_ioctl, pal_ioctl;
 
 always @* case( debug_bus[7:6] )
     0: st_dout = debug_bus[5] ? dbg_sskip : st_scr;
-    1: st_dout = debug_bus[5] ? (debug_bus[4] ? dbg_oc : dbg_cov) : st_roz;
+    1: st_dout = debug_bus[5] ? dbg_cov : st_roz;
     2: st_dout = st_obj;
     3: st_dout = st_pal;
 endcase
@@ -137,14 +137,13 @@ assign ioctl_din = !ioctl_addr[6] ? scr_ioctl :
                     ioctl_addr[5] ? pal_ioctl : roz_ioctl;
 
 // pause-readable per-frame occlusion activity, latched at vs
-wire [15:0] cnt_cov, cnt_oc, cnt_ss;
-reg  [ 7:0] dbg_cov, dbg_oc, dbg_sskip;
+wire [15:0] cnt_cov, cnt_ss;
+reg  [ 7:0] dbg_cov, dbg_sskip;
 reg         dvs_l;
 always @(posedge clk) begin
     dvs_l <= vs;
     if( vs && !dvs_l ) begin
         dbg_cov   <= cnt_cov[13:6]; // roz px skipped under winning scr, /64
-        dbg_oc    <= cnt_oc[11:4];  // roz px skipped under sprites, /16
         dbg_sskip <= cnt_ss[10:3];  // scr layer-lines dropped under the road, /8
     end
 end
@@ -163,13 +162,9 @@ jtsysfl_vtimer u_vtimer(
 );
 
 wire [ 4:0] cov_row;
-wire [ 8:0] oc_x, oc_l;
-wire [ 4:0] oc_q;
-reg  [ 8:0] oc_line;
-reg         oc_vld;
 wire [215:0] cov_word;
 wire [17:0] cov_prio;
-wire        cov_ok;
+wire        cov_ok, cov_rdy;
 
 jtc123 u_scr(
     .rst        ( rst       ),
@@ -199,6 +194,7 @@ jtc123 u_scr(
     .cov_word   ( cov_word  ),
     .cov_prio   ( cov_prio  ),
     .cov_ok     ( cov_ok    ),
+    .cov_rdy    ( cov_rdy   ),
     .cnt_ss     ( cnt_ss    ),
     .tmap_addr  ( tmap_addr ),
     .tmap_data  ( tmap_data ),
@@ -222,18 +218,12 @@ jtc123 u_scr(
 );
 
 jtc169 #(.V0(9'h121)) u_roz(
-    .oc_x       ( oc_x      ),
-    .oc_l       ( oc_l      ),
-    .oc_q       ( oc_q      ),
     .cnt_cov    ( cnt_cov   ),
-    .cnt_oc     ( cnt_oc    ),
-    .oc_line    ( oc_line   ),
-    .oc_vld     ( oc_vld    ),
-    .oc_wl      ( c_v[1:0]  ),
     .cov_row    ( cov_row   ),
     .cov_word   ( cov_word  ),
     .cov_prio   ( cov_prio  ),
     .cov_ok     ( cov_ok    ),
+    .cov_rdy    ( cov_rdy   ),
     .rst        ( rst       ),
     .clk        ( clk       ),
     .pxl_cen    ( pxl_cen   ),
@@ -310,47 +300,6 @@ jtframe_obj_buffer #(
     .rd_addr( hdump     ),
     .rd     ( pxl_cen   ),  // free-running: primes the read pipe before lhbl
     .rd_data( ln_pxl    )
-);
-
-// obj coverage tap for the roz drawer: four line planes; while obj draws
-// line M an idle-cycle sweep clears plane M+1, so entries are always this
-// line's truth and sparse writes cannot leave stale sprites behind
-wire oc_opq = c_data[7:0]!=8'hff && c_data[11:0]!=12'hffe; // not blank, not shadow
-reg        vs_l, occ_on;
-reg  [7:0] oc_vl;
-reg  [8:0] occ_a;
-reg  [1:0] occ_pl;
-always @(posedge clk) begin
-    vs_l <= vs;
-    if( vs && !vs_l ) oc_vld <= 0;
-    if( c_hs ) begin
-        oc_vl <= c_v;
-        if( c_v != 8'hff ) begin
-            occ_pl <= c_v[1:0] + 2'd1;
-            occ_a  <= 0;
-            occ_on <= 1;
-        end
-    end else if( occ_on && !c_we ) begin
-        occ_a <= occ_a + 9'd1;
-        if( occ_a == 9'd287 ) occ_on <= 0;
-    end
-    if( c_done && oc_vl != 8'hff ) begin
-        oc_line <= {1'b0, oc_vl};
-        oc_vld  <= 1;
-    end
-end
-
-jtframe_dual_ram #(.DW(5),.AW(11)) u_octap(
-    .clk0   ( clk       ),
-    .data0  ( c_we ? {oc_opq, c_data[15:12]} : 5'd0 ),
-    .addr0  ( c_we ? {c_v[1:0], c_addr} : {occ_pl, occ_a} ),
-    .we0    ( c_we | occ_on ),
-    .q0     (           ),
-    .clk1   ( clk       ),
-    .data1  ( 5'd0      ),
-    .addr1  ( {oc_l[1:0], oc_x} ),
-    .we1    ( 1'b0      ),
-    .q1     ( oc_q      )
 );
 
 jtc355 #(.H0(9'h041)) u_obj(

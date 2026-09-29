@@ -51,19 +51,13 @@ module jtc169(
     input             opq_bit,
     output reg [13:0] opq2_addr,  // prescan lookups on the table's idle port
     input             opq2_bit,
-    // obj coverage tap: per-pixel winner of the sprite line, plane-cleared
-    output     [ 8:0] oc_x,
-    output     [ 8:0] oc_l,
-    input      [ 4:0] oc_q,    // {opq, prio[3:0]}
-    input      [ 8:0] oc_line, // last line the obj drawer completed
-    input             oc_vld,
-    input      [ 1:0] oc_wl,   // plane the obj drawer is writing now
-    output reg [15:0] cnt_cov, cnt_oc,
+    output reg [15:0] cnt_cov,
     // opaque scr coverage from the c123 layers: covered columns skip
     output reg [ 4:0] cov_row,
     input     [215:0] cov_word,
     input      [17:0] cov_prio,
     input             cov_ok,
+    input             cov_rdy,
     // road coverage summary for the tilemaps: line vdump+2, latched at hs
     output reg        sum_vld,    // covered span is valid (scl line, contiguous)
     output reg        sum_full,   // every visible pixel covered
@@ -183,18 +177,13 @@ reg         bwe, bwl;
 reg  [11:0] xpos, ypos;
 reg         in_win;
 reg  [215:0] cw;
+reg  [  4:0] ccnt;
 integer     i;
 // layer-0 winner companion: the L1 pass skips pixels L0 already won
 wire [ 4:0] l0_q;
 wire [ 8:0] l0_ra = issue ? xi+9'd1 : xi; // read one ahead of the walk
 reg         l0_live;   // this line's L0 pass really ran
 wire        l0_skip = lyr1 && l0_live && l0_q[4] && l0_q[3:0] >= p_prio;
-// sprite cover: only lines the obj drawer finished, stamp must match
-assign      oc_x = l0_ra + 9'h40; // the obj buffer lives in hdump space
-assign      oc_l = lline;
-wire        oc_skip = oc_vld && lline <= oc_line && oc_line - lline < 9'd2 &&
-                      lline[1:0] != oc_wl && // never a plane mid-overwrite
-                      oc_q[4] && oc_q[3:0] >= p_prio;
 // a disabled pass leaves its plane alone when it is already blank
 reg  [ 3:0] cln0;
 reg  [ 8:0] clr_x, swp;
@@ -296,7 +285,7 @@ end
 
 `ifdef SYSFL_ROZDBG
 // per-frame roz deadline audit: lines whose walk missed the next hs
-integer rz_lines=0, rz_cut=0, rz_wait=0, rz_cyc=0, rz_maxc=0, rz_cov=0, rz_frm=0, rz_l1s=0, rz_oc=0;
+integer rz_lines=0, rz_cut=0, rz_wait=0, rz_cyc=0, rz_maxc=0, rz_cov=0, rz_frm=0, rz_l1s=0;
 integer rz_fill=0, rz_req=0, rz_hit=0;
 reg rz_vsl=0, rz_csl=0, rz_okl=0;
 wire rz_okl_w = !rz_okl;
@@ -314,7 +303,6 @@ always @(posedge clk) begin
     end
     if( issue && cov_hit ) rz_cov <= rz_cov+1;
     if( issue && l0_skip && p_en && in_win && !cov_hit ) rz_l1s <= rz_l1s+1;
-    if( issue && oc_skip && p_en && in_win && !cov_hit && !l0_skip ) rz_oc <= rz_oc+1;
     if( rz_ladv ) begin // per rendered line, the drawer free-runs over hs
         if( rz_cyc > rz_maxc ) rz_maxc <= rz_cyc;
         rz_cyc <= 0; rz_fill <= 0; rz_req <= 0;
@@ -327,8 +315,8 @@ always @(posedge clk) begin
         if( nline < VLINES ) rz_lines <= rz_lines + 1;
     end
     if( vs && !rz_vsl ) begin
-        $display("ROZA F=%0d lines=%0d cut=%0d wait=%0d maxc=%0d cov=%0d l1s=%0d oc=%0d", rz_frm, rz_lines, rz_cut, rz_wait, rz_maxc, rz_cov, rz_l1s, rz_oc);
-        rz_lines<=0; rz_cut<=0; rz_wait<=0; rz_maxc<=0; rz_cov<=0; rz_l1s<=0; rz_oc<=0;
+        $display("ROZA F=%0d lines=%0d cut=%0d wait=%0d maxc=%0d cov=%0d l1s=%0d", rz_frm, rz_lines, rz_cut, rz_wait, rz_maxc, rz_cov, rz_l1s);
+        rz_lines<=0; rz_cut<=0; rz_wait<=0; rz_maxc<=0; rz_cov<=0; rz_l1s<=0;
         rz_frm <= rz_frm+1;
     end
 end
@@ -494,6 +482,7 @@ always @(posedge clk) begin
             LDREG: begin
                 xi  <= 0;
                 st  <= 0;
+                ccnt<= 0;
                 cov_row <= lline[7:3];
                 scl <= ~lyr1 & scl_mode;
                 if( ~lyr1 & scl_mode ) begin
@@ -546,11 +535,12 @@ always @(posedge clk) begin
                 p_y1 <= {1'b0,p_top}  + p_size;
                 fsm  <= CALCC;
             end
-            CALCC: begin // scanline records already hold this line's start
+            CALCC: if( cov_rdy || !p_en || &ccnt ) begin
+                // wait for the packed coverage words, bounded
 `ifdef SYSFL_NOCOV
                 cw <= 216'd0;
 `else
-                cw <= cov_ok ? cov_word : 216'd0;
+                cw <= cov_ok && cov_rdy ? cov_word : 216'd0;
 `endif
                 cx  <= sx24 + p_ax + (scl ? 24'd0 : lxt);
                 cy  <= sy24 + p_ay + (scl ? 24'd0 : lyt);
@@ -566,7 +556,7 @@ always @(posedge clk) begin
                     clr_x <= 0;       // blank sweep, 1 px/clk, no fetches
                     fsm   <= CLRB;
                 end
-            end
+            end else ccnt <= ccnt + 5'd1;
             CLRB: begin // only the L0 pass blanks; L1 shares the plane
                 bwe   <= 1;
                 bwl   <= 0;
@@ -596,7 +586,7 @@ always @(posedge clk) begin
                 if( issue ) begin
                     rozmap_addr <= map_a;
                     s1_x  <= xi;
-                    s1_d  <= p_en && in_win && !cov_hit && !l0_skip && !oc_skip;
+                    s1_d  <= p_en && in_win && !cov_hit && !l0_skip;
                     s1_xp <= xpos;
                     s1_yp <= ypos;
                     xi    <= xi + 9'd1;
@@ -692,11 +682,7 @@ always @(posedge clk) begin
     dvs_l <= vs;
     if( vs && !dvs_l ) begin
         cnt_cov <= 0;
-        cnt_oc  <= 0;
-    end else if( issue ) begin
-        if( cov_hit )              cnt_cov <= cnt_cov + 16'd1;
-        else if( oc_skip )         cnt_oc  <= cnt_oc  + 16'd1;
-    end
+    end else if( issue && cov_hit ) cnt_cov <= cnt_cov + 16'd1;
 end
 
 assign hd  = hdump - H0;

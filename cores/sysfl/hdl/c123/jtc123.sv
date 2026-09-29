@@ -61,6 +61,7 @@ module jtc123(
     output    [215:0] cov_word,
     output     [17:0] cov_prio,
     output reg        cov_ok,
+    output reg        cov_rdy,
     output reg [15:0] cnt_ss,
     // road coverage summary from the C169 prescan
     input             sum_vld,
@@ -457,27 +458,43 @@ always @(posedge clk) begin
 end
 `endif
 
-// one RAM per layer, written at each row's last column
+// one packed RAM for all six layers; a rotating read refreshes the
+// exported words and cov_rdy says every slot matches the current row
 reg  [ 2:0] sc_wl;
 reg  [ 4:0] sc_wr;
 always @(posedge clk) if( sc_on && sc_st==4 ) begin
     sc_wl <= i1_lyr;
     sc_wr <= i1_row;
 end
-wire [5:0] cov_wsel;
-assign cov_wsel = { sc_we && sc_wl==3'd5, sc_we && sc_wl==3'd4,
-                    sc_we && sc_wl==3'd3, sc_we && sc_wl==3'd2,
-                    sc_we && sc_wl==3'd1, sc_we && sc_wl==3'd0 };
-generate
-    genvar gl;
-    for( gl=0; gl<6; gl=gl+1 ) begin : gen_cov
-        jtframe_dual_ram #(.DW(36),.AW(5)) u_cov(
-            .clk0(clk), .data0(sc_word), .addr0(sc_wr), .we0(cov_wsel[gl]), .q0(),
-            .clk1(clk), .data1(36'd0), .addr1(cov_row), .we1(1'b0),
-            .q1(cov_word[gl*36 +: 36])
-        );
+reg  [ 2:0] cvl, cvl_d;
+reg  [ 4:0] cv_rowl;
+reg  [215:0] cwv;
+reg         cv_run;
+wire [35:0] cov_q;
+assign cov_word = cwv;
+always @(posedge clk) begin
+    if( cov_row != cv_rowl ) begin
+        cv_rowl <= cov_row;
+        cvl     <= 0;
+        cvl_d   <= 7;
+        cov_rdy <= 0;
+        cv_run  <= 1;
+    end else if( cv_run ) begin
+        cvl   <= cvl==3'd5 ? 3'd0 : cvl+3'd1;
+        cvl_d <= cvl;
+        if( cvl_d != 3'd7 ) cwv[cvl_d*36 +: 36] <= cov_q;
+        if( cvl_d == 3'd5 ) begin
+            cov_rdy <= 1;
+            cv_run  <= 0;
+        end
     end
-endgenerate
+end
+
+jtframe_dual_ram #(.DW(36),.AW(8)) u_cov(
+    .clk0(clk), .data0(sc_word), .addr0({sc_wl,sc_wr}), .we0(sc_we), .q0(),
+    .clk1(clk), .data1(36'd0), .addr1({cvl,cov_row}), .we1(1'b0),
+    .q1(cov_q)
+);
 
 // Pixel drawing. Masks and tile codes of the next tile of each layer are
 // prefetched while the current one is drawn, and swapped in at the crossing
