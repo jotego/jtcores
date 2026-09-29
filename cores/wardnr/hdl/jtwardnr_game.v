@@ -119,6 +119,8 @@ jtwardnr_sound u_sound(
 
     .sys        ( 8'd0              ),
     .dipsw      ( 16'd0             ),
+    .busrq_n    ( 1'b1              ),
+    .busak_n    (                   ),
 
     .rom_addr   ( snd_addr          ),
     .rom_data   ( snd_data          ),
