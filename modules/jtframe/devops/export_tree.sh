@@ -68,6 +68,12 @@ sort -u "$LIST" | while read -r f; do
     case "$rel" in ../*) rel="external/${f##*/}";; esac
     mkdir -p "$STAGE/$(dirname "$rel")"
     cp -L "$f" "$STAGE/$rel"
+    case "$rel" in
+        *.qsf|*.qip) # absolute framework paths become relative to the file
+            d=$(dirname "$rel"); ups=""
+            [ "$d" != "." ] && ups=$(echo "$d" | awk -F/ '{for(i=1;i<=NF;i++) printf "../"}')
+            sed -i -e "s|\"$ROOT/|\"$ups|g" -e "s| $ROOT/| $ups|g" "$STAGE/$rel";;
+    esac
     echo "$rel" >> "$STAGE/files.txt"
 done
 
