@@ -136,6 +136,7 @@ for base, lf, uf in [(0, "se1obj0l.ic1", "se1obj0u.ic2"), (0x400000, "se1obj1l.i
 mamenv = os.path.expanduser("~/develop/mame/nvram/speedrcr/nvram")
 nv = open(mamenv,"rb").read() if os.path.exists(mamenv) else bytes([0xff]*0x2000)
 open(os.path.join(outdir,"nvram.bin"),"wb").write(nv)  # restored into the nvram BRAM at download
+open(os.path.join(outdir,"backup.bin"),"wb").write(nv)  # SIMFILE image for live sims
 print("nvram.bin written" + (" from MAME first-boot image" if os.path.exists(mamenv) else " fresh 0xFF"))
 
 open(os.path.join(outdir,"sdram_bank0.bin"),"wb").write(swab(bank0))

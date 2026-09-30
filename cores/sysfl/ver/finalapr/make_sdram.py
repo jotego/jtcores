@@ -88,6 +88,7 @@ bank2[0x600000:0x680000] = get("flr1_rsh.14k")
 mamenv = os.path.expanduser("~/develop/mame/nvram/finalapr/nvram")
 nv = open(mamenv,"rb").read() if os.path.exists(mamenv) else bytes([0xff]*0x2000)
 open(os.path.join(outdir,"nvram.bin"),"wb").write(nv)  # restored into the nvram BRAM at download
+open(os.path.join(outdir,"backup.bin"),"wb").write(nv)  # SIMFILE image for live sims
 print("nvram.bin written" + (" from MAME first-boot image" if os.path.exists(mamenv) else " fresh 0xFF"))
 
 # C75 internal BIOS, from the MAME namcoc75 device set
