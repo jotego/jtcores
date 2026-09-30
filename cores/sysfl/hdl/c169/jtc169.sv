@@ -447,9 +447,13 @@ always @(posedge clk) begin
         end
         if( hs_edge ) begin
             // publish last line's walk, then restart for vdump+2
-            sum_vld  <= q_vld && !q_pend && q_run && q_tgt=={1'b0,nline};
+            // only a genuine road frame may publish: the mid-walk validity
+            // check can lose the port race and leave stale state behind
+            sum_vld  <= q_vld && !q_pend && q_run && q_tgt=={1'b0,nline}
+                        && scl_mode && !ctl0[31] && ctl1[31];
             sum_full <= q_vld && !q_pend && q_run && !q_gap
-                        && q_x0==9'd0 && q_x1==9'd287 && q_tgt=={1'b0,nline};
+                        && q_x0==9'd0 && q_x1==9'd287 && q_tgt=={1'b0,nline}
+                        && scl_mode && !ctl0[31] && ctl1[31];
             sum_x0   <= q_x0;
             sum_x1   <= q_x1;
             sum_prio <= q_rec[1][7:4];
