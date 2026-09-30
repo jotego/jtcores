@@ -32,41 +32,50 @@ require_input_file() {
 }
 
 split_into_parts() {
+	# backup 8192 bytes (8 kB)
+	rm -f backup.bin
+	dd if="$DUMP" of=backup.bin bs=64 count=128 skip=0
+	jtutil drop1    < backup.bin > backup_hi.bin
+	jtutil drop1 -l < backup.bin > backup_lo.bin
+	
 	# vram 65536 bytes (64 kB)
 	rm -f vram.bin
-	dd if="$DUMP" of=vram.bin bs=64 count=1024 skip=0
+	dd if="$DUMP" of=vram.bin bs=64 count=1024 skip=128
 	jtutil drop1    < vram.bin > vram_hi.bin
 	jtutil drop1 -l < vram.bin > vram_lo.bin
 	
 	# rozram 131072 bytes (128 kB)
 	rm -f rozram.bin
-	dd if="$DUMP" of=rozram.bin bs=64 count=2048 skip=1024
+	dd if="$DUMP" of=rozram.bin bs=64 count=2048 skip=1152
 	jtutil drop1    < rozram.bin > rozram_hi.bin
 	jtutil drop1 -l < rozram.bin > rozram_lo.bin
 	
 	# oram 131072 bytes (128 kB)
 	rm -f oram.bin
-	dd if="$DUMP" of=oram.bin bs=64 count=2048 skip=3072
+	dd if="$DUMP" of=oram.bin bs=64 count=2048 skip=3200
 	jtutil drop1    < oram.bin > oram_hi.bin
 	jtutil drop1 -l < oram.bin > oram_lo.bin
 	
 	# rpal 8192 bytes (8 kB)
 	rm -f rpal.bin
-	dd if="$DUMP" of=rpal.bin bs=64 count=128 skip=5120
+	dd if="$DUMP" of=rpal.bin bs=64 count=128 skip=5248
 	
 	# gpal 8192 bytes (8 kB)
 	rm -f gpal.bin
-	dd if="$DUMP" of=gpal.bin bs=64 count=128 skip=5248
+	dd if="$DUMP" of=gpal.bin bs=64 count=128 skip=5376
 	
 	# bpal 8192 bytes (8 kB)
 	rm -f bpal.bin
-	dd if="$DUMP" of=bpal.bin bs=64 count=128 skip=5376
+	dd if="$DUMP" of=bpal.bin bs=64 count=128 skip=5504
 	
 	
 	make_rest
 }
 
 delete_parts() {
+	rm -f backup.bin
+	rm -f backup_hi.bin backup_lo.bin
+	
 	rm -f vram.bin
 	rm -f vram_hi.bin vram_lo.bin
 	
@@ -88,7 +97,7 @@ delete_parts() {
 }
 
 make_rest() {
-	dd if="$DUMP" of=rest.bin bs=64 skip=5504
+	dd if="$DUMP" of=rest.bin bs=64 skip=5632
 }
 
 run_core_specific_script() {

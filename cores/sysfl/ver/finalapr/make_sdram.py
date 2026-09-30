@@ -86,9 +86,9 @@ for f in ["flr1_rch0.19j","flr1_rch1.18j"]:
     d = get(f); bank1[pos:pos+len(d)] = d; pos += 0x100000
 bank2[0x600000:0x680000] = get("flr1_rsh.14k")
 mamenv = os.path.expanduser("~/develop/mame/nvram/finalapr/nvram")
-if os.path.exists(mamenv):
-    bank1[0x500000:0x502000] = open(mamenv,"rb").read()
-    print("nvram preloaded from MAME first-boot image")
+nv = open(mamenv,"rb").read() if os.path.exists(mamenv) else bytes([0xff]*0x2000)
+open(os.path.join(outdir,"nvram.bin"),"wb").write(nv)  # restored into the nvram BRAM at download
+print("nvram.bin written" + (" from MAME first-boot image" if os.path.exists(mamenv) else " fresh 0xFF"))
 
 # C75 internal BIOS, from the MAME namcoc75 device set
 with zipfile.ZipFile(c75path) as z:
