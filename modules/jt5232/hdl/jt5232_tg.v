@@ -15,6 +15,8 @@ module jt5232_tg(
     input      [ 8:0] step,
     input      [ 2:0] bsel, // bit selection
     input      [ 3:0] pipe_en,
+    input             noise,
+    input      [ 3:0] nclk,
     output reg [ 2:0] organ
 );
 
@@ -44,6 +46,7 @@ always @(posedge clk) if(cen) begin
         6: pipes <= {h[3],h[4],h[5],h[6]};
         7: pipes <= {h[4],h[5],h[6],h[7]};
     endcase
+    if(noise) pipes <= {nclk[0],nclk[1],nclk[2],nclk[3]};
     if(!pipe_en[0]) pipes[0] <= 0;
     if(!pipe_en[1]) pipes[1] <= 0;
     if(!pipe_en[2]) pipes[2] <= 0;
