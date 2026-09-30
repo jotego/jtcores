@@ -17,7 +17,7 @@
     Date: 18-9-2026
 */
 
-// 288x224 visible in 384x264 total, 6.048 MHz pixel clock (48.384/8)
+// 288x224 visible in 384x264 total, 6.048 MHz pixel clock (54.432/9)
 module jtsysfl_vtimer(
     input             clk,
     input             pxl_cen,

@@ -22,13 +22,13 @@ clocks:
       div: 3
       outputs:
         - cpu_cen
-    # PCB clocks are 48.384 MHz divisions, exact on the 54 MHz base
+    # PCB clocks are 48.384 MHz divisions, exact on the 54.432 MHz base
     - mul: 8
-      div: 27              # C75 XIN 16.0 MHz (timers, ADC)
+      div: 27              # C75 XIN 16.128 MHz (timers, ADC)
       outputs:
         - xin_cen
     - mul: 4
-      div: 9               # C352 24.0 MHz
+      div: 9               # C352 24.192 MHz
       outputs:
         - c352_cen
 sdram:

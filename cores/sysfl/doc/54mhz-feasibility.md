@@ -1,10 +1,10 @@
 # 54.432 / 108.864 feasibility (pixel x9 family)
 
-Asset: modules/jtframe/target/mister/hdl/pll6048m9 - pll6048 transposed
+Asset: modules/jtframe/target/mister/hdl/plle6048 - pll6048 transposed
 x9/8: 54.432 base pair, 27.216, 6.048 pixel (unchanged), 108.864 fast pair.
 Fractional VCO like pll6048 (54.432/50 has no small integer ratio; pll7000
 is integer only because 56/50 = 28/25). Shifted-pair phase fractions kept
-from the donor (0.2688 and -0.4871 of the respective periods). NOT wired.
+from the donor (0.2688 and -0.4871 of the respective periods).
 
 ## What it buys over 48.384/96.768
 
