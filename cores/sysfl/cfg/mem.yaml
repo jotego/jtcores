@@ -47,7 +47,7 @@ sdram:
         - name: objrom
           addr_width: 23
           data_width: 32
-          cache_size: 2kB
+          cache_size: 4kB
     - buses:
         - name: smask  # tiny traffic, first so roz cannot starve the tilemaps
           addr_width: 19
