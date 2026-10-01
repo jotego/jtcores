@@ -1,0 +1,21 @@
+      \BNemesis\W FPGA core
+
+      by \RLMN-san\W,
+      \ROScherler\W, \RRaki\W
+
+        Support them:
+   patreon.com/ikamusume
+     ko-fi.com/lmnsan
+    ko-fi.com/oscherler
+
+      \BAbout this core\W
+
+   Konami GX400 hardware,
+   based on the Nemesis
+   schematics and verified
+   against Bubble System,
+   Salamander and a
+   Salamander bootleg PCB.
+
+   Ported to JTCORES from
+   github.com/GX400-Friends
