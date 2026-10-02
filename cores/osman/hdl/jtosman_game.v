@@ -19,7 +19,7 @@
     SCAFFOLD -- Osman / Cannon Dancer, Data East "Simple 156" (simpl156.cpp).
     Structural skeleton: submodules are stubs (tie-offs). See doc/STATUS.md.
     ARM DE156 spine reuses vendored Amber (hdl/amber); video reuses cninja's
-    jtframe_deco16 (x2 pf) + jtframe_decospr.
+    jtcninja_deco16 (x2 pf) + jtcninja_decospr.
 */
 module jtosman_game(
     `include "jtframe_game_ports.inc"

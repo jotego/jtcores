@@ -1,17 +1,17 @@
 /*  This file is part of JTCORES. GPLv3. See jtosman_game.v header.
     Author: Andrea Bogazzi.
 
-    deco56 tile-gfx decrypt-at-fetch adapter. Sits between one jtframe_deco16
+    deco56 tile-gfx decrypt-at-fetch adapter. Sits between one jtcninja_deco16
     (cninja DECO16IC renderer, 32-bit rom bus = 8px x 4 planes) and a 16-bit
     SDRAM port holding the deco56-ENCRYPTED tiles in load order. Per render word
     it issues TWO 16-bit reads (the two plane-pairs, 0x80000 decwords apart =
     the RGN_FRAC(1,2) half boundary), decrypts each, and assembles the 32-bit
-    word jtframe_deco16 expects.
+    word jtcninja_deco16 expects.
 
     The deco56 transform (address/xor/swap tables + deco_consts.vh masks) is the
     SAME static chip decrypt for every deco56 game — taken verbatim from the
     proven nslasher gfxdec (bit-exact vs MAME decocrpt.cpp deco56_decrypt_gfx).
-    Osman-specific is only the W (decword index) derivation from jtframe_deco16's
+    Osman-specific is only the W (decword index) derivation from jtcninja_deco16's
     rom_addr and the final plane packing — tuned vs the real MAME screen.
         W        = rom_addr                                    (32-bit render-word index)
         a        = { W[18:11], address_table[W[10:0]] }        (encrypted source decword)
@@ -21,7 +21,7 @@
 module jtosman_gfxdec(
     input             rst,
     input             clk,
-    // jtframe_deco16 gfx ROM bus (32-bit = 8px x 4 planes; BANKW=2 -> 19-bit render addr)
+    // jtcninja_deco16 gfx ROM bus (32-bit = 8px x 4 planes; BANKW=2 -> 19-bit render addr)
     input             rom_cs,
     input      [20:2] rom_addr,
     output reg [31:0] rom_data,
@@ -44,7 +44,7 @@ initial begin
     $readmemh("deco56_swap.hex",    swap_tab);
 end
 
-// W = render-word index (jtframe_deco16 rom_addr already includes the 2-bit bank -> 19-bit)
+// W = render-word index (jtcninja_deco16 rom_addr already includes the 2-bit bank -> 19-bit)
 wire [18:0] W = rom_addr;
 
 reg  [18:0] Wl;                                   // latched W
@@ -107,7 +107,7 @@ always @(posedge clk, posedge rst) begin
             end
             RD2: begin                     // read decword W|0x80000
                 if( sdr_cs && sdr_ok ) begin
-                    // jtframe_deco16 wants byte p = plane p (p0=byte0=LSB). Verified vs MAME
+                    // jtcninja_deco16 wants byte p = plane p (p0=byte0=LSB). Verified vs MAME
                     // gfxdecode (tile 0x555 rendered pixel-exact): the FRAC(1,2) word (planes 0,1)
                     // lands in the high 16, FRAC(0,2) (planes 2,3) in the low 16, each byteswapped.
                     rom_data <= { bswap(decode_word(sdr_data)), bswap(dec1) };
@@ -116,7 +116,7 @@ always @(posedge clk, posedge rst) begin
                     st       <= HOLD;
                 end
             end
-            HOLD: begin                    // hold rom_ok until jtframe_deco16 drops rom_cs
+            HOLD: begin                    // hold rom_ok until jtcninja_deco16 drops rom_cs
                 if( !rom_cs ) begin rom_ok <= 0; st <= IDLE; end
             end
             default: st <= IDLE;

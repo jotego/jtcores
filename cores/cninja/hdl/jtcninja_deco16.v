@@ -33,7 +33,10 @@
     [0x200,0x400); the single read port is time-shared (X at line top, Y per col).
 */
 module jtcninja_deco16 #(
-    parameter PXLW = 8       // output pixel = {colour[3:0], pixel[3:0]}
+    parameter PXLW  = 8,     // output pixel = {colour[3:0], pixel[3:0]}
+    parameter BANKW = 1,     // # bank bits above the 12-bit tile code (cninja=1; osman deco16ic bank_cb=2)
+    parameter COLS  = 34,    // # of 8px columns drawn per line (cninja 256px+margin=34; osman 320px=42)
+    parameter HLAST = 375    // last hdump value of the line (wraps to 0 on the next pxl_cen)
 )(
     input             rst,
     input             clk,
@@ -57,7 +60,7 @@ module jtcninja_deco16 #(
     output reg [10:0] rsram_addr,     // row/colscroll RAM (BRAM, 1-cyc)
     input      [15:0] rsram_data,
     output reg        rom_cs,         // gfx ROM (SDRAM): 32-bit = 8px x 4 planes
-    output reg [19:2] rom_addr,
+    output reg [BANKW+18:2] rom_addr,
     input      [31:0] rom_data,
     input             rom_ok,
 
@@ -128,9 +131,10 @@ always @* begin
 end
 
 // 16x16 word layout is half-major: word-in-tile = half*16 + subrow.
-wire [17:0] roma16 = rowmajor ? { bank[0], ram_data[11:0], rsubrw, rhalf }   // row-major: L/R halves adjacent
-                              : { bank[0], ram_data[11:0], rhalf, rsubrw };  // half-major (default)
-wire [17:0] roma8  = { 3'd0, ram_data[11:0], rsubrw[2:0] };
+// BANKW bank bits sit ABOVE the 12-bit tile code (deco16ic bank_cb: code = tile + bank*0x1000).
+wire [BANKW+16:0] roma16 = rowmajor ? { bank[BANKW-1:0], ram_data[11:0], rsubrw, rhalf }   // row-major: L/R halves adjacent
+                                    : { bank[BANKW-1:0], ram_data[11:0], rhalf, rsubrw };  // half-major (default)
+wire [BANKW+16:0] roma8  = { 2'd0, bank[BANKW-1:0], ram_data[11:0], rsubrw[2:0] };
 
 // ---- column FIFO ----
 // The producer's whole lead over the raster. Each entry is one fetched 8px
@@ -198,7 +202,7 @@ always @(posedge clk, posedge rst) begin
             wptr     <= wptr + 1'd1;
             colcnt   <= colcnt + 6'd1;
             src_x    <= (src_x + 10'd8) & wmask;
-            st       <= (colcnt>=6'd33) ? IDLE : CRD;
+            st       <= (colcnt>=COLS-6'd1) ? IDLE : CRD;
         end
         default: st <= IDLE;
         endcase
@@ -216,7 +220,7 @@ reg  [ 2:0] pcnt;
 wire        pop  = ~fifo_empty & ( !cur_vld | (pxl_cen & cactive & pcnt==3'd7) );
 // hdump updates on pxl_cen, so latch on the edge where it WRAPS to 0: pcnt and
 // hdump must reach their first-visible-pixel values at the same edge.
-wire        line_top = pxl_cen & hdump==9'd375;
+wire        line_top = pxl_cen & hdump==HLAST[8:0];
 
 // 4bpp unpack: plane p lives in byte p, bit bsel (MSB-first; per-tile X flip
 // reverses the bit order within the 8). pswap exchanges the two plane pairs.

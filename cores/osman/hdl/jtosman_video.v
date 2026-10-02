@@ -2,7 +2,7 @@
     Author: Andrea Bogazzi.
 
     Osman video. Data East Simple 156: one DECO16IC tilegen (pf1+pf2, via 2x
-    jtframe_deco16 imported from cninja) + chip-52 sprites (jtframe_decospr, TODO)
+    jtcninja_deco16 imported from cninja) + chip-52 sprites (jtcninja_decospr, TODO)
     + colmix (xBGR555). Palette / pf name / sprite / rowscroll RAM are BRAM here.
     The DE156 ARM addresses these 16-bit devices at 32-bit (4-byte) spacing, so the
     CPU index is cpu_addr[N:2].
@@ -136,11 +136,11 @@ jtframe_dual_ram16 #(.AW(11),.SIMFILE(ORAM_F)) u_oram(
     .clk1(clk), .addr1(obj_oaddr), .data1(16'd0), .we1(2'b0), .q1(obj_odout)
 );
 
-// ---- sprites: DECO chip-52 (jtframe_decospr, MXC-06). CODEW=16 for osman's 8MB gfx.
+// ---- sprites: DECO chip-52 (jtcninja_decospr, MXC-06). CODEW=16 for osman's 8MB gfx.
 //      simpl156 set_flip_screen(true): sprite flip is inverted vs the tilemaps.
 wire [11:0] obj_pxl;
 wire [ 8:0] hdump_obj = hdump + 9'd2;   // sprite X align: shift the line-buffer read to move sprites 2px left
-jtframe_decospr #(.CODEW(16),.SPRW(9),.LASTSPR(319)) u_obj(
+jtcninja_decospr #(.CODEW(16),.SPRW(9),.LASTSPR(319)) u_obj(
     .rst(rst), .clk(clk), .pxl_cen(pxl_cen), .flip(~flip), .pswap(1'b1),
     .HS(HS), .LHBL(LHBL), .LVBL(LVBL), .vrender(vrender), .hdump(hdump_obj),
     .oram_addr(obj_oaddr), .oram_dout(obj_odout),
@@ -172,44 +172,44 @@ wire [31:0] pf1a_gdata, pf1b_gdata, pf2a_gdata, pf2b_gdata;
 wire        pf1a_gok, pf1b_gok, pf2a_gok, pf2b_gok;
 
 // pf1 16x16
-jtframe_deco16 #(.BANKW(2),.COLS(42)) u_pf1a_eng(
+jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf1a_eng(
     .rst(rst),.clk(clk),.pxl_cen(pxl_cen),.flip(flip),.fullheight(1'b0),.pswap(1'b0),.rowmajor(1'b0),
     .scrollx(pfctrl[1]+HOFS),.scrolly(pfctrl[2]),.bank(pfctrl[7][6:4]),
     .control0(pfctrl[5][7:0]),.control1(pfctrl[6][7:0] & 8'h7f),
-    .rsram_addr(pf1_rsa),.rsram_data(pf1_rsq),.vrender(vrender),.hdump(hdump),.hs(HS),
+    .rsram_addr(pf1_rsa),.rsram_data(pf1_rsq),.vdump(vdump),.hdump(hdump),.hs(HS),
     .ram_addr(pf1a_va),.ram_data(pf1a_vq),
     .rom_cs(pf1a_gcs),.rom_addr(pf1a_roma),.rom_data(pf1a_gdata),.rom_ok(pf1a_gok),.pxl(pf1a_pxl)
 );
 jtosman_gfxdec u_pf1a_dec(.rst(rst),.clk(clk),.rom_cs(pf1a_gcs),.rom_addr(pf1a_roma),.rom_data(pf1a_gdata),.rom_ok(pf1a_gok),
     .sdr_cs(gfx1a_cs),.sdr_addr(gfx1a_addr),.sdr_data(gfx1a_data),.sdr_ok(gfx1a_ok));
 // pf1 8x8
-jtframe_deco16 #(.BANKW(2),.COLS(42)) u_pf1b_eng(
+jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf1b_eng(
     .rst(rst),.clk(clk),.pxl_cen(pxl_cen),.flip(flip),.fullheight(1'b0),.pswap(1'b0),.rowmajor(1'b0),
     .scrollx(pfctrl[1]+HOFS),.scrolly(pfctrl[2]),.bank(pfctrl[7][6:4]),
     .control0(pfctrl[5][7:0]),.control1(pfctrl[6][7:0] | 8'h80),
-    .rsram_addr(),.rsram_data(16'd0),.vrender(vrender),.hdump(hdump),.hs(HS),
+    .rsram_addr(),.rsram_data(16'd0),.vdump(vdump),.hdump(hdump),.hs(HS),
     .ram_addr(pf1b_va),.ram_data(pf1b_vq),
     .rom_cs(pf1b_gcs),.rom_addr(pf1b_roma),.rom_data(pf1b_gdata),.rom_ok(pf1b_gok),.pxl(pf1b_pxl)
 );
 jtosman_gfxdec u_pf1b_dec(.rst(rst),.clk(clk),.rom_cs(pf1b_gcs),.rom_addr(pf1b_roma),.rom_data(pf1b_gdata),.rom_ok(pf1b_gok),
     .sdr_cs(gfx1c_cs),.sdr_addr(gfx1c_addr),.sdr_data(gfx1c_data),.sdr_ok(gfx1c_ok));
 // pf2 16x16
-jtframe_deco16 #(.BANKW(2),.COLS(42)) u_pf2a_eng(
+jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf2a_eng(
     .rst(rst),.clk(clk),.pxl_cen(pxl_cen),.flip(flip),.fullheight(1'b0),.pswap(1'b0),.rowmajor(1'b0),
     .scrollx(pfctrl[3]+HOFS),.scrolly(pfctrl[4]),.bank(pfctrl[7][14:12]),
     .control0(pfctrl[5][15:8]),.control1(pfctrl[6][15:8] & 8'h7f),
-    .rsram_addr(pf2_rsa),.rsram_data(pf2_rsq),.vrender(vrender),.hdump(hdump),.hs(HS),
+    .rsram_addr(pf2_rsa),.rsram_data(pf2_rsq),.vdump(vdump),.hdump(hdump),.hs(HS),
     .ram_addr(pf2a_va),.ram_data(pf2a_vq),
     .rom_cs(pf2a_gcs),.rom_addr(pf2a_roma),.rom_data(pf2a_gdata),.rom_ok(pf2a_gok),.pxl(pf2a_pxl)
 );
 jtosman_gfxdec u_pf2a_dec(.rst(rst),.clk(clk),.rom_cs(pf2a_gcs),.rom_addr(pf2a_roma),.rom_data(pf2a_gdata),.rom_ok(pf2a_gok),
     .sdr_cs(gfx1b_cs),.sdr_addr(gfx1b_addr),.sdr_data(gfx1b_data),.sdr_ok(gfx1b_ok));
 // pf2 8x8
-jtframe_deco16 #(.BANKW(2),.COLS(42)) u_pf2b_eng(
+jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf2b_eng(
     .rst(rst),.clk(clk),.pxl_cen(pxl_cen),.flip(flip),.fullheight(1'b0),.pswap(1'b0),.rowmajor(1'b0),
     .scrollx(pfctrl[3]+HOFS),.scrolly(pfctrl[4]),.bank(pfctrl[7][14:12]),
     .control0(pfctrl[5][15:8]),.control1(pfctrl[6][15:8] | 8'h80),
-    .rsram_addr(),.rsram_data(16'd0),.vrender(vrender),.hdump(hdump),.hs(HS),
+    .rsram_addr(),.rsram_data(16'd0),.vdump(vdump),.hdump(hdump),.hs(HS),
     .ram_addr(pf2b_va),.ram_data(pf2b_vq),
     .rom_cs(pf2b_gcs),.rom_addr(pf2b_roma),.rom_data(pf2b_gdata),.rom_ok(pf2b_gok),.pxl(pf2b_pxl)
 );

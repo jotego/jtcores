@@ -25,7 +25,11 @@
     CONCURRENTLY with the gfx fetch: candidates queue in a small FIFO. The whole
     table is always covered, matching MAME's decospr, which has no per-line cap.
 */
-module jtcninja_decospr(
+module jtcninja_decospr #(
+    parameter CODEW   = 16,  // sprite tile-code width (16 -> up to 5MB, edrandy; osman 8MB gfx)
+    parameter SPRW    = 8,   // sprite-slot index bits (256 slots=8; osman 320=9)
+    parameter LASTSPR = 255  // last sprite slot scanned
+)(
     input             rst,
     input             clk,
     input             pxl_cen,
@@ -38,13 +42,13 @@ module jtcninja_decospr(
     input      [ 8:0] vrender,
     input      [ 8:0] hdump,
 
-    // sprite RAM read port (256 slots x 4 words = 10-bit word address)
-    output reg [ 9:0] oram_addr,
+    // sprite RAM read port (2^SPRW slots x 4 words)
+    output reg [SPRW+1:0] oram_addr,
     input      [15:0] oram_dout,
 
     // sprite ROM
     output reg        rom_cs,
-    output reg [22:2] rom_addr,     // 16-bit code -> up to 5MB (edrandy)
+    output reg [CODEW+6:2] rom_addr,  // {code, half, row} = 32B per tile row
     input      [31:0] rom_data,
     input             rom_ok,
 
@@ -52,7 +56,7 @@ module jtcninja_decospr(
 );
 
 // Candidate record handed from the scan to the drawer
-localparam RECW = 41;   // xpos9 + tile16 + row4 + hflip1 + pal5 + pri2 + epri1 + wide1 + vsize2
+localparam RECW = 25+CODEW;   // xpos9 + tileCODEW + row4 + hflip1 + pal5 + pri2 + epri1 + wide1 + vsize2
 localparam FW   = 3;    // FIFO depth = 8 candidates
 
 // ---------- parse: scan the 256 sprites, find those on this line ----------
@@ -60,7 +64,7 @@ localparam FW   = 3;    // FIFO depth = 8 candidates
 // (jtframe_dual_ram registers the read), so the word index and slot number ride
 // a matching 2-stage delay. Words 0,1,2 of a slot go out back to back whether
 // the slot lands on this line or not - a flat 3 clocks per slot.
-reg  [ 9:0] scan_addr;              // {slot[7:0], word[1:0]}
+reg  [SPRW+1:0] scan_addr;          // {slot[SPRW-1:0], word[1:0]}
 reg  [ 1:0] wsel1, wsel2;
 reg         iss1, iss2;             // issue valid, delayed alongside
 reg         issuing, HSl, LVl, frame;
@@ -68,10 +72,10 @@ reg         issuing, HSl, LVl, frame;
 reg  [ 1:0] vsize;                  // 0..3 -> 1/2/4/8 tiles tall
 reg         hflip, vflip, wide_r, flash_r, epri_r, hit;
 reg  [ 8:0] veff;                   // row within the sprite (0..16*tiles-1)
-reg  [15:0] id;                     // full 16-bit sprite code
+reg  [CODEW-1:0] id;                // full sprite code
 
 wire        hs_neg    = HSl & ~HS;
-wire        last_word = scan_addr==10'd1022;      // slot 255, word 2
+wire        last_word = scan_addr=={LASTSPR[SPRW-1:0],2'd2};      // slot LASTSPR, word 2
 
 wire [ 8:0] ypos = 9'd256 - oram_dout[8:0];     // bottom (exclusive)
 reg  [ 8:0] vrf, top;
@@ -90,13 +94,13 @@ always @* begin
 end
 
 // effective 16x16 tile id for this scanline's row within a multi-tile sprite
-reg  [15:0] id_eff;
+reg  [CODEW-1:0] id_eff;
 always @* begin
     id_eff = id;
     case( vsize )
-        1: id_eff = { id[15:1],     vflip^veff[4]    };
-        2: id_eff = { id[15:2], {2{vflip}}^veff[5:4] };
-        3: id_eff = { id[15:3], {3{vflip}}^veff[6:4] };
+        1: id_eff = { id[CODEW-1:1],     vflip^veff[4]    };
+        2: id_eff = { id[CODEW-1:2], {2{vflip}}^veff[5:4] };
+        3: id_eff = { id[CODEW-1:3], {3{vflip}}^veff[6:4] };
         default:;
     endcase
 end
@@ -121,8 +125,8 @@ wire            pop        = ~fifo_empty & ~draw_busy;
 // delay pipe, so the words already in flight still land in step.
 wire            stall      = fifo_full;
 // record fields, unpacked
-wire [ 8:0] f_xpos  = fifo_out[40:32];
-wire [15:0] f_tile  = fifo_out[31:16];
+wire [ 8:0] f_xpos  = fifo_out[RECW-1:RECW-9];
+wire [CODEW-1:0] f_tile = fifo_out[CODEW+15:16];
 wire [ 3:0] f_row   = fifo_out[15:12];
 wire        f_hflip = fifo_out[11];
 wire [ 1:0] f_vsize = fifo_out[ 1: 0];
@@ -139,13 +143,13 @@ always @(posedge clk, posedge rst) begin
         // Sprite-vs-sprite priority is HIGH-slot-on-top: scan LOW->HIGH (0..255)
         // so the highest slot is drawn last and ends on top.
         if( hs_neg ) begin
-            scan_addr <= 10'd0; issuing <= 1;
+            scan_addr <= 0; issuing <= 1;
             wptr <= 0; iss1 <= 0; iss2 <= 0;
         end else begin
             if( issuing && !stall ) begin
                 oram_addr <= scan_addr;
-                scan_addr <= scan_addr[1:0]==2'd2 ? { scan_addr[9:2]+8'd1, 2'd0 }
-                                                  : scan_addr + 10'd1;
+                scan_addr <= scan_addr[1:0]==2'd2 ? { scan_addr[SPRW+1:2]+1'b1, 2'd0 }
+                                                  : scan_addr + 1'd1;
                 if( last_word ) issuing <= 0;
             end
             wsel1 <= scan_addr[1:0]; iss1 <= issuing & ~stall;
@@ -161,7 +165,7 @@ always @(posedge clk, posedge rst) begin
                     veff    <= vrf - top;
                     hit     <= inzone;
                 end
-                1: id <= oram_dout;
+                1: id <= oram_dout[CODEW-1:0];
                 default:;
             endcase
             if( push ) begin
@@ -173,7 +177,7 @@ always @(posedge clk, posedge rst) begin
 end
 
 // ---------- draw: fetch the sprite tile ROM, shift pixels to the buffer ----------
-reg  [15:0] d_tile;
+reg  [CODEW-1:0] d_tile;
 reg  [ 8:0] d_xpos;
 reg  [ 4:0] d_pal;
 reg  [ 3:0] d_row, mult2;   // mult2 = 1<<vsize : wing tile = base_row_tile - mult2
@@ -240,7 +244,7 @@ always @(posedge clk, posedge rst) begin
                     half <= 0; draw_cnt <= 0;                    // half already fetching
                 end else if( d_wide && !col ) begin              // -> wing column @xpos-16
                     col <= 1; half <= 1;
-                    rom_addr <= { d_tile-{12'd0,mult2}, ~d_hflip, d_row };
+                    rom_addr <= { d_tile-{{(CODEW-4){1'b0}},mult2}, ~d_hflip, d_row };
                     buf_waddr<= d_xpos - 9'd16;
                     rom_cs <= 1; rom_good <= 0; fresh <= 0; draw_cnt <= 0;
                 end else begin                                   // sprite done

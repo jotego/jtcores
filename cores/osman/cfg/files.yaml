@@ -38,8 +38,8 @@ osman:
 # Data East video silicon, reused straight from cninja (same deco16ic / decospr chips):
 cninja:
   - get:
-    - jtframe_deco16.v      # deco16ic single-PF renderer; instantiate 2x (pf1+pf2)
-    - jtframe_decospr.v     # chip-52 sprite engine (parametrize addr width for Osman's 8MB)
+    - jtcninja_deco16.v      # deco16ic single-PF renderer; instantiate 2x (pf1+pf2)
+    - jtcninja_decospr.v     # chip-52 sprite engine (parametrize addr width for Osman's 8MB)
 
 jtframe:
   - from: sdram
@@ -56,7 +56,6 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_blank.v
-      - jtframe_linebuf.v   # jtframe_deco16 line buffer
 
 jt6295:
 

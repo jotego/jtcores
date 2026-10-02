@@ -21,7 +21,6 @@ jtframe:
     get:
       - jtframe_vtimer.v
       - jtframe_blank.v
-      - jtframe_linebuf.v
   - from: cpu
     unless: [NOMAIN]
     get:
