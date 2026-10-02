@@ -1,0 +1,54 @@
+# scene restore: rest.bin = scr(64) + roz(32) + c116(16) + misc(4), SEEK set at instantiation
+- name: scr
+  size: 64
+  dw: 16
+  regs:
+    - name: hscr
+      desc: "horizontal scroll, layers 3..0"
+      dw: 36
+      at: "033[0],032, 023[0],022, 013[0],012, 003[0],002"
+    - name: vscr
+      desc: "vertical scroll, layers 3..0"
+      dw: 36
+      at: "037[0],036, 027[0],026, 017[0],016, 007[0],006"
+    - name: flip
+      desc: "global flip"
+      dw: 1
+      at: "003[7]"
+    - name: enb
+      desc: "layer disable, active high, layers 5..0"
+      dw: 6
+      at: "052[3],050[3],046[3],044[3],042[3],040[3]"
+    - name: prio
+      desc: "layer priority, layers 5..0"
+      dw: 18
+      at: "052[2:0],050[2:0],046[2:0],044[2:0],042[2:0],040[2:0]"
+    - name: pal
+      desc: "layer palette, layers 5..0"
+      dw: 18
+      at: "072[2:0],070[2:0],066[2:0],064[2:0],062[2:0],060[2:0]"
+- name: roz
+  size: 32
+  dw: 16
+  regs:
+    - name: lyr0
+      desc: "layer 0 control words 7..0"
+      dw: 128
+      at: "017,016,015,014,013,012,011,010,007,006,005,004,003,002,001,000"
+    - name: lyr1
+      desc: "layer 1 control words 7..0"
+      dw: 128
+      at: "037,036,035,034,033,032,031,030,027,026,025,024,023,022,021,020"
+- name: c116
+  size: 16
+  regs:
+    - { name: left,   desc: "left clip",       dw: 16, at: "000,001" }
+    - { name: right,  desc: "right clip",      dw: 16, at: "002,003" }
+    - { name: top,    desc: "top clip",        dw: 16, at: "004,005" }
+    - { name: bottom, desc: "bottom clip",     dw: 16, at: "006,007" }
+    - { name: hirq,   desc: "raster irq h",    dw: 16, at: "010,011" }
+    - { name: vtrig,  desc: "raster irq line", dw: 16, at: "012,013" }
+- name: misc
+  size: 4
+  regs:
+    - { name: sprbank, desc: "sprite tile bank", dw: 2, at: "000[1:0]" }

@@ -1,0 +1,5 @@
+' Per-instruction trace of the 68000 from reset. Output /tmp/aerofgtb_main.tr
+trace /tmp/aerofgtb_main.tr,maincpu,noloop
+focus maincpu
+go
+quit

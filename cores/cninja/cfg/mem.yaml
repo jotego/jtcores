@@ -1,0 +1,126 @@
+# SDRAM map. Bank offsets below are 16-bit-WORD units (jtframe_romrq does
+# sdram_addr = offset + word_addr) -> >>1, even for the dw32 buses.
+#
+#   BA0  0x000000  sprite gfx, chunky dw32 (5MB)   objrom
+#        0x500000  HuC6280 sound program (64kB)    snd
+#   BA1  0x000000  tiles2 (1MB)                    scr2 + scr3
+#   BA2  0x000000  68k program                     main
+#        0x100000  OKI #1 samples                  oki1
+#        0x140000  OKI #2 samples                  oki2
+#   BA3  0x000000  chars (128kB)                   char
+#        0x020000  tiles1 (512kB)                  scr1
+#
+params:
+  - { name: SND_OFFSET,   value: "(`SND_START                       )>>1" }
+  - { name: PCM_OFFSET,   value: "(`PCM_START     -`JTFRAME_BA2_START)>>1" }
+  - { name: PCM2_OFFSET,  value: "(`PCM2_START    -`JTFRAME_BA2_START)>>1" }
+  - { name: GFX3_OFFSET,  value: "(`GFX3_START    -`JTFRAME_BA1_START)>>1" }
+  - { name: GFX2_OFFSET,  value: "(`GFX2_START    -`JTFRAME_BA3_START)>>1" }
+
+clocks:
+  clk:
+    - { freq: 24000000, outputs: [ cen_snd ] }
+    - { freq:  4027500, outputs: [ cen_opn ] }   # xtal/8
+    - { freq:  3580000, outputs: [ cen_opm ] }   # xtal/9
+    # both OKIs on one /2 sequence: xtal/16 then xtal/32
+    - { freq:  2013750, gate: [ oki1, oki2 ], outputs: [ cen_oki2, cen_oki1 ] }
+download:
+  post_addr: true
+audio:
+  rsum: 20k
+  channels:
+    # Music chips start from MAME's add_route ratios (YM2203 0.60, YM2151 0.45),
+    # pulled down again because ikaopm's DAC-modelled output sits hotter than
+    # jt51's and buried the effects. Doubling the three music rsums took the
+    # generated gains 0.31/0.40/0.26 -> 0.20/0.25/0.16, about -4 dB.
+    # The mixer normalises to the LOUDEST channel and the OKIs are already
+    # pinned at 1.00/0.91, so the effects can only be raised by pushing the
+    # music down. That leaves the peak untouched - no clipping headroom is
+    # spent, unlike a global gain > 1.
+    # rsum is inversely proportional to level, but NOT exactly 1/rsum: the
+    # generator also models the divider/parallel term, so read the g0..g5
+    # comments in the generated *_game_sdram.v rather than deriving them.
+    - { name: opn,  module: jt03_fm,  rsum: 50k }                         # YM2203 FM
+    - { name: psg,  module: jt03_psg, rsum: 60k, vpp: 0.45 }              # YM2203 PSG
+    - { name: opm,  module: jtikaopm, rsum: 66k }                         # YM2151
+    - { name: pcm1, module: jt6295,   rsum: 9.9k,  fir: fir_192k_4k.csv } # MSM6295 #1
+    - { name: pcm2, module: jt6295,   rsum: 12.3k, fir: fir_192k_4k.csv } # MSM6295 #2
+sdram:
+  banks:
+    # ---- BA0 : sprite gfx + sound program ----
+    # The download packs the RGN_FRAC(1,2) plane pairs into 32-bit chunky
+    # {pl3,pl2,pl1,pl0} words, so 8px come out of ONE dw32 read.
+    # objrom != obj_addr to avoid clashing with the engine wire in game.v.
+    - buses:
+      - name: objrom
+        addr_width: 23        # 5MB slot inside the bank (dw32 -> port [22:2])
+        data_width: 32
+      - name: snd             # HuC6280 program: low bandwidth, rides above the sprites
+        addr_width: 16        # 64kB
+        data_width: 8
+        offset: SND_OFFSET
+    # ---- BA1 : tiles2. Both tilegen1 playfields read it, one slot each. ----
+    - buses:
+      - name: scr2
+        addr_width: 20        # 1MB
+        data_width: 32
+        offset: GFX3_OFFSET
+      - name: scr3
+        addr_width: 20
+        data_width: 32
+        offset: GFX3_OFFSET
+    # ---- BA2 : 68k program + OKI samples ----
+    - buses:
+      - name: main
+        addr_width: 20        # 1MB program slot (edrandy)
+        data_width: 16
+        din: main_dout
+      - name: oki1
+        addr_width: 18
+        data_width: 8
+        offset: PCM_OFFSET
+      - name: oki2
+        addr_width: 19
+        data_width: 8
+        offset: PCM2_OFFSET
+    # ---- BA3 : chars + tiles1 ----
+    - buses:
+      - name: char
+        addr_width: 17        # 128kB
+        data_width: 32
+      - name: scr1
+        addr_width: 19        # 512kB
+        data_width: 32
+        offset: GFX2_OFFSET
+
+bram:
+  - name: pal
+    addr_width: 13        # bytes -> 16-bit AW=12
+    data_width: 16
+    simfile: { big_endian: true }
+    dual_port:
+      name: palrw
+      din:  main_dout
+      dout: palrw_dout
+      rw:   true
+  - name: objram
+    data_width: 16
+    addr_width: 11        # bytes -> AW=10
+    addr: dma_addr
+    dual_port: { name: objcpu, din: main_dout, dout: obj_dout, we: objcpu_we, rw: true }
+  - name: oram
+    data_width: 16
+    addr_width: 11
+    simfile: { big_endian: true }
+    dual_port: { name: dma, din: objram_dout, we: dma_we, rw: true }
+  - name: work
+    data_width: 16
+    addr_width: 14        # bytes -> 8192 words
+    addr: main_addr[13:1]
+    din: main_dout
+    we: work_we
+    rw: true
+  - name: sndram
+    data_width: 8
+    addr_width: 13
+    rw: true

@@ -1,4 +1,10 @@
 jtframe:
+  # a core may supply its own jtframe_romrq_lcache (same module name) by
+  # defining JTFRAME_CORE_LCACHE and shipping the file in its hdl folder
+  - from: sdram
+    unless: [ JTFRAME_CORE_LCACHE ]
+    get:
+      - jtframe_romrq_lcache.v
   - from: sdram
     get:
       - jtframe_sdram64.v
@@ -24,7 +30,6 @@ jtframe:
       - jtframe_rom_7slots.v
       - jtframe_romrq.v
       - jtframe_romrq_bcache.v
-      - jtframe_romrq_lcache.v
       - jtframe_romrq_xscache.v
       - jtframe_ucache.v
       - jtframe_rom.v

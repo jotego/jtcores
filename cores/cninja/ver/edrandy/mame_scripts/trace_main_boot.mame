@@ -1,0 +1,11 @@
+' Edward Randy 68k boot trace. Log every PC plus the DECO 146 accesses, so a
+' divergence can be pinned to the protection read that caused it.
+' region 6 = 0x198000-0x19bfff (protection), region 8 = 0x1a0000-0x1a3fff (config)
+trace /tmp/edrandy_main.tr,maincpu,noloop
+focus maincpu
+wpset 0x198000,0x4000,r,1,{tracelog "  [P6 r] %06X\n",wpaddr; g}
+wpset 0x198000,0x4000,w,1,{tracelog "  [P6 w] %06X <- %04X\n",wpaddr,wpdata; g}
+wpset 0x1a0000,0x4000,r,1,{tracelog "  [P8 r] %06X\n",wpaddr; g}
+wpset 0x1a0000,0x4000,w,1,{tracelog "  [P8 w] %06X <- %04X\n",wpaddr,wpdata; g}
+go
+quit

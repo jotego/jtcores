@@ -1,0 +1,141 @@
+params:
+  # offsets are relative to each SDRAM bank start and divided by two
+  - { name: SCR0_OFFSET, value: "`SCR0_START>>1" }
+  - { name: SND_OFFSET,  value: "(`SND_START -`JTFRAME_BA1_START)>>1" }
+  - { name: OBJ0_OFFSET, value: "(`OBJ0_START-`JTFRAME_BA2_START)>>1" }
+  - { name: PCMB_OFFSET, value: "(`PCMB_START-`JTFRAME_BA3_START)>>1" }
+
+clocks:
+  clk48:
+    - freq: 8 MHz
+      gate: [ pcma, pcmb ]
+      outputs:
+        - fm_cen
+    - freq: 5 MHz
+      gate: [ snd ]
+      outputs:
+        - snd_cen
+    - freq: 4 MHz
+      gate: [ snd ]
+      outputs:
+        - snd4_cen
+
+audio:
+  rsum: 33k
+  rsum_feedback_res: true
+  channels:
+    # fm carries FM+ADPCM (jt10b fm_left/fm_right). psg is mixed separately:
+    # jt10b's snd_* adds psg<<5 into a signed 16-bit sum with no saturation.
+    # MAME routes psg at 0.75 and fm at 1.0, so psg gets pre 0.75 on an equal
+    # summing resistor. psg is unsigned, hence dcrm
+    - { name: fm,  data_width: 16, rsum: 33k, stereo: true }
+    - { name: psg, data_width: 10, rsum: 33k, pre: 0.75, dcrm: true }
+
+sdram:
+  banks:
+    - buses:
+      - name: scr0
+        addr_width: 20
+        data_width: 32
+        offset: SCR0_OFFSET
+      - name: main
+        addr_width: 20
+        data_width: 16
+    - buses:
+      - name: snd
+        addr_width: 17
+        data_width: 8
+        offset: SND_OFFSET
+      - name: obj1
+        addr_width: 21
+        data_width: 32
+    - buses:
+      - name: pcma
+        addr_width: 20
+        data_width: 8
+      - name: obj0
+        addr_width: 22
+        data_width: 32
+        offset: OBJ0_OFFSET
+    - buses:
+      - name: pcmb
+        addr_width: 19
+        data_width: 8
+        offset: PCMB_OFFSET
+      - name: scr1
+        addr_width: 21
+        data_width: 32
+
+bram:
+  - name: ram
+    addr_width: 16
+    data_width: 16
+    rw: true
+    din: main_dout
+  # turbofrc has a second work RAM block at 0f8000-0fbfff
+  - name: ram2
+    addr_width: 14
+    data_width: 16
+    rw: true
+    din: main_dout
+  - name: vram
+    addr_width: 13
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: scr, dout: scr_vram }
+  # second tile layer, turbofrc onwards
+  - name: vram1
+    addr_width: 13
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: scr1v, dout: scr1_vram }
+  - name: rascr
+    addr_width: 12
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: ras, dout: ras_dout }
+  - name: oram
+    addr_width: 11
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objr, dout: objr_dout }
+  # the second sprite chip reads the upper half of the same sprite RAM. A BRAM
+  # has two ports and the CPU owns one, so it gets its own copy written in
+  # lockstep rather than an arbiter on the read side
+  - name: oram1
+    addr_width: 11
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objr1, dout: objr1_dout }
+  - name: lut
+    addr_width: 16
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objl, dout: objl_dout }
+  # second sprite chip's lookup RAM, a genuinely separate region
+  - name: lut1
+    addr_width: 16
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: objl1, dout: objl1_dout }
+  - name: pal
+    addr_width: 12
+    data_width: 16
+    rw: true
+    din: main_dout
+    simfile: { big_endian: true }
+    dual_port: { name: mix, dout: mix_pal }

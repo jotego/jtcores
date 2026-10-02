@@ -1,0 +1,103 @@
+Simulating core=f1grpr setname=f1gp frames=1
+Consider executing:
+    git config --global url.ssh://git@github.com/.insteadOf https://github.com/
+
+in order to avoid the need for GitHub tokens when pushing submodules
+2026/08/28 20:44:01 	Warning DIP option too long for MiSTer (7 extra): (f1gp)
+	Multi Player Mode:Multi Player Off
+2026/08/28 20:44:01 	Warning DIP option too long for MiSTer (7 extra): (f1gp)
+	Multi Player Mode:Multi Player Off
+2026/08/28 20:44:01 	Warning DIP option too long for MiSTer (5 extra): (f1gp)
+	Coinage:2 to Start 1 to Continue
+2026/08/28 20:44:01 	Warning DIP option too long for MiSTer (7 extra): (f1gpa)
+	Multi Player Mode:Multi Player Off
+2026/08/28 20:44:01 	Warning DIP option too long for MiSTer (7 extra): (f1gpa)
+	Multi Player Mode:Multi Player Off
+2026/08/28 20:44:01 	Warning DIP option too long for MiSTer (5 extra): (f1gpa)
+	Coinage:2 to Start 1 to Continue
+F-1 Grand Prix (set 1).mra
+Moving old sdram_bank files to sdram.old
+ROM load through SPI enabled
+/jtcores/cores/f1grpr/ver/game/./rest2bin.sh
+=========== JTSIM f1grpr f1gp (sidi128) ===========
+Using OPT_FAST=-O1 -march=native OPT_SLOW=-O1 -march=native OPT_GLOBAL=-O1 -march=native
+%Warning-WIDTHEXPAND: /jtcores/modules/jtframe/hdl/inc/../../../../modules/jt12/hdl/jt10.v:74:6: Output port connection 'adpcma_bank' expects 5 bits on the pin connection, but pin connection's VARREF 'adpcma_bank' generates 4 bits.
+                                                                                               : ... note: In instance 'game_test.u_game.u_game.u_snd.u_jt10'
+   74 |     .adpcma_bank    ( adpcma_bank  ),
+      |      ^~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.044
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+In file included from ../test.cpp:22:
+../test.cpp: In constructor 'JTSim::JTSim(UUT&, int, char**)':
+../defmacros.h:67:27: warning: unsigned conversion from 'long int' to 'IData' {aka 'unsigned int'} changes value from '72947335167' to '4227858431' [-Woverflow]
+   67 | #define _JTFRAME_SIM_DIPS 0x10fbffffff
+      |                           ^~~~~~~~~~~~
+../test.cpp:755:16: note: in expansion of macro '_JTFRAME_SIM_DIPS'
+  755 |     game.dipsw=_JTFRAME_SIM_DIPS;
+      |                ^~~~~~~~~~~~~~~~~
+Verilator sim starts
+Read 11272200 bytes from rom.bin
+Simulation clock period set to 17460 ps (57.274 MHz)
+Verilator will dump to test.vcd
+DIP sw set to FBFFFFFF
+SDRAM burst mode changed to 1 CAS=2 type=sequential write=burst
+SDRAM burst mode changed to 2 CAS=2 type=sequential write=single
+
+ROM file transfered (frame 0)
+	sdram_bank0.bin dumped
+	sdram_bank1.bin dumped
+	sdram_bank2.bin dumped
+	sdram_bank3.bin dumped
+[31m0[0m[31m1[0mTOP.game_test.u_game.u_game.u_main scene regs: gfxctrl=00 scrx=000 scry=0f8
+GGA TOP.game_test.u_game.u_game.u_video.u_gga - restored 16 registers from gga.bin
+MMR TOP.game_test.u_game.u_game.u_video.u_roz.u_xy - read 32 bytes
+WARNING: Using Verilog version of T80 for simulation.
+-fgvram.bin   (4096 bytes) TOP.game_test.u_game.u_bram_fgvram.u_lo.u_ram
+-fgvram.bin   (4096 bytes) TOP.game_test.u_game.u_bram_fgvram.u_hi.u_ram
+-pal.bin      (4096 bytes) TOP.game_test.u_game.u_bram_pal.u_lo.u_ram
+-pal.bin      (4096 bytes) TOP.game_test.u_game.u_bram_pal.u_hi.u_ram
+-rozgfx.bin   (262144 bytes) TOP.game_test.u_game.u_bram_rozgfx.u_lo.u_ram
+-rozgfx.bin   (262144 bytes) TOP.game_test.u_game.u_bram_rozgfx.u_hi.u_ram
+-rozvram.bin  (8192 bytes) TOP.game_test.u_game.u_bram_rozvram.u_lo.u_ram
+-rozvram.bin  (8192 bytes) TOP.game_test.u_game.u_bram_rozvram.u_hi.u_ram
+-lut0.bin     (16384 bytes) TOP.game_test.u_game.u_bram_lut0.u_lo.u_ram
+-lut0.bin     (16384 bytes) TOP.game_test.u_game.u_bram_lut0.u_hi.u_ram
+-lut1.bin     (16384 bytes) TOP.game_test.u_game.u_bram_lut1.u_lo.u_ram
+-lut1.bin     (16384 bytes) TOP.game_test.u_game.u_bram_lut1.u_hi.u_ram
+-oram0.bin    (1024 bytes) TOP.game_test.u_game.u_bram_oram0.u_lo.u_ram
+-oram0.bin    (1024 bytes) TOP.game_test.u_game.u_bram_oram0.u_hi.u_ram
+-oram1.bin    (1024 bytes) TOP.game_test.u_game.u_bram_oram1.u_lo.u_ram
+-oram1.bin    (1024 bytes) TOP.game_test.u_game.u_bram_oram1.u_hi.u_ram
+jtframe_pxlcen: using 4 as clock divider
+GGA: 320x246 visible, 456x256 total, HS 380-404, VS 250-254
+[31m2[0m[31m3[0m
+Frame rate: 61.33 Hz
+
+TOP.game_test.u_game.u_game.u_main scene regs: gfxctrl=00 scrx=000 scry=0f8
+GGA TOP.game_test.u_game.u_game.u_video.u_gga - restored 16 registers from gga.bin
+MMR TOP.game_test.u_game.u_game.u_video.u_roz.u_xy - read 32 bytes
+WARNING: Using Verilog version of T80 for simulation.
+-fgvram.bin   (4096 bytes) TOP.game_test.u_game.u_bram_fgvram.u_lo.u_ram
+-fgvram.bin   (4096 bytes) TOP.game_test.u_game.u_bram_fgvram.u_hi.u_ram
+-pal.bin      (4096 bytes) TOP.game_test.u_game.u_bram_pal.u_lo.u_ram
+-pal.bin      (4096 bytes) TOP.game_test.u_game.u_bram_pal.u_hi.u_ram
+-rozgfx.bin   (262144 bytes) TOP.game_test.u_game.u_bram_rozgfx.u_lo.u_ram
+-rozgfx.bin   (262144 bytes) TOP.game_test.u_game.u_bram_rozgfx.u_hi.u_ram
+-rozvram.bin  (8192 bytes) TOP.game_test.u_game.u_bram_rozvram.u_lo.u_ram
+-rozvram.bin  (8192 bytes) TOP.game_test.u_game.u_bram_rozvram.u_hi.u_ram
+-lut0.bin     (16384 bytes) TOP.game_test.u_game.u_bram_lut0.u_lo.u_ram
+-lut0.bin     (16384 bytes) TOP.game_test.u_game.u_bram_lut0.u_hi.u_ram
+-lut1.bin     (16384 bytes) TOP.game_test.u_game.u_bram_lut1.u_lo.u_ram
+-lut1.bin     (16384 bytes) TOP.game_test.u_game.u_bram_lut1.u_hi.u_ram
+-oram0.bin    (1024 bytes) TOP.game_test.u_game.u_bram_oram0.u_lo.u_ram
+-oram0.bin    (1024 bytes) TOP.game_test.u_game.u_bram_oram0.u_hi.u_ram
+-oram1.bin    (1024 bytes) TOP.game_test.u_game.u_bram_oram1.u_lo.u_ram
+-oram1.bin    (1024 bytes) TOP.game_test.u_game.u_bram_oram1.u_hi.u_ram
+jtframe_pxlcen: using 4 as clock divider
+GGA: 320x246 visible, 456x256 total, HS 380-404, VS 250-254
+[0m
+
+Bypassing sound.raw conversion to wav file as raw2wav was not found
+====== JTSIM finished in 3'11" ======
+
+Done. Frames: cores/f1grpr/ver/game/frames/

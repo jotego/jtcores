@@ -1,0 +1,125 @@
+Simulating core=pspike setname=turbofrc frames=1
+Consider executing:
+    git config --global url.ssh://git@github.com/.insteadOf https://github.com/
+
+in order to avoid the need for GitHub tokens when pushing submodules
+Turbo Force (World, set 1).mra
+Moving old sdram_bank files to sdram.old
+ROM load through SPI enabled
+/jtcores/cores/pspike/ver/game/./rest2bin.sh
+=========== JTSIM pspike turbofrc (sidi128) ===========
+Using OPT_FAST=-O1 -march=native OPT_SLOW=-O1 -march=native OPT_GLOBAL=-O1 -march=native
+%Warning-WIDTHEXPAND: /jtcores/modules/jtframe/hdl/inc/../../../../modules/jt12/hdl/jt10.v:74:6: Output port connection 'adpcma_bank' expects 5 bits on the pin connection, but pin connection's VARREF 'adpcma_bank' generates 4 bits.
+                                                                                               : ... note: In instance 'game_test.u_game.u_game.u_snd.u_jt10'
+   74 |     .adpcma_bank    ( adpcma_bank  ),
+      |      ^~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.044
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: ../../hdl/jtpspike_scr.v:151:6: Output port connection 'rom_addr' expects 18 bits on the pin connection, but pin connection's VARREF 'tile_addr' generates 17 bits.
+                                                    : ... note: In instance 'game_test.u_game.u_game.u_video.u_scr1'
+  151 |     .rom_addr   ( tile_addr ),
+      |      ^~~~~~~~
+%Warning-WIDTHEXPAND: ../../hdl/jtpspike_game.v:82:36: Operator ASSIGNDLY expects 12 bits on the Assign RHS, but Assign RHS's VARREF 'mix_addr' generates 11 bits.
+                                                     : ... note: In instance 'game_test.u_game.u_game'
+   82 |     if( mix_addr>mix_max ) mix_max <= mix_addr;
+      |                                    ^~
+%Warning-WIDTHEXPAND: ../../hdl/jtpspike_game.v:82:17: Operator GT expects 12 bits on the LHS, but LHS's VARREF 'mix_addr' generates 11 bits.
+                                                     : ... note: In instance 'game_test.u_game.u_game'
+   82 |     if( mix_addr>mix_max ) mix_max <= mix_addr;
+      |                 ^
+%Warning-UNDRIVEN: ../../hdl/jtpspike_main.v:51:40: Signal is not driven: 'scrx0'
+                                                  : ... note: In instance 'game_test.u_game.u_game.u_main'
+   51 |     output reg    [ 8:0] scrx1, scry1, scrx0,
+      |                                        ^~~~~
+                   ... For warning description see https://verilator.org/warn/UNDRIVEN?v=5.044
+                   ... Use "/* verilator lint_off UNDRIVEN */" and lint_on around source to disable this message.
+Verilator sim starts
+Read 9699336 bytes from rom.bin
+Simulation clock period set to 17460 ps (57.274 MHz)
+Verilator will dump to test.vcd
+DIP sw set to F98F
+SDRAM burst mode changed to 1 CAS=2 type=sequential write=burst
+SDRAM burst mode changed to 2 CAS=2 type=sequential write=single
+
+ROM file transfered (frame 0)
+	sdram_bank0.bin dumped
+	sdram_bank1.bin dumped
+	sdram_bank2.bin dumped
+	sdram_bank3.bin dumped
+[31m0[0m[31m1[0mTOP.game_test.u_game.u_game.u_main scene regs (turbofrc): scry=1fe scrx1=09f scry1=1fe banks=0043/0000
+WARNING: Using Verilog version of T80 for simulation.
+-vram.bin     (8192 bytes) TOP.game_test.u_game.u_bram_vram.u_lo.u_ram
+-vram.bin     (8192 bytes) TOP.game_test.u_game.u_bram_vram.u_hi.u_ram
+-vram1.bin    (8192 bytes) TOP.game_test.u_game.u_bram_vram1.u_lo.u_ram
+-vram1.bin    (8192 bytes) TOP.game_test.u_game.u_bram_vram1.u_hi.u_ram
+-rascr.bin    (4096 bytes) TOP.game_test.u_game.u_bram_rascr.u_lo.u_ram
+-rascr.bin    (4096 bytes) TOP.game_test.u_game.u_bram_rascr.u_hi.u_ram
+-oram.bin     (2048 bytes) TOP.game_test.u_game.u_bram_oram.u_lo.u_ram
+-oram.bin     (2048 bytes) TOP.game_test.u_game.u_bram_oram.u_hi.u_ram
+-oram1.bin    (2048 bytes) TOP.game_test.u_game.u_bram_oram1.u_lo.u_ram
+-oram1.bin    (2048 bytes) TOP.game_test.u_game.u_bram_oram1.u_hi.u_ram
+-lut.bin      (16384 bytes) TOP.game_test.u_game.u_bram_lut.u_lo.u_ram
+	the memory was not filled by the file data
+-lut.bin      (16384 bytes) TOP.game_test.u_game.u_bram_lut.u_hi.u_ram
+	the memory was not filled by the file data
+-lut1.bin     (16384 bytes) TOP.game_test.u_game.u_bram_lut1.u_lo.u_ram
+	the memory was not filled by the file data
+-lut1.bin     (16384 bytes) TOP.game_test.u_game.u_bram_lut1.u_hi.u_ram
+	the memory was not filled by the file data
+-pal.bin      (2048 bytes) TOP.game_test.u_game.u_bram_pal.u_lo.u_ram
+	the memory was not filled by the file data
+-pal.bin      (2048 bytes) TOP.game_test.u_game.u_bram_pal.u_hi.u_ram
+	the memory was not filled by the file data
+jtframe_pxlcen: using 3 as clock divider
+GGA: 352x240 visible, 456x256 total, HS 400-424, VS 244-248
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan objscan: scan short 0, draw short 0 of 262 lines, peak 0 draws/line
+TOP.game_test.u_game.u_game.u_video.u_obj1.u_scan objscan: scan short 0, draw short 0 of 262 lines, peak 0 draws/line
+writes pal=0 vram0=0 vram1=0 oram=0 gga=0
+render pxl=26091982 idx_nz=26090931 pal_nz=26090929 rgb_nz=84719 | pal writes nonzero=0 maxwaddr=0 | mix_addr max=400
+[31m2[0m[31m3[0m
+Frame rate: 81.77 Hz
+
+TOP.game_test.u_game.u_game.u_main scene regs (turbofrc): scry=1fe scrx1=09f scry1=1fe banks=0043/0000
+WARNING: Using Verilog version of T80 for simulation.
+-vram.bin     (8192 bytes) TOP.game_test.u_game.u_bram_vram.u_lo.u_ram
+-vram.bin     (8192 bytes) TOP.game_test.u_game.u_bram_vram.u_hi.u_ram
+-vram1.bin    (8192 bytes) TOP.game_test.u_game.u_bram_vram1.u_lo.u_ram
+-vram1.bin    (8192 bytes) TOP.game_test.u_game.u_bram_vram1.u_hi.u_ram
+-rascr.bin    (4096 bytes) TOP.game_test.u_game.u_bram_rascr.u_lo.u_ram
+-rascr.bin    (4096 bytes) TOP.game_test.u_game.u_bram_rascr.u_hi.u_ram
+-oram.bin     (2048 bytes) TOP.game_test.u_game.u_bram_oram.u_lo.u_ram
+-oram.bin     (2048 bytes) TOP.game_test.u_game.u_bram_oram.u_hi.u_ram
+-oram1.bin    (2048 bytes) TOP.game_test.u_game.u_bram_oram1.u_lo.u_ram
+-oram1.bin    (2048 bytes) TOP.game_test.u_game.u_bram_oram1.u_hi.u_ram
+-lut.bin      (16384 bytes) TOP.game_test.u_game.u_bram_lut.u_lo.u_ram
+	the memory was not filled by the file data
+-lut.bin      (16384 bytes) TOP.game_test.u_game.u_bram_lut.u_hi.u_ram
+	the memory was not filled by the file data
+-lut1.bin     (16384 bytes) TOP.game_test.u_game.u_bram_lut1.u_lo.u_ram
+	the memory was not filled by the file data
+-lut1.bin     (16384 bytes) TOP.game_test.u_game.u_bram_lut1.u_hi.u_ram
+	the memory was not filled by the file data
+-pal.bin      (2048 bytes) TOP.game_test.u_game.u_bram_pal.u_lo.u_ram
+	the memory was not filled by the file data
+-pal.bin      (2048 bytes) TOP.game_test.u_game.u_bram_pal.u_hi.u_ram
+	the memory was not filled by the file data
+jtframe_pxlcen: using 3 as clock divider
+GGA: 352x240 visible, 456x256 total, HS 400-424, VS 244-248
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan objscan: scan short 0, draw short 0 of 262 lines, peak 0 draws/line
+TOP.game_test.u_game.u_game.u_video.u_obj1.u_scan objscan: scan short 0, draw short 0 of 262 lines, peak 0 draws/line
+writes pal=0 vram0=0 vram1=0 oram=0 gga=0
+render pxl=26091982 idx_nz=26090931 pal_nz=26090929 rgb_nz=84719 | pal writes nonzero=0 maxwaddr=0 | mix_addr max=400
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan objscan: scan short 0, draw short 0 of 262 lines, peak 0 draws/line
+TOP.game_test.u_game.u_game.u_video.u_obj1.u_scan objscan: scan short 0, draw short 0 of 262 lines, peak 0 draws/line
+writes pal=0 vram0=0 vram1=0 oram=0 gga=0
+render pxl=116736 idx_nz=116730 pal_nz=116730 rgb_nz=84720 | pal writes nonzero=0 maxwaddr=0 | mix_addr max=400
+TOP.game_test.u_game.u_game.u_video.u_obj.u_scan objscan: scan short 0, draw short 0 of 262 lines, peak 0 draws/line
+TOP.game_test.u_game.u_game.u_video.u_obj1.u_scan objscan: scan short 0, draw short 0 of 262 lines, peak 0 draws/line
+writes pal=0 vram0=0 vram1=0 oram=0 gga=0
+render pxl=116736 idx_nz=116712 pal_nz=116712 rgb_nz=84720 | pal writes nonzero=0 maxwaddr=0 | mix_addr max=400
+[0m
+
+Bypassing sound.raw conversion to wav file as raw2wav was not found
+====== JTSIM finished in 2'54" ======
+
+Done. Frames: cores/pspike/ver/game/frames/

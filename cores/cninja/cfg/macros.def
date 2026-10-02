@@ -1,0 +1,49 @@
+CORENAME=JTCNINJA
+
+JTFRAME_BUTTONS=3
+
+JTFRAME_WIDTH=256
+JTFRAME_HEIGHT=240
+JTFRAME_COLORW=8
+
+
+JTFRAME_VERTICAL
+
+JTFRAME_PXLCLK=6
+
+JTFRAME_STATUS
+JTFRAME_DIPBASE=16
+
+JTFRAME_HEADER=16
+
+JTFRAME_JOY_RLDU
+
+# SDRAM map. Byte addresses in the download space; mem.yaml turns them into
+# 16-bit-word bank offsets.
+#
+# The BA0 sprite slot and the BA2 68k slot are sized for the BIGGEST member of
+# the family, edrandy: 5MB sprites and a 1MB program. Everyone else pads to the
+# boundary with 0xFF, which costs the smaller games ~3.4MB of blob - the price
+# of one bitstream for five boards, and the strongest argument for splitting
+# them into separate cores.
+#
+# ---- BA0 : sprite gfx (chunky dw32) + HuC6280 program ----
+# SPR2_START = cbuster high-code sprite tiles, inside its own 1MB of BA0
+SPR2_START         =0x100000
+SND_START          =0x500000
+# ---- BA1 : tiles2 ----
+JTFRAME_BA1_START  =0x510000
+GFX3_START         =0x510000
+# ---- BA2 : 68k program + OKI samples ----
+JTFRAME_BA2_START  =0x610000
+# the 68k slot is BA2_START..PCM_START = 1MB, sized for edrandy
+PCM_START          =0x710000
+PCM2_START         =0x750000
+# ---- BA3 : chars + tiles1 ----
+JTFRAME_BA3_START  =0x7D0000
+GFX1_START         =0x7D0000
+GFX2_START         =0x7F0000
+
+[mister]
+JTFRAME_ARX=4
+JTFRAME_ARY=3

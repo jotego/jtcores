@@ -34,6 +34,7 @@ public:
     void set_verbose(bool enable);
 
     int colw() const;
+    size_t linear_index(size_t k) const;
     int bank_word_len() const;
     int bank_byte_len() const;
     int word_mask() const;

@@ -10,6 +10,7 @@ import (
     "fmt"
     "log"
     "os"
+    "regexp"
     "strconv"
     "strings"
     "text/template"
@@ -197,11 +198,16 @@ func dump_verilog(def map[string]string, fmtstr string, esc_quotes bool) {
         }
         if k == "JTFRAME_PLL" {
             // Converts to ns for simulation
-            khz, err := strconv.Atoi(strings.TrimPrefix(v, "jtframe_pll"))
+            khz_str := regexp.MustCompile("[0-9]+$").FindString(v)
+            khz, err := strconv.Atoi(khz_str)
             if err != nil {
-                log.Fatal("cfgstr: while parsing JTFRAME_PLL ", nil)
+                log.Fatal("cfgstr: while parsing JTFRAME_PLL ", v)
             }
-            ns := 1e6 / float32(khz*16)
+            mul := 8
+            if base_mul, fnd := def["JTFRAME_BASE_MUL"]; fnd {
+                if m, e := strconv.Atoi(base_mul); e == nil { mul = m }
+            }
+            ns := 1e6 / float32(khz*2*mul)
             pllsim = fmt.Sprintf("%.3f", ns)
         }
     }

@@ -1,0 +1,17 @@
+diff --git a/hdl/adpcm/jt10_adpcm_drvB.v b/hdl/adpcm/jt10_adpcm_drvB.v
+index 8561f53..d0aa326 100644
+--- a/hdl/adpcm/jt10_adpcm_drvB.v
++++ b/hdl/adpcm/jt10_adpcm_drvB.v
+@@ -60,7 +60,11 @@ wire chon;
+ // end
+ // `endif
+ 
+-always @(posedge clk) roe_n <= ~(adv & cen55);
++always @(posedge clk or negedge rst_n)
++    if( !rst_n )
++        roe_n <= 1'b1;
++    else if( cen )
++        roe_n <= ~(adv & cen55);
+ 
+ jt10_adpcmb_cnt u_cnt(
+     .rst_n       ( rst_n           ),

@@ -1,0 +1,8 @@
+' Per-instruction trace of the cninja 68000 from reset -> /tmp/cninja_main.tr
+' Annotates the DECO IRQ controller (0x190000-0x19000f) that gates the boot.
+trace /tmp/cninja_main.tr,maincpu,noloop
+focus maincpu
+wp.set 190000,10,w,1,{tracelog "  [IRQW] %06X <- %04X\n",wpaddr,wpdata; go}
+wp.set 190000,10,r,1,{tracelog "  [IRQR] %06X\n",wpaddr; go}
+go
+quit

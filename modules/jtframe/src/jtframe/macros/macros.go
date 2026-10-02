@@ -430,7 +430,11 @@ func make_clocks(target string) (mclk int) {
 				freq*=1000
 			}
 		}
-		mclk = freq * 8
+		mul := 8
+		if base_mul, f := macros["JTFRAME_BASE_MUL"]; f {
+			if m, e := strconv.Atoi(base_mul); e == nil { mul = m }
+		}
+		mclk = freq * mul
 		Set(pll, "") // define a macro with the PLL name
 	} else {
 		Set("JTFRAME_PLL6000", "")

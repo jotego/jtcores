@@ -156,6 +156,16 @@ void SDRAMModel::clear_bank(int bank) {
     fill(banks_[bank].begin(), banks_[bank].end(), 0);
 }
 
+// Bank files are linear in the game's address space. With 9-bit columns the
+// controller's {row, col} split equals the linear index; with 10-bit columns
+// (SDRAM_LARGE/XL) the controller sends the top address bit as column bit 9
+// (jtframe_sdram64_bank.v), so the linear file index must be scattered into
+// the {row, col} storage layout.
+size_t SDRAMModel::linear_index(size_t k) const {
+    if( colw_ != 10 ) return k;
+    return ((k & 0x1FF)) | (((k >> 22) & 1) << 9) | (((k >> 9) & 0x1FFF) << 10);
+}
+
 void SDRAMModel::load_bank_bytes(int bank, const uint8_t* data, size_t len, bool swap_bytes) {
     bank &= 3;
     clear_bank(bank);
@@ -167,7 +177,7 @@ void SDRAMModel::load_bank_bytes(int bank, const uint8_t* data, size_t len, bool
         } else {
             word = data[(k << 1)] | (static_cast<uint16_t>(data[(k << 1) + 1]) << 8);
         }
-        banks_[bank][k] = word;
+        banks_[bank][linear_index(k)] = word;
     }
 }
 
@@ -175,7 +185,7 @@ void SDRAMModel::dump_bank_bytes(int bank, uint8_t* data, size_t len, bool swap_
     bank &= 3;
     size_t words = min(len >> 1, static_cast<size_t>(bank_word_len_));
     for( size_t k = 0; k < words; k++ ) {
-        uint16_t word = banks_[bank][k];
+        uint16_t word = banks_[bank][linear_index(k)];
         if( swap_bytes ) {
             data[(k << 1)] = (word >> 8) & 0xff;
             data[(k << 1) + 1] = word & 0xff;

@@ -1,0 +1,49 @@
+CORENAME=JTPSPIKE
+JTFRAME_PLL=jtframe_pll7159
+JTFRAME_PXLCLK=6
+# multi game core test disabled
+JTFRAME_RATE=61.31
+JTFRAME_SKIP_RATE_TEST
+JTFRAME_180SHIFT
+JTFRAME_CLK48
+
+JTFRAME_NOHQ2X
+JTFRAME_MR_DDRLOAD
+
+JTFRAME_SIM_SKIP_VSIZE
+JTFRAME_WIDTH=352
+JTFRAME_HEIGHT=240
+JTFRAME_COLORW=5
+# turbofrc and aerofgtb are ROT270. Rotation is a per-MRA coremod flag, so one
+# build serves both orientations
+JTFRAME_VERTICAL
+
+JTFRAME_BUTTONS=4
+JTFRAME_JOY_RLDU
+
+JTFRAME_HEADER=8
+
+
+# One heavy gfx client per bank, so no bank serves two engines that fetch on
+# every visible line. Each bank's slot 0 (absolute priority, see
+# jtframe_rom_2slots) is the gfx engine, except bank 0 where the 68000 keeps it.
+#   bank0  maincpu 000000   scr0/gfx1      100000
+#   bank1  obj1/gfx4 200000 soundbank      300000
+#   bank2  pcma    400000   obj0/spritegfx 500000
+#   bank3  scr1/gfx2 800000 pcmb           900000
+# Sizes are the family maxima: maincpu/scr0/scr1 turbofrc, obj0/obj1/pcmb karatblz
+SCR0_START=0x100000
+JTFRAME_BA1_START=0x200000
+SND_START=0x300000
+JTFRAME_BA2_START=0x400000
+OBJ0_START=0x500000
+JTFRAME_BA3_START=0x800000
+PCMB_START=0x900000
+
+
+# Debug options
+JTFRAME_STATUS
+
+[mist|sidi]
+JTFRAME_SKIP
+

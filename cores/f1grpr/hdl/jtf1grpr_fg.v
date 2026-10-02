@@ -1,0 +1,112 @@
+/*  This file is part of JTCORES.
+    JTCORES program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    JTCORES program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with JTCORES.  If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Andrea Bogazzi <andreabogazzi79@gmail.com>
+    Version: 1.0
+    Date: 28-8-2026 */
+
+// 8x8 character layer, 64x32 map, TILEMAP_SCAN_ROWS.
+//
+//   code = fgvram[row*64+col]; tile = code & 0x7fff; flipY on code[15]
+//   transparent pen 0xff, palette base 0
+//
+// gfx_8x8x8_raw is CHUNKY - one byte is one pixel, no planes - so a 32-bit
+// read is four finished pixels and there is nothing to de-interleave. That
+// is why this does not use jtframe_tilemap: that module extracts pixel bit i
+// from byte i, which is the planar layout, and it would want a 64-bit bus
+// for BPP=8 anyway. Here a tile row is 8 bytes = two reads.
+
+module jtf1grpr_fg(
+    input             rst,
+    input             clk,
+    input             pxl_cen,
+    input             flip,
+    input      [ 8:0] hdump, vdump,
+    input      [ 8:0] h_last,        // last H count, for the fetch wrap
+    input      [ 8:0] hsize, vsize,   // visible size, from the GGA
+    input      [ 8:0] scrx, scry,
+
+    output     [11:1] fgv_addr,
+    input      [15:0] fgv_dout,
+
+    output     [20:2] rom_addr,
+    output            rom_cs,
+    input      [31:0] rom_data,
+    input             rom_ok,
+
+    output     [ 7:0] pxl          // 0xff is transparent
+);
+
+// Calibration against MAME's screen.png: the layer sits 1 pixel right and
+// 8 lines low without these. The 8 lines are common to every layer and are
+// probably the visarea origin (MAME shows lines 8..247), so they may fold
+// into the video timing later
+localparam [8:0] HOFFSET = 9'd1, VOFFSET = 9'd8;
+
+// Screen flip mirrors the raster. HOFFSET is a raster origin so it goes INSIDE
+// the mirror, otherwise it lands on the wrong side and shows up doubled.
+// The pixel select below is a direct index, so no per-tile flip is needed -
+// mirroring heff already picks the right pixel
+// The prefetch reads the group four pixels ahead. At the end of the line that
+// points past it, so the first visible group is fetched from the wrong address
+// and the line opens with four dead pixels. Move the discontinuity into
+// blanking - vdump has already advanced by then, so the prefetch naturally
+// targets the next line. Same trick as hdump_scr in jtpspike_video
+wire [ 8:0] hwrap= hdump >= 9'd400 ? hdump - (h_last + 9'd1) : hdump;
+wire [ 8:0] hraw = hwrap + HOFFSET;
+wire [ 8:0] hdm  = flip ? ~hraw  + hsize : hraw;
+wire [ 8:0] vdm  = flip ? ~vdump + vsize : vdump;
+// the game writes its own compensation when flipped, +160/+10; cancel it
+wire [ 8:0] heff = hdm + scrx - (flip ? 9'd160 : 9'd0);
+wire [ 8:0] veff = vdm + scry + VOFFSET - (flip ? 9'd10 : 9'd0);
+// address the tile that owns the NEXT group of four pixels, so the VRAM and
+// the ROM both have a full group of pxl_cen to answer. Flipped, heff runs
+// backwards, so the next group is four LOWER
+wire [ 8:0] hnx  = flip ? heff - 9'd4 : heff + 9'd4;
+wire [14:0] code = fgv_dout[14:0];
+wire        vflip= fgv_dout[15];
+wire [ 2:0] row  = vflip ? ~veff[2:0] : veff[2:0];
+
+assign fgv_addr = { veff[7:3], hnx[8:3] };
+// 64 bytes a tile, 8 a row, 4 a read: word = code*16 + row*2 + half
+assign rom_addr = { code, row, hnx[2] };
+assign rom_cs   = 1'b1;
+
+reg [31:0] cur, nxt;
+
+always @(posedge clk) begin
+    if( rst ) begin
+        cur <= 0;
+        nxt <= 0;
+    end else if( pxl_cen ) begin
+        if( rom_ok ) nxt <= rom_data;
+        // swap in the group that was fetched over the previous four pixels
+        if( heff[1:0]==(flip ? 2'd0 : 2'd3) ) cur <= nxt;
+    end
+end
+
+// chunky bytes, leftmost pixel in the lowest byte address. jtframe returns a
+// 32-bit read with the lowest address in [7:0]
+reg [7:0] pxl_r;
+always @* begin
+    case( heff[1:0] )
+        2'd0: pxl_r = cur[ 7: 0];
+        2'd1: pxl_r = cur[15: 8];
+        2'd2: pxl_r = cur[23:16];
+        2'd3: pxl_r = cur[31:24];
+    endcase
+end
+assign pxl = pxl_r;
+
+endmodule
