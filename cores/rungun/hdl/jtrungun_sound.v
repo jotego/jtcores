@@ -32,8 +32,7 @@ module jtrungun_sound(
 );
 /* verilator tracing_off */
 parameter PRMR=0;
-localparam  LOUDER=1, NORMAL=0,
-            VOLSHIFT= LOUDER;
+localparam  VOLSHIFT = PRMR==1 ? 2 : 3; // Per-set gain from full-volume MAME peak captures
 
 wire        [ 7:0]  cpu_dout, cpu_din,  ram_dout, ctl,
                     k39a_dout, k39b_dout, latch_dout, sta_dout, stb_dout;
