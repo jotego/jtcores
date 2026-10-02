@@ -68,6 +68,12 @@ type seed_stats struct {
 	free_bram int
 }
 
+type seed_timing struct {
+	setup    string
+	hold     string
+	recovery string
+}
+
 const seed_easy_sta_limit = -0.5
 
 var seed_parallel, seed_max_trials int
@@ -158,6 +164,7 @@ func validate_core_name(args []string) error {
 
 func (cfg *seed_config) run() error {
 	fmt.Println("Create a jtseed.last file at this folder to stop at the next compilation")
+	fmt.Println("Seed timing format: setup/hold/recovery (ns), worst across STA corners; n/a means unavailable")
 	os.Remove("jtseed.last")
 	e := cfg.prepare()
 	if e != nil {
@@ -277,18 +284,19 @@ func (cfg *seed_config) wait_batch(jobs []seed_job, pass *bool) (bool, error) {
 			}
 			continue
 		}
-		slack := job.worst_slack()
+		timing := worst_timing_slacks(job.builddir)
+		slack := job.worst_slack(timing)
 		cfg.record_sta_slack(slack)
 		copy_msg, e := cfg.copy_if_best(job, slack)
 		if e != nil {
 			return false, e
 		}
 		if job.pass {
-			fmt.Printf("Seed %5d passed in %s, worst slack %s%s\n", job.seed, job.walltime, slack, copy_msg)
+			fmt.Printf("Seed %5d passed in %s, STA %s/%s/%s%s\n", job.seed, job.walltime, timing.setup, timing.hold, timing.recovery, copy_msg)
 			*pass = true
 			batch_pass = true
 		} else {
-			fmt.Printf("Seed %5d failed in %s, worst slack %s%s\n", job.seed, job.walltime, slack, copy_msg)
+			fmt.Printf("Seed %5d failed in %s, STA %s/%s/%s%s\n", job.seed, job.walltime, timing.setup, timing.hold, timing.recovery, copy_msg)
 		}
 	}
 	if first_error != nil {
@@ -703,9 +711,9 @@ func (job *seed_job) wait() bool {
 	return e == nil
 }
 
-func (job seed_job) worst_slack() string {
-	if slack := worst_setup_slack(job.builddir); slack != "" {
-		return slack
+func (job seed_job) worst_slack(timing seed_timing) string {
+	if timing.setup != "n/a" {
+		return timing.setup
 	}
 	if slack := worst_sta_slack(job.builddir); slack != "" {
 		return slack
@@ -716,8 +724,8 @@ func (job seed_job) worst_slack() string {
 	return "n/a"
 }
 
-func worst_setup_slack(output string) string {
-	slack := ""
+func worst_timing_slacks(output string) seed_timing {
+	worst := seed_timing{setup: "n/a", hold: "n/a", recovery: "n/a"}
 	walk := func(fname string, d os.DirEntry, e error) error {
 		if e != nil || d.IsDir() || !strings.HasSuffix(fname, ".sta.rpt") {
 			return e
@@ -726,15 +734,38 @@ func worst_setup_slack(output string) string {
 		if e != nil {
 			return e
 		}
-		value, ok := parse_seed_sta(string(data))
-		previous, valid := parse_slack_value(slack)
-		if ok && (!valid || value < previous) {
-			slack = fmt.Sprintf("%.3f", value)
-		}
+		report := parse_seed_timing(string(data))
+		worst.setup = min_seed_slack(worst.setup, report.setup)
+		worst.hold = min_seed_slack(worst.hold, report.hold)
+		worst.recovery = min_seed_slack(worst.recovery, report.recovery)
 		return nil
 	}
 	filepath.WalkDir(output, walk)
-	return slack
+	return worst
+}
+
+func parse_seed_timing(text string) seed_timing {
+	timing := seed_timing{setup: "n/a", hold: "n/a", recovery: "n/a"}
+	for _, match := range seed_timing_re.FindAllStringSubmatch(text, -1) {
+		switch strings.ToLower(match[1]) {
+		case "setup":
+			timing.setup = min_seed_slack(timing.setup, match[2])
+		case "hold":
+			timing.hold = min_seed_slack(timing.hold, match[2])
+		case "recovery":
+			timing.recovery = min_seed_slack(timing.recovery, match[2])
+		}
+	}
+	return timing
+}
+
+func min_seed_slack(current, next string) string {
+	value, ok := parse_slack_value(next)
+	previous, valid := parse_slack_value(current)
+	if ok && (!valid || value < previous) {
+		return fmt.Sprintf("%.3f", value)
+	}
+	return current
 }
 
 type jtcore_log_report struct {
@@ -920,6 +951,7 @@ func parse_jtcore_done(line string) bool {
 var sta_slack_re = regexp.MustCompile(`(?i)^\s*Slack\s*:\s*([-+]?[0-9]+(?:\.[0-9]+)?)`)
 var worst_slack_re = regexp.MustCompile(`(?i)worst-case.*slack[^-+0-9]*([-+]?[0-9]+(?:\.[0-9]+)?)`)
 var seed_sta_re = regexp.MustCompile(`(?i)worst-case\s+setup\s+slack\s+is\s+([-+]?[0-9]+(?:\.[0-9]+)?)`)
+var seed_timing_re = regexp.MustCompile(`(?i)worst-case\s+(setup|hold|recovery)\s+slack\s+is\s+([-+]?[0-9]+(?:\.[0-9]+)?)`)
 var seed_le_re = regexp.MustCompile(`(?mi)^;\s*(?:Total logic elements|Logic utilization \(in ALMs\))\s*;\s*([0-9,]+)\s*/\s*([0-9,]+)\s*\(\s*([0-9]+)\s*%\s*\)`)
 var seed_bram_re = regexp.MustCompile(`(?mi)^;\s*(?:M[0-9]+Ks|Total RAM Blocks)\s*;\s*([0-9,]+)\s*/\s*([0-9,]+)\s*\(\s*([0-9]+)\s*%\s*\)`)
 var jtcore_quartus_log_re = regexp.MustCompile(`^Log file:\s*(.+)$`)
