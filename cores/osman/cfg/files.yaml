@@ -1,0 +1,63 @@
+# Osman — HDL file list.
+# Video chips (deco16ic tilemap + chip-52 sprites) are IMPORTED from cninja, not copied
+# (the arbalest<-cal50/kiwi cross-core pattern). ARM spine is written fresh, informed by the
+# Night Slashers clone (deco156 decrypt + deco56 tile decrypt).
+osman:
+  - get:
+    - jtosman_game.v
+    - jtosman_main.v
+    - jtosman_snd.v
+    - jtosman_video.v
+    - jtosman_colmix.v
+    - jtosman_deco156.v
+    - jtosman_gfxdec.v
+    - osman.qip           # syn/ — adds cores/osman/hdl to Quartus SEARCH_PATH for the amber/ includes
+  # Amber 2 ARM core (OpenCores, permissive license) — VENDORED under hdl/amber, not a generic
+  # jtframe module. `from:` pulls the subfolder ($CORES/osman/hdl/amber/). DE156 = ARMv2a-compatible.
+  # Only the 15 MODULE files are listed; the 5 include-fragments (a23_localparams/functions/
+  # config_defines, debug_functions, memory_configuration) resolve via the hdl/ incdir since their
+  # `include lines were rewritten "amber/<file>". a23_decompile.v (sim decompiler, needs a missing
+  # global_defines.v, and is commented-out in a23_decode) is intentionally excluded.
+  - from: amber
+    get:
+      - a23_core.v
+      - a23_decode.v
+      - a23_execute.v
+      - a23_fetch.v
+      - a23_cache.v
+      - a23_coprocessor.v
+      - a23_register_bank.v
+      - a23_ram_register_bank.v
+      - a23_alu.v
+      - a23_barrel_shift.v
+      - a23_barrel_shift_fpga.v
+      - a23_multiply.v
+      - a23_wishbone.v
+      - sram_byte_en.v
+      - sram_line_en.v
+# Data East video silicon, reused straight from cninja (same deco16ic / decospr chips):
+cninja:
+  - get:
+    - jtframe_deco16.v      # deco16ic single-PF renderer; instantiate 2x (pf1+pf2)
+    - jtframe_decospr.v     # chip-52 sprite engine (parametrize addr width for Osman's 8MB)
+
+jtframe:
+  - from: sdram
+    get:
+      - jtframe_dwnld.v
+  - from: ram
+    get:
+      - jtframe_ram.v
+      - jtframe_dual_ram.v
+      - jtframe_dual_ram16.v
+      - jtframe_obj_buffer.v
+      - jtframe_bram_dma.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_blank.v
+      - jtframe_linebuf.v   # jtframe_deco16 line buffer
+
+jt6295:
+
+jteeprom:

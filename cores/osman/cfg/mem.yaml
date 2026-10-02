@@ -1,0 +1,51 @@
+# Osman — SDRAM banks / clock enables / audio. Data East Simple 156.
+# Decryption is ALL at-fetch (like nslasher): deco156 on the ARM fetch, deco56 on the tile fetch.
+# SDRAM holds raw/encrypted; the only download transforms are the tile ROM_CONTINUE placement,
+# the sprite plane-pack, and the okimusic address bitswap (post_addr).
+params:
+  - { name: PCM1_OFFSET, value: "(`PCM1_START-`JTFRAME_BA2_START)>>1" }
+  - { name: PCM2_OFFSET, value: "(`PCM2_START-`JTFRAME_BA2_START)>>1" }
+
+clocks:
+  clk:
+    - freq: 7000000          # ARM DE156 = 28MHz/4
+      outputs: [ cen_arm ]
+    - freq: 1000000          # OKI #1 sfx  = 28MHz/28 (PIN7 HIGH)
+      outputs: [ cen_oki1 ]
+    - freq: 1000000          # OKI #2 music = 28MHz/28 (mitchell156 sets both /28)
+      outputs: [ cen_oki2 ]
+
+download:
+  post_addr: true            # tiles ROM_CONTINUE placement + sprite plane-pack + okimusic bitswap
+  post_data: true            # TODO drop if unused (deco156/deco56 are decrypt-at-fetch, not download)
+
+audio:
+  rsum: 20k
+  channels:
+    # MAME chainrec routes: okisfx 0.6, okimusic 0.2 (level ~ 1/rsum). TODO tune vs MAME per-channel.
+    # channel names differ from the SDRAM bus names (oki1/oki2) to avoid a port clash.
+    - { name: pcm1, module: jt6295, rsum: 20k }   # okisfx  — SFX/voice
+    - { name: pcm2, module: jt6295, rsum: 60k }   # okimusic — music (address-bitswapped + banked)
+
+sdram:
+  banks:
+    # BA0 — main ARM ROM (512 KB, 32-bit). deco156 decrypt-at-fetch (jtosman_deco156).
+    - buses:
+      - { name: main, addr_width: 19, data_width: 32 }
+    # BA1 — tiles gfx (2 MB region), deco56-ENCRYPTED, 16-bit port. jtosman_gfxdec decrypts at fetch
+    # and does 2 reads/word (the two plane-pairs, 0x80000 decwords apart) -> 32-bit for jtframe_deco16.
+    # pf1 + pf2 each get their own 16-bit reader into the same tiles region.
+    # deco16ic draws BOTH sizes per pf -> 4 readers of the same tiles region: 16x16 (a) + 8x8 (c/d).
+    - buses:
+      - { name: gfx1a, addr_width: 21, data_width: 16 }   # pf1 16x16 (via gfxdec)
+      - { name: gfx1b, addr_width: 21, data_width: 16 }   # pf2 16x16 (via gfxdec)
+      - { name: gfx1c, addr_width: 21, data_width: 16 }   # pf1 8x8   (via gfxdec)
+      - { name: gfx1d, addr_width: 21, data_width: 16 }   # pf2 8x8   (via gfxdec)
+    # BA2 — OKI samples (both 8-bit).
+    - buses:
+      - { name: oki1, addr_width: 18, data_width: 8, offset: PCM1_OFFSET }   # sfx 256 KB
+      - { name: oki2, addr_width: 21, data_width: 8, offset: PCM2_OFFSET }   # music 2 MB (banked)
+    # BA3 — sprites (8 MB, 4bpp, plain). 32-bit packed fetch for jtframe_decospr.
+    # NOTE: jtframe_decospr rom_addr/id must be widened for 8 MB (cninja's is 2 MB).
+    - buses:
+      - { name: obj, addr_width: 23, data_width: 32 }

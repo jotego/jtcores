@@ -35082,6 +35082,45 @@
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
 	</machine>
+	<machine name="candance" sourcefile="dataeast/simpl156.cpp" cloneof="osman" romof="osman">
+		<description>Cannon Dancer (Japan)</description>
+		<year>1996</year>
+		<manufacturer>Mitchell (Atlus license)</manufacturer>
+		<rom name="sa00-0.1e" merge="sa00-0.1e" size="524288" crc="ec6b3257" sha1="10a42a680ce122ab030eaa2ccd99d302cb77854e" region="maincpu" offset="0"/>
+		<rom name="mcf-00.9a" merge="mcf-00.9a" size="2097152" crc="247712dc" sha1="bcb765afd7e756b68131c97c30d210de115d6b50" region="tiles" offset="0"/>
+		<rom name="mcf-01.13a" merge="mcf-01.13a" size="2097152" crc="83881e25" sha1="ae82cf0f704e6efea94c6c1d276d4e3e5b3ebe43" region="sprites" offset="600000"/>
+		<rom name="mcf-02.14a" merge="mcf-02.14a" size="2097152" crc="21251b33" sha1="d252fe5c6eef8cbc9327e4176b4868b1cb17a738" region="sprites" offset="400000"/>
+		<rom name="mcf-03.14d" merge="mcf-03.14d" size="2097152" crc="faf1d51d" sha1="675dbbfe15b8010d54b2b3af26d42cdd753c2ce2" region="sprites" offset="200000"/>
+		<rom name="mcf-04.14h" merge="mcf-04.14h" size="2097152" crc="4fa55577" sha1="e229ba9cce46b92ce255aa33b974e19b214c4017" region="sprites" offset="0"/>
+		<rom name="sa01-0.13h" merge="sa01-0.13h" size="262144" crc="cea8368e" sha1="1fcc641381fdc29bd50d3a4b23e67647f79e505a" region="okisfx" offset="0"/>
+		<rom name="mcf-05.12f" merge="mcf-05.12f" size="2097152" crc="f007d376" sha1="4ba20e5dabeacc3278b7f30c4462864cbe8f6984" region="okimusic" offset="0"/>
+		<rom name="eeprom-candance.bin" size="128" crc="0a0a8f6b" sha1="4e07138ba7d615291c67162958c889540615e06f" region="eeprom" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="okisfx" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="okimusic" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="captainx" sourcefile="irem/vigilant.cpp" cloneof="buccanrs" romof="buccanrs">
 		<description>Captain X</description>
 		<year>1990</year>
@@ -37845,6 +37884,81 @@
 		<port tag=":UNUSED">
 		</port>
 		<driver status="good" emulation="good" savestate="unsupported"/>
+	</machine>
+	<machine name="chainrec" sourcefile="dataeast/simpl156.cpp">
+		<description>Chain Reaction (World, Version 2.2, 1995.09.25)</description>
+		<year>1995</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="e1" size="524288" crc="8a8340ef" sha1="4aaee56127b73453b862ff2a33dc241eeabf5658" region="maincpu" offset="0"/>
+		<rom name="mcc-00" size="1048576" crc="646b03ec" sha1="9a2fc11b1575032b5a784d88c3a90913068d1e69" region="tiles" offset="0"/>
+		<rom name="u3" size="524288" crc="92659721" sha1="b446ce98ec9c2c16375ef00639cfb463b365b8f7" region="sprites" offset="0"/>
+		<rom name="u4" size="524288" crc="e304eb32" sha1="61a647ec89695a6b25ff924bdc6d29cbd7aca82b" region="sprites" offset="1"/>
+		<rom name="u5" size="524288" crc="1b6f01ea" sha1="753fc670707432e317d035b09b0bad0762fea731" region="sprites" offset="100000"/>
+		<rom name="u6" size="524288" crc="531a56f2" sha1="89602bb873a3b110bffc216f921ba228e53380f9" region="sprites" offset="100001"/>
+		<rom name="mcc-04" size="262144" crc="86ee6ade" sha1="56ad3f432c7f430f19fcba7c89940c63da165906" region="okisfx" offset="0"/>
+		<rom name="mcc-03" size="1048576" crc="da2ebba0" sha1="96d31dea4c7226ee1d386b286919fa334388c7a1" region="okimusic" offset="0"/>
+		<rom name="eeprom-chainrec.bin" size="128" crc="b6da3fbf" sha1="bdc2bdeabf8686c1454737faf785b0d7501f9bde" region="eeprom" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="okisfx" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="okimusic" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="4"/>
+			<control type="joy" player="2" buttons="3" ways="4"/>
+		</input>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="charlien" sourcefile="dataeast/simpl156.cpp">
+		<description>Charlie Ninja</description>
+		<year>1995</year>
+		<manufacturer>Mitchell</manufacturer>
+		<rom name="nd00-1.1e" size="524288" crc="f18f4b23" sha1="cb0c159b4dde3a3c5f295f270485996811e5e4d2" region="maincpu" offset="0"/>
+		<rom name="mbr-00.9a" size="2097152" crc="ecf2c7f0" sha1="3c735a4eef2bc49f16ac9365a5689101f43c13e9" region="tiles" offset="0"/>
+		<rom name="mbr-01.14a" size="1048576" crc="46c90215" sha1="152acdeea34ec1db3f761066a0c1ff6e43e47f9d" region="sprites" offset="100000"/>
+		<rom name="mbr-03.14h" size="1048576" crc="c448a68a" sha1="4b607dfee269abdfeb710b74b73ef87dc2b30e8c" region="sprites" offset="0"/>
+		<rom name="nd01-0.13h" size="262144" crc="635a100a" sha1="f6ec70890892e7557097ccd519de37247bb8c98d" region="okisfx" offset="0"/>
+		<rom name="mbr-02.12f" size="1048576" crc="4f67d333" sha1="608f921bfa6b7020c0ce72e5229b3f1489208b23" region="okimusic" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="okisfx" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="okimusic" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
 	<machine name="chelnov" sourcefile="dataeast/karnov.cpp">
 		<description>Atomic Runner Chelnov (World)</description>
@@ -87763,6 +87877,45 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="gangonta" sourcefile="dataeast/simpl156.cpp" cloneof="prtytime" romof="prtytime">
+		<description>Ganbare! Gonta!! 2 / Party Time: Gonta the Diver II (Japan Release)</description>
+		<year>1995</year>
+		<manufacturer>Mitchell</manufacturer>
+		<rom name="rd_00-0.1e" size="524288" crc="f80f43bb" sha1="f9d26829eb90d41a6c410d4d673fe9595f814868" region="maincpu" offset="0"/>
+		<rom name="mcb-00.9a" merge="mcb-00.9a" size="2097152" crc="c48a4f2b" sha1="2dee5f8507b2a7e6f7e44b14f9abca36d0ebf78b" region="tiles" offset="0"/>
+		<rom name="mcb-01.13a" merge="mcb-01.13a" size="2097152" crc="06f40a57" sha1="896f1d373e911dcff7223bf21756ad35b28b4c5d" region="sprites" offset="600000"/>
+		<rom name="mcb-02.14a" merge="mcb-02.14a" size="2097152" crc="423cfb38" sha1="b8c772a8ab471c365a11a88c85e1c8c7d2ad6e80" region="sprites" offset="400000"/>
+		<rom name="mcb-03.14d" merge="mcb-03.14d" size="2097152" crc="0aef73af" sha1="76cf13f53da5202da80820f98660edee1eef7f1a" region="sprites" offset="200000"/>
+		<rom name="mcb-05.14h" merge="mcb-05.14h" size="2097152" crc="81540cfb" sha1="6f7bc62c3c4d4a29eb1e0cfb261ace461bbca57c" region="sprites" offset="0"/>
+		<rom name="rd_01-0.13h" size="262144" crc="70fd18c6" sha1="368cd8e10c5f5a13eb3813974a7e6b46a4fa6b6c" region="okisfx" offset="0"/>
+		<rom name="mcb-04.12f" merge="mcb-04.12f" size="2097152" crc="e23d3590" sha1="dc8418edc525f56e84f26e9334d5576000b14e5f" region="okimusic" offset="0"/>
+		<rom name="eeprom-gangonta.bin" size="128" crc="27ba60a5" sha1="1f65be84cfecda5545e7083bcea9db1681425279" region="eeprom" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="okisfx" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="okimusic" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<display tag="screen" type="raster" rotate="90" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="gatedoom" sourcefile="dataeast/darkseal.cpp" cloneof="darkseal" romof="darkseal">
 		<description>Gate of Doom (US revision 4)</description>
 		<year>1990</year>
@@ -102742,6 +102895,116 @@
 		<driver status="imperfect" emulation="good" savestate="supported"/>
 		<feature type="sound" overall="imperfect"/>
 	</machine>
+	<machine name="joemacr" sourcefile="dataeast/simpl156.cpp">
+		<description>Joe &amp; Mac Returns (World, Version 1.1, 1994.05.27)</description>
+		<year>1994</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="05.u29" size="524288" crc="74e9a158" sha1="eee447303ac0884e152b89f59a9694afade87336" region="maincpu" offset="0"/>
+		<rom name="01.u8l" size="524288" crc="4da4a2c1" sha1="1ed4bd4337d8b185b56e326e662a8715e4d09e17" region="tiles" offset="0"/>
+		<rom name="02.u8h" size="524288" crc="642c08db" sha1="9a541fd56ae34c24f803e08869702be6fafd81d1" region="tiles" offset="80000"/>
+		<rom name="mbn01" size="524288" crc="a3a37353" sha1="c4509c8268afb647c20e71b42ae8ebd2bdf075e6" region="sprites" offset="80000"/>
+		<rom name="mbn02" size="524288" crc="aa2230c5" sha1="43b7ac5c69cde1840a5255a8897e1c5d5f89fd7b" region="sprites" offset="0"/>
+		<rom name="mbn04" size="262144" crc="dcbd4771" sha1="2a1ab6b0fc372333c7eb17aab077fe1ca5ba1dea" region="okisfx" offset="0"/>
+		<rom name="mbn03" size="2097152" crc="70b71a2a" sha1="45851b0692de73016fc9b913316001af4690534c" region="okimusic" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="okisfx" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="okimusic" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="joemacra" sourcefile="dataeast/simpl156.cpp" cloneof="joemacr" romof="joemacr">
+		<description>Joe &amp; Mac Returns (World, Version 1.0, 1994.05.19)</description>
+		<year>1994</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="mw00" size="524288" crc="e1b78f40" sha1="e611c317ada5a049a5e05d69c051e22a43fa2845" region="maincpu" offset="0"/>
+		<rom name="mbn00" size="1048576" crc="11b2dac7" sha1="71a50f606caddeb0ef266e2d3df9e429a4873f21" region="tiles" offset="0"/>
+		<rom name="mbn01" merge="mbn01" size="524288" crc="a3a37353" sha1="c4509c8268afb647c20e71b42ae8ebd2bdf075e6" region="sprites" offset="80000"/>
+		<rom name="mbn02" merge="mbn02" size="524288" crc="aa2230c5" sha1="43b7ac5c69cde1840a5255a8897e1c5d5f89fd7b" region="sprites" offset="0"/>
+		<rom name="mbn04" merge="mbn04" size="262144" crc="dcbd4771" sha1="2a1ab6b0fc372333c7eb17aab077fe1ca5ba1dea" region="okisfx" offset="0"/>
+		<rom name="mbn03" merge="mbn03" size="2097152" crc="70b71a2a" sha1="45851b0692de73016fc9b913316001af4690534c" region="okimusic" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="okisfx" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="okimusic" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="joemacrj" sourcefile="dataeast/simpl156.cpp" cloneof="joemacr" romof="joemacr">
+		<description>Joe &amp; Mac Returns (Japan, Version 1.2, 1994.06.06)</description>
+		<year>1994</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="my00-.e1" size="524288" crc="2c184981" sha1="976fbb554de96aa6405f6f64cd75b633439fe583" region="maincpu" offset="0"/>
+		<rom name="mbn00" size="1048576" crc="11b2dac7" sha1="71a50f606caddeb0ef266e2d3df9e429a4873f21" region="tiles" offset="0"/>
+		<rom name="mbn01" merge="mbn01" size="524288" crc="a3a37353" sha1="c4509c8268afb647c20e71b42ae8ebd2bdf075e6" region="sprites" offset="80000"/>
+		<rom name="mbn02" merge="mbn02" size="524288" crc="aa2230c5" sha1="43b7ac5c69cde1840a5255a8897e1c5d5f89fd7b" region="sprites" offset="0"/>
+		<rom name="mbn04" merge="mbn04" size="262144" crc="dcbd4771" sha1="2a1ab6b0fc372333c7eb17aab077fe1ca5ba1dea" region="okisfx" offset="0"/>
+		<rom name="mbn03" merge="mbn03" size="2097152" crc="70b71a2a" sha1="45851b0692de73016fc9b913316001af4690534c" region="okimusic" offset="0"/>
+		<rom name="jmrj_ak93c45.h3" size="128" crc="31f17522" sha1="88fc10ffa2e0e3887ebaeafc0b132507e4c77d0d" region="eeprom" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="okisfx" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="okimusic" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="jojo" sourcefile="capcom/cps3.cpp">
 		<description>JoJo's Venture (Europe 990128)</description>
 		<year>1998</year>
@@ -115305,6 +115568,80 @@
 		<port tag=":P2">
 		</port>
 		<port tag=":SYSTEM">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="magdrop" sourcefile="dataeast/simpl156.cpp" cloneof="chainrec" romof="chainrec">
+		<description>Magical Drop (Japan, Version 1.1, 1995.06.21)</description>
+		<year>1995</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="re00-2.e1" size="524288" crc="7138f10f" sha1="ca93c3c2dc9a7dd6901c8429a6bf6883076a9b8f" region="maincpu" offset="0"/>
+		<rom name="mcc-00" merge="mcc-00" size="1048576" crc="646b03ec" sha1="9a2fc11b1575032b5a784d88c3a90913068d1e69" region="tiles" offset="0"/>
+		<rom name="mcc-01.a13" size="1048576" crc="13d88745" sha1="0ce4ec1481f31be860ee80322de6e32f9a566229" region="sprites" offset="100000"/>
+		<rom name="mcc-02.a14" size="1048576" crc="d0f97126" sha1="3848a6f00d0e57aaf383298c4d111eb63a88b073" region="sprites" offset="0"/>
+		<rom name="mcc-04" merge="mcc-04" size="262144" crc="86ee6ade" sha1="56ad3f432c7f430f19fcba7c89940c63da165906" region="okisfx" offset="0"/>
+		<rom name="mcc-03" merge="mcc-03" size="1048576" crc="da2ebba0" sha1="96d31dea4c7226ee1d386b286919fa334388c7a1" region="okimusic" offset="0"/>
+		<rom name="93c45.2h" size="128" crc="16ce8d2d" sha1="1a6883c75d34febbd92a16cfe204ff12550c85fd" region="eeprom" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="okisfx" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="okimusic" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="4"/>
+			<control type="joy" player="2" buttons="3" ways="4"/>
+		</input>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="magdropp" sourcefile="dataeast/simpl156.cpp" cloneof="chainrec" romof="chainrec">
+		<description>Magical Drop Plus 1 (Japan, Version 2.1, 1995.09.12)</description>
+		<year>1995</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="rz00-1.e1" size="524288" crc="28caf639" sha1="a17e792c82e65009e21680094acf093c0c4f1021" region="maincpu" offset="0"/>
+		<rom name="mcc-00" merge="mcc-00" size="1048576" crc="646b03ec" sha1="9a2fc11b1575032b5a784d88c3a90913068d1e69" region="tiles" offset="0"/>
+		<rom name="mcc-01.a13" size="1048576" crc="13d88745" sha1="0ce4ec1481f31be860ee80322de6e32f9a566229" region="sprites" offset="100000"/>
+		<rom name="mcc-02.a14" size="1048576" crc="d0f97126" sha1="3848a6f00d0e57aaf383298c4d111eb63a88b073" region="sprites" offset="0"/>
+		<rom name="mcc-04" merge="mcc-04" size="262144" crc="86ee6ade" sha1="56ad3f432c7f430f19fcba7c89940c63da165906" region="okisfx" offset="0"/>
+		<rom name="mcc-03" merge="mcc-03" size="1048576" crc="da2ebba0" sha1="96d31dea4c7226ee1d386b286919fa334388c7a1" region="okimusic" offset="0"/>
+		<rom name="eeprom.2h" size="128" crc="d13d9edd" sha1="e98ee2b696f0a7a8752dc30ef8b41bfe6598cbe4" region="eeprom" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="okisfx" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="okimusic" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="4"/>
+			<control type="joy" player="2" buttons="3" ways="4"/>
+		</input>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
@@ -139290,6 +139627,45 @@
 		<driver status="imperfect" emulation="good" savestate="supported"/>
 		<feature type="sound" status="imperfect"/>
 	</machine>
+	<machine name="osman" sourcefile="dataeast/simpl156.cpp">
+		<description>Osman (World)</description>
+		<year>1996</year>
+		<manufacturer>Mitchell</manufacturer>
+		<rom name="sa00-0.1e" size="524288" crc="ec6b3257" sha1="10a42a680ce122ab030eaa2ccd99d302cb77854e" region="maincpu" offset="0"/>
+		<rom name="mcf-00.9a" size="2097152" crc="247712dc" sha1="bcb765afd7e756b68131c97c30d210de115d6b50" region="tiles" offset="0"/>
+		<rom name="mcf-01.13a" size="2097152" crc="83881e25" sha1="ae82cf0f704e6efea94c6c1d276d4e3e5b3ebe43" region="sprites" offset="600000"/>
+		<rom name="mcf-02.14a" size="2097152" crc="21251b33" sha1="d252fe5c6eef8cbc9327e4176b4868b1cb17a738" region="sprites" offset="400000"/>
+		<rom name="mcf-03.14d" size="2097152" crc="faf1d51d" sha1="675dbbfe15b8010d54b2b3af26d42cdd753c2ce2" region="sprites" offset="200000"/>
+		<rom name="mcf-04.14h" size="2097152" crc="4fa55577" sha1="e229ba9cce46b92ce255aa33b974e19b214c4017" region="sprites" offset="0"/>
+		<rom name="sa01-0.13h" size="262144" crc="cea8368e" sha1="1fcc641381fdc29bd50d3a4b23e67647f79e505a" region="okisfx" offset="0"/>
+		<rom name="mcf-05.12f" size="2097152" crc="f007d376" sha1="4ba20e5dabeacc3278b7f30c4462864cbe8f6984" region="okimusic" offset="0"/>
+		<rom name="eeprom-osman.bin" size="128" crc="509552b2" sha1="b506692180ccd67f6ad48503a36ebfc4819817b1" region="eeprom" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="okisfx" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="okimusic" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="outrun" sourcefile="sega/segaorun.cpp">
 		<description>Out Run (sitdown/upright, Rev B)</description>
 		<year>1986</year>
@@ -149180,6 +149556,45 @@
 		<port tag=":IN1">
 		</port>
 		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="prtytime" sourcefile="dataeast/simpl156.cpp">
+		<description>Party Time: Gonta the Diver II / Ganbare! Gonta!! 2 (World Release)</description>
+		<year>1995</year>
+		<manufacturer>Mitchell</manufacturer>
+		<rom name="pz_00-0.1e" size="524288" crc="ec715c87" sha1="c9f28399d59b37977f31a5c67cb97af6c58947ae" region="maincpu" offset="0"/>
+		<rom name="mcb-00.9a" size="2097152" crc="c48a4f2b" sha1="2dee5f8507b2a7e6f7e44b14f9abca36d0ebf78b" region="tiles" offset="0"/>
+		<rom name="mcb-01.13a" size="2097152" crc="06f40a57" sha1="896f1d373e911dcff7223bf21756ad35b28b4c5d" region="sprites" offset="600000"/>
+		<rom name="mcb-02.14a" size="2097152" crc="423cfb38" sha1="b8c772a8ab471c365a11a88c85e1c8c7d2ad6e80" region="sprites" offset="400000"/>
+		<rom name="mcb-03.14d" size="2097152" crc="0aef73af" sha1="76cf13f53da5202da80820f98660edee1eef7f1a" region="sprites" offset="200000"/>
+		<rom name="mcb-05.14h" size="2097152" crc="81540cfb" sha1="6f7bc62c3c4d4a29eb1e0cfb261ace461bbca57c" region="sprites" offset="0"/>
+		<rom name="pz_01-0.13h" size="262144" crc="8925bce2" sha1="0ff2d5db7a24a2af30bd753eba274572c32cc2e7" region="okisfx" offset="0"/>
+		<rom name="mcb-04.12f" size="2097152" crc="e23d3590" sha1="dc8418edc525f56e84f26e9334d5576000b14e5f" region="okimusic" offset="0"/>
+		<rom name="eeprom-prtytime.bin" size="128" crc="105700da" sha1="650d11236c5692c1454d7b823d5be4d3278d6576" region="eeprom" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="okisfx" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="okimusic" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<display tag="screen" type="raster" rotate="90" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>

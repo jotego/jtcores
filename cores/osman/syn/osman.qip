@@ -1,0 +1,5 @@
+# Osman synthesis include path.
+# The vendored Amber ARM (hdl/amber/) uses `include "amber/<file>" for its 5 config/localparam
+# fragments. The Verilator sim resolves these via jtsim's -I cores/osman/hdl; Quartus needs the
+# same dir on SEARCH_PATH. This qip sits in cores/osman/syn/, so ../hdl == cores/osman/hdl.
+set_global_assignment -name SEARCH_PATH [file normalize [file join $::quartus(qip_path) .. hdl]]

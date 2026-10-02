@@ -1,0 +1,37 @@
+# Osman / Cannon Dancer — JTFRAME macros. Data East "Simple 156" (Mitchell MT5601-0).
+# Base: nslasher cfg (same ARM DE156 spine), stripped — no Z80/YM/Ace/2nd-sprite/fold.
+# NOTE: no trailing comments on NAME=value lines — jtframe takes everything after '=' as value.
+CORENAME=JTOSMAN
+
+JTFRAME_BUTTONS=3
+
+# IN1 wants MAME's TAITO-style U/D/L/R at bits 0-3 (b0=up..b3=right). JTFRAME's default
+# joystick order is up,down,left,right at [3:0] (i.e. [3]=up..[0]=right), so bit-reverse
+# [3:0] -> RLDU. Without this, pressing up lands on bit3 = right. Same as cninja/karnov.
+JTFRAME_JOY_RLDU=1
+
+# Screen: 58 Hz, htotal 512, visarea 320x240 (set_visarea 0,319,8,247). ROT0.
+JTFRAME_WIDTH=320
+JTFRAME_HEIGHT=240
+JTFRAME_COLORW=8
+# TODO confirm during video bring-up: 58Hz, H ~15.6kHz -> aim 8MHz pxlclk (avoid HDMI stripes)
+JTFRAME_PXLCLK=6
+
+# Osman has NO dipswitches — region/lives/buttons live in the 93C46 EEPROM + service menu.
+# JTFRAME_OSD_TEST adds the OSD "Service mode" toggle (TESTSW). No JTFRAME_DIPSW/DIPBASE.
+JTFRAME_OSD_TEST=1
+
+# ---- ROM / SDRAM layout (download-blob byte offsets, MRA concat order) ----
+# BA0: main ARM ROM 0x80000 (32-bit, deco156 decrypt-at-fetch)
+# BA1: tiles 0x200000 (16-bit, deco56 decrypt-at-fetch; mcf-00 ROM_CONTINUE + RGN_FRAC(1,2))
+# BA2: okisfx 0x40000 (8-bit) + okimusic 0x200000 (8-bit, address-bitswap + bank[2:0])
+# BA3: sprites 0x800000 (4bpp RGN_FRAC(1,2), plain; 32-bit packed fetch)
+JTFRAME_BA1_START=0x080000
+JTFRAME_BA2_START=0x280000
+PCM1_START=0x280000
+PCM2_START=0x2C0000
+JTFRAME_BA3_START=0x4C0000
+
+[mister]
+JTFRAME_ARX=4
+JTFRAME_ARY=3

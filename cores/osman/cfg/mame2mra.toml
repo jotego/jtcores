@@ -1,0 +1,37 @@
+# Osman / Cannon Dancer — MAME -> MRA. Data East Simple 156 (dataeast/simpl156.cpp).
+# Decryption is at-fetch (deco156 ARM, deco56 tiles) — the MRA only assembles ROMs into SDRAM banks.
+# Base pattern: nslasher (ARM width=32 maincpu). gfx packing borrows cninja's deco16/decospr technique.
+
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "simpl156.cpp" ]
+main_setnames=[ "osman" ]           # parent
+mustbe.machines=[
+    "osman",                        # World (parent)
+    "candance",                     # Cannon Dancer, Japan (clone — differs only in EEPROM image)
+]
+
+[buttons]
+# osman is a Strider-like action game, 3 buttons (EEPROM is fixed to 3-button). TODO confirm names.
+Names = [ { machine="osman", names="Attack,Jump,Special" } ]
+
+[ROM]
+regions = [
+    { name="maincpu",  width=32, reverse=true },                         # ARM DE156, deco156-encrypted
+    # ---- tiles (deco56-encrypted, decrypt-at-fetch). RAW load for now — boot doesn't fetch gfx.
+    # TODO(video step): ROM_CONTINUE reorder (blk0->0,blk1->0x100000,blk2->0x080000,blk3->0x180000)
+    # + 4bpp RGN_FRAC(1,2) plane split, byte-checked (never hand-derive).
+    { name="tiles",    start="JTFRAME_BA1_START", No_offset=true },
+    # ---- sprites (8 MB, 4bpp RGN_FRAC(1,2), NOT encrypted). MAME loads mcf-01..04 reversed
+    # (@0x600000/0x400000/0x200000/0x000000). Plane-pair pack for jtframe_decospr = TODO byte-check
+    # (cninja darkseal/supbtime pattern: load straight + game.v plane-pair rotate, OR width=32 parts).
+    { name="sprites",  start="JTFRAME_BA3_START", No_offset=true },
+    { name="okisfx",   rename="oki1", start="PCM1_START", No_offset=true },   # OKI #1 SFX 256 KB
+    { name="okimusic", rename="oki2", start="PCM2_START", No_offset=true },   # OKI #2 music 2 MB (addr-bitswap+bank in download)
+    { name="eeprom" },                                                        # 93C46 defaults (candance differs here)
+    { name="plds",     skip=true },
+]
+
+order = [ "maincpu", "tiles", "oki1", "oki2", "sprites" ]
