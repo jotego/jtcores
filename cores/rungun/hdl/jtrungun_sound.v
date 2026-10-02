@@ -182,11 +182,10 @@ generate if(PRMR==0) begin: dual
     assign k539_l = out_l,
            k539_r = out_r;
 end else begin: single // 2nd jt539 not present in prmrsocr
-    jt539 #(.VOLSHIFT(VOLSHIFT)) u_k54539a(
+    jt539_single #(.VOLSHIFT(VOLSHIFT)) u_k54539a(
         .rst        ( rst       ),
         .clk        ( clk       ),
         .cen        ( cen_pcm   ),
-        .host_en    ( 1'b1      ),
         .timeout    ( tima      ),
         .addr       ( ma        ),
         .we         ( ~wr_n     ),
@@ -202,10 +201,7 @@ end else begin: single // 2nd jt539 not present in prmrsocr
         .left       ( k539a_l   ),
         .right      ( k539a_r   ),
         .debug_bus  ( debug_bus ),
-        .st_dout    ( sta_dout  ),
-        .mul_a      (           ),
-        .mul_b      (           ),
-        .mul_result ( 1'b0      )
+        .st_dout    ( sta_dout  )
     );
     assign k39b_dout=0,
            pcmb_cs=0, pcmb_addr=0, stb_dout=0,
