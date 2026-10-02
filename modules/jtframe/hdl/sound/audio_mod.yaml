@@ -51,6 +51,7 @@ jtpcm658: { data_width: 10, vpp: 0.125, stereo: true }
 # FM chips using Yamaha's DACs
 # YM3012's output impedance is a guess
 jt51:     { data_width: 16, rout: 6.5k, vpp: 0.5, stereo: true   }
+jtikaopm: { data_width: 16, rout: 6.5k, vpp: 0.5, stereo: true   }
 jt053260: { data_width: 16, rout: 6.5k, vpp: 0.5, stereo: true   }
 jt054539: { data_width: 16, rout: 6.5k, vpp: 1.0, stereo: true,   }
 ym3014:   { data_width: 16, rout: 6.5k, vpp: 0.5 }

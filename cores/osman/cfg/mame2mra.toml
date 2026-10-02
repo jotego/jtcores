@@ -7,10 +7,18 @@ author=["jotego"]
 
 [parse]
 sourcefile=[ "simpl156.cpp" ]
-main_setnames=[ "osman" ]           # parent
-mustbe.machines=[
-    "osman",                        # World (parent)
-    "candance",                     # Cannon Dancer, Japan (clone — differs only in EEPROM image)
+# All simpl156.cpp families listed; only Joe & Mac Returns (Caveman Ninja sequel) enabled
+# for bringup. skip.machines disables the parent AND its clones. Shared by all: ARM DE156
+# @28MHz, 93C46, deco16ic 2x64x32 w/ bank_cb, DECO52 sprites, 2xOKI (sfx 1MHz + music),
+# 320x240@58Hz, xBGR555. Per-family deltas noted inline; oki-music bitswap is common.
+# enabled: joemacr (+joemacra, joemacrj) — DE-0491-1; dev block @0x100000; spr 1MB,
+#          tiles 1MB; okimusic 2MHz; no eeprom dump (joemacrj has one)
+# enabled: osman (+candance) — Mitchell MT5601-0; dev block @0x180000; tiles 2MB,
+#          spr 8MB; okimusic 1MHz; clones differ in EEPROM only
+skip.machines=[
+    "chainrec",  # +magdrop, magdropp — DECO PCBs; dev block @0x400000/0x380000/0x680000; spr 2MB; okimusic 2MHz; 4-way joy
+    "charlien",  # Mitchell MT5601-0; dev block @0x180000; tiles 2MB, spr 2MB; okimusic 1MHz; no eeprom dump
+    "prtytime",  # +gangonta — Mitchell MT5601-0, ROT90 (vertical); tiles 2MB, spr 8MB; okimusic 1MHz
 ]
 
 [buttons]
