@@ -148,6 +148,7 @@ jt539 #(.VOLSHIFT(1)) u_k54539(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen        ( cen_pcm   ),
+    .host_en    ( 1'b1      ),
     .timeout    (           ),
     // CPU interface
     .addr       ({A[9],A[7:0]}),
@@ -168,7 +169,10 @@ jt539 #(.VOLSHIFT(1)) u_k54539(
     .right      ( k539_r    ),
     // debug
     .debug_bus  ( debug_bus ),
-    .st_dout    ( st_dout   )
+    .st_dout    ( st_dout   ),
+    .mul_a      (           ),
+    .mul_b      (           ),
+    .mul_result ( 1'b0      )
 );
 
 jt054321 u_54321(
