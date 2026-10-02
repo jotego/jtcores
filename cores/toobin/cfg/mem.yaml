@@ -1,0 +1,94 @@
+params:
+  # chars sit after the 64KB JSA ROM inside bank 1; offset is a 16-bit-word offset
+  - { name: CHARS_OFFSET, value: "(`CHARS_START-`JTFRAME_BA1_START)>>1" }
+clocks:
+  clk48:
+    - freq: 8 MHz          # M68000 (32MHz/4) — fx68k replaces the board's 68010
+      outputs:
+        - cen8
+sdram:
+  banks:
+    # BA0 — main 68000 program ROM (512 KB)
+    - buses:
+        - name: main
+          addr_width: 19
+          data_width: 16
+    # BA1 — JSA-I 6502 sound ROM (64 KB) + alpha/char gfx (16 KB)
+    - buses:
+        - name: snd
+          addr_width: 16
+          data_width: 8
+        - name: char
+          addr_width: 14
+          data_width: 8
+          offset: CHARS_OFFSET
+    # BA2 — playfield tile gfx (512 KB). 16-bit for now; FRAC/32-bit only if fetch starves.
+    - buses:
+        - name: tile
+          addr_width: 19
+          data_width: 16
+    # BA3 — motion-object (sprite) gfx (2 MB)
+    - buses:
+        - name: obj
+          addr_width: 21
+          data_width: 16
+bram:
+  # M68000 work RAM (0x82c000-0x82ffff, 16 KB)
+  - name: ram
+    addr_width: 14
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[13:1]
+    rw: true
+  # Playfield tilemap RAM (0xc00000-0xc07fff, 32 KB = 16K words; 4 bytes/tile-entry)
+  - name: pf
+    addr_width: 15
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[14:1]
+    rw: true
+    ioctl: { save: true, order: 0, unless: [ JTFRAME_RELEASE ] }
+    dual_port:
+      name: pfrd
+      dout: pf_data
+  # Alpha/text tilemap RAM (0xc08000-0xc097ff, 6 KB)
+  - name: al
+    addr_width: 13
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[12:1]
+    rw: true
+    ioctl: { save: true, order: 1, unless: [ JTFRAME_RELEASE ] }
+    dual_port:
+      name: alrd
+      dout: al_data
+  # Motion-object RAM (0xc09800-0xc09fff, 2 KB; SLIP linked list, 256 entries x 8B)
+  - name: mob
+    addr_width: 11
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[10:1]
+    rw: true
+    ioctl: { save: true, order: 2, unless: [ JTFRAME_RELEASE ] }
+    dual_port:
+      name: mobrd
+      dout: mob_data
+  # Palette RAM (0xc10000-0xc107ff, 2 KB = 1024 xBGR-555 words)
+  - name: pal
+    addr_width: 11
+    data_width: 16
+    din: cpu_dout
+    addr: main_addr[10:1]
+    rw: true
+    ioctl: { save: true, order: 3, unless: [ JTFRAME_RELEASE ] }
+    dual_port:
+      name: palrd
+      dout: pal_data
+  # EEPROM (parallel 2804, 0x82a000-0x82a3ff, 1 KB byte-wide). NVRAM-backed.
+  - name: nvram
+    addr_width: 10
+    data_width: 8
+    din: cpu_dout[7:0]
+    addr: main_addr[10:1]
+    rw: true
+    ioctl: { save: true, order: 4 }

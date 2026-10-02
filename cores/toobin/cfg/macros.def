@@ -1,0 +1,28 @@
+CORENAME=JTTOOBIN
+
+# Toobin' — dual rotary paddle controls + throw button (ROT270 vertical).
+# Paddles are not a 24-way joystick, so multiway emulation must be off.
+# MAME models each paddle as 4 quadrature "button" bits + throw = 5 buttons/player.
+JTFRAME_NOMULTIWAY
+JTFRAME_BUTTONS=5
+
+# Video: Atari palette is xBGR-555; native 512x384 visible, ROT270.
+JTFRAME_COLORW=5
+JTFRAME_PXLCLK=8
+JTFRAME_WIDTH=512
+JTFRAME_HEIGHT=384
+JTFRAME_VERTICAL
+
+# SDRAM bank map (blob byte offsets; see cfg/mem.yaml). No JTFRAME_BA0_START exists —
+# bank 0 = everything below BA1_START, so maincpu sits first at offset 0.
+# (NOTE: no inline comments after a macro value — they get parsed into the value.)
+# BA1 = JSA 6502 ROM (64K) + chars (16K); CHARS_START = chars inside bank 1.
+# BA2 = playfield tile gfx (512K); BA3 = motion-object sprite gfx (2M).
+JTFRAME_BA1_START=0x80000
+CHARS_START=0x90000
+JTFRAME_BA2_START=0x94000
+JTFRAME_BA3_START=0x114000
+
+# 512 KB of M68K work RAM + tilemaps fits MiSTer BRAM but not the smaller FPGAs.
+[mist|sidi]
+JTFRAME_SKIP

@@ -1,0 +1,23 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=[ "toobin.cpp" ]
+
+[buttons]
+names = [
+    { names="Throw,R Paddle Fwd,L Paddle Fwd,L Paddle Back,R Paddle Back" },
+]
+
+# Region order = SDRAM bank order (mem.yaml). START macros come from macros.def so
+# the MRA image matches the bank map exactly (a region overrunning its bank pads to
+# the boundary instead of silently shifting).
+[ROM]
+regions = [
+    { name="maincpu", width=16, reverse=true, no_offset=true },
+    { name="jsa:cpu", start="JTFRAME_BA1_START", no_offset=true },
+    { name="chars",   start="CHARS_START",       no_offset=true },
+    { name="tiles",   start="JTFRAME_BA2_START", no_offset=true },
+    { name="sprites", start="JTFRAME_BA3_START", no_offset=true },
+]
+order=["maincpu","jsa:cpu","chars","tiles","sprites"]
