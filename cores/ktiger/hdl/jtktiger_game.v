@@ -1,37 +1,48 @@
-/* SPDX-FileCopyrightText: 2026 Marc Emmerson / Jose Tejada Gomez
+/* SPDX-FileCopyrightText: 2026 Marc Emmerson
  * SPDX-License-Identifier: GPL-3.0-or-later
  *
- * Wardner (Toaplan TP-009 / Taito B25, 1987): main Z80, TMS320C10, sound Z80
- * with YM3812, and the video. See cfg/macros.def for the clocking.
+ * Twin Cobra / Flying Shark (Toaplan, 1987): main 68000, TMS320C10, sound Z80
+ * with YM3812, and the Wardner video.
  */
 
-module jtwardnr_game(
+module jtktiger_game(
     `include "jtframe_game_ports.inc"
 );
 
 wire [15:0] txoffs, bgoffs, fgoffs;
-wire [15:0] dsp_dout, dsp_din, fg_full_addr;
+wire [15:0] dsp_dout, dsp_din;
 wire [13:1] dsp_addr;
 wire [11:0] dsp_rom_addr;
+wire [ 7:0] scr_din, sys;
 wire [ 1:0] dsp_sel;
 wire [ 2:0] scr_cs, scr_addr;
-wire        dsp_on, dsp_halt, dsp_we;
-wire        flip, bg_bank, fg_bank, video_on;
+wire        dsp_on, dsp_rstn, snd_rstn, dsp_br, dsp_ack, dsp_we, tcobr, fast;
+wire        flip, bg_bank, fg_bank, video_on, snd_busrq_n, snd_busak_n;
 
 assign dip_flip    = flip;
 assign pxl_cen     = cen7;
 assign pxl2_cen    = cen14;
-// the mask ROM holds 2048 words, and the foreground ROM has no second bank
 assign dsprom_addr = dsp_rom_addr[10:0];
-assign fg_addr     = fg_full_addr[14:0];
-assign debug_view  = { 4'd0, dsp_halt, dsp_on, flip, video_on };
+assign debug_view  = { 3'd0, dsp_br, dsp_ack, dsp_on, flip, video_on };
+
+jtktiger_header u_header(
+    .clk        ( clk               ),
+    .header     ( header            ),
+    .prog_we    ( prog_we           ),
+    .prog_addr  ( prog_addr[2:0]    ),
+    .prog_data  ( prog_data[7:0]    ),
+    .tcobr      ( tcobr             ),
+    .fast       ( fast              )
+);
 
 /* verilator tracing_off */
-jtwardnr_main u_main(
+jtktiger_main u_main(
     .rst        ( rst               ),
     .clk        ( clk               ),
-    .cen6       ( cen6              ),
     .LVBL       ( LVBL              ),
+    .VS         ( VS                ),
+    .tcobr      ( tcobr             ),
+    .fast       ( fast              ),
 
     .rom_addr   ( main_addr         ),
     .rom_data   ( main_data         ),
@@ -39,7 +50,10 @@ jtwardnr_main u_main(
     .rom_ok     ( main_ok           ),
 
     .dsp_on     ( dsp_on            ),
-    .dsp_halt   ( dsp_halt          ),
+    .dsp_rstn   ( dsp_rstn          ),
+    .snd_rstn   ( snd_rstn          ),
+    .dsp_br     ( dsp_br            ),
+    .dsp_ack    ( dsp_ack           ),
     .dsp_addr   ( dsp_addr          ),
     .dsp_sel    ( dsp_sel           ),
     .dsp_dout   ( dsp_dout          ),
@@ -56,11 +70,15 @@ jtwardnr_main u_main(
     .palram_dout( palram_dout       ),
 
     .mshr_addr  ( mshr_addr         ),
+    .mshr_din   ( mshr_din          ),
     .mshr_we    ( mshr_we           ),
     .shared_dout( shared_dout       ),
+    .snd_busrq_n( snd_busrq_n       ),
+    .snd_busak_n( snd_busak_n       ),
 
     .scr_cs     ( scr_cs            ),
     .scr_addr   ( scr_addr          ),
+    .scr_din    ( scr_din           ),
     .txoffs     ( txoffs            ),
     .bgoffs     ( bgoffs            ),
     .fgoffs     ( fgoffs            ),
@@ -69,7 +87,6 @@ jtwardnr_main u_main(
     .fg_bank    ( fg_bank           ),
     .video_on   ( video_on          ),
 
-    .cpu16      ( cpu16             ),
     .tx_a       ( tx_a              ),
     .bg_a       ( bg_a              ),
     .fg_a       ( fg_a              ),
@@ -81,6 +98,7 @@ jtwardnr_main u_main(
     .fgram_dout ( fgram_dout        ),
 
     .cpu_dout   ( cpu_dout          ),
+    .sys        ( sys               ),
 
     .dipsw      ( dipsw[15:0]       ),
     .joystick1  ( joystick1[5:0]    ),
@@ -94,14 +112,14 @@ jtwardnr_main u_main(
 );
 
 /* verilator tracing_off */
-jttoaplan1_dsp #(.TWINCOBR(0)) u_dsp(
-    .rst        ( rst               ),
+jttoaplan1_dsp #(.TWINCOBR(1)) u_dsp(
+    .rst        ( rst | ~dsp_rstn   ),
     .clk        ( clk               ),
     .cen        ( cen14             ),
     .dsp_on     ( dsp_on            ),
-    .halt_main  ( dsp_halt          ),
-    .bus_req    (                   ),
-    .bus_ack    ( 1'b0              ),
+    .halt_main  (                   ),
+    .bus_req    ( dsp_br            ),
+    .bus_ack    ( dsp_ack           ),
     .host_addr  ( dsp_addr          ),
     .host_sel   ( dsp_sel           ),
     .host_dout  ( dsp_dout          ),
@@ -112,15 +130,15 @@ jttoaplan1_dsp #(.TWINCOBR(0)) u_dsp(
 );
 
 /* verilator tracing_off */
-jtwardnr_sound u_sound(
-    .rst        ( rst               ),
+jtwardnr_sound #(.TWINCOBR(1)) u_sound(
+    .rst        ( rst | ~snd_rstn   ),
     .clk        ( clk               ),
     .cen3p5     ( cen3p5            ),
 
-    .sys        ( 8'd0              ),
-    .dipsw      ( 16'd0             ),
-    .busrq_n    ( 1'b1              ),
-    .busak_n    (                   ),
+    .sys        ( sys               ),
+    .dipsw      ( dipsw[15:0]       ),
+    .busrq_n    ( snd_busrq_n       ),
+    .busak_n    ( snd_busak_n       ),
 
     .rom_addr   ( snd_addr          ),
     .rom_data   ( snd_data          ),
@@ -132,15 +150,15 @@ jtwardnr_sound u_sound(
     .shr_din    ( shr_din           ),
     .shr_we     ( shr_we            ),
 
-    .ram_addr   ( sndram_addr       ),
-    .ram_we     ( sndram_we         ),
-    .ram_dout   ( sndram_dout       ),
+    .ram_addr   (                   ),
+    .ram_we     (                   ),
+    .ram_dout   ( 8'd0              ),
 
     .snd        ( fm                )
 );
 
 /* verilator tracing_on */
-jtwardnr_video u_video(
+jtwardnr_video #(.HWSCAN(1),.LATCH(1)) u_video(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
@@ -148,7 +166,7 @@ jtwardnr_video u_video(
 
     .scr_cs     ( scr_cs            ),
     .scr_addr   ( scr_addr          ),
-    .scr_din    ( cpu_dout          ),
+    .scr_din    ( scr_din           ),
     .txoffs     ( txoffs            ),
     .bgoffs     ( bgoffs            ),
     .fgoffs     ( fgoffs            ),
@@ -156,7 +174,7 @@ jtwardnr_video u_video(
     .bg_bank    ( bg_bank           ),
     .fg_bank    ( fg_bank           ),
     .video_on   ( video_on          ),
-    .tcobr      ( 1'b0              ),
+    .tcobr      ( tcobr             ),
     .gfx_en     ( gfx_en            ),
 
     .tx_vaddr   ( tx_vaddr          ),
@@ -178,7 +196,7 @@ jtwardnr_video u_video(
     .char_data  ( char_data         ),
     .char_cs    ( char_cs           ),
     .char_ok    ( char_ok           ),
-    .fg_addr    ( fg_full_addr      ),
+    .fg_addr    ( fg_addr           ),
     .fg_data    ( fg_data           ),
     .fg_cs      ( fg_cs             ),
     .fg_ok      ( fg_ok             ),

@@ -4,10 +4,11 @@
  * Wardner video: three tile maps, sprites and the priority mixer. The raster
  * is 446x286 with 320x240 visible. Screen flip mirrors the tile maps only.
  */
-module jtwardnr_video(
+module jtwardnr_video #(parameter HWSCAN=0, LATCH=0)(
     input             rst,
     input             clk,
     input             pxl_cen,
+    input             pxl2_cen,
 
     input      [ 2:0] scr_cs,
     input      [ 2:0] scr_addr,
@@ -19,6 +20,7 @@ module jtwardnr_video(
     input             bg_bank,
     input             fg_bank,
     input             video_on,
+    input             tcobr,
     input      [ 3:0] gfx_en,
 
     output     [11:1] tx_vaddr,
@@ -67,12 +69,16 @@ wire [ 8:0] vrender, vrender1, heff, tx_pxl, hdump, vdump;
 wire [ 7:0] bg_pxl, fg_pxl;
 wire [11:0] bg_vaddr_lo, obj_pxl;
 wire [14:0] fg_rom_addr;
+wire        lhbl, lvbl;
+reg  [ 1:0] lhbl_sh, lvbl_sh;
 
 // the tile engines start 16 counts before the visible line
 assign heff = hdump >= 9'd430 ? hdump - 9'd446 : hdump;
 
 assign bg_vaddr = { bg_bank, bg_vaddr_lo };
-assign fg_addr  = {    1'b0, fg_rom_addr };
+assign LHBL     = lhbl_sh[1];
+assign LVBL     = lvbl_sh[1];
+assign fg_addr  = { fg_bank, fg_rom_addr };
 
 // The real PCB uses a programmable CRT controller: HD6845S
 // This configuration matches the programmed values with a slight
@@ -97,17 +103,23 @@ jtframe_vtimer #(
     .H          ( hdump             ),
     .Hinit      (                   ),
     .Vinit      (                   ),
-    .LHBL       ( LHBL              ),
-    .LVBL       ( LVBL              ),
+    .LHBL       ( lhbl              ),
+    .LVBL       ( lvbl              ),
     .HS         ( HS                ),
     .VS         ( VS                )
 );
 
-jtwardnr_scroll u_bg(
+always @(posedge clk) if( pxl_cen ) begin
+    lhbl_sh <= { lhbl_sh[0], lhbl };
+    lvbl_sh <= { lvbl_sh[0], lvbl };
+end
+
+jtwardnr_scroll #(.LATCH(LATCH)) u_bg(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
     .hs         ( HS                ),
+    .vs         ( VS                ),
     .hdump      ( heff              ),
     .vdump      ( vdump             ),
     .flip       ( flip              ),
@@ -124,11 +136,12 @@ jtwardnr_scroll u_bg(
     .pxl        ( bg_pxl            )
 );
 
-jtwardnr_scroll u_fg(
+jtwardnr_scroll #(.LATCH(LATCH)) u_fg(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
     .hs         ( HS                ),
+    .vs         ( VS                ),
     .hdump      ( heff              ),
     .vdump      ( vdump             ),
     .flip       ( flip              ),
@@ -145,11 +158,12 @@ jtwardnr_scroll u_fg(
     .pxl        ( fg_pxl            )
 );
 
-jtwardnr_scroll #(.TEXT(1)) u_tx(
+jtwardnr_scroll #(.TEXT(1),.LATCH(LATCH)) u_tx(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
     .hs         ( HS                ),
+    .vs         ( VS                ),
     .hdump      ( heff              ),
     .vdump      ( vdump             ),
     .flip       ( flip              ),
@@ -166,14 +180,16 @@ jtwardnr_scroll #(.TEXT(1)) u_tx(
     .pxl        ( tx_pxl            )
 );
 
-jtwardnr_obj u_obj(
+jtwardnr_obj #(.HWSCAN(HWSCAN)) u_obj(
     .rst        ( rst               ),
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
+    .cen14      ( pxl2_cen          ),
     .hs         ( HS                ),
-    .LVBL       ( LVBL              ),
+    .LVBL       ( lvbl              ),
     .hdump      ( hdump             ),
     .vrender    ( vrender           ),
+    .tcobr      ( tcobr             ),
     .ram_addr   ( obj_vaddr         ),
     .ram_dout   ( obj_dout          ),
     .cpy_addr   ( objcpy_addr       ),
@@ -190,8 +206,8 @@ jtwardnr_obj u_obj(
 jtwardnr_colmix u_colmix(
     .clk        ( clk               ),
     .pxl_cen    ( pxl_cen           ),
-    .LVBL       ( LVBL              ),
-    .LHBL       ( LHBL              ),
+    .LVBL       ( lvbl              ),
+    .LHBL       ( lhbl              ),
     .video_on   ( video_on          ),
     .gfx_en     ( gfx_en            ),
     .bg_pxl     ( bg_pxl            ),

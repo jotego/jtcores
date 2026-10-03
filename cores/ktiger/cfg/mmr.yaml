@@ -1,0 +1,3 @@
+- include:
+    core: wardnr
+    name: wardnr_scroll
