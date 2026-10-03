@@ -64,7 +64,7 @@ wire [ 1:0] dws;
 wire        cab_cs, BUSn;
 reg         snd_latch_cs, snd_irq_cs, wdog_cs,
             ctrl_cs, io_cs, dsw_cs, dec_cs;
-wire        bus_cs, bus_busy, vdtackn;
+wire        bus_cs, bus_busy, vdtackn, bus_legit;
 reg         gchar_sel;
 wire        video_req;
 wire [ 7:0] ctrl;
@@ -96,13 +96,14 @@ assign bus_cs   = rom_cs | ram_cs | pal_cs | tile_cs | gchar_sel | sh_cs |
 wire [1:0] ok_cs, ok_in;
 assign ok_cs = { rom_cs, gchar_cs };
 assign ok_in = { rom_ok, gchar_ok };
-assign video_req = (tile_cs | gchar_sel) & ~BUSn;
+assign video_req = tile_cs | (dec_cs && A[20:18]==3'd6);
 assign video_req_n = ~video_req;
 assign bus_busy = (rom_cs   & ~ok_dly)   |
                   (gchar_cs & ~ok_dly)   |
                   (video_req & video_grant_n) |
                   (tile_cs  & ~tile_dtack);
 assign vdtackn  = DTACKn | (tile_cs & ~tile_dtack);
+assign bus_legit = (video_req & video_grant_n) | (tile_cs & ~tile_dtack);
 assign VPAn     = ~( A[23] & ~ASn );
 assign BUSn      = &bus_dsn;
 assign st_dout  = { sub_rst, ctrl[5], rmrd, prio, 2'b0, snd_irq, sub_irq };
@@ -238,7 +239,7 @@ jtframe_68kdtack_cen #(.W(6), .RECOVERY(1)) u_dtack(
     .cpu_cenb   ( cpu_cenb  ),
     .bus_cs     ( bus_cs    ),
     .bus_busy   ( bus_busy  ),
-    .bus_legit  ( 1'b0      ),
+    .bus_legit  ( bus_legit ),
     .bus_ack    ( 1'b0      ),
     .ASn        ( ASn       ),
     .DSn        ( bus_dsn   ),
