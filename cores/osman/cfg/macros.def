@@ -4,6 +4,7 @@
 CORENAME=JTOSMAN
 
 JTFRAME_BUTTONS=3
+JTFRAME_HEADER=16
 
 # IN1 wants MAME's TAITO-style U/D/L/R at bits 0-3 (b0=up..b3=right). JTFRAME's default
 # joystick order is up,down,left,right at [3:0] (i.e. [3]=up..[0]=right), so bit-reverse

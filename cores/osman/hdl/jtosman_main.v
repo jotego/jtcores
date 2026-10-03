@@ -24,6 +24,7 @@ module jtosman_main(
     input             clk,
     input             cen_arm,
     input             LVBL,       // vblank level (active low visible) -> IRQ + IN0[7]
+    input             jm,         // header: joemacr map (device block @0x100000)
 
     // program ROM (SDRAM, 32-bit, deco156 decrypt-at-fetch)
     output reg        rom_cs,
@@ -96,19 +97,20 @@ wire        rd  = acc & ~wb_we;
 // vblank: LVBL is active-low visible -> vblank when LVBL==0. IN0 bit7 active-HIGH.
 wire        vbl = ~LVBL;
 
-// ---- address decode (mitchell156_map, byte page = wb_adr[23:16]) ----
+// ---- address decode (byte page = wb_adr[23:16]). Same devices on both maps,
+//      only the page assignment moves: mitchell156_map, or joemacr_map when jm ----
 wire [ 7:0] page = wb_adr[23:16];
 wire is_rom    = wb_adr[23:19]==5'd0;           // 000000-07FFFF
-wire is_okisfx = page==8'h10;                   // 100000
-wire is_okimus = page==8'h14;                   // 140000
-wire is_mram   = page==8'h18;                   // 180000-187FFF (16-bit, 32 KB)
-wire is_oram   = page==8'h19;                   // 190000-191FFF (16-bit, 8 KB)
-wire is_pal    = page==8'h1a;                   // 1A0000-1A0FFF (16-bit, 4 KB)
-wire is_io     = page==8'h1b;                   // 1B0000 R:IN1 W:eeprom_w
-wire is_pfctl  = page==8'h1c;                   // 1C0000-1C001F pf control
-wire is_pfram  = page==8'h1d;                   // 1D0000-1D5FFF pf name tables
-wire is_rowscr = page==8'h1e;                   // 1E0000-1E5FFF rowscroll
-wire is_ctrl   = page==8'h1f;                   // 1F0000 control (nop)
+wire is_okisfx = page==(jm?8'h18:8'h10);        // 180000 / 100000
+wire is_okimus = page==(jm?8'h1c:8'h14);        // 1C0000 / 140000
+wire is_mram   = page==(jm?8'h10:8'h18);        // 100000 / 180000-187FFF (16-bit, 32 KB)
+wire is_oram   = page==(jm?8'h11:8'h19);        // 110000 / 190000-191FFF (16-bit, 8 KB)
+wire is_pal    = page==(jm?8'h12:8'h1a);        // 120000 / 1A0000-1A0FFF (16-bit, 4 KB)
+wire is_io     = page==(jm?8'h13:8'h1b);        // 130000 / 1B0000 R:IN1 W:eeprom_w
+wire is_pfctl  = page==(jm?8'h14:8'h1c);        // 140000 / 1C0000-1C001F pf control
+wire is_pfram  = page==(jm?8'h15:8'h1d);        // 150000 / 1D0000-1D5FFF pf name tables
+wire is_rowscr = page==(jm?8'h16:8'h1e);        // 160000 / 1E0000-1E5FFF rowscroll
+wire is_ctrl   = page==(jm?8'h17:8'h1f);        // 170000 / 1F0000 control (nop)
 wire is_in0    = page==8'h20 & ~wb_adr[12];     // 200000 IN0
 wire is_sram   = page==8'h20 &  wb_adr[12];     // 201000-201FFF systemram (32-bit)
 

@@ -14,6 +14,8 @@ clocks:
       outputs: [ cen_oki1 ]
     - freq: 1000000          # OKI #2 music = 28MHz/28 (mitchell156 sets both /28)
       outputs: [ cen_oki2 ]
+    - freq: 2000000          # OKI #2 music on the DECO PCBs (joemacr) = 28MHz/14
+      outputs: [ cen_oki2b ]
 
 download:
   post_addr: true            # tiles ROM_CONTINUE placement + sprite plane-pack + okimusic bitswap
