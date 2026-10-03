@@ -208,7 +208,8 @@ always @(posedge clk) begin
     if( rst ) begin irq_l <= 1'b0; vbl_l <= 1'b0; end
     else begin
         vbl_l <= vbl;
-        if( vbl & ~vbl_l )                                   irq_l <= 1'b1;   // vblank start
+        if( !vbl )                                            irq_l <= 1'b0;  // CLEAR_LINE at vblank end: a masked IRQ is lost, never held pending
+        else if( vbl & ~vbl_l )                               irq_l <= 1'b1;  // vblank start
         else if( is_rom & rd & wb_ack & wb_adr[23:2]==22'h6 ) irq_l <= 1'b0;  // vector 0x18 fetched
     end
 end
