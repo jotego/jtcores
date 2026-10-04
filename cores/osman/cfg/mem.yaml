@@ -29,6 +29,47 @@ audio:
     - { name: pcm1, module: jt6295, rsum: 20k }   # okisfx  — SFX/voice
     - { name: pcm2, module: jt6295, rsum: 60k }   # okimusic — music (address-bitswapped + banked)
 
+# Board RAMs live here (never instantiated in core HDL); only chip-internal state
+# stays in the modules: the deco16ic pf name tables + control regs (jtosman_video /
+# jtdeco16ic_mmr) and the DE156 system RAM (32-bit scratch on every map at 0x201000).
+bram:
+  - name: mram          # main work RAM, 16-bit at dword spacing (page moves per family)
+    addr_width: 14
+    data_width: 16
+    addr: mram_addr
+    din: cpu_dout
+    we: mram_we
+    rw: true
+  - name: pal           # 1024 colours; xBGR555 low half (hvysmsh adds palh)
+    addr_width: 11
+    data_width: 16
+    simfile: {}
+    addr: pal_rd
+    dual_port: { name: palrw, din: cpu_dout, dout: palrw_dout, rw: true }
+  - name: palh          # xBGR888 high half (hvysmsh only; zero elsewhere)
+    addr_width: 11
+    data_width: 16
+    addr: pal_rd
+    dual_port: { name: palhrw, din: cpu_dhi, rw: true }
+  - name: oram          # sprite RAM
+    addr_width: 12
+    data_width: 16
+    simfile: {}
+    addr: obj_oaddr
+    dual_port: { name: oramrw, din: cpu_dout, dout: oramrw_dout, rw: true }
+  - name: rs1           # pf1 rowscroll table
+    addr_width: 12
+    data_width: 16
+    simfile: {}
+    addr: pf1_rsa
+    dual_port: { name: rs1rw, din: cpu_dout, rw: true }
+  - name: rs2           # pf2 rowscroll table
+    addr_width: 12
+    data_width: 16
+    simfile: {}
+    addr: pf2_rsa
+    dual_port: { name: rs2rw, din: cpu_dout, rw: true }
+
 sdram:
   banks:
     # BA0 — main ARM ROM (512 KB, 32-bit). deco156 decrypt-at-fetch (jtosman_deco156).

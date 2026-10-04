@@ -27,13 +27,12 @@ module jtosman_game(
 
 // ---- CPU (ARM, 16-bit device side) bus to video/palette/sprite ----
 wire [16:1] cpu_addr;
-wire [15:0] cpu_dout, cpu_dhi;
 wire        cpu_rnw;
 wire [ 1:0] dsn;
 
 // ---- video chip-selects + read-back ----
 wire        pf_cs, pfram_cs, pal_cs, oram_cs, rowscr_cs, obj_copy;
-wire [15:0] pf_dout, pal_dout, oram_dout;
+wire [15:0] pf_dout;
 wire [ 8:0] vdump;
 wire        flip;
 
@@ -45,36 +44,35 @@ wire [ 2:0] oki2_bank;
 assign dip_flip   = flip;
 assign debug_view = 8'd0;
 
-// ---- header: per-family map/geometry values (see mame2mra.toml [header]) ----
-wire [7:0] mrampage, orampage, palpage, iopage, pfctlpage, pframpage, rowscrpage,
-           sfxpage, muspage;
-wire [4:0] sprbit;
-wire       tile1mb, mus2m, hvio, rom1m, musraw, sfxbank, pal888;
-wire       oki1_bank;
+// ---- CPU side of the mem.yaml board BRAMs ----
+assign palrw_addr  = cpu_addr[11:2];
+assign palrw_we    = {2{pal_cs    & ~cpu_rnw}} & ~dsn;
+assign palhrw_addr = cpu_addr[11:2];
+assign palhrw_we   = {2{pal_cs    & ~cpu_rnw & pal888}};      // full dword writes only (hvysmsh)
+assign oramrw_addr = cpu_addr[12:2];
+assign oramrw_we   = {2{oram_cs   & ~cpu_rnw}} & ~dsn;
+assign rs1rw_addr  = cpu_addr[12:2];
+assign rs1rw_we    = {2{rowscr_cs & ~cpu_addr[14] & ~cpu_rnw}} & ~dsn;
+assign rs2rw_addr  = cpu_addr[12:2];
+assign rs2rw_we    = {2{rowscr_cs &  cpu_addr[14] & ~cpu_rnw}} & ~dsn;
+
+// ---- header: one-hot family bits (cninja pattern); the decode lives in HDL ----
+wire jm, cr, md, mdp, cn, hv;
+wire oki1_bank;
 jtosman_header u_header(
     .clk       ( clk            ),
     .header    ( header         ),
     .prog_we   ( prog_we        ),
     .prog_addr ( prog_addr[3:0] ),
     .prog_data ( prog_data      ),
-    .mrampage  ( mrampage       ),
-    .orampage  ( orampage       ),
-    .palpage   ( palpage        ),
-    .iopage    ( iopage         ),
-    .pfctlpage ( pfctlpage      ),
-    .pframpage ( pframpage      ),
-    .rowscrpage( rowscrpage     ),
-    .sfxpage   ( sfxpage        ),
-    .muspage   ( muspage        ),
-    .sprbit    ( sprbit         ),
-    .tile1mb   ( tile1mb        ),
-    .mus2m     ( mus2m          ),
-    .hvio      ( hvio           ),
-    .rom1m     ( rom1m          ),
-    .musraw    ( musraw         ),
-    .sfxbank   ( sfxbank        ),
-    .pal888    ( pal888         )
+    .jm(jm), .cr(cr), .md(md), .mdp(mdp), .cn(cn), .hv(hv)
 );
+// Per-family behaviour, derived - no game tables in the MRA:
+wire tile1mb = jm|cr|md|mdp;        // 1MB plain tile region (else 2MB w/ ROM_CONTINUE swap)
+wire mus2m   = jm|cr|md|mdp|hv;     // music OKI at 28/14 = 2 MHz (Mitchell = 1 MHz)
+wire musraw  = hv;                  // music OKI without the init_simpl156 bitswap
+wire sfxbank = hv;                  // 512KB banked sfx OKI
+wire pal888  = hv;                  // xBGR888 32-bit palette
 
 // ---- ROM download remap. prog_addr = 16-bit-WORD address, per-bank. ----
 // BA1 tiles: mcf-00 is a 2 MB ROM with ROM_CONTINUE (b0->0, b1->0x100000, b2->0x80000, b3->0x180000).
@@ -97,29 +95,23 @@ always @* begin
         post_addr[19] = prog_addr[18];
         post_addr[18] = prog_addr[19];
     end
-    if( prog_ba==2'd3 ) case( sprbit )
-        5'd18:   post_addr = { prog_addr[21:19], prog_addr[17:0], ~prog_addr[18] };
-        5'd19:   post_addr = { prog_addr[21:20], prog_addr[18:0], ~prog_addr[19] };
-        default: post_addr = { prog_addr[20:0], ~prog_addr[21] };
-    endcase
+    // sprite FRAC half bit by region size: 1MB (joemacr) bit18, 2MB (chainrec
+    // family + charlien) bit19, 8MB (Mitchell + hvysmsh) bit21
+    if( prog_ba==2'd3 )
+        post_addr = jm          ? { prog_addr[21:19], prog_addr[17:0], ~prog_addr[18] } :
+                    (cr|md|mdp|cn) ? { prog_addr[21:20], prog_addr[18:0], ~prog_addr[19] } :
+                                   { prog_addr[20:0], ~prog_addr[21] };
 end
 
 /* verilator tracing_off */
 jtosman_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .mrampage   ( mrampage  ),
-    .orampage   ( orampage  ),
-    .palpage    ( palpage   ),
-    .iopage     ( iopage    ),
-    .pfctlpage  ( pfctlpage ),
-    .pframpage  ( pframpage ),
-    .rowscrpage ( rowscrpage),
-    .sfxpage    ( sfxpage   ),
-    .muspage    ( muspage   ),
-    .hvio       ( hvio      ),
-    .rom1m      ( rom1m     ),
+    .jm(jm), .cr(cr), .md(md), .mdp(mdp), .hv(hv),
     .oki1_bank  ( oki1_bank ),
+    .mram_addr  ( mram_addr ),
+    .mram_we    ( mram_we   ),
+    .mram_dout  ( mram_dout ),
     .cen_arm    ( cen_arm   ),
     .LVBL       ( LVBL      ),
     // program ROM (SDRAM, deco156 decrypt-at-fetch)
@@ -130,7 +122,6 @@ jtosman_main u_main(
     // CPU bus
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
-    .cpu_dhi    ( cpu_dhi   ),
     .cpu_rnw    ( cpu_rnw   ),
     .dsn        ( dsn       ),
     // video interface
@@ -141,8 +132,8 @@ jtosman_main u_main(
     .rowscr_cs  ( rowscr_cs ),
     .obj_copy   ( obj_copy  ),
     .pf_dout    ( pf_dout   ),
-    .pal_dout   ( pal_dout  ),
-    .oram_dout  ( oram_dout ),
+    .pal_dout   ( palrw_dout  ),
+    .oram_dout  ( oramrw_dout ),
     .flip       ( flip      ),
     // sound command (to OKIs)
     .oki1_wr    ( oki1_wr   ),
@@ -199,7 +190,6 @@ jtosman_video u_video(
     .flip       ( flip      ),
     .tile1mb    ( tile1mb   ),
     .pal888     ( pal888    ),
-    .cpu_dhi    ( cpu_dhi   ),
     // CPU interface
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
@@ -207,13 +197,18 @@ jtosman_video u_video(
     .dsn        ( dsn       ),
     .pf_cs      ( pf_cs     ),
     .pfram_cs   ( pfram_cs  ),
-    .pal_cs     ( pal_cs    ),
-    .oram_cs    ( oram_cs   ),
-    .rowscr_cs  ( rowscr_cs ),
     .obj_copy   ( obj_copy  ),
     .pf_dout    ( pf_dout   ),
+    // board BRAMs (mem.yaml): engine-side read buses
+    .pal_rd     ( pal_rd    ),
     .pal_dout   ( pal_dout  ),
+    .palh_dout  ( palh_dout ),
+    .obj_oaddr  ( obj_oaddr ),
     .oram_dout  ( oram_dout ),
+    .pf1_rsa    ( pf1_rsa   ),
+    .rs1_dout   ( rs1_dout  ),
+    .pf2_rsa    ( pf2_rsa   ),
+    .rs2_dout   ( rs2_dout  ),
     // tile gfx ROM (BA1, deco56 decrypt-at-fetch)
     .gfx1a_cs   ( gfx1a_cs  ),
     .gfx1a_addr ( gfx1a_addr),

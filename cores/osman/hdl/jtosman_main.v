@@ -24,13 +24,14 @@ module jtosman_main(
     input             clk,
     input             cen_arm,
     input             LVBL,       // vblank level (active low visible) -> IRQ + IN0[7]
-    // header: one page value per device (see mame2mra.toml [header]) + behaviour flags
-    input    [ 7:0]   mrampage, orampage, palpage, iopage,
-    input    [ 7:0]   pfctlpage, pframpage, rowscrpage,
-    input    [ 7:0]   sfxpage, muspage,
-    input             hvio,       // hvysmsh io page: 32-bit INPUTS read, eeprom_w @+4, sfx bank @+0xC
-    input             rom1m,      // 1MB main ROM (else 512KB)
+    // header: one-hot family bits (cninja pattern); all clear = Mitchell map
+    input             jm, cr, md, mdp, hv,
     output reg        oki1_bank,  // hvysmsh banked sfx OKI
+
+    // main work RAM (mem.yaml BRAM)
+    output   [14:2]   mram_addr,
+    output   [ 1:0]   mram_we,
+    input    [15:0]   mram_dout,
 
     // program ROM (SDRAM, 32-bit, deco156 decrypt-at-fetch)
     output reg        rom_cs,
@@ -79,6 +80,8 @@ module jtosman_main(
 // pf name / control regs, loaded in jtosman_video) are what gets rendered. Hold
 // cpu_rnw high and every chip-select low so nothing overwrites the scene.
 assign rom_addr = 18'd0;
+assign mram_addr = 13'd0;
+assign mram_we   = 2'd0;
 assign cpu_addr = 16'd0;
 assign cpu_dout = 16'd0;
 assign cpu_dhi  = 16'd0;
@@ -105,10 +108,24 @@ wire        rd  = acc & ~wb_we;
 // vblank: LVBL is active-low visible -> vblank when LVBL==0. IN0 bit7 active-HIGH.
 wire        vbl = ~LVBL;
 
-// ---- address decode (byte page = wb_adr[23:16]). One header page value per device:
-//      the simpl156 maps keep them in a tidy block, hvysmsh scatters them. Unmapped
-//      pages read FFFF/ack (MAME unmap_value_high), which also covers the ctrl page. ----
+// ---- address decode (byte page = wb_adr[23:16]). Per-family page muxes on the
+//      one-hot header bits (cninja pattern): the simpl156 maps keep the devices in
+//      a tidy block at different bases, hvysmsh scatters them. Unmapped pages read
+//      FFFF/ack (MAME unmap_value_high), which also covers the ctrl page. ----
+wire        hvio  = hv;                          // hvysmsh io page layout
+wire        rom1m = hv;                          // 1MB main ROM
 wire [ 7:0] page = wb_adr[23:16];
+// mitchell (default): mram 18, oram 19, pal 1A, io 1B, pfctl 1C, pfram 1D, rowscr 1E,
+//                     sfx 10, mus 14. charlien shares it.
+wire [ 7:0] mrampage   = hv ? 8'h10 : jm ? 8'h10 : cr ? 8'h40 : md ? 8'h38 : mdp ? 8'h68 : 8'h18;
+wire [ 7:0] orampage   = hv ? 8'h1e : jm ? 8'h11 : cr ? 8'h41 : md ? 8'h39 : mdp ? 8'h69 : 8'h19;
+wire [ 7:0] palpage    = hv ? 8'h1c : jm ? 8'h12 : cr ? 8'h42 : md ? 8'h3a : mdp ? 8'h6a : 8'h1a;
+wire [ 7:0] iopage     = hv ? 8'h12 : jm ? 8'h13 : cr ? 8'h43 : md ? 8'h3b : mdp ? 8'h6b : 8'h1b;
+wire [ 7:0] pfctlpage  = hv ? 8'h18 : jm ? 8'h14 : cr ? 8'h44 : md ? 8'h3c : mdp ? 8'h6c : 8'h1c;
+wire [ 7:0] pframpage  = hv ? 8'h19 : jm ? 8'h15 : cr ? 8'h45 : md ? 8'h3d : mdp ? 8'h6d : 8'h1d;
+wire [ 7:0] rowscrpage = hv ? 8'h1a : jm ? 8'h16 : cr ? 8'h46 : md ? 8'h3e : mdp ? 8'h6e : 8'h1e;
+wire [ 7:0] sfxpage    = hv ? 8'h14 : jm ? 8'h18 : cr ? 8'h48 : md ? 8'h40 : mdp ? 8'h78 : 8'h10;
+wire [ 7:0] muspage    = hv ? 8'h16 : jm ? 8'h1c : cr ? 8'h3c : md ? 8'h34 : mdp ? 8'h4c : 8'h14;
 wire is_rom    = rom1m ? wb_adr[23:20]==4'd0    // 000000-0FFFFF (hvysmsh)
                        : wb_adr[23:19]==5'd0;   // 000000-07FFFF
 wire is_okisfx = page==sfxpage;
@@ -183,17 +200,15 @@ jt9346 #(.AW(6),.DW(16)) u_eeprom(
     .dump_flag(         )
 );
 
-// ---- work RAM (BRAM), BYTE-writable (ARM uses STRB/STRH on game-state vars). ----
-// mainram: 16-bit device on the low 16 bits (mem_mask&0xffff); the ARM addresses it at 32-bit
-// spacing (MAME mainram_r is a u32 handler, offset=byte>>2) -> addr wb_adr[14:2], byte lanes
-// wb_sel[1:0]. systemram: true 32-bit, byte lanes wb_sel[3:0] (two 16-bit halves).
-wire [15:0] mram_q;
+// ---- work RAM: mem.yaml BRAM (board memory), BYTE-writable (ARM uses STRB/STRH).
+// 16-bit device on the low 16 bits (mem_mask&0xffff); the ARM addresses it at 32-bit
+// spacing (MAME mainram_r is a u32 handler, offset=byte>>2) -> addr wb_adr[14:2],
+// byte lanes wb_sel[1:0]. systemram stays here: 4KB 32-bit scratch at 0x201000 on
+// every simpl156 map regardless of family - DE156-local, not a board RAM.
+wire [15:0] mram_q = mram_dout;
 wire [31:0] sram_q;
-jtframe_dual_ram16 #(.AW(13)) u_mainram(         // 8K x 16 (one per ARM word) = 32 KB
-    .clk0(clk), .addr0(wb_adr[14:2]), .data0(wb_wdat[15:0]),
-    .we0({2{is_mram&wr}} & wb_sel[1:0]), .q0(mram_q),
-    .clk1(clk), .addr1(13'd0), .data1(16'd0), .we1(2'b0), .q1()
-);
+assign mram_addr = wb_adr[14:2];
+assign mram_we   = {2{is_mram&wr}} & wb_sel[1:0];
 jtframe_dual_ram16 #(.AW(10)) u_sysram_lo(       // systemram low 16 bits
     .clk0(clk), .addr0(wb_adr[11:2]), .data0(wb_wdat[15:0]),
     .we0({2{is_sram&wr}} & wb_sel[1:0]), .q0(sram_q[15:0]),

@@ -27,120 +27,17 @@ skip.machines=[
 ]
 
 [header]
-# Per-family differences as VALUE registers, straight into jtosman_header.v (generated
-# by jtframe mra). The HDL consumes the values - no game tables in HDL.
-# Bytes 0-8: one page register (byte addr [23:16]) per device. simpl156 boards keep the
-# 8 pages in a tidy block; hvysmsh scatters them, hence per-device values.
-# Byte 9: sprite-region FRAC half bit (word addr) for the download interleave:
-#         1MB=18, 2MB=19, 8MB=21.
-# Byte 10 flags:
-#   [0] tile1mb: 1MB tile region, plain load (plane pairs 0x40000 decwords apart;
-#       0 = 2MB mask ROM with the ROM_CONTINUE quarter swap, pairs 0x80000 apart)
-#   [1] mus2m:   music OKI at 28/14=2 MHz (0 = Mitchell 28/28=1 MHz)
-#   [2] hvio:    hvysmsh io page: 32-bit INPUTS read at +0, eeprom_w at +4, volume at +0
-#                and sfx-OKI bank at +0xC on the write side
-#   [3] rom1m:   1MB main ROM (0 = 512KB)
-#   [4] musraw:  music OKI WITHOUT the init_simpl156 address bitswap
-#   [5] sfxbank: sfx OKI 512KB, banked x2 (hvio write +0xC bit0)
-#   [6] pal888:  palette is xBGR888, full 32-bit writes (0 = xBGR555 in the low half)
+# cninja pattern: ONE-HOT family bits only - the per-family address decode and
+# behaviour flags live in jtosman_main/jtosman_game muxes, not in the MRA.
+# All-zero = Mitchell MT5601-0 map (osman, candance, prtytime, gangonta).
+# cn only widens the sprite-interleave decode (charlien map IS the Mitchell one).
 registers=[
-    { name="mrampage", pos="0[7:0]", desc="main RAM page", values=[
-        { machines=["osman","charlien","prtytime"], value=0x18 },
-        { machines=["joemacr","hvysmsh"], value=0x10 },
-        { machine="chainrec", value=0x40 },
-        { setname="magdrop",  value=0x38 },
-        { setname="magdropp", value=0x68 },
-    ]},
-    { name="orampage", pos="1[7:0]", desc="sprite RAM page", values=[
-        { machines=["osman","charlien","prtytime"], value=0x19 },
-        { machine="joemacr",  value=0x11 },
-        { machine="chainrec", value=0x41 },
-        { setname="magdrop",  value=0x39 },
-        { setname="magdropp", value=0x69 },
-        { machine="hvysmsh",  value=0x1e },
-    ]},
-    { name="palpage", pos="2[7:0]", desc="palette page", values=[
-        { machines=["osman","charlien","prtytime"], value=0x1a },
-        { machine="joemacr",  value=0x12 },
-        { machine="chainrec", value=0x42 },
-        { setname="magdrop",  value=0x3a },
-        { setname="magdropp", value=0x6a },
-        { machine="hvysmsh",  value=0x1c },
-    ]},
-    { name="iopage", pos="3[7:0]", desc="IO page", values=[
-        { machines=["osman","charlien","prtytime"], value=0x1b },
-        { machine="joemacr",  value=0x13 },
-        { machine="chainrec", value=0x43 },
-        { setname="magdrop",  value=0x3b },
-        { setname="magdropp", value=0x6b },
-        { machine="hvysmsh",  value=0x12 },
-    ]},
-    { name="pfctlpage", pos="4[7:0]", desc="pf control page", values=[
-        { machines=["osman","charlien","prtytime"], value=0x1c },
-        { machine="joemacr",  value=0x14 },
-        { machine="chainrec", value=0x44 },
-        { setname="magdrop",  value=0x3c },
-        { setname="magdropp", value=0x6c },
-        { machine="hvysmsh",  value=0x18 },
-    ]},
-    { name="pframpage", pos="5[7:0]", desc="pf name-table page", values=[
-        { machines=["osman","charlien","prtytime"], value=0x1d },
-        { machine="joemacr",  value=0x15 },
-        { machine="chainrec", value=0x45 },
-        { setname="magdrop",  value=0x3d },
-        { setname="magdropp", value=0x6d },
-        { machine="hvysmsh",  value=0x19 },
-    ]},
-    { name="rowscrpage", pos="6[7:0]", desc="rowscroll page", values=[
-        { machines=["osman","charlien","prtytime"], value=0x1e },
-        { machine="joemacr",  value=0x16 },
-        { machine="chainrec", value=0x46 },
-        { setname="magdrop",  value=0x3e },
-        { setname="magdropp", value=0x6e },
-        { machine="hvysmsh",  value=0x1a },
-    ]},
-    { name="sfxpage", pos="7[7:0]", desc="OKI sfx page", values=[
-        { machines=["osman","charlien","prtytime"], value=0x10 },
-        { machine="joemacr",  value=0x18 },
-        { machine="chainrec", value=0x48 },
-        { setname="magdrop",  value=0x40 },
-        { setname="magdropp", value=0x78 },
-        { machine="hvysmsh",  value=0x14 },
-    ]},
-    { name="muspage", pos="8[7:0]", desc="OKI music page", values=[
-        { machines=["osman","charlien","prtytime"], value=0x14 },
-        { machine="joemacr",  value=0x1c },
-        { machine="chainrec", value=0x3c },
-        { setname="magdrop",  value=0x34 },
-        { setname="magdropp", value=0x4c },
-        { machine="hvysmsh",  value=0x16 },
-    ]},
-    { name="sprbit", pos="9[4:0]", desc="sprite FRAC bit", values=[
-        { machines=["osman","prtytime","hvysmsh"], value=21 },
-        { machines=["charlien","chainrec"], value=19 },
-        { machine="joemacr", value=18 },
-    ]},
-    { name="tile1mb", pos="10[0]", desc="1MB plain tile region", values=[
-        { machines=["joemacr","chainrec"], value=1 },
-    ]},
-    { name="mus2m", pos="10[1]", desc="music OKI at 2 MHz", values=[
-        { machines=["joemacr","chainrec","hvysmsh"], value=1 },
-    ]},
-    { name="hvio", pos="10[2]", desc="hvysmsh io page layout", values=[
-        { machine="hvysmsh", value=1 },
-    ]},
-    { name="rom1m", pos="10[3]", desc="1MB main ROM", values=[
-        { machine="hvysmsh", value=1 },
-    ]},
-    { name="musraw", pos="10[4]", desc="music OKI without bitswap", values=[
-        { machine="hvysmsh", value=1 },
-    ]},
-    { name="sfxbank", pos="10[5]", desc="banked 512KB sfx OKI", values=[
-        { machine="hvysmsh", value=1 },
-    ]},
-    { name="pal888", pos="10[6]", desc="xBGR888 32-bit palette", values=[
-        { machine="hvysmsh", value=1 },
-    ]},
+    { name="jm",  pos="0[0]", desc="Joe & Mac Returns",  values=[{ machine="joemacr",  value=1 }] },
+    { name="cr",  pos="0[1]", desc="Chain Reaction",     values=[{ setname="chainrec", value=1 }] },
+    { name="md",  pos="0[2]", desc="Magical Drop",       values=[{ setname="magdrop",  value=1 }] },
+    { name="mdp", pos="0[3]", desc="Magical Drop Plus",  values=[{ setname="magdropp", value=1 }] },
+    { name="cn",  pos="0[4]", desc="Charlie Ninja",      values=[{ machine="charlien", value=1 }] },
+    { name="hv",  pos="0[5]", desc="Heavy Smash",        values=[{ machine="hvysmsh",  value=1 }] },
 ]
 
 [buttons]
