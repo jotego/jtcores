@@ -16,7 +16,7 @@ module jtosman_video(
     input             pxl_cen,
     input    [ 3:0]   gfx_en,
     input             flip,
-    input             jm,       // header: joemacr region geometry for the tile decrypt fetch
+    input             deco,     // header: DECO PCB = 1MB tile region for the decrypt fetch
 
     // CPU interface
     input    [16:1]   cpu_addr,
@@ -181,7 +181,7 @@ jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf1a_eng(
     .ram_addr(pf1a_va),.ram_data(pf1a_vq),
     .rom_cs(pf1a_gcs),.rom_addr(pf1a_roma),.rom_data(pf1a_gdata),.rom_ok(pf1a_gok),.pxl(pf1a_pxl)
 );
-jtosman_gfxdec u_pf1a_dec(.rst(rst),.clk(clk),.jm(jm),.rom_cs(pf1a_gcs),.rom_addr(pf1a_roma),.rom_data(pf1a_gdata),.rom_ok(pf1a_gok),
+jtosman_gfxdec u_pf1a_dec(.rst(rst),.clk(clk),.deco(deco),.rom_cs(pf1a_gcs),.rom_addr(pf1a_roma),.rom_data(pf1a_gdata),.rom_ok(pf1a_gok),
     .sdr_cs(gfx1a_cs),.sdr_addr(gfx1a_addr),.sdr_data(gfx1a_data),.sdr_ok(gfx1a_ok));
 // pf1 8x8
 jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf1b_eng(
@@ -192,7 +192,7 @@ jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf1b_eng(
     .ram_addr(pf1b_va),.ram_data(pf1b_vq),
     .rom_cs(pf1b_gcs),.rom_addr(pf1b_roma),.rom_data(pf1b_gdata),.rom_ok(pf1b_gok),.pxl(pf1b_pxl)
 );
-jtosman_gfxdec u_pf1b_dec(.rst(rst),.clk(clk),.jm(jm),.rom_cs(pf1b_gcs),.rom_addr(pf1b_roma),.rom_data(pf1b_gdata),.rom_ok(pf1b_gok),
+jtosman_gfxdec u_pf1b_dec(.rst(rst),.clk(clk),.deco(deco),.rom_cs(pf1b_gcs),.rom_addr(pf1b_roma),.rom_data(pf1b_gdata),.rom_ok(pf1b_gok),
     .sdr_cs(gfx1c_cs),.sdr_addr(gfx1c_addr),.sdr_data(gfx1c_data),.sdr_ok(gfx1c_ok));
 // pf2 16x16
 jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf2a_eng(
@@ -203,7 +203,7 @@ jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf2a_eng(
     .ram_addr(pf2a_va),.ram_data(pf2a_vq),
     .rom_cs(pf2a_gcs),.rom_addr(pf2a_roma),.rom_data(pf2a_gdata),.rom_ok(pf2a_gok),.pxl(pf2a_pxl)
 );
-jtosman_gfxdec u_pf2a_dec(.rst(rst),.clk(clk),.jm(jm),.rom_cs(pf2a_gcs),.rom_addr(pf2a_roma),.rom_data(pf2a_gdata),.rom_ok(pf2a_gok),
+jtosman_gfxdec u_pf2a_dec(.rst(rst),.clk(clk),.deco(deco),.rom_cs(pf2a_gcs),.rom_addr(pf2a_roma),.rom_data(pf2a_gdata),.rom_ok(pf2a_gok),
     .sdr_cs(gfx1b_cs),.sdr_addr(gfx1b_addr),.sdr_data(gfx1b_data),.sdr_ok(gfx1b_ok));
 // pf2 8x8
 jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf2b_eng(
@@ -214,7 +214,7 @@ jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf2b_eng(
     .ram_addr(pf2b_va),.ram_data(pf2b_vq),
     .rom_cs(pf2b_gcs),.rom_addr(pf2b_roma),.rom_data(pf2b_gdata),.rom_ok(pf2b_gok),.pxl(pf2b_pxl)
 );
-jtosman_gfxdec u_pf2b_dec(.rst(rst),.clk(clk),.jm(jm),.rom_cs(pf2b_gcs),.rom_addr(pf2b_roma),.rom_data(pf2b_gdata),.rom_ok(pf2b_gok),
+jtosman_gfxdec u_pf2b_dec(.rst(rst),.clk(clk),.deco(deco),.rom_cs(pf2b_gcs),.rom_addr(pf2b_roma),.rom_data(pf2b_gdata),.rom_ok(pf2b_gok),
     .sdr_cs(gfx1d_cs),.sdr_addr(gfx1d_addr),.sdr_data(gfx1d_data),.sdr_ok(gfx1d_ok));
 
 // deco16_pf_update: control1[7] SELECTS the size per pf and DISABLES the other (enable(0)).

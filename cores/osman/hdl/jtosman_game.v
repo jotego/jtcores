@@ -45,15 +45,21 @@ wire [ 2:0] oki2_bank;
 assign dip_flip   = flip;
 assign debug_view = 8'd0;
 
-// ---- header: jm = Joe & Mac Returns (joemacr map + region geometry + 2MHz okimusic) ----
-wire jm;
+// ---- header: per-family map/geometry values (see mame2mra.toml [header]) ----
+wire [7:0] blkpage, sfxpage, muspage;
+wire [4:0] sprbit;
+wire       deco;
 jtosman_header u_header(
     .clk       ( clk            ),
     .header    ( header         ),
     .prog_we   ( prog_we        ),
     .prog_addr ( prog_addr[3:0] ),
     .prog_data ( prog_data      ),
-    .jm        ( jm             )
+    .blkpage   ( blkpage        ),
+    .sfxpage   ( sfxpage        ),
+    .muspage   ( muspage        ),
+    .sprbit    ( sprbit         ),
+    .deco      ( deco           )
 );
 
 // ---- ROM download remap. prog_addr = 16-bit-WORD address, per-bank. ----
@@ -66,26 +72,31 @@ jtosman_header u_header(
 // (prog_addr[21]) down to the 32-bit-word low/high select (bit 0). FRAC1->low16 (planes 0,1),
 // FRAC0->high16 (planes 2,3). Region fills the 8 MB slot -> no fold-back.
 // okimusic address descramble (init_simpl156) is applied on the read side in jtosman_snd, not here.
-// jm is latched from the header, which downloads before any bank data, so it is
-// valid here. joemacr: tiles are plain ROMs (no ROM_CONTINUE swap) and the sprite
-// region is 1 MB, so its FRAC bit is word bit 18 instead of 21.
+// The header downloads before any bank data, so its values are valid here.
+// BA1: the Mitchell boards (deco=0) hold tiles in one 2MB mask ROM with ROM_CONTINUE
+// quarters -> undo by swapping word bits 19/18; DECO boards load plain.
+// BA3: sprite FRAC half interleave; the half bit (sprbit) moves with region size.
 always @* begin
     post_addr = prog_addr;
     post_data = prog_data;
-    if( prog_ba==2'd1 && !jm ) begin
+    if( prog_ba==2'd1 && !deco ) begin
         post_addr[19] = prog_addr[18];
         post_addr[18] = prog_addr[19];
     end
-    if( prog_ba==2'd3 )
-        post_addr = jm ? { prog_addr[21:19], prog_addr[17:0], ~prog_addr[18] }
-                       : { prog_addr[20:0], ~prog_addr[21] };
+    if( prog_ba==2'd3 ) case( sprbit )
+        5'd18:   post_addr = { prog_addr[21:19], prog_addr[17:0], ~prog_addr[18] };
+        5'd19:   post_addr = { prog_addr[21:20], prog_addr[18:0], ~prog_addr[19] };
+        default: post_addr = { prog_addr[20:0], ~prog_addr[21] };
+    endcase
 end
 
 /* verilator tracing_off */
 jtosman_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .jm         ( jm        ),
+    .blkpage    ( blkpage   ),
+    .sfxpage    ( sfxpage   ),
+    .muspage    ( muspage   ),
     .cen_arm    ( cen_arm   ),
     .LVBL       ( LVBL      ),
     // program ROM (SDRAM, deco156 decrypt-at-fetch)
@@ -131,7 +142,7 @@ jtosman_snd u_snd(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen_oki1   ( cen_oki1  ),
-    .cen_oki2   ( jm ? cen_oki2b : cen_oki2 ),  // DECO PCBs run the music OKI at 2 MHz
+    .cen_oki2   ( deco ? cen_oki2b : cen_oki2 ),  // DECO PCBs run the music OKI at 2 MHz
     .din        ( oki_din   ),
     .oki1_wr    ( oki1_wr   ),
     .oki2_wr    ( oki2_wr   ),
@@ -160,7 +171,7 @@ jtosman_video u_video(
     .pxl_cen    ( pxl_cen   ),
     .gfx_en     ( gfx_en    ),
     .flip       ( flip      ),
-    .jm         ( jm        ),
+    .deco       ( deco      ),
     // CPU interface
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),

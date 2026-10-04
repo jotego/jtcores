@@ -21,7 +21,7 @@
 module jtosman_gfxdec(
     input             rst,
     input             clk,
-    input             jm,      // header: joemacr 1MB tile region (FRAC halves 0x40000 decwords apart)
+    input             deco,    // header: DECO PCB 1MB tile region (FRAC halves 0x40000 decwords apart)
     // jtcninja_deco16 gfx ROM bus (32-bit = 8px x 4 planes; BANKW=2 -> 19-bit render addr)
     input             rom_cs,
     input      [20:2] rom_addr,
@@ -94,7 +94,7 @@ always @(posedge clk, posedge rst) begin
             end
             RD1: begin                     // read decword W = FRAC(0,2) = planes 2,3 (high 16)
                 sdr_cs   <= 1;
-                sdr_addr <= jm ? { 2'd0, Wl[17:11], ta } : { 1'b0, Wl[18:11], ta };
+                sdr_addr <= deco ? { 2'd0, Wl[17:11], ta } : { 1'b0, Wl[18:11], ta };
                 if( sdr_cs && sdr_ok ) begin
                     dec1   <= decode_word(sdr_data);
                     sdr_cs <= 0;
@@ -104,7 +104,7 @@ always @(posedge clk, posedge rst) begin
             GAP: begin
                 sdr_cs   <= 1;
                 // FRAC(1,2) = planes 0,1 (low 16): W|0x80000, or W|0x40000 on the 1MB joemacr region
-                sdr_addr <= jm ? { 2'd1, Wl[17:11], ta } : { 1'b1, Wl[18:11], ta };
+                sdr_addr <= deco ? { 2'd1, Wl[17:11], ta } : { 1'b1, Wl[18:11], ta };
                 st       <= RD2;
             end
             RD2: begin                     // read decword W|0x80000

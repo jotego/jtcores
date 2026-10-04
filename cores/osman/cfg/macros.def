@@ -11,7 +11,9 @@ JTFRAME_HEADER=16
 # [3:0] -> RLDU. Without this, pressing up lands on bit3 = right. Same as cninja/karnov.
 JTFRAME_JOY_RLDU=1
 
-# Screen: 58 Hz, htotal 512, visarea 320x240 (set_visarea 0,319,8,247). ROT0.
+# Screen: 58 Hz, htotal 512, visarea 320x240 (set_visarea 0,319,8,247). Mostly ROT0;
+# prtytime/gangonta are ROT90 (MRA rotate flag), so vertical support is enabled.
+JTFRAME_VERTICAL=1
 JTFRAME_WIDTH=320
 JTFRAME_HEIGHT=240
 JTFRAME_COLORW=8
