@@ -16,6 +16,10 @@ sourcefile=[ "simpl156.cpp" ]
 # charlien             Mitchell MT5601-0; blk @0x18xxxx; tiles 2MB, spr 2MB; music 1MHz; no eeprom dump
 # prtytime (+gangonta) Mitchell, ROT90;  blk @0x18xxxx; tiles 2MB, spr 8MB; music 1MHz
 # osman (+candance)    Mitchell;         blk @0x18xxxx; tiles 2MB, spr 8MB; clones differ in EEPROM only
+# sets without an available dump:
+skip.setnames=[
+    "joemacrj",   # its own 1MB tile ROM (mbn00, crc 11b2dac7) is not in the collection
+]
 
 [header]
 # Per-family differences as VALUE registers, straight into jtosman_header.v (generated

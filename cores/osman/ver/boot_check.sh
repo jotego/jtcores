@@ -12,7 +12,7 @@ MAMEBIN="${MAMEBIN:-$HOME/Emus/mame0276-arm64/mame}"
 IMAGE=${IMAGE:-jotego/simulator:arm64}
 FRAMES=${FRAMES:-12}
 
-ALLSETS=(osman candance joemacr joemacra joemacrj chainrec magdrop magdropp charlien prtytime gangonta)
+ALLSETS=(osman candance joemacr joemacra chainrec magdrop magdropp charlien prtytime gangonta)
 parent_of() {
     case "$1" in
         candance) echo osman;;
