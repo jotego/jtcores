@@ -19,8 +19,7 @@ audio:
   rsum_feedback_res: true
   channels:
     - { name: fm,  module: jt51,   rsum: 1.45k,   rc: [{ r: .9, c: 30n }] }
-    # to do: replace by Sallen-Key filter as in sch
-    - { name: pcm, module: jt7759, rsum: 5.1k,  fir: fir_192k_4k.csv }
+    - { name: pcm, module: jt7759, rsum: 5.1k, sallen-key: { R1: 5.6k, R2: 10k, R3: 5.6k, C1: 22n, C2: 4.7n } }
 sdram:
   banks:
     - buses:
