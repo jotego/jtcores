@@ -71,6 +71,7 @@ module jtosman_main(
     input    [ 3:0]   coin,
     input             service,
     input             dip_test,
+    input             dip_pause,  // 0 = paused: stalls the ARM so the credits overlay a frozen game
 
     input    [ 8:0]   vdump
 );
@@ -339,6 +340,22 @@ always @(posedge clk) begin
 end
 `endif
 
+// OSD pause (and OSD-shown) stall. OSMAN_PAUSE_TEST: the sim harness ties
+// dip_pause=1 (jtframe_dip is target-level), so force a stall window over
+// frames 4-6 to check both the freeze and the resume.
+wire sysrdy;
+`ifdef OSMAN_PAUSE_TEST
+reg [3:0] vblcnt=0; reg pvbl=0;
+always @(posedge clk) begin
+    pvbl <= vbl;
+    if( rst ) vblcnt <= 4'd0;      // the download phase also ticks vbl; count game frames only
+    else if( vbl & ~pvbl & ~&vblcnt ) vblcnt <= vblcnt + 4'd1;
+end
+assign sysrdy = dip_pause & ~(vblcnt>=4'd4 && vblcnt<=4'd6);
+`else
+assign sysrdy = dip_pause;
+`endif
+
 `ifdef OSMAN_PCTRACE
 integer arm_tr;
 initial arm_tr = $fopen("osman_arm_fpga.tr","w");
@@ -351,9 +368,11 @@ a23_core u_arm(
     .i_reset      ( rst       ),
     .i_irq        ( irq_l     ),
     .i_firq       ( 1'b0      ),
-    .i_system_rdy ( 1'b1      ),   // UNGATED (nslasher pattern): the a23 L1 cache is CP15-disabled on
-                                   // this bare ARM binary (~10 CPI) so gating to cen_arm crawls; run at
-                                   // 48 MHz, game stays vblank-synced. TODO: ROM cache for real 7 MHz.
+    .i_system_rdy ( sysrdy    ),  // UNGATED otherwise (nslasher pattern): the a23 L1 cache is
+                                   // CP15-disabled on this bare ARM binary (~10 CPI) so gating to
+                                   // cen_arm crawls; run at 48 MHz, game stays vblank-synced.
+                                   // dip_pause=0 freezes the fetch pipeline (OSD pause/credits),
+                                   // like cninja's 68000 HALTn. TODO: ROM cache for real 7 MHz.
     .o_wb_adr     ( wb_adr    ),
     .o_wb_sel     ( wb_sel    ),
     .o_wb_we      ( wb_we     ),

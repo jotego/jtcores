@@ -149,6 +149,7 @@ jtosman_main u_main(
     .coin       ( coin      ),
     .service    ( service   ),
     .dip_test   ( dip_test  ),
+    .dip_pause  ( dip_pause ),
     .vdump      ( vdump     )
 );
 
