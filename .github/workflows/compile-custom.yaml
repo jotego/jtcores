@@ -11,6 +11,11 @@ on:
         description: Comma-separated FPGA targets
         required: true
         type: string
+      debug:
+        description: Keep the debug bus (no JTFRAME_RELEASE)
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   list_targets:
@@ -94,14 +99,16 @@ jobs:
 
           test -e "cores/${{ matrix.core }}/cfg/macros.def"
 
-          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v "$(pwd)":/jtcores "$docker_image" /jtcores/modules/jtframe/devops/xjtcore.sh "${{ matrix.core }}" "${{ matrix.target }}"
+          DBG=
+          if [[ "${{ inputs.debug }}" == "true" ]]; then DBG=--debug; fi
+          docker run -e BETAKEY=${{ secrets.BETAKEY }} --network host -v "$(pwd)":/jtcores "$docker_image" /jtcores/modules/jtframe/devops/xjtcore.sh "${{ matrix.core }}" $DBG "${{ matrix.target }}"
 
-      # On a failed compile, ship the build log for triage. jtframe/bin/jtcore
-      # writes it to log/<target>/<core>.log inside the container, which maps
-      # to ./log/<target>/<core>.log on the runner via the $(pwd) -> /jtcores
-      # bind mount.
+      # Ship the build log, timing report and fitter resource summary on every
+      # run, pass or fail. jtframe/bin/jtcore writes them to log/<target>/
+      # inside the container, which maps to ./log/<target>/ on the runner via
+      # the $(pwd) -> /jtcores bind mount.
       - id: upload-log
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: log-${{ matrix.target }}-${{ matrix.core }}
@@ -109,9 +116,34 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
 
+      # jtutil seed copies the best-slack RBF and its stats to release even
+      # when STA fails, so upload it regardless of the job outcome.
       - id: upload
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: release-${{ matrix.target }}-${{ matrix.core }}
           path: release
           retention-days: 7
+          if-no-files-found: warn
+
+      # The jtframe-generated build sources. xjtcore.sh stashes them into
+      # ./gen/<core>/<target> (= /jtcores/gen/... inside the container) right
+      # before it deletes the seed build dir to recover disk. This is the full
+      # set of files `jtframe parse/mem/mmr/files` produced and that were handed
+      # to Quartus — the parsed .qsf/.qpf, the *_game_sdram.v + mem_ports.inc,
+      # the MMR register modules, the .qip filelists and the linked .hex files —
+      # plus, under sources/, a copy of every HDL file those filelists reference,
+      # so the artifact is self-contained. The heavy Quartus working dirs (db/,
+      # incremental_db/, output_files/) are excluded at stash time, so this stays
+      # small. always() + continue-on-error so it also runs when timing fails or
+      # the run is cancelled, and a missing dir doesn't fail the job.
+      - id: upload-gen
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v6
+        with:
+          name: generated-${{ matrix.target }}-${{ matrix.core }}
+          path: gen
+          retention-days: 7
+          if-no-files-found: warn
