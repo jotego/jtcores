@@ -20,8 +20,9 @@
     - name: yvstep
       at: "10,11"
       dw: 16
+    # ROM address bits 23:11: register 13 is above register 12.
     - name: ckbank
-      at: "12,13[4:0]"
+      at: "13[4:0],12"
       dw: 13
     - name: rmrd_n
       dw: 1

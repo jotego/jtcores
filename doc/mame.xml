@@ -7640,6 +7640,186 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="88games" sourcefile="konami/88games.cpp">
+		<description>'88 Games</description>
+		<year>1988</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="861m01.k18" size="32768" crc="4a4e2959" sha1="95572686bef48b5c1ce1dedf0afc891d92aff00d" region="maincpu" offset="8000"/>
+		<rom name="861m02.k16" size="65536" crc="e19f15f6" sha1="6c801b274e87eaff7f40148381ade5b38120cc12" region="maincpu" offset="10000"/>
+		<rom name="861d01.d9" size="32768" crc="0ff1dec0" sha1="749dc98f8740beee1383f85effc9336081315f4b" region="audiocpu" offset="0"/>
+		<rom name="861a08.a" size="65536" crc="77a00dd6" sha1="e3667839f8ae3699236da3e312c20d571db38670" region="k052109" offset="0"/>
+		<rom name="861a08.c" size="65536" crc="b422edfc" sha1="b3842c8dc60975cc71812df098f29b4571b18120" region="k052109" offset="1"/>
+		<rom name="861a09.a" size="65536" crc="df8917b6" sha1="3614b78c2100f135ea0701409ce279a423decb23" region="k052109" offset="2"/>
+		<rom name="861a09.c" size="65536" crc="f577b88f" sha1="7d5d88e1492ed361dc7b2135595393b89b9cb5b1" region="k052109" offset="3"/>
+		<rom name="861a08.b" size="65536" crc="28a8304f" sha1="6b4037eff6d209fec29d05f1071ed3bf9c2bd098" region="k052109" offset="40000"/>
+		<rom name="861a08.d" size="65536" crc="e01a3802" sha1="3fb5fe512c2497160a66e9de0cd45c38dfe46410" region="k052109" offset="40001"/>
+		<rom name="861a09.b" size="65536" crc="4917158d" sha1="b53da3f29c9aeb59933dc3a8214cc1314e21000b" region="k052109" offset="40002"/>
+		<rom name="861a09.d" size="65536" crc="2bb3282c" sha1="6ca54948a02c91543b7e595641b0edc2564f83ff" region="k052109" offset="40003"/>
+		<rom name="861a05.a" size="65536" crc="cedc19d0" sha1="6eb2a292d574dee06e214e61c0e08fa233ac68e8" region="k051960" offset="0"/>
+		<rom name="861a05.e" size="65536" crc="725af3fc" sha1="98ac364db4b2c5682a299f4d2a288ebc8a303b1f" region="k051960" offset="1"/>
+		<rom name="861a06.a" size="65536" crc="85e2e30e" sha1="11010727db8c71650c5b9df5340f9bc412435d11" region="k051960" offset="2"/>
+		<rom name="861a06.e" size="65536" crc="6f96651c" sha1="c740a814a3e203348b269a70256e01fe2a914118" region="k051960" offset="3"/>
+		<rom name="861a05.b" size="65536" crc="db2a8808" sha1="dad6b127761889aac198014139cc524a4cea32e7" region="k051960" offset="40000"/>
+		<rom name="861a05.f" size="65536" crc="32d830ca" sha1="a3f10720151f538cf1bec5953a4212bc96ba42fe" region="k051960" offset="40001"/>
+		<rom name="861a06.b" size="65536" crc="ce17eaf0" sha1="cc121c5742428e2613b7da2d8357f15e897161ca" region="k051960" offset="40002"/>
+		<rom name="861a06.f" size="65536" crc="88310bf3" sha1="77bac66489e7fc2ddd714fc684e79d70b089ee84" region="k051960" offset="40003"/>
+		<rom name="861a05.c" size="65536" crc="cf03c449" sha1="234714212dd7288a5128d36c96cca5b62e86d37d" region="k051960" offset="80000"/>
+		<rom name="861a05.g" size="65536" crc="fd51c4ea" sha1="fc8923819fa7f3d02b4d159aea45cb5d1a80f1b0" region="k051960" offset="80001"/>
+		<rom name="861a06.c" size="65536" crc="a568b34e" sha1="8b69a0ac90f32cea31f8c7fcd985ad58fb6c009e" region="k051960" offset="80002"/>
+		<rom name="861a06.g" size="65536" crc="4a55beb3" sha1="35088bf7f6acd2bc95f673a2816b35238d611308" region="k051960" offset="80003"/>
+		<rom name="861a05.d" size="65536" crc="97d78c77" sha1="2c123fd08cb9626cf309e7320fe2eb99e4b483fb" region="k051960" offset="c0000"/>
+		<rom name="861a05.h" size="65536" crc="60d0c8a5" sha1="c7d3531eb65abd51ae4e6f55244d674353d23d36" region="k051960" offset="c0001"/>
+		<rom name="861a06.d" size="65536" crc="bc70ab39" sha1="a6fa0502ceb6862e7b1e4815326e268fd6511881" region="k051960" offset="c0002"/>
+		<rom name="861a06.h" size="65536" crc="d906b79b" sha1="905814ce708d80fd4d1a398f60faa0bc680fccaf" region="k051960" offset="c0003"/>
+		<rom name="861a04.a" size="65536" crc="092a8b15" sha1="d98a81bfa4bba73805f0236f8a80da130fcb378d" region="k051316" offset="0"/>
+		<rom name="861a04.b" size="65536" crc="75744b56" sha1="5133d8f6622796ed6b9e6a0d0f1df28f00331fc7" region="k051316" offset="10000"/>
+		<rom name="861a04.c" size="65536" crc="a00021c5" sha1="f73f88af33387d73b4262e8652507e699926fabe" region="k051316" offset="20000"/>
+		<rom name="861a04.d" size="65536" crc="d208304c" sha1="77dd31163c8431416ab0593f084719c914222912" region="k051316" offset="30000"/>
+		<rom name="861.g3" size="256" crc="429785db" sha1="d27e8e180f19d2b160f18c79520a77182a62218c" region="proms" offset="0"/>
+		<rom name="861a07.a" size="65536" crc="5d035d69" sha1="9df63e004a4f52768331dfb3c3889301ac174ea1" region="upd1" offset="0"/>
+		<rom name="861a07.b" size="65536" crc="6337dd91" sha1="74ba58f1664abd1491598c1a9467f470304fa430" region="upd1" offset="10000"/>
+		<rom name="861a07.c" size="65536" crc="5067a38b" sha1="b5a8f7122356dd72a97e71b480835ba500116aaf" region="upd2" offset="0"/>
+		<rom name="861a07.d" size="65536" crc="86731451" sha1="c1410f6c7a23aa0c213878a6531d3e7eb966b0a4" region="upd2" offset="10000"/>
+		<device_ref name="konami_cpu"/>
+		<device_ref name="z80"/>
+		<device_ref name="nvram"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k051960"/>
+		<device_ref name="k051316"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="upd7759"/>
+		<device_ref name="upd7759"/>
+		<chip type="cpu" tag="maincpu" name="KONAMI CPU" clock="12000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="upd1" name="NEC uPD7759" clock="640000"/>
+		<chip type="audio" tag="upd2" name="NEC uPD7759" clock="640000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="224" refresh="59.185606" pixclock="6000000" htotal="384" hbend="0" hbstart="320" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="4" coins="2">
+			<control type="only_buttons" player="1" buttons="3"/>
+			<control type="only_buttons" player="2" buttons="3"/>
+			<control type="only_buttons" player="3" buttons="3"/>
+			<control type="only_buttons" player="4" buttons="3"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="6">
+			<diplocation name="SW2" number="2"/>
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Cocktail" value="6"/>
+			<dipvalue name="Cocktail (A)" value="4"/>
+			<dipvalue name="Upright" value="2" default="yes"/>
+			<dipvalue name="Upright (D)" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96" default="yes"/>
+			<dipvalue name="Normal" value="64"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="16">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="World Records" tag="IN0" mask="32">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Don't Erase" value="32" default="yes"/>
+			<dipvalue name="Erase on Reset" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="64">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unknown" tag="IN0" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="Off" value="128" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="aafootb" sourcefile="tecmo/tehkanwc.cpp" cloneof="gridiron" romof="gridiron">
 		<description>All American Football (Tecmo, Japan)</description>
 		<year>1987</year>
@@ -97807,6 +97987,186 @@
 		<driver status="imperfect" emulation="good" savestate="supported"/>
 		<feature type="sound" status="imperfect"/>
 	</machine>
+	<machine name="hypsptsp" sourcefile="konami/88games.cpp" cloneof="88games" romof="88games">
+		<description>Hyper Sports Special (Japan)</description>
+		<year>1988</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="861f03.k18" size="32768" crc="8c61aebd" sha1="de720acfe07fd70fe467f9c73122e0fbeab2b8c8" region="maincpu" offset="8000"/>
+		<rom name="861f02.k16" size="65536" crc="d2460c28" sha1="936220aa3983ffa2330843f683347768772561af" region="maincpu" offset="10000"/>
+		<rom name="861d01.d9" merge="861d01.d9" size="32768" crc="0ff1dec0" sha1="749dc98f8740beee1383f85effc9336081315f4b" region="audiocpu" offset="0"/>
+		<rom name="861a08.a" merge="861a08.a" size="65536" crc="77a00dd6" sha1="e3667839f8ae3699236da3e312c20d571db38670" region="k052109" offset="0"/>
+		<rom name="861a08.c" merge="861a08.c" size="65536" crc="b422edfc" sha1="b3842c8dc60975cc71812df098f29b4571b18120" region="k052109" offset="1"/>
+		<rom name="861a09.a" merge="861a09.a" size="65536" crc="df8917b6" sha1="3614b78c2100f135ea0701409ce279a423decb23" region="k052109" offset="2"/>
+		<rom name="861a09.c" merge="861a09.c" size="65536" crc="f577b88f" sha1="7d5d88e1492ed361dc7b2135595393b89b9cb5b1" region="k052109" offset="3"/>
+		<rom name="861a08.b" merge="861a08.b" size="65536" crc="28a8304f" sha1="6b4037eff6d209fec29d05f1071ed3bf9c2bd098" region="k052109" offset="40000"/>
+		<rom name="861a08.d" merge="861a08.d" size="65536" crc="e01a3802" sha1="3fb5fe512c2497160a66e9de0cd45c38dfe46410" region="k052109" offset="40001"/>
+		<rom name="861a09.b" merge="861a09.b" size="65536" crc="4917158d" sha1="b53da3f29c9aeb59933dc3a8214cc1314e21000b" region="k052109" offset="40002"/>
+		<rom name="861a09.d" merge="861a09.d" size="65536" crc="2bb3282c" sha1="6ca54948a02c91543b7e595641b0edc2564f83ff" region="k052109" offset="40003"/>
+		<rom name="861a05.a" merge="861a05.a" size="65536" crc="cedc19d0" sha1="6eb2a292d574dee06e214e61c0e08fa233ac68e8" region="k051960" offset="0"/>
+		<rom name="861a05.e" merge="861a05.e" size="65536" crc="725af3fc" sha1="98ac364db4b2c5682a299f4d2a288ebc8a303b1f" region="k051960" offset="1"/>
+		<rom name="861a06.a" merge="861a06.a" size="65536" crc="85e2e30e" sha1="11010727db8c71650c5b9df5340f9bc412435d11" region="k051960" offset="2"/>
+		<rom name="861a06.e" merge="861a06.e" size="65536" crc="6f96651c" sha1="c740a814a3e203348b269a70256e01fe2a914118" region="k051960" offset="3"/>
+		<rom name="861a05.b" merge="861a05.b" size="65536" crc="db2a8808" sha1="dad6b127761889aac198014139cc524a4cea32e7" region="k051960" offset="40000"/>
+		<rom name="861a05.f" merge="861a05.f" size="65536" crc="32d830ca" sha1="a3f10720151f538cf1bec5953a4212bc96ba42fe" region="k051960" offset="40001"/>
+		<rom name="861a06.b" merge="861a06.b" size="65536" crc="ce17eaf0" sha1="cc121c5742428e2613b7da2d8357f15e897161ca" region="k051960" offset="40002"/>
+		<rom name="861a06.f" merge="861a06.f" size="65536" crc="88310bf3" sha1="77bac66489e7fc2ddd714fc684e79d70b089ee84" region="k051960" offset="40003"/>
+		<rom name="861a05.c" merge="861a05.c" size="65536" crc="cf03c449" sha1="234714212dd7288a5128d36c96cca5b62e86d37d" region="k051960" offset="80000"/>
+		<rom name="861a05.g" merge="861a05.g" size="65536" crc="fd51c4ea" sha1="fc8923819fa7f3d02b4d159aea45cb5d1a80f1b0" region="k051960" offset="80001"/>
+		<rom name="861a06.c" merge="861a06.c" size="65536" crc="a568b34e" sha1="8b69a0ac90f32cea31f8c7fcd985ad58fb6c009e" region="k051960" offset="80002"/>
+		<rom name="861a06.g" merge="861a06.g" size="65536" crc="4a55beb3" sha1="35088bf7f6acd2bc95f673a2816b35238d611308" region="k051960" offset="80003"/>
+		<rom name="861a05.d" merge="861a05.d" size="65536" crc="97d78c77" sha1="2c123fd08cb9626cf309e7320fe2eb99e4b483fb" region="k051960" offset="c0000"/>
+		<rom name="861a05.h" merge="861a05.h" size="65536" crc="60d0c8a5" sha1="c7d3531eb65abd51ae4e6f55244d674353d23d36" region="k051960" offset="c0001"/>
+		<rom name="861a06.d" merge="861a06.d" size="65536" crc="bc70ab39" sha1="a6fa0502ceb6862e7b1e4815326e268fd6511881" region="k051960" offset="c0002"/>
+		<rom name="861a06.h" merge="861a06.h" size="65536" crc="d906b79b" sha1="905814ce708d80fd4d1a398f60faa0bc680fccaf" region="k051960" offset="c0003"/>
+		<rom name="861a04.a" merge="861a04.a" size="65536" crc="092a8b15" sha1="d98a81bfa4bba73805f0236f8a80da130fcb378d" region="k051316" offset="0"/>
+		<rom name="861a04.b" merge="861a04.b" size="65536" crc="75744b56" sha1="5133d8f6622796ed6b9e6a0d0f1df28f00331fc7" region="k051316" offset="10000"/>
+		<rom name="861a04.c" merge="861a04.c" size="65536" crc="a00021c5" sha1="f73f88af33387d73b4262e8652507e699926fabe" region="k051316" offset="20000"/>
+		<rom name="861a04.d" merge="861a04.d" size="65536" crc="d208304c" sha1="77dd31163c8431416ab0593f084719c914222912" region="k051316" offset="30000"/>
+		<rom name="861.g3" merge="861.g3" size="256" crc="429785db" sha1="d27e8e180f19d2b160f18c79520a77182a62218c" region="proms" offset="0"/>
+		<rom name="861a07.a" merge="861a07.a" size="65536" crc="5d035d69" sha1="9df63e004a4f52768331dfb3c3889301ac174ea1" region="upd1" offset="0"/>
+		<rom name="861a07.b" merge="861a07.b" size="65536" crc="6337dd91" sha1="74ba58f1664abd1491598c1a9467f470304fa430" region="upd1" offset="10000"/>
+		<rom name="861a07.c" merge="861a07.c" size="65536" crc="5067a38b" sha1="b5a8f7122356dd72a97e71b480835ba500116aaf" region="upd2" offset="0"/>
+		<rom name="861a07.d" merge="861a07.d" size="65536" crc="86731451" sha1="c1410f6c7a23aa0c213878a6531d3e7eb966b0a4" region="upd2" offset="10000"/>
+		<device_ref name="konami_cpu"/>
+		<device_ref name="z80"/>
+		<device_ref name="nvram"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k051960"/>
+		<device_ref name="k051316"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="upd7759"/>
+		<device_ref name="upd7759"/>
+		<chip type="cpu" tag="maincpu" name="KONAMI CPU" clock="12000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="upd1" name="NEC uPD7759" clock="640000"/>
+		<chip type="audio" tag="upd2" name="NEC uPD7759" clock="640000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="224" refresh="59.185606" pixclock="6000000" htotal="384" hbend="0" hbstart="320" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="4" coins="2">
+			<control type="only_buttons" player="1" buttons="3"/>
+			<control type="only_buttons" player="2" buttons="3"/>
+			<control type="only_buttons" player="3" buttons="3"/>
+			<control type="only_buttons" player="4" buttons="3"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="6">
+			<diplocation name="SW2" number="2"/>
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Cocktail" value="6"/>
+			<dipvalue name="Cocktail (A)" value="4"/>
+			<dipvalue name="Upright" value="2" default="yes"/>
+			<dipvalue name="Upright (D)" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96" default="yes"/>
+			<dipvalue name="Normal" value="64"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="16">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="World Records" tag="IN0" mask="32">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Don't Erase" value="32" default="yes"/>
+			<dipvalue name="Erase on Reset" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="64">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Rounds Per Game" tag="IN0" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="1" value="0"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="insectx" sourcefile="taito/tnzs.cpp">
 		<description>Insector X (World)</description>
 		<year>1989</year>
@@ -106141,6 +106501,186 @@
 		<port tag=":DSWB">
 		</port>
 		<port tag=":DSWC">
+		</port>
+		<port tag=":IN0">
+		</port>
+		<port tag=":IN1">
+		</port>
+		<port tag=":IN2">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="konami88" sourcefile="konami/88games.cpp" cloneof="88games" romof="88games">
+		<description>Konami '88</description>
+		<year>1988</year>
+		<manufacturer>Konami</manufacturer>
+		<rom name="861.e03" size="32768" crc="55979bd9" sha1="d683cc514e2b41fc4033d5dc107ca22ba8981ada" region="maincpu" offset="8000"/>
+		<rom name="861.e02" size="65536" crc="5b7e98a6" sha1="39b6e93221d14a4695c79fb39c4eea54ec5ffb0c" region="maincpu" offset="10000"/>
+		<rom name="861d01.d9" merge="861d01.d9" size="32768" crc="0ff1dec0" sha1="749dc98f8740beee1383f85effc9336081315f4b" region="audiocpu" offset="0"/>
+		<rom name="861a08.a" merge="861a08.a" size="65536" crc="77a00dd6" sha1="e3667839f8ae3699236da3e312c20d571db38670" region="k052109" offset="0"/>
+		<rom name="861a08.c" merge="861a08.c" size="65536" crc="b422edfc" sha1="b3842c8dc60975cc71812df098f29b4571b18120" region="k052109" offset="1"/>
+		<rom name="861a09.a" merge="861a09.a" size="65536" crc="df8917b6" sha1="3614b78c2100f135ea0701409ce279a423decb23" region="k052109" offset="2"/>
+		<rom name="861a09.c" merge="861a09.c" size="65536" crc="f577b88f" sha1="7d5d88e1492ed361dc7b2135595393b89b9cb5b1" region="k052109" offset="3"/>
+		<rom name="861a08.b" merge="861a08.b" size="65536" crc="28a8304f" sha1="6b4037eff6d209fec29d05f1071ed3bf9c2bd098" region="k052109" offset="40000"/>
+		<rom name="861a08.d" merge="861a08.d" size="65536" crc="e01a3802" sha1="3fb5fe512c2497160a66e9de0cd45c38dfe46410" region="k052109" offset="40001"/>
+		<rom name="861a09.b" merge="861a09.b" size="65536" crc="4917158d" sha1="b53da3f29c9aeb59933dc3a8214cc1314e21000b" region="k052109" offset="40002"/>
+		<rom name="861a09.d" merge="861a09.d" size="65536" crc="2bb3282c" sha1="6ca54948a02c91543b7e595641b0edc2564f83ff" region="k052109" offset="40003"/>
+		<rom name="861a05.a" merge="861a05.a" size="65536" crc="cedc19d0" sha1="6eb2a292d574dee06e214e61c0e08fa233ac68e8" region="k051960" offset="0"/>
+		<rom name="861a05.e" merge="861a05.e" size="65536" crc="725af3fc" sha1="98ac364db4b2c5682a299f4d2a288ebc8a303b1f" region="k051960" offset="1"/>
+		<rom name="861a06.a" merge="861a06.a" size="65536" crc="85e2e30e" sha1="11010727db8c71650c5b9df5340f9bc412435d11" region="k051960" offset="2"/>
+		<rom name="861a06.e" merge="861a06.e" size="65536" crc="6f96651c" sha1="c740a814a3e203348b269a70256e01fe2a914118" region="k051960" offset="3"/>
+		<rom name="861a05.b" merge="861a05.b" size="65536" crc="db2a8808" sha1="dad6b127761889aac198014139cc524a4cea32e7" region="k051960" offset="40000"/>
+		<rom name="861a05.f" merge="861a05.f" size="65536" crc="32d830ca" sha1="a3f10720151f538cf1bec5953a4212bc96ba42fe" region="k051960" offset="40001"/>
+		<rom name="861a06.b" merge="861a06.b" size="65536" crc="ce17eaf0" sha1="cc121c5742428e2613b7da2d8357f15e897161ca" region="k051960" offset="40002"/>
+		<rom name="861a06.f" merge="861a06.f" size="65536" crc="88310bf3" sha1="77bac66489e7fc2ddd714fc684e79d70b089ee84" region="k051960" offset="40003"/>
+		<rom name="861a05.c" merge="861a05.c" size="65536" crc="cf03c449" sha1="234714212dd7288a5128d36c96cca5b62e86d37d" region="k051960" offset="80000"/>
+		<rom name="861a05.g" merge="861a05.g" size="65536" crc="fd51c4ea" sha1="fc8923819fa7f3d02b4d159aea45cb5d1a80f1b0" region="k051960" offset="80001"/>
+		<rom name="861a06.c" merge="861a06.c" size="65536" crc="a568b34e" sha1="8b69a0ac90f32cea31f8c7fcd985ad58fb6c009e" region="k051960" offset="80002"/>
+		<rom name="861a06.g" merge="861a06.g" size="65536" crc="4a55beb3" sha1="35088bf7f6acd2bc95f673a2816b35238d611308" region="k051960" offset="80003"/>
+		<rom name="861a05.d" merge="861a05.d" size="65536" crc="97d78c77" sha1="2c123fd08cb9626cf309e7320fe2eb99e4b483fb" region="k051960" offset="c0000"/>
+		<rom name="861a05.h" merge="861a05.h" size="65536" crc="60d0c8a5" sha1="c7d3531eb65abd51ae4e6f55244d674353d23d36" region="k051960" offset="c0001"/>
+		<rom name="861a06.d" merge="861a06.d" size="65536" crc="bc70ab39" sha1="a6fa0502ceb6862e7b1e4815326e268fd6511881" region="k051960" offset="c0002"/>
+		<rom name="861a06.h" merge="861a06.h" size="65536" crc="d906b79b" sha1="905814ce708d80fd4d1a398f60faa0bc680fccaf" region="k051960" offset="c0003"/>
+		<rom name="861a04.a" merge="861a04.a" size="65536" crc="092a8b15" sha1="d98a81bfa4bba73805f0236f8a80da130fcb378d" region="k051316" offset="0"/>
+		<rom name="861a04.b" merge="861a04.b" size="65536" crc="75744b56" sha1="5133d8f6622796ed6b9e6a0d0f1df28f00331fc7" region="k051316" offset="10000"/>
+		<rom name="861a04.c" merge="861a04.c" size="65536" crc="a00021c5" sha1="f73f88af33387d73b4262e8652507e699926fabe" region="k051316" offset="20000"/>
+		<rom name="861a04.d" merge="861a04.d" size="65536" crc="d208304c" sha1="77dd31163c8431416ab0593f084719c914222912" region="k051316" offset="30000"/>
+		<rom name="861.g3" merge="861.g3" size="256" crc="429785db" sha1="d27e8e180f19d2b160f18c79520a77182a62218c" region="proms" offset="0"/>
+		<rom name="861a07.a" merge="861a07.a" size="65536" crc="5d035d69" sha1="9df63e004a4f52768331dfb3c3889301ac174ea1" region="upd1" offset="0"/>
+		<rom name="861a07.b" merge="861a07.b" size="65536" crc="6337dd91" sha1="74ba58f1664abd1491598c1a9467f470304fa430" region="upd1" offset="10000"/>
+		<rom name="861a07.c" merge="861a07.c" size="65536" crc="5067a38b" sha1="b5a8f7122356dd72a97e71b480835ba500116aaf" region="upd2" offset="0"/>
+		<rom name="861a07.d" merge="861a07.d" size="65536" crc="86731451" sha1="c1410f6c7a23aa0c213878a6531d3e7eb966b0a4" region="upd2" offset="10000"/>
+		<device_ref name="konami_cpu"/>
+		<device_ref name="z80"/>
+		<device_ref name="nvram"/>
+		<device_ref name="watchdog"/>
+		<device_ref name="screen"/>
+		<device_ref name="palette"/>
+		<device_ref name="k052109"/>
+		<device_ref name="k051960"/>
+		<device_ref name="k051316"/>
+		<device_ref name="speaker"/>
+		<device_ref name="generic_latch_8"/>
+		<device_ref name="ym2151"/>
+		<device_ref name="upd7759"/>
+		<device_ref name="upd7759"/>
+		<chip type="cpu" tag="maincpu" name="KONAMI CPU" clock="12000000"/>
+		<chip type="cpu" tag="audiocpu" name="Zilog Z80" clock="3579545"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="ymsnd" name="YM2151 OPM" clock="3579545"/>
+		<chip type="audio" tag="upd1" name="NEC uPD7759" clock="640000"/>
+		<chip type="audio" tag="upd2" name="NEC uPD7759" clock="640000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="224" refresh="59.185606" pixclock="6000000" htotal="384" hbend="0" hbstart="320" vtotal="264" vbend="16" vbstart="240" />
+		<sound channels="1"/>
+		<input players="4" coins="2">
+			<control type="only_buttons" player="1" buttons="3"/>
+			<control type="only_buttons" player="2" buttons="3"/>
+			<control type="only_buttons" player="3" buttons="3"/>
+			<control type="only_buttons" player="4" buttons="3"/>
+		</input>
+		<dipswitch name="Coin A" tag="DSW1" mask="15">
+			<diplocation name="SW1" number="1"/>
+			<diplocation name="SW1" number="2"/>
+			<diplocation name="SW1" number="3"/>
+			<diplocation name="SW1" number="4"/>
+			<dipvalue name="4 Coins/1 Credit" value="2"/>
+			<dipvalue name="3 Coins/1 Credit" value="5"/>
+			<dipvalue name="2 Coins/1 Credit" value="8"/>
+			<dipvalue name="3 Coins/2 Credits" value="4"/>
+			<dipvalue name="4 Coins/3 Credits" value="1"/>
+			<dipvalue name="1 Coin/1 Credit" value="15" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="3"/>
+			<dipvalue name="2 Coins/3 Credits" value="7"/>
+			<dipvalue name="1 Coin/2 Credits" value="14"/>
+			<dipvalue name="2 Coins/5 Credits" value="6"/>
+			<dipvalue name="1 Coin/3 Credits" value="13"/>
+			<dipvalue name="1 Coin/4 Credits" value="12"/>
+			<dipvalue name="1 Coin/5 Credits" value="11"/>
+			<dipvalue name="1 Coin/6 Credits" value="10"/>
+			<dipvalue name="1 Coin/7 Credits" value="9"/>
+			<dipvalue name="Free Play" value="0"/>
+		</dipswitch>
+		<dipswitch name="Coin B" tag="DSW1" mask="240">
+			<diplocation name="SW1" number="5"/>
+			<diplocation name="SW1" number="6"/>
+			<diplocation name="SW1" number="7"/>
+			<diplocation name="SW1" number="8"/>
+			<dipvalue name="4 Coins/1 Credit" value="32"/>
+			<dipvalue name="3 Coins/1 Credit" value="80"/>
+			<dipvalue name="2 Coins/1 Credit" value="128"/>
+			<dipvalue name="3 Coins/2 Credits" value="64"/>
+			<dipvalue name="4 Coins/3 Credits" value="16"/>
+			<dipvalue name="1 Coin/1 Credit" value="240" default="yes"/>
+			<dipvalue name="3 Coins/4 Credits" value="48"/>
+			<dipvalue name="2 Coins/3 Credits" value="112"/>
+			<dipvalue name="1 Coin/2 Credits" value="224"/>
+			<dipvalue name="2 Coins/5 Credits" value="96"/>
+			<dipvalue name="1 Coin/3 Credits" value="208"/>
+			<dipvalue name="1 Coin/4 Credits" value="192"/>
+			<dipvalue name="1 Coin/5 Credits" value="176"/>
+			<dipvalue name="1 Coin/6 Credits" value="160"/>
+			<dipvalue name="1 Coin/7 Credits" value="144"/>
+			<dipvalue name="No Coin B" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="1">
+			<diplocation name="SW2" number="1"/>
+			<dipvalue name="Off" value="1" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Cabinet" tag="DSW2" mask="6">
+			<diplocation name="SW2" number="2"/>
+			<diplocation name="SW2" number="3"/>
+			<dipvalue name="Cocktail" value="6"/>
+			<dipvalue name="Cocktail (A)" value="4"/>
+			<dipvalue name="Upright" value="2" default="yes"/>
+			<dipvalue name="Upright (D)" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="8">
+			<diplocation name="SW2" number="4"/>
+			<dipvalue name="Off" value="8" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Unused" tag="DSW2" mask="16">
+			<diplocation name="SW2" number="5"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Difficulty" tag="DSW2" mask="96">
+			<diplocation name="SW2" number="6"/>
+			<diplocation name="SW2" number="7"/>
+			<dipvalue name="Easy" value="96" default="yes"/>
+			<dipvalue name="Normal" value="64"/>
+			<dipvalue name="Hard" value="32"/>
+			<dipvalue name="Hardest" value="0"/>
+		</dipswitch>
+		<dipswitch name="Demo Sounds" tag="DSW2" mask="128">
+			<diplocation name="SW2" number="8"/>
+			<dipvalue name="Off" value="128"/>
+			<dipvalue name="On" value="0" default="yes"/>
+		</dipswitch>
+		<dipswitch name="Flip Screen" tag="IN0" mask="16">
+			<diplocation name="SW3" number="1"/>
+			<dipvalue name="Off" value="16" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="World Records" tag="IN0" mask="32">
+			<diplocation name="SW3" number="2"/>
+			<dipvalue name="Don't Erase" value="32" default="yes"/>
+			<dipvalue name="Erase on Reset" value="0"/>
+		</dipswitch>
+		<dipswitch name="Service Mode" tag="IN0" mask="64">
+			<diplocation name="SW3" number="3"/>
+			<dipvalue name="Off" value="64" default="yes"/>
+			<dipvalue name="On" value="0"/>
+		</dipswitch>
+		<dipswitch name="Rounds Per Game" tag="IN0" mask="128">
+			<diplocation name="SW3" number="4"/>
+			<dipvalue name="1" value="0"/>
+			<dipvalue name="4" value="128" default="yes"/>
+		</dipswitch>
+		<port tag=":DSW1">
+		</port>
+		<port tag=":DSW2">
 		</port>
 		<port tag=":IN0">
 		</port>
