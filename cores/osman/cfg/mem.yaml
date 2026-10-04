@@ -45,7 +45,7 @@ sdram:
       - { name: gfx1d, addr_width: 21, data_width: 16 }   # pf2 8x8   (via gfxdec)
     # BA2 — OKI samples (both 8-bit).
     - buses:
-      - { name: oki1, addr_width: 18, data_width: 8, offset: PCM1_OFFSET }   # sfx 256 KB
+      - { name: oki1, addr_width: 19, data_width: 8, offset: PCM1_OFFSET }   # sfx 512 KB slot (256 KB simpl156, 512 KB banked hvysmsh)
       - { name: oki2, addr_width: 21, data_width: 8, offset: PCM2_OFFSET }   # music 2 MB (banked)
     # BA3 — sprites (8 MB, 4bpp, plain). 32-bit packed fetch for jtframe_decospr.
     # NOTE: jtframe_decospr rom_addr/id must be widened for 8 MB (cninja's is 2 MB).

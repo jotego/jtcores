@@ -35,15 +35,16 @@ JTFRAME_SKIP_RATE_TEST
 JTFRAME_OSD_TEST=1
 
 # ---- ROM / SDRAM layout (download-blob byte offsets, MRA concat order) ----
-# BA0: main ARM ROM 0x80000 (32-bit, deco156 decrypt-at-fetch)
+# BA0: main ARM ROM (32-bit, deco156 decrypt-at-fetch; 1MB slot: 512KB simpl156, 1MB hvysmsh)
 # BA1: tiles 0x200000 (16-bit, deco56 decrypt-at-fetch; mcf-00 ROM_CONTINUE + RGN_FRAC(1,2))
-# BA2: okisfx 0x40000 (8-bit) + okimusic 0x200000 (8-bit, address-bitswap + bank[2:0])
+# BA2: okisfx (8-bit; 512 KB slot: 256 KB on simpl156, 512 KB banked on hvysmsh)
+#      + okimusic 0x200000 (8-bit; simpl156 address-bitswap + bank[2:0], hvysmsh raw+bank)
 # BA3: sprites 0x800000 (4bpp RGN_FRAC(1,2), plain; 32-bit packed fetch)
-JTFRAME_BA1_START=0x080000
-JTFRAME_BA2_START=0x280000
-PCM1_START=0x280000
-PCM2_START=0x2C0000
-JTFRAME_BA3_START=0x4C0000
+JTFRAME_BA1_START=0x100000
+JTFRAME_BA2_START=0x300000
+PCM1_START=0x300000
+PCM2_START=0x380000
+JTFRAME_BA3_START=0x580000
 
 [mister]
 # SDRAM phase shift: hardware-only (the verilator SDRAM model breaks with it,

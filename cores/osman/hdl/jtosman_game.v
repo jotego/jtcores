@@ -27,7 +27,7 @@ module jtosman_game(
 
 // ---- CPU (ARM, 16-bit device side) bus to video/palette/sprite ----
 wire [16:1] cpu_addr;
-wire [15:0] cpu_dout;
+wire [15:0] cpu_dout, cpu_dhi;
 wire        cpu_rnw;
 wire [ 1:0] dsn;
 
@@ -46,20 +46,34 @@ assign dip_flip   = flip;
 assign debug_view = 8'd0;
 
 // ---- header: per-family map/geometry values (see mame2mra.toml [header]) ----
-wire [7:0] blkpage, sfxpage, muspage;
+wire [7:0] mrampage, orampage, palpage, iopage, pfctlpage, pframpage, rowscrpage,
+           sfxpage, muspage;
 wire [4:0] sprbit;
-wire       deco;
+wire       tile1mb, mus2m, hvio, rom1m, musraw, sfxbank, pal888;
+wire       oki1_bank;
 jtosman_header u_header(
     .clk       ( clk            ),
     .header    ( header         ),
     .prog_we   ( prog_we        ),
     .prog_addr ( prog_addr[3:0] ),
     .prog_data ( prog_data      ),
-    .blkpage   ( blkpage        ),
+    .mrampage  ( mrampage       ),
+    .orampage  ( orampage       ),
+    .palpage   ( palpage        ),
+    .iopage    ( iopage         ),
+    .pfctlpage ( pfctlpage      ),
+    .pframpage ( pframpage      ),
+    .rowscrpage( rowscrpage     ),
     .sfxpage   ( sfxpage        ),
     .muspage   ( muspage        ),
     .sprbit    ( sprbit         ),
-    .deco      ( deco           )
+    .tile1mb   ( tile1mb        ),
+    .mus2m     ( mus2m          ),
+    .hvio      ( hvio           ),
+    .rom1m     ( rom1m          ),
+    .musraw    ( musraw         ),
+    .sfxbank   ( sfxbank        ),
+    .pal888    ( pal888         )
 );
 
 // ---- ROM download remap. prog_addr = 16-bit-WORD address, per-bank. ----
@@ -73,13 +87,13 @@ jtosman_header u_header(
 // FRAC0->high16 (planes 2,3). Region fills the 8 MB slot -> no fold-back.
 // okimusic address descramble (init_simpl156) is applied on the read side in jtosman_snd, not here.
 // The header downloads before any bank data, so its values are valid here.
-// BA1: the Mitchell boards (deco=0) hold tiles in one 2MB mask ROM with ROM_CONTINUE
-// quarters -> undo by swapping word bits 19/18; DECO boards load plain.
+// BA1: the 2MB-tile boards (tile1mb=0: Mitchell + hvysmsh) hold tiles in one mask ROM
+// with ROM_CONTINUE quarters -> undo by swapping word bits 19/18; 1MB boards load plain.
 // BA3: sprite FRAC half interleave; the half bit (sprbit) moves with region size.
 always @* begin
     post_addr = prog_addr;
     post_data = prog_data;
-    if( prog_ba==2'd1 && !deco ) begin
+    if( prog_ba==2'd1 && !tile1mb ) begin
         post_addr[19] = prog_addr[18];
         post_addr[18] = prog_addr[19];
     end
@@ -94,9 +108,18 @@ end
 jtosman_main u_main(
     .rst        ( rst       ),
     .clk        ( clk       ),
-    .blkpage    ( blkpage   ),
+    .mrampage   ( mrampage  ),
+    .orampage   ( orampage  ),
+    .palpage    ( palpage   ),
+    .iopage     ( iopage    ),
+    .pfctlpage  ( pfctlpage ),
+    .pframpage  ( pframpage ),
+    .rowscrpage ( rowscrpage),
     .sfxpage    ( sfxpage   ),
     .muspage    ( muspage   ),
+    .hvio       ( hvio      ),
+    .rom1m      ( rom1m     ),
+    .oki1_bank  ( oki1_bank ),
     .cen_arm    ( cen_arm   ),
     .LVBL       ( LVBL      ),
     // program ROM (SDRAM, deco156 decrypt-at-fetch)
@@ -107,6 +130,7 @@ jtosman_main u_main(
     // CPU bus
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),
+    .cpu_dhi    ( cpu_dhi   ),
     .cpu_rnw    ( cpu_rnw   ),
     .dsn        ( dsn       ),
     // video interface
@@ -142,7 +166,9 @@ jtosman_snd u_snd(
     .rst        ( rst       ),
     .clk        ( clk       ),
     .cen_oki1   ( cen_oki1  ),
-    .cen_oki2   ( deco ? cen_oki2b : cen_oki2 ),  // DECO PCBs run the music OKI at 2 MHz
+    .cen_oki2   ( mus2m ? cen_oki2b : cen_oki2 ),  // DECO PCBs + hvysmsh: music OKI at 2 MHz
+    .oki1_bank  ( oki1_bank & sfxbank ),
+    .musraw     ( musraw    ),
     .din        ( oki_din   ),
     .oki1_wr    ( oki1_wr   ),
     .oki2_wr    ( oki2_wr   ),
@@ -171,7 +197,9 @@ jtosman_video u_video(
     .pxl_cen    ( pxl_cen   ),
     .gfx_en     ( gfx_en    ),
     .flip       ( flip      ),
-    .deco       ( deco      ),
+    .tile1mb    ( tile1mb   ),
+    .pal888     ( pal888    ),
+    .cpu_dhi    ( cpu_dhi   ),
     // CPU interface
     .cpu_addr   ( cpu_addr  ),
     .cpu_dout   ( cpu_dout  ),

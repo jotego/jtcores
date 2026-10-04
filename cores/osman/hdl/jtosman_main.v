@@ -24,19 +24,24 @@ module jtosman_main(
     input             clk,
     input             cen_arm,
     input             LVBL,       // vblank level (active low visible) -> IRQ + IN0[7]
-    input    [ 7:0]   blkpage,    // header: page of the 8-page device block (mram..ctrl)
-    input    [ 7:0]   sfxpage,    // header: OKI sfx page
-    input    [ 7:0]   muspage,    // header: OKI music page
+    // header: one page value per device (see mame2mra.toml [header]) + behaviour flags
+    input    [ 7:0]   mrampage, orampage, palpage, iopage,
+    input    [ 7:0]   pfctlpage, pframpage, rowscrpage,
+    input    [ 7:0]   sfxpage, muspage,
+    input             hvio,       // hvysmsh io page: 32-bit INPUTS read, eeprom_w @+4, sfx bank @+0xC
+    input             rom1m,      // 1MB main ROM (else 512KB)
+    output reg        oki1_bank,  // hvysmsh banked sfx OKI
 
     // program ROM (SDRAM, 32-bit, deco156 decrypt-at-fetch)
     output reg        rom_cs,
-    output   [18:2]   rom_addr,
+    output   [19:2]   rom_addr,
     input    [31:0]   rom_data,
     input             rom_ok,
 
     // CPU bus (16-bit device side) -> video
     output   [16:1]   cpu_addr,
     output   [15:0]   cpu_dout,
+    output   [15:0]   cpu_dhi,     // write-data high halfword (hvysmsh 32-bit palette only)
     output            cpu_rnw,
     output   [ 1:0]   dsn,
     output reg        pf_cs,
@@ -73,15 +78,16 @@ module jtosman_main(
 // Scene replay: CPU stubbed off so the SIMSCENE-preloaded video BRAMs (palette /
 // pf name / control regs, loaded in jtosman_video) are what gets rendered. Hold
 // cpu_rnw high and every chip-select low so nothing overwrites the scene.
-assign rom_addr = 17'd0;
+assign rom_addr = 18'd0;
 assign cpu_addr = 16'd0;
 assign cpu_dout = 16'd0;
+assign cpu_dhi  = 16'd0;
 assign cpu_rnw  = 1'b1;
 assign dsn      = 2'b11;
 assign obj_copy = 1'b0;
 initial begin
     rom_cs=0; pf_cs=0; pfram_cs=0; pal_cs=0; oram_cs=0; rowscr_cs=0;
-    oki1_wr=0; oki2_wr=0; oki_din=0; oki2_bank=0; flip=0;
+    oki1_wr=0; oki2_wr=0; oki_din=0; oki2_bank=0; oki1_bank=0; flip=0;
 end
 `else
 
@@ -99,21 +105,21 @@ wire        rd  = acc & ~wb_we;
 // vblank: LVBL is active-low visible -> vblank when LVBL==0. IN0 bit7 active-HIGH.
 wire        vbl = ~LVBL;
 
-// ---- address decode (byte page = wb_adr[23:16]). Every simpl156 map has the same
-//      8 consecutive device pages; only the block base and the OKI pages move per
-//      PCB, so the header registers carry them. ----
+// ---- address decode (byte page = wb_adr[23:16]). One header page value per device:
+//      the simpl156 maps keep them in a tidy block, hvysmsh scatters them. Unmapped
+//      pages read FFFF/ack (MAME unmap_value_high), which also covers the ctrl page. ----
 wire [ 7:0] page = wb_adr[23:16];
-wire is_rom    = wb_adr[23:19]==5'd0;           // 000000-07FFFF
+wire is_rom    = rom1m ? wb_adr[23:20]==4'd0    // 000000-0FFFFF (hvysmsh)
+                       : wb_adr[23:19]==5'd0;   // 000000-07FFFF
 wire is_okisfx = page==sfxpage;
 wire is_okimus = page==muspage;
-wire is_mram   = page==blkpage;                 // +0 main RAM (16-bit, 32 KB)
-wire is_oram   = page==blkpage+8'd1;            // +1 sprite RAM (16-bit, 8 KB)
-wire is_pal    = page==blkpage+8'd2;            // +2 palette (16-bit, 4 KB)
-wire is_io     = page==blkpage+8'd3;            // +3 R:IN1 W:eeprom_w
-wire is_pfctl  = page==blkpage+8'd4;            // +4 pf control (0x20)
-wire is_pfram  = page==blkpage+8'd5;            // +5 pf name tables (0x6000)
-wire is_rowscr = page==blkpage+8'd6;            // +6 rowscroll (0x6000)
-wire is_ctrl   = page==blkpage+8'd7;            // +7 control (nop)
+wire is_mram   = page==mrampage;                // main RAM (16-bit, 32 KB)
+wire is_oram   = page==orampage;                // sprite RAM (16-bit, 8 KB)
+wire is_pal    = page==palpage;                 // palette (16-bit; 32-bit on hvysmsh)
+wire is_io     = page==iopage;                  // R:IN1/INPUTS W:eeprom_w (+friends on hvio)
+wire is_pfctl  = page==pfctlpage;               // pf control (0x20)
+wire is_pfram  = page==pframpage;               // pf name tables (0x6000)
+wire is_rowscr = page==rowscrpage;              // rowscroll
 wire is_in0    = page==8'h20 & ~wb_adr[12];     // 200000 IN0
 wire is_sram   = page==8'h20 &  wb_adr[12];     // 201000-201FFF systemram (32-bit)
 
@@ -131,9 +137,13 @@ wire ee_sdo;
 wire [15:0] in0 = { 7'd0, ee_sdo, vbl, 3'd0, dip_test, service, coin[1], coin[0] };
 // IN1: P1 UDLR b0-3 + btn1-3 b4-6 + start1 b7 ; P2 b8-15. Bit order via JTFRAME_JOY_RLDU.
 wire [15:0] in1 = { cab_1p[1], joystick2, cab_1p[0], joystick1 };
+// hvysmsh single INPUTS port: P1/P2 bytes as in1; b16 coin1, b17 coin2, b18 service1,
+// b19 service(no-toggle), b20 vblank(HIGH), b24 eeprom DO; unused active-low bits read 1
+wire [31:0] hv_in = { 7'h7f, ee_sdo, 3'h7, vbl, dip_test, service, coin[1], coin[0], in1 };
 
 // ---- deco156 ARM ROM descramble at fetch ----
-wire [17:0] arm_word = { 1'b0, wb_adr[18:2] };  // 512 KB = 128K 32-bit words (a[16:0]; a[17]=0)
+wire [17:0] arm_word = rom1m ? wb_adr[19:2]     // 1 MB = 256K 32-bit words (hvysmsh)
+                             : { 1'b0, wb_adr[18:2] };  // 512 KB = 128K words (a[16:0]; a[17]=0)
 wire [17:0] dec_saddr;
 wire [31:0] rom_dec;
 // The 32-bit SDRAM word arrives as {hi16,lo16} with each 16-bit half byte-swapped vs MAME's
@@ -146,7 +156,7 @@ jtosman_deco156 u_dec156(
     .raw      ( rom_raw   ),
     .dec      ( rom_dec   )
 );
-assign rom_addr = dec_saddr[16:0];   // scrambled SDRAM word address (512 KB region), -> port [18:2]
+assign rom_addr = dec_saddr;         // scrambled SDRAM word address, -> port [19:2] (1 MB max)
 
 // ---- 93C46 EEPROM (jt9346), bit-banged via 0x1B0000 write ----
 // Osman/Cannon Dancer do NOT init their own EEPROM: word[0]=0xffbe, word[0x20]=0x0088
@@ -198,6 +208,7 @@ jtframe_dual_ram16 #(.AW(10)) u_sysram_hi(       // systemram high 16 bits
 // ---- CPU bus to video ----
 assign cpu_addr = wb_adr[16:1];
 assign cpu_dout = wb_wdat[15:0];
+assign cpu_dhi  = wb_wdat[31:16];
 assign cpu_rnw  = ~wb_we;
 assign dsn      = ~wb_sel[1:0];
 assign obj_copy = 1'b0;   // TODO: sprite DMA trigger (simpl156 copies spriteram each frame)
@@ -246,7 +257,8 @@ always @* begin
         else if( is_oram )begin wb_rdat = {16'hffff, oram_dout};   wb_ack = wr | bram_rdy;  end
         else if( is_pfram|is_pfctl ) begin wb_rdat = {16'hffff, pf_dout}; wb_ack = wr | bram_rdy; end
         else if( is_in0 ) begin wb_rdat = {16'hffff, in0};         wb_ack = 1'b1; end
-        else if( is_io )  begin wb_rdat = {16'hffff, in1};         wb_ack = 1'b1; end   // R:IN1
+        else if( is_io )  begin wb_rdat = hvio ? hv_in
+                                               : {16'hffff, in1};  wb_ack = 1'b1; end   // R:IN1 / INPUTS
         // OKI status read (okim6295 read): {4'hf, per-channel busy}. The music sequencer polls
         // this to know when a phrase is done; a hardcoded 0 makes it re-trigger forever (noise).
         else if( is_okisfx ) begin wb_rdat = {24'hff_ffff, oki1_dout}; wb_ack = 1'b1; end
@@ -258,7 +270,7 @@ end
 // ---- registered write side: OKI, eeprom_w, IRQ clear ----
 always @(posedge clk) begin
     if( rst ) begin
-        oki1_wr<=0; oki2_wr<=0; oki_din<=0; oki2_bank<=0;
+        oki1_wr<=0; oki2_wr<=0; oki_din<=0; oki2_bank<=0; oki1_bank<=0;
         ee_sclk<=0; ee_sdi<=0; ee_scs<=0; flip<=0;
     end else begin
         oki1_wr <= 1'b0;
@@ -266,12 +278,17 @@ always @(posedge clk) begin
         if( wr & wb_ack ) begin
             if( is_okisfx ) begin oki1_wr <= 1'b1; oki_din <= wb_wdat[7:0]; end
             if( is_okimus ) begin oki2_wr <= 1'b1; oki_din <= wb_wdat[7:0]; end
-            if( is_io & wb_sel[0] ) begin           // eeprom_w @ 0x1B0000
+            // eeprom_w: same bit layout everywhere (bank d[2:0], di d[4], clk d[5], cs d[6]);
+            // simpl156 maps it at io+0, hvysmsh at io+4 (io+0 is the volume DAC there, io+0xC
+            // the sfx-OKI bank). Volume is left to the OSD control.
+            if( is_io & wb_sel[0] & (hvio ? wb_adr[3:2]==2'd1 : wb_adr[3:2]==2'd0) ) begin
                 oki2_bank <= wb_wdat[2:0];
                 ee_sdi    <= wb_wdat[4];
                 ee_sclk   <= wb_wdat[5];
                 ee_scs    <= wb_wdat[6];
             end
+            if( is_io & hvio & wb_sel[0] & wb_adr[3:2]==2'd3 )
+                oki1_bank <= wb_wdat[0];
         end
     end
 end

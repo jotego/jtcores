@@ -100865,6 +100865,117 @@
 		</port>
 		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
+	<machine name="hvysmsh" sourcefile="dataeast/deco156.cpp">
+		<description>Heavy Smash (Europe version -2)</description>
+		<year>1993</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="lt00-2.2j" size="524288" crc="f6e10fc0" sha1="76189260ca0a79500d62c4aa8e3aed6cfca3e102" region="maincpu" offset="2"/>
+		<rom name="lt01-2.3j" size="524288" crc="ce2a75e2" sha1="4119a3175d7c394041197f01523a6eaa3d9ba398" region="maincpu" offset="0"/>
+		<rom name="mbg-00.9a" size="2097152" crc="7d94eb16" sha1="31cf5302eba37e935865822aebd76c700bc51eaf" region="tiles" offset="0"/>
+		<rom name="mbg-01.10a" size="2097152" crc="bcd7fb29" sha1="a54a813b5adcb4df0bfdd58285b1f8e17fbbb7a2" region="sprites" offset="400000"/>
+		<rom name="mbg-02.11a" size="2097152" crc="0cc16440" sha1="1cbf620a9d875ec87dd28a97a256584b6ef277cd" region="sprites" offset="0"/>
+		<rom name="mbg-03.10k" size="524288" crc="4b809420" sha1="ad0278745002320804a31af0b772f9ab5f075027" region="oki1" offset="0"/>
+		<rom name="mbg-04.11k" size="2097152" crc="2281c758" sha1="934691b4002ecd6bc9a09b8970ff18a09451d492" region="oki2" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="oki1" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="oki2" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":INPUTS">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="hvysmsha" sourcefile="dataeast/deco156.cpp" cloneof="hvysmsh" romof="hvysmsh">
+		<description>Heavy Smash (Asia version -4)</description>
+		<year>1993</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="xx00-4.2j" size="524288" crc="333a92c1" sha1="b7e174ea081febb765298aa1c6533b2f9f162bce" region="maincpu" offset="2"/>
+		<rom name="xx01-4.3j" size="524288" crc="8c24c5ed" sha1="ab9689530f4f4a6015ce0a6f8e0d796b0618cd79" region="maincpu" offset="0"/>
+		<rom name="mbg-00.9a" merge="mbg-00.9a" size="2097152" crc="7d94eb16" sha1="31cf5302eba37e935865822aebd76c700bc51eaf" region="tiles" offset="0"/>
+		<rom name="mbg-01.10a" merge="mbg-01.10a" size="2097152" crc="bcd7fb29" sha1="a54a813b5adcb4df0bfdd58285b1f8e17fbbb7a2" region="sprites" offset="400000"/>
+		<rom name="mbg-02.11a" merge="mbg-02.11a" size="2097152" crc="0cc16440" sha1="1cbf620a9d875ec87dd28a97a256584b6ef277cd" region="sprites" offset="0"/>
+		<rom name="mbg-03.10k" merge="mbg-03.10k" size="524288" crc="4b809420" sha1="ad0278745002320804a31af0b772f9ab5f075027" region="oki1" offset="0"/>
+		<rom name="mbg-04.11k" merge="mbg-04.11k" size="2097152" crc="2281c758" sha1="934691b4002ecd6bc9a09b8970ff18a09451d492" region="oki2" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="oki1" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="oki2" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":INPUTS">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="hvysmshj" sourcefile="dataeast/deco156.cpp" cloneof="hvysmsh" romof="hvysmsh">
+		<description>Heavy Smash (Japan version -2)</description>
+		<year>1993</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="lp00-2.2j" size="524288" crc="3f8fd724" sha1="8efb27b96dbdc58715eb44c7846f30d485e1ded4" region="maincpu" offset="2"/>
+		<rom name="lp01-2.3j" size="524288" crc="a6fe282a" sha1="10295b740ced35b3bb1f48ca3af2e985912405ec" region="maincpu" offset="0"/>
+		<rom name="mbg-00.9a" merge="mbg-00.9a" size="2097152" crc="7d94eb16" sha1="31cf5302eba37e935865822aebd76c700bc51eaf" region="tiles" offset="0"/>
+		<rom name="mbg-01.10a" merge="mbg-01.10a" size="2097152" crc="bcd7fb29" sha1="a54a813b5adcb4df0bfdd58285b1f8e17fbbb7a2" region="sprites" offset="400000"/>
+		<rom name="mbg-02.11a" merge="mbg-02.11a" size="2097152" crc="0cc16440" sha1="1cbf620a9d875ec87dd28a97a256584b6ef277cd" region="sprites" offset="0"/>
+		<rom name="mbg-03.10k" merge="mbg-03.10k" size="524288" crc="4b809420" sha1="ad0278745002320804a31af0b772f9ab5f075027" region="oki1" offset="0"/>
+		<rom name="mbg-04.11k" merge="mbg-04.11k" size="2097152" crc="2281c758" sha1="934691b4002ecd6bc9a09b8970ff18a09451d492" region="oki2" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="okim6295"/>
+		<device_ref name="okim6295"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="mono" name="Speaker"/>
+		<chip type="audio" tag="oki1" name="OKI MSM6295 ADPCM" clock="1000000"/>
+		<chip type="audio" tag="oki2" name="OKI MSM6295 ADPCM" clock="2000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":INPUTS">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
 	<machine name="hwchamp" sourcefile="sega/segas16b.cpp">
 		<description>Heavyweight Champ (set 1)</description>
 		<year>1987</year>
@@ -252690,6 +252801,114 @@
 		<port tag=":IN1">
 		</port>
 		<driver status="good" emulation="good" cocktail="preliminary" savestate="supported"/>
+	</machine>
+	<machine name="wcvol95" sourcefile="dataeast/deco156.cpp">
+		<description>World Cup Volley '95 (Asia v1.0)</description>
+		<year>1995</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="pw00-0.2f" size="524288" crc="86765209" sha1="f78d073610b630ba6aa2352da9b394ef8b8ef628" region="maincpu" offset="2"/>
+		<rom name="pw01-0.4f" size="524288" crc="3a0ee861" sha1="568ab26e9985b0a63b10bb0f57d45e1f15593047" region="maincpu" offset="0"/>
+		<rom name="mbx-00.9a" size="524288" crc="a0b24204" sha1="cec8089c6c635f23b3a4aeeef2c43f519568ad70" region="tiles" offset="0"/>
+		<rom name="mbx-01.12a" size="1048576" crc="73deb3f1" sha1="c0cabecfd88695afe0f27c5bb115b4973907207d" region="sprites" offset="100000"/>
+		<rom name="mbx-02.13a" size="1048576" crc="3204d324" sha1="44102f71bae44bf3a9bd2de7e5791d959a2c9bdd" region="sprites" offset="0"/>
+		<rom name="mbx-03.13j" size="2097152" crc="061632bc" sha1="7900ac56e59f4a4e5768ce72f4a4b7c5875f5ae8" region="ymz" offset="0"/>
+		<rom name="gal16v8b.10j.bin" size="279" crc="06bbcbd5" sha1="f7adb4bca13bb799bc42411eb178edfdc11a76c7" region="gals" offset="0"/>
+		<rom name="gal16v8b.5d.bin" size="279" crc="117784f0" sha1="daf3720740621fc3af49333c96795718b693f4d2" region="gals" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ymz280b"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymz" name="Yamaha YMZ280B PCMD8" clock="14000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":INPUTS">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="wcvol95j" sourcefile="dataeast/deco156.cpp" cloneof="wcvol95" romof="wcvol95">
+		<description>World Cup Volley '95 (Japan v1.0)</description>
+		<year>1995</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="pn00-0.2f" size="524288" crc="c9ed2006" sha1="cee93eafc42c4de7a1453c85e7d6bca8d62cdc7b" region="maincpu" offset="2"/>
+		<rom name="pn01-0.4f" size="524288" crc="1c3641c3" sha1="60dddc3585e4dedb485f7505fee03495f615c0c0" region="maincpu" offset="0"/>
+		<rom name="mbx-00.9a" merge="mbx-00.9a" size="524288" crc="a0b24204" sha1="cec8089c6c635f23b3a4aeeef2c43f519568ad70" region="tiles" offset="0"/>
+		<rom name="mbx-01.12a" merge="mbx-01.12a" size="1048576" crc="73deb3f1" sha1="c0cabecfd88695afe0f27c5bb115b4973907207d" region="sprites" offset="100000"/>
+		<rom name="mbx-02.13a" merge="mbx-02.13a" size="1048576" crc="3204d324" sha1="44102f71bae44bf3a9bd2de7e5791d959a2c9bdd" region="sprites" offset="0"/>
+		<rom name="mbx-03.13j" merge="mbx-03.13j" size="2097152" crc="061632bc" sha1="7900ac56e59f4a4e5768ce72f4a4b7c5875f5ae8" region="ymz" offset="0"/>
+		<rom name="gal16v8b.10j.bin" merge="gal16v8b.10j.bin" size="279" crc="06bbcbd5" sha1="f7adb4bca13bb799bc42411eb178edfdc11a76c7" region="gals" offset="0"/>
+		<rom name="gal16v8b.5d.bin" merge="gal16v8b.5d.bin" size="279" crc="117784f0" sha1="daf3720740621fc3af49333c96795718b693f4d2" region="gals" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ymz280b"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymz" name="Yamaha YMZ280B PCMD8" clock="14000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":INPUTS">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
+	</machine>
+	<machine name="wcvol95x" sourcefile="dataeast/deco156.cpp" cloneof="wcvol95" romof="wcvol95">
+		<description>World Cup Volley '95 Extra Version (Asia v2.0B)</description>
+		<year>1995</year>
+		<manufacturer>Data East Corporation</manufacturer>
+		<rom name="2f.bin" size="524288" crc="ac06633d" sha1="5d37ca3050f35d5fc06f70e91b1522e325471585" region="maincpu" offset="2"/>
+		<rom name="4f.bin" size="524288" crc="e211f67a" sha1="d008c2b809482f17ada608134357fa1205d767d4" region="maincpu" offset="0"/>
+		<rom name="mbx-00.9a" merge="mbx-00.9a" size="524288" crc="a0b24204" sha1="cec8089c6c635f23b3a4aeeef2c43f519568ad70" region="tiles" offset="0"/>
+		<rom name="mbx-01.12a" merge="mbx-01.12a" size="1048576" crc="73deb3f1" sha1="c0cabecfd88695afe0f27c5bb115b4973907207d" region="sprites" offset="100000"/>
+		<rom name="mbx-02.13a" merge="mbx-02.13a" size="1048576" crc="3204d324" sha1="44102f71bae44bf3a9bd2de7e5791d959a2c9bdd" region="sprites" offset="0"/>
+		<rom name="mbx-03.13j" merge="mbx-03.13j" size="2097152" crc="061632bc" sha1="7900ac56e59f4a4e5768ce72f4a4b7c5875f5ae8" region="ymz" offset="0"/>
+		<rom name="gal16v8b.10j.bin" merge="gal16v8b.10j.bin" size="279" crc="06bbcbd5" sha1="f7adb4bca13bb799bc42411eb178edfdc11a76c7" region="gals" offset="0"/>
+		<rom name="gal16v8b.5d.bin" merge="gal16v8b.5d.bin" size="279" crc="117784f0" sha1="daf3720740621fc3af49333c96795718b693f4d2" region="gals" offset="0"/>
+		<device_ref name="arm_cpu"/>
+		<device_ref name="93c46_16"/>
+		<device_ref name="screen"/>
+		<device_ref name="gfxdecode"/>
+		<device_ref name="palette"/>
+		<device_ref name="deco16ic"/>
+		<device_ref name="decospr"/>
+		<device_ref name="speaker"/>
+		<device_ref name="ymz280b"/>
+		<chip type="cpu" tag="maincpu" name="ARM" clock="28000000"/>
+		<chip type="audio" tag="speaker" name="Speaker"/>
+		<chip type="audio" tag="ymz" name="Yamaha YMZ280B PCMD8" clock="14000000"/>
+		<display tag="screen" type="raster" rotate="0" width="320" height="240" refresh="58.000000" />
+		<sound channels="1"/>
+		<input players="2" coins="2" service="yes">
+			<control type="joy" player="1" buttons="3" ways="8"/>
+			<control type="joy" player="2" buttons="3" ways="8"/>
+		</input>
+		<port tag=":EEPROMOUT">
+		</port>
+		<port tag=":INPUTS">
+		</port>
+		<driver status="good" emulation="good" savestate="supported"/>
 	</machine>
 	<machine name="wfishing" sourcefile="sega/segas16b.cpp">
 		<description>Wanpaku Fishing</description>

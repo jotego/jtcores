@@ -20,6 +20,8 @@ module jtosman_colmix(
 
     output reg [ 9:0] pal_addr,    // palette read (RAM in jtosman_video), 1024 colours
     input      [15:0] pal_data,
+    input      [15:0] palhi_data,  // dword high half (pal888)
+    input             pal888,      // xBGR888: full dword {x,B[23:16],G[15:8],R[7:0]}
 
     output     [ 7:0] red,
     output     [ 7:0] green,
@@ -55,10 +57,10 @@ wire [9:0] pal_idx = obj_front ? {1'b1, obj_pxl[8:0]}  :   // 0x200 + colour*16 
 
 always @(posedge clk) if(pxl_cen) pal_addr <= pal_idx;
 
-// xBGR-555 -> 8-bit RGB (5->8 replicate high bits)
-wire [7:0] r8 = { pal_data[ 4:0], pal_data[ 4:2] };
-wire [7:0] g8 = { pal_data[ 9:5], pal_data[ 9:7] };
-wire [7:0] b8 = { pal_data[14:10], pal_data[14:12] };
+// xBGR-555 -> 8-bit RGB (5->8 replicate high bits); xBGR888 bytes pass straight
+wire [7:0] r8 = pal888 ? pal_data[ 7:0] : { pal_data[ 4:0], pal_data[ 4:2] };
+wire [7:0] g8 = pal888 ? pal_data[15:8] : { pal_data[ 9:5], pal_data[ 9:7] };
+wire [7:0] b8 = pal888 ? palhi_data[7:0] : { pal_data[14:10], pal_data[14:12] };
 
 jtframe_blank #(.DLY(0),.DW(24)) u_blank(
     .clk( clk ), .pxl_cen( pxl_cen ),

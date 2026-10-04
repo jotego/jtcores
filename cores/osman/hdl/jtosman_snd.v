@@ -16,6 +16,8 @@ module jtosman_snd(
     input             clk,
     input             cen_oki1,
     input             cen_oki2,
+    input             oki1_bank,     // hvysmsh: sfx OKI 512KB, banked x2
+    input             musraw,        // hvysmsh: music OKI without the address bitswap
 
     input    [ 7:0]   din,
     input             oki1_wr,       // 1-clk pulse (main is_okisfx write)
@@ -26,7 +28,7 @@ module jtosman_snd(
 
     // OKI #1 sample ROM (SDRAM)
     output            rom1_cs,
-    output   [17:0]   rom1_addr,
+    output   [18:0]   rom1_addr,
     input    [ 7:0]   rom1_data,
     input             rom1_ok,
     // OKI #2 sample ROM (SDRAM)
@@ -42,10 +44,12 @@ module jtosman_snd(
 assign rom1_cs = 1'b1;   // jt6295 fetches ROM continuously
 assign rom2_cs = 1'b1;
 
-// OKI #2 banked + descrambled read address
-wire [17:0] oki2_a;
+// OKI #2 banked read address; the init_simpl156 bitswap moves the true low address
+// line up to bit 20, undone here. hvysmsh (musraw) has no bitswap.
+wire [17:0] oki1_a, oki2_a;
+assign rom1_addr = { oki1_bank, oki1_a };   // 2x256KB banks (hvysmsh); bank tied 0 elsewhere
 wire [20:0] oki2_banked = { oki2_bank, oki2_a };
-assign rom2_addr = { oki2_banked[19:0], oki2_banked[20] };
+assign rom2_addr = musraw ? oki2_banked : { oki2_banked[19:0], oki2_banked[20] };
 
 jt6295 u_okisfx(
     .rst     ( rst       ),
@@ -55,7 +59,7 @@ jt6295 u_okisfx(
     .wrn     ( ~oki1_wr  ),
     .din     ( din       ),
     .dout    ( oki1_dout ),
-    .rom_addr( rom1_addr ),
+    .rom_addr( oki1_a    ),
     .rom_data( rom1_data ),
     .rom_ok  ( rom1_ok   ),
     .sound   ( pcm1      ),
