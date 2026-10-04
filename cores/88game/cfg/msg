@@ -3,9 +3,8 @@
   Based on Konami GX861 PCB
  schematic and GAL equations
 
-  Core design by Jose Tejada
-   on the \RJTCORES\W framework
-       by JOTEGO + community
+  Chips RE'ed by Furrtek
+
 
 \B______ \RDIRECTORS\B _______\W
 Andrea Bogazzi  f3bandit
@@ -78,3 +77,18 @@ Robert MacLean  Steven Wilson
 The Collector   Theodore Huber
 Thompson Orcino Torren Beitler
 ultimatekd      Vitor Duarte
+
+  ________________________
+
+      - Beta version -
+      Do not distribute
+
+
+      -     MiSTer   -
+      Place jtbeta.zip
+      in games/mame
+      do not unzip it
+
+      -   A. Pocket  -
+    Unzip jtbeta.zip into
+    Assets/jtpatreon/common
