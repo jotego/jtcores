@@ -17,10 +17,16 @@ JTFRAME_VERTICAL=1
 JTFRAME_WIDTH=320
 JTFRAME_HEIGHT=240
 JTFRAME_COLORW=8
-# 8 MHz pixel clock: htotal 512 -> H=15.625 kHz (15 kHz CRT range), 274 lines -> 57.03 Hz.
-# 6 MHz gave H=11.7 kHz / 42.8 Hz: no CRT lock (reported as "no crt video").
-JTFRAME_PXLCLK=8
-JTFRAME_RATE=57
+# Clocking: reuse the cps3 pll7000 (base 56 MHz -> 28/56/112). PXLCLK=6 divides by 8,
+# so pxl_cen = 56/8 = 7 MHz, the DE156's native dot clock; the /8 base also gives clean
+# cen divisors (ARM 7, OKI 1/2 MHz). JTFRAME_180SHIFT is required for the SDRAM to meet
+# timing at this clock (without it the core does not boot), same as cps3.
+JTFRAME_PXLCLK=6
+JTFRAME_PLL=jtframe_pll7000
+JTFRAME_180SHIFT
+# The PLL is bypassed in Verilator, so the sim pixel clock (nominal) differs from the
+# pll7000 hardware clock; skip the sim rate check as cps3 does. See the grid note below.
+JTFRAME_SKIP_RATE_TEST
 
 # Osman has NO dipswitches — region/lives/buttons live in the 93C46 EEPROM + service menu.
 # JTFRAME_OSD_TEST adds the OSD "Service mode" toggle (TESTSW). No JTFRAME_DIPSW/DIPBASE.
