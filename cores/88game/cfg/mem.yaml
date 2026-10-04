@@ -24,7 +24,6 @@ sdram:
   banks:
     - buses:
         - name: main
-          cache_size: 1kB
           addr_width: 17
           data_width: 8
     - buses:
@@ -52,7 +51,6 @@ sdram:
         - name: psac
           addr_width: 18
           data_width: 8
-          cache_size: 1kB
           offset: PSAC_OFFSET
 bram:
   - name: ram
