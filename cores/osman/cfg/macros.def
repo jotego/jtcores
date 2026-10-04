@@ -11,8 +11,10 @@ JTFRAME_HEADER=16
 # [3:0] -> RLDU. Without this, pressing up lands on bit3 = right. Same as cninja/karnov.
 JTFRAME_JOY_RLDU=1
 
-# Screen: 58 Hz, htotal 512, visarea 320x240 (set_visarea 0,319,8,247). Mostly ROT0;
-# prtytime/gangonta are ROT90 (MRA rotate flag), so vertical support is enabled.
+# Screen: 7 MHz dot clock, htotal 442, vtotal 274 -> 15.84 kHz / 57.79 Hz, straight from
+# nslasher's set_raw(28MHz/4, 442, 0, 320, 274, 8, 248) in fghthist.cpp (same DECO video
+# chips; simpl156.cpp's set_size(512) is the tilemap bitmap, not the scan line). Mostly
+# ROT0; prtytime/gangonta are ROT90 (MRA rotate flag), so vertical support is enabled.
 JTFRAME_VERTICAL=1
 JTFRAME_WIDTH=320
 JTFRAME_HEIGHT=240
@@ -23,9 +25,9 @@ JTFRAME_COLORW=8
 # timing at this clock (without it the core does not boot), same as cps3.
 JTFRAME_PXLCLK=6
 JTFRAME_PLL=jtframe_pll7000
-JTFRAME_180SHIFT
 # The PLL is bypassed in Verilator, so the sim pixel clock (nominal) differs from the
-# pll7000 hardware clock; skip the sim rate check as cps3 does. See the grid note below.
+# pll7000 hardware clock; skip the sim rate check as cps3 does. RATE documents hardware.
+JTFRAME_RATE=57.79
 JTFRAME_SKIP_RATE_TEST
 
 # Osman has NO dipswitches — region/lives/buttons live in the 93C46 EEPROM + service menu.
@@ -44,5 +46,8 @@ PCM2_START=0x2C0000
 JTFRAME_BA3_START=0x4C0000
 
 [mister]
+# SDRAM phase shift: hardware-only (the verilator SDRAM model breaks with it,
+# garbage ARM opcodes). Required on MiSTer or the core does not boot — like cps3.
+JTFRAME_180SHIFT
 JTFRAME_ARX=4
 JTFRAME_ARY=3

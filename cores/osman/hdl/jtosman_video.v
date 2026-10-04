@@ -72,10 +72,12 @@ wire [ 1:0] wmask = ~dsn;
 wire [ 8:0] hdump, vrender;
 
 
-// ---- timing: 320x240, htotal 512, 240 rows at top 8 ----
+// ---- timing: 320x240 from nslasher's set_raw(28MHz/4, 442, 0, 320, 274, 8, 248)
+//      (fghthist.cpp; same DECO video chips): 7 MHz dot clock, htotal 442, vtotal 274
+//      -> H=15.84 kHz, 57.79 Hz. HS placed as in cninja (same 274-line house grid). ----
 jtframe_vtimer #(
     .VB_START ( 9'd247 ), .VB_END( 9'd7 ), .VCNT_END( 9'd273 ), .VS_START( 9'd254 ),
-    .HB_START ( 9'd319 ), .HB_END( 9'd511 ), .HS_START( 9'd416 ), .HINIT( 9'd319 )
+    .HB_START ( 9'd319 ), .HB_END( 9'd441 ), .HS_START( 9'd364 ), .HINIT( 9'd319 )
 ) u_vtimer(
     .clk( clk ), .pxl_cen( pxl_cen ),
     .vdump( vdump ), .vrender( vrender ), .vrender1(),
@@ -173,7 +175,7 @@ wire [31:0] pf1a_gdata, pf1b_gdata, pf2a_gdata, pf2b_gdata;
 wire        pf1a_gok, pf1b_gok, pf2a_gok, pf2b_gok;
 
 // pf1 16x16
-jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf1a_eng(
+jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd441)) u_pf1a_eng(
     .rst(rst),.clk(clk),.pxl_cen(pxl_cen),.flip(flip),.fullheight(1'b0),.pswap(1'b0),.rowmajor(1'b0),
     .scrollx(pfctrl[1]+HOFS),.scrolly(pfctrl[2]),.bank(pfctrl[7][6:4]),
     .control0(pfctrl[5][7:0]),.control1(pfctrl[6][7:0] & 8'h7f),
@@ -184,7 +186,7 @@ jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf1a_eng(
 jtosman_gfxdec u_pf1a_dec(.rst(rst),.clk(clk),.deco(deco),.rom_cs(pf1a_gcs),.rom_addr(pf1a_roma),.rom_data(pf1a_gdata),.rom_ok(pf1a_gok),
     .sdr_cs(gfx1a_cs),.sdr_addr(gfx1a_addr),.sdr_data(gfx1a_data),.sdr_ok(gfx1a_ok));
 // pf1 8x8
-jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf1b_eng(
+jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd441)) u_pf1b_eng(
     .rst(rst),.clk(clk),.pxl_cen(pxl_cen),.flip(flip),.fullheight(1'b0),.pswap(1'b0),.rowmajor(1'b0),
     .scrollx(pfctrl[1]+HOFS),.scrolly(pfctrl[2]),.bank(pfctrl[7][6:4]),
     .control0(pfctrl[5][7:0]),.control1(pfctrl[6][7:0] | 8'h80),
@@ -195,7 +197,7 @@ jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf1b_eng(
 jtosman_gfxdec u_pf1b_dec(.rst(rst),.clk(clk),.deco(deco),.rom_cs(pf1b_gcs),.rom_addr(pf1b_roma),.rom_data(pf1b_gdata),.rom_ok(pf1b_gok),
     .sdr_cs(gfx1c_cs),.sdr_addr(gfx1c_addr),.sdr_data(gfx1c_data),.sdr_ok(gfx1c_ok));
 // pf2 16x16
-jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf2a_eng(
+jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd441)) u_pf2a_eng(
     .rst(rst),.clk(clk),.pxl_cen(pxl_cen),.flip(flip),.fullheight(1'b0),.pswap(1'b0),.rowmajor(1'b0),
     .scrollx(pfctrl[3]+HOFS),.scrolly(pfctrl[4]),.bank(pfctrl[7][14:12]),
     .control0(pfctrl[5][15:8]),.control1(pfctrl[6][15:8] & 8'h7f),
@@ -206,7 +208,7 @@ jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf2a_eng(
 jtosman_gfxdec u_pf2a_dec(.rst(rst),.clk(clk),.deco(deco),.rom_cs(pf2a_gcs),.rom_addr(pf2a_roma),.rom_data(pf2a_gdata),.rom_ok(pf2a_gok),
     .sdr_cs(gfx1b_cs),.sdr_addr(gfx1b_addr),.sdr_data(gfx1b_data),.sdr_ok(gfx1b_ok));
 // pf2 8x8
-jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd511)) u_pf2b_eng(
+jtcninja_deco16 #(.BANKW(2),.COLS(42),.HLAST(9'd441)) u_pf2b_eng(
     .rst(rst),.clk(clk),.pxl_cen(pxl_cen),.flip(flip),.fullheight(1'b0),.pswap(1'b0),.rowmajor(1'b0),
     .scrollx(pfctrl[3]+HOFS),.scrolly(pfctrl[4]),.bank(pfctrl[7][14:12]),
     .control0(pfctrl[5][15:8]),.control1(pfctrl[6][15:8] | 8'h80),

@@ -16,6 +16,10 @@ awk -F: '{gsub(/ /,"",$1); print "x" toupper($1)}' "$MAME" | head -1600 > /tmp/m
 # FPGA fetch addrs (7-hex), collapse immediate repeats
 awk -F: '{gsub(/ /,"",$1); print "x" toupper($1)}' "$FPGA" | awk '$1!=p{print}{p=$1}' > /tmp/fpga_pc.txt
 
+# An empty file would silently shift awk's FNR==NR file detection -> false OK
+[ -s /tmp/fpga_pc.txt ] || { echo "FAIL: FPGA trace is empty: $FPGA"; exit 1; }
+[ -s /tmp/mame_pc.txt ] || { echo "FAIL: MAME trace is empty: $MAME"; exit 1; }
+
 awk -v W="$WINDOW" '
   FNR==NR { fpga[FNR]=$1; nf=FNR; next }
   { mame[FNR]=$1; nm=FNR }
