@@ -337,7 +337,8 @@ integer wrf; reg wvbl_s; reg [7:0] wfn;
 initial begin wrf=$fopen("osman_wr.log","w"); wvbl_s=0; wfn=0; end
 always @(posedge clk) begin
     wvbl_s <= vbl;
-    if( vbl & ~wvbl_s ) wfn <= wfn + 8'd1;
+    if( rst ) wfn <= 8'd0;          // the download phase also ticks vbl; count game frames only
+    else if( vbl & ~wvbl_s ) wfn <= wfn + 8'd1;
     if( wr & wb_ack & wrf!=0 & wfn<8'd4 )
         $fwrite(wrf, "%06x %x %08x\n", wb_adr[23:0], wb_sel, wb_wdat);
 end
