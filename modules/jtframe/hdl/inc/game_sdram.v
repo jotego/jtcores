@@ -58,6 +58,10 @@ wire mute;
 // SDRAM buses
 {{ range .SDRAM.Banks}}
 {{- range .Buses}}
+{{- if .Transform }}
+wire [SDRAMW-2:0] {{.Name}}_xa;   // large-cache fill address, pre-transform
+assign {{.Name}}_pre_addr = { {(26-SDRAMW){1'b0}}, {{.Name}}_xa };
+{{- end }}
 wire {{ addr_range . }} {{.Name}}_addr;
 wire {{ data_range . }} {{.Name}}_data;
 wire        {{.Name}}_cs, {{.Name}}_ok;
@@ -484,6 +488,8 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     .SLOT{{$index}}_LATCH({{.}}),{{end}}{{end}}
     {{- with .Cache_size }}
     .CACHE{{$index}}_SIZE({{.}}),{{end}}
+    {{- if .Transform }}
+    .SLOT{{$index}}_XFORM(1),{{end}}
     {{- if .Cache_large }}
     .CACHE{{$index}}_LARGE(1),{{end}}
     .SLOT{{$index}}_AW({{ slot_addr_width . }}),
@@ -528,6 +534,10 @@ jtframe_{{.MemType}}_{{len .Buses}}slot{{with lt 1 (len .Buses)}}s{{end}} #(
     {{- if not $is_rom }}
     .slot{{$index2}}_clr   ( 1'b0       ), // only 1'b0 supported in mem.yaml
     {{- end }}{{- end}}
+    {{- if .Transform }}
+    .slot{{$index2}}_xaddr   ( {{.Name}}_xa ),
+    .slot{{$index2}}_xaddr_in( {{.Name}}_post_addr[SDRAMW-2:0] ),
+    {{- end }}
     .slot{{$index2}}_dout  ( {{.Name}}_data  ),
     .slot{{$index2}}_cs    ( {{ if .Cs }}{{.Cs}}{{else}}{{.Name}}_cs{{end}}    ),
     .slot{{$index2}}_ok    ( {{.Name}}_ok    ),

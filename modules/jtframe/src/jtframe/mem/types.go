@@ -280,6 +280,11 @@ type SDRAMBus struct {
 	Data_width int             `yaml:"data_width"`
 	Cache_size interface{}     `yaml:"cache_size"`
 	Cache_large bool
+	// Transform exposes the large cache's line-fill address as <name>_pre_addr and
+	// takes the SDRAM address back on <name>_post_addr, so the core can apply an
+	// address scrambler between the cache and the SDRAM (same concept as the
+	// download's post_addr). Requires a string cache_size (large cache).
+	Transform  bool            `yaml:"transform"`
 	Rw         bool            `yaml:"rw"`
 	Dont_erase bool            `yaml:"do_not_erase"`
 	Dsn        string          `yaml:"dsn"` // optional name for dsn signal
@@ -484,6 +489,7 @@ func (bus *SDRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error
 		Addr_width int             `yaml:"addr_width"`
 		Data_width int             `yaml:"data_width"`
 		Cache_size interface{}     `yaml:"cache_size"`
+		Transform  bool            `yaml:"transform"`
 		Rw         bool            `yaml:"rw"`
 		Dont_erase bool            `yaml:"do_not_erase"`
 		Dsn        string          `yaml:"dsn"`
@@ -496,7 +502,7 @@ func (bus *SDRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error
 	err = common.Validator{
 		Context: "SDRAM bus",
 		Valid: []string{"when", "unless", "name", "offset", "latch", "addr", "addr_width", "data_width",
-			"cache_size", "rw", "do_not_erase", "dsn", "din", "cs", "gfx_sort",
+			"cache_size", "transform", "rw", "do_not_erase", "dsn", "din", "cs", "gfx_sort",
 			"gfx_sort_en", "simfile"},
 	}.Validate(unmarshal)
 	if err != nil {
@@ -515,6 +521,7 @@ func (bus *SDRAMBus) UnmarshalYAML(unmarshal func(interface{}) error) (err error
 	bus.Addr_width = aux.Addr_width
 	bus.Data_width = aux.Data_width
 	bus.Cache_size = aux.Cache_size
+	bus.Transform = aux.Transform
 	bus.Rw = aux.Rw
 	bus.Dont_erase = aux.Dont_erase
 	bus.Dsn = aux.Dsn

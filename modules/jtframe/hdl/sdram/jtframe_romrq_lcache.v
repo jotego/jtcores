@@ -6,6 +6,11 @@
 // Cache lines are exactly one controller burst: 16, 32, or 64 bits.
 // Latency: 1 clock, or 2 with TAG_RAM, plus SDRAM service time on a miss.
 module jtframe_romrq_lcache #(parameter
+    XFORM    = 0,  // 1 = the board transforms the line-fill address: xaddr goes out,
+                   // xaddr_in (a combinational function of it) reaches the SDRAM.
+                   // The transform must keep a line's words adjacent; with
+                   // BURSTLEN==DW every line is a single word and any word-level
+                   // transform is valid (e.g. an address descrambler).
     SDRAMW   = 22,
     AW       = 18,
     DW       =  8,
@@ -25,6 +30,8 @@ module jtframe_romrq_lcache #(parameter
     input               we,
     output              req,
     output [SDRAMW-1:0] sdram_addr,
+    output [SDRAMW-1:0] xaddr,      // line-fill address, before the board transform
+    input  [SDRAMW-1:0] xaddr_in,   // transformed fill address (only read when XFORM!=0)
 
     input [AW-1:0]      addr,
     input               addr_ok,
@@ -75,8 +82,9 @@ assign req        = TAG_RAM ? addr_ok_l && !hit && !(fill_ok && fill_data_match)
 // A lower-priority slot can remain pending while the client advances to its
 // next address. Keep the SDRAM address paired with the tag and line captured
 // when req was first asserted, until that request starts filling.
-assign sdram_addr = req_pending ? { req_tag, req_line, {LINE_AW{1'b0}} } :
+assign xaddr      = req_pending ? { req_tag, req_line, {LINE_AW{1'b0}} } :
                     TAG_RAM ? { read_tag_l, read_line_l, {LINE_AW{1'b0}} } : line_addr;
+assign sdram_addr = XFORM!=0 ? xaddr_in : xaddr;
 assign data_ok    = TAG_RAM ? addr_ok_l && !filling &&
                               (tag_data_ok ||
                                (fill_ok && fill_data_match)) :
