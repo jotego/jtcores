@@ -88,10 +88,22 @@ wire pal888  = hv;                  // xBGR888 32-bit palette
 // BA1: the 2MB-tile boards (tile1mb=0: Mitchell + hvysmsh) hold tiles in one mask ROM
 // with ROM_CONTINUE quarters -> undo by swapping word bits 19/18; 1MB boards load plain.
 // BA3: sprite FRAC half interleave; the half bit (sprbit) moves with region size.
+// Main-bus cache transform (mem.yaml transform: true): the cache fills by the
+// ARM word address; apply the deco156 address scramble on the way to the SDRAM,
+// as the real 156 does on its external bus. pre/post are bank-local 16-bit-word
+// addresses: dword index in [18:1], halfword select in [0] (line-aligned to 0).
+wire [17:0] xf_dec;
+jtosman_deco156 u_axform(
+    .a        ( main_pre_addr[18:1] ),
+    .dec_addr ( xf_dec              ),
+    .raw      ( 32'd0               ),
+    .dec      (                     )
+);
+assign main_post_addr = { 6'd0, xf_dec, main_pre_addr[0] };
+
 always @* begin
     post_addr = prog_addr;
-    post_data = prog_data;
-    if( prog_ba==2'd1 && !tile1mb ) begin
+    post_data = prog_data;    if( prog_ba==2'd1 && !tile1mb ) begin
         post_addr[19] = prog_addr[18];
         post_addr[18] = prog_addr[19];
     end

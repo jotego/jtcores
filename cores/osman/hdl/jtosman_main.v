@@ -174,7 +174,10 @@ jtosman_deco156 u_dec156(
     .raw      ( rom_raw   ),
     .dec      ( rom_dec   )
 );
-assign rom_addr = dec_saddr;         // scrambled SDRAM word address, -> port [19:2] (1 MB max)
+// The bus cache keys on the ARM word address; the deco156 address scramble is
+// applied on cache-miss fills through the mem.yaml transform hook (in game.v),
+// so SDRAM keeps the native ROM layout and the scramble stays live on the bus.
+assign rom_addr = arm_word;
 
 // ---- 93C46 EEPROM (jt9346), bit-banged via 0x1B0000 write ----
 // Osman/Cannon Dancer do NOT init their own EEPROM: word[0]=0xffbe, word[0x20]=0x0088
@@ -351,9 +354,11 @@ always @(posedge clk) begin
     if( rst ) vblcnt <= 4'd0;      // the download phase also ticks vbl; count game frames only
     else if( vbl & ~pvbl & ~&vblcnt ) vblcnt <= vblcnt + 4'd1;
 end
-assign sysrdy = dip_pause & ~(vblcnt>=4'd4 && vblcnt<=4'd6);
+assign sysrdy = cen_arm & dip_pause & ~(vblcnt>=4'd4 && vblcnt<=4'd6);
 `else
-assign sysrdy = dip_pause;
+// cen_arm paces the a23 at the real 7 MHz (56/8); the ARM-keyed bus cache keeps
+// the fetch latency inside the 8-clk period. dip_pause=0 overrides for the OSD.
+assign sysrdy = cen_arm & dip_pause;
 `endif
 
 `ifdef OSMAN_PCTRACE
@@ -368,11 +373,7 @@ a23_core u_arm(
     .i_reset      ( rst       ),
     .i_irq        ( irq_l     ),
     .i_firq       ( 1'b0      ),
-    .i_system_rdy ( sysrdy    ),  // UNGATED otherwise (nslasher pattern): the a23 L1 cache is
-                                   // CP15-disabled on this bare ARM binary (~10 CPI) so gating to
-                                   // cen_arm crawls; run at 48 MHz, game stays vblank-synced.
-                                   // dip_pause=0 freezes the fetch pipeline (OSD pause/credits),
-                                   // like cninja's 68000 HALTn. TODO: ROM cache for real 7 MHz.
+    .i_system_rdy ( sysrdy    ),  // paced at the real 7 MHz by cen_arm; see sysrdy above
     .o_wb_adr     ( wb_adr    ),
     .o_wb_sel     ( wb_sel    ),
     .o_wb_we      ( wb_we     ),

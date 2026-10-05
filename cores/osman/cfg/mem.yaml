@@ -1,24 +1,31 @@
 # Osman — SDRAM banks / clock enables / audio. Data East Simple 156.
-# Decryption is ALL at-fetch (like nslasher): deco156 on the ARM fetch, deco56 on the tile fetch.
-# SDRAM holds raw/encrypted; the only download transforms are the tile ROM_CONTINUE placement,
-# the sprite plane-pack, and the okimusic address bitswap (post_addr).
+# Decryption is ALL at-fetch (like nslasher): deco156 on the ARM fetch (address scramble
+# included, as on the real bus), deco56 on the tile fetch. SDRAM holds raw/encrypted.
 params:
-  - { name: PCM1_OFFSET, value: "(`PCM1_START-`JTFRAME_BA2_START)>>1" }
-  - { name: PCM2_OFFSET, value: "(`PCM2_START-`JTFRAME_BA2_START)>>1" }
+  - name: PCM1_OFFSET
+    value: "(`PCM1_START-`JTFRAME_BA2_START)>>1"
+  - name: PCM2_OFFSET
+    value: "(`PCM2_START-`JTFRAME_BA2_START)>>1"
 
+# Real-board clock tree: one 28 MHz XTAL; pll7000 base clk = 56 MHz = 2x28, so every
+# divider below is the exact doubled board divider (integer division, no fraction).
 clocks:
   clk:
-    - freq: 7000000          # ARM DE156 = 28MHz/4
+    - mul: 1
+      div: 8                 # ARM DE156 = 28/4 = 7 MHz
       outputs: [ cen_arm ]
-    - freq: 1000000          # OKI #1 sfx  = 28MHz/28 (PIN7 HIGH)
+    - mul: 1
+      div: 56                # OKI #1 sfx = 28/28 = 1 MHz (PIN7 HIGH)
       outputs: [ cen_oki1 ]
-    - freq: 1000000          # OKI #2 music = 28MHz/28 (mitchell156 sets both /28)
+    - mul: 1
+      div: 56                # OKI #2 music = 28/28 (Mitchell boards)
       outputs: [ cen_oki2 ]
-    - freq: 2000000          # OKI #2 music on the DECO PCBs (joemacr) = 28MHz/14
+    - mul: 1
+      div: 28                # OKI #2 music = 28/14 = 2 MHz (DECO PCBs + hvysmsh)
       outputs: [ cen_oki2b ]
 
 download:
-  post_addr: true            # tiles ROM_CONTINUE placement + sprite plane-pack + okimusic bitswap
+  post_addr: true            # tiles ROM_CONTINUE placement + sprite plane-pack
   post_data: true            # TODO drop if unused (deco156/deco56 are decrypt-at-fetch, not download)
 
 audio:
@@ -26,69 +33,113 @@ audio:
   channels:
     # MAME chainrec routes: okisfx 0.6, okimusic 0.2 (level ~ 1/rsum). TODO tune vs MAME per-channel.
     # channel names differ from the SDRAM bus names (oki1/oki2) to avoid a port clash.
-    - { name: pcm1, module: jt6295, rsum: 20k }   # okisfx  — SFX/voice
-    - { name: pcm2, module: jt6295, rsum: 60k }   # okimusic — music (address-bitswapped + banked)
+    - name: pcm1             # okisfx — SFX/voice
+      module: jt6295
+      rsum: 20k
+    - name: pcm2             # okimusic — music (banked; bitswapped on simpl156)
+      module: jt6295
+      rsum: 60k
 
 # Board RAMs live here (never instantiated in core HDL); only chip-internal state
 # stays in the modules: the deco16ic pf name tables + control regs (jtosman_video /
 # jtdeco16ic_mmr) and the DE156 system RAM (32-bit scratch on every map at 0x201000).
 bram:
-  - name: mram          # main work RAM, 16-bit at dword spacing (page moves per family)
+  - name: mram               # main work RAM, 16-bit at dword spacing (page moves per family)
     addr_width: 14
     data_width: 16
     addr: mram_addr
     din: cpu_dout
     we: mram_we
     rw: true
-  - name: pal           # 1024 colours; xBGR555 low half (hvysmsh adds palh)
+  - name: pal                # 1024 colours; xBGR555 low half (hvysmsh adds palh)
     addr_width: 11
     data_width: 16
     simfile: {}
     addr: pal_rd
-    dual_port: { name: palrw, din: cpu_dout, dout: palrw_dout, rw: true }
-  - name: palh          # xBGR888 high half (hvysmsh only; zero elsewhere)
+    dual_port:
+      name: palrw
+      din: cpu_dout
+      dout: palrw_dout
+      rw: true
+  - name: palh               # xBGR888 high half (hvysmsh only; zero elsewhere)
     addr_width: 11
     data_width: 16
     addr: pal_rd
-    dual_port: { name: palhrw, din: cpu_dhi, rw: true }
-  - name: oram          # sprite RAM
+    dual_port:
+      name: palhrw
+      din: cpu_dhi
+      rw: true
+  - name: oram               # sprite RAM
     addr_width: 12
     data_width: 16
     simfile: {}
     addr: obj_oaddr
-    dual_port: { name: oramrw, din: cpu_dout, dout: oramrw_dout, rw: true }
-  - name: rs1           # pf1 rowscroll table
+    dual_port:
+      name: oramrw
+      din: cpu_dout
+      dout: oramrw_dout
+      rw: true
+  - name: rs1                # pf1 rowscroll table
     addr_width: 12
     data_width: 16
     simfile: {}
     addr: pf1_rsa
-    dual_port: { name: rs1rw, din: cpu_dout, rw: true }
-  - name: rs2           # pf2 rowscroll table
+    dual_port:
+      name: rs1rw
+      din: cpu_dout
+      rw: true
+  - name: rs2                # pf2 rowscroll table
     addr_width: 12
     data_width: 16
     simfile: {}
     addr: pf2_rsa
-    dual_port: { name: rs2rw, din: cpu_dout, rw: true }
+    dual_port:
+      name: rs2rw
+      din: cpu_dout
+      rw: true
 
 sdram:
   banks:
-    # BA0 — main ARM ROM (512 KB, 32-bit). deco156 decrypt-at-fetch (jtosman_deco156).
+    # BA0 — main ARM ROM (1 MB slot: 512 KB simpl156, 1 MB hvysmsh), 32-bit.
+    # deco156 decrypt-at-fetch. The bus cache keys on the ARM-side address; the
+    # transform hook applies the deco156 address scramble between the cache and
+    # the SDRAM (jtosman_game drives main_post_addr from main_pre_addr), so the
+    # ROM stays in native load order and hot loops hit without SDRAM round trips.
     - buses:
-      - { name: main, addr_width: 19, data_width: 32 }
+        - name: main
+          addr_width: 20
+          data_width: 32
+          cache_size: 4kB
+          transform: true
     # BA1 — tiles gfx (2 MB region), deco56-ENCRYPTED, 16-bit port. jtosman_gfxdec decrypts at fetch
     # and does 2 reads/word (the two plane-pairs, 0x80000 decwords apart) -> 32-bit for jtframe_deco16.
     # pf1 + pf2 each get their own 16-bit reader into the same tiles region.
     # deco16ic draws BOTH sizes per pf -> 4 readers of the same tiles region: 16x16 (a) + 8x8 (c/d).
     - buses:
-      - { name: gfx1a, addr_width: 21, data_width: 16 }   # pf1 16x16 (via gfxdec)
-      - { name: gfx1b, addr_width: 21, data_width: 16 }   # pf2 16x16 (via gfxdec)
-      - { name: gfx1c, addr_width: 21, data_width: 16 }   # pf1 8x8   (via gfxdec)
-      - { name: gfx1d, addr_width: 21, data_width: 16 }   # pf2 8x8   (via gfxdec)
+        - name: gfx1a        # pf1 16x16 (via gfxdec)
+          addr_width: 21
+          data_width: 16
+        - name: gfx1b        # pf2 16x16 (via gfxdec)
+          addr_width: 21
+          data_width: 16
+        - name: gfx1c        # pf1 8x8 (via gfxdec)
+          addr_width: 21
+          data_width: 16
+        - name: gfx1d        # pf2 8x8 (via gfxdec)
+          addr_width: 21
+          data_width: 16
     # BA2 — OKI samples (both 8-bit).
     - buses:
-      - { name: oki1, addr_width: 19, data_width: 8, offset: PCM1_OFFSET }   # sfx 512 KB slot (256 KB simpl156, 512 KB banked hvysmsh)
-      - { name: oki2, addr_width: 21, data_width: 8, offset: PCM2_OFFSET }   # music 2 MB (banked)
+        - name: oki1         # sfx 512 KB slot (256 KB simpl156, 512 KB banked hvysmsh)
+          addr_width: 19
+          data_width: 8
+          offset: PCM1_OFFSET
+        - name: oki2         # music 2 MB (banked)
+          addr_width: 21
+          data_width: 8
+          offset: PCM2_OFFSET
     # BA3 — sprites (8 MB, 4bpp, plain). 32-bit packed fetch for jtframe_decospr.
-    # NOTE: jtframe_decospr rom_addr/id must be widened for 8 MB (cninja's is 2 MB).
     - buses:
-      - { name: obj, addr_width: 23, data_width: 32 }
+        - name: obj
+          addr_width: 23
+          data_width: 32
