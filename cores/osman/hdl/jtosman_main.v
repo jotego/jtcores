@@ -344,6 +344,20 @@ always @(posedge clk) begin
 end
 `endif
 
+// OSMAN_CENDIV=N: sim-only pace override (clk/N instead of the mem.yaml cen_arm
+// clk/8), to measure game speed at hypothetical CPU clocks without regenerating.
+`ifdef OSMAN_CENDIV
+reg [3:0] cdiv=0;
+reg       cen_sim=0;
+always @(posedge clk) begin
+    if( cdiv == `OSMAN_CENDIV-1 ) begin cdiv<=0; cen_sim<=1; end
+    else begin cdiv<=cdiv+4'd1; cen_sim<=0; end
+end
+`define OSMAN_PACE cen_sim
+`else
+`define OSMAN_PACE cen_arm
+`endif
+
 // OSD pause (and OSD-shown) stall. OSMAN_PAUSE_TEST: the sim harness ties
 // dip_pause=1 (jtframe_dip is target-level), so force a stall window over
 // frames 4-6 to check both the freeze and the resume.
@@ -355,11 +369,59 @@ always @(posedge clk) begin
     if( rst ) vblcnt <= 4'd0;      // the download phase also ticks vbl; count game frames only
     else if( vbl & ~pvbl & ~&vblcnt ) vblcnt <= vblcnt + 4'd1;
 end
-assign sysrdy = cen_arm & dip_pause & ~(vblcnt>=4'd4 && vblcnt<=4'd6);
+assign sysrdy = `OSMAN_PACE & dip_pause & ~(vblcnt>=4'd4 && vblcnt<=4'd6);
 `else
 // cen_arm paces the a23 at the real 7 MHz (56/8); the ARM-keyed bus cache keeps
 // the fetch latency inside the 8-clk period. dip_pause=0 overrides for the OSD.
-assign sysrdy = cen_arm & dip_pause;
+assign sysrdy = `OSMAN_PACE & dip_pause;
+`endif
+
+`ifdef OSMAN_FRAMESTAT
+// Per-frame game-loop stats: a frame's logic is DONE when the PC reaches the
+// game's idle/wait loop (the same PC MAME's speedup hooks key on, e.g. osman
+// 0x5974, joemacr 0x284 - pass it with -d OSMAN_IDLE_PC=0x...). One line per
+// frame: whether the idle loop was reached and at which clk of the frame, so
+// frames-per-second and frame-budget use fall straight out of the log.
+`ifndef OSMAN_IDLE_PC
+`define OSMAN_IDLE_PC 'h5974
+`endif
+integer fstat; reg fvbl_s=0; reg fidle=0; reg frun=0; reg [31:0] fclk=0, fidle_t=0; integer fnum=0;
+// fetch-path profile: a fetch is one rom_cs assert-to-ack; wait = clk with
+// rom_cs & ~rom_ok (CPU stalled on instructions); lat>2 clk = cache miss.
+reg  [31:0] f_fetch=0, f_wait=0, f_miss=0, f_lat=0, f_maxw=0;
+initial fstat=$fopen("osman_frame.log","w");
+always @(posedge clk) begin
+    fvbl_s <= vbl;
+    if( frun ) fclk <= fclk + 32'd1;
+    if( rom_cs & ~rom_ok ) begin
+        f_wait <= f_wait + 32'd1;
+        f_lat  <= f_lat  + 32'd1;
+        if( f_lat >= f_maxw ) f_maxw <= f_lat + 32'd1;
+    end
+    if( rom_cs & rom_ok & wr==1'b0 & wb_ack ) begin   // fetch completed
+        f_fetch <= f_fetch + 32'd1;
+        if( f_lat > 32'd2 ) f_miss <= f_miss + 32'd1;
+        f_lat   <= 32'd0;
+    end
+    if( is_rom & rd & wb_ack & wb_adr[23:2]==(24'(`OSMAN_IDLE_PC))>>2 & ~fidle & frun ) begin
+        fidle   <= 1'b1;
+        fidle_t <= fclk;
+    end
+    if( rst ) begin fidle<=0; fclk<=0; fnum=0; frun<=0;
+                    f_fetch<=0; f_wait<=0; f_miss<=0; f_lat<=0; f_maxw<=0; end
+    else if( vbl & ~fvbl_s ) begin
+        if( frun && fstat!=0 ) begin
+            $fwrite(fstat, "frame %0d done=%0d t=%0d fetch=%0d wait=%0d miss=%0d maxw=%0d\n",
+                    fnum, fidle, fidle_t, f_fetch, f_wait, f_miss, f_maxw);
+            $fflush(fstat);
+        end
+        frun  <= 1;
+        fnum  = fnum + 1;
+        fidle <= 0;
+        fclk  <= 0;
+        f_fetch<=0; f_wait<=0; f_miss<=0; f_maxw<=0;
+    end
+end
 `endif
 
 `ifdef OSMAN_PCTRACE
