@@ -15,6 +15,7 @@ module jtframe_rom_1slot #(parameter
     SLOT0_DOUBLE = 0,
     CACHE0_SIZE  = 0,
     CACHE0_LARGE = 0,
+    SLOT0_XFORM  = 0,  // large cache only: board transform on the line-fill address
     SLOT0_BURSTLEN = 32,
 /* verilator lint_off WIDTH */
     parameter [SDRAMW-1:0] SLOT0_OFFSET = {SDRAMW{1'b0}},
@@ -28,6 +29,9 @@ module jtframe_rom_1slot #(parameter
 
     //  output data
     output [SLOT0_DW-1:0] slot0_dout,
+
+    output [SDRAMW-1:0] slot0_xaddr,
+    input  [SDRAMW-1:0] slot0_xaddr_in,
 
     input               slot0_cs,
     output              slot0_ok,
@@ -50,6 +54,7 @@ jtframe_rom_2slots #(
     .SLOT0_OKLATCH( SLOT0_OKLATCH ),
     .CACHE0_SIZE  ( CACHE0_SIZE   ),
     .CACHE0_LARGE ( CACHE0_LARGE  ),
+    .SLOT0_XFORM  ( SLOT0_XFORM   ),
     .TAG_RAM      ( TAG_RAM       ),
     .SLOT0_BURSTLEN( SLOT0_BURSTLEN )
 ) u_2slots(
@@ -58,6 +63,11 @@ jtframe_rom_2slots #(
 
     .slot0_addr( slot0_addr ),
     .slot1_addr(            ),
+
+    .slot0_xaddr   ( slot0_xaddr    ),
+    .slot0_xaddr_in( slot0_xaddr_in ),
+    .slot1_xaddr   (                ),
+    .slot1_xaddr_in( {SDRAMW{1'b0}} ),
 
     //  output data
     .slot0_dout( slot0_dout ),
