@@ -222,6 +222,35 @@ bram:
     eighth of the bus address space (for example, `addr_width: 20` permits up
     to 128 kB). Its cache line is the bank burst (16, 32, or 64 bits); read/write
     buses are rejected.
+  - `transform: true` (requires a string `cache_size`) exposes the large cache's
+    line-fill address to the game module as `<name>_pre_addr` and takes the
+    SDRAM-side address back on `<name>_post_addr` — the same concept as the
+    download's `post_addr`. The core can thus place an address transform between
+    the cache and the SDRAM, e.g. the descrambler of a CPU with on-chip ROM
+    decryption: the cache keys on the CPU-side address (where code locality
+    lives), the ROM stays in its native layout, and the scrambler runs on every
+    miss fill as it does on the real bus. The transform **must be combinational**
+    (`assign` or `always @*`): a registered transform lags the request by one
+    clock and the SDRAM controller can capture a stale address. It must also
+    keep the words of a line adjacent; with the burst equal to the data width
+    every line is a single word, so any word-level transform is valid. Supported
+    on banks with up to two buses.
+
+    ```yaml
+    sdram:
+      banks:
+        - buses:
+            - name: main
+              addr_width: 20
+              data_width: 32
+              cache_size: 4kB
+              transform: true
+    ```
+    ```verilog
+    // in the game module: pre_addr -> scrambled SDRAM address, combinational
+    assign main_post_addr = { main_pre_addr[24:19], scramble(main_pre_addr[18:1]),
+                              main_pre_addr[0] };
+    ```
   - `do_not_erase` is only meaningful for writable SDRAM banks.
   - `gfx_sort` is limited to supported patterns (`hvvv`, `hvvvv`, `hhvvv`, `hhvvvv`, `vhhvvv` and `x` variants).
 - Cache-lane settings:

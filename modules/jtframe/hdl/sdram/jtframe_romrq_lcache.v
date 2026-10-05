@@ -31,7 +31,9 @@ module jtframe_romrq_lcache #(parameter
     output              req,
     output [SDRAMW-1:0] sdram_addr,
     output [SDRAMW-1:0] xaddr,      // line-fill address, before the board transform
-    input  [SDRAMW-1:0] xaddr_in,   // transformed fill address (only read when XFORM!=0)
+    input  [SDRAMW-1:0] xaddr_in,   // transformed fill address (only read when XFORM!=0).
+                                    // MUST be a combinational function of xaddr: a registered
+                                    // transform lags req by one cycle and breaks the handshake
 
     input [AW-1:0]      addr,
     input               addr_ok,
