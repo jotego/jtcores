@@ -1,0 +1,67 @@
+params:
+  - { name: PCM_OFFSET,  value: "(`UPD1_START-`JTFRAME_BA1_START) >> 1" }
+  - { name: PSAC_OFFSET, value: "(`PSAC_START-`JTFRAME_BA3_START) >> 1" }
+clocks:
+  clk48:
+    - freq: 24M
+      outputs:
+        - cen24
+        - cen12
+    - freq: 3579545
+      outputs:
+        - cen_fm
+        - cen_fm2
+    - freq: 640k
+      outputs:
+        - cen_640
+audio:
+  rsum: 10k
+  rsum_feedback_res: true
+  channels:
+    - { name: fm,  module: jt51,   rsum: 1.45k,   rc: [{ r: .9, c: 30n }] }
+    - { name: pcm, module: jt7759, rsum: 5.1k, sallen-key: { R1: 5.6k, R2: 10k, R3: 5.6k, C1: 22n, C2: 4.7n } }
+sdram:
+  banks:
+    - buses:
+        - name: main
+          addr_width: 17
+          data_width: 8
+    - buses:
+        - name: snd
+          addr_width: 15
+          data_width: 8
+        - name: pcm
+          addr_width: 18
+          data_width: 8
+          offset: PCM_OFFSET
+    - buses:
+        - name: lyrf
+          addr_width: 19
+          data_width: 32
+        - name: lyra
+          addr_width: 19
+          data_width: 32
+        - name: lyrb
+          addr_width: 19
+          data_width: 32
+    - buses:
+        - name: lyro
+          addr_width: 20
+          data_width: 32
+        - name: psac
+          addr_width: 18
+          data_width: 8
+          offset: PSAC_OFFSET
+bram:
+  - name: ram
+    size: 8192
+    data_width: 8
+    rw: true
+    addr: main_addr[12:0]
+  - name: nvram
+    size: 2048
+    data_width: 8
+    rw: true
+    addr: main_addr[10:0]
+    din: ram_din
+    ioctl: { save: true, restore: true, order: 0 }

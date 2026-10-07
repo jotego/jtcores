@@ -104,6 +104,7 @@ audio:
         - { r: 1rout, c: 2.2n }
       dcrm: true
       fir: myfilter.csv
+      # Or use sallen-key: { R1: 5.6k, R2: 10k, R3: 5.6k, C1: 22n, C2: 4.7n }
 
 sdram:
   big_endian: true              # cache-lane mode only

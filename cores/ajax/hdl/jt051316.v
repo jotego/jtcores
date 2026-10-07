@@ -30,8 +30,10 @@ parameter [8:0] WR_STRT=9'h060, // Positions in wr_addr skipped during blanking
                 RST_CT =9'h058, // starting value for wr_addr
                 RD_DLY =9'h00B, // number of times to delay hdump
                 RD_END =9'h19F; // Value of rd_addr when LHBL goes low
+parameter BPP=7; // Ajax uses 7 bpp; GX861 stores two 4-bit pixels per byte.
 
 wire [23:0] xcnt, ycnt, gfx_addr;
+wire [23:0] rom_source;
 wire [15:0] scan_dout;
 wire [ 9:0] vaddr;
 wire [ 8:0] wr_addr, rd_addr;
@@ -48,7 +50,8 @@ reg         hs_l, hs_cen, cnt_cen, done;
 assign we        ={cpu_addr[10],~cpu_addr[10]} & {2{cpu_we & vr_cs}};
 assign cpu_din   = cpu_addr[10] ? cpu_ram2 : cpu_ram1;
 assign ioctl_din = ioctl_addr[10] ? scan_dout[15:8] : scan_dout[7:0];
-assign rom_addr  =  rmrd_n ? gfx_addr : { ckbank, cpu_addr };
+assign rom_source=  rmrd_n ? gfx_addr : { ckbank, cpu_addr };
+assign rom_addr  =  BPP==4 ? {1'b0,rom_source[23:1]} : rom_source;
 assign rom_cs    =  rmrd_n |  vr_cs;
 assign cpu_ok    =  rmrd_n | ~vr_cs | rom_ok;
 assign vflip     = vflip_en & scan_dout[15];
@@ -57,8 +60,12 @@ assign vf        = {4{vflip}} ^ ycnt[14:11];
 assign hf        = {4{hflip}} ^ xcnt[14:11];
 assign gfx_addr  = { scan_dout, vf, hf };
 assign vaddr     = {ycnt[19:15],xcnt[19:15]};
-assign buf_din   = duplicate ? 8'h0 : { rom_addr[19], rom_data[6:0] };
-assign blnk_n    = pxl[6:0]!=0;
+// Packed GX861 pixels use the high nibble at even gfx addresses.
+assign buf_din   = duplicate ? 8'h0 :
+                   BPP==4 ? { scan_dout[15],scan_dout[13:11],
+                              gfx_addr[0] ? rom_data[3:0] : rom_data[7:4] } :
+                            { rom_addr[19], rom_data[6:0] };
+assign blnk_n    = BPP==4 ? pxl[3:0]!=0 : pxl[6:0]!=0;
 assign rst_cnt   = vs & hs;
 assign pre_lvbl  = vdump==VB_END;
 assign duplicate = ~oblk[2] | rvo;   // According to documentation, more regs could be involved

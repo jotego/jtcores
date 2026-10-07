@@ -27,4 +27,5 @@ JTFRAME_180SHIFT
 [sidi128]
 JTFRAME_PLL=jtframe_pll6125
 
-
+[mist|sidi]
+-JTFRAME_CREDITS
