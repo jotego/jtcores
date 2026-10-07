@@ -211,6 +211,7 @@ jtriders_obj #(
    ,.SHADOW       ( 1       )
 ) u_obj(
     .lgtnfght   ( 1'b0      ),
+    .mmr_noa1  ( 1'b0      ),
 `endif
     .lvbl       ( lvbl      ),
     .rst        ( rst       ),

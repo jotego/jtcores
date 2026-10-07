@@ -1,0 +1,24 @@
+[global]
+author=["jotego"]
+
+[parse]
+sourcefile=["rollerg.cpp"]
+
+[buttons]
+names=[{ names="Attack,Jump" }]
+
+[dipsw]
+delete=[{ names=["Unused","Unknown"] }]
+rename=[
+    { name="Bonus Energy", to="Bonus HP", values=["1/2 Stage","1/4 Stage","1/4 Cycle","None"] },
+]
+
+[ROM]
+regions=[
+    { name="maincpu" },
+    { name="audiocpu", start="JTFRAME_BA1_START" },
+    { name="k053260", start="PCM_START", rename="pcm" },
+    { name="k051316", start="JTFRAME_BA2_START", rename="psac" },
+    { name="k053244", start="JTFRAME_BA3_START", width=32, rename="obj" },
+]
+order=["maincpu","audiocpu","pcm","psac","obj"]

@@ -254,6 +254,7 @@ always @(posedge clk) begin
     cpu_din <= rom_cs   ? rom_data         :
                ram_cs   ? ram_dout         :
                obj_cs   ? oram_dout        :
+               objreg_cs? oram_dout        :
                prot_cs  ? prot_dout        :
                vram_cs  ? {2{vram_dout}}   :
                hit_cs   ? {8'd0,platch }   :

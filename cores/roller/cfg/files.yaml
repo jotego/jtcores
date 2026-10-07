@@ -1,0 +1,43 @@
+roller:
+  - get:
+    - "*.v"
+ajax:
+  - get:
+    - jt051316.v
+    - jtk051316_mmr.v
+riders:
+  - get:
+    - jtriders_obj.v
+    - jt053244.sv
+    - jt053244_scan.sv
+simson:
+  - get:
+    - jt053246_dma.v
+    - jt053246_mmr.v
+rungun:
+  - get:
+    - jtk053252.v
+    - jtk053252_mmr.v
+jtframe:
+  - get:
+    - jtframe_counter.v
+    - jtframe_edge.v
+    - jtframe_count_ld.v
+    - jtframe_ff_jk.v
+    - jtframe_8bit_reg.v
+  - from: video
+    get:
+      - jtframe_vtimer.v
+      - jtframe_obj.yaml
+      - jtframe_linebuf.v
+  - from: cpu
+    get:
+      - jtframe_z80.yaml
+  - from: ram
+    get:
+      - jtframe_dual_nvram16.v
+jtkcpu:
+jtopl:
+  - get:
+    - jtopl2.yaml
+jt053260:
