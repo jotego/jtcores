@@ -51,8 +51,8 @@ jtarblst_main u_main(
     .pcm_addr   ( pcm_addr      ),
     .pcm_data   ( pcm_data      ),
     .pcm_cs     ( pcm_cs        ),
-    .snd_left   ( pcm_8k        ),
-    .snd_right  ( pcm_4k        ),
+    .snd_left   ( pcm_l          ),
+    .snd_right  ( pcm_r          ),
 
     // I/O sub-CPU (sub_ctrl_w decoded in main)
     .slatch0    ( slatch0       ),
