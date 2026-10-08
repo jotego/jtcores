@@ -12,7 +12,11 @@ module jtcal50_video #(
     parameter [ 8:0] OBJ_LIMIT = 9'd200,
     parameter [ 8:0] VB_END   = 9'd0,
     parameter [ 8:0] VB_START = 9'd240,
-    parameter [ 8:0] OBJ_XOFF = 9'h1fe
+    parameter [ 8:0] OBJ_XOFF = 9'h1fe,
+    parameter [ 8:0] SCR_VOFF = 9'd0,
+    parameter [ 8:0] SCR_HOFF = 9'd0,
+    parameter [ 8:0] SCR_VOFF_F = SCR_VOFF,
+    parameter [ 8:0] SCR_HOFF_F = SCR_HOFF
 )(
     input               rst,
     input               clk,
@@ -26,6 +30,7 @@ module jtcal50_video #(
     output              HS,
     output              VS,
     output              flip,
+    input      [15:0]   thoffs,
     output     [ 8:0]   hdump,
     // Palette
     output     [ 9:1]   pal_addr,
@@ -151,6 +156,7 @@ jtx1012 u_tiles(
 
     .hs         ( HS            ),
     .flip       ( flip          ),
+    .hoffs      ( thoffs        ),
     .vdump      ( vdump_tile    ),
     .hdump      ( hdump_gfx     ),
     // Video RAM
@@ -182,6 +188,10 @@ jtkiwi_gfx #(
     .OBJ_XOFF( OBJ_XOFF ),
     .OBJ_YOFF( 8'hf5   ),
     .OBJ_YWRAP( 1'b1   ),
+    .SCR_VOFF( SCR_VOFF ),
+    .SCR_HOFF( SCR_HOFF ),
+    .SCR_VOFF_F( SCR_VOFF_F ),
+    .SCR_HOFF_F( SCR_HOFF_F ),
     .OBJ_LIMIT( OBJ_LIMIT ),
     .OBJAW    ( OBJAW  )
 ) u_gfx(

@@ -17,6 +17,7 @@ module jtx1012(
     input      [ 1:0] dsn,
 
     input              hs, flip,
+    input       [15:0] hoffs,
     input        [8:0] vdump,
     input        [8:0] hdump,
     // Video RAM
@@ -55,7 +56,7 @@ assign rom_addr = {pre_addr[20:7],pre_addr[5],~flip^pre_addr[6],
 };
 
 always @(posedge clk) begin
-    hpos <= flip ? pre_hpos + 16'h20 : 16'h1e1 - pre_hpos;
+    hpos <= flip ? pre_hpos + hoffs : hoffs - pre_hpos;
 end
 
 
